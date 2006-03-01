@@ -48,7 +48,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Interface\Interface.csproj">
+    <ProjectReference Include="..\Interfaces\Interface.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>Interface</Name>
     </ProjectReference>
