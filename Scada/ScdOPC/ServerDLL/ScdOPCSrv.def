@@ -1,0 +1,12 @@
+; FSServer.def : Declares the module parameters.
+
+;LIBRARY      "ScdOPCSrv.DLL"
+
+EXPORTS
+    SetCallbackObject     @1
+    RegisterServer        @2
+    UnregisterServer      @3
+    StartFSServer         @4
+    StopFSServer          @5
+    FSServerInUse         @6
+    MatchPattern          @7

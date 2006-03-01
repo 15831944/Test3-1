@@ -1,0 +1,376 @@
+// ScdMdl.idl : IDL source for ScdMdl.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ScdMdl.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";	 
+//import "..\scd\scdlib\scdlib_i.h"
+
+import "ScdIF.idl";
+
+#ifndef XX_2449E19E_F51E_4447_B184_D3E7EE0ACC26
+#define XX_2449E19E_F51E_4447_B184_D3E7EE0ACC26
+
+
+//----------------------------------------------
+[												  
+  uuid(0766FCA7-75C3-47c0-B6D5-0F4BD88CC71A),
+  version(1.0),
+  helpstring("SysCAD Model Library")
+]
+
+library ScdMdl 
+{	 										 	 
+  importlib("stdole32.tlb");                        
+  importlib("stdole2.tlb");					    
+  //importlib("ScdIF.tlb");
+
+  //----------------------------------------------
+  // Forward declarations
+
+  interface IScdLicenseMdl;
+
+  interface IScdConversion;
+  interface IScdConversions;
+  interface IScdProperty;
+  interface IScdProperties;
+
+  interface IScdSpecieDefns;
+  interface IScdSpecieDefn;
+
+  interface IScdSpVectorDefn;
+
+  //----------------------------------------------
+  [
+    object,
+    uuid(64BE6593-613C-4574-AE5B-F7031EDCC710),
+    dual,
+    nonextensible,
+    helpstring("IScdConversion Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdConversion : IDispatch
+  {
+    [propget, id(1), helpstring("property Family")] HRESULT Family([out, retval] BSTR* pVal);
+    [propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR* pVal);
+    [propget, id(3), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+    [propget, id(4), helpstring("property Scale")] HRESULT Scale([out, retval] DOUBLE* pVal);
+    [propget, id(5), helpstring("property Offset")] HRESULT Offset([out, retval] DOUBLE* pVal);
+    [propget, id(6), helpstring("property IsSI")] HRESULT IsSI([out, retval] VARIANT_BOOL* pVal);
+    [propget, id(7), helpstring("property Count")] HRESULT Count([out, retval] LONG* pVal);
+    [propget, id(DISPID_NEWENUM), helpstring("property _NewEnum"), restricted] HRESULT _NewEnum([out, retval] IUnknown** pVal);
+    [id(DISPID_VALUE), helpstring("method Item")] HRESULT Item([in] VARIANT WhichOne, [out, retval] IScdConversion ** pItem);
+    [propget, id(8), helpstring("property Index")] HRESULT Index([out, retval] LONG* pVal);
+    [id(9), helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] LONG iCnv, [in] LONG iIndex);
+    [propget, id(10), helpstring("property Formula")] HRESULT Formula([out, retval] BSTR* pVal);
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(CE1F0452-571C-4B26-AADF-6F1D6FF60E6B),
+    dual,
+    nonextensible,
+    helpstring("IScdConversions Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdConversions : IDispatch
+  {
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] LONG* pVal);
+    [propget, id(DISPID_NEWENUM), helpstring("property _NewEnum"), restricted] HRESULT _NewEnum([out, retval] IUnknown** pVal);
+    [id(DISPID_VALUE), helpstring("method Item")] HRESULT Item([in] VARIANT WhichOne, [out, retval] IScdConversion ** pItem);
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(B5AD2C79-D2B7-4D88-8DD6-A26AE9A18438),
+    dual,
+    nonextensible,
+    helpstring("IScdProperty Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdProperty : IDispatch
+  {
+    [id(1), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] ULONG What, [in] ULONG Mdl, [in] ULONG PropNo);
+    [propget,id(DISPID_VALUE), helpstring("property Value")] HRESULT Value([in,defaultvalue(-1)] long Phases, [in,defaultvalue(298.16)] double TdK, [in,defaultvalue(101.325)] double PkPa, [out, retval] VARIANT * pValue);
+    [id(2), helpstring("property Value")] HRESULT SetValue([in] VARIANT * pValue);
+    [propget, id(3), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR * pName);
+    [propget, id(4), helpstring("property Symbol")] HRESULT Symbol([out, retval] BSTR * pName);
+    [propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR * pDesc);
+    [propget, id(6), helpstring("property Cnv")] HRESULT Cnv([out, retval] IScdConversion ** pVal);
+    [propget, id(7), helpstring("property Index")] HRESULT Index([out, retval] LONG* pVal);
+  };
+
+  //----------------------------------------------
+
+  [
+    object,
+    uuid(B31AE0F2-09DF-4823-BEDB-1DCB5AA7E123),
+    dual,
+    nonextensible,
+    helpstring("IScdProperties Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdProperties : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Property")] HRESULT Property([in] VARIANT WhichOne, [out, retval] IScdProperty ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    //[propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdNodeCodes *pVal);
+
+    [id(2), helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] ULONG What, [in] ULONG Which);
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(FAB87D34-0F72-4801-AA82-CBF156E1EB16),
+    dual,
+    helpstring("IScdLicenseMdl Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdLicenseMdl : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(80D292B3-AB2B-4c23-9C0E-691D450D3827),
+    dual,
+    helpstring("IScdSpecieDefn Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSpecieDefn : IDispatch
+  {
+    //  [propget, id(1), helpstring("property Value")] HRESULT Value([in] LONG Index, [in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] VARIANT *pVal);
+
+    // for speed .. also available from above;
+    [propget, id(2), helpstring("property MolecularWt")] HRESULT MolecularWt([out, retval] DOUBLE *pVal);
+    [propget, id(3), helpstring("property Density")] HRESULT Density([in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(4), helpstring("property Enthalpy")] HRESULT msEnthalpy([in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(5), helpstring("property Entropy")] HRESULT msEntropy([in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(6), helpstring("property Cp")] HRESULT msCp([in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(7), helpstring("property DynamicViscosity")] HRESULT DynamicViscosity([in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(8), helpstring("property ThermalConductivity")] HRESULT ThermalConductivity([in,defaultvalue(298.16)] DOUBLE TdK, [in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(9), helpstring("property VapourP")] HRESULT VapourP([in,defaultvalue(298.16)] DOUBLE TdK, [out, retval] DOUBLE *pVal);
+    [propget, id(10),helpstring("property VapourT")] HRESULT VapourT([in,defaultvalue(101.325)] DOUBLE PkPa, [out, retval] DOUBLE *pVal);
+    [propget, id(11), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR *pVal);
+    [propget, id(12), helpstring("property Symbol")] HRESULT Symbol([out, retval] BSTR *pVal);
+    [propget, id(13), helpstring("property Index")] HRESULT Index([out, retval] long *pVal);
+    [propput, id(13), restricted, helpstring("property Index")] HRESULT Index([in] long newVal);
+    [propget, id(14), helpstring("property Fidelity")] HRESULT Fidelity([out, retval] long  *pVal);
+    [propput, id(14), helpstring("property Fidelity")] HRESULT Fidelity([in] long  newVal);
+
+    [propget, id(15), helpstring("property Properties")] HRESULT Properties([out, retval] IScdProperties ** pVal);
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(D26883EF-03F7-443a-BBA3-424AF01A740D),
+    dual,
+    helpstring("IScdSpecieDefns Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSpecieDefns : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Specie")] HRESULT Specie([in] VARIANT WhichOne, [out, retval] IScdSpecieDefn** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] LONG *pVal);
+
+
+    [propget, id(2), helpstring("property SomAll")] HRESULT SomAll([out, retval] LONG *pVal);
+    [propget, id(3), helpstring("property SomVap")] HRESULT SomVap([out, retval] LONG *pVal);
+    [propget, id(4), helpstring("property SomLiq")] HRESULT SomLiq([out, retval] LONG *pVal);
+    [propget, id(7), helpstring("property SomSol")] HRESULT SomSol([out, retval] LONG *pVal);
+    [propget, id(8), helpstring("property SomSL")] HRESULT SomSL([out, retval] LONG *pVal);
+    [propget, id(10), helpstring("property Phases")] HRESULT Phases([in] LONG ReqdPhases, [out, retval] SAFEARRAY(long) *pVal);
+    [propget, id(11), helpstring("property MolecularWeights")] HRESULT MolecularWeights([out, retval] SAFEARRAY(double) *pVal);
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(C978AD3B-4AD3-4290-9C42-EAB344B06786),
+    oleautomation,
+    dual,
+    helpstring("IScdSpVector Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSpVector : IDispatch
+  {
+    [propget, id(1), helpstring("property Mass")] HRESULT Mass([in] LONG Phases, [out, retval] double *pVal);
+    [propget, id(2), helpstring("property Masses")] HRESULT Masses([out, retval] SAFEARRAY(double) *SpcMasses);
+    [propput, id(2), helpstring("property Masses")] HRESULT Masses([in] VARIANT ReqdMasses);
+    [propget, id(3), helpstring("property SpecieMass")] HRESULT SpecieMass([in] LONG SpecieIndex, [out, retval] double *pVal);
+    [propput, id(3), helpstring("property SpecieMass")] HRESULT SpecieMass([in] LONG SpecieIndex, [in] double newVal);
+    [propget, id(4), helpstring("property Temperature")] HRESULT Temperature([out, retval] double *pVal);
+    [propput, id(4), helpstring("property Temperature")] HRESULT Temperature([in] double newVal);
+    [propget, id(5), helpstring("property Pressure")] HRESULT Pressure([out, retval] double *pVal);
+    [propput, id(5), helpstring("property Pressure")] HRESULT Pressure([in] double newVal);
+    [propget, id(6), helpstring("property Enthalpy")] HRESULT Enthalpy([out, retval] double *pVal);
+    [propput, id(6), helpstring("property Enthalpy")] HRESULT Enthalpy([in] double newVal);
+    [propget, id(7), helpstring("property Vector")] HRESULT Vector([in,defaultvalue(FALSE)] VARIANT_BOOL EnthalpyBasis, [out, retval] SAFEARRAY(double) *Data);
+    [propput, id(7), helpstring("property Vector")] HRESULT Vector([in,defaultvalue(FALSE)] VARIANT_BOOL EnthalpyBasis, [in] VARIANT ReqdData);
+
+    [propget, id(8), helpstring("property Density")] HRESULT Density([in] LONG Phases, [in,optional] VARIANT TdK, [in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, id(9), helpstring("property Volume")] HRESULT Volume([in] LONG Phases, [in,optional] VARIANT TdK, [in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, id(10), helpstring("property SaturationP")] HRESULT SaturationP([in,optional] VARIANT TdK, [out, retval] double *pVal);
+    [propget, id(11), helpstring("property SaturationT")] HRESULT SaturationT([in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, id(12), helpstring("property Concentration")] HRESULT Concentration([in] LONG SpecieIndex, [in] LONG Phases, [in,optional] VARIANT TdK, [in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, id(13), helpstring("property msEnthalpy")] HRESULT msEnthalpy([in,defaultvalue(298.16)] double RefT, [in,defaultvalue(-1)] LONG Phases, [in,optional] VARIANT TdK, [in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, id(14), helpstring("property msEntropy")] HRESULT msEntropy([in,defaultvalue(298.16)] double RefT, [in,defaultvalue(-1)] LONG Phases, [in,optional] VARIANT TdK, [in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, id(15), helpstring("property msCp")] HRESULT msCp([in,defaultvalue(298.16)] double RefT, [in,defaultvalue(-1)] LONG Phases, [in,optional] VARIANT TdK, [in,optional] VARIANT PkPa, [out, retval] double *pVal);
+    [propget, helpstring("property Properties")] HRESULT Properties([out, retval] IScdProperties ** pVal);
+    [propget, helpstring("property Model")] HRESULT Model([out, retval] BSTR* pVal);
+    [propput, helpstring("property Model")] HRESULT Model([in] BSTR newVal);
+    [propget, helpstring("property SpecieDefns")] HRESULT SpecieDefns([out, retval] IScdSpecieDefns ** pVal);
+    [propget, helpstring("property Defn")] HRESULT Defn([out, retval] IScdSpVectorDefn ** pVal);
+  };
+
+  //----------------------------------------------
+  [
+    object,
+    uuid(8314E7E3-14C4-4B24-8596-5D1590C8753E),
+    dual,
+    nonextensible,
+    helpstring("IScdQuality Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdQuality : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(8D211EFF-095B-483D-86F3-3C17526CED9B),
+    dual,
+    nonextensible,
+    helpstring("IScdQualities Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdQualities : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(4CB82A2C-01E0-4F0C-93E7-AA5A975B2819),
+    dual,
+    nonextensible,
+    helpstring("IScdSpVectorDefn Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSpVectorDefn : IDispatch{
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] LONG* pVal);
+    [propget, id(2), helpstring("property Tag")] HRESULT Tag([in] LONG Index, [out, retval] BSTR* pVal);
+    [propget, id(3), helpstring("property Symbol")] HRESULT Symbol([in] LONG Index, [out, retval] BSTR* pVal);
+    [propget, id(4), helpstring("property Cnv")] HRESULT Cnv([in] VARIANT Index, [out, retval] IScdConversion ** pVal);
+  };
+
+
+  //----------------------------------------------
+  [
+    uuid(DBC6EB45-6281-43AA-9B8F-39980BF00359),
+    helpstring("ScdLicenseMdl Class")
+  ]
+  coclass ScdLicenseMdl
+  {
+    [default] interface IScdLicenseMdl;
+  };
+  //----------------------------------------------
+  //----------------------------------------------
+  [
+    uuid(D78E12EA-92A6-4FB6-944C-6B55CE98BC14),
+    helpstring("ScdSpecieDefns Class")
+  ]
+  coclass ScdSpecieDefns
+  {
+    [default] interface IScdSpecieDefns;
+  };
+  //----------------------------------------------
+  [
+    uuid(59E7E070-1CE9-49DE-B079-52715F766313),
+    helpstring("ScdSpecieDefn Class")
+  ]
+  coclass ScdSpecieDefn
+  {
+    [default] interface IScdSpecieDefn;
+  };
+  //----------------------------------------------
+  [
+    uuid(2BD292B6-D61B-4274-9BAE-2D6BFC6D9580),
+    helpstring("ScdProperty Class"),
+    hidden
+  ]
+  coclass ScdProperty
+  {
+    [default] interface IScdProperty;
+  };
+  //----------------------------------------------
+  [
+    uuid(081CAA3C-36DF-45D7-9D06-B1A36B435811),
+    helpstring("ScdConversions Class"),
+    hidden
+  ]
+  coclass ScdConversions
+  {
+    [default] interface IScdConversions;
+  };
+  //----------------------------------------------
+  [
+    uuid(F37EFC34-1557-4189-A284-457526C92E38),
+    helpstring("ScdConversion Class"),
+    hidden
+  ]
+  coclass ScdConversion
+  {
+    [default] interface IScdConversion;
+  };
+  //----------------------------------------------
+  [
+    uuid(1EAE4D40-5796-45A8-B785-AFD306F84041),
+    helpstring("ScdProperties Class"),
+    hidden
+  ]
+  coclass ScdProperties
+  {
+    [default] interface IScdProperties;
+  };
+  //----------------------------------------------
+  [
+    uuid(A5AB3C07-C1FB-4C5B-A469-DBD2659E0BBE),
+    helpstring("ScdSpVector Class")
+  ]
+  coclass ScdSpVector
+  {
+    [default] interface IScdSpVector;
+  };
+  //----------------------------------------------
+  [
+    uuid(BE8AB028-3F02-465D-8691-7C1CC68511FF),
+    helpstring("ScdQuality Class")
+  ]
+  coclass ScdQuality
+  {
+    [default] interface IScdQuality;
+  };
+  //----------------------------------------------
+  [
+    uuid(8BA848DE-9A9D-4456-A724-8966B05E2A8C),
+    helpstring("ScdQualities Class")
+  ]
+  coclass ScdQualities
+  {
+    [default] interface IScdQualities;
+  };
+  //----------------------------------------------
+  [
+    uuid(148EE6E0-4040-4324-8EE4-151FC305225F),
+    helpstring("ScdSpVectorDefn Class")
+  ]
+  coclass ScdSpVectorDefn
+  {
+    [default] interface IScdSpVectorDefn;
+  };
+};
+
+#endif

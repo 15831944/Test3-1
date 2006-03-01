@@ -1,0 +1,732 @@
+//================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+// $Nokeywords: $
+//===========================================================================
+#ifndef __PROJECT_H
+#define __PROJECT_H
+
+#ifndef __SCDVER_H
+#include "scdver.h"
+#endif
+
+#ifndef __GPWFUNCS_H
+#include "gpwfuncs.h"
+#endif
+#ifndef __EXECUTIV_H
+#include "executiv.h"
+#endif
+#ifndef __SFE_CLNT_H
+#include "sfe_clnt.h"
+#endif
+#ifndef __COMMSSRVRBASE_H
+#include "CommsSrvrBase.h"
+#endif
+#ifndef __ACCNODE_H
+#include "accnode.h"
+#endif
+
+//#include ".\opcsrvrwrapper.h"
+
+//#ifdef __PROJECT_CPP
+//  #define DllImportExport DllExport
+//#elif !defined(SCAPP1)
+//  #define DllImportExport DllImport
+//#else
+  #define DllImportExport
+//#endif
+
+//=========================================================================
+
+#define PrjSPJ            01
+#define DollarSPJ         0
+#define UScoreSPJ         0
+
+//=========================================================================
+
+//trick MFC code to force it to create property sheet buttons
+#if _MSC_VER==1100
+#define PROPSHEETTRICK0() m_bModeless=0;
+#define PROPSHEETTRICK1() m_bModeless=1;
+#elif _MSC_VER<1300
+#define PROPSHEETTRICK0() ((CPropertySheet*)this)->GetPropSheetHeader()->dwFlags |= PSH_WIZARD;
+#define PROPSHEETTRICK1() ((CPropertySheet*)this)->GetPropSheetHeader()->dwFlags &= ~PSH_WIZARD;
+#elif _MSC_VER>=1300
+#define PROPSHEETTRICK0() ((CPropertySheet*)this)->m_psh.dwFlags |= PSH_WIZARD;
+#define PROPSHEETTRICK1() ((CPropertySheet*)this)->m_psh.dwFlags &= ~PSH_WIZARD;
+#endif
+
+//=========================================================================
+
+const bool AllowHistStr = true;
+
+typedef CWnd* pCWnd;
+
+class DllImportExport CTopWindowInfo
+  {
+  public:
+    CWnd*    pWnd;   //pointer to window
+    byte     iType;  //0=other; 1=graphics; 2=trend; 3=main SysCAD window
+    CString  m_sName;  //window title
+    CString  m_sId;    //Id Name with out extention without 
+    int      iZOrd;  //Sequence in Z-Order: -1 = none, 0 = topmost
+
+    CTopWindowInfo()
+      { 
+      pWnd = NULL; 
+      iType = 0; 
+      iZOrd = -1; 
+      };
+    CTopWindowInfo(CWnd* w, byte Type)
+      { 
+      pWnd = w; 
+      iType = Type; 
+      pWnd->GetWindowText(m_sName);
+      Strng S(m_sName);
+      S.FnName();
+      m_sId=S();
+      iZOrd = -1; 
+      };
+    CTopWindowInfo(CWnd* w, byte Type, const char* pName, int ZOrd=-1)
+      { 
+      pWnd = w; 
+      iType = Type; 
+      if (pName)
+        m_sName = pName; 
+      else
+        pWnd->GetWindowText(m_sName);
+      Strng S(m_sName);
+      S.FnName();
+      m_sId=S();
+      iZOrd = ZOrd; 
+      };
+  };
+
+class DllImportExport CWindowLists
+  {
+  public:
+    CWnd*   pMainWnd;   //CMainFrame<--CMDIFrameWnd
+    CWnd*   pAccessWnd[NAccessWnds]; //CFrm<--CMDIChildWnd
+    CWnd*   pMsgWnd;    //CMsgFrm<--CMDIChildWnd
+    CWnd*   pOrdWnd;    //COrdFrm<--CMDIChildWnd
+    CWnd*   pStatsWnd;  //COrdFrm<--CMDIChildWnd
+    CWnd*   pCmdWnd;    //CFrm<--CMDIChildWnd
+#if WITHSFEWND 
+    CWnd*   pSFEWnd;    //CEngStateFrm<--CMDIChildWnd
+#endif
+    CWnd*   pAutWnd;    //
+    CWnd*   pPrjWnd;    //CPrjFrameWnd<--CMDIChildWnd
+    CArray<pCWnd, pCWnd&> TrndWnds; //CTagVwSplit<--CMDIChildWnd
+    CArray<pCWnd, pCWnd&> GrfWnds;  //CGrfFrameWnd<--CMDIChildWnd
+    CArray<CTopWindowInfo, CTopWindowInfo&> Wnds; //list of ALL windows
+    static char* MainWndTitle;
+    //static char* AccessWndTitle;
+    static LPCTSTR AccessWndTitle(long i);
+    static BOOL WndMaxMode;
+
+    CWindowLists();
+    void Reset();
+    void BuildLists();
+    int BuildSingleList(BOOL Sorted=false);
+    int BuildZOrder(BOOL Sorted=false);
+    int Find(byte Type, char* pTitle);
+    int Find(char* pTitle);
+    int Find(CWnd* pFindWnd);
+    static CFrameWnd* GetCurrentTopWindow();
+    static CDocument* GetCurrentTopWindowDoc();
+    static void ActivateTopWindowCmds();
+    static CStatusBar* GetStatusBar();
+    static CWnd* GetMDIClientWnd();
+    static int GetTrendWndCount();
+    static int GetGrfWndCount();
+    static CDocument* GetGrfWndByName(char* pTitle);
+    static CDocument* GetGrfWndByIndex(int index);
+    static void SetWndMaxMode(BOOL WndMaxMode_) { WndMaxMode = WndMaxMode_; };
+    static BOOL GetWndMaxMode() { return WndMaxMode; };
+    
+    static void DetermineActiveGraphics();
+    static void SetGrfTagGroups(bool Force);
+  };
+
+//=========================================================================
+
+//list off "ExecObj File Flags"...
+const DWORD EFF_CanEditFile       = 0x00000001;
+const DWORD EFF_OtherValid        = 0x00000002;
+const DWORD EFF_GrpValid          = 0x00000004;
+const DWORD EFF_ExcelValid        = 0x00000008;
+const DWORD EFF_Grp_Models        = 0x00000100;
+const DWORD EFF_Grp_Referenced    = 0x00000200;
+const DWORD EFF_Grp_SpecSheets    = 0x00000400;
+const DWORD EFF_Grp_Configuration = 0x00000800;
+const DWORD EFF_Grp_Reports       = 0x00010000;
+const DWORD EFF_Grp_CmdScripts    = 0x00020000;
+const DWORD EFF_ForceCopy         = 0x00040000;
+const DWORD EFF_PreventCopy       = 0x00080000;
+
+_FWDDEF(CExecObjFileInfo)
+class DllImportExport CExecObjFileInfo
+  {
+  public:
+    CExecObj*   pExecObj;      //executive object using file
+    DWORD       dwFlags;       //flags
+    Strng       sFilename;     //full filename
+    Strng       sOther;        //extra data
+    flag        bForceCopy:1,
+                bPreventCopy:1,
+                bExists:1;
+
+    CExecObjFileInfo()
+      { pExecObj = NULL; dwFlags = 0; bForceCopy=bPreventCopy=bExists=false; };
+    CExecObjFileInfo(CExecObj* pExec, DWORD Flags, char* pFilename, flag ForceCopy, flag PreventCopy)
+      { pExecObj = pExec; dwFlags = Flags; sFilename = pFilename; bForceCopy=ForceCopy; bPreventCopy=PreventCopy; bExists=false; };
+    CExecObjFileInfo(CExecObj* pExec, DWORD Flags, char* pFilename, char* pOther, flag ForceCopy, flag PreventCopy)
+      { pExecObj = pExec; dwFlags = Flags; sFilename = pFilename; sOther = pOther; bForceCopy=ForceCopy;bPreventCopy=PreventCopy;bExists=false; };
+    CExecObjFileInfo& operator=(const CExecObjFileInfo &FI)
+      { pExecObj = FI.pExecObj; dwFlags = FI.dwFlags; sFilename = FI.sFilename; sOther = FI.sOther; bForceCopy=FI.bForceCopy; bPreventCopy=FI.bPreventCopy; bExists=FI.bExists; return *this; };
+  };
+
+_FWDDEF(CPrjFilesInfo)
+class CPrjFilesInfo
+  {
+  public:
+    Strng   sExecName;    //name of executive object type using files
+    CArray<CExecObjFileInfo, CExecObjFileInfo&> Files; //list of ALL files used by this exec object
+
+    CPrjFilesInfo() { };
+    CPrjFilesInfo(char* pExecName) { sExecName = pExecName; };
+    //~CPrjFilesInfo() {  };
+  };
+
+class DllImportExport CPrjFilesLists
+  {
+  public:
+    //CArray<CPrjFilesInfo, CPrjFilesInfo&> ExecFiles; //list of ALL files
+    CPrjFilesInfo ** pExecFiles; //list of ALL files
+    CStringArray OtherFiles[7];
+  protected:
+    int iAllocSize;
+    int iSize;
+
+  public:
+    CPrjFilesLists();
+    ~CPrjFilesLists();
+    void Reset();
+    int Add(CPrjFilesInfo* pFI);
+    void BuildLists();
+    int Find(char* pName);
+    int FindFile(char* pFileName);
+    void CheckExists();
+    void CheckUnknown();
+    static char* OtherExts(int index);
+    static char* OtherExtsEx(int index);
+    inline int GetSize() { return iSize; };
+  };
+
+//=========================================================================
+
+#if WITHSCRCYCLES
+#define ID_SCREENCYCLE_TIMER   124
+
+class DllImportExport CScreenSaverInfo
+  {
+  public:
+    WORD         iWaitTime;
+    CString      sDescription;
+    CStringArray Windows;
+
+    CScreenSaverInfo();
+    ~CScreenSaverInfo();
+    CScreenSaverInfo&  operator=(const CScreenSaverInfo& S);
+    int FindWindow(CString& s);
+  };
+#endif
+
+//===========================================================================
+
+class CDdeReportInfo
+  {
+  public:
+    int      iHSearchLen;  //max number of horizontal spreadsheet cells to search for key
+    int      iVSearchLen;  //max number of vertical spreadsheet cells to search for key
+    Strng    sNan;         //default string to use for NAN
+    Strng    sBlank;       //default string to use for invalid tag
+    Strng    sIgnoreChars; //ignore cells starting with any of these characters
+
+    CDdeReportInfo() { iHSearchLen = 10; iVSearchLen = 100; sNan = "*"; sBlank = ""; sIgnoreChars = ""; };
+  };
+
+//===========================================================================
+
+class FindTrendTagHelper
+  {
+  public:
+    Strng sTag;
+    int iLastPos;
+    int iFoundPos;
+    POSITION DocPos;
+    int iFoundCnt;
+
+    FindTrendTagHelper()
+      {
+      iLastPos = 0;
+      iFoundPos = -1;
+      DocPos = NULL;
+      iFoundCnt = 0;
+      };
+    FindTrendTagHelper(char* pTag_)
+      {
+      sTag = pTag_;
+      iLastPos = 0;
+      iFoundPos = -1;
+      DocPos = NULL;
+      iFoundCnt = 0;
+      };
+  };
+
+//===========================================================================
+
+class CSFPInfo
+  {
+  public:
+    //Strng SrcPrj;
+    Strng SrcPrjRel;
+    Strng SrcFull;
+    Strng DstFull;
+    Strng DstStgRel;
+    
+    flag PrjScope;
+    flag PrjRCScope;
+    flag SrcExists;
+    flag CopyReqd;
+
+    CExecObjFileInfo * pFI;
+    
+    void SwingFilePath(flag DoingSaveAs, LPCTSTR Fn);
+  };
+
+//===========================================================================
+
+class CUniqueTagRulesBlk
+  {
+  protected:
+    Strng m_MdlName;
+    Strng m_Base;
+    char  m_SepChar;
+  public:
+
+    CUniqueTagRulesBlk(LPCTSTR pMdlName, LPCTSTR pBase, char SepChar='_');
+
+    LPTSTR BaseTag() { return m_Base(); }
+    char   SepChar() { return m_SepChar; }
+
+    void   SetBaseTag(LPTSTR B) { m_Base=B; }
+    void   SetSepChar(char C) { m_SepChar=C; }
+  };
+
+//===========================================================================
+
+class ActiveTagInfoMap : public CMap <char*, char*, pStrng, pStrng> {}; 
+
+class ActiveTagInfo
+  {
+  public:
+    Strng Name;
+    Strng Missing;
+    Strng_List TagList;
+    int NTags;
+    int NActive;
+    int NTagsI;
+    int NActiveI;
+    int NMissing;
+    int NFound;
+    flag fIsDLL;
+
+  public:
+    ActiveTagInfo();
+    void GetTags();
+    void RebuildTagMap(ActiveTagInfoMap& TagMap);
+    int SetActive(flag Active);
+  };
+
+//===========================================================================
+
+class CDDESrvrHelper
+  {
+  protected:
+    HINSTANCE      hDDELib;    //handle for DLL
+    byte           iDDEUseCnt; //counter for DLL use
+    CCommsServerManagerBase* pMngr; //pointer to the one and only global DDE Server Manager
+
+  public:
+    CDDESrvrHelper();
+    ~CDDESrvrHelper();
+    bool           OpenSrvr();
+    void           CloseSrvr();
+    void           Options();
+    void           CloseOptions();
+    CCommsServerManagerBase* DDESrvrMngr() { return pMngr; };
+  };
+
+//===========================================================================
+
+
+enum SnapShotActions {SSA_Prompt, SSA_AutoInc, SSA_ReUse};
+enum PrjLoadTypes    {PLT_Null, PLT_Normal, PLT_Local};
+
+const BOOL WithVersionDefault=true;
+const BOOL RemoveOldDefault=false;
+
+_FWDDEF(Project)
+class DllImportExport Project : public CExecObj
+  {
+  public:
+    static bool   fOpenAltCfg;
+    static bool   m_SysCADInited;
+
+  public:
+    flag          bHstOK:1,
+                  bCommsOpen:1,
+                  bTimeChanged:1,
+                  bHstChanged:1,
+                  bDocChanged:1,
+                  bDrvOpen:1,
+                  bDrvOn:1,
+                  bDrvLclTagSrvrOK:1,
+                  bDrvReadAll:1,
+                  bDrvChanged:1,
+                  bDrvIgnoresOn:1,
+                  bDrvForcesOn:1,
+                  bDrvNoiseOn:1,
+                  bNetOpen:1,
+                  bNetChanged:1,
+                  bDDEOn:1,               //SysCAD DDE Server on
+                  m_bOPCOn:1,             //SysCAD OPC Server on
+                  m_bOPCResetReg:1,       //Reset SysCAD OPC Register settings next time OPC started
+                  bGrfDeferLoad:1,        //should the loading of the graphics dxf files be delayed
+                  bGrfAutoLoad:1,         //if drawing not loaded, load it without prompt when window is accessed
+                  bGrfUpdateAnnot:1,      //after a run/solve update all annotation blocks
+                  bGrfAnimationOn:1,      //update grafics animation while running/solving
+                  bGrfUpdateAnimat:1,     //after a run/solve update all animation (fills and bars)
+                  bGrfPromptForZoom:1,    //pan graphics when finding tag
+                  bGrfMoveCursor:1,       //move cursor when finding tag
+                  bGrfRegExpOn:1,         // Test Using Regular Expression 
+                  bForceSaveAsNV:1,       //set to True to force the next save to be save as New Version
+                  bDoingLoad:1,           //set to True if currently loading
+                  bDoingSaveAs:1,         //set to True if the current save is a project save as
+                  bDoingSaveAsWithName:1, //set to True if the current saveas must use name specd
+                  bDoingSaveAsNV:1,       //set to True if the current save is a project save as New Version
+                  bRptExcelLock:1,        //OLE report option
+                  bRptExcelCellName:1,    //OLE report option
+                  bRptExcelMakeActive:1,  //OLE report option
+                  bRptExcelSysCADActive:1,//OLE report option
+                  bRptExcelUpdateLinks:1, //OLE report option
+                  bRptExcelSaveOnComplete:1,//OLE report option
+                  bRptSyscadTags:1,       //OLE report option
+                  bShowStatusColours:1,   // Set if Status Colours to be shown
+                  bReadOnlyPrj:1,         //can the project be saved on itself
+                  bChangedGrfMenu:1,      //has the graphics menu been altered
+                  bChangedRuntimeMenu:1,  //has the menu been altered for run-time license
+                  bDoGrfAutoAccess:1,     //temp flag used when finding tag in graphics
+                  bBusyAnalysing:1,       //Indicates an analysis is busy
+                  bAccAutoSaveOn:1,       //Indicates Access Window autosave state
+                  bAccUpdateOnRun:1,      //Indicates Access Window to update on run transitions
+                  bAccHistoryInfoVis:1,   //Indicates historian recorded tags are shown in Access Window
+                  bSSDoZip:1,             //Autozip snapshots/scenarios
+                  bArcOn:1,               //Archiver On
+                  bArcOpen:1,
+                  bArcChanged:1,
+                  bArcOpenDBOnRun:1,     // Delay open Arc DB until run
+                  bIOMOpen:1,
+                  bIOMOn:1,
+                  //bIOMLclTagSrvrOK:1,
+                  //bIOMReadAll:1,
+                  //bIOMIgnoresOn:1,
+                  //bIOMForcesOn:1,
+                  //bIOMNoiseOn:1,    
+                  bIOMChanged:1,
+                  m_bRunOptEmptyAll,           // RunStartupOptions
+                  m_bRunOptZeroFlows,    
+                  m_bRunOptInitialiseAll,
+                  m_bRunOptEmptySpills,
+                  m_bRunOptResetStats,   
+                  m_bRunOptOnceOnly;    
+
+
+    byte          bDrvStartFBKCheck;
+
+//    byte          iOverlayStatusPen;    // 
+
+    Strng          m_sDefGrpLib;
+    Strng          m_sGrfFrameName;
+    Strng          m_sGrfFrameFilter;
+    
+    Strng          sOldPrjFile;        //previously used project file, for project save as
+    Strng          sOldPrjFiles;       //previously used project files, for project save as
+    //Strng          sLabel;
+// Move to GPFuncs   Strng          sModelCfg;          //Default model library used by this project
+    static PrjLoadTypes m_LoadTypeRqst; // Used to remeber what type of load is reqd
+    SnapShotActions eSSAction;         //HowTo Handle a SnapShot save 
+    Strng          sSSName;            //Current Name of SnapShot
+    Strng          sSSPrefix;          //5 letter SnapShot prefix for AutoInc 
+    UINT           iSSNumber;          //SnapShot number for AutoInc 
+    flag           bCmdSuccess;        //was last new,open,save,close command successful
+// Move to GPFuncs   Strng          sPrjFile;           //filename of project file
+    CDocument*     pPrjDoc;            //pointer to one-and-only-one project document
+    CDdeReportInfo ReportInfo;         //DDE report options
+#if WITHSCRCYCLES
+    int            iScrCycles;         //number of screen cycles in SysCAD screen saver
+    CScreenSaverInfo* Cycles;          //Screen saver cycle information
+    int            iCycleNo;           //index no of current window cycle, -1 = none
+    UINT           iMainShowCmd;       //flags for reseting main window after screen save
+    int            iCycleEndCnt;       //count of number of messages to end screen saver have been recieved
+    CWnd**         CycleWnds;          //array of all windows
+    WINDOWPLACEMENT* CyclePos;         //array of all windows initial positions
+    int            iCycleWndCnt;       //number of windows stored in arrays
+    CWnd*          pOnlyWnd;
+    CTxtWnd*       pCycleDescWnd;      //Title window for cycle
+    flag           BarOn[8];           //array remembering state of toolbars and status bar
+    flag           bSystemScreenSave,  //True if system screen save must be activated
+                   bSyscadScreenSave;  //True if SysCAD screen save must be activated
+#endif
+    flag           bToolTips,          //True if tool tips must be shown
+                   bFlyBys,            //True if flybys must be shown
+                   bDefaultRecordIt,   //True if tags added to trend window must be recorded
+                   bFlashTrend,        //True if trend must flash when cursor over trend line
+                   bShowNewTrndLineDlg,//True if tag trending options dialog must be shown for a new trended tag
+                   bLoadBusy,          //Flag Set to indicate that a Project Load is in Progress
+                   bConfigBusy;        //Flag set to indicate project config window open
+
+    Strng          sIOMarshalName;     //IOMarshal name
+    Strng          sIOMarshalNode;     //IOMarshal Node - IP Address 
+    Strng          sDrvManagerName;    //driver manager name
+    Strng          sArcManagerName;    //Archive manager name
+    long           lStatsRefreshCnt;   //number of iterations after which stats must be refreshed
+    CStringArray   MdlHelpFileList;    //list of model help files, the first in list is used for context sensitive help
+
+    Strng          m_LastSnapLoadFn;       // To Test for Prompted Filename when saving
+    
+    struct  SolverStuff                // Solver Stuff   
+      {
+      flag         fStateWnd;        // Status display window is required
+      flag         fStatePinned;     // Status window Pinned
+      flag         fStateErrors;     // Status window shows errors
+      int          iStateX;          // Status window X Pos
+      int          iStateY;          // Status window Y Pos
+      }            Solver;
+
+    flag           fNewTrend, fNewGraph; // New Project Options
+
+    Strng          OldPrjName;         // Name when last loaded
+    Strng          OldPrjFiles;        // Path when last loaded
+    //int            m_DBFormat;
+    flag           m_bRemoveRevs;
+    flag           m_bCopyDBFiles;
+
+    Strng          m_RmtCpyFolder;
+    CFile          m_RmtCpyLock;
+
+    struct tPrjSave
+      {
+      flag m_bRqstNew;
+      flag m_bIsNewPrj;
+      }            m_Save;
+
+    BOOL           m_DlgCopyHist;
+    BOOL           m_DlgCopy[6];
+
+    CDDESrvrHelper*pDDESrvr;           //
+
+    //COPCSrvrHelper*pOPCSrvr;           //
+    int            m_iOPCServerNo;       // CNM should maybe go
+
+    CString        m_sNewPrjCfg;
+    CString        m_sNewPrjPath;
+    BOOL           m_bWithVersion;
+    BOOL           m_bRemoveOld;
+
+  protected:
+    FindTrendTagHelper TrndPos;
+
+  public:
+    SFEFlwLib      m_FlwLib, *pFlwLib;
+    SFEMdlLibArray MdlLibs;
+
+    Project();
+    ~Project();
+    void           Clear();
+    void           InitColours();
+    void           LoadColours(CProfINIFile & PF);
+    void           SaveColours(CProfINIFile & PF);
+    flag           Initialise(char * pPrjName);
+    int            ShutDown();
+    //flag           LoadFlwDLLs(Strng &DLLList, pchar FlwLibTag, pchar EO_LocationTag);
+    //flag           UnLoadFlwDLLs(flag DoTerminate=True);
+    //void           SetSolveMode(long Md);
+    //flag           GetrobalMode();
+    //void           SetDynModeFlow(flag DFlow);
+    //flag           GetDynModeFlow();
+
+    //flag           CheckForDuplicateClassIds();
+    flag           DoNew(flag InConstructor);
+    flag           SetupRmtCopies();
+    flag           DoOpen(pchar pPrjPath, pchar NewModelCfg, PrjLoadTypes PrjLoadType);
+    flag           DoClose(flag ForExit, flag AllowCancel);
+    flag           CloseForFailedOpen();
+    flag           DoPrjPaths(pchar pPrjPath, flag IsNew, 
+                              CPrjFilesLists* pPFL = NULL,
+                              BOOL WithVersion = WithVersionDefault,
+                              BOOL RemoveOld   = RemoveOldDefault
+                              );
+    void           CloseRmtCpy();
+    flag           DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew);
+    flag           DoRestore();
+    flag           DoSaveDB(int SaveDBFmt, int SaveOpts, char* pPrjFiles, char* pOldPrjFiles);
+    flag           DoLoadDB(char* pPrjFiles, char* pOldPrjName);
+//    long           LoadDBCallBack(long When);
+
+    flag           CopyOtherFile(CSFPInfo & FI);
+    int            CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF);
+    void           ExpandStg(LPCTSTR StgFn, LPCTSTR Fn);
+
+    int            FixSnapshot(pchar FixFn);
+    flag           DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArray *ObjList=NULL);
+    flag           DoLoadSnapShotScenario(flag DoSnapShot, pchar pName);
+    void           OnFileSavesnapshot();
+    void           OnFileLoadsnapshot();
+    void           OnFileSavescenario();
+    void           OnFileLoadscenario();
+
+    static void    SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMain);//, CProfINIFile & PF);
+    void           SaveWindowLayout();
+    void           RestoreMainWindow();
+    static void    RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, flag FullRestore=true);
+    void           RestoreWindowZOrder();
+    
+    void           SetNewPrjCfg(LPCTSTR Cfg) { m_sNewPrjCfg = Cfg; };
+    void           SetNewPrjPath(LPCTSTR Path) { m_sNewPrjPath = Path; };
+    void           SetNewPrjOptions(BOOL WithVersion, BOOL RemoveOld) { m_bWithVersion=WithVersion; m_bRemoveOld=RemoveOld; };
+    flag           OnNew();
+    flag           OnOpen(pchar pPrjPath);
+    flag           OnClose();
+    flag           OnSave(pchar pPrjPath);
+    flag           OnProjectSaveas(pchar pPrjPath = NULL);
+    flag           OnConfigure();
+    flag           OnLoadAltCfg();
+
+    void           OpenHistorian();
+    void           DeleteHistorian();
+    void           RestartHistorian();
+    void           CloseHistorian(BOOL ForExit = FALSE);
+    flag           IsHistorianOpen();
+    DWORD          get_RecordTag(LPCSTR Tag);
+    flag           put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode);
+
+    void           OpenDrvManager();
+    void           CloseDrvManager(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
+    flag           ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName=NULL);
+
+    void           OpenArcManager();
+    void           CloseArcManager(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
+    flag           ReloadArcManager(BOOL WithOptions, char * NewArcManagerName=NULL);
+
+    void           OpenIOMarshal();
+    void           CloseIOMarshal(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
+    flag           ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName=NULL, char * NewIOMarshalNode=NULL);
+
+    void           OpenNetManager();
+    void           CloseNetManager(BOOL ForExit = FALSE);
+
+    void           OpenDDEManager();
+    void           CloseDDEManager(BOOL ForExit = FALSE);
+
+    //void           OpenOPCManager();
+    //void           CloseOPCManager(BOOL ForExit = FALSE);
+
+    BOOL           FindTag(LPCTSTR pTag = "", BOOL DoAutoAccess = FALSE, BOOL NoErrDlg = FALSE, BOOL FindNext = FALSE);
+    BOOL           AllGrfLoaded();
+    void           BrowseTags();
+    void           HistorianQuery();
+    void           CheckLicense(BOOL StartingSolve);
+    void           CheckLicenseConditions();
+    flag           Merge();
+    flag           ImportFlwsheet();
+    flag           FileImport();
+    flag           FileExport();
+    flag           ModelHelp(char* pMdlTxt=NULL, int HelpIndex=0);
+#if WITHSCRCYCLES
+    void           StartScreenSave();
+    void           RotateScreenSave();
+    void           EndScreenSave();
+#endif
+
+    inline flag    LoadBusy() { return bLoadBusy; }; // Flag Set to indicate when a Project Load is in Progress
+//    inline void    SetEngine(char* pEngineName) { sModelCfg = pEngineName; }; //assumes only one model library is used
+
+    SFEFlwLib     *FlwLib() { return pFlwLib; };
+
+    int           ClearSelectedNodes();
+    int           BuildSelectedNodeList(Strng_List & List);
+
+  protected:
+    static void    GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount);
+    static void    PutSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount);
+    flag           PutFrameInfo(CProfINIFile& PF, CWnd* w, pchar Section, Strng& s, CWnd** WndList, int& WndListLen);
+#if WITHSCRCYCLES
+    void           RotateCycle(CWnd* w, CWnd** Wnds, int& WndCnt);
+    void           StoreWndList(CWnd* w, flag DoIt);
+    void           RestoreWnds();
+#endif
+    int            PrepareMerge(CMergeProjectsInfo& MPI);
+    void           LoadHelpFileList();
+
+    // ExecObj Overridables
+    virtual void   EO_OnAppActivate(BOOL bActive);
+    virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
+    virtual flag   EO_PrePreStart();
+    virtual flag   EO_PreStart();
+    virtual flag   EO_Starting(flag fBeginStarting);
+    virtual flag   EO_Stopping(flag fBeginStopping);
+
+  public:
+    flag          ModelsAttached();
+    pNodeGrfInfo  GetNodeDrawings();
+    pchar         RequestModelDLLPath();
+    pchar         RequestModelDLLTag();
+    flag          RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info);
+    flag          RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
+    flag          RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
+    flag          RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
+    flag          RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
+    flag          RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
+    int           RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
+    int           RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    int           RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
+    //int           RequestXRefInfoChg();
+    flag          RequestModelClassId(pchar pTag, Strng & ClassId);
+    flag          RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
+    flag          FlwModelExists(pchar pTag);
+    flag          TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs);
+
+    int           GetRctInfo(CRctBlkInformation & RctInfo);
+    int           SetRctInfo(LPCTSTR NodeTag);
+
+    int           GetNodeWiring(CNodeWiring &NodeWiring);
+    int           GetLinkWiring(CLinkWiring &LinkWiring);
+    int           SetLinkWiring(CLinkWiring &LinkWiring);
+
+    int           AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag);
+    int           DeleteNodeModel(pchar Tag);
+    int           AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
+    int           AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
+    int           DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
+    int           AddConnect(pchar Src, pchar Dst);
+    int           DisConnect(pchar Src, pchar Dst);
+
+  };
+
+extern DllImportExport Project * gs_pPrj;
+
+#undef DllImportExport 
+
+//===========================================================================
+
+#endif

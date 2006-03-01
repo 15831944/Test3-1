@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Terminals.1 = s 'ScdTerminals Class'
+	{
+		CLSID = s '{68E11902-B946-4EF3-8816-212320DAFC3F}'
+	}
+	SysCAD.Terminals = s 'ScdTerminals Class'
+	{
+		CLSID = s '{68E11902-B946-4EF3-8816-212320DAFC3F}'
+		CurVer = s 'SysCAD.Terminals.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {68E11902-B946-4EF3-8816-212320DAFC3F} = s 'ScdTerminals Class'
+		{
+			ProgID = s 'SysCAD.Terminals.1'
+			VersionIndependentProgID = s 'SysCAD.Terminals'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

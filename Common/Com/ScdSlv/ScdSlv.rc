@@ -1,0 +1,162 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "1 TYPELIB ""ScdSlv.tlb""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "ScdSlv Module"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "ScdSlv"
+            VALUE "LegalCopyright", "Copyright 2002"
+            VALUE "OriginalFilename", "ScdSlv.DLL"
+            VALUE "ProductName", "ScdSlv Module"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_SCDMESSAGE          REGISTRY                "ScdMessage.rgs"
+IDR_SCDMESSAGES         REGISTRY                "ScdMessages.rgs"
+IDR_SCDPROBAL           REGISTRY                "ScdProbal.rgs"
+IDR_SCDDEBUG            REGISTRY                "ScdDebug.rgs"
+IDR_SCDTEST             REGISTRY                "ScdTest.rgs"
+IDR_SCDSOLVER           REGISTRY                "ScdSolver.rgs"
+IDR_SCDSLVTAGS          REGISTRY                "ScdSlvTags.rgs"
+IDR_SCDSLVTAG           REGISTRY                "ScdSlvTag.rgs"
+IDR_SCDDYNAMIC          REGISTRY                "ScdDynamic.rgs"
+IDR_SCDNODES            REGISTRY                "ScdNodes.rgs"
+IDR_SCDNODE             REGISTRY                "ScdNode.rgs"
+IDR_SCDCONNECT          REGISTRY                "ScdConnect.rgs"
+IDR_SCDCONNECTPOINT     REGISTRY                "ScdConnectPoint.rgs"
+IDR_SCDCONNECTS         REGISTRY                "ScdConnects.rgs"
+IDR_SCDCONNECTPOINTS    REGISTRY                "ScdConnectPoints.rgs"
+IDR_SCDNODECLASS        REGISTRY                "ScdNodeClass.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PROJNAME            "ScdSlv"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (South Africa) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENS)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_SOUTH_AFRICA
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_SCDWIRE             REGISTRY                "ScdWire.rgs"
+IDR_SCDWIRES            REGISTRY                "ScdWires.rgs"
+IDR_SCDTERMINAL         REGISTRY                "ScdTerminal.rgs"
+IDR_SCDTERMINALS        REGISTRY                "ScdTerminals.rgs"
+IDR_SCDTERMSTRIP        REGISTRY                "ScdTermStrip.rgs"
+IDR_SCDTERMSTRIPS       REGISTRY                "ScdTermStrips.rgs"
+IDR_SCDELECTRICS        REGISTRY                "ScdElectrics.rgs"
+IDR_SCDCOMPLEX          REGISTRY                "ScdComplex.rgs"
+IDR_SCDCOMPONENT        REGISTRY                "ScdComponent.rgs"
+IDR_SCDCOMPONENTS       REGISTRY                "ScdComponents.rgs"
+#endif    // English (South Africa) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+1 TYPELIB "ScdSlv.tlb"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

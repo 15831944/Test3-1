@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Species.1 = s 'ScdSpecieDefn Class'
+	{
+		CLSID = s '{D78E12EA-92A6-4FB6-944C-6B55CE98BC14}'
+	}
+	SysCAD.Species = s 'ScdSpecieDefn Class'
+	{
+		CLSID = s '{D78E12EA-92A6-4FB6-944C-6B55CE98BC14}'
+		CurVer = s 'SysCAD.Species.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {D78E12EA-92A6-4FB6-944C-6B55CE98BC14} = s 'ScdSpecieDefn Class'
+		{
+			ProgID = s 'SysCAD.Species.1'
+			VersionIndependentProgID = s 'SysCAD.Species'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{0766FCA7-75C3-47c0-B6D5-0F4BD88CC71A}'
+		}
+	}
+}

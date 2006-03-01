@@ -1,0 +1,34 @@
+HKCR
+{
+    NoRemove 'Component Categories'
+	{
+		{E7275A8A-D66F-45e9-A89F-4DCF475783CE}
+		{
+			val 409 = s 'SysCAD Application Objects'
+		}
+	}
+	SysCAD.Trends.1 = s 'ScdTrends Class'
+	{
+		CLSID = s '{70AAA9DF-7546-4E4C-8484-6A7BBD2AF87B}'
+	}
+	SysCAD.Trends = s 'ScdTrends Class'
+	{
+		CLSID = s '{70AAA9DF-7546-4E4C-8484-6A7BBD2AF87B}'
+		CurVer = s 'SysCAD.Trends.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {70AAA9DF-7546-4E4C-8484-6A7BBD2AF87B} = s 'ScdTrends Class'
+		{
+			ProgID = s 'SysCAD.Trends.1'
+			VersionIndependentProgID = s 'SysCAD.Trends'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			val AppID = s '{8B1DC73E-6E6F-4843-ACE4-6B09E781D644}'
+			'TypeLib' = s '{DB8A9658-3505-4fb8-85B1-DD37A609DF0D}'
+		}
+	}
+}

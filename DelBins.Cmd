@@ -1,0 +1,12 @@
+erase bin\*.exe 
+erase bin\*.dll 
+erase bin\*.ilk 
+erase bin\*.tlb 
+erase bin\*.exp 
+erase bin\*.lib 
+erase bin\secure\*.exe 
+erase bin\secure\*.dll 
+erase bin\secure\*.ilk 
+erase bin\secure\*.exp 
+erase bin\secure\*.tlb
+erase bin\secure\*.lib 

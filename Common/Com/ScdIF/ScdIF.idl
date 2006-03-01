@@ -1,0 +1,823 @@
+
+// ScdIF.idl : IDL source for ScdIF.exe
+//
+// This file will be processed by the MIDL tool to
+// produce the type library (ScdIF.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+
+//----------------------------------------------  
+
+[  
+  uuid(7178B88C-530E-4c75-8BB7-607E5C343C4F),
+  helpstring("eScdDirections"),
+  v1_enum
+]
+typedef enum eScdDirections
+{	
+  eScdDirection_InOut    = 0x11,                            
+  eScdDirection_Out      = 0x01, // Marks any Output        
+  eScdDirection_Out0     = 0x03, // Marks Primary Output    
+  eScdDirection_Out1     = 0x05, // Marks Secondary Output  
+  eScdDirection_Out2     = 0x09, // Marks Tertiary Output   
+  eScdDirection_In       = 0x10, // Marks any Input         
+  eScdDirection_In0      = 0x30, // Marks Primary Input     
+  eScdDirection_In1      = 0x50, // Marks Secondary Input   
+  eScdDirection_In2      = 0x90, // Marks Tertiary Input    
+  eScdDirection_In0Out   = (eScdDirection_In0|eScdDirection_Out),               
+  eScdDirection_InOut0   = (eScdDirection_In|eScdDirection_Out0),               
+  eScdDirection_All      = 0xff,                            
+} eScdDirections;
+
+//----------------------------------------------  
+[  
+  uuid(DDFF69CF-8700-4130-B0EC-A5E109C708A6),
+  helpstring("eScdNodeTypes"),
+  v1_enum
+]
+typedef enum eScdNodeTypes
+{
+  eScdNodeType_Process    = 0x00000010, // Process Classes
+  eScdNodeType_MXfer      = 0x00000020,
+  eScdNodeType_MSrcSnk    = 0x00000040,
+  eScdNodeType_MLnk       = 0x00000080,
+  eScdNodeType_MBst       = 0x00000100,
+
+  eScdNodeType_Control    = 0x00001000, // Conrol Classes
+  eScdNodeType_CLnk       = 0x00002000,
+
+  eScdNodeType_Elec       = 0x00010000, // Power Transmission Classes
+  eScdNodeType_ELnk       = 0x00020000, 
+  eScdNodeType_HLnk       = 0x00040000,
+  eScdNodeType_ALnk       = 0x00080000,
+  eScdNodeType_Cbl        = 0x00100000,
+
+  eScdNodeType_All        = 0x0ffffff0,
+
+  eScdNodeType_Units      = eScdNodeType_Process|eScdNodeType_MXfer|eScdNodeType_MSrcSnk|eScdNodeType_MBst,
+  eScdNodeType_Links      = eScdNodeType_MLnk|eScdNodeType_CLnk|eScdNodeType_ELnk|eScdNodeType_HLnk|eScdNodeType_ALnk|eScdNodeType_Cbl,
+} eScdNodeTypes;
+
+//----------------------------------------------  
+[  
+  uuid(C6EDC03C-968D-4e8b-9282-6B4998F78730),
+  helpstring("eScdElecTypes"),
+  v1_enum
+]
+typedef enum eScdTSTypes
+{
+  eScdElecType_Control = 0x00000001, 
+  eScdElecType_Power   = 0x00000002, 
+  eScdElecType_All     = 0xffffffff, 
+} eScdElecTypes;
+
+//----------------------------------------------  
+[  
+  uuid(CB7F8D4A-CF63-4d66-9C2A-4487F35D9BD9),
+  helpstring("eScdLinkTypes"),
+  v1_enum
+]
+typedef enum eScdLinkTypes
+{
+  eScdLinkType_MLnk       = 	eScdNodeType_MLnk,
+  eScdLinkType_CLnk       = 	eScdNodeType_CLnk,
+  eScdLinkType_ELnk       = 	eScdNodeType_ELnk, 
+  eScdLinkType_HLnk       = 	eScdNodeType_HLnk,
+  eScdLinkType_ALnk       = 	eScdNodeType_ALnk,
+  eScdLinkType_Cbl        = 	eScdNodeType_Cbl,
+  eScdLinkType_All        = 	eScdNodeType_All,
+} eScdLinkTypes;
+//----------------------------------------------  
+[  
+  uuid(15A56509-9915-4464-908C-20FD08E07B82),
+  helpstring("eScdMsg_Flags"),
+  v1_enum
+]
+typedef enum eScdMsg_Flags
+{	// Must match MessageLog.h
+  eScdMsg_NULL          = 0x00000000,
+  eScdMsg_Condition     = 0x00000002,
+  eScdMsg_Fatal         = 0x00000004,
+  eScdMsg_Stop          = 0x00000008,
+  eScdMsg_Error         = 0x00000010,
+  eScdMsg_Warning       = 0x00000020,
+  eScdMsg_Note          = 0x00000040,
+  eScdMsg_Cmd           = 0x00000080,
+  eScdMsg_Separator     = 0x00000100,
+  eScdMsg_FromPGM       = 0x00008000,
+  eScdMsg_FromCOM       = 0x00010000,
+  eScdMsg_All           = 0xffffffff,
+} eScdMsg_Flags;
+//----------------------------------------------  
+[  
+  uuid(9AC9EDE2-D32F-4aff-8C76-98E00751A8A7),
+  helpstring("eScdMsg_Options"),
+  v1_enum
+]
+typedef enum eScdMsg_Options
+{	// Must match MessageLog.h
+  eScdMsgOpt_NULL				= 0x00000000,
+  eScdMsgOpt_COMCallsEntry	= 0x00000001,
+  eScdMsgOpt_COMCallsExit		= 0x00000002,
+  eScdMsgOpt_COMCalls			= 0x00000003,
+  eScdMsgOpt_COMCallsInternal = 0x00000004,
+  eScdMsgOpt_All              = eScdMsgOpt_COMCalls,
+  eScdMsgOpt_AllDebug         = eScdMsgOpt_COMCalls|eScdMsgOpt_COMCallsInternal,
+} eScdMsg_Options;
+//----------------------------------------------  
+[  
+  uuid(F640F6AB-548E-4540-9DEC-3C75D7A19F3C),
+  helpstring("eScdEvalSeq_Options"),
+  v1_enum
+]
+typedef enum eScdEvalSeq_Options
+{
+  eScdEvalSeq_Process         = 0x00000001,
+  eScdEvalSeq_Control         = 0x00000002,
+  eScdEvalSeq_FullDesc        = 0x00000004,
+} eScdEvalSeq_Options;
+//----------------------------------------------  
+[  
+  uuid(12928A51-4C0F-4ffe-817F-0C22F1C107AB),
+  helpstring("eScdEvalSeqIO_Flags"),
+  v1_enum
+]
+typedef enum eScdEvalSeqIO_Flags
+{
+  eScdEvalSeqIOFlags_In       = 0x00000001,
+  eScdEvalSeqIOFlags_Out      = 0x00000002,
+  eScdEvalSeqIOFlags_Tear     = 0x00000004,
+  eScdEvalSeqIOFlags_Owner    = 0x00000008,
+} eScdEvalSeqIO_Flags;
+//----------------------------------------------  
+[  
+  uuid(6639C444-6466-4646-B6B3-B5D14431A6AC),
+  helpstring("eScdEvalSeqIO_Class"),
+  v1_enum
+]
+typedef enum eScdEvalSeqIO_Class
+{ // must Match eEOClass
+  eScdEvalSeqIOClass_Process		= 0x00010000,
+  eScdEvalSeqIOClass_Control		= 0x00020000,
+  eScdEvalSeqIOClass_Electrical	= 0x00040000,
+  eScdEvalSeqIOClass_Air			= 0x00080000,
+  eScdEvalSeqIOClass_XRef			= 0x00100000,
+} eScdEvalSeqIO_Class;
+//----------------------------------------------  
+[  
+  uuid(B1742116-60C6-40ff-BDBB-EC66FA4B6F7A),
+  helpstring("eScdTagsCodes"),
+  v1_enum
+]
+typedef enum eScdSlvTagsCodes
+{	// Must match ????
+  eScdSTC_OK               = 0x00000000,
+}	eScdSlvTagsCodes;
+//----------------------------------------------  
+[  
+  uuid(48E53B23-E2AF-4c96-9B1F-F91A734F4F23),
+  helpstring("eScdSlvTagType"),
+  v1_enum
+]
+typedef enum eScdSlvTagType
+{	// Must match ????
+  eScdSTT_I2             = 0x00000000,
+  eScdSTT_NullTag        = 0x00000100,
+  eScdSTT_ZeroTag        = 0x00000200,
+  eScdSTT_NoPrj          = 0x00000300,
+}	eScdSlvTagType;
+//----------------------------------------------
+[  
+  uuid(29134EE7-24B5-4d4e-9106-C2ECDA8FC679),
+  helpstring("eScdNodeCodes"),
+  v1_enum
+]
+typedef enum eScdNodeCodes
+{	eScdUC_OK			= 0,
+eScdUC_TagExists	= 1,
+eScdUC_UnknownClass	= 2,
+eScdUC_BadLicense   = 3,
+eScdUC_Failed       = 4
+} eScdNodeCodes;
+//----------------------------------------------
+[  
+  uuid(DB31CF58-EB0E-4667-844D-5670FD2CFFFF),
+  helpstring("eScdTimeFormat"),
+  v1_enum
+]
+typedef enum eScdTimeFormat
+{	
+  eScdTimeFmt_Seconds     = 0,
+  eScdTimeFmt_Secs1970    = 1,
+  eScdTimeFmt_Date1900    = 2,
+} eScdTimeFormat;
+
+//----------------------------------------------
+[  
+  uuid(6582BF6B-3C74-4303-A2A1-DC465EBD9B05),
+  helpstring("ComCmdReturns"),
+  v1_enum
+]
+typedef enum ComCmdReturns
+{	// Must match ???
+  ComCmdRet_OK                =	0,
+  ComCmdRet_InvalidTag        =	1,
+  ComCmdRet_InvalidConversion =	2,
+  ComCmdRet_Fail              =	3,
+}	ComCmdReturns;
+
+//----------------------------------------------
+//----------------------------------------------
+[  
+  uuid(FB7CFFCC-4032-412e-83AE-08E17F28E484),
+  helpstring("PropertyTypes"),
+  v1_enum
+]
+typedef enum ePropertyTypes
+{	// Must match ???
+  ePT_Null    = 0, 
+  ePT_Bool    = 1, 
+  ePT_Long    = 2, 
+  //ePT_ULong   = 1, // VB.Net does not really like Unsigned long Variables
+  ePT_Double  = 3, 
+  ePT_String  = 4, 
+  //ePT_Ptr     = 4,
+}	ePropertyTypes;
+
+//----------------------------------------------
+//----------------------------------------------
+[  
+  uuid(4758D29B-F0D8-47f2-8925-0751CD8B5451),
+  helpstring("PropertyPageTypes"),
+  v1_enum
+]
+typedef enum ePropertyPageTypes
+{	// Must match ???
+  ePPg_Null       = 0,
+  ePPg_Optional   = 1,
+  ePPg_Required   = 2
+}	ePropertyPageTypes;
+
+//----------------------------------------------
+//----------------------------------------------
+[  
+  uuid(E4BF2980-62F0-470c-A962-3B7F68F26936),
+  helpstring("PropertyVisibility"),
+  v1_enum
+]
+typedef enum ePropertyVisibility
+{	// Must match ???
+  ePVis_Probal    = 0x01,
+  ePVis_DynFlow   = 0x02,
+  ePVis_DynFull   = 0x04,
+  ePVis_View      = 0x10,
+  ePVis_File      = 0x20,
+  ePVis_Scenario  = 0x40,
+  ePVis_Snapshot  = 0x80,
+  ePVis_AllPB     = 0xf1,
+  ePVis_AllDyn    = 0xf6,
+  ePVis_All       = 0xf7,
+
+}	ePropertyVisibility;
+
+//----------------------------------------------  
+//----------------------------------------------
+[  
+  uuid(C1A42C61-3E8D-486e-B416-840431D32370),
+  helpstring("eScdGasMixingRule"),
+  v1_enum
+]
+typedef enum eScdGasMixingRule
+{
+  eScdGMR_Default  =  0,
+  eScdGMR_Simple   =  1,
+} eScdGasMixingRule;
+
+//----------------------------------------------  
+[  
+  uuid(C51C2B41-E9E4-4e7f-9F34-34D8FFFF9A0E),
+  helpstring("eScdEqnOfState"),
+  v1_enum
+]
+typedef enum eScdEqnOfState
+{
+  eScdEOS_Default = 0,
+  eScdEOS_SRK     = 1,
+} eScdEqnOfState;
+
+//----------------------------------------------  
+[  
+  uuid(98CADC27-0EB9-47fc-9120-2EF211A5F85C),
+  helpstring("eScdVLEOptions"),
+  v1_enum
+]
+typedef enum eScdVLEOptions
+{
+  VLEF_Null             = 0x00000000,
+  VLEF_VfFlash          = 0x00000001,
+  VLEF_TPFlash          = 0x00000002,
+  VLEF_QPFlash          = 0x00000004,
+  VLEF_QVFlash          = 0x00000008,
+  VLEF_SaturationLimit  = 0x00000010,
+  VLEF_QMVapFlash       = 0x00000020,
+  VLEF_WithDebug        = 0x10000000,
+} eScdVLEOptions;
+
+//----------------------------------------------  
+[  
+  uuid(1085B615-96FE-4475-AC73-FC40DEEA79C4),
+  helpstring("eScdMdlStateActs"),
+  v1_enum
+]
+typedef enum eScdMdlStateActs 
+{ 
+  MSA_Null, 
+  MSA_ZeroFlows, 
+  MSA_Empty, 
+  MSA_PreSet, 
+  MSA_SteadyState, 
+  MSA_PBInit, 
+  MSA_DynStatsRunInit, 
+  MSA_EmptySpillTargets 
+} eScdMdlStateActs;
+
+//----------------------------------------------  
+[  
+  uuid(25CDB7E1-D2E1-4b72-9218-97830D2255A3),
+  helpstring("eScdMacroMdlEvals"),
+  v1_enum
+]
+typedef enum eScdMacroMdlEvals
+{ 
+  MME_Flash2P, 
+  MME_Flash2Qv, 
+  MME_Flash2QvSens, 
+} eScdMacroMdlEvals;
+
+
+//----------------------------------------------  
+[  
+  uuid(FBDE39A0-94B9-4681-9B52-47C68CC3C52B),
+  helpstring("eScdProbalPCtrls"),
+  v1_enum
+]
+typedef enum eScdProbalPCtrls
+{ 
+  PBPC_Null       = 0x00000000,
+  PBPC_Atmos      = 0x00000001,
+  PBPC_MinFd      = 0x00000002,
+  PBPC_MaxFd      = 0x00000004,
+  PBPC_Reqd       = 0x00000008,
+  PBPC_SatP       = 0x00000010,
+  PBPC_ReqdSatT   = 0x00000020,
+  PBPC_BubblePt   = 0x00000040,
+  PBPC_DewPt      = 0x00000080,
+  PBPC_SubCooled  = 0x00000100,
+  PBPC_SuperHt    = 0x00000200,
+
+  PBPC_Basic      = 0x0000001f,
+  PBPC_All        = 0x000003ff,
+} eScdProbalPCtrls;
+
+//----------------------------------------------  
+[  
+  uuid(E1FE860C-62C7-4cb5-B463-13F4E890ED9A),
+  helpstring("eScdTagFixupRules"),
+  v1_enum
+]
+typedef enum eScdTagFixupRules
+{ 
+  eFixup_NoChange       = 0,
+  eFixup_Prefix         = 1,
+  eFixup_Suffix         = 2,
+  eFixup_PrefixSuffix   = 3,
+  eFixup_RegExpression  = 4,
+  eFixup_ExchangeTags   = 5,
+  eFixup_ReplaceTag     = 6, // not selectable
+} eScdTagFixupRules;
+
+//----------------------------------------------  
+[  
+  uuid(408F9E20-F82E-4076-AB47-53B03F87CCB0),
+  helpstring("eScdNDBOptions"),
+  v1_enum
+]
+typedef enum eScdNDBOptions
+{ 
+  eNDB_BlankTables      = 0x00000001,
+  eNDB_CommonTables     = 0x00000002,
+  eNDB_Sequence         = 0x00000004,
+  eNDB_Graphics         = 0x00000008,
+  eNDB_Models           = 0x00000010,
+  eNDB_Configuration    = 0x00000020,
+  eNDB_Parameters       = 0x00000040,
+  eNDB_State            = 0x00000080,
+  eNDB_CommonNames      = 0x00000100,
+  eNDB_GroupInserts     = 0x00000200,
+
+  eNDB_StdExport        = eNDB_CommonTables|  
+  eNDB_Sequence|     
+  eNDB_Graphics|     
+  eNDB_Models|       
+  //eNDB_Parameters|   
+  eNDB_Configuration,
+
+  eNDB_StdImport        = eNDB_Sequence|     
+  eNDB_Graphics|     
+  eNDB_Models|       
+  //eNDB_Parameters|   
+  eNDB_Configuration,
+
+} eScdNDBOptions;
+
+//----------------------------------------------
+[  
+  uuid(AB6ECD2C-CC85-494a-8459-F4A8A4EBFC55),
+  helpstring("eScdBalanceValues"),
+  v1_enum
+]
+typedef enum eScdBalanceValues
+{ 
+  eBV_JoinMassFlwIn,
+  eBV_JoinMassGain,
+  eBV_JoinMassFlwOut,
+  eBV_JoinFeedCpT,
+  eBV_JoinProdCpT,
+  eBV_JoinHfIn, 
+  eBV_JoinHfGain, 
+  eBV_JoinHsGain, 
+  eBV_JoinHfOut, 
+  eBV_JoinHfChg, 
+  eBV_JoinHsIn, 
+  eBV_JoinHsOut,
+  eBV_JoinHsChg,
+  eBV_JoinPowerIn,
+  eBV_RCTMassGain,
+  eBV_RCTHfGain,
+  eBV_RCTHsGain,
+  eBV_RCTPowerIn,
+  eBV_RCTHOR_Std0,
+  eBV_RCTHOR_Mdl0,
+  eBV_RCTHOR_Used0,                       
+  eBV_RCTHOR_Diff0,                       
+  eBV_VLEHsGain,
+  eBV_EHXPowerIn,
+} eScdBalanceValues;     
+
+//----------------------------------------------
+[  
+  uuid(29D639B1-11C1-4482-91FB-80F02CC86BC9),
+  helpstring("eScdWndStateCmds"),
+  v1_enum,
+  public
+]
+typedef enum eScdWndStateCmds
+{	
+  eScdForeground      = 1,
+  eScdNormalWnd       = 2,
+  eScdMaximisedWnd    = 3,
+  eScdMinimisedWnd    = 4,
+  eScdActvateBtns     = 5,
+  eScdDeactivateBtns  = 6,
+
+}	eScdWndStateCmds;
+//----------------------------------------------
+[  
+  uuid(4FFCEE9E-4C9E-4865-97D7-E5B56A7B509B),
+  helpstring("eScdGraphicsCodes"),
+  v1_enum
+]
+typedef enum eScdGraphicsCodes
+{	
+  eScdGC_OK				= 0,
+  //eScdGC_TagExists		= 1,
+  //eScdGC_UnknownClass	= 2,
+  //eScdGC_BadLicense     = 3,
+  //eScdGC_Failed         = 4
+}	eScdGraphicsCodes;
+
+//----------------------------------------------
+[  
+  uuid(07FA8E2D-A0AD-4b62-85E5-E5D54CA7F517),
+  helpstring("eScdGraphicCodes"),
+  v1_enum
+]
+typedef enum eScdGraphicCodes
+{	
+  eScdGraphicCode_OK				= 0,
+  eScdGraphicCode_TagNotFound		= 1,
+  eScdGraphicCode_GrfNotCreated	= 2,
+}	eScdGraphicCodes;
+//----------------------------------------------
+[  
+  uuid(BCCBC058-AD75-482e-B293-C8595F3E4C00),
+  helpstring("eScdZooms"),
+  v1_enum
+]
+typedef enum eScdZooms
+{	
+  eScdZoom_Full				= 0,
+}	eScdZooms;
+//----------------------------------------------
+[  
+  uuid(8CEA74CD-AEFA-4cd3-936C-00B12E0B7992),
+  helpstring("eScdReportsCodes"),
+  v1_enum
+]
+typedef enum eScdReportsCodes
+{	
+  eScdRC_OK				= 0,
+  //eScdRC_TagExists		= 1,
+  //eScdRC_UnknownClass	= 2,
+  //eScdRC_BadLicense     = 3,
+  //eScdRC_Failed         = 4
+}	eScdReportsCodes;
+//----------------------------------------------  
+[  
+  uuid(FB366243-8BDB-4747-985E-34A394D72716),
+  helpstring("eScdReportTypes"),
+  v1_enum
+]
+typedef enum eScdReportTypes
+{	// Must match ... 
+  eScdRT_GetValues    =   0 ,
+  eScdRT_SetValues    =   1 ,
+  eScdRT_Trend        =   2 ,
+}	eScdReportTypes;
+
+//----------------------------------------------  
+[  
+  uuid(00741A6E-64DE-4c78-8484-DF448047B7F9),
+  helpstring("eScdHistDataExtractOptions"),
+  v1_enum
+]
+typedef enum eScdHistDataExtractOptions
+{	// Must match ????
+  eScdHDEO_CSV             = 0x00000000,
+}	eScdHistDataExtractOptions;
+
+//----------------------------------------------  
+[  
+  uuid(03E07251-40A2-4b7e-8FA4-8378965E8546),
+  helpstring("eScdAppTagsCodes"),
+  v1_enum
+]
+typedef enum eScdAppTagsCodes
+{	// Must match ????
+  eScdATC_OK               = 0x00000000,
+  eScdATC_TagMissing       = 0x00000001,
+}	eScdAppTagsCodes;
+
+//----------------------------------------------  
+[  
+  uuid(F89EC9B6-262C-4886-A4A7-1BDC298D9DC3),
+  helpstring("eScdAppTagType"),
+  v1_enum
+]
+typedef enum eScdAppTagType
+{	// Must match tt_... in DataType
+  eScdATT_NULL           =   0 ,
+  eScdATT_Bool           =   1 ,
+  eScdATT_Bit            =   2 ,
+  eScdATT_Byte           =   3 ,
+  eScdATT_Word           =   4 ,
+  eScdATT_DWord          =   5 ,
+  eScdATT_Char           =   6 ,
+  eScdATT_Int            =   7 ,
+  eScdATT_Short          =   8 ,
+  eScdATT_Long           =   9 ,
+  eScdATT_Flt16          =  10 ,
+  eScdATT_Float          =  11 ,
+  eScdATT_Double         =  12 ,
+  eScdATT_Generic        =  13 ,
+  eScdATT_pChar          =  14 ,
+  eScdATT_ppChar         =  15 ,
+  eScdATT_Strng          =  16 ,
+  eScdATT_RqdPage        =  17 ,
+  eScdATT_OptPage        =  18 ,
+  eScdATT_Column         =  19 ,
+  eScdATT_Text           =  20 ,
+  eScdATT_Struct         =  21 ,
+  eScdATT_Element        =  22 ,
+  eScdATT_Object         =  23 ,
+  eScdATT_Array          =  24 ,
+  eScdATT_NullTag        = 0x00000100,
+  eScdATT_ZeroTag        = 0x00000200,
+  eScdATT_NoPrj          = 0x00000300,
+  eScdATT_Error          = 0x00000400,
+}	eScdAppTagType;
+
+//----------------------------------------------  
+[  
+  uuid(107F21EA-D128-4cf2-B575-096FF0EAB693),
+  helpstring("eScdTagRecState"),
+  v1_enum
+]
+typedef enum
+{	// Must match RC_SM_Hist... in EXECUTIVE.H
+  eScdTRS_HistExists    =   1 ,
+  eScdTRS_HistRecording =   2 ,
+  eScdTRS_HistDriverTag =   4 ,
+}	eScdTagRecState;
+
+//----------------------------------------------
+[  
+  uuid(A15B39BF-605D-4010-B30B-B582CFDA63E7),
+  helpstring("eScdLinkDrawMethods"),
+  v1_enum
+]
+typedef enum eScdLinkDrawMethods
+{	// this must match something ???
+  eScdLinkDrawMethod_Direct= 0,
+}	eScdLinkDrawMethods;
+
+
+//----------------------------------------------
+[  
+  uuid(F4019F64-0BF8-4ff2-BAED-FD62EB03A629),
+  helpstring("SV_View"),
+  v1_enum
+]
+typedef enum SV_View 
+{
+  SVV_NULL,
+  SVV_AsRawFrac,
+  SVV_AsRawMass,   SVV_AsRawMassFlow,
+  SVV_AsMass,      SVV_AsMassFlow,      SVV_AsMassFrac,
+  SVV_AsMole,      SVV_AsMoleFlow,      SVV_AsMoleFrac,
+  SVV_AsVol,       SVV_AsVolFlow,       SVV_AsVolFrac,
+  SVV_AsPartialP,  SVV_AsPartialPFrac,
+  SVV_AsNVol,      SVV_AsNVolFlow,      SVV_AsNVolFrac,
+  SVV_AsElem,      SVV_AsElemFlow,      SVV_AsElemFrac,    SVV_AsElemConc,    SVV_AsElemConc25,
+  SVV_AsComp,      SVV_AsCompFlow,      SVV_AsCompFrac,    SVV_AsCompConc,    SVV_AsCompConc25
+} SV_View;
+
+//----------------------------------------------
+[  
+  uuid(13CB03A9-6729-4052-BFA6-70238A8B3AB2),
+  helpstring("SV_ViewBasis"),
+  v1_enum
+]
+typedef enum SV_ViewBasis
+{
+  SVVB_All, SVVB_Start=SVVB_All, SVVB_Sol, SVVB_Liq, SVVB_Gas, SVVB_Occ, SVVB_Phase, SVVB_End
+} SV_ViewBasis;
+
+//----------------------------------------------  
+[  
+  uuid(B7CDB8DC-C343-4cda-8130-D62FF2631339),
+  helpstring("eScdFlwEqnTasks"),
+  v1_enum
+]
+typedef enum eScdFlwEqnTasks 
+  { 
+  FET_GetMode, 
+  FET_SetQm, 
+  FET_CalcDP 
+  } eScdFlwEqnTasks;
+
+//----------------------------------------------  
+[  
+  uuid(7D3A357B-988E-43fe-984B-0B705BA4F7F4),
+  helpstring("eScdPropagateNetTasks"),
+  v1_enum         
+]
+typedef enum eScdPropagateNetTasks
+{ 
+  eScdSetFlowMode 
+} eScdPropagateNetTasks;
+
+//----------------------------------------------  
+[  
+  uuid(1646D290-F237-477b-BCC8-D8BE756C262E),
+  helpstring("eScdReactionBasis"),
+  v1_enum         
+]
+typedef enum eScdReactionBasis
+{ 
+  RctNull, 
+  RctEquilibrium, 
+  RctRate, 
+  RctExtent, 
+  //RctE,
+  RctSource, 
+  RctSink, 
+  RctHX1, 
+  RctHX2, 
+  RctPwr 
+} eScdReactionBasis;
+
+//----------------------------------------------  
+[
+  uuid(DFF12EED-1999-4E30-A0F2-41B3D93246D6),
+  version(1.0),
+  helpstring("SysCAD Interface Library"),
+  hidden
+]
+library ScdIF
+{
+  importlib("stdole32.tlb");
+  importlib("stdole2.tlb");
+
+  enum eScdDirections; // reference them here to get them into the .tlb
+  enum eScdNodeTypes;
+  enum eScdTSTypes;
+  enum eScdLinkTypes;
+  enum eScdMsg_Flags;
+  enum eScdMsg_Options;
+  enum eScdEvalSeq_Options;
+  enum eScdEvalSeqIO_Flags;
+  enum eScdEvalSeqIO_Class;
+  //enum eScdMode;
+  enum eScdSlvTagsCodes;
+  enum eScdSlvTagType;
+  enum eScdNodeCodes;
+  enum eScdTimeFormat;
+  enum ComCmdReturns;
+  enum ePropertyTypes;
+  enum ePropertyPageTypes;
+  enum ePropertyVisibility;
+  enum eScdGasMixingRule;
+  enum eScdEqnOfState;
+  enum eScdVLEOptions;
+  enum eScdMdlStateActs ;
+  enum eScdMacroMdlEvals;
+  enum eScdProbalPCtrls;
+  enum eScdTagFixupRules;
+  enum eScdNDBOptions;
+  enum eScdBalanceValues;
+  enum eScdWndStateCmds;
+  enum eScdGraphicsCodes;
+  enum eScdGraphicCodes;
+  enum eScdZooms;
+  enum eScdReportsCodes;
+  enum eScdReportTypes;
+  enum eScdHistDataExtractOptions;
+  enum eScdAppTagsCodes;
+  enum eScdAppTagType;
+  enum eScdTagRecState;
+  enum eScdLinkDrawMethods;
+  enum SV_View;
+  enum SV_ViewBasis;
+  enum eScdFlwEqnTasks;
+  enum eScdPropagateNetTasks;
+  enum eScdReactionBasis;
+
+  //----------------------------------------------  
+[  
+  uuid(FC07E4B7-C73D-40ba-9C32-129B904E6ACD),
+  helpstring("eScdMode"),
+  v1_enum         
+]
+typedef enum eScdMode
+{ 
+  eScdSolve_Probal          = 0x00000001,
+  eScdSolve_DynamicXfer     = 0x00000002,
+  eScdSolve_DynamicFull     = 0x00000004,
+  // SM_Inline              = 0x00000008;               
+
+  eScdHeat_None             = 0x00000010,       
+  eScdHeat_Simple           = 0x00000020,       
+  eScdHeat_Full             = 0x00000040,       
+  // MODEVISIBLE            = 0x00000080;       
+
+  eScdUser_Method_1         = 0x00000100,
+  eScdUser_Method_2         = 0x00000200,
+  eScdUser_Method_3         = 0x00000400,
+  eScdUser_Method_4         = 0x00000800,
+  eScdUser_Method_5         = 0x00001000,
+  eScdUser_Method_6         = 0x00002000,
+  eScdUser_Method_7         = 0x00004000,
+  eScdUser_Method_8         = 0x00008000,
+
+} eScdMode;
+
+//----------------------------------------------
+  [
+    object,
+    uuid(EB0A0841-8896-432b-B501-6BBA1FCB38F0),
+    dual,
+    helpstring("IScdASyncEvents Interface"),
+    pointer_default(unique),
+    restricted
+  ]
+  interface IScdASyncEvents : IDispatch
+  {
+    [restricted, id(1), helpstring("method DoEventMsg")] HRESULT DoEventMsg([in] long Evt, [in] long Data);
+  };
+  //----------------------------------------------
+  //----------------------------------------------
+  [
+    object,
+    uuid(46138AB0-6E9B-42ab-A50A-0F42B3654009),
+    dual,
+    helpstring("IScdTaggedObject Interface"),
+    pointer_default(unique),
+    restricted
+  ]
+  interface IScdTaggedObject : IDispatch
+  {
+    [propget, restricted, id(1), helpstring("property RawModelPtr")] HRESULT RawModelPtr([out, retval] long *pVal);
+  };
+  //----------------------------------------------
+};

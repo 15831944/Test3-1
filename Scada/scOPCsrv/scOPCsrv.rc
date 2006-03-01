@@ -1,0 +1,191 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+#include "scdver.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "#include ""scdver.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""res\\scopcsrv.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "\r\n"
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "#include ""afxres.rc""  // Standard components\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_OPCHOLDPAGE DIALOG  0, 0, 250, 143
+STYLE DS_SETFONT | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "OPC Delays"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Driver tag:",IDC_STATIC,5,5,35,8
+    COMBOBOX        IDC_TAGCOMBO,45,5,105,100,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Address:",IDC_STATIC,5,20,30,8
+    EDITTEXT        IDC_FULLADDR,45,20,70,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Type:",IDC_STATIC,5,40,19,8
+    EDITTEXT        IDC_TYPE,45,40,70,14,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "",IDC_STATIC,5,55,230,80
+    LTEXT           "Operation to change:",IDC_STATIC,10,65,115,8
+    LISTBOX         IDC_OPLIST,10,80,115,45,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Delay time (mSecs):",IDC_STATIC,131,70,69,8
+    EDITTEXT        IDC_DELAYTIME,130,80,70,14,ES_AUTOHSCROLL
+    LTEXT           "Second delay time (mSecs):",IDC_STATIC,132,100,88,8
+    CONTROL         "",IDC_USEDELAY2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    135,110,16,8
+    EDITTEXT        IDC_DELAYTIME2,155,110,70,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Apply",IDC_HOLD,185,5,50,14
+    EDITTEXT        IDC_IO,170,40,35,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "IO to SysCAD:",IDC_STATIC,120,40,46,8
+END
+
+IDD_OPCSRVRSTATSDLG DIALOG  0, 0, 158, 89
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "OPC Server Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "(#)",IDC_OPCSTATUS_TXT,3,1,8,8
+    LTEXT           "(Tag subscription count)",IDC_OPCSUBSCNT_TXT,14,3,138,8
+    LISTBOX         IDC_OPCSTATSLIST,5,15,105,73,LBS_SORT | LBS_USETABSTOPS | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Statistics",IDC_OPCSHOWSTATS,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,114,15,40,10
+    CONTROL         "Tags",IDC_OPCSHOWTAGS,"Button",BS_AUTORADIOBUTTON,114,
+                    25,32,10
+    PUSHBUTTON      "Options",IDC_OPCOPTIONS,115,41,40,14
+    PUSHBUTTON      "Refresh",IDC_OPCREFRESH,115,57,40,14
+    PUSHBUTTON      "Force All",IDC_OPCFORCE,115,73,40,14
+END
+
+IDD_OPCSRVROPTIONSDLG DIALOGEX 0, 0, 217, 86
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "OPC Server Options"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Show OPC Server information window when client connects",
+                    IDC_OPCOPT_SHOWSTATS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,5,5,205,10
+    CONTROL         "Show notes in message window",IDC_OPCOPT_LOGNOTES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,15,124,10
+    GROUPBOX        "Tag items Forced to Clients",IDC_STATIC,5,30,130,50
+    CONTROL         "Force at start",IDC_OPCOPT_FORCESTART,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,40,55,10
+    CONTROL         "Force at stop",IDC_OPCOPT_FORCESTOP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,50,55,10
+    LTEXT           "Force at step count:",IDC_STATIC,10,65,59,8
+    EDITTEXT        IDC_OPCOPT_FORCECOUNT,75,62,50,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,160,48,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,160,65,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_OPCSRVROPTIONSDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 210
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (South Africa) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENS)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_SOUTH_AFRICA
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_CONNECT_ERROR       "Error connecting to OPC server '%s' \n"
+END
+
+#endif    // English (South Africa) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "res\scopcsrv.rc2"  // non-Microsoft Visual C++ edited resources
+
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+#include "afxres.rc"  // Standard components
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

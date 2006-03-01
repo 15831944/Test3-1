@@ -1,0 +1,23 @@
+HKCR
+{
+	SysCADMarshal.ScdMarshal.1 = s 'ScdMarshal Class'
+	{
+		CLSID = s '{35725B10-C090-4C48-AE31-F9C614C87CD0}'
+	}
+	SysCADMarshal.ScdMarshal = s 'ScdMarshal Class'
+	{
+		CLSID = s '{35725B10-C090-4C48-AE31-F9C614C87CD0}'
+		CurVer = s 'SysCADMarshal.ScdMarshal.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {35725B10-C090-4C48-AE31-F9C614C87CD0} = s 'ScdMarshal Class'
+		{
+			ProgID = s 'SysCADMarshal.ScdMarshal.1'
+			VersionIndependentProgID = s 'SysCADMarshal.ScdMarshal'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '{FE33B342-5B7E-4ED3-B0A7-7DB0F9C3912F}'
+			'TypeLib' = s '{708DC249-6838-4822-A2D5-E408FD829B07}'
+		}
+	}
+}

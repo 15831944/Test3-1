@@ -1,0 +1,9 @@
+; ScdMdl.def : Declares the module parameters.
+
+LIBRARY      "ScdMdl.DLL"
+
+EXPORTS
+	DllCanUnloadNow      PRIVATE
+	DllGetClassObject    PRIVATE
+	DllRegisterServer    PRIVATE
+	DllUnregisterServer	 PRIVATE

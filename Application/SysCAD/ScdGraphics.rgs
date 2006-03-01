@@ -1,0 +1,34 @@
+HKCR
+{
+    NoRemove 'Component Categories'
+	{
+		{E7275A8A-D66F-45e9-A89F-4DCF475783CE}
+		{
+			val 409 = s 'SysCAD Application Objects'
+		}
+	}
+	SysCAD.Graphics.1 = s 'ScdGraphics Class'
+	{
+		CLSID = s '{89FEEA68-73FC-4C68-AA13-BAE135290B8E}'
+	}
+	SysCAD.Graphics = s 'ScdGraphics Class'
+	{
+		CLSID = s '{89FEEA68-73FC-4C68-AA13-BAE135290B8E}'
+		CurVer = s 'SysCAD.Graphics.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {89FEEA68-73FC-4C68-AA13-BAE135290B8E} = s 'ScdGraphics Class'
+		{
+			ProgID = s 'SysCAD.Graphics.1'
+			VersionIndependentProgID = s 'SysCAD.Graphics'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			val AppID = s '{8B1DC73E-6E6F-4843-ACE4-6B09E781D644}'
+			'TypeLib' = s '{DB8A9658-3505-4fb8-85B1-DD37A609DF0D}'
+		}
+	}
+}

@@ -1,0 +1,705 @@
+// SysCAD.odl : type library source for SysCAD.exe
+import "oaidl.idl";
+import "ScdIF.idl";
+//import "Scdmdl.idl";
+//import "Scdslv.idl";
+
+// This file will be processed by the MIDL compiler to produce the
+// type library (SysCAD.tlb).
+[
+  uuid(DB8A9658-3505-4fb8-85B1-DD37A609DF0D),
+  version(1.0),
+  helpstring("SysCAD Application Library")             
+]
+
+library ScdApp
+{
+  importlib("stdole32.tlb");   
+  importlib("stdole2.tlb");
+
+  //importlib ("..\..\..\Bin\ScdIF.tlb");
+  importlib ("..\..\..\Bin\scdmdl.tlb");
+  importlib ("..\..\..\Bin\scdslv.tlb");
+
+  //----------------------------------------------
+  // Forward declarations
+  interface IScdApplication; 
+  interface IScdGraphic; 
+  interface IScdGraphics;
+  interface IScdHistorian; 
+  interface IScdLicenseApp; 
+  interface IScdOptions; 
+  interface IScdProject; 
+  interface IScdReplay; 
+  interface IScdReport; 
+  interface IScdReports; 
+  interface IScdSnapshot; 
+  interface IScdTrend; 
+  interface IScdTrends; 
+  interface IScdAppTag; 
+  interface IScdAppTags; 
+  interface IScdOPCServer;
+  interface IScdDDEServer;
+  interface IScdIOMarshal;
+  interface IScdTagFixup;
+
+  //----------------------------------------------
+  [
+    object,
+    uuid(D7E8F427-C1AF-41D3-9920-6D92C012D936),
+    dual,
+    helpstring("IScdApplication Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdApplication : IDispatch	  
+  {
+    [propget, id(1), helpstring("property Debug")] HRESULT Debug([out, retval] IScdDebug ** pDebug);
+    [propget, id(2), helpstring("property Test")] HRESULT Test([out, retval] IScdTest ** pTest);
+    [propget, id(3), helpstring("property Messages")] HRESULT Messages([out, retval] IScdMessages ** pMessages);
+    [id(4), helpstring("method OpenProject")] HRESULT OpenProject([in] BSTR PrjFolder, [out, retval] IScdProject ** pProject);
+    [id(5), helpstring("method CreateProject")] HRESULT CreateProject([in] BSTR CfgFolder, [in] BSTR PrjFolder, [in,defaultvalue(TRUE)] VARIANT_BOOL WithVersion, [in,defaultvalue(FALSE)] VARIANT_BOOL RemoveOld, [out, retval] IScdProject ** pProject);
+    [propget, id(6), helpstring("property License")] HRESULT License([out, retval] IScdLicenseApp ** pLicense);
+    [propget, id(7), helpstring("property Options")] HRESULT Options([out, retval] IScdOptions * *pOptions);
+    [id(8), helpstring("method CloseProject")] HRESULT CloseProject([in,defaultvalue(FALSE)] VARIANT_BOOL SaveIt);
+    [id(9), helpstring("method SetWindowState")] HRESULT SetWindowState([in] eScdWndStateCmds ReqdState);
+    [propget, id(10), helpstring("property Project")] HRESULT Project([out, retval] IScdProject** pVal);
+  };
+
+  //----------------------------------------------
+  [
+    uuid(6564604D-8169-4528-9E50-43E3513E76C3),
+    helpstring("_IScdApplicationEvents Interface")
+  ]
+  dispinterface _IScdApplicationEvents
+  {
+properties:
+methods:
+    [id(1), helpstring("method OnProjectOpened")] HRESULT OnProjectOpened([in] long RetCode);
+  };
+  //----------------------------------------------
+  [
+    uuid(82B5AE15-C7F2-455A-886F-E0AB235A756D),
+    helpstring("ScdApplication Class")
+  ]
+  coclass ScdApplication
+  {
+    [default] interface IScdApplication;
+    [restricted] interface IScdASyncEvents;
+    [default, source] dispinterface _IScdApplicationEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(F3E7D068-8CFE-470F-802D-173DBE3DEB89),
+    dual,
+    helpstring("IScdGraphics Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdGraphics : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Page")] HRESULT Page([in] VARIANT WhichOne, [out, retval] IScdGraphic ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [id(2), helpstring("method Add a Graphics Page")] HRESULT Add([in] BSTR Name, [out, retval] IScdGraphic ** pItem);
+    [id(3), helpstring("method Delete")] HRESULT Remove([in] VARIANT WhichOne);
+    [propget, id(4), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdGraphicsCodes *pVal);
+  };
+
+  //----------------------------------------------
+  [
+    uuid(4B358262-C451-41F6-AF27-19468F7BDEEE),
+    helpstring("_IScdGraphicsEvents Interface")
+  ]
+  dispinterface _IScdGraphicsEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(89FEEA68-73FC-4C68-AA13-BAE135290B8E),
+    helpstring("ScdGraphics Class")
+  ]
+  coclass ScdGraphics
+  {
+    [default] interface IScdGraphics;
+    [default, source] dispinterface _IScdGraphicsEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(5C215D42-05B4-4755-AE96-677D6B2EAFC3),
+    dual,
+    helpstring("IScdGraphic Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdGraphic : IDispatch
+  {
+    [propget, id(1), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+    [propput, id(1), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+    [id(2), helpstring("method AddUnit")] HRESULT AddUnit([in] BSTR Tag, [in] double X, [in] double Y, [in] double Z, [in] BSTR Symbol, [in] double XScale, [in] double YScale, [in] double Rotation);
+    [id(3), helpstring("method Zoom")] HRESULT Zoom([in, defaultvalue(eScdZoom_Full)] eScdZooms zoom);
+    [id(4), helpstring("method AddLinkA")] HRESULT AddLinkA([in] BSTR Tag, [in] VARIANT Points3D);
+    [id(5), helpstring("method AddLinkM")] HRESULT AddLinkM([in] BSTR Tag, [in] eScdLinkDrawMethods Method);
+    [id(6), helpstring("method InsertGroup")] HRESULT InsertGroup([in] BSTR Library, [in] BSTR Group, [in] DOUBLE X, [in] DOUBLE Y, [in] DOUBLE Z, [in] DOUBLE XScale, [in] DOUBLE YScale, [in] DOUBLE ZScale, [in] IScdTagFixup * TagFixups, [in, defaultvalue(eNDB_StdImport)] eScdNDBOptions Options);
+  };
+  //----------------------------------------------
+  [
+    uuid(7CBB5553-BBF6-4339-975A-047EF8F01578),
+    helpstring("_IScdGraphicEvents Interface")
+  ]
+  dispinterface _IScdGraphicEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(77DD141B-BE74-4E97-B13C-12C186E6E191),
+    helpstring("ScdGraphic Class")
+  ]
+  coclass ScdGraphic
+  {
+    [default] interface IScdGraphic;
+    [default, source] dispinterface _IScdGraphicEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(AE13108F-98AA-41A6-9419-AF1B4330F406),
+    dual,
+    helpstring("IScdTrends Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTrends : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(EB3851B3-5C67-49ED-91DA-28A7C5774211),
+    helpstring("_IScdTrendsEvents Interface")
+  ]
+  dispinterface _IScdTrendsEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(70AAA9DF-7546-4E4C-8484-6A7BBD2AF87B),
+    helpstring("ScdTrends Class")
+  ]
+  coclass ScdTrends
+  {
+    [default] interface IScdTrends;
+    [default, source] dispinterface _IScdTrendsEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(D7DD5FC3-96D0-40BA-BDAB-C5A4D30E6273),
+    dual,
+    helpstring("IScdTrend Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTrend : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(BCB87010-3989-4B3A-ABD9-D90B612B1532),
+    helpstring("_IScdTrendEvents Interface")
+  ]
+  dispinterface _IScdTrendEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(7FBB4DF3-4500-491C-BFB6-49B567E42146),
+    helpstring("ScdTrend Class")
+  ]
+  coclass ScdTrend
+  {
+    [default] interface IScdTrend;
+    [default, source] dispinterface _IScdTrendEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(9BBB6577-1912-4A57-B3A3-695D2E1B9C47),
+    dual,
+    helpstring("IScdReports Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdReports : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Report")] HRESULT Report([in] VARIANT WhichOne, [out, retval] IScdReport ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [id(2), helpstring("method Add a Report")] HRESULT Add([in] BSTR IDStr, [out, retval] IScdReport ** pItem);
+    [id(3), helpstring("method Remove")] HRESULT Remove([in] VARIANT WhichOne);
+    [id(4), helpstring("method Process")] HRESULT Process([in] eScdReportTypes Type, [in] BSTR Filename, [in] BSTR Reportname, [in, defaultvalue(TRUE)] VARIANT_BOOL SaveAndClose);
+    //[propget, id(4), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdAppTagsCodes *pVal);
+    //[propget, id(5), helpstring("property TagValue")] HRESULT TagValue([in] BSTR TheTag, [out, retval] VARIANT *pVal);
+    //[propput, id(5), helpstring("property TagValue")] HRESULT TagValue([in] BSTR TheTag, [in] VARIANT newVal);
+    //[propget, id(6), helpstring("property TagType")] HRESULT TagType([in] BSTR TheTag, [out, retval] eScdAppTagType *pVal);
+  };
+  //----------------------------------------------
+  [
+    uuid(D67C9B32-1CFD-4DCF-93BA-66DA10E292FC),
+    helpstring("_IScdReportsEvents Interface")
+  ]
+  dispinterface _IScdReportsEvents
+  {
+properties:
+methods:
+    [id(1), helpstring("method OnReportProcessed")] HRESULT OnReportProcessed([in] long RetCode);
+  };
+
+  //----------------------------------------------
+  [
+    uuid(4E37ADB8-51BA-4AB1-A813-E7EB88DB1F59),
+    helpstring("ScdReports Class")
+  ]
+  coclass ScdReports
+  {
+    [default] interface IScdReports;
+    [default, source] dispinterface _IScdReportsEvents;
+  };
+  //----------------------------------------------
+  //----------------------------------------------
+  [
+    object,
+    uuid(9E5DEDD9-2F39-46C0-9F0B-E643DEAB7E41),
+    dual,
+    helpstring("IScdReport Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdReport : IDispatch
+  {
+  };
+
+  //----------------------------------------------
+  [
+    uuid(3E4DB624-6241-4AA4-A705-6C3D938DB29D),
+    helpstring("_IScdReportEvents Interface")
+  ]
+  dispinterface _IScdReportEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(C0C764DD-7B4A-4D40-A6B5-BD461C6B25CD),
+    helpstring("ScdReport Class")
+  ]
+  coclass ScdReport
+  {
+    [default] interface IScdReport;
+    [default, source] dispinterface _IScdReportEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(AD006B0A-7A2E-41FA-9E4A-A21CF142F95A),
+    dual,
+    helpstring("IScdSnapshot Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSnapshot : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(347D49D9-6D03-4CCA-8331-80771CA09F38),
+    helpstring("_IScdSnapshotEvents Interface")
+  ]
+  dispinterface _IScdSnapshotEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+
+  [
+    uuid(9125AC56-6485-4E8C-9AE8-DB7B71687139),
+    helpstring("ScdSnapshot Class")
+  ]
+  coclass ScdSnapshot
+  {
+    [default] interface IScdSnapshot;
+    [default, source] dispinterface _IScdSnapshotEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(38A910D0-F4E2-4D6F-AB87-D74908A2CED0),
+    dual,
+    helpstring("IScdHistorian Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdHistorian : IDispatch
+  {
+    [id(1), helpstring("method Delete")] HRESULT Delete(void);
+    [id(2), helpstring("method RecordTags")] HRESULT RecordTags([in] BSTR TagFileName);
+    [id(3), helpstring("method DeleteData")] HRESULT DeleteData(void);
+    [id(4), helpstring("method ExtractData")] HRESULT ExtractData([in] BSTR FileName, [in] eScdTimeFormat Fmt, [in] VARIANT StartTime, [in] DOUBLE Duration, [in] DOUBLE Interval, [in,defaultvalue(eScdHDEO_CSV)] eScdHistDataExtractOptions Options);
+  };
+  //----------------------------------------------
+  [
+    uuid(1405D2A2-A891-4153-BE9F-26CBC58F5918),
+    helpstring("_IScdHistorianEvents Interface")
+  ]
+  dispinterface _IScdHistorianEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(DF7B7439-A22A-4FD9-AF21-502E884BDB13),
+    helpstring("ScdHistorian Class")
+  ]
+  coclass ScdHistorian
+  {
+    [default] interface IScdHistorian;
+    [default, source] dispinterface _IScdHistorianEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(0F869A01-707B-4E55-BD70-F7133264D53C),
+    dual,
+    helpstring("IScdReplay Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdReplay : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(0B832283-B646-4982-922D-922E0BA8191B),
+    helpstring("_IScdReplayEvents Interface")
+  ]
+  dispinterface _IScdReplayEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(6CEC1C73-B7BB-4766-B352-9B465D280598),
+    helpstring("ScdReplay Class")
+  ]
+  coclass ScdReplay
+  {
+    [default] interface IScdReplay;
+    [default, source] dispinterface _IScdReplayEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(C1DDBC81-7788-456A-A1EF-D4D0CDE6B8A5),
+    dual,
+    helpstring("IScdProject Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdProject : IDispatch
+  {
+    [propget, id(1), helpstring("property Graphics")] HRESULT Graphics([out, retval] IScdGraphics ** pGraphics);
+    [propget, id(2), helpstring("property Trends")] HRESULT Trends([out, retval] IScdTrends ** pTrends);
+    [propget, id(3), helpstring("property Historian")] HRESULT Historian([out, retval] IScdHistorian ** pHistorian);
+    [propget, id(4), helpstring("property Reports")] HRESULT Reports([out, retval] IScdReports ** pReports);
+    [propget, id(5), helpstring("property Snapshot")] HRESULT Snapshot([out, retval] IScdSnapshot ** pSnapshot);
+    [propget, id(6), helpstring("property Solver")] HRESULT Solver([out, retval] IScdSolver ** pSolver);
+    [propget, id(7), helpstring("property SpecieDefns")] HRESULT SpecieDefns([out, retval] IScdSpecieDefns ** pSpecieDefns);
+    [propget, id(8), helpstring("property Tags")] HRESULT Tags([out, retval] IScdAppTags ** pTags);
+    [id(9), helpstring("method Save")] HRESULT Save([in,defaultvalue("")] BSTR Filename, [in,defaultvalue(FALSE)] VARIANT_BOOL NewVersion);
+    [propget, id(10), helpstring("property OPCServer")] HRESULT OPCServer([out, retval] IScdOPCServer ** pVal);
+    [propget, id(11), helpstring("property IOMarshal")] HRESULT IOMarshal([out, retval] IScdIOMarshal ** pVal);
+    [propget, id(12), helpstring("property DDEServer")] HRESULT DDEServer([out, retval] IScdDDEServer** pVal);
+    [propget, id(13), helpstring("property CfgFolder")] HRESULT CfgFolder([out, retval] BSTR* pVal);
+    [propget, id(14), helpstring("property PrjFolder")] HRESULT PrjFolder([out, retval] BSTR* pVal);
+    [id(15), helpstring("method ExportNeutralDB")] HRESULT ExportNeutralDB([in] eScdNDBOptions Options, [in] BSTR GraphicsDatabase, [in] BSTR ModelDatabase);
+    [id(16), helpstring("method ImportNeutralDB")] HRESULT ImportNeutralDB([in] eScdNDBOptions Options, [in] BSTR GraphicsDatabase, [in] BSTR ModelDatabase, [in] IScdTagFixup * TagFixups);
+  };
+  //----------------------------------------------
+  [
+    uuid(FE1BD893-D00F-4071-99C9-EF4145712FE4),
+    helpstring("_IScdProjectEvents Interface")
+  ]
+  dispinterface _IScdProjectEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(7209213F-9142-42F8-B379-2BD483FD19A7),
+    helpstring("ScdProject Class")
+  ]
+  coclass ScdProject
+  {
+    [default] interface IScdProject;
+    [restricted] interface IScdASyncEvents;
+    [default, source] dispinterface _IScdProjectEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(A9817A29-F032-4FFF-9964-017002D6AF7E),
+    dual,
+    helpstring("IScdLicenseApp Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdLicenseApp : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(F92493F6-A68C-47C7-8603-63EED1703E0E),
+    helpstring("_IScdLicenseAppEvents Interface")
+  ]
+  dispinterface _IScdLicenseAppEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(AEEF651D-000C-476D-8D8A-0EFCE598BE2D),
+    helpstring("ScdLicenseApp Class")
+  ]
+  coclass ScdLicenseApp
+  {
+    [default] interface IScdLicenseApp;
+    [default, source] dispinterface _IScdLicenseAppEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(B354722B-A835-4B64-81EA-3974FDC36CAA),
+    dual,
+    helpstring("IScdOptions Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdOptions : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(B3736DA8-B7D6-4BED-86E0-D9405B9D3BAC),
+    helpstring("_IScdOptionsEvents Interface")
+  ]
+  dispinterface _IScdOptionsEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(48640704-A5F3-4810-92FE-5AD0D72B330D),
+    helpstring("ScdOptions Class")
+  ]
+  coclass ScdOptions
+  {
+    [default] interface IScdOptions;
+    [default, source] dispinterface _IScdOptionsEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(7DBCC5D8-BFE8-4989-9C78-BECB5EAA0119),
+    dual,
+    helpstring("IScdAppTags Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdAppTags : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Tag")] HRESULT Tag([in] VARIANT WhichOne, [out, retval] IScdAppTag ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [id(2), helpstring("method Add a Tag")] HRESULT Add([in] BSTR Tag);
+    [id(3), helpstring("method Remove")] HRESULT Remove([in] VARIANT WhichOne);
+    [propget, id(4), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdAppTagsCodes *pVal);
+    [propget, id(5), helpstring("property TagValue")] HRESULT TagValue([in] BSTR TheTag, [out, retval] VARIANT *pVal);
+    [propput, id(5), helpstring("property TagValue")] HRESULT TagValue([in] BSTR TheTag, [in] VARIANT newVal);
+    [propget, id(6), helpstring("property TagType")] HRESULT TagType([in] BSTR TheTag, [out, retval] eScdAppTagType *pVal);
+    [propget, id(7), helpstring("property TagRecording")] HRESULT TagRecording([in] BSTR Tag, [out, retval] eScdTagRecState *pVal);
+    [propput, id(7), helpstring("property TagRecording")] HRESULT TagRecording([in] BSTR Tag, [in] eScdTagRecState newVal);
+  };
+  //----------------------------------------------
+  [
+    uuid(40658753-59D6-43EC-86B3-3ACF66203249),
+    helpstring("_IScdAppTagsEvents Interface")
+  ]
+  dispinterface _IScdAppTagsEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(9FE87A55-F087-40DC-BD9A-0AB66855C6A5),
+    helpstring("ScdAppTags Class"),
+    // hidden //restricted
+  ]
+  coclass ScdAppTags
+  {
+    [default] interface IScdAppTags;
+    [default, source] dispinterface _IScdAppTagsEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(1CD2CBB0-B29A-4C87-A263-3A96C442B26C),
+    dual,
+    helpstring("IScdAppTag Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdAppTag : IDispatch
+  {
+  };
+  //----------------------------------------------
+  [
+    uuid(27E1F8F1-3A3B-4A47-BDD6-2F84184BE74F),
+    helpstring("_IScdAppTagEvents Interface")
+  ]
+  dispinterface _IScdAppTagEvents
+  {
+properties:
+methods:
+  };
+  //----------------------------------------------
+  [
+    uuid(EDEB289E-6CA0-44FF-9BCC-E0A79C961999),
+    helpstring("ScdAppTag Class")
+  ]
+  coclass ScdAppTag
+  {
+    [default] interface IScdAppTag;
+    [default, source] dispinterface _IScdAppTagEvents;
+  };
+  [
+    uuid(CF9D72BD-DE3A-4B93-8C04-77D6DE2D66CD),
+    helpstring("_IScdOPCServerEvents Interface")
+  ]
+  dispinterface _IScdOPCServerEvents
+  {
+properties:
+methods:
+  };
+  [
+    object,
+    uuid(6B25D976-06AD-4555-839B-FE4397C8EA87),
+    dual,
+    nonextensible,
+    helpstring("IScdOPCServer Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdOPCServer : IDispatch{
+    [propget, id(1), helpstring("property On")] HRESULT On([out, retval] VARIANT_BOOL* pVal);
+    [propput, id(1), helpstring("property On")] HRESULT On([in] VARIANT_BOOL newVal);
+  };
+  [
+    object,
+    uuid(F07CDDED-C83B-4102-9ABF-67E2CD538770),
+    dual,
+    nonextensible,
+    helpstring("IScdDDEServer Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdDDEServer : IDispatch{
+    [propget, id(1), helpstring("property On")] HRESULT On([out, retval] VARIANT_BOOL* pVal);
+    [propput, id(1), helpstring("property On")] HRESULT On([in] VARIANT_BOOL newVal);
+  };
+
+  [
+    uuid(FB41D0A4-B3F8-495E-ACE7-98E6B5182A21),
+    helpstring("ScdOPCServer Class")
+  ]
+  coclass ScdOPCServer
+  {
+    [default] interface IScdOPCServer;
+    [default, source] dispinterface _IScdOPCServerEvents;
+  };
+  [
+    uuid(5F996E78-B0C7-44A9-B4E2-28DDBE2CDEE5),
+    helpstring("_IScdDDEServerEvents Interface")
+  ]
+  dispinterface _IScdDDEServerEvents
+  {
+properties:
+methods:
+  };
+  [
+    uuid(D958F87F-BA78-4ECE-880B-30C1DEA8823C),
+    helpstring("ScdDDEServer Class")
+  ]
+  coclass ScdDDEServer
+  {
+    [default] interface IScdDDEServer;
+    [default, source] dispinterface _IScdDDEServerEvents;
+  };
+  [
+    object,
+    uuid(D0547ADB-FC63-409F-95C7-9A8883FE8980),
+    dual,
+    nonextensible,
+    helpstring("IScdIOMarshal Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdIOMarshal : IDispatch{
+    [propget, id(1), helpstring("property On")] HRESULT On([out, retval] VARIANT_BOOL* pVal);
+    [propput, id(1), helpstring("property On")] HRESULT On([in] VARIANT_BOOL newVal);
+  };
+  [
+    uuid(EFAA1F8F-87B5-4A25-882C-E649367CF554),
+    helpstring("_IScdIOMarshalEvents Interface")
+  ]
+  dispinterface _IScdIOMarshalEvents
+  {
+properties:
+methods:
+  };
+  [
+    uuid(2E2D7DE0-A3A3-4EE4-A91D-38DD20631F5F),
+    helpstring("ScdIOMarshal Class")
+  ]
+  coclass ScdIOMarshal
+  {
+    [default] interface IScdIOMarshal;
+    [default, source] dispinterface _IScdIOMarshalEvents;
+  };
+  [
+    object,
+    uuid(F50E3A4A-5F95-4B5D-9901-22D5522BFD58),
+    dual,
+    nonextensible,
+    helpstring("IScdTagFixup Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTagFixup : IDispatch{
+    [propget, id(1), helpstring("property Rule")] HRESULT Rule([out, retval] eScdTagFixupRules* pVal);
+    [propput, id(1), helpstring("property Rule")] HRESULT Rule([in] eScdTagFixupRules newVal);
+    [propget, id(2), helpstring("property Prefix")] HRESULT String1([out, retval] BSTR* pVal);
+    [propput, id(2), helpstring("property Prefix")] HRESULT String1([in] BSTR newVal);
+    [propget, id(3), helpstring("property Suffix")] HRESULT String2([out, retval] BSTR* pVal);
+    [propput, id(3), helpstring("property Suffix")] HRESULT String2([in] BSTR newVal);
+  };
+  [
+    uuid(D664BC94-4AB5-4B3E-929A-90FADA43CAB5),
+    helpstring("ScdTagFixup Class")
+  ]
+  coclass ScdTagFixup
+  {
+    [default] interface IScdTagFixup;
+  };
+
+  //----------------------------------------------
+  //{{AFX_APPEND_ODL}}
+  //}}AFX_APPEND_ODL}}
+};

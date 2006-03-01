@@ -1,0 +1,8 @@
+ActiproSoftware.UIStudio.Bar.ToolBar, ActiproSoftware.UIStudio.Bar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6
+ActiproSoftware.UIStudio.Dock.DockManager, ActiproSoftware.UIStudio.Dock, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b
+ActiproSoftware.UIStudio.NavigationBar.NavigationBar, ActiproSoftware.UIStudio.NavigationBar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b14901ad955fb079
+ActiproSoftware.UIStudio.TabStrip.TabStrip, ActiproSoftware.UIStudio.Dock, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b
+ActiproSoftware.UIStudio.NavigationBar.NavigationBarPanel, ActiproSoftware.UIStudio.NavigationBar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b14901ad955fb079
+PureComponents.TreeView.TreeView, PureComponents.TreeView, Version=1.6.626.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512
+ActiproSoftware.UIStudio.Bar.StatusBar, ActiproSoftware.UIStudio.Bar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6
+ActiproSoftware.UIStudio.Bar.BarManager, ActiproSoftware.UIStudio.Bar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6

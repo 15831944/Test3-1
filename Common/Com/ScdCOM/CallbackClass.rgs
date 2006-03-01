@@ -1,0 +1,24 @@
+HKCR
+{
+  %PROGID% = s '%CLASSDESC%'
+	{
+    CLSID = s '%CLASSID%'
+	}
+  %VIPROGID% = s '%CLASSDESC%'
+	{
+    CLSID = s '%CLASSID%'
+    CurVer = s '%PROGID%'
+	}
+	NoRemove CLSID
+	{
+    ForceRemove %CLASSID% = s '%CLASSDESC%'
+		{
+      ProgID = s '%PROGID%'
+      VersionIndependentProgID = s '%VIPROGID%'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '700C6795-4F08-48D6-960A-88773A56E877'
+		}
+	}
+}

@@ -1,0 +1,31 @@
+HKCR
+{
+  PLC5.OPC.1 = s 'PLC5 OPC Server'
+  {
+    CLSID = s '{15A44DE7-91FA-48d2-8D96-0DDA57670EE5}'
+  }
+  PLC5.OPC = s 'PLC5 OPC Server'
+  {
+    CLSID = s '{15A44DE7-91FA-48d2-8D96-0DDA57670EE5}'
+        OPC
+        {
+            Vendor = s 'Kenwalt (Pty) Ltd.'
+        }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {15A44DE7-91FA-48d2-8D96-0DDA57670EE5} = s 'PLC5 OPC Server'
+    {
+      ProgID = s 'PLC5.OPC.1'
+      VersionIndependentProgID = s 'PLC5.OPC'
+      LocalServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+  NoRemove AppID
+  {
+    ForceRemove {15A44DE7-91FA-48d2-8D96-0DDA57670EE5} = s 'PLC5 OPC Server'
+  }
+}

@@ -1,0 +1,9 @@
+; ScdIF.def : Declares the module parameters.
+
+LIBRARY      "ScdIF.DLL"
+
+EXPORTS
+	DllCanUnloadNow     PRIVATE
+	DllGetClassObject   PRIVATE
+	DllRegisterServer   PRIVATE
+	DllUnregisterServer	PRIVATE

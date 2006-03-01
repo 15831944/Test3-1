@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Wires.1 = s 'ScdWires Class'
+	{
+		CLSID = s '{954689B2-7310-416C-B8CB-3B2D3F90F305}'
+	}
+	SysCAD.Wires = s 'ScdWires Class'
+	{
+		CLSID = s '{954689B2-7310-416C-B8CB-3B2D3F90F305}'
+		CurVer = s 'SysCAD.Wires.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {954689B2-7310-416C-B8CB-3B2D3F90F305} = s 'ScdWires Class'
+		{
+			ProgID = s 'SysCAD.Wires.1'
+			VersionIndependentProgID = s 'SysCAD.Wires'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

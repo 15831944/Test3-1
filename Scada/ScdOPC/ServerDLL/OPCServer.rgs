@@ -1,0 +1,60 @@
+HKCR
+{
+  SysCAD.OPC.1 = s 'SysCAD OPC Server'
+  {
+    CLSID = s '{65A0CB71-6AB7-475c-870B-D25DC8CE1433}'
+  }
+  SysCAD.OPC = s 'SysCAD OPC Server'
+  {
+    CLSID = s '{65A0CB71-6AB7-475c-870B-D25DC8CE1433}'
+        OPC
+        {
+            Vendor = s 'KenWalt (Pty) Ltd.'
+        }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {65A0CB71-6AB7-475c-870B-D25DC8CE1433} = s 'SysCAD OPC Server'
+    {
+      ProgID = s 'SysCAD.OPC.1'
+      VersionIndependentProgID = s 'SysCAD.OPC'
+      LocalServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+  NoRemove AppID
+  {
+    ForceRemove {65A0CB71-6AB7-475c-870B-D25DC8CE1433} = s 'SysCAD OPC Server'
+  }
+
+  SysCAD2.OPC.1 = s 'SysCAD2 OPC Server'
+  {
+    CLSID = s '{65A0CB71-6AB7-475c-870B-D25DC8CE1434}'
+  }
+  SysCAD2.OPC = s 'SysCAD2 OPC Server'
+  {
+    CLSID = s '{65A0CB71-6AB7-475c-870B-D25DC8CE1434}'
+        OPC
+        {
+            Vendor = s 'KenWalt (Pty) Ltd.'
+        }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {65A0CB71-6AB7-475c-870B-D25DC8CE1434} = s 'SysCAD2 OPC Server'
+    {
+      ProgID = s 'SysCAD2.OPC.1'
+      VersionIndependentProgID = s 'SysCAD2.OPC'
+      LocalServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+  NoRemove AppID
+  {
+    ForceRemove {65A0CB71-6AB7-475c-870B-D25DC8CE1434} = s 'SysCAD2 OPC Server'
+  }
+}

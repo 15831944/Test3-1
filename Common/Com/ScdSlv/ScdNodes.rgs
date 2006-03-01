@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Nodes.1 = s 'ScdNodes Class'
+	{
+		CLSID = s '{C4FCD11A-5909-46D7-A7FC-70BDFFC45635}'
+	}
+	SysCAD.Nodes = s 'ScdNodes Class'
+	{
+		CLSID = s '{C4FCD11A-5909-46D7-A7FC-70BDFFC45635}'
+		CurVer = s 'SysCAD.Nodes.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {C4FCD11A-5909-46D7-A7FC-70BDFFC45635} = s 'ScdNodes Class'
+		{
+			ProgID = s 'SysCAD.Nodes.1'
+			VersionIndependentProgID = s 'SysCAD.Nodes'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

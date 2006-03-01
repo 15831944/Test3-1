@@ -1,0 +1,787 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\ScdIODB.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\icon1.ico"
+IDR_MODBUSTYPE          ICON    DISCARDABLE     "res\\Doc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Add"
+    BEGIN
+        MENUITEM "New &Device...\tCtrl+D",      ID_ADD_NEWDEVICE
+        MENUITEM "New &Group...\tCtrl+G",       ID_ADD_NEWGROUP
+        MENUITEM "New &Tag...\tCtrl+T",         ID_ADD_NEWTAG
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Po&rts...",                   ID_EDIT_PORTS
+        MENUITEM SEPARATOR
+        MENUITEM "Pr&operties...\tCtrl+P",      ID_EDIT_PROPERTIES
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Monitor",                    ID_VIEW_MONITOR
+        MENUITEM SEPARATOR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ScdIODB...",           ID_APP_ABOUT
+    END
+    MENUITEM "UpdateAll",                   ID_UPDATEALL
+END
+
+IDR_DEVICE_INSPECTOR MENU DISCARDABLE 
+BEGIN
+    POPUP "Device"
+    BEGIN
+        MENUITEM "Paste",                       ID_EDIT_PASTE
+        MENUITEM "Delete",                      ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "New Group...",                ID_ADD_NEWGROUP
+        MENUITEM "New Tag...",                  ID_ADD_NEWTAG
+        MENUITEM SEPARATOR
+        MENUITEM "Properties...",               ID_EDIT_PROPERTIES
+    END
+END
+
+IDR_TAG_INSPECTOR MENU DISCARDABLE 
+BEGIN
+    POPUP "Tag"
+    BEGIN
+        MENUITEM "Cut",                         ID_EDIT_CUT
+        MENUITEM "Copy",                        ID_EDIT_COPY
+        MENUITEM "Delete",                      ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Properties...",               ID_EDIT_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_ADD_NEWDEVICE,       VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_ADD_NEWGROUP,        VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_ADD_NEWTAG,          VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 218, 85
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About ScdIODB"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,20,20,20,WS_BORDER
+    LTEXT           "OPC Sample Version 2.04",IDC_STATIC,39,11,110,8,
+                    SS_NOPREFIX
+    DEFPUSHBUTTON   "OK",IDOK,179,7,32,14,WS_GROUP
+    LTEXT           "Copyright © 2000, FactorySoft Inc. All Rights Reserved",
+                    IDC_STATIC,39,69,172,8
+    LTEXT           "FactorySoft, Inc.",IDC_STATIC,39,26,172,8,SS_NOPREFIX
+    LTEXT           "Web:  www.factorysoft.com.",IDC_STATIC,39,35,172,8,
+                    SS_NOPREFIX
+    LTEXT           "Email: info@factorysoft.com",IDC_STATIC,39,44,172,8,
+                    SS_NOPREFIX
+    LTEXT           "Tel: (508) 337-6600",IDC_STATIC,39,53,172,8,SS_NOPREFIX
+END
+
+IDD_DEVICE DIALOG DISCARDABLE  0, 0, 292, 47
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Device Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_NAME,37,7,185,12,ES_AUTOHSCROLL
+    CONTROL         "Simulate I/O (does not access the Modbus device)",
+                    IDC_SIMULATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,28,
+                    219,10
+    DEFPUSHBUTTON   "OK",IDOK,235,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,235,24,50,14
+    RTEXT           "Name",IDC_STATIC,7,9,25,8
+END
+
+IDD_GROUP DIALOG DISCARDABLE  0, 0, 218, 45
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Group"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_NAME,37,7,107,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,161,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,161,24,50,14
+    RTEXT           "Name",IDC_STATIC,7,9,25,8
+END
+
+IDD_TAG DIALOG DISCARDABLE  0, 0, 224, 102
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Tag Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_NAME,66,7,92,12,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        IDC_DESCRIPTION,66,24,92,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DATATYPE,66,41,92,12,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        IDC_VALUE,66,58,92,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Set",ID_SET,167,57,50,14
+    COMBOBOX        IDC_SIMULATION_TYPE,66,75,151,45,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,167,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,167,24,50,14
+    RTEXT           "Name",IDC_STATIC,36,9,25,8
+    RTEXT           "Description",IDC_STATIC,7,26,54,8
+    LTEXT           "Simulation signal",IDC_STATIC,7,77,54,8
+    RTEXT           "Data Type",IDC_STATIC,7,43,54,8
+    RTEXT           "Value",IDC_STATIC,7,60,54,8
+END
+
+IDD_TAGANLGALARM DIALOG DISCARDABLE  0, 0, 232, 181
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Alarms"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_PRIORITY,43,6,42,12,ES_AUTOHSCROLL
+    CONTROL         "&LoLo",IDC_ENABLELOLOALM,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,17,45,28,10
+    EDITTEXT        IDC_LOLO,53,44,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOLOPRIOR,98,44,24,12,ES_AUTOHSCROLL
+    CONTROL         "Lo&w",IDC_ENABLELOW,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,17,60,25,10
+    EDITTEXT        IDC_LOW,53,59,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOWPRIOR,98,59,24,12,ES_AUTOHSCROLL
+    CONTROL         "&High",IDC_ENABLEHIGH,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,17,75,26,10
+    EDITTEXT        IDC_HIGH,53,74,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_HIGHPRIOR,98,74,24,12,ES_AUTOHSCROLL
+    CONTROL         "H&iHi",IDC_ENABLEHIHI,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,17,90,25,10
+    EDITTEXT        IDC_HIHI,53,89,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_HIHIPRIOR,98,89,24,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VALUEDEAD,82,106,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DEVIATION,172,37,49,12,ES_AUTOHSCROLL
+    CONTROL         "Mi&nor",IDC_ENABLEMINOR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,135,66,31,10
+    EDITTEXT        IDC_MINOR,172,66,20,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MINORPRIOR,200,66,20,12,ES_AUTOHSCROLL
+    CONTROL         "&Major",IDC_ENABLEMAJOR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,135,81,31,10
+    EDITTEXT        IDC_MAJOR,172,79,20,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAJORPRIOR,200,79,20,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DEVDEADBAND,200,95,20,12,ES_AUTOHSCROLL
+    CONTROL         "&Rate of Change",IDC_ENABLERATE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,148,62,10
+    EDITTEXT        IDC_RATE,86,146,20,12,ES_AUTOHSCROLL
+    CONTROL         "&Sec",IDC_RATESEC,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,131,135,34,10
+    CONTROL         "&Min",IDC_RATEMIN,"Button",BS_AUTORADIOBUTTON,131,146,
+                    34,10
+    CONTROL         "&Hour",IDC_RATEHOUR,"Button",BS_AUTORADIOBUTTON,131,159,
+                    34,10
+    EDITTEXT        IDC_RATEPRIOR,170,146,20,12,ES_AUTOHSCROLL
+    LTEXT           "Value",IDC_STATIC,53,31,20,8
+    LTEXT           "Priority",IDC_STATIC,98,31,24,8
+    LTEXT           "&Value Deadband:",IDC_SVALDEAD,17,108,59,8
+    GROUPBOX        "Value Alarms",IDC_STATIC,6,20,122,105
+    LTEXT           "&Target:",IDC_STATIC,147,39,25,8
+    LTEXT           "%Deviation",IDC_STATIC,158,54,38,8
+    LTEXT           "Deadband %",IDC_SDEVDEADBAND,154,98,41,8
+    LTEXT           "Priority",IDC_STATIC,198,54,24,8
+    GROUPBOX        "Deviation Alarms",IDC_STATIC,132,20,95,105
+    GROUPBOX        "Rate Alarms",IDC_STATIC,6,127,221,46
+    LTEXT           "% per",IDC_STATIC,111,148,19,8
+    LTEXT           "Priority",IDC_STATIC,167,135,24,8
+    LTEXT           "&Priority:",IDC_SPRIORITY,9,7,26,8
+END
+
+IDD_TAGANLGDETAILS DIALOG DISCARDABLE  0, 0, 232, 181
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Scaling"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_MINRAW,35,23,34,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAXRAW,35,37,34,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ENGUNITS,155,9,59,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MINEU,155,23,34,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAXEU,155,38,34,12,ES_AUTOHSCROLL
+    CONTROL         "&Linear",IDC_LINEAR,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,43,70,32,10
+    CONTROL         "&Square Root",IDC_SQUARE,"Button",BS_AUTORADIOBUTTON,86,
+                    70,52,10
+    EDITTEXT        IDC_DEBAND,50,98,38,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOGDEADBAND,155,98,35,12,ES_AUTOHSCROLL
+    GROUPBOX        "Conversion",IDC_STATIC,35,59,112,28
+    RTEXT           "Units",IDC_SENGUNITS,126,11,24,8
+    RTEXT           "Min",IDC_SMINRAW,5,25,25,8
+    RTEXT           "Max",IDC_SMAXRAW,5,39,25,8
+    RTEXT           "&Deadband:",IDC_SDEADBAND,9,100,36,8
+    RTEXT           "Log Dead&band:",IDC_SLOGDEADBAND,99,100,51,8
+    LTEXT           "Raw Data",IDC_STATIC,35,11,31,8
+    RTEXT           "Min",IDC_SMINRAW2,132,25,18,8
+    RTEXT           "Max",IDC_SMAXRAW2,127,39,23,8
+    LTEXT           "Scales to >",IDC_STATIC,81,29,34,8
+    LTEXT           "Static",IDC_EXAMPLE,5,155,219,8
+END
+
+IDD_COPY_TAG DIALOG DISCARDABLE  0, 0, 225, 118
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Copying Tag"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Rename",IDC_RENAME,168,18,50,14
+    PUSHBUTTON      "Overwrite",IDC_OVERWRITE,168,43,50,14
+    LTEXT           "Tag %s already exists",IDC_TITLE,7,7,211,8
+    DEFPUSHBUTTON   "Skip",IDC_SKIP,168,68,50,14
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,168,93,50,14
+    LTEXT           "Current Tag is an Input Coil at 40020 with no scaling",
+                    IDC_CURRENT,7,41,148,18
+    EDITTEXT        IDC_NAME,83,18,72,14,ES_AUTOHSCROLL
+    LTEXT           "New Tag is an Input Register at 40020 using style Thermocouple",
+                    IDC_NEW,7,66,148,18
+END
+
+IDD_PORTS DIALOG DISCARDABLE  0, 0, 189, 132
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Port Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,132,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,132,24,50,14
+    COMBOBOX        IDC_PORTS,45,7,76,51,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_BAUD,45,31,76,86,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_PORT_PARITY,45,50,76,42,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FLOW,45,68,76,40,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_DATA,45,87,76,51,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_STOP,45,105,76,51,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    RTEXT           "Port",IDC_STATIC,7,9,34,8
+    RTEXT           "Baud Rate",IDC_STATIC,7,33,34,8
+    RTEXT           "Parity",IDC_STATIC,7,52,34,8
+    RTEXT           "Flow",IDC_STATIC,7,70,34,8
+    RTEXT           "Data Bits",IDC_STATIC,7,89,34,8
+    RTEXT           "Stop Bits",IDC_STATIC,7,107,34,8
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,4,0
+ PRODUCTVERSION 2,0,4,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Kenwalt\0"
+            VALUE "FileDescription", "ScdTgSrcOPC Sample\0"
+            VALUE "FileVersion", "2, 0, 2, 0\0"
+            VALUE "InternalName", "ScdIODB\0"
+            VALUE "LegalCopyright", "Copyright © 1997-2000\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "ScdIODB.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "ScdTgSrcOPC Sample\0"
+            VALUE "ProductVersion", "2, 0, 2, 0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 211
+        VERTGUIDE, 39
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 77
+    END
+
+    IDD_DEVICE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 285
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
+
+    IDD_GROUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 211
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 38
+    END
+
+    IDD_TAG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 217
+        VERTGUIDE, 61
+        VERTGUIDE, 66
+        VERTGUIDE, 158
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 95
+    END
+
+    IDD_TAGANLGDETAILS, DIALOG
+    BEGIN
+        VERTGUIDE, 5
+        VERTGUIDE, 30
+        VERTGUIDE, 35
+        VERTGUIDE, 150
+        VERTGUIDE, 155
+        HORZGUIDE, 15
+        HORZGUIDE, 29
+        HORZGUIDE, 44
+        HORZGUIDE, 104
+    END
+
+    IDD_COPY_TAG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+        HORZGUIDE, 25
+        HORZGUIDE, 50
+        HORZGUIDE, 75
+        HORZGUIDE, 100
+    END
+
+    IDD_PORTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        VERTGUIDE, 41
+        VERTGUIDE, 45
+        VERTGUIDE, 120
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 125
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SPLASH              BITMAP  DISCARDABLE     "res\\Splash.bmp"
+IDB_IMAGELIST           BITMAP  DISCARDABLE     "res\\bmp00002.bmp"
+IDR_TOOLBAR             BITMAP  DISCARDABLE     "res\\toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_TAG DLGINIT
+BEGIN
+    IDC_SIMULATION_TYPE, 0x403, 5, 0
+0x6953, 0x656e, "\000" 
+    IDC_SIMULATION_TYPE, 0x403, 5, 0
+0x6152, 0x706d, "\000" 
+    IDC_SIMULATION_TYPE, 0x403, 7, 0
+0x6152, 0x646e, 0x6d6f, "\000" 
+    0
+END
+
+IDD_PORTS DLGINIT
+BEGIN
+    IDC_BAUD, 0x403, 4, 0
+0x3033, 0x0030, 
+    IDC_BAUD, 0x403, 4, 0
+0x3036, 0x0030, 
+    IDC_BAUD, 0x403, 5, 0
+0x3231, 0x3030, "\000" 
+    IDC_BAUD, 0x403, 5, 0
+0x3432, 0x3030, "\000" 
+    IDC_BAUD, 0x403, 5, 0
+0x3834, 0x3030, "\000" 
+    IDC_BAUD, 0x403, 5, 0
+0x3639, 0x3030, "\000" 
+    IDC_BAUD, 0x403, 6, 0
+0x3931, 0x3032, 0x0030, 
+    IDC_BAUD, 0x403, 6, 0
+0x3833, 0x3034, 0x0030, 
+    IDC_BAUD, 0x403, 6, 0
+0x3635, 0x3030, 0x0030, 
+    IDC_BAUD, 0x403, 7, 0
+0x3131, 0x3235, 0x3030, "\000" 
+    IDC_PORT_PARITY, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    IDC_PORT_PARITY, 0x403, 4, 0
+0x644f, 0x0064, 
+    IDC_PORT_PARITY, 0x403, 5, 0
+0x7645, 0x6e65, "\000" 
+    IDC_FLOW, 0x403, 19, 0
+0x6148, 0x6472, 0x6177, 0x6572, 0x2820, 0x5452, 0x2f53, 0x5443, 0x2953, 
+"\000" 
+    IDC_FLOW, 0x403, 20, 0
+0x6f4d, 0x6564, 0x206d, 0x5228, 0x5354, 0x742b, 0x6d69, 0x6f65, 0x7475, 
+0x0029, 
+    IDC_FLOW, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    IDC_DATA, 0x403, 10, 0
+0x2037, 0x4128, 0x4353, 0x4949, 0x0029, 
+    IDC_DATA, 0x403, 8, 0
+0x2038, 0x5228, 0x5554, 0x0029, 
+    IDC_STOP, 0x403, 2, 0
+0x0031, 
+    IDC_STOP, 0x403, 2, 0
+0x0032, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_ADD_NEWDEVICE
+    BUTTON      ID_ADD_NEWGROUP
+    BUTTON      ID_ADD_NEWTAG
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_OPCSERVER           REGISTRY MOVEABLE PURE  "OPCServer.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    ID_VIEW_STYLEBAR        "Show or hide StyleBar\nToggle StyleBar"
+    ID_VIEW_MONITOR         "Monitor tag values"
+    ID_ADD_NEWDEVICE        "Creates a new device\nnew Device"
+    ID_ADD_NEWGROUP         "Adds a new sub-group\nnew Group"
+    ID_ADD_NEWTAG           "Creates a new Tag\nnew Tag"
+    ID_EDIT_PORTS           "Edit port settings"
+    ID_EDIT_STYLES          "Edit scaling and alarming styles"
+    ID_EDIT_PROPERTIES      "Edits the current selection's properties"
+    ID_DEVICE_DELETE        "Deletes the current selection and all of its Tags"
+    ID_DEVICE_DIAGNOSTICS   "Runs diagnostics on this device"
+    ID_DEVICE_STATISTICS    "Shows communications statistics for this device"
+    ID_SUMMARY              "Device.Group.Group has 16 Tags"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "Kenwalt ScdIODB\n\nTag Configuration\nTag Configuration Files (*.tdb)\n.tdb\nScdTgSrc.Document\nModbus Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "ScdIODB"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new configuration\nNew"
+    ID_FILE_OPEN            "Open an existing configuration\nOpen"
+    ID_FILE_CLOSE           "Close the activeconfiguration\nClose"
+    ID_FILE_SAVE            "Save the active configuration\nSave"
+    ID_FILE_SAVE_AS         "Save the active configuration with a new name\nSave As"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this configuration"
+    ID_FILE_MRU_FILE2       "Open this configuration"
+    ID_FILE_MRU_FILE3       "Open this configuration"
+    ID_FILE_MRU_FILE4       "Open this configuration"
+    ID_FILE_MRU_FILE5       "Open this configuration"
+    ID_FILE_MRU_FILE6       "Open this configuration"
+    ID_FILE_MRU_FILE7       "Open this configuration"
+    ID_FILE_MRU_FILE8       "Open this configuration"
+    ID_FILE_MRU_FILE9       "Open this configuration"
+    ID_FILE_MRU_FILE10      "Open this configuration"
+    ID_FILE_MRU_FILE11      "Open this configuration"
+    ID_FILE_MRU_FILE12      "Open this configuration"
+    ID_FILE_MRU_FILE13      "Open this configuration"
+    ID_FILE_MRU_FILE14      "Open this configuration"
+    ID_FILE_MRU_FILE15      "Open this configuration"
+    ID_FILE_MRU_FILE16      "Open this configuration"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Horizontally"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Vertically"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    IDS_VENDOR_INFO         "Generic OPC Server"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_OPC_E_INVALIDHANDLE "Invalid Server Handle."
+    IDS_OPC_E_BADTYPE       "Server cannot convert data to the requested type."
+    IDS_OPC_E_PUBLIC        "Illegal operation on a Public Group."
+    IDS_OPC_E_BADRIGHTS     "Access Rights do not allow this operation."
+    IDS_OPC_E_UNKNOWNITEMID "This ItemID is not known."
+    IDS_OPC_E_INVALIDITEMID "This ItemID is not valid."
+    IDS_OPC_E_INVALIDFILTER "The filter string is not valid."
+    IDS_OPC_E_UNKNOWNPATH   "The Item's access path is not known."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_OPC_E_RANGE         "The value is out of range."
+    IDS_OPC_E_DUPLICATENAME "Duplicate group name is not allowed."
+    IDS_OPC_S_UNSUPPORTEDRATE "The requested data rate is not supported."
+    IDS_OPC_S_CLAMP         "The value was written but its output was clamped."
+    IDS_OPC_S_INUSE         "Illegal operation while the object is in use."
+    IDS_OPC_E_INVALIDCONFIGFILE "The configuration file is an invalid format."
+    IDS_OPC_E_NOTFOUND      "The object could not be found."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_STYLES              "Apply a scaling and alarming style"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TAG_DELETE           "Deletes the current selection"
+    ID_EDIT_DELETE          "Deletes the current selection\nDelete"
+    ID_EDIT_FINDTAGS        "Find Tags across devices or groups"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_EDITBAR_STYLES      "Apply a style to selected tags\nApply style"
+    IDS_PROPSHT_CAPTION     "Property Sheet"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\ScdIODB.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

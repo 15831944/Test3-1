@@ -1,0 +1,266 @@
+// ScdVB.idl : IDL source for ScdVB.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ScdVB.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(232C83AA-965A-4CEC-93FF-9D70438BD35F),
+		dual,
+		helpstring("IScdUserInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IScdUserInfo : IDispatch
+	{
+
+	    typedef enum {
+		ScdUser_None		=	0,
+		ScdUser_Trainee		=	1,
+		ScdUser_Instructor  =	2,
+		ScdUser_Engineer	=	3,
+		ScdUser_SystemManager =	4,
+		} ScdUserType; 
+
+		[propget, id(1), helpstring("property IsTrainee")] HRESULT IsTrainee([out, retval] BOOL *pVal);
+		[propget, id(2), helpstring("property IsEngineer")] HRESULT IsEngineer([out, retval] BOOL *pVal);
+		[propget, id(3), helpstring("property IsInstructor")] HRESULT IsInstructor([out, retval] BOOL *pVal);
+		[propget, id(4), helpstring("property IsSystemManager")] HRESULT IsSystemManager([out, retval] BOOL *pVal);
+		[propget, id(5), helpstring("property UserName")] HRESULT UserName([out, retval] BSTR *pVal);
+		[propget, id(6), helpstring("property UserProfile")] HRESULT UserProfile([out, retval] BSTR *pVal);
+		[propget, id(7), helpstring("property AllUsersProfile")] HRESULT AllUsersProfile([out, retval] BSTR *pVal);
+		[propget, id(8), helpstring("property UserType")] HRESULT UserType([out, retval] ScdUserType *pVal);
+		[propput, id(8), helpstring("property UserType")] HRESULT UserType([in] ScdUserType newVal);
+	};
+
+[
+	object,
+	uuid(0572B86A-699B-4B35-A55D-B62505D126F2),
+	dual,
+	nonextensible,
+	helpstring("IScdProfile Interface"),
+	pointer_default(unique)
+]
+interface IScdProfile : IDispatch{
+  [id(1), helpstring("Read a String")] HRESULT ReadString([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] BSTR Default, [out, retval] BSTR* pVal);
+  [id(2), helpstring("Write a String")] HRESULT WriteString([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] BSTR newVal);
+  [id(3), helpstring("Read a Long")] HRESULT ReadLong([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] long Default, [out, retval] long* pVal);
+  [id(4), helpstring("Write a Long")] HRESULT WriteLong([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] long newVal);
+  [id(5), helpstring("Read a Double")] HRESULT ReadDouble([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] double Default, [out, retval] double * pVal);
+  [id(6), helpstring("Write a Double")] HRESULT WriteDouble([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] double newVal);
+  };
+[
+	uuid(03763CF2-5A3B-4D02-87A2-B478CFF4E04A),
+	version(1.0),
+	helpstring("SysCAD Helper Objects for VB")
+]
+library ScdVBLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(5AD09BF1-9696-46BA-92C7-FA5B48AB40A0),
+		helpstring("_IScdUserInfoEvents Interface")
+	]
+	dispinterface _ScdUserInfoEvents
+	{
+		properties:
+		methods:
+	};
+	[
+		object,
+		uuid(F90C014A-9329-4FA1-A117-040B7E04BD8D),
+		dual,
+		helpstring("IScdTimer Interface"),
+		pointer_default(unique)
+	]
+	interface IScdTimer : IDispatch
+	{
+		[id(1), helpstring("method Start")] HRESULT Start();
+		[id(2), helpstring("method Stop")] HRESULT Stop();
+		[propget, id(3), helpstring("property Interval")] HRESULT Interval([out, retval] long *pVal);
+		[propput, id(3), helpstring("property Interval")] HRESULT Interval([in] long newVal);
+	};
+	[
+		uuid(03E0B7B1-100F-459B-B5DD-80A9CA890485),
+		helpstring("ScdUserInfo Class")
+	]
+	coclass ScdUserInfo
+	{
+		[default] interface IScdUserInfo;
+		[default, source] dispinterface _ScdUserInfoEvents;
+	};
+	[
+		uuid(DC37B94D-4834-456E-9423-966554E5364E),
+		helpstring("_IScdTimerEvents Interface")
+	]
+	dispinterface _ScdTimerEvents
+	{
+		properties:
+		methods:
+		[id(1), helpstring("method Expired")] HRESULT Expired();
+	};
+	[
+		object,
+		uuid(2EC4B69C-050A-418E-A4CE-575D5575A540),
+		dual,
+		helpstring("IScdRegistry Interface"),
+		pointer_default(unique)
+	]
+	interface IScdRegistry : IDispatch
+	{
+     	typedef enum {
+			ScdHKEY_CLASSES_ROOT  = 0x80000000, 
+			ScdHKEY_CURRENT_USER  = 0x80000001,
+			ScdHKEY_LOCAL_MACHINE = 0x80000002,
+			ScdHKEY_USERS         = 0x80000003,
+			} ScdHKEY; 
+     	typedef enum {
+			ScdKey_NONE		= 0,
+			ScdKey_SZ		= 1,
+			ScdKey_DWORD	= 4,
+			} ScdKeyTypes; 
+		[id(1), helpstring("method GetKey")] HRESULT GetKey([in] ScdKeyTypes Type, [in] ScdHKEY HKEYRoot, [in] BSTR KeyPath, [in] BSTR KeyName, [in,out] VARIANT * pValue);
+		[id(2), helpstring("method PutKey")] HRESULT PutKey([in] ScdKeyTypes Type, [in] ScdHKEY HKEYRoot, [in] BSTR KeyPath, [in] BSTR KeyName, [in] VARIANT Value);
+	};
+
+	[
+		uuid(4B8BDF4B-681C-4201-989E-7916166D50D4),
+		helpstring("ScdTimer Class")
+	]
+	coclass ScdTimer
+	{
+		[default] interface IScdTimer;
+		[default, source] dispinterface _ScdTimerEvents;
+	};
+	[
+		uuid(FEDD2DC2-B6F6-41B8-8230-33FA47D8A8F3),
+		helpstring("_IScdRegistryEvents Interface")
+	]
+	dispinterface _ScdRegistryEvents
+	{
+		properties:
+		methods:
+	};
+	[
+		object,
+		uuid(FB5EC254-EFFA-414F-BA73-AB56A94801A7),
+		dual,
+		helpstring("IScdFileSystem Interface"),
+		pointer_default(unique)
+	]
+	interface IScdFileSystem : IDispatch
+	{
+     	typedef enum {
+		    ScdFile_NONE		=	0,
+			ScdFile_ARCHIVE		=	0x20,
+			ScdFile_DIRECTORY	=	0x10,
+			ScdFile_HIDDEN		=	0x02,
+			ScdFile_NORMAL		=	0x80,
+			ScdFile_READONLY	=	0x01,
+			ScdFile_SYSTEM		=	0x04,
+			ScdFile_TEMPORARY	=	0x100,
+			} ScdFileAttributes; 
+
+		[propget, id(1), helpstring("property FindFirstFile")] HRESULT FindFirstFile([in] BSTR Mask, [out] BSTR * pFileName, [out] ScdFileAttributes *pAttr, [out, retval] long *pVal);
+		[propget, id(2), helpstring("property FindNextFile")] HRESULT FindNextFile([out] BSTR * pFileName, [out] ScdFileAttributes *pAttr, [out, retval] long *pVal);
+	};
+
+	[
+		uuid(0B076583-EB56-4F40-A825-BBA4870FE7A7),
+		helpstring("ScdRegistry Class")
+	]
+	coclass ScdRegistry
+	{
+		[default] interface IScdRegistry;
+		[default, source] dispinterface _ScdRegistryEvents;
+	};
+
+	[
+		uuid(8600F1E3-2E84-4893-8966-977EFA66ABAB),
+		helpstring("_IScdFileSystemEvents Interface")
+	]
+	dispinterface _ScdFileSystemEvents
+	{
+		properties:
+		methods:
+	};
+	[
+		object,
+		uuid(50B624A4-2BA3-4FA3-B5C2-6B2D7DBA5BA9),
+		dual,
+		helpstring("IScdEventRelay Interface"),
+		pointer_default(unique)
+	]
+	interface IScdEventRelay : IDispatch
+	{
+		[id(1), helpstring("method NotifyMe")] HRESULT NotifyMe([in] long i_lCookie);
+	};
+
+	[
+		uuid(A1D8288B-081E-4828-A938-05F6804CD8CF),
+		helpstring("ScdFileSystem Class")
+	]
+	coclass ScdFileSystem
+	{
+		[default] interface IScdFileSystem;
+		[default, source] dispinterface _ScdFileSystemEvents;
+	};
+	[
+		uuid(D671768F-8F32-48FE-8C5C-A69834E24770),
+		helpstring("_IScdEventRelayEvents Interface")
+	]
+	dispinterface _ScdEventRelayEvents
+	{
+		properties:
+		methods:
+		[id(1), helpstring("method YourNotifier")] HRESULT YourNotifier([in] long i_lCookie);
+	};
+	[
+		object,
+		uuid(2EFCB979-2075-48A0-B504-3361C7EEF788),
+		dual,
+		helpstring("IScdStopWatch Interface"),
+		pointer_default(unique)
+	]
+	interface IScdStopWatch : IDispatch
+	{
+		[id(1), helpstring("method Start")] HRESULT Start();
+		[id(2), helpstring("method Stop")] HRESULT Stop();
+		[id(3), helpstring("method ReStart")] HRESULT ReStart();
+		[id(4), helpstring("method Clear")] HRESULT Clear();
+		[propget, id(5), helpstring("property Time")] HRESULT Time([out, retval] double *pVal);
+		[propget, id(6), helpstring("property Elapsed")] HRESULT Elapsed([out, retval] double *pVal);
+		[propget, id(7), helpstring("property Lap")] HRESULT Lap([out, retval] double *pVal);
+		[propget, id(8), helpstring("property Laps")] HRESULT Laps([out, retval] DWORD *pVal);
+	};
+
+	[
+		uuid(61A60CB3-DDD9-4904-8680-D6D6727D5462),
+		helpstring("ScdEventRelay Class")
+	]
+	coclass ScdEventRelay
+	{
+		[default] interface IScdEventRelay;
+		[default, source] dispinterface _ScdEventRelayEvents;
+	};
+	[
+		uuid(92520B1B-1386-4671-85A9-7BA9AA73A0C6),
+		helpstring("ScdStopWatch Class")
+	]
+	coclass ScdStopWatch
+	{
+		[default] interface IScdStopWatch;
+	};
+	[
+		uuid(CCE6D425-88A9-4A4A-BF62-16B7F9540FC5),
+		helpstring("ScdProfile Class")
+	]
+	coclass ScdProfile
+	{
+		[default] interface IScdProfile;
+	};
+};

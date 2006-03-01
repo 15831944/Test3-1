@@ -1,0 +1,7 @@
+; HeatXch1.def : Declares the module parameters for the DLL.
+
+LIBRARY      HeatXch1
+DESCRIPTION  'HeatXch1 Windows Dynamic Link Library'
+
+EXPORTS
+    ; Explicit exports can go here

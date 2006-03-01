@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Test.1 = s 'ScdTest Class'
+	{
+		CLSID = s '{3784FBD8-103D-4141-91C4-613785F70F1F}'
+	}
+	SysCAD.Test = s 'ScdTest Class'
+	{
+		CLSID = s '{3784FBD8-103D-4141-91C4-613785F70F1F}'
+		CurVer = s 'SysCAD.Test.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {3784FBD8-103D-4141-91C4-613785F70F1F} = s 'ScdTest Class'
+		{
+			ProgID = s 'SysCAD.Test.1'
+			VersionIndependentProgID = s 'SysCAD.Test'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

@@ -1,0 +1,50 @@
+
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SysCAD.Model", "Client.Std\SysCAD.Model\SysCAD.Model.csproj", "{93D4113C-22E6-4E2B-AA86-589ADFBA3C61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SysCAD.Global", "Client.Std\SysCAD.Global\SysCAD.Global.csproj", "{F69CED2D-C726-4D73-BDF4-8A8FDCAEC99D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SysCAD.ProjectList", "Client.Std\SysCAD.ProjectList\SysCAD.ProjectList.csproj", "{0FCDC2BE-8311-4EEB-A48B-261F928CF440}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SysCAD.Stencil", "Client.Std\SysCAD.Stencil\SysCAD.Stencil.csproj", "{D50FA2B5-A0F4-4FDF-950D-61414EBD40D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SysCAD.Service", "Client.Std\SysCAD.Service\SysCAD.Service.csproj", "{F8C87F90-AC70-4E82-86D0-413ACB2146FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SysCAD.Editor", "Client.Std\SysCAD.Editor\SysCAD.Editor.csproj", "{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{93D4113C-22E6-4E2B-AA86-589ADFBA3C61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93D4113C-22E6-4E2B-AA86-589ADFBA3C61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93D4113C-22E6-4E2B-AA86-589ADFBA3C61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93D4113C-22E6-4E2B-AA86-589ADFBA3C61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F69CED2D-C726-4D73-BDF4-8A8FDCAEC99D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F69CED2D-C726-4D73-BDF4-8A8FDCAEC99D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F69CED2D-C726-4D73-BDF4-8A8FDCAEC99D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F69CED2D-C726-4D73-BDF4-8A8FDCAEC99D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FCDC2BE-8311-4EEB-A48B-261F928CF440}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FCDC2BE-8311-4EEB-A48B-261F928CF440}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FCDC2BE-8311-4EEB-A48B-261F928CF440}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FCDC2BE-8311-4EEB-A48B-261F928CF440}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D50FA2B5-A0F4-4FDF-950D-61414EBD40D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D50FA2B5-A0F4-4FDF-950D-61414EBD40D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D50FA2B5-A0F4-4FDF-950D-61414EBD40D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D50FA2B5-A0F4-4FDF-950D-61414EBD40D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8C87F90-AC70-4E82-86D0-413ACB2146FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8C87F90-AC70-4E82-86D0-413ACB2146FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8C87F90-AC70-4E82-86D0-413ACB2146FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8C87F90-AC70-4E82-86D0-413ACB2146FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

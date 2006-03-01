@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Electrics.1 = s 'ScdElectrics Class'
+	{
+		CLSID = s '{98B8EE21-5BB7-421F-9E36-5B7DE01C07BB}'
+	}
+	SysCAD.Electrics = s 'ScdElectrics Class'
+	{
+		CLSID = s '{98B8EE21-5BB7-421F-9E36-5B7DE01C07BB}'
+		CurVer = s 'SysCAD.Electrics.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {98B8EE21-5BB7-421F-9E36-5B7DE01C07BB} = s 'ScdElectrics Class'
+		{
+			ProgID = s 'SysCAD.Electrics.1'
+			VersionIndependentProgID = s 'SysCAD.Electrics'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

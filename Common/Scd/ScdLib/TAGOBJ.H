@@ -1,0 +1,1884 @@
+//================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+// $Nokeywords: $
+//===========================================================================
+
+#ifndef  __TAGOBJ_H
+#define  __TAGOBJ_H
+
+//---------------------------------------------------------------------------
+
+#include "datacnvs.h"
+#include "fixedit.h"
+#include "errorlog.h"
+#include "datatype.h"
+#include "scdarray.h"
+#include "propertybase.h"
+#include "..\..\..\smdk\include\md_share3.h"
+
+#ifdef WITHSCDINTERFACES
+#pragma message ("----- COM Interfaces included -----")
+#include "..\..\Com\ScdIF\ScdIF.h"
+#include <atlbase.h>
+#include "ScdCOMTmpl.h"
+
+#endif
+
+
+#undef DllImportExport
+
+#if defined(__TAGOBJ_CPP)
+  #define DllImportExport DllExport
+#elif !defined(SCDLIB)
+  #define DllImportExport DllImport
+#else
+  #define DllImportExport
+#endif
+
+#define WITHTAGMONITOR 0 
+
+//---------------------------------------------------------------------------
+
+_FWDDEF(DDBShortcut);
+_FWDDEF(DDBTagMap);
+_FWDDEF(DDBPkListItem);
+_FWDDEF(DDBPkListMap);
+_FWDDEF(DDBPkListArray);
+class CPkDataItem;
+class CPkDataList;
+//_FWDDEF(CPkDataItem)
+//_FWDDEF(CPkDataList)
+_FWDDEF(DataDefnBlk)
+_FWDDEF(TagObjClass)
+_FWDDEF(TaggedObject)
+_FWDDEF(TagAccessBlk)
+class CFieldMonitor;
+class CFieldMonitorTO;
+class CFieldMonitorTOCls;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#ifndef _DEBUG
+#define DOINLINE 1
+#else
+#define DOINLINE 0
+#endif
+
+#if (DOINLINE)
+#define INLINE inline
+#else
+#define INLINE
+#endif
+
+#ifdef _RELEASE
+//ensure no overhead checking tags,cnvs,etc when in full release mode!
+#define DoDDBChecks 1
+#else
+#define DoDDBChecks 1
+#endif
+
+#if DoDDBChecks
+const int DDBCheckListSize=128;
+extern DllImportExport int bDoneCnvWarningOnce;
+extern DllImportExport int bContinueChecking;
+extern DllImportExport int gs_DevelopementChecks;
+DllImportExport void DevelopementChecksOn();
+DllImportExport void DevelopementChecksOff();
+//#endif
+//DllImportExport void CheckTagStuff(DataDefnBlk* pDDB);
+#endif
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#define PlantModelTag   "PlantModel"
+#define PlantAreaTag    "PlantArea"
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+// From xTaggedData
+
+const pchar TagSeparator=".";
+const  int   SCDPartTagLen    = 64;
+const  int   SCDFullTagLen    = 255;
+
+typedef char SCDPartTag[SCDPartTagLen+1];
+typedef char SCDFullTag[SCDFullTagLen+1];
+
+inline int TOElementTagDigitCnt(bool Wide=true) { return Wide ? (PrjFileVerNo()>=76 ? 6:3):1; } // allow for more than 1000 elements
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+typedef word   TOItemNoType;
+
+typedef byte TagUniqueness;
+const byte TU_IndividuallyUnique=0;
+const byte TU_UniqueInFamily=1;
+
+typedef byte TagObjAttachment;
+const byte TOA_Unknown   = 0x00;
+const byte TOA_Embedded  = 0x01;
+const byte TOA_Free      = 0x02;
+const byte TOA_Temporary = 0x04;
+const byte TOA_Hidden    = 0x08;
+const byte TOA_All       = TOA_Embedded|TOA_Free|TOA_Temporary;
+
+const long MaxTABTagLen      = 128;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+enum TOFilingTypes {TOF_DBase, TOF_SnapShot, TOF_Scenario};
+
+
+typedef char TABTag[MaxTABTagLen];
+
+class DllImportExport FilingControlBlock
+  {
+  protected:
+    Strng          sRoot;
+    Strng          sLabel;
+    Strng          sXName;
+    Strng          sObjTag;
+    TOFilingTypes  eType;
+    HANDLE         hFile;
+    DWORD          dwStartPos;
+    DWORD          dwCurrentPos;
+    DWORD          dwEndPos;
+    Strng          sOldPrjFiles;
+    long           m_PrjFileVerNo;
+    byte           bSaveAs:1,
+                   bFarCopy:1,
+                   bCreateObj:1;
+
+  public:
+    FilingControlBlock(char * Root, char * Label, TOFilingTypes Type);
+
+    char* Root() { return sRoot(); };
+    char* Label() { return sLabel(); };
+    TOFilingTypes Type() { return eType; };
+    void SetXName(char *Name) { sXName=Name; };
+    void SetObjTag(char *Tag) { sObjTag=Tag; };
+    long PrjFileVerNo() { return m_PrjFileVerNo; };
+    void SetPrjFileVerNo(long VerNo) { m_PrjFileVerNo=VerNo; };
+    char* XName() { return sXName(); };
+    char* ObjTag() { return sObjTag(); };
+    flag SaveAs() { return bSaveAs; };
+    flag CreateObj() { return bCreateObj; };
+    void InitialiseForRead(HANDLE File, DWORD StartPos, DWORD EndPos);
+    void InitialiseForWrite(HANDLE File, DWORD StartPos);
+    void SetSaveAs(char* pPrevPrj);
+    void SetCreateObj(int On) { bCreateObj=On; };
+    //flag CopyFile(char* pFN);
+    BOOL ReadFile(LPVOID lpBuffer,// address of buffer that receives data
+                  DWORD nNumberOfBytesToRead,// number of bytes to read
+                  LPDWORD lpNumberOfBytesRead);// address of number of bytes read
+    BOOL WriteFile(LPCVOID lpBuffer,// address of data to write to file
+                   DWORD nNumberOfBytesToWrite,// number of bytes to write
+                   LPDWORD lpNumberOfBytesWritten);// address of number of bytes written
+    DWORD SetFilePointer(LONG lDistanceToMove,// number of bytes to move file pointer
+                         DWORD dwMoveMethod);// how to move
+    BOOL Eof();
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+enum DDBPages {DDB_NoPage, DDB_RqdPage, DDB_OptPage};
+const byte MAXSTRUCTNESTING  = 32;
+
+enum DDBTasks {DDBTask_FndData=1, DDBTask_GetData=2, DDBTask_PutData=4};
+const UINT DDBHashMax=31;  // Should be Prime
+
+//---------------------------------------------------------------------------
+
+typedef void GlblTopologyChgFun(DWORD pData);
+struct GlblTopologyChg
+  {
+  GlblTopologyChgFun  * Fun;
+  dword                 Data;
+  };
+
+//---------------------------------------------------------------------------
+
+class CTagRefStatusFnHook
+  {
+  public:
+    virtual CTagRefStatusWord GetTagRefStatus(LPCTSTR Tag)=0;
+  };
+
+//---------------------------------------------------------------------------
+
+class TaggedObject; 
+class DllImportExport DDBDataInfo
+  {
+  public:
+    char            *pTag;
+    char            *pSym;
+    Strng           *m_psFullItemTag;
+    byte            iType;
+    DDEF_Flags      iFlags;
+    CCnvIndex       iCnv;
+    pchar           pCnvTxt;
+    pchar           pCnvFam;
+    TaggedObject    *pThis;
+    TaggedObject    *m_pRootObj;
+
+    void *          pData;
+    long            lHandle;
+    long            lHandle2;
+    dword           dwUserInfo;
+    word            wBlobSize;
+
+    DDBValueLst     *pValueLst;
+    DDBValueLstMem  *pValueLstMem;
+
+    int             m_nParms;
+    double          m_dParms[3];
+
+    bool            m_bCurrentComplete;
+    Strng           m_sCurrentTag;
+
+    DDBDataInfo()
+      {
+      m_psFullItemTag=NULL;
+      m_bCurrentComplete=false;
+      }
+    DDBDataInfo & operator=(const DDBDataInfo & X)
+      {
+      pTag=X.pTag;
+      pSym=X.pSym;
+      iType=X.iType;
+      iFlags=X.iFlags;
+      iCnv=X.iCnv;
+      pCnvTxt=X.pCnvTxt;
+      pCnvFam=X.pCnvFam;
+      pThis=X.pThis;
+      m_pRootObj=X.m_pRootObj;
+      pData=X.pData;
+      lHandle=X.lHandle;
+      lHandle2=X.lHandle2;
+      dwUserInfo=X.dwUserInfo;
+      wBlobSize=X.wBlobSize;
+      pValueLst=X.pValueLst;
+      pValueLstMem=X.pValueLstMem;
+      m_nParms=X.m_nParms;
+      for (int i=0; i<X.m_nParms; i++)
+        m_dParms[i]=X.m_dParms[i];
+      m_bCurrentComplete=X.m_bCurrentComplete;
+      m_sCurrentTag=X.m_sCurrentTag;
+      return *this;
+      }
+
+    DDEF_Flags      GetValue(TABOptions Opts, PkDataUnion &DataValue);
+    void            PutValue(TABOptions Opts, PkDataUnion &Data);
+
+    void            GetDefinedData(TABOptions Opts, CPkDataList & List /*PkDataListInfo * pInfo*/);
+    void            PutDefinedData(TABOptions Opts, CPkDataList & List /*PkDataListInfo * pInfo*/, CPkDataIter &Item);
+
+    static PkDataUnion * FixGenericData(PkDataUnion &LclDataValue, PkDataUnion &DataValue, byte iType, CCnvIndex iCnv, DDBValueLst * pValueList);
+    flag            PutDataBlocked(TABOptions Opts, DDEF_Flags Flags);
+    void            MonitorParameter(TABOptions Opts, PkDataUnion *pNewValue);
+
+    // Type Specific Gets and Puts
+    DDEF_Flags      GetBool  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutBool  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetChar  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutChar  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetByte  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutByte  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetWord  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutWord  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetDWord  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutDWord  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetInt  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutInt  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetShort  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutShort  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetLong  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutLong  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetFloat  (TABOptions Opts, PkDataUnion &DataValue);
+    void            PutFloat  (TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetDouble(TABOptions Opts, PkDataUnion &DataValue);
+    void            PutDouble(TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetString(TABOptions Opts, PkDataUnion &DataValue);
+    void            PutString(TABOptions Opts, PkDataUnion &DataValue);
+
+    DDEF_Flags      GetBlob(TABOptions Opts, PkDataUnion &DataValue);
+    void            PutBlob(TABOptions Opts, PkDataUnion &DataValue);
+
+    static CTagRefStatusFnHook *gs_TagRefGlblFn;
+
+  };
+
+class DDBShortcutVersion
+  {
+  public:
+    dword           dwDataVerObj;
+    dword           dwDataVerGlbl;
+    DDBShortcutVersion()
+      {
+      dwDataVerObj=0xffffffff;
+      dwDataVerGlbl=0xffffffff;
+      }
+    //BOOL operator = (const DDBShortcutVersion& O)
+    //  {
+    //  dwDataVerObj=O.dwDataVerObj;
+    //  dwDataVerGlbl=O.dwDataVerGlbl;
+    //  }
+    //BOOL operator == (const DDBShortcutVersion& O)
+    //  {
+    //  return (dwDataVerObj==O.dwDataVerObj && dwDataVerGlbl==O.dwDataVerGlbl);
+    //  }
+  };
+
+class DllImportExport DDBShortcut : public DDBDataInfo
+  {
+  //DEFINE_SPARES(DDBShortcut)
+  public:
+    flag            fOK;
+    DDBShortcutVersion DataVer;
+    Strng           sFullItemTag;
+    Strng           sTag;
+    Strng           sSym;
+    Strng           sCnvTxt;
+    Strng           sCnvFam;
+    DDBValueLstMem  ValueLstMem;
+
+    DDBShortcut() { m_psFullItemTag=&sFullItemTag; fOK=False; };
+    //DDBShortcut() { m_bCurrentComplete=true; pFullItemTag=&m_sCurrentTag; fOK=False; };
+    DDBShortcut & operator=(const DDBShortcut & X);
+    void          Clear() { fOK=False; };
+    void          Set(DDBDataInfo * pDI,  pchar FullItemTag, dword CurDataVer);
+    flag          TestShortcut(char *FullItemTag, dword ObjectVersion);
+  };
+
+//===========================================================================
+//NBNB: Any changes to TOC flags need to be reflected in the SMDK M??? equivilant options!
+
+//solve mode options...
+const DWORD TOC_DYNAMICFLOW  = 0x00000001; //is dynamic model (flow)
+const DWORD TOC_PROBAL       = 0x00000002; //is probal model
+const DWORD TOC_DYNAMICFULL  = 0x00000004; //is dynamic model (pressure)
+const DWORD TOC_ELECTRICAL   = 0x00000008; //is dynamic model (electrical)
+
+const DWORD TOC_SOLVE_MASK   = 0x0000000f; //mask for bits associated with solve mode groups
+
+//options associated with license options... (should use ONE of the following)
+const DWORD TOC_STD_KENWALT  = 0x00000010; //part of standard Kenwalt models
+const DWORD TOC_HEATBAL      = 0x00000020; //Kenwalt Heat Exchange models
+const DWORD TOC_HEATEXTRA    = 0x00000040; //Kenwalt Extra Heat Exchange models
+const DWORD TOC_SIZEDIST     = 0x00000080; //Kenwalt size-distribution/communition models
+const DWORD TOC_ALUMINA      = 0x00000100; //Kenwalt alumina models
+const DWORD TOC_BLACKBOX     = 0x00000200; //Kenwalt BlackBox models
+const DWORD TOC_POWERDIST    = 0x00000400; //Power Distribution
+const DWORD TOC_USER         = 0x00000800; //custom/client models (eg Argyle, Cleveland, Simutron, etc)
+const DWORD TOC_MDL_UNUSED4  = 0x00001000; //
+const DWORD TOC_MDL_UNUSED3  = 0x00002000; //
+const DWORD TOC_MDL_UNUSED2  = 0x00004000; //
+const DWORD TOC_MDL_UNUSED1  = 0x00008000; //
+const DWORD TOC_RTTS         = 0x00010000; //Rio Tinto Technical Services owned models
+const DWORD TOC_ALCAN        = 0x00020000; //Alcan/Nabalco owned models
+const DWORD TOC_QALEXTRA     = 0x00040000; //additional QAL owned models
+const DWORD TOC_QAL          = 0x00080000; //standard QAL owned models
+
+const DWORD TOC_MDL_MASK     = 0x000ffff0; //mask for bits associated with licensing model groups
+
+//options for groups/sorting... (should use ONE of the following)
+const DWORD TOC_GRP_GENERAL   = 0x80000000; //general group
+const DWORD TOC_GRP_ENERGY    = 0x40000000; //energy transfer group
+const DWORD TOC_GRP_SEPAR     = 0x20000000; //mass separation group
+const DWORD TOC_GRP_SIZEDST   = 0x10000000; //size distribution group
+const DWORD TOC_GRP_TRANSFER  = 0x08000000; //mass transfer group
+const DWORD TOC_GRP_ALUMINA   = 0x04000000; //alumina group
+const DWORD TOC_GRP_POWERDIST = 0x02000000; //Power Reticulation/Elect/Pneumatic
+const DWORD TOC_GRP_UNUSED5   = 0x01000000; //? group
+const DWORD TOC_GRP_UNUSED4   = 0x00800000; //? group
+const DWORD TOC_GRP_UNUSED3   = 0x00400000; //? group
+const DWORD TOC_GRP_UNUSED2   = 0x00200000; //? group
+const DWORD TOC_GRP_UNUSED1   = 0x00100000; //? group
+                              
+const DWORD TOC_GRP_MASK      = 0xfff00000; //mask for bits associated with licensing model groups
+
+//common combinations...
+const DWORD TOC_ALL     = TOC_PROBAL | TOC_DYNAMICFLOW | TOC_DYNAMICFULL;
+const DWORD TOC_STDALL  = TOC_PROBAL | TOC_DYNAMICFLOW | TOC_DYNAMICFULL | TOC_STD_KENWALT;
+const DWORD TOC_SYSTEM  = TOC_PROBAL | TOC_DYNAMICFLOW | TOC_DYNAMICFULL | TOC_STD_KENWALT | TOC_GRP_GENERAL ;
+
+//===========================================================================
+
+#if WITHTAGMONITOR
+
+class DllImportExport CFieldMonitor
+  {
+  public:
+    static bool   m_On;
+    static DWORD  m_dwCount;
+    static DWORD  gs_dwChgSeqNo;
+    DWORD         m_dwChgSeqNo;
+    int           m_iIndex;
+    Strng         m_sFldTag;
+    Strng         m_sFldCnv;
+    DataUnion     m_InitialValue;
+  };
+
+class DllImportExport CFieldMonitorTOCls
+  {
+  public:
+    CFieldMonitorTOCls() 
+      {
+      }
+
+  public:
+    CMap  <char*, char*, CFieldMonitor*, CFieldMonitor*> m_Map;
+    CList <CFieldMonitor, CFieldMonitor&> m_List;
+  };
+
+class DllImportExport CFieldMonitorTO
+  {
+  public:
+    CFieldMonitorTO(TaggedObject * pObj)
+      {
+      m_pObj=pObj;
+      }
+    ~CFieldMonitorTO()
+      {
+      for (int i=0; i<m_CurrentValue.GetSize(); i++)
+        delete m_CurrentValue[i];
+      }
+
+  public:
+    CArray <DataUnion*, DataUnion*> m_CurrentValue;
+  protected:
+    TaggedObject    * m_pObj;
+  };
+
+#endif
+
+//===========================================================================
+
+//typedef TaggedObject *(*pTagObjConstruct)(pchar, pchar, short);
+
+typedef flag (*fn_BuildDataDefnGlobal)(TagObjClass *pClass, TaggedObject * pOwner, DataDefnBlk & DDB);
+typedef flag (*fn_DataXchgGlobal)(TagObjClass *pClass, TaggedObject * pOwner, DataChangeBlk & DCB);
+
+// MInitialiseTest moved to md_share3.h
+
+class DllImportExport TagObjClass
+  {
+  friend class TaggedObject;
+  friend class DataDefnBlk;
+  friend class MUnitDefBase;
+  friend class DDBDataInfo;
+
+  public:
+    TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_);
+    virtual ~TagObjClass();
+    static void    DumpAll();
+    virtual void   Clear();
+    static void    ClearAll();
+
+    static TagObjClass * AddCOMClass(char* pProgID, char* pClassName_, char* pGroup_, char* pClassId_, char* pVersion_, char* pDrwGroup_, char* pDefTag_, dword dwCat_, char* pShortDesc_, char* pDesc_, DWORD dwSelectMask_);
+
+    static TagObjClass* FindClassName(pchar ClassName_);
+    static TagObjClass* FindClassId(pchar ClassId_, flag fWithVersion=True, LPCTSTR SubClass=NULL);
+    static TagObjClass* FindGroupId(pchar GroupId_);
+    static TagObjClass* FindClassIndexed(pchar GroupId_, int iIndex, bool IgnoreSelFn=false);
+    TagObjClass*   FindGrpClassId(pchar ClassId_);
+    void           GetShortDesc(Strng &S);
+    TagObjClass*   FindGrpShortDesc(pchar ShortDescd_);
+    TagObjClass*   FindDuplicateClassId(TagObjClass* pStartAt);
+    static TaggedObject * Construct(pchar pGroup_, pchar pClassId_, pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+    static flag    EditorExists(pchar pGroup_, pchar pClassId_, pchar pTag);
+
+    TaggedObject *  ConstructGrp(pchar pClassId_, pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+    TaggedObject *  ConstructGrpDesc(pchar pClassId_, pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+
+    virtual TaggedObject * Construct(pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+
+    virtual pFxdEdtBookRef ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj) {return NULL;};
+    virtual flag   EditorExists() {return 0;};
+
+    pchar          ProgID()                                    { return m_sProgID(); };
+    pchar          ClassName()                                 { return sClassName(); };
+    pchar          ClassId()                                   { return sClassId(); };
+    pchar          SubClassId() ;//                            { return strchr(sClassId(), '.'); };
+    pchar          BaseClassId() ;//                           { return strchr(sClassId(), '.'); };
+    pchar          TableId()                                   { return sTableId(); };
+    pchar          MdlLibName()                                { return sMdlLibName(); };
+    void           SetMdlLibName(LPCTSTR Name)                 { sMdlLibName=Name; };
+    int            ClassIdLenNoVersion()                       { return iClassIdLenNoVersion; };
+    pchar          ClassIdNoVersion()                          { return sClassIdNV(); };
+    pchar          Group()                                     { return sGroup(); };
+    pchar          Desc()                                      { return sDesc(); };
+    pchar          ShortDesc()                                 { return sShortDesc(); };
+    void           SetSubConstruct(MSubConstructBaseDef * P)   { m_pSubConstruct=P; };
+    MSubConstructBaseDef * SubConstruct()                      { return m_pSubConstruct; };
+#if WITHTAGMONITOR
+    CFieldMonitorTOCls & Monitor()                             { return m_Monitor; }
+#endif
+    const type_info * TypeId()                                 { return m_pTypeId; }
+    void SetTypeId(const type_info * id)                       { m_pTypeId=id; }
+    fn_BuildDataDefnGlobal GlobalFnBuildDataDefn()             { return m_pGlobalFnBuildDataDefn; };
+    fn_DataXchgGlobal GlobalFnDataXchg()                       { return m_pGlobalFnDataXchg; };
+    void *         GlobalFnData1()                             { return m_pGlobalFnData1; };
+    void *         GlobalFnData2()                             { return m_pGlobalFnData2; };
+    void SetDataDefnGlobalFn(fn_BuildDataDefnGlobal pBuild, fn_DataXchgGlobal pXchg) { m_pGlobalFnBuildDataDefn = pBuild; m_pGlobalFnDataXchg=pXchg; };
+    void SetDataDefnGlobalFn(fn_BuildDataDefnGlobal pBuild, fn_DataXchgGlobal pXchg, void * Data1, void * Data2) 
+       { m_pGlobalFnBuildDataDefn = pBuild; m_pGlobalFnDataXchg=pXchg; m_pGlobalFnData1 = Data1; m_pGlobalFnData2 = Data2; };
+    void SetDataDefnGlobalFnData(void * Data1, void * Data2)   { m_pGlobalFnData1 = Data1; m_pGlobalFnData2 = Data2; };
+
+    dword          Category()                                  { return dwCategory; };
+    dword          CategoryMdl()                               { return (dwCategory & TOC_MDL_MASK); };
+    dword          CategoryGrp()                               { return (dwCategory & TOC_GRP_MASK); };
+    flag           CatIsDynamic()                              { return ((dwCategory & TOC_DYNAMICFLOW)==TOC_DYNAMICFLOW || (dwCategory & TOC_DYNAMICFULL)==TOC_DYNAMICFULL); };
+    flag           CatIsDynamicFlow()                          { return ((dwCategory & TOC_DYNAMICFLOW)==TOC_DYNAMICFLOW); };
+    flag           CatIsDynamicFull()                          { return ((dwCategory & TOC_DYNAMICFULL)==TOC_DYNAMICFULL); };
+    flag           CatIsProBal()                               { return ((dwCategory & TOC_PROBAL)==TOC_PROBAL); };
+    flag           CatMdlTest(dword dwCat)                     { return ((TOC_MDL_MASK & dwCategory & dwCat)==(TOC_MDL_MASK & dwCategory)); }; //all mdl test criteria met
+    flag           CatModeTest(dword dwCat)                    { return ((TOC_SOLVE_MASK & dwCategory & dwCat)!=0); };
+    flag           TestLicOK(dword dwCat)                      { bLicOK=(CatMdlTest(dwCat)/* && CatModeTest(dwCat)*/); return bLicOK; };
+    flag           LicOK()                                     { return bLicOK; };
+
+    short          NIdNos()                                    { return iNIds; };
+    short          IdNo()                                      { return iId; };
+    short          GroupIdNo()                                 { return iGrpId; };
+
+    pchar          DrwGroup()                                  { return sDrwGroup(); };
+    pchar          DefaultTag()                                { return sDefaultTag(); };
+    pchar          TagComment()                                { return sTagComment(); };
+
+    flag           Selectable(bool IgnoreConditions=false);
+    void           SetSelectable(flag Select)                  { m_bSelectable=Select; };
+    //void           AddSelectFn(CTagObjSelectFn * SelectableFn);
+    //void           RemoveSelectFn(CTagObjSelectFn * SelectableFn);
+    //static void    UpdateSelectConditions();
+
+    flag           Flagged()                                   { return bFlagged; };
+    void           SetFlagged(flag Flagged)                    { bFlagged=Flagged; };
+
+    static TagObjClass* FirstClass()                           { return pFirstClass; };
+    TagObjClass*   NextClass()                                 { return pNxtClass; };
+    TagObjClass*   FirstClassInGrp ()                          { return pFirstClassInGrp; };
+    TagObjClass*   NextClassInGrp ()                           { return pNxtClassInGrp; };
+    TagObjClass*   operator()()                                { return this; };
+
+    flag           DuplicateExists()                           { return fDuplicateExists; };
+    void           SetDuplicateExists(flag Exists)             { fDuplicateExists=Exists; };
+
+    static void    GetClassValueLst(char * GroupName, DDBValueLstMem & DDB0, char * Value0=NULL, DWORD SelectMask=0xffffffff);
+    static void    GetSDescValueLst(char * GroupName, DDBValueLstMem & DDB0, char * Value0=NULL, DWORD SelectMask=0xffffffff);
+
+    void           IncInstances()                              { nInstances++; nInstancesMax=Max(nInstancesMax,nInstances); };
+    void           DecInstances()                              { nInstances--; };
+    DWORD          Instances()                                 { return nInstances; };
+    DWORD          InstancesMax()                              { return nInstancesMax; };
+
+  protected:
+    static TagObjClass* pFirstClass;
+    static short   iNIds;
+    short          iId;
+    bool           m_bIsCOMClass;
+    bool           m_bMustDelete;
+    Strng          m_sProgID;
+    Strng          sClassName;
+    Strng          sClassId;
+    Strng          sSubClassId;
+    Strng          sBaseClassId;
+    Strng          sClassIdNV;
+    Strng          sTableId;
+    Strng          sMdlLibName;
+    Strng          sShortDesc;
+    Strng          sDesc;
+    Strng          sTagComment;
+    Strng          sDrwGroup;
+    Strng          sDefaultTag;
+    TagObjClass*   pNxtClass;
+
+    dword          dwCategory; //flags for category/grouping/licensing
+
+    dword          dwObjDataVerNo;
+
+    MSubConstructBaseDef * m_pSubConstruct;
+    int            iClassIdLenNoVersion;
+
+    Strng          sGroup;
+    short          iGrpId;
+    TagObjClass*   pFirstClassInGrp;
+    TagObjClass*   pNxtClassInGrp;
+
+    flag           m_bSelectable:1,
+                   bFlagged:1, //temp flag
+                   bLicOK:1,
+                   fDuplicateExists:1;
+    DWORD          nInstances;
+    DWORD          nInstancesMax;
+    DWORD          dwSelectMask;
+    
+    bool           m_SelectConditionsOK;
+    //CList<CTagObjSelectFn*, CTagObjSelectFn*> m_SelectableFns;
+
+    const type_info * m_pTypeId; 
+
+    fn_BuildDataDefnGlobal  m_pGlobalFnBuildDataDefn;
+    fn_DataXchgGlobal       m_pGlobalFnDataXchg;
+    void         * m_pGlobalFnData1;
+    void         * m_pGlobalFnData2;
+
+#if WITHTAGMONITOR
+    CFieldMonitorTOCls m_Monitor;
+#endif
+
+  };
+
+inline Strng GetClassIdNoVersion(LPCTSTR pClass)
+  {
+  Strng ClassNV(pClass);
+  char *pVer=strchr(pClass, '-');
+  ClassNV.SetLength(pVer ? (pVer-pClass): strlen(pClass));
+  return ClassNV;
+  }
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
+_FWDDEF(DataChangeBlk)
+class DllImportExport DataChangeBlk
+  {
+  public:
+    DDBDataInfo *  pDataInfo;
+    DDEF_Flags     dwRetFlags;
+    TABOptions     dwOpts;
+    dword          dwUserInfo;
+    byte           iType;
+    long           lHandle;
+    long           lHandle2;
+    word           wBlobLen;
+    bool           m_bWasNAN;
+    double         m_dNANValue;
+    union {
+      char         C;
+      byte         B;
+      word         W;
+      dword        DW;
+      short        S;
+      long         L;
+      float        F;
+      double       D;
+      pchar        pC;
+      void *       pBlob;
+      };
+    union {
+      char        *rC;
+      byte        *rB;
+      word        *rW;
+      dword       *rDW;
+      short       *rS;
+      long        *rL;
+      float       *rF;
+      double      *rD;
+      char        *rpC;
+      void        *rpBlob;
+      };
+
+    DataChangeBlk(DDBDataInfo *  DataInfo) { pDataInfo=DataInfo; };
+    flag           Init(TABOptions Opts, char Type, long Handle, long Handle2, void *p, dword UserInfo)
+      { dwRetFlags=0; dwOpts=Opts; iType=Type; lHandle=Handle; lHandle2=Handle2; rC=(char*)p; dwUserInfo=UserInfo; return lHandle>0;};
+//    flag           Init(dword Opts, char Type, long Handle, void *p)
+//      { dwFlags=0; dwOpts=Opts; iType=Type; lHandle=Handle; rC=(char*)p; return lHandle>0;};
+
+    flag ForFiling()          { return (dwOpts&TABOpt_ForFile)!=0; };
+    flag ForView()            { return (dwOpts&TABOpt_ForView)!=0; };
+    flag ForViewConstruct()   { return (dwOpts&TABOpt_ForViewConstruct)!=0; };
+    flag ForSnapShot()        { return (dwOpts&TABOpt_ForSnapShot)!=0; };
+    flag ForScenario()        { return (dwOpts&TABOpt_ForScenario)!=0; };
+    flag ForFileSnpScn()      { return (dwOpts&(TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario))!=0; };
+    double NParms()           { return pDataInfo->m_nParms; };
+    double DoubleParm(int i)  { return pDataInfo->m_dParms[i]; };
+
+    //flag OperatePropertyMap(CPropertyMap & Map, long iBaseHandle, long iLastHandle, CPropertyBase * pPropBase, TaggedObject * pTgObj, MPropertyValue & WorkPropValue);
+
+    //helpers...
+    static void DoBrowseBtn(char* ext, char* FileDesc, Strng& Path, Strng& File);
+    static int DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext=NULL, Strng* pFullFilename=NULL, bool CheckExists=false);
+  };
+
+
+// --------------------------------------------------------------------------
+
+typedef const long XID;
+#define ModelXID(i)   ((i)+(XID)  00000000)
+#define MdlBsXID(i)   ((i)+(XID)  10000000)
+#define FlwXID(i)     ((i)+(XID)  20000000)
+#define FlwBlkXID(i)  ((i)+(XID)  30000000)
+#define SVXID(i)      ((i)+(XID)  40000000)
+#define SpcXID(i)     ((i)+(XID)  50000000)
+#define RctXID(i)     ((i)+(XID)  60000000)
+#define VleXID(i)     ((i)+(XID)  70000000)
+#define XyXID(i)      ((i)+(XID)  80000000)
+#define Qual0XID(i)   ((i)+(XID)  90000000)
+#define Qual1XID(i)   ((i)+(XID)  91000000)
+#define Qual2XID(i)   ((i)+(XID)  92000000)
+#define Qual3XID(i)   ((i)+(XID)  93000000)
+#define Qual4XID(i)   ((i)+(XID)  94000000)
+#define Qual5XID(i)   ((i)+(XID)  95000000)
+#define Qual6XID(i)   ((i)+(XID)  96000000)
+#define Qual7XID(i)   ((i)+(XID)  97000000)
+#define Qual8XID(i)   ((i)+(XID)  98000000)
+#define Qual9XID(i)   ((i)+(XID)  99000000)
+
+#define SysXID(i)     ((i)+(XID) 10000000)
+#define PwrXID(i)     ((i)+(XID) 11000000)
+#define SMDKXID(i)    ((i)+(XID) 12000000)
+
+XID xidTag           = SysXID(1);
+XID xidParent        = SysXID(2);
+XID xidEqDesc        = SysXID(3);
+XID xidEqMemo        = SysXID(4);
+XID xidEqIdStr       = SysXID(5);
+XID xidEqLocation    = SysXID(6);
+XID xidEqLink        = SysXID(7);
+XID xidEqGUID        = SysXID(8);
+XID xidPrimaryCfg    = SysXID(9);
+
+//const int  MaxFullObjTagTmp = 10;
+
+const int TOData_OK          = 0;
+const int TOData_NotFound    = 1;
+const int TOData_InvalidData = 2;
+const int TOData_CommsError  = 3;
+
+//---------------------------------------------------------------------------
+
+class ValidateDataBlk
+  {
+  public:
+    flag           fValidateDataMessagesOn;
+
+    ValidateDataBlk(flag MessagesOn=true)
+      {
+      fValidateDataMessagesOn=MessagesOn;
+      };
+
+  };
+
+//---------------------------------------------------------------------------
+
+class DllImportExport CComTOOwner
+  {
+  public:
+#ifdef WITHSCDINTERFACES
+    GIScdTaggedObject m_gpTO;
+#else
+    void * m_spVOID;
+#endif
+  };
+
+//---------------------------------------------------------------------------
+
+typedef CList<TaggedObject *, TaggedObject *> CTaggedObjectList;
+
+class DllImportExport TaggedObject : public ConditionBlk
+  {
+  friend class TagObjClass;
+  friend class TagAccessBlk;
+  friend class DataDefnBlk;
+  friend class CExecutive;
+  friend class DDBDataInfo;
+
+  public:
+    TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject * pAttach, TagObjAttachment eAttach);
+    virtual ~TaggedObject();
+
+    void            AttachMeToObj(TaggedObject * pObj, TagObjAttachment eAttach);
+    void            DetachMeFromOwner();
+    virtual pchar   Tag(pchar ReqdTag=NULL);
+    pchar           Prefix(pchar ReqdPrefix=NULL);
+    Strng           PrefixTag();
+    static int      TagCmp(pchar pTag, pchar pSrchTag, int MinTagLen=0);
+    static int      TagCmpFn(pchar pTag, pchar pSrchTag, int MinTagLen=0);
+    static void     ValidateTag(rStrng S);
+    static void     ValidateTagDot(rStrng S);
+    static flag     ValidateTagChanged(rStrng S);
+    static flag     ValidateTagDotChanged(rStrng S);
+    static int      TestValidTag(char* pTag, int NumStartBad, int NumBad);
+    static int      TestValidTagDot(char* pTag, int NumStartBad, int NumBad);
+    static int      TestValidTag(char* pTag) { return TestValidTag(pTag, NumericStartingTagsBad, NumericTagsBad); };
+    static int      TestValidTagDot(char* pTag) { return TestValidTagDot(pTag, NumericStartingTagsBad, NumericTagsBad); };
+    static flag     CheckNonNumericTagChr(char c);
+    static void     SetBadFieldNameChars(char* pBad, char * pRep);
+    static int      TestValidFieldName(char* pTag);
+    //static void     ValidateFieldName(rStrng S);
+    static flag     TestIfReservedTag(char* pTag);
+
+    // Overridables
+    virtual void    ResetData(flag Complete) {};
+    virtual void    PrepareDefinedData() {}; // Called Before a GetDefined Data - for the root object
+    //static virtual flag BuildDataDefnGlobal(DataDefnBlk & DDB) { return false; };
+    virtual void    BuildDataDefn(DataDefnBlk & DDB)=0;
+    virtual flag    DataXchg(DataChangeBlk & DCB);
+    virtual flag    ValidateData(ValidateDataBlk & VDB);
+    virtual LPTSTR  GetPrimaryCfg() { return ""; };
+    virtual flag    PutPrimaryCfg(LPCTSTR Cfg) { return true; };
+
+  protected:
+    static int      SetHoldValidateData(flag On, flag MessagesOn=true);
+
+  public:
+    virtual flag    GetOtherData(FilingControlBlock &FCB) {return False;};
+    virtual flag    PutOtherData(FilingControlBlock &FCB) {return False;};
+
+    static void     SetGlblTopologyChg(GlblTopologyChgFun *ChgFun, dword ChgData);
+    static void     CallGlblTopologyChg(DDBDataInfo * Info);
+
+    static flag     SetGlblResultsAlwaysValid(flag On)
+      {
+      flag x=bGlblResultsAlwaysValid;
+      bGlblResultsAlwaysValidChg=bGlblResultsAlwaysValidChg || bGlblResultsAlwaysValid!=On;
+      bGlblResultsAlwaysValid=On;
+      return x;
+      };
+    static flag     GlblResultsAlwaysValid() { return bGlblResultsAlwaysValid; };
+    static flag     GlblResultsAlwaysValidChg(flag Clear)
+      {
+      flag x=bGlblResultsAlwaysValidChg;
+      if (Clear)
+        bGlblResultsAlwaysValidChg=false;
+      return x;
+      };
+
+    static flag     SetGlblResultsValid(flag On)
+      {
+      flag x=bGlblResultsValid;
+      bGlblResultsValidChg=bGlblResultsValidChg || bGlblResultsValid!=On;
+      bGlblResultsValid=On;
+      return x;
+      };
+    static flag     GlblResultsValid() { return bGlblResultsValid; };
+    static flag     GlblResultsValidChg(flag Clear)
+      {
+      flag x=bGlblResultsValidChg;
+      if (Clear)
+        bGlblResultsValidChg=false;
+      return x;
+      };
+
+    flag            FndDefinedData(char * FullItemTag, TABOptions Opts, pDDBShortcut pShortcut);
+    flag            GetDefinedData(char * FullItemTag, CPkDataList &DataObj, TABOptions Opts, /*CPkDataItem* &pPItem,*/ pDDBShortcut pShortcut);
+    flag            PutDefinedData(char * FullItemTag, CPkDataList &DataObj, CPkDataIter &Iter, TABOptions Opts, /*CPkDataItem* &pPItem,*/ pDDBShortcut pShortcut);
+
+    double          ValidateRange(ValidateDataBlk & VDB, LPCTSTR What, double MinV=dNAN, double V=dNAN, double MaxV=dNAN, flag *pOK=NULL);
+    flag            ValidateDefinedData(ValidateDataBlk &VDB);
+    flag            UnValidatedData()        { return bUnValidatedData; };
+
+    virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
+    virtual void    SetFullObjTag();
+    virtual char *  FullObjTag();
+    virtual char *  FullObjTag(Strng &S, flag What/*=TOA_All*/);
+    virtual pchar   TagOfParent()            { return "."; };
+    static void     StructureChanged(TaggedObject * pObj);
+    pchar           BaseTag()                { return pAttachedTo ? pAttachedTo->BaseTag() : Tag(); };
+    virtual void    MyTagsHaveChanged(bool FirstOne=true);
+
+    dword CurrentDataVersion()               { return dwObjDataVerNo; };// | (wGlblDataVerNo<<16);};
+
+    // Utilities
+    virtual void    BuildCommonStartDefn(DataDefnBlk &DDB);
+    virtual void    BuildCommonEndDefn(DataDefnBlk &DDB) {};
+    virtual void    BuildSystemDefn(DataDefnBlk &DDB) {};
+    short           IdNo()                   { return m_pClass->iId;};
+    pchar           ClassId()                { return m_pClass->sClassId();};
+    pchar           SubClassId()             { return m_pClass->SubClassId();};
+    pchar           BaseClassId()            { return m_pClass->BaseClassId();};
+    pchar           Group()                  { return m_pClass->sGroup();};
+    TagObjClass*    Class()                  { return m_pClass; };
+    void            SetClass(TagObjClass*pClass)  
+      {
+      m_pClass=pClass; 
+      if (SubClassId())
+        SetSubClass(SubClassId());
+      };
+    virtual void    SetSubClass(pchar pSubClass)  { /*m_sSubClass=pSubClass*/; };
+    pchar           Desc()                   { return m_pClass->sDesc();};
+    pchar           ShortDesc()              { return m_pClass->sShortDesc();};
+    Strng &         TagRef()                 { return m_sTag; };
+    Strng &         PrefixRef()              { return m_sPrefix; };
+
+    void            SetEqpDesc(char * Desc)  { m_sEqDesc=Desc; };
+    char *          EqpDesc()                { return m_sEqDesc(); };
+    void            SetEqpMemo(char * Memo)  { m_sEqMemo=Memo; };
+    char *          EqpMemo()                { return m_sEqMemo(); };
+    void            SetEqpIdStr(char * IdStr){ m_sEqIdStr=IdStr; };
+    char *          EqpIdStr()               { return m_sEqIdStr(); };
+    void            SetEqpLocation(char * Location){ m_sEqLocation=Location; };
+    char *          EqpLocation()               { return m_sEqLocation(); };
+    void            SetEqpLink(long Id)      { m_lEqLink=Id; };
+    long            EqpLink()                { return m_lEqLink; };
+    bool            SetEqpGUID(LPCSTR strGuid);
+    LPCSTR          EqpGUID();
+
+    pFxdEdtBookRef  ConstructEdit(pFxdEdtView pView_) { return Class()->ConstructEdit(pView_, this); };
+
+#ifdef WITHSCDINTERFACES
+    GIScdTaggedObject *m_pgpTO;
+#else
+    void * m_pgpTO;
+#endif
+  
+    virtual void    MarkAsCOMOwned(void *pgpTO);
+    virtual void    DestroyCOMOwned();
+   
+    void            Destroy()               { if (m_pgpTO) DestroyCOMOwned(); else delete this; };
+                        
+    void            ClearDDBLists();
+
+    static void     SetGlblRunModes(long RunModes, long RunMdsMsk);
+    static long     GetPermissableRunModes(long MdMask);
+    static long     GetPermissableGlblRunModes(long MdMask);
+    static Strng    GlblMode2String(long Md, long MdMsk);
+    static long     String2GlblMode(LPCSTR MdStr);
+    static void     GetGlblModeValueLst(DDBValueLstMem & Lst, long MdMask);
+
+    static long     GlblRunModes()          { return gs_RunMds; };
+    static long     GlblSolveMode()         { return GlblRunModes() & SM_All; };
+    static long     GlblHeatMode()          { return GlblRunModes() & HM_All; };
+    static flag     GlblProbalMode()        { return (gs_RunMds & SM_All) == SM_Probal; };
+    static flag     GlblDynFlowMode()       { return (gs_RunMds & SM_All) == SM_DynXfer; }
+    static flag     GlblDynFullMode()       { return (gs_RunMds & SM_All) == SM_DynFull; }
+    static flag     GlblDynamicMode()       { return (gs_RunMds & (SM_DynXfer|SM_DynFull))!=0; }
+    static flag     GlblSkipHeat()          { return (gs_RunMds & HM_All)==HM_None; };
+    static flag     GlblSimpleHeat()        { return (gs_RunMds & HM_All)==HM_Simple; };
+    static flag     GlblFullHeat()          { return (gs_RunMds & HM_All)==HM_Full; };
+
+    virtual void    SetRunModes(long Md, long MdMsk);
+    long            RunModes()              { return ((*m_pRunMds & SHM_All) ? *m_pRunMds : GlblRunModes()) & SHM_All; };
+    long            SolveMode()             { return ((*m_pRunMds & SM_All) ? *m_pRunMds : GlblRunModes()) & SM_All; };
+    long            HeatMode()              { return ((*m_pRunMds & HM_All) ? *m_pRunMds : GlblRunModes()) & HM_All; };
+    flag            ProbalMode()            { return SolveMode() == SM_Probal; };
+    flag            DynFlowMode()           { return SolveMode() == SM_DynXfer; };
+    flag            DynFullMode()           { return SolveMode() == SM_DynFull; };
+    flag            DynamicMode()           { return (SolveMode() & (SM_DynXfer|SM_DynFull))!=0; };
+    flag            SkipHeatMode()          { return (HeatMode() & HM_All)==HM_None; };
+    flag            SimpleHeatMode()        { return (HeatMode() & HM_All)==HM_Simple; };
+    flag            FullHeatMode()          { return (HeatMode() & HM_All)==HM_Full; };
+    //flag            SkipFullHeatMode()      { return (HeatMode() & HM_All)==0; };
+
+    void            SetUserMethod(long U);
+    long            UserMethod()            { return m_lRunMds & UM_All; };
+    virtual void    OnSetUserMethod()       { };
+
+    flag            GetActive();
+    void            SetActive(flag Active);
+
+    flag            GetActiveHold();
+    flag            GetActiveHoldIsAuto();
+    flag            GetActiveHoldOK();
+    void            SetActiveHold(flag Hold);
+    void            SetActiveHoldAuto(flag Hold);
+    
+    static flag     GetRunning()            { return fRunning;};
+    static flag     GetBuildingAccess()     { return fBuildingAccess; };
+    static void     SetBuildingAccess(flag On) { fBuildingAccess=On; };
+    static void     SetRunning(flag Running)  { fRunning=Running;};
+    
+    flag            DoDbgBrk();
+
+    static void     SplitTagCnv(char *pTag, Strng & Tag, Strng& Cnv);
+
+    // ConditionBlk Overides
+    DEFINE_CI(TaggedObject, ConditionBlk, 8);
+    char *          CBTag()                 { return FullObjTag(); };
+    void            CBChanged()             { StructureChanged(this); };
+    flag            GetAllCIs(Strng_List & L, int MaxNo=100);
+    void            ClrAllCIs();
+    int             CountAllCIs(int MaxNo=1, dword RqdFlags=0);
+
+#if WITHTAGMONITOR
+    CFieldMonitorTO & Monitor()             { return m_Monitor; }
+    CFieldMonitorTOCls & ClassMonitor()     { return Class()->m_Monitor; }
+#endif
+
+  protected:
+    Strng           m_sTag;
+    Strng           m_sPrefix;
+    Strng           m_sSubClass;
+    Strng           m_sFullObjTag;
+    Strng           m_sEqDesc;
+    Strng           m_sEqMemo;
+    Strng           m_sEqIdStr;
+    Strng           m_sEqLocation;
+
+    long            m_lEqLink;
+    Strng           m_sEqGUID;
+    
+    static flag     fRunning;
+    static flag     fBuildingAccess;
+    static long     gs_RunMds;
+    long            m_lRunMds;
+    long          * m_pRunMds;
+
+    flag            m_fActive;
+    flag            m_fActiveHold;
+    flag            m_fActiveHoldIfSS;
+    flag            fActiveHold_Auto;
+    flag            fActiveHoldOK_PB;
+    flag            fActiveHoldOK_Dyn;
+
+    static flag     bGlblResultsValid;
+    static flag     bGlblResultsValidChg;
+    static flag     bGlblResultsAlwaysValid;
+    static flag     bGlblResultsAlwaysValidChg;
+
+    static GlblTopologyChg GlblTopoChg;
+
+  public:
+    flag            fDoDbgBrk; // For debugging purposes
+
+    TagObjAttachment eAttachment;
+    TaggedObject *  pAttachedTo;
+    TaggedObject *  pAttachments;
+    TaggedObject *  pNxtAttachment;
+
+#if WITHTAGMONITOR
+    CFieldMonitorTO m_Monitor;
+#endif
+
+//  byte           iSolveMode;
+    flag            bObjModified;
+    flag            bUnValidatedData;
+    flag            bDoSystemDefn;
+    flag            bSkipSnapLoad;
+    dword           dwObjDataVerNo;
+    static dword    dwGlblDataVerNo;
+    static int      NumericTagsBad;         //if true, tags that only contain numeric characters are illegal
+    static int      NumericStartingTagsBad; //if true, tags starting with a numeric character are illegal
+    static char     NonNumericTagChr;       //character to use to make illegal numeric tags good
+    static int      m_DisplayTagsOnly;
+    static int      m_HideZeros;
+    static int      bHoldValidateData;
+    static CTaggedObjectList m_List2Validate;
+    static Strng    sBadFieldNameChars; // Fields may not contain these
+    static Strng    sRepFieldNameChars; // Fields may contain these but they will be replaced
+    //static CSArray sRepFieldNameChars;
+    
+  protected:
+    TagObjClass*   m_pClass;
+
+  private:
+  };
+
+//===========================================================================
+
+inline void  TaggedObject::CallGlblTopologyChg(DDBDataInfo * Info)
+  {
+  //if ((Info->iFlags & (DDEF_PARAMSTOPPED | DDEF_TOPOLOGYDATA)) && GlblTopoChg.Fun)
+  if ((Info->iFlags & (DDEF_PARAMSTOPPED)) && GlblTopoChg.Fun)
+    {
+    //dbgpln("Call ChgFun:%s", Info->pTag);
+    (*GlblTopoChg.Fun)(GlblTopoChg.Data);
+    }
+  };
+
+//===========================================================================
+
+inline void  StripClassIdVersion(Strng &ID)
+  {
+  char * p=ID.XStrRChr('-');
+  if (p)
+    ID.SetLength(p-ID());
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+inline int GetDisplayTagsOnly() { return TaggedObject::m_DisplayTagsOnly; };
+inline void SetDisplayTagsOnly(int On) { TaggedObject::m_DisplayTagsOnly=On; };
+inline int GetHideZeros() { return TaggedObject::m_HideZeros; };
+inline void SetHideZeros(int On) { TaggedObject::m_HideZeros=On; };
+inline char * GetDisplayTag(char * Tag, char *Sym)
+  {
+  return (TaggedObject::m_DisplayTagsOnly && (strlen(Tag)>0)) ? Tag : Sym;
+  };
+inline char * GetDisplayTag(Strng & Tag, Strng & Sym)
+  {
+  return (TaggedObject::m_DisplayTagsOnly && (Tag.Length()>0)) ? Tag() : Sym();
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#define XHEAP_SPARES 0
+//#define XHEAP_SPARES HEAP_SPARES
+
+#if XHEAP_SPARES
+class DllImportExport DDBPkListMapSpares : public CList <DDBPkListMap*, DDBPkListMap*> {};
+#endif
+
+class DllImportExport DDBPkListMap : public CArray <pDDBPkListItem, pDDBPkListItem>
+  {
+  public:
+#if XHEAP_SPARES
+    static DDBPkListMapSpares Spares;
+    static DDBPkListMap *Get()
+      {
+      if (Spares.IsEmpty())
+        return new DDBPkListMap;
+      return Spares.RemoveHead();
+      };
+    void      Free() { Spares.AddHead(this); };
+#else
+    static DDBPkListMap *Get() { return new DDBPkListMap; };
+    void      Free() { delete this; };
+#endif
+  };
+
+//---------------------------------------------------------------------------
+
+class DllImportExport DDBPkListItem
+  {
+  public:
+    CPkDataItem   *pItem;
+    byte           iType;
+    char          *pTag;
+    DDEF_Flags     iFlags;
+    UINT           uHash;
+    pDDBPkListItem pNextInMap;
+    pDDBPkListMap  pMap;
+
+    DDBPkListItem() { pMap=NULL; pNextInMap=NULL;};
+    ~DDBPkListItem() { Clear(); };
+    void Clear() { if (pMap) pMap->Free(); pMap=NULL; pNextInMap=NULL; };
+  };
+
+//---------------------------------------------------------------------------
+
+#if XHEAP_SPARES
+class DllImportExport DDBPkListArraySpares : public CList <DDBPkListArray*, DDBPkListArray*> {};
+#endif
+
+class DllImportExport DDBPkListArray : public CArray <DDBPkListItem, DDBPkListItem&>
+  {
+  public:
+#if XHEAP_SPARES
+    static DDBPkListArraySpares Spares;
+    static DDBPkListArray *Get()
+      {
+      if (Spares.IsEmpty())
+        return new DDBPkListArray;
+      return Spares.RemoveHead();
+      };
+    void      Free() { Spares.AddHead(this); };
+#else
+    static DDBPkListArray *Get() { return new DDBPkListArray; };
+    void      Free() { delete this; };
+#endif
+  };
+
+//---------------------------------------------------------------------------
+
+#if XHEAP_SPARES
+class DllImportExport DDBTagMapSpares : public CList <DDBTagMap*, DDBTagMap*> {};
+#endif
+
+class DllImportExport DDBTagMap : public CMap <char *, char *, DDBShortcut*, DDBShortcut*>
+  {
+  public:
+#if XHEAP_SPARES
+    static DDBTagMapSpares Spares;
+    static DDBTagMap *Get()
+      {
+      if (Spares.IsEmpty())
+        return new DDBTagMap;
+      return Spares.RemoveHead();
+      };
+    void      Free() { Spares.AddHead(this); };
+#else
+    static DDBTagMap *Get() { return new DDBTagMap; };
+    void      Free() { delete this; };
+#endif
+    void AddShortcut(pchar pFullItemTag, byte iType, dword dwDataVer, pchar pTag, CCnvIndex iCnv, pchar pCnv, void * pData, TaggedObject * pThis, DDEF_Flags Flags);
+    void AddShortcut(pchar pFullItemTag, byte iType, dword dwDataVer, pchar pTag, CCnvIndex iCnv, pchar pCnv, long lHandle, long lHandle2, TaggedObject * pThis, DDEF_Flags Flags);
+  };
+
+//---------------------------------------------------------------------------
+
+struct DDBFnParms
+  {
+  byte         iType;
+  CCnvIndex    iCnv;
+  char *       pCnvTxt;
+  double       dDefault;
+  double       dMin;
+  double       dMax;
+  };
+
+//---------------------------------------------------------------------------
+
+#if DoDDBChecks
+
+class DllImportExport DDBCheckItem
+  {
+  public:
+    Strng         m_Tag;
+    DWORD         m_Add;
+    int           m_FileVer;
+    flag          m_AltName;
+    flag          m_Reported;
+    DDEF_Flags    m_iFlags;
+    dword         m_UserInfo;
+    long          m_lOpenCnt;
+  };
+
+typedef CMap <char *, char *, DDBCheckItem*, DDBCheckItem*> DDBCheckMap;
+typedef CArray <DDBCheckItem*, DDBCheckItem*> DDBCheckArray;
+
+class DllImportExport DDBCheckClass
+  {
+  public:
+    Strng          m_ClassName;
+    DDBCheckMap    m_Map;
+    DDBCheckArray  m_Vars;
+  };
+
+typedef CArray <DDBCheckClass*, DDBCheckClass*> DDBCheckClassArray;
+typedef CMap <char *, char *, DDBCheckClass*, DDBCheckClass*> DDBCheckClassMap;
+//typedef CMap <char *, char *, CString, CString &> DDBCheckDuplicateMap;
+
+#define asmGetRetAdd(a)    \
+    _asm mov eax, [ebp+4]  \
+    _asm mov a, eax;
+
+#define CHKSTUFF0() DWORD asmRetAddress; asmGetRetAdd(asmRetAddress);
+#define CHKSTUFF1(pDDB) if (bContinueChecking && gs_DevelopementChecks) DoChecks(asmRetAddress, 0);
+
+#else
+#define CHKSTUFF0()  DWORD asmRetAddress=0;
+#define CHKSTUFF1(pDDB);
+#endif
+
+//---------------------------------------------------------------------------
+
+class DllImportExport DataDefnBlk  : public DDBDataInfo
+  {
+  friend class TagAccessBlk;
+  friend class TaggedObject;
+  friend class TagDBaseRec;
+  friend class TagDBaseTab;
+  friend class TagDBase;
+
+  public:
+    DataDefnBlk(CPkDataList * DataObj);//, CPkDataItem ** pPItem);
+    ~DataDefnBlk();
+
+    void           Open(TaggedObject *  pRootObj_, char * FullItemTag, DDBTasks Task, TABOptions Opts, pDDBShortcut Shortcut);
+    void           Close();
+    flag           Analyse(CPkDataIter &Iter);
+    void           AnalyseItem(DDBPkListItem *Parent, long & iItemNo, long &MsgNesting);
+    UINT           HashValue(char* Key);
+    void           AddToParentMap(DDBPkListItem &Parent, DDBPkListItem &Item);
+    DDBPkListItem *  FindChildItem(int MsgItemLevel, char *pTag, char *pSym);
+    void           dbgItem(DDBPkListItem &Item);
+
+    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Button(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Button(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBox(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBox(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
+      { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); }
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
+      { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
+      { Bool(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); }
+    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
+      { Bool(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
+    void           Bool(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Bool(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Bool(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Bool(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+
+    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Char(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Char(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Char(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Char(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (char Min, char Max);
+
+    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Byte(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Byte(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Byte(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Byte(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (byte Min, byte Max);
+
+    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Word(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Word(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Word(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Word(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (word Min, word Max);
+
+    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, dword*Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, dword*Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           DWord(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, dword* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { DWord(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           DWord(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { DWord(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (dword Min, dword Max);
+
+    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, int* Data,  TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, int* Data,  TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Int(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, int* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Int(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Int(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Int(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (int Min, int Max);
+
+    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, short* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Short(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Short(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (short Min, short Max);
+
+    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Long(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
+    void           Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { Long(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           Range (long Min, long Max);
+
+    void           Float (pchar Tag, pchar Sym, CCnvFamily * CnvFam, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Range (float Min, float Max);
+
+    //void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, double* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, double* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, double* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, double* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Range (double Min, double Max);
+
+    void           FnDouble(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBFnParms * ParmDefs, LPCTSTR pDesc=NULL);
+
+    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+
+    void           Blob(pchar Tag, void *Data, word Size, TaggedObject * This);
+    void           Blob(pchar Tag, long Handle, TaggedObject * This);
+
+    //void           StrValue(pchar pStr);
+    //void           IndexedStrValue(int iVal, pchar pStr);
+    void           Description(LPCTSTR pStr);
+    void           TagComment(pchar pStr);
+
+    void           SuppressNextBlock() {bBlkSuppressed[iBlkDepth]=1;};
+    flag           BeginStruct(TaggedObject * Obj, pchar Tag=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
+    void           EndStruct();
+    flag           BeginObject(TaggedObject * Obj, pchar Tag=NULL, pchar ObjectId=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
+    void           EndObject();
+    flag           BeginArray(TaggedObject * Obj, pchar Tag, pchar ClassName, int Len_, long Handle=0, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginElement(TaggedObject * Obj, int iElementIndex, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginElement(TaggedObject * Obj, LPCTSTR pElementTag, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    void           EndArray();
+    void           PushUserInfo(dword UserInfo=0, TaggedObject * This=NULL);
+    void           PopUserInfo();
+    void           Object(TaggedObject * Obj, TaggedObject * This, pchar Tag=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
+    char *         BlockTag() { return Nest[lCallLevel-1].pTag; }
+    DDEF_Flags     Visibility(DDEF_Flags ModeFlags=SHM_All, flag ViewVisible=TRUE, flag FileVisible=TRUE, flag SnapVisible=TRUE, flag ScenVisible=TRUE);
+    DDEF_Flags     GetVisibility();
+    DDEF_Flags     SetVisibility(DDEF_Flags VisFlags);
+
+    void           Add_PropertyMap(CPropertyMap & Map, ULONG WhichProps, flag AsParms, long iBaseHandle, CPropertyBase * pPropBase, TaggedObject * pTgObj);
+
+    void           Page(pchar Nm, DDBPages PageIs = DDB_OptPage, DDEF_Flags Flags=0);
+    void           Text(pchar Txt, DDEF_Flags Flags=0);
+
+    // Helper Functions
+    void           Add_OnOff(pchar pTag, pflag pOn, /*flag bOffisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
+    void           Add_YesNo(pchar pTag, pflag pYes, /*flag bNoisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
+
+    flag           ForFiling()      { return (dwOptions&TABOpt_ForFile)!=0; };
+    flag           ForView()        { return (dwOptions&TABOpt_ForView)!=0; };
+    flag           ForSnapShot()    { return (dwOptions&TABOpt_ForSnapShot)!=0; };
+    flag           ForScenario()    { return (dwOptions&TABOpt_ForScenario)!=0; };
+    flag           ForFileSnpScn()  { return (dwOptions&(TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario))!=0; };
+    flag           DoingGetData()   { return (eTask==DDBTask_GetData); };
+    flag           DoingPutData()   { return (eTask==DDBTask_PutData); };
+    
+    flag           SetDisplayOnly(flag On)
+      { 
+      flag Ret=(dwOptions&TABOPT_DisplayOnly)!=0; 
+      dwOptions=On ? (dwOptions|TABOPT_DisplayOnly) : (dwOptions&~TABOPT_DisplayOnly); 
+      return Ret;
+      };
+    flag           ForDisplayOnly() { return (dwOptions&TABOPT_DisplayOnly)!=0; };
+
+    flag           SearchingAtLevel() { return  Nest[lCallLevel].fSearching; };
+    long           CallLevel() { return  lCallLevel; };
+
+  private:
+    flag           BeginBlock(byte iType_,  TaggedObject * pObj, 
+                              pchar pTag, pchar pClassName, pchar pSubClassName, pchar pPrimaryCfg,
+                              pchar pTagOfParent, pchar pTagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress);
+    void           EndBlock();
+
+    DDEF_Flags     CurrentFlags();
+
+    flag           GetReqdFlags();
+    flag           GetReqdItem();
+    flag           GetReqdItemFn();
+    flag           GetReqdLayout();
+    flag           GetReqdBlock(flag & SearchingTag, pchar &pSrchTag);
+    flag           PutReqdItem();
+    flag           PutReqdBlock(flag & SearchingTag, pchar &pSrchTag);
+
+    void           DoBool();
+    void           DoChar();
+    void           DoByte();
+    void           DoWord();
+    void           DoDWord();
+    void           DoInt();
+    void           DoShort();
+    void           DoLong();
+    void           DoFloat();
+    void           DoDouble();
+    //void           DopChar();
+    //void           DoppChar();
+    void           DoString();
+    void           DoBlob();
+
+    void           DoNANName(LPCTSTR pStr);
+    void           DoNANName(DDBValueLst * NANStrLst);
+
+    void           ParseParms(DDBFnParms * ParmDefs);
+
+  private:
+    DDBTasks          eTask;
+    TABOptions        dwOptions;
+    CPkDataList       * m_pList;
+    CPkDataItem       * m_pItem;
+    //CPkDataItem      *pPItem;
+    //CPkDataItem      **ppPItem;
+    flag              fAllInfo;
+    flag              fValCnvs;
+    flag              fStrList;
+    char *            m_pFullItemTag;
+
+    flag              fAllDone;
+    flag              fWriting;
+    flag              fSetShortcut;
+    DDBShortcut       * pShortcut;
+
+    char              cElementTag[256]; // Space to remember tag of current array element
+
+    DDBPkListArray    * pItemList;
+    long              lNMsgItems;
+    long              lMsgItemLevel;
+    DDBPkListItem     * pParentItem[MAXSTRUCTNESTING];
+
+    long              lCallLevel;
+    struct
+      {
+      char              iTyp;
+      flag              fBlockReqd;
+      flag              fItemReqd;
+      flag              fSearching;
+      flag              fWantAll;
+      TaggedObject      * pDataObj;
+      DDEF_Flags        dwDefaultFlags;
+      dword             dwUserInfo;
+      char              * pTag;
+      char              * pSrchTag;
+      TaggedObject      * pThis;
+      //char              * m_CurrentTagEnd;
+      long              m_CurrentTagLen;
+      }               Nest[MAXSTRUCTNESTING];
+
+    byte              iBlkDepth;
+    flag              bBlkSuppressed[MAXSTRUCTNESTING];
+
+    byte              iADepth;
+    struct
+      {
+      pchar             pClass;
+      long              nElem;
+      long              iIndex;
+      }               AInfo[MAXSTRUCTNESTING];
+
+#if DoDDBChecks
+    struct
+      {
+      DDBCheckClass   * pClass;
+      int               iTagEnd;
+      char *            pTagStart;
+      long              lOpenCnts;
+      }               Chk[MAXSTRUCTNESTING];
+    char              cChkTag[1024];
+    static long       lOpenCnt;
+
+  public:
+    void           DoChecks(DWORD RetAddress, dword UserInfo);
+
+    static DDBCheckClassArray   ClassList;
+    static DDBCheckClassMap     ClassMap;
+    //static DDBCheckDuplicateMap DuplicateMap;
+
+    static DDBCheckClass * FindClass(char * ClassName);
+    static void    ClearAllChecks();
+    static void    DumpAllChecks();
+#endif
+
+  public:
+    static flag    debugging;
+
+    static void StartUp()
+      {
+      }
+    static void ShutDown()
+      {
+#if XHEAP_SPARES
+      while (!DDBPkListArray::Spares.IsEmpty())
+        {
+        DDBPkListArray *p=DDBPkListArray::Spares.RemoveHead();
+        for (int i=0; i<p->GetSize(); i++)
+          p->ElementAt(i).Clear();
+        delete p;
+        }
+      while (!DDBPkListMap::Spares.IsEmpty())
+        delete DDBPkListMap::Spares.RemoveHead();
+#endif
+      }
+  };
+
+
+
+// ==========================================================================
+
+class DllImportExport TagAccessBlk
+  {
+  public :
+    TagAccessBlk();
+    TagAccessBlk(TaggedObject * pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
+    ~TagAccessBlk();
+    
+    TagAccessBlk& operator=(const TagAccessBlk&X);
+
+    void           Init(TaggedObject * pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
+    flag           LoadAddress(flag FndShortcut=True);
+
+    flag           GetDefinedData(CPkDataList &DataObj, TABOptions Opts);
+    int            PutDefinedData(CPkDataList &DataObj);
+    flag           ValidateDefinedData();
+    void           ClearDDBLists();
+
+    void           GotAllDataFromObject();
+
+    byte           Type() { return Shortcut.fOK ? Shortcut.iType : tt_NULL; };
+    flag           IsNumData() { return Shortcut.fOK ? ::IsNumData(Shortcut.iType) : False; };
+    flag           IsStrng() { return Shortcut.fOK ? ::IsStrng(Shortcut.iType) : False; };
+    CCnvIndex      CnvIndex() { return Shortcut.fOK ? Shortcut.iCnv : 0; };
+    DDEF_Flags     Flags() { return Shortcut.fOK ? Shortcut.iFlags : 0; };
+
+    double         GetDouble(char * pRqdCnvText=NULL);
+    long           GetLong();
+    int            PutDouble(double D, char * pRqdCnvText=NULL);
+    int            PutLong(long L);
+    char*          GetString();
+    int            PutString(char* p);
+
+    flag           Changed() {return bChanged; };
+    static void    ResetTimers();
+
+  public:
+    byte                Ok:1, bAllowChangeTest:1, bChanged:1;
+    TagUniqueness       eUnique;
+    pchar               m_pTagFound;
+    Strng               sTag, sCnvTxt, sCnvFam;
+    TaggedObject      * pSrchRoot;
+    TaggedObject      * pAccObj;
+    TABOptions          dwOptions;
+    char              * m_pPrevValues;
+    dword               m_lPrevValues;
+    CTagRefStatusWord   m_PrevXRefStatus;
+    DDBShortcut         Shortcut;
+
+  public:
+    struct CTimes
+      {
+      long        m_Calls;
+      double      m_Time;
+      void Reset();
+      void Add(CStopWatch & SW);
+      } ;
+    static CTimes   m_LoadAddress;
+    static CTimes   m_GetDefined;
+    static CTimes   m_PutDefined;
+    static CTimes   m_ValidateDefined;
+  };
+
+//===========================================================================
+//
+//  
+//
+//===========================================================================
+
+#if DOINLINE
+#include "TagObj.inl"
+#endif
+//===========================================================================
+//
+//  COM 
+//
+//===========================================================================
+
+class DllImportExport CCOMObjManagerRoot
+  {
+  public :
+    static CCOMObjManagerRoot * gs_Manager;
+    //AddClassCCOMObjManagerRoot * gs_Manager;
+
+#if 0
+    virtual TaggedObject * Construct(LPCTSTR ProgID, pchar pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0;
+#endif
+    virtual TaggedObject * Construct(TagObjClass *pClass, LPCTSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0; 
+    virtual void Destroy(TaggedObject * pObj)=0;
+
+  };
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
+#define DEFINE_TAGOBJDERIVED(Obj, Base) \
+  _FWDDEF(Obj); \
+  class DllImportExport Obj##ClassDef : public Base \
+    { \
+    public: \
+      TaggedObject * ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask); \
+      Obj##ClassDef(); \
+    }; \
+  extern DllImportExport Obj##ClassDef Obj##Class;
+
+#define DEFINE_TAGOBJ(Obj) \
+  DEFINE_TAGOBJDERIVED(Obj, TagObjClass)
+
+
+#define IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask, Base) \
+TaggedObject * Obj##ClassDef::ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+  { return TagObjClass::ConstructGrp(pClass, pSubClass, pTag, pAttach, eAttach); }; \
+TaggedObject * Obj##ClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+  { return TagObjClass::ConstructGrpDesc(pShortDesc, pSubClass, pTag, pAttach, eAttach); }; \
+TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+  { \
+  p##Obj pn = new Obj(this, pTag, pAttach, eAttach); \
+  SetTypeId(&typeid(*pn));                           \
+  if (pSubClass)                                     \
+    pn->SetSubClass(pSubClass);                      \
+  return pn;                                         \
+  }; \
+Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask) \
+  : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pDefTag_, dwCat, pShortDesc_, pDesc_, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
+  Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask){ sMdlLibName=MDLLIBNAME; }; \
+Obj##ClassDef Obj##Class;
+
+#define IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+
+#define IMPLEMENT_TAGOBJSUB(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+
+#define IMPLEMENT_TAGOBJDERIVED(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, Base) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0xffffffff, Base)
+
+#define IMPLEMENT_TAGOBJSLCT(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask, TagObjClass)
+
+// --------------------------------------------------------------------------
+
+#define DEFINE_TAGOBJEDTDERIVED(Obj, Base) \
+  _FWDDEF(Obj); \
+  class DllImportExport Obj##ClassDef : public Base \
+    { \
+    public: \
+      TaggedObject * ConstructGroup(pchar pGroup, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask); \
+      Obj##ClassDef(); \
+      virtual flag EditorExists() {return 1;}; \
+      virtual pFxdEdtBookRef ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj); \
+    }; \
+  extern DllImportExport Obj##ClassDef Obj##Class;
+
+#define DEFINE_TAGOBJEDT(Obj) \
+  DEFINE_TAGOBJEDTDERIVED(Obj, TagObjClass)
+
+
+#define IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, Edt, ShortDesc, Desc, SelectMask, Base) \
+TaggedObject * Obj##ClassDef::ConstructGroup(pchar pGroup, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+  { return TagObjClass::ConstructGrp(pGroup, pSubClass, pTag, pAttach, eAttach); }; \
+TaggedObject * Obj##ClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+  { return TagObjClass::ConstructGrpDesc(pShortDesc, pSubClass, pTag, pAttach, eAttach); }; \
+TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+  { \
+  p##Obj pn = new Obj(this, pTag, pAttach, eAttach); \
+  SetTypeId(&typeid(*pn));                           \
+  if (pSubClass)                                     \
+    pn->SetSubClass(pSubClass);                      \
+  return pn;                                         \
+  };  \
+pFxdEdtBookRef Obj##ClassDef::ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj) \
+  { return ::new Edt(pView_, (Obj*)pObj); }; \
+Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask) \
+  : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pDefTag_, dwCat, pShortDesc, pDesc, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
+Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask) { sMdlLibName=MDLLIBNAME; }; \
+Obj##ClassDef Obj##Class;
+
+#define IMPLEMENT_TAGOBJEDT(Obj, Grp, ClassId, Version, DefTag, Cat, Edt, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", DefTag, Cat, Edt, ShortDesc, Desc, 0xffffffff, TagObjClass)
+
+#define IMPLEMENT_TAGOBJEDTDERIVED(Obj, Grp, ClassId, Version, DefTag, Cat, Edt, ShortDesc, Desc, Base) \
+  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", DefTag, Cat, Edt, ShortDesc, Desc, 0xffffffff, Base)
+
+#define IMPLEMENT_TAGOBJEDTSLCT(Obj, Grp, ClassId, Version, DefTag, Cat, Edt, ShortDesc, Desc, SelectMask) \
+  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", DefTag, Cat, Edt, ShortDesc, Desc, SelectMask, TagObjClass)
+
+
+#define IMPLEMENT_BUILDDATADEFNGLOBAL(Obj)                                            \
+static class C##Obj##BuildDataDefnGlobalAttach                                        \
+  {                                                                                   \
+  public:                                                                             \
+    C##Obj##BuildDataDefnGlobalAttach()                                               \
+      {                                                                               \
+      Obj##Class.SetDataDefnGlobalFn(Obj::BuildDataDefnGlobal, Obj::DataXchgGlobal);  \
+      }                                                                               \
+  } gs_##Obj##BuildDataDefnGlobalAttach;
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#undef DllImportExport
+
+//========================================================================
+//
+//
+//
+//===========================================================================
+
+#include "MathlibTO.h"
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#endif

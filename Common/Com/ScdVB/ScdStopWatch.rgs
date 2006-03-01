@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdVB.ScdStopWatch.1 = s 'ScdStopWatch Class'
+	{
+		CLSID = s '{92520B1B-1386-4671-85A9-7BA9AA73A0C6}'
+	}
+	ScdVB.ScdStopWatch = s 'ScdStopWatch Class'
+	{
+		CLSID = s '{92520B1B-1386-4671-85A9-7BA9AA73A0C6}'
+		CurVer = s 'ScdVB.ScdStopWatch.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {92520B1B-1386-4671-85A9-7BA9AA73A0C6} = s 'ScdStopWatch Class'
+		{
+			ProgID = s 'ScdVB.ScdStopWatch.1'
+			VersionIndependentProgID = s 'ScdVB.ScdStopWatch'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{03763CF2-5A3B-4D02-87A2-B478CFF4E04A}'
+		}
+	}
+}

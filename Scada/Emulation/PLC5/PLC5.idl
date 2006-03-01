@@ -1,0 +1,38 @@
+// PLC5.idl : IDL source for PLC5.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (PLC5.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(13EF82EF-63CD-48A6-BAE3-042E79385BAA),
+		dual,
+		helpstring("ISysCADCmd Interface"),
+		pointer_default(unique)
+	]
+	interface ISysCADCmd : IDispatch
+	{
+	};
+
+[
+	uuid(65307A03-B641-44E1-9693-68ECE608B3FF),
+	version(1.0),
+	helpstring("PLC5 1.0 Type Library")
+]
+library PLC5Lib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(09087B23-B280-4A17-9A7C-B5452E2C3EA7),
+		helpstring("SysCADCmd Class")
+	]
+	coclass SysCADCmd
+	{
+		[default] interface ISysCADCmd;
+	};
+};

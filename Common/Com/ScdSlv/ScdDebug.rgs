@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Debug.1 = s 'ScdDebug Class'
+	{
+		CLSID = s '{1591C55C-A339-42CE-BEAF-E286147842C1}'
+	}
+	SysCAD.Debug = s 'ScdDebug Class'
+	{
+		CLSID = s '{1591C55C-A339-42CE-BEAF-E286147842C1}'
+		CurVer = s 'SysCAD.Debug.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1591C55C-A339-42CE-BEAF-E286147842C1} = s 'ScdDebug Class'
+		{
+			ProgID = s 'SysCAD.Debug.1'
+			VersionIndependentProgID = s 'SysCAD.Debug'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

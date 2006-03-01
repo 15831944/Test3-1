@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.LicenseMdl.1 = s 'ScdLicenseMdl Class'
+	{
+		CLSID = s '{DBC6EB45-6281-43AA-9B8F-39980BF00359}'
+	}
+	SysCAD.LicenseMdl = s 'ScdLicenseMdl Class'
+	{
+		CLSID = s '{DBC6EB45-6281-43AA-9B8F-39980BF00359}'
+		CurVer = s 'SysCAD.LicenseMdl.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {DBC6EB45-6281-43AA-9B8F-39980BF00359} = s 'ScdLicenseMdl Class'
+		{
+			ProgID = s 'SysCAD.LicenseMdl.1'
+			VersionIndependentProgID = s 'SysCAD.LicenseMdl'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{0766FCA7-75C3-47c0-B6D5-0F4BD88CC71A}'
+		}
+	}
+}

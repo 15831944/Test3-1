@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdSlv.ScdConnects.1 = s 'ScdConnects Class'
+	{
+		CLSID = s '{A6FDC0DE-3269-4B86-AC79-493E251818D2}'
+	}
+	ScdSlv.ScdConnects = s 'ScdConnects Class'
+	{
+		CLSID = s '{A6FDC0DE-3269-4B86-AC79-493E251818D2}'
+		CurVer = s 'ScdSlv.ScdConnects.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A6FDC0DE-3269-4B86-AC79-493E251818D2} = s 'ScdConnects Class'
+		{
+			ProgID = s 'ScdSlv.ScdConnects.1'
+			VersionIndependentProgID = s 'ScdSlv.ScdConnects'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

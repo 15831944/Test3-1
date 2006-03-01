@@ -1,0 +1,407 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+#include "scdver.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "#include ""scdver.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "#include ""res\SCDLib.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "\r\n"
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "#include ""afxres.rc""  // Standard components\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_BUSYDLG DIALOGEX 0, 0, 230, 94
+STYLE DS_3DLOOK | WS_CHILD | WS_BORDER
+EXSTYLE WS_EX_TOPMOST
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_APPICON,"Button",BS_OWNERDRAW | WS_DISABLED,5,5,
+                    40,40
+    CONTROL         "",IDC_LOGO,"Button",BS_OWNERDRAW | WS_DISABLED,204,28,
+                    20,20
+    LTEXT           "(Full version)",IDC_FULLVERSION,55,5,147,8
+    LTEXT           "(Copyright)",IDC_COPYRIGHT,55,15,147,8
+    LTEXT           "(Company)",IDC_COMPANY,55,30,147,8
+    LTEXT           "Process Optimization and Control Consultants",
+                    IDC_STATIC,55,40,143,8
+    CONTROL         "",IDC_PICT,"Static",SS_BLACKRECT,0,51,230,1
+    CTEXT           "",IDC_TEXT,0,53,230,40
+END
+
+IDD_FNOPTDLG DIALOGEX 0, 0, 251, 170
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "File Reopen"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,198,122,39,14
+    PUSHBUTTON      "OK - &All",IDOKALL,143,133,39,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,198,140,39,14
+    PUSHBUTTON      "&Browse",IDC_BROWSEFILE,157,42,39,14
+    CONTROL         "Missing",IDC_REASON1,"Button",BS_AUTORADIOBUTTON |
+                    BS_LEFTTEXT | WS_GROUP,200,44,39,10
+    CONTROL         "Missing",IDC_REASON2,"Button",BS_AUTORADIOBUTTON |
+                    BS_LEFTTEXT | WS_GROUP,200,89,39,10
+    CONTROL         "Use Backup Copy",IDC_USELCL,"Button",BS_AUTORADIOBUTTON |
+                    WS_GROUP,22,122,75,10
+    CONTROL         "Use Newest Copy",IDC_USENEWEST,"Button",
+                    BS_AUTORADIOBUTTON,22,148,75,10
+    CONTROL         "D:\\SysCAD\\Diavik\\jhghjghjgghj.csv",IDC_FILE1,"Static",
+                    SS_LEFTNOWORDWRAP | SS_NOPREFIX | SS_CENTERIMAGE |
+                    WS_GROUP,11,31,227,10
+    GROUPBOX        "Auto Select - Two files found",IDC_STATIC,17,111,171,53
+    CONTROL         "Filetime : 15:34:02  23-Jul-98",IDC_TIME1,"Static",
+                    SS_LEFTNOWORDWRAP | SS_NOPREFIX | SS_CENTERIMAGE |
+                    WS_GROUP,11,44,141,10
+    GROUPBOX        "Original file",IDC_STATIC,7,21,237,39
+    CONTROL         "Use Original Copy",IDC_USERMT,"Button",
+                    BS_AUTORADIOBUTTON,22,135,75,10
+    CONTROL         "D:\\SysCAD\\Diavik\\jhghjghjgghj.csv",IDC_FILE2,"Static",
+                    SS_LEFTNOWORDWRAP | SS_NOPREFIX | SS_CENTERIMAGE |
+                    WS_GROUP,11,76,227,10
+    CONTROL         "Filetime : 15:34:02  23-Jul-98",IDC_TIME2,"Static",
+                    SS_LEFTNOWORDWRAP | SS_NOPREFIX | SS_CENTERIMAGE |
+                    WS_GROUP,11,89,141,10
+    GROUPBOX        "Backup file",IDC_STATIC,7,65,237,39
+    CONTROL         "D:\\SysCAD\\Diavik\\jhghjghjgghj.csv ALSO Exists",
+                    IDC_NOTE,"Static",SS_LEFTNOWORDWRAP | SS_NOPREFIX |
+                    SS_CENTERIMAGE,7,7,237,10,WS_EX_TRANSPARENT
+    CONTROL         144,IDC_SEENOTE,"Static",SS_BITMAP,193,21,46,9
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_LOGO                BITMAP  DISCARDABLE     "RES\\LOGO.BMP"
+IDB_TESTBU              BITMAP  MOVEABLE PURE   "RES\\TESTBTN.BMP"
+IDB_TESTBD              BITMAP  DISCARDABLE     "RES\\TESTBD.BMP"
+IDB_TREEMINUS           BITMAP  DISCARDABLE     "RES\\TREEMINS.BMP"
+IDB_TREEPLUS            BITMAP  DISCARDABLE     "RES\\TREEPLUS.BMP"
+XIDB_FILELISTIMGS       BITMAP  DISCARDABLE     "RES\\filelist.bmp"
+IDB_SEENOTE             BITMAP  DISCARDABLE     "RES\\BITMAP1.BMP"
+IDB_BIGICON1            BITMAP  DISCARDABLE     "RES\\BIGICON1.BMP"
+IDB_BIGICON             BITMAP  DISCARDABLE     "res\\bigicon.bmp"
+IDB_LOGO1               BITMAP  DISCARDABLE     "RES\\LOGO1.BMP"
+XIDB_BITMAP2            BITMAP  DISCARDABLE     "RES\\BITMAP2.BMP"
+IDB_BIGGERICON          BITMAP  DISCARDABLE     "RES\\LRGICON.BMP"
+IDB_TREESELIMGS         BITMAP  DISCARDABLE     "res\\tagdlist.bmp"
+IDB_DDLST               BITMAP  DISCARDABLE     "RES\\DDLST.BMP"
+IDB_DDLSTDN             BITMAP  DISCARDABLE     "RES\\DDLSTDN.BMP"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE
+BEGIN
+    IDD_BUSYDLG, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 93
+    END
+
+    IDD_FNOPTDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 244
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 163
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SIMPLE_STRING_DLG DIALOG DISCARDABLE  0, 0, 186, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "(Title)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "(Name)",IDC_TXT_NAME,5,5,175,10
+    EDITTEXT        IDC_STRINGEDIT,5,15,175,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,32,35,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,102,35,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE
+BEGIN
+    IDD_SIMPLE_STRING_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (Australia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) (unknown sub-lang: 0x7) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENS)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, 0x7
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CNVFMT DIALOG DISCARDABLE  0, 0, 234, 178
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Conversion / Format"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_CNVLIST,14,20,46,122,CBS_SIMPLE |
+                    CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Fixed",IDC_FIXEDDEC,"Button",BS_AUTORADIOBUTTON |
+                    WS_GROUP,66,40,44,10
+    CONTROL         "Sig Digits",IDC_SIGNIFICANT,"Button",BS_AUTORADIOBUTTON,
+                    66,56,44,10
+    CONTROL         "Floating",IDC_FLOATING,"Button",BS_AUTORADIOBUTTON,66,
+                    72,44,10
+    EDITTEXT        IDC_EDIT1,67,89,21,12,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SPIN2,"msctls_updown32",UDS_ALIGNRIGHT |
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HORZ,91,89,17,12
+    PUSHBUTTON      "Cancel",IDCANCEL,119,157,50,14
+    DEFPUSHBUTTON   "OK",IDOK,177,157,50,14
+    RTEXT           "123.4567",IDC_STATIC,66,20,44,11,SS_CENTERIMAGE
+    GROUPBOX        "Item",IDC_STATIC,7,7,108,142
+    COMBOBOX        IDC_CNVLIST2,126,20,46,122,CBS_SIMPLE |
+                    CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Fixed",IDC_FIXEDDEC2,"Button",BS_AUTORADIOBUTTON |
+                    WS_GROUP,178,40,44,10
+    CONTROL         "Sig Digits",IDC_SIGNIFICANT2,"Button",
+                    BS_AUTORADIOBUTTON,178,56,44,10
+    CONTROL         "Floating",IDC_FLOATING2,"Button",BS_AUTORADIOBUTTON,178,
+                    72,44,10
+    EDITTEXT        IDC_EDIT2,180,89,21,12,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SPIN3,"msctls_updown32",UDS_ALIGNRIGHT |
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HORZ,204,89,17,12
+    RTEXT           "123.4567",IDC_STATIC,178,20,44,11,SS_CENTERIMAGE
+    GROUPBOX        "Global",IDC_STATIC,119,7,108,142
+END
+
+IDD_CK_LOCATIONDLG DIALOG  0, 0, 282, 57
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "License Location"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,225,10,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,225,30,50,14
+    EDITTEXT        IDC_CK_APPPATH,9,15,206,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Browse...",IDC_CK_BROWSE,165,30,50,14
+    GROUPBOX        "Location",IDC_STATIC,5,5,215,45
+END
+
+IDD_CK_STARTDLG DIALOG  0, 0, 207, 148
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Licensing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "(Application and Version)",IDC_CK_APP_VERSION,5,5,195,8,
+                    WS_TABSTOP
+    PUSHBUTTON      "Issue &Trial License (? days)",IDC_CK_TRIAL,10,20,190,
+                    20
+    PUSHBUTTON      "Enter License &Authorization",IDC_CK_ISSUE,10,45,190,20
+    PUSHBUTTON      "&Register License Transfer",IDC_CK_REGTRANS,10,70,190,
+                    20
+    PUSHBUTTON      "License Transfer &In",IDC_CK_TRANSIN,10,95,190,20
+    DEFPUSHBUTTON   "E&xit",IDCANCEL,10,120,190,20
+END
+
+IDD_CK_AUTHDLG DIALOG  0, 0, 302, 71
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "License Authorization"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Authorization",IDC_STATIC,5,5,235,49
+    LTEXT           "Site Code:",IDC_STATIC,10,17,34,8
+    EDITTEXT        IDC_CK_SITECODE,50,17,185,12,ES_UPPERCASE |
+                    ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Site Key:",IDC_STATIC,10,37,29,8
+    EDITTEXT        IDC_CK_SITEKEY,50,37,185,12,ES_UPPERCASE |
+                    ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "&Update",IDOK,245,15,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,245,32,50,14
+    LTEXT           "(Location)",IDC_CK_TXT_LOCATION,5,57,290,8
+END
+
+IDD_CK_TRANSFERDLG DIALOG  0, 0, 245, 82
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "(Transfer Title)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "(License Location)",IDC_CK_TXTLOCATION,7,5,233,8
+    LTEXT           "(License Count)",IDC_CK_TXTCOUNT,7,20,233,8
+    LTEXT           "(Transfer Option)",IDC_CK_TXTTRANSFEROPTION,7,35,233,8
+    EDITTEXT        IDC_CK_PATH,5,49,235,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,45,64,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,101,64,50,14
+    PUSHBUTTON      "&Browse...",IDC_CK_BROWSE,155,64,50,14
+END
+
+IDD_CK_LICENSEINFODLG DIALOG  0, 0, 252, 250
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "SysCAD License Information"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "(Last Date)",IDC_CK_TXT_DATE,5,5,245,8
+    LTEXT           "(No copies)",IDC_CK_TXT_COPIES,5,18,245,8
+    LTEXT           "(Multi-Users)",IDC_CK_TXT_USERS,5,31,245,8
+    LTEXT           "(Time restrictions)",IDC_CK_TXT_TIME,5,44,245,8
+    LTEXT           "(No ProBal units allowed)",IDC_CK_TXT_PROBALUNITS,5,57,
+                    245,8
+    LTEXT           "(No Dynamic units allowed)",IDC_CK_TXT_DYNUNITS,5,70,
+                    245,8
+    LTEXT           "(Historian size)",IDC_CK_TXT_HISTSIZE,5,85,245,8
+    LTEXT           "(Window limits)",IDC_CK_TXT_WNDLIMITS,5,98,245,8
+    CONTROL         "List2",IDC_CK_OPTIONSLIST,"SysListView32",LVS_REPORT |
+                    WS_BORDER | WS_TABSTOP,5,110,245,105
+    LTEXT           "(Level)",IDC_CK_TXT_LEVEL,5,220,130,8
+    RTEXT           "(StandAlone)",IDC_CK_TXT_STANDALONE,130,220,120,8
+    LTEXT           "(Location)",IDC_CK_TXT_LOCATION,5,230,190,8
+    LTEXT           "(CrypKey Ver)",IDC_CK_TXT_CRYPKEYVER,5,241,190,8
+    DEFPUSHBUTTON   "OK",IDOK,200,235,50,14
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE
+BEGIN
+    IDD_CNVFMT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 171
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_CNVFMT DLGINIT
+BEGIN
+    IDC_CNVLIST, 0x403, 5, 0
+0x676b, 0x732f, "\000"
+    IDC_CNVLIST, 0x403, 4, 0
+0x2f74, 0x0068,
+    IDC_CNVLIST2, 0x403, 5, 0
+0x676b, 0x732f, "\000"
+    IDC_CNVLIST2, 0x403, 4, 0
+0x2f74, 0x0068,
+    0
+END
+
+#endif    // English (U.S.) (unknown sub-lang: 0x7) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "res\SCDLib.rc2"  // non-Microsoft Visual C++ edited resources
+
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+#include "afxres.rc"  // Standard components
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

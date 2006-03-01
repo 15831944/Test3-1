@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdVB.ScdTimer.1 = s 'ScdTimer Class'
+	{
+		CLSID = s '{4B8BDF4B-681C-4201-989E-7916166D50D4}'
+	}
+	ScdVB.ScdTimer = s 'ScdTimer Class'
+	{
+		CLSID = s '{4B8BDF4B-681C-4201-989E-7916166D50D4}'
+		CurVer = s 'ScdVB.ScdTimer.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {4B8BDF4B-681C-4201-989E-7916166D50D4} = s 'ScdTimer Class'
+		{
+			ProgID = s 'ScdVB.ScdTimer.1'
+			VersionIndependentProgID = s 'ScdVB.ScdTimer'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{03763CF2-5A3B-4D02-87A2-B478CFF4E04A}'
+		}
+	}
+}

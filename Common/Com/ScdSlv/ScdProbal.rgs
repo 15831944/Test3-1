@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Probal.1 = s 'ScdProbal Class'
+	{
+		CLSID = s '{CEBC2245-9DDC-4B20-8F79-83656AD1D066}'
+	}
+	SysCAD.Probal = s 'ScdProbal Class'
+	{
+		CLSID = s '{CEBC2245-9DDC-4B20-8F79-83656AD1D066}'
+		CurVer = s 'SysCAD.Probal.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {CEBC2245-9DDC-4B20-8F79-83656AD1D066} = s 'ScdProbal Class'
+		{
+			ProgID = s 'SysCAD.Probal.1'
+			VersionIndependentProgID = s 'SysCAD.Probal'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

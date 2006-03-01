@@ -1,0 +1,42 @@
+// TestMarshal.odl : type library source for TestMarshal.exe
+
+// This file will be processed by the MIDL compiler to produce the
+// type library (TestMarshal.tlb).
+
+[ uuid(E83549D3-D9A9-4423-8E02-A72B0E31E36C), version(1.0) ]
+library TestMarshal
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+
+	//  Primary dispatch interface for CTestMarshalDoc
+	
+	[ uuid(2C971345-9D63-4000-AF61-FC31A1A64F0F) ]
+	dispinterface ITestMarshal
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CTestMarshalDlgAutoProxy)
+			//}}AFX_ODL_PROP
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CTestMarshalDlgAutoProxy)
+			//}}AFX_ODL_METHOD
+
+	};
+
+	//  Class information for CTestMarshalDoc
+	
+	[ uuid(7035768B-1B4C-4A35-900F-1A360495CC61) ]
+	coclass TestMarshal
+	{
+		[default] dispinterface ITestMarshal;
+	};
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

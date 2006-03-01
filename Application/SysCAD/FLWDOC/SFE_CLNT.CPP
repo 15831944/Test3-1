@@ -1,0 +1,707 @@
+//================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+// $Nokeywords: $
+//===========================================================================
+
+#define  __SFE_CLNT_CPP
+
+#include "stdafx.h"
+#include "sc_defs.h"
+#include "..\resource.h"
+#include "grf3drw.h"
+#include "sfe_clnt.h"
+#include "project.h"
+#include "..\flwlib\sfedll.h"
+#include "dbgmngr.h"
+#include "apprunmngr.h"
+#include "explorescd.h"
+#include "scdver.h"
+
+//#include "optoff.h"
+
+
+#define dbgCmd        1
+#define dbgReply      0
+
+#define dbgClnt       01
+#if dbgClnt
+static CDbgMngr dbgDumpTagClasses("SFE_Clnt", "TagObjClasses");
+#endif
+
+//===========================================================================
+
+//---------------------------------------------------------------------------
+//===========================================================================
+
+SFEFlwLib       * gs_pTheSFELib = NULL;
+CAppRunManager  * gs_pAppRunMngr =  NULL;
+
+//---------------------------------------------------------------------------
+
+SFEFlwLib::SFEFlwLib()
+  {
+#if WITHSFEWND 
+  pSFEFrame=NULL;
+  pSFEWnd=NULL;
+#endif
+  pSfe=NULL;
+  SFENodeGrfInfo=NULL;
+  FPP_State=0;
+  m_LoadAllModelStatusDone=false;
+  m_nMdlStatusLoads=0;
+  m_nStatusChgs=0;
+  m_nStatusColourChgs=0;
+
+  ASSERT(gs_pTheSFELib==NULL);
+  gs_pTheSFELib=this;
+  }
+
+//---------------------------------------------------------------------------
+
+SFEFlwLib::~SFEFlwLib()
+  {
+  gs_pTheSFELib=NULL;
+  }
+
+//---------------------------------------------------------------------------
+
+void SFEFlwLib::Enter()
+  {
+  CExecObj::LockXO();
+  FPP_State=_controlfp(0,0);                                    // Get Old fpControl
+  _clearfp();                                                   // clear any outstanding exceptions
+  _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);	//Set New fpControl
+  }
+
+//---------------------------------------------------------------------------
+
+void SFEFlwLib::Leave()
+  {
+  FPP_RestoreExceptions(FPP_State);
+  CExecObj::UnlockXO();
+  }
+
+//---------------------------------------------------------------------------
+
+flag SFEFlwLib::Initialise(pchar ModelCfg, pchar FlwLibTag, pchar EO_LocationTag)
+  {
+  char Buff[1024];
+  //ModuleFileName= (GetModuleFileName(hSFELib, Buff, sizeof(Buff)) > 0) ? Buff : "";
+  //sMdlDLLPath=ModuleFileName;
+
+  sFlwLibTag=FlwLibTag;
+  sMdlDLLPath=(GetModuleFileName(hSFELib, Buff, sizeof(Buff)) > 0) ? Buff : "";
+
+  #if dbgClnt
+  if (dbgDumpTagClasses())
+    {
+    dbgpln("TagClasses - After Load");
+    TagObjClass::DumpAll();
+    }
+  #endif
+
+  SFENodeGrfInfo=NULL;
+  fn_AddSfeSrvr AddSfeSrvr=(fn_AddSfeSrvr)GetProcAddress(hSFELib, "AddSfeSrvr");
+  if (AddSfeSrvr)
+    {
+    //nLoads++;
+    pSfe=AddSfeSrvr();
+    ASSERT(pSfe);
+    if (pSfe)
+      {
+      gs_pAppRunMngr=new CAppRunManager;
+      gs_TheRunMngr.m_pAppMngr=(CBaseRunManager*)gs_pAppRunMngr;
+      }
+
+    if (!pSfe->Init(ModelCfg, FlwLibTag, AfxGetInstanceHandle(), this, 1, 0, NULL))//Sfe_CallBack);
+      {
+      SFENodeGrfInfo=NULL;
+      LogError("SysCAD", 0, "Error initializing DLL %s  (Check preceding errors!)", sMdlDLLName());
+      UnLoad();
+      delete gs_pAppRunMngr;
+      gs_pAppRunMngr=NULL;
+      gs_TheRunMngr.m_pAppMngr=NULL;
+      pSfe=NULL;
+      }
+    else
+      {
+#if WITHSFEWND 
+      ASSERT(pSFEFrame==NULL);
+      CCreateContext CC;
+      CC.m_pCurrentDoc=NULL;
+      CC.m_pNewDocTemplate=NULL;
+      CC.m_pLastView=NULL;
+      CC.m_pCurrentFrame=NULL;
+      CC.m_pNewViewClass=RUNTIME_CLASS(EngStateWnd);
+      pSFEFrame = new CEngStateFrm;
+      HICON hIcon=ScdApp()->LoadIcon(IDI_SFESTATE);
+      CString ClassName(AfxRegisterWndClass(CS_DBLCLKS|CS_NOCLOSE, 0, 0, hIcon));
+      if (pSFEFrame->Create(ClassName.GetBuffer(0),
+                            FlwLibTag, WS_CHILD | WS_VISIBLE |
+                            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | // seems to be required
+                            WS_THICKFRAME | WS_MINIMIZEBOX | //WS_MAXIMIZEBOX |
+                            WS_MINIMIZE,
+                            pSFEFrame->rectDefault, NULL, &CC))
+        {
+        pSFEWnd = (pEngStateWnd)(pSFEFrame)->GetTopWindow();
+        pSFEWnd->SetFlwLibName(FlwLibTag);
+        pSFEWnd->OnInitialUpdate();
+        gs_pPrj->RestoreOneWindow(FlwLibTag, pSFEWnd, false);
+//        EO_Register(EO_LocationTag, EOWrite_Thread | EORead_Thread | EOExec_Thread, THREAD_PRIORITY_BELOW_NORMAL, 4*PkDataListLength, 101);
+        
+        }
+#endif
+      SYSTEM_INFO si;
+      GetSystemInfo(&si);
+      int Prio = si.dwNumberOfProcessors>1 ? THREAD_PRIORITY_ABOVE_NORMAL : THREAD_PRIORITY_BELOW_NORMAL;
+      EO_Register(EO_LocationTag, EOWrite_Thread | EORead_Thread | EOExec_Thread, Prio, 20000/*4*PkDataListLength*/, 101);
+
+      SFENodeGrfInfo=pSfe->Drawings();
+      }
+    }
+  else
+    {
+    char txt[512];
+    sprintf(txt, "Bad DLL %s", sMdlDLLName());
+    AfxMessageBox(txt, MB_ICONEXCLAMATION);
+    }
+
+  return Loaded();
+  }
+
+//---------------------------------------------------------------------------
+
+flag SFEFlwLib::Terminate()
+  {
+  Enter();
+
+  if (pSfe)
+    {
+    pSfe->Term();
+    pSfe=NULL;
+    }
+
+  if (SFENodeGrfInfo)
+    {
+    delete SFENodeGrfInfo;
+    SFENodeGrfInfo=NULL;
+    }
+
+  EO_DeRegister();
+#if WITHSFEWND 
+  if (pSFEFrame)
+    {
+    pSFEFrame->DestroyWindow();
+    pSFEFrame=NULL;
+    pSFEWnd=NULL;
+    }
+#endif
+
+//  dbgpln("TagClasses - After UnLoad");
+//  TagObjClass::DumpAll();
+
+  UnlockXO();
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+//pSFEMdlLib SFEMdlLib::Attach()
+//  {
+//  if (pTheDLL && pTheDLL->Loaded())
+//    {
+//    pTheDLL->iUsage++;
+//    return pTheDLL;
+//    }
+//  LogError("SFEClient", 0, "Model DLL Not Loaded");
+//  return NULL;
+//  }
+////---------------------------------------------------------------------------
+//
+//flag SFEMdlLib::Detach()
+//  {
+//  if (pTheDLL && pTheDLL->Loaded())
+//    {
+//    pTheDLL->iUsage--;
+//    return true;
+//    }
+//  return false;
+//  }
+
+//---------------------------------------------------------------------------
+
+int SFEFlwLib::AddAttachedToMenu(CMenu& Menu, char* pTag)
+  {
+  if (pSfe==NULL)
+    return 0;
+  
+  Enter();
+  
+  Strng s;
+  RequestModelIOConnRec ConnInfo;
+  int j = 0;
+  while (pSfe->RequestModelIOConn(pTag, j++, ConnInfo) && j<IDM_PRJ_ACCESSLAST-IDM_PRJ_ACCESSFIRST)
+    {
+    Strng Tg;
+    RequestModelIOInfoRec IOInfo;
+    if (pSfe->RequestModelIOInfoById(pTag, ConnInfo.iId, IOInfo))
+      Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
+    else
+      Tg=ConnInfo.Tag();
+
+    if (j==1)
+      Menu.AppendMenu(MF_SEPARATOR);
+    s.Set("Access %s...", Tg());//ConnInfo.Tag());
+    Menu.AppendMenu(MF_STRING, IDM_PRJ_ACCESSFIRST+j-1, s());
+    }
+  Leave();
+  return j;
+  }
+
+//---------------------------------------------------------------------------
+
+
+  
+//  { return pSfe==NULL ? -1 : pSfe->FE_DoInsert(NTyp, NTag, SrcTag, DstTag); };
+//  { VENTER FE_DoInsert(NTyp, NTag, SrcTag, DstTag); VLEAVE() };
+//#define IENTER(x) if (pSfe==NULL) return x; Enter(); int iVal=
+//#define ILEAVE  Leave(); return iVal;
+//  
+//  : pSfe->FE_DoInsert(NTyp, NTag, SrcTag, DstTag); };
+//  { Enter(); pSfe==NULL ? -1 : pSfe->FE_DoInsert(NTyp, NTag, SrcTag, DstTag); };
+#define VENTER        if (pSfe==NULL) return ; Enter(); 
+#define VLEAVE        Leave(); 
+#define BENTER(x)     if (pSfe==NULL) return x; Enter(); byte bVal=
+#define BLEAVE        Leave(); return bVal;
+#define FENTER(x)     if (pSfe==NULL) return x; Enter(); flag fVal=
+#define FLEAVE        Leave(); return fVal;
+#define IENTER(x)     if (pSfe==NULL) return x; Enter(); int iVal=
+#define ILEAVE        Leave(); return iVal;
+#define DENTER(x)     if (pSfe==NULL) return x; Enter(); double dVal=
+#define DLEAVE        Leave(); return dVal;
+#define PCENTER(x)    if (pSfe==NULL) return x; Enter(); char * pcVal=
+#define PCLEAVE       Leave(); return pcVal;
+#define DWENTER(x)    if (pSfe==NULL) return x; Enter(); dword dwVal=
+#define DWLEAVE       Leave(); return dwVal;
+
+int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd)
+  { 
+  SetLoadAllModelStatus();
+  IENTER(-1) 
+  pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd); 
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(false);
+#endif
+  ILEAVE 
+  };
+
+int SFEFlwLib::FE_DoInsertRoot(char * RootName) 
+  { 
+  SetLoadAllModelStatus();
+  IENTER(-1)
+  pSfe->FE_DoInsertRoot(RootName);
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(false);
+#endif
+  ILEAVE
+  };
+int SFEFlwLib::FE_DoDelete(char * Tag)
+  { 
+  SetLoadAllModelStatus();
+  IENTER(-1)
+  pSfe->FE_DoDelete(Tag);
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(false);
+#endif
+  ILEAVE 
+  };
+int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
+  {
+  SetLoadAllModelStatus();
+  IENTER(-1)
+  pSfe->FE_DoConnect(SrcTag, DstTag);
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(false);
+#endif
+  ILEAVE
+  };
+int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
+  {
+  SetLoadAllModelStatus();
+  IENTER(-1)
+  pSfe->FE_DoDisConnect(SrcTag, DstTag);
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(false);
+#endif
+  ILEAVE
+  };
+
+int SFEFlwLib::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID)
+  {
+  IENTER(-1)
+  pSfe->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, EqpGUID);
+  ILEAVE
+  };
+int SFEFlwLib::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID)
+  {
+  IENTER(-1)
+  pSfe->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, EqpGUID);
+  ILEAVE
+  };
+
+//int SFEFlwLib::FE_DoSolveNet()
+//  { IENTER(-1) pSfe->FE_DoSolveNet(); ILEAVE };
+int  SFEFlwLib::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
+  { IENTER(-1) pSfe->FE_TagOperation(Act, TagList); ILEAVE };
+int  SFEFlwLib::FE_SetHoldGlobalLinks(bool On)
+  { IENTER(-1) pSfe->FE_SetHoldGlobalLinks(On); ILEAVE };
+
+byte SFEFlwLib::FE_FlwMomentumOn()
+  { BENTER(0) pSfe->FE_FlwMomentumOn(); BLEAVE};
+void SFEFlwLib::FE_SetFlwMomentumOn(byte On)
+  { VENTER pSfe->FE_SetFlwMomentumOn(On); VLEAVE };
+
+byte SFEFlwLib::FE_ODE_Method()
+  { BENTER(0) pSfe->FE_ODE_Method(); BLEAVE};
+byte SFEFlwLib::FE_ODE_StepSizeControl()
+  { BENTER(0) pSfe->FE_ODE_StepSizeControl(); BLEAVE};
+void SFEFlwLib::FE_ODE_SetMethod(byte Method_)
+  { VENTER pSfe->FE_ODE_SetMethod(Method_); VLEAVE};
+void SFEFlwLib::FE_ODE_SetStepSizeControl(byte StepSizeControl_)
+  { VENTER pSfe->FE_ODE_SetStepSizeControl(StepSizeControl_); VLEAVE};
+double SFEFlwLib::FE_ODE_GetMagEPSAbs()
+  { DENTER(0.0) pSfe->FE_ODE_GetMagEPSAbs(); DLEAVE};
+double SFEFlwLib::FE_ODE_GetMagEPSRel()
+  { DENTER(0.0) pSfe->FE_ODE_GetMagEPSRel(); DLEAVE};
+void SFEFlwLib::FE_ODE_SetMagEPSAbs(double Eps)
+  { VENTER pSfe->FE_ODE_SetMagEPSAbs(Eps); VLEAVE};
+void SFEFlwLib::FE_ODE_SetMagEPSRel(double Eps)
+  { VENTER pSfe->FE_ODE_SetMagEPSRel(Eps); VLEAVE};
+double SFEFlwLib::FE_ODE_GetTimeInc()
+  { DENTER(0.0) pSfe->FE_ODE_GetTimeInc(); DLEAVE};
+void SFEFlwLib::FE_ODE_SetTimeInc(double T)
+  { VENTER pSfe->FE_ODE_SetTimeInc(T); VLEAVE};
+double SFEFlwLib::FE_ODE_GetTimeIncMxRqd()
+  { DENTER(0.0) pSfe->FE_ODE_GetTimeIncMxRqd(); DLEAVE};
+void SFEFlwLib::FE_ODE_SetTimeIncMxRqd(double T)
+  { VENTER pSfe->FE_ODE_SetTimeIncMxRqd(T); VLEAVE};
+double SFEFlwLib::FE_ODE_GetTimeIncMnRqd()
+  { return pSfe==NULL ? 0 : pSfe->FE_ODE_GetTimeIncMnRqd(); };
+void SFEFlwLib::FE_ODE_SetTimeIncMnRqd(double T)
+  { VENTER pSfe->FE_ODE_SetTimeIncMnRqd(T); VLEAVE};
+
+double SFEFlwLib::FE_Net_GetLnkEPSAbs()
+  { DENTER(0.0) pSfe->FE_Net_GetLnkEPSAbs(); DLEAVE};
+double SFEFlwLib::FE_Net_GetLnkEPSRel()
+  { DENTER(0.0) pSfe->FE_Net_GetLnkEPSRel(); DLEAVE};
+void SFEFlwLib::FE_Net_SetLnkEPSAbs(double Eps)
+  { VENTER pSfe->FE_Net_SetLnkEPSAbs(Eps); VLEAVE};
+void SFEFlwLib::FE_Net_SetLnkEPSRel(double Eps)
+  { VENTER pSfe->FE_Net_SetLnkEPSRel(Eps); VLEAVE};
+double SFEFlwLib::FE_Net_GetNetDeRate()
+  { DENTER(0.0) pSfe->FE_Net_GetNetDeRate(); DLEAVE};
+void SFEFlwLib::FE_Net_SetNetDeRate(double Mult)
+  { VENTER pSfe->FE_Net_SetNetDeRate(Mult); VLEAVE};
+pchar SFEFlwLib::FE_Net_GetSpillArea()
+  { PCENTER(NULL) pSfe->FE_Net_GetSpillArea(); PCLEAVE};
+void SFEFlwLib::FE_Net_SetSpillArea(pchar Spill)
+  { VENTER pSfe->FE_Net_SetSpillArea(Spill); VLEAVE}
+
+int SFEFlwLib::FE_AD_GetID(int Index, Strng & Class, Strng & Name)
+  { IENTER(-1) pSfe->FE_AD_GetID(Index, Class, Name); ILEAVE};
+int SFEFlwLib::FE_AD_Select(int Index, char * Tag)
+  { IENTER(-1) pSfe->FE_AD_Select(Index, Tag); ILEAVE};
+int SFEFlwLib::FE_AD_SetSelectedTags(Strng_List &SelectedTags)
+  { IENTER(-1) pSfe->FE_AD_SetSelectedTags(SelectedTags); ILEAVE};
+int SFEFlwLib::FE_AD_GetTagTree(CFlwTree & Tree)
+  { IENTER(-1) pSfe->FE_AD_GetTagTree(Tree); ILEAVE};
+int SFEFlwLib::FE_AD_GetStatus(Strng & Status)
+  { IENTER(-1) pSfe->FE_AD_GetStatus(Status); ILEAVE};
+int SFEFlwLib::FE_AD_Go()
+  { IENTER(-1) pSfe->FE_AD_Go(); ILEAVE};
+
+int SFEFlwLib::FE_IOPnt_Add(LPCTSTR Tag, bool Input, LPCTSTR Desc, byte Type, LPCTSTR ValueStr, LPCTSTR ValueCnvs)
+  { IENTER(-1) pSfe->FE_IOPnt_Add(Tag, Input, Desc, Type, ValueStr, ValueCnvs); ILEAVE};
+int SFEFlwLib::FE_IOPnt_Remove(LPCTSTR Tag)
+  { IENTER(-1) pSfe->FE_IOPnt_Remove(Tag); ILEAVE};
+
+int SFEFlwLib::FE_GetEvalOrder(bool GetCtrl, bool GetFullDescI, bool GetFullDescO, eTraceValue TraceWhat, CEvalOrderArray &Info)
+  { IENTER(-1) pSfe->FE_GetEvalOrder(GetCtrl, GetFullDescI, GetFullDescO, TraceWhat, Info); ILEAVE};
+int SFEFlwLib::FE_GetEvalStats(CEvalStatsArray &Info)
+  { IENTER(-1) pSfe->FE_GetEvalStats(Info); ILEAVE};
+int SFEFlwLib::FE_GetNodeList(CNodeList&List)
+  { IENTER(-1) pSfe->FE_GetNodeList(List); ILEAVE};
+int SFEFlwLib::FE_GetNodeConfiguration(BOOL AllParms, BOOL AllState, LPCTSTR NdTag, CNodeConfigList&List) 
+  { IENTER(-1) pSfe->FE_GetNodeConfiguration(AllParms, AllState, NdTag, List); ILEAVE};
+int SFEFlwLib::FE_GetNodeBalanceInfo(CNodeBalanceInfo & Balance, CNodeAuditInfo & Audit) 
+  { IENTER(-1) pSfe->FE_GetNodeBalanceInfo(Balance, Audit); ILEAVE};
+
+int SFEFlwLib::FE_SpModelFixupStrategy()  
+  { IENTER(-1) pSfe->FE_SpModelFixupStrategy(); ILEAVE}
+void SFEFlwLib::FE_SetSpModelFixupStrategy(long Strategy)  
+  { VENTER; pSfe->FE_SetSpModelFixupStrategy(Strategy); VLEAVE }
+
+pchar SFEFlwLib::RequestModelDLLPath()
+   { return sMdlDLLPath(); };
+pchar SFEFlwLib::RequestModelDLLTag()
+   { return sFlwLibTag(); };
+flag SFEFlwLib::RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info)
+   { FENTER(false) pSfe->RequestModelInfoByGroupIndex(pGroup, iIndex, Info); FLEAVE };
+
+flag SFEFlwLib::RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info)
+   { FENTER(false) pSfe->RequestModelInfoByClassId(pClass, Info); FLEAVE};
+flag SFEFlwLib::RequestModelClassId(pchar pTag, Strng & ClassId)
+   { FENTER(false) pSfe->RequestModelClassId(pTag, ClassId); FLEAVE};
+flag SFEFlwLib::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
+   { FENTER(false) pSfe->RequestModelConnInfo(pTag, Info); FLEAVE};
+flag SFEFlwLib::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
+   { FENTER(false) pSfe->RequestModelIOInfoByClassId(pClass, Info); FLEAVE};
+flag SFEFlwLib::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+   { FENTER(false) pSfe->RequestModelIOInfoByIndex(pTag, iIndex, Info); FLEAVE};
+flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
+   { FENTER(false) pSfe->RequestModelIOInfoById(pTag, iId, Info); FLEAVE};
+flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
+   { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
+int  SFEFlwLib::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+   { IENTER(false) pSfe->RequestModelStatus(Criteria, Status); ILEAVE};
+int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
+   { IENTER(false) pSfe->RequestModelStatusChgCnt(Criteria, MaxTest); ILEAVE};
+int SFEFlwLib::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
+   { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
+//int SFEFlwLib::RequestXRefInfoChg()
+//   { IENTER(false) pSfe->RequestXRefInfoChg(); ILEAVE};
+flag SFEFlwLib::FE_TestModelTagUnique(pchar pTag)
+   { FENTER(true) pSfe->FE_TestModelTagUnique(pTag); FLEAVE};
+
+int SFEFlwLib::FE_GetRctInfo(CRctBlkInformation & RctInfo)
+   { IENTER(0) pSfe->FE_GetRctInfo(RctInfo); ILEAVE};
+int SFEFlwLib::FE_SetRctInfo(LPCTSTR NodeTag)
+   { IENTER(0) pSfe->FE_SetRctInfo(NodeTag); ILEAVE};
+
+int  SFEFlwLib::FE_GetNodeWiring(CNodeWiring &NodeWiring)
+   { IENTER(false) pSfe->FE_GetNodeWiring(NodeWiring); ILEAVE};
+int  SFEFlwLib::FE_GetLinkWiring(CLinkWiring &LinkWiring)
+   { IENTER(false) pSfe->FE_GetLinkWiring(LinkWiring); ILEAVE};
+int  SFEFlwLib::FE_SetLinkWiring(CLinkWiring &LinkWiring)
+   { IENTER(false) pSfe->FE_SetLinkWiring(LinkWiring); ILEAVE};
+
+void SFEFlwLib::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
+   { VENTER pSfe->EO_SetModelState(RqdState, RqdTags); VLEAVE};
+flag SFEFlwLib::EO_GetModelAction(Strng & Tag, MdlActionArray & Acts)
+  { FENTER(false) pSfe->EO_GetModelAction(Tag, Acts); FLEAVE};
+flag SFEFlwLib::EO_SetModelAction(Strng & Tag, MdlAction & Act)
+  { FENTER(false) pSfe->EO_SetModelAction(Tag, Act); FLEAVE};
+
+//flag SFEFlwLib::EO_SolutionReqd()
+//   { return pSfe==NULL ? false : pSfe->EO_SolutionReqd();  };
+
+//int SFEFlwLib::EO_InitSolution(EqnSlvCtrlBlk & EQCtrl)
+//   { return pSfe==NULL ? -1 : pSfe->EO_InitSolution(EQCtrl); };
+//int SFEFlwLib::EO_StepSolution(EqnSlvCtrlBlk & EQCtrl)
+//   { return pSfe==NULL ? -1 : pSfe->EO_StepSolution(EQCtrl); };
+//int SFEFlwLib::EO_TermSolution(EqnSlvCtrlBlk & EQCtrl)
+//   { return pSfe==NULL ? -1 : pSfe->EO_TermSolution(EQCtrl); };
+int SFEFlwLib::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)
+   { IENTER(-1) pSfe->EO_GetSolutionError(EQCtrl, RptLine); ILEAVE };
+
+// CExecObj Overrides
+void SFEFlwLib::EO_OnAppActivate(BOOL bActive)
+  { VENTER pSfe->EO_OnAppActivate(bActive);  VLEAVE};
+flag SFEFlwLib::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
+  { FENTER(false) pSfe->EO_RequestTagInfo(Rqst, Info);  FLEAVE};
+int  SFEFlwLib::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
+  { IENTER(false) pSfe->EO_QueryChangeTag(pOldTag, pNewTag); ILEAVE };
+int  SFEFlwLib::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
+  { 
+  SetLoadAllModelStatus();
+  IENTER(false)
+  pSfe->EO_ChangeTag(pOldTag, pNewTag);
+  ILEAVE
+  };
+int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
+  { IENTER(false) pSfe->EO_QueryDeleteTag(pDelTag); ILEAVE };
+int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
+  {
+  SetLoadAllModelStatus();
+  IENTER(false)
+  pSfe->EO_DeleteTag(pDelTag);
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(false);
+#endif
+  ILEAVE
+  };
+int  SFEFlwLib::EO_CanClose(Strng_List & Problems)
+  { IENTER(EO_CanClose_Yes)  pSfe->EO_CanClose(Problems); ILEAVE };
+void SFEFlwLib::EO_SetSolveMode(long RunMds, long RunMdsMsk)
+  { VENTER pSfe->EO_SetSolveMode(RunMds, RunMdsMsk); VLEAVE};
+flag SFEFlwLib::EO_Starting(flag fBeginStarting)
+  { FENTER(false) pSfe->EO_Starting(fBeginStarting);  FLEAVE};
+flag SFEFlwLib::EO_SetTime(double TimeRqd, bool Rewind)
+  { FENTER(false) pSfe->EO_SetTime(TimeRqd, Rewind); FLEAVE };
+flag SFEFlwLib::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+  { FENTER(false) pSfe->EO_QueryTime(CB, TimeRqd, dTimeRqd); FLEAVE };
+flag SFEFlwLib::EO_Start(const CXM_TimeControl &CB)
+  { FENTER(false) pSfe->EO_Start(CB); FLEAVE};
+void SFEFlwLib::EO_QuerySubsReqd(CXMsgLst &XM)
+  { VENTER pSfe->EO_QuerySubsReqd(XM); VLEAVE};
+void SFEFlwLib::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
+  { VENTER pSfe->EO_QuerySubsAvail(XM, XMRet); VLEAVE};
+flag SFEFlwLib::EO_ReadSubsData(CXMsgLst &XM)
+  { FENTER(false) pSfe->EO_ReadSubsData(XM); FLEAVE};
+flag SFEFlwLib::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
+  { FENTER(false) pSfe->EO_WriteSubsData(XM, FirstBlock, LastBlock); FLEAVE};
+DWORD SFEFlwLib::EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route)
+  { DWENTER(0) pSfe->EO_ReadTaggedItem(ObjTag, ObjData, Route); DWLEAVE};
+int  SFEFlwLib::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
+  { IENTER(TOData_NotFound) pSfe->EO_WriteTaggedItem(ObjData, Route); ILEAVE };
+flag SFEFlwLib::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+  { 
+  FENTER(false) 
+  pSfe->EO_Execute(CB, EORet);
+  CModelStatusCriterion Criteria;
+  if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
+    FE_LoadAllModelStatus();
+  //if (pSfe->RequestXRefInfoChg())
+  //  LoadAllXRefStatus();
+  FLEAVE
+  };
+flag SFEFlwLib::EO_StepDone()
+  { 
+  FENTER(false) 
+  pSfe->EO_StepDone();
+  FLEAVE
+  };
+flag SFEFlwLib::EO_Stop(const CXM_TimeControl &CB)
+  { 
+  FENTER(false) 
+  pSfe->EO_Stop(CB); 
+  CModelStatusCriterion Criteria;
+  if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
+    FE_LoadAllModelStatus();
+  FLEAVE
+  };
+flag SFEFlwLib::EO_Stopping(flag BeginStopping)
+  { 
+  FENTER(false) 
+  pSfe->EO_Stopping(BeginStopping); 
+  FLEAVE
+  };
+flag SFEFlwLib::EO_BeginPause(const CXM_TimeControl &CB)
+  { 
+  FENTER(false) 
+  pSfe->EO_BeginPause(CB); 
+  CModelStatusCriterion Criteria;
+  if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
+    FE_LoadAllModelStatus();
+  FLEAVE
+  };
+flag SFEFlwLib::EO_EndPause(const CXM_TimeControl &CB)
+  { FENTER(false) pSfe->EO_EndPause(CB); FLEAVE};
+
+flag SFEFlwLib::EO_BeginSave(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_BeginSave(FCB); FLEAVE};
+flag SFEFlwLib::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM)
+  { FENTER(false) pSfe->EO_SaveDefinedData(FCB, Tag, XM); FLEAVE};
+flag SFEFlwLib::EO_SaveOtherData(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_SaveOtherData(FCB); FLEAVE};
+flag SFEFlwLib::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
+  { FENTER(false) pSfe->EO_SaveConn(FCB, XM); FLEAVE};
+flag SFEFlwLib::EO_EndSave(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_EndSave(FCB); FLEAVE};
+flag SFEFlwLib::EO_BeginLoad(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_BeginLoad(FCB); FLEAVE};
+flag SFEFlwLib::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
+  { FENTER(false) pSfe->EO_LoadDefinedData(FCB, XM); FLEAVE};
+flag SFEFlwLib::EO_LoadOtherData(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_LoadOtherData(FCB); FLEAVE};
+flag SFEFlwLib::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
+  { FENTER(false) pSfe->EO_LoadConn(FCB, XM); FLEAVE};
+flag SFEFlwLib::EO_EndLoad(FilingControlBlock &FCB)
+  { 
+  FENTER(false) 
+  pSfe->EO_EndLoad(FCB); 
+#if USESCDEXPLORER
+  CExploreScd::RefreshIt(true);
+#endif
+  FLEAVE
+  };
+void SFEFlwLib::EO_BeginBulkChange() 
+  { VENTER pSfe->EO_BeginBulkChange(); VLEAVE};
+void SFEFlwLib::EO_EndBulkChange() 
+  { VENTER pSfe->EO_EndBulkChange(); VLEAVE};
+
+//---------------------------------------------------------------------------
+
+int SFEFlwLib::FE_LoadAllModelStatus()
+  {
+  //CExecObj::Lock();
+  LockStatus();
+  m_LoadAllModelStatusDone=true;
+  CModelStatusCriterion Criteria;
+  if (RequestModelStatus(Criteria, m_MdlStatus))
+    {
+    dword iSize=FindNextPrimeNumber((m_MdlStatus.GetSize()*120)/100);
+    if (m_MdlStatusMap.GetHashTableSize()!=iSize)
+      {
+      m_MdlStatusMap.RemoveAll();
+      m_MdlStatusMap.InitHashTable(iSize);
+      }
+    else
+      m_MdlStatusMap.RemoveAll();
+    for (int i=0; i<m_MdlStatus.GetSize(); i++)
+      {
+      int Colour=-1;
+      int OvrColour=-1;
+      int OvrStyle=-1;
+      GrfHelper.MdlStatusColor(m_MdlStatus[i].m_dwFlags, Colour, OvrColour, OvrStyle);
+      if (m_MdlStatus[i].m_iColour!=Colour || m_MdlStatus[i].m_iAColour!=OvrColour)
+        m_nStatusColourChgs++;
+      m_MdlStatus[i].m_iColour=Colour;
+      m_MdlStatus[i].m_iAColour=OvrColour;
+      m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
+      }
+
+    m_nMdlStatusLoads++;
+    long L=m_MdlStatus.GetSize();
+    FreeStatus();
+    return L;
+    }
+  m_MdlStatusMap.RemoveAll();
+  m_MdlStatus.SetSize(0);
+  FreeStatus();
+  return 0;
+  };
+
+
+//---------------------------------------------------------------------------
+
+dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
+  {
+  //LockStatus();
+	dword dwVal=0;
+
+  //dword Done=InterlockedCompareExchange((PVOID*)(&m_LoadAllModelStatusDone), (PVOID)0, (PVOID)1);
+
+  LockStatus();
+  if (!m_LoadAllModelStatusDone)
+    {
+    FreeStatus();
+    CExecObj::LockXO();
+    FE_LoadAllModelStatus();
+    CExecObj::UnlockXO();
+    LockStatus();
+    }
+
+  CModelStatusItem* pItem;
+  if (pTag && m_MdlStatusMap.Lookup(pTag, pItem))
+		dwVal=pItem->m_dwFlags;
+  else 
+    dwVal=0xFFFFFFFF;
+  
+  FreeStatus();
+  return dwVal;
+  };
+
+//---------------------------------------------------------------------------

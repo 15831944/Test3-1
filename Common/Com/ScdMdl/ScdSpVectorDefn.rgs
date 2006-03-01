@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdMdl.ScdSpVectorDefn.1 = s 'ScdSpVectorDefn Class'
+	{
+		CLSID = s '{148EE6E0-4040-4324-8EE4-151FC305225F}'
+	}
+	ScdMdl.ScdSpVectorDefn = s 'ScdSpVectorDefn Class'
+	{
+		CLSID = s '{148EE6E0-4040-4324-8EE4-151FC305225F}'
+		CurVer = s 'ScdMdl.ScdSpVectorDefn.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {148EE6E0-4040-4324-8EE4-151FC305225F} = s 'ScdSpVectorDefn Class'
+		{
+			ProgID = s 'ScdMdl.ScdSpVectorDefn.1'
+			VersionIndependentProgID = s 'ScdMdl.ScdSpVectorDefn'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{0766FCA7-75C3-47c0-B6D5-0F4BD88CC71A}'
+		}
+	}
+}

@@ -1,0 +1,26 @@
+HKCR
+{
+  SysCAD.Command.1 = s 'SysCAD Command Class'
+	{
+		CLSID = s '{1E7E6A3F-9107-40E7-9616-65EEE2CCCE06}'
+	}
+  SysCAD.Command = s 'SysCAD Command Class'
+	{
+		CLSID = s '{1E7E6A3F-9107-40E7-9616-65EEE2CCCE06}'
+    CurVer = s 'SysCAD.Command.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1E7E6A3F-9107-40E7-9616-65EEE2CCCE06} = s 'SysCAD Command Class'
+		{
+			ProgID = s 'SysCAD.Command.1'
+      VersionIndependentProgID = s 'SysCAD.Command'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{700C6795-4F08-48D6-960A-88773A56E877}'
+		}
+	}
+}

@@ -1,0 +1,33 @@
+HKCR
+{
+    NoRemove 'Component Categories'
+	{
+		{B72418F5-8ED7-41cc-95D0-579DC645A48F}
+		{
+			val 409 = s 'SysCAD Model Objects'
+		}
+	}
+	SysCAD.Solver.1 = s 'ScdSolver Class'
+	{
+		CLSID = s '{6761C370-442A-4bb3-AF4C-07BB7353F23B}'
+	}
+	SysCAD.Solver = s 'ScdSolver Class'
+	{
+		CLSID = s '{6761C370-442A-4bb3-AF4C-07BB7353F23B}'
+		CurVer = s 'SysCAD.Solver.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {6761C370-442A-4bb3-AF4C-07BB7353F23B} = s 'ScdSolver Class'
+		{
+			ProgID = s 'SysCAD.Solver.1'
+			VersionIndependentProgID = s 'SysCAD.Solver'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

@@ -1,0 +1,24 @@
+HKCR
+{
+	SysCAD.ScdTagFixup.1 = s 'ScdTagFixup Class'
+	{
+		CLSID = s '{D664BC94-4AB5-4B3E-929A-90FADA43CAB5}'
+	}
+	SysCAD.ScdTagFixup = s 'ScdTagFixup Class'
+	{
+		CLSID = s '{D664BC94-4AB5-4B3E-929A-90FADA43CAB5}'
+		CurVer = s 'SysCAD.ScdTagFixup.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {D664BC94-4AB5-4B3E-929A-90FADA43CAB5} = s 'ScdTagFixup Class'
+		{
+			ProgID = s 'SysCAD.ScdTagFixup.1'
+			VersionIndependentProgID = s 'SysCAD.ScdTagFixup'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '{8B1DC73E-6E6F-4843-ACE4-6B09E781D644}'
+			'TypeLib' = s '{DB8A9658-3505-4fb8-85B1-DD37A609DF0D}'
+		}
+	}
+}

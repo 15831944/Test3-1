@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdVB.ScdFileSystem.1 = s 'ScdFileSystem Class'
+	{
+		CLSID = s '{A1D8288B-081E-4828-A938-05F6804CD8CF}'
+	}
+	ScdVB.ScdFileSystem = s 'ScdFileSystem Class'
+	{
+		CLSID = s '{A1D8288B-081E-4828-A938-05F6804CD8CF}'
+		CurVer = s 'ScdVB.ScdFileSystem.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A1D8288B-081E-4828-A938-05F6804CD8CF} = s 'ScdFileSystem Class'
+		{
+			ProgID = s 'ScdVB.ScdFileSystem.1'
+			VersionIndependentProgID = s 'ScdVB.ScdFileSystem'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{03763CF2-5A3B-4D02-87A2-B478CFF4E04A}'
+		}
+	}
+}

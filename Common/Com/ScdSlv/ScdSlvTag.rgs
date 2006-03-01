@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.SlvTag.1 = s 'ScdTag Class'
+	{
+		CLSID = s '{64AA6F46-2439-4C48-B03E-25EBE42128A3}'
+	}
+	SysCAD.SlvTag = s 'ScdTag Class'
+	{
+		CLSID = s '{64AA6F46-2439-4C48-B03E-25EBE42128A3}'
+		CurVer = s 'SysCAD.SlvTag.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {64AA6F46-2439-4C48-B03E-25EBE42128A3} = s 'ScdMTag Class'
+		{
+			ProgID = s 'SysCAD.SlvTag.1'
+			VersionIndependentProgID = s 'SysCAD.SlvTag'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

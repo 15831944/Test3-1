@@ -1,0 +1,27 @@
+HKCR
+{
+	SysCAD.Reports.1 = s 'ScdReports Class'
+	{
+		CLSID = s '{4E37ADB8-51BA-4AB1-A813-E7EB88DB1F59}'
+	}
+	SysCAD.Reports = s 'ScdReports Class'
+	{
+		CLSID = s '{4E37ADB8-51BA-4AB1-A813-E7EB88DB1F59}'
+		CurVer = s 'SysCAD.Reports.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {4E37ADB8-51BA-4AB1-A813-E7EB88DB1F59} = s 'ScdReports Class'
+		{
+			ProgID = s 'SysCAD.Reports.1'
+			VersionIndependentProgID = s 'SysCAD.Reports'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			val AppID = s '{8B1DC73E-6E6F-4843-ACE4-6B09E781D644}'
+			'TypeLib' = s '{DB8A9658-3505-4fb8-85B1-DD37A609DF0D}'
+		}
+	}
+}

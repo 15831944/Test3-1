@@ -1,0 +1,1142 @@
+// ScdSlv.idl : IDL source for ScdSlv.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ScdSlv.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#ifndef XX_DE239D6B_62C4_4ce6_B110_53F2088F24D0
+#define XX_DE239D6B_62C4_4ce6_B110_53F2088F24D0
+
+import "ScdIF.idl";
+//import "ScdMdl.idl";
+
+[
+  uuid(9BFC155B-7E7A-4A3A-8C58-14203C0F1E01),
+  version(1.0),
+  helpstring("SysCAD Solver Library")
+]
+library ScdSlv
+{
+  importlib("stdole32.tlb");
+  importlib("stdole2.tlb");
+  //importlib("..\scdif\ScdIF.tlb");
+  importlib("..\scdmdl\ScdMdl.tlb");
+
+  //----------------------------------------------
+  // Forward declarations
+
+  interface IScdDebug;                                                          
+  interface IScdDynamic;
+  //interface IScdLink;
+  //interface IScdLinks;
+  interface IScdMessage;
+  interface IScdMessages;
+  interface IScdNode;
+  interface IScdNodes;
+  interface IScdNodeClass;
+  interface IScdConnect;
+  interface IScdConnects;
+  interface IScdConnectPoint;
+  interface IScdConnectPoints;
+  interface IScdProbal;
+  interface IScdSolver;
+  interface IScdSlvTag;
+  interface IScdSlvTags;
+  //interface IScdUnit;
+  //interface IScdUnits;
+  interface IScdTest;
+  interface IScdWire;
+  interface IScdWires;
+  interface IScdTerminal;
+  interface IScdTerminals;
+  interface IScdTermStrip;
+  interface IScdTermStrips;
+  interface IScdElectrics;
+  interface IScdComponent;
+  interface IScdComponents;
+
+  //----------------------------------------------  
+  [
+    object,
+    uuid(E66B691F-32DF-4B51-8D0B-6D5D18068472),
+    dual,
+    nonextensible,
+    helpstring("IScdComplex Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdComplex : IDispatch{
+    [propget, id(1), helpstring("property Real")] HRESULT Real([out, retval] DOUBLE* pVal);
+    [propput, id(1), helpstring("property Real")] HRESULT Real([in] DOUBLE newVal);
+    [propget, id(2), helpstring("property Imag")] HRESULT Imag([out, retval] DOUBLE* pVal);
+    [propput, id(2), helpstring("property Imag")] HRESULT Imag([in] DOUBLE newVal);
+    [propget, id(3), helpstring("property Amplitude")] HRESULT Magnitude([out, retval] DOUBLE* pVal);
+    [propput, id(3), helpstring("property Amplitude")] HRESULT Magnitude([in] DOUBLE newVal);
+    [propget, id(4), helpstring("property Phase")] HRESULT Phase([out, retval] DOUBLE* pVal);
+    [propput, id(4), helpstring("property Phase")] HRESULT Phase([in] DOUBLE newVal);
+  };
+  //----------------------------------------------  
+  [  
+    object,
+    uuid(93A8521F-945A-4226-BD45-52B58D34F73A),
+    dual,
+    helpstring("IScdMessage"),
+    pointer_default(unique)
+  ]
+  interface IScdMessage: IDispatch
+  {
+    [propget, id(1),             helpstring("property Flags")] HRESULT Flags([out, retval] eScdMsg_Flags *pVal);
+    [propput, id(1), restricted, helpstring("property Flags")] HRESULT Flags([in] eScdMsg_Flags newVal);
+    [propget, id(2),             helpstring("property IDNo")] HRESULT IDNo([out, retval] long *pVal);
+    [propput, id(2), restricted, helpstring("property IDNo")] HRESULT IDNo([in] long newVal);
+    [propget, id(3),             helpstring("property IterationNo")] HRESULT IterationNo([out, retval] long *pVal);
+    [propput, id(3), restricted, helpstring("property IterationNo")] HRESULT IterationNo([in] long newVal);
+    [propget, id(4),             helpstring("property SequenceNo")] HRESULT SequenceNo([out, retval] long *pVal);
+    [propput, id(4), restricted, helpstring("property SequenceNo")] HRESULT SequenceNo([in] long newVal);
+    [propget, id(5),             helpstring("property CallNo")] HRESULT CallNo([out, retval] long *pVal);
+    [propput, id(5), restricted, helpstring("property CallNo")] HRESULT CallNo([in] long newVal);
+    [propget, id(6),             helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+    [propput, id(6), restricted, helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+    [propget, id(7),			 helpstring("property Source")] HRESULT Source([out, retval] BSTR *pVal);
+    [propput, id(7), restricted, helpstring("property Source")] HRESULT Source([in] BSTR newVal);
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(D1F666EE-9071-4E8E-A2B9-4B171E5F85C9),
+  //  helpstring("_IScdMessageEvents Interface")
+  //]
+  //dispinterface _ScdMessageEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(95A4F4C8-D911-4CC5-A241-116BAEAC9892),
+    helpstring("ScdMessage Class")
+  ]
+  coclass ScdMessage
+  {
+    [default] interface IScdMessage;
+    //[default, source] dispinterface _ScdMessageEvents;
+  };
+  //----------------------------------------------  
+  [  
+    object,
+    uuid(ED9A26C3-3527-4d90-82AD-D8F4741C242A),
+    dual,
+    helpstring("IScdMessages"),
+    pointer_default(unique)
+  ]
+  interface IScdMessages: IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Item")] HRESULT Item([in] long index, [out, retval] IScdMessage ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ViewLimit")] HRESULT ViewLimit([out, retval] long *pVal);
+    [propput, id(2), helpstring("property ViewLimit")] HRESULT ViewLimit([in] long newVal);
+    [id(3), helpstring("method Refresh")] HRESULT Refresh();
+    [id(4), helpstring("method Flush")] HRESULT Flush([in,defaultvalue(0)] long NoToKeep);
+    [propget, id(5), helpstring("property Options")] HRESULT Options([out, retval] eScdMsg_Options *pVal);
+    [propput, id(5), helpstring("property Options")] HRESULT Options([in] eScdMsg_Options newVal);
+    [id(6), helpstring("method Select")] HRESULT Select([in, defaultvalue(eScdMsg_All)] eScdMsg_Flags Selection);
+    [id(7), helpstring("method LogFileOpen")] HRESULT LogFileOpen([in] BSTR FileName);
+    [id(8), helpstring("method LogFileClose")] HRESULT LogFileClose();
+
+
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(D03B2A22-6961-4D89-88C2-85BBEA8BA08C),
+  //  helpstring("_IScdMessagesEvents Interface")
+  //]
+  //dispinterface _ScdMessagesEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(7D916AF7-E05D-4D62-A19A-078752183055),
+    helpstring("ScdMessages Class")
+  ]
+  coclass ScdMessages
+  {
+    [default] interface IScdMessages;
+    //  [default, source] dispinterface _ScdMessagesEvents;
+  };
+
+  //----------------------------------------------
+  [
+    object,
+    uuid(A36FFC98-0C3B-4B56-BF39-0125C974AF80),
+    dual,
+    helpstring("IScdProbal Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdProbal : IDispatch
+  {
+    [propget, id(1), helpstring("property IsStopped")] HRESULT IsStopped([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(2), helpstring("property IsIdling")] HRESULT IsIdling([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(3), helpstring("property IsRunning")] HRESULT IsRunning([out, retval] VARIANT_BOOL *pVal);
+    [id(4), helpstring("method Start")] HRESULT Start();
+    [id(5), helpstring("method Step")] HRESULT Step([in, defaultvalue(0)] long IterMark, [in, defaultvalue(0.0)] double WaitForNext);
+    [id(6), helpstring("method Stop")] HRESULT Stop();
+    [id(7), helpstring("method Idle")] HRESULT Idle();
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(645EBB8B-950C-4D6D-89B1-02099DDE8889),
+  //  helpstring("_IScdProbalEvents Interface")
+  //]
+  //dispinterface _ScdProbalEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(CEBC2245-9DDC-4B20-8F79-83656AD1D066),
+    helpstring("ScdProbal Class")
+  ]
+  coclass ScdProbal
+  {
+    [default] interface IScdProbal;
+    [restricted] interface IScdASyncEvents;
+    //[default, source] dispinterface _ScdProbalEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(851C57EA-F1E5-4ff8-9518-4B91B7CB7830),
+    dual,
+    helpstring("IScdSolver Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSolver : IDispatch
+  {
+    [id(1), helpstring("method InitialiseCfg")] HRESULT InitialiseCfg([in] BSTR CfgFileName);
+    [id(2), helpstring("method InitialiseDB")] HRESULT InitialiseDB([in] BSTR CfgFileName, [in] SAFEARRAY(BSTR) parrSpecies);
+    [propget, id(3), helpstring("property Messages")] HRESULT Messages([out, retval] IScdMessages * *pVal);
+    [propget, id(4), helpstring("property SpecieDB")] HRESULT SpecieDefns([out, retval] IScdSpecieDefns * *pVal);
+    [propget, id(5), helpstring("property Tags")] HRESULT Tags([out, retval] IScdSlvTags ** pTags);
+    [propget, id(6), helpstring("property Debug")] HRESULT Debug([out, retval] IScdDebug ** pDebug);
+    [propget, id(7), helpstring("property Test")] HRESULT Test([out, retval] IScdTest ** pTest);
+    //[propget, id(8), helpstring("property Units")] HRESULT Units([out, retval] IScdUnits ** pUnits);
+    //[propget, id(9), helpstring("property Links")] HRESULT Links([out, retval] IScdLinks * *pLinks);
+    [propget, id(10), helpstring("property Nodes")] HRESULT Nodes([in, defaultvalue(eScdNodeType_All)] eScdNodeTypes eType, [out, retval] IScdNodes * *pNodes);
+    [propget, id(11), helpstring("property Probal")] HRESULT Probal([out, retval] IScdProbal * *pVal);
+    [propget, id(12), helpstring("property Dynamic")] HRESULT Dynamic([out, retval] IScdDynamic * *pVal);
+    [id(13), helpstring("method CreateSpModel")] HRESULT CreateSpModel([in] BSTR ProgID, [out, retval] IScdTaggedObject ** pModel);
+    [id(14), helpstring("method CollectEvalSequenceInfo")] HRESULT CollectEvalSequenceInfo([in] eScdEvalSeq_Options eReqdSeq, [out] long * ItemCount);
+    [id(15), helpstring("method GetEvalSequenceItem")] HRESULT GetEvalSequenceItem([in] long Index, [out] BSTR * Tag, [out] BSTR * Class, [out] long * IOCount);
+    [id(16), helpstring("method GetEvalSequenceIOItem")] HRESULT GetEvalSequenceIOItem([in] long Index, [in] long IOItem, [out] eScdEvalSeqIO_Class * eClass, [out] eScdEvalSeqIO_Flags * eFlags, [out] long * RemoteIndex, [out] BSTR * RemoteDesc);
+    [propget, id(17), helpstring("property RunMode")] HRESULT RunMode([out, retval] eScdMode *pVal);
+    [propput, id(17), helpstring("property RunMode")] HRESULT RunMode([in] eScdMode newVal);
+    [propget, id(18), helpstring("property Conversions")] HRESULT Conversions([out, retval] IScdConversion * *pVal);
+    [propget, id(19), helpstring("property Time")] HRESULT Time([in,defaultvalue(eScdTimeFmt_Date1900)] eScdTimeFormat Fmt, [out, retval] VARIANT * pVal);
+    [propput, id(19), helpstring("property Time")] HRESULT Time([in,defaultvalue(eScdTimeFmt_Date1900)] eScdTimeFormat Fmt, [in] VARIANT newVal);
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(77A8BDB8-B20E-4c9b-9293-A3EBDBABCA74),
+  //  helpstring("_IScdSolverEvents Interface")
+  //]
+  //dispinterface _ScdSolverEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(6761C370-442A-4bb3-AF4C-07BB7353F23B),
+    helpstring("ScdSolver Class")
+  ]
+  coclass ScdSolver
+  {
+    [default] interface IScdSolver;
+    interface IScdMessages;
+    interface IScdSpecieDefns;
+    interface IScdDebug;
+    interface IScdTest;
+    [restricted] interface IScdASyncEvents;
+    //[default, source] dispinterface _ScdSolverEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(4249F08F-233A-4EEC-9017-641B42D121F6),
+    dual,
+    helpstring("IScdDebug Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdDebug : IDispatch
+  {
+    [id(1), helpstring("method FileOpen")] HRESULT FileOpen([in] BSTR FileName);
+    [id(2), helpstring("method FileClose")] HRESULT FileClose();
+  };
+  //----------------------------------------------
+  [
+    uuid(1591C55C-A339-42CE-BEAF-E286147842C1),
+    helpstring("ScdDebug Class")
+  ]
+  coclass ScdDebug
+  {
+    [default] interface IScdDebug;
+    interface IScdASyncEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(19E9AC58-F99E-4296-BF44-E3E994EA0934),
+    dual,
+    helpstring("IScdTest Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTest : IDispatch
+  {
+    [id(1), helpstring("method ReturnHResult")] HRESULT ReturnHResult([in] long Sev, [in] long Code);
+    [id(2), helpstring("method ThrowException")] HRESULT ThrowException([in] long Sev, [in] long Code);
+  };
+
+  //----------------------------------------------
+  //[
+  //  uuid(A926DFC7-78B1-4A6A-A94F-FC6DAD4F3361),
+  //  helpstring("_IScdTestEvents Interface")
+  //]
+  //dispinterface _ScdTestEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+
+  [
+    uuid(3784FBD8-103D-4141-91C4-613785F70F1F),
+    helpstring("ScdTest Class")
+  ]
+  coclass ScdTest
+  {
+    [default] interface IScdTest;
+    interface IScdASyncEvents;
+    //  [default, source] dispinterface _ScdTestEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(51501760-320C-4230-8B48-908F3A7113B5),
+    dual,
+    helpstring("IScdSlvTags Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSlvTags : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Tag")] HRESULT Tag([in] VARIANT WhichOne, [out, retval] IScdSlvTag ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [id(2), helpstring("method Add a Tag")] HRESULT Add([in] BSTR Tag);
+    [id(3), helpstring("method Remove")] HRESULT Remove([in] VARIANT WhichOne);
+    [propget, id(4), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdSlvTagsCodes *pVal);
+    [propget, id(5), helpstring("property TagValue")] HRESULT TagValue([in] BSTR TheTag, [out, retval] VARIANT *pVal);
+    [propput, id(5), helpstring("property TagValue")] HRESULT TagValue([in] BSTR TheTag, [in] VARIANT newVal);
+    [propget, id(6), helpstring("property TagType")] HRESULT TagType([in] BSTR TheTag, [out, retval] eScdSlvTagType *pVal);
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(3820FB1B-1E78-42E8-8910-E09173EDDC3F),
+  //  helpstring("_IScdSlvTagsEvents Interface")
+  //]
+  //dispinterface _IScdSlvTagsEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(15366A57-3C50-498E-97E5-C731706C3861),
+    helpstring("ScdSlvTags Class")
+  ]
+  coclass ScdSlvTags
+  {
+    [default] interface IScdSlvTags;
+    //[default, source] dispinterface _IScdSlvTagsEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(8EA3D98A-AAC9-4104-8E2C-EEF897FBE06B),
+    dual,
+    helpstring("IScdSlvTag Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdSlvTag : IDispatch
+  {
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(803C6912-769F-402C-8D71-DA2D9448C835),
+  //  helpstring("_IScdSlvTagEvents Interface")
+  //]
+  //dispinterface _IScdSlvTagEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(64AA6F46-2439-4C48-B03E-25EBE42128A3),
+    helpstring("ScdSlvTag Class")
+  ]
+  coclass ScdSlvTag
+  {
+    [default] interface IScdSlvTag;
+    //[default, source] dispinterface _IScdSlvTagEvents;
+  };
+
+  //----------------------------------------------
+  [
+    object,
+    uuid(747D22A6-D343-4CA6-91CE-376EED67C3DB),
+    dual,
+    helpstring("IScdDynamic Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdDynamic : IDispatch
+  {
+    [propget, id(1), helpstring("property IsStopped")] HRESULT IsStopped([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(2), helpstring("property IsIdling")] HRESULT IsIdling([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(3), helpstring("property IsRunning")] HRESULT IsRunning([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(4), helpstring("property StepSize")] HRESULT StepSize([out, retval] double *pVal);
+    [propput, id(4), helpstring("property StepSize")] HRESULT StepSize([in] double newVal);
+    [propget, id(5), helpstring("property RealTime")] HRESULT RealTime([out, retval] VARIANT_BOOL *pVal);
+    [propput, id(5), helpstring("property RealTime")] HRESULT RealTime([in] VARIANT_BOOL newVal);
+    [propget, id(6), helpstring("property RealTimeMultiplier")] HRESULT RealTimeMultiplier([out, retval] double *pVal);
+    [propput, id(6), helpstring("property RealTimeMultiplier")] HRESULT RealTimeMultiplier([in] double newVal);
+    [id(7), helpstring("method Start")] HRESULT Start();
+    [id(8), helpstring("method Step")] HRESULT Step([in, defaultvalue(0)] long IterMark, [in, defaultvalue(0.0)] double WaitForNext);
+    [id(9), helpstring("method Stop")] HRESULT Stop();
+    [id(10), helpstring("method Idle")] HRESULT Idle();
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(79050C6B-C7E4-4D96-A030-3AAD76BBDB68),
+  //  helpstring("_IScdDynamicEvents Interface")
+  //]
+  //dispinterface _IScdDynamicEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(0F708E57-EEED-47D5-BC95-BFB97D24CC15),
+    helpstring("ScdDynamic Class")
+  ]
+  coclass ScdDynamic
+  {
+    [default] interface IScdDynamic;
+    [restricted] interface IScdASyncEvents;
+    //[default, source] dispinterface _IScdDynamicEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(530CE54B-054D-44E9-90D7-A2DABF4E57D1),
+    dual,
+    helpstring("IScdNodes Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdNodes : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Node")] HRESULT Node([in] VARIANT WhichOne, [out, retval] IScdNode ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdNodeCodes *pVal);
+    [id(3), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD What, [in] DWORD Node, [in] DWORD Types, [in] DWORD Direction);
+    [id(4), helpstring("method Select")] HRESULT Select([in, defaultvalue(eScdNodeType_All)] eScdNodeTypes eType);
+    [id(5), helpstring("method Add a Unit")] HRESULT AddUnit([in] BSTR Class, [in] BSTR Tag, [out, retval] IScdNode ** pUnit);
+    [id(6), helpstring("method Add a Link")] HRESULT AddLink([in] BSTR Class, [in] BSTR Tag, [in] BSTR SrcTag, [in] BSTR SrcIO, [in] BSTR DstTag, [in] BSTR DstIO, [out, retval] IScdNode ** pLink);
+    [id(7), helpstring("method AddCable")] HRESULT AddCable([in] BSTR Class, [in] BSTR Tag, [in] BSTR SrcTag, [in] BSTR SrcIO, [in] BSTR SrcTS, [in] BSTR DstTag, [in] BSTR DstIO, [in] BSTR DstTS, [out, retval] IScdNode ** pLink);
+  };
+
+  //----------------------------------------------
+  //[
+  //  uuid(A05713F8-3089-4369-AE4B-1FE68AE994F7),
+  //  helpstring("_IScdNodesEvents Interface")
+  //]
+  //dispinterface _IScdNodesEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //-----------------------------------------------
+
+  [
+    object,
+    uuid(37C130B3-29B7-491A-A8A1-E8AA54542C1C),
+    dual,
+    nonextensible,
+    helpstring("IScdWire Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdWire : IDispatch{
+    [id(1), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Node, [in] DWORD Wire);
+    [propget, id(2), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR* pVal);
+    [propget, id(3), helpstring("property Node")] HRESULT Node([out, retval] IScdNode** pVal);
+    [propget, id(4), helpstring("property SrcNode")] HRESULT SrcNode([out, retval] IScdNode** pVal);
+    [propget, id(5), helpstring("property DstNode")] HRESULT DstNode([out, retval] IScdNode** pVal);
+    [propget, id(6), helpstring("property SrcTermStrip")] HRESULT SrcTermStrip([out, retval] IScdTermStrip** pVal);
+    [propget, id(7), helpstring("property DstTermStrip")] HRESULT DstTermStrip([out, retval] IScdTermStrip** pVal);
+    [propget, id(8), helpstring("property SrcTerminal")] HRESULT SrcTerminal([out, retval] IScdTerminal** pVal);
+    [propget, id(9), helpstring("property DstTerminal")] HRESULT DstTerminal([out, retval] IScdTerminal** pVal);
+    [propget, id(10), helpstring("property Area")] HRESULT Area([out, retval] DOUBLE* pVal);
+    [propput, id(10), helpstring("property Area")] HRESULT Area([in] DOUBLE newVal);
+    [propget, id(11), helpstring("property Length")] HRESULT Length([out, retval] DOUBLE* pVal);
+    [propput, id(11), helpstring("property Length")] HRESULT Length([in] DOUBLE newVal);
+    [propget, id(12), helpstring("property Component")] HRESULT Component([out, retval] IScdComponent** pVal);
+  };
+  [
+    object,
+    uuid(386A7C55-991B-4D50-B164-5BAD1C980D7D),
+    dual,
+    nonextensible,
+    helpstring("IScdWires Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdWires : IDispatch{
+    [id(DISPID_VALUE), helpstring("method Wire")] HRESULT Wire([in] VARIANT WhichOne, [out, retval] IScdWire ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] long *pVal);
+    [id(3), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Node, [in] DWORD Types, [in] DWORD Direction);
+    [id(4), helpstring("method Select")] HRESULT Select([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction);
+
+    [id(5), helpstring("method SetWire")] HRESULT SetWire([in] LONG No, [in] BSTR Tag, [in] BSTR SrcTermStrip, [in] BSTR SrcTerminal, [in] BSTR DstTermStrip, [in] BSTR DstTerminal);
+    [id(6), helpstring("method AutoWire")] HRESULT AutoWire([in] BSTR SrcTermStrip, [in] BSTR DstTermStrip);
+  };
+  [
+    object,
+    uuid(8423BE53-50DF-4FEA-B3D8-1FB5252A2CBA),
+    dual,
+    nonextensible,
+    helpstring("IScdTerminal Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTerminal : IDispatch{
+    [id(1), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Term);
+    [propget, id(2), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR* pVal);
+    [propget, id(3), helpstring("property Node")] HRESULT Node([out, retval] IScdNode** pVal);
+    [propget, id(4), helpstring("property TermStrip")] HRESULT TermStrip([out, retval] IScdTermStrip** pVal);
+    [propget, id(5), helpstring("property Voltage")] HRESULT Voltage([out, retval] IScdComplex** pVal);
+    //[propget, id(6), helpstring("property Current")] HRESULT Current([out, retval] IScdComplex** pVal);
+  };
+  [
+    object,
+    uuid(57EFCD3E-7581-47A3-8FA8-F08FCE6AA56B),
+    dual,
+    nonextensible,
+    helpstring("IScdTerminals Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTerminals : IDispatch{
+    [id(DISPID_VALUE), helpstring("method Terminal")] HRESULT Terminal([in] VARIANT WhichOne, [out, retval] IScdTerminal ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] long *pVal);
+    [id(3), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Node, [in] DWORD Types, [in] DWORD Direction);
+    [id(4), helpstring("method Select")] HRESULT Select([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction);
+  };
+  [
+    object,
+    uuid(68A08D45-05DF-4463-B2EF-2DC28328E97F),
+    dual,
+    nonextensible,
+    helpstring("IScdTermStrip Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTermStrip : IDispatch{
+    [id(DISPID_VALUE), helpstring("method Terminal")] HRESULT Terminal([in] VARIANT WhichOne, [out, retval] IScdTerminal ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] long *pVal);
+    [id(3), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD TermStrip, [in] DWORD Types, [in] DWORD Direction);
+    [id(4), helpstring("method Select")] HRESULT Select([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction);
+    [propget, id(5), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR* pVal);
+    [propget, id(6), helpstring("property Node")] HRESULT Node([out, retval] IScdNode** pVal);
+  };
+  [
+    object,
+    uuid(231165C8-AF0E-41F7-93DD-8E42FFEB6365),
+    dual,
+    nonextensible,
+    helpstring("IScdTermStrips Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdTermStrips : IDispatch{
+    [id(DISPID_VALUE), helpstring("method TermStrip")] HRESULT TermStrip([in] VARIANT WhichOne, [out, retval] IScdTermStrip ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] long *pVal);
+    [id(3), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Node, [in] DWORD Types, [in] DWORD Direction);
+    [id(4), helpstring("method Select")] HRESULT Select([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction);
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(8A7205B3-3838-45D2-A3D8-5A05F7D7C314),
+    dual,
+    nonextensible,
+    helpstring("IScdElectrics Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdElectrics : IDispatch{
+    [id(1), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal);
+    [propget, id(2), helpstring("property TermStrips")] HRESULT TermStrips([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction, [out, retval] IScdTermStrips** pVal);
+    [propget, id(3), helpstring("property Terminals")] HRESULT Terminals([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [out, retval] IScdTerminals** pVal);
+    [propget, id(4), helpstring("property Wires")] HRESULT Wires([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [out, retval] IScdWires** pVal);
+    [propget, id(5), helpstring("property Components")] HRESULT Components([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types, [out, retval] IScdComponents** pVal);
+  };
+  //[
+  //  uuid(16FD035C-E5BF-403B-B0DF-571AB819D1F3),
+  //  helpstring("_IScdElectricsEvents Interface")
+  //]
+  //dispinterface _IScdElectricsEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(A081A069-91AA-4C5F-B524-80B440CD138C),
+    dual,
+    nonextensible,
+    helpstring("IScdComponent Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdComponent : IDispatch{
+    [id(1), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Node, [in] DWORD Component);
+    [propget, id(2), helpstring("property SrcTerminal")] HRESULT SrcTerminal([out, retval] IScdTerminal** pVal);
+    [propget, id(3), helpstring("property DstTerminal")] HRESULT DstTerminal([out, retval] IScdTerminal** pVal);
+    [propget, id(4), helpstring("property Impedance")] HRESULT Impedance([out, retval] IScdComplex** pVal);
+    [propget, id(5), helpstring("property Source")] HRESULT Source([out, retval] IScdComplex** pVal);
+    [propget, id(6), helpstring("property Current")] HRESULT Current([out, retval] IScdComplex** pVal);
+    [propget, id(7), helpstring("property Applied")] HRESULT Applied([out, retval] IScdComplex** pVal);
+  };
+  [
+    object,
+    uuid(37E46C83-1438-464B-B27C-2BECFBE4D1B5),
+    dual,
+    nonextensible,
+    helpstring("IScdComponents Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdComponents : IDispatch{
+    [id(DISPID_VALUE), helpstring("method Component")] HRESULT Component([in] VARIANT WhichOne, [out, retval] IScdComponent ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] long *pVal);
+    [id(3), restricted, helpstring("method SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD Node, [in] DWORD Types);
+    [id(4), helpstring("method Select")] HRESULT Select([in,defaultvalue(eScdElecType_All)] eScdElecTypes Types);
+  };
+  //----------------------------------------------
+  [
+    uuid(C4FCD11A-5909-46D7-A7FC-70BDFFC45635),
+    helpstring("ScdNodes Class")
+  ]
+  coclass ScdNodes
+  {
+    [default] interface IScdNodes;
+    [restricted] interface IScdASyncEvents;
+    //[default, source] dispinterface _IScdNodesEvents;
+  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(50EB2EAE-1D92-4BF5-BBAE-D92EA5E54B6E),
+    dual,
+    helpstring("IScdNode Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdNode : IDispatch
+  {
+    [propget, id(1), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR *pVal);
+    [propput, id(1), helpstring("property Tag")] HRESULT Tag([in] BSTR newVal);
+    [propget, id(2), helpstring("property Type")] HRESULT Type([out, retval] eScdNodeTypes *pVal);
+    [propget, id(3), helpstring("property Class")] HRESULT Class([out, retval] IScdNodeClass * *pClass);
+    [id(4), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal);
+    [propget, id(5), helpstring("property TypeString")] HRESULT TypeString([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property Connects")] HRESULT Connects([in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction, [in,defaultvalue(eScdNodeType_All)] eScdNodeTypes Types, [out, retval] IScdConnects**pConnects);
+    [propget, id(7), helpstring("property ConnectPoints")] HRESULT ConnectPoints([in,defaultvalue(eScdDirection_InOut)] eScdDirections Direction, [in,defaultvalue(eScdNodeType_All)] eScdNodeTypes Types, [out, retval] IScdConnectPoints * *pConnectPoints);
+    [propget, id(8), helpstring("property SrcNode")] HRESULT SrcNode([out, retval] IScdNode * *pVal);
+    [propget, id(9), helpstring("property DstNode")] HRESULT DstNode([out, retval] IScdNode * *pVal);
+    [propget, id(10), helpstring("property RmtNodes")] HRESULT RmtNodes([in] eScdDirections Dirns, [in,defaultvalue(eScdNodeType_All)] eScdNodeTypes Types, [out, retval] IScdNodes* *pVal);
+    [propget, id(11), helpstring("property Electrics")] HRESULT Electrics([out, retval] IScdElectrics** pVal);
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(137821C8-048C-4585-A5FD-9E80AA4470B0),
+  //  helpstring("_IScdNodeEvents Interface")
+  //]                                 
+  //dispinterface _IScdNodeEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------
+  [
+    uuid(2C170CD9-3C2A-49D6-B5E9-3F6AA803D480),
+    helpstring("ScdNode Class")
+  ]
+  coclass ScdNode
+  {
+    [default] interface IScdNode;
+    //[default, source] dispinterface _IScdNodeEvents;
+  };
+  ////----------------------------------------------
+  //[                                        
+  //  object,
+  //  uuid(2D34BB49-9A28-4166-9D14-ACB9E7A11882),
+  //  dual,
+  //  helpstring("IScdUnits Interface"),
+  //  pointer_default(unique)
+  //]
+  //interface IScdUnits : IDispatch
+  //  {
+  //  [id(DISPID_VALUE), helpstring("method Unit")] HRESULT Unit([in] VARIANT WhichOne, [out, retval] IScdUnit ** pItem);
+  //  [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+  //  [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+  //  [id(2), helpstring("method Add a Unit")] HRESULT Add([in] BSTR Class, [in] BSTR Tag, [out, retval] IScdNode ** pUnit);
+  //  [id(3), helpstring("method Remove")] HRESULT Remove([in] VARIANT WhichOne);
+  //  [propget, id(4), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdNodeCodes *pVal);
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(9FCD90F9-39AD-40BB-9D8B-985BADF549C5),
+  //  helpstring("_IScdUnitsEvents Interface")
+  //]
+  //dispinterface _IScdUnitsEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(1E9EDF63-DDF2-46C4-9B41-EFD574E67256),
+  //  helpstring("ScdUnits Class")
+  //]
+  //coclass ScdUnits
+  //  {
+  //  [default] interface IScdUnits;
+  //  [restricted] interface IScdASyncEvents;
+  //  [default, source] dispinterface _IScdUnitsEvents;
+  //  };
+  ////----------------------------------------------
+  //[
+  //  object,
+  //  uuid(77405757-4A37-4A7E-B651-005E98F7693F),
+  //  dual,
+  //  helpstring("IScdUnit Interface"),
+  //  pointer_default(unique)
+  //]
+  //interface IScdUnit : IDispatch
+  //  {
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(3B9995E3-5E1F-4AC8-A5C7-6DFF9C60E452),
+  //  helpstring("_IScdUnitEvents Interface")
+  //]
+  //dispinterface _IScdUnitEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(E9A078AE-2C78-460E-AF60-5FDEA766C307),
+  //  helpstring("ScdUnit Class")
+  //]
+  //coclass ScdUnit
+  //  {
+  //  [default] interface IScdUnit;
+  //  [default, source] dispinterface _IScdUnitEvents;
+  //  };
+  ////----------------------------------------------
+  //[
+  //  object,
+  //  uuid(C3A26092-39A6-4145-A39A-17CE9C5B1381),
+  //  dual,
+  //  helpstring("IScdLinks Interface"),
+  //  pointer_default(unique)
+  //]
+  //interface IScdLinks : IDispatch
+  //  {
+  //  [id(DISPID_VALUE), helpstring("method Link")] HRESULT Link([in] VARIANT WhichOne, [out, retval] IScdLink ** pItem);
+  //  [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+  //  [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+  //  [id(2), helpstring("method Add a Link")] HRESULT Add([in] BSTR Class, [in] BSTR Tag, [in] BSTR SrcTag, [in] BSTR SrcIO, [in] BSTR DstTag, [in] BSTR DstIO, [out, retval] IScdNode ** pLink);
+  //  [id(3), helpstring("method Delete")] HRESULT Remove([in] VARIANT WhichOne);
+  //  [propget, id(4), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdNodeCodes *pVal);
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(84653E9F-BEE3-4FBB-AC68-DEE256B767F7),
+  //  helpstring("_IScdLinksEvents Interface")
+  //]
+  //dispinterface _IScdLinksEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(F42A2719-917D-40EC-96DB-91E3B71D066A),
+  //  helpstring("ScdLinks Class")
+  //]
+  //coclass ScdLinks
+  //  {
+  //  [default] interface IScdLinks;
+  //  [restricted] interface IScdASyncEvents;
+  //  [default, source] dispinterface _IScdLinksEvents;
+  //  };
+  ////----------------------------------------------
+  //[
+  //  object,
+  //  uuid(D1C5FC75-42E0-423D-AF00-772E9DB1F079),
+  //  dual,
+  //  helpstring("IScdLink Interface"),
+  //  pointer_default(unique)
+  //]
+  //interface IScdLink : IDispatch
+  //  {
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(BA7DB59E-FA40-4A6F-B4BE-DF1A684D0428),
+  //  helpstring("_IScdLinkEvents Interface")
+  //]
+  //dispinterface _IScdLinkEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  ////----------------------------------------------
+  //[
+  //  uuid(ACEA5DD5-35D4-425A-AC12-8E372083BC41),
+  //  helpstring("ScdLink Class")
+  //]
+  //coclass ScdLink
+  //  {
+  //  [default] interface IScdLink;
+  //  [default, source] dispinterface _IScdLinkEvents;
+  //  };
+  //----------------------------------------------
+  [
+    object,
+    uuid(1CD389F3-67DD-4E46-85C9-C40A6E49F8D9),
+    dual,
+    helpstring("IScdConnect Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdConnect : IDispatch
+  {
+    [id(1), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal, [in] long Index);
+    [propget, id(2), helpstring("property Index")] HRESULT Index([out, retval] long *pVal);
+    [propget, id(3), helpstring("property RmtIndex")] HRESULT RmtIndex([out, retval] long *pVal);
+    [propget, id(4), helpstring("property RmtNode")] HRESULT RmtNode([out, retval] IScdNode* *pVal);
+    [propget, id(5), helpstring("property ConnectString")] HRESULT ConnectString([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property RmtConnectString")] HRESULT RmtConnectString([out, retval] BSTR *pVal);
+    [propget, id(7), helpstring("property ConnectPoint")] HRESULT ConnectPoint([out, retval] IScdConnectPoint* *pVal);
+    [propget, id(8), helpstring("property RmtConnectPoint")] HRESULT RmtConnectPoint([out, retval] IScdConnectPoint* *pVal);
+    [propget, id(9), helpstring("property Node")] HRESULT Node([out, retval] IScdNode* *pVal);
+  };
+  //----------------------------------------------
+  //[
+  //  uuid(79763F53-2434-4A68-A9DC-20632DB27C71),
+  //  helpstring("_IScdConnectEvents Interface")
+  //]
+  //dispinterface _IScdConnectEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  [
+    object,
+    uuid(128122C7-F846-4730-88E0-3FF8844153A0),
+    dual,
+    helpstring("IScdConnectPoint Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdConnectPoint : IDispatch
+  {
+    [propget, id(1), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property Input")] HRESULT Input([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(4), helpstring("property Output")] HRESULT Output([out, retval] VARIANT_BOOL *pVal);
+    [propget, id(5), helpstring("property Type")] HRESULT Type([out, retval] eScdNodeTypes *pVal);
+    [propget, id(6), helpstring("property TypeString")] HRESULT TypeString([out, retval] BSTR *pVal);
+    [propget, id(7), helpstring("property ConnectCountRqd")] HRESULT ConnectCountRqd([out, retval] long *pVal);
+    [propget, id(8), helpstring("property ConnectCountMax")] HRESULT ConnectCountMax([out, retval] long *pVal);
+    [id(9), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal, [in] long Index);
+    [propget, id(10), helpstring("property Index")] HRESULT Index([out, retval] long *pVal);
+    [propget, id(11), helpstring("property ID")] HRESULT ID([out, retval] long *pVal);
+  };
+
+  [
+    uuid(9BF2CD13-ADB0-4D4D-960A-73268FC7A58F),
+    helpstring("ScdConnect Class")
+  ]
+  coclass ScdConnect
+  {
+    [default] interface IScdConnect;
+    //[default, source] dispinterface _IScdConnectEvents;
+  };
+  //[
+  //  uuid(433ED734-FD2C-4BC1-B8C9-04525098D992),
+  //  helpstring("_IScdConnectPointEvents Interface")
+  //]
+  //dispinterface _IScdConnectPointEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  [
+    object,
+    uuid(630D2D53-76B3-41E1-A5EF-01501E42FFC8),
+    dual,
+    helpstring("IScdConnects Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdConnects : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Node")] HRESULT Connect([in] VARIANT WhichOne, [out, retval] IScdConnect** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdNodeCodes *pVal);
+    [id(3), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal);
+  };
+
+  [
+    uuid(4DFDA6A2-C7A3-4087-A43C-CBCC65C72650),
+    helpstring("ScdConnectPoint Class")
+  ]
+  coclass ScdConnectPoint
+  {
+    [default] interface IScdConnectPoint;
+    //[default, source] dispinterface _IScdConnectPointEvents;
+  };
+  //[
+  //  uuid(C6FEB83C-0AF3-4281-94BF-4993EB1BD021),
+  //  helpstring("_IScdConnectsEvents Interface")
+  //]
+  //dispinterface _IScdConnectsEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  [
+    object,
+    uuid(045C8C54-8CCF-4AB7-B56E-9D26CB725D19),
+    dual,
+    helpstring("IScdConnectPoints Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdConnectPoints : IDispatch
+  {
+    [id(DISPID_VALUE), helpstring("method Node")] HRESULT ConnectPoint([in] VARIANT WhichOne, [out, retval] IScdConnectPoint ** pItem);
+    [propget, restricted, id(DISPID_NEWENUM)] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property ReturnCode")] HRESULT ReturnCode([out, retval] eScdNodeCodes *pVal);
+    [id(3), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal);
+    [propget, id(4), helpstring("property InputPathName")] HRESULT InputPathName([in] eScdLinkTypes Type, [in,defaultvalue(0)] long PathNo, [out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property OutputPathName")] HRESULT OutputPathName([in] eScdLinkTypes Type, [in,defaultvalue(0)] long PathNo, [out, retval] BSTR *pVal);
+  };
+
+  [
+    uuid(A6FDC0DE-3269-4B86-AC79-493E251818D2),
+    helpstring("ScdConnects Class")
+  ]
+  coclass ScdConnects
+  {
+    [default] interface IScdConnects;
+    //[default, source] dispinterface _IScdConnectsEvents;
+  };
+  //[
+  //  uuid(A4B1D294-FEAE-4D73-A3B4-C38AD639ED75),
+  //  helpstring("_IScdConnectPointsEvents Interface")
+  //]
+  //dispinterface _IScdConnectPointsEvents
+  //  {
+  //properties:
+  //methods:
+  //  };
+  //----------------------------------------------  
+  [  
+    uuid(8E4ECA64-1459-4172-8098-8C9371D640C9),
+    helpstring("eScdNodeCat_Flags"),
+    v1_enum
+  ]
+  typedef enum eScdNodeCat_Flags
+  {	// Must match constants in TagObj.h
+    eScdNodeCat_DYNAMIC     = 0x00000001, //is dynamic model
+    eScdNodeCat_PROBAL      = 0x00000002, //is probal model
+
+    eScdNodeCat_SOLVE_MASK  = 0x0000000f, //mask for bits associated with solve mode groups
+
+    eScdNodeCat_STD_KENWALT  = 0x00000010, //part of standard Kenwalt models
+    eScdNodeCat_SIZEDIST     = 0x00000020, //Kenwalt size-distribution/communition models
+    eScdNodeCat_ALUMINA      = 0x00000040, //Kenwalt alumina models
+    eScdNodeCat_USER         = 0x00000080, //custom/client models (eg Argyle, Cleveland, etc)
+    eScdNodeCat_KAISER       = 0x00000100, //kaiser owned models
+    eScdNodeCat_QAL          = 0x00000200, //standard QAL owned models
+    eScdNodeCat_QALEXTRA     = 0x00000400, //additional QAL owned models
+    eScdNodeCat_ALCAN        = 0x00000800, //Alcan/Nabalco owned models
+    eScdNodeCat_IRITRON      = 0x00001000, //Iritron owned models
+    eScdNodeCat_RTTS         = 0x00002000, //Rio Tinto Technical Services owned models
+    eScdNodeCat_HEATBAL      = 0x00004000, //Kenwalt Heat Exchange models
+    eScdNodeCat_BLACKBOX     = 0x00008000, //Kenwalt BlackBox models
+    eScdNodeCat_POWERDIST    = 0x00010000, //Power Distribution
+    eScdNodeCat_MDL_UNUSED3  = 0x00020000, //
+    eScdNodeCat_MDL_UNUSED2  = 0x00040000, //
+    eScdNodeCat_MDL_UNUSED1  = 0x00080000, //
+
+    eScdNodeCat_MDL_MASK     = 0x000ffff0, //mask for bits associated with licensing model groups
+
+    eScdNodeCat_GRP_GENERAL   = 0x80000000, //general group
+    eScdNodeCat_GRP_ENERGY    = 0x40000000, //energy transfer group
+    eScdNodeCat_GRP_SEPAR     = 0x20000000, //mass separation group
+    eScdNodeCat_GRP_SIZEDST   = 0x10000000, //size distribution group
+    eScdNodeCat_GRP_TRANSFER  = 0x08000000, //mass transfer group
+    eScdNodeCat_GRP_ALUMINA   = 0x04000000, //alumina group
+    eScdNodeCat_GRP_POWERDIST = 0x02000000, //Power Reticulation/Elect/Pneumatic
+    eScdNodeCat_GRP_UNUSED5   = 0x01000000, //? group
+    eScdNodeCat_GRP_UNUSED4   = 0x00800000, //? group
+    eScdNodeCat_GRP_UNUSED3   = 0x00400000, //? group
+    eScdNodeCat_GRP_UNUSED2   = 0x00200000, //? group
+    eScdNodeCat_GRP_UNUSED1   = 0x00100000, //? group
+
+    eScdNodeCat_GRP_MASK      = 0xfff00000, //mask for bits associated with licensing model groups
+  } eScdNodeCat_Flags;
+  [
+    object,
+    uuid(3E92067C-548A-493E-B4C6-D4D9CAB640C0),
+    dual,
+    helpstring("IScdNodeClass Interface"),
+    pointer_default(unique)
+  ]
+  interface IScdNodeClass : IDispatch
+  {
+    [propget, id(1), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property ShortDescription")] HRESULT ShortDescription([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property Library")] HRESULT Library([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property DefaultTag")] HRESULT DefaultTag([out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property Category")] HRESULT Category([out, retval] eScdNodeCat_Flags *pVal);
+    [id(7), restricted, helpstring("property SetObjectInfo")] HRESULT SetObjectInfo([in] DWORD newVal);
+  };
+
+  [
+    uuid(E1CD13B4-F7D2-46CB-9E5F-D173D2C0BAF9),
+    helpstring("ScdConnectPoints Class")
+  ]
+  coclass ScdConnectPoints
+  {
+    [default] interface IScdConnectPoints;
+  };
+
+  [
+    uuid(1ECC6CD5-189B-4A02-8AFE-75502855977E),
+    helpstring("ScdNodeClass Class")
+  ]
+  coclass ScdNodeClass
+  {
+    [default] interface IScdNodeClass;
+  };
+  //-----------------------------------------------
+  [
+    uuid(5B9DCE12-D825-4CBC-BE39-C9A98F544877),
+    helpstring("ScdWire Class")
+  ]
+  coclass ScdWire
+  {
+    [default] interface IScdWire;
+  };
+  [
+    uuid(954689B2-7310-416C-B8CB-3B2D3F90F305),
+    helpstring("ScdWires Class")
+  ]
+  coclass ScdWires
+  {
+    [default] interface IScdWires;
+  };
+  [
+    uuid(7821B605-F73F-45F5-A65A-7A07F422FF66),
+    helpstring("ScdTerminal Class")
+  ]
+  coclass ScdTerminal
+  {
+    [default] interface IScdTerminal;
+  };
+  [
+    uuid(68E11902-B946-4EF3-8816-212320DAFC3F),
+    helpstring("ScdTerminals Class")
+  ]
+  coclass ScdTerminals
+  {
+    [default] interface IScdTerminals;
+  };
+  [
+    uuid(BF38097F-D4C9-472D-B05A-354B3C9AF164),
+    helpstring("ScdTermStrip Class")
+  ]
+  coclass ScdTermStrip
+  {
+    [default] interface IScdTermStrip;
+  };
+  [
+    uuid(9DD5CBD4-8C0F-4C42-82A9-5CB3C38D3958),
+    helpstring("ScdTermStrips Class")
+  ]
+  coclass ScdTermStrips
+  {
+    [default] interface IScdTermStrips;
+  };
+  [
+    uuid(98B8EE21-5BB7-421F-9E36-5B7DE01C07BB),
+    helpstring("ScdElectrics Class")
+  ]
+  coclass ScdElectrics
+  {
+    [default] interface IScdElectrics;
+    //[default, source] dispinterface _IScdElectricsEvents;
+  };
+  [
+    uuid(C3AAC7AF-9E3E-427E-A6FC-84F055850271),
+    helpstring("ScdComplex Class")
+  ]
+  coclass ScdComplex
+  {
+    [default] interface IScdComplex;
+  };
+  [
+    uuid(1448A094-B17A-45A6-97F3-F49171B18531),
+    helpstring("ScdComponent Class")
+  ]
+  coclass ScdComponent
+  {
+    [default] interface IScdComponent;
+  };
+  [
+    uuid(75B7A003-8AE1-4E70-8D39-E35C37513D58),
+    helpstring("ScdComponents Class")
+  ]
+  coclass ScdComponents
+  {
+    [default] interface IScdComponents;
+  };
+};
+
+#endif

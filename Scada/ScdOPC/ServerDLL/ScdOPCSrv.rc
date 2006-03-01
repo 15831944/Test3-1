@@ -1,0 +1,162 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,4,0
+ PRODUCTVERSION 2,0,4,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "KWA"
+            VALUE "FileDescription", "OPC Server Module"
+            VALUE "FileVersion", "2, 0, 4, 0"
+            VALUE "InternalName", "ScdOPCSrv"
+            VALUE "LegalCopyright", "Copyright © 1997-2001, Kenwalt"
+            VALUE "OriginalFilename", "ScdOPCSrv.DLL"
+            VALUE "ProductName", "ScdOPCSrv"
+            VALUE "ProductVersion", "1, 0, 0, 0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_OPCSERVER           REGISTRY                "OPCServer.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_VENDOR_INFO         "FactorySoft, Inc."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_OPC_E_INVALIDHANDLE "Invalid Server Handle."
+    IDS_OPC_E_BADTYPE       "Server cannot convert data to the requested type."
+    IDS_OPC_E_PUBLIC        "Illegal operation on a Public Group."
+    IDS_OPC_E_BADRIGHTS     "Access Rights do not allow this operation."
+    IDS_OPC_E_UNKNOWNITEMID "This ItemID is not known."
+    IDS_OPC_E_INVALIDITEMID "This ItemID is not valid."
+    IDS_OPC_E_INVALIDFILTER "The filter string is not valid."
+    IDS_OPC_E_UNKNOWNPATH   "The Item's access path is not known."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_OPC_E_RANGE         "The value is out of range."
+    IDS_OPC_E_DUPLICATENAME "Duplicate group name is not allowed."
+    IDS_OPC_S_UNSUPPORTEDRATE "The requested data rate is not supported."
+    IDS_OPC_S_CLAMP         "The value was written but its output was clamped."
+    IDS_OPC_S_INUSE         "Illegal operation while the object is in use."
+    IDS_OPC_E_INVALIDCONFIGFILE "The configuration file is an invalid format."
+    IDS_OPC_E_NOTFOUND      "The object could not be found."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_PLC5OPCSERVER       REGISTRY                "PLC5OPCServer.rgs"
+#endif    // English (Australia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,187 @@
+// ScdCmd.idl : IDL source for ScdCmd.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ScdCmd.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+//#include "ScdCOMMethods.idl"
+	[
+		object,
+		uuid(F0A8E28B-C450-4F11-B96B-7AA62B445D36),
+		dual,
+		helpstring("ISysCADCmd Interface"),
+		pointer_default(unique)
+	]
+	interface ISysCADCmd : IDispatch
+	{
+
+		[propget, id(1), helpstring("property UpNAbout")] HRESULT UpNAbout([out, retval] VARIANT_BOOL *pVal);
+		[id(2	), helpstring("method WaitUpNAbout")] HRESULT WaitUpNAbout(double TimeOut);
+		[propget, id(3), helpstring("property SyncCallsOn")] HRESULT SyncCallsOn([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(3), helpstring("property SyncCallsOn")] HRESULT SyncCallsOn([in] VARIANT_BOOL newVal);
+		[propget, id(4), helpstring("property SyncCallsTimeOut")] HRESULT SyncCallsTimeOut([out, retval] double *pVal);
+		[propput, id(4), helpstring("property SyncCallsTimeOut")] HRESULT SyncCallsTimeOut([in] double newVal);
+		[id(5 ), helpstring("method LoadProject")] HRESULT LoadProject([in] BSTR bsProjectName);
+		[id(6 ), helpstring("method SaveProject")] HRESULT SaveProject([in] BSTR bsProjectName);
+		[id(7 ), helpstring("method LoadSnapshot")] HRESULT LoadSnapshot([in] BSTR bsSnapshotName);
+		[id(8 ), helpstring("method SaveSnapshot")] HRESULT SaveSnapshot([in] BSTR bsSnapshotName);
+		[id(9 ), helpstring("method LoadScenario")] HRESULT LoadScenario([in] BSTR bsScenarioName);
+		[id(10), helpstring("method SaveScenario")] HRESULT SaveScenario([in] BSTR bsScenarioName);
+		[id(11), helpstring("method CloseProject")] HRESULT CloseProject();
+		[id(12), helpstring("method SetTag")] HRESULT SetTag([in] BSTR Tag, [in] VARIANT *Value);
+		[id(13), helpstring("method GetTag")] HRESULT GetTag([in] BSTR Tag, [out] VARIANT *Value);
+		[id(14), helpstring("method StartDynamicSolve")] HRESULT StartDynamicSolve();
+		[id(15), helpstring("method StartProbalSolve")] HRESULT StartProbalSolve();
+		[id(16), helpstring("method Start")] HRESULT Start();
+		[id(17), helpstring("method Step")] HRESULT Step([in, defaultvalue(0)] long IterMark, [in, defaultvalue(0.0)] double WaitForNext);
+		[id(18), helpstring("method Stop")] HRESULT Stop();
+		[id(19), helpstring("method Idle")] HRESULT Idle();
+		[id(20), helpstring("method Wait")] HRESULT Wait([in] double Seconds);
+		[id(21), helpstring("method WaitCount")] HRESULT WaitCount([in] long Iterations);
+		[id(22), helpstring("method WaitTillSteadyState")] HRESULT WaitTillSteadyState();
+		[id(23), helpstring("method WaitTillStop")] HRESULT WaitTillStop();
+		[id(24), helpstring("method ResetWait")] HRESULT ResetWait();
+		[id(25), helpstring("method GenerateTagReport")] HRESULT GenerateTagReport([in] BSTR Filename, [in] BSTR Reportname);
+		[id(26), helpstring("method GenerateTrendReport")] HRESULT GenerateTrendReport([in] BSTR Filename, [in] BSTR Reportname);
+		[id(27), helpstring("method ProcessSetTags")] HRESULT ProcessSetTags([in] BSTR Filename, [in] BSTR Reportname);
+		[id(28), helpstring("method SaveAndCloseReport")] HRESULT SaveAndCloseReport([in] BSTR Filename);
+		[id(29), helpstring("method ExecuteMacro")] HRESULT ExecuteMacro([in] BSTR Filename, [in] BSTR Macroname);
+		[propget, id(30), helpstring("property CmpFilename")] HRESULT CmpFilename([out, retval] BSTR *pVal);
+		[propput, id(30), helpstring("property CmpFilename")] HRESULT CmpFilename([in] BSTR newVal);
+		[propget, id(31), helpstring("property CmpSort")] HRESULT CmpSort([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(31), helpstring("property CmpSort")] HRESULT CmpSort([in] VARIANT_BOOL newVal);
+		[propget, id(32), helpstring("property CmpMaxCount")] HRESULT CmpMaxCount([out, retval] long *pVal);
+		[propput, id(32), helpstring("property CmpMaxCount")] HRESULT CmpMaxCount([in] long newVal);
+		[propget, id(33), helpstring("property CmpRelativeTolerance")] HRESULT CmpRelativeTolerance([out, retval] double *pVal);
+		[propput, id(33), helpstring("property CmpRelativeTolerance")] HRESULT CmpRelativeTolerance([in] double newVal);
+		[propget, id(34), helpstring("property CmpAbsoluteTolerance")] HRESULT CmpAbsoluteTolerance([out, retval] double *pVal);
+		[propput, id(34), helpstring("property CmpAbsoluteTolerance")] HRESULT CmpAbsoluteTolerance([in] double newVal);
+		[propget, id(35), helpstring("property CmpShowDifferentStrings")] HRESULT CmpShowDifferentStrings([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(35), helpstring("property CmpShowDifferentStrings")] HRESULT CmpShowDifferentStrings([in] VARIANT_BOOL newVal);
+		[propget, id(36), helpstring("property CmpShowMissingTags")] HRESULT CmpShowMissingTags([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(36), helpstring("property CmpShowMissingTags")] HRESULT CmpShowMissingTags([in] VARIANT_BOOL newVal);
+		[id(37), helpstring("method CompareReset")] HRESULT CompareReset();
+		[id(38), helpstring("method CompareScenarios")] HRESULT CompareScenarios([in] BSTR Filename1, [in] BSTR Filename2);
+		[id(39), helpstring("method CompareScenarioToCurrent")] HRESULT CompareScenarioToCurrent([in] BSTR Filename);
+		[id(40), helpstring("method TestScenario")] HRESULT TestScenario([in] BSTR Filename);
+		[id(41), helpstring("method RestartHistorian")] HRESULT RestartHistorian();
+		[id(42), helpstring("method Sleep")] HRESULT Sleep(double Seconds);
+		[id(43), helpstring("method Exit")] HRESULT Exit();
+		[propget, id(44), helpstring("property EventsOn - Events will be genrated when syscad stops, goes to idle or one per step")] HRESULT EventsOn([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(44), helpstring("property EventsOn - Events will be genrated when syscad stops, goes to idle or one per step")] HRESULT EventsOn([in] VARIANT_BOOL newVal);
+		[propget, id(45), helpstring("property IsStopped")] HRESULT IsStopped([out, retval] VARIANT_BOOL *pVal);
+		[propget, id(46), helpstring("property IsIdling")] HRESULT IsIdling([out, retval] VARIANT_BOOL *pVal);
+		[propget, id(47), helpstring("property IsRunning")] HRESULT IsRunning([out, retval] VARIANT_BOOL *pVal);
+		[propget, id(48), helpstring("property StepSize")] HRESULT StepSize([out, retval] double *pVal);
+		[propput, id(48), helpstring("property StepSize")] HRESULT StepSize([in] double newVal);
+		[propget, id(49), helpstring("property RealTimeOn")] HRESULT RealTimeOn([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(49), helpstring("property RealTimeOn")] HRESULT RealTimeOn([in] VARIANT_BOOL newVal);
+		[propget, id(50), helpstring("property RealTimeMultiplier")] HRESULT RealTimeMultiplier([out, retval] double *pVal);
+		[propput, id(50), helpstring("property RealTimeMultiplier")] HRESULT RealTimeMultiplier([in] double newVal);
+		[propget, id(51), helpstring("property SequenceNo")] HRESULT SequenceNo([out, retval] long *pVal);
+		[propput, id(51), helpstring("property SequenceNo")] HRESULT SequenceNo([in] long newVal);
+		[id(52), helpstring("method SetAppState")] HRESULT SetAppWndState(long ReqdState);
+		[id(53), helpstring("method LoadBacktrack")] HRESULT LoadBacktrack([in] BSTR bsBacktrackName);
+		[id(54), helpstring("method SaveBacktrack")] HRESULT SaveBacktrack([in] BSTR bsBacktrackName);
+		[id(55), helpstring("method VariableSetReplayItem")] HRESULT VariableSetReplayItem([in] long SequenceNo, [in] BSTR Tag, [in] VARIANT Value, [in] BSTR CnvTxt);
+		[id(56), helpstring("method VariableSetReplayCtrl")] HRESULT VariableSetReplayCtrl([in] long Command, [in, defaultvalue(0)] long Param);
+		[propget, id(57), helpstring("property TagValue")] HRESULT TagValue([in] BSTR Tag, [out, retval] VARIANT *pVal);
+		[propput, id(57), helpstring("property TagValue")] HRESULT TagValue([in] BSTR Tag, [in] VARIANT newVal);
+		[propget, id(58), helpstring("property TagType")] HRESULT TagType([in] BSTR Tag, [out, retval] long *pVal);
+	};
+
+	[
+		object,
+		uuid(648529D8-8872-44e4-8A34-E59449D6832F),
+		dual,
+		helpstring("ISysCADEdit Interface"),
+		pointer_default(unique)
+	]
+	interface ISysCADEdit : IDispatch
+	{
+		[id(1), helpstring("method InsertNode")] HRESULT InsertNode([in] BSTR Class, [in] BSTR Tag, [in] double X, [in] double Y, [in] double Z, [in] double XScale, [in] double YScale, [in] double Rotation );
+		[id(2), helpstring("method InsertLink")] HRESULT InsertLink([in] BSTR Class, [in] BSTR Tag, [in] BSTR SrcTag, [in] BSTR SrcIO, [in] BSTR DstTag, [in] BSTR DstIO, [in] double Xs, [in] double Ys, [in] double Zs, [in] double Xd, [in] double Yd, [in] double Zd);
+		[propget, id(3), helpstring("property GrfWndIndex")] HRESULT GrfWndIndex([out, retval] long *pVal);
+		[propput, id(3), helpstring("property GrfWndIndex")] HRESULT GrfWndIndex([in] long newVal);
+		[id(4), helpstring("method ZoomWindowFull")] HRESULT ZoomWindowFull();
+		[id(5), helpstring("method CreateUnit")] HRESULT CreateUnit([in] BSTR Class, [in] BSTR Tag );
+		[id(6), helpstring("method CreateUnitGrf")] HRESULT CreateUnitGrf([in] BSTR Tag, [in] double X, [in] double Y, [in] double Z, [in] BSTR Symbol, [in] double XScale, [in] double YScale, [in] double Rotation  );
+		[id(7), helpstring("method CreateLink")] HRESULT CreateLink([in] BSTR Class, [in] BSTR Tag, [in] BSTR SrcTag, [in] BSTR SrcIO, [in] BSTR DstTag, [in] BSTR DstIO );
+		[id(8), helpstring("method CreateLinkGrf")] HRESULT CreateLinkGrf([in] BSTR Tag, [in] long DrawLineMethod );
+		[id(9), helpstring("method CreateLinkGrfLine")] HRESULT CreateLinkGrfLine([in] BSTR Tag, [in] double Xs, [in] double Ys, [in] double Zs, [in] double Xd, [in] double Yd, [in] double Zd );
+	};
+
+
+	[
+		object,
+		uuid(7837875f-63e2-4642-af7c-df1ba7ff10a4),
+		dual,
+		helpstring("IBackdoor Interface"),
+		pointer_default(unique)
+	]
+	interface IBackdoor : IDispatch
+	{
+		[id(1), helpstring("method Register")] HRESULT Register([in] ULONG i_dwCastedCallback);
+		[id(2), helpstring("method GetResourceHInstance")] HRESULT GetResourceHInstance([out, ref] ULONG *hResInst);
+		[id(3), helpstring("method GetResourceID")] HRESULT GetResourceCBRegID([out,ref] ULONG * ID);
+	};
+
+
+[
+	uuid(700C6795-4F08-48D6-960A-88773A56E877),
+	version(1.0),
+	helpstring("SysCAD Command Library")
+]
+library SysCADLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+//#include "ScdCOMEvents.idl"
+
+	[
+		uuid(43933726-54B7-4DCB-82B2-F4E630719423),
+		helpstring("_ISysCADCmdEvents Interface")
+	]
+	dispinterface _ISysCADCmdEvents
+	{
+	properties:
+	methods:
+		[id(1), helpstring("event OnUpNAbout")] HRESULT OnUpNAbout(long result);
+		[id(2), helpstring("event OnProjectLoaded")] HRESULT OnProjectLoaded(long result);
+		[id(3), helpstring("event OnProjectSaved")] HRESULT OnProjectSaved(long result);
+		[id(4), helpstring("event OnProjectClosed")] HRESULT OnProjectClosed(long result);
+		[id(5), helpstring("event OnSetTag")] HRESULT OnSetTag([in] long result);
+		[id(6), helpstring("event OnGetTag")] HRESULT OnGetTag([in] long result);
+		[id(7), helpstring("method OnStepProbal")] HRESULT OnStepProbal(long Flags);
+		[id(8), helpstring("method OnStepDynamic")] HRESULT OnStepDynamic(long Flags);
+		[id(9), helpstring("method OnStop")] HRESULT OnStop(long Flags);
+		[id(10), helpstring("method OnIdle")] HRESULT OnIdle(long Flags);
+		[id(11), helpstring("method OnSnapshotLoaded")] HRESULT OnSnapshotLoaded([in] long result);
+		[id(12), helpstring("method OnSnapshotSaved")] HRESULT OnSnapshotSaved([in] long result);
+		[id(13), helpstring("method OnScenarioLoaded")] HRESULT OnScenarioLoaded([in] long result);
+		[id(14), helpstring("method OnScenarioSaved")] HRESULT OnScenarioSaved([in] long result);
+		[id(15), helpstring("method OnBacktrackLoaded")] HRESULT OnBacktrackLoaded([in] long result);
+		[id(16), helpstring("method OnBacktrackSaved")] HRESULT OnBacktrackSaved([in] long result);
+		[id(17), helpstring("method OnVariableSet")] HRESULT OnVariableSet([in] long Source, [in] long SequenceNo, [in] BSTR Tag, [in] VARIANT Value, [in] BSTR CnvTxt);
+	};
+
+
+
+
+
+	[
+		uuid(1E7E6A3F-9107-40E7-9616-65EEE2CCCE06),
+		helpstring("SysCAD Command Class")
+	]
+	coclass SysCADCmd
+	{
+		[default] interface ISysCADCmd;
+		interface ISysCADEdit;
+		interface IBackdoor;
+		[default, source] dispinterface _ISysCADCmdEvents;
+	};
+};

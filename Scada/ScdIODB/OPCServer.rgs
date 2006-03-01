@@ -1,0 +1,31 @@
+HKCR
+{
+  ScdIODB.OPC.1 = s 'SysCAD IODB for OPC'
+  {
+    CLSID = s '{60401B2F-56C6-409f-9E86-9DAFEAE97251}'
+  }
+  ScdIODB.OPC = s 'SysCAD IODB for OPC'
+  {
+    CLSID = s '{60401B2F-56C6-409f-9E86-9DAFEAE97251}'
+        OPC
+        {
+            Vendor = s 'Kenwalt (Pty) Ltd'
+        }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {60401B2F-56C6-409f-9E86-9DAFEAE97251} = s 'SysCAD IODB for OPC'
+    {
+      ProgID = s 'ScdIODB.OPC.1'
+      VersionIndependentProgID = s 'ScdIODB.OPC'
+      LocalServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+  NoRemove AppID
+  {
+    ForceRemove {60401B2F-56C6-409f-9E86-9DAFEAE97251} = s 'SysCAD IODB for OPC'
+  }
+}

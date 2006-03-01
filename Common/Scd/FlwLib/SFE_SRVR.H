@@ -1,0 +1,191 @@
+//================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+// $Nokeywords: $
+//===========================================================================
+// generic Sfe DLL Interface
+
+#ifndef __SFESRVR_H
+#define __SFESRVR_H
+
+#ifndef __FE_CONST_H
+  #include "fe_const.h"
+#endif
+#ifndef __EXECUTIV_H
+  #include "executiv.h"
+#endif
+#ifndef __SFE_BASE_H
+  #include "sfe_base.h"
+#endif  
+#ifndef __MDLCFG_H
+  #include "mdlcfg.h"
+#endif  
+#ifndef __MDLRUNMNGR_H
+  #include "mdlrunmngr.h"
+#endif  
+
+#ifdef __SFE_SRVR_CPP
+  #define DllImportExport DllExport
+#elif !defined(FLWLIB)
+  #define DllImportExport DllImport
+#else
+  #define DllImportExport
+#endif
+
+class DllImportExport CSfeSrvr : public CSfeSrvrBase
+  {
+  public:
+  protected:
+//    int          CW;
+  public:
+    flag         Init(pchar ModelCfg, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn, flag FlushDbg, fn_CallBack CallBack);
+    //void         InitLic(dword dwLic);
+    flag         Term();
+    NodeGrfInfo* Drawings();
+//    VOID         Lock();
+//    VOID         Free();
+
+   
+    int          FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL);
+    int          FE_DoInsertRoot(char * RootName);
+    int          FE_DoDelete(char * Tag);
+    int          FE_DoConnect(char * SrcTag, char *DstTag);
+    int          FE_DoDisConnect(char * SrcTag, char *DstTag);
+    int          FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID);
+    int          FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID);
+//    int          FE_DoSolveNet();
+    int          FE_TagOperation(FE_TagOps Act, Strng_List & TagList);
+    int          FE_SetHoldGlobalLinks(bool On);
+                 
+    byte         FE_FlwMomentumOn();
+    void         FE_SetFlwMomentumOn(byte On);
+
+    byte         FE_ODE_Method();
+    byte         FE_ODE_StepSizeControl();
+    void         FE_ODE_SetMethod(byte Method_);
+    void         FE_ODE_SetStepSizeControl(byte StepSizeControl_);
+    double       FE_ODE_GetMagEPSAbs();
+    double       FE_ODE_GetMagEPSRel();
+    void         FE_ODE_SetMagEPSAbs(double Eps);
+    void         FE_ODE_SetMagEPSRel(double Eps);
+    double       FE_ODE_GetTimeInc();
+    void         FE_ODE_SetTimeInc(double T);
+    double       FE_ODE_GetTimeIncMxRqd();
+    void         FE_ODE_SetTimeIncMxRqd(double T);
+    double       FE_ODE_GetTimeIncMnRqd();
+    void         FE_ODE_SetTimeIncMnRqd(double T);
+    
+    double       FE_Net_GetLnkEPSAbs();
+    double       FE_Net_GetLnkEPSRel();
+    void         FE_Net_SetLnkEPSAbs(double Eps);
+    void         FE_Net_SetLnkEPSRel(double Eps);
+    double       FE_Net_GetNetDeRate();
+    void         FE_Net_SetNetDeRate(double Mult);
+    pchar        FE_Net_GetSpillArea();
+    void         FE_Net_SetSpillArea(pchar Spill);
+    
+    int          FE_AD_GetID      (int Index, Strng & Class, Strng & Name);
+    int          FE_AD_Select     (int Index, char * Tag);
+    int          FE_AD_SetSelectedTags(Strng_List &SelectedTags);
+    int          FE_AD_GetTagTree (CFlwTree & Tree);
+    int          FE_AD_GetStatus  (Strng & Status);
+    int          FE_AD_Go         ();
+    
+    int          FE_IOPnt_Add     (LPCTSTR Tag, bool Input, LPCTSTR Desc, byte Type, LPCTSTR ValueStr, LPCTSTR ValueCnvs);
+    int          FE_IOPnt_Remove  (LPCTSTR Tag);
+    
+    int          FE_GetEvalOrder(bool GetCtrl, bool GetFullDescI, bool GetFullDescO, eTraceValue TraceWhat, CEvalOrderArray &Info);
+    int          FE_GetEvalStats(CEvalStatsArray &Info);
+    int          FE_GetNodeList(CNodeList&List);
+    int          FE_GetNodeConfiguration(BOOL AllParms, BOOL AllState, LPCTSTR NdTag, CNodeConfigList&List);
+    int          FE_GetNodeBalanceInfo(CNodeBalanceInfo & Balance, CNodeAuditInfo & Audit);
+
+    flag         RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestModelInfoRec & Info);
+
+    flag         RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
+    flag         RequestModelClassId(pchar pTag, Strng & ClassId);
+    flag         RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
+    flag         RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
+
+    flag         RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
+    flag         RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
+    flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
+    int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
+    int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
+    //int          RequestXRefInfoChg();
+
+    int          FE_GetRctInfo(CRctBlkInformation & RctInfo);
+    int          FE_SetRctInfo(LPCTSTR NodeTag);
+
+    int          FE_GetNodeWiring(CNodeWiring &NodeWiring);
+    int          FE_GetLinkWiring(CLinkWiring &LinkWiring);
+    int          FE_SetLinkWiring(CLinkWiring &LinkWiring);
+
+    long         FE_GetTopologyCount();
+    long         FE_GetNodes(DWORD What, CFlwNodeArray & Nodes);
+    FlwNode     *FE_FindNode(LPCTSTR Tag);
+
+    //void         FE_ElecComponentsChanged();
+    void         FE_UnDoGlobalLinks();
+    long         FE_SpModelFixupStrategy();
+    void         FE_SetSpModelFixupStrategy(long Strategy);
+
+    flag         FE_TestModelTagUnique(pchar pTag);
+    
+    void         EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
+    flag         EO_GetModelAction(Strng & Tag, MdlActionArray & Acts);
+    flag         EO_SetModelAction(Strng & Tag, MdlAction & Act);
+
+    //flag         EO_SolutionReqd();
+    //int          EO_InitSolution(EqnSlvCtrlBlk & EQCtrl);
+    //int          EO_StepSolution(EqnSlvCtrlBlk & EQCtrl);
+    //int          EO_TermSolution(EqnSlvCtrlBlk & EQCtrl);
+    int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
+
+    void         EO_OnAppActivate(BOOL bActive);
+    flag         EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
+    int          EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
+    int          EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    int          EO_QueryDeleteTag(pchar pDelTag);
+    int          EO_DeleteTag(pchar pDelTag);
+    int          EO_CanClose(Strng_List & Problems);
+
+    void         EO_SetSolveMode(long RunMds, long RunMdsMsk);
+    flag         EO_Starting(flag fBeginStarting);
+    flag         EO_SetTime(double TimeRqd, bool Rewind);
+    flag         EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
+    flag         EO_Start(const CXM_TimeControl &CB);
+    void         EO_QuerySubsReqd(CXMsgLst &XM);
+    void         EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
+    flag         EO_ReadSubsData(CXMsgLst &XM);
+    flag         EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);
+    DWORD        EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
+    int          EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route);
+    flag         EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
+    flag         EO_StepDone();
+    flag         EO_BeginPause(const CXM_TimeControl &CB);
+    flag         EO_EndPause(const CXM_TimeControl &CB);
+    flag         EO_Stop(const CXM_TimeControl &CB);
+    flag         EO_BeginSave(FilingControlBlock &FCB);
+    flag         EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM);
+    flag         EO_SaveOtherData(FilingControlBlock &FCB);
+    flag         EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM);
+    flag         EO_EndSave(FilingControlBlock &FCB);
+    flag         EO_BeginLoad(FilingControlBlock &FCB);
+    flag         EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM);
+    flag         EO_LoadOtherData(FilingControlBlock &FCB);
+    flag         EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM);
+    flag         EO_EndLoad(FilingControlBlock &FCB);
+    void         EO_BeginBulkChange();
+    void         EO_EndBulkChange();
+
+  };
+
+//---------------------------------------------------------------------------
+
+// This create COM unload problems extern DllImportExport CSfeSrvr * gs_pFlwLib;
+
+//---------------------------------------------------------------------------
+
+#undef DllImportExport 
+
+#endif

@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdMdl.ScdQualities.1 = s 'ScdQualities Class'
+	{
+		CLSID = s '{8BA848DE-9A9D-4456-A724-8966B05E2A8C}'
+	}
+	ScdMdl.ScdQualities = s 'ScdQualities Class'
+	{
+		CLSID = s '{8BA848DE-9A9D-4456-A724-8966B05E2A8C}'
+		CurVer = s 'ScdMdl.ScdQualities.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {8BA848DE-9A9D-4456-A724-8966B05E2A8C} = s 'ScdQualities Class'
+		{
+			ProgID = s 'ScdMdl.ScdQualities.1'
+			VersionIndependentProgID = s 'ScdMdl.ScdQualities'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{0766FCA7-75C3-47c0-B6D5-0F4BD88CC71A}'
+		}
+	}
+}

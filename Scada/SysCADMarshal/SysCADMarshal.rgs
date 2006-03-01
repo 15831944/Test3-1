@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		{FE33B342-5B7E-4ED3-B0A7-7DB0F9C3912F} = s 'SysCADMarshal'
+		'SysCADMarshal.EXE'
+		{
+			val AppID = s {FE33B342-5B7E-4ED3-B0A7-7DB0F9C3912F}
+		}
+	}
+}

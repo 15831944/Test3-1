@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdVB.ScdEventRelay.1 = s 'ScdEventRelay Class'
+	{
+		CLSID = s '{61A60CB3-DDD9-4904-8680-D6D6727D5462}'
+	}
+	ScdVB.ScdEventRelay = s 'ScdEventRelay Class'
+	{
+		CLSID = s '{61A60CB3-DDD9-4904-8680-D6D6727D5462}'
+		CurVer = s 'ScdVB.ScdEventRelay.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {61A60CB3-DDD9-4904-8680-D6D6727D5462} = s 'ScdEventRelay Class'
+		{
+			ProgID = s 'ScdVB.ScdEventRelay.1'
+			VersionIndependentProgID = s 'ScdVB.ScdEventRelay'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{03763CF2-5A3B-4D02-87A2-B478CFF4E04A}'
+		}
+	}
+}

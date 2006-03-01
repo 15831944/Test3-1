@@ -1,0 +1,34 @@
+HKCR
+{
+    NoRemove 'Component Categories'
+	{
+		{E7275A8A-D66F-45e9-A89F-4DCF475783CE}
+		{
+			val 409 = s 'SysCAD Application Objects'
+		}
+	}
+	SysCAD.Historian.1 = s 'ScdHistorian Class'
+	{
+		CLSID = s '{DF7B7439-A22A-4FD9-AF21-502E884BDB13}'
+	}
+	SysCAD.Historian = s 'ScdHistorian Class'
+	{
+		CLSID = s '{DF7B7439-A22A-4FD9-AF21-502E884BDB13}'
+		CurVer = s 'SysCAD.Historian.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {DF7B7439-A22A-4FD9-AF21-502E884BDB13} = s 'ScdHistorian Class'
+		{
+			ProgID = s 'SysCAD.Historian.1'
+			VersionIndependentProgID = s 'SysCAD.Historian'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			val AppID = s '{8B1DC73E-6E6F-4843-ACE4-6B09E781D644}'
+			'TypeLib' = s '{DB8A9658-3505-4fb8-85B1-DD37A609DF0D}'
+		}
+	}
+}

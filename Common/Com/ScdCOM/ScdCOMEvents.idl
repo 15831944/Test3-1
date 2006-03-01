@@ -1,0 +1,30 @@
+
+	[
+		uuid(43933726-54B7-4DCB-82B2-F4E630719423),
+		helpstring("_ISysCADCmdEvents Interface")
+	]
+	dispinterface _ISysCADCmdEvents
+	{
+	properties:
+	methods:
+		[id(1), helpstring("event OnUpNAbout")] HRESULT OnUpNAbout(long result);
+		[id(2), helpstring("event OnProjectLoaded")] HRESULT OnProjectLoaded(long result);
+		[id(3), helpstring("event OnProjectSaved")] HRESULT OnProjectSaved(long result);
+		[id(4), helpstring("event OnProjectClosed")] HRESULT OnProjectClosed(long result);
+		[id(5), helpstring("event OnSetTag")] HRESULT OnSetTag([in] long result);
+		[id(6), helpstring("event OnGetTag")] HRESULT OnGetTag([in] long result);
+		[id(7), helpstring("method OnStepProbal")] HRESULT OnStepProbal(long Flags);
+		[id(8), helpstring("method OnStepDynamic")] HRESULT OnStepDynamic(long Flags);
+		[id(9), helpstring("method OnStop")] HRESULT OnStop(long Flags);
+		[id(10), helpstring("method OnIdle")] HRESULT OnIdle(long Flags);
+		[id(11), helpstring("method OnSnapshotLoaded")] HRESULT OnSnapshotLoaded([in] long result);
+		[id(12), helpstring("method OnSnapshotSaved")] HRESULT OnSnapshotSaved([in] long result);
+		[id(13), helpstring("method OnScenarioLoaded")] HRESULT OnScenarioLoaded([in] long result);
+		[id(14), helpstring("method OnScenarioSaved")] HRESULT OnScenarioSaved([in] long result);
+		[id(15), helpstring("method OnBacktrackLoaded")] HRESULT OnBacktrackLoaded([in] long result);
+		[id(16), helpstring("method OnBacktrackSaved")] HRESULT OnBacktrackSaved([in] long result);
+		[id(17), helpstring("method OnVariableSet")] HRESULT OnVariableSet([in] long Source, [in] long SequenceNo, [in] BSTR Tag, [in] VARIANT Value, [in] BSTR CnvTxt);
+	};
+
+
+

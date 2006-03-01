@@ -1,0 +1,342 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About PLC5"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "PLC5 Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2000",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_PLC5_DIALOG DIALOGEX 0, 0, 521, 367
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "PLC5 Emulator"
+MENU IDR_MENU1
+FONT 8, "Microsoft Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
+                    TVS_FULLROWSELECT | WS_BORDER | WS_TABSTOP,3,3,100,148,
+                    WS_EX_CLIENTEDGE
+    SCROLLBAR       IDC_LDRSCROLLBAR,505,168,9,159,SBS_VERT | WS_TABSTOP
+    CONTROL         "",IDC_LDRSTATIC,"Static",SS_WHITEFRAME | WS_TABSTOP,3,
+                    168,502,158,WS_EX_CLIENTEDGE
+    SCROLLBAR       IDC_DATASCROLLBAR,505,16,9,134,SBS_VERT | WS_TABSTOP
+    CONTROL         "",IDC_DATASTATIC,"Static",SS_WHITEFRAME | WS_TABSTOP,
+                    114,16,391,135,WS_EX_CLIENTEDGE
+    LTEXT           "Table",IDC_TBHEADER,115,3,157,9
+    LTEXT           "Ladder",IDC_LDHEADER,3,157,264,9
+    LTEXT           "State:",IDC_STATE,101,349,120,9,SS_CENTERIMAGE
+    CONTROL         "&Decimal",IDC_RADIODEC,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,338,3,41,9
+    CONTROL         "&Hexadecimal",IDC_RADIOHEX,"Button",BS_AUTORADIOBUTTON,
+                    388,3,54,9
+    LTEXT           "Iter(ms)",IDC_STATIC,230,349,24,9,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDITITER,260,348,22,12,ES_AUTOHSCROLL
+    LTEXT           "Status",IDC_STATUSMSG,127,336,91,9,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDITGOTO,328,155,76,12,ES_AUTOHSCROLL
+    RTEXT           "Goto:",IDC_STATIC,304,157,21,9
+    CONTROL         "REMOTE",IDC_REMOTE,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,55,345,39,13
+    GROUPBOX        "Control",IDC_STATIC,3,328,515,35
+    CONTROL         "RESET",IDC_RESET,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,9,345,39,13
+    LTEXT           "Update(ms)",IDC_STATIC,285,349,38,9,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDITUPDATE,323,348,22,12,ES_AUTOHSCROLL
+    RTEXT           "Status:",IDC_STATIC,100,336,23,9,SS_CENTERIMAGE
+    PUSHBUTTON      "Find in Ladder",IDC_FINDINLADDER,409,155,53,12
+    LTEXT           "Step(ms)",IDC_STATIC,230,336,28,9,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDITSTEP,260,334,22,12,ES_AUTOHSCROLL
+    LTEXT           "Mult(x)",IDC_STATIC,285,336,23,9,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDITRUNMULT,323,335,22,12,ES_AUTOHSCROLL
+    LTEXT           "Static",IDC_EXECTIME,351,336,48,9,SS_CENTERIMAGE
+    LTEXT           "Static",IDC_UPDTIME,351,349,46,9,SS_CENTERIMAGE
+    CONTROL         "Stop",IDSTOP,"Button",BS_AUTOCHECKBOX | BS_BITMAP | 
+                    BS_CENTER | BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,461,
+                    345,14,13
+    CONTROL         "Run",IDRUN,"Button",BS_AUTOCHECKBOX | BS_BITMAP | 
+                    BS_CENTER | BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,480,
+                    345,14,13
+    PUSHBUTTON      "Step",IDSTEP,500,345,14,13,BS_BITMAP | BS_CENTER | 
+                    BS_VCENTER
+    PUSHBUTTON      "R",IDC_GOTORUN,411,336,14,14
+    PUSHBUTTON      "S",IDC_GOTOSTOP,425,336,14,14
+    PUSHBUTTON      "I",IDC_GOTOIDLE,439,336,14,14
+    CONTROL         "Change Monitor",IDC_CHANGE_MONITOR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,452,3,66,10
+END
+
+IDD_OPENPRJ_DLG DIALOG DISCARDABLE  0, 0, 264, 62
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "PLC5 : Open Project"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,137,30,50,14
+    PUSHBUTTON      "Skip",IDCANCEL,207,30,50,14
+    LTEXT           "Project folder:",IDC_STATIC,5,5,44,8
+    EDITTEXT        IDC_PRJFOLDER,5,15,234,12,ES_AUTOHSCROLL
+    CONTROL         "Open Debug File",IDC_OPENDBGFILE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,30,69,10
+    PUSHBUTTON      "...",IDBROWSE,243,15,14,12
+    LTEXT           "Start with command line ""PLC5 RegServer"" to register OPC server.  (or UnregServer)",
+                    IDC_STATIC,7,47,250,8
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "PLC5 MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "PLC5\0"
+            VALUE "LegalCopyright", "Copyright (C) 2000\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "PLC5.EXE\0"
+            VALUE "ProductName", "PLC5 Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_OPCSERVER           REGISTRY MOVEABLE PURE  "OPCSrvr\\OPCServer.rgs"
+IDR_PLC5                REGISTRY MOVEABLE PURE  "PLC5.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_PLC5_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 3
+        RIGHTMARGIN, 518
+        TOPMARGIN, 3
+        BOTTOMMARGIN, 364
+    END
+
+    IDD_OPENPRJ_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 257
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Open",                        ID_FILE_OPEN
+        MENUITEM "&Save Snap",                  ID_SAVESNAP
+        MENUITEM "&Load Snap",                  ID_LOADSNAP
+        MENUITEM "Save B&ack",                  ID_SAVEBACK
+        MENUITEM "Load &Back",                  ID_LOADBACK
+    END
+    POPUP "&State"
+    BEGIN
+        MENUITEM "&Run",                        IDC_GOTORUN
+        MENUITEM "&Stop",                       IDC_GOTOSTOP
+        MENUITEM "&Idle",                       IDC_GOTOIDLE
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About PLC5..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) (unknown sub-lang: 0x7) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENS)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, 0x7
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\PLC5.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\PLC5.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS DISCARDABLE 
+BEGIN
+    VK_F5,          IDSTEP,                 VIRTKEY, SHIFT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_STOP                BITMAP  DISCARDABLE     "res\\stop.bmp"
+IDB_RUN                 BITMAP  DISCARDABLE     "res\\run.bmp"
+IDB_STEP                BITMAP  DISCARDABLE     "res\\step.bmp"
+#endif    // English (U.S.) (unknown sub-lang: 0x7) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\PLC5.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

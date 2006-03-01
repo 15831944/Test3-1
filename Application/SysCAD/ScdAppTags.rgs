@@ -1,0 +1,27 @@
+HKCR
+{
+	SysCAD.AppTags.1 = s 'ScdATags Class'
+	{
+		CLSID = s '{9FE87A55-F087-40DC-BD9A-0AB66855C6A5}'
+	}
+	SysCAD.AppTags = s 'ScdATags Class'
+	{
+		CLSID = s '{9FE87A55-F087-40DC-BD9A-0AB66855C6A5}'
+		CurVer = s 'SysCAD.AppTags.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {9FE87A55-F087-40DC-BD9A-0AB66855C6A5} = s 'ScdATags Class'
+		{
+			ProgID = s 'SysCAD.AppTags.1'
+			VersionIndependentProgID = s 'SysCAD.AppTags'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			val AppID = s '{8B1DC73E-6E6F-4843-ACE4-6B09E781D644}'
+			'TypeLib' = s '{DB8A9658-3505-4fb8-85B1-DD37A609DF0D}'
+		}
+	}
+}

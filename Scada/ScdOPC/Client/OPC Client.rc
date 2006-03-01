@@ -1,0 +1,630 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\OPC Client.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\OPC Client.ico"
+IDR_OPCCLITYPE          ICON    DISCARDABLE     "res\\OPC ClientDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "OPC"
+    BEGIN
+        MENUITEM "Connect...",                  ID_OPC_CONNECT
+        MENUITEM "Disconnect",                  ID_OPC_DISCONNECT
+        MENUITEM "Server Status...",            ID_OPC_SERVERSTATUS
+        MENUITEM SEPARATOR
+        MENUITEM "Group Parameters...",         ID_OPC_GROUPPARAMETERS
+        MENUITEM SEPARATOR
+        MENUITEM "Add Item...",                 ID_OPC_ADDITEM
+        MENUITEM "Item Properties...",          ID_OPC_ITEMPARAMETERS
+        MENUITEM "Write Value to Item...",      ID_OPC_WRITEVALUETOITEM
+        MENUITEM "Read Item",                   ID_OPC_READITEM
+        MENUITEM "Refresh",                     ID_OPC_REFRESH
+        MENUITEM "Remove Item",                 ID_OPC_REMOVEITEM
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About OPC Client...",        ID_APP_ABOUT
+    END
+END
+
+IDR_ITEM_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "OPC"
+    BEGIN
+        MENUITEM "Item Properties...",          ID_OPC_ITEMPARAMETERS
+        MENUITEM "Item Attributes...",          ID_OPC_ITEMATTRIBUTES
+        MENUITEM "Write Value to Item...",      ID_OPC_WRITEVALUETOITEM
+        MENUITEM "Read Item",                   ID_OPC_READITEM
+        MENUITEM "Refresh",                     ID_OPC_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "Remove Item",                 ID_OPC_REMOVEITEM
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 191, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About FactorySoft OPC Client"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20,WS_BORDER
+    LTEXT           "OPC Client Version 2.01",IDC_STATIC,40,14,90,8,
+                    SS_NOPREFIX
+    DEFPUSHBUTTON   "OK",IDOK,152,7,32,14,WS_GROUP
+    LTEXT           "Copyright © 1998, FactorySoft Inc. All Rights Reserved",
+                    IDC_STATIC,7,75,177,8
+    LTEXT           "FactorySoft, Inc.",IDC_STATIC,40,33,144,8,SS_NOPREFIX
+    LTEXT           "Web:  www.factorysoft.com.",IDC_STATIC,40,42,144,8,
+                    SS_NOPREFIX
+    LTEXT           "Email: info@factorysoft.com",IDC_STATIC,40,51,144,8,
+                    SS_NOPREFIX
+    LTEXT           "Tel: (508) 337-6600",IDC_STATIC,40,60,144,8,SS_NOPREFIX
+END
+
+IDD_ADD_ITEM DIALOGEX 0, 0, 269, 197
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Item"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_ITEMID,51,24,143,14,ES_AUTOHSCROLL
+    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
+                    WS_BORDER | WS_TABSTOP,7,57,155,87,WS_EX_CLIENTEDGE
+    LISTBOX         IDC_TAGS,166,57,96,87,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_FILTER,115,42,47,12,ES_AUTOHSCROLL
+    CONTROL         "Use native type",IDC_NATIVE,"Button",BS_AUTORADIOBUTTON,
+                    13,155,70,10
+    CONTROL         "Bool",IDC_BOOL,"Button",BS_AUTORADIOBUTTON,13,165,70,10
+    CONTROL         "Short",IDC_SHORT,"Button",BS_AUTORADIOBUTTON,13,175,70,
+                    10
+    CONTROL         "Long",IDC_LONG,"Button",BS_AUTORADIOBUTTON,118,155,70,
+                    10
+    CONTROL         "Double",IDC_DOUBLE,"Button",BS_AUTORADIOBUTTON,118,165,
+                    70,10
+    CONTROL         "String",IDC_STRING,"Button",BS_AUTORADIOBUTTON,118,175,
+                    70,10
+    DEFPUSHBUTTON   "&Add Item",ID_ADDITEM,212,7,50,14
+    PUSHBUTTON      "&Done",IDCANCEL,212,24,50,14
+    EDITTEXT        IDC_ACCESS_PATH,51,7,144,14,ES_AUTOHSCROLL
+    LTEXT           "Access Path",IDC_STATIC,7,7,44,8
+    LTEXT           "Item Name",IDC_STATIC,7,24,41,8
+    LTEXT           "Browse items:",IDC_STATIC,7,44,55,9
+    GROUPBOX        "Data Type",IDC_STATIC,7,145,255,45
+    LTEXT           "Filter:",IDC_STATIC,94,44,18,9
+    LISTBOX         IDC_FLAT,7,57,255,87,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Item Properties...",ID_OPC_ITEMPARAMETERS,193,41,69,14
+END
+
+IDD_STATUS DIALOG DISCARDABLE  0, 0, 222, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Server Status"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,165,7,50,14
+    EDITTEXT        IDC_START_TIME,50,19,95,12,ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Start",IDC_STATIC,15,21,30,8
+    GROUPBOX        "Time",IDC_STATIC,7,7,145,60
+    EDITTEXT        IDC_LAST_TIME,50,34,95,12,ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Last",IDC_STATIC,15,36,30,8
+    EDITTEXT        IDC_CURRENT_TIME,50,49,95,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    RTEXT           "Current",IDC_STATIC,15,51,30,8
+    EDITTEXT        IDC_GROUPS,50,89,18,12,ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Groups",IDC_STATIC,7,91,38,8
+    EDITTEXT        IDC_BANDWIDTH,50,104,18,12,ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "Bandwidth",IDC_STATIC,7,106,38,8
+    LTEXT           "%",IDC_STATIC,70,106,8,8
+    LTEXT           "",IDC_STATUS,7,73,208,8
+END
+
+IDD_OPC_SERVER DIALOG DISCARDABLE  0, 0, 201, 177
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select OPC Server"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_SERVER,7,18,127,13,ES_AUTOHSCROLL
+    COMBOBOX        IDC_NODE,7,56,127,111,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Refresh List",IDC_REFRESH,144,55,50,14
+    CONTROL         "1.0",IDC_SERVERS10,"Button",BS_AUTORADIOBUTTON | 
+                    BS_NOTIFY | WS_GROUP,109,76,25,10
+    CONTROL         "2.0",IDC_SERVERS20,"Button",BS_AUTORADIOBUTTON | 
+                    BS_NOTIFY,134,76,25,10
+    LISTBOX         IDC_SERVER_LIST,7,87,187,83,LBS_SORT | WS_VSCROLL | 
+                    WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,144,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,144,24,50,14
+    LTEXT           "Server Node (""\\\\server"" or ""server"" or ""www.server.com"")",
+                    IDC_STATIC,7,46,187,8
+    LTEXT           "Server Name",IDC_STATIC,7,7,127,8
+    LTEXT           "Available servers",IDC_STATIC,7,77,94,8
+END
+
+IDD_GROUP_PARAMS DIALOG DISCARDABLE  0, 0, 185, 93
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Group Parameters"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_NAME,57,7,39,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RATE,57,20,39,12,ES_AUTOHSCROLL
+    CONTROL         "Active",IDC_ACTIVE,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | BS_LEFT | WS_TABSTOP,7,34,58,10
+    EDITTEXT        IDC_DEADBAND,57,46,39,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,128,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,128,24,50,14
+    PUSHBUTTON      "Apply",IDAPPLY,128,45,50,14
+    LTEXT           "Update Rate",IDC_STATIC,7,22,43,8
+    LTEXT           "Deadband",IDC_STATIC,7,48,43,8
+    LTEXT           "Name",IDC_STATIC,7,9,43,9
+    LTEXT           "Time Bias",IDC_STATIC,7,61,43,8
+    LTEXT           "LocalID",IDC_STATIC,7,74,43,8
+    EDITTEXT        IDC_TIMEBIAS,57,59,39,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LCID,57,72,39,12,ES_AUTOHSCROLL
+    LTEXT           "mSec",IDC_STATIC,97,22,19,8
+    LTEXT           "% FS",IDC_STATIC,98,48,17,8
+    LTEXT           "Minutes",IDC_STATIC,98,61,24,8
+END
+
+IDD_WRITE_ITEM DIALOG DISCARDABLE  0, 0, 151, 45
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Write Value  to "
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_VALUE,7,7,77,14,ES_AUTOHSCROLL
+    CONTROL         "Asyncronous",IDC_ASYNC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,24,55,10
+    DEFPUSHBUTTON   "OK",IDOK,94,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,94,24,50,14
+END
+
+IDD_ITEM_PARAMS DIALOG DISCARDABLE  0, 0, 187, 114
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Item Attributes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,130,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,130,24,50,14
+    LTEXT           "ItemID",IDC_ITEMID,7,7,118,8
+    LTEXT           "Access Path",IDC_ACCESS_PATH,7,17,118,8
+    LTEXT           "Client Handle = %x",IDC_CLIENT_HANDLE,7,39,118,8
+    LTEXT           "Server Handle = %x",IDC_SERVER_HANDLE,7,49,118,8
+    LTEXT           "Access Rights",IDC_ACCESS_RIGHTS,7,59,118,8
+    LTEXT           "Requested Data Type: %s",IDC_REQUESTED_DATA,7,69,173,8
+    LTEXT           "Native Data Type: %s",IDC_NATIVE_DATA,7,79,173,8
+    CONTROL         "Active",IDC_ACTIVE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,27,118,10
+    LTEXT           "EU Type: %s",IDC_EU_TYPE,7,89,173,8
+    LTEXT           "",IDC_EU_VALUE,7,99,173,8
+END
+
+IDD_ITEM_QUERY_PROPERTIES DIALOG DISCARDABLE  0, 0, 240, 194
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Item Properties for "
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Close",IDCANCEL,121,172,42,14
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,7,226,157
+    PUSHBUTTON      "Refresh",IDC_REFRESH,60,172,42,14
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,0,0
+ PRODUCTVERSION 2,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "FactorySoft, Inc.\0"
+            VALUE "FileDescription", "OPC CLIENT COM Interface sample\0"
+            VALUE "FileVersion", "2, 0, 0, 0\0"
+            VALUE "InternalName", "OPC CLIENT\0"
+            VALUE "LegalCopyright", "Copyright © 1996-1998\0"
+            VALUE "OriginalFilename", "OPC CLIENT.EXE\0"
+            VALUE "ProductName", "OPC CLIENT Application\0"
+            VALUE "ProductVersion", "2, 0, 0, 0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        VERTGUIDE, 40
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_ADD_ITEM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 262
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 190
+        HORZGUIDE, 48
+        HORZGUIDE, 57
+        HORZGUIDE, 160
+        HORZGUIDE, 170
+        HORZGUIDE, 180
+    END
+
+    IDD_STATUS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        VERTGUIDE, 45
+        VERTGUIDE, 50
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+        HORZGUIDE, 25
+        HORZGUIDE, 40
+        HORZGUIDE, 55
+        HORZGUIDE, 95
+        HORZGUIDE, 110
+    END
+
+    IDD_OPC_SERVER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 194
+        VERTGUIDE, 134
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
+        HORZGUIDE, 81
+    END
+
+    IDD_GROUP_PARAMS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        VERTGUIDE, 50
+        VERTGUIDE, 57
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+        HORZGUIDE, 13
+        HORZGUIDE, 26
+        HORZGUIDE, 39
+        HORZGUIDE, 52
+        HORZGUIDE, 65
+        HORZGUIDE, 78
+    END
+
+    IDD_WRITE_ITEM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 144
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 38
+    END
+
+    IDD_ITEM_PARAMS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        VERTGUIDE, 125
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_ITEM_QUERY_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 186
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "FactorySoft OPC Client\n\nOPCCli\n\n\nOPCClient.Document\nOPCCli Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "FactorySoft OPC Client"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_OPC_CONNECT          "Select an installed OPC server to connect\nConnect"
+    ID_OPC_DISCONNECT       "Disconnect from this OPC server, Releasing all interfaces\nDisconnect"
+    ID_OPC_SERVERSTATUS     "Display OPC Server status\nStatus"
+    ID_OPC_GROUPPARAMETERS  "View/Modify OPC group parameters\nGroup Parameters"
+    ID_OPC_ADDITEM          "Add an item to the OPC Server\nAdd Item"
+    ID_OPC_WRITEVALUETOITEM "Write value to this item\nWrite Item"
+    ID_OPC_ITEMPARAMETERS   "View OPC Item Properties\nItem Properties"
+    ID_OPC_READITEM         "Perform an ASynchronous read on this item\nRead Item"
+    ID_OPC_REFRESH          "Perform an Asynchronous Refresh"
+    IDS_CONNECT_ERROR       "Error connecting to OPC server '%s' \n"
+    ID_OPC_REMOVEITEM       "Remove this Item\nRemove"
+    ID_OPC_ITEMATTRIBUTES   "View/Modify OPC Item Attributes\nItem Attributes"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\OPC Client.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

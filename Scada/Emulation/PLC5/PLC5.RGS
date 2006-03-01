@@ -1,0 +1,11 @@
+HKCR
+{
+  NoRemove AppID
+  {
+    {EE3EC3B0-1866-4C37-9F37-E66D9BD8881F} = s 'PLC5'
+    'PLC5.EXE'
+    {
+      val AppID = s {EE3EC3B0-1866-4C37-9F37-E66D9BD8881F}
+    }
+  }
+}

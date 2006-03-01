@@ -1,0 +1,27 @@
+HKCR
+{
+  FactorySoft.InProc.1 = s 'InProc OPC Server'
+  {
+    CLSID = s '{4F5FB8C9-456E-11d0-9F7C-00609724420C}'
+  }
+  FactorySoft.InProc = s 'InProc OPC Server'
+  {
+    CLSID = s '{4F5FB8C9-456E-11d0-9F7C-00609724420C}'
+    OPC
+    {
+        Vendor = s 'FactorySoft, Inc.'
+    }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {4F5FB8C9-456E-11d0-9F7C-00609724420C} = s 'InProc OPC Server'
+    {
+      ProgID = s 'FactorySoft.InProc.1'
+      VersionIndependentProgID = s 'FactorySoft.InProc'
+      InprocServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+}

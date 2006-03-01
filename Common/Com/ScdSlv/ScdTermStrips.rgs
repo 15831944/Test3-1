@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.TermStrips.1 = s 'ScdTermStrips Class'
+	{
+		CLSID = s '{9DD5CBD4-8C0F-4C42-82A9-5CB3C38D3958}'
+	}
+	SysCAD.TermStrips = s 'ScdTermStrips Class'
+	{
+		CLSID = s '{9DD5CBD4-8C0F-4C42-82A9-5CB3C38D3958}'
+		CurVer = s 'SysCAD.TermStrips.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {9DD5CBD4-8C0F-4C42-82A9-5CB3C38D3958} = s 'ScdTermStrips Class'
+		{
+			ProgID = s 'SysCAD.TermStrips.1'
+			VersionIndependentProgID = s 'SysCAD.TermStrips'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

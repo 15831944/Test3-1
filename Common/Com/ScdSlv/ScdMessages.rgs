@@ -1,0 +1,26 @@
+HKCR
+{
+	SysCAD.Messages.1 = s 'ScdMessages Class'
+	{
+		CLSID = s '{7D916AF7-E05D-4D62-A19A-078752183055}'
+	}
+	SysCAD.Messages = s 'ScdMessages Class'
+	{
+		CLSID = s '{7D916AF7-E05D-4D62-A19A-078752183055}'
+		CurVer = s 'SysCAD.Messages.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {7D916AF7-E05D-4D62-A19A-078752183055} = s 'ScdMessages Class'
+		{
+			ProgID = s 'SysCAD.Messages.1'
+			VersionIndependentProgID = s 'SysCAD.Messages'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{9BFC155B-7E7A-4A3A-8C58-14203C0F1E01}'
+		}
+	}
+}

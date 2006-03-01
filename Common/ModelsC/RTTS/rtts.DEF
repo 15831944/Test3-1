@@ -1,0 +1,7 @@
+; RTTS.def : Declares the module parameters for the DLL.
+
+LIBRARY      RTTS
+DESCRIPTION  'RTTS Windows Dynamic Link Library for SysCAD'
+
+EXPORTS
+    ; Explicit exports can go here
