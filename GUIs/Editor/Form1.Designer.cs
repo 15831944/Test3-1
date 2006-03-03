@@ -485,7 +485,7 @@ namespace SysCAD.Editor
             selectionSelectArrowsBarButtonCommand});
       controlDockableToolBar.Active = true;
       controlDockableToolBar.DockedColumn = 253;
-      controlDockableToolBar.DockedRow = 1;
+      controlDockableToolBar.DockedRow = 0;
       mainMenuMenuBar.Active = true;
       fileSaveBarButtonLink.BeginAGroup = true;
       filePrintBarButtonLink.BeginAGroup = true;
