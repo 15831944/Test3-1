@@ -19,6 +19,7 @@ namespace StencilEditor
     SizeF defaultSize = new SizeF(10.0F, 10.0F);
     String groupName;
 
+    Box canvas;
     Box example;
 
     public Form1()
@@ -33,28 +34,34 @@ namespace StencilEditor
 
       flowChart1.DocExtents = new RectangleF(-25.0F, -25.0F, 150.0F, 150.0F);
 
-      Box canvas = flowChart1.CreateBox(1.5F, 1.5F, 100.0F, 100.0F);
+      canvas = flowChart1.CreateBox(1.5F, 1.5F, 100.0F, 100.0F);
       canvas.ZBottom();
       canvas.CustomDraw = CustomDraw.ShadowOnly;
-      canvas.FillColor = Color.FromArgb(40, canvas.FillColor);
+      canvas.FillColor = Color.FromArgb(30, Color.Black);
+      canvas.FrameColor = Color.FromArgb(50, Color.Black);
       canvas.Style = BoxStyle.Shape;
       canvas.Shape = ShapeTemplate.FromId("Rectangle");
       canvas.Locked = true;
+
+      example = flowChart1.CreateBox(1.5F, 1.5F, 100.0F, 100.0F);
+      example.CustomDraw = CustomDraw.ShadowOnly;
+      example.FillColor = Color.FromArgb(100, Color.Blue);
+      example.FrameColor = Color.FromArgb(150, Color.Green);
+      example.Style = BoxStyle.Shape;
+      example.Locked = true;
 
       Box tl = flowChart1.CreateBox(2.5F, 2.5F, 0.000001F, 0.000001F);
       Box tr = flowChart1.CreateBox(102.5F, 2.5F, 0.000001F, 0.000001F);
       Box br = flowChart1.CreateBox(102.5F, 102.5F, 0.000001F, 0.000001F);
       Box bl = flowChart1.CreateBox(2.5F, 102.5F, 0.000001F, 0.000001F);
 
+      flowChart1.ArrowColor = Color.FromKnownColor(KnownColor.Red);
+
       elementList.AddLast(flowChart1.CreateArrow(tl, tr));
       elementList.AddLast(flowChart1.CreateArrow(tr, br));
       elementList.AddLast(flowChart1.CreateArrow(br, bl));
       elementList.AddLast(flowChart1.CreateArrow(bl, tl));
 
-      example = flowChart1.CreateBox(1.5F, 1.5F, 100.0F, 100.0F);
-      example.CustomDraw = CustomDraw.ShadowOnly;
-      example.Style = BoxStyle.Shape;
-      example.Locked = true;
       SetShape();
 
       flowChart1.ZoomToRect(new RectangleF(-25.0F, -25.0F, 150.0F, 150.0F));
@@ -242,6 +249,8 @@ namespace StencilEditor
 
       flowChart1.ArrowStyle = contextArrow.Style;
       Arrow newArrow = flowChart1.CreateArrow(newBox, destinationBox);
+      newArrow.FrameColor = Color.FromKnownColor(KnownColor.Red);
+      
       elementList.AddAfter(elementList.Find(contextArrow), newArrow);
 
       ReshapeArrow(contextArrow, originBox.BoundingRect, newBox.BoundingRect);
@@ -316,15 +325,45 @@ namespace StencilEditor
     public void InsertDecorationLine(object sender, EventArgs e)
     {
       flowChart1.ArrowStyle = ArrowStyle.Polyline;
-      decorationList.AddLast(flowChart1.CreateArrow(new PointF(10.0F, 10.0F), new PointF(20.0F, 20.0F)));
+      Arrow newArrow = flowChart1.CreateArrow(new PointF(10.0F, 10.0F), new PointF(20.0F, 20.0F));
+      decorationList.AddLast(newArrow);
+      newArrow.FrameColor = Color.FromKnownColor(KnownColor.Green);
       SetShape();
     }
 
     public void InsertDecorationBezier(object sender, EventArgs e)
     {
       flowChart1.ArrowStyle = ArrowStyle.Bezier;
-      decorationList.AddLast(flowChart1.CreateArrow(new PointF(10.0F, 10.0F), new PointF(20.0F, 20.0F)));
+      Arrow newArrow = flowChart1.CreateArrow(new PointF(10.0F, 10.0F), new PointF(20.0F, 20.0F));
+      decorationList.AddLast(newArrow);
+      newArrow.FrameColor = Color.FromKnownColor(KnownColor.Green);
       SetShape();
+    }
+
+    private void toolStripButton1_Click(object sender, EventArgs e)
+    {
+      foreach (Arrow arrow in elementList)
+      {
+        arrow.Visible = toolStripButton1.Checked;
+      }
+    }
+
+    private void toolStripButton2_Click(object sender, EventArgs e)
+    {
+      foreach (Arrow arrow in decorationList)
+      {
+        arrow.Visible = toolStripButton2.Checked;
+      }
+    }
+
+    private void toolStripButton3_Click(object sender, EventArgs e)
+    {
+      example.Visible = toolStripButton3.Checked;
+    }
+
+    private void toolStripButton4_Click(object sender, EventArgs e)
+    {
+      canvas.Visible = toolStripButton4.Checked;
     }
   }
 }
