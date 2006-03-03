@@ -12,26 +12,20 @@ using SysCAD.Interface;
 
 namespace SysCAD.Editor
 {
-  public struct ItemBox
-  {
-    public Box modelBox;
-    public Box graphicBox;
-
-    public ItemBox(Box modelBox, Box graphicBox)
-    {
-      this.modelBox = modelBox;
-      this.graphicBox = graphicBox;
-    }
-  }
-
-  //---------------------------------------------------------
-
   public partial class FrmFlowChart : Form
   {
-    private Dictionary<string, ItemBox> itemBoxes;
+    public Dictionary<string, ItemBox> itemBoxes;
 
     private Graphic graphic;
     private Config config;
+
+    public bool ShowModels = false;
+    public bool ShowGraphics = true;
+    public bool ShowTag = true;
+    public bool ShowArrows = true;
+
+    public bool SelectArrows = false;
+    public bool SelectItems = true;
 
     public FrmFlowChart()
     {
@@ -46,7 +40,7 @@ namespace SysCAD.Editor
     internal void SetProject(Graphic graphic, Config config)
     {
       this.graphic = graphic;
-      graphic.ItemModified += new Graphic.ItemModifiedHandler(graphic_ItemModified);
+      //graphic.ItemModified += new Graphic.ItemModifiedHandler(graphic_ItemModified);
 
       this.config = config;
 
@@ -77,8 +71,7 @@ namespace SysCAD.Editor
 
         modelBox.FillColor = System.Drawing.Color.BurlyWood;
         modelBox.FrameColor = System.Drawing.Color.BurlyWood;
-        modelBox.Visible = false;
-        modelBox.ZIndex = 1;
+        modelBox.Visible = ShowModels;
 
         graphicBox = fcFlowChart.CreateBox(item.x, item.y, item.width, item.height);
         graphicBox.Text = item.tag;
@@ -87,27 +80,26 @@ namespace SysCAD.Editor
         GraphicStencil tempGraphicStencil;
         if (config.graphicStencils.TryGetValue(item.shape, out tempGraphicStencil))
           graphicBox.Shape = tempGraphicStencil.ShapeTemplate();
-        graphicBox.ZIndex = 0;
         graphicBox.AttachTo(modelBox, -50, -50, 150, 150);
         graphicBox.EnabledHandles = Handles.None;
         graphicBox.HandlesStyle = HandlesStyle.Invisible;
-        graphicBox.Visible = false;
+        graphicBox.Visible = ShowGraphics;
 
-        graphicBox.ZTop();
+        graphicBox.ZBottom();
         modelBox.ZTop();
 
-        itemBoxes.Add(item.tag, new ItemBox(modelBox, graphicBox));
+        itemBoxes.Add(item.tag, new ItemBox(modelBox, graphicBox, true));
       }
 
       foreach (Link link in graphic.links.Values)
       {
-        Box boxOrigin = itemBoxes[link.src].modelBox;
-        Box boxDestination = itemBoxes[link.dst].modelBox;
+        Box boxOrigin = itemBoxes[link.src].ModelBox;
+        Box boxDestination = itemBoxes[link.dst].ModelBox;
 
-        Arrow arrowOrigin = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
-        arrowOrigin.ArrowHead = ArrowHead.Triangle;
-        arrowOrigin.Style = ArrowStyle.Cascading;
-        arrowOrigin.Visible = false;
+        Arrow arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
+        arrow.ArrowHead = ArrowHead.Triangle;
+        arrow.Style = ArrowStyle.Cascading;
+        arrow.Visible = ShowArrows;
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -202,22 +194,24 @@ namespace SysCAD.Editor
 
     internal void SetVisible(string tag, bool visible)
     {
-      itemBoxes[tag].graphicBox.Visible = visible;
+      itemBoxes[tag].Visible = visible;
+      itemBoxes[tag].ModelBox.Visible = visible && (itemBoxes[tag].ModelBox.Selected || ShowModels);
+      itemBoxes[tag].GraphicBox.Visible = visible && ShowGraphics;
 
-      foreach (Arrow arrowDestination in itemBoxes[tag].modelBox.IncomingArrows)
+      foreach (Arrow arrowDestination in itemBoxes[tag].ModelBox.IncomingArrows)
       {
-        arrowDestination.Visible = visible;
+        arrowDestination.Visible = visible && ShowArrows;
       }
 
-      foreach (Arrow arrowOrigin in itemBoxes[tag].modelBox.OutgoingArrows)
+      foreach (Arrow arrowOrigin in itemBoxes[tag].ModelBox.OutgoingArrows)
       {
-        arrowOrigin.Visible = visible;
+        arrowOrigin.Visible = visible && ShowArrows;
       }
     }
 
     internal void SetSelected(string tag, bool selected)
     {
-      itemBoxes[tag].modelBox.Selected = selected;
+      itemBoxes[tag].ModelBox.Selected = selected;
     }
 
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
@@ -248,13 +242,13 @@ namespace SysCAD.Editor
     {
       PointCollection controlPoints = e.Arrow.ControlPoints.Clone();
 
-      if (e.Arrow.Origin is DummyNode)
+      if (savedOrigin != null)
       {
         e.Arrow.Origin = savedOrigin;
         e.Arrow.OrgnAnchor = savedOriginAnchor;
       }
 
-      if (e.Arrow.Destination is DummyNode)
+      if (savedDestination != null)
       {
         e.Arrow.Destination = savedDestination;
         e.Arrow.DestAnchor = savedDestinationAnchor;
@@ -270,62 +264,164 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowModifying(object sender, ArrowMouseArgs e)
     {
-      savedOrigin = e.Arrow.Origin;
-      savedDestination = e.Arrow.Destination;
-      savedOriginAnchor = e.Arrow.OrgnAnchor;
-      savedDestinationAnchor = e.Arrow.DestAnchor;
+      savedOrigin = null;
+      savedDestination = null;
+
+      Box originBox = (e.Arrow.Origin as Box);
+      if (originBox != null)
+      {
+        ItemBox originItemBox = itemBoxes[originBox.Text];
+        if (originItemBox != null)
+        {
+          savedOrigin = originItemBox.ModelBox;
+          savedOriginAnchor = e.Arrow.OrgnAnchor;
+        }
+      }
+
+      Box destinationBox = (e.Arrow.Destination as Box);
+      if (destinationBox != null)
+      {
+        ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
+        if (destinationItemBox != null)
+        {
+          savedDestination = destinationItemBox.ModelBox;
+          savedDestinationAnchor = e.Arrow.DestAnchor;
+        }
+      }
     }
 
-    private Box visibleBox = null;
-    private Arrow visibleArrow = null;
+    private ItemBox oldHoverItemBox = null;
+    private Arrow oldHoverArrow = null;
 
-    private void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
+    public void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
     {
-      Box box = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
-      if (box != null)
+      SuspendLayout();
+
+      Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
+      ItemBox hoverItemBox = null;
+      if (hoverBox != null)
+        hoverItemBox = itemBoxes[hoverBox.Text];
+
+      Arrow hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 1);
+
+
+      if (oldHoverItemBox != null) // deal with old itemBox.
       {
-        box = itemBoxes[box.Text].modelBox; // Deal with the modelbox, not the graphicbox.
-        if ((visibleBox != null) && (visibleBox != box)) // we've just moved away from something, hide it.
+        if (oldHoverItemBox == hoverItemBox) // nothings changed.
+          return;
+        else // we've moved on, un-hover the old one.
         {
-          visibleBox.Visible = false;
+          oldHoverItemBox.GraphicBox.ZBottom();
+          oldHoverItemBox.GraphicBox.Visible = ShowGraphics;
+          oldHoverItemBox.ModelBox.ZTop();
+          oldHoverItemBox.ModelBox.Visible = oldHoverItemBox.ModelBox.Selected || ShowModels;
+
+          foreach (Arrow arrow in oldHoverItemBox.IncomingArrows)
+          {
+            arrow.ZTop();
+            arrow.Visible = ShowArrows;
+          }
+
+          foreach (Arrow arrow in oldHoverItemBox.OutgoingArrows)
+          {
+            arrow.ZTop();
+            arrow.Visible = ShowArrows;
+          }
         }
-        else if (visibleBox == null)
-        {
-          box.ZTop();
-          box.Visible = true;
-          visibleBox = box;
-        }
-      }
-      else if (visibleBox != null)
-      {
-        visibleBox.Visible = false;
-        visibleBox = null;
       }
 
-      Arrow arrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 1);
-      if (arrow != null)
+      if (oldHoverArrow != null) // deal with old arrow.
       {
-        if ((visibleArrow != null) && (visibleArrow != arrow)) // we've just moved away from something, hide it.
+        if (oldHoverArrow == hoverArrow) // nothings changed...
+          return;
+        else
         {
-          visibleArrow.Destination.Visible = false;
-          visibleArrow.Origin.Visible = false;
+          Box originBox = (oldHoverArrow.Origin as Box);
+          if (originBox != null)
+          {
+            ItemBox originItemBox = itemBoxes[originBox.Text];
+            if (originItemBox != null)
+            {
+              originItemBox.GraphicBox.ZBottom();
+              originItemBox.GraphicBox.Visible = ShowGraphics;
+              originItemBox.ModelBox.ZTop();
+              originItemBox.ModelBox.Visible = originItemBox.ModelBox.Selected || ShowModels;
+            }
+          }
+
+          Box destinationBox = (oldHoverArrow.Destination as Box);
+          if (destinationBox != null)
+          {
+            ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
+            if (destinationItemBox != null)
+            {
+              destinationItemBox.GraphicBox.ZBottom();
+              destinationItemBox.GraphicBox.Visible = ShowGraphics;
+              destinationItemBox.ModelBox.ZTop();
+              destinationItemBox.ModelBox.Visible = destinationItemBox.ModelBox.Selected || ShowModels;
+            }
+          }
         }
-        else if (visibleBox == null)
+
+        oldHoverArrow.ZTop();
+        oldHoverArrow.Visible = ShowArrows;
+      }
+
+      if (hoverItemBox != null)
+      {
+        hoverItemBox.GraphicBox.ZBottom();
+        hoverItemBox.GraphicBox.Visible = true;
+        hoverItemBox.ModelBox.ZTop();
+        hoverItemBox.ModelBox.Visible = true;
+
+        foreach (Arrow arrow in hoverItemBox.IncomingArrows)
         {
           arrow.ZTop();
-          arrow.Destination.ZTop();
-          arrow.Origin.ZTop();
-          arrow.Destination.Visible = true;
-          arrow.Origin.Visible = true;
-          visibleArrow = arrow;
+          arrow.Visible = true;
+        }
+
+        foreach (Arrow arrow in hoverItemBox.OutgoingArrows)
+        {
+          arrow.ZTop();
+          arrow.Visible = true;
         }
       }
-      else if (visibleArrow != null)
+      else if (hoverArrow != null)
       {
-        visibleArrow.Destination.Visible = false;
-        visibleArrow.Origin.Visible = false;
-        visibleArrow = null;
+        Box originBox = (hoverArrow.Origin as Box);
+        if (originBox != null)
+        {
+          ItemBox originItemBox = itemBoxes[originBox.Text];
+          if (originItemBox != null)
+          {
+            originItemBox.GraphicBox.ZBottom();
+            originItemBox.GraphicBox.Visible = true;
+            originItemBox.ModelBox.ZTop();
+            originItemBox.ModelBox.Visible = true;
+          }
+        }
+
+        Box destinationBox = (hoverArrow.Destination as Box);
+        if (destinationBox != null)
+        {
+          ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
+          if (destinationItemBox != null)
+          {
+            destinationItemBox.GraphicBox.ZBottom();
+            destinationItemBox.GraphicBox.Visible = true;
+            destinationItemBox.ModelBox.ZTop();
+            destinationItemBox.ModelBox.Visible = true;
+          }
+        }
+
+        hoverArrow.ZTop();
+        hoverArrow.Visible = true;
       }
+
+      oldHoverItemBox = hoverItemBox;
+      oldHoverArrow = hoverArrow;
+
+      ResumeLayout(false);
     }
 
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
@@ -379,23 +475,70 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
-      Box graphicBox = itemBoxes[e.Box.Text].graphicBox;
+      Box graphicBox = itemBoxes[e.Box.Text].GraphicBox;
       graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect);
     }
 
     private void graphic_ItemModified(string tag, RectangleF boundingRect)
     {
-      Box graphicBox = itemBoxes[tag].graphicBox;
-      Box modelBox = itemBoxes[tag].modelBox;
+      Box graphicBox = itemBoxes[tag].GraphicBox;
+      Box modelBox = itemBoxes[tag].ModelBox;
 
       graphicBox.BoundingRect = boundingRect;
       modelBox.BoundingRect = new RectangleF(boundingRect.X + boundingRect.Width * 0.25F, 
         boundingRect.Y + boundingRect.Height * 0.25F,
         boundingRect.Width * 0.5F, boundingRect.Height * 0.5F);
 
-      graphicBox.ZTop();
+      graphicBox.ZBottom();
       modelBox.ZTop();
 
     }
   }
+
+  //---------------------------------------
+
+  public class ItemBox
+  {
+    private Box modelBox;
+    private Box graphicBox;
+    private bool visible;
+
+    public Box ModelBox
+    {
+      get { return modelBox; }
+      set { modelBox = value; }
+    }
+
+    public Box GraphicBox
+    {
+      get { return graphicBox; }
+      set { graphicBox = value; }
+    }
+
+    public bool Visible
+    {
+      get { return visible; }
+      set { visible = value; }
+    }
+
+    public ArrowCollection IncomingArrows
+    {
+      get { return modelBox.IncomingArrows; }
+    }
+
+    public ArrowCollection OutgoingArrows
+    {
+      get { return modelBox.OutgoingArrows; }
+    }
+
+    public ItemBox(Box modelBox, Box graphicBox, bool visible)
+    {
+      this.modelBox = modelBox;
+      this.graphicBox = graphicBox;
+      this.visible = visible;
+    }
+  }
+
+  //---------------------------------------------------------
+
 }

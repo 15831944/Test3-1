@@ -21,27 +21,29 @@ namespace SysCAD.Service
     [STAThread]
     static void Main(string[] args) 
     {
-      BinaryClientFormatterSinkProvider clientProvider = null;
-      BinaryServerFormatterSinkProvider serverProvider = new BinaryServerFormatterSinkProvider();
-      serverProvider.TypeFilterLevel = TypeFilterLevel.Full;
+      //BinaryClientFormatterSinkProvider clientProvider = null;
+      //BinaryServerFormatterSinkProvider serverProvider = new BinaryServerFormatterSinkProvider();
+      //serverProvider.TypeFilterLevel = TypeFilterLevel.Full;
 
-      IDictionary ipcProps = new Hashtable();
-      ipcProps["portName"] = "SysCAD.Service";
-      ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProvider, serverProvider);
+      //IDictionary ipcProps = new Hashtable();
+      //ipcProps["portName"] = "SysCAD.Service";
+      //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+      //IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProvider, serverProvider);
+
+      IpcChannel ipcChannel = new IpcChannel("SysCAD.Service");
       ChannelServices.RegisterChannel(ipcChannel, false);
 
-      IDictionary tcpProps = new Hashtable();
-      tcpProps["port"] = "8065";
-      tcpProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      TcpChannel tcpChannel = new TcpChannel(tcpProps, clientProvider, serverProvider);
-      ChannelServices.RegisterChannel(tcpChannel, false);
+      //IDictionary tcpProps = new Hashtable();
+      //tcpProps["port"] = "8065";
+      //tcpProps["typeFilterLevel"] = TypeFilterLevel.Full;
+      //TcpChannel tcpChannel = new TcpChannel(tcpProps, clientProvider, serverProvider);
+      //ChannelServices.RegisterChannel(tcpChannel, false);
 
-      IDictionary httpProps = new Hashtable();
-      httpProps["port"] = "8066";
-      httpProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      HttpChannel httpChannel = new HttpChannel(httpProps, clientProvider, serverProvider);
-      ChannelServices.RegisterChannel(httpChannel, false);
+      //IDictionary httpProps = new Hashtable();
+      //httpProps["port"] = "8066";
+      //httpProps["typeFilterLevel"] = TypeFilterLevel.Full;
+      //HttpChannel httpChannel = new HttpChannel(httpProps, clientProvider, serverProvider);
+      //ChannelServices.RegisterChannel(httpChannel, false);
 
       ConfigData config = new ConfigData();
 

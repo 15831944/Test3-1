@@ -9,6 +9,7 @@ using System.IO;
 
 using SysCAD.Interface;
 using MindFusion.FlowChartX;
+using ActiproSoftware.UIStudio.Bar;
 
 namespace SysCAD.Editor
 {
@@ -24,6 +25,7 @@ namespace SysCAD.Editor
       PureComponents.TreeView.Licensing.RunTimeLicenseKey = "064F-7C2E-DE50-EC09-2385-CF16-C27A-E74F";
 
       InitializeComponent();
+      SetProjectBasedButtons(false);
 
       try
       {
@@ -34,7 +36,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void barManager1_CommandClick(object sender, ActiproSoftware.UIStudio.Bar.BarCommandLinkEventArgs e)
+    private void barManager1_CommandClick(object sender, BarCommandLinkEventArgs e)
     {
       switch (e.Command.FullName)
       {
@@ -65,6 +67,82 @@ namespace SysCAD.Editor
         case "View.ZoomToVisible":
           this.View_ZoomToVisible();
           break;
+
+        case "View.ShowModels":
+          this.View_ShowModels();
+          break;
+
+        case "View.ShowGraphics":
+          this.View_ShowGraphics();
+          break;
+
+        case "View.ShowArrows":
+          this.View_ShowArrows();
+          break;
+
+        case "Selection.SelectItems":
+          this.View_SelectItems();
+          break;
+
+        case "Selection.SelectArrows":
+          this.View_SelectArrows();
+          break;
+      }
+    }
+
+    private void View_SelectItems()
+    {
+      frmFlowChart.SelectItems = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked;
+
+      if (!frmFlowChart.SelectItems)
+      {
+        foreach (Box box in frmFlowChart.fcFlowChart.Boxes)
+        {
+          box.Selected = false;
+        }
+      }
+    }
+
+    private void View_SelectArrows()
+    {
+      frmFlowChart.SelectArrows = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectArrows"]).Checked;
+
+      if (!frmFlowChart.SelectArrows)
+      {
+        foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+        {
+          arrow.Selected = false;
+        }
+      }
+    }
+
+    private void View_ShowModels()
+    {
+      frmFlowChart.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
+
+      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      {
+        itemBox.ModelBox.Visible = frmFlowChart.ShowModels;
+      }
+    }
+
+    private void View_ShowGraphics()
+    {
+      frmFlowChart.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
+
+      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      {
+        itemBox.GraphicBox.Visible = frmFlowChart.ShowGraphics;
+      }
+    }
+
+    private void View_ShowArrows()
+    {
+      frmFlowChart.ShowArrows = ((IBarCheckableCommand)barManager1.Commands["View.ShowArrows"]).Checked;
+
+      foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+      {
+        arrow.Visible = frmFlowChart.ShowArrows;
       }
     }
 
@@ -88,16 +166,25 @@ namespace SysCAD.Editor
       frmFlowChart.fcFlowChart.ZoomIn();
     }
 
+    private void SetProjectBasedButtons(bool projectExists)
+    {
+      barManager1.Commands["File.PrintPreview"].Enabled = projectExists;
+      barManager1.Commands["File.Print"].Enabled = projectExists;
+      barManager1.Commands["File.Close"].Enabled = projectExists;
+      barManager1.Commands["View.ZoomIn"].Enabled = projectExists;
+      barManager1.Commands["View.ZoomOut"].Enabled = projectExists;
+      barManager1.Commands["View.ZoomToVisible"].Enabled = projectExists;
+      barManager1.Commands["View.ZoomToSelected"].Enabled = projectExists;
+      barManager1.Commands["View.ShowModels"].Enabled = projectExists;
+      barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
+      barManager1.Commands["View.ShowArrows"].Enabled = projectExists;
+
+    }
+
     private void File_CloseProject()
     {
+      SetProjectBasedButtons(false);
       frmFlowChart.Close();
-      barManager1.Commands["File.PrintPreview"].Enabled = false;
-      barManager1.Commands["File.Print"].Enabled = false;
-      barManager1.Commands["File.Close"].Enabled = false;
-      barManager1.Commands["View.ZoomIn"].Enabled = false;
-      barManager1.Commands["View.ZoomOut"].Enabled = false;
-      barManager1.Commands["View.ZoomToVisible"].Enabled = false;
-      barManager1.Commands["View.ZoomToSelected"].Enabled = false;
     }
 
     private void File_OpenProject()
@@ -148,13 +235,7 @@ namespace SysCAD.Editor
         this.Size = new Size(this.Size.Width, this.Size.Height - 1);
       }
 
-      barManager1.Commands["File.PrintPreview"].Enabled = true;
-      barManager1.Commands["File.Print"].Enabled = true;
-      barManager1.Commands["File.Close"].Enabled = true;
-      barManager1.Commands["View.ZoomIn"].Enabled = true;
-      barManager1.Commands["View.ZoomOut"].Enabled = true;
-      barManager1.Commands["View.ZoomToVisible"].Enabled = true;
-      barManager1.Commands["View.ZoomToSelected"].Enabled = true;
+      SetProjectBasedButtons(true);
 
       CustomClass myProperties = new CustomClass();
       propertyGrid1.SelectedObject = myProperties;
@@ -286,25 +367,47 @@ namespace SysCAD.Editor
       this.tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
 
       tvNavigation.ClearSelectedNodes();
-      foreach (Box box in frmFlowChart.fcFlowChart.Boxes)
+
+      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
       {
-        if (box.Selected)
+        if (frmFlowChart.SelectItems)
         {
-          if (box.Tag == null)
+          if (itemBox.GraphicBox.Selected)
           {
-            Box modelBox = frmFlowChart.fcFlowChart.FindBox(box.Text);
-            if (modelBox != null)
-            {
-              modelBox.Selected = true;
-              modelBox.ZTop();
-              tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(modelBox.Text));
-            }
+            itemBox.ModelBox.Selected = true;
+            itemBox.GraphicBox.Selected = false;
+          }
+
+          if (itemBox.ModelBox.Selected)
+          {
+            tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(itemBox.ModelBox.Text));
+            itemBox.GraphicBox.FillColor = Color.FromArgb(50, itemBox.GraphicBox.FillColor);
+            itemBox.GraphicBox.Pen.Color = Color.FromArgb(50, itemBox.GraphicBox.Pen.Color);
+            itemBox.GraphicBox.ShadowColor = Color.FromArgb(50, itemBox.GraphicBox.ShadowColor);
+            itemBox.ModelBox.Visible = true;
+            itemBox.ModelBox.ZTop();
           }
           else
           {
-            box.ZTop();
-            tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(box.Text));
+            itemBox.GraphicBox.FillColor = Color.FromArgb(255, itemBox.GraphicBox.FillColor);
+            itemBox.GraphicBox.Pen.Color = Color.FromArgb(255, itemBox.GraphicBox.Pen.Color);
+            itemBox.GraphicBox.ShadowColor = Color.FromArgb(255, itemBox.GraphicBox.ShadowColor);
+            itemBox.ModelBox.Visible = frmFlowChart.ShowModels;
+            itemBox.ModelBox.ZTop();
           }
+        }
+        else
+        {
+          itemBox.ModelBox.Selected = false;
+          itemBox.GraphicBox.Selected = false;
+        }
+      }
+
+      if (!frmFlowChart.SelectArrows)
+      {
+        foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+        {
+          arrow.Selected = false;
         }
       }
 

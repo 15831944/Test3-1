@@ -65,8 +65,8 @@ namespace SysCAD.Interface
           maxY = item.y + item.height;
       }
 
-      float scaleX = (maxX - minX) / 160.0F;
-      float scaleY = (maxY - minY) / 120.0F;
+      float scaleX = 320.0F / (maxX - minX);
+      float scaleY = 240.0F / (maxY - minY);
 
       float scale;
       if (scaleX > scaleY)
@@ -83,10 +83,10 @@ namespace SysCAD.Interface
         item.y -= minY;
 
         // scale to 0:100
-        item.x /= scale;
-        item.y /= scale;
-        item.width /= scale;
-        item.height /= scale;
+        item.x *= scale;
+        item.y *= scale;
+        item.width *= scale;
+        item.height *= scale;
 
         item.x += dX;
       }

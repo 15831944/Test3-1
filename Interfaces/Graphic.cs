@@ -30,8 +30,8 @@ namespace SysCAD.Interface
       get { return name; }
     }
 
-    string tempTag;
-    RectangleF tempBoundingRect;
+    //string tempTag;
+    //RectangleF tempBoundingRect;
 
     public void ModifyItem(string tag, RectangleF boundingRect)
     {
@@ -43,29 +43,29 @@ namespace SysCAD.Interface
         item.width = boundingRect.Width;
         item.height = boundingRect.Height;
 
-        tempTag = tag;
-        tempBoundingRect = boundingRect;
+        //tempTag = tag;
+        //tempBoundingRect = boundingRect;
 
-        Thread thr = new Thread(new ThreadStart(SendOnItemModified));
-        thr.Start();
+        //Thread thr = new Thread(new ThreadStart(SendOnItemModified));
+        //thr.Start();
       }
     }
 
-    public void SendOnItemModified()
-    {
-      OnItemModified(tempTag, tempBoundingRect);
-    }
+    //public void SendOnItemModified()
+    //{
+    //  OnItemModified(tempTag, tempBoundingRect);
+    //}
 
-    public delegate void ItemModifiedHandler(string tag, RectangleF boundingRect);
-    public ItemModifiedHandler ItemModified;
+    //public delegate void ItemModifiedHandler(string tag, RectangleF boundingRect);
+    //public ItemModifiedHandler ItemModified;
 
-    public void OnItemModified(string tag, RectangleF boundingRect)
-    {
-      if (ItemModified != null)
-      {
-        ItemModified(tag, boundingRect);
-      }
-    }
+    //public void OnItemModified(string tag, RectangleF boundingRect)
+    //{
+    //  if (ItemModified != null)
+    //  {
+    //    ItemModified(tag, boundingRect);
+    //  }
+    //}
 
     public override Object InitializeLifetimeService()
     {
@@ -117,47 +117,47 @@ namespace SysCAD.Interface
       memoryStream.Seek(0, SeekOrigin.Begin);
       ___areas = bf.Deserialize(memoryStream) as Dictionary<string, Area>;
 
-      remoteGraphic.ItemModified += new GraphicData.ItemModifiedHandler(remoteGraphic_ItemModified);
+      //remoteGraphic.ItemModified += new GraphicData.ItemModifiedHandler(remoteGraphic_ItemModified);
     }
 
-    public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect)
-    {
-      Item item;
-      if (items.TryGetValue(tag, out item))
-      {
-        item.x = boundingRect.X;
-        item.y = boundingRect.Y;
-        item.width = boundingRect.Width;
-        item.height = boundingRect.Height;
+    //public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect)
+    //{
+    //  Item item;
+    //  if (items.TryGetValue(tag, out item))
+    //  {
+    //    item.x = boundingRect.X;
+    //    item.y = boundingRect.Y;
+    //    item.width = boundingRect.Width;
+    //    item.height = boundingRect.Height;
 
-        OnItemModified(tag, boundingRect);
-      }
-    }
+    //    OnItemModified(tag, boundingRect);
+    //  }
+    //}
 
-    string tempTag;
-    RectangleF tempBoundingRect;
+    //string tempTag;
+    //RectangleF tempBoundingRect;
 
-    new public void ModifyItem(string tag, RectangleF boundingRect)
-    {
-      Item item;
-      if (items.TryGetValue(tag, out item))
-      {
-        item.x = boundingRect.X;
-        item.y = boundingRect.Y;
-        item.width = boundingRect.Width;
-        item.height = boundingRect.Height;
+    //new public void ModifyItem(string tag, RectangleF boundingRect)
+    //{
+    //  Item item;
+    //  if (items.TryGetValue(tag, out item))
+    //  {
+    //    item.x = boundingRect.X;
+    //    item.y = boundingRect.Y;
+    //    item.width = boundingRect.Width;
+    //    item.height = boundingRect.Height;
 
-        tempTag = tag;
-        tempBoundingRect = boundingRect;
+    //    tempTag = tag;
+    //    tempBoundingRect = boundingRect;
 
-        Thread thr = new Thread(new ThreadStart(SendModifyItem));
-        thr.Start();
-      }
-    }
+    //    Thread thr = new Thread(new ThreadStart(SendModifyItem));
+    //    thr.Start();
+    //  }
+    //}
 
-    public void SendModifyItem()
-    {
-      remoteGraphic.ModifyItem(tempTag, tempBoundingRect);
-    }
+    //public void SendModifyItem()
+    //{
+    //  remoteGraphic.ModifyItem(tempTag, tempBoundingRect);
+    //}
   }
 }

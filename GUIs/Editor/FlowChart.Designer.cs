@@ -30,50 +30,50 @@ namespace SysCAD.Editor
     private void InitializeComponent()
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmFlowChart));
-      this.fcFlowChart = new FlowChart();
+      this.fcFlowChart = new MindFusion.FlowChartX.FlowChart();
       this.SuspendLayout();
       // 
       // fcFlowChart
       // 
       this.fcFlowChart.AllowDrop = true;
       this.fcFlowChart.AllowUnconnectedArrows = true;
-      this.fcFlowChart.ArrowBaseSize = 1.5F;
-      this.fcFlowChart.ArrowBrush = new SolidBrush("#FF000000");
-      this.fcFlowChart.ArrowCrossings = ArrowCrossings.BreakOff;
-      this.fcFlowChart.ArrowHandlesStyle = HandlesStyle.SquareHandles2;
-      this.fcFlowChart.ArrowHead = ArrowHead.None;
-      this.fcFlowChart.ArrowHeadSize = 1.5F;
-      this.fcFlowChart.ArrowIntermSize = 1F;
+      this.fcFlowChart.ArrowBaseSize = 4F;
+      this.fcFlowChart.ArrowBrush = new MindFusion.FlowChartX.SolidBrush("#FF000000");
+      this.fcFlowChart.ArrowCrossings = MindFusion.FlowChartX.ArrowCrossings.BreakOff;
+      this.fcFlowChart.ArrowHandlesStyle = MindFusion.FlowChartX.HandlesStyle.SquareHandles2;
+      this.fcFlowChart.ArrowHead = MindFusion.FlowChartX.ArrowHead.None;
+      this.fcFlowChart.ArrowHeadSize = 4F;
+      this.fcFlowChart.ArrowIntermSize = 2F;
       this.fcFlowChart.ArrowsRetainForm = true;
       this.fcFlowChart.ArrowsSnapToBorders = true;
       this.fcFlowChart.ArrowsSplittable = true;
       this.fcFlowChart.AutoSizeDoc = MindFusion.FlowChartX.AutoSize.AllDirections;
-      this.fcFlowChart.Behavior = BehaviorType.Modify;
-      this.fcFlowChart.BoxCustomDraw = CustomDraw.Additional2;
-      this.fcFlowChart.BoxHandlesStyle = HandlesStyle.HatchHandles2;
+      this.fcFlowChart.Behavior = MindFusion.FlowChartX.BehaviorType.Modify;
+      this.fcFlowChart.BoxCustomDraw = MindFusion.FlowChartX.CustomDraw.Additional2;
+      this.fcFlowChart.BoxHandlesStyle = MindFusion.FlowChartX.HandlesStyle.HatchHandles2;
       this.fcFlowChart.DefaultControlType = typeof(System.Windows.Forms.Button);
       this.fcFlowChart.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("fcFlowChart.DocExtents")));
       this.fcFlowChart.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fcFlowChart.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.fcFlowChart.IntermArrowHead = ArrowHead.Triangle;
+      this.fcFlowChart.IntermArrowHead = MindFusion.FlowChartX.ArrowHead.Triangle;
       this.fcFlowChart.Location = new System.Drawing.Point(0, 0);
       this.fcFlowChart.Name = "fcFlowChart";
       this.fcFlowChart.PrintOptions.EnableShadows = false;
-      this.fcFlowChart.RestrObjsToDoc = RestrictToDoc.NoRestriction;
-      this.fcFlowChart.RoutingOptions.TriggerRerouting = RerouteArrows.WhenIntersectNode;
-      this.fcFlowChart.Size = new System.Drawing.Size(772, 605);
+      this.fcFlowChart.RestrObjsToDoc = MindFusion.FlowChartX.RestrictToDoc.NoRestriction;
+      this.fcFlowChart.RoutingOptions.TriggerRerouting = MindFusion.FlowChartX.RerouteArrows.WhenIntersectNode;
+      //this.fcFlowChart.Size = new System.Drawing.Size(1212, 753);
       this.fcFlowChart.TabIndex = 0;
-      this.fcFlowChart.ArrowModified += new ArrowMouseEvent(this.fcFlowChart_ArrowModified);
+      this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
-      this.fcFlowChart.BoxModified += new BoxMouseEvent(this.fcFlowChart_BoxModified);
-      this.fcFlowChart.DrawBox += new BoxCustomDraw(this.fcFlowChart_DrawBox);
-      this.fcFlowChart.ArrowModifying += new ArrowMouseEvent(this.fcFlowChart_ArrowModifying);
+      this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
+      this.fcFlowChart.DrawBox += new MindFusion.FlowChartX.BoxCustomDraw(this.fcFlowChart_DrawBox);
+      this.fcFlowChart.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModifying);
       // 
       // FrmFlowChart
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(772, 605);
+      //this.ClientSize = new System.Drawing.Size(1212, 753);
       this.Controls.Add(this.fcFlowChart);
       this.Name = "FrmFlowChart";
       this.Text = "FlowChart";

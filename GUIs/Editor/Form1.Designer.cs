@@ -68,6 +68,12 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "ModelType", "ModelType", -1);
       ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "GraphicType", "GraphicType", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand newItemNetItemDragTargetBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("NewItem", "NetItemDragTarget", "Net Item Drag Target", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowGraphicsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowGraphics", "Show Graphics", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowModelsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowModels", "Show Models", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowArrowsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowArrows", "Show Arrows", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand selectionSelectItemsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Selection", "SelectItems", "Select Items", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand selectionSelectArrowsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Selection", "SelectArrows", "Select Arrows", -1);
+      ActiproSoftware.UIStudio.Bar.DockableToolBar controlDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("Control");
       ActiproSoftware.UIStudio.Bar.MenuBar mainMenuMenuBar = new ActiproSoftware.UIStudio.Bar.MenuBar("Main Menu");
       ActiproSoftware.UIStudio.Bar.BarPopupButtonLink newMenuNewMenuBarPopupButtonLink = new ActiproSoftware.UIStudio.Bar.BarPopupButtonLink(newMenuNewMenuBarPopupButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink fileNewBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(fileNewBarButtonCommand);
@@ -93,6 +99,9 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonLink viewZoomOutBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewZoomOutBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink viewZoomToVisibleBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewZoomToVisibleBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink viewZoomToSelectedBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewZoomToSelectedBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowModelsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowModelsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowGraphicsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowGraphicsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowArrowsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowArrowsBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarPopupButtonLink newMenuNewMenuBarPopupButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarPopupButtonLink(newMenuNewMenuBarPopupButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink toolsCustomizeBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(toolsCustomizeBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink toolsOptionsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(toolsOptionsBarButtonCommand);
@@ -127,6 +136,9 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonLink viewZoomOutBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewZoomOutBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink viewZoomToVisibleBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewZoomToVisibleBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink viewZoomToSelectedBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewZoomToSelectedBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowModelsBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowModelsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowGraphicsBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowGraphicsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowArrowsBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowArrowsBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarPopupButtonLink newMenuNewMenuBarPopupButtonLink10 = new ActiproSoftware.UIStudio.Bar.BarPopupButtonLink(newMenuNewMenuBarPopupButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink toolsCustomizeBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(toolsCustomizeBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink toolsOptionsBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(toolsOptionsBarButtonCommand);
@@ -144,6 +156,11 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink newItemNetItemDragTargetBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemNetItemDragTargetBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.DockableToolBar selectionControlDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("SelectionControl");
+      ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectArrowsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectArrowsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectItemsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectItemsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectArrowsBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectArrowsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectItemsBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectItemsBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.DockableToolBar standardDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("Standard");
       ActiproSoftware.UIStudio.Bar.BarButtonLink editCutBarButtonLink3 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(editCutBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink editCopyBarButtonLink3 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(editCopyBarButtonCommand);
@@ -159,8 +176,15 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonLink editUndoBarButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(editUndoBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink editRedoBarButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(editRedoBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink editFindBarButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(editFindBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.DockableToolBar viewDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("View");
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowModelsBarButtonLink3 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowModelsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowGraphicsBarButtonLink3 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowGraphicsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowArrowsBarButtonLink3 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowArrowsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowModelsBarButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowModelsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowGraphicsBarButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowGraphicsBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink viewShowArrowsBarButtonLink4 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(viewShowArrowsBarButtonCommand);
       this.dockManager1 = new ActiproSoftware.UIStudio.Dock.DockManager();
-      this.ovOverview = new Overview();
+      this.ovOverview = new MindFusion.FlowChartX.Overview();
       this.twOverview = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.tvNavigation = new PureComponents.TreeView.TreeView();
       this.twNavigation = new ActiproSoftware.UIStudio.Dock.ToolWindow();
@@ -173,7 +197,7 @@ namespace SysCAD.Editor
       this.toolWindowContainer2 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.dockContainerContainer1 = new ActiproSoftware.UIStudio.Dock.DockContainerContainer();
       this.twStencils = new ActiproSoftware.UIStudio.Dock.ToolWindow();
-      this.tbStencils = new ShapeToolBar();
+      this.tbStencils = new MindFusion.FlowChartX.ShapeToolBar();
       this.toolWindowContainer3 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.twGraphicProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
@@ -207,7 +231,7 @@ namespace SysCAD.Editor
       this.ovOverview.FitAll = true;
       this.ovOverview.Location = new System.Drawing.Point(0, 0);
       this.ovOverview.Name = "ovOverview";
-      this.ovOverview.Size = new System.Drawing.Size(172, 139);
+      this.ovOverview.Size = new System.Drawing.Size(172, 137);
       this.ovOverview.TabIndex = 0;
       // 
       // twOverview
@@ -218,7 +242,7 @@ namespace SysCAD.Editor
       this.twOverview.Key = "twOverview";
       this.twOverview.Location = new System.Drawing.Point(0, 29);
       this.twOverview.Name = "twOverview";
-      this.twOverview.Size = new System.Drawing.Size(172, 139);
+      this.twOverview.Size = new System.Drawing.Size(172, 137);
       this.twOverview.TabIndex = 0;
       this.twOverview.Text = "Overview";
       // 
@@ -262,7 +286,7 @@ namespace SysCAD.Editor
       this.tvNavigation.NodeAutoNumbering = false;
       this.tvNavigation.PathSeparator = "\\";
       this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
-      this.tvNavigation.Size = new System.Drawing.Size(172, 434);
+      this.tvNavigation.Size = new System.Drawing.Size(172, 443);
       this.tvNavigation.Sorted = false;
       treeViewStyle1.AutoCollapse = false;
       treeViewStyle1.BackColor = System.Drawing.Color.White;
@@ -326,7 +350,7 @@ namespace SysCAD.Editor
       this.twNavigation.Key = "treeView1";
       this.twNavigation.Location = new System.Drawing.Point(0, 29);
       this.twNavigation.Name = "twNavigation";
-      this.twNavigation.Size = new System.Drawing.Size(172, 434);
+      this.twNavigation.Size = new System.Drawing.Size(172, 443);
       this.twNavigation.TabIndex = 0;
       this.twNavigation.Text = "Navigation";
       // 
@@ -413,6 +437,14 @@ namespace SysCAD.Editor
       newItemGraphicTypeBarComboBoxCommand.Items.Add("Tie");
       newItemGraphicTypeBarComboBoxCommand.Items.Add("Tank");
       newItemGraphicTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
+      viewShowGraphicsBarButtonCommand.Checkable = true;
+      viewShowGraphicsBarButtonCommand.Checked = true;
+      viewShowModelsBarButtonCommand.Checkable = true;
+      viewShowArrowsBarButtonCommand.Checkable = true;
+      viewShowArrowsBarButtonCommand.Checked = true;
+      selectionSelectItemsBarButtonCommand.Checkable = true;
+      selectionSelectItemsBarButtonCommand.Checked = true;
+      selectionSelectArrowsBarButtonCommand.Checkable = true;
       this.barManager1.Commands.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommand[] {
             editUndoBarButtonCommand,
             editRedoBarButtonCommand,
@@ -445,7 +477,15 @@ namespace SysCAD.Editor
             newMenuNewMenuBarPopupButtonCommand,
             newItemModelTypeBarComboBoxCommand,
             newItemGraphicTypeBarComboBoxCommand,
-            newItemNetItemDragTargetBarButtonCommand});
+            newItemNetItemDragTargetBarButtonCommand,
+            viewShowGraphicsBarButtonCommand,
+            viewShowModelsBarButtonCommand,
+            viewShowArrowsBarButtonCommand,
+            selectionSelectItemsBarButtonCommand,
+            selectionSelectArrowsBarButtonCommand});
+      controlDockableToolBar.Active = true;
+      controlDockableToolBar.DockedColumn = 253;
+      controlDockableToolBar.DockedRow = 1;
       mainMenuMenuBar.Active = true;
       fileSaveBarButtonLink.BeginAGroup = true;
       filePrintBarButtonLink.BeginAGroup = true;
@@ -476,11 +516,15 @@ namespace SysCAD.Editor
             editFindBarButtonLink});
       newMenuNewMenuBarPopupButtonLink2.DefaultText = "&Edit";
       newMenuNewMenuBarPopupButtonLink2.Text = "&Edit";
+      viewShowModelsBarButtonLink.BeginAGroup = true;
       newMenuNewMenuBarPopupButtonLink3.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
             viewZoomInBarButtonLink,
             viewZoomOutBarButtonLink,
             viewZoomToVisibleBarButtonLink,
-            viewZoomToSelectedBarButtonLink});
+            viewZoomToSelectedBarButtonLink,
+            viewShowModelsBarButtonLink,
+            viewShowGraphicsBarButtonLink,
+            viewShowArrowsBarButtonLink});
       newMenuNewMenuBarPopupButtonLink3.DefaultText = "&View";
       newMenuNewMenuBarPopupButtonLink3.Text = "&View";
       newMenuNewMenuBarPopupButtonLink4.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
@@ -536,11 +580,15 @@ namespace SysCAD.Editor
             editFindBarButtonLink2});
       newMenuNewMenuBarPopupButtonLink8.DefaultText = "&Edit";
       newMenuNewMenuBarPopupButtonLink8.Text = "&Edit";
+      viewShowModelsBarButtonLink2.BeginAGroup = true;
       newMenuNewMenuBarPopupButtonLink9.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
             viewZoomInBarButtonLink2,
             viewZoomOutBarButtonLink2,
             viewZoomToVisibleBarButtonLink2,
-            viewZoomToSelectedBarButtonLink2});
+            viewZoomToSelectedBarButtonLink2,
+            viewShowModelsBarButtonLink2,
+            viewShowGraphicsBarButtonLink2,
+            viewShowArrowsBarButtonLink2});
       newMenuNewMenuBarPopupButtonLink9.DefaultText = "&View";
       newMenuNewMenuBarPopupButtonLink9.Text = "&View";
       newMenuNewMenuBarPopupButtonLink10.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
@@ -575,13 +623,23 @@ namespace SysCAD.Editor
             newItemGraphicTypeBarComboBoxLink,
             newItemModelTypeBarComboBoxLink,
             newItemNetItemDragTargetBarButtonLink});
+      newItemNetItemDragTargetBarButtonLink2.DefaultText = " v ";
       newItemNetItemDragTargetBarButtonLink2.Text = " v ";
       newItemDockableToolBar.DefaultCommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
             newItemGraphicTypeBarComboBoxLink2,
             newItemModelTypeBarComboBoxLink2,
             newItemNetItemDragTargetBarButtonLink2});
-      newItemDockableToolBar.DockedColumn = 282;
+      newItemDockableToolBar.DockedColumn = 390;
       newItemDockableToolBar.DockedRow = 1;
+      selectionControlDockableToolBar.Active = true;
+      selectionControlDockableToolBar.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
+            selectionSelectArrowsBarButtonLink,
+            selectionSelectItemsBarButtonLink});
+      selectionControlDockableToolBar.DefaultCommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
+            selectionSelectArrowsBarButtonLink2,
+            selectionSelectItemsBarButtonLink2});
+      selectionControlDockableToolBar.DockedColumn = 311;
+      selectionControlDockableToolBar.DockedRow = 2;
       standardDockableToolBar.Active = true;
       editCutBarButtonLink3.BeginAGroup = true;
       editUndoBarButtonLink3.BeginAGroup = true;
@@ -606,9 +664,24 @@ namespace SysCAD.Editor
             editRedoBarButtonLink4,
             editFindBarButtonLink4});
       standardDockableToolBar.DockedRow = 1;
+      viewDockableToolBar.Active = true;
+      viewShowArrowsBarButtonLink3.BeginAGroup = true;
+      viewDockableToolBar.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
+            viewShowModelsBarButtonLink3,
+            viewShowGraphicsBarButtonLink3,
+            viewShowArrowsBarButtonLink3});
+      viewShowArrowsBarButtonLink4.BeginAGroup = true;
+      viewDockableToolBar.DefaultCommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
+            viewShowModelsBarButtonLink4,
+            viewShowGraphicsBarButtonLink4,
+            viewShowArrowsBarButtonLink4});
+      viewDockableToolBar.DockedRow = 2;
+      this.barManager1.DockableToolBars.Add(controlDockableToolBar);
       this.barManager1.DockableToolBars.Add(mainMenuMenuBar);
       this.barManager1.DockableToolBars.Add(newItemDockableToolBar);
+      this.barManager1.DockableToolBars.Add(selectionControlDockableToolBar);
       this.barManager1.DockableToolBars.Add(standardDockableToolBar);
+      this.barManager1.DockableToolBars.Add(viewDockableToolBar);
       this.barManager1.HostContainerControl = this;
       this.barManager1.CommandClick += new ActiproSoftware.UIStudio.Bar.BarCommandLinkEventHandler(this.barManager1_CommandClick);
       // 
@@ -616,9 +689,9 @@ namespace SysCAD.Editor
       // 
       this.barDockArea1.BarManager = this.barManager1;
       this.barDockArea1.Dock = System.Windows.Forms.DockStyle.Left;
-      this.barDockArea1.Location = new System.Drawing.Point(0, 56);
+      this.barDockArea1.Location = new System.Drawing.Point(0, 84);
       this.barDockArea1.Name = "barDockArea1";
-      this.barDockArea1.Size = new System.Drawing.Size(0, 635);
+      this.barDockArea1.Size = new System.Drawing.Size(0, 642);
       this.barDockArea1.TabIndex = 2;
       // 
       // barDockArea2
@@ -627,25 +700,25 @@ namespace SysCAD.Editor
       this.barDockArea2.Dock = System.Windows.Forms.DockStyle.Top;
       this.barDockArea2.Location = new System.Drawing.Point(0, 0);
       this.barDockArea2.Name = "barDockArea2";
-      this.barDockArea2.Size = new System.Drawing.Size(1111, 56);
+      this.barDockArea2.Size = new System.Drawing.Size(1301, 84);
       this.barDockArea2.TabIndex = 3;
       // 
       // barDockArea3
       // 
       this.barDockArea3.BarManager = this.barManager1;
       this.barDockArea3.Dock = System.Windows.Forms.DockStyle.Right;
-      this.barDockArea3.Location = new System.Drawing.Point(1111, 56);
+      this.barDockArea3.Location = new System.Drawing.Point(1301, 84);
       this.barDockArea3.Name = "barDockArea3";
-      this.barDockArea3.Size = new System.Drawing.Size(0, 635);
+      this.barDockArea3.Size = new System.Drawing.Size(0, 642);
       this.barDockArea3.TabIndex = 4;
       // 
       // barDockArea4
       // 
       this.barDockArea4.BarManager = this.barManager1;
       this.barDockArea4.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.barDockArea4.Location = new System.Drawing.Point(0, 691);
+      this.barDockArea4.Location = new System.Drawing.Point(0, 726);
       this.barDockArea4.Name = "barDockArea4";
-      this.barDockArea4.Size = new System.Drawing.Size(1111, 0);
+      this.barDockArea4.Size = new System.Drawing.Size(1301, 0);
       this.barDockArea4.TabIndex = 5;
       // 
       // toolWindowContainer1
@@ -654,16 +727,16 @@ namespace SysCAD.Editor
       this.toolWindowContainer1.DockManager = this.dockManager1;
       this.toolWindowContainer1.Location = new System.Drawing.Point(0, 0);
       this.toolWindowContainer1.Name = "toolWindowContainer1";
-      this.toolWindowContainer1.Size = new System.Drawing.Size(172, 168);
+      this.toolWindowContainer1.Size = new System.Drawing.Size(172, 166);
       this.toolWindowContainer1.TabIndex = 8;
       // 
       // toolWindowContainer2
       // 
       this.toolWindowContainer2.Controls.Add(this.twNavigation);
       this.toolWindowContainer2.DockManager = this.dockManager1;
-      this.toolWindowContainer2.Location = new System.Drawing.Point(0, 172);
+      this.toolWindowContainer2.Location = new System.Drawing.Point(0, 170);
       this.toolWindowContainer2.Name = "toolWindowContainer2";
-      this.toolWindowContainer2.Size = new System.Drawing.Size(172, 463);
+      this.toolWindowContainer2.Size = new System.Drawing.Size(172, 472);
       this.toolWindowContainer2.TabIndex = 9;
       // 
       // dockContainerContainer1
@@ -672,11 +745,11 @@ namespace SysCAD.Editor
       this.dockContainerContainer1.Controls.Add(this.toolWindowContainer2);
       this.dockContainerContainer1.Dock = System.Windows.Forms.DockStyle.Left;
       this.dockContainerContainer1.DockManager = this.dockManager1;
-      this.dockContainerContainer1.Location = new System.Drawing.Point(0, 56);
+      this.dockContainerContainer1.Location = new System.Drawing.Point(0, 84);
       this.dockContainerContainer1.Name = "dockContainerContainer1";
       this.dockContainerContainer1.Orientation = System.Windows.Forms.Orientation.Vertical;
       this.dockContainerContainer1.SelectedToolWindow = null;
-      this.dockContainerContainer1.Size = new System.Drawing.Size(176, 635);
+      this.dockContainerContainer1.Size = new System.Drawing.Size(176, 642);
       this.dockContainerContainer1.TabIndex = 8;
       // 
       // twStencils
@@ -686,7 +759,7 @@ namespace SysCAD.Editor
       this.twStencils.DockManager = this.dockManager1;
       this.twStencils.Location = new System.Drawing.Point(0, 29);
       this.twStencils.Name = "twStencils";
-      this.twStencils.Size = new System.Drawing.Size(935, 44);
+      this.twStencils.Size = new System.Drawing.Size(1125, 44);
       this.twStencils.TabIndex = 0;
       this.twStencils.Text = "Stencils";
       this.twStencils.TitleBarText = "Stencils";
@@ -700,7 +773,7 @@ namespace SysCAD.Editor
       this.tbStencils.Name = "tbStencils";
       this.tbStencils.Shapes = null;
       this.tbStencils.ShowToolTips = true;
-      this.tbStencils.Size = new System.Drawing.Size(935, 42);
+      this.tbStencils.Size = new System.Drawing.Size(1125, 42);
       this.tbStencils.TabIndex = 0;
       // 
       // toolWindowContainer3
@@ -708,9 +781,9 @@ namespace SysCAD.Editor
       this.toolWindowContainer3.Controls.Add(this.twStencils);
       this.toolWindowContainer3.Dock = System.Windows.Forms.DockStyle.Top;
       this.toolWindowContainer3.DockManager = this.dockManager1;
-      this.toolWindowContainer3.Location = new System.Drawing.Point(176, 56);
+      this.toolWindowContainer3.Location = new System.Drawing.Point(176, 84);
       this.toolWindowContainer3.Name = "toolWindowContainer3";
-      this.toolWindowContainer3.Size = new System.Drawing.Size(935, 77);
+      this.toolWindowContainer3.Size = new System.Drawing.Size(1125, 77);
       this.toolWindowContainer3.TabIndex = 10;
       // 
       // twGraphicProperties
@@ -721,7 +794,7 @@ namespace SysCAD.Editor
       this.twGraphicProperties.DockManager = this.dockManager1;
       this.twGraphicProperties.Location = new System.Drawing.Point(4, 29);
       this.twGraphicProperties.Name = "twGraphicProperties";
-      this.twGraphicProperties.Size = new System.Drawing.Size(200, 529);
+      this.twGraphicProperties.Size = new System.Drawing.Size(200, 536);
       this.twGraphicProperties.TabIndex = 0;
       this.twGraphicProperties.Text = "Graphic Properties";
       // 
@@ -730,7 +803,7 @@ namespace SysCAD.Editor
       this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
       this.propertyGrid1.Name = "propertyGrid1";
-      this.propertyGrid1.Size = new System.Drawing.Size(200, 529);
+      this.propertyGrid1.Size = new System.Drawing.Size(200, 536);
       this.propertyGrid1.TabIndex = 0;
       // 
       // toolWindowContainer4
@@ -738,16 +811,16 @@ namespace SysCAD.Editor
       this.toolWindowContainer4.Controls.Add(this.twGraphicProperties);
       this.toolWindowContainer4.Dock = System.Windows.Forms.DockStyle.Right;
       this.toolWindowContainer4.DockManager = this.dockManager1;
-      this.toolWindowContainer4.Location = new System.Drawing.Point(907, 133);
+      this.toolWindowContainer4.Location = new System.Drawing.Point(1097, 161);
       this.toolWindowContainer4.Name = "toolWindowContainer4";
-      this.toolWindowContainer4.Size = new System.Drawing.Size(204, 558);
+      this.toolWindowContainer4.Size = new System.Drawing.Size(204, 565);
       this.toolWindowContainer4.TabIndex = 12;
       // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(1111, 691);
+      this.ClientSize = new System.Drawing.Size(1301, 726);
       this.Controls.Add(this.toolWindowContainer4);
       this.Controls.Add(this.toolWindowContainer3);
       this.Controls.Add(this.dockContainerContainer1);
