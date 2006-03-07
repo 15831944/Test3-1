@@ -63,6 +63,8 @@ namespace SysCAD.Service
 
       foreach (string fullpath in Directory.GetFiles(args0, "*.graphicstencil"))
       {
+        SoapFormatter bf = new SoapFormatter();
+
         System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(GraphicStencil));
         TextReader reader = new StreamReader(fullpath);
         config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (GraphicStencil)ser.Deserialize(reader));

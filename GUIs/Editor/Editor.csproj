@@ -36,21 +36,21 @@
     <Reference Include="ActiproSoftware.UIStudio.Bar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6" />
     <Reference Include="ActiproSoftware.UIStudio.Dock, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b" />
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.76.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5" />
-    <Reference Include="FlowChart.NET, Version=4.0.2.26317, Culture=neutral, PublicKeyToken=a0d18338041985ba">
+    <Reference Include="FlowChart.NET, Version=4.0.2.20127, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\FlowChart.NET.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\FlowChart.NET.dll</HintPath>
     </Reference>
-    <Reference Include="Overview, Version=4.0.2.20070, Culture=neutral, PublicKeyToken=a0d18338041985ba">
+    <Reference Include="Overview, Version=4.0.2.20145, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\Overview.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\Overview.dll</HintPath>
     </Reference>
-    <Reference Include="PureComponents.TreeView, Version=1.6.626.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
+    <Reference Include="PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\PureComponents\TreeView\bin\PureComponents.TreeView.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
     </Reference>
-    <Reference Include="ShapeToolBar, Version=4.0.2.20083, Culture=neutral, PublicKeyToken=a0d18338041985ba">
+    <Reference Include="ShapeToolBar, Version=4.0.2.20156, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\ShapeToolBar.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\ShapeToolBar.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

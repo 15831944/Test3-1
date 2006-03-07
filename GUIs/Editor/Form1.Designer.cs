@@ -67,7 +67,7 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand newMenuNewMenuBarPopupButtonCommand = new ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand("New Menu", "New Menu", "New Menu", -1);
       ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "ModelType", "ModelType", -1);
       ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "GraphicType", "GraphicType", -1);
-      ActiproSoftware.UIStudio.Bar.BarButtonCommand newItemNetItemDragTargetBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("NewItem", "NetItemDragTarget", "Net Item Drag Target", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand newItemDragTargetBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("NewItem", "DragTarget", "Drag Target", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowGraphicsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowGraphics", "Show Graphics", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowModelsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowModels", "Show Models", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowArrowsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowArrows", "Show Arrows", -1);
@@ -152,10 +152,10 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.DockableToolBar newItemDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("newItem");
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarButtonLink newItemNetItemDragTargetBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemNetItemDragTargetBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink newItemDragTargetBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemDragTargetBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarButtonLink newItemNetItemDragTargetBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemNetItemDragTargetBarButtonCommand);
+      ActiproSoftware.UIStudio.Bar.BarButtonLink newItemDragTargetBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemDragTargetBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.DockableToolBar selectionControlDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("SelectionControl");
       ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectArrowsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectArrowsBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectItemsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectItemsBarButtonCommand);
@@ -477,7 +477,7 @@ namespace SysCAD.Editor
             newMenuNewMenuBarPopupButtonCommand,
             newItemModelTypeBarComboBoxCommand,
             newItemGraphicTypeBarComboBoxCommand,
-            newItemNetItemDragTargetBarButtonCommand,
+            newItemDragTargetBarButtonCommand,
             viewShowGraphicsBarButtonCommand,
             viewShowModelsBarButtonCommand,
             viewShowArrowsBarButtonCommand,
@@ -617,18 +617,18 @@ namespace SysCAD.Editor
             newMenuNewMenuBarPopupButtonLink12});
       mainMenuMenuBar.DockedRow = 0;
       newItemDockableToolBar.Active = true;
-      newItemNetItemDragTargetBarButtonLink.DefaultText = " v ";
-      newItemNetItemDragTargetBarButtonLink.Text = " v ";
+      newItemDragTargetBarButtonLink.DefaultText = " v ";
+      newItemDragTargetBarButtonLink.Text = " v ";
       newItemDockableToolBar.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
             newItemGraphicTypeBarComboBoxLink,
             newItemModelTypeBarComboBoxLink,
-            newItemNetItemDragTargetBarButtonLink});
-      newItemNetItemDragTargetBarButtonLink2.DefaultText = " v ";
-      newItemNetItemDragTargetBarButtonLink2.Text = " v ";
+            newItemDragTargetBarButtonLink});
+      newItemDragTargetBarButtonLink2.DefaultText = " v ";
+      newItemDragTargetBarButtonLink2.Text = " v ";
       newItemDockableToolBar.DefaultCommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
             newItemGraphicTypeBarComboBoxLink2,
             newItemModelTypeBarComboBoxLink2,
-            newItemNetItemDragTargetBarButtonLink2});
+            newItemDragTargetBarButtonLink2});
       newItemDockableToolBar.DockedColumn = 390;
       newItemDockableToolBar.DockedRow = 1;
       selectionControlDockableToolBar.Active = true;

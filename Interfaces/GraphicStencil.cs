@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Xml.Serialization;
 using MindFusion.FlowChartX;
+using System.Drawing;
 
 namespace SysCAD.Interface
 {
@@ -18,6 +19,8 @@ namespace SysCAD.Interface
     public ArrayList decorations;
     public ArrayList textArea;
     public System.Drawing.Drawing2D.FillMode fillMode;
+    public SizeF defaultSize;
+    public String groupName;
     public string id;
 
     public GraphicStencil()

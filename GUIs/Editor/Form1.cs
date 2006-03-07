@@ -87,7 +87,34 @@ namespace SysCAD.Editor
         case "Selection.SelectArrows":
           this.View_SelectArrows();
           break;
+
+        case "NewItem.ModelType":
+          this.NewItem_ModelType();
+          break;
+
+        case "NewItem.GraphicType":
+          this.NewItem_GraphicType();
+          break;
+
+        case "NewItem.DragTarget":
+          this.NewItem_DragTarget();
+          break;
       }
+    }
+
+    private void NewItem_ModelType()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    private void NewItem_GraphicType()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    private void NewItem_DragTarget()
+    {
+      throw new Exception("The method or operation is not implemented.");
     }
 
     private void View_SelectItems()
@@ -178,7 +205,11 @@ namespace SysCAD.Editor
       barManager1.Commands["View.ShowModels"].Enabled = projectExists;
       barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
       barManager1.Commands["View.ShowArrows"].Enabled = projectExists;
-
+      barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
+      barManager1.Commands["Selection.SelectArrows"].Enabled = projectExists;
+      barManager1.Commands["NewItem.ModelType"].Enabled = projectExists;
+      barManager1.Commands["NewItem.GraphicType"].Enabled = projectExists;
+      barManager1.Commands["NewItem.DragTarget"].Enabled = projectExists;
     }
 
     private void File_CloseProject()
