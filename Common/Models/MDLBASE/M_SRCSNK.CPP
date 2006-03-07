@@ -553,7 +553,7 @@ void MN_SrcSnk::GlobalConnect()
       }
 
     MdlNode *Root = (MdlNode*)InsertRoot(NULL);
-    MN_SrcSnk *pOther  = (pMN_SrcSnk)Root->FindObj(sConnectTag());
+    MN_SrcSnk *pOther  = dynamic_cast<MN_SrcSnk*>(Root->FindObj(sConnectTag()));
 
     if (pOther==NULL)
       {
@@ -742,25 +742,15 @@ void MN_SrcSnk::StartStep()
 
 //---------------------------------------------------------------------------
 
-bool MN_SrcSnk::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool MN_SrcSnk::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
-  if (!FlwNode::PropagateNetInfo(Task, IONo, Info, Start))
+  if (!FlwNode::DoPropagateNetInfo(Ctrl, IONo, false))
     return false;
-  
-  dbgpln("PropagateNetInfo %s", FullObjTag());
 
-  if (fCrossConnected && (NoProcessIOs()==2))
+  for (int i=0; i<NoFlwIOs(); i++)
     {
-    switch (Info)
-      {
-      case eScdSetFlowMode :
-        {
-        //m_FEP.FlwRqd().SetPressOn(Info.m_PressOn);
-        break;
-        }
-      }
-    for (int i=0; i<NoFlwIOs(); i++)
-      Nd_Rmt(i)->PropagateNetInfo(Task, IOIONo_Rmt(i), Info, false);
+    if (i!=IONo)
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
     }
 
   return true;
@@ -904,7 +894,7 @@ flag MN_SrcSnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
     }
   else
     {
-    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, 1.0, NULL, NULL);
+    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, true, false, 1.0, NULL, NULL);
     return EqnOK || pFB->m_fFixed;
     }
   };

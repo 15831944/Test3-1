@@ -12,7 +12,7 @@
 #include "COMStuff.h"
 #include "vlebase.h"
 #include "optoff.h"
-           
+
 #define  dbgSoluble   (WITHDEBUG || 1)
 #define  dbgAutoVLE   WITHDEBUG
 #define  dbgSpModel   WITHDEBUG

@@ -14,7 +14,7 @@
 #include "scd_wm.h"
 #include "dbgmngr.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 #define  dbg4Port   (WITHDEBUG)
 
@@ -1200,23 +1200,16 @@ void   C4PortValve ::SetState(eScdMdlStateActs RqdState)
 
 //---------------------------------------------------------------------------
 
-bool C4PortValve::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool C4PortValve::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
-  if (!FlwNode::PropagateNetInfo(Task, IONo, Info, Start))
+  if (!FlwNode::DoPropagateNetInfo(Ctrl, IONo, false))
     return false;
 
-  dbgpln("PropagateNetInfo %s", FullObjTag());
-
-  switch (Task)
-    {
-    case eScdSetFlowMode:
-      {
-      //m_FEP.FlwRqd().SetPressOn(Info.m_PressOn);
-      break;
-      }
-    }
   for (int i=0; i<NoFlwIOs(); i++)
-    Nd_Rmt(i)->PropagateNetInfo(Task, IOIONo_Rmt(i), Info, false);
+    {
+    if (i!=IONo)
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
+    }
 
   return true;
   };
@@ -1256,7 +1249,7 @@ void C4PortValve ::ConfigureJoins()
           m_Ports[i].m_Open=PortOpen;
           }
         }
-      }
+      }               
 
     for (int i=0; i<Max4WayIOPorts; i++)
       {
@@ -1298,6 +1291,8 @@ void C4PortValve ::ConfigureJoins()
       int Jn  = m_Modes[ModeReqd].m_PortsJoin[port];
       if (Jn>=0 && JCnt[Jn]>1)
         {
+        if (fDoDbgBrk)
+          dbgpln("SetIO_Join(%3i %3i) A %s", i, Jn, FullObjTag());
         SetIO_Join(i, Jn);
         m_Ports[port].m_Open+=m_OpnWRT50;
         IsClosed=false;
@@ -1306,13 +1301,19 @@ void C4PortValve ::ConfigureJoins()
       int JnMidPt = (ModeMidPt>=0) ? m_Modes[ModeMidPt].m_PortsJoin[port] : -1;
       if (JnMidPt>=0 && JCnt[JnMidPt]>1)
         {
+        if (fDoDbgBrk)
+          dbgpln("SetIO_Join(%3i %3i) B %s", i, JnMidPt, FullObjTag());
         SetIO_Join(i, JnMidPt);
         m_Ports[port].m_Open+=(1.0-m_OpnWRT50);
         IsClosed=false;
         }
 
       if (IsClosed)
+        {
+        if (fDoDbgBrk)
+          dbgpln("SetIO_Closed(%3i %3i) %s", i, 2, FullObjTag());
         SetIO_Closed(i, 2);
+        }
       }
     for (int i=0; i<Max4WayIOPorts; i++)
       m_Ports[i].m_Open=Min(1.0, m_Ports[i].m_Open);
@@ -1330,7 +1331,11 @@ void C4PortValve ::ConfigureJoins()
   else
     {
     for (int i=0; i<NoFlwIOs(); i++)
+      {
+      if (fDoDbgBrk)
+        dbgpln("SetIO_Closed(%3i %3i) %s", i, 2, FullObjTag());
       SetIO_Closed(i, 2);
+      }
     }
   };
 
@@ -1368,7 +1373,16 @@ void C4PortValve ::EvalJoinPressures(long JoinMask)
       break;
     case SM_DynXfer:
     case SM_DynFull:
+      if (fDoDbgBrk)
+        { int xxx=0; }
       MdlNode::EvalJoinPressures(JoinMask);
+      if (fDoDbgBrk)
+        {
+        for (int i=0; i<NoFlwIOs(); i++)
+          {
+          dbgpln("IOP %3i %10.3f %10.3f %s", i, IOP_Est_Self(i), IOP_Self(i), FullObjTag());
+          }
+        }
       break;
     }
   };
@@ -1390,8 +1404,11 @@ flag C4PortValve ::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, 
   int port=IOId_Self(IONo);
   double xx[]={m_Ports[port].m_ResMult};
   IOFB(IONo, FE)->SetUserValues(xx, 1);
+  double Reg=Sqr(m_Ports[port].m_Open);
+  if (IO_Closed_Self(IONo) || IO_Closed_Rmt(IONo))
+    Reg=0.0;
   //dbgpln("IONo:%3i port %3i  %6.1f %s", IONo, port, m_Ports[port].m_Open*100, FullObjTag());
-  return IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, Sqr(m_Ports[port].m_Open), &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+  return IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, !IO_Closed_Self(IONo), false, Reg, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
   };
 
 // --------------------------------------------------------------------------

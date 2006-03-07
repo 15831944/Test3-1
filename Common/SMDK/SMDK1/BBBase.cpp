@@ -200,11 +200,11 @@ void CBBBase::DoStartStep()
 
 //--------------------------------------------------------------------------
 
-bool CBBBase::DoPropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool CBBBase::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
   if (!m_pMethod)
     return false;
-  return Method.PropagateNetInfo(Task, IONo, Info, Start);
+  return Method.PropagateNetInfo(Ctrl, IONo);
   };
 
 //--------------------------------------------------------------------------

@@ -269,12 +269,12 @@ flag HeatXchg::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
   {
   if (IONo==m_HXJ.P.IOJoin(0))
     {
-    IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+    IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
     return true;
     }
   if (IONo==m_HXJ.S.IOJoin(0))
     {
-    IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+    IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
     return true;
     }
   return false;

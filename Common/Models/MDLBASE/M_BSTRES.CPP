@@ -30,9 +30,9 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   SetUserModeAsFlowMode();
 
   if (GlblDynFlowMode())
-    SetUserMethod(LFM_Simple);// LFM_Xfer);
+    SetUserMethodReqd(LFM_Simple);// LFM_Xfer);
   else
-    SetUserMethod(LFM_Full);
+    SetUserMethodReqd(LFM_Full);
 
   bOnLine=1;
   bIsentropic=0;
@@ -243,22 +243,16 @@ void MN_BstRes::OnSetUserMethod()
 
 //---------------------------------------------------------------------------
 
-bool MN_BstRes::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool MN_BstRes::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
-  if (!FlwNode::PropagateNetInfo(Task, IONo, Info, Start))
+  if (!FlwNode::DoPropagateNetInfo(Ctrl, IONo, true))
     return false;
 
-  dbgpln("PropagateNetInfo %s", FullObjTag());
-
-  switch (Task)
-    {
-    case eScdSetFlowMode :
-      SetUserMethod(Info);
-      //m_FEP.FlwRqd().SetPressOn(Info.m_UserMethod==LFM_NominalDP);
-      break;
-    }
   for (int i=0; i<NoFlwIOs(); i++)
-    Nd_Rmt(i)->PropagateNetInfo(Task, IOIONo_Rmt(i), Info, false);
+    {
+    if (i!=IONo)
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
+    }
 
   return true;
   };

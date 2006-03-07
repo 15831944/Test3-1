@@ -357,28 +357,22 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
 
   };
 
-bool MBaseMethod::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool MBaseMethod::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
-  if (!m_pNd->FlwNode::PropagateNetInfo(Task, IONo, Info, Start))
+  if (!m_pNd->FlwNode::DoPropagateNetInfo(Ctrl, IONo, true))
     return false;
 
-  dbgpln("PropagateNetInfo %s", m_pNd->FullObjTag());
-
-  switch (Task)
+  MInOutDefStruct *pIODef;
+  if (IONo>=0)
     {
-    case eScdSetFlowMode :
-      {
-      m_pNd->SetUserMethod(Info);
-      //m_FEP.FlwRqd().SetPressOn(Info.m_UserMethod==LFM_NominalDP);
-      break;
-      }
+    MInOutDefStruct *pIODef = m_pIODefs;
+    int Id=m_pNd->IOId_Self(IONo);
+    while (pIODef->m_sName!=NULL && pIODef->m_lId<Id)
+      pIODef++;
+    ASSERT(pIODef->m_lId==Id);
     }
-
-  MInOutDefStruct *pIODef = m_pIODefs;
-  int Id=m_pNd->IOId_Self(IONo);
-  while (pIODef->m_sName!=NULL && pIODef->m_lId<Id)
-    pIODef++;
-  ASSERT(pIODef->m_lId==Id);
+  else
+    pIODef=NULL;
 
   MInOutDefStruct *pDefs = m_pIODefs;
   for (int i=0; i<m_pNd->NoFlwIOs(); i++)
@@ -387,8 +381,8 @@ bool MBaseMethod::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long I
     while (pDefs->m_sName!=NULL &&  pDefs->m_lId<Id)
       pDefs++;
     ASSERT(pDefs->m_lId==Id);
-    if ((MCN_IOMask & pDefs->m_lCnId)==(MCN_IOMask & pIODef->m_lCnId))
-      m_pNd->Nd_Rmt(i)->PropagateNetInfo(Task, m_pNd->IOIONo_Rmt(i), Info, false);
+    if (pIODef==NULL || ((MCN_IOMask & pDefs->m_lCnId)==(MCN_IOMask & pIODef->m_lCnId)))
+      m_pNd->Nd_Rmt(i)->PropagateNetInfo(Ctrl, m_pNd->IOIONo_Rmt(i));
     }
 
   return true;

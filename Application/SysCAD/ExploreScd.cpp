@@ -23,7 +23,7 @@ extern "C"
 //#include "optoff.h"
 
 #define dbgAdd            0
-#define dbgTime           0
+#define dbgTime           01
 #define dbgDumpAll        0
 #define dbgHoldLockUpdate 0
 
@@ -480,6 +480,8 @@ void CExploreScd::OpenIt()
   sm_bDoRefresh=false;
   if (sm_pTheWnd==NULL)
     sm_pTheWnd=new CExploreScd(AfxGetMainWnd());
+  else
+    sm_pTheWnd->ShowWindow(SW_NORMAL);
   RefreshIt(true);
 
   CProfINIFile PF(PrjIniFile());
@@ -497,11 +499,12 @@ void CExploreScd::CloseIt()
     sm_pTheWnd->SaveExpanded();
     sm_pTheWnd->SaveProfile();
 
-    sm_pTheWnd->DestroyWindow();
+    sm_pTheWnd->ShowWindow(SW_HIDE);
+    //sm_pTheWnd->DestroyWindow();
     }
-  delete sm_pTheWnd;
-  sm_pTheWnd=NULL;
-  sm_bInited=false;
+  //delete sm_pTheWnd;
+  //sm_pTheWnd=NULL;
+  //sm_bInited=false;
   }
 
 //--------------------------------------------------------------------------

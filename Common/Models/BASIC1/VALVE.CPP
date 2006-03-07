@@ -329,8 +329,102 @@ flag Valve_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
     FlwBlk &FB=m_Links[LnkNo].FB;
     if (Task!=FET_GetMode)
       FB.SetRegulator(m_FRB.What());
+
+    //if (NoFlwIOs()>=2 && IOId_Self(0)==IOId_2IOIn && IOId_Self(1)==IOId_2IOOut)
+    //  {
+    //  switch (Task)
+    //    {
+    //    case FET_GetMode:
+    //      {
+    //      FB.EvalGetModeRqd(FB.FlowMode(), pProps, true, false/*fIsDegFree!=0*/, m_VPB.ActualPosition(this));// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
+
+    //      //if (IONo==0 && FE==0)
+    //      //  {
+    //      //  if (FB.InXferNet() || DoXfer)
+    //      //    {
+    //      //    if (DoXfer)
+    //      //      FB.SetXferMode();
+    //      //    else
+    //      //      FB.SetQmFree();
+    //      //    if (cioOn())
+    //      //      {
+    //      //      double Cap = Valid(xMax_QmCap) ? xMax_QmCap : MaxXfCap;
+    //      //      if (Valid(xRqd_QmCap))
+    //      //        Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
+    //      //      Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
+    //      //      FB.SetXferCapacity(Cap);
+    //      //      }
+    //      //    else
+    //      //      FB.SetXferCapacity(0.0);
+    //      //    return True;
+    //      //    }
+    //      //  else if (!cioOn())
+    //      //    FB.SetQmReqd(0.0);
+    //      //  else if (Valid(xReqd_Qm))
+    //      //    FB.SetQmReqd(xReqd_Qm, fIsDegFree);
+    //      //  else
+    //      //    FB.SetQmFree();
+    //      //  }
+    //      //else
+    //      //  {
+    //      //  if (cioOn())
+    //      //    FB.SetQmFree();
+    //      //  else
+    //      //    FB.SetQmReqd(0.0);
+    //      //  }
+    //      break;
+    //      }
+    //    case FET_SetQm:
+    //      //{
+    //      //FB.SetDPb(0.0, 0.0);
+    //      //FB.SetDPbX(0.0);
+    //      //FB.SetDPq(0.0, 0.0);
+    //      //break;
+    //      //}
+    //    case FET_CalcDP:
+    //      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
+    //      //{
+    //      //if (DoXfer)
+    //      //  {
+    //      //  FB.SetDPb(0.0, 0.0);
+    //      //  FB.SetDPbX(0.0);
+    //      //  FB.SetDPq(0.0, 0.0);
+    //      //  }
+    //      //else
+    //      //  {
+    //      //  if (m_PFI.Method==VFFX_Plugflow)
+    //      //    {
+    //      //    CSpPropInfo *pSegProps=(IONo==0)? &m_PFI.m_SegPropsS[0]:&m_PFI.m_SegPropsE[0];
+    //      //    if (m_PFI.Type==PFT_Incompressible)
+    //      //      {
+    //      //      IOFB(IONo, FE)->EvaluateFlwEqn(Task, pSegProps, 1.0, NULL, NULL);//Fill);
+    //      //      }
+    //      //    else
+    //      //      {
+    //      //      IOFB(IONo, FE)->EvaluateFlwEqn(Task, pSegProps, 1.0, NULL, NULL);//Fill);
+    //      //      }
+    //      //    }
+    //      //  else
+    //      //    IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, 1.0, NULL, NULL);//Fill);
+    //      //  double K1=IOFB(0,0)->GetKFact();
+    //      //  double K2=IOFB(1,0)->GetKFact();
+    //      //  double K=dNAN;
+    //      //  flag v1=Valid(K1);
+    //      //  flag v2=Valid(K2);
+    //      //  if (v1 && v2)
+    //      //    K=K1+K2;
+    //      //  else if (v1)
+    //      //    K=K1;
+    //      //  else if (v2)
+    //      //    K=K2;
+    //      //  m_FEP.SetKFact(K);;
+    //      //  }
+    //      //break;
+    //      //}
+    //    }
+    //  }
     if (NoFlwIOs()>=2 && IOId_Self(0)==IOId_2IOIn && IOId_Self(1)==IOId_2IOOut)
-      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
+      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.On(), false, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
     FB.SetQmReqd(0.0);
     return true;
     }
@@ -708,7 +802,7 @@ flag Valve_NR::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
   if (IONo>0)
     return False;
   int IOi= (IO_In(0) ? 0 : 1);
-  return IOFB(0,FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
+  return IOFB(0,FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
   }
 
 //---------------------------------------------------------------------------

@@ -420,11 +420,11 @@ flag PriReform::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
   switch (IOId_Self(IONo))
     {
     case ioidFuel:
-      return IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, m_BurnCount/84.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+      return IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, true, false, m_BurnCount/84.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
     case ioidAir:
     case ioidFalseAir:
     default:
-      return IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+      return IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
     }
   };
 

@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 6.00.0361 */
-/* at Tue Mar 07 11:44:00 2006
+/* at Tue Mar 07 15:29:47 2006
  */
 /* Compiler settings for .\ScdIF.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)
@@ -501,7 +501,8 @@ enum eScdFlwEqnTasks
 
 typedef /* [v1_enum][helpstring][uuid] */  DECLSPEC_UUID("7D3A357B-988E-43fe-984B-0B705BA4F7F4") 
 enum eScdPropagateNetTasks
-    {	eScdSetFlowMode	= 0
+    {	eScdGetFlowMode	= 0,
+	eScdSetFlowMode	= eScdGetFlowMode + 1
     } 	eScdPropagateNetTasks;
 
 typedef /* [v1_enum][helpstring][uuid] */  DECLSPEC_UUID("1646D290-F237-477b-BCC8-D8BE756C262E") 

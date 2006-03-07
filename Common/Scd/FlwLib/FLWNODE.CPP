@@ -686,8 +686,8 @@ byte CFlange::TearVarType()
 
 // --------------------------------------------------------------------------
 
-void CFlange::SetTearInitEstUsage(byte iEu)
-  {
+void CFlange::SetTearInitEstUsage(byte iEu) 
+  { 
   TearPosBlk::SetTearInitEstUsage(iEu);
   if (TearImage())
     TearImage()->SetMassInUseOK(TearInitEstUsage()==TIEU_PartEst);
@@ -749,7 +749,7 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
       dbgpln("%15.4f %15.4f %15.4f >> %15.4f %s", PIn-AtmosPress(), PRqd-AtmosPress(), QIOMdl->Press()-AtmosPress(), P2Set-AtmosPress(), "Press");
       }
     #endif
-
+  
     bool SkipSomeMasses=false;
     if (Use==TIEU_PartEst && MassInUseOK && MassInUse.GetSize()>0)
       {
@@ -897,7 +897,7 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
         }
       }
     #endif
-
+  
     QIOMdl->ClrStatesOK();
     QIOMdl->SetTempPress(Max(1.0, T2Set), Max(0.1, P2Set));
     QIOMdl->SetQualities(ImgMdl);
@@ -1917,15 +1917,13 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   fIntegralDone=false;
   fEvalPressSensReqd=false;
   fElecConnsDone=false;
-
-  m_iPropagateNetInfoCount=-1;
-
+  
   m_bInlineIntegral=0;
   m_bForceInlineIntegral=0;
 
   fMarked=false;
   fNegPress=false;
-
+  
   m_iEvalPosn=128;
 
   //m_Closure.m_NettHeat=0;
@@ -1934,8 +1932,9 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   //m_Closure.m_InitialContent=0;//.Zero();
 
   AttachClassInfo(nc_Process, NULL);
-
+ 
   //m_DDBRunModes.Add(SM_DynCurrent Xfer);
+  m_AreaNdListPos=NULL;
 
   InitializeCriticalSectionAndSpinCount(&m_LockSect, 4000);
   };
@@ -1945,7 +1944,7 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
 FlwNode::~FlwNode()
   {
   DeleteCriticalSection(&m_LockSect);
-
+  
   Joins.SetSize(0);
   if (NoIOs())
     LogError(FullObjTag(), 0, "Internal error - Deleting Node with current Connections");
@@ -2307,7 +2306,7 @@ void FlwNode::SetUserModeAsFlowMode(bool All)
   if (All)
     {
     if (PrjFileVerNo()<94) // cahcth this in ValidateData MN_Link
-      m_DDBUserMethods.Add(0             |SM_DynBoth|HM_All, "",            MDD_Hidden);
+      m_DDBUserMethods.Add(0             |SM_DynBoth|HM_All, "",            MDD_Hidden); 
     m_DDBUserMethods.Add(LFM_Full      |SM_DynBoth|HM_All, "Pipe",        MDD_Hidden);
     m_DDBUserMethods.Add(LFM_Full      |SM_DynXfer|HM_All, "NominalDP",   MDD_Hidden);
     m_DDBUserMethods.Add(LFM_Full      |SM_DynFull|HM_All, "CompleteDP",  MDD_Hidden);
@@ -2325,6 +2324,41 @@ void FlwNode::MakeAreaTag()
   else
     m_pArea.m_sTag=gs_DirectFlwIOTagDefault;
   }
+
+//--------------------------------------------------------------------------
+
+void FlwNode::DoGlobalDisconnect()
+  {
+  FlwNode * p=Parent();
+  while (p)
+    {
+    CFlwSolver *pFS=dynamic_cast<CFlwSolver*>(p);
+    if (pFS)
+      {
+      pFS->UnDoGlobalLinks();
+      break;
+      }
+    p=p->Parent();
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void FlwNode::DoGlobalConnect()
+  {
+  FlwNode * p=Parent();
+  while (p)
+    {
+    CFlwSolver *pFS=dynamic_cast<CFlwSolver*>(p);
+    if (pFS)
+      {
+      //pFS->DoGlobalLinks();
+      break;
+      }
+    p=p->Parent();
+    }
+  };
+
 //--------------------------------------------------------------------------
 
 void FlwNode::GlobalConnect()
@@ -2339,7 +2373,7 @@ void FlwNode::GlobalConnect()
     if (m_pArea->IsValidAuditNode())
       {
       //dbgpln("Add Nd %#010x %s %s", this, typeid(this).name(), FullObjTag());
-      m_pArea->m_NdsInArea.AddTail(this);
+      m_AreaNdListPos=m_pArea->m_NdsInArea.AddTail(this);
       }
     else
       {
@@ -2390,10 +2424,10 @@ void FlwNode::PostGlobalConnect()
       //FlwNode * pRmtNd=Nd_Rmt(i);
       byte S=IODesc_Self(i)->Dirn;
       byte D=IODesc_Rmt(i)->Dirn;
-      bool SIn  = (S & (LIO_In | LIO_Out)) == LIO_In;
-      bool SOut = (S & (LIO_In | LIO_Out)) == LIO_Out;
-      bool DIn  = (D & (LIO_In | LIO_Out)) == LIO_In;
-      bool DOut = (D & (LIO_In | LIO_Out)) == LIO_Out;
+      bool SIn  = (S & (LIO_In | LIO_Out)) == LIO_In; 
+      bool SOut = (S & (LIO_In | LIO_Out)) == LIO_Out; 
+      bool DIn  = (D & (LIO_In | LIO_Out)) == LIO_In; 
+      bool DOut = (D & (LIO_In | LIO_Out)) == LIO_Out; 
       int Dirn=0;
       if (SIn || DOut)
         Dirn=1;
@@ -2438,11 +2472,12 @@ void FlwNode::GlobalDisConnect()
 
   if (m_pArea.Connected())
     {
-    POSITION Pos=m_pArea->m_NdsInArea.GetCount()>0 ? m_pArea->m_NdsInArea.Find(this) : NULL;
-    ASSERT_ALWAYS(Pos, "Node must be in Area");
+    //POSITION Pos=m_pArea->m_NdsInArea.GetCount()>0 ? m_pArea->m_NdsInArea.Find(this) : NULL;
+    ASSERT_ALWAYS(m_AreaNdListPos, "Node must be in Area");
     //dbgpln("Rem Nd %#010x %s", this, typeid(this).name());
-    m_pArea->m_NdsInArea.RemoveAt(Pos);
+    m_pArea->m_NdsInArea.RemoveAt(m_AreaNdListPos);
     m_pArea.DisConnect();
+    m_AreaNdListPos=NULL;
     }
   };
 
@@ -2524,6 +2559,8 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
         DDB.Long      ("UserMethod",   "", DC_, "", xidUserMethod, this, isParmStopped|SetOnChange, &DDBU);
       else
         DDB.Long      (m_UserMethodName(), "", DC_, "", xidUserMethod, this, isParmStopped|SetOnChange, &DDBU);
+      if (UserMethod()==LFM_Xfer)
+        DDB.String     ("TransferSet", "", DC_, "", xidUserMethodSet, this, isResult|isTag);
       }
     }
 
@@ -2836,7 +2873,7 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
       {
       Strng Tg;
       if (NoFlwIOs()>0)
-        {
+        {                                
         if (DDB.BeginArray(this, "NdEqn", "NdFBEqns", NoFlwIOs()+1, 0, DDB_OptPage))
           {
           for (int i=0; ; i++)
@@ -2883,7 +2920,7 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
             Strng Tg;
             int ii=i+NoFlwIOs();
             DWORD UI=UIIOFBFlag+ii+(fe<<16);
-            MAKELNKTG4DDB(Tg, i, fe);
+            MAKELNKTG4DDB(Tg, i, fe);          
             if (DDB.BeginElement(this, Tg(),NULL,UI, DDB_OptPage,MarkerClosed))
               {
               //FlwBlk &FB=Link(i)->FB;
@@ -3116,13 +3153,14 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
     case xidUserMethod:
       {
       if (DCB.rL)
-        {
-        if (DCB.ForView())
-          PropagateNetInfo(eScdSetFlowMode, -1, *DCB.rL, true);
-        else
-          SetUserMethod(*DCB.rL);
-        }
+        SetUserMethodReqd(*DCB.rL);
       DCB.L=UserMethod();
+      return 1;
+      }
+
+    case xidUserMethodSet:
+      {
+      DCB.pC=m_pUserMethodObj ? m_pUserMethodObj->FullObjTag():NULL;
       return 1;
       }
     case xidActiveMode:
@@ -4081,7 +4119,7 @@ void FlwNode::PreConfigureJoins()
   m_nJoins=0;
   //m_nRqdLinks=0;
   m_nLinks=0;
-  //dbgpln("FlwNode::PreConfigureJoins  m_nJoins %i %s", m_nJoins, Tag());
+  //dbgpln("FlwNode::PreConfigureJoins  m_nJoins %i %s", m_nJoins, Tag()); 
   }
 
 //--------------------------------------------------------------------------
@@ -4126,7 +4164,7 @@ void FlwNode::PostConfigureJoins()
       QA.IORatio.SetSize(QA.nIORatio);
       }
     }
-  //dbgpln("FlwNode::PostConfigureJoins m_nJoins %i %s", m_nJoins, Tag());
+  //dbgpln("FlwNode::PostConfigureJoins m_nJoins %i %s", m_nJoins, Tag()); 
   };
 
 //--------------------------------------------------------------------------
@@ -4513,7 +4551,7 @@ void FlwNode::BuildJoinList()
       }
     }
 
-  //dbgpln("FlwNode::BuildJoinList      m_nJoins %i %s", m_nJoins, Tag());
+  //dbgpln("FlwNode::BuildJoinList      m_nJoins %i %s", m_nJoins, Tag()); 
   }
 
 //--------------------------------------------------------------------------
@@ -4938,7 +4976,7 @@ int FlwNode::Detach(int IONo)
       //dbgp(" %3i", m_IOs[i].IONoRmt);
       dbgpln("  %s %2i %3i %s",
         i==IONo?"*":" ",
-        m_IOs[i].IONoRmt,
+        m_IOs[i].IONoRmt, 
         m_IOs[i].IONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].IONoRmt].IONoRmt:-1,
         m_IOs[i].Rmt->FullObjTag()
         );
@@ -4986,7 +5024,7 @@ int FlwNode::Detach(int IONo)
       //dbgp(" %3i", m_IOs[i].IONoRmt);
       dbgpln("  %s %2i %3i %s",
         i==IONo?"*":" ",
-        m_IOs[i].IONoRmt,
+        m_IOs[i].IONoRmt, 
         m_IOs[i].IONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].IONoRmt].IONoRmt:-1,
         m_IOs[i].Rmt->FullObjTag()
         );
@@ -5167,7 +5205,7 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
 //ELEC         else
           pT=new CETerminalX();
         }
-      else if (dwClass0&nc_ALnk)
+      else if (dwClass0&nc_ALnk) 
         pT=new CAirTermX;
       Ret=Connect(Info[0], Info[1], pF, pT);
       }
@@ -5409,15 +5447,48 @@ void FlwNode::ConnectionsChanged()
 
 //--------------------------------------------------------------------------
 
-int FlwNode::sm_iPropagateNetInfoCount=0;
-
-bool FlwNode::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool FlwNode::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo) 
   {
-  if (Start)
-    sm_iPropagateNetInfoCount++;
-  if (m_iPropagateNetInfoCount==sm_iPropagateNetInfoCount)
+  return FlwNode::DoPropagateNetInfo(Ctrl, IONo, false);
+  }
+
+bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool HasMethod) 
+  {
+  if (m_UserMethodPass>Ctrl.m_Pass)
     return false;
-  m_iPropagateNetInfoCount=sm_iPropagateNetInfoCount;
+
+  m_UserMethodPass++;
+
+  if (HasMethod)
+    {
+    switch (Ctrl.m_Task)
+      {
+      case eScdGetFlowMode :
+        {
+        if (m_UserMethodReqd<Ctrl.m_ReqdMethod)
+          {
+          Ctrl.m_ReqdMethod=m_UserMethodReqd;
+          if (m_UserMethodReqd==LFM_Xfer)
+            Ctrl.m_pObj=this;
+          }
+        //dbgpln("  %3i %5i %5i %s", m_UserMethodPass, m_UserMethodReqd, Ctrl.m_ReqdMethod, FullObjTag());
+        break;
+        }
+      case eScdSetFlowMode :
+        if (Ctrl.m_ReqdMethod==LFM_Xfer)
+          {
+          SetUserMethod(Ctrl.m_ReqdMethod, Ctrl.m_pObj);
+          //dbgpln("  %3i %5i %5i A   %s", m_UserMethodPass, Ctrl.m_ReqdMethod, m_UserMethodReqd, FullObjTag());
+          }
+        else
+          {
+          SetUserMethod(m_UserMethodReqd, NULL);
+          //dbgpln("  %3i %5i %5i B   %s", m_UserMethodPass, m_UserMethodReqd, m_UserMethodReqd, FullObjTag());
+          }
+        break;
+      }
+    }
+
   return true;
   };
 
@@ -5663,7 +5734,7 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
             }
           }
         }
-
+    
       //dbgpln("PBReInit %s %s", IsLnk()?"IsLnk":"", m_sTag());
       return 0;
     case NFT_PBQueryRemove:
@@ -6628,9 +6699,9 @@ void FlwNode::EvalBalance(int Pass)
       {
       for (int i=0; i<NoFlwIOs(); i++)
         {
-        // Only do the Ins
+        // Only do the Ins 
         // The model at the other end will do this if it is 'out'
-        if (IOQm_In(i)>=0.0)
+        if (IOQm_In(i)>=0.0) 
           {
           CAreaSum &Sum=IOFlange(i)->Sum;
           Sum.Set(*IOConduit(i));
@@ -6639,7 +6710,7 @@ void FlwNode::EvalBalance(int Pass)
             dbgpln("%2i)    f %20s %20s %s",i,DbgFltString(Sum.FlowMass),DbgFltString(Sum.TotalMass), Nd_Rmt(i)->FullObjTag());
           }
         }
-
+   
       // Integrate All DirectIOs
       for (int d=FirstAdtDIO(); d<m_DirectIOs.GetSize(); d++)
         {
@@ -7081,13 +7152,13 @@ FlwNode * FlwNode::GetQmEstSrc2IO()
 LPCTSTR FlwNode::GetQmEstType2IO()
   {
   if (NoFlwIOs()>0)
-    {
+    { 
     FlwBlk & FB=*IOFB(0,0);
     if (FB.m_pGFb==NULL)      return "NULL";
     if (FB.m_pGFb->m_fFixedExternal)  return "Set Remote";
-    if (FB.m_pGFb->m_fFixedXfer)      return "Transfer";
+    if (FB.m_pGFb->m_fFixedXfer)      return "Transfer";           
     if (FB.m_pGFb->m_fUnDefined)      return "No Set(Zero)";
-    if (FB.m_pGFb->m_fFixed)          return "Set";
+    if (FB.m_pGFb->m_fFixed)          return "Set";   
     //if (FB.m_bf Attached2GFB_fX.m_ ) return "Request";
     //if (FB.m_fFixed) return "Request";
     return "Free";
@@ -8964,9 +9035,9 @@ void CDirectAccCalc::Start(int Instance, CSysVector & V, double totHz)
   #if dbgFlwNode
   if (dbgAccCalcs())
     {
-    dbgpln("Start    %3i %20s %20s %20s %20s %s", Instance,
+    dbgpln("Start    %3i %20s %20s %20s %20s %s", Instance, 
       DbgFltString(m_In.Sum.FlowMass,7,6),
-      DbgFltString(V.Mass(),7,6),
+      DbgFltString(V.Mass(),7,6), 
       "","",
       m_Nd.FullObjTag());
     }
@@ -8979,9 +9050,9 @@ void CDirectAccCalc::Complete(int Instance, SpContainer & Cn, double TimeInc)
   #if dbgFlwNode
   if (dbgAccCalcs())
     {
-    dbgpln("Complete %3i %20s %20s %20s %20s %s", Instance,
+    dbgpln("Complete %3i %20s %20s %20s %20s %s", Instance, 
       DbgFltString(m_Out.Sum.FlowMass,7,10),
-      DbgFltString(Cn.Mass(),7,10),
+      DbgFltString(Cn.Mass(),7,10), 
       "","",
       m_Nd.FullObjTag());
     }
@@ -8995,9 +9066,9 @@ void CDirectAccCalc::Complete(int Instance, SpQueue & Q, double TimeInc)
   #if dbgFlwNode
   if (dbgAccCalcs())
     {
-    dbgpln("Complete %3i %20s %20s %20s %20s %s", Instance,
+    dbgpln("Complete %3i %20s %20s %20s %20s %s", Instance, 
       DbgFltString(m_Out.Sum.FlowMass,7,6),
-      DbgFltString(Q.TotalMass(),7,6),
+      DbgFltString(Q.TotalMass(),7,6), 
       "","",
       m_Nd.FullObjTag());
     }
@@ -9011,9 +9082,9 @@ void CDirectAccCalc::Complete(int Instance, CSysVector & V, double totHz, double
   #if dbgFlwNode
   if (dbgAccCalcs())
     {
-    dbgpln("Complete %3i %20s %20s %20s %20s %s", Instance,
+    dbgpln("Complete %3i %20s %20s %20s %20s %s", Instance, 
       DbgFltString(m_Out.Sum.FlowMass,7,6),
-      DbgFltString(V.Mass(),7,6),
+      DbgFltString(V.Mass(),7,6), 
       "","",
       m_Nd.FullObjTag());
     }
@@ -9059,7 +9130,7 @@ void CDirectAccCalc::DoComplete(int Instance, double TimeInc)
   #if dbgFlwNode
   if (dbgAccCalcs())
     {
-    dbgpln("Complete === %20s %20s %20s %20s %s",
+    dbgpln("Complete === %20s %20s %20s %20s %s", 
       DbgFltString(m_In.Sum.FlowMass,7,6),
       DbgFltString(m_Out.Sum.FlowMass,7,6),
       DbgFltString(m_In.Sum.FlowHz),
@@ -9095,6 +9166,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
   m_NdSignImp=0;
+  m_AreaListPos=NULL;
   Initialise(eType, Nd);
   InitialiseIO(ShowUsr, SysEnable, Tag, -1, -1);
   //InitialiseFlags(ShowUsr, SysEnable, Tag);
@@ -9112,7 +9184,7 @@ CDirectFlwIO::~CDirectFlwIO()
 
 //--------------------------------------------------------------------------
 
-void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
+void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd) 
   {
   m_pNd         = Nd;
   m_sTag        = "";
@@ -9135,7 +9207,7 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
     case eDIO_Accum:
       m_NdSignImp=-1;
       break;
-    default:
+    default: 
       break;
     }
 
@@ -9372,7 +9444,7 @@ flag CDirectFlwIO::GlobalConnect()
   {
   MakeAreaTag();
 
-  bool Disabled=true;
+  bool Disabled=true; 
   switch (m_eType)
     {
     case eDIO_Spill:
@@ -9408,10 +9480,18 @@ flag CDirectFlwIO::GlobalConnect()
   if (!m_bConnected)
     return false;
 
+
+  //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
+  //CDirectFlwIO* X;
+  //if (Connd.GetCount()==0 || !Connd.Lookup(this, X))
+  //  {
+  //  Connd.SetAt(this,this);
+  //  //dbgpln("+++ %i", Connd.GetCount());
+  //  }
   CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pArea->m_DirectIOsConnected;
   if (Connd.GetCount()==0 || Connd.Find(this)==NULL)
     {
-    Connd.AddTail(this);
+    m_AreaListPos=Connd.AddTail(this);
     //dbgpln("+++ %i", Connd.GetCount());
     }
 
@@ -9426,7 +9506,7 @@ flag CDirectFlwIO::GlobalConnect()
     for (int iO=0; (NdIOLcl[iO].pDesc && NdIOLcl[iO].m_Id != m_iLclIOId); iO++)
       {};
     // if 'NdIOLcl[iO].pDesc' is NULL then this is not defined in the IOList and hence is not needed
-    if (NdIOLcl[iO].pDesc==NULL)
+    if (NdIOLcl[iO].pDesc==NULL) 
       {
 #ifndef _RELEASE
       dbgpln("Direct Connect Failed LclIOId %i not found in %s", m_iLclIOId, m_pNd->FullObjTag());
@@ -9481,7 +9561,7 @@ flag CDirectFlwIO::GlobalConnect()
       m_pArea->SetIOAutoConnect(iEnvConnectedIO, true);
 
       //dbgpln(".. %i %i %s", m_iMyConnectedIO, iEnvConnectedIO, m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
-
+    
       return true;
       }
     m_iMyConnectedIO = -1;
@@ -9514,12 +9594,17 @@ flag CDirectFlwIO::GlobalDisConnect()
   if (m_pArea.Connected())
     {
 
-    CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pArea->m_DirectIOsConnected;
+    //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
+    //Connd.RemoveKey(this);
+    ////dbgpln("+++ %i", Connd.GetCount());
 
-    POSITION Pos=Connd.GetCount()>0 ? Connd.Find(this) : NULL;
-    if (Pos)
+
+    //CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pArea->m_DirectIOsConnected;
+    //POSITION Pos=Connd.GetCount()>0 ? Connd.Find(this) : NULL;
+    if (m_AreaListPos)
       {
-      Connd.RemoveAt(Pos);
+      m_pArea->m_DirectIOsConnected.RemoveAt(m_AreaListPos);
+      m_AreaListPos=NULL;
       //dbgpln("--- %i", Connd.GetCount());
       }
     m_pArea.DisConnect();
@@ -9569,7 +9654,7 @@ void CDirectFlwIO::PreDisConnect(int IONo)
 flag CDirectFlwIO::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if ((IONo>=0) && m_pNd->IOId_Self(IONo)==m_iLclIOId)
-    return m_pNd->IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, m_Opening, &m_pNd->IOFBFlng_Rmt(IONo)->PhD(), NULL);
+    return m_pNd->IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, m_Opening, &m_pNd->IOFBFlng_Rmt(IONo)->PhD(), NULL);
   return false;
   }
 

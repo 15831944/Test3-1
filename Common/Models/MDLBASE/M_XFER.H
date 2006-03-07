@@ -22,13 +22,15 @@
 // ==========================================================================
 // Basic Flow Object
 
-const int IOId_XferLeak=LeakIOId(0);
+const int IOId_XferLeak = LeakIOId(0);
+
+XID xidNetworkIsolator  = MdlBsXID(10000);
 
 class DllImportExport MN_Xfer : public MdlNode
   {
   public:
     MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
-    virtual ~MN_Xfer(){};
+    virtual ~MN_Xfer();
 
     virtual flag DataXchg(DataChangeBlk & DCB);
     virtual flag ValidateData(ValidateDataBlk & VDB);
@@ -36,16 +38,21 @@ class DllImportExport MN_Xfer : public MdlNode
     virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
+    virtual flag   InitialiseSolution();
     virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
     virtual flag   Set_Sizes();
     virtual void   SetState(eScdMdlStateActs RqdState);
-    virtual bool   PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual void   StartSolution();
+    virtual void   StartStep();
     virtual void   EvalJoinPressures(long JoinMask);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
     virtual void   EvalProducts(long JoinMask);
+
+    virtual void   EvalIntegral(long JoinMask);
+    virtual void   ConvergeStates(CConvergeStateBlk &CSB);
 
     virtual void   EvalDiscrete();
 
@@ -68,6 +75,8 @@ class DllImportExport MN_Xfer : public MdlNode
 
     virtual dword  ModelStatus();
 
+    DEFINE_CI(MN_Xfer, MdlNode, 4);
+
   public:
     CFT_Mixer      m_FTM;
     CSpCOptionPtr <SpConduit> m_QFeed;
@@ -76,6 +85,14 @@ class DllImportExport MN_Xfer : public MdlNode
     CPBPressCtrl   m_PBPCtrl0;
     CReactionBase  m_RB;
     CDirectFlwIO   m_Leak;
+
+    bool           m_NetworkIsolator;
+    //SpModel      * m_pAccumulator;
+    SpContainer    * m_Accumulator;
+    CDirectFlwIO   * m_AccIn;
+    CDirectFlwIO   * m_AccOut;
+    CDirectAccCalc * m_AccCalc;
+
   };
 
 //===========================================================================

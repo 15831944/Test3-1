@@ -138,7 +138,7 @@ class DllImportExport C4PortValve  : public MdlNode
     virtual Z_States  SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
     virtual flag      Set_Sizes();
     virtual void      SetState(eScdMdlStateActs RqdState);
-    virtual bool      PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    virtual bool      PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void      ConfigureJoins();
     virtual void      StartStep();
 

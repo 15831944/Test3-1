@@ -385,7 +385,7 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual flag   InitialiseSolution();
     virtual void   StartSolution();
     virtual void   OnSetUserMethod();
-    virtual bool   PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual void   StartStep();
 

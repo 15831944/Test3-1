@@ -48,7 +48,7 @@ class DllImportExport CBBBase
     void      DoStartSolution();
     void      DoStartStep();
     
-    bool      DoPropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    bool      DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     void      DoOnSetUserMethod();
 
     bool      DoConfigureJoins();

@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
-//#include "optoff.h"
+#include "optoff.h"
 
 //temp force solver threads to zero until multi-threaded solver bug is fixed
 #define FORCERQDTHREADS    0
@@ -66,6 +66,7 @@
 #define dbgTestConnectivity    0
 #define TimingStats            NDSTOPWATCHES
 
+static CDbgMngr dbgBuildOrder         ("FlwSolve",  "BuildOrd");
 #if WithIOChgMonitor
 static CDbgMngr dbgDumpChanges        ("FlwNode",   "DumpChanges");
 static CDbgMngr dbgDumpChangesIn      ("FlwNode",   "DumpChangesIn");
@@ -2727,7 +2728,8 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
 
   if (Which & TOSL_Proc)
     {
-    if (0)
+    #if dbgFlwSolve
+    if (dbgBuildOrder())
       {
       for (int i=0; i<2; i++)
         {
@@ -2737,6 +2739,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           dbgpln("%s ", NJ.Nd.FullObjTag());
         }
       }
+    #endif
 
     ProcTOSequence.RemoveAllToFreeList();
 
@@ -2772,21 +2775,43 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       C.m_iProcOrder=iOrder++;
       ProcTOSequence.AddTail(NJ);
 
-      if (0)
+      #if dbgFlwSolve
+      if (dbgBuildOrder())
         dbgpln("Proc List 1 %s", NJ.m_pNd->FullObjTag());
+      #endif
 
       //p->m_nFlwIOsInDone=0;
       CIArray & Deps=C.m_FlwDependentIOs;
       for (int d=0; d<Deps.GetSize(); d++)
         {
+        #if dbgFlwSolve
+        if (dbgBuildOrder())
+          dbgp(" %-20s %3i %3i ", p->Tag(), Deps[d], p->m_IOs[Deps[d]].iClusterId);
+        #endif
+
         FlwNode * pRmt=p->Nd_Rmt(Deps[d]);
-        CJoinCluster &CRmt=*p->IO_Cluster_Rmt(Deps[d]);
-        if (InterlockedIncrement(&(CRmt.m_nFlwIOsInDone))==CRmt.m_nFlwIOsInReqd)
+        CJoinCluster *pCRmt=p->IO_Cluster_Rmt(Deps[d]);
+        if (pCRmt)
           {
-          //dbgpln("+++++ %-20s %3i %s", p->Tag(), CRmt.m_iCluster, pRmt->Tag());
-          Lst0.AddHead(CNodeEvalIndex(pRmt, CRmt.m_iCluster, CRmt.m_iJoinMask));
-          // pRmt->m_nFlwIOsInDone=0;
+          if (InterlockedIncrement(&(pCRmt->m_nFlwIOsInDone))==pCRmt->m_nFlwIOsInReqd)
+            {
+            #if dbgFlwSolve
+            if (dbgBuildOrder())
+              dbgp("  Add  %3i %s", pCRmt->m_iCluster, pRmt->Tag());
+            #endif
+            Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask));
+            // pRmt->m_nFlwIOsInDone=0;
+            }
           }
+        else
+          {
+          dbgpln("Bad Rmt Cluster %s", pRmt->Tag());
+          }
+
+        #if dbgFlwSolve
+        if (dbgBuildOrder())
+          dbgpln("");
+        #endif
         }
       }
 
@@ -2796,8 +2821,10 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       {
       NJ.Cluster.m_iProcOrder=iOrder++;
       ProcTOSequence.AddTail(NJ);
-      if (0)
+      #if dbgFlwSolve
+      if (dbgBuildOrder())
         dbgpln("Proc List 2 %s", NJ.m_pNd->FullObjTag());
+      #endif
       };
 
     CNodeEvalIndexIter ProcOrder(ProcTOSequence);
@@ -3196,15 +3223,20 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
         }
       }
 
-    CFlwNodeIter All(m_AllNds);
-    for (FlwNode * p = All.First(); (p); p=All.Next())
+    if (Which & TOSL_Proc)
       {
-      bool ProcEvalOK=false;
-      for (int c=0; c<p->NClusters(); c++)
-        if (p->m_Clusters[c].m_iProcOrder>=0)
-          ProcEvalOK=true;
-      if (!ProcEvalOK && p->m_iCtrlOrder<0)
-        dbgpln("No Evaluation %s", p->FullObjTag());
+      CFlwNodeIter All(m_AllNds);
+      for (FlwNode * p = All.First(); (p); p=All.Next())
+        {
+        bool ProcEvalOK=true;
+        for (int c=0; c<p->NClusters(); c++)
+          if (p->m_Clusters[c].m_iProcOrder<0)
+            ProcEvalOK=false;
+        if (!ProcEvalOK)
+          dbgpln("No Proc Evaluation %s", p->FullObjTag());
+        //if (!ProcEvalOK && p->m_iCtrlOrder<0)
+        //  dbgpln("No Evaluation %s", p->FullObjTag());
+        }
       }
     }
   #endif
@@ -3569,6 +3601,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
 
       FlwSlvNd.StructureChanged(&FlwSlvNd);
 
+      //dbgpln("EvalProductClusters -----------------------------");
       FlwNode * p;
       CFlwNodeIter Flw(m_ProcessNds);
       for (p = Flw.First(); (p); p=Flw.Next())
@@ -3582,6 +3615,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           p->SetIOEvalSeq_WasOut(i, p->IOEvalSeq_Out(i));
           }
 
+        //dbgpln("%s", p->Tag());
         while (p->EvalProductClusters(c, Mask))
           {
           if (p->m_Clusters.GetSize()<=c)
@@ -3595,19 +3629,26 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           C.m_nFlwIOsInDone=0;
           C.m_nFlwIOsInReqd=0;
           C.m_nFlwIOs=0;
+          //dbgp("                             %2i %#06.6x : ", c, Mask);
           for (int io=0; io<p->NoFlwIOs(); io++)
+            {
             if ((1<<p->IO_Join_Id(io)) & Mask)
               {
+              //dbgp(" %2i", io);
               C.m_IOs.SetAtGrow(C.m_nFlwIOs++, io);
               p->SetIO_Cluster_Id(io, c);
               }
+            }
+          //dbgpln("");
+
           c++;
           }
         p->m_Clusters.SetSize(c);
 
         p->Busy = p->Done = 0;
         }
-#define XXXX 0
+      ///dbgpln("-------------------------------------------------");
+
       for (p = Flw.First(); (p); p=Flw.Next())
         {
         RDBASSERT(p->IsProcessSeq(), "Bad Proc Seq")
@@ -3625,20 +3666,10 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           if (p->fDoDbgBrk)
             { int xxx=0; }
 
-          if (XXXX)
-            {
-            p->SetIOEvalSeq_In (0, Zero0 ? (!WasIn0 && !WasOut0 ? false  : WasIn0)  : Fwd);//Fwd && !Zero0);
-            p->SetIOEvalSeq_Out(0, Zero0 ? (!WasIn0 && !WasOut0 ? false  : WasOut0) : !Fwd);//!Fwd && !Zero0);
-            p->SetIOEvalSeq_In (1, Zero1 ? (!WasIn1 && !WasOut1 ? false  : WasIn1)  : !Fwd);//!Fwd && !Zero1);
-            p->SetIOEvalSeq_Out(1, Zero1 ? (!WasIn1 && !WasOut1 ? false  : WasOut1) : Fwd);//Fwd && !Zero1);
-            }
-          else
-            {
-            p->SetIOEvalSeq_In (0, Fwd && !Zero0);
-            p->SetIOEvalSeq_Out(0, !Fwd && !Zero0);
-            p->SetIOEvalSeq_In (1, !Fwd && !Zero1);
-            p->SetIOEvalSeq_Out(1, Fwd && !Zero1);
-            }
+          p->SetIOEvalSeq_In (0, Fwd && !Zero0);
+          p->SetIOEvalSeq_Out(0, !Fwd && !Zero0);
+          p->SetIOEvalSeq_In (1, !Fwd && !Zero1);
+          p->SetIOEvalSeq_Out(1, Fwd && !Zero1);
 
           if (p->IOEvalSeq_In(0) || p->IOEvalSeq_In(1))
             p->m_Clusters[0].m_nFlwIOsIn++;
@@ -3667,26 +3698,21 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
             {
             if (!p->IO_In(i) && !p->IO_Out(i))
               {
-              if (XXXX)
-                {
-                p->SetIOEvalSeq_In (i, p->IOEvalSeq_WasIn (i));
-                p->SetIOEvalSeq_Out(i, p->IOEvalSeq_WasOut(i));
-                }
-              else
-                {
-                p->SetIOEvalSeq_In(i, false);
-                p->SetIOEvalSeq_Out(i, false);
-                }
+              p->SetIOEvalSeq_In(i, false);
+              p->SetIOEvalSeq_Out(i, false);
               }
             else
               {
               p->SetIOEvalSeq_In(i, p->IO_In(i));
               p->SetIOEvalSeq_Out(i, p->IO_Out(i));
               }
-            if (p->IOEvalSeq_In(i))
-              p->m_Clusters[p->IO_Cluster_Id(i)].m_nFlwIOsIn++;
-            if (p->IOEvalSeq_Out(i))
-              p->m_Clusters[p->IO_Cluster_Id(i)].m_nFlwIOsOut++;
+            if (p->IO_Cluster_Id(i)>=0)
+              {
+              if (p->IOEvalSeq_In(i))
+                p->m_Clusters[p->IO_Cluster_Id(i)].m_nFlwIOsIn++;
+              if (p->IOEvalSeq_Out(i))
+                p->m_Clusters[p->IO_Cluster_Id(i)].m_nFlwIOsOut++;
+              }
             }
           }
         for (int c=0; c<p->m_Clusters.GetCount(); c++)
@@ -4749,38 +4775,45 @@ inline static void ProcLoopEnd(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, int
       //C.
       FlwNode * pRmt=NEI.Nd.Nd_Rmt(Deps[d]);
 
-      CJoinCluster &CRmt=*NEI.Nd.IO_Cluster_Rmt(Deps[d]);
-      if (InterlockedIncrement(&CRmt.m_nFlwIOsInDone)==CRmt.m_nFlwIOsInReqd)//.FlwIOsInReqd())
+      CJoinCluster *pCRmt=NEI.Nd.IO_Cluster_Rmt(Deps[d]);
+      if (pCRmt)
         {
-        //InterlockedExchange(&CRmt.m_nFlwIOsInDone, 0);
-        //      Iter.AddTail(pRmt);
-        Iter.AddTail(CNodeEvalIndex(pRmt, CRmt.m_iCluster, CRmt.m_iJoinMask));
-       
-        #if dbgFlwSolve
-        if (dbgThreadsNodes())
+        if (InterlockedIncrement(&pCRmt->m_nFlwIOsInDone)==pCRmt->m_nFlwIOsInReqd)//.FlwIOsInReqd())
           {
-          dbglock();
-          dbgp("%*s %2i) %3i %3i Go  %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", 
-            Deps[d],CRmt.m_nFlwIOsInDone,CRmt.m_nFlwIOsInReqd,  pRmt->Tag());
-          dbgp(" 0x%08x", &CRmt);
-          dbgpln("");
-          dbgunlock();
+          //InterlockedExchange(&pCRmt->m_nFlwIOsInDone, 0);
+          //      Iter.AddTail(pRmt);
+          Iter.AddTail(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask));
+         
+          #if dbgFlwSolve
+          if (dbgThreadsNodes())
+            {
+            dbglock();
+            dbgp("%*s %2i) %3i %3i Go  %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", 
+              Deps[d],pCRmt->m_nFlwIOsInDone,pCRmt->m_nFlwIOsInReqd,  pRmt->Tag());
+            dbgp(" 0x%08x", pCRmt);
+            dbgpln("");
+            dbgunlock();
+            }
+          #endif  
           }
-        #endif  
+        else
+          {
+          #if dbgFlwSolve
+          if (dbgThreadsNodes())
+            {
+            dbglock();
+            dbgp("%*s %2i) %3i %3i +   %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "",
+              Deps[d], pCRmt->m_nFlwIOsInDone,pCRmt->m_nFlwIOsInReqd, pRmt->Tag());
+            dbgp(" 0x%08x", pCRmt);
+            dbgpln("");
+            dbgunlock();
+            }
+          #endif
+          }
         }
       else
         {
-        #if dbgFlwSolve
-        if (dbgThreadsNodes())
-          {
-          dbglock();
-          dbgp("%*s %2i) %3i %3i +   %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "",
-            Deps[d], CRmt.m_nFlwIOsInDone,CRmt.m_nFlwIOsInReqd, pRmt->Tag());
-          dbgp(" 0x%08x", &CRmt);
-          dbgpln("");
-          dbgunlock();
-          }
-        #endif
+        dbgpln("Bad Rmt Cluster %s", pRmt->Tag());
         }
       }
     }
@@ -9921,7 +9954,9 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
     if (fGlblLinksDone)
       return;
 
-    dbgpln("DoGlobalLinks ========================================================");
+    CStopWatch SW;
+    SW.Start();
+    dbgpln("DoGlobalLinks ======================================================== %10.3fms", SW.Secs()*1e3);
 
     // First Remove Bad Ones
     FlwNode *p=NULL;
@@ -9961,7 +9996,7 @@ DeleteIt:
     while (GetObj_All(p))
       if (p->GetActive())
         {
-        p->SetUserMethod(p->UserMethod()); // update UserMethod requirements
+        //p->SetUserMethodReqd(p->UserMethod()); // update UserMethod requirements down to FB's etc
         p->GlobalConnect();
         }
 
@@ -9975,6 +10010,7 @@ DeleteIt:
 
     EqnSlv().ConnectAllTears(false);
     EqnSlv().RemoveUnusedTears();
+
 
     p=NULL;
     while (GetObj_All(p))
@@ -9992,6 +10028,39 @@ DeleteIt:
         LogError(p->FullObjTag(), 0, "Incomplete ValidateData");
       }
 
+    if (1)
+      {
+      // Propagate FlowModes
+      p=NULL;
+      while (GetObj_All(p))
+        p->m_UserMethodPass=0;
+
+      p=NULL;
+      while (GetObj_All(p))
+        {
+        if (p->m_UserMethodPass==0)
+          {
+          if (p->m_UserMethodReqd >= 0)
+            {
+            //dbgpln("PropagateNetInfo");
+            //dbgindent(2);
+            CPropagateNetInfoCtrl Ctrl(eScdGetFlowMode, 0);
+            p->PropagateNetInfo(Ctrl, -1);
+
+            Ctrl.m_Task=eScdSetFlowMode;
+            Ctrl.m_Pass++;
+
+            p->PropagateNetInfo(Ctrl, -1);
+            //dbgindent(-2);
+            }
+          else
+            {
+            p->SetUserMethod(p->UserMethod(), p->m_pUserMethodObj); // update UserMethod requirements down to FB's etc
+            }
+          }
+        }
+      }
+
     Set_All_Sizes();
     TIMINGLAP("SetAllSizes");
 
@@ -10001,6 +10070,7 @@ DeleteIt:
     fGlblLinksDone=true;
     //SetLoadAllModelStatus();
     XUpdateDisplays(true, false);
+    dbgpln("GlobalLinksDone ==================================================== %10.3fms", SW.Secs()*1e3);
     }
   }
 
@@ -10015,7 +10085,10 @@ void CFlwSolver::UnDoGlobalLinks()
 
   if (GlobalLinksBusy())
     return;
-  dbgpln("UnDoGlobalLinks ======================================================");
+
+  CStopWatch SW;
+  SW.Start();
+  dbgpln("UnDoGlobalLinks 1 ==================================================== %10.3fms", SW.Secs()*1e3);
 
   EqnSlv().DisConnectAllTears();
 
@@ -10025,21 +10098,58 @@ void CFlwSolver::UnDoGlobalLinks()
   Dyn.m_TSCA.TerminateCollection();
   //TSCA.TerminateCollection();
 
+  dbgpln("UnDoGlobalLinks 2 ==================================================== %10.3fms", SW.Secs()*1e3);
 
   PB.ClearSolutionBlks(true);
   Dyn.ClearSolutionBlks(true);
 
+  dbgpln("UnDoGlobalLinks 3 ==================================================== %10.3fms", SW.Secs()*1e3);
+
+  int NFlwNodes=0;
   for (FlwNode * p=NULL; GetObj_All(p); )
+    NFlwNodes++;
+
+
+  m_TempNdPtrs.SetSize(Max(m_TempNdPtrs.GetSize(), NFlwNodes));
+
+  int iNd=0;
+  for (FlwNode * p=NULL; GetObj_All(p); )
+    m_TempNdPtrs[iNd++]=p;
+
+  // do this in reverse order to improve speed
+  double S0=SW.Secs();
+  while (iNd>0)
     {
+    p=m_TempNdPtrs[--iNd];
+
     //dbgpln("Disconnect %s", p->Tag());
 
     p->GlobalDisConnect();
+    double S1=SW.Secs();
+    //dbgpln("  %10.1fus %-20s %s ", (S1-S0)*1e6, p->ClassId(), p->FullObjTag());
+    S0=S1;
     #if dbgFlwSolve
     if (dbgXRefsBuild())// && p->m_bXRefsValid)
       dbgpln("UnDoGlobalLinks:UnlinkAllXRefs ------------------------------------------------ %s", p->GetOwnerTag());
     #endif
     p->UnlinkAllXRefs();
     }
+
+  //dbgpln("UnDoGlobalLinks 3.5 ================================================== %10.3fms", SW.Secs()*1e3);
+
+  //for (FlwNode * p=NULL; GetObj_All(p); )
+  //  {
+  //  //dbgpln("Disconnect %s", p->Tag());
+
+  //  //p->GlobalDisConnect();
+  //  #if dbgFlwSolve
+  //  if (dbgXRefsBuild())// && p->m_bXRefsValid)
+  //    dbgpln("UnDoGlobalLinks:UnlinkAllXRefs ------------------------------------------------ %s", p->GetOwnerTag());
+  //  #endif
+  //  p->UnlinkAllXRefs();
+  //  }
+
+  dbgpln("UnDoGlobalLinks 4 ==================================================== %10.3fms", SW.Secs()*1e3);
 
   // Must remove XRefs in case their contained info goes invalid. (eg. A referenced node gets deleted)
   for (p=NULL; GetObj_All(p); )
@@ -10050,6 +10160,7 @@ void CFlwSolver::UnDoGlobalLinks()
     #endif
     p->RemoveAllXRefs();
     }
+  dbgpln("UndoGlobalLinksDone ================================================== %10.3fms", SW.Secs()*1e3);
 
   fGlblLinksDone=false;
   }

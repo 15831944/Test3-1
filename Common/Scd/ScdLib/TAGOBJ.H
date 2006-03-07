@@ -995,9 +995,13 @@ class DllImportExport TaggedObject : public ConditionBlk
     flag            FullHeatMode()          { return (HeatMode() & HM_All)==HM_Full; };
     //flag            SkipFullHeatMode()      { return (HeatMode() & HM_All)==0; };
 
-    void            SetUserMethod(long U);
+    void            SetUserMethodReqd(long U);
+    void            SetUserMethod(long UserMethod, TaggedObject * pRuleObj);
     long            UserMethod()            { return m_lRunMds & UM_All; };
     virtual void    OnSetUserMethod()       { };
+    long            m_UserMethodReqd;
+    TaggedObject  * m_pUserMethodObj;
+    int             m_UserMethodPass;
 
     flag            GetActive();
     void            SetActive(flag Active);

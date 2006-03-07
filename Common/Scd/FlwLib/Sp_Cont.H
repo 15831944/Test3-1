@@ -1822,6 +1822,7 @@ template < class C > class CSpCOptionPtr
     CSpCOptionPtr(LPTSTR Tag, TaggedObject * Own) { p=NULL; pTag=Tag; pOwn=Own; };
     ~CSpCOptionPtr() { delete p; };
     bool Exists() { return p!=NULL; };
+    void Remove() { delete p; p=NULL; };
     C * operator->()
       {
       if (p==NULL) 

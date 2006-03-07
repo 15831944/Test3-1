@@ -102,7 +102,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
     virtual flag   Set_Sizes();
     virtual void   StartSolution();
     virtual void   StartStep();
-    virtual bool   PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual flag   MoveTearFlange(int iTearIO, pFlwNode &pNewTearNd, int &iNewTearIO);
     virtual void   EvalJoinPressures(long JoinMask);

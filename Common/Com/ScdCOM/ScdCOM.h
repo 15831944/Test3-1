@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 6.00.0361 */
-/* at Tue Mar 07 11:45:49 2006
+/* at Tue Mar 07 15:31:21 2006
  */
 /* Compiler settings for .\ScdCOM.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)

@@ -38,6 +38,7 @@ class TagObjClass;
 class CReactionBase;
 class CFilesUsedArray;
 class CClosureInfoArray;
+class CPropagateNetInfoCtrl;
 class SpModel;
 
 class CVLEBase;
@@ -738,7 +739,7 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
 
     virtual void    InitialiseSolution()          {}; // each
 
-    virtual bool    PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    virtual bool    PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void    OnSetUserMethod();                // called when the UserMethod is changed
 
     virtual void    StartSolution()               {}; // each Start of run

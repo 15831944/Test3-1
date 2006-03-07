@@ -52,7 +52,7 @@ double QGibbsiteHOR::totDHf(SpModel *Mdl, double T, double P)
 
   if (pGibbTrm)
     {
-    double Ht = 631.64 + 1.3949 * K_2_C(m_RB.EstFinalT());
+    double Ht = 631.64;//CNM.JSM + 1.3949 * K_2_C(m_RB.EstFinalT());
     double msGibbs = pGibbTrm->dMlXfer * Gibbsite.MW;
     double msAlumina = msGibbs * Alumina.MW / (2.0*Gibbsite.MW);
     return -Ht * msAlumina;
@@ -93,7 +93,7 @@ double QBoehmiteHOR::totDHf(SpModel *Mdl, double T, double P)
 
   if (pBoehTrm)
     {
-    double Ht = 170.4738 + 1.0212 * K_2_C(m_RB.EstFinalT());
+    double Ht = 170.4738;//CNM.JSM+ 1.0212 * K_2_C(m_RB.EstFinalT());
     double msBoehm = pBoehTrm->dMlXfer * Boehmite.MW;
     double msAlumina = msBoehm * Alumina.MW / (2.0*Boehmite.MW);
     return -Ht * msAlumina;

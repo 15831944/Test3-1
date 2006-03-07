@@ -1266,6 +1266,10 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   dbgpln("Construct %8x %s %s",this,pClass_->ClassId(), Tag_);
   #endif
 
+  m_UserMethodReqd=0;
+  m_UserMethodPass=0;
+  m_pUserMethodObj=NULL;
+
   m_pClass=pClass_;
   VERIFY(m_pClass!=NULL);
   m_pClass->IncInstances();
@@ -1332,9 +1336,15 @@ TaggedObject::~TaggedObject()
 
 // -------------------------------------------------------------------------
 
-void TaggedObject::SetUserMethod(long UserMethod)
+void TaggedObject::SetUserMethodReqd(long UserMethod)
+  {
+  m_UserMethodReqd=UserMethod;
+  }
+
+void TaggedObject::SetUserMethod(long UserMethod, TaggedObject * pRuleObj)
   {
   m_lRunMds = (m_lRunMds & ~UM_All) | (UserMethod & UM_All);
+  m_pUserMethodObj=pRuleObj;
   StructureChanged(this);
   OnSetUserMethod();
   };

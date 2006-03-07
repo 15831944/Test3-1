@@ -76,6 +76,8 @@ MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagO
   AttachClassInfo(nc_MSrcSnk|nc_Audit,NULL);
   m_PFeed=Std_P;
 
+  //m_DirectIOsConnected.InitHashTable(FindNextPrimeNumber((UINT)(5000)));
+
   m_Content.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
 
   m_dwAuditOptions = 0;
@@ -390,14 +392,14 @@ flag MN_Area::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
 
   if (Task==FET_GetMode)
     {
-    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, 1.0, NULL, NULL);
+    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, true, false, 1.0, NULL, NULL);
     return EqnOK || pFB->m_fFixed;
     //pFB->SetQmFree();
     //return false;
     }
   else
     {
-    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, 1.0, NULL, NULL);
+    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, true, false, 1.0, NULL, NULL);
     return EqnOK || pFB->m_fFixed;
     }
   };
@@ -710,6 +712,12 @@ void MN_Area::EvalBalance(int Pass)
       while (DPos)
         {
         CDirectFlwIO &D=*m_DirectIOsConnected.GetNext(DPos);
+      //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*>::CPair *pPair;
+      //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
+      //for (pPair=Connd.PGetFirstAssoc(); pPair; pPair=m_DirectIOsConnected.PGetNextAssoc(pPair))
+      //  {
+      //  CDirectFlwIO &D=*pPair->value;
+
         FlwNode &DNd=D.Nd;
 
         int iNd;

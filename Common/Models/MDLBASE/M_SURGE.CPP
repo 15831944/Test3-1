@@ -493,7 +493,7 @@ flag MN_Surge::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
       IOFB(IONo, FE)->SetDPq(0.0, 0.0);
       break;
     case FET_CalcDP:
-      IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);//, IOP_Self(IONo), IOP_Flng(IONo));//, *IOConduit(IONo), IC);
+      IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);//, IOP_Self(IONo), IOP_Flng(IONo));//, *IOConduit(IONo), IC);
     }
   return true;
   };

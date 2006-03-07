@@ -18,6 +18,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   m_QFeed("QFeed", this),
   m_QProd("QProd", this),
+  //m_Accumulator("Accumulator", this),
   m_RB(this, false),
   m_PBPCtrl0(PBPC_MinFd, Std_P, true),
   m_FTM(this),
@@ -25,7 +26,17 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   {
   AttachClassInfo(nc_MXfer,NULL);
   Joins.SetSize(1);
+  m_NetworkIsolator=false;
+  m_Accumulator=NULL;
+  m_AccIn=NULL;
+  m_AccOut=NULL;
+  m_AccCalc=NULL;
+  SetInlineIntegral(true);
   };
+
+MN_Xfer::~MN_Xfer()
+  {
+  }
 
 // -------------------------------------------------------------------------
 
@@ -35,6 +46,51 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_RB.DataXchg(DCB))
     return 1;
+  switch(DCB.lHandle)
+    {
+    case xidNetworkIsolator:
+      {
+      if (DCB.rB)
+        {
+        
+        if (!DCB.ForFileSnpScn())
+          DoGlobalDisconnect();
+
+        m_NetworkIsolator=*DCB.rB!=0;
+        if (m_NetworkIsolator)
+          {
+          m_Accumulator=new SpContainer("Accumulator", this, TOA_Embedded);
+          //m_Accumulator.ChangeShape(&SpShPipeClass);
+          m_Accumulator->SetClosed(true);
+          m_Accumulator->SetPressAsSet(true);
+          m_Accumulator->SetStateAction(IE_Integrate);
+          m_Accumulator->dwDisplay = SPDF_DynMode;
+          m_AccIn=new CDirectFlwIO(eDIO_Accum, this, false, true, "Accumulation");
+          m_AccOut=new CDirectFlwIO(eDIO_Deplete, this, false, true, "Depletion");
+          m_AccCalc=new CDirectAccCalc(this, *m_AccIn, *m_AccOut);
+
+          Joins.SetSize(2);
+          }
+        else
+          {
+          delete m_AccCalc;
+          delete m_AccOut;
+          delete m_AccIn;
+          delete m_Accumulator;
+          m_AccCalc=NULL;
+          m_AccOut=NULL;
+          m_AccIn=NULL;
+          m_Accumulator=NULL;
+
+          Joins.SetSize(1);
+          }
+        if (!DCB.ForFileSnpScn())
+          DoGlobalConnect();
+        }
+      DCB.B=m_NetworkIsolator;
+      return 1;
+      }
+    }
   return MdlNode::DataXchg(DCB);
   }
 
@@ -100,6 +156,25 @@ void MN_Xfer::PreDisConnect(int IONo)
   MdlNode::PreDisConnect(IONo);
   }
 
+// ---------------------------------------------------------------------------
+
+flag MN_Xfer::InitialiseSolution()
+  {
+  switch (SolveMode())
+    {
+    case SM_Probal:
+
+      break;
+    case SM_DynXfer:
+    case SM_DynFull:
+      if (m_NetworkIsolator)
+        m_Accumulator->SetStateAction(IE_SaveState);
+      break;
+    }
+
+  return 1;
+  };
+
 //--------------------------------------------------------------------------
 
 Z_States MN_Xfer::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
@@ -126,6 +201,8 @@ flag MN_Xfer::Set_Sizes()
 void   MN_Xfer::SetState(eScdMdlStateActs RqdState)
   {
   MdlNode::SetState(RqdState);
+  if (m_NetworkIsolator)
+    m_Accumulator->SetState(RqdState);
   switch (RqdState)
     {
     case MSA_PBInit:
@@ -166,23 +243,16 @@ void   MN_Xfer::SetState(eScdMdlStateActs RqdState)
 
 //---------------------------------------------------------------------------
 
-bool MN_Xfer::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool MN_Xfer::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
-  if (!FlwNode::PropagateNetInfo(Task, IONo, Info, Start))
+  if (!FlwNode::DoPropagateNetInfo(Ctrl, IONo, false))
     return false;
 
-  dbgpln("PropagateNetInfo %s", FullObjTag());
-
-  switch (Info)
+  if (!m_NetworkIsolator)
     {
-    case eScdSetFlowMode :
-      {
-      //m_FEP.FlwRqd().SetPressOn(Info.m_PressOn);
-      break;
-      }
+    for (int i=0; i<NoFlwIOs(); i++)
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
     }
-  for (int i=0; i<NoFlwIOs(); i++)
-    Nd_Rmt(i)->PropagateNetInfo(Task, IOIONo_Rmt(i), Info, false);
 
   return true;
   };
@@ -191,8 +261,19 @@ bool MN_Xfer::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info,
 
 void MN_Xfer::ConfigureJoins()
   {
-  for (int i=0; i<NoFlwIOs(); i++)
-    SetIO_Join(i, 0);
+  if (m_NetworkIsolator)
+    {
+    for (int i=0; i<NoFlwIOs(); i++)
+      if (Nd_Rmt(i)->UserMethod()==LFM_Xfer)
+        SetIO_Open(i, 1, false, ESS_Denied);
+      else
+        SetIO_Open(i, 0, false, ESS_Denied);
+        }
+  else
+    {
+    for (int i=0; i<NoFlwIOs(); i++)
+      SetIO_Join(i, 0);
+    }
   };
 
 //--------------------------------------------------------------------------
@@ -223,6 +304,18 @@ void MN_Xfer::StartSolution()
 //    return MdlNode::GetJoinPressure(iSolnTyp, PB);
 //  return FlwNode::GetJoinPressure(iSolnTyp, iJoinId);
 //  };
+
+//--------------------------------------------------------------------------
+
+void MN_Xfer::StartStep()
+  {
+  MdlNode::StartStep();
+  //m_CnStart.AtStart(m_Accu Contents);
+  //m_Accumulator->m_MixSet.StartStep();
+  //m_SrgCtrl.StartStep();
+  if (m_NetworkIsolator)
+    m_AccCalc->Start(0, *m_Accumulator);
+  }
 
 //--------------------------------------------------------------------------
 /*#F:This determines the pressure of the contents and the pressure at each
@@ -274,7 +367,7 @@ flag MN_Xfer::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
   if (m_Leak.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
     return true;
 
-  return IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+  return IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
   };
 
 // --------------------------------------------------------------------------
@@ -283,6 +376,32 @@ void MN_Xfer::EvalProductsInit(EvalProductsInitTasks Task)
   {
   EvalProductsInit_Node(Task, 0x0ffffff);
   }
+
+// --------------------------------------------------------------------------
+
+//void MN_Surge::EvalProductsInit(EvalProductsInitTasks Task)
+//  {
+//  //EvalProductsInit_SurgeLevel(Task, Contents, First64IOIds);
+//  //EvalProductsInit_Node(FwdEval);
+//  }
+
+//--------------------------------------------------------------------------
+/*#F:This determines what material is leaving through each outlet,
+and rate of change of the contents resulting from the flow, of material, out of each outlet
+of the surge unit.*/
+//void MN_Surge::EvalProductsSurge(long JoinMask)
+//  {
+//  ASSERT(DynamicMode());
+//  if (!InlineIntegral())
+//    {
+//    dword IOMsk=First64IOIds;
+//    SigmaQInPMin(QFeed(), som_ALL, IOMsk);
+//    if (0)
+//      VLE.QPFlash(QFeed(), m_Accumulator->Press(), 0.0, VLEF_Null);
+//    EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
+//    //EvalProducts_SurgeLevel(Contents, QFeed, IOMsk, PMU());
+//    }
+//  }
 
 // --------------------------------------------------------------------------
 
@@ -298,8 +417,55 @@ void MN_Xfer::EvalProducts(long JoinMask)
         break;
       case SM_DynXfer:
       case SM_DynFull:
-        for (int j=0; j<NJoins(); j++)
-          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
+        if (m_NetworkIsolator)
+          {
+          m_QFeed->QZero();
+          m_QProd->QZero();
+          double TotIn=0.0;
+          double TotReqd=0.0;
+          for (int i=0; i<NoFlwIOs(); i++)
+            {
+            if (IOQm_In(i)>0.0)
+              {
+              TotIn+=IOQm_In(i);
+              m_QFeed->QAddF(*IOConduit(i), som_ALL, 1.0);
+              }
+            else if (IOQmEst_Out(i)>0.0)
+              {
+              TotReqd+=IOQmEst_Out(i);
+              }
+            }
+
+          double FdQm=m_QFeed->QMass();
+          double AccQm=m_Accumulator->Mass()/ICGetTimeInc();
+          double TotAvail=m_QFeed->QMass()+AccQm;
+          //double OvrScale=TotReqd/GTZ(TotAvail);
+          double AccScale=Min(1.0, TotReqd/GTZ(AccQm));
+          double FdScale=Min(1.0, (TotReqd-AccScale*AccQm)/GTZ(FdQm));
+
+          for (int i=0; i<NoFlwIOs(); i++)
+            {
+            double QmEst=IOQmEst_Out(i);
+            if (QmEst>0.0)
+              {
+              IOConduit(i)->QSetM(*m_Accumulator, som_ALL, AccScale*AccQm);
+              IOConduit(i)->QAddM(m_QFeed(), som_ALL, FdScale*FdQm*QmEst/GTZ(TotReqd));
+              double QTmp=IOConduit(i)->QMass();
+              int xxx=0;
+              }
+            }
+          if (1)//InlineIntegral())
+            {
+            EvalIntegral(JoinMask);
+            }
+          
+          SetCI(1, m_Accumulator->Mass()>10*(Max(TotIn, TotReqd)*ICGetTimeInc()));          
+          }
+        else
+          {
+          for (int j=0; j<NJoins(); j++)
+            Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
+          }
         break;
       }                
     }
@@ -307,11 +473,232 @@ void MN_Xfer::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void MN_Xfer::EvalDiscrete() 
+void MN_Xfer::EvalIntegral(long JoinMask)
+  {
+  //dbgpln("EvalIntegral - %s %s %s %s", InlineIntegral()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
+  if (m_NetworkIsolator)
+    {
+
+    //flag VLEOn=0 && VLE.Enabled();
+    dword IOMsk=First64IOIds;
+    //StkSpConduit QPF("QPF", chLINEID(), this);
+
+    m_Accumulator->ZeroDeriv();
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+      {
+      dbgp("           %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.12s", SVImg(s).Tag());
+      dbgpln(" %s.Contents", FullObjTag());
+      dbgp("InI:---  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+        m_CnStart.DTemp(Contents), m_Accumulator->Temp(),
+        m_CnStart.DPress(Contents), m_Accumulator->Press(),
+        m_CnStart.DMass(Contents), m_Accumulator->Mass(),
+        m_CnStart.DLevel(Contents)*100, m_Accumulator->Level()*100, FullObjTag());
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", m_Accumulator->MArray()[s]);
+      dbgpln(" %s.Contents", FullObjTag());
+      }
+#endif
+    for (int i = 0; i < NoProcessIOs(); i++)
+      {
+      SpConduit * Cd;
+      //if (VLEOn && IO_In(i))
+      //  {
+      //  QPF->QSetF(*IOConduit(i), som_ALL, 1.0);
+      //  VLE.QPFlash(QPF(), m_Accumulator->Press(), 0.0, VLEF_Null);
+      //  Cd=&QPF();
+      //  }
+      //else
+      Cd=IOConduit(i);
+      //double FracAbove=(IOAbsFracHgt_Term(i, Contents)-m_Accumulator->Level())/GTZ(IOAperture(i));
+      //FracAbove=Range(0.0, FracAbove, 1.0);
+      double EntR=1.0;//FracAbove*IOEntrainRateA(i)*Cd->QMass(som_SL)+
+      //(1.0-FracAbove)*IOEntrainRateB(i)*Cd->QMass(som_Gas);
+      m_Accumulator->AddDeriv(*Cd, IOSign(i), EntR);
+#if dbgMSurge
+      if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+        {
+        dbgp("dM :IO   > Sgn:%2i EntR:%10.4f CdQm:%10.4f %*s",IOSign(i),EntR,Cd->QMass(),151-39-24,"");
+        if (dbgODEOperateSpc())
+          for (int s=0; s<SVValueCount(); s++)
+            dbgp(" %12.5g", m_Accumulator->pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
+        dbgpln(" %s", Nd_Rmt(i)->FullObjTag());
+        dbgp("         < %*s",151-24,"");
+        if (dbgODEOperateSpc())
+          for (int s=0; s<SVValueCount(); s++)
+            dbgp(" %12.5g", m_Accumulator->pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
+        dbgpln(" %s %s", IOQmEst_In(i)?"IN":"", IOQmEst_Out(i)?"Out":"");
+        }
+#endif
+      }
+
+    //dbgpln("EvalIntegral - AddInflow");
+    //m_Accumulator->AddInFlowDeriv();
+
+    //if (m_Accumulator->SpillExists())
+    //  {
+    //  //if (m_Accumulator->Spill.Cd.QMass()>0)
+    //  //  dbgpln("EvalIntegral - AddDeriv Overflow: %14.3f %s", m_Accumulator->Spill.Cd.QMass(), FullObjTag());
+    //  m_Accumulator->AddDeriv(m_Accumulator->Spill.Cd, -1.0);
+    //  }
+    //if (m_Accumulator->VentExists())
+    //  {
+    //  //if (m_Accumulator->Vent.Cd.QMass()>0)
+    //  //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", m_Accumulator->Vent.Cd.QMass(), FullObjTag());
+    //  m_Accumulator->AddDeriv(m_Accumulator->Vent.Cd, -1.0);
+    //  }
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+      {
+      dbgp("dM :Ovr  > %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", m_Accumulator->pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
+      dbgpln(" %s.Contents", FullObjTag());
+      dbgp("         < %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", m_Accumulator->pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
+      dbgpln("");
+      }
+#endif
+
+    m_Accumulator->pModel->m_DC.Finalise(m_Accumulator->pModel, ICGetTimeInc());
+    //m_Accumulator->m_DC.Finalise(this, ICGetTimeInc());
+
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+      {
+      dbgp("dM :Final> %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", m_Accumulator->pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
+      dbgpln(" %s.Contents", FullObjTag());
+      dbgp("         < %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", m_Accumulator->pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
+      dbgpln("");
+      dbgp("         = %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", (m_Accumulator->pModel->m_DC.m_pFd->m_M[s]-m_Accumulator->pModel->m_DC.m_pPr->m_M[s])*ICGetTimeInc());
+      dbgpln("");
+      }
+#endif
+
+    if (!GetActiveHold())
+      {
+      m_Accumulator->ApplyDerivs(ICGetTimeInc(), true);
+
+      //VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      }
+
+    //#if dbgMSurge
+    //if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+    //  {
+    //  dbgp("InI:End  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+    //    m_CnStart.DTemp(Contents), m_Accumulator->Temp(),
+    //    m_CnStart.DPress(Contents), m_Accumulator->Press(),
+    //    m_CnStart.DMass(Contents), m_Accumulator->Mass(),
+    //    m_CnStart.DLevel(Contents)*100, m_Accumulator->Level()*100);
+    //  if (dbgODEOperateSpc())
+    //    for (int s=0; s<SVValueCount(); s++)
+    //      dbgp(" %12.5g", m_Accumulator->MArray()[s]);
+    //  dbgpln(" %s.Contents", FullObjTag());
+    //  }
+    //#endif
+    }
+  SetIntegralDone(true);
+  }
+
+//--------------------------------------------------------------------------
+
+void MN_Xfer::ConvergeStates(CConvergeStateBlk &CSB)
+  {
+  ASSERT(DynamicMode());
+
+  //if (RB())
+  //  {
+  //  #if dbgMSurge
+  //  if (dbgEvalConverge())
+  //    dbgpln("MN_Surge::ConvergeStates - RB %s", FullObjTag());
+  //  #endif
+  //  m_Accumulator->SetMeanResTimeCalcsReqd(true);
+  //  RB.ConvergeStates(CSB, Contents, m_Accumulator->MeanResTimes());
+  //  #if dbgMSurge
+  //  if (dbgEvalConverge())
+  //    dbgpln("-------------------------------------- ");
+  //  #endif
+  //  };
+
+  //if (!IntegralDone() && !GetActiveHold())
+  //  VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+
+  //m_EqThermals.ConvergeStates(CSB);
+  }
+
+//--------------------------------------------------------------------------
+
+/*#F:This is called once, after the iteration process and allows the discreet
+manipulation of the contents contained by the surge unit.*/
+
+void MN_Xfer ::EvalDiscrete()
   {
   MdlNode::EvalDiscrete();
+  if (GetActiveHold())
+    return;
+  //dbgpln("EvalDiscrete - %s %s", GetActiveHold()?"HOLD":"", Tag());
+
+  //if (m_Accumulator->MeanResTimeCalcsReqd())
+  //  {
+  //  SpConduit &Fd=*GetWrkConduit("CSFd", chLINEID());
+  //  SpConduit &Pr=*GetWrkConduit("CSPr", chLINEID());
+  //  SigmaQInPMin(Fd, som_ALL, First64IOIds);
+  //  SigmaQOut(Pr, som_ALL, First64IOIds);
+  //  m_Accumulator->CompleteMeanResTimeCalcs(Fd, Pr);
+  //  }
+
+  //if (m_Accumulator->SpillExists())
+  //  {
+  //  SpDirectCd & O=m_Accumulator->OverFlow;
+  //  if (O.QMass()>1e-20)
+  //    dbgpln("EvalDiscrete - AddTotal: %14.3f %s", O.QMass(), Tag());
+  //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
+  //  }
+  //if (m_Accumulator->VentExists())
+  //  {
+  //  SpDirectCd & O=m_Accumulator->GasVent();
+  //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
+  //  }
+
+  if (m_NetworkIsolator)
+    {
+    // Qualities
+    for (int i = 0;  (i<NoProcessIOs()); i++)
+      if (IO_In(i))
+        m_Accumulator->AddDiscrete(*IOConduit(i), IOSign(i));
+
+    m_AccCalc->Complete(0, *m_Accumulator, ICGetTimeInc());
+    }
+
   m_Leak.EvalDiscrete();
-  };
+  }
+
+//--------------------------------------------------------------------------
+
+//void MN_Xfer::EvalDiscrete() 
+//  {
+//  MdlNode::EvalDiscrete();
+//  if (GetActiveHold())
+//    return;
+//
+//  m_Leak.EvalDiscrete();
+//  };
 
 //--------------------------------------------------------------------------
 
@@ -335,7 +722,7 @@ void MN_Xfer::EvalPBMakeUpAvail(long JoinMask)
 
 flag MN_Xfer::MacroMdlValidNd(int iIONo)
   {
-  if (!GSM.Enabled())
+  if (!GSM.Enabled() || m_NetworkIsolator)
     return False;
 
 // if (IOQmEst_Out(iIONo))
@@ -437,6 +824,19 @@ dword MN_Xfer::ModelStatus()
       }
     }
   return Status;
+  };
+
+//--------------------------------------------------------------------------
+
+flag MN_Xfer::CIStrng(int No, pchar & pS)
+  {
+  // NB check CBCount is large enough.
+  switch (No-CBContext())
+    {
+    case 1: pS="W\tAccumulator Content > 10 Residence Times";   return 1;
+    default:
+      return MdlNode::CIStrng(No, pS);
+    }
   };
 
 //==========================================================================
@@ -603,3 +1003,4 @@ flag TE_KFact::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   return True;
   };
 
+//--------------------------------------------------------------------------

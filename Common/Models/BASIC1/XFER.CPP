@@ -90,26 +90,41 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
   m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Basic);
   DDB.Visibility();
 
-  DDB.Text("");
-  m_RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_DynFull|HM_All);
-  m_Leak.Add_OnOff(DDB,0,100);
-  DDB.Visibility();
-  GSM.Add_OnOff(DDB);
-  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
+  if (DynamicMode())
+    {
+    DDB.Text("");
+    DDB.CheckBoxBtn("NetworkIsolator",  "",  DC_, "", xidNetworkIsolator,   this, isParm|SetOnChange);
+    }
+  if (!m_NetworkIsolator)
+    {
+    DDB.Text("");
+    m_RB.Add_OnOff(DDB);
+    EHX.Add_OnOff(DDB);
+    DDB.Visibility(SM_DynFull|HM_All);
+    m_Leak.Add_OnOff(DDB,0,100);
+    DDB.Visibility();
+    GSM.Add_OnOff(DDB);
+    DDB.CheckBox("ShowQFeed",             "",  DC_, "", &m_bShowQFeed,         this, isParm|SetOnChange);
+    }
 
   DDB.Text("");
   BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
-  m_RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
-  GSM.BuildDataDefn(DDB);
-
-
-  if (1)//ProbalMode())
+  if (m_NetworkIsolator)
     {
+    DDB.Visibility();
+    DDB.Object(m_Accumulator, this, NULL, NULL, DDB_RqdPage);
+    if (m_bShowQFeed)
+    if (m_bShowQFeed)
+      DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
+    }
+  else //if (1)//ProbalMode())
+    {
+    m_RB.BuildDataDefn(DDB);
+    EHX.BuildDataDefn(DDB);
+    GSM.BuildDataDefn(DDB);
     m_QFeed(); // ensure exists
     if (m_QFeed.Exists())
       {
@@ -118,6 +133,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Visibility();
       }
     }
+
 
   if (m_Leak.Enabled)
     {

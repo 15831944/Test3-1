@@ -2459,7 +2459,7 @@ CSpPropInfo* HeatXchg1::IOGetNetProps(int i, double Qm)
 
 flag HeatXchg1::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
-  return IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
+  return IOFB(IONo,FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
   };
 
 //--------------------------------------------------------------------------

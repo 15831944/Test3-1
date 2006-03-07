@@ -15,7 +15,7 @@
 
 #include "optoff.h"
 
-#define dbgMLink        (0 || WITHDEBUG)
+#define dbgMLink        (0 || WITHDEBUG)    
 
 #if dbgMLink
 static CDbgMngr dbgEvalJoinPress   ("ProBal", "EvalJoinPress");
@@ -659,9 +659,9 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   SetUserModeAsFlowMode(true);
   
   if (GlblDynFlowMode())
-    SetUserMethod(LFM_Simple);// LFM_Xfer);
+    SetUserMethodReqd(LFM_Simple);// LFM_Xfer);
   else
-    SetUserMethod(LFM_Full);
+    SetUserMethodReqd(LFM_Full);
 
   //m_iLnkFlwModeRqd = LFM_CompleteDP;//(DynFlowMode() ? LFM_Xfer : LFM_CompleteDP);
 #if WITHPBDPSTUFF
@@ -954,10 +954,10 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
           StructureChanged(this);
           SetState(MSA_ZeroFlows);
           }
-        SetUserMethod(*DCB.rL);
+        SetUserMethodReqd(*DCB.rL);
         if (UserMethod()==LFM_SrcSnk)
           {
-          SetUserMethod(LFM_Full);
+          SetUserMethodReqd(LFM_Full);
           SetActiveHold(true);
           }
         }
@@ -1645,24 +1645,19 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
     if (GlblDynFlowMode())
       {
       if (PrjFileVerNo()<94)
-        SetUserMethod(LFM_Xfer);
+        SetUserMethodReqd(LFM_Xfer);
       else
-        SetUserMethod(LFM_Simple);
+        SetUserMethodReqd(LFM_Simple);
       }
     else
-      SetUserMethod(LFM_Full);
+      SetUserMethodReqd(LFM_Full);
     }
 
   if (!m_FTB.ValidateData(VDB))
     OK=false;
 
   if (NoProcessIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->dwOther) || IOISSETXFER(IODesc_Rmt(1)->dwOther)))
-    SetUserMethod(LFM_Xfer);
-
-#if WITHPBDPSTUFF
-  //ValidateRange(VDB, "V_MassFlw", 1.0e-10, VQmCap, dNAN, &OK);
-  //ValidateRange(VDB, "S_MassFlw", 1.0e-10, SQmCap, dNAN, &OK);
-#endif
+    SetUserMethodReqd(LFM_Xfer);
 
   if (m_PFI.Method==VFFX_Plugflow)
     {
@@ -1890,10 +1885,8 @@ void MN_Lnk::PostConnect(int IONo)
     {
     MdlNode::PostConnect(IONo);
 
-  #if WITHPBDPSTUFF
     if (IOISSETXFER(IODesc_Rmt(IONo)->dwOther))
-      SetUserMethod(LFM_Xfer);
-  #endif
+      SetUserMethodReqd(LFM_Xfer);
 
     IOConduit(IONo)->AttachMeToObj(this, TOA_Embedded);
 
@@ -2113,24 +2106,16 @@ void MN_Lnk::OnSetUserMethod()
 
 //---------------------------------------------------------------------------
 
-bool MN_Lnk::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool MN_Lnk::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
-  if (!FlwNode::PropagateNetInfo(Task, IONo, Info, Start))
+  if (!FlwNode::DoPropagateNetInfo(Ctrl, IONo, true))
     return false;
 
-  dbgpln("PropagateNetInfo %s", FullObjTag());
-
-  switch (Task)
-    {
-    case eScdSetFlowMode :
-      {
-      SetUserMethod(Info);
-      //m_FEP.FlwRqd().SetPressOn(Info.m_UserMethod==LFM_NominalDP);
-      break;
-      }
-    }
   for (int i=0; i<NoFlwIOs(); i++)
-    Nd_Rmt(i)->PropagateNetInfo(Task, IOIONo_Rmt(i), Info, false);
+    {
+    if (i!=IONo)
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
+    }
 
   return true;
   };
@@ -2652,7 +2637,7 @@ flag MN_Lnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IO
     case FET_GetMode:
       {
       if (IONo==0 && FE==0)
-        FB.EvalGetModeRqd(FB.FlowMode(), cioOn()!=0, fIsDegFree!=0, pProps, 1.0);// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
+        FB.EvalGetModeRqd(FB.FlowMode(), pProps, cioOn()!=0, fIsDegFree!=0, 1.0);// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
       else if (cioOn())
         FB.SetQmFree();
       else
@@ -2716,15 +2701,15 @@ flag MN_Lnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IO
           CSpPropInfo *pSegProps=(IONo==0)? &m_PFI.m_SegPropsS[0]:&m_PFI.m_SegPropsE[0];
           if (m_PFI.Type==PFT_Incompressible)
             {
-            IOFB(IONo, FE)->EvaluateFlwEqn(Task, pSegProps, 1.0, NULL, NULL);//Fill);
+            IOFB(IONo, FE)->EvaluateFlwEqn(Task, pSegProps, cioOn()!=0, fIsDegFree!=0, 1.0, NULL, NULL);//Fill);
             }
           else
             {
-            IOFB(IONo, FE)->EvaluateFlwEqn(Task, pSegProps, 1.0, NULL, NULL);//Fill);
+            IOFB(IONo, FE)->EvaluateFlwEqn(Task, pSegProps, cioOn()!=0, fIsDegFree!=0, 1.0, NULL, NULL);//Fill);
             }
           }
         else
-          IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, 1.0, NULL, NULL);//Fill);
+          IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, cioOn()!=0, fIsDegFree!=0, 1.0, NULL, NULL);//Fill);
         double K1=IOFB(0,0)->GetKFact();
         double K2=IOFB(1,0)->GetKFact();
         double K=dNAN;
@@ -2855,8 +2840,8 @@ void MN_Lnk::EvalProducts(long JoinMask)
         {
         //dbgpln("EvalProducts A  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
         //use IOQOutEst as defined
-        if (IOFlange(iIn)->IsTear() &&  /*GlblDynamicMode() &&*/ (Fi.QMass()<=TraceMass) && 
-            (IOQInEst>TraceMass) && m_pLastFlw)
+        if (IOFlange(iIn)->IsTear() &&  /*GlblDynamicMode() &&*/ /*(Fi.QMass()<=TraceMass) &&*/ 
+            /*(IOQInEst>TraceMass) &&*/ m_pLastFlw)
           {
           //dbgpln("EvalProducts B  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
           // Put Something into the flow (ie whatever last flowed through the pipe)
@@ -2865,11 +2850,12 @@ void MN_Lnk::EvalProducts(long JoinMask)
           IOQInEst=(IsUsableMass(FIQm) ? FIQm : 0.0);
           //dbgpln("    <<: %10.2f %10.2f %10.2f %s", Fi.Temp(), Fi.Press(), Fi.QMass(), Fi.FullObjTag());        
           }
-        else
-          {
-          Fi.QScaleMass(som_ALL, IOQInEst/GTZ(Fi.QMass()));
-          //dbgpln("EvalProducts C  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-          }
+        //else if (!DoXfer)
+        //  {
+        //  // this was put in because of closed recycles - it upsets other stuff
+        //  //Fi.QScaleMass(som_ALL, IOQInEst/GTZ(Fi.QMass()));
+        //  //dbgpln("EvalProducts C  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+        //  }
 
         IOQInEst=(IsUsableMass(FIQm) ? FIQm : 0.0);
         }

@@ -838,12 +838,12 @@ class DllImportExport CFlwBlkBase : public CFlwBlkData,  public CFlwEqnPtr
     virtual void   EvalFlowInfoEnd();
     virtual flag   TestFlowInfo();
 
-    flag           EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);//, double P1, double P2);
+    flag           EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);//, double P1, double P2);
     flag           SolveFlwEqn(CSpPropInfo *pProps, double Regulation, double P1_, double P2_, double & ReqdFlw);
     void           EvalProducts(double Pi, double Po, SpConduit & C, CFlwThermalBlk & FTB);
     void           EvalDiscrete();
 
-    void           EvalGetModeRqd(long FlowMode, bool On, bool IsDegFreedom, CSpPropInfo *pProps, double Regulation);
+    void           EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation);
 
     virtual flag   InXferNet()=0;
     virtual void   SetXferMode()=0;

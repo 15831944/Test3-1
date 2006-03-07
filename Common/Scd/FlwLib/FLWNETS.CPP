@@ -19,7 +19,7 @@
 #include "scd_wm.h"
 #include "nrecipe.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 const double MinFxdQmDiff          = 1.0e-10;
 const double ArrayReAnalyseRatio   = 100.0;

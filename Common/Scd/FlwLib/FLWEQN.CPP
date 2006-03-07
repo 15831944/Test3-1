@@ -1970,7 +1970,7 @@ A=0.0;
 
 //--------------------------------------------------------------------------
 
-void CFlwBlkBase::EvalGetModeRqd(long FlowMode, bool On, bool IsDegFreedom, CSpPropInfo *pProps, double Regulation)
+void CFlwBlkBase::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation)
   {
   CFlwEqnFlwRqd &FR=FlwRqd();
   //_asm int 3;
@@ -2000,6 +2000,8 @@ void CFlwBlkBase::EvalGetModeRqd(long FlowMode, bool On, bool IsDegFreedom, CSpP
           }
         else if (Valid(FR.m_MaxQmCap))
           Cap=FR.m_MaxQmCap*Regulation;
+        else if (Regulation<1.0)
+          Cap=MaxXfCap*Regulation;
         if (Valid(Cap))
           SetXferCapacity(Cap);
         }
@@ -2026,7 +2028,12 @@ void CFlwBlkBase::EvalGetModeRqd(long FlowMode, bool On, bool IsDegFreedom, CSpP
       //SetXferCapacity(Cap);
       }
     else
-      SetXferCapacity(0.0);
+      {
+      if (DoXfer)
+        SetXferCapacity(0.0);
+      else
+        SetQmReqd(0.0);
+      }
     //return True;
     }
   else if (!On)
@@ -2047,7 +2054,7 @@ void CFlwBlkBase::EvalGetModeRqd(long FlowMode, bool On, bool IsDegFreedom, CSpP
 
 //--------------------------------------------------------------------------
 
-flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Q=NZ(m_Qm);
 
@@ -2064,43 +2071,48 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, doub
 
   FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
 
-  if (0 && (FlowMode()==FBMode_Xfer))
+  if (Task==FET_GetMode)
     {
-    SetXferMode();
-
-    if (Valid(FR.m_RqdQmCap) || Valid(FR.m_RqdQvCap))
-      { int xxx=0; }
-
-    if (FR.m_AsMass)
-      {
-      double Cap = FR.m_RqdQmCap;
-      if (Valid(Cap))
-        {
-        Cap=Max(Cap, FR.m_MinQmCap);
-        if (Valid(FR.m_MaxQmCap))
-          Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
-        }
-      else if (Valid(FR.m_MaxQmCap))
-        Cap=FR.m_MaxQmCap*Regulation;
-      if (Valid(Cap))
-        SetXferCapacity(Cap);
-      }
-    else
-      {
-      double Cap = FR.m_RqdQvCap;
-      if (Valid(Cap))
-        {
-        Cap=Max(Cap, FR.m_MinQvCap);
-        if (Valid(FR.m_MaxQvCap))
-          Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
-        }
-      else if (Valid(FR.m_MaxQvCap))
-        Cap=FR.m_MaxQvCap*Regulation;
-      if (Valid(Cap))
-        SetXferCapacity(Cap*MeanRho(pProps));
-      }
+    EvalGetModeRqd(FlowMode(), pProps, On, IsDegFreedom, Regulation);
+    ClrFunctOfPress();
     b=true;
     }
+  //if (0 && (FlowMode()==FBMode_Xfer))
+  //  {
+  //  SetXferMode();
+
+  //  if (Valid(FR.m_RqdQmCap) || Valid(FR.m_RqdQvCap))
+  //    { int xxx=0; }
+
+  //  if (FR.m_AsMass)
+  //    {
+  //    double Cap = FR.m_RqdQmCap;
+  //    if (Valid(Cap))
+  //      {
+  //      Cap=Max(Cap, FR.m_MinQmCap);
+  //      if (Valid(FR.m_MaxQmCap))
+  //        Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
+  //      }
+  //    else if (Valid(FR.m_MaxQmCap))
+  //      Cap=FR.m_MaxQmCap*Regulation;
+  //    if (Valid(Cap))
+  //      SetXferCapacity(Cap);
+  //    }
+  //  else
+  //    {
+  //    double Cap = FR.m_RqdQvCap;
+  //    if (Valid(Cap))
+  //      {
+  //      Cap=Max(Cap, FR.m_MinQvCap);
+  //      if (Valid(FR.m_MaxQvCap))
+  //        Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
+  //      }
+  //    else if (Valid(FR.m_MaxQvCap))
+  //      Cap=FR.m_MaxQvCap*Regulation;
+  //    if (Valid(Cap))
+  //      SetXferCapacity(Cap*MeanRho(pProps));
+  //    }
+  //  b=true;
 
   if (Disabled())
     {
@@ -2113,8 +2125,8 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, doub
     {
     ClrDerivsBad();
     double QmMem=m_Qm;
-    if (Task==FET_GetMode)
-      ClrFunctOfPress();
+    //if (Task==FET_GetMode)
+    //  ClrFunctOfPress();
     m_fMomentumValid=false;
 
     #if (dbgFlwEqns)

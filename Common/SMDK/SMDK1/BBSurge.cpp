@@ -225,7 +225,7 @@ flag CBBSurge::InitialiseSolution()
 
 //--------------------------------------------------------------------------
 
-bool CBBSurge::PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start)
+bool CBBSurge::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   {
 _asm int 3;
 //if (!m_pMethod)

@@ -60,7 +60,7 @@ class DllImportExport MN_BstRes : public MdlNode
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
     virtual void   OnSetUserMethod();
-    virtual bool   PropagateNetInfo(eScdPropagateNetTasks Task, long IONo, long Info, bool Start);
+    virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual void   StartSolution();
 
