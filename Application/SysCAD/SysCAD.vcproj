@@ -5,10 +5,6 @@
 	Name="SysCAD"
 	ProjectGUID="{4E236CE4-1CE6-4BA7-B7BA-BFD9A5ED8CA2}"
 	RootNamespace="SysCAD"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -30,7 +26,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".;..\..\com\scdif;..\..\com\scdmdl;..\..\com\scdslv;..\scdlib;..\scexec;..\kwdb;..\flwlib;..\schist;Grfdoc;trndoc;flwdoc;ole;..\..\ccdk\inc"
+				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -49,7 +45,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -59,14 +55,14 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
-				AdditionalIncludeDirectories="..\scdlib;..\..\com\scdif;..\..\com\scdmdl;..\..\com\ScdSlv"
+				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls/SysCAD.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"
-				CommandLine="..\..\BldCopyCOMExe.Cmd ..\..\..  $(TargetName)  $(OutDir)"
+				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -98,7 +94,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\com\scdif;..\..\com\scdmdl;..\..\com\scdslv;..\scdlib;..\scexec;..\kwdb;..\flwlib;..\schist;Grfdoc;trndoc;flwdoc;ole;..\..\ccdk\inc"
+				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -118,7 +114,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -128,14 +124,14 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
-				AdditionalIncludeDirectories="..\scdlib;..\..\com\scdif;..\..\com\scdmdl;..\..\com\ScdSlv"
+				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rdb/SysCAD.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"
-				CommandLine="..\..\BldCopyCOMExe.Cmd ..\..\..  $(TargetName)  $(OutDir)"
+				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -167,7 +163,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\com\scdif;..\..\com\scdmdl;..\..\com\scdslv;..\scdlib;..\scexec;..\kwdb;..\flwlib;..\schist;Grfdoc;trndoc;flwdoc;ole;..\..\ccdk\inc"
+				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				GeneratePreprocessedFile="0"
 				BasicRuntimeChecks="3"
@@ -188,7 +184,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -198,14 +194,14 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
-				AdditionalIncludeDirectories="..\scdlib;..\..\com\scdif;..\..\com\scdmdl;..\..\com\ScdSlv"
+				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Dbg/SysCAD.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"
-				CommandLine="..\..\BldCopyCOMExe.Cmd ..\..\..  $(TargetName)  $(OutDir)"
+				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>

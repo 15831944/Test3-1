@@ -21,14 +21,14 @@
 
 extern "C"
   {
-  #include "..\zip32\api.h"
+  #include "..\..\common\scd\zip32\api.h"
   //#include "..\unzip\unzip.h"
-  #include "..\unzip32\windll\structs.h"
-  #include "..\unzip32\windll\decs.h"
+  #include "..\..\common\scd\unzip32\windll\structs.h"
+  #include "..\..\common\scd\unzip32\windll\decs.h"
   }
 
-#pragma LIBCOMMENT("..\\..\\scd\\Zip32\\", "\\Zip32" )
-#pragma LIBCOMMENT("..\\..\\scd\\UnZip32\\", "\\UnZip32" )
+#pragma LIBCOMMENT("..\\..\\common\\scd\\Zip32\\", "\\Zip32" )
+#pragma LIBCOMMENT("..\\..\\common\\scd\\UnZip32\\", "\\UnZip32" )
 
 #undef NO_MKTEMP
 #undef API

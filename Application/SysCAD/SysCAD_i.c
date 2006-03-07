@@ -6,7 +6,7 @@
 
 
  /* File created by MIDL compiler version 6.00.0361 */
-/* at Mon Feb 27 10:24:53 2006
+/* at Tue Mar 07 12:04:39 2006
  */
 /* Compiler settings for .\SysCAD.odl:
     Oicf, W1, Zp8, env=Win32 (32b run)

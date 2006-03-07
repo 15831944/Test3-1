@@ -22,7 +22,7 @@
 #define IDC_FILE1                       11015
 #define IDC_FILE2                       11016
 #define IDC_FULLVERSION                 11017
-#define IDC_LIST1                       11018
+//#define IDC_LIST1                       11018
 #define IDC_LOGO                        11019
 #define IDC_NOTE                        11020
 #define IDC_PICT                        11021

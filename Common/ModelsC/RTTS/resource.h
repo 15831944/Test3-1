@@ -22,7 +22,7 @@
 #define IDC_FILE1                       11015
 #define IDC_FILE2                       11016
 #define IDC_FULLVERSION                 11017
-#define IDC_LIST1                       11018
+//#define IDC_LIST1                       11018
 #define IDC_ASSAYLIST                   11018
 #define IDC_LOGO                        11019
 #define IDC_NOTE                        11020
@@ -52,7 +52,7 @@
 #define IDC_FLOATING2                   11057
 #define IDC_CNVLIST                     11058
 #define IDC_SPIN2                       11059
-#define IDC_EDIT1                       11060
+//#define IDC_EDIT1                       11060
 #define IDC_DBNAME                      11060
 #define IDC_CNVLIST2                    11061
 #define IDC_TABLENAME                   11061

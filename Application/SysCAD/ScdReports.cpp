@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "SysCAD_i.h"
 #include "ScdReports.h"
-#include "..\..\com\scdif\Scdcomcmds.h"
+#include "..\..\common\com\scdif\Scdcomcmds.h"
 
 #include "execlib.h"
 #include "mainfrm.h"

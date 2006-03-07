@@ -12,16 +12,56 @@
 #define  __FLWNODE_CPP
 #include "flwnode.h"
 #include "dbgmngr.h"
-#include "sfe_srvr.h"
+#include "sfe_srvr.h"                   
 
-#include "flwnets.h"
+#include "flwnets.h"                   
+#include "flwsolve.h"                   
 
-//#include "optoff.h"
+#include "optoff.h"
 
 #define dbgFlwNode       (WITHDEBUG)
 #define dbgFlwNodeMS     WITHDEBUG
 #define dbgFlowInfo      (WITHDEBUG && 0)
 
+#if dbgFlwNode
+static CDbgMngr dbgAccCalcs        ("FlwNode",  "AccCalcs");
+static CDbgMngr dbgCheckAlphas     ("FlwNode",  "CheckAlphas");
+static CDbgMngr dbgClosure         ("FlwNode",  "Closure");
+static CDbgMngr dbgConstruction    ("FlwNode",  "Construction");
+static CDbgMngr dbgEvalDerivs      ("FlwNode",  "EvalDerivs");
+static CDbgMngr dbgGlobalConnects  ("FlwNode",  "GlobalConnects");
+static CDbgMngr dbgJoinsBld        ("FlwNode",  "JoinsBld");
+static CDbgMngr dbgNodeTypes       ("FlwNode",  "NodeTypes");
+static CDbgMngr dbgQRatio          ("FlwNode",  "QRatio");
+static CDbgMngr dbgReconFactors    ("FlwNode",  "ReconFactors");
+static CDbgMngr dbgReconFlows      ("FlwNode",  "ReconFlows");
+static CDbgMngr dbgSensitivity     ("FlwNode",  "Sensitivity");
+static CDbgMngr dbgTearOutputs     ("FlwNode",  "TearOutputs");
+static CDbgMngr dbgTraceChanges    ("FlwNode",  "TraceChanges");
+
+#if WithIOChgMonitor
+static CDbgMngr dbgDumpChanges     ("FlwNode",  "DumpChanges");
+static CDbgMngr dbgDumpChangesIn   ("FlwNode",  "DumpChangesIn");
+#endif
+
+static CDbgMngr dbgEvalJoinPress   ("ProBal",   "EvalJoinPress");
+static CDbgMngr dbgTopologyChg     ("FlwNets",  "TopologyChg");
+static CDbgMngr dbgChangeStats     ("FlwNets",  "ChangeStats");
+
+//static CDbgMngr dbgExtendJoin      ("FlwNets",  "ExtendJoin");
+#define DBGTOPOCHG(a) if (dbgTopologyChg()) dbgpln("Topo Change : %s",a);
+#else
+#define DBGTOPOCHG(a)
+#endif
+
+#if dbgFlwNodeMS
+static CDbgMngr dbgMSSkipMerge    ("ProBal", "MS-SkipMerge");
+static CDbgMngr dbgMSSkipSpcReduce("ProBal", "MS-SkipSpcReduction");
+static CDbgMngr dbgMSMerge        ("ProBal", "MS-Merge");
+static CDbgMngr dbgMSSetIndices   ("ProBal", "MS-SetIndices");
+static CDbgMngr dbgMSDumpGamma    ("ProBal", "MS-DumpGamma");
+static CDbgMngr dbgMSDumpResults  ("ProBal", "MS-DumpResults");
+#endif
 
 IMPLEMENT_MEMSTATS(QmRatioRec)
 IMPLEMENT_MEMSTATS(GQmRatioRec)

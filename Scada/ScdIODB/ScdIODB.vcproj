@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ScdIODB"
 	ProjectGUID="{61185E63-0F23-4E9E-9DBE-48D4F72D1AFD}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -46,7 +42,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="winmm.lib"
-				OutputFile="..\..\..\Bin\ScdIODB.exe"
+				OutputFile="..\..\Bin\ScdIODB.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				IgnoreDefaultLibraryNames="libc"
@@ -63,7 +59,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Register"
-				CommandLine="..\..\..\Bin\$(TargetName) /regserver"/>
+				CommandLine="..\..\Bin\$(TargetName) /regserver"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -115,7 +111,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="winmm.lib"
-				OutputFile="..\..\..\Bin\ScdIODB.exe"
+				OutputFile="..\..\Bin\ScdIODB.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				IgnoreDefaultLibraryNames="libc"
@@ -132,7 +128,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Register"
-				CommandLine="..\..\..\Bin\$(TargetName) /regserver"/>
+				CommandLine="..\..\Bin\$(TargetName) /regserver"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -183,7 +179,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="winmm.lib"
-				OutputFile="..\..\..\Bin\ScdIODB.exe"
+				OutputFile="..\..\Bin\ScdIODB.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				IgnoreDefaultLibraryNames="libc"
@@ -200,7 +196,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Register"
-				CommandLine="..\..\..\Bin\$(TargetName) /regserver"/>
+				CommandLine="..\..\Bin\$(TargetName) /regserver"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

@@ -18,20 +18,6 @@
 #ifndef __ODESOLVE_H
   #include "odesolve.h"
 #endif
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
-#ifndef __ODESOLVE_H
-  #include "odesolve.h"
 #ifndef __NDTREE_H
   #include "ndtree.h"
 #endif

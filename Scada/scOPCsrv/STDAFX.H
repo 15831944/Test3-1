@@ -33,7 +33,7 @@
 #include <malloc.h>
 #include <memory.h>
 
-#include "..\..\..\..\SMDK\Include\ScdIF.h"
+#include "..\..\SMDK\Include\ScdIF.h"
 
 #define MDLLIBNAME "scOPCsrv"
 

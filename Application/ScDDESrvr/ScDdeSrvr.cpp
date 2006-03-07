@@ -14,9 +14,9 @@
 static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-#pragma LIBCOMMENT("..\\..\\com\\ScdIF\\", "\\ScdIF" )
-#pragma LIBCOMMENT("..\\..\\scd\\ScdLib\\", "\\ScdLib" )
-#pragma LIBCOMMENT("..\\..\\scd\\ScExec\\", "\\ScExec" )
+#pragma LIBCOMMENT("..\\..\\Common\\com\\ScdIF\\", "\\ScdIF" )
+#pragma LIBCOMMENT("..\\..\\Common\\scd\\ScdLib\\", "\\ScdLib" )
+#pragma LIBCOMMENT("..\\..\\Common\\scd\\ScExec\\", "\\ScExec" )
 
 AFX_EXTENSION_MODULE ScDdeSrvrDLL = { NULL, NULL };
 

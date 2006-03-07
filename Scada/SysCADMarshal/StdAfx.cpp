@@ -6,9 +6,9 @@
 
 
 
-#pragma LIBCOMMENT("..\\..\\com\\ScdIF\\", "\\ScdIF" )
-#pragma LIBCOMMENT("..\\..\\scd\\ScdLib\\", "\\ScdLib" )
-#pragma LIBCOMMENT("..\\..\\scd\\ScExec\\", "\\ScExec" )
+#pragma LIBCOMMENT("..\\..\\Common\\com\\ScdIF\\", "\\ScdIF" )
+#pragma LIBCOMMENT("..\\..\\Common\\scd\\ScdLib\\", "\\ScdLib" )
+#pragma LIBCOMMENT("..\\..\\Common\\scd\\ScExec\\", "\\ScExec" )
 //#ifdef _ATL_STATIC_REGISTRY
 //#include <statreg.h>
 //#endif

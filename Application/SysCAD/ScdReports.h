@@ -5,7 +5,7 @@
 #define __SCDREPORTS_H_
 
 #include "resource.h"       // main symbols
-#include "..\..\com\scdif\scdcomevts.h"       // main symbols
+#include "..\..\common\com\scdif\scdcomevts.h"       // main symbols
 #include "ScdAppCP.h"
 
 /////////////////////////////////////////////////////////////////////////////

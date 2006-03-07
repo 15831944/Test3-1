@@ -10,7 +10,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "..\scdlib\Scd_SHLB.h"
+#include "..\..\common\scd\scdlib\Scd_SHLB.h"
 
 #ifdef _DEBUG
 //#define _ATL_DEBUG_INTERFACES  
@@ -57,33 +57,33 @@ extern CSysCADModule _Module;
 #include <atlcom.h>
 #include <comdef.h>
 
-#include "..\scdlib\sc_defs.h"
-#include "..\scdlib\gpfuncs.h"
+#include "..\..\common\scd\scdlib\sc_defs.h"
+#include "..\..\common\scd\scdlib\gpfuncs.h"
 
-#pragma LIBCOMMENT("..\\..\\com\\scdcom\\", "\\scdcom")
-#pragma LIBCOMMENT("..\\..\\scd\\scdlib\\", "\\scdlib")
-#pragma LIBCOMMENT("..\\..\\scd\\scexec\\", "\\scexec")
-#pragma LIBCOMMENT("..\\..\\scd\\flwlib\\", "\\flwlib")
-#pragma LIBCOMMENT("..\\..\\scd\\schist\\", "\\schist")
+#pragma LIBCOMMENT("..\\..\\common\\com\\scdcom\\", "\\scdcom")
+#pragma LIBCOMMENT("..\\..\\common\\scd\\scdlib\\", "\\scdlib")
+#pragma LIBCOMMENT("..\\..\\common\\scd\\scexec\\", "\\scexec")
+#pragma LIBCOMMENT("..\\..\\common\\scd\\flwlib\\", "\\flwlib")
+#pragma LIBCOMMENT("..\\..\\common\\scd\\schist\\", "\\schist")
 //#pragma LIBCOMMENT("..\\..\\scd\\scapp1\\", "\\scapp1")
 
-#pragma LIBCOMMENT("..\\..\\scd\\kwdb\\", "\\kwdb")
+#pragma LIBCOMMENT("..\\..\\common\\scd\\kwdb\\", "\\kwdb")
 
-#pragma LIBCOMMENT("..\\..\\com\\ScdIF\\", "\\ScdIF")
-#pragma LIBCOMMENT("..\\..\\com\\ScdMdl\\", "\\ScdMdl")
-#pragma LIBCOMMENT("..\\..\\com\\ScdSlv\\", "\\ScdSlv")
+#pragma LIBCOMMENT("..\\..\\common\\com\\ScdIF\\", "\\ScdIF")
+#pragma LIBCOMMENT("..\\..\\common\\com\\ScdMdl\\", "\\ScdMdl")
+#pragma LIBCOMMENT("..\\..\\common\\com\\ScdSlv\\", "\\ScdSlv")
 
-#pragma LIBCOMMENT("..\\..\\CCDK\\", "\\CCDK" )
+#pragma LIBCOMMENT("..\\CCDK\\", "\\CCDK" )
 
-#include "..\..\Com\ScdIF\ScdIF.h"
-#include "..\..\Com\ScdMdl\ScdMdl.h"        
-#include "..\..\Com\ScdSlv\ScdSlv.h"        
+#include "..\..\Common\Com\ScdIF\ScdIF.h"
+#include "..\..\Common\Com\ScdMdl\ScdMdl.h"        
+#include "..\..\Common\Com\ScdSlv\ScdSlv.h"        
 #include "ScdCOMTmpl.h"
 
 //#include "syscad.h"
-#include "..\scdlib\scd_wm.h"
-#include "..\..\Com\scdif\scdcomcmds.h"
-#include "..\..\Com\scdif\scdcomevts.h"
+#include "..\..\Common\Scd\scdlib\scd_wm.h"
+#include "..\..\Common\Com\scdif\scdcomcmds.h"
+#include "..\..\Common\Com\scdif\scdcomevts.h"
 #include "ScdCATIDS.h"
 
 #include <vfw.h>

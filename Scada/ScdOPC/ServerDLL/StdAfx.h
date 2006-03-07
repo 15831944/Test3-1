@@ -13,7 +13,7 @@
 #include <afxadv.h>        // CSharedFile
 #include <math.h>
 
-#include "..\..\..\..\SMDK\Include\ScdIF.h"
+#include "..\..\..\SMDK\Include\ScdIF.h"
 
 #include "OPCServer.h"
 #include "ScdOPCSrv.h"

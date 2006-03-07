@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="DevLic"
 	ProjectGUID="{141EF00B-B83A-4189-A728-CDBEAFA181CB}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -42,7 +38,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\smdk\DevLic.exe"
+				OutputFile="..\..\smdk\DevLic.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile=".\Release/DevLic.pdb"
@@ -105,7 +101,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\smdk\DevLic.exe"
+				OutputFile="..\..\smdk\DevLic.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"

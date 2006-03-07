@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="SysCADMarshal"
 	ProjectGUID="{B6E1DFB6-A122-4EAF-986F-E60F2059D081}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -25,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Scd\ScdLib,..\..\Scd\ScExec,..\ScdOPC\interface"
+				AdditionalIncludeDirectories="..\..\Common\Scd\ScdLib,..\..\Common\Scd\ScExec,..\ScdOPC\interface"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;WITHOPC"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -50,7 +46,7 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SysCADMarshal.exe"
+				OutputFile="..\..\Bin\SysCADMarshal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -95,7 +91,7 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\Scada\xScdOPC\interface,..\..\Scd\ScdLib,..\..\Scd\ScExec,..\ScdOPC\interface"
+				AdditionalIncludeDirectories="..\..\Common\Scd\ScdLib,..\..\Common\Scd\ScExec,..\ScdOPC\interface"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;WITHOPC"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -120,7 +116,7 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SysCADMarshal.exe"
+				OutputFile="..\..\Bin\SysCADMarshal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile=".\Rls/SysCADMarshal.pdb"
@@ -164,7 +160,7 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Scada\xScdOPC\interface,..\..\Scd\ScdLib,..\..\Scd\ScExec,..\ScdOPC\interface"
+				AdditionalIncludeDirectories="..\..\Common\Scd\ScdLib,..\..\Common\Scd\ScExec,..\ScdOPC\interface"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WITHOPC"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -188,7 +184,7 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SysCADMarshal.exe"
+				OutputFile="..\..\Bin\SysCADMarshal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"

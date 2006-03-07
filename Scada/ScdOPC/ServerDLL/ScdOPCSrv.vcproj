@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ScdOPCSrv"
 	ProjectGUID="{147AB0DE-D9D3-4042-BE88-7EFD30973807}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -47,7 +43,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\..\Bin\ScdOPCSrv.dll"
+				OutputFile="..\..\..\Bin\ScdOPCSrv.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ScdOPCSrv.def"
@@ -112,7 +108,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\..\Bin\ScdOPCSrv.dll"
+				OutputFile="..\..\..\Bin\ScdOPCSrv.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ScdOPCSrv.def"
@@ -177,7 +173,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\..\Bin\ScdOPCSrv.dll"
+				OutputFile="..\..\..\Bin\ScdOPCSrv.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ScdOPCSrv.def"

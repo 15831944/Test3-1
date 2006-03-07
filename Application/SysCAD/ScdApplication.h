@@ -5,10 +5,10 @@
 #define __SCDAPPLICATION_H_
 
 #include "resource.h"       // main symbols
-#include "..\..\com\scdif\scdif.h"       // main symbols
-#include "..\..\com\scdslv\scdatl.h"       // main symbols
+#include "..\..\common\com\scdif\scdif.h"       // main symbols
+#include "..\..\common\com\scdslv\scdatl.h"       // main symbols
 #include "ScdAppCP.h"
-#include "..\..\com\scdif\scdcomevts.h"       // main symbols
+#include "..\..\common\com\scdif\scdcomevts.h"       // main symbols
 
 /////////////////////////////////////////////////////////////////////////////
 // CScdApplicationFactory

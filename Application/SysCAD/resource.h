@@ -1532,13 +1532,13 @@
 #define IDC_NEWTAGNAME                  25717
 #define IDC_WITHSTATE                   25717
 #define IDC_EXISTINGMODEL               25718
-#define IDC_LIST1                       25719
+//#define IDC_LIST1                       25719
 #define IDC_CLASSIDS                    25719
 #define IDC_PAGES                       25720
 #define IDC_ASMARKED                    25721
-#define IDC_EDIT1                       25722
+//#define IDC_EDIT1                       25722
 #define IDC_TAGFILTER                   25722
-#define IDC_EDIT2                       25723
+//#define IDC_EDIT2                       25723
 #define IDC_TAGFILTERRULE               25724
 #define IDC_CLASSCOUNT                  25725
 #define IDC_PAGECOUNT                   25726

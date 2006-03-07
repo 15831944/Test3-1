@@ -17,9 +17,9 @@
 #include ".\\OpcSrvr\\srvCallback.h"   // FSServer callback class
 #include ".\\OpcSrvr\\SrvMngr.h"
 
-#pragma LIBCOMMENT("..\\..\\com\\ScdIF\\", "\\ScdIF" )
-#pragma LIBCOMMENT("..\\..\\scd\\scdlib\\", "\\scdlib")
-#pragma LIBCOMMENT("..\\..\\scd\\scexec\\", "\\scexec")
+#pragma LIBCOMMENT("..\\..\\Common\\com\\ScdIF\\", "\\ScdIF" )
+#pragma LIBCOMMENT("..\\..\\Common\\scd\\scdlib\\", "\\scdlib")
+#pragma LIBCOMMENT("..\\..\\Common\\scd\\scexec\\", "\\scexec")
 #pragma LIBCOMMENT("..\\scdopc\\serverdll\\", "\\scdopcsrv")
 
 #ifdef _DEBUG

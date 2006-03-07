@@ -41,10 +41,10 @@
 
 #include "..\..\..\SMDK\Include\ScdIF.h"
 #include "..\..\..\SMDK\Include\md_share1.h"
-#include "..\..\Scd\Scdlib\sc_defs.h"
-#include "..\..\Scd\Scdlib\mathlib.h"
-#include "..\..\Scd\Scdlib\noise.h"
-#include "..\..\Scd\ScExec\pgm_e.h"
+#include "..\..\Common\Scd\Scdlib\sc_defs.h"
+#include "..\..\Common\Scd\Scdlib\mathlib.h"
+#include "..\..\Common\Scd\Scdlib\noise.h"
+#include "..\..\Common\Scd\ScExec\pgm_e.h"
 #include "OPCWrap.h"
 #include "OPCError.h"
 

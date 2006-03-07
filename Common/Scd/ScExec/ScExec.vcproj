@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ScExec"
 	ProjectGUID="{118B0864-20C8-4584-B0D7-3AF5DC09A532}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -550,10 +546,10 @@
 			Filter=""
 			SourceControlFiles="FALSE">
 			<File
-				RelativePath="..\..\Utils\DevLic\Scribble.cpp">
+				RelativePath="..\..\..\Utils\DevLic\Scribble.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Utils\DevLic\Scribble.h">
+				RelativePath="..\..\..\Utils\DevLic\Scribble.h">
 			</File>
 		</Filter>
 	</Files>

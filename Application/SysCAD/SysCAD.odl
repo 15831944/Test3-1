@@ -18,8 +18,8 @@ library ScdApp
   importlib("stdole2.tlb");
 
   //importlib ("..\..\..\Bin\ScdIF.tlb");
-  importlib ("..\..\..\Bin\scdmdl.tlb");
-  importlib ("..\..\..\Bin\scdslv.tlb");
+  importlib ("..\..\Bin\scdmdl.tlb");
+  importlib ("..\..\Bin\scdslv.tlb");
 
   //----------------------------------------------
   // Forward declarations

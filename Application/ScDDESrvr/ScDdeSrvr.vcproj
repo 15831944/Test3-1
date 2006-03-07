@@ -4,10 +4,7 @@
 	Version="7.10"
 	Name="SCDDESRVR"
 	ProjectGUID="{EA3BC6A1-2B8F-4F81-8CD7-922EF32910DD}"
-
-
-
-
+	RootNamespace="SCDDESRVR"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -25,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\scdlib,..\scexec"
+				AdditionalIncludeDirectories=".,..\..\common\scd\scdlib,..\..\common\scd\scexec"
 				PreprocessorDefinitions="_DEBUG;SCDDESRVR;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -44,7 +41,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\ScDdeSrvr.dll"
+				OutputFile="..\..\Bin\ScDdeSrvr.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ScDdeSrvr.def"
@@ -67,7 +64,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_AFXDLL;_DEBUG"
-				AdditionalIncludeDirectories="..\scdlib"/>
+				AdditionalIncludeDirectories="..\..\common\scd\scdlib"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -90,7 +87,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\scdlib,..\scexec"
+				AdditionalIncludeDirectories=".,..\..\common\scd\scdlib,..\..\common\scd\scexec"
 				PreprocessorDefinitions="NDEBUG;SCDDESRVR;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -109,7 +106,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\ScDdeSrvr.dll"
+				OutputFile="..\..\Bin\ScDdeSrvr.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ScDdeSrvr.def"
@@ -133,7 +130,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_AFXDLL;NDEBUG"
 				Culture="3081"
-				AdditionalIncludeDirectories="..\scdlib"/>
+				AdditionalIncludeDirectories="..\..\common\scd\scdlib"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -160,7 +157,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\scdlib,..\scexec"
+				AdditionalIncludeDirectories=".,..\..\common\scd\scdlib,..\..\common\scd\scexec"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SCDDESRVR;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -180,7 +177,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\ScDdeSrvr.dll"
+				OutputFile="..\..\Bin\ScDdeSrvr.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ScDdeSrvr.def"
@@ -203,7 +200,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_AFXDLL;_RELEASE;NDEBUG"
-				AdditionalIncludeDirectories="..\scdlib"/>
+				AdditionalIncludeDirectories="..\..\common\scd\scdlib"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -302,6 +299,12 @@
 			Name="Packages No. 1"
 			Filter="vcx;vcp;vcw">
 		</Filter>
+		<File
+			RelativePath="..\..\Tests\ScdComTest.NET\Form1.resX">
+		</File>
+		<File
+			RelativePath="..\..\Tests\ScdComTest.NET\Form1.vb">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

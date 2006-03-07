@@ -17,7 +17,7 @@
 #include "math.h"
 #include "float.h"
 #include "DLLLicenseDialog.h"
-#include "..\..\scd\scdlib\ScdVerLic.h"
+#include "..\..\common\scd\scdlib\ScdVerLic.h"
 
 
 #ifdef _DEBUG

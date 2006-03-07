@@ -12,6 +12,6 @@
 //#include <atlimpl.cpp>
 
 
-#include "..\..\com\ScdIF\ScdIF_i.c"
-#include "..\..\com\ScdMdl\ScdMdl_i.c"
-#include "..\..\com\ScdSlv\ScdSlv_i.c"
+#include "..\..\common\com\ScdIF\ScdIF_i.c"
+#include "..\..\common\com\ScdMdl\ScdMdl_i.c"
+#include "..\..\common\com\ScdSlv\ScdSlv_i.c"
