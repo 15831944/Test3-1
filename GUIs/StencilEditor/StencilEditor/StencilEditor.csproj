@@ -10,7 +10,7 @@
     <RootNamespace>StencilEditor</RootNamespace>
     <AssemblyName>StencilEditor</AssemblyName>
     <ManifestCertificateThumbprint>77A3A8544C5B68F2C103F880D9D5F4DA17AAC053</ManifestCertificateThumbprint>
-    <ManifestKeyFile>GraphicStencilEditor_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>StencilEditor_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -84,8 +84,9 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="GraphicStencilEditor_TemporaryKey.pfx" />
+    <None Include="StencilEditor_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
