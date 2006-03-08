@@ -187,7 +187,7 @@ bool CKoueValle::ExchangeDataFields()
 
 bool CKoueValle::EvalJoinPressures()
 {
-	if (IsSolveDirect)
+	if (IsNetProbal)
 	{//set pressures at each join (pipes connected to unit)
 		return MBaseMethod::EvalJoinPressures();
 		//for (int j=0; j<Joins.Count; j++) 

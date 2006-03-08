@@ -1216,7 +1216,7 @@ bool C4PortValve::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 //---------------------------------------------------------------------------
 
-void C4PortValve ::ConfigureJoins()
+void C4PortValve::ConfigureJoins()
   {
   Set_NJoins(3);
   if (m_State.m_iMethod==Meth_Profile && m_iProfile>=0)

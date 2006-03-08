@@ -185,7 +185,7 @@ void Thickener::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -194,8 +194,7 @@ void Thickener::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }

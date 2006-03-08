@@ -177,14 +177,13 @@ void QCoolingTower::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         SetPBJoinPressure(j, Std_P, true, true);
       break;
       }
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
@@ -196,10 +195,8 @@ void QCoolingTower::EvalJoinFlows(int JoinNo)
   {
   switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
-    case SM_Direct:
-      break;
+    case NM_Probal:
+    case NM_Dynamic:
       break;
     }
   };

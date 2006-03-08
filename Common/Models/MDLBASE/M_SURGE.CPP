@@ -436,16 +436,15 @@ inlet and outlet of the surge unit.*/
 void MN_Surge::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMethod())
+    switch (NetMethod())
       {
-      case SM_Direct:
+      case NM_Probal:
         if (NJoins()>=1)
           EvalPBJoinPressure(0, &m_PBPCtrl0, QProd());
         if (NJoins()>=2)
           EvalPBJoinPressure(1);
         break;
-      case SM_Inline:
-      case SM_Buffered:
+      case NM_Dynamic:
         {
         #if dbgEvalPres
         dbgpln("EvalJoinPressures:%s",FullObjTag());

@@ -1120,11 +1120,13 @@ flag ShellTube::ValidateData(ValidateDataBlk & VDB)
 flag ShellTube::InitialiseSolution()
   {
   flag OK=MdlNode::InitialiseSolution();
-  switch (NetMethod())
+  switch (SolveMethod())
     {
     case SM_Direct:
-    case SM_Inline:
       Shell.SetStateAction(IE_Disabled);
+      break;
+    case SM_Inline:
+      Shell.SetStateAction(IE_SaveState);
       break;
     case SM_Buffered:
       Shell.SetStateAction(IE_Integrate);
@@ -1275,8 +1277,7 @@ void ShellTube::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
-    case SM_Inline:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         {

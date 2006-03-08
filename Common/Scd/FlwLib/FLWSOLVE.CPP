@@ -1710,7 +1710,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
 
       if (!MdOk)
         {
-        LogError(p->FullObjTag(), 0, "Bad SolveMethod() @ %s", p->Nd_Rmt(i)->FullObjTag());
+        LogError(p->FullObjTag(), 0, "Bad SolveMethod @ %s", p->Nd_Rmt(i)->FullObjTag());
         Ok=0;
         }
 

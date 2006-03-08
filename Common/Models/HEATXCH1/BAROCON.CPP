@@ -246,10 +246,9 @@ flag BarometricCondenser::InitialiseSolution()
 
 void BarometricCondenser::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Direct:
-    case SM_Inline:
+    case NM_Probal:
       {
       if (!m_FTC.Active())
         {
@@ -264,7 +263,7 @@ void BarometricCondenser::EvalJoinPressures(long JoinMask)
         }
       }
       break;
-    case SM_Buffered:
+    case NM_Dynamic:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -293,11 +292,10 @@ void BarometricCondenser::SetState(eScdMdlStateActs RqdState)
 
 void BarometricCondenser::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
-    case SM_Direct:
+    case NM_Probal:
+    case NM_Dynamic:
       break;
     }
   };

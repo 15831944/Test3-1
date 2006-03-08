@@ -376,7 +376,7 @@ void PriReform::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       break;
     default:;
       {

@@ -204,11 +204,10 @@ void Mill1::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       IOP_RhoH_Info RhoHInfo(Contents);
       double Pm=ContainerMeanPress(RhoHInfo, POffset);
       Set_JoinP(0, Pm);
@@ -224,9 +223,8 @@ void Mill1::EvalJoinFlows(int JoinNo)
   {
   switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
-    case SM_Direct:
+    case NM_Probal:
+    case NM_Dynamic:
       break;
     }
   };

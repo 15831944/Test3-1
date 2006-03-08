@@ -160,10 +160,9 @@ void MN_Xfer::PreDisConnect(int IONo)
 
 flag MN_Xfer::InitialiseSolution()
   {
-  switch (NetMethod())
+  switch (SolveMethod())
     {
     case SM_Direct:
-
       break;
     case SM_Inline:
     case SM_Buffered:
@@ -322,10 +321,9 @@ void MN_Xfer::StartStep()
 inlet and outlet of the surge unit.*/
 void MN_Xfer::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Direct:
-    case SM_Inline:
+    case NM_Probal:
       {
       const bool OldCode = false;
       if (OldCode)
@@ -345,7 +343,7 @@ void MN_Xfer::EvalJoinPressures(long JoinMask)
       break;
       }
     //case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }

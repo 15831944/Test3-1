@@ -2381,9 +2381,9 @@ void HeatXchg1::StartStep()
 
 void HeatXchg1::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         {

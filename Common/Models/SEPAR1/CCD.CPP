@@ -176,7 +176,7 @@ void Ccd::ConfigureJoins()
   {
   switch (NetMethod())
     {
-    case SM_Inline:
+    case NM_Probal:
       for (int i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
@@ -192,7 +192,7 @@ void Ccd::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -201,8 +201,7 @@ void Ccd::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }

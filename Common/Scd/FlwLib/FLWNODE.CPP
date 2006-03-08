@@ -2544,7 +2544,7 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   //      DDBR.Add(V.m_lVal & SM_All, V.m_pStr, V.m_dwFlags);
   //    }
   //  DDBR.Add(0, "None", MDD_Hidden);
-  //  DDB.Long("SolveMethod()", "", DC_, "", xidSolveMode,   this, isParmStopped|SetOnChange, &DDBR);
+  //  DDB.Long("SolveMethod", "", DC_, "", xidSolveMode,   this, isParmStopped|SetOnChange, &DDBR);
   //  }
 
   if (m_AllowedSolveModes)
@@ -2557,7 +2557,7 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     if (m_AllowedSolveModes & SM_Buffered & GetPermissableRunModes(SM_All))
       DDBR.Add(SM_Buffered, "Buffered");
     DDBR.Add(0, "None", MDD_Hidden);
-    DDB.Long("SolveMethod()", "", DC_, "", xidSolveMode,   this, (DDBR.Length()>2?isParmStopped:0)|SetOnChange, &DDBR);
+    DDB.Long("SolveMethod", "", DC_, "", xidSolveMode,   this, (DDBR.Length()>2?isParmStopped:0)|SetOnChange, &DDBR);
     }
 
   DDBValueLstMem DDBH;

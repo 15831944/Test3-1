@@ -272,7 +272,7 @@ void ContactHeater::EvalJoinPressures(long JoinMask)
   if (NoFlwIOs()>0)
     switch (NetMethod())
       {
-      case SM_Direct:
+      case NM_Probal:
         {
         //if (!m_FTC.Active())
         //  m_FTC.SetSuctionP(IOP_Rmt(IOWithId_Self(ioidSI_HotLiq)));what does this do for us?
@@ -285,8 +285,7 @@ void ContactHeater::EvalJoinPressures(long JoinMask)
           }
         }
         break;
-      case SM_Inline:
-      case SM_Buffered:
+      case NM_Dynamic:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
       }
@@ -319,9 +318,8 @@ void ContactHeater::EvalJoinFlows(int JoinNo)
   if (NoFlwIOs()>0)
     switch (NetMethod())
       {
-      case SM_Inline:
-      case SM_Buffered:
-      case SM_Direct:
+      case NM_Probal:
+      case NM_Dynamic:
         break;
       }
   };

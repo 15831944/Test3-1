@@ -358,14 +358,13 @@ void Precip::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         SetPBJoinPressure(j, AtmosPress(IODatum_Term(j)), true, true);
       break;
       }
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
@@ -375,11 +374,10 @@ void Precip::EvalJoinPressures(long JoinMask)
 
 void Precip::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
-    case SM_Direct:
+    case NM_Probal:
+    case NM_Dynamic:
       break;
     }
   };

@@ -196,20 +196,21 @@ void Boiler::ConfigureJoins()
 void Boiler::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (NetMethod())
     {
-      case SM_Direct:
+    switch (NetMethod())
+      {
+      case NM_Probal:
         {
         for (int j=0; j<NJoins(); j++)
           {
           SetPBJoinPressure(j, (j==0 ? dFinalP : dDrumPress), true, true);
           }
+        break;
         }
-      break;
-      case SM_Inline:
-      case SM_Buffered:
+      case NM_Dynamic:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
+      }
     }
   }
 

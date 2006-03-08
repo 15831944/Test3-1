@@ -359,17 +359,17 @@ void FlashTank::ConfigureJoins()
   {
   if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-      for (int i=0; i<NoFlwIOs(); i++)
-        SetIO_Join(i, 0);
+    for (int i=0; i<NoFlwIOs(); i++)
+      SetIO_Join(i, 0);
 #if DOPBSMOOTHING  
-      m_fSolnVapQmValid=false;
-      m_dSolnVapQm=0.0;
+    m_fSolnVapQmValid=false;
+    m_dSolnVapQm=0.0;
 #endif
-      if (!DoMassSmoothing())
-        m_nRmtScl=0;
+    if (!DoMassSmoothing())
+      m_nRmtScl=0;
     }
   else
-      MN_Surge::ConfigureJoins();
+    MN_Surge::ConfigureJoins();
   }
 
 //--------------------------------------------------------------------------
@@ -401,10 +401,10 @@ void FlashTank::EvalPBMakeUpAvail(long JoinMask)
 void FlashTank::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
+    {
     switch (NetMethod())
       {
-      case SM_Direct:
-      case SM_Inline:
+      case NM_Probal:
         if (NJoins()>0)
           {
           m_FTF.m_dFeedP=GetPBInputPressure(0, &m_PBPCtrl0);
@@ -441,10 +441,11 @@ void FlashTank::EvalJoinPressures(long JoinMask)
         else
           MN_Surge::EvalJoinPressures(JoinMask);
         break;
-      case SM_Buffered:
+      case NM_Dynamic:
         MN_Surge::EvalJoinPressures(JoinMask);
         break;
       }
+    }
   };
  
 //--------------------------------------------------------------------------
@@ -485,6 +486,7 @@ void FlashTank::EvalSteadyState()
 void FlashTank::EvalProducts(long JoinMask)
   {
   if (NoFlwIOs()>0)
+    {
     switch (SolveMethod())
       {
       case SM_Direct:
@@ -495,8 +497,8 @@ void FlashTank::EvalProducts(long JoinMask)
 
         SpConduit & Ql=*IOConduit(ioLiq);
         SpConduit & Qv=*IOConduit(ioVap);
-        
-        #if dbgModels
+
+#if dbgModels
         double MemTl, MemPl, MemHl, MemMl;
         double MemTv, MemPv, MemHv, MemMv;
         if (SolveDirectMethod() && dbgDumpChanges())
@@ -510,7 +512,7 @@ void FlashTank::EvalProducts(long JoinMask)
           MemHv=Qv.totHf();
           MemMv=Qv.QMass();
           }
-        #endif
+#endif
 
         double PIn=SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
         //would "...Xfer_EvalProductsIn(0, Press, QFeed(), NULL, &PBPCtrl0)..." be better???
@@ -536,8 +538,8 @@ void FlashTank::EvalProducts(long JoinMask)
           {
           RB.EvalProducts(Ql);
           EHX.EvalProducts(Ql);
-          
-          #if WITHNONCONDENSABLES
+
+#if WITHNONCONDENSABLES
           const int idNCVent=IOWithId_Self(ioidFT_NCVent);
           if (idNCVent>=0)
             {
@@ -551,10 +553,10 @@ void FlashTank::EvalProducts(long JoinMask)
             CWrk.QCopy(Ql, PIn); //leave vapours in slurry...
             }
           SetCI(1, bTrackVapFdStatus && idNCVent<0 && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
-          #else
+#else
           SetCI(1, bTrackVapFdStatus && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
           CWrk.QCopy(Ql, PIn);
-          #endif
+#endif
 
           double QLMass=Ql.QMass();
           if (QLMass>UsableMass)
@@ -564,7 +566,7 @@ void FlashTank::EvalProducts(long JoinMask)
             double PMargin=0.0001;
 
             VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
-          
+
             int Iter=4;  // goes to 1 Kpa;
             do 
               {
@@ -589,7 +591,7 @@ void FlashTank::EvalProducts(long JoinMask)
                 }
               if (DoQP)
                 VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit);
-            
+
               CWrk.QCopy(Ql, PIn);
               CWrk.QAddF(Qv, som_ALL, 1.0);
               m_FTF.m_dFlashT=Ql.Temp();
@@ -615,7 +617,7 @@ void FlashTank::EvalProducts(long JoinMask)
           m_FTF.m_dQVap=0.0;
           }
 
-        #if WITHOTHERVAPSPLIT
+#if WITHOTHERVAPSPLIT
         //AFTER doing all the VLE work, if required, move "extra" vapours to vapour stream
         m_dOtherVapFracToLiq = Range(0.0, m_dOtherVapFracToLiq, 1.0);
         if (m_dOtherVapFracToLiq<1.0 && Ql.QMass(som_Gas)>UsableMass)
@@ -625,17 +627,17 @@ void FlashTank::EvalProducts(long JoinMask)
           Ql.QSetF(CWrk, som_SL, 1.0);
           Ql.QAddF(CWrk, som_Gas, m_dOtherVapFracToLiq);
           }
-        #endif
+#endif
 
         VLE.AddHfOutAtZero(Ql);
         VLE.AddHfOutAtZero(Qv);
 
-        #if dbgModels
+#if dbgModels
         if (SolveDirectMethod() && dbgDumpChanges())
           {
           dbgpln("--- %s",FullObjTag());
 
-          #define DBGIT(A,B,C) dbgpln("    %15.6f %15.6f %15.6f %25.20f %s", A, B, (B-A), 100*(B-A)/GTZ(Max(fabs(A), fabs(B))), C);
+#define DBGIT(A,B,C) dbgpln("    %15.6f %15.6f %15.6f %25.20f %s", A, B, (B-A), 100*(B-A)/GTZ(Max(fabs(A), fabs(B))), C);
 
           DBGIT(MemMl, Ql.QMass(), "Qml");
           DBGIT(MemTl, Ql.Temp(),  "Tl");
@@ -646,14 +648,15 @@ void FlashTank::EvalProducts(long JoinMask)
           DBGIT(MemPv, Qv.Press(), "Pv");
           DBGIT(MemHv, Qv.totHf(), "Hv");
 
-          #undef DBGIT
+#undef DBGIT
           }
-        #endif
+#endif
         }
-        break;
+      break;
       default:
         MN_Surge::EvalProducts(JoinMask);
       }
+    }
   }
 
 //--------------------------------------------------------------------------

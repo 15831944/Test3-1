@@ -470,9 +470,9 @@ inlet and outlet of the surge unit.*/
 
 void MixerSettler::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -481,8 +481,7 @@ void MixerSettler::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       {
       double Pm = (Mixer.Closed() ? Mixer.Press() : AtmosPress());
 	    double Pms = (Settler.Closed() ? Settler.Press() : AtmosPress());
@@ -506,10 +505,8 @@ void MixerSettler::EvalJoinFlows(int JoinNo)
   {
   switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
-    case SM_Direct:
-      ASSERT(0);
+    case NM_Probal:
+    case NM_Dynamic:
       break;
     }
   };

@@ -198,7 +198,7 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
   {
   switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Direct:
     //case SSMODE:
       {
       Set_NJoins(2);
@@ -213,8 +213,7 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
       break;
       }
 
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
     //case DYNMODE:
       {
       Set_NJoins(2);
@@ -229,9 +228,10 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
 void CTurbine::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
+    {
     switch (NetMethod())
       {
-      case SM_Direct:
+      case NM_Probal:
         {
         for (int j=0; j<NJoins(); j++)
           {
@@ -249,11 +249,11 @@ void CTurbine::EvalJoinPressures(long JoinMask)
           }
         }
         break;
-      case SM_Inline:
-      case SM_Buffered:
+      case NM_Dynamic:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
       }
+    }
   }
  
 //--------------------------------------------------------------------------

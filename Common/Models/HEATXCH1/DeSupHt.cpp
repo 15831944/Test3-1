@@ -176,7 +176,7 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
   if (NoFlwIOs()>0)
     switch (NetMethod())
       {
-      case SM_Direct:
+      case NM_Probal:
         {
         for (int j=0; j<NJoins(); j++)
           {
@@ -185,8 +185,7 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
           }
         }
         break;
-      case SM_Inline:
-      case SM_Buffered:
+      case NM_Dynamic:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
       }
@@ -219,9 +218,8 @@ void DeSuperHeater::EvalJoinFlows(int JoinNo)
   if (NoFlwIOs()>0)
     switch (NetMethod())
       {
-      case SM_Inline:
-      case SM_Buffered:
-      case SM_Direct:
+      case NM_Probal:
+      case NM_Dynamic:
         break;
       }
   }
