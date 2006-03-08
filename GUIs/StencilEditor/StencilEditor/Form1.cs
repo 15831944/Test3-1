@@ -121,8 +121,6 @@ namespace StencilEditor
       DefaultSizeXTextBox.Text = "10.0";
       DefaultSizeYTextBox.Text = "10.0";
 
-      SetShape();
-
       flowChart1.GridSizeX = gridSize;
       flowChart1.GridSizeY = gridSize;
       flowChart1.GridStyle = MindFusion.FlowChartX.GridStyle.Lines;
@@ -149,6 +147,8 @@ namespace StencilEditor
       elementList.AddLast(flowChart1.CreateArrow(tr, br));
       elementList.AddLast(flowChart1.CreateArrow(br, bl));
       elementList.AddLast(flowChart1.CreateArrow(bl, tl));
+
+      SetShape();
     }
 
     Node origin;
