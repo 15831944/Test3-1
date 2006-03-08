@@ -200,20 +200,20 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
 
   DDB.Text   ("Mode of Operation");
-  DDB.Visibility(SM_DynBoth|HM_All|SM_Probal);
+  DDB.Visibility(SM_DynBoth|HM_All|SM_Direct);
   DDB.Byte   ("",             "Qm_Mode", DC_, "", &QmRqdMode,  this, (fCrossConnected?0:isParm)|SetOnChange, DDB0);
   DDB.Byte   ("",             "Mode",    DC_, "", xidSSMode,   this, (fCrossConnected?0:isParm) | SetOnChange | AffectsStruct, DDBSrcSnk);
 
   DDB.Visibility(SM_DynBoth|HM_All, (SSMode & SSM_Sink));
   DDB.Byte  ("", "RevFeed", DC_, "", &iRevFlw,   this, (fCrossConnected?0:isParm), DDBQmRev);
 
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   //DDB.Add_OnOff("MakeUpMode", &bMakeUpMode, True, this);
   DDB.CheckBoxBtn("MakeUpMode", "", DC_, "", &bMakeUpMode, this, (fCrossConnected?0:isParm), DDBOnBlank);
 
   //flag ParmOK=true;
   //DDB.Visibility(SM_All|HM_All);
-  //if (((SSMode & SSM_ConstQm)!=0)|| ProbalMode() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)))
+  //if (((SSMode & SSM_ConstQm)!=0)|| SolveDirectMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)))
   //  DDB.Double ("MassFlow_Rqd", "Qm_Rqd", DC_Qm , "kg/s", xidQmRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   //if ((SSMode & SSM_ConstQv)!=0)
   //  DDB.Double ("VolFlow_Rqd",  "Qv_Rqd", DC_Qv , "L/s",  xidQvRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
@@ -221,7 +221,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.Double ("NVolFlow_Rqd",  "NQv_Rqd", DC_NQv , "NL/s",  xidNQvRqd,  this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
 
   DDB.Visibility(SHM_All, ((SSMode & SSM_ConstQm)!=0)||
-                            ProbalMode() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
+                            SolveDirectMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
   flag ParmOK=true;
   if (0 && (SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))) // taken out by CNM
     {
@@ -348,7 +348,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Object(&Flows, this, NULL, NULL, DDB_RqdPage);
 
   DDB.Text("");
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     if (m_Src.Enabled || m_Snk.Enabled)
       {

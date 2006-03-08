@@ -175,18 +175,7 @@ flag CIncomer::ValidateData(ValidateDataBlk & VDB)
     {
     }
 
-  if (ProbalMode())
-    {
-    }
-
   EvalState();
-
-  //m_tsPwrOut.SetConfiguration(m_nType);
-  
-//  for (int e=EIO1(); e<EION(); e++)
-//    EIO_Conduit(e).m_TStrip.SetConfiguration(m_nType, m_dVolts);
-
-  //m_Supply.SetNomVolts(m_dVolts);
 
   TaggedObject::ValidateTag(sConnectTag);
   if (!OK)

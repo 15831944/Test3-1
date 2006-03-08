@@ -163,7 +163,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   DDB.Text    ("Requirements");
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   dword VFlags1=(m_FTC.Active() ? noView : 0);
 	DDB.Double("Rqd_Flash_Press",   "",  DC_P,    "kPag",  &Rqd_Flash_Press,  this, isParm|NAN_OK|VFlags1);
   dword VFlags2=(m_FTC.Active() ? 0 : noView); 
@@ -171,12 +171,12 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_DynFull|HM_All);
+  DDB.Visibility(SM_Buffered|HM_All);
   VLE.Add_OnOff(DDB);
   DDB.Visibility();
 
   DDB.Text    ("Results");
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   DDB.Double  ("Cond_Press",       "",  DC_P,    "kPag",  &dFlashP, this, isResult|0);
   DDB.Double  ("Cond_Temp",        "",  DC_T,    "C",     &dFlashT, this, isResult|0);
   m_FTC.BuildDataDefn(DDB);
@@ -198,14 +198,14 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
   
-  //if (ProbalMode())
+  //if (SolveDirectMethod())
   //  DDB.Object(&QFd, this, NULL, NULL, DDB_RqdPage);
 
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
   VLE.BuildDataDefn(DDB);
 
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -246,10 +246,10 @@ flag BarometricCondenser::InitialiseSolution()
 
 void BarometricCondenser::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       if (!m_FTC.Active())
         {
@@ -264,7 +264,7 @@ void BarometricCondenser::EvalJoinPressures(long JoinMask)
         }
       }
       break;
-    case SM_DynFull:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -293,11 +293,11 @@ void BarometricCondenser::SetState(eScdMdlStateActs RqdState)
 
 void BarometricCondenser::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       break;
     }
   };
@@ -354,10 +354,10 @@ CToleranceBlock BCSteamFinder::s_Tol(TBF_Both, "BaroCon:SteamFinder", 0.0, 1.0e-
 
 void BarometricCondenser::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       StkSpConduit Cd("Cd", chLINEID(), this);
       StkSpConduit CdOther("CdOther", chLINEID(), this);

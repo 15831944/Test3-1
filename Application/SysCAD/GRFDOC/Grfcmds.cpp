@@ -1196,7 +1196,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
     Menu.AppendMenu(MF_STRING, 101,  "Empty");
     Menu.AppendMenu(MF_STRING, 102,  "Zero Flows");
     Menu.AppendMenu(MF_STRING|(TaggedObject::GlblDynamicMode()?0:MF_GRAYED), 103,  "Preset");
-    Menu.AppendMenu(MF_STRING/*|(TaggedObject::DynamicMode()?0:MF_GRAYED)*/, 119,  "Reset Stats");
+    Menu.AppendMenu(MF_STRING/*|(TaggedObject::SolveDynamicMethod()?0:MF_GRAYED)*/, 119,  "Reset Stats");
     Menu.AppendMenu(MF_STRING|(DoWire?0:MF_GRAYED), 130,  "Wiring");
     AuditMenu.CreatePopupMenu();
     Menu.AppendMenu(MF_POPUP, (UINT)AuditMenu.m_hMenu, "Mass && Energy Audit");
@@ -1432,7 +1432,7 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
     Tmp.Set(NearTag ? "Preset '%s'" : "Preset All", pTag);
     Menu.AppendMenu(MF_STRING|(TaggedObject::GlblDynamicMode() ? 0 : MF_GRAYED), 103,  Tmp());
     Tmp.Set(NearTag ? "Reset Stats '%s'" : "Reset All Stats", pTag);
-    Menu.AppendMenu(MF_STRING/*|(TaggedObject::DynamicMode() ? 0 : MF_GRAYED)*/, 119,  Tmp());
+    Menu.AppendMenu(MF_STRING/*|(TaggedObject::SolveDynamicMethod() ? 0 : MF_GRAYED)*/, 119,  Tmp());
     //Menu.AppendMenu(MF_STRING|(DoWire?0:MF_GRAYED), 130,  "Wiring");
     Menu.AppendMenu(MF_SEPARATOR, -1);
     }

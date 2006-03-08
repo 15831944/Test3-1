@@ -161,7 +161,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -171,7 +171,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -217,9 +217,9 @@ flag Centrifuge1::ValidateData(ValidateDataBlk & VDB)
 
 void Centrifuge1::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -228,8 +228,8 @@ void Centrifuge1::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }

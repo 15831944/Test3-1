@@ -390,9 +390,9 @@ bool MBaseMethod::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 //---------------------------------------------------------------------------
 
-void MBaseMethod::OnSetUserMethod()
+void MBaseMethod::OnSetFlowMode()
   {
-  //m_pNd->OnSetUserMethod();
+  //m_pNd->OnSetFlowMode();
   }
 
 //---------------------------------------------------------------------------
@@ -400,7 +400,7 @@ void MBaseMethod::OnSetUserMethod()
 bool MBaseMethod::ConfigureJoins()
   {
   m_pNd->Init_NJoins(m_nJoins);
-  if (1) // default for all modes //m_pNd->ProbalMode() || m_pNd->DynFlowMode())
+  if (1) // default for all modes //m_pNd->SolveDirectMethod() || m_pNd->SolveInlineMethod())
     {
     MInOutDefStruct *pDefs = m_pIODefs;
     for (int i=0; i<m_pNd->NoFlwIOs(); i++)
@@ -438,9 +438,13 @@ bool MBaseMethod::getDbgBrk()                                 { return m_pNd->fD
 
 //---------------------------------------------------------------------------
 
-bool MBaseMethod::getIsProbal()             { return m_pNd->ProbalMode()!=0; };
-bool MBaseMethod::getIsDynamicTransfer()    { return m_pNd->DynFlowMode()!=0; };
-bool MBaseMethod::getIsDynamicFull()        { return m_pNd->DynFullMode()!=0; };
+bool MBaseMethod::getIsNetProbal()          { return m_pNd->NetProbalMethod()!=0; };
+bool MBaseMethod::getIsNetDynamic()         { return m_pNd->NetDynamicMethod()!=0; };
+
+bool MBaseMethod::getIsSolveDirect()        { return m_pNd->SolveDirectMethod()!=0; };
+bool MBaseMethod::getIsSolveInline()        { return m_pNd->SolveInlineMethod()!=0; };
+bool MBaseMethod::getIsSolveBuffered()      { return m_pNd->SolveBufferedMethod()!=0; };
+
 double MBaseMethod::getTime()               { return ICGetTime(); };
 double MBaseMethod::getDeltaTime()          { return ICGetTimeInc(); };
 long MBaseMethod::getJoinMask()             { return m_lJoinMask; };
@@ -685,7 +689,7 @@ double MJoin::getP()
   };
 void   MJoin::putP(double P)
   {
-  if (m_pNd->ProbalMode())
+  if (m_pNd->NetProbalMethod())
     m_pNd->SetPBJoinPressure(m_iJoin, P, true, true);
   else
     {

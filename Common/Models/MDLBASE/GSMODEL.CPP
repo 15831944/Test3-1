@@ -739,7 +739,7 @@ int GSModel::FindIOEvalPriorityGen0(int *Priority, byte *QmMd, byte *MkMd)
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsOutGen0(long RunMds, double Press, SpConduit &Sd)
+void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
   {
   double Temperature=Sd.Temp();
   int nShort=0;
@@ -1015,7 +1015,7 @@ int GSModel::FindIOEvalPriorityV5(int *Priority, byte *QmMd, byte *MkMd)
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsOutV5(long RunMds, double Press, SpConduit &Sd)
+void GSModel::EvalProductsOutV5(long SolveMethod, double Press, SpConduit &Sd)
   {
   }
 
@@ -1640,7 +1640,7 @@ int GSModel::FindIOEvalPrioritySplit(int *I, GSIOAlpha **A)
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsOutSplit(long RunMds, double Press, SpConduit &Sd)
+void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd)
   {
   int I[MaxIOList+1];
   GSIOAlpha * A[MaxIOList+1];
@@ -2386,7 +2386,7 @@ void GSModel::MakeUpNodeTransferReqd(int JoinId)
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProducts(long RunMds, double Press, SpConduit *pQf, CReactionBlock *pRB, double Flash_Press, CEnvironHX * pEHX)
+void GSModel::EvalProducts(long SolveMethod, double Press, SpConduit *pQf, CReactionBlock *pRB, double Flash_Press, CEnvironHX * pEHX)
   {
   const int IOCount=IOs.GetSize();
 
@@ -2405,7 +2405,7 @@ void GSModel::EvalProducts(long RunMds, double Press, SpConduit *pQf, CReactionB
       }
     }
   // Sum all  material from IOs to Workspace
-  if (RunMds==SM_Probal)
+  if (SolveMethod==SM_Direct)
     Press=PMin;
   Sd.QZero();
   Sd.SetPress(Press);
@@ -2437,20 +2437,20 @@ void GSModel::EvalProducts(long RunMds, double Press, SpConduit *pQf, CReactionB
   if (pEHX)
     pEHX->EvalProducts(Sd);
 
-  EvalProductsOut(RunMds, Press, Sd);
+  EvalProductsOut(SolveMethod, Press, Sd);
   }
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsOut(long RunMds, double Press, SpConduit &Sd)
+void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
   {
   switch (iOperation)
     {
     case GSO_General0:
-      EvalProductsOutGen0(RunMds, Press, Sd);
+      EvalProductsOutGen0(SolveMethod, Press, Sd);
       break;
     case GSO_V5:
-      EvalProductsOutV5(RunMds, Press, Sd);
+      EvalProductsOutV5(SolveMethod, Press, Sd);
       break;
     case GSO_MassFracSplit:
     case GSO_MassFlowSplit:
@@ -2462,7 +2462,7 @@ void GSModel::EvalProductsOut(long RunMds, double Press, SpConduit &Sd)
     case GSO_SpMassFlowSplit:
     case GSO_SpVolumeFlowSplit:
     case GSO_PhaseRecovery:
-      EvalProductsOutSplit(RunMds, Press, Sd);
+      EvalProductsOutSplit(SolveMethod, Press, Sd);
       break;
     }
   }

@@ -109,12 +109,12 @@ flag CBBBase::DoPreStartCheck()
   {
   if (m_pMethod)
     {
-    /*if (!(MethodImpl.m_dwMethOptions & MO_Probal) && !m_pNd->DynamicMode())
+    /*if (!(MethodImpl.m_dwMethOptions & MO_Probal) && !m_pNd->SolveDynamicMethod())
       {
       LogError(m_pNd->FullObjTag(), 0, "PreStart error : Method not supported in ProBal mode.");
       return false;
       }
-    if (!(MethodImpl.m_dwMethOptions & MO_Dynamic) && m_pNd->DynamicMode())
+    if (!(MethodImpl.m_dwMethOptions & MO_Dynamic) && m_pNd->SolveDynamicMethod())
       {
       LogError(m_pNd->FullObjTag(), 0, "PreStart error : Method not supported in Dynamic mode.");
       return false;
@@ -209,11 +209,11 @@ bool CBBBase::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 //--------------------------------------------------------------------------
 
-void CBBBase::DoOnSetUserMethod() 
+void CBBBase::DoOnSetFlowMode() 
   {
   if (!m_pMethod)
     return;
-  Method.OnSetUserMethod(); 
+  Method.OnSetFlowMode(); 
   };
 
 //--------------------------------------------------------------------------

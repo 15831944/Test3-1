@@ -1689,18 +1689,28 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
 
     for (int i=0; i<p->NoFlwIOs(); i++)
       {
-      dword md1=p->SolveMode();
-      dword md2=p->Nd_Rmt(i)->SolveMode();
+      dword md1=p->SolveMethod();
+      dword md2=p->Nd_Rmt(i)->SolveMethod();
       flag MdOk=0;
 
-      if (md1 & md2 & SM_Probal)
+      if (p->GlblProbalMode())
+        {
+        if (md1 & md2 & SM_Direct)
         MdOk=1;
-      else if ((md1 & SM_DynBoth) && (md2 & SM_DynBoth))
+        }
+      else
+        {
+        if ((md1 & SM_DynBoth|SM_Direct) && (md2 & SM_DynBoth|SM_Direct))
         MdOk=1;
+        }
+      //if (md1 & md2 & SM_Direct)
+      //  MdOk=1;
+      //else if ((md1 & SM_DynBoth) && (md2 & SM_DynBoth))
+      //  MdOk=1;
 
       if (!MdOk)
         {
-        LogError(p->FullObjTag(), 0, "Bad SolveMode @ %s", p->Nd_Rmt(i)->FullObjTag());
+        LogError(p->FullObjTag(), 0, "Bad SolveMethod() @ %s", p->Nd_Rmt(i)->FullObjTag());
         Ok=0;
         }
 
@@ -4393,7 +4403,7 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
       double CnQmOut = 0;
       double CnHtIn = 0;
       double CnHtOut = 0;
-      if (!NJ.Nd.ProbalMode())
+      if (!NJ.Nd.SolveDirectMethod())
         {
         NJ.Nd.GetClosureInfo(false, true);
 
@@ -4418,8 +4428,8 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
 
       flag QtOK     = FlwSlvNd.m_MCloseTol.ConvergedVV(TotQmOut, TotQmIn);
       double QtErr  = FlwSlvNd.m_MCloseTol.GetActualError();
-      flag HtOK     = NJ.Nd.SkipHeatMode() || FlwSlvNd.m_HCloseTol.ConvergedVV(TotHtOut, TotHtIn);
-      flag HtOK2    = NJ.Nd.SkipHeatMode() || FlwSlvNd.m_HCloseTol2.ConvergedVV(TotHtOut, TotHtIn);
+      flag HtOK     = NJ.Nd.HeatSkipMethod() || FlwSlvNd.m_HCloseTol.ConvergedVV(TotHtOut, TotHtIn);
+      flag HtOK2    = NJ.Nd.HeatSkipMethod() || FlwSlvNd.m_HCloseTol2.ConvergedVV(TotHtOut, TotHtIn);
       double HtErr  = FlwSlvNd.m_HCloseTol.GetActualError();
 
       Strng SpMsg(" ");
@@ -6966,10 +6976,10 @@ void FlwSlvDyn::ODEDerivs()
 
   CFlwNodeIter Ctrl(m_PwrCtrlNds);
   for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
-    if (p->DynamicMode())
+    if (p->SolveDynamicMethod())
       p->EvalDerivs(-1);
   //for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
-  //  if (p->DynamicMode())
+  //  if (p->SolveDynamicMethod())
   //    p->PostEvalDerivs();
 
   if (FlwNets.ProblemOK())
@@ -7174,7 +7184,7 @@ void FlwSlvDyn::ODEDerivs()
         CNodeEvalIndexIter AllOrder(m_AllTOSequence);
         CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
         for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
-          if (NJ.Nd.DynamicMode())
+          if (NJ.Nd.SolveDynamicMethod())
             {
             XT.StartLoop(NJ.m_pNd);
             XT.LockDone();//(p, eFITEvalDerivs, FSW_EvalDerivs);
@@ -7190,7 +7200,7 @@ void FlwSlvDyn::ODEDerivs()
       //  CNodeEvalIndexIter AllOrder(m_AllTOSequence);
       //  CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
       //  for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
-      //    if (NJ.Nd.DynamicMode())
+      //    if (NJ.Nd.SolveDynamicMethod())
       //      NJ.Nd.PostEvalDerivs();
       //  }
       if (TearLoop>=MaxTearLoop && MaxTearLoop>0)
@@ -7291,7 +7301,7 @@ void FlwSlvDyn::ODEOperate(CODEDataBlock & ODB)
     CFlwNodeIter All(m_AllNds);
     CThreadTimer  XT(eFITODEOperate, FSW_ODEOperate);
     for (FlwNode * p=All.First(); (p); p=All.Next())
-      if (p->DynamicMode())
+      if (p->SolveDynamicMethod())
         {
         XT.StartLoop(p);
         XT.LockDone();//(p, eFITODEOperate, FSW_ODEOperate);
@@ -9200,7 +9210,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double("Memory.AvailVirtual",  "", DC_Bytes, "Mb", xidSMAvailVirtual,  this, isResult|InitHidden|noFileAtAll|DDEF_NOCOMPARE);
 
       DDB.Text  ("");
-      DDB.Visibility(SM_Probal|HM_All);
+      DDB.Visibility(SM_Direct|HM_All);
       DDB.Long("Unknowns",        "", DC_,      "",  xidSolveUnknowns,  this, isResult|noFile|noSnap);
       DDB.Long("BadError",        "", DC_,      "",  xidSolveBadError,  this, isResult|noFile|noSnap);
       DDB.Long("BadLimit",        "", DC_,      "",  xidSolveBadLimit,  this, isResult|noFile|noSnap);
@@ -9630,8 +9640,8 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
       return 1;
 
     case xidXSWSteps        : DCB.L=TimeCB().m_nSteps; return 1;//XSW().nStepCnt; return 1;
-    case xidSolveIters      : DCB.L=ProbalMode() ? PBEqnCB().NIters() : ODE().GetGoodIters(); return 1;
-    case xidSolveItersBad   : DCB.L=ProbalMode() ? 0 : ODE().GetBadIters(); return 1;
+    case xidSolveIters      : DCB.L=NetProbalMethod() ? PBEqnCB().NIters() : ODE().GetGoodIters(); return 1;
+    case xidSolveItersBad   : DCB.L=NetProbalMethod() ? 0 : ODE().GetBadIters(); return 1;
     case xidXSWSecsStart    : DCB.D=XSW().m_dStartingTime; return 1;
     case xidXSWSecs         : DCB.D=XSW().m_swRun.Secs(); return 1;
     case xidXSWSecsDesc     : DCB.pC=(LPTSTR)XSW().m_swRun.MinSecHunDesc(SecsBuff); return 1;
@@ -9681,25 +9691,25 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidSMTotalVirtual    :  {  MEMORYSTATUS MS;  MS.dwLength=sizeof(MS);  GlobalMemoryStatus(&MS); DCB.D=MS.dwTotalVirtual        ;  return 1; }
     case xidSMAvailVirtual    :  {  MEMORYSTATUS MS;  MS.dwLength=sizeof(MS);  GlobalMemoryStatus(&MS); DCB.D=MS.dwAvailVirtual        ;  return 1; }
 
-    case xidSolveUnknowns   : DCB.L=ProbalMode() ? PBEqnCB().NUnknowns() : 0; return 1;
-    case xidSolveBadError   : DCB.L=ProbalMode() ? PBEqnCB().NBadError() : 0; return 1;
-    case xidSolveBadLimit   : DCB.L=ProbalMode() ? PBEqnCB().NBadLimit() : 0; return 1;
-    case xidSolveWorstErr   : DCB.D=ProbalMode() ? PBEqnCB().TheWorstErr() : 0.0; return 1;
-    //case xidSolveWorstErr   : DCB.D=ProbalMode() ? Max(PBEqnCB().WorstOtherErr(), PBEqnCB().WorstErr()) : 0.0; return 1;//(PBEqnCB().Converged() ? PBEqnCB().WorstOtherErr() : PBEqnCB().WorstErr()) : 0.0; return 1;
+    case xidSolveUnknowns   : DCB.L=NetProbalMethod() ? PBEqnCB().NUnknowns() : 0; return 1;
+    case xidSolveBadError   : DCB.L=NetProbalMethod() ? PBEqnCB().NBadError() : 0; return 1;
+    case xidSolveBadLimit   : DCB.L=NetProbalMethod() ? PBEqnCB().NBadLimit() : 0; return 1;
+    case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? PBEqnCB().TheWorstErr() : 0.0; return 1;
+    //case xidSolveWorstErr   : DCB.D=SolveDirectMethod() ? Max(PBEqnCB().WorstOtherErr(), PBEqnCB().WorstErr()) : 0.0; return 1;//(PBEqnCB().Converged() ? PBEqnCB().WorstOtherErr() : PBEqnCB().WorstErr()) : 0.0; return 1;
 
-    case xidSolveNets       : DCB.L=DynamicMode() ? Dyn.FlwNets.GetNumNets():       0; return 1;
-    case xidSolveSubNets    : DCB.L=DynamicMode() ? Dyn.FlwNets.GetNumSubNets(-1):  0; return 1;
-    case xidSolveNodes      : DCB.L=DynamicMode() ? Dyn.FlwNets.GetNumNodes(-1):    0; return 1;
-    case xidSolveFxdLnks    : DCB.L=DynamicMode() ? Dyn.FlwNets.GetNumFxdLnks(-1):  0; return 1;
-    case xidSolveLoneLnks   : DCB.L=DynamicMode() ? Dyn.FlwNets.GetNumLoneLnks(-1): 0; return 1;
-    case xidSolveNetLnks    : DCB.L=DynamicMode() ? Dyn.FlwNets.GetNumNetLnks(-1):  0; return 1;
+    case xidSolveNets       : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumNets():       0; return 1;
+    case xidSolveSubNets    : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumSubNets(-1):  0; return 1;
+    case xidSolveNodes      : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumNodes(-1):    0; return 1;
+    case xidSolveFxdLnks    : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumFxdLnks(-1):  0; return 1;
+    case xidSolveLoneLnks   : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumLoneLnks(-1): 0; return 1;
+    case xidSolveNetLnks    : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumNetLnks(-1):  0; return 1;
 
-    //case xidConvergeTm      : DCB.D=DynamicMode() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCnvState.TimeFrac() : 0;  return 1;
-    //case xidFlwSolveTm      : DCB.D=DynamicMode() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpNetSolve.TimeFrac() : 0;  return 1;
-    //case xidFlwWashTm       : DCB.D=DynamicMode() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpFlwSolve.TimeFrac() : 0;  return 1;
-    //case xidDiscreteTm      : DCB.D=DynamicMode() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swDiscrete.TimeFrac() : 0;  return 1;
-    //case xidCtrlStrategyTm  : DCB.D=DynamicMode() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlStrategy.TimeFrac() : 0;  return 1;
-    //case xidCtrlActionsTm   : DCB.D=DynamicMode() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlActions.TimeFrac() : 0;  return 1;
+    //case xidConvergeTm      : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCnvState.TimeFrac() : 0;  return 1;
+    //case xidFlwSolveTm      : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpNetSolve.TimeFrac() : 0;  return 1;
+    //case xidFlwWashTm       : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpFlwSolve.TimeFrac() : 0;  return 1;
+    //case xidDiscreteTm      : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swDiscrete.TimeFrac() : 0;  return 1;
+    //case xidCtrlStrategyTm  : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlStrategy.TimeFrac() : 0;  return 1;
+    //case xidCtrlActionsTm   : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlActions.TimeFrac() : 0;  return 1;
 
     case xidGenVerStr       : DCB.pC=FullVersion(); return 1;
     case xidGenUpdateVerStr : DCB.pC=FullVersionAndUpdate(); return 1;
@@ -9996,7 +10006,7 @@ DeleteIt:
     while (GetObj_All(p))
       if (p->GetActive())
         {
-        //p->SetUserMethodReqd(p->UserMethod()); // update UserMethod requirements down to FB's etc
+        //p->SetFlowMode(p->FlowMode()); // update FlowMode requirements
         p->GlobalConnect();
         }
 
@@ -10033,14 +10043,14 @@ DeleteIt:
       // Propagate FlowModes
       p=NULL;
       while (GetObj_All(p))
-        p->m_UserMethodPass=0;
+        p->m_FlowModePass=0;
 
       p=NULL;
       while (GetObj_All(p))
         {
-        if (p->m_UserMethodPass==0)
+        if (p->m_FlowModePass==0)
           {
-          if (p->m_UserMethodReqd >= 0)
+          if (p->m_FlowModeReqd >= 0)
             {
             //dbgpln("PropagateNetInfo");
             //dbgindent(2);
@@ -10055,7 +10065,7 @@ DeleteIt:
             }
           else
             {
-            p->SetUserMethod(p->UserMethod(), p->m_pUserMethodObj); // update UserMethod requirements down to FB's etc
+            p->SetFlowMode(p->FlowMode(), p->m_pFlowModeObj); // update FlowMode requirements down to FB's etc
             }
           }
         }
@@ -10515,7 +10525,7 @@ void CFlwSolver::DoChangeTrace(dword Flags)
     return;
 #endif
 
-  CFlwNodeList &Order = (ProbalMode() ? PB.m_AllNds : Dyn.m_AllNds);
+  CFlwNodeList &Order = (NetProbalMethod() ? PB.m_AllNds : Dyn.m_AllNds);
   CFlwNodeIter It(Order);
 
   if (Flags & CSF_DoInitialise)
@@ -10534,7 +10544,7 @@ void CFlwSolver::DoChangeTrace(dword Flags)
 #if WITHCHANGEOBJ
   if (Flags & CSF_DoCollect)
     {
-    CFlwNodeList &Order = (ProbalMode() ? PB.m_AllNds : Dyn.m_AllNds);
+    CFlwNodeList &Order = (NetProbalMethod() ? PB.m_AllNds : Dyn.m_AllNds);
     CFlwNodeIter It(Order);
     for (FlwNode * p = It.First(); p; p=It.Next())
       ChgObj.DoAddition(Flags, p->GetChangeTrace(Flags));
@@ -11342,7 +11352,7 @@ void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags
       FlwNode * p = NULL;
       while (GetObj_All(p))
         {
-        if (p->ProbalMode())
+        if (p->NetProbalMethod())
           AllNds.AddTail(p);
         }
 
@@ -13119,8 +13129,8 @@ int CFlwSolver::FE_IOPnt_Remove(LPCTSTR Tag)
 
 int CFlwSolver::FE_GetEvalOrder(bool GetCtrl, bool GetFullDescI, bool GetFullDescO, eTraceValue TraceWhat, CEvalOrderArray &Info)
   {
-  CNodeEvalIndexList &ProcOrder =(ProbalMode() ? PB.ProcTOSequence : Dyn.ProcTOSequence);
-  CNodeEvalIndexList &CtrlOrder =(ProbalMode() ? PB.m_CtrlTOSequence : Dyn.m_CtrlTOSequence);
+  CNodeEvalIndexList &ProcOrder =(NetProbalMethod() ? PB.ProcTOSequence : Dyn.ProcTOSequence);
+  CNodeEvalIndexList &CtrlOrder =(NetProbalMethod() ? PB.m_CtrlTOSequence : Dyn.m_CtrlTOSequence);
 
   int NP=ProcOrder.GetCount();
   int NC=CtrlOrder.GetCount();
@@ -13255,8 +13265,8 @@ int CFlwSolver::FE_GetEvalOrder(bool GetCtrl, bool GetFullDescI, bool GetFullDes
 
 int CFlwSolver::FE_GetEvalStats(CEvalStatsArray &Info)
   {
-  CNodeEvalIndexList &ProcOrder =(ProbalMode() ? PB.ProcTOSequence : Dyn.ProcTOSequence);
-  CNodeEvalIndexList &CtrlOrder =(ProbalMode() ? PB.m_CtrlTOSequence : Dyn.m_CtrlTOSequence);
+  CNodeEvalIndexList &ProcOrder =(NetProbalMethod() ? PB.ProcTOSequence : Dyn.ProcTOSequence);
+  CNodeEvalIndexList &CtrlOrder =(NetProbalMethod() ? PB.m_CtrlTOSequence : Dyn.m_CtrlTOSequence);
 
   int NP=ProcOrder.GetCount();
   int NC=CtrlOrder.GetCount();

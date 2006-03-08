@@ -4015,7 +4015,7 @@ void CTagVwDoc::EvaluateFunctions()
   #if ALLOWFUNCS
   if (FnMngrPresent())
     {
-    //if (bAboutToStart && ProbalMode())
+    //if (bAboutToStart && SolveDirectMethod())
     //  PgmMngr.InitPBConvergence();
     //FnMngr().Execute(this, 0.0/*ICGetTime()*/, 0.0/*IC.GetTimeInc()*/, DoXStop, NULL, NULL, 0/*bAboutToStart*/, gs_Exec.GetSolveMode(), 0);
 

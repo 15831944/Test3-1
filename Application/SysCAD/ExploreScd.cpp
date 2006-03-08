@@ -632,13 +632,24 @@ void CExploreScd::GetRawPages(bool ChangesOK)
   m_TrendCount = WL.GetTrendWndCount();
 
   LPCTSTR ExcludeWnds[] = { "Command",  "Order of Evaluation", "SysCAD ", NULL};
+  LPCTSTR TrimWnds[]    = { "Messages:", NULL};
   LPCTSTR PageExts[] = { ".scg",  ".trn", ".spj", NULL};
 
   for (int i=0; i<m_WindowCount; i++)
     {
     Strng PgName=WL.Wnds[i].m_sName;
     Strng PgId=WL.Wnds[i].m_sName;
-    Strng PgExt(WL.Wnds[i].m_sName);
+
+    for (int j=0; TrimWnds[j]; j++)
+      {
+      if (strnicmp(PgName(), TrimWnds[j], strlen(TrimWnds[j]))==0)
+        {
+        PgId=TrimWnds[j];
+        break;
+        }
+      }
+
+    Strng PgExt(PgName);
     PgExt.FnExt();
 
     if (PgExt.GetLength()>0)
@@ -664,8 +675,10 @@ void CExploreScd::GetRawPages(bool ChangesOK)
     else
       {
       for (int j=0; ExcludeWnds[j]; j++)
+        {
         if (strnicmp(WL.Wnds[i].m_sName, ExcludeWnds[j], strlen(ExcludeWnds[j]))==0)
           goto NextWindow;
+        }
 
       ASSERT_ALWAYS(ChangesOK, "Unexpected New Page");
 

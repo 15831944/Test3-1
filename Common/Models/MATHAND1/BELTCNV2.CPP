@@ -498,7 +498,7 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   if (m_fShowProfile)
     DDB.Object(&m_Q.Profile(), this);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {
@@ -988,14 +988,13 @@ void BeltCnv2::StartSolution()
 void BeltCnv2::ConfigureJoins()
   {
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (int i = 0; i < NoFlwIOs(); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
@@ -1014,10 +1013,10 @@ void BeltCnv2::StartStep()
   m_Q.SetMinLoading(m_MinLoading);
   m_AccCalc.Start(0, m_Q);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       if (m_TripperOn)
         {
@@ -1136,15 +1135,15 @@ flag BeltCnv2::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
 
 void BeltCnv2::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       if (NJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL);
       #pragma chFIXIT(Correct conveyor output split in ProBal needs implementing)
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       int i, Feed=0;
       for (i=0; i<NoFlwIOs(); i++)

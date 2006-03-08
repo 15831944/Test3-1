@@ -184,7 +184,7 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(SHM_All, m_iRqdOpMode!=STHX_FullyCondensing);
   DDB.Double("ApproachDT",    "", DC_dT,   "C",        &m_dApproachDT,    this, isParm);
 
-  DDB.Visibility(SM_DynFull|HM_All, m_bLvlEffOn);
+  DDB.Visibility(SM_Buffered|HM_All, m_bLvlEffOn);
   DDB.Byte("CrossSection",    "", DC_,     "",          &m_iXSect,        this, isParm|AffectsStruct, DDBXSect);
   DDB.Double ("MaxEffLvl",    "", DC_Frac, "%",         &m_dMxEffLvl,     this, isParm);
   DDB.Double ("MinEffLvl",    "", DC_Frac, "%",         &m_dMnEffLvl,     this, isParm);
@@ -218,7 +218,7 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Page("..", DDB_OptPage);
 
   m_Pri.BuildDataDefn("m_Pri", DDB, this, true, !m_Pri.fConnected, true);
-  if (!DynFullMode())
+  if (!SolveBufferedMethod())
     m_Sec.BuildDataDefn("m_Sec", DDB, this, true, !m_Sec.fConnected, false);
   else
     m_Sec.BuildDataDefn("m_Sec", DDB, this, false, !m_Sec.fConnected, false);
@@ -561,7 +561,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
 
   if (m_iActOpMode!=STHX_Inoperative && TstNZ(m_Pri.Ci) && TstNZ(m_Sec.Ci) && m_fOn)
     {
-    if (!DynFullMode())
+    if (!SolveBufferedMethod())
       {
       if (m_FTC.Active() && m_iActOpMode!=STHX_FullyCondensing)
         {
@@ -761,7 +761,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
           {
           // Add to Vent Gas
           double VentFlow;
-          if (!DynFullMode())
+          if (!SolveBufferedMethod())
             {
             VentFlow=CondenseAll(HotSd, ColdSd, HotSdI, ColdSdI, CA_LimitDuty);
 
@@ -886,9 +886,9 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
     m_QmVent=m_pVent ? m_pVent->VMass[H2OVap()] : 0.0;
   else
     m_QmVent=m_pVent ? m_pVent->QMass() : 0.0;
-  CHXBlock::SetCI(7, !DynFullMode() && m_pVent && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
-  CHXBlock::SetCI(8, !DynFullMode() && m_iActOpMode==STHX_FullyCondensing && SteamFlowInCondensate>1.0e-6);
-  CHXBlock::SetCI(9, !DynFullMode() && DutyErr);
+  CHXBlock::SetCI(7, !SolveBufferedMethod() && m_pVent && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
+  CHXBlock::SetCI(8, !SolveBufferedMethod() && m_iActOpMode==STHX_FullyCondensing && SteamFlowInCondensate>1.0e-6);
+  CHXBlock::SetCI(9, !SolveBufferedMethod() && DutyErr);
   }
 
 //===========================================================================
@@ -1077,12 +1077,12 @@ void ShellTube::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text("");
   BuildDataDefnShowIOs(DDB);
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     BuildDataDefnIOOpts(DDB);
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     DDB.Object(&Shell, this, NULL, NULL, DDB_RqdPage);
 
   DDB.Object(&LastVent, this, NULL, NULL, DDB_RqdPage);
@@ -1120,13 +1120,13 @@ flag ShellTube::ValidateData(ValidateDataBlk & VDB)
 flag ShellTube::InitialiseSolution()
   {
   flag OK=MdlNode::InitialiseSolution();
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       Shell.SetStateAction(IE_Disabled);
       break;
-    case SM_DynFull:
+    case SM_Buffered:
       Shell.SetStateAction(IE_Integrate);
       break;
     }
@@ -1211,56 +1211,54 @@ void ShellTube::PostConnect(int IONo)
 
 void ShellTube::ConfigureJoins()
   {
-  switch (SolveMode())
+  if ((NetMethod()==NM_Probal) || SolveMethod()!=SM_Buffered)
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    m_HXJ.SetJoinIds(0, true, true);
+    flag fP=m_HXJ.PriIsJoined();
+    for (int i=0; i<NoFlwIOs(); i++)
       {
-      m_HXJ.SetJoinIds(0, true, true);
-      flag fP=m_HXJ.PriIsJoined();
-      for (int i=0; i<NoFlwIOs(); i++)
-        if (IOId_Self(i)>=ioidST_TubeIn && IOId_Self(i)<=ioidST_TubeOut)
-          {
-          //IOFlange(i)->SetTearPriority(TP_Normal);
-          IOFlange(i)->SetTearPriority(TP_First);
-          if (fP)
-            SetIO_Join(i, m_HXJ.P.JoinId());
-          else
-            SetIO_Closed(i, m_HXJ.P.JoinId());
-          }
-
-      flag fS=m_HXJ.SecIsJoined();
-      for (i=0; i<NoFlwIOs(); i++)
-        if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellOut)
-          {
-          // if Fully Condensing then try to prevent Tears
-          //IOFlange(i)->SetTearPriority((1 && (IOId_Self(i)==ioidST_ShellIn)) ? TP_First: TP_Normal);
-          //IOFlange(i)->SetTearPriority(TP_First);
-          IOFlange(i)->SetTearPriority(TP_Normal);
-          //IOFlange(i)->SetTearPriority((IOId_Self(i)==ioidST_ShellOut) ? TP_First: TP_Normal);
-
-          if (fS)
-            SetIO_Join(i, m_HXJ.S.JoinId());
-          else
-            SetIO_Closed(i, m_HXJ.S.JoinId());
-          }
+      if (IOId_Self(i)>=ioidST_TubeIn && IOId_Self(i)<=ioidST_TubeOut)
+        {
+        //IOFlange(i)->SetTearPriority(TP_Normal);
+        IOFlange(i)->SetTearPriority(TP_First);
+        if (fP)
+          SetIO_Join(i, m_HXJ.P.JoinId());
+        else
+          SetIO_Closed(i, m_HXJ.P.JoinId());
+        }
       }
-      break;
-    case SM_DynFull:
+
+    flag fS=m_HXJ.SecIsJoined();
+    for (i=0; i<NoFlwIOs(); i++)
       {
-      m_HXJ.SetJoinIds(0, true, false);
-      flag fP=m_HXJ.PriIsJoined();
-      for (int i=0; i<NoFlwIOs(); i++)
-        if (IOId_Self(i)>=ioidST_TubeIn && IOId_Self(i)<=ioidST_TubeOut)
-          if (fP)
-            SetIO_Join(i, m_HXJ.P.JoinId());
-          else
-            SetIO_Closed(i, m_HXJ.P.JoinId());
-      for (i=0; i<NoFlwIOs(); i++)
-        if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellVent)
-          SetIO_Open(i, m_HXJ.SecJoinId(), true, InlineIntegral() ? ESS_Denied : ESS_Allowed);
-      break;
+      if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellOut)
+        {
+        // if Fully Condensing then try to prevent Tears
+        //IOFlange(i)->SetTearPriority((1 && (IOId_Self(i)==ioidST_ShellIn)) ? TP_First: TP_Normal);
+        //IOFlange(i)->SetTearPriority(TP_First);
+        IOFlange(i)->SetTearPriority(TP_Normal);
+        //IOFlange(i)->SetTearPriority((IOId_Self(i)==ioidST_ShellOut) ? TP_First: TP_Normal);
+
+        if (fS)
+          SetIO_Join(i, m_HXJ.S.JoinId());
+        else
+          SetIO_Closed(i, m_HXJ.S.JoinId());
+        }
       }
+    }
+  else
+    {
+    m_HXJ.SetJoinIds(0, true, false);
+    flag fP=m_HXJ.PriIsJoined();
+    for (int i=0; i<NoFlwIOs(); i++)
+      if (IOId_Self(i)>=ioidST_TubeIn && IOId_Self(i)<=ioidST_TubeOut)
+        if (fP)
+          SetIO_Join(i, m_HXJ.P.JoinId());
+        else
+          SetIO_Closed(i, m_HXJ.P.JoinId());
+    for (i=0; i<NoFlwIOs(); i++)
+      if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellVent)
+        SetIO_Open(i, m_HXJ.SecJoinId(), true, InlineIntegral() ? ESS_Denied : ESS_Allowed);
     }
   }
 
@@ -1275,10 +1273,10 @@ void ShellTube::StartStep()
 
 void ShellTube::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -1335,10 +1333,10 @@ void ShellTube::EvalJoinPressures(long JoinMask)
 
 void ShellTube::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       double ShellPIn=0.0;
       if (m_HXJ.PriIsJoined() && m_HXJ.PriConnected())
@@ -1355,7 +1353,7 @@ void ShellTube::EvalProducts(long JoinMask)
         const int idSec = m_HXJ.S.IOFlwOut();
         SpConduit & CdOut=*IOConduit(idSec);
         ShellPIn=SigmaQInPMin(CdOut, som_ALL, ioidST_ShellIn, ioidST_ShellIn);//som_Gas);
-        if (DynFlowMode() && pHXST->m_iRqdOpMode==STHX_FullyCondensing)
+        if (SolveInlineMethod() && pHXST->m_iRqdOpMode==STHX_FullyCondensing)
           ShellPIn = CdOut.SaturationP(CdOut.Temp()); //temp kludge
         HX.SetSecondary(NULL, CdOut, ShellPIn, EHX());
         }
@@ -1399,7 +1397,7 @@ void ShellTube::EvalProducts(long JoinMask)
         }
       }
     break;
-    case SM_DynFull:
+    case SM_Buffered:
       {
       //      SigmaQInPMin(QInEst, som_ALL, ShellIOMask);
       //      EvalProducts_SurgeLevel(Shell, QInEst, ShellIOMask);
@@ -1555,7 +1553,7 @@ void ShellTube::EvalDerivs(long JoinMask)
 void ShellTube::ConvergeStates(CConvergeStateBlk &CSB)
   {
   MdlNode::ConvergeStates(CSB);
-  ASSERT(DynamicMode());
+  ASSERT(SolveDynamicMethod());
 
   pHXST->VLE.QVFlash(Shell, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 

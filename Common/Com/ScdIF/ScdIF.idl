@@ -14,7 +14,7 @@ import "ocidl.idl";
   v1_enum
 ]
 typedef enum eScdDirections
-{	
+  {	
   eScdDirection_InOut    = 0x11,                            
   eScdDirection_Out      = 0x01, // Marks any Output        
   eScdDirection_Out0     = 0x03, // Marks Primary Output    
@@ -27,7 +27,7 @@ typedef enum eScdDirections
   eScdDirection_In0Out   = (eScdDirection_In0|eScdDirection_Out),               
   eScdDirection_InOut0   = (eScdDirection_In|eScdDirection_Out0),               
   eScdDirection_All      = 0xff,                            
-} eScdDirections;
+  } eScdDirections;
 
 //----------------------------------------------  
 [  
@@ -36,7 +36,7 @@ typedef enum eScdDirections
   v1_enum
 ]
 typedef enum eScdNodeTypes
-{
+  {
   eScdNodeType_Process    = 0x00000010, // Process Classes
   eScdNodeType_MXfer      = 0x00000020,
   eScdNodeType_MSrcSnk    = 0x00000040,
@@ -56,7 +56,7 @@ typedef enum eScdNodeTypes
 
   eScdNodeType_Units      = eScdNodeType_Process|eScdNodeType_MXfer|eScdNodeType_MSrcSnk|eScdNodeType_MBst,
   eScdNodeType_Links      = eScdNodeType_MLnk|eScdNodeType_CLnk|eScdNodeType_ELnk|eScdNodeType_HLnk|eScdNodeType_ALnk|eScdNodeType_Cbl,
-} eScdNodeTypes;
+  } eScdNodeTypes;
 
 //----------------------------------------------  
 [  
@@ -65,11 +65,11 @@ typedef enum eScdNodeTypes
   v1_enum
 ]
 typedef enum eScdTSTypes
-{
+  {
   eScdElecType_Control = 0x00000001, 
   eScdElecType_Power   = 0x00000002, 
   eScdElecType_All     = 0xffffffff, 
-} eScdElecTypes;
+  } eScdElecTypes;
 
 //----------------------------------------------  
 [  
@@ -78,7 +78,7 @@ typedef enum eScdTSTypes
   v1_enum
 ]
 typedef enum eScdLinkTypes
-{
+  {
   eScdLinkType_MLnk       = 	eScdNodeType_MLnk,
   eScdLinkType_CLnk       = 	eScdNodeType_CLnk,
   eScdLinkType_ELnk       = 	eScdNodeType_ELnk, 
@@ -86,7 +86,7 @@ typedef enum eScdLinkTypes
   eScdLinkType_ALnk       = 	eScdNodeType_ALnk,
   eScdLinkType_Cbl        = 	eScdNodeType_Cbl,
   eScdLinkType_All        = 	eScdNodeType_All,
-} eScdLinkTypes;
+  } eScdLinkTypes;
 //----------------------------------------------  
 [  
   uuid(15A56509-9915-4464-908C-20FD08E07B82),
@@ -94,7 +94,7 @@ typedef enum eScdLinkTypes
   v1_enum
 ]
 typedef enum eScdMsg_Flags
-{	// Must match MessageLog.h
+  {	// Must match MessageLog.h
   eScdMsg_NULL          = 0x00000000,
   eScdMsg_Condition     = 0x00000002,
   eScdMsg_Fatal         = 0x00000004,
@@ -107,7 +107,7 @@ typedef enum eScdMsg_Flags
   eScdMsg_FromPGM       = 0x00008000,
   eScdMsg_FromCOM       = 0x00010000,
   eScdMsg_All           = 0xffffffff,
-} eScdMsg_Flags;
+  } eScdMsg_Flags;
 //----------------------------------------------  
 [  
   uuid(9AC9EDE2-D32F-4aff-8C76-98E00751A8A7),
@@ -115,7 +115,7 @@ typedef enum eScdMsg_Flags
   v1_enum
 ]
 typedef enum eScdMsg_Options
-{	// Must match MessageLog.h
+  {	// Must match MessageLog.h
   eScdMsgOpt_NULL				= 0x00000000,
   eScdMsgOpt_COMCallsEntry	= 0x00000001,
   eScdMsgOpt_COMCallsExit		= 0x00000002,
@@ -123,7 +123,7 @@ typedef enum eScdMsg_Options
   eScdMsgOpt_COMCallsInternal = 0x00000004,
   eScdMsgOpt_All              = eScdMsgOpt_COMCalls,
   eScdMsgOpt_AllDebug         = eScdMsgOpt_COMCalls|eScdMsgOpt_COMCallsInternal,
-} eScdMsg_Options;
+  } eScdMsg_Options;
 //----------------------------------------------  
 [  
   uuid(F640F6AB-548E-4540-9DEC-3C75D7A19F3C),
@@ -131,11 +131,11 @@ typedef enum eScdMsg_Options
   v1_enum
 ]
 typedef enum eScdEvalSeq_Options
-{
+  {
   eScdEvalSeq_Process         = 0x00000001,
   eScdEvalSeq_Control         = 0x00000002,
   eScdEvalSeq_FullDesc        = 0x00000004,
-} eScdEvalSeq_Options;
+  } eScdEvalSeq_Options;
 //----------------------------------------------  
 [  
   uuid(12928A51-4C0F-4ffe-817F-0C22F1C107AB),
@@ -143,12 +143,12 @@ typedef enum eScdEvalSeq_Options
   v1_enum
 ]
 typedef enum eScdEvalSeqIO_Flags
-{
+  {
   eScdEvalSeqIOFlags_In       = 0x00000001,
   eScdEvalSeqIOFlags_Out      = 0x00000002,
   eScdEvalSeqIOFlags_Tear     = 0x00000004,
   eScdEvalSeqIOFlags_Owner    = 0x00000008,
-} eScdEvalSeqIO_Flags;
+  } eScdEvalSeqIO_Flags;
 //----------------------------------------------  
 [  
   uuid(6639C444-6466-4646-B6B3-B5D14431A6AC),
@@ -156,13 +156,13 @@ typedef enum eScdEvalSeqIO_Flags
   v1_enum
 ]
 typedef enum eScdEvalSeqIO_Class
-{ // must Match eEOClass
+  { // must Match eEOClass
   eScdEvalSeqIOClass_Process		= 0x00010000,
   eScdEvalSeqIOClass_Control		= 0x00020000,
   eScdEvalSeqIOClass_Electrical	= 0x00040000,
   eScdEvalSeqIOClass_Air			= 0x00080000,
   eScdEvalSeqIOClass_XRef			= 0x00100000,
-} eScdEvalSeqIO_Class;
+  } eScdEvalSeqIO_Class;
 //----------------------------------------------  
 [  
   uuid(B1742116-60C6-40ff-BDBB-EC66FA4B6F7A),
@@ -170,9 +170,9 @@ typedef enum eScdEvalSeqIO_Class
   v1_enum
 ]
 typedef enum eScdSlvTagsCodes
-{	// Must match ????
+  {	// Must match ????
   eScdSTC_OK               = 0x00000000,
-}	eScdSlvTagsCodes;
+  }	eScdSlvTagsCodes;
 //----------------------------------------------  
 [  
   uuid(48E53B23-E2AF-4c96-9B1F-F91A734F4F23),
@@ -180,12 +180,12 @@ typedef enum eScdSlvTagsCodes
   v1_enum
 ]
 typedef enum eScdSlvTagType
-{	// Must match ????
+  {	// Must match ????
   eScdSTT_I2             = 0x00000000,
   eScdSTT_NullTag        = 0x00000100,
   eScdSTT_ZeroTag        = 0x00000200,
   eScdSTT_NoPrj          = 0x00000300,
-}	eScdSlvTagType;
+  }	eScdSlvTagType;
 //----------------------------------------------
 [  
   uuid(29134EE7-24B5-4d4e-9106-C2ECDA8FC679),
@@ -193,12 +193,12 @@ typedef enum eScdSlvTagType
   v1_enum
 ]
 typedef enum eScdNodeCodes
-{	eScdUC_OK			= 0,
-eScdUC_TagExists	= 1,
-eScdUC_UnknownClass	= 2,
-eScdUC_BadLicense   = 3,
-eScdUC_Failed       = 4
-} eScdNodeCodes;
+  {	eScdUC_OK			= 0,
+  eScdUC_TagExists	= 1,
+  eScdUC_UnknownClass	= 2,
+  eScdUC_BadLicense   = 3,
+  eScdUC_Failed       = 4
+  } eScdNodeCodes;
 //----------------------------------------------
 [  
   uuid(DB31CF58-EB0E-4667-844D-5670FD2CFFFF),
@@ -206,11 +206,11 @@ eScdUC_Failed       = 4
   v1_enum
 ]
 typedef enum eScdTimeFormat
-{	
+  {	
   eScdTimeFmt_Seconds     = 0,
   eScdTimeFmt_Secs1970    = 1,
   eScdTimeFmt_Date1900    = 2,
-} eScdTimeFormat;
+  } eScdTimeFormat;
 
 //----------------------------------------------
 [  
@@ -219,12 +219,12 @@ typedef enum eScdTimeFormat
   v1_enum
 ]
 typedef enum ComCmdReturns
-{	// Must match ???
+  {	// Must match ???
   ComCmdRet_OK                =	0,
   ComCmdRet_InvalidTag        =	1,
   ComCmdRet_InvalidConversion =	2,
   ComCmdRet_Fail              =	3,
-}	ComCmdReturns;
+  }	ComCmdReturns;
 
 //----------------------------------------------
 //----------------------------------------------
@@ -234,7 +234,7 @@ typedef enum ComCmdReturns
   v1_enum
 ]
 typedef enum ePropertyTypes
-{	// Must match ???
+  {	// Must match ???
   ePT_Null    = 0, 
   ePT_Bool    = 1, 
   ePT_Long    = 2, 
@@ -242,7 +242,7 @@ typedef enum ePropertyTypes
   ePT_Double  = 3, 
   ePT_String  = 4, 
   //ePT_Ptr     = 4,
-}	ePropertyTypes;
+  }	ePropertyTypes;
 
 //----------------------------------------------
 //----------------------------------------------
@@ -252,11 +252,11 @@ typedef enum ePropertyTypes
   v1_enum
 ]
 typedef enum ePropertyPageTypes
-{	// Must match ???
+  {	// Must match ???
   ePPg_Null       = 0,
   ePPg_Optional   = 1,
   ePPg_Required   = 2
-}	ePropertyPageTypes;
+  }	ePropertyPageTypes;
 
 //----------------------------------------------
 //----------------------------------------------
@@ -266,7 +266,7 @@ typedef enum ePropertyPageTypes
   v1_enum
 ]
 typedef enum ePropertyVisibility
-{	// Must match ???
+  {	// Must match ???
   ePVis_Probal    = 0x01,
   ePVis_DynFlow   = 0x02,
   ePVis_DynFull   = 0x04,
@@ -278,7 +278,7 @@ typedef enum ePropertyVisibility
   ePVis_AllDyn    = 0xf6,
   ePVis_All       = 0xf7,
 
-}	ePropertyVisibility;
+  }	ePropertyVisibility;
 
 //----------------------------------------------  
 //----------------------------------------------
@@ -288,10 +288,10 @@ typedef enum ePropertyVisibility
   v1_enum
 ]
 typedef enum eScdGasMixingRule
-{
+  {
   eScdGMR_Default  =  0,
   eScdGMR_Simple   =  1,
-} eScdGasMixingRule;
+  } eScdGasMixingRule;
 
 //----------------------------------------------  
 [  
@@ -300,10 +300,10 @@ typedef enum eScdGasMixingRule
   v1_enum
 ]
 typedef enum eScdEqnOfState
-{
+  {
   eScdEOS_Default = 0,
   eScdEOS_SRK     = 1,
-} eScdEqnOfState;
+  } eScdEqnOfState;
 
 //----------------------------------------------  
 [  
@@ -312,7 +312,7 @@ typedef enum eScdEqnOfState
   v1_enum
 ]
 typedef enum eScdVLEOptions
-{
+  {
   VLEF_Null             = 0x00000000,
   VLEF_VfFlash          = 0x00000001,
   VLEF_TPFlash          = 0x00000002,
@@ -321,7 +321,7 @@ typedef enum eScdVLEOptions
   VLEF_SaturationLimit  = 0x00000010,
   VLEF_QMVapFlash       = 0x00000020,
   VLEF_WithDebug        = 0x10000000,
-} eScdVLEOptions;
+  } eScdVLEOptions;
 
 //----------------------------------------------  
 [  
@@ -330,7 +330,7 @@ typedef enum eScdVLEOptions
   v1_enum
 ]
 typedef enum eScdMdlStateActs 
-{ 
+  { 
   MSA_Null, 
   MSA_ZeroFlows, 
   MSA_Empty, 
@@ -339,7 +339,7 @@ typedef enum eScdMdlStateActs
   MSA_PBInit, 
   MSA_DynStatsRunInit, 
   MSA_EmptySpillTargets 
-} eScdMdlStateActs;
+  } eScdMdlStateActs;
 
 //----------------------------------------------  
 [  
@@ -348,11 +348,11 @@ typedef enum eScdMdlStateActs
   v1_enum
 ]
 typedef enum eScdMacroMdlEvals
-{ 
+  { 
   MME_Flash2P, 
   MME_Flash2Qv, 
   MME_Flash2QvSens, 
-} eScdMacroMdlEvals;
+  } eScdMacroMdlEvals;
 
 
 //----------------------------------------------  
@@ -362,7 +362,7 @@ typedef enum eScdMacroMdlEvals
   v1_enum
 ]
 typedef enum eScdProbalPCtrls
-{ 
+  { 
   PBPC_Null       = 0x00000000,
   PBPC_Atmos      = 0x00000001,
   PBPC_MinFd      = 0x00000002,
@@ -377,7 +377,7 @@ typedef enum eScdProbalPCtrls
 
   PBPC_Basic      = 0x0000001f,
   PBPC_All        = 0x000003ff,
-} eScdProbalPCtrls;
+  } eScdProbalPCtrls;
 
 //----------------------------------------------  
 [  
@@ -386,7 +386,7 @@ typedef enum eScdProbalPCtrls
   v1_enum
 ]
 typedef enum eScdTagFixupRules
-{ 
+  { 
   eFixup_NoChange       = 0,
   eFixup_Prefix         = 1,
   eFixup_Suffix         = 2,
@@ -394,7 +394,7 @@ typedef enum eScdTagFixupRules
   eFixup_RegExpression  = 4,
   eFixup_ExchangeTags   = 5,
   eFixup_ReplaceTag     = 6, // not selectable
-} eScdTagFixupRules;
+  } eScdTagFixupRules;
 
 //----------------------------------------------  
 [  
@@ -403,7 +403,7 @@ typedef enum eScdTagFixupRules
   v1_enum
 ]
 typedef enum eScdNDBOptions
-{ 
+  { 
   eNDB_BlankTables      = 0x00000001,
   eNDB_CommonTables     = 0x00000002,
   eNDB_Sequence         = 0x00000004,
@@ -428,7 +428,7 @@ typedef enum eScdNDBOptions
   //eNDB_Parameters|   
   eNDB_Configuration,
 
-} eScdNDBOptions;
+  } eScdNDBOptions;
 
 //----------------------------------------------
 [  
@@ -437,7 +437,7 @@ typedef enum eScdNDBOptions
   v1_enum
 ]
 typedef enum eScdBalanceValues
-{ 
+  { 
   eBV_JoinMassFlwIn,
   eBV_JoinMassGain,
   eBV_JoinMassFlwOut,
@@ -462,7 +462,7 @@ typedef enum eScdBalanceValues
   eBV_RCTHOR_Diff0,                       
   eBV_VLEHsGain,
   eBV_EHXPowerIn,
-} eScdBalanceValues;     
+  } eScdBalanceValues;     
 
 //----------------------------------------------
 [  
@@ -472,7 +472,7 @@ typedef enum eScdBalanceValues
   public
 ]
 typedef enum eScdWndStateCmds
-{	
+  {	
   eScdForeground      = 1,
   eScdNormalWnd       = 2,
   eScdMaximisedWnd    = 3,
@@ -480,7 +480,7 @@ typedef enum eScdWndStateCmds
   eScdActvateBtns     = 5,
   eScdDeactivateBtns  = 6,
 
-}	eScdWndStateCmds;
+  }	eScdWndStateCmds;
 //----------------------------------------------
 [  
   uuid(4FFCEE9E-4C9E-4865-97D7-E5B56A7B509B),
@@ -488,13 +488,13 @@ typedef enum eScdWndStateCmds
   v1_enum
 ]
 typedef enum eScdGraphicsCodes
-{	
+  {	
   eScdGC_OK				= 0,
   //eScdGC_TagExists		= 1,
   //eScdGC_UnknownClass	= 2,
   //eScdGC_BadLicense     = 3,
   //eScdGC_Failed         = 4
-}	eScdGraphicsCodes;
+  }	eScdGraphicsCodes;
 
 //----------------------------------------------
 [  
@@ -503,11 +503,11 @@ typedef enum eScdGraphicsCodes
   v1_enum
 ]
 typedef enum eScdGraphicCodes
-{	
+  {	
   eScdGraphicCode_OK				= 0,
   eScdGraphicCode_TagNotFound		= 1,
   eScdGraphicCode_GrfNotCreated	= 2,
-}	eScdGraphicCodes;
+  }	eScdGraphicCodes;
 //----------------------------------------------
 [  
   uuid(BCCBC058-AD75-482e-B293-C8595F3E4C00),
@@ -515,9 +515,9 @@ typedef enum eScdGraphicCodes
   v1_enum
 ]
 typedef enum eScdZooms
-{	
+  {	
   eScdZoom_Full				= 0,
-}	eScdZooms;
+  }	eScdZooms;
 //----------------------------------------------
 [  
   uuid(8CEA74CD-AEFA-4cd3-936C-00B12E0B7992),
@@ -525,13 +525,13 @@ typedef enum eScdZooms
   v1_enum
 ]
 typedef enum eScdReportsCodes
-{	
+  {	
   eScdRC_OK				= 0,
   //eScdRC_TagExists		= 1,
   //eScdRC_UnknownClass	= 2,
   //eScdRC_BadLicense     = 3,
   //eScdRC_Failed         = 4
-}	eScdReportsCodes;
+  }	eScdReportsCodes;
 //----------------------------------------------  
 [  
   uuid(FB366243-8BDB-4747-985E-34A394D72716),
@@ -539,11 +539,11 @@ typedef enum eScdReportsCodes
   v1_enum
 ]
 typedef enum eScdReportTypes
-{	// Must match ... 
+  {	// Must match ... 
   eScdRT_GetValues    =   0 ,
   eScdRT_SetValues    =   1 ,
   eScdRT_Trend        =   2 ,
-}	eScdReportTypes;
+  }	eScdReportTypes;
 
 //----------------------------------------------  
 [  
@@ -552,9 +552,9 @@ typedef enum eScdReportTypes
   v1_enum
 ]
 typedef enum eScdHistDataExtractOptions
-{	// Must match ????
+  {	// Must match ????
   eScdHDEO_CSV             = 0x00000000,
-}	eScdHistDataExtractOptions;
+  }	eScdHistDataExtractOptions;
 
 //----------------------------------------------  
 [  
@@ -563,10 +563,10 @@ typedef enum eScdHistDataExtractOptions
   v1_enum
 ]
 typedef enum eScdAppTagsCodes
-{	// Must match ????
+  {	// Must match ????
   eScdATC_OK               = 0x00000000,
   eScdATC_TagMissing       = 0x00000001,
-}	eScdAppTagsCodes;
+  }	eScdAppTagsCodes;
 
 //----------------------------------------------  
 [  
@@ -575,7 +575,7 @@ typedef enum eScdAppTagsCodes
   v1_enum
 ]
 typedef enum eScdAppTagType
-{	// Must match tt_... in DataType
+  {	// Must match tt_... in DataType
   eScdATT_NULL           =   0 ,
   eScdATT_Bool           =   1 ,
   eScdATT_Bit            =   2 ,
@@ -605,7 +605,7 @@ typedef enum eScdAppTagType
   eScdATT_ZeroTag        = 0x00000200,
   eScdATT_NoPrj          = 0x00000300,
   eScdATT_Error          = 0x00000400,
-}	eScdAppTagType;
+  }	eScdAppTagType;
 
 //----------------------------------------------  
 [  
@@ -614,11 +614,11 @@ typedef enum eScdAppTagType
   v1_enum
 ]
 typedef enum
-{	// Must match RC_SM_Hist... in EXECUTIVE.H
+  {	// Must match RC_SM_Hist... in EXECUTIVE.H
   eScdTRS_HistExists    =   1 ,
   eScdTRS_HistRecording =   2 ,
   eScdTRS_HistDriverTag =   4 ,
-}	eScdTagRecState;
+  }	eScdTagRecState;
 
 //----------------------------------------------
 [  
@@ -627,9 +627,9 @@ typedef enum
   v1_enum
 ]
 typedef enum eScdLinkDrawMethods
-{	// this must match something ???
+  {	// this must match something ???
   eScdLinkDrawMethod_Direct= 0,
-}	eScdLinkDrawMethods;
+  }	eScdLinkDrawMethods;
 
 
 //----------------------------------------------
@@ -639,7 +639,7 @@ typedef enum eScdLinkDrawMethods
   v1_enum
 ]
 typedef enum SV_View 
-{
+  {
   SVV_NULL,
   SVV_AsRawFrac,
   SVV_AsRawMass,   SVV_AsRawMassFlow,
@@ -650,7 +650,7 @@ typedef enum SV_View
   SVV_AsNVol,      SVV_AsNVolFlow,      SVV_AsNVolFrac,
   SVV_AsElem,      SVV_AsElemFlow,      SVV_AsElemFrac,    SVV_AsElemConc,    SVV_AsElemConc25,
   SVV_AsComp,      SVV_AsCompFlow,      SVV_AsCompFrac,    SVV_AsCompConc,    SVV_AsCompConc25
-} SV_View;
+  } SV_View;
 
 //----------------------------------------------
 [  
@@ -659,9 +659,9 @@ typedef enum SV_View
   v1_enum
 ]
 typedef enum SV_ViewBasis
-{
+  {
   SVVB_All, SVVB_Start=SVVB_All, SVVB_Sol, SVVB_Liq, SVVB_Gas, SVVB_Occ, SVVB_Phase, SVVB_End
-} SV_ViewBasis;
+  } SV_ViewBasis;
 
 //----------------------------------------------  
 [  
@@ -683,10 +683,10 @@ typedef enum eScdFlwEqnTasks
   v1_enum         
 ]
 typedef enum eScdPropagateNetTasks
-{ 
+  { 
   eScdGetFlowMode, 
   eScdSetFlowMode 
-} eScdPropagateNetTasks;
+  } eScdPropagateNetTasks;
 
 //----------------------------------------------  
 [  
@@ -695,7 +695,7 @@ typedef enum eScdPropagateNetTasks
   v1_enum         
 ]
 typedef enum eScdReactionBasis
-{ 
+  { 
   RctNull, 
   RctEquilibrium, 
   RctRate, 
@@ -706,7 +706,7 @@ typedef enum eScdReactionBasis
   RctHX1, 
   RctHX2, 
   RctPwr 
-} eScdReactionBasis;
+  } eScdReactionBasis;
 
 //----------------------------------------------  
 [
@@ -716,7 +716,7 @@ typedef enum eScdReactionBasis
   hidden
 ]
 library ScdIF
-{
+  {
   importlib("stdole32.tlb");
   importlib("stdole2.tlb");
 
@@ -765,60 +765,68 @@ library ScdIF
   enum eScdReactionBasis;
 
   //----------------------------------------------  
-[  
-  uuid(FC07E4B7-C73D-40ba-9C32-129B904E6ACD),
-  helpstring("eScdMode"),
-  v1_enum         
-]
+  [  
+    uuid(FC07E4B7-C73D-40ba-9C32-129B904E6ACD),
+    helpstring("eScdMode"),
+    v1_enum         
+  ]
 typedef enum eScdMode
-{ 
-  eScdSolve_Probal          = 0x00000001,
-  eScdSolve_DynamicXfer     = 0x00000002,
-  eScdSolve_DynamicFull     = 0x00000004,
+  { 
+  eScdSolve_Direct          = 0x00000001,
+  eScdSolve_Inline          = 0x00000002,
+  eScdSolve_Buffered        = 0x00000004,
   // SM_Inline              = 0x00000008;               
 
   eScdHeat_None             = 0x00000010,       
   eScdHeat_Simple           = 0x00000020,       
   eScdHeat_Full             = 0x00000040,       
-  // MODEVISIBLE            = 0x00000080;       
 
-  eScdUser_Method_1         = 0x00000100,
-  eScdUser_Method_2         = 0x00000200,
-  eScdUser_Method_3         = 0x00000400,
-  eScdUser_Method_4         = 0x00000800,
-  eScdUser_Method_5         = 0x00001000,
-  eScdUser_Method_6         = 0x00002000,
-  eScdUser_Method_7         = 0x00004000,
-  eScdUser_Method_8         = 0x00008000,
+  eScdNet_Probal            = 0x00000100,
+  eScdNet_Dynamic           = 0x00000200,
 
-} eScdMode;
+  eScdFlow_Xfer             = 0x00001000,
+  eScdFlow_Simple           = 0x00002000,
+  eScdFlow_Linear           = 0x00004000,
+  eScdFlow_Full             = 0x00008000,
+  eScdFlow_SrcSnk           = 0x00010000,           // temporary reinstated - to go CNM
+
+  eScdUser_Method_1         = 0x00100000,
+  eScdUser_Method_2         = 0x00200000,
+  eScdUser_Method_3         = 0x00400000,
+  eScdUser_Method_4         = 0x00800000,
+  eScdUser_Method_5         = 0x01000000,
+  eScdUser_Method_6         = 0x02000000,
+  eScdUser_Method_7         = 0x04000000,
+  eScdUser_Method_8         = 0x08000000,
+
+  } eScdMode;
 
 //----------------------------------------------
-  [
-    object,
-    uuid(EB0A0841-8896-432b-B501-6BBA1FCB38F0),
-    dual,
-    helpstring("IScdASyncEvents Interface"),
-    pointer_default(unique),
-    restricted
-  ]
-  interface IScdASyncEvents : IDispatch
+[
+  object,
+  uuid(EB0A0841-8896-432b-B501-6BBA1FCB38F0),
+  dual,
+  helpstring("IScdASyncEvents Interface"),
+  pointer_default(unique),
+  restricted
+]
+interface IScdASyncEvents : IDispatch
   {
-    [restricted, id(1), helpstring("method DoEventMsg")] HRESULT DoEventMsg([in] long Evt, [in] long Data);
+  [restricted, id(1), helpstring("method DoEventMsg")] HRESULT DoEventMsg([in] long Evt, [in] long Data);
   };
-  //----------------------------------------------
-  //----------------------------------------------
-  [
-    object,
-    uuid(46138AB0-6E9B-42ab-A50A-0F42B3654009),
-    dual,
-    helpstring("IScdTaggedObject Interface"),
-    pointer_default(unique),
-    restricted
-  ]
-  interface IScdTaggedObject : IDispatch
+//----------------------------------------------
+//----------------------------------------------
+[
+  object,
+  uuid(46138AB0-6E9B-42ab-A50A-0F42B3654009),
+  dual,
+  helpstring("IScdTaggedObject Interface"),
+  pointer_default(unique),
+  restricted
+]
+interface IScdTaggedObject : IDispatch
   {
-    [propget, restricted, id(1), helpstring("property RawModelPtr")] HRESULT RawModelPtr([out, retval] long *pVal);
+  [propget, restricted, id(1), helpstring("property RawModelPtr")] HRESULT RawModelPtr([out, retval] long *pVal);
   };
-  //----------------------------------------------
-};
+//----------------------------------------------
+  };

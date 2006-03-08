@@ -272,15 +272,15 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",              "MinOrgConc", DC_Conc, "g/L",  &MinOrgConc, this, isResult);
   DDB.Visibility(SHM_All, iMethod==SVM_Isotherms && !Extraction);
   DDB.Double  ("",              "MinAqsConc", DC_Conc, "g/L",  &MinAqsConc, this, isResult);
-  DDB.Visibility(SM_Probal|HM_All, iMethod==SVM_Isotherms);
+  DDB.Visibility(SM_Direct|HM_All, iMethod==SVM_Isotherms);
 #ifndef _RELEASE
   DDB.Double  ("",              "IntersectPt1", DC_Conc, "g/L",  &IntersectPt1, this, isResult|InitHidden);
   DDB.Double  ("",              "IntersectPt2", DC_Conc, "g/L",  &IntersectPt2, this, isResult|InitHidden);
 #endif
   DDB.Double  ("",              "ReactExtent", DC_Frac, "%",     &dReactExt,  this, isResult);
-  DDB.Visibility(SM_Probal|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && Extraction));
+  DDB.Visibility(SM_Direct|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && Extraction));
   DDB.Double  ("",              "MaxLoadedConc", DC_Conc, "g/L", &MaxLoadedConc, this, isResult);
-  DDB.Visibility(SM_Probal|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && !Extraction));
+  DDB.Visibility(SM_Direct|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && !Extraction));
   DDB.Double  ("",              "MaxStripConc", DC_Conc, "g/L",  &MaxStripConc, this, isResult);
   DDB.Visibility();
 
@@ -386,14 +386,14 @@ flag MixerSettler::ValidateData(ValidateDataBlk & VDB)
 
 flag MixerSettler::InitialiseSolution()
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       Mixer.SetStateAction(IE_Disabled);
 	    Settler.SetStateAction(IE_Disabled);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       Mixer.SetStateAction(IE_Integrate);
 	    Settler.SetStateAction(IE_Integrate);
       break;
@@ -445,9 +445,9 @@ flag MixerSettler::Set_Sizes()
 void MixerSettler::ConfigureJoins()
   {
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; i<NoFlwIOs(); i++)
         SetIO_Join(i, 0);
       /*for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOrgIn); i++)
@@ -455,8 +455,7 @@ void MixerSettler::ConfigureJoins()
 	    for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOverflow) && (IOId_Self(i)>idAqOut); i++)
         SetIO_Join(i, idOrgIn);*/
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idMx); i++)
         SetIO_Open(i, 0, false, ESS_Allowed);
       for (  ; i<NoFlwIOs(); i++)
@@ -471,9 +470,9 @@ inlet and outlet of the surge unit.*/
 
 void MixerSettler::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -482,8 +481,8 @@ void MixerSettler::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       double Pm = (Mixer.Closed() ? Mixer.Press() : AtmosPress());
 	    double Pms = (Settler.Closed() ? Settler.Press() : AtmosPress());
@@ -505,11 +504,11 @@ void MixerSettler::EvalJoinPressures(long JoinMask)
 
 void MixerSettler::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       ASSERT(0);
       break;
     }
@@ -840,9 +839,9 @@ void MixerSettler::EvalProducts(long JoinMask)
   StkSpConduit Aq("Aq", chLINEID(), this);
   StkSpConduit Og("Og", chLINEID(), this);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       ClrCI(1);
       SigmaQInPMin(Aq(), som_ALL, Id_2_Mask(ioidAqIn));
@@ -1003,8 +1002,8 @@ void MixerSettler::EvalProducts(long JoinMask)
       //MN_Surge::EvalProducts(long JoinMask);
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       SigmaQInPMin(QMxInEst, som_ALL, 0x5); /*0 & 2*/
 

@@ -167,7 +167,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   //RB.Add_OnOff(DDB);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -176,7 +176,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
 
   //RB.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -330,9 +330,9 @@ double CFiltSolFracFnd::Function(double x)
 
 void DrumFilt::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -341,8 +341,8 @@ void DrumFilt::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -356,11 +356,11 @@ void DrumFilt::EvalProducts(long JoinMask)
   StkSpConduit Fd("Fd", chLINEID(), this);
   StkSpConduit Ww("Ww", chLINEID(), this);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Direct:
+    case SM_Inline:
+    case SM_Buffered:
       {
   	  RqdBypass      = Range(0.0, RqdBypass, 1.0);
 	    RqdFiltSolids  = Range(0.0, RqdFiltSolids, 1.0);

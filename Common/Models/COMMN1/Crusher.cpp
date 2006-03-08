@@ -205,14 +205,13 @@ void Crusher::ConfigureJoins()
   {
   Init_NJoins(1);
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
@@ -234,7 +233,7 @@ flag Crusher::InitialiseSolution()
 
 void Crusher::EvalProducts(long JoinMask)
   {
-  flag On=(ProbalMode() || MSB.Speed(this)>0.9);
+  flag On=(SolveDirectMethod() || MSB.Speed(this)>0.9);
 
   int ioProd=IOWithId_Self(ioidProd);
   if (ioProd>=0 && On)

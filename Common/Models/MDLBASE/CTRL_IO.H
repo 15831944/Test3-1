@@ -49,7 +49,7 @@ class DllImportExport CIO_Logic : public TaggedObject
     virtual void   EvalCtrlActions(FlwNode * pFNode)=0;
     virtual void   EvalCtrlStrategy(FlwNode * pFNode)=0;
     virtual LPTSTR LogicName();// { return ClassId(); };
-    virtual bool   PwrOn() { return ProbalMode() || (!m_pPwr || m_pPwr->On()); };
+    virtual bool   PwrOn() { return NetProbalMethod() || (!m_pPwr || m_pPwr->On()); };
 
   protected:  // Helper Funstions
   };

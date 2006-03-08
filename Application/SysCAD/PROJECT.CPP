@@ -1286,7 +1286,7 @@ void Project::Clear()
   bSSDoZip = 0;
   bToolTips=1;
   bFlyBys=1;
-  gs_Exec.SetGlblRunModes(SM_Probal, SM_All);
+  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
   Solver.fStateWnd=true;
   Solver.fStatePinned=false;
   Solver.fStateErrors=false;
@@ -1528,7 +1528,7 @@ int Project::ShutDown()
 //void Project::SetSolveMode(long Md)
 //  {
 //  //fProBalMode=PB;
-//  gs_Exec.SetSolveMode(Md);//PB ? SM_Probal : SM_DynCurrent);
+//  gs_Exec.SetSolveMode(Md);//PB ? SM_Direct : SM_DynCurrent);
 //  }
 
 //flag Project::GetProBalMode()
@@ -4452,11 +4452,11 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
           bool PB = (PF.RdInt("General", "ProBalMode", true)!=0);
           gs_Exec.SetGlblRunModes(HM_Full, HM_All);
           if (PB)
-            gs_Exec.SetGlblRunModes(SM_Probal, SM_All);
+            gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
           else
             {//NOT probal
             int FlowMd=PF.RdInt("General", "DynamicFlowMode", (PrjFileVerNo()>=72));
-            gs_Exec.SetGlblRunModes(FlowMd ? SM_DynXfer : SM_DynFull, SM_All);
+            gs_Exec.SetGlblRunModes(FlowMd ? SM_Inline : SM_Buffered, SM_All);
             }
           }
 
@@ -6843,11 +6843,11 @@ flag Project::OnNew()
 
         // Initialise Mode
         CProfINIFile PCfg(CfgFile());
-        Strng MdStr=TaggedObject::GlblMode2String(SM_Probal, SM_Probal);
+        Strng MdStr=TaggedObject::GlblMode2String(SM_Direct, SM_Direct);
         MdStr=PCfg.RdStr("General", "Initial_SolveMode", MdStr());
         gs_Exec.SetGlblRunModesString((LPCSTR)MdStr(), SM_All);
         if (TaggedObject::GlblSolveMode()==0)
-          gs_Exec.SetGlblRunModes(SM_Probal, SM_All);
+          gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
         MdStr=TaggedObject::GlblMode2String(HM_Full, HM_All);
         MdStr=PCfg.RdStr("General", "Initial_HeatMode", MdStr());
         gs_Exec.SetGlblRunModesString((LPCSTR)MdStr(), HM_All);

@@ -332,9 +332,9 @@ flag QPrecipD::ValidateData(ValidateDataBlk & VDB)
 
 void QPrecipD::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -343,8 +343,8 @@ void QPrecipD::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -354,11 +354,11 @@ void QPrecipD::EvalJoinPressures(long JoinMask)
 
 void QPrecipD::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       break;
       break;
     }
@@ -821,9 +821,9 @@ double aeq25=Bm.AluminaConcSat(C2K(25.));
 
 void QPrecipD::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       const int IOFeed = IOWithId_Self(ioid_Feed);
       const int IOProd = IOWithId_Self(ioid_Product);

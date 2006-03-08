@@ -89,7 +89,7 @@ BOOL CTagVwSplit::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* 
       LogError("SysCAD", 0, "Must not be running");
       return True;
       }
-    if (/*TaggedObject::ProbalMode() && */AfxMessageBox("Are you sure you want to close the trend window?", MB_YESNO)==IDNO) //always prompt before close in probal mode
+    if (/*TaggedObject::SolveDirectMethod() && */AfxMessageBox("Are you sure you want to close the trend window?", MB_YESNO)==IDNO) //always prompt before close in probal mode
       return True;
     if (GetActiveDocument())
       GetActiveDocument()->SetModifiedFlag(FALSE);

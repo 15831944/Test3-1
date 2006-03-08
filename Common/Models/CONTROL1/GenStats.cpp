@@ -213,7 +213,7 @@ void CGenStats::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn("ShowCnv",      "",         DC_, "", &bWithCnvComment,this, isParmStopped, DDBYesNo);
   DDB.Visibility(SHM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnStart", "",         DC_, "", &bResetOnStart, this, isParm, DDBYesNo);
-  DDB.Visibility(SM_Probal|HM_All, iCount>0);
+  DDB.Visibility(SM_Direct|HM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnInit",  "",         DC_, "", &bResetOnInit,  this, isParm, DDBYesNo);
   DDB.Visibility(SHM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnEmpty", "",         DC_, "", &bResetOnEmpty, this, isParm, DDBYesNo);

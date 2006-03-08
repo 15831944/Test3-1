@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 6.00.0361 */
-/* at Tue Mar 07 15:29:47 2006
+/* at Wed Mar 08 09:21:48 2006
  */
 /* Compiler settings for .\ScdIF.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)
@@ -574,20 +574,27 @@ extern RPC_IF_HANDLE __MIDL_itf_ScdIF_0000_v0_0_s_ifspec;
 
 typedef /* [v1_enum][helpstring][uuid] */  DECLSPEC_UUID("FC07E4B7-C73D-40ba-9C32-129B904E6ACD") 
 enum eScdMode
-    {	eScdSolve_Probal	= 0x1,
-	eScdSolve_DynamicXfer	= 0x2,
-	eScdSolve_DynamicFull	= 0x4,
+    {	eScdSolve_Direct	= 0x1,
+	eScdSolve_Inline	= 0x2,
+	eScdSolve_Buffered	= 0x4,
 	eScdHeat_None	= 0x10,
 	eScdHeat_Simple	= 0x20,
 	eScdHeat_Full	= 0x40,
-	eScdUser_Method_1	= 0x100,
-	eScdUser_Method_2	= 0x200,
-	eScdUser_Method_3	= 0x400,
-	eScdUser_Method_4	= 0x800,
-	eScdUser_Method_5	= 0x1000,
-	eScdUser_Method_6	= 0x2000,
-	eScdUser_Method_7	= 0x4000,
-	eScdUser_Method_8	= 0x8000
+	eScdNet_Probal	= 0x100,
+	eScdNet_Dynamic	= 0x200,
+	eScdFlow_Xfer	= 0x1000,
+	eScdFlow_Simple	= 0x2000,
+	eScdFlow_Linear	= 0x4000,
+	eScdFlow_Full	= 0x8000,
+	eScdFlow_SrcSnk	= 0x10000,
+	eScdUser_Method_1	= 0x100000,
+	eScdUser_Method_2	= 0x200000,
+	eScdUser_Method_3	= 0x400000,
+	eScdUser_Method_4	= 0x800000,
+	eScdUser_Method_5	= 0x1000000,
+	eScdUser_Method_6	= 0x2000000,
+	eScdUser_Method_7	= 0x4000000,
+	eScdUser_Method_8	= 0x8000000
     } 	eScdMode;
 
 

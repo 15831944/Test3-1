@@ -1266,9 +1266,9 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   dbgpln("Construct %8x %s %s",this,pClass_->ClassId(), Tag_);
   #endif
 
-  m_UserMethodReqd=0;
-  m_UserMethodPass=0;
-  m_pUserMethodObj=NULL;
+  m_FlowModeReqd=0;
+  m_FlowModePass=0;
+  m_pFlowModeObj=NULL;
 
   m_pClass=pClass_;
   VERIFY(m_pClass!=NULL);
@@ -1336,23 +1336,57 @@ TaggedObject::~TaggedObject()
 
 // -------------------------------------------------------------------------
 
-void TaggedObject::SetUserMethodReqd(long UserMethod)
-  {
-  m_UserMethodReqd=UserMethod;
-  }
-
-void TaggedObject::SetUserMethod(long UserMethod, TaggedObject * pRuleObj)
+void TaggedObject::SetUserMethod(long UserMethod)
   {
   m_lRunMds = (m_lRunMds & ~UM_All) | (UserMethod & UM_All);
-  m_pUserMethodObj=pRuleObj;
   StructureChanged(this);
-  OnSetUserMethod();
+  //OnSetFlowMode();
   };
-void TaggedObject::SetRunModes(long SolveMode, long RunMdsMsk)
+
+void TaggedObject::SetFlowModeReqd(long FlowMode)
   {
-  m_lRunMds = (m_lRunMds & ~RunMdsMsk) | (SolveMode & RunMdsMsk);
+  m_FlowModeReqd=FlowMode;
+  }
+
+void TaggedObject::SetFlowMode(long FlowMode, TaggedObject * pRuleObj)
+  {
+  m_lRunMds = (m_lRunMds & ~LFM_All) | (FlowMode & LFM_All);
+  m_pFlowModeObj=pRuleObj;
+  StructureChanged(this);
+  OnSetFlowMode();
+  };
+void TaggedObject::SetRunModes(long SolveMethod, long RunMdsMsk)
+  {
+  m_lRunMds = (m_lRunMds & ~RunMdsMsk) | (SolveMethod & RunMdsMsk);
   StructureChanged(this);
   };
+
+long TaggedObject::RunModes()
+  {
+  if (GlblProbalMode())
+    return SM_Direct|GlblHeatMode();
+  return ((*m_pRunMds & SHM_All) ? *m_pRunMds : GlblRunModes()) & SHM_All;
+  };
+
+long TaggedObject::NetMethod() // this needs to be worked on to allow probal and dyn flwsheets to be mixed.
+  {
+  if (GlblProbalMode())
+    return NM_Probal;
+  return NM_Dynamic;
+  };
+
+long TaggedObject::SolveMethod()
+  {
+  if (GlblProbalMode())
+    return SM_Direct;
+  return ((*m_pRunMds & SM_All) ? *m_pRunMds : GlblRunModes()) & SM_All;
+  };
+
+long TaggedObject::HeatMethod()
+  {
+  return ((*m_pRunMds & HM_All) ? *m_pRunMds : GlblRunModes()) & HM_All;
+  };
+
 void TaggedObject::SetGlblRunModes(long RunModes, long RunMdsMsk)
   {
   if (RunModes & RunMdsMsk & SM_All)
@@ -1363,10 +1397,10 @@ void TaggedObject::SetGlblRunModes(long RunModes, long RunMdsMsk)
 
 const struct tGlblMdName { long Md; LPSTR Nm; bool Hidden; } GlblModeNames[] =
   {
-    {SM_Probal,    "ProBal"           , false},
-    {SM_DynXfer,   "Dynamic-Transfer" , true},
-    {SM_DynXfer,   "Dynamic-Flow"     , false},
-    {SM_DynFull,   "Dynamic-Full"     , false},
+    {SM_Direct,    "ProBal"           , false},
+    {SM_Inline,   "Dynamic-Transfer" , true},
+    {SM_Inline,   "Dynamic-Flow"     , false},
+    {SM_Buffered,   "Dynamic-Full"     , false},
     //{SM_Inline,    "Inline"           },
     {HM_None,      "None"             , false},
     {HM_Simple,    "Simple"           , false},
@@ -1426,17 +1460,16 @@ long TaggedObject::GetPermissableRunModes(long MdMask)
   // Do Licensing Here .................................
   if (MdMask & SM_All) // Any RUn Mode
     {
-    if (GlblSolveMode() & SM_Probal)
+    if (GlblSolveMode() & SM_Direct)
       {
       if (1 /*License.ProbalOK*/)
-        Ret|=SM_Probal;
+        Ret|=SM_Direct;
       }
     else
       {
+      Ret|=SM_Direct|SM_Inline;
       if (1 /*License.DynFullOK*/)
-        Ret|=SM_DynBoth;
-      if (1 /*License.DynXferOK*/)
-        Ret|=SM_DynXfer;
+        Ret|=SM_Buffered;
       }
     }
   if (MdMask & HM_All) // Any Heat Mode
@@ -1456,12 +1489,12 @@ long TaggedObject::GetPermissableGlblRunModes(long MdMask)
   if (MdMask & SM_All) // Any RUn Mode
     {
     if (1 /*License.ProbalOK*/)
-      Ret|=SM_Probal;
+      Ret|=SM_Direct;
 
     if (1 /*License.DynFullOK*/)
       Ret|=SM_DynBoth;
     if (1 /*License.DynXferOK*/)
-      Ret|=SM_DynXfer;
+      Ret|=SM_Inline;
     }
   if (MdMask & HM_All) // Any Heat Mode
     {
@@ -1479,10 +1512,10 @@ long TaggedObject::GetPermissableGlblRunModes(long MdMask)
 flag TaggedObject::GetActive()             { return m_fActive; };
 void TaggedObject::SetActive(flag Active)  { m_fActive=Active; };
 
-flag TaggedObject::GetActiveHold()         
+flag TaggedObject::GetActiveHold()
   { return (m_fActiveHold || fActiveHold_Auto || (m_fActiveHoldIfSS && gs_License.OnlySteadyState())) && GetActiveHoldOK();};
 flag TaggedObject::GetActiveHoldIsAuto()   { return GetActiveHold() && !m_fActiveHold; };
-flag TaggedObject::GetActiveHoldOK()       { return DynamicMode() ? fActiveHoldOK_Dyn:fActiveHoldOK_PB;};
+flag TaggedObject::GetActiveHoldOK()       { return SolveDynamicMethod() ? fActiveHoldOK_Dyn:fActiveHoldOK_PB;};
 void TaggedObject::SetActiveHold(flag Hold) { m_fActiveHold = Hold && GetActiveHoldOK(); };
 void TaggedObject::SetActiveHoldAuto(flag Hold) { fActiveHold_Auto = Hold && GetActiveHoldOK(); };
 
@@ -4580,9 +4613,9 @@ DDEF_Flags DataDefnBlk::SetVisibility(DDEF_Flags VisFlags)
 DDEF_Flags DataDefnBlk::CurrentFlags()
   {
   iFlags &= ~MODEVISIBLE;
-  if (((dwOptions & iFlags & SM_DynXfer)!=0) ||
-      ((dwOptions & iFlags & SM_DynFull)!=0) ||
-      ((dwOptions & iFlags & SM_Probal)!=0) ||
+  if (((dwOptions & iFlags & SM_Inline)!=0) ||
+      ((dwOptions & iFlags & SM_Buffered)!=0) ||
+      ((dwOptions & iFlags & SM_Direct)!=0) ||
       ((iFlags & SHM_All)==0)) // Default
     iFlags |= MODEVISIBLE;
 
@@ -5345,7 +5378,7 @@ void DataDefnBlk::Add_PropertyMap(CPropertyMap & Map, ULONG WhichProps, flag AsP
   bool IsStruct   = false;
   bool IsObject   = false;
   bool DoingGlbl  = (WhichProps & MP_GlobalProp)!=0;
-  
+
   DWORD ReqdVis=0xFFFFFFFF;
   CString SN;
   DataDefnBlk & DDB=*this;
@@ -5401,7 +5434,7 @@ void DataDefnBlk::Add_PropertyMap(CPropertyMap & Map, ULONG WhichProps, flag AsP
       if (ReqdVis!=Vis)
         {
         ReqdVis=Vis;
-        DDB.Visibility(((Vis&ePVis_Probal)?SM_Probal:0)|((Vis&ePVis_DynFlow)?SM_DynXfer:0)|((Vis&ePVis_DynFull)?SM_DynFull:0),
+        DDB.Visibility(((Vis&ePVis_Probal)?SM_Direct:0)|((Vis&ePVis_DynFlow)?SM_Inline:0)|((Vis&ePVis_DynFull)?SM_Buffered:0),
                        (Vis&ePVis_View)!=0,
                        (Vis&ePVis_File)!=0,
                        (Vis&ePVis_Snapshot)!=0,

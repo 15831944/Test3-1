@@ -187,7 +187,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",   "SpecCakeResistance",  DC_SpCakeRes, "m/kg",     &SpCakeRes,        this, isParm);
   DDB.Double  ("",   "Area",                DC_Area,      "m^2",      &FiltArea,         this, isParm);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     DDB.Object(&Cake, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();
 
@@ -210,7 +210,7 @@ flag FilterPress::DataXchg(DataChangeBlk & DCB)
 
 flag FilterPress::ChangeMode(dword NewMode, dword OldMode)
   {
-  if (NewMode==SM_Probal)
+  if (NewMode==SM_Direct)
     GSM.Open();
 
   return True;
@@ -245,14 +245,13 @@ void FilterPress::ConfigureJoins()
   if (iWashings < 0)
     fFilt2Washings=False;
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (i=0; (i<NoFlwIOs()); i++)
         {
         switch (IOId_Self(i))
@@ -507,9 +506,9 @@ double CSolidsFracFnd::Function(double x)
 
 void FilterPress::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -518,8 +517,8 @@ void FilterPress::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
@@ -554,7 +553,7 @@ void FilterPress::EvalProducts(long JoinMask)
 
   double washSF = 0.0;
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     SolidsToFiltUsed = RqdSolidsToFiltrate;
     iRqdFiltMethod = FSM_SolToFiltFrac;
@@ -715,7 +714,7 @@ void FilterPress::EvalProducts(long JoinMask)
   SetCI(1, bTrackStatus && HasFlw && (WashErr > 1.0e-6));
   SetCI(2, bTrackStatus && HasFlw && (washSF > 0.01));
   //SetCI(3, bTrackStatus && (solwash > 1.0e-6));
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     ClrCI(4);
     ClrCI(5);

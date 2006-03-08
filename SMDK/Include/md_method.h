@@ -63,7 +63,7 @@ const DWORD MIO_Out             = 0x00000002; //output only
 const DWORD MIO_InOut           = MIO_In|MIO_Out; //input or output
 
 const DWORD MIO_Material        = 0x00000010; //pipe link
-const DWORD MIO_Control         = 0x00000020; //control link 
+const DWORD MIO_Control         = 0x00000020; //control link
 const DWORD MIO_Electrical      = 0x00000040; //electrical link
 
 const DWORD MIO_Transfer        = 0x00000100; //only allow pipes of type transfer link to be connected
@@ -74,7 +74,7 @@ const DWORD MIO_PipeJoin        = 0x00001000; //
 const DWORD MIO_ApertureHoriz   = 0x00002000; //pipe is connected "horizontal" (eg base of tank)
 
 const long MCN_Join             = 0x00100000; //pipe connected to the others and balance is enforced (default)
-const long MCN_Open             = 0x00200000; //pipe is connected to a surge 
+const long MCN_Open             = 0x00200000; //pipe is connected to a surge
 const long MCN_Closed           = 0x00400000; //pipe is connected to a 'blank'
 const long MCN_IOMask           = 0x0000ffff; //pipe is connected to a 'blank'
 
@@ -113,7 +113,7 @@ class DllImportExport MBaseMethodCommon : public MSubConstructBase
   public:
     MBaseMethodCommon(MUnitDefBase *pUnitDef, TaggedObject * pNd);
   public:
-    MUnitDefBase     *m_pUnitDef; 
+    MUnitDefBase     *m_pUnitDef;
     MBaseMethodImpl  *m_pImpl;
     MdlNode          *m_pNd;
     DataDefnBlk      *m_pDDB;
@@ -151,7 +151,7 @@ class DllImportExport MBaseMethodCommonRef
 
 //===========================================================================
 /* Class MDataDefn: Helper class used for Data Definition of fields or tags in
-a model. This is used by the BuildDataFields method which is used to define the 
+a model. This is used by the BuildDataFields method which is used to define the
 arrangement of the Access properties window.*/
 
 enum MDDPages {MDD_NoPage, MDD_RqdPage, MDD_OptPage};
@@ -161,7 +161,7 @@ class DllImportExport MDataDefn : public MBaseMethodCommonRef
   public:
     MDataDefn(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) { };
 
-  public:                                                                     
+  public:
     void    Double  (LPCSTR Tag, LPCSTR Sym, double* Data, unsigned long Flags, MCnv & Cnv = MC_);              //add a double (direct memory reference)
     void    Float   (LPCSTR Tag, LPCSTR Sym, float*  Data, unsigned long Flags, MCnv & Cnv = MC_);              //add a float (direct memory reference)
     void    Long    (LPCSTR Tag, LPCSTR Sym, long*   Data, unsigned long Flags, MDDValueLst * Values=NULL);     //add a long (direct memory reference)
@@ -181,7 +181,7 @@ class DllImportExport MDataDefn : public MBaseMethodCommonRef
     //add a text line
     void    Text(LPCSTR pName, unsigned long Flags=0);
     //start a new tab page with specified name. If optional is true a new page is started based on the length of the current page thus far.
-    void    Page(LPCSTR pName, bool Optional=false, unsigned long Flags=0); 
+    void    Page(LPCSTR pName, bool Optional=false, unsigned long Flags=0);
     //set the visibilty of tags on or off.
     void    Show(bool ViewVisible=true, bool FileVisible=true, bool SnapVisible=true);
 
@@ -314,13 +314,13 @@ class DllImportExport MFlowBlk
 
     void            SetDerivsBad(bool On=true);
     void            SetFunctOfPress(bool On=true);
-    
+
 
     //double          MeanPress(int FD);
-    double          MeanPress();        
-    double          MeanFlngPress();    
-    double          MeanNodePress();    
-    double          MeanFBPress();      
+    double          MeanPress();
+    double          MeanFlngPress();
+    double          MeanNodePress();
+    double          MeanFBPress();
 
     //void           SetPropSelect(byte iProps)
     //  {
@@ -329,10 +329,10 @@ class DllImportExport MFlowBlk
     //    case FBPS_Default:
     //      m_PropSel.m_iInUse = iProps;
     //      break;
-    //    case FBPS_FwdOnly: 
+    //    case FBPS_FwdOnly:
     //      m_PropSel.m_iInUse = m_iDirnRel2Connect>0 ? FBPS_FwdOnly : FBPS_RevOnly;
     //      break;
-    //    case FBPS_RevOnly: 
+    //    case FBPS_RevOnly:
     //      m_PropSel.m_iInUse = m_iDirnRel2Connect<0 ? FBPS_FwdOnly : FBPS_RevOnly;
     //      break;
     //    }
@@ -362,7 +362,7 @@ class DllImportExport MFlowBlk
 
     //void           SetVelocity(double V, double SonicV=dNAN)    { m_Vel=V; m_VelSonic=SonicV; };
     double         getVelocity();
-                                               
+
     double         getRegulation();
     void           putRegulation(double A);
 
@@ -372,7 +372,7 @@ class DllImportExport MFlowBlk
     double         VelMeas(double Scl=1.0);
     double         DQmMeas(double Scl=1.0);
     static double  RangeFlow(double Qm, double LoLimit);
-    double         SetQmMeasRange(double Rho, double LoQm); 
+    double         SetQmMeasRange(double Rho, double LoQm);
     double         SetQvMeasRange(double Rho, double LoVol);
     double         SetVelMeasRange(double Rho, double Area, double LoVel);
 
@@ -409,28 +409,28 @@ class DllImportExport MFlowBlk
     //double         DPtot()                  { return m_dPb+m_dPbX+m_dPq+m_dPa+m_dPz/*+dPzI*/+m_dPmB+m_dPmQ; };
 
     //void           SetDPa(double dPa_, double dPadQ_)   { m_dPa = dPa_; m_dPadQ = dPadQ_; };
-    //void           SetDPb(double dPb_, double dPbdQ_)   { m_dPb = dPb_; m_dPbdQ = dPbdQ_; }; 
-    //void           SetDPz(double dPz_, double dPzdQ_)   { m_dPz = dPz_; m_dPzdQ = dPzdQ_; }; 
-    //void           SetDPzX(double dPz_, double dPzdQ_)  { m_dPzX = dPz_; m_dPzXdQ = dPzdQ_; }; 
-    //void           SetDPq(double dPq_, double dPqdQ_)   
+    //void           SetDPb(double dPb_, double dPbdQ_)   { m_dPb = dPb_; m_dPbdQ = dPbdQ_; };
+    //void           SetDPz(double dPz_, double dPzdQ_)   { m_dPz = dPz_; m_dPzdQ = dPzdQ_; };
+    //void           SetDPzX(double dPz_, double dPzdQ_)  { m_dPzX = dPz_; m_dPzXdQ = dPzdQ_; };
+    //void           SetDPq(double dPq_, double dPqdQ_)
     //  {
     //  if (fabs(dPq_)<1e6) // a ridiculous pressure drop
     //    {
-    //    m_dPq = dPq_; 
-    //    m_dPqdQ = dPqdQ_; 
+    //    m_dPq = dPq_;
+    //    m_dPqdQ = dPqdQ_;
     //    }
     //  else
     //    {
     //    double Scl=fabs(dPq_)/1e6;
-    //    m_dPq = dPq_/Scl; 
-    //    m_dPqdQ = dPqdQ_/Scl; 
+    //    m_dPq = dPq_/Scl;
+    //    m_dPqdQ = dPqdQ_/Scl;
     //    }
-    //  }; 
+    //  };
     //void           AddDPa(double dPa_, double dPadQ_)   { m_dPa += dPa_; m_dPadQ += dPadQ_; };
-    //void           AddDPb(double dPb_, double dPbdQ_)   { m_dPb += dPb_; m_dPbdQ += dPbdQ_; }; 
-    //void           AddDPz(double dPz_, double dPzdQ_)   { m_dPz += dPz_; m_dPzdQ += dPzdQ_; }; 
-    //void           AddDPzX(double dPz_, double dPzdQ_)  { m_dPzX += dPz_; m_dPzXdQ += dPzdQ_; }; 
-    //void           AddDPq(double dPq_, double dPqdQ_)   { m_dPq += dPq_; m_dPqdQ += dPqdQ_; }; 
+    //void           AddDPb(double dPb_, double dPbdQ_)   { m_dPb += dPb_; m_dPbdQ += dPbdQ_; };
+    //void           AddDPz(double dPz_, double dPzdQ_)   { m_dPz += dPz_; m_dPzdQ += dPzdQ_; };
+    //void           AddDPzX(double dPz_, double dPzdQ_)  { m_dPzX += dPz_; m_dPzXdQ += dPzdQ_; };
+    //void           AddDPq(double dPq_, double dPqdQ_)   { m_dPq += dPq_; m_dPqdQ += dPqdQ_; };
     //void           ClrDPb() { SetDPb(0,0); };
     //void           ClrDPq() { SetDPq(0,0); };
     //void           ClrDPz() { SetDPz(0,0); };
@@ -475,7 +475,7 @@ class DllImportExport MFlowBlk
     //double         OnePhPart()                      { return dOnePhPart; };
     //void           SetTempOut(double D=dNAN)      { dTempOut=D; };
     //double         TempOut()                        { return dTempOut; };
-    
+
     /**
     **/
 
@@ -710,12 +710,14 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     //Model class ID
     LPCTSTR         getClassId();
 
-    //ProBal solver mode
-    bool            getIsProbal();
-    //Dynamic-Transfer solver mode
-    bool            getIsDynamicTransfer();
-    //Dynamic-Full solver mode
-    bool            getIsDynamicFull();
+    //Network solver modes
+    bool            getIsNetProbal();
+    bool            getIsNetDynamic();
+    //EvalProduct solve Methods
+    bool            getIsSolveDirect();
+    bool            getIsSolveInline();
+    bool            getIsSolveBuffered();
+
     //Solver time in seconds from 1970
     double          getTime();
     //Iteration time increment in seconds
@@ -740,7 +742,7 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     virtual void    InitialiseSolution()          {}; // each
 
     virtual bool    PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
-    virtual void    OnSetUserMethod();                // called when the UserMethod is changed
+    virtual void    OnSetFlowMode();                  // called when the FlowMode is changed
 
     virtual void    StartSolution()               {}; // each Start of run
     virtual void    StartStep()                   {}; // each Iteration - At Start of Step
@@ -789,12 +791,14 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     __declspec(property(get=getTag))            LPCTSTR Tag;
     //Model class ID
     __declspec(property(get=getClassId))        LPCTSTR ClassId;
-    //ProBal solver mode
-    __declspec(property(get=getIsProbal))       bool    IsProbal;
-    //Dynamic-Transfer solver mode
-    __declspec(property(get=getIsDynamicTransfer)) bool IsDynamicTransfer;
-    //Dynamic-Full solver mode
-    __declspec(property(get=getIsDynamicFull)) bool     IsDynamicFull;
+    //Network solver modes
+    __declspec(property(get=getIsNetProbal))      bool      IsNetProbal;
+    __declspec(property(get=getIsNetDynamic))     bool      IsNetDynamic;
+    //EvalProduct solve Methods
+    __declspec(property(get=getIsSolveDirect))    bool      IsSolveDirect;
+    __declspec(property(get=getIsSolveInline))    bool      IsSolveInline;
+    __declspec(property(get=getIsSolveBuffered))  bool      IsSolveBuffered;
+
     //Solver time in seconds from 1970
     __declspec(property(get=getTime))          double   Time;
     //Iteration time increment in seconds
@@ -845,7 +849,7 @@ const DWORD MLicense_User               = 0x00000080; //custom/client models
 /*Class MUnitDefBase: Helper class for class definition for the unit "class factory".
 DEFINE_TRANSFER_UNIT(Object, Class, DLL) or DEFINE_SURGE_UNIT(Object, Class, DLL) are
 used to add your SMDK unit class to the system. This definition class requires that you
-provide the override for the virtual function GetOptions(). This is used to set options 
+provide the override for the virtual function GetOptions(). This is used to set options
 by overriding defaults. Defaults are:
   DefaultTag: "X" or "S" (Transfer or Surge)
   Drawing: a box
@@ -908,7 +912,7 @@ class DllImportExport MUnitDefBase : public MSubConstructBaseDef
 //
 //---------------------------------------------------------------------------
 //Class MTransferUnitDefBase: Unit Definition base class for Transfer unit models.
-class DllImportExport MTransferUnitDefBase : public MUnitDefBase 
+class DllImportExport MTransferUnitDefBase : public MUnitDefBase
   {
   public:
     MTransferUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks);
@@ -925,16 +929,16 @@ class DllImportExport MTransferUnitDefBase : public MUnitDefBase
 
 //---------------------------------------------------------------------------
 /*Macro for adding a SMDK transfer unit to the system. Chose the 'Class' and 'DLL'
-names carefully as once these are released and used in projects they cannot easily 
+names carefully as once these are released and used in projects they cannot easily
 be changed, if they are changed old projects will not load (unless the scd_models.mdb
 is carefully edited to make the equivalent changes!)
 The parameters are:
   Obj   : The C++ class object name (ie your class as declared in the source code)
           (eg SimpleReactor)
-  Class : A short string name for your class. Must follow valid tag naming rules 
+  Class : A short string name for your class. Must follow valid tag naming rules
           (ie no spaces, etc) (eg "Reactor")
   DLL   : A short string name for the group this belongs to. This is usually the DLL group and is
-          as a #define DLL_GroupName in a shared header file such as stdafx.h 
+          as a #define DLL_GroupName in a shared header file such as stdafx.h
           (eg #define DLL_GroupName "DemoUsr")
   */
 #define DEFINE_TRANSFER_UNIT(Obj, Class, DLL) \
@@ -960,7 +964,7 @@ Obj##_UnitDef Obj##_UnitD(DLL##"*"##Class, NULL, "User:"##Class, DLL);
 //---------------------------------------------------------------------------
 
 //Class MSurgeUnitDefBase: Unit Definition base class for unit models with surge (contents).
-class DllImportExport MSurgeUnitDefBase : public MUnitDefBase 
+class DllImportExport MSurgeUnitDefBase : public MUnitDefBase
   {
   public:
     MSurgeUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks);
@@ -1049,7 +1053,7 @@ class DllImportExport MProbalPCtrl : public MMethodUtility
 
   protected:
     CPBPressCtrl * m_pPCtrl;
-  
+
   };
 
 //---------------------------------------------------------------------------
@@ -1205,7 +1209,7 @@ class DllImportExport MFT_Flash : public MMethodUtility
     _declspec(property(get=getVapourFlow,put=putVapourFlow))                  double VapourFlow;
     _declspec(property(get=getMinFlshTrainP))                                 double MinFlshTrainP;
     _declspec(property(get=getSuctionP))                                      double SuctionP;
-    
+
     _declspec(property(get=getPEval,put=putPEval))                            double PEval;
     _declspec(property(get=getVapourFlowEval,put=putVapourFlowEval))          double VapourFlowEval;
     _declspec(property(get=getVapourFlowSensEval,put=putVapourFlowSensEval))  double VapourFlowSensEval;

@@ -142,10 +142,10 @@ XID xidVDiam          = MdlBsXID(17004);
 
 void VE_Crane::BuildDataDefn(DataDefnBlk & DDB)
   {
-  //if (ProbalMode())
+  //if (SolveDirectMethod())
   //  {
   //  }
-  //else if (DynFlowMode())
+  //else if (SolveInlineMethod())
   //  {
   //  //DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
   //  DDB.Double ("Qm_RqdCapacity", "Qm_Capacity",  DC_Qm,   "kg/s",  &m_RqdQmCap,     this, isParm|NAN_OK, DDBNAN_NotSpecd);

@@ -729,7 +729,7 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     if (gs_Exec.GlblDynFullMode() && !gs_License.AllowDynamicFull())
       {
       LogError("License", 0, "Dynamic(Full) mode not enabled by licensing, changing to Dynamic(Flow) mode!");
-      gs_Exec.SetGlblRunModes(SM_DynXfer, SM_All);
+      gs_Exec.SetGlblRunModes(SM_Inline, SM_All);
       }
     }
   if (wParam==SUB_UPDMAIN_PRJLOADED)

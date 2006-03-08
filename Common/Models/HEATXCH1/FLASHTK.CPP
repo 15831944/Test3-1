@@ -238,24 +238,24 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Bool    ("On_Line",      "",      DC_,     "",       &fOnLine,       this, isParmStopped, DDBYesNo);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   #if WITHOTHERVAPSPLIT
   DDB.Double ("OtherVapSplitToLiq", "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
   #endif
-  m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Atmos|PBPC_Reqd|PBPC_ReqdSatT|(ProbalMode() ? PBPC_SatP : 0));
+  m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Atmos|PBPC_Reqd|PBPC_ReqdSatT|(NetProbalMethod() ? PBPC_SatP : 0));
   DDB.Visibility();
   
   DDBValueLstMem DDB0;
   TagObjClass::GetSDescValueLst(SpModel::GroupName, DDB0);
   DDB.String("VapSpModel",     "",        DC_,    "",      &sVapSpModel,  this, isParm, DDB0());
 
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   #if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
   #endif
   RB.Add_OnOff(DDB);
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     EHX.Add_OnOff(DDB);
   VLE.Add_OnOff(DDB);
 
@@ -265,7 +265,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("BoilPtElevIn",  "BPEIn", DC_dT,   "C",     &dBPEIn,            this, isResult|noFile|noSnap);
   m_FTF.BuildDataDefn(DDB);
 
-  DDB.Visibility(SM_DynFull|HM_All);
+  DDB.Visibility(SM_Buffered|HM_All);
 //  DDB.CheckBoxBtn("Closed",    "",      DC_     , "",      xidClosed,      this, isParm, DDBYesNo);
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
@@ -273,29 +273,29 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     BuildDataDefnIOOpts(DDB);
 
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     RB.SetSurgeType(true); //where is the best place to set this?
   else
     RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     EHX.BuildDataDefn(DDB);
   VLE.BuildDataDefn(DDB);
 
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     QFeed(); // Ensure that exist so that they recover
     if (QFeed.Exists())
       {
-      DDB.Visibility(SM_Probal|HM_All, bShowQFeed);
+      DDB.Visibility(SM_Direct|HM_All, bShowQFeed);
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
       }
     DDB.Visibility();
     }
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -334,10 +334,10 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
   else
     ClrCI(3);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       //SetCI(2, !m_FTF.Active() && !Valid(Rqd_Flash_Press));
       SetCI(2, fOnLine &&
                ( (!m_FTF.Active() && ((m_PBPCtrl0.Method()&(PBPC_Atmos|PBPC_Reqd|PBPC_ReqdSatT))==0)) || 
@@ -357,11 +357,8 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
 
 void FlashTank::ConfigureJoins()
   {
-
-  switch (SolveMode())
+  if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-    case SM_Probal:
-    case SM_DynXfer:
       for (int i=0; i<NoFlwIOs(); i++)
         SetIO_Join(i, 0);
 #if DOPBSMOOTHING  
@@ -370,11 +367,9 @@ void FlashTank::ConfigureJoins()
 #endif
       if (!DoMassSmoothing())
         m_nRmtScl=0;
-      break;
-    case SM_DynFull:
-      MN_Surge::ConfigureJoins();
-      break;
     }
+  else
+      MN_Surge::ConfigureJoins();
   }
 
 //--------------------------------------------------------------------------
@@ -406,10 +401,10 @@ void FlashTank::EvalPBMakeUpAvail(long JoinMask)
 void FlashTank::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (NetMethod())
       {
-      case SM_Probal:
-      case SM_DynXfer:
+      case SM_Direct:
+      case SM_Inline:
         if (NJoins()>0)
           {
           m_FTF.m_dFeedP=GetPBInputPressure(0, &m_PBPCtrl0);
@@ -446,7 +441,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
         else
           MN_Surge::EvalJoinPressures(JoinMask);
         break;
-      case SM_DynFull:
+      case SM_Buffered:
         MN_Surge::EvalJoinPressures(JoinMask);
         break;
       }
@@ -490,10 +485,10 @@ void FlashTank::EvalSteadyState()
 void FlashTank::EvalProducts(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (SolveMethod())
       {
-      case SM_Probal:
-      case SM_DynXfer:
+      case SM_Direct:
+      case SM_Inline:
         {
         const int ioLiq = IOWithId_Self(ioidFT_Liq);
         const int ioVap = IOWithId_Self(ioidFT_Vap);
@@ -504,7 +499,7 @@ void FlashTank::EvalProducts(long JoinMask)
         #if dbgModels
         double MemTl, MemPl, MemHl, MemMl;
         double MemTv, MemPv, MemHv, MemMv;
-        if (ProbalMode() && dbgDumpChanges())
+        if (SolveDirectMethod() && dbgDumpChanges())
           {
           MemTl=Ql.Temp();
           MemPl=Ql.Press();
@@ -636,7 +631,7 @@ void FlashTank::EvalProducts(long JoinMask)
         VLE.AddHfOutAtZero(Qv);
 
         #if dbgModels
-        if (ProbalMode() && dbgDumpChanges())
+        if (SolveDirectMethod() && dbgDumpChanges())
           {
           dbgpln("--- %s",FullObjTag());
 
@@ -983,13 +978,13 @@ void FlashTank::UpdateMsSoln(SparseSolver & SSMS)
 
 flag FlashTank::InitialiseSolution()
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynFull:
+    case SM_Direct:
+    case SM_Buffered:
       MN_Surge::InitialiseSolution();
       break;
-    case SM_DynXfer:
+    case SM_Inline:
       Contents.dwDisplay=SPDF_ShapeData|SPDF_PBMode;
       Contents.SetStateAction(IE_Disabled);
       m_EqThermals.SetStateAction(IE_Disabled);

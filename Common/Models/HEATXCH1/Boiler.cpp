@@ -95,9 +95,9 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("DrumP",     "",  DC_P,    "kPag",  &dDrumPress, this, isParm);
   DDB.Double  ("BlowDown",  "",  DC_Frac, "%",     &dBlowDownFrac, this, isParm);
   DDB.Double  ("Efficiency","",  DC_Frac, "%",     &dEffFrac,   this, isParm);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
-  //DDB.Visibility(SM_Probal|HM_All, !bVentConnected);
+  //DDB.Visibility(SM_Direct|HM_All, !bVentConnected);
   //DDB.CheckBox("VentExcessVapour",  "",  DC_,     "",      &bRemoveExcessVapour,this, isParm|SetOnChange);
   DDB.Visibility();
   //DDB.CheckBox("TrackSteamFd",      "",  DC_,     "",      &bTrackSteamStatus,  this, isParm|SetOnChange);
@@ -131,14 +131,14 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   //RB.BuildDataDefn(DDB);
   //EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && ProbalMode())
+  if (bShowQFeed && SolveDirectMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -196,9 +196,9 @@ void Boiler::ConfigureJoins()
 void Boiler::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (NetMethod())
     {
-      case SM_Probal:
+      case SM_Direct:
         {
         for (int j=0; j<NJoins(); j++)
           {
@@ -206,8 +206,8 @@ void Boiler::EvalJoinPressures(long JoinMask)
           }
         }
       break;
-      case SM_DynXfer:
-      case SM_DynFull:
+      case SM_Inline:
+      case SM_Buffered:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
     }
@@ -239,9 +239,9 @@ void Boiler::EvalProducts(long JoinMask)
   {
   if (NoFlwIOs()==0)
     return;
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       dBlowDownFrac = Range(0.0, dBlowDownFrac, 1.0);
       dEffFrac = Max(0.01, dEffFrac);

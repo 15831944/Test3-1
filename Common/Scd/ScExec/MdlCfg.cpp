@@ -1715,11 +1715,11 @@ BOOL CMdlCfgCfg::OnInitDialog()
       }
     }
 
-  Strng MdStr=TaggedObject::GlblMode2String(SM_Probal, SM_Probal);
+  Strng MdStr=TaggedObject::GlblMode2String(SM_Direct, SM_Direct);
   m_DefRunMode.AddString(MdStr());
-  MdStr=TaggedObject::GlblMode2String(SM_DynXfer, SM_DynXfer);
+  MdStr=TaggedObject::GlblMode2String(SM_Inline, SM_Inline);
   m_DefRunMode.AddString(MdStr());
-  MdStr=TaggedObject::GlblMode2String(SM_DynFull, SM_DynFull);
+  MdStr=TaggedObject::GlblMode2String(SM_Buffered, SM_Buffered);
   m_DefRunMode.AddString(MdStr());
 
   MdStr=TaggedObject::GlblMode2String(HM_None, HM_None);
@@ -1899,7 +1899,7 @@ BOOL CMdlCfgCfg::OnKillActive()
     Cfg.WrStr("General", CfgItemsC[iDM].Name, NONNULL(S()));
 
     iSel=((CComboBox*)GetDlgItem(IDC_DEFRUNMODE))->GetCurSel();
-    long Md=((iSel==0 || iSel==CB_ERR) ? SM_Probal : (iSel==1 ? SM_DynXfer : SM_DynFull));
+    long Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
     S=TaggedObject::GlblMode2String(Md, SM_All);
     Cfg.WrStr("General", CfgItemsC[iRM].Name, NONNULL(S()));
 

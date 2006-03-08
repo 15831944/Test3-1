@@ -196,9 +196,9 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
 
 /*void CTurbine::ConfigureJoins()
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
     //case SSMODE:
       {
       Set_NJoins(2);
@@ -213,8 +213,8 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
       break;
       }
 
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
     //case DYNMODE:
       {
       Set_NJoins(2);
@@ -229,9 +229,9 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
 void CTurbine::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (NetMethod())
       {
-      case SM_Probal:
+      case SM_Direct:
         {
         for (int j=0; j<NJoins(); j++)
           {
@@ -249,8 +249,8 @@ void CTurbine::EvalJoinPressures(long JoinMask)
           }
         }
         break;
-      case SM_DynXfer:
-      case SM_DynFull:
+      case SM_Inline:
+      case SM_Buffered:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
       }
@@ -379,7 +379,7 @@ void CTurbine::EvalProducts(long JoinMask)
     return;
     }
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     MN_Surge::EvalProducts(JoinMask); //todo implement dynamic version.....
     return;

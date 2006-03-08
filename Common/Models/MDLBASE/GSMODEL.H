@@ -214,21 +214,21 @@ class DllImportExport GSModel : public TaggedObject
     flag           DataXchgGen0(DataChangeBlk & DCB);
     flag           ValidateDataGen0(ValidateDataBlk & VDB);
     int            FindIOEvalPriorityGen0(int *Priority, byte *QmMd, byte *MkMd);
-    void           EvalProductsOutGen0(long RunMds, double Press, SpConduit &Sd);
+    void           EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd);
 
     //
     void           BuildDataDefnV5(DataDefnBlk &DDB);
     flag           DataXchgV5(DataChangeBlk & DCB);
     flag           ValidateDataV5(ValidateDataBlk & VDB);
     int            FindIOEvalPriorityV5(int *Priority, byte *QmMd, byte *MkMd);
-    void           EvalProductsOutV5(long RunMds, double Press, SpConduit &Sd);
+    void           EvalProductsOutV5(long SolveMethod, double Press, SpConduit &Sd);
 
     //
     void           BuildDataDefnSplit(DataDefnBlk &DDB);
     flag           DataXchgSplit(DataChangeBlk & DCB);
     flag           ValidateDataSplit(ValidateDataBlk & VDB);
     int            FindIOEvalPrioritySplit(int *I, GSIOAlpha**A);//, byte *QmMd, byte *MkMd);
-    void           EvalProductsOutSplit(long RunMds, double Press, SpConduit &Sd);
+    void           EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd);
     //
     void           PrepareDefinedData();
     void           BuildDataDefn(DataDefnBlk &DDB);
@@ -236,8 +236,8 @@ class DllImportExport GSModel : public TaggedObject
     flag           ValidateData(ValidateDataBlk & VDB);
     void           PostConnect(int IONo);
     void           PreDisConnect(int IONo);
-    void           EvalProducts(long RunMds, double Press, SpConduit *pQf, CReactionBlock *pRB, double Flash_Press, CEnvironHX * pEHX);
-    void           EvalProductsOut(long RunMds, double Press, SpConduit &Sd);
+    void           EvalProducts(long SolveMethod, double Press, SpConduit *pQf, CReactionBlock *pRB, double Flash_Press, CEnvironHX * pEHX);
+    void           EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd);
     void           MakeUpNodeTransferAvail(int JoinId);
     void           MakeUpNodeTransferReqd(int JoinId);
     //flag           MakeUpNodeEvalProducts(int JoinId, GSModel *pGSM);
@@ -304,10 +304,10 @@ class DllImportExport GSModelBase
     flag           ValidateData(ValidateDataBlk & VDB) { return Enabled() ? pGSM->ValidateData(VDB) : 0; };
     void           PostConnect(int IONo) { if (pGSM/*Enabled()*/) pGSM->PostConnect(IONo); };
     void           PreDisConnect(int IONo) { if (pGSM/*Enabled()*/) pGSM->PreDisConnect(IONo); };
-    void           EvalProducts(/*int JoinId,*/ long  RunMds, double Press, SpConduit *pQf, CReactionBlock *pRB, double Flash_Press, CEnvironHX * pEHX) 
-      { if (Enabled()) pGSM->EvalProducts(/*JoinId,*/ RunMds, Press, pQf, pRB, Flash_Press, pEHX); };
-    void           EvalProductsOut(/*int JoinId,*/ long RunMds, double Press, SpConduit &Sd) 
-      { if (Enabled()) pGSM->EvalProductsOut(/*JoinId,*/ RunMds, Press, Sd); };
+    void           EvalProducts(/*int JoinId,*/ long  SolveMethod, double Press, SpConduit *pQf, CReactionBlock *pRB, double Flash_Press, CEnvironHX * pEHX) 
+      { if (Enabled()) pGSM->EvalProducts(/*JoinId,*/ SolveMethod, Press, pQf, pRB, Flash_Press, pEHX); };
+    void           EvalProductsOut(/*int JoinId,*/ long SolveMethod, double Press, SpConduit &Sd) 
+      { if (Enabled()) pGSM->EvalProductsOut(/*JoinId,*/ SolveMethod, Press, Sd); };
     void           MakeUpNodeTransferAvail(int JoinId)
       { if (Enabled()) pGSM->MakeUpNodeTransferAvail(JoinId); };
     void           MakeUpNodeTransferReqd(int JoinId)

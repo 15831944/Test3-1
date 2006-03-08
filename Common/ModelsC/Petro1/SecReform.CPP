@@ -101,7 +101,7 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
     DDB.EndStruct();
     }
 
-  //DDB.Visibility(SM_Probal|HM_All);
+  //DDB.Visibility(SM_Direct|HM_All);
   //PBPCtrl0.BuildDataDefn(DDB, this);
   //GSM.Add_OnOff(DDB);
   DDB.Visibility(SM_DynBoth|HM_All);
@@ -115,7 +115,7 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
-  //if (ProbalMode())
+  //if (SolveDirectMethod())
   //  {
   //  QFeed(); // Ensure that exist so that they recover
   //  QProd();
@@ -130,14 +130,14 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   VLE.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     //dword IOMsk=Id_2_Mask(ioid_Top)|Id_2_Mask(ioid_Side)|Id_2_Mask(ioid_Base)|Id_2_Mask(ioid_OverFlw);
     }
   //else
   //  GSM.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -185,9 +185,9 @@ flag SecReformer::ValidateData(ValidateDataBlk & VDB)
 
 void SecReformer::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
     default:
       MN_Surge::EvalProducts(JoinMask);
     }

@@ -598,7 +598,7 @@ double NewFdSolMass = Feed.Mass(MP_Sol);
 
 void Classifier::EvalProducts()
   {
-  if (!IsProbal)
+  if (!IsSolveDirect)
     return;
   MStream Prod;
   bool SplitErr = false;

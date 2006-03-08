@@ -127,7 +127,7 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -140,9 +140,9 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
 
 void Dryer::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -151,8 +151,8 @@ void Dryer::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -168,9 +168,9 @@ void Dryer::EvalProducts(long JoinMask)
   {
   StkSpConduit Sd("Sd", chLINEID(), this);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       const int iCl = IOWithId_Self(ioidLiq);
       const int iCs = IOWithId_Self(ioidSol);
@@ -255,8 +255,8 @@ void Dryer::EvalProducts(long JoinMask)
 
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       Contents.ZeroDeriv();
       RB.EvalProducts(Sd());

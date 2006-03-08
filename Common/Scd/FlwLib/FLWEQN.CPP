@@ -15,7 +15,7 @@
 #include "dbgmngr.h"
 #include "vlebase.h"
                                                         
-//#include "optoff.h"
+#include "optoff.h"
 
 #if (dbgFlwEqns)
 static CDbgMngr dbgFlwEqnData          ("FlwNets", "FlwEqnData");
@@ -961,7 +961,7 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
         byte Md = FlowMode();//
 
         if ((Md==FBMode_Full) && (LclOptions & FBDDOpt_WithEqn) || DDB.ForFileSnpScn())
-        //if (pOwnObj->DynFullMode())
+        //if (pOwnObj->SolveBufferedMethod())
           {
           DDBValueLstMem DDB0;
           TagObjClass::GetSDescValueLst(GroupName(), DDB0, NoEqnName);
@@ -1015,7 +1015,7 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
           DDB.Text("");
           }
         if ((Md==FBMode_Full) && (LclOptions & FBDDOpt_WithEqn) || DDB.ForFileSnpScn())
-        //if (pOwnObj->DynFullMode())
+        //if (pOwnObj->SolveBufferedMethod())
           {
           //DDBValueLstMem DDB0;
           //TagObjClass::GetSDescValueLst(Group(), DDB0, NoEqnName);

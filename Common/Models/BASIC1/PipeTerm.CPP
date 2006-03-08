@@ -357,7 +357,7 @@ void CPipeTerm::EvalJoinPressures(long JoinMask)
   for (int i = 0; i < NoFlwIOs(); i++)
     {
     Set_IOP_Self(i,m_dPOut);
-    if (ProbalMode())
+    if (NetMethod()==NM_Probal)
       {
       Set_IOP_Flng(i,m_dPOut);
       Clr_RhoH_Self(i);
@@ -442,11 +442,11 @@ void CPipeTerm::EvalProducts(long JoinMask)
   {
 
   int i, nOut=0, nIn=0;
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       for (i=0;i<NoFlwIOs(); i++)
         if (IO_Out(i) || IO_Zero(i))
           {

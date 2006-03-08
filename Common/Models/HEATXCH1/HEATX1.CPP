@@ -1434,7 +1434,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
 
   if (m_iActOpMode!=HX1_Inoperative && (HasSteel || (TstNZ(m_Pri.Ci) && TstNZ(m_Sec.Ci))) && m_fOn)
     {
-    if (!DynFullMode())
+    if (!SolveBufferedMethod())
       {
       if (m_FTC.Active() && m_iActOpMode!=HX1_FullyCondensing)
         {
@@ -1453,7 +1453,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
       CHXBlock::ClrCI(4);
 
     m_fPriIsHot = (m_Pri.Ti>m_Sec.Ti);
-    //if (ProbalMode())
+    //if (SolveDirectMethod())
     //  m_fPriIsHot = false;// CNM Hard Wired
     m_Pri.Sgn=(m_fPriIsHot ? -1 : 1);
     m_Sec.Sgn=-m_Pri.Sgn;
@@ -1658,8 +1658,8 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
   //m_Pri.fConnected=0;
   //m_Sec.fConnected=0;
   m_QmVent=m_pVent ? m_pVent->QMass() : 0.0;
-  CHXBlock::SetCI(7, ProbalMode() && m_pVent && Valid(m_QmVentRqd) && (m_QmVent-m_QmVentRqd)<1.0e-9);
-  //CHXBlock::SetCI(7, ProbalMode() && m_pVent && Valid(m_QmVentRqd) && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
+  CHXBlock::SetCI(7, NetProbalMethod() && m_pVent && Valid(m_QmVentRqd) && (m_QmVent-m_QmVentRqd)<1.0e-9);
+  //CHXBlock::SetCI(7, SolveDirectMethod() && m_pVent && Valid(m_QmVentRqd) && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
   }
 
 //===========================================================================
@@ -2020,7 +2020,7 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
           if (!m_pPriSg)
             {
             m_pPriSg=new SpContainer(PrjFileVerNo()>= 46 ? PSrgTags[m_iPriSgMd] : "PriSg", this, TOA_Embedded);
-            if (!(DynamicMode() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+            if (!(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
               m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
             m_pPriSgPS=new CSpContPreset;//VLE(&m_HX.m_VLE);
             m_pPriSg->SetPreset(m_pPriSgPS, NULL);
@@ -2055,7 +2055,7 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
           if (!m_pSecSg)
             {
             m_pSecSg=new SpContainer(PrjFileVerNo()>= 46 ? SSrgTags[m_iSecSgMd] : "SecSg", this, TOA_Embedded);
-            if (!(DynamicMode() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+            if (!(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
               m_pSecVent=new SpConduit("SecVent", this, TOA_Embedded);
             m_pSecSgPS=new CSpContPreset;//VLE(&m_HX.m_VLE);
             m_pSecSg->SetPreset(m_pSecSgPS, NULL);
@@ -2099,7 +2099,7 @@ flag HeatXchg1::ValidateData(ValidateDataBlk & VDB)
   m_HX.m_bLvlEffOn=(m_iPriSgMd==HXSM_Shell || m_iSecSgMd==HXSM_Shell);
 
   SetContProps(m_iPriSgMd, m_pPriSg, PriIOMask);
-  if (m_iPriSgMd!=HXSM_NoSurge && !(DynamicMode() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+  if (m_iPriSgMd!=HXSM_NoSurge && !(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
     {
     if (!m_pPriVent)
       m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
@@ -2112,7 +2112,7 @@ flag HeatXchg1::ValidateData(ValidateDataBlk & VDB)
 
   SetContProps(m_iSecSgMd, m_pSecSg, SecIOMask);
 
-  if (m_iSecSgMd!=HXSM_NoSurge && !(DynamicMode() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+  if (m_iSecSgMd!=HXSM_NoSurge && !(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
     {
     if (!m_pSecVent)
       m_pSecVent=new SpConduit("SecVent", this, TOA_Embedded);
@@ -2139,9 +2139,9 @@ flag HeatXchg1::InitialiseSolution()
   {
   flag OK=MdlNode::InitialiseSolution();
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       if (m_pPriSg)
         m_pPriSg->SetStateAction(IE_Disabled);
       if (m_pSecSg)
@@ -2152,8 +2152,8 @@ flag HeatXchg1::InitialiseSolution()
       if (m_pSecSg)
         m_pSecSg->SetStateAction(IE_SaveState);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       if (m_pPriSg)
         m_pPriSg->SetStateAction(m_iPriSgMd!=HXSM_NoSurge ? IE_Integrate : IE_SaveState);
       if (m_pSecSg)
@@ -2164,9 +2164,9 @@ flag HeatXchg1::InitialiseSolution()
 
   flag BadPrimaries=False;
   flag BadSecondaries=False;
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       if (NIOsWithId_Self(ioidPOut)>1)
         BadPrimaries=True;
@@ -2174,8 +2174,8 @@ flag HeatXchg1::InitialiseSolution()
         BadSecondaries=True;
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       if (m_iPriSgMd!=HXSM_Shell)
         if (NIOsWithId_Self(ioidPOut)>1)
@@ -2291,9 +2291,9 @@ void HeatXchg1::ConfigureJoins()
   {
   //m_HXJ.P.JoinId=-1;
   //m_HXJ.S.JoinId=-1;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       {
       //flag fP=m_HXJ.PriIsJoin();
       Set_NJoins(2);
@@ -2320,8 +2320,7 @@ void HeatXchg1::ConfigureJoins()
       break;
       }
 
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       {
       if (fDoDbgBrk)
         { int xxx=0; };
@@ -2382,9 +2381,9 @@ void HeatXchg1::StartStep()
 
 void HeatXchg1::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -2476,9 +2475,9 @@ void HeatXchg1::EvalProductsSurge(long JoinMask)
 
 void HeatXchg1::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       if (m_HXJ.PriIsJoined() && IOWithId_Self(ioidPVent)>=0 && m_pPriVent==NULL)
         m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
@@ -2529,8 +2528,8 @@ void HeatXchg1::EvalProducts(long JoinMask)
         }
       }
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       HeatXchg1::EvalProductsDyn(InlineIntegral()!=0, true);
       }
@@ -2842,7 +2841,7 @@ void HeatXchg1::EvalIntegral(long JoinMask)
   int PriIsShell = (m_iPriSgMd==HXSM_Shell);
   int SecIsShell = (m_iSecSgMd==HXSM_Shell);
 
-  if (DynamicMode() &&
+  if (SolveDynamicMethod() &&
       (PriIsShell || SecIsShell) &&
       (m_HX.m_iRqdOpMode==HX1_FullyCondensing))
     {
@@ -2986,7 +2985,7 @@ void HeatXchg1::ODEOperate(CODEDataBlock & ODB)
 void HeatXchg1::ConvergeStates(CConvergeStateBlk &CSB)
   {
   MdlNode::ConvergeStates(CSB);
-  ASSERT(DynamicMode());
+  ASSERT(SolveDynamicMethod());
 
   if (m_HX.m_iRqdOpMode==HX1_FullyCondensing && !IntegralDone())
     {

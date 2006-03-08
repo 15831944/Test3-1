@@ -1054,7 +1054,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
     if (dwDisplay & SPDF_DynMode)
       WhichModes |= SM_DynBoth;
     if (dwDisplay & SPDF_PBMode)
-      WhichModes |= SM_Probal;
+      WhichModes |= SM_Direct;
 
     DDEF_Flags Vis=DDB.GetVisibility();
     DDB.Visibility(WhichModes);  // hss 8/6/99
@@ -1273,7 +1273,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
         if (DDB.BeginStruct(this, "DynStats", "", DDB_NoPage,-1,MarkerClosed))
           {
           DDB.CheckBoxBtn("CollectStats",  "",  DC_, "",  xidCnStatsOn,   this, isParmStopped);//|SetOnChange);
-          if (pStats && DynamicMode())
+          if (pStats && SolveDynamicMethod())
             {
             pStats->BuildDataDefn(DDB, this);
             }

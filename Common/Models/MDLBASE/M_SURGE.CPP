@@ -9,7 +9,7 @@
 #include "m_surge.h"
 #include "dbgmngr.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 #define dbgMSurge       (0 || WITHDEBUG)
 
@@ -47,7 +47,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   AttachClassInfo(nc_Process,NULL, &PipeEntryGroup);
   Contents.SetStateAction(IE_Integrate);
   m_EqThermals.SetStateAction(IE_Integrate);
-  if (DynFlowMode())
+  if (SolveInlineMethod())
     m_EqThermals.m_bActive = false;
   Contents.SetVentExpandOK();
   Contents.SetVLE(&VLE);
@@ -80,7 +80,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   fActiveHoldOK_Dyn=true;
   m_fActiveHoldIfSS=true;
 
-  SetUserRunModes("ProBal", "Inline", "Buffered");
+  SetAllowedSolveModes(SM_Direct|SM_Inline|SM_Buffered);//"Transfer", "Inline", "Buffered");
 
   Contents.SetSpillEtc(&m_Spill, &m_Vent);
   };
@@ -201,7 +201,7 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
 void MN_Surge::SetRunModes(long Md, long MdMsk)
   {
   MdlNode::SetRunModes(Md, MdMsk);
-  SetInlineIntegral(SolveMode() == SM_DynXfer);
+  SetInlineIntegral(SolveMethod() == SM_Inline);
   };
 
 //--------------------------------------------------------------------------
@@ -248,18 +248,18 @@ void MN_Surge::PreDisConnect(int IONo)
 
 flag MN_Surge::InitialiseSolution()
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       Contents.dwDisplay=SPDF_ShapeData|SPDF_PBMode;
       Contents.SetStateAction(IE_Disabled);
       m_EqThermals.SetStateAction(IE_Disabled);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       Contents.dwDisplay=SPDF_All;
       Contents.SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
-      if (DynFlowMode())
+      if (SolveInlineMethod())
         m_EqThermals.SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
       else
         m_EqThermals.SetStateAction(IE_Disabled);
@@ -375,9 +375,9 @@ void MN_Surge::ConfigureJoins()
   const int JnId_Surge=0;
   const int JnId_HX   =1;
   const int JnId_Spill=2;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (int i=0; i<NoProcessIOs(); i++)
         {
         int Id=IOId_Self(i);
@@ -390,8 +390,7 @@ void MN_Surge::ConfigureJoins()
           }
         }
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (int i=0; i<NoFlwIOs(); i++)
         {
         int Id=IOId_Self(i);
@@ -437,16 +436,16 @@ inlet and outlet of the surge unit.*/
 void MN_Surge::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (SolveMethod())
       {
-      case SM_Probal:
+      case SM_Direct:
         if (NJoins()>=1)
           EvalPBJoinPressure(0, &m_PBPCtrl0, QProd());
         if (NJoins()>=2)
           EvalPBJoinPressure(1);
         break;
-      case SM_DynXfer:
-      case SM_DynFull:
+      case SM_Inline:
+      case SM_Buffered:
         {
         #if dbgEvalPres
         dbgpln("EvalJoinPressures:%s",FullObjTag());
@@ -521,8 +520,10 @@ and rate of change of the contents resulting from the flow, of material, out of 
 of the surge unit.*/
 void MN_Surge::EvalProductsSurge(long JoinMask)
   {
-  ASSERT(DynamicMode());
-  if (!InlineIntegral())
+  if (fDoDbgBrk)
+    { int xxx=0; }
+  ASSERT(SolveDynamicMethod());
+  if (SolveBufferedMethod())
     {
     dword IOMsk=First64IOIds;
     SigmaQInPMin(QFeed(), som_ALL, IOMsk);
@@ -539,9 +540,11 @@ and rate of change of the contents resulting from the flow, of material, out of 
 of the surge unit.*/
 void MN_Surge::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  if (fDoDbgBrk)
+    { int xxx=0; }
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       if (m_CyclicStorage.m_bOn)
         {
         SetCyclicStorageOut();
@@ -556,8 +559,8 @@ void MN_Surge::EvalProducts(long JoinMask)
       else if (NJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PBPCtrl0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       if (InlineIntegral())
         {
         SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
@@ -891,7 +894,7 @@ void MN_Surge::EvalIntegral(long JoinMask)
 
 void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  ASSERT(DynamicMode());
+  ASSERT(SolveDynamicMethod());
 
   if (RB())
     {
@@ -1206,7 +1209,7 @@ dword MN_Surge::ModelStatus()
   if (gs_Exec.Stopped())
     {
     Status |= FNS_UNoFlw;
-    //Status |= (SolveMode()==SM_DynXfer  ? FNS_UFlw : FNS_UNoFlw);
+    //Status |= (SolveMethod()==SM_Inline  ? FNS_UFlw : FNS_UNoFlw);
     }
   else if (NoFlwIOs())
     {

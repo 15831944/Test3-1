@@ -219,7 +219,7 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -249,9 +249,9 @@ flag CCWasher::ValidateData(ValidateDataBlk & VDB)
 
 void CCWasher::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -260,8 +260,8 @@ void CCWasher::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -271,11 +271,11 @@ void CCWasher::EvalJoinPressures(long JoinMask)
 
 void CCWasher::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       break;
     }
   }
@@ -539,9 +539,9 @@ double CCWashMixEffFnd::Function(double x)
 
 void CCWasher::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       const int ioUFlw = IOWithId_Self(ioidUFlw);
       const int ioOFlw = IOWithId_Self(ioidOFlw);

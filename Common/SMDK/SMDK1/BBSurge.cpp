@@ -100,7 +100,7 @@ void CBBSurge::BuildDataDefn(DataDefnBlk & DDB)
       BuildDataDefnShowIOs(DDB);
     if (MethodImpl.m_dwMethOptions & MO_ShowIOOpts)
       BuildDataDefnIOOpts(DDB);
-    if (DynamicMode() && (MethodImpl.m_dwMethOptions & MO_ShowContents))
+    if (SolveDynamicMethod() && (MethodImpl.m_dwMethOptions & MO_ShowContents))
       DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DoBuildDataDefn(DDB);
     }
@@ -235,9 +235,9 @@ _asm int 3;
 
 //---------------------------------------------------------------------------
 
-void CBBSurge::OnSetUserMethod()
+void CBBSurge::OnSetFlowMode()
   {
-  DoOnSetUserMethod();
+  DoOnSetFlowMode();
   }
 
 //---------------------------------------------------------------------------

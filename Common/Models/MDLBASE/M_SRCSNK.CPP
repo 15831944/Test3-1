@@ -257,7 +257,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       SSMode|=SSM_ConstP;
     }
 
-  if (ProbalMode())
+  if (NetProbalMethod())
     {
     if ((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)
       SSMode = (SSMode & ~SSM_ConstP) | SSM_ConstQm;
@@ -821,7 +821,7 @@ void MN_SrcSnk::EvalJoinPressures(long JoinMask)
   else
     {
     const int nfios=NoProcessIOs();
-    if (ProbalMode())
+    if (NetProbalMethod())
       {
       if ((SSMode&SSM_Sink)!=0)
         {//probal sink
@@ -849,7 +849,7 @@ void MN_SrcSnk::EvalJoinPressures(long JoinMask)
     for (int i = 0; i<nfios; i++)
       {
       Set_IOP_Self(i,PFeed);
-      if (ProbalMode())
+      if (NetProbalMethod())
         {
         Set_IOP_Flng(i,PFeed);
         Clr_RhoH_Self(i);
@@ -953,10 +953,10 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
     Contents.SetTempPress(TRequired(), PRequired());
 
   int i, nOut=0, nIn=0;
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       for (i=0;i<NoProcessIOs(); i++)
         {
@@ -1104,7 +1104,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
         }
       break;
       }
-    case SM_Probal:
+    case SM_Direct:
       {
       for (i=0;i<NoProcessIOs(); i++)
         {
@@ -1316,7 +1316,7 @@ void MN_SrcSnk::EvalDiscrete()
     {
     if (NoProcessIOs()>0)// && IO_Out(0))
       {
-      if (!ProbalMode())
+      if (!NetProbalMethod())
         {
         const double P_ = IOP_Flng(0);
         Contents.SetPRqdTo(P_);
@@ -1455,7 +1455,7 @@ double MN_SrcSnk::TRequired()
   if (Valid(Contents.TRqd()))
     {
     double dO = OutputChg(T_RegB.Output(), dT_Out, dT_Tau, dTime);
-    double T = ProbalMode() ? Contents.TRqd() : (Contents.TRqd()-ZeroCinK) * (1.0+dT_Std_Dev_C) * (dT_Out+dO) + ZeroCinK;
+    double T = NetProbalMethod() ? Contents.TRqd() : (Contents.TRqd()-ZeroCinK) * (1.0+dT_Std_Dev_C) * (dT_Out+dO) + ZeroCinK;
     Contents.SetTemp(T);
     return T;
     }
@@ -1470,7 +1470,7 @@ double MN_SrcSnk::PRequired()
   if (Valid(Contents.PRqd()))
     {
     double dO = OutputChg(P_RegB.Output(), dP_Out, dP_Tau, dTime);
-    double P = ProbalMode() ? Contents.PRqd() : (Contents.PRqd()-Std_P) * (1.0+dP_Std_Dev_C) * (dP_Out+dO) + Std_P;
+    double P = NetProbalMethod() ? Contents.PRqd() : (Contents.PRqd()-Std_P) * (1.0+dP_Std_Dev_C) * (dP_Out+dO) + Std_P;
     Contents.SetPress(P);
     return P;
     }
@@ -1485,7 +1485,7 @@ double MN_SrcSnk::QRequired(double Rho)
   double Qr= ((SSMode & SSM_ConstQm)!=0) ? Contents.QmRqd() : Contents.QvRqd() * Rho;
   if (!Valid(Qr))
   	return 0;
-  if (!ProbalMode())
+  if (!NetProbalMethod())
     {
     double dO = OutputChg(P_RegB.Output(), dQ_Out, dQ_Tau, dTime);
     Qr = (Qr) * (1.0+dQ_Std_Dev_C) * (dQ_Out+dO);

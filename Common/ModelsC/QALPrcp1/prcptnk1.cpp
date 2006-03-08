@@ -77,16 +77,16 @@ flag QPrecipMain1::ValidateData(ValidateDataBlk & VDB)
 
 void QPrecipMain1::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         SetPBJoinPressure(j, Std_P, true, true);
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
@@ -96,11 +96,11 @@ void QPrecipMain1::EvalJoinPressures(long JoinMask)
 
 void QPrecipMain1::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       break;
     }
   }
@@ -109,9 +109,9 @@ void QPrecipMain1::EvalJoinFlows(int JoinNo)
 
 void QPrecipMain1::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       int ioProd = IOWithId_Self(ioid_Product);
       ASSERT(ioProd>=0);

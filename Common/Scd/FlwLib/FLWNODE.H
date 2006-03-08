@@ -119,16 +119,6 @@ class CTraceList;
 //
 //===========================================================================
 
-// Link Flw Modes
-const long LFM_Xfer         = UM_Method_1;
-const long LFM_Simple       = UM_Method_2;
-const long LFM_Linear       = UM_Method_3;
-const long LFM_Full         = UM_Method_4;
-//const long LFM_NominalDP    = UM_Method_3;
-//const long LFM_CompleteDP   = UM_Method_4;
-const long LFM_SrcSnk       = UM_Method_5; // temporary reinstated - to go CNM
-
-
 const long iNotInEvalOrder = -999;//LONG_MIN;
 
 class CJoinCluster
@@ -1168,6 +1158,7 @@ class DllImportExport FlwBlk  : public CFlwBlkBase
     void           SetQmReqdVlv(double QmReqd, double Reg, flag IsFree=true, float MaxNode=fNAN, float MaxFlng=fNAN);
     void           SetQmFree();
     double         RequiredQm();
+    //void           EvalGetModeRqd(byte FlowMode, bool On, bool IsDegFreedom);
 
     void           SetBiDirectionalFlow();
     void           SetUniDirectionalFlow(flag Fwd=true, double OpenPress=1.0, double ClosePress=0.0);
@@ -3241,13 +3232,12 @@ class DllImportExport FlwNode : public CTNode
     void           AddPwrUser(CPwrUser*pPwr);
     void           RemovePwrUser(CPwrUser*pPwr);
 
-    void           SetUserRunModes(LPCTSTR PBModeNm, LPCTSTR XferModeNm, LPCTSTR FullModeNm);
-    void           SetUserModeAsFlowMode(bool All=false);
-    long           LnkFlowMode()        { return UserMethod(); };
-    bool           PipeFlowMode()       { return LnkFlowMode()==LFM_Full; };
-    bool           LinearFlowMode()     { return LnkFlowMode()==LFM_Linear; };
-    bool           SimpleFlowMode()     { return LnkFlowMode()==LFM_Simple; };
-    bool           XferFlowMode()       { return LnkFlowMode()==LFM_Xfer; };
+    void           SetAllowedSolveModes(long AllowedModes);//LPCTSTR PBModeNm, LPCTSTR XferModeNm, LPCTSTR FullModeNm);
+    void           SetAllowedFlowModes(bool All=false);
+    bool           PipeFlowMode()       { return FlowMode()==LFM_Full; };
+    bool           LinearFlowMode()     { return FlowMode()==LFM_Linear; };
+    bool           SimpleFlowMode()     { return FlowMode()==LFM_Simple; };
+    bool           XferFlowMode()       { return FlowMode()==LFM_Xfer; };
 
 
     int NJoins()          { return m_nJoins; };
@@ -3749,8 +3739,8 @@ class DllImportExport FlwNode : public CTNode
     bool           IO_Zero(int i)                      { return FlwZero(IOQmEst_In(i)); };
     int            IO_Dirn(int i)                      { double q=IOQmEst_In(i); return (FlwZero(q) ? FD_Zero : (q>0.0 ? FD_In : FD_Out)); };
     int            IOSign(int i)                       { return IO_Dirn(i); };
-    //int            TwoIOInIndex(bool Reverse=false)    { return DynFullMode() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
-    int            TwoIOInIndex(bool Reverse=false)    { return DynamicMode() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
+    //int            TwoIOInIndex(bool Reverse=false)    { return SolveBufferedMethod() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
+    int            TwoIOInIndex(bool Reverse=false)    { return SolveDynamicMethod() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
     bool           IOEvalSeq_In(int i)                 { return m_IOs[i].fEvalSeqIn!=0; };
     bool           IOEvalSeq_Out(int i)                { return m_IOs[i].fEvalSeqOut!=0; };
     void           SetIOEvalSeq_In(int i, bool On)     { m_IOs[i].fEvalSeqIn=On; };
@@ -3828,7 +3818,7 @@ class DllImportExport FlwNode : public CTNode
 
     void           Set_ProdFrac(int JoinNo, int i, double Frac);
 
-    //byte           FBBFlowOptions(bool ForceXfer) { bool IsXfer=(!ProbalMode() && (ForceXfer || DynFlowMode())); return IsXfer ? FBMode_QmXfer : FBMode_QmReqd; };
+    //byte           FBBFlowOptions(bool ForceXfer) { bool IsXfer=(!SolveDirectMethod() && (ForceXfer || SolveInlineMethod())); return IsXfer ? FBMode_QmXfer : FBMode_QmReqd; };
 
     virtual long   NodeFlwTask(NodeFlwTasks Task);
 
@@ -4191,9 +4181,10 @@ class DllImportExport FlwNode : public CTNode
 
     CArray<CPwrUser*, CPwrUser*> m_PwrUsers;
 
-    DDBValueLstMem m_DDBRunModes;
+    //DDBValueLstMem m_DDBSolveModes;
+    long           m_AllowedSolveModes;
+    DDBValueLstMem m_DDBFlowModes;
     DDBValueLstMem m_DDBUserMethods;
-    Strng          m_UserMethodName;
 
     CMap<CString, LPCTSTR, SpConduit*, SpConduit*> WrkConduits;
     CMap<CString, LPCTSTR, SpContainer*, SpContainer*> WrkContainers;
@@ -4233,22 +4224,22 @@ class StkSpContainer
 //---------------------------------------------------------------------------
 
 XID xidSysCADSolutionOld          = FlwXID(1);
-XID xidSolveMode                  = FlwXID(3);
-XID xidHeatMode                   = FlwXID(4);
-XID xidActiveMode                 = FlwXID(5);
-XID xidHoldMode                   = FlwXID(6);
-XID xidUserMethod                 = FlwXID(7);
-XID xidUserMethodSet              = FlwXID(8);
-XID xidSolveState                 = FlwXID(9);
-XID xidSysCADActive               = FlwXID(10);
-XID xidSpecSheet                  = FlwXID(11);
-XID xidEvalOrder                  = FlwXID(12);
-XID xidCondition                  = FlwXID(13);
-XID xidSetState                   = FlwXID(14);
-XID xidNdNJoins                   = FlwXID(15);
-XID xidNdNIOs                     = FlwXID(16);
-XID xidMarked                     = FlwXID(17);
-XID xidFlwNdRqdArea               = FlwXID(18);
+XID xidSolveMode                  = FlwXID(2);
+XID xidHeatMode                   = FlwXID(3);
+XID xidFlowMode                   = FlwXID(4);
+XID xidUserMethod                 = FlwXID(5);
+XID xidActiveMode                 = FlwXID(6);
+XID xidHoldMode                   = FlwXID(7);
+XID xidSolveState                 = FlwXID(8);
+XID xidSysCADActive               = FlwXID(9);
+XID xidSpecSheet                  = FlwXID(10);
+XID xidEvalOrder                  = FlwXID(11);
+XID xidCondition                  = FlwXID(12);
+XID xidSetState                   = FlwXID(13);
+XID xidNdNJoins                   = FlwXID(14);
+XID xidNdNIOs                     = FlwXID(15);
+XID xidMarked                     = FlwXID(16);
+XID xidFlwNdRqdArea               = FlwXID(17);
 
 XID xidSrcIOTag                   = FlwXID(40);
 XID xidDstIOTag                   = FlwXID(41);

@@ -17,14 +17,26 @@
 
 typedef ULONG64 DDEF_Flags;
 
- const long SM_Probal       = eScdSolve_Probal;
- const long SM_DynXfer      = eScdSolve_DynamicXfer;
- const long SM_DynFull      = eScdSolve_DynamicFull;
- //const long SM_Inline       = 0x00000008;              
- const long HM_None         = eScdHeat_None;
- const long HM_Simple       = eScdHeat_Simple;
- const long HM_Full         = eScdHeat_Full;
- const long MODEVISIBLE     = 0x00000080;       
+const long SM_Direct       = eScdSolve_Direct;
+const long SM_Inline       = eScdSolve_Inline;
+const long SM_Buffered     = eScdSolve_Buffered;
+//const long SM_Inline       = 0x00000008;              
+const long HM_None         = eScdHeat_None;
+const long HM_Simple       = eScdHeat_Simple;
+const long HM_Full         = eScdHeat_Full;
+const long MODEVISIBLE     = 0x00000080;       
+
+// Network solution modes
+const long NM_Probal       = eScdNet_Probal;
+const long NM_Dynamic      = eScdNet_Dynamic;
+  
+// Link Flw Modes
+const long LFM_Xfer         = eScdFlow_Xfer;   
+const long LFM_Simple       = eScdFlow_Simple;
+const long LFM_Linear       = eScdFlow_Linear;
+const long LFM_Full         = eScdFlow_Full;
+const long LFM_SrcSnk       = eScdFlow_SrcSnk;
+const long LFM_All          = eScdFlow_Xfer | eScdFlow_Simple | eScdFlow_Linear | eScdFlow_Full | eScdFlow_SrcSnk;
 
 const long UM_Method_1      = eScdUser_Method_1;
 const long UM_Method_2      = eScdUser_Method_2;
@@ -34,13 +46,13 @@ const long UM_Method_5      = eScdUser_Method_5;
 const long UM_Method_6      = eScdUser_Method_6;
 const long UM_Method_7      = eScdUser_Method_7;
 const long UM_Method_8      = eScdUser_Method_8;
-const long UM_All           = UM_Method_1|UM_Method_2|UM_Method_3|UM_Method_4|UM_Method_5|UM_Method_6|UM_Method_7|UM_Method_8;
+const long UM_All           = UM_Method_1 | UM_Method_2 | UM_Method_3 | UM_Method_4 | UM_Method_5 | UM_Method_6 | UM_Method_7 | UM_Method_8;
 
-const long SM_DynBoth       = (SM_DynXfer|SM_DynFull);
-const long SM_All           = (SM_Probal|SM_DynXfer|SM_DynFull);
-const long SM_DynCurrent    = (SM_DynXfer|SM_DynFull);
-const long HM_All           = (HM_None|HM_Simple|HM_Full);
-const long SHM_All          = (SM_All|HM_All);       
+const long SM_DynBoth       = SM_Inline | SM_Buffered;
+const long SM_All           = SM_Direct | SM_Inline | SM_Buffered;
+const long SM_DynCurrent    = SM_Inline | SM_Buffered;
+const long HM_All           = HM_None | HM_Simple | HM_Full;
+const long SHM_All          = SM_All | HM_All;       
 
 const DDEF_Flags DDEF_NOCOMPARE           = 0x0000000000040000;// Maybe masked out ??
 const DDEF_Flags DDEF_NAN_OK              = 0x0000000000080000;

@@ -116,7 +116,7 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  //DDB.Visibility(SM_Probal|HM_All|SSMODE);
+  //DDB.Visibility(SM_Direct|HM_All|SSMODE);
   DDB.Text("");
   static DDBValueLst DDB2[]={
     {(int)True,  "Screen"},
@@ -428,11 +428,11 @@ void ScreenBlk::Separate(SpConduit &QFd, SpConduit &QOs, SpConduit &QUs, int s, 
   m_CutSize = Max(1.0e-6, m_CutSize);
   m_Alpha = Max(1.0e-6, m_Alpha);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Direct:
+    case SM_Inline:
+    case SM_Buffered:
       {
       if (!fMode)
         {
@@ -1695,14 +1695,13 @@ void Screen::ConnectionsChanged()
 void Screen::ConfigureJoins()
   {
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       if (iType==OpenScreen)
         for (i=0; i<NoFlwIOs(); i++)
           SetIO_Open(i, 0, false, ESS_Denied);
@@ -1763,11 +1762,11 @@ void Screen::EvalProducts(long JoinMask)
  const int ioMS=IOWithId_Self(ioidMS);
  const int ioOS=IOWithId_Self(ioidOS);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Direct:
+    case SM_Inline:
+    case SM_Buffered:
 
       SigmaQInPMin(QFd, som_ALL, Id_2_Mask(ioidFd) | Id_2_Mask(ioidWW));
 

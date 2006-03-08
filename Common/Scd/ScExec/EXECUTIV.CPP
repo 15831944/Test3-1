@@ -2027,16 +2027,16 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         switch ((RqdRunMode)lParam)
           {
           case RRM_PBMd :
-            SetGlblRunModes(SM_Probal, SM_All);
+            SetGlblRunModes(SM_Direct, SM_All);
             break;
           case RRM_DynMd :
             SetGlblRunModes(SM_DynCurrent, SM_All);
             break;
           case RRM_DynMdFlow :
-            SetGlblRunModes(SM_DynXfer, SM_All);
+            SetGlblRunModes(SM_Inline, SM_All);
             break;
           case RRM_DynMdFull :
-            SetGlblRunModes(SM_DynFull, SM_All);
+            SetGlblRunModes(SM_Buffered, SM_All);
             break;
           case RRM_Current:
             break;
@@ -3761,12 +3761,12 @@ void CExecutive::SetGlblRunModes(long RunMds, long RunMdsMsk)
 
   if (RunMdsMsk&SM_All)
     {
-    if (RunMds&SM_Probal)
-      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Probal,   "Multiple Solve Modes"); }
-    if (RunMds&SM_DynXfer)
-      { ASSERT_ALWAYS((RunMds&SM_All) == SM_DynXfer,  "Multiple Solve Modes"); }
-    if (RunMds&SM_DynFull)
-      { ASSERT_ALWAYS((RunMds&SM_All) == SM_DynFull,  "Multiple Solve Modes"); }
+    if (RunMds&SM_Direct)
+      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Direct,   "Multiple Solve Modes"); }
+    if (RunMds&SM_Inline)
+      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Inline,   "Multiple Solve Modes"); }
+    if (RunMds&SM_Buffered)
+      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Buffered, "Multiple Solve Modes"); }
     }
   if (RunMdsMsk&HM_All)
     {
@@ -3788,7 +3788,7 @@ void CExecutive::SetGlblRunModes(long RunMds, long RunMdsMsk)
 
   if (RunMdsMsk&SM_All)
     {
-    if ((RunMds&SM_All)==SM_Probal)
+    if ((RunMds&SM_All)==SM_Direct)
       SwapToProBal();
     else
       ReturnFromProBal();

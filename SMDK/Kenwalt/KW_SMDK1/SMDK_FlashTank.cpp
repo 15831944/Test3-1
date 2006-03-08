@@ -136,7 +136,7 @@ void CFlashTank::EvalMakeUpAvail()
 
 bool CFlashTank::EvalJoinPressures()
   {
-  if (IsProbal && Joins.Count>0)
+  if (IsNetProbal && Joins.Count>0)
     {
     m_FTF.FeedP=Joins[0].GetProbalPIn(&m_PCtrl);
 

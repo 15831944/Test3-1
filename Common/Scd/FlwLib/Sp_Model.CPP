@@ -6903,7 +6903,7 @@ void SpModel::EvalHStates()
     SPMDLTIMERLAP(sm_swEvalH);
     m_iHoldVentExpand++;
 
-    if (SkipHeatMode())
+    if (HeatSkipMethod())
       {
       m_CurrentT=Std_T;
       }
@@ -7115,7 +7115,7 @@ double SpModel::Mass(PhMask Phase)
 double SpModel::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     {
     if (pTotalM)
       *pTotalM=Mass(Phase);
@@ -7126,7 +7126,7 @@ double SpModel::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
 double SpModel::msHs(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     {
     if (pTotalM)
       *pTotalM=Mass(Phase);
@@ -7137,7 +7137,7 @@ double SpModel::msHs(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
 double SpModel::msHz(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     {
     if (pTotalM)
       *pTotalM=Mass(Phase);
@@ -7153,7 +7153,7 @@ double SpModel::msHz(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
   };
 double SpModel::msHf(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     {
     if (pTotalM)
       *pTotalM=Mass(Phase);
@@ -7164,7 +7164,7 @@ double SpModel::msHf(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
   };
 double SpModel::msSf(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     {
     if (pTotalM)
       *pTotalM=Mass(Phase);
@@ -7176,35 +7176,35 @@ double SpModel::msSf(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
 double SpModel::totCp(PhMask Phase, double T_, double P_, CSysVector * pMA)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     return (pMA ? pMA->Mass(Phase) : Mass(Phase));
   return SDB.totCp(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData());
   };
 double SpModel::totHs(PhMask Phase, double T_, double P_, CSysVector * pMA)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     return (pMA ? pMA->Mass(Phase) : Mass(Phase))*T_;
   return SDB.totHs(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData());
   };
 double SpModel::totHz(PhMask Phase, double T_, double P_, CSysVector * pMA)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     return (pMA ? pMA->Mass(Phase) : Mass(Phase))*T_;
   return SDB.totHz(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData());
   };
 double SpModel::totHf(PhMask Phase, double T_, double P_, CSysVector * pMA)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     return (pMA ? pMA->Mass(Phase) : Mass(Phase))*T_;
   return SDB.totHf(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData());
   };
 double SpModel::totSf(PhMask Phase, double T_, double P_, CSysVector * pMA)
   {
   SPMDLTIMERLAP(sm_swHeat);
-  if (SkipHeatMode())
+  if (HeatSkipMethod())
     return (pMA ? pMA->Mass(Phase) : Mass(Phase));
   return SDB.totSf(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData());
   };

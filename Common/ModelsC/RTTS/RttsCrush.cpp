@@ -717,14 +717,13 @@ void RTCrusher::ConfigureJoins()
   {
   Init_NJoins(1);
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;

@@ -140,7 +140,7 @@ void Ccd::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
 	BuildDataDefnShowIOs(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -174,9 +174,9 @@ void Ccd::ConcBal(CSysVector &Fd,  CDVector& c, CDVector& mass, double UVol, dou
 
 void Ccd::ConfigureJoins()
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
+    case SM_Inline:
       for (int i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
@@ -190,9 +190,9 @@ void Ccd::ConfigureJoins()
 
 void Ccd::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -201,8 +201,8 @@ void Ccd::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -221,10 +221,10 @@ void Ccd::EvalProducts(long JoinMask)
   StkSpConduit Ww("Ww", chLINEID(), this);
   StkSpConduit Mix("Mix", chLINEID(), this);
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       const int iCo = IOWithId_Self(ioidOF);
       const int iCu = IOWithId_Self(ioidUF);
@@ -356,8 +356,8 @@ void Ccd::EvalProducts(long JoinMask)
 
       break;
       }
-    //case SM_DynXfer:
-    case SM_DynFull:
+    //case SM_Inline:
+    case SM_Buffered:
       {
       Contents.ZeroDeriv();
 

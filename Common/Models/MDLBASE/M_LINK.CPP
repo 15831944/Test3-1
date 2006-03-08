@@ -655,15 +655,15 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_iBlockSeq = (PrjFileVerNo()<79 ? BS_EHX_RB_VLE : BS_RB_EHX_VLE); //sequence of RB,EHX,VLE,etc
   m_iLF_Direction = LFD_Default;
 
-  SetUserRunModes("ProBal", "Inline", NULL);
-  SetUserModeAsFlowMode(true);
+  SetAllowedSolveModes(SM_Direct/*|SM_Inline*/);//"Transfer", "Inline", NULL);
+  SetAllowedFlowModes(true);
   
   if (GlblDynFlowMode())
-    SetUserMethodReqd(LFM_Simple);// LFM_Xfer);
+    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
   else
-    SetUserMethodReqd(LFM_Full);
+    SetFlowModeReqd(LFM_Full);
 
-  //m_iLnkFlwModeRqd = LFM_CompleteDP;//(DynFlowMode() ? LFM_Xfer : LFM_CompleteDP);
+  //m_iLnkFlwModeRqd = LFM_CompleteDP;//(SolveInlineMethod() ? LFM_Xfer : LFM_CompleteDP);
 #if WITHPBDPSTUFF
   iDP_Mode = LDP_Fixed_Drop;
   iCalc_K  = 0;
@@ -940,7 +940,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       {
       if (DCB.rL)
         {
-        //if (DynFlowMode())
+        //if (SolveInlineMethod())
         //  *DCB.rB = LFM_Xfer; //FORCE into Xfer mode
         if (*DCB.rL==0)
           {
@@ -949,19 +949,19 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
           else if (GlblDynFlowMode())
             *DCB.rL=LFM_Simple;
           }
-        if (UserMethod()!=*DCB.rL)
+        if (FlowMode()!=*DCB.rL)
           {
           StructureChanged(this);
           SetState(MSA_ZeroFlows);
           }
-        SetUserMethodReqd(*DCB.rL);
-        if (UserMethod()==LFM_SrcSnk)
+        SetFlowModeReqd(*DCB.rL);
+        if (FlowMode()==LFM_SrcSnk)
           {
-          SetUserMethodReqd(LFM_Full);
+          SetFlowModeReqd(LFM_Full);
           SetActiveHold(true);
           }
         }
-      DCB.L=UserMethod();
+      DCB.L=FlowMode();
       return 1;
       }
     case xidPropertySelect:
@@ -1636,28 +1636,31 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
     }
   SetCI(2, NoProcessIOs()<2);
 
-  //m_FEP.FlwRqd().SetPressOn(UserMethod()==LFM_NominalDP);
-
   flag OK=MdlNode::ValidateData(VDB);
 
-  if (UserMethod()==0)
+  if (FlowMode()==0)
     {
     if (GlblDynFlowMode())
       {
       if (PrjFileVerNo()<94)
-        SetUserMethodReqd(LFM_Xfer);
+        SetFlowModeReqd(LFM_Xfer);
       else
-        SetUserMethodReqd(LFM_Simple);
+        SetFlowModeReqd(LFM_Simple);
       }
     else
-      SetUserMethodReqd(LFM_Full);
+      SetFlowModeReqd(LFM_Full);
     }
 
   if (!m_FTB.ValidateData(VDB))
     OK=false;
 
   if (NoProcessIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->dwOther) || IOISSETXFER(IODesc_Rmt(1)->dwOther)))
-    SetUserMethodReqd(LFM_Xfer);
+    SetFlowModeReqd(LFM_Xfer);
+
+#if WITHPBDPSTUFF
+  //ValidateRange(VDB, "V_MassFlw", 1.0e-10, VQmCap, dNAN, &OK);
+  //ValidateRange(VDB, "S_MassFlw", 1.0e-10, SQmCap, dNAN, &OK);
+#endif
 
   if (m_PFI.Method==VFFX_Plugflow)
     {
@@ -1886,7 +1889,7 @@ void MN_Lnk::PostConnect(int IONo)
     MdlNode::PostConnect(IONo);
 
     if (IOISSETXFER(IODesc_Rmt(IONo)->dwOther))
-      SetUserMethodReqd(LFM_Xfer);
+      SetFlowModeReqd(LFM_Xfer);
 
     IOConduit(IONo)->AttachMeToObj(this, TOA_Embedded);
 
@@ -2075,8 +2078,6 @@ flag MN_Lnk::InitialiseSolution()
 
 void MN_Lnk::StartSolution()
   {
-  //if (ProbalMode())
-  //  ClearSpill();
 
   for (int i=0; i<NoFlwIOs(); i++)
     IOConduit(i)->SetStateAction(/*IsImpSolution() ? IE_Null :*/ IE_SaveState);
@@ -2084,10 +2085,10 @@ void MN_Lnk::StartSolution()
 
 //---------------------------------------------------------------------------
 
-void MN_Lnk::OnSetUserMethod()
+void MN_Lnk::OnSetFlowMode()
   {
   byte Md;//=m_FEP.FlwRqd().m_Mode;
-  switch (UserMethod())
+  switch (FlowMode())
     {
     case LFM_Xfer:   Md=FBMode_Xfer;     break;
     case LFM_Simple: Md=FBMode_Simple;   break;
@@ -2238,9 +2239,9 @@ flag MN_Lnk::TestFlowInfo()
 
 void MN_Lnk::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       {
       bool VelBAD=false;
 #if WITHPBDPSTUFF
@@ -2560,8 +2561,7 @@ double dp_b = deltaPi/NZ(1.0-err_b);*/
       SetCI(3, VelBAD);
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       {
       if (fDoDbgBrk)
         { int xxx=0; }
@@ -2760,7 +2760,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
     { int xxx=0; }
 
   const flag DoXfer=XferFlowMode();
-  if (DynamicMode() && !DoXfer && (m_PFI.Method==VFFX_Plugflow))
+  if (SolveDynamicMethod() && !DoXfer && (m_PFI.Method==VFFX_Plugflow))
     {
     if (GetActiveHold())
       {
@@ -2810,7 +2810,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
         SrcSnk.pSpDiff->SetMass(s, DiffFrac(F0.Qm(s), F1.Qm(s)));
 #endif
       }
-    //else if (ProbalMode() && !IsUsableMass(FIQm))
+    //else if (SolveDirectMethod() && !IsUsableMass(FIQm))
     //{//do NOTHING!!!, set output=input, ignore m_RB, ehx, etc???
     //if (IOFlange(0)->IsTear())//if (IOFlange(0)->IsSystemTear())
     //  {
@@ -2831,17 +2831,17 @@ void MN_Lnk::EvalProducts(long JoinMask)
       double IOQInEst=IOQmEst_In(iIn);
       double IOQOutEst=IOQmEst_Out(iOut);
 
-      if (ProbalMode())
+      if (NetProbalMethod())
         {
         IOQInEst=(IsUsableMass(FIQm) ? FIQm : 0.0);
         IOQOutEst=IOQInEst;
         }
-      else if (DynFlowMode() || (DynFullMode() && (IOFlange(iIn)->TearType()==TT_Break)))
+      else if (SolveInlineMethod() || (SolveBufferedMethod() && (IOFlange(iIn)->TearType()==TT_Break)))
         {
         //dbgpln("EvalProducts A  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
         //use IOQOutEst as defined
-        if (IOFlange(iIn)->IsTear() &&  /*GlblDynamicMode() &&*/ /*(Fi.QMass()<=TraceMass) &&*/ 
-            /*(IOQInEst>TraceMass) &&*/ m_pLastFlw)
+        if (IOFlange(iIn)->IsTear() &&  /*GlblDynamicMode() &&*/ (Fi.QMass()<=TraceMass) && 
+          (IOQInEst>TraceMass) && m_pLastFlw)
           {
           //dbgpln("EvalProducts B  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
           // Put Something into the flow (ie whatever last flowed through the pipe)
@@ -2942,7 +2942,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
           Img.SetPRqdTo(IOP_Self(iIn));
           Img.Model()->SetMassScale(1.0);
 
-          if (ProbalMode() || m_bAdjustToEstFlow)
+          if (NetProbalMethod() || m_bAdjustToEstFlow)
             Fi.QAdjustQmTo(som_ALL, IOQInEst);
           Fi.SetPress(PIn);
           }
@@ -3029,12 +3029,12 @@ void MN_Lnk::EvalProducts(long JoinMask)
         m_FTB.BeginEvalProducts(Fo);
       //dbgpln("EvalProducts M  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
-        if (!ProbalMode() && !DoXfer)    // Iso thermal etc
+        if (!NetProbalMethod() && !DoXfer)    // Iso thermal etc
           IOFB(iIn,0)->EvalProducts(IOP_Flng(iIn), IOP_Self(iIn), Fo, m_FTB);
         //dbgpln("A3 %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
       //dbgpln("EvalProducts M1 %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
-        if (ProbalMode()) // Limit Rates of Temp Change
+        if (NetProbalMethod()) // Limit Rates of Temp Change
           {
 #if WithPoFix
           Fo.SetTempPress(Fo.Temp(), POut); // IsoThermal
@@ -3091,7 +3091,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
 
       //dbgpln("C  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
 
-      if (ProbalMode()) // Limit Rates of Temp Change
+      if (NetProbalMethod()) // Limit Rates of Temp Change
         {
         const double MaxPBTChange=50.0;
         if (fabs(TPrev-Fo.Temp())>MaxPBTChange)
@@ -3130,7 +3130,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
       if (fDoDbgBrk)
         { int xxx=0; }
 
-      if (DynFullMode() && !DoXfer)
+      if (SolveBufferedMethod() && !DoXfer)
         {
         double Err;
         SetCI(5, !ConvergedVV(IOQOutEst, Fo.QMass(), 1e-6, 1e-3, Err));
@@ -3145,11 +3145,11 @@ void MN_Lnk::EvalProducts(long JoinMask)
         dbgSpFlows("MLnk", Tag(), *IOConduit(iOut), 1);
 #endif
 
-//#ifndef _RELEASE
-//      double T1=Fi.Temp();
-//      double T2=Fo.Temp();
-//      ASSERT_ALWAYS(Valid(T1) && Valid(T2), "NAN FOR TEMPERATURE")
-//#endif
+      //#ifndef _RELEASE
+      //      double T1=Fi.Temp();
+      //      double T2=Fo.Temp();
+      //      ASSERT_ALWAYS(Valid(T1) && Valid(T2), "NAN FOR TEMPERATURE")
+      //#endif
       }
     }
 
@@ -3257,7 +3257,7 @@ void MN_Lnk::EvalDiscrete()
 
   bool VelBAD=false;
   bool QmBAD=false;
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     ////if (SpillExists())
     //  {
@@ -3452,18 +3452,18 @@ dword MN_Lnk::ModelStatus()
     if (gs_Exec.Stopped())
       {
       Status |= (m_FEP.FlwRqdActive() ?  FNS_LFlwP /*: FNS_LFlwN)*/ : FNS_LNoFlw);
-      if (UserMethod()==LFM_Simple)
+      if (FlowMode()==LFM_Simple)
         Status|=FNS_LnkSimple;
-      else if (UserMethod()==LFM_Linear)
+      else if (FlowMode()==LFM_Linear)
         Status|=FNS_LnkLinear;
-      else if (UserMethod()==LFM_Full)
+      else if (FlowMode()==LFM_Full)
         Status|=FNS_LnkFull;
-      else if (/*IOFB(0, 0)->m_fInXferNet || IOFB(1, 0)->m_fInXferNet ||*/ UserMethod()==LFM_Xfer)
+      else if (/*IOFB(0, 0)->m_fInXferNet || IOFB(1, 0)->m_fInXferNet ||*/ FlowMode()==LFM_Xfer)
         Status|=FNS_LnkXfer;
       }
     else
       {
-      if (1 || ProbalMode())
+      if (1)
         {
         if (IOFlange(iIn)->IsTear())
           Status|=FNS_Tear;
@@ -3474,7 +3474,7 @@ dword MN_Lnk::ModelStatus()
       }
     if (GetActiveHold())
       Status |= FNS_IsSnk|FNS_IsSrc;
-    else if (IOFB(0, 0)->m_fInXferNet || IOFB(1, 0)->m_fInXferNet || UserMethod()==LFM_Xfer)
+    else if (IOFB(0, 0)->m_fInXferNet || IOFB(1, 0)->m_fInXferNet || FlowMode()==LFM_Xfer)
       Status|=FNS_LnkXfer;
     }
   else

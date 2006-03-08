@@ -85,12 +85,12 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text   ("");
   BuildDataDefnElevation(DDB);
   
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.Text   ("");
   m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Basic);
   DDB.Visibility();
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Text("");
     DDB.CheckBoxBtn("NetworkIsolator",  "",  DC_, "", xidNetworkIsolator,   this, isParm|SetOnChange);
@@ -100,7 +100,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text("");
     m_RB.Add_OnOff(DDB);
     EHX.Add_OnOff(DDB);
-    DDB.Visibility(SM_DynFull|HM_All);
+    DDB.Visibility(SM_Buffered|HM_All);
     m_Leak.Add_OnOff(DDB,0,100);
     DDB.Visibility();
     GSM.Add_OnOff(DDB);
@@ -120,7 +120,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
     }
-  else //if (1)//ProbalMode())
+  else //if (1)//SolveDirectMethod())
     {
     m_RB.BuildDataDefn(DDB);
     EHX.BuildDataDefn(DDB);

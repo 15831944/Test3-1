@@ -775,7 +775,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
   //  }
   //DDB.EndArray();
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     if (m_Src.Enabled || m_Snk.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {
@@ -1182,14 +1182,14 @@ void CMultiStorage::SetState(eScdMdlStateActs RqdState)
 
 flag CMultiStorage::InitialiseSolution()
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       for (int p=0; p<m_Store.GetSize(); p++)
         m_Store[p].SetStateAction(IE_Disabled);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       for (int p=0; p<m_Store.GetSize(); p++)
         m_Store[p].SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
       break;
@@ -1209,14 +1209,13 @@ void CMultiStorage::StartSolution()
 void CMultiStorage::ConfigureJoins()
   {
   //int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       //for (i=0; (i<NoFlwIOs()); i++)
       //  SetIO_Join(i, 0);
       //break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (int i = 0; i < NoFlwIOs(); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
@@ -1278,15 +1277,15 @@ void CMultiStorage::EvalProducts(long JoinMask)
   #if dbgMultiStore
   int DoDbg = dbgEvalProducts() || DoDbgBrk() && dbgEvalProductsBrk();
   #endif
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       DoBreak();
       if (NJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       //determine number of feed/product streams...
       int FeedCnt=0;
@@ -1773,7 +1772,7 @@ dword CMultiStorage::ModelStatus()
   if (gs_Exec.Stopped())
     {
     Status |= FNS_UNoFlw;
-    //Status |= (SolveMode()==SM_DynXfer  ? FNS_UFlw : FNS_UNoFlw);
+    //Status |= (SolveMethod()==SM_Inline  ? FNS_UFlw : FNS_UNoFlw);
     }
   else if (NoFlwIOs())
     {

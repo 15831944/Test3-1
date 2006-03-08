@@ -138,10 +138,10 @@ void CMdlRunManager::SetDynamicMode()
   if (gs_Exec.GlblProbalMode())
     {
     long SM=TaggedObject::GetPermissableGlblRunModes(SM_DynBoth);
-    if (SM&SM_DynXfer)
-      gs_Exec.SetGlblRunModes(SM_DynXfer, SM_All);
-    else if (SM&SM_DynFull)
-      gs_Exec.SetGlblRunModes(SM_DynFull, SM_All);
+    if (SM&SM_Inline)
+      gs_Exec.SetGlblRunModes(SM_Inline, SM_All);
+    else if (SM&SM_Buffered)
+      gs_Exec.SetGlblRunModes(SM_Buffered, SM_All);
     else
       {
       ASSERT_ALWAYS(false, "No Permissable Dynamic Modes");
@@ -159,7 +159,7 @@ void CMdlRunManager::SetDynFlowMode()
     m_pAppMngr->SetDynamicMode(1);
   ////gs_Exec.SetSolveMode(DYNMODE);
   //gs_Exec.SetDynFlowMode();//(DFlow ? DYNFLOWMODE : DYNFULLMODE);
-  gs_Exec.SetGlblRunModes(SM_DynXfer, SM_All);
+  gs_Exec.SetGlblRunModes(SM_Inline, SM_All);
 
   if (m_pAppMngr)
     m_pAppMngr->SetDynamicMode(0);
@@ -171,7 +171,7 @@ void CMdlRunManager::SetDynFullMode()
     m_pAppMngr->SetDynamicMode(1);
   ////gs_Exec.SetSolveMode(DYNMODE);
   //gs_Exec.SetDynFullMode();//(DFlow ? DYNFLOWMODE : DYNFULLMODE);
-  gs_Exec.SetGlblRunModes(SM_DynFull, SM_All);
+  gs_Exec.SetGlblRunModes(SM_Buffered, SM_All);
   if (m_pAppMngr)
     m_pAppMngr->SetDynamicMode(0);
   }
@@ -180,7 +180,7 @@ void CMdlRunManager::SetProbalMode()
   {
   if (m_pAppMngr)
     m_pAppMngr->SetProbalMode(0);
-  gs_Exec.SetGlblRunModes(SM_Probal, SM_All);
+  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
   if (m_pAppMngr)
     m_pAppMngr->SetProbalMode(1);
   }

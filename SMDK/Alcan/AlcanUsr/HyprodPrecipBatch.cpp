@@ -240,7 +240,7 @@ void BatchPrecip::EvalProducts()
     Cnt++;//place breakpoint here to stop for specified model
     }
   #endif
-  if (!IsProbal)
+  if (!IsSolveDirect)
     return;
   bool Err = true;
   try

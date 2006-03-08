@@ -34,7 +34,7 @@
   #define DllImportExport
 #endif
 
-#define WITHTAGMONITOR 0 
+#define WITHTAGMONITOR 0
 
 //---------------------------------------------------------------------------
 
@@ -228,7 +228,7 @@ class CTagRefStatusFnHook
 
 //---------------------------------------------------------------------------
 
-class TaggedObject; 
+class TaggedObject;
 class DllImportExport DDBDataInfo
   {
   public:
@@ -426,7 +426,7 @@ const DWORD TOC_GRP_UNUSED4   = 0x00800000; //? group
 const DWORD TOC_GRP_UNUSED3   = 0x00400000; //? group
 const DWORD TOC_GRP_UNUSED2   = 0x00200000; //? group
 const DWORD TOC_GRP_UNUSED1   = 0x00100000; //? group
-                              
+
 const DWORD TOC_GRP_MASK      = 0xfff00000; //mask for bits associated with licensing model groups
 
 //common combinations...
@@ -454,7 +454,7 @@ class DllImportExport CFieldMonitor
 class DllImportExport CFieldMonitorTOCls
   {
   public:
-    CFieldMonitorTOCls() 
+    CFieldMonitorTOCls()
       {
       }
 
@@ -553,7 +553,7 @@ class DllImportExport TagObjClass
     void *         GlobalFnData1()                             { return m_pGlobalFnData1; };
     void *         GlobalFnData2()                             { return m_pGlobalFnData2; };
     void SetDataDefnGlobalFn(fn_BuildDataDefnGlobal pBuild, fn_DataXchgGlobal pXchg) { m_pGlobalFnBuildDataDefn = pBuild; m_pGlobalFnDataXchg=pXchg; };
-    void SetDataDefnGlobalFn(fn_BuildDataDefnGlobal pBuild, fn_DataXchgGlobal pXchg, void * Data1, void * Data2) 
+    void SetDataDefnGlobalFn(fn_BuildDataDefnGlobal pBuild, fn_DataXchgGlobal pXchg, void * Data1, void * Data2)
        { m_pGlobalFnBuildDataDefn = pBuild; m_pGlobalFnDataXchg=pXchg; m_pGlobalFnData1 = Data1; m_pGlobalFnData2 = Data2; };
     void SetDataDefnGlobalFnData(void * Data1, void * Data2)   { m_pGlobalFnData1 = Data1; m_pGlobalFnData2 = Data2; };
 
@@ -643,11 +643,11 @@ class DllImportExport TagObjClass
     DWORD          nInstances;
     DWORD          nInstancesMax;
     DWORD          dwSelectMask;
-    
+
     bool           m_SelectConditionsOK;
     //CList<CTagObjSelectFn*, CTagObjSelectFn*> m_SelectableFns;
 
-    const type_info * m_pTypeId; 
+    const type_info * m_pTypeId;
 
     fn_BuildDataDefnGlobal  m_pGlobalFnBuildDataDefn;
     fn_DataXchgGlobal       m_pGlobalFnDataXchg;
@@ -924,9 +924,9 @@ class DllImportExport TaggedObject : public ConditionBlk
     pchar           BaseClassId()            { return m_pClass->BaseClassId();};
     pchar           Group()                  { return m_pClass->sGroup();};
     TagObjClass*    Class()                  { return m_pClass; };
-    void            SetClass(TagObjClass*pClass)  
+    void            SetClass(TagObjClass*pClass)
       {
-      m_pClass=pClass; 
+      m_pClass=pClass;
       if (SubClassId())
         SetSubClass(SubClassId());
       };
@@ -956,12 +956,12 @@ class DllImportExport TaggedObject : public ConditionBlk
 #else
     void * m_pgpTO;
 #endif
-  
+
     virtual void    MarkAsCOMOwned(void *pgpTO);
     virtual void    DestroyCOMOwned();
-   
+
     void            Destroy()               { if (m_pgpTO) DestroyCOMOwned(); else delete this; };
-                        
+
     void            ClearDDBLists();
 
     static void     SetGlblRunModes(long RunModes, long RunMdsMsk);
@@ -974,34 +974,40 @@ class DllImportExport TaggedObject : public ConditionBlk
     static long     GlblRunModes()          { return gs_RunMds; };
     static long     GlblSolveMode()         { return GlblRunModes() & SM_All; };
     static long     GlblHeatMode()          { return GlblRunModes() & HM_All; };
-    static flag     GlblProbalMode()        { return (gs_RunMds & SM_All) == SM_Probal; };
-    static flag     GlblDynFlowMode()       { return (gs_RunMds & SM_All) == SM_DynXfer; }
-    static flag     GlblDynFullMode()       { return (gs_RunMds & SM_All) == SM_DynFull; }
-    static flag     GlblDynamicMode()       { return (gs_RunMds & (SM_DynXfer|SM_DynFull))!=0; }
+    static flag     GlblProbalMode()        { return (gs_RunMds & SM_All) == SM_Direct; };
+    static flag     GlblDynFlowMode()       { return (gs_RunMds & SM_All) == SM_Inline; }
+    static flag     GlblDynFullMode()       { return (gs_RunMds & SM_All) == SM_Buffered; }
+    static flag     GlblDynamicMode()       { return (gs_RunMds & (SM_Inline|SM_Buffered))!=0; }
     static flag     GlblSkipHeat()          { return (gs_RunMds & HM_All)==HM_None; };
     static flag     GlblSimpleHeat()        { return (gs_RunMds & HM_All)==HM_Simple; };
     static flag     GlblFullHeat()          { return (gs_RunMds & HM_All)==HM_Full; };
 
     virtual void    SetRunModes(long Md, long MdMsk);
-    long            RunModes()              { return ((*m_pRunMds & SHM_All) ? *m_pRunMds : GlblRunModes()) & SHM_All; };
-    long            SolveMode()             { return ((*m_pRunMds & SM_All) ? *m_pRunMds : GlblRunModes()) & SM_All; };
-    long            HeatMode()              { return ((*m_pRunMds & HM_All) ? *m_pRunMds : GlblRunModes()) & HM_All; };
-    flag            ProbalMode()            { return SolveMode() == SM_Probal; };
-    flag            DynFlowMode()           { return SolveMode() == SM_DynXfer; };
-    flag            DynFullMode()           { return SolveMode() == SM_DynFull; };
-    flag            DynamicMode()           { return (SolveMode() & (SM_DynXfer|SM_DynFull))!=0; };
-    flag            SkipHeatMode()          { return (HeatMode() & HM_All)==HM_None; };
-    flag            SimpleHeatMode()        { return (HeatMode() & HM_All)==HM_Simple; };
-    flag            FullHeatMode()          { return (HeatMode() & HM_All)==HM_Full; };
-    //flag            SkipFullHeatMode()      { return (HeatMode() & HM_All)==0; };
+    long            RunModes();
 
-    void            SetUserMethodReqd(long U);
-    void            SetUserMethod(long UserMethod, TaggedObject * pRuleObj);
+    long            NetMethod(); // this needs to be worked on to allow probal and dyn flwsheets to be mixed.
+    flag            NetProbalMethod()       { return NetMethod() == NM_Probal; };
+    flag            NetDynamicMethod()      { return NetMethod() == NM_Dynamic; };
+
+    long            SolveMethod();
+    flag            SolveDirectMethod()     { return SolveMethod() == SM_Direct; };
+    flag            SolveInlineMethod()     { return SolveMethod() == SM_Inline; };
+    flag            SolveBufferedMethod()   { return SolveMethod() == SM_Buffered; };
+    flag            SolveDynamicMethod()    { return (SolveMethod() & (SM_Inline|SM_Buffered))!=0; };
+
+    long            HeatMethod();
+    flag            HeatSkipMethod()        { return (HeatMethod() & HM_All)==HM_None; };
+    flag            HeatSimpleMethod()      { return (HeatMethod() & HM_All)==HM_Simple; };
+    flag            HeatFullMethod()        { return (HeatMethod() & HM_All)==HM_Full; };
+    //flag            SkipFullHeatMode()    { return (HeatMethod() & HM_All)==0; };
+
+    void            SetFlowModeReqd(long U);
+    void            SetFlowMode(long FlowMode, TaggedObject * pRuleObj);
+    long            FlowMode()              { return m_lRunMds & LFM_All; };
+    virtual void    OnSetFlowMode()         { };
+
+    void            SetUserMethod(long U);
     long            UserMethod()            { return m_lRunMds & UM_All; };
-    virtual void    OnSetUserMethod()       { };
-    long            m_UserMethodReqd;
-    TaggedObject  * m_pUserMethodObj;
-    int             m_UserMethodPass;
 
     flag            GetActive();
     void            SetActive(flag Active);
@@ -1011,12 +1017,12 @@ class DllImportExport TaggedObject : public ConditionBlk
     flag            GetActiveHoldOK();
     void            SetActiveHold(flag Hold);
     void            SetActiveHoldAuto(flag Hold);
-    
+
     static flag     GetRunning()            { return fRunning;};
     static flag     GetBuildingAccess()     { return fBuildingAccess; };
     static void     SetBuildingAccess(flag On) { fBuildingAccess=On; };
     static void     SetRunning(flag Running)  { fRunning=Running;};
-    
+
     flag            DoDbgBrk();
 
     static void     SplitTagCnv(char *pTag, Strng & Tag, Strng& Cnv);
@@ -1046,7 +1052,7 @@ class DllImportExport TaggedObject : public ConditionBlk
 
     long            m_lEqLink;
     Strng           m_sEqGUID;
-    
+
     static flag     fRunning;
     static flag     fBuildingAccess;
     static long     gs_RunMds;
@@ -1075,6 +1081,10 @@ class DllImportExport TaggedObject : public ConditionBlk
     TaggedObject *  pAttachments;
     TaggedObject *  pNxtAttachment;
 
+    long            m_FlowModeReqd;
+    TaggedObject  * m_pFlowModeObj;
+    int             m_FlowModePass;
+
 #if WITHTAGMONITOR
     CFieldMonitorTO m_Monitor;
 #endif
@@ -1096,7 +1106,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     static Strng    sBadFieldNameChars; // Fields may not contain these
     static Strng    sRepFieldNameChars; // Fields may contain these but they will be replaced
     //static CSArray sRepFieldNameChars;
-    
+
   protected:
     TagObjClass*   m_pClass;
 
@@ -1352,7 +1362,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
     void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
-    
+
     void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
     void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
@@ -1507,11 +1517,11 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     flag           ForFileSnpScn()  { return (dwOptions&(TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario))!=0; };
     flag           DoingGetData()   { return (eTask==DDBTask_GetData); };
     flag           DoingPutData()   { return (eTask==DDBTask_PutData); };
-    
+
     flag           SetDisplayOnly(flag On)
-      { 
-      flag Ret=(dwOptions&TABOPT_DisplayOnly)!=0; 
-      dwOptions=On ? (dwOptions|TABOPT_DisplayOnly) : (dwOptions&~TABOPT_DisplayOnly); 
+      {
+      flag Ret=(dwOptions&TABOPT_DisplayOnly)!=0;
+      dwOptions=On ? (dwOptions|TABOPT_DisplayOnly) : (dwOptions&~TABOPT_DisplayOnly);
       return Ret;
       };
     flag           ForDisplayOnly() { return (dwOptions&TABOPT_DisplayOnly)!=0; };
@@ -1520,7 +1530,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     long           CallLevel() { return  lCallLevel; };
 
   private:
-    flag           BeginBlock(byte iType_,  TaggedObject * pObj, 
+    flag           BeginBlock(byte iType_,  TaggedObject * pObj,
                               pchar pTag, pchar pClassName, pchar pSubClassName, pchar pPrimaryCfg,
                               pchar pTagOfParent, pchar pTagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress);
     void           EndBlock();
@@ -1663,7 +1673,7 @@ class DllImportExport TagAccessBlk
     TagAccessBlk();
     TagAccessBlk(TaggedObject * pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
     ~TagAccessBlk();
-    
+
     TagAccessBlk& operator=(const TagAccessBlk&X);
 
     void           Init(TaggedObject * pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
@@ -1721,7 +1731,7 @@ class DllImportExport TagAccessBlk
 
 //===========================================================================
 //
-//  
+//
 //
 //===========================================================================
 
@@ -1730,7 +1740,7 @@ class DllImportExport TagAccessBlk
 #endif
 //===========================================================================
 //
-//  COM 
+//  COM
 //
 //===========================================================================
 
@@ -1743,7 +1753,7 @@ class DllImportExport CCOMObjManagerRoot
 #if 0
     virtual TaggedObject * Construct(LPCTSTR ProgID, pchar pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0;
 #endif
-    virtual TaggedObject * Construct(TagObjClass *pClass, LPCTSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0; 
+    virtual TaggedObject * Construct(TagObjClass *pClass, LPCTSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0;
     virtual void Destroy(TaggedObject * pObj)=0;
 
   };

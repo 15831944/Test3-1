@@ -172,12 +172,12 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
 
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Basic);
   if (DDB.BeginStruct(this, "CyclicStorage"))
     {
     DDB.CheckBox("On",              "",  DC_,     "",      &m_CyclicStorage.m_bOn,          this, isParm|SetOnChange);
-    DDB.Visibility(SM_Probal|HM_All, m_CyclicStorage.m_bOn);    
+    DDB.Visibility(SM_Direct|HM_All, m_CyclicStorage.m_bOn);    
     DDB.CheckBox("CycleIt",         "",  DC_,     "",      xidPBSurgeCycleIt,               this, isParm|SetOnChange);
     DDB.Double  ("CycleTime",       "",  DC_Time, "s",     &m_CyclicStorage.m_dCycleTime,   this, isParm);
     DDB.Double  ("Retained",        "",  DC_Frac, "%",     &m_CyclicStorage.m_dFracRetained, this, isParm);
@@ -186,26 +186,26 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     }
   DDB.EndStruct();
 
-  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Probal));
+  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   GSM.Add_OnOff(DDB);
-  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Probal));
+  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   //TODO RESTORE : VLE in ProBal mode!
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
-  if (ProbalMode())
+  if (SolveDirectMethod())
     EHX.Add_OnOff(DDB);
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     VLE.Add_OnOff(DDB);
   DDB.Visibility(SM_DynBoth|HM_All);
-  if (InlineIntegral() && DynamicMode())
+  if (InlineIntegral() && SolveDynamicMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
-  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Probal));
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
   DDB.Visibility();
  
-  if (InlineIntegral() && DynamicMode())
+  if (InlineIntegral() && SolveDynamicMethod())
     m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this);
 
   DDB.Visibility();
@@ -215,40 +215,40 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
   RB.BuildDataDefn(DDB);
-  if (ProbalMode())
+  if (SolveDirectMethod())
     EHX.BuildDataDefn(DDB);
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     VLE.BuildDataDefn(DDB);
-  if (ProbalMode())
+  if (SolveDirectMethod())
     GSM.BuildDataDefn(DDB);
 
-  if (DynFullMode())
+  if (SolveBufferedMethod())
     m_EqThermals.BuildDataDefn(DDB, "Body", NULL, DDB_RqdPage);
 
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     QFeed(); // Ensure that exist so that they recover
     if (QFeed.Exists())
       {
-      DDB.Visibility(SM_Probal|HM_All, bShowQFeed);
+      DDB.Visibility(SM_Direct|HM_All, bShowQFeed);
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
       }
     QProd(); // Ensure that exist so that they recover
     if (QProd.Exists())
       {
-      DDB.Visibility(SM_Probal|HM_All, bShowQProd);
+      DDB.Visibility(SM_Direct|HM_All, bShowQProd);
       DDB.Object(&QProd, this, NULL, NULL, DDB_RqdPage);
       }
     DDB.Visibility();
     }
 
-  if (DynamicMode() || ProbalMode() && m_CyclicStorage.m_bOn)
+  if (SolveDynamicMethod() || SolveDirectMethod() && m_CyclicStorage.m_bOn)
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
-  if (DynamicMode() && Contents.GetPreset().DoImg() || 
-      ProbalMode() && m_CyclicStorage.m_bOn)
+  if (SolveDynamicMethod() && Contents.GetPreset().DoImg() || 
+      SolveDirectMethod() && m_CyclicStorage.m_bOn)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {
@@ -273,7 +273,7 @@ flag CTank::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (HX.DataXchg(DCB))
     return 1;
-  if (!DynFlowMode() && m_EqThermals.DataXchg(DCB))
+  if (!SolveInlineMethod() && m_EqThermals.DataXchg(DCB))
     return 1;  
 
   return 0;
@@ -297,9 +297,9 @@ flag CTank::ValidateData(ValidateDataBlk & VDB)
 
 void CTank::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
     default:
       {
       //SetProdMakeup(PMU_IOId|PMU_Passing, ioid_Condens, Contents, som_SL);

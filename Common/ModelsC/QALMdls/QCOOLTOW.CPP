@@ -175,16 +175,16 @@ flag QCoolingTower::ValidateData(ValidateDataBlk & VDB)
 
 void QCoolingTower::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         SetPBJoinPressure(j, Std_P, true, true);
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
@@ -194,11 +194,11 @@ void QCoolingTower::EvalJoinPressures(long JoinMask)
 
 void QCoolingTower::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       break;
       break;
     }
@@ -246,9 +246,9 @@ CToleranceBlock EvapFnd::s_Tol(TBF_BothSys, "QALCoolTower:EvapFnd", 0, 1.0e-9);
 
 void QCoolingTower::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       int ioLiq = IOWithId_Self(ioid_Liquid);
       ASSERT(ioLiq>=0 );
@@ -327,7 +327,7 @@ void QCoolingTower::EvalProducts(long JoinMask)
 void QCoolingTower::ConvergeStates(CConvergeStateBlk &CSB)
   {
   MN_Surge::ConvergeStates(CSB);
-  ASSERT(DynamicMode());
+  ASSERT(SolveDynamicMethod());
   double Duty=0.0;
   }
 

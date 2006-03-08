@@ -76,8 +76,6 @@ MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagO
   AttachClassInfo(nc_MSrcSnk|nc_Audit,NULL);
   m_PFeed=Std_P;
 
-  //m_DirectIOsConnected.InitHashTable(FindNextPrimeNumber((UINT)(5000)));
-
   m_Content.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
 
   m_dwAuditOptions = 0;
@@ -466,10 +464,10 @@ void MN_Area::EvalProductsInit(EvalProductsInitTasks Task)
     m_Content.SetTemp(TRequired());
 
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       for (int i=0;i<NoFlwIOs(); i++)
         {
@@ -712,12 +710,6 @@ void MN_Area::EvalBalance(int Pass)
       while (DPos)
         {
         CDirectFlwIO &D=*m_DirectIOsConnected.GetNext(DPos);
-      //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*>::CPair *pPair;
-      //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
-      //for (pPair=Connd.PGetFirstAssoc(); pPair; pPair=m_DirectIOsConnected.PGetNextAssoc(pPair))
-      //  {
-      //  CDirectFlwIO &D=*pPair->value;
-
         FlwNode &DNd=D.Nd;
 
         int iNd;

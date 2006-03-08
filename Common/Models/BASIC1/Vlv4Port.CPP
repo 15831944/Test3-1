@@ -14,7 +14,7 @@
 #include "scd_wm.h"
 #include "dbgmngr.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 #define  dbg4Port   (WITHDEBUG)
 
@@ -1362,19 +1362,16 @@ void C4PortValve ::ConfigureJoins()
 inlet and outlet of the surge unit.*/
 void C4PortValve ::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       if (NJoins()>=1)
         EvalPBJoinPressure(0, NULL, NULL);//&QProd());
       //if (NJoins()>=2)
       //  EvalPBJoinPressure(1);
 
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
-      if (fDoDbgBrk)
-        { int xxx=0; }
+    case NM_Dynamic:
       MdlNode::EvalJoinPressures(JoinMask);
       if (fDoDbgBrk)
         {
@@ -1391,7 +1388,7 @@ void C4PortValve ::EvalJoinPressures(long JoinMask)
 
 flag C4PortValve ::ChangeMode(dword NewMode, dword OldMode)
   {
-  if (NewMode==SM_Probal && !GSM.Enabled())
+  if (NewMode==SM_Direct && !GSM.Enabled())
     GSM.Open();
 
   return True;
@@ -1440,14 +1437,14 @@ void C4PortValve ::EvalProducts(long JoinMask)
   {
   if (NJoins()>0)
     {
-    switch (SolveMode())
+    switch (SolveMethod())
       {
-      case SM_Probal:
+      case SM_Direct:
         if (NJoins()>0)
           Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL, NULL);
         break;
-      case SM_DynXfer:
-      case SM_DynFull:
+      case SM_Inline:
+      case SM_Buffered:
         for (int j=0; j<NJoins(); j++)
           Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, NULL, NULL);
         break;

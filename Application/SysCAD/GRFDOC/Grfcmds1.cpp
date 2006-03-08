@@ -1406,7 +1406,7 @@ void GrfCmdBlk::ImportPDS(pchar Fn, flag DoMerge)
   NFC.Parse(Fn);
   if (NFC.Options())
     {
-    gs_Exec.SetGlblRunModes(SM_DynFull|HM_Full, SHM_All);
+    gs_Exec.SetGlblRunModes(SM_Buffered|HM_Full, SHM_All);
 
     NFC.Sequence();
 

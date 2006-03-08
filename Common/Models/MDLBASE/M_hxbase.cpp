@@ -456,7 +456,7 @@ void CEHX_Loss2Ambient::BuildDataDefn(DataDefnBlk& DDB)
   {
   if (DDB.BeginStruct(this, "EHX", NULL, DDB_NoPage))
     {
-    DDB.Visibility(SM_Probal|HM_All);
+    DDB.Visibility(SM_Direct|HM_All);
     DDB.Double("Diam",                "", DC_L,     "mm",      &dPipeD,      this, isParm);
     DDB.Double("Length",              "", DC_L,     "m",       &dPipeL,      this, isParm);
     DDB.Visibility();                               
@@ -504,7 +504,7 @@ void CEHX_Loss2Ambient::EvalProducts(SpConduit &Qf, double FinalTEst)
     dHeatFlow=Qf.totHf();
     dAmbT=(Valid(dAmbTOvr) ? dAmbTOvr : AmbientTemp());
 
-    if (ProbalMode())
+    if (SolveDirectMethod())
       {
       dPipeD = Max(dPipeD, 0.001);
       dPipeL = Max(dPipeL, 0.001);
@@ -570,7 +570,7 @@ void CEHX_Loss2Ambient::EvalProductsPipe(SpConduit & Qf, double Len, double Diam
   dHeatFlow=Qf.totHf();
   dAmbT=(Valid(dAmbTOvr) ? dAmbTOvr : AmbientTemp());
 
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     dPipeD = Max(dPipeD, 0.001);
     dPipeL = Max(dPipeL, 0.001);
@@ -1440,7 +1440,7 @@ void CHXBlock::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
   DDB.CheckBox("On",          "",       DC_,     "",          &m_fOn,         this, isParm|SetOnChange);
-  DDB.Visibility(SM_Probal|HM_All); //should this HX sequencing option be enabled for dynamic?
+  DDB.Visibility(SM_Direct|HM_All); //should this HX sequencing option be enabled for dynamic?
   DDB.CheckBox("PreReact",    "",       DC_,     "",          &m_fPreReact,   this, isParm|SetOnChange);
   DDB.Visibility();
   DDB.Double("HTC",           "",       DC_HTC,  "kW/m^2.K",  &m_dHTC,        this, isParm);
@@ -1522,7 +1522,7 @@ flag CHXBlock::ValidateData(ValidateDataBlk & VDB)
 double CHXBlock::EffArea()
   {
   double Eff;
-  if (m_bLvlEffOn && DynFullMode())//DynamicMode())
+  if (m_bLvlEffOn && SolveBufferedMethod())//SolveDynamicMethod())
     {
     double LvlDiff=m_dMnEffLvl-m_dMxEffLvl;
     double EffDiff=m_dMxEff-m_dMnEff;

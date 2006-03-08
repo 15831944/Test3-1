@@ -59,7 +59,7 @@ class DllImportExport MN_BstRes : public MdlNode
     virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
-    virtual void   OnSetUserMethod();
+    virtual void   OnSetFlowMode();
     virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual void   StartSolution();

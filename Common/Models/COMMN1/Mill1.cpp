@@ -150,7 +150,7 @@ void Mill1::BuildDataDefn(DataDefnBlk & DDB)
   CB.Add_ObjectDataDefn(DDB, true);
   RB.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -202,13 +202,13 @@ void Mill1::StartSolution()
 inlet and outlet of the surge unit.*/ 
 void Mill1::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       IOP_RhoH_Info RhoHInfo(Contents);
       double Pm=ContainerMeanPress(RhoHInfo, POffset);
       Set_JoinP(0, Pm);
@@ -222,11 +222,11 @@ void Mill1::EvalJoinPressures(long JoinMask)
 
 void Mill1::EvalJoinFlows(int JoinNo)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
-    case SM_Probal:
+    case SM_Inline:
+    case SM_Buffered:
+    case SM_Direct:
       break;
     }
   };
@@ -242,7 +242,7 @@ void Mill1::EvalSteadyState()
 void Mill1::EvalProducts(long JoinMask)
   {
   Eff = Range(0.0, Eff, 1.0);
-  flag On = (ProbalMode() || MSB.Speed(this)>DischOnSpeed);
+  flag On = (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed);
   int ioProd = IOWithId_Self(ioidProd);
 
   for (int i=0; i<NoFlwIOs(); i++)

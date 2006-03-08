@@ -879,7 +879,7 @@ flag Cyclone::ValidateData(ValidateDataBlk & VDB)
 
 flag Cyclone::ChangeMode(dword NewMode, dword OldMode)
   {
-  if (NewMode==SM_Probal)
+  if (NewMode==SM_Direct)
     GSM.Open();
 
   return True;
@@ -891,21 +891,15 @@ void Cyclone::ConfigureJoins()
   {
   Init_NJoins(1);
   int i;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       for (i=0; (i<NoFlwIOs()); i++)
         SetIO_Join(i, 0);
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       for (i=0; (i<NoFlwIOs()); i++)
-          {
           SetIO_Join(i, 0);
-//          if (IOId_Self(i)==idOF)
-//            SetJoinQm_QmRatio (0, i);
-          }
-
       break;
     }
   };
@@ -976,14 +970,14 @@ void Cyclone::EvalProducts(long JoinMask)
   if (GSM.Enabled())
     {
     if (NJoins()>0)
-      switch (SolveMode())
+      switch (SolveMethod())
         {
-        case SM_Probal:
+        case SM_Direct:
           if (NJoins()>=1)
             Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, GSM(), NULL);
           break;
-        case SM_DynXfer:
-        case SM_DynFull:
+        case SM_Inline:
+        case SM_Buffered:
           for (int j=0; j<NJoins(); j++)
             Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, GSM(), NULL);
           break;

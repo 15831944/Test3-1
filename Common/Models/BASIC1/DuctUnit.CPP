@@ -107,7 +107,7 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &QvAcc,         this, noFile|noSnap);
   
   //DDB.Text    ("");
-  //DDB.Visibility(SM_Probal|HM_All|SSMODE);
+  //DDB.Visibility(SM_Direct|HM_All|SSMODE);
   //DDB.Double  ("FlashSplit",   "",      DC_Frac, "%",      &FlashSplit,    this, 0);
   //DDB.Double  ("SS_Lvl",       "",      DC_Frac, "%",      &SS_Lvl,        this, isParm);
   DDB.Visibility();
@@ -164,7 +164,7 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   
   GSM.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -230,9 +230,9 @@ void DuctUnit::StartStep()
 
 void DuctUnit::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
     default:
       //SetProdMakeup(PMU_IOId|PMU_Passing, ioid_Condens, Contents, som_SL);
       MN_Surge::EvalProducts(JoinMask);

@@ -292,7 +292,7 @@ bool Precipitator::ValidateDataFields()
 
 void Precipitator::EvalProducts()
   {
-  if (!IsProbal)
+  if (!IsSolveDirect)
     return;
   try
     {

@@ -73,7 +73,7 @@ void GasPump_GP::BuildDataDefn(DataDefnBlk & DDB)
     {BRPM_Fixed, "Fixed"},
     {0}};
   DDB.BeginStruct(this);
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     DDB.Text    ("");
     DDB.Text    ("Requirements");
@@ -144,7 +144,7 @@ void GasPump_GP::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
 
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     m_VLE.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
     }
@@ -154,7 +154,7 @@ void GasPump_GP::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text("");
     m_FEP.BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_WithQmSpec, DDB, this);
     m_PSB.BuildDataDefn(DDB, this, "Speed", 1);
-    m_FRB.BuildDataDefn(DDB, this, LnkFlowMode()==LFM_Linear||LnkFlowMode()==LFM_Full);
+    m_FRB.BuildDataDefn(DDB, this, FlowMode()==LFM_Linear||FlowMode()==LFM_Full);
     m_Pwr.BuildDataDefn(DDB);
     m_VLE.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
     if (NoFlwIOs()>0 && !DDB.ForFileSnpScn() && (!DDB.ForView() || dbgfile()))
@@ -167,7 +167,7 @@ void GasPump_GP::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_ShowPVConst);
 
-  if (DynamicMode() && (m_LeakI.Enabled || m_LeakO.Enabled))
+  if (SolveDynamicMethod() && (m_LeakI.Enabled || m_LeakO.Enabled))
     {
     DDB.Page("AreaIO", DDB_RqdPage);
     m_LeakI.BuildDataDefn(DDB, NULL, DDB_NoPage, 101);
@@ -290,7 +290,7 @@ flag GasPump_GP::SetModelAction(Strng & Tag, MdlAction & Act)
 void GasPump_GP::ConfigureJoins()
   {
   MN_BstRes::ConfigureJoins();
-  if (SolveMode()!=SM_Probal)
+  if (NetMethod()==NM_Dynamic)
     {
     SetJoin_HasVolume(0, false, true);
     SetJoin_PumpNd(0, false);           // if this is true then the pump becomes a 'tie'
@@ -326,7 +326,7 @@ flag GasPump_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, in
 //  {
 //  _asm int 3;
 // 
-//  if (ProbalMode())
+//  if (SolveDirectMethod())
 //    MN_BstRes::EvalProducts(long JoinMask);
 //  else
 //    {
@@ -422,7 +422,7 @@ void GasPump_GP::EvalPowerRequired()
 dword GasPump_GP::ModelStatus()
   {
   dword Status=MN_BstRes::ModelStatus();
-  if (!gs_Exec.Stopped() && DynamicMode())
+  if (!gs_Exec.Stopped() && SolveDynamicMethod())
     {
     Status |= ((m_PSB.On() && m_PSB.Speed(this, &m_FRB)>0.0) ? FNS_On : FNS_Off);
     }

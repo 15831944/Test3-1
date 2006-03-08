@@ -144,7 +144,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Filtrate_Solids",         "FiltSolids",      DC_Frac, "%",      &ActFiltSolids,      this, isResult);//|noFile|noSnap);
   DDB.Double  ("FiltrateSolidsConc@25",   "FiltSolConc25",   DC_Conc, "g/L",    &ActFiltSolConc,     this, isResult);//|noFile|noSnap);
   DDB.Double  ("FiltrateSolidsConc@T",    "FiltSolConc@T",   DC_Conc, "g/L",    &ActFiltSolConcT,    this, isResult);//|noFile|noSnap|InitHidden);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   //DDB.Byte    ("",                        "ScanEffSpecie",   DC_,     "",       &iScanEffSpecie,     this, isParm, SDB.DDBLiqSpList());
   //DDB.Double  ("Scandrett_Wash_Eff",      "ScandrettEff",    DC_Frac, "%",      &ActScandrettEff,    this, isResult);//|noFile|noSnap);
   DDB.Byte    ("",                        "WashComp",        DC_,     "",       &iWashEffSpecie,     this, isParm, SDB.DDBLiqSpList());
@@ -165,7 +165,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -178,9 +178,9 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
 
 void CentrifugeMB::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -189,8 +189,8 @@ void CentrifugeMB::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -209,9 +209,9 @@ void CentrifugeMB::EvalProducts(long JoinMask)
   SpConduit Dummy1;
   SpConduit Dummy2;
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       const int iCl = IOWithId_Self(ioidLiq);
       const int iCs = IOWithId_Self(ioidSol);
@@ -345,8 +345,8 @@ void CentrifugeMB::EvalProducts(long JoinMask)
       dSpWashEff2 = (CFeed - CCake2)/NZ(CFeed - CWash2);
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       Contents.ZeroDeriv();
       //double CFeed = Sd().SpecieConc(Sd().Temp(), iScanEffSpecie, som_Liq);

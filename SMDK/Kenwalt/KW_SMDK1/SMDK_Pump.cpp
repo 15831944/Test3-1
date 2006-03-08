@@ -203,7 +203,7 @@ bool CPumpValve::ValidateDataFields()
 
 bool CPumpValve::EvalJoinPressures()
   {
-  if (IsProbal)
+  if (IsNetProbal)
     {//set pressures at each join (pipes connected to unit)
     for (int j=0; j<Joins.Count; j++)
       {

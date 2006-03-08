@@ -580,7 +580,7 @@ void CPwrUser::SetConnect(CPwrUserConns Connect, CPwrSupply *pSupply)
   //if (!m_pSupply && pSupply)
   //  {
   //  //Connect=CPU_None;
-  //  if (!ProbalMode())
+  //  if (!SolveDirectMethod())
   //    LogWarning(m_pNd?m_pNd->FullObjTag():"PwrUser:SetConnect",0,"Bad Supply");
   //  }
   m_eConnectAct=Connect;

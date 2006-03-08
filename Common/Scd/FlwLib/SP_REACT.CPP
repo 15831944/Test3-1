@@ -2028,7 +2028,7 @@ void CReactionBlock::EvalProducts(SpConduit & Cd, double EstFinalT/*, bool FindF
   double HfIn  = Model->totHf(som_ALL, m_TempKFeed, m_Press, &Model->MArray());
   double HsIn  = Model->totHs(som_ALL, m_TempKFeed, m_Press, &Model->MArray());
 
-  if (Valid(EstFinalT) && !SkipHeatMode())
+  if (Valid(EstFinalT) && !HeatSkipMethod())
     m_dEstFinalT=EstFinalT;
   else
     m_dEstFinalT=m_TempKFeed;
@@ -2077,7 +2077,7 @@ void CReactionBlock::EvalProducts(SpConduit & Cd, double EstFinalT/*, bool FindF
 
     // Set Temp to that at start & add heats of reaction and HeatExchange
     Model->SetTempPress(m_TempKFeed, m_Press);
-    if (!SkipHeatMode())
+    if (!HeatSkipMethod())
       {
       // Calculate Differences
       double HsXXX    = Model->totHs(som_ALL, m_TempKFeed, m_Press, &Model->MArray()); 
@@ -2415,7 +2415,7 @@ void CReactionBlock::ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner /*Conta
   double HfPrT;
   double HfInPrT;
 
-  if (!SkipHeatMode())
+  if (!HeatSkipMethod())
     {
     HfFdT  = Model->totHf(som_ALL, m_TempKFeed, Model->Press());
     FH1z  = Model->totHz(som_ALL, m_TempKFeed, Model->Press());
@@ -2497,7 +2497,7 @@ void CReactionBlock::ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner /*Conta
     dbgpln("%-15.15s %14.6g    %14.6g  [%14.6g    %14.6g]","TOTAL",sum1,sum2,sum3,sum4);
     dbgpln(" Temperature    %12.2f -> %12.2f K",m_TempKFeed,Model->Temp());
     dbgpln(" Pressure       %12.2f -> %12.2f K",m_Press,Model->Press());
-    if (!SkipHeatMode())
+    if (!HeatSkipMethod())
       {
       dbgpln(" Change in heat %12.2f = %12.2f+%12.2f+%12.2f+%12.2f+%12.2f",
         m_dHfSumTotFdT, m_dHsSumHX, m_dHsSumPwr, m_SrcB.m_Hf_FdT, m_SnkB.m_Hf_FdT, m_RctB.m_Hf_FdT);

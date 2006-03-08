@@ -175,7 +175,7 @@ void FFEvap::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   DDB.Text    ("Tube Side (Liquor)");
   DDB.CheckBox("AllowEvap", "", DC_,     "",         &bAllowEvap,     this, isParm|SetOnChange);
-  DDB.Visibility(SM_Probal|HM_All, bAllowEvap);
+  DDB.Visibility(SM_Direct|HM_All, bAllowEvap);
   DDB.Double  ("TRiseRqd",  "", DC_dT,   "C",        &dTRiseRqd,      this, isParm);
   DDB.Double  ("MinPressOut", "MinPout", DC_P, "kPag", &dTubeMinPout, this, isParm);
   DDB.Visibility();
@@ -185,7 +185,7 @@ void FFEvap::BuildDataDefn(DataDefnBlk & DDB)
   //EHX.BuildDataDefn(DDB);
   DDB.Double  ("HeatLoss",  "", DC_Pwr,  "kW",       &dShellHeatLoss, this, isParm);
   DDB.Double  ("VapQmOut",  "", DC_Qm,   "kg/s",     &dQmVapVent,     this, isResult|InitHidden);
-  DDB.Visibility(SM_Probal|HM_All, !bShellVentConnected);
+  DDB.Visibility(SM_Direct|HM_All, !bShellVentConnected);
   DDB.CheckBox("VentExcessShellVap", "", DC_, "",    &bRemoveExcessVapour,this, isParm);
   DDB.Visibility();
   DDB.CheckBox("TrackSteamFd",       "", DC_, "",    &bTrackSteamStatus,  this, isParm);
@@ -220,9 +220,9 @@ flag FFEvap::ValidateData(ValidateDataBlk & VDB)
 
 void FFEvap::ConfigureJoins()
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       {
       Set_NJoins(2);
       for (int i=0; i<NoFlwIOs(); i++)
@@ -235,9 +235,7 @@ void FFEvap::ConfigureJoins()
 //IOFlange(i)->SetTearPriority((1 && (IOId_Self(i)==ioidSIn)) ? TP_Last : TP_Normal);
       break;
       }
-
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       {
       Set_NJoins(2);
       //todo
@@ -251,9 +249,9 @@ void FFEvap::ConfigureJoins()
 void FFEvap::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (NetMethod())
       {
-      case SM_Probal:
+      case SM_Direct:
         {
         for (int j=0; j<NJoins(); j++)
           {
@@ -270,8 +268,8 @@ void FFEvap::EvalJoinPressures(long JoinMask)
           }
         }
         break;
-      case SM_DynXfer:
-      case SM_DynFull:
+      case SM_Inline:
+      case SM_Buffered:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
       }
@@ -342,9 +340,9 @@ void FFEvap::EvalProducts(long JoinMask)
   {
   if (NoFlwIOs()==0)
     return;
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       dTubeMinPout = Max(1.0, dTubeMinPout);
       //dVentRqd = Max(0.0, dVentRqd);

@@ -703,6 +703,8 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     CToleranceBlock m_HCloseTol;
     CToleranceBlock m_HCloseTol2;
 
+     
+
   protected:
     CString        SecsBuff;
     Strng          m_PrjCnvsDBName;

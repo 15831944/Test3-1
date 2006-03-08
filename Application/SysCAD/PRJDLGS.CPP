@@ -1109,9 +1109,9 @@ void CGenPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
 //    long SMd=0;
 //    switch (m_SolveMd)
 //      {
-//      case 0: SMd=SM_Probal; break;
-//      case 1: SMd=SM_DynXfer; break;
-//      case 2: SMd=SM_DynFull; break;
+//      case 0: SMd=SM_Direct; break;
+//      case 1: SMd=SM_Inline; break;
+//      case 2: SMd=SM_Buffered; break;
 //      }
 //    long HMd=HM_Full;
 //

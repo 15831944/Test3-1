@@ -1839,6 +1839,14 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
     dbgpln("FlwNode()");
   #endif
 
+  m_AllowedSolveModes=0;
+  //if (GlblProbalMode())
+  //  m_AllowedSolveModes=SM_Direct;
+  //else if (GlblDynFullMode())
+  //  m_AllowedSolveModes=SM_Buffered;
+  //else
+  //  m_AllowedSolveModes=SM_Inline;
+
   m_pIOAreas=NULL;
   m_pIOAreasOwned=NULL;
 
@@ -2282,34 +2290,34 @@ void FlwNode::RemovePwrUser(CPwrUser*pPwr)
 
 //--------------------------------------------------------------------------
 
-void FlwNode::SetUserRunModes(LPCTSTR PBModeNm, LPCTSTR XferModeNm, LPCTSTR FullModeNm)
+void FlwNode::SetAllowedSolveModes(long AllowedModes)//LPCTSTR PBModeNm, LPCTSTR XferModeNm, LPCTSTR FullModeNm)
   {
-  m_DDBRunModes.Empty();
-  if (PBModeNm && strlen(PBModeNm))
-    m_DDBRunModes.Add(SM_Probal, (LPTSTR)PBModeNm);
-  if (XferModeNm && strlen(XferModeNm))
-    m_DDBRunModes.Add(SM_DynXfer, (LPTSTR)XferModeNm);
-  if (FullModeNm && strlen(FullModeNm))
-    m_DDBRunModes.Add(SM_DynFull, (LPTSTR)FullModeNm);
+  m_AllowedSolveModes=AllowedModes;
+  //m_DDBSolveModes.Empty();
+  //if (PBModeNm && strlen(PBModeNm))
+  //  m_DDBSolveModes.Add(SM_Direct, (LPTSTR)PBModeNm);
+  //if (XferModeNm && strlen(XferModeNm))
+  //  m_DDBSolveModes.Add(SM_Inline, (LPTSTR)XferModeNm);
+  //if (FullModeNm && strlen(FullModeNm))
+  //  m_DDBSolveModes.Add(SM_Buffered, (LPTSTR)FullModeNm);
   };
 
 //--------------------------------------------------------------------------
 
-void FlwNode::SetUserModeAsFlowMode(bool All)
+void FlwNode::SetAllowedFlowModes(bool All)
   {
-  m_UserMethodName="FlowMode";
-  m_DDBUserMethods.Empty();
-  m_DDBUserMethods.Add(LFM_Xfer      |SM_DynBoth|HM_All, "Transfer");
-  m_DDBUserMethods.Add(LFM_Simple    |SM_DynBoth|HM_All, "Simple");
-  m_DDBUserMethods.Add(LFM_Linear    |SM_DynBoth|HM_All, "Linear");
-  m_DDBUserMethods.Add(LFM_Full      |SM_DynFull|HM_All, "Full");
+  m_DDBFlowModes.Empty();
+  m_DDBFlowModes.Add(LFM_Xfer      |SM_DynBoth|HM_All, "Transfer");
+  m_DDBFlowModes.Add(LFM_Simple    |SM_DynBoth|HM_All, "Simple");
+  m_DDBFlowModes.Add(LFM_Linear    |SM_DynBoth|HM_All, "Linear");
+  m_DDBFlowModes.Add(LFM_Full      |SM_Buffered|HM_All, "Full");
   if (All)
     {
     if (PrjFileVerNo()<94) // cahcth this in ValidateData MN_Link
-      m_DDBUserMethods.Add(0             |SM_DynBoth|HM_All, "",            MDD_Hidden); 
-    m_DDBUserMethods.Add(LFM_Full      |SM_DynBoth|HM_All, "Pipe",        MDD_Hidden);
-    m_DDBUserMethods.Add(LFM_Full      |SM_DynXfer|HM_All, "NominalDP",   MDD_Hidden);
-    m_DDBUserMethods.Add(LFM_Full      |SM_DynFull|HM_All, "CompleteDP",  MDD_Hidden);
+      m_DDBFlowModes.Add(0             |SM_DynBoth|HM_All, "",            MDD_Hidden); 
+    m_DDBFlowModes.Add(LFM_Full      |SM_DynBoth|HM_All, "Pipe",        MDD_Hidden);
+    m_DDBFlowModes.Add(LFM_Full      |SM_Inline|HM_All, "NominalDP",   MDD_Hidden);
+    m_DDBFlowModes.Add(LFM_Full      |SM_Buffered|HM_All, "CompleteDP",  MDD_Hidden);
     }
   }
 
@@ -2526,41 +2534,69 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   DDB.String("Location",    "", DC_, "", xidFlwNdRqdArea,  this, isParmStopped);
 
   //GetGlblModeValueLst(DDBR, GetPermissableRunModes(SM_All));
-  if (m_DDBRunModes.Length()>0)
+  //if (m_DDBSolveModes.Length()>0)
+  //  {
+  //  DDBValueLstMem DDBR;
+  //  for (int i=0; i<m_DDBSolveModes.Length(); i++)
+  //    {
+  //    DDBValueLst &V=*m_DDBSolveModes.Item(i);
+  //    if (V.m_lVal & GetPermissableRunModes(SM_All))//GlblSolveMode())
+  //      DDBR.Add(V.m_lVal & SM_All, V.m_pStr, V.m_dwFlags);
+  //    }
+  //  DDBR.Add(0, "None", MDD_Hidden);
+  //  DDB.Long("SolveMethod()", "", DC_, "", xidSolveMode,   this, isParmStopped|SetOnChange, &DDBR);
+  //  }
+
+  if (m_AllowedSolveModes)
     {
     DDBValueLstMem DDBR;
-    for (int i=0; i<m_DDBRunModes.Length(); i++)
-      {
-      DDBValueLst &V=*m_DDBRunModes.Item(i);
-      if (V.m_lVal & GetPermissableRunModes(SM_All))//GlblSolveMode())
-        DDBR.Add(V.m_lVal & SM_All, V.m_pStr, V.m_dwFlags);
-      }
+    if (m_AllowedSolveModes & SM_Direct & GetPermissableRunModes(SM_All))
+      DDBR.Add(SM_Direct, "Direct");
+    if (m_AllowedSolveModes & SM_Inline & GetPermissableRunModes(SM_All))
+      DDBR.Add(SM_Inline, "Inline");
+    if (m_AllowedSolveModes & SM_Buffered & GetPermissableRunModes(SM_All))
+      DDBR.Add(SM_Buffered, "Buffered");
     DDBR.Add(0, "None", MDD_Hidden);
-    DDB.Long        ("SolveMode", "", DC_, "", xidSolveMode,   this, isParmStopped|SetOnChange, &DDBR);
+    DDB.Long("SolveMethod()", "", DC_, "", xidSolveMode,   this, (DDBR.Length()>2?isParmStopped:0)|SetOnChange, &DDBR);
     }
 
   DDBValueLstMem DDBH;
   GetGlblModeValueLst(DDBH, GetPermissableRunModes(HM_All));
-  DDB.Long        ("HeatMode",  "", DC_, "", xidHeatMode,    this, 0, &DDBH);
+  DDB.Long("HeatMode",  "", DC_, "", xidHeatMode,    this, 0, &DDBH);
 
-  if (!ProbalMode() && m_DDBUserMethods.Length()>0)
+
+  if (!SolveDirectMethod() && m_DDBFlowModes.Length()>0)
     {
     DDBValueLstMem DDBU;
-    for (int i=0; i<m_DDBUserMethods.Length(); i++)
+    for (int i=0; i<m_DDBFlowModes.Length(); i++)
       {
-      DDBValueLst &V=*m_DDBUserMethods.Item(i);
-      if ((V.m_lVal & SolveMode()) && (V.m_lVal & HeatMode()))
-        DDBU.Add(V.m_lVal & UM_All, V.m_pStr, V.m_dwFlags);
+      DDBValueLst &V=*m_DDBFlowModes.Item(i);
+      if ((V.m_lVal & SolveMethod()) && (V.m_lVal & HeatMethod()))
+        DDBU.Add(V.m_lVal & LFM_All, V.m_pStr, V.m_dwFlags);
       }
     DDBU.Add(0, "None", MDD_Hidden);
     if (DDBU.Length())
       {
       if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
-        DDB.Long      ("UserMethod",   "", DC_, "", xidUserMethod, this, isParmStopped|SetOnChange, &DDBU);
+        DDB.Long("UserMethod", "", DC_, "", xidFlowMode, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
       else
-        DDB.Long      (m_UserMethodName(), "", DC_, "", xidUserMethod, this, isParmStopped|SetOnChange, &DDBU);
-      if (UserMethod()==LFM_Xfer)
-        DDB.String     ("TransferSet", "", DC_, "", xidUserMethodSet, this, isResult|isTag);
+        DDB.Long("FlowMode",   "", DC_, "", xidFlowMode, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
+      }
+    }
+
+  if (m_DDBUserMethods.Length()>0)
+    {
+    DDBValueLstMem DDBU;
+    for (int i=0; i<m_DDBUserMethods.Length(); i++)
+      {
+      DDBValueLst &V=*m_DDBUserMethods.Item(i);
+      if ((V.m_lVal & SolveMethod()) && (V.m_lVal & HeatMethod()) && (V.m_lVal & FlowMode()))
+        DDBU.Add(V.m_lVal & UM_All, V.m_pStr, V.m_dwFlags);
+      }
+    DDBU.Add(0, "None", MDD_Hidden);
+    if (DDBU.Length())
+      {
+      DDB.Long("UserMethod",   "", DC_, "", xidUserMethod, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
       }
     }
 
@@ -3132,11 +3168,11 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       {
       if (DCB.rL)
         SetRunModes(*DCB.rL, SM_All);
-      DCB.L=SolveMode();
+      DCB.L=SolveMethod();
       return 1;
       /*if (DCB.rL)
         SetSolveMode(*DCB.rL, SM_All);
-      DCB.L=SolveMode();
+      DCB.L=SolveMethod();
       return 1;*/
       }
     case xidHeatMode:
@@ -3147,20 +3183,26 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       return 1;
       /*if (DCB.rL)
         SetSolveMode(*DCB.rL, HM_All);
-      DCB.L=HeatMode();
+      DCB.L=HeatMethod();
       return 1;*/
       }
-    case xidUserMethod:
+    case xidFlowMode:  
       {
       if (DCB.rL)
-        SetUserMethodReqd(*DCB.rL);
-      DCB.L=UserMethod();
+        {
+        //if (DCB.ForView())
+        //  PropagateNetInfo(eScdSetFlowMode, -1, *DCB.rL, true);
+        //else
+        SetFlowModeReqd(*DCB.rL);
+        }
+      DCB.L=FlowMode();
       return 1;
       }
-
-    case xidUserMethodSet:
+    case xidUserMethod: 
       {
-      DCB.pC=m_pUserMethodObj ? m_pUserMethodObj->FullObjTag():NULL;
+      if (DCB.rL)
+        SetUserMethod(*DCB.rL);
+      DCB.L=UserMethod();
       return 1;
       }
     case xidActiveMode:
@@ -3434,10 +3476,6 @@ flag FlwNode::ValidateData(ValidateDataBlk & VDB)
   {
   fValidateDataComplete=True;
   flag OK=True;
-  if (UserMethod()==0)
-    {
-    int xxx=0;
-    }
 
   for (int i=0; i<NoFlwIOs(); i++)
     {
@@ -3897,7 +3935,7 @@ void FlwNode::LinkJoins(int iLinkId, int iJoinId0, int iJoinId1, CFlwEqnPtr * FE
 
 double FlwNode::IODatum_Term(int i)
   {
-  if (ProbalMode())
+  if (NetProbalMethod())
     return 0.0;
 
   double Z=IOFlange(i)->m_dDatum;
@@ -4696,7 +4734,7 @@ flag FlwNode::MoveTearFlange(int iTearIO, FlwNode * &pNewTearNd, int &iNewTearIO
     { int xxx=0;};
   if (iTearIO>=2)
     return False;
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     if (!IsLnk() || Internal)
       return False;
@@ -5454,10 +5492,10 @@ bool FlwNode::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool HasMethod) 
   {
-  if (m_UserMethodPass>Ctrl.m_Pass)
+  if (m_FlowModePass>Ctrl.m_Pass)
     return false;
 
-  m_UserMethodPass++;
+  m_FlowModePass++;
 
   if (HasMethod)
     {
@@ -5465,25 +5503,25 @@ bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool H
       {
       case eScdGetFlowMode :
         {
-        if (m_UserMethodReqd<Ctrl.m_ReqdMethod)
+        if (m_FlowModeReqd<Ctrl.m_ReqdMethod)
           {
-          Ctrl.m_ReqdMethod=m_UserMethodReqd;
-          if (m_UserMethodReqd==LFM_Xfer)
+          Ctrl.m_ReqdMethod=m_FlowModeReqd;
+          if (m_FlowModeReqd==LFM_Xfer)
             Ctrl.m_pObj=this;
           }
-        //dbgpln("  %3i %5i %5i %s", m_UserMethodPass, m_UserMethodReqd, Ctrl.m_ReqdMethod, FullObjTag());
+        //dbgpln("  %3i %5i %5i %s", m_FlowModePass, m_FlowModeReqd, Ctrl.m_ReqdMethod, FullObjTag());
         break;
         }
       case eScdSetFlowMode :
         if (Ctrl.m_ReqdMethod==LFM_Xfer)
           {
-          SetUserMethod(Ctrl.m_ReqdMethod, Ctrl.m_pObj);
-          //dbgpln("  %3i %5i %5i A   %s", m_UserMethodPass, Ctrl.m_ReqdMethod, m_UserMethodReqd, FullObjTag());
+          SetFlowMode(Ctrl.m_ReqdMethod, Ctrl.m_pObj);
+          //dbgpln("  %3i %5i %5i A   %s", m_FlowModePass, Ctrl.m_ReqdMethod, m_FlowModeReqd, FullObjTag());
           }
         else
           {
-          SetUserMethod(m_UserMethodReqd, NULL);
-          //dbgpln("  %3i %5i %5i B   %s", m_UserMethodPass, m_UserMethodReqd, m_UserMethodReqd, FullObjTag());
+          SetFlowMode(m_FlowModeReqd, NULL);
+          //dbgpln("  %3i %5i %5i B   %s", m_FlowModePass, m_FlowModeReqd, m_FlowModeReqd, FullObjTag());
           }
         break;
       }
@@ -5966,19 +6004,19 @@ void CPBPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, long Al
 
 
   DDB.BeginStruct(pObj, "PBPress");
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.Long ("Method",    "", DC_,  "",    &m_iMethod, pObj, isParm|SetOnChange, DDBPBP);
 
-  DDB.Visibility(SM_Probal|HM_All, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0);
+  DDB.Visibility(SM_Direct|HM_All, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0);
   DDB.CheckBoxBtn("IgnoreLowQm",   "", DC_,  "",    &m_fIgnoreLoQm, pObj, isParm|SetOnChange, DDBOnOff);
-  DDB.Visibility(SM_Probal|HM_All, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0 && m_fIgnoreLoQm);
+  DDB.Visibility(SM_Direct|HM_All, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0 && m_fIgnoreLoQm);
   DDB.Double("LowQmFrac", "", DC_Frac, "%",&m_dLowQmFrac, pObj, isParm|SetOnChange);
 
-  DDB.Visibility(SM_Probal|HM_All, m_iMethod==PBPC_Reqd);
+  DDB.Visibility(SM_Direct|HM_All, m_iMethod==PBPC_Reqd);
   DDB.Double("Reqd",      "", DC_P, "kPa", &m_dPRqd,   pObj, m_iMethod==PBPC_Reqd?isParm:0);
-  DDB.Visibility(SM_Probal|HM_All, m_iMethod==PBPC_ReqdSatT);
+  DDB.Visibility(SM_Direct|HM_All, m_iMethod==PBPC_ReqdSatT);
   DDB.Double("ReqdT",     "", DC_T, "C",   &m_dTRqd,   pObj, isParm);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.Double("Result",    "", DC_P, "kPa", &m_dP2Set,  pObj, isResult);
   DDB.Visibility();
   DDB.EndStruct();
@@ -6080,9 +6118,9 @@ void FlwNode::EvalPBJoinPressure(int iJoin, CPBPressCtrl *pPC, SpModel/*Owner*/ 
 
 void FlwNode::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case NM_Probal:
       {
       for (int j=0; j<NJoins(); j++)
         {

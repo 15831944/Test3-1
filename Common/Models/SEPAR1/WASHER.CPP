@@ -156,27 +156,27 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
       {0}
     };
 
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Byte    ("Bypass_Option",           "BypassOpt",       DC_,     "",       &iRqdBypassMethod,   this, isParm|AffectsStruct, DDB1);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All, (iRqdBypassMethod != IBM_None));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
   DDB.Double  ("Mixing_Efficiency",       "MixingEff",       DC_Frac, "%",      &MixEff,             this, isParm);
   DDB.CheckBox("Mixing_Eff_LiquidsOnly",  "MixEffLiqOnly",   DC_,     "",       &bMixEffLiqOnly,     this, isParm);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &RqdUFSolids,        this, isParm);
   DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &iRqdOFMethod,       this, isParm|AffectsStruct, iRqdBypassMethod == IBM_Underflow ? DDB0b : DDB0a);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
   DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &RqdOFSolids,        this, isParm);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All, (iRqdOFMethod == OFM_OFSolConc));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdOFMethod == OFM_OFSolConc));
   DDB.Double  ("Rqd_OverFlowSolidsConc25","RqdOFSolConc25",  DC_Conc, "g/L",    &RqdOFSolConc,       this, isParm);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All, (iRqdBypassMethod != IBM_Underflow));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod != IBM_Underflow));
   DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &IntOFSolidsUsed,    this, isResult|InitHidden);//|noView);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All, (iRqdBypassMethod == IBM_Underflow));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod == IBM_Underflow));
   DDB.Double  ("Internal_UF_SolidsUsed",  "IntUFSolidsUsed", DC_Frac, "%",      &IntUFSolidsUsed,    this, isResult|InitHidden);//|noView);
   DDB.Visibility();
   DDB.Text    ("Results");
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All, (iRqdBypassMethod != IBM_None));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
   DDB.Double  ("Bypass_Flowrate",         "BypassQm",        DC_Qm,   "kg/s",   &BypassQm,           this, isResult);
   DDB.Visibility();
 	DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &UFSolids,           this, isResult);
@@ -189,7 +189,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Probal|SM_DynXfer|HM_All);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -199,7 +199,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
 	BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -420,9 +420,9 @@ double CWasherOFFnd::Function(double x)
 
 void Washer::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -431,8 +431,8 @@ void Washer::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MN_Surge::EvalJoinPressures(JoinMask);
       break;
     }
@@ -460,10 +460,10 @@ void Washer::EvalProducts(long JoinMask)
     LogWarning(FullObjTag(), 0, "Because BypassOption is Underflow, Method has been changed to OverFlowSolidsFraction");
     }
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       const int iCo = IOWithId_Self(ioidOF);
       const int iCu = IOWithId_Self(ioidUF);
@@ -568,7 +568,7 @@ void Washer::EvalProducts(long JoinMask)
 
       break;
       }
-    case SM_DynFull:
+    case SM_Buffered:
       {
       Contents.ZeroDeriv();
       RB.EvalProducts(Sd());

@@ -26,13 +26,13 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
   Init_NLinks(1);
 
-  SetUserRunModes("ProBal", "Inline", NULL);
-  SetUserModeAsFlowMode();
+  SetAllowedSolveModes(SM_Direct/*|SM_Inline*/|SM_Buffered);// "Transfer", "Inline", NULL);
+  SetAllowedFlowModes();
 
   if (GlblDynFlowMode())
-    SetUserMethodReqd(LFM_Simple);// LFM_Xfer);
+    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
   else
-    SetUserMethodReqd(LFM_Full);
+    SetFlowModeReqd(LFM_Full);
 
   bOnLine=1;
   bIsentropic=0;
@@ -222,10 +222,10 @@ void MN_BstRes::PreDisConnect(int IONo)
 
 //---------------------------------------------------------------------------
 
-void MN_BstRes::OnSetUserMethod()
+void MN_BstRes::OnSetFlowMode()
   {
   byte Md;//=m_FEP.FlwRqd().m_Mode;
-  switch (UserMethod())
+  switch (FlowMode())
     {
     case LFM_Xfer:   Md=FBMode_Xfer;     break;
     case LFM_Simple: Md=FBMode_Simple;   break;
@@ -259,7 +259,7 @@ bool MN_BstRes::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 void MN_BstRes::ConfigureJoins()
   {
-  if (SolveMode()==SM_Probal)
+  if (NetMethod()==NM_Probal)
     {
     for (int i=0; i<NoFlwIOs(); i++)
       SetIO_Join(i, 0); 
@@ -288,7 +288,7 @@ void MN_BstRes::ConfigureJoins()
 void MN_BstRes::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    if (ProbalMode())
+    if (NetMethod()==NM_Probal)
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -362,7 +362,7 @@ void MN_BstRes::EvalProducts(long JoinMask)
     dDuty = 0.0;
     Fo.QCopy(Fi);
     IOFB(0,0)->SetQm(Sign(IOFB(0,0)->GetQm())*Fo.QMass(som_ALL));
-    if (ProbalMode())
+    if (SolveDirectMethod())
       {
       dPout = Fo.Press();
       dTout = Fo.Temp();
@@ -376,7 +376,7 @@ void MN_BstRes::EvalProducts(long JoinMask)
     return;
     }
 
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     const int In  = TwoIOInIndex();
     const int Out = OtherEnd(In);

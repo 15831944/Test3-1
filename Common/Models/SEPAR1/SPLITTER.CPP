@@ -184,7 +184,7 @@ void Splitter::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("UnderSize_SolidsConc@25", "USSolConc25",     DC_Conc, "g/L",    &ActUSSolidsConc25,  this, isResult|InitHidden);
     }
 
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
 	DDB.Text    ("");
   //DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
@@ -192,9 +192,9 @@ void Splitter::BuildDataDefn(DataDefnBlk & DDB)
 	DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  /*//if (ProbalMode())
+  /*//if (SolveDirectMethod())
   //  DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage, -1, bShowQFeed ? 0 : noView);
-  if (bShowQFeed && ProbalMode())
+  if (bShowQFeed && SolveDirectMethod())
     DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage, -1);*/
 
   DDB.EndStruct();
@@ -235,9 +235,9 @@ void Splitter::EvalJoinPressures(long JoinMask)
 */
 void Splitter::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -246,8 +246,8 @@ void Splitter::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }

@@ -160,13 +160,13 @@ void MN_Xfer::PreDisConnect(int IONo)
 
 flag MN_Xfer::InitialiseSolution()
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
 
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       if (m_NetworkIsolator)
         m_Accumulator->SetStateAction(IE_SaveState);
       break;
@@ -322,10 +322,10 @@ void MN_Xfer::StartStep()
 inlet and outlet of the surge unit.*/
 void MN_Xfer::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
-    case SM_DynXfer:
+    case SM_Direct:
+    case SM_Inline:
       {
       const bool OldCode = false;
       if (OldCode)
@@ -344,8 +344,8 @@ void MN_Xfer::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    //case SM_DynXfer:
-    case SM_DynFull:
+    //case SM_Inline:
+    case SM_Buffered:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
@@ -354,7 +354,7 @@ void MN_Xfer::EvalJoinPressures(long JoinMask)
 
 flag MN_Xfer::ChangeMode(dword NewMode, dword OldMode)
   {
-  if (NewMode==SM_Probal && !GSM.Enabled())
+  if (NewMode==SM_Direct && !GSM.Enabled())
     GSM.Open();
 
   return True;
@@ -391,7 +391,7 @@ and rate of change of the contents resulting from the flow, of material, out of 
 of the surge unit.*/
 //void MN_Surge::EvalProductsSurge(long JoinMask)
 //  {
-//  ASSERT(DynamicMode());
+//  ASSERT(SolveDynamicMethod());
 //  if (!InlineIntegral())
 //    {
 //    dword IOMsk=First64IOIds;
@@ -409,63 +409,18 @@ void MN_Xfer::EvalProducts(long JoinMask)
   {
   if (NJoins()>0)
     {
-    switch (SolveMode())
+    switch (SolveMethod())
       {
-      case SM_Probal:
+      case SM_Direct:
         if (NJoins()>0)
           Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0);
         break;
-      case SM_DynXfer:
-      case SM_DynFull:
-        if (m_NetworkIsolator)
-          {
-          m_QFeed->QZero();
-          m_QProd->QZero();
-          double TotIn=0.0;
-          double TotReqd=0.0;
-          for (int i=0; i<NoFlwIOs(); i++)
-            {
-            if (IOQm_In(i)>0.0)
-              {
-              TotIn+=IOQm_In(i);
-              m_QFeed->QAddF(*IOConduit(i), som_ALL, 1.0);
-              }
-            else if (IOQmEst_Out(i)>0.0)
-              {
-              TotReqd+=IOQmEst_Out(i);
-              }
-            }
-
-          double FdQm=m_QFeed->QMass();
-          double AccQm=m_Accumulator->Mass()/ICGetTimeInc();
-          double TotAvail=m_QFeed->QMass()+AccQm;
-          //double OvrScale=TotReqd/GTZ(TotAvail);
-          double AccScale=Min(1.0, TotReqd/GTZ(AccQm));
-          double FdScale=Min(1.0, (TotReqd-AccScale*AccQm)/GTZ(FdQm));
-
-          for (int i=0; i<NoFlwIOs(); i++)
-            {
-            double QmEst=IOQmEst_Out(i);
-            if (QmEst>0.0)
-              {
-              IOConduit(i)->QSetM(*m_Accumulator, som_ALL, AccScale*AccQm);
-              IOConduit(i)->QAddM(m_QFeed(), som_ALL, FdScale*FdQm*QmEst/GTZ(TotReqd));
-              double QTmp=IOConduit(i)->QMass();
-              int xxx=0;
-              }
-            }
-          if (1)//InlineIntegral())
-            {
-            EvalIntegral(JoinMask);
-            }
-          
-          SetCI(1, m_Accumulator->Mass()>10*(Max(TotIn, TotReqd)*ICGetTimeInc()));          
-          }
-        else
-          {
-          for (int j=0; j<NJoins(); j++)
+      case SM_Inline:
+      case SM_Buffered:
+        {
+        for (int j=0; j<NJoins(); j++)
             Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
-          }
+        }
         break;
       }                
     }
@@ -620,7 +575,7 @@ void MN_Xfer::EvalIntegral(long JoinMask)
 
 void MN_Xfer::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  ASSERT(DynamicMode());
+  ASSERT(SolveDynamicMethod());
 
   //if (RB())
   //  {

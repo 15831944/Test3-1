@@ -266,7 +266,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   #ifndef _RELEASE
   flag dbg=0;//fDoDbgBrk;
   #endif
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     Press=GetPBInputPressure(JoinId, pPC);
     //dbgpln("PBPress     = %14.3f  %14.3f", Press,pPC->TRqd());
@@ -396,7 +396,7 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
 
   if (pGSM)
     {
-    pGSM->EvalProductsOut(SolveMode(), Qo.Press(), Qo);
+    pGSM->EvalProductsOut(SolveMethod(), Qo.Press(), Qo);
     }
   else if (bNodeMakeUpReqd)
     {
@@ -446,7 +446,7 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
   Xfer_EvalProductsIn_(S1.iJoinId, S1.dPress, S1.pQo, Sd1, S1.pPBP);
   Xfer_EvalProductsIn_(S2.iJoinId, S2.dPress, S2.pQo, Sd2, S2.pPBP);
 
-  flag HX_PreReact = (pHX && ProbalMode() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
+  flag HX_PreReact = (pHX && SolveDirectMethod() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
   if (HX_PreReact)
     {
     pHX->SetPrimary(NULL, *Sd1, S1.dPress);
@@ -3528,7 +3528,7 @@ DDBValueLst DDBExitRules[]={
 
 void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
   {
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     int N=0;
     for (int i=0; i<NoFlwIOs(); i++)
@@ -3567,7 +3567,7 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
         }
       DDB.EndArray();
       }
-    if (DynFullMode() && !DDB.ForFileSnpScn())
+    if (SolveBufferedMethod() && !DDB.ForFileSnpScn())
       {
       int N=0;
       for (int i=0; i<NoFlwIOs(); i++)
@@ -3691,7 +3691,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
 
 void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   {
-  //  if (CollectChgStats() && ProbalMode() && (ChgStats.GetSize()>0))
+  //  if (CollectChgStats() && SolveDirectMethod() && (ChgStats.GetSize()>0))
   //    ChngTrcBuildDataDefn(DDB);
 
   Strng Sym, Tag;

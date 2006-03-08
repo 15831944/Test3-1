@@ -246,10 +246,10 @@ flag PriReform::InitialiseSolution()
 
   m_States.RemoveAll();
 
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       m_HotBox.SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
       m_States.Add(&m_dCatTemp, &m_dCatTempDeriv, &m_dCatTemp);
       break;
@@ -337,10 +337,9 @@ void PriReform::PostConnect(int IONo)
 
 void PriReform::ConfigureJoins()
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_DynXfer:
-    case SM_DynFull:
+    case NM_Dynamic:
       {
       Set_NJoins(2);
       for (int i=0; i<NoFlwIOs(); i++)
@@ -375,9 +374,9 @@ void PriReform::StartStep()
 
 void PriReform::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       break;
     default:;
       {
@@ -432,12 +431,12 @@ flag PriReform::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
 
 void PriReform::EvalProductsSurge(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       SigmaQInPMin(m_CombFeed, som_ALL, HBMsk);
       EvalProducts_SurgeLevel(m_HotBoxHgtOrd, &m_CombFeed);
@@ -449,12 +448,12 @@ void PriReform::EvalProductsSurge(long JoinMask)
 
 void PriReform::EvalProducts(long JoinMask)
   {
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       break;
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       {
       int In  = (IO_In(ioidGasIn) ? ioidGasIn : ioidGasOut);
       int Out = (IO_In(ioidGasIn) ? ioidGasOut: ioidGasIn );
@@ -605,7 +604,7 @@ void PriReform::ApplyDerivs(double dTime, flag DoDbg)
 
 void PriReform::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  ASSERT(DynamicMode());
+  ASSERT(SolveDynamicMethod());
 
   flag Ignition=0;
   for (int d=0; d<7 && !Ignition; d++)

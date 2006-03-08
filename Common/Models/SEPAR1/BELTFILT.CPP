@@ -133,9 +133,9 @@ void BeltFilt::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("FiltrateSolidsConc@25",   "FiltSolConc25",   DC_Conc, "g/L",    &ActFiltSolConc,     this, isResult|InitHidden);//|noFile|noSnap);
 
   BuildDataDefnElevation(DDB);
-  if (ProbalMode())
+  if (SolveDirectMethod())
     DDB.Text    ("");
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
   DDB.Text    ("");
@@ -222,9 +222,9 @@ void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq)
 
 void BeltFilt::EvalJoinPressures(long JoinMask)
   {
-  switch (SolveMode())
+  switch (NetMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       for (int j=0; j<NJoins(); j++)
         {
@@ -233,8 +233,8 @@ void BeltFilt::EvalJoinPressures(long JoinMask)
         }
       break;
       }
-    case SM_DynXfer:
-    case SM_DynFull:
+    case SM_Inline:
+    case SM_Buffered:
       MdlNode::EvalJoinPressures(JoinMask);
       break;
     }

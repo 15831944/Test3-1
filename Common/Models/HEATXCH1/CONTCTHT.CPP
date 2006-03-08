@@ -166,9 +166,9 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("SteamVentRqd", "", DC_Qm, "kg/s",  &dVentRqd,   this, isParm);
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
-  DDB.Visibility(SM_Probal|HM_All, !bVentConnected);
+  DDB.Visibility(SM_Direct|HM_All, !bVentConnected);
   DDB.CheckBox("VentExcessVapour",  "",  DC_,     "",      &bRemoveExcessVapour,this, isParm|SetOnChange);
   DDB.Visibility();
   DDB.CheckBox("TrackSteamFd",      "",  DC_,     "",      &bTrackSteamStatus,  this, isParm|SetOnChange);
@@ -179,7 +179,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("FinalP",    "",  DC_P,    "kPag",  &dFinalP,    this, isResult|NAN_OK);
   DDB.Double  ("FinalT",    "",  DC_T,    "C",     &dFinalT,    this, isResult|NAN_OK);
   DDB.Double  ("SatP",      "",  DC_P,    "kPag",  &dSatPOut,   this, isResult|noFile|noSnap|InitHidden);
-  DDB.Visibility(SM_Probal|HM_All);
+  DDB.Visibility(SM_Direct|HM_All);
   DDB.Double  ("VapQmOut",  "",  DC_Qm,   "kg/s",  &dQmVapVent, this, isResult|noFile|noSnap|InitHidden);
   static DDBValueLst DDB1[]={
     {QST_FTCActive, "Flash Train"},
@@ -221,14 +221,14 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && ProbalMode())
+  if (bShowQFeed && SolveDirectMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (DynamicMode())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -270,9 +270,9 @@ flag ContactHeater::ValidateData(ValidateDataBlk & VDB)
 void ContactHeater::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (NetMethod())
       {
-      case SM_Probal:
+      case SM_Direct:
         {
         //if (!m_FTC.Active())
         //  m_FTC.SetSuctionP(IOP_Rmt(IOWithId_Self(ioidSI_HotLiq)));what does this do for us?
@@ -285,8 +285,8 @@ void ContactHeater::EvalJoinPressures(long JoinMask)
           }
         }
         break;
-      case SM_DynXfer:
-      case SM_DynFull:
+      case SM_Inline:
+      case SM_Buffered:
         MdlNode::EvalJoinPressures(JoinMask);
         break;
       }
@@ -317,11 +317,11 @@ void   ContactHeater::SetState(eScdMdlStateActs RqdState)
 void ContactHeater::EvalJoinFlows(int JoinNo)
   {
   if (NoFlwIOs()>0)
-    switch (SolveMode())
+    switch (NetMethod())
       {
-      case SM_DynXfer:
-      case SM_DynFull:
-      case SM_Probal:
+      case SM_Inline:
+      case SM_Buffered:
+      case SM_Direct:
         break;
       }
   };
@@ -382,9 +382,9 @@ void ContactHeater::EvalProducts(long JoinMask)
   {
   if (NoFlwIOs()==0)
     return;
-  switch (SolveMode())
+  switch (SolveMethod())
     {
-    case SM_Probal:
+    case SM_Direct:
       {
       dVentRqd = Max(0.0, dVentRqd);
       const int IOSteam = IOWithId_Self(ioidSI_Steam);//Steam feed

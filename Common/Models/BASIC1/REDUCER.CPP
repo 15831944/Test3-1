@@ -58,7 +58,7 @@ void Reducer::BuildDataDefn(DataDefnBlk &DDB)
     {BRPM_Atmos, "Atmos"},
     {0}};
   DDB.BeginStruct(this);
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     DDB.Text    ("");
     DDB.Text    ("Requirements");
@@ -124,7 +124,7 @@ void Reducer::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
 
-  if (ProbalMode())
+  if (SolveDirectMethod())
     {
     m_VLE.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
     }

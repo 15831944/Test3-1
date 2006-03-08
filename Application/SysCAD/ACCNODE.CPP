@@ -3186,7 +3186,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         Menu.AppendMenu(MF_STRING, IDM_ACC_EMPTYNODE,     "&Empty");
         Menu.AppendMenu(MF_STRING, IDM_ACC_ZEROFLOWSNODE, "&Zero Flows");
         Menu.AppendMenu(MF_STRING|(gs_Exec.GlblDynamicMode()?0:MF_GRAYED), IDM_ACC_PRESETNODE, "P&reset");
-        Menu.AppendMenu(MF_STRING/*|(TaggedObject::DynamicMode()?0:MF_GRAYED)*/, IDM_ACC_RESETSTATSNODE, "Reset &Stats");
+        Menu.AppendMenu(MF_STRING/*|(TaggedObject::SolveDynamicMethod()?0:MF_GRAYED)*/, IDM_ACC_RESETSTATSNODE, "Reset &Stats");
         //Menu.AppendMenu(MF_STRING, IDM_ACC_PASTEBLK_0,  "Paste &Block ...");
         
         //Menu.AppendMenu(MF_POPUP, (unsigned int)CopyMenu.m_hMenu, "&Copy Block");
