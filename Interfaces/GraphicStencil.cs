@@ -5,6 +5,8 @@ using System.Runtime.Serialization.Formatters.Soap;
 using System.Xml.Serialization;
 using MindFusion.FlowChartX;
 using System.Drawing;
+using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 
 namespace SysCAD.Interface
 {
@@ -17,8 +19,8 @@ namespace SysCAD.Interface
   {
     public ArrayList elements;
     public ArrayList decorations;
-    public ArrayList textArea;
-    public System.Drawing.Drawing2D.FillMode fillMode;
+    public ArrayList textAreas;
+    public FillMode fillMode;
     public SizeF defaultSize;
     public String groupName;
     public string id;
@@ -27,111 +29,122 @@ namespace SysCAD.Interface
     {
       elements = new ArrayList();
       decorations = new ArrayList();
-      textArea = new ArrayList();
+      textAreas = new ArrayList();
     }
 
     public ShapeTemplate ShapeTemplate()
     {
-      ElementTemplate[] elements = new ElementTemplate[this.elements.Count];
-      for (int i=0; i<this.elements.Count; i++)
+      ElementTemplate[] elementTemplate = new ElementTemplate[elements.Count];
       {
-        if (this.elements[i] is Arc)
+        int i = 0;
+        foreach (Element element in this.elements)
         {
-          elements[i] = new ArcTemplate((this.elements[i] as Arc).x, 
-            (this.elements[i] as Arc).y, 
-            (this.elements[i] as Arc).w, 
-            (this.elements[i] as Arc).h, 
-            (this.elements[i] as Arc).a,
-            (this.elements[i] as Arc).x);
-        }
-        if (this.elements[i] is Line)
-        {
-          elements[i] = new LineTemplate((this.elements[i] as Line).x1, 
-            (this.elements[i] as Line).y1, 
-            (this.elements[i] as Line).x2, 
-            (this.elements[i] as Line).y2);
-        }
-        if (this.elements[i] is Bezier)
-        {
-          elements[i] = new BezierTemplate((this.elements[i] as Bezier).x1, 
-            (this.elements[i] as Bezier).y1, 
-            (this.elements[i] as Bezier).x2, 
-            (this.elements[i] as Bezier).y2, 
-            (this.elements[i] as Bezier).x3, 
-            (this.elements[i] as Bezier).y3, 
-            (this.elements[i] as Bezier).x4, 
-            (this.elements[i] as Bezier).y4);
+          if (element is Arc)
+          {
+            elementTemplate[i] = new ArcTemplate((element as Arc).x,
+              (element as Arc).y,
+              (element as Arc).w,
+              (element as Arc).h,
+              (element as Arc).a,
+              (element as Arc).x);
+          }
+          if (element is Line)
+          {
+            elementTemplate[i] = new LineTemplate((element as Line).x1,
+              (element as Line).y1,
+              (element as Line).x2,
+              (element as Line).y2);
+          }
+          if (element is Bezier)
+          {
+            elementTemplate[i] = new BezierTemplate((element as Bezier).x1,
+              (element as Bezier).y1,
+              (element as Bezier).x2,
+              (element as Bezier).y2,
+              (element as Bezier).x3,
+              (element as Bezier).y3,
+              (element as Bezier).x4,
+              (element as Bezier).y4);
+          }
+          i++;
         }
       }
 
-      ElementTemplate[] decorations = new ElementTemplate[this.decorations.Count];
-      for (int i=0; i<this.decorations.Count; i++)
+      ElementTemplate[] decorationTemplate = new ElementTemplate[decorations.Count];
       {
-        if (this.decorations[i] is Arc)
+        int i = 0;
+        foreach (Element decoration in this.decorations)
         {
-          decorations[i] = new ArcTemplate((this.decorations[i] as Arc).x, 
-            (this.decorations[i] as Arc).y, 
-            (this.decorations[i] as Arc).w, 
-            (this.decorations[i] as Arc).h, 
-            (this.decorations[i] as Arc).a,
-            (this.decorations[i] as Arc).x);
-        }
-        if (this.decorations[i] is Line)
-        {
-          decorations[i] = new LineTemplate((this.decorations[i] as Line).x1, 
-            (this.decorations[i] as Line).y1, 
-            (this.decorations[i] as Line).x2, 
-            (this.decorations[i] as Line).y2);
-        }
-        if (this.decorations[i] is Bezier)
-        {
-          decorations[i] = new BezierTemplate((this.decorations[i] as Bezier).x1, 
-            (this.decorations[i] as Bezier).y1, 
-            (this.decorations[i] as Bezier).x2, 
-            (this.decorations[i] as Bezier).y2, 
-            (this.decorations[i] as Bezier).x3, 
-            (this.decorations[i] as Bezier).y3, 
-            (this.decorations[i] as Bezier).x4, 
-            (this.decorations[i] as Bezier).y4);
+          if (decoration is Arc)
+          {
+            decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
+              (decoration as Arc).y,
+              (decoration as Arc).w,
+              (decoration as Arc).h,
+              (decoration as Arc).a,
+              (decoration as Arc).x);
+          }
+          if (decoration is Line)
+          {
+            decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
+              (decoration as Line).y1,
+              (decoration as Line).x2,
+              (decoration as Line).y2);
+          }
+          if (decoration is Bezier)
+          {
+            decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
+              (decoration as Bezier).y1,
+              (decoration as Bezier).x2,
+              (decoration as Bezier).y2,
+              (decoration as Bezier).x3,
+              (decoration as Bezier).y3,
+              (decoration as Bezier).x4,
+              (decoration as Bezier).y4);
+          }
+          i++;
         }
       }
 
-      ElementTemplate[] textArea = new ElementTemplate[this.textArea.Count];
-      for (int i=0; i<this.textArea.Count; i++)
+      ElementTemplate[] textAreaTemplate = new ElementTemplate[textAreas.Count];
       {
-        if (this.textArea[i] is Arc)
+        int i = 0;
+        foreach (Element textArea in this.textAreas)
         {
-          textArea[i] = new ArcTemplate((this.textArea[i] as Arc).x, 
-            (this.textArea[i] as Arc).y, 
-            (this.textArea[i] as Arc).w, 
-            (this.textArea[i] as Arc).h, 
-            (this.textArea[i] as Arc).a,
-            (this.textArea[i] as Arc).x);
-        }
-        if (this.textArea[i] is Line)
-        {
-          textArea[i] = new LineTemplate((this.textArea[i] as Line).x1, 
-            (this.textArea[i] as Line).y1, 
-            (this.textArea[i] as Line).x2, 
-            (this.textArea[i] as Line).y2);
-        }
-        if (this.textArea[i] is Bezier)
-        {
-          textArea[i] = new BezierTemplate((this.textArea[i] as Bezier).x1, 
-            (this.textArea[i] as Bezier).y1, 
-            (this.textArea[i] as Bezier).x2, 
-            (this.textArea[i] as Bezier).y2, 
-            (this.textArea[i] as Bezier).x3, 
-            (this.textArea[i] as Bezier).y3, 
-            (this.textArea[i] as Bezier).x4, 
-            (this.textArea[i] as Bezier).y4);
+          if (textArea is Arc)
+          {
+            textAreaTemplate[i] = new ArcTemplate((textArea as Arc).x,
+              (textArea as Arc).y,
+              (textArea as Arc).w,
+              (textArea as Arc).h,
+              (textArea as Arc).a,
+              (textArea as Arc).x);
+          }
+          if (textArea is Line)
+          {
+            textAreaTemplate[i] = new LineTemplate((textArea as Line).x1,
+              (textArea as Line).y1,
+              (textArea as Line).x2,
+              (textArea as Line).y2);
+          }
+          if (textArea is Bezier)
+          {
+            textAreaTemplate[i] = new BezierTemplate((textArea as Bezier).x1,
+              (textArea as Bezier).y1,
+              (textArea as Bezier).x2,
+              (textArea as Bezier).y2,
+              (textArea as Bezier).x3,
+              (textArea as Bezier).y3,
+              (textArea as Bezier).x4,
+              (textArea as Bezier).y4);
+          }
         }
       }
 
       System.Drawing.Drawing2D.FillMode fillMode = this.fillMode;
       string id = this.id;
 
-      return (new ShapeTemplate(elements, decorations, textArea, fillMode, id));
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, fillMode, id));
     }
 
 //    [STAThread]

@@ -1,22 +1,25 @@
 using System;
 using System.Collections;
+using System.Drawing;
 
 namespace SysCAD.Interface
 {
-	public class Anchor
+  [Serializable]
+  public class Anchor
 	{
-    public ArrayList locations = new ArrayList();
+    public PointF position;
     public uint minIn = 0;
     public uint maxIn = 0;
     public uint minOut = 0;
     public uint maxOut = 0;
-    
-    public Anchor()
+
+    public Anchor(float X, float Y, uint minIn, uint maxIn, uint minOut, uint maxOut)
 		{
-      minIn = 0;
-      maxIn = 0;
-      minOut = 0;
-      maxOut = 0;
+      position = new PointF(X, Y);
+      this.minIn = minIn;
+      this.maxIn = maxIn;
+      this.minOut = minOut;
+      this.maxOut = maxOut;
 		}
 	}
 }
