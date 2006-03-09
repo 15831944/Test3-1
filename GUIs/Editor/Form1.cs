@@ -88,8 +88,8 @@ namespace SysCAD.Editor
           this.View_SelectArrows();
           break;
 
-        case "NewItem.ModelType":
-          this.NewItem_ModelType();
+        case "NewItem.GroupName":
+          this.NewItem_GroupName();
           break;
 
         case "NewItem.GraphicType":
@@ -102,7 +102,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void NewItem_ModelType()
+    private void NewItem_GroupName()
     {
       throw new Exception("The method or operation is not implemented.");
     }
@@ -207,7 +207,7 @@ namespace SysCAD.Editor
       barManager1.Commands["View.ShowArrows"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectArrows"].Enabled = projectExists;
-      barManager1.Commands["NewItem.ModelType"].Enabled = projectExists;
+      barManager1.Commands["NewItem.GroupName"].Enabled = projectExists;
       barManager1.Commands["NewItem.GraphicType"].Enabled = projectExists;
       barManager1.Commands["NewItem.DragTarget"].Enabled = projectExists;
     }

@@ -65,7 +65,7 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonCommand filePrintPreviewBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "PrintPreview", "Print Pre&view", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileExitBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Exit", "E&xit", -1);
       ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand newMenuNewMenuBarPopupButtonCommand = new ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand("New Menu", "New Menu", "New Menu", -1);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "ModelType", "ModelType", -1);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGroupNameBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "GroupName", "GroupName", -1);
       ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "GraphicType", "GraphicType", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand newItemDragTargetBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("NewItem", "DragTarget", "Drag Target", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowGraphicsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowGraphics", "Show Graphics", -1);
@@ -150,11 +150,11 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonLink helpSearchBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(helpSearchBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink helpAboutBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(helpAboutBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.DockableToolBar newItemDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("newItem");
+      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGroupNameBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGroupNameBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink newItemDragTargetBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemDragTargetBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGroupNameBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGroupNameBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink newItemDragTargetBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(newItemDragTargetBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.DockableToolBar selectionControlDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("SelectionControl");
       ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectArrowsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectArrowsBarButtonCommand);
@@ -365,12 +365,27 @@ namespace SysCAD.Editor
             new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131152)});
       filePrintPreviewBarButtonCommand.Enabled = false;
       filePrintPreviewBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("filePrintPreviewBarButtonCommand.Image")));
-      newItemModelTypeBarComboBoxCommand.Items.Add("Tank1");
-      newItemModelTypeBarComboBoxCommand.Items.Add("Tank2");
-      newItemModelTypeBarComboBoxCommand.Items.Add("Tank3");
-      newItemModelTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
-      newItemGraphicTypeBarComboBoxCommand.Items.Add("Tie");
-      newItemGraphicTypeBarComboBoxCommand.Items.Add("Tank");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Control");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Conveyor");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Electrical");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Extras");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Feed");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Filter");
+      newItemGroupNameBarComboBoxCommand.Items.Add("HeatExchange");
+      newItemGroupNameBarComboBoxCommand.Items.Add("HeatTransfer");
+      newItemGroupNameBarComboBoxCommand.Items.Add("MixerSplitter");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Piping");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Pump");
+      newItemGroupNameBarComboBoxCommand.Items.Add("SizeAlteration");
+      newItemGroupNameBarComboBoxCommand.Items.Add("SizeSeparation");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Tank");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Transmitter");
+      newItemGroupNameBarComboBoxCommand.Items.Add("Valve");
+      newItemGroupNameBarComboBoxCommand.Items.Add("WasherDecanter");
+      newItemGroupNameBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
+      newItemGraphicTypeBarComboBoxCommand.Items.Add("Tank1");
+      newItemGraphicTypeBarComboBoxCommand.Items.Add("Tank2");
+      newItemGraphicTypeBarComboBoxCommand.Items.Add("Tank3");
       newItemGraphicTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
       viewShowGraphicsBarButtonCommand.Checkable = true;
       viewShowGraphicsBarButtonCommand.Checked = true;
@@ -410,7 +425,7 @@ namespace SysCAD.Editor
             filePrintPreviewBarButtonCommand,
             fileExitBarButtonCommand,
             newMenuNewMenuBarPopupButtonCommand,
-            newItemModelTypeBarComboBoxCommand,
+            newItemGroupNameBarComboBoxCommand,
             newItemGraphicTypeBarComboBoxCommand,
             newItemDragTargetBarButtonCommand,
             viewShowGraphicsBarButtonCommand,
@@ -552,17 +567,23 @@ namespace SysCAD.Editor
             newMenuNewMenuBarPopupButtonLink12});
       mainMenuMenuBar.DockedRow = 0;
       newItemDockableToolBar.Active = true;
+      newItemGroupNameBarComboBoxLink.DefaultText = "GroupName";
+      newItemGroupNameBarComboBoxLink.Text = "GroupName";
+      newItemGraphicTypeBarComboBoxLink.DefaultText = "GraphicType";
+      newItemGraphicTypeBarComboBoxLink.Text = "GraphicType";
       newItemDragTargetBarButtonLink.DefaultText = " v ";
       newItemDragTargetBarButtonLink.Text = " v ";
       newItemDockableToolBar.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
+            newItemGroupNameBarComboBoxLink,
             newItemGraphicTypeBarComboBoxLink,
-            newItemModelTypeBarComboBoxLink,
             newItemDragTargetBarButtonLink});
+      newItemGraphicTypeBarComboBoxLink2.Text = "GraphicType";
+      newItemGroupNameBarComboBoxLink2.Text = "GroupName";
       newItemDragTargetBarButtonLink2.DefaultText = " v ";
       newItemDragTargetBarButtonLink2.Text = " v ";
       newItemDockableToolBar.DefaultCommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
             newItemGraphicTypeBarComboBoxLink2,
-            newItemModelTypeBarComboBoxLink2,
+            newItemGroupNameBarComboBoxLink2,
             newItemDragTargetBarButtonLink2});
       newItemDockableToolBar.DockedColumn = 390;
       newItemDockableToolBar.DockedRow = 1;
