@@ -109,8 +109,10 @@ namespace StencilEditor
       // 
       this.splitContainer1.Panel2.Controls.Add(this.flowChart2);
       this.splitContainer1.Size = new System.Drawing.Size(923, 453);
-      this.splitContainer1.SplitterDistance = 464;
+      this.splitContainer1.SplitterDistance = 624;
       this.splitContainer1.TabIndex = 0;
+      this.splitContainer1.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.splitContainer1_SplitterMoving);
+      this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
       // 
       // flowChart1
       // 
@@ -128,7 +130,7 @@ namespace StencilEditor
       this.flowChart1.Location = new System.Drawing.Point(0, 0);
       this.flowChart1.Margin = new System.Windows.Forms.Padding(2);
       this.flowChart1.Name = "flowChart1";
-      this.flowChart1.Size = new System.Drawing.Size(464, 453);
+      this.flowChart1.Size = new System.Drawing.Size(624, 453);
       this.flowChart1.TabIndex = 1;
       this.flowChart1.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.flowChart1_ArrowModified);
       this.flowChart1.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.flowChart1_BoxModified);
@@ -149,7 +151,7 @@ namespace StencilEditor
       this.flowChart2.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.flowChart2.Location = new System.Drawing.Point(0, 0);
       this.flowChart2.Name = "flowChart2";
-      this.flowChart2.Size = new System.Drawing.Size(455, 453);
+      this.flowChart2.Size = new System.Drawing.Size(295, 453);
       this.flowChart2.TabIndex = 0;
       // 
       // toolStrip1
@@ -229,7 +231,6 @@ namespace StencilEditor
       this.graphicStencilButton.CheckOnClick = true;
       this.graphicStencilButton.CheckState = System.Windows.Forms.CheckState.Checked;
       this.graphicStencilButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-      this.graphicStencilButton.Image = ((System.Drawing.Image)(resources.GetObject("graphicStencilButton.Image")));
       this.graphicStencilButton.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.graphicStencilButton.Name = "graphicStencilButton";
       this.graphicStencilButton.Size = new System.Drawing.Size(81, 22);
@@ -240,7 +241,6 @@ namespace StencilEditor
       // 
       this.modelStencilButton.CheckOnClick = true;
       this.modelStencilButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-      this.modelStencilButton.Image = ((System.Drawing.Image)(resources.GetObject("modelStencilButton.Image")));
       this.modelStencilButton.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.modelStencilButton.Name = "modelStencilButton";
       this.modelStencilButton.Size = new System.Drawing.Size(73, 22);
@@ -263,7 +263,7 @@ namespace StencilEditor
             this.DefaultSizeYTextBox});
       this.toolStrip3.Location = new System.Drawing.Point(3, 25);
       this.toolStrip3.Name = "toolStrip3";
-      this.toolStrip3.Size = new System.Drawing.Size(529, 25);
+      this.toolStrip3.Size = new System.Drawing.Size(560, 25);
       this.toolStrip3.TabIndex = 4;
       // 
       // groupNameLabel

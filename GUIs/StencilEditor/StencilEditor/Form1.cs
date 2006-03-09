@@ -26,7 +26,6 @@ namespace StencilEditor
 
     PointF tagPosition;
     SizeF defaultSize;
-    String groupName;
 
     float gridSize = 2.0F;
 
@@ -58,7 +57,6 @@ namespace StencilEditor
       anchorPointList = new LinkedList<Box>();
       tagPosition = new PointF(50.0F, 50.0F);
       defaultSize = new SizeF(10.0F, 10.0F);
-      groupName = "";
 
       flowChart1.ClearAll();
       flowChart2.ClearAll();
@@ -137,8 +135,7 @@ namespace StencilEditor
       flowChart1.GridStyle = MindFusion.FlowChartX.GridStyle.Lines;
       flowChart1.ShowGrid = true;
 
-      flowChart1.ZoomToRect(new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F));
-      flowChart2.ZoomToRect(new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F));
+      ZoomFlowCharts();
     }
 
     public void Initialise()
@@ -677,6 +674,7 @@ namespace StencilEditor
 
                 firstArrow = flowChart1.CreateArrow(origin, destination);
                 firstArrow.Style = ArrowStyle.Bezier;
+                elementList.AddLast(firstArrow);
 
                 firstArrow.ControlPoints.SetAt(0, new PointF((element as Bezier).x1, (element as Bezier).y1));
                 firstArrow.ControlPoints.SetAt(1, new PointF((element as Bezier).x2, (element as Bezier).y2));
@@ -788,7 +786,7 @@ namespace StencilEditor
             SetShape();
           }
 
-          groupName = stencil.groupName;
+          groupNameComboBox.Text = stencil.groupName;
         }
         else if (graphicStencilButton.Checked)
         {
@@ -825,6 +823,7 @@ namespace StencilEditor
 
                 firstArrow = flowChart1.CreateArrow(origin, destination);
                 firstArrow.Style = ArrowStyle.Bezier;
+                elementList.AddLast(firstArrow);
 
                 firstArrow.ControlPoints.SetAt(0, new PointF((element as Bezier).x1, (element as Bezier).y1));
                 firstArrow.ControlPoints.SetAt(1, new PointF((element as Bezier).x2, (element as Bezier).y2));
@@ -919,7 +918,7 @@ namespace StencilEditor
             }
           }
 
-          groupName = stencil.groupName;
+          groupNameComboBox.Text = stencil.groupName;
 
           float x = 0.0F;
           float y = 0.0F;
@@ -931,13 +930,14 @@ namespace StencilEditor
             {
               x += (element as Line).x1 + (element as Line).x2;
               y += (element as Line).x1 + (element as Line).x2;
+              count += 2;
             }
             else if (element is Bezier)
             {
               x += (element as Bezier).x1 + (element as Bezier).x2 + (element as Bezier).x3 + (element as Bezier).x4;
               y += (element as Bezier).x1 + (element as Bezier).x2 + (element as Bezier).x3 + (element as Bezier).x4;
+              count += 4;
             }
-            count++;
           }
           x /= count;
           y /= count;
@@ -961,7 +961,6 @@ namespace StencilEditor
       SaveFileDialog saveDialog = new SaveFileDialog();
       saveDialog.AddExtension = true;
       saveDialog.CheckPathExists = true;
-      saveDialog.CreatePrompt = true;
       if (modelStencilButton.Checked)
       {
         saveDialog.DefaultExt = "modelstencil";
@@ -1040,7 +1039,7 @@ namespace StencilEditor
                                                minIn, maxIn, minOut, maxOut));
           }
 
-          stencil.groupName = groupName;
+          stencil.groupName = groupNameComboBox.Text;
           
           Stream fileStream = saveDialog.OpenFile();
 
@@ -1107,7 +1106,7 @@ namespace StencilEditor
                                                  arrow.ControlPoints.GetAt(3).Y));
           }
 
-          stencil.groupName = groupName;
+          stencil.groupName = groupNameComboBox.Text;
           stencil.defaultSize = defaultSize;
 
           Stream fileStream = saveDialog.OpenFile();
@@ -1138,8 +1137,13 @@ namespace StencilEditor
 
     private void Form1_Resize(object sender, EventArgs e)
     {
+      ZoomFlowCharts();
+    }
+
+    private void ZoomFlowCharts()
+    {
       flowChart1.ZoomToRect(new RectangleF(-25.0F, -25.0F, 150.0F, 150.0F));
-      flowChart2.ZoomToRect(new RectangleF(-25.0F, -25.0F, 150.0F, 150.0F));
+      flowChart2.ZoomToRect(new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F));
     }
 
     private void graphicStencilButton_Click(object sender, EventArgs e)
@@ -1154,6 +1158,16 @@ namespace StencilEditor
       graphicStencilButton.Checked = !modelStencilButton.Checked;
 
       SetShape();
+    }
+
+    private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+    {
+      ZoomFlowCharts();
+    }
+
+    private void splitContainer1_SplitterMoving(object sender, SplitterCancelEventArgs e)
+    {
+      ZoomFlowCharts();
     }
   }
 }
