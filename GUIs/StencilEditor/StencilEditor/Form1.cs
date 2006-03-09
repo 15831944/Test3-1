@@ -30,6 +30,7 @@ namespace StencilEditor
 
     float gridSize = 2.0F;
 
+    Arrow axisX, axisY;
     Box canvas1, canvas2;
     Box tagPositionBox;
     Box example1, example2, example3;
@@ -65,6 +66,16 @@ namespace StencilEditor
       flowChart1.DocExtents = new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F);
       flowChart2.DocExtents = new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F);
 
+      axisX = flowChart1.CreateArrow(new PointF(50.0F + (gridSize / 2.0F), -1000000.0F), new PointF(50.0F + (gridSize / 2.0F), 1000000.0F));
+      axisX.CustomDraw = CustomDraw.ShadowOnly;
+      axisX.FrameColor = Color.FromArgb(50, Color.Black);
+      axisX.Locked = true;
+
+      axisY = flowChart1.CreateArrow(new PointF(-1000000.0F, 50.0F + (gridSize / 2.0F)), new PointF(1000000.0F, 50.0F + (gridSize / 2.0F)));
+      axisY.CustomDraw = CustomDraw.ShadowOnly;
+      axisY.FrameColor = Color.FromArgb(50, Color.Black);
+      axisY.Locked = true;
+
       canvas1 = flowChart1.CreateBox(0.0F, 0.0F, 100.0F, 100.0F);
       canvas1.ZBottom();
       canvas1.CustomDraw = CustomDraw.ShadowOnly;
@@ -83,7 +94,7 @@ namespace StencilEditor
       canvas2.Shape = ShapeTemplate.FromId("Rectangle");
       canvas2.Locked = true;
 
-      tagPositionBox = flowChart1.CreateBox(tagPosition.X - (gridSize / 2.0F), tagPosition.Y - (gridSize / 2.0F), gridSize * 2.0F, gridSize * 2.0F);
+      tagPositionBox = flowChart1.CreateBox(tagPosition.X - (gridSize*1.5F), tagPosition.Y - (gridSize*1.5F), gridSize * 3.0F, gridSize * 3.0F);
       tagPositionBox.HandlesStyle = HandlesStyle.MoveOnly;
       tagPositionBox.Style = BoxStyle.Shape;
       tagPositionBox.Shape = ShapeTemplate.FromId("Or");
@@ -597,7 +608,7 @@ namespace StencilEditor
     {
       tagPosition.X = (tagPositionBox.BoundingRect.Left + tagPositionBox.BoundingRect.Right) / 2.0F;
       tagPosition.Y = (tagPositionBox.BoundingRect.Top + tagPositionBox.BoundingRect.Bottom) / 2.0F;
-
+      
       textAreaList.Clear();
       textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F)));
       textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F)));
@@ -933,7 +944,7 @@ namespace StencilEditor
 
           tagPosition.X = x;
           tagPosition.Y = y;
-          tagPositionBox.BoundingRect = new RectangleF(tagPosition.X - (gridSize / 2.0F), tagPosition.Y - (gridSize / 2.0F), gridSize * 2.0F, gridSize * 2.0F);
+          tagPositionBox.BoundingRect = new RectangleF(tagPosition.X - (gridSize*1.5F), tagPosition.Y - (gridSize*1.5F), gridSize * 3.0F, gridSize * 3.0F);
 
           textAreaList.Clear();
           textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F)));
