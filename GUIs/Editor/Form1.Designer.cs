@@ -29,12 +29,12 @@ namespace SysCAD.Editor
     /// </summary>
     private void InitializeComponent()
     {
-      PureComponents.TreeView.ContextMenuStrings contextMenuStrings1 = new PureComponents.TreeView.ContextMenuStrings();
-      PureComponents.TreeView.TreeViewStyle treeViewStyle1 = new PureComponents.TreeView.TreeViewStyle();
-      PureComponents.TreeView.NodeStyle nodeStyle1 = new PureComponents.TreeView.NodeStyle();
-      PureComponents.TreeView.CheckBoxStyle checkBoxStyle1 = new PureComponents.TreeView.CheckBoxStyle();
-      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle1 = new PureComponents.TreeView.ExpandBoxStyle();
-      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle1 = new PureComponents.TreeView.NodeTooltipStyle();
+      PureComponents.TreeView.ContextMenuStrings contextMenuStrings3 = new PureComponents.TreeView.ContextMenuStrings();
+      PureComponents.TreeView.TreeViewStyle treeViewStyle3 = new PureComponents.TreeView.TreeViewStyle();
+      PureComponents.TreeView.NodeStyle nodeStyle3 = new PureComponents.TreeView.NodeStyle();
+      PureComponents.TreeView.CheckBoxStyle checkBoxStyle3 = new PureComponents.TreeView.CheckBoxStyle();
+      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle3 = new PureComponents.TreeView.ExpandBoxStyle();
+      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle3 = new PureComponents.TreeView.NodeTooltipStyle();
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editUndoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Undo", "&Undo", -1);
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editRedoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Redo", "&Redo", -1);
@@ -196,9 +196,6 @@ namespace SysCAD.Editor
       this.toolWindowContainer1 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.toolWindowContainer2 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.dockContainerContainer1 = new ActiproSoftware.UIStudio.Dock.DockContainerContainer();
-      this.twStencils = new ActiproSoftware.UIStudio.Dock.ToolWindow();
-      this.tbStencils = new MindFusion.FlowChartX.ShapeToolBar();
-      this.toolWindowContainer3 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.twGraphicProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
       this.toolWindowContainer4 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
@@ -210,8 +207,6 @@ namespace SysCAD.Editor
       this.toolWindowContainer1.SuspendLayout();
       this.toolWindowContainer2.SuspendLayout();
       this.dockContainerContainer1.SuspendLayout();
-      this.twStencils.SuspendLayout();
-      this.toolWindowContainer3.SuspendLayout();
       this.twGraphicProperties.SuspendLayout();
       this.toolWindowContainer4.SuspendLayout();
       this.SuspendLayout();
@@ -230,8 +225,9 @@ namespace SysCAD.Editor
       this.ovOverview.Document = null;
       this.ovOverview.FitAll = true;
       this.ovOverview.Location = new System.Drawing.Point(0, 0);
+      this.ovOverview.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.ovOverview.Name = "ovOverview";
-      this.ovOverview.Size = new System.Drawing.Size(172, 137);
+      this.ovOverview.Size = new System.Drawing.Size(128, 108);
       this.ovOverview.TabIndex = 0;
       // 
       // twOverview
@@ -240,105 +236,41 @@ namespace SysCAD.Editor
       this.twOverview.Dock = System.Windows.Forms.DockStyle.Fill;
       this.twOverview.DockManager = this.dockManager1;
       this.twOverview.Key = "twOverview";
-      this.twOverview.Location = new System.Drawing.Point(0, 29);
+      this.twOverview.Location = new System.Drawing.Point(0, 25);
+      this.twOverview.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.twOverview.Name = "twOverview";
-      this.twOverview.Size = new System.Drawing.Size(172, 137);
+      this.twOverview.Size = new System.Drawing.Size(128, 108);
       this.twOverview.TabIndex = 0;
       this.twOverview.Text = "Overview";
       // 
       // tvNavigation
       // 
-      this.tvNavigation.AllowAdding = true;
-      this.tvNavigation.AllowArranging = true;
-      this.tvNavigation.AllowDeleting = true;
-      this.tvNavigation.AllowEditing = true;
-      this.tvNavigation.AutoDragDrop = true;
-      this.tvNavigation.BackColor = System.Drawing.Color.White;
       this.tvNavigation.CheckBoxes = true;
-      this.tvNavigation.ContextMenuArranging = false;
-      this.tvNavigation.ContextMenuEditing = false;
-      contextMenuStrings1.AddNode = "Add Node";
-      contextMenuStrings1.Collapse = "Collapse";
-      contextMenuStrings1.Copy = "Copy";
-      contextMenuStrings1.DeleteNode = "Delete Node";
-      contextMenuStrings1.EditNode = "Edit Node";
-      contextMenuStrings1.Expand = "Expand";
-      contextMenuStrings1.LoadXml = "Load Xml...";
-      contextMenuStrings1.MoveBottom = "Move Bottom";
-      contextMenuStrings1.MoveDown = "Move Down";
-      contextMenuStrings1.MoveLeft = "Move Left";
-      contextMenuStrings1.MoveRight = "Move Right";
-      contextMenuStrings1.MoveTop = "Move Top";
-      contextMenuStrings1.MoveUp = "Move Up";
-      contextMenuStrings1.Paste = "Paste";
-      contextMenuStrings1.SaveXml = "Save Xml...";
-      this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
-      this.tvNavigation.ContextMenuXmlOperations = false;
+      this.tvNavigation.ContextMenuStrings = contextMenuStrings3;
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tvNavigation.ExpandOnDblClick = true;
-      this.tvNavigation.Flags = false;
-      this.tvNavigation.HideSelection = false;
-      this.tvNavigation.ImageList = null;
-      this.tvNavigation.LabelEdit = true;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);
-      this.tvNavigation.Multiline = true;
+      this.tvNavigation.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.tvNavigation.Name = "tvNavigation";
-      this.tvNavigation.NodeAutoNumbering = false;
-      this.tvNavigation.PathSeparator = "\\";
       this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
-      this.tvNavigation.Size = new System.Drawing.Size(172, 443);
-      this.tvNavigation.Sorted = false;
-      treeViewStyle1.AutoCollapse = false;
-      treeViewStyle1.BackColor = System.Drawing.Color.White;
-      treeViewStyle1.BorderColor = System.Drawing.Color.DimGray;
-      treeViewStyle1.BorderStyle = PureComponents.TreeView.BorderStyle.Solid;
-      treeViewStyle1.FadeColor = System.Drawing.Color.Khaki;
-      treeViewStyle1.FillStyle = PureComponents.TreeView.FillStyle.Flat;
-      treeViewStyle1.FlashColor = System.Drawing.Color.Red;
-      treeViewStyle1.FullRowSelect = true;
-      treeViewStyle1.HighlightSelectedPath = false;
-      treeViewStyle1.LineColor = System.Drawing.Color.Gray;
-      treeViewStyle1.LineStyle = PureComponents.TreeView.LineStyle.Dot;
-      treeViewStyle1.NodeSpaceHorizontal = 0;
-      treeViewStyle1.NodeSpaceVertical = 0;
-      checkBoxStyle1.BackColor = System.Drawing.Color.White;
-      checkBoxStyle1.BorderColor = System.Drawing.Color.Black;
-      checkBoxStyle1.BorderStyle = PureComponents.TreeView.CheckBoxBorderStyle.Solid;
-      checkBoxStyle1.CheckColor = System.Drawing.Color.Black;
-      checkBoxStyle1.HoverBackColor = System.Drawing.Color.White;
-      checkBoxStyle1.HoverBorderColor = System.Drawing.Color.Black;
-      checkBoxStyle1.HoverCheckColor = System.Drawing.Color.Black;
-      nodeStyle1.CheckBoxStyle = checkBoxStyle1;
-      expandBoxStyle1.BackColor = System.Drawing.Color.SkyBlue;
-      expandBoxStyle1.BorderColor = System.Drawing.Color.Black;
-      expandBoxStyle1.ForeColor = System.Drawing.Color.Black;
-      expandBoxStyle1.Shape = PureComponents.TreeView.ExpandBoxShape.XP;
-      nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
-      nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeStyle1.ForeColor = System.Drawing.Color.Black;
-      nodeStyle1.HoverBackColor = System.Drawing.Color.Moccasin;
-      nodeStyle1.HoverForeColor = System.Drawing.Color.Black;
-      nodeStyle1.Parent = null;
-      nodeStyle1.SelectedBackColor = System.Drawing.Color.CornflowerBlue;
-      nodeStyle1.SelectedBorderColor = System.Drawing.Color.RoyalBlue;
-      nodeStyle1.SelectedFillStyle = PureComponents.TreeView.FillStyle.VerticalFading;
-      nodeStyle1.SelectedForeColor = System.Drawing.Color.Black;
-      nodeTooltipStyle1.BackColor = System.Drawing.Color.WhiteSmoke;
-      nodeTooltipStyle1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(142)))), ((int)(((byte)(125)))));
-      nodeTooltipStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeTooltipStyle1.ForeColor = System.Drawing.Color.Black;
-      nodeStyle1.TooltipStyle = nodeTooltipStyle1;
-      nodeStyle1.UnderlineColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-      nodeStyle1.UnderlineStyle = PureComponents.TreeView.UnderlineStyle.Tilde;
-      treeViewStyle1.NodeStyle = nodeStyle1;
-      treeViewStyle1.ShowLines = true;
-      treeViewStyle1.ShowPlusMinus = true;
-      treeViewStyle1.ShowSubitemsIndicator = false;
-      treeViewStyle1.TrackNodeHover = true;
-      this.tvNavigation.Style = treeViewStyle1;
+      this.tvNavigation.Size = new System.Drawing.Size(128, 354);
+      treeViewStyle3.HighlightSelectedPath = false;
+      treeViewStyle3.LineStyle = PureComponents.TreeView.LineStyle.Dot;
+      checkBoxStyle3.BorderColor = System.Drawing.Color.Black;
+      checkBoxStyle3.BorderStyle = PureComponents.TreeView.CheckBoxBorderStyle.Solid;
+      checkBoxStyle3.CheckColor = System.Drawing.Color.Black;
+      checkBoxStyle3.HoverBackColor = System.Drawing.Color.White;
+      checkBoxStyle3.HoverBorderColor = System.Drawing.Color.Black;
+      checkBoxStyle3.HoverCheckColor = System.Drawing.Color.Black;
+      nodeStyle3.CheckBoxStyle = checkBoxStyle3;
+      nodeStyle3.ExpandBoxStyle = expandBoxStyle3;
+      nodeStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeTooltipStyle3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(142)))), ((int)(((byte)(125)))));
+      nodeTooltipStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeStyle3.TooltipStyle = nodeTooltipStyle3;
+      nodeStyle3.UnderlineColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+      treeViewStyle3.NodeStyle = nodeStyle3;
+      this.tvNavigation.Style = treeViewStyle3;
       this.tvNavigation.TabIndex = 1;
-      this.tvNavigation.TooltipPopDelay = 1500;
-      this.tvNavigation.Tooltips = true;
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
       this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
       // 
@@ -348,9 +280,10 @@ namespace SysCAD.Editor
       this.twNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.twNavigation.DockManager = this.dockManager1;
       this.twNavigation.Key = "treeView1";
-      this.twNavigation.Location = new System.Drawing.Point(0, 29);
+      this.twNavigation.Location = new System.Drawing.Point(0, 25);
+      this.twNavigation.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.twNavigation.Name = "twNavigation";
-      this.twNavigation.Size = new System.Drawing.Size(172, 443);
+      this.twNavigation.Size = new System.Drawing.Size(128, 354);
       this.twNavigation.TabIndex = 0;
       this.twNavigation.Text = "Navigation";
       // 
@@ -402,12 +335,14 @@ namespace SysCAD.Editor
       helpAboutBarButtonCommand.Enabled = false;
       viewZoomInBarButtonCommand.Enabled = false;
       viewZoomInBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131259)});
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131179)});
       viewZoomOutBarButtonCommand.Enabled = false;
       viewZoomOutBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131261)});
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131181)});
       viewZoomToVisibleBarButtonCommand.Enabled = false;
       viewZoomToSelectedBarButtonCommand.Enabled = false;
+      viewZoomToSelectedBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131178)});
       fileNewBarButtonCommand.Enabled = false;
       fileNewBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("fileNewBarButtonCommand.Image")));
       fileNewBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
@@ -689,9 +624,10 @@ namespace SysCAD.Editor
       // 
       this.barDockArea1.BarManager = this.barManager1;
       this.barDockArea1.Dock = System.Windows.Forms.DockStyle.Left;
-      this.barDockArea1.Location = new System.Drawing.Point(0, 84);
+      this.barDockArea1.Location = new System.Drawing.Point(0, 74);
+      this.barDockArea1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.barDockArea1.Name = "barDockArea1";
-      this.barDockArea1.Size = new System.Drawing.Size(0, 642);
+      this.barDockArea1.Size = new System.Drawing.Size(0, 516);
       this.barDockArea1.TabIndex = 2;
       // 
       // barDockArea2
@@ -699,26 +635,29 @@ namespace SysCAD.Editor
       this.barDockArea2.BarManager = this.barManager1;
       this.barDockArea2.Dock = System.Windows.Forms.DockStyle.Top;
       this.barDockArea2.Location = new System.Drawing.Point(0, 0);
+      this.barDockArea2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.barDockArea2.Name = "barDockArea2";
-      this.barDockArea2.Size = new System.Drawing.Size(1301, 84);
+      this.barDockArea2.Size = new System.Drawing.Size(963, 74);
       this.barDockArea2.TabIndex = 3;
       // 
       // barDockArea3
       // 
       this.barDockArea3.BarManager = this.barManager1;
       this.barDockArea3.Dock = System.Windows.Forms.DockStyle.Right;
-      this.barDockArea3.Location = new System.Drawing.Point(1301, 84);
+      this.barDockArea3.Location = new System.Drawing.Point(963, 74);
+      this.barDockArea3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.barDockArea3.Name = "barDockArea3";
-      this.barDockArea3.Size = new System.Drawing.Size(0, 642);
+      this.barDockArea3.Size = new System.Drawing.Size(0, 516);
       this.barDockArea3.TabIndex = 4;
       // 
       // barDockArea4
       // 
       this.barDockArea4.BarManager = this.barManager1;
       this.barDockArea4.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.barDockArea4.Location = new System.Drawing.Point(0, 726);
+      this.barDockArea4.Location = new System.Drawing.Point(0, 590);
+      this.barDockArea4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.barDockArea4.Name = "barDockArea4";
-      this.barDockArea4.Size = new System.Drawing.Size(1301, 0);
+      this.barDockArea4.Size = new System.Drawing.Size(963, 0);
       this.barDockArea4.TabIndex = 5;
       // 
       // toolWindowContainer1
@@ -726,17 +665,19 @@ namespace SysCAD.Editor
       this.toolWindowContainer1.Controls.Add(this.twOverview);
       this.toolWindowContainer1.DockManager = this.dockManager1;
       this.toolWindowContainer1.Location = new System.Drawing.Point(0, 0);
+      this.toolWindowContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.toolWindowContainer1.Name = "toolWindowContainer1";
-      this.toolWindowContainer1.Size = new System.Drawing.Size(172, 166);
+      this.toolWindowContainer1.Size = new System.Drawing.Size(128, 133);
       this.toolWindowContainer1.TabIndex = 8;
       // 
       // toolWindowContainer2
       // 
       this.toolWindowContainer2.Controls.Add(this.twNavigation);
       this.toolWindowContainer2.DockManager = this.dockManager1;
-      this.toolWindowContainer2.Location = new System.Drawing.Point(0, 170);
+      this.toolWindowContainer2.Location = new System.Drawing.Point(0, 137);
+      this.toolWindowContainer2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.toolWindowContainer2.Name = "toolWindowContainer2";
-      this.toolWindowContainer2.Size = new System.Drawing.Size(172, 472);
+      this.toolWindowContainer2.Size = new System.Drawing.Size(128, 379);
       this.toolWindowContainer2.TabIndex = 9;
       // 
       // dockContainerContainer1
@@ -745,46 +686,13 @@ namespace SysCAD.Editor
       this.dockContainerContainer1.Controls.Add(this.toolWindowContainer2);
       this.dockContainerContainer1.Dock = System.Windows.Forms.DockStyle.Left;
       this.dockContainerContainer1.DockManager = this.dockManager1;
-      this.dockContainerContainer1.Location = new System.Drawing.Point(0, 84);
+      this.dockContainerContainer1.Location = new System.Drawing.Point(0, 74);
+      this.dockContainerContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.dockContainerContainer1.Name = "dockContainerContainer1";
       this.dockContainerContainer1.Orientation = System.Windows.Forms.Orientation.Vertical;
       this.dockContainerContainer1.SelectedToolWindow = null;
-      this.dockContainerContainer1.Size = new System.Drawing.Size(176, 642);
+      this.dockContainerContainer1.Size = new System.Drawing.Size(132, 516);
       this.dockContainerContainer1.TabIndex = 8;
-      // 
-      // twStencils
-      // 
-      this.twStencils.Controls.Add(this.tbStencils);
-      this.twStencils.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.twStencils.DockManager = this.dockManager1;
-      this.twStencils.Location = new System.Drawing.Point(0, 29);
-      this.twStencils.Name = "twStencils";
-      this.twStencils.Size = new System.Drawing.Size(1125, 44);
-      this.twStencils.TabIndex = 0;
-      this.twStencils.Text = "Stencils";
-      this.twStencils.TitleBarText = "Stencils";
-      // 
-      // tbStencils
-      // 
-      this.tbStencils.AllowDrag = true;
-      this.tbStencils.Document = null;
-      this.tbStencils.DropDownArrows = true;
-      this.tbStencils.Location = new System.Drawing.Point(0, 0);
-      this.tbStencils.Name = "tbStencils";
-      this.tbStencils.Shapes = null;
-      this.tbStencils.ShowToolTips = true;
-      this.tbStencils.Size = new System.Drawing.Size(1125, 42);
-      this.tbStencils.TabIndex = 0;
-      // 
-      // toolWindowContainer3
-      // 
-      this.toolWindowContainer3.Controls.Add(this.twStencils);
-      this.toolWindowContainer3.Dock = System.Windows.Forms.DockStyle.Top;
-      this.toolWindowContainer3.DockManager = this.dockManager1;
-      this.toolWindowContainer3.Location = new System.Drawing.Point(176, 84);
-      this.toolWindowContainer3.Name = "toolWindowContainer3";
-      this.toolWindowContainer3.Size = new System.Drawing.Size(1125, 77);
-      this.toolWindowContainer3.TabIndex = 10;
       // 
       // twGraphicProperties
       // 
@@ -792,9 +700,10 @@ namespace SysCAD.Editor
       this.twGraphicProperties.Controls.Add(this.propertyGrid1);
       this.twGraphicProperties.Dock = System.Windows.Forms.DockStyle.Fill;
       this.twGraphicProperties.DockManager = this.dockManager1;
-      this.twGraphicProperties.Location = new System.Drawing.Point(4, 29);
+      this.twGraphicProperties.Location = new System.Drawing.Point(4, 25);
+      this.twGraphicProperties.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.twGraphicProperties.Name = "twGraphicProperties";
-      this.twGraphicProperties.Size = new System.Drawing.Size(200, 536);
+      this.twGraphicProperties.Size = new System.Drawing.Size(149, 491);
       this.twGraphicProperties.TabIndex = 0;
       this.twGraphicProperties.Text = "Graphic Properties";
       // 
@@ -802,8 +711,9 @@ namespace SysCAD.Editor
       // 
       this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
+      this.propertyGrid1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.propertyGrid1.Name = "propertyGrid1";
-      this.propertyGrid1.Size = new System.Drawing.Size(200, 536);
+      this.propertyGrid1.Size = new System.Drawing.Size(149, 491);
       this.propertyGrid1.TabIndex = 0;
       // 
       // toolWindowContainer4
@@ -811,24 +721,25 @@ namespace SysCAD.Editor
       this.toolWindowContainer4.Controls.Add(this.twGraphicProperties);
       this.toolWindowContainer4.Dock = System.Windows.Forms.DockStyle.Right;
       this.toolWindowContainer4.DockManager = this.dockManager1;
-      this.toolWindowContainer4.Location = new System.Drawing.Point(1097, 161);
+      this.toolWindowContainer4.Location = new System.Drawing.Point(810, 74);
+      this.toolWindowContainer4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.toolWindowContainer4.Name = "toolWindowContainer4";
-      this.toolWindowContainer4.Size = new System.Drawing.Size(204, 565);
+      this.toolWindowContainer4.Size = new System.Drawing.Size(153, 516);
       this.toolWindowContainer4.TabIndex = 12;
       // 
       // Form1
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(1301, 726);
+      this.ClientSize = new System.Drawing.Size(963, 590);
       this.Controls.Add(this.toolWindowContainer4);
-      this.Controls.Add(this.toolWindowContainer3);
       this.Controls.Add(this.dockContainerContainer1);
       this.Controls.Add(this.barDockArea3);
       this.Controls.Add(this.barDockArea1);
       this.Controls.Add(this.barDockArea4);
       this.Controls.Add(this.barDockArea2);
       this.IsMdiContainer = true;
+      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.Name = "Form1";
       this.Text = "SysCAD.Editor";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -840,9 +751,6 @@ namespace SysCAD.Editor
       this.toolWindowContainer1.ResumeLayout(false);
       this.toolWindowContainer2.ResumeLayout(false);
       this.dockContainerContainer1.ResumeLayout(false);
-      this.twStencils.ResumeLayout(false);
-      this.twStencils.PerformLayout();
-      this.toolWindowContainer3.ResumeLayout(false);
       this.twGraphicProperties.ResumeLayout(false);
       this.toolWindowContainer4.ResumeLayout(false);
       this.ResumeLayout(false);
@@ -863,9 +771,6 @@ namespace SysCAD.Editor
     private ActiproSoftware.UIStudio.Dock.DockContainerContainer dockContainerContainer1;
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer1;
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer2;
-    private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer3;
-    private ActiproSoftware.UIStudio.Dock.ToolWindow twStencils;
-    private ShapeToolBar tbStencils;
     private PureComponents.TreeView.TreeView tvNavigation;
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer4;
     private ActiproSoftware.UIStudio.Dock.ToolWindow twGraphicProperties;

@@ -37,17 +37,17 @@ namespace SysCAD.Interface
     {
       try
       {
-        BinaryClientFormatterSinkProvider clientProvider = new BinaryClientFormatterSinkProvider();
-        BinaryServerFormatterSinkProvider serverProvider = new BinaryServerFormatterSinkProvider();
-        serverProvider.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+        //BinaryClientFormatterSinkProvider clientProvider = new BinaryClientFormatterSinkProvider();
+        //BinaryServerFormatterSinkProvider serverProvider = new BinaryServerFormatterSinkProvider();
+        //serverProvider.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
-        IDictionary props = new Hashtable();
-        props["port"] = 0;
-        string s = System.Guid.NewGuid().ToString();
-        props["name"] = s;
-        props["typeFilterLevel"] = TypeFilterLevel.Full;
-        TcpChannel chan = new TcpChannel(props, clientProvider, serverProvider);
-        ChannelServices.RegisterChannel(chan, false);
+        //IDictionary props = new Hashtable();
+        //props["port"] = 0;
+        //string s = System.Guid.NewGuid().ToString();
+        //props["name"] = s;
+        //props["typeFilterLevel"] = TypeFilterLevel.Full;
+        //TcpChannel chan = new TcpChannel(props, clientProvider, serverProvider);
+        //ChannelServices.RegisterChannel(chan, false);
 
         remoteConfig = Activator.GetObject(typeof(ConfigData), URL) as ConfigData;
         StringCollection test = remoteConfig.projectList; // Check that the connection is up.

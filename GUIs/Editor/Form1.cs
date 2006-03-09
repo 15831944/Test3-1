@@ -246,9 +246,6 @@ namespace SysCAD.Editor
           i++;
         }
 
-        tbStencils.Shapes = shapesStringArray;
-        tbStencils.RecreateImages();
-
         tvNavigation_SetProject();
         frmFlowChart.SetProject(graphic, config);
         frmFlowChart.MdiParent = this;
@@ -257,8 +254,7 @@ namespace SysCAD.Editor
         frmFlowChart.Show();
 
         ovOverview.Document = frmFlowChart.fcFlowChart;
-        tbStencils.Document = frmFlowChart.fcFlowChart;
-
+        
         // Force update of the panels.
         twOverview.Size = new Size(twOverview.Size.Width, twOverview.Size.Height + 1);
         this.Size = new Size(this.Size.Width, this.Size.Height + 1);

@@ -13,6 +13,7 @@ using System.Data.OleDb;
 
 using SysCAD.Interface;
 using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization.Formatters.Soap;
 
 namespace SysCAD.Service
 {
@@ -51,7 +52,7 @@ namespace SysCAD.Service
       if (args.Length == 1)
         args0 = args[0];
       else
-        args0 = "e:\\";
+        args0 = ".\\";
 
       foreach (string fullpath in Directory.GetFiles(args0, "*.modelstencil"))
       {
