@@ -56,22 +56,25 @@ namespace SysCAD.Service
 
       foreach (string fullpath in Directory.GetFiles(args0, "*.modelstencil"))
       {
-        System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(ModelStencil));
-        TextReader reader = new StreamReader(fullpath);
-        config.modelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (ModelStencil)ser.Deserialize(reader));
-        reader.Close();
+        SoapFormatter sf = new SoapFormatter();
+        Stream stream = new StreamReader(fullpath).BaseStream;
+        config.modelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (ModelStencil)sf.Deserialize(stream));
+        stream.Close();
+        Console.WriteLine("Added modelstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
       }
+
+      Console.WriteLine("\n");
 
       foreach (string fullpath in Directory.GetFiles(args0, "*.graphicstencil"))
       {
-        SoapFormatter bf = new SoapFormatter();
-
-        System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(GraphicStencil));
-        TextReader reader = new StreamReader(fullpath);
-        config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (GraphicStencil)ser.Deserialize(reader));
-        reader.Close();
+        SoapFormatter sf = new SoapFormatter();
+        Stream stream = new StreamReader(fullpath).BaseStream;
+        config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (GraphicStencil)sf.Deserialize(stream));
+        stream.Close();
+        Console.WriteLine("Added graphicstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
       }
 
+      Console.WriteLine("\n");
 
       string[] directoryList = Directory.GetFiles(args0, "*.mdb");
 
