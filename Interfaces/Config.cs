@@ -25,6 +25,11 @@ namespace SysCAD.Interface
       modelStencils = new Dictionary<string, ModelStencil>();
       graphicStencils = new Dictionary<string, GraphicStencil>();
     }
+
+    public override Object InitializeLifetimeService()
+    {
+      return null;
+    }
   }
 
   public class Config : ConfigData
