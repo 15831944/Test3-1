@@ -369,14 +369,31 @@ CDataCnv* CDataCnv::At(char* SecTxt)
 
 //---------------------------------------------------------------------------
 
+#define SortSecondaryCnvAlpha 1
+//Perhaps an option to sort Secondary Cnv by scale first, then alpha second should be considered?
+
 CDataCnv* CDataCnv::AddSecondaryCnv(char* Txt, double Scl, double Off, flag PrjCnv)//, flag OffsetIsAtmos)
   {
   CDataCnv* p = new CDataCnv(pSI, Txt, Scl, Off, PrjCnv, m_iXform);//, OffsetIsAtmos);
   CDataCnv* pe = this;
+  #if SortSecondaryCnvAlpha
+  while (pe->m_pNxt && strcmp(pe->m_pNxt->Txt(), Txt)<0)
+    pe = pe->m_pNxt;
+  p->m_pNxt = pe->m_pNxt;
+  pe->m_pNxt = p;
+	p->m_iInx = pe->m_iInx+1;
+  pe = p->m_pNxt;
+  while (pe)
+    {
+    pe->m_iInx++;
+    pe = pe->m_pNxt;
+    }
+  #else
   while (pe->m_pNxt)
     pe = pe->m_pNxt;
   pe->m_pNxt = p;
-	p->m_iInx=pe->m_iInx+1;
+	p->m_iInx = pe->m_iInx+1;
+  #endif
   return p;
   }
 
