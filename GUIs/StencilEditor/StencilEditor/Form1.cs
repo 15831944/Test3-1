@@ -585,6 +585,7 @@ namespace StencilEditor
     private void NewStencilButton_Click(object sender, EventArgs e)
     {
       reset();
+      Initialise();
     }
 
     private void flowChart1_BoxDeleting(object sender, BoxConfirmArgs e)
