@@ -457,31 +457,24 @@ double CDataCnv::XformHuman(double x)
 
 CCnvsMngr::CCnvsMngr()
   {
-  memset(Cnvs, 0, sizeof(Cnvs));
-  iCnvCnt = 0;
+  Cnvs.SetSize(0,1024);
   }
 
 //---------------------------------------------------------------------------
 
 CCnvsMngr::~CCnvsMngr()
   {
-  int i=0;
-  while (Cnvs[i] && i<MaxCnvs)
-    delete Cnvs[i++];
-  memset(Cnvs, 0, sizeof(Cnvs));
+  for (int i=0; i< Cnvs.GetSize(); i++)
+    delete Cnvs[i];
+  Cnvs.SetSize(0,1024);
   }
 
 //---------------------------------------------------------------------------
 
 void CCnvsMngr::Init()
   {
-  if (iCnvCnt==0)
+  if (Cnvs.GetSize()==0)
     {
-    #ifndef _RELEASE
-    if (Cnvs[0]!=NULL)
-      DoBreak(); //if iCnvCnt==0 expect Cnvs[...]==NULL !!!
-    #endif
-    ASSERT(iCnvCnt==0);
     //            AddSI(Family     , SI units     , description                     ,    min ,            max, PrjCnv)
     DC_         = AddSI(""         , ""           , "Constants"                     ,    0.0 ,          100.0, false);
     DC_Frac     = AddSI("Frac"     , ""           , "Fraction"                      ,    0.0 ,            1.0, false);
@@ -634,32 +627,20 @@ void CCnvsMngr::Init()
 
 void CCnvsMngr::Reset()
   {
-  int i=0;
-  while (Cnvs[i] && i<MaxCnvs)
-    delete Cnvs[i++];
-  memset(Cnvs, 0, sizeof(Cnvs));
-  iCnvCnt = 0;
+  for (int i=0; i< Cnvs.GetSize(); i++)
+    delete Cnvs[i];
+  Cnvs.SetSize(0,1024);
   }
 
 //---------------------------------------------------------------------------
 
 CCnvIndex CCnvsMngr::AddSI(char* Fam, char* Txt, char* Desc, double Min, double Max_, flag PrjCnv, long iXform)
   {
-  //ASSERT_ALWAYS(iCnvCnt<MaxCnvs, "Too many conversion families!");
-  if (iCnvCnt>=MaxCnvs)
-    {
-    LogError("Cnvs", LF_Exclamation, "Too many conversion families!  Cannot add '%s'", Fam);
-    #ifndef _RELEASE
-    DoBreak();
-    #endif
-    return DC_;
-    }
   ASSERT(FindCnv(Fam)==-1); //should NOT already exist!
   CDataCnvFam* pSI = new CDataCnvFam(Fam, Desc, Min, Max_);
-  Cnvs[iCnvCnt] = new CDataCnv(pSI, Txt, 1.0, 0.0, PrjCnv, iXform);
-  pSI->pSICnv = Cnvs[iCnvCnt];
-  iCnvCnt++;
-  return (iCnvCnt-1);
+  Cnvs.Add(new CDataCnv(pSI, Txt, 1.0, 0.0, PrjCnv, iXform));
+  pSI->pSICnv = Cnvs[Cnvs.GetSize()-1];
+  return (Cnvs.GetSize()-1);
   }
 
 //---------------------------------------------------------------------------
@@ -940,18 +921,8 @@ BOOL CCnvsMngr::ParseCnvLineADO(int LineNo, CStringArray& Values, BOOL LogErrs, 
 int CCnvsMngr::LoadCnvsADO(char* Filename, flag PrjCnv, BOOL LogErrs/*=TRUE*/)
   {
   int NewCnvsLoadedCnt = 0;
-  if (iCnvCnt==0)
-    {
-    #ifndef _RELEASE
-    if (Cnvs[0]!=NULL)
-      DoBreak(); //if iCnvCnt==0 expect Cnvs[...]==NULL !!!
-    #endif
+  if (Cnvs.GetSize()==0)
     Init();
-    }
-  #ifndef _RELEASE
-  if (Cnvs[0]==NULL)
-    DoBreak(); //if iCnvCnt>0 expect Cnvs[...]!=NULL !!!
-  #endif
 
 /*CStopWatch SW;
 SW.Start();*/
@@ -1015,18 +986,8 @@ SW.Start();*/
 
 CCnvIndex CCnvsMngr::AddPri(char* Fam, char* Txt, double Min, double Max_, char *Desc, flag PrjCnv)
   {
-  if (iCnvCnt==0)
-    {
-    #ifndef _RELEASE
-    if (Cnvs[0]!=NULL)
-      DoBreak(); //if iCnvCnt==0 expect Cnvs[...]==NULL !!!
-    #endif
+  if (Cnvs.GetSize()==0)
     Init();
-    }
-  #ifndef _RELEASE
-  if (Cnvs[0]==NULL)
-    DoBreak(); //if iCnvCnt>0 expect Cnvs[...]!=NULL !!!
-  #endif
 
   CCnvIndex index = FindCnv(Fam);
   if ((index)<0)
@@ -1052,7 +1013,7 @@ CCnvIndex CCnvsMngr::AddSec(CCnvIndex index, char* Txt, double Scl, double Off, 
 CCnvIndex CCnvsMngr::FindCnv(char* pFamName)
   {
   int i=0;
-  while (Cnvs[i] && i<iCnvCnt)
+  while (i<Cnvs.GetSize())
     {
     if (strcmp(pFamName, Cnvs[i]->pSI->pFam)==0)
       return i;
@@ -1067,7 +1028,7 @@ void CCnvsMngr::DumpCnvs()
   {
   dbgpln("==================== Conversions ====================");
   int i=0;
-  while (Cnvs[i] && i<iCnvCnt)
+  while (i<Cnvs.GetSize())
     {
     CDataCnv* p = Cnvs[i];
     while (p)
@@ -1085,34 +1046,20 @@ void CCnvsMngr::DumpCnvs()
 void CCnvsMngr::Clear()
   {
   //reset conversion "overwrite"...
-  for (int i=0; i<iCnvCnt; i++)
+  for (int i=0; i<Cnvs.GetSize(); i++)
     Cnvs[i]->SetOverTxt("");
 
   //delete all conversions that are project related...
-  CCnvIndex NewCnvCnt = iCnvCnt;
-  for (i=0; i<iCnvCnt; i++)
+  for (i=0; i<Cnvs.GetSize(); i++)
+    {
     if (Cnvs[i]->PrjCnv())
       {
       delete Cnvs[i];
-      Cnvs[i] = NULL;
-      NewCnvCnt--;
+      Cnvs.RemoveAt(i);
       }
     else
       Cnvs[i]->Clear();
-
-  int j = 0;
-  for (i=NewCnvCnt; i<iCnvCnt; i++)
-    if (Cnvs[i])
-      {
-      while (Cnvs[j] && j<NewCnvCnt)
-        j++;
-      if (Cnvs[j]==NULL)
-        {
-        Cnvs[j] = Cnvs[i];
-        Cnvs[i] = NULL;
-        }
-      }
-  iCnvCnt = NewCnvCnt;
+    }
   };
 
 //---------------------------------------------------------------------------
@@ -1122,7 +1069,7 @@ void CCnvsMngr::Recover()
   if (PrjIniFile())
     {
     CProfINIFile PF(PrjIniFile());
-    for (int i=0; i<iCnvCnt; i++)
+    for (int i=0; i<Cnvs.GetSize(); i++)
       if (Cnvs[i]->Fam() && strlen(Cnvs[i]->Fam())>0)
         {
         Strng O=PF.RdStr("Conversions", Cnvs[i]->Fam(), "");
@@ -1138,7 +1085,7 @@ void CCnvsMngr::Save()
   if (PrjIniFile())
     {
     CProfINIFile PF(PrjIniFile());
-    for (int i=0; i<iCnvCnt; i++)
+    for (int i=0; i<Cnvs.GetSize(); i++)
       if (Cnvs[i]->Fam() && strlen(Cnvs[i]->Fam())>0)
         PF.WrStr("Conversions", Cnvs[i]->Fam(), Cnvs[i]->OverTxt());
 //      PF.WrStr("Conversions", Cnvs[i]->Fam(), Cnvs[i]->OverTxt() ? Cnvs[i]->OverTxt() : "");
@@ -1151,7 +1098,7 @@ void CCnvsMngr::Save()
 //
 //===========================================================================
 
-CDataCnv* Cnvs[MaxCnvs];
+CArray<CDataCnv*, CDataCnv*> Cnvs;
 CCnvsMngr gs_CnvsMngr;
 
 //===========================================================================

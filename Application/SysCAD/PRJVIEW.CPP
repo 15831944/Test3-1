@@ -1609,7 +1609,7 @@ void CPrjForm::RebuildCnvTree()
   IS.item.cChildren = 0;
   IS.item.lParam = 0;
   Strng s;
-  for (int i=1; i<MaxCnvs; i++)
+  for (int i=1; i<Cnvs.GetSize(); i++)
     {
     CDataCnv* p = Cnvs[i];
     if (p)

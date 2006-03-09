@@ -51,8 +51,6 @@ inline double PBPress()  { return AtmosPress(); }; //ProBal Pressure used in ""m
 
 //============================================================================
 
-const CCnvIndex MaxCnvs = 512;
-
 extern DllImportExport CCnvIndex    DC_        ;
 extern DllImportExport CCnvIndex    DC_Ang     ;
 extern DllImportExport CCnvIndex    DC_DP      ;
@@ -267,7 +265,7 @@ class DllImportExport CDataCnv
 
   };
 
-extern DllImportExport CDataCnv * Cnvs[MaxCnvs];
+extern DllImportExport CArray<CDataCnv*, CDataCnv*> Cnvs;
 
 //===========================================================================
 
@@ -286,11 +284,11 @@ class DllImportExport CCnvsMngr
     CCnvIndex AddSec(CCnvIndex index, char* Txt, double Scl, double Off, flag PrjCnv);
 #if WITHCNVINDEXCLASS
     inline CDataCnv* FindSecCnv(CCnvIndex DC, char* pSecTxt) { return Cnvs[DC.Index]->Find(pSecTxt); };
-    inline CCnvIndex CnvCnt() { return iCnvCnt; };
+    inline CCnvIndex CnvCnt() { return Cnvs.GetSize(); };
     inline CDataCnv* SICnv(CCnvIndex DC) { return Cnvs[DC.Index]->SICnv(); };
 #else
     inline CDataCnv* FindSecCnv(CCnvIndex DC, char* pSecTxt) { return Cnvs[DC]->Find(pSecTxt); };
-    inline CCnvIndex CnvCnt() { return iCnvCnt; };
+    inline CCnvIndex CnvCnt() { return Cnvs.GetSize(); };
     inline CDataCnv* SICnv(CCnvIndex DC) { return Cnvs[DC]->SICnv(); };
 #endif
     void  Clear();
@@ -300,7 +298,6 @@ class DllImportExport CCnvsMngr
     //void SetAtmosPressMult(double M);
 
   private:
-    CCnvIndex iCnvCnt;  //number of cnv families
 
     //BOOL LoadCnvLineCSV(DWORD LineNo, char* pLine, BOOL LogErrs, flag PrjCnv);
     BOOL ParseCnvLineADO(int LineNo, CStringArray& Values, BOOL LogErrs, flag PrjCnv);
