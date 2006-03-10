@@ -58,7 +58,9 @@ namespace SysCAD.Service
       {
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
-        config.modelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (ModelStencil)sf.Deserialize(stream));
+        ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
+        modelStencil.id = Path.GetFileNameWithoutExtension(fullpath);
+        config.modelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), modelStencil);
         stream.Close();
         Console.WriteLine("Added modelstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
       }
@@ -69,7 +71,9 @@ namespace SysCAD.Service
       {
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
-        config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), (GraphicStencil)sf.Deserialize(stream));
+        GraphicStencil graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+        graphicStencil.id = Path.GetFileNameWithoutExtension(fullpath);
+        config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
         stream.Close();
         Console.WriteLine("Added graphicstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
       }

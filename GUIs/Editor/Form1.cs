@@ -88,8 +88,8 @@ namespace SysCAD.Editor
           this.View_SelectArrows();
           break;
 
-        case "NewItem.GroupName":
-          this.NewItem_GroupName();
+        case "NewItem.ModelType":
+          this.NewItem_ModelType();
           break;
 
         case "NewItem.GraphicType":
@@ -102,14 +102,61 @@ namespace SysCAD.Editor
       }
     }
 
-    private void NewItem_GroupName()
+    private void NewItem_ModelType()
     {
-      throw new Exception("The method or operation is not implemented.");
+      string groupName = "";
+
+      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+      barManager1.Commands["NewItem.DragTarget"].Enabled = false;
+
+      int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
+      string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+      ModelStencil modelStencil;
+      config.modelStencils.TryGetValue(stencilName, out modelStencil);
+      if (modelStencil != null)
+      {
+        groupName = modelStencil.groupName;
+        barManager1.Commands["NewItem.GraphicType"].Enabled = true;
+      }
+      else
+      {
+        return;
+      }
+
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
+      foreach (GraphicStencil graphicStencil in config.graphicStencils.Values)
+      {
+        if (groupName == graphicStencil.groupName)
+        {
+          (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.id);
+        }
+      }
+
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
+
+      foreach (GraphicStencil graphicStencil in config.graphicStencils.Values)
+      {
+        if (groupName != graphicStencil.groupName)
+        {
+          (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.id);
+        }
+      }
     }
 
     private void NewItem_GraphicType()
     {
-      throw new Exception("The method or operation is not implemented.");
+      int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
+
+      barManager1.Commands["NewItem.DragTarget"].Enabled = false;
+
+      if (stencilIndex != -1)
+      {
+        string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+        if (stencilName != "-------")
+        {
+          barManager1.Commands["NewItem.DragTarget"].Enabled = true;
+        }
+      }
     }
 
     private void NewItem_DragTarget()
@@ -207,9 +254,9 @@ namespace SysCAD.Editor
       barManager1.Commands["View.ShowArrows"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectArrows"].Enabled = projectExists;
-      barManager1.Commands["NewItem.GroupName"].Enabled = projectExists;
-      barManager1.Commands["NewItem.GraphicType"].Enabled = projectExists;
-      barManager1.Commands["NewItem.DragTarget"].Enabled = projectExists;
+      barManager1.Commands["NewItem.ModelType"].Enabled = projectExists;
+//      barManager1.Commands["NewItem.GraphicType"].Enabled = projectExists;
+//      barManager1.Commands["NewItem.DragTarget"].Enabled = projectExists;
     }
 
     private void File_CloseProject()
@@ -248,6 +295,16 @@ namespace SysCAD.Editor
 
         tvNavigation_SetProject();
         frmFlowChart.SetProject(graphic, config);
+
+        (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Clear();
+        foreach (string key in config.modelStencils.Keys)
+        {
+          (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Add(key);
+        }
+        barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+        barManager1.Commands["NewItem.DragTarget"].Enabled = false;
+
+
         frmFlowChart.MdiParent = this;
         frmFlowChart.Text = openProjectForm.graphic.Name;
         frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
