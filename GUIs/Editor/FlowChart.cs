@@ -493,6 +493,16 @@ namespace SysCAD.Editor
       modelBox.ZTop();
 
     }
+
+    private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
+    {
+      e.Box.Style = BoxStyle.Shape;
+    }
+
+    private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
+    {
+      e.Box.Style = BoxStyle.Shape;
+    }
   }
 
   //---------------------------------------

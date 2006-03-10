@@ -96,10 +96,37 @@ namespace SysCAD.Editor
           this.NewItem_GraphicType();
           break;
 
-        case "NewItem.DragTarget":
-          this.NewItem_DragTarget();
+        case "NewItem.DropTarget":
+          this.NewItem_DropTarget();
+          break;
+
+        case "Mode.Modify":
+          this.Mode_Modify();
+          break;
+
+        case "Mode.CreateNode":
+          this.Mode_CreateNode();
+          break;
+
+        case "Mode.CreateLink":
+          this.Mode_CreateLink();
           break;
       }
+    }
+
+    private void Mode_CreateLink()
+    {
+      frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateArrow;
+    }
+
+    private void Mode_CreateNode()
+    {
+      frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateBox;
+    }
+
+    private void Mode_Modify()
+    {
+      frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
     }
 
     private void NewItem_ModelType()
@@ -107,7 +134,7 @@ namespace SysCAD.Editor
       string groupName = "";
 
       barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-      barManager1.Commands["NewItem.DragTarget"].Enabled = false;
+      barManager1.Commands["NewItem.DropTarget"].Enabled = false;
 
       int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
       string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
@@ -147,20 +174,23 @@ namespace SysCAD.Editor
     {
       int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
 
-      barManager1.Commands["NewItem.DragTarget"].Enabled = false;
+      barManager1.Commands["NewItem.DropTarget"].Enabled = false;
 
       if (stencilIndex != -1)
       {
         string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
         if (stencilName != "-------")
         {
-          barManager1.Commands["NewItem.DragTarget"].Enabled = true;
+          barManager1.Commands["NewItem.DropTarget"].Enabled = true;
+          GraphicStencil graphicStencil = config.graphicStencils[stencilName];
+          frmFlowChart.fcFlowChart.DefaultShape = graphicStencil.ShapeTemplate();
         }
       }
     }
 
-    private void NewItem_DragTarget()
+    private void NewItem_DropTarget()
     {
+      //frmFlowChart.fcFlowChart.beh
       throw new Exception("The method or operation is not implemented.");
     }
 
@@ -255,8 +285,9 @@ namespace SysCAD.Editor
       barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectArrows"].Enabled = projectExists;
       barManager1.Commands["NewItem.ModelType"].Enabled = projectExists;
-//      barManager1.Commands["NewItem.GraphicType"].Enabled = projectExists;
-//      barManager1.Commands["NewItem.DragTarget"].Enabled = projectExists;
+      barManager1.Commands["Mode.Modify"].Enabled = projectExists;
+      barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
+      barManager1.Commands["Mode.CreateLink"].Enabled = projectExists;
     }
 
     private void File_CloseProject()
@@ -302,7 +333,7 @@ namespace SysCAD.Editor
           (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Add(key);
         }
         barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-        barManager1.Commands["NewItem.DragTarget"].Enabled = false;
+        barManager1.Commands["NewItem.DropTarget"].Enabled = false;
 
 
         frmFlowChart.MdiParent = this;
