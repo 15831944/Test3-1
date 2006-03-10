@@ -138,6 +138,7 @@ namespace SysCAD.Interface
               (textArea as Bezier).x4,
               (textArea as Bezier).y4);
           }
+          i++;
         }
       }
 
