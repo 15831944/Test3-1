@@ -70,8 +70,8 @@ namespace SysCAD.Editor
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
       this.fcFlowChart.DrawBox += new MindFusion.FlowChartX.BoxCustomDraw(this.fcFlowChart_DrawBox);
       this.fcFlowChart.BoxCreated += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxCreated);
-      this.fcFlowChart.BoxCreating += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxCreating);
       this.fcFlowChart.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModifying);
+      this.fcFlowChart.Click += new System.EventHandler(this.fcFlowChart_Click);
       // 
       // FrmFlowChart
       // 

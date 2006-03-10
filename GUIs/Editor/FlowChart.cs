@@ -18,6 +18,7 @@ namespace SysCAD.Editor
 
     private Graphic graphic;
     private Config config;
+    private PureComponents.TreeView.TreeView tvNavigation;
 
     public bool ShowModels = false;
     public bool ShowGraphics = true;
@@ -26,6 +27,8 @@ namespace SysCAD.Editor
 
     public bool SelectArrows = false;
     public bool SelectItems = true;
+
+    public SizeF currentDefaultSize = new SizeF(0.0F, 0.0F);
 
     public FrmFlowChart()
     {
@@ -37,12 +40,13 @@ namespace SysCAD.Editor
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
     }
 
-    internal void SetProject(Graphic graphic, Config config)
+    internal void SetProject(Graphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
       this.graphic = graphic;
       //graphic.ItemModified += new Graphic.ItemModifiedHandler(graphic_ItemModified);
 
       this.config = config;
+      this.tvNavigation = tvNavigation;
 
       SuspendLayout();
       fcFlowChart.UndoManager.UndoEnabled = false;
@@ -494,14 +498,59 @@ namespace SysCAD.Editor
 
     }
 
+    string tempKey = "";
+
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
     {
-      e.Box.Style = BoxStyle.Shape;
+      tempKey += "A";
+
+      Item newItem = new Item(tempKey);
+      graphic.items.Add(tempKey, newItem);
+      newItem.x = e.Box.BoundingRect.X;
+      newItem.y = e.Box.BoundingRect.Y;
+      newItem.width = e.Box.BoundingRect.Width;
+      newItem.height = e.Box.BoundingRect.Height;
+
+      Box newModelBox = e.Box;
+      newModelBox.Text = tempKey;
+      newItem.shape = newModelBox.Shape.Id;
+
+      Box newGraphicBox = fcFlowChart.CreateBox(e.Box.BoundingRect.X, e.Box.BoundingRect.Y,
+        e.Box.BoundingRect.Width / 2.0F, e.Box.BoundingRect.Height / 2.0F);
+      newGraphicBox.Text = tempKey;
+
+      itemBoxes.Add(tempKey, new ItemBox(newModelBox, newGraphicBox, true));
+
+      tvNavigation.Nodes.Add(tempKey, tempKey);
     }
 
-    private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
+    private void fcFlowChart_Click(object sender, EventArgs e)
     {
-      e.Box.Style = BoxStyle.Shape;
+      if (fcFlowChart.Behavior == BehaviorType.CreateBox)
+      {
+        tempKey += "A";
+
+        MouseEventArgs me = e as MouseEventArgs;
+        PointF pos = fcFlowChart.ClientToDoc(me.Location);
+
+        Item newItem = new Item(tempKey);
+        graphic.items.Add(tempKey, newItem);
+        newItem.x = pos.X - (currentDefaultSize.Width / 2.0F);
+        newItem.y = pos.Y - (currentDefaultSize.Height / 2.0F);
+        newItem.width = currentDefaultSize.Width;
+        newItem.height = currentDefaultSize.Height;
+
+        Box newGraphicBox = fcFlowChart.CreateBox(newItem.x, newItem.y, newItem.width, newItem.height);
+        newGraphicBox.Text = tempKey;
+
+        Box newModelBox = fcFlowChart.CreateBox(newItem.x, newItem.y, newItem.width / 2.0F, newItem.height / 2.0F);
+        newModelBox.Text = tempKey;
+        newItem.shape = newGraphicBox.Shape.Id;
+
+        itemBoxes.Add(tempKey, new ItemBox(newModelBox, newGraphicBox, true));
+
+        tvNavigation.Nodes.Add(tempKey, tempKey);
+      }
     }
   }
 

@@ -184,6 +184,7 @@ namespace SysCAD.Editor
           barManager1.Commands["NewItem.DropTarget"].Enabled = true;
           GraphicStencil graphicStencil = config.graphicStencils[stencilName];
           frmFlowChart.fcFlowChart.DefaultShape = graphicStencil.ShapeTemplate();
+          frmFlowChart.currentDefaultSize = graphicStencil.defaultSize;
         }
       }
     }
@@ -325,7 +326,7 @@ namespace SysCAD.Editor
         }
 
         tvNavigation_SetProject();
-        frmFlowChart.SetProject(graphic, config);
+        frmFlowChart.SetProject(graphic, config, tvNavigation);
 
         (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Clear();
         foreach (string key in config.modelStencils.Keys)
