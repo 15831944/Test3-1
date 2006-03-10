@@ -37,6 +37,7 @@ const long LFM_Linear       = eScdFlow_Linear;
 const long LFM_Full         = eScdFlow_Full;
 const long LFM_SrcSnk       = eScdFlow_SrcSnk;
 const long LFM_All          = eScdFlow_Xfer | eScdFlow_Simple | eScdFlow_Linear | eScdFlow_Full | eScdFlow_SrcSnk;
+const long LFM_Propagate    = eScdFlow_Propagate;
 
 const long UM_Method_1      = eScdUser_Method_1;
 const long UM_Method_2      = eScdUser_Method_2;
@@ -124,8 +125,9 @@ const DWORD MF_HideIfZero    = MF_HIDEIFZERO; // hide this field if it is zero
 
 // ======================================================================
 // Data Definitions for Text equivalents of Integral Values
-const DWORD MDD_Hidden  = 0x00000001;
-const DWORD MDD_Default = 0x00000002;
+const DWORD MDD_Hidden    = 0x00000001;
+const DWORD MDD_Default   = 0x00000002;
+const DWORD MDD_NoSelect  = 0x00000004;
 struct MDDValueLst { long m_lVal; LPTSTR m_pStr; DWORD m_dwFlags; };
 
 // ======================================================================
