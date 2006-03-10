@@ -330,7 +330,7 @@ flag Valve_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
     if (Task!=FET_GetMode)
       FB.SetRegulator(m_FRB.What());
     if (NoFlwIOs()>=2 && IOId_Self(0)==IOId_2IOIn && IOId_Self(1)==IOId_2IOOut)
-      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.On(), false, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
+      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.On(), true, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
     FB.SetQmReqd(0.0);
     return true;
     }

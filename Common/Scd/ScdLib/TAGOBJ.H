@@ -1002,8 +1002,10 @@ class DllImportExport TaggedObject : public ConditionBlk
     //flag            SkipFullHeatMode()    { return (HeatMethod() & HM_All)==0; };
 
     void            SetFlowModeReqd(long U);
+    long            FlowModeReqd()          { return m_FlowModeReqd; };
     void            SetFlowMode(long FlowMode, TaggedObject * pRuleObj);
     long            FlowMode()              { return m_lRunMds & LFM_All; };
+    TaggedObject *  FlowModeObj()           { return m_FlowModeObj; };
     virtual void    OnSetFlowMode()         { };
 
     void            SetUserMethod(long U);
@@ -1082,7 +1084,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     TaggedObject *  pNxtAttachment;
 
     long            m_FlowModeReqd;
-    TaggedObject  * m_pFlowModeObj;
+    TaggedObject  * m_FlowModeObj;
     int             m_FlowModePass;
 
 #if WITHTAGMONITOR

@@ -10052,8 +10052,6 @@ DeleteIt:
           {
           if (p->m_FlowModeReqd >= 0)
             {
-            //dbgpln("PropagateNetInfo");
-            //dbgindent(2);
             CPropagateNetInfoCtrl Ctrl(eScdGetFlowMode, 0);
             p->PropagateNetInfo(Ctrl, -1);
 
@@ -10061,11 +10059,10 @@ DeleteIt:
             Ctrl.m_Pass++;
 
             p->PropagateNetInfo(Ctrl, -1);
-            //dbgindent(-2);
             }
           else
             {
-            p->SetFlowMode(p->FlowMode(), p->m_pFlowModeObj); // update FlowMode requirements down to FB's etc
+            p->SetFlowMode(p->FlowMode(), p->m_FlowModeObj); // update FlowMode requirements down to FB's etc
             }
           }
         }

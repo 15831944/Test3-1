@@ -38,6 +38,51 @@ double MaxFracHgt[2]  = { 1.0,              1.0};// {0.98, 1.0};
 //
 //==========================================================================
 
+LPCTSTR FlwEqnTaskStr(eScdFlwEqnTasks Task)
+  {
+  switch (Task)
+    {
+    case FET_GetMode: return "GetMode";
+    case FET_SetQm:   return "SetQm  ";
+    case FET_CalcDP:  return "CalcDP ";
+    default:          return "FET??? ";
+    }
+  };
+
+LPCTSTR FBModeStr(long Mode)
+  {
+  switch (Mode)//&~FBMode)
+    {
+    case FBMode_Full:   return "FBM_Full  ";
+    case FBMode_Xfer:   return "FBM_Xfer  ";
+    case FBMode_Linear: return "FBM_Linear";
+    case FBMode_Simple: return "FBM_Simple";
+    default:            return "FBM???    ";
+    }
+  };
+
+LPCTSTR FlowModeStr(long Mode)
+  {
+  switch (Mode)///&~LFM_Propagate)
+    {
+    case 0:                         return "           ";
+    case LFM_Full:                  return "LFM_Full   ";
+    case LFM_Xfer:                  return "LFM_Xfer   ";
+    case LFM_Linear:                return "LFM_Linear ";
+    case LFM_Simple:                return "LFM_Simple ";
+    case LFM_Full|LFM_Propagate:    return "LFM_Full*  ";
+    case LFM_Xfer|LFM_Propagate:    return "LFM_Xfer*  ";
+    case LFM_Linear|LFM_Propagate:  return "LFM_Linear*";
+    case LFM_Simple|LFM_Propagate:  return "LFM_Simple*";
+    default:                        return "LFM???     ";
+    }
+  };
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 long CPressBlk::sm_iNo=0;
 
 CPressBlk::CPressBlk()
@@ -2071,12 +2116,25 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
 
   FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
 
+  if (1)
+    {
+    TaggedObject *p=m_pAttachedTo;
+    FlwNode *pNd=dynamic_cast<FlwNode*>(p);
+    while (pNd==NULL && p)
+      {
+      p=p->pAttachedTo;
+      pNd=dynamic_cast<FlwNode*>(p);
+      }
+    dbgpln("Eval %s %s %s", FlwEqnTaskStr(Task), FBModeStr(FlowMode()), pNd?pNd->FullObjTag():"");
+    }
+
   if (Task==FET_GetMode)
     {
     EvalGetModeRqd(FlowMode(), pProps, On, IsDegFreedom, Regulation);
     ClrFunctOfPress();
     b=true;
     }
+
   //if (0 && (FlowMode()==FBMode_Xfer))
   //  {
   //  SetXferMode();
@@ -2114,7 +2172,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
   //    }
   //  b=true;
 
-  if (Disabled())
+  else if (Disabled())
     {
     if (ICStepStart())
       {
@@ -2143,7 +2201,6 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
         {
         b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
         Eqn()->m_nEvals++;
-        m_Qm=QmMem;
         break;
         }
       case FBMode_Xfer:
@@ -2156,86 +2213,22 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
         else
           m_SimpleRes=0;//1e-6;
 
-        if (!b)
-          {
-          if (FlowMode()==FBMode_Simple || FlowMode()==FBMode_Linear)
-            {
-            if (FR.m_AsMass && Valid(FR.m_ReqdQm))
-              {
-              if (Options() & FBOpt_AsValve)
-                SetQmReqdVlv(FR.m_ReqdQm, Regulation);
-              else
-                SetQmReqd(FR.m_ReqdQm*Regulation);
-              b = true;
-              }
-            if (!FR.m_AsMass && Valid(FR.m_ReqdQv))
-              {
-              if (Options() & FBOpt_AsValve)
-                SetQmReqdVlv(FR.m_ReqdQv*MeanRho(pProps), Regulation);
-              else
-                SetQmReqd(FR.m_ReqdQv*Regulation*MeanRho(pProps));
-              b = true;
-              }
-            }
-          else
-            {
-            SetXferMode();
-            if (FR.m_AsMass)
-              {
-              double Cap = FR.m_RqdQmCap;
-              if (Valid(Cap))
-                {
-                Cap=Max(Cap, FR.m_MinQmCap);
-                if (Valid(FR.m_MaxQmCap))
-                  Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
-                }
-              else if (Valid(FR.m_MaxQmCap))
-                Cap=FR.m_MaxQmCap*Regulation;
-              if (Valid(Cap))
-                SetXferCapacity(Cap);
-              }
-            else
-              {
-              double Cap = FR.m_RqdQvCap;
-              if (Valid(Cap))
-                {
-                Cap=Max(Cap, FR.m_MinQvCap);
-                if (Valid(FR.m_MaxQvCap))
-                  Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
-                }
-              else if (Valid(FR.m_MaxQvCap))
-                Cap=FR.m_MaxQvCap*Regulation;
-              if (Valid(Cap))
-                SetXferCapacity(Cap*MeanRho(pProps));
-              }
-            b=true;
-            }
-          }
-
         if (Regulation<1.0e-6)
           {
           SetQmReqd(0);
           b=true;
           }
 
-        if (!b)
+        if (!b && Task==FET_CalcDP)
           {
-          switch (Task)
-            {
-            case FET_GetMode:
-              SetQmFree();
-            case FET_CalcDP:
-              b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
-              Eqn()->m_nEvals++;
-              m_Qm=QmMem;
-              b=true;
-              break;
-            }
+          b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
+          Eqn()->m_nEvals++;
+          b=true;
           }
         break;
         }
       }
-
+    m_Qm=QmMem;
     // Overide QmRqd Modes etc if closed
     if (m_bClosed)
       {

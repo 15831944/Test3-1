@@ -1268,7 +1268,7 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
 
   m_FlowModeReqd=0;
   m_FlowModePass=0;
-  m_pFlowModeObj=NULL;
+  m_FlowModeObj=NULL;
 
   m_pClass=pClass_;
   VERIFY(m_pClass!=NULL);
@@ -1350,8 +1350,8 @@ void TaggedObject::SetFlowModeReqd(long FlowMode)
 
 void TaggedObject::SetFlowMode(long FlowMode, TaggedObject * pRuleObj)
   {
-  m_lRunMds = (m_lRunMds & ~LFM_All) | (FlowMode & LFM_All);
-  m_pFlowModeObj=pRuleObj;
+  m_lRunMds = (m_lRunMds & ~LFM_All) | (FlowMode & LFM_All & ~LFM_Propagate);
+  m_FlowModeObj=pRuleObj;
   StructureChanged(this);
   OnSetFlowMode();
   };

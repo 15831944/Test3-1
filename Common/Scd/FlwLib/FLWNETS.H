@@ -336,7 +336,6 @@ class CGrpFlwBlk
                    m_fMomentumValid,
                    m_fHasDegFree,
                    m_fFixed,
-                   m_fTrgQm,
                    m_fFixedXfer,
                    m_fFixedExternal,
                    m_fInXferNet,

@@ -2307,17 +2307,20 @@ void FlwNode::SetAllowedSolveModes(long AllowedModes)//LPCTSTR PBModeNm, LPCTSTR
 void FlwNode::SetAllowedFlowModes(bool All)
   {
   m_DDBFlowModes.Empty();
-  m_DDBFlowModes.Add(LFM_Xfer      |SM_DynBoth|HM_All, "Transfer");
-  m_DDBFlowModes.Add(LFM_Simple    |SM_DynBoth|HM_All, "Simple");
-  m_DDBFlowModes.Add(LFM_Linear    |SM_DynBoth|HM_All, "Linear");
-  m_DDBFlowModes.Add(LFM_Full      |SM_Buffered|HM_All, "Full");
+  m_DDBFlowModes.Add(LFM_Xfer                   | SM_DynBoth  | HM_All, "Transfer"    );//,    MDD_NoSelect );
+  m_DDBFlowModes.Add(LFM_Simple                 | SM_DynBoth  | HM_All, "Simple"      );
+  m_DDBFlowModes.Add(LFM_Linear                 | SM_DynBoth  | HM_All, "Linear"      );
+  m_DDBFlowModes.Add(LFM_Full                   | SM_Buffered | HM_All, "Full"        );
+  m_DDBFlowModes.Add(LFM_Simple | LFM_Propagate | SM_DynBoth  | HM_All, "Simple.All"  );
+  m_DDBFlowModes.Add(LFM_Linear | LFM_Propagate | SM_DynBoth  | HM_All, "Linear.All"  );
+  m_DDBFlowModes.Add(LFM_Full   | LFM_Propagate | SM_Buffered | HM_All, "Full.All"    );
   if (All)
     {
     if (PrjFileVerNo()<94) // cahcth this in ValidateData MN_Link
       m_DDBFlowModes.Add(0             |SM_DynBoth|HM_All, "",            MDD_Hidden); 
-    m_DDBFlowModes.Add(LFM_Full      |SM_DynBoth|HM_All, "Pipe",        MDD_Hidden);
-    m_DDBFlowModes.Add(LFM_Full      |SM_Inline|HM_All, "NominalDP",   MDD_Hidden);
-    m_DDBFlowModes.Add(LFM_Full      |SM_Buffered|HM_All, "CompleteDP",  MDD_Hidden);
+    m_DDBFlowModes.Add(LFM_Full      |SM_DynBoth|HM_All, "Pipe",          MDD_Hidden);
+    m_DDBFlowModes.Add(LFM_Full      |SM_Inline|HM_All, "NominalDP",      MDD_Hidden);
+    m_DDBFlowModes.Add(LFM_Full      |SM_Buffered|HM_All, "CompleteDP",   MDD_Hidden);
     }
   }
 
@@ -2571,8 +2574,8 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     for (int i=0; i<m_DDBFlowModes.Length(); i++)
       {
       DDBValueLst &V=*m_DDBFlowModes.Item(i);
-      if ((V.m_lVal & SolveMethod()) && (V.m_lVal & HeatMethod()))
-        DDBU.Add(V.m_lVal & LFM_All, V.m_pStr, V.m_dwFlags);
+      if ((V.m_lVal & SolveMethod()) && (V.m_lVal & HeatMethod()))// && ((V.m_dwFlags&MDD_NoSelect)==0))
+        DDBU.Add(V.m_lVal & (LFM_All|LFM_Propagate), V.m_pStr, V.m_dwFlags);
       }
     DDBU.Add(0, "None", MDD_Hidden);
     if (DDBU.Length())
@@ -2580,7 +2583,11 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
       if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
         DDB.Long("UserMethod", "", DC_, "", xidFlowMode, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
       else
-        DDB.Long("FlowMode",   "", DC_, "", xidFlowMode, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
+        {
+        DDB.Long  ("FlowMode",    "", DC_, "", xidFlowMode,    this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
+        if (FlowModeObj())
+          DDB.String("FlowModeSet", "", DC_, "", xidFlowModeSet, this, isTag);
+        }
       }
     }
 
@@ -3195,7 +3202,15 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
         //else
         SetFlowModeReqd(*DCB.rL);
         }
-      DCB.L=FlowMode();
+      if (DCB.ForFileSnpScn())
+        DCB.L=FlowModeReqd();
+      else
+        DCB.L=FlowMode();
+      return 1;
+      }
+    case xidFlowModeSet:  
+      {
+      DCB.pC=m_FlowModeObj?m_FlowModeObj->FullObjTag():"";
       return 1;
       }
     case xidUserMethod: 
@@ -5485,6 +5500,21 @@ void FlwNode::ConnectionsChanged()
 
 //--------------------------------------------------------------------------
 
+CPropagateNetInfoCtrl::CPropagateNetInfoCtrl(eScdPropagateNetTasks Task, long Info)
+  {
+  m_Task        = Task;
+  m_Pass        = 0;
+  m_Info        = Info;
+  m_ReqdMethod  = 0;//LFM_Full;
+  m_pObj        = NULL;
+  dbgpln("PropagateNetInfo");
+  dbgindent(2);
+  }
+CPropagateNetInfoCtrl::~CPropagateNetInfoCtrl()
+  {
+  dbgindent(-2);
+  }
+
 bool FlwNode::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo) 
   {
   return FlwNode::DoPropagateNetInfo(Ctrl, IONo, false);
@@ -5503,26 +5533,64 @@ bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool H
       {
       case eScdGetFlowMode :
         {
-        if (m_FlowModeReqd<Ctrl.m_ReqdMethod)
+        if (m_FlowModeReqd>0)// && (m_FlowModeReqd&~LFM_Propagate)<(Ctrl.m_ReqdMethod&~LFM_Propagate))
           {
-          Ctrl.m_ReqdMethod=m_FlowModeReqd;
-          if (m_FlowModeReqd==LFM_Xfer)
+          long ModeReqd     = m_FlowModeReqd&~LFM_Propagate;
+          bool DoPropagate  = (m_FlowModeReqd&LFM_Propagate)!=0;
+          if (ModeReqd==LFM_Xfer)
+            DoPropagate=true;
+
+          if (DoPropagate && (Ctrl.m_ReqdMethod==0 || ModeReqd<Ctrl.m_ReqdMethod))
+            {
+            Ctrl.m_ReqdMethod=ModeReqd;//m_FlowModeReqd;
+          //if ((m_FlowModeReqd&~LFM_Propagate)==LFM_Xfer)
             Ctrl.m_pObj=this;
+            }
           }
-        //dbgpln("  %3i %5i %5i %s", m_FlowModePass, m_FlowModeReqd, Ctrl.m_ReqdMethod, FullObjTag());
+        dbgpln("%i Reqd:%s Ctrl:%s this:%-11s Mode:%s     %s",
+          m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(Ctrl.m_ReqdMethod), 
+          Ctrl.m_pObj==this?"--->":"", FlowModeStr(FlowMode()), FullObjTag());
         break;
         }
       case eScdSetFlowMode :
-        if (Ctrl.m_ReqdMethod==LFM_Xfer)
+        if (Ctrl.m_ReqdMethod>0) // (Ctrl.m_ReqdMethod&LFM_Propagate)!=0)
           {
-          SetFlowMode(Ctrl.m_ReqdMethod, Ctrl.m_pObj);
-          //dbgpln("  %3i %5i %5i A   %s", m_FlowModePass, Ctrl.m_ReqdMethod, m_FlowModeReqd, FullObjTag());
+          long ModeReqd   = Ctrl.m_ReqdMethod&~LFM_Propagate;
+          bool DoPropagate  = (Ctrl.m_ReqdMethod&LFM_Propagate)!=0;
+          long FM=FlowMode();
+          if (FM!=ModeReqd)
+            {
+            switch (ModeReqd)
+              {
+              case LFM_Xfer:
+                FM=LFM_Xfer;
+                break;
+              default: // >= LFM_Simple
+                if (FM==LFM_Xfer || DoPropagate)
+                  FM=ModeReqd;
+                break;
+              }
+            }
+
+          TaggedObject * pObj=(FM==LFM_Xfer) ? Ctrl.m_pObj:NULL;
+          SetFlowMode(FM, pObj);
+          dbgpln("%i                  Ctrl:%s FM  :%s Mode:%s  %-20s @ %s", 
+            m_FlowModePass, FlowModeStr(Ctrl.m_ReqdMethod), FlowModeStr(FM), FlowModeStr(FlowMode()), FullObjTag(), 
+            pObj?pObj->FullObjTag():"???");
           }
-        else
+        else if (m_FlowModeReqd>0)
           {
           SetFlowMode(m_FlowModeReqd, NULL);
-          //dbgpln("  %3i %5i %5i B   %s", m_FlowModePass, m_FlowModeReqd, m_FlowModeReqd, FullObjTag());
+          dbgpln("%i Reqd:%s                                   Mode:%s B   %s",
+            m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(FlowMode()), FullObjTag());
           }
+        else 
+          {
+          SetFlowMode(FlowMode(), NULL);
+          dbgpln("%i Reqd:%s                                   Mode:%s C   %s",
+            m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(FlowMode()), FullObjTag());
+          }
+        //m_FlowModeReqd=0;
         break;
       }
     }

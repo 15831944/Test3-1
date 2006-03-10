@@ -139,6 +139,17 @@ extern DllImportExport double MaxFracHgt[2];
 
 class CFlwThermalBlk; // forward
 class CClosureInfo; 
+
+//============================================================================
+//
+//
+//
+//============================================================================
+
+extern DllImportExport LPCTSTR FlwEqnTaskStr(eScdFlwEqnTasks Task);
+extern DllImportExport LPCTSTR FBModeStr(long Mode);
+extern DllImportExport LPCTSTR FlowModeStr(long Mode);
+
 //============================================================================
 //
 //

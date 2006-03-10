@@ -463,7 +463,6 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
       m_fOvrSpecd=false;
       if (m_fFixed) // Includes fXfer
         {
-        GFb.m_fTrgQm=false;
         GFb.m_fHasDegFree = GFb.m_fHasDegFree || m_fIsDegFree;
         double &GXf_QmCap=GFb.m_QmXfCap;
         double &GFb_QmRqd=GFb.m_QmRqd;
@@ -731,10 +730,11 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
           dbgp("fb[%4i] ", m_iNo); 
         if (DbgFlags & DBG_TraversePBNos)
           dbgp("sp[%4i] dp[%4i] ", (FBDirn>0?SrcPB():DstPB()).m_iNo,(FBDirn<0?SrcPB():DstPB()).m_iNo); 
-        dbgp("%s%s%s%s%s%s %s%s %-2.2s %3.3s",
+        dbgp("%s%s%s%s%s%s%s %s%s %-2.2s %3.3s",
           SgnStr(m_iDirnRel2Traverse),
           SgnStr(m_iDirnRel2Connect),
-          (m_fFixed ? "F" : " "), (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
+          (m_fFixed ? "F":" "),(m_fIsDegFree ? "f" : " "), 
+          (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
           m_fDerivsBad?"x":"d",
           FlowMode()==FBMode_Xfer?"X":FlowMode()==FBMode_Simple?"S":FlowMode()==FBMode_Linear?"L":FlowMode()==FBMode_Full?"F":"?",
           UDF.ActionCount==0?" ":UDF.ActionCount==1?"r":"C",
@@ -938,10 +938,10 @@ void FlwBlk::EvalFlowX(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int 
           dbgp("fb[%4i] ", m_iNo); 
         if (DbgFlags & DBG_TraversePBNos)
           dbgp("sp[%4i] dp[%4i] ", (FBDirn>0?SrcPB():DstPB()).m_iNo,(FBDirn<0?SrcPB():DstPB()).m_iNo); 
-        dbgp("%s%s%s%s%s%s %s%s %-2.2s %3.3s",
+        dbgp("%s%s%s%s%s%s%s %s%s %-2.2s %3.3s",
           SgnStr(m_iDirnRel2Traverse),
           SgnStr(m_iDirnRel2Connect),
-          (m_fFixed ? m_fIsDegFree ? "F" : "f" : " "), 
+          (m_fFixed ? "F":" "),(m_fIsDegFree ? "f" : " "), 
           (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
           m_fDerivsBad?"x":"d",
           FlowMode()==FBMode_Xfer?"X":FlowMode()==FBMode_Simple?"S":FlowMode()==FBMode_Linear?"L":FlowMode()==FBMode_Full?"F":"?",
@@ -1186,7 +1186,6 @@ void CGrpFlwBlk::Clear(CNetBlk* pNet_, CFullNetBlk *pFNB_)
   m_fEvalRevOnly         = false;
   m_fMomentumValid       = false;
   m_fFixed               = false;
-  m_fTrgQm               = false;
   m_fHasDegFree          = false;
   m_fFixedExternal       = false;
   m_fUnDefined           = false;
@@ -1970,7 +1969,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
       dbgp("         "); 
     if (DbgFlags & DBG_TraversePBNos)
       dbgp("pb[%4i]          ", Src.m_pJoin->m_PB.m_iNo); 
-    dbgp("Src Nd  %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+    dbgp("Src Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
     if (DbgFlags & DBG_Regulator)       
       dbgp(" %2s %6s ", "", "");
     dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,m_Src_P);
@@ -2102,7 +2101,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
             dbgp("         "); 
           if (DbgFlags & DBG_TraversePBNos)
             dbgp("pb[%4i]          ", I->Join.m_PB.m_iNo); 
-          dbgp("%s %s        ", "      ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+          dbgp("%s  %s        ", "      ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
 
           if (DbgFlags & DBG_Regulator)       
             dbgp(" %2s %6s ", "", "");
@@ -2190,7 +2189,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
       dbgp("         "); 
     if (DbgFlags & DBG_TraversePBNos)
       dbgp("pb[%4i]          ", Dst.m_pJoin->m_PB.m_iNo); 
-    dbgp("Dst Nd  %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+    dbgp("Dst Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
     if (DbgFlags & DBG_Regulator)
       dbgp(" %2s %6s ", "", "");
     //dbgp(" %*s %#*.*f Est:%#*.*f ", QWide,"",PWide,PPrec,m_Dst_P, PWide,PPrec,m_Dst_P);
@@ -2243,13 +2242,37 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
       }
     dbgpln(" %20s[%i]", Dst.m_pNd->FullObjTag(), Dst.m_pJoin->m_iJoinId);
 
-    dbgp(fabs(m_P_Err)<0.01?"Error: %#*.*g":"Diff:%#*.*f", PWide,PPrec,m_P_Err*m_PassDirn);
-    dbgpln(fabs(Qm)<0.01||fabs(Qm)>=1.0e5?" @%*.*g %s":" @%*.*f %s",QWide,QPrec,Qm, m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean)?"":"<<<<<<<<<<<<<<< Not Converged");
-    dbgpln("QmRqd: %s %s", DbgFltString(m_QmRqd,QPrec,QPrec,QWide), m_fFixed?"Fxd":"   ");
-    dbgpln("QmReg: %5.3f", DbgFltString(m_QmReg,QPrec,QPrec,QWide));
-    dbgpln("XfCap: %s %s", DbgFltString(m_QmXfCap,QPrec,QPrec,QWide), m_fFixedXfer?"Xfr":"   ");
+    dbgp(fabs(m_P_Err)<0.01?"Diff: %#*.*g":"Diff:%#*.*f", PWide,PPrec,m_P_Err*m_PassDirn);
+    bool LnkCnvgd=m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
+    dbgpln(fabs(Qm)<0.01||fabs(Qm)>=1.0e5?" @%*.*g %s":" @%*.*f %s",QWide,QPrec,Qm, LnkCnvgd?"":"<<<<<<<<<<<<<<< Not Converged");
 
-    if (dbgTraversePBlks())
+    dbgpln("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+      m_fGFTolsOK         ? "GFTolsOK ":"",
+      m_fGFNetTolsOK      ? "GFNetTolsOK ":"",
+      m_fGFRegTolOK       ? "GFRegTolOK ":"",
+      m_fGFHoldRegCvg     ? "GFHoldRegCvg ":"",
+      m_fDerivsBad        ? "DerivsBad ":"",
+      m_fFunctOfPress     ? "FunctOfPress ":"",
+      m_fEvalFwdOnly      ? "EvalFwdOnly ":"",
+      m_fEvalRevOnly      ? "EvalRevOnly ":"",
+      m_fMomentumValid    ? "MomentumValid ":"",
+      m_fFixedXfer        ? "FixedXfer ":"",
+      m_fFixedExternal    ? "FixedExternal ":"",
+      m_fInXferNet        ? "InXferNet ":"",
+      m_fUnDefined        ? "UnDefined ":"",
+      m_fTopologyChanged  ? "TopologyChanged ":"",
+      m_fChoked           ? "Choked ":"",
+      m_fSelfLoop         ? "SelfLoop ":"",
+      m_fUDFShut          ? "UDFShut ":"",
+      m_fTraverseFwd      ? "TraverseFwd ":"",
+      m_fIsBad            ? "IsBad ":"",
+      m_fSrcIsEdge        ? "SrcIsEdge ":"",
+      m_fDstIsEdge        ? "DstIsEdge ":"");
+    
+    dbgpln("QmRqd: %-4s %-4s %s", m_fFixed?"Fxd":"   ", m_fHasDegFree?"DegF":"    ", DbgFltString(m_QmRqd,QPrec,QPrec,QWide));
+    dbgpln("QmReg: %-4s %-4s %s", "", "", DbgFltString(m_QmReg,QPrec,QPrec,QWide));
+    dbgpln("XfCap: %-4s %-4s %s", m_fFixedXfer?"Xfr":"   ", "", DbgFltString(m_QmXfCap,QPrec,QPrec,QWide));
+    if (dbgTraversePBlks())                                           
       DbgDumpPBlks(GoFwd, true);
     }
 #endif
@@ -2280,7 +2303,7 @@ void CGrpFlwBlk::TraverseDbgHeader(CSpPropInfo *pNetProps)
       dbgp("FBNos   "); 
     if (DbgFlags & DBG_TraversePBNos)
       dbgp("PBNos             "); 
-    dbgp("%s      Rgm", "      ");
+    dbgp("%s      Rgm", "       ");
     if (DbgFlags & DBG_Regulator)
       dbgp(" %2s %6s ", "", "");
     dbgp(" %*s %*s", QWide,"Qm",PWide,"Press");
@@ -2360,272 +2383,260 @@ void CGrpFlwBlk::Traverse(pchar dbgwhere)
 
   SolveDbgFlags(m_fHasDbgBrk);
 
-#define DoDbgLoop 0
-#if DoDbgLoop
-  for (int ADbgLoop=0; ADbgLoop<2; ADbgLoop++)
+  if (!FlwExists(m_QmIn))
+    m_QmIn=0.0;
+  int FlwDirn=(int)Sign(NZ(m_QmIn));
+  m_QmIn = Range((double)-1.0e20, m_QmIn, 1.0e20); //temp kga 26/4/2001 to try prevent crash
+  double Qm=m_QmIn;
+
+  P_ErrPrev=1e6;
+  m_P_Err=0.0;
+
+  if (m_fEvalFwdOnly)
+    m_PassDirn = 1;
+  else if (m_fEvalRevOnly)
+    m_PassDirn = -1;
+  else
+    m_PassDirn = (sint)FlwDirn;
+  flag GoFwd = m_PassDirn > 0;
+
+  if (m_fEvalFwdOnly || m_fEvalRevOnly)
+    BreakPoint();
+
+  CGrpFlwBlkSD & Src = (GoFwd ? m_Src:m_Dst);
+  CGrpFlwBlkSD & Dst = (GoFwd ? m_Dst:m_Src);
+
+  m_iPropsSelected=FBPS_Default;
+
+  m_fDerivsBad=false;
+  m_fFunctOfPress=false;
+  m_fEvalFwdOnly=false;
+  m_fEvalRevOnly=false;
+
+
+  int Fbs0=GoFwd ? 0 : m_FBSeq.GetUpperBound();
+  int FbsN=GoFwd ? m_FBSeq.GetCount() : -1;
+  int FbsI=GoFwd ? 1 : -1;
+  for (int i=Fbs0; i!=FbsN; i+=FbsI)
     {
-    switch (ADbgLoop)
+    CGrpFlwIndex *I = m_FBSeq[i];
+    switch (I->m_eType)
       {
-      case 0 : m_QmIn= -632.4741; break;
-      case 1 : m_QmIn= -632.4758; break;
-      }
-#endif
-
-    if (!FlwExists(m_QmIn))
-      m_QmIn=0.0;
-    int FlwDirn=(int)Sign(NZ(m_QmIn));
-    m_QmIn = Range((double)-1.0e20, m_QmIn, 1.0e20); //temp kga 26/4/2001 to try prevent crash
-    double Qm=m_QmIn;
-
-    P_ErrPrev=1e6;
-    m_P_Err=0.0;
-
-    if (m_fEvalFwdOnly)
-      m_PassDirn = 1;
-    else if (m_fEvalRevOnly)
-      m_PassDirn = -1;
-    else
-      m_PassDirn = (sint)FlwDirn;
-    flag GoFwd = m_PassDirn > 0;
-
-    if (m_fEvalFwdOnly || m_fEvalRevOnly)
-      BreakPoint();
-
-    CGrpFlwBlkSD & Src = (GoFwd ? m_Src:m_Dst);
-    CGrpFlwBlkSD & Dst = (GoFwd ? m_Dst:m_Src);
-
-    m_iPropsSelected=FBPS_Default;
-
-    m_fDerivsBad=false;
-    m_fFunctOfPress=false;
-    m_fEvalFwdOnly=false;
-    m_fEvalRevOnly=false;
-
-
-    int Fbs0=GoFwd ? 0 : m_FBSeq.GetUpperBound();
-    int FbsN=GoFwd ? m_FBSeq.GetCount() : -1;
-    int FbsI=GoFwd ? 1 : -1;
-    for (int i=Fbs0; i!=FbsN; i+=FbsI)
-      {
-      CGrpFlwIndex *I = m_FBSeq[i];
-      switch (I->m_eType)
-        {
-        case GFI_IO:
-        case GFI_Lnk:
-          I->FB.GetFlags(this, I->m_iSgn);
-          break;
-        case GFI_Join:
-          break;
-        };
+      case GFI_IO:
+      case GFI_Lnk:
+        I->FB.GetFlags(this, I->m_iSgn);
+        break;
+      case GFI_Join:
+        break;
       };
+    };
 
-    m_XBst.m_pFB=NULL;
-    m_XBst.m_dFB=0;
-    int FixedLoopCnt=0;
+  m_XBst.m_pFB=NULL;
+  m_XBst.m_dFB=0;
+  int FixedLoopCnt=0;
 FixdPBx:
 
-    for (int PErrIter=0; ; PErrIter++) // loop in case of pressure dependencies in line
-      {
-      m_fDerivsBad            = false;
-      m_fFunctOfPress         = false;
-      m_fEvalFwdOnly          = false;
-      m_fEvalRevOnly          = false;
-      m_fMomentumValid        = false;
-      m_fHoldFastConverge     = false;
+  for (int PErrIter=0; ; PErrIter++) // loop in case of pressure dependencies in line
+    {
+    m_fDerivsBad            = false;
+    m_fFunctOfPress         = false;
+    m_fEvalFwdOnly          = false;
+    m_fEvalRevOnly          = false;
+    m_fMomentumValid        = false;
+    m_fHoldFastConverge     = false;
 
-      Qm=m_QmIn;
-      SolveDbgFlags(m_fHasDbgBrk);
+    Qm=m_QmIn;
+    SolveDbgFlags(m_fHasDbgBrk);
 
 #ifdef _DEBUG
-      flag IterStart=(m_dwIterNo!=m_pFNB->dwIterNo);
-      if (IterStart)
-        {
-        m_nMaxTraverse=Max(m_nMaxTraverse, m_nTraverse);
-        m_nAvgTraverse=m_nAvgTraverse*0.9f+m_nTraverse*0.1f;
-        m_nTraverse=0;
-        }
-      m_nTraverse++;
-      m_dwIterNo=m_pFNB->dwIterNo;
+    flag IterStart=(m_dwIterNo!=m_pFNB->dwIterNo);
+    if (IterStart)
+      {
+      m_nMaxTraverse=Max(m_nMaxTraverse, m_nTraverse);
+      m_nAvgTraverse=m_nAvgTraverse*0.9f+m_nTraverse*0.1f;
+      m_nTraverse=0;
+      }
+    m_nTraverse++;
+    m_dwIterNo=m_pFNB->dwIterNo;
 #endif
 
-      m_fGFTolsOK=false;
-      m_fGFNetTolsOK=false;
-      m_fGFRegTolOK=false;
+    m_fGFTolsOK=false;
+    m_fGFNetTolsOK=false;
+    m_fGFRegTolOK=false;
 
 #if dbgFlwNets
-      if (DbgFlags & DBG_Traverse)
-        dbgpln("------------------------%s %s %s------------------------ %s",
-        m_Src.m_pNd->FullObjTag(),GoFwd?"-->":"<--",m_Dst.m_pNd->FullObjTag(), dbgwhere);
+    if (DbgFlags & DBG_Traverse)
+      dbgpln("------------------------%s %s %s------------------------ %s",
+      m_Src.m_pNd->FullObjTag(),GoFwd?"-->":"<--",m_Dst.m_pNd->FullObjTag(), dbgwhere);
 #endif
 
-      m_Sum_dP=0.0;
-      m_Sum_adPqdQ=0.0;
-      m_Sum_dPbdQ=0.0;
-      m_Sum_B=0.0;
-      m_Sum_ResT=0.0;
-      //Sum_ResQ=0.0;
-      //m_Sum_ROp=0.0;
-      //m_Sum_BOp=0.0;
+    m_Sum_dP=0.0;
+    m_Sum_adPqdQ=0.0;
+    m_Sum_dPbdQ=0.0;
+    m_Sum_B=0.0;
+    m_Sum_ResT=0.0;
+    //Sum_ResQ=0.0;
+    //m_Sum_ROp=0.0;
+    //m_Sum_BOp=0.0;
 
-      m_ChokeAt.m_At=NULL;
-      m_ChokeAt.m_Qm=1.0e200;
+    m_ChokeAt.m_At=NULL;
+    m_ChokeAt.m_Qm=1.0e200;
 
-      m_fUDFShut=0;
+    m_fUDFShut=0;
 
-      flag Fixed_Mem  = m_fFixed;
-      flag Xfer_Mem   = m_fFixedXfer;
-      if (m_fFixedExternal)
+    flag Fixed_Mem  = m_fFixed;
+    flag Xfer_Mem   = m_fFixedXfer;
+    if (m_fFixedExternal)
+      {
+      m_fFixed     = true;
+      m_fFixedXfer = m_fInXferNet;
+      }
+    else
+      {
+      m_fFixed     = false;
+      m_fFixedXfer = false;
+      }
+    m_QmRqd      = dNAN;
+    m_QmReg      = 1.0;
+    m_QmXfCap    = dNAN;
+    m_nFixedVlv  = 0;
+    m_nFixedRqd  = 0;
+
+    m_Regulator.m_iWhat = FBReg_Off;
+    m_Regulator.m_pNd   = NULL;    
+    m_Regulator.m_pFB   = NULL;    
+
+    m_fHasDegFree       = false;
+    m_fTopologyChanged  = false;
+    m_QmRatio.MFb       = NULL;
+    m_QmRatio.SFb       = NULL;
+
+    //CSpPropInfo LclNetProps;
+    CSpPropInfo *pNetProps=NULL;
+    //if (Src.IsIO())
+    Src.m_pNd->IOGetNetProps(Src.m_iIONo, Qm);
+    //else
+    //  Src.m_pNd->LinkGetNetProps(Src.m_iLnkNo, Qm);
+    if (pNetProps)
+      {
+      if (m_fFindStaticHead)
         {
-        m_fFixed     = true;
-        m_fFixedXfer = m_fInXferNet;
+        m_pBalProps=pNetProps;
+        m_fDerivsBad=true;
         }
-      else
+      }
+    else
+      {
+      if (m_fFindStaticHead)
         {
-        m_fFixed     = false;
-        m_fFixedXfer = false;
+        int iFE0=Src.m_pNd->NIOFBs(Src.m_iIONo)-1;
+        FlwBlk & FB=*Src.m_pNd->IOFB(Src.m_iIONo, iFE0);
+        m_pBalProps=FB.Properties(NULL);//&FB.m_FlwProps;
         }
-      m_QmRqd      = dNAN;
-      m_QmReg      = 1.0;
-      m_QmXfCap    = dNAN;
-      m_nFixedVlv  = 0;
-      m_nFixedRqd  = 0;
+      }
 
-      m_Regulator.m_iWhat  = FBReg_Off;
-      m_Regulator.m_pNd    = NULL;    
-      m_Regulator.m_pFB    = NULL;    
 
-      m_fHasDegFree = false;
-      m_fTrgQm=false;
-      m_fTopologyChanged = false;
-      m_QmRatio.MFb = NULL;
-      m_QmRatio.SFb = NULL;
-
-      //CSpPropInfo LclNetProps;
-      CSpPropInfo *pNetProps=NULL;
-      //if (Src.IsIO())
-        Src.m_pNd->IOGetNetProps(Src.m_iIONo, Qm);
-      //else
-      //  Src.m_pNd->LinkGetNetProps(Src.m_iLnkNo, Qm);
-      if (pNetProps)
-        {
-        if (m_fFindStaticHead)
-          {
-          m_pBalProps=pNetProps;
-          m_fDerivsBad=true;
-          }
-        }
-      else
-        {
-        if (m_fFindStaticHead)
-          {
-          int iFE0=Src.m_pNd->NIOFBs(Src.m_iIONo)-1;
-          FlwBlk & FB=*Src.m_pNd->IOFB(Src.m_iIONo, iFE0);
-          m_pBalProps=FB.Properties(NULL);//&FB.m_FlwProps;
-          }
-        }
-
-      
 #if WITHTWOPHASE
-      if (fTwoPhase)
-        {
-        if (!pTwoPhCd)
-          pTwoPhCd=new SpConduit("TwoPhCd");
-        pTwoPhCd->QSetM(*(Src.m_pNd->IOConduit(Src.m_iIONo)), som_ALL, Max(2.0*UsableMass, fabs(m_QmIn)), m_Src_P);
+    if (fTwoPhase)
+      {
+      if (!pTwoPhCd)
+        pTwoPhCd=new SpConduit("TwoPhCd");
+      pTwoPhCd->QSetM(*(Src.m_pNd->IOConduit(Src.m_iIONo)), som_ALL, Max(2.0*UsableMass, fabs(m_QmIn)), m_Src_P);
 #if dbgFlwNets
-        if (DbgFlags & DBG_TraverseP)
-          dbgpln("TwoPhCd    T:%#16.7f  P:%#16.7f  SrcT:%#16.7f  SrcP:%#16.7f",
-          pTwoPhCd->Temp(), pTwoPhCd->Press(),
-          Src.m_pNd->IOConduit(Src.m_iIONo)->Temp(), Src.m_pNd->IOConduit(Src.m_iIONo)->Press());
+      if (DbgFlags & DBG_TraverseP)
+        dbgpln("TwoPhCd    T:%#16.7f  P:%#16.7f  SrcT:%#16.7f  SrcP:%#16.7f",
+        pTwoPhCd->Temp(), pTwoPhCd->Press(),
+        Src.m_pNd->IOConduit(Src.m_iIONo)->Temp(), Src.m_pNd->IOConduit(Src.m_iIONo)->Press());
 
 #endif
-        }
+      }
 #else
-      m_pTwoPhCd=NULL;
+    m_pTwoPhCd=NULL;
 #endif
 
-      if (0)
-        {
-        Strng S;
-        S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
-        dbgpln("Flags A %-50s %s", S(), m_FTag());
-        }
+    if (0)
+      {
+      Strng S;
+      S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
+      dbgpln("Flags A %-50s %s", S(), m_FTag());
+      }
 
-      // InitPtrs in Direction of Flow and adjust fill if neccessary
-      TraverseGetMode(GoFwd, Src, Dst, pNetProps, dbgwhere);
+    // InitPtrs in Direction of Flow and adjust fill if neccessary
+    TraverseGetMode(GoFwd, Src, Dst, pNetProps, dbgwhere);
 
-      if (Valid(m_QmRqd))
-        m_QmRqd*=m_QmReg;
+    if (Valid(m_QmRqd))
+      m_QmRqd*=m_QmReg;
 
-      if (m_fTopologyChanged)
-        {
-        m_pNet->fTopologyChanged=true;
-        m_pSubNet->fTopologyChanged=true;
-        }
+    if (m_fTopologyChanged)
+      {
+      m_pNet->fTopologyChanged=true;
+      m_pSubNet->fTopologyChanged=true;
+      }
 
 
-      if (0)
-        {
-        Strng S;
-        S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
-        dbgpln("Flags B %-50s %s", S(), m_FTag());
-        }
+    if (0)
+      {
+      Strng S;
+      S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
+      dbgpln("Flags B %-50s %s", S(), m_FTag());
+      }
 
-      if (m_fFixedXfer)
-        // This will Set Qm but assume that all impedances are ZERO
-        TraversePress(FET_SetQm, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
-      else
-        // Called for all Non-XFer links (Fixed, FreeFlow,..)  
-        // This will Set Qm and calculate all impedances
-        TraversePress(FET_CalcDP, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
+    if (m_fFixedXfer)
+      // This will Set Qm but assume that all impedances are ZERO
+      TraversePress(FET_SetQm, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
+    else
+      // Called for all Non-XFer links (Fixed, FreeFlow,..)  
+      // This will Set Qm and calculate all impedances
+      TraversePress(FET_CalcDP, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
 
     //dbgpln("Flags1 %s %s %s",m_fFixed ? "m_fFixed":"        ", m_fFixedXfer?"m_fFixedXfer":"            ", FwdTag());
 
-      // Test Press Converged
-      if (!m_fFunctOfPress || m_fFixed || m_fFixedXfer)
+    // Test Press Converged
+    if (!m_fFunctOfPress || m_fFixed || m_fFixedXfer)
+      {
+      m_fSetCI5=false;
+      goto PressLoopDone;
+      }
+    else
+      {
+      //double dPErrChgRatio;
+      double P_ErrChg=m_P_Err-P_ErrPrev;
+      if (m_pFNB->m_LnkEPS.ConvergedDV(P_ErrChg, m_P_Err /*1.0e-12, >Lnk_Eps_R, dPErrChgRatio*/))
         {
         m_fSetCI5=false;
         goto PressLoopDone;
         }
-      else
+      if (PErrIter>100)
         {
-        //double dPErrChgRatio;
-        double P_ErrChg=m_P_Err-P_ErrPrev;
-        if (m_pFNB->m_LnkEPS.ConvergedDV(P_ErrChg, m_P_Err /*1.0e-12, >Lnk_Eps_R, dPErrChgRatio*/))
-          {
-          m_fSetCI5=false;
-          goto PressLoopDone;
-          }
-        if (PErrIter>100)
-          {
-          m_fSetCI5=true;
-          goto PressLoopDone;
-          }
-        P_ErrPrev=m_P_Err;
+        m_fSetCI5=true;
+        goto PressLoopDone;
         }
-      } // Press Iter Loop
+      P_ErrPrev=m_P_Err;
+      }
+    } // Press Iter Loop
 
 PressLoopDone:
 
-    Qm=m_QmIn;
+  Qm=m_QmIn;
 
-    if (m_fFixed || m_fFixedXfer)
+  if (m_fFixed || m_fFixedXfer)
+    {
+    if (m_fHasDegFree)
       {
-      if (m_fHasDegFree)
+      //if (FixedLoopCnt++==0 && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL)
+      if (FixedLoopCnt<5 && (m_fFixed && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL))
         {
-        //if (FixedLoopCnt++==0 && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL)
-        if (FixedLoopCnt<5 && (m_fFixed && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL))
-          {
-          //dbgp(" %2i m_dPbX %12.3f > ", FixedLoopCnt, m_XBst.m_pFB->m_dPbX);
+        //dbgp(" %2i m_dPbX %12.3f > ", FixedLoopCnt, m_XBst.m_pFB->m_dPbX);
 
-          m_XBst.m_pFB->m_dPbX-=m_XBst.m_dFB*m_P_Err*(FixedLoopCnt==0 ? 1.0 : 0.5)*m_PassDirn;
+        m_XBst.m_pFB->m_dPbX-=m_XBst.m_dFB*m_P_Err*(FixedLoopCnt==0 ? 1.0 : 0.5)*m_PassDirn;
 
-          //dbgpln(" %12.3f  %s>%s", m_XBst.m_pFB->m_dPbX, m_Src.m_pNd->Tag(), m_Dst.m_pNd->Tag());
-          FixedLoopCnt++;
-          goto FixdPBx;
-          }
+        //dbgpln(" %12.3f  %s>%s", m_XBst.m_pFB->m_dPbX, m_Src.m_pNd->Tag(), m_Dst.m_pNd->Tag());
+        FixedLoopCnt++;
+        goto FixdPBx;
         }
-      if (fabs(m_P_Err)>1.0e-12)
-        BreakPoint()
+      }
+    if (fabs(m_P_Err)>1.0e-12)
+      BreakPoint()
 
       if (Valid(m_QmRqd))
         m_fGFTolsOK = (fabs(m_QmIn-m_QmRqd)<=1e-10);
@@ -2635,146 +2646,143 @@ PressLoopDone:
         m_fGFTolsOK = true;
       m_fGFRegTolOK = m_fGFTolsOK;
       m_fGFNetTolsOK = m_fGFTolsOK;
+    }
+  else
+    {
+    m_fGFRegTolOK=true;
+    m_Regulator.m_fSetCI18=false;
+    if (m_Regulator.m_iWhat!=FBReg_Off && m_Regulator.m_pFB->FlowMode()==FBMode_Full)
+      {
+      m_Regulator.m_pFRB->m_pFB=m_Regulator.m_pFB;
+
+      FlwBlk &FB=*m_Regulator.m_pFB;
+
+      if (!FB.m_MeasDone)
+        FB.m_MeasRhoStep=FB.m_MeasRho;
+
+      double MV=m_Regulator.GetMeasValue();
+
+      if (!FB.m_MeasDone)
+        m_Regulator.m_pFRB->SetMeasStart(MV);
+
+      FB.m_MeasDone=true;
+
+      //dbgpln("RegMeasValue: %15.6f %15.6f %15.6f", MV, m_Regulator.m_pFRB->StepTarget(), m_Regulator.m_pFRB->FinalTarget());
+
+      //m_Regulator.GetMeasValue();
+      //m_Regulator.GetMeasValue();
+      //switch (m_Regulator.m_iWhat)
+      //  {
+      //  case FBReg_Qm     : m_Regulator.m_dMeasValue = FB.m_Qm;  break;
+      //  case FBReg_Qv     : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRho;  break;
+      //  case FBReg_QvStep : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRhoStep;  break;
+      //  case FBReg_Pi     : m_Regulator.m_dMeasValue = FB.SrcPB().PEst;  break;
+      //  case FBReg_Po     : m_Regulator.m_dMeasValue = FB.DstPB().PEst;  break;
+      //  }
+      m_Regulator.m_pFRB->SetMeas(m_Regulator.m_dMeasValue);
+      m_fGFRegTolOK=m_pFNB->m_RegSolveEPS.ConvergedVV(m_Regulator.m_dMeasValue , m_Regulator.m_pFRB->StepTarget());
+      }
+
+    if (!m_HiImp.fLimit)
+      {
+      m_fGFTolsOK = m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
+      dPErrRatio = m_pFNB->m_LnkEPS.GetNormalError();
+      m_fGFNetTolsOK = (dPErrRatio / m_pFNB->m_NetDeRating< 1.0);
       }
     else
       {
-      m_fGFRegTolOK=true;
-      m_Regulator.m_fSetCI18=false;
-      if (m_Regulator.m_iWhat!=FBReg_Off && m_Regulator.m_pFB->FlowMode()==FBMode_Full)
-        {
-        m_Regulator.m_pFRB->m_pFB=m_Regulator.m_pFB;
- 
-        FlwBlk &FB=*m_Regulator.m_pFB;
-
-        if (!FB.m_MeasDone)
-          FB.m_MeasRhoStep=FB.m_MeasRho;
- 
-        double MV=m_Regulator.GetMeasValue();
-
-        if (!FB.m_MeasDone)
-          m_Regulator.m_pFRB->SetMeasStart(MV);
-        
-        FB.m_MeasDone=true;
-
-        //dbgpln("RegMeasValue: %15.6f %15.6f %15.6f", MV, m_Regulator.m_pFRB->StepTarget(), m_Regulator.m_pFRB->FinalTarget());
-
-        //m_Regulator.GetMeasValue();
-        //m_Regulator.GetMeasValue();
-        //switch (m_Regulator.m_iWhat)
-        //  {
-        //  case FBReg_Qm     : m_Regulator.m_dMeasValue = FB.m_Qm;  break;
-        //  case FBReg_Qv     : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRho;  break;
-        //  case FBReg_QvStep : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRhoStep;  break;
-        //  case FBReg_Pi     : m_Regulator.m_dMeasValue = FB.SrcPB().PEst;  break;
-        //  case FBReg_Po     : m_Regulator.m_dMeasValue = FB.DstPB().PEst;  break;
-        //  }
-        m_Regulator.m_pFRB->SetMeas(m_Regulator.m_dMeasValue);
-        m_fGFRegTolOK=m_pFNB->m_RegSolveEPS.ConvergedVV(m_Regulator.m_dMeasValue , m_Regulator.m_pFRB->StepTarget());
-        }
-
-      if (!m_HiImp.fLimit)
-        {
-        m_fGFTolsOK = m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
-        dPErrRatio = m_pFNB->m_LnkEPS.GetNormalError();
-        m_fGFNetTolsOK = (dPErrRatio / m_pFNB->m_NetDeRating< 1.0);
-        }
-      else
-        {
-        m_fGFTolsOK = true;
-        m_fGFNetTolsOK = true;
-        }
+      m_fGFTolsOK = true;
+      m_fGFNetTolsOK = true;
+      }
 #if dbgFlwNets
-      if (!m_fGFNetTolsOK)
-        if (dbgNetConverge())
-          dbgpln("  !NetSolved Qm:%#16.9g Tol:%7.1f R:%#16.9g P_A:%#16.9g B:%#16.9g P_M:%#16.9g %s ",
-          Qm, Range(0.0, dPErrRatio / m_pFNB->m_NetDeRating, 9999.9),m_Sum_ResT, m_P_Applied,
-          m_P_Applied+m_Sum_B, m_P_Mean, FwdTag());
+    if (!m_fGFNetTolsOK)
+      if (dbgNetConverge())
+        dbgpln("  !NetSolved Qm:%#16.9g Tol:%7.1f R:%#16.9g P_A:%#16.9g B:%#16.9g P_M:%#16.9g %s ",
+        Qm, Range(0.0, dPErrRatio / m_pFNB->m_NetDeRating, 9999.9),m_Sum_ResT, m_P_Applied,
+        m_P_Applied+m_Sum_B, m_P_Mean, FwdTag());
 #endif
-      }
-
-    if (m_ChokeAt.m_At==NULL)
-      {
-      m_fChoked=0;
-      m_ChokeInfo.m_At=NULL;
-      m_ChokeInfo.m_PX=0.0;
-      }
-
-    FlwNode * pQmEstSrc=m_XBst.m_pFB ? dynamic_cast<FlwNode*>(m_XBst.m_pFB->AttachedTo()) : NULL;
-    for (int i=0; i<m_FBSeq.GetCount(); i++)
-      {
-      CGrpFlwIndex *I = m_FBSeq[i];
-      switch (I->m_eType)
-        {
-        case GFI_IO:
-        case GFI_Lnk:
-          I->FB.m_pQmEstSrc=pQmEstSrc;
-          break;
-        case GFI_Join:
-          break;
-        };
-      }
-    //if (pLimitNode)
-    //  dbgpln("QmEstSrc: %s", pQmEstSrc->FullObjTag());
-
-#if dbgFlwNets
-    if (DbgFlags & DBG_TrvResult)
-      {
-      if (m_fFixedXfer || m_HiImp.fLimit)
-        dPErrRatio=-1.0;
-      char ErrV[256], NErrV[256], Qr[256];
-      sprintf(ErrV, "%2i", (int)Min(dPErrRatio,99.0));
-      sprintf(NErrV, "%2i", (int)Min(dPErrRatio/m_pFNB->m_NetDeRating,99.0));
-      if (m_fFixed)
-        sprintf(Qr, "%11.4g", m_fFixedXfer ? m_QmXfCap : m_QmRqd);
-      else
-        sprintf(Qr, "%-11.11s", "*");
-      dbglock();
-      //    dbgp("T[%-8.8s] L%s N%s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g Rq:%*.*g dP:%*.*g e:%*.*g Qr:%s",
-      dbgp("T[%-8.8s] L%s N%s R%s %s %s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g dP:%*.*g e:%*.*g Qr:%s",
-        dbgwhere, 
-        (m_fGFTolsOK ? " ." : ErrV),
-        (m_fGFNetTolsOK ? " ." : NErrV),
-        (m_fGFRegTolOK? "." : "*"),
-        m_fDerivsBad?"x":"d",
-        m_fFixedXfer?"X":m_fFixed?"F":" ",
-        PWide,PPrec,m_P_Applied, 
-        PWide,PPrec,m_Sum_B, 
-        QWide,QPrec,Qm, 
-        RWide,RPrec,m_Sum_ResT, 
-        //      RWide,RPrec,Sum_ResQ, 
-        PWide,PPrec,m_Sum_dP, 
-        PWide,PPrec,m_P_Err, Qr);
-      if (DbgFlags&DBG_Deltas)
-        dbgp(" dQ:%13.5g dB:%13.5g", m_Sum_adPqdQ, m_Sum_dPbdQ);
-
-      if (DbgFlags & DBG_Regulator)
-        {
-        if (m_Regulator.m_iWhat!=FBReg_Off)
-          dbgp("[C:%7.4f M:%8.2f T:%8.2f]", m_Regulator.m_dCtrlCur, m_Regulator.m_dMeasValue, m_Regulator.m_pFRB->StepTarget());
-        else
-          dbgp("  %14s %15s ", "", "");
-        }
-
-      dbgp(" %s", FwdTag());
-      dbgpln("");
-      dbgunlock();
-      }
-    if (dbgTopologyChg())
-      if (m_fTopologyChanged)
-        dbgpln("  ----> Topology Change FxdQm %s Q:%#16.9g %s ",
-        (m_fFixed ? (m_fFixedXfer ? "TRANSFER":"FIXED"):m_fUnDefined?"UNDEFINED":"FREE "),
-        m_fFixedXfer ? m_QmXfCap : m_QmRqd, FwdTag());
-    if (dbgSolveFxdQsTrv())
-      if(m_fFixedXfer)
-        dbgpln("  Lnk dQm_XfCap:%12.4g P:%12.4g > %12.4g %s", m_QmXfCap,m_Src_P,m_Dst_P,FwdTag());
-      else if(m_fFixed)
-        dbgpln("  Lnk dQm_Rqd:%12.4g   P:%12.4g > %12.4g %s", m_QmRqd,m_Src_P,m_Dst_P,FwdTag());
-#endif
-
-
-#if DoDbgLoop
     }
+
+  if (m_ChokeAt.m_At==NULL)
+    {
+    m_fChoked=0;
+    m_ChokeInfo.m_At=NULL;
+    m_ChokeInfo.m_PX=0.0;
+    }
+
+  FlwNode * pQmEstSrc=m_XBst.m_pFB ? dynamic_cast<FlwNode*>(m_XBst.m_pFB->AttachedTo()) : NULL;
+  for (int i=0; i<m_FBSeq.GetCount(); i++)
+    {
+    CGrpFlwIndex *I = m_FBSeq[i];
+    switch (I->m_eType)
+      {
+      case GFI_IO:
+      case GFI_Lnk:
+        I->FB.m_pQmEstSrc=pQmEstSrc;
+        break;
+      case GFI_Join:
+        break;
+      };
+    }
+  //if (pLimitNode)
+  //  dbgpln("QmEstSrc: %s", pQmEstSrc->FullObjTag());
+
+#if dbgFlwNets
+  if (DbgFlags & DBG_TrvResult)
+    {
+    if (m_fFixedXfer || m_HiImp.fLimit)
+      dPErrRatio=-1.0;
+    char ErrV[256], NErrV[256], Qr[256];
+    sprintf(ErrV, "%2i", (int)Min(dPErrRatio,99.0));
+    sprintf(NErrV, "%2i", (int)Min(dPErrRatio/m_pFNB->m_NetDeRating,99.0));
+    if (m_fFixed)
+      sprintf(Qr, "%11.4g", m_fFixedXfer ? m_QmXfCap : m_QmRqd);
+    else
+      sprintf(Qr, "%-11.11s", "*");
+    dbglock();
+    //    dbgp("T[%-8.8s] L%s N%s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g Rq:%*.*g dP:%*.*g e:%*.*g Qr:%s",
+    dbgp("T[%-8.8s] L%s N%s R%s %s %s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g dP:%*.*g e:%*.*g Qr:%s",
+      dbgwhere, 
+      (m_fGFTolsOK ? " ." : ErrV),
+      (m_fGFNetTolsOK ? " ." : NErrV),
+      (m_fGFRegTolOK? "." : "*"),
+      m_fDerivsBad?"x":"d",
+      m_fFixedXfer?"X":m_fFixed?"F":" ",
+      PWide,PPrec,m_P_Applied, 
+      PWide,PPrec,m_Sum_B, 
+      QWide,QPrec,Qm, 
+      RWide,RPrec,m_Sum_ResT, 
+      //      RWide,RPrec,Sum_ResQ, 
+      PWide,PPrec,m_Sum_dP, 
+      PWide,PPrec,m_P_Err, Qr);
+    if (DbgFlags&DBG_Deltas)
+      dbgp(" dQ:%13.5g dB:%13.5g", m_Sum_adPqdQ, m_Sum_dPbdQ);
+
+    if (DbgFlags & DBG_Regulator)
+      {
+      if (m_Regulator.m_iWhat!=FBReg_Off)
+        dbgp("[C:%7.4f M:%8.2f T:%8.2f]", m_Regulator.m_dCtrlCur, m_Regulator.m_dMeasValue, m_Regulator.m_pFRB->StepTarget());
+      else
+        dbgp("  %14s %15s ", "", "");
+      }
+
+    dbgp(" %s", FwdTag());
+    dbgpln("");
+    dbgunlock();
+    }
+  if (dbgTopologyChg())
+    if (m_fTopologyChanged)
+      dbgpln("  ----> Topology Change FxdQm %s Q:%#16.9g %s ",
+      (m_fFixed ? (m_fFixedXfer ? "TRANSFER":"FIXED"):m_fUnDefined?"UNDEFINED":"FREE "),
+      m_fFixedXfer ? m_QmXfCap : m_QmRqd, FwdTag());
+  if (dbgSolveFxdQsTrv())
+    if(m_fFixedXfer)
+      dbgpln("  Lnk dQm_XfCap:%12.4g P:%12.4g > %12.4g %s", m_QmXfCap,m_Src_P,m_Dst_P,FwdTag());
+    else if(m_fFixed)
+      dbgpln("  Lnk dQm_Rqd:%12.4g   P:%12.4g > %12.4g %s", m_QmRqd,m_Src_P,m_Dst_P,FwdTag());
 #endif
+
+
   }
 
 //-------------------------------------------------------------------------

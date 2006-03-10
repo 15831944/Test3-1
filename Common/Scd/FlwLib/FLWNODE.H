@@ -3185,15 +3185,8 @@ const DWORD UIGlobalDX = 0x8000000;
 class CPropagateNetInfoCtrl
   {
   public:
-
-    CPropagateNetInfoCtrl(eScdPropagateNetTasks Task, long Info)
-      {
-      m_Task        = Task;
-      m_Pass        = 0;
-      m_Info        = Info;
-      m_ReqdMethod  = LFM_Full;
-      m_pObj        = NULL;
-      }
+    CPropagateNetInfoCtrl(eScdPropagateNetTasks Task, long Info);
+    ~CPropagateNetInfoCtrl();
 
     eScdPropagateNetTasks   m_Task;
     long                    m_Pass;
@@ -4227,19 +4220,20 @@ XID xidSysCADSolutionOld          = FlwXID(1);
 XID xidSolveMode                  = FlwXID(2);
 XID xidHeatMode                   = FlwXID(3);
 XID xidFlowMode                   = FlwXID(4);
-XID xidUserMethod                 = FlwXID(5);
-XID xidActiveMode                 = FlwXID(6);
-XID xidHoldMode                   = FlwXID(7);
-XID xidSolveState                 = FlwXID(8);
-XID xidSysCADActive               = FlwXID(9);
-XID xidSpecSheet                  = FlwXID(10);
-XID xidEvalOrder                  = FlwXID(11);
-XID xidCondition                  = FlwXID(12);
-XID xidSetState                   = FlwXID(13);
-XID xidNdNJoins                   = FlwXID(14);
-XID xidNdNIOs                     = FlwXID(15);
-XID xidMarked                     = FlwXID(16);
-XID xidFlwNdRqdArea               = FlwXID(17);
+XID xidFlowModeSet                = FlwXID(5);
+XID xidUserMethod                 = FlwXID(6);
+XID xidActiveMode                 = FlwXID(7);
+XID xidHoldMode                   = FlwXID(8);
+XID xidSolveState                 = FlwXID(9);
+XID xidSysCADActive               = FlwXID(10);
+XID xidSpecSheet                  = FlwXID(11);
+XID xidEvalOrder                  = FlwXID(12);
+XID xidCondition                  = FlwXID(13);
+XID xidSetState                   = FlwXID(14);
+XID xidNdNJoins                   = FlwXID(15);
+XID xidNdNIOs                     = FlwXID(16);
+XID xidMarked                     = FlwXID(17);
+XID xidFlwNdRqdArea               = FlwXID(18);
 
 XID xidSrcIOTag                   = FlwXID(40);
 XID xidDstIOTag                   = FlwXID(41);
