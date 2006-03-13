@@ -28,7 +28,8 @@ namespace SysCAD.Editor
     public bool SelectArrows = false;
     public bool SelectItems = true;
 
-    public SizeF currentDefaultSize = new SizeF(0.0F, 0.0F);
+    public string currentModelShape;
+    public string currentGraphicShape;
 
     public FrmFlowChart()
     {
@@ -57,53 +58,12 @@ namespace SysCAD.Editor
 
       foreach (Item item in graphic.items.Values)
       {
-        Box modelBox;
-        Box graphicBox;
-
-        modelBox = fcFlowChart.CreateBox(item.x + item.width * 0.25F, item.y + item.height * 0.25F, item.width * 0.5F, item.height * 0.5F);
-        modelBox.Text = item.tag;
-        modelBox.ToolTip = item.tag;
-        modelBox.Style = BoxStyle.Shape;
-        modelBox.Shape = ShapeTemplate.FromId("Decision2");
-        modelBox.AnchorPattern = new AnchorPattern(new AnchorPoint[]
-        {
-          new AnchorPoint(50, 0, false, true, MarkStyle.Circle, Color.Blue),
-          new AnchorPoint(0, 50, true, false, MarkStyle.Circle, Color.Blue),
-          new AnchorPoint(50, 100, true, false, MarkStyle.Rectangle, Color.Green),
-          new AnchorPoint(100, 50, true, true, MarkStyle.Rectangle, Color.Red)
-        });
-
-        modelBox.FillColor = System.Drawing.Color.BurlyWood;
-        modelBox.FrameColor = System.Drawing.Color.BurlyWood;
-        modelBox.Visible = ShowModels;
-
-        graphicBox = fcFlowChart.CreateBox(item.x, item.y, item.width, item.height);
-        graphicBox.Text = item.tag;
-        graphicBox.ToolTip = item.tag;
-        graphicBox.Style = BoxStyle.Shape;
-        GraphicStencil tempGraphicStencil;
-        if (config.graphicStencils.TryGetValue(item.shape, out tempGraphicStencil))
-          graphicBox.Shape = tempGraphicStencil.ShapeTemplate();
-        graphicBox.AttachTo(modelBox, -50, -50, 150, 150);
-        graphicBox.EnabledHandles = Handles.None;
-        graphicBox.HandlesStyle = HandlesStyle.Invisible;
-        graphicBox.Visible = ShowGraphics;
-
-        graphicBox.ZBottom();
-        modelBox.ZTop();
-
-        itemBoxes.Add(item.tag, new ItemBox(modelBox, graphicBox, true));
+        NewGraphicItem(item);
       }
 
       foreach (Link link in graphic.links.Values)
       {
-        Box boxOrigin = itemBoxes[link.src].ModelBox;
-        Box boxDestination = itemBoxes[link.dst].ModelBox;
-
-        Arrow arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
-        arrow.ArrowHead = ArrowHead.Triangle;
-        arrow.Style = ArrowStyle.Cascading;
-        arrow.Visible = ShowArrows;
+        NewGraphicLink(link);
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -114,6 +74,72 @@ namespace SysCAD.Editor
       ResumeLayout(false);
 
       ZoomToVisible();
+    }
+
+    private void NewGraphicLink(Link link)
+    {
+      Box boxOrigin = itemBoxes[link.src].ModelBox;
+      Box boxDestination = itemBoxes[link.dst].ModelBox;
+
+      Arrow arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
+      arrow.Text = link.tag;
+      arrow.ToolTip = "Tag: " + link.tag + "\n\nOrigin: " + link.src + "\nDestination: " + link.dst;
+      arrow.ArrowHead = ArrowHead.Triangle;
+      arrow.Style = ArrowStyle.Cascading;
+      arrow.Visible = ShowArrows;
+    }
+
+    private void NewGraphicItem(Item item)
+    {
+      Box modelBox;
+      Box graphicBox;
+
+      modelBox = fcFlowChart.CreateBox(item.x + item.width * 0.25F, item.y + item.height * 0.25F, item.width * 0.5F, item.height * 0.5F);
+      modelBox.Text = item.tag;
+      modelBox.ToolTip = "Tag: "+item.tag+"\n\nModel Type: "+item.model;
+      modelBox.Style = BoxStyle.Shape;
+      {
+        ModelStencil stencil;
+        if (config.modelStencils.TryGetValue(item.model, out stencil))
+          modelBox.Shape = stencil.ShapeTemplate();
+        else
+          modelBox.Shape = ShapeTemplate.FromId("Decision2");
+      }
+      modelBox.AnchorPattern = new AnchorPattern(new AnchorPoint[]
+        {
+          new AnchorPoint(50, 0, false, true, MarkStyle.Circle, Color.Blue),
+          new AnchorPoint(0, 50, true, false, MarkStyle.Circle, Color.Blue),
+          new AnchorPoint(50, 100, true, false, MarkStyle.Rectangle, Color.Green),
+          new AnchorPoint(100, 50, true, true, MarkStyle.Rectangle, Color.Red)
+        });
+
+      modelBox.FillColor = System.Drawing.Color.BurlyWood;
+      modelBox.FrameColor = System.Drawing.Color.BurlyWood;
+      modelBox.Visible = ShowModels;
+
+      graphicBox = fcFlowChart.CreateBox(item.x, item.y, item.width, item.height);
+      graphicBox.Text = item.tag;
+      graphicBox.ToolTip = "Tag: " + item.tag + "\n\nStencil: " + item.shape; ;
+      graphicBox.Style = BoxStyle.Shape;
+      {
+        GraphicStencil stencil;
+        if (config.graphicStencils.TryGetValue(item.shape, out stencil))
+          graphicBox.Shape = stencil.ShapeTemplate();
+        else
+          graphicBox.Shape = ShapeTemplate.FromId("Decision2");
+      }
+      //GraphicStencil tempGraphicStencil;
+      //if (config.graphicStencils.TryGetValue(item.shape, out tempGraphicStencil))
+      //  graphicBox.Shape = tempGraphicStencil.ShapeTemplate();
+      graphicBox.AttachTo(modelBox, -50, -50, 150, 150);
+      graphicBox.EnabledHandles = Handles.None;
+      graphicBox.HandlesStyle = HandlesStyle.Invisible;
+      graphicBox.Visible = ShowGraphics;
+
+      graphicBox.ZBottom();
+      modelBox.ZTop();
+
+      itemBoxes.Add(item.tag, new ItemBox(modelBox, graphicBox, true));
     }
 
     public void ZoomToVisible()
@@ -498,59 +524,47 @@ namespace SysCAD.Editor
 
     }
 
-    string tempKey = "";
+    int tempKey = 0;
 
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
     {
-      tempKey += "A";
+      NewItem(e.Box.BoundingRect);
+    }
 
-      Item newItem = new Item(tempKey);
-      graphic.items.Add(tempKey, newItem);
-      newItem.x = e.Box.BoundingRect.X;
-      newItem.y = e.Box.BoundingRect.Y;
-      newItem.width = e.Box.BoundingRect.Width;
-      newItem.height = e.Box.BoundingRect.Height;
+    private void NewItem(RectangleF rect)
+    {
+      ItemBox tempItemBox;
+      while (itemBoxes.TryGetValue("N_" + tempKey.ToString(), out tempItemBox))
+        tempKey++;
+      Item newItem = new Item("N_" + tempKey.ToString());
+      graphic.items.Add("N_" + tempKey.ToString(), newItem);
+      newItem.x = rect.X;
+      newItem.y = rect.Y;
+      newItem.width = rect.Width;
+      newItem.height = rect.Height;
+      newItem.model = currentModelShape;
+      newItem.shape = currentGraphicShape;
 
-      Box newModelBox = e.Box;
-      newModelBox.Text = tempKey;
-      newItem.shape = newModelBox.Shape.Id;
+      NewGraphicItem(newItem);
 
-      Box newGraphicBox = fcFlowChart.CreateBox(e.Box.BoundingRect.X, e.Box.BoundingRect.Y,
-        e.Box.BoundingRect.Width / 2.0F, e.Box.BoundingRect.Height / 2.0F);
-      newGraphicBox.Text = tempKey;
-
-      itemBoxes.Add(tempKey, new ItemBox(newModelBox, newGraphicBox, true));
-
-      tvNavigation.Nodes.Add(tempKey, tempKey);
+      tvNavigation.Nodes.Add("N_" + tempKey.ToString(), "N_" + tempKey.ToString());
     }
 
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       if (fcFlowChart.Behavior == BehaviorType.CreateBox)
       {
-        tempKey += "A";
-
         MouseEventArgs me = e as MouseEventArgs;
-        PointF pos = fcFlowChart.ClientToDoc(me.Location);
-
-        Item newItem = new Item(tempKey);
-        graphic.items.Add(tempKey, newItem);
-        newItem.x = pos.X - (currentDefaultSize.Width / 2.0F);
-        newItem.y = pos.Y - (currentDefaultSize.Height / 2.0F);
-        newItem.width = currentDefaultSize.Width;
-        newItem.height = currentDefaultSize.Height;
-
-        Box newGraphicBox = fcFlowChart.CreateBox(newItem.x, newItem.y, newItem.width, newItem.height);
-        newGraphicBox.Text = tempKey;
-
-        Box newModelBox = fcFlowChart.CreateBox(newItem.x, newItem.y, newItem.width / 2.0F, newItem.height / 2.0F);
-        newModelBox.Text = tempKey;
-        newItem.shape = newGraphicBox.Shape.Id;
-
-        itemBoxes.Add(tempKey, new ItemBox(newModelBox, newGraphicBox, true));
-
-        tvNavigation.Nodes.Add(tempKey, tempKey);
+        NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), config.graphicStencils[currentGraphicShape].defaultSize));
       }
+    }
+
+    private void FrmFlowChart_Resize(object sender, EventArgs e)
+    {
+      SuspendLayout();
+      fcFlowChart.Size = Size;
+      fcFlowChart.Refresh();
+      ResumeLayout();
     }
   }
 
