@@ -1242,6 +1242,9 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
     CXM_ObjectData ObjData(0, TABOpt_ForFile); // large objects are from filing point of view
     int ItemsInObject=0;
    
+    //Strng TheTag,Value;
+    Strng_List sStrList;
+
     Strng CurrentNdTag;
     Strng CurrentNdTagAdj;
     bool Done=rs->adEOF!=0;
@@ -1263,6 +1266,9 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
         Strng Tg;
         Tg.Set(/*Cnv.GetLength()>0 ? "%s.%s (%s)":*/"%s.%s", (LPCTSTR)m_pCf->m_sNdTag, FldTg()/*, Cnv()*/);
                                                    
+        if (FldTg.XStrICmp("Regulator.Mode")==0)
+          { int xxxx=0; }
+
         CXM_Route Route;
         Route.Clear();
         //Strng TagTag(m_pCf->m_sNdTag);
@@ -1273,14 +1279,26 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
         if (Ok)
           {
           CPkDataItem *pItem = RdData.FirstItem();
-          if (0)
+          int Type = pItem->Type();
+          if (1)
+            dbgpln("XRead %s %-7s %-25s %-8s %-30s %-20s %s", Ok?"OK":"  ", m_pCf->m_sFldType, m_pCf->m_sNdTag, m_pCf->m_sCnvStr, m_pCf->m_sFldTag, m_pCf->m_sValue, Cnv()?Cnv():"" );
+
+          PkDataUnion DU;
+          if (IsStrng(Type))
+            DU.SetTypeString(Type, m_pCf->m_sValue);
+          else if (IsFloatData(Type))
+            DU.SetTypeDouble(Type, SafeAtoF(m_pCf->m_sValue), pItem->CnvIndex(), Cnv());
+          else if (IsIntData(Type) && pItem->Contains(PDI_StrList))
             {
-            dbgpln("XRead %s %-7s %-25s %-8s %-30s %-20s %s", Ok?"OK":"  ", m_pCf->m_sFldType, m_pCf->m_sNdTag, m_pCf->m_sCnvStr, m_pCf->m_sFldTag, m_pCf->m_sValue, Cnv() );
-            char*xxx=strstr(Tg(), "P_214");
-            if (xxx)
-              {int xxx=0;};
+            pItem->GetStrList(sStrList);
+            pStrng pS = sStrList.Find(m_pCf->m_sValue);
+            const int Indx = (pS==NULL ? 0 : pS->Index());
+            DU.SetTypeLong(Type, Indx);
             }
-          PkDataUnion DU(pItem->Type(), m_pCf->m_sValue, pItem->CnvIndex(), Cnv());
+          else
+            DU.SetTypeLong(Type, SafeAtoL(m_pCf->m_sValue));
+     
+          //PkDataUnion DU(pItem->Type(), m_pCf->m_sValue, pItem->CnvIndex(), Cnv());
           CXM_ObjectData LclObjData(0, TABOpt_ForView, Tg(), DU);
 
           Ok = (gs_Exec.XWriteTaggedItem(NULL, LclObjData, Route)!=TOData_NotFound);
