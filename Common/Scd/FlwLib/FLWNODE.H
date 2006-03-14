@@ -3202,6 +3202,10 @@ class DllImportExport FlwNode : public CTNode
   public:
     FlwNode(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~FlwNode();
+
+
+    virtual void   FinaliseConstruction() {};
+
     virtual void   AttachClassInfo(DWORD Class_, IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp=NULL);
     virtual void   AttachClassInfo(DWORD Class_, IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp * DefFlwEqnGrp1);
     virtual bool   FixElectricalIO(IOAreaRec * FixedIOPts, CETermStripDefnArray & NewTerms);

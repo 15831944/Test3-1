@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
-#include "optoff.h"
+//#include "optoff.h"
 
 //temp force solver threads to zero until multi-threaded solver bug is fixed
 #define FORCERQDTHREADS    0
@@ -9966,7 +9966,7 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
 
     CStopWatch SW;
     SW.Start();
-    dbgpln("DoGlobalLinks ======================================================== %10.3fms", SW.Secs()*1e3);
+    dbgpln("DoGlobalLinks ======================================================== %10.1fms", SW.Lap()*1e3);
 
     // First Remove Bad Ones
     FlwNode *p=NULL;
@@ -10001,14 +10001,19 @@ DeleteIt:
       delete pDel;
       }
 
+    dbgpln("DoGlobalLinks 1 ==================================================== %10.1fms", SW.Lap()*1e3);
 
     p=NULL;
     while (GetObj_All(p))
       if (p->GetActive())
         {
         //p->SetFlowMode(p->FlowMode()); // update FlowMode requirements
+        double t0=SW.Secs();
         p->GlobalConnect();
+        dbgpln("  GlobalConnect %10.1fus %-20s %s", (SW.Secs()-t0)*1e6, p->ClassId(), p->FullObjTag());
         }
+
+    dbgpln("DoGlobalLinks 2 ==================================================== %10.1fms", SW.Lap()*1e3);
 
     p=NULL;
     while (GetObj_All(p))
@@ -10018,9 +10023,12 @@ DeleteIt:
     if (gs_Exec.GlblProbalMode())
       PB.BuildMacroMdls();
 
+    dbgpln("DoGlobalLinks 3 ==================================================== %10.1fms", SW.Lap()*1e3);
+
     EqnSlv().ConnectAllTears(false);
     EqnSlv().RemoveUnusedTears();
 
+    dbgpln("DoGlobalLinks 4 ==================================================== %10.1fms", SW.Lap()*1e3);
 
     p=NULL;
     while (GetObj_All(p))
@@ -10037,6 +10045,8 @@ DeleteIt:
       if (!p->fValidateDataComplete && !p->bHoldValidateData)
         LogError(p->FullObjTag(), 0, "Incomplete ValidateData");
       }
+
+    dbgpln("DoGlobalLinks 5 ==================================================== %10.1fms", SW.Lap()*1e3);
 
     if (1)
       {
@@ -10068,16 +10078,22 @@ DeleteIt:
         }
       }
 
+    dbgpln("DoGlobalLinks 6 ==================================================== %10.1fms", SW.Lap()*1e3);
+
     Set_All_Sizes();
     TIMINGLAP("SetAllSizes");
+
+    dbgpln("DoGlobalLinks 7 ==================================================== %10.1fms", SW.Lap()*1e3);
 
     Set_All_Zs();
     TIMINGLAP("SetAllZ");
 
+    dbgpln("DoGlobalLinks 8 ==================================================== %10.1fms", SW.Lap()*1e3);
+
     fGlblLinksDone=true;
     //SetLoadAllModelStatus();
     XUpdateDisplays(true, false);
-    dbgpln("GlobalLinksDone ==================================================== %10.3fms", SW.Secs()*1e3);
+    dbgpln("GlobalLinksDone ==================================================== %10.1fms", SW.Lap()*1e3);
     }
   }
 
@@ -10095,7 +10111,7 @@ void CFlwSolver::UnDoGlobalLinks()
 
   CStopWatch SW;
   SW.Start();
-  dbgpln("UnDoGlobalLinks 1 ==================================================== %10.3fms", SW.Secs()*1e3);
+  dbgpln("UnDoGlobalLinks 1 ==================================================== %10.1fms", SW.Lap()*1e3);
 
   EqnSlv().DisConnectAllTears();
 
@@ -10105,12 +10121,12 @@ void CFlwSolver::UnDoGlobalLinks()
   Dyn.m_TSCA.TerminateCollection();
   //TSCA.TerminateCollection();
 
-  dbgpln("UnDoGlobalLinks 2 ==================================================== %10.3fms", SW.Secs()*1e3);
+  dbgpln("UnDoGlobalLinks 2 ==================================================== %10.1fms", SW.Lap()*1e3);
 
   PB.ClearSolutionBlks(true);
   Dyn.ClearSolutionBlks(true);
 
-  dbgpln("UnDoGlobalLinks 3 ==================================================== %10.3fms", SW.Secs()*1e3);
+  dbgpln("UnDoGlobalLinks 3 ==================================================== %10.1fms", SW.Lap()*1e3);
 
   int NFlwNodes=0;
   for (FlwNode * p=NULL; GetObj_All(p); )
@@ -10142,7 +10158,7 @@ void CFlwSolver::UnDoGlobalLinks()
     p->UnlinkAllXRefs();
     }
 
-  //dbgpln("UnDoGlobalLinks 3.5 ================================================== %10.3fms", SW.Secs()*1e3);
+  //dbgpln("UnDoGlobalLinks 3.5 ================================================== %10.1fms", SW.Lap()*1e3);
 
   //for (FlwNode * p=NULL; GetObj_All(p); )
   //  {
@@ -10156,7 +10172,7 @@ void CFlwSolver::UnDoGlobalLinks()
   //  p->UnlinkAllXRefs();
   //  }
 
-  dbgpln("UnDoGlobalLinks 4 ==================================================== %10.3fms", SW.Secs()*1e3);
+  dbgpln("UnDoGlobalLinks 4 ==================================================== %10.1fms", SW.Lap()*1e3);
 
   // Must remove XRefs in case their contained info goes invalid. (eg. A referenced node gets deleted)
   for (p=NULL; GetObj_All(p); )
@@ -10167,7 +10183,7 @@ void CFlwSolver::UnDoGlobalLinks()
     #endif
     p->RemoveAllXRefs();
     }
-  dbgpln("UndoGlobalLinksDone ================================================== %10.3fms", SW.Secs()*1e3);
+  dbgpln("UndoGlobalLinksDone ================================================== %10.1fms", SW.Lap()*1e3);
 
   fGlblLinksDone=false;
   }
@@ -11566,11 +11582,25 @@ static void SetConnectedActive(FlwNode * p)
 
 //--------------------------------------------------------------------------
 
+static int HpEvalPosn(void * p, void * q)
+  {
+  FlwNode * r1=(FlwNode *)p;
+  FlwNode * r2=(FlwNode *)q;
+  int Cmp=(r1->m_iEvalPosn-r2->m_iEvalPosn);
+  return Cmp<0;
+  }
+
+//--------------------------------------------------------------------------
+
 flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
   {
   // Set the Time - regardless
   ODE().SetTime(CB.m_Time);
   //ODE().ClSetItersTotal(0);
+
+  CStopWatch SW;
+  SW.Start();
+  dbgpln("EO_Start ======================================================== %10.1fms", SW.Lap()*1e3);
 
   gs_MsgLog.SetDefer(true);
 
@@ -11586,6 +11616,8 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
 
   bool OK=1;
 
+  dbgpln("EO_Start 1 ====================================================== %10.1fms", SW.Lap()*1e3);
+
   if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
     {
     OK=0;
@@ -11597,32 +11629,83 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
     LogError("Solver", 0, "Bad Component Database");
     }
 
-  int nBad=0, nObj=0, nAct=0;//Dyn=0, nPB=0;
+  dbgpln("EO_Start 2 ====================================================== %10.1fms", SW.Lap()*1e3);
+
   CFlwNodeList AllNds;
-  p = NULL;
-  if (GetObj_All(p))
+
+  if (0)
     {
-    p->iAllIndex=-1; //skip Flwsolver
-    //p->SetNodeSolveMode();
-    for (nObj=0; GetObj_All(p); nObj++)
+    int NFlwNodes=0;
+    for (FlwNode * p=NULL; GetObj_All(p); )
       {
       if (p->GetActive())
         {
-        CFlwNodeIterWithPos All(AllNds);
-        for (FlwNode * pp=All.First(); (pp); pp=All.Next())
-          if (pp->m_iEvalPosn>p->m_iEvalPosn)
-            break;
-
-        if (pp)
-          AllNds.InsertBefore(All.Pos(), p);       
-        else
-          AllNds.AddTail(p);
+        NFlwNodes++;
+        AllNds.AddTail(p);
         }
       else
         p->iAllIndex=-1;
       }
     }
+  else if (1)
+    {
+    int NFlwNodes=0;
+    for (FlwNode * p=NULL; GetObj_All(p); )
+      {
+      if (p->GetActive())
+        NFlwNodes++;
+      }
 
+    m_TempNdPtrs.SetSize(Max(m_TempNdPtrs.GetSize(), NFlwNodes));
+
+    int nObj=0;
+    for (FlwNode * p=NULL; GetObj_All(p); )
+      {
+      if (p->GetActive())
+        m_TempNdPtrs[nObj++]=p;
+      else
+        p->iAllIndex=-1;
+      }
+
+    HpSort(NFlwNodes, (void**)&m_TempNdPtrs[0], HpEvalPosn);
+
+    for (int i=0; i<NFlwNodes; i++)
+      {
+      FlwNode *p=m_TempNdPtrs[i];
+      AllNds.AddTail(m_TempNdPtrs[i]);
+      }
+    }
+  //else
+  //  {
+
+  //  p = NULL;
+  //  if (GetObj_All(p))
+  //    {
+  //    p->iAllIndex=-1; //skip Flwsolver
+  //    //p->SetNodeSolveMode();
+  //    for (int nObj=0; GetObj_All(p); nObj++)
+  //      {
+  //      if (p->GetActive())
+  //        {
+  //        CFlwNodeIterWithPos All(AllNds);
+  //        for (FlwNode * pp=All.First(); (pp); pp=All.Next())
+  //          if (pp->m_iEvalPosn>p->m_iEvalPosn)
+  //            break;
+
+  //        if (pp)
+  //          AllNds.InsertBefore(All.Pos(), p);       
+  //        else
+  //          AllNds.AddTail(p);
+  //        }
+  //      else
+  //        p->iAllIndex=-1;
+  //      }
+  //    }
+  //  }
+
+  dbgpln("EO_Start 3 ====================================================== %10.1fms", SW.Lap()*1e3);
+
+  int nBad=0, nAct=0;//Dyn=0, nPB=0;
   CFlwNodeIter All(AllNds);
   for (FlwNode * p=All.First(); (p); p=All.Next())
     {
@@ -11640,6 +11723,8 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
     NdCallCntLen=nAct;
     }
   #endif
+
+  dbgpln("EO_Start 4 ====================================================== %10.1fms", SW.Lap()*1e3);
 
   XDataClear();
 
@@ -11662,11 +11747,13 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
     }
   else
     OK=false;
+  dbgpln("EO_Start 5 ====================================================== %10.1fms", SW.Lap()*1e3);
 
   ASSERT(_CrtCheckMemory());
 
   gs_MsgLog.SetDefer(false);
   gs_MsgLog.FlushWndQ();
+  dbgpln("EO_Start 6 ====================================================== %10.1fms", SW.Lap()*1e3);
 
   return OK;
   }

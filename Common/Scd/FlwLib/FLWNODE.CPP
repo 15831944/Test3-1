@@ -17,36 +17,31 @@
 #include "flwnets.h"                   
 #include "flwsolve.h"                   
 
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgFlwNode       (WITHDEBUG)
 #define dbgFlwNodeMS     WITHDEBUG
 #define dbgFlowInfo      (WITHDEBUG && 0)
 
 #if dbgFlwNode
-static CDbgMngr dbgAccCalcs        ("FlwNode",  "AccCalcs");
-static CDbgMngr dbgCheckAlphas     ("FlwNode",  "CheckAlphas");
-static CDbgMngr dbgClosure         ("FlwNode",  "Closure");
-static CDbgMngr dbgConstruction    ("FlwNode",  "Construction");
-static CDbgMngr dbgEvalDerivs      ("FlwNode",  "EvalDerivs");
-static CDbgMngr dbgGlobalConnects  ("FlwNode",  "GlobalConnects");
-static CDbgMngr dbgJoinsBld        ("FlwNode",  "JoinsBld");
-static CDbgMngr dbgNodeTypes       ("FlwNode",  "NodeTypes");
-static CDbgMngr dbgQRatio          ("FlwNode",  "QRatio");
-static CDbgMngr dbgReconFactors    ("FlwNode",  "ReconFactors");
-static CDbgMngr dbgReconFlows      ("FlwNode",  "ReconFlows");
-static CDbgMngr dbgSensitivity     ("FlwNode",  "Sensitivity");
-static CDbgMngr dbgTearOutputs     ("FlwNode",  "TearOutputs");
-static CDbgMngr dbgTraceChanges    ("FlwNode",  "TraceChanges");
+static CDbgMngr dbgAccCalcs         ("FlwNode",  "AccCalcs");
+static CDbgMngr dbgConstruction     ("FlwNode",  "Construction");
+static CDbgMngr dbgGlobalConnects   ("FlwNode",  "GlobalConnects");
+static CDbgMngr dbgJoinsBld         ("FlwNode",  "JoinsBld");
+static CDbgMngr dbgPropagateFlwModes("FlwNode",  "PropagateFlwModes");
+static CDbgMngr dbgQRatio           ("FlwNode",  "QRatio");
+static CDbgMngr dbgSensitivity      ("FlwNode",  "Sensitivity");
+static CDbgMngr dbgTearOutputs      ("FlwNode",  "TearOutputs");
+static CDbgMngr dbgTraceChanges     ("FlwNode",  "TraceChanges");
 
 #if WithIOChgMonitor
-static CDbgMngr dbgDumpChanges     ("FlwNode",  "DumpChanges");
-static CDbgMngr dbgDumpChangesIn   ("FlwNode",  "DumpChangesIn");
+static CDbgMngr dbgDumpChanges      ("FlwNode",  "DumpChanges");
+static CDbgMngr dbgDumpChangesIn    ("FlwNode",  "DumpChangesIn");
 #endif
 
-static CDbgMngr dbgEvalJoinPress   ("ProBal",   "EvalJoinPress");
-static CDbgMngr dbgTopologyChg     ("FlwNets",  "TopologyChg");
-static CDbgMngr dbgChangeStats     ("FlwNets",  "ChangeStats");
+static CDbgMngr dbgEvalJoinPress    ("ProBal",   "EvalJoinPress");
+static CDbgMngr dbgTopologyChg      ("FlwNets",  "TopologyChg");
+static CDbgMngr dbgChangeStats      ("FlwNets",  "ChangeStats");
 
 //static CDbgMngr dbgExtendJoin      ("FlwNets",  "ExtendJoin");
 #define DBGTOPOCHG(a) if (dbgTopologyChg()) dbgpln("Topo Change : %s",a);
@@ -2308,12 +2303,14 @@ void FlwNode::SetAllowedFlowModes(bool All)
   {
   m_DDBFlowModes.Empty();
   m_DDBFlowModes.Add(LFM_Xfer                   | SM_DynBoth  | HM_All, "Transfer"    );//,    MDD_NoSelect );
+  m_DDBFlowModes.Add(0                                                , "----------"  );
   m_DDBFlowModes.Add(LFM_Simple                 | SM_DynBoth  | HM_All, "Simple"      );
   m_DDBFlowModes.Add(LFM_Linear                 | SM_DynBoth  | HM_All, "Linear"      );
   m_DDBFlowModes.Add(LFM_Full                   | SM_Buffered | HM_All, "Full"        );
-  m_DDBFlowModes.Add(LFM_Simple | LFM_Propagate | SM_DynBoth  | HM_All, "Simple.All"  );
-  m_DDBFlowModes.Add(LFM_Linear | LFM_Propagate | SM_DynBoth  | HM_All, "Linear.All"  );
-  m_DDBFlowModes.Add(LFM_Full   | LFM_Propagate | SM_Buffered | HM_All, "Full.All"    );
+  m_DDBFlowModes.Add(0                                                , "----------"  );
+  m_DDBFlowModes.Add(LFM_Simple | LFM_Propagate | SM_DynBoth  | HM_All, "All.Simple"  );
+  m_DDBFlowModes.Add(LFM_Linear | LFM_Propagate | SM_DynBoth  | HM_All, "All.Linear"  );
+  m_DDBFlowModes.Add(LFM_Full   | LFM_Propagate | SM_Buffered | HM_All, "All.Full"    );
   if (All)
     {
     if (PrjFileVerNo()<94) // cahcth this in ValidateData MN_Link
@@ -2550,6 +2547,29 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   //  DDB.Long("SolveMethod", "", DC_, "", xidSolveMode,   this, isParmStopped|SetOnChange, &DDBR);
   //  }
 
+  if (!SolveDirectMethod() && m_DDBFlowModes.Length()>0)
+    {
+    DDBValueLstMem DDBU;
+    for (int i=0; i<m_DDBFlowModes.Length(); i++)
+      {
+      DDBValueLst &V=*m_DDBFlowModes.Item(i);
+      if (((V.m_lVal & SolveMethod()) && (V.m_lVal & HeatMethod())) || V.m_lVal==0)
+        DDBU.Add(V.m_lVal & (LFM_All|LFM_Propagate), V.m_pStr, V.m_dwFlags);
+      }
+    DDBU.Add(0, "None", MDD_Hidden);
+    if (DDBU.Length())
+      {
+      if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
+        DDB.Long("UserMethod", "", DC_, "", xidFlowMode, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
+      else
+        {
+        DDB.Long  ("FlowMode",    "", DC_, "", xidFlowMode,    this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
+        if (FlowModeObj())
+          DDB.String("FlowModeSet", "", DC_, "", xidFlowModeSet, this, isTag);
+        }
+      }
+    }
+
   if (m_AllowedSolveModes)
     {
     DDBValueLstMem DDBR;
@@ -2567,29 +2587,6 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   GetGlblModeValueLst(DDBH, GetPermissableRunModes(HM_All));
   DDB.Long("HeatMode",  "", DC_, "", xidHeatMode,    this, 0, &DDBH);
 
-
-  if (!SolveDirectMethod() && m_DDBFlowModes.Length()>0)
-    {
-    DDBValueLstMem DDBU;
-    for (int i=0; i<m_DDBFlowModes.Length(); i++)
-      {
-      DDBValueLst &V=*m_DDBFlowModes.Item(i);
-      if ((V.m_lVal & SolveMethod()) && (V.m_lVal & HeatMethod()))// && ((V.m_dwFlags&MDD_NoSelect)==0))
-        DDBU.Add(V.m_lVal & (LFM_All|LFM_Propagate), V.m_pStr, V.m_dwFlags);
-      }
-    DDBU.Add(0, "None", MDD_Hidden);
-    if (DDBU.Length())
-      {
-      if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
-        DDB.Long("UserMethod", "", DC_, "", xidFlowMode, this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
-      else
-        {
-        DDB.Long  ("FlowMode",    "", DC_, "", xidFlowMode,    this, (DDBU.Length()>2?isParmStopped:0)|SetOnChange, &DDBU);
-        if (FlowModeObj())
-          DDB.String("FlowModeSet", "", DC_, "", xidFlowModeSet, this, isTag);
-        }
-      }
-    }
 
   if (m_DDBUserMethods.Length()>0)
     {
@@ -3195,12 +3192,13 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidFlowMode:  
       {
-      if (DCB.rL)
+      if (DCB.rL && (*DCB.rL!=0))
         {
         //if (DCB.ForView())
         //  PropagateNetInfo(eScdSetFlowMode, -1, *DCB.rL, true);
-        //else
+        //else     
         SetFlowModeReqd(*DCB.rL);
+        //dbgpln("============ %s  %s", FlowModeStr(m_FlowModeReqd), FullObjTag());
         }
       if (DCB.ForFileSnpScn())
         DCB.L=FlowModeReqd();
@@ -5284,14 +5282,20 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
 
 int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, int RqdIONo1, int RqdIONo2)
   {
+  CStopWatch SW;
+  SW.Start();
+
   if (Info1.p==Info2.p)
     {
     LogError(Info1.p->FullObjTag(), 0, "Self Connect - Not Allowed");
     return NErr_SelfConnect;
     }
 
+
   Info1.IOIndex = Info1.p->Attach(Info1.AreaInx, Info2.p, Info2.AreaInx, pF, pT, RqdIONo1, 1);
+  //dbgpln(" .X %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
   Info2.IOIndex = Info2.p->Attach(Info2.AreaInx, Info1.p, Info1.AreaInx, pF, pT, RqdIONo2, -1);
+  //dbgpln(" .Y %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
   Info1.p->m_IOs[Info1.IOIndex].IONoRmt = Info2.IOIndex;
   Info2.p->m_IOs[Info2.IOIndex].IONoRmt = Info1.IOIndex;
 
@@ -5320,6 +5324,8 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
       Do1to2=false;
     }
 
+  //dbgpln(" .M %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+
   if (pF)
     {
     if (Do1to2)
@@ -5327,6 +5333,8 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
     else
       pF->SetConnection(Info2.p, Info2.IOIndex, Info1.p, Info1.IOIndex);
     }
+  //dbgpln(" .N %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+
   if (pT)
     {
     if (Do1to2)
@@ -5334,6 +5342,8 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
     else
       pT->SetConnection(Info2.p, Info2.IOIndex, Info1.p, Info1.IOIndex);
     }
+
+  //dbgpln(" .O %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 
   //  if (Info1.IOIndex>Info2.IOIndex)
 //    pC->SetConnection(Info1.p, Info1.IOIndex, Info2.p, Info2.IOIndex);
@@ -5361,6 +5371,7 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
     }
 
   StructureChanged(NULL);
+  //dbgpln(" .Z %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 
   #ifdef xdbgConnect
   dbgnln;
@@ -5507,12 +5518,21 @@ CPropagateNetInfoCtrl::CPropagateNetInfoCtrl(eScdPropagateNetTasks Task, long In
   m_Info        = Info;
   m_ReqdMethod  = 0;//LFM_Full;
   m_pObj        = NULL;
-  dbgpln("PropagateNetInfo");
-  dbgindent(2);
+#if dbgFlwNode
+  if (dbgPropagateFlwModes())
+    {
+    dbgpln("PropagateNetInfo");
+    dbgindent(2);
+    }
+#endif
+
   }
 CPropagateNetInfoCtrl::~CPropagateNetInfoCtrl()
   {
-  dbgindent(-2);
+#if dbgFlwNode
+  if (dbgPropagateFlwModes())
+    dbgindent(-2);
+#endif
   }
 
 bool FlwNode::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo) 
@@ -5542,14 +5562,19 @@ bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool H
 
           if (DoPropagate && (Ctrl.m_ReqdMethod==0 || ModeReqd<Ctrl.m_ReqdMethod))
             {
-            Ctrl.m_ReqdMethod=ModeReqd;//m_FlowModeReqd;
-          //if ((m_FlowModeReqd&~LFM_Propagate)==LFM_Xfer)
+            Ctrl.m_ReqdMethod=/*ModeReqd;//*/m_FlowModeReqd;
+            //if ((m_FlowModeReqd&~LFM_Propagate)==LFM_Xfer)
             Ctrl.m_pObj=this;
             }
           }
-        dbgpln("%i Reqd:%s Ctrl:%s this:%-11s Mode:%s     %s",
-          m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(Ctrl.m_ReqdMethod), 
-          Ctrl.m_pObj==this?"--->":"", FlowModeStr(FlowMode()), FullObjTag());
+#if dbgFlwNode
+        if (dbgPropagateFlwModes())
+          {
+          dbgpln("%i Reqd:%s Ctrl:%s this:%-11s  %s",
+            m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(Ctrl.m_ReqdMethod), 
+            Ctrl.m_pObj==this?"--->":"", FullObjTag());
+          }
+#endif
         break;
         }
       case eScdSetFlowMode :
@@ -5566,7 +5591,7 @@ bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool H
                 FM=LFM_Xfer;
                 break;
               default: // >= LFM_Simple
-                if (FM==LFM_Xfer || DoPropagate)
+                if (FM==0 || FM==LFM_Xfer || DoPropagate)
                   FM=ModeReqd;
                 break;
               }
@@ -5574,23 +5599,43 @@ bool FlwNode::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo, bool H
 
           TaggedObject * pObj=(FM==LFM_Xfer) ? Ctrl.m_pObj:NULL;
           SetFlowMode(FM, pObj);
-          dbgpln("%i                  Ctrl:%s FM  :%s Mode:%s  %-20s @ %s", 
-            m_FlowModePass, FlowModeStr(Ctrl.m_ReqdMethod), FlowModeStr(FM), FlowModeStr(FlowMode()), FullObjTag(), 
-            pObj?pObj->FullObjTag():"???");
+          if (DoPropagate)
+            m_FlowModeReqd = FM;
+          else
+            m_FlowModeReqd &= ~LFM_Propagate;
+#if dbgFlwNode
+          if (dbgPropagateFlwModes())
+            {
+            dbgpln("%i Reqd:%s Ctrl:%s Mode:%s  %-20s @ %s", 
+              m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(Ctrl.m_ReqdMethod), FlowModeStr(FlowMode()), FullObjTag(), 
+              pObj?pObj->FullObjTag():"???");
+            }
+#endif
           }
         else if (m_FlowModeReqd>0)
           {
           SetFlowMode(m_FlowModeReqd, NULL);
-          dbgpln("%i Reqd:%s                                   Mode:%s B   %s",
-            m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(FlowMode()), FullObjTag());
+          m_FlowModeReqd &= ~LFM_Propagate;
+#if dbgFlwNode
+          if (dbgPropagateFlwModes())
+            {
+            dbgpln("%i Reqd:%s                   Mode:%s B   %s",
+              m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(FlowMode()), FullObjTag());
+            }
+#endif
           }
         else 
           {
           SetFlowMode(FlowMode(), NULL);
-          dbgpln("%i Reqd:%s                                   Mode:%s C   %s",
-            m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(FlowMode()), FullObjTag());
+          m_FlowModeReqd &= ~LFM_Propagate;
+#if dbgFlwNode
+          if (dbgPropagateFlwModes())
+            {
+            dbgpln("%i Reqd:%s                   Mode:%s C   %s",
+              m_FlowModePass, FlowModeStr(m_FlowModeReqd), FlowModeStr(FlowMode()), FullObjTag());
+            }
+#endif
           }
-        //m_FlowModeReqd=0;
         break;
       }
     }
@@ -9546,8 +9591,13 @@ void CDirectFlwIO::MakeAreaTag()
 
 //--------------------------------------------------------------------------
 
+static gs_DisableDirectFlwIO=false;
+
 flag CDirectFlwIO::GlobalConnect()
   {
+  CStopWatch SW;
+  SW.Start();
+
   MakeAreaTag();
 
   bool Disabled=true; 
@@ -9568,7 +9618,7 @@ flag CDirectFlwIO::GlobalConnect()
       break;
     };
 
-  if (!Enabled || Disabled)
+  if (gs_DisableDirectFlwIO || !Enabled || Disabled)
     return true;
 
   #if dbgFlwNode
@@ -9612,6 +9662,8 @@ flag CDirectFlwIO::GlobalConnect()
     for (int iO=0; (NdIOLcl[iO].pDesc && NdIOLcl[iO].m_Id != m_iLclIOId); iO++)
       {};
     // if 'NdIOLcl[iO].pDesc' is NULL then this is not defined in the IOList and hence is not needed
+
+    //dbgpln(" .C %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
     if (NdIOLcl[iO].pDesc==NULL) 
       {
 #ifndef _RELEASE
@@ -9623,6 +9675,7 @@ flag CDirectFlwIO::GlobalConnect()
     IOAreaRec * NdIORmt=m_pArea->IOAreas;
     for (int iI=0; (NdIORmt[iI].pDesc &&NdIORmt[iI].m_Id != m_iRmtIOId); iI++)
       {};
+    //dbgpln(" .D %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 
     if (m_pArea->NoFlwIOs() >= MaxIOList)
       {
@@ -9658,6 +9711,7 @@ flag CDirectFlwIO::GlobalConnect()
     ASSERT(NdIOLcl[iO].pDesc!=NULL);
     ASSERT(NdIORmt[iI].pDesc!=NULL);
 
+    //dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
     IOInfoBlk Info;
     if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].pName, m_pArea, NdIORmt[iI].pName, &Info)==0)
       {
@@ -9667,6 +9721,7 @@ flag CDirectFlwIO::GlobalConnect()
       m_pArea->SetIOAutoConnect(iEnvConnectedIO, true);
 
       //dbgpln(".. %i %i %s", m_iMyConnectedIO, iEnvConnectedIO, m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
+      //dbgpln(" .F %5i %5i %10.1fus %-20s %s > %s", m_iMyConnectedIO, iEnvConnectedIO, SW.Lap()*1e6, "", m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
     
       return true;
       }

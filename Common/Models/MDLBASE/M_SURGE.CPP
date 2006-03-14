@@ -9,7 +9,7 @@
 #include "m_surge.h"
 #include "dbgmngr.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgMSurge       (0 || WITHDEBUG)
 

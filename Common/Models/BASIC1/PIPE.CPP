@@ -219,7 +219,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     else if (!IsPipe || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
       {
       DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && IsXfer);
-      m_FEP.BuildDataDefn(/*FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|*/FBDDOpt_WithQmSpec, DDB, this, "Eqn", 3, DDB_NoPage);
+      m_FEP.BuildDataDefn(/*FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|*/FBDDOpt_WithQmSpec, DDB, this, "Flw", 3, DDB_NoPage);
       }
 
     static DDBValueLst DDBXfCapOpt[]={
@@ -277,20 +277,29 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   if (1)//IsPipe && m_FEP.FlwRqd().PressOn())
     {
     DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile());
-    DDB.Text   ("Pressure Audit", Marker|MarkerClosed);
-    DDB.Double ("Boost_Head",   "dPb",      DC_DP,   "kPa",   xidFEDPb,      this, isResult|isParmConstruct);
-    DDB.Double ("",             "dPbX",     DC_DP,   "kPa",   xidFEDPbX,     this, isResult|InitHidden|isParmConstruct);
-    DDB.Double ("Dynamic_Head", "dPq",      DC_DP,   "kPa",   xidFEDPq,      this, isResult|isParmConstruct);
-    DDB.Double ("Static_Head",  "dPz",      DC_DP,   "kPa",   xidFEDPz,      this, isResult|isParmConstruct);
-    DDB.Double ("Momentum",     "dPm",      DC_DP,   "kPa",   xidMomentum,   this, isResult|InitHidden|isParmConstruct);
-    DDB.Double ("Nett_Boost",   "Bst",      DC_DP,   "kPa",   xidNettBoost,  this, isResult|InitHidden|noFile|noSnap);
+    //DDB.Text   ("Pressure Audit", Marker|MarkerClosed);
+    //DDB.Double ("Boost_Head",   "dPb",      DC_DP,   "kPa",   xidFEDPb,      this, isResult|isParmConstruct);
+    //DDB.Double ("",             "dPbX",     DC_DP,   "kPa",   xidFEDPbX,     this, isResult|InitHidden|isParmConstruct);
+    //DDB.Double ("Dynamic_Head", "dPq",      DC_DP,   "kPa",   xidFEDPq,      this, isResult|isParmConstruct);
+    //DDB.Double ("Static_Head",  "dPz",      DC_DP,   "kPa",   xidFEDPz,      this, isResult|isParmConstruct);
+    //DDB.Double ("Momentum",     "dPm",      DC_DP,   "kPa",   xidMomentum,   this, isResult|InitHidden|isParmConstruct);
+    //DDB.Double ("Nett_Boost",   "Bst",      DC_DP,   "kPa",   xidNettBoost,  this, isResult|InitHidden|noFile|noSnap);
 
     DDB.Text   (" ");
     if (NoFlwIOs()>0 && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
       DDB.Double ("Flange_Press_In", "PiR", DC_P,   "kPag",  xidPInRmt,     this, isResult|noFile|noSnap);
     DDB.Double ("Press_InEst" , "PiEst",    DC_P,   "kPag",  xidPInEst     ,this, isResult|isParmConstruct|InitHidden);
-    DDB.Double ("Press_Input",  "Pi",       DC_P,   "kPag",  xidPIn,        this, isResult|SM_Direct);
-    DDB.Double ("Press_Output", "Po",       DC_P,   "kPag",  xidPOut,       this, isResult|SM_Direct);
+    DDB.Double ("Press_Input",  "Pi",       DC_P,   "kPag",  xidPIn,        this, isResult);
+    DDB.Double ("Boost_Head",   "dPb",      DC_DP,  "kPa",   xidFEDPb,      this, isResult|InitHidden|isParmConstruct);
+    DDB.TagComment("+");
+    DDB.Double ("",             "dPbX",     DC_DP,  "kPa",   xidFEDPbX,     this, isResult|InitHidden|isParmConstruct);
+    DDB.TagComment("+");
+    DDB.Double ("Dynamic_Head", "dPq",      DC_DP,  "kPa",   xidFEDPq,      this, isResult|InitHidden|isParmConstruct);
+    DDB.TagComment("+");
+    DDB.Double ("Static_Head",  "dPz",      DC_DP,  "kPa",   xidFEDPz,      this, isResult|InitHidden|isParmConstruct);
+    DDB.TagComment("+");
+    DDB.Double ("Press_Output", "Po",       DC_P,   "kPag",  xidPOut,       this, isResult);
+    DDB.TagComment("=");
     DDB.Double ("Press_OutEst", "PoEst",    DC_P,   "kPag",  xidPOutEst    ,this, isResult|isParmConstruct|InitHidden);
     if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
       DDB.Double ("Flange_Press_Out","PoR", DC_P,   "kPag",  xidPOutRmt,    this, isResult|noFile|noSnap);

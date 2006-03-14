@@ -8,7 +8,7 @@
 #define  __M_BSTRES_CPP
 #include "m_bstres.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 //===========================================================================
 
@@ -22,17 +22,6 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_LeakI(eDIO_Leak, this, true, false, "Inlet_Leak", IOId_2IOLeakI, IOId_AreaLeakIn),
   m_LeakO(eDIO_Leak, this, true, false, "Outlet_Leak", IOId_2IOLeakO, IOId_AreaLeakIn)
   {
-  AttachClassInfo(nc_MBst, NULL, &NullFlwGroup);
-
-  Init_NLinks(1);
-
-  SetAllowedSolveModes(SM_Direct/*|SM_Inline*/|SM_Buffered);// "Transfer", "Inline", NULL);
-  SetAllowedFlowModes();
-
-  if (GlblDynFlowMode())
-    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
-  else
-    SetFlowModeReqd(LFM_Full);
 
   bOnLine=1;
   bIsentropic=0;
@@ -47,7 +36,29 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   dPout=Std_P; //actual
   dDuty=0.0; //actual
 
+  AttachClassInfo(nc_MBst, NULL, &NullFlwGroup);
+
   }
+
+// -------------------------------------------------------------------------
+
+void MN_BstRes::FinaliseConstruction() 
+  {
+
+  Init_NLinks(1);
+
+  SetAllowedSolveModes(SM_Direct/*|SM_Inline|SM_Buffered*/);// "Transfer", "Inline", NULL);
+  SetAllowedFlowModes();
+
+  if (GlblDynFlowMode())
+    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+  else
+    SetFlowModeReqd(LFM_Full);
+  // Must do this here because m_FEP.Group() only gets set in derived class constructor
+  m_Links[0].FB.AssignFlwEqnGroup(m_FEP.Group(), m_FEP.Group().Default(), this);
+  m_Links[0].FB.SetParentFlwEqn(&m_FEP);
+  m_Links[0].FB.SetFlowModeSrc(this, false);
+  };
 
 // -------------------------------------------------------------------------
 
@@ -144,6 +155,7 @@ flag MN_BstRes::DataXchg(DataChangeBlk & DCB)
 flag MN_BstRes::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MdlNode::ValidateData(VDB);
+
   if (!m_FTB.ValidateData(VDB))
     OK=0;
   if (!m_LeakI.ValidateData(VDB))
@@ -195,16 +207,23 @@ CFlange * MN_BstRes::GetFlange(int IOId)
 void MN_BstRes::PostConnect(int IONo)
   {
   MdlNode::PostConnect(IONo);
-  m_Links[0].FB.AssignFlwEqnGroup(m_FEP.Group(), m_FEP.Group().Default(), this);
-  m_Links[0].FB.SetParentFlwEqn(&m_FEP);
-
 
   switch (IOId_Self(IONo))
     {
-    case IOId_2IOIn   : IOFB(IONo,0)->SetParentFlwEqn(NULL); break;//, &m_FEP);  break;
-    case IOId_2IOOut  : IOFB(IONo,0)->SetParentFlwEqn(NULL); break;
-    case IOId_2IOLeakI: m_LeakI.PostConnect(IONo); break;
-    case IOId_2IOLeakO: m_LeakO.PostConnect(IONo); break;
+    case IOId_2IOIn   : 
+      IOFB(IONo,0)->SetParentFlwEqn(NULL); 
+      IOFB(IONo,0)->SetFlowModeSrc(this, false);
+      break;//, &m_FEP);  break;
+    case IOId_2IOOut  : 
+      IOFB(IONo,0)->SetParentFlwEqn(NULL);
+      IOFB(IONo,0)->SetFlowModeSrc(this, false);
+      break;
+    case IOId_2IOLeakI: 
+      m_LeakI.PostConnect(IONo);
+      break;
+    case IOId_2IOLeakO: 
+      m_LeakO.PostConnect(IONo);
+      break;
     }
   };
 
@@ -219,27 +238,6 @@ void MN_BstRes::PreDisConnect(int IONo)
     }
   MdlNode::PreDisConnect(IONo);
   }
-
-//---------------------------------------------------------------------------
-
-void MN_BstRes::OnSetFlowMode()
-  {
-  byte Md;//=m_FEP.FlwRqd().m_Mode;
-  switch (FlowMode())
-    {
-    case LFM_Xfer:   Md=FBMode_Xfer;     break;
-    case LFM_Simple: Md=FBMode_Simple;   break;
-    case LFM_Linear: Md=FBMode_Linear;   break;
-    case LFM_Full:   Md=FBMode_Full;     break;
-    }
-  m_FEP.SetFlowMode(Md);
-  m_Links[0].FB.SetFlowMode(Md);
-  for (int i=0; i<NoProcessIOs(); i++)
-    {
-    for (int fe=0; fe<NIOFBs(i); fe++)
-      IOFB(i,fe)->SetFlowMode(Md);
-    }
-  };
 
 //---------------------------------------------------------------------------
 

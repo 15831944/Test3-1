@@ -49,7 +49,7 @@ INLINE flag DataDefnBlk::GetReqdFlags()//DDEF_Flags iFlags)
   ASSERT((SHM_All & dwOptions)!=0);
   if ((SHM_All & iFlags & dwOptions)==0)
     return False;
-  dword TABOpt_Msk = TABOpt_ForFile | TABOpt_ForView | TABOpt_ForSnapShot | TABOpt_ForScenario;
+  dword TABOpt_Msk = TABOpt_ForFile | TABOpt_ForView | TABOpt_ForSnapShot | TABOpt_ForScenario ;
   if ((TABOpt_Msk & iFlags)!=0)
     return ((iFlags & dwOptions & TABOpt_Msk)==0);
   else

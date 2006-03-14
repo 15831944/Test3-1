@@ -1192,6 +1192,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
     }
   if (Disconnect)
     ObjRoute.Clear();//lNdEOId=-1;
+
   Invalidate();
   XUpdateDisplays(false, false);
 

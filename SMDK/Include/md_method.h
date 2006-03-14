@@ -742,7 +742,6 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     virtual void    InitialiseSolution()          {}; // each
 
     virtual bool    PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
-    virtual void    OnSetFlowMode();                  // called when the FlowMode is changed
 
     virtual void    StartSolution()               {}; // each Start of run
     virtual void    StartStep()                   {}; // each Iteration - At Start of Step

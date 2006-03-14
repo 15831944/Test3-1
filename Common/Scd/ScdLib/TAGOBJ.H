@@ -1006,7 +1006,6 @@ class DllImportExport TaggedObject : public ConditionBlk
     void            SetFlowMode(long FlowMode, TaggedObject * pRuleObj);
     long            FlowMode()              { return m_lRunMds & LFM_All; };
     TaggedObject *  FlowModeObj()           { return m_FlowModeObj; };
-    virtual void    OnSetFlowMode()         { };
 
     void            SetUserMethod(long U);
     long            UserMethod()            { return m_lRunMds & UM_All; };
@@ -1530,6 +1529,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
 
     flag           SearchingAtLevel() { return  Nest[lCallLevel].fSearching; };
     long           CallLevel() { return  lCallLevel; };
+    TABOptions     Options() { return dwOptions; };
 
   private:
     flag           BeginBlock(byte iType_,  TaggedObject * pObj,

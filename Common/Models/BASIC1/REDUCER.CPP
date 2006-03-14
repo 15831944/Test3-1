@@ -38,6 +38,8 @@ Reducer::Reducer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   //FB.AssignFlwEqnGroup(ValveGroup, ValveGroup.Default()/*"VE_Line"*/, this);
   //VPB.AssignLogicGroup("VPL_Smpl", this); 
   //Initialise();
+
+  FinaliseConstruction();
   }
 
 //--------------------------------------------------------------------------

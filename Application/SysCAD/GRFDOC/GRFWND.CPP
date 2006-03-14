@@ -186,6 +186,42 @@ LRESULT CGrfWnd::OnDoSetFocus(WPARAM wParam, LPARAM lParam)
 
 //---------------------------------------------------------------------------
 
+#define NewGrfUpdate 10
+
+bool CGrfWnd::UpdateForPaint(bool ForceUpd, bool ColoursChgd)
+  {
+#if NewGrfUpdate 
+  //CStopWatch SW;
+  //SW.Start();
+  //dbgpln("OnDraw   A  %10.3fms", SW.Lap()*1e3); 
+  if (1)//m_UpdateRequested)
+    {
+    flag DoIt=false;
+    CModelStatusCriterion Criteria;
+    if (gs_pTheSFELib->RequestModelStatusChgCnt(Criteria, 1)>0)
+      {
+      //dbgpln("OnDraw   B  %10.3fms", SW.Lap()*1e3); 
+      gs_pTheSFELib->SetLoadAllModelStatus();
+      //dbgpln("OnDraw   C  %10.3fms", SW.Lap()*1e3); 
+      DoIt=true;
+      }
+    dword NumStatusColourChgs=gs_pTheSFELib->GetNumStatusColourChgs();
+    if (ForceUpd || ColoursChgd || DoIt || 
+      NumStatusColourChgs!=PrevNumStatusColourChgs)
+      {
+      PrevNumStatusColourChgs=NumStatusColourChgs;
+
+      return true;
+
+      //PostMessage(WMU_GRFWNDDSPUPDATE, ForceUpd, ColoursChgd);
+      }
+    }
+  return false;
+#else
+  return true;
+#endif
+  };
+
 void CGrfWnd::OnDraw(CDC* pDC)
   {
   Dsp.Open(pDC);
@@ -209,7 +245,10 @@ void CGrfWnd::OnDraw(CDC* pDC)
   int i=::GetClipBox(Dsp.HDC_List[Dsp.Opens], &ClpBox);
 
   if (i!=ERROR && i!=NULLREGION)
+    {
+    //if (UpdateForPaint(false, false))
     Dsp.Paint(ClpBox);
+    }
 
   Dsp.Close();
 
@@ -490,7 +529,8 @@ LRESULT CGrfWnd::OnDoDspUpdate(WPARAM wParam, LPARAM lParam)
   if (i!=ERROR && i!=NULLREGION)
     {
     Dsp.SetUpdateFlags(true, ColoursChgd);
-    Dsp.Paint(ClpBox);
+    if (UpdateForPaint(ForceUpd!=0, ColoursChgd!=0))
+      Dsp.Paint(ClpBox);
     Dsp.SetUpdateFlags(false, false);
     }
   Dsp.Close();
@@ -503,6 +543,7 @@ void CGrfWnd::EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeCo
   {
   if (gs_pTheSFELib)
     {
+#if (!NewGrfUpdate)
     flag DoIt=false;
     CModelStatusCriterion Criteria;
     if (gs_pTheSFELib->RequestModelStatusChgCnt(Criteria, 1)>0)
@@ -517,6 +558,9 @@ void CGrfWnd::EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeCo
 
       PostMessage(WMU_GRFWNDDSPUPDATE, ForceUpd, ColoursChgd);
       }
+#else
+    PostMessage(WMU_GRFWNDDSPUPDATE, ForceUpd, ColoursChgd);
+#endif
     }
   };
 

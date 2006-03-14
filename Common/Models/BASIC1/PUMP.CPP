@@ -112,6 +112,8 @@ Pump_GP::Pump_GP(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   iPressMethod = BRPM_Boost;
   dPressBoost_Rqd=10.0;
   dPout_Rqd=dNAN;
+
+  FinaliseConstruction();
   }
 
 //--------------------------------------------------------------------------

@@ -61,6 +61,8 @@ GasPump_GP::GasPump_GP(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   iPressMethod = BRPM_Boost;
   dPressBoost_Rqd=10.0;
   dPout_Rqd=dNAN;
+  
+  FinaliseConstruction();
   }
 
 //--------------------------------------------------------------------------

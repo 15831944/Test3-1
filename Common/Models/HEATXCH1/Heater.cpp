@@ -230,6 +230,8 @@ SimpleHeater::SimpleHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   for (int i=1; i<3; i++)
     m_StateLine[i] = "";
   m_StateLine[0] = "OK";
+  
+  FinaliseConstruction();
   }
    
 //--------------------------------------------------------------------------

@@ -209,15 +209,6 @@ bool CBBBase::DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 //--------------------------------------------------------------------------
 
-void CBBBase::DoOnSetFlowMode() 
-  {
-  if (!m_pMethod)
-    return;
-  Method.OnSetFlowMode(); 
-  };
-
-//--------------------------------------------------------------------------
-
 bool CBBBase::DoConfigureJoins() 
   {
   if (!m_pMethod)

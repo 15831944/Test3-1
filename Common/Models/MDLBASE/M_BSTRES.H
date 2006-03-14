@@ -41,6 +41,7 @@ class DllImportExport MN_BstRes : public MdlNode
   public:
     MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~MN_BstRes(){};
+    virtual void   FinaliseConstruction();
     virtual void   ResetData(flag Complete);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
@@ -59,7 +60,6 @@ class DllImportExport MN_BstRes : public MdlNode
     virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
-    virtual void   OnSetFlowMode();
     virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual void   StartSolution();

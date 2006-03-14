@@ -32,6 +32,9 @@ CPipeTerm::CPipeTerm (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
   m_VPB("VL_Basic", this, NULL),
   m_FRB("Reg", FBRShow_All, FBReg_Pi|FBReg_Qm|FBReg_Qv|FBReg_QvStep, FBReg_Off)
   {
+  SetAllowedSolveModes(SM_Direct/*|SM_Inline|SM_Buffered*/);// "Transfer", "Inline", NULL);
+  //SetAllowedFlowModes();
+
   AttachClassInfo(nc_MSrcSnk,NULL);
   //FEP.AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
   AttachIOAreas(PipeTermIOAreaList, &ValveGroup, &ValveGroup);

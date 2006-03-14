@@ -15,11 +15,12 @@
 #include "dbgmngr.h"
 #include "vlebase.h"
                                                         
-#include "optoff.h"
+//#include "optoff.h"
 
 #if (dbgFlwEqns)
 static CDbgMngr dbgFlwEqnData          ("FlwNets", "FlwEqnData");
 static CDbgMngr dbgThermals            ("FlwEqns", "Thermals");
+static CDbgMngr dbgFlwEqnModes         ("FlwEqns", "FlwEqnModes");
 #endif
 
 //==========================================================================
@@ -749,16 +750,19 @@ void CFlwBlkData::ResetData(flag Complete)
 
 CFlwEqnPtr::CFlwEqnPtr(CFlwBlkData *pData, long Options, double DPFactor)
   {
-  m_FlowMode = FBMode_Simple;
-  m_pData=pData;
-  m_pParentFEP=NULL;//this;
-  m_pAttachedTo=NULL;
-  m_pEqn=CreateFlwEqn(NoEqnName);
-  m_pEqn->m_pEqnPtr=this;
-  m_fDisabled=false;
-  m_dLScl=1;
-  m_dZScl=1;
-  m_Options=0;
+  m_FlowMode        = FBMode_Simple;
+  m_FMSrc           = NULL;
+  m_FMSrcRmt        = false;
+
+  m_pData           = pData;
+  m_pParentFEP      = NULL;//this;
+  m_pAttachedTo     = NULL;
+  m_pEqn            = CreateFlwEqn(NoEqnName);
+  m_pEqn->m_pEqnPtr = this;
+  m_fDisabled       = false;
+  m_dLScl           = 1;
+  m_dZScl           = 1;
+  m_Options         = 0;
   SetOptions(Options, DPFactor);
   };
 
@@ -835,7 +839,7 @@ void CFlwEqnPtr::SetParentFlwEqn(CFlwEqnPtr *ParentFEP)
 
 //--------------------------------------------------------------------------
 
-CFlwEqn * CFlwEqnPtr::AssignFlwEqnGroup(CFlwEqnGrp &Group, pchar Rqd, pTaggedObject pAttach)
+CFlwEqn * CFlwEqnPtr::AssignFlwEqnGroup(CFlwEqnGrp &Group, pchar Rqd, TaggedObject * pAttach)
   {
   CFlwEqnPtr &E=Eqn2Use();
   E.m_pGroup=&Group;
@@ -953,7 +957,45 @@ CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pchar Name_, flag ChgDefault)
 
 //--------------------------------------------------------------------------
 
-void CFlwEqnPtr::SetFlowMode(byte Md)
+void CFlwEqnPtr::SetFlowModeSrc(FlwNode * p, bool IsRmt)
+  { 
+  if (p)
+    {
+    if (IsRmt)
+      {
+      if (m_FMSrc==NULL || m_FMSrcRmt)
+        {
+        m_FMSrc=p;
+        m_FMSrcRmt=IsRmt;
+        }
+      }
+    else
+      {
+      m_FMSrc = p;
+      m_FMSrcRmt=IsRmt;
+      }
+    }
+  else
+    {
+    m_FMSrc=NULL;
+    m_FMSrcRmt=false;
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+long CFlwEqnPtr::FlowMode()    
+  { 
+  if (m_FMSrc)
+    return m_FMSrc->FlowMode();
+  //_asm int 3;
+  return m_FlowMode;
+  };
+//long m=AttachedTo()->FlowMode(); return m ? m : AttachedTo()->FlowModeReqd() ; };//m_FlowMode; };
+
+//--------------------------------------------------------------------------
+
+void CFlwEqnPtr::SetFlowMode(long Md)
   { 
   m_FlowMode=Md; 
   };
@@ -1003,9 +1045,10 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
           DDB.EndStruct();
           }
 
-        byte Md = FlowMode();//
+        long Md = FlowMode();//
+        bool ForNDB=(Md==0);// (DDB.Options()|DDEF_NDBIMPORT)!=0;
 
-        if ((Md==FBMode_Full) && (LclOptions & FBDDOpt_WithEqn) || DDB.ForFileSnpScn())
+        if (((Md==FBMode_Full) || ForNDB) && (LclOptions & FBDDOpt_WithEqn) || DDB.ForFileSnpScn())
         //if (pOwnObj->SolveBufferedMethod())
           {
           DDBValueLstMem DDB0;
@@ -1025,12 +1068,12 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
         bool AsMass = FlwRqd().m_AsMass;
         if (LclOptions & FBDDOpt_WithQmSpec)
           {
-          if (Md!=FBMode_Xfer)
+          if (Md!=FBMode_Xfer || ForNDB)
             {
             DDB.Double ("",                "Qm.Rqd",        DC_Qm,   "kg/s",  xidFlwEqnQmReqd,        pOwnObj, (AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
             DDB.Double ("",                "Qv.Rqd",        DC_Qv,   "L/s",   xidFlwEqnQvReqd,        pOwnObj, (!AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
             }
-          else
+          if (Md==FBMode_Xfer || ForNDB)
             {
             DDB.Double ("Qm.RqdCapacity",  "Qm.Capacity",  DC_Qm,   "kg/s",  xidFlwEqnQmRqdCapacity, pOwnObj, (AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
             DDB.Double ("Qm.MinCapacity",  "Qm.MinCap",    DC_Qm,   "kg/s",  xidFlwEqnQmMinCapacity, pOwnObj, (AsMass?isParm:0));
@@ -1042,7 +1085,7 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
           DDB.Text("");
           }
 
-        if (((Md==FBMode_Simple) || (Md==FBMode_Linear)) && (LclOptions & FBDDOpt_WithDPSpec))
+        if (((Md==FBMode_Simple) || (Md==FBMode_Linear) || ForNDB) && (LclOptions & FBDDOpt_WithDPSpec))
           {
           if ((LclOptions & FBDDOpt_WithDPSpec))
             {
@@ -1059,7 +1102,7 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
 
           DDB.Text("");
           }
-        if ((Md==FBMode_Full) && (LclOptions & FBDDOpt_WithEqn) || DDB.ForFileSnpScn())
+        if ((Md==FBMode_Full || ForNDB) && (LclOptions & FBDDOpt_WithEqn) || DDB.ForFileSnpScn())
         //if (pOwnObj->SolveBufferedMethod())
           {
           //DDBValueLstMem DDB0;
@@ -2125,7 +2168,10 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
       p=p->pAttachedTo;
       pNd=dynamic_cast<FlwNode*>(p);
       }
-    dbgpln("Eval %s %s %s", FlwEqnTaskStr(Task), FBModeStr(FlowMode()), pNd?pNd->FullObjTag():"");
+    #if (dbgFlwEqns)
+    if (dbgFlwEqnModes())
+      dbgpln("Eval %s %s %s", FlwEqnTaskStr(Task), FBModeStr(FlowMode()), pNd?pNd->FullObjTag():"");
+    #endif
     }
 
   if (Task==FET_GetMode)

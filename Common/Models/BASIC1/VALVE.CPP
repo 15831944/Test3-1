@@ -7,7 +7,7 @@
 #include "sc_defs.h"
 #define  __VALVE_CPP
 #include "valve.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 //==========================================================================
 //
@@ -113,6 +113,8 @@ Valve_GP::Valve_GP(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   //Initialise();
   dPressBoost_Rqd=-10.0;
   iPressMethod = BRPM_Drop;
+
+  FinaliseConstruction();
   }
 
 //--------------------------------------------------------------------------

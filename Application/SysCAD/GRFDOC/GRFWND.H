@@ -84,6 +84,7 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
     virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
     virtual void OnPrint(CDC* pDC, CPrintInfo* pInfo);
+    bool         UpdateForPaint(bool ForceUpd, bool ColoursChgd);
     virtual void OnDraw(CDC* pDC);    // overridden to draw this view
     virtual void OnActivateView( BOOL bActivate, CView* pActivateView, CView* pDeactiveView );
     virtual void OnUpdate( CView* pSender, LPARAM lHint, CObject* pHint );

@@ -390,13 +390,6 @@ bool MBaseMethod::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 //---------------------------------------------------------------------------
 
-void MBaseMethod::OnSetFlowMode()
-  {
-  //m_pNd->OnSetFlowMode();
-  }
-
-//---------------------------------------------------------------------------
-
 bool MBaseMethod::ConfigureJoins()
   {
   m_pNd->Init_NJoins(m_nJoins);

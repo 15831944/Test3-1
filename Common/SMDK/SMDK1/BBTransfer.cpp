@@ -146,11 +146,6 @@ bool CBBTransfer::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 //---------------------------------------------------------------------------
 
-void CBBTransfer::OnSetFlowMode()
-  {
-  DoOnSetFlowMode();
-  }
-
 void CBBTransfer::ConfigureJoins()
   {
   if (DoConfigureJoins())

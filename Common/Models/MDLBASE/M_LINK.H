@@ -384,7 +384,6 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual flag   InitialiseSolution();
     virtual void   StartSolution();
-    virtual void   OnSetFlowMode();
     virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     virtual void   ConfigureJoins();
     virtual void   StartStep();

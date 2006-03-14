@@ -235,13 +235,6 @@ _asm int 3;
 
 //---------------------------------------------------------------------------
 
-void CBBSurge::OnSetFlowMode()
-  {
-  DoOnSetFlowMode();
-  }
-
-//---------------------------------------------------------------------------
-
 void CBBSurge::ConfigureJoins()
   {
   if (!DoConfigureJoins())

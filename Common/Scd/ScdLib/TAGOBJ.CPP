@@ -1340,7 +1340,6 @@ void TaggedObject::SetUserMethod(long UserMethod)
   {
   m_lRunMds = (m_lRunMds & ~UM_All) | (UserMethod & UM_All);
   StructureChanged(this);
-  //OnSetFlowMode();
   };
 
 void TaggedObject::SetFlowModeReqd(long FlowMode)
@@ -1353,7 +1352,6 @@ void TaggedObject::SetFlowMode(long FlowMode, TaggedObject * pRuleObj)
   m_lRunMds = (m_lRunMds & ~LFM_All) | (FlowMode & LFM_All & ~LFM_Propagate);
   m_FlowModeObj=pRuleObj;
   StructureChanged(this);
-  OnSetFlowMode();
   };
 void TaggedObject::SetRunModes(long SolveMethod, long RunMdsMsk)
   {

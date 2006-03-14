@@ -554,10 +554,15 @@ const byte FBPS_FwdOnly         = 0x01;
 const byte FBPS_RevOnly         = 0x02;
 const byte FBPS_Inherit         = 0x10;
 
-const byte FBMode_Xfer            = 0x01;
-const byte FBMode_Simple          = 0x02;
-const byte FBMode_Linear          = 0x03;
-const byte FBMode_Full            = 0x04;
+//const byte FBMode_Xfer            = 0x01;
+//const byte FBMode_Simple          = 0x02;
+//const byte FBMode_Linear          = 0x03;
+//const byte FBMode_Full            = 0x04;
+
+const long FBMode_Xfer    = LFM_Xfer;
+const long FBMode_Simple  = LFM_Simple;
+const long FBMode_Linear  = LFM_Linear;
+const long FBMode_Full    = LFM_Full;
 
 const byte FBOpt_AsValve          = 0x01;
 const byte FBOpt_HasSimpleRes     = 0x02;
@@ -738,8 +743,10 @@ class DllImportExport CFlwEqnPtr //: public CFBPhysData
     char *          GroupName()   { return Eqn2Use().m_sGroup(); };
     TaggedObject  * AttachedTo()  { return Eqn2Use().m_pAttachedTo; };
 
-    byte            FlowMode()              { return m_FlowMode; };
-    void            SetFlowMode(byte Md);
+    long            FlowMode();
+    void            SetFlowModeSrc(FlwNode * p, bool IsRmt);
+    void            SetFlowMode(long Md);
+
     CFlwEqn        * Eqn()         { return Eqn2Use().m_pEqn; };
     CFBPhysData    & PhD()         { return Eqn2Use().m_pEqn->m_PhD; };
     CFlwEqnFlwRqd  & FlwRqd()      { return Eqn2Use().m_pEqn->m_FlwRqd; };
@@ -761,8 +768,8 @@ class DllImportExport CFlwEqnPtr //: public CFBPhysData
 
     void            SetParentFlwEqn(CFlwEqnPtr *RqdFEP);
 
-    CFlwEqn       * AssignFlwEqnGroup(CFlwEqnGrp &Group, pchar Rqd, pTaggedObject pAttach);
-    virtual void    BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject pOwnObj, char * FBTag=NULL, DWORD UserInfo=-1, DDBPages PgOpt=DDB_NoPage);
+    CFlwEqn       * AssignFlwEqnGroup(CFlwEqnGrp &Group, pchar Rqd, TaggedObject * pAttach);
+    virtual void    BuildDataDefn(long DDOptions, DataDefnBlk & DDB, TaggedObject * pOwnObj, char * FBTag=NULL, DWORD UserInfo=-1, DDBPages PgOpt=DDB_NoPage);
     virtual flag    DataXchg(DataChangeBlk & DCB);
     virtual flag    ValidateData(ValidateDataBlk & VDB);
 
@@ -815,12 +822,16 @@ class DllImportExport CFlwEqnPtr //: public CFBPhysData
     void            ClrLinearised() { Eqn()->ClrLinearised(); };
 
   private:
-    byte            m_FlowMode;
+    long            m_FlowMode;
+    bool            m_FMSrcRmt;
+    FlwNode       * m_FMSrc;
+
     CFlwBlkData   * m_pData;
     CFlwEqn       * m_pEqn;
     CFlwEqnPtr    * m_pParentFEP;
     CList<CFlwEqnPtr*, CFlwEqnPtr*> m_Children;
     TaggedObject * m_pAttachedTo;
+    //FlwNode      * m_pAttachedTo;
     //CVLEBase      *m_pVLE;
     CFlwEqnGrp   * m_pGroup;
     Strng          m_sGroup;

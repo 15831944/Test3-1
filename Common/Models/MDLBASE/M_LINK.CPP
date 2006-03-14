@@ -13,7 +13,7 @@
 #include "m_link.h"
 #include "dbgmngr.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgMLink        (0 || WITHDEBUG)    
 
@@ -733,7 +733,10 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   fVolIsSmall = true;
   fVapLocked  = false;
   fTwoPhase   = false;
+  
   m_FEP.SetIsPipe(true);
+  m_FEP.SetFlowModeSrc(this, false);
+
 
 #if WithOEP
   if (OEPOptions())
@@ -1638,7 +1641,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
 
   flag OK=MdlNode::ValidateData(VDB);
 
-  if (FlowMode()==0)
+  if (FlowModeReqd()==0)
     {
     if (GlblDynFlowMode())
       {
@@ -1893,14 +1896,18 @@ void MN_Lnk::PostConnect(int IONo)
 
     IOConduit(IONo)->AttachMeToObj(this, TOA_Embedded);
 
-    for (int i=0; i<NoProcessIOs(); i++)
+    //for (int i=0; i<NoProcessIOs(); i++)
+    //  {
+    if (IsProcessIOId(IOId_Self(IONo)))
       {
-      if (IsProcessIOId(IOId_Self(i)))
-        {
-        IOFB(i,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
-        IOFB(i,0)->SetParentFlwEqn(&m_FEP);
-        }
+      IOFB(IONo,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
+      IOFB(IONo,0)->SetParentFlwEqn(&m_FEP);
+      IOFB(IONo,0)->SetFlowModeSrc(this, false);
+
+      for (int fe=0; fe<NIOFBs_Rmt(IONo); fe++)
+        IOFB_Rmt(IONo,fe)->SetFlowModeSrc(this, true);
       }
+      //}
     UpdateSQFlags();
 
     switch (IOId_Self(IONo))
@@ -2082,28 +2089,6 @@ void MN_Lnk::StartSolution()
   for (int i=0; i<NoFlwIOs(); i++)
     IOConduit(i)->SetStateAction(/*IsImpSolution() ? IE_Null :*/ IE_SaveState);
   }
-
-//---------------------------------------------------------------------------
-
-void MN_Lnk::OnSetFlowMode()
-  {
-  byte Md;//=m_FEP.FlwRqd().m_Mode;
-  switch (FlowMode())
-    {
-    case LFM_Xfer:   Md=FBMode_Xfer;     break;
-    case LFM_Simple: Md=FBMode_Simple;   break;
-    case LFM_Linear: Md=FBMode_Linear;   break;
-    case LFM_Full:   Md=FBMode_Full;     break;
-    }
-  m_FEP.SetFlowMode(Md);
-  for (int i=0; i<NoProcessIOs(); i++)
-    {
-    for (int fe=0; fe<NIOFBs(i); fe++)
-      IOFB(i,fe)->SetFlowMode(Md);
-    for (fe=0; fe<NIOFBs_Rmt(i); fe++)
-      IOFB_Rmt(i,fe)->SetFlowMode(Md);
-    }
-  };
 
 //---------------------------------------------------------------------------
 

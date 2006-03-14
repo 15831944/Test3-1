@@ -49,7 +49,6 @@ class DllImportExport CBBBase
     void      DoStartStep();
     
     bool      DoPropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
-    void      DoOnSetFlowMode();
 
     bool      DoConfigureJoins();
     bool      DoEvalJoinPressures(long JoinMask);

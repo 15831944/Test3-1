@@ -51,7 +51,6 @@ class CBBSurge : public MN_Surge, CBBBase
     virtual void   StartStep();
 
     virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
-    virtual void   OnSetFlowMode();
 
     virtual void   ConfigureJoins();
     virtual void   EvalPBMakeUpReqd(long JoinMask);
