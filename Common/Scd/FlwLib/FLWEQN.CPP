@@ -99,6 +99,8 @@ void CPressBlk::Init()
 
   PGood=Std_P;
 
+  m_PStdyStart=-1;
+
   m_PMax=fNAN;
   m_PMaxLim=fNAN;
   };
@@ -654,6 +656,7 @@ void CFlwBlkData::ResetData(flag Complete)
   m_QmAvail             = 0.0;
   m_QmSpace             = 0.0;
   m_QmPrvPB             = 0.0;
+  m_QmStdyState         = -1.0;
 
   if (m_pNdPB)
     {

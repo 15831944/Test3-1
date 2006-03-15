@@ -2345,7 +2345,7 @@ class DllImportExport CJoinRec
     flag           IsPumpNd()     { return fIsPumpNd; };
     flag           VFlowAllowed(bool FullMode) { return FullMode ? ((m_iFlwPh_Act & FPh_Gasses)!=0) : false; }
     flag           LFlowAllowed(bool FullMode) { return FullMode ? ((m_iFlwPh_Act & FPh_Liquid)!=0) : true; }
-  flag           V2LReqd(bool FullMode) { return FullMode ? fJnV2LReqd||fIOV2LReqd : false; }
+    flag           V2LReqd(bool FullMode) { return FullMode ? fJnV2LReqd||fIOV2LReqd : false; }
 
     // Common
     int          & EqnOne()       { return TieInx.iEqnOne; }
@@ -2476,7 +2476,6 @@ class DllImportExport CJoinRec
     void           SetQm_QmRatio (double Ratio);
     void           Set_IORatio (int IONo, double Ratio);
 
-    flag           TestQmConverged(double RTol, double ATol);
     void           InitFlowPhases();
     bool           TestSetFlowPhases(bool FullFlow);
 
@@ -3925,6 +3924,10 @@ class DllImportExport FlwNode : public CTNode
     void           BumpMakeUpCnt();
     virtual void   EvalPBMakeUpReqd(long JoinMask)   { };
     virtual void   EvalPBMakeUpAvail(long JoinMask)  { };
+
+    virtual void   SteadyStateInit();
+    virtual bool   SteadyStateTest(CToleranceBlock & PTol, CToleranceBlock & QmTol,
+                   double & MaxError, Strng & MaxTag);
 
     virtual void   ClosureInfo();
     void           GetClosureInfo(bool DoFlows, bool DoClear);

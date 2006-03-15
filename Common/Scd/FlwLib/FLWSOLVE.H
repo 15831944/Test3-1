@@ -384,6 +384,15 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
 
     double          StopTime;
 
+    flag            m_SSOn;
+    flag            m_SSSteady;
+    double          m_SSMaxChange;
+    Strng           m_SSMaxTag;
+
+    CToleranceBlock m_SSPressTol;
+    CToleranceBlock m_SSQmTol;
+
+
     CTimeStateBlock IntCB;
     CODESolver      m_ODE;
     byte            m_EvalCtrlAt;

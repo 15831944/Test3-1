@@ -1412,13 +1412,6 @@ void CJoinRec::SetTieLnkFlags()
     }
   }
 
-// --------------------------------------------------------------------------
-
-flag CJoinRec::TestQmConverged(double RTol, double ATol)
-  {
-  return False;
-  };
-
 //===========================================================================
 
 CLinkRec::CLinkRec()
@@ -7131,6 +7124,45 @@ void FlwNode::BumpMakeUpCnt()
   {
   for (int i=0; i<NoFlwIOs(); i++)
     IOFlange(i)->BumpMakeUpCnt();
+  };
+
+//--------------------------------------------------------------------------
+
+void FlwNode::SteadyStateInit()
+  {
+  for (int i=0; i<NoFlwIOs(); i++)
+    {
+    CPressBlk & PB=IOPB_Flng(i);
+    PB.PStdyState = PB.P;
+    FlwBlk & FB=*IOFB(i, 0);
+    FB.m_QmStdyState = FB.m_Qm;
+
+    }
+  };
+
+bool FlwNode::SteadyStateTest(CToleranceBlock & PTol, CToleranceBlock & QmTol,
+                   double & MaxError, Strng & MaxTag)
+  {
+  double MaxErr=0;
+  bool OK=true;
+  for (int i=0; OK && i<NoFlwIOs(); i++)
+    {
+    CPressBlk & PB=IOPB_Flng(i);
+    if (!PTol.ConvergedVV(PB.PStdyState, PB.P))
+      OK=false;
+    MaxErr=Max(MaxErr, PTol.GetNormalError());
+    FlwBlk & FB=*IOFB(i, 0);
+    if (!QmTol.ConvergedVV(FB.m_QmStdyState, FB.m_Qm))
+      OK=false;
+    MaxErr=Max(MaxErr, QmTol.GetNormalError());
+    }
+
+  if (MaxErr>MaxError)
+    {
+    MaxError=MaxErr;
+    MaxTag=FullObjTag();
+    }
+  return OK;
   };
 
 //--------------------------------------------------------------------------

@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
-//#include "optoff.h"
+#include "optoff.h"
 
 //temp force solver threads to zero until multi-threaded solver bug is fixed
 #define FORCERQDTHREADS    0
@@ -343,6 +343,11 @@ XID xidExecStateDesc                  = FlwXID(5161);
 XID xidExecStart                      = FlwXID(5162);
 XID xidExecIdle                       = FlwXID(5163);
 XID xidExecStop                       = FlwXID(5164);
+
+XID xidSSPTolAbs                      = FlwXID(5171);
+XID xidSSPTolRel                      = FlwXID(5172);
+XID xidSSQmTolAbs                     = FlwXID(5173);
+XID xidSSQmTolRel                     = FlwXID(5174);
 
 XID xidNormT                          = FlwXID(5196);
 XID xidNormP                          = FlwXID(5197);
@@ -6073,7 +6078,9 @@ FlwSlvDyn::FlwSlvDyn(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   FlwNets(m_AllNds),
   CTNode(pClass_, TagIn, pAttach, eAttach),
   IntCB(0.0, 1.0),
-  m_ODE(&IntCB, 0.01, 60.0, 1000, ODE_Euler, ODE_SSC_Fixed)
+  m_ODE(&IntCB, 0.01, 60.0, 1000, ODE_Euler, ODE_SSC_Fixed),
+  m_SSPressTol(TBF_DynSys, "SteadyState:Pressure",     1.0e-3, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_P, "kPa"),
+  m_SSQmTol(TBF_DynSys, "SteadyState:MassFlow",     1.0e-3, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_Qm, "kg/s")
   {
   ASSERT_ALWAYS(FALSE, "Should never get used")
   Construct();
@@ -6084,7 +6091,9 @@ FlwSlvDyn::FlwSlvDyn(CFlwSolver * pFlwSlvNd) :
   FlwNets(m_AllNds),
   CTNode(&FlwSlvDynClass, "$Dyn", NULL, TOA_Free),
   IntCB(0.0, 1.0),
-  m_ODE(&IntCB, 0.01, 60.0, 1000, ODE_Euler, ODE_SSC_Fixed)
+  m_ODE(&IntCB, 0.01, 60.0, 1000, ODE_Euler, ODE_SSC_Fixed),
+  m_SSPressTol(TBF_DynSys, "SteadyState:Pressure",     1.0e-3, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_P, "kPa"),
+  m_SSQmTol(TBF_DynSys, "SteadyState:MassFlow",     1.0e-3, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_Qm, "kg/s")
   {
   Construct();
   }
@@ -6098,6 +6107,10 @@ void FlwSlvDyn::Construct()
 
   m_SolutionBlksOk=0;
   StopTime=dNAN;
+
+  m_SSOn=true;
+  m_SSSteady=false;
+  m_SSMaxChange=0;
 
   PressDropKFactMult=1.0;
   if (PrjFileVerNo()<42)
@@ -6241,6 +6254,18 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     //DDB.String("MissingSpills",     "", DC_,      "",    xidMissSpillAreas,  &FlwSlvNd, MultiLineStr|noFile|noSnap);
     DDB.Byte  ("Momentum",          "", DC_,      "",    &CFlwBlkBase::fMomentumOn,  &FlwSlvNd, isParm, DDBOnOff);
     DDB.Double("KFactMult",         "", DC_Frac,  "",    &PressDropKFactMult, &FlwSlvNd, isParm);
+
+    DDB.Text  ("");
+    DDB.Text  ("SteadyState_Tests");
+    DDB.CheckBox("SS.On",         "", DC_,      "",   &m_SSOn,         &FlwSlvNd, isParm);//, DDBOnOff);
+    DDB.Byte    ("SS.Steady",     "", DC_,      "",   &m_SSSteady,     &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Double  ("SS.MaxChange",  "", DC_Frac,  "%",  &m_SSMaxChange,  &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.String  ("SS.MaxChangeTag", "", DC_,    "",   &m_SSMaxTag,     &FlwSlvNd, isResult);//, DDBOnOff);
+
+    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa/s",  xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
+    m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
+    m_SSQmTol.GetAbsDD().BuildDataDefn(DDB,     "SS.Qm.Abs",  "", DC_Qm,    "kg/s",   xidSSQmTolAbs,  &FlwSlvNd, "Def", "Ovr");
+    m_SSQmTol.GetRelDD().BuildDataDefn(DDB,     "SS.Qm.Rel",  "", DC_Frac,  "%",      xidSSQmTolRel,  &FlwSlvNd, "Def", "Ovr");
 
     DDB.Page  ("Tears", DDB_RqdPage);
     DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
@@ -6639,6 +6664,16 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       DCB.pC=SecstoHMSDate(gs_Exec.OnStartTime(), buff, true);
       return 1;
       }
+
+    case xidSSPTolAbs:
+      return m_SSPressTol.GetAbsDD().DataXchg(DCB, xidSSPTolAbs, &FlwSlvNd);
+    case xidSSPTolRel:
+      return m_SSPressTol.GetAbsDD().DataXchg(DCB, xidSSPTolRel, &FlwSlvNd);
+    case xidSSQmTolAbs:
+      return m_SSQmTol.GetAbsDD().DataXchg(DCB, xidSSQmTolAbs, &FlwSlvNd);
+    case xidSSQmTolRel:
+      return m_SSQmTol.GetAbsDD().DataXchg(DCB, xidSSQmTolRel, &FlwSlvNd);
+
     default:
       if (DCB.lHandle>=xidWorstMagInt0 && DCB.lHandle<=xidWorstMagInt9)
         {
@@ -7906,6 +7941,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     p->fEvalProductsCalled=false;
     for (int i=0; i<p->NoFlwIOs(); i++)
       p->IOConduit(i)->ClrModified();
+    
     }
 
   MarkClosureDataInvalid(m_AllNds);
@@ -7917,10 +7953,20 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     FlwSlvNd.ClearRefCnts();
     }
 
+  m_SSSteady=m_SSOn;
+  m_SSMaxChange=0;
+  m_SSMaxTag="";
+
   bool DoClosureTests=(gs_ClosureOption!=CloseTest_Off);
   bool StopRequested=false;
   for ( ;NIters>0 && !StopRequested;NIters--)
     {
+    if (m_SSOn)
+      {
+      for (FlwNode * p=All.First(); (p); p=All.Next())
+        p->SteadyStateInit();
+      }
+
     double MdlMaxTimeInc=1e10;
     for (FlwNode * p=All.First(); (p); p=All.Next())
       MdlMaxTimeInc=Min(MdlMaxTimeInc, p->GetMaxTimeInc());
@@ -8040,6 +8086,15 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       FlwNode::ExecObj()->XStop();
       StopRequested=true;
       }
+
+    if (m_SSOn)
+      {
+      for (p=All.First(); (p); p=All.Next())
+        {
+        if (!p->SteadyStateTest(m_SSPressTol, m_SSQmTol, m_SSMaxChange, m_SSMaxTag))
+          m_SSSteady=false;
+        }
+      }
     }
   MYASSERT(_CrtCheckMemory());
 
@@ -8050,6 +8105,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 
   for (p=All.First(); (p); p=All.Next())
+    {
     if (p->IsProcessSeq())
       {
       if (!p->fEvalProductsSurgeCalled)
@@ -8059,6 +8115,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       p->SetCI(23, !p->fEvalProductsSurgeCalled);
       p->SetCI(24, !p->fEvalProductsCalled);
       }
+    }
 
 #if TimingStats
   if (dbgNdStats() && dbgNdStatsIter())
@@ -8280,7 +8337,7 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   IOObj(&IOObjectClass,       "$IO", NULL, TOA_Free),
 #endif
   PwrObj(&PwrObjectClass,     "$Pwr", NULL, TOA_Free),
-  m_MCloseTol(TBF_BothSys, "Closure:MassFlow",     1.0e-4, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_M, "kg/s"),
+  m_MCloseTol(TBF_BothSys, "Closure:MassFlow",     1.0e-4, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_Qm, "kg/s"),
   m_HCloseTol(TBF_BothSys, "Closure:Enthalpy", 1.0e-4, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_Pwr, "kJ/s"),
   m_HCloseTol2(TBF_BothSys, "Closure:Enthalpy2", 1.0e-4, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_Pwr, "kJ/s")
   {
