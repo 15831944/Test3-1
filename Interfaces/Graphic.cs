@@ -38,10 +38,10 @@ namespace SysCAD.Interface
       Item item;
       if (items.TryGetValue(tag, out item))
       {
-        item.x = boundingRect.X;
-        item.y = boundingRect.Y;
-        item.width = boundingRect.Width;
-        item.height = boundingRect.Height;
+        item.X = boundingRect.X;
+        item.Y = boundingRect.Y;
+        item.Width = boundingRect.Width;
+        item.Height = boundingRect.Height;
 
         //tempTag = tag;
         //tempBoundingRect = boundingRect;
@@ -125,9 +125,9 @@ namespace SysCAD.Interface
     //  Item item;
     //  if (items.TryGetValue(tag, out item))
     //  {
-    //    item.x = boundingRect.X;
-    //    item.y = boundingRect.Y;
-    //    item.width = boundingRect.Width;
+    //    item.X = boundingRect.X;
+    //    item.Y = boundingRect.Y;
+    //    item.Width = boundingRect.Width;
     //    item.height = boundingRect.Height;
 
     //    OnItemModified(tag, boundingRect);
@@ -142,9 +142,9 @@ namespace SysCAD.Interface
     //  Item item;
     //  if (items.TryGetValue(tag, out item))
     //  {
-    //    item.x = boundingRect.X;
-    //    item.y = boundingRect.Y;
-    //    item.width = boundingRect.Width;
+    //    item.X = boundingRect.X;
+    //    item.Y = boundingRect.Y;
+    //    item.Width = boundingRect.Width;
     //    item.height = boundingRect.Height;
 
     //    tempTag = tag;

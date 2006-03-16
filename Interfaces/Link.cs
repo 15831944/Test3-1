@@ -1,6 +1,9 @@
 using System;
 using System.Data;
 using System.Data.OleDb;
+using System.ComponentModel;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace SysCAD.Interface
 {
@@ -10,18 +13,39 @@ namespace SysCAD.Interface
 	[Serializable]
 	public class Link
 	{
-    /// <summary>
-    /// 
-    /// </summary>
-    public String tag;
-    /// <summary>
-    /// 
-    /// </summary>
-    public String src;
-    /// <summary>
-    /// 
-    /// </summary>
-    public String dst;
+    private String tag;
+    private String source;
+    private String destination;
+
+    private List<PointF> controlPoints;
+
+    [CategoryAttribute("Model"),
+    DescriptionAttribute("Tag name of the link.")]
+    public String Tag
+    {
+      get { return tag; }
+      set { tag = value; }
+    }
+
+    [CategoryAttribute("Model"),
+   DescriptionAttribute("Destination item of the link."),
+   ReadOnlyAttribute(true)]
+    public String Destination
+    {
+      get { return destination; }
+      set { destination = value; }
+    }
+
+    [CategoryAttribute("Model"),
+   DescriptionAttribute("Source item of the link."),
+   ReadOnlyAttribute(true)]
+    public String Source
+    {
+      get { return source; }
+      set { source = value; }
+    }
+
+
 
     /// <summary>
     /// 
@@ -41,8 +65,8 @@ namespace SysCAD.Interface
       OleDbDataReader linkReader = (new OleDbCommand("SELECT SrcTag, DstTag FROM ModelLinks WHERE Tag='"+tag+"'", connection)).ExecuteReader();
       if(linkReader.Read()) 
       {
-        src = linkReader.GetString(0);
-        dst = linkReader.GetString(1);
+        source = linkReader.GetString(0);
+        destination = linkReader.GetString(1);
       }
       linkReader.Close();
     }

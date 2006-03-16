@@ -34,6 +34,76 @@ namespace SysCAD.Editor
       catch (Exception)
       {
       }
+
+      (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
+    }
+
+    void NewItem_GraphicType_Changed(object sender, EventArgs e)
+    {
+      int stencilIndex = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex;
+
+      if (stencilIndex != -1)
+      {
+        string stencilName = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+        if (stencilName != "-------")
+        {
+          frmFlowChart.currentGraphicShape = stencilName;
+        }
+      }
+    }
+
+    void NewItem_ModelType_Changed(object sender, EventArgs e)
+    {
+      string groupName = "";
+
+      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+
+      int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
+      string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+      frmFlowChart.currentModelShape = stencilName;
+
+      ModelStencil modelStencil;
+      config.modelStencils.TryGetValue(stencilName, out modelStencil);
+      if (modelStencil != null)
+      {
+        groupName = modelStencil.groupName;
+        barManager1.Commands["NewItem.GraphicType"].Enabled = true;
+      }
+      else
+      {
+        return;
+      }
+
+      GraphicType_Populate(groupName);
+    }
+
+    private void GraphicType_Populate(string groupName)
+    {
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
+      GlobalShapes.list.Clear();
+
+      foreach (GraphicStencil graphicStencil in config.graphicStencils.Values)
+      {
+        if (groupName == graphicStencil.groupName)
+        {
+          int i = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.id);
+          GlobalShapes.list.Add(graphicStencil.id);
+        }
+      }
+
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
+      GlobalShapes.list.Add("-------");
+
+      foreach (GraphicStencil graphicStencil in config.graphicStencils.Values)
+      {
+        if (groupName != graphicStencil.groupName)
+        {
+          (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.id);
+          GlobalShapes.list.Add(graphicStencil.id);
+        }
+      }
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
     }
 
     private void barManager1_CommandClick(object sender, BarCommandLinkEventArgs e)
@@ -76,24 +146,20 @@ namespace SysCAD.Editor
           this.View_ShowGraphics();
           break;
 
-        case "View.ShowArrows":
+        case "View.ShowLinks":
           this.View_ShowArrows();
+          break;
+
+        case "View.ShowTags":
+          this.View_ShowTags();
           break;
 
         case "Selection.SelectItems":
           this.View_SelectItems();
           break;
 
-        case "Selection.SelectArrows":
+        case "Selection.SelectLinks":
           this.View_SelectArrows();
-          break;
-
-        case "NewItem.ModelType":
-          this.NewItem_ModelType();
-          break;
-
-        case "NewItem.GraphicType":
-          this.NewItem_GraphicType();
           break;
 
         case "Mode.Modify":
@@ -125,62 +191,6 @@ namespace SysCAD.Editor
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
     }
 
-    private void NewItem_ModelType()
-    {
-      string groupName = "";
-
-      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-
-      int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
-      string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
-      frmFlowChart.currentModelShape = stencilName;
-
-      ModelStencil modelStencil;
-      config.modelStencils.TryGetValue(stencilName, out modelStencil);
-      if (modelStencil != null)
-      {
-        groupName = modelStencil.groupName;
-        barManager1.Commands["NewItem.GraphicType"].Enabled = true;
-      }
-      else
-      {
-        return;
-      }
-
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
-      foreach (GraphicStencil graphicStencil in config.graphicStencils.Values)
-      {
-        if (groupName == graphicStencil.groupName)
-        {
-          (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.id);
-        }
-      }
-
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
-
-      foreach (GraphicStencil graphicStencil in config.graphicStencils.Values)
-      {
-        if (groupName != graphicStencil.groupName)
-        {
-          (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.id);
-        }
-      }
-    }
-
-    private void NewItem_GraphicType()
-    {
-      int stencilIndex = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex;
-
-      if (stencilIndex != -1)
-      {
-        string stencilName = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
-        if (stencilName != "-------")
-        {
-          frmFlowChart.currentGraphicShape = stencilName;
-        }
-      }
-    }
-
     private void View_SelectItems()
     {
       frmFlowChart.SelectItems = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked;
@@ -196,9 +206,9 @@ namespace SysCAD.Editor
 
     private void View_SelectArrows()
     {
-      frmFlowChart.SelectArrows = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectArrows"]).Checked;
+      frmFlowChart.SelectLinks = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked;
 
-      if (!frmFlowChart.SelectArrows)
+      if (!frmFlowChart.SelectLinks)
       {
         foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
         {
@@ -229,12 +239,39 @@ namespace SysCAD.Editor
 
     private void View_ShowArrows()
     {
-      frmFlowChart.ShowArrows = ((IBarCheckableCommand)barManager1.Commands["View.ShowArrows"]).Checked;
+      frmFlowChart.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
 
       foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
       {
-        arrow.Visible = frmFlowChart.ShowArrows;
+        arrow.Visible = frmFlowChart.ShowLinks;
       }
+    }
+
+    private void View_ShowTags()
+    {
+      frmFlowChart.ShowTags = ((IBarCheckableCommand)barManager1.Commands["View.ShowTags"]).Checked;
+
+      foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+      {
+        if (frmFlowChart.ShowTags)
+          arrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
+        else
+          arrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
+      }
+
+      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      {
+        if (frmFlowChart.ShowTags)
+        {
+          itemBox.GraphicBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
+          itemBox.ModelBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
+        }
+        else
+        {
+          itemBox.GraphicBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
+          itemBox.ModelBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
+        }
+      }  
     }
 
     private void View_ZoomToVisible()
@@ -268,9 +305,10 @@ namespace SysCAD.Editor
       barManager1.Commands["View.ZoomToSelected"].Enabled = projectExists;
       barManager1.Commands["View.ShowModels"].Enabled = projectExists;
       barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
-      barManager1.Commands["View.ShowArrows"].Enabled = projectExists;
+      barManager1.Commands["View.ShowLinks"].Enabled = projectExists;
+      barManager1.Commands["View.ShowTags"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
-      barManager1.Commands["Selection.SelectArrows"].Enabled = projectExists;
+      barManager1.Commands["Selection.SelectLinks"].Enabled = projectExists;
       barManager1.Commands["NewItem.ModelType"].Enabled = projectExists;
       barManager1.Commands["Mode.Modify"].Enabled = projectExists;
       barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
@@ -319,8 +357,7 @@ namespace SysCAD.Editor
         {
           (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Add(key);
         }
-        barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-
+        (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
 
         frmFlowChart.MdiParent = this;
         frmFlowChart.Text = openProjectForm.graphic.Name;
@@ -337,12 +374,6 @@ namespace SysCAD.Editor
       }
 
       SetProjectBasedButtons(true);
-
-      CustomClass myProperties = new CustomClass();
-      propertyGrid1.SelectedObject = myProperties;
-      CustomProperty myProp = new CustomProperty("Test 1", "Test 2", false, true);
-      myProperties.Add(myProp);
-      propertyGrid1.Refresh();
     }
 
     private void tvNavigation_SetProject()
@@ -354,8 +385,8 @@ namespace SysCAD.Editor
         foreach (string itemKey in area.items.Keys)
         {
           Item item = graphic.items[itemKey] as Item;
-          PureComponents.TreeView.Node itemNode = areaNode.Nodes.Add(item.tag, item.tag);
-          itemNode.Tag = item.tag;
+          PureComponents.TreeView.Node itemNode = areaNode.Nodes.Add(item.Tag, item.Tag);
+          itemNode.Tag = item.Tag;
         }
       }
     }
@@ -369,6 +400,19 @@ namespace SysCAD.Editor
     {
       this.tvNavigation.AfterNodeCheck -= new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
 
+      CheckSubNodes(oNode);
+
+      if (graphic.items.ContainsKey(oNode.Text as string)) // This is an item, not an area.
+      {
+        frmFlowChart.SetVisible(oNode.Text, oNode.Checked);
+      }
+
+       this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
+      frmFlowChart.ZoomToVisible();
+    }
+
+    private void CheckSubNodes(PureComponents.TreeView.Node oNode)
+    {
       foreach (PureComponents.TreeView.Node node in oNode.Nodes)
       {
         node.Checked = oNode.Checked;
@@ -377,15 +421,11 @@ namespace SysCAD.Editor
         {
           frmFlowChart.SetVisible(node.Text, node.Checked);
         }
+        else
+        {
+          CheckSubNodes(node);
+        }
       }
-
-      if (graphic.items.ContainsKey(oNode.Text as string)) // This is an item, not an area.
-      {
-        frmFlowChart.SetVisible(oNode.Text, oNode.Checked);
-      }
-      
-      this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
-      frmFlowChart.ZoomToVisible();
     }
 
     static System.Collections.Hashtable wasSelectedNodes = new System.Collections.Hashtable();
@@ -449,7 +489,7 @@ namespace SysCAD.Editor
         wasSelectedNodes.Clear();
         foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
         {
-          wasSelectedNodes.Add(node.Key, node);
+          wasSelectedNodes.Add(node.Text, node);
         }
       }
 
@@ -504,7 +544,7 @@ namespace SysCAD.Editor
         }
       }
 
-      if (!frmFlowChart.SelectArrows)
+      if (!frmFlowChart.SelectLinks)
       {
         foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
         {
@@ -512,8 +552,97 @@ namespace SysCAD.Editor
         }
       }
 
+      if (frmFlowChart.fcFlowChart.ActiveObject is Arrow)
+      {
+        Arrow activeArrow = frmFlowChart.fcFlowChart.ActiveObject as Arrow;
+        Link link;
+        if (frmFlowChart.graphic.links.TryGetValue(activeArrow.Text, out link))
+        {
+          propertyGrid1.SelectedObject = link;
+
+        }
+      }
+      
+      if (frmFlowChart.fcFlowChart.ActiveObject is Box)
+      {
+        Box activeBox = frmFlowChart.fcFlowChart.ActiveObject as Box;
+        Item item;
+        if (frmFlowChart.graphic.items.TryGetValue(activeBox.Text, out item))
+        {
+          propertyGrid1.SelectedObject = item;
+
+          int i = 0;
+          foreach (string models in (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items)
+          {
+            if (models == item.Model)
+            {
+              (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
+            }
+            i++;
+          }
+          if ((barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
+            (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
+
+          ModelStencil modelStencil;
+          if (config.modelStencils.TryGetValue(item.Model, out modelStencil))
+          {
+            GraphicType_Populate(modelStencil.groupName);
+          }
+        }
+      }
+
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
       frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+    }
+
+    private void tvNavigation_NodeDragDrop(DragEventArgs e, PureComponents.TreeView.Node oNode)
+    {
+
+    }
+
+    private void tvNavigation_NodeDragEnter(DragEventArgs e, PureComponents.TreeView.Node oNode)
+    {
+
+    }
+
+    private void tvNavigation_NodeDragLeave(DragEventArgs e, PureComponents.TreeView.Node oNode)
+    {
+
+    }
+
+    private void tvNavigation_NodeDragOver(DragEventArgs e, PureComponents.TreeView.Node oNode)
+    {
+
+    }
+
+    private void tvNavigation_DragDrop(object sender, DragEventArgs e)
+    {
+
+    }
+
+    private void tvNavigation_DragEnter(object sender, DragEventArgs e)
+    {
+
+    }
+
+    private void tvNavigation_DragLeave(object sender, EventArgs e)
+    {
+
+    }
+
+    private void tvNavigation_DragOver(object sender, DragEventArgs e)
+    {
+
+    }
+
+    private void tvNavigation_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+    {
+
+    }
+
+    private void tvNavigation_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
+    {
+
     }
   }
 }

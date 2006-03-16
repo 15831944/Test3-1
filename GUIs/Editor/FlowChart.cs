@@ -16,20 +16,23 @@ namespace SysCAD.Editor
   {
     public Dictionary<string, ItemBox> itemBoxes;
 
-    private Graphic graphic;
-    private Config config;
+    public Graphic graphic;
+    public Config config;
     private PureComponents.TreeView.TreeView tvNavigation;
 
     public bool ShowModels = false;
     public bool ShowGraphics = true;
-    public bool ShowTag = true;
-    public bool ShowArrows = true;
+    public bool ShowLinks = true;
+    public bool ShowTags = true;
 
-    public bool SelectArrows = false;
+    public bool SelectLinks = true;
     public bool SelectItems = true;
 
     public string currentModelShape;
     public string currentGraphicShape;
+
+    private int tempBoxKey = 0;
+    private int tempArrowKey = 0;
 
     public FrmFlowChart()
     {
@@ -58,12 +61,12 @@ namespace SysCAD.Editor
 
       foreach (Item item in graphic.items.Values)
       {
-        NewGraphicItem(item);
+        NewGraphicItem(item, false);
       }
 
       foreach (Link link in graphic.links.Values)
       {
-        NewGraphicLink(link);
+        NewGraphicLink(link, false);
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -76,31 +79,45 @@ namespace SysCAD.Editor
       ZoomToVisible();
     }
 
-    private void NewGraphicLink(Link link)
+    private void NewGraphicLink(Link link, bool isVisible)
     {
-      Box boxOrigin = itemBoxes[link.src].ModelBox;
-      Box boxDestination = itemBoxes[link.dst].ModelBox;
+      ItemBox itemBoxOrigin;
+      ItemBox itemBoxDestination;
+
+      Box boxOrigin = new Box(fcFlowChart);
+      Box boxDestination = new Box(fcFlowChart);
+
+      if (link.Source != null)
+      {
+        itemBoxes.TryGetValue(link.Source, out itemBoxOrigin);
+        boxOrigin = itemBoxes[link.Source].ModelBox;
+      }
+      if (link.Destination != null)
+      {
+        itemBoxes.TryGetValue(link.Destination, out itemBoxDestination);
+        boxDestination = itemBoxes[link.Destination].ModelBox;
+      }
 
       Arrow arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
-      arrow.Text = link.tag;
-      arrow.ToolTip = "Tag: " + link.tag + "\n\nOrigin: " + link.src + "\nDestination: " + link.dst;
+      arrow.Text = link.Tag;
+      arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
-      arrow.Visible = ShowArrows;
+      arrow.Visible = ShowLinks && isVisible;
     }
 
-    private void NewGraphicItem(Item item)
+    private void NewGraphicItem(Item item, bool isVisible)
     {
       Box modelBox;
       Box graphicBox;
 
-      modelBox = fcFlowChart.CreateBox(item.x + item.width * 0.25F, item.y + item.height * 0.25F, item.width * 0.5F, item.height * 0.5F);
-      modelBox.Text = item.tag;
-      modelBox.ToolTip = "Tag: "+item.tag+"\n\nModel Type: "+item.model;
+      modelBox = fcFlowChart.CreateBox(item.X + item.Width * 0.25F, item.Y + item.Height * 0.25F, item.Width * 0.5F, item.Height * 0.5F);
+      modelBox.Text = item.Tag;
+      modelBox.ToolTip = "Tag: " + item.Tag + "\n\nModel Type: " + item.Model;
       modelBox.Style = BoxStyle.Shape;
       {
         ModelStencil stencil;
-        if (config.modelStencils.TryGetValue(item.model, out stencil))
+        if (config.modelStencils.TryGetValue(item.Model, out stencil))
           modelBox.Shape = stencil.ShapeTemplate();
         else
           modelBox.Shape = ShapeTemplate.FromId("Decision2");
@@ -115,15 +132,15 @@ namespace SysCAD.Editor
 
       modelBox.FillColor = System.Drawing.Color.BurlyWood;
       modelBox.FrameColor = System.Drawing.Color.BurlyWood;
-      modelBox.Visible = ShowModels;
+      modelBox.Visible = ShowModels && isVisible;
 
-      graphicBox = fcFlowChart.CreateBox(item.x, item.y, item.width, item.height);
-      graphicBox.Text = item.tag;
-      graphicBox.ToolTip = "Tag: " + item.tag + "\n\nStencil: " + item.shape; ;
+      graphicBox = fcFlowChart.CreateBox(item.X, item.Y, item.Width, item.Height);
+      graphicBox.Text = item.Tag;
+      graphicBox.ToolTip = "Tag: " + item.Tag + "\n\nStencil: " + item.Shape; ;
       graphicBox.Style = BoxStyle.Shape;
       {
         GraphicStencil stencil;
-        if (config.graphicStencils.TryGetValue(item.shape, out stencil))
+        if (config.graphicStencils.TryGetValue(item.Shape, out stencil))
           graphicBox.Shape = stencil.ShapeTemplate();
         else
           graphicBox.Shape = ShapeTemplate.FromId("Decision2");
@@ -134,12 +151,12 @@ namespace SysCAD.Editor
       graphicBox.AttachTo(modelBox, -50, -50, 150, 150);
       graphicBox.EnabledHandles = Handles.None;
       graphicBox.HandlesStyle = HandlesStyle.Invisible;
-      graphicBox.Visible = ShowGraphics;
+      graphicBox.Visible = ShowGraphics && isVisible;
 
       graphicBox.ZBottom();
       modelBox.ZTop();
 
-      itemBoxes.Add(item.tag, new ItemBox(modelBox, graphicBox, true));
+      itemBoxes.Add(item.Tag, new ItemBox(modelBox, graphicBox, true));
     }
 
     public void ZoomToVisible()
@@ -230,18 +247,18 @@ namespace SysCAD.Editor
 
       foreach (Arrow arrowDestination in itemBoxes[tag].ModelBox.IncomingArrows)
       {
-        arrowDestination.Visible = visible && ShowArrows;
+        arrowDestination.Visible = visible && ShowLinks;
       }
 
       foreach (Arrow arrowOrigin in itemBoxes[tag].ModelBox.OutgoingArrows)
       {
-        arrowOrigin.Visible = visible && ShowArrows;
+        arrowOrigin.Visible = visible && ShowLinks;
       }
     }
 
     internal void SetSelected(string tag, bool selected)
     {
-      itemBoxes[tag].ModelBox.Selected = selected;
+      itemBoxes[tag].ModelBox.Selected = selected && (itemBoxes[tag].ModelBox.Visible || itemBoxes[tag].GraphicBox.Visible);
     }
 
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
@@ -349,13 +366,13 @@ namespace SysCAD.Editor
           foreach (Arrow arrow in oldHoverItemBox.IncomingArrows)
           {
             arrow.ZTop();
-            arrow.Visible = ShowArrows;
+            arrow.Visible = ShowLinks;
           }
 
           foreach (Arrow arrow in oldHoverItemBox.OutgoingArrows)
           {
             arrow.ZTop();
-            arrow.Visible = ShowArrows;
+            arrow.Visible = ShowLinks;
           }
         }
       }
@@ -394,7 +411,7 @@ namespace SysCAD.Editor
         }
 
         oldHoverArrow.ZTop();
-        oldHoverArrow.Visible = ShowArrows;
+        oldHoverArrow.Visible = ShowLinks;
       }
 
       if (hoverItemBox != null)
@@ -524,30 +541,31 @@ namespace SysCAD.Editor
 
     }
 
-    int tempKey = 0;
-
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
     {
       NewItem(e.Box.BoundingRect);
+      fcFlowChart.DeleteObject(e.Box);
     }
 
     private void NewItem(RectangleF rect)
     {
       ItemBox tempItemBox;
-      while (itemBoxes.TryGetValue("N_" + tempKey.ToString(), out tempItemBox))
-        tempKey++;
-      Item newItem = new Item("N_" + tempKey.ToString());
-      graphic.items.Add("N_" + tempKey.ToString(), newItem);
-      newItem.x = rect.X;
-      newItem.y = rect.Y;
-      newItem.width = rect.Width;
-      newItem.height = rect.Height;
-      newItem.model = currentModelShape;
-      newItem.shape = currentGraphicShape;
+      while (itemBoxes.TryGetValue("N_" + tempBoxKey.ToString(), out tempItemBox))
+        tempBoxKey++;
+      Item newItem = new Item("N_" + tempBoxKey.ToString());
+      graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
+      newItem.X = rect.X;
+      newItem.Y = rect.Y;
+      newItem.Width = rect.Width;
+      newItem.Height = rect.Height;
+      newItem.Model = currentModelShape;
+      newItem.Shape = currentGraphicShape;
 
-      NewGraphicItem(newItem);
+      tvNavigation.Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
 
-      tvNavigation.Nodes.Add("N_" + tempKey.ToString(), "N_" + tempKey.ToString());
+      NewGraphicItem(newItem, true);
+
+      tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
     }
 
     private void fcFlowChart_Click(object sender, EventArgs e)
@@ -565,6 +583,56 @@ namespace SysCAD.Editor
       fcFlowChart.Size = Size;
       fcFlowChart.Refresh();
       ResumeLayout();
+    }
+
+    private void fcFlowChart_BoxDeleted(object sender, BoxEventArgs e)
+    {
+      string removedTag = e.Box.Text;
+      ItemBox removedItemBox;
+      itemBoxes.TryGetValue(removedTag, out removedItemBox);
+
+      if (removedItemBox != null)
+      {
+        if (removedItemBox.ModelBox != null) 
+          fcFlowChart.DeleteObject(removedItemBox.ModelBox);
+        if (removedItemBox.GraphicBox != null)
+          fcFlowChart.DeleteObject(removedItemBox.GraphicBox);
+
+        PureComponents.TreeView.Node removedNode = tvNavigation.GetNodeByKey(removedTag);
+        if (removedNode != null)
+          removedNode.Remove();
+      }
+    }
+
+    private void fcFlowChart_ArrowDeleted(object sender, ArrowEventArgs e)
+    {
+
+    }
+
+    private void fcFlowChart_ArrowCreated(object sender, ArrowEventArgs e)
+    {
+      tempArrowKey++;
+      string newLinkTag = "A_" + tempArrowKey.ToString();
+      e.Arrow.Text = newLinkTag;
+
+      Box destinationBox = e.Arrow.Destination as Box;
+      Box sourceBox = e.Arrow.Origin as Box;
+      Link newLink = new Link(newLinkTag);
+
+      if (destinationBox != null)
+        newLink.Destination = destinationBox.Text;
+
+      if (sourceBox != null)
+        newLink.Source = sourceBox.Text;
+
+      NewGraphicLink(newLink, true);
+
+      fcFlowChart.DeleteObject(e.Arrow);
+    }
+
+    private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
+    {
+      e.Confirm = false;
     }
   }
 

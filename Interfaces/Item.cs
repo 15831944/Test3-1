@@ -1,18 +1,138 @@
 using System;
 using System.Data;
 using System.Data.OleDb;
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Collections.Generic;
 
 namespace SysCAD.Interface
 {
+  public class GlobalShapes
+  {
+    public static List<string> list = new List<string>();
+  }
+
+  public class ShapeConverter : StringConverter
+  {
+    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+    {
+      //true means show a combobox
+      return true;
+    }
+
+    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+    {
+      //true will limit to list. false will show the list, 
+      //but allow free-form entry
+      return true;
+    }
+
+    public override System.ComponentModel.TypeConverter.StandardValuesCollection
+           GetStandardValues(ITypeDescriptorContext context)
+    {
+      return new StandardValuesCollection(GlobalShapes.list.ToArray());
+    }
+  }
+
   [Serializable]
   public class Item
   {
-    public String tag;
-    public float x, y, width, height, angle;
-    public String model;
-    public String shape;
+    private String tag;
+
+    private float x, y, width, height, angle;
+    private String model;
+    private String shape;
 
     public System.Drawing.Color fillColor;
+
+    [CategoryAttribute("Model"),
+    DescriptionAttribute("Tag name of the item.")]
+    public String Tag
+    {
+      get { return tag; }
+      set { tag = value; }
+    }
+
+    //[CategoryAttribute("Graphic"), 
+    // DescriptionAttribute("Bounding Rectangle if the Item")]
+    //public RectangleF BoundingRect
+    //{
+    //  get
+    //  {
+    //    return new RectangleF(x, y, width, height);
+    //  }
+    //  set
+    //  {
+    //    x = value.X;
+    //    y = value.Y;
+    //    width = value.Width;
+    //    height = value.Height;
+    //  }
+    //}
+
+    [CategoryAttribute("Graphic"),
+    DescriptionAttribute("Position of the left of the item."), 
+     DisplayName("Left")]
+    public float X
+    {
+      get { return x; }
+      set { x = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Position of the top of the item."),
+     DisplayName("Top")]
+    public float Y
+    {
+      get { return y; }
+      set { y = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Width of the item.")]
+    public float Width
+    {
+      get { return width; }
+      set { width = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Height of the item.")]
+    public float Height
+    {
+      get { return height; }
+      set { height = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Angle of the item.")]
+    public float Angle
+    {
+      get { return angle; }
+      set { angle = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Stencil name to be used for displaying the item."),
+     Browsable(true),
+     TypeConverter(typeof(ShapeConverter)),
+     DisplayName("Stencil")]
+    public string Shape
+    {
+      get { return shape; }
+      set { shape = value; }
+    }
+
+    [CategoryAttribute("Model"),
+     DescriptionAttribute("Model type of the item."),
+     ReadOnlyAttribute(true),
+     DisplayName("Model")]
+    public string Model
+    {
+      get { return model; }
+      set { model = value; }
+    }
 
     /// <summary>
     /// Set unique tag.
@@ -60,8 +180,8 @@ namespace SysCAD.Interface
         shape = itemReader.GetString(0);
         x = (float)itemReader.GetDouble(1);
         y = (float)itemReader.GetDouble(2);
-        width = (float)itemReader.GetDouble(3)*5;
-        height = (float)itemReader.GetDouble(4)*5;
+        width = (float)itemReader.GetDouble(3)*10.0F;
+        height = (float)itemReader.GetDouble(4)*10.0F;
         angle = (float)itemReader.GetDouble(5);
       }
       itemReader.Close();

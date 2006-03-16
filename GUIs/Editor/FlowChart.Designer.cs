@@ -44,8 +44,10 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowHead = MindFusion.FlowChartX.ArrowHead.None;
       this.fcFlowChart.ArrowHeadSize = 3F;
       this.fcFlowChart.ArrowIntermSize = 1F;
+      this.fcFlowChart.ArrowSegments = ((short)(2));
       this.fcFlowChart.ArrowsSnapToBorders = true;
       this.fcFlowChart.ArrowsSplittable = true;
+      this.fcFlowChart.ArrowStyle = MindFusion.FlowChartX.ArrowStyle.Cascading;
       this.fcFlowChart.AutoSizeDoc = MindFusion.FlowChartX.AutoSize.AllDirections;
       this.fcFlowChart.Behavior = MindFusion.FlowChartX.BehaviorType.Modify;
       this.fcFlowChart.BoxCustomDraw = MindFusion.FlowChartX.CustomDraw.Additional2;
@@ -55,7 +57,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("fcFlowChart.DocExtents")));
       this.fcFlowChart.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.fcFlowChart.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.fcFlowChart.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 5.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.fcFlowChart.IntermArrowHead = MindFusion.FlowChartX.ArrowHead.Triangle;
       this.fcFlowChart.Location = new System.Drawing.Point(0, 0);
       this.fcFlowChart.Margin = new System.Windows.Forms.Padding(2);
@@ -65,11 +67,15 @@ namespace SysCAD.Editor
       this.fcFlowChart.RoutingOptions.TriggerRerouting = MindFusion.FlowChartX.RerouteArrows.Never;
       this.fcFlowChart.Size = new System.Drawing.Size(853, 460);
       this.fcFlowChart.TabIndex = 0;
+      this.fcFlowChart.ArrowDeleted += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowDeleted);
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
+      this.fcFlowChart.BoxDeleted += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxDeleted);
       this.fcFlowChart.DrawBox += new MindFusion.FlowChartX.BoxCustomDraw(this.fcFlowChart_DrawBox);
       this.fcFlowChart.BoxCreated += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxCreated);
+      this.fcFlowChart.BoxCreating += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxCreating);
+      this.fcFlowChart.ArrowCreated += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowCreated);
       this.fcFlowChart.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModifying);
       this.fcFlowChart.Click += new System.EventHandler(this.fcFlowChart_Click);
       // 

@@ -55,18 +55,18 @@ namespace SysCAD.Interface
       foreach (string key in this.items.Keys)
       {
         Item item = this.items[key] as Item;
-        if (item.x < minX)
-          minX = item.x;
-        if (item.y < minY)
-          minY = item.y;
-        if (item.x + item.width > maxX)
-          maxX = item.x + item.width;
-        if (item.y + item.height > maxY)
-          maxY = item.y + item.height;
+        if (item.X < minX)
+          minX = item.X;
+        if (item.Y < minY)
+          minY = item.Y;
+        if (item.X + item.Width > maxX)
+          maxX = item.X + item.Width;
+        if (item.Y + item.Height > maxY)
+          maxY = item.Y + item.Height;
       }
 
-      float scaleX = 160.0F / (maxX - minX);
-      float scaleY = 120.0F / (maxY - minY);
+      float scaleX = 320.0F / (maxX - minX);
+      float scaleY = 240.0F / (maxY - minY);
 
       float scale;
       if (scaleX > scaleY)
@@ -79,19 +79,19 @@ namespace SysCAD.Interface
         Item item = this.items[key] as Item;
 
         // move origin to top-left.
-        item.x -= minX;
-        item.y -= minY;
+        item.X -= minX;
+        item.Y -= minY;
 
         // scale to 0:100
-        item.x *= scale;
-        item.y *= scale;
-        item.width *= scale;
-        item.height *= scale;
+        item.X *= scale;
+        item.Y *= scale;
+        item.Width *= scale;
+        item.Height *= scale;
 
-        item.x += dX;
+        item.X += dX;
       }
 
-      dX += 100.0F;
+      dX += 300.0F;
     }
   }
 }
