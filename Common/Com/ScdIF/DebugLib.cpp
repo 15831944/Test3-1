@@ -424,6 +424,11 @@ void dbgindent(int chg, LPCTSTR where)
     dbgpln("<< %3i %2i %s", DbgIndentCnt, -chg, where?where:"");
   }
 
+int dbgindentcnt()
+  {
+  return DbgIndentCnt;
+  }
+
 //===========================================================================
 
 //void cleardumpatlist(void)

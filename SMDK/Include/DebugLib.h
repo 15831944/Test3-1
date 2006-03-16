@@ -39,6 +39,7 @@ DllImportExport void dbgfileclose(void);
 DllImportExport void dbgfiletrunc(long size=0);
 DllImportExport void dbgfileflush(bool On);
 DllImportExport void dbgindent(int chg, LPCTSTR where=NULL);
+DllImportExport int  dbgindentcnt();
 //DllImportExport void Dbg_Entry();
 //DllImportExport void Dbg_Exit();
 DllImportExport LPCTSTR DbgFltString(double V, int eSig=3, int fSig=6, int RqdLen=0);

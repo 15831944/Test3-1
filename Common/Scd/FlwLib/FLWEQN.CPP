@@ -987,11 +987,11 @@ void CFlwEqnPtr::SetFlowModeSrc(FlwNode * p, bool IsRmt)
 
 //--------------------------------------------------------------------------
 
-long CFlwEqnPtr::FlowMode()    
+long CFlwEqnPtr::FlowMode()//bool MustHaveSrc)    
   { 
   if (m_FMSrc)
     return m_FMSrc->FlowMode();
-  //_asm int 3;
+  //ASSERT_ALWAYS(!MustHaveSrc, "m_FMSrc should be Set");
   return m_FlowMode;
   };
 //long m=AttachedTo()->FlowMode(); return m ? m : AttachedTo()->FlowModeReqd() ; };//m_FlowMode; };
@@ -2019,15 +2019,24 @@ void CFlwBlkBase::SetVLFracs(CSpPropInfo * pProps, double V, double L)
 
 double CFlwBlkBase::StaticHead(CSpPropInfo *pProps)
   {
-  CSpPropInfo *p=Properties(pProps);
-//  double X=/*Fill();//*/(1-pProps.dVVolFrac);//.??Fill();//(1.0-dFill);
-  const double X=(p->NettLVolFrac());
-  // This Equation is really only for Air
-  const double dRise=Rise();
-  const double dMeanT=MeanTemp(pProps);
-  double RhoHV=Sign(dRise)*(1.0-X)*MeanPress()*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
-  double RhoHL=m_fApplyStaticHead ? dRise*X*9.81*p->m_dRhoL/1000.0 : 0.0;
-  return -(RhoHV+RhoHL);
+  switch (FlowMode())
+    {
+    case LFM_Full:
+    case LFM_Linear:
+      {
+      CSpPropInfo *p=Properties(pProps);
+    //  double X=/*Fill();//*/(1-pProps.dVVolFrac);//.??Fill();//(1.0-dFill);
+      const double X=(p->NettLVolFrac());
+      // This Equation is really only for Air
+      const double dRise=Rise();
+      const double dMeanT=MeanTemp(pProps);
+      double RhoHV=Sign(dRise)*(1.0-X)*MeanPress()*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
+      double RhoHL=m_fApplyStaticHead ? dRise*X*9.81*p->m_dRhoL/1000.0 : 0.0;
+      return -(RhoHV+RhoHL);
+      }
+    default:
+      return 0.0;
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -2270,8 +2279,11 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
 
         if (!b && Task==FET_CalcDP)
           {
-          b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
-          Eqn()->m_nEvals++;
+          //b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
+          //Eqn()->m_nEvals++;
+          SetDPb(0);
+          //SetDPbX(0);
+          SetDPz(StaticHead(pProps));
           b=true;
           }
         break;

@@ -379,7 +379,10 @@ flag CPipeTerm::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
 
   if (Task!=FET_GetMode)
     IOFB(0,FE)->SetRegulator(m_FRB.What());
-  return IOFB(0,FE)->EvaluateFlwEqn(Task, pProps, true, false, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), NULL);
+
+  //dbgpln("XXXXXXXXXXX %10.4f", m_VPB.ActualPosition(this)*100);
+  
+  return IOFB(0,FE)->EvaluateFlwEqn(Task, pProps, m_VPB.On(), false, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), NULL);
   };
 
 //--------------------------------------------------------------------------

@@ -3701,7 +3701,7 @@ void CGrpFlwBlk::ConvergeRegulator(int MaxLoops, flag FirstOuterLoop, flag LastO
     CRegSolver RS(*m_pFNB, this, m_Regulator.m_pFRB, m_Regulator.m_pNd, MaxLoops, FirstOuterLoop, LastOuterLoop);
     RS.SetTarget(FRB.StepTarget());
     RS.SetLimits(FRB.CtrlMin(), FRB.CtrlMax());
-    if (false && Valid(m_Regulator.m_dCtrlCur)) // ForKCG - maybe set true to false
+    if (false && Valid(m_Regulator.m_pFRB->m_dCtrlCur)) // ForKCG - maybe set true to false
       {
       int Sgn=1;
       switch (FRB.What())
@@ -3713,7 +3713,7 @@ void CGrpFlwBlk::ConvergeRegulator(int MaxLoops, flag FirstOuterLoop, flag LastO
         case FBReg_QvStep :                        
         default:        Sgn=1; break;
         }
-      if (RS.SolveFromEst(m_Regulator.m_dCtrlCur, Sgn, 0.1)==RF_OK)
+      if (RS.SolveFromEst(m_Regulator.m_pFRB->m_dCtrlCur, Sgn, 0.1)==RF_OK)
         {
         OK=true;
         }

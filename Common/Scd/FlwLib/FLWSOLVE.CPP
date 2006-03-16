@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
-#include "optoff.h"
+//#include "optoff.h"
 
 //temp force solver threads to zero until multi-threaded solver bug is fixed
 #define FORCERQDTHREADS    0
@@ -6262,7 +6262,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("SS.MaxChange",  "", DC_Frac,  "%",  &m_SSMaxChange,  &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.String  ("SS.MaxChangeTag", "", DC_,    "",   &m_SSMaxTag,     &FlwSlvNd, isResult);//, DDBOnOff);
 
-    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa/s",  xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
+    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
     m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
     m_SSQmTol.GetAbsDD().BuildDataDefn(DDB,     "SS.Qm.Abs",  "", DC_Qm,    "kg/s",   xidSSQmTolAbs,  &FlwSlvNd, "Def", "Ovr");
     m_SSQmTol.GetRelDD().BuildDataDefn(DDB,     "SS.Qm.Rel",  "", DC_Frac,  "%",      xidSSQmTolRel,  &FlwSlvNd, "Def", "Ovr");

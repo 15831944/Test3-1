@@ -17,8 +17,9 @@
 #include "flwnets.h"                   
 #include "flwsolve.h"                   
 
-//#include "optoff.h"
+#include "optoff.h"
 
+#define dbgSlowConnect   0
 #define dbgFlwNode       (WITHDEBUG)
 #define dbgFlwNodeMS     WITHDEBUG
 #define dbgFlowInfo      (WITHDEBUG && 0)
@@ -2242,6 +2243,15 @@ void FlwNode::AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp, boo
 
   if (IOAreas && !IOAreas->fChecked)
     CheckIOAreas(true, DefFlwEqnGrp, NULL);
+
+  if (m_pIOAreas)
+    {
+    for (int i=0; m_pIOAreas[i].pDesc; i++) 
+      {}
+    m_LclIOArea.SetSize(i);
+    }
+  else
+    m_LclIOArea.SetSize(0);
   };
 
 //--------------------------------------------------------------------------
@@ -2252,6 +2262,15 @@ void FlwNode::AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp0, CF
 
   if (IOAreas && !IOAreas->fChecked)
     CheckIOAreas(false, DefFlwEqnGrp0, DefFlwEqnGrp1);
+
+  if (m_pIOAreas)
+    {
+    for (int i=0; m_pIOAreas[i].pDesc; i++) 
+      {}
+    m_LclIOArea.SetSize(i);
+    }
+  else
+    m_LclIOArea.SetSize(0);
   };
 
 //--------------------------------------------------------------------------
@@ -4733,6 +4752,16 @@ flag FlwNode::ConnectionsOK()
 
 //--------------------------------------------------------------------------
 
+int FlwNode::NIOsWithId_Self(int  RqdId)
+  { 
+  for (int i=0; IOAreas[i].pName; i++) 
+    if (IOAreas[i].m_Id==RqdId)
+      return m_LclIOArea[i].m_nConnected;
+  return 0;
+  };
+
+//--------------------------------------------------------------------------
+
 flag FlwNode::MoveTearFlange(int iTearIO, FlwNode * &pNewTearNd, int &iNewTearIO)
   {
   pNewTearNd = NULL;
@@ -4846,6 +4875,14 @@ flag FlwNode::FindIOTag(pchar TagIn, int OId_Rqd, IOInfo &Info)
 
 //--------------------------------------------------------------------------
 
+CLclIOArea::CLclIOArea()
+  {
+  //m_Id=-1;
+  m_nConnected=0;
+  };
+
+//--------------------------------------------------------------------------
+
 int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
                     CFlange* pF, CTerminal * pT,
                     //CCtrlData * pC, CElecConduit * pE, CAirConduit * pA,
@@ -4947,6 +4984,8 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
   if (pT)
     pT->m_Attachments++;
 
+  m_LclIOArea[LIONo].m_nConnected++;
+
   if (RqdIONo<0)
     {
     for (int l=ion ;l<NoIOs() ;l++)
@@ -4995,6 +5034,8 @@ int FlwNode::Detach(int IONo)
   //dbgpln("%2i %08x %08x %08x %s", IONo, m_IOs[IONo].pFBs, m_IOs[IONo].pPBs, m_IOs[IONo].m_pChgs, sTag());
   CIORec &io=m_IOs[IONo];
   int AreaId = IOAreas[io.IODescSelf].m_Id;
+
+  m_LclIOArea[io.IODescSelf].m_nConnected--;
 
   delete io.m_pChgs;
   delete io.pPBs;
@@ -5184,6 +5225,8 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, /*CFlange* pF, C
 
 int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, IOInfoBlk *pInfo)
   {
+  CStopWatch SW;
+  SW.Start();
   int          Ret=0;
   IOInfoBlk    InfoB;
 //  IOInfoBlk  & Info = (pInfo ? *((IOInfoBlk*)pInfo) : InfoB);
@@ -5193,6 +5236,9 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
 
   if (s->FindIOTag(IOTag1, OId_NodeIO, Info[0]) & d->FindIOTag(IOTag2, OId_NodeIO, Info[1]))
     {
+#if dbgSlowConnect
+    dbgpln(" .a %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
     // check same type connection
     dword dwClass0=Info[0].p->IODesc_SelfId(Info[0].Id)->m_dwType;
     dword dwClass1=Info[1].p->IODesc_SelfId(Info[1].Id)->m_dwType;
@@ -5214,11 +5260,14 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
       }
 
     flag ConnExists=0;
-    for (int i=0; i<Info[0].p->m_nIOs; i++)
-      if ((Info[0].p->Nd_Rmt(i)==Info[1].p) &&
-          (Info[0].p->IOId_Self(i)==Info[0].Id) &&
-          (Info[0].p->IOId_Rmt(i)==Info[1].Id))
-        ConnExists=1;
+    //for (int i=0; i<Info[0].p->m_nIOs; i++)
+    //  if ((Info[0].p->Nd_Rmt(i)==Info[1].p) &&
+    //      (Info[0].p->IOId_Self(i)==Info[0].Id) &&
+    //      (Info[0].p->IOId_Rmt(i)==Info[1].Id))
+    //    ConnExists=1;
+#if dbgSlowConnect
+    dbgpln(" .c %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
     if (!ConnExists && Ret==0)
       {
@@ -5251,7 +5300,13 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
         }
       else if (dwClass0&nc_ALnk) 
         pT=new CAirTermX;
+#if dbgSlowConnect
+      dbgpln(" .d %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
       Ret=Connect(Info[0], Info[1], pF, pT);
+#if dbgSlowConnect
+      dbgpln(" .e %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
       }
     else
       {
@@ -5286,9 +5341,13 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
 
 
   Info1.IOIndex = Info1.p->Attach(Info1.AreaInx, Info2.p, Info2.AreaInx, pF, pT, RqdIONo1, 1);
-  //dbgpln(" .X %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+  dbgpln(" .X %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
   Info2.IOIndex = Info2.p->Attach(Info2.AreaInx, Info1.p, Info1.AreaInx, pF, pT, RqdIONo2, -1);
-  //dbgpln(" .Y %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+  dbgpln(" .Y %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
   Info1.p->m_IOs[Info1.IOIndex].IONoRmt = Info2.IOIndex;
   Info2.p->m_IOs[Info2.IOIndex].IONoRmt = Info1.IOIndex;
 
@@ -5317,7 +5376,9 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
       Do1to2=false;
     }
 
-  //dbgpln(" .M %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+  dbgpln(" .M %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
   if (pF)
     {
@@ -5326,7 +5387,9 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
     else
       pF->SetConnection(Info2.p, Info2.IOIndex, Info1.p, Info1.IOIndex);
     }
-  //dbgpln(" .N %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+  dbgpln(" .N %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
   if (pT)
     {
@@ -5336,7 +5399,9 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
       pT->SetConnection(Info2.p, Info2.IOIndex, Info1.p, Info1.IOIndex);
     }
 
-  //dbgpln(" .O %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+  dbgpln(" .O %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
   //  if (Info1.IOIndex>Info2.IOIndex)
 //    pC->SetConnection(Info1.p, Info1.IOIndex, Info2.p, Info2.IOIndex);
@@ -5364,7 +5429,9 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
     }
 
   StructureChanged(NULL);
-  //dbgpln(" .Z %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+  dbgpln(" .Z %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
   #ifdef xdbgConnect
   dbgnln;
@@ -9658,6 +9725,10 @@ flag CDirectFlwIO::GlobalConnect()
     dbgpln("GlobalConnect %4i %-15s %35s.%s > %s", m_iLclIOId, m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pArea.m_sTag());
   #endif
 
+#if dbgSlowConnect
+  dbgpln(" .A %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
+
   m_bConnected = m_pArea.Connect(m_pNd, "Area");
   if (!m_bConnected && m_pArea.m_sTag.GetLength()>0)
     {
@@ -9668,6 +9739,9 @@ flag CDirectFlwIO::GlobalConnect()
   if (!m_bConnected)
     return false;
 
+#if dbgSlowConnect
+  dbgpln(" .B %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
   //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
   //CDirectFlwIO* X;
@@ -9695,7 +9769,9 @@ flag CDirectFlwIO::GlobalConnect()
       {};
     // if 'NdIOLcl[iO].pDesc' is NULL then this is not defined in the IOList and hence is not needed
 
-    //dbgpln(" .C %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+    dbgpln(" .C %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
     if (NdIOLcl[iO].pDesc==NULL) 
       {
 #ifndef _RELEASE
@@ -9707,7 +9783,9 @@ flag CDirectFlwIO::GlobalConnect()
     IOAreaRec * NdIORmt=m_pArea->IOAreas;
     for (int iI=0; (NdIORmt[iI].pDesc &&NdIORmt[iI].m_Id != m_iRmtIOId); iI++)
       {};
-    //dbgpln(" .D %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+    dbgpln(" .D %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
 
     if (m_pArea->NoFlwIOs() >= MaxIOList)
       {
@@ -9743,7 +9821,9 @@ flag CDirectFlwIO::GlobalConnect()
     ASSERT(NdIOLcl[iO].pDesc!=NULL);
     ASSERT(NdIORmt[iI].pDesc!=NULL);
 
-    //dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#if dbgSlowConnect
+    dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
+#endif
     IOInfoBlk Info;
     if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].pName, m_pArea, NdIORmt[iI].pName, &Info)==0)
       {
@@ -9753,7 +9833,9 @@ flag CDirectFlwIO::GlobalConnect()
       m_pArea->SetIOAutoConnect(iEnvConnectedIO, true);
 
       //dbgpln(".. %i %i %s", m_iMyConnectedIO, iEnvConnectedIO, m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
-      //dbgpln(" .F %5i %5i %10.1fus %-20s %s > %s", m_iMyConnectedIO, iEnvConnectedIO, SW.Lap()*1e6, "", m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
+#if dbgSlowConnect
+      dbgpln(" .F %5i %5i %10.1fus %-20s %s > %s", m_iMyConnectedIO, iEnvConnectedIO, SW.Lap()*1e6, "", m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
+#endif
     
       return true;
       }

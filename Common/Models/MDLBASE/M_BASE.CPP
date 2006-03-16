@@ -2962,6 +2962,25 @@ class CKwikIndent
   };
 #endif
 
+LPCTSTR Z_StateStr(Z_States State)
+  {
+  switch (State)
+    {
+    case Z_Unknown:           return "Z_Unknown      ";
+    case Z_Guessed:           return "Z_Guessed      ";
+    case Z_Known:             return "Z_Known        ";
+    case Z_OverSpecified:     return "Z_OverSpecified";    
+    }
+  return "???";
+  }
+
+LPCTSTR IndentMatch()
+  {
+  static CString S;
+  S.Format("%*.*s", 40-dbgindentcnt(), 40-dbgindentcnt(), "");
+  return S;
+  }
+
 Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, double Zi, Z_States Z_State_Src /*,double &Z_Ret, Z_States &Z_State_Ret*/)
   {
   //static CSetDatumsData DataIfNull[1]={{-1,0,0}};
@@ -2978,10 +2997,6 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
       {
       case 0:
         {
-        #if dbgModels
-        if (dbgSetZsValue())
-          dbgpln("-             %s", FullObjTag());
-        #endif
         if (Valid(m_dDatumRqd))
           {
           Z_State=Z_Known;
@@ -2992,12 +3007,16 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
           Z_State=Z_Unknown;
           m_dDatum = 0.0;
           }
+        #if dbgModels
+        if (dbgSetZsValue())
+          dbgpln("-       %s    %-15s      %8.2f %s ", IndentMatch(), Z_StateStr(Z_State), m_dDatum, FullObjTag());
+        #endif
         for (int i = 0; (i < NoProcessIOs()); i++)
           {
           IOFlange(i)->m_dDatum = m_dDatum + DeltaZ(this, i, Data);
           #if dbgModels
           if (dbgSetZsValue())
-            dbgpln(">> FlangeHgtA %8.2f %s > %s", IOFlange(i)->m_dDatum, FullObjTag(), Nd_Rmt(i)->FullObjTag());
+            dbgpln(">> FA   %s    %-15s      %8.2f %s > %s", IndentMatch(), "", IOFlange(i)->m_dDatum, FullObjTag(), Nd_Rmt(i)->FullObjTag());
           #endif
           }
         return Z_State;
@@ -3071,7 +3090,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
 
     #if dbgModels
     if (dbgSetZsTrace())
-      dbgpln(">> SetDatums_Node       %8.2f %i %s", Zi, Z_State_Src,FullObjTag());
+       dbgpln(">> Nd   %s    %-15s      %8.2f %s", IndentMatch(), Z_StateStr(Z_State_Src), Zi, FullObjTag());
     #endif
 
     CFlange *pC;
@@ -3084,7 +3103,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
         Nd_Rmt(i)->SetDatums(Pass, IOIONo_Rmt(i), pC->m_dDatum, Z_State);
         #if dbgModels
         if (dbgSetZsValue())
-          dbgpln(">> FlangeHgtB %8.2f %s > %s", pC->m_dDatum, FullObjTag(), Nd_Rmt(i)->FullObjTag());
+          dbgpln(">> FB   %s    %-15s      %8.2f %s > %s", IndentMatch(), "", pC->m_dDatum, FullObjTag(), Nd_Rmt(i)->FullObjTag());
         #endif
         }
       }
@@ -3092,7 +3111,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
     Busy = 0;
     #if dbgModels
     if (dbgSetZsTrace())
-      dbgpln("<< SetDatums_Node       %s", FullObjTag());
+      dbgpln("<< Nd ");
     #endif
     }
   return Z_State;
@@ -3126,7 +3145,11 @@ Z_States MdlNode::SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z
 
     #if dbgModels
     if (dbgSetZsTrace())
-      dbgpln(" > SetDatums_Link %8.2f    %8.2f %i %s", Valid(dZ_Rqd)?dZ_Rqd:0.0, Zi, Z_State_Src,FullObjTag());
+      {
+      CString X;
+      X.Format(Valid(dZ_Rqd)?"%+4.1f":"   *", dZ_Rqd);
+      dbgpln("-> Link %s    %-15s %s %8.2f %s", IndentMatch(), Z_StateStr(Z_State_Src), X, Zi, FullObjTag());
+      }
     #endif
 
     Busy = 1;
@@ -3136,7 +3159,7 @@ Z_States MdlNode::SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z
 
     #if dbgModels
     if (dbgSetZsTrace())
-      dbgpln("<  SetDatums_Link       %i %s", Z_State_Ret,FullObjTag());
+      dbgpln("<- Link %s    %-15s               %s", IndentMatch(), Z_StateStr(Z_State_Ret),FullObjTag());
     #endif
 
     return Z_State_Src;

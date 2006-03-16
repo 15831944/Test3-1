@@ -1983,7 +1983,7 @@ class CIORecArray : public CArray<CIORec*, CIORec*>
       int n=GetSize();
       for (int i=RqdSize; i<n; i++)
         delete ElementAt(i);
-      SetSize(RqdSize);
+      SetSize(RqdSize, Max(4, RqdSize/8));
       for (int i=n; i<RqdSize; i++)
         ElementAt(i)=new CIORec;
       };
@@ -3194,6 +3194,15 @@ class CPropagateNetInfoCtrl
     TaggedObject          * m_pObj;
   };
 
+class CLclIOArea
+  {
+  public:
+    CLclIOArea();
+
+    //long                    m_Id;
+    long                    m_nConnected;
+  };
+
 class DllImportExport FlwNode : public CTNode
   {
   DEFINE_MEMSTATS(FlwNode)
@@ -3537,12 +3546,13 @@ class DllImportExport FlwNode : public CTNode
     int            IOId_Self(int i)             { return IOAreas[m_IOs[i].IODescSelf].m_Id;};
     IDMask         IOIdMask_Self(int i)         { return IDMask(1) << IOId_Self(i); };
     int            IOWithId_Self(int  RqdId)    { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) return i; return -1;};
-    int            NIOsWithId_Self(int  RqdId)  { for (int i=0, j=0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
+    int            NIOsWithId_Self(int  RqdId);  
+    //int            NIOsWithId_Self(int  RqdId)  { for (int i=0, j=0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
 
     int            IOId_Rmt(int i)              { return m_IOs[i].Rmt->IOAreas[m_IOs[i].IODescRmt].m_Id; };
     IDMask         IOIdMask_Rmt(int i)          { return IDMask(1) << IOId_Rmt(i); };
     int            IOWithId_Rmt(int  RqdId)     { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) return i; return -1;};
-    int            NIOsWithId_Rmt(int  RqdId)   { for (int i = 0, j=0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) j++; return j;};
+    //int            NIOsWithId_Rmt(int  RqdId)   { for (int i = 0, j=0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) j++; return j;};
 
     IOAreaRec     *IODesc_SelfIndexed(int i)    { IOAreaRec * p=&IOAreas[i]; return (p && p->pName ? p : NULL); };
     IOAreaRec     *IODesc_SelfId(int iId)       { IOAreaRec * p=IOAreas; while (p && p->pName && p->m_Id!=iId) p++; return (p && p->pName ? p : NULL); };
@@ -4116,6 +4126,7 @@ class DllImportExport FlwNode : public CTNode
 
     Strng          m_sAreaTag;
     Strng          m_sAreaTmp;
+    CArray<CLclIOArea, CLclIOArea&> m_LclIOArea;
     CTODirectPtr<FlwNode> m_pArea;
     CList<FlwNode*, FlwNode*> m_NdsInArea;
     CArray<CDirectFlwIO*, CDirectFlwIO*> m_DirectIOs;

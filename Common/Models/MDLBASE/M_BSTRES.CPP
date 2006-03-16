@@ -38,6 +38,7 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
   AttachClassInfo(nc_MBst, NULL, &NullFlwGroup);
 
+  m_FEP.SetFlowModeSrc(this, false);
   }
 
 // -------------------------------------------------------------------------
