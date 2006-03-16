@@ -2025,8 +2025,9 @@ void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
   HTREEITEM hSel = m_Tree.GetSelectedItem();
   if (m_ChangeBusy==0 && 
     hSel && 
-    m_Tree.GetItemData(hSel)!=0 && 
-    pNMTreeView->action==TVC_BYMOUSE)//>(DWORD)20)
+    m_Tree.GetItemData(hSel)!=0 
+    // && pNMTreeView->action==TVC_BYMOUSE*/
+    )//>(DWORD)20)
     {
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
