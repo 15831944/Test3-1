@@ -576,7 +576,7 @@ BOOL CExcelDBHelper::Open(long DBConnectID, char* FirstFieldName/*=NULL*/, DWORD
   try
     {
     CString Src;
-    Src.Format("SELECT * FROM[%sA%d:BZ9999]", (const char*)sSheetName, 1);//FieldNamesRow);
+    Src.Format("SELECT * FROM[%sA%d:BZ65536]", (const char*)sSheetName, 1);//FieldNamesRow);
     _bstr_t Source(Src);
     m_pRS->Open(Source, m_bsConnect, 
       (flags & DBH_ForwardOnly) ? ADODB::adOpenForwardOnly:ADODB::adOpenKeyset, 
