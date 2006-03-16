@@ -49,6 +49,7 @@ namespace SysCAD.Editor
         if (stencilName != "-------")
         {
           frmFlowChart.currentGraphicShape = stencilName;
+          frmFlowChart.fcFlowChart.DefaultShape = config.graphicStencils[stencilName].ShapeTemplate();
         }
       }
     }
@@ -570,13 +571,17 @@ namespace SysCAD.Editor
         if (frmFlowChart.graphic.items.TryGetValue(activeBox.Text, out item))
         {
           propertyGrid1.SelectedObject = item;
+          propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid1_PropertyValueChanged);
 
-          int i = 0;
-          foreach (string models in (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items)
+          int i;
+          
+          i = 0;
+          foreach (string model in (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items)
           {
-            if (models == item.Model)
+            if (model == item.Model)
             {
               (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
+              (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Text = model;
             }
             i++;
           }
@@ -588,11 +593,36 @@ namespace SysCAD.Editor
           {
             GraphicType_Populate(modelStencil.groupName);
           }
+
+          i = 0;
+          foreach (string shape in (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items)
+          {
+            if (shape == item.Shape)
+            {
+              (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
+              (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Text = shape;
+            }
+            i++;
+          }
+          if ((barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
+            (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
         }
       }
 
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
       frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+    }
+
+    void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+    {
+      string label = e.ChangedItem.Label;
+      if (label == "Stencil")
+      {
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+        string value = (e.ChangedItem.Value as String);
+        item.Model = value;
+        frmFlowChart.itemBoxes[item.Tag].GraphicBox.Shape = config.graphicStencils[value].ShapeTemplate();
+      }
     }
 
     private void tvNavigation_NodeDragDrop(DragEventArgs e, PureComponents.TreeView.Node oNode)

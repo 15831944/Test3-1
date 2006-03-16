@@ -17,7 +17,7 @@ namespace SysCAD.Interface
     private String source;
     private String destination;
 
-    private List<PointF> controlPoints;
+    public List<PointF> controlPoints = new List<PointF>();
 
     [CategoryAttribute("Model"),
     DescriptionAttribute("Tag name of the link.")]

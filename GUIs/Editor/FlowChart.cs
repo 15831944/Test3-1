@@ -20,6 +20,9 @@ namespace SysCAD.Editor
     public Config config;
     private PureComponents.TreeView.TreeView tvNavigation;
 
+    private bool boxCreating = false;
+    private bool boxJustCreated = false;
+
     public bool ShowModels = false;
     public bool ShowGraphics = true;
     public bool ShowLinks = true;
@@ -61,12 +64,12 @@ namespace SysCAD.Editor
 
       foreach (Item item in graphic.items.Values)
       {
-        NewGraphicItem(item, false);
+        NewGraphicItem(item, null, false);
       }
 
       foreach (Link link in graphic.links.Values)
       {
-        NewGraphicLink(link, false);
+        NewGraphicLink(link, null, false);
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -79,7 +82,7 @@ namespace SysCAD.Editor
       ZoomToVisible();
     }
 
-    private void NewGraphicLink(Link link, bool isVisible)
+    private void NewGraphicLink(Link link, Arrow arrow, bool isVisible)
     {
       ItemBox itemBoxOrigin;
       ItemBox itemBoxDestination;
@@ -98,18 +101,37 @@ namespace SysCAD.Editor
         boxDestination = itemBoxes[link.Destination].ModelBox;
       }
 
-      Arrow arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
+      PointF pointOrigin = new PointF();
+      PointF pointDestination = new PointF();
+
+      if (link.controlPoints.Count > 1)
+      {
+        pointOrigin = link.controlPoints[0];
+        pointDestination = link.controlPoints[link.controlPoints.Count - 1];
+      }
+
+      if (arrow == null)
+        arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
+
       arrow.Text = link.Tag;
       arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
+
+      if (link.controlPoints.Count > 0)
+      {
+        arrow.ControlPoints.Clear();
+        foreach (PointF point in link.controlPoints)
+          arrow.ControlPoints.Add(point);
+        arrow.UpdateFromPoints();
+      }
+
       arrow.Visible = ShowLinks && isVisible;
     }
 
-    private void NewGraphicItem(Item item, bool isVisible)
+    private void NewGraphicItem(Item item, Box graphicBox, bool isVisible)
     {
       Box modelBox;
-      Box graphicBox;
 
       modelBox = fcFlowChart.CreateBox(item.X + item.Width * 0.25F, item.Y + item.Height * 0.25F, item.Width * 0.5F, item.Height * 0.5F);
       modelBox.Text = item.Tag;
@@ -134,7 +156,8 @@ namespace SysCAD.Editor
       modelBox.FrameColor = System.Drawing.Color.BurlyWood;
       modelBox.Visible = ShowModels && isVisible;
 
-      graphicBox = fcFlowChart.CreateBox(item.X, item.Y, item.Width, item.Height);
+      if (graphicBox == null)
+        graphicBox = fcFlowChart.CreateBox(item.X, item.Y, item.Width, item.Height);
       graphicBox.Text = item.Tag;
       graphicBox.ToolTip = "Tag: " + item.Tag + "\n\nStencil: " + item.Shape; ;
       graphicBox.Style = BoxStyle.Shape;
@@ -287,52 +310,58 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
-      PointCollection controlPoints = e.Arrow.ControlPoints.Clone();
-
-      if (savedOrigin != null)
+      if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-        e.Arrow.Origin = savedOrigin;
-        e.Arrow.OrgnAnchor = savedOriginAnchor;
-      }
+        PointCollection controlPoints = e.Arrow.ControlPoints.Clone();
 
-      if (savedDestination != null)
-      {
-        e.Arrow.Destination = savedDestination;
-        e.Arrow.DestAnchor = savedDestinationAnchor;
-      }
+        if (savedOrigin != null)
+        {
+          e.Arrow.Origin = savedOrigin;
+          e.Arrow.OrgnAnchor = savedOriginAnchor;
+        }
 
-      e.Arrow.ControlPoints.Clear();
-      foreach (PointF point in controlPoints)
-      {
-        e.Arrow.ControlPoints.Add(point);
+        if (savedDestination != null)
+        {
+          e.Arrow.Destination = savedDestination;
+          e.Arrow.DestAnchor = savedDestinationAnchor;
+        }
+
+        e.Arrow.ControlPoints.Clear();
+        foreach (PointF point in controlPoints)
+        {
+          e.Arrow.ControlPoints.Add(point);
+        }
+        e.Arrow.UpdateFromPoints();
       }
-      e.Arrow.UpdateFromPoints();
     }
 
     private void fcFlowChart_ArrowModifying(object sender, ArrowMouseArgs e)
     {
-      savedOrigin = null;
-      savedDestination = null;
-
-      Box originBox = (e.Arrow.Origin as Box);
-      if (originBox != null)
+      if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-        ItemBox originItemBox = itemBoxes[originBox.Text];
-        if (originItemBox != null)
+        savedOrigin = null;
+        savedDestination = null;
+
+        Box originBox = (e.Arrow.Origin as Box);
+        if (originBox != null)
         {
-          savedOrigin = originItemBox.ModelBox;
-          savedOriginAnchor = e.Arrow.OrgnAnchor;
+          ItemBox originItemBox = itemBoxes[originBox.Text];
+          if (originItemBox != null)
+          {
+            savedOrigin = originItemBox.ModelBox;
+            savedOriginAnchor = e.Arrow.OrgnAnchor;
+          }
         }
-      }
 
-      Box destinationBox = (e.Arrow.Destination as Box);
-      if (destinationBox != null)
-      {
-        ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
-        if (destinationItemBox != null)
+        Box destinationBox = (e.Arrow.Destination as Box);
+        if (destinationBox != null)
         {
-          savedDestination = destinationItemBox.ModelBox;
-          savedDestinationAnchor = e.Arrow.DestAnchor;
+          ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
+          if (destinationItemBox != null)
+          {
+            savedDestination = destinationItemBox.ModelBox;
+            savedDestinationAnchor = e.Arrow.DestAnchor;
+          }
         }
       }
     }
@@ -543,11 +572,11 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
     {
-      NewItem(e.Box.BoundingRect);
-      fcFlowChart.DeleteObject(e.Box);
+      NewItem(e.Box.BoundingRect, e.Box);
+      boxCreating = false;
     }
 
-    private void NewItem(RectangleF rect)
+    private void NewItem(RectangleF rect, Box box)
     {
       ItemBox tempItemBox;
       while (itemBoxes.TryGetValue("N_" + tempBoxKey.ToString(), out tempItemBox))
@@ -563,17 +592,29 @@ namespace SysCAD.Editor
 
       tvNavigation.Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
 
-      NewGraphicItem(newItem, true);
+      NewGraphicItem(newItem, box, true);
 
       tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
     }
 
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
-      if (fcFlowChart.Behavior == BehaviorType.CreateBox)
+      if (!boxCreating)
       {
         MouseEventArgs me = e as MouseEventArgs;
-        NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), config.graphicStencils[currentGraphicShape].defaultSize));
+        Box overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location));
+        Arrow overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 1);
+
+        if (boxCreating == false) // we're not creating a box some other way...
+        {
+          if ((overBox == null) && (overArrow == null)) // we're in free space...
+          {
+            if (fcFlowChart.Behavior == BehaviorType.CreateBox)
+            {
+              NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), config.graphicStencils[currentGraphicShape].defaultSize), null);
+            }
+          }
+        }
       }
     }
 
@@ -625,14 +666,20 @@ namespace SysCAD.Editor
       if (sourceBox != null)
         newLink.Source = sourceBox.Text;
 
-      NewGraphicLink(newLink, true);
+      foreach (PointF point in e.Arrow.ControlPoints)
+      {
+        newLink.controlPoints.Add(point);
+      }
 
-      fcFlowChart.DeleteObject(e.Arrow);
+      NewGraphicLink(newLink, e.Arrow, true);
+
+      //fcFlowChart.DeleteObject(e.Arrow);
     }
 
     private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
     {
-      e.Confirm = false;
+      boxCreating = true;
+      //e.Confirm = false;
     }
   }
 
