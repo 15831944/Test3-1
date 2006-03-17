@@ -20,8 +20,7 @@ namespace SysCAD.Editor
     public Config config;
     private PureComponents.TreeView.TreeView tvNavigation;
 
-    private bool boxCreating = false;
-    private bool boxJustCreated = false;
+    private Box justCreatedModelBox;
 
     public bool ShowModels = false;
     public bool ShowGraphics = true;
@@ -178,6 +177,8 @@ namespace SysCAD.Editor
 
       graphicBox.ZBottom();
       modelBox.ZTop();
+
+      justCreatedModelBox = modelBox;
 
       itemBoxes.Add(item.Tag, new ItemBox(modelBox, graphicBox, true));
     }
@@ -572,8 +573,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
     {
-      NewItem(e.Box.BoundingRect, e.Box);
-      boxCreating = false;
+      //NewItem(e.Box.BoundingRect, e.Box);
     }
 
     private void NewItem(RectangleF rect, Box box)
@@ -599,21 +599,15 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
-      if (!boxCreating)
-      {
-        MouseEventArgs me = e as MouseEventArgs;
-        Box overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location));
-        Arrow overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 1);
+      MouseEventArgs me = e as MouseEventArgs;
+      Box overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location));
+      Arrow overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 1);
 
-        if (boxCreating == false) // we're not creating a box some other way...
+      if ((overBox == null) && (overArrow == null)) // we're in free space...
+      {
+        if (fcFlowChart.Behavior == BehaviorType.CreateBox)
         {
-          if ((overBox == null) && (overArrow == null)) // we're in free space...
-          {
-            if (fcFlowChart.Behavior == BehaviorType.CreateBox)
-            {
-              NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), config.graphicStencils[currentGraphicShape].defaultSize), null);
-            }
-          }
+          NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), config.graphicStencils[currentGraphicShape].defaultSize), null);          
         }
       }
     }
@@ -678,8 +672,16 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
     {
-      boxCreating = true;
-      //e.Confirm = false;
+      if (justCreatedModelBox != null)
+        justCreatedModelBox.BoundingRect =
+          new RectangleF(e.Box.BoundingRect.X + 0.25F * e.Box.BoundingRect.Width,
+                         e.Box.BoundingRect.Y + 0.25F * e.Box.BoundingRect.Height,
+                         0.5F * e.Box.BoundingRect.Height,
+                         0.5F * e.Box.BoundingRect.Height);
+
+      justCreatedModelBox.ZTop();
+
+      e.Confirm = false;
     }
   }
 
