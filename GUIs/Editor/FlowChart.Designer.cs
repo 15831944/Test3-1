@@ -66,7 +66,6 @@ namespace SysCAD.Editor
       this.fcFlowChart.Name = "fcFlowChart";
       this.fcFlowChart.PrintOptions.EnableShadows = false;
       this.fcFlowChart.RestrObjsToDoc = MindFusion.FlowChartX.RestrictToDoc.NoRestriction;
-      this.fcFlowChart.RoutingOptions.TriggerRerouting = MindFusion.FlowChartX.RerouteArrows.Never;
       this.fcFlowChart.SelHandleSize = 1.5F;
       this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
       this.fcFlowChart.Size = new System.Drawing.Size(853, 460);

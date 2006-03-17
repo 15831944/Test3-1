@@ -76,6 +76,9 @@ namespace SysCAD.Editor
       fcFlowChart.ValidityChecks = true;
       fcFlowChart.Visible = true;
       fcFlowChart.Enabled = true;
+
+      fcFlowChart.RouteAllArrows();
+
       ResumeLayout(false);
 
       ZoomToVisible();

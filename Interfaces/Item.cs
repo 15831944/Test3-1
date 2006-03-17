@@ -180,27 +180,21 @@ namespace SysCAD.Interface
         shape = itemReader.GetString(0);
 
         float sx = 1.0F; float sy = 1.0F;
-        if (shape.Contains("Feed"))
-        {
-          sx = 0.5F; sy = 0.2F;
-        }
-        if (shape.Contains("Tie"))
-        {
-          sx = 0.1F; sy = 0.1F;
-        }
-        if (shape.Contains("Control"))
-        {
-          sx = 0.2F; sy = 0.2F;
-        }
-        if (shape.Contains("PID"))
-        {
-          sx = 0.2F; sy = 0.2F;
-        }
+        if (shape.Contains("Feed")) { sx = 0.5F; sy = 0.2F; }
+        if (shape.Contains("Tie")) { sx = 0.1F; sy = 0.1F; }
+        if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
+        if (shape.Contains("Tank")) { sx = 0.8F; sy = 1.2F; }
 
-        x = (float)itemReader.GetDouble(1);
-        y = -(float)itemReader.GetDouble(2);
-        width = (float)itemReader.GetDouble(3)*30.0F*sx;
-        height = (float)itemReader.GetDouble(4)*30.0F*sy;
+        width = (float)itemReader.GetDouble(3) * 30.0F * sx;
+        height = (float)itemReader.GetDouble(4) * 30.0F * sy;
+        x = (float)itemReader.GetDouble(1)-width/2.0F;
+        y = -(float)itemReader.GetDouble(2)+width/2.0F;
         angle = (float)itemReader.GetDouble(5);
       }
       itemReader.Close();
