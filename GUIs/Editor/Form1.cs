@@ -224,7 +224,8 @@ namespace SysCAD.Editor
 
       foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
       {
-        itemBox.ModelBox.Visible = frmFlowChart.ShowModels;
+        if (itemBox.Visible)
+          itemBox.ModelBox.Visible = frmFlowChart.ShowModels;
       }
     }
 
@@ -234,7 +235,8 @@ namespace SysCAD.Editor
 
       foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
       {
-        itemBox.GraphicBox.Visible = frmFlowChart.ShowGraphics;
+        if (itemBox.Visible)
+          itemBox.GraphicBox.Visible = frmFlowChart.ShowGraphics;
       }
     }
 

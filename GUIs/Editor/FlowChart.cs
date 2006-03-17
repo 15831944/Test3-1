@@ -196,7 +196,7 @@ namespace SysCAD.Editor
 
       justCreatedModelBox = modelBox;
 
-      itemBoxes.Add(item.Tag, new ItemBox(modelBox, graphicBox, true));
+      itemBoxes.Add(item.Tag, new ItemBox(modelBox, graphicBox, false));
     }
 
     public void ZoomToVisible()
