@@ -91,7 +91,7 @@ namespace SysCAD.Interface
         item.X += dX;
       }
 
-      dX += 300.0F;
+      dX += 400.0F;
     }
   }
 }

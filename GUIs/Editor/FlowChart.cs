@@ -92,12 +92,22 @@ namespace SysCAD.Editor
       if (link.Source != null)
       {
         itemBoxes.TryGetValue(link.Source, out itemBoxOrigin);
-        boxOrigin = itemBoxes[link.Source].ModelBox;
+        ItemBox itemBox;
+        itemBoxes.TryGetValue(link.Source, out itemBox);
+        if (itemBox != null)
+          boxOrigin = itemBox.ModelBox;
+        else
+          boxOrigin = null;
       }
       if (link.Destination != null)
       {
         itemBoxes.TryGetValue(link.Destination, out itemBoxDestination);
-        boxDestination = itemBoxes[link.Destination].ModelBox;
+        ItemBox itemBox;
+        itemBoxes.TryGetValue(link.Destination, out itemBox);
+        if (itemBox != null)
+          boxDestination = itemBox.ModelBox;
+        else
+          boxDestination = null;
       }
 
       PointF pointOrigin = new PointF();
@@ -112,20 +122,23 @@ namespace SysCAD.Editor
       if (arrow == null)
         arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
 
-      arrow.Text = link.Tag;
-      arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
-      arrow.ArrowHead = ArrowHead.Triangle;
-      arrow.Style = ArrowStyle.Cascading;
-
-      if (link.controlPoints.Count > 0)
+      if (arrow != null)
       {
-        arrow.ControlPoints.Clear();
-        foreach (PointF point in link.controlPoints)
-          arrow.ControlPoints.Add(point);
-        arrow.UpdateFromPoints();
-      }
+        arrow.Text = link.Tag;
+        arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
+        arrow.ArrowHead = ArrowHead.Triangle;
+        arrow.Style = ArrowStyle.Cascading;
 
-      arrow.Visible = ShowLinks && isVisible;
+        if (link.controlPoints.Count > 0)
+        {
+          arrow.ControlPoints.Clear();
+          foreach (PointF point in link.controlPoints)
+            arrow.ControlPoints.Add(point);
+          arrow.UpdateFromPoints();
+        }
+
+        arrow.Visible = ShowLinks && isVisible;
+      }
     }
 
     private void NewGraphicItem(Item item, Box graphicBox, bool isVisible)
@@ -583,10 +596,10 @@ namespace SysCAD.Editor
         tempBoxKey++;
       Item newItem = new Item("N_" + tempBoxKey.ToString());
       graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
-      newItem.X = rect.X;
-      newItem.Y = rect.Y;
-      newItem.Width = rect.Width;
-      newItem.Height = rect.Height;
+      newItem.X = rect.X - rect.Width;
+      newItem.Y = rect.Y - rect.Height;
+      newItem.Width = rect.Width*2.0F;
+      newItem.Height = rect.Height*2.0F;
       newItem.Model = currentModelShape;
       newItem.Shape = currentGraphicShape;
 

@@ -37,13 +37,13 @@ namespace SysCAD.Editor
       // 
       this.fcFlowChart.AllowDrop = true;
       this.fcFlowChart.AllowUnconnectedArrows = true;
-      this.fcFlowChart.ArrowBaseSize = 3F;
+      this.fcFlowChart.ArrowBaseSize = 2.5F;
       this.fcFlowChart.ArrowBrush = new MindFusion.FlowChartX.SolidBrush("#FF000000");
       this.fcFlowChart.ArrowCrossings = MindFusion.FlowChartX.ArrowCrossings.BreakOff;
       this.fcFlowChart.ArrowHandlesStyle = MindFusion.FlowChartX.HandlesStyle.SquareHandles2;
       this.fcFlowChart.ArrowHead = MindFusion.FlowChartX.ArrowHead.None;
-      this.fcFlowChart.ArrowHeadSize = 3F;
-      this.fcFlowChart.ArrowIntermSize = 1F;
+      this.fcFlowChart.ArrowHeadSize = 2.5F;
+      this.fcFlowChart.ArrowIntermSize = 1.5F;
       this.fcFlowChart.ArrowSegments = ((short)(2));
       this.fcFlowChart.ArrowsSnapToBorders = true;
       this.fcFlowChart.ArrowsSplittable = true;
@@ -57,6 +57,8 @@ namespace SysCAD.Editor
       this.fcFlowChart.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("fcFlowChart.DocExtents")));
       this.fcFlowChart.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.fcFlowChart.GridSizeX = 2F;
+      this.fcFlowChart.GridSizeY = 2F;
       this.fcFlowChart.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 5.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.fcFlowChart.IntermArrowHead = MindFusion.FlowChartX.ArrowHead.Triangle;
       this.fcFlowChart.Location = new System.Drawing.Point(0, 0);
@@ -65,6 +67,8 @@ namespace SysCAD.Editor
       this.fcFlowChart.PrintOptions.EnableShadows = false;
       this.fcFlowChart.RestrObjsToDoc = MindFusion.FlowChartX.RestrictToDoc.NoRestriction;
       this.fcFlowChart.RoutingOptions.TriggerRerouting = MindFusion.FlowChartX.RerouteArrows.Never;
+      this.fcFlowChart.SelHandleSize = 1.5F;
+      this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
       this.fcFlowChart.Size = new System.Drawing.Size(853, 460);
       this.fcFlowChart.TabIndex = 0;
       this.fcFlowChart.ArrowDeleted += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowDeleted);

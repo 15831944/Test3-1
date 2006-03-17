@@ -178,10 +178,29 @@ namespace SysCAD.Interface
 
         model = itemReader.GetString(0);
         shape = itemReader.GetString(0);
+
+        float sx = 1.0F; float sy = 1.0F;
+        if (shape.Contains("Feed"))
+        {
+          sx = 0.5F; sy = 0.2F;
+        }
+        if (shape.Contains("Tie"))
+        {
+          sx = 0.1F; sy = 0.1F;
+        }
+        if (shape.Contains("Control"))
+        {
+          sx = 0.2F; sy = 0.2F;
+        }
+        if (shape.Contains("PID"))
+        {
+          sx = 0.2F; sy = 0.2F;
+        }
+
         x = (float)itemReader.GetDouble(1);
-        y = (float)itemReader.GetDouble(2);
-        width = (float)itemReader.GetDouble(3)*10.0F;
-        height = (float)itemReader.GetDouble(4)*10.0F;
+        y = -(float)itemReader.GetDouble(2);
+        width = (float)itemReader.GetDouble(3)*30.0F*sx;
+        height = (float)itemReader.GetDouble(4)*30.0F*sy;
         angle = (float)itemReader.GetDouble(5);
       }
       itemReader.Close();
