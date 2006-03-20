@@ -2727,7 +2727,7 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
     m_sCfgFiles=CfgFullPath;
     m_sCfgFiles.FnCheckEndBSlash();
     //rather than check for cfgfiles in path, perhaps test if specie mdb is in this folder...?
-    if (m_sCfgFiles.Find("CfgFiles")<0)
+    if (m_sCfgFiles.FindI("CfgFiles")<0)
       m_sCfgFiles+="CfgFiles\\";
     }
 
