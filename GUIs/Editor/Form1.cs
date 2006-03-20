@@ -148,7 +148,7 @@ namespace SysCAD.Editor
           break;
 
         case "View.ShowLinks":
-          this.View_ShowArrows();
+          this.View_ShowLinks();
           break;
 
         case "View.ShowTags":
@@ -240,13 +240,24 @@ namespace SysCAD.Editor
       }
     }
 
-    private void View_ShowArrows()
+    private void View_ShowLinks()
     {
       frmFlowChart.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
 
       foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
       {
-        arrow.Visible = frmFlowChart.ShowLinks;
+        bool visible = true;
+        ItemBox origin, destination;
+
+        frmFlowChart.itemBoxes.TryGetValue(((arrow.Origin) as Box).Text, out origin);
+        frmFlowChart.itemBoxes.TryGetValue(((arrow.Destination) as Box).Text, out destination);
+
+        // only set to false if the endpoint exists and is invisible.  disconnected arrows must be visible.
+        if (origin != null) visible = visible && origin.Visible;
+        if (destination != null) visible = visible && destination.Visible;
+
+        if (visible)
+          arrow.Visible = frmFlowChart.ShowLinks;
       }
     }
 
@@ -620,10 +631,15 @@ namespace SysCAD.Editor
       string label = e.ChangedItem.Label;
       if (label == "Stencil")
       {
-        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
-        string value = (e.ChangedItem.Value as String);
-        item.Model = value;
-        frmFlowChart.itemBoxes[item.Tag].GraphicBox.Shape = config.graphicStencils[value].ShapeTemplate();
+        string graphicString = (e.ChangedItem.Value as String);
+        GraphicStencil graphicShape;
+        if (config.graphicStencils.TryGetValue(graphicString, out graphicShape))
+        {
+          Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+          item.Shape = graphicString;
+          frmFlowChart.itemBoxes[item.Tag].GraphicBox.Shape = graphicShape.ShapeTemplate();
+        }
       }
     }
 
