@@ -15,6 +15,8 @@
 #include "wndslct.h"
 #include "explorescd.h"
 
+#include "optoff.h"
+
 //===========================================================================
 
 CGrfSubs::CGrfSubs(char* pTag)
@@ -259,13 +261,15 @@ void CGrfWnd::OnDraw(CDC* pDC)
 
 void CGrfWnd::DelDynamicSegment(pDynamicSegment pDS)
   {
-  const int Size = XData.GetSize();
+  CSingleLock Lock(&m_XDataLock, true);
+
+  const int Size = m_XData.GetSize();
   for (int i=0; i<Size; i++)
     {
-    if (XData[i]->pDS==pDS)
+    if (m_XData[i]->pDS==pDS)
       {
-      XData[i]->pDS = NULL;
-      XData[i]->iFindCnt = 0;
+      m_XData[i]->pDS = NULL;
+      m_XData[i]->iFindCnt = 0;
       return;
       }
     }
@@ -363,20 +367,23 @@ void CGrfWnd::EO_QuerySubsReqd(CXMsgLst &XM)
     long DataIndex = pMsg->Start ? 0 : pMsg->LastIndex+1;
     flag IsStart = pMsg->Start;
     XM.Clear();
+
+    CSingleLock Lock(&m_XDataLock, true);
+
     DynamicSegment* pDS = Dsp.Vp1->dynm_list;
     if (IsStart)
       {
       while (pDS)
         {
         DispInfo* pI = new DispInfo(pDS);
-        XData.Add(pI);
+        m_XData.Add(pI);
         pDS = pDS->GetNext();
         }
       }
     Strng tmpStrng;
-    for ( ; DataIndex<XData.GetSize(); DataIndex++)
+    for ( ; DataIndex<m_XData.GetSize(); DataIndex++)
       {
-      pDS = XData[DataIndex]->pDS;
+      pDS = m_XData[DataIndex]->pDS;
       tmpStrng.Set("%s.%s", pDS->GetTag(), pDS->GetVar());
       CXM_DataRequest *DRqst=new CXM_DataRequest (DataIndex, tmpStrng(), TABOpt_AllInfoOnce, XIO_In);
       if (!XM.PackMsg(DRqst)) //if it cannot fit - EXIT
@@ -422,11 +429,13 @@ flag CGrfWnd::EO_ReadSubsData(CXMsgLst &XM)
 
 LRESULT CGrfWnd::OnDoWriteSubs(WPARAM wParam, LPARAM lParam)
   {
+  CSingleLock Lock(&m_XDataLock, true);
+
   bool MustClose=false;
-  const int Size = XData.GetSize();
+  const int Size = m_XData.GetSize();
   for (int i=0; i<Size; i++)
     {
-    DispInfo &I=*XData[i];
+    DispInfo &I=*m_XData[i];
     if (I.bDrawRqd)
       {
       I.bDrawRqd=false;
@@ -457,15 +466,17 @@ flag CGrfWnd::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   {
   if (gs_pPrj->bGrfAnimationOn)
     {
+    CSingleLock Lock(&m_XDataLock, true);
+
     flag DoIt=false;
     while (XM.MsgAvail())
       {
       CXM_ObjectData *pX = XM.ObjectData();
       CPkDataItem * pItem = pX->FirstItem();
       int iIndex = pX->Index;
-      if (IsData(pItem->Type()) && iIndex<XData.GetSize())
+      if (IsData(pItem->Type()) && iIndex<m_XData.GetSize())
         {
-        DispInfo* pI = XData.GetAt(iIndex);
+        DispInfo* pI = m_XData.GetAt(iIndex);
         pI->dRqdValue = pItem->Value()->GetDouble();
         pI->bDrawRqd = true;
         DoIt=true;
@@ -509,9 +520,11 @@ flag CGrfWnd::EO_Stopping(flag fBeginStopping)
 
 flag CGrfWnd::EO_Stop(const CXM_TimeControl &CB)
   {
-  for (int i=0; i<XData.GetSize(); i++)
-    delete XData[i];
-  XData.RemoveAll();
+  CSingleLock Lock(&m_XDataLock, true);
+
+  for (int i=0; i<m_XData.GetSize(); i++)
+    delete m_XData[i];
+  m_XData.RemoveAll();
   return True;
   }
 

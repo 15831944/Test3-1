@@ -119,7 +119,8 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
 
   public:
     //XInfoList      XData;
-    CArray <pDispInfo, pDispInfo> XData;
+    CArray <pDispInfo, pDispInfo> m_XData;
+    CCriticalSection  m_XDataLock;
 
     void           DelDynamicSegment(pDynamicSegment pDS);
     void           SendCmdToAll(char* pCmdStr);
