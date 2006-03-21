@@ -2893,6 +2893,8 @@ void MN_Lnk::EvalProducts(long JoinMask)
 #else
         Fo.SetTemp(Fi.Temp());
 #endif
+
+        m_FTB.BeginEvalProducts(Fo);
         }
       //else if (IO_Zero(0))
       //  {
