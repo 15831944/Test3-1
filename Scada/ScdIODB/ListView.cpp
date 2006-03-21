@@ -327,6 +327,8 @@ void CTagView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
       {
       for( int index=0; index < list.GetItemCount(); index++ )
          {
+         if (rand()>RAND_MAX/20) 
+           continue;
          OModbusTag* pTag = (OModbusTag*)list.GetItemData( index );
          ASSERT_KINDOF( OModbusTag, pTag );
          CString text(_T("?"));
