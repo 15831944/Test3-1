@@ -862,6 +862,24 @@ const int TLO_Alpha         = 0x0002;
 
 enum CnvMethod {CnvM_Only};
 
+extern CGlblStopWatch gs_swTotalExecTicks;
+extern CGlblStopWatch gs_swMeasureTicks;
+extern CGlblStopWatch gs_swConvergeTicks;
+extern CGlblStopWatch gs_swSolveTicks;
+extern CGlblStopWatch gs_swLoadSurgeTicks;
+extern CGlblStopWatch gs_swCalcIndicesTicks;
+extern CGlblStopWatch gs_swMtxBuildTicks;
+extern CGlblStopWatch gs_swMtxSolveTicks;
+extern CGlblStopWatch gs_swMtxExtractTicks;
+extern CGlblStopWatch gs_swChkJoinsTicks;
+extern CGlblStopWatch gs_swEvalJoinQTicks;
+extern CGlblStopWatch gs_swEvalJoinPTicks;
+extern CGlblStopWatch gs_swSolveFxdFlwQTicks;
+extern CGlblStopWatch gs_swSolveFxdFlwPTicks;
+extern CGlblStopWatch gs_swFixTopoTicks;
+extern CGlblStopWatch gs_swOverHeadTicks;
+extern CGlblStopWatch gs_swTotalDerivative;
+
 class CFullNetBlk
   {
   DEFINE_SPARES(CFullNetBlk)

@@ -2382,12 +2382,13 @@ void EqnSolverBlk::TransferAllTears(EqnSlvCtrlBlk & EqnCB)
 
 //--------------------------------------------------------------------------
 
-flag EqnSolverBlk::TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List & BadTags)
+flag EqnSolverBlk::TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTearTags, Strng_List & BadTearInfo)
   {
   TearVarBlkIter TCBs(TearVarBlk::List);
   TearVarBlk *pT=NULL;
 
-  BadTags.Clear();
+  BadTearTags.Clear();
+  BadTearInfo.Clear();
   double MaxError=0;
   Strng MaxTag;
   TearVarBlk *pTMax=NULL;
@@ -2437,9 +2438,11 @@ DoTest:
   int OK=EqnCB.Converged();
   if (!OK && pTMax)
     {
-    Strng S;
+    Strng S, Tg;
     S.Set("%s(%s) %.2f", pTMax->Tag(), MaxTag(), MaxError);
-    BadTags.Append(S);
+    pTMax->LHSTag(Tg);
+    BadTearTags.Append(Tg);
+    BadTearInfo.Append(S);
     }
 
 #if dbgEqnSolve

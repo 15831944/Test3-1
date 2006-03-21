@@ -2186,6 +2186,9 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
     #endif
     }
 
+  if (!On)
+    Regulation=0;
+
   if (Task==FET_GetMode)
     {
     EvalGetModeRqd(FlowMode(), pProps, On, IsDegFreedom, Regulation);

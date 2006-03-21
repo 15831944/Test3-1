@@ -134,7 +134,7 @@ class FlwSlvBlk
     void           DumpEvalOrder(byte Which);
 
     void           InitTearConvergence(EqnSlvCtrlBlk & EqnCB);
-    flag           TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTags);
+    flag           TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTearTags, Strng_List & BadTearInfo);
     void           TransferAllTears(EqnSlvCtrlBlk & EqnCB);
     void           InitialiseAllTears(EqnSlvCtrlBlk & EqnCB);
     void           RestartAllTears(EqnSlvCtrlBlk & EqnCB);

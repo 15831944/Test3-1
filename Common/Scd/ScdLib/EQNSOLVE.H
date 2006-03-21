@@ -680,7 +680,7 @@ class DllImportExport EqnSolverBlk
 
     //void           InitialiseAllTearOutputs(EqnSlvCtrlBlk & EqnCB);
     void           TransferAllTears(EqnSlvCtrlBlk & EqnCB);
-    flag           TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List & BadTags);
+    flag           TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTearTags, Strng_List & BadTearInfo);
 
     void           BeginStep(EqnSlvCtrlBlk & TCB);
     void           EndStep(EqnSlvCtrlBlk & TCB);

@@ -69,6 +69,7 @@
 #endif
 // =========================================================================
 
+#define KWIKCONNECT         01
 #define DOPBSMOOTHING       0
 #define DOPBHSMOOTHING      0
 #define DOPB_FILT_ALPHAS    0
@@ -3019,7 +3020,11 @@ const long SpillReports_IdleUnits = (SpillReports_Idle|SpillReports_Units|SpillR
 const long SpillReports_IdleLinks = (SpillReports_Idle|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds); 
 const long SpillReports_IdleBoth  = (SpillReports_Idle|SpillReports_Units|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
 
+const long EvalBalances_Off   = 0x00; 
+const long EvalBalances_On    = 0x01; 
+
 extern DllImportExport long gs_SpillOption;
+extern DllImportExport long gs_EvalBalances;
 extern DllImportExport bool gs_FSIdleRequested;
 
 enum NodeFlwTasks
@@ -3194,14 +3199,14 @@ class CPropagateNetInfoCtrl
     TaggedObject          * m_pObj;
   };
 
-class CLclIOArea
+#if KWIKCONNECT
+class CIOAreaLcl
   {
   public:
-    CLclIOArea();
-
-    //long                    m_Id;
+    CIOAreaLcl() { m_nConnected=0; };
     long                    m_nConnected;
   };
+#endif
 
 class DllImportExport FlwNode : public CTNode
   {
@@ -3325,7 +3330,7 @@ class DllImportExport FlwNode : public CTNode
 
     flag           SolutionBusy() { return fSolutionBusy; };
 
-    FlwNode*       Nd_Rmt(int i)              { return (FlwNode*)(m_IOs.GetCount() ? m_IOs[i].Rmt : NULL);};
+    FlwNode*       Nd_Rmt(int i)              { return (FlwNode*)(i<m_IOs.GetCount() ? m_IOs[i].Rmt : NULL);};
     flag           InlineIntegral_Rmt(int i)  { return Nd_Rmt(i) ? Nd_Rmt(i)->InlineIntegral() : false; };
 
     IOAreaRec     *getIOAreas()           { return m_pIOAreasOwned ? m_pIOAreasOwned : m_pIOAreas; };
@@ -3532,10 +3537,6 @@ class DllImportExport FlwNode : public CTNode
                       return false;
                       };
 
-    //virtual long NoContainers() { return 0;};
-    //virtual SpContainer * Container(long i) { return NULL;};
-
-    //int            AddAJoin(int At, int SolnTyp, int BaseId);
     void           BuildJoinList();
     void           ConnectJoinList();
     void           PostConnectJoinList();
@@ -3545,42 +3546,23 @@ class DllImportExport FlwNode : public CTNode
     dword          IOType_Self(int i)           { return IOAreas[m_IOs[i].IODescSelf].m_dwType; };
     int            IOId_Self(int i)             { return IOAreas[m_IOs[i].IODescSelf].m_Id;};
     IDMask         IOIdMask_Self(int i)         { return IDMask(1) << IOId_Self(i); };
+    //int            NIOsWithId_Self(int  RqdId);  
+#if KWIKCONNECT
+    int            IOWithId_Self(int  RqdId);
+    int            NIOsWithId_Self(int  RqdId);
+#else
     int            IOWithId_Self(int  RqdId)    { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) return i; return -1;};
-    int            NIOsWithId_Self(int  RqdId);  
-    //int            NIOsWithId_Self(int  RqdId)  { for (int i=0, j=0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
-
+    int            NIOsWithId_Self(int  RqdId)  { for (int i=0, j=0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
+#endif
     int            IOId_Rmt(int i)              { return m_IOs[i].Rmt->IOAreas[m_IOs[i].IODescRmt].m_Id; };
     IDMask         IOIdMask_Rmt(int i)          { return IDMask(1) << IOId_Rmt(i); };
-    int            IOWithId_Rmt(int  RqdId)     { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) return i; return -1;};
+    //int            IOWithId_Rmt(int  RqdId)     { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) return i; return -1;};
     //int            NIOsWithId_Rmt(int  RqdId)   { for (int i = 0, j=0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) j++; return j;};
 
     IOAreaRec     *IODesc_SelfIndexed(int i)    { IOAreaRec * p=&IOAreas[i]; return (p && p->pName ? p : NULL); };
     IOAreaRec     *IODesc_SelfId(int iId)       { IOAreaRec * p=IOAreas; while (p && p->pName && p->m_Id!=iId) p++; return (p && p->pName ? p : NULL); };
 
     int            IOIONo_Rmt(int i)            { return (m_IOs.GetCount() ? m_IOs[i].IONoRmt : 0);};
-
-    //flag           IORmtLnkIn(int i)            
-    //                  { 
-    //                  FlwNode* r=Nd_Rmt(i); 
-    //                  if (r  && (r->NoProcessIOs()==2))
-    //                    return r->LnkFlowDefinedToNd(this);
-    //                  if ((IODesc_Self(i)->Dirn & LIO_InOut)==LIO_In)
-    //                    return true;
-    //                  if ((IODesc_Rmt(i)->Dirn & LIO_InOut)==LIO_Out)
-    //                    return true;
-    //                  return false;
-    //                  };
-    //flag           LnkFlowDefinedOut(int i)
-    //                  { 
-    //                  FlwNode* r=Nd_Rmt(i);
-    //                  if (r  && (r->NoProcessIOs()==2))
-    //                    return r->LnkFlowDefinedFromNd(this);
-    //                  if ((IODesc_Self(i)->Dirn & LIO_InOut)==LIO_Out)
-    //                    return true;
-    //                  if ((IODesc_Rmt(i)->Dirn & LIO_InOut)==LIO_In)
-    //                    return true;
-    //                  return false;
-    //                  };
 
     virtual double LnkFlowDefined()             { return !GetActiveHold() ? PBQmEst : 0.0; };
     virtual bool   LnkFlowDefinedIn(int IONo)   
@@ -4123,10 +4105,12 @@ class DllImportExport FlwNode : public CTNode
     CLinkArray     m_Links;
     IOAreaRec    * m_pIOAreas;
     IOAreaRec    * m_pIOAreasOwned;
+#if KWIKCONNECT
+    CArray<CIOAreaLcl, CIOAreaLcl&> m_IOAreaLcl;
+#endif
 
     Strng          m_sAreaTag;
     Strng          m_sAreaTmp;
-    CArray<CLclIOArea, CLclIOArea&> m_LclIOArea;
     CTODirectPtr<FlwNode> m_pArea;
     CList<FlwNode*, FlwNode*> m_NdsInArea;
     CArray<CDirectFlwIO*, CDirectFlwIO*> m_DirectIOs;

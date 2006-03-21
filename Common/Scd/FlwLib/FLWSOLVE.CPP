@@ -3954,9 +3954,9 @@ void FlwSlvBlk::TransferAllTears(EqnSlvCtrlBlk & EqnCB)
 
 //--------------------------------------------------------------------------
 
-flag FlwSlvBlk::TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTags)
+flag FlwSlvBlk::TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTearTags, Strng_List & BadTearInfo)
   {
-  return EqnSlv().TestTearConvergence(ConvergeLoopCnt, EqnCB, BadTags);
+  return EqnSlv().TestTearConvergence(ConvergeLoopCnt, EqnCB, BadTearTags, BadTearInfo);
   }
 
 //===========================================================================
@@ -5073,23 +5073,26 @@ void FlwSlvPB::EvalAllDiscrete()
 
 void FlwSlvPB::EvalAllBalance()
   {
-  for (int Pass=0; Pass<2; Pass++)
+  if (gs_EvalBalances)
     {
-    CThreadTimer  XT(eFITPBEvalBalance, FSW_EvalBalance);
-    CNodeEvalIndexIter AllOrder(m_AllTOSequence);
-    for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+    for (int Pass=0; Pass<2; Pass++)
       {
-      #if dbgFlwSolve
-      if (dbgThreads())
-        dbgpln("PB Eval Balance %s", NJ.Nd.Tag());
-      #endif
-      XT.StartLoop(NJ.m_pNd);
-      XT.LockDone();//(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
-      NJ.Nd.EvalBalance(Pass);
-      XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
-      XT.EndLoop();
+      CThreadTimer  XT(eFITPBEvalBalance, FSW_EvalBalance);
+      CNodeEvalIndexIter AllOrder(m_AllTOSequence);
+      for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+        {
+        #if dbgFlwSolve
+        if (dbgThreads())
+          dbgpln("PB Eval Balance %s", NJ.Nd.Tag());
+        #endif
+        XT.StartLoop(NJ.m_pNd);
+        XT.LockDone();//(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
+        NJ.Nd.EvalBalance(Pass);
+        XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
+        XT.EndLoop();
+        }
+      XT.Complete();//PostambleTl();
       }
-    XT.Complete();//PostambleTl();
     }
   }
 
@@ -5532,9 +5535,9 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
     p->CheckDataRanges(true);
 
   // Test TearFlanges Converged
-  Strng_List BadTags;
+  Strng_List BadTearTags, BadTearInfo;
   EqnCB().SetConverged(EqnCB().NBadLimit()==0);
-  TestTearConvergence(EQCtrl.NIters(), EqnCB(), BadTags);
+  TestTearConvergence(EQCtrl.NIters(), EqnCB(), BadTearTags, BadTearInfo);
   CtrlSeq().TestConverged(EqnCB());
   CtrlSeq().StepSequencer();
 
@@ -7003,7 +7006,7 @@ void FlwSlvDyn::FITEvalIntegral(CLkNodeEvalIter & Iter)
 
 void FlwSlvDyn::ODEDerivs()
   {
-  //CStopWatchLap SWLapTotalDerivative(gs_swTotalDerivative);
+  CStopWatchLap SWLapTotalDerivative(gs_swTotalDerivative);
 
 #if dbgDerivatives
   dbgpln("Derivs %s  %10.4f %10.4f",IntCB.Desc,IntCB.Time,IntCB.dTime);
@@ -7076,7 +7079,7 @@ void FlwSlvDyn::ODEDerivs()
 
       RestartAllTears(EqnCB());
 
-      Strng_List BadTags;
+      Strng_List BadTearTags, BadTearInfo;
       const int MaxTearLoop=EqnCB().Cfg.iMaxIters;
       for (int TearLoop=0; ; )
         {
@@ -7191,7 +7194,7 @@ void FlwSlvDyn::ODEDerivs()
         #endif
 
         EqnCB().SetConverged(EqnCB().NBadLimit()==0);
-        flag TearsConverged=TestTearConvergence(TearLoop, EqnCB(), BadTags);
+        flag TearsConverged=TestTearConvergence(TearLoop, EqnCB(), BadTearTags, BadTearInfo);
 
         // If they are then we are Done
         if (TearsConverged)
@@ -7241,7 +7244,7 @@ void FlwSlvDyn::ODEDerivs()
       if (TearLoop>=MaxTearLoop && MaxTearLoop>0)
         {
         LogError("Solver", 0, "Max TearConverge Iterations");
-        for (Strng *p=BadTags.First(); p; p=BadTags.Next())
+        for (Strng *p=BadTearTags.First(); p; p=BadTearInfo.Next())
           LogNote("Solver", 0, "Tear not Converged %s", p->Str());
         int xxx=0;
         }
@@ -7575,23 +7578,26 @@ void FlwSlvDyn::FITEvalBalance(CLkNodeEvalIter & Iter)
 void FlwSlvDyn::EvalAllBalance()
   {
   CStopWatchLap SWLapDiscrete(gs_swBalance);
-  for (int Pass=0; Pass<2; Pass++)
+  if (gs_EvalBalances)
     {
-    if (1 && FSTC.NThreads())
-      SolveTOSequenceThrd(eFITEvalBalance, TOSL_All, &Pass);
-    else
+    for (int Pass=0; Pass<2; Pass++)
       {
-      CNodeEvalIndexIter All(m_AllTOSequence);
-      CThreadTimer  XT(eFITEvalBalance, FSW_EvalBalance);
-      for (CNodeEvalIndex NJ=All.First(); All.ItemValid(); NJ=All.Next())
+      if (1 && FSTC.NThreads())
+        SolveTOSequenceThrd(eFITEvalBalance, TOSL_All, &Pass);
+      else
         {
-        XT.StartLoop(NJ.m_pNd);
-        XT.LockDone();//(p, eFITEvalDiscrete, FSW_EvalDiscrete);
-        NJ.Nd.EvalBalance(Pass);
-        XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
-        XT.EndLoop();
+        CNodeEvalIndexIter All(m_AllTOSequence);
+        CThreadTimer  XT(eFITEvalBalance, FSW_EvalBalance);
+        for (CNodeEvalIndex NJ=All.First(); All.ItemValid(); NJ=All.Next())
+          {
+          XT.StartLoop(NJ.m_pNd);
+          XT.LockDone();//(p, eFITEvalDiscrete, FSW_EvalDiscrete);
+          NJ.Nd.EvalBalance(Pass);
+          XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
+          XT.EndLoop();
+          }
+        XT.Complete();//PostambleTl();
         }
-      XT.Complete();//PostambleTl();
       }
     }
   }
@@ -8198,31 +8204,45 @@ void FlwSlvDyn::DumpRunStats(flag Total)
   {
 #if NDSTOPWATCHES
   dbgpln("Timing - Seconds");
-  //dbgpln("       Overall        :  %10.3f ",gs_swTotalRunTicks.Time());
-  //dbgpln("       CnvState       :  %10.3f  %10.3f%%", gs_swTotalCnvStateTicks.Time(),gs_swTotalCnvStateTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-  //dbgpln("       Derivs         :  %10.3f  %10.3f%%", gs_swTotalDerivative.Time(),gs_swTotalDerivative.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-  //dbgpln("         Solve        :  %10.3f  %10.3f%%", gs_swNetworkSolve.Time(), m_swDerivSolveTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
+  dbgpln("       Overall        :  %10.3f ",gs_swTotalExecTicks.Secs());
+  //dbgpln("       CnvState       :  %10.3f  %10.3f%%", gs_swTotalCnvStateTicks.Time(),gs_swTotalCnvStateTicks.Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       Derivs         :  %10.3f  %10.3f%%", gs_swTotalDerivative      .Secs(),gs_swTotalDerivative    .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("         SolveNet     :  %10.3f  %10.3f%%", gs_swNetworkSolve         .Secs(), gs_swNetworkSolve      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
   if (FlwNets.ProblemOK())
     {
-    //dbgpln("           Converge   :  %10.3f  %10.3f%%", FlwNets.ConvergeTicks.Secs(), FlwNets.ConvergeTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           Measure    :  %10.3f  %10.3f%%", FlwNets.MeasureTicks.Secs(), FlwNets.MeasureTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           Solve      :  %10.3f  %10.3f%%", FlwNets.SolveTicks.Secs(), FlwNets.SolveTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           LoadSurge  :  %10.3f  %10.3f%%", FlwNets.LoadSurgeTicks.Secs(), FlwNets.LoadSurgeTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           LoadSurge  :  %10.3f  %10.3f%%", FlwNets.LoadSurgeTicks.Secs(), FlwNets.LoadSurgeTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           CalcIndices:  %10.3f  %10.3f%%", FlwNets.CalcIndicesTicks.Secs(), FlwNets.CalcIndicesTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           MtxBuild   :  %10.3f  %10.3f%%", FlwNets.MtxBuildTicks   .Secs(), FlwNets.MtxBuildTicks   .Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           MtxSolve   :  %10.3f  %10.3f%%", FlwNets.MtxSolveTicks   .Secs(), FlwNets.MtxSolveTicks   .Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           MtxExtract :  %10.3f  %10.3f%%", FlwNets.MtxExtractTicks .Secs(), FlwNets.MtxExtractTicks .Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           ChkJoins   :  %10.3f  %10.3f%%", FlwNets.ChkJoinsTicks   .Secs(), FlwNets.ChkJoinsTicks   .Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           EvalJoinQ  :  %10.3f  %10.3f%%", FlwNets.EvalJoinQTicks.Secs(), FlwNets.EvalJoinQTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           EvalJoinP  :  %10.3f  %10.3f%%", FlwNets.EvalJoinPTicks.Secs(), FlwNets.EvalJoinPTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           FixedFlwQ  :  %10.3f  %10.3f%%", FlwNets.SolveFxdFlwQTicks.Secs(), FlwNets.SolveFxdFlwQTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           FixedFlwP  :  %10.3f  %10.3f%%", FlwNets.SolveFxdFlwPTicks.Secs(), FlwNets.SolveFxdFlwPTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           FixTopo    :  %10.3f  %10.3f%%", FlwNets.FixTopoTicks.Secs(), FlwNets.FixTopoTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-    //dbgpln("           OverHead   :  %10.3f  %10.3f%%", FlwNets.OverHeadTicks.Secs(), FlwNets.OverHeadTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
+    dbgpln("           Converge   :  %10.3f  %10.3f%%", gs_swConvergeTicks      .Secs(), gs_swConvergeTicks     .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           Measure    :  %10.3f  %10.3f%%", gs_swMeasureTicks       .Secs(), gs_swMeasureTicks      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           Solve      :  %10.3f  %10.3f%%", gs_swSolveTicks         .Secs(), gs_swSolveTicks        .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           LoadSurge  :  %10.3f  %10.3f%%", gs_swLoadSurgeTicks     .Secs(), gs_swLoadSurgeTicks    .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           LoadSurge  :  %10.3f  %10.3f%%", gs_swLoadSurgeTicks     .Secs(), gs_swLoadSurgeTicks    .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           CalcIndices:  %10.3f  %10.3f%%", gs_swCalcIndicesTicks   .Secs(), gs_swCalcIndicesTicks  .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           MtxBuild   :  %10.3f  %10.3f%%", gs_swMtxBuildTicks      .Secs(), gs_swMtxBuildTicks     .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           MtxSolve   :  %10.3f  %10.3f%%", gs_swMtxSolveTicks      .Secs(), gs_swMtxSolveTicks     .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           MtxExtract :  %10.3f  %10.3f%%", gs_swMtxExtractTicks    .Secs(), gs_swMtxExtractTicks   .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           ChkJoins   :  %10.3f  %10.3f%%", gs_swChkJoinsTicks      .Secs(), gs_swChkJoinsTicks     .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           EvalJoinQ  :  %10.3f  %10.3f%%", gs_swEvalJoinQTicks     .Secs(), gs_swEvalJoinQTicks    .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           EvalJoinP  :  %10.3f  %10.3f%%", gs_swEvalJoinPTicks     .Secs(), gs_swEvalJoinPTicks    .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           FixedFlwQ  :  %10.3f  %10.3f%%", gs_swSolveFxdFlwQTicks  .Secs(), gs_swSolveFxdFlwQTicks .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           FixedFlwP  :  %10.3f  %10.3f%%", gs_swSolveFxdFlwPTicks  .Secs(), gs_swSolveFxdFlwPTicks .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           FixTopo    :  %10.3f  %10.3f%%", gs_swFixTopoTicks       .Secs(), gs_swFixTopoTicks      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+    dbgpln("           OverHead   :  %10.3f  %10.3f%%", gs_swOverHeadTicks      .Secs(), gs_swOverHeadTicks     .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
     }
-  //dbgpln("        FlwsOut        :  %10.3f  %10.3f%%", DerivFlwsOutTicks.Secs(), DerivFlwsOutTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
-//  dbgpln("         Derivs       :  %10.3f  %10.3f%%", DerivDerivsTicks.Secs(), DerivDerivsTicks.Secs()/GTZ(TotalRunTicks.Secs())*100.0);
+  dbgpln("         SolveModels  :  %10.3f  %10.3f%%", gs_swModelSolve         .Secs(), gs_swModelSolve        .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  //dbgpln("       FlwsOut        :  %10.3f  %10.3f%%", DerivFlwsOutTicks        .Secs(), DerivFlwsOutTicks      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  //dbgpln("       Derivs       :  %10.3f  %10.3f%%", DerivDerivsTicks          .Secs(), DerivDerivsTicks       .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+
+  dbgpln("       CtrlOverHead   :  %10.3f  %10.3f%%", gs_swCtrlOverHead       .Secs(), gs_swCtrlOverHead      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       PowerRequired  :  %10.3f  %10.3f%%", gs_swPowerRequired      .Secs(), gs_swPowerRequired     .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       Electrics      :  %10.3f  %10.3f%%", gs_swElectrics          .Secs(), gs_swElectrics         .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       CtrlActions    :  %10.3f  %10.3f%%", gs_swCtrlActions        .Secs(), gs_swCtrlActions       .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       CtrlStrategy   :  %10.3f  %10.3f%%", gs_swCtrlStrategy       .Secs(), gs_swCtrlStrategy      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       ConfigJoins    :  %10.3f  %10.3f%%", gs_swConfigJoins        .Secs(), gs_swConfigJoins       .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       NetworkSolve   :  %10.3f  %10.3f%%", gs_swNetworkSolve       .Secs(), gs_swNetworkSolve      .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       ModelSolve     :  %10.3f  %10.3f%%", gs_swModelSolve         .Secs(), gs_swModelSolve        .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       Discrete       :  %10.3f  %10.3f%%", gs_swDiscrete           .Secs(), gs_swDiscrete          .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       Balance        :  %10.3f  %10.3f%%", gs_swBalance            .Secs(), gs_swBalance           .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+  dbgpln("       ChangeTrace    :  %10.3f  %10.3f%%", gs_swChangeTrace        .Secs(), gs_swChangeTrace       .Secs()/GTZ(gs_swTotalExecTicks.Secs())*100.0);
+
 #endif
   }
 
@@ -9030,6 +9050,10 @@ static DDBValueLst DDBSpillReporting[] = {
   {SpillReports_IdleLinks, "On-Both-IdleLinks"},
   {SpillReports_IdleBoth , "On-Both-Idle"},
   {0}};
+static DDBValueLst DDBEvalBalances[] = {
+  {EvalBalances_Off,    "Off"},
+  {EvalBalances_On ,    "On" },
+  {0}};
 
 void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
   {
@@ -9072,7 +9096,8 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 #endif
     DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
-    DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm|SetOnChange, DDBSpillReporting);
+    DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
+    DDB.Long  ("BalanceTests",          "", DC_,     "",  &gs_EvalBalances,                   this, isParmStopped|SetOnChange, DDBEvalBalances);
     DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
     DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
     DDB.Text  ("");
@@ -12034,7 +12059,7 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
 
 flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
-  //CStopWatchLap SWLapOverall(gs_swOverall);
+  CStopWatchLap SWLapOverall(gs_swTotalExecTicks);
 
   flag ret;
 

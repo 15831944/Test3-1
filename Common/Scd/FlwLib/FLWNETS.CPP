@@ -3761,21 +3761,23 @@ void CGrpFlwBlk::ConvergeRegulator(int MaxLoops, flag FirstOuterLoop, flag LastO
 //
 //==========================================================================
 
-static CGlblStopWatch sm_swMeasureTicks       (gs_swFlwSolve, "Net", "Measure",       1, (CGlblStopWatch::eShowDbg|CGlblStopWatch::eShowAccess|CGlblStopWatch::eShowTotal));
-static CGlblStopWatch sm_swConvergeTicks      (gs_swFlwSolve, "Net", "Converge",      2);
-static CGlblStopWatch sm_swSolveTicks         (gs_swFlwSolve, "Net", "Solve",         3);
-static CGlblStopWatch sm_swLoadSurgeTicks     (gs_swFlwSolve, "Net", "LoadSurge",     4);
-static CGlblStopWatch sm_swCalcIndicesTicks   (gs_swFlwSolve, "Net", "CalcIndices",   5);
-static CGlblStopWatch sm_swMtxBuildTicks      (gs_swFlwSolve, "Net", "MtxBuild",      6);
-static CGlblStopWatch sm_swMtxSolveTicks      (gs_swFlwSolve, "Net", "MtxSolve",      7);
-static CGlblStopWatch sm_swMtxExtractTicks    (gs_swFlwSolve, "Net", "MtxExtract",    8);
-static CGlblStopWatch sm_swChkJoinsTicks      (gs_swFlwSolve, "Net", "ChkJoins",      9);
-static CGlblStopWatch sm_swEvalJoinQTicks     (gs_swFlwSolve, "Net", "EvalJoinQ",    10);
-static CGlblStopWatch sm_swEvalJoinPTicks     (gs_swFlwSolve, "Net", "EvalJoinP",    11);
-static CGlblStopWatch sm_swSolveFxdFlwQTicks  (gs_swFlwSolve, "Net", "SolveFxdFlwQ", 12);
-static CGlblStopWatch sm_swSolveFxdFlwPTicks  (gs_swFlwSolve, "Net", "SolveFxdFlwP", 13);
-static CGlblStopWatch gs_swFixTopoTicks       (gs_swFlwSolve, "Net", "FixTopology",  14);
-static CGlblStopWatch gs_swOverHeadTicks      (gs_swFlwSolve, "Net", "OverHead",     15);
+CGlblStopWatch gs_swTotalExecTicks     (gs_swFlwSolve, "Net", "TotalExecTicks",   0);
+CGlblStopWatch gs_swMeasureTicks       (gs_swFlwSolve, "Net", "Measure",          1, (CGlblStopWatch::eShowDbg|CGlblStopWatch::eShowAccess|CGlblStopWatch::eShowTotal));
+CGlblStopWatch gs_swConvergeTicks      (gs_swFlwSolve, "Net", "Converge",         2);
+CGlblStopWatch gs_swSolveTicks         (gs_swFlwSolve, "Net", "Solve",            3);
+CGlblStopWatch gs_swLoadSurgeTicks     (gs_swFlwSolve, "Net", "LoadSurge",        4);
+CGlblStopWatch gs_swCalcIndicesTicks   (gs_swFlwSolve, "Net", "CalcIndices",      5);
+CGlblStopWatch gs_swMtxBuildTicks      (gs_swFlwSolve, "Net", "MtxBuild",         6);
+CGlblStopWatch gs_swMtxSolveTicks      (gs_swFlwSolve, "Net", "MtxSolve",         7);
+CGlblStopWatch gs_swMtxExtractTicks    (gs_swFlwSolve, "Net", "MtxExtract",       8);
+CGlblStopWatch gs_swChkJoinsTicks      (gs_swFlwSolve, "Net", "ChkJoins",         9);
+CGlblStopWatch gs_swEvalJoinQTicks     (gs_swFlwSolve, "Net", "EvalJoinQ",       10);
+CGlblStopWatch gs_swEvalJoinPTicks     (gs_swFlwSolve, "Net", "EvalJoinP",       11);
+CGlblStopWatch gs_swSolveFxdFlwQTicks  (gs_swFlwSolve, "Net", "SolveFxdFlwQ",    12);
+CGlblStopWatch gs_swSolveFxdFlwPTicks  (gs_swFlwSolve, "Net", "SolveFxdFlwP",    13);
+CGlblStopWatch gs_swFixTopoTicks       (gs_swFlwSolve, "Net", "FixTopology",     14);
+CGlblStopWatch gs_swOverHeadTicks      (gs_swFlwSolve, "Net", "OverHead",        15);
+CGlblStopWatch gs_swTotalDerivative    (gs_swFlwSolve, "Net", "TotalDerivative", 16);
 
 //#include "optoff.h"
 
@@ -4127,7 +4129,7 @@ void CSubNetBlk::DumpFxdConnPs()
 
 void CSubNetBlk::SolveFxdPs()
   {
-  CStopWatchLap SWLapSolveFxdFlwPTicks(sm_swSolveFxdFlwPTicks);
+  CStopWatchLap SWLapSolveFxdFlwPTicks(gs_swSolveFxdFlwPTicks);
 
   #if dbgFlwNets
   DumpFxdConnPs();
@@ -4422,7 +4424,7 @@ void CSubNetBlk::SumFxdLnkQ( CJoinGFBPtr & JG)//CJoinGFBPtr * pC, CGrpFlwBlk * &
 
 void CSubNetBlk::SolveFxdQs()
   {
-  CStopWatchLap SWLapSolveFxdFlwQTicks(sm_swSolveFxdFlwQTicks);
+  CStopWatchLap SWLapSolveFxdFlwQTicks(gs_swSolveFxdFlwQTicks);
 
   CJoinGFBIter Fx(m_FxdQList);
   for (CJoinGFBPtr * pc = Fx.First(); pc ; pc=Fx.Next())
@@ -4512,7 +4514,7 @@ void CSubNetBlk::SolveXferGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
 
 void CSubNetBlk::SolveXferQs()
   {
-  CStopWatchLap SWLapSolveFxdFlwQTicks(sm_swSolveFxdFlwQTicks);
+  CStopWatchLap SWLapSolveFxdFlwQTicks(gs_swSolveFxdFlwQTicks);
 
   CJoinGFBIter Fx(m_FxdQList);
   //CGrpFlwBlk *pPrevGFB=NULL;
@@ -4561,7 +4563,7 @@ void CSubNetBlk::FITGrpMeasure(CLkGrpFlwIter & Iter)
 flag CSubNetBlk::Measure(int NetCnvLoop)
   {
   iNetCnvLoop=NetCnvLoop;
-  CStopWatchLap SWLapMeasureTicks(sm_swMeasureTicks);
+  CStopWatchLap SWLapMeasureTicks(gs_swMeasureTicks);
   GrpFlwIter G(Grps);
   for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
     g->m_fIsBad=false;
@@ -4720,7 +4722,7 @@ void CSubNetBlk::FITGrpTraverse(CLkGrpFlwIter & Iter)
 
 void CSubNetBlk::Traverse()
   {
-  CStopWatchLap SWLapConvergeTicks(sm_swConvergeTicks);
+  CStopWatchLap SWLapConvergeTicks(gs_swConvergeTicks);
 
   fMomentumValid=false;
   if (FSTC.NThreads())
@@ -4785,7 +4787,7 @@ void CSubNetBlk::FITGrpConverge(CLkGrpFlwIter & Iter)
 flag CSubNetBlk::Converge(int NetCnvLoop)
   {
   iNetCnvLoop=NetCnvLoop;
-  CStopWatchLap SWLapConvergeTicks(sm_swConvergeTicks);
+  CStopWatchLap SWLapConvergeTicks(gs_swConvergeTicks);
 
 #if dbgConvergeSubNet
     dbgpln("ConvergeSubNet [%3i.%3i]------ %s", Net,SubNet,Nets[Net].SubNet[SubNet].Start->Tag());
@@ -4874,7 +4876,7 @@ flag CSubNetBlk::Converge(int NetCnvLoop)
 flag CSubNetBlk::SolveUnDefined()
   {
   //iNetCnvLoop=NetCnvLoop;
-  CStopWatchLap SWLapConvergeTicks(sm_swConvergeTicks);
+  CStopWatchLap SWLapConvergeTicks(gs_swConvergeTicks);
 
 #if dbgConvergeSubNet
     dbgpln("SolveUndefinedSubNet [%3i.%3i]------ %s", Net,SubNet,Nets[Net].SubNet[SubNet].Start->Tag());
@@ -5386,7 +5388,7 @@ void CSubNetBlk::CalcIndicesFull()
   if (!fIndexCalculationReqd)
     return;
 
-  CStopWatchLap SWLapCalcIndicesTicks(sm_swCalcIndicesTicks);
+  CStopWatchLap SWLapCalcIndicesTicks(gs_swCalcIndicesTicks);
 
   fIndexCalculationReqd=0;
   fClearSS=true;
@@ -5581,8 +5583,8 @@ void CSubNetBlk::CalcIndicesFull()
 
 flag CSubNetBlk::BuildMatrixFull(long NetCnvLoop)
   {
-  CStopWatchLap SWLapSolveTicks(sm_swSolveTicks);
-  CStopWatchLap SWLapMtxBuildTicks(sm_swMtxBuildTicks);
+  CStopWatchLap SWLapSolveTicks(gs_swSolveTicks);
+  CStopWatchLap SWLapMtxBuildTicks(gs_swMtxBuildTicks);
 
   flag OK=false;
 
@@ -6281,8 +6283,8 @@ flag CSubNetBlk::BuildMatrixFull(long NetCnvLoop)
 
 flag CSubNetBlk::SolveMatrixFull(long NetCnvLoop)
   {
-  CStopWatchLap SWLapSolveTicks(sm_swSolveTicks);
-  CStopWatchLap SWLapMtxSolveTicks(sm_swMtxSolveTicks);
+  CStopWatchLap SWLapSolveTicks(gs_swSolveTicks);
+  CStopWatchLap SWLapMtxSolveTicks(gs_swMtxSolveTicks);
 
   bool DoDirect=true;
   int Err=m_SS.Initialise(DoDirect);
@@ -6364,8 +6366,8 @@ flag CSubNetBlk::SolveMatrixFull(long NetCnvLoop)
 
 flag CSubNetBlk::ExtractMatrixFull(long NetCnvLoop)
   {
-  CStopWatchLap SWLapSolveTicks(sm_swSolveTicks);
-  CStopWatchLap SWLapMtxExtractTicks(sm_swMtxExtractTicks);
+  CStopWatchLap SWLapSolveTicks(gs_swSolveTicks);
+  CStopWatchLap SWLapMtxExtractTicks(gs_swMtxExtractTicks);
 
   if (fAnalyseOK)
     {
@@ -6524,7 +6526,7 @@ flag CSubNetBlk::ExtractMatrixFull(long NetCnvLoop)
 
 void CSubNetBlk::CheckJoinFlows( CJoinRec * pTie)
   {
-  CStopWatchLap SWLapChkJoinsTicks(sm_swChkJoinsTicks);
+  CStopWatchLap SWLapChkJoinsTicks(gs_swChkJoinsTicks);
 
   CJoinRec & J=*pTie;
 //   if (J.nProdFracs>=2)
@@ -6650,7 +6652,7 @@ flag CSubNetBlk::SolveNetFlows()
         {
         if (1)
           {
-          CStopWatchLap SWLapEvalJoinQTicks(sm_swEvalJoinQTicks);
+          CStopWatchLap SWLapEvalJoinQTicks(gs_swEvalJoinQTicks);
         
           //FlwNode::fMatrixChanged=0;
           JoinIter T(Ties);
