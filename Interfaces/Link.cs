@@ -14,7 +14,7 @@ namespace SysCAD.Interface
 	public class Link
 	{
     private String tag;
-    private String source;
+    private String origin;
     private String destination;
 
     public List<PointF> controlPoints = new List<PointF>();
@@ -39,10 +39,10 @@ namespace SysCAD.Interface
     [CategoryAttribute("Model"),
    DescriptionAttribute("Source item of the link."),
    ReadOnlyAttribute(true)]
-    public String Source
+    public String Origin
     {
-      get { return source; }
-      set { source = value; }
+      get { return origin; }
+      set { origin = value; }
     }
 
 
@@ -65,7 +65,7 @@ namespace SysCAD.Interface
       OleDbDataReader linkReader = (new OleDbCommand("SELECT SrcTag, DstTag FROM ModelLinks WHERE Tag='"+tag+"'", connection)).ExecuteReader();
       if(linkReader.Read()) 
       {
-        source = linkReader.GetString(0);
+        origin = linkReader.GetString(0);
         destination = linkReader.GetString(1);
       }
       linkReader.Close();

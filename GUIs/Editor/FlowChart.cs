@@ -14,21 +14,9 @@ namespace SysCAD.Editor
 {
   public partial class FrmFlowChart : Form
   {
-    public Dictionary<string, ItemBox> itemBoxes;
+    public BOD bod = new BOD();
 
-    public Graphic graphic;
-    public Config config;
     private PureComponents.TreeView.TreeView tvNavigation;
-
-    private Box justCreatedModelBox;
-
-    public bool ShowModels = false;
-    public bool ShowGraphics = true;
-    public bool ShowLinks = true;
-    public bool ShowTags = true;
-
-    public bool SelectLinks = true;
-    public bool SelectItems = true;
 
     public string currentModelShape;
     public string currentGraphicShape;
@@ -40,18 +28,16 @@ namespace SysCAD.Editor
     {
       InitializeComponent();
 
-      itemBoxes = new Dictionary<string, ItemBox>();
-
       fcFlowChart.DocExtents = new RectangleF(0.0F, 0.0F, 297.0F, 210.0F);
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
     }
 
     internal void SetProject(Graphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
-      this.graphic = graphic;
+      this.bod.graphic = graphic;
       //graphic.ItemModified += new Graphic.ItemModifiedHandler(graphic_ItemModified);
 
-      this.config = config;
+      this.bod.config = config;
       this.tvNavigation = tvNavigation;
 
       SuspendLayout();
@@ -68,7 +54,8 @@ namespace SysCAD.Editor
 
       foreach (Link link in graphic.links.Values)
       {
-        NewGraphicLink(link, null, false);
+        Arrow arrow = fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+        bod.newLink(link, arrow, false);
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -84,119 +71,12 @@ namespace SysCAD.Editor
       ZoomToVisible();
     }
 
-    private void NewGraphicLink(Link link, Arrow arrow, bool isVisible)
-    {
-      ItemBox itemBoxOrigin;
-      ItemBox itemBoxDestination;
-
-      Box boxOrigin = new Box(fcFlowChart);
-      Box boxDestination = new Box(fcFlowChart);
-
-      if (link.Source != null)
-      {
-        itemBoxes.TryGetValue(link.Source, out itemBoxOrigin);
-        ItemBox itemBox;
-        itemBoxes.TryGetValue(link.Source, out itemBox);
-        if (itemBox != null)
-          boxOrigin = itemBox.ModelBox;
-        else
-          boxOrigin = null;
-      }
-      if (link.Destination != null)
-      {
-        itemBoxes.TryGetValue(link.Destination, out itemBoxDestination);
-        ItemBox itemBox;
-        itemBoxes.TryGetValue(link.Destination, out itemBox);
-        if (itemBox != null)
-          boxDestination = itemBox.ModelBox;
-        else
-          boxDestination = null;
-      }
-
-      PointF pointOrigin = new PointF();
-      PointF pointDestination = new PointF();
-
-      if (link.controlPoints.Count > 1)
-      {
-        pointOrigin = link.controlPoints[0];
-        pointDestination = link.controlPoints[link.controlPoints.Count - 1];
-      }
-
-      if (arrow == null)
-        arrow = fcFlowChart.CreateArrow(boxOrigin, boxDestination);
-
-      if (arrow != null)
-      {
-        arrow.Text = link.Tag;
-        arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
-        arrow.ArrowHead = ArrowHead.Triangle;
-        arrow.Style = ArrowStyle.Cascading;
-
-        if (link.controlPoints.Count > 0)
-        {
-          arrow.ControlPoints.Clear();
-          foreach (PointF point in link.controlPoints)
-            arrow.ControlPoints.Add(point);
-          arrow.UpdateFromPoints();
-        }
-
-        arrow.Visible = ShowLinks && isVisible;
-      }
-    }
-
     private void NewGraphicItem(Item item, Box graphicBox, bool isVisible)
     {
-      Box modelBox;
-
-      modelBox = fcFlowChart.CreateBox(item.X + item.Width * 0.25F, item.Y + item.Height * 0.25F, item.Width * 0.5F, item.Height * 0.5F);
-      modelBox.Text = item.Tag;
-      modelBox.ToolTip = "Tag: " + item.Tag + "\n\nModel Type: " + item.Model;
-      modelBox.Style = BoxStyle.Shape;
-      {
-        ModelStencil stencil;
-        if (config.modelStencils.TryGetValue(item.Model, out stencil))
-          modelBox.Shape = stencil.ShapeTemplate();
-        else
-          modelBox.Shape = ShapeTemplate.FromId("Decision2");
-      }
-      modelBox.AnchorPattern = new AnchorPattern(new AnchorPoint[]
-        {
-          new AnchorPoint(50, 0, false, true, MarkStyle.Circle, Color.Blue),
-          new AnchorPoint(0, 50, true, false, MarkStyle.Circle, Color.Blue),
-          new AnchorPoint(50, 100, true, false, MarkStyle.Rectangle, Color.Green),
-          new AnchorPoint(100, 50, true, true, MarkStyle.Rectangle, Color.Red)
-        });
-
-      modelBox.FillColor = System.Drawing.Color.BurlyWood;
-      modelBox.FrameColor = System.Drawing.Color.BurlyWood;
-      modelBox.Visible = ShowModels && isVisible;
-
+      Box modelBox = fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       if (graphicBox == null)
-        graphicBox = fcFlowChart.CreateBox(item.X, item.Y, item.Width, item.Height);
-      graphicBox.Text = item.Tag;
-      graphicBox.ToolTip = "Tag: " + item.Tag + "\n\nStencil: " + item.Shape; ;
-      graphicBox.Style = BoxStyle.Shape;
-      {
-        GraphicStencil stencil;
-        if (config.graphicStencils.TryGetValue(item.Shape, out stencil))
-          graphicBox.Shape = stencil.ShapeTemplate();
-        else
-          graphicBox.Shape = ShapeTemplate.FromId("Decision2");
-      }
-      //GraphicStencil tempGraphicStencil;
-      //if (config.graphicStencils.TryGetValue(item.shape, out tempGraphicStencil))
-      //  graphicBox.Shape = tempGraphicStencil.ShapeTemplate();
-      graphicBox.AttachTo(modelBox, -50, -50, 150, 150);
-      graphicBox.EnabledHandles = Handles.None;
-      graphicBox.HandlesStyle = HandlesStyle.Invisible;
-      graphicBox.Visible = ShowGraphics && isVisible;
-
-      graphicBox.ZBottom();
-      modelBox.ZTop();
-
-      justCreatedModelBox = modelBox;
-
-      itemBoxes.Add(item.Tag, new ItemBox(modelBox, graphicBox, isVisible));
+        graphicBox = fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+      bod.newThing(item, modelBox, graphicBox, isVisible, fcFlowChart);
     }
 
     public void ZoomToVisible()
@@ -279,26 +159,9 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
     }
 
-    internal void SetVisible(string tag, bool visible)
-    {
-      itemBoxes[tag].Visible = visible;
-      itemBoxes[tag].ModelBox.Visible = visible && (itemBoxes[tag].ModelBox.Selected || ShowModels);
-      itemBoxes[tag].GraphicBox.Visible = visible && ShowGraphics;
-
-      foreach (Arrow arrowDestination in itemBoxes[tag].ModelBox.IncomingArrows)
-      {
-        arrowDestination.Visible = visible && ShowLinks;
-      }
-
-      foreach (Arrow arrowOrigin in itemBoxes[tag].ModelBox.OutgoingArrows)
-      {
-        arrowOrigin.Visible = visible && ShowLinks;
-      }
-    }
-
     internal void SetSelected(string tag, bool selected)
     {
-      itemBoxes[tag].ModelBox.Selected = selected && (itemBoxes[tag].ModelBox.Visible || itemBoxes[tag].GraphicBox.Visible);
+      bod.ThingSelected(tag, selected);
     }
 
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
@@ -362,10 +225,10 @@ namespace SysCAD.Editor
         Box originBox = (e.Arrow.Origin as Box);
         if (originBox != null)
         {
-          ItemBox originItemBox = itemBoxes[originBox.Text];
-          if (originItemBox != null)
+          BODThing originThing = originBox.Tag as BODThing;
+          if (originThing != null)
           {
-            savedOrigin = originItemBox.ModelBox;
+            savedOrigin = originThing.Model;
             savedOriginAnchor = e.Arrow.OrgnAnchor;
           }
         }
@@ -373,17 +236,17 @@ namespace SysCAD.Editor
         Box destinationBox = (e.Arrow.Destination as Box);
         if (destinationBox != null)
         {
-          ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
-          if (destinationItemBox != null)
+          BODThing destinationThing = destinationBox.Tag as BODThing;
+          if (destinationThing != null)
           {
-            savedDestination = destinationItemBox.ModelBox;
+            savedDestination = destinationThing.Model;
             savedDestinationAnchor = e.Arrow.DestAnchor;
           }
         }
       }
     }
 
-    private ItemBox oldHoverItemBox = null;
+    private BODThing oldHoverItemBox = null;
     private Arrow oldHoverArrow = null;
 
     public void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
@@ -391,9 +254,9 @@ namespace SysCAD.Editor
       SuspendLayout();
 
       Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
-      ItemBox hoverItemBox = null;
+      BODThing hoverItemBox = null;
       if (hoverBox != null)
-        hoverItemBox = itemBoxes[hoverBox.Text];
+        hoverItemBox = hoverBox.Tag as BODThing;
 
       Arrow hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 1);
 
@@ -404,21 +267,21 @@ namespace SysCAD.Editor
           return;
         else // we've moved on, un-hover the old one.
         {
-          oldHoverItemBox.GraphicBox.ZBottom();
-          oldHoverItemBox.GraphicBox.Visible = ShowGraphics;
-          oldHoverItemBox.ModelBox.ZTop();
-          oldHoverItemBox.ModelBox.Visible = oldHoverItemBox.ModelBox.Selected || ShowModels;
+          oldHoverItemBox.Graphic.ZBottom();
+          oldHoverItemBox.Graphic.Visible = bod.ShowGraphics;
+          oldHoverItemBox.Model.ZTop();
+          oldHoverItemBox.Model.Visible = oldHoverItemBox.Model.Selected || bod.ShowModels;
 
           foreach (Arrow arrow in oldHoverItemBox.IncomingArrows)
           {
             arrow.ZTop();
-            arrow.Visible = ShowLinks;
+            arrow.Visible = bod.ShowLinks;
           }
 
           foreach (Arrow arrow in oldHoverItemBox.OutgoingArrows)
           {
             arrow.ZTop();
-            arrow.Visible = ShowLinks;
+            arrow.Visible = bod.ShowLinks;
           }
         }
       }
@@ -432,40 +295,40 @@ namespace SysCAD.Editor
           Box originBox = (oldHoverArrow.Origin as Box);
           if (originBox != null)
           {
-            ItemBox originItemBox = itemBoxes[originBox.Text];
+            BODThing originItemBox = originBox.Tag as BODThing;
             if (originItemBox != null)
             {
-              originItemBox.GraphicBox.ZBottom();
-              originItemBox.GraphicBox.Visible = ShowGraphics;
-              originItemBox.ModelBox.ZTop();
-              originItemBox.ModelBox.Visible = originItemBox.ModelBox.Selected || ShowModels;
+              originItemBox.Graphic.ZBottom();
+              originItemBox.Graphic.Visible = bod.ShowGraphics;
+              originItemBox.Model.ZTop();
+              originItemBox.Model.Visible = originItemBox.Model.Selected || bod.ShowModels;
             }
           }
 
           Box destinationBox = (oldHoverArrow.Destination as Box);
           if (destinationBox != null)
           {
-            ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
+            BODThing destinationItemBox = destinationBox.Tag as BODThing;
             if (destinationItemBox != null)
             {
-              destinationItemBox.GraphicBox.ZBottom();
-              destinationItemBox.GraphicBox.Visible = ShowGraphics;
-              destinationItemBox.ModelBox.ZTop();
-              destinationItemBox.ModelBox.Visible = destinationItemBox.ModelBox.Selected || ShowModels;
+              destinationItemBox.Graphic.ZBottom();
+              destinationItemBox.Graphic.Visible = bod.ShowGraphics;
+              destinationItemBox.Model.ZTop();
+              destinationItemBox.Model.Visible = destinationItemBox.Model.Selected || bod.ShowModels;
             }
           }
         }
 
         oldHoverArrow.ZTop();
-        oldHoverArrow.Visible = ShowLinks;
+        oldHoverArrow.Visible = bod.ShowLinks;
       }
 
       if (hoverItemBox != null)
       {
-        hoverItemBox.GraphicBox.ZBottom();
-        hoverItemBox.GraphicBox.Visible = true;
-        hoverItemBox.ModelBox.ZTop();
-        hoverItemBox.ModelBox.Visible = true;
+        hoverItemBox.Graphic.ZBottom();
+        hoverItemBox.Graphic.Visible = true;
+        hoverItemBox.Model.ZTop();
+        hoverItemBox.Model.Visible = true;
 
         foreach (Arrow arrow in hoverItemBox.IncomingArrows)
         {
@@ -484,26 +347,26 @@ namespace SysCAD.Editor
         Box originBox = (hoverArrow.Origin as Box);
         if (originBox != null)
         {
-          ItemBox originItemBox = itemBoxes[originBox.Text];
+          BODThing originItemBox = originBox.Tag as BODThing;
           if (originItemBox != null)
           {
-            originItemBox.GraphicBox.ZBottom();
-            originItemBox.GraphicBox.Visible = true;
-            originItemBox.ModelBox.ZTop();
-            originItemBox.ModelBox.Visible = true;
+            originItemBox.Graphic.ZBottom();
+            originItemBox.Graphic.Visible = true;
+            originItemBox.Model.ZTop();
+            originItemBox.Model.Visible = true;
           }
         }
 
         Box destinationBox = (hoverArrow.Destination as Box);
         if (destinationBox != null)
         {
-          ItemBox destinationItemBox = itemBoxes[destinationBox.Text];
+          BODThing destinationItemBox = destinationBox.Tag as BODThing;
           if (destinationItemBox != null)
           {
-            destinationItemBox.GraphicBox.ZBottom();
-            destinationItemBox.GraphicBox.Visible = true;
-            destinationItemBox.ModelBox.ZTop();
-            destinationItemBox.ModelBox.Visible = true;
+            destinationItemBox.Graphic.ZBottom();
+            destinationItemBox.Graphic.Visible = true;
+            destinationItemBox.Model.ZTop();
+            destinationItemBox.Model.Visible = true;
           }
         }
 
@@ -568,23 +431,8 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
-      Box graphicBox = itemBoxes[e.Box.Text].GraphicBox;
-      graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect);
-    }
-
-    private void graphic_ItemModified(string tag, RectangleF boundingRect)
-    {
-      Box graphicBox = itemBoxes[tag].GraphicBox;
-      Box modelBox = itemBoxes[tag].ModelBox;
-
-      graphicBox.BoundingRect = boundingRect;
-      modelBox.BoundingRect = new RectangleF(boundingRect.X + boundingRect.Width * 0.25F, 
-        boundingRect.Y + boundingRect.Height * 0.25F,
-        boundingRect.Width * 0.5F, boundingRect.Height * 0.5F);
-
-      graphicBox.ZBottom();
-      modelBox.ZTop();
-
+      Box graphicBox = (e.Box.Tag as BODThing).Graphic;
+      bod.graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect);
     }
 
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
@@ -594,11 +442,10 @@ namespace SysCAD.Editor
 
     private void NewItem(RectangleF rect, Box box)
     {
-      ItemBox tempItemBox;
-      while (itemBoxes.TryGetValue("N_" + tempBoxKey.ToString(), out tempItemBox))
+      while (bod.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
       Item newItem = new Item("N_" + tempBoxKey.ToString());
-      graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
+      bod.graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
       newItem.X = rect.X - rect.Width;
       newItem.Y = rect.Y - rect.Height;
       newItem.Width = rect.Width*2.0F;
@@ -623,7 +470,7 @@ namespace SysCAD.Editor
       {
         if (fcFlowChart.Behavior == BehaviorType.CreateBox)
         {
-          NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), config.graphicStencils[currentGraphicShape].defaultSize), null);          
+          NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), bod.config.graphicStencils[currentGraphicShape].defaultSize), null);          
         }
       }
     }
@@ -638,21 +485,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxDeleted(object sender, BoxEventArgs e)
     {
-      string removedTag = e.Box.Text;
-      ItemBox removedItemBox;
-      itemBoxes.TryGetValue(removedTag, out removedItemBox);
-
-      if (removedItemBox != null)
-      {
-        if (removedItemBox.ModelBox != null) 
-          fcFlowChart.DeleteObject(removedItemBox.ModelBox);
-        if (removedItemBox.GraphicBox != null)
-          fcFlowChart.DeleteObject(removedItemBox.GraphicBox);
-
-        PureComponents.TreeView.Node removedNode = tvNavigation.GetNodeByKey(removedTag);
-        if (removedNode != null)
-          removedNode.Remove();
-      }
+      bod.Remove(e.Box.Tag as BODThing, fcFlowChart);
     }
 
     private void fcFlowChart_ArrowDeleted(object sender, ArrowEventArgs e)
@@ -674,77 +507,28 @@ namespace SysCAD.Editor
         newLink.Destination = destinationBox.Text;
 
       if (sourceBox != null)
-        newLink.Source = sourceBox.Text;
+        newLink.Origin = sourceBox.Text;
 
       foreach (PointF point in e.Arrow.ControlPoints)
       {
         newLink.controlPoints.Add(point);
       }
 
-      NewGraphicLink(newLink, e.Arrow, true);
-
-      //fcFlowChart.DeleteObject(e.Arrow);
+      bod.newLink(newLink, e.Arrow, true);
     }
 
     private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
     {
-      if (justCreatedModelBox != null)
-        justCreatedModelBox.BoundingRect =
-          new RectangleF(e.Box.BoundingRect.X + 0.25F * e.Box.BoundingRect.Width,
-                         e.Box.BoundingRect.Y + 0.25F * e.Box.BoundingRect.Height,
-                         0.5F * e.Box.BoundingRect.Height,
-                         0.5F * e.Box.BoundingRect.Height);
+      //if (justCreatedModelBox != null)
+      //  justCreatedModelBox.BoundingRect =
+      //    new RectangleF(e.Box.BoundingRect.X + 0.25F * e.Box.BoundingRect.Width,
+      //                   e.Box.BoundingRect.Y + 0.25F * e.Box.BoundingRect.Height,
+      //                   0.5F * e.Box.BoundingRect.Height,
+      //                   0.5F * e.Box.BoundingRect.Height);
 
-      justCreatedModelBox.ZTop();
+      //justCreatedModelBox.ZTop();
 
-      e.Confirm = false;
+      //e.Confirm = false;
     }
   }
-
-  //---------------------------------------
-
-  public class ItemBox
-  {
-    private Box modelBox;
-    private Box graphicBox;
-    private bool visible;
-
-    public Box ModelBox
-    {
-      get { return modelBox; }
-      set { modelBox = value; }
-    }
-
-    public Box GraphicBox
-    {
-      get { return graphicBox; }
-      set { graphicBox = value; }
-    }
-
-    public bool Visible
-    {
-      get { return visible; }
-      set { visible = value; }
-    }
-
-    public ArrowCollection IncomingArrows
-    {
-      get { return modelBox.IncomingArrows; }
-    }
-
-    public ArrowCollection OutgoingArrows
-    {
-      get { return modelBox.OutgoingArrows; }
-    }
-
-    public ItemBox(Box modelBox, Box graphicBox, bool visible)
-    {
-      this.modelBox = modelBox;
-      this.graphicBox = graphicBox;
-      this.visible = visible;
-    }
-  }
-
-  //---------------------------------------------------------
-
 }

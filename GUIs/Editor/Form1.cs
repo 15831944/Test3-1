@@ -194,9 +194,9 @@ namespace SysCAD.Editor
 
     private void View_SelectItems()
     {
-      frmFlowChart.SelectItems = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked;
+      frmFlowChart.bod.SelectItems = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked;
 
-      if (!frmFlowChart.SelectItems)
+      if (!frmFlowChart.bod.SelectItems)
       {
         foreach (Box box in frmFlowChart.fcFlowChart.Boxes)
         {
@@ -207,9 +207,9 @@ namespace SysCAD.Editor
 
     private void View_SelectArrows()
     {
-      frmFlowChart.SelectLinks = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked;
+      frmFlowChart.bod.SelectLinks = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked;
 
-      if (!frmFlowChart.SelectLinks)
+      if (!frmFlowChart.bod.SelectLinks)
       {
         foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
         {
@@ -220,70 +220,68 @@ namespace SysCAD.Editor
 
     private void View_ShowModels()
     {
-      frmFlowChart.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
+      frmFlowChart.bod.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
 
-      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      foreach (BODThing itemBox in frmFlowChart.bod.things.Values)
       {
         if (itemBox.Visible)
-          itemBox.ModelBox.Visible = frmFlowChart.ShowModels;
+          itemBox.Model.Visible = frmFlowChart.bod.ShowModels;
       }
     }
 
     private void View_ShowGraphics()
     {
-      frmFlowChart.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
+      frmFlowChart.bod.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
 
-      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      foreach (BODThing itemBox in frmFlowChart.bod.things.Values)
       {
         if (itemBox.Visible)
-          itemBox.GraphicBox.Visible = frmFlowChart.ShowGraphics;
+          itemBox.Graphic.Visible = frmFlowChart.bod.ShowGraphics;
       }
     }
 
     private void View_ShowLinks()
     {
-      frmFlowChart.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
+      frmFlowChart.bod.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
 
       foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
       {
         bool visible = true;
-        ItemBox origin, destination;
-
-        frmFlowChart.itemBoxes.TryGetValue(((arrow.Origin) as Box).Text, out origin);
-        frmFlowChart.itemBoxes.TryGetValue(((arrow.Destination) as Box).Text, out destination);
+        BODThing origin = arrow.Origin.Tag as BODThing;
+        BODThing destination = arrow.Destination.Tag as BODThing;
 
         // only set to false if the endpoint exists and is invisible.  disconnected arrows must be visible.
         if (origin != null) visible = visible && origin.Visible;
         if (destination != null) visible = visible && destination.Visible;
 
         if (visible)
-          arrow.Visible = frmFlowChart.ShowLinks;
+          arrow.Visible = frmFlowChart.bod.ShowLinks;
       }
     }
 
     private void View_ShowTags()
     {
-      frmFlowChart.ShowTags = ((IBarCheckableCommand)barManager1.Commands["View.ShowTags"]).Checked;
+      frmFlowChart.bod.ShowTags = ((IBarCheckableCommand)barManager1.Commands["View.ShowTags"]).Checked;
 
       foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
       {
-        if (frmFlowChart.ShowTags)
+        if (frmFlowChart.bod.ShowTags)
           arrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
         else
           arrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
       }
 
-      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      foreach (BODThing itemBox in frmFlowChart.bod.things.Values)
       {
-        if (frmFlowChart.ShowTags)
+        if (frmFlowChart.bod.ShowTags)
         {
-          itemBox.GraphicBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
-          itemBox.ModelBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
+          itemBox.Graphic.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
+          itemBox.Model.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
         }
         else
         {
-          itemBox.GraphicBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
-          itemBox.ModelBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
+          itemBox.Graphic.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
+          itemBox.Model.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
         }
       }  
     }
@@ -418,7 +416,7 @@ namespace SysCAD.Editor
 
       if (graphic.items.ContainsKey(oNode.Text as string)) // This is an item, not an area.
       {
-        frmFlowChart.SetVisible(oNode.Text, oNode.Checked);
+        frmFlowChart.bod.ThingVisible(oNode.Text, oNode.Checked);
       }
 
        this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
@@ -433,7 +431,7 @@ namespace SysCAD.Editor
 
         if (graphic.items.ContainsKey(node.Tag as string)) // This is an item, not an area.
         {
-          frmFlowChart.SetVisible(node.Text, node.Checked);
+          frmFlowChart.bod.ThingVisible(node.Text, node.Checked);
         }
         else
         {
@@ -523,42 +521,42 @@ namespace SysCAD.Editor
 
       tvNavigation.ClearSelectedNodes();
 
-      foreach (ItemBox itemBox in frmFlowChart.itemBoxes.Values)
+      foreach (BODThing itemBox in frmFlowChart.bod.things.Values)
       {
-        if (frmFlowChart.SelectItems)
+        if (frmFlowChart.bod.SelectItems)
         {
-          if (itemBox.GraphicBox.Selected)
+          if (itemBox.Graphic.Selected)
           {
-            itemBox.ModelBox.Selected = true;
-            itemBox.GraphicBox.Selected = false;
+            itemBox.Model.Selected = true;
+            itemBox.Graphic.Selected = false;
           }
 
-          if (itemBox.ModelBox.Selected)
+          if (itemBox.Model.Selected)
           {
-            tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(itemBox.ModelBox.Text));
-            itemBox.GraphicBox.FillColor = Color.FromArgb(50, itemBox.GraphicBox.FillColor);
-            itemBox.GraphicBox.Pen.Color = Color.FromArgb(50, itemBox.GraphicBox.Pen.Color);
-            itemBox.GraphicBox.ShadowColor = Color.FromArgb(50, itemBox.GraphicBox.ShadowColor);
-            itemBox.ModelBox.Visible = true;
-            itemBox.ModelBox.ZTop();
+            tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(itemBox.Model.Text));
+            itemBox.Graphic.FillColor = Color.FromArgb(50, itemBox.Graphic.FillColor);
+            itemBox.Graphic.Pen.Color = Color.FromArgb(50, itemBox.Graphic.Pen.Color);
+            itemBox.Graphic.ShadowColor = Color.FromArgb(50, itemBox.Graphic.ShadowColor);
+            itemBox.Model.Visible = true;
+            itemBox.Model.ZTop();
           }
           else
           {
-            itemBox.GraphicBox.FillColor = Color.FromArgb(255, itemBox.GraphicBox.FillColor);
-            itemBox.GraphicBox.Pen.Color = Color.FromArgb(255, itemBox.GraphicBox.Pen.Color);
-            itemBox.GraphicBox.ShadowColor = Color.FromArgb(255, itemBox.GraphicBox.ShadowColor);
-            itemBox.ModelBox.Visible = frmFlowChart.ShowModels;
-            itemBox.ModelBox.ZTop();
+            itemBox.Graphic.FillColor = Color.FromArgb(255, itemBox.Graphic.FillColor);
+            itemBox.Graphic.Pen.Color = Color.FromArgb(255, itemBox.Graphic.Pen.Color);
+            itemBox.Graphic.ShadowColor = Color.FromArgb(255, itemBox.Graphic.ShadowColor);
+            itemBox.Model.Visible = frmFlowChart.bod.ShowModels;
+            itemBox.Model.ZTop();
           }
         }
         else
         {
-          itemBox.ModelBox.Selected = false;
-          itemBox.GraphicBox.Selected = false;
+          itemBox.Model.Selected = false;
+          itemBox.Graphic.Selected = false;
         }
       }
 
-      if (!frmFlowChart.SelectLinks)
+      if (!frmFlowChart.bod.SelectLinks)
       {
         foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
         {
@@ -570,7 +568,7 @@ namespace SysCAD.Editor
       {
         Arrow activeArrow = frmFlowChart.fcFlowChart.ActiveObject as Arrow;
         Link link;
-        if (frmFlowChart.graphic.links.TryGetValue(activeArrow.Text, out link))
+        if (frmFlowChart.bod.graphic.links.TryGetValue(activeArrow.Text, out link))
         {
           propertyGrid1.SelectedObject = link;
 
@@ -581,7 +579,7 @@ namespace SysCAD.Editor
       {
         Box activeBox = frmFlowChart.fcFlowChart.ActiveObject as Box;
         Item item;
-        if (frmFlowChart.graphic.items.TryGetValue(activeBox.Text, out item))
+        if (frmFlowChart.bod.graphic.items.TryGetValue(activeBox.Text, out item))
         {
           propertyGrid1.SelectedObject = item;
           propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid1_PropertyValueChanged);
@@ -638,7 +636,7 @@ namespace SysCAD.Editor
           Item item = (e.ChangedItem.Parent.Parent.Value as Item);
 
           item.Shape = graphicString;
-          frmFlowChart.itemBoxes[item.Tag].GraphicBox.Shape = graphicShape.ShapeTemplate();
+          frmFlowChart.bod.SetStencil(item.Tag, graphicShape.ShapeTemplate());
         }
       }
     }
