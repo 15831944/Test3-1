@@ -184,6 +184,7 @@ class CNeutralSaveGroupDlg : public CDialog
     CEdit           m_XOrigin;
     CEdit           m_YOrigin;
 
+    bool            m_Initialised;
     int             m_iUpdateBusy;
     Grf3D_Display * m_pDsp; 
     CListCtrl       m_TagList;

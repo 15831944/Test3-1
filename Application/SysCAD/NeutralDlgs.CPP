@@ -381,6 +381,7 @@ CNeutralSaveGroupDlg::CNeutralSaveGroupDlg(Grf3D_Display * pDsp, CWnd* pParent /
   m_pDsp=pDsp;
   m_bAllOK=false;
   m_iUpdateBusy=0;
+  m_Initialised=false;
   }
 
 //--------------------------------------------------------------------------
@@ -571,6 +572,8 @@ BOOL CNeutralSaveGroupDlg::OnInitDialog()
   CString S;
   S.Format("Size: %.1f * %.1f", m_Hi.m_X-m_Lo.m_X, m_Hi.m_Y-m_Lo.m_Y);
   m_SizeInfo.SetWindowText(S);
+
+  m_Initialised=true;
 
   DoChecks();
 
@@ -970,67 +973,70 @@ void CNeutralSaveGroupDlg::OnEnChangeYorigin()
 
 void CNeutralSaveGroupDlg::DoChecks()
   {
-  m_Message.SetWindowText("Ready");
-  m_bAllOK=true;
-
-  if (m_bAllOK)
+  if (m_Initialised)
     {
-    CNeutralImportExport NExport;
-    NExport.SetGroup(GetGroup());
-    NExport.SetGroupDesc(m_sGroupDesc);
-    //NExport.SetExportTagList(&Dlg.m_OldTags, &Dlg.m_NewTags);
-    NExport.SetExportCoOrds(m_Origin, m_Lo, m_Hi, m_AlignLo, m_AlignHi);
-    NExport.SetExportTagList(&m_OldTags, &m_NewTags);
-    CString ErrMsg;
-    if (!NExport.DoExportValidate(eNDB_StdExport, ErrMsg))
-      {
-      m_Message.SetWindowText(ErrMsg);//"Invalid Group Selection (Missing Link End Points)");
-      m_bAllOK=false;
-      }
-    }
+    m_Message.SetWindowText("Ready");
+    m_bAllOK=true;
 
-  if (m_bAllOK)
-    {
-    // Check Unique
-    int NTags=m_NewTags.GetCount();
-    for (int i=0; i<NTags && m_bAllOK; i++)
+    if (m_bAllOK)
       {
-      for (int j=0; j<NTags && m_bAllOK; j++)
+      CNeutralImportExport NExport;
+      NExport.SetGroup(GetGroup());
+      NExport.SetGroupDesc(m_sGroupDesc);
+      //NExport.SetExportTagList(&Dlg.m_OldTags, &Dlg.m_NewTags);
+      NExport.SetExportCoOrds(m_Origin, m_Lo, m_Hi, m_AlignLo, m_AlignHi);
+      NExport.SetExportTagList(&m_OldTags, &m_NewTags);
+      CString ErrMsg;
+      if (!NExport.DoExportValidate(eNDB_StdExport, ErrMsg))
         {
-        if ((i!=j) && (m_NewTags[i].CompareNoCase(m_NewTags[j])==0))
+        m_Message.SetWindowText(ErrMsg);//"Invalid Group Selection (Missing Link End Points)");
+        m_bAllOK=false;
+        }
+      }
+
+    if (m_bAllOK)
+      {
+      // Check Unique
+      int NTags=m_NewTags.GetCount();
+      for (int i=0; i<NTags && m_bAllOK; i++)
+        {
+        for (int j=0; j<NTags && m_bAllOK; j++)
           {
-          CString S;
-          S.Format(" Tag %s is not unique", m_NewTags[j]);
-          m_Message.SetWindowText(S);
-          m_bAllOK=false;
+          if ((i!=j) && (m_NewTags[i].CompareNoCase(m_NewTags[j])==0))
+            {
+            CString S;
+            S.Format(" Tag %s is not unique", m_NewTags[j]);
+            m_Message.SetWindowText(S);
+            m_bAllOK=false;
+            }
           }
         }
       }
-    }
 
-  m_GroupList.GetWindowText(m_sGroupName);
-  if (m_bAllOK)
-    {
-    if (m_sGroupName.GetLength()<=0)
+    m_GroupList.GetWindowText(m_sGroupName);
+    if (m_bAllOK)
       {
-      m_Message.SetWindowText("Invalid Group Name");
-      m_bAllOK=false;
+      if (m_sGroupName.GetLength()<=0)
+        {
+        m_Message.SetWindowText("Invalid Group Name");
+        m_bAllOK=false;
+        }
       }
-    }
 
-  m_GroupDesc.GetWindowText(m_sGroupDesc);
-  m_sGroupDesc.TrimLeft();
-  if (m_bAllOK)
-    {
-    //if (m_sGroupDesc.GetLength()<=0 || m_sGroupDesc[0]=='<')
-    //  {
-    //  m_Message.SetWindowText("Invalid Group Description");
-    //  m_bAllOK=false;
-    //  }
-    }
+    m_GroupDesc.GetWindowText(m_sGroupDesc);
+    m_sGroupDesc.TrimLeft();
+    if (m_bAllOK)
+      {
+      //if (m_sGroupDesc.GetLength()<=0 || m_sGroupDesc[0]=='<')
+      //  {
+      //  m_Message.SetWindowText("Invalid Group Description");
+      //  m_bAllOK=false;
+      //  }
+      }
 
-  m_DeleteGrp.EnableWindow(FindGroup(m_sGroupName));
-  m_OK.EnableWindow(m_bAllOK);
+    m_DeleteGrp.EnableWindow(FindGroup(m_sGroupName));
+    m_OK.EnableWindow(m_bAllOK);
+    }
   };
 
 void CNeutralSaveGroupDlg::OnBnClickedFindoptions()
