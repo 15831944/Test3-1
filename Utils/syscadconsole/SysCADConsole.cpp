@@ -12,9 +12,9 @@
 #else
 #define CNMTESTS  1
 #if CNMTESTS  
-#import "\Scd.CNM\DevBld\bin\ScdMdl.tlb" //named_guids 
-#import "\Scd.CNM\DevBld\bin\ScdSlv.tlb" //named_guids 
-#import "\Scd.CNM\DevBld\bin\SysCAD.tlb" named_guids//, no_namespace 
+#import "\SysCAD\trunk\bin\ScdMdl.tlb" //named_guids 
+#import "\SysCAD\trunk\bin\ScdSlv.tlb" //named_guids 
+#import "\SysCAD\trunk\bin\SysCAD.tlb" named_guids//, no_namespace 
 #else
 #import "c:\116net\bin\ScdMdl.tlb" //named_guids 
 #import "c:\116net\bin\ScdSlv.tlb" //named_guids
