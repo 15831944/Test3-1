@@ -187,6 +187,8 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
         {
         m_sCFTag = DCB.rpC;
         m_sCFTag.LRTrim();
+        if (m_sCFTag.FindI("Self")>=0)
+          m_sCFTag="";
         if (m_sCFTag.Find(' ')>=0)
           m_sCFTag=m_sCFTag.Left(m_sCFTag.Find(' '));
         }
