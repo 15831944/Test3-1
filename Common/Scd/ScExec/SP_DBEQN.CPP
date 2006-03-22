@@ -1271,6 +1271,211 @@ double SDBE_VpKPa::AtT(double T)
 //
 //
 // ===========================================================================
+#if WithHFC134a
+
+class SDBE_HFC134a_GasCp : protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+  // friend class CSpecieData; 
+  // friend class CComponent; 
+  // friend class CSpecieDataBase;
+  // friend class CComponentDataBase;
+
+  protected:
+    double         a,b,c;//,lo,hi;
+    //flag           rng;
+    SDBE_HFC134a_GasCp(CSpecieData * Sp) : CSpDBEqn(Sp) 
+      {
+      a=1.94006e1;
+      b=2.58531e-1;
+      c=-1.29665e-4;
+      //lo=0.0;
+      //hi=0.0;
+      //rng=0;
+      };
+    virtual ~SDBE_HFC134a_GasCp() {};
+    static const char * Name() { return "HFC134a_GasCp"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+   	  {
+  	  if (strlen(Cols[0])!=0) return 2;
+  	  return 0;
+  	  };
+    virtual void Copy(CSpDBEqn* p) { /*SDBE_HFC134a_Cp*pc=(SDBE_HFC134a_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;*/ };
+
+    virtual double AtT(double T) 
+      { 
+      //T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      return (a + (b * T) + (c * T*T));///102.03; 
+      };
+    virtual double AtTP(double T, double P) 
+      { 
+      //T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      return (a + (b * T) + (c * T*T));///102.03; 
+      };
+    virtual double Integrate_dT(double T1, double T2, double P);
+    virtual double IntegrateOverT_dT(double T1, double T2, double P);
+  };
+
+//---------------------------------------------------------------------------
+
+//int SDBE_HFC134a_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+//  {
+//  if (strlen(Cols[3])==0) return 2;
+//  a=SpDB_TokenValue(Cols[0], 1.0);
+//  b=SpDB_TokenValue(Cols[1], 0.0) * 1.0e-3;
+//  c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e+5;
+//  d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6;
+//  if (strlen(Cols[4])>0 && strlen(Cols[5])>0)
+//    {
+//    lo=SpDB_TokenValue(Cols[4], C_2_K(25.));
+//    hi=SpDB_TokenValue(Cols[5], C_2_K(1000.));
+//    rng=1;
+//    }
+//  return 0;
+//  };
+      
+//---------------------------------------------------------------------------
+
+double SDBE_HFC134a_GasCp::Integrate_dT(double T1, double T2, double P)
+  {
+  //  T1 to T2 Cp°dT = a(T1-T2) + b/2(T1^2-T2^2) - c(1/T1-1/T2)  
+  //                    + d/3(T1^3-T2^3)     J/mol
+  //  hss &kcg we think not rather Cp(T2) * dt
+  //  where Cp(T2) = f(a,b,c,d);       Eqn (1) from SpecieDB
+  //        dt    = difference between T2 and reference values for Enthalpy in SpecieDB
+  //  NBNB Eqn (1) is based on Moles but this equation gets multiplied by Mass (kgs)               
+
+  int Sgn=T2<T1 ? -1 : 1; 
+  if (Sgn < 0)
+    Exchange(T2, T1);
+
+  double HCp=0.0;
+  //double LoT = rng ? lo : m_pData->LoT();
+  //double HiT = rng ? hi : m_pData->HiT();
+  //
+  //if (T2<LoT)
+  //  HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+  //else if (T1>=HiT)
+  //  HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+  //else
+    {
+    // Part Of Curve gets used
+    //if (T2>HiT)
+    //  {
+    //  HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+    //  T2=HiT;
+    //  }
+    //if (T1<LoT)
+    //  {
+    //  HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+    //  T1=LoT;
+    //  }
+  
+    HCp += Sgn*(a * (T2 - T1) + 
+               ((b / 2.0) * (Sqr(T2) - Sqr(T1))) + 
+               ((c / 3.0) * (Pow(T2,3) - Pow(T1,3))));
+    }
+  
+  //dbgpln("                    %8.3f > %8.3f %14.7g",Sgn>0?T1:T2,Sgn>0?T2:T1,HCp);
+  return HCp;///102.03;
+  } 
+  
+// --------------------------------------------------------------------------
+
+double SDBE_HFC134a_GasCp::IntegrateOverT_dT(double T1, double T2, double P)
+  {
+  //  (T1 to T2) Cp°/T.dT = a*ln(T2/T1) + b(T2-T1)            
+  //                          - c/2(1/T2^2-1/T1^2)           
+  //                          + d/2(T2^2-T1^2)     J/mol.K  
+
+  return (a * log(T2 / T1) + 
+        (b * (T2 - T1)) + 
+        ((c / 2.) * (Sqr(T2) - Sqr(T1))));///102.03;
+  }      
+
+// ==========================================================================
+
+class SDBE_HFC134a_Vp: protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+  // friend class CSpecieData; 
+  // friend class CComponent; 
+  // // friend class CSpecieDataBase;
+  // friend class CComponentDataBase;
+
+  protected:
+
+    SDBE_HFC134a_Vp(CSpecieData * Sp) : CSpDBEqn(Sp) {};
+    virtual ~SDBE_HFC134a_Vp() {};
+    static const char * Name() { return "HFC134a_Vp"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+   	  {
+  	  if (strlen(Cols[0])!=0) return 2;
+  	  return 0;
+  	  };
+    virtual void Copy(CSpDBEqn* p) { /*SDBE_Vp*pc=(SDBE_Vp*)p;*/ };
+    
+    virtual double AtT(double T)
+      { 
+      T=Range(C2K(-100.0), T, C2K(101.08));
+      double FT=3.761111e2-T;
+      return Pow(10.0, 4.069889e1 +
+                       -2.362540e3/T +
+                       -1.306883e1*log10(T) +
+                       7.616005e-3*T + 
+                       2.342564e-1*(FT/T)*log10(FT));
+      }
+  };
+
+// ==========================================================================
+
+class SDBE_HFC134a_LiqRho : protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+  // friend class CSpecieData; 
+  // friend class CComponent; 
+  // friend class CSpecieDataBase;
+  // friend class CComponentDataBase;
+
+  protected:
+
+    SDBE_HFC134a_LiqRho(CSpecieData * Sp) : CSpDBEqn(Sp) { };
+    virtual ~SDBE_HFC134a_LiqRho() {};
+    static const char * Name() { return "HFC134a_LiqRho"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+  	  {
+  	  if (strlen(Cols[0])!=0) return 2;
+  	  return 0;
+  	  };
+
+    virtual void Copy(CSpDBEqn* p) { };
+    
+    virtual double AtV() { DoBreak(); return dNAN; }; 
+    virtual double AtT(double T) { DoBreak(); return dNAN; }; 
+    virtual double AtP(double P) { DoBreak(); return dNAN; };
+    virtual double AtTP(double T, double P) 
+      { 
+      double Tr=T/374.23;
+      return 5.281464e2 +
+             7.551834e2 * pow(1.-Tr, 1./3.) +
+             1.028676e3 * pow(1.-Tr, 2./3.) +
+             -9.491172e2 * (1.-Tr) +
+             5.935660e2 * pow(1.-Tr, 4./3.);
+      };
+    virtual double Integrate_dT(double T1, double T2, double P) { DoBreak(); return dNAN; };
+    virtual double IntegrateOverT_dT(double T1, double T2, double P) { DoBreak(); return dNAN; };
+
+  };
+
+#endif
+// ==========================================================================
+//
+//
+//
+// ===========================================================================
 
 #if WithSatH2OMdl
 inline double SatVP(double Temp)
@@ -1608,6 +1813,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       {
       }
 #endif
+
 #if WithIF97H2OMdl
     else if (TryConstructIF97(pSpD, Str, pn, p))
       {
@@ -1619,6 +1825,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       {
       }
 #endif
+
 #if WithSatH2OMdl
     else if (stricmp(Str, SatOnly_WaterDensity::Name())==0) 
       {
@@ -1655,6 +1862,26 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       pn=SatOnly_WaterVapourPress::Name();
       p=new SatOnly_WaterVapourPress(pSpD);
       }
+#endif
+
+#if WithHFC134a
+    
+    else if (stricmp(Str, SDBE_HFC134a_GasCp::Name())==0) 
+      {
+      pn=SDBE_HFC134a_GasCp::Name();
+      p=new SDBE_HFC134a_GasCp(pSpD);
+      }
+    else if (stricmp(Str, SDBE_HFC134a_LiqRho::Name())==0) 
+      {
+      pn=SDBE_HFC134a_LiqRho::Name();
+      p=new SDBE_HFC134a_LiqRho(pSpD);
+      }
+    else if (stricmp(Str, SDBE_HFC134a_Vp::Name())==0) 
+      {
+      pn=SDBE_HFC134a_Vp::Name();
+      p=new SDBE_HFC134a_Vp(pSpD);
+      }
+
 #endif
 
     if (p)

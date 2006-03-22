@@ -36,6 +36,7 @@
 #define WithIAFH2OMdl         0
 #define WithNBSH2OMdl         0
 #define WithIF97H2OMdl        1
+#define WithHFC134a           1
 
 //new stuff "always" enabled...
 #define WITHZIP               1
