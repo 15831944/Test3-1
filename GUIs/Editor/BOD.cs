@@ -150,11 +150,12 @@ namespace SysCAD.Editor
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 
-      if (link.controlPoints.Count > 0)
+      if (link.controlPoints.Count > 1)
       {
-        arrow.ControlPoints.Clear();
+        arrow.SegmentCount = (short)link.controlPoints.Count;
+        int i = 0;
         foreach (PointF point in link.controlPoints)
-          arrow.ControlPoints.Add(point);
+          arrow.ControlPoints[i++] = point;
         arrow.UpdateFromPoints();
       }
 

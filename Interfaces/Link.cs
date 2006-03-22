@@ -69,6 +69,13 @@ namespace SysCAD.Interface
         destination = linkReader.GetString(1);
       }
       linkReader.Close();
+
+      OleDbDataReader linklineReader = (new OleDbCommand("SELECT VertexX, VertexY FROM GraphicsLinkLines WHERE Tag='" + tag + "'", connection)).ExecuteReader();
+      while (linklineReader.Read())
+      {
+        controlPoints.Add(new PointF((float)linklineReader.GetDouble(0), -(float)linklineReader.GetDouble(1)));
+      }
+      linklineReader.Close();
     }
   }
 }

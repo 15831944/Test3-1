@@ -64,7 +64,7 @@ namespace SysCAD.Editor
       fcFlowChart.Visible = true;
       fcFlowChart.Enabled = true;
 
-      fcFlowChart.RouteAllArrows();
+      //fcFlowChart.RouteAllArrows();
 
       ResumeLayout(false);
 

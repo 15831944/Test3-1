@@ -81,6 +81,7 @@ namespace SysCAD.Interface
         // move origin to top-left.
         item.X -= minX;
         item.Y -= minY;
+        
 
         // scale to 0:100
         item.X *= scale;

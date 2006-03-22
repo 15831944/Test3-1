@@ -180,7 +180,7 @@ namespace SysCAD.Interface
         shape = itemReader.GetString(0);
 
         float sx = 1.0F; float sy = 1.0F;
-        if (shape.Contains("Feed")) { sx = 0.5F; sy = 0.2F; }
+        if (shape.Contains("Feed")) { sx = 1.0F; sy = 0.3F; }
         if (shape.Contains("Tie")) { sx = 0.1F; sy = 0.1F; }
         if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
@@ -190,6 +190,8 @@ namespace SysCAD.Interface
         if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
         if (shape.Contains("Tank")) { sx = 0.8F; sy = 1.2F; }
+        if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
+        if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
         width = (float)itemReader.GetDouble(3) * 30.0F * sx;
         height = (float)itemReader.GetDouble(4) * 30.0F * sy;
