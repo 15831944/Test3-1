@@ -1068,6 +1068,7 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     DDB.Double("CnvTTolerance",     "",    DC_dT,   "C", xidRCTdRctTTol,  this, isParm);
     DDB.Long  ("MaxTIters",         "",    DC_,     "",  xidRCTiMaxTIter, this, isParm);
     DDB.Long  ("Version",           "",    DC_,     "",  &iVersion,       this, isParm|InitHidden, DDBVersion);
+    DDB.Long  ("NoOfReactions",     "",    DC_,     "",  xidRCTNumOfRct,  this, isResult|noFile|noSnap|InitHidden);
 
     for (int i = 0; i< NSeq(); i++)
       DDB.Object(Seq[i], this, NULL/*Nm()*/, NULL, DDB_OptPage);
@@ -1454,6 +1455,10 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
         m_RctTTol.SetMaxIters(*DCB.rL);
       DCB.L=m_RctTTol.GetMaxIters();
       return 1;
+    case xidRCTNumOfRct:
+      DCB.L=NSrcs() + NEqns() + NSnks();
+      return 1;
+      
     default :
       {
 //      if (DCB.lHandle>= xidRCTSpRT && DCB.lHandle<xidRCTSpRT+MaxSpecies)

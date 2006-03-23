@@ -26,6 +26,7 @@ class MSurgeUnitDefBase;
 class MReactionBlk;
 class MMethodUtility;
 class MProbalPCtrl;
+class MUnitDefBase;
 
 // remote forward's
 class MdlNode;
@@ -97,10 +98,6 @@ struct DllImportExport MInOutDefStruct
 const DWORD MO_ShowIOs          = 0x00000004;
 const DWORD MO_ShowIOOpts       = 0x00000008;
 const DWORD MO_ShowContents     = 0x00000010;
-
-//---------------------------------------------------------------------------
-
-class MUnitDefBase; // forward
 
 //---------------------------------------------------------------------------
 

@@ -113,23 +113,22 @@ bool CBayerConcs::Converge(MArray & MA)
   const double T_ = C_2_K(Tc);
   // Converge Liquor Conc. All sodium concentrations expressed as Na2CO3
   int IterCount = s_Tol.GetMaxIters();//100;
-  double OldDensity = Density25*1.1;
-  while ( fabs(OldDensity - Density25) > s_Tol.GetAbs() && --IterCount>0)
+  double OldDensity = Density25;
+  while (1)
     {
-    Density25 = Range(0.0001, Density25, 10000.0);
     for (int sn=0; sn<gs_MVDefn.Count(); sn++)
       {
       if (gs_MVDefn[sn].IsLiquid())
-        {
         Liq[sn] = MA[sn] / TLiq * Density25 * NaFactor[sn];
         }
-      }
 
+    Density25 = Range(0.0001, LiquorDensity(T_, MA), 10000.0);
+    if (fabs(OldDensity - Density25) < s_Tol.GetAbs() || --IterCount==0)
+      break;
     OldDensity = Density25;
-    Density25 = LiquorDensity(T_, MA);
     } // end of while
   Density25 = Max(0.001, Density25);
-  return (IterCount>=0);
+  return (IterCount>0);
   }
 
 //---------------------------------------------------------------------------

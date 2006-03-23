@@ -34,6 +34,12 @@ class CBayerConcs
     static double   LiquorDensEqn2(double T_, double S, double CtoS, double AtoC, double CltoS, double FtoS, double SO4toS, double TOCtoS);
     static double   LiquorDensEqn3(double T_, double S, double A, double C);
     static double   LiquorDensEqn4(double T_, double S, double A, double C, double Rso4, double Rcl, double Roc);
+    static double   LiquorDensEqn5(double Tc,
+				   double C, double S, double A, 
+				   double Cl, double SO4, double TOS);
+    static double   LiquorDensEqn6(double Tc,
+				   double C, double S, double A, 
+				   double Cl, double SO4, double TOC);
   };
 
 //===========================================================================
@@ -121,6 +127,7 @@ class BATCBayerSM : public MSpModelBase, public MIBayer
     double          LiqCpCalc(MArray & MA, double Tc);
     double          BoilPtElev(MArray & MA, double T);
     void            InputCalcs(bool DoIt, double T_);
+    double          Molality(MArray & MA, double &, double &);
 
   public:
     //Other properties

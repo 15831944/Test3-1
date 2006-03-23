@@ -1255,7 +1255,6 @@ void CSqSzDPg::OnUpdateDstRemoveDist(CCmdUI* pCmdUi)
 
 CSqSzDMeasPg::CSqSzDMeasPg(CMdlCfgSheet * Sheet)
 	: CMdlCfgBase(CSqSzDMeasPg::IDD, Sheet)
-  //, m_Value(0)
   {
 	//{{AFX_DATA_INIT(CSqSzDMeasPg)
 
@@ -1280,6 +1279,7 @@ void CSqSzDMeasPg::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_EDIT_VALUE, m_EditBoxValue);
   DDX_Control(pDX, IDC_BUTTON_MEAS_UP, m_BtnMeasUp);
   DDX_Control(pDX, IDC_BUTTON_MEAS_DOWN, m_BtnMeasDown);
+  DDX_Control(pDX, IDC_COUNTFACTOR, m_CountFactor);
   }
 
 //---------------------------------------------------------------------------
@@ -1298,6 +1298,7 @@ BEGIN_MESSAGE_MAP(CSqSzDMeasPg, CMdlCfgBase)
   ON_CBN_SELCHANGE(IDC_COMBO_RES_UNITS, OnCbnSelchangeComboResUnits)
   ON_BN_CLICKED(IDC_BUTTON_MEAS_UP, OnBnClickedButtonMeasUp)
   ON_BN_CLICKED(IDC_BUTTON_MEAS_DOWN, OnBnClickedButtonMeasDown)
+  ON_EN_CHANGE(IDC_COUNTFACTOR, OnEnChangeCountFactor)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -1356,6 +1357,7 @@ BOOL CSqSzDMeasPg::OnKillActive()
       // Check Measurement Names comply with TagName conventions
       ValidateNames();
 
+    gs_CountFactor = dCountFactor;
       H.Save(Cfg);
     }  
   return OK;
@@ -1377,7 +1379,6 @@ BOOL CSqSzDMeasPg::OnSetActive()
 
 void CSqSzDMeasPg::PopulateAll(void)
   {
- 
   //Loads all size distribution and measurement info from cfg ini file
   H.Load(Cfg); 
 
@@ -1399,8 +1400,12 @@ void CSqSzDMeasPg::PopulateAll(void)
 
   OnLbnSelchangeMeasList();
 
+  dCountFactor = gs_CountFactor;
+  char buff[32];
+  sprintf(buff, "%f", gs_CountFactor);
+  m_CountFactor.SetWindowText(buff);
+
   UpdateData(FALSE);
-  
   }
 
 //---------------------------------------------------------------------------
@@ -1452,7 +1457,6 @@ void CSqSzDMeasPg::OnCbnSelchangeDistributionSel()
 
 void CSqSzDMeasPg::OnBnClickedMeasAdd()
   {
- 
   // Add a new measurement entry for the distribution list
   if ( CurDistIndex >= 0 )
     {
@@ -1477,7 +1481,6 @@ void CSqSzDMeasPg::OnBnClickedMeasAdd()
       OnLbnSelchangeMeasList();
 
       UpdateData(false);
- 
     }
 
   }
@@ -1508,7 +1511,6 @@ void CSqSzDMeasPg::OnBnClickedMeasRemove()
         OnLbnSelchangeMeasList();
 
         UpdateData(false);
- 
       }
 
 
@@ -1534,7 +1536,7 @@ void CSqSzDMeasPg::OnEnChangeMeasName()
       // Brute force method for the moment
  
       m_MeasList.DeleteString(sel);
-      m_MeasList.InsertString(sel,rString);
+      m_MeasList.InsertString(sel, rString);
       m_MeasList.SetCurSel(sel);
 
       UpdateData(false);
@@ -1735,7 +1737,6 @@ void CSqSzDMeasPg::OnEnChangeEditValue()
     long sel = m_MeasList.GetCurSel();
     if (sel >= 0)
       {
- 
           CString rString;
           m_EditBoxValue.GetWindowText(rString);
           double lVal = atof(rString);
@@ -1813,8 +1814,7 @@ void CSqSzDMeasPg::OnBnClickedButtonMeasUp()
             selm1String = H.SDsMeas[CurDistIndex]->Measurements[sel-1].m_sName.Str();
 
             temp = H.SDsMeas[CurDistIndex]->Measurements[sel];
-            H.SDsMeas[CurDistIndex]->Measurements[sel] = 
-                 H.SDsMeas[CurDistIndex]->Measurements[sel-1];
+            H.SDsMeas[CurDistIndex]->Measurements[sel] = H.SDsMeas[CurDistIndex]->Measurements[sel-1];
             H.SDsMeas[CurDistIndex]->Measurements[sel-1] = temp;
 
 
@@ -1829,6 +1829,8 @@ void CSqSzDMeasPg::OnBnClickedButtonMeasUp()
         }   
     }
   }
+
+//---------------------------------------------------------------------------
 
 void CSqSzDMeasPg::OnBnClickedButtonMeasDown()
   {
@@ -1850,8 +1852,7 @@ void CSqSzDMeasPg::OnBnClickedButtonMeasDown()
 
 
             temp = H.SDsMeas[CurDistIndex]->Measurements[sel];
-            H.SDsMeas[CurDistIndex]->Measurements[sel] = 
-                 H.SDsMeas[CurDistIndex]->Measurements[sel+1];
+      H.SDsMeas[CurDistIndex]->Measurements[sel] = H.SDsMeas[CurDistIndex]->Measurements[sel+1];
             H.SDsMeas[CurDistIndex]->Measurements[sel+1] = temp;
 
 
@@ -1861,9 +1862,19 @@ void CSqSzDMeasPg::OnBnClickedButtonMeasDown()
             m_MeasList.DeleteString(sel+1);
             m_MeasList.InsertString(sel+1,selString);
             m_MeasList.SetCurSel(sel+1);
+      }   
+    }
+  }
 
+//---------------------------------------------------------------------------
 
-        }   
+void CSqSzDMeasPg::OnEnChangeCountFactor()
+  {
+  CString rString;
+  m_CountFactor.GetWindowText(rString);
+  dCountFactor = atof(rString);
+  if (dCountFactor<1.0e-12)
+    dCountFactor=1.0;
     }
 
-  }
+//---------------------------------------------------------------------------

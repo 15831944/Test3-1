@@ -149,6 +149,7 @@ class CQueryHist
     CLVector         LData;               //array for storing long results for single time slice
     //CSVector         SData;               //array for storing string results for single time slice
     CStringArray     SData;
+    double           dRepTimeOffset;      //adjust all times returned by this amount
     CDVector         dPrevTime;           //time of result set
     CDVector         dPrevVal;            //only used by AveEqualySpaced and LastEqualySpaced queries
     CDVector         dSigVal;             //only used by AveEqualySpaced queries
@@ -182,7 +183,8 @@ class CQueryHist
                 QueryDestination QDst,
                 char* pFilename1,
                 char* pFilename2,
-                byte FileMode);
+                byte FileMode,
+                double RepTimeOffset);
     ~CQueryHist();
     flag AddTag(char* Tag, long TrndNo);
     void GetQuery();

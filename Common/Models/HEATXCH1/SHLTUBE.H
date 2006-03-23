@@ -56,6 +56,7 @@ class CHXSdInfo
 
 const byte CA_AllowVent = 0x01;
 const byte CA_LimitDuty = 0x02;
+const byte CA_LimitNone = 0x04;
 
 class DllImportExport CHXShlTube : public CHXBlock 
   {

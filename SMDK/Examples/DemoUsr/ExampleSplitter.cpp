@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #define  __EXAMPLESPLITTER_CPP
 #include "examplesplitter.h"
+#pragma optimize("", off)
 
 //====================================================================================
 
@@ -13,17 +14,20 @@ static MInOutDefStruct s_IODefs[]=
   //  Desc;             Name;       Id; Rqd; Max; CnId, FracHgt;  Options;
     { "Feed",           "Feed",      0,   1,  10,    0,    1.0f,  MIO_In |MIO_Material },
     { "Product1",       "Product1",  1,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
-    { "Product2",       "Product2",  2,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
+    { "Product2",       "Product2",  2,   1,   4,    0,    1.0f,  MIO_Out|MIO_Material },
     { NULL },
   };
+
+static double Drw_Splitter[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,2.,
+                            MDrw_End };
 
 //---------------------------------------------------------------------------
 
 DEFINE_TRANSFER_UNIT(Splitter, "Splitter", DLL_GroupName)
 void Splitter_UnitDef::GetOptions()
   {
-  SetDefaultTag("SP", true);
-  //SetDrawing("Tank", Drw_Splitter);
+  SetDefaultTag("SP");
+  SetDrawing("Tank", Drw_Splitter);
   SetTreeDescription("Demo:Splitter");
   };
 
@@ -136,6 +140,29 @@ void Splitter::EvalProducts()
         }
       QO1.M[i] = QI.M[i] - QO0.M[i]; //remainder goes to second outlet
       }
+
+//Test code
+// Iterate through the product connections
+int OutCnt = FlwIOs.Count[2];
+//MStream & QF = FlwIOs[FlwIOs.First[2]].Stream;
+//QF.M[0] = 1;
+for (int i=0; i< OutCnt ; i++ )
+  {
+  MStream & QF = FlwIOs[FlwIOs.Next_Out[i][2]].Stream;
+  QF.M[0] = i+1;
+  }
+
+int IOCnt = FlwIOs.getCount();
+for (int i=0; i< IOCnt ; i++ )
+  {
+  if (FlwIOs[i].getId()==2)
+    {
+    MStream & QF = FlwIOs[i].Stream;
+    QF.M[0] = i;
+    }
+  }
+ 
+
 
     //get display values...
     dFeedQm = QI.MassFlow();

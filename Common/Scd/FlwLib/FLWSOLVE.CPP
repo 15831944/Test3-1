@@ -289,6 +289,13 @@ XID xidXSWSteps                       = FlwXID(2111);
 XID xidXSWMVAvgPts                    = FlwXID(2112);
 XID xidXSWSecsStart                   = FlwXID(2113);
 
+XID xidDTTime                         = FlwXID(2190);
+XID xidDTTimeDesc                     = FlwXID(2191);
+XID xidDTTimeFullDesc                 = FlwXID(2192);
+XID xidDTDay                          = FlwXID(2193);
+XID xidDTMonth                        = FlwXID(2194);
+XID xidDTYear                         = FlwXID(2195);
+
 XID xidPGMExecTimeOut                 = FlwXID(2200);
 XID xidRandomSeed                     = FlwXID(2201);
 
@@ -311,6 +318,9 @@ XID xidGlblSWExecTot0                 = FlwXID(3500);
 XID xidGlblSWFlw0                     = FlwXID(4000);
 XID xidGlblSWFlwTot0                  = FlwXID(4500);
 
+XID xidHistTagFile                    = FlwXID(5125);
+XID xidHistSetTagsNow                 = FlwXID(5126);
+
 XID xidGenVerStr                      = FlwXID(5130);
 XID xidGenUpdateVerStr                = FlwXID(5131);
 XID xidGenBuildNo                     = FlwXID(5132);
@@ -319,12 +329,14 @@ XID xidGenDateAndTime                 = FlwXID(5134);
 XID xidGenTime1970                    = FlwXID(5135);
 
 XID xidSetStateAll                    = FlwXID(5140);
-XID xidShowSpcRangeErrors             = FlwXID(5143);
-XID xidShowSpcXRangeErrors            = FlwXID(5144);
+XID xidIncludeSpcCnvs                 = FlwXID(5141);
+XID xidShowSpcRangeErrors             = FlwXID(5142);
+XID xidShowSpcXRangeErrors            = FlwXID(5143);
 
-XID xidDynStatReset                   = FlwXID(5145);
-XID xidDynStatStopTm                  = FlwXID(5146);
-XID xidAtStartRestartHist             = FlwXID(5147);
+XID xidDynStatReset                   = FlwXID(5144);
+XID xidDynStatStopTm                  = FlwXID(5145);
+XID xidAtStartRestartHist             = FlwXID(5146);
+XID xidAtStartSetHistTags             = FlwXID(5147);
 XID xidAtStartResetTime               = FlwXID(5148);
 XID xidAtStartTime                    = FlwXID(5149);
 XID xidEventLogOn                     = FlwXID(5150);
@@ -4747,19 +4759,22 @@ inline static void ProcLoopStart(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, i
     {
     //NEI.Nd.LockFlanges();
     NEI.Nd.LockNode();
-    CJoinCluster &C=NEI.Cluster;
-    C.m_nFlwIOsInDone=0;
-    #if dbgFlwSolve
-    if (dbgThreadsNodes())
+    if (NEI.m_iCluster>=0)
       {
-      dbglock();
-      dbgp("%*s     %3i %3i Rst %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", 
-        C.m_nFlwIOsInDone,C.m_nFlwIOsInReqd, NEI.Nd.Tag());
-      dbgp(" 0x%08x", &C);
-      dbgpln("");
-      dbgunlock();
+      CJoinCluster &C=NEI.Cluster;
+      C.m_nFlwIOsInDone=0;
+      #if dbgFlwSolve
+      if (dbgThreadsNodes())
+        {
+        dbglock();
+        dbgp("%*s     %3i %3i Rst %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", 
+          C.m_nFlwIOsInDone,C.m_nFlwIOsInReqd, NEI.Nd.Tag());
+        dbgp(" 0x%08x", &C);
+        dbgpln("");
+        dbgunlock();
+        }
+      #endif  
       }
-    #endif  
     }
   }
 
@@ -6171,8 +6186,8 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       {
       DDB.Text  ("");
       DDB.Double("Time",              "", DC_Time, "s",   xidODETime,           &FlwSlvNd, 0/*isParm*/ );
-      DDB.String("TimeDesc",          "", DC_,     "",    xidODETimeDesc,       &FlwSlvNd, 0);
-      DDB.String("TimeFullDesc",      "", DC_,     "",    xidODETimeFullDesc,   &FlwSlvNd, 0);
+      DDB.String("TimeDesc",          "", DC_,     "",    xidODETimeDesc,       &FlwSlvNd, InitHidden);
+      DDB.String("TimeFullDesc",      "", DC_,     "",    xidODETimeFullDesc,   &FlwSlvNd, InitHidden);
       DDB.CheckBoxBtn("RealTimeOn",   "", DC_,     "",    xidRealTimeOn,        &FlwSlvNd, isParmStopped, DDBOnOff);
       DDB.Double("RealTimeMultiplier","", DC_Frac, "%",   xidRealTimeMultiplier,&FlwSlvNd, isParm);
       DDB.Text  ("");
@@ -6215,6 +6230,17 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.String("WorstMagInt7",      "", DC_,      "",    xidWorstMagInt7,     &FlwSlvNd, InitHidden | noFile|noSnap);
     DDB.String("WorstMagInt8",      "", DC_,      "",    xidWorstMagInt8,     &FlwSlvNd, InitHidden | noFile|noSnap);
     DDB.String("WorstMagInt9",      "", DC_,      "",    xidWorstMagInt9,     &FlwSlvNd, InitHidden | noFile|noSnap);
+    DDB.Text  ("");
+    if (DDB.BeginStruct(&FlwSlvNd, "DateTime", NULL, DDB_NoPage))
+      {
+      DDB.Double("Time",            "", DC_Time,  "s",   xidDTTime,           &FlwSlvNd, isResult|noFileAtAll);
+      DDB.String("TimeDesc",        "", DC_,      "",    xidDTTimeDesc,       &FlwSlvNd, isResult|noFileAtAll);
+      DDB.String("TimeFullDesc",    "", DC_,      "",    xidDTTimeFullDesc,   &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Day",             "", DC_,      "",    xidDTDay,            &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Month",           "", DC_,      "",    xidDTMonth,          &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Year",            "", DC_,      "",    xidDTYear,           &FlwSlvNd, isResult|noFileAtAll);
+      }
+    DDB.EndStruct();
 
     DDB.Page  ("Network", DDB_RqdPage);
     if (PrjFileVerNo()<53 || !DDB.ForFileSnpScn())
@@ -6311,8 +6337,12 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("EventLogIteration", "", DC_,       "",   &gs_EventLog.lIteration, &FlwSlvNd, isResult|InitHidden);
     DDB.Double("EventLogStartTime", "", DC_Time,   "s",  &gs_EventLog.dStartTime, &FlwSlvNd, isResult|noView);
     DDB.Text  ("");
+    DDB.String("HistorianTagFile",  "", DC_,       "",   xidHistTagFile,          &FlwSlvNd, isParm);
+    DDB.Button("Set_TagList_Now",   "", DC_,       "",   xidHistSetTagsNow,       &FlwSlvNd, isParm);
+    DDB.Text  ("");
     DDB.Text  ("At startup...");
     DDB.CheckBoxBtn("RestartHistorian", "", DC_,   "",   xidAtStartRestartHist,   &FlwSlvNd, isParm, DDBOnOff);
+    DDB.CheckBoxBtn("SetHistorianTagList", "", DC_, "",  xidAtStartSetHistTags,   &FlwSlvNd, isParm, DDBOnOff);
     DDB.CheckBoxBtn("ResetTime",    "", DC_,       "",   xidAtStartResetTime,     &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm, DDBOnOff);
     DDB.String("TimeAtStart",       "", DC_,       "",   xidAtStartTime,          &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm);
     }
@@ -6644,10 +6674,25 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         gs_EventLog.SetUseLog(*DCB.rB ? 1 : 0);
       DCB.B=gs_EventLog.UsingLog();
       return 1;
+    case xidHistTagFile:
+      if (DCB.rpC)
+        gs_Exec.SetHstTaglistFile(DCB.rpC);
+      DCB.pC=gs_Exec.HstTaglistFile();
+      return 1;
+    case xidHistSetTagsNow:
+      if (DCB.rB && (*DCB.rB!=0))
+        gs_Exec.KeepHistoryFile(gs_Exec.HstTaglistFile());
+      DCB.B=0;
+      return 1;
     case xidAtStartRestartHist:
       if (DCB.rB)
         gs_Exec.SetHstRestartOnStart(*DCB.rB ? 1 : 0);
       DCB.B=gs_Exec.HstRestartOnStart();
+      return 1;
+    case xidAtStartSetHistTags:
+      if (DCB.rB)
+        gs_Exec.SetHstSetTaglistOnStart(*DCB.rB ? 1 : 0);
+      DCB.B=gs_Exec.HstSetTaglistOnStart();
       return 1;
     case xidAtStartResetTime:
       if (DCB.rB)
@@ -6661,13 +6706,66 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         double RqdTime;
         flag OK = HMSDatetoSecs(DCB.rpC, RqdTime);
         if (OK)
+          {
+          if (IntCB.GetTimeInc()>86400.0*0.999) //1day
+            {
+            RqdTime = floor(RqdTime/3600.0+0.5)*3600.0; //round to hour
+            }
+          else if (IntCB.GetTimeInc()>3600.0*0.999) //1hour
+            {
+            RqdTime = floor(RqdTime/60.0+0.5)*60.0; //round to minute
+            }
+          else if (IntCB.GetTimeInc()>60.0*0.999) //1minute
+            {
+            RqdTime = floor(RqdTime/1.0+0.5)*1.0; //round to second
+            }
           gs_Exec.SetOnStartTime(Max(0.0, RqdTime));
+          }
         }
       char buff[256];
       DCB.pC=SecstoHMSDate(gs_Exec.OnStartTime(), buff, true);
       return 1;
       }
-
+    case xidDTTime:
+      DCB.D=IntCB.GetTime();
+      return 1;
+    case xidDTTimeDesc:
+      {
+      char buff[256];
+      DCB.pC=SecstoHMSDate(IntCB.GetTime(), buff, false);
+      return 1;
+      }
+    case xidDTTimeFullDesc:
+      {
+      char buff[256];
+      DCB.pC=SecstoHMSDate(IntCB.GetTime(), buff, true);
+      return 1;
+      }
+    case xidDTDay:
+      {
+      double time_in = IntCB.GetTime();
+      __time64_t tt=(__time64_t)(time_in);
+      tm* t=_localtime64(&tt);
+      DCB.L=t->tm_mday;
+      return 1;
+      }
+    case xidDTMonth:
+      {
+      double time_in = IntCB.GetTime();
+      __time64_t tt=(__time64_t)(time_in);
+      tm* t=_localtime64(&tt);
+      DCB.L=t->tm_mon+1;
+      return 1;
+      }
+    case xidDTYear:
+      {
+      double time_in = IntCB.GetTime();
+      __time64_t tt=(__time64_t)(time_in);
+      tm* t=_localtime64(&tt);
+      DCB.L=t->tm_year+1900;
+      return 1;
+      }
+      
     case xidSSPTolAbs:
       return m_SSPressTol.GetAbsDD().DataXchg(DCB, xidSSPTolAbs, &FlwSlvNd);
     case xidSSPTolRel:
@@ -9066,7 +9164,12 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
   //==========PlantModel==========
 
   //TODO Check surfaces & smoothing for H2O
+  //flag AllowSurfaces = true;
+  #ifdef _RELEASE
+  flag AllowSurfaces = false; //KGA: 15/9/05 Why was this true if surfaces, etc is buggy!?!?
+  #else
   flag AllowSurfaces = true;
+  #endif
   if (!AllowSurfaces)
     CSurfaceCommon::m_UseSurface=0;//force off
   #ifdef _RELEASE
@@ -9082,9 +9185,6 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("ConditionCount",        "", DC_, "",   xidConditionCnt,                    this, isResult);
 
     DDB.Text  ("");
-
-    DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
-    //DDB.Long  ("SpMdlMixStrategy",      "", DC_,     "",  (long*)&SpModel::iSpMdlMixStrategy, this, isParmStopped|SetOnChange, DDBSpMixStrat);
     DDB.Long  ("H2OProperties",         "", DC_,     "",  xidH2OProperties,                   this, isParmStopped|SetOnChange, CDB.H2ODDBList());
     DDB.CheckBoxBtn("FunctionSurfaces", "", DC_,     "",  xidUseSurfaces,                     this, AllowSurfaces ? isParmStopped : 0);
     DDB.CheckBoxBtn("SmoothSurfaces",   "", DC_,     "",  xidDoSmoothing,                     this, AllowSmoothing ? isParmStopped : 0);
@@ -9094,12 +9194,20 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 #else
     DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DElement::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
 #endif
+    DDB.CheckBoxBtn("IncludeSpcCnvs",   "", DC_,     "",  xidIncludeSpcCnvs,                  this, isParmStopped);
+    DDB.Visibility(SM_All|HM_Simple|HM_Full);
+    DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
+    DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
+    DDB.Visibility();
+    DDB.Text  ("");
+    DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
+    //DDB.Long  ("SpMdlMixStrategy",      "", DC_,     "",  (long*)&SpModel::iSpMdlMixStrategy, this, isParmStopped|SetOnChange, DDBSpMixStrat);
     DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
     DDB.Long  ("BalanceTests",          "", DC_,     "",  &gs_EvalBalances,                   this, isParmStopped|SetOnChange, DDBEvalBalances);
-    DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
-    DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
+ //   DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
+ //   DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
     DDB.Text  ("");
 
     DDB.Bool("SetStateAll",             "", DC_,     "",  xidSetStateAll,    this, isParm|noFileAtAll, SetStateStrs);

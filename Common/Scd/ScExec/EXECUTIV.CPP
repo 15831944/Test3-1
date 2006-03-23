@@ -1349,6 +1349,7 @@ CExecutive::CExecutive() :
   lUpdateTagDataIterCount=0;
 
 	m_bHstRestartOnStart = 0;
+  m_bHstSetTaglistOnStart = 0;
 	m_bResetTimeOnStart = 0;
   m_dOnStartTime = 0.0;
 
@@ -3291,6 +3292,41 @@ void CExecutive::DoConfigureHistorian()
       }
 
     }
+  }
+
+//---------------------------------------------------------------------------
+
+bool CExecutive::KeepHistoryFile(char* pFilename)
+  {//add list of tags in specified file to list of tags to be recorded
+  if (pFilename && strlen(pFilename))
+    {
+    Strng Fn(pFilename);
+    Strng Path(pFilename);
+    Path = Path.FnDrivePath();
+    if (Path.Len()==0)
+      {
+      Fn = PrjFiles();
+      Fn += pFilename;
+      }
+    if (FileExists(Fn()))
+      {
+      CXM_Route HRoute;
+      flag GotHistorian=XFindObject(NULL, (char*)pExecName_Historian, HRoute);
+      if (GotHistorian)
+        {
+        CXM_KeepHistoryFile * xb = new CXM_KeepHistoryFile(Fn());
+        CXMsgLst XM;
+        XM.PackMsg(xb);
+        DWORD RetCode = XSendMessage(NULL, XM, HRoute);
+        return true;
+        }
+      }
+    else
+      {
+      LogWarning("Historian", 0, "Record taglist file not found:%s", Fn());
+      }
+    }
+  return false;
   }
 
 //---------------------------------------------------------------------------

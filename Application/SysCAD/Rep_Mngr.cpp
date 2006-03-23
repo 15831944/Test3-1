@@ -294,7 +294,7 @@ flag CRepTrend::Start2()
   //bQueryDone = 0;
   //bQueryTagsDone = 0;
   CXMsgLst XM;
-  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime, dEndTime, (long)this, iOpt, 0, 0, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0);
+  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime, dEndTime, (long)this, iOpt, 0, 0, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0, 0.0);
   for (int i=0; i<iTagCnt; i++)
     {
     TagOffsets.Add(0L);

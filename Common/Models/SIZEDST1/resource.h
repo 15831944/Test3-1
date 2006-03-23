@@ -52,6 +52,8 @@
 #define IDC_COMBO_RES_UNITS             9051
 #define IDC_BUTTON_MEAS_UP              9052
 #define IDC_BUTTON_MEAS_DOWN            9053
+#define IDC_MEAS_NAME2                  9054
+#define IDC_COUNTFACTOR                 9054
 #define IDC_EDIT1                       9055
 #define IDC_EDIT_NINTS                  9055
 

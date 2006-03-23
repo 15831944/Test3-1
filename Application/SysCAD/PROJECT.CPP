@@ -3996,6 +3996,10 @@ flag Project::EO_PrePreStart()
     gs_Exec.SetTime(gs_Exec.OnStartTime());
     ScrollTrendsToEnd = true;
     }
+  if (gs_Exec.HstSetTaglistOnStart())
+    {
+    gs_Exec.KeepHistoryFile(gs_Exec.HstTaglistFile());
+    }
   if (ScrollTrendsToEnd)
     CTagVwDoc::AdjustTimebaseToEndAll();
   return true;

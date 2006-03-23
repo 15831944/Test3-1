@@ -26,6 +26,7 @@ const byte idProd=1;
 enum SplitMethods { SM_Flow, SM_Frac, SM_EqFrac, SM_PropMassFrac, SM_Store };
 
 const short MaxStores=80;
+const short MaxBlendCont=10;
 const short MaxCriteria=16;
 const short MaxAssaySum=16;
 
@@ -418,26 +419,40 @@ void CMultiStoreIO::Validate(bool FeedStream, bool StoreCentric)
     if (m_iSplitMethod==SM_Store)
       {
       m_iSplitStoreIndex=(short)Range(0, (int)m_iSplitStoreIndex, n-1);
-      for (int j = 0;j<n; j++)
+      for (int j=0; j<n; j++)
         m_Split[j] = 0.0;
       m_Split[m_iSplitStoreIndex] = 1.0;
       }
+    else if (m_iSplitMethod==SM_EqFrac)
+      {
+      for (int j=0; j<n; j++)
+        m_Split[j] = 1.0/n;
+      }
     else
       {
+      //ValidateSplit();
+      }
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+void CMultiStoreIO::ValidateSplit()
+  {
+  const int n=m_Split.GetSize();
+  if (n)
+    {
+    if (m_iSplitMethod!=SM_Store && m_iSplitMethod!=SM_EqFrac)
+      {
       double Tot=0.0;
-      for (int j = 0;j<n-1; j++)
+      for (int j=0; j<n-1; j++)
         {
         double &S=m_Split[j];
-        if (m_iSplitMethod==SM_EqFrac)
-          S = 1.0/n;
-        else
-          {
           S=Valid(S) ? Range(0.0, S, 1.0) : 0.0;
           S=Min(S, 1.0-Tot);
-          }
         Tot+=S;
         }
-      m_Split[n-1]=1.0-Tot;
+      m_Split[n-1] = 1.0-Tot;
       }
     }
   }
@@ -1287,6 +1302,10 @@ void CMultiStorage::EvalProducts(long JoinMask)
     case SM_Inline:
     case SM_Buffered:
       {
+      //check if product split sum to 100%
+      for (int i=0; i<NoFlwIOs(); i++)
+        m_StoreIO[i].ValidateSplit();
+
       //determine number of feed/product streams...
       int FeedCnt=0;
       int ProdCnt=0;

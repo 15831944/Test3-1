@@ -7,6 +7,7 @@
 #define  __CYCLONE_CPP
 #include "Cyclone.h"
 #include "dbgmngr.h"
+#include "optoff.h"
 
 #define dbgModels  0
 #if dbgModels
@@ -413,18 +414,23 @@ class CMPlitt : public CycloneMeth
     double         m_Du, m_SIDu;
     double         m_Dc, m_SIDc;
     double         m_h, m_SIh;
-    double         m_Factor;
-    double         m_SharpFactor;
+    double         m_Scale;
+    double         m_Factor1_d50;
+    double         m_Factor2_Sharp;
+    double         m_Factor3_DP;
+    double         m_Factor4_S;
+    double         m_Factor5_OFLiq;
+    bool           m_OldCalcs;
+    double         m_Phi;
+    double         m_Qvc;
     double         m_S;
     double         m_H;
     double         m_m;
+    double         m_Alpha;
     double         m_DP;
     double         m_Rv;
     double         m_Rs;
     double         m_Rf, m_RfMem;   // This is a value which needs to be converged
-    double         m_Phi;
-    double         m_Scale;
-    double         m_OFLiqCorrFac;
 
   public:
 
@@ -437,16 +443,20 @@ class CMPlitt : public CycloneMeth
       m_SIDu=0.707 * 0.0254;
       m_SIDi=1.09  * 0.0254;
       m_SIh= 17.0  * 0.0254;
+      m_OldCalcs = true;
 
       m_S = 0.0;
       m_H = 0.0;
+      m_Alpha = 0.0;
       m_m = 0.0;
       m_Rv = 0.1;
       m_Rf = 0.1;
       m_RfMem = 0.0;
-      m_Factor = 1.0;
-      m_SharpFactor = 1.0;
-      m_OFLiqCorrFac = 1.0;
+      m_Factor1_d50 = 1.0;
+      m_Factor2_Sharp = 1.0;
+      m_Factor3_DP = 1.0;
+      m_Factor4_S = 1.0;
+      m_Factor5_OFLiq = 1.0;
 
       m_Scale=dNAN;
       };
@@ -461,26 +471,34 @@ class CMPlitt : public CycloneMeth
       DDB.Double("Spigot_Diameter",    "Du",           DC_L,    "mm",     &m_SIDu,   m_pCyc, Flags|isParm);
       DDB.Double("Height",             "h",            DC_L,    "mm",     &m_SIh,    m_pCyc, Flags|isParm);
       DDB.Double("Scale",              "",             DC_Frac, "",       &m_Scale,  m_pCyc, Flags|isParm|NAN_OK);
-      DDB.Double("CorrectionFactor",   "Factor",       DC_,     "",       &m_Factor, m_pCyc, Flags|isParm);
-      DDB.Double("OverFlowLiqCorrFac", "OFLiqCorrFac", DC_,     "",       &m_OFLiqCorrFac, m_pCyc, Flags|isParm);
+      DDB.CheckBoxBtn("OldCalcs",      "",             DC_,     "",       &m_OldCalcs, m_pCyc, Flags|isParm);
+      DDB.Double("d50_Factor1",        "Factor",       DC_,     "",       &m_Factor1_d50, m_pCyc, Flags|isParm);
+      DDB.Double("Sharp_Factor2",      "SharpFactor",  DC_,     "",       &m_Factor2_Sharp, m_pCyc, Flags|isParm);
+      DDB.Double("Pressure_Factor3",   "PressFactor",  DC_,     "",       &m_Factor3_DP, m_pCyc, Flags|isParm);
+      DDB.Double("S_Factor4",          "SFactor",      DC_,     "",       &m_Factor4_S, m_pCyc, Flags|isParm);
+      DDB.Double("OFLiq_Factor5",      "OFLiqCorrFac", DC_,     "",       &m_Factor5_OFLiq, m_pCyc, Flags|isParm);
       static DDBValueLst DDB0[]={
         {SE_RosinRammler,  "Rosin-Rammler" },
         {SE_Lynch,         "Lynch", },
         {0}};
       DDB.Byte  ("SharpEqn",                 "",       DC_,     "",       &iSharpEqn,     m_pCyc, Flags|isParm, DDB0);
-      DDB.Double("SharpnessCorrFactor","SharpFactor",  DC_,     "",       &m_SharpFactor, m_pCyc, Flags|isParm);
       }
 
     void   BuildDataDefn1(DataDefnBlk & DDB, dword Flags)
       {
       DDB.Text("Results");
+      DDB.Double("",    "RefTemp",      DC_T,       "C",     &gs_StdTemp, m_pCyc, Flags|isResult|noFileAtAll|InitHidden);
+      DDB.Double("",    "RefPress",     DC_P,       "kPa",   &gs_StdPress, m_pCyc, Flags|isResult|noFileAtAll|InitHidden);
+      DDB.Double("",    "QvPerCyclone", DC_Qv,      "m^3/s", &m_Qvc,   m_pCyc, Flags|isResult);
+      DDB.Double("",    "VolFrac",      DC_Frac,    "%",     &m_Phi,   m_pCyc, Flags|isResult|InitHidden);
       DDB.Double("",    "d50",          DC_L,       "um",    &m_d50,   m_pCyc, Flags|isResult);
-      DDB.Double("",    "S",            DC_,        "",      &m_S,     m_pCyc, Flags|isResult);
       DDB.Double("",    "PressDrop",    DC_DP,      "kPa",   &m_DP,    m_pCyc, Flags|isResult);  //tag should be dP
+      DDB.Double("",    "S",            DC_,        "",      &m_S,     m_pCyc, Flags|isResult);
+      DDB.Double("",    "Rv",           DC_Frac,    "%",     &m_Rv,    m_pCyc, Flags|isResult);
       DDB.Double("Sharpness", "m",      DC_,        "",      &m_m,     m_pCyc, Flags|isResult);
+      DDB.Double("",    "Alpha",        DC_,        "",      &m_Alpha, m_pCyc, Flags|isResult|InitHidden);
       DDB.Double("",    "Rs",           DC_Frac,    "%",     &m_Rs,    m_pCyc, Flags|isResult);
       DDB.Double("",    "Rf",           DC_Frac,    "%",     &m_Rf,    m_pCyc, Flags|isResult);
-      DDB.Double("",    "Rv",           DC_Frac,    "%",     &m_Rv,    m_pCyc, Flags|isResult);
       }
 
     flag   DataXchg(DataChangeBlk & DCB)
@@ -516,28 +534,40 @@ class CMPlitt : public CycloneMeth
       return OK;
       };
 
+    bool UseGeomMean() { return (!m_OldCalcs && iSharpEqn==SE_Lynch); };
+
     void   Init(double Q, SpConduit & Fd)
       {
-      m_Phi=Fd.VolFrac(som_Sol, Std_T, Std_P);
+      const double RefTemp = gs_StdTemp; // Reference temperature
+      const double RefPress = gs_StdPress; // Reference pressure
+      m_Phi=Fd.VolFrac(som_Sol, RefTemp, RefPress);
 
       Q=GTZ(Q)/GTZ(Fd.Rho())*1000.0*60.0;     // l/min
-      double Qvc = Q/Max(m_pCyc->dCycNo, 0.001);
+      m_Qvc = Q/Max(m_pCyc->dCycNo, 0.001);
       double RhoS=0.001*Fd.Rho(som_Sol);     // g/cc
       double RhoL=0.001*Fd.Rho(som_Liq);     // g/cc
       double d50N=50.5*Pow(m_Dc, 0.46)*Pow(m_Di, 0.6)*Pow(m_Do, 1.21)*Exps(0.063*m_Phi*100.0);
-      double d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.46)*Pow((RhoS-RhoL), 0.5);
-      m_d50=m_Factor*1.0e-6*d50N/GTZ(d50D);
+      double d50D;
+      if (m_OldCalcs)
+        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(m_Qvc, 0.46)*Pow((RhoS-RhoL), 0.5);
+      else
+        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(m_Qvc, 0.45)*Pow((RhoS-RhoL), 0.5); //kga 19/03/06: changed Qvc power to 0.45 from 0.46
+      m_d50=m_Factor1_d50*1.0e-6*d50N/GTZ(d50D);
 
       m_DP=DP(Fd.QMass(), Fd);
       m_H=Press2Head(m_DP, Fd.Rho());
 
       double SN=1.9*Pow(m_Du/m_Do, 3.31)*Pow(m_h, 0.54)*Pow(Sqr(m_Du)+Sqr(m_Do), 0.36)*Exps(0.0054*m_Phi*100.0);
       double SD=Pow(m_H, 0.24)*Pow(m_Dc, 1.11);
-      m_S=SN/GTZ(SD);
+      m_S=m_Factor4_S*SN/GTZ(SD);
 
       m_Rv=m_S/(m_S+1);
-      m_m=m_SharpFactor*1.94*Exps(-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Q, 0.15);
+      if (m_OldCalcs)
+        m_m=m_Factor2_Sharp*1.94*Exps(-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Q, 0.15);
+      else
+        m_m=m_Factor2_Sharp*1.94*Exps((-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Q, 0.15)); //kga 19/03/06: Brackets for exp part was WRONG!!!
 
+      m_Alpha=1.54*m_m-0.47;
       //m_Rf=m_Rv; // Initial Guess
       }
 
@@ -553,7 +583,7 @@ class CMPlitt : public CycloneMeth
 
       double N = 1.88*Pow(Qvc, 1.78)*Exps(0.0055*Phi*100.0);
       double D = Pow(m_Dc, 0.37)*Pow(m_Di, 0.94)*Pow(m_h, 0.28)*Pow(Sqr(m_Du)+Sqr(m_Do), 0.87);
-      return N/GTZ(D);
+      return m_Factor3_DP*N/GTZ(D);
       };
 
     double D50() { return m_d50; };
@@ -570,9 +600,11 @@ class CMPlitt : public CycloneMeth
           }
         case SE_Lynch:
           {
-          double Alpha=1.54*m_m-0.47;
-          double A=Exps(Alpha*Size/m_d50);
-          YP=(A-1.0)/(A+Exps(Alpha)+2.0);
+          double A=Exps(m_Alpha*Size/m_d50);
+          if (m_OldCalcs)
+            YP=(A-1.0)/(A+Exps(m_Alpha)+2.0);
+          else
+            YP=(A-1.0)/(A+Exps(m_Alpha)-2.0); //kga 19/03/06: should be -2 !!!
           break;
           }
         default:
@@ -593,11 +625,11 @@ class CMPlitt : public CycloneMeth
         //m_Rv=m_S/(m_S+1.0);
         m_Rs=UFSol/GTZ(UFSol+OFSol);
         const double Damp=0.0;
-        double m_RfRqd=(m_Rv-m_Rs*m_Phi)/(1.0-m_Phi);
-        m_Rf=Damp*m_Rf+(1.0-Damp)*Range(0.001, m_RfRqd, 0.999);
+        const double m_RfRqd=(m_Rv-m_Rs*m_Phi)/(1.0-m_Phi);
+        m_Rf = Damp*m_Rf+(1.0-Damp)*Range(0.001, m_RfRqd, 0.999);
         UFLiq = m_Rf/(1.0+m_Rf);
         OFLiq = 1.0-UFLiq;
-        OFLiq = Range(0.0, OFLiq*m_OFLiqCorrFac, 1.0);
+        OFLiq = Range(0.0, OFLiq*m_Factor5_OFLiq, 1.0);
         UFLiq = 1.0 - OFLiq;
         }
       else
@@ -1103,7 +1135,11 @@ void Cyclone::EvalProducts(long JoinMask)
               double SpcUSzSol = 0.0;
               for (i=0; i<len; i++)
                 {
-                OSize[i]=Meth[iMethod]->OSizeFrac(D.Intervals()[i], UFLiq, OFLiq, Pass);
+                //kga: shouldn't we always use geometrical mean!!!
+                if (Meth[iMethod]->UseGeomMean())
+                  OSize[i]=(i==0 ? 0.0 : Meth[iMethod]->OSizeFrac(D.GeometricMean(i), UFLiq, OFLiq, Pass));
+                else
+                  OSize[i]=Meth[iMethod]->OSizeFrac(D.Intervals()[i], UFLiq, OFLiq, Pass);
                 OTemp[i] = OSize[i] * Feed[i];
                 SpcOSzSol+= OTemp[i];
                 UTemp[i] = Feed[i] - OTemp[i];

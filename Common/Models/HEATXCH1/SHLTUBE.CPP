@@ -199,7 +199,7 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double("LMTD",          "", DC_dT,   "C",        &m_dLMTD,          this, isResult);
   DDB.Double("UALMTD",        "", DC_Pwr,  "kW",       &m_dTheoryDuty,    this, isResult);//Theoretical Duty
   DDB.Double("Duty",          "", DC_Pwr,  "kW",       &m_dDuty,          this, isResult);
-  DDB.Double("TheorArea",     "", DC_Area, "m^2",      xidHXAreaUsed,     this, isResult|InitHidden|noFileAtAll);
+  DDB.Double("TheorArea",     "", DC_Area, "m^2",      xidHXAreaUsed,     this, isResult/*|InitHidden*/|noFileAtAll);
   DDB.Double("LMTDFact",      "", DC_Frac, "%",        &m_dLMTDFactor,    this, (m_iSolveMode==HXM_LMTD) ? isParm : isResult|0);
   DDB.Text("");
 
@@ -518,9 +518,7 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
       }
     m_dDuty=Min(m_dDuty, HotSd.MaxFlDuty);
     }
-  else
-    {
-    if (flags & CA_LimitDuty)
+  else if (flags & CA_LimitDuty)
       {
       double MaxDuty=Min(ColdSd.MaxNfDuty, HotSd.MaxFlDuty);
       if (m_dDuty>MaxDuty) // ?? Is this correct ???
@@ -532,7 +530,6 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
         VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, VapFrac, VLEF_Null);
         }
       }
-    }
   HotSd.iMode=QPF_Condensing;
   HotSd.Ho=HotSd.m_pCd->totHf();
 
@@ -619,6 +616,8 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         else
           m_iActOpMode=STHX_LiquorGas;
 
+        if (m_Pri.Qm>UsableMass && m_Sec.Qm>UsableMass)
+          {//only do the work IF there or flows in hot AND cold sides
         CHXDutyFinder DutyFnd(this, HXF_CounterCurrent, HXM_LMTD);
         DutyFnd.SetTarget(0.0);
 
@@ -637,6 +636,13 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
             // Flash the output
             DutyFnd.Function(MaxHXExtent);
             break;
+          }
+          }
+        else
+          {
+          m_Pri.Duty=m_Pri.dHEnv;
+          m_Sec.Duty=m_Sec.dHEnv;
+          m_dEffect = 0.0;
           }
 
         m_dLMTD=LMTD(false, ColdSd.Ti, ColdSd.To, HotSd.Ti, HotSd.To);
@@ -763,7 +769,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
           double VentFlow;
           if (!SolveBufferedMethod())
             {
-            VentFlow=CondenseAll(HotSd, ColdSd, HotSdI, ColdSdI, CA_LimitDuty);
+            VentFlow=CondenseAll(HotSd, ColdSd, HotSdI, ColdSdI, (m_bExtraCond ? CA_LimitNone : CA_LimitDuty));
 
             //now check if the actual duty exceeds maximum allowed...
             const double LMTDSat_ = LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.To);
@@ -888,7 +894,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
     m_QmVent=m_pVent ? m_pVent->QMass() : 0.0;
   CHXBlock::SetCI(7, !SolveBufferedMethod() && m_pVent && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
   CHXBlock::SetCI(8, !SolveBufferedMethod() && m_iActOpMode==STHX_FullyCondensing && SteamFlowInCondensate>1.0e-6);
-  CHXBlock::SetCI(9, !SolveBufferedMethod() && DutyErr);
+  CHXBlock::SetCI(9, !SolveBufferedMethod() && DutyErr && !m_bExtraCond);
   }
 
 //===========================================================================

@@ -44,9 +44,9 @@ Model type:Unit#n
 //==========================================================================
 
 static IOAreaRec X_TieIOAreaList[] =
-  {{"IOPts",    "IO",   0,              LIO_InOut,     nc_MLnk, 2, 20, IOOptsHide|IOPipeJoin|IOGRP(1)},
-   {"Inputs",   "In",   0,              LIO_In0,       nc_MLnk, 2, 20, IOOptsHide|IOPipeJoin|IOGRP(1)},
-   {"Outputs",  "Out",  0,              LIO_Out0,      nc_MLnk, 2, 20, IOOptsHide|IOPipeJoin|IOGRP(1)},
+  {{"IOPts",    "IO",   0,              LIO_InOut,     nc_MLnk, 2, 50, IOOptsHide|IOPipeJoin|IOGRP(1)},
+   {"Inputs",   "In",   0,              LIO_In0,       nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
+   {"Outputs",  "Out",  0,              LIO_Out0,      nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
    //"Leak",     "Leak", IOId_XferLeak,  LIO_Out,       nc_MLnk, 0,  1, IOOptsHide|IOEqnsHide|IOPipeJoin|IOHidden},
    LEAKS2AREA("Leak", IOId_XferLeak),
    {NULL}};

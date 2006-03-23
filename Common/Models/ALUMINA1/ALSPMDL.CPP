@@ -112,26 +112,40 @@ flag CConcentrations::Converge(CSysVector & MA)
 
   static CToleranceBlock s_Tol(TBF_Both, "AluminaSpMdl:Density", 1e-12, 1e-8, 100);
 
-  const double T_ = C2K(25.0);
-  double Tc = K2C(T_);
+  const double Tc = 25.0;
+  const double T_ = C2K(Tc);
   // Converge Liquor Conc. All sodium concentrations expressed as Na2CO3
   int IterCount = s_Tol.GetMaxIters();//100;
-  double OldDensity = Density*1.1;
-  while ( fabs(OldDensity - Density) > s_Tol.GetAbs()/*0.00005*/  && --IterCount>0)
+  double OldDensity = Density;
+  while (1)
     {
-    Density = Range(0.0001, Density, 10000.0);
     for (int sn=0; sn<SDB.Count(); sn++)
       {
       if (SDB[sn].IsLiq())
-        {
-        //double mm=MA[sn];
         Liq[sn] = MA[sn] / TLiq * Density * NaFactor[sn];
         }
-      }
-    
+    Density = Range(0.0001, LiquorDensity(T_, MA), 10000.0);
+    if (fabs(OldDensity - Density) < s_Tol.GetAbs() || --IterCount==0)
+      break;
     OldDensity = Density;
-    Density = LiquorDensity(T_, MA);
     } // end of while
+
+  //Ineffecient because NOT using a saved OldDensity!!!
+  //double OldDensity = Density*1.1;
+  //while ( fabs(OldDensity - Density) > s_Tol.GetAbs()/*0.00005*/  && --IterCount>0)
+  //  {
+  //  Density = Range(0.0001, Density, 10000.0);
+  //  for (int sn=0; sn<SDB.Count(); sn++)
+  //    {
+  //    if (SDB[sn].IsLiq())
+  //      {
+  //      //double mm=MA[sn];
+  //      Liq[sn] = MA[sn] / TLiq * Density * NaFactor[sn];
+  //      }
+  //    }
+  //  OldDensity = Density;
+  //  Density = LiquorDensity(T_, MA);
+  //  } // end of while
 
   Density = Max(0.001, Density);
   //pBayerMdl->SetCI((IterCount==0), 1, True, True);
@@ -146,7 +160,8 @@ flag CConcentrations::Converge(CSysVector & MA)
       dbgpln("%18.18s:%12.6f  MW:%11.5f NaFactor:%9.5f",SDB[sn].SymOrTag(),Liq[sn],SDB[sn].MoleWt(),NaFactor[sn]);
     }
   #endif
-  return (IterCount>=0);
+  //return (IterCount>=0);
+  return (IterCount>0);
   }
 
 //---------------------------------------------------------------------------
@@ -314,11 +329,25 @@ DDEF_Flags SMBayer::FixSpEditFlags(DDEF_Flags Flags, int iSpid, flag AsParms)
     LclParm[Water.LiqPhInx()] = false;
     }
  
-  if (fDoCalc!=fWasDoCalc)
+// Old Code  
+//  if (fDoCalc!=fWasDoCalc)
+//    {
+//    for (int i=0; i<LclParm.GetCount(); i++)
+//      if (!LclParm[i])
+//        SetMassInUse(i, fDoCalc!=0);
+//    }
+ 
+  if (fDoCalc || (fDoCalc!=fWasDoCalc))
     {
     for (int i=0; i<LclParm.GetCount(); i++)
       if (!LclParm[i])
         SetMassInUse(i, fDoCalc!=0);
+    if (dRqd_SolFrac>0.0)
+      {
+      for (int i=0; i<SDB.Count(); i++)
+        if (SDB[i].IsSol())
+          SetMassInUse(i, fDoCalc!=0);
+      }
     }
   fWasDoCalc=fDoCalc;
 

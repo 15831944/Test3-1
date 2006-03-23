@@ -25,6 +25,7 @@
   #include "scd_wm.h"
 #endif
 
+#define WithIndividPartCrv 1
 #define USE_PSD_TB 1
 #ifdef USE_PSD_TB
 
@@ -48,9 +49,12 @@
 #define WITHSELBRK    01
 
 const int MaxDistributions  = 4;
-const int MaxIntervals      = 120;//64; // Increased for QAL PSD
-const int MaxColumns        = 120;//100; // Increased for RTTS
-const int MaxPartCurves     = 12;
+//const int MaxIntervals      = 120;//64; // Increased for QAL PSD
+//const int MaxColumns        = 120;//100; // Increased for RTTS
+//const int MaxPartCurves     = 12;
+const int MaxIntervals      = 128;//64; // Increased for QAL PSD
+const int MaxColumns        = 128;//100; // Increased for RTTS
+const int MaxPartCurves     = 15;
 
 XID xidSzCol                = Qual0XID(MaxColumns*20);
 

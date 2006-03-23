@@ -26,6 +26,9 @@ static CDbgMngr dbgSzDistInit("SzDist", "Initial");
 //===========================================================================
 
 flag fSzAscend=false;//true;
+double gs_CountFactor = 1.0;
+//double gs_CountFactor = 0.37011411; //for worsley WRONG because of MeanPartDiam fix #392
+//double gs_CountFactor = 0.493456717; //for worsley
 
 //===========================================================================
 //
@@ -510,10 +513,13 @@ static int ParseParts(Strng &S, char *Parts[], int MaxParts )
     Parts[i]=NULL;
 
   return N;
-  };
+  }
+
 // --------------------------------------------------------------------------
 void CSD_CfgHelper::Load(CProfINIFile & CfgPF)
   {
+  gs_CountFactor = CfgPF.RdDouble("SizeDistributions", "CountFactor", 1.0);
+
   //load sieve series...
   SSs.SetSize(0);
   SDsMeas.SetSize(0);
@@ -621,31 +627,24 @@ void CSD_CfgHelper::Load(CProfINIFile & CfgPF)
 
     if (pSeries->m_SeriesDataType != e_Manual)
       {
-
-      //
       // Create Series from Parameters
-      //
-
       pSeries->CreateSeriesFromData();
 
       }
     else
       {
-
-      //
       // Load Manual Series Data
-      //
-
       for (int n=0; ; n++)
         {
         if (RDCFG(CfgPF, "SizeDistributions", "Size", iSerNo, "Pt", n, Val))
           {
+          if (pSeries->ManualSizes.GetCount()<MaxIntervals-1)
+            {
           double I=SafeAtoF(Val());
           if (pC)
             I = pC->Normal(I, CnvStr());
-          //pSeries->Sizes.SetSize(n+1);
-          //pSeries->Sizes[n] = I;
           pSeries->ManualSizes.Add(I);
+          }
           }
         else
           break;
@@ -810,6 +809,8 @@ void CSD_CfgHelper::Load(CProfINIFile & CfgPF)
 
 void CSD_CfgHelper::Save(CProfINIFile & CfgPF)
   {
+  CfgPF.WrDouble("SizeDistributions", "CountFactor", gs_CountFactor);
+
   //save sieve series...
   for (int iSerNo=0; iSerNo<SSs.GetSize(); iSerNo++)
     {

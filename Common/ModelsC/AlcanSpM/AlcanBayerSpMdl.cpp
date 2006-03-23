@@ -131,24 +131,20 @@ flag CConcentrations::Converge(CSysVector & MA)
 
   const double Tc = 25.0;
   const double T_ = C2K(Tc);
-  //T_ = Range(C_2_K(0.0), T_, C_2_K(300.0));
   // Converge Liquor Conc. All sodium concentrations expressed as Na2CO3
   int IterCount = s_Tol.GetMaxIters();//100;
-  double OldDensity = Density25*1.1;
-  while ( fabs(OldDensity - Density25) > s_Tol.GetAbs()/*0.00005*/  && --IterCount>0)
+  double OldDensity = Density25;
+  while (1)
     {
-    Density25 = Range(0.0001, Density25, 10000.0);
     for (int sn=0; sn<SDB.Count(); sn++)
       {
       if (SDB[sn].IsLiq())
-        {
-        //double mm=MA[sn];
         Liq[sn] = MA[sn] / TLiq * Density25 * NaFactor[sn];
         }
-      }
-    
+    Density25 = Range(0.0001, LiquorDensity(T_, MA), 10000.0);
+    if (fabs(OldDensity - Density25) < s_Tol.GetAbs() || --IterCount==0)
+      break;
     OldDensity = Density25;
-    Density25 = LiquorDensity(T_, MA);
     } // end of while
 
   Density25 = Max(0.001, Density25);
@@ -164,7 +160,7 @@ flag CConcentrations::Converge(CSysVector & MA)
       dbgpln("%18.18s:%12.6f  MW:%11.5f NaFactor:%9.5f",SDB[sn].SymOrTag(),Liq[sn],SDB[sn].MoleWt(), NaFactor[sn]);
     }
   #endif
-  return (IterCount>=0);
+  return (IterCount>0);
   }
 
 //---------------------------------------------------------------------------

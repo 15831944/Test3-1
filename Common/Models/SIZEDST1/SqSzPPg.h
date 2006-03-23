@@ -196,7 +196,6 @@ class CSqSzDMeasPg: public CMdlCfgBase
     afx_msg void OnLbnSelchangeMeasList();
     CComboBox m_MeasTypeSel;
     afx_msg void OnCbnSelchangeSelMeasType();
-    //double m_Value;
     CComboBox m_ComboValueUnits;
     CComboBox m_ComboResultUnits;
     afx_msg void OnEnChangeEditValue();
@@ -207,6 +206,10 @@ class CSqSzDMeasPg: public CMdlCfgBase
     CButton m_BtnMeasDown;
     afx_msg void OnBnClickedButtonMeasUp();
     afx_msg void OnBnClickedButtonMeasDown();
+    CEdit m_CountFactor;
+    double dCountFactor;
+    afx_msg void OnEnChangeCountFactor();
+
   };
 
 

@@ -31,6 +31,9 @@
   #define DllImportExport
 #endif
 
+#define WithMethod1 0
+#define WithTables 0
+
 #define SKIPIT 0
 #if SKIPIT 
 #pragma message ("---------------------------------------SKIPPED")
@@ -75,10 +78,16 @@ class CBlendControlHelper : public CBlendData
     void      InitTanks(long TankCnt, long ComponentCnt);
     void      InitCriteria(long CriteriaCount);
     void      Optimise(CBlendCon* pBlender, bool SetIt);
+    void      Optimise0(CBlendCon* pBlender, bool SetIt);
+    void      Optimise1(CBlendCon* pBlender, bool SetIt);
+    void      Optimise2(CBlendCon* pBlender, bool SetIt);
 
     //int       m_iMyIndex;
     short     m_iStreamIndex;
     short     m_iIOIndex;
+    short     m_iOptimiseMethod;
+    TankMin*  tankMin;
+    TankBlendOptimiser* tankOpt;
 
 	  BlendCriteriaArray m_BCH;
 
@@ -150,9 +159,8 @@ class CBlendCon : public FlwNode , public CXRefStatus
 
 	// For display purposes
 	CMatrixTB mStockpileAssays;
-    //
+    #if WithMethod1
     // Blend Optimsation Input/Output Data
-    //
     CMatrixTB mAssays;
     CMatrixTB mHardConstraints;
     CMatrixTB mSoftConstraints;
@@ -160,7 +168,7 @@ class CBlendCon : public FlwNode , public CXRefStatus
     CMatrixTB mX;
     CMatrixTB mSoftConstraintCosts;
     CMatrixTB mSoftRatiosCosts;
-
+    #endif
   };
   
 //===========================================================================

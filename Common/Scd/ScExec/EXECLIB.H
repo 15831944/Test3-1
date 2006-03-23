@@ -380,7 +380,9 @@ class DllImportExport CXM_QueryHistory : public CXM_Header
 class DllImportExport CXM_QueryHistoryOther : public CXM_Header
   {
   public:
-    double        dStartTime, dEndTime;
+    double        dStartTime;
+    double        dEndTime;
+    double        dRepTimeOffset;
     long          iSrcID;
     byte          iOpt;
     byte          iTimeOptUnits;
@@ -396,7 +398,7 @@ class DllImportExport CXM_QueryHistoryOther : public CXM_Header
     char          cFilename2[256];
     char          cTags[MaxCXMsgLstSize-sizeof(CXM_Header)-180-256-256 /*Space for data members*/];
 
-    CXM_QueryHistoryOther(double StartTime, double EndTime, long SrcID, byte Opt, byte TimeOptUnits, flag TimeOptFull, flag Headings, long NoPts, double Invalid, byte QryDest, char* Filename1, char* Filename2, byte QryFileMode);
+    CXM_QueryHistoryOther(double StartTime, double EndTime, long SrcID, byte Opt, byte TimeOptUnits, flag TimeOptFull, flag Headings, long NoPts, double Invalid, byte QryDest, char* Filename1, char* Filename2, byte QryFileMode, double RepTimeOffset);
 
     flag          xAddTag(char* pNewTag);
     char        * FirstTag();

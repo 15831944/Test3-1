@@ -7,6 +7,12 @@
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "blender.h"
+#include "tankmin\\tankmin.h"
+extern "C" 
+  {
+  #include "glpk\\include\\glpk.h" 
+  }
+#include "sc\\sc.h"
 #include "blendcon.h"
 //#include "optoff.h"
 
@@ -43,7 +49,9 @@ IMPLEMENT_MODELUNIT(CBlendCon, "BlendCon", "", Drw_BlendCon, "Control", "MBC", T
 
 CBlendCon::CBlendCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   FlwNode(pClass_, TagIn, pAttach, eAttach),
-  mStockpileAssays      ("mStockpileCrit",       this, TOA_Embedded),
+  mStockpileAssays      ("mStockpileCrit",       this, TOA_Embedded)
+  #if WithMethod1
+  ,
   mAssays               ("mAssays",              this, TOA_Embedded),
   mHardConstraints      ("mHardConstraints",     this, TOA_Embedded),
   mSoftConstraints      ("mSoftConstraints",     this, TOA_Embedded),
@@ -51,7 +59,7 @@ CBlendCon::CBlendCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   mX                    ("mX",                   this, TOA_Embedded),
   mSoftConstraintCosts  ("mSoftConstraintCosts", this, TOA_Embedded),
   mSoftRatiosCosts      ("mSoftRatiosCosts",     this, TOA_Embedded)
-
+  #endif
   {
   AttachClassInfo(nc_Control, NULL, &NullFlwGroup);
   fActiveHoldOK_Dyn=true;
@@ -151,6 +159,7 @@ void CBlendCon::BuildDataDefn(DataDefnBlk & DDB)
   // For display only
   DDB.Object(&mStockpileAssays,this,NULL,NULL,DDB_RqdPage); 
 
+  #if WithMethod1
   // Optimisation Lib Input/Output Data
   DDB.Object(&mAssays, this, NULL, NULL, DDB_RqdPage);
   DDB.Object(&mHardConstraints, this, NULL, NULL, DDB_RqdPage);
@@ -159,6 +168,7 @@ void CBlendCon::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Object(&mX, this, NULL, NULL, DDB_RqdPage);
   DDB.Object(&mSoftConstraintCosts, this, NULL, NULL, DDB_RqdPage);
   DDB.Object(&mSoftRatiosCosts, this, NULL, NULL, DDB_RqdPage);
+  #endif
 
   DDB.EndStruct();
   }
@@ -642,6 +652,9 @@ CBlendControlHelper::CBlendControlHelper(/*int MyIndex*/)
   //m_iMyIndex = MyIndex;
   m_iStreamIndex = -1;
   m_iIOIndex = -1;
+  m_iOptimiseMethod = 1;
+  tankMin = NULL;
+  tankOpt = NULL;
   }
 
 //--------------------------------------------------------------------------
@@ -649,6 +662,16 @@ CBlendControlHelper::CBlendControlHelper(/*int MyIndex*/)
 CBlendControlHelper::~CBlendControlHelper()
   {
   SetCriteriaCount(0);
+  if (tankMin)
+    {
+    delete tankMin;
+    tankMin = NULL;
+    }
+  if (tankOpt)
+    {
+    delete tankOpt;
+    tankOpt = NULL;
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -662,6 +685,10 @@ void CBlendControlHelper::InitBlendControl(long TankCount, long ComponentCnt)
 
 void CBlendControlHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB)
   {
+  static DDBValueLst DDB0[]={
+    {0, "Method0"},
+    {1, "Method1"},
+    {0}};
 
   DDBValueLstMem DDBSt;
   char Buff[64];
@@ -669,6 +696,7 @@ void CBlendControlHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB)
   int i;
 
   DDB.Short   ("CriteriaCount", "", DC_, "", xidBCCritCnt, pTagObj, isParmStopped|SetOnChange);
+  //DDB.Short   ("OptimiseMethod", "", DC_, "", &m_iOptimiseMethod, pTagObj, isParmStopped, DDB0);
   DDB.Double  ("Rqd", "", DC_M, "kg", &m_dTotalRqd, pTagObj, isParm);
   DDB.Text("");
   DDB.Button("Optimise", "", DC_, "", xidBCOptimise, pTagObj, isParm);
@@ -838,6 +866,20 @@ void CBlendControlHelper::InitCriteria(long CriteriaCount)
 
 void CBlendControlHelper::Optimise(CBlendCon* pBlender, bool SetIt)
   {
+  m_iOptimiseMethod = 2;
+  if (m_iOptimiseMethod==0)
+    Optimise0(pBlender, SetIt);
+  else if (m_iOptimiseMethod==1)
+    Optimise1(pBlender, SetIt);
+  else
+    Optimise2(pBlender, SetIt);
+  }
+
+//--------------------------------------------------------------------------
+
+void CBlendControlHelper::Optimise0(CBlendCon* pBlender, bool SetIt)
+  {
+  #if WithMethod1
   //
   // Get a pointer to the connected Multi-Storage Unit
   //
@@ -903,9 +945,11 @@ void CBlendControlHelper::Optimise(CBlendCon* pBlender, bool SetIt)
   if (iNumRatioConstraints > 0)
     pBlender->mSoftRatios.SetDim(iNumRatioConstraints,5);
   else
+    {
     // Optimiser code requires a non empty matrix
     // Set values to 0 so they are not used
     pBlender->mSoftRatios.SetDim(1,5);
+    }
 
   pBlender->mSoftRatiosCosts.SetDim(pBlender->mSoftRatios.RowCount(),1);
 
@@ -932,8 +976,7 @@ void CBlendControlHelper::Optimise(CBlendCon* pBlender, bool SetIt)
   for (int i=0; i<gs_Assays.GetAssaySumCount(); i++)
     {
     CAssaySum* pAssaySumData = gs_Assays.m_Assays[i]->m_pBCrit;
-	
-	pBlender->mAssays.SetRowName(i,pAssaySumData->m_sName.Str());
+  	pBlender->mAssays.SetRowName(i,pAssaySumData->m_sName.Str());
 
     //
     // Calculate the Assay Sum as specified
@@ -1447,7 +1490,794 @@ void CBlendControlHelper::Optimise(CBlendCon* pBlender, bool SetIt)
 
   pBlender->mX.SetRowPrefix("S");
   pBlender->mX.SetColName(0,"Blend");
-
+  #endif
   }
 
+//==========================================================================
+
+void CBlendControlHelper::Optimise1(CBlendCon* pBlender, bool SetIt)
+  {
+  pBlender->m_StateLine[0] = "";
+  pBlender->m_StateLine[1] = "";
+  pBlender->m_StateLine[2] = "";
+  CMultiStorage* lpMultiStore = (CMultiStorage*)(pBlender->m_pStorage);
+  if (lpMultiStore == NULL)
+    {
+    pBlender->m_StateLine[0] = "Error: Multistore not connected";
+    LogError(pBlender->Tag(), 0, "Optimise Failed: Multistore %s not connected!", pBlender->sMSTag());
+    return;
+    }
+
+  double dBlendTonnes = m_dTotalRqd; // This is the blend amount required
+  if (dBlendTonnes <= 0.0)
+    {
+    pBlender->m_StateLine[0] = "Error: Target Mass is zero";
+    LogError(pBlender->Tag(), 0, "Optimise Failed: Target Mass is zero");
+    return;
+    }
+
+  const long AssayCnt = gs_Assays.GetAssaySumCount();
+
+  if (tankMin==NULL)
+    tankMin = new TankMin;
+  tankMin->SetSize(m_iTankCnt, AssayCnt);
+
+  int EmptyTankCnt = 0;
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    CMultiStore & St = lpMultiStore->m_Store[t];
+    const double Mtot = St.Mass();// kgs
+
+    tankMin->lowTank[t] = 0.0; // lowest preferred quantity from each tank
+    tankMin->weightLowTank[t] = 0.0;
+    tankMin->highTank[t] = 1.0; // higheset preferred quantity from each tank
+    tankMin->weightHighTank[t] = 1.0;
+    tankMin->maxTank[t] = Mtot/dBlendTonnes; // maximum possible quantity from each tank
+    tankMin->weightMaxTank[t] = 10000000.0;
+    if (Mtot<1.0e-9)
+      {
+      tankMin->emptyTank[t] = true;
+      EmptyTankCnt++;
+      }
+    else
+      tankMin->emptyTank[t] = false;
+    }
+
+  if (pBlender->bLogOptimiseNotes)
+    {
+    LogNote(pBlender->Tag(), 0, "Blend amount required:%.3f (%d of %d 'tanks' have material available)", dBlendTonnes, m_iTankCnt-EmptyTankCnt, m_iTankCnt);
+    }
+
+  // for each assay sum data specification
+  for (int i=0; i<AssayCnt; i++)
+    {
+    CAssaySum* pAssaySumData = gs_Assays.m_Assays[i]->m_pBCrit;
+    for (int t=0; t<m_iTankCnt; t++)
+      {
+      CMultiStore & St = lpMultiStore->m_Store[t];
+      const double Mtot = St.Mass();// kgs
+      if (Mtot<1.0e-9)
+        {
+        tankMin->tankAssay[i][t] = 0.0; // amount of each assay in each tank
+        }
+      else
+        {
+        double sum = 0.0;
+        // sum all the assay data for the species specified in the AssaySumData
+        for (int s=0; s<pAssaySumData->m_iList1Cnt; s++)
+          {
+          double M = St.VMass[pAssaySumData->m_pIndexList1[s]];
+          sum += M;
+          }
+        tankMin->tankAssay[i][t] = sum/Mtot; // amount of each assay in each tank
+        }
+      }
+
+    //for all potential criteria, set NO limits
+    tankMin->lowAssay[i] = 0.0; // lowest preferred quantity of each compound
+    tankMin->weightLowAssay[i] = 1.0;
+    tankMin->highAssay[i] = 1.0; // highest preferred quantity of each compound
+    tankMin->weightHighAssay[i] = 1.0;
+
+    for (int j=0; j<AssayCnt; j++)
+      {
+      tankMin->ratioBoolAssay[i][j] = false;
+      tankMin->lowRatioAssay[i][j] = 0.0;
+      tankMin->weightLowRatioAssay[i][j] = 1.0;
+      tankMin->highRatioAssay[i][j] = 1.0;
+      tankMin->weightHighRatioAssay[i][j] = 1.0;
+      }
+
+    if (pBlender->bLogOptimiseNotes)
+      {// Print out Assay Matrix
+      char Buff[2048];
+      char Buff1[64];
+      sprintf(Buff, "Assay%2d:", i);
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        sprintf(Buff1, "%9.4g, ", tankMin->tankAssay[i][t]);
+        strcat(Buff, Buff1);
+        }
+      LogNote(pBlender->Tag(), 0, Buff);
+      }
+    }
+
+
+  // Calculate the Criteria for display only
+  pBlender->mStockpileAssays.SetDim(m_iCriteriaCnt, m_iTankCnt);
+  pBlender->mStockpileAssays.SetColPrefix("S");
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+	  CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+	  Strng s;
+	  if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+		  s = pBCrit->m_sName + " < " + ftoa(pBCrit->m_dRequirement);
+	  else
+		  s = pBCrit->m_sName + " > " + ftoa(pBCrit->m_dRequirement);
+	  pBlender->mStockpileAssays.SetRowName(i,s.Str());
+
+    if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio))
+	    {
+		  // Get the index of the Assays for the Ratio
+		  const int Index1 = pBCrit->m_AssayIndex1;
+		  const int Index2 = pBCrit->m_AssayIndex2;
+		  for (int t=0; t<m_iTankCnt; t++)
+		    {
+        const double Assay1 = tankMin->tankAssay[Index1][t];
+			  const double Assay2 = tankMin->tankAssay[Index2][t];
+        const double Ratio = (Assay2>0.0 ? Assay1/Assay2 : 0.0);
+			  pBlender->mStockpileAssays[i][t] = Ratio;
+  		  }
+  	  }
+	  else
+	    {
+		  const int Index1 = pBCrit->m_AssayIndex1;
+		  for (int t=0; t<m_iTankCnt; t++)
+		    {
+			  const double Assay1 = tankMin->tankAssay[Index1][t];
+			  pBlender->mStockpileAssays[i][t] = Assay1;
+  		  }
+	    }
+    }
+
+  //Based on criteria, set assay and ratio limits...
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+	  CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+	  if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio))
+	    {
+		  const int Index1 = pBCrit->m_AssayIndex1;
+		  const int Index2 = pBCrit->m_AssayIndex2;
+      tankMin->ratioBoolAssay[Index1][Index2] = true;
+  	  if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+        tankMin->highRatioAssay[Index1][Index2] = pBCrit->m_dRequirement;
+      else
+        tankMin->lowRatioAssay[Index1][Index2] = pBCrit->m_dRequirement;
+      }
+	  else
+	    {
+		  const int Index1 = pBCrit->m_AssayIndex1;
+      if (0)
+        {
+  	    if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          tankMin->highAssay[Index1] = pBCrit->m_dRequirement;
+        else
+          tankMin->lowAssay[Index1] = pBCrit->m_dRequirement;
+        }
+      else
+        {
+  	    if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          {
+          tankMin->lowAssay[Index1] = pBCrit->m_dRequirement*0.98;
+          tankMin->highAssay[Index1] = pBCrit->m_dRequirement;
+          tankMin->weightLowAssay[Index1] = 0.2;
+          tankMin->weightHighAssay[Index1] = 2.0;
+          }
+        else
+          {
+          tankMin->lowAssay[Index1] = pBCrit->m_dRequirement;
+          tankMin->highAssay[Index1] = pBCrit->m_dRequirement*1.02;
+          tankMin->weightLowAssay[Index1] = 2.0;
+          tankMin->weightHighAssay[Index1] = 0.2;
+          }
+        }
+      }
+    }
+
+  //now solve...
+  tankMin->InitSolution(); //TODO... rather solve from previous iteration?
+  tankMin->Go();
+
+  // Split Results
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    m_pResultSplits[t] = tankMin->bestTank[t];
+    }
+
+  // Criteria Results
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+    CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+    pBCrit->m_dResult = 0.0;
+    pBCrit->m_dCost = 0.0;
+
+    // Calculate Optimised Criteria Value
+	  if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio))
+      {
+      const int AssayIndexNum = pBCrit->m_AssayIndex1;
+      const int AssayIndexDen = pBCrit->m_AssayIndex2;
+      double dnum = 0.0;
+      double dden = 0.0;
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        dnum += tankMin->bestTank[t]*tankMin->tankAssay[AssayIndexNum][t];
+        dden += tankMin->bestTank[t]*tankMin->tankAssay[AssayIndexDen][t];
+        }
+      if (dden > 0.0)
+        pBCrit->m_dResult = dnum/dden;
+      }
+    else if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Soft) )
+      {
+      const int AssayIndex = pBCrit->m_AssayIndex1;
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        const double d1 = tankMin->bestTank[t];
+        const double d2 = tankMin->tankAssay[AssayIndex][t];
+        pBCrit->m_dResult += d1*d2;
+        }
+      }
+    if (pBlender->bLogOptimiseNotes)
+      {// Print out criteria rsults
+      LogNote(pBlender->Tag(), 0, "Criteria %d: %f %s %f (%s)", i, pBCrit->m_dResult, (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser ? "<" : ">"), pBCrit->m_dRequirement, pBCrit->m_sName.Str());
+      }
+    }
+
+  if (SetIt && pBlender->bOn)
+    {
+    const int StreamIndex = lpMultiStore->GetOutputStreamIndex(pBlender->sPipeTag());
+
+    if (StreamIndex>=0)
+      {
+      if (lpMultiStore->IsFracForStream(StreamIndex))
+        {
+        for (int t=0; t<m_iTankCnt; t++)
+          lpMultiStore->SetStoreFracForStream(StreamIndex, t, m_pResultSplits[t]);
+        if (pBlender->bLogSetOptimiseData)
+          LogNote(pBlender->Tag(), 0, "Fractions for '%s' have been set in '%s'", pBlender->sPipeTag(), pBlender->sMSTag());
+        }
+      else
+        {
+        LogError(pBlender->Tag(), 0, "Fraction split method must be specified for product stream '%s'", pBlender->sPipeTag());
+        }
+      }
+    else
+      {
+      LogError(pBlender->Tag(), 0, "Invalid Stream specified '%s'", pBlender->sPipeTag());
+      }
+    }
+  }
+
+//==========================================================================
+
+void CBlendControlHelper::Optimise2(CBlendCon* pBlender, bool SetIt)
+  {
+  pBlender->m_StateLine[0] = "";
+  pBlender->m_StateLine[1] = "";
+  pBlender->m_StateLine[2] = "";
+  CMultiStorage* lpMultiStore = (CMultiStorage*)(pBlender->m_pStorage);
+  if (lpMultiStore == NULL)
+    {
+    pBlender->m_StateLine[0] = "Error: Multistore not connected";
+    LogError(pBlender->Tag(), 0, "Optimise Failed: Multistore %s not connected!", pBlender->sMSTag());
+    return;
+    }
+
+  if (m_iCriteriaCnt<1)
+    {
+    pBlender->m_StateLine[0] = "Error: Criteria not defined";
+    LogError(pBlender->Tag(), 0, "Optimise Failed: Criteria not defined");
+    return;
+    }
+
+  double dBlendRqd = m_dTotalRqd; // This is the blend amount required
+  if (dBlendRqd <= 0.0)
+    {
+    pBlender->m_StateLine[0] = "Error: Target Mass is zero";
+    LogWarning(pBlender->Tag(), 0, "Optimise Failed: Target Mass is zero");
+    return;
+    }
+
+  const double EmptyAmnt = 1.0e-12;
+  int EmptyTankCnt = 0;
+  double TtlMassAvail = 0.0;
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    CMultiStore & St = lpMultiStore->m_Store[t];
+    const double Mtot = St.Mass();// kgs
+    if (Mtot<EmptyAmnt)
+      EmptyTankCnt++;
+    else
+      TtlMassAvail += Mtot;
+    }
+  if (TtlMassAvail<EmptyAmnt)
+    {
+    pBlender->m_StateLine[0] = "Error: Available mass is zero";
+    LogWarning(pBlender->Tag(), 0, "Optimise Failed: Available mass is zero");
+    return;
+    }
+
+  if (dBlendRqd>TtlMassAvail)
+    {
+    LogWarning(pBlender->Tag(), 0, "Required mass < mass available!  Optimisation will use mass available.");
+    dBlendRqd = TtlMassAvail;
+    }
+
+  const long AssayCnt = gs_Assays.GetAssaySumCount();
+  CArray <bool, bool> AssayUsed;
+  CArray <int, int> AssayLookup;
+  AssayUsed.SetSize(AssayCnt);
+  AssayLookup.SetSize(AssayCnt);
+  for (int i=0; i<AssayCnt; i++)
+    {
+    AssayUsed[i] = false;
+    AssayLookup[i] = -1;
+    }
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+	  CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+    const int Index1 = pBCrit->m_AssayIndex1;
+    AssayUsed[Index1] = true;
+    if (pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio)
+	    {
+		  const int Index2 = pBCrit->m_AssayIndex2;
+      AssayUsed[Index2] = true;
+      }
+    }
+  long ActAssayCnt = 0;
+  for (int i=0; i<AssayCnt; i++)
+    {
+    if (AssayUsed[i])
+      {
+      AssayLookup[i] = ActAssayCnt;
+      ActAssayCnt++;
+      }
+    }
+
+  if (tankOpt==NULL)
+    tankOpt = new TankBlendOptimiser;
+  tankOpt->SetSize(m_iTankCnt, ActAssayCnt);
+  //tankOpt->constraint = 1;
+
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    CMultiStore & St = lpMultiStore->m_Store[t];
+    const double Mtot = St.Mass();// kgs
+
+    if (Mtot<EmptyAmnt)
+      tankOpt->tankMax[t] = 0.0;
+    else
+      tankOpt->tankMax[t] = Mtot/dBlendRqd; // maximum possible quantity from each tank
+    }
+
+  if (pBlender->bLogOptimiseNotes)
+    {
+    LogNote(pBlender->Tag(), 0, "Blend amount required:%.3f (%d of %d 'tanks' have material available)", dBlendRqd, m_iTankCnt-EmptyTankCnt, m_iTankCnt);
+    }
+
+  // for each assay sum data specification
+  for (int i=0; i<AssayCnt; i++)
+    {
+    if (AssayUsed[i])
+      {
+      const int k = AssayLookup[i];
+      CAssaySum* pAssaySumData = gs_Assays.m_Assays[i]->m_pBCrit;
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        CMultiStore & St = lpMultiStore->m_Store[t];
+        const double Mtot = St.Mass();// kgs
+        if (Mtot<1.0e-12)
+          {
+          tankOpt->assayConc[k][t] = 0.0; // amount of each assay in each tank
+          }
+        else
+          {
+          double sum = 0.0;
+          // sum all the assay data for the species specified in the AssaySumData
+          for (int s=0; s<pAssaySumData->m_iList1Cnt; s++)
+            {
+            double M = St.VMass[pAssaySumData->m_pIndexList1[s]];
+            sum += M;
+            }
+          tankOpt->assayConc[k][t] = sum/Mtot; // amount of each assay in each tank
+          }
+        }
+
+      //for all potential criteria, set NO limits
+      tankOpt->assayLow[k] = 0.0; // lowest preferred quantity of each compound
+      tankOpt->assayHigh[k] = 1.0; // highest preferred quantity of each compound
+      tankOpt->assayLowPenalty[k] = 1.0;
+      tankOpt->assayHighPenalty[k] = 1.0;
+
+      for (int j=0; j<ActAssayCnt; j++)
+        {
+        tankOpt->assayRatioLowEnabled[k][j] = false;
+        tankOpt->assayRatioHighEnabled[k][j] = false;
+        tankOpt->assayRatioLow[k][j] = 0.0;
+        tankOpt->assayRatioHigh[k][j] = 1.0;
+        tankOpt->assayRatioLowPenalty[k][j] = 1.0;
+        tankOpt->assayRatioHighPenalty[k][j] = 1.0;
+        }
+
+      if (pBlender->bLogOptimiseNotes)
+        {// Print out Assay Matrix
+        char Buff[2048];
+        char Buff1[64];
+        sprintf(Buff, "Assay%2d:", i);
+        for (int t=0; t<m_iTankCnt; t++)
+          {
+          sprintf(Buff1, "%9.4g, ", tankOpt->assayConc[k][t]);
+          strcat(Buff, Buff1);
+          }
+        LogNote(pBlender->Tag(), 0, Buff);
+        }
+      }
+    }
+
+  // Calculate the Criteria for display only
+  pBlender->mStockpileAssays.SetDim(m_iCriteriaCnt, m_iTankCnt);
+  pBlender->mStockpileAssays.SetColPrefix("S");
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+	  CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+	  Strng s;
+	  if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+		  s = pBCrit->m_sName + " < " + ftoa(pBCrit->m_dRequirement);
+	  else
+		  s = pBCrit->m_sName + " > " + ftoa(pBCrit->m_dRequirement);
+	  pBlender->mStockpileAssays.SetRowName(i,s.Str());
+
+    if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio))
+	    {
+		  // Get the index of the Assays for the Ratio
+		  const int Index1 = AssayLookup[pBCrit->m_AssayIndex1];
+		  const int Index2 = AssayLookup[pBCrit->m_AssayIndex2];
+		  for (int t=0; t<m_iTankCnt; t++)
+		    {
+        const double Assay1 = tankOpt->assayConc[Index1][t];
+			  const double Assay2 = tankOpt->assayConc[Index2][t];
+        const double Ratio = (Assay2>0.0 ? Assay1/Assay2 : 0.0);
+			  pBlender->mStockpileAssays[i][t] = Ratio;
+  		  }
+  	  }
+	  else
+	    {
+		  const int Index1 = AssayLookup[pBCrit->m_AssayIndex1];
+		  for (int t=0; t<m_iTankCnt; t++)
+		    {
+			  const double Assay1 = tankOpt->assayConc[Index1][t];
+			  pBlender->mStockpileAssays[i][t] = Assay1;
+  		  }
+	    }
+    }
+
+  //Based on criteria, set assay and ratio limits...
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+	  CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+	  if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio))
+	    {
+		  const int Index1 = AssayLookup[pBCrit->m_AssayIndex1];
+		  const int Index2 = AssayLookup[pBCrit->m_AssayIndex2];
+      tankOpt->assayRatioLow[Index1][Index2] = pBCrit->m_dRequirement;
+      tankOpt->assayRatioHigh[Index1][Index2] = pBCrit->m_dRequirement;
+      /*if (0)
+        {
+    	  if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          tankOpt->assayRatioLowEnabled[Index1][Index2] = true;
+        else
+          tankOpt->assayRatioHighEnabled[Index1][Index2] = true;
+        }
+      else*/
+        {
+        tankOpt->assayRatioLowEnabled[Index1][Index2] = true;
+        tankOpt->assayRatioHighEnabled[Index1][Index2] = true;
+        if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          tankOpt->assayRatioLowPenalty[Index1][Index2] = 1.0e-5;
+        else
+          tankOpt->assayRatioHighPenalty[Index1][Index2] = 1.0e-5;
+        }
+      }
+	  else
+	    {
+		  const int Index1 = AssayLookup[pBCrit->m_AssayIndex1];
+	    /*if (0)
+        {
+        if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          tankOpt->assayHigh[Index1] = pBCrit->m_dRequirement;
+        else
+          tankOpt->assayLow[Index1] = pBCrit->m_dRequirement;
+        }
+      else if (0)
+        {
+  	    if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          {
+          tankOpt->assayLow[Index1] = pBCrit->m_dRequirement*0.98;
+          tankOpt->assayHigh[Index1] = pBCrit->m_dRequirement;
+          }
+        else
+          {
+          tankOpt->assayLow[Index1] = pBCrit->m_dRequirement;
+          tankOpt->assayHigh[Index1] = pBCrit->m_dRequirement*1.02;
+          }
+        }
+      else*/
+        {
+        tankOpt->assayLow[Index1] = pBCrit->m_dRequirement;
+        tankOpt->assayHigh[Index1] = pBCrit->m_dRequirement;
+  	    if (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser)
+          tankOpt->assayLowPenalty[Index1] = 1.0e-5;
+        else
+          tankOpt->assayHighPenalty[Index1] = 1.0e-5;
+        }
+      }
+    }
+
+  if (0)
+    {
+    dbgpln("-------------------- Blend Problem --------------------");
+    dbgpln("Tanks:%d  Assays:%d", tankOpt->tanks, tankOpt->assays);
+    dbgpln("Concentration Values");
+    for (int i=0; i<tankOpt->assays; i++)
+      {
+      for (int j=0; j<tankOpt->tanks; j++)
+        dbgp("%g; ", tankOpt->assayConc[i][j]);
+      dbgpln("");
+      }
+    dbgpln("");
+
+    dbgpln("Tank Values");
+    dbgp("Tank Max:  ");
+    for (int i=0; i<tankOpt->tanks; i++)    dbgp("%g; ", tankOpt->tankMax[i]);
+    dbgpln("");
+    dbgp("Tank High: ");
+    for (int i=0; i<tankOpt->tanks; i++)    dbgp("%g; ", tankOpt->tankHigh[i]);
+    dbgpln("");
+    //dbgp("**** Tank: ");
+    //for (int i=0; i<tankOpt->tanks; i++)    dbgp("%g; ", tankOpt->tank[i]);
+    //dbgpln("");
+    dbgp("Tank Low:  ");
+    for (int i=0; i<tankOpt->tanks; i++)    dbgp("%g; ", tankOpt->tankLow[i]);
+    dbgpln("");
+
+    dbgpln("Assay Values");
+    dbgp("Assay High: ");
+    for (int i=0; i<tankOpt->assays; i++)    dbgp("%g; ", tankOpt->assayHigh[i]);
+    dbgpln("");
+    //dbgp("**** Assay: ");
+    //for (int i=0; i<tankOpt->assays; i++)    dbgp("%g; ", tankOpt->assay[i]);
+    //dbgpln("");
+    dbgp("Assay Low:  ");
+    for (int i=0; i<tankOpt->assays; i++)    dbgp("%g; ", tankOpt->assayLow[i]);
+    dbgpln("");
+    dbgpln("");
+
+    dbgpln("Assay Ratio Low Values");
+    dbgp("Assay Ratio Num/Den: ");
+    for (int i=0; i<tankOpt->assays; i++)
+      for (int j=0; j<tankOpt->assays; j++)
+        if (tankOpt->assayRatioLowEnabled[i][j])
+          dbgp("%d/%d; ", i, j);
+    dbgpln("");
+    /*printf("**** Assay Ratio: ");
+    for (int i=0; i<assays; i++)
+      for (int j=0; j<assays; j++)
+        if (assayRatioLowEnabled[i][j])
+        {
+          double num = 0.0;
+          double den = 0.0;
+          for (int k=0; k<tanks; k++)
+          {
+            num += lpx_get_col_prim(lp, 1+k)*assayConc[i][k];
+            den += lpx_get_col_prim(lp, 1+k)*assayConc[j][k];
+          }
+          printf("%g; ", num/den);
+        }
+    printf("\n");*/
+    dbgp("Assay Ratio Low:  ");
+    for (int i=0; i<tankOpt->assays; i++)
+      for (int j=0; j<tankOpt->assays; j++)
+        if (tankOpt->assayRatioLowEnabled[i][j])
+          dbgp("%g; ", tankOpt->assayRatioLow[i][j]);
+    dbgpln("");
+    dbgpln("");
+
+    dbgpln("Assay Ratio High Values");
+    dbgp("Assay Ratio High Num/Den: ");
+    for (int i=0; i<tankOpt->assays; i++)
+      for (int j=0; j<tankOpt->assays; j++)
+        if (tankOpt->assayRatioHighEnabled[i][j])
+          dbgp("%d/%d; ", i, j);
+    dbgpln("");
+    dbgp("Assay Ratio High: ");
+    for (int i=0; i<tankOpt->assays; i++)
+      for (int j=0; j<tankOpt->assays; j++)
+        if (tankOpt->assayRatioHighEnabled[i][j])
+          dbgp("%g; ", tankOpt->assayRatioHigh[i][j]);
+    dbgpln("");
+    /*printf("**** Assay Ratio: ");
+    for (int i=0; i<assays; i++)
+      for (int j=0; j<assays; j++)
+        if (assayRatioHighEnabled[i][j])
+        {
+          double num = 0.0;
+          double den = 0.0;
+          for (int k=0; k<tanks; k++)
+          {
+            num += lpx_get_col_prim(lp, 1+k)*assayConc[i][k];
+            den += lpx_get_col_prim(lp, 1+k)*assayConc[j][k];
+          }
+          printf("%g; ", num/den);
+        }
+    dbgpln("");*/
+    dbgpln("");
+
+    /*printf("Penalty Values\n");
+    printf("Penalty Tank Low:   ");
+    for (int i=0; i<tanks; i++)    printf("%g; ", lpx_get_col_prim(lp, 1+i+tanks));
+    printf("\n");
+    printf("Penalty Tank High:  ");
+    for (int i=0; i<tanks; i++)    printf("%g; ", lpx_get_col_prim(lp, 1+i+2*tanks));
+    printf("\n");
+    printf("Penalty Assay Low:  ");
+    for (int i=0; i<assays; i++)    printf("%g; ", lpx_get_col_prim(lp, 1+i+3*tanks));
+    printf("\n");
+    printf("Penalty Assay High: ");
+    for (int i=0; i<assays; i++)    printf("%g; ", lpx_get_col_prim(lp, 1+i+3*tanks+assays));
+    printf("\n");
+    printf("Penalty Assay Ratio Low:  ");
+    for (int i=0; i<assays; i++)
+      for (int j=0; j<assays; j++)
+        if (assayRatioLowEnabled[i][j])
+          printf("%g; ", lpx_get_col_prim(lp, 1+i*assays+j+3*tanks+2*assays));
+    printf("\n");
+    printf("Penalty Assay Ratio High: ");
+    for (int i=0; i<assays; i++)
+      for (int j=0; j<assays; j++)
+        if (assayRatioHighEnabled[i][j])
+          printf("%g; ", lpx_get_col_prim(lp, 1+i*assays+j+3*tanks+2*assays+assays*assays));
+    printf("\n\n");*/
+
+    /*printf("Weight Values\n");
+    printf("Weight for tank[i]: ");
+    for (int i=0; i<tanks; i++)
+      printf("%g; ", lpx_get_obj_coef(lp,  1+i));
+    printf(" (unused, should be zero)\n");
+
+    printf("Weight Tank Low: ");
+    for (int i=0; i<tanks; i++)
+      printf("%g; ", lpx_get_obj_coef(lp,  1+i+tanks));
+    printf("\n");
+
+    printf("Weight Tank High: ");
+    for (int i=0; i<tanks; i++)
+      printf("%g; ", lpx_get_obj_coef(lp,  1+i+2*tanks));
+    printf("\n");
+
+    printf("Weight Assay Low: ");
+    for (int i=0; i<assays; i++)
+      printf("%g; ", lpx_get_obj_coef(lp,  1+i+3*tanks));
+    printf("\n");
+
+    printf("Weight Assay High: ");
+    for (int i=0; i<assays; i++)
+      printf("%g; ", lpx_get_obj_coef(lp,  1+i+3*tanks+assays));
+    printf("\n");
+
+    printf("Weight Assay Ratio Low:\n");
+    for (int i=0; i<assays; i++)
+    {
+      printf("                        ");
+      for (int j=0; j<assays; j++)
+        printf("%g; ", lpx_get_obj_coef(lp, 1+i*assays+j+3*tanks+2*assays));
+      printf("\n");
+    }
+
+    printf("Weight Assay Ratio High:\n");
+    for (int i=0; i<assays; i++)
+    {
+      printf("                         ");
+      for (int j=0; j<assays; j++)
+        printf("%g; ", lpx_get_obj_coef(lp, 1+i*assays+j+3*tanks+2*assays+assays*assays));
+      printf("\n");
+    }
+    printf("\n");*/
+
+    //printf("Total Weighted Penalty: %g\n", lpx_get_obj_val(lp));
+    dbgpln("================");
+    }
+
+  //now solve...
+  tankOpt->InitSolution(); //TODO... rather solve from previous iteration?
+  int ExitCode = tankOpt->go();
+  if (ExitCode==LPX_E_NOPFS)
+    {
+    LogWarning(pBlender->Tag(), 0, "Required amount too large relative to sum of contents of tanks!");
+    }
+  else if (ExitCode!=LPX_E_OK)
+    {
+    pBlender->m_StateLine[0] = "Error: Optimisation failed!";
+    LogError(pBlender->Tag(), 0, "Critical blend optimisation error! Error number:%d", ExitCode);
+    }
+
+  // Split Results
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    m_pResultSplits[t] = tankOpt->tank[t];
+  }
+
+  // Criteria Results
+  for (int i=0; i<m_iCriteriaCnt; i++)
+    {
+    CBlendCriteria* pBCrit = m_BCH[i]->m_pBCrit;
+    pBCrit->m_dResult = 0.0;
+    pBCrit->m_dCost = 0.0;
+
+    // Calculate Optimised Criteria Value
+	  if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Ratio))
+      {
+      const int AssayIndexNum = AssayLookup[pBCrit->m_AssayIndex1];
+      const int AssayIndexDen = AssayLookup[pBCrit->m_AssayIndex2];
+      double dnum = 0.0;
+      double dden = 0.0;
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        dnum += tankOpt->tank[t]*tankOpt->assayConc[AssayIndexNum][t];
+        dden += tankOpt->tank[t]*tankOpt->assayConc[AssayIndexDen][t];
+        }
+      if (fabs(dden) > 0.0)
+        pBCrit->m_dResult = dnum/dden;
+      }
+    else if ((pBCrit->m_eConstraintType==CBlendCriteria::eCT_Soft) )
+      {
+      const int AssayIndex = AssayLookup[pBCrit->m_AssayIndex1];
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        const double d1 = tankOpt->tank[t];
+        const double d2 = tankOpt->assayConc[AssayIndex][t];
+        pBCrit->m_dResult += d1*d2;
+        }
+      }
+    if (pBlender->bLogOptimiseNotes)
+      {// Print out criteria results
+      bool ReqMet = (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser ? (pBCrit->m_dResult<=pBCrit->m_dRequirement) : (pBCrit->m_dResult>=pBCrit->m_dRequirement));
+      LogNote(pBlender->Tag(), 0, "Criteria %d:(%s) %f %s %f (%s)", i, ReqMet ? "Yes" : "No", pBCrit->m_dResult, (pBCrit->m_eCompType==CBlendCriteria::eCT_Lesser ? "<=" : ">="), pBCrit->m_dRequirement, pBCrit->m_sName.Str());
+      }
+    }
+
+  if (SetIt && pBlender->bOn)
+    {
+    const int StreamIndex = lpMultiStore->GetOutputStreamIndex(pBlender->sPipeTag());
+
+    if (StreamIndex>=0)
+      {
+      if (lpMultiStore->IsFracForStream(StreamIndex))
+        {
+        for (int t=0; t<m_iTankCnt; t++)
+          lpMultiStore->SetStoreFracForStream(StreamIndex, t, m_pResultSplits[t]);
+        if (pBlender->bLogSetOptimiseData)
+          LogNote(pBlender->Tag(), 0, "Fractions for '%s' have been set in '%s'", pBlender->sPipeTag(), pBlender->sMSTag());
+        }
+      else
+        {
+        LogError(pBlender->Tag(), 0, "Fraction split method must be specified for product stream '%s'", pBlender->sPipeTag());
+        }
+      }
+    else
+      {
+      LogError(pBlender->Tag(), 0, "Invalid Stream specified '%s'", pBlender->sPipeTag());
+      }
+    }
+  }
+
+//==========================================================================
 #endif

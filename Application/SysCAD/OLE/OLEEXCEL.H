@@ -161,6 +161,7 @@ class CExcelReportTrend
     double dStartTime;    //
     double dEndTime;      //
     double dDuration;     //
+    double dReportTimeOffset;
     Strng sChartName;     //
     long iNoOfPts;        //
     byte iOpt;            //

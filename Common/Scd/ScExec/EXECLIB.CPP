@@ -651,7 +651,7 @@ flag CXM_QueryHistory::Empty()
 
 //===========================================================================
 
-CXM_QueryHistoryOther::CXM_QueryHistoryOther(double StartTime, double EndTime, long SrcID, byte Opt, byte TimeOptUnits, flag TimeOptFull, flag Headings, long NoPts, double Invalid, byte QryDest, char* Filename1, char* Filename2, byte QryFileMode)
+CXM_QueryHistoryOther::CXM_QueryHistoryOther(double StartTime, double EndTime, long SrcID, byte Opt, byte TimeOptUnits, flag TimeOptFull, flag Headings, long NoPts, double Invalid, byte QryDest, char* Filename1, char* Filename2, byte QryFileMode, double RepTimeOffset)
   {
   dStartTime=StartTime;
   dEndTime=EndTime;
@@ -663,6 +663,7 @@ CXM_QueryHistoryOther::CXM_QueryHistoryOther(double StartTime, double EndTime, l
   bHeadings=Headings;
   iNoPts=NoPts;
   dInvalid=Invalid;
+  dRepTimeOffset=RepTimeOffset;
   //memset(cInvalid, sizeof(cInvalid), 0);
   //strncpy(cInvalid, Invalid, Min(strlen(Invalid), sizeof(cInvalid)-1));
   iFileMode = QryFileMode;

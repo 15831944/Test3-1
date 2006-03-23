@@ -1373,6 +1373,7 @@ CExcelReportTrend::CExcelReportTrend(COleReportTrendMngr* Mngr, OWorkbook* WkBoo
   dStartTime = 0.0;
   dEndTime = 0.0;
   dDuration = 3600.0;
+  dReportTimeOffset = 0.0;
   iOpt = 1;//AveEqualySpaced
   bTimeOptFull = 0;
   bTimeOptVariant = 0;
@@ -1579,6 +1580,15 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
         }
       }
     }
+  else if (stricmp(f[0], "TimeOffset")==0)
+    {
+    if (nParms!=1 || strlen(f[1])<1)
+      OK = 0;
+    else
+      {
+      dReportTimeOffset = SafeAtoF(f[1],0.0);
+      }
+    }
   else if (stricmp(f[0], "Time")==0)
     {
     if (nParms!=1 || strlen(f[1])<1)
@@ -1635,7 +1645,7 @@ flag CExcelReportTrend::DoReport()
   M.bQueryDone = 0;
   M.bQueryTagsDone = 0;
   CXMsgLst XM;
-  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime, dEndTime, (long)pMngr, iOpt, iTimeOptUnits, bTimeOptFull, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0);
+  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime, dEndTime, (long)pMngr, iOpt, iTimeOptUnits, bTimeOptFull, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0, dReportTimeOffset);
   for (int i=0; i<iTagLen; i++)
     {
     TagOffsets.Add(0L);

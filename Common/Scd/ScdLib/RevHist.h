@@ -2375,12 +2375,57 @@ Update 7 : 27 October 2005
 5) (#357) Fixed error for pressure conversion units for gauge pressures.
    Improved display on Conversions tab page in Project window.
 
-Update 8 : 16 November 2005
+Update 8 : 28 November 2005
 ------------------------------
-1) (#) ?.]
-2) (#366) Fixed problem for increasing number of stores for multistore with
+1) (#366) Fixed problem for increasing number of stores for multistore with 
    shared reactions.
-3) (#371) Fixed crash in PSD calulation of cut size in screen model.
+2) (#371) Fixed crash in PSD calulation of cut size in screen model.
+3) (#374) Fixed error where data entered in a table in the access window for
+   the screen partition curve or belt filter wash curve was ignored.
+4) (#367) Added "Mid-time fraction" in historian, usefull in dynamic with
+   large step size for storing and recovering values thant change occasionaly.
+
+Update 9 : 22 February 2005
+------------------------------
+1) Implemented new Blend Optimiser model.
+2) (#392) Fix for PSD for calculating MeanMass for a size range.
+3) (#396) Added option when editing cfg file on the measurement page to set
+   a Count Factor for calculating PSD particle count.
+4) (#407) Implemented test for too many PSD intervals.
+5) (#235) Fix for large memory usage in projects using SMDK properties.
+6) (#408) Speed improvement in density convergence calculation in Bayer
+   properties.
+7) (#410) Implemented new tags in $Dyn for current day, month and year.
+8) Added new PGM functions IsAlpha(str) and AlphToNum(Str).
+
+Update 10 : 28 February 2005
+------------------------------
+1) Fix for a crash in screen model when more than 12 species have PSD.
+2) Fix for a crash in shell&tube where flowrate in one strem is zero and the
+   other stream is very large.
+
+Update 11 : 13 March 2005
+------------------------------
+1) (#416) Added new method "Individual_PartCrv" to screen model to allow
+   user to specify a separate partition curve for each solid with PSD data.
+2) (#254) Engineering conversion units (in the popup conversions menu) are now 
+   listed alphabetically except for the SI unit which is always shown at the
+   top of the list.
+3) Removed limit on number of conversion unit groups allowed. This was a problem
+   for projects controling extents of many species because of the extra
+   conversions created for %H2O(l), etc.
+4) (#417) Added option in "$Dyn" access window to specify a filename of a
+   text file with a list of all tags (ignoring first line) to be recorded in 
+   the data historian.
+
+Update 12 : 21 March 2005
+------------------------------
+1) (#421) Fixed error "unable to open ..\cfgfiles\cfgfiles\.." which sometimes
+   occured for opening or creating a project.
+2) Added field NoOfReactions to reaction block reporting count of sources, 
+   reactions and sinks.
+
+
 
 Build 116 : 2 September 2005
 ------------------------------

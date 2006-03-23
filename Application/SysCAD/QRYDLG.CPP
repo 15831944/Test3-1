@@ -180,7 +180,7 @@ void CQueryDlg::OnOK()
     if (pDoc->StartFile((char*)(const char*)m_Filename))
       {
       //HRoute.dbgDump("Historian Route ");
-      CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (StartTime, LastTime, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0);
+      CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (StartTime, LastTime, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0, 0.0);
       CXMsgLst XM;
       for (int i=0; i<TagCnt; i++)
         {
@@ -190,7 +190,7 @@ void CQueryDlg::OnOK()
           {//???
           XM.PackMsg(xb);
           XM.PackMsg(new CXM_Route(HRoute));
-          xb=new CXM_QueryHistoryOther (StartTime, LastTime, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0);
+          xb=new CXM_QueryHistoryOther (StartTime, LastTime, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0, 0.0);
           i--;
           }
         }

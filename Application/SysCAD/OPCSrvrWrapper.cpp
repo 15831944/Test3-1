@@ -85,21 +85,21 @@ void CloseMainOPCSrvr()
 
 bool GetMainOPCSrvrEnable()
   {
-  if (gs_pMainOPCSrvr)
+  if (gs_pMainOPCSrvr && gs_pMainOPCSrvr->OPCSrvrMngr())
     return gs_pMainOPCSrvr->OPCSrvrMngr()->Enabled();
   return false;
   };
 
 bool EnableMainOPCSrvr(bool On)
   {
-  if (gs_pMainOPCSrvr)
+  if (gs_pMainOPCSrvr && gs_pMainOPCSrvr->OPCSrvrMngr())
     gs_pMainOPCSrvr->OPCSrvrMngr()->SetEnable(On);
   return false;
   }
 
 void DisableMainOPCSrvr()
   {
-  if (gs_pMainOPCSrvr)
+  if (gs_pMainOPCSrvr && gs_pMainOPCSrvr->OPCSrvrMngr())
     gs_pMainOPCSrvr->OPCSrvrMngr()->SetEnable(false);
   }
 

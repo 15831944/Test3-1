@@ -150,10 +150,11 @@ void Model400Helper::RecalcT10()
         RT_OreProp& Prop = OreProps->OrePropByIndex(SpId);
         const double A = Prop.OtherProp(AIndex);
         const double b = Prop.OtherProp(bIndex);
-        const double t10 = A * Exps(1.0 - b*ECS);
+        //const double t10 = A * Exps(1.0 - b*ECS); kga 03/2006 this is wrong! changed to equation below
+        const double t10 = A * (1.0 - Exps(-b * ECS));
         if (t10<1.0e-6)
           {
-          LogWarning("Model400", 0, "T10<1e-6 due to ore properties A and b parameters, assume T10 = 10");
+          LogWarning("Model400", 0, "T10<1e-6 due to bad ore properties A and b parameters, assume T10 = 10");
           pT10[i] = 10.0;
           }
         else

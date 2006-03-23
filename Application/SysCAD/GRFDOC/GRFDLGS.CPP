@@ -396,9 +396,9 @@ void CCreateBarDlg::UpdateVarList(BOOL bRetrieve)
 
 //---------------------------------------------------------------------------
 
-void CCreateBarDlg::SetTagsOn(BOOL TagsOn)
+void CCreateBarDlg::SetTagsOn(bool TagsOn)
   {
-  bTagsOn = TagsOn!=0;
+  bTagsOn = TagsOn;
   if (TagsOn)
     {
     SetDlgItemText(IDC_MSG, "Select/enter tags and variables");
@@ -2153,12 +2153,12 @@ void CScaleRotateDlg::OnUpdateAccept(CCmdUI* pCmdUi)
 
 IMPLEMENT_DYNAMIC(CGrfTextDlg, CDialog)
 
-CGrfTextDlg::CGrfTextDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CGrfTextDlg::IDD, pParent)
-, m_sText(_T(""))
-, m_TextScale(2.0)
-, m_Rotation(0.0)
-, m_TextWidth(0.8)
+CGrfTextDlg::CGrfTextDlg(CWnd* pParent /*=NULL*/) \
+	: CDialog(CGrfTextDlg::IDD, pParent)
+  , m_sText(_T(""))
+  , m_TextScale(2.0)
+  , m_Rotation(0.0)
+  , m_TextWidth(0.8)
   {
   gs_pCmd->SetDlgBusy();
   Create(CGrfTextDlg::IDD, pParent);

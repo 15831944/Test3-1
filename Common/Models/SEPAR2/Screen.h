@@ -88,7 +88,8 @@ class ScreenBlk : public TaggedObject
     CDArray        OTemp, Feed, UTemp, YTemp, Fine;
     SpConduit      QFine, QTemp;
 
-    SzPartCrv1     PartCrv, PartCrv2;
+    SzPartCrv1     PartCrv; //user input partition curve for manual methods
+    SzPartCrv1     PartCrv2; //resulting partition curve
 
   public:
     ScreenBlk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);

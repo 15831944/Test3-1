@@ -1063,7 +1063,9 @@ class DllImportExport CExecutive : public ConditionBlk
 
     CLDBStuff      m_LDB;
 
+    Strng          m_sHstTaglistFilename;
 	  flag           m_bHstRestartOnStart;
+    flag           m_bHstSetTaglistOnStart;
 	  flag           m_bResetTimeOnStart;
     double         m_dOnStartTime;
 
@@ -1165,8 +1167,12 @@ class DllImportExport CExecutive : public ConditionBlk
     double         GetDynProgress() { return m_dDynProgress; };
     void           SetDynProgress(double DynProgress) { m_dDynProgress = DynProgress; };
 
+    char*          HstTaglistFile() { return m_sHstTaglistFilename(); };
+    void           SetHstTaglistFile(char* HstTaglistFilename) { m_sHstTaglistFilename=HstTaglistFilename; };
     flag           HstRestartOnStart() { return m_bHstRestartOnStart; };
     void           SetHstRestartOnStart(bool HstRestartOnStart) { m_bHstRestartOnStart=HstRestartOnStart; };
+    flag           HstSetTaglistOnStart() { return m_bHstSetTaglistOnStart; };
+    void           SetHstSetTaglistOnStart(bool HstSetTaglistOnStart) { m_bHstSetTaglistOnStart=HstSetTaglistOnStart; };
     flag           ResetTimeOnStart() { return m_bResetTimeOnStart; };
     void           SetResetTimeOnStart(bool ResetTimeOnStart) { m_bResetTimeOnStart=ResetTimeOnStart; };
     double         OnStartTime() { return m_dOnStartTime; };
@@ -1227,6 +1233,7 @@ class DllImportExport CExecutive : public ConditionBlk
 
     void           ConfigureArchive()    { DoConfigureArchive(); };
     void           ConfigureHistorian()  { DoConfigureHistorian(); };
+    bool           KeepHistoryFile(char* pFilename);
     
     UINT           TimerId() { return iTimerId; };
     flag           DoingPB() { return fDoingPB; };

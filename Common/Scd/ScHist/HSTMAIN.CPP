@@ -1661,7 +1661,7 @@ DWORD CHistorian::EO_Message(CXMsgLst &XM, CXM_Route &Route)
         //pXRoute->dbgDump("QueryHistoryOther");
         CQueryHist* pQuery = new CQueryHist(pQH->dStartTime, pQH->dEndTime, (QueryOption)pQH->iOpt,
                                             pQH->iTimeOptUnits, pQH->bTimeOptFull, pQH->bHeadings, pQH->iNoPts,
-                                            *pXRoute, pQH->iSrcID, (QueryDestination)pQH->iQryDest, pQH->Filename1(), pQH->Filename2(), pQH->iFileMode);
+                                            *pXRoute, pQH->iSrcID, (QueryDestination)pQH->iQryDest, pQH->Filename1(), pQH->Filename2(), pQH->iFileMode, pQH->dRepTimeOffset);
 
         if (pQuery->QueryDst==QFileDirect)
           {//add ALL tags
@@ -2936,6 +2936,7 @@ void CHistorianMngr::QueryToFile(char* pFile, double StartTime, double Duration,
   flag Headings = 0;
   long NoPts = (long)(Duration/Interval)+1;
   double Invalid = dNAN;
+  double RepTimeOffset = 0.0;
   //todo check if pFile path is valid
   //todo strip .xxx extension if found
   Strng Filename = pFile;
@@ -2949,7 +2950,7 @@ void CHistorianMngr::QueryToFile(char* pFile, double StartTime, double Duration,
     CXM_Route HRoute;
     if (pExecObj->XFindObject(pExecName_Historian, HRoute))
       {
-      CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther(StartTime, EndTime, SrcID, Opt, TimeOptUnits, TimeOptFull, Headings, NoPts, Invalid, 4/*FileDirect*/, Filename(), FilenameTags(), FileMode);
+      CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther(StartTime, EndTime, SrcID, Opt, TimeOptUnits, TimeOptFull, Headings, NoPts, Invalid, 4/*FileDirect*/, Filename(), FilenameTags(), FileMode, RepTimeOffset);
       CXMsgLst XM;
       XM.PackMsg(xb);
       XM.PackMsg(new CXM_Route(HRoute));

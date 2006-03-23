@@ -8,6 +8,8 @@
 #pragma comment(lib, "rpcrt4.lib")
 //#pragma optimize("", off)
 
+#define IncludeBrahma 1
+
 //===========================================================================
 //
 //
@@ -32,6 +34,7 @@ MSpeciePtr   SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
 //MSpeciePtr   Organics          (InitTest, "Na2C5O7(l)",    false); //organic
 MSpeciePtr   Organics1         (InitTest, "NaOrg(l)",      false); //organic NaC2.21O2.275H3.63
 MSpeciePtr   SilicateLiq       (InitTest, "SiO2(l)",       false);
+//MSpeciePtr   Potassium         (InitTest, "K2O(l)",        false); 
 
 MSpeciePtr   OccSoda           (InitTest, "Na2O(s)",       false);
 MSpeciePtr   THA               (InitTest, "Al2O3.3H2O(s)", false);
@@ -48,17 +51,17 @@ const double MW_F        = 18.9984032;
 const double MW_SO4      = 96.0636; //32.066+(4*15.9994)
 
 //enum DLM_DefineLiquorMethod { DLM_TotOrganics, DLM_TOC };
-enum BDM_BayerDensityMethod { BDM_Original, BDM_WRS, BDM_BPD1, BDM_BPD2 };
+enum BDM_BayerDensityMethod { BDM_Original, BDM_WRS, BDM_BPD1, BDM_BPD2, BDM_BRAHMA, BDM_BRAHMA_OLD, BDM_BRAHMA25 };
 enum CPM_HeatCapacityMethod { CPM_Original, CPM_WRS };
-enum ASM_AlSolubilityMethod { ASM_LiqInfo5, ASM_LiqInfo6 };
+enum ASM_AlSolubilityMethod { ASM_LiqInfo5, ASM_LiqInfo6, ASM_BRAHMA };
 enum BPM_BPEMethod { BPM_Dewey, BPM_Adamson, BPM_BPD1, BPM_BPD2 };
 
 double BATCBayerSM::sm_dMinSolCp      = 1.046;
 double BATCBayerSM::sm_dH2OTestFrac0  = 1.0;//0.98;
 double BATCBayerSM::sm_dH2OTestFrac1  = 1.0;//0.95;
 //byte BATCBayerSM::sm_iRqdCalcMethod   = DLM_TOC;
-byte BATCBayerSM::sm_iDensityMethod   = BDM_Original;
-byte BATCBayerSM::sm_iCPMethod        = CPM_Original;
+byte BATCBayerSM::sm_iDensityMethod   = BDM_WRS;//BDM_Original;
+byte BATCBayerSM::sm_iCPMethod        = CPM_WRS;//CPM_Original;
 byte BATCBayerSM::sm_iASatMethod      = ASM_LiqInfo6;
 byte BATCBayerSM::sm_iBPEMethod       = BPM_Dewey;
 
@@ -122,23 +125,22 @@ bool CBayerConcs::Converge(MArray & MA)
   const double T_ = C2K(Tc);
   // Converge Liquor Conc. All sodium concentrations expressed as Na2CO3
   int IterCount = s_Tol.GetMaxIters();//100;
-  double OldDensity = Density25*1.1;
-  while ( fabs(OldDensity - Density25) > s_Tol.GetAbs() && --IterCount>0)
+  double OldDensity = Density25;
+  while (1)
     {
-    Density25 = Range(0.0001, Density25, 10000.0);
     for (int sn=0; sn<gs_MVDefn.Count(); sn++)
       {
       if (gs_MVDefn[sn].IsLiquid())
-        {
         Liq[sn] = MA[sn] / TLiq * Density25 * NaFactor[sn];
         }
-      }
 
+    Density25 = Range(0.0001, LiquorDensity(T_, MA), 10000.0);
+    if (fabs(OldDensity - Density25) < s_Tol.GetAbs() || --IterCount==0)
+      break;
     OldDensity = Density25;
-    Density25 = LiquorDensity(T_, MA);
     } // end of while
   Density25 = Max(0.001, Density25);
-  return (IterCount>=0);
+  return (IterCount>0);
   }
 
 //---------------------------------------------------------------------------
@@ -263,13 +265,20 @@ double CBayerConcs::LiquorDensEqn4(double T_, double S, double A, double C, doub
 
 // --------------------------------------------------------------------------
 
+#include "brama_liqden.cpp"
+
+// --------------------------------------------------------------------------
+
 double CBayerConcs::WaterDensity(double T_)
   {
-  const double TR = 1.0 - (K2C(T_)+273.15)/647.3;
+  //const double TR = 1.0 - (K2C(T_)+273.15)/647.3;
+  //kga 15/2/2006: Do not allow TR to be negative (ie assume maximum temperature = 647.3K
+  const double TR = Max(0.01, 1.0 - (K2C(T_)+273.15)/647.3);
   const double TR2 = TR*TR;
-  const double RhoW = 0.001 * ( 576.44 + 1497.2*Pow(TR,0.975) + 
-                      TR2*(1688000.0*Pow(TR,20.0) - 7439.0*Pow(TR,6.0) + 2002.4*TR2 - 1763.3) -
-                      1.0/TR*(2.8436 - 0.025096/TR + 0.00008007/TR2) );
+  const double a = 1497.2*Pow(TR,0.975);
+  const double b = 1688000.0*Pow(TR,20.0) - 7439.0*Pow(TR,6.0) + 2002.4*TR2 - 1763.3;
+  const double c = 2.8436 - 0.025096/TR + 0.00008007/TR2;
+  const double RhoW = 0.001 * ( 576.44 + a + TR2*b - 1.0/TR*c);
   return RhoW;
   }
 
@@ -418,7 +427,54 @@ RHOT = 1000 / TVOL
       double RHO = LiquorDensEqn4(T_, S, A, C, Rso4, Rcl, Roc);
       return RHO;
       }
+    case BDM_BRAHMA25: 
+      {
+      double C = Liq[CausticSoda];
+      double S = C+Liq[SodiumCarbonate];
+      double A = Liq[Alumina];
+      double Cl = Liq[SodiumChloride]*35.453*2/SodiumCarbonate.MW;
+      double SO4 = Liq[SodiumSulphate]*96.07/SodiumCarbonate.MW;
+      double TOC =  Liq[Organics1]*(12.11*2.21/(89.5951)) + Liq[SodiumOxalate]*(2*12.11/134.012);
+      return LiquorDensEqn6( Tc, C,  S,  A, Cl, SO4, TOC);
+      }
+    case BDM_BRAHMA:
+      {
+      double den = 1000.;
+      double denOld;
+      do {
+	      denOld = den;
+	      double r = den/TLiq;
+	      double C = MA[CausticSoda]*r*NaFactor[CausticSoda] ;
+	      double S = C+MA[SodiumCarbonate]*r;
+	      double A = MA[Alumina]*r;
+
+	      double Cl = MA[SodiumChloride]*r /(58.44/35.45);
+	      double SO4 = MA[SodiumSulphate]*r /(142.0431/96.07);
+	      double TOC =  (MA[Organics1]*(12.11*2.21/(89.5951)) + MA[SodiumOxalate]*(2*12.11/134.012))*r;
+	      den =  LiquorDensEqn6( Tc, C,  S,  A, Cl, SO4, TOC);
+      } while (fabs(1.-den/denOld) > 1.0e-5);
+      return den;
+      }
+    case BDM_BRAHMA_OLD:
+      {
+      double den = 1000.;
+      double denOld;
+      do {
+	      denOld = den;
+	      double r = den/TLiq;
+	      double C = MA[CausticSoda]*r / (2*39.99/105.99);
+	      double S = C+MA[SodiumCarbonate]*r;
+	      double A = MA[Alumina]*r;
+
+	      double Cl = MA[SodiumChloride]*r /(58.44/35.45);
+	      double SO4 = MA[SodiumSulphate]*r /(142.07/96.07);
+	      double TOS =  (MA[Organics1]*(105.99/(2*89.569)) + MA[SodiumOxalate]*105.99/134.012)*r;
+	      den =  LiquorDensEqn5( Tc, C,  S,  A, Cl, SO4, TOS);
+	      // pBayerMdl->p("den = %12.5g", den);
+      } while (fabs(1.-den/denOld) > 1.0e-5);
+      return den;
     }
+    }//end switch
   return 1000.0;
   }
 
@@ -722,6 +778,10 @@ double BATCBayerSM::get_SaturationP(double T, MArray *pMA)
     }
   return SatP;
   }
+
+//---------------------------------------------------------------------------
+
+#include "brahma_util.cpp"
 
 //---------------------------------------------------------------------------
 
@@ -1046,12 +1106,20 @@ long BATCBayerSM::DefinedPropertyCount()
 static MPropertyInfo::MStringValueP SVASat[]={
   { "LiqInfo5", ASM_LiqInfo5 },
   { "LiqInfo6", ASM_LiqInfo6   },
+#if IncludeBrahma
+  { "BRAHMA", ASM_BRAHMA },
+#endif
   {0}};
 static MPropertyInfo::MStringValueP SVDens[]={
   { "Original", BDM_Original  },
   { "Reynolds-WRS", BDM_WRS },
   //{ "BPD", BDM_BPD1 },
   //{ "BPD_Sept05", BDM_BPD2 },
+#if IncludeBrahma
+  { "BRAHMA", BDM_BRAHMA},
+  { "BRAHMA(old)", BDM_BRAHMA_OLD},
+  { "BRAHMA25", BDM_BRAHMA25},
+#endif
   {0}};
 static MPropertyInfo::MStringValueP SVCp[]={
   { "Original",  CPM_Original   },
@@ -1070,7 +1138,7 @@ long BATCBayerSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
   switch(Inx)
     {
     case idDensityMethod   	: Info.SetText("--Global options---------");
-                              Info.SetStructName("Config", MP_GlobalProp, "XXXX"); //NB: The "struct name" is used as part of tag!
+                              Info.SetStructName("Config"); //NB: The "struct name" is used as part of tag!
                               Info.Set(ePT_Long,      "", "DensityMethod",            SVDens,                     MP_GlobalProp|MP_Parameter,       "Global Density method"); return Inx;
     case idCPMethod			    : Info.Set(ePT_Long,      "", "CPMethod",                 SVCp,                       MP_GlobalProp|MP_Parameter,       "Global CP method"); return Inx;
     case idASatMethod			  : Info.Set(ePT_Long,      "", "ASatMethod",               SVASat,					            MP_GlobalProp|MP_Parameter,       "Global ASat Method"); return Inx;
@@ -1080,7 +1148,7 @@ long BATCBayerSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
     case idH2OTestFrac1     : Info.Set(ePT_Double,    "", "WaterTestFrac1",           MC_Frac,  "%",   0, 0,      MP_GlobalProp|MP_Parameter|MP_InitHidden, "Global water fraction above which proportional amounts of two properties models are used"); return Inx;
 
     case idDefineLiquor			: Info.SetText("--Calculator-------------");
-                              Info.SetStructName("Calc", MP_ConfigProp, "User"); //NB: The "struct name" is used as part of tag!
+                              Info.SetStructName("Calc"); //NB: The "struct name" is used as part of tag!
                               Info.Set(ePT_Bool,     "", "DefineLiquor",              MC_,      "",    0, 0,    MP_ConfigProp|MP_Parameter|MP_CheckBox, ""); return Inx;
     case idRqd_A_to_C			  : Info.Set(ePT_Double,   "", "Rqd_A/C",                   MC_,      "",    0, 0,    MP_ConfigProp|MP_Parameter, "The required Alumina/Caustic Ratio"); return Inx;
     case idRqd_C_to_S			  : Info.Set(ePT_Double,   "", "Rqd_C/S",                   MC_,      "",    0, 0,    MP_ConfigProp|MP_Parameter, "The required Caustic/Soda Ratio"); return Inx;
@@ -1095,7 +1163,7 @@ long BATCBayerSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
     case idRqd_SolFrac			: Info.Set(ePT_Double,   "", "Rqd_SolFrac",               MC_Frac,  "%",   0, 0,    MP_ConfigProp|MP_Parameter, "The required Solids Fraction"); return Inx;
 
 
-    case idAluminaConc25		: Info.SetStructName("Props", MP_UserProp, "User"); //NB: The "struct name" is used as part of tag! Recomend "Props" for compatability with other properties models.
+    case idAluminaConc25		: Info.SetStructName("Props"); //NB: The "struct name" is used as part of tag! Recomend "Props" for compatability with other properties models.
                               Info.SetText("--Concentration and Ratio @ 25,-----------");
                               Info.Set(ePT_Double,    "", "Alumina@25",               MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling,    "Alumina Concentration @ 25"); return Inx;
     case idAtoC					    : Info.Set(ePT_Double,    "", "A/C",                      MC_,     "",       0,      0,  MP_Result|MP_NoFiling,    "A to C ratio"); return Inx;
@@ -1502,6 +1570,7 @@ void BATCBayerSM::InputCalcs(bool DoIt, double T_)
                   }
                 break;
                 }
+              case BDM_BPD2: //NOT implemented, use BDM_BPD1
               case BDM_BPD1:
                 {
                 if (0)
@@ -1524,8 +1593,35 @@ void BATCBayerSM::InputCalcs(bool DoIt, double T_)
                 Density25 = CBayerConcs::LiquorDensEqn2(C2K(25.0), StoLiq, CtoS, AtoC, CltoS, FtoS, SO4toS, TOCtoS)/1000.0;
                 break;
                 }
+              case BDM_BRAHMA25:
+              case BDM_BRAHMA:
+                {
+                const double C = dRqd_C;
+                const double S = dRqd_C/dRqd_CtoS;
+                const double A = dRqd_C*dRqd_AtoC;
+                const double Cl = dRqd_Salt*MW_Cl/MW_NaCl; 
+                const double F = dRqd_Fl*MW_F/MW_NaF;
+                const double SO4 = dRqd_Sul*MW_SO4/MW_Na2SO4;
+                const double TOC = dRqd_Ox*2*12.11/134.012 + Og*12.11*2.21/89.5951;	  
+                Density25 = CBayerConcs::LiquorDensEqn5(25.0, dRqd_C,  S,  A, Cl, SO4, TOC)/1000.;
+                break;
+                }		  
+              case BDM_BRAHMA_OLD:
+                {
+                const double C = dRqd_C;
+                const double S = dRqd_C/dRqd_CtoS;
+                const double A = dRqd_C*dRqd_AtoC;
+                const double Cl = dRqd_Salt*MW_Cl/MW_NaCl; 
+                const double F = dRqd_Fl*MW_F/MW_NaF;
+                const double SO4 = dRqd_Sul*MW_SO4/MW_Na2SO4;
+                const double TOS = dRqd_Ox;
+                Density25 = CBayerConcs::LiquorDensEqn4(25.0, dRqd_C,  S,  A, Cl, SO4, TOS)/1000.;
+                break;
               }
-
+              default:
+                //ERROR NOT IMPLEMENTED!!!
+                break;
+              }//end switch
             Derr = fabs(Dens1 - Density25);
             if ( Derr < 1.0e-10)
               j = 100;
@@ -1871,6 +1967,7 @@ double BATCBayerSM::IonicStrength()
       I = 0.01887*cNaOH + k1*cNaCl/MW_NaCl + k2*cNa2CO3/MW_Na2CO3 + k3*cNa2SO4/MW_Na2SO4 + k4*0.01887*cTOC;
       return I;
       }
+    case ASM_BRAHMA: //use LiqInfo6...
     case ASM_LiqInfo6:
       {
       const double k1 = 0.9041;
@@ -1894,13 +1991,13 @@ double BATCBayerSM::IonicStrength()
 double BATCBayerSM::AluminaConcSat(double T_)
   {
   T_ = Max(1.0, T_);
-  const double I = IonicStrength();
-  const double I2 = Sqrt(I);
-  const double cNaOH   = LiqConcs25.Liq[::CausticSoda];
   switch (sm_iASatMethod)
     {
     case ASM_LiqInfo5:
       {
+      const double I = IonicStrength();
+      const double I2 = Sqrt(I);
+      const double cNaOH   = LiqConcs25.Liq[::CausticSoda];
       // Saturated Alumina concentration (ie Alumina concentration at Equilibrium)
       //calculated using the formula found in:
       //Fourth International Alumina Quality Workshop  June 1996 Proceedings
@@ -1918,6 +2015,9 @@ double BATCBayerSM::AluminaConcSat(double T_)
       }
     case ASM_LiqInfo6:
       {
+      const double I = IonicStrength();
+      const double I2 = Sqrt(I);
+      const double cNaOH   = LiqConcs25.Liq[::CausticSoda];
       const double a0 = -8.5733;
       const double a3 = -0.7370;
       const double a4 = 0.1918;
@@ -1927,6 +2027,10 @@ double BATCBayerSM::AluminaConcSat(double T_)
       const double Keq  = Exps(dG/(R*T_)); //Equilibrium Constant
       const double ASat = 0.96197*cNaOH/(1.0+(Pow(10.0, X)/Keq));
       return ASat;
+      }
+    case ASM_BRAHMA:
+      {
+      #include "brahma_acsat.cpp"
       }
     }
   return 0.0;

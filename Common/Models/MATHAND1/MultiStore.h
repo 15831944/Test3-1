@@ -33,7 +33,7 @@
 
 class CMultiStorage;
 
-#define WITHMSSRCSNK 01
+#define WITHMSSRCSNK 0
 
 //--------------------------------------------------------------------------
 
@@ -277,6 +277,7 @@ class DllImportExport CMultiStoreIO
     CMultiStoreIO & operator = (const CMultiStoreIO & I);
 
     void      Validate(bool FeedStream, bool StoreCentric);
+    void      ValidateSplit();
 
   public:
     byte            m_iSplitMethod;

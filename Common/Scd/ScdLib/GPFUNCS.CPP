@@ -2896,6 +2896,7 @@ pchar SecstoHMSDate(double time_in, // the time in seconds.
                     pchar buff,  // the buffer in which the result is to be stored.
                     flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
   {
+  //time_in = floor(time_in*1.0e6+0.5)/1.0e6; //round for lost precision on LSD
   if (!WithDate)
     return SecstoHMS(time_in, buff);
   __time64_t tt=(__time64_t)(time_in);

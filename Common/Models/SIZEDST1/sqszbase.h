@@ -523,6 +523,7 @@ typedef CSmartPtrAllocate<CSD_SpDist> CSPASD_SpDist;
 class DllImportExport CSD_SpDistArray : public CArray <CSPASD_SpDist, CSPASD_SpDist&> {};
 
 // ==========================================================================
+extern DllImportExport double gs_CountFactor;
 
 class DllImportExport CSD_Distribution
   {
@@ -564,20 +565,24 @@ class DllImportExport CSD_Distribution
     int              FindPriSzIdIndex(int SpecieId) { return rDefn.FindPriSzIdIndex(SpecieId); };
     double           GeometricMean(int iInt) { return rDefn.GeometricMean(iInt); };
     double           MeanPartDiam(int iInt) { return rDefn.MeanPartDiam(iInt); };
-
-    double           MeanPartMass(int iInt, double MeanDens) { double D=MeanPartDiam(iInt); return PI*(D*D*D)*MeanDens/6.0; };
-    double           PartCount(int iInt, double Mass, double MeanDens) { return Mass/GTZ(MeanPartMass(iInt, MeanDens)); };
+    double           MeanPartMass(int iInt, double MeanDens) 
+                       { 
+                       //double R=MeanPartDiam(iInt)/2; 
+                       //return 4/3*PI*(R*R*R)*MeanDens;
+                       //return 4.0/3.0*PI*(R*R*R)*MeanDens;
+                       const double D = MeanPartDiam(iInt); 
+                       return PI*(D*D*D)*MeanDens/6.0; 
+                       };
+    double           PartCount(int iInt, double Mass, double MeanDens) 
+                       { 
+                       return Mass/GTZ(MeanPartMass(iInt, MeanDens))*gs_CountFactor; 
+                       };
     double           PartDensity(int iInt, double MeanDens) { return 1.0/GTZ(MeanPartMass(iInt, MeanDens)); };
-    //double           PartSurfaceArea(int iInt, double MeanDens) 
-    //  { 
-    //  double D=MeanPartDiam(iInt); 
-    //  return 3.0/GTZ(0.5*MeanDens*D);  // m^2/kg
-    //  };
     double           SpecificSurfaceAreaM(double T, double P, SpPropOveride * pOvr, double *M) 
                         { 
-                        double TotalF=0;
-                        double TotalA=0;
-                        double TotalM=0;
+                        double TotalF=0.0;
+                        double TotalA=0.0;
+                        double TotalM=0.0;
                         for (int s=0; s<NPriIds(); s++)
                           TotalM+=M[PriSzId(s)];
                         TotalM=GTZ(TotalM);
@@ -586,51 +591,41 @@ class DllImportExport CSD_Distribution
                           double SolDens=SDB[PriSzId(s)].Density(SpModel::Fidelity(), T, P, pOvr, M);
                           CSD_SpDist & S=*PriSp[s];
                           double Mult=M[PriSzId(s)]/TotalM;
-                          //double Dens=SDB.Density(
                           for (int i=0; i<NIntervals(); i++)
                             {
-
-                            double D=MeanPartDiam(i); 
-                            double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
+                            const double D=MeanPartDiam(i); 
+                            const double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
                             TotalF+=Mult*S.FracPass[i];
                             TotalA+=Mult*Y*S.FracPass[i];
-                            };
-                          };
+                            }
+                          }
                         return 0.001*TotalA/GTZ(TotalF);
                         }
     double           SpecificSurfaceAreaV(double T, double P, SpPropOveride * pOvr, double *M, double LiqVol) 
                         { 
-                        double TotalF=0;
-                        double TotalA=0;
-                        //double TotalM=0;
-                        //for (int s=0; s<NPriIds(); s++)
-                        //  TotalM+=M[PriSzId(s)];
-                        //TotalM=GTZ(TotalM);
+                        double TotalF=0.0;
+                        double TotalA=0.0;
                         for (int s=0; s<NPriIds(); s++)
                           {
                           double SolDens=SDB[PriSzId(s)].Density(SpModel::Fidelity(), T, P, pOvr, M);
                           CSD_SpDist & S=*PriSp[s];
-                          //double Mult=M[PriSzId(s)]/TotalM;
-                          //double Dens=SDB.Density(
                           for (int i=0; i<NIntervals(); i++)
                             {
-
-                            double D=MeanPartDiam(i); 
-                            double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
-                            //TotalF+=Mult*S.FracPass[i];
+                            const double D=MeanPartDiam(i); 
+                            const double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
                             TotalA+=M[PriSzId(s)]*Y*S.FracPass[i];
-                            };
-                          };
+                            }
+                          }
                         return TotalA/GTZ(LiqVol);
                         }
     double SolidsMass(double T, double P, SpPropOveride * pOvr, double *M) 
                         { 
-                        double TotalM=0;
+                        double TotalM=0.0;
                         for (int s=0; s<NPriIds(); s++)
                           TotalM+=M[PriSzId(s)];
                         return TotalM;
                         }
-    double SolidsDensity(double T, double P, SpPropOveride * pOvr, double *M) 
+    /*double SolidsDensity(double T, double P, SpPropOveride * pOvr, double *M) 
                         { 
                         //double TotalM=0;
                         //double TotalV=0;
@@ -655,7 +650,7 @@ class DllImportExport CSD_Distribution
                         return 2420;
 
                       //  return TotalM;
-                        }
+                        }*/
     
     CSD_DistDefn  &  Defn() { return rDefn; };
 

@@ -6,7 +6,7 @@
 #include "InlineUtils.hpp"
 
 #include "OptLib.h"
-
+#pragma optimize("", off)
 
 //__declspec( dllimport ) int LogNote(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...);
 //__declspec( dllimport ) int LogError(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...);

@@ -395,7 +395,7 @@ const DWORD TBF_LocalOnly     = 0x00100000;
 #endif
 
 #define SCD_BUILDNO      116                   /* Build number*/
-#define SCD_BUILDDATE    "16 March 2006"        /* Build release date*/
+#define SCD_BUILDDATE    "23 March 2006"        /* Build release date*/
 #define SCD_VERINFO_V0   9                     /* Major Version */
 #define SCD_VERINFO_V1   0                     /* Minor Version */
 #define SCD_VERINFO_V2   4                     /* Incompatible Version, ie check these numbers match in DLLs*/

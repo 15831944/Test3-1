@@ -6859,28 +6859,16 @@ DXF_ENTITY DXF_Drawing::Create_Bars_Block(CExecObj *pDb, Strng_List &Vars, Strng
       pnt[0] = x0+w0/2.0;  pnt[1] = y0+h0/2.0;  pnt[2] = 0.0;
       SetCurveColor(pDynblk->Add_Square(x0+spc,y0+spc,w0-(2.0*spc),h0-(2.0*spc)), -1);
       dxf_set_entity_color(pDynblk->Add_Text(CurVar, pnt, TSet), -1);
-      //crv = pDynblk->Add_Square(x0+spc,y0+spc,w0-(2.0*spc),h0-(2.0*spc));
-      //ent = pDynblk->Add_Text(CurVar,loc.p(),TSet);
-      //dxf_set_entity_color(ent,-1);
-      //SetCurveColor(crv,-1);
 
       y0 = hgt * 2.0;  x0 = wdt * i;  w0 = wdt;  h0 = hgt;
       pnt[0] = x0+w0/2.0;  pnt[1] = y0+h0/2.0;  pnt[2] = 0.0;
       SetCurveColor(pDynblk->Add_Square(x0+spc,y0+spc,w0-(2.0*spc),h0-(2.0*spc)), -1);
       dxf_set_entity_color(pDynblk->Add_Text(CurMin, pnt, TSet), -1);
-      //pDynblk->Add_Square(x0+spc,y0+spc,w0-(2.0*spc),h0-(2.0*spc));
-      //pDynblk->Add_Text(CurMin,loc.p(),TSet);
-      //dxf_set_entity_color(ent,-1);
-      //SetCurveColor(crv,-1);
 
       y0 = hgt * 18.0;  x0 = wdt * i;  w0 = wdt;  h0 = hgt;
       pnt[0] = x0+w0/2.0;  pnt[1] = y0+h0/2.0;  pnt[2] = 0.0;
       SetCurveColor(pDynblk->Add_Square(x0+spc,y0+spc,w0-(2.0*spc),h0-(2.0*spc)), -1);
       dxf_set_entity_color(pDynblk->Add_Text(CurMax, pnt, TSet), -1);
-      //pDynblk->Add_Square(x0+spc,y0+spc,w0-(2.0*spc),h0-(2.0*spc));
-      //pDynblk->Add_Text(CurMax,loc.p(),TSet);
-      //dxf_set_entity_color(ent,-1);
-      //SetCurveColor(crv,-1);
 
       if (ptmp = Taglist.Next())
         CurTag = ptmp->Str();

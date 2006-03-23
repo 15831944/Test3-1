@@ -16,9 +16,10 @@ enum SBMethods { SBM_Karra, SBM_PartCrv_Individ, SBM_PartCrv_Overall, SBM_Whiten
 enum KMethods  { KM_Area, KM_d50 };
 enum FMethods  { FM_None, FM_LiqFines, FM_FineEff };
 
-XID xidWhitenBeta   = MdlBsXID(10050);
-XID xidWhitenRf     = MdlBsXID(10051);
-XID xidWhitenC      = MdlBsXID(10052);
+XID xidMethod       = MdlBsXID(10050);
+XID xidWhitenBeta   = MdlBsXID(10051);
+XID xidWhitenRf     = MdlBsXID(10052);
+XID xidWhitenC      = MdlBsXID(10053);
 
 IMPLEMENT_TAGOBJ(ScreenBlk, "ScrnBlk", "ScrnBlk", "1", "", "SB", TOC_ALL|TOC_GRP_SIZEDST|TOC_SIZEDIST, "Screen Blk", "Screen Block");
 
@@ -146,12 +147,14 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
   static DDBValueLst DDB1[]={
     {SBM_Karra,     "Karra"},
     {SBM_PartCrv_Overall, "PartitionCrv"},
-    //{SBM_PartCrv_Individ, "Individual_PartCrv" },
+#if WithIndividPartCrv
+    {SBM_PartCrv_Individ, "Individual_PartCrv" },
+#endif
     //{SBM_PartCrv_Overall, "Overall_PartCrv"},
     {SBM_Whiten, "Whiten"},
     {SBM_WhitenBetaStar, "WhitenBeta"},
     {0}};
-  DDB.Byte    ("SizingMethod",    "Method",      DC_,     "",       &iMethod,       this, isParm|SetOnChange, DDB1);
+  DDB.Byte    ("SizingMethod",    "Method",      DC_,     "",       xidMethod,      this, isParm|SetOnChange, DDB1);
 
   DDB.Visibility(SHM_All, iMethod==SBM_Karra && fMode);
   DDB.Text(" ");
@@ -238,6 +241,28 @@ flag ScreenBlk::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
+    case xidMethod:
+      if (DCB.rB)
+        {
+        byte PrevMethod = iMethod;
+        iMethod=*DCB.rB;
+#if WithIndividPartCrv
+        if (iMethod==SBM_PartCrv_Individ || iMethod==SBM_PartCrv_Overall)
+          {
+          const int DistIndex = (PartCrv.GetSizeDefn()>=0 ? PartCrv.GetSizeDefn() : 0);
+          const int PriIdCount = SD_Defn.NPriIds(DistIndex);
+          const int RqdNCurves = (iMethod==SBM_PartCrv_Overall ? 1 : Max(1, PriIdCount));
+          if (PartCrv.NCurves()!=RqdNCurves)
+            {
+            PartCrv.SetNCurves(RqdNCurves);
+            for (int c=0; c<PartCrv.NCurves(); c++)
+              PartCrv.SetEditable(c, true);
+            }
+          }
+#endif
+        }
+      DCB.B=iMethod;
+      return 1;
     case xidWhitenBeta:
       if (DCB.rD)
         {
@@ -506,10 +531,14 @@ void ScreenBlk::Separate(SpConduit &QFd, SpConduit &QOs, SpConduit &QUs, int s, 
             QUs.QSetM(QFd, som_ALL, 0.0, Std_P);
             QOs.QSetM(QFd, som_ALL, 0.0, Std_P);
 
+#if WithIndividPartCrv
+            SQSzDistFractionInfo Info(PartCrv, (iMethod==SBM_PartCrv_Individ ? -1 : 0));
+#else
             if (iMethod==SBM_PartCrv_Individ)
               iMethod=SBM_PartCrv_Overall; //todo screen each ore with different partition curve
 
             SQSzDistFractionInfo Info(PartCrv, 0);
+#endif
             SQSzDist1::SplitSolids(Info, QFd, QUs, QOs);
 
             OSSol=Info.m_CoarseMass;
@@ -1039,18 +1068,25 @@ void ScreenBlk::Separate(SpConduit &QFd, SpConduit &QOs, SpConduit &QUs, int s, 
 
                   if (iFineMeth==FM_FineEff || iFineMeth==FM_None)
                     {
-                    CDArray& Crv = PartCrv2.Curve(s);
-                    for (i=0; i<len; i++)
+                    if (s<PartCrv2.NCurves())
                       {
-                      if (Feed[i]<1.0e-18)
-                        Crv[i] = (i==0 ? 0.0 : Crv[i-1]);
-                      else
-                        Crv[i] = OTemp[i] / Max(Feed[i], 1e-18);
-                      }
-                    if (PartCrv2.CurveMode(s) == PC_Frac2Fine)
-                      {
+                      CDArray& Crv = PartCrv2.Curve(s);
                       for (i=0; i<len; i++)
-                        Crv[i] = 1.0 - Crv[i];
+                        {
+                        if (Feed[i]<1.0e-18)
+                          Crv[i] = (i==0 ? 0.0 : Crv[i-1]);
+                        else
+                          Crv[i] = OTemp[i] / Max(Feed[i], 1e-18);
+                        }
+                      if (PartCrv2.CurveMode(s) == PC_Frac2Fine)
+                        {
+                        for (i=0; i<len; i++)
+                          Crv[i] = 1.0 - Crv[i];
+                        }
+                      }
+                    else
+                      {
+                      int xx=1;//?????
                       }
                     }
                   }

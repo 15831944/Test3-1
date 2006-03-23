@@ -134,9 +134,10 @@ flag CQConcentrations::Converge(CSysVector & MA)
   #endif
   int MaxReached=0;
   int IterCount = 100;
-  double OldDensity = Density*1.1;
+  double OldDensity = Density;
   //while ( (fabs(OldDensity - Density) > 0.00005) && --IterCount>0)
-  while ( (fabs(OldDensity - Density) > 0.000001) && --IterCount>0)
+  //while ( (fabs(OldDensity - Density) > 0.000001) && --IterCount>0)
+  while (1)
     {
     Density = Range(0.0001, Density, 10000.0);
     if (Density>3500.0)
@@ -148,14 +149,6 @@ flag CQConcentrations::Converge(CSysVector & MA)
       {
       if (SDB[sn].IsLiq())
         {
-        //#ifndef _RELEASE
-        //double mm=MA[sn];
-        //if (mm<0.0)
-        //  {
-        //  Strng ss = SDB[sn].SymOrTag();
-        //  ASSERT_ALWAYS(FALSE, "QAL ConcConverge unexpected -ve !");
-        //  }
-        //#endif
         Liq[sn] = GTZ(MA[sn]) / TLiq * Density * NaFactor[sn];
         }
       }
@@ -166,10 +159,13 @@ flag CQConcentrations::Converge(CSysVector & MA)
     CausticSoda = (MA[::CausticSoda.LiqPhInx()]+MA[::SodiumAluminate.LiqPhInx()]*NaAluminate2Caustic())/
                    TLiq * Density * NaFactor[::CausticSoda.LiqPhInx()];
 
-    OldDensity = Density;
+    Density = LiquorDensity(T_);
+
+    if ((fabs(OldDensity - Density) < 0.0000001) || --IterCount==0)
+      break;
     if (MaxReached>1)
       break;
-    Density = LiquorDensity(T_);
+    OldDensity = Density;
     } // end of while
 
   //pBayerMdl->SetCI((IterCount==0), 1, True, True);
@@ -184,7 +180,7 @@ flag CQConcentrations::Converge(CSysVector & MA)
         dbgpln("%18.18s:%12.6f  MW:%11.5f NaFactor:%9.5f", SDB[sn].SymOrTag(), Liq[sn], SDB[sn].MoleWt(), NaFactor[sn]);
     }
   #endif
-  return (IterCount>=0);
+  return (IterCount>0);
   }
 
 // --------------------------------------------------------------------------

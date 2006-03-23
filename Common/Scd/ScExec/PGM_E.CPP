@@ -3516,6 +3516,8 @@ void GCInsMngr::ConstructConstants()
     GCDef::Find("IntToStr")->m_defFlags |= (DefSolverSet | DefGenConSet);
     GCDef::Find("StrToFlt")->m_defFlags |= (DefSolverSet | DefGenConSet);
     GCDef::Find("StrToInt")->m_defFlags |= (DefSolverSet | DefGenConSet);
+    GCDef::Find("AlphaToNum")->m_defFlags |= (DefSolverSet | DefGenConSet);
+    GCDef::Find("IsAlpha")->m_defFlags |= (DefSolverSet | DefGenConSet);
     GCDef::Find("STRLWR")->m_defFlags |= (DefSolverSet | DefGenConSet);
     GCDef::Find("STRUPR")->m_defFlags |= (DefSolverSet | DefGenConSet);
     GCDef::Find("STRLEN")->m_defFlags |= (DefSolverSet | DefGenConSet);
@@ -5586,7 +5588,7 @@ void GCInsMngr::Err(char Code, int errNo, pchar ErrMsg)
     case 14 : errDesc = "Tag for SetDynStrTag must be a string."; break;
     case 15 : errDesc = "Tag for GetDynStrTag must be a string."; break;
     case 16 : errDesc = "Execution Timeout : Possible end-less loop."; break;
-    case 17 : errDesc = "Invalid index in array. Use first elemnt 0."; break;
+    case 17 : errDesc = "Invalid index in array."; break;
     // math errors... 50  to 99
     case 50 : errDesc = "Division by zero."; break;
     case 51 : errDesc = "Cannot find square root of a negative number."; break;

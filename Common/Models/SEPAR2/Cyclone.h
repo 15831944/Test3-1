@@ -52,6 +52,7 @@ class CycloneMeth
     virtual double D50()=0;
     virtual double OSizeFrac(double Size, double UFLiq, double OFLiq, int Pass)=0;
     virtual double GetLiquidSplit(int Pass, SpConduit & Fd, double UFSol, double OFSol, double &UFLiq, double &OFLiq)=0;
+    virtual bool   UseGeomMean() { return false; };
   };
 
 // ===========================================================================

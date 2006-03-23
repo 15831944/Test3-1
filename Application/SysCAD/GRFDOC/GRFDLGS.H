@@ -96,7 +96,7 @@ class CCreateBarDlg : public CDialog
     void SetScale(double d);
     void UpdateTagList(BOOL bRetrieve);
     void UpdateVarList(BOOL bRetrieve);
-    void SetTagsOn(BOOL TagsOn);
+    void SetTagsOn(bool TagsOn);
     void SetDoneCreate();
     void          SetFillColour(COLORREF Colour);
     COLORREF      FillColour();

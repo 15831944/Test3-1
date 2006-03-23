@@ -72,6 +72,7 @@ XID xidRCTdRctTol        = RctXID(32);
 XID xidRCTiMaxIter       = RctXID(33);
 XID xidRCTdRctTTol       = RctXID(34);
 XID xidRCTiMaxTIter      = RctXID(35);
+XID xidRCTNumOfRct       = RctXID(36);
 
 const char Comma=',';
 

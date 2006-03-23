@@ -1001,12 +1001,14 @@ CQueryHist::CQueryHist( double StartTime,
                         QueryDestination QDst,
                         char* pFilename1,
                         char* pFilename2,
-                        byte FileMode)
+                        byte FileMode,
+                        double RepTimeOffset)
   {
   iAllocCnt = 0;
   Initialise();
   dStartTime = Max(0.0, StartTime);
   dLastTime = Max(0.0, LastTime);
+  dRepTimeOffset = RepTimeOffset;
   QueryOpt = Opt;
   iTimeOptUnits = QryTimeOptUnits;
   bTimeOptFull = QryTimeOptFull;
@@ -1056,6 +1058,7 @@ void CQueryHist::Initialise()
   bPrevTimeStartStop = 0;
   iTimeSliceCnt = 0;
   fFile = NULL;
+  dRepTimeOffset = 0.0;
   bDoLastValForFirstPoint = 1; //For now force this to true, this should be a user option!!!
                                //when getting AveEqualySpaced, for the first point rather get the LastEqualySpaced value
   Q.SetQueryMain(this);
@@ -2105,6 +2108,8 @@ void CQueryHist::RetVal(DWORD ID, double Time, rDataUnion Val)
       }
   #endif
   
+  Time -= 60.0; //XXX
+
   if (bCancel)
     {
     CHstQueryException* pE = new CHstQueryException();

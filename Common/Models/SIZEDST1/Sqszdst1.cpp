@@ -48,8 +48,9 @@ static CDbgMngr dbgSzDistSplits("SzDist", "Splits");
 const int Id_CurShow          =  1;
 const int Id_CurHide          =  2;
 const int Id_RqdSauterl32     =  3; // KGAFIX - check position / use etc of this / should not always be setable
-const int Id_TopSize          = 31;
-const int Id_BotSize          = 32;
+const int Id_TopSize          = 30;
+const int Id_BotSize          = 31;
+const int Id_IntervalCnt      = 32;
 const int Id_SzAscend         = 33;
 const int Id_GrWidth          = 34;
 const int Id_GrHeight         = 35;
@@ -1679,35 +1680,195 @@ double SQSzDist1::DoFinesFraction(SQSzDistFractionInfo &Info, flag bSetIt)
   { 
   OnDataChange();
 
-  CDArray & PcX = Info.m_PartFn.SizePts();
-  CDArray & PcY = Info.m_PartFn.Curve(Info.m_CurveNo);
-
-  int nCrv=Info.m_PartFn.Length();
+  const int nCrv=Info.m_PartFn.Length();
   if (nCrv==0)// || ns==0)
     return 0.0;
 
-  double p0=PcY[0];
-  double p1=PcY[nCrv-1];
-  double GF = Range(0.0, 1.0 - Info.m_ByePass2Fines /*- ByePass2Grits*/, 1.0);
-
-  Info.m_SpSplitToFines.SetSpcScalar(dNAN);
-
-  double Sum0=0.0;
-  double Sum1=0.0;
   #if dbgSzDist
   if (dbgSzDistSplits())
     dbgpln("--------------------------------------------");
   #endif
-
+  double Sum0=0.0;
+  double Sum1=0.0;
+  CDArray & PcX = Info.m_PartFn.SizePts();
+  double GF = Range(0.0, 1.0 - Info.m_ByePass2Fines /*- ByePass2Grits*/, 1.0);
+  Info.m_SpSplitToFines.SetSpcScalar(dNAN);
   int d0, dN;
   Info.m_PartFn.GetApplyToDists(d0, dN);
 
+  #if WithIndividPartCrv
+  if (Info.m_CurveNo<0)
+    {
+
+    // NB Info.m_pSQFines Info.m_pSQCoarse
+    // Relies on Fines Dist being structurally the same 'this' after a copy
+
+    for (int d=d0; d<dN; d++)
+      if (DistExists(d))
+        {
+        CSD_Distribution &D=Dist(d);
+        double TotMass=TotalMass(d, -1);
+
+        const int nInt=D.NIntervals();
+        CDArray & Size=D.Intervals();
+
+        const int CrvCount = Info.m_PartFn.NCurves();
+        const int PriIdsCount = D.NPriIds();
+        if (CrvCount!=PriIdsCount)
+          {
+          int xx=0; //DO NOT EXPECT THIS
+          }
+        for (int crv=0; crv<CrvCount; crv++)
+          {
+          CDArray & PcY = Info.m_PartFn.Curve(crv);
+  double p0=PcY[0];
+  double p1=PcY[nCrv-1];
+
+          if (Info.m_PartFn.CurveState(crv)==PC_Off)
+            continue;
+
+          const bool ToCoarse=(Info.m_PartFn.CurveMode(crv)==PC_Frac2Coarse);
+
+          int iCrvX=0;
+          double Sz0=0.0;
+          double PcX0=0.0;
+          double PcX1=PcX[iCrvX];
+          double PcY0=ToCoarse ? 0.0 : 1.0;
+          double PcY1=PcY[iCrvX];
+          #if dbgSzDist
+          if (dbgSzDistSplits())
+            dbgpln("                ------Size-----  SumSplit       --------Span-------      ---------Pc---------");
+          #endif
+          for (long iInt=0; iInt<nInt; iInt++)
+            {
+            double Sz=Size[iInt];
+            double SumSplit=0.0;
+            double SzSpan=Sz-Sz0;
+            for (;;)
+              {
+              if (SzSpan>0.0) //KGA 14/7/98
+                {
+                //...
+                double PcSpan=Min(Sz,PcX1)-Max(Sz0, PcX0);
+                if (Info.m_PartFn.PartStepped())
+                  SumSplit+=PcY1*PcSpan/SzSpan;
+                else
+                  {
+                  SumSplit+=PcY1*PcSpan/SzSpan; // ETC ETC
+                  //TODO Smooth Partition Curve
+                  }
+                #if dbgSzDist
+                if (dbgSzDistSplits())
+                  dbgpln("%3i %3i %12.3f>%12.3f %7.3f %12.3f/%12.3f %12.3f>%12.3f",
+                        iInt, iCrvX, Sz0*1e6, Sz*1e6, SumSplit, PcSpan*1e6 ,SzSpan*1e6, PcX0*1e6, PcX1*1e6);
+                #endif
+                }
+              
+              if (PcX1<=Sz)
+                {
+                if (iCrvX<nCrv)
+                  {
+                  PcX0=PcX1;
+                  PcX1=PcX[iCrvX];
+                  PcY1=PcY[iCrvX];
+                  iCrvX++;
+                  }
+                else
+                  {
+                  iCrvX++;
+                  PcX0=PcX1;
+                  PcX1=1.1*Size[nInt-1]; // TopSize
+                  PcY1=1.1*Size[nInt-1]; // TopSize
+                  }
+                }
+              else// if (iCrvX>=nCrv)
+                break;
+              }
+          
+            //for (int s=0; s<D.NPriIds(); s++)
+              {
+              double &TotFrac=D.PriSp[crv]->FracPass[iInt];
+              double TotMass=TotalMass(d, crv);
+              double FineFrac, CoarseFrac;
+              if (ToCoarse)
+                {
+                FineFrac=TotFrac * (Info.m_ByePass2Fines + GF * (1.0-SumSplit));
+                CoarseFrac=TotFrac * (Info.m_ByePass2Fines + GF * SumSplit);
+                }
+              else
+                {
+                FineFrac=TotFrac * (Info.m_ByePass2Fines + GF * SumSplit);
+                CoarseFrac=TotFrac * (Info.m_ByePass2Fines + GF * (1.0-SumSplit));
+                }
+              Sum0+=TotFrac*TotMass;
+              Sum1+=FineFrac*TotMass;
+              
+              D.PriSp[crv]->WorkFrac[iInt]=FineFrac;
+              if (Info.m_pSQFines)
+                Info.m_pSQFines->Dist(d).PriSp[crv]->FracPass[iInt]=FineFrac;
+              if (Info.m_pSQCoarse)
+                Info.m_pSQCoarse->Dist(d).PriSp[crv]->FracPass[iInt]=CoarseFrac;
+              }
+            Sz0=Sz;
+            }
+
+          //for (int s=0; s<D.NPriIds(); s++)
+            {
+            if (Info.m_pSQFines)
+              Info.m_pSQFines->Dist(d).PriSp[crv]->FracPass.Normalise();
+            if (Info.m_pSQCoarse)
+              Info.m_pSQCoarse->Dist(d).PriSp[crv]->FracPass.Normalise();
+            }
+
+  #if dbgSzDist
+  if (dbgSzDistSplits())
+            {
+            dbgpln("------------------------");
+            dbgpln("       FP    Split    FnFP    CsFP");
+            //for (int s=0; s<D.NPriIds(); s++)
+              for (int iInt=0; iInt<nInt; iInt++)
+                {
+                dbgp("%3i %7.3f %7.3f ",iInt, D.PriSp[crv]->FracPass[iInt], D.PriSp[crv]->WorkFrac[iInt]); 
+                dbgp(Info.m_pSQFines ? "%7.3f ":"      *",Info.m_pSQFines->Dist(d).PriSp[crv]->FracPass[iInt]);
+                dbgp(Info.m_pSQCoarse ? "%7.3f ":"      *",Info.m_pSQCoarse->Dist(d).PriSp[crv]->FracPass[iInt]);
+                dbgpln(" %s", SDB[D.SzId(crv,0)].SymOrTag());
+                }
+            }
+  #endif
+
+          //for (int sp=0; sp<D.NPriIds(); sp++)
+            {
+            //Must also do the secondary species
+            double SplitToFines=0.0;
+            for (int iInt=0; iInt<nInt; iInt++)
+              SplitToFines+=D.PriSp[crv]->WorkFrac[iInt];
+            for (int sp1=0; sp1<D.NSecIds(crv); sp1++)
+              {
+              int sc=D.SzId(crv, sp1);
+              Info.m_SpSplitToFines.VValue[sc]=SplitToFines;
+              }
+
+            #if dbgSzDist
+            if (dbgSzDistSplits())
+              dbgpln("Split:%7.3f, %s", Info.m_SpSplitToFines[crv], SDB[crv].SymOrTag());
+            #endif
+            }
+          }
+        }
+    }
+  #endif
+  if (Info.m_CurveNo>=0)
+    {
   // NB Info.m_pSQFines Info.m_pSQCoarse
   // Relies on Fines Dist being structurally the same 'this' after a copy
 
   for (int d=d0; d<dN; d++)
     if (DistExists(d))
       {
+        CDArray & PcY = Info.m_PartFn.Curve(Info.m_CurveNo);
+        double p0=PcY[0];
+        double p1=PcY[nCrv-1];
+
       CSD_Distribution &D=Dist(d);
       double TotMass=TotalMass(d, -1);
   
@@ -1844,11 +2005,12 @@ double SQSzDist1::DoFinesFraction(SQSzDistFractionInfo &Info, flag bSetIt)
 
         #if dbgSzDist
         if (dbgSzDistSplits())
-          dbgpln("Split:%7.3f, %s",Info.m_SpSplitToFines[s], SDB[s].SymOrTag());
+            dbgpln("Split:%7.3f, %s", Info.m_SpSplitToFines[sp], SDB[sp].SymOrTag());
         #endif
         }
       }
 
+    }
   return Sum1/GTZ(Sum0);
 
   };
@@ -2234,7 +2396,8 @@ void SQSzDist1::Dump()
 
 const int SQSzDist1Edt::XPix=10000;
 const int SQSzDist1Edt::YPix=10000;
-const int SQSzDist1Edt::CrvPts=256;
+//const int SQSzDist1Edt::CrvPts=256;
+const int SQSzDist1Edt::CrvPts=(MaxIntervals+2)*2;
 int SQSzDist1Edt::iGraphWidth=40;
 int SQSzDist1Edt::iGraphHeight=15;
 int SQSzDist1Edt::iGraphOn=1;
@@ -3014,6 +3177,10 @@ void SQSzDist1Edt::Build()
       SetTag(Tg(), SD_Defn.TBCnv.Text());
       SetDesc(L, SD_Defn.TBCnv.Text(),  -1, 10, 0, " ");
       L++;
+      SetDParm(L, "Interval Count", 16, "", Id_IntervalCnt, 8, 0, " ");
+      Tg.Set("%s.%s", FullObjTag(), "IntervalCnt");
+      SetTag(Tg());
+      L++;
       }
     }
 
@@ -3423,6 +3590,10 @@ void SQSzDist1Edt::Load(FxdEdtInfo &EI, Strng & Str)
           SD_Defn.TBFmt.FormatFloat(SD_Defn.TBCnv.Human(D().BottomSize()), Str);
           EI.Fld->fEditable=false;
           break;
+        case Id_IntervalCnt : 
+          Str.Set("%i", SD_Defn.GetDist(d)->NIntervals());//Intervals.GetUpperBound()); 
+          EI.Fld->fEditable=false; 
+          break;
         }
       }
 
@@ -3634,6 +3805,8 @@ long SQSzDist1Edt::Parse(FxdEdtInfo &EI, Strng & Str)
         case Id_TopSize:
           break;
         case Id_BotSize:
+          break;
+        case Id_IntervalCnt:
           break;
         }
       }
@@ -4093,6 +4266,8 @@ void SQSzDist1Edt::OnDrawBack(rGDIBlk GB,int PgNo, CRgn &ClipRgn)
             for (int j=0; j<Xs.GetSize()-1; j++)
               {
               const double xval = Xs[j];
+              if (XYLen<CrvPts-2)//too many points?!?
+                {
               if (xval>DD().dBottomSizeDisp && xval<DD().dTopSizeDisp)
                 {//only add points in display range
                 int x=IsXLog ? CalcXLogPix(xval) : CalcXPix(xval);
@@ -4110,6 +4285,7 @@ void SQSzDist1Edt::OnDrawBack(rGDIBlk GB,int PgNo, CRgn &ClipRgn)
                 XY[XYLen].y = y;
                 XYLen++;
                 }
+              }
               }
             XY[XYLen].x = IsXLog ? CalcXLogPix(DD().dTopSizeDisp) : CalcXPix(DD().dTopSizeDisp);
             XY[XYLen].y = XY[XYLen-1].y;
@@ -4331,6 +4507,11 @@ flag SQSzDist1Edt::DoRButtonUp(UINT nFlags, CPoint point)
                    EI.FieldId==Id_BotSize)
             {
             WrkIB.Set(EI.Fld->Tag, &SD_Defn.TBCnv, &SD_Defn.TBFmt);
+            }
+          else if (EI.FieldId==Id_IntervalCnt)
+            {
+            return(ret);
+            //WrkIB.Set(EI.Fld->Tag);
             }
           else if (EI.FieldId>=Id_YQmTtl && EI.FieldId<Id_YQmTtl+nCols)
             {
@@ -5078,7 +5259,7 @@ double SzPartCrv1::FractionPassingSize(int CurveNo, double dSize)
 
 const int SzPartCrv1Edt::XPix=10000;
 const int SzPartCrv1Edt::YPix=10000;
-const int SzPartCrv1Edt::CrvPts=256;
+const int SzPartCrv1Edt::CrvPts=(MaxIntervals+2)*2;
 int SzPartCrv1Edt::iGraphWidth=40;
 int SzPartCrv1Edt::iGraphHeight=15;
 int SzPartCrv1Edt::iGraphOn=1;

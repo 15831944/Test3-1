@@ -1757,10 +1757,10 @@ flag CDMatrix::Load(rCVMLoadHelper H, dword BlankFlag)
             m_d[j][k] = SetNANFlag(NF_Pulse);
           else
             m_d[j][k] = atof(Tkns[i]);
-          NRows=Max(NRows, j+1);
           NCols=Max(NCols, k+1);
           //dbgpln("[%3i %3i] = %10.4f", j,k,m_d[j][k]);
           }
+        NRows=Max(NRows, j+1);
         }
       }
     else

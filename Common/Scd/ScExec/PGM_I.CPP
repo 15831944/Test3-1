@@ -1173,6 +1173,57 @@ void GCStrToFltIns::Exec(rGCInsMngr IB)
 
 //===========================================================================
 
+START_CODE(AlphaToNum)
+MID_CODE(AlphaToNum,"AlphaToNum",DefExp,0)
+virtual pGCIns Construct(rGCInsMngr IB)
+  {
+  IB.DoConstructParms(1, True);
+  return new(IB) GCAlphaToNumIns;
+  };
+END_CODE(AlphaToNum)
+
+//---------------------------------------------------------------------------
+
+void GCAlphaToNumIns::Exec(rGCInsMngr IB)
+  {
+  Strng s = (IB.m_StrStack[IB.m_iStrPos--]);
+  if (s.Len()>0 && isalpha(s[0]))
+    {
+    IB.m_dCalcStack[++IB.m_iCalcPos] = (char)toupper(s[0])-(char)'A'+1;
+    }
+  else
+    IB.m_dCalcStack[++IB.m_iCalcPos] = 0.0;
+  Advance(IB);
+  }
+
+//===========================================================================
+
+START_CODE(IsAlpha)
+MID_CODE(IsAlpha,"IsAlpha",DefExp,0)
+virtual pGCIns Construct(rGCInsMngr IB)
+  {
+  IB.DoConstructParms(1, True);
+  return new(IB) GCIsAlphaIns;
+  };
+END_CODE(IsAlpha)
+
+//---------------------------------------------------------------------------
+
+void GCIsAlphaIns::Exec(rGCInsMngr IB)
+  {
+  Strng s = (IB.m_StrStack[IB.m_iStrPos--]);
+  const int len = s.Len();
+  for (int i=0; i<len; i++)
+    {
+    if (!isalpha(s[i]))
+      break;
+    }
+  IB.m_dCalcStack[++IB.m_iCalcPos] = (i==len && len>0) ? dGCtrue : dGCfalse;
+  Advance(IB);
+  }
+
+//===========================================================================
+
 START_CODE(LogNote)
 MID_CODE(LogNote,"LogNote",DefLHS,0)
 virtual pGCIns Construct(rGCInsMngr IB)

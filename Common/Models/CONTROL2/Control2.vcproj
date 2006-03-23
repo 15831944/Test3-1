@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="Control2"
 	ProjectGUID="{0A5F7EFD-F49F-464B-8B22-20CB6C63D925}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -29,12 +25,12 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,glpk\include,.."
 				PreprocessorDefinitions="_RELEASE;NDEBUG;Control2;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Rls/Control2.pch"
 				AssemblerListingLocation=".\Rls/"
@@ -94,11 +90,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,glpk\include,.."
 				PreprocessorDefinitions="_DEBUG;Control2;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Dbg/Control2.pch"
 				AssemblerListingLocation=".\Dbg/"
@@ -158,11 +154,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,glpk\include,.."
 				PreprocessorDefinitions="NDEBUG;Control2;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Rdb/Control2.pch"
 				AssemblerListingLocation=".\Rdb/"
@@ -237,6 +233,9 @@
 				RelativePath=".\Matrix_TBEDT.CPP">
 			</File>
 			<File
+				RelativePath=".\sc\sc.cpp">
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -257,6 +256,9 @@
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\TankMin\TankMin.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -271,13 +273,22 @@
 				RelativePath=".\Control2.h">
 			</File>
 			<File
+				RelativePath=".\sc\glpk.h">
+			</File>
+			<File
 				RelativePath=".\Matrix_TB.H">
 			</File>
 			<File
 				RelativePath=".\Matrix_TBEDT.H">
 			</File>
 			<File
+				RelativePath=".\sc\sc.h">
+			</File>
+			<File
 				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath=".\TankMin\TankMin.h">
 			</File>
 		</Filter>
 		<Filter
@@ -399,6 +410,217 @@
 			</File>
 			<File
 				RelativePath=".\OptLib\ZString.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="glpk"
+			Filter="">
+			<File
+				RelativePath=".\glpk\src\glpavl.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpavl.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpdmp.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpdmp.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glphbm.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glphbm.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpiet.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpiet.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpinv.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpinv.h">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpios.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpios1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpios2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpios3.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpipm.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpipm.h">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpipp.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpipp1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpipp2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpk.h">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glplib.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplib1a.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplib1b.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplib2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplib3.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplib4.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glplpp.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpp1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpp2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glplpx.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx3.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx4.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx5.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx6a.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx6b.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx6c.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx6d.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx7.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx7a.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx8a.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx8b.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx8c.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx8d.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glplpx8e.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpluf.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpluf.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmat.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpmat.h">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpmip.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmip1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmip2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpmpl.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmpl1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmpl2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmpl3.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpmpl4.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpqmd.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpqmd.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glprng.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glprng.h">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpspx.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpspx1.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpspx2.c">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glpstr.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glpstr.h">
+			</File>
+			<File
+				RelativePath=".\glpk\src\glptsp.c">
+			</File>
+			<File
+				RelativePath=".\glpk\include\glptsp.h">
 			</File>
 		</Filter>
 	</Files>

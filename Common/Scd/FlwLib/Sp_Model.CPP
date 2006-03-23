@@ -4720,54 +4720,60 @@ flag SpModel::ValidateData(ValidateDataBlk & VDB)
 long SpModel::CheckDataRanges()
   {
   long NBadRanges=0;
-  const int withspcs=1;
-  double T=Temp();
-  double Mt=GTZ(Mass());
-  Strng S;
-  Strng S1;
-  flag AsWarn=false;
-  for (int s=0; s<SDB.Count(); s++)
+  if (HeatSkipMethod())
     {
-    if (m_M[s]/Mt > dTestToleranceMassFrac)
-      {
-      CSpecie & D=SDB[s];
-      flag IsBad=false;
-      if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
-        {
-        AsWarn=true;
-        IsBad=true;
-        }
-      else if (SpModel::m_RangeErrorsOn && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
-        IsBad=true;
-
-      if (IsBad)
-        {
-        NBadRanges++;
-        if (withspcs)
-          {
-          if (S.Length()>0)
-            S+=",";
-          if (0)
-            {
-            S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
-            S+=S1();
-            }
-          else
-            S+=D.SymOrTag();
-          }
-        }
-      }
-    }
-  if (NBadRanges)
-    {
-    if (withspcs)
-      SetCI(5, "%s\tTemperature Range [%7.2f C] %s", AsWarn?"W":"N", K_2_C(T), S());
-    else
-      SetCI(5, "%s\tTemperature [%7.2f C] out of Valid Data Range", AsWarn?"W":"N", K_2_C(T));
+    ClrCI(5);
     }
   else
-    ClrCI(5);
-
+    {
+     const int withspcs=1;
+     double T=Temp();
+     double Mt=GTZ(Mass());
+     Strng S;
+     Strng S1;
+     flag AsWarn=false;
+     for (int s=0; s<SDB.Count(); s++)
+       {
+       if (m_M[s]/Mt > dTestToleranceMassFrac)
+         {
+         CSpecie & D=SDB[s];
+         flag IsBad=false;
+         if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
+           {
+           AsWarn=true;
+           IsBad=true;
+           }
+         else if (SpModel::m_RangeErrorsOn && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
+           IsBad=true;
+   
+         if (IsBad)
+           {
+           NBadRanges++;
+           if (withspcs)
+             {
+             if (S.Length()>0)
+               S+=",";
+             if (0)
+               {
+               S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
+               S+=S1();
+               }
+             else
+               S+=D.SymOrTag();
+             }
+           }
+         }
+       }
+     if (NBadRanges)
+       {
+       if (withspcs)
+         SetCI(5, "%s\tTemperature Range [%7.2f C] %s", AsWarn?"W":"N", K_2_C(T), S());
+       else
+         SetCI(5, "%s\tTemperature [%7.2f C] out of Valid Data Range", AsWarn?"W":"N", K_2_C(T));
+       }
+     else
+       ClrCI(5);
+    }
   return NBadRanges;
   };
 
