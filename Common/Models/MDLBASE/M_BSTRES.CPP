@@ -52,7 +52,12 @@ void MN_BstRes::FinaliseConstruction()
   SetAllowedFlowModes();
 
   if (GlblDynFlowMode())
-    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+    {
+    if (OrigPrjFileVerNo()<=82)
+      SetFlowModeReqd(LFM_Xfer);
+    else
+      SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+    }
   else
     SetFlowModeReqd(LFM_Full);
   // Must do this here because m_FEP.Group() only gets set in derived class constructor

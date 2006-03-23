@@ -53,6 +53,7 @@
 #define WITHGRFGROUP          1
 #define WITHAUTOVLE           1
 #define WITHRCTEDITDLG        01
+#define WITHDOUBLEGSMODEL     0
 
 //discontinued functionality...
 #define WITHLOCALCOPY         0

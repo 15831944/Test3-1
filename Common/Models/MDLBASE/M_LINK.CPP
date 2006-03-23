@@ -659,7 +659,12 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   SetAllowedFlowModes(true);
   
   if (GlblDynFlowMode())
-    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+    {
+    if (OrigPrjFileVerNo()<=82)
+      SetFlowModeReqd(LFM_Xfer);
+    else
+      SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+    }
   else
     SetFlowModeReqd(LFM_Full);
 
