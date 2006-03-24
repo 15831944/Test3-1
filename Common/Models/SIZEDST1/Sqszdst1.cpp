@@ -108,7 +108,10 @@ XID xidUsedClassID        = xidPartCrvMode+(9*MaxColumns);
 //XID xidSzCol                = Qual0XID(MaxColumns*20); see sizedst1.h
 XID xidSzAllowSizeEdits   = xidSzCol+MaxDistributions*MaxIntervals*MaxColumns;
 XID xidSzDistUsed         = xidSzAllowSizeEdits+1;
-XID xidSzDistPresent      = xidSzDistUsed+1;
+XID xidSzDistTopSize      = xidSzDistUsed+1;
+XID xidSzDistBottomSize   = xidSzDistTopSize+1;
+XID xidDistSzIntervalCnt  = xidSzDistBottomSize+1;
+XID xidSzDistPresent      = xidDistSzIntervalCnt+1;
 XID xidSzDistOnOff        = xidSzDistPresent   +MaxDistributions;
 XID xidSzSeriesUsed       = xidSzDistOnOff     +MaxDistributions;
 XID xidSzTopSize          = xidSzSeriesUsed    +MaxDistributions;
@@ -560,6 +563,9 @@ void SQSzDist1::BuildDataDefn(DataDefnBlk & DDB)
     DDB.BeginObject(this, "Sz", SQSzDist1Class.ClassId(), NULL, DDB_OptPage);
     DDB.Long("SizeDefn",   "",  DC_ ,   "", xidSzDistUsed, this, isParm|AffectsStruct);
     DDB.Bool("AllowSizeEdits", "", DC_, "", xidSzAllowSizeEdits, this, isParm|InitHidden|noFileAtAll);
+    DDB.Double("TopSize", "", DC_L, "um", xidSzDistTopSize, this, isResult|InitHidden|noFileAtAll);
+    DDB.Double("BottomSize", "", DC_L, "um", xidSzDistBottomSize, this, isResult|InitHidden|noFileAtAll);
+    DDB.Long("IntervalCnt", "", DC_, "", xidDistSzIntervalCnt, this, isResult|InitHidden|noFileAtAll);
 
     // Check Box whether to display PSD Test Data or not
 #ifdef USE_PSD_TB
@@ -739,33 +745,37 @@ void SQSzDist1::BuildDataDefn(DataDefnBlk & DDB)
 
 flag SQSzDist1::DataXchg(DataChangeBlk & DCB)
   {
-
+  switch (DCB.lHandle)
+    {
+    case xidSzAllowSizeEdits: 
+      if (DCB.rB && (pAttachedTo==NULL))
+        fAllowSizeEdits=*DCB.rB;
+      DCB.B=(pAttachedTo ? AllowSizeEdits() : fAllowSizeEdits);
+      return 1;
+    case xidSzDistUsed:
+      if (DCB.rL)
+        {
+        iDistUsed = Range(0, (int)*DCB.rL, NDistributions()-1);
+        ChangeToDist(iDistUsed);
+        }
+      DCB.L=iDistUsed;
+      return 1;
+    case xidSzDistTopSize: 
+      DCB.D=SD_Defn.GetDist(iDistUsed)->TopSize();
+      return 1;
+    case xidSzDistBottomSize: 
+      DCB.D=SD_Defn.GetDist(iDistUsed)->BottomSize();
+      return 1;
+    case xidDistSzIntervalCnt: 
+      DCB.L=SD_Defn.GetDist(iDistUsed)->NIntervals();
+      return 1;
 #ifdef USE_PSD_TB
-  if (DCB.lHandle==xidSzTestData)
-    {
-    if (DCB.rB)
-      bAllowTestData=(*DCB.rB!=0);
-    DCB.B=bAllowTestData;
-    return 1;
-    }
+    case xidSzTestData:
+      if (DCB.rB)
+        bAllowTestData=(*DCB.rB!=0);
+      DCB.B=bAllowTestData;
+      return 1;
 #endif
-
-  if (DCB.lHandle==xidSzAllowSizeEdits)
-    {
-    if (DCB.rB && (pAttachedTo==NULL))
-      fAllowSizeEdits=*DCB.rB;
-    DCB.B=(pAttachedTo ? AllowSizeEdits() : fAllowSizeEdits);
-    return 1;
-    }
-  else if (DCB.lHandle==xidSzDistUsed)
-    {
-    if (DCB.rL)
-      {
-      iDistUsed = Range(0, (int)*DCB.rL, NDistributions()-1);
-      ChangeToDist(iDistUsed);
-      }
-    DCB.L=iDistUsed;
-    return 1;
     }
 
   #if MoveDistList
@@ -2883,19 +2893,17 @@ void SQSzDist1Edt::Build()
      if (1) // Data Blk
       {
       int L=0;
-
+      int HedLen = 2;
 #ifdef USE_PSD_TB
-      int HedLen = 4;
       if (rSD.fAllowSizeEdits)
         {
-      if (rSD.bAllowTestData)
-        HedLen++;
-        }
-      else
         HedLen = 3;
-#else
-      int HedLen = 3;
+        if (rSD.bAllowTestData)
+          HedLen++;
+        }
 #endif
+      if (MultOre)
+        HedLen++;
       if (rSD.pModel->UseAsFlow())
         HedLen++;
       int BlkLen = D().NIntervals() + HedLen + 1;
@@ -2921,7 +2929,7 @@ void SQSzDist1Edt::Build()
             {
             int c=DDefn.DispColIndices[ci];
 
-            if ((Columns(c).Editable())&&(Columns(c).iSpId >=0))
+            if ((Columns(c).Editable()) && (Columns(c).iSpId >=0))
               {
               SetButton(L, "Set", Id_CopyTest+ci , ColWidth , 0, "");
               }
@@ -2932,7 +2940,6 @@ void SQSzDist1Edt::Build()
             }
           L++;
           }
-
         }
 
 #endif
@@ -2964,8 +2971,8 @@ void SQSzDist1Edt::Build()
             SetDesc(L, S(), -1, ColWidth, 1, "");
             }
           }
+        L++;
         }
-      L++;
 
       //...
       DoneGap=false;
@@ -3591,7 +3598,7 @@ void SQSzDist1Edt::Load(FxdEdtInfo &EI, Strng & Str)
           EI.Fld->fEditable=false;
           break;
         case Id_IntervalCnt : 
-          Str.Set("%i", SD_Defn.GetDist(d)->NIntervals());//Intervals.GetUpperBound()); 
+          Str.Set("%i", D().NIntervals());
           EI.Fld->fEditable=false; 
           break;
         }
@@ -4508,18 +4515,12 @@ flag SQSzDist1Edt::DoRButtonUp(UINT nFlags, CPoint point)
             {
             WrkIB.Set(EI.Fld->Tag, &SD_Defn.TBCnv, &SD_Defn.TBFmt);
             }
-          else if (EI.FieldId==Id_IntervalCnt)
-            {
-            return(ret);
-            //WrkIB.Set(EI.Fld->Tag);
-            }
           else if (EI.FieldId>=Id_YQmTtl && EI.FieldId<Id_YQmTtl+nCols)
             {
             WrkIB.Set(EI.Fld->Tag, &SD_Defn.YQmCnv, &SD_Defn.YQmFmt);
             }
 #ifdef USE_PSD_TB
- 
-          else if (EI.FieldId <= Id_Last)
+          else if (EI.FieldId >= Id_TestDataChk && EI.FieldId <= Id_Last)
             {
             int c=(EI.FieldId-Id_YMin)%MaxColumns;
             CSD_Column &C=Columns(c);

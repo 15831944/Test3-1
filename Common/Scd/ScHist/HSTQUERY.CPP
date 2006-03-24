@@ -2108,7 +2108,7 @@ void CQueryHist::RetVal(DWORD ID, double Time, rDataUnion Val)
       }
   #endif
   
-  Time -= 60.0; //XXX
+  Time -= dRepTimeOffset;
 
   if (bCancel)
     {
