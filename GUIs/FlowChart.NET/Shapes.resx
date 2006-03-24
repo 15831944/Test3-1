@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+            Microsoft ResX Schema 
+        
+            Version 1.3
+                
+            The primary goals of this format is to allow a simple XML format 
+            that is mostly human readable. The generation and parsing of the 
+            various data types are done through the TypeConverter classes 
+            associated with the data types.
+        
+            Example:
+        
+                ... ado.net/XML headers & schema ...
+                <resheader name="resmimetype">text/microsoft-resx</resheader>
+                <resheader name="version">1.3</resheader>
+                <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+                <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+                <data name="Name1">this is my long string</data>
+                <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+                <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+                    [base64 mime encoded serialized .NET Framework object]
+                </data>
+                <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+                    [base64 mime encoded string representing a byte array form of the .NET Framework object]
+                </data>
+        
+            There are any number of "resheader" rows that contain simple 
+            name/value pairs.
+            
+            Each data row contains a name, and value. The row also contains a 
+            type or mimetype. Type corresponds to a .NET class that support 
+            text/value conversion through the TypeConverter architecture. 
+            Classes that don't support this are serialized and stored with the 
+            mimetype set.
+                     
+            The mimetype is used for serialized objects, and tells the 
+            ResXResourceReader how to depersist the object. This is currently not 
+            extensible. For a given mimetype the value must be set accordingly:
+        
+            Note - application/x-microsoft.net.object.binary.base64 is the format 
+                   that the ResXResourceWriter will generate, however the reader can 
+                   read any of the formats listed below.
+        
+            mimetype: application/x-microsoft.net.object.binary.base64
+            value   : The object must be serialized with 
+                    : System.Serialization.Formatters.Binary.BinaryFormatter
+                    : and then encoded with base64 encoding.
+        
+            mimetype: application/x-microsoft.net.object.soap.base64
+            value   : The object must be serialized with 
+                    : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+                    : and then encoded with base64 encoding.
+            mimetype: application/x-microsoft.net.object.bytearray.base64
+            value   : The object must be serialized into a byte array 
+                    : using a System.ComponentModel.TypeConverter
+                    : and then encoded with base64 encoding.
+        -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="shape1" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGRGZGQAHgA=</value>
+  </data>
+  <data name="shape2" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>HmRkZEYAAAA=</value>
+  </data>
+  <data name="shape3" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AB4ARjxGPGRkMjwAPB4=</value>
+  </data>
+  <data name="shape4" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>RgAeAB48ADwyZGQ8Rjw=</value>
+  </data>
+  <data name="shape5" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZEZkHigeKAAAMihkKEY=</value>
+  </data>
+  <data name="shape6" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>HmRGZEYoZCgyAAAoHig=</value>
+  </data>
+  <data name="shape7" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>FDIARjxGPGRkMjwAPB4AHg==</value>
+  </data>
+  <data name="shape8" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>MhQeAB48ADwyZGQ8RjxGAA==</value>
+  </data>
+  <data name="shape9" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>UDJkHigeKAAAMihkKEZkRg==</value>
+  </data>
+  <data name="shape10" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>MlBGZEYoZCgyAAAoHigeZA==</value>
+  </data>
+  <data name="shape11" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>MgAAGQBLM2RkS2QZ</value>
+  </data>
+  <data name="shape12" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZDJLABkAADMZZEtk</value>
+  </data>
+  <data name="shape13" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>MgAAKA9kVWRkKA==</value>
+  </data>
+  <data name="shape14" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZDI8AAAPAFU8ZA==</value>
+  </data>
+  <data name="shape15" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>MmRkPFUADwAAPA==</value>
+  </data>
+  <data name="shape16" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ADIoZGRVZA8oAA==</value>
+  </data>
+  <data name="shape17" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGRkZDIA</value>
+  </data>
+  <data name="shape18" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAAZGQy</value>
+  </data>
+  <data name="shape19" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAAADJk</value>
+  </data>
+  <data name="shape20" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZGRkAAAy</value>
+  </data>
+  <data name="shape21" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGRGZGQyRgAAAB4y</value>
+  </data>
+  <data name="shape22" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAARjJkZEZkADIe</value>
+  </data>
+  <data name="shape23" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAeAAAyHmRkZEYy</value>
+  </data>
+  <data name="shape24" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZGRkHjIAAB4AZDJG</value>
+  </data>
+  <data name="shape25" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>MgAoIgAeIDQPZDI9VWRENGQePCI=</value>
+  </data>
+  <data name="shape26" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>HgAPKi8pHmRCHiIcOQA=</value>
+  </data>
+  <data name="shape27" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAeMgBkZDI=</value>
+  </data>
+  <data name="shape28" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAyHgAAMmQ=</value>
+  </data>
+  <data name="shape29" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZGRGMmQAADI=</value>
+  </data>
+  <data name="shape30" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGQyRmRkMgA=</value>
+  </data>
+  <data name="shape31" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAeMgBkZGRGMmQA</value>
+  </data>
+  <data name="shape32" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAyHgAAAGQyRmRk</value>
+  </data>
+  <data name="shape33" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>HgAAMh5kHkZGRkZkZDJGAEYeHh4=</value>
+  </data>
+  <data name="shape34" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZB4yAAAeHh4eRgBGMmRkRkZGRh4=</value>
+  </data>
+  <data name="shape35" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>RmQAZAAeRh4AHh4AZABGHmQAZEZGZEYe</value>
+  </data>
+  <data name="shape36" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZB5kZB5kHh4eZABGAAAeHgAARgBkHh4e</value>
+  </data>
+  <data name="shape37" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAAZEZkZDJGAA==</value>
+  </data>
+  <data name="shape38" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAAAABGMmRkRg==</value>
+  </data>
+  <data name="shape39" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZGRkAB4AADIeZA==</value>
+  </data>
+  <data name="shape40" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGRkZGQeMgAAHg==</value>
+  </data>
+  <data name="shape41" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAAZGQyZGRkAGQy</value>
+  </data>
+  <data name="shape42" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAAADJkAGRkZDJk</value>
+  </data>
+  <data name="shape43" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZGRkAAAyAAAAZAAy</value>
+  </data>
+  <data name="shape44" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGRkZDIAZAAAADIA</value>
+  </data>
+  <data name="shape45" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AAAAZFAyUBRkAFAUUFA8ZFBQUDI=</value>
+  </data>
+  <data name="shape46" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZAAAADJQUFBkZFBQFFAAPBRQMlA=</value>
+  </data>
+  <data name="shape47" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ZGRkABQyFFAAZBRQFBQoABQUFDI=</value>
+  </data>
+  <data name="shape48" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AGRkZDIUFBQAABQUUBRkKFAUMhQ=</value>
+  </data>
+  <data name="shape49" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AEYPZGQeVQA=</value>
+  </data>
+  <data name="shape50" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>HgAAD0ZkZFU=</value>
+  </data>
+  <data name="shape51" type="System.Byte[], mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>AFoAAGQAZFpdVVVSTFBEUTxUNVcuWyZfH2IWZA1iBl4=</value>
+  </data>
+</root>

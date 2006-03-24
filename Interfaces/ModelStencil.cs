@@ -38,8 +38,16 @@ namespace SysCAD.Interface
       }
     }
 
-    public ShapeTemplate ShapeTemplate()
+    public ShapeTemplate ShapeTemplate(bool mirrorX, bool mirrorY)
     {
+      float multX = 1.0F;
+      float multY = 1.0F;
+
+      if (mirrorX)
+        multX = -1.0F;
+      if (mirrorY)
+        multY = -1.0F;
+
       int i;
 
       ElementTemplate[] elementTemplate = new ElementTemplate[elements.Count];

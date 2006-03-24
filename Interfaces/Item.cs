@@ -44,6 +44,9 @@ namespace SysCAD.Interface
     private String model;
     private String shape;
 
+    private bool mirrorX = false;
+    private bool mirrorY = false;
+
     public System.Drawing.Color fillColor;
 
     [CategoryAttribute("Model"),
@@ -134,6 +137,24 @@ namespace SysCAD.Interface
       set { model = value; }
     }
 
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Whether the item is flipped horizontally."),
+     DisplayName("Mirror X")]
+    public bool MirrorX
+    {
+      get { return mirrorX; }
+      set { mirrorX = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Whether the item is flipped horizontally."),
+     DisplayName("Mirror Y")]
+    public bool MirrorY
+    {
+      get { return mirrorY; }
+      set { mirrorY = value; }
+    }
+
     /// <summary>
     /// Set unique tag.
     /// </summary>
@@ -179,9 +200,9 @@ namespace SysCAD.Interface
         model = itemReader.GetString(0);
         shape = itemReader.GetString(0);
 
-        float sx = 1.0F; float sy = 1.0F;
+        float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
         if (shape.Contains("Feed")) { sx = 1.0F; sy = 0.3F; }
-        if (shape.Contains("Tie")) { sx = 0.1F; sy = 0.1F; }
+        if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
         if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
@@ -189,14 +210,27 @@ namespace SysCAD.Interface
         if (shape.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
-        if (shape.Contains("Tank")) { sx = 0.8F; sy = 1.2F; }
+        if (shape.Contains("Tank")) { sx = 0.348186528F; sy = 0.777777778F; dy = -2.45F; }
         if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
         if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
         width = (float)itemReader.GetDouble(3) * 30.0F * sx;
         height = (float)itemReader.GetDouble(4) * 30.0F * sy;
-        x = (float)itemReader.GetDouble(1)-width/2.0F;
-        y = -(float)itemReader.GetDouble(2)+width/2.0F;
+
+        if (width < 0.0F)
+        {
+          mirrorX = true;
+          width = -width;
+        }
+
+        if (height < 0.0F)
+        {
+          mirrorY = true;
+          height = -height;
+        }
+
+        x = (float)itemReader.GetDouble(1) - width / 2.0F + dx;
+        y = -(float)itemReader.GetDouble(2)-height/2.0F + dy;
         angle = (float)itemReader.GetDouble(5);
       }
       itemReader.Close();

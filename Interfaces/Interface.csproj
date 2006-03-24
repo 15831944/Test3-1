@@ -54,15 +54,18 @@
     <Compile Include="ModelStencil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FlowChart.NET, Version=4.0.2.26317, Culture=neutral, PublicKeyToken=a0d18338041985ba">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\FlowChart.NET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
 </Project>

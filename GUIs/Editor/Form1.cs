@@ -22,7 +22,7 @@ namespace SysCAD.Editor
 
     public Form1()
     {
-      PureComponents.TreeView.Licensing.RunTimeLicenseKey = "064F-7C2E-DE50-EC09-2385-CF16-C27A-E74F";
+      //PureComponents.TreeView.Licensing.RunTimeLicenseKey = "064F-7C2E-DE50-EC09-2385-CF16-C27A-E74F";
 
       InitializeComponent();
       SetProjectBasedButtons(false);
@@ -299,11 +299,21 @@ namespace SysCAD.Editor
     private void View_ZoomOut()
     {
       frmFlowChart.fcFlowChart.ZoomOut();
+      foreach (BODLink link in frmFlowChart.bod.links.Values)
+      {
+        link.Arrow.ArrowHeadSize = 200.0F / frmFlowChart.fcFlowChart.ZoomFactor;
+        link.Arrow.IntermHeadSize = 133.0F / frmFlowChart.fcFlowChart.ZoomFactor;
+      }
     }
 
     private void View_ZoomIn()
     {
       frmFlowChart.fcFlowChart.ZoomIn();
+      foreach (BODLink link in frmFlowChart.bod.links.Values)
+      {
+        link.Arrow.ArrowHeadSize = 200.0F / frmFlowChart.fcFlowChart.ZoomFactor;
+        link.Arrow.IntermHeadSize = 133.0F / frmFlowChart.fcFlowChart.ZoomFactor;
+      }
     }
 
     private void SetProjectBasedButtons(bool projectExists)

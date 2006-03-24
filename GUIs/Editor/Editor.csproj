@@ -11,6 +11,9 @@
     <AssemblyName>SysCAD.Editor</AssemblyName>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,21 +39,9 @@
     <Reference Include="ActiproSoftware.UIStudio.Bar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6" />
     <Reference Include="ActiproSoftware.UIStudio.Dock, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b" />
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.76.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5" />
-    <Reference Include="FlowChart.NET, Version=4.0.2.20127, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\FlowChart.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="Overview, Version=4.0.2.20145, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\Overview.dll</HintPath>
-    </Reference>
     <Reference Include="PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
-    </Reference>
-    <Reference Include="ShapeToolBar, Version=4.0.2.20156, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\ShapeToolBar.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -124,6 +115,17 @@
     <ProjectReference Include="..\..\Interfaces\Interface.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>Interface</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FlowChart.NET\Overview\Overview.csproj">
+      <Project>{77CCAE13-E283-4677-B227-D39E75BA48EC}</Project>
+      <Name>Overview</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

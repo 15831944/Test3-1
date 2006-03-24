@@ -4,11 +4,12 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
-using System.Windows.Forms;
 
 using MindFusion.FlowChartX;
 
 using SysCAD.Interface;
+using PureComponents.TreeView;
+using System.Windows.Forms;
 
 namespace SysCAD.Editor
 {
@@ -54,8 +55,11 @@ namespace SysCAD.Editor
 
       foreach (Link link in graphic.links.Values)
       {
-        Arrow arrow = fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
-        bod.newLink(link, arrow, false);
+        if (link.ClassID == "Pipe-1")
+        {
+          Arrow arrow = fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+          bod.newLink(link, arrow, false);
+        }
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -182,8 +186,8 @@ namespace SysCAD.Editor
       }
     }
 
-    Node savedOrigin;
-    Node savedDestination;
+    MindFusion.FlowChartX.Node savedOrigin;
+    MindFusion.FlowChartX.Node savedDestination;
 
     int savedOriginAnchor;
     int savedDestinationAnchor;

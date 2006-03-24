@@ -116,7 +116,7 @@ namespace SysCAD.Service
           while (areaReader.Read())
           {
             Area area = new Area(areaReader.GetString(0));
-            area.Populate(connection, graphic.items, ref dX);
+            area.Populate(connection, graphic.items, graphic.links, ref dX);
             graphic.___areas.Add(areaReader.GetString(0), area);
           }
           areaReader.Close();

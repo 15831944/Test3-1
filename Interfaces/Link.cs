@@ -14,6 +14,7 @@ namespace SysCAD.Interface
 	public class Link
 	{
     private String tag;
+    private String classID;
     private String origin;
     private String destination;
 
@@ -25,6 +26,15 @@ namespace SysCAD.Interface
     {
       get { return tag; }
       set { tag = value; }
+    }
+
+    [CategoryAttribute("Model"),
+   DescriptionAttribute("ClassID of the link."),
+   ReadOnlyAttribute(true)]
+    public String ClassID
+    {
+      get { return classID; }
+      set { classID = value; }
     }
 
     [CategoryAttribute("Model"),
@@ -62,11 +72,12 @@ namespace SysCAD.Interface
     /// <param name="connection"></param>
     public void Populate(OleDbConnection connection)
     {
-      OleDbDataReader linkReader = (new OleDbCommand("SELECT SrcTag, DstTag FROM ModelLinks WHERE Tag='"+tag+"'", connection)).ExecuteReader();
+      OleDbDataReader linkReader = (new OleDbCommand("SELECT SrcTag, DstTag, ClassID FROM ModelLinks WHERE Tag='"+tag+"'", connection)).ExecuteReader();
       if(linkReader.Read()) 
       {
         origin = linkReader.GetString(0);
         destination = linkReader.GetString(1);
+        classID = linkReader.GetString(2);
       }
       linkReader.Close();
 

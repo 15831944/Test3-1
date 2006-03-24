@@ -152,11 +152,17 @@ namespace SysCAD.Editor
 
       if (link.controlPoints.Count > 1)
       {
-        arrow.SegmentCount = (short)link.controlPoints.Count;
+//        if ((System.Math.Abs(link.controlPoints[1].X - link.controlPoints[0].X)) <
+//          (System.Math.Abs(link.controlPoints[1].Y - link.controlPoints[0].Y)))
+//        {
+//          arrow.
+//        }
+        arrow.SegmentCount = (short)(link.controlPoints.Count-1);
         int i = 0;
         foreach (PointF point in link.controlPoints)
           arrow.ControlPoints[i++] = point;
         arrow.UpdateFromPoints();
+        PointCollection a = arrow.ControlPoints;
       }
 
       BODLink bodLink = new BODLink();
@@ -166,6 +172,8 @@ namespace SysCAD.Editor
       arrow.Tag = bodLink;
 
       arrow.Visible = ShowLinks && visible;
+
+      links.Add(link.Tag, bodLink);
     }
 
     internal void Remove(BODThing thing, FlowChart flowchart)
@@ -190,7 +198,7 @@ namespace SysCAD.Editor
       {
         ModelStencil stencil;
         if (config.modelStencils.TryGetValue(item.Model, out stencil))
-          modelBox.Shape = stencil.ShapeTemplate();
+          modelBox.Shape = stencil.ShapeTemplate(item.MirrorX, item.MirrorY);
         else
           modelBox.Shape = ShapeTemplate.FromId("Decision2");
       }

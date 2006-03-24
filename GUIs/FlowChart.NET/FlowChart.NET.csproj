@@ -1,0 +1,566 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>NetIco.ico</ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>FlowChart.NET</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MindFusion.FlowChartX</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>0</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\Output\Retail.1.1\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Trial Release|AnyCPU' ">
+    <OutputPath>..\Output\Trial.1.1\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEMO_VERSION</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Standard|AnyCPU' ">
+    <OutputPath>..\Output\Standard.1.1\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;FCNET_STD</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Design">
+      <Name>System.Design</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap">
+      <Name>System.Runtime.Serialization.Formatters.Soap</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccessAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AddGroupCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AddItemCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AnchorPattern.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AnchorPoint.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AngleEdit.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Arrow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ArrowHead.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ArrowHeadTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ArrowProperties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ArrowState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Behavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Box.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BoxLink.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BoxProperties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BoxState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BrushEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BrushEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BrushView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ChangeItemCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ChartObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Collections.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CollectionVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Command.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHistory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CompositeCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Constants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ControlHost.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ControlHostBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ControlHostLink.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ControlHostProperties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CreateArrowBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CreateBoxBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CreateControlHostBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CreateTableBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CustomCursors.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DashEdit.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DummyLink.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DummyNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EndModifyVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Events.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Expander.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExpandHeaderRowCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExpandItemCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FCLayout.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="FCLayoutAdapters.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FCPath.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FlowChart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="FlowChartBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FlowChartSerializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GDI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Geometry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GraphBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GraphSplitter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GridLayout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Group.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GroupAttachCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GroupDetachCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HatchCombo.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="HtmlBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InplaceEditable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InteractionState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InvalidAreaUpdater.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ItemProperties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ItemsAndGroups.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ItemState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LayeredLayout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Layout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LayoutProgress.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Link.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Manipulator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MethodCallVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ModifierKeyActions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ModifyBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ModifyItemCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Node.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NodeConstraints.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NodeInplaceEditable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NodeLinkBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NodeProperties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PainterVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Path.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PDFBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PenEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PenEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PenView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PersistContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PreviewOptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PrintOptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PrintPreviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RedimTableCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RegistryLicenseProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RemoveGroupCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RemoveItemCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RoutingGrid.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RoutingOptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ScriptHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Scroller.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ScrollTableCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Selection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SelectionState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ShapeEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ShapeEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ShapeTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SpringLayout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringFormatEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="StringFormatEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Table.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TableLink.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TableProperties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TableRelationsBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TableStructure.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TextLayout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TreeEnumerator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TreeLayout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UndoManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XmlReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XmlWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="AngleEdit.resx">
+      <DependentUpon>AngleEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BrushEdit.resx">
+      <DependentUpon>BrushEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BrushView.resx">
+      <DependentUpon>BrushView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Cursors.resx" />
+    <EmbeddedResource Include="DashEdit.resx">
+      <DependentUpon>DashEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlowChart.bmp" />
+    <EmbeddedResource Include="FlowChart.resx">
+      <DependentUpon>FlowChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HatchCombo.resx">
+      <DependentUpon>HatchCombo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons.resx" />
+    <EmbeddedResource Include="LayoutSystem.GridLayout.bmp" />
+    <EmbeddedResource Include="LayoutSystem.LayeredLayout.bmp" />
+    <EmbeddedResource Include="LayoutSystem.SpringLayout.bmp" />
+    <EmbeddedResource Include="LayoutSystem.TreeLayout.bmp" />
+    <EmbeddedResource Include="PenEdit.resx">
+      <DependentUpon>PenEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PenView.resx">
+      <DependentUpon>PenView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PrintPreviewForm.resx">
+      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ShapeEdit.resx">
+      <DependentUpon>ShapeEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Shapes.resx" />
+    <EmbeddedResource Include="StringFormatEdit.resx">
+      <DependentUpon>StringFormatEdit.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

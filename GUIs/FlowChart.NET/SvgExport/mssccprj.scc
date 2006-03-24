@@ -1,0 +1,9 @@
+SCC = This is a Source Code Control file
+
+[FcnetSVGExport.csproj]
+SCC_Aux_Path = "C:\development\SourceSafe"
+SCC_Project_Name = "$/FlowChart.NET/SvgExport", YHDAAAAA
+
+[SvgExport.csproj]
+SCC_Aux_Path = "C:\development\SourceSafe"
+SCC_Project_Name = "$/FlowChart.NET/SvgExport", YHDAAAAA

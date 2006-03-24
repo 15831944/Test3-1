@@ -1,4 +1,5 @@
 using MindFusion.FlowChartX;
+using System.Windows.Forms;
 namespace SysCAD.Editor
 {
   partial class Form1
@@ -260,24 +261,15 @@ namespace SysCAD.Editor
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);
       this.tvNavigation.Margin = new System.Windows.Forms.Padding(2);
+      this.tvNavigation.Multiline = false;
       this.tvNavigation.Name = "tvNavigation";
       this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
       this.tvNavigation.Size = new System.Drawing.Size(128, 354);
-      treeViewStyle1.HighlightSelectedPath = false;
-      treeViewStyle1.LineStyle = PureComponents.TreeView.LineStyle.Dot;
-      checkBoxStyle1.BorderColor = System.Drawing.Color.Black;
-      checkBoxStyle1.BorderStyle = PureComponents.TreeView.CheckBoxBorderStyle.Solid;
-      checkBoxStyle1.CheckColor = System.Drawing.Color.Black;
-      checkBoxStyle1.HoverBackColor = System.Drawing.Color.White;
-      checkBoxStyle1.HoverBorderColor = System.Drawing.Color.Black;
-      checkBoxStyle1.HoverCheckColor = System.Drawing.Color.Black;
       nodeStyle1.CheckBoxStyle = checkBoxStyle1;
       nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
       nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeTooltipStyle1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(142)))), ((int)(((byte)(125)))));
       nodeTooltipStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
       nodeStyle1.TooltipStyle = nodeTooltipStyle1;
-      nodeStyle1.UnderlineColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
       treeViewStyle1.NodeStyle = nodeStyle1;
       this.tvNavigation.Style = treeViewStyle1;
       this.tvNavigation.TabIndex = 1;
