@@ -41,7 +41,8 @@ namespace SysCAD.Interface
     /// 
     /// </summary>
     /// <param name="connection"></param>
-    public void Populate(OleDbConnection connection, Dictionary<string, Item> items, Dictionary<string, Link> links, ref float dX)
+    public void Populate(OleDbConnection connection, Dictionary<string, Item> items,
+                         Dictionary<string, Link> links, ref float dX, ref float dY)
     {
       OleDbDataReader itemReader = (new OleDbCommand("SELECT Tag FROM GraphicsUnits WHERE Page='"+tag+"'", connection)).ExecuteReader(CommandBehavior.SingleResult);
       while(itemReader.Read()) 
@@ -90,6 +91,7 @@ namespace SysCAD.Interface
         item.Height *= scale;
 
         item.X += dX;
+        item.Y += dY;
 
         foreach (Link link in links.Values)
         {
@@ -99,12 +101,11 @@ namespace SysCAD.Interface
             {
               link.controlPoints[i] = new PointF(link.controlPoints[i].X - minX, link.controlPoints[i].Y - minY);
               link.controlPoints[i] = new PointF(link.controlPoints[i].X * scale, link.controlPoints[i].Y * scale);
-              link.controlPoints[i] = new PointF(link.controlPoints[i].X + dX, link.controlPoints[i].Y);
+              link.controlPoints[i] = new PointF(link.controlPoints[i].X + dX, link.controlPoints[i].Y + dY);
             }
           }
         }
       }
-      dX += 400.0F;
     }
   }
 }

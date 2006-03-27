@@ -70,6 +70,8 @@ namespace SysCAD.Editor
 
       //fcFlowChart.RouteAllArrows();
 
+      FixDocExtents();
+
       ResumeLayout(false);
 
       ZoomToVisible();
@@ -85,6 +87,8 @@ namespace SysCAD.Editor
 
     public void ZoomToVisible()
     {
+      FixDocExtents();
+
       float minX =  Single.MaxValue, minY =  Single.MaxValue;
       float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
 
@@ -123,8 +127,42 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
     }
 
+    public void FixDocExtents()
+    {
+      float minX = Single.MaxValue, minY = Single.MaxValue;
+      float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
+
+      bool foundObject = false;
+
+      foreach (Box box in fcFlowChart.Boxes)
+      {
+        foundObject = true;
+        if (box.BoundingRect.Left < minX) minX = box.BoundingRect.Left;
+        if (box.BoundingRect.Top < minY) minY = box.BoundingRect.Top;
+        if (box.BoundingRect.Right > maxX) maxX = box.BoundingRect.Right;
+        if (box.BoundingRect.Bottom > maxY) maxY = box.BoundingRect.Bottom;
+      }
+
+      foreach (Arrow arrow in fcFlowChart.Arrows)
+      {
+        foundObject = true;
+        if (arrow.BoundingRect.Left < minX) minX = arrow.BoundingRect.Left;
+        if (arrow.BoundingRect.Top < minY) minY = arrow.BoundingRect.Top;
+        if (arrow.BoundingRect.Right > maxX) maxX = arrow.BoundingRect.Right;
+        if (arrow.BoundingRect.Bottom > maxY) maxY = arrow.BoundingRect.Bottom;
+      }
+
+      float width = maxX - minX;
+      float height = maxY - minY;
+
+      if (foundObject)
+        fcFlowChart.DocExtents= new RectangleF(minX - width * 0.05F, minY - height * 0.05F, width * 1.1F, height * 1.1F);
+    }
+
     public void ZoomToSelected()
     {
+      FixDocExtents();
+
       float minX = Single.MaxValue, minY = Single.MaxValue;
       float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
 
@@ -436,7 +474,15 @@ namespace SysCAD.Editor
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
       Box graphicBox = (e.Box.Tag as BODThing).Graphic;
-      bod.graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect);
+      graphicBox.RotationAngle = (e.Box.Tag as BODThing).Model.RotationAngle;
+      //bod.graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect, graphicBox.RotationAngle);
+    }
+
+    private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)
+    {
+      Box graphicBox = (e.Box.Tag as BODThing).Graphic;
+      graphicBox.RotationAngle = (e.Box.Tag as BODThing).Model.RotationAngle;
+      //bod.graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect, graphicBox.RotationAngle);
     }
 
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)

@@ -201,7 +201,7 @@ namespace SysCAD.Interface
         shape = itemReader.GetString(0);
 
         float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
-        if (shape.Contains("Feed")) { sx = 1.0F; sy = 0.3F; }
+        if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
         if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
         if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
         if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }

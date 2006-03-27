@@ -192,6 +192,7 @@ namespace SysCAD.Editor
     internal void newThing(SysCAD.Interface.Item item, Box modelBox, Box graphicBox, bool isVisible, FlowChart flowchart)
     {
       modelBox.BoundingRect = new RectangleF(item.X + item.Width * 0.25F, item.Y + item.Height * 0.25F, item.Width * 0.5F, item.Height * 0.5F);
+      modelBox.RotationAngle = item.Angle;
       modelBox.Text = item.Tag;
       modelBox.ToolTip = "Tag: " + item.Tag + "\n\nModel Type: " + item.Model;
       modelBox.Style = BoxStyle.Shape;
@@ -215,13 +216,14 @@ namespace SysCAD.Editor
       modelBox.Visible = ShowModels && isVisible;
 
       graphicBox.BoundingRect = new RectangleF(item.X, item.Y, item.Width, item.Height);
+      graphicBox.RotationAngle = item.Angle;
       graphicBox.Text = item.Tag;
       graphicBox.ToolTip = "Tag: " + item.Tag + "\n\nStencil: " + item.Shape; ;
       graphicBox.Style = BoxStyle.Shape;
       {
         GraphicStencil stencil;
         if (config.graphicStencils.TryGetValue(item.Shape, out stencil))
-          graphicBox.Shape = stencil.ShapeTemplate();
+          graphicBox.Shape = stencil.ShapeTemplate(item.MirrorX, item.MirrorY);
         else
           graphicBox.Shape = ShapeTemplate.FromId("Decision2");
       }

@@ -111,12 +111,36 @@ namespace SysCAD.Service
           }
           linkReader.Close();
 
+          int pages = 0;
+          OleDbDataReader areaCountReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
+          while (areaCountReader.Read())
+          {
+            pages++;
+          }
+          areaCountReader.Close();
+
           OleDbDataReader areaReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
+          
+          int sqrtPages = (int)System.Math.Round(System.Math.Sqrt((double)pages)+0.5);
+          int i = 0;
+          int j = 0;
           float dX = 0.0F;
+          float dY = 0.0F;
           while (areaReader.Read())
           {
             Area area = new Area(areaReader.GetString(0));
-            area.Populate(connection, graphic.items, graphic.links, ref dX);
+            area.Populate(connection, graphic.items, graphic.links, ref dX, ref dY);
+
+            i++;
+            dX += 400.0F;
+            if (i > sqrtPages-1)
+            {
+              i = 0;
+              dX = 0.0F;
+              j++;
+              dY += 320.0F;
+            }
+
             graphic.___areas.Add(areaReader.GetString(0), area);
           }
           areaReader.Close();

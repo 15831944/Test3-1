@@ -32,7 +32,7 @@ namespace SysCAD.Interface
       textAreas = new ArrayList();
     }
 
-    public ShapeTemplate ShapeTemplate()
+    public ShapeTemplate ShapeTemplate(bool mirrorX, bool mirrorY)
     {
       ElementTemplate[] elementTemplate = new ElementTemplate[elements.Count];
       {
@@ -41,7 +41,8 @@ namespace SysCAD.Interface
         {
           if (element is Arc)
           {
-            elementTemplate[i] = new ArcTemplate((element as Arc).x,
+            elementTemplate[i] = new ArcTemplate(
+              (element as Arc).x,
               (element as Arc).y,
               (element as Arc).w,
               (element as Arc).h,
@@ -50,21 +51,77 @@ namespace SysCAD.Interface
           }
           if (element is Line)
           {
-            elementTemplate[i] = new LineTemplate((element as Line).x1,
-              (element as Line).y1,
-              (element as Line).x2,
-              (element as Line).y2);
+            Line line = element as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
           }
           if (element is Bezier)
           {
-            elementTemplate[i] = new BezierTemplate((element as Bezier).x1,
-              (element as Bezier).y1,
-              (element as Bezier).x2,
-              (element as Bezier).y2,
-              (element as Bezier).x3,
-              (element as Bezier).y3,
-              (element as Bezier).x4,
-              (element as Bezier).y4);
+            Bezier bezier = element as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
           }
           i++;
         }

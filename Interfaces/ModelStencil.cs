@@ -40,14 +40,6 @@ namespace SysCAD.Interface
 
     public ShapeTemplate ShapeTemplate(bool mirrorX, bool mirrorY)
     {
-      float multX = 1.0F;
-      float multY = 1.0F;
-
-      if (mirrorX)
-        multX = -1.0F;
-      if (mirrorY)
-        multY = -1.0F;
-
       int i;
 
       ElementTemplate[] elementTemplate = new ElementTemplate[elements.Count];
@@ -62,12 +54,76 @@ namespace SysCAD.Interface
         if (element is Line)
         {
           Line line = element as Line;
-          elementTemplate[i] = new LineTemplate(line.x1, line.y1, line.x2, line.y2);
+          float x1, y1, x2, y2;
+
+          if (mirrorX)
+            x1 = 100.0F - line.x1;
+          else
+            x1 = line.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - line.y1;
+          else
+            y1 = line.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - line.x2;
+          else
+            x2 = line.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - line.y2;
+          else
+            y2 = line.y2;
+
+          elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
         }
         if (element is Bezier)
         {
           Bezier bezier = element as Bezier;
-          elementTemplate[i] = new BezierTemplate(bezier.x1, bezier.y1, bezier.x2, bezier.y2, bezier.x3, bezier.y3, bezier.x4, bezier.y4);
+          float x1, y1, x2, y2, x3, y3, x4, y4;
+
+          if (mirrorX)
+            x1 = 100.0F - bezier.x1;
+          else
+            x1 = bezier.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - bezier.y1;
+          else
+            y1 = bezier.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - bezier.x2;
+          else
+            x2 = bezier.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - bezier.y2;
+          else
+            y2 = bezier.y2;
+
+          if (mirrorX)
+            x3 = 100.0F - bezier.x3;
+          else
+            x3 = bezier.x3;
+
+          if (mirrorY)
+            y3 = 100.0F - bezier.y3;
+          else
+            y3 = bezier.y3;
+
+          if (mirrorX)
+            x4 = 100.0F - bezier.x4;
+          else
+            x4 = bezier.x4;
+
+          if (mirrorY)
+            y4 = 100.0F - bezier.y4;
+          else
+            y4 = bezier.y4;
+
+          elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
         }
         i++;
       }
@@ -84,12 +140,76 @@ namespace SysCAD.Interface
         if (decoration is Line)
         {
           Line line = decoration as Line;
-          decorationTemplate[i] = new LineTemplate(line.x1, line.y1, line.x2, line.y2);
+          float x1, y1, x2, y2;
+
+          if (mirrorX)
+            x1 = 100.0F - line.x1;
+          else
+            x1 = line.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - line.y1;
+          else
+            y1 = line.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - line.x2;
+          else
+            x2 = line.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - line.y2;
+          else
+            y2 = line.y2;
+
+          decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
         }
         if (decoration is Bezier)
         {
           Bezier bezier = decoration as Bezier;
-          decorationTemplate[i] = new BezierTemplate(bezier.x1, bezier.y1, bezier.x2, bezier.y2, bezier.x3, bezier.y3, bezier.x4, bezier.y4);
+          float x1, y1, x2, y2, x3, y3, x4, y4;
+
+          if (mirrorX)
+            x1 = 100.0F - bezier.x1;
+          else
+            x1 = bezier.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - bezier.y1;
+          else
+            y1 = bezier.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - bezier.x2;
+          else
+            x2 = bezier.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - bezier.y2;
+          else
+            y2 = bezier.y2;
+
+          if (mirrorX)
+            x3 = 100.0F - bezier.x3;
+          else
+            x3 = bezier.x3;
+
+          if (mirrorY)
+            y3 = 100.0F - bezier.y3;
+          else
+            y3 = bezier.y3;
+
+          if (mirrorX)
+            x4 = 100.0F - bezier.x4;
+          else
+            x4 = bezier.x4;
+
+          if (mirrorY)
+            y4 = 100.0F - bezier.y4;
+          else
+            y4 = bezier.y4;
+
+          decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
         }
         i++;
       }

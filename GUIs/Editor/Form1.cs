@@ -22,8 +22,6 @@ namespace SysCAD.Editor
 
     public Form1()
     {
-      //PureComponents.TreeView.Licensing.RunTimeLicenseKey = "064F-7C2E-DE50-EC09-2385-CF16-C27A-E74F";
-
       InitializeComponent();
       SetProjectBasedButtons(false);
 
@@ -49,7 +47,7 @@ namespace SysCAD.Editor
         if (stencilName != "-------")
         {
           frmFlowChart.currentGraphicShape = stencilName;
-          frmFlowChart.fcFlowChart.DefaultShape = config.graphicStencils[stencilName].ShapeTemplate();
+          //frmFlowChart.fcFlowChart.DefaultShape = config.graphicStencils[stencilName].ShapeTemplate();
         }
       }
     }
@@ -298,6 +296,8 @@ namespace SysCAD.Editor
 
     private void View_ZoomOut()
     {
+      frmFlowChart.FixDocExtents();
+
       frmFlowChart.fcFlowChart.ZoomOut();
       foreach (BODLink link in frmFlowChart.bod.links.Values)
       {
@@ -308,6 +308,8 @@ namespace SysCAD.Editor
 
     private void View_ZoomIn()
     {
+      frmFlowChart.FixDocExtents();
+
       frmFlowChart.fcFlowChart.ZoomIn();
       foreach (BODLink link in frmFlowChart.bod.links.Values)
       {
@@ -646,7 +648,7 @@ namespace SysCAD.Editor
           Item item = (e.ChangedItem.Parent.Parent.Value as Item);
 
           item.Shape = graphicString;
-          frmFlowChart.bod.SetStencil(item.Tag, graphicShape.ShapeTemplate());
+          frmFlowChart.bod.SetStencil(item.Tag, graphicShape.ShapeTemplate(item.MirrorX, item.MirrorY));
         }
       }
     }

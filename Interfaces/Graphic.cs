@@ -33,7 +33,7 @@ namespace SysCAD.Interface
     //string tempTag;
     //RectangleF tempBoundingRect;
 
-    public void ModifyItem(string tag, RectangleF boundingRect)
+    public void ModifyItem(String tag, RectangleF boundingRect, Single angle)
     {
       Item item;
       if (items.TryGetValue(tag, out item))
@@ -42,6 +42,7 @@ namespace SysCAD.Interface
         item.Y = boundingRect.Y;
         item.Width = boundingRect.Width;
         item.Height = boundingRect.Height;
+        item.Angle = angle;
 
         //tempTag = tag;
         //tempBoundingRect = boundingRect;
