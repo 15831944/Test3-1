@@ -49,13 +49,12 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <BaseApplicationManifest Include="Properties\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Interfaces\Interface.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>Interface</Name>
-      <Private>False</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <BaseApplicationManifest Include="Properties\app.manifest" />
   </ItemGroup>
 </Project>

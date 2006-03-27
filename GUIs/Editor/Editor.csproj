@@ -115,17 +115,14 @@
     <ProjectReference Include="..\..\Interfaces\Interface.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>Interface</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
       <Name>FlowChart.NET</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\Overview\Overview.csproj">
       <Project>{77CCAE13-E283-4677-B227-D39E75BA48EC}</Project>
       <Name>Overview</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
