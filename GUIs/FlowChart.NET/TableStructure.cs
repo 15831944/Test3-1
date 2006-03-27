@@ -20,6 +20,7 @@ namespace MindFusion.FlowChartX
 			rows = null;
 			cols = null;
 			cells = null;
+			hasHeaderRows = false;
 		}
 
 		internal Table.RowCollection rows;
@@ -28,5 +29,6 @@ namespace MindFusion.FlowChartX
 
 		internal int columnsCount;
 		internal int rowsCount;
+		internal bool hasHeaderRows;
 	}
 }

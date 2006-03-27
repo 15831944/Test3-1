@@ -15,44 +15,6 @@ using MindFusion.FlowChartX.Visitors;
 
 namespace MindFusion.FlowChartX
 {
-	public enum AttachToArrow
-	{
-		Point,
-		Segment,
-		LongestHSegment,
-	};
-
-	public enum AttachToNode
-	{
-		TopLeft,
-		TopRight,
-		BottomLeft,
-		BottomRight,
-		TopCenter,
-		MiddleRight,
-		BottomCenter,
-		MiddleLeft
-	};
-
-	[Flags]
-	public enum Handles
-	{
-		None = 0,
-		ResizeTopLeft = 1,
-		ResizeTopRight = 2,
-		ResizeBottomRight = 4,
-		ResizeBottomLeft = 8,
-		ResizeTopCenter = 16,
-		ResizeMiddleRight = 32,
-		ResizeBottomCenter = 64,
-		ResizeMiddleLeft = 128,
-		Move = 256,
-		Rotate = 512,
-		All = ResizeTopLeft | ResizeTopRight | ResizeBottomRight | ResizeBottomLeft |
-			ResizeTopCenter | ResizeMiddleRight | ResizeBottomCenter | ResizeMiddleLeft |
-			Move | Rotate
-	};
-
 	/// <summary>
 	/// Abstract class representing diagram nodes. Implemented by Box and Table classes.
 	/// </summary>
@@ -66,6 +28,7 @@ namespace MindFusion.FlowChartX
 			obstacle = true;
 			constraints = new NodeConstraints();
 			enabledHandles = Handles.All;
+			boolValues = 0xFFFF;
 		}
 
 		public Node(Node prototype) : base(prototype)
@@ -76,6 +39,7 @@ namespace MindFusion.FlowChartX
 			obstacle = prototype.obstacle;
 			constraints = (NodeConstraints)prototype.constraints.Clone();
 			enabledHandles = prototype.enabledHandles;
+			boolValues = prototype.boolValues;
 		}
 
 		/// <summary>
@@ -587,7 +551,13 @@ namespace MindFusion.FlowChartX
 
 		internal virtual bool canHaveArrows(bool outgoing)
 		{
-			if (fcParent.AllowUnanchoredArrows) return true;
+			if (outgoing && !AllowOutgoingArrows)
+				return false;
+			if (!outgoing && !AllowIncomingArrows)
+				return false;
+
+			if (fcParent.AllowUnanchoredArrows)
+				return true;
 
 			if (anchorPattern == null) return false;
 			return anchorPattern.allowArrowsDir(outgoing, this);
@@ -1003,6 +973,9 @@ namespace MindFusion.FlowChartX
 
 			// new in save format 17
 			constraints.saveTo(writer, ctx);
+
+			// new in save format 27
+			writer.Write(boolValues);
 		}
 
 		public override void loadFrom(BinaryReader reader, PersistContext ctx)
@@ -1019,6 +992,12 @@ namespace MindFusion.FlowChartX
 				{
 					// new in save format 17
 					constraints.loadFrom(reader, ctx);
+
+					if (ctx.FileVersion > 26)
+					{
+						// new in save format 27
+						boolValues = reader.ReadUInt16();
+					}
 				}
 			}
 		}
@@ -1044,6 +1023,7 @@ namespace MindFusion.FlowChartX
 			nprops.obstacle = obstacle;
 			nprops.contraints = (NodeConstraints)constraints.Clone();
 			nprops.enabledHandles = enabledHandles;
+			nprops.boolValues = boolValues;
 		}
 
 		internal override void restoreProperties(ItemProperties props)
@@ -1056,6 +1036,7 @@ namespace MindFusion.FlowChartX
 			Constraints = nprops.contraints == null ?
 				null : (NodeConstraints)nprops.contraints.Clone();
 			enabledHandles = nprops.enabledHandles;
+			boolValues = nprops.boolValues;
 
 			base.restoreProperties(props);
 		}
@@ -1415,6 +1396,37 @@ namespace MindFusion.FlowChartX
 
 			return base.getToolTip(point);
 		}
+
+		public bool AllowIncomingArrows
+		{
+			get { return (boolValues & fAllowIncomingArrows) != 0; }
+			set
+			{
+				if (value)
+					boolValues |= fAllowIncomingArrows;
+				else
+					if (AllowIncomingArrows)
+						boolValues -= fAllowIncomingArrows;
+			}
+		}
+
+		public bool AllowOutgoingArrows
+		{
+			get { return (boolValues & fAllowOutgoingArrows) != 0; }
+			set
+			{
+				if (value)
+					boolValues |= fAllowOutgoingArrows;
+				else
+					if (AllowOutgoingArrows)
+						boolValues -= fAllowOutgoingArrows;
+			}
+		}
+
+		ushort boolValues;
+
+		private const ushort fAllowIncomingArrows = 1;
+		private const ushort fAllowOutgoingArrows = 2;
 
 	}	// class Node
 

@@ -21,39 +21,6 @@ using MindFusion.FlowChartX.Text;
 
 namespace MindFusion.FlowChartX
 {
-
-	public enum Relationship
-	{
-		OneToMany,
-		ManyToOne
-	}
-
-	public enum ColumnStyle
-	{
-		FixedWidth,
-		AutoWidth
-	}
-
-	public enum CellFrameStyle
-	{
-		None,
-		Simple,
-		System3D
-	}
-
-	public enum TableStyle
-	{
-		Rectangle = 0,
-		RoundedRectangle
-	}
-
-	public enum TableLinkStyle
-	{
-		Table = 0,
-		Rows,
-		Both
-	}
-
 	/// <summary>
 	/// Tables are nodes that contain multiple cells arranged in rows and columns.
 	/// A table can be related to other nodes either by its rows or as an integral node.
@@ -283,9 +250,17 @@ namespace MindFusion.FlowChartX
 				txOptions.Alignment = textFormat.Alignment;
 				txOptions.LineAlignment = textFormat.LineAlignment;
 
-				RectangleF rect = docToLocal(table.getCellRect(this));
+				RectangleF cellRect = table.getSpannedCellRect(this);
+				RectangleF rect = docToLocal(cellRect, cellRect);
 				RectangleF rcCell = Utilities.normalizeRect(rect);
-				rcCell.Inflate(-table.Pen.Width, -table.Pen.Width);
+				rcCell.Inflate(-table.Pen.Width / 2, -table.Pen.Width / 2);
+
+				float pixel = Constants.getPixel(table.fcParent.MeasureUnit);
+				rcCell.Width -= 2 * pixel;
+				if (table.CellFrameStyle == CellFrameStyle.System3D)
+					rcCell.Inflate(-pixel * 2, -pixel * 2);
+				else if (table.pen.Width == 0)
+					rcCell.Inflate(-pixel, -pixel);
 
 				// Perform the layout
 				return txLayout.LayoutInRectangle(ftext, rcCell, txOptions);
@@ -296,14 +271,12 @@ namespace MindFusion.FlowChartX
 			/// expressed in coordinates relative to the top-left
 			/// point of the cell.
 			/// </summary>
-			private RectangleF docToLocal(RectangleF rect)
+			private RectangleF docToLocal(RectangleF rect, RectangleF cellRect)
 			{
-				RectangleF cellRect = table.getCellRect(this);
-				RectangleF ncellRect = Utilities.normalizeRect(cellRect);
 				RectangleF result = rect;
 
-				result.X -= ncellRect.X;
-				result.Y -= ncellRect.Y;
+				result.X -= cellRect.X;
+				result.Y -= cellRect.Y;
 
 				return result;
 			}
@@ -314,8 +287,8 @@ namespace MindFusion.FlowChartX
 			private static StringFormat nearFormat = new StringFormat();
 
 			internal void draw(Graphics g, System.Drawing.Pen pen,
-				System.Drawing.Brush textBrush, RectangleF rect, Font font, 
-				CellFrameStyle borders, int row, int column)
+				System.Drawing.Brush textBrush, RectangleF rect, Font font,
+				CellFrameStyle borders, int row, int column, RectangleF imgRect)
 			{
 				if (table.CellCustomDraw == CustomDraw.Full)
 				{
@@ -335,7 +308,7 @@ namespace MindFusion.FlowChartX
 
 					// Draw cell picture if available
 					if (picture != null)
-						Utilities.drawPicture(g, picture, rect, picturePos);
+						Utilities.drawPicture(g, picture, imgRect, picturePos);
 
 					// additional custom draw type
 					if (table.CellCustomDraw == CustomDraw.Additional)
@@ -360,7 +333,6 @@ namespace MindFusion.FlowChartX
 					}
 
 					RectangleF textRect = rect;
-					textRect.Inflate(-pen.Width, -pen.Width);
 
 					// DrawString crashes with a too small PageScale
 					if (g.PageScale > 0.01 && text.Length > 0 &&
@@ -379,6 +351,7 @@ namespace MindFusion.FlowChartX
 						}
 						else
 						{
+							textRect.Inflate(-pen.Width / 2, -pen.Width / 2);
 							g.DrawString(text, font, b, textRect, textFormat);
 						}
 
@@ -606,7 +579,7 @@ namespace MindFusion.FlowChartX
 
 			internal override RectangleF getEditRect()
 			{
-				return table.getCellRect(this);
+				return table.getSpannedCellRect(this);
 			}
 
 
@@ -797,7 +770,19 @@ namespace MindFusion.FlowChartX
 			public bool Header
 			{
 				get { return header; }
-				set { header = value; }
+				set
+				{
+					header = value;
+					if (value)
+						table.hasHeaderRows = true;
+					else
+						table.checkForHeaderRows();
+				}
+			}
+
+			internal void setHeader(bool value)
+			{
+				header = value;
 			}
 
 			public bool Expanded
@@ -1268,6 +1253,7 @@ namespace MindFusion.FlowChartX
 			updateText();
 			layoutText();
 
+			hasHeaderRows = false;
 			offsetHeaderRows = false;
 
 			if (imageExpand == null)
@@ -1339,7 +1325,7 @@ namespace MindFusion.FlowChartX
 			{
 				rowsList[r].AnchorPattern = prototype.rowsList[r].AnchorPattern;
 				rowsList[r].Height = prototype.rowsList[r].Height;
-				rowsList[r].Header = prototype.rowsList[r].Header;
+				rowsList[r].setHeader(prototype.rowsList[r].Header);
 			}
 
 			for (int c = 0; c < colsList.Count; ++c)
@@ -1355,6 +1341,9 @@ namespace MindFusion.FlowChartX
 					this[c, r].RowSpan = prototype[c, r].RowSpan;
 				}
 			}
+
+			hasHeaderRows = prototype.hasHeaderRows;
+			offsetHeaderRows = prototype.offsetHeaderRows;
 
 			useStyledText = prototype.EnableStyledText;
 			txOptions = new Text.LayoutOptions();
@@ -1999,35 +1988,38 @@ namespace MindFusion.FlowChartX
 			if (base.manipulatorEnacted(pt))
 				return true;
 
-			RectangleF rc = Utilities.normalizeRect(rect);
-
-			// Check if the click was on a header row
-			for (int i = CurrentRow; i < rowsList.Count; i++)
+			if (hasHeaderRows)
 			{
-				RectangleF rowRect = getRowRect(i);
-				if (rowRect.Top >= rc.Bottom)
-					return false;
+				RectangleF rc = Utilities.normalizeRect(rect);
 
-				Row row = rowsList[i];
-				if (!row.Header)
-					continue;
-
-				RectangleF iconRect = rowRect;
-				iconRect.Width = HeaderRowIconWidth;
-
-				float iconWidth = Constants.getPixel(fcParent.MeasureUnit) * 9;
-				float iconHeight = Constants.getPixel(fcParent.MeasureUnit) * 9;
-
-				iconRect.X = iconRect.X + iconRect.Width / 2 - iconWidth / 2;
-				iconRect.Y = iconRect.Y + iconRect.Height / 2 - iconHeight / 2;
-				iconRect.Width = iconWidth;
-				iconRect.Height = iconHeight;
-
-				if (iconRect.Contains(pt))
+				// Check if the click was on a header row
+				for (int i = CurrentRow; i < rowsList.Count; i++)
 				{
-					row.Expanded = !row.Expanded;
-					fcParent.fireTableSectionEvent(this, i, row.Expanded);
-					return true;
+					RectangleF rowRect = getRowRect(i);
+					if (rowRect.Top >= rc.Bottom)
+						return false;
+
+					Row row = rowsList[i];
+					if (!row.Header)
+						continue;
+
+					RectangleF iconRect = rowRect;
+					iconRect.Width = HeaderRowIconWidth;
+
+					float iconWidth = Constants.getPixel(fcParent.MeasureUnit) * 9;
+					float iconHeight = Constants.getPixel(fcParent.MeasureUnit) * 9;
+
+					iconRect.X = iconRect.X + iconRect.Width / 2 - iconWidth / 2;
+					iconRect.Y = iconRect.Y + iconRect.Height / 2 - iconHeight / 2;
+					iconRect.Width = iconWidth;
+					iconRect.Height = iconHeight;
+
+					if (iconRect.Contains(pt))
+					{
+						row.Expanded = !row.Expanded;
+						fcParent.fireTableSectionEvent(this, i, row.Expanded);
+						return true;
+					}
 				}
 			}
 
@@ -2039,32 +2031,35 @@ namespace MindFusion.FlowChartX
 			if (base.ptInManipulator(pt))
 				return true;
 
-			RectangleF rc = Utilities.normalizeRect(rect);
-
-			// Check if the click was on a header row
-			for (int i = CurrentRow; i < rowsList.Count; i++)
+			if (hasHeaderRows)
 			{
-				RectangleF rowRect = getRowRect(i);
-				if (rowRect.Top >= rc.Bottom)
-					return false;
+				RectangleF rc = Utilities.normalizeRect(rect);
 
-				Row row = rowsList[i];
-				if (!row.Header)
-					continue;
+				// Check if the click was on a header row
+				for (int i = CurrentRow; i < rowsList.Count; i++)
+				{
+					RectangleF rowRect = getRowRect(i);
+					if (rowRect.Top >= rc.Bottom)
+						return false;
 
-				RectangleF iconRect = rowRect;
-				iconRect.Width = HeaderRowIconWidth;
+					Row row = rowsList[i];
+					if (!row.Header)
+						continue;
 
-				float iconWidth = Constants.getPixel(fcParent.MeasureUnit) * 9;
-				float iconHeight = Constants.getPixel(fcParent.MeasureUnit) * 9;
+					RectangleF iconRect = rowRect;
+					iconRect.Width = HeaderRowIconWidth;
 
-				iconRect.X = iconRect.X + iconRect.Width / 2 - iconWidth / 2;
-				iconRect.Y = iconRect.Y + iconRect.Height / 2 - iconHeight / 2;
-				iconRect.Width = iconWidth;
-				iconRect.Height = iconHeight;
+					float iconWidth = Constants.getPixel(fcParent.MeasureUnit) * 9;
+					float iconHeight = Constants.getPixel(fcParent.MeasureUnit) * 9;
 
-				if (iconRect.Contains(pt))
-					return true;
+					iconRect.X = iconRect.X + iconRect.Width / 2 - iconWidth / 2;
+					iconRect.Y = iconRect.Y + iconRect.Height / 2 - iconHeight / 2;
+					iconRect.Width = iconWidth;
+					iconRect.Height = iconHeight;
+
+					if (iconRect.Contains(pt))
+						return true;
+				}
 			}
 
 			return false;
@@ -2202,6 +2197,7 @@ namespace MindFusion.FlowChartX
 			int colsAffected, int rowsAffected, bool undo)
 		{
 			resetCoveredCells();
+			hasHeaderRows = false;
 
 			if (undo) fcParent.UndoManager.onRedimTable(this);
 
@@ -2370,6 +2366,9 @@ namespace MindFusion.FlowChartX
 				updateArrowsPos(cpRow);
 			}
 
+			if (copy && rowsAffected != 0)
+				checkForHeaderRows();
+
 			if (undo) fcParent.UndoManager.onCompleteRedim();
 		}
 
@@ -2452,7 +2451,8 @@ namespace MindFusion.FlowChartX
 
 					for (int c = 0; c < columnsCount; ++c)
 					{
-						cellRect = getCellRect(r, c);
+						RectangleF imgRect = RectangleF.Empty;
+						cellRect = getSpannedCellRect(r, c, true, ref imgRect);
 
 						if (cellRect.Height == 0 ||
 							cellRect.Width == 0 ||
@@ -2463,7 +2463,7 @@ namespace MindFusion.FlowChartX
 
 						if (!hasSpanningCells)
 						{
-							cell.draw(g, pen, brText, cellRect, Font, cb, r, c);
+							cell.draw(g, pen, brText, cellRect, Font, cb, r, c, imgRect);
 						}
 						else
 						{
@@ -2474,7 +2474,8 @@ namespace MindFusion.FlowChartX
 							{
 								if (cell.RowSpan != 1 || cell.ColumnSpan != 1)
 								{
-									RectangleF cellVisibleRect = getSpanCellVisibleRect(r, c);
+									RectangleF cellVisibleRect =
+										RectangleF.Intersect(cellRect, cellsRect);
 
 									// Clip with the visible rect, and draw in the
 									// absolute rect
@@ -2483,14 +2484,14 @@ namespace MindFusion.FlowChartX
 									newClip.Intersect(oldClip);
 									g.Clip = newClip;
 
-									cell.draw(g, pen, brText, cellRect, Font, cb, r, c);
+									cell.draw(g, pen, brText, cellRect, Font, cb, r, c, imgRect);
 
 									g.Clip = oldClip;
 									newClip.Dispose();
 								}
 								else
 								{
-									cell.draw(g, pen, brText, cellRect, Font, cb, r, c);
+									cell.draw(g, pen, brText, cellRect, Font, cb, r, c, imgRect);
 								}
 							}
 						}
@@ -2633,22 +2634,21 @@ namespace MindFusion.FlowChartX
 						}
 					}
 
+					// draw the caption divider line
 					if (rc.Top + captionHeight < rc.Bottom)
 						g.DrawLine(pen, new PointF(rc.Left, rc.Top + captionHeight),
 							new PointF(rc.Right, rc.Top + captionHeight));
 
-					bool hasHeader = HasHeaderRows;
-					if (hasHeader)
+					// draw all visible cells
+					if (hasHeaderRows)
 					{
 						rc.X += HeaderRowOffset;
 						rc.Width -= HeaderRowOffset;
 					}
-
-					// draw all visible cells
 					drawCells(g, pen, brText, rc);
 
 					// draw header icons
-					if (hasHeader)
+					if (hasHeaderRows)
 					{
 						for (int i = CurrentRow; i < rowsList.Count; i++)
 						{
@@ -2780,7 +2780,7 @@ namespace MindFusion.FlowChartX
 						if (point.Column == -1)
 							rect = getRowRect(r);
 						else
-							rect = getCellRect(r, point.Column);
+							rect = getSpannedCellRect(r, point.Column);
 
 						if (rect.Bottom > this.rect.Bottom)
 							break;
@@ -2854,6 +2854,11 @@ namespace MindFusion.FlowChartX
 
 		internal override bool canHaveArrows(bool outgoing)
 		{
+			if (outgoing && !AllowOutgoingArrows)
+				return false;
+			if (!outgoing && !AllowIncomingArrows)
+				return false;
+
 			if (linkStyle == TableLinkStyle.Rows)
 				return (RowCount > 0 && (fcParent.AllowUnanchoredArrows ||
 					allowsRowAnchorDir(outgoing)));
@@ -3044,10 +3049,13 @@ namespace MindFusion.FlowChartX
 			if (row < 0)
 				return -1;
 
-			for (int i = row; i >= 0; i--)
+			if (hasHeaderRows)
 			{
-				if (rowsList[i].Header)
-					return i;
+				for (int i = row; i >= 0; i--)
+				{
+					if (rowsList[i].Header)
+						return i;
+				}
 			}
 
 			return -1;
@@ -3059,6 +3067,9 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		internal bool isRowCollapsed(int row)
 		{
+			if (!hasHeaderRows)
+				return false;
+
 			bool collapsed = false;
 
 			int parentRow = getParentRow(row);
@@ -3069,7 +3080,7 @@ namespace MindFusion.FlowChartX
 		}
 
 
-		internal RectangleF getRowRect_(int row)
+		internal RectangleF getExpandedRowRect(int row)
 		{
 			RectangleF rc = Utilities.normalizeRect(rect);
 
@@ -3100,10 +3111,10 @@ namespace MindFusion.FlowChartX
 			int parentRow = getParentRow(row);
 
 			if (parentRow == -1 || parentRow == row)
-				return getRowRect_(row);
+				return getExpandedRowRect(row);
 
 			if (rowsList[parentRow].IsExpanded)
-				return getRowRect_(row);
+				return getExpandedRowRect(row);
 
 			return getRowRect(parentRow);
 		}
@@ -3115,8 +3126,7 @@ namespace MindFusion.FlowChartX
 			if (colsList == null || col >= columnsCount) return rc;
 
 			float w = rc.Left;
-
-			if (HasHeaderRows)
+			if (hasHeaderRows)
 				w += HeaderRowOffset;
 
 			for (int i = 0; i < col; ++i)
@@ -3127,7 +3137,22 @@ namespace MindFusion.FlowChartX
 			return rc;
 		}
 
-		private RectangleF getCellRect_(Cell cell)
+		private RectangleF getCellRect(int row, int col)
+		{
+			RectangleF rcCol = getColumnRect(col);
+			RectangleF rcRow = getRowRect(row);
+
+			RectangleF rcCell = new RectangleF(
+				rcCol.Left, rcRow.Top, rcCol.Width, rcRow.Height);
+
+			RectangleF rc = Utilities.normalizeRect(rect);
+			if (rcCell.Right >= rc.Right || col == columnsCount - 1)
+				rcCell.Width = rc.Right - rcCell.Left;
+
+			return rcCell;
+		}
+
+		internal RectangleF getSpannedCellRect(Cell cell)
 		{
 			int i = 0;
 			for (i = 0; i < cells.Count; ++i)
@@ -3136,125 +3161,41 @@ namespace MindFusion.FlowChartX
 			int row = i / colsList.Count;
 			int col = i % colsList.Count;
 
-			RectangleF rcCol = getColumnRect(col);
-			RectangleF rcRow = getRowRect(row);
-
-			RectangleF rcCell = new RectangleF(
-				rcCol.Left, rcRow.Top, rcCol.Width, rcRow.Height);
-
-			RectangleF rc = Utilities.normalizeRect(rect);
-			if (rcCell.Right >= rc.Right || col == columnsCount - 1)
-				rcCell.Width = rc.Right - rcCell.Left;
-
-			return rcCell;
+			return getSpannedCellRect(row, col);
 		}
 
-		private RectangleF getCellRect_(int row, int col)
+		internal RectangleF getSpannedCellRect(int row, int col)
 		{
-			RectangleF rcCol = getColumnRect(col);
-			RectangleF rcRow = getRowRect(row);
-
-			RectangleF rcCell = new RectangleF(
-				rcCol.Left, rcRow.Top, rcCol.Width, rcRow.Height);
-
-			RectangleF rc = Utilities.normalizeRect(rect);
-			if (rcCell.Right >= rc.Right || col == columnsCount - 1)
-				rcCell.Width = rc.Right - rcCell.Left;
-
-			return rcCell;
+			return getSpannedCellRect(row, col, false, ref dummyImgRect);
 		}
 
-		/// <summary>
-		/// Retrieves the visible part of the bounding rectangle
-		/// of the spanned cell located at the specified position.
-		/// </summary>
-		internal RectangleF getSpanCellVisibleRect(int row, int col)
+		static RectangleF dummyImgRect = RectangleF.Empty;
+
+		internal RectangleF getSpannedCellRect(int row, int col,
+			bool getImgRect, ref RectangleF imgRect)
 		{
-			if (rowsList == null)
-				return RectangleF.Empty;
-
-			// Get the index of the first visible row in the table
-			int rowFrom = CurrentRow;
-			if (rowFrom > rowsCount)
-				return RectangleF.Empty;
-
-			// Calculate the index of the last visible row in the table
-			int rowTo = rowFrom;
-			
-			RectangleF rc = Utilities.normalizeRect(rect);
-
-			float h = rc.Top + captionHeight;
-			float y = h;
-			for (int i = rowFrom; i < rowsCount; ++i)
-			{
-				if (i == row)
-					y = h;
-
-				if (isRowCollapsed(i))
-					continue;
-
-				h += ((Row)rowsList[i]).Height;
-				if (h > rc.Bottom)
-					break;
-
-				rowTo = i;
-			}
-
-			if (row > rowTo)
+			if (cells == null)
 				return RectangleF.Empty;
 
 			Cell cell = this[col, row];
-			int rowSpan = cell.RowSpan;
-			if (row + rowSpan > rowsCount)
-				rowSpan = rowsCount - row;
 
-			if (row + rowSpan < rowFrom)
-				return RectangleF.Empty;
-
-			float height = 0;
-			for (int i = Math.Max(row, rowFrom); i <= Math.Min(row + rowSpan - 1, rowTo); i++)
+			if (cell.RowSpan == 1 && cell.ColumnSpan == 1)
 			{
-				if (isRowCollapsed(i))
-					continue;
-
-				height += (rowsList[i] as Row).Height;
+				RectangleF cellRect = getCellRect(row, col);
+				if (getImgRect)
+				{
+					imgRect = cellRect;
+					imgRect.Width = colsList[col].Width;
+				}
+				return cellRect;
 			}
 
-			int colSpan = cell.ColumnSpan;
-			if (col + colSpan > columnsCount)
-				colSpan = columnsCount - col;
-
-			RectangleF rcColFrom = getColumnRect(col);
-			RectangleF rcColTo = getColumnRect(col + colSpan - 1);
-
-			float x = rcColFrom.Left;
-			float width = rcColTo.Right - rcColFrom.Left;
-			if (x + width > rc.Right)
-				width = rc.Right - x;
-
-			if (col + colSpan - 1 == columnsCount - 1)
-				width = rc.Right - x;
-
-			return new RectangleF(x, y, width, height);
-		}
-
-		/// <summary>
-		/// Retrieves the absolute rectangle of the spanned cell
-		/// located at the specified coordinates.
-		/// </summary>
-		private RectangleF getSpanCellRect(int row, int col)
-		{
-			if (rowsList == null)
-				return RectangleF.Empty;
-
 			RectangleF rc = Utilities.normalizeRect(rect);
-			if (HasHeaderRows)
+			if (hasHeaderRows)
 			{
 				rc.X += HeaderRowOffset;
 				rc.Width -= HeaderRowOffset;
 			}
-
-			Cell cell = this[col, row];
 
 			float h = rc.Top + captionHeight;
 
@@ -3263,14 +3204,14 @@ namespace MindFusion.FlowChartX
 			float height = 0;
 
 			int rowFrom = row;
-
 			if (isRowCollapsed(rowFrom))
 				rowFrom = getParentRow(rowFrom);
 
-			if (rowFrom < CurrentRow)
+			int topRow = CurrentRow;
+			if (rowFrom < topRow)
 			{
 				float aboveHeight = 0;
-				for (int i = rowFrom; i < CurrentRow; i++)
+				for (int i = rowFrom; i < topRow; i++)
 				{
 					if (isRowCollapsed(i))
 						continue;
@@ -3283,7 +3224,7 @@ namespace MindFusion.FlowChartX
 			else
 			{
 				float belowHeight = 0;
-				for (int i = CurrentRow; i < rowFrom; i++)
+				for (int i = topRow; i < rowFrom; i++)
 				{
 					if (isRowCollapsed(i))
 						continue;
@@ -3299,7 +3240,6 @@ namespace MindFusion.FlowChartX
 				rowSpan = RowCount - row;
 
 			int rowTo = rowFrom + rowSpan - 1;
-
 			for (int i = rowFrom; i <= rowTo; i++)
 			{
 				if (isRowCollapsed(i))
@@ -3318,38 +3258,21 @@ namespace MindFusion.FlowChartX
 
 			float x = rcColFrom.Left;
 			float width = rcColTo.Right - rcColFrom.Left;
+			float imgWidth = width;
 			if (x + width > rc.Right)
 				width = rc.Right - x;
 
 			if (col + colSpan - 1 == columnsCount - 1)
 				width = rc.Right - x;
 
-			return new RectangleF(x, y, width, height);
-		}
+			RectangleF res = new RectangleF(x, y, width, height);
+			if (getImgRect)
+			{
+				imgRect = res;
+				imgRect.Width = imgWidth;
+			}
 
-		internal RectangleF getCellRect(Cell cell)
-		{
-			if (cell.RowSpan == 1 && cell.ColumnSpan == 1)
-				return getCellRect_(cell);
-
-			int i = 0;
-			for (i = 0; i < cells.Count; ++i)
-				if (cells[i] == cell) break;
-
-			int row = i / colsList.Count;
-			int col = i % colsList.Count;
-
-			return getSpanCellRect(row, col);
-		}
-
-		internal RectangleF getCellRect(int row, int col)
-		{
-			Cell cell = this[col, row];
-
-			if (cell.RowSpan == 1 && cell.ColumnSpan == 1)
-				return getCellRect_(row, col);
-
-			return getSpanCellRect(row, col);
+			return res;
 		}
 
 		internal override Region getRegion()
@@ -3570,7 +3493,7 @@ namespace MindFusion.FlowChartX
 			if (rowsList == null || colsList == null) return false;
 
 			int tempRow = 0, tempCol = 0;
-			if (!cellFromPt_(pt, ref tempRow, ref tempCol))
+			if (!nonSpannedCellFromPt(pt, ref tempRow, ref tempCol))
 				return false;
 
 			if (hasSpanningCells && getCoveredCells()[tempCol,tempRow])
@@ -3602,14 +3525,14 @@ namespace MindFusion.FlowChartX
 			return true;
 		}
 
-		internal bool cellFromPt_(PointF pt, ref int row, ref int col)
+		internal bool nonSpannedCellFromPt(PointF pt, ref int row, ref int col)
 		{
 			if (rowsList == null || colsList == null) return false;
 
 			float h = Math.Min(rect.Top, rect.Bottom) + captionHeight;
 			float w = Math.Min(rect.Left, rect.Right);
 
-			if (HasHeaderRows)
+			if (hasHeaderRows)
 				w += HeaderRowOffset;
 
 			if (pt.Y < h) return false;
@@ -3666,34 +3589,57 @@ namespace MindFusion.FlowChartX
 
 		internal bool canScrollUp()
 		{
-			for (int i = currScrollRow - 1; i >= 0; i--)
-				if (!isRowCollapsed(i))
+			if (!hasHeaderRows)
+			{
+				if (currScrollRow > 0)
 					return true;
+			}
+			else
+			{
+				for (int i = currScrollRow - 1; i >= 0; i--)
+					if (!isRowCollapsed(i))
+						return true;
+			}
 
 			return false;
 		}
 
 		internal bool canScrollDown()
 		{
-			for (int i = currScrollRow + 1; i < rowsCount; i++)
-				if (!isRowCollapsed(i))
+			if (!hasHeaderRows)
+			{
+				if (currScrollRow < rowsCount - 1)
 					return true;
+			}
+			else
+			{
+				for (int i = currScrollRow + 1; i < rowsCount; i++)
+					if (!isRowCollapsed(i))
+						return true;
+			}
 
 			return false;
 		}
 
 		internal void scrollDown()
 		{
-			int nextRow = currScrollRow + 1;
-
-			while (isRowCollapsed(nextRow))
+			if (!hasHeaderRows)
 			{
-				nextRow++;
-				if (nextRow >= rowsCount)
-					return;
+				setCurrScrollRow(currScrollRow + 1);
 			}
+			else
+			{
+				int nextRow = currScrollRow + 1;
 
-			setCurrScrollRow(nextRow);
+				while (isRowCollapsed(nextRow))
+				{
+					nextRow++;
+					if (nextRow >= rowsCount)
+						return;
+				}
+
+				setCurrScrollRow(nextRow);
+			}
 
 			fcParent.setDirty();
 			fcParent.invalidate(getRepaintRect(true));
@@ -3701,16 +3647,23 @@ namespace MindFusion.FlowChartX
 
 		internal void scrollUp()
 		{
-			int prevRow = currScrollRow - 1;
-
-			while (isRowCollapsed(prevRow))
+			if (!hasHeaderRows)
 			{
-				prevRow--;
-				if (prevRow >= rowsCount)
-					return;
+				setCurrScrollRow(currScrollRow - 1);
 			}
+			else
+			{
+				int prevRow = currScrollRow - 1;
 
-			setCurrScrollRow(prevRow);
+				while (isRowCollapsed(prevRow))
+				{
+					prevRow--;
+					if (prevRow < 0)
+						return;
+				}
+
+				setCurrScrollRow(prevRow);
+			}
 
 			fcParent.setDirty();
 			fcParent.invalidate(getRepaintRect(true));
@@ -3807,6 +3760,7 @@ namespace MindFusion.FlowChartX
 		public override void loadFrom(BinaryReader reader, PersistContext ctx)
 		{
 			base.loadFrom(reader, ctx);
+			hasHeaderRows = false;
 
 			hasSpanningCells = false;
 			ctx.loadReference(this);	// load cells
@@ -3948,6 +3902,13 @@ namespace MindFusion.FlowChartX
 						hasSpanningCells = true;
 			}
 			resetCoveredCells();
+
+			if (rowsList != null)
+			{
+				foreach (Row row in rowsList)
+					if (row.Header)
+						hasHeaderRows = true;
+			}
 
 			// Update cell text
 			updateCellText();
@@ -4100,7 +4061,7 @@ namespace MindFusion.FlowChartX
 
 					// how close an anchor point is to the point passed as parameter
 					RectangleF testRect =
-						ap.Column == -1 ? rowRect : getCellRect(row, ap.Column);
+						ap.Column == -1 ? rowRect : getSpannedCellRect(row, ap.Column);
 					PointF pos = ap.getPos(testRect);
 					float dx = pos.X - pt.X;
 					float dy = pos.Y - pt.Y;
@@ -4148,7 +4109,7 @@ namespace MindFusion.FlowChartX
 						if (!fcParent.validateAnchor(arrow, !incoming, this, i)) continue;
 
 						RectangleF testRect =
-							ap.Column == -1 ? rowRect : getCellRect(r, ap.Column);
+							ap.Column == -1 ? rowRect : getSpannedCellRect(r, ap.Column);
 						PointF pos = ap.getPos(testRect);
 						float dx = pos.X - pt.X;
 						float dy = pos.Y - pt.Y;
@@ -4196,7 +4157,7 @@ namespace MindFusion.FlowChartX
 
 					// how close an anchor point is to the point passed as parameter
 					RectangleF testRect =
-						ap.Column == -1 ? rowRect : getCellRect(row, ap.Column);
+						ap.Column == -1 ? rowRect : getSpannedCellRect(row, ap.Column);
 					PointF pos = ap.getPos(testRect);
 					float dx = pos.X - pt.X;
 					float dy = pos.Y - pt.Y;
@@ -4382,6 +4343,8 @@ namespace MindFusion.FlowChartX
 
 			str.rowsCount = rowsCount;
 			str.columnsCount = columnsCount;
+
+			str.hasHeaderRows = hasHeaderRows;
 		}
 
 		internal void restoreStructure(TableStructure str)
@@ -4395,26 +4358,13 @@ namespace MindFusion.FlowChartX
 			rowsCount = str.rowsCount;
 			columnsCount = str.columnsCount;
 
+			hasHeaderRows = str.hasHeaderRows;
+
 			layoutText();
 			layoutCellText();
 		}
 
 		#endregion // undo and redo
-
-		/// <summary>
-		/// Gets whether the table has at least one header row.
-		/// </summary>
-		internal bool HasHeaderRows
-		{
-			get
-			{
-				foreach (Row row in rowsList)
-					if (row.Header)
-						return true;
-
-				return false;
-			}
-		}
 
 		private float HeaderRowOffset
 		{
@@ -4558,6 +4508,7 @@ namespace MindFusion.FlowChartX
 		private bool hasSpanningCells;
 		private bool[,] coveredCells;
 		private int maxRowSpan;
+		private bool hasHeaderRows;
 
 		private MindFusion.FlowChartX.Brush captionBackBrush;
 
@@ -4582,6 +4533,20 @@ namespace MindFusion.FlowChartX
 
 				fcParent.setDirty();
 				fcParent.invalidate(getRepaintRect(false));
+			}
+		}
+
+		internal void checkForHeaderRows()
+		{
+			hasHeaderRows = false;
+
+			for (int r = 0; r < rowsCount; ++r)
+			{
+				if (rowsList[r].Header)
+				{
+					hasHeaderRows = true;
+					return;
+				}
 			}
 		}
 	}

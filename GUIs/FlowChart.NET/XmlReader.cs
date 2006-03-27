@@ -41,6 +41,22 @@ namespace MindFusion.FlowChartX.Xml
 		}
 	}
 
+	public class XmlReaderOptions
+	{
+		public XmlReaderOptions()
+		{
+			customTagSerialization = false;
+		}
+
+		public bool CustomTagSerialization
+		{
+			get { return customTagSerialization; }
+			set { customTagSerialization = value; }
+		}
+
+		private bool customTagSerialization;
+	}
+
 	/// <summary>
 	/// Reads the FlowChart diagram from a XML file.
 	/// </summary>
@@ -48,10 +64,14 @@ namespace MindFusion.FlowChartX.Xml
 	public class XmlReader
 	{
 		private FlowChart _diagram;
+		private XmlReaderOptions _options;
 
 		public XmlReader(FlowChart diagram)
 		{
 			_diagram = diagram;
+
+			// Create default options
+			_options = new XmlReaderOptions();
 
 			// Create the property map, which
 			// maps the old property names to the new property names
@@ -68,6 +88,12 @@ namespace MindFusion.FlowChartX.Xml
 			_propertyMap["TableRowsCount"] = "TableRowCount";
 			_propertyMap["TableColumnsCount"] = "TableColumnCount";
 			_propertyMap["ShapeRotation"] = "ShapeOrientation";
+		}
+
+		public XmlReaderOptions Options
+		{
+			get { return _options; }
+			set { _options = value; }
 		}
 
 		public void Read(Stream stream)
@@ -617,7 +643,7 @@ namespace MindFusion.FlowChartX.Xml
 
 					else if (type.Equals(typeof(Int64)))
 					{
-						if(reader.IsEmptyElement)
+						if (reader.IsEmptyElement)
 							continue;
 
 						// Read the value
@@ -625,6 +651,21 @@ namespace MindFusion.FlowChartX.Xml
 
 						Int64 i = XmlConvert.ToInt64(reader.Value);
 						info.SetValue(component, i, null);
+
+						// Read the closing tag
+						reader.Read();
+					}
+
+					else if (type.Equals(typeof(ShapeTemplate)))
+					{
+						if (reader.IsEmptyElement)
+							continue;
+
+						// Read the value
+						reader.Read();
+
+						ShapeTemplate shape = ShapeTemplate.FromId(reader.Value);
+						info.SetValue(component, shape, null);
 
 						// Read the closing tag
 						reader.Read();
@@ -662,26 +703,46 @@ namespace MindFusion.FlowChartX.Xml
 
 						if (info.Name == "Tag")
 						{
-							// Read the tag
-							if (DeserializeTag != null)
+							bool readThis =
+								component.GetType().Equals(typeof(Box)) ||
+								component.GetType().Equals(typeof(Table)) ||
+								component.GetType().Equals(typeof(ControlHost)) ||
+								component.GetType().Equals(typeof(Arrow)) ||
+								component.GetType().Equals(typeof(AnchorPoint)) ||
+								component.GetType().Equals(typeof(FlowChart)) ||
+								component.GetType().Equals(typeof(Table.Cell));
+
+							if (_options.CustomTagSerialization)
 							{
-								if (component.GetType().Equals(typeof(Box)) ||
-									component.GetType().Equals(typeof(Table)) ||
-									component.GetType().Equals(typeof(ControlHost)) ||
-									component.GetType().Equals(typeof(Arrow)) ||
-									component.GetType().Equals(typeof(AnchorPoint)) ||
-									component.GetType().Equals(typeof(FlowChart)) ||
-									component.GetType().Equals(typeof(Table.Cell)))
+								// Read the tag
+								if (DeserializeTag != null)
 								{
-									SerializeTagArgs args = new SerializeTagArgs(component);
-									args.Representation = reader.Value;
-									DeserializeTag(this, args);
+									if (readThis)
+									{
+										SerializeTagArgs args = new SerializeTagArgs(
+											component, null, reader);
+										DeserializeTag(this, args);
+									}
+								}
+							}
+							else
+							{
+								// Read the tag
+								if (DeserializeTag != null)
+								{
+									if (readThis)
+									{
+										SerializeTagArgs args = new SerializeTagArgs(
+											component);
+										args.Representation = reader.Value;
+										DeserializeTag(this, args);
+
+										// read the closing tag
+										reader.Read();
+									}
 								}
 							}
 						}
-
-						// Read the closing tag
-						reader.Read();
 					}
 				}
 				else
@@ -987,7 +1048,13 @@ namespace MindFusion.FlowChartX.Xml
 							reader.GetAttribute("Id"));
 						_diagram.TableBrush = (FlowChartX.Brush)brushes[id];
 						break;
-
+/*
+					case "TableCaptionBackBrush":
+						id = XmlConvert.ToInt32(
+							reader.GetAttribute("Id"));
+						_diagram.TableCaptionBackBrush = (FlowChartX.Brush)brushes[id];
+						break;
+*/
 					case "ArrowBrush":
 						id = XmlConvert.ToInt32(
 							reader.GetAttribute("Id"));
@@ -1419,12 +1486,38 @@ namespace MindFusion.FlowChartX.Xml
 					if (idTo == -1 && idFrom != -1)
 					{
 						from = objects[idFrom];
-						a = _diagram.CreateArrow((Node)from, PointF.Empty);
+
+						Node nodeFrom = from as Node;
+
+						// Temporarily turn allow arrows off
+						bool allowIn = nodeFrom.AllowIncomingArrows;
+						bool allowOut = nodeFrom.AllowOutgoingArrows;
+
+						nodeFrom.AllowIncomingArrows = true;
+						nodeFrom.AllowOutgoingArrows = true;
+
+						a = _diagram.CreateArrow(nodeFrom, PointF.Empty);
+
+						nodeFrom.AllowIncomingArrows = allowIn;
+						nodeFrom.AllowOutgoingArrows = allowOut;
 					}
 					else if (idTo != -1 && idFrom == -1)
 					{
 						to = objects[idTo];
+
+						Node nodeTo = to as Node;
+
+						// Temporarily turn allow arrows off
+						bool allowIn = nodeTo.AllowIncomingArrows;
+						bool allowOut = nodeTo.AllowOutgoingArrows;
+
+						nodeTo.AllowIncomingArrows = true;
+						nodeTo.AllowOutgoingArrows = true;
+
 						a = _diagram.CreateArrow(PointF.Empty, (Node)to);
+
+						nodeTo.AllowIncomingArrows = allowIn;
+						nodeTo.AllowOutgoingArrows = allowOut;
 					}
 					else
 					{
@@ -1435,6 +1528,21 @@ namespace MindFusion.FlowChartX.Xml
 				{
 					from = objects[idFrom];
 					to = objects[idTo];
+
+					Node nodeFrom = from as Node;
+					Node nodeTo = to as Node;
+
+					// Temporarily turn allow arrows off
+					bool fromAllowIn = nodeFrom.AllowIncomingArrows;
+					bool fromAllowOut = nodeFrom.AllowOutgoingArrows;
+					bool toAllowIn = nodeTo.AllowIncomingArrows;
+					bool toAllowOut = nodeTo.AllowOutgoingArrows;
+
+					nodeFrom.AllowIncomingArrows = true;
+					nodeFrom.AllowOutgoingArrows = true;
+					nodeTo.AllowIncomingArrows = true;
+					nodeTo.AllowOutgoingArrows = true;
+
 					if(rowFrom == -1 && rowTo == -1)
 					{
 						a = _diagram.CreateArrow((Node)from, (Node)to);
@@ -1452,6 +1560,11 @@ namespace MindFusion.FlowChartX.Xml
 						a = _diagram.CreateArrow((Table)from, rowFrom,
 							(Table)to, rowTo);
 					}
+
+					nodeFrom.AllowIncomingArrows = fromAllowIn;
+					nodeFrom.AllowOutgoingArrows = fromAllowOut;
+					nodeTo.AllowIncomingArrows = toAllowIn;
+					nodeTo.AllowOutgoingArrows = toAllowOut;
 				}
 
 				// Read the control points
@@ -1587,14 +1700,25 @@ namespace MindFusion.FlowChartX.Xml
 				reader.Read(); // read Tag or Attachments
 				if (reader.Name == "Tag")
 				{
-					// Read the value
-					reader.Read();
-
-					if(DeserializeTag != null)
+					if (_options.CustomTagSerialization)
 					{
-						SerializeTagArgs args = new SerializeTagArgs(g);
-						args.Representation = reader.Value;
-						DeserializeTag(this, args);
+						if(DeserializeTag != null)
+						{
+							SerializeTagArgs args = new SerializeTagArgs(g, null, reader);
+							DeserializeTag(this, args);
+						}
+					}
+					else
+					{
+						// Read the value
+						reader.Read();
+
+						if(DeserializeTag != null)
+						{
+							SerializeTagArgs args = new SerializeTagArgs(g);
+							args.Representation = reader.Value;
+							DeserializeTag(this, args);
+						}
 					}
 
 					// Read the closing Tag element

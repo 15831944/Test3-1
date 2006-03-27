@@ -1,3 +1,5 @@
+#define _POST_FIX_2_1
+
 using System;
 using System.Xml;
 using System.Drawing;
@@ -574,7 +576,8 @@ namespace MindFusion.Diagramming.Import
 			double fAngle2 = 0;
 			XmlNode node_temp = null;
 			XmlNode xform1d_node = null;
-		
+			bool DontHideGroup = false;
+
 			// Incrementing shape's count
 			lShapesCount++;
 			sUID = shape.Attributes["ID"].Value.ToString();
@@ -628,15 +631,21 @@ namespace MindFusion.Diagramming.Import
 			sNameU = sNameU.ToLower();
 			
 			// Shape is GROUP
+#if _POST_FIX_2_1
+			if (( sType.IndexOf("group")>=0 ) && ( sNameU.IndexOf("connector")<0))
+#else
 			if ( sType.IndexOf("group")>=0 )
+#endif
 			{
 				lShapeType |= (long) ShapeTypeEnum.ST_GROUP;
 			}
 
 			// Shape is 'arrow - like'
 			if (( sNameU.IndexOf("connector") >= 0 ) || ( sNameU.IndexOf("link") >= 0 ) || ( sNameU.IndexOf("generalization") >= 0 ) ||
-				( sNameU.IndexOf("binary association") >= 0 ) || ( sNameU.IndexOf("composition")>=0) ||  ( sNameU == "relationship") ||
-				( sNameU.IndexOf("parent to category") >= 0 ) || ( sNameU.IndexOf("categorytochild ") >= 0 ) )
+				( sNameU.IndexOf("association") >= 0 ) || ( sNameU.IndexOf("composition")>=0) ||  ( sNameU == "relationship") ||
+				( sNameU.IndexOf("parent to category") >= 0 ) || ( sNameU.IndexOf("categorytochild ") >= 0 ) || (sNameU.IndexOf("object flow")>=0) ||
+				(sNameU.IndexOf("control flow")>=0) || (sNameU.IndexOf("2-element constraint")>=0) || (sNameU.IndexOf("or constraint")>=0))
+				// (sNameU.IndexOf("shared navigable")>=0))
 			{
 				lShapeType |= (long) ShapeTypeEnum.ST_CONNECTOR;
 
@@ -724,9 +733,15 @@ namespace MindFusion.Diagramming.Import
 
 		
 			// Getting shape's styles IDs
+#if _POST_FIX_2_1
+			sLineStyle = GetStyle2(shape, "LineStyle", "vdx:Line/vdx:LineColor");
+			sTextStyle = GetStyle2(shape, "TextStyle", "vdx:Char/vdx:Color");
+			sFillStyle = GetStyle2(shape, "FillStyle", "vdx:Fill/vdx:FillForegnd");
+#else
 			sLineStyle = GetStyle(shape, "LineStyle", ref sLineStyle2);
 			sTextStyle = GetStyle(shape, "TextStyle", ref sTextStyle2);
 			sFillStyle = GetStyle(shape, "FillStyle", ref sFillStyle2);
+#endif
 
 			// Getting colors
 			crLineColor = Color.Empty;
@@ -828,8 +843,6 @@ namespace MindFusion.Diagramming.Import
 
 						if (((ShapeTypeEnum) lShapeType & ShapeTypeEnum.ST_PART_OF_ENTITY2 ) == ShapeTypeEnum.ST_PART_OF_ENTITY2)
 							lBoxY = lBoxY + lGroupPinY*2 - lY;
-						else
-							lBoxY = lBoxY;
 
 					}
 					else
@@ -963,9 +976,9 @@ namespace MindFusion.Diagramming.Import
 				ShapeTemplate templ1 = 	null;
 
 				if ( ((ShapeTypeEnum)lShapeType & ShapeTypeEnum.ST_PART_OF_ENTITY) == ShapeTypeEnum.ST_PART_OF_ENTITY )
-					templ1 = VisioShape2PredefinedShape("Process");
+					templ1 = VisioShape2PredefinedShape("Process", ref oBox, ref DontHideGroup, ref crFillColor);
 				else
-					templ1 = VisioShape2PredefinedShape(sTemp);
+					templ1 = VisioShape2PredefinedShape(sTemp, ref oBox, ref DontHideGroup, ref crFillColor);
 		
 				if ( templ1 == null )
 					return false;
@@ -1034,9 +1047,18 @@ namespace MindFusion.Diagramming.Import
 
 				if ( fAngle2!=0)
 				{
-					oBox.RotationAngle = (float) fAngle2;
 					oBox.RotateContents = true;
+					oBox.RotationAngle = (float) fAngle2;
 				}
+
+#if _POST_FIX_2_1
+				if (group != null)
+				{
+					oBox.RotateContents = (group.MainObject as Box).RotateContents;
+					oBox.RotationAngle = (group.MainObject as Box).RotationAngle;
+
+				}
+#endif
 
 				// set the shape's text
 				Font ff = GetFont(shape);
@@ -1070,7 +1092,7 @@ namespace MindFusion.Diagramming.Import
 				}
 
 				if ( sPenStyle!=null )
-					oBox.PenDashStyle = String2DashStyle(sPenStyle);
+					oBox.Pen.DashStyle = String2DashStyle(sPenStyle);
 
 				// Raising 'BoxImported' event
 				OnBoxImported(oBox, sShapeName, "");
@@ -1348,7 +1370,15 @@ namespace MindFusion.Diagramming.Import
 
 
 			
-				// If relation type is "composition" or "generalization" there is hard-coded custom logic
+				// [???] Setting arrow's color
+				oArrow.Pen = new MindFusion.FlowChartX.Pen(crLineColor,lLineWith);
+				oArrow.HeadPen = oArrow.Pen;
+				oArrow.Brush = new MindFusion.FlowChartX.SolidBrush(crFillColor);
+
+				if ( sPenStyle!=null )
+					oArrow.Pen.DashStyle = String2DashStyle(sPenStyle);
+
+				// Performing post-processing for special arrow types
 				if ( sNameU	== "composition")
 				{
 					oArrow.ArrowBase = ArrowHead.Rhombus;
@@ -1360,11 +1390,40 @@ namespace MindFusion.Diagramming.Import
 					oArrow.ArrowHead = ArrowHead.None;
 					oArrow.FillColor =  Color.FromArgb(255,255,255);
 				}
-
-				// [???] Setting arrow's color
-				oArrow.Pen = new MindFusion.FlowChartX.Pen(crLineColor,lLineWith);
-				oArrow.HeadPen = oArrow.Pen;
-				oArrow.Brush = new MindFusion.FlowChartX.SolidBrush(crFillColor);
+				else if ( sNameU == "object flow")
+				{
+					oArrow.ArrowBase =	ArrowHead.None;
+					oArrow.ArrowHead = ArrowHead.Arrow;
+					oArrow.Pen.DashStyle = DashStyle.Dash;
+				}
+				else if ( sNameU == "control flow")
+				{
+					oArrow.ArrowBase = ArrowHead.None;
+					oArrow.ArrowHead = ArrowHead.Arrow;
+					oArrow.Pen.DashStyle = DashStyle.Solid;
+				}
+				else if ( sNameU.IndexOf("association")>=0)
+				{
+					oArrow.ArrowBase = ArrowHead.None;
+					oArrow.ArrowHead = ArrowHead.Arrow;
+					//oArrow.FillColor =  Color.FromArgb(255,255,255);
+					oArrow.Pen.DashStyle = DashStyle.Solid;
+				}
+				else if ( sNameU == "2-element constraint")
+				{
+					oArrow.ArrowBase =	ArrowHead.Arrow;
+					oArrow.ArrowHead = ArrowHead.None;
+					//oArrow.FillColor =  Color.FromArgb(255,255,255);
+					oArrow.Pen.DashStyle = DashStyle.Dot;
+				}
+				else if ( sNameU == "or constraint")
+				{
+					oArrow.ArrowBase =	ArrowHead.Arrow;
+					oArrow.ArrowHead = ArrowHead.None;
+					//oArrow.FillColor =  Color.FromArgb(255,255,255);
+					oArrow.Pen.DashStyle = DashStyle.Dot;
+				}
+				
 
 				// Setting arrow's text
 
@@ -1393,8 +1452,12 @@ namespace MindFusion.Diagramming.Import
 				if ((((ShapeTypeEnum) lShapeType & ShapeTypeEnum.ST_ENTITY ) != ShapeTypeEnum.ST_ENTITY) &&
 					(((ShapeTypeEnum) lShapeType & ShapeTypeEnum.ST_OVAL_PROCESS ) != ShapeTypeEnum.ST_OVAL_PROCESS))																					 
 				{
-					oBox.Transparent = true;
-					oBox.FillColor = Color.FromArgb(255,255,255);
+					if (!DontHideGroup)
+					{
+						oBox.Transparent = true;
+						oBox.FillColor = Color.FromArgb(255,255,255);
+					}
+					
 				}
 		
 				oGroup = null;
@@ -1430,6 +1493,16 @@ namespace MindFusion.Diagramming.Import
 						sTemp = "arrow";
 					GetShapeRef(grshape,sTemp,oGroup);
 				}
+
+#if _POST_FIX_2_1
+				if (DontHideGroup)
+				{
+					foreach ( Box grBox in oGroup.AttachedObjects )
+					{
+						grBox.Transparent = true;
+					}
+				}
+#endif
 
 				// Raising 'GroupImported' event
 				OnGroupImported(oGroup);
@@ -1490,13 +1563,14 @@ namespace MindFusion.Diagramming.Import
 		/// </summary>
 		/// <param name="sVisioShape">Visio shape type</param>
 		/// <returns>Flowchart.NET predefinded shape reference or [null] if some error occured</returns>
-		private MindFusion.FlowChartX.ShapeTemplate VisioShape2PredefinedShape( string sVisioShape )
+		private MindFusion.FlowChartX.ShapeTemplate VisioShape2PredefinedShape( string sVisioShape , ref Box oBox , ref bool DontHideGroup, ref Color FillColor )
 		{
 			string Result = "Rectangle";
 			MindFusion.FlowChartX.ShapeTemplate templ = null;
 			
 			try
 			{
+				DontHideGroup = false;
 				if (( sVisioShape == "" ) || ( sVisioShape == null))
 					sVisioShape = "Process";
 
@@ -1541,7 +1615,7 @@ namespace MindFusion.Diagramming.Import
 					Result = "Arrow4";
 				else if  ( sVisioShape.IndexOf("loop limit") >=0 )
 					Result = "BeginLoop";
-				else if  ( sVisioShape.IndexOf("object") >=0 )
+				else if  ( sVisioShape == "object" )
 					Result = "Cloud";
 				else if  ( sVisioShape.IndexOf("preparation") >=0 )
 					Result = "DataTransmition";
@@ -1622,13 +1696,19 @@ namespace MindFusion.Diagramming.Import
 				else if  ( sVisioShape.IndexOf("off-page reference") >=0 )
 					Result = "OffpageReference";
 				else if  ( sVisioShape.IndexOf("note") >=0 )
+				{
+					DontHideGroup = true;
 					Result = "File";
+				}
 				else if  ( sVisioShape.IndexOf("data process") >=0 )
 					Result = "Ellipse";
 				else if  ( sVisioShape.IndexOf("multiple process") >=0 )
 					Result = "Ellipse";
+#if _POST_FIX_2_1
+#else
 				else if  ( sVisioShape == "state" )
 					Result = "Ellipse";
+#endif
 				else if  ( sVisioShape == "start state")
 					Result = "Ellipse";
 				else if  ( sVisioShape == "stop state 2")
@@ -1645,6 +1725,75 @@ namespace MindFusion.Diagramming.Import
 					Result = "Ellipse";
 				else if  ( sVisioShape == "entity relationship")
 					Result = "Decision";
+#if _POST_FIX_2_1
+				else if  ( sVisioShape == "action state")
+				{
+					DontHideGroup = true;
+					Result = "Terminator";
+				}
+				else if  ( sVisioShape == "state")
+				{
+					DontHideGroup = true;
+					Result = "RoundRect";
+				}
+				else if  ( sVisioShape == "initial state")
+				{
+					DontHideGroup = true;
+					Result = "Ellipse";
+					FillColor = Color.Black;
+				}
+				else if  ( sVisioShape == "final state")
+				{
+					DontHideGroup = true;
+					Result = "Ellipse";
+				}
+				else if  ( sVisioShape.IndexOf("transition")>=0)
+				{
+					DontHideGroup = true;
+					Result = "Rectangle";
+					FillColor = Color.Black;
+				}
+				else if  ( sVisioShape == "object in state")
+				{
+					DontHideGroup = true;
+					Result = "Rectangle";
+				}
+				else if  ( sVisioShape == "swimlane")
+				{
+					Result = "Rectangle";
+					if ( oBox is Box )
+						oBox.Transparent = true;
+
+					//FillColor = Color.Transparent;
+						
+				}
+				else if  ( sVisioShape == "signal receipt")
+				{
+					DontHideGroup = true;
+					Result = "MessageFromUser";
+				}
+				else if  ( sVisioShape == "signal send")
+				{
+					Result = "MessageToUser";
+					DontHideGroup = true;
+					if ( oBox is Box )
+						oBox.ShapeOrientation = 180;
+				}
+				else if  ( sVisioShape == "constraint")
+				{
+					DontHideGroup = true;
+					Result = "File";
+				}
+				else if  ( sVisioShape == "watermark title")
+				{
+					Result = "Rectangle";
+					if ( oBox is Box )
+						oBox.Transparent = true;
+					
+					//FillColor = Color.Transparent;
+				}
+					
+#endif
 				else
 					Result = "Rectangle";
 		
@@ -1789,7 +1938,61 @@ namespace MindFusion.Diagramming.Import
 			return Result;
 		}
 
-	
+		private string GetStyle2( XmlNode shape,  string StyleName, string AttributeName )
+		{
+
+			string Result = "", sTemp = "", sTemp2=null, LastStyle = null;
+			XmlNode style_node = null;
+
+			try
+			{
+				if (shape.Attributes[StyleName]!=null)
+				{
+					Result = shape.Attributes[StyleName].Value.ToString();
+				}
+				else
+				{
+					if ( sMasterID == "")
+						style_node = current_page.SelectSingleNode("vdx:PageSheet", ns);
+					else
+						style_node = mastersRoot.SelectSingleNode(String.Format("vdx:Master[@ID='{0}']/vdx:Shapes/vdx:Shape", sMasterID), ns);
+
+					if ( style_node == null )
+						return null;
+
+					Result = style_node.Attributes[StyleName].Value.ToString();
+
+				}
+
+				
+			
+				LastStyle = Result;
+				int SpinCount = 0;
+				while (sTemp2 == null)
+				{
+					if ( SpinCount>10 )
+						break;
+					sTemp = String.Format("vdx:StyleSheet[@ID='{0}']/{1}",LastStyle, AttributeName);
+					sTemp2 = GetShapeAttr(sTemp, "", stylesRoot);
+					sTemp = String.Format("vdx:StyleSheet[@ID='{0}']",LastStyle);
+					LastStyle = GetShapeAttr(sTemp, StyleName, stylesRoot);
+					SpinCount++;
+
+				}
+				
+				if ( sTemp2!=null )
+					Result = sTemp2;
+				
+			}
+			catch (Exception ex)
+			{
+				Result = null;
+				Trace.WriteLine(String.Format("{0} error {1}\n","GetStyle2",ex.Message));
+			}
+			return Result;
+		}
+
+
 		/// <summary>
 		/// Converts Visio's arrow type into Flowchart.NET EArrowHead enum
 		/// </summary>

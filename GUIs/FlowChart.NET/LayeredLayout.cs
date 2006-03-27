@@ -1360,19 +1360,40 @@ namespace MindFusion.LayoutSystem
 
 				bool downwards = (iter % 4 <= 1);
 
-				for (int l = (downwards ? 1 : _layers.Count - 2);
-					downwards ? l <= _layers.Count - 2 : l >= 1; l += (downwards ? 1 : -1))
+				for (int l = (downwards ? 0 : _layers.Count - 1);
+					downwards ? l <= _layers.Count - 1 : l >= 0; l += (downwards ? 1 : -1))
 				{
 					ArrayList layer = _layers[l] as ArrayList;
 
 					bool hasSwapped = false;
+
+					// There is no need to recalculate crossings
+					// if they were calculated on the previous step
+					// and nothing has changed
+					bool calcCrossings = true;
+					int memCrossings = 0;
+
 					for (int n = 0; n < layer.Count - 1; n++)
 					{
 						// Count crossings
-						int up = CountCrossings(l - 1, l);
-						int down = CountCrossings(l, l + 1);
-						if (downwards) up *= 2; else down *= 2;
-						int crossBefore = up + down;
+						int up = 0;
+						int down = 0;
+						int crossBefore = 0;
+
+						if (calcCrossings)
+						{
+							if (l != 0)
+								up = CountCrossings(l - 1, l);
+							if (l != _layers.Count - 1)
+								down = CountCrossings(l, l + 1);
+							if (downwards) up *= 2; else down *= 2;
+
+							crossBefore = up + down;
+						}
+						else
+						{
+							crossBefore = memCrossings;
+						}
 
 						if (crossBefore == 0)
 							continue;
@@ -1389,8 +1410,12 @@ namespace MindFusion.LayoutSystem
 
 						// Count crossings again and if worse
 						// than before -> restore swapping
-						up = CountCrossings(l - 1, l);
-						down = CountCrossings(l, l + 1);
+						up = 0;
+						if (l != 0)
+							up = CountCrossings(l - 1, l);
+						down = 0;
+						if (l != _layers.Count - 1)
+							down = CountCrossings(l, l + 1);
 						if (downwards) up *= 2; else down *= 2;
 						int crossAfter = up + down;
 
@@ -1404,17 +1429,26 @@ namespace MindFusion.LayoutSystem
 							layer[n + 1] = node1;
 							node1.SetData(_GridPosition, node2GridPos);
 							node2.SetData(_GridPosition, node1GridPos);
+
+							// Nothing has changed, remember the crossings
+							// so that they are not calculated again on
+							// the next step
+							memCrossings = crossBefore;
+							calcCrossings = false;
 						}
 						else
 						{
 							hasSwapped = true;
+							calcCrossings = true;
 						}
 					}
 
 					if (hasSwapped)
 					{
-						CalcUpData(l + 1);
-						CalcDownData(l - 1);
+						if (l != _layers.Count - 1)
+							CalcUpData(l + 1);
+						if (l != 0)
+							CalcDownData(l - 1);
 					}
 				}
 			}

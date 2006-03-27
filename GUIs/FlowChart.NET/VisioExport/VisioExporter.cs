@@ -1,8 +1,11 @@
+#define _POST_FIX_3 // arrow head styles processing extended
+
 using System;
+using System.Collections;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -14,6 +17,34 @@ using MindFusion.FlowChartX;
 
 namespace MindFusion.Diagramming.Export
 {
+	public class BoxComparer : IComparer
+	{
+		private bool asc = true;
+	
+		public BoxComparer ( bool SortAsc )
+		{
+			asc = SortAsc;
+		}
+		
+		public int Compare(object x, object y)
+		{
+			int zx = 0, zy = 0, CompareResult = 0;
+
+			zx = (x as Box).ZIndex;
+			zy = (y as Box).ZIndex;
+
+			if ( zx!=zy )
+			{
+				if ( zx > zy )
+					CompareResult = asc ? 1 : -1;
+				else
+					CompareResult = asc ? -1 : 1;
+
+			}
+			return CompareResult;
+		}
+	}
+
 	/// <summary>
 	/// Exports FlowChart.NET diagrams as Visio 2003 XML Drawing files.
 	/// </summary>
@@ -38,6 +69,7 @@ namespace MindFusion.Diagramming.Export
 		private long PixPerInchFirst = 0,  PixPerInch = 0, m_InnerID = 0;
 		private double  lDocX = 0, lDocY =0, fDocX = 0, fDocY = 0, DocTop = 0, DocLeft = 0, DocBottom = 0, DocRight = 0;
 		private bool m_CreateVisioGroups = false;
+		private bool m_ExportTablesAsGroups = false;
 		private MindFusion.FlowChartX.FlowChart pChart;
 		private XmlDocument doc;
 		private XmlNamespaceManager ns;
@@ -65,6 +97,22 @@ namespace MindFusion.Diagramming.Export
 			set
 			{
 				m_CreateVisioGroups = value;
+			}
+		}
+
+		/// <summary>
+		/// Specifies whether FlowChart.NET groups should be exported
+		/// as Visio groups when possible.
+		/// </summary>
+		public bool ExportTablesAsGroups
+		{
+			get
+			{
+				return m_ExportTablesAsGroups;
+			}
+			set
+			{
+				m_ExportTablesAsGroups = value;
 			}
 		}
 
@@ -153,33 +201,74 @@ namespace MindFusion.Diagramming.Export
 			{
 				switch ( eaType)
 				{
+#if _POST_FIX_3
+					case ArrowHead.Arrow:
+						sTemp = "1";
+						break;
+					case ArrowHead.BowArrow:
+						sTemp = "6";
+						break;
+					case ArrowHead.PointerArrow:
+						sTemp = "6";
+						break;
+					case ArrowHead.DoubleArrow:
+						sTemp = "39";
+						break;
+					case ArrowHead.Pentagon:
+						sTemp = "4";
+						break;
+					case ArrowHead.Reversed:
+						sTemp = "27";
+						break;
+					case ArrowHead.RevWithLine:
+						sTemp = "28";
+						break;
+					case ArrowHead.RevWithCirc:
+						sTemp = "29";
+						break;
+					case ArrowHead.RevTriangle:
+						sTemp = "27";
+						break;
+					case  ArrowHead.Circle:
+						sTemp="42";
+						break;
+					case ArrowHead.BackSlash:
+						sTemp = "9";
+						break;
+					case ArrowHead.Slash:
+						sTemp = "23";
+						break;
+					case ArrowHead.Quill:
+						sTemp = "2";
+						break;
+#else
+					case ArrowHead.BackSlash:
+						sTemp = "23";
+						break;
+					case  ArrowHead.ahCircle:
+						sTemp="20";
+						break;
+					case ArrowHead.hDoubleArrow:
+						sTemp = "43";
+						break;
+					case ArrowHead.Slash:
+						sTemp = "9";
+						break;
+			
+#endif
 					case ArrowHead.None:
 						sTemp = "0";
 						break;
 					case ArrowHead.Triangle:
 						sTemp="2";
 						break;
-					case ArrowHead.Circle:
-						sTemp="20";
-						break;
 					case ArrowHead.Tetragon:
-						sTemp = "22";
+						sTemp = "11";
 						break;
 					case ArrowHead.Rhombus:
 						sTemp = "22";
 						break;
-					case ArrowHead.BackSlash:
-						sTemp = "23";
-						break;
-					case ArrowHead.Slash:
-						sTemp = "9";
-						break;
-					case ArrowHead.DoubleArrow:
-						sTemp = "43";
-						break;
-					case ArrowHead.BowArrow:
-						sTemp = "14";
-						break;
+			
 					default:
 						sTemp = "0";
 						break;
@@ -935,8 +1024,10 @@ namespace MindFusion.Diagramming.Export
 					if (!m_CreateVisioGroups )
 					{
 						if ( Group.MainObject.SubordinateGroup!=null )
-							AddBox((MindFusion.FlowChartX.Box) Group.MainObject, null, false);
-
+						{
+							if ( Group.MainObject is Box)
+								AddBox(Group.MainObject as Box, null, false);
+						}
 						continue;
 					}
 					
@@ -1050,35 +1141,35 @@ namespace MindFusion.Diagramming.Export
 			return bOk;
 		}
 
+		private string SetMasterID(XmlNode shape, MindFusion.FlowChartX.Box newBox)
+		{
+			return SetMasterID(shape,newBox.Shape,newBox.Style , getID(newBox));
+		}
+
 		/// <summary>
 		/// Intended to set 'Master' attribute of the [Shape]
 		/// </summary>
 		/// <param name="shape">VDX node name</param>
 		/// <param name="newBox">FlowChart/NET box reference</param>
 		/// <returns>String FLowchart.NET predefinde shape's name</returns>
-		private string SetMasterID(XmlNode shape, MindFusion.FlowChartX.Box newBox)
+		private string SetMasterID(XmlNode shape, 	MindFusion.FlowChartX.ShapeTemplate templ,
+			BoxStyle StyleOfShape, long IdOfShape)
 		{
 
 			string sFXShape = null, sTemp = null, sVisioShape = null, sMasterID = null;
 			XmlNode node_temp = null;
-			MindFusion.FlowChartX.ShapeTemplate templ = null;
 			
 			try
 			{
-				if ( newBox == null )
-					return null;
-
 				if ( shape == null )
 					return null;
 
-				templ = newBox.Shape;
-			
 				if ( templ == null )
 					sFXShape = "Rectangle";
 				else
 					sFXShape = templ.ToString();
 
-				switch ( newBox.Style )
+				switch ( StyleOfShape )
 				{
 					case BoxStyle.Rectangle:
 						sFXShape = "Rectangle";
@@ -1113,9 +1204,11 @@ namespace MindFusion.Diagramming.Export
 			
 				SetShapeAttr("","Master",shape,sMasterID);
 				//??? shape.Attributes["Master"].Value =  sMasterID;
-				sTemp = String.Format("{0}.{1}", sVisioShape, getID(newBox));
-				shape.Attributes["NameU"].Value = sTemp;
-				shape.Attributes["Name"].Value = sTemp;
+				sTemp = String.Format("{0}.{1}", sVisioShape, IdOfShape);
+				SetShapeAttr("","NameU",shape,sMasterID);
+				SetShapeAttr("","Name",shape,sMasterID);
+				//shape.Attributes["NameU"].Value = sTemp;
+				//shape.Attributes["Name"].Value = sTemp;
 			}
 			catch ( Exception ex )
 			{
@@ -1478,7 +1571,7 @@ namespace MindFusion.Diagramming.Export
 				sTemp = String.Format("{0}", fTemp);
 				sTemp = sTemp.Replace(sSeparator, ".");
 				SetShapeAttr("vdx:Line/vdx:LineWeight","",shapeNew, sTemp);
-				SetShapeAttr("vdx:Line/vdx:LinePattern","",shapeNew, DashStyle2String(newArrow.PenDashStyle));
+				SetShapeAttr("vdx:Line/vdx:LinePattern","",shapeNew, DashStyle2String(newArrow.Pen.DashStyle));
 
 				SetShapeAttr("vdx:Line/vdx:EndArrow","",shapeNew, ArrowType2String(newArrow.ArrowHead));
 				SetShapeAttr("vdx:Line/vdx:BeginArrow","",shapeNew, ArrowType2String(newArrow.ArrowBase));
@@ -1570,6 +1663,20 @@ namespace MindFusion.Diagramming.Export
 		/// <returns>[true] if successfull [false] otherwise</returns>
 		private bool AddBox(MindFusion.FlowChartX.Box newBox, MindFusion.FlowChartX.Group mainGroup, bool IsGroup)
 		{
+			return AddBox(newBox.BoundingRect, getID(newBox), newBox.RotationAngle, newBox.ShapeOrientation, newBox.Picture,
+				newBox.FillColor, newBox.FrameColor, newBox.TextColor, newBox.Font, newBox.Transparent, newBox.Pen, newBox.Brush,
+				newBox.EnableStyledText,newBox.Text, newBox.Style, newBox.Shape, (mainGroup == null) ? RectangleF.Empty : ( mainGroup.MainObject as Node ).BoundingRect , IsGroup,
+				newBox.TextFormat.Alignment);
+
+		
+		}
+
+		private bool AddBox(RectangleF rect, long ItemID, float RotationAngle, float ShapeOrientation, Image Picture ,
+			Color FillColor, Color FrameColor, Color TextColor, Font ShapeFont, bool Transparent,
+			FlowChartX.Pen ItemPen, FlowChartX.Brush ItemBrush, bool IsStyled, string ItemText, 
+			BoxStyle ItemStyle, FlowChartX.ShapeTemplate ItemTemplate,
+			RectangleF rectGroup, bool IsGroup, StringAlignment sa)
+		{
 			bool bOk = false, bPicture = false, NoDimChanges = false;
 			double lLeft = 0,	lRight = 0,	lTop = 0, lBottom =	0, lW =	0, lH =	0, 
 				lLeftG = 0,lRightG = 0,lTopG = 0, lBottomG =0,lWG = 0, lHG =0, fTemp = 0;
@@ -1580,9 +1687,9 @@ namespace MindFusion.Diagramming.Export
 			try
 			{
 				// Inserting new Box
-				if ( mainGroup!=null)
+				if ( rectGroup != RectangleF.Empty)
 				{
-					sTemp = String.Format("vdx:Shape[@ID='{0}']", getID(newBox));
+					sTemp = String.Format("vdx:Shape[@ID='{0}']", ItemID );
 					shapeNew = shapeRoot.SelectSingleNode(sTemp, ns);
 					if ( shapeNew == null )
 						shapeNew = groupLast.InsertAfter( shapeTemplate.Clone(),  groupLast.LastChild );
@@ -1612,10 +1719,10 @@ namespace MindFusion.Diagramming.Export
 				 * 
 				 */
 				
-				if ( newBox.RotationAngle!=0 )
+				if ( RotationAngle!=0 )
 				{
 				
-					float fAngle = newBox.RotationAngle + newBox.ShapeOrientation;
+					float fAngle = RotationAngle + ShapeOrientation;
 					int iSign = ( fAngle<180 ) ? -1 : 1;
 					float fAngle2 = ( fAngle<180 ) ? fAngle : 360 - fAngle;
 
@@ -1623,9 +1730,7 @@ namespace MindFusion.Diagramming.Export
 					sTemp = sTemp.Replace(sSeparator, ".");
 					SetShapeAttr("vdx:XForm/vdx:Angle","",shapeNew, sTemp);
 					RemoveNode(shapeNew.SelectSingleNode("vdx:XForm/vdx:Angle", ns),"F",false);
-					Trace.WriteLine(String.Format("Angle of {0} is {1}",newBox.Tag, sTemp));
-				
-					
+
 				}
 
 				if (IsGroup)
@@ -1638,43 +1743,45 @@ namespace MindFusion.Diagramming.Export
 				}
 
 				// Setting shape's ID & unique GUID
-				shapeLast = shapeNew;
-				shapeNew.Attributes["ID"].Value = getID(newBox).ToString();
+				if ( rectGroup == RectangleF.Empty)
+					shapeLast = shapeNew;
+
+				shapeNew.Attributes["ID"].Value = ItemID.ToString();
 			
 				sTemp = GetGUID();
 				if ( sTemp != null )
 				{
 					shapeNew.Attributes["UniqueID"].Value = sTemp;
 				}	
-				lLeft = newBox.BoundingRect.Left;
-				lRight =  newBox.BoundingRect.Right;
-				lTop =  newBox.BoundingRect.Top;
-				lBottom = newBox.BoundingRect.Bottom;
-				lW = newBox.BoundingRect.Width;
-				lH = newBox.BoundingRect.Height;
+				lLeft = rect.Left;
+				lRight =  rect.Right;
+				lTop =  rect.Top;
+				lBottom = rect.Bottom;
+				lW = rect.Width;
+				lH = rect.Height;
 
-				if (( newBox.ShapeOrientation == 90 )|| (newBox.ShapeOrientation == 270 ))
+				if (( ShapeOrientation == 90 )|| (ShapeOrientation == 270 ))
 				{
 					double lTemp = lW;
 					lW = lH;
 					lH = lTemp;
 				}
 
-				if ( newBox.Picture != null )
+				if ( Picture != null )
 				{
 					bPicture = true;
-					sImg = Image2String(newBox.Picture);
+					sImg = Image2String(Picture);
 					
 				}
 
-				if ( mainGroup!=null )
+				if (rectGroup!=RectangleF.Empty )
 				{
-					lLeftG = ((MindFusion.FlowChartX.Node) mainGroup.MainObject).BoundingRect.Left;
-					lRightG =  ((MindFusion.FlowChartX.Node) mainGroup.MainObject).BoundingRect.Right;
-					lTopG =  ((MindFusion.FlowChartX.Node) mainGroup.MainObject).BoundingRect.Top;
-					lBottomG = ((MindFusion.FlowChartX.Node) mainGroup.MainObject).BoundingRect.Bottom;
-					lWG = ((MindFusion.FlowChartX.Node) mainGroup.MainObject).BoundingRect.Width;
-					lHG = ((MindFusion.FlowChartX.Node) mainGroup.MainObject).BoundingRect.Height;
+					lLeftG = rectGroup.Left;
+					lRightG = rectGroup.Right;
+					lTopG =  rectGroup.Top;
+					lBottomG = rectGroup.Bottom;
+					lWG = rectGroup.Width;
+					lHG = rectGroup.Height;
 					
 					lLeft = lLeft - ( lLeftG );
 					lTop = lTop - lTopG + lDocY  - lHG;
@@ -1697,8 +1804,8 @@ namespace MindFusion.Diagramming.Export
 						RemoveNode(shapeNew, "vdx:Group", true);
 						RemoveNode(shapeNew, "Master", false);
 						
-						shapeNew.Attributes["NameU"].Value =  String.Format("Foreign.{0}", getID(newBox));
-						shapeNew.Attributes["Name"].Value =  String.Format("Foreign.{0}", getID(newBox));
+						shapeNew.Attributes["NameU"].Value =  String.Format("Foreign.{0}", ItemID);
+						shapeNew.Attributes["Name"].Value =  String.Format("Foreign.{0}", ItemID);
 						shapeNew.Attributes["Type"].Value =  "Foreign";
 						
 						shapeNew.SelectSingleNode("vdx:XForm/vdx:LocPinX", ns).Attributes.RemoveNamedItem("F");
@@ -1736,7 +1843,7 @@ namespace MindFusion.Diagramming.Export
 					else
 					{
 						// If the box is regular					
-						sTemp= SetMasterID(shapeNew,newBox);
+						sTemp= SetMasterID(shapeNew,ItemTemplate, ItemStyle, ItemID);
 						if (!NoDimChanges)
 							RemoveNode(shapeNew, "vdx:Group", true);
 					}
@@ -1760,7 +1867,7 @@ namespace MindFusion.Diagramming.Export
 					RemoveNode(shapeNew, "Master", false);
 					RemoveNode(shapeNew, "NameU", false);
 					RemoveNode(shapeNew, "Name", false);
-					sTemp= SetMasterID(shapeNew,newBox);
+					sTemp = SetMasterID(shapeNew,ItemTemplate, ItemStyle, ItemID);
 					
 				}
 				
@@ -1780,9 +1887,6 @@ namespace MindFusion.Diagramming.Export
 
 				// Getting font's parameters
 
-				Font ShapeFont = null;
-				ShapeFont =	newBox.Font;
-		
 				if (ShapeFont == null)
 					ShapeFont = pChart.Font;
 
@@ -1790,61 +1894,389 @@ namespace MindFusion.Diagramming.Export
 
 				// Setting shape elements colors
 				
-				SetShapeColor(shapeNew, "vdx:Fill/vdx:FillForegnd", newBox.FillColor);
-				string sType =  newBox.Brush.GetType().ToString();
-				if ( sType.IndexOf("LinearGradientBrush")>=0)
-				{
+				SetShapeColor(shapeNew, "vdx:Fill/vdx:FillForegnd", FillColor);
 				
-					MindFusion.FlowChartX.LinearGradientBrush grBrush = null;
-					grBrush = (MindFusion.FlowChartX.LinearGradientBrush) newBox.Brush;
-					if ( grBrush != null )
-					{
-						//SetShapeColor(shapeNew, "vdx:Fill/vdx:FillForegnd", grBrush.LinearColors[0]);
-						SetShapeColor(shapeNew, "vdx:Fill/vdx:FillBkgnd", grBrush.LinearColors[1]);
-						SetShapeAttr("vdx:Fill/vdx:FillPattern","", shapeNew, "36");
-					}
+				
+				if ( ItemBrush is MindFusion.FlowChartX.LinearGradientBrush )
+				{
+					SetShapeColor(shapeNew, "vdx:Fill/vdx:FillBkgnd", 
+						(ItemBrush as MindFusion.FlowChartX.LinearGradientBrush).LinearColors[1]);
+					SetShapeAttr("vdx:Fill/vdx:FillPattern","", shapeNew, "36");
 				}
 				
 
-				SetShapeColor(shapeNew, "vdx:Char/vdx:Color", newBox.TextColor);
-				SetShapeColor(shapeNew, "vdx:Line/vdx:LineColor",newBox.FrameColor	);
+				SetShapeColor(shapeNew, "vdx:Char/vdx:Color", TextColor);
+				SetShapeColor(shapeNew, "vdx:Line/vdx:LineColor",FrameColor	);
 
 				// Getting shape's transparency	level
-				if ((newBox.Transparent) || (( newBox.FillColor.A == 0 ) && (newBox.FillColor.R == 255) && (newBox.FillColor.G == 255 ) && (newBox.FillColor.B == 255)))
+				if (Transparent)
 				{
 					SetShapeAttr("vdx:Fill/vdx:FillForegndTrans","",shapeNew, "1");
 					SetShapeAttr("vdx:Line/vdx:LineColorTrans","",shapeNew, "1");
-					
+					SetShapeAttr("vdx:Fill/vdx:FillPattern","", shapeNew, "0");
 				}
 				else
 				{
+					if (( FillColor == Color.Transparent ) || ( FillColor.A == 0 ))
+					{
+						SetShapeAttr("vdx:Fill/vdx:FillForegndTrans","",shapeNew, "1");
+						SetShapeAttr("vdx:Fill/vdx:FillPattern","", shapeNew, "0");
+					}
+					else
+					{
+						fTemp  = (1 - FillColor.A)/ 255;
+						sTemp = String.Format("{0}", fTemp);
+						SetShapeAttr("vdx:Fill/vdx:FillForegndTrans","",shapeNew, sTemp);
+					}
 					
-					fTemp  = (1 - newBox.FillColor.A)/ 255;
-					sTemp = String.Format("{0}", fTemp);
-					SetShapeAttr("vdx:Fill/vdx:FillForegndTrans","",shapeNew, sTemp);
+					if ( FrameColor == Color.Transparent )
+					{
+						SetShapeAttr("vdx:Line/vdx:LineColorTrans","",shapeNew, "1");
+					}	
+						
+					
 				}
 		
 				// Setting shape's text
-				SetText(shapeNew, newBox.Text, newBox.EnableStyledText, ShapeFont);
+				SetText(shapeNew, ItemText, IsStyled , ShapeFont, sa);
 
 				// Getting line	width & pattern
 		
-				fTemp =  newBox.Pen.Width / PixPerInch;
+				fTemp =  ItemPen.Width / PixPerInch;
 				sTemp = String.Format("{0}", fTemp);
 				sTemp = sTemp.Replace(sSeparator, ".");
 				SetShapeAttr("vdx:Line/vdx:LineWeight","",shapeNew, sTemp);
-				SetShapeAttr("vdx:Line/vdx:LinePattern","",shapeNew, DashStyle2String(newBox.PenDashStyle));
+				SetShapeAttr("vdx:Line/vdx:LinePattern","",shapeNew, DashStyle2String(ItemPen.DashStyle));
 
 				bOk = true;
 			}
 			catch ( Exception ex )
 			{
-				Trace.WriteLine(String.Format("{0} error {1}\n","AddBox",ex.Message));
+				Trace.WriteLine(String.Format("Box#{2}({3}) {0} error {1}\n","AddBox",ex.Message, ItemID, ItemText));
 				bOk = false;
 			}
 
 			return bOk;
 		
+		}
+
+		private bool AddTable2(MindFusion.FlowChartX.Table newTable)
+		{
+			bool IsAdded = false;
+			if (AddBox(newTable.BoundingRect, getID(newTable), 0, 0 , newTable.Picture,
+				Color.Transparent, newTable.FrameColor, newTable.TextColor, newTable.Font, false , newTable.Pen, newTable.Brush,
+				newTable.EnableStyledText, "" , BoxStyle.Rectangle, null , RectangleF.Empty, true, StringAlignment.Center))
+			{
+
+				AddBox(newTable.BoundingRect, NextID(), 0, 0 , null,
+					newTable.FillColor , newTable.FrameColor, newTable.TextColor, newTable.Font, false , newTable.Pen, newTable.Brush,
+					newTable.EnableStyledText, "" , BoxStyle.Rectangle, null , newTable.BoundingRect, false, StringAlignment.Center);
+		
+						
+
+				String sTag = "";
+				float fX = newTable.BoundingRect.Left, 
+					fY = newTable.BoundingRect.Top + newTable.CaptionHeight, 
+					fW = (float) Math.Abs(newTable.BoundingRect.Right - newTable.BoundingRect.Left), 
+					fH = (float) Math.Abs(newTable.BoundingRect.Top - newTable.BoundingRect.Bottom), 
+					fCellH = 0, fCellX = 0, fCellY = 0 , rh =0, 
+					fStepW = 0, fSumW =0, fCellW = 0;
+				int ColCount = 0, RowCount = 0, AutoColls = 0;
+				bool CellIsSpanned = false;
+
+				RowCount = newTable.CurrScrollRow;
+				ColCount = 0;
+				AutoColls = 0;
+							
+				fCellX = fX;
+				fCellY = fY;//+ newTable.CaptionHeight;
+				
+				AutoColls = 0;
+				fSumW =0;
+				foreach ( Table.Column col in newTable.Columns)
+				{
+					if (col.ColumnStyle == ColumnStyle.AutoWidth )
+						AutoColls++;
+					else
+						fSumW+=col.Width;
+				}
+				
+				
+				while (RowCount<newTable.Rows.Count)
+				{
+				
+					if ( RowCount!=newTable.CurrScrollRow  )
+						rh =  newTable.Rows[RowCount-1].Height;
+					else
+						rh = 0;
+				
+					fCellY+=rh;
+					if ( fCellY > newTable.BoundingRect.Bottom - rh)
+						break;
+				
+					while (ColCount<newTable.Columns.Count )
+					{
+						if ( ColCount!=0)
+							fCellX+= newTable.Columns[ColCount-1].Width;
+				
+						Table.Cell cell = newTable[ColCount, RowCount];
+				
+				
+						if ( cell.Tag is string)
+							sTag = cell.Tag.ToString();
+						else
+							sTag = "";
+				
+						if (sTag != "span")
+						{
+											
+										
+							fCellH = 0;
+							for (int i = RowCount; i <RowCount + cell.RowSpan; i++)
+							{
+				
+								fCellH+= newTable.Rows[i].Height;
+								fCellW = 0;
+											
+								bool bPass = true;
+								for (int j = ColCount; j < ColCount + cell.ColumnSpan; j++)
+								{
+									if (( newTable.Columns[ColCount].ColumnStyle == ColumnStyle.AutoWidth ) && bPass)
+									{
+										fStepW = ( newTable.BoundingRect.Width - fSumW ) / AutoColls;
+										bPass = false;
+									}
+									else
+										fStepW = newTable.Columns[j].Width;
+														
+									fCellW+=fStepW;
+									newTable[j,i].Tag = "span";
+									//Trace.WriteLine(String.Format("Pos ({0}, {1} ) Spanned ({2},{3})", RowCount, ColCount, i,j));
+								}
+							}
+				
+						
+							if ( AutoColls == 0 )
+							{
+								if ( ColCount == ( newTable.Columns.Count -1) )
+									fCellW += ( newTable.BoundingRect.Width - fSumW);
+								//fCellW = newTable.BoundingRect.Right - fCellX + ( cell.Text == "" ? 0 : 15) ;
+							}
+				
+							RectangleF cellRect = new RectangleF(fCellX,
+								fCellY,
+								fCellW,
+								fCellH); 
+										
+				
+							CellIsSpanned = ((cell.ColumnSpan>1) || ( cell.RowSpan>1));
+
+							IsAdded = AddBox(cellRect, NextID(), 0, 0 , null,
+								Color.Transparent , (( newTable.CellFrameStyle == CellFrameStyle.None ) ? Color.Transparent : newTable.FrameColor), cell.TextColor, (newTable.Font == null) ? pChart.Font : newTable.Font , false , newTable.Pen, newTable.Brush,
+								newTable.EnableStyledText, cell.Text , BoxStyle.Rectangle, null , newTable.BoundingRect , false, ( cell.TextFormat == null ) ? StringAlignment.Center : cell.TextFormat.Alignment );
+										
+										
+							if ( cell.Picture != null )
+							{
+								float fiX = 0, fiY = 0, fiW = 0, fiH = 0;
+								if ( GetImageDim(cell.Picture, cellRect, cell.PicturePos , ref fiW,
+									ref fiH , ref fiX, ref fiY))
+								{
+									RectangleF cellImageRect = new RectangleF(fiX, fiY, fiW, fiH);
+									IsAdded = AddBox(cellImageRect, NextID(), 0, 0 , cell.Picture,
+										Color.Transparent, Color.Transparent, Color.Transparent, (newTable.Font == null) ? pChart.Font : newTable.Font , true , newTable.Pen, newTable.Brush,
+										false, "" , BoxStyle.Rectangle, null , newTable.BoundingRect , false, StringAlignment.Center);
+								}
+							}
+										
+										
+										
+						}
+						ColCount++;
+									
+										
+					}
+				
+					fCellX = fX;
+					ColCount = 0;
+					RowCount++;
+								
+									
+				}
+
+
+				if ( newTable.CaptionHeight!=0 )
+				{
+					RectangleF captionRect = new RectangleF(newTable.BoundingRect.Left, newTable.BoundingRect.Top,
+						newTable.BoundingRect.Width, newTable.CaptionHeight);
+					IsAdded = AddBox(captionRect, NextID(), 0, 0 , null,
+						newTable.FillColor, newTable.FrameColor, newTable.CaptionColor , (newTable.Font == null) ? pChart.Font : newTable.Font , false , newTable.Pen, newTable.Brush,
+						newTable.EnableStyledText, newTable.Caption , BoxStyle.Rectangle, null , newTable.BoundingRect , false, ( newTable.CaptionFormat == null ) ? StringAlignment.Center : newTable.CaptionFormat.Alignment );
+									
+				}
+			}
+
+			return true;
+
+		}
+
+		public bool GetImageDim(Image pict, RectangleF rect, ImageAlign ppos, ref float  picw, ref float pich , ref float xoff , ref float yoff)
+		{
+			bool bOk = false;
+			int xc = 0, yc = 0;
+
+			try
+			{
+			
+				if ( rect.Equals(RectangleF.Empty))
+					return false;
+
+				picw = 0;
+				pich = 0;
+				xoff =0;
+				yoff =0;
+
+				Graphics g = System.Drawing.Graphics.FromHwnd(GetActiveWindow());
+				setTransforms(g);
+
+				// get image logical size in document coordinates
+				RectangleF sizeDev = RectangleF.FromLTRB(0, 0,
+					(float)pict.Size.Width / pict.HorizontalResolution * g.DpiX * g.PageScale,
+					(float)pict.Size.Height / pict.VerticalResolution * g.DpiY * g.PageScale);
+				RectangleF sizeDoc = deviceToDoc(g, sizeDev);
+				picw = sizeDoc.Width;
+				pich = sizeDoc.Height;
+
+				
+				switch (ppos)
+				{
+					case ImageAlign.TopLeft:
+						xoff = rect.Left;
+						yoff = rect.Top;
+						break;
+					case ImageAlign.BottomLeft:
+						xoff = rect.Left;
+						yoff = rect.Bottom - pich;
+						break;
+					case ImageAlign.TopRight:
+						xoff = rect.Right - picw;
+						yoff = rect.Top;
+						break;
+					case ImageAlign.BottomRight:
+						xoff = rect.Right - picw;
+						yoff = rect.Bottom - pich;
+						break;
+					case ImageAlign.Center:
+						xoff = (rect.Right + rect.Left - picw) / 2;
+						yoff = (rect.Bottom + rect.Top - pich) / 2;
+						break;
+					case ImageAlign.TopCenter:
+						xoff = rect.X + rect.Width / 2 - picw / 2;
+						yoff = rect.Y;
+						break;
+					case ImageAlign.BottomCenter:
+						xoff = rect.X + rect.Width / 2 - picw / 2;
+						yoff = rect.Bottom - pich;
+						break;
+					case ImageAlign.MiddleLeft:
+						xoff = rect.X;
+						yoff = rect.Y + rect.Height / 2 - pich / 2;
+						break;
+					case ImageAlign.MiddleRight:
+						xoff = rect.Right - picw;
+						yoff = rect.Y + rect.Height / 2 - pich / 2;
+						break;
+					case ImageAlign.Fit:
+					{
+						float h = rect.Bottom - rect.Top;
+						float w = rect.Right - rect.Left;
+						if (h == 0) break;
+
+						float ratioCtrl = w / h;
+						float ratioPic = picw / pich;
+
+						if (ratioCtrl > ratioPic)
+						{
+							//stretch vertically
+							pich = (int)h;
+							picw = (int)(ratioPic * pich);
+							yoff = rect.Top;
+							xoff = (rect.Right + rect.Left - picw) / 2;
+						}
+						else
+						{
+							//stretch horizontally
+							picw = (int)w;
+							if (ratioPic == 0) break;
+							pich = (int)(picw / ratioPic);
+							xoff = rect.Left;
+							yoff = (rect.Bottom + rect.Top - pich) / 2;
+						}
+					}
+						break;
+					case ImageAlign.Stretch:
+					{
+						picw = rect.Right - rect.Left;
+						pich = rect.Bottom - rect.Top;
+						xoff = rect.Left; yoff = rect.Top;
+					}
+						break;
+					case ImageAlign.Tile:
+					{
+						xoff = rect.Left; yoff = rect.Top;
+						xc = (int)((rect.Right - rect.Left) / picw) + 1;
+						yc = (int)((rect.Bottom - rect.Top) / pich) + 1;
+					}
+						break;
+
+					default:
+						return false;
+				}
+
+				PointF center = new PointF(
+					rect.X + rect.Width / 2,
+					rect.Y + rect.Height / 2);
+				bOk = true;
+			}
+		
+			catch ( Exception ex )
+			{
+				Trace.WriteLine(String.Format("{0} error {1}\n","SvgManager.GetImageDim",ex.Message));
+				bOk = false;
+			}
+			
+			return bOk;
+		}
+
+		public void setTransforms(Graphics g)
+		{
+			g.ResetTransform();
+			g.TranslateTransform(-pChart.ScrollX,-pChart.ScrollY);
+			g.PageUnit = pChart.MeasureUnit;
+			g.PageScale = pChart.ZoomFactor / 100F;
+		}
+
+		public static RectangleF deviceToDoc(Graphics g, RectangleF r)
+		{
+			PointF[] pts = new PointF[4];
+
+			// get the corner points
+			pts[0].X = r.Left;
+			pts[0].Y = r.Top;
+			pts[1].X = r.Right;
+			pts[1].Y = r.Top;
+			pts[2].X = r.Right;
+			pts[2].Y = r.Bottom;
+			pts[3].X = r.Left;
+			pts[3].Y = r.Bottom;
+
+			// get the world coordinates
+			g.TransformPoints(CoordinateSpace.World,
+				CoordinateSpace.Device, pts);
+
+			// return rectangle in world coordinates
+			return RectangleF.FromLTRB(
+				pts[0].X, pts[0].Y, pts[2].X, pts[2].Y);
 		}
 
 		/// <summary>
@@ -1854,6 +2286,9 @@ namespace MindFusion.Diagramming.Export
 		/// <returns>[true] if successfull [false] otherwise</returns>
 		private bool AddTable(MindFusion.FlowChartX.Table newTable)
 		{
+			if (m_ExportTablesAsGroups)
+				return AddTable2(newTable);
+
 			bool bOk = false;
 			double lLeft = 0,	lTop = 0,  lW =	0, lH =	0, lWG = 0, lHG =0,
 				lLeftG = 0,	lRightG = 0,	lTopG = 0, lBottomG =0;
@@ -1879,7 +2314,7 @@ namespace MindFusion.Diagramming.Export
 				shapeNew.Attributes["ID"].Value = ID.ToString();
 				//Trace.WriteLine(String.Format("Table {0}\t{1}", ID.ToString(), sTemp));
 				shapeNew.Attributes["Name"].Value = String.Format("Entity 2.{0}",ID);
-				shapeNew.Attributes["Master"].Value = "47";//"3";
+				shapeNew.Attributes["Master"].Value = "3"; //"47";//"3";
 				shapeNew.Attributes.RemoveNamedItem("NameU");
 				RemoveNode(shapeNew, "vdx:LayerMem", true);
 				RemoveNode(shapeNew, "vdx:Event", true);
@@ -1945,7 +2380,7 @@ namespace MindFusion.Diagramming.Export
 
 				// Setting enity caption's attributes
 				shapeCaption.Attributes["ID"].Value = ID.ToString();
-				SetShapeAttr("","MasterShape",shapeCaption,"9");//"6");
+				SetShapeAttr("","MasterShape",shapeCaption,"6");//"9");//"6");
 				//Trace.WriteLine(String.Format("Caption {0}\t{1}", ID.ToString(), sTemp));
 				RemoveNode(shapeCaption,"Master",false);
 				RemoveNode(shapeCaption,"Name",false);
@@ -1992,7 +2427,7 @@ namespace MindFusion.Diagramming.Export
 				ID = NextID();
 				sTemp = GetGUID();
 				shapeBody.Attributes["ID"].Value = ID.ToString();
-				SetShapeAttr("","MasterShape",shapeBody,"10");//"7");
+				SetShapeAttr("","MasterShape",shapeBody,"7");//"10");//"7");
 				//Trace.WriteLine(String.Format("Body {0}\t{1}", ID.ToString(), sTemp));
 				RemoveNode(shapeBody,"Master",false);
 				RemoveNode(shapeBody,"Name",false);

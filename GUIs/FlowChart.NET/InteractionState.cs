@@ -72,6 +72,8 @@ namespace MindFusion.FlowChartX
 		{
 			currentPoint = pt;
 			bool redrawBack = false;
+			if (currentObject == null)
+				return false;
 
 			// split the arrow on the first mouse move, then modify
 			if (action == Action.Split && fc.mouseMoved)
@@ -128,11 +130,15 @@ namespace MindFusion.FlowChartX
 			affectedArrows.Clear();
 			completing = true;
 
+			// someone might have deleted the item from a selection- change event
+			if (currentObject == null)
+				return;
+
 			if (action == Action.Create)
 			{
 				currentObject.completeCreate(pt);
 
-				// someone might have deleted the item
+				// someone might have deleted the item in itemCreated handler
 				if (itemDeleted)
 					return;
 
@@ -181,28 +187,31 @@ namespace MindFusion.FlowChartX
 
 		internal void cancel(FlowChart fc)
 		{
-			cycleRoots.Clear();
-			affectedArrows.Clear();
-
-			if (action == Action.Create && !completing)
+			if (currentObject != null)
 			{
-				if (currentObject == fc.Selection)
-					fc.Selection.cancelCreate();
-				else
+				cycleRoots.Clear();
+				affectedArrows.Clear();
+
+				if (action == Action.Create && !completing)
 				{
-					currentObject.onRemove();
-					currentObject.freeResources();
+					if (currentObject == fc.Selection)
+						fc.Selection.cancelCreate();
+					else
+					{
+						currentObject.onRemove();
+						currentObject.freeResources();
+					}
+					currentObject = null;
 				}
-				currentObject = null;
-			}
 
-			if (action == Action.Modify)
-			{
-				currentObject.cancelModify(this);
-				fc.UndoManager.onCancelModify();
+				if (action == Action.Modify)
+				{
+					currentObject.cancelModify(this);
+					fc.UndoManager.onCancelModify();
 
-				RectangleF rcAdd = currentObject.getRepaintRect(true);
-				invalidRect = Utilities.unionRects(invalidRect, rcAdd);
+					RectangleF rcAdd = currentObject.getRepaintRect(true);
+					invalidRect = Utilities.unionRects(invalidRect, rcAdd);
+				}
 			}
 		}
 

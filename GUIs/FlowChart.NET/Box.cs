@@ -23,37 +23,6 @@ using MindFusion.Geometry.Geometry2D;
 
 namespace MindFusion.FlowChartX
 {
-	#region enumerations
-
-	public enum BoxStyle
-	{
-		Rectangle = 0,
-		Ellipse = 1,
-		RoundedRectangle = 2,
-		Rhombus = 3,
-
-		/* This member is now obsolete
-		Polygon = 4,
-		*/
-
-		Delay = 5,
-		Shape = 6
-	};
-
-	internal enum ArrowAnchor
-	{
-		NoAnchor,
-		HorzCenter,
-		VertCenter,
-		LeftCenter,
-		RightCenter,
-		TopCenter,
-		BottomCenter,
-		Pattern
-	};
-
-	#endregion
-
 	/// <summary>
 	/// Represents diagram nodes whose shape can be changed. Boxes can optionally
 	/// contain images and text and they expose various customization properties.
@@ -828,6 +797,11 @@ namespace MindFusion.FlowChartX
 
 		internal override bool containsPoint(PointF pt)
 		{
+			RectangleF bounds = getRotatedBounds();
+			bounds.Inflate(0.05f, 0.05f);
+			if (!bounds.Contains(pt))
+				return false;
+
 			//check if the shape contains pt
 			switch (style)
 			{
@@ -1590,101 +1564,298 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Makes the box large enough to contain all the text
 		/// </summary>
-		public void FitSizeToText()
+		public bool FitSizeToText(FitSize fit)
 		{
 			if (text.Length == 0)
-				return;
+				return false;
 
-			if (canLayoutText() && useTextLayout)
+			float mm = Constants.getMillimeter(fcParent.MeasureUnit);
+			RectangleF initial = rect;
+			RectangleF initialRepaint = getRepaintRect(true);
+
+			// increase only box height
+			if (fit == FitSize.KeepWidth)
 			{
-				// Increase size until text fits
-				float stepx = Constants.getFitTextStep(fcParent.MeasureUnit);
-				float stepy = Constants.getFitTextStep(fcParent.MeasureUnit);
-				RectangleF initial = rect;
-				RectangleF rc = initial;
+				// check whether the box is wide enough to fit at least one letter
+				SizeF size = fcParent.MeasureString("W",
+					Font, int.MaxValue, textFormat);
+				if (size.Width + mm > rect.Width)
+					return false;
 
-				RectangleF initialRepaint = getRepaintRect(true);
-
-				Graphics graphics = fcParent.CreateGraphics();
-				fcParent.setTransforms(graphics);
-
-				if (rc.Height > 0)
+				if (canLayoutText() && useTextLayout)
 				{
-					float hvratio = rc.Width / rc.Height;
-					float vhratio = rc.Height / rc.Width;
+					// using FlowChart.NET polygonal text layout
+					float stepy = Constants.getFitTextStep(fcParent.MeasureUnit);
+					RectangleF rc = initial;
 
-					if (hvratio < vhratio)
+					// change height until the text fits
+					float cy = 0;
+					if (layoutText())
 					{
-						vhratio = vhratio / hvratio;
-						hvratio = 1;
+						do
+						{
+							cy -= stepy;
+							rc = initial;
+							rc.Inflate(0, cy);
+
+							setRect(rc);
+						}
+						while (layoutText());
+
+						cy += stepy;
+						rc = initial;
+						rc.Inflate(0, cy);
+						setRect(rc);
 					}
 					else
 					{
-						hvratio = hvratio / vhratio;
-						vhratio = 1;
+						while (!layoutText())
+						{
+							cy += stepy;
+							rc = initial;
+							rc.Inflate(0, cy);
+
+							setRect(rc);
+
+							if (rect.Height > mm * 400)
+							{
+								setRect(initial);
+								return false;
+							}
+						}
 					}
-
-					stepx = hvratio * stepx;
-					stepy = vhratio * stepy;
-				}
-
-				// Perform lazy (therefore ugly) layouting
-				float cx = 0;
-				float cy = 0;
-				if (layoutText())
-				{
-					do
-					{
-						cx -= stepx;
-						cy -= stepy;
-						rc = initial;
-						rc.Inflate(cx, cy);
-
-						setRect(rc);
-					}
-					while (layoutText());
-
-					cx += stepx;
-					cy += stepy;
-					rc = initial;
-					rc.Inflate(cx, cy);
-					setRect(rc);
 				}
 				else
 				{
-					while (!layoutText())
+					// using standard .NET text layout
+					size = fcParent.MeasureString(text,
+						Font, (int)rect.Width, textFormat);
+					rect.Height = size.Height;
+				}
+			}
+
+			if (fit == FitSize.KeepHeight)
+			{
+				// check whether the box is big enough to fit at least one line
+				SizeF size = fcParent.MeasureString(text,
+					Font, int.MaxValue, textFormat);
+				if (size.Height + mm > rect.Height)
+					return false;
+
+				float stepx = Constants.getFitTextStep(fcParent.MeasureUnit);
+				RectangleF rc = rect;
+
+				if (canLayoutText() && useTextLayout)
+				{
+					// using FlowChart.NET polygonal text layout
+					float cx = 0;
+					if (layoutText())
 					{
+						do
+						{
+							cx -= stepx;
+							rc = initial;
+							rc.Inflate(cx, 0);
+
+							setRect(rc);
+						}
+						while (layoutText());
+
+						cx += stepx;
+						rc = initial;
+						rc.Inflate(cx, 0);
+						setRect(rc);
+					}
+					else
+					{
+						while (!layoutText())
+						{
+							cx += stepx;
+							rc = initial;
+							rc.Inflate(cx, 0);
+
+							setRect(rc);
+
+							if (rect.Width > mm * 1000)
+								break;
+						}
+					}
+				}
+				else
+				{
+					// change width until the text fits
+					float cx = 0;
+					size = fcParent.MeasureString(text,
+						Font, (int)rect.Width, textFormat);
+					if (size.Height < rect.Height)
+					{
+						do
+						{
+							cx -= stepx;
+							rc = initial;
+							rc.Inflate(cx, 0);
+
+							setRect(rc);
+							size = fcParent.MeasureString(text,
+								Font, (int)rect.Width, textFormat);
+						}
+						while (size.Height < rect.Height);
+
+						cx += stepx;
+						rc = initial;
+						rc.Inflate(cx, 0);
+						setRect(rc);
+					}
+					else
+					{
+						size = fcParent.MeasureString(text,
+							Font, (int)rect.Width, textFormat);
+						while (size.Height > rect.Height)
+						{
+							cx += stepx;
+							rc = initial;
+							rc.Inflate(cx, 0);
+
+							setRect(rc);
+							size = fcParent.MeasureString(text,
+								Font, (int)rect.Width, textFormat);
+
+							if (rect.Width > mm * 1000)
+								break;
+						}
+					}
+				}
+			}
+
+			if (fit == FitSize.KeepRatio)
+			{
+				if (rect.Width == 0 || rect.Height == 0)
+					return false;
+
+				float stepx = Constants.getFitTextStep(fcParent.MeasureUnit);
+				float stepy = Constants.getFitTextStep(fcParent.MeasureUnit);
+				RectangleF rc = initial;
+
+				float hvratio = rc.Width / rc.Height;
+				float vhratio = rc.Height / rc.Width;
+
+				if (hvratio < vhratio)
+				{
+					vhratio = vhratio / hvratio;
+					hvratio = 1;
+				}
+				else
+				{
+					hvratio = hvratio / vhratio;
+					vhratio = 1;
+				}
+
+				stepx = hvratio * stepx;
+				stepy = vhratio * stepy;
+
+				if (canLayoutText() && useTextLayout)
+				{
+					// using FlowChart.NET polygonal text layout
+					float cx = 0;
+					float cy = 0;
+					if (layoutText())
+					{
+						do
+						{
+							cx -= stepx;
+							cy -= stepy;
+							rc = initial;
+							rc.Inflate(cx, cy);
+
+							setRect(rc);
+						}
+						while (layoutText());
+
 						cx += stepx;
 						cy += stepy;
 						rc = initial;
 						rc.Inflate(cx, cy);
-
 						setRect(rc);
 					}
+					else
+					{
+						while (!layoutText())
+						{
+							cx += stepx;
+							cy += stepy;
+							rc = initial;
+							rc.Inflate(cx, cy);
+
+							setRect(rc);
+
+							if (rect.Width > mm * 1000)
+								break;
+						}
+					}
 				}
+				else
+				{
+					// change width until the text fits
+					float cx = 0;
+					float cy = 0;
 
-				fcParent.invalidate(initialRepaint);
+					SizeF size = fcParent.MeasureString(text,
+						Font, (int)rect.Width, textFormat);
+					if (size.Height < rect.Height)
+					{
+						do
+						{
+							cx -= stepx;
+							cy -= stepy;
+							rc = initial;
+							rc.Inflate(cx, cy);
+
+							setRect(rc);
+							size = fcParent.MeasureString(text,
+								Font, (int)rect.Width, textFormat);
+						}
+						while (size.Height < rect.Height);
+
+						cx += stepx;
+						cy += stepy;
+						rc = initial;
+						rc.Inflate(cx, cy);
+						setRect(rc);
+					}
+					else
+					{
+						size = fcParent.MeasureString(text,
+							Font, (int)rect.Width, textFormat);
+						while (size.Height > rect.Height)
+						{
+							cx += stepx;
+							cy += stepy;
+							rc = initial;
+							rc.Inflate(cx, cy);
+
+							setRect(rc);
+							size = fcParent.MeasureString(text,
+								Font, (int)rect.Width, textFormat);
+
+							if (rect.Width > mm * 1000)
+								break;
+						}
+					}
+				}
 			}
-			else
-			{
-				SizeF size;
-				Graphics graphics = fcParent.CreateGraphics();
 
-				fcParent.setTransforms(graphics);
-				size = graphics.MeasureString(text, Font, (int)rect.Width, textFormat);
-				rect.Height = size.Height;
-
-				graphics.Dispose();
-			}
-
+			// update shape outline and dependent object positions
 			updPosArrows();
 			updateShapePoints();
 
 			if (groupAttached != null)
 				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
 
-			fcParent.invalidate(getRepaintRect(true));
+			fcParent.invalidate(
+				RectangleF.Union(getRepaintRect(true), initialRepaint));
 			fcParent.setDirty();
+
+			return true;
 		}
 
 		#endregion

@@ -601,7 +601,7 @@ namespace MindFusion.Diagramming.Export
 				fSumW =0;
 				foreach ( Table.Column col in newTable.Columns)
 				{
-					if (col.ColumnStyle == ColumnStyle.AutoWidth )
+					if (col.ColumnStyle == MindFusion.FlowChartX.ColumnStyle.AutoWidth )
 						AutoColls++;
 					else
 						fSumW+=col.Width;
@@ -640,7 +640,7 @@ namespace MindFusion.Diagramming.Export
 								bool bPass = true;
 								for (int j = ColCount; j < ColCount + cell.ColumnSpan; j++)
 								{
-									if (( newTable.Columns[ColCount].ColumnStyle == ColumnStyle.AutoWidth ) && bPass)
+									if ((newTable.Columns[ColCount].ColumnStyle == MindFusion.FlowChartX.ColumnStyle.AutoWidth) && bPass)
 									{
 										fStepW = ( newTable.BoundingRect.Width - fSumW ) / AutoColls;
 										bPass = false;

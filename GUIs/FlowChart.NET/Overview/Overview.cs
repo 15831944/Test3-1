@@ -121,11 +121,10 @@ namespace MindFusion.FlowChartX
 				if (document == null)
 					return;
 
-				rcView = value;
-
 				RectangleF rcDiagram = document.DocExtents;
 				Rectangle bounds = DocToScreen(rcDiagram);
 
+				rcView = value;
 				if (rcView.Right > bounds.Right)
 					rcView.X = bounds.Right - rcView.Width;
 				if (rcView.Bottom > bounds.Bottom)
@@ -140,6 +139,15 @@ namespace MindFusion.FlowChartX
 					rcView.Height = bounds.Height;
 
 				rcDoc = ScreenToDoc(rcView);
+				if (rcDoc.Right > rcDiagram.Right)
+					rcDoc.X = rcDiagram.Right - rcDoc.Width;
+				if (rcDoc.Bottom > rcDiagram.Bottom)
+					rcDoc.Y = rcDiagram.Bottom - rcDoc.Height;
+				if (rcDoc.Left < rcDiagram.Left)
+					rcDoc.X = rcDiagram.Left;
+				if (rcDoc.Top < rcDiagram.Top)
+					rcDoc.Y = rcDiagram.Top;
+
 				iAmScrolling = true;
 				document.ScrollTo(rcDoc.X, rcDoc.Y);
 				iAmScrolling = false;

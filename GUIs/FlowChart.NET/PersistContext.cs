@@ -23,7 +23,7 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	public class PersistContext
 	{
-		int saveFileFormat = 26;
+		int saveFileFormat = 27;
 
 		internal PersistContext(Stream stream, IPersistObjFactory factory)
 		{

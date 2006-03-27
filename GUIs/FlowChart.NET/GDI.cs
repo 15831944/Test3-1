@@ -497,6 +497,7 @@ namespace MindFusion.FlowChartX
 			System.Drawing.Drawing2D.LinearGradientBrush brush = new
 				System.Drawing.Drawing2D.LinearGradientBrush(
 				rect, _linearColors[0], _linearColors[1], _angle);
+			brush.WrapMode = WrapMode.TileFlipXY;
 
 			if(_blend != null)
 				brush.Blend = _blend;
@@ -511,7 +512,7 @@ namespace MindFusion.FlowChartX
 			System.Drawing.Drawing2D.LinearGradientBrush brush =
 				CreateGDIBrush(rc) as System.Drawing.Drawing2D.LinearGradientBrush;
 
-			brush.TranslateTransform(dx, dy);
+			//brush.TranslateTransform(dx, dy);
 			return brush;
 		}
 

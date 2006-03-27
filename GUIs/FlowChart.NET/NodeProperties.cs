@@ -25,6 +25,7 @@ namespace MindFusion.FlowChartX
 			expanded = true;
 			obstacle = true;
 			contraints = null;
+			boolValues = (ushort)0xFFFF;
 		}
 
 		internal AnchorPattern anchorPattern;
@@ -33,5 +34,6 @@ namespace MindFusion.FlowChartX
 		internal bool obstacle;
 		internal NodeConstraints contraints;
 		internal Handles enabledHandles;
+		internal ushort boolValues;
 	}
 }

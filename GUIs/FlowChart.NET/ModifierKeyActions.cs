@@ -5,14 +5,6 @@ using System.Windows.Forms;
 
 namespace MindFusion.FlowChartX
 {
-	public enum ModifierKeyAction
-	{
-		None,
-		Pan,
-		Select,
-		OverrideBehavior
-	}
-
 	/// <summary>
 	/// Summary description for ModifierKeyActions.
 	/// </summary>

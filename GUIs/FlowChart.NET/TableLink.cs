@@ -168,7 +168,7 @@ namespace MindFusion.FlowChartX
 						AnchorPoint ap = rowap.Points[arrow.DestAnchor];
 						ptp = new PointF(ap.X, ap.Y);
 						if (ap.Column != -1)
-							rc = table.getCellRect(row, ap.Column);
+							rc = table.getSpannedCellRect(row, ap.Column);
 					}
 
 					// check OrgnAnchor for outgoing arrow
@@ -177,7 +177,7 @@ namespace MindFusion.FlowChartX
 						AnchorPoint ap = rowap.Points[arrow.OrgnAnchor];
 						ptp = new PointF(ap.X, ap.Y);
 						if (ap.Column != -1)
-							rc = table.getCellRect(row, ap.Column);
+							rc = table.getSpannedCellRect(row, ap.Column);
 					}
 				}
 			}

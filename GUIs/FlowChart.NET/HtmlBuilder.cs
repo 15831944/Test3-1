@@ -187,7 +187,7 @@ namespace MindFusion.FlowChartX
 
 				for (int c = 0; c < table.ColumnCount; ++c)
 				{
-					cellRect = table.getCellRect(r, c);
+					cellRect = table.getSpannedCellRect(r, c);
 
 					if (cellRect.Height == 0 ||
 						cellRect.Width == 0 ||
@@ -203,7 +203,7 @@ namespace MindFusion.FlowChartX
 						(cell.RowSpan != 1 || cell.ColumnSpan != 1))
 					{
 						if (cell.RowSpan != 1 || cell.ColumnSpan != 1)
-							cellRect = table.getSpanCellVisibleRect(r, c);
+							cellRect = RectangleF.Intersect(cellRect, cellsRect);
 
 						// generate rect AREA for the cell
 						html += TAB + TAB + "<AREA SHAPE=";

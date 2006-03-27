@@ -16,13 +16,6 @@ using MindFusion.FlowChartX.Visitors;
 
 namespace MindFusion.FlowChartX
 {
-	public enum HostMouseAction
-	{
-		PassToControl,	// pass to control
-		SelectHost,		// just select
-		IgnoreControl	// select or draw arrow
-	}
-
 	public class ControlHost : Node
 	{
 		public ControlHost(FlowChart parent) : base(parent)

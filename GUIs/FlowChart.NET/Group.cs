@@ -16,16 +16,6 @@ using MindFusion.FlowChartX.Visitors;
 
 namespace MindFusion.FlowChartX
 {
-	public enum AttachTo
-	{
-		FixedCorner = 0,
-		Proportional,
-		ArrowPoint,
-		ArrowSegment,
-		LongestHSegment,
-		SideMiddle
-	}
-
 	internal class Attachment : IPersists
 	{
 		internal Attachment()
@@ -447,10 +437,12 @@ namespace MindFusion.FlowChartX
 						updatePropAttachment(att, ist);
 						break;
 					case AttachTo.ArrowPoint:
-						updateToPointAttachment(att, ist);
+						if (!updateToPointAttachment(att, ist))
+							return;
 						break;
 					case AttachTo.ArrowSegment:
-						updateToSegmentAttachment(att, ist);
+						if (!updateToSegmentAttachment(att, ist))
+							return;
 						break;
 					case AttachTo.LongestHSegment:
 						updateLongestSegmAttachment(att, ist);
@@ -623,14 +615,14 @@ namespace MindFusion.FlowChartX
 				att.node.setRect(rcNew);
 		}
 
-		private void updateToPointAttachment(Attachment att, InteractionState ist)
+		private bool updateToPointAttachment(Attachment att, InteractionState ist)
 		{
 			int point = att.attData;
 			if (((Arrow)mainObj).Points.Count <= point)
 			{
 				cycleProtect = false;
 				new RemoveGroupCmd(MainObject, this).Execute();
-				return;
+				return false;
 			}
 
 			PointF ptPrev = prevPoints[point];
@@ -640,9 +632,11 @@ namespace MindFusion.FlowChartX
 				ptCurr = ptPrev;
 			att.node.modifyTranslate(
 				ptCurr.X - ptPrev.X, ptCurr.Y - ptPrev.Y, true);
+
+			return true;
 		}
 
-		private void updateToSegmentAttachment(Attachment att, InteractionState ist)
+		private bool updateToSegmentAttachment(Attachment att, InteractionState ist)
 		{
 			int segment = att.attData;
 			int n1 = 0, n2 = 0;
@@ -650,7 +644,7 @@ namespace MindFusion.FlowChartX
 			{
 				cycleProtect = false;
 				new RemoveGroupCmd(MainObject, this).Execute();
-				return;
+				return false;
 			}
 
 			switch (((Arrow)mainObj).Style)
@@ -676,6 +670,8 @@ namespace MindFusion.FlowChartX
 				ptCurr = ptPrev;
 			att.node.modifyTranslate(
 				ptCurr.X - ptPrev.X, ptCurr.Y - ptPrev.Y, true);
+
+			return true;
 		}
 
 		private void updateLongestSegmAttachment(Attachment att, InteractionState ist)

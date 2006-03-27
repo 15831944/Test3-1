@@ -3,13 +3,6 @@ using System.IO;
 
 namespace MindFusion.FlowChartX
 {
-	public enum DirectionConstraint
-	{
-		None,
-		Horizontal,
-		Vertical
-	}
-
 	/// <summary>
 	/// Summary description for NodeConstraints.
 	/// </summary>

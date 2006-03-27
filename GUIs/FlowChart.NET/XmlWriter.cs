@@ -345,6 +345,7 @@ namespace MindFusion.FlowChartX.Xml
 		{
 			_writeImages = false;
 			_writeXMLDecl = true;
+			customTagSerialization = false;
 		}
 
 		public bool WriteImages
@@ -359,8 +360,15 @@ namespace MindFusion.FlowChartX.Xml
 			set { _writeXMLDecl = value; }
 		}
 
+		public bool CustomTagSerialization
+		{
+			get { return customTagSerialization; }
+			set { customTagSerialization = value; }
+		}
+
 		private bool _writeImages;
 		private bool _writeXMLDecl;
+		private bool customTagSerialization;
 	}
 
 	/// <summary>
@@ -387,6 +395,8 @@ namespace MindFusion.FlowChartX.Xml
 				"ExpandBtnPos",
 				"Font",
 				"InplaceEditFont",
+				"RoundedArrows",
+				"RoundedArrowsRadius",
 				"SelMnpColor",
 				"ShadowColor",
 				"ShadowsStyle",
@@ -439,6 +449,7 @@ namespace MindFusion.FlowChartX.Xml
 				"BoxSelStyle",
 				"BoxStyle",
 				"BoxText",
+				"DefaultShape",
 				"DynamicArrows",
 				"EnableStyledText",
 				"IntermArrowHead",
@@ -527,7 +538,9 @@ namespace MindFusion.FlowChartX.Xml
 				"ToolTip",
 				"Transparent",
 				"Visible",
-				"Weight"
+				"Weight",
+				"AllowIncomingArrows",
+				"AllowOutgoingArrows"
 			};
 
 		static private string[] _hostProps = 
@@ -554,7 +567,9 @@ namespace MindFusion.FlowChartX.Xml
 				"ShadowOffsetY",
 				"ToolTip",
 				"Visible",
-				"Weight"
+				"Weight",
+				"AllowIncomingArrows",
+				"AllowOutgoingArrows"
 			};
 
 		static private string[] _tableProps =
@@ -601,7 +616,9 @@ namespace MindFusion.FlowChartX.Xml
 				"TextColor",
 				"ToolTip",
 				"Visible",
-				"Weight"
+				"Weight",
+				"AllowIncomingArrows",
+				"AllowOutgoingArrows"
 			};
 
 		static private string[] _arrowProps =
@@ -941,16 +958,26 @@ namespace MindFusion.FlowChartX.Xml
 			PropertyDescriptor pd = pdc.Find("Tag", true);
 			object tag = pd.GetValue(obj);
 
-			if(tag != null)
+			if (tag != null)
 			{
 				if(SerializeTag != null)
 				{
-					SerializeTagArgs args = new SerializeTagArgs(obj);
-					SerializeTag(this, args);
+					if (_options.CustomTagSerialization)
+					{
+						writer.WriteStartElement("Tag");
+						SerializeTagArgs args = new SerializeTagArgs(obj, writer, null);
+						SerializeTag(this, args);
+						writer.WriteEndElement();
+					}
+					else
+					{
+						SerializeTagArgs args = new SerializeTagArgs(obj);
+						SerializeTag(this, args);
 
-					if(args.Representation != null)
-						writer.WriteElementString("Tag",
-							args.Representation);
+						if (args.Representation != null)
+							writer.WriteElementString("Tag",
+								args.Representation);
+					}
 				}
 			}
 		}
@@ -1199,6 +1226,12 @@ namespace MindFusion.FlowChartX.Xml
 					{
 						writer.WriteElementString(tprop,
 							XmlConvert.FromInt64((Int64)val));
+					}
+					else if (type.Equals(typeof(ShapeTemplate)))
+					{
+						// Only shapes with assigned ids are serialized
+						writer.WriteElementString(tprop,
+							(val as ShapeTemplate).Id);
 					}
 					else if (val != null)
 					{
@@ -1713,12 +1746,34 @@ namespace MindFusion.FlowChartX.Xml
 		{
 			_object = obj;
 			_representation = "";
+			writer = null;
+			reader = null;
+		}
+
+		internal SerializeTagArgs(object obj,
+			System.Xml.XmlWriter writer, System.Xml.XmlReader reader)
+		{
+			_object = obj;
+			_representation = "";
+			this.writer = writer;
+			this.reader = reader;
 		}
 
 		public object Object
 		{
 			get { return _object; }
 		}
+
+		public System.Xml.XmlWriter XmlWriter
+		{
+			get { return writer; }
+		}
+
+		public System.Xml.XmlReader XmlReader
+		{
+			get { return reader; }
+		}
+
 		public string Representation
 		{
 			get { return _representation; }
@@ -1727,6 +1782,8 @@ namespace MindFusion.FlowChartX.Xml
 
 		private object _object;
 		private string _representation;
+		System.Xml.XmlWriter writer;
+		System.Xml.XmlReader reader;
 	}
 
 	public delegate void SerializeTagEvent(object sender, SerializeTagArgs e);

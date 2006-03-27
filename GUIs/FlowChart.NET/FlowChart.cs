@@ -32,159 +32,14 @@ using MindFusion.FlowChartX.Visitors;
 
 namespace MindFusion.FlowChartX
 {
-
-	#region enumerations
-
-	public enum Action
-	{
-		None,
-		Create,
-		Modify,
-		Split
-	}
-
-	public enum AutoSize
-	{
-		None,
-		RightAndDown,
-		AllDirections
-	}
-
-	public enum BehaviorType
-	{
-		Modify = 0,
-		CreateBox,
-		CreateArrow,
-		FlowChart,
-		TableRelations,
-		CreateTable,
-		CreateControlHost,
-		LinkedControls,
-		DoNothing,
-		Custom
-	}
-
-	public enum CustomDraw
-	{
-		None = 0,
-		Additional,
-		Full,
-		ShadowOnly,
-		Additional2
-	};
-
-	public enum ExpandButtonPosition
-	{
-		OuterRight,
-		OuterLowerRight,
-		OuterUpperRight,
-		OuterBottom,
-		OuterLeft,
-		OuterLowerLeft,
-		OuterUpperLeft,
-		OuterTop
-	}
-
-	public enum GridStyle
-	{
-		Points,
-		Lines
-	};
-
-	public enum HitTestPriority
-	{
-		ZOrder,
-		NodesBeforeArrows
-	}
-
-	public enum ImageAlign
-	{
-		Center=0,
-		Fit,
-		Stretch,
-		Tile,
-		TopLeft,
-		BottomLeft,
-		TopRight,
-		BottomRight,
-		TopCenter,
-		BottomCenter,
-		MiddleLeft,
-		MiddleRight,
-		Document = 0x1000
-	}
-
-	public enum ModificationStyle
-	{
-		SelectedOnly,
-		AutoHandles
-	}
-
-	public enum ItemType
-	{
-		None = 0,
-		Box,
-		Arrow,
-		Table,
-		Selection,
-		ControlHost,
-		Dummy
-	}
-
-	public enum RestrictToDoc
-	{
-		NoRestriction = 0,
-		Intersection,
-		InsideOnly
-	}
-
-	public enum HandlesStyle
-	{
-		Invisible,
-		SquareHandles,
-		DashFrame,
-		HatchFrame,
-		HatchHandles,
-		HatchHandles2,
-		HatchHandles3,
-		MoveOnly,
-		EasyMove,
-		SquareHandles2,
-		Custom,
-		InvisibleMove
-	}
-
-	public enum ShadowsStyle
-	{
-		None,
-		OneLevel,
-		ZOrder
-	}
-
-	public enum ShowAnchors
-	{
-		Always = 0,
-		Never = 1,
-		Auto = 2,
-		Selected = 4
-	}
-
-	public enum SnapToAnchor
-	{
-		OnCreate,
-		OnCreateOrModify
-	}
-
-	#endregion
-
 	/// <summary>
-	/// The main diagram editor class. Serves as view, model and controller.
+	/// Implements the main diagram editor class. It acts as view, model and
+	/// controller at the same time. In addition, it defines a set of properties
+	/// that define the initial values of the diagram elements attributes.
 	/// </summary>
 	[LicenseProvider(typeof(RegistryLicenseProvider))]
 	public class FlowChart : System.Windows.Forms.Control, IPersistObjFactory, IPersists
 	{
-		private License license = null;
-
 		#region initialization
 
 		public FlowChart()
@@ -452,21 +307,1338 @@ namespace MindFusion.FlowChartX
 
 		#endregion
 
-		[Browsable(false)]
-#if FCNET_STD
-		internal UndoManager UndoManager
-#else
-		public UndoManager UndoManager
-#endif
+		#region diagram structure and contents
+
+		/// <summary>
+		/// Creates a new table
+		/// </summary>
+		public Table CreateTable(float x, float y, float width, float height)
 		{
-			get { return undoManager; }
+			// create the box object and store it in the collection
+			Table newTable = new Table(this);
+			newTable.setPos(x, y, width, height);
+
+			Add(newTable, SelectAfterCreate);
+
+			return newTable;
 		}
 
-		private UndoManager undoManager;
-
-		public void ExecuteCommand(Command cmd)
+		/// <summary>
+		/// Creates a relation between two tables
+		/// </summary>
+		public Arrow CreateRelation(Table src, int srcRow, Table dest, int destRow)
 		{
+			return CreateArrow(src, srcRow, dest, destRow);
+		}
+
+		private void addToObjColl(ChartObject obj)
+		{
+			switch (obj.getType())
+			{
+				case ItemType.Box:
+					boxes.Add((Box)obj);
+					break;
+				case ItemType.ControlHost:
+					controlHosts.Add((ControlHost)obj);
+					break;
+				case ItemType.Table:
+					tables.Add((Table)obj);
+					break;
+				case ItemType.Arrow:
+					arrows.Add((Arrow)obj);
+					break;
+			}
+		}
+
+		internal void addItem(ChartObject item)
+		{
+			Arrow arrow = item as Arrow;
+			if (arrow != null)
+				arrow.updateNodeCollections();
+
+			addToObjColl(item);
+			zOrder.Add(item);
+			updateZOrder(zOrder.Count - 1);
+
+			item.onAdd();
+
+			// update document size if needed
+			if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
+				sizeDocForItem(item);
+		}
+
+		internal void removeItem(ChartObject item)
+		{
+			selection.RemoveObject(item);
+			if (item == autoHandlesObj) autoHandlesObj = null;
+			if (item == autoAnchorsObj) autoAnchorsObj = null;
+
+			switch (item.getType())
+			{
+				case ItemType.Box:
+					boxes.Remove((Box)item);
+					break;
+				case ItemType.ControlHost:
+					controlHosts.Remove((ControlHost)item);
+					break;
+				case ItemType.Table:
+					tables.Remove((Table)item);
+					break;
+				case ItemType.Arrow:
+					arrows.Remove((Arrow)item);
+					break;
+			}
+
+			removeFromZOrder(item);
+
+			MethodCallVisitor visitor =
+				new MethodCallVisitor(new VisitOperation(removeFromSelection));
+
+			switch (item.getType())
+			{
+				case ItemType.ControlHost:
+				{
+					ControlHost host = (ControlHost)item;
+					host.visitArrows(visitor);
+					host.deleteArrows();
+				}
+					break;
+				case ItemType.Box:
+				{
+					Box box = (Box)item;
+					box.visitArrows(visitor);
+					box.deleteArrows();
+				}
+					break;
+				case ItemType.Table:
+				{
+					Table table = (Table)item;
+					table.visitArrows(visitor);
+					table.deleteArrows();
+				}
+					break;
+				case ItemType.Arrow:
+				{
+					Arrow arrow = (Arrow)item;
+					arrow.resetCrossings();
+					arrow.getDestLink().removeArrowFromObj();
+					arrow.getOrgnLink().removeArrowFromObj();
+				}
+					break;
+			}
+
+			item.onRemove();
+
+			// update document size if needed
+			if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
+				sizeDocForItems();
+		}
+
+		/// <summary>
+		/// Deletes an object
+		/// </summary>
+		public bool DeleteObject(ChartObject obj)
+		{
+			if (obj == null) return false;
+
+			bool deleted = deleteItem(obj);
+			if (deleted)
+				Invalidate();
+
+			return deleted;
+		}
+
+		private void removeFromSelection(ChartObject obj)
+		{
+			selection.RemoveObject(obj);
+		}
+
+		internal bool deleteItem(ChartObject item)
+		{
+			if (!zOrder.Contains(item)) return false;
+
+			if (interaction != null)
+			{
+				if (interaction.isCompleting())
+				{
+					if (interaction.CurrentObject == item)
+						interaction.setItemDeleted();
+				}
+				else
+				{
+					buttonDown[0] = false;
+					if (Capture)
+						Capture = false;
+					interaction.cancel(this);
+					interaction = null;
+				}
+			}
+
+			new RemoveItemCmd(item).Execute();
+			
+			setDirty();
+			return true;
+		}
+
+		/// <summary>
+		/// Deletes all objects
+		/// </summary>
+		public void ClearAll()
+		{
+			endInplaceEdit(true);
+#if !FCNET_STD
+			undoManager.History.Clear();
+			undoManager.resetContext();
+#endif
+
+			// clear selection
+			selection.Clear();
+
+			// destroy all groups
+			foreach (Group group in groups)
+				group.onDelete();
+			groups.Clear();
+
+			// clear type-specific lists
+			arrows.Clear();
+			controlHosts.Clear();
+			boxes.Clear();
+			tables.Clear();
+
+			// free resources and clear all items
+			foreach (ChartObject obj in zOrder)
+			{
+				obj.onRemove();
+				obj.freeResources();
+			}
+			zOrder.Clear();
+
+			autoHandlesObj = null;
+			interaction = null;
+			activeObject = null;
+			autoAnchorsObj = null;
+
+			GC.Collect();
+			Invalidate();
+			setDirty();
+		}
+
+		internal void zLevelUp(ChartObject obj)
+		{
+			int i = getZIndex(obj);
+			if (i == -1) return;
+			if (i == zOrder.Count - 1) return;
+
+			zOrder[i] = zOrder[i+1];
+			zOrder[i+1] = obj;
+
+			setDirty();
+			updateZOrder(i, i + 1);
+		}
+
+		internal void zLevelDown(ChartObject obj)
+		{
+			int i = getZIndex(obj);
+			if (i == -1) return;
+			if (i == 0) return;
+
+			zOrder[i] = zOrder[i-1];
+			zOrder[i-1] = obj;
+
+			setDirty();
+			updateZOrder(i - 1, i);
+		}
+
+		internal void zBottom(ChartObject obj)
+		{
+			int i = getZIndex(obj);
+			if (i == -1) return;
+			if (i == 0) return;
+
+			while (i > 0)
+			{
+				zOrder[i] = zOrder[i-1];
+				i--;
+			}
+			zOrder[0] = obj;
+
+			setDirty();
+			updateZOrder(0);
+		}
+
+		internal void zTop(ChartObject obj)
+		{
+			int i = getZIndex(obj);
+			int start = i;
+			if (i == -1) return;
+			if (i == zOrder.Count - 1) return;
+
+			while (i < zOrder.Count - 1)
+			{
+				zOrder[i] = zOrder[i+1];
+				i++;
+			}
+			zOrder[i] = obj;
+
+			setDirty();
+			updateZOrder(start);
+		}
+
+		private int getZIndex(ChartObject obj)
+		{
+			for (int i = 0; i < zOrder.Count; ++i)
+			{
+				if (obj == zOrder[i])
+					return i;
+			}
+
+			return -1;
+		}
+
+		internal bool setZIndex(ChartObject obj, int index)
+		{
+			if (index < 0) return false;
+			if (index >= zOrder.Count) return false;
+
+			int i = getZIndex(obj);
+			if (i == -1) return false;
+			if (i == index) return true;
+
+			int start = Math.Min(i, index);
+			if (i < index)
+			{
+				while (i < index)
+				{
+					zOrder[i] = zOrder[i+1];
+					i++;
+				}
+				zOrder[i] = obj;
+			}
+			else
+				if (i > index)
+			{
+				while (i > index)
+				{
+					zOrder[i] = zOrder[i-1];
+					i--;
+				}
+				zOrder[i] = obj;
+			}
+
+			setDirty();
+			updateZOrder(start);
+
+			return true;
+		}
+
+		private void updateZOrder(int from)
+		{
+			for (int i = from; i < zOrder.Count; ++i)
+				zOrder[i].updateZIndex(i);
+		}
+
+		private void updateZOrder(int from, int to)
+		{
+			for (int i = from; i <= to; ++i)
+				zOrder[i].updateZIndex(i);
+		}
+
+		internal void setZOrder(ChartObjectCollection zOrder)
+		{
+			this.zOrder = zOrder;
+			updateZOrder(0);
+		}
+
+		private ChartObjectCollection zOrder;
+
+		/// <summary>
+		/// Creates a group of attached items
+		/// </summary>
+		public Group CreateGroup(ChartObject mainObj)
+		{
+			if (mainObj == null) return null;
+
+			Group group = new Group(this);
+			if (group.setMainObject(mainObj))
+			{
+				AddGroupCmd cmd= new AddGroupCmd(mainObj, group);
+				undoManager.executeCommand(cmd);
+				return group;
+			}
+			else
+			{
+				group.onDelete();
+				group = null;
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Destroys a group
+		/// </summary>
+		public void DestroyGroup(Group group)
+		{
+			new RemoveGroupCmd(group.MainObject, group).Execute();
+		}
+
+		internal void deleteGroup(Group group)
+		{
+			groups.Remove(group);
+			group.onDelete();
+			group = null;
+		}
+
+		internal bool rectRestrict(ref RectangleF rc)
+		{
+			// no restrictions when rdNoRestriction is set
+			if (restrObjsToDoc == RestrictToDoc.NoRestriction)
+				return false;
+
+			// no restrictions when auto-resizing is enabled for all directions
+			if (autoSizeDoc == MindFusion.FlowChartX.AutoSize.AllDirections)
+				return false;
+
+			RectangleF rect = Utilities.normalizeRect(rc);
+
+			// if resizing is enabled to the right and down
+			if (autoSizeDoc == MindFusion.FlowChartX.AutoSize.RightAndDown)
+			{
+				// make sure the item is entirely inside at the top and left sides ...
+				if (restrObjsToDoc == RestrictToDoc.InsideOnly)
+				{
+					if (docExtents.Left <= rect.Left &&
+						docExtents.Top <= rect.Top)
+						return false;
+					return true;
+				}
+
+				// ... or at least partly inside at the top and left sides ...
+				if (docExtents.Left > rect.Right ||
+					docExtents.Top > rect.Bottom)
+					return true;
+
+				return false;
+			}
+
+			// no auto-resizing, ensure all sides of the item are inside the document
+			if (restrObjsToDoc == RestrictToDoc.InsideOnly)
+			{
+				if (docExtents.Left <= rect.Left &&
+					docExtents.Top <= rect.Top &&
+					docExtents.Right >=  rect.Right &&
+					docExtents.Bottom >= rect.Bottom)
+					return false;
+				return true;
+			}
+
+			// or at least that the item is partly inside the document
+			if (docExtents.Left > rect.Right ||
+				docExtents.Top > rect.Bottom ||
+				docExtents.Right < rect.Left ||
+				docExtents.Bottom < rect.Top)
+				return true;
+
+			return false;
+		}
+
+		// fires a RequestDrop event to check if drop operation can be
+		// completed at the specified position
+		internal bool canDropHere(ChartObject obj, PointF pt)
+		{
+			// in auto-accept mode -> always accept
+			/*			if (dragDropMode == drAutoAccept) return true;
+
+						CChartObject* pointedObj = NULL;
+
+						switch (obj->GetType())
+						{
+							case IT_BOX:
+								pointedObj = ObjectFromPoint(pt, false, obj, false);
+								if (pointedObj == NULL) return true;
+								return RequestDrop(pointedObj, dtBox);
+								break;
+							case IT_TABLE:
+								pointedObj = ObjectFromPoint(pt, false, obj, false);
+								if (pointedObj == NULL) return true;
+								return RequestDrop(pointedObj, dtTable);
+								break;
+							case IT_SELECTION:
+								pointedObj = ObjectFromPoint(pt, false, NULL, true);
+								if (pointedObj == NULL) return true;
+								return RequestDrop(pointedObj, dtSelection);
+								break;
+						}
+			*/
+			return true;
+		}
+
+		internal void getIntersectingObjects(RectangleF rect,
+			ChartObjectCollection objects, bool multiple, bool ifIntersect)
+		{
+			RectangleF rcSel = Utilities.normalizeRect(rect);
+
+			if (ifIntersect)
+			{
+				foreach (ChartObject obj in zOrder)
+				{
+					RectangleF rcObjRect = obj.getRotatedBounds();
+					if (!obj.notInteractive() && rcObjRect.IntersectsWith(rcSel))
+					{
+						objects.Add(obj);
+						if (!multiple) return;
+					}
+				}
+			}
+			else
+			{
+				foreach (ChartObject obj in zOrder)
+				{
+					RectangleF rcObjRect = obj.getRotatedBounds();
+					if (!obj.notInteractive() && rcSel.Contains(rcObjRect))
+					{
+						objects.Add(obj);
+						if (!multiple) return;
+					}
+				}
+			}
+		}
+
+		internal int getIntrsObjsCnt(RectangleF rect, bool ifIntersect)
+		{
+			int count = 0;
+			RectangleF rcSel = Utilities.normalizeRect(rect);
+
+			if (ifIntersect)
+			{
+				foreach (ChartObject obj in zOrder)
+				{
+					RectangleF rcObjRect = obj.getRotatedBounds();
+					if (!obj.notInteractive() &&
+						rcSel.IntersectsWith(rcObjRect))
+						count++;
+				}
+			}
+			else
+			{
+				foreach (ChartObject obj in zOrder)
+				{
+					RectangleF rcObjRect = obj.getRotatedBounds();
+					if (!obj.notInteractive() &&
+						rcSel.Contains(rcObjRect))
+						count++;
+				}
+			}
+
+			return count;
+		}
+
+		// Returns the box or table whose bounding rect
+		// intersects with the specified rectangle.
+		internal ChartObject objectFromRect(RectangleF rect,
+			ChartObject obj1, ChartObject obj2)
+		{
+			RectangleF rc;
+			float inflation = Constants.getInflation(measureUnit);
+
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject obj = zOrder[i];
+				if (obj is Node)
+				{
+					rc = obj.getBoundingRect();
+
+					if (obj == obj1 || obj == obj2)
+						rc.Inflate(-inflation, -inflation);
+
+					if(rc.IntersectsWith(rect))
+						return obj;
+				}
+			}
+
+			return null;
+		}
+
+		// Returns the box or table (if any) intersected
+		// by the line segment, specified with its ending points
+		internal ChartObject objectIntersectedBy(PointF pt1, PointF pt2,
+			ChartObject obj1, ChartObject obj2)
+		{
+			RectangleF rc;
+			float inflation = Constants.getInflation(measureUnit);
+
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject obj = zOrder[i];
+				if (obj is Node)
+				{
+					rc = obj.getBoundingRect();
+					if (obj == obj1 || obj == obj2)
+						rc.Inflate(-inflation, -inflation);
+					PointF p1 = new PointF(rc.Left, rc.Top);
+					PointF p2 = new PointF(rc.Right, rc.Top);
+					PointF p3 = new PointF(rc.Right, rc.Bottom);
+					PointF p4 = new PointF(rc.Left, rc.Bottom);
+					PointF pt = PointF.Empty;
+
+					if (Utilities.segmentIntersect(p1, p2, pt1, pt2, ref pt) ||
+						Utilities.segmentIntersect(p2, p3, pt1, pt2, ref pt) ||
+						Utilities.segmentIntersect(p3, p4, pt1, pt2, ref pt) ||
+						Utilities.segmentIntersect(p4, p1, pt1, pt2, ref pt))
+						return obj;
+				}
+			}
+
+			return null;
+		}
+
+		public Node GetNodeAt(PointF pt)
+		{
+			Node obj = null;
+			
+			// search for object containing the point
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject objTest = zOrder[i];
+				if (objTest is Node
+					&& objTest.containsPoint(pt) && !objTest.notInteractive())
+				{
+					obj = (Node)objTest;
+					break;
+				}
+			}
+			
+			return obj;
+		}
+
+		public Box GetBoxAt(PointF pt)
+		{
+			Box box = null;
+
+			//search the bounding rectangle
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject obj = zOrder[i];
+				if (obj.getType() == ItemType.Box &&
+					obj.containsPoint(pt) && !obj.notInteractive())
+				{
+					//found
+					box = (Box)obj;
+					break;
+				}
+			}
+
+			return box;
+		}
+
+		public ControlHost GetControlHostAt(PointF pt)
+		{
+			ControlHost host = null;
+
+			// Search the bounding rectangle
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject obj = zOrder[i];
+				if (obj.getType() == ItemType.ControlHost &&
+					obj.containsPoint(pt) && !obj.notInteractive())
+				{
+					// Found
+					host = (ControlHost)obj;
+					break;
+				}
+			}
+
+			return host;
+		}
+
+		public Table GetTableAt(PointF pt)
+		{
+			Table table = null;
+
+			//search the bounding rectangle
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject obj = zOrder[i];
+				if (obj.getType() == ItemType.Table &&
+					obj.containsPoint(pt) && !obj.notInteractive())
+				{
+					//found
+					table = (Table)obj;
+					break;
+				}
+			}
+
+			return table;
+		}
+
+		public Arrow GetArrowAt(PointF pt, float maxDist)
+		{
+			int segmNum = 0;
+			return GetArrowAt(pt, maxDist, true, ref segmNum);
+		}
+
+		public Arrow GetArrowAt(PointF pt, float maxDist, bool exclLocked)
+		{
+			int segmNum = 0;
+			return GetArrowAt(pt, maxDist, exclLocked, ref segmNum);
+		}
+
+		public Arrow GetArrowAt(PointF pt, float maxDist, bool exclLocked, ref int segmNum)
+		{
+			Arrow nearest = null;
+
+			// search for the nearest arrow containing the point
+			float dist, minDist = float.MaxValue;
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				if (zOrder[i].getType() == ItemType.Arrow)
+				{
+					Arrow arrow = (Arrow)zOrder[i];
+					if ((exclLocked && arrow.notInteractive()) || arrow.Invisible)
+						continue;
+					RectangleF rc = arrow.getBoundingRect();
+					rc.Inflate(maxDist, maxDist);
+
+					if (Utilities.pointInRect(pt, rc))
+					{
+						int s = 0;
+						dist = arrow.distToPt(pt, ref s);
+						if (minDist > dist)
+						{
+							minDist = dist;
+							nearest = arrow;
+							segmNum = s;
+						}
+					}
+				}
+			}
+
+			if (minDist > maxDist) return null;
+
+			return nearest;
+		}
+
+		public ChartObject GetObjectAt(PointF pt, bool exclLocked)
+		{
+			if (hitTestPriority == HitTestPriority.NodesBeforeArrows)
+			{
+				ChartObject obj = null;
+			
+				// search for object containing the point
+				for (int i = zOrder.Count-1; i >= 0; i--)
+				{
+					ChartObject objTest = zOrder[i];
+					if (objTest is Node && objTest.containsPoint(pt) &&
+						!(exclLocked && objTest.Locked) && !objTest.Invisible)
+					{
+						obj = objTest;
+						break;
+					}
+				}
+			
+				if (obj != null)
+					return obj;
+
+				// search for the nearest arrow containing the point
+				return GetArrowAt(pt, Constants.getLineHitTest(measureUnit), exclLocked);
+			}
+			else
+			{
+				// search for object containing the point
+				for (int i = zOrder.Count - 1; i >= 0; i--)
+				{
+					ChartObject item = zOrder[i];
+					if (item.containsPoint(pt) &&
+						!(exclLocked && item.Locked) && !item.Invisible)
+						return item;
+				}
+
+				return null;
+			}
+		}
+
+		public Node GetNodeAt(PointF pt,
+			bool excludeLocked, bool excludeSelected)
+		{
+			Node obj = null;
+
+			// search for object containing the point
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject curr = zOrder[i];
+
+				if (!(curr is Node)) continue;
+				if (curr.Locked && excludeLocked) continue;
+				if (curr.Selected && excludeSelected) continue;
+
+				if (curr.containsPoint(pt)) { obj = curr as Node; break; }
+			}
+			
+			return obj;
+		}
+
+		[Browsable(false)]
+		[Description("Selection settings.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		[TypeConverter(typeof(ExpandableObjectConverter))]
+		public Selection Selection
+		{
+			get { return selection; }
+			set { selection.Style = ((Selection)value).Style; }
+		}
+
+		private void bringContainedControlToFront(Control control)
+		{
+			control.BringToFront();
+
+			// Ensure scrollbars are at the top
+			if (hScrollBar != null)
+				hScrollBar.BringToFront();
+			if (vScrollBar != null)
+				vScrollBar.BringToFront();
+		}
+
+		internal void clearRuntimeData(int key)
+		{
+			foreach (ChartObject item in zOrder)
+				item.freeData(key);
+		}
+
+		private BoxCollection boxes;
+		private ControlHostCollection controlHosts;
+		private TableCollection tables;
+		private ArrowCollection arrows;
+
+		private Selection selection;
+		private GroupCollection groups;
+
+		/// <summary>
+		/// Collection of the arrows in the current document
+		/// </summary>
+		[Browsable(false)]
+		public ArrowCollection Arrows
+		{
+			get
+			{
+				return arrows;
+			}
+		}
+
+		/// <summary>
+		/// Collection of the boxes in the current document
+		/// </summary>
+		[Browsable(false)]
+		public BoxCollection Boxes
+		{
+			get
+			{
+				return boxes;
+			}
+		}
+
+		/// <summary>
+		/// Collection of the control hosts in the current document
+		/// </summary>
+		[Browsable(false)]
+		public ControlHostCollection ControlHosts
+		{
+			get
+			{
+				return controlHosts;
+			}
+		}
+
+		/// <summary>
+		/// Collection of the tables in the current document
+		/// </summary>
+		[Browsable(false)]
+		public TableCollection Tables
+		{
+			get
+			{
+				return tables;
+			}
+		}
+
+		/// <summary>
+		/// Collection of the groups in the current document
+		/// </summary>
+		[Browsable(false)]
+		public GroupCollection Groups
+		{
+			get
+			{
+				return groups;
+			}
+		}
+
+		/// <summary>
+		/// Collection of all objects in the current document
+		/// </summary>
+		[Browsable(false)]
+		public ChartObjectCollection Objects
+		{
+			get { return zOrder; }
+		}
+
+		/// <summary>
+		/// Reference to the active object if any
+		/// </summary>
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public ChartObject ActiveObject
+		{
+			get
+			{
+				return activeObject;
+			}
+			set
+			{
+				if (activeObject == value)
+					return;
+
+				RectangleF rcUpdate = RectangleF.Empty;
+				if (activeObject != null)
+					rcUpdate = activeObject.getRepaintRect(false);
+
+				activeObject = value;
+
+				if (activeObject != null)
+					rcUpdate = Utilities.unionNonEmptyRects(rcUpdate,
+						activeObject.getRepaintRect(false));
+
+				if (activeObject != null)
+				{
+					if (activeObject.getType() == ItemType.ControlHost)
+					{
+						// Bring the contained control to front
+						ControlHost host = (ControlHost)activeObject;
+						if (host.Control != null)
+							bringContainedControlToFront(host.Control);
+					}
+				}
+
+				invalidate(rcUpdate);
+			}
+		}
+
+		private ChartObject activeObject;
+		private ChartObject autoHandlesObj;
+		private Node autoAnchorsObj;
+		private InteractionState interaction;
+
+		internal ChartObject getAutoHObj() { return autoHandlesObj; }
+		internal void setAutoHObj(ChartObject obj) { autoHandlesObj = obj; }
+
+		void removeFromZOrder(ChartObject obj)
+		{
+			zOrder.Remove(obj);
+			updateZOrder(0);
+		}
+
+		internal ChartObject getAtZ(int i)
+		{
+			return zOrder[i];
+		}
+
+		public void Add(ChartObject obj)
+		{
+			Add(obj, false);
+		}
+
+		public void Add(ChartObject item, bool select)
+		{
+			// validity checks can be disabled to save processing time, but beware,
+			// evil things can happen if the item collections are left in invalild state
+			if (validityChecks)
+			{
+				// do not allow adding an item more than once
+				if (zOrder.Contains(item))
+					return;
+
+				if (item.getType() == ItemType.Arrow)
+				{
+					Arrow arrow = item as Arrow;
+
+					// links origin and destination nodes must be in the same diagram
+					if (!zOrder.Contains(arrow.Origin) &&
+						(arrow.Origin == null || !(arrow.Origin is DummyNode)))
+						return;
+					if (!zOrder.Contains(arrow.Destination) &&
+						(arrow.Destination == null || !(arrow.Destination is DummyNode)))
+						return;
+				}
+			}
+
+			if (item.getType() == ItemType.ControlHost)
+			{
+				// add the hosted control to the flowchart
+				ControlHost host = item as ControlHost;
+				if (host.Control != null)
+				{
+					this.Controls.Add(host.Control);
+					bringContainedControlToFront(host.Control);
+				}
+			}
+
+			item.setParent(this);
+			item.setConstructed();
+
+			// add to the diagram
+			AddItemCmd cmd = new AddItemCmd(item);
+			cmd.Execute();
+
+			RectangleF rc = item.getRepaintRect(false);
+			if (select)
+			{
+				selection.Change(item);
+				rc = Utilities.unionNonEmptyRects(rc,
+					selection.getRepaintRect(true));
+			}
+
+			if (undoManager.UndoEnabled)
+				cmd.saveSelState();
+
+			// repaint the diagram area covered by the new item
+			invalidate(rc);
+			setDirty();
+		}
+
+		public void Add(Group group)
+		{
+			group.fcParent = this;
+			AddGroupCmd cmd = new AddGroupCmd(group.MainObject, group);
 			undoManager.executeCommand(cmd);
+			setDirty();
+		}
+
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("If enabled, validity checks are performed each time an item is added to the diagram. That involves enumerating the item collections and can slow up the process considerably for large diagrams. Disable this property to skip the checks, however be sure that you don't add an item twice to the diagram and that links are created only between items in the same diagram.")]
+		public bool ValidityChecks
+		{
+			get { return validityChecks; }
+			set { validityChecks = value; }
+		}
+
+		private bool validityChecks;
+
+		/// <summary>
+		/// Creates a new box
+		/// </summary>
+		public Box CreateBox(float x, float y, float width, float height)
+		{
+			// create the box object and store it in the collection
+			Box newBox = new Box(this);
+			newBox.setPos(x, y, width, height);
+
+			Add(newBox, SelectAfterCreate);
+
+			return newBox;
+		}
+
+		/// <summary>
+		/// Creates new control host node.
+		/// </summary>
+		public ControlHost CreateControlHost(float x, float y, float width, float height)
+		{
+			ControlHost newHost = new ControlHost(this);
+			newHost.setPos(x, y, width, height);
+			newHost.updateControlPosition();
+
+			Add(newHost, SelectAfterCreate);
+
+			return newHost;
+		}
+
+		/// <summary>
+		/// Create a new arrow
+		/// </summary>
+		/// 
+		public Arrow CreateArrow(Node srcNode, Node dstNode)
+		{
+			if (srcNode == null || dstNode == null) return null;
+
+			// create the arrow object and store it in the collection
+			Arrow newArrow = new Arrow(this);
+			newArrow.setOrgAndDest(
+				srcNode.createLink(newArrow, srcNode.getCenter(), false),
+				dstNode.createLink(newArrow, dstNode.getCenter(), true));
+
+			Add(newArrow, SelectAfterCreate);
+
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(Box srcBox, int srcAnchor, Box dstBox, int dstAnchor)
+		{
+			if (srcBox == null || dstBox == null) return null;
+
+			// create the arrow object and store it in the collection
+			Arrow newArrow = new Arrow(this);
+			newArrow.setOrgAndDest(
+				srcBox.createLink(newArrow, srcBox.getCenter(), false),
+				dstBox.createLink(newArrow, dstBox.getCenter(), true));
+
+			Add(newArrow, SelectAfterCreate);
+
+			newArrow.OrgnAnchor = srcAnchor;
+			newArrow.DestAnchor = dstAnchor;
+			newArrow.updatePoints(newArrow.Points[newArrow.Points.Count-1]);
+
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(Table src, Table dest)
+		{
+			return CreateArrow(src, -1, dest, -1);
+		}
+
+		public Arrow CreateArrow(Table src, int srcRow, Table dest, int destRow)
+		{
+			if (src == null || dest == null) return null;
+
+			if (!src.canHaveArrows(true) && srcRow != -1) return null;
+			if (!dest.canHaveArrows(false) && destRow != -1) return null;
+
+			if (srcRow < -1 || srcRow >= src.RowCount) return null;
+			if (destRow < -1 || destRow >= dest.RowCount) return null;
+
+			// create the arrow object and store it in the item array
+			Arrow newArrow = new Arrow(this);
+			newArrow.setOrgAndDest(
+				src.createLink(newArrow, false, srcRow),
+				dest.createLink(newArrow, true, destRow));
+
+			Add(newArrow, SelectAfterCreate);
+
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(Node srcNode, Table destTable, int destRow)
+		{
+			if (srcNode == null || destTable == null) return null;
+
+			if (!destTable.canHaveArrows(false) && destRow != -1) return null;
+
+			if (destRow < -1 || destRow >= destTable.RowCount)	return null;
+
+			// create the arrow object and store it in the collection
+			Arrow newArrow = new Arrow(this);
+			newArrow.setOrgAndDest(
+				srcNode.createLink(newArrow, srcNode.getCenter(), false),
+				destTable.createLink(newArrow, true, destRow));
+
+			Add(newArrow, SelectAfterCreate);
+
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(Table srcTable, int srcRow, Node dstNode)
+		{
+			if (srcTable == null || dstNode == null) return null;
+
+			if (!srcTable.canHaveArrows(true) && srcRow != -1) return null;
+
+			if (srcRow < -1 || srcRow >= srcTable.RowCount) return null;
+
+			// create the arrow object and store it in the item array
+			Arrow newArrow = new Arrow(this);
+			newArrow.setOrgAndDest(
+				srcTable.createLink(newArrow, false, srcRow),
+				dstNode.createLink(newArrow, dstNode.getCenter(), true));
+
+			Add(newArrow, SelectAfterCreate);
+
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(Node src, PointF dest)
+		{
+			if (src == null) return null;
+
+			// create the arrow instance and add it to the chart
+			Arrow newArrow = new Arrow(this, src, dest);
+			Add(newArrow, SelectAfterCreate);
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(PointF src, Node dest)
+		{
+			if (dest == null) return null;
+
+			// create the arrow instance and add it to the chart
+			Arrow newArrow = new Arrow(this, src, dest);
+			Add(newArrow, SelectAfterCreate);
+			return newArrow;
+		}
+
+		public Arrow CreateArrow(PointF src, PointF dest)
+		{
+			// create the arrow instance and add it to the chart
+			Arrow newArrow = new Arrow(this, src, dest);
+			Add(newArrow, SelectAfterCreate);
+			return newArrow;
+		}
+
+		/// <summary>
+		/// Finds the box with the given tag
+		/// </summary>
+		public Box FindBox(object tag)
+		{
+			Box foundBox = null;
+
+			// search for the box
+			foreach (Box box in boxes)
+			{
+				if (Object.Equals(box.Tag, tag))
+				{
+					foundBox = box;
+					break;
+				}
+			}
+
+			return foundBox;
+		}
+
+		/// <summary>
+		/// Searches for the control host with the specified tag.
+		/// </summary>
+		public ControlHost FindControlHost(object tag)
+		{
+			ControlHost foundHost = null;
+
+			// search the host list
+			foreach (ControlHost host in controlHosts)
+			{
+				if (Object.Equals(host.Tag,	tag))
+				{
+					foundHost = host;
+					break;
+				}
+			}
+
+			return foundHost;
+		}
+
+		/// <summary>
+		/// Finds the table with the given tag
+		/// </summary>
+		public Table FindTable(object tag)
+		{
+			Table foundTable = null;
+
+			// search for the Table
+			foreach (Table table in tables)
+			{
+				if (Object.Equals(table.Tag, tag))
+				{
+					foundTable = table;
+					break;
+				}
+			}
+
+			return foundTable;
+		}
+
+		/// <summary>
+		/// Finds the arrow with the given tag
+		/// </summary>
+		public Arrow FindArrow(object tag)
+		{
+			Arrow foundArrow = null;
+
+			// search for the arrow
+			foreach (Arrow arrow in arrows)
+			{
+				if (Object.Equals(arrow.Tag, tag))
+				{
+					foundArrow = arrow;
+					break;
+				}
+			}
+
+			return foundArrow;
+		}
+
+		/// <summary>
+		/// Finds the group with the given tag
+		/// </summary>
+		public Group FindGroup(object tag)
+		{
+			Group foundGroup = null;
+
+			// search for the group
+			foreach (Group group in groups)
+			{
+				if (Object.Equals(group.Tag, tag))
+				{
+					foundGroup = group;
+					break;
+				}
+			}
+
+			return foundGroup;
+		}
+
+		#endregion
+
+		#region drawing and printing
+
+		protected override void OnPaint(PaintEventArgs pe)
+		{
+			if (!Visible) return;
+			if (ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
+				return;
+
+			// create off-screen bitmap 
+			Bitmap offScr = new System.Drawing.Bitmap(
+				ClientRectangle.Width, ClientRectangle.Height, pe.Graphics);
+
+			// draw document contents
+			Rectangle rc = pe.ClipRectangle;
+			rc.Inflate(2, 2);
+			rc.Intersect(ClientRectangle);
+			
+			drawFlowChart(offScr, rc, false);
+
+			// blit the off-screen bitmap to the Graphics
+			pe.Graphics.DrawImage(offScr, pe.ClipRectangle,
+				pe.ClipRectangle.Left, pe.ClipRectangle.Top,
+				pe.ClipRectangle.Width, pe.ClipRectangle.Height,
+				System.Drawing.GraphicsUnit.Pixel);
+			if (hScrollBar != null && vScrollBar != null && (
+				hScrollBar.Visible || vScrollBar.Visible))
+				pe.Graphics.FillRectangle(SystemBrushes.ScrollBar,
+					this.ClientRectangle.Right - vScrollBar.Width,
+					this.ClientRectangle.Bottom - hScrollBar.Height,
+					vScrollBar.Width, hScrollBar.Height);
+
+			// clean up
+			offScr.Dispose();
+
+			// show this so teasing message in trial version
+#if DEMO_VERSION
+			if (Objects.Count > 80)
+			{
+				System.Drawing.Brush blackBrush =
+					new System.Drawing.SolidBrush(Color.Black);
+				Font font = new Font("Arial", 3, GraphicsUnit.Millimeter);
+
+				pe.Graphics.DrawString("FlowChart.NET trial version",
+					font, blackBrush, 0, 0);
+
+				font.Dispose();
+				blackBrush.Dispose();
+			}
+#endif
+
+			// Calling the base class OnPaint
+			base.OnPaint(pe);
+		}
+
+		protected override void OnPaintBackground(System.Windows.Forms.PaintEventArgs pevent)
+		{
+			// All painting is carried by the control itself
 		}
 
 		[DefaultValue(GraphicsUnit.Millimeter)]
@@ -497,7 +1669,2198 @@ namespace MindFusion.FlowChartX
 
 		private GraphicsUnit measureUnit;
 
-		#region tooltips
+		[Category("Appearance")]
+		[DefaultValue(SmoothingMode.None)]
+		[Description("Anti-aliasing mode.")]
+		public SmoothingMode AntiAlias
+		{
+			get { return antiAlias; }
+			set	{ antiAlias = value; }
+		}
+
+		private SmoothingMode antiAlias;
+
+		[Category("Appearance")]
+		[DefaultValue(false)]
+		[Description("Enables or disables the DoubleBuffer ControlStyles bit. Enabling it reduces flicker in Remote Desktop Connection sessions.")]
+		public bool DoubleBuffer
+		{
+			get { return GetStyle(ControlStyles.DoubleBuffer); }
+			set	{ SetStyle(ControlStyles.DoubleBuffer, value); }
+		}
+
+		public Bitmap CreateBmpFromChart()
+		{
+			Bitmap bmp = null;
+			Graphics g = null;
+
+			try
+			{
+				RectangleF size = new RectangleF(
+					0, 0, docExtents.Width, docExtents.Height);
+
+				g = this.CreateGraphics();
+				g.ResetTransform();
+				g.PageUnit = measureUnit;
+				g.PageScale = zoomFactor / 100F;
+
+				Rectangle rc = Utilities.docToDevice(g, size);
+				g.ResetTransform();
+
+				// do our own painting of ControlHost nodes
+				displayOptions.PaintControls = true;
+
+				bmp = createBackBuffer(rc, g);
+				if (bmp != null)
+					drawFlowChart(bmp, rc, false, false);
+			}
+			finally
+			{
+				if (g != null)
+					g.Dispose();
+				displayOptions.PaintControls = false;
+			}
+
+			return bmp;
+		}
+
+		private void drawBack(Graphics g, Rectangle clip, bool toScreen, PrintOptions renderOptions)
+		{
+			if (imagePos < ImageAlign.Document)
+			{
+				// the background image does not scroll or scale, the brush shouldn't too
+				System.Drawing.Brush fillBrush = brush.CreateGDIBrush(ClientRectangle);
+				g.FillRectangle(fillBrush, clip);
+				fillBrush.Dispose();
+			}
+			else
+			{
+				if (toScreen)
+				{
+					// now drawing on the screen, include translation for
+					// the scroll X and Y position
+					setTransforms(g);
+				}
+				else
+				{
+					// exporting to bitmap; do not include translation, but just scaling
+					g.PageUnit = measureUnit;
+					g.PageScale = zoomFactor / 100F;
+				}
+
+				RectangleF rc = Utilities.deviceToDoc(g, clip);
+
+				Point pt = Utilities.docToDevice(g, new PointF(0, 0));
+				g.RenderingOrigin = pt;
+
+				// paint with exterior brush if applicable
+				bool paintExterior = exteriorBrush != null && toScreen &&
+					!docExtents.Contains(rc) && !exteriorBrush.equals(BackBrush);
+				if (paintExterior)
+				{
+					System.Drawing.Brush extBrush = exteriorBrush.CreateGDIBrush(
+						docExtents, -docExtents.Left, -docExtents.Top);
+
+					// paint the exterior to the right
+					if (rc.Right > docExtents.Right)
+					{
+						RectangleF ext1 = rc;
+						ext1.X = Math.Max(rc.Left, docExtents.Right);
+						ext1.Width = rc.Right - ext1.Left;
+						g.FillRectangle(extBrush, ext1);
+					}
+
+					// paint the exterior to the bottom
+					if (rc.Bottom > docExtents.Bottom)
+					{
+						RectangleF ext2 = rc;
+						ext2.Y = Math.Max(rc.Top, docExtents.Bottom);
+						ext2.Height = rc.Bottom - ext2.Top;
+						g.FillRectangle(extBrush, ext2);
+					}
+					
+					extBrush.Dispose();
+					rc.Intersect(docExtents);
+				}
+
+				// paint the document area with BackBrush
+				System.Drawing.Brush fillBrush = brush.CreateGDIBrush(
+					docExtents, -docExtents.Left, -docExtents.Top);
+				g.FillRectangle(fillBrush, rc);
+				fillBrush.Dispose();
+
+				unsetTransforms(g);
+			}
+		}
+
+		/// <summary>
+		/// Recreates the cache bitmap, containing an image of the items that
+		/// are not affected by the currently performed modification. This image
+		/// is blitted to screen while dragging items, and the modified items
+		/// are drawn over it.
+		/// </summary>
+		public void RecreateCacheImage()
+		{
+			if (docBuffer != null)
+			{
+				drawFlowChart(docBuffer, ClientRectangle, true);
+				forceCacheRedraw = true;
+			}
+		}
+
+		private void drawFlowChart(Bitmap bm, Rectangle clip, bool modfBackBuf)
+		{
+			drawFlowChart(bm, clip, modfBackBuf, true);
+		}
+
+		private void drawFlowChart(Bitmap bm, Rectangle clip,
+			bool modfBackBuf, bool transforms)
+		{
+			// now drawing on screen
+			renderOptions = displayOptions;
+			nowPrinting = false;
+
+			// get the rendering surface
+			Graphics g = Graphics.FromImage(bm);
+
+			// fill the background
+			if (renderOptions.EnableBackground)
+				drawBack(g, clip, transforms, renderOptions);
+			g.SmoothingMode = antiAlias;
+
+			// draw the background image
+			if (renderOptions.EnableBackgroundImage)
+			{
+				if (BackgroundImage != null)
+					drawPicture(g, imagePos, transforms);
+			}
+
+			// set the coordinate transformations
+			if (transforms)
+				setTransforms(g);
+			else
+			{
+				g.TranslateTransform(-docExtents.Left, -docExtents.Top);
+				g.PageUnit = measureUnit;
+				g.PageScale = zoomFactor / 100F;
+			}
+
+			RectangleF rcUpdate = Utilities.deviceToDoc(g, clip);
+
+			// draw grid
+			if (showGrid) drawGrid(g, bm, rcUpdate);
+
+			// draw shadows
+			if (shadowsStyle == ShadowsStyle.OneLevel)
+				drawShadows(g, rcUpdate, modfBackBuf);
+
+			// with SelectionOnTop disabled, do not paint any items if now drawing 
+			// in the back buffer image (used for fast repainting when modifying items);
+			// they will be all repainted later to preserve the Z order appearance
+			if (!(modfBackBuf && !selectionOnTop))
+			{
+				// draw the items
+				drawItems(g, rcUpdate, modfBackBuf);
+			}
+			
+			// clean up
+			g.Dispose();
+		}
+
+		internal void drawAutoHandles(Graphics g, PointF ptCurr)
+		{
+			// get the object the mouse is pointing to
+			ChartObject obj = GetObjectAt(ptCurr, true);
+
+			// allow for the last 'auto handles' object to stay selected
+			// for some time even when it is not under the mouse cursor
+			if (obj == null && autoHandlesObj != null && autoHandlesObj is Node)
+			{
+				Node node = autoHandlesObj as Node;
+				RectangleF bounds = node.getRotatedBounds();
+				float bufferZone = selHandleSize +
+					7 * Constants.getMillimeter(measureUnit);
+				bounds.Inflate(bufferZone, bufferZone);
+				if (bounds.Contains(ptCurr))
+					obj = autoHandlesObj;
+			}
+
+			// if it's different than the last pointed redraw the old one
+			// and draw the handles of the new one
+			if (obj != autoHandlesObj)
+			{
+				RectangleF rcInv = new RectangleF(0, 0, 0, 0);
+				if (autoHandlesObj != null)
+					rcInv = autoHandlesObj.getRepaintRect(false);
+				if (obj != null)
+				{
+					rcInv = Utilities.unionNonEmptyRects(rcInv,
+						obj.getRepaintRect(false));
+				}
+
+				rcInv.Inflate(selHandleSize, selHandleSize);
+				autoHandlesObj = obj;
+				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
+				Invalidate(rcInvDev);
+			}
+		}
+
+		internal void setAutoAnchors(Node node)
+		{
+			if (node != autoAnchorsObj)
+			{
+				RectangleF rcInv = new RectangleF(0, 0, 0, 0);
+				if (autoAnchorsObj != null)
+					rcInv = autoAnchorsObj.getRepaintRect(false);
+				if (node != null)
+				{
+					rcInv = Utilities.unionNonEmptyRects(rcInv,
+						node.getRepaintRect(false));
+				}
+
+				rcInv.Inflate(Constants.getMarkSize(measureUnit), Constants.getMarkSize(measureUnit));
+				autoAnchorsObj = node;
+
+				Graphics g = CreateGraphics();
+				setTransforms(g);
+				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
+				g.Dispose();
+
+				Invalidate(rcInvDev);
+			}
+		}
+
+		private void drawAutoAnchors(Graphics g, PointF ptCurr)
+		{
+			// get the object the mouse is pointing to
+			Node node = GetBoxAt(ptCurr);
+			if (node == null)
+				node = GetTableAt(ptCurr);
+
+			// if it's different than the last pointed redraw the old one
+			// and draw the anchors of the new one
+			if (node != autoAnchorsObj)
+			{
+				RectangleF rcInv = new RectangleF(0, 0, 0, 0);
+				if (autoAnchorsObj != null)
+					rcInv = autoAnchorsObj.getRepaintRect(false);
+				if (node != null)
+				{
+					rcInv = Utilities.unionNonEmptyRects(rcInv,
+						node.getRepaintRect(false));
+				}
+
+				rcInv.Inflate(Constants.getMarkSize(measureUnit), Constants.getMarkSize(measureUnit));
+				autoAnchorsObj = node;
+				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
+				Invalidate(rcInvDev);
+			}
+		}
+
+		private RectangleF calcSelectionRect(ChartObject obj, PointF pt)
+		{
+			RectangleF rc = new RectangleF(0, 0, 0, 0);
+
+			if (obj != null)
+			{
+				rc = obj.getBoundingRect();
+			}
+			else
+			{
+				rc.X = pt.X;
+				rc.Y = pt.Y;
+			}
+
+			return rc;
+		}
+
+		[Browsable(false)]
+		public override string Text { get {return "";} set {} }
+
+		[Browsable(false)]
+		public override Cursor Cursor
+		{ get {return base.Cursor;} set{base.Cursor=value;}}
+
+		internal void setTransforms(Graphics g)
+		{
+			g.ResetTransform();
+			g.TranslateTransform(-scrollX, -scrollY);
+			g.PageUnit = measureUnit;
+			g.PageScale = zoomFactor / 100F;
+		}
+
+		internal void unsetTransforms(Graphics g)
+		{
+			g.ResetTransform();
+			g.PageScale = 1.0F;
+			g.PageUnit = GraphicsUnit.Pixel;
+		}
+
+		private void drawGrid(Graphics g, Bitmap bmp, RectangleF rc)
+		{
+			float dx = -Math.Abs(rc.Left-(float)(gridSizeX*Math.Floor(rc.Left / gridSizeX)));
+			float dy = -Math.Abs(rc.Top-(float)(gridSizeY*Math.Floor(rc.Top / gridSizeY)));
+			if (dx < -gridSizeX/2) dx += gridSizeX;
+			if (dy < -gridSizeY/2) dy += gridSizeY;
+
+			if (gridStyle == GridStyle.Points)
+			{
+				SizeF step = new SizeF(gridSizeX, gridSizeY);
+				step = Utilities.docToDeviceF(g, step);
+				Rectangle rect = Utilities.docToDevice(g, rc);
+
+				PointF orgDoc = new PointF(
+					dx + rc.Left + gridSizeX / 2, dy + rc.Top + gridSizeY / 2);
+				PointF orgDev = Utilities.docToDeviceF(g, orgDoc);
+
+				// draw grid points
+				for (float x = orgDev.X; x < rect.Right; x += step.Width)
+				{
+					for (float y = orgDev.Y; y < rect.Bottom; y += step.Height)
+					{
+						bmp.SetPixel((int)x, (int)y, gridColor);
+					}
+				}
+			}
+			else
+			{
+				// draw grid lines
+				System.Drawing.Pen gridPen = new System.Drawing.Pen(gridColor, 0);
+
+				for (float x = dx + rc.Left + gridSizeX / 2; x < rc.Right; x += gridSizeX)
+					g.DrawLine(gridPen, x, rc.Top, x, rc.Bottom);
+
+				for (float y = dy + rc.Top + gridSizeY / 2; y < rc.Bottom; y += gridSizeY)
+					g.DrawLine(gridPen, rc.Left, y, rc.Right, y);
+
+				gridPen.Dispose();
+			}
+		}
+
+		private void drawObject(Graphics g, ChartObject obj, bool conn)
+		{
+			if (conn)
+				drawHierarchy(g, obj, false);
+			else
+				obj.Draw(g, false);
+		}
+
+
+		private void drawObjectWithShadow(Graphics g, ChartObject obj, bool conn)
+		{
+			// draw item's shadow
+			if (conn)
+				drawHierarchy(g, obj, true);
+			else
+				obj.Draw(g, true);
+
+			// draw the item
+			drawObject(g, obj, conn);
+		}
+
+		private void drawShadows(Graphics g, RectangleF rc, bool modfBackBuf)
+		{
+			// iterate all types of items
+			foreach (ChartObject obj in zOrder)
+			{
+				RectangleF rcObj = obj.getRepaintRect(false);
+				if (!rcObj.IntersectsWith(rc))
+					continue;
+
+				if (!(modfBackBuf && obj.getModifying()))
+					obj.Draw(g, true);
+			}
+		}
+
+		private void drawItems(Graphics g, RectangleF clipRect, bool modfBackBuf)
+		{
+			if (modfBackBuf)
+			{
+				// draw in the back buffer all items that are not being modified
+				// the back buffer will be blitted to the sceen later for faster
+				// repainting instead of drawing the items again
+				foreach (ChartObject item in zOrder)
+				{
+					RectangleF rc = item.getRepaintRect(false);
+					if (!rc.IntersectsWith(clipRect))
+						continue;
+
+					if (!item.getModifying())
+					{
+						if (shadowsStyle == ShadowsStyle.ZOrder)
+							drawObjectWithShadow(g, item, false);
+						else
+							drawObject(g, item, false);
+					}
+				}
+
+				// draw the selection
+				if (interaction == null ||
+					(interaction.CurrentObject != selection && interaction.Action == Action.Create))
+					selection.Draw(g, false);
+			}
+			else
+			{
+				// draw all items
+				foreach (ChartObject item in zOrder)
+				{
+					if (item != activeObject || !selectionOnTop)
+					{
+						RectangleF rc = item.getRepaintRect(false);
+						if (!rc.IntersectsWith(clipRect))
+							continue;
+
+						if (shadowsStyle == ShadowsStyle.ZOrder)
+							drawObjectWithShadow(g, item, false);
+						else
+							drawObject(g, item, false);
+					}
+				}
+
+				// draw the active object at the top
+				if (activeObject != null)
+				{
+					if (selectionOnTop)
+					{
+						if (shadowsStyle == ShadowsStyle.ZOrder)
+							drawObjectWithShadow(g, activeObject, true);
+						else
+							drawObject(g, activeObject, true);
+					}
+
+					// if anchors are drawn in saSelected mode ...
+					if ((showAnchors & ShowAnchors.Selected) != 0 &&
+						activeObject is Node)
+						(activeObject as Node).drawAnchors(g);
+				}
+
+				// if auto-handles drawing is enabled draw the object handles
+				if (autoHandlesObj != null && autoHandlesObj != activeObject)
+					autoHandlesObj.drawSelHandles(g, selMnpColor);
+
+				// if anchors are drawn in saAuto mode ...
+				if (autoAnchorsObj != null && (showAnchors & ShowAnchors.Auto) != 0)
+					autoAnchorsObj.drawAnchors(g);
+
+				// object currently being created
+				if (interaction != null && interaction.CurrentObject != null &&
+					interaction.CurrentObject != activeObject)
+					drawObject(g, interaction.CurrentObject, false);
+
+				// draw the selection
+				if (interaction == null || interaction.CurrentObject != selection)
+					selection.Draw(g, false);
+			}
+		}
+
+		private void drawAllItems(Graphics g, RectangleF clipRect)
+		{
+			foreach (ChartObject item in zOrder)
+			{
+				RectangleF rc = item.getRepaintRect(false);
+				if (!rc.IntersectsWith(clipRect)) continue;
+
+				if (shadowsStyle == ShadowsStyle.ZOrder)
+					drawObjectWithShadow(g, item, false);
+				else
+					drawObject(g, item, false);
+			}
+		}
+
+		private void drawPicture(Graphics g, ImageAlign imgPos, bool transforms)
+		{
+			if (imagePos < ImageAlign.Document)
+			{
+				RectangleF rcs = new RectangleF(
+					ClientRectangle.X, ClientRectangle.Y,
+					ClientRectangle.Width, ClientRectangle.Height);
+				Utilities.drawPicture(g, BackgroundImage, rcs, imgPos);
+			}
+			else
+			{
+				if (transforms)
+					setTransforms(g);
+				else
+				{
+					g.PageUnit = measureUnit;
+					g.PageScale = zoomFactor / 100F;
+				}
+
+				Utilities.drawPicture(g, BackgroundImage, DocExtents,
+					(ImageAlign)(imgPos - ImageAlign.Document));
+				unsetTransforms(g);
+			}
+		}
+
+		private void drawHierarchy(Graphics g, ChartObject obj, bool shadows)
+		{
+			PainterVisitor painter = new PainterVisitor(g, shadows);
+			obj.visitHierarchy(painter);
+		}
+
+		[Browsable(true)]
+		[Category("Printing")]
+		[Description("Print settings.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[TypeConverter(typeof(ExpandableObjectConverter))]
+		public PrintOptions PrintOptions
+		{
+			get { return printOptions; }
+		}
+
+		[Browsable(true)]
+		[Category("Printing")]
+		[Description("Print preview settings.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[TypeConverter(typeof(ExpandableObjectConverter))]
+		public PreviewOptions PreviewOptions
+		{
+			get { return previewOptions; }
+		}
+
+		PrintOptions printOptions;		// for printing
+		PrintOptions displayOptions;	// for screen drawing
+		PreviewOptions previewOptions;	// for print preview
+
+		// should be set to one of the above
+		PrintOptions renderOptions;
+		internal PrintOptions RenderOptions
+		{
+			get { return renderOptions; }
+		}
+
+		private PrintOptions prevRenderOptions;
+		
+		public void SetRenderOptions(PrintOptions options)
+		{
+			prevRenderOptions = renderOptions;
+			renderOptions = options;
+		}
+		
+		public void ResetRenderOptions()
+		{
+			renderOptions = prevRenderOptions;
+		}
+		
+		private int currentPage = 0;
+		private bool nowPrinting = false;
+		private RectangleF printRect;
+		private PrintDocument printDoc = null;
+
+		internal bool NowPrinting { get { return nowPrinting; }}
+
+		private void BeginPrint(object sender, PrintEventArgs args)
+		{
+			if (BackgroundImage == null || !printOptions.EnableBackgroundImage)
+			{
+				// if there is no background image set, print just pages
+				// that enclose the bounding rect of the diagram
+				printRect = getContentRect(true, true);
+			}
+			else
+			{
+				// otherwise print all pages because we need to draw the image
+				// as it is on the screen covering the whole document area
+				printRect = DocExtents;
+			}
+
+			if (printRect.Width == 0 || printRect.Height == 0)
+				args.Cancel = true;
+
+			// init page counter
+			currentPage = 1;
+			if (printDoc.PrinterSettings.PrintRange == PrintRange.SomePages)
+				currentPage = Math.Max(1, printDoc.PrinterSettings.FromPage);
+		}
+
+
+		private void PrintPage(object sender, PrintPageEventArgs ev)
+		{
+			PrinterSettings pset = ev.PageSettings.PrinterSettings;
+			GraphicsState state = ev.Graphics.Save();
+			PrintHeader(ev);
+
+			// get margins rectangle in device coordinates
+			RectangleF mrgnRectDev = Utilities.transformRect(ev.Graphics,
+				ev.MarginBounds, CoordinateSpace.Device, CoordinateSpace.World);
+
+			// set Graphics coord. transformation and drawing modes
+			ev.Graphics.ResetTransform();
+			ev.Graphics.PageUnit = measureUnit;
+			ev.Graphics.PageScale = (float)printOptions.Scale / 100f;
+
+			// calculate page size and origin
+			RectangleF mrgnRectDoc = Utilities.transformRect(ev.Graphics,
+				mrgnRectDev, CoordinateSpace.World, CoordinateSpace.Device);
+			int xPages = (int)Math.Ceiling(printRect.Width / mrgnRectDoc.Width);
+			int yPages = (int)Math.Ceiling(printRect.Height / mrgnRectDoc.Height);
+			float xPrint = printRect.Left +
+				((currentPage - 1) % xPages) * mrgnRectDoc.Width;
+			float yPrint = printRect.Top +
+				((currentPage - 1) / xPages) * mrgnRectDoc.Height;
+
+			// print the page
+			ev.Graphics.TranslateTransform(
+				mrgnRectDoc.X - xPrint, mrgnRectDoc.Y - yPrint);
+			mrgnRectDoc.X = xPrint;
+			mrgnRectDoc.Y = yPrint;
+			printFlowChart(ev.Graphics, mrgnRectDoc);
+
+			// determine if there are more pages
+			currentPage++;
+			ev.HasMorePages = currentPage <= xPages * yPages;
+			if (pset.PrintRange == PrintRange.SomePages)
+				ev.HasMorePages = ev.HasMorePages && currentPage <= pset.ToPage;
+
+			// cleanup
+			ev.Graphics.Restore(state);
+		}
+
+		internal void printFlowChart(Graphics g, RectangleF pageRect)
+		{
+			renderOptions = printOptions;
+			nowPrinting = true;
+			g.SetClip(pageRect);
+
+			// fill the background
+			if (renderOptions.EnableBackground)
+			{
+				if (imagePos < ImageAlign.Document)
+				{
+					System.Drawing.Brush fillBrush = brush.CreateGDIBrush(pageRect);
+					g.FillRectangle(fillBrush, pageRect);
+					fillBrush.Dispose();
+				}
+				else
+				{
+					System.Drawing.Brush fillBrush = brush.CreateGDIBrush(
+						DocExtents, -DocExtents.Left, -DocExtents.Top);
+					g.FillRectangle(fillBrush, pageRect);
+					fillBrush.Dispose();
+				}
+			}
+			g.SmoothingMode = this.antiAlias;
+
+			// print the background image
+			if (BackgroundImage != null && renderOptions.EnableBackgroundImage)
+			{
+				// Printing of back images occur only if ImageAlign.Document is set
+				if (imagePos < ImageAlign.Document)
+				{
+					Utilities.drawPicture(g, BackgroundImage, pageRect, imagePos);
+				}
+				else
+				{
+					Utilities.drawPicture(g, BackgroundImage, DocExtents,
+						(ImageAlign)(imagePos - ImageAlign.Document));
+				}
+			}
+
+			// draw shadows
+			if (renderOptions.EnableShadows &&
+				shadowsStyle == ShadowsStyle.OneLevel)
+				drawShadows(g, pageRect, false);
+
+			// draw all objects
+			foreach (ChartObject obj in zOrder)
+			{
+				if (obj != activeObject || !selectionOnTop)
+				{
+					RectangleF rc = obj.getRepaintRect(false);
+					if (!rc.IntersectsWith(pageRect))
+						continue;
+
+					if (renderOptions.EnableShadows &&
+						shadowsStyle == ShadowsStyle.ZOrder)
+						drawObjectWithShadow(g, obj, false);
+					else
+						drawObject(g, obj, false);
+				}
+			}
+
+			// draw the active object at the top
+			if (activeObject != null && selectionOnTop)
+			{
+				if (renderOptions.EnableShadows &&
+					shadowsStyle == ShadowsStyle.ZOrder)
+					drawObjectWithShadow(g, activeObject, true);
+				else
+					drawObject(g, activeObject, true);
+			}
+
+			renderOptions = displayOptions;
+			nowPrinting = false;
+		}
+
+		private void PrintHeader(PrintPageEventArgs ev)
+		{
+			if (printOptions.HeaderFormat != "")
+			{
+				PointF ptHeader = ev.MarginBounds.Location;
+				ptHeader.X += ev.MarginBounds.Width / 2;
+
+				// create the header string
+				String header = printOptions.HeaderFormat.Replace(
+					"%D", printOptions.DocumentName);
+				header = header.Replace("%P", currentPage.ToString());
+
+				// prepare drawing objects and parameters
+				Font font = new Font("Arial", 10, GraphicsUnit.Point);
+				System.Drawing.SolidBrush brush =
+					new System.Drawing.SolidBrush(Color.Black);
+				StringFormat format = new StringFormat();
+				format.Alignment = StringAlignment.Center;
+				format.LineAlignment = StringAlignment.Far;
+
+				// draw the header
+				ev.Graphics.DrawString(header, font, brush, ptHeader, format);
+
+				// cleanup
+				brush.Dispose();
+				font.Dispose();
+			}
+		}
+
+		/// <summary>
+		/// Prints the diagram to the default printer.
+		/// </summary>
+		public void Print()
+		{
+			PrintDialog dlg = new PrintDialog();
+
+			dlg.AllowPrintToFile = false;
+			dlg.AllowSomePages = true;
+
+			// setup the .NET print document
+			dlg.Document = new PrintDocument();
+			dlg.Document.DocumentName = printOptions.DocumentName;
+			dlg.Document.DefaultPageSettings.Margins = printOptions.Margins;
+			dlg.Document.PrinterSettings.MinimumPage = 1;
+			dlg.Document.PrinterSettings.MaximumPage = 10000;
+			dlg.Document.PrinterSettings.FromPage = 1;
+			dlg.Document.PrinterSettings.ToPage = 100;
+
+			if (dlg.ShowDialog(this) == DialogResult.OK)
+				Print(dlg.Document);
+		}
+
+		private PrintEventHandler beginPrintHandler = null;
+		private PrintPageEventHandler printPageHandler = null;
+
+		public void Print(PrintDocument doc)
+		{
+			printDoc = doc;
+
+			doc.BeginPrint += beginPrintHandler;
+			doc.PrintPage += printPageHandler;
+			doc.Print();
+			doc.PrintPage -= printPageHandler;
+			doc.BeginPrint -= beginPrintHandler;
+		}
+
+		/// <summary>
+		/// Displays the standard .NET print preview form.
+		/// </summary>
+		public void PrintPreview()
+		{
+			// setup the .NET print document
+			PrintDocument doc = new PrintDocument();
+			doc.DocumentName = printOptions.DocumentName;
+			doc.DefaultPageSettings.Margins = printOptions.Margins;
+
+			PrintPreview(doc);
+		}
+
+		public void PrintPreview(PrintDocument doc)
+		{
+			printDoc= doc;
+
+			doc.BeginPrint += beginPrintHandler;
+			doc.PrintPage += printPageHandler;
+
+			PrintPreviewDialog dlg = new PrintPreviewDialog();
+			dlg.Document = doc;
+			dlg.ShowDialog(this);
+
+			doc.PrintPage -= printPageHandler;
+			doc.BeginPrint -= beginPrintHandler;
+		}
+
+		/// <summary>
+		/// Displays an extended and better looking print preview form.
+		/// </summary>
+		public void PrintPreviewEx()
+		{
+			// setup the .NET print document
+			PrintDocument doc = new PrintDocument();
+			doc.DocumentName = printOptions.DocumentName;
+			doc.DefaultPageSettings.Margins = printOptions.Margins;
+
+			PrintPreviewEx(doc);
+		}
+
+		public void PrintPreviewEx(PrintDocument doc)
+		{
+			printDoc = doc;
+
+			doc.BeginPrint += beginPrintHandler;
+			doc.PrintPage += printPageHandler;
+
+			FrmPrintPreview frmPrintPreview =
+				new FrmPrintPreview(this, doc.DocumentName);
+			frmPrintPreview.Text = doc.DocumentName;
+			frmPrintPreview.Document = doc;
+
+			// set preview dialog options
+			frmPrintPreview.init(previewOptions);
+			frmPrintPreview.ShowDialog(this);
+
+			doc.PrintPage -= printPageHandler;
+			doc.BeginPrint -= beginPrintHandler;
+		}
+
+		public SizeF MeasureString(string text,
+			Font font, int maxWidth, StringFormat textFormat)
+		{
+			Graphics graphics = CreateGraphics();
+			setTransforms(graphics);
+
+			SizeF size = graphics.MeasureString(
+				text, font, maxWidth, textFormat);
+
+			graphics.Dispose();
+			return size;
+		}
+
+		internal void drawActiveSelHandles(Graphics g) 
+		{
+			if (activeObject != null)
+				activeObject.drawSelHandles(g, activeMnpColor);
+		}
+
+		internal void invalidate(RectangleF invArea)
+		{
+			// get graphics for the transformation
+			Graphics g = this.CreateGraphics();
+			setTransforms(g);
+
+			// get the invalid area in device (pixel) units, and
+			// inflate it a bit to accomodate for rounding errors
+			Rectangle dev = Utilities.docToDevice(g, invArea);
+			dev.Inflate(2, 2);
+			this.Invalidate(dev);
+
+			// cleanup
+			g.Dispose();
+		}
+
+		internal void redrawNonModifiedItems()
+		{
+			redrawNonModified = true;
+		}
+
+		private bool redrawNonModified;
+
+		private bool forceCacheRedraw;
+
+		#endregion
+
+		#region appearance
+
+		[Category("Appearance")]
+		[DefaultValue(2.0f)]
+		[Description("Size of selection handles.")]
+		public float SelHandleSize
+		{
+			get { return selHandleSize; }
+			set
+			{
+				if (value > 0 && selHandleSize != value)
+				{
+					selHandleSize = value;
+					Invalidate();
+				}
+			}
+		}
+
+		private float selHandleSize;
+
+		[Category("Appearance")]
+		[DefaultValue(true)]
+		[Description("Specifies if selected items should be painted on top of other items or the Z order should be always preserved.")]
+		public bool SelectionOnTop
+		{
+			get
+			{
+				return selectionOnTop;
+			}
+			set
+			{
+				selectionOnTop = value;
+			}
+		}
+
+		private bool selectionOnTop;
+
+		[Category("Appearance")]
+		[DefaultValue(typeof(ShowAnchors), "Auto")]
+		[Description("Gets or sets when anchor point marks are displayed")]
+		public ShowAnchors ShowAnchors
+		{
+			get { return showAnchors; }
+			set
+			{
+				showAnchors = value;
+				renderOptions.EnableAnchors =
+					(showAnchors == ShowAnchors.Always);
+				Invalidate();
+			}
+		}
+
+		private ShowAnchors showAnchors;
+
+		[Category("Appearance")]
+		[DefaultValue(typeof(Color), "170, 170, 200")]
+		[Description("The document area defined by DocExtents is painted using this color.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public new Color BackColor
+		{
+			get { return base.BackColor; }
+			set
+			{
+				if (!base.BackColor.Equals(value))
+				{
+					base.BackColor = value;
+
+					this.BackBrush = new SolidBrush(value);
+
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		[Category("Appearance")]
+		[Description("The document area defined by DocExtents is painted using this brush.")]
+		[Editor(typeof(MindFusion.FlowChartX.Design.BrushEditor),
+			 typeof(System.Drawing.Design.UITypeEditor))]
+		public MindFusion.FlowChartX.Brush BackBrush
+		{
+			get { return brush; }
+			set
+			{
+				if(value == null)
+					throw new Exception("null is not acceptable Brush value");
+
+				if (brush != null)
+					brush.Release();
+				brush = value;
+				brush.AddRef();
+
+				MindFusion.FlowChartX.SolidBrush solidBrush = value as
+					MindFusion.FlowChartX.SolidBrush;
+				if (solidBrush != null)
+					base.BackColor = solidBrush.Color;
+
+				setDirty();
+				Invalidate();
+			}
+		}
+
+		private MindFusion.FlowChartX.Brush brush;
+
+		private bool ShouldSerializeBackBrush()
+		{
+			return !brush.equals(new SolidBrush(Color.FromArgb(170, 170, 200)));
+		}
+
+		[Category("Appearance")]
+		[Description("The area outside DocExtents is painted using this brush.")]
+		[Editor(typeof(MindFusion.FlowChartX.Design.BrushEditor),
+			 typeof(System.Drawing.Design.UITypeEditor))]
+		public MindFusion.FlowChartX.Brush ExteriorBrush
+		{
+			get
+			{
+				return exteriorBrush;
+			}
+			set
+			{
+				if (exteriorBrush != null)
+					exteriorBrush.Release();
+
+				exteriorBrush = value;
+
+				if (exteriorBrush != null)
+					exteriorBrush.AddRef();
+
+				Invalidate();
+			}
+		}
+
+		private MindFusion.FlowChartX.Brush exteriorBrush;
+
+		private bool ShouldSerializeExteriorBrush()
+		{
+			return exteriorBrush != null;
+		}
+
+		[Category("Appearance")]
+		[DefaultValue(typeof(ExpandButtonPosition), "OuterRight")]
+		public ExpandButtonPosition ExpandButtonPosition
+		{
+			get { return expandBtnPos; }
+			set
+			{
+				if (expandBtnPos != value)
+				{
+					expandBtnPos = value;
+					dirty = true;
+					Invalidate();
+				}
+			}
+		}
+
+		private ExpandButtonPosition expandBtnPos;
+
+		[Category("Appearance")]
+		[DefaultValue(typeof(ArrowCrossings), "Straight")]
+		[Description("Specifies how to display intersection points where arrows cross their paths.")]
+		public ArrowCrossings ArrowCrossings
+		{
+			get { return arrowCrossings; }
+			set
+			{
+				if (arrowCrossings != value)
+				{
+					arrowCrossings = value;
+					clearRuntimeData(Constants.ARROW_CROSSINGS);
+					Invalidate();
+				}
+			}
+		}
+
+		private ArrowCrossings arrowCrossings;
+
+		[Category("Appearance")]
+		[DefaultValue(1.5f)]
+		[Description("Specifies the radius of arcs displayed over intersection points where arrows cross their paths.")]
+		public float CrossingRadius
+		{
+			get { return crossRadius; }
+			set
+			{
+				if (crossRadius != value)
+				{
+					crossRadius = value;
+					clearRuntimeData(Constants.ARROW_CROSSINGS);
+					Invalidate();
+				}
+			}
+		}
+
+		private float crossRadius;
+
+		internal ArrowCollection getArrowsFromZ(bool lessThan, int z)
+		{
+			ArrowCollection arrows = new ArrowCollection();
+
+			if (lessThan)
+			{
+				for (int i = z - 1; i >= 0; i--)
+				{
+					ChartObject obj = this.zOrder[i];
+					if (obj is Arrow)
+						arrows.Add(obj as Arrow);
+				}
+			}
+			else
+			{
+				for (int i = z + 1; i < zOrder.Count; i++)
+				{
+					ChartObject obj = zOrder[i];
+					if (obj is Arrow)
+						arrows.Add(obj as Arrow);
+				}
+			}
+
+			return arrows;
+		}
+
+		[DefaultValue(true)]
+		[Description("Specifies whether to display selection handles of objects under the mouse while another object is being modified.")]
+		public bool ShowHandlesOnDrag
+		{
+			get { return showHandlesOnDrag; }
+			set
+			{
+				if (showHandlesOnDrag == value)
+					return;
+
+				showHandlesOnDrag = value;
+				Invalidate();
+			}
+		}
+
+		private bool showHandlesOnDrag;
+
+		/// <summary>
+		/// Gets or sets whether arrow lines have round joins.
+		/// Only polyline and cascading arrows regard this property.
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(false)]
+		[Description("Specifies whether arrow segment joins should be rounded.")]
+		public bool RoundedArrows
+		{
+			get { return roundedArrows; }
+			set
+			{
+				if (roundedArrows == value)
+					return;
+
+				roundedArrows = value;
+
+				Invalidate();
+			}
+		}
+
+		private bool roundedArrows = false;
+
+		/// <summary>
+		/// Gets or sets the curve radius of rounded arrows.
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(2f)]
+		[Description("The radius of the arc segment-joins of rounded arrows.")]
+		public float RoundedArrowsRadius
+		{
+			get { return roundedArrowsRadius; }
+			set
+			{
+				if (roundedArrowsRadius == value)
+					return;
+
+				roundedArrowsRadius = value;
+
+				Invalidate();
+			}
+		}
+
+		private float roundedArrowsRadius = 2f;
+
+		/// <summary>
+		/// Shadows drawing style
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(typeof(ShadowsStyle), "OneLevel")]
+		[Description("Visual style of shadows.")]
+		public ShadowsStyle ShadowsStyle
+		{
+			get
+			{
+				return shadowsStyle;
+			}
+			set
+			{
+				if (shadowsStyle != value)
+				{
+					shadowsStyle = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private ShadowsStyle shadowsStyle;
+
+		/// <summary>
+		/// Defines the placement of the background image
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(typeof(ImageAlign), "Document")]
+		[Description("Specifies alignment style and position for the background image.")]
+		public ImageAlign BkgrImagePos
+		{
+			get
+			{
+				return imagePos;
+			}
+			set
+			{
+				if (imagePos != value)
+				{
+					imagePos = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private ImageAlign imagePos;
+
+		/// <summary>
+		/// Color of manipulation handles of the active object
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(typeof(Color), "White")]
+		[Description("Manipulation handles of the active object are rendered in this color.")]
+		public Color ActiveMnpColor
+		{
+			get
+			{
+				return activeMnpColor;
+			}
+			set
+			{
+				if (!activeMnpColor.Equals(value))
+				{
+					activeMnpColor = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private Color activeMnpColor;
+
+		/// <summary>
+		/// Color of manipulation handles of the selected objects
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(typeof(Color), "170, 170, 170")]
+		[Description("Manipulation handles of selected objects are rendered in this color.")]
+		public Color SelMnpColor
+		{
+			get
+			{
+				return selMnpColor;
+			}
+			set
+			{
+				if (!selMnpColor.Equals(value))
+				{
+					selMnpColor = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private Color selMnpColor;
+
+		/// <summary>
+		/// Color of disabled manipulation handles
+		/// </summary>
+		[Category("Appearance")]
+		[DefaultValue(typeof(Color), "200, 0, 0")]
+		[Description("Disabled manipulation handles are rendered in this color.")]
+		public Color DisabledMnpColor
+		{
+			get
+			{
+				return disabledMnpColor;
+			}
+			set
+			{
+				if (!disabledMnpColor.Equals(value))
+				{
+					disabledMnpColor = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private Color disabledMnpColor;
+
+		[Category("Appearance")]
+		[DefaultValue(true)]
+		public bool ShowDisabledHandles
+		{
+			get { return showDisabledHandles; }
+			set { showDisabledHandles = value; }
+		}
+
+		private bool showDisabledHandles;
+
+		#endregion
+
+		#region user interaction
+
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+
+			if (!Enabled) return;
+
+			userAction = true;
+			switch (e.KeyCode)
+			{
+				case Keys.Delete:
+					// do not delete anything while creating or modifying
+					// otherwise delete the active selected object
+					if (interaction == null && activeObject != null &&
+						!activeObject.Locked && confirmDelete(activeObject))
+					{
+						DeleteObject(activeObject);
+					}
+					break;
+			}
+			userAction = false;
+		}
+
+		bool[] buttonDown = new bool[] { false, false, false };
+		Point[] downPos = new Point[] { new Point(0, 0), new Point(0, 0), new Point(0, 0) };
+
+		private int btnNum(MouseButtons btn)
+		{
+			if (btn == MouseButtons.Left)
+				return 0;
+
+			if (btn == MouseButtons.Right)
+				return 2;
+
+			return 1;
+		}
+
+		internal void RaiseMouseDown(MouseEventArgs e)
+		{
+			OnMouseDown(e);
+		}
+
+		protected override void OnLostFocus(EventArgs e)
+		{
+			base.OnLostFocus(e);
+
+			focusLost = true;
+		}
+
+		private bool focusLost = false;
+
+		/// <summary>
+		/// Creates a back-buffer bitmap used for double-buffered drawing of diagrams.
+		/// </summary>
+		private Bitmap createBackBuffer(Rectangle rect, Graphics compatible)
+		{
+			Bitmap backBmp = new Bitmap(rect.Width, rect.Height, compatible);
+			/*
+			if (backBmp != null)
+			{
+				Graphics backGrfx = Graphics.FromImage(backBmp);
+				backGrfx.Clear(BackColor);
+				backGrfx.Dispose();
+			}
+			*/
+
+			return backBmp;
+		}
+
+		protected override void OnMouseDown(MouseEventArgs e)
+		{
+			if (Enabled)
+				try { this.Focus(); } 
+				catch (SecurityException) {};
+			focusLost = false;
+
+			endInplaceEdit(true);
+			base.OnMouseDown(e);
+
+			if (!Enabled) return;
+			if (focusLost) return;
+
+			// get mouse position in document coordinates
+			Graphics g = this.CreateGraphics();
+			setTransforms(g);
+			PointF ptMousePos = Utilities.deviceToDoc(g, e.X, e.Y);
+			g.Dispose();
+
+			if (manipulatorEnacted(ptMousePos)) return;
+
+			if (e.Clicks > 1)
+			{
+				ChartObject objUnderMouse = GetObjectAt(ptMousePos, false);
+				if (objUnderMouse != null)
+				{
+					fireDblClickedEvent(objUnderMouse, ptMousePos, e.Button);
+				}
+				else
+				{
+					if (DocDblClicked != null)
+					{
+						DocDblClicked(this, new MousePosArgs(
+							e.Button, ptMousePos.X, ptMousePos.Y));
+					}
+				}
+
+				if (this.Capture)
+				{
+					this.Capture = false;
+					if (docBuffer != null)
+					{
+						docBuffer.Dispose();
+						docBuffer = null;
+					}
+
+					interaction = null;
+				}
+
+				return;
+			}
+
+			int btn = btnNum(e.Button);
+			buttonDown[btn] = true;
+			downPos[btn] = new Point(e.X, e.Y);
+			ptStartDragDev = new Point(e.X, e.Y);
+
+			// enter pan mode if ALT is pressed ...
+			panMode = (_modifierKeyActions.GetKeys(ModifierKeyAction.Pan) & ModifierKeys) != 0 && e.Button == MouseButtons.Left;
+			if (panMode)
+			{
+				try { Capture = true; } 
+				catch (SecurityException) {};
+				panPoint = new PointF(ScrollX, ScrollY);
+				return;
+			}
+			
+			// or start drawing - we care only for left-button clicks
+			if (e.Button == MouseButtons.Left && Behavior != BehaviorType.DoNothing)
+			{
+				userAction = true;
+
+				// get mouse position in document coordinates
+				g = this.CreateGraphics();
+				setTransforms(g);
+				ptStartDrag = Utilities.deviceToDoc(g, e.X, e.Y);
+
+				// start dragging
+				try {this.Capture = true; } 
+				catch (SecurityException) {};
+				mouseMoved = false;
+
+				// create or modify an item
+				interaction = currentBehavior.startDraw(ptStartDrag, g);
+				interaction.start(ptStartDrag, this);
+
+				// save the control background
+				docBuffer = createBackBuffer(ClientRectangle, g);
+				drawFlowChart(docBuffer, ClientRectangle, true);
+
+				// cleanup
+				g.Dispose();
+				userAction = false;
+			}
+		}
+
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			base.OnMouseMove(e);
+			if (!Enabled) return;
+
+			if (panMode)
+			{
+				Point ptDev = new Point(e.X, e.Y);
+				int dx = ptDev.X - ptStartDragDev.X;
+				int dy = ptDev.Y - ptStartDragDev.Y;
+
+				Graphics gp = this.CreateGraphics();
+				gp.ResetTransform();
+				gp.PageUnit = measureUnit;
+				gp.PageScale = zoomFactor / 100F;
+				PointF diff = Utilities.deviceToDoc(gp, dx, dy);
+				RectangleF rcPage = Utilities.deviceToDoc(gp, ClientRectangle);
+				gp.Dispose();
+
+				float sx = panPoint.X - diff.X;
+				float sy = panPoint.Y - diff.Y;
+				scrollStayInDoc(sx, sy, rcPage);
+				return;
+			}
+
+			// get mouse position in document coordinates
+			Graphics g = this.CreateGraphics();
+			setTransforms(g);
+			PointF ptCurr = Utilities.deviceToDoc(g, e.X, e.Y);
+
+			if (interaction != null && interaction.CurrentObject != null &&
+				Behavior != BehaviorType.DoNothing && this.Capture && buttonDown[0])
+			{
+				if (autoScroll) checkAutoScroll(e);
+
+				// for easier selection check if distance the mouse moved is not too small
+				if (Math.Abs(ptStartDragDev.X - e.X) > 2 || 
+					Math.Abs(ptStartDragDev.Y - e.Y) > 2)
+					mouseMoved = true;
+
+				// prepare for drawing
+				Bitmap tempBuffer = createBackBuffer(ClientRectangle, g);
+				Graphics tg = Graphics.FromImage(tempBuffer);
+				tg.SmoothingMode = antiAlias;
+
+				// update the item position
+				redrawNonModified = false;
+				bool redrawBack = interaction.update(ptCurr, this);
+				if (redrawBack || redrawNonModified)
+				{
+					drawFlowChart(docBuffer, ClientRectangle, true);
+					redrawNonModified = false;
+				}
+
+				// update document size if needed
+				if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
+					sizeDocForItem(interaction.CurrentObject);
+
+				// paint the invalid rect
+				RectangleF rcInvDoc = interaction.InvalidRect;
+				Rectangle rcInvDev = Utilities.docToDevice(g, rcInvDoc);
+				rcInvDev.Inflate(2, 2);
+				rcInvDev.Intersect(ClientRectangle);
+				if (forceCacheRedraw)
+				{
+					rcInvDev = ClientRectangle;
+					forceCacheRedraw = false;
+				}
+				tg.DrawImage(docBuffer, rcInvDev, rcInvDev, GraphicsUnit.Pixel);
+
+				// redraw the items
+				setTransforms(tg);
+				if (!selectionOnTop)
+				{
+					// all items must be repainted in order to
+					// preserve their Z order appearance
+					drawAllItems(tg, rcInvDoc);
+
+					// item being created
+					if (interaction.Action == Action.Create && interaction.CurrentObject != null)
+					{
+						if (interaction.CurrentObject != selection)
+						{
+							if (shadowsStyle != ShadowsStyle.None)
+								drawObjectWithShadow(tg, interaction.CurrentObject, false);
+							else
+								drawObject(tg, interaction.CurrentObject, false);
+						}
+						else
+						{
+							selection.Draw(tg, false);
+						}
+					}
+				}
+				else
+				{
+					// items that aren't being modified are already painted in the
+					// back buffer; now repaint only the items being modified
+					if (interaction.CurrentObject != selection)
+					{
+						if (shadowsStyle != ShadowsStyle.None)
+							drawObjectWithShadow(tg, interaction.CurrentObject, interaction.Action == Action.Modify);
+						else
+							drawObject(tg, interaction.CurrentObject, interaction.Action == Action.Modify);
+					}
+					else
+					{
+						// draw selection
+						PainterVisitor painter = new PainterVisitor(tg, false);
+						selection.visitHierarchy(painter);
+						selection.Draw(tg, false);
+					}
+				}
+
+				if (interaction.Action == Action.Modify && showHandlesOnDrag)
+					interaction.CurrentObject.drawSelHandles(tg, ActiveMnpColor);
+				if ((showAnchors & ShowAnchors.Auto) != 0 && autoAnchorsObj != null)
+					autoAnchorsObj.drawAnchors(tg);
+
+				// blit offscreen to screen
+				unsetTransforms(g);
+				Rectangle clr = ClientRectangle;
+				if (hScrollBar != null && hScrollBar.Visible)
+					clr.Height -= hScrollBar.Height;
+				if (vScrollBar != null && vScrollBar.Visible)
+					clr.Width -= vScrollBar.Width;
+				rcInvDev.Intersect(clr);
+				g.DrawImage(tempBuffer, rcInvDev, rcInvDev, GraphicsUnit.Pixel);
+
+				// clean up
+				tg.Dispose();
+				tempBuffer.Dispose();
+			}
+			else // not dragging
+			{
+				if ((showAnchors & ShowAnchors.Auto) != 0)
+					drawAutoAnchors(g, ptCurr);
+				if (modificationStart == ModificationStyle.AutoHandles)
+					drawAutoHandles(g, ptCurr);
+				currentBehavior.SetMouseCursor(ptCurr);
+				setTooltipText(ptCurr);
+			}
+
+			// clean up
+			g.Dispose();
+		}
+
+		protected override void OnMouseUp(MouseEventArgs e)
+		{
+			base.OnMouseUp(e);
+
+			// stop autoscrolling
+			if (scrollTimer != null)
+			{
+				scrollTimer.Enabled = false;
+				scrollTimer = null;
+			}
+
+			// stop pan mode if it's active now
+			if (panMode)
+			{
+				panMode = buttonDown[0] = mouseMoved = false;
+				if (Capture) Capture = false;
+				return;
+			}
+
+			if (!Enabled) return;
+			userAction = true;
+
+			Graphics g = this.CreateGraphics();
+			setTransforms(g);
+
+			// get mouse position in document coordinates
+			PointF ptCurr = Utilities.deviceToDoc(g, e.X, e.Y);
+			PointF ptMousePos = ptCurr;
+
+			if (interaction != null && Behavior != BehaviorType.DoNothing &&
+				this.Capture && buttonDown[0])
+			{
+				ChartObject currObject = interaction.CurrentObject;
+				RectangleF rcInv = interaction.InvalidRect;
+
+				// should the operation be performed?
+				if (e.Button != MouseButtons.Left || !mouseMoved ||
+					!interaction.isAllowed(ptCurr, this))
+				{
+					// cancel the operation
+					interaction.cancel(this);
+
+					// if the mouse wasn't moved, select the object under cursor
+					if (!mouseMoved && (interaction.Action == Action.Create || interaction.Action == Action.Split))
+					{
+						ChartObject obj = GetObjectAt(ptCurr, true);
+						if (obj == null || confirmSelect(obj))
+						{
+							RectangleF rcOld = calcSelectionRect(activeObject, ptCurr);
+							rcInv = Utilities.unionRects(rcInv, rcOld);
+							rcInv = Utilities.unionNonEmptyRects(
+								rcInv, selection.getRepaintRect(false));
+
+							int oldSelCount = selection.GetSize();
+
+							// change selection
+							if ((_modifierKeyActions.GetKeys(ModifierKeyAction.Select) & ModifierKeys) != 0)
+								selection.Toggle(obj);
+							else
+								selection.Change(obj);
+
+							int newSelCount = selection.GetSize();
+
+							rcInv = Utilities.unionRects(rcInv,
+								selection.getRepaintRect(false));
+							rcInv = Utilities.unionRects(rcInv,
+								calcSelectionRect(activeObject, ptCurr));
+							rcInv.Inflate(selHandleSize, selHandleSize);
+
+							if (!(oldSelCount == 0 && newSelCount == 0))
+								dirty = true;
+
+						}	// if confirmSelect()
+
+					}	// if !mouseMoved
+
+				}	// if (e.Button != MouseButtons.Left)
+
+				else
+				{
+					// complete operation
+					interaction.complete(ptCurr, this);
+					rcInv = interaction.InvalidRect;
+
+					// update document size if needed
+					if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
+						sizeDocForItem(currObject);
+				}
+
+				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
+				rcInvDev.Inflate(2, 2);
+				this.Invalidate(rcInvDev, false);
+
+				this.Capture = false;
+				docBuffer.Dispose();
+				docBuffer = null;
+
+				interaction = null;
+			}
+
+			g.Dispose();
+
+			int btn = btnNum(e.Button);
+			if (buttonDown[btn] &&
+				Math.Abs(downPos[btn].X - e.X) <= 2 &&
+				Math.Abs(downPos[btn].Y - e.Y) <= 2)
+			{
+				ChartObject objUnderMouse = GetObjectAt(ptMousePos, false);
+				if (objUnderMouse != null)
+				{
+					fireClickedEvent(objUnderMouse, ptMousePos, e.Button);
+				}
+				else
+				{
+					if (DocClicked != null)
+					{
+						DocClicked(this, new MousePosArgs(
+							e.Button, ptMousePos.X, ptMousePos.Y));
+					}
+				}
+			}
+			buttonDown[btn] = false;
+			userAction = false;
+		}
+		
+		protected override void OnDragOver(System.Windows.Forms.DragEventArgs drgevent)
+		{
+			base.OnDragOver(drgevent);
+			if (!Enabled) return;
+
+			// get mouse position in document coordinates
+			Graphics g = this.CreateGraphics();
+			setTransforms(g);
+			PointF ptCurr = Utilities.deviceToDoc(g, drgevent.X, drgevent.Y);
+
+			if ((showAnchors & ShowAnchors.Auto) != 0)
+				drawAutoAnchors(g, ptCurr);
+
+			// clean up
+			g.Dispose();
+		}
+
+		private PointF ptStartDrag;
+		private Point ptStartDragDev;
+		internal bool mouseMoved;
+		private Bitmap docBuffer;
+
+		internal PointF InteractionStartPoint { get {return ptStartDrag;} }
+
+		public PointF AlignPointToGrid(PointF point)
+		{
+			if (alignToGrid)
+			{
+				float dx = (float)(point.X - gridSizeX*Math.Floor(point.X / gridSizeX));
+				float dy = (float)(point.Y - gridSizeY*Math.Floor(point.Y / gridSizeY));
+				return new PointF(
+					point.X - dx + gridSizeX / 2,
+					point.Y - dy + gridSizeY / 2);
+			}
+
+			return point;
+		}
+
+		bool manipulatorEnacted(PointF pt)
+		{
+			userAction = true;
+
+			// try all manipulators
+			foreach (ChartObject obj in zOrder)
+			{
+				if (!obj.notInteractive() && obj.manipulatorEnacted(pt))
+				{
+					userAction = false;
+					return true;
+				}
+			}
+
+			userAction = false;
+			return false;
+		}
+
+		private bool userAction;
+
+		private bool panMode;
+		PointF panPoint;
+
+		/// <summary>
+		/// Gets a value specifying whether the diagram
+		/// is currently being modified by the user.
+		/// </summary>
+		[Browsable(false)]
+		public bool IsModifying
+		{
+			get { return interaction != null && interaction.Action != Action.None; }
+		}
+
+		[Browsable(false)]
+		public ModifierKeyActions ModifierKeyActions
+		{
+			get { return _modifierKeyActions; }
+		}
+
+		private ModifierKeyActions _modifierKeyActions;
+
+		[Category("Inplace text editing")]
+		[DefaultValue(false)]
+		[Description("Allows activating inplace editing mode by double clicking.")]
+		public bool AllowInplaceEdit
+		{
+			get { return inplaceEditAllowed; }
+			set
+			{
+				if (inplaceEditAllowed != value)
+				{
+					inplaceEditAllowed = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool inplaceEditAllowed;
+
+		TextBox inplaceTextBox = null;
+
+		internal void startInplaceEdit(InplaceEditable obj, RectangleF rect)
+		{
+			if (nowEditing) return;
+
+			inplaceObject = obj;
+			string text = obj.getTextToEdit();
+
+			// get the position of the object in device coordinates
+			Graphics g = this.CreateGraphics();
+			setTransforms(g);
+			Rectangle rc = Utilities.docToDevice(g, rect);
+
+			// setup the inplace text box there
+			inplaceTextBox = new TextBox();
+			inplaceTextBox.Multiline = true;
+			inplaceTextBox.AcceptsReturn = true;
+			inplaceTextBox.Visible = true;
+			inplaceTextBox.Bounds = rc;
+			inplaceTextBox.Font = inplaceEditFont;
+			inplaceTextBox.Text = text;
+			inplaceTextBox.KeyPress +=
+				new KeyPressEventHandler(inplaceTextBoxKeyPress);
+			Controls.Add(inplaceTextBox);
+			inplaceTextBox.Focus();
+
+			nowEditing = true;
+
+			// raise the EnterInplaceEditMode event
+			if (EnterInplaceEditMode != null)
+			{
+				EnterInplaceEditMode(this,
+					new InplaceEditArgs(inplaceObject, inplaceTextBox));
+			}
+		}
+
+
+		internal void endInplaceEdit(bool accept)
+		{
+			if (!nowEditing) return;
+
+			// get texts while the text box still exists
+			string oldText = inplaceObject.getTextToEdit();
+			string newText = inplaceTextBox.Text;
+
+			// remove text box
+			inplaceTextBox.Visible = false;
+			Controls.Remove(inplaceTextBox);
+			inplaceTextBox = null;
+
+			// end inplace editing
+			InplaceEditable lastIO = inplaceObject;
+			inplaceObject = null;
+			nowEditing = false;
+
+			if (accept)
+			{
+				lastIO.setEditedText(newText);
+
+				// fire event
+				if (lastIO is NodeInplaceEditable)
+				{
+					Node node = ((NodeInplaceEditable)lastIO).Node;
+					if (node is Box && BoxTextEdited != null)
+						BoxTextEdited(this, new BoxTextArgs((Box)node, oldText, newText));
+					if (node is Table && TableCaptionEdited != null)
+						TableCaptionEdited(this, new TableCaptionArgs(
+							(Table)node, oldText, newText));
+				}
+				if (lastIO is Table.Cell)
+				{
+					Table.Cell cell = (Table.Cell)lastIO;
+					if (CellTextEdited != null)
+						CellTextEdited(this, new CellTextArgs(
+							cell.table, oldText, cell.Text, lastClickedCol, lastClickedRow));
+				}
+			}
+		}
+
+
+		void inplaceTextBoxKeyPress(object o, KeyPressEventArgs args)
+		{
+			if (inplaceAcceptOnEnter && args.KeyChar == (char)13)
+			{
+				endInplaceEdit(true);
+				args.Handled = true;
+			}
+
+			if (inplaceCancelOnEsc && args.KeyChar == (char)27)
+			{
+				endInplaceEdit(false);
+				args.Handled = true;
+			}
+		}
+
+		[Category("Inplace text editing")]
+		[DefaultValue(false)]
+		[Description("End inplace editing and accept changes when ENTER is pressed.")]
+		public bool InplaceEditAcceptOnEnter
+		{
+			get { return inplaceAcceptOnEnter; }
+			set { inplaceAcceptOnEnter = value; }
+		}
+
+
+		[Category("Inplace text editing")]
+		[DefaultValue(true)]
+		[Description("End inplace editing and cancel changes when ESC is pressed.")]
+		public bool InplaceEditCancelOnEsc
+		{
+			get { return inplaceCancelOnEsc; }
+			set { inplaceCancelOnEsc = value; }
+		}
+
+
+		/// <summary>
+		/// Font of inplace text box 
+		/// </summary>
+		[Category("Inplace text editing")]
+		[Description("Font of text being edited inplace.")]
+		public Font InplaceEditFont
+		{
+			get
+			{
+				return inplaceEditFont;
+			}
+			set
+			{
+				if (inplaceEditFont != value)
+				{
+					inplaceEditFont = value;
+					setDirty();
+				}
+			}
+		}
+
+		private Font inplaceEditFont;
+
+
+		private bool confirmTableInplaceEdit(Table tbl, int row, int col)
+		{
+			if (TableInplaceEditing == null) return true;
+
+			TableConfirmArgs args = new TableConfirmArgs(tbl, row, col);
+			TableInplaceEditing(this, args);
+			return args.Confirm;
+		}
+
+
+		private bool confirmBoxInplaceEdit(Box box)
+		{
+			if (BoxInplaceEditing == null) return true;
+
+			BoxConfirmArgs args = new BoxConfirmArgs(box);
+			BoxInplaceEditing(this, args);
+			return args.Confirm;
+		}
+
+
+		private InplaceEditable inplaceObject;
+
+		bool nowEditing;
+		bool inplaceAcceptOnEnter;
+		bool inplaceCancelOnEsc;
+
+		int lastClickedRow;
+		int lastClickedCol;
+
+		/// <summary>
+		/// Activates the grid
+		/// </summary>
+		[Category("Grid")]
+		[DefaultValue(true)]
+		[Description("Specifies whether to align items to grid points.")]
+		public bool AlignToGrid
+		{
+			get
+			{
+				return alignToGrid;
+			}
+			set
+			{
+				if (alignToGrid != value)
+				{
+					alignToGrid = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool alignToGrid;
+
+		/// <summary>
+		/// Defines the visibility of the grid
+		/// </summary>
+		[Category("Grid")]
+		[DefaultValue(false)]
+		[Description("Shows or hides the grid points.")]
+		public bool ShowGrid
+		{
+			get
+			{
+				return showGrid;;
+			}
+			set
+			{
+				if (showGrid != value)
+				{
+					showGrid = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private bool showGrid;
+
+		/// <summary>
+		/// The color of the grid points
+		/// </summary>
+		[Category("Grid")]
+		[DefaultValue(typeof(Color), "140, 140, 150")]
+		[Description("Gets or sets the color used to paint grid dots or lines.")]
+		public Color GridColor
+		{
+			get
+			{
+				return gridColor;
+			}
+			set
+			{
+				if (gridColor != value)
+				{
+					gridColor = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private Color gridColor;
+
+		/// <summary>
+		/// The horizontal distance between adjacent grid points.
+		/// </summary>
+		[Category("Grid")]
+		[DefaultValue(4.0f)]
+		[Description("The horizontal distance between grid points.")]
+		public float GridSizeX
+		{
+			get
+			{
+				return gridSizeX;
+			}
+			set
+			{
+				if (gridSizeX != value)
+				{
+					gridSizeX = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private float gridSizeX;
+
+		/// <summary>
+		/// The vertical distance between adjacent grid points.
+		/// </summary>
+		[Category("Grid")]
+		[DefaultValue(4.0f)]
+		[Description("The vertical distance between grid points.")]
+		public float GridSizeY
+		{
+			get
+			{
+				return gridSizeY;
+			}
+			set
+			{
+				if (gridSizeY != value)
+				{
+					gridSizeY = value;
+					setDirty();
+					Invalidate();
+				}
+			}
+		}
+
+		private float gridSizeY;
+
+		/// <summary>
+		/// Indicates how to draw the grid
+		/// </summary>
+		[
+		Category("Grid"),
+		DefaultValue(typeof(GridStyle), "Points"),
+		Description("Indicates how to draw the grid.")
+		]
+		public GridStyle GridStyle
+		{
+			get
+			{
+				return gridStyle;
+			}
+			set
+			{
+				if (gridStyle != value)
+				{
+					gridStyle = value;
+					Invalidate();
+				}
+			}
+		}
+
+		private GridStyle gridStyle;
+
+		/// <summary>
+		/// Enables tool-tips
+		/// </summary>
+		[Category("Tooltips")]
+		[DefaultValue(true)]
+		[Description("Specifies if tooltips are displayed when mouse hovers over an object.")]
+		public bool ShowToolTips
+		{
+			get
+			{
+				return showToolTips;
+			}
+			set
+			{
+				showToolTips = value;
+				if (!this.DesignMode)
+					toolTipCtrl.Active = showToolTips;
+			}
+		}
+
+		bool showToolTips;
 
 		private ToolTip toolTipCtrl;
 
@@ -513,9 +3876,13 @@ namespace MindFusion.FlowChartX
 				text = this.ToolTip;
 
 			if (toolTipCtrl.GetToolTip(this) != text)
+			{
+				toolTipCtrl.SetToolTip(this, "");
 				toolTipCtrl.SetToolTip(this, text);
+			}
 		}
 
+		[Category("Tooltips")]
 		[DefaultValue("")]
 		public string ToolTip
 		{
@@ -539,9 +3906,861 @@ namespace MindFusion.FlowChartX
 
 		private string toolTip;
 
+		[Category("Tooltips")]
+		[DefaultValue(500)]
+		[Description("Gets or sets the delay for tooltips in milliseconds.")]
+		public int ToolTipDelay
+		{
+			get { return toolTipCtrl.AutomaticDelay; }
+			set { toolTipCtrl.AutomaticDelay = value; }
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Cursor displayed when the mouse pointer is over empty document area.")]
+		public Cursor CurPointer
+		{
+			get { return curPointer; }
+			set { curPointer = value; }
+		}
+		private Cursor curPointer;
+
+		private bool ShouldSerializeCurPointer()
+		{
+			return curPointer != Cursors.Arrow;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Cursor displayed when an object cannot be created.")]
+		public Cursor CurCannotCreate
+		{
+			get { return curCannotCreate; }
+			set { curCannotCreate = value; }
+		}
+		private Cursor curCannotCreate;
+
+		private bool ShouldSerializeCurCannotCreate()
+		{
+			return curCannotCreate != Cursors.No;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Cursor displayed when an object can be modified.")]
+		public Cursor CurModify
+		{
+			get { return curModify; }
+			set { curModify = value; }
+		}
+		private Cursor curModify;
+
+		private bool ShouldSerializeCurModify()
+		{
+			return curModify != Cursors.SizeAll;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Cursor displayed when dragging the mouse will create an arrow.")]
+		public Cursor CurArrowStart
+		{
+			get { return curArrowStart; }
+			set { curArrowStart = value; }
+		}
+		private Cursor curArrowStart;
+
+		private bool ShouldSerializeCurArrowStart()
+		{
+			return curArrowStart != Cursors.Hand;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Cursor displayed when an arrow can be created.")]
+		public Cursor CurArrowEnd
+		{
+			get { return curArrowEnd; }
+			set { curArrowEnd = value; }
+		}
+		private Cursor curArrowEnd;
+
+		private bool ShouldSerializeCurArrowEnd()
+		{
+			return curArrowEnd != Cursors.Hand;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Cursor displayed if an arrow cannot be created.")]
+		public Cursor CurArrowCannotCreate
+		{
+			get { return curArrowCannotCreate; }
+			set { curArrowCannotCreate = value; }
+		}
+		private Cursor curArrowCannotCreate;
+
+		private bool ShouldSerializeCurArrowCannotCreate()
+		{
+			return curArrowCannotCreate != Cursors.No;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Indicates that an object would be resized horizontally.")]
+		public Cursor CurHorzResize
+		{
+			get { return curHorzResize; }
+			set { curHorzResize = value; }
+		}
+		private Cursor curHorzResize;
+
+		private bool ShouldSerializeCurHorzResize()
+		{
+			return curHorzResize != Cursors.SizeWE;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Indicates that dragging a selection handle would rotate the selected box.")]
+		public Cursor CurRotateShape
+		{
+			get { return curRotateShape; }
+			set { curRotateShape = value; }
+		}
+		private Cursor curRotateShape;
+
+		private void ResetCurRotateShape()
+		{
+			curRotateShape = CustomCursors.Rotate;
+		}
+
+		private bool ShouldSerializeCurRotateShape()
+		{
+			// HACK: just comparing curRotateShape with CustomCursors.Rotate never
+			// seems to work, so use the pretty piece of code below
+
+			// these should be all Cursors members
+			Cursor[] cursors = new Cursor[] {
+												Cursors.AppStarting,
+												Cursors.Arrow,
+												Cursors.Cross,
+												Cursors.Default,
+												Cursors.Hand,
+												Cursors.Help,
+												Cursors.HSplit,
+												Cursors.IBeam,
+												Cursors.No,
+												Cursors.NoMove2D,
+												Cursors.NoMoveHoriz,
+												Cursors.NoMoveVert,
+												Cursors.PanEast,
+												Cursors.PanNE,
+												Cursors.PanNorth,
+												Cursors.PanNW,
+												Cursors.PanSE,
+												Cursors.PanSouth,
+												Cursors.PanSW,
+												Cursors.PanWest,
+												Cursors.SizeAll,
+												Cursors.SizeNESW,
+												Cursors.SizeNS,
+												Cursors.SizeNWSE,
+												Cursors.SizeWE,
+												Cursors.UpArrow,
+												Cursors.VSplit,
+												Cursors.WaitCursor};
+
+			foreach (Cursor cursor in cursors)
+			{
+				if (cursor == curRotateShape)
+					return true;
+			}
+
+			return false;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Indicates that an object would be resized vertically.")]
+		public Cursor CurVertResize
+		{
+			get { return curVertResize; }
+			set { curVertResize = value; }
+		}
+		private Cursor curVertResize;
+
+		private bool ShouldSerializeCurVertResize()
+		{
+			return curVertResize != Cursors.SizeNS;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Indicates that an object would be resized in both directions.")]
+		public Cursor CurMainDgnlResize
+		{
+			get { return curMainDgnlResize; }
+			set { curMainDgnlResize = value; }
+		}
+		private Cursor curMainDgnlResize;
+
+		private bool ShouldSerializeCurMainDgnlResize()
+		{
+			return curMainDgnlResize != Cursors.SizeNWSE;
+		}
+
+		[Category("Mouse cursors")]
+		[Description("Indicates that an object would be resized in both directions.")]
+		public Cursor CurSecDgnlResize
+		{
+			get { return curSecDgnlResize; }
+			set { curSecDgnlResize = value; }
+		}
+		private Cursor curSecDgnlResize;
+
+		private bool ShouldSerializeCurSecDgnlResize()
+		{
+			return curSecDgnlResize != Cursors.SizeNESW;
+		}
+
 		#endregion
 
-		#region scrolling
+		#region behavior
+
+		/// <summary>
+		/// Automatically select object after it is created
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("Determines whether newly-created objects are automatically selected")]
+		public bool SelectAfterCreate
+		{
+			get
+			{
+				return selectAfterCreate;
+			}
+			set
+			{
+				if (selectAfterCreate != value)
+				{
+					selectAfterCreate = value;
+					setDirty();
+				}
+			}
+		}
+
+		bool selectAfterCreate;
+
+		/// <summary>
+		/// Restriction of the object positions in the document extents
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(typeof(RestrictToDoc), "Intersection")]
+		[Description("Specifies whether users can create or drag objects outside document boundaries.")]
+		public RestrictToDoc RestrObjsToDoc
+		{
+			get
+			{
+				return restrObjsToDoc;
+			}
+			set
+			{
+				if (restrObjsToDoc != value)
+				{
+					restrObjsToDoc = value;
+					setDirty();
+				}
+			}
+		}
+
+		private RestrictToDoc restrObjsToDoc;
+
+		/// <summary>
+		/// Defines how the user can start object modification
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(typeof(ModificationStyle), "SelectedOnly")]
+		[Description("Specifies if objects have to be selected in order to modify them.")]
+		public ModificationStyle ModificationStart
+		{
+			get
+			{
+				return modificationStart;
+			}
+			set
+			{
+				if (modificationStart != value)
+				{
+					modificationStart = value;
+					setDirty();
+					autoHandlesObj = null;
+				}
+			}
+		}
+
+		private ModificationStyle modificationStart;
+
+		[Category("Behavior")]
+		[DefaultValue(typeof(HitTestPriority), "NodesBeforeArrows")]
+		[Description("Specifies whether nodes should have higher priority than links when hit testing.")]
+		public HitTestPriority HitTestPriority
+		{
+			get { return hitTestPriority; }
+			set	{ hitTestPriority = value; }
+		}
+
+		private HitTestPriority hitTestPriority;
+
+		[Category("Behavior")]
+		[DefaultValue(false)]
+		[Description("Specifies the direction in which node hierarchies are expanded and collapsed.")]
+		public bool ExpandOnIncoming
+		{
+			get { return expandOnIncoming; }
+			set
+			{	
+				if (expandOnIncoming != value)
+				{
+					expandOnIncoming = value;
+					setDirty();
+				}
+			}
+		}
+		private bool expandOnIncoming;
+
+		[Category("Behavior")]
+		[DefaultValue(false)]
+		[Description("Enables recursive multi-level expanding of node hierarchies.")]
+		public bool RecursiveExpand
+		{
+			get { return recursiveExpand; }
+			set
+			{
+				if (recursiveExpand != value)
+				{
+					recursiveExpand = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool recursiveExpand;
+
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("Specifies whether two nodes can be connected one to another with more than one link.")]
+		public bool AllowLinksRepeat
+		{
+			get { return allowLinksRepeat; }
+			set
+			{
+				if (allowLinksRepeat != value)
+				{
+					allowLinksRepeat = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool allowLinksRepeat;
+
+		[Category("Behavior")]
+		[DefaultValue(typeof(SnapToAnchor), "OnCreate")]
+		[Description("Specifies when arrow ends snap to nearest anchor point")]
+		public SnapToAnchor SnapToAnchor
+		{
+			get { return snapToAnchor; }
+			set { snapToAnchor = value; }
+		}
+
+		private SnapToAnchor snapToAnchor;
+
+		[Category("Behavior")]
+		[DefaultValue(false)]
+		[Description("Allow drawing arrows without connecting them to nodes.")]
+		public bool AllowUnconnectedArrows
+		{
+			get { return allowUnconnectedArrows; }
+			set { allowUnconnectedArrows = value; }
+		}
+
+		private bool allowUnconnectedArrows;
+
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("Allow attaching arrows to nodes that have not anchor points.")]
+		public bool AllowUnanchoredArrows
+		{
+			get { return allowUnanchoredArrows; }
+			set { allowUnanchoredArrows = value; }
+		}
+
+		private bool allowUnanchoredArrows;
+
+		[Category("Behavior")]
+		[DefaultValue(typeof(MindFusion.FlowChartX.AutoSize), "None")]
+		[Description("Automatically resize document scrolling area when items are created, deleted or removed.")]
+		public MindFusion.FlowChartX.AutoSize AutoSizeDoc
+		{
+			get { return autoSizeDoc; }
+			set { autoSizeDoc = value; }
+		}
+
+		private MindFusion.FlowChartX.AutoSize autoSizeDoc;
+
+		private void sizeDocForItem(ChartObject item)
+		{
+			if (item == null)
+			{
+				sizeDocForItems();
+				return;
+			}
+
+			bool changed = false;
+			float docLeft = docExtents.Left;
+			float docTop = docExtents.Top;
+			float docRight = docExtents.Right;
+			float docBottom = docExtents.Bottom;
+
+			RectangleF rcItem = item.getRepaintRect(true);
+			float hinch = Constants.getHalfInch(measureUnit);
+
+			// if auto-sizing to the left and top too...
+			if (autoSizeDoc == MindFusion.FlowChartX.AutoSize.AllDirections)
+			{
+				if (rcItem.Left < docLeft + hinch)
+				{
+					docLeft = rcItem.Left - hinch;
+					changed = true;
+				}
+
+				if (rcItem.Top < docTop + hinch)
+				{
+					docTop = rcItem.Top - hinch;
+					changed = true;
+				}
+			}
+
+			if (rcItem.Right > docRight - hinch)
+			{
+				docRight = rcItem.Right + hinch;
+				changed = true;
+			}
+
+			if (rcItem.Bottom > docBottom - hinch)
+			{
+				docBottom = rcItem.Bottom + hinch;
+				changed = true;
+			}
+
+			if (changed)
+			{
+				docExtents = RectangleF.FromLTRB(docLeft, docTop, docRight, docBottom);
+				resetDocSize();
+			}
+		}
+
+		private void sizeDocForItems()
+		{
+			RectangleF rcNewSize = docExtentsMin;
+			RectangleF rcCurrent = docExtents;
+
+			foreach (ChartObject item in zOrder)
+			{
+				RectangleF itemRect = item.getRepaintRect(false);
+				rcNewSize = RectangleF.Union(rcNewSize, itemRect);
+			}
+
+			if (rcNewSize != rcCurrent)
+			{
+				docExtents = RectangleF.FromLTRB(
+					docExtents.Left, docExtents.Top,
+					rcNewSize.Right, rcNewSize.Bottom);
+				resetDocSize();
+			}
+		}
+
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("Specifies whether arrow end points can be moved after the arrow is created.")]
+		public bool ArrowEndsMovable
+		{
+			get { return arrowEndsMovable; }
+			set { arrowEndsMovable = value;	}
+		}
+
+		private bool arrowEndsMovable;
+
+		[Category("Behavior")]
+		[DefaultValue(false)]
+		[Description("Specifies whether arrow segments can be added and removed interactively.")]
+		public bool ArrowsSplittable
+		{
+			get { return arrowsSplittable; }
+			set { arrowsSplittable = value;	}
+		}
+
+		private bool arrowsSplittable;
+
+		/// <summary>
+		/// Sets the control behavior on user`s actions
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(typeof(BehaviorType), "FlowChart")]
+		[Description("Specifies how the control responds to users actions with the mouse.")]
+		public BehaviorType Behavior
+		{
+			get
+			{
+				return behavior;
+			}
+			set
+			{
+				behavior = value;
+				switch (behavior)
+				{
+					case BehaviorType.Modify:
+					case BehaviorType.DoNothing:
+						currentBehavior = new ModifyBehavior(this);
+						break;
+					case BehaviorType.FlowChart:
+						currentBehavior = new FlowChartBehavior(this);
+						break;
+					case BehaviorType.TableRelations:
+						currentBehavior = new TableRelationsBehavior(this);
+						break;
+					case BehaviorType.CreateArrow:
+						selection.Clear();
+						currentBehavior = new CreateArrowBehavior(this);
+						break;
+					case BehaviorType.CreateBox:
+						selection.Clear();
+						currentBehavior = new CreateBoxBehavior(this);
+						break;
+					case BehaviorType.CreateTable:
+						selection.Clear();
+						currentBehavior = new CreateTableBehavior(this);
+						break;
+					case BehaviorType.CreateControlHost:
+						selection.Clear();
+						currentBehavior = new CreateControlHostBehavior(this);
+						break;
+					case BehaviorType.LinkedControls:
+						selection.Clear();
+						currentBehavior = new ControlHostBehavior(this);
+						break;
+					case BehaviorType.Custom:
+						selection.Clear();
+						currentBehavior = customBehavior == null ?
+							new FlowChartBehavior(this) : customBehavior;
+						break;
+				}
+			}
+		}
+
+		internal Behavior getCurrBehavior()
+		{
+			return currentBehavior;
+		}
+
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public Behavior CustomBehavior
+		{
+			get { return customBehavior; }
+
+			set
+			{
+				customBehavior = value;
+				if (customBehavior != null)
+				{
+					currentBehavior = customBehavior;
+					behavior = BehaviorType.Custom;
+				}
+				else
+				{
+					Behavior = BehaviorType.FlowChart;
+				}
+			}
+		}
+
+		private Behavior currentBehavior;
+		private Behavior customBehavior;
+		private BehaviorType behavior;
+
+		/// <summary>
+		/// Enable/disable reflexive links creation
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("Enables or disables creation of reflexive links.")]
+		public bool AllowRefLinks
+		{
+			get
+			{
+				return allowRefLinks;
+			}
+			set
+			{
+				if (allowRefLinks != value)
+				{
+					allowRefLinks = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool allowRefLinks;
+
+		/// <summary>
+		/// Default for the Route property of new arrows
+		/// </summary>
+		[Category("Routing")]
+		[DefaultValue(false)]
+		[Description("Initial value of the AutoRoute property of arrows.")]
+		public bool RouteArrows
+		{
+			get
+			{
+				return routeArrows;
+			}
+			set
+			{
+				if (routeArrows != value)
+				{
+					routeArrows = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool routeArrows;
+
+		/// <summary>
+		/// Settings for the link routing algorithm.
+		/// </summary>
+		[Category("Routing")]
+		[Description("Settings for the link routing algorithm.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[TypeConverter(typeof(ExpandableObjectConverter))]
+		public RoutingOptions RoutingOptions
+		{
+			get
+			{
+				return routingOptions;
+			}
+		}
+
+		private RoutingOptions routingOptions;
+
+		/// <summary>
+		/// A RoutingGrid instance used to allocate grid arrays
+		/// </summary>
+		internal RoutingGrid RoutingGrid
+		{
+			get
+			{
+				return routingGrid;
+			}
+		}
+
+		private RoutingGrid routingGrid;
+
+		/// <summary>
+		/// Determines whether a link must be rerouted.
+		/// </summary>
+		internal bool rerouteArrow(Arrow arrow)
+		{
+			if (routingOptions.TriggerRerouting == RerouteArrows.WhenModified) return true;
+			if (routingOptions.TriggerRerouting == RerouteArrows.Never) return false;
+
+			RectangleF arrowRect = arrow.BoundingRect;
+			for (int j = 0; j < zOrder.Count; ++j)
+			{
+				if (zOrder[j] is Node)
+				{
+					Node node = zOrder[j] as Node;
+					if (node == arrow.Origin || node == arrow.Destination)
+						continue;
+					RectangleF rect = node.getRotatedBounds();
+					if (arrowRect.IntersectsWith(rect))
+					{
+						if (arrow.Intersects(node))
+							return true;
+
+					}	// if (arrowRect.IntersectsWith(rect))
+
+				}	// if (zOrder[j] is Node)
+
+			}	// for (int j = 0; j < zOrder.Count; ++j)
+
+			return false;
+		}
+
+		/// <summary>
+		/// Reroutes all links.
+		/// </summary>
+		internal void routeAllArrows(ChartObject modified)
+		{
+			Node node = modified as Node;
+			if (node != null && !node.Obstacle)
+				return;
+
+			undoManager.onStartRoute();
+
+			RectangleF objRect = modified.getRotatedBounds();
+			RectangleF invalid = objRect;
+			if (routingOptions.TriggerRerouting == RerouteArrows.WhenModified || node == null)
+			{
+				foreach (Arrow arrow in arrows)
+				{
+					if (!arrow.AutoRoute) continue;
+
+					RectangleF arrowRect = arrow.getBoundingRect();
+					if (arrowRect.IntersectsWith(objRect))
+					{
+						invalid = Utilities.unionRects(invalid, arrowRect);
+						undoManager.onRouteArrow(arrow);
+						arrow.doRoute();
+						invalid = Utilities.unionRects(invalid, arrow.getBoundingRect());
+					}
+				}
+			}
+			else
+			{
+				foreach (Arrow arrow in arrows)
+				{
+					if (rerouteArrow(arrow))
+					{
+						invalid = Utilities.unionRects(invalid, arrow.getRepaintRect(false));
+						undoManager.onRouteArrow(arrow);
+						arrow.doRoute();
+						invalid = Utilities.unionRects(invalid, arrow.getBoundingRect());
+					}
+				}
+			}
+
+			undoManager.onEndRoute();
+			invalidate(invalid);
+		}
+
+		/// <summary>
+		/// Performs routing on all arrows ignoring their AutoRoute flag.
+		/// </summary>
+		public void RouteAllArrows()
+		{
+			foreach (Arrow a in arrows)
+			{
+				bool wasAutoRoute = a.AutoRoute;
+
+				a.SilentAutoRoute = true;
+				a.doRoute();
+				a.SilentAutoRoute = wasAutoRoute;
+			}
+
+			Invalidate();
+		}
+
+		/// <summary>
+		/// Used to disable routing during load time and when automatic
+		/// layout routines run.
+		/// </summary>
+		internal bool DontRouteForAwhile
+		{
+			get { return dontRouteForAwhile; }
+			set { dontRouteForAwhile = value; }
+		}
+
+		private bool dontRouteForAwhile;
+
+		#endregion
+
+		#region scrolling and zooming
+
+		[Category("Appearance")]
+		[DefaultValue(true)]
+		[Description("Specifies whether scrollbars are visible.")]
+		public bool ShowScrollbars
+		{
+			get { return hScrollBar != null; }
+			set
+			{
+				if (value)
+				{
+					if (hScrollBar != null)
+						Controls.Remove(hScrollBar);
+					if (vScrollBar != null)
+						Controls.Remove(vScrollBar);
+
+					vScrollBar = new VScrollBar();
+					vScrollBar.Dock = DockStyle.Right;
+					vScrollBar.Scroll += new ScrollEventHandler(ScrollEvent);
+					Controls.Add(vScrollBar);
+
+					hScrollBar = new HScrollBar();
+					hScrollBar.Dock = DockStyle.Bottom;
+					hScrollBar.Scroll += new ScrollEventHandler(ScrollEvent);
+					Controls.Add(hScrollBar);
+				}
+				else
+				{
+					if (hScrollBar != null) Controls.Remove(hScrollBar);
+					if (vScrollBar != null) Controls.Remove(vScrollBar);
+					hScrollBar = null;
+					vScrollBar = null;
+				}
+			}
+		}
+
+		[Category("Layout")]
+		public RectangleF DocExtents
+		{
+			get { return docExtents; }
+			set
+			{
+				if (!docExtents.Equals(value))
+				{
+					docExtents = value;
+					docExtentsMin = value;
+
+					resetDocSize();
+					updateHostedControlsPos();
+				}
+			}
+		}
+
+		private void resetDocSize()
+		{
+			if (ScrollX < docExtents.Left || ScrollX > docExtents.Right)
+				ScrollX = docExtents.Left;
+			if (ScrollY < docExtents.Top || ScrollY > docExtents.Bottom)
+				ScrollY = docExtents.Top;
+			if (ShowScrollbars)
+				resetScrollbars();
+
+			if (DocExtentsChanged != null)
+				DocExtentsChanged(this, new EventArgs());
+		}
+
+		private void resetScrollbars()
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+			RectangleF vsblDoc = Utilities.deviceToDoc(g, ClientRectangle);
+			g.Dispose();
+
+			hScrollBar.Minimum = (int)docExtents.Left;
+			hScrollBar.Maximum = (int)docExtents.Right;
+			hScrollBar.Value = Math.Max(hScrollBar.Minimum, (int)ScrollX);
+			hScrollBar.LargeChange = (int)vsblDoc.Width;
+			hScrollBar.Visible = hScrollBar.LargeChange <
+				hScrollBar.Maximum - hScrollBar.Minimum;
+			if (!hScrollBar.Visible)
+				setScrollX(docExtents.Left);
+
+			vScrollBar.Minimum = (int)docExtents.Top;
+			vScrollBar.Maximum = (int)docExtents.Bottom;
+			vScrollBar.Value = Math.Max(vScrollBar.Minimum, (int)ScrollY);
+			vScrollBar.LargeChange = (int)vsblDoc.Height;
+			vScrollBar.Visible = vScrollBar.LargeChange <
+				vScrollBar.Maximum - vScrollBar.Minimum;
+			if (!vScrollBar.Visible)
+				setScrollY(docExtents.Top);
+		}
+
+		private RectangleF docExtents;
+		private RectangleF docExtentsMin;
 
 		public VScrollBar VScrollBar
 		{
@@ -564,6 +4783,466 @@ namespace MindFusion.FlowChartX
 				setScrollX((float)e.NewValue);
 			if (sender == vScrollBar)
 				setScrollY((float)e.NewValue);
+		}
+
+		/// <summary>
+		/// Automatically scroll when dragging the mouse outside the visible area
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(true)]
+		[Description("Enables automatic scrolling when the mouse is dragged outside the document boundaries.")]
+		public bool AutoScroll
+		{
+			get
+			{
+				return autoScroll;
+			}
+			set
+			{
+				if (autoScroll != value)
+				{
+					autoScroll = value;
+					if (scrollTimer != null)
+					{
+						scrollTimer.Enabled = false;
+						scrollTimer = null;
+					}
+					setDirty();
+				}
+			}
+		}
+
+		private bool autoScroll;
+		private float autoScrDX;
+		private float autoScrDY;
+
+		private void checkAutoScroll(MouseEventArgs args)
+		{
+			Point ptDev = new Point(args.X, args.Y);
+
+			if (!Utilities.pointInRect(ptDev, ClientRectangle))
+			{
+				autoScrDX = autoScrDY = 0;
+				if (ptDev.X < ClientRectangle.Left) autoScrDX = -Constants.getAutoScroll(measureUnit);
+				if (ptDev.Y < ClientRectangle.Top) autoScrDY = -Constants.getAutoScroll(measureUnit);
+				if (ptDev.X > ClientRectangle.Right) autoScrDX = Constants.getAutoScroll(measureUnit);
+				if (ptDev.Y > ClientRectangle.Bottom) autoScrDY = Constants.getAutoScroll(measureUnit);
+
+				onAutoScrollTimer(this, null);
+				if (scrollTimer == null)
+				{
+					scrollTimer = new Timer();
+					scrollTimer.Interval = 100;
+					scrollTimer.Tick += new EventHandler(onAutoScrollTimer);
+					scrollTimer.Enabled = true;
+				}
+			}
+			else
+			{
+				if (scrollTimer != null)
+				{
+					scrollTimer.Enabled = false;
+					Invalidate();
+				}
+				scrollTimer = null;
+			}
+		}
+
+		private Timer scrollTimer = null;
+
+		private void scrollStayInDoc(float scrX, float scrY, RectangleF rcPage)
+		{
+			// ensure that the scroll position is inside the document
+			if (scrX < docExtents.Left) scrX = docExtents.Left;
+			if (scrX > docExtents.Right - rcPage.Width)
+				scrX = Math.Max(docExtents.Right - rcPage.Width, docExtents.Left);
+
+			if (scrY < docExtents.Top) scrY = docExtents.Top;
+			if (scrY > docExtents.Bottom - rcPage.Height)
+				scrY = Math.Max(docExtents.Bottom - rcPage.Height, docExtents.Top);
+
+			// scroll to the new position
+			ScrollTo(scrX, scrY);
+		}
+
+		private void onAutoScrollTimer(Object obj, EventArgs args)
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+
+			RectangleF rcPage = Utilities.deviceToDoc(g, ClientRectangle);
+
+			float scrX=ScrollX, scrY=ScrollY;
+			if (rcPage.Width < docExtents.Width)
+				scrX = ScrollX + autoScrDX;
+			if (rcPage.Height < docExtents.Height)
+				scrY = ScrollY + autoScrDY;
+
+			scrollStayInDoc(scrX, scrY, rcPage);
+
+			// redraw the control
+			drawFlowChart(docBuffer, ClientRectangle, true);
+			Invalidate();
+
+			// update the modified object position
+			if (interaction != null)
+			{
+				// get the current mouse position in document coordinates
+				Point ptDev = PointToClient(Control.MousePosition);
+				PointF ptDoc = Utilities.deviceToDoc(g, ptDev.X, ptDev.Y);
+
+				redrawNonModified = false;
+				mouseMoved = true;
+				interaction.update(ptDoc, this);
+
+				// update document size if needed
+				if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
+					sizeDocForItem(interaction.CurrentObject);
+
+				if (redrawNonModified)
+				{
+					drawFlowChart(docBuffer, ClientRectangle, true);
+					Invalidate();
+					redrawNonModified = false;
+				}
+			}
+
+			g.Dispose();
+		}
+
+		/// <summary>
+		/// Gets the client coordinates of a document point
+		/// </summary>
+		public Point DocToClient(PointF docPt)
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+			Point clientPt = Utilities.docToDevice(g, docPt);
+			g.Dispose();
+			return clientPt;
+		}
+
+		/// <summary>
+		/// Gets the client coordinates of a document rectangle
+		/// </summary>
+		public Rectangle DocToClient(RectangleF docRect)
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+			Rectangle clientRect = Utilities.docToDevice(g, docRect);
+			g.Dispose();
+			return clientRect;
+		}
+
+		/// <summary>
+		/// Gets the document coordinates of a client point
+		/// </summary>
+		public PointF ClientToDoc(Point clientPt)
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+			PointF docPt = Utilities.deviceToDoc(g, clientPt.X, clientPt.Y);
+			g.Dispose();
+			return docPt;
+		}
+
+		/// <summary>
+		/// Gets the document coordinates of a client rectangle
+		/// </summary>
+		public RectangleF ClientToDoc(Rectangle clientRect)
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+			RectangleF docRect = Utilities.deviceToDoc(g, clientRect);
+			g.Dispose();
+			return docRect;
+		}
+
+		public void BringIntoView(ChartObject obj)
+		{
+			if (obj != null)
+			{
+				// get the currently visible document area
+				Graphics g = CreateGraphics();
+				setTransforms(g);
+				RectangleF rcClient = Utilities.deviceToDoc(g, this.ClientRectangle);
+
+				// check if the objects is entirely in the visible area
+				RectangleF rcObj = obj.getRepaintRect(false);
+				if (rcObj.Left < rcClient.Left || rcObj.Right > rcClient.Right ||
+					rcObj.Top < rcClient.Top || rcObj.Bottom > rcClient.Bottom)
+				{
+					// scroll to center the object in the visible area
+					float cx = (rcObj.Left + rcObj.Right - rcClient.Width) / 2;
+					float cy = (rcObj.Top + rcObj.Bottom - rcClient.Height) / 2;
+					if (cx < docExtents.Left)
+						cx = docExtents.Left; else
+						if (cx > docExtents.Right - rcClient.Width)
+						cx = docExtents.Right - rcClient.Width;
+					if (cy < docExtents.Top)
+						cy = docExtents.Top; else
+						if (cy > docExtents.Bottom - rcClient.Height)
+						cy = docExtents.Bottom - rcClient.Height;
+					ScrollTo(cx, cy);
+				}
+			}
+		}
+
+		protected override void OnLayout(LayoutEventArgs e)
+		{
+			if (hScrollBar != null && vScrollBar != null)
+			{
+				resetScrollbars();
+				base.OnLayout(e);
+				hScrollBar.Width -= vScrollBar.Width;
+			}
+			else
+			{
+				base.OnLayout(e);
+			}
+		}
+
+		internal RectangleF getDocRect(Rectangle rcDev)
+		{
+			Graphics g = CreateGraphics();
+			setTransforms(g);
+
+			RectangleF result = Utilities.deviceToDoc(g, rcDev);
+			g.Dispose();
+			return result;
+		}
+
+		private void updateHostedControlsPos()
+		{
+			if (!loading)
+			{
+				foreach (ChartObject obj in zOrder)
+				{
+					if (obj.getType() == ItemType.ControlHost)
+						((ControlHost)obj).updateControlPosition();
+				}
+			}
+		}
+
+		/// <summary>
+		/// The document horizontal scroll position
+		/// </summary>
+		[Category("Layout")]
+		[DefaultValue(0.0f)]
+		public float ScrollX
+		{
+			get
+			{
+				return scrollX;
+			}
+			set
+			{
+				if (scrollX != value)
+				{
+					setScrollX(value);
+					if (hScrollBar != null)
+					{
+						if (scrollX >= hScrollBar.Minimum &&
+							scrollX <= hScrollBar.Maximum)
+							hScrollBar.Value = (int)scrollX;
+					}
+				}
+			}
+		}
+
+		void setScrollX(float scr)
+		{
+			scrollX = scr;
+			Invalidate();
+			updateHostedControlsPos();
+
+			if (ScrollChanged != null)
+				ScrollChanged(this, new EventArgs());
+		}
+
+		void setScrollY(float scr)
+		{
+			scrollY = scr;
+			Invalidate();
+			updateHostedControlsPos();
+
+			if (ScrollChanged != null)
+				ScrollChanged(this, new EventArgs());
+		}
+
+		private float scrollX;
+
+		/// <summary>
+		/// The document vertical scroll position
+		/// </summary>
+		[Category("Layout")]
+		[DefaultValue(0.0f)]
+		public float ScrollY
+		{
+			get
+			{
+				return scrollY;
+			}
+			set
+			{
+				if (scrollY != value)
+				{
+					setScrollY(value);
+					if (vScrollBar != null)
+					{
+						if (scrollY >= vScrollBar.Minimum &&
+							scrollY <= vScrollBar.Maximum)
+							vScrollBar.Value = (int)scrollY;
+					}
+				}
+			}
+		}
+
+		private float scrollY;
+
+		/// <summary>
+		/// Scrolls the document
+		/// </summary>
+		public void ScrollTo(float x, float y)
+		{
+			ScrollX = x;
+			ScrollY = y;
+		}
+
+		/// <summary>
+		/// The zoom factor
+		/// </summary>
+		[Category("Layout")]
+		[DefaultValue(100.0f)]
+		public float ZoomFactor
+		{
+			get
+			{
+				return zoomFactor;
+			}
+			set
+			{
+				if (zoomFactor == value)
+					return;
+
+				zoomFactor = value;
+				if (zoomFactor < 1)
+					zoomFactor = 1;
+				if (zoomFactor > 1500)
+					zoomFactor = 1500;
+
+				Invalidate();
+				setDirty();
+				updateHostedControlsPos();
+				if (ShowScrollbars)
+					resetScrollbars();
+			
+				if (ZoomFactorChanged != null)
+					ZoomFactorChanged(this, new EventArgs());
+			}
+		}
+
+		private float zoomFactor;
+
+		/// <summary>
+		/// Increases the zoom factor
+		/// </summary>
+		public void ZoomIn()
+		{
+			if (ZoomFactor < 10)
+				ZoomFactor += 1;
+			else if (ZoomFactor < 20)
+				ZoomFactor += 5;
+			else
+				ZoomFactor += 10;
+		}
+
+		/// <summary>
+		/// Decreases the zoom factor
+		/// </summary>
+		public void ZoomOut()
+		{
+			if (ZoomFactor > 20)
+				ZoomFactor -= 10;
+			else if (ZoomFactor > 10)
+				ZoomFactor -= 5;
+			else
+				ZoomFactor -= 1;
+		}
+
+		public void ZoomToFit()
+		{
+			RectangleF rcCnt = getContentRect(false, true);
+			zoomToRect(rcCnt, 2);
+		}
+
+		void zoomToRect(RectangleF rc, int zoomDecrease)
+		{
+			Graphics g = CreateGraphics();
+			g.PageUnit = measureUnit;
+			RectangleF ctrlRect = Utilities.deviceToDoc(g, ClientRectangle);
+			g.Dispose();
+
+			float ctrlWidth = ctrlRect.Width;
+			float ctrlHeight = ctrlRect.Height;
+			float cntWidth = rc.Width;
+			float cntHeight = rc.Height;
+
+			if (ctrlWidth > 0 && ctrlHeight > 0 && cntWidth > 0 && cntHeight > 0)
+			{
+				float rx = cntWidth / ctrlWidth;
+				float ry = cntHeight / ctrlHeight;
+				float ratio = Math.Max(rx, ry);
+
+				ScrollTo(rc.X, rc.Y);
+				float newZoom = 100.0f / ratio;
+				if (newZoom > 10)
+					newZoom -= zoomDecrease;
+				ZoomFactor = newZoom;
+			}
+		}
+
+		public void ZoomToRect(RectangleF rect)
+		{
+			zoomToRect(rect, 0);
+		}
+
+		internal RectangleF getContentRect(bool forPrint, bool onlyVisible)
+		{
+			RectangleF rcUnion = new RectangleF(0, 0, 0, 0);
+
+			foreach (ChartObject item in zOrder)
+			{
+				if (onlyVisible && !item.Visible) continue;
+				if (forPrint && !item.Printable) continue;
+
+				RectangleF itemRect = item.getRepaintRect(false);
+				rcUnion = Utilities.unionNonEmptyRects(rcUnion, itemRect);
+			}
+
+			if (forPrint)
+			{
+				rcUnion = RectangleF.FromLTRB(DocExtents.Left, DocExtents.Top,
+					Math.Max(rcUnion.Right, DocExtents.Left),
+					Math.Max(rcUnion.Bottom, DocExtents.Top));
+			}
+
+			return rcUnion;
+		}
+
+		public void FitDocToObjects(float borderGap)
+		{
+			FitDocToObjects(borderGap, false);
+		}
+
+		public void FitDocToObjects(float borderGap, bool onlyVisible)
+		{
+			if (zOrder.Count > 0)
+			{
+				RectangleF rcDoc = getContentRect(false, onlyVisible);
+				rcDoc.Inflate(borderGap, borderGap);
+				DocExtents = rcDoc;
+			}
 		}
 
 		#endregion
@@ -1181,6 +5860,10 @@ namespace MindFusion.FlowChartX
 			if (tagSerializable)
 				ctx.saveTag(Tag);
 
+			// new in save format 27
+			ctx.writer.Write(roundedArrows);
+			ctx.writer.Write(roundedArrowsRadius);
+
 			// write the chart objects
 			ctx.writeReferencedObjects();
 
@@ -1298,6 +5981,13 @@ namespace MindFusion.FlowChartX
 														bool tagAvailable = ctx.reader.ReadBoolean();
 														if (tagAvailable)
 															Tag = ctx.loadTag();
+
+														if (ctx.FileVersion > 26)
+														{
+															// new in save format 27
+															roundedArrows = ctx.reader.ReadBoolean();
+															roundedArrowsRadius = ctx.reader.ReadSingle();
+														}
 													}
 												}
 											}
@@ -1362,117 +6052,121 @@ namespace MindFusion.FlowChartX
 			return res;
 		}
 
+		public virtual IPersists createObj(int clsId)
+		{
+			switch (clsId)
+			{
+				case 2:
+					return new Arrow(this);
+				case 3:
+					return new Box(this);
+				case 4:
+					return new Table(this);
+				case 6:
+					return new BoxLink();
+				case 7:
+					return new TableLink();
+				case 8:
+					return new Selection(this);
+				case 9:
+					return new Group(this);
+				case 10:
+					return new ArrowCollection();
+				case 11:
+					return new Attachment();
+				case 12:
+					return new BoxCollection();
+				case 13:
+					return new ChartObjectCollection();
+				case 14:
+					return new GroupCollection();
+				case 15:
+					return new PointCollection(0);
+				case 16:
+					return new TableCollection();
+				case 17:
+					return new DocInfoVer1();
+				case 18:
+					return new DocInfoVer2();
+				case 20:
+					return new Table.Cell();
+				case 21:
+					return new Table.CellCollection();
+				case 22:
+					return new Table.Row();
+				case 23:
+					return new Table.RowCollection();
+				case 24:
+					return new Table.Column();
+				case 25:
+					return new Table.ColumnCollection();
+				case 26:
+					return new ShapeTemplate(null, FillMode.Winding);
+				case 27:
+					return new ShapeTemplate.PathData(1);
+				case 28:
+					return new ArcTemplate(0, 0, 0, 0, 0, 0);
+				case 29:
+					return new BezierTemplate(0, 0, 0, 0, 0, 0, 0, 0);
+				case 30:
+					return new LineTemplate(0, 0, 0, 0);
+				case 31:
+					return new Pen(Color.Black);
+				case 32:
+					return new HatchBrush(HatchStyle.BackwardDiagonal, Color.Black);
+				case 33:
+					return new LinearGradientBrush(Color.Black, Color.Black);
+				case 34:
+					return new SolidBrush(Color.Black);
+				case 35:
+					return new TextureBrush((Image)null);
+				case 36:
+					return new AnchorPoint(0, 0);
+				case 37:
+					return new AnchorPointCollection();
+				case 38:
+					return new AnchorPattern();
+				case 39:
+					return new ControlHost(this);
+				case 40:
+					return new ControlHostLink();
+				case 41:
+					return new ControlHostCollection();
+				case 42:
+					return new DummyLink(null, true, new PointF(0, 0));
+				case 43:
+					return new NodeConstraints();
+				default:
+					throw new Exception("shouldn't get here");
+			}
+		}
+
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public bool Dirty
+		{
+			get { return dirty; }
+			set
+			{
+				if (dirty != value)
+				{
+					dirty = value;
+					if (DirtyChanged != null)
+						DirtyChanged(this, new EventArgs());
+				}
+			}
+		}
+
+		internal void setDirty()
+		{
+			Dirty = true;
+		}
+
+		private bool dirty;
+
 		#endregion
 
-		#region document structure
-
-		private void addToObjColl(ChartObject obj)
-		{
-			switch (obj.getType())
-			{
-				case ItemType.Box:
-					boxes.Add((Box)obj);
-					break;
-				case ItemType.ControlHost:
-					controlHosts.Add((ControlHost)obj);
-					break;
-				case ItemType.Table:
-					tables.Add((Table)obj);
-					break;
-				case ItemType.Arrow:
-					arrows.Add((Arrow)obj);
-					break;
-			}
-		}
-
-		internal void addItem(ChartObject item)
-		{
-			Arrow arrow = item as Arrow;
-			if (arrow != null)
-				arrow.updateNodeCollections();
-
-			addToObjColl(item);
-			zOrder.Add(item);
-			updateZOrder(zOrder.Count - 1);
-
-			item.onAdd();
-
-			// update document size if needed
-			if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
-				sizeDocForItem(item);
-		}
-
-		internal void removeItem(ChartObject item)
-		{
-			selection.RemoveObject(item);
-			if (item == autoHandlesObj) autoHandlesObj = null;
-			if (item == autoAnchorsObj) autoAnchorsObj = null;
-
-			switch (item.getType())
-			{
-				case ItemType.Box:
-					boxes.Remove((Box)item);
-					break;
-				case ItemType.ControlHost:
-					controlHosts.Remove((ControlHost)item);
-					break;
-				case ItemType.Table:
-					tables.Remove((Table)item);
-					break;
-				case ItemType.Arrow:
-					arrows.Remove((Arrow)item);
-					break;
-			}
-
-			removeFromZOrder(item);
-
-			MethodCallVisitor visitor =
-				new MethodCallVisitor(new VisitOperation(removeFromSelection));
-
-			switch (item.getType())
-			{
-				case ItemType.ControlHost:
-				{
-					ControlHost host = (ControlHost)item;
-					host.visitArrows(visitor);
-					host.deleteArrows();
-				}
-				break;
-				case ItemType.Box:
-				{
-					Box box = (Box)item;
-					box.visitArrows(visitor);
-					box.deleteArrows();
-				}
-				break;
-				case ItemType.Table:
-				{
-					Table table = (Table)item;
-					table.visitArrows(visitor);
-					table.deleteArrows();
-				}
-				break;
-				case ItemType.Arrow:
-				{
-					Arrow arrow = (Arrow)item;
-					arrow.resetCrossings();
-					arrow.getDestLink().removeArrowFromObj();
-					arrow.getOrgnLink().removeArrowFromObj();
-				}
-				break;
-			}
-
-			item.onRemove();
-
-			// update document size if needed
-			if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
-				sizeDocForItems();
-		}
-
-		#endregion
-
-
-		#region clipboard
+		#region clipboard support
 
 		/// <summary>
 		/// Copies the current selection of items to the clipboard.
@@ -1770,1456 +6464,571 @@ namespace MindFusion.FlowChartX
 
 		#endregion
 
-
-		#region user input
-
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			base.OnKeyDown(e);
-
-			if (!Enabled) return;
-
-			userAction = true;
-			switch (e.KeyCode)
-			{
-				case Keys.Delete:
-					// do not delete anything while creating or modifying
-					// otherwise delete the active selected object
-					if (interaction == null && activeObject != null &&
-						!activeObject.Locked && confirmDelete(activeObject))
-					{
-						DeleteObject(activeObject);
-					}
-					break;
-			}
-			userAction = false;
-		}
-
-		bool[] buttonDown = new bool[] { false, false, false };
-		Point[] downPos = new Point[] { new Point(0, 0), new Point(0, 0), new Point(0, 0) };
-
-		private int btnNum(MouseButtons btn)
-		{
-			if (btn == MouseButtons.Left)
-				return 0;
-
-			if (btn == MouseButtons.Right)
-				return 2;
-
-			return 1;
-		}
-
-		internal void RaiseMouseDown(MouseEventArgs e)
-		{
-			OnMouseDown(e);
-		}
-
-		protected override void OnLostFocus(EventArgs e)
-		{
-			base.OnLostFocus(e);
-
-			focusLost = true;
-		}
-
-		private bool focusLost = false;
+		#region default values
 
 		/// <summary>
-		/// Creates a back-buffer bitmap used for double-buffered drawing of diagrams.
+		/// Default number of rows for new tables
 		/// </summary>
-		private Bitmap createBackBuffer(Rectangle rect, Graphics compatible)
+		[Category("Defaults")]
+		[DefaultValue(4)]
+		[Description("Initial number of rows in new tables.")]
+		public int TableRowCount
 		{
-			Bitmap backBmp = new Bitmap(rect.Width, rect.Height, compatible);
-			/*
-			if (backBmp != null)
+			get
 			{
-				Graphics backGrfx = Graphics.FromImage(backBmp);
-				backGrfx.Clear(BackColor);
-				backGrfx.Dispose();
+				return tableRowsCount;
 			}
-			*/
-
-			return backBmp;
-		}
-
-		protected override void OnMouseDown(MouseEventArgs e)
-		{
-			if (Enabled)
-				try { this.Focus(); } 
-				catch (SecurityException) {};
-			focusLost = false;
-
-			endInplaceEdit(true);
-			base.OnMouseDown(e);
-
-			if (!Enabled) return;
-			if (focusLost) return;
-
-			// get mouse position in document coordinates
-			Graphics g = this.CreateGraphics();
-			setTransforms(g);
-			PointF ptMousePos = Utilities.deviceToDoc(g, e.X, e.Y);
-			g.Dispose();
-
-			if (manipulatorEnacted(ptMousePos)) return;
-
-			if (e.Clicks > 1)
-			{
-				ChartObject objUnderMouse = GetObjectAt(ptMousePos, false);
-				if (objUnderMouse != null)
-				{
-					fireDblClickedEvent(objUnderMouse, ptMousePos, e.Button);
-				}
-				else
-				{
-					if (DocDblClicked != null)
-					{
-						DocDblClicked(this, new MousePosArgs(
-							e.Button, ptMousePos.X, ptMousePos.Y));
-					}
-				}
-
-				if (this.Capture)
-				{
-					this.Capture = false;
-					if (docBuffer != null)
-					{
-						docBuffer.Dispose();
-						docBuffer = null;
-					}
-
-					interaction = null;
-				}
-
-				return;
-			}
-
-			int btn = btnNum(e.Button);
-			buttonDown[btn] = true;
-			downPos[btn] = new Point(e.X, e.Y);
-			ptStartDragDev = new Point(e.X, e.Y);
-
-			// enter pan mode if ALT is pressed ...
-			panMode = (_modifierKeyActions.GetKeys(ModifierKeyAction.Pan) & ModifierKeys) != 0 && e.Button == MouseButtons.Left;
-			if (panMode)
-			{
-				try { Capture = true; } 
-				catch (SecurityException) {};
-				panPoint = new PointF(ScrollX, ScrollY);
-				return;
-			}
-			
-			// or start drawing - we care only for left-button clicks
-			if (e.Button == MouseButtons.Left && Behavior != BehaviorType.DoNothing)
-			{
-				userAction = true;
-
-				// get mouse position in document coordinates
-				g = this.CreateGraphics();
-				setTransforms(g);
-				ptStartDrag = Utilities.deviceToDoc(g, e.X, e.Y);
-
-				// start dragging
-				try {this.Capture = true; } 
-				catch (SecurityException) {};
-				mouseMoved = false;
-
-				// create or modify an item
-				interaction = currentBehavior.startDraw(ptStartDrag, g);
-				interaction.start(ptStartDrag, this);
-
-				// save the control background
-				docBuffer = createBackBuffer(ClientRectangle, g);
-				drawFlowChart(docBuffer, ClientRectangle, true);
-
-				// cleanup
-				g.Dispose();
-				userAction = false;
-			}
-		}
-
-		protected override void OnMouseMove(MouseEventArgs e)
-		{
-			base.OnMouseMove(e);
-			if (!Enabled) return;
-
-			if (panMode)
-			{
-				Point ptDev = new Point(e.X, e.Y);
-				int dx = ptDev.X - ptStartDragDev.X;
-				int dy = ptDev.Y - ptStartDragDev.Y;
-
-				Graphics gp = this.CreateGraphics();
-				gp.ResetTransform();
-				gp.PageUnit = measureUnit;
-				gp.PageScale = zoomFactor / 100F;
-				PointF diff = Utilities.deviceToDoc(gp, dx, dy);
-				RectangleF rcPage = Utilities.deviceToDoc(gp, ClientRectangle);
-				gp.Dispose();
-
-				float sx = panPoint.X - diff.X;
-				float sy = panPoint.Y - diff.Y;
-				scrollStayInDoc(sx, sy, rcPage);
-				return;
-			}
-
-			// get mouse position in document coordinates
-			Graphics g = this.CreateGraphics();
-			setTransforms(g);
-			PointF ptCurr = Utilities.deviceToDoc(g, e.X, e.Y);
-
-			if (interaction != null && Behavior != BehaviorType.DoNothing &&
-				this.Capture && buttonDown[0])
-			{
-				if (autoScroll) checkAutoScroll(e);
-
-				// for easier selection check if distance the mouse moved is not too small
-				if (Math.Abs(ptStartDragDev.X - e.X) > 2 || 
-					Math.Abs(ptStartDragDev.Y - e.Y) > 2)
-					mouseMoved = true;
-
-				// prepare for drawing
-				Bitmap tempBuffer = createBackBuffer(ClientRectangle, g);
-				Graphics tg = Graphics.FromImage(tempBuffer);
-				tg.SmoothingMode = antiAlias;
-
-				// update the item position
-				redrawNonModified = false;
-				bool redrawBack = interaction.update(ptCurr, this);
-				if (redrawBack || redrawNonModified)
-				{
-					drawFlowChart(docBuffer, ClientRectangle, true);
-					redrawNonModified = false;
-				}
-
-				// update document size if needed
-				if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
-					sizeDocForItem(interaction.CurrentObject);
-
-				// paint the invalid rect
-				RectangleF rcInvDoc = interaction.InvalidRect;
-				Rectangle rcInvDev = Utilities.docToDevice(g, rcInvDoc);
-				rcInvDev.Inflate(2, 2);
-				rcInvDev.Intersect(ClientRectangle);
-				if (forceCacheRedraw)
-				{
-					rcInvDev = ClientRectangle;
-					forceCacheRedraw = false;
-				}
-				tg.DrawImage(docBuffer, rcInvDev, rcInvDev, GraphicsUnit.Pixel);
-
-				// redraw the items
-				setTransforms(tg);
-				if (!selectionOnTop)
-				{
-					// all items must be repainted in order to
-					// preserve their Z order appearance
-					drawAllItems(tg, rcInvDoc);
-
-					// item being created
-					if (interaction.Action == Action.Create && interaction.CurrentObject != null)
-					{
-						if (interaction.CurrentObject != selection)
-						{
-							if (shadowsStyle != ShadowsStyle.None)
-								drawObjectWithShadow(tg, interaction.CurrentObject, false);
-							else
-								drawObject(tg, interaction.CurrentObject, false);
-						}
-						else
-						{
-							selection.Draw(tg, false);
-						}
-					}
-				}
-				else
-				{
-					// items that aren't being modified are already painted in the
-					// back buffer; now repaint only the items being modified
-					if (interaction.CurrentObject != selection)
-					{
-						if (shadowsStyle != ShadowsStyle.None)
-							drawObjectWithShadow(tg, interaction.CurrentObject, interaction.Action == Action.Modify);
-						else
-							drawObject(tg, interaction.CurrentObject, interaction.Action == Action.Modify);
-					}
-					else
-					{
-						// draw selection
-						PainterVisitor painter = new PainterVisitor(tg, false);
-						selection.visitHierarchy(painter);
-						selection.Draw(tg, false);
-					}
-				}
-
-				if (interaction.Action == Action.Modify && showHandlesOnDrag)
-					interaction.CurrentObject.drawSelHandles(tg, ActiveMnpColor);
-				if ((showAnchors & ShowAnchors.Auto) != 0 && autoAnchorsObj != null)
-					autoAnchorsObj.drawAnchors(tg);
-
-				// blit offscreen to screen
-				unsetTransforms(g);
-				Rectangle clr = ClientRectangle;
-				if (hScrollBar != null && hScrollBar.Visible)
-					clr.Height -= hScrollBar.Height;
-				if (vScrollBar != null && vScrollBar.Visible)
-					clr.Width -= vScrollBar.Width;
-				rcInvDev.Intersect(clr);
-				g.DrawImage(tempBuffer, rcInvDev, rcInvDev, GraphicsUnit.Pixel);
-
-				// clean up
-				tg.Dispose();
-				tempBuffer.Dispose();
-			}
-			else // not dragging
-			{
-				if ((showAnchors & ShowAnchors.Auto) != 0)
-					drawAutoAnchors(g, ptCurr);
-				if (modificationStart == ModificationStyle.AutoHandles)
-					drawAutoHandles(g, ptCurr);
-				currentBehavior.SetMouseCursor(ptCurr);
-				setTooltipText(ptCurr);
-			}
-
-			// clean up
-			g.Dispose();
-		}
-
-		protected override void OnMouseUp(MouseEventArgs e)
-		{
-			base.OnMouseUp(e);
-
-			// stop autoscrolling
-			if (scrollTimer != null)
-			{
-				scrollTimer.Enabled = false;
-				scrollTimer = null;
-			}
-
-			// stop pan mode if it's active now
-			if (panMode)
-			{
-				panMode = buttonDown[0] = mouseMoved = false;
-				if (Capture) Capture = false;
-				return;
-			}
-
-			if (!Enabled) return;
-			userAction = true;
-
-			Graphics g = this.CreateGraphics();
-			setTransforms(g);
-
-			// get mouse position in document coordinates
-			PointF ptCurr = Utilities.deviceToDoc(g, e.X, e.Y);
-			PointF ptMousePos = ptCurr;
-
-			if (interaction != null && Behavior != BehaviorType.DoNothing &&
-				this.Capture && buttonDown[0])
-			{
-				ChartObject currObject = interaction.CurrentObject;
-				RectangleF rcInv = interaction.InvalidRect;
-
-				// should the operation be performed?
-				if (e.Button != MouseButtons.Left || !mouseMoved ||
-					!interaction.isAllowed(ptCurr, this))
-				{
-					// cancel the operation
-					interaction.cancel(this);
-
-					// if the mouse wasn't moved select the object under cursor
-					if (!mouseMoved && (interaction.Action == Action.Create || interaction.Action == Action.Split))
-					{
-						ChartObject obj = GetObjectAt(ptCurr, true);
-						if (obj == null || confirmSelect(obj))
-						{
-							RectangleF rcOld = calcSelectionRect(activeObject, ptCurr);
-							rcInv = Utilities.unionRects(rcInv, rcOld);
-							rcInv = Utilities.unionNonEmptyRects(
-								rcInv, selection.getRepaintRect(false));
-
-							int oldSelCount = selection.GetSize();
-
-							// change selection
-							if ((_modifierKeyActions.GetKeys(ModifierKeyAction.Select) & ModifierKeys) != 0)
-								selection.Toggle(obj);
-							else
-								selection.Change(obj);
-
-							int newSelCount = selection.GetSize();
-
-							rcInv = Utilities.unionRects(rcInv,
-								selection.getRepaintRect(false));
-							rcInv = Utilities.unionRects(rcInv,
-								calcSelectionRect(activeObject, ptCurr));
-							rcInv.Inflate(selHandleSize, selHandleSize);
-
-							if (!(oldSelCount == 0 && newSelCount == 0))
-								dirty = true;
-
-						}	// if confirmSelect()
-
-					}	// if !mouseMoved
-
-				}	// if (e.Button != MouseButtons.Left)
-
-				else
-				{
-					// complete operation
-					interaction.complete(ptCurr, this);
-					rcInv = interaction.InvalidRect;
-
-					// update document size if needed
-					if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
-						sizeDocForItem(currObject);
-				}
-
-				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
-				rcInvDev.Inflate(2, 2);
-				this.Invalidate(rcInvDev, false);
-
-				this.Capture = false;
-				docBuffer.Dispose();
-				docBuffer = null;
-
-				interaction = null;
-			}
-
-			g.Dispose();
-
-			int btn = btnNum(e.Button);
-			if (buttonDown[btn] &&
-				Math.Abs(downPos[btn].X - e.X) <= 2 &&
-				Math.Abs(downPos[btn].Y - e.Y) <= 2)
-			{
-				ChartObject objUnderMouse = GetObjectAt(ptMousePos, false);
-				if (objUnderMouse != null)
-				{
-					fireClickedEvent(objUnderMouse, ptMousePos, e.Button);
-				}
-				else
-				{
-					if (DocClicked != null)
-					{
-						DocClicked(this, new MousePosArgs(
-							e.Button, ptMousePos.X, ptMousePos.Y));
-					}
-				}
-			}
-			buttonDown[btn] = false;
-			userAction = false;
-		}
-
-		
-		protected override void OnDragOver(System.Windows.Forms.DragEventArgs drgevent)
-		{
-			base.OnDragOver(drgevent);
-			if (!Enabled) return;
-
-			// get mouse position in document coordinates
-			Graphics g = this.CreateGraphics();
-			setTransforms(g);
-			PointF ptCurr = Utilities.deviceToDoc(g, drgevent.X, drgevent.Y);
-
-			if ((showAnchors & ShowAnchors.Auto) != 0)
-				drawAutoAnchors(g, ptCurr);
-
-			// clean up
-			g.Dispose();
-		}
-
-		private PointF ptStartDrag;
-		private Point ptStartDragDev;
-		internal bool mouseMoved;
-		private Bitmap docBuffer;
-
-		internal PointF InteractionStartPoint { get {return ptStartDrag;} }
-
-		public PointF AlignPointToGrid(PointF point)
-		{
-			if (alignToGrid)
-			{
-				float dx = (float)(point.X - gridSizeX*Math.Floor(point.X / gridSizeX));
-				float dy = (float)(point.Y - gridSizeY*Math.Floor(point.Y / gridSizeY));
-				return new PointF(
-					point.X - dx + gridSizeX / 2,
-					point.Y - dy + gridSizeY / 2);
-			}
-
-			return point;
-		}
-
-		#endregion
-
-		#region validation		
-
-		internal bool requestAttach(Arrow arrow, bool changingOrg, Node node)
-		{
-			if (ArrowAttaching != null)
-			{
-				PointF endPt = changingOrg ? arrow.Points[0] : arrow.Points[arrow.Points.Count - 1];
-				int id = 0;
-				int row = -1;
-				node.getAnchor(endPt, arrow, !changingOrg, ref id);
-
-				// get the row if attaching to table
-				Table table = node as Table;
-				if (table != null)
-					row = table.rowFromPt(endPt);
-
-				AttachConfirmArgs args = new AttachConfirmArgs(arrow,
-					node, changingOrg, id, row);
-				ArrowAttaching(this, args);
-
-				return args.Confirm;
-			}
-
-			return true;
-		}
-
-		internal bool validateAnchor(Arrow arrow, bool outgoing, Node node, int pointIndex)
-		{
-			if (ValidateAnchorPoint != null)
-			{
-				AttachConfirmArgs args = new AttachConfirmArgs(arrow,
-					node, outgoing, pointIndex, 0);
-				ValidateAnchorPoint(this, args);
-
-				return args.Confirm;
-			}
-
-			return true;
-		}
-
-		#endregion
-
-		#region drawing
-
-		protected override void OnPaint(PaintEventArgs pe)
-		{
-			if (!Visible) return;
-			if (ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
-				return;
-
-			// create off-screen bitmap 
-			Bitmap offScr = new System.Drawing.Bitmap(
-				ClientRectangle.Width, ClientRectangle.Height, pe.Graphics);
-
-			// draw document contents
-			Rectangle rc = pe.ClipRectangle;
-			rc.Inflate(2, 2);
-			rc.Intersect(ClientRectangle);
-			
-			drawFlowChart(offScr, rc, false);
-
-			// blit the off-screen bitmap to the Graphics
-			pe.Graphics.DrawImage(offScr, pe.ClipRectangle,
-				pe.ClipRectangle.Left, pe.ClipRectangle.Top,
-				pe.ClipRectangle.Width, pe.ClipRectangle.Height,
-				System.Drawing.GraphicsUnit.Pixel);
-			if (hScrollBar != null && vScrollBar != null && (
-				hScrollBar.Visible || vScrollBar.Visible))
-				pe.Graphics.FillRectangle(SystemBrushes.ScrollBar,
-					this.ClientRectangle.Right - vScrollBar.Width,
-					this.ClientRectangle.Bottom - hScrollBar.Height,
-					vScrollBar.Width, hScrollBar.Height);
-
-			// clean up
-			offScr.Dispose();
-
-			// show this so teasing message in trial version
-#if DEMO_VERSION
-			if (Objects.Count > 80)
-			{
-				System.Drawing.Brush blackBrush =
-					new System.Drawing.SolidBrush(Color.Black);
-				Font font = new Font("Arial", 3, GraphicsUnit.Millimeter);
-
-				pe.Graphics.DrawString("FlowChart.NET trial version",
-					font, blackBrush, 0, 0);
-
-				font.Dispose();
-				blackBrush.Dispose();
-			}
-#endif
-
-			// Calling the base class OnPaint
-			base.OnPaint(pe);
-		}
-
-		protected override void OnPaintBackground(System.Windows.Forms.PaintEventArgs pevent)
-		{
-			// All painting is carried by the control itself
-		}
-
-		[Category("Appearance")]
-		[DefaultValue(SmoothingMode.None)]
-		[Description("Anti-aliasing mode.")]
-		public SmoothingMode AntiAlias
-		{
-			get { return antiAlias; }
-			set	{ antiAlias = value; }
-		}
-
-		[Category("Appearance")]
-		[DefaultValue(false)]
-		[Description("Enables or disables the DoubleBuffer ControlStyles bit. Enabling it reduces flicker in Remote Desktop Connection sessions.")]
-		public bool DoubleBuffer
-		{
-			get { return GetStyle(ControlStyles.DoubleBuffer); }
-			set	{ SetStyle(ControlStyles.DoubleBuffer, value); }
-		}
-
-		private SmoothingMode antiAlias;
-
-		public Bitmap CreateBmpFromChart()
-		{
-			Bitmap bmp = null;
-			Graphics g = null;
-
-			try
-			{
-				RectangleF size = new RectangleF(
-					0, 0, docExtents.Width, docExtents.Height);
-
-				g = this.CreateGraphics();
-				g.ResetTransform();
-				g.PageUnit = measureUnit;
-				g.PageScale = zoomFactor / 100F;
-
-				Rectangle rc = Utilities.docToDevice(g, size);
-				g.ResetTransform();
-
-				// do our own painting of ControlHost nodes
-				displayOptions.PaintControls = true;
-
-				bmp = createBackBuffer(rc, g);
-				if (bmp != null)
-					drawFlowChart(bmp, rc, false, false);
-			}
-			finally
-			{
-				if (g != null)
-					g.Dispose();
-				displayOptions.PaintControls = false;
-			}
-
-			return bmp;
-		}
-
-		private void drawBack(Graphics g, Rectangle clip, bool toScreen, PrintOptions renderOptions)
-		{
-			if (imagePos < ImageAlign.Document)
-			{
-				// the background image does not scroll or scale, the brush shouldn't too
-				System.Drawing.Brush fillBrush = brush.CreateGDIBrush(ClientRectangle);
-				g.FillRectangle(fillBrush, clip);
-				fillBrush.Dispose();
-			}
-			else
-			{
-				if (toScreen)
-				{
-					// now drawing on the screen, include translation for
-					// the scroll X and Y position
-					setTransforms(g);
-				}
-				else
-				{
-					// exporting to bitmap; do not include translation, but just scaling
-					g.PageUnit = measureUnit;
-					g.PageScale = zoomFactor / 100F;
-				}
-
-				RectangleF rc = Utilities.deviceToDoc(g, clip);
-
-				Point pt = Utilities.docToDevice(g, new PointF(0, 0));
-				g.RenderingOrigin = pt;
-
-				// paint with exterior brush if applicable
-				bool paintExterior = exteriorBrush != null && toScreen &&
-					!docExtents.Contains(rc) && !exteriorBrush.equals(BackBrush);
-				if (paintExterior)
-				{
-					System.Drawing.Brush extBrush = exteriorBrush.CreateGDIBrush(
-						docExtents, -docExtents.Left, -docExtents.Top);
-
-					// paint the exterior to the right
-					if (rc.Right > docExtents.Right)
-					{
-						RectangleF ext1 = rc;
-						ext1.X = Math.Max(rc.Left, docExtents.Right);
-						ext1.Width = rc.Right - ext1.Left;
-						g.FillRectangle(extBrush, ext1);
-					}
-
-					// paint the exterior to the bottom
-					if (rc.Bottom > docExtents.Bottom)
-					{
-						RectangleF ext2 = rc;
-						ext2.Y = Math.Max(rc.Top, docExtents.Bottom);
-						ext2.Height = rc.Bottom - ext2.Top;
-						g.FillRectangle(extBrush, ext2);
-					}
-					
-					extBrush.Dispose();
-					rc.Intersect(docExtents);
-				}
-
-				// paint the document area with BackBrush
-				System.Drawing.Brush fillBrush = brush.CreateGDIBrush(
-					docExtents, -docExtents.Left, -docExtents.Top);
-				g.FillRectangle(fillBrush, rc);
-				fillBrush.Dispose();
-
-				unsetTransforms(g);
-			}
-		}
-
-		/// <summary>
-		/// Recreates the cache bitmap, containing an image of the items that
-		/// are not affected by the currently performed modification. This image
-		/// is blitted to screen while dragging items, and the modified items
-		/// are drawn over it.
-		/// </summary>
-		public void RecreateCacheImage()
-		{
-			if (docBuffer != null)
-			{
-				drawFlowChart(docBuffer, ClientRectangle, true);
-				forceCacheRedraw = true;
-			}
-		}
-
-		private void drawFlowChart(Bitmap bm, Rectangle clip, bool modfBackBuf)
-		{
-			drawFlowChart(bm, clip, modfBackBuf, true);
-		}
-
-		private void drawFlowChart(Bitmap bm, Rectangle clip,
-			bool modfBackBuf, bool transforms)
-		{
-			// now drawing on screen
-			renderOptions = displayOptions;
-			nowPrinting = false;
-
-			// get the rendering surface
-			Graphics g = Graphics.FromImage(bm);
-
-			// fill the background
-			if (renderOptions.EnableBackground)
-				drawBack(g, clip, transforms, renderOptions);
-			g.SmoothingMode = antiAlias;
-
-			// draw the background image
-			if (renderOptions.EnableBackgroundImage)
-			{
-				if (BackgroundImage != null)
-					drawPicture(g, imagePos, transforms);
-			}
-
-			// set the coordinate transformations
-			if (transforms)
-				setTransforms(g);
-			else
-			{
-				g.TranslateTransform(-docExtents.Left, -docExtents.Top);
-				g.PageUnit = measureUnit;
-				g.PageScale = zoomFactor / 100F;
-			}
-
-			RectangleF rcUpdate = Utilities.deviceToDoc(g, clip);
-
-			// draw grid
-			if (showGrid) drawGrid(g, bm, rcUpdate);
-
-			// draw shadows
-			if (shadowsStyle == ShadowsStyle.OneLevel)
-				drawShadows(g, rcUpdate, modfBackBuf);
-
-			// with SelectionOnTop disabled, do not paint any items if now drawing 
-			// in the back buffer image (used for fast repainting when modifying items);
-			// they will be all repainted later to preserve the Z order appearance
-			if (!(modfBackBuf && !selectionOnTop))
-			{
-				// draw the items
-				drawItems(g, rcUpdate, modfBackBuf);
-			}
-			
-			// clean up
-			g.Dispose();
-		}
-
-		internal void drawAutoHandles(Graphics g, PointF ptCurr)
-		{
-			// get the object the mouse is pointing to
-			ChartObject obj = GetObjectAt(ptCurr, true);
-
-			// allow for the last 'auto handles' object to stay selected
-			// for some time even when it is not under the mouse cursor
-			if (obj == null && autoHandlesObj != null && autoHandlesObj is Node)
-			{
-				Node node = autoHandlesObj as Node;
-				RectangleF bounds = node.getRotatedBounds();
-				float bufferZone = selHandleSize +
-					7 * Constants.getMillimeter(measureUnit);
-				bounds.Inflate(bufferZone, bufferZone);
-				if (bounds.Contains(ptCurr))
-					obj = autoHandlesObj;
-			}
-
-			// if it's different than the last pointed redraw the old one
-			// and draw the handles of the new one
-			if (obj != autoHandlesObj)
-			{
-				RectangleF rcInv = new RectangleF(0, 0, 0, 0);
-				if (autoHandlesObj != null)
-					rcInv = autoHandlesObj.getRepaintRect(false);
-				if (obj != null)
-				{
-					rcInv = Utilities.unionNonEmptyRects(rcInv,
-						obj.getRepaintRect(false));
-				}
-
-				rcInv.Inflate(selHandleSize, selHandleSize);
-				autoHandlesObj = obj;
-				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
-				Invalidate(rcInvDev);
-			}
-		}
-
-		internal void setAutoAnchors(Node node)
-		{
-			if (node != autoAnchorsObj)
-			{
-				RectangleF rcInv = new RectangleF(0, 0, 0, 0);
-				if (autoAnchorsObj != null)
-					rcInv = autoAnchorsObj.getRepaintRect(false);
-				if (node != null)
-				{
-					rcInv = Utilities.unionNonEmptyRects(rcInv,
-						node.getRepaintRect(false));
-				}
-
-				rcInv.Inflate(Constants.getMarkSize(measureUnit), Constants.getMarkSize(measureUnit));
-				autoAnchorsObj = node;
-
-				Graphics g = CreateGraphics();
-				setTransforms(g);
-				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
-				g.Dispose();
-
-				Invalidate(rcInvDev);
-			}
-		}
-
-		private void drawAutoAnchors(Graphics g, PointF ptCurr)
-		{
-			// get the object the mouse is pointing to
-			Node node = GetBoxAt(ptCurr);
-			if (node == null)
-				node = GetTableAt(ptCurr);
-
-			// if it's different than the last pointed redraw the old one
-			// and draw the anchors of the new one
-			if (node != autoAnchorsObj)
-			{
-				RectangleF rcInv = new RectangleF(0, 0, 0, 0);
-				if (autoAnchorsObj != null)
-					rcInv = autoAnchorsObj.getRepaintRect(false);
-				if (node != null)
-				{
-					rcInv = Utilities.unionNonEmptyRects(rcInv,
-						node.getRepaintRect(false));
-				}
-
-				rcInv.Inflate(Constants.getMarkSize(measureUnit), Constants.getMarkSize(measureUnit));
-				autoAnchorsObj = node;
-				Rectangle rcInvDev = Utilities.docToDevice(g, rcInv);
-				Invalidate(rcInvDev);
-			}
-		}
-
-		private RectangleF calcSelectionRect(ChartObject obj, PointF pt)
-		{
-			RectangleF rc = new RectangleF(0, 0, 0, 0);
-
-			if (obj != null)
-			{
-				rc = obj.getBoundingRect();
-			}
-			else
-			{
-				rc.X = pt.X;
-				rc.Y = pt.Y;
-			}
-
-			return rc;
-		}
-
-		[Browsable(false)]
-		public override string Text { get {return "";} set {} }
-
-		[Browsable(false)]
-		public override Cursor Cursor
-		{ get {return base.Cursor;} set{base.Cursor=value;}}
-
-		internal void setTransforms(Graphics g)
-		{
-			g.ResetTransform();
-			g.TranslateTransform(-scrollX, -scrollY);
-			g.PageUnit = measureUnit;
-			g.PageScale = zoomFactor / 100F;
-		}
-
-		internal void unsetTransforms(Graphics g)
-		{
-			g.ResetTransform();
-			g.PageScale = 1.0F;
-			g.PageUnit = GraphicsUnit.Pixel;
-		}
-
-		private void drawGrid(Graphics g, Bitmap bmp, RectangleF rc)
-		{
-			float dx = -Math.Abs(rc.Left-(float)(gridSizeX*Math.Floor(rc.Left / gridSizeX)));
-			float dy = -Math.Abs(rc.Top-(float)(gridSizeY*Math.Floor(rc.Top / gridSizeY)));
-			if (dx < -gridSizeX/2) dx += gridSizeX;
-			if (dy < -gridSizeY/2) dy += gridSizeY;
-
-			if (gridStyle == GridStyle.Points)
-			{
-				SizeF step = new SizeF(gridSizeX, gridSizeY);
-				step = Utilities.docToDeviceF(g, step);
-				Rectangle rect = Utilities.docToDevice(g, rc);
-
-				PointF orgDoc = new PointF(
-					dx + rc.Left + gridSizeX / 2, dy + rc.Top + gridSizeY / 2);
-				PointF orgDev = Utilities.docToDeviceF(g, orgDoc);
-
-				// draw grid points
-				for (float x = orgDev.X; x < rect.Right; x += step.Width)
-				{
-					for (float y = orgDev.Y; y < rect.Bottom; y += step.Height)
-					{
-						bmp.SetPixel((int)x, (int)y, gridColor);
-					}
-				}
-			}
-			else
-			{
-				// draw grid lines
-				System.Drawing.Pen gridPen = new System.Drawing.Pen(gridColor, 0);
-
-				for (float x = dx + rc.Left + gridSizeX / 2; x < rc.Right; x += gridSizeX)
-					g.DrawLine(gridPen, x, rc.Top, x, rc.Bottom);
-
-				for (float y = dy + rc.Top + gridSizeY / 2; y < rc.Bottom; y += gridSizeY)
-					g.DrawLine(gridPen, rc.Left, y, rc.Right, y);
-
-				gridPen.Dispose();
-			}
-		}
-
-		private void drawObject(Graphics g, ChartObject obj, bool conn)
-		{
-			if (conn)
-				drawHierarchy(g, obj, false);
-			else
-				obj.Draw(g, false);
-		}
-
-
-		private void drawObjectWithShadow(Graphics g, ChartObject obj, bool conn)
-		{
-			// draw item's shadow
-			if (conn)
-				drawHierarchy(g, obj, true);
-			else
-				obj.Draw(g, true);
-
-			// draw the item
-			drawObject(g, obj, conn);
-		}
-
-		private void drawShadows(Graphics g, RectangleF rc, bool modfBackBuf)
-		{
-			// iterate all types of items
-			foreach (ChartObject obj in zOrder)
-			{
-				RectangleF rcObj = obj.getRepaintRect(false);
-				if (!rcObj.IntersectsWith(rc)) continue;
-				if (!(modfBackBuf && obj.getModifying()))
-					obj.Draw(g, true);
-			}
-		}
-
-		private void drawItems(Graphics g, RectangleF clipRect, bool modfBackBuf)
-		{
-			if (modfBackBuf)
-			{
-				// draw in the back buffer all items that are not being modified
-				// the back buffer will be blitted to the sceen later for faster
-				// repainting instead of drawing the items again
-				foreach (ChartObject item in zOrder)
-				{
-					RectangleF rc = item.getRepaintRect(false);
-					if (!rc.IntersectsWith(clipRect)) continue;
-					if (!item.getModifying())
-					{
-						if (shadowsStyle == ShadowsStyle.ZOrder)
-							drawObjectWithShadow(g, item, false);
-						else
-							drawObject(g, item, false);
-					}
-				}
-
-				// draw the selection
-				if (interaction == null ||
-					(interaction.CurrentObject != selection && interaction.Action == Action.Create))
-					selection.Draw(g, false);
-			}
-			else
-			{
-				// draw all items
-				foreach (ChartObject item in zOrder)
-				{
-					if (item != activeObject || !selectionOnTop)
-					{
-						RectangleF rc = item.getRepaintRect(false);
-						if (!rc.IntersectsWith(clipRect)) continue;
-						if (shadowsStyle == ShadowsStyle.ZOrder)
-							drawObjectWithShadow(g, item, false);
-						else
-							drawObject(g, item, false);
-					}
-				}
-
-				// draw the active object at the top
-				if (activeObject != null)
-				{
-					if (selectionOnTop)
-					{
-						if (shadowsStyle == ShadowsStyle.ZOrder)
-							drawObjectWithShadow(g, activeObject, true);
-						else
-							drawObject(g, activeObject, true);
-					}
-
-					// if anchors are drawn in saSelected mode ...
-					if ((showAnchors & ShowAnchors.Selected) != 0 &&
-						activeObject is Node)
-						(activeObject as Node).drawAnchors(g);
-				}
-
-				// if auto-handles drawing is enabled draw the object handles
-				if (autoHandlesObj != null && autoHandlesObj != activeObject)
-					autoHandlesObj.drawSelHandles(g, selMnpColor);
-
-				// if anchors are drawn in saAuto mode ...
-				if (autoAnchorsObj != null && (showAnchors & ShowAnchors.Auto) != 0)
-					autoAnchorsObj.drawAnchors(g);
-
-				// object currently being created
-				if (interaction != null && interaction.CurrentObject != null &&
-					interaction.CurrentObject != activeObject)
-					drawObject(g, interaction.CurrentObject, false);
-
-				// draw the selection
-				if (interaction == null || interaction.CurrentObject != selection)
-					selection.Draw(g, false);
-			}
-		}
-
-		private void drawAllItems(Graphics g, RectangleF clipRect)
-		{
-			foreach (ChartObject item in zOrder)
-			{
-				RectangleF rc = item.getRepaintRect(false);
-				if (!rc.IntersectsWith(clipRect)) continue;
-
-				if (shadowsStyle == ShadowsStyle.ZOrder)
-					drawObjectWithShadow(g, item, false);
-				else
-					drawObject(g, item, false);
-			}
-		}
-
-		private void drawPicture(Graphics g, ImageAlign imgPos, bool transforms)
-		{
-			if (imagePos < ImageAlign.Document)
-			{
-				RectangleF rcs = new RectangleF(
-					ClientRectangle.X, ClientRectangle.Y,
-					ClientRectangle.Width, ClientRectangle.Height);
-				Utilities.drawPicture(g, BackgroundImage, rcs, imgPos);
-			}
-			else
-			{
-				if (transforms)
-					setTransforms(g);
-				else
-				{
-					g.PageUnit = measureUnit;
-					g.PageScale = zoomFactor / 100F;
-				}
-
-				Utilities.drawPicture(g, BackgroundImage, DocExtents,
-					(ImageAlign)(imgPos - ImageAlign.Document));
-				unsetTransforms(g);
-			}
-		}
-
-		private void drawHierarchy(Graphics g, ChartObject obj, bool shadows)
-		{
-			PainterVisitor painter = new PainterVisitor(g, shadows);
-			obj.visitHierarchy(painter);
-		}
-
-		[Browsable(true)]
-		[Category("Printing")]
-		[Description("Print settings.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-		[TypeConverter(typeof(ExpandableObjectConverter))]
-		public PrintOptions PrintOptions
-		{
-			get { return printOptions; }
-		}
-
-		[Browsable(true)]
-		[Category("Printing")]
-		[Description("Print preview settings.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-		[TypeConverter(typeof(ExpandableObjectConverter))]
-		public PreviewOptions PreviewOptions
-		{
-			get { return previewOptions; }
-		}
-
-		PrintOptions printOptions;		// for printing
-		PrintOptions displayOptions;	// for screen drawing
-		PreviewOptions previewOptions;	// for print preview
-
-		// should be set to one of the above
-		PrintOptions renderOptions;
-		internal PrintOptions RenderOptions
-		{
-			get { return renderOptions; }
-		}
-
-		private PrintOptions prevRenderOptions;
-		
-		public void SetRenderOptions(PrintOptions options)
-		{
-			prevRenderOptions = renderOptions;
-			renderOptions = options;
-		}
-		
-		public void ResetRenderOptions()
-		{
-			renderOptions = prevRenderOptions;
-		}
-		
-		private int currentPage = 0;
-		private bool nowPrinting = false;
-		private RectangleF printRect;
-		private PrintDocument printDoc = null;
-
-		internal bool NowPrinting { get { return nowPrinting; }}
-
-		private void BeginPrint(object sender, PrintEventArgs args)
-		{
-			if (BackgroundImage == null || !printOptions.EnableBackgroundImage)
-			{
-				// if there is no background image set, print just pages
-				// that enclose the bounding rect of the diagram
-				printRect = getContentRect(true, true);
-			}
-			else
-			{
-				// otherwise print all pages because we need to draw the image
-				// as it is on the screen covering the whole document area
-				printRect = DocExtents;
-			}
-
-			if (printRect.Width == 0 || printRect.Height == 0)
-				args.Cancel = true;
-
-			// init page counter
-			currentPage = 1;
-			if (printDoc.PrinterSettings.PrintRange == PrintRange.SomePages)
-				currentPage = Math.Max(1, printDoc.PrinterSettings.FromPage);
-		}
-
-
-		private void PrintPage(object sender, PrintPageEventArgs ev)
-		{
-			PrinterSettings pset = ev.PageSettings.PrinterSettings;
-			GraphicsState state = ev.Graphics.Save();
-			PrintHeader(ev);
-
-			// get margins rectangle in device coordinates
-			RectangleF mrgnRectDev = Utilities.transformRect(ev.Graphics,
-				ev.MarginBounds, CoordinateSpace.Device, CoordinateSpace.World);
-
-			// set Graphics coord. transformation and drawing modes
-			ev.Graphics.ResetTransform();
-			ev.Graphics.PageUnit = measureUnit;
-			ev.Graphics.PageScale = (float)printOptions.Scale / 100f;
-
-			// calculate page size and origin
-			RectangleF mrgnRectDoc = Utilities.transformRect(ev.Graphics,
-				mrgnRectDev, CoordinateSpace.World, CoordinateSpace.Device);
-			int xPages = (int)Math.Ceiling(printRect.Width / mrgnRectDoc.Width);
-			int yPages = (int)Math.Ceiling(printRect.Height / mrgnRectDoc.Height);
-			float xPrint = printRect.Left +
-				((currentPage - 1) % xPages) * mrgnRectDoc.Width;
-			float yPrint = printRect.Top +
-				((currentPage - 1) / xPages) * mrgnRectDoc.Height;
-
-			// print the page
-			ev.Graphics.TranslateTransform(
-				mrgnRectDoc.X - xPrint, mrgnRectDoc.Y - yPrint);
-			mrgnRectDoc.X = xPrint;
-			mrgnRectDoc.Y = yPrint;
-			printFlowChart(ev.Graphics, mrgnRectDoc);
-
-			// determine if there are more pages
-			currentPage++;
-			ev.HasMorePages = currentPage <= xPages * yPages;
-			if (pset.PrintRange == PrintRange.SomePages)
-				ev.HasMorePages = ev.HasMorePages && currentPage <= pset.ToPage;
-
-			// cleanup
-			ev.Graphics.Restore(state);
-		}
-
-		internal void printFlowChart(Graphics g, RectangleF pageRect)
-		{
-			renderOptions = printOptions;
-			nowPrinting = true;
-			g.SetClip(pageRect);
-
-			// fill the background
-			if (renderOptions.EnableBackground)
-			{
-				if (imagePos < ImageAlign.Document)
-				{
-					System.Drawing.Brush fillBrush = brush.CreateGDIBrush(pageRect);
-					g.FillRectangle(fillBrush, pageRect);
-					fillBrush.Dispose();
-				}
-				else
-				{
-					System.Drawing.Brush fillBrush = brush.CreateGDIBrush(
-						DocExtents, -DocExtents.Left, -DocExtents.Top);
-					g.FillRectangle(fillBrush, pageRect);
-					fillBrush.Dispose();
-				}
-			}
-			g.SmoothingMode = this.antiAlias;
-
-			// print the background image
-			if (BackgroundImage != null && renderOptions.EnableBackgroundImage)
-			{
-				// Printing of back images occur only if ImageAlign.Document is set
-				if (imagePos < ImageAlign.Document)
-				{
-					Utilities.drawPicture(g, BackgroundImage, pageRect, imagePos);
-				}
-				else
-				{
-					Utilities.drawPicture(g, BackgroundImage, DocExtents,
-						(ImageAlign)(imagePos - ImageAlign.Document));
-				}
-			}
-
-			// draw shadows
-			if (renderOptions.EnableShadows &&
-				shadowsStyle == ShadowsStyle.OneLevel)
-				drawShadows(g, pageRect, false);
-
-			// draw all objects
-			foreach (ChartObject obj in zOrder)
-			{
-				if (obj != activeObject || !selectionOnTop)
-				{
-					RectangleF rc = obj.getRepaintRect(false);
-					if (!rc.IntersectsWith(pageRect)) continue;
-					if (renderOptions.EnableShadows &&
-						shadowsStyle == ShadowsStyle.ZOrder)
-						drawObjectWithShadow(g, obj, false);
-					else
-						drawObject(g, obj, false);
-				}
-			}
-
-			// draw the active object at the top
-			if (activeObject != null && selectionOnTop)
-			{
-				if (renderOptions.EnableShadows &&
-					shadowsStyle == ShadowsStyle.ZOrder)
-					drawObjectWithShadow(g, activeObject, true);
-				else
-					drawObject(g, activeObject, true);
-			}
-
-			renderOptions = displayOptions;
-			nowPrinting = false;
-		}
-
-		private void PrintHeader(PrintPageEventArgs ev)
-		{
-			if (printOptions.HeaderFormat != "")
-			{
-				PointF ptHeader = ev.MarginBounds.Location;
-				ptHeader.X += ev.MarginBounds.Width / 2;
-
-				// create the header string
-				String header = printOptions.HeaderFormat.Replace(
-					"%D", printOptions.DocumentName);
-				header = header.Replace("%P", currentPage.ToString());
-
-				// prepare drawing objects and parameters
-				Font font = new Font("Arial", 10, GraphicsUnit.Point);
-				System.Drawing.SolidBrush brush =
-					new System.Drawing.SolidBrush(Color.Black);
-				StringFormat format = new StringFormat();
-				format.Alignment = StringAlignment.Center;
-				format.LineAlignment = StringAlignment.Far;
-
-				// draw the header
-				ev.Graphics.DrawString(header, font, brush, ptHeader, format);
-
-				// cleanup
-				brush.Dispose();
-				font.Dispose();
-			}
-		}
-
-		/// <summary>
-		/// Prints the diagram to the default printer.
-		/// </summary>
-		public void Print()
-		{
-			PrintDialog dlg = new PrintDialog();
-
-			dlg.AllowPrintToFile = false;
-			dlg.AllowSomePages = true;
-
-			// setup the .NET print document
-			dlg.Document = new PrintDocument();
-			dlg.Document.DocumentName = printOptions.DocumentName;
-			dlg.Document.DefaultPageSettings.Margins = printOptions.Margins;
-			dlg.Document.PrinterSettings.MinimumPage = 1;
-			dlg.Document.PrinterSettings.MaximumPage = 10000;
-			dlg.Document.PrinterSettings.FromPage = 1;
-			dlg.Document.PrinterSettings.ToPage = 100;
-
-			if (dlg.ShowDialog(this) == DialogResult.OK)
-				Print(dlg.Document);
-		}
-
-		private PrintEventHandler beginPrintHandler = null;
-		private PrintPageEventHandler printPageHandler = null;
-
-		public void Print(PrintDocument doc)
-		{
-			printDoc = doc;
-
-			doc.BeginPrint += beginPrintHandler;
-			doc.PrintPage += printPageHandler;
-			doc.Print();
-			doc.PrintPage -= printPageHandler;
-			doc.BeginPrint -= beginPrintHandler;
-		}
-
-		/// <summary>
-		/// Displays the standard .NET print preview form.
-		/// </summary>
-		public void PrintPreview()
-		{
-			// setup the .NET print document
-			PrintDocument doc = new PrintDocument();
-			doc.DocumentName = printOptions.DocumentName;
-			doc.DefaultPageSettings.Margins = printOptions.Margins;
-
-			PrintPreview(doc);
-		}
-
-		public void PrintPreview(PrintDocument doc)
-		{
-			printDoc= doc;
-
-			doc.BeginPrint += beginPrintHandler;
-			doc.PrintPage += printPageHandler;
-
-			PrintPreviewDialog dlg = new PrintPreviewDialog();
-			dlg.Document = doc;
-			dlg.ShowDialog(this);
-
-			doc.PrintPage -= printPageHandler;
-			doc.BeginPrint -= beginPrintHandler;
-		}
-
-		/// <summary>
-		/// Displays an extended and better looking print preview form.
-		/// </summary>
-		public void PrintPreviewEx()
-		{
-			// setup the .NET print document
-			PrintDocument doc = new PrintDocument();
-			doc.DocumentName = printOptions.DocumentName;
-			doc.DefaultPageSettings.Margins = printOptions.Margins;
-
-			PrintPreviewEx(doc);
-		}
-
-		public void PrintPreviewEx(PrintDocument doc)
-		{
-			printDoc = doc;
-
-			doc.BeginPrint += beginPrintHandler;
-			doc.PrintPage += printPageHandler;
-
-			FrmPrintPreview frmPrintPreview =
-				new FrmPrintPreview(this, doc.DocumentName);
-			frmPrintPreview.Text = doc.DocumentName;
-			frmPrintPreview.Document = doc;
-
-			// set preview dialog options
-			frmPrintPreview.init(previewOptions);
-			frmPrintPreview.ShowDialog(this);
-
-			doc.PrintPage -= printPageHandler;
-			doc.BeginPrint -= beginPrintHandler;
-		}
-
-
-		#endregion
-
-		#region properties
-
-		[Browsable(false)]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public bool Dirty
-		{
-			get { return dirty; }
 			set
 			{
-				if (dirty != value)
+				if (tableRowsCount != value && value >= 0)
 				{
-					dirty = value;
-					if (DirtyChanged != null)
-						DirtyChanged(this, new EventArgs());
+					tableRowsCount = value;
+					setDirty();
 				}
 			}
 		}
 
-		internal void setDirty()
+		private int tableRowsCount;
+
+		/// <summary>
+		/// Default number of columns for new tables
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(2)]
+		[Description("Initial number of columns in new tables.")]
+		public int TableColumnCount
 		{
-			Dirty = true;
+			get
+			{
+				return tableColumnsCount;
+			}
+			set
+			{
+				if (tableColumnsCount != value && value >= 0)
+				{
+					tableColumnsCount = value;
+					setDirty();
+				}
+			}
 		}
 
-		private bool dirty;
+		private int tableColumnsCount;
+
+		/// <summary>
+		/// Sets the offset at which the shadows are drawn
+		/// </summary>
+		public void SetShadowOffset(float x, float y)
+		{
+			ShadowOffsetX = x;
+			ShadowOffsetY = y;
+		}
+
+		/// <summary>
+		/// Default for the CustomDraw property of new boxes
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(CustomDraw), "None")]
+		[Description("The initial value of the CustomDraw property of boxes.")]
+		public CustomDraw BoxCustomDraw
+		{
+			get
+			{
+				return boxCustomDraw;
+			}
+			set
+			{
+				if (boxCustomDraw != value)
+				{
+					boxCustomDraw = value;
+					setDirty();
+				}
+			}
+		}
+
+		private CustomDraw boxCustomDraw;
+
+		/// <summary>
+		/// Gets or sets the default value for the CustomDraw property of new tables.
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(CustomDraw), "None")]
+		[Description("Gets or sets the default value for the CustomDraw property of new tables.")]
+		public CustomDraw TableCustomDraw
+		{
+			get
+			{
+				return tableCustomDraw;
+			}
+			set
+			{
+				if (tableCustomDraw != value)
+				{
+					tableCustomDraw = value;
+					setDirty();
+				}
+			}
+		}
+
+		private CustomDraw tableCustomDraw;
+
+		/// <summary>
+		/// Gets or sets the default value for the CellCustomDraw property of new tables.
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(CustomDraw), "None")]
+		[Description("Gets or sets the default value for the CellCustomDraw property of new tables.")]
+		public CustomDraw CellCustomDraw
+		{
+			get
+			{
+				return cellCustomDraw;
+			}
+			set
+			{
+				if (cellCustomDraw != value)
+				{
+					cellCustomDraw = value;
+					setDirty();
+				}
+			}
+		}
+
+		private CustomDraw cellCustomDraw;
+
+		/// <summary>
+		/// Default for the CustomDraw property of new boxes
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(CustomDraw), "None")]
+		[Description("The initial value of the CustomDraw property of arrows.")]
+		public CustomDraw ArrowCustomDraw
+		{
+			get
+			{
+				return arrowCustomDraw;
+			}
+			set
+			{
+				if (arrowCustomDraw != value)
+				{
+					arrowCustomDraw = value;
+					setDirty();
+				}
+			}
+		}
+
+		private CustomDraw arrowCustomDraw;
+
+		/// <summary>
+		/// Horizontal offset of shadows from their items.
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(1.0f)]
+		[Description("Horizontal offset of shadows from the items that cast them.")]
+		public float ShadowOffsetX
+		{
+			get
+			{
+				return shadowOffsetX;
+			}
+			set
+			{
+				if (shadowOffsetX != value)
+				{
+					shadowOffsetX = value;
+					setDirty();
+				}
+			}
+		}
+
+		private float shadowOffsetX;
+
+		/// <summary>
+		/// Vertical offset of the shadows
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(1.0f)]
+		[Description("Vertical offset of shadows from the items that cast them.")]
+		public float ShadowOffsetY
+		{
+			get
+			{
+				return shadowOffsetY;
+			}
+			set
+			{
+				if (shadowOffsetY != value)
+				{
+					shadowOffsetY = value;
+					setDirty();
+				}
+			}
+		}
+
+		private float shadowOffsetY;
+
+		/// <summary>
+		/// Default for the Dynamic property of new arrows
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(false)]
+		[Description("Initial value of arrows' Dynamic property, specifying whether arrows automatically adjust the coordinates of their end points to align them to node outlines.")]
+		public bool DynamicArrows
+		{
+			get
+			{
+				return dynamicArrows;
+			}
+			set
+			{
+				if (dynamicArrows != value)
+				{
+					dynamicArrows = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool dynamicArrows;
+
+		/// <summary>
+		/// Default for the Dynamic property of new arrows
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(false)]
+		[Description("Initial value of arrows' SnapToNodeBorder property, specifying whether arrow end points are automatically aligned to node borders.")]
+		public bool ArrowsSnapToBorders
+		{
+			get
+			{
+				return arrowsSnapToBorders;
+			}
+			set
+			{
+				if (arrowsSnapToBorders != value)
+				{
+					arrowsSnapToBorders = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool arrowsSnapToBorders;
+
+		/// <summary>
+		/// Default for the Polar property of new arrows
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(false)]
+		[Description("Initial value of arrows' RetainForm property, specifying whether arrows automatically adjust the coordinates of their points so their relative initial position remains the same.")]
+		public bool ArrowsRetainForm
+		{
+			get
+			{
+				return arrowsRetainForm;
+			}
+			set
+			{
+				if (arrowsRetainForm != value)
+				{
+					arrowsRetainForm = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool arrowsRetainForm;
+
+		/// <summary>
+		/// Default value for the FillColor of new tables
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(Color), "180, 160, 160")]
+		[Description("Interior of tables is painted with this color.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public Color TableFillColor
+		{
+			get
+			{
+				return tableFillColor;
+			}
+			set
+			{
+				if (!tableFillColor.Equals(value))
+				{
+					tableFillColor = value;
+
+					// Reset the brush
+					TableBrush = new SolidBrush(tableFillColor);
+
+					setDirty();
+				}
+			}
+		}
+
+		private Color tableFillColor;
+
+		/// <summary>
+		/// Default value for the FrameColor of new tables
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(Color), "Black")]
+		[Description("Color of table frame lines.")]
+		public Color TableFrameColor
+		{
+			get
+			{
+				return tableFrameColor;
+			}
+			set
+			{
+				if (!tableFrameColor.Equals(value))
+				{
+					tableFrameColor = value;
+
+					// Reset the pen
+					tablePen.Color = tableFrameColor;
+
+					setDirty();
+				}
+			}
+		}
+
+		private Color tableFrameColor;
+
+		/// <summary>
+		/// Default width of table columns
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(18.0f)]
+		[Description("The default width of table columns.")]
+		public float TableColWidth
+		{
+			get
+			{
+				return tableColWidth;
+			}
+			set
+			{
+				if (tableColWidth != value && value >= 0)
+				{
+					tableColWidth = value;
+					setDirty();
+				}
+			}
+		}
+
+		private float tableColWidth;
+
+		/// <summary>
+		/// Default height of table rows
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(6.0f)]
+		[Description("The default height of table rows.")]
+		public float TableRowHeight
+		{
+			get
+			{
+				return tableRowHeight;
+			}
+			set
+			{
+				if (tableRowHeight != value && value >= 0)
+				{
+					tableRowHeight = value;
+					setDirty();
+				}
+			}
+		}
+
+		private float tableRowHeight;
+
+		/// <summary>
+		/// Default height of table captions
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(5.0f)]
+		[Description("Default height of table captions.")]
+		public float TableCaptionHeight
+		{
+			get
+			{
+				return tableCaptionHeight;
+			}
+			set
+			{
+				if (tableCaptionHeight != value && value >= 0)
+				{
+					tableCaptionHeight = value;
+					setDirty();
+				}
+			}
+		}
+
+		private float tableCaptionHeight;
+
+		[Category("Defaults")]
+		[DefaultValue(typeof(TableLinkStyle), "Rows")]
+		[Description("Specifies how tables can be related one to another - as integral entities, by rows, or both.")]
+		public TableLinkStyle TableLinkStyle
+		{
+			get
+			{
+				return tableLinkStyle;
+			}
+			set
+			{
+				if (tableLinkStyle != value)
+				{
+					tableLinkStyle = value;
+					setDirty();
+				}
+			}
+		}
+
+		private TableLinkStyle tableLinkStyle;
+
+		/// <summary>
+		/// Defines the orientation of the first segment of perpendicular arrows
+		/// </summary>
+		[Category("Behavior")]
+		[DefaultValue(typeof(Orientation), "Auto")]
+		[Description("Orientation for the first segment of 'perpendicular'-style arrows.")]
+		public Orientation PrpArrowStartOrnt
+		{
+			get
+			{
+				return prpArrowStartOrnt;
+			}
+			set
+			{
+				if (prpArrowStartOrnt != value)
+				{
+					prpArrowStartOrnt = value;
+					setDirty();
+				}
+			}
+		}
+
+		private Orientation prpArrowStartOrnt;
+		
+		/// <summary>
+		/// Visual style of table cell borders
+		/// </summary>
+		[Category("Defaults")]
+		[DefaultValue(typeof(CellFrameStyle), "System3D")]
+		[Description("Gets or sets a value specifying the visual style of cell border lines.")]
+		public CellFrameStyle CellFrameStyle
+		{
+			get
+			{
+				return tableCellBorders;
+			}
+			set
+			{
+				tableCellBorders = value;
+			}
+		}
+
+		private CellFrameStyle tableCellBorders;
+
+		[Category("Defaults")]
+		[DefaultValue(false)]
+		[Description("Specifies the initial value of the Expandable property of new boxes.")]
+		public bool BoxesExpandable
+		{
+			get { return boxesExpandable; }
+			set
+			{
+				if (boxesExpandable != value)
+				{
+					boxesExpandable = value;
+					setDirty();
+				}
+			}
+		}
+
+		private bool boxesExpandable;
+
+		[Category("Defaults")]
+		[DefaultValue(false)]
+		public bool PolyTextLayout
+		{
+			get { return usePolyTextLt; }
+			set { usePolyTextLt = value; }
+		}
+
+		private bool usePolyTextLt;
+
+		[Category("Defaults")]
+		[DefaultValue(0.0f)]
+		public float ShapeOrientation
+		{
+			get { return shapeRotation; }
+			set
+			{
+				shapeRotation = value;
+				if (shapeRotation != 0 && shapeRotation != 90 &&
+					shapeRotation != 180 && shapeRotation != 270)
+					shapeRotation = 0;
+			}
+		}
+
+		private float shapeRotation;
+
+		[Browsable(false)]
+		public System.Type DefaultControlType
+		{
+			get { return defaultControlType; }
+			set
+			{
+				// null is unacceptible
+				if (value == null)
+				{
+					defaultControlType = null;
+					return;
+				}
+
+				// Check if the type is derived from System.Windows.Forms.Control
+				if (!value.IsSubclassOf(typeof(Control)))
+					throw new Exception("The control type must derive from System.Windows.Forms.Control");
+
+				// Check if the type has 0-parameter constructor
+				ConstructorInfo ctorInfo = value.GetConstructor(System.Type.EmptyTypes);
+				if (ctorInfo == null)
+					throw new Exception("The type required needs to supple constructor with 0 parameters");
+
+				defaultControlType = value;
+				setDirty();
+			}
+		}
+
+		private System.Type defaultControlType;
+
+		[Category("Defaults")]
+		[DefaultValue(typeof(HostMouseAction), "SelectHost")]
+		public HostMouseAction HostedCtrlMouseAction
+		{
+			get { return hostedCtrlMouseAction; }
+			set
+			{
+				hostedCtrlMouseAction = value;
+				setDirty();
+			}
+		}
+
+		private HostMouseAction hostedCtrlMouseAction;
+
+		[Category("Defaults")]
+		[DefaultValue(false)]
+		public bool EnableStyledText
+		{
+			get { return enableStyledText; }
+			set { enableStyledText = value; }
+		}
+
+		private bool enableStyledText;
 
 		[Category("Defaults")]
 		[DefaultValue(typeof(ArrowHead), "Arrow")]
@@ -3333,140 +7142,6 @@ namespace MindFusion.FlowChartX
 		float arrowHeadSize;
 		float arrowBaseSize;
 		float arrowIntermSize;
-
-		/// <summary>
-		/// Shadows drawing style
-		/// </summary>
-		[Category("Appearance")]
-		[DefaultValue(typeof(ShadowsStyle), "OneLevel")]
-		[Description("Visual style of shadows.")]
-		public ShadowsStyle ShadowsStyle
-		{
-			get
-			{
-				return shadowsStyle;
-			}
-			set
-			{
-				if (shadowsStyle != value)
-				{
-					shadowsStyle = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private ShadowsStyle shadowsStyle;
-
-
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("Specifies whether arrow end points can be moved after the arrow is created.")]
-		public bool ArrowEndsMovable
-		{
-			get { return arrowEndsMovable; }
-			set { arrowEndsMovable = value;	}
-		}
-
-		private bool arrowEndsMovable;
-
-		[Category("Behavior")]
-		[DefaultValue(false)]
-		[Description("Specifies whether arrow segments can be added and removed interactively.")]
-		public bool ArrowsSplittable
-		{
-			get { return arrowsSplittable; }
-			set { arrowsSplittable = value;	}
-		}
-
-		private bool arrowsSplittable;
-
-		/// <summary>
-		/// Sets the control behavior on user`s actions
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(typeof(BehaviorType), "FlowChart")]
-		[Description("Specifies how the control responds to users actions with the mouse.")]
-		public BehaviorType Behavior
-		{
-			get
-			{
-				return behavior;
-			}
-			set
-			{
-				behavior = value;
-				switch (behavior)
-				{
-					case BehaviorType.Modify:
-					case BehaviorType.DoNothing:
-						currentBehavior = new ModifyBehavior(this);
-						break;
-					case BehaviorType.FlowChart:
-						currentBehavior = new FlowChartBehavior(this);
-						break;
-					case BehaviorType.TableRelations:
-						currentBehavior = new TableRelationsBehavior(this);
-						break;
-					case BehaviorType.CreateArrow:
-						selection.Clear();
-						currentBehavior = new CreateArrowBehavior(this);
-						break;
-					case BehaviorType.CreateBox:
-						selection.Clear();
-						currentBehavior = new CreateBoxBehavior(this);
-						break;
-					case BehaviorType.CreateTable:
-						selection.Clear();
-						currentBehavior = new CreateTableBehavior(this);
-						break;
-					case BehaviorType.CreateControlHost:
-						selection.Clear();
-						currentBehavior = new CreateControlHostBehavior(this);
-						break;
-					case BehaviorType.LinkedControls:
-						selection.Clear();
-						currentBehavior = new ControlHostBehavior(this);
-						break;
-					case BehaviorType.Custom:
-						selection.Clear();
-						currentBehavior = customBehavior == null ?
-							new FlowChartBehavior(this) : customBehavior;
-						break;
-				}
-			}
-		}
-
-		internal Behavior getCurrBehavior()
-		{
-			return currentBehavior;
-		}
-
-		[Browsable(false)]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public Behavior CustomBehavior
-		{
-			get { return customBehavior; }
-
-			set
-			{
-				customBehavior = value;
-				if (customBehavior != null)
-				{
-					currentBehavior = customBehavior;
-					behavior = BehaviorType.Custom;
-				}
-				else
-				{
-					Behavior = BehaviorType.FlowChart;
-				}
-			}
-		}
-
-		private Behavior currentBehavior;
-		private Behavior customBehavior;
-		private BehaviorType behavior;
 
 		/// <summary>
 		/// Default value for the FillColor of new boxes
@@ -3817,156 +7492,6 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Activates the grid
-		/// </summary>
-		[Category("Grid")]
-		[DefaultValue(true)]
-		[Description("Specifies whether to align items to grid points.")]
-		public bool AlignToGrid
-		{
-			get
-			{
-				return alignToGrid;
-			}
-			set
-			{
-				if (alignToGrid != value)
-				{
-					alignToGrid = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool alignToGrid;
-
-		/// <summary>
-		/// Defines the visibility of the grid
-		/// </summary>
-		[Category("Grid")]
-		[DefaultValue(false)]
-		[Description("Shows or hides the grid points.")]
-		public bool ShowGrid
-		{
-			get
-			{
-				return showGrid;;
-			}
-			set
-			{
-				if (showGrid != value)
-				{
-					showGrid = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private bool showGrid;
-
-		/// <summary>
-		/// The color of the grid points
-		/// </summary>
-		[Category("Grid")]
-		[DefaultValue(typeof(Color), "140, 140, 150")]
-		[Description("Gets or sets the color used to paint grid dots or lines.")]
-		public Color GridColor
-		{
-			get
-			{
-				return gridColor;
-			}
-			set
-			{
-				if (gridColor != value)
-				{
-					gridColor = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private Color gridColor;
-
-		/// <summary>
-		/// The horizontal distance between adjacent grid points.
-		/// </summary>
-		[Category("Grid")]
-		[DefaultValue(4.0f)]
-		[Description("The horizontal distance between grid points.")]
-		public float GridSizeX
-		{
-			get
-			{
-				return gridSizeX;
-			}
-			set
-			{
-				if (gridSizeX != value)
-				{
-					gridSizeX = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private float gridSizeX;
-
-		/// <summary>
-		/// The vertical distance between adjacent grid points.
-		/// </summary>
-		[Category("Grid")]
-		[DefaultValue(4.0f)]
-		[Description("The vertical distance between grid points.")]
-		public float GridSizeY
-		{
-			get
-			{
-				return gridSizeY;
-			}
-			set
-			{
-				if (gridSizeY != value)
-				{
-					gridSizeY = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private float gridSizeY;
-
-		/// <summary>
-		/// Indicates how to draw the grid
-		/// </summary>
-		[
-		Category("Grid"),
-		DefaultValue(typeof(GridStyle), "Points"),
-		Description("Indicates how to draw the grid.")
-		]
-		public GridStyle GridStyle
-		{
-			get
-			{
-				return gridStyle;
-			}
-			set
-			{
-				if (gridStyle != value)
-				{
-					gridStyle = value;
-					Invalidate();
-				}
-			}
-		}
-
-		private GridStyle gridStyle;
-
-		/// <summary>
 		/// The default box style
 		/// </summary>
 		[Category("Defaults")]
@@ -4074,31 +7599,6 @@ namespace MindFusion.FlowChartX
 				textFormat.LineAlignment != StringAlignment.Center;
 		}
 
-		/// <summary>
-		/// Defines the placement of the background image
-		/// </summary>
-		[Category("Appearance")]
-		[DefaultValue(typeof(ImageAlign), "Document")]
-		[Description("Specifies alignment style and position for the background image.")]
-		public ImageAlign BkgrImagePos
-		{
-			get
-			{
-				return imagePos;
-			}
-			set
-			{
-				if (imagePos != value)
-				{
-					imagePos = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private ImageAlign imagePos;
-
 		[Category("Defaults")]
 		[DefaultValue(false)]
 		[Description("Specifies the initial value of the Scrollable property of new tables.")]
@@ -4151,83 +7651,6 @@ namespace MindFusion.FlowChartX
 
 		private bool controlHostsExpandable;
 
-		private BoxCollection boxes;
-		private ControlHostCollection controlHosts;
-		private TableCollection tables;
-		private ArrowCollection arrows;
-
-		private Selection selection;
-		private GroupCollection groups;
-
-		/// <summary>
-		/// Collection of the arrows in the current document
-		/// </summary>
-		[Browsable(false)]
-		public ArrowCollection Arrows
-		{
-			get
-			{
-				return arrows;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the boxes in the current document
-		/// </summary>
-		[Browsable(false)]
-		public BoxCollection Boxes
-		{
-			get
-			{
-				return boxes;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the control hosts in the current document
-		/// </summary>
-		[Browsable(false)]
-		public ControlHostCollection ControlHosts
-		{
-			get
-			{
-				return controlHosts;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the tables in the current document
-		/// </summary>
-		[Browsable(false)]
-		public TableCollection Tables
-		{
-			get
-			{
-				return tables;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the groups in the current document
-		/// </summary>
-		[Browsable(false)]
-		public GroupCollection Groups
-		{
-			get
-			{
-				return groups;
-			}
-		}
-
-		/// <summary>
-		/// Collection of all objects in the current document
-		/// </summary>
-		[Browsable(false)]
-		public ChartObjectCollection Objects
-		{
-			get { return zOrder; }
-		}
-
 		/// <summary>
 		/// Default value of the TextColor property of new objects
 		/// </summary>
@@ -4251,81 +7674,6 @@ namespace MindFusion.FlowChartX
 		}
 
 		private Color textColor;
-
-		/// <summary>
-		/// Color of manipulation handles of the active object
-		/// </summary>
-		[Category("Appearance")]
-		[DefaultValue(typeof(Color), "White")]
-		[Description("Manipulation handles of the active object are rendered in this color.")]
-		public Color ActiveMnpColor
-		{
-			get
-			{
-				return activeMnpColor;
-			}
-			set
-			{
-				if (!activeMnpColor.Equals(value))
-				{
-					activeMnpColor = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private Color activeMnpColor;
-
-		/// <summary>
-		/// Color of manipulation handles of the selected objects
-		/// </summary>
-		[Category("Appearance")]
-		[DefaultValue(typeof(Color), "170, 170, 170")]
-		[Description("Manipulation handles of selected objects are rendered in this color.")]
-		public Color SelMnpColor
-		{
-			get
-			{
-				return selMnpColor;
-			}
-			set
-			{
-				if (!selMnpColor.Equals(value))
-				{
-					selMnpColor = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private Color selMnpColor;
-
-		/// <summary>
-		/// Color of disabled manipulation handles
-		/// </summary>
-		[Category("Appearance")]
-		[DefaultValue(typeof(Color), "200, 0, 0")]
-		[Description("Disabled manipulation handles are rendered in this color.")]
-		public Color DisabledMnpColor
-		{
-			get
-			{
-				return disabledMnpColor;
-			}
-			set
-			{
-				if (!disabledMnpColor.Equals(value))
-				{
-					disabledMnpColor = value;
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		private Color disabledMnpColor;
 
 		/// <summary>
 		/// Default arrow style
@@ -4381,416 +7729,6 @@ namespace MindFusion.FlowChartX
 		}
 
 		private short arrowSegments;
-
-		/// <summary>
-		/// Reference to the active object if any
-		/// </summary>
-		[Browsable(false)]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public ChartObject ActiveObject
-		{
-			get
-			{
-				return activeObject;
-			}
-			set
-			{
-				if (activeObject == value)
-					return;
-
-				RectangleF rcUpdate = RectangleF.Empty;
-				if (activeObject != null)
-					rcUpdate = activeObject.getRepaintRect(false);
-
-				activeObject = value;
-
-				if (activeObject != null)
-					rcUpdate = Utilities.unionNonEmptyRects(rcUpdate,
-						activeObject.getRepaintRect(false));
-
-				if (activeObject != null)
-				{
-					if (activeObject.getType() == ItemType.ControlHost)
-					{
-						// Bring the contained control to front
-						ControlHost host = (ControlHost)activeObject;
-						if (host.Control != null)
-							bringContainedControlToFront(host.Control);
-					}
-				}
-
-				invalidate(rcUpdate);
-			}
-		}
-
-		private ChartObject activeObject;
-		private ChartObject autoHandlesObj;
-		private Node autoAnchorsObj;
-		private InteractionState interaction;
-
-		internal ChartObject getAutoHObj() { return autoHandlesObj; }
-		internal void setAutoHObj(ChartObject obj) { autoHandlesObj = obj; }
-
-		void removeFromZOrder(ChartObject obj)
-		{
-			zOrder.Remove(obj);
-			updateZOrder(0);
-		}
-
-		internal ChartObject getAtZ(int i)
-		{
-			return zOrder[i];
-		}
-
-		public void Add(ChartObject obj)
-		{
-			Add(obj, false);
-		}
-
-		public void Add(ChartObject item, bool select)
-		{
-			// validity checks can be disabled to save processing time, but beware,
-			// evil things can happen if the item collections are left in invalild state
-			if (validityChecks)
-			{
-				// do not allow adding an item more than once
-				if (zOrder.Contains(item))
-					return;
-
-				if (item.getType() == ItemType.Arrow)
-				{
-					Arrow arrow = item as Arrow;
-
-					// links origin and destination nodes must be in the same diagram
-					if (!zOrder.Contains(arrow.Origin) &&
-						(arrow.Origin == null || !(arrow.Origin is DummyNode)))
-						return;
-					if (!zOrder.Contains(arrow.Destination) &&
-						(arrow.Destination == null || !(arrow.Destination is DummyNode)))
-						return;
-				}
-			}
-
-			if (item.getType() == ItemType.ControlHost)
-			{
-				// add the hosted control to the flowchart
-				ControlHost host = item as ControlHost;
-				if (host.Control != null)
-				{
-					this.Controls.Add(host.Control);
-					bringContainedControlToFront(host.Control);
-				}
-			}
-
-			item.setParent(this);
-			item.setConstructed();
-
-			// add to the diagram
-			AddItemCmd cmd = new AddItemCmd(item);
-			cmd.Execute();
-
-			RectangleF rc = item.getRepaintRect(false);
-			if (select)
-			{
-				selection.Change(item);
-				rc = Utilities.unionNonEmptyRects(rc,
-					selection.getRepaintRect(true));
-			}
-
-			if (undoManager.UndoEnabled)
-				cmd.saveSelState();
-
-			// repaint the diagram area covered by the new item
-			invalidate(rc);
-			setDirty();
-		}
-
-		public void Add(Group group)
-		{
-			group.fcParent = this;
-			AddGroupCmd cmd = new AddGroupCmd(group.MainObject, group);
-			undoManager.executeCommand(cmd);
-			setDirty();
-		}
-
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("If enabled, validity checks are performed each time an item is added to the diagram. That involves enumerating the item collections and can slow up the process considerably for large diagrams. Disable this property to skip the checks, however be sure that you don't add an item twice to the diagram and that links are created only between items in the same diagram.")]
-		public bool ValidityChecks
-		{
-			get { return validityChecks; }
-			set { validityChecks = value; }
-		}
-
-		private bool validityChecks;
-
-		/// <summary>
-		/// Creates a new box
-		/// </summary>
-		public Box CreateBox(float x, float y, float width, float height)
-		{
-			// create the box object and store it in the collection
-			Box newBox = new Box(this);
-			newBox.setPos(x, y, width, height);
-
-			Add(newBox, SelectAfterCreate);
-
-			return newBox;
-		}
-
-		/// <summary>
-		/// Creates new control host node.
-		/// </summary>
-		public ControlHost CreateControlHost(float x, float y, float width, float height)
-		{
-			ControlHost newHost = new ControlHost(this);
-			newHost.setPos(x, y, width, height);
-			newHost.updateControlPosition();
-
-			Add(newHost, SelectAfterCreate);
-
-			return newHost;
-		}
-
-		/// <summary>
-		/// Create a new arrow
-		/// </summary>
-		/// 
-		public Arrow CreateArrow(Node srcNode, Node dstNode)
-		{
-			if (srcNode == null || dstNode == null) return null;
-
-			// create the arrow object and store it in the collection
-			Arrow newArrow = new Arrow(this);
-			newArrow.setOrgAndDest(
-				srcNode.createLink(newArrow, srcNode.getCenter(), false),
-				dstNode.createLink(newArrow, dstNode.getCenter(), true));
-
-			Add(newArrow, SelectAfterCreate);
-
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(Box srcBox, int srcAnchor, Box dstBox, int dstAnchor)
-		{
-			if (srcBox == null || dstBox == null) return null;
-
-			// create the arrow object and store it in the collection
-			Arrow newArrow = new Arrow(this);
-			newArrow.setOrgAndDest(
-				srcBox.createLink(newArrow, srcBox.getCenter(), false),
-				dstBox.createLink(newArrow, dstBox.getCenter(), true));
-
-			Add(newArrow, SelectAfterCreate);
-
-			newArrow.OrgnAnchor = srcAnchor;
-			newArrow.DestAnchor = dstAnchor;
-			newArrow.updatePoints(newArrow.Points[newArrow.Points.Count-1]);
-
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(Table src, Table dest)
-		{
-			return CreateArrow(src, -1, dest, -1);
-		}
-
-		public Arrow CreateArrow(Table src, int srcRow, Table dest, int destRow)
-		{
-			if (src == null || dest == null) return null;
-
-			if (!src.canHaveArrows(true) && srcRow != -1) return null;
-			if (!dest.canHaveArrows(false) && destRow != -1) return null;
-
-			if (srcRow < -1 || srcRow >= src.RowCount) return null;
-			if (destRow < -1 || destRow >= dest.RowCount) return null;
-
-			// create the arrow object and store it in the item array
-			Arrow newArrow = new Arrow(this);
-			newArrow.setOrgAndDest(
-				src.createLink(newArrow, false, srcRow),
-				dest.createLink(newArrow, true, destRow));
-
-			Add(newArrow, SelectAfterCreate);
-
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(Node srcNode, Table destTable, int destRow)
-		{
-			if (srcNode == null || destTable == null) return null;
-
-			if (!destTable.canHaveArrows(false) && destRow != -1) return null;
-
-			if (destRow < -1 || destRow >= destTable.RowCount)	return null;
-
-			// create the arrow object and store it in the collection
-			Arrow newArrow = new Arrow(this);
-			newArrow.setOrgAndDest(
-				srcNode.createLink(newArrow, srcNode.getCenter(), false),
-				destTable.createLink(newArrow, true, destRow));
-
-			Add(newArrow, SelectAfterCreate);
-
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(Table srcTable, int srcRow, Node dstNode)
-		{
-			if (srcTable == null || dstNode == null) return null;
-
-			if (!srcTable.canHaveArrows(true) && srcRow != -1) return null;
-
-			if (srcRow < -1 || srcRow >= srcTable.RowCount) return null;
-
-			// create the arrow object and store it in the item array
-			Arrow newArrow = new Arrow(this);
-			newArrow.setOrgAndDest(
-				srcTable.createLink(newArrow, false, srcRow),
-				dstNode.createLink(newArrow, dstNode.getCenter(), true));
-
-			Add(newArrow, SelectAfterCreate);
-
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(Node src, PointF dest)
-		{
-			if (src == null) return null;
-
-			// create the arrow instance and add it to the chart
-			Arrow newArrow = new Arrow(this, src, dest);
-			Add(newArrow, SelectAfterCreate);
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(PointF src, Node dest)
-		{
-			if (dest == null) return null;
-
-			// create the arrow instance and add it to the chart
-			Arrow newArrow = new Arrow(this, src, dest);
-			Add(newArrow, SelectAfterCreate);
-			return newArrow;
-		}
-
-		public Arrow CreateArrow(PointF src, PointF dest)
-		{
-			// create the arrow instance and add it to the chart
-			Arrow newArrow = new Arrow(this, src, dest);
-			Add(newArrow, SelectAfterCreate);
-			return newArrow;
-		}
-
-		/// <summary>
-		/// Finds the box with the given tag
-		/// </summary>
-		public Box FindBox(object tag)
-		{
-			Box foundBox = null;
-
-			// search for the box
-			foreach (Box box in boxes)
-			{
-				if (Object.Equals(box.Tag, tag))
-				{
-					foundBox = box;
-					break;
-				}
-			}
-
-			return foundBox;
-		}
-
-		/// <summary>
-		/// Searches for the control host with the specified tag.
-		/// </summary>
-		public ControlHost FindControlHost(object tag)
-		{
-			ControlHost foundHost = null;
-
-			// search the host list
-			foreach (ControlHost host in controlHosts)
-			{
-				if (Object.Equals(host.Tag,	tag))
-				{
-					foundHost = host;
-					break;
-				}
-			}
-
-			return foundHost;
-		}
-
-		/// <summary>
-		/// Finds the table with the given tag
-		/// </summary>
-		public Table FindTable(object tag)
-		{
-			Table foundTable = null;
-
-			// search for the Table
-			foreach (Table table in tables)
-			{
-				if (Object.Equals(table.Tag, tag))
-				{
-					foundTable = table;
-					break;
-				}
-			}
-
-			return foundTable;
-		}
-
-		/// <summary>
-		/// Finds the arrow with the given tag
-		/// </summary>
-		public Arrow FindArrow(object tag)
-		{
-			Arrow foundArrow = null;
-
-			// search for the arrow
-			foreach (Arrow arrow in arrows)
-			{
-				if (Object.Equals(arrow.Tag, tag))
-				{
-					foundArrow = arrow;
-					break;
-				}
-			}
-
-			return foundArrow;
-		}
-
-		/// <summary>
-		/// Finds the group with the given tag
-		/// </summary>
-		public Group FindGroup(object tag)
-		{
-			Group foundGroup = null;
-
-			// search for the group
-			foreach (Group group in groups)
-			{
-				if (Object.Equals(group.Tag, tag))
-				{
-					foundGroup = group;
-					break;
-				}
-			}
-
-			return foundGroup;
-		}
-
-		[Category("Appearance")]
-		[DefaultValue(true)]
-		public bool ShowDisabledHandles
-		{
-			get { return showDisabledHandles; }
-			set { showDisabledHandles = value; }
-		}
-
-		private bool showDisabledHandles;
 
 		[Category("Defaults")]
 		[DefaultValue(typeof(HandlesStyle), "SquareHandles")]
@@ -4861,273 +7799,6 @@ namespace MindFusion.FlowChartX
 		private HandlesStyle tableSelStyle;
 
 		/// <summary>
-		/// The document horizontal scroll position
-		/// </summary>
-		[Category("Layout")]
-		[DefaultValue(0.0f)]
-		public float ScrollX
-		{
-			get
-			{
-				return scrollX;
-			}
-			set
-			{
-				if (scrollX != value)
-				{
-					setScrollX(value);
-					if (hScrollBar != null)
-					{
-						if (scrollX >= hScrollBar.Minimum &&
-							scrollX <= hScrollBar.Maximum)
-							hScrollBar.Value = (int)scrollX;
-					}
-				}
-			}
-		}
-
-		void setScrollX(float scr)
-		{
-			scrollX = scr;
-			Invalidate();
-			updateHostedControlsPos();
-
-			if (ScrollChanged != null)
-				ScrollChanged(this, new EventArgs());
-		}
-
-		void setScrollY(float scr)
-		{
-			scrollY = scr;
-			Invalidate();
-			updateHostedControlsPos();
-
-			if (ScrollChanged != null)
-				ScrollChanged(this, new EventArgs());
-		}
-
-		private float scrollX;
-
-		/// <summary>
-		/// The document vertical scroll position
-		/// </summary>
-		[Category("Layout")]
-		[DefaultValue(0.0f)]
-		public float ScrollY
-		{
-			get
-			{
-				return scrollY;
-			}
-			set
-			{
-				if (scrollY != value)
-				{
-					setScrollY(value);
-					if (vScrollBar != null)
-					{
-						if (scrollY >= vScrollBar.Minimum &&
-							scrollY <= vScrollBar.Maximum)
-							vScrollBar.Value = (int)scrollY;
-					}
-				}
-			}
-		}
-
-		private float scrollY;
-
-		/// <summary>
-		/// Scrolls the document
-		/// </summary>
-		public void ScrollTo(float x, float y)
-		{
-			ScrollX = x;
-			ScrollY = y;
-		}
-
-		/// <summary>
-		/// The zoom factor
-		/// </summary>
-		[Category("Layout")]
-		[DefaultValue(100.0f)]
-		public float ZoomFactor
-		{
-			get
-			{
-				return zoomFactor;
-			}
-			set
-			{
-				if (zoomFactor == value)
-					return;
-
-				zoomFactor = value;
-				if (zoomFactor < 1)
-					zoomFactor = 1;
-				if (zoomFactor > 1500)
-					zoomFactor = 1500;
-
-				Invalidate();
-				setDirty();
-				updateHostedControlsPos();
-				if (ShowScrollbars)
-					resetScrollbars();
-			
-				if (ZoomFactorChanged != null)
-					ZoomFactorChanged(this, new EventArgs());
-			}
-		}
-
-		private float zoomFactor;
-
-		/// <summary>
-		/// Increases the zoom factor
-		/// </summary>
-		public void ZoomIn()
-		{
-			if (ZoomFactor < 10)
-				ZoomFactor += 1;
-			else if (ZoomFactor < 20)
-				ZoomFactor += 5;
-			else
-				ZoomFactor += 10;
-		}
-
-		/// <summary>
-		/// Decreases the zoom factor
-		/// </summary>
-		public void ZoomOut()
-		{
-			if (ZoomFactor > 20)
-				ZoomFactor -= 10;
-			else if (ZoomFactor > 10)
-				ZoomFactor -= 5;
-			else
-				ZoomFactor -= 1;
-		}
-
-		public void ZoomToFit()
-		{
-			RectangleF rcCnt = getContentRect(false, true);
-			zoomToRect(rcCnt, 2);
-		}
-
-		void zoomToRect(RectangleF rc, int zoomDecrease)
-		{
-			Graphics g = CreateGraphics();
-			g.PageUnit = measureUnit;
-			RectangleF ctrlRect = Utilities.deviceToDoc(g, ClientRectangle);
-			g.Dispose();
-
-			float ctrlWidth = ctrlRect.Width;
-			float ctrlHeight = ctrlRect.Height;
-			float cntWidth = rc.Width;
-			float cntHeight = rc.Height;
-
-			if (ctrlWidth > 0 && ctrlHeight > 0 && cntWidth > 0 && cntHeight > 0)
-			{
-				float rx = cntWidth / ctrlWidth;
-				float ry = cntHeight / ctrlHeight;
-				float ratio = Math.Max(rx, ry);
-
-				ScrollTo(rc.X, rc.Y);
-				float newZoom = 100.0f / ratio;
-				if (newZoom > 10)
-					newZoom -= zoomDecrease;
-				ZoomFactor = newZoom;
-			}
-		}
-
-		public void ZoomToRect(RectangleF rect)
-		{
-			zoomToRect(rect, 0);
-		}
-
-		internal RectangleF getContentRect(bool forPrint, bool onlyVisible)
-		{
-			RectangleF rcUnion = new RectangleF(0, 0, 0, 0);
-
-			foreach (ChartObject item in zOrder)
-			{
-				if (onlyVisible && !item.Visible) continue;
-				if (forPrint && !item.Printable) continue;
-
-				RectangleF itemRect = item.getRepaintRect(false);
-				rcUnion = Utilities.unionNonEmptyRects(rcUnion, itemRect);
-			}
-
-			if (forPrint)
-			{
-				rcUnion = RectangleF.FromLTRB(DocExtents.Left, DocExtents.Top,
-					Math.Max(rcUnion.Right, DocExtents.Left),
-					Math.Max(rcUnion.Bottom, DocExtents.Top));
-			}
-
-			return rcUnion;
-		}
-
-		public void FitDocToObjects(float borderGap)
-		{
-			FitDocToObjects(borderGap, false);
-		}
-
-		public void FitDocToObjects(float borderGap, bool onlyVisible)
-		{
-			if (zOrder.Count > 0)
-			{
-				RectangleF rcDoc = getContentRect(false, onlyVisible);
-				rcDoc.Inflate(borderGap, borderGap);
-				DocExtents = rcDoc;
-			}
-		}
-
-		/// <summary>
-		/// Enables tool-tips
-		/// </summary>
-		[Category("Appearance")]
-		[DefaultValue(true)]
-		[Description("Specifies if tooltips are displayed when mouse hovers over an object.")]
-		public bool ShowToolTips
-		{
-			get
-			{
-				return showToolTips;
-			}
-			set
-			{
-				showToolTips = value;
-				if (!this.DesignMode)
-					toolTipCtrl.Active = showToolTips;
-			}
-		}
-
-		bool showToolTips;
-
-		/// <summary>
-		/// Enable/disable reflexive links creation
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("Enables or disables creation of reflexive links.")]
-		public bool AllowRefLinks
-		{
-			get
-			{
-				return allowRefLinks;
-			}
-			set
-			{
-				if (allowRefLinks != value)
-				{
-					allowRefLinks = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool allowRefLinks;
-
-		/// <summary>
 		/// The default pen dash style of new objects
 		/// </summary>
 		[Category("Defaults")]
@@ -5195,1294 +7866,12 @@ namespace MindFusion.FlowChartX
 				else
 					shapeTemplate = (ShapeTemplate)value.Clone();
 
-				if (ShapeTemplateChanged != null)
-					ShapeTemplateChanged(this, new EventArgs());
+				if (DefaultShapeChanged != null)
+					DefaultShapeChanged(this, new EventArgs());
 			}
 		}
 
 		private ShapeTemplate shapeTemplate;
-
-		#endregion
-
-		#region mouse pointers
-
-		[Category("Mouse cursors")]
-		[Description("Cursor displayed when the mouse pointer is over empty document area.")]
-		public Cursor CurPointer
-		{
-			get { return curPointer; }
-			set { curPointer = value; }
-		}
-		private Cursor curPointer;
-
-		private bool ShouldSerializeCurPointer()
-		{
-			return curPointer != Cursors.Arrow;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Cursor displayed when an object cannot be created.")]
-		public Cursor CurCannotCreate
-		{
-			get { return curCannotCreate; }
-			set { curCannotCreate = value; }
-		}
-		private Cursor curCannotCreate;
-
-		private bool ShouldSerializeCurCannotCreate()
-		{
-			return curCannotCreate != Cursors.No;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Cursor displayed when an object can be modified.")]
-		public Cursor CurModify
-		{
-			get { return curModify; }
-			set { curModify = value; }
-		}
-		private Cursor curModify;
-
-		private bool ShouldSerializeCurModify()
-		{
-			return curModify != Cursors.SizeAll;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Cursor displayed when dragging the mouse will create an arrow.")]
-		public Cursor CurArrowStart
-		{
-			get { return curArrowStart; }
-			set { curArrowStart = value; }
-		}
-		private Cursor curArrowStart;
-
-		private bool ShouldSerializeCurArrowStart()
-		{
-			return curArrowStart != Cursors.Hand;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Cursor displayed when an arrow can be created.")]
-		public Cursor CurArrowEnd
-		{
-			get { return curArrowEnd; }
-			set { curArrowEnd = value; }
-		}
-		private Cursor curArrowEnd;
-
-		private bool ShouldSerializeCurArrowEnd()
-		{
-			return curArrowEnd != Cursors.Hand;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Cursor displayed if an arrow cannot be created.")]
-		public Cursor CurArrowCannotCreate
-		{
-			get { return curArrowCannotCreate; }
-			set { curArrowCannotCreate = value; }
-		}
-		private Cursor curArrowCannotCreate;
-
-		private bool ShouldSerializeCurArrowCannotCreate()
-		{
-			return curArrowCannotCreate != Cursors.No;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Indicates that an object would be resized horizontally.")]
-		public Cursor CurHorzResize
-		{
-			get { return curHorzResize; }
-			set { curHorzResize = value; }
-		}
-		private Cursor curHorzResize;
-
-		private bool ShouldSerializeCurHorzResize()
-		{
-			return curHorzResize != Cursors.SizeWE;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Indicates that dragging a selection handle would rotate the selected box.")]
-		public Cursor CurRotateShape
-		{
-			get { return curRotateShape; }
-			set { curRotateShape = value; }
-		}
-		private Cursor curRotateShape;
-
-		private void ResetCurRotateShape()
-		{
-			curRotateShape = CustomCursors.Rotate;
-		}
-
-		private bool ShouldSerializeCurRotateShape()
-		{
-			// HACK: just comparing curRotateShape with CustomCursors.Rotate never
-			// seems to work, so use the pretty piece of code below
-
-			// these should be all Cursors members
-			Cursor[] cursors = new Cursor[] {
-				Cursors.AppStarting,
-				Cursors.Arrow,
-				Cursors.Cross,
-				Cursors.Default,
-				Cursors.Hand,
-				Cursors.Help,
-				Cursors.HSplit,
-				Cursors.IBeam,
-				Cursors.No,
-				Cursors.NoMove2D,
-				Cursors.NoMoveHoriz,
-				Cursors.NoMoveVert,
-				Cursors.PanEast,
-				Cursors.PanNE,
-				Cursors.PanNorth,
-				Cursors.PanNW,
-				Cursors.PanSE,
-				Cursors.PanSouth,
-				Cursors.PanSW,
-				Cursors.PanWest,
-				Cursors.SizeAll,
-				Cursors.SizeNESW,
-				Cursors.SizeNS,
-				Cursors.SizeNWSE,
-				Cursors.SizeWE,
-				Cursors.UpArrow,
-				Cursors.VSplit,
-				Cursors.WaitCursor};
-
-			foreach (Cursor cursor in cursors)
-			{
-				if (cursor == curRotateShape)
-					return true;
-			}
-
-			return false;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Indicates that an object would be resized vertically.")]
-		public Cursor CurVertResize
-		{
-			get { return curVertResize; }
-			set { curVertResize = value; }
-		}
-		private Cursor curVertResize;
-
-		private bool ShouldSerializeCurVertResize()
-		{
-			return curVertResize != Cursors.SizeNS;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Indicates that an object would be resized in both directions.")]
-		public Cursor CurMainDgnlResize
-		{
-			get { return curMainDgnlResize; }
-			set { curMainDgnlResize = value; }
-		}
-		private Cursor curMainDgnlResize;
-
-		private bool ShouldSerializeCurMainDgnlResize()
-		{
-			return curMainDgnlResize != Cursors.SizeNWSE;
-		}
-
-		[Category("Mouse cursors")]
-		[Description("Indicates that an object would be resized in both directions.")]
-		public Cursor CurSecDgnlResize
-		{
-			get { return curSecDgnlResize; }
-			set { curSecDgnlResize = value; }
-		}
-		private Cursor curSecDgnlResize;
-
-		private bool ShouldSerializeCurSecDgnlResize()
-		{
-			return curSecDgnlResize != Cursors.SizeNESW;
-		}
-
-		#endregion
-
-		/// <summary>
-		/// Automatically select object after it is created
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("Determines whether newly-created objects are automatically selected")]
-		public bool SelectAfterCreate
-		{
-			get
-			{
-				return selectAfterCreate;
-			}
-			set
-			{
-				if (selectAfterCreate != value)
-				{
-					selectAfterCreate = value;
-					setDirty();
-				}
-			}
-		}
-
-		bool selectAfterCreate;
-
-		/// <summary>
-		/// Sets the offset at which the shadows are drawn
-		/// </summary>
-		public void SetShadowOffset(float x, float y)
-		{
-			ShadowOffsetX = x;
-			ShadowOffsetY = y;
-		}
-
-		[Category("Appearance")]
-		[DefaultValue(true)]
-		[Description("Specifies whether scrollbars are visible.")]
-		public bool ShowScrollbars
-		{
-			get { return hScrollBar != null; }
-			set
-			{
-				if (value)
-				{
-					if (hScrollBar != null)
-						Controls.Remove(hScrollBar);
-					if (vScrollBar != null)
-						Controls.Remove(vScrollBar);
-
-					vScrollBar = new VScrollBar();
-					vScrollBar.Dock = DockStyle.Right;
-					vScrollBar.Scroll += new ScrollEventHandler(ScrollEvent);
-					Controls.Add(vScrollBar);
-
-					hScrollBar = new HScrollBar();
-					hScrollBar.Dock = DockStyle.Bottom;
-					hScrollBar.Scroll += new ScrollEventHandler(ScrollEvent);
-					Controls.Add(hScrollBar);
-				}
-				else
-				{
-					if (hScrollBar != null) Controls.Remove(hScrollBar);
-					if (vScrollBar != null) Controls.Remove(vScrollBar);
-					hScrollBar = null;
-					vScrollBar = null;
-				}
-			}
-		}
-
-		[Category("Layout")]
-		public RectangleF DocExtents
-		{
-			get { return docExtents; }
-			set
-			{
-				if (!docExtents.Equals(value))
-				{
-					docExtents = value;
-					docExtentsMin = value;
-
-					resetDocSize();
-					updateHostedControlsPos();
-				}
-			}
-		}
-
-		private void resetDocSize()
-		{
-			if (ScrollX < docExtents.Left || ScrollX > docExtents.Right)
-				ScrollX = docExtents.Left;
-			if (ScrollY < docExtents.Top || ScrollY > docExtents.Bottom)
-				ScrollY = docExtents.Top;
-			if (ShowScrollbars)
-				resetScrollbars();
-
-			if (DocExtentsChanged != null)
-				DocExtentsChanged(this, new EventArgs());
-		}
-
-		private void resetScrollbars()
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-			RectangleF vsblDoc = Utilities.deviceToDoc(g, ClientRectangle);
-			g.Dispose();
-
-			hScrollBar.Minimum = (int)docExtents.Left;
-			hScrollBar.Maximum = (int)docExtents.Right;
-			hScrollBar.Value = Math.Max(hScrollBar.Minimum, (int)ScrollX);
-			hScrollBar.LargeChange = (int)vsblDoc.Width;
-			hScrollBar.Visible = hScrollBar.LargeChange <
-				hScrollBar.Maximum - hScrollBar.Minimum;
-			if (!hScrollBar.Visible)
-				setScrollX(docExtents.Left);
-
-			vScrollBar.Minimum = (int)docExtents.Top;
-			vScrollBar.Maximum = (int)docExtents.Bottom;
-			vScrollBar.Value = Math.Max(vScrollBar.Minimum, (int)ScrollY);
-			vScrollBar.LargeChange = (int)vsblDoc.Height;
-			vScrollBar.Visible = vScrollBar.LargeChange <
-				vScrollBar.Maximum - vScrollBar.Minimum;
-			if (!vScrollBar.Visible)
-				setScrollY(docExtents.Top);
-		}
-
-		private RectangleF docExtents;
-		private RectangleF docExtentsMin;
-
-		/// <summary>
-		/// Deletes all objects
-		/// </summary>
-		public void ClearAll()
-		{
-			endInplaceEdit(true);
-#if ! FCNET_STD
-			undoManager.History.Clear();
-			undoManager.resetContext();
-#endif
-
-			// clear selection
-			selection.Clear();
-
-			// destroy all groups
-			foreach (Group group in groups)
-				group.onDelete();
-			groups.Clear();
-
-			// clear type-specific lists
-			arrows.Clear();
-			controlHosts.Clear();
-			boxes.Clear();
-			tables.Clear();
-
-			// free resources and clear all items
-			foreach (ChartObject obj in zOrder)
-			{
-				obj.onRemove();
-				obj.freeResources();
-			}
-			zOrder.Clear();
-
-			autoHandlesObj = null;
-			interaction = null;
-			activeObject = null;
-			autoAnchorsObj = null;
-
-			GC.Collect();
-			Invalidate();
-			setDirty();
-		}
-
-		/// <summary>
-		/// Default for the CustomDraw property of new boxes
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(CustomDraw), "None")]
-		[Description("The initial value of the CustomDraw property of boxes.")]
-		public CustomDraw BoxCustomDraw
-		{
-			get
-			{
-				return boxCustomDraw;
-			}
-			set
-			{
-				if (boxCustomDraw != value)
-				{
-					boxCustomDraw = value;
-					setDirty();
-				}
-			}
-		}
-
-		private CustomDraw boxCustomDraw;
-
-		/// <summary>
-		/// Gets or sets the default value for the CustomDraw property of new tables.
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(CustomDraw), "None")]
-		[Description("Gets or sets the default value for the CustomDraw property of new tables.")]
-		public CustomDraw TableCustomDraw
-		{
-			get
-			{
-				return tableCustomDraw;
-			}
-			set
-			{
-				if (tableCustomDraw != value)
-				{
-					tableCustomDraw = value;
-					setDirty();
-				}
-			}
-		}
-
-		private CustomDraw tableCustomDraw;
-
-		/// <summary>
-		/// Gets or sets the default value for the CellCustomDraw property of new tables.
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(CustomDraw), "None")]
-		[Description("Gets or sets the default value for the CellCustomDraw property of new tables.")]
-		public CustomDraw CellCustomDraw
-		{
-			get
-			{
-				return cellCustomDraw;
-			}
-			set
-			{
-				if (cellCustomDraw != value)
-				{
-					cellCustomDraw = value;
-					setDirty();
-				}
-			}
-		}
-
-		private CustomDraw cellCustomDraw;
-
-		/// <summary>
-		/// Default for the CustomDraw property of new boxes
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(CustomDraw), "None")]
-		[Description("The initial value of the CustomDraw property of arrows.")]
-		public CustomDraw ArrowCustomDraw
-		{
-			get
-			{
-				return arrowCustomDraw;
-			}
-			set
-			{
-				if (arrowCustomDraw != value)
-				{
-					arrowCustomDraw = value;
-					setDirty();
-				}
-			}
-		}
-
-		private CustomDraw arrowCustomDraw;
-
-		/// <summary>
-		/// Gets the client coordinates of a document point
-		/// </summary>
-		public Point DocToClient(PointF docPt)
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-			Point clientPt = Utilities.docToDevice(g, docPt);
-			g.Dispose();
-			return clientPt;
-		}
-
-		/// <summary>
-		/// Gets the client coordinates of a document rectangle
-		/// </summary>
-		public Rectangle DocToClient(RectangleF docRect)
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-			Rectangle clientRect = Utilities.docToDevice(g, docRect);
-			g.Dispose();
-			return clientRect;
-		}
-
-		/// <summary>
-		/// Gets the document coordinates of a client point
-		/// </summary>
-		public PointF ClientToDoc(Point clientPt)
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-			PointF docPt = Utilities.deviceToDoc(g, clientPt.X, clientPt.Y);
-			g.Dispose();
-			return docPt;
-		}
-
-		/// <summary>
-		/// Gets the document coordinates of a client rectangle
-		/// </summary>
-		public RectangleF ClientToDoc(Rectangle clientRect)
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-			RectangleF docRect = Utilities.deviceToDoc(g, clientRect);
-			g.Dispose();
-			return docRect;
-		}
-
-		/// <summary>
-		/// Deletes an object
-		/// </summary>
-		public bool DeleteObject(ChartObject obj)
-		{
-			if (obj == null) return false;
-
-			bool deleted = deleteItem(obj);
-			if (deleted)
-				Invalidate();
-
-			return deleted;
-		}
-
-		private void removeFromSelection(ChartObject obj)
-		{
-			selection.RemoveObject(obj);
-		}
-
-		internal bool deleteItem(ChartObject item)
-		{
-			if (!zOrder.Contains(item)) return false;
-
-			if (interaction != null)
-			{
-				if (interaction.isCompleting())
-				{
-					if (interaction.CurrentObject == item)
-						interaction.setItemDeleted();
-				}
-				else
-				{
-					buttonDown[0] = false;
-					if (Capture)
-						Capture = false;
-					interaction.cancel(this);
-					interaction = null;
-				}
-			}
-
-			new RemoveItemCmd(item).Execute();
-			
-			setDirty();
-			return true;
-		}
-
-		/// <summary>
-		/// Horizontal offset of shadows from their items.
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(1.0f)]
-		[Description("Horizontal offset of shadows from the items that cast them.")]
-		public float ShadowOffsetX
-		{
-			get
-			{
-				return shadowOffsetX;
-			}
-			set
-			{
-				if (shadowOffsetX != value)
-				{
-					shadowOffsetX = value;
-					setDirty();
-				}
-			}
-		}
-
-		private float shadowOffsetX;
-
-		/// <summary>
-		/// Vertical offset of the shadows
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(1.0f)]
-		[Description("Vertical offset of shadows from the items that cast them.")]
-		public float ShadowOffsetY
-		{
-			get
-			{
-				return shadowOffsetY;
-			}
-			set
-			{
-				if (shadowOffsetY != value)
-				{
-					shadowOffsetY = value;
-					setDirty();
-				}
-			}
-		}
-
-		private float shadowOffsetY;
-
-		/// <summary>
-		/// Restriction of the object positions in the document extents
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(typeof(RestrictToDoc), "Intersection")]
-		[Description("Specifies whether users can create or drag objects outside document boundaries.")]
-		public RestrictToDoc RestrObjsToDoc
-		{
-			get
-			{
-				return restrObjsToDoc;
-			}
-			set
-			{
-				if (restrObjsToDoc != value)
-				{
-					restrObjsToDoc = value;
-					setDirty();
-				}
-			}
-		}
-
-		private RestrictToDoc restrObjsToDoc;
-
-		/// <summary>
-		/// Default for the Dynamic property of new arrows
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(false)]
-		[Description("Initial value of arrows' Dynamic property, specifying whether arrows automatically adjust the coordinates of their end points to align them to node outlines.")]
-		public bool DynamicArrows
-		{
-			get
-			{
-				return dynamicArrows;
-			}
-			set
-			{
-				if (dynamicArrows != value)
-				{
-					dynamicArrows = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool dynamicArrows;
-
-		/// <summary>
-		/// Default for the Dynamic property of new arrows
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(false)]
-		[Description("Initial value of arrows' SnapToNodeBorder property, specifying whether arrow end points are automatically aligned to node borders.")]
-		public bool ArrowsSnapToBorders
-		{
-			get
-			{
-				return arrowsSnapToBorders;
-			}
-			set
-			{
-				if (arrowsSnapToBorders != value)
-				{
-					arrowsSnapToBorders = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool arrowsSnapToBorders;
-
-		/// <summary>
-		/// Default for the Polar property of new arrows
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(false)]
-		[Description("Initial value of arrows' RetainForm property, specifying whether arrows automatically adjust the coordinates of their points so their relative initial position remains the same.")]
-		public bool ArrowsRetainForm
-		{
-			get
-			{
-				return arrowsRetainForm;
-			}
-			set
-			{
-				if (arrowsRetainForm != value)
-				{
-					arrowsRetainForm = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool arrowsRetainForm;
-
-		#region link routing
-
-		/// <summary>
-		/// Default for the Route property of new arrows
-		/// </summary>
-		[Category("Routing")]
-		[DefaultValue(false)]
-		[Description("Initial value of the AutoRoute property of arrows.")]
-		public bool RouteArrows
-		{
-			get
-			{
-				return routeArrows;
-			}
-			set
-			{
-				if (routeArrows != value)
-				{
-					routeArrows = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool routeArrows;
-
-		/// <summary>
-		/// Settings for the link routing algorithm.
-		/// </summary>
-		[Category("Routing")]
-		[Description("Settings for the link routing algorithm.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-		[TypeConverter(typeof(ExpandableObjectConverter))]
-		public RoutingOptions RoutingOptions
-		{
-			get
-			{
-				return routingOptions;
-			}
-		}
-
-		private RoutingOptions routingOptions;
-
-		/// <summary>
-		/// A RoutingGrid instance used to allocate grid arrays
-		/// </summary>
-		internal RoutingGrid RoutingGrid
-		{
-			get
-			{
-				return routingGrid;
-			}
-		}
-
-		private RoutingGrid routingGrid;
-
-		/// <summary>
-		/// Determines whether a link must be rerouted.
-		/// </summary>
-		internal bool rerouteArrow(Arrow arrow)
-		{
-			if (routingOptions.TriggerRerouting == RerouteArrows.WhenModified) return true;
-			if (routingOptions.TriggerRerouting == RerouteArrows.Never) return false;
-
-			RectangleF arrowRect = arrow.BoundingRect;
-			for (int j = 0; j < zOrder.Count; ++j)
-			{
-				if (zOrder[j] is Node)
-				{
-					Node node = zOrder[j] as Node;
-					if (node == arrow.Origin || node == arrow.Destination)
-						continue;
-					RectangleF rect = node.getRotatedBounds();
-					if (arrowRect.IntersectsWith(rect))
-					{
-						if (arrow.Intersects(node))
-							return true;
-
-					}	// if (arrowRect.IntersectsWith(rect))
-
-				}	// if (zOrder[j] is Node)
-
-			}	// for (int j = 0; j < zOrder.Count; ++j)
-
-			return false;
-		}
-
-		/// <summary>
-		/// Reroutes all links.
-		/// </summary>
-		internal void routeAllArrows(ChartObject modified)
-		{
-			Node node = modified as Node;
-			if (node != null && !node.Obstacle)
-				return;
-
-			undoManager.onStartRoute();
-
-			RectangleF objRect = modified.getRotatedBounds();
-			RectangleF invalid = objRect;
-			if (routingOptions.TriggerRerouting == RerouteArrows.WhenModified || node == null)
-			{
-				foreach (Arrow arrow in arrows)
-				{
-					if (!arrow.AutoRoute) continue;
-
-					RectangleF arrowRect = arrow.getBoundingRect();
-					if (arrowRect.IntersectsWith(objRect))
-					{
-						invalid = Utilities.unionRects(invalid, arrowRect);
-						undoManager.onRouteArrow(arrow);
-						arrow.doRoute();
-						invalid = Utilities.unionRects(invalid, arrow.getBoundingRect());
-					}
-				}
-			}
-			else
-			{
-				foreach (Arrow arrow in arrows)
-				{
-					if (rerouteArrow(arrow))
-					{
-						invalid = Utilities.unionRects(invalid, arrow.getRepaintRect(false));
-						undoManager.onRouteArrow(arrow);
-						arrow.doRoute();
-						invalid = Utilities.unionRects(invalid, arrow.getBoundingRect());
-					}
-				}
-			}
-
-			undoManager.onEndRoute();
-			invalidate(invalid);
-		}
-
-		/// <summary>
-		/// Performs routing on all arrows ignoring their AutoRoute flag.
-		/// </summary>
-		public void RouteAllArrows()
-		{
-			foreach (Arrow a in arrows)
-			{
-				bool wasAutoRoute = a.AutoRoute;
-
-				a.SilentAutoRoute = true;
-				a.doRoute();
-				a.SilentAutoRoute = wasAutoRoute;
-			}
-
-			Invalidate();
-		}
-
-		/// <summary>
-		/// Used to disable routing during load time and when automatic
-		/// layout routines run.
-		/// </summary>
-		internal bool DontRouteForAwhile
-		{
-			get { return dontRouteForAwhile; }
-			set { dontRouteForAwhile = value; }
-		}
-
-		private bool dontRouteForAwhile;
-
-		#endregion
-
-		/// <summary>
-		/// Automatically scroll when dragging the mouse outside the visible area
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("Enables automatic scrolling when the mouse is dragged outside the document boundaries.")]
-		public bool AutoScroll
-		{
-			get
-			{
-				return autoScroll;
-			}
-			set
-			{
-				if (autoScroll != value)
-				{
-					autoScroll = value;
-					if (scrollTimer != null)
-					{
-						scrollTimer.Enabled = false;
-						scrollTimer = null;
-					}
-					setDirty();
-				}
-			}
-		}
-
-		private bool autoScroll;
-		private float autoScrDX;
-		private float autoScrDY;
-
-		private void checkAutoScroll(MouseEventArgs args)
-		{
-			Point ptDev = new Point(args.X, args.Y);
-
-			if (!Utilities.pointInRect(ptDev, ClientRectangle))
-			{
-				autoScrDX = autoScrDY = 0;
-				if (ptDev.X < ClientRectangle.Left) autoScrDX = -Constants.getAutoScroll(measureUnit);
-				if (ptDev.Y < ClientRectangle.Top) autoScrDY = -Constants.getAutoScroll(measureUnit);
-				if (ptDev.X > ClientRectangle.Right) autoScrDX = Constants.getAutoScroll(measureUnit);
-				if (ptDev.Y > ClientRectangle.Bottom) autoScrDY = Constants.getAutoScroll(measureUnit);
-
-				onAutoScrollTimer(this, null);
-				if (scrollTimer == null)
-				{
-					scrollTimer = new Timer();
-					scrollTimer.Interval = 100;
-					scrollTimer.Tick += new EventHandler(onAutoScrollTimer);
-					scrollTimer.Enabled = true;
-				}
-			}
-			else
-			{
-				if (scrollTimer != null)
-				{
-					scrollTimer.Enabled = false;
-					Invalidate();
-				}
-				scrollTimer = null;
-			}
-		}
-
-		private Timer scrollTimer = null;
-
-		private void scrollStayInDoc(float scrX, float scrY, RectangleF rcPage)
-		{
-			// ensure that the scroll position is inside the document
-			if (scrX < docExtents.Left) scrX = docExtents.Left;
-			if (scrX > docExtents.Right - rcPage.Width)
-				scrX = Math.Max(docExtents.Right - rcPage.Width, docExtents.Left);
-
-			if (scrY < docExtents.Top) scrY = docExtents.Top;
-			if (scrY > docExtents.Bottom - rcPage.Height)
-				scrY = Math.Max(docExtents.Bottom - rcPage.Height, docExtents.Top);
-
-			// scroll to the new position
-			ScrollTo(scrX, scrY);
-		}
-
-		private void onAutoScrollTimer(Object obj, EventArgs args)
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-
-			RectangleF rcPage = Utilities.deviceToDoc(g, ClientRectangle);
-
-			float scrX=ScrollX, scrY=ScrollY;
-			if (rcPage.Width < docExtents.Width)
-				scrX = ScrollX + autoScrDX;
-			if (rcPage.Height < docExtents.Height)
-				scrY = ScrollY + autoScrDY;
-
-			scrollStayInDoc(scrX, scrY, rcPage);
-
-			// redraw the control
-			drawFlowChart(docBuffer, ClientRectangle, true);
-			Invalidate();
-
-			// update the modified object position
-			if (interaction != null)
-			{
-				// get the current mouse position in document coordinates
-				Point ptDev = PointToClient(Control.MousePosition);
-				PointF ptDoc = Utilities.deviceToDoc(g, ptDev.X, ptDev.Y);
-
-				redrawNonModified = false;
-				mouseMoved = true;
-				interaction.update(ptDoc, this);
-
-				// update document size if needed
-				if (autoSizeDoc != MindFusion.FlowChartX.AutoSize.None)
-					sizeDocForItem(interaction.CurrentObject);
-
-				if (redrawNonModified)
-				{
-					drawFlowChart(docBuffer, ClientRectangle, true);
-					Invalidate();
-					redrawNonModified = false;
-				}
-			}
-
-			g.Dispose();
-		}
-
-		/// <summary>
-		/// Default value for the FillColor of new tables
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(Color), "180, 160, 160")]
-		[Description("Interior of tables is painted with this color.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public Color TableFillColor
-		{
-			get
-			{
-				return tableFillColor;
-			}
-			set
-			{
-				if (!tableFillColor.Equals(value))
-				{
-					tableFillColor = value;
-
-					// Reset the brush
-					TableBrush = new SolidBrush(tableFillColor);
-
-					setDirty();
-				}
-			}
-		}
-
-		private Color tableFillColor;
-
-		/// <summary>
-		/// Default value for the FrameColor of new tables
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(Color), "Black")]
-		[Description("Color of table frame lines.")]
-		public Color TableFrameColor
-		{
-			get
-			{
-				return tableFrameColor;
-			}
-			set
-			{
-				if (!tableFrameColor.Equals(value))
-				{
-					tableFrameColor = value;
-
-					// Reset the pen
-					tablePen.Color = tableFrameColor;
-
-					setDirty();
-				}
-			}
-		}
-
-		private Color tableFrameColor;
-
-		/// <summary>
-		/// Creates a new table
-		/// </summary>
-		public Table CreateTable(float x, float y, float width, float height)
-		{
-			// create the box object and store it in the collection
-			Table newTable = new Table(this);
-			newTable.setPos(x, y, width, height);
-
-			Add(newTable, SelectAfterCreate);
-
-			return newTable;
-		}
-
-		/// <summary>
-		/// Creates a relation between two tables
-		/// </summary>
-		public Arrow CreateRelation(Table src, int srcRow, Table dest, int destRow)
-		{
-			return CreateArrow(src, srcRow, dest, destRow);
-		}
-
-		/// <summary>
-		/// Default number of rows for new tables
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(4)]
-		[Description("Initial number of rows in new tables.")]
-		public int TableRowCount
-		{
-			get
-			{
-				return tableRowsCount;
-			}
-			set
-			{
-				if (tableRowsCount != value && value >= 0)
-				{
-					tableRowsCount = value;
-					setDirty();
-				}
-			}
-		}
-
-		private int tableRowsCount;
-
-		/// <summary>
-		/// Default number of columns for new tables
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(2)]
-		[Description("Initial number of columns in new tables.")]
-		public int TableColumnCount
-		{
-			get
-			{
-				return tableColumnsCount;
-			}
-			set
-			{
-				if (tableColumnsCount != value && value >= 0)
-				{
-					tableColumnsCount = value;
-					setDirty();
-				}
-			}
-		}
-
-		private int tableColumnsCount;
-
-		/// <summary>
-		/// Creates a group of attached items
-		/// </summary>
-		public Group CreateGroup(ChartObject mainObj)
-		{
-			if (mainObj == null) return null;
-
-			Group group = new Group(this);
-			if (group.setMainObject(mainObj))
-			{
-				AddGroupCmd cmd= new AddGroupCmd(mainObj, group);
-				undoManager.executeCommand(cmd);
-				return group;
-			}
-			else
-			{
-				group.onDelete();
-				group = null;
-				return null;
-			}
-		}
-
-		/// <summary>
-		/// Defines how the user can start object modification
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(typeof(ModificationStyle), "SelectedOnly")]
-		[Description("Specifies if objects have to be selected in order to modify them.")]
-		public ModificationStyle ModificationStart
-		{
-			get
-			{
-				return modificationStart;
-			}
-			set
-			{
-				if (modificationStart != value)
-				{
-					modificationStart = value;
-					setDirty();
-					autoHandlesObj = null;
-				}
-			}
-		}
-
-		private ModificationStyle modificationStart;
-
-		/// <summary>
-		/// Default width of table columns
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(18.0f)]
-		[Description("The default width of table columns.")]
-		public float TableColWidth
-		{
-			get
-			{
-				return tableColWidth;
-			}
-			set
-			{
-				if (tableColWidth != value && value >= 0)
-				{
-					tableColWidth = value;
-					setDirty();
-				}
-			}
-		}
-
-		private float tableColWidth;
-
-		/// <summary>
-		/// Default height of table rows
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(6.0f)]
-		[Description("The default height of table rows.")]
-		public float TableRowHeight
-		{
-			get
-			{
-				return tableRowHeight;
-			}
-			set
-			{
-				if (tableRowHeight != value && value >= 0)
-				{
-					tableRowHeight = value;
-					setDirty();
-				}
-			}
-		}
-
-		private float tableRowHeight;
-
-		/// <summary>
-		/// Default height of table captions
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(5.0f)]
-		[Description("Default height of table captions.")]
-		public float TableCaptionHeight
-		{
-			get
-			{
-				return tableCaptionHeight;
-			}
-			set
-			{
-				if (tableCaptionHeight != value && value >= 0)
-				{
-					tableCaptionHeight = value;
-					setDirty();
-				}
-			}
-		}
-
-		private float tableCaptionHeight;
-
-		[Category("Defaults")]
-		[DefaultValue(typeof(TableLinkStyle), "Rows")]
-		[Description("Specifies how tables can be related one to another - as integral entities, by rows, or both.")]
-		public TableLinkStyle TableLinkStyle
-		{
-			get
-			{
-				return tableLinkStyle;
-			}
-			set
-			{
-				if (tableLinkStyle != value)
-				{
-					tableLinkStyle = value;
-					setDirty();
-				}
-			}
-		}
-
-		private TableLinkStyle tableLinkStyle;
-
-
-		/// <summary>
-		/// Destroys a group
-		/// </summary>
-		public void DestroyGroup(Group group)
-		{
-			new RemoveGroupCmd(group.MainObject, group).Execute();
-		}
-
-		internal void deleteGroup(Group group)
-		{
-			groups.Remove(group);
-			group.onDelete();
-			group = null;
-		}
 
 		/// <summary>
 		/// Default table caption
@@ -6565,1612 +7954,412 @@ namespace MindFusion.FlowChartX
 
 		private string arrowText;
 
-		/// <summary>
-		/// Checks whether this is a trial version of the control
-		/// </summary>
-		public bool IsTrialVersion
-		{
-			get
-			{
-#if DEMO_VERSION
-				return true;
-#else
-				return false;
-#endif
-			}
-		}
-
-		/// <summary>
-		/// Checks whether this is a Pro edition of the control
-		/// </summary>
-		public bool IsProEdition
-		{
-			get
-			{
-#if FCNET_STD
-				return false;
-#else
-				return true;
-#endif
-			}
-		}
-
-		/// <summary>
-		/// Defines the orientation of the first segment of perpendicular arrows
-		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(typeof(Orientation), "Auto")]
-		[Description("Orientation for the first segment of 'perpendicular'-style arrows.")]
-		public Orientation PrpArrowStartOrnt
-		{
-			get
-			{
-				return prpArrowStartOrnt;
-			}
-			set
-			{
-				if (prpArrowStartOrnt != value)
-				{
-					prpArrowStartOrnt = value;
-					setDirty();
-				}
-			}
-		}
-
-		private Orientation prpArrowStartOrnt;
-		
-		/// <summary>
-		/// Visual style of table cell borders
-		/// </summary>
-		[Category("Defaults")]
-		[DefaultValue(typeof(CellFrameStyle), "System3D")]
-		[Description("Gets or sets a value specifying the visual style of cell border lines.")]
-		public CellFrameStyle CellFrameStyle
-		{
-			get
-			{
-				return tableCellBorders;
-			}
-			set
-			{
-				tableCellBorders = value;
-			}
-		}
-
-		private CellFrameStyle tableCellBorders;
-
-		// ************ Z order ************
-
-		internal void zLevelUp(ChartObject obj)
-		{
-			int i = getZIndex(obj);
-			if (i == -1) return;
-			if (i == zOrder.Count - 1) return;
-
-			zOrder[i] = zOrder[i+1];
-			zOrder[i+1] = obj;
-
-			setDirty();
-			updateZOrder(i, i + 1);
-		}
-
-		internal void zLevelDown(ChartObject obj)
-		{
-			int i = getZIndex(obj);
-			if (i == -1) return;
-			if (i == 0) return;
-
-			zOrder[i] = zOrder[i-1];
-			zOrder[i-1] = obj;
-
-			setDirty();
-			updateZOrder(i - 1, i);
-		}
-
-		internal void zBottom(ChartObject obj)
-		{
-			int i = getZIndex(obj);
-			if (i == -1) return;
-			if (i == 0) return;
-
-			while (i > 0)
-			{
-				zOrder[i] = zOrder[i-1];
-				i--;
-			}
-			zOrder[0] = obj;
-
-			setDirty();
-			updateZOrder(0);
-		}
-
-		internal void zTop(ChartObject obj)
-		{
-			int i = getZIndex(obj);
-			int start = i;
-			if (i == -1) return;
-			if (i == zOrder.Count - 1) return;
-
-			while (i < zOrder.Count - 1)
-			{
-				zOrder[i] = zOrder[i+1];
-				i++;
-			}
-			zOrder[i] = obj;
-
-			setDirty();
-			updateZOrder(start);
-		}
-
-		private int getZIndex(ChartObject obj)
-		{
-			for (int i = 0; i < zOrder.Count; ++i)
-			{
-				if (obj == zOrder[i])
-					return i;
-			}
-
-			return -1;
-		}
-
-		internal bool setZIndex(ChartObject obj, int index)
-		{
-			if (index < 0) return false;
-			if (index >= zOrder.Count) return false;
-
-			int i = getZIndex(obj);
-			if (i == -1) return false;
-			if (i == index) return true;
-
-			int start = Math.Min(i, index);
-			if (i < index)
-			{
-				while (i < index)
-				{
-					zOrder[i] = zOrder[i+1];
-					i++;
-				}
-				zOrder[i] = obj;
-			}
-			else
-			if (i > index)
-			{
-				while (i > index)
-				{
-					zOrder[i] = zOrder[i-1];
-					i--;
-				}
-				zOrder[i] = obj;
-			}
-
-			setDirty();
-			updateZOrder(start);
-
-			return true;
-		}
-
-		private void updateZOrder(int from)
-		{
-			for (int i = from; i < zOrder.Count; ++i)
-				zOrder[i].updateZIndex(i);
-		}
-
-		private void updateZOrder(int from, int to)
-		{
-			for (int i = from; i <= to; ++i)
-				zOrder[i].updateZIndex(i);
-		}
-
-		internal void setZOrder(ChartObjectCollection zOrder)
-		{
-			this.zOrder = zOrder;
-			updateZOrder(0);
-		}
-
-		private ChartObjectCollection zOrder;
-
-		// ********************************
-
-		internal bool rectRestrict(ref RectangleF rc)
-		{
-			// no restrictions when rdNoRestriction is set
-			if (restrObjsToDoc == RestrictToDoc.NoRestriction)
-				return false;
-
-			// no restrictions when auto-resizing is enabled for all directions
-			if (autoSizeDoc == MindFusion.FlowChartX.AutoSize.AllDirections)
-				return false;
-
-			RectangleF rect = Utilities.normalizeRect(rc);
-
-			// if resizing is enabled to the right and down
-			if (autoSizeDoc == MindFusion.FlowChartX.AutoSize.RightAndDown)
-			{
-				// make sure the item is entirely inside at the top and left sides ...
-				if (restrObjsToDoc == RestrictToDoc.InsideOnly)
-				{
-					if (docExtents.Left <= rect.Left &&
-						docExtents.Top <= rect.Top)
-						return false;
-					return true;
-				}
-
-				// ... or at least partly inside at the top and left sides ...
-				if (docExtents.Left > rect.Right ||
-					docExtents.Top > rect.Bottom)
-					return true;
-
-				return false;
-			}
-
-			// no auto-resizing, ensure all sides of the item are inside the document
-			if (restrObjsToDoc == RestrictToDoc.InsideOnly)
-			{
-				if (docExtents.Left <= rect.Left &&
-					docExtents.Top <= rect.Top &&
-					docExtents.Right >=  rect.Right &&
-					docExtents.Bottom >= rect.Bottom)
-					return false;
-				return true;
-			}
-
-			// or at least that the item is partly inside the document
-			if (docExtents.Left > rect.Right ||
-				docExtents.Top > rect.Bottom ||
-				docExtents.Right < rect.Left ||
-				docExtents.Bottom < rect.Top)
-				return true;
-
-			return false;
-		}
-
-		// fires a RequestDrop event to check if drop operation can be
-		// completed at the specified position
-		internal bool canDropHere(ChartObject obj, PointF pt)
-		{
-			// in auto-accept mode -> always accept
-			/*			if (dragDropMode == drAutoAccept) return true;
-
-						CChartObject* pointedObj = NULL;
-
-						switch (obj->GetType())
-						{
-							case IT_BOX:
-								pointedObj = ObjectFromPoint(pt, false, obj, false);
-								if (pointedObj == NULL) return true;
-								return RequestDrop(pointedObj, dtBox);
-								break;
-							case IT_TABLE:
-								pointedObj = ObjectFromPoint(pt, false, obj, false);
-								if (pointedObj == NULL) return true;
-								return RequestDrop(pointedObj, dtTable);
-								break;
-							case IT_SELECTION:
-								pointedObj = ObjectFromPoint(pt, false, NULL, true);
-								if (pointedObj == NULL) return true;
-								return RequestDrop(pointedObj, dtSelection);
-								break;
-						}
-			*/
-			return true;
-		}
-
-		internal void getIntersectingObjects(RectangleF rect,
-			ChartObjectCollection objects, bool multiple, bool ifIntersect)
-		{
-			RectangleF rcSel = Utilities.normalizeRect(rect);
-
-			if (ifIntersect)
-			{
-				foreach (ChartObject obj in zOrder)
-				{
-					RectangleF rcObjRect = obj.getRotatedBounds();
-					if (!obj.notInteractive() && rcObjRect.IntersectsWith(rcSel))
-					{
-						objects.Add(obj);
-						if (!multiple) return;
-					}
-				}
-			}
-			else
-			{
-				foreach (ChartObject obj in zOrder)
-				{
-					RectangleF rcObjRect = obj.getRotatedBounds();
-					if (!obj.notInteractive() && rcSel.Contains(rcObjRect))
-					{
-						objects.Add(obj);
-						if (!multiple) return;
-					}
-				}
-			}
-		}
-
-		internal int getIntrsObjsCnt(RectangleF rect, bool ifIntersect)
-		{
-			int count = 0;
-			RectangleF rcSel = Utilities.normalizeRect(rect);
-
-			if (ifIntersect)
-			{
-				foreach (ChartObject obj in zOrder)
-				{
-					RectangleF rcObjRect = obj.getRotatedBounds();
-					if (!obj.notInteractive() &&
-						rcSel.IntersectsWith(rcObjRect))
-						count++;
-				}
-			}
-			else
-			{
-				foreach (ChartObject obj in zOrder)
-				{
-					RectangleF rcObjRect = obj.getRotatedBounds();
-					if (!obj.notInteractive() &&
-						rcSel.Contains(rcObjRect))
-						count++;
-				}
-			}
-
-			return count;
-		}
-
-		// Returns the box or table whose bounding rect
-		// intersects with the specified rectangle.
-		internal ChartObject objectFromRect(RectangleF rect,
-			ChartObject obj1, ChartObject obj2)
-		{
-			RectangleF rc;
-			float inflation = Constants.getInflation(measureUnit);
-
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject obj = zOrder[i];
-				if (obj is Node)
-				{
-					rc = obj.getBoundingRect();
-
-					if (obj == obj1 || obj == obj2)
-						rc.Inflate(-inflation, -inflation);
-
-					if(rc.IntersectsWith(rect))
-						return obj;
-				}
-			}
-
-			return null;
-		}
-
-		// Returns the box or table (if any) intersected
-		// by the line segment, specified with its ending points
-		internal ChartObject objectIntersectedBy(PointF pt1, PointF pt2,
-			ChartObject obj1, ChartObject obj2)
-		{
-			RectangleF rc;
-			float inflation = Constants.getInflation(measureUnit);
-
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject obj = zOrder[i];
-				if (obj is Node)
-				{
-					rc = obj.getBoundingRect();
-					if (obj == obj1 || obj == obj2)
-						rc.Inflate(-inflation, -inflation);
-					PointF p1 = new PointF(rc.Left, rc.Top);
-					PointF p2 = new PointF(rc.Right, rc.Top);
-					PointF p3 = new PointF(rc.Right, rc.Bottom);
-					PointF p4 = new PointF(rc.Left, rc.Bottom);
-					PointF pt = PointF.Empty;
-
-					if (Utilities.segmentIntersect(p1, p2, pt1, pt2, ref pt) ||
-						Utilities.segmentIntersect(p2, p3, pt1, pt2, ref pt) ||
-						Utilities.segmentIntersect(p3, p4, pt1, pt2, ref pt) ||
-						Utilities.segmentIntersect(p4, p1, pt1, pt2, ref pt))
-						return obj;
-				}
-			}
-
-			return null;
-		}
-
-		public Node GetNodeAt(PointF pt)
-		{
-			Node obj = null;
-			
-			// search for object containing the point
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject objTest = zOrder[i];
-				if (objTest is Node
-					&& objTest.containsPoint(pt) && !objTest.notInteractive())
-				{
-					obj = (Node)objTest;
-					break;
-				}
-			}
-			
-			return obj;
-		}
-
-		public Box GetBoxAt(PointF pt)
-		{
-			Box box = null;
-
-			//search the bounding rectangle
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject obj = zOrder[i];
-				if (obj.getType() == ItemType.Box &&
-					obj.containsPoint(pt) && !obj.notInteractive())
-				{
-					//found
-					box = (Box)obj;
-					break;
-				}
-			}
-
-			return box;
-		}
-
-		public ControlHost GetControlHostAt(PointF pt)
-		{
-			ControlHost host = null;
-
-			// Search the bounding rectangle
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject obj = zOrder[i];
-				if (obj.getType() == ItemType.ControlHost &&
-					obj.containsPoint(pt) && !obj.notInteractive())
-				{
-					// Found
-					host = (ControlHost)obj;
-					break;
-				}
-			}
-
-			return host;
-		}
-
-		public Table GetTableAt(PointF pt)
-		{
-			Table table = null;
-
-			//search the bounding rectangle
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject obj = zOrder[i];
-				if (obj.getType() == ItemType.Table &&
-					obj.containsPoint(pt) && !obj.notInteractive())
-				{
-					//found
-					table = (Table)obj;
-					break;
-				}
-			}
-
-			return table;
-		}
-
-		public Arrow GetArrowAt(PointF pt, float maxDist)
-		{
-			int segmNum = 0;
-			return GetArrowAt(pt, maxDist, true, ref segmNum);
-		}
-
-		public Arrow GetArrowAt(PointF pt, float maxDist, bool exclLocked)
-		{
-			int segmNum = 0;
-			return GetArrowAt(pt, maxDist, exclLocked, ref segmNum);
-		}
-
-		public Arrow GetArrowAt(PointF pt, float maxDist, bool exclLocked, ref int segmNum)
-		{
-			Arrow nearest = null;
-
-			// search for the nearest arrow containing the point
-			float dist, minDist = float.MaxValue;
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				if (zOrder[i].getType() == ItemType.Arrow)
-				{
-					Arrow arrow = (Arrow)zOrder[i];
-					if ((exclLocked && arrow.notInteractive()) || arrow.Invisible)
-						continue;
-					RectangleF rc = arrow.getBoundingRect();
-					rc.Inflate(maxDist, maxDist);
-
-					if (Utilities.pointInRect(pt, rc))
-					{
-						int s = 0;
-						dist = arrow.distToPt(pt, ref s);
-						if (minDist > dist)
-						{
-							minDist = dist;
-							nearest = arrow;
-							segmNum = s;
-						}
-					}
-				}
-			}
-
-			if (minDist > maxDist) return null;
-
-			return nearest;
-		}
-
-		public ChartObject GetObjectAt(PointF pt, bool exclLocked)
-		{
-			if (hitTestPriority == HitTestPriority.NodesBeforeArrows)
-			{
-				ChartObject obj = null;
-			
-				// search for object containing the point
-				for (int i = zOrder.Count-1; i >= 0; i--)
-				{
-					ChartObject objTest = zOrder[i];
-					if (objTest is Node && objTest.containsPoint(pt) &&
-						!(exclLocked && objTest.Locked) && !objTest.Invisible)
-					{
-						obj = objTest;
-						break;
-					}
-				}
-			
-				if (obj != null)
-					return obj;
-
-				// search for the nearest arrow containing the point
-				return GetArrowAt(pt, Constants.getLineHitTest(measureUnit), exclLocked);
-			}
-			else
-			{
-				// search for object containing the point
-				for (int i = zOrder.Count - 1; i >= 0; i--)
-				{
-					ChartObject item = zOrder[i];
-					if (item.containsPoint(pt) &&
-						!(exclLocked && item.Locked) && !item.Invisible)
-						return item;
-				}
-
-				return null;
-			}
-		}
-
-		[Category("Behavior")]
-		[DefaultValue(typeof(HitTestPriority), "NodesBeforeArrows")]
-		[Description("Specifies whether nodes should have higher priority than links when hit testing.")]
-		public HitTestPriority HitTestPriority
-		{
-			get { return hitTestPriority; }
-			set	{ hitTestPriority = value; }
-		}
-
-		private HitTestPriority hitTestPriority;
-
-		public Node GetNodeAt(PointF pt,
-			bool excludeLocked, bool excludeSelected)
-		{
-			Node obj = null;
-
-			// search for object containing the point
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject curr = zOrder[i];
-
-				if (!(curr is Node)) continue;
-				if (curr.Locked && excludeLocked) continue;
-				if (curr.Selected && excludeSelected) continue;
-
-				if (curr.containsPoint(pt)) { obj = curr as Node; break; }
-			}
-			
-			return obj;
-		}
-
-		public void BringIntoView(ChartObject obj)
-		{
-			if (obj != null)
-			{
-				// get the currently visible document area
-				Graphics g = CreateGraphics();
-				setTransforms(g);
-				RectangleF rcClient = Utilities.deviceToDoc(g, this.ClientRectangle);
-
-				// check if the objects is entirely in the visible area
-				RectangleF rcObj = obj.getRepaintRect(false);
-				if (rcObj.Left < rcClient.Left || rcObj.Right > rcClient.Right ||
-					rcObj.Top < rcClient.Top || rcObj.Bottom > rcClient.Bottom)
-				{
-					// scroll to center the object in the visible area
-					float cx = (rcObj.Left + rcObj.Right - rcClient.Width) / 2;
-					float cy = (rcObj.Top + rcObj.Bottom - rcClient.Height) / 2;
-					if (cx < docExtents.Left)
-						cx = docExtents.Left; else
-						if (cx > docExtents.Right - rcClient.Width)
-						cx = docExtents.Right - rcClient.Width;
-					if (cy < docExtents.Top)
-						cy = docExtents.Top; else
-						if (cy > docExtents.Bottom - rcClient.Height)
-						cy = docExtents.Bottom - rcClient.Height;
-					ScrollTo(cx, cy);
-				}
-			}
-		}
-
-		internal void drawActiveSelHandles(Graphics g) 
-		{
-			if (activeObject != null)
-				activeObject.drawSelHandles(g, activeMnpColor);
-		}
-
-		[Category("Appearance")]
-		[DefaultValue(2.0f)]
-		[Description("Size of selection handles.")]
-		public float SelHandleSize
-		{
-			get { return selHandleSize; }
-			set
-			{
-				if (value > 0 && selHandleSize != value)
-				{
-					selHandleSize = value;
-					Invalidate();
-				}
-			}
-		}
-
-		[Browsable(false)]
-		[Description("Selection settings.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		[TypeConverter(typeof(ExpandableObjectConverter))]
-		public Selection Selection
-		{
-			get { return selection; }
-			set { selection.Style = ((Selection)value).Style; }
-		}
-
-		private float selHandleSize;
-
-		[Category("Appearance")]
-		[DefaultValue(true)]
-		[Description("Specifies if selected items should be painted on top of other items or the Z order should be always preserved.")]
-		public bool SelectionOnTop
-		{
-			get
-			{
-				return selectionOnTop;
-			}
-			set
-			{
-				selectionOnTop = value;
-			}
-		}
-
-		private bool selectionOnTop;
-
-		bool manipulatorEnacted(PointF pt)
-		{
-			userAction = true;
-
-			// try all manipulators
-			foreach (ChartObject obj in zOrder)
-			{
-				if (!obj.notInteractive() && obj.manipulatorEnacted(pt))
-				{
-					userAction = false;
-					return true;
-				}
-			}
-
-			userAction = false;
-			return false;
-		}
-
-		private bool userAction;
-
-		[Category("Behavior")]
-		[DefaultValue(false)]
-		[Description("Specifies the direction in which node hierarchies are expanded and collapsed.")]
-		public bool ExpandOnIncoming
-		{
-			get { return expandOnIncoming; }
-			set
-			{	
-				if (expandOnIncoming != value)
-				{
-					expandOnIncoming = value;
-					setDirty();
-				}
-			}
-		}
-		private bool expandOnIncoming;
-
-		[Category("Behavior")]
-		[DefaultValue(false)]
-		[Description("Enables recursive multi-level expanding of node hierarchies.")]
-		public bool RecursiveExpand
-		{
-			get { return recursiveExpand; }
-			set
-			{
-				if (recursiveExpand != value)
-				{
-					recursiveExpand = value;
-					setDirty();
-				}
-			}
-		}
-		private bool recursiveExpand;
-
-		private bool boxesExpandable;
-
-		[Category("Defaults")]
-		[DefaultValue(false)]
-		[Description("Specifies the initial value of the Expandable property of new boxes.")]
-		public bool BoxesExpandable
-		{
-			get { return boxesExpandable; }
-			set
-			{
-				if (boxesExpandable != value)
-				{
-					boxesExpandable = value;
-					setDirty();
-				}
-			}
-		}
-
-		internal void invalidate(RectangleF invArea)
-		{
-			// get graphics for the transformation
-			Graphics g = this.CreateGraphics();
-			setTransforms(g);
-
-			// get the invalid area in device (pixel) units, and
-			// inflate it a bit to accomodate for rounding errors
-			Rectangle dev = Utilities.docToDevice(g, invArea);
-			dev.Inflate(2, 2);
-			this.Invalidate(dev);
-
-			// cleanup
-			g.Dispose();
-		}
-
-		protected override void OnLayout(LayoutEventArgs e)
-		{
-			if (hScrollBar != null && vScrollBar != null)
-			{
-				resetScrollbars();
-				base.OnLayout(e);
-				hScrollBar.Width -= vScrollBar.Width;
-			}
-			else
-			{
-				base.OnLayout(e);
-			}
-		}
-
-		public virtual IPersists createObj(int clsId)
-		{
-			switch (clsId)
-			{
-			case 2:
-				return new Arrow(this);
-			case 3:
-				return new Box(this);
-			case 4:
-				return new Table(this);
-			case 6:
-				return new BoxLink();
-			case 7:
-				return new TableLink();
-			case 8:
-				return new Selection(this);
-			case 9:
-				return new Group(this);
-			case 10:
-				return new ArrowCollection();
-			case 11:
-				return new Attachment();
-			case 12:
-				return new BoxCollection();
-			case 13:
-				return new ChartObjectCollection();
-			case 14:
-				return new GroupCollection();
-			case 15:
-				return new PointCollection(0);
-			case 16:
-				return new TableCollection();
-			case 17:
-				return new DocInfoVer1();
-			case 18:
-				return new DocInfoVer2();
-			case 20:
-				return new Table.Cell();
-			case 21:
-				return new Table.CellCollection();
-			case 22:
-				return new Table.Row();
-			case 23:
-				return new Table.RowCollection();
-			case 24:
-				return new Table.Column();
-			case 25:
-				return new Table.ColumnCollection();
-			case 26:
-				return new ShapeTemplate(null, FillMode.Winding);
-			case 27:
-				return new ShapeTemplate.PathData(1);
-			case 28:
-				return new ArcTemplate(0, 0, 0, 0, 0, 0);
-			case 29:
-				return new BezierTemplate(0, 0, 0, 0, 0, 0, 0, 0);
-			case 30:
-				return new LineTemplate(0, 0, 0, 0);
-			case 31:
-				return new Pen(Color.Black);
-			case 32:
-				return new HatchBrush(HatchStyle.BackwardDiagonal, Color.Black);
-			case 33:
-				return new LinearGradientBrush(Color.Black, Color.Black);
-			case 34:
-				return new SolidBrush(Color.Black);
-			case 35:
-				return new TextureBrush((Image)null);
-			case 36:
-				return new AnchorPoint(0, 0);
-			case 37:
-				return new AnchorPointCollection();
-			case 38:
-				return new AnchorPattern();
-			case 39:
-				return new ControlHost(this);
-			case 40:
-				return new ControlHostLink();
-			case 41:
-				return new ControlHostCollection();
-			case 42:
-				return new DummyLink(null, true, new PointF(0, 0));
-			case 43:
-				return new NodeConstraints();
-			default:
-				throw new Exception("shouldn't get here");
-			}
-		}
-
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("Specifies whether two nodes can be connected one to another with more than one link.")]
-		public bool AllowLinksRepeat
-		{
-			get { return allowLinksRepeat; }
-			set
-			{
-				if (allowLinksRepeat != value)
-				{
-					allowLinksRepeat = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool allowLinksRepeat;
-
-		#region inplace editing
-
-		[Category("Inplace text editing")]
-		[DefaultValue(false)]
-		[Description("Allows activating inplace editing mode by double clicking.")]
-		public bool AllowInplaceEdit
-		{
-			get { return inplaceEditAllowed; }
-			set
-			{
-				if (inplaceEditAllowed != value)
-				{
-					inplaceEditAllowed = value;
-					setDirty();
-				}
-			}
-		}
-
-		private bool inplaceEditAllowed;
-
-		TextBox inplaceTextBox = null;
-
-		internal void startInplaceEdit(InplaceEditable obj, RectangleF rect)
-		{
-			if (nowEditing) return;
-
-			inplaceObject = obj;
-			string text = obj.getTextToEdit();
-
-			// get the position of the object in device coordinates
-			Graphics g = this.CreateGraphics();
-			setTransforms(g);
-			Rectangle rc = Utilities.docToDevice(g, rect);
-
-			// setup the inplace text box there
-			inplaceTextBox = new TextBox();
-			inplaceTextBox.Multiline = true;
-			inplaceTextBox.AcceptsReturn = true;
-			inplaceTextBox.Visible = true;
-			inplaceTextBox.Bounds = rc;
-			inplaceTextBox.Font = inplaceEditFont;
-			inplaceTextBox.Text = text;
-			inplaceTextBox.KeyPress +=
-				new KeyPressEventHandler(inplaceTextBoxKeyPress);
-			Controls.Add(inplaceTextBox);
-			inplaceTextBox.Focus();
-
-			nowEditing = true;
-
-			// raise the EnterInplaceEditMode event
-			if (EnterInplaceEditMode != null)
-			{
-				EnterInplaceEditMode(this,
-					new InplaceEditArgs(inplaceObject, inplaceTextBox));
-			}
-		}
-
-
-		internal void endInplaceEdit(bool accept)
-		{
-			if (!nowEditing) return;
-
-			// get texts while the text box still exists
-			string oldText = inplaceObject.getTextToEdit();
-			string newText = inplaceTextBox.Text;
-
-			// remove text box
-			inplaceTextBox.Visible = false;
-			Controls.Remove(inplaceTextBox);
-			inplaceTextBox = null;
-
-			// end inplace editing
-			InplaceEditable lastIO = inplaceObject;
-			inplaceObject = null;
-			nowEditing = false;
-
-			if (accept)
-			{
-				lastIO.setEditedText(newText);
-
-				// fire event
-				if (lastIO is NodeInplaceEditable)
-				{
-					Node node = ((NodeInplaceEditable)lastIO).Node;
-					if (node is Box && BoxTextEdited != null)
-						BoxTextEdited(this, new BoxTextArgs((Box)node, oldText, newText));
-					if (node is Table && TableCaptionEdited != null)
-						TableCaptionEdited(this, new TableCaptionArgs(
-							(Table)node, oldText, newText));
-				}
-				if (lastIO is Table.Cell)
-				{
-					Table.Cell cell = (Table.Cell)lastIO;
-					if (CellTextEdited != null)
-						CellTextEdited(this, new CellTextArgs(
-							cell.table, oldText, cell.Text, lastClickedCol, lastClickedRow));
-				}
-			}
-		}
-
-
-		void inplaceTextBoxKeyPress(object o, KeyPressEventArgs args)
-		{
-			if (inplaceAcceptOnEnter && args.KeyChar == (char)13)
-			{
-				endInplaceEdit(true);
-				args.Handled = true;
-			}
-
-			if (inplaceCancelOnEsc && args.KeyChar == (char)27)
-			{
-				endInplaceEdit(false);
-				args.Handled = true;
-			}
-		}
-
-		[Category("Inplace text editing")]
-		[DefaultValue(false)]
-		[Description("End inplace editing and accept changes when ENTER is pressed.")]
-		public bool InplaceEditAcceptOnEnter
-		{
-			get { return inplaceAcceptOnEnter; }
-			set { inplaceAcceptOnEnter = value; }
-		}
-
-
-		[Category("Inplace text editing")]
-		[DefaultValue(true)]
-		[Description("End inplace editing and cancel changes when ESC is pressed.")]
-		public bool InplaceEditCancelOnEsc
-		{
-			get { return inplaceCancelOnEsc; }
-			set { inplaceCancelOnEsc = value; }
-		}
-
-
-		/// <summary>
-		/// Font of inplace text box 
-		/// </summary>
-		[Category("Inplace text editing")]
-		[Description("Font of text being edited inplace.")]
-		public Font InplaceEditFont
-		{
-			get
-			{
-				return inplaceEditFont;
-			}
-			set
-			{
-				if (inplaceEditFont != value)
-				{
-					inplaceEditFont = value;
-					setDirty();
-				}
-			}
-		}
-
-		private Font inplaceEditFont;
-
-
-		private bool confirmTableInplaceEdit(Table tbl, int row, int col)
-		{
-			if (TableInplaceEditing == null) return true;
-
-			TableConfirmArgs args = new TableConfirmArgs(tbl, row, col);
-			TableInplaceEditing(this, args);
-			return args.Confirm;
-		}
-
-
-		private bool confirmBoxInplaceEdit(Box box)
-		{
-			if (BoxInplaceEditing == null) return true;
-
-			BoxConfirmArgs args = new BoxConfirmArgs(box);
-			BoxInplaceEditing(this, args);
-			return args.Confirm;
-		}
-
-
-		private InplaceEditable inplaceObject;
-
-		bool nowEditing;
-		bool inplaceAcceptOnEnter;
-		bool inplaceCancelOnEsc;
-
-		int lastClickedRow;
-		int lastClickedCol;
-
 		#endregion
-
-		[Category("Appearance")]
-		[DefaultValue(typeof(ShowAnchors), "Auto")]
-		[Description("Gets or sets when anchor point marks are displayed")]
-		public ShowAnchors ShowAnchors
-		{
-			get { return showAnchors; }
-			set
-			{
-				showAnchors = value;
-				renderOptions.EnableAnchors =
-					(showAnchors == ShowAnchors.Always);
-				Invalidate();
-			}
-		}
-
-		private ShowAnchors showAnchors;
-
-		[Category("Behavior")]
-		[DefaultValue(typeof(SnapToAnchor), "OnCreate")]
-		[Description("Specifies when arrow ends snap to nearest anchor point")]
-		public SnapToAnchor SnapToAnchor
-		{
-			get { return snapToAnchor; }
-			set { snapToAnchor = value; }
-		}
-
-		private SnapToAnchor snapToAnchor;
-
-		internal RectangleF getDocRect(Rectangle rcDev)
-		{
-			Graphics g = CreateGraphics();
-			setTransforms(g);
-
-			RectangleF result = Utilities.deviceToDoc(g, rcDev);
-			g.Dispose();
-			return result;
-		}
-
-		private bool disabledGroups = false;
-		internal bool DisabledGroups
-		{
-			get { return disabledGroups; }
-			set { disabledGroups = value; }
-		}
-
-		private bool usePolyTextLt;
-
-		[Category("Defaults")]
-		[DefaultValue(false)]
-		public bool PolyTextLayout
-		{
-			get { return usePolyTextLt; }
-			set { usePolyTextLt = value; }
-		}
-
-		[Category("Defaults")]
-		[DefaultValue(0.0f)]
-		public float ShapeOrientation
-		{
-			get { return shapeRotation; }
-			set
-			{
-				shapeRotation = value;
-				if (shapeRotation != 0 && shapeRotation != 90 &&
-					shapeRotation != 180 && shapeRotation != 270)
-					shapeRotation = 0;
-			}
-		}
-
-		private float shapeRotation;
-
-		// Update controls' positions
-		private void updateHostedControlsPos()
-		{
-			if (!loading)
-			{
-				foreach (ChartObject obj in zOrder)
-				{
-					if (obj.getType() == ItemType.ControlHost)
-						((ControlHost)obj).updateControlPosition();
-				}
-			}
-		}
-
-		private void bringContainedControlToFront(Control control)
-		{
-			control.BringToFront();
-
-			// Ensure scrollbars are at the top
-			if (hScrollBar != null)
-				hScrollBar.BringToFront();
-			if (vScrollBar != null)
-				vScrollBar.BringToFront();
-		}
-
-		// The type of the newly created hosted controls
-		private System.Type defaultControlType;
-
-		[Browsable(false)]
-		public System.Type DefaultControlType
-		{
-			get { return defaultControlType; }
-			set
-			{
-				// null is unacceptible
-				if (value == null)
-				{
-					defaultControlType = null;
-					return;
-				}
-
-				// Check if the type is derived from System.Windows.Forms.Control
-				if (!value.IsSubclassOf(typeof(Control)))
-					throw new Exception("The control type must derive from System.Windows.Forms.Control");
-
-				// Check if the type has 0-parameter constructor
-				ConstructorInfo ctorInfo = value.GetConstructor(System.Type.EmptyTypes);
-				if (ctorInfo == null)
-					throw new Exception("The type required needs to supple constructor with 0 parameters");
-
-				defaultControlType = value;
-				setDirty();
-			}
-		}
-
-		[Category("Defaults")]
-		[DefaultValue(typeof(HostMouseAction), "SelectHost")]
-		public HostMouseAction HostedCtrlMouseAction
-		{
-			get { return hostedCtrlMouseAction; }
-			set
-			{
-				hostedCtrlMouseAction = value;
-				setDirty();
-			}
-		}
-
-		private HostMouseAction hostedCtrlMouseAction;
-
-		[Category("Behavior")]
-		[DefaultValue(false)]
-		[Description("Allow drawing arrows without connecting them to nodes.")]
-		public bool AllowUnconnectedArrows
-		{
-			get { return allowUnconnectedArrows; }
-			set { allowUnconnectedArrows = value; }
-		}
-
-		private bool allowUnconnectedArrows;
-		internal DummyNode Dummy;
-
-
-		[Category("Behavior")]
-		[DefaultValue(true)]
-		[Description("Allow attaching arrows to nodes that have not anchor points.")]
-		public bool AllowUnanchoredArrows
-		{
-			get { return allowUnanchoredArrows; }
-			set { allowUnanchoredArrows = value; }
-		}
-
-		private bool allowUnanchoredArrows;
-
-		[Category("Behavior")]
-		[DefaultValue(typeof(MindFusion.FlowChartX.AutoSize), "None")]
-		[Description("Automatically resize document scrolling area when items are created, deleted or removed.")]
-		public MindFusion.FlowChartX.AutoSize AutoSizeDoc
-		{
-			get { return autoSizeDoc; }
-			set { autoSizeDoc = value; }
-		}
-
-		private MindFusion.FlowChartX.AutoSize autoSizeDoc;
-
-		private void sizeDocForItem(ChartObject item)
-		{
-			if (item == null)
-			{
-				sizeDocForItems();
-				return;
-			}
-
-			bool changed = false;
-			float docLeft = docExtents.Left;
-			float docTop = docExtents.Top;
-			float docRight = docExtents.Right;
-			float docBottom = docExtents.Bottom;
-
-			RectangleF rcItem = item.getRepaintRect(true);
-			float hinch = Constants.getHalfInch(measureUnit);
-
-			// if auto-sizing to the left and top too...
-			if (autoSizeDoc == MindFusion.FlowChartX.AutoSize.AllDirections)
-			{
-				if (rcItem.Left < docLeft + hinch)
-				{
-					docLeft = rcItem.Left - hinch;
-					changed = true;
-				}
-
-				if (rcItem.Top < docTop + hinch)
-				{
-					docTop = rcItem.Top - hinch;
-					changed = true;
-				}
-			}
-
-			if (rcItem.Right > docRight - hinch)
-			{
-				docRight = rcItem.Right + hinch;
-				changed = true;
-			}
-
-			if (rcItem.Bottom > docBottom - hinch)
-			{
-				docBottom = rcItem.Bottom + hinch;
-				changed = true;
-			}
-
-			if (changed)
-			{
-				docExtents = RectangleF.FromLTRB(docLeft, docTop, docRight, docBottom);
-				resetDocSize();
-			}
-		}
-
-		private void sizeDocForItems()
-		{
-			RectangleF rcNewSize = docExtentsMin;
-			RectangleF rcCurrent = docExtents;
-
-			foreach (ChartObject item in zOrder)
-			{
-				RectangleF itemRect = item.getRepaintRect(false);
-				rcNewSize = RectangleF.Union(rcNewSize, itemRect);
-			}
-
-			if (rcNewSize != rcCurrent)
-			{
-				docExtents = RectangleF.FromLTRB(
-					docExtents.Left, docExtents.Top,
-					rcNewSize.Right, rcNewSize.Bottom);
-				resetDocSize();
-			}
-		}
-
-		private bool panMode;
-		PointF panPoint;
-
-		[Category("Defaults")]
-		[DefaultValue(false)]
-		public bool EnableStyledText
-		{
-			get { return enableStyledText; }
-			set { enableStyledText = value; }
-		}
-
-		private bool enableStyledText;
-
-
-		[Category("Appearance")]
-		[DefaultValue(typeof(Color), "170, 170, 200")]
-		[Description("The document area defined by DocExtents is painted using this color.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public new Color BackColor
-		{
-			get { return base.BackColor; }
-			set
-			{
-				if (!base.BackColor.Equals(value))
-				{
-					base.BackColor = value;
-
-					this.BackBrush = new SolidBrush(value);
-
-					setDirty();
-					Invalidate();
-				}
-			}
-		}
-
-		[Category("Appearance")]
-		[Description("The document area defined by DocExtents is painted using this brush.")]
-		[Editor(typeof(MindFusion.FlowChartX.Design.BrushEditor),
-			 typeof(System.Drawing.Design.UITypeEditor))]
-		public MindFusion.FlowChartX.Brush BackBrush
-		{
-			get { return brush; }
-			set
-			{
-				if(value == null)
-					throw new Exception("null is not acceptable Brush value");
-
-				if (brush != null)
-					brush.Release();
-				brush = value;
-				brush.AddRef();
-
-				MindFusion.FlowChartX.SolidBrush solidBrush = value as
-					MindFusion.FlowChartX.SolidBrush;
-				if (solidBrush != null)
-					base.BackColor = solidBrush.Color;
-
-				setDirty();
-				Invalidate();
-			}
-		}
-
-		private MindFusion.FlowChartX.Brush brush;
-
-		private bool ShouldSerializeBackBrush()
-		{
-			return !brush.equals(new SolidBrush(Color.FromArgb(170, 170, 200)));
-		}
-
-		[Category("Appearance")]
-		[Description("The area outside DocExtents is painted using this brush.")]
-		[Editor(typeof(MindFusion.FlowChartX.Design.BrushEditor),
-			 typeof(System.Drawing.Design.UITypeEditor))]
-		public MindFusion.FlowChartX.Brush ExteriorBrush
-		{
-			get
-			{
-				return exteriorBrush;
-			}
-			set
-			{
-				if (exteriorBrush != null)
-					exteriorBrush.Release();
-
-				exteriorBrush = value;
-
-				if (exteriorBrush != null)
-					exteriorBrush.AddRef();
-
-				Invalidate();
-			}
-		}
-
-		private MindFusion.FlowChartX.Brush exteriorBrush;
-
-		private bool ShouldSerializeExteriorBrush()
-		{
-			return exteriorBrush != null;
-		}
-
-		[Category("Appearance")]
-		[DefaultValue(typeof(ExpandButtonPosition), "OuterRight")]
-		public ExpandButtonPosition ExpandButtonPosition
-		{
-			get { return expandBtnPos; }
-			set
-			{
-				if (expandBtnPos != value)
-				{
-					expandBtnPos = value;
-					dirty = true;
-					Invalidate();
-				}
-			}
-		}
-
-		private ExpandButtonPosition expandBtnPos;
-
-
-		/// <summary>
-		/// Gets a value specifying whether the diagram
-		/// is currently being modified by the user.
-		/// </summary>
-		[Browsable(false)]
-		public bool IsModifying
-		{
-			get { return interaction != null && interaction.Action != Action.None; }
-		}
-
 
 		#region events
 
-		// General events
-		public event DocMouseEvent DocClicked; // fired when an empty document area is clicked
-		public event DocMouseEvent DocDblClicked; // fired when an empty document area is double-clicked
+		[Category("Arrows")]
+		[Description("Raised when the user draws a new arrow.")]
+		public event ArrowEvent ArrowCreated;
 
-		[Description("Raised when the value of the Dirty flag changes.")]
-		public event EventHandler DirtyChanged; // fires when Dirty is set to true
-		
-		// General events
-		public event UndoEventHandler ActionRecorded;	// occurs when an action is saved in undo history
-		public event UndoEventHandler ActionUndone;	// occurs when an action is undone
-		public event UndoEventHandler ActionRedone;	// occurs when an action is redone
-		public event UndoConfirmEventHandler ActionRecording;	// occurs when an action is about to be saved in undo history
+		[Category("Arrows")]
+		[Description("Raised when an arrow is deleted.")]
+		public event ArrowEvent ArrowDeleted;
 
-		// Box events
-		public event BoxEvent BoxCreated;	// fired when the user creates a new box
-		public event BoxEvent BoxDeleted;	// fired when a box is deleted
-		public event BoxMouseEvent BoxModified;	// fired when a box is moved
-		public event BoxMouseEvent BoxModifying;	// fired when a box is being moved
-		public event BoxEvent BoxActivated;	// fired when a box becomes the active object
-		public event BoxEvent BoxDeselected;	// fired when a box is deselected
-		public event BoxEvent BoxDeactivated;	// fired when a box looses its selection
-		public event BoxConfirmation BoxCreating;	// gives you a chance to cancel box creation
-		public event BoxConfirmation BoxDeleting;	// gives you a chance to cancel box deletion
-		public event BoxConfirmation BoxSelecting;	// gives you a chance to cancel box selection
-		public event BoxMouseEvent BoxClicked;	// fired when a box is clicked
-		public event BoxMouseEvent BoxDblClicked;	// fired when a box is double-clicked
-		public event NodeEventHandler TreeExpanded;	// fired when the tree branch starting from a node is expanded by user
-		public event NodeEventHandler TreeCollapsed;	// fired when the tree branch starting from a node is collapsed by user
-		public event BoxTextEditedEvent BoxTextEdited;	// fired when the text of a box is inplace-edited by user
+		[Category("Arrows")]
+		[Description("Raised when the user moves an arrow control point.")]
+		public event ArrowMouseEvent ArrowModified;
+
+		[Category("Arrows")]
+		[Description("Raised while the user moves an arrow control point.")]
+		public event ArrowMouseEvent ArrowModifying;
+
+		[Category("Arrows")]
+		[Description("Raised when an arrow is activated.")]
+		public event ArrowEvent ArrowActivated;
+
+		[Category("Arrows")]
+		[Description("Raised when an arrow is deselected.")]
+		public event ArrowEvent ArrowDeselected;
+
+		[Category("Arrows")]
+		[Description("Raised when an arrow is deactivated.")]
+		public event ArrowEvent ArrowDeactivated;
+
+		[Category("Arrows")]
+		[Description("Lets you cancel arrow creation.")]
+		public event AttachConfirmation ArrowCreating;
+
+		[Category("Arrows")]
+		[Description("Lets you cancel arrow deletion.")]
+		public event ArrowConfirmation ArrowDeleting;
+
+		[Category("Arrows")]
+		[Description("Lets you cancel arrow selection.")]
+		public event ArrowConfirmation ArrowSelecting;
+
+		[Category("Arrows")]
+		[Description("Lets you cancel attaching arrow to a node.")]
+		public event AttachConfirmation ArrowAttaching;
+
+		[Category("Arrows")]
+		[Description("Raised when an arrow is clicked.")]
+		public event ArrowMouseEvent ArrowClicked;
+
+		[Category("Arrows")]
+		[Description("Raised when an arrow is double-clicked.")]
+		public event ArrowMouseEvent ArrowDblClicked;
+
+		[Category("Arrows")]
+		[Description("Raised when an arrow is routed.")]
+		public event ArrowEvent ArrowRouted;
+
+		[Category("Arrows")]
+		[Description("Lets you validate anchor points when an arrow connects to a node.")]
+		public event AttachConfirmation ValidateAnchorPoint;
+
+		[Category("Boxes")]
+		[Description("Raised when the user draws a new box.")]
+		public event BoxEvent BoxCreated;
+
+		[Category("Boxes")]
+		[Description("Raised when a box is deleted.")]
+		public event BoxEvent BoxDeleted;
+
+		[Category("Boxes")]
+		[Description("Raised when the user moves or resizes a box.")]
+		public event BoxMouseEvent BoxModified;
+
+		[Category("Boxes")]
+		[Description("Raised while the user moves or resizes a box.")]
+		public event BoxMouseEvent BoxModifying;
+
+		[Category("Boxes")]
+		[Description("Raised when a box is activated.")]
+		public event BoxEvent BoxActivated;
+
+		[Category("Boxes")]
+		[Description("Raised when a box is deselected.")]
+		public event BoxEvent BoxDeselected;
+
+		[Category("Boxes")]
+		[Description("Raised when a box is deactivated.")]
+		public event BoxEvent BoxDeactivated;
+
+		[Category("Boxes")]
+		[Description("Lets you cancel box creation.")]
+		public event BoxConfirmation BoxCreating;
+
+		[Category("Boxes")]
+		[Description("Lets you cancel box deletion.")]
+		public event BoxConfirmation BoxDeleting;
+
+		[Category("Boxes")]
+		[Description("Lets you cancel box selection.")]
+		public event BoxConfirmation BoxSelecting;
+
+		[Category("Boxes")]
+		[Description("Raised when a box is clicked.")]
+		public event BoxMouseEvent BoxClicked;
+
+		[Category("Boxes")]
+		[Description("Raised when a box is double-clicked.")]
+		public event BoxMouseEvent BoxDblClicked;
+
+		[Category("Clipboard")]
+		[Description("Raised when an arrow is pasted from the clipboard.")]
+		public event ArrowEvent ArrowPasted;
+
+		[Category("Clipboard")]
+		[Description("Raised when a box is pasted from the clipboard.")]
+		public event BoxEvent BoxPasted;
+
+		[Category("Clipboard")]
+		[Description("Raised when a control host node is pasted from the clipboard.")]
+		public event ControlHostEvent ControlHostPasted;
+
+		[Category("Clipboard")]
+		[Description("Raised when a table is pasted from the clipboard.")]
+		public event TableEvent TablePasted;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a control host is deleted.")]
+		public event ControlHostEvent ControlHostDeleted;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a control host is activated.")]
+		public event ControlHostEvent ControlHostActivated;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a control host is deselected.")]
+		public event ControlHostEvent ControlHostDeselected;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a control host is deactivated.")]
+		public event ControlHostEvent ControlHostDeactivated;
+
+		[Category("Control Hosts")]
+		[Description("Raised when the user creates a new control host.")]
+		public event ControlHostEvent ControlHostCreated;
+
+		[Category("Control Hosts")]
+		[Description("Lets you cancel control host deletion.")]
+		public event ControlHostConfirmation ControlHostDeleting;
+
+		[Category("Control Hosts")]
+		[Description("Lets you cancel control host selection.")]
+		public event ControlHostConfirmation ControlHostSelecting;
+
+		[Category("Control Hosts")]
+		[Description("Lets you cancel control host creation.")]
+		public event ControlHostConfirmation ControlHostCreating;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a control host is clicked.")]
+		public event ControlHostMouseEvent ControlHostClicked;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a control host is double-clicked.")]
+		public event ControlHostMouseEvent ControlHostDblClicked;
+
+		[Category("Control Hosts")]
+		[Description("Raised when the user moves or resizes a control host.")]
+		public event ControlHostMouseEvent ControlHostModified;
+
+		[Category("Control Hosts")]
+		[Description("Raised while the user moves or resizes a control host.")]
+		public event ControlHostMouseEvent ControlHostModifying;
+
+		[Category("Control Hosts")]
+		[Description("Lets you save additional data for control hosts when serializing the diagram into a file.")]
+		public event ControlHostSerializeEvent ControlHostSerializing;
+
+		[Category("Control Hosts")]
+		[Description("Lets you load your custom data associated with a control host when deserializing a diagram from a file.")]
+		public event ControlHostSerializeEvent ControlHostDeserializing;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when a custom-drawn table cell must be painted.")]
+		public event CellCustomDraw DrawCell;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when a custom-drawn arrow must be painted.")]
+		public event ArrowCustomDraw DrawArrow;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when a custom-drawn anchor-point mark must be painted.")]
+		public event MarkCustomDraw DrawMark;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when a control host is painted in the Overview window or printed.")]
+		public event ControlHostPaint PaintControlHost;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when custom-drawn selection handles must be painted.")]
+		public event CustomDrawEventHandler DrawSelHandles;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when a custom-drawn box must be painted.")]
+		public event BoxCustomDraw DrawBox;
+
+		[Category("Custom Drawing")]
+		[Description("Raised when a custom-drawn table must be painted.")]
+		public event TableCustomDraw DrawTable;
+
+		[Category("In-place Edit")]
+		[Description("Raised when the text of a box is edited in-place by a user.")]
+		public event BoxTextEditedEvent BoxTextEdited;
+
+		[Category("In-place Edit")]
+		[Description("Lets you prevent users from editing the text of a box.")]
 		public event BoxConfirmation BoxInplaceEditing;
 
-		// Table events
-		public event TableEvent TableCreated;	// fired when the user creates a new table
-		public event TableEvent TableDeleted; // fired when a table is deleted
-		public event TableMouseEvent TableModified; // fired when a table is moved
-		public event TableMouseEvent TableModifying; // fired when a table is being moved
-		public event TableEvent TableActivated;	// fired when a table is selected
-		public event TableEvent TableDeselected;	// fired when a table is deselected
-		public event TableEvent TableDeactivated;	// fired when a table looses its selection
-		public event TableConfirmation TableCreating;	// gives you a chance to cancel table creation
-		public event TableConfirmation TableDeleting;	// gives you a chance to cancel table deletion
-		public event TableConfirmation TableSelecting;	// gives you a chance to cancel table selection
-		public event TableMouseEvent TableClicked;	// fired when a table is clicked
-		public event TableMouseEvent TableDblClicked;	// fired when a table is double-clicked
-		public event TableMouseEvent TableCellClicked;	// fired when a table cell is clicked
-		public event TableMouseEvent TableCellDblClicked;	// fired when a table cell is docuble-clicked
-		public event TableCaptionEditedEvent TableCaptionEdited;	// fired when the caption of a table is inplace-edited by user
-		public event CellTextEditedEvent CellTextEdited;	// fired when the text of a cell is inplace-edited by user
-		public event TableConfirmation TableInplaceEditing; // gives you a chance to cancel table text inplace editing
+		[Category("In-place Edit")]
+		[Description("Raised when the in-place edit TextBox is displayed.")]
+		public event InplaceEditEvent EnterInplaceEditMode;
 
+		[Category("In-place Edit")]
+		[Description("Raised when the caption of a table is edited in-place by a user.")]
+		public event TableCaptionEditedEvent TableCaptionEdited;
+
+		[Category("In-place Edit")]
+		[Description("Raised when the text of a cell is edited in-place by a user.")]
+		public event CellTextEditedEvent CellTextEdited;
+
+		[Category("In-place Edit")]
+		[Description("Lets you prevent users from editing the text of a table or a table's cell.")]
+		public event TableConfirmation TableInplaceEditing;
+
+		[Category("Miscellaneous")]
+		[Description("Lets you implement custom hit-testing of selection handles.")]
+		public event HitTestEventHandler HitTestSelHandles;
+
+		[Category("Miscellaneous")]
+		[Description("Raised when a tree branch expands after a user clicks the '+' button displayed by an expandable node.")]
+		public event NodeEventHandler TreeExpanded;
+
+		[Category("Miscellaneous")]
+		[Description("Raised when a tree branch collapses after a user clicks the '-' button displayed by an expandable node.")]
+		public event NodeEventHandler TreeCollapsed;
+
+		[Category("Miscellaneous")]
+		[Description("Raised when a group is destroyed.")]
+		public event GroupEvent GroupDestroyed;
+
+		[Category("Mouse")]
+		[Description("Raised when a user clicks an unoccupied area inside the diagram.")]
+		public event DocMouseEvent DocClicked;
+
+		[Category("Mouse")]
+		[Description("Raised when a user double-clicks an unoccupied area inside the diagram.")]
+		public event DocMouseEvent DocDblClicked;
+
+		[Category("Property Changed")]
+		[Description("Raised when the value of the Dirty flag changes.")]
+		public event EventHandler DirtyChanged;
+
+		[Category("Property Changed")]
+		[Description("Raised when the scroll position changes.")]
+		public event EventHandler ScrollChanged;
+
+		[Category("Property Changed")]
+		[Description("Raised when the zoom factor changes.")]
+		public event EventHandler ZoomFactorChanged;
+
+		[Category("Property Changed")]
+		[Description("Raised when the document size changes.")]
+		public event EventHandler DocExtentsChanged;
+
+		[Category("Property Changed")]
+		[Description("Raised when a new default shape is set.")]
+		public event EventHandler DefaultShapeChanged;
+
+		[Category("Property Changed")]
+		[Description("Raised when the value of BoxStyle changes.")]
+		public event EventHandler BoxStyleChanged;
+
+		[Category("Property Changed")]
+		[Description("Raised when the value of MeasureUnit changes.")]
+		public event EventHandler MeasureUnitChanged;
+		
+		[Category("Selection")]
+		[Description("Raised when a user moves a selection of items.")]
+		public event SelectionEvent SelectionMoved;
+
+		[Category("Selection")]
+		[Description("Raised when an item is added to or removed from the selection.")]
+		public event SelectionEvent SelectionChanged;
+
+		[Category("Tables")]
+		[Description("Raised when the user draws a new table.")]
+		public event TableEvent TableCreated;
+
+		[Category("Tables")]
+		[Description("Raised when a table is deleted.")]
+		public event TableEvent TableDeleted;
+
+		[Category("Tables")]
+		[Description("Raised when the user moves or resizes a table.")]
+		public event TableMouseEvent TableModified;
+
+		[Category("Tables")]
+		[Description("Raised while the user moves or resizes a table.")]
+		public event TableMouseEvent TableModifying;
+
+		[Category("Tables")]
+		[Description("Raised when a table is activated.")]
+		public event TableEvent TableActivated;
+
+		[Category("Tables")]
+		[Description("Raised when a table is deselected.")]
+		public event TableEvent TableDeselected;
+
+		[Category("Tables")]
+		[Description("Raised when a table is deactivated.")]
+		public event TableEvent TableDeactivated;
+
+		[Category("Tables")]
+		[Description("Lets you cancel table creation.")]
+		public event TableConfirmation TableCreating;
+
+		[Category("Tables")]
+		[Description("Lets you cancel table deletion.")]
+		public event TableConfirmation TableDeleting;
+
+		[Category("Tables")]
+		[Description("Lets you cancel table selection.")]
+		public event TableConfirmation TableSelecting;
+
+		[Category("Tables")]
+		[Description("Raised when a table is clicked.")]
+		public event TableMouseEvent TableClicked;
+
+		[Category("Tables")]
+		[Description("Raised when a table is double-clicked.")]
+		public event TableMouseEvent TableDblClicked;
+
+		[Category("Tables")]
+		[Description("Raised when a table cell is clicked.")]
+		public event TableMouseEvent TableCellClicked;
+
+		[Category("Tables")]
+		[Description("Raised when a table cell is double-clicked.")]
+		public event TableMouseEvent TableCellDblClicked;
+
+		[Category("Tables")]
 		[Description("Raised when a user clicks the + button in a header row of a table to expand the section of rows under the header.")]
 		public event RowEventHandler TableSectionExpanded;
 
+		[Category("Tables")]
 		[Description("Raised when a user clicks the - button in a header row of a table to collapse the section of rows under the header.")]
-		public event RowEventHandler TableSectionCollapsed; // raised when a header row is collapsed
+		public event RowEventHandler TableSectionCollapsed;
 
-		// Arrow events
-		public event ArrowEvent ArrowCreated;	// fired when the user creates a new arrow
-		public event ArrowEvent ArrowDeleted; // fired when an arrow is deleted
-		public event ArrowMouseEvent ArrowModified; // fired when an arrow is moved
-		public event ArrowMouseEvent ArrowModifying; // fired when an arrow is being moved
-		public event ArrowEvent ArrowActivated;	// fired when an arrow is selected
-		public event ArrowEvent ArrowDeselected;	// fired when an arrow is deselected
-		public event ArrowEvent ArrowDeactivated;	// fired when an arrow looses its selection
-		public event AttachConfirmation ArrowCreating;	// gives you a chance to cancel arrow creation
-		public event ArrowConfirmation ArrowDeleting;	// gives you a chance to cancel arrow deletion
-		public event ArrowConfirmation ArrowSelecting;	// gives you a chance to cancel arrow selection
-		public event AttachConfirmation ArrowAttaching;	// gives you a chance to cancel arrow creation
-		public event ArrowMouseEvent ArrowClicked;	// fired when an arrow is clicked
-		public event ArrowMouseEvent ArrowDblClicked;	// fired when an arrow is double-clicked
-		public event ArrowEvent ArrowRouted;	// fired when an arrow is auto-routed
-		public event AttachConfirmation ValidateAnchorPoint;	// gives you a chance to cancel arrow creation
+		[Category("Undo")]
+		[Description("Raised when an action is stored into undo history queue.")]
+		public event UndoEventHandler ActionRecorded;
 
-		// Group events
-		public event GroupEvent GroupDestroyed; // fired when a group is destroyed
+		[Category("Undo")]
+		[Description("Raised when an action is undone.")]
+		public event UndoEventHandler ActionUndone;
 
-		// Control host events
-		public event ControlHostEvent ControlHostDeleted;
-		public event ControlHostEvent ControlHostActivated;
-		public event ControlHostEvent ControlHostDeselected;
-		public event ControlHostEvent ControlHostDeactivated;
-		public event ControlHostEvent ControlHostCreated;
-		public event ControlHostConfirmation ControlHostDeleting;
-		public event ControlHostConfirmation ControlHostSelecting;
-		public event ControlHostConfirmation ControlHostCreating;
-		public event ControlHostMouseEvent ControlHostClicked;
-		public event ControlHostMouseEvent ControlHostDblClicked;
-		public event ControlHostMouseEvent ControlHostModified;
-		public event ControlHostMouseEvent ControlHostModifying;
-		public event ControlHostSerializeEvent ControlHostSerializing;
-		public event ControlHostSerializeEvent ControlHostDeserializing;
+		[Category("Undo")]
+		[Description("Raised when an action is redone.")]
+		public event UndoEventHandler ActionRedone;
 
-		// clipboard events
-		public event ArrowEvent ArrowPasted;
-		public event BoxEvent BoxPasted;
-		public event ControlHostEvent ControlHostPasted;
-		public event TableEvent TablePasted;
+		[Category("Undo")]
+		[Description("Raised when an action is about to be saved in undo history.")]
+		public event UndoConfirmEventHandler ActionRecording;
 
-		// Property changed events
-		public event EventHandler ScrollChanged;
-		public event EventHandler ZoomFactorChanged;
-		public event EventHandler DocExtentsChanged;
-		public event EventHandler ShapeTemplateChanged;
-		public event EventHandler BoxStyleChanged;
-		public event EventHandler MeasureUnitChanged;
-
-		public event BoxCustomDraw DrawBox;	// fired when a custom-drawn box has to be painted
 		internal void drawBox(Graphics g, Box box, bool shadow, RectangleF rc)
 		{
 			if (DrawBox != null)
 				DrawBox(this, new BoxDrawArgs(g, box, shadow, rc));
 		}
 
-		public event TableCustomDraw DrawTable;	// fired when a custom-drawn table has to be painted
 		internal void drawTable(Graphics g, Table table, bool shadow, RectangleF bounds)
 		{
 			if (DrawTable != null)
 				DrawTable(this, new TableDrawArgs(g, table, shadow, bounds));
 		}
 
-		public event CellCustomDraw DrawCell;	// fired when a custom-drawn cell has to be painted
 		internal void drawCell(Graphics g, Table table, int col, int row, RectangleF bounds)
 		{
 			if (DrawCell != null)
 				DrawCell(this, new CellDrawArgs(g, table, col, row, bounds));
 		}
 
-		public event ArrowCustomDraw DrawArrow;	// fired when a custom-drawn arrow has to be painted
 		internal void drawArrow(Graphics g, Arrow arrow, bool shadow, PointCollection points)
 		{
 			if (DrawArrow != null)
 				DrawArrow(this, new ArrowDrawArgs(g, arrow, shadow, points));
 		}
 
-		public event MarkCustomDraw DrawMark;
 		internal void drawMark(MarkDrawArgs args)
 		{
 			if (DrawMark != null)
 				DrawMark(this, args);
 		}
 
-		public event ControlHostPaint PaintControlHost;
 		internal bool paintControlHost(Graphics g, ControlHost host, RectangleF rect)
 		{
 			if (PaintControlHost != null)
@@ -8183,14 +8372,12 @@ namespace MindFusion.FlowChartX
 			return false;
 		}
 
-		public event CustomDrawEventHandler DrawSelHandles;
 		internal void fireDrawSelHandles(Graphics graphics, ChartObject item)
 		{
 			if (DrawSelHandles != null)
 				DrawSelHandles(this, new DrawEventArgs(graphics, item));
 		}
 
-		public event HitTestEventHandler HitTestSelHandles;
 		internal bool hitTestSelHandles(ChartObject item,
 			PointF mousePosition, ref int hitResult)
 		{
@@ -8204,104 +8391,6 @@ namespace MindFusion.FlowChartX
 
 			return false;
 		}
-
-		public event SelectionEvent SelectionMoved;
-		public event SelectionEvent SelectionChanged;
-
-		public event InplaceEditEvent EnterInplaceEditMode;
-
-		#endregion
-
-		#region miscellaneous
-
-		[Category("Appearance")]
-		[DefaultValue(typeof(ArrowCrossings), "Straight")]
-		[Description("Specifies how to display intersection points where arrows cross their paths.")]
-		public ArrowCrossings ArrowCrossings
-		{
-			get { return arrowCrossings; }
-			set
-			{
-				if (arrowCrossings != value)
-				{
-					arrowCrossings = value;
-					clearRuntimeData(Constants.ARROW_CROSSINGS);
-					Invalidate();
-				}
-			}
-		}
-
-		internal void clearRuntimeData(int key)
-		{
-			foreach (ChartObject item in zOrder)
-				item.freeData(key);
-		}
-
-		private ArrowCrossings arrowCrossings;
-
-		[Category("Appearance")]
-		[DefaultValue(1.5f)]
-		[Description("Specifies the radius of arcs displayed over intersection points where arrows cross their paths.")]
-		public float CrossingRadius
-		{
-			get { return crossRadius; }
-			set
-			{
-				if (crossRadius != value)
-				{
-					crossRadius = value;
-					clearRuntimeData(Constants.ARROW_CROSSINGS);
-					Invalidate();
-				}
-			}
-		}
-
-		private float crossRadius;
-
-		internal ArrowCollection getArrowsFromZ(bool lessThan, int z)
-		{
-			ArrowCollection arrows = new ArrowCollection();
-
-			if (lessThan)
-			{
-				for (int i = z - 1; i >= 0; i--)
-				{
-					ChartObject obj = this.zOrder[i];
-					if (obj is Arrow)
-						arrows.Add(obj as Arrow);
-				}
-			}
-			else
-			{
-				for (int i = z + 1; i < zOrder.Count; i++)
-				{
-					ChartObject obj = zOrder[i];
-					if (obj is Arrow)
-						arrows.Add(obj as Arrow);
-				}
-			}
-
-			return arrows;
-		}
-
-		internal void redrawNonModifiedItems()
-		{
-			redrawNonModified = true;
-		}
-
-		private bool redrawNonModified;
-
-		[Browsable(false)]
-		public ScriptHelper ScriptHelper
-		{
-			get { return scriptHelper; }
-		}
-
-		private ScriptHelper scriptHelper;
-
-		#endregion
-
-		#region event firing methods
 
 		internal void fireActionRecorded(Command cmd)
 		{
@@ -8761,7 +8850,6 @@ namespace MindFusion.FlowChartX
 				ArrowCreated(this, new ArrowEventArgs((Arrow)obj));
 		}
 
-
 		internal void fireTreeExpanded(Node root)
 		{
 			if (TreeExpanded != null)
@@ -8863,7 +8951,6 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-
 		private void fireDblClickedEvent(ChartObject obj, PointF pt, MouseButtons mb)
 		{
 			RectangleF rc = obj.getBoundingRect();
@@ -8934,38 +9021,117 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		#endregion
-
-		private static object syncRoot = new Object();
-
-
-		[Browsable(false)]
-		public ModifierKeyActions ModifierKeyActions
+		internal bool requestAttach(Arrow arrow, bool changingOrg, Node node)
 		{
-			get { return _modifierKeyActions; }
+			if (ArrowAttaching != null)
+			{
+				PointF endPt = changingOrg ? arrow.Points[0] : arrow.Points[arrow.Points.Count - 1];
+				int id = 0;
+				int row = -1;
+				node.getAnchor(endPt, arrow, !changingOrg, ref id);
+
+				// get the row if attaching to table
+				Table table = node as Table;
+				if (table != null)
+					row = table.rowFromPt(endPt);
+
+				AttachConfirmArgs args = new AttachConfirmArgs(arrow,
+					node, changingOrg, id, row);
+				ArrowAttaching(this, args);
+
+				return args.Confirm;
+			}
+
+			return true;
 		}
 
-		private ModifierKeyActions _modifierKeyActions;
-		private bool forceCacheRedraw;
-
-		[DefaultValue(true)]
-		[Description("Specifies whether to display selection handles of objects under the mouse while another object is being modified.")]
-		public bool ShowHandlesOnDrag
+		internal bool validateAnchor(Arrow arrow, bool outgoing, Node node, int pointIndex)
 		{
-			get { return showHandlesOnDrag; }
-			set
+			if (ValidateAnchorPoint != null)
 			{
-				if (showHandlesOnDrag == value)
-					return;
+				AttachConfirmArgs args = new AttachConfirmArgs(arrow,
+					node, outgoing, pointIndex, 0);
+				ValidateAnchorPoint(this, args);
 
-				showHandlesOnDrag = value;
-				Invalidate();
+				return args.Confirm;
+			}
+
+			return true;
+		}
+
+		#endregion
+
+		#region miscellaneous
+
+		/// <summary>
+		/// Checks whether this is a trial version of the control
+		/// </summary>
+		public bool IsTrialVersion
+		{
+			get
+			{
+#if DEMO_VERSION
+				return true;
+#else
+				return false;
+#endif
 			}
 		}
 
+		/// <summary>
+		/// Checks whether this is a Pro edition of the control
+		/// </summary>
+		public bool IsProEdition
+		{
+			get
+			{
+#if FCNET_STD
+				return false;
+#else
+				return true;
+#endif
+			}
+		}
 
-		private bool showHandlesOnDrag;
+		internal bool DisabledGroups
+		{
+			get { return disabledGroups; }
+			set { disabledGroups = value; }
+		}
 
-	}	// ************** class FlowChart **************
+		private bool disabledGroups = false;
 
-}	// namespace
+		internal DummyNode Dummy;
+
+		[Browsable(false)]
+		public ScriptHelper ScriptHelper
+		{
+			get { return scriptHelper; }
+		}
+
+		private ScriptHelper scriptHelper;
+
+		private static object syncRoot = new Object();
+
+		private License license = null;
+
+		[Browsable(false)]
+#if FCNET_STD
+		internal UndoManager UndoManager
+#else
+		public UndoManager UndoManager
+#endif
+		{
+			get { return undoManager; }
+		}
+
+		private UndoManager undoManager;
+
+		public void ExecuteCommand(Command cmd)
+		{
+			undoManager.executeCommand(cmd);
+		}
+
+		#endregion
+	}
+}

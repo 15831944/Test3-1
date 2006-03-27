@@ -12,16 +12,6 @@ using System.IO;
 
 namespace MindFusion.FlowChartX
 {
-	public enum MarkStyle
-	{
-		None,
-		Cross,
-		X,
-		Circle,
-		Rectangle,
-		Custom
-	}
-
 	/// <summary>
 	/// 
 	/// </summary>

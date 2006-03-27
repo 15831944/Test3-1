@@ -18,74 +18,6 @@ using MindFusion.Geometry.Geometry2D;
 
 namespace MindFusion.FlowChartX
 {
-	#region enumerations
-
-	public enum ArrowStyle
-	{
-		Bezier = 0,
-		Polyline,
-		Cascading
-	};
-
-	public enum ArrowHead
-	{
-		None = 0,
-		Arrow,
-		Triangle,
-		Circle,
-		Tetragon,
-		Rhombus,
-		BowArrow,
-		PointerArrow,
-		Pentagon,
-		DoubleArrow,
-		Reversed,
-		RevTriangle,
-		Quill,
-		RevWithLine,
-		RevWithCirc,
-		BackSlash,
-		Slash,
-		DefaultFlow
-	};
-
-	public enum Orientation
-	{
-		Auto,
-		Horizontal,
-		Vertical
-	};
-
-	public enum ArrowTextStyle
-	{
-		Center,
-		Rotate,
-		OverLongestSegment
-	};
-
-	public enum Anchoring
-	{
-		Ignore,
-		Keep,
-		Reassign
-	};
-
-	public enum ArrowCrossings
-	{
-		Straight = 0,
-		Arcs,
-		BreakOff
-	};
-
-	public enum RerouteArrows
-	{
-		WhenModified,
-		WhenIntersectNode,
-		Never
-	};
-
-	#endregion
-
 	/// <summary>
 	/// Represents a link between diagram nodes.
 	/// </summary>
@@ -375,7 +307,7 @@ namespace MindFusion.FlowChartX
 			autoRoute = prototype.autoRoute;
 		}
 
-		internal Arrow(FlowChart parent, Node orgnNode) : this(parent)
+		public Arrow(FlowChart parent, Node orgnNode) : this(parent)
 		{
 			this.orgnNode = orgnNode;
 		}
@@ -1218,16 +1150,31 @@ namespace MindFusion.FlowChartX
 				}
 				else
 				{
+					float mm = Constants.getMillimeter(fcParent.MeasureUnit);
+					float pathThresh = mm / 3;
 					if (fcParent.ArrowCrossings ==
 						MindFusion.FlowChartX.ArrowCrossings.Straight)
 					{
-						g.DrawLines(p, pts.getArray());
+						if (fcParent.RoundedArrows)
+						{
+							DrawRoundedPolyline(g, p, pts.getArray(),
+								fcParent.RoundedArrowsRadius, true, pathThresh, null);
+						}
+						else
+						{
+							g.DrawLines(p, pts.getArray());
+						}
 					}
 					else
 					{
 						float crad = fcParent.CrossingRadius;
 
 						ArrowCrossings crossings = getCrossings();
+						object startPoint = null;
+
+						GraphicsPath gpath = pen.Width > pathThresh ?
+							new GraphicsPath() : null;
+
 						for (int i = 0; i < segmentCount; ++i)
 						{
 							PointCollection pc = crossings.segmentCrossings[i] as PointCollection;
@@ -1236,55 +1183,198 @@ namespace MindFusion.FlowChartX
 								for (int j = 0; j < pc.Count - 1; ++j)
 								{
 									PointF pt1 = pc[j];
-									PointF pt2 = pc[j+1];
+									PointF pt2 = pc[j + 1];
 									pt1.X += xoff; pt1.Y += yoff;
 									pt2.X += xoff; pt2.Y += yoff;
+
+									if (startPoint != null)
+										pt1 = (PointF)startPoint;
+
+									startPoint = null;
+
 									if (j % 2 == 0)
-										g.DrawLine(p, pt1, pt2);
+									{
+										// The subsegment between two crossings or
+										// between a crossing and a segment end-point
+										if (fcParent.RoundedArrows)
+										{
+											// Check if this is the last subsegment
+											// in this segment. If that is the case,
+											// and this is not the last segment of the
+											// arrow, draw rounded arrow
+											if (j == pc.Count - 2 && i != segmentCount - 1)
+											{
+												// The third point in the poly is
+												// the second point of the next segment
+												// if it does not have crossings, or
+												// the second point of the crossings array
+												int ni = i + 2;
+												PointF next = pts[ni];
+												while (Math.Abs(next.X - pt2.X) + Math.Abs(next.Y - pt2.Y) < 0.00001f)
+												{
+													ni++;
+													if (ni == pts.Count)
+														break;
+
+													next = pts[ni];
+												}
+
+												if (ni == pts.Count)
+												{
+													if (gpath != null)
+														gpath.AddLine(pt1, pt2);
+													else
+														g.DrawLine(p, pt1, pt2);
+												}
+												else
+												{
+													PointCollection nextPc = crossings.segmentCrossings[ni - 1] as PointCollection;
+													if (nextPc.Count > 2)
+													{
+														next = nextPc[1];
+														next.X += xoff;
+														next.Y += yoff;
+													}
+
+													PointF[] triPoints = new PointF[]
+												{
+													pt1, pt2, next
+												};
+
+													startPoint = DrawRoundedPolyline(g, p, triPoints,
+														fcParent.RoundedArrowsRadius, false, pathThresh, gpath);
+												}
+											}
+											else
+											{
+												if (gpath != null)
+													gpath.AddLine(pt1, pt2);
+												else
+													g.DrawLine(p, pt1, pt2);
+											}
+										}
+										else
+										{
+											if (gpath != null)
+												gpath.AddLine(pt1, pt2);
+											else
+												g.DrawLine(p, pt1, pt2);
+										}
+									}
 									else
 									{
 										if (fcParent.ArrowCrossings ==
 											MindFusion.FlowChartX.ArrowCrossings.Arcs)
 										{
+											float rad = Utilities.Distance(pt1, pt2) / 2;
+
+											float aa = 0;
+											float rr = 0;
+											Geometry.Geometry2D.Convert.DekartToPolar(
+												pt1, pt2, ref aa, ref rr);
+
+											PointF[] centers = new PointF[] { PointF.Empty, PointF.Empty };
+											Geometry.Geometry2D.Convert.PolarToDekart(
+												pt1, aa, crad, ref centers[0]);
+											Geometry.Geometry2D.Convert.PolarToDekart(
+												pt1, aa, 2 * rad - crad, ref centers[1]);
+
+											PointF[] startPts = new PointF[] { pt1, PointF.Empty };
+											PointF[] endPts = new PointF[] { PointF.Empty, pt2 };
+											Geometry.Geometry2D.Convert.PolarToDekart(
+												pt1, aa, 2 * crad, ref endPts[0]);
+											Geometry.Geometry2D.Convert.PolarToDekart(
+												pt1, aa, 2 * rad - 2 * crad, ref startPts[1]);
+
+											float angle = aa;
+											if (angle < 90)
+												angle += 180;
+
 											RectangleF rc = RectangleF.FromLTRB(
-												(pt1.X + pt2.X) / 2 - crad,
-												(pt1.Y + pt2.Y) / 2 - crad,
-												(pt1.X + pt2.X) / 2 + crad,
-												(pt1.Y + pt2.Y) / 2 + crad);
+												centers[0].X - crad,
+												centers[0].Y - crad,
+												centers[0].X + crad,
+												centers[0].Y + crad);
 
-											// Calculate start and sweep angles from points
-											PointF start = pt1;
-											PointF end = pt2;
-											PointF center = new PointF((rc.Left + rc.Right) / 2,
-												(rc.Top + rc.Bottom) / 2);
+											float ded = 0 * 90;
+											if (aa < 90)
+												ded = 90 - ded;
 
-											float angle = 0;
-											float sweep = 0;
-											float r = 0;
-
-											if (pt1.X > pt2.X)
+											float start = 180 - angle - ded;
+											float sweep = -90;
+											if (aa < 90)
 											{
-												start = pt2;
-												end = pt1;
+												start += sweep;
+												sweep = -sweep;
 											}
 
-											Geometry.Geometry2D.Convert.DekartToPolar(
-												center, start, ref angle, ref r);
-											Geometry.Geometry2D.Convert.DekartToPolar(
-												center, end, ref sweep, ref r);
-											sweep = angle - sweep;
-											if (sweep < 0)
-												sweep += 360;
+											if (gpath != null)
+												gpath.AddArc(rc, start, sweep);
+											else
+												g.DrawArc(p, rc, start, sweep);
 
-											g.DrawArc(p, rc, 180-angle, -sweep);
+											PointF p1 = PointF.Empty;
+											PointF p2 = PointF.Empty;
+											Geometry.Geometry2D.Convert.PolarToDekart(
+												centers[0], angle - 90, crad, ref p1);
+											Geometry.Geometry2D.Convert.PolarToDekart(
+												centers[1], angle - 90, crad, ref p2);
+
+											if (gpath != null)
+												gpath.AddLine(p1, p2);
+											else
+												g.DrawLine(p, p1, p2);
+
+											rc = RectangleF.FromLTRB(
+												centers[1].X - crad,
+												centers[1].Y - crad,
+												centers[1].X + crad,
+												centers[1].Y + crad);
+
+											ded = 1 * 90;
+											if (aa < 90)
+												ded = 90 - ded;
+
+											start = 180 - angle - ded;
+											sweep = -90;
+											if (aa < 90)
+											{
+												start += sweep;
+												sweep = -sweep;
+											}
+
+											if (gpath != null)
+												gpath.AddArc(rc, start, sweep);
+											else
+												g.DrawArc(p, rc, start, sweep);
+
+										}
+										else
+										{
+											// Start new figure in the graph,
+											// thus preventing the graph
+											// to automatically connect broken
+											// lines and losing break-offs
+											if (gpath != null)
+												gpath.StartFigure();
 										}
 									}
 								}
 							}
 							else
 							{
-								g.DrawLine(p, pts[i], pts[i+1]);
+								if (gpath != null)
+									gpath.AddLine(pts[i], pts[i+1]);
+								else
+									g.DrawLine(p, pts[i], pts[i+1]);
 							}
+						}
+
+						if (gpath != null)
+						{
+							gpath.Flatten(new Matrix(), 0.05f);
+							g.DrawPath(p, gpath);
+							gpath.Dispose();
 						}
 					}
 				}
@@ -1308,6 +1398,220 @@ namespace MindFusion.FlowChartX
 				if (custom && customDraw == CustomDraw.Additional)
 					fcParent.drawArrow(g, this, false, pts);
 			}
+		}
+
+		/// <summary>
+		/// Draws a rounded polyline.
+		/// 
+		/// Note: The closeUp parameter indicates whether to draw the last segment.
+		/// </summary>
+		/// <returns>
+		/// Returns the end point of the drawn curve.
+		/// </returns>
+		private static PointF DrawRoundedPolyline(Graphics g,
+			System.Drawing.Pen p, PointF[] points, float radius, bool closeUp,
+			float pathThreshold, GraphicsPath aPath)
+		{
+			// If the radius is too small, draw a normal polyline
+			if (radius < 0.00001f)
+			{
+				g.DrawLines(p, points);
+				return points[points.Length - 1];
+			}
+
+			// If the line consists of only two points, no rounding is performed
+			if (points.Length <= 2)
+			{
+				g.DrawLines(p, points);
+				return points[points.Length - 1];
+			}
+
+			GraphicsPath gpath = aPath != null ? aPath :
+				(p.Width > pathThreshold ? new GraphicsPath() : null);
+
+			PointF c, k1, k2, l1, l2;
+			PointF prev = points[0];
+			for (int i = 0; i < points.Length - 2; i++)
+			{
+				c = points[i + 1];
+
+				k1 = points[i];
+				k2 = points[i + 1];
+				l1 = points[i + 1];
+				l2 = points[i + 2];
+
+				// If the two points coincide, get the next not-coinciding point
+				bool continueLoop = false;
+				while (Math.Abs(k2.X - l2.X) + Math.Abs(k2.Y - l2.Y) < 0.00001f)
+				{
+					i++;
+
+					if (i >= points.Length - 2)
+					{
+						continueLoop = true;
+						break;
+					}
+
+					l1 = points[i + 1];
+					l2 = points[i + 2];
+				}
+
+				if (continueLoop)
+					continue;
+
+				// Find the angle between (a1, a2) and (b1, b2)
+				float a1 = 0, r1 = 0;
+				float a2 = 0, r2 = 0;
+				Geometry.Geometry2D.Convert.DekartToPolar(c, k1, ref a1, ref r1);
+				Geometry.Geometry2D.Convert.DekartToPolar(c, l2, ref a2, ref r2);
+
+				// Ensure a1 and a2 are both positive,
+				// and a2 is larger than a1
+				while (a1 < 0)
+					a1 += 360;
+				while (a2 < 0)
+					a2 += 360;
+				if (a2 < a1)
+					a2 += 360;
+
+				float a = a2 - a1;
+
+				// If the angle is 0 or 180, there is no need to draw an arc
+				if (a == 0 || a == 180)
+					continue;
+
+				bool swap = false;
+				if (a > 180)
+				{
+					// The angle between a1 and a2 is not keen, so
+					// swap the two segments
+					PointF temp1 = k1;
+					PointF temp2 = k2;
+					k1 = l1;
+					k2 = l2;
+					l1 = k1;
+					l2 = k2;
+
+					float temp = a1;
+					a1 = a2;
+					a2 = temp;
+
+					temp = r1;
+					r1 = r2;
+					r2 = temp;
+
+					a = a2 - a1;
+					while (a < 0)
+						a += 360;
+
+					swap = true;
+				}
+
+				// Calculate the elongation of the tangent point from the intersection point
+				float rr = radius;
+				float rrSin = (float)Math.Sin(Radians(a / 2));
+				float xxSin = (float)Math.Sin(Radians(90 - a / 2));
+				float xx = xxSin * rr / rrSin;
+
+				// Ensure that xx is less than the half the length of the corresponding segment
+				float len = Math.Min(r1, r2);
+
+				if (xx > Math.Min(len / 3, 10))
+				{
+					xx = Math.Min(len / 3, 10);
+					rr = rrSin * xx / xxSin;
+				}
+
+				// Calculate the intersection points
+				PointF iK = new PointF();
+				PointF iL = new PointF();
+
+				Geometry.Geometry2D.Convert.PolarToDekart(c, a1, xx, ref iK);
+				Geometry.Geometry2D.Convert.PolarToDekart(c, a2, xx, ref iL);
+
+				// Calculate the center of the inscribed circle
+				float xc = (float)Math.Sqrt(Math.Pow(xx, 2) + Math.Pow(rr, 2));
+				PointF center = new PointF();
+
+				Geometry.Geometry2D.Convert.PolarToDekart(c, a1 + a / 2, xc, ref center);
+
+				// Calculate the angles of the intersection points, relative to
+				// the center of the inscribed circle
+				float iKa = 0, iKr = 0;
+				float iLa = 0, iLr = 0;
+
+				Geometry.Geometry2D.Convert.DekartToPolar(center, iK, ref iKa, ref iKr);
+				Geometry.Geometry2D.Convert.DekartToPolar(center, iL, ref iLa, ref iLr);
+
+				while (Math.Abs(iLa - iKa) > 180)
+				{
+					if (iLa < iKa)
+						iLa += 360;
+					else
+						iKa += 360;
+				}
+
+				if (iLa < iKa)
+				{
+					float temp = iLa;
+					iLa = iKa;
+					iKa = temp;
+				}
+
+				if (swap)
+				{
+					PointF temp = iK;
+					iK = iL;
+					iL = temp;
+				}
+
+				if (gpath != null)
+					gpath.AddLine(prev, iK);
+				else
+					g.DrawLine(p, prev, iK);
+				if (rr > 0)
+				{
+					float start = 360 - iKa;
+					float sweep = -(iLa - iKa);
+					if (!swap)
+					{
+						start = start + sweep;
+						sweep = -sweep;
+					}
+
+					if (gpath != null)
+						gpath.AddArc(new RectangleF(center.X - rr, center.Y - rr, rr * 2, rr * 2), start, sweep);
+					else
+						g.DrawArc(p, new RectangleF(center.X - rr, center.Y - rr, rr * 2, rr * 2), start, sweep);
+				}
+
+				prev = iL;
+			}
+
+			if (closeUp)
+			{
+				if (gpath != null)
+					gpath.AddLine(prev, points[points.Length - 1]);
+				else
+					g.DrawLine(p, prev, points[points.Length - 1]);
+			}
+
+			if (gpath != null && aPath == null)
+			{
+				gpath.Flatten(new Matrix(), 0.05f);
+				g.DrawPath(p, gpath);
+				gpath.Dispose();
+			}
+
+			return prev;
+		}
+
+		/// <summary>
+		/// Converts the values expressed in degrees to radians.
+		/// </summary>
+		private static float Radians(float degrees)
+		{
+			return (float)(degrees * Math.PI / 180);
 		}
 
 		public override void Draw(Graphics g, bool shadow)
@@ -4418,6 +4722,7 @@ namespace MindFusion.FlowChartX
 					intersections.Sort(new CloserDistance(pt1));
 
 					// add radial intersections to the runtime intersection data
+					CloserDistance closer = new CloserDistance(pt1);
 					PointCollection rintr = ac.segmentCrossings[sgt] as PointCollection;
 					rintr.Add(pt1);
 					for (int ptc = 0; ptc < intersections.Count; ++ptc)
@@ -4428,7 +4733,6 @@ namespace MindFusion.FlowChartX
 							pt.X - crad, pt.Y - crad, pt.X + crad, pt.Y + crad);
 						Utilities.getEllipseIntr(rc, pt1, pt, ref ptRes1);
 						Utilities.getEllipseIntr(rc, pt2, pt, ref ptRes2);
-						CloserDistance closer = new CloserDistance(pt1);
 						if (closer.Compare(ptRes1, ptRes2) < 0)
 						{
 							rintr.Add(ptRes1);
@@ -4441,6 +4745,24 @@ namespace MindFusion.FlowChartX
 						}
 					}
 					rintr.Add(pt2);
+
+					// Check if there are intersection that overlap
+					for (int i = 1; i < rintr.Count - 2; )
+					{
+						PointF p1 = rintr[i];
+						PointF p2 = rintr[i + 1];
+
+						if (closer.Compare(p1, p2) > -Constants.getMillimeter(fcParent.MeasureUnit) / 5)
+						{
+							// Remove these points
+							rintr.RemoveAt(i);
+							rintr.RemoveAt(i);
+						}
+						else
+						{
+							i++;
+						}
+					}
 
 					intersections.Clear();
 

@@ -949,9 +949,8 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			}
 
 			// Split graph to subgraphs
-			Layout.IGraph[] subgraphs =
-				Layout.GraphSplitter.Split(graph,
-					new FCGraphBuilder(chart, false));
+			Layout.IGraph[] subgraphs = Layout.GraphSplitter.Split(
+				graph, new FCGraphBuilder(chart, false));
 
 			// Create the layouter
 			Layout.SpringLayout layout = new Layout.SpringLayout();
@@ -1317,8 +1316,14 @@ namespace MindFusion.FlowChartX.LayoutSystem
 					node.Bounds = nodeBounds;
 				}
 
+				// Update arrows' inner points; the end points
+				// must have already been offset by the loop above
 				foreach (FCLink link in subgraph.Links)
 				{
+					// Arrows that retain form need not be updated
+					if (link.Arrow.RetainForm)
+						continue;
+
 					for (int i = 1; i < link.Arrow.Points.Count - 1; i++)
 					{
 						PointF pt = link.Arrow.Points[i];
@@ -1560,6 +1565,7 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			_xGap = 10;
 			_yGap = 10;
 			_keepGroupLayout = false;
+			_splitGraph = true;
 		}
 
 		public virtual bool Arrange(FlowChart chart)
@@ -1584,8 +1590,17 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			}
 
 			// Split graph to subgraphs
-			Layout.IGraph[] subgraphs = Layout.GraphSplitter.Split(
-				graph, new FCGraphBuilder(chart, false));
+			Layout.IGraph[] subgraphs = null;
+
+			if (_splitGraph)
+			{
+				subgraphs = Layout.GraphSplitter.Split(
+					graph, new FCGraphBuilder(chart, false));
+			}
+			else
+			{
+				subgraphs = new Layout.IGraph[] { graph };
+			}
 
 			// Create the layouter
 			Layout.GridLayout layout = new Layout.GridLayout();
@@ -1760,6 +1775,16 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			set { _keepGroupLayout = value; }
 		}
 
+		[Category("Settings")]
+		[Description("Specifies whether to split the graph to its interconnected " +
+			 "subgraphs and arrange the subgraphs independently.")]
+		[DefaultValue(false)]
+		public bool SplitGraph
+		{
+			get { return _splitGraph; }
+			set { _splitGraph = value; }
+		}
+
 		/// <summary>
 		/// Get or set the object, which will be used
 		/// as root for the layouting.
@@ -1783,6 +1808,7 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		private float _yGap;
 		private int _rndSeed = 0;
 		private Node _root;
+		private bool _splitGraph;
 
 		private LayoutProgress _progress = null;
 	}

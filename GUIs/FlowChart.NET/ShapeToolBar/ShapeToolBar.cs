@@ -68,7 +68,7 @@ namespace MindFusion.FlowChartX
 		// Event handlers
 		private DragEventHandler documentDragOver = null;
 		private DragEventHandler documentDragDrop = null;
-		private EventHandler shapeTemplateChanged = null;
+		private EventHandler defaultShapeChanged = null;
 		private EventHandler boxStyleChanged = null;
 		private EventHandler shapeAdded = null;
 
@@ -85,7 +85,7 @@ namespace MindFusion.FlowChartX
 				{
 					document.DragOver -= documentDragOver;
 					document.DragDrop -= documentDragDrop;
-					document.ShapeTemplateChanged -= shapeTemplateChanged;
+					document.DefaultShapeChanged -= defaultShapeChanged;
 					document.BoxStyleChanged -= boxStyleChanged;
 					ShapeTemplate.ShapeAdded -= shapeAdded;
 				}
@@ -98,13 +98,13 @@ namespace MindFusion.FlowChartX
 
                     documentDragOver = new DragEventHandler(OnDocumentDragOver);
                     documentDragDrop = new DragEventHandler(OnDocumentDragDrop);
-					shapeTemplateChanged = new EventHandler(OnShapeTemplateChanged);
+					defaultShapeChanged = new EventHandler(OnDefaultShapeChanged);
 					boxStyleChanged = new EventHandler(OnBoxStyleChanged);
 					shapeAdded = new EventHandler(OnShapeAdded);
 
 					document.DragOver += documentDragOver;
 					document.DragDrop += documentDragDrop;
-					document.ShapeTemplateChanged += shapeTemplateChanged;
+					document.DefaultShapeChanged += defaultShapeChanged;
 					document.BoxStyleChanged += boxStyleChanged;
 					ShapeTemplate.ShapeAdded += shapeAdded;
 				}
@@ -274,7 +274,7 @@ namespace MindFusion.FlowChartX
 			box.Shape = template;
         }
 
-		private void OnShapeTemplateChanged(object sender, System.EventArgs e)
+		private void OnDefaultShapeChanged(object sender, System.EventArgs e)
 		{
 			UpdateDefaultButton();
 		}
