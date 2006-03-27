@@ -6363,7 +6363,7 @@ void SpModel::ApplyDerivs(double dTime, flag DoDbg)
   for (int s=0; s<SVValueCount(); s++)
     {
     Mn.VValue[s] = m_M[s] + m_dM[s]*dTime;
-    int WentNeg=(Mn[s]<0.0);
+    int WentNeg=(Mn[s]<-1.0e-10*m_M[s]); //0.0);
 
     if ((dbgder || WentNeg) && (fabs(m_M[s])>1e-10 || fabs(Mn[s])>1e-10))
       {
@@ -7878,7 +7878,7 @@ void SpModel::DoTestMassNotNeg()
   for (int s=0; s<SVSpcCount(); s++)
     if (m_M[s]<0)
       {
-      LogError(FullObjTag(), 0, "Negetive Specie %s", SDB[s].SymOrTag());
+      LogError(FullObjTag(), 0, "Negative Specie %s", SDB[s].SymOrTag());
       m_M.VValue[s]=0;
       }
   };

@@ -572,7 +572,7 @@ dword  MN_BstRes::ModelStatus()
   dword Status=MdlNode::ModelStatus();
   if (NoFlwIOs()>1)
     {
-    if (gs_Exec.Stopped())
+    if (GetStatusAsStopped())
       {
       Status |= (m_FEP.FlwRqdActive() ? FNS_UFlw : FNS_UNoFlw);
       }

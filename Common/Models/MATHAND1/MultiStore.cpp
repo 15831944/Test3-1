@@ -1204,9 +1204,12 @@ flag CMultiStorage::InitialiseSolution()
         m_Store[p].SetStateAction(IE_Disabled);
       break;
     case SM_Inline:
+      for (int p=0; p<m_Store.GetSize(); p++)
+        m_Store[p].SetStateAction(IE_SaveState);
+      break;
     case SM_Buffered:
       for (int p=0; p<m_Store.GetSize(); p++)
-        m_Store[p].SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
+        m_Store[p].SetStateAction(IE_Integrate);
       break;
     }
 
@@ -1788,7 +1791,7 @@ void CMultiStorage::SetStoreFracForStream(int StreamIndex, int StoreIndex, doubl
 dword CMultiStorage::ModelStatus()
   {
   dword Status=MdlNode::ModelStatus();
-  if (gs_Exec.Stopped())
+  if (GetStatusAsStopped())
     {
     Status |= FNS_UNoFlw;
     //Status |= (SolveMethod()==SM_Inline  ? FNS_UFlw : FNS_UNoFlw);

@@ -31,7 +31,8 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_AccIn=NULL;
   m_AccOut=NULL;
   m_AccCalc=NULL;
-  SetInlineIntegral(true);
+  SetAllowedSolveModes(SM_Direct|SM_Inline);
+  //SetInlineIntegral(true);
   };
 
 MN_Xfer::~MN_Xfer()
@@ -752,7 +753,7 @@ void MN_Xfer::DumpDerivs()
 dword MN_Xfer::ModelStatus()
   {
   dword Status=MdlNode::ModelStatus();
-  if (gs_Exec.Stopped())
+  if (GetStatusAsStopped())
     {
     Status |= FNS_UNoFlw;
     //Status |= (m_FEP.FlwRqdActive() ? FNS_UFlw : FNS_UNoFlw);

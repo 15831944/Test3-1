@@ -74,7 +74,7 @@
 #define DOPBHSMOOTHING      0
 #define DOPB_FILT_ALPHAS    0
 #define DOPB_FILT_RESULTS   0
-#define NDSTOPWATCHES       (1 || WITHTIMERS)
+#define NDSTOPWATCHES       0 /*(1 || WITHTIMERS)*/
 
 #define dbgTrackQmModes     0
 
@@ -3023,6 +3023,10 @@ const long SpillReports_IdleBoth  = (SpillReports_Idle|SpillReports_Units|SpillR
 const long EvalBalances_Off   = 0x00; 
 const long EvalBalances_On    = 0x01; 
 
+// MdlStatusOptions
+const dword MSO_ShowRunInEdit = 0x00000001;
+
+//
 extern DllImportExport long gs_SpillOption;
 extern DllImportExport long gs_EvalBalances;
 extern DllImportExport bool gs_FSIdleRequested;
@@ -3331,7 +3335,7 @@ class DllImportExport FlwNode : public CTNode
     flag           SolutionBusy() { return fSolutionBusy; };
 
     FlwNode*       Nd_Rmt(int i)              { return (FlwNode*)(i<m_IOs.GetCount() ? m_IOs[i].Rmt : NULL);};
-    flag           InlineIntegral_Rmt(int i)  { return Nd_Rmt(i) ? Nd_Rmt(i)->InlineIntegral() : false; };
+    flag           SolveInlineMethod_Rmt(int i)  { return Nd_Rmt(i) ? Nd_Rmt(i)->SolveInlineMethod() : false; };
 
     IOAreaRec     *getIOAreas()           { return m_pIOAreasOwned ? m_pIOAreasOwned : m_pIOAreas; };
     long           IOAreaCount()          { IOAreaRec *p=IOAreas; for (long N=0; p->pDesc!=NULL; p++, N++) {}; return N; };
@@ -3668,10 +3672,10 @@ class DllImportExport FlwNode : public CTNode
     double         IOAbsFracHgt_Flng(int i, SpContainer & C) { return IOAbsFracHgt_Flng(i, C.ShapeHeight(), C.ShapeDatumPt()); };
     double         IOAbsFracHgt_Term(int i, double ShapeHeight, double ShapeDatumPt);
     double         IOAbsFracHgt_Term(int i, SpContainer & C) { return IOAbsFracHgt_Term(i, C.ShapeHeight(), C.ShapeDatumPt()); };
-    double         IORelFracHgt_Flng(int i, flag Ranged=true) { double F=m_IOs[i].dFracHgt; if (Ranged) F=Range(MinFracHgt[InlineIntegral()], F, MaxFracHgt[InlineIntegral()]); return F; };
+    double         IORelFracHgt_Flng(int i, flag Ranged=true) { double F=m_IOs[i].dFracHgt; if (Ranged) F=Range(MinFracHgt[SolveInlineMethod()?1:0], F, MaxFracHgt[SolveInlineMethod()?1:0]); return F; };
     void           SetIORelFracHgt_Flng(int i, double h)      { m_IOs[i].dFracHgt=h; };
 
-    double         IOAperture(int i, flag Ranged=true) { double A=m_IOs[i].dAperture; if (Ranged) A=Range(MinAperture[InlineIntegral()], A, 0.5); return A;};
+    double         IOAperture(int i, flag Ranged=true) { double A=m_IOs[i].dAperture; if (Ranged) A=Range(MinAperture[SolveInlineMethod()?1:0], A, 0.5); return A;};
     void           SetIOAperture(int i, double d)      { m_IOs[i].dAperture=d; };
     double         IOApertureAngle(int i)              { return m_IOs[i].dApertureAngle; };
     void           SetIOApertureAngle(int i, double d) { m_IOs[i].dApertureAngle=d; };
@@ -3880,8 +3884,7 @@ class DllImportExport FlwNode : public CTNode
     virtual void   ConvergeStates(CConvergeStateBlk & CSB)    {};
     bool           IntegralDone()             { return fIntegralDone; };
     void           SetIntegralDone(bool Done) { fIntegralDone=Done; };
-    flag           InlineIntegral()           { return m_bInlineIntegral || m_bForceInlineIntegral; };
-    void           SetInlineIntegral(bool On) { m_bInlineIntegral=On?1:0; };
+    //bool           InlineIntegral()           { return !SolveBufferedMethod(); }
 
     int            UpdateElectrics();
     virtual int    AutoWiring(AutoWireJob AWJ)            { return 0; };
@@ -4035,6 +4038,8 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
     virtual dword  ModelStatus();
+    bool           GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)==0) ;}
+
 
     SpConduit *    GetWrkConduit(char *Tag, char *IdStr);
     SpContainer *  GetWrkContainer(char *Tag, char *IdStr);
@@ -4047,6 +4052,7 @@ class DllImportExport FlwNode : public CTNode
   public:// protected:
     static flag    fInConfigureJoins;
     static flag    fCollectChgStats;
+    static dword   m_dwMdlStatusOptions;
 
     bool           fSolutionBusy,
                    fHasFiles,
@@ -4060,9 +4066,6 @@ class DllImportExport FlwNode : public CTNode
                    fSolutionForRoot,
                    fElecConnsDone;
     
-    bool           m_bInlineIntegral,
-                   m_bForceInlineIntegral; // set to 1 to integrate along lines of implicit solution {used to index into arrays}
-
     long           m_nJoins, m_nRqdJoins;
     long           m_nLinks, m_nRqdLinks;
 

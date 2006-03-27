@@ -250,7 +250,7 @@ flag PriReform::InitialiseSolution()
     {
     case SM_Inline:
     case SM_Buffered:
-      m_HotBox.SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
+      m_HotBox.SetStateAction(SolveInlineMethod() ? IE_SaveState : IE_Integrate);
       m_States.Add(&m_dCatTemp, &m_dCatTempDeriv, &m_dCatTemp);
       break;
     }

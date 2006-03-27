@@ -199,7 +199,7 @@ bool CGrfWnd::UpdateForPaint(bool ForceUpd, bool ColoursChgd)
   if (1)//m_UpdateRequested)
     {
     flag DoIt=false;
-    CModelStatusCriterion Criteria;
+    CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
     if (gs_pTheSFELib->RequestModelStatusChgCnt(Criteria, 1)>0)
       {
       //dbgpln("OnDraw   B  %10.3fms", SW.Lap()*1e3); 

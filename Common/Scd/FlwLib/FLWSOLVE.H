@@ -364,19 +364,19 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
 
 //    void           FITConfigureJoins(CLkFlwNodeIter & Iter);
     void           FITPowers(CLkFlwNodeIter & Iter);
-    void           FITStates(CFlwNodeList & List);//CLkFlwNodeIter & Iter);
-    void           FITStartStep(CFlwNodeList & List);//CLkFlwNodeIter & Iter);
-    void           FITFlowInfo(CFlwNodeList & List);//CLkFlwNodeIter & Iter);
+    void           FITStates(CFlwNodeList & List);
+    void           FITStartStep(CFlwNodeList & List);
+    void           FITFlowInfo(CFlwNodeList & List);
     void           FITEvalProductsSurge(CLkNodeEvalIter & Iter);
     void           FITEvalProducts(CLkNodeEvalIter & Iter);
     void           FITEvalDerivs(CLkNodeEvalIter & Iter);
     void           FITEvalIntegral(CLkNodeEvalIter & Iter);
-    void           FITODEOperate(CFlwNodeList & List, CODEDataBlock & ODE);//CLkFlwNodeIter & Iter);
-    void           FITDiscrete(CFlwNodeList & List);//CLkFlwNodeIter & Iter);
-    void           FITEvalCtrlActions(CFlwNodeList & List);//CLkFlwNodeIter & Iter);
-    void           FITEvalCtrlStrategy(CFlwNodeList & List);//CLkFlwNodeIter & Iter);
-    void           FITEvalStatistics(CLkFlwNodeIter & Iter);
-    void           FITEvalBalance(CLkNodeEvalIter & List);
+    void           FITODEOperate(CFlwNodeList & List, CODEDataBlock & ODE);
+    void           FITDiscrete(CFlwNodeList & List);
+    void           FITEvalCtrlActions(CFlwNodeList & List);
+    void           FITEvalCtrlStrategy(CFlwNodeList & List);
+    void           FITEvalStatistics(CFlwNodeList & List);
+    void           FITEvalBalance(CLkNodeEvalIter & Iter);
 
     CFullNetBlk      FlwNets;
     word            NNetNds;

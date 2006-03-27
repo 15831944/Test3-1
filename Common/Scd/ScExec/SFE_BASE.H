@@ -221,7 +221,13 @@ class CModelStatusArray : public CArray <CModelStatusItem, CModelStatusItem&> { 
 class CModelStatusCriterion
   {
   public:
-    Strng           m_sWhichTags;
+    CModelStatusCriterion(dword Opts)
+      {
+      m_dwMdlStatusOptions=Opts;
+      }
+    //Strng           m_sWhichTags;
+  public:
+    dword           m_dwMdlStatusOptions;
   };
 
 // ==========================================================================

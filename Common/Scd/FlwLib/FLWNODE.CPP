@@ -1814,6 +1814,7 @@ void CClosureInfoArray::Clear()
 
 flag FlwNode::fInConfigureJoins=0;
 flag FlwNode::fCollectChgStats=0;
+dword FlwNode::m_dwMdlStatusOptions=0;
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
 long gs_EvalBalances    = EvalBalances_Off;
@@ -1915,9 +1916,6 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   fIntegralDone=false;
   fEvalPressSensReqd=false;
   fElecConnsDone=false;
-  
-  m_bInlineIntegral=0;
-  m_bForceInlineIntegral=0;
 
   fMarked=false;
   fNegPress=false;

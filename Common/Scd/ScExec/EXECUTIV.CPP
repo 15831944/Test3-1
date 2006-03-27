@@ -84,6 +84,7 @@ inline double GetProcTime()
 
 void XFlushAppMsgQ()
   {
+  Sleep(10);
   ::WaitForInputIdle(GetCurrentProcess(), 200);
   };
 void XDoAppIdle()

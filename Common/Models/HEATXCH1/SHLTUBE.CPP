@@ -1266,7 +1266,7 @@ void ShellTube::ConfigureJoins()
           SetIO_Closed(i, m_HXJ.P.JoinId());
     for (i=0; i<NoFlwIOs(); i++)
       if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellVent)
-        SetIO_Open(i, m_HXJ.SecJoinId(), true, InlineIntegral() ? ESS_Denied : ESS_Allowed);
+        SetIO_Open(i, m_HXJ.SecJoinId(), true, SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
     }
   }
 

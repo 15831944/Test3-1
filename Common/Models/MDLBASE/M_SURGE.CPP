@@ -201,7 +201,6 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
 void MN_Surge::SetRunModes(long Md, long MdMsk)
   {
   MdlNode::SetRunModes(Md, MdMsk);
-  SetInlineIntegral(SolveMethod() == SM_Inline);
   };
 
 //--------------------------------------------------------------------------
@@ -258,9 +257,9 @@ flag MN_Surge::InitialiseSolution()
     case SM_Inline:
     case SM_Buffered:
       Contents.dwDisplay=SPDF_All;
-      Contents.SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
+      Contents.SetStateAction(SolveInlineMethod() ? IE_SaveState : IE_Integrate);
       if (SolveInlineMethod())
-        m_EqThermals.SetStateAction(InlineIntegral() ? IE_SaveState : IE_Integrate);
+        m_EqThermals.SetStateAction(SolveInlineMethod() ? IE_SaveState : IE_Integrate);
       else
         m_EqThermals.SetStateAction(IE_Disabled);
       break;
@@ -397,7 +396,7 @@ void MN_Surge::ConfigureJoins()
         if (IsProcessIOId(Id))
           {
           if (Id<IOId_HX)
-            SetIO_Open(i, JnId_Surge, Contents.Closed() && Contents.NetPressDamp(), InlineIntegral() ? ESS_Denied : ESS_Allowed);
+            SetIO_Open(i, JnId_Surge, Contents.Closed() && Contents.NetPressDamp(), SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
           else
             SetIO_Join(i, JnId_HX);
           }
@@ -559,13 +558,11 @@ void MN_Surge::EvalProducts(long JoinMask)
         Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PBPCtrl0);
       break;
     case SM_Inline:
+      SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
+      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
+      //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
+      // fall thru
     case SM_Buffered:
-      if (InlineIntegral())
-        {
-        SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-        EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
-        //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
-        }
       if (NJoins()>=2)
         Xfer_EvalProducts(1, Joins[1].Pressure(), NULL, &QProd(), NULL, NULL, NULL);//RB());
 
@@ -587,7 +584,7 @@ void MN_Surge::EvalProducts(long JoinMask)
         HX.EvalProducts();
 
         }
-      if (InlineIntegral())
+      if (SolveInlineMethod())
         {
         EvalIntegral(JoinMask);
         }
@@ -606,7 +603,7 @@ void MN_Surge::EvalDerivs(long JoinMask)
   {
   const int DoLast10=01;
 
-  //dbgpln("EvalDerivs   - %s %s %s %s", InlineIntegral()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
+  //dbgpln("EvalDerivs   - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
 
   Contents.ZeroDeriv();
 
@@ -743,12 +740,12 @@ void MN_Surge::ODEOperate(CODEDataBlock & ODB)
 
 void MN_Surge::EvalIntegral(long JoinMask)
   {
-  //dbgpln("EvalIntegral - %s %s %s %s", InlineIntegral()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
+  //dbgpln("EvalIntegral - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
 
   flag VLEOn=0 && VLE.Enabled();
   dword IOMsk=First64IOIds;
   StkSpConduit QPF("QPF", chLINEID(), this);
-  //if (InlineIntegral())
+  //if (SolveInlineMethod())
   //  {
   //  SigmaQInPMin(QFeed(), som_ALL, IOMsk);
   //  //VLE.QPFlash(QFeed(), Contents.Press(), 0.0, VLEF_Null);
@@ -1205,7 +1202,7 @@ void MN_Surge::EvalMsAGDatas()
 dword MN_Surge::ModelStatus()
   {
   dword Status=MdlNode::ModelStatus();
-  if (gs_Exec.Stopped())
+  if (GetStatusAsStopped())
     {
     Status |= FNS_UNoFlw;
     //Status |= (SolveMethod()==SM_Inline  ? FNS_UFlw : FNS_UNoFlw);

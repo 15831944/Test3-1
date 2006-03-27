@@ -39,7 +39,6 @@ class SFEFlwLib : public SFEMdlLib, CExecObj
 
     flag           m_LoadAllModelStatusDone;
     dword          m_nMdlStatusLoads;
-    dword          m_nStatusChgs;
     dword          m_nStatusColourChgs;
     CCriticalSection m_StatusSect;
 
@@ -146,6 +145,7 @@ class SFEFlwLib : public SFEMdlLib, CExecObj
     int            FE_GetLinkWiring(CLinkWiring &LinkWiring);
     int            FE_SetLinkWiring(CLinkWiring &LinkWiring);
 
+    void           FE_SetModelStatusOptions(dword Options);
     flag           FE_TestModelTagUnique(pchar pTag);
     int            FE_LoadAllModelStatus();
     dword          FE_GetModelStatus(pchar pTag);
@@ -155,7 +155,6 @@ class SFEFlwLib : public SFEMdlLib, CExecObj
     void           FreeStatus() { m_StatusSect.Unlock(); };
     void           SetLoadAllModelStatus() { LockStatus(); m_LoadAllModelStatusDone=false; FreeStatus();};
     dword          GetNumStatusLoads() { LockStatus(); dword dw=m_nMdlStatusLoads; FreeStatus(); return dw;};
-    dword          GetNumStatusChgs() { LockStatus(); dword dw=m_nStatusChgs; FreeStatus(); return dw; };
     dword          GetNumStatusColourChgs() { LockStatus(); dword dw=m_nStatusColourChgs; FreeStatus(); return dw; };
         
     void           EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) ;

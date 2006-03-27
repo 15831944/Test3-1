@@ -6,6 +6,9 @@
 #ifndef  __MDLNODE_H
 #define  __MDLNODE_H
 
+#ifndef  __SCDVER_H
+  #include "scdver.h"
+#endif
 #ifndef __SC_DEFS_H
   #include "sc_defs.h"
 #endif
@@ -74,6 +77,7 @@ class DllImportExport CSurgeControl
     double    m_dVolumeSPT;     //m^3
     short     m_iStreamIndex;
 
+#if WITHSURGECTRLDOUBLE 
     double    m_dQmCalc;        //kg/s
 
     double    m_dQmMin;         //kg/s
@@ -82,6 +86,16 @@ class DllImportExport CSurgeControl
     double    m_dQmMaxStep;     //kg/s
     double    m_dQmMaxSlewUp;   //kg/s/s
     double    m_dQmMaxSlewDn;   //kg/s/s
+#else
+    float     m_dQmCalc;        //kg/s
+
+    float     m_dQmMin;         //kg/s
+    float     m_dQmMax;         //kg/s
+    float     m_dQmMinStep;     //kg/s
+    float     m_dQmMaxStep;     //kg/s
+    float     m_dQmMaxSlewUp;   //kg/s/s
+    float     m_dQmMaxSlewDn;   //kg/s/s
+#endif
   };
 
 //==========================================================================

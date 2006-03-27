@@ -960,7 +960,7 @@ void CGenPage::OnOK()
       if (!CnmVersion())
         {
         //Force a PrjSaveAs conditional on there being units in flowsheet;
-        CModelStatusCriterion Criteria;
+        CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
         CModelStatusArray Status;
         gs_pPrj->RequestModelStatus(Criteria, Status);
         if (Status.GetCount()>1)

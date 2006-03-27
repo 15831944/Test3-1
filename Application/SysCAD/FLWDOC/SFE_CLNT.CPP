@@ -48,7 +48,6 @@ SFEFlwLib::SFEFlwLib()
   FPP_State=0;
   m_LoadAllModelStatusDone=false;
   m_nMdlStatusLoads=0;
-  m_nStatusChgs=0;
   m_nStatusColourChgs=0;
 
   ASSERT(gs_pTheSFELib==NULL);
@@ -560,7 +559,7 @@ flag SFEFlwLib::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   { 
   FENTER(false) 
   pSfe->EO_Execute(CB, EORet);
-  CModelStatusCriterion Criteria;
+  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
     FE_LoadAllModelStatus();
   //if (pSfe->RequestXRefInfoChg())
@@ -577,7 +576,7 @@ flag SFEFlwLib::EO_Stop(const CXM_TimeControl &CB)
   { 
   FENTER(false) 
   pSfe->EO_Stop(CB); 
-  CModelStatusCriterion Criteria;
+  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
     FE_LoadAllModelStatus();
   FLEAVE
@@ -592,7 +591,7 @@ flag SFEFlwLib::EO_BeginPause(const CXM_TimeControl &CB)
   { 
   FENTER(false) 
   pSfe->EO_BeginPause(CB); 
-  CModelStatusCriterion Criteria;
+  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
     FE_LoadAllModelStatus();
   FLEAVE
@@ -634,12 +633,18 @@ void SFEFlwLib::EO_EndBulkChange()
 
 //---------------------------------------------------------------------------
 
+void SFEFlwLib::FE_SetModelStatusOptions(dword Options)
+  {
+  }
+
+//---------------------------------------------------------------------------
+
 int SFEFlwLib::FE_LoadAllModelStatus()
   {
   //CExecObj::Lock();
   LockStatus();
   m_LoadAllModelStatusDone=true;
-  CModelStatusCriterion Criteria;
+  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (RequestModelStatus(Criteria, m_MdlStatus))
     {
     dword iSize=FindNextPrimeNumber((m_MdlStatus.GetSize()*120)/100);

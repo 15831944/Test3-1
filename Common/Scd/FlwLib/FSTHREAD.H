@@ -28,7 +28,7 @@
 //
 //===========================================================================
 
-#define dbgFlwSolveTiming   WITHDEBUG/*(WITHDEBUG || 0)*/
+#define dbgFlwSolveTiming   0/*(WITHDEBUG || 0)*/
 #if (dbgFlwSolveTiming)
 extern CStopWatch gs_ExecIterTime;
 #endif

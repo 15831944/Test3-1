@@ -111,7 +111,7 @@ static CDbgMngr dbgRunStats                 ("FlwSolve", "RunStats");
 //===========================================================================
 
 #if (dbgFlwNets)
-static CDbgMngr dbgThreadsTiming      ("FlwSolve", "Threads-Timing");
+static CDbgMngr dbgThreadsJobTiming      ("FlwSolve", "Threads-JobTiming");
 #endif
 
 #define dbgrowprint                   0
@@ -9014,7 +9014,7 @@ void CFullNetBlk::FSTFlwSolve()
         break;
       }
     #if dbgFlwSolveTiming 
-    if (dbgThreadsTiming())                                           
+    if (dbgThreadsJobTiming())                                           
       {                                                                 
       SWExec.Stop();                                                  
       dbgpln("Job[%4i]%-20.20s Time:%10.3fms Idle:%10.3fms Exec:%10.3fms %5.1f%% ------", 

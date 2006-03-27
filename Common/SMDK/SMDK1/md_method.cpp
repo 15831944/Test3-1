@@ -407,7 +407,7 @@ bool MBaseMethod::ConfigureJoins()
       if (MCN_Open & pDefs->m_lCnId)
         m_pNd->SetIO_Open(i, CnId, 
           /*Contents.Closed() && Contents.NetPressDamp()*/ false, 
-          /*InlineIntegral() ? ESS_Denied :*/ ESS_Allowed);
+          /*SolveInlineMethod() ? ESS_Denied :*/ ESS_Allowed);
       else if (MCN_Closed & pDefs->m_lCnId)
         m_pNd->SetIO_Closed(i, CnId);
       else // default

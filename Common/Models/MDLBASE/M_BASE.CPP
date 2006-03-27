@@ -110,6 +110,7 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
     DDB.Visibility(SM_DynBoth|HM_All);
     //if (iStreamIndex>=0)
     DDB.Short   ("",   "Stream",      DC_ ,       "",         &m_iStreamIndex,   pNd, isParmStopped, DDBSt());
+#if WITHSURGECTRLDOUBLE 
     DDB.Double  ("",   "QmMin",       DC_Qm,      "kg/s",     &m_dQmMin,        pNd, isParm);
     DDB.Double  ("",   "QmMax",       DC_Qm,      "kg/s",     &m_dQmMax,        pNd, isParm|NAN_OK);
     DDB.Double  ("",   "QmMinStep",   DC_Qm,      "kg/s",     &m_dQmMinStep,    pNd, isParm|InitHidden);
@@ -117,8 +118,35 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
     DDB.Double  ("",   "QmMaxSlewUp", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewUp,  pNd, isParm|NAN_OK);
     DDB.Double  ("",   "QmMaxSlewDn", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewDn,  pNd, isParm|NAN_OK);
     DDB.Double  ("",   "QmReqd",      DC_Qm,      "kg/s",     &m_dQmCalc,       pNd, isResult);
+#else
+    DDB.Float   ("",   "QmMin",       DC_Qm,      "kg/s",     &m_dQmMin,        pNd, isParm);
+    DDB.Float   ("",   "QmMax",       DC_Qm,      "kg/s",     &m_dQmMax,        pNd, isParm|NAN_OK);
+    DDB.Float   ("",   "QmMinStep",   DC_Qm,      "kg/s",     &m_dQmMinStep,    pNd, isParm|InitHidden);
+    DDB.Float   ("",   "QmMaxStep",   DC_Qm,      "kg/s",     &m_dQmMaxStep,    pNd, isParm|InitHidden);
+    DDB.Float   ("",   "QmMaxSlewUp", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewUp,  pNd, isParm|NAN_OK);
+    DDB.Float   ("",   "QmMaxSlewDn", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewDn,  pNd, isParm|NAN_OK);
+    DDB.Float   ("",   "QmReqd",      DC_Qm,      "kg/s",     &m_dQmCalc,       pNd, isResult);
+#endif
     }
   DDB.EndStruct();
+  if (m_bOn && PrjFileVerNo()<83)
+    {//correct for bad data
+#if WITHSURGECTRLDOUBLE 
+    if (Valid(m_dQmMax) && m_dQmMax>1.0e15)
+      m_dQmMax = dNAN;
+    if (Valid(m_dQmMaxSlewUp) && m_dQmMaxSlewUp>1.0e15)
+      m_dQmMaxSlewUp = dNAN;
+    if (Valid(m_dQmMaxSlewDn) && m_dQmMaxSlewDn>1.0e15)
+      m_dQmMaxSlewDn = dNAN;
+#else
+    if (Valid(m_dQmMax) && m_dQmMax>1.0e15)
+      m_dQmMax = fNAN;
+    if (Valid(m_dQmMaxSlewUp) && m_dQmMaxSlewUp>1.0e15)
+      m_dQmMaxSlewUp = fNAN;
+    if (Valid(m_dQmMaxSlewDn) && m_dQmMaxSlewDn>1.0e15)
+      m_dQmMaxSlewDn = fNAN;
+#endif
+    }
 //  DDB.Text("");
   }
 
@@ -129,12 +157,20 @@ void CSurgeControl::StartStep()
 
   m_dQmMinStep=m_dQmMin;         
   if (Valid(m_dQmMaxSlewDn))
+#if WITHSURGECTRLDOUBLE 
     m_dQmMinStep=Max(m_dQmMinStep, m_dQmCalc-m_dQmMaxSlewDn*ICGetTimeInc());
+#else
+    m_dQmMinStep=Max(m_dQmMinStep, float(m_dQmCalc-m_dQmMaxSlewDn*ICGetTimeInc()));
+#endif
 
   m_dQmMaxStep=m_dQmMax;         
   if (Valid(m_dQmMaxSlewUp))
     {
+#if WITHSURGECTRLDOUBLE 
     m_dQmMaxStep=m_dQmCalc+m_dQmMaxSlewUp*ICGetTimeInc();
+#else
+    m_dQmMaxStep=float(m_dQmCalc+m_dQmMaxSlewUp*ICGetTimeInc());
+#endif
     if (Valid(m_dQmMax))
       m_dQmMaxStep=Min(m_dQmMax, m_dQmMaxStep);
     }
@@ -841,8 +877,15 @@ double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObj
   else //if (iQMax>=0)
     Qi.SelectModel(Slct);//IOConduit(iQMax), true);
   for (i=0; i<NoProcessIOs(); i++)
+    {
     if (IO_In(i) && ((IOIdMask_Self(i) & IOIds)!=0))
+      {
+      if (fDoDbgBrk)
+        dbgpln("Qi %3i %14.6f", i, IOConduit(i)->QMass(PhaseM));
+
       Qi.QAddF(*IOConduit(i), PhaseM, 1.0);
+      }
+    }
 
 //  Qi.QZero();
 //  Qi.SetPress(PMin);
@@ -1028,9 +1071,9 @@ double MdlNode::SigmaQvOut(PhMask PhaseM, IDMask IOIds)
 
 void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double VVolFrac)
   {
-  SpContainer & xContents=HO.Container();
-  SpConduit   & xContentFlw=HO.ContentFlw();
-  SpModel     & Cn = *(InlineIntegral() ? xContentFlw.Model() : xContents.Model());
+  SpContainer & Contents=HO.Container();
+  SpConduit   & ContentFlw=HO.ContentFlw();
+  SpModel     & Cn = *(SolveInlineMethod() ? ContentFlw.Model() : Contents.Model());
 
   
   SpConduit & Fo = *IOConduit(IONo);
@@ -1046,7 +1089,7 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     //// Frac of Apparent Slurry that is Vapour
     //double SLV=
 
-    double dVf=xContents.Level()-xContents.Level(false);
+    double dVf=Contents.Level()-Contents.Level(false);
     Vf+=dVf;
     Lf-=dVf;
     }
@@ -1062,7 +1105,7 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     IO_Self(IONo).SetPMUImage(False);
     IO_Self(IONo).SetPMUAvlImage(False);
     //TRACE ("MdlNode::SetOutputFlows Take Account of QInEst\n");
-    SpConduit & Img=xContents.QOutEst();
+    SpConduit & Img=Contents.QOutEst();
     //Contents.QOutEst().ChangeModel(Contents.pModel->ClassId());
     //CNM bug in MG Glycol Cont : Contents.QOutEst().QCopy(Fo);
 
@@ -1127,7 +1170,7 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
 
     //dbgpln("  Out %-12.12s : NetProps : %14.6gl, %14.6gv", Nd_Rmt(IONo)->FullObjTag(), NP.m_dLVolFrac, NP.m_dVVolFrac);
 
-    if (xContents.Closed())
+    if (Contents.Closed())
       Fo.QSetM(Cn, som_Gas, Qv, IOP_Self(IONo));
     else
       {
@@ -1487,7 +1530,7 @@ void MdlNode::DoGasVentLinks(CHgtOrdInfo & HO)
 
 void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, SpConduit * pQFeed, CSurgeControl *pControl)
   {
-  if (InlineIntegral())
+  if (SolveInlineMethod())
     {
     ASSERT_ALWAYS(pQFeed!=NULL, "Inline integral - Feed not supplied")
     EvalProducts_SurgeLevelInline(HO, pQFeed, pControl);
@@ -1682,6 +1725,8 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
 
   // DoReaction 
 //TODO EvalProducts_SurgeLevelInline - DoReaction
+  if (fDoDbgBrk)
+    { int xxx=0; };
 
   for (int i = 0; i < NoProcessIOs(); i++)
     {
@@ -1785,7 +1830,11 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
       double Flw=ContentFlw.QMass(som_SL);
       double FlwRetBelow=ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*(IORelFracHgt_Flng(iIONo)-PrevFHgt)/ICGetTimeInc();
       double FlwRetCtrl=0;
+#if WITHSURGECTRLDOUBLE 
       double CtrlFlw=0;
+#else
+      float CtrlFlw=0;
+#endif
       if (iLvlCtrl>=0 && CtrlNow)
         {
         switch (pControl->m_iType)
@@ -1801,7 +1850,11 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
             break;
           }
 
-        CtrlFlw=(GEZ(Flw-(FlwRetBelow+FlwRetCtrl)-FlwDmd));
+#if WITHSURGECTRLDOUBLE 
+        CtrlFlw=GEZ(Flw-(FlwRetBelow+FlwRetCtrl)-FlwDmd);
+#else
+        CtrlFlw=float(GEZ(Flw-(FlwRetBelow+FlwRetCtrl)-FlwDmd));
+#endif
         CtrlFlw=Max(CtrlFlw, pControl->m_dQmMinStep);
         if (Valid(pControl->m_dQmMaxStep))
           CtrlFlw=Min(CtrlFlw, pControl->m_dQmMaxStep);
@@ -2018,10 +2071,10 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
 
   switch (DCB.lHandle)
     {
-    case xidInlineIntegralOn:
+    case xidInlineIntegralOn: // Only for PrjFileVersion < 94
       if (DCB.rB)
-        SetInlineIntegral(*DCB.rB!=0);
-      DCB.B=InlineIntegral();
+        SetRunModes((*DCB.rB!=0) ? SM_Inline:SM_Buffered, SM_All);// InlineIntegral(*DCB.rB!=0);
+      DCB.B=SolveInlineMethod();
       return true;
     case xidRho:
       if (NoProcessIOs() == 2)
@@ -3209,10 +3262,10 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       if (IOIdMask_Self(i)&D.m_IOIdMask)
         {
         double App=0;
-        if (!InlineIntegral())
+        if (!SolveInlineMethod())
           {
           App=IOFBJoin(i)->Diam()/Max(0.01, Cn.ShapeHeight());
-          if (OrigPrjFileVerNo()<72 && !InlineIntegral())
+          if (OrigPrjFileVerNo()<72 && !SolveInlineMethod())
             {
             App=Max(0.0, 0.01+App*sin(IOApertureAngle(i)));
             SetIOAperture(i, Range(0.02, App, 0.5));
@@ -3449,7 +3502,7 @@ void MdlNode::DoIOGetNetProps_Surge(int IONo, double Qm)
 
     GetCnFlows(false, HO, IONo, QmSLFeed, QvSLFeed, QvSLOutBelow);
 
-    double Aperture=IOAperture(IONo, InlineIntegral());
+    double Aperture=IOAperture(IONo, SolveInlineMethod());
     double FHgt=Range(0.00/*1*/, IOAbsFracHgt_Term(IONo, Cn), 1.0-Aperture);
     // mean Density leaving tank
     double MassTnk=Cn.Mass(som_SL);
@@ -3575,9 +3628,9 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
               {
               DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
               DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.dwOther&IOShwFracHgt)?noView:0)|isParmStopped);
-              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.dwOther&IOShwAperture || InlineIntegral())?noView:0)|isParmStopped);
+              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.dwOther&IOShwAperture || SolveInlineMethod())?noView:0)|isParmStopped);
               DDB.Double ("Datum",         "Z",    DC_L,        "m",      xidIO_Hgt0+i,         this, isResult|noFile|noSnap);
-              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.dwOther&IOShwAperture || InlineIntegral())?noView:0)|isResult|noFile|noSnap);
+              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.dwOther&IOShwAperture || SolveInlineMethod())?noView:0)|isResult|noFile|noSnap);
               DDB.Double ("EntrainRateV",  "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateB0+i, this, isParm);
               DDB.Double ("EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateA0+i, this, isParm);
               DDB.Double ("Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm);

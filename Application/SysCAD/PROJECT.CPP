@@ -1241,6 +1241,7 @@ void Project::Clear()
   bRptExcelSaveOnComplete=1;
   bRptSyscadTags=1;
   bShowStatusColours=1;
+  m_dwMdlStatusOptions = 0;
   //iOverlayStatusPen=PS_DASH;
   bTimeChanged=0;
   bHstChanged=0;
@@ -1346,6 +1347,23 @@ void Project::Clear()
 
 //---------------------------------------------------------------------------
 
+void Project::SetShowEditStatus(bool On)
+  {
+  if (On)
+    m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
+  else
+    m_dwMdlStatusOptions |= MSO_ShowRunInEdit;
+  if (gs_pTheSFELib)
+    gs_pTheSFELib->FE_LoadAllModelStatus();
+  }
+
+bool Project::ShowEditStatus()
+  {
+  return (m_dwMdlStatusOptions & MSO_ShowRunInEdit)==0;
+  }
+
+//---------------------------------------------------------------------------
+
 void Project::InitColours()
   {
   for (int i=GR_FIRSTUSERCOLOR; i<=GR_LASTUSERCOLOR; i++)
@@ -1386,6 +1404,7 @@ void Project::InitColours()
 void Project::SaveColours(CProfINIFile & PF)
   {
   PF.WrLong("StatusColours", "GrfShowStatusColours", bShowStatusColours);
+  PF.WrLong("StatusColours", "Options",              m_dwMdlStatusOptions);
   //PF.WrLong("StatusColours", "GrfOverlayStatusPen",  iOverlayStatusPen);
   for (int i=GR_FIRSTUSERCOLOR; i<=GR_LASTUSERCOLOR; i++)
     {
@@ -1427,6 +1446,7 @@ void Project::SaveColours(CProfINIFile & PF)
 void Project::LoadColours(CProfINIFile & PF)
   {
   bShowStatusColours = (PF.RdLong("StatusColours", "GrfShowStatusColours", bShowStatusColours) != 0);
+  m_dwMdlStatusOptions = PF.RdLong("StatusColours", "Options", OrigPrjFileVerNo()<94?MSO_ShowRunInEdit: m_dwMdlStatusOptions);
   //iOverlayStatusPen = (byte)PF.RdLong("StatusColours", "GrfOverlayStatusPen", iOverlayStatusPen);
   if (PrjFileVerNo()>=94)
     {

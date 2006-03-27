@@ -26,6 +26,7 @@
 #include "scdver.h"
 #include "scdcmdif.h"
 #include "dbhelper.h"
+#include "dbhelper.h"
 //#include "optoff.h"
 
 extern "C" 
@@ -297,6 +298,8 @@ class CColourPage : public CCustomPropertyPage
     virtual void OnOK();
     DECLARE_MESSAGE_MAP()
 
+  public:
+    BOOL m_ShowEditStatus;
   };
 
 //===========================================================================
@@ -1306,6 +1309,7 @@ CColourPage::CColourPage() : CCustomPropertyPage(CColourPage::IDD)
   {
   //{{AFX_DATA_INIT(CColourPage)
 	m_StatusOn = gs_pPrj->bShowStatusColours;
+  m_ShowEditStatus = gs_pPrj->ShowEditStatus();
 	//}}AFX_DATA_INIT
   }       
 
@@ -1322,15 +1326,16 @@ void CColourPage::DoDataExchange(CDataExchange* pDX)
   {
   CCustomPropertyPage::DoDataExchange(pDX);
   //{{AFX_DATA_MAP(CColourPage)
-	DDX_Control(pDX, IDC_GRCOLOTHER, m_ButtonOther);
-	DDX_Control(pDX, IDC_GRCOLHIGHLITE, m_ButtonHL);
-	DDX_Check(pDX, IDC_DISPLAYSTATUSCOLOURS, m_StatusOn);
-	//}}AFX_DATA_MAP
+  DDX_Control(pDX, IDC_GRCOLOTHER, m_ButtonOther);
+  DDX_Control(pDX, IDC_GRCOLHIGHLITE, m_ButtonHL);
+  DDX_Check(pDX, IDC_DISPLAYSTATUSCOLOURS, m_StatusOn);
+  //}}AFX_DATA_MAP
   for (int i=0; i<MaxMdlStatusTypes; i++)
     {
     DDX_Control(pDX, IDC_MSON0+i,  m_PenStyle[i]);
-  	DDX_Control(pDX, IDC_GRCOLSTATUS0+i, m_Button[i]);
+    DDX_Control(pDX, IDC_GRCOLSTATUS0+i, m_Button[i]);
     }
+  DDX_Check(pDX, IDC_DISPLAYEDITCOLOURS, m_ShowEditStatus);
   }
 
 //--------------------------------------------------------------------------
@@ -1405,6 +1410,8 @@ void CColourPage::OnOK()
     {
     UpdateData(True);
     gs_pPrj->bShowStatusColours = m_StatusOn;
+    gs_pPrj->SetShowEditStatus(m_ShowEditStatus!=0);
+
     GrfHelper.iShowMdlStatusInActive  = m_PenStyle[ 16].GetCurSel();
     GrfHelper.iShowMdlStatusError     = m_PenStyle[  0].GetCurSel();
     GrfHelper.iShowMdlStatusWarning   = m_PenStyle[  1].GetCurSel();

@@ -3192,10 +3192,11 @@ void MN_Lnk::EvalProducts(long JoinMask)
 
   #undef DBGIT
 #endif
-  if (fabs(IOConduit(0)->QMass()-IOConduit(1)->QMass())>0.1*IOConduit(0)->QMass())
-    {
-    dbgpln(">>>>>>>>>> %15.6f %15.6f %s", IOConduit(0)->QMass(), IOConduit(1)->QMass(), FullObjTag());
-    }
+  //if (fabs(IOConduit(0)->QMass()-IOConduit(1)->QMass())>0.1*IOConduit(0)->QMass())
+  //  {
+  //  dbgpln("MN_Lnk::EvalProducts Qi:%15.6f Qo:%15.6f %s", 
+  //    IOConduit(0)->QMass(), IOConduit(1)->QMass(), FullObjTag());
+  //  }
   };
 
 //--------------------------------------------------------------------------
@@ -3302,7 +3303,7 @@ void MN_Lnk::EvalDiscrete()
         }
 
       int iIn  = (IOQmEst_In(0)>0.0 ? 0 : 1);
-      if (IOFlange(iIn)->TearType()!=TT_Break)
+      if (IOFlange(iIn)->TearType()!=TT_Break && !TestCISet(7) && !TestCISet(8))
         SetCI(6, !ConvergedVV(IOConduit(0)->QMass()+RBSrc-m_QmSpilt, IOConduit(1)->QMass()+RBSnk, 1e-6, 1e-3, Err));
       }
     }
@@ -3441,7 +3442,7 @@ dword MN_Lnk::ModelStatus()
     else if (0 && (IO_Rmt(0).JoinTp()==IOJn_Closed || IO_Rmt(1).JoinTp()==IOJn_Closed))
       Status|=FNS_Off;
 
-    if (gs_Exec.Stopped())
+    if (GetStatusAsStopped())
       {
       Status |= (m_FEP.FlwRqdActive() ?  FNS_LFlwP /*: FNS_LFlwN)*/ : FNS_LNoFlw);
       if (FlowMode()==LFM_Simple)

@@ -2332,7 +2332,7 @@ void HeatXchg1::ConfigureJoins()
         for (int i=0; i<NoFlwIOs(); i++)
           if (m_HXJ.PriIO(i))
             SetIO_Open(i, m_HXJ.PriJoinId(), /*m_fDamped*/m_pPriSg->NetPressDamp(),
-                          InlineIntegral() ? ESS_Denied : ESS_Allowed);
+                          SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
         }
       else
         {
@@ -2350,7 +2350,7 @@ void HeatXchg1::ConfigureJoins()
         for (int i=0; i<NoFlwIOs(); i++)
           if (m_HXJ.SecIO(i))
             SetIO_Open(i, m_HXJ.SecJoinId(), /*m_fDamped*/m_pSecSg->NetPressDamp(),
-                       InlineIntegral() ? ESS_Denied : ESS_Allowed);
+                       SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
         }
       else
         {
@@ -2465,7 +2465,7 @@ flag HeatXchg1::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
 
 void HeatXchg1::EvalProductsSurge(long JoinMask)
   {
-  if (InlineIntegral())
+  if (SolveInlineMethod())
     return;
 
   HeatXchg1::EvalProductsDyn(true, false);
@@ -2531,7 +2531,7 @@ void HeatXchg1::EvalProducts(long JoinMask)
     case SM_Inline:
     case SM_Buffered:
       {
-      HeatXchg1::EvalProductsDyn(InlineIntegral()!=0, true);
+      HeatXchg1::EvalProductsDyn(SolveInlineMethod()!=0, true);
       }
       break;
     }

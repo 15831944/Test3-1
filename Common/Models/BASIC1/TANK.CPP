@@ -152,7 +152,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility(SM_DynBoth|HM_All);
 
-  if (PrjFileVerNo()<94)
+  if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
     {
     DDB.Text    ("");
     DDB.CheckBox("InlineIntegral",    "",  DC_,     "",      xidInlineIntegralOn,                this, isParmStopped|SetOnChange);
@@ -197,7 +197,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveDynamicMethod())
     VLE.Add_OnOff(DDB);
   DDB.Visibility(SM_DynBoth|HM_All);
-  if (InlineIntegral() && SolveDynamicMethod())
+  if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
   DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   DDB.Visibility(SM_Direct|HM_All);
@@ -205,7 +205,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
   DDB.Visibility();
  
-  if (InlineIntegral() && SolveDynamicMethod())
+  if (SolveInlineMethod())
     m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this);
 
   DDB.Visibility();

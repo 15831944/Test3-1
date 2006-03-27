@@ -543,6 +543,11 @@ class DllImportExport Project : public CExecObj
     BOOL           m_bWithVersion;
     BOOL           m_bRemoveOld;
 
+    bool           ShowEditStatus();
+    void           SetShowEditStatus(bool On);
+
+    dword          m_dwMdlStatusOptions;
+
   protected:
     FindTrendTagHelper TrndPos;
 
@@ -665,6 +670,8 @@ class DllImportExport Project : public CExecObj
 
     int           ClearSelectedNodes();
     int           BuildSelectedNodeList(Strng_List & List);
+
+
 
   protected:
     static void    GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount);

@@ -31,7 +31,7 @@ static CDbgMngr dbgThreadsSeq         ("FlwSolve", "Threads-Seq");
 static CDbgMngr dbgThreadsTiming      ("FlwSolve", "Threads-Timing");
 #endif
 
-#if (dbgFlwSolveTiming)
+#if (dbgFlwSolveTiming)    
 static CDbgMngr dbgDumpThreadOverHead ("FlwSolve", "Threads-DumpOverHead");
 CStopWatch gs_ExecIterTime;
 #endif
@@ -205,10 +205,22 @@ void ThreadDataBlk::WaitJobDone()
         
 #if dbgFlwSolveTiming 
 #define DUMPOVERHEAD                                              \
-if (dbgThreadsTiming())\
+if (dbgThreadsTiming())                                           \
 {                                                                 \
   SWExec.Stop();                                                  \
-  dbgpln("   [%4i]%-20.20s Time:%10.3fms Idle:%10.3fms Exec:%10.3fms %5.1f%% ------", \
+  if (gs_ExecIterTime.Secs()<PrevExecIterTime)                    \
+    PrevExecIterTime=0;                                           \
+  double Other=gs_ExecIterTime.Secs()-SWExec.Secs()-PrevExecIterTime;           \
+  dbgpln("   [%4i]%-20.20s Time:%10.3fms Other:%10.1fus Exec:%10.1fus %5.1f%% ------", \
+  GetCurrentThreadId(), eFITCmdStr(TDB->iCmd),                    \
+  1e3*gs_ExecIterTime.Secs(),                                     \
+  1e6*Other,                                                      \
+  1e6*SWExec.Secs(),                                              \
+  100*SWExec.Secs()/GTZ(SWExec.Secs()+Other));                    \
+  PrevExecIterTime=gs_ExecIterTime.Secs();                        \
+}
+/*
+dbgpln("   [%4i]%-20.20s Time:%10.3fms Idle:%10.3fms Exec:%10.3fms %5.1f%% ------", \
   GetCurrentThreadId(), eFITCmdStr(TDB->iCmd),                    \
   1e3*gs_ExecIterTime.Secs(),                                     \
   1e3*SWIdle.Secs(),                                              \
@@ -216,7 +228,7 @@ if (dbgThreadsTiming())\
   100*SWExec.Secs()/GTZ(SWExec.Secs()+SWIdle.Secs()));            \
   SWIdle.Clear();                                                 \
   SWIdle.Start();                                                 \
-}
+*/
 #else
 #define DUMPOVERHEAD                                              
 #endif
@@ -233,9 +245,10 @@ UINT FlwIterThread(LPVOID pFST_)
       dbgpln("%*sNdI %4i FlwSlvDyn Entry", pFST->dbgIndent(GetCurrentThreadId()), "", GetCurrentThreadId());
     #endif
     #if (dbgFlwSolveTiming)
-    CStopWatch SWIdle;
+    //CStopWatch SWIdle;
+    double PrevExecIterTime=0;//gs_ExecIterTime.Secs();
     CStopWatch SWExec;
-    SWIdle.Start();
+    //SWIdle.Start();
     #endif
     MSG Msg;
     flag Done=false;
@@ -243,7 +256,7 @@ UINT FlwIterThread(LPVOID pFST_)
       {
       long ThreadIndex=HIWORD(Msg.wParam);
       if (Msg.message!=WMU_FLWSOLVECMD)
-        dbgpln("%sNdI %4i BAD MESSAGE %x\n", pFST->dbgIndent(GetCurrentThreadId()), "", GetCurrentThreadId(),Msg.message);
+        dbgpln("%*sNdI %4i BAD MESSAGE %x\n", pFST->dbgIndent(GetCurrentThreadId()), "", GetCurrentThreadId(),Msg.message);
       else
         {
         ThreadDataBlk * TDB=(ThreadDataBlk*)Msg.lParam;
@@ -260,7 +273,7 @@ UINT FlwIterThread(LPVOID pFST_)
             Sleep(0);
           #endif
           #if (dbgFlwSolveTiming)
-          SWIdle.Stop();
+          //SWIdle.Stop();
           SWExec.Clear();
           SWExec.Start();
           #endif
@@ -287,7 +300,7 @@ UINT FlwIterThread(LPVOID pFST_)
               TDB->SignalJobDone();
               break;
             case eFITEvalStatistics:
-              TDB->pDyn->FITEvalStatistics(*TDB->pFNI);
+              TDB->pDyn->FITEvalStatistics((*TDB->pFNLA)[ThreadIndex]);
               DUMPOVERHEAD;
               TDB->SignalJobDone();
               break;

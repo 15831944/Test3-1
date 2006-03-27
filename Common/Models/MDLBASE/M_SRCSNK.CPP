@@ -32,7 +32,6 @@ MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
   pConnectedTo    = NULL;
   m_iConnectedIO  = -1;
   fCrossConnected = false;
-  m_bForceInlineIntegral = true;
   dHead=0.0;
   PFeed=Std_P;
   SSMode=SSM_Source|SSM_ConstP;
@@ -60,6 +59,8 @@ MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
   Contents.SetVLE(&m_VLE);
   Contents.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
   Flows.SetModelSelectable(false);
+
+  SetAllowedSolveModes(SM_Direct|SM_Inline/*|SM_Buffered*/);// "Transfer", "Inline", NULL);
 
 //  Contents.SetSQCreateOK(true);
 //  //Contents.SetSQRemoveOK(true);
@@ -1613,7 +1614,7 @@ dword  MN_SrcSnk::ModelStatus()
       if (IOConduit(i)->QMass()>UsableMass)
         HasFlw=1;
       }
-    if (gs_Exec.Stopped())
+    if (GetStatusAsStopped())
       {
       if (!fCrossConnected && (NoProcessIOs()==1))
         {
