@@ -27,7 +27,7 @@ namespace SysCAD.Editor
 
       try
       {
-        //dockManager1.LoadToolWindowLayoutFromFile("Recent.layout");
+        dockManager1.LoadToolWindowLayoutFromFile("Recent.layout");
       }
       catch (Exception)
       {
@@ -47,7 +47,6 @@ namespace SysCAD.Editor
         if (stencilName != "-------")
         {
           frmFlowChart.currentGraphicShape = stencilName;
-          //frmFlowChart.fcFlowChart.DefaultShape = config.graphicStencils[stencilName].ShapeTemplate();
         }
       }
     }
@@ -417,7 +416,7 @@ namespace SysCAD.Editor
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
-      //dockManager1.SaveToolWindowLayoutToFile("Recent.layout");
+      dockManager1.SaveToolWindowLayoutToFile("Recent.layout");
     }
 
     private void tvNavigation_AfterNodeCheck(PureComponents.TreeView.Node oNode)

@@ -152,11 +152,6 @@ namespace SysCAD.Editor
 
       if (link.controlPoints.Count > 1)
       {
-//        if ((System.Math.Abs(link.controlPoints[1].X - link.controlPoints[0].X)) <
-//          (System.Math.Abs(link.controlPoints[1].Y - link.controlPoints[0].Y)))
-//        {
-//          arrow.
-//        }
         arrow.SegmentCount = (short)(link.controlPoints.Count-1);
         int i = 0;
         foreach (PointF point in link.controlPoints)

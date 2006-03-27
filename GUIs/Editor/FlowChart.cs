@@ -36,8 +36,6 @@ namespace SysCAD.Editor
     internal void SetProject(Graphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
       this.bod.graphic = graphic;
-      //graphic.ItemModified += new Graphic.ItemModifiedHandler(graphic_ItemModified);
-
       this.bod.config = config;
       this.tvNavigation = tvNavigation;
 
@@ -67,8 +65,6 @@ namespace SysCAD.Editor
       fcFlowChart.ValidityChecks = true;
       fcFlowChart.Visible = true;
       fcFlowChart.Enabled = true;
-
-      //fcFlowChart.RouteAllArrows();
 
       FixDocExtents();
 
@@ -475,19 +471,16 @@ namespace SysCAD.Editor
     {
       Box graphicBox = (e.Box.Tag as BODThing).Graphic;
       graphicBox.RotationAngle = (e.Box.Tag as BODThing).Model.RotationAngle;
-      //bod.graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect, graphicBox.RotationAngle);
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)
     {
       Box graphicBox = (e.Box.Tag as BODThing).Graphic;
       graphicBox.RotationAngle = (e.Box.Tag as BODThing).Model.RotationAngle;
-      //bod.graphic.ModifyItem(graphicBox.Text, graphicBox.BoundingRect, graphicBox.RotationAngle);
     }
 
     private void fcFlowChart_BoxCreated(object sender, BoxEventArgs e)
     {
-      //NewItem(e.Box.BoundingRect, e.Box);
     }
 
     private void NewItem(RectangleF rect, Box box)
@@ -569,16 +562,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxCreating(object sender, BoxConfirmArgs e)
     {
-      //if (justCreatedModelBox != null)
-      //  justCreatedModelBox.BoundingRect =
-      //    new RectangleF(e.Box.BoundingRect.X + 0.25F * e.Box.BoundingRect.Width,
-      //                   e.Box.BoundingRect.Y + 0.25F * e.Box.BoundingRect.Height,
-      //                   0.5F * e.Box.BoundingRect.Height,
-      //                   0.5F * e.Box.BoundingRect.Height);
-
-      //justCreatedModelBox.ZTop();
-
-      //e.Confirm = false;
     }
   }
 }
