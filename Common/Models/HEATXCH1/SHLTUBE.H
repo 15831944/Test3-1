@@ -133,6 +133,7 @@ class DllImportExport ShellTube : public MdlNode
     void           SetDatumsDone();
     flag           Set_Sizes();
     void           SetState(eScdMdlStateActs RqdState);
+    bool           PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
     void           StartSolution();
     void           PostConnect(int IONo);
     void           ConfigureJoins();

@@ -2208,15 +2208,15 @@ void HeatXchg1::StartSolution()
 
 //--------------------------------------------------------------------------
 
-static const IDMask PMsk=Id_2_Mask(ioidPIn)|Id_2_Mask(ioidPOut)|Id_2_Mask(ioidPVent);
-static const IDMask SMsk=Id_2_Mask(ioidSIn)|Id_2_Mask(ioidSOut)|Id_2_Mask(ioidSVent);
+static const IDMask PriMask=Id_2_Mask(ioidPIn)|Id_2_Mask(ioidPOut)|Id_2_Mask(ioidPVent);
+static const IDMask SecMask=Id_2_Mask(ioidSIn)|Id_2_Mask(ioidSOut)|Id_2_Mask(ioidSVent);
 
 Z_States HeatXchg1::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
   {
   CSetDatumsData SDD[]=
     {
-      {PMsk, m_pPriSg},
-      {SMsk, m_pSecSg},
+      {PriMask, m_pPriSg},
+      {SecMask, m_pSecSg},
       {0}
     };
 
@@ -2231,8 +2231,8 @@ void HeatXchg1::SetDatumsDone()
 
   SortSurgeIOData SDD[]=
     {
-      {PMsk, m_pPriSg, &m_PriHgtOrd},
-      {SMsk, m_pSecSg, &m_SecHgtOrd},
+      {PriMask, m_pPriSg, &m_PriHgtOrd},
+      {SecMask, m_pSecSg, &m_SecHgtOrd},
       {0 },
     };
   SortSurgeIO(SDD);
@@ -2276,6 +2276,24 @@ void   HeatXchg1::SetState(eScdMdlStateActs RqdState)
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
       break;
     }
+  };
+
+//---------------------------------------------------------------------------
+
+bool HeatXchg1::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
+  {
+  if (!MdlNode::DoPropagateNetInfo(Ctrl, IONo, false))
+    return false;
+
+  IDMask IOInMsk=Id_2_Mask(IOId_Self(IONo));
+  for (int i=0; i<NoFlwIOs(); i++)
+    {
+    if ((PriMask & IOInMsk & Id_2_Mask(IOId_Self(IONo)))!=0 ||
+        (SecMask & IOInMsk & Id_2_Mask(IOId_Self(IONo))))
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
+    }
+
+  return true;
   };
 
 //--------------------------------------------------------------------------

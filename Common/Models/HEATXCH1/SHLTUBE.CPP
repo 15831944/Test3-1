@@ -1015,9 +1015,11 @@ const byte ioidST_ShellIn   = 2;
 const byte ioidST_ShellOut  = 3;
 const byte ioidST_ShellVent = 4;
 
-const IDMask ShellIOMask=Id_2_Mask(ioidST_ShellIn)|
-                        Id_2_Mask(ioidST_ShellOut)|
-                        Id_2_Mask(ioidST_ShellVent);
+const IDMask ShellIOMask = Id_2_Mask(ioidST_ShellIn)|
+                           Id_2_Mask(ioidST_ShellOut)|
+                           Id_2_Mask(ioidST_ShellVent);
+const IDMask TubeIOMask  = Id_2_Mask(ioidST_TubeIn)|
+                           Id_2_Mask(ioidST_TubeOut);
 
 
 static IOAreaRec ShellTubeIOAreaList[] =
@@ -1200,6 +1202,24 @@ void   ShellTube::SetState(eScdMdlStateActs RqdState)
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
       break;
     }
+  };
+
+//--------------------------------------------------------------------------
+
+bool ShellTube::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
+  {
+  if (!MdlNode::DoPropagateNetInfo(Ctrl, IONo, false))
+    return false;
+
+  IDMask IOInMsk=Id_2_Mask(IOId_Self(IONo));
+  for (int i=0; i<NoFlwIOs(); i++)
+    {
+    if ((ShellIOMask & IOInMsk & Id_2_Mask(IOId_Self(IONo)))!=0 ||
+        (TubeIOMask  & IOInMsk & Id_2_Mask(IOId_Self(IONo))))
+      Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
+    }
+
+  return true;
   };
 
 //--------------------------------------------------------------------------
