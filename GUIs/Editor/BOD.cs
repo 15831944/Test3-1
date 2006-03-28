@@ -242,17 +242,21 @@ namespace SysCAD.Editor
 
     internal void ThingVisible(string tag, bool visible)
     {
-      things[tag].Model.Visible = visible && (things[tag].Model.Selected || ShowModels);
-      things[tag].Graphic.Visible = visible && ShowGraphics;
-
-      foreach (Arrow arrowDestination in things[tag].Model.IncomingArrows)
+      BODThing thing;
+      if (things.TryGetValue(tag, out thing))
       {
-        arrowDestination.Visible = visible && ShowLinks;
-      }
+        thing.Model.Visible = visible && (thing.Model.Selected || ShowModels);
+        thing.Graphic.Visible = visible && ShowGraphics;
 
-      foreach (Arrow arrowOrigin in things[tag].Model.OutgoingArrows)
-      {
-        arrowOrigin.Visible = visible && ShowLinks;
+        foreach (Arrow arrowDestination in thing.Model.IncomingArrows)
+        {
+          arrowDestination.Visible = visible && ShowLinks;
+        }
+
+        foreach (Arrow arrowOrigin in thing.Model.OutgoingArrows)
+        {
+          arrowOrigin.Visible = visible && ShowLinks;
+        }
       }
     }
 

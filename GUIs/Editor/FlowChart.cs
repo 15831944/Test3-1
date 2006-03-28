@@ -197,11 +197,6 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
     }
 
-    internal void SetSelected(string tag, bool selected)
-    {
-      bod.ThingSelected(tag, selected);
-    }
-
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
     {
       if (e.ChangingOrigin) // Origin is trying to be being changed.

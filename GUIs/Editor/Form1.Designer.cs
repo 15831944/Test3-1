@@ -256,7 +256,6 @@ namespace SysCAD.Editor
       // 
       // tvNavigation
       // 
-      this.tvNavigation.CheckBoxes = true;
       this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);

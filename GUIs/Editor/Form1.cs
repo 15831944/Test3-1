@@ -27,7 +27,7 @@ namespace SysCAD.Editor
 
       try
       {
-        dockManager1.LoadToolWindowLayoutFromFile("Recent.layout");
+        //dockManager1.LoadToolWindowLayoutFromFile("Recent.layout");
       }
       catch (Exception)
       {
@@ -384,7 +384,7 @@ namespace SysCAD.Editor
 
         frmFlowChart.MdiParent = this;
         frmFlowChart.Text = openProjectForm.graphic.Name;
-        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+        //frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
         frmFlowChart.Show();
 
         ovOverview.Document = frmFlowChart.fcFlowChart;
@@ -416,7 +416,7 @@ namespace SysCAD.Editor
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
-      dockManager1.SaveToolWindowLayoutToFile("Recent.layout");
+      //dockManager1.SaveToolWindowLayoutToFile("Recent.layout");
     }
 
     private void tvNavigation_AfterNodeCheck(PureComponents.TreeView.Node oNode)
@@ -455,7 +455,7 @@ namespace SysCAD.Editor
 
     private void tvNavigation_NodeSelectionChange(object sender, EventArgs e)
     {
-      frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      //frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
       this.tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
 
       foreach (string key in graphic.___areas.Keys)
@@ -475,7 +475,7 @@ namespace SysCAD.Editor
           // Nothings changed at area level, update flowchart with innerNodes selection status.
           foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
           {
-            frmFlowChart.SetSelected(innerNode.Key, innerNode.IsSelected);
+            frmFlowChart.bod.ThingVisible(innerNode.Key, innerNode.IsSelected);
           }
         }
         else if (wasSelected && !isSelected)
@@ -483,7 +483,7 @@ namespace SysCAD.Editor
           // Been deselected, deselect all underlings and update flowchart.
           foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
           {
-            frmFlowChart.SetSelected(innerNode.Key, false);
+            frmFlowChart.bod.ThingVisible(innerNode.Key, false);
             tvNavigation.RemoveSelectedNode(innerNode);
           }
         }
@@ -492,7 +492,7 @@ namespace SysCAD.Editor
           // Been selected, select all underlings and update flowchart.
           foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
           {
-            frmFlowChart.SetSelected(innerNode.Key, true);
+            frmFlowChart.bod.ThingVisible(innerNode.Key, true);
             tvNavigation.AddSelectedNode(innerNode);
           }
         }
@@ -508,27 +508,29 @@ namespace SysCAD.Editor
             arrow.Selected = false;
           }
         }
+      }
 
-        wasSelectedNodes.Clear();
-        foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
-        {
-          wasSelectedNodes.Add(node.Text, node);
-        }
+      wasSelectedNodes.Clear();
+      foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
+      {
+        wasSelectedNodes.Add(node.Text, node);
       }
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
       {
-        frmFlowChart.fcFlowChart.Selection.AddObject(frmFlowChart.fcFlowChart.FindBox(node.Tag));
+        frmFlowChart.bod.ThingVisible(node.Key, true);
       }
 
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-      frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      //frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+
+      frmFlowChart.ZoomToVisible();
     }
 
     private void frmFlowChart_fcFlowChart_SelectionChanged(object sender, EventArgs e)
     {
-      frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
-      this.tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+      //frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      //this.tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
 
       tvNavigation.ClearSelectedNodes();
 
@@ -631,8 +633,8 @@ namespace SysCAD.Editor
         }
       }
 
-      this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-      frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      //this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+      //frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
 
     void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
