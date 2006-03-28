@@ -3013,6 +3013,10 @@ class CKwikIndent
         dbgindent(-2); 
       }
   };
+
+#define KWIKINDENT CKwikIndent KwikIndent;
+#else
+#define KWIKINDENT
 #endif
 
 LPCTSTR Z_StateStr(Z_States State)
@@ -3041,9 +3045,8 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
   //while (pData->m_IOId>=0 && pData->m_IOId!=IOId_Self(IOIn))
   //  pData++;
 
-  #if dbgModels
-  CKwikIndent dbgi;
-  #endif
+  KWIKINDENT
+
   if (!Done && !Busy)
     {
     switch (Pass)
@@ -3174,9 +3177,8 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
 
 Z_States MdlNode::SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z_States Z_State_Src /*double &Z_Ret, Z_States &Z_State_Ret*/)
   {
-  #if dbgModels
-  CKwikIndent dbgi;
-  #endif
+  KWIKINDENT
+
   if (!Done && !Busy && (NoProcessIOs() == 2))
     {
     int IOOut = (IOIn+1)%2;

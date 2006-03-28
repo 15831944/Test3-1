@@ -43,22 +43,44 @@
 #define MOVEDYNSTATS   1
 #define MYASSERT(x) /*ASSERT(x)*/
 
-#define PROGRESSLEVEL 0
+
+
+static inline double GetProcessorTime()
+  {
+  FILETIME tCreat, tExit, tKernel, tUser;
+  GetProcessTimes(GetCurrentProcess(), &tCreat, &tExit, &tKernel, &tUser);
+  LARGE_INTEGER lKernel = {tKernel.dwLowDateTime, tKernel.dwHighDateTime };
+  LARGE_INTEGER lUser   = {tUser.dwLowDateTime, tUser.dwHighDateTime };
+
+  return (lKernel.QuadPart+lUser.QuadPart)*1.0e-7; // 100's of nanosecs ticks
+  }
+
+
+#define PROGRESSLEVEL 2
 #if (PROGRESSLEVEL>0)
-#define STARTPROGRESS  CStopWatch SW; SW.Start();
-#define SHOWPROGRESS(L, x)                                      \
-  {                                                             \
-  if (PROGRESSLEVEL>=L)                                         \
-    {                                                           \
-    int y=50-strlen(x);                                         \
-    dbgpln("%s %*.*s %10.1fms", x, y, y,                        \
-      "======================================================", \
-      SW.Lap()*1e3);                                            \
-    }                                                           \
+
+#define STARTPROGRESS                       \
+  CStopWatch SW; SW.Start();                \
+  double ProcessorTime = GetProcessorTime(); 
+
+#define SHOWPROGRESS(L, x)                                            \
+  {                                                                   \
+  if (PROGRESSLEVEL>=L)                                               \
+    {                                                                 \
+    int y=50-strlen(x);                                               \
+    double Lp=SW.Lap();                                               \
+    double Pt=GetProcessorTime();                                     \
+    dbgpln("%s %*.*s %10.1fms %6.2f%%", x, y, y,                      \
+      "======================================================",       \
+      Lp*1e3, 100*(Pt-ProcessorTime)/GTZ(Max(1,FSTC.NThreads())*Lp)); \
+    ProcessorTime = Pt;                                               \
+    }                                                                 \
   };
 #else
+
 #define STARTPROGRESS ;
 #define SHOWPROGRESS(L,x) {};
+
 #endif
 //===========================================================================
 
@@ -3024,10 +3046,7 @@ flag FlwSlvBlk::SolveTOSequenceThrd(int What, byte Which, LPVOID OtherData)
     for (int i=0; i<2; i++)
       {
       if (m_TOListWork[i].GetCount()>0)
-        {
-        LogError("Solver", LF_Hand, "Bad Solver Queue - Process Stopping At Start [%i] = %i", i, m_TOListWork[i].GetCount());
-        gs_Exec.GotoEditMode();
-        }
+        LogStop("Solver", LF_Hand, "Bad Solver Queue - Process Stopping At Start [%i] = %i", i, m_TOListWork[i].GetCount());
 
       m_TOListIter[i].RetFlag=true;
       m_TOListIter[i].Initialise(&m_TOListWork[i], FSTC.NThreads());
@@ -3047,10 +3066,7 @@ flag FlwSlvBlk::SolveTOSequenceThrd(int What, byte Which, LPVOID OtherData)
       RetFlag = RetFlag && m_TOListIter[i].RetFlag;
 
       if (m_TOListWork[i].GetCount()>0)
-        {
-        LogError("Solver", LF_Hand, "Bad Solver Queue - Process Stopping At End [%i] = %i", i, m_TOListWork[i].GetCount());
-        gs_Exec.GotoEditMode();
-        }
+        LogStop("Solver", LF_Hand, "Bad Solver Queue - Process Stopping At End [%i] = %i", i, m_TOListWork[i].GetCount());
 
       }
     }
@@ -3059,10 +3075,7 @@ flag FlwSlvBlk::SolveTOSequenceThrd(int What, byte Which, LPVOID OtherData)
     for (int i=2; i<4; i++)
       {
       if (m_TOListWork[i].GetCount()>0)
-        {
-        LogError("Solver", LF_Hand, "Bad Solver Queue - Ctrl Stopping at Start [%i] = %i", i, m_TOListWork[i].GetCount());
-        gs_Exec.GotoEditMode();
-        }
+        LogStop("Solver", LF_Hand, "Bad Solver Queue - Ctrl Stopping at Start [%i] = %i", i, m_TOListWork[i].GetCount());
 
       m_TOListIter[i].RetFlag=true;
       m_TOListIter[i].Initialise(&m_TOListWork[i], FSTC.NThreads());
@@ -3081,10 +3094,7 @@ flag FlwSlvBlk::SolveTOSequenceThrd(int What, byte Which, LPVOID OtherData)
       RetFlag = RetFlag && m_TOListIter[i].RetFlag;
 
       if (m_TOListWork[i].GetCount()>0)
-        {
-        LogError("Solver", LF_Hand, "Bad Solver Queue - Ctrl Stopping at End [%i] = %i", i, m_TOListWork[i].GetCount());
-        gs_Exec.GotoEditMode();
-        }
+        LogStop("Solver", LF_Hand, "Bad Solver Queue - Ctrl Stopping at End [%i] = %i", i, m_TOListWork[i].GetCount());
       }
     }
   return RetFlag;
@@ -7027,6 +7037,9 @@ void FlwSlvDyn::FITFlowInfo(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
 
 void FlwSlvDyn::FITEvalProductsSurge(CLkNodeEvalIter & Iter)
   {
+  
+  STARTPROGRESS;
+  SHOWPROGRESS(10, "EvalProductsSurge 1");
   //FlwNode * p;
   CNodeEvalIndex NJ;
   int Cnt;
@@ -7054,12 +7067,17 @@ void FlwSlvDyn::FITEvalProductsSurge(CLkNodeEvalIter & Iter)
     #endif
     }
   XT.Complete();//PostambleTl();
+
+  SHOWPROGRESS(1, "EvalProductsSurge 2");
   }
 
 //---------------------------------------------------------------------------
 
 void FlwSlvDyn::FITEvalProducts(CLkNodeEvalIter & Iter)
   {
+  STARTPROGRESS;
+  SHOWPROGRESS(10, "EvalProducts 1");
+
   CNodeEvalIndex NJ;
   int Cnt;
   CThreadTimer  XT(eFITEvalProducts, FSW_EvalProducts);
@@ -7089,12 +7107,17 @@ void FlwSlvDyn::FITEvalProducts(CLkNodeEvalIter & Iter)
     #endif
     }
   XT.Complete();//PostambleTl();
+
+  SHOWPROGRESS(1, "EvalProducts 2");
   }
 
 //---------------------------------------------------------------------------
 
 void FlwSlvDyn::FITEvalDerivs(CLkNodeEvalIter & Iter)
   {
+  STARTPROGRESS;
+  SHOWPROGRESS(10, "EvalDerivs 1");
+
   CNodeEvalIndex NJ;
   int Cnt;
   CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
@@ -7116,12 +7139,17 @@ void FlwSlvDyn::FITEvalDerivs(CLkNodeEvalIter & Iter)
     #endif
     }
   XT.Complete();//PostambleTl();
+
+  SHOWPROGRESS(1, "EvalDerivs 2");
   }
 
 //---------------------------------------------------------------------------
 
 void FlwSlvDyn::FITEvalIntegral(CLkNodeEvalIter & Iter)
   {
+  STARTPROGRESS;
+  SHOWPROGRESS(10, "EvalIntegral 1");
+
   CNodeEvalIndex NJ;
   int Cnt;
   CThreadTimer  XT(eFITEvalIntegral, FSW_EvalIntegral);
@@ -7142,6 +7170,8 @@ void FlwSlvDyn::FITEvalIntegral(CLkNodeEvalIter & Iter)
     #endif
     }
   XT.Complete();//PostambleTl();
+
+  SHOWPROGRESS(1, "EvalIntegral 2");
   }
 
 //---------------------------------------------------------------------------
@@ -7292,7 +7322,8 @@ void FlwSlvDyn::ODEDerivs()
             }
           else
             {
-            for (int i=0; i<100; i++)
+
+            for (int i=0; i<50; i++)
               {
               CStopWatch    m_Total;
               m_Total.ReStart();
@@ -7537,21 +7568,22 @@ void FlwSlvDyn::FITEvalCtrlActions(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
 
 //---------------------------------------------------------------------------
 
-void FlwSlvDyn::FITEvalCtrlStrategy(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
+void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
   {
+  //CNodeEvalIndex NJ;
   FlwNode * p;
   //int Cnt;
   CThreadTimer  XT(eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
-  //while (Iter.GetNext(p))
-  CFlwNodeIter Iter(List);
-  for (p=Iter.First(); p; p=Iter.Next())
+  while (Iter.RemoveNext(p))
+  //CFlwNodeIter Iter(List);
+  //for (p=Iter.First(); p; p=Iter.Next())
     {
     XT.StartLoop(p);
-    //CtrlLoopStart(Iter, p, Cnt);
+    CtrlLoopStart(Iter, p, Iter.List().GetCount());
     XT.LockDone();//(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     p->EvalCtrlStrategy();
     XT.ExecDone();//Postamble(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
-    //CtrlLoopEnd(Iter, p, Cnt);
+    CtrlLoopEnd(Iter, p, Iter.List().GetCount());
     XT.EndLoop();//PostambleUnLock();
     #if dbgFlwSolve
     if (dbgThreadsSleep())
@@ -7774,7 +7806,7 @@ bool FlwSlvBlk::BuildCtrlNdListReqd()
 void FlwSlvDyn::EvalAllCtrlInitialise()
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EvalAllCtrlInitialise");
+  SHOWPROGRESS(10, "EvalAllCtrlInitialise");
 
   CFlwNodeIter All(m_AllNds);
   CThreadTimer  XT(eFITEvalCtrlInitialise, FSW_EvalCtrlInitialise);
@@ -7915,7 +7947,7 @@ flag FlwSlvDyn::Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
   TIMINGLAP("FLWSHEET START");
 #endif
   STARTPROGRESS;
-  SHOWPROGRESS(1, "DynStart 1")
+  SHOWPROGRESS(10, "DynStart 1")
 
   gs_ThreadTiming.Initialise(FlwSlvNd.NRqdThreads());
   FSTC.CreateThreads(FlwSlvNd.NRqdThreads());
@@ -8091,6 +8123,9 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   SWTime0=SWTime.Time();
   #endif
   TIMINGLAP("Execute");
+  
+  STARTPROGRESS;
+  SHOWPROGRESS(10, "Execute 1");
 
   gs_ThreadTiming.Reset();
 
@@ -8123,6 +8158,8 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     
     }
 
+  SHOWPROGRESS(1, "Execute 2");
+
   MarkClosureDataInvalid(m_AllNds);
 
   //dbgpln("Clear All XRef Cnts ==============");
@@ -8136,6 +8173,8 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   m_SSMaxChange=0;
   m_SSMaxTag="";
 
+  SHOWPROGRESS(1, "Execute 3");
+  
   bool DoClosureTests=(gs_ClosureOption!=CloseTest_Off);
   bool StopRequested=false;
   for ( ;NIters>0 && !StopRequested;NIters--)
@@ -8153,12 +8192,16 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     double TimeInc4Step=Min(TimeInc, MdlMaxTimeInc);
     IntCB.SetTimeInc(TimeInc4Step);
 
+    SHOWPROGRESS(1, "Execute 3");
+
     MYASSERT(_CrtCheckMemory());
     EvalAllCtrlActions();
     MYASSERT(_CrtCheckMemory());
     //EvalAllPowerAvailable();
     EvalAllElectrics(false);
     MYASSERT(_CrtCheckMemory());
+
+    SHOWPROGRESS(1, "Execute 4");
 
     if (m_EvalCtrlAt==ECA_Start)
       {
@@ -8172,6 +8215,8 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       }
     MYASSERT(_CrtCheckMemory());
 
+    SHOWPROGRESS(1, "Execute 5");
+
     ConfigureJoinsAll();
     TIMINGLAP("ConfigJoins");
     MYASSERT(_CrtCheckMemory());
@@ -8179,21 +8224,30 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     // Moved to ensure that JoinInfo is OK
     if (DoClosureTests)
       InitClosure();
- 
+
+    SHOWPROGRESS(1, "Execute 6");
 
     if (CB.m_StepSize>0.0)
       {
       ODE().Integrate(this, IntCB.GetTime()+TimeInc4Step, TimeInc4Step, true, CB.m_bHoldAdv && !CB.m_bSyncWithClock);
+      SHOWPROGRESS(1, "Execute 6.1");
       FlwNets.CheckForErrors();
+      SHOWPROGRESS(1, "Execute 7");
       TIMINGLAP("Integrate");
       TransferAllTears(EqnCB());
+      SHOWPROGRESS(1, "Execute 8");
       TIMINGLAP("Tears");
       EvalAllDiscrete();
+      SHOWPROGRESS(1, "Execute 9");
       EvalAllBalance();
+      SHOWPROGRESS(1, "Execute A");
       EvalAllPowerRequired();
+      SHOWPROGRESS(1, "Execute B");
       EvalAllElectrics(true);
+      SHOWPROGRESS(1, "Execute C");
       TIMINGLAP("Discrete");
       CtrlSeq().StepSequencer();
+      SHOWPROGRESS(1, "Execute D");
       }
     else
       {
@@ -8214,9 +8268,12 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     //dTimeNext=IntCB.GetTimeIncNext();
     EvalAllStates();
     MYASSERT(_CrtCheckMemory());
+    SHOWPROGRESS(1, "Execute E");
 
     EvalAllStatistics();
     MYASSERT(_CrtCheckMemory());
+
+    SHOWPROGRESS(1, "Execute F");
 
     if (m_EvalCtrlAt==ECA_End)
       {
@@ -8224,22 +8281,30 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
         {
         CStopWatchLap SWLapCtrlOverHead(gs_swCtrlOverHead);
         MYASSERT(_CrtCheckMemory());
+        SHOWPROGRESS(1, "Execute G.1");
         BuildCtrlNdList();
+        SHOWPROGRESS(1, "Execute G.2");
+        
         MYASSERT(_CrtCheckMemory());
         FindTOSequence(FTS_DynMode|(FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
+        SHOWPROGRESS(1, "Execute G.3");
+        
         }
       MYASSERT(_CrtCheckMemory());
       EvalAllCtrlStrategy();
       }
     MYASSERT(_CrtCheckMemory());
+    SHOWPROGRESS(1, "Execute G");
 
     DynStats.ExecIns(IntCB.GetTimeInc());
     MYASSERT(_CrtCheckMemory());
+    SHOWPROGRESS(1, "Execute H");
 
     MarkClosureDataAvail(ProcTOSequence);
     if (DoClosureTests)
       TestClosure(ProcTOSequence);
 
+    SHOWPROGRESS(1, "Execute I");
     if (DynStats.bStopRqd)
       {
       LogNote("Solver", 0, "Stopping : Reached required simulation time");
@@ -8282,6 +8347,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     LogError("SOlver", 0, "Too many Iterations in Step");
     }
 
+  SHOWPROGRESS(1, "Execute J");
 
   for (p=All.First(); (p); p=All.Next())
     {
@@ -8311,6 +8377,8 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     dbgpln("Threads - Exec Done  %10.3f %s", SWTime.Time()-SWTime0, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
   SWTime0=SWTime.Time();
   #endif
+
+  SHOWPROGRESS(1, "Execute K");
   return true;
   }
 
@@ -10230,7 +10298,7 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
       return;
 
     STARTPROGRESS;
-    SHOWPROGRESS(1, "DoGlobalLinks");
+    SHOWPROGRESS(10, "DoGlobalLinks");
     
     // First Remove Bad Ones
     FlwNode *p=NULL;
@@ -10374,7 +10442,7 @@ void CFlwSolver::UnDoGlobalLinks()
     return;
 
   STARTPROGRESS;
-  SHOWPROGRESS(1, "UnDoGlobalLinks 1");
+  SHOWPROGRESS(10, "UnDoGlobalLinks 1");
 
   EqnSlv().DisConnectAllTears();
 
@@ -11606,7 +11674,7 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
 void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_SetModelState");
+  SHOWPROGRESS(10, "EO_SetModelState");
   if (gs_Exec.SolvingPB())
     {
     //PB.ClearSolutionBlks(true);
@@ -11800,7 +11868,7 @@ void CFlwSolver::EO_SetSolveMode(long RunMds, long RunMdsMsk)
 flag CFlwSolver::EO_Starting(flag fBeginStarting)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_Starting");
+  SHOWPROGRESS(10, "EO_Starting");
 
   if (fBeginStarting)
     MSMFnRanges::BumpGlblIter();
@@ -11828,7 +11896,7 @@ flag CFlwSolver::EO_Starting(flag fBeginStarting)
 flag CFlwSolver::EO_SetTime(double TimeRqd, bool Rewind)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_SetTime");
+  SHOWPROGRESS(10, "EO_SetTime");
 
   ODE().SetTime(TimeRqd);
 
@@ -11841,7 +11909,7 @@ flag CFlwSolver::EO_SetTime(double TimeRqd, bool Rewind)
 flag CFlwSolver::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_QueryTime");
+  SHOWPROGRESS(10, "EO_QueryTime");
   // Undo to Redo -- in case mode has changed
 
   if (gs_Exec.SolvingPB())
@@ -11893,7 +11961,7 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
   //ODE().ClSetItersTotal(0);
 
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_Start");
+  SHOWPROGRESS(10, "EO_Start");
 
   gs_MsgLog.SetDefer(true);
 
@@ -12064,7 +12132,7 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
 void CFlwSolver::EO_QuerySubsReqd(CXMsgLst &XM)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_QuerySubsReqd");
+  SHOWPROGRESS(10, "EO_QuerySubsReqd");
 
   FlwNode * pNd=NULL;
   if (GetObj_All(pNd))
@@ -12127,7 +12195,7 @@ void CFlwSolver::EO_QuerySubsReqd(CXMsgLst &XM)
 void CFlwSolver::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_QuerySubsAvail");
+  SHOWPROGRESS(10, "EO_QuerySubsAvail");
 
   TagAccessBlk *p = new TagAccessBlk();
 
@@ -12161,7 +12229,7 @@ void CFlwSolver::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
 flag CFlwSolver::EO_ReadSubsData(CXMsgLst &XM)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_ReadSubsData");
+  SHOWPROGRESS(10, "EO_ReadSubsData");
 
   flag DataRead=0;
   CXM_ReadIndexedData * pMsg=(CXM_ReadIndexedData *)XM.MsgPtr(XM_ReadIndexedData);
@@ -12219,7 +12287,7 @@ flag CFlwSolver::EO_ReadSubsData(CXMsgLst &XM)
 flag CFlwSolver::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_WriteSubsData");
+  SHOWPROGRESS(10, "EO_WriteSubsData");
 
   SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
 //  return Dyn.WriteSubsData(XM, FirstBlock, LastBlock);
@@ -12300,7 +12368,7 @@ flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   CStopWatchLap SWLapOverall(gs_swTotalExecTicks);
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_Execute");
+  SHOWPROGRESS(10, "EO_Execute 1");
 
   flag ret;
 
@@ -12335,6 +12403,8 @@ flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
   ret=Dyn.Execute(CB, EORet);
 
+  SHOWPROGRESS(1, "EO_Execute 2");
+
   ASSERT(_CrtCheckMemory());
 
   if (1)
@@ -12342,6 +12412,8 @@ flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     CStopWatchLap SWLapChangeTrace(gs_swChangeTrace);
     DoChangeTrace(CSF_DoCalcs | CSF_DoCollect | CSF_DoSort);
     }
+
+  SHOWPROGRESS(1, "EO_Execute 3");
 
   gs_MsgLog.SetDefer(false);
   gs_MsgLog.FlushWndQ();
@@ -12474,7 +12546,7 @@ Done:
 
   #endif
 
-  SHOWPROGRESS(1, "EO_Execute");
+  SHOWPROGRESS(1, "EO_Execute 4");
 
   return ret;
   }
@@ -12484,7 +12556,7 @@ Done:
 flag CFlwSolver::EO_StepDone()
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_StepDone");
+  SHOWPROGRESS(10, "EO_StepDone");
 
   //dbgpln("Test All XRefs Cnts ==============");
   CTagRefMap::CPair *pPair=m_TagRefsMap.PGetFirstAssoc();
@@ -12556,7 +12628,7 @@ flag CFlwSolver::EO_StepDone()
 flag CFlwSolver::EO_Stop(const CXM_TimeControl &CB)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_Stop");
+  SHOWPROGRESS(10, "EO_Stop");
   //XDataClear();
 
   gs_MsgLog.SetDefer(true);
@@ -12589,7 +12661,7 @@ flag CFlwSolver::EO_Stop(const CXM_TimeControl &CB)
 flag CFlwSolver::EO_Stopping(flag BeginStopping)
   {
   STARTPROGRESS;
-  SHOWPROGRESS(1, "EO_Stopping");
+  SHOWPROGRESS(10, "EO_Stopping");
 
   if (!BeginStopping)
     XDataClear();

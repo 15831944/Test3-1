@@ -295,7 +295,7 @@ UINT FlwIterThread(LPVOID pFST_)
               TDB->SignalJobDone();
               break;
             case eFITEvalCtrlStrategy:
-              TDB->pDyn->FITEvalCtrlStrategy((*TDB->pFNLA)[ThreadIndex]);//*TDB->pFNI);
+              TDB->pDyn->FITEvalCtrlStrategy(*TDB->pFNI);
               DUMPOVERHEAD;
               TDB->SignalJobDone();
               break;

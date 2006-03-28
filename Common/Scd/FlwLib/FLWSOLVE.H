@@ -374,7 +374,7 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     void           FITODEOperate(CFlwNodeList & List, CODEDataBlock & ODE);
     void           FITDiscrete(CFlwNodeList & List);
     void           FITEvalCtrlActions(CFlwNodeList & List);
-    void           FITEvalCtrlStrategy(CFlwNodeList & List);
+    void           FITEvalCtrlStrategy(CLkFlwNodeIter & Iter);//CFlwNodeList & List);
     void           FITEvalStatistics(CFlwNodeList & List);
     void           FITEvalBalance(CLkNodeEvalIter & Iter);
 

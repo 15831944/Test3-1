@@ -6439,7 +6439,7 @@ void SpModel::ODEOperate(CODEDataBlock & ODB)
         }
       else
         {
-        INCOMPLETECODE();
+        LogStop(FullObjTag(), 0, "Incomplete Code in SpModel::ODEOperate (Indicates a Order of Eval Bug)");
         }
       break;
       }
