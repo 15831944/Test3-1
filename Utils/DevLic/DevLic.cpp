@@ -28,7 +28,7 @@ static char THIS_FILE[] = __FILE__;
 
 //===========================================================================
 
-#define SKIP_LICENSE_CHECK (BYPASSLICENSING)
+#define SKIP_LICENSE_CHECK 0 /*(BYPASSLICENSING)*/
 
 //===========================================================================
 
