@@ -35,6 +35,8 @@ extern "C"
 #define dbgclosestc     0
 #define dbgBlk          0
 #define dbgexplode      0
+#define dbgLineExport   0
+
 
 const double MaxBigDim = 1.0e4;
 
@@ -3914,6 +3916,20 @@ return true;
 return false;
 }*/
 
+static void CopyPT3(PT3 & A, PT3 & B)
+  {
+  A[0]=B[0];
+  A[1]=B[1];
+  A[2]=B[2];
+  }
+static void SwapPT3(PT3 & A, PT3 & B)
+  {
+  double q;
+  q=A[0]; A[0]=B[0]; B[0]=q;
+  q=A[1]; A[1]=B[1]; B[1]=q;
+  q=A[2]; A[2]=B[2]; B[2]=q;
+  }
+
 void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
   {
   pBlock b = Blocks.Find(DXF_INSERT_BLOCK_GET(GTI.e));
@@ -3929,32 +3945,316 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
       {
       DML_ITEM it;
       C3_CURVE c;
+      struct CLine
+        { 
+        PT3 St, En; 
+        int jStAtt;
+        int jEnAtt;
+        int jStNxt;
+        int jEnNxt;
+        double StDist;
+        double EnDist;
+        bool Done;
+        }  Lines[100];
+      PT3  Pts[200];
+      struct CSeg
+        {
+        int iStPt, iEnPt;
+        int iStConn, iEnConn;
+        } Segs[100];
+      int nPts=0;
+      int nSegs=1;
+
+      int nLines=0;
+      long SeqOffset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
+      long index_offset = GTI.PointsCount;
+
+
+#if dbgLineExport 
+      dbgpln("%s", GTI.m_sTag());
+#endif
 
       WALK_CURVE_LIST(l->CurveLst, it, c)
         {
         if (C3_CURVE_IS_LINE(c))
           {
-          long PtCnt=2;
+          if (nLines==0)
+            nLines=1;
+
           C3_CURVE c3 = c3d_copy(c);
           c3c_transform(c3, c3t);
-          const long seq_offset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
-          const long index_offset = GTI.PointsCount;
-          GTI.PointsCount += (PtCnt);
+          CopyPT3(Lines[nLines].St, C3_CURVE_LINE(c3)->pt[0]);
+          CopyPT3(Lines[nLines].En, C3_CURVE_LINE(c3)->pt[1]);
+
+#if dbgLineExport 
+          dbgpln("%3i", nLines);
+          dbgpln("  %10.3f %10.3f  %10.3f %10.3f ", C3_CURVE_LINE(c)->pt[0][0], C3_CURVE_LINE(c)->pt[0][1], Lines[nLines].St[0], Lines[nLines].St[1]);
+          dbgpln("  %10.3f %10.3f  %10.3f %10.3f ", C3_CURVE_LINE(c)->pt[1][0], C3_CURVE_LINE(c)->pt[1][1], Lines[nLines].En[0], Lines[nLines].En[1]);
+#endif
+
+          nLines++;
+
+          for (int i=1; i<nLines; i++)
+            {
+            CLine & L=Lines[i];
+            // Fnd Lines Attached to i
+            L.jStAtt=0;
+            L.jEnAtt=0;
+            L.jStNxt=0;
+            L.jEnNxt=0;
+            L.StDist=1e10;
+            L.EnDist=1e10;
+            double BigDist=1;
+            for (int j=1; j<nLines; j++)
+              {
+              if (i!=j)
+                {
+                double StDs=Sqrt(Sqr(Lines[j].St[0]-L.St[0])+Sqr(Lines[j].St[1]-L.St[1]));
+                double StDe=Sqrt(Sqr(Lines[j].En[0]-L.St[0])+Sqr(Lines[j].En[1]-L.St[1]));
+                BigDist=Max(BigDist, Max(StDs, StDe));
+                if (StDs<L.StDist)
+                  {
+                  L.jStAtt=j;
+                  L.StDist=StDs;
+                  }
+                if (StDe<L.StDist)
+                  {
+                  L.jStAtt=-j;
+                  L.StDist=StDe;
+                  }
+
+                double EnDs=Sqrt(Sqr(Lines[j].St[0]-L.En[0])+Sqr(Lines[j].St[1]-L.En[1]));
+                double EnDe=Sqrt(Sqr(Lines[j].En[0]-L.En[0])+Sqr(Lines[j].En[1]-L.En[1]));
+                BigDist=Max(BigDist, Max(EnDs, EnDe));
+                if (EnDs<L.EnDist)
+                  {
+                  L.jEnAtt=j;
+                  L.EnDist=EnDs;
+                  }
+                if (EnDe<L.EnDist)
+                  {
+                  L.jEnAtt=-j;
+                  L.EnDist=EnDe;
+                  }
+                }
+              }
+            
+            if (L.StDist>0.001*BigDist)
+              {
+              L.jStNxt=L.jStAtt;
+              L.jStAtt=0;
+              }
+            if (L.EnDist>0.001*BigDist)
+              {
+              L.jEnNxt=L.jEnAtt;
+              L.jEnAtt=0;
+              }
+
+#if dbgLineExport 
+            dbgpln("                           %3i : %2i %2i %10.3f   %2i %2i %10.3f ", i, L.jStAtt, L.jStNxt, L.StDist, L.jEnAtt, L.jEnNxt, L.EnDist);
+#endif
+            }
+
+          // Group Segments
+          for (int i=1; i<nLines; i++)
+            Lines[i].Done=false;
+
+          nPts=0;
+          nSegs=1;
+          for (int i=1; i<nLines; i++)
+            {
+            CLine & L=Lines[i];
+            if (L.Done)
+              continue;
+            if (L.jStAtt==0 && L.jEnAtt==0)
+              {
+              L.Done=true;
+              Segs[nSegs].iStPt=nPts;
+              CopyPT3(Pts[nPts], L.St);
+              CopyPT3(Pts[nPts+1], L.En);
+              nPts+=2;
+              Segs[nSegs].iEnPt=nPts-1;
+              nSegs+=1;
+              }
+            else if (L.jStAtt==0 || L.jEnAtt==0)
+              {
+              L.Done=true;
+              int j;
+              Segs[nSegs].iStPt=nPts;
+              if (L.jStAtt==0)
+                {
+                CopyPT3(Pts[nPts], L.St);
+                CopyPT3(Pts[nPts+1], L.En);
+                j=L.jEnAtt;
+                }
+              else 
+                {
+                CopyPT3(Pts[nPts], L.En);
+                CopyPT3(Pts[nPts+1], L.St);
+                j=L.jStAtt;
+                }
+              nPts+=2;
+              
+              int iFrom=i;
+              while (j!=0)
+                {
+                CLine & Lj=Lines[abs(j)];
+                Lj.Done=true;
+                if (abs(Lj.jStAtt)==iFrom)
+                  {
+                  CopyPT3(Pts[nPts], Lj.En);
+                  iFrom=abs(j);
+                  j=Lj.jEnAtt;
+                  }
+                else
+                  {
+                  CopyPT3(Pts[nPts], Lj.St);
+                  iFrom=abs(j);
+                  j=Lj.jStAtt;
+                  }
+                nPts+=1;
+                }
+              Segs[nSegs].iEnPt=nPts-1;
+              nSegs+=1;
+              }
+            }
+
+
+#if dbgLineExport 
+          for (int i=0; i<nPts; i++)
+            dbgpln("                           Pt %3i : %10.3f %10.3f", i, Pts[i][0], Pts[i][1]);
+#endif
+
+          // Move Seq around to get into order
+          for (int i=1; i<nSegs; i++)
+            {
+            CSeg & iSg=Segs[i];
+            iSg.iStConn=0;
+            iSg.iEnConn=0;
+            }
+
+          //Do nSegs -1 passes - The last would be the biggest gap;
+          for (int iPass=1; iPass<nSegs-1; iPass++)
+            {
+            double SmallGap=1e10;
+            int iBigGap=-1;
+            int jBigGap=-1;
+            for (int i=1; i<nSegs; i++)
+              {
+              CSeg & iSg=Segs[i];
+              for (int j=1; j<nSegs; j++)
+                {
+                CSeg & jSg=Segs[j];
+                if (i==j)
+                  continue;
+                double StDs=Sqrt(Sqr(Pts[iSg.iStPt][0]-Pts[jSg.iStPt][0])+Sqr(Pts[iSg.iStPt][1]-Pts[jSg.iStPt][1]));
+                double StDe=Sqrt(Sqr(Pts[iSg.iStPt][0]-Pts[jSg.iEnPt][0])+Sqr(Pts[iSg.iStPt][1]-Pts[jSg.iEnPt][1]));
+                if (!iSg.iStConn && !jSg.iStConn && StDs<SmallGap)
+                  {
+                  iBigGap=i;
+                  jBigGap=j;
+                  SmallGap=StDs;
+                  }
+                if (!iSg.iStConn && !jSg.iEnConn && StDe<SmallGap)
+                  {
+                  iBigGap=i;
+                  jBigGap=-j;
+                  SmallGap=StDe;
+                  }
+
+                double EnDs=Sqrt(Sqr(Pts[iSg.iEnPt][0]-Pts[jSg.iStPt][0])+Sqr(Pts[iSg.iEnPt][1]-Pts[jSg.iStPt][1]));
+                double EnDe=Sqrt(Sqr(Pts[iSg.iEnPt][0]-Pts[jSg.iEnPt][0])+Sqr(Pts[iSg.iEnPt][1]-Pts[jSg.iEnPt][1]));
+                if (!iSg.iEnConn && !jSg.iStConn && EnDs<SmallGap)
+                  {
+                  iBigGap=-i;
+                  jBigGap=j;
+                  SmallGap=EnDs;
+                  }
+                if (!iSg.iEnConn && !jSg.iEnConn && EnDe<SmallGap)
+                  {
+                  iBigGap=-i;
+                  jBigGap=-j;
+                  SmallGap=EnDe;
+                  }
+                }
+              }
+#if dbgLineExport 
+            dbgpln("                 SmallGap  %3i %3i : %10.3f ", iBigGap, jBigGap, SmallGap);
+#endif
+            if (iBigGap>0)
+              Segs[iBigGap].iStConn=jBigGap;
+            else
+              Segs[-iBigGap].iEnConn=jBigGap;
+            if (jBigGap>0)
+              Segs[jBigGap].iStConn=iBigGap;
+            else
+              Segs[-jBigGap].iEnConn=iBigGap;
+            }
+
+#if dbgLineExport 
+          for (int i=1; i<nSegs; i++)
+            dbgpln("                           Sg %3i : %3i %3i %3i %3i", i, Segs[i].iStPt, Segs[i].iEnPt, Segs[i].iStConn, Segs[i].iEnConn);
+#endif
+
+          GTI.PointsCount = index_offset + nPts;
           LPA.SetSize(GTI.PointsCount);
-          LPA[index_offset].Set(seq_offset, C3_CURVE_LINE(c3)->pt[0][0], C3_CURVE_LINE(c3)->pt[0][1], C3_CURVE_LINE(c3)->pt[0][2]);
-          LPA[index_offset+1].Set(seq_offset+1, C3_CURVE_LINE(c3)->pt[1][0], C3_CURVE_LINE(c3)->pt[1][1], C3_CURVE_LINE(c3)->pt[1][2]);
+
+          int Sq=SeqOffset;
+
+          int nSeq=0;
+          int iSeq=1;
+          for (int i=1; i<nSegs; i++)
+            {
+            if (!Segs[i].iStConn)
+              iSeq=i;
+            else if (!Segs[i].iEnConn)
+              iSeq=-i;
+            }
+          while (iSeq)
+            {
+            int St,En, j;
+            if (iSeq>0)
+              {
+              St=Segs[iSeq].iStPt;
+              En=Segs[iSeq].iEnPt+1;
+              j=Segs[iSeq].iEnConn;
+              }
+            else
+              {
+              St=Segs[-iSeq].iEnPt;
+              En=Segs[-iSeq].iStPt-1;
+              j=Segs[-iSeq].iStConn;
+              }
+            int iChg=En>St?1:-1;
+            for (int i=St; i!=En; i+=iChg)
+              {
+              REAL *P=Pts[i];
+#if dbgLineExport 
+              dbgpln("                                                 %3i %10.3f %10.3f", Sq, P[0], P[1]);
+#endif
+              LPA[index_offset+nSeq].Set(Sq, P[0], P[1], P[2]);
+              nSeq++;
+              Sq++;
+              }
+            Sq++; // Leave a gap is Seq
+            iSeq=j;
+            }
+
           c3d_free_curve(c3);
           }
         else if (C3_CURVE_IS_ARC(c))
           {
+          nLines=0;
           LogNote("CollectLinkInfo", 0, "ARC not implemented");
           }
         else if (C3_CURVE_IS_ELLIPSE(c))
           {
+          nLines=0;
           LogNote("CollectLinkInfo", 0, "ELLIPSE not implemented");
           }
         else if (C3_CURVE_IS_PCURVE(c))
           {
+          nLines=0;
           int SegCnt=0;
           C3_CURVE c3;
 
@@ -3979,7 +4279,7 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
             {
             C3_CURVE cnew = c3d_copy(c);
             c3c_transform(cnew, c3t);
-            const long seq_offset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
+            const long SeqOffset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
             const long index_offset = GTI.PointsCount;
             GTI.PointsCount += (SegCnt+1);
             LPA.SetSize(GTI.PointsCount);
@@ -3992,8 +4292,8 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
               if (C3_CURVE_IS_LINE(c3))
                 {
                 if (SegCnt==0)
-                  LPA[index_offset].Set(seq_offset+SegCnt, C3_CURVE_LINE(c3)->pt[0][0], C3_CURVE_LINE(c3)->pt[0][1], C3_CURVE_LINE(c3)->pt[0][2]);
-                LPA[index_offset+SegCnt+1].Set(seq_offset+SegCnt+1, C3_CURVE_LINE(c3)->pt[1][0], C3_CURVE_LINE(c3)->pt[1][1], C3_CURVE_LINE(c3)->pt[1][2]);
+                  LPA[index_offset].Set(SeqOffset+SegCnt, C3_CURVE_LINE(c3)->pt[0][0], C3_CURVE_LINE(c3)->pt[0][1], C3_CURVE_LINE(c3)->pt[0][2]);
+                LPA[index_offset+SegCnt+1].Set(SeqOffset+SegCnt+1, C3_CURVE_LINE(c3)->pt[1][0], C3_CURVE_LINE(c3)->pt[1][1], C3_CURVE_LINE(c3)->pt[1][2]);
                 }
               SegCnt++;
               }
@@ -4009,7 +4309,7 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
           }
           if (SegCnt)
           {
-          const long seq_offset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
+          const long SeqOffset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
           const long index_offset = GTI.PointsCount;
           GTI.PointsCount += (SegCnt+1);
           LPA.SetSize(GTI.PointsCount);
@@ -4022,8 +4322,8 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
           if (C3_CURVE_IS_LINE(c3))
           {
           if (SegCnt==0)
-          LPA[index_offset].Set(seq_offset+SegCnt, C3_CURVE_LINE(c3)->pt[0][0], C3_CURVE_LINE(c3)->pt[0][1], C3_CURVE_LINE(c3)->pt[0][2]);
-          LPA[index_offset+SegCnt+1].Set(seq_offset+SegCnt+1, C3_CURVE_LINE(c3)->pt[1][0], C3_CURVE_LINE(c3)->pt[1][1], C3_CURVE_LINE(c3)->pt[1][2]);
+          LPA[index_offset].Set(SeqOffset+SegCnt, C3_CURVE_LINE(c3)->pt[0][0], C3_CURVE_LINE(c3)->pt[0][1], C3_CURVE_LINE(c3)->pt[0][2]);
+          LPA[index_offset+SegCnt+1].Set(SeqOffset+SegCnt+1, C3_CURVE_LINE(c3)->pt[1][0], C3_CURVE_LINE(c3)->pt[1][1], C3_CURVE_LINE(c3)->pt[1][2]);
           }
           SegCnt++;
           }

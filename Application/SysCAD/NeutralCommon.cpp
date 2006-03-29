@@ -61,22 +61,29 @@ CNeutralGroupTagEditor::CNeutralGroupTagEditor()
 
 int CNeutralGroupTagEditor::FindOldTag(CStringArray * OldTags, LPCTSTR RqdTag)
   {
-  for (int i=0; i<OldTags->GetCount(); i++)
+  if (OldTags)
     {
-    if ((*OldTags)[i].CompareNoCase(RqdTag)==0)
-      return i;
+    for (int i=0; i<OldTags->GetCount(); i++)
+      {
+      if ((*OldTags)[i].CompareNoCase(RqdTag)==0)
+        return i;
+      }
+    return -1;
     }
-  return -1;
+  return 0;
   }
 
 //---------------------------------------------------------------------------
 
 int CNeutralGroupTagEditor::FindNewTag(CStringArray * NewTags,  LPCTSTR RqdTag)
   {
-  for (int i=0; i<NewTags->GetCount(); i++)
+  if (NewTags)
     {
-    if ((*NewTags)[i].CompareNoCase(RqdTag)==0)
-      return i;
+    for (int i=0; i<NewTags->GetCount(); i++)
+      {
+      if ((*NewTags)[i].CompareNoCase(RqdTag)==0)
+        return i;
+      }
     }
   return -1;
   }
