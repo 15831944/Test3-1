@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="Basic1"
 	ProjectGUID="{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -316,6 +312,9 @@
 				RelativePath=".\Vlv4Port.CPP">
 			</File>
 			<File
+				RelativePath=".\VlvIPRV.CPP">
+			</File>
+			<File
 				RelativePath=".\XFer.CPP">
 			</File>
 		</Filter>
@@ -403,6 +402,9 @@
 			</File>
 			<File
 				RelativePath=".\Vlv4Port.H">
+			</File>
+			<File
+				RelativePath=".\VlvIPRV.H">
 			</File>
 			<File
 				RelativePath=".\XFer.H">
