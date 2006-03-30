@@ -9774,6 +9774,11 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
       DCB.B=CSurfaceCommon::m_DoSmoothing;
       return 1;
 
+    case xidIncludeSpcCnvs:
+      if (DCB.rB)
+        gs_WithSpecieCnvs=(*DCB.rB!=0);
+      DCB.B=gs_WithSpecieCnvs;
+      return 1;
     case xidShowSpcRangeErrors:
       if (DCB.rB)
         SpModel::m_RangeErrorsOn=(*DCB.rB!=0);
