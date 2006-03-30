@@ -7,7 +7,7 @@
 #define  __CYCLONE_CPP
 #include "Cyclone.h"
 #include "dbgmngr.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgModels  0
 #if dbgModels

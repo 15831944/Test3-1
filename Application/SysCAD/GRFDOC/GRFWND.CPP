@@ -15,7 +15,7 @@
 #include "wndslct.h"
 #include "explorescd.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 //===========================================================================
 
