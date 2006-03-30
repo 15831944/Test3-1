@@ -764,6 +764,18 @@ LPCTSTR DbgFltString(double V, int eSig, int fSig, int RqdLen) // only one call 
 
 //===========================================================================
 
+inline double GetProcessorTime()
+  {
+  FILETIME tCreat, tExit, tKernel, tUser;
+  GetProcessTimes(GetCurrentProcess(), &tCreat, &tExit, &tKernel, &tUser);
+  LARGE_INTEGER lKernel = {tKernel.dwLowDateTime, tKernel.dwHighDateTime };
+  LARGE_INTEGER lUser   = {tUser.dwLowDateTime, tUser.dwHighDateTime };
+
+  return (lKernel.QuadPart+lUser.QuadPart)*1.0e-7; // 100's of nanosecs ticks
+  }
+
+//===========================================================================
+
 #define AUTOOPENDEBUG 0
 #if AUTOOPENDEBUG  
 

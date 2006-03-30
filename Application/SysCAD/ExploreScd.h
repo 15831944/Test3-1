@@ -9,6 +9,7 @@ class CExploreScd;
 class CXTTag;
 class CXTClass; 
 class CXTPage; 
+class CGrfDoc;
 
 class CXTTagHPair
   {
@@ -191,6 +192,7 @@ class CXTPage : public CXTTreeInfo
     BOOL            m_InUse;
     HTREEITEM       m_hPage;
     int             m_iType;
+    CGrfDoc*        m_pGrfDoc;
 
     Strng_List        m_GrfTagList;
     Strng_List        m_NoModelList;
@@ -250,6 +252,8 @@ class CExploreScd : public CDialog
     void AddPageToTree(CXTPage * pPage);
     void RemovePageFromTree(CXTPage * pPage);
     void DumpAll(LPCTSTR Where);
+
+    void DeletePage(CXTPage * pPage);
 
     void SavePos();
     void RestorePos();

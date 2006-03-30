@@ -121,6 +121,7 @@ CXTTreeInfo(IdNo, &m_sPageId)
   m_InUse=true;
   m_hPage=NULL;
   m_iType=-1;
+  m_pGrfDoc=NULL;
   m_TagHs.SetSize(0, 128);
   m_TagHMap.InitHashTable(FindNextPrimeNumber((UINT)(256)));
   };
@@ -520,10 +521,11 @@ void CExploreScd::ChkRefreshIt()
   {
   if (sm_bInited && sm_bDoRefresh && sm_pTheWnd && sm_pTheWnd->m_hWnd)
     {
-    if (sm_bDoRefreshAll)
-      sm_pTheWnd->BuildTags();
-    else
+    //if (sm_bDoRefreshAll)
+    //  sm_pTheWnd->BuildTags();
+    //else
       sm_pTheWnd->ReBuildTags();
+
     sm_bDoRefresh=false;
     sm_bDoRefreshAll=false;
     }
@@ -680,7 +682,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
           goto NextWindow;
         }
 
-      ASSERT_ALWAYS(ChangesOK, "Unexpected New Page");
+     // ASSERT_ALWAYS(ChangesOK, "Unexpected New Page");
 
       CXTPage *pPage=new CXTPage(this, PgType2TrIDs[WL.Wnds[i].iType], PgId(), PgName());
       pPage->m_iType=WL.Wnds[i].iType;
@@ -720,6 +722,7 @@ void CExploreScd::FindTagPages()
           if (m_PageMap.Lookup(GrfTitle, pPage))
             {
             pPage->m_NoModelList.Clear();
+            pPage->m_pGrfDoc=pGDoc;
 
             int NGrfTags = pGDoc->GetTagList(pPage->m_GrfTagList);
             for (Strng * pTagLst=pPage->m_GrfTagList.First(); pTagLst; pTagLst=pPage->m_GrfTagList.Next())
@@ -828,6 +831,46 @@ void CExploreScd::RemoveUnusedItems()
       m_Tags.RemoveAt(t--);
       }
     }
+
+  for (int p=0; p<m_Pages.GetCount(); p++)
+    {
+    CXTPage *pPage=m_Pages[p];
+    if (!pPage->m_InUse)
+      {
+      RemovePageFromTree(pPage);
+      for (int t=0; t<pPage->m_TagHs.GetCount(); t++)
+        {
+        // Remove Tag under Page
+        CXTTagHPair *pTH=pPage->m_TagHs[t];
+
+        // Remove Page entries under the Tag where the Page is shown
+        CXTTag *pTg=pTH->m_pTag;
+        for (int i=0; i<pTg->m_Pages.GetCount(); i++)
+          {
+          CXTPageHPair *pPH=pTg->m_Pages[i];
+          if (pPH->m_pPage==pPage)
+            {
+            HTREEITEM h=pPH->m_hPage;
+            if (h)
+              m_Tree.DeleteItem(h);
+            //pTg->m_Pages.RemoveKey(i);
+            pTg->m_Pages.RemoveAt(i);
+            delete pPH;
+            break;
+            }
+          }
+        }
+
+#if dbgAdd   
+      dbgpln("Page  Remov %s", pPage->m_sPageId);
+#endif
+
+
+      delete m_Pages[p];
+      m_Pages.RemoveAt(p--);
+      }
+    }
+  
   };
 
 //---------------------------------------------------------------------------
@@ -888,7 +931,9 @@ void CExploreScd::BuildTags()
 #if dbgAdd
   dbgpln("BuildTags  ====================================");
 #endif
-  CWaitMsgCursor WaitMsg("Building Tag List");
+
+  CWaitMsgCursor WaitMsg("Updating Explorer");
+
 #if (!dbgHoldLockUpdate)
   LockWindowUpdate();
 #endif
@@ -982,6 +1027,9 @@ void CExploreScd::ReBuildTags()
 #if dbgAdd
   dbgpln("RebuildTags====================================");
 #endif
+
+CWaitMsgCursor WaitMsg("Updating Explorer");
+
 #if (!dbgHoldLockUpdate)
   LockWindowUpdate();
 #endif
@@ -1001,7 +1049,7 @@ void CExploreScd::ReBuildTags()
   dbgpln("B:%10.3f", SW.Lap()*1e3);
 #endif
 
-  GetRawPages(false);
+  GetRawPages(true);//false);
 #if dbgTime
   dbgpln("D:%10.3f", SW.Lap()*1e3);
 #endif
@@ -2018,6 +2066,14 @@ void CExploreScd::ActivateWndByName(LPCTSTR Txt)
 
 //--------------------------------------------------------------------------
 
+void CExploreScd::DeletePage(CXTPage * pPage)
+  {
+  pPage->m_pGrfDoc->DeleteTags(true);
+  pPage->m_pGrfDoc->CloseDocument();
+  }
+
+//--------------------------------------------------------------------------
+
 void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
   {
   LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
@@ -2106,6 +2162,38 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
     switch (Id)
       {
       case TrID_Grf:
+        {
+        CString Txt = m_Tree.GetItemText(hSel);
+        CXTPage *pPage;
+        if (m_PageMap.Lookup(Txt, pPage))
+          {
+          CString S;
+          CMenu Menu;
+          Menu.CreatePopupMenu();
+          S.Format("Page '%s'", Txt); 
+          Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
+          Menu.AppendMenu(MF_SEPARATOR, 100);
+          Menu.AppendMenu(MF_STRING, 102, "Delete");
+
+          CPoint curPoint;
+          GetCursorPos(&curPoint);
+
+          int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+          Menu.DestroyMenu();                                           
+          switch (RetCd)
+            {
+            case 102: 
+              {
+              DeletePage(pPage);
+              break;
+              }
+            }
+
+          }
+        else
+          ASSERT_ALWAYS(FALSE, "Bad Page Lookup");
+        break;
+        }
       case TrID_Trnd:
       case TrID_Other:
         {

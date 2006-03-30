@@ -18,6 +18,7 @@
 #include "neutraldlgs.h"
 #include "neutralgrf.h"
 #include "neutralmdl.h"
+//#include "optoff.h"
 
 // for GUID's
 #ifndef __RPC_H__
@@ -416,5 +417,100 @@ BEGIN_MESSAGE_MAP(CGrfDoc, DocRoot)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
+
+void CGrfDoc::OnCloseDocument()
+  {
+  //DeleteTags(false);
+  DocRoot::OnCloseDocument();
+  };
+
+int CGrfDoc::DeleteTags(bool WithPrompts)
+  {
+  Strng_List MyTags;
+  GetTagList(MyTags);
+  int nTags=MyTags.Length();
+  int nTagsMultPgs=0;
+  if (nTags>0)
+    {
+    CMap<LPTSTR, LPTSTR, Strng*, Strng*> MyTagMap;
+    MyTagMap.InitHashTable(FindNextPrimeNumber(MyTags.Length()));
+    for (Strng *pTag=MyTags.First(); pTag; pTag=MyTags.Next())
+      {
+      pTag->SetIndex(0);
+      MyTagMap.SetAt(pTag->Str(), pTag);
+      }
+
+    for (int iTmpl=iGraphTemplate; iTmpl<=iVisioTemplate; iTmpl++)
+      {
+      if (ScdApp()->TemplateExists(iTmpl))
+        {
+        POSITION Pos = ScdApp()->Template(iTmpl).GetFirstDocPosition();
+        while (Pos)
+          {
+          CGrfDoc* pOtherDoc = (CGrfDoc*)(ScdApp()->Template(iTmpl).GetNextDoc(Pos));
+          if (pOtherDoc!=this)
+            {
+            Strng *pTag;
+            Strng_List OtherTags;
+            int NGrfTags = pOtherDoc->GetTagList(OtherTags);
+            for (Strng *pOtherTag=OtherTags.First(); pOtherTag; pOtherTag=OtherTags.Next())
+              if (MyTagMap.Lookup(pOtherTag->Str(), pTag))
+                pTag->SetIndex(pTag->Index()+1);
+            }
+          }
+        }
+      }
+
+    for (Strng *pTag=MyTags.First(); pTag; pTag=MyTags.Next())
+      {
+      if (pTag->Index()>0)
+        nTagsMultPgs++;
+      }
+
+    int Ret=IDYES;
+    if (WithPrompts)
+      {
+      CString S;
+      if (nTagsMultPgs)
+        S.Format("Do you want Delete %i Units (%i Units have Multiple References)", nTags-nTagsMultPgs, nTagsMultPgs);
+      else
+        S.Format("Do you want Delete %i Units", nTags);
+      Ret=AfxMessageBox(S, MB_ICONQUESTION|MB_YESNOCANCEL);
+      }
+    if (Ret==IDCANCEL)
+      return -1;
+    if (Ret==IDYES)
+      {
+      int nMdlDeletes=0;
+      int nDeletesFailedCnt=0;
+      for (Strng *pTag=MyTags.First(); pTag; pTag=MyTags.Next())
+        {
+        if (pTag->Index()==0)
+          {
+          int RetCode = gs_Exec.DeleteTag(pTag->Str());
+          if (RetCode!=EODT_DONE)
+            {
+            //dbgpln("Mdl Not Deleted %s", pTag->Str());
+            LogError(pTag->Str(), 0, "Model not deleted");
+            nDeletesFailedCnt++;
+            }
+          else
+            {
+            //dbgpln("Mdl     Deleted %s", pTag->Str());
+            nMdlDeletes++;
+            }
+          }
+        }
+      if (nDeletesFailedCnt)
+        {
+        CString S;
+        S.Format("%i Units Failed to Delete", nDeletesFailedCnt);
+        AfxMessageBox(S, MB_ICONEXCLAMATION|MB_OK);
+        }
+      }
+    }
+  return nTags;
+  };
+
 //---------------------------------------------------------------------------
 

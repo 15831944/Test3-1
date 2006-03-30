@@ -66,15 +66,32 @@ static CStopWatch gs_TimeSW;  // The iteration Timer
 
 //---------------------------------------------------------------------------
 
-inline double GetProcTime()
-  {
-  FILETIME tCreat, tExit, tKernel, tUser;
-  GetProcessTimes(GetCurrentProcess(), &tCreat, &tExit, &tKernel, &tUser);
-  LARGE_INTEGER lKernel = {tKernel.dwLowDateTime, tKernel.dwHighDateTime };
-  LARGE_INTEGER lUser   = {tUser.dwLowDateTime, tUser.dwHighDateTime };
+#define PROGRESSLEVEL 0
+#if (PROGRESSLEVEL>0)
 
-  return (lKernel.QuadPart+lUser.QuadPart)*1.0e-7; // 100's of nanosecs ticks
-  }
+#define STARTPROGRESS                       \
+  CStopWatch SW; SW.Start();                \
+  double ProcessorTime = GetProcessorTime(); 
+
+#define SHOWPROGRESS(L, x)                                            \
+  {                                                                   \
+  if (PROGRESSLEVEL>=L)                                               \
+    {                                                                 \
+    int y=50-strlen(x);                                               \
+    double Lp=SW.Lap();                                               \
+    double Pt=GetProcessorTime();                                     \
+    dbgpln("%s %*.*s %10.1fms %6.2f%%", x, y, y,                      \
+      "======================================================",       \
+      Lp*1e3, 100*(Pt-ProcessorTime)/*/GTZ(Max(1,FSTC.NThreads())*Lp)*/); \
+    ProcessorTime = Pt;                                               \
+    }                                                                 \
+  };
+#else
+
+#define STARTPROGRESS ;
+#define SHOWPROGRESS(L,x) {};
+
+#endif
 
 //===========================================================================
 //
@@ -2816,14 +2833,14 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           if (dbgExecSeqTm() && PrevTm!=0.0)
             {
             double D=gs_TimeSW.Time()-PrevTm;
-            double PT=GetProcTime()-PrevPt;
+            double PT=GetProcessorTime()-PrevPt;
             double RS=TimeCB().m_StepSize/GTZ(D);
             double PTF=PT/GTZ(D);
             RunSP=0.75*RunSP+0.25*RS;
             dbgpln("IterSpeed    ---- DT:%12.4f IRS:%12.4f%% ARS:%12.4f%% ProcT:%12.4f PTF:%12.4f%%", D, RS*100, RunSP*100, PT, PTF*100);
             }
           PrevTm=gs_TimeSW.Time();
-          PrevPt=GetProcTime();
+          PrevPt=GetProcessorTime();
           }
         #endif
         if (Valid(TimeCB().m_StopTime) && TimeCB().m_Time>=TimeCB().m_StopTime-1.0e-6)
@@ -4791,6 +4808,8 @@ int CExecutive::LoadDBase(int Pass, long DBFmt, DWORD DBOpts, char * pRoot)
 
 int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
   {
+  STARTPROGRESS;
+
   m_LDB.m_LoadTime.Start();
 
   m_LDB.m_RtFolder=pRoot;
@@ -4849,6 +4868,8 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
       CXM_ObjectData OD(0);
       while (!m_LDB.m_Cancelled && TagDB.LoadObject(&OD, true)>=0)
         {
+        SHOWPROGRESS(1, "Load")
+
         LOSW.Stop();
         XM.Clear();
         XM.SetOnHeap(false);
@@ -4872,6 +4893,7 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
         //if ((n%10)==0)
           dbgpln("Create TmElapsed %i, %10.5f/Obj",n,Elapsed.Secs()/Max(1,n));
         #endif
+        SHOWPROGRESS(1, "Create")
         LOSW.Start();
         }
       TLOSW.Stop();
@@ -4911,6 +4933,7 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
         CXM_ObjectData OD(0);
         while (!m_LDB.m_Cancelled && TagDB.LoadObject(&OD, false)>=0)
           {
+          SHOWPROGRESS(1, "LoadConn")
           LOSW.Stop();
           XM.Clear();
           XM.SetOnHeap(false);
@@ -4930,6 +4953,7 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
 
             if (!r->EO_LoadConn(FCB, XM))
               m_LDB.m_AllLoaded=false;
+            SHOWPROGRESS(1, "CreateConn")
             }
           LOSW.Start();
           }
@@ -4968,6 +4992,7 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
         CXM_ObjectData OD(0);
         while (!m_LDB.m_Cancelled && TagDB.LoadObject(&OD, false)>=0)
           {
+          SHOWPROGRESS(1, "LoadData")
           LOSW.Stop();
           XM.Clear();
           XM.SetOnHeap(false);
@@ -4996,6 +5021,7 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
             //if ((n%10)==0)
               dbgpln("Load Tm %10.6f TmElapsed %i, %10.5f/Obj", SWxxx.Secs(), n, Elapsed.Secs()/Max(1,n));
             #endif
+            SHOWPROGRESS(1, "Save Data")
             }
           LOSW.Start();
           }
@@ -7362,7 +7388,7 @@ void CXStopWatches::StepBegin()
   {
   m_bStepStarted=1;
   m_swStep.ReStart();
-  m_dProcTimePrv=GetProcTime();
+  m_dProcTimePrv=GetProcessorTime();
 
   //dbgpln("StepBegin %4i  %12.6f", nStepCnt,dProcTimePrv);
   };
@@ -7376,7 +7402,7 @@ void CXStopWatches::StepEnd()
   if (!m_bStepStarted)
     return;
 
-  const double ProcTime=GetProcTime();
+  const double ProcTime=GetProcessorTime();
   const double ProcTimeDiff = (ProcTime-m_dProcTimePrv);
 
   CXM_TimeControl & CB=TimeCB();

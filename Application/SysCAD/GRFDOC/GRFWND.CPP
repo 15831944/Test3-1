@@ -146,7 +146,7 @@ void CGrfWnd::SendCmdToAll(char* pCmdStr)
 
 void CGrfWnd::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView)
   {
-  pDoc = (CGrfDoc*)GetDocument();
+  pDoc = dynamic_cast<CGrfDoc*>(GetDocument());
   if (pDoc)
     ((CGrfDoc*)pDoc)->OnActivate(bActivate);
 
@@ -282,7 +282,7 @@ LRESULT CGrfWnd::OnDoGrfCmd(WPARAM wParam, LPARAM lParam)
   switch (wParam)
     {
     case ID_GRF_RefreshAnnotation:
-      ((CGrfDoc*)GetDocument())->OnActivate(True);  // direct cmds to this document
+      (dynamic_cast<CGrfDoc*>(GetDocument()))->OnActivate(True);  // direct cmds to this document
       gs_pCmd->ProcessAStr("refresh annotation\r");
       break;
     }
@@ -639,7 +639,7 @@ void CGrfWnd::OnLButtonUp(UINT nFlags, CPoint point)
   //MDIActivateThis(this);
   if (Dsp.ButtonDown)
     {
-    pDoc=(CGrfDoc*)GetDocument();
+    pDoc=dynamic_cast<CGrfDoc*>(GetDocument());
     if (pDoc)
       {
       GrfCmdBlk & GCB=((CGrfDoc*)pDoc)->GCB;
@@ -739,7 +739,7 @@ void CGrfWnd::OnRButtonUp(UINT nFlags, CPoint point)
   {
   if (Dsp.ButtonDown)
     {
-    pDoc=(CGrfDoc*)GetDocument();
+    pDoc=dynamic_cast<CGrfDoc*>(GetDocument());
     if (pDoc)
       {
       GrfCmdBlk & GCB=((CGrfDoc*)pDoc)->GCB;
@@ -998,10 +998,21 @@ BOOL CGrfFrameWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT*
       LogError("SysCAD", 0, "Must not be running");
       return True;
       }
-    if (AfxMessageBox("Are you sure you want to close the graphics window?", MB_YESNO)==IDNO)
-      return True;
-    if (GetActiveDocument())
-      GetActiveDocument()->SetModifiedFlag(FALSE);
+    int Ret=AfxMessageBox("Are you sure you want to close the graphics window?", MB_ICONQUESTION|MB_YESNO);
+    if (Ret==IDYES)
+      {
+      CGrfDoc * pDoc = dynamic_cast<CGrfDoc*>(GetActiveDocument());
+      if (pDoc)
+        {
+        if (pDoc->DeleteTags(true)<0)
+          return true;
+        }
+      //GetActiveDocument()->SetModifiedFlag(FALSE);
+      if (GetActiveDocument())
+        GetActiveDocument()->SetModifiedFlag(FALSE);
+      return CMDIChildWnd::OnWndMsg(message, wParam, lParam, pResult);
+      }
+    return true;
     }
   return CMDIChildWnd::OnWndMsg(message, wParam, lParam, pResult);
   }

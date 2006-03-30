@@ -61,6 +61,9 @@ class CGrfDoc : public DocRoot
     virtual int ClearSelectedTags();
     virtual int GetSelectedTags(Strng_List & Lst);
   
+    virtual void OnCloseDocument();
+    int         DeleteTags(bool WithPrompts);
+
     //void ExportGraphicsData(CNeutralGrfImportExport & EGH);
   //protected:
     int  GetTagListInfo(bool AllInserts, CGrfTagInfoArray & GTIA); 

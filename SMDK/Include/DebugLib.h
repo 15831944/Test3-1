@@ -172,6 +172,10 @@ class DllImportExport CGlblStopWatchList : public CArray<CGlblStopWatch*, CGlblS
 extern DllImportExport CGlblStopWatchList gs_swFlwSolve;
 extern DllImportExport CGlblStopWatchList gs_swExecute;
 
+//===========================================================================
+
+extern DllImportExport double GetProcessorTime();
+
 // ==========================================================================
 
 #undef DllImportExport
