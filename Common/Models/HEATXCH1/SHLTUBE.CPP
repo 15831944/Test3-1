@@ -1211,11 +1211,11 @@ bool ShellTube::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   if (!MdlNode::DoPropagateNetInfo(Ctrl, IONo, false))
     return false;
 
-  IDMask IOInMsk=Id_2_Mask(IOId_Self(IONo));
+  IDMask IOInMsk=IONo>=0 ? Id_2_Mask(IOId_Self(IONo)) : First64IOIds;
   for (int i=0; i<NoFlwIOs(); i++)
     {
-    if ((ShellIOMask & IOInMsk & Id_2_Mask(IOId_Self(IONo)))!=0 ||
-        (TubeIOMask  & IOInMsk & Id_2_Mask(IOId_Self(IONo))))
+    if ((ShellIOMask & IOInMsk & Id_2_Mask(IOId_Self(i)))!=0 ||
+        (TubeIOMask  & IOInMsk & Id_2_Mask(IOId_Self(i))))
       Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
     }
 

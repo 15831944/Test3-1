@@ -2285,11 +2285,11 @@ bool HeatXchg1::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   if (!MdlNode::DoPropagateNetInfo(Ctrl, IONo, false))
     return false;
 
-  IDMask IOInMsk=Id_2_Mask(IOId_Self(IONo));
+  IDMask IOInMsk=IONo>=0 ? Id_2_Mask(IOId_Self(IONo)) : First64IOIds;
   for (int i=0; i<NoFlwIOs(); i++)
     {
-    if ((PriMask & IOInMsk & Id_2_Mask(IOId_Self(IONo)))!=0 ||
-        (SecMask & IOInMsk & Id_2_Mask(IOId_Self(IONo))))
+    if ((PriMask & IOInMsk & Id_2_Mask(IOId_Self(i)))!=0 ||
+        (SecMask & IOInMsk & Id_2_Mask(IOId_Self(i)))!=0)
       Nd_Rmt(i)->PropagateNetInfo(Ctrl, IOIONo_Rmt(i));
     }
 
