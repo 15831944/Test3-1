@@ -14,7 +14,7 @@
 #include "scd_wm.h"
 #include "dbgmngr.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 #define  dbg4Port   (WITHDEBUG)
 
@@ -302,25 +302,13 @@ void CIsoPRV ::EvalJoinPressures(long JoinMask)
     case NM_Probal:
       if (NJoins()>=1)
         EvalPBJoinPressure(0, NULL, NULL);//&QProd());
-      //if (NJoins()>=2)
-      //  EvalPBJoinPressure(1);
-
       break;
     case NM_Dynamic:
-      //for (int i = 0; i<2); i++)
-        //{
       Set_JoinP_Est(0,m_PFeed);
       Set_JoinP(0,m_PFeed);
-      //Set_JoinP_Est(1,m_PFeed);
-      //Set_JoinP(1,m_PFeed);
-      for (int i=0; i<NoProcessIOs(); i++)
-        {
-        //Clr_RhoH_Self(i);
-        Set_IOP_Est_Self(i,m_PFeed);
-        Set_IOP_Est_Flng(i,m_PFeed);
-        }
       break;
     }
+  MdlNode::EvalJoinPressures(JoinMask);
   };
 
 // --------------------------------------------------------------------------

@@ -2166,7 +2166,10 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
     }
 
   if (Dst.IsIO())
+    {
     m_Dst_P = Dst.m_pNd->IOP_Est_Self(Dst.m_iIONo);
+    Dst.m_pNd->Set_IOP_Self(Dst.m_iIONo, Max(LowPressure, m_Dst_P));
+    }
   else
     m_Dst_P = Dst.m_pJoin->m_PB.PEst;
 
