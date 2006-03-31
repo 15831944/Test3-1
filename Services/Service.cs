@@ -119,6 +119,9 @@ namespace SysCAD.Service
           }
           areaCountReader.Close();
 
+          Area rootArea = new Area(filename);
+          graphic.___areas.Add(filename, rootArea);
+
           OleDbDataReader areaReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
           
           int sqrtPages = (int)System.Math.Round(System.Math.Sqrt((double)pages)+0.5);
@@ -141,7 +144,7 @@ namespace SysCAD.Service
               dY += 320.0F;
             }
 
-            graphic.___areas.Add(areaReader.GetString(0), area);
+            rootArea.areas.Add(areaReader.GetString(0), area);
           }
           areaReader.Close();
         }

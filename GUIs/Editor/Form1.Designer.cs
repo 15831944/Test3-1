@@ -262,7 +262,7 @@ namespace SysCAD.Editor
       this.tvNavigation.Margin = new System.Windows.Forms.Padding(2);
       this.tvNavigation.Multiline = false;
       this.tvNavigation.Name = "tvNavigation";
-      this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
+      this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.Multiple;
       this.tvNavigation.Size = new System.Drawing.Size(128, 354);
       nodeStyle1.CheckBoxStyle = checkBoxStyle1;
       nodeStyle1.ExpandBoxStyle = expandBoxStyle1;

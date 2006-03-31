@@ -171,6 +171,101 @@ namespace SysCAD.Editor
         case "Mode.CreateLink":
           this.Mode_CreateLink();
           break;
+
+        case "Edit.Copy":
+          this.Edit_Copy();
+          break;
+
+        case "Edit.Cut":
+          this.Edit_Cut();
+          break;
+
+        case "Edit.Paste":
+          this.Edit_Paste();
+          break;
+      }
+    }
+
+    public Dictionary<string, Link> cbLinks;
+    public Dictionary<string, Item> cbItems;
+    string cbParent;
+
+    private void Edit_Paste()
+    {
+      foreach (Item item in cbItems.Values)
+      {
+        item.Tag += ".";
+        item.X += 10.0F;
+        item.Y += 10.0F;
+        Box modelBox = frmFlowChart.fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+        Box graphicBox = frmFlowChart.fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+        frmFlowChart.bod.newThing(item, modelBox, graphicBox, true, frmFlowChart.fcFlowChart);
+        tvNavigation.Nodes.Add(item.Tag, item.Tag);
+        tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(item.Tag));
+      }
+
+      foreach (Link link in cbLinks.Values)
+      {
+        link.Tag += ".";
+        link.Origin += ".";
+        link.Destination += ".";
+        Arrow arrow = frmFlowChart.fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+        frmFlowChart.bod.newLink(link, arrow, true);
+      }
+    }
+
+    private void Edit_Cut()
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    private void Edit_Copy()
+    {
+      cbItems = new Dictionary<string,Item>();
+      cbLinks = new Dictionary<string,Link>();
+
+      frmFlowChart.fcFlowChart.CopyToClipboard(true);
+
+      foreach (ChartObject chartObject in frmFlowChart.fcFlowChart.Selection.Objects)
+      {
+        if (chartObject is Box)
+        {
+          Box box = chartObject as Box;
+          Item item;
+          if (graphic.items.TryGetValue(box.Text, out item))
+          {
+            Item cbItem = new Item(box.Text);
+            cbItem.X = item.X + 10.0F;
+            cbItem.Y = item.Y + 10.0F;
+            cbItem.Width = item.Width;
+            cbItem.Height = item.Height;
+            cbItem.Angle = item.Angle;
+            cbItem.Model = item.Model;
+            cbItem.Shape = item.Shape;
+            cbItem.MirrorX = item.MirrorX;
+            cbItem.MirrorY = item.MirrorY;
+            cbItem.fillColor = item.fillColor;
+
+            cbItems.Add(box.Text, cbItem);
+          }
+        }
+
+        if (chartObject is Arrow)
+        {
+          Arrow arrow = chartObject as Arrow;
+          Link link;
+          if (graphic.links.TryGetValue(arrow.Text, out link))
+          {
+            Link cbLink = new Link(arrow.Text);
+            cbLink.Tag = link.Tag;
+            cbLink.ClassID = link.ClassID;
+            cbLink.Origin = link.Origin;
+            cbLink.Destination = link.Destination;
+
+            cbLinks.Add(arrow.Text, cbLink);
+          }
+        }
+
       }
     }
 
@@ -336,6 +431,9 @@ namespace SysCAD.Editor
       barManager1.Commands["Mode.Modify"].Enabled = projectExists;
       barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
       barManager1.Commands["Mode.CreateLink"].Enabled = projectExists;
+      barManager1.Commands["Edit.Cut"].Enabled = projectExists;
+      barManager1.Commands["Edit.Copy"].Enabled = projectExists;
+      barManager1.Commands["Edit.Paste"].Enabled = projectExists;
     }
 
     private void File_CloseProject()
@@ -405,12 +503,30 @@ namespace SysCAD.Editor
       {
         PureComponents.TreeView.Node areaNode = tvNavigation.Nodes.Add(area.tag, area.tag);
         areaNode.Tag = area.tag;
-        foreach (string itemKey in area.items.Keys)
-        {
-          Item item = graphic.items[itemKey] as Item;
-          PureComponents.TreeView.Node itemNode = areaNode.Nodes.Add(item.Tag, item.Tag);
-          itemNode.Tag = item.Tag;
-        }
+        areaNode.AllowDrag = true;
+        areaNode.AllowDrop = true;
+        SetArea(areaNode, area);
+      }
+    }
+
+    private void SetArea(PureComponents.TreeView.Node node, Area area)
+    {
+      foreach (string areaKey in area.areas.Keys)
+      {
+        Area subArea = area.areas[areaKey] as Area;
+        PureComponents.TreeView.Node areaNode = node.Nodes.Add(subArea.tag, subArea.tag);
+        areaNode.Tag = subArea.tag;
+        areaNode.AllowDrag = true;
+        areaNode.AllowDrop = true;
+        SetArea(areaNode, subArea);
+      }
+      foreach (string itemKey in area.items.Keys)
+      {
+        Item item = graphic.items[itemKey] as Item;
+        PureComponents.TreeView.Node itemNode = node.Nodes.Add(item.Tag, item.Tag);
+        itemNode.Tag = item.Tag;
+        itemNode.AllowDrag = true;
+        itemNode.AllowDrop = false;
       }
     }
 
@@ -460,54 +576,7 @@ namespace SysCAD.Editor
 
       foreach (string key in graphic.___areas.Keys)
       {
-        PureComponents.TreeView.Node wasNode = (wasSelectedNodes[key] as PureComponents.TreeView.Node);
-        
-        bool wasSelected = false;
-        if (wasNode!=null)
-          wasSelected = true;
-
-        PureComponents.TreeView.Node isNode = tvNavigation.GetNodeByKey(key);
-
-        bool isSelected = isNode.IsSelected;
-
-        if (wasSelected == isSelected)
-        {
-          // Nothings changed at area level, update flowchart with innerNodes selection status.
-          foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
-          {
-            frmFlowChart.bod.ThingVisible(innerNode.Key, innerNode.IsSelected);
-          }
-        }
-        else if (wasSelected && !isSelected)
-        {
-          // Been deselected, deselect all underlings and update flowchart.
-          foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
-          {
-            frmFlowChart.bod.ThingVisible(innerNode.Key, false);
-            tvNavigation.RemoveSelectedNode(innerNode);
-          }
-        }
-        else if (!wasSelected && isSelected)
-        {
-          // Been selected, select all underlings and update flowchart.
-          foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
-          {
-            frmFlowChart.bod.ThingVisible(innerNode.Key, true);
-            tvNavigation.AddSelectedNode(innerNode);
-          }
-        }
-
-        foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
-        {
-          if ((arrow.Destination.Selected) && (arrow.Origin.Selected))
-          {
-            arrow.Selected = true;
-          }
-          else
-          {
-            arrow.Selected = false;
-          }
-        }
+        SelectSubNodes(key);
       }
 
       wasSelectedNodes.Clear();
@@ -525,6 +594,61 @@ namespace SysCAD.Editor
       //frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
       frmFlowChart.ZoomToVisible();
+    }
+
+    private void SelectSubNodes(string key)
+    {
+      PureComponents.TreeView.Node wasNode = (wasSelectedNodes[key] as PureComponents.TreeView.Node);
+
+      bool wasSelected = false;
+      if (wasNode != null)
+        wasSelected = true;
+
+      PureComponents.TreeView.Node isNode = tvNavigation.GetNodeByKey(key);
+
+      bool isSelected = isNode.IsSelected;
+
+      if (wasSelected == isSelected)
+      {
+        // Nothings changed at area level, update flowchart with innerNodes selection status.
+        foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
+        {
+          frmFlowChart.bod.ThingVisible(innerNode.Key, innerNode.IsSelected);
+          SelectSubNodes(innerNode.Key);
+        }
+      }
+      else if (wasSelected && !isSelected)
+      {
+        // Been deselected, deselect all underlings and update flowchart.
+        foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
+        {
+          frmFlowChart.bod.ThingVisible(innerNode.Key, false);
+          tvNavigation.RemoveSelectedNode(innerNode);
+          SelectSubNodes(innerNode.Key);
+        }
+      }
+      else if (!wasSelected && isSelected)
+      {
+        // Been selected, select all underlings and update flowchart.
+        foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
+        {
+          frmFlowChart.bod.ThingVisible(innerNode.Key, true);
+          tvNavigation.AddSelectedNode(innerNode);
+          SelectSubNodes(innerNode.Key);
+        }
+      }
+
+      foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+      {
+        if ((arrow.Destination.Selected) && (arrow.Origin.Selected))
+        {
+          arrow.Selected = true;
+        }
+        else
+        {
+          arrow.Selected = false;
+        }
+      }
     }
 
     private void frmFlowChart_fcFlowChart_SelectionChanged(object sender, EventArgs e)
