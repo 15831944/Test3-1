@@ -35,10 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ActiproSoftware.Shared, Version=1.0.76.0, Culture=neutral, PublicKeyToken=36ff2196ab5654b9" />
-    <Reference Include="ActiproSoftware.UIStudio.Bar, Version=2.0.60.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6" />
-    <Reference Include="ActiproSoftware.UIStudio.Dock, Version=2.0.60.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b" />
-    <Reference Include="ActiproSoftware.WinUICore, Version=1.0.76.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5" />
+    <Reference Include="ActiproSoftware.Shared, Version=1.0.77.0, Culture=neutral, PublicKeyToken=36ff2196ab5654b9" />
+    <Reference Include="ActiproSoftware.UIStudio.Bar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6" />
+    <Reference Include="ActiproSoftware.UIStudio.Dock, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b" />
+    <Reference Include="ActiproSoftware.WinUICore, Version=1.0.77.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5" />
     <Reference Include="PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
