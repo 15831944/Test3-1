@@ -2350,6 +2350,28 @@ void FlwNode::MakeAreaTag()
 
 //--------------------------------------------------------------------------
 
+void FlwNode::SetAreaTag(LPCTSTR Tag)
+  {
+  if (Tag)
+    {
+    m_sAreaTag=Tag;
+    m_sAreaTag.LRTrim();
+    if (m_sAreaTag.GetLength()>0 && m_sAreaTag[0]=='<' && m_sAreaTag[m_sAreaTag.GetLength()-1]=='>')
+      m_sAreaTag="";
+    }
+  }
+
+LPCTSTR FlwNode::GetAreaTagDisp()
+  {
+  if (m_sAreaTag.GetLength()>0)
+    m_sAreaDisp=m_sAreaTag();
+  else
+    m_sAreaDisp.Set("<%s>", gs_DirectFlwIOTagDefault());
+  return m_sAreaDisp();
+  }
+
+//--------------------------------------------------------------------------
+
 void FlwNode::DoGlobalDisconnect()
   {
   FlwNode * p=Parent();
@@ -2546,7 +2568,8 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   CTNode::BuildCommonStartDefn(DDB);
 
   DDB.Text(" ");
-  DDB.String("Location",    "", DC_, "", xidFlwNdRqdArea,  this, isParmStopped);
+  LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";
+  DDB.String(AreaTag,    "", DC_, "", xidFlwNdRqdArea,  this, isParmStopped);
 
   //GetGlblModeValueLst(DDBR, GetPermissableRunModes(SM_All));
   //if (m_DDBSolveModes.Length()>0)
@@ -3144,17 +3167,8 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidFlwNdRqdArea:
       if (DCB.rpC)
-        {
-        m_sAreaTag=DCB.rpC;
-        m_sAreaTag.LRTrim();
-        if (m_sAreaTag.GetLength()>0 && m_sAreaTag[0]=='<' && m_sAreaTag[m_sAreaTag.GetLength()-1]=='>')
-          m_sAreaTag="";
-        }
-      if (m_sAreaTag.GetLength()>0)
-        m_sAreaTmp=m_sAreaTag();
-      else
-        m_sAreaTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
-      DCB.pC=m_sAreaTmp();
+        SetAreaTag(DCB.rpC);
+      DCB.pC=LPTSTR(GetAreaTagDisp());
       return 1;
 #if WITHSPECSHEETS
     case xidSpecSheet:

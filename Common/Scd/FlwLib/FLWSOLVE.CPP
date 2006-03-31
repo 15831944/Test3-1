@@ -10641,16 +10641,17 @@ int CFlwSolver::FE_DoDisConnect(char * SrcTag, char *DstTag)
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID)
+int CFlwSolver::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID)
   {
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
     {
-    if (EqpDesc) p->SetEqpDesc(EqpDesc);
-    if (EqpMemo) p->SetEqpMemo(EqpMemo);
-    if (EqpIdStr) p->SetEqpIdStr(EqpIdStr);
-    if (EqpLocation) p->SetEqpLocation(EqpLocation);
-    if (EqpGUID) p->SetEqpGUID(EqpGUID);
+    p->SetEqpDesc(EqpDesc ? EqpDesc:"");
+    p->SetEqpMemo(EqpMemo ? EqpMemo:"");
+    p->SetEqpIdStr(EqpIdStr ? EqpIdStr:"");
+    p->SetEqpLocation(EqpLocation ? EqpLocation:"");
+    p->SetAreaTag( PlantArea ? PlantArea :"");
+    p->SetEqpGUID(EqpGUID ? EqpGUID:"");
     return 0;
     }
   return NErr_NotFound;
@@ -10658,7 +10659,7 @@ int CFlwSolver::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * 
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID)
+int CFlwSolver::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & PlantArea, Strng & EqpGUID)
   {
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
@@ -10667,6 +10668,7 @@ int CFlwSolver::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng
     EqpMemo  = p->EqpMemo();
     EqpIdStr = p->EqpIdStr();
     EqpLocation = p->EqpLocation();
+    PlantArea = p->GetAreaTagDisp();//.GetLength()>0 ? p->m_sAreaTag():"";
     EqpGUID  = p->EqpGUID();
     return 0;
     }
@@ -13812,6 +13814,7 @@ int CFlwSolver::FE_GetNodeList(CNodeList&List)
     I.m_sEqpMemo    = p->EqpMemo();
     I.m_sEqpIdStr   = p->EqpIdStr();
     I.m_sEqpLocation = p->EqpLocation();
+    I.m_sPlantArea  = p->GetAreaTagDisp(); 
     I.m_sEqpGUID    = p->EqpGUID();
     I.m_lSeqNo      = SeqNo++;
     I.m_bIsLnk      = /*(p->NoProcessIOs()==2) &&*/ (p->IsMLnk() || p->IsCLnk() || p->IsELnk() || p->IsALnk());

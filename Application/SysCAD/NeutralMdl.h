@@ -105,6 +105,7 @@ class CNeutralMdlUnits : public CFileRec
     char          m_sEqpMemo[MdlDBMaxEqpMemoLen];
     char          m_sEqpIdStr[MdlDBMaxEqpIdStrLen];
     char          m_sEqpLocation[MdlDBMaxEqpLocationLen];
+    char          m_sPlantArea[MdlDBMaxEqpLocationLen];
     char          m_sEqpGUID[MdlDBMaxEqpGUIDLen];
   };
 
@@ -129,6 +130,7 @@ class CNeutralMdlLinks : public CFileRec
     char          m_sEqpMemo[MdlDBMaxEqpMemoLen];
     char          m_sEqpIdStr[MdlDBMaxEqpIdStrLen];
     char          m_sEqpLocation[MdlDBMaxEqpLocationLen];
+    char          m_sPlantArea[MdlDBMaxEqpLocationLen];
     char          m_sEqpGUID[MdlDBMaxEqpGUIDLen];
 
     char          m_sSrcTag[MdlDBMaxTagLen];

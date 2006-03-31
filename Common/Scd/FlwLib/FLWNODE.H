@@ -3821,6 +3821,9 @@ class DllImportExport FlwNode : public CTNode
 
     virtual flag   PreStartCheck();
     void           MakeAreaTag();
+    void           SetAreaTag(LPCTSTR Tag);
+    LPCTSTR        GetAreaTagDisp();
+
     virtual void   GlobalConnect();
     virtual void   PostGlobalConnect();
     virtual void   GlobalDisConnect();
@@ -4113,7 +4116,7 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
     Strng          m_sAreaTag;
-    Strng          m_sAreaTmp;
+    Strng          m_sAreaDisp;
     CTODirectPtr<FlwNode> m_pArea;
     CList<FlwNode*, FlwNode*> m_NdsInArea;
     CArray<CDirectFlwIO*, CDirectFlwIO*> m_DirectIOs;

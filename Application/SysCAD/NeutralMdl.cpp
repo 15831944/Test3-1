@@ -156,6 +156,8 @@ void CNeutralMdlUnits::Init()
       strcpy(m_sEqpIdStr, "");
       strcpy(m_sEqpGUID, "");
       }
+    CreateStr("PlantArea", m_sPlantArea, sizeof(m_sPlantArea)-1, FF_None);
+
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
     }
@@ -201,6 +203,8 @@ void CNeutralMdlLinks::Init()
       strcpy(m_sEqpIdStr, "");
       strcpy(m_sEqpGUID, "");
       }
+    CreateStr("PlantArea", m_sPlantArea, sizeof(m_sPlantArea)-1, FF_None);
+
     CreateStr("SrcTag", m_sSrcTag, sizeof(m_sSrcTag)-1, FF_Required);
     CreateStr("SrcPort", m_sSrcIO, sizeof(m_sSrcIO)-1, FF_Required);
     CreateStr("SrcTermStrip", m_sSrcTS, sizeof(m_sSrcTS)-1, FF_None);
@@ -673,6 +677,8 @@ void CNeutralMdlImportExport::WriteUnit(LPCTSTR Group, CNodeListItem & Item)
     strcpy(m_pUn->m_sEqpIdStr, "");
     strcpy(m_pUn->m_sEqpGUID, "");
     }
+  strcpy(m_pUn->m_sPlantArea, Item.m_sPlantArea.GetLength()?Item.m_sPlantArea:"");
+
   //m_pUn->m_lSeqNo=Item.m_lSeqNo;
   m_pUn->Write();
   }
@@ -700,6 +706,7 @@ void CNeutralMdlImportExport::WriteLink(LPCTSTR Group, CNodeListItem & Item)
     strcpy(m_pLk->m_sEqpIdStr, "");
     strcpy(m_pLk->m_sEqpGUID, "");
     }
+  strcpy(m_pLk->m_sPlantArea, Item.m_sPlantArea.GetLength()?Item.m_sPlantArea:"");
 
   strcpy(m_pLk->m_sSrcTag, Item.m_sSrcNd.GetLength()?AdjustTag(Item.m_sSrcNd):"");
   strcpy(m_pLk->m_sDstTag, Item.m_sDstNd.GetLength()?AdjustTag(Item.m_sDstNd):"");
@@ -1029,7 +1036,7 @@ bool CNeutralMdlImportExport::ImportUnits(LPCTSTR Which)
         LogError("ModelNDB", 0/*LF_Exclamation*/, "Unit Insert %s Failed %s", Tg, NErr_String(iRet));
       else
         {
-        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)Tg, m_pUn->m_sEqpDesc, m_pUn->m_sEqpMemo, m_pUn->m_sEqpIdStr, m_pUn->m_sEqpLocation, m_pUn->m_sEqpGUID);
+        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)Tg, m_pUn->m_sEqpDesc, m_pUn->m_sEqpMemo, m_pUn->m_sEqpIdStr, m_pUn->m_sEqpLocation, m_pUn->m_sPlantArea, m_pUn->m_sEqpGUID);
         if (iRet!=0)
           LogError("ModelNDB", 0/*LF_Exclamation*/, "Unit SetCommon %s Failed %s", Tg, NErr_String(iRet));
         }
@@ -1092,7 +1099,7 @@ bool CNeutralMdlImportExport::ImportLinks(LPCTSTR Which)
         LogError("ModelNDB", 0/*LF_Exclamation*/, "Link Insert %s Failed %s", m_pUn->m_sTag, NErr_String(iRet));
       else
         {
-        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sEqpGUID);
+        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sPlantArea, m_pLk->m_sEqpGUID);
         if (iRet!=0)
           LogError("ModelNDB", 0/*LF_Exclamation*/, "Link SetCommon %s Failed %s", LTg, NErr_String(iRet));
         ASSERT(m_pLk);
@@ -1541,7 +1548,7 @@ bool CNeutralMdlImportExport::EnumerateLinkTags(CStringArray &Tags, LPCTSTR Whic
         LogError("ModelNDB", 0/*LF_Exclamation*/, "Link Insert %s Failed %s", m_pUn->m_sTag, NErr_String(iRet));
       else
         {
-        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sEqpGUID);
+        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sPlantArea, m_pLk->m_sEqpGUID);
         if (iRet!=0)
           LogError("ModelNDB", 0/*LF_Exclamation*/, "Link SetCommon %s Failed %s", LTg, NErr_String(iRet));
         ASSERT(m_pLk);

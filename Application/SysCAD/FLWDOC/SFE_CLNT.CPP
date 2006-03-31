@@ -337,16 +337,16 @@ int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
   ILEAVE
   };
 
-int SFEFlwLib::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID)
+int SFEFlwLib::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID)
   {
   IENTER(-1)
-  pSfe->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, EqpGUID);
+  pSfe->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
   ILEAVE
   };
-int SFEFlwLib::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID)
+int SFEFlwLib::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & PlantArea, Strng & EqpGUID)
   {
   IENTER(-1)
-  pSfe->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, EqpGUID);
+  pSfe->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
   ILEAVE
   };
 

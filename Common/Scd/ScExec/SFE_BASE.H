@@ -644,6 +644,7 @@ class CNodeListItem
       m_sEqpMemo            = X.m_sEqpMemo;
       m_sEqpIdStr           = X.m_sEqpIdStr;
       m_sEqpLocation        = X.m_sEqpLocation;
+      m_sPlantArea          = X.m_sPlantArea;
       m_sEqpGUID            = X.m_sEqpGUID;
       m_lSeqNo              = X.m_lSeqNo;
       m_bIsLnk              = X.m_bIsLnk;
@@ -664,6 +665,7 @@ class CNodeListItem
     CString   m_sEqpMemo;
     CString   m_sEqpIdStr;
     CString   m_sEqpLocation;
+    CString   m_sPlantArea;
     CString   m_sEqpGUID;
     long      m_lSeqNo;
     bool      m_bIsLnk;
@@ -1016,8 +1018,8 @@ class DllImportExport CSfeSrvrBase
     virtual int          FE_DoDelete(char * Tag) { return 0; };
     virtual int          FE_DoConnect(char * SrcTag, char *DstTag) { return 0; };
     virtual int          FE_DoDisConnect(char * SrcTag, char *DstTag) { return 0; };
-    virtual int          FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID) { return 0; };
-    virtual int          FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID) { return 0; };
+    virtual int          FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID) { return 0; };
+    virtual int          FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & PlantArea, Strng & EqpGUID) { return 0; };
 //    virtual int          FE_DoSolveNet() { return 0; };
     virtual int          FE_TagOperation(FE_TagOps Act, Strng_List & TagList) { return 0; };
     virtual int          FE_SetHoldGlobalLinks(bool On) { return 0; };

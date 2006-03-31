@@ -148,13 +148,13 @@ int CSfeSrvr::FE_DoDisConnect(char * SrcTag, char *DstTag)
 //  {
 //  return SfeFS->FE_DoSolveNet();
 //  };
-int CSfeSrvr::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID)
+int CSfeSrvr::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID)
   {
-  return SfeFS->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, EqpGUID);
+  return SfeFS->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
   };
-int CSfeSrvr::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID)
+int CSfeSrvr::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & PlantArea, Strng & EqpGUID)
   {
-  return SfeFS->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, EqpGUID);
+  return SfeFS->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
   };
 
 int CSfeSrvr::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)

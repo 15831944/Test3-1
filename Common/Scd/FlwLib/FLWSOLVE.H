@@ -506,8 +506,8 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            FE_DoDelete(char * Tag);
     int            FE_DoConnect(char * SrcTag, char *DstTag);
     int            FE_DoDisConnect(char * SrcTag, char *DstTag);
-    int            FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * EqpGUID);
-    int            FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & EqpGUID);
+    int            FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID);
+    int            FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & PlantArea, Strng & EqpGUID);
 //    int            FE_DoSolveNet();
     int            FE_TagOperation(FE_TagOps Act, Strng_List & TagList);
     int            FE_SetHoldGlobalLinks(bool On);
