@@ -24,7 +24,7 @@
 #endif
 
 
-//XID xidValveConfig        = ModelXID(1);
+XID xidValveDP        = ModelXID(1);
 //XID xidValveModeAct       = ModelXID(2);
 //XID xidValveModeRqd       = ModelXID(3);
 
@@ -72,6 +72,9 @@ void CIsoPRV ::BuildDataDefn(DataDefnBlk & DDB)
 
   //DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
   DDB.Double("PressOutReqd", "POutRqd",  DC_P,    "kPag",   &m_PFeed,  this, isParm|SM_DynBoth);
+  DDB.Text("");
+
+  DDB.Double("PressureDrop", "PDrop",    DC_DP,    "kPa",   xidValveDP,  this, SM_DynBoth);
 
   DDB.Page  ("..");
   //m_FEP.BuildDataDefn(FBDDOpt_WithEqn, DDB, this, NULL);
@@ -93,9 +96,15 @@ flag CIsoPRV::DataXchg(DataChangeBlk & DCB)
   if (m_FEP.DataXchg(DCB))
     return true;
 
-  //switch (DCB.lHandle)
-  //  {
-  //  }
+  switch (DCB.lHandle)
+    {
+    case xidValveDP:
+      if (NoProcessIOs()>1)
+        DCB.D=IOP_Flng(0)-IOP_Flng(1);
+      else
+        DCB.D=dNAN;
+      return 1;
+    }
   return MdlNode::DataXchg(DCB);
   }
 
