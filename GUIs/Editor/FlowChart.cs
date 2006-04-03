@@ -478,7 +478,7 @@ namespace SysCAD.Editor
     {
     }
 
-    private void NewItem(RectangleF rect, Box box)
+    public void NewItem(RectangleF rect, Box box)
     {
       while (bod.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
@@ -486,10 +486,33 @@ namespace SysCAD.Editor
       bod.graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
       newItem.X = rect.X - rect.Width;
       newItem.Y = rect.Y - rect.Height;
-      newItem.Width = rect.Width*2.0F;
-      newItem.Height = rect.Height*2.0F;
+      newItem.Width = rect.Width * 2.0F;
+      newItem.Height = rect.Height * 2.0F;
       newItem.Model = currentModelShape;
       newItem.Shape = currentGraphicShape;
+
+      tvNavigation.Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
+
+      NewGraphicItem(newItem, box, true);
+
+      tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
+    }
+
+    public void NewItem(Item item, Box box)
+    {
+      while (bod.Exists("N_" + tempBoxKey.ToString()))
+        tempBoxKey++;
+      Item newItem = new Item("N_" + tempBoxKey.ToString());
+      bod.graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
+      newItem.X = item.X;
+      newItem.Y = item.Y;
+      newItem.Width = item.Width;
+      newItem.Height = item.Height;
+      newItem.Model = item.Model;
+      newItem.Shape = item.Shape;
+      newItem.MirrorX = item.MirrorX;
+      newItem.MirrorY = item.MirrorY;
+      newItem.fillColor = item.fillColor;
 
       tvNavigation.Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
 
