@@ -224,7 +224,7 @@ namespace SysCAD.Editor
       cbItems = new Dictionary<string,Item>();
       cbLinks = new Dictionary<string,Link>();
 
-      frmFlowChart.fcFlowChart.CopyToClipboard(true);
+      //frmFlowChart.fcFlowChart.CopyToClipboard(true);
 
       foreach (ChartObject chartObject in frmFlowChart.fcFlowChart.Selection.Objects)
       {
@@ -613,8 +613,11 @@ namespace SysCAD.Editor
         // Nothings changed at area level, update flowchart with innerNodes selection status.
         foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
         {
-          frmFlowChart.bod.ThingVisible(innerNode.Key, innerNode.IsSelected);
-          SelectSubNodes(innerNode.Key);
+          if (innerNode.Key != null)
+          {
+            frmFlowChart.bod.ThingVisible(innerNode.Key, innerNode.IsSelected);
+            SelectSubNodes(innerNode.Key);
+          }
         }
       }
       else if (wasSelected && !isSelected)
@@ -622,9 +625,12 @@ namespace SysCAD.Editor
         // Been deselected, deselect all underlings and update flowchart.
         foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
         {
-          frmFlowChart.bod.ThingVisible(innerNode.Key, false);
-          tvNavigation.RemoveSelectedNode(innerNode);
-          SelectSubNodes(innerNode.Key);
+          if (innerNode.Key != null)
+          {
+            frmFlowChart.bod.ThingVisible(innerNode.Key, false);
+            tvNavigation.RemoveSelectedNode(innerNode);
+            SelectSubNodes(innerNode.Key);
+          }
         }
       }
       else if (!wasSelected && isSelected)
@@ -632,9 +638,12 @@ namespace SysCAD.Editor
         // Been selected, select all underlings and update flowchart.
         foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
         {
-          frmFlowChart.bod.ThingVisible(innerNode.Key, true);
-          tvNavigation.AddSelectedNode(innerNode);
-          SelectSubNodes(innerNode.Key);
+          if (innerNode.Key != null)
+          {
+            frmFlowChart.bod.ThingVisible(innerNode.Key, true);
+            tvNavigation.AddSelectedNode(innerNode);
+            SelectSubNodes(innerNode.Key);
+          }
         }
       }
 

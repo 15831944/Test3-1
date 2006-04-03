@@ -70,14 +70,14 @@ namespace SysCAD.Editor
       this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
       this.fcFlowChart.Size = new System.Drawing.Size(853, 460);
       this.fcFlowChart.TabIndex = 0;
-      this.fcFlowChart.ArrowDeleted += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowDeleted);
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
+      this.fcFlowChart.ArrowDeleted += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowDeleted);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
+      this.fcFlowChart.BoxCreated += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxCreated);
       this.fcFlowChart.BoxModifying += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModifying);
       this.fcFlowChart.BoxDeleted += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxDeleted);
       this.fcFlowChart.DrawBox += new MindFusion.FlowChartX.BoxCustomDraw(this.fcFlowChart_DrawBox);
-      this.fcFlowChart.BoxCreated += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxCreated);
       this.fcFlowChart.BoxCreating += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxCreating);
       this.fcFlowChart.ArrowCreated += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowCreated);
       this.fcFlowChart.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModifying);
