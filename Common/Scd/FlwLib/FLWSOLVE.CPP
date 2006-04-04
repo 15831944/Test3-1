@@ -6167,8 +6167,8 @@ void FlwSlvDyn::Construct()
   m_SolutionBlksOk=0;
   StopTime=dNAN;
 
-  m_SSOn=true;
-  m_SSSteady=false;
+  m_SSTest=eSS_Network;
+  m_SSSteady=0;
   m_SSMaxChange=0;
 
   PressDropKFactMult=1.0;
@@ -6325,10 +6325,14 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Byte  ("Momentum",          "", DC_,      "",    &CFlwBlkBase::fMomentumOn,  &FlwSlvNd, isParm, DDBOnOff);
     DDB.Double("KFactMult",         "", DC_Frac,  "",    &PressDropKFactMult, &FlwSlvNd, isParm);
 
+    static DDBValueLst DDBSSTests[]={
+      {eSS_Off,       "Off"},
+      {eSS_Network,   "Network"},
+      {0}};
     DDB.Text  ("");
     DDB.Text  ("SteadyState_Tests");
-    DDB.CheckBox("SS.On",         "", DC_,      "",   &m_SSOn,         &FlwSlvNd, isParm);//, DDBOnOff);
-    DDB.Byte    ("SS.Steady",     "", DC_,      "",   &m_SSSteady,     &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Long    ("SS.Test",       "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
+    DDB.Long    ("SS.Steady",     "", DC_,      "",   &m_SSSteady,     &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.Double  ("SS.MaxChange",  "", DC_Frac,  "%",  &m_SSMaxChange,  &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.String  ("SS.MaxChangeTag", "", DC_,    "",   &m_SSMaxTag,     &FlwSlvNd, isResult);//, DDBOnOff);
 
@@ -8156,9 +8160,9 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     FlwSlvNd.ClearRefCnts();
     }
 
-  m_SSSteady=m_SSOn;
-  m_SSMaxChange=0;
-  m_SSMaxTag="";
+  m_SSSteady    = (m_SSTest ? m_SSSteady+1 : 0);
+  m_SSMaxChange = 0;
+  m_SSMaxTag    = "";
 
   SHOWPROGRESS(1, "Execute 3");
   
@@ -8166,10 +8170,10 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   bool StopRequested=false;
   for ( ;NIters>0 && !StopRequested;NIters--)
     {
-    if (m_SSOn)
+    if (m_SSTest)
       {
       for (FlwNode * p=All.First(); (p); p=All.Next())
-        p->SteadyStateInit();
+        p->SteadyStateInit(m_SSTest);
       }
 
     double MdlMaxTimeInc=1e10;
@@ -8318,12 +8322,12 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       StopRequested=true;
       }
 
-    if (m_SSOn)
+    if (m_SSTest)
       {
       for (p=All.First(); (p); p=All.Next())
         {
-        if (!p->SteadyStateTest(m_SSPressTol, m_SSQmTol, m_SSMaxChange, m_SSMaxTag))
-          m_SSSteady=false;
+        if (!p->SteadyStateTest(m_SSTest, m_SSPressTol, m_SSQmTol, m_SSMaxChange, m_SSMaxTag))
+          m_SSSteady=0;
         }
       }
     }

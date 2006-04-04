@@ -3923,8 +3923,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   EvalPBMakeUpReqd(long JoinMask)   { };
     virtual void   EvalPBMakeUpAvail(long JoinMask)  { };
 
-    virtual void   SteadyStateInit();
-    virtual bool   SteadyStateTest(CToleranceBlock & PTol, CToleranceBlock & QmTol,
+    virtual void   SteadyStateInit(eScdSSTests ssTest);
+    virtual bool   SteadyStateTest(eScdSSTests ssTest, CToleranceBlock & PTol, CToleranceBlock & QmTol,
                    double & MaxError, Strng & MaxTag);
 
     virtual void   ClosureInfo();

@@ -384,8 +384,8 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
 
     double          StopTime;
 
-    flag            m_SSOn;
-    flag            m_SSSteady;
+    eScdSSTests     m_SSTest;
+    long            m_SSSteady;
     double          m_SSMaxChange;
     Strng           m_SSMaxTag;
 

@@ -709,6 +709,18 @@ typedef enum eScdReactionBasis
   } eScdReactionBasis;
 
 //----------------------------------------------  
+[  
+  uuid(C799C772-437D-4602-868F-EBB999E50682),
+  helpstring("eScdSSTests"),
+  v1_enum         
+]
+typedef enum eScdSSTests 
+  {
+  eSS_Off, 
+  eSS_Network 
+  } eScdSSTests;
+
+//----------------------------------------------  
 [
   uuid(DFF12EED-1999-4E30-A0F2-41B3D93246D6),
   version(1.0),
@@ -763,6 +775,8 @@ library ScdIF
   enum eScdFlwEqnTasks;
   enum eScdPropagateNetTasks;
   enum eScdReactionBasis;
+  enum eScdSSTests;
+
 
   //----------------------------------------------  
   [  

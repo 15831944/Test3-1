@@ -7269,7 +7269,7 @@ void FlwNode::BumpMakeUpCnt()
 
 //--------------------------------------------------------------------------
 
-void FlwNode::SteadyStateInit()
+void FlwNode::SteadyStateInit(eScdSSTests ssTest)
   {
   for (int i=0; i<NoFlwIOs(); i++)
     {
@@ -7281,7 +7281,7 @@ void FlwNode::SteadyStateInit()
     }
   };
 
-bool FlwNode::SteadyStateTest(CToleranceBlock & PTol, CToleranceBlock & QmTol,
+bool FlwNode::SteadyStateTest(eScdSSTests ssTest, CToleranceBlock & PTol, CToleranceBlock & QmTol,
                    double & MaxError, Strng & MaxTag)
   {
   double MaxErr=0;
