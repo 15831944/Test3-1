@@ -7997,6 +7997,8 @@ flag FlwSlvDyn::Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
 
   SHOWPROGRESS(1, "DynStart 4");
 
+  m_SSSteady=0;
+
   if (PreStartCheckAll())
     {
 
