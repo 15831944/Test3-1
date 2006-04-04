@@ -121,6 +121,8 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(new RectangleF(minX - width * 0.05F, minY - height * 0.05F, width * 1.1F, height * 1.1F));
       else
         fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
+
+      fcFlowChart.Invalidate();
     }
 
     public void FixDocExtents()
@@ -276,6 +278,7 @@ namespace SysCAD.Editor
             savedDestinationAnchor = e.Arrow.DestAnchor;
           }
         }
+        e.Arrow.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
       }
     }
 

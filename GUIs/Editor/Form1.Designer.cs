@@ -282,6 +282,7 @@ namespace SysCAD.Editor
       this.tvNavigation.NodeDragDrop += new PureComponents.TreeView.TreeView.NodeDragDropEventHandler(this.tvNavigation_NodeDragDrop);
       this.tvNavigation.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler(this.tvNavigation_QueryContinueDrag);
       this.tvNavigation.DragLeave += new System.EventHandler(this.tvNavigation_DragLeave);
+      this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
       this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
       this.tvNavigation.DragOver += new System.Windows.Forms.DragEventHandler(this.tvNavigation_DragOver);
       // 

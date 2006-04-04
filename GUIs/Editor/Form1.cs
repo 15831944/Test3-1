@@ -1154,5 +1154,16 @@ namespace SysCAD.Editor
     {
 
     }
+
+    private void tvNavigation_NodeMouseClick(EventArgs e, PureComponents.TreeView.Node oNode)
+    {
+      MouseEventArgs me = e as MouseEventArgs;
+      Keys keys = Control.ModifierKeys;
+      if (keys == Keys.None)
+      {
+        tvNavigation.ClearNodeSelection();
+        oNode.Select();
+      }
+    }
   }
 }
