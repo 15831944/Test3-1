@@ -6325,22 +6325,6 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Byte  ("Momentum",          "", DC_,      "",    &CFlwBlkBase::fMomentumOn,  &FlwSlvNd, isParm, DDBOnOff);
     DDB.Double("KFactMult",         "", DC_Frac,  "",    &PressDropKFactMult, &FlwSlvNd, isParm);
 
-    static DDBValueLst DDBSSTests[]={
-      {eSS_Off,       "Off"},
-      {eSS_Network,   "Network"},
-      {0}};
-    DDB.Text  ("");
-    DDB.Text  ("SteadyState_Tests");
-    DDB.Long    ("SS.Test",       "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
-    DDB.Long    ("SS.Steady",     "", DC_,      "",   &m_SSSteady,     &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.Double  ("SS.MaxChange",  "", DC_Frac,  "%",  &m_SSMaxChange,  &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.String  ("SS.MaxChangeTag", "", DC_,    "",   &m_SSMaxTag,     &FlwSlvNd, isResult);//, DDBOnOff);
-
-    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
-    m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
-    m_SSQmTol.GetAbsDD().BuildDataDefn(DDB,     "SS.Qm.Abs",  "", DC_Qm,    "kg/s",   xidSSQmTolAbs,  &FlwSlvNd, "Def", "Ovr");
-    m_SSQmTol.GetRelDD().BuildDataDefn(DDB,     "SS.Qm.Rel",  "", DC_Frac,  "%",      xidSSQmTolRel,  &FlwSlvNd, "Def", "Ovr");
-
     DDB.Page  ("Tears", DDB_RqdPage);
     DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
     DDB.Double("Tear_EPS_Abs",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm);
@@ -6390,6 +6374,25 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBoxBtn("SetHistorianTagList", "", DC_, "",  xidAtStartSetHistTags,   &FlwSlvNd, isParm, DDBOnOff);
     DDB.CheckBoxBtn("ResetTime",    "", DC_,       "",   xidAtStartResetTime,     &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm, DDBOnOff);
     DDB.String("TimeAtStart",       "", DC_,       "",   xidAtStartTime,          &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm);
+
+
+    DDB.Page  ("SS Monitor", DDB_RqdPage);
+    static DDBValueLst DDBSSTests[]={
+      {eSS_Off,       "Off"},
+      {eSS_Network,   "Network"},
+      {0}};
+    DDB.Text  ("");
+    DDB.Text  ("SteadyState_Tests");
+    DDB.Long    ("SS.Test",       "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
+    DDB.Long    ("SS.Steady",     "", DC_,      "",   &m_SSSteady,     &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Double  ("SS.MaxChange",  "", DC_Frac,  "%",  &m_SSMaxChange,  &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.String  ("SS.MaxChangeTag", "", DC_,    "",   &m_SSMaxTag,     &FlwSlvNd, isResult);//, DDBOnOff);
+
+    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
+    m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
+    m_SSQmTol.GetAbsDD().BuildDataDefn(DDB,     "SS.Qm.Abs",  "", DC_Qm,    "kg/s",   xidSSQmTolAbs,  &FlwSlvNd, "Def", "Ovr");
+    m_SSQmTol.GetRelDD().BuildDataDefn(DDB,     "SS.Qm.Rel",  "", DC_Frac,  "%",      xidSSQmTolRel,  &FlwSlvNd, "Def", "Ovr");
+
     }
   DDB.EndStruct();
   }
