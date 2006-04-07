@@ -50,9 +50,9 @@
 #define WITHXMENUS            1
 #define WITHCHANGEOBJ         0
 #define WITHGRFDOCFRAME       1
-#define WITHGRFGROUP          0
+#define WITHGRFGROUP          1
 #define WITHAUTOVLE           1
-#define WITHRCTEDITDLG        0
+#define WITHRCTEDITDLG        1
 #define WITHDOUBLEGSMODEL     1
 #define WITHSURGECTRLDOUBLE   1
 
