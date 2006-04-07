@@ -6169,7 +6169,9 @@ void FlwSlvDyn::Construct()
 
   m_SSTest=eSS_Network;
   m_SSStopCount=3;
+  m_SSMaxIters=100;
   m_SSSteady=0;
+  m_SSIters=0;
   m_SSMaxChange=0;
 
   PressDropKFactMult=1.0;
@@ -6386,6 +6388,8 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text  ("SteadyState_Tests");
     DDB.Long    ("SS.Test",         "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
     DDB.Long    ("SS.StopCount",    "", DC_,      "",   &m_SSStopCount,         &FlwSlvNd, isParm);//, DDBOnOff);
+    DDB.Long    ("SS.MaxIters",     "", DC_,      "",   &m_SSMaxIters,          &FlwSlvNd, isParm);//, DDBOnOff);
+    DDB.Long    ("SS.Iteration",    "", DC_,      "",   &m_SSIters,             &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.Long    ("SS.Steady",       "", DC_,      "",   &m_SSSteady,            &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.Double  ("SS.MaxChange",    "", DC_Frac,  "%",  &m_SSMaxChange,         &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.String  ("SS.MaxChangeTag", "", DC_,      "",   &m_SSMaxTag,            &FlwSlvNd, isResult);//, DDBOnOff);
@@ -8003,6 +8007,7 @@ flag FlwSlvDyn::Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
   SHOWPROGRESS(1, "DynStart 4");
 
   m_SSSteady=0;
+  m_SSIters=0;
 
   if (PreStartCheckAll())
     {
@@ -8167,7 +8172,16 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     FlwSlvNd.ClearRefCnts();
     }
 
-  m_SSSteady    = (m_SSTest ? m_SSSteady+1 : 0);
+  if (m_SSTest)
+    {
+    m_SSSteady++;
+    m_SSIters++;
+    }
+  else
+    {
+    m_SSSteady    = 0;
+    m_SSIters     = 0;
+    }
   m_SSMaxChange = 0;
   m_SSMaxTag    = "";
 
@@ -8326,11 +8340,20 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       FlwNode::ExecObj()->XStop();
       StopRequested=true;
       }
-    else if ((SteadyReqdFlag() || (CB.m_iRunTerm==RTRM_SteadyState)) && m_SSSteady>=m_SSStopCount)
+    else if (SteadyReqdFlag() || (CB.m_iRunTerm==RTRM_SteadyState))
       {
-      LogNote("Solver", 0, "Stopping : Reached Steady State");
-      FlwNode::ExecObj()->XStop();
-      StopRequested=true;
+      if (m_SSSteady>=m_SSStopCount)
+        {
+        LogNote("Solver", 0, "Stopping : Reached Steady State");
+        FlwNode::ExecObj()->XStop();
+        StopRequested=true;
+        }
+      else if (m_SSIters>=m_SSMaxIters)
+        {
+        LogWarning("Solver", 0, "Stopping : Reached Max Iterations");
+        FlwNode::ExecObj()->XStop();
+        StopRequested=true;
+        }
       }
     else if (CB.m_iRunTerm==RTRM_ForIters && CB.m_nSteps>=CB.m_nMaxSteps)
       {
