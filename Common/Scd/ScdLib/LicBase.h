@@ -273,7 +273,7 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL IsRunTime()         { return !pSecOpt->Opts.Func_FullEdit; };
     inline BOOL AllowVer90()        { return pSecOpt->Opts.Ver90 && !bBlocked; };
     inline BOOL AllowMdlsRTTS()     { return pSecOpt->Opts.Client_RTTS && !bBlocked; };
-    inline BOOL AllowMdlsMineServe(){ return pSecOpt->Opts.Client_MineServe && !bBlocked; };
+    inline BOOL AllowMdlsMineServe(){ return 1; };//TEMP CNM pSecOpt->Opts.Client_MineServe && !bBlocked; };
     inline BOOL AllowMdlsAlcan()    { return pSecOpt->Opts.Client_Alcan && !bBlocked; };
     inline BOOL AllowMdlsQALExtra() { return pSecOpt->Opts.Client_QALExtra && !bBlocked; };
     inline BOOL AllowMdlsQAL()      { return pSecOpt->Opts.Client_QAL && !bBlocked; };
