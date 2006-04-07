@@ -215,6 +215,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_ACTIONS_RUNPB, OnUpdateActionsRunPB)
   ON_COMMAND(ID_ACTIONS_RUNDYN, OnActionsRunDyn)
   ON_UPDATE_COMMAND_UI(ID_ACTIONS_RUNDYN, OnUpdateActionsRunDyn)
+  ON_COMMAND(ID_ACTIONS_RUN_STEADY, OnActionsRunSteady)
+  ON_UPDATE_COMMAND_UI(ID_ACTIONS_RUN_STEADY, OnUpdateActionsRunSteady)
   ON_COMMAND(ID_ACTIONS_IDLE, OnActionsIdle)
   ON_UPDATE_COMMAND_UI(ID_ACTIONS_IDLE, OnUpdateActionsIdle)
   ON_COMMAND(ID_ACTIONS_STEP, OnActionsStep)
@@ -2493,6 +2495,7 @@ static UINT BASED_CODE ToolbarIds[] =
   ID_GRF_InsertGroup,
   ID_GRF_CreateGroup,
   ID_VIEW_EXPLORER,
+  ID_ACTIONS_RUN_STEADY
   };
 
 static UINT BASED_CODE GrfSymbsIds[] =
@@ -2568,6 +2571,7 @@ static UINT BASED_CODE UnknownModeToolBarIds[] = //project loaded
   ID_ACTIONS_RUN_TGL,
 #endif
   ID_ACTIONS_STEP,
+  ID_ACTIONS_RUN_STEADY,
   ID_ACTIONS_SETUP,
   };
 
@@ -3856,7 +3860,8 @@ void CMainFrame::OnActionsRun()
   if (dbgActions())
     dbgpln("------ACT------> OnActionsRun");
 #endif
-  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current);
+  
+  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current, -1);
   }
 
 void CMainFrame::OnUpdateActionsRun(CCmdUI* pCmdUI)
@@ -3864,6 +3869,26 @@ void CMainFrame::OnUpdateActionsRun(CCmdUI* pCmdUI)
   //pCmdUI->SetCheck(gs_TheRunMngr.RunningDsp() ? 1 : 0);
   pCmdUI->Enable(EnableNotStopped() && !gs_TheRunMngr.RunningDsp() && !gs_License.Blocked());
   }
+
+//---------------------------------------------------------------------------
+
+void CMainFrame::OnActionsRunSteady()
+  {
+#if dbgMainframe
+  if (dbgActions())
+    dbgpln("------ACT------> OnActionsRun");
+#endif
+  gs_pPrj->CheckLicense(TRUE);
+  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current, 1);
+  }
+
+void CMainFrame::OnUpdateActionsRunSteady(CCmdUI* pCmdUI)
+  {
+  //pCmdUI->SetCheck(gs_TheRunMngr.RunningDsp() ? 1 : 0);
+  pCmdUI->Enable(EnableNotStopped() && !gs_TheRunMngr.RunningDsp() && !gs_License.Blocked());
+  }
+
+//---------------------------------------------------------------------------
 
 void CMainFrame::OnActionsRunPB()
   {
@@ -3874,7 +3899,7 @@ void CMainFrame::OnActionsRunPB()
   CMsgWindow::SetMsgsIncludeFlag(false);
   //LogSeparator("Set ProBal Mode", 0);
   gs_pPrj->CheckLicense(TRUE);
-  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_PBMd);
+  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_PBMd, -1);
   }
 
 void CMainFrame::OnUpdateActionsRunPB(CCmdUI* pCmdUI)
@@ -3892,7 +3917,7 @@ void CMainFrame::OnActionsRunDyn()
   CMsgWindow::SetMsgsIncludeFlag(false);
   //LogSeparator("Set Dynamic Mode",0);
   gs_pPrj->CheckLicense(TRUE);
-  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_DynMd);
+  gs_TheRunMngr.GotoRunMode(CExecutive::RRM_DynMd, -1);
   }
 
 void CMainFrame::OnUpdateActionsRunDyn(CCmdUI* pCmdUI)
@@ -3908,7 +3933,7 @@ void CMainFrame::OnActionsRunTgl()
     dbgpln("------ACT------> OnActionsRunTgl");
 #endif
   if (gs_TheRunMngr.IdlingDsp() || gs_TheRunMngr.Stopped())
-    gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current);
+    gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current, gs_TheRunMngr.Stopped() ? -1:1);
   else
     gs_TheRunMngr.GotoIdleMode();
   }

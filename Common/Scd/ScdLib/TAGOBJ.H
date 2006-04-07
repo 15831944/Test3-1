@@ -405,7 +405,7 @@ const DWORD TOC_USER         = 0x00000800; //custom/client models (eg Argyle, Cl
 const DWORD TOC_MDL_UNUSED4  = 0x00001000; //
 const DWORD TOC_MDL_UNUSED3  = 0x00002000; //
 const DWORD TOC_MDL_UNUSED2  = 0x00004000; //
-const DWORD TOC_MDL_UNUSED1  = 0x00008000; //
+const DWORD TOC_MINESERVE    = 0x00008000; //
 const DWORD TOC_RTTS         = 0x00010000; //Rio Tinto Technical Services owned models
 const DWORD TOC_ALCAN        = 0x00020000; //Alcan/Nabalco owned models
 const DWORD TOC_QALEXTRA     = 0x00040000; //additional QAL owned models
@@ -988,6 +988,9 @@ class DllImportExport TaggedObject : public ConditionBlk
     long            NetMethod(); // this needs to be worked on to allow probal and dyn flwsheets to be mixed.
     flag            NetProbalMethod()       { return NetMethod() == NM_Probal; };
     flag            NetDynamicMethod()      { return NetMethod() == NM_Dynamic; };
+    
+    static void     SetSteadyReqdFlag(flag On) { if (On) gs_RunMds |= NM_DynamicSS; else gs_RunMds &= ~NM_DynamicSS; }
+    static flag     SteadyReqdFlag()        { return (gs_RunMds & NM_DynamicSS)!=0; };
 
     long            SolveMethod();
     flag            SolveDirectMethod()     { return SolveMethod() == SM_Direct; };

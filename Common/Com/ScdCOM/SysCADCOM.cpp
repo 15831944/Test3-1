@@ -256,6 +256,7 @@ void CSysCADCmd::DoEventMsg(UINT e, LPARAM l)
       case ComCmd_Step:
       case ComCmd_Stop: 
       case ComCmd_Idle: 
+      case ComCmd_RunToSteadyState: 
         ReportError("Unexpected DoEventMsg", e);
         break;
       case ComCmd_Exit:

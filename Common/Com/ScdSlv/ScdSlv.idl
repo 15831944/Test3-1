@@ -418,6 +418,7 @@ library ScdSlv
     [id(8), helpstring("method Step")] HRESULT Step([in, defaultvalue(0)] long IterMark, [in, defaultvalue(0.0)] double WaitForNext);
     [id(9), helpstring("method Stop")] HRESULT Stop();
     [id(10), helpstring("method Idle")] HRESULT Idle();
+    [id(11), helpstring("method RunToSteadyState")] HRESULT RunToSteadyState();
   };
   //----------------------------------------------
   //[

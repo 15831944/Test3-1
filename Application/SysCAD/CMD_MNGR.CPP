@@ -93,6 +93,7 @@ struct tCmdNameList { DWORD Cmd; LPCTSTR Name; } CmdNameList[] =
     {ComCmd_Step,                         "Step"                        },
     {ComCmd_Stop,                         "Stop"                        },
     {ComCmd_Idle,                         "Idle"                        },
+    {ComCmd_RunToSteadyState,             "RunToSteadyState"            },
     {ComCmd_Wait,                         "Wait"                        },
     {ComCmd_WaitCount,                    "WaitCount"                   },
     {ComCmd_WaitTillSteadyState,          "WaitTillSteadyState"         },
@@ -1067,6 +1068,8 @@ int CCmdExec::AddCmd(char* Txt)
     AddCmd(new CCmdSaveScenario(StrQuotesTrim(f[1])));
   else if (stricmp(f[0], CmdNames(ComCmd_StartDynamicSolve))==0 && nParms==0)
     AddCmd(new CCmdSolveDyn(ComCmd_StartDynamicSolve, ComState_StepDynamic, ID_ACTIONS_RUNDYN, /*CmdFlagStopIdle |*/ CmdFlagDoNotExecNext));
+  else if (stricmp(f[0], CmdNames(ComCmd_RunToSteadyState))==0 && nParms==0)
+    AddCmd(new CCmdSolveDyn(ComCmd_RunToSteadyState, ComState_StepDynamic, ID_ACTIONS_RUN_STEADY, /*CmdFlagStopIdle |*/ CmdFlagDoNotExecNext));
   else if (stricmp(f[0], CmdNames(ComCmd_StartProbalSolve))==0 && nParms==0)
     AddCmd(new CCmdSolvePB(ComCmd_StartProbalSolve, ComState_StepProbal, ID_ACTIONS_RUNPB, /*CmdFlagStopIdle |*/ CmdFlagDoNotExecNext));
   //else if (stricmp(f[0], CmdNames(ComCmd_Start))==0 && nParms==0)
@@ -1963,13 +1966,16 @@ if (dbgDoComCmd())
       break;
       }
     case ComCmd_StartDynamicSolve:
-      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_DynMd);
+      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_DynMd, -1);
+      break;
+    case ComCmd_RunToSteadyState:
+      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_DynMd, 1);
       break;
     case ComCmd_StartProbalSolve :
-      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_PBMd);
+      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_PBMd, -1);
       break;
     case ComCmd_Start:
-      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current);
+      gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current, -1);
       break;
     case ComCmd_Step:
       CDoOneStepInfo Info;
@@ -2181,6 +2187,7 @@ LRESULT CCmdExec::DoCOMEvt(WPARAM wParam, LPARAM lParam)
     case ComCmd_Step:
     case ComCmd_Stop :
     case ComCmd_Idle :
+    case ComCmd_RunToSteadyState :
       DoBreak(); // These are not expected
       break;
     //case ComCmd_Exit : break;

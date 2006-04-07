@@ -6168,6 +6168,7 @@ void FlwSlvDyn::Construct()
   StopTime=dNAN;
 
   m_SSTest=eSS_Network;
+  m_SSStopCount=3;
   m_SSSteady=0;
   m_SSMaxChange=0;
 
@@ -6383,10 +6384,11 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       {0}};
     DDB.Text  ("");
     DDB.Text  ("SteadyState_Tests");
-    DDB.Long    ("SS.Test",       "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
-    DDB.Long    ("SS.Steady",     "", DC_,      "",   &m_SSSteady,     &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.Double  ("SS.MaxChange",  "", DC_Frac,  "%",  &m_SSMaxChange,  &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.String  ("SS.MaxChangeTag", "", DC_,    "",   &m_SSMaxTag,     &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Long    ("SS.Test",         "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
+    DDB.Long    ("SS.StopCount",    "", DC_,      "",   &m_SSStopCount,         &FlwSlvNd, isParm);//, DDBOnOff);
+    DDB.Long    ("SS.Steady",       "", DC_,      "",   &m_SSSteady,            &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Double  ("SS.MaxChange",    "", DC_Frac,  "%",  &m_SSMaxChange,         &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.String  ("SS.MaxChangeTag", "", DC_,      "",   &m_SSMaxTag,            &FlwSlvNd, isResult);//, DDBOnOff);
 
     m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
     m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
@@ -8300,6 +8302,15 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     if (DoClosureTests)
       TestClosure(ProcTOSequence);
 
+    if (m_SSTest)
+      {
+      for (p=All.First(); (p); p=All.Next())
+        {
+        if (!p->SteadyStateTest(m_SSTest, m_SSPressTol, m_SSQmTol, m_SSMaxChange, m_SSMaxTag))
+          m_SSSteady=0;
+        }
+      }
+
     SHOWPROGRESS(1, "Execute I");
     if (DynStats.bStopRqd)
       {
@@ -8308,13 +8319,14 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       StopRequested=true;
       }
 
+
     if (this->FlwSlvNd.fStopOnError && FlwNets.StopReqd())
       {
       LogError("Solver", LF_Hand, "Stopping : Errors Exist");
       FlwNode::ExecObj()->XStop();
       StopRequested=true;
       }
-    else if (CB.m_iRunTerm==RTRM_SteadyState && FlowsSteady())
+    else if ((SteadyReqdFlag() || (CB.m_iRunTerm==RTRM_SteadyState)) && m_SSSteady>=m_SSStopCount)
       {
       LogNote("Solver", 0, "Stopping : Reached Steady State");
       FlwNode::ExecObj()->XStop();
@@ -8327,14 +8339,6 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       StopRequested=true;
       }
 
-    if (m_SSTest)
-      {
-      for (p=All.First(); (p); p=All.Next())
-        {
-        if (!p->SteadyStateTest(m_SSTest, m_SSPressTol, m_SSQmTol, m_SSMaxChange, m_SSMaxTag))
-          m_SSSteady=0;
-        }
-      }
     }
   MYASSERT(_CrtCheckMemory());
 
@@ -9931,7 +9935,7 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidExecStateDesc: DCB.pC=gs_Exec.StateDesc(); return 1;
     case xidExecStart:
       if (DCB.rB && (*DCB.rB!=0))
-        gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current);
+        gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current, -1);
         //AfxGetMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_START, (LPARAM)0);
       DCB.B=0;
       return 1;

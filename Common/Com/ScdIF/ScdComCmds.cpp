@@ -53,6 +53,7 @@ LPCTSTR ScdCOMCmd2Str(long Cmd)
     case ComCmd_Step                          : return "ComCmd_Step";
     case ComCmd_Stop                          : return "ComCmd_Stop";
     case ComCmd_Idle                          : return "ComCmd_Idle";
+    case ComCmd_RunToSteadyState              : return "ComCmd_RunToSteadyState";
     case ComCmd_Wait                          : return "ComCmd_Wait";
     case ComCmd_WaitCount                     : return "ComCmd_WaitCount";
     case ComCmd_WaitTillSteadyState           : return "ComCmd_WaitTillSteadyState";

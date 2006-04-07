@@ -59,10 +59,10 @@ class DllImportExport CMdlRunManager //: CBaseRunManager
     flag Running(); 
     flag IdlingDsp(); 
     flag RunningDsp(); 
-
+    
     void GotoEditMode();
     void GotoIdleMode();
-    void GotoRunMode(CExecutive::RqdRunMode Md);
+    void GotoRunMode(CExecutive::RqdRunMode Md, int SSAction);
     void DoStep(CDoOneStepInfo Info);
 
     void SetProbalMode();

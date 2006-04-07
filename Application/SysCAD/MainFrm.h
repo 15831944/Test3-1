@@ -248,6 +248,8 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
 	  afx_msg void OnUpdateActionsEdit(CCmdUI* pCmdUI);
 	  afx_msg void OnActionsRun();
 	  afx_msg void OnUpdateActionsRun(CCmdUI* pCmdUI);
+	  afx_msg void OnActionsRunSteady();
+	  afx_msg void OnUpdateActionsRunSteady(CCmdUI* pCmdUI);
 	  afx_msg void OnActionsEditTgl();
 	  afx_msg void OnUpdateActionsEditTgl(CCmdUI* pCmdUI);
 	  afx_msg void OnActionsRunTgl();

@@ -2043,6 +2043,18 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         }
       else
         {//prestart
+        int SSA= (lParam>>16)&0xffff;
+        RqdRunMode RRM=(RqdRunMode )(lParam&0xffff);
+
+        flag SS=TaggedObject::SteadyReqdFlag();
+        switch (SSA)
+          {
+          case -1:  SS=false; break;
+          case 1:   SS=true;  break;
+          case 0:             break;
+          }
+        TaggedObject::SetSteadyReqdFlag(SS);
+
         switch ((RqdRunMode)lParam)
           {
           case RRM_PBMd :
@@ -2876,6 +2888,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       bStopReqd=false;
       bStepReqd=false;
+      TaggedObject::SetSteadyReqdFlag(false);
+
       //bHoldAdv =false;
 
       //wState|=EXF_Stopped;
@@ -3917,9 +3931,9 @@ void CExecutive::GotoEditMode()
   SetStopSleep();
   }
 
-void CExecutive::GotoRunMode(RqdRunMode Md)
+void CExecutive::GotoRunMode(RqdRunMode Md, int Action)
   {
-  PostCmd(0, EXM_GOTORUN/*EXM_START*/, (LONG)Md);
+  PostCmd(0, EXM_GOTORUN/*EXM_START*/, (LONG)((Md)|(Action<<16)));
   SetStopSleep();
   }
 

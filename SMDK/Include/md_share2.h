@@ -29,6 +29,7 @@ const long MODEVISIBLE     = 0x00000080;
 // Network solution modes
 const long NM_Probal       = eScdNet_Probal;
 const long NM_Dynamic      = eScdNet_Dynamic;
+const long NM_DynamicSS    = eScdNet_DynamicSS;
   
 // Link Flw Modes
 const long LFM_Xfer         = eScdFlow_Xfer;   

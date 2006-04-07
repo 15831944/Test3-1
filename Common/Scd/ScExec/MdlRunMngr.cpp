@@ -77,7 +77,7 @@ void CMdlRunManager::GotoEditMode()
   if (m_pAppMngr)
     m_pAppMngr->GotoEditMode(1);
   }
-void CMdlRunManager::GotoRunMode(CExecutive::RqdRunMode Md)
+void CMdlRunManager::GotoRunMode(CExecutive::RqdRunMode Md, int SSAction)
   {
   #if dbgMdlRunMngr
 	if (dbgActions())
@@ -110,7 +110,7 @@ void CMdlRunManager::GotoRunMode(CExecutive::RqdRunMode Md)
   if (m_pAppMngr)
     m_pAppMngr->GotoRunMode(0, Md);
   //gs_pPrj->CheckLicense(TRUE);
-  XGotoRunMode(Md);
+  XGotoRunMode(Md, SSAction);
   if (m_pAppMngr)
     m_pAppMngr->GotoRunMode(1, Md);
   }

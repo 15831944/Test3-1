@@ -797,6 +797,7 @@ typedef enum eScdMode
                                                            
   eScdNet_Probal            = 0x00000100,                                  
   eScdNet_Dynamic           = 0x00000200,
+  eScdNet_DynamicSS         = 0x00000400,
   
   eScdFlow_Xfer             = 0x00001000,
   eScdFlow_Simple           = 0x00002000,

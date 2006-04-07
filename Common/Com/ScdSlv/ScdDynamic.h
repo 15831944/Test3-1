@@ -60,6 +60,7 @@ DECLARE_SCD(long);
 
 // IScdDynamic
 public:
+  STDMETHOD(RunToSteadyState)();
 	STDMETHOD(Idle)();
 	STDMETHOD(Stop)();
 	STDMETHOD(Step)(/*[in, defaultvalue(0)]*/ long IterMark, /*[in, defaultvalue(0.0)]*/ double WaitForNext);

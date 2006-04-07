@@ -185,3 +185,21 @@ STDMETHODIMP CScdDynamic::Idle()
     }
   SCD_COMEXIT
   };
+
+STDMETHODIMP CScdDynamic::RunToSteadyState()
+  {
+  dllSCD_COMENTRY(long)
+    {
+    long  Evts[]={ComState_Stop, ComState_StepDynamic}; 
+    switch (PostComCmd(ComCmd_RunToSteadyState, Evts, sizeof(Evts)/sizeof(Evts[0]), 0))//(long)Info.lParam))
+      {                                                             
+      case CScdCOCmdBase::SS_CallTimeout:                                         
+        Scd.Return(HRESULT_ERR(2), "Async Call Timeout");
+        break;
+      case CScdCOCmdBase::SS_CallReturned:                                        
+      case CScdCOCmdBase::SS_CallASync:                                           
+        break;                                                
+      }                                                             
+    }
+  SCD_COMEXIT
+  };

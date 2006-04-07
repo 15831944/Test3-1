@@ -1194,7 +1194,7 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           TestRunning();
 
     void           GotoEditMode();
-    void           GotoRunMode(RqdRunMode Md);
+    void           GotoRunMode(RqdRunMode Md, int Action);
     void           GotoIdleMode();
     void           DoOneStep(CDoOneStepInfo Info);
     void           SetSolveTool(SolveToolBase * SolveTool);
@@ -1361,7 +1361,7 @@ inline flag XFiling()             { return gs_Exec.Filing();       };
 inline flag XDoingPB()            { return gs_Exec.DoingPB();      };
 
 inline void XGotoEditMode()       { gs_Exec.GotoEditMode();        };
-inline void XGotoRunMode(CExecutive::RqdRunMode Md) { gs_Exec.GotoRunMode(Md); };
+inline void XGotoRunMode(CExecutive::RqdRunMode Md, int Action) { gs_Exec.GotoRunMode(Md, Action); };
 inline void XGotoIdleMode()       { gs_Exec.GotoIdleMode();        };
 inline void XDoOneStep(CDoOneStepInfo Info) { gs_Exec.DoOneStep(Info); };
 inline void XSetSolveTool(SolveToolBase * SolveTool) { gs_Exec.SetSolveTool(SolveTool); };

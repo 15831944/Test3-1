@@ -357,7 +357,7 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     flag           Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
     flag           Stop(const CXM_TimeControl &CB);
     flag           PartialStop();
-    flag           FlowsSteady() {return False;};
+    //flag           FlowsSteady() {return ;};
 
     void           DumpRunStats(flag Total);
     void           DumpNdStats(int What);
@@ -385,6 +385,7 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     double          StopTime;
 
     eScdSSTests     m_SSTest;
+    long            m_SSStopCount;
     long            m_SSSteady;
     double          m_SSMaxChange;
     Strng           m_SSMaxTag;

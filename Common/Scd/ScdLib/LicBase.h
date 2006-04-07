@@ -223,7 +223,7 @@ typedef struct
         Mdls_SizeDist    : 1,  //22 allow Kenwalt size-distribution/communition models
         Old_Dynamic      : 1,  //23 unused (was dynamic solver mode for Version 8.0 & 8.1)
         Old_Probal       : 1,  //24 unused (was probal solver mode for Version 8.0 & 8.1)
-        Client_Spare     : 1,  //25 
+        Client_MineServe : 1,  //25 GMSI MineServe Mdls
         Client_Alcan     : 1,  //26 allow Alcan owned models
         Client_RTTS      : 1,  //27 allow Rio Tinto Technical Services owned models
         Old_Dynamic82    : 1,  //28 keep 0 (was dynamic solver mode for Version 8.2)
@@ -273,6 +273,7 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL IsRunTime()         { return !pSecOpt->Opts.Func_FullEdit; };
     inline BOOL AllowVer90()        { return pSecOpt->Opts.Ver90 && !bBlocked; };
     inline BOOL AllowMdlsRTTS()     { return pSecOpt->Opts.Client_RTTS && !bBlocked; };
+    inline BOOL AllowMdlsMineServe(){ return pSecOpt->Opts.Client_MineServe && !bBlocked; };
     inline BOOL AllowMdlsAlcan()    { return pSecOpt->Opts.Client_Alcan && !bBlocked; };
     inline BOOL AllowMdlsQALExtra() { return pSecOpt->Opts.Client_QALExtra && !bBlocked; };
     inline BOOL AllowMdlsQAL()      { return pSecOpt->Opts.Client_QAL && !bBlocked; };
@@ -325,6 +326,7 @@ class DllImportExport CSysCADLicense : public CLicense
 
     inline BOOL IsRunTime()         { return 0; };
     inline BOOL AllowMdlsRTTS()     { return 1; };
+    inline BOOL AllowMdlsMineServe(){ return 1; };
     inline BOOL AllowMdlsAlcan()    { return 1; };
     inline BOOL AllowMdlsQALExtra() { return 1; };
     inline BOOL AllowMdlsQAL()      { return 1; };

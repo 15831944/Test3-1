@@ -19,7 +19,7 @@ static IOAreaRec PipeTermIOAreaList[] =
 
 //==========================================================================
 
-IMPLEMENT_MODELUNIT(CPipeTerm, "PipeTerm", "1",Drw_PipeTerm, "Feed", "T", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+IMPLEMENT_MODELUNIT(CPipeTerm, "PipeTerm", "1",Drw_PipeTerm, "Feed", "T", TOC_ALL|TOC_GRP_GENERAL|TOC_MINESERVE,
                     "Process:Unit:Pipe_Terminator",
                    "Pipe Terminator")
 

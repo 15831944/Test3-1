@@ -1941,6 +1941,7 @@
 #define ID_GRF_BulkTagChange            30511
 #define ID_BUTTON30512                  30512
 #define ID_VIEW_EXPLORER                30513
+#define ID_ACTIONS_RUN_STEADY           30514
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects
@@ -1948,7 +1949,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25594
-#define _APS_NEXT_COMMAND_VALUE         30514
+#define _APS_NEXT_COMMAND_VALUE         30515
 #define _APS_NEXT_CONTROL_VALUE         25748
 #define _APS_NEXT_SYMED_VALUE           25601
 #endif
