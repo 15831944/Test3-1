@@ -640,22 +640,81 @@ void CGrfLayer::CollectTags(Strng_List & TagList)
 
 //----------------------------------------------------------------------------
 
-void PopulateTagInfo(DXF_ENTITY insert, CGrfTagInfo & GTI)
+void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, CGrfTagInfo & GTI, DML_LIST &style)
   {
   GTI.m_sSymbol = DXF_INSERT_BLOCK_GET(insert);
-  GTI.x = DXF_INSERT_PT(insert)[0];
-  GTI.y = DXF_INSERT_PT(insert)[1];
-  GTI.z = DXF_INSERT_PT(insert)[2];
-  GTI.xScale = DXF_INSERT_X_SCALE(insert);
-  GTI.yScale = DXF_INSERT_Y_SCALE(insert);
-  GTI.zScale = DXF_INSERT_Z_SCALE(insert);
-  GTI.Rotation = DXF_INSERT_ROT_ANG(insert);
+  GTI.m_Node.m_X = DXF_INSERT_PT(insert)[0];
+  GTI.m_Node.m_Y = DXF_INSERT_PT(insert)[1];
+  GTI.m_Node.m_Z = DXF_INSERT_PT(insert)[2];
+  GTI.m_Node.m_XScale = DXF_INSERT_X_SCALE(insert);
+  GTI.m_Node.m_YScale = DXF_INSERT_Y_SCALE(insert);
+  GTI.m_Node.m_ZScale = DXF_INSERT_Z_SCALE(insert);
+  GTI.m_Node.m_Rotation = DXF_INSERT_ROT_ANG(insert);
+  GTI.m_Node.m_Visible  = true;
   GTI.e = insert;
+  GTI.m_LoBnd.m_X = GTI.m_Node.m_X;
+  GTI.m_LoBnd.m_Y = GTI.m_Node.m_Y;
+  GTI.m_LoBnd.m_Z = GTI.m_Node.m_Z;
+  GTI.m_HiBnd.m_X = GTI.m_Node.m_X;
+  GTI.m_HiBnd.m_Y = GTI.m_Node.m_Y;
+  GTI.m_HiBnd.m_Z = GTI.m_Node.m_Z;
+
+  pBlock b;
+  b=pDrawing->Blocks.Find(DXF_INSERT_BLOCK_GET(insert));
+  if (b)
+    {
+    C3_TRANSFORM c3t;
+    c3t[0][0] = c3t[0][1] = c3t[0][2] = c3t[0][3] = 0.0;
+    c3t[1][0] = c3t[1][1] = c3t[1][2] = c3t[1][3] = 0.0;
+    c3t[2][0] = c3t[2][1] = c3t[2][2] = c3t[2][3] = 0.0;
+    c3t[0][0] = c3t[1][1] = c3t[2][2] = 1.0;
+
+    C3_BOX_S Bounds;
+    C3_TRANSFORM c3t_mem;
+    
+    PT3 p;
+    c3v_set(1.1e30, 1.1e30, 1.1e30, p);
+    c3a_box_init_pt(&Bounds, p);
+
+
+    ASSIGN_ARRAY(c3t_mem, c3t, c3t_mem);
+
+    C3_TRANSFORM Imat;
+    pDrawing->ConstructInsertMatrix(Imat,b,insert);
+    c3t_mult(Imat,c3t_mem,c3t);
+    b->GetBounds(c3t, &Bounds);
+    ASSIGN_ARRAY(c3t, c3t_mem, c3t_mem);
+
+    GTI.m_LoBnd.m_X = C3_MIN_X(&Bounds);
+    GTI.m_LoBnd.m_Y = C3_MIN_Y(&Bounds);
+    GTI.m_LoBnd.m_Z = C3_MIN_Z(&Bounds);
+    GTI.m_HiBnd.m_X = C3_MAX_X(&Bounds);
+    GTI.m_HiBnd.m_Y = C3_MAX_Y(&Bounds);
+    GTI.m_HiBnd.m_Z = C3_MAX_Z(&Bounds);
+    }
+
+  if (tag)
+    {
+    text_info ti;
+    double /*dx,dy,*/xmin,xmax,ymin,ymax;
+
+    text_info_from_dxf_attrib(&ti, style, tag);
+    scd_acad_text_corners(&ti, &xmin, &ymin, &xmax, &ymax);
+
+    GTI.m_Tag.m_X = DXF_ATTRIB_PT(tag)[0]+0.5*(xmax-xmin);
+    GTI.m_Tag.m_Y = DXF_ATTRIB_PT(tag)[1];//+0.5*(ymax-ymin);
+    GTI.m_Tag.m_Z = DXF_ATTRIB_PT(tag)[2];
+    GTI.m_Tag.m_XScale = ti.height/3.0; // CNM a Kludge  XF_ATTRIB_X_SCALE(tag);
+    GTI.m_Tag.m_YScale = GTI.m_Tag.m_XScale;//DXF_ATTRIB_Y_SCALE(tag);
+    GTI.m_Tag.m_ZScale = GTI.m_Tag.m_XScale;//DXF_ATTRIB_Z_SCALE(tag);
+    GTI.m_Tag.m_Rotation = DXF_ATTRIB_ROT_ANG(tag);
+    GTI.m_Tag.m_Visible = (DXF_ATTRIB_AFLAGS(tag)&DXF_ATTRIB_INVIS)==0;
+    }
   }
 
 //----------------------------------------------------------------------------
 
-void CGrfLayer::CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA)
+void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA)
   {
   DML_ITEM it;
   DXF_ENTITY e;
@@ -667,7 +726,7 @@ void CGrfLayer::CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA)
       CGrfTagInfo GTI;
       GTI.m_sTag = pv ? pv:"NULL";
       GTI.m_bHasTag = pv!=NULL;
-      PopulateTagInfo(e, GTI);
+      PopulateTagInfo(pDrawing, e, Find_Attr(e, "Tag"), GTI, Drawing->StyleLst);
       GTIA.Add(GTI);
       }
     }
@@ -3839,7 +3898,7 @@ void DXF_Drawing::CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA)
   CGrfLayer * pLay = Layers;
   while (pLay)
     {
-    pLay->CollectTagInfo(AllInserts, GTIA);
+    pLay->CollectTagInfo(this, AllInserts, GTIA);
     pLay = pLay->Nxt;
     }
   }

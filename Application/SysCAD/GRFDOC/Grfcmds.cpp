@@ -40,7 +40,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
 #define dbgdxfmem 0x0
-#define dbgdrw    0x0
+#define dbgdrw    0x01
 
 #if dbgdxfmem
     extern "C"
@@ -358,6 +358,7 @@ GrfComCmdBlk(64 + ExtraCmds, 64 + ExtraCIS),
   HideEqpId=TRUE;
   HideTagOff=False;
   Tag_Attr_Set=Attr_Set;
+  Tag_InsertPt.X=dNAN;
 
   //bWPMdlSlctOk=0;
 
@@ -2607,8 +2608,13 @@ CLineDrawHelper::CLineDrawHelper()
   {
   m_dArrowScale = 2.5; // size 2.5 mm
   m_eLineMethod = LDM_Orth;
-  m_eArrowRule = ARM_EndDirnAndLast;
-  m_bShowTag = true;
+  m_eArrowRule  = ARM_EndDirnAndLast;
+  m_bShowTag    = true;
+  m_TagScale.X  = 1.0;
+  m_TagScale.Y  = 1.0;
+  m_TagScale.Z  = 1.0;
+  m_TagRotation = 0.0;
+
   Init(NULL, NULL);
   }
 
@@ -2619,6 +2625,10 @@ void CLineDrawHelper::Init(Grf3D_Display* pDsp, DXF_Drawing *pDrw)
   m_iNVerts = 0;
   m_bShowDigPoint = m_pDsp ? true : false;
   m_pBlock = NULL;
+  m_TagScale.X  = 1.0;
+  m_TagScale.Y  = 1.0;
+  m_TagScale.Z  = 1.0;
+  m_TagRotation = 0.0;
   }
 
 void CLineDrawHelper::InitPoints()
@@ -3157,7 +3167,7 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
 
   Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
 
-  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->Scl, (float)CB->Rotate, True, Tag_Attr_Set);
+  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->Scl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
     pDsp->Draw(CB->e, -1);
 
@@ -3254,7 +3264,7 @@ bool GrfCmdBlk::DoInsertLinkGrf(CConnectBlk* CB, bool SkipTagTest)
 
 bool GrfCmdBlk::DoInsertLinkGrf(CLineDrawHelper & LDH, char* SrcTag, char* DstTag, bool SkipTagTest)
   {
-  if (!SkipTagTest && gs_pPrj->FlwLib()->FE_TestModelTagUnique(LDH.Tag()))
+  if (!SkipTagTest && gs_pPrj->FlwLib()->FE_TestModelTagUnique((LPTSTR)LDH.Tag()))
     {
     LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Model for Tag '%s' should exist!", LDH.Tag());
     return false;
@@ -10755,7 +10765,7 @@ void GrfCmdBlk::DoCfgLayers()
 
 //===========================================================================
 
-DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* ModelTyp, char* Tag, Pt_3f Pt, Pt_3f Scl, float Rotate, flag CompleteBlock, Attr_Settings &ASet)
+DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* ModelTyp, char* Tag, Pt_3f Pt, Pt_3f Scl, float Rotate, flag CompleteBlock, Attr_Settings &ASet, Pt_3f * TagPt)
   {
   if (DrawTyp_==NULL)
     DrawTyp_="??";
@@ -10817,8 +10827,13 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
 
   if (DoIt)
     {
-    float Xto = 0.0F;
-    float Yto = 0.0F;
+    double Xto = 0.0;
+    double Yto = 0.0;
+    if (TagPt && Valid(TagPt->X))
+      {
+      Xto=TagPt->X;
+      Yto=TagPt->Y;
+      }
     Pt_3f Ptt(Xto * Scl.X, Yto * Scl.Y, 0.);
 
     #if dbgdrw
@@ -11024,11 +11039,16 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   //add line segments...
   LDH.AddLineData(LDH.LineWidth());
 
-  Pt_3f sc(1.0, 1.0, 1.0);
+  Pt_3f sc(1.0,1.0,1.0);//LDH.m_TagScale.X, LDH.m_TagScale.Y, LDH.m_TagScale.Z);
   REAL s = 2.5;
-  Pt_3f ptt(0., s, 0.);
-  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, 0.0, LDH.Tag(), ptt, Tag_Attr_Set);
+  //Pt_3f ptt(LDH.m_InsertPt.X-LDH.m_TagPt.X, LDH.m_InsertPt.Y-LDH.m_TagPt.Y, LDH.m_InsertPt.Z-LDH.m_TagPt.Z);
+  Pt_3f ptt(LDH.m_TagPt.X, LDH.m_TagPt.Y, LDH.m_TagPt.Z);
+  Attr_Settings SetMem=Tag_Attr_Set;
+  Tag_Attr_Set.Size*=LDH.m_TagScale.X;
+  Tag_Attr_Set.Rot=LDH.TagRotation();
+  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), (LPTSTR)LDH.Tag(), ptt, Tag_Attr_Set);
   DXF_ENTITY_THICKNESS(newinsert) = LDH.LineWidth();
+  Tag_Attr_Set=SetMem;
   return newinsert;
   }
 

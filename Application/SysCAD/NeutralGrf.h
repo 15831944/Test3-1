@@ -31,7 +31,11 @@ class CNeutralGrfInserts : public CFileRec
     char            m_sSymbol[GrfDBMaxSymbolLen];
     CDblTriPt       m_Insert;
     CDblTriPt       m_Scale;
-    double          m_dRotation;
+    double          m_Rotation;
+    CDblTriPt       m_TagPt;
+    CDblTriPt       m_TagScale;
+    double          m_TagRotation;
+    BOOL            m_TagVisible;
   };
 
 class CNeutralGrfUnits : public CFileRec
@@ -53,7 +57,13 @@ class CNeutralGrfUnits : public CFileRec
     char            m_sClassID[GrfDBMaxClassIDLen];
     CDblTriPt       m_Insert;
     CDblTriPt       m_Scale;
-    double          m_dRotation;
+    double          m_Rotation;
+    CDblTriPt       m_TagPt;
+    CDblTriPt       m_TagScale;
+    double          m_TagRotation;
+    BOOL            m_TagVisible;
+    CDblTriPt       m_LoBnd;
+    CDblTriPt       m_HiBnd;
   };
 
 class CNeutralGrfLinks : public CFileRec
@@ -73,6 +83,12 @@ class CNeutralGrfLinks : public CFileRec
     char            m_sPage[GrfDBMaxPageLen];
     char            m_sClassID[GrfDBMaxClassIDLen];
     CDblTriPt       m_Insert;
+    CDblTriPt       m_TagPt;
+    CDblTriPt       m_TagScale;
+    double          m_TagRotation;
+    BOOL            m_TagVisible;
+    CDblTriPt       m_LoBnd;
+    CDblTriPt       m_HiBnd;
   };
 
 class CNeutralGrfLinklines : public CFileRec

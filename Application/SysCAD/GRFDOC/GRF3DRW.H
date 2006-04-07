@@ -356,7 +356,33 @@ class CGrfTagInfo
   {
   public:
     CGrfTagInfo()
-      { x=y=z=0.0; m_bValid=0; m_bHasTag=0; xScale=yScale=zScale=1.0; Rotation=0.0; e=NULL; };
+      { 
+      m_Node.m_X=0.0;
+      m_Node.m_Y=0.0;
+      m_Node.m_Z=0.0; 
+      m_Node.m_XScale=1.0;
+      m_Node.m_YScale=1.0;
+      m_Node.m_ZScale=1.0; 
+      m_Node.m_Rotation=0.0; 
+      m_Node.m_Visible=true; 
+      m_Tag.m_X=0.0;
+      m_Tag.m_Y=0.0;
+      m_Tag.m_Z=0.0; 
+      m_Tag.m_XScale=1.0;
+      m_Tag.m_YScale=1.0;
+      m_Tag.m_ZScale=1.0; 
+      m_Tag.m_Rotation=0.0; 
+      m_Tag.m_Visible=true; 
+      m_bValid=0; 
+      m_bHasTag=0; 
+      m_LoBnd.m_X=0.0;
+      m_LoBnd.m_Y=0.0;
+      m_LoBnd.m_Z=0.0; 
+      m_HiBnd.m_X=0.0;
+      m_HiBnd.m_Y=0.0;
+      m_HiBnd.m_Z=0.0; 
+      e=NULL; 
+      };
 
   public:
     Strng m_sTag;
@@ -365,15 +391,25 @@ class CGrfTagInfo
     Strng m_sDrwGroup;
     flag m_bValid;
     flag m_bHasTag;
-    double x;
-    double y;
-    double z;
-    double xScale;
-    double yScale;
-    double zScale;
-    double Rotation;
+    struct {
+      double m_X;
+      double m_Y;
+      double m_Z;
+      double m_XScale;
+      double m_YScale;
+      double m_ZScale;
+      double m_Rotation;
+      BOOL   m_Visible;
+      } m_Node, m_Tag;
+    struct {
+      double m_X;
+      double m_Y;
+      double m_Z;
+      } m_LoBnd, m_HiBnd;
+
     DXF_ENTITY e;
     long PointsCount;
+
   };
 
 class LinePoint
@@ -424,7 +460,7 @@ class CGrfLayer
 
     flag             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
-    void             CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA);
+    void             CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA);
 
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,C3_TRANSFORM c3t,double *BiggestDim = NULL);

@@ -23,6 +23,28 @@ void CNeutralGrfInserts::Init()
   if (m_pDB)
     {
     DefineClass();
+
+    strcpy(m_sGroup, "");
+    strcpy(m_sTag, "");
+    strcpy(m_sPage, "");
+    strcpy(m_sSymbol, "");
+    m_Insert.m_X    = 0.0;
+    m_Insert.m_Y    = 0.0;
+    m_Insert.m_Z    = 0.0;
+    m_Scale.m_X     = 1.0;
+    m_Scale.m_Y     = 1.0;
+    m_Scale.m_Z     = 1.0;
+    m_Rotation      = 0.0;
+
+    m_TagPt.m_X     = 0.0;
+    m_TagPt.m_Y     = 0.0;
+    m_TagPt.m_Z     = 0.0;
+    m_TagScale.m_X  = 1.0;
+    m_TagScale.m_Y  = 1.0;
+    m_TagScale.m_Z  = 1.0;
+    m_TagRotation   = 0.0;
+    m_TagVisible    = 0;
+
     if (m_bWithGroup)
       CreateStr("Group", m_sGroup, sizeof(m_sGroup)-1, FF_None);
     CreateStr("Tag", m_sTag, sizeof(m_sTag)-1, FF_None);
@@ -34,7 +56,17 @@ void CNeutralGrfInserts::Init()
     CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_Required);
     CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_Required);
     CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("Rotation", &m_dRotation, ADOX::adDouble, FF_Required);
+    CreateVal("Rotation", &m_Rotation, ADOX::adDouble, FF_Required);
+
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
     }
@@ -59,6 +91,29 @@ void CNeutralGrfUnits::Init()
   if (m_pDB)
     {
     DefineClass();
+
+    strcpy(m_sGroup, "");
+    strcpy(m_sTag, "");
+    strcpy(m_sPage, "");
+    strcpy(m_sSymbol, "");
+    strcpy(m_sClassID, "");
+    m_Insert.m_X    = 0.0;
+    m_Insert.m_Y    = 0.0;
+    m_Insert.m_Z    = 0.0;
+    m_Scale.m_X     = 1.0;
+    m_Scale.m_Y     = 1.0;
+    m_Scale.m_Z     = 1.0;
+    m_Rotation      = 0.0;
+
+    m_TagPt.m_X     = 0.0;
+    m_TagPt.m_Y     = 0.0;
+    m_TagPt.m_Z     = 0.0;
+    m_TagScale.m_X  = 1.0;
+    m_TagScale.m_Y  = 1.0;
+    m_TagScale.m_Z  = 1.0;
+    m_TagRotation   = 0.0;
+    m_TagVisible    = 0;
+
     if (m_bWithGroup)
       CreateStr("Group", m_sGroup, sizeof(m_sGroup)-1, FF_None);
     CreateStr("Tag", m_sTag, sizeof(m_sTag)-1, FF_None);
@@ -71,7 +126,24 @@ void CNeutralGrfUnits::Init()
     CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_Required);
     CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_Required);
     CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("Rotation", &m_dRotation, ADOX::adDouble, FF_Required);
+    CreateVal("Rotation", &m_Rotation, ADOX::adDouble, FF_Required);
+
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+
+    CreateVal("LoBndX", &m_LoBnd.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("LoBndY", &m_LoBnd.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("LoBndZ", &m_LoBnd.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("HiBndX", &m_HiBnd.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("HiBndY", &m_HiBnd.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("HiBndZ", &m_HiBnd.m_Z, ADOX::adDouble, FF_Required);
+
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
     }
@@ -95,6 +167,24 @@ void CNeutralGrfLinks::Init()
   if (m_pDB)
     {
     DefineClass();
+
+    strcpy(m_sGroup, "");
+    strcpy(m_sTag, "");
+    strcpy(m_sPage, "");
+    strcpy(m_sClassID, "");
+    m_Insert.m_X    = 0.0;
+    m_Insert.m_Y    = 0.0;
+    m_Insert.m_Z    = 0.0;
+
+    m_TagPt.m_X     = 0.0;
+    m_TagPt.m_Y     = 0.0;
+    m_TagPt.m_Z     = 0.0;
+    m_TagScale.m_X  = 1.0;
+    m_TagScale.m_Y  = 1.0;
+    m_TagScale.m_Z  = 1.0;
+    m_TagRotation   = 0.0;
+    m_TagVisible    = 0;
+
     if (m_bWithGroup)
       CreateStr("Group", m_sGroup, sizeof(m_sGroup)-1, FF_None);
     CreateStr("Tag", m_sTag, sizeof(m_sTag)-1, FF_None);
@@ -103,6 +193,23 @@ void CNeutralGrfLinks::Init()
     CreateVal("InsertX", &m_Insert.m_X, ADOX::adDouble, FF_Required);
     CreateVal("InsertY", &m_Insert.m_Y, ADOX::adDouble, FF_Required);
     CreateVal("InsertZ", &m_Insert.m_Z, ADOX::adDouble, FF_Required);
+
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+
+    CreateVal("LoBndX", &m_LoBnd.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("LoBndY", &m_LoBnd.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("LoBndZ", &m_LoBnd.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("HiBndX", &m_HiBnd.m_X, ADOX::adDouble, FF_Required);
+    CreateVal("HiBndY", &m_HiBnd.m_Y, ADOX::adDouble, FF_Required);
+    CreateVal("HiBndZ", &m_HiBnd.m_Z, ADOX::adDouble, FF_Required);
+
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
     }
@@ -126,6 +233,15 @@ void CNeutralGrfLinklines::Init()
   if (m_pDB)
     {
     DefineClass();
+
+    strcpy(m_sGroup, "");
+    strcpy(m_sTag, "");
+    strcpy(m_sPage, "");
+    m_lSeqNo        = 0;
+    m_Vertex.m_X    = 0.0;
+    m_Vertex.m_Y    = 0.0;
+    m_Vertex.m_Z    = 0.0;
+
     if (m_bWithGroup)
       CreateStr("Group", m_sGroup, sizeof(m_sGroup)-1, FF_None);
     CreateStr("Tag", m_sTag, sizeof(m_sTag)-1, FF_None);
@@ -157,6 +273,10 @@ void CNeutralGrfSymbols::Init()
   if (m_pDB)
     {
     DefineClass();
+
+    strcpy(m_sName, "");
+    m_pSymbolData   = 0;
+
     CreateStr("Name", m_sName, sizeof(m_sName)-1, FF_None);
     CreateLongVal("Symbol", &m_pSymbolData, &m_SymbolLen, ADOX::adLongVarBinary, FF_None);
     CreateIndex("Name", true, true);
@@ -486,13 +606,23 @@ void CNeutralGrfImportExport::WriteInsert(LPCTSTR Group, CGrfTagInfo & GTI, CDbl
   strcat(m_pIn->m_sSymbol, pDocGUID);
   ASSERT_RDB(strlen(m_pIn->m_sSymbol)<GrfDBMaxSymbolLen-1, "Symbol string length!!!");
 
-  m_pIn->m_Insert.m_X = GTI.x-Org.m_X;
-  m_pIn->m_Insert.m_Y = GTI.y-Org.m_Y;
-  m_pIn->m_Insert.m_Z = GTI.z-Org.m_Z;
-  m_pIn->m_Scale.m_X  = GTI.xScale;
-  m_pIn->m_Scale.m_Y  = GTI.yScale;
-  m_pIn->m_Scale.m_Z  = GTI.zScale;
-  m_pIn->m_dRotation  = GTI.Rotation;
+  m_pIn->m_Insert.m_X   = GTI.m_Node.m_X-Org.m_X;
+  m_pIn->m_Insert.m_Y   = GTI.m_Node.m_Y-Org.m_Y;
+  m_pIn->m_Insert.m_Z   = GTI.m_Node.m_Z-Org.m_Z;
+  m_pIn->m_Scale.m_X    = GTI.m_Node.m_XScale;
+  m_pIn->m_Scale.m_Y    = GTI.m_Node.m_YScale;
+  m_pIn->m_Scale.m_Z    = GTI.m_Node.m_ZScale;
+  m_pIn->m_Rotation     = GTI.m_Node.m_Rotation;
+
+  m_pIn->m_TagPt.m_X    = GTI.m_Tag.m_X-m_pIn->m_Insert.m_X;//Org.m_X;
+  m_pIn->m_TagPt.m_Y    = GTI.m_Tag.m_Y-m_pIn->m_Insert.m_Y;//Org.m_Y;
+  m_pIn->m_TagPt.m_Z    = GTI.m_Tag.m_Z-m_pIn->m_Insert.m_Z;//Org.m_Z;
+  m_pIn->m_TagScale.m_X = GTI.m_Tag.m_XScale;
+  m_pIn->m_TagScale.m_Y = GTI.m_Tag.m_YScale;
+  m_pIn->m_TagScale.m_Z = GTI.m_Tag.m_ZScale;
+  m_pIn->m_TagRotation  = GTI.m_Tag.m_Rotation;
+  m_pIn->m_TagVisible   = GTI.m_Tag.m_Visible;
+  
   m_pIn->Write();
   }
 
@@ -517,13 +647,30 @@ void CNeutralGrfImportExport::WriteUnit(LPCTSTR Group, CGrfTagInfo & GTI, CDblTr
 
   strcpy(m_pUn->m_sClassID, GTI.m_sClass());
 
-  m_pUn->m_Insert.m_X = GTI.x-Org.m_X;
-  m_pUn->m_Insert.m_Y = GTI.y-Org.m_Y;
-  m_pUn->m_Insert.m_Z = GTI.z-Org.m_Z;
-  m_pUn->m_Scale.m_X  = GTI.xScale;
-  m_pUn->m_Scale.m_Y  = GTI.yScale;
-  m_pUn->m_Scale.m_Z  = GTI.zScale;
-  m_pUn->m_dRotation  = GTI.Rotation;
+  m_pUn->m_Insert.m_X   = GTI.m_Node.m_X-Org.m_X;
+  m_pUn->m_Insert.m_Y   = GTI.m_Node.m_Y-Org.m_Y;
+  m_pUn->m_Insert.m_Z   = GTI.m_Node.m_Z-Org.m_Z;
+  m_pUn->m_Scale.m_X    = GTI.m_Node.m_XScale;
+  m_pUn->m_Scale.m_Y    = GTI.m_Node.m_YScale;
+  m_pUn->m_Scale.m_Z    = GTI.m_Node.m_ZScale;
+  m_pUn->m_Rotation     = GTI.m_Node.m_Rotation;
+
+  m_pUn->m_TagPt.m_X    = GTI.m_Tag.m_X-GTI.m_Node.m_X;// m_pUn->m_Insert.m_X;// Org.m_X;
+  m_pUn->m_TagPt.m_Y    = GTI.m_Tag.m_Y-GTI.m_Node.m_Y;// m_pUn->m_Insert.m_Y;// Org.m_Y;
+  m_pUn->m_TagPt.m_Z    = GTI.m_Tag.m_Z-GTI.m_Node.m_Z;// m_pUn->m_Insert.m_Z;// Org.m_Z;
+  m_pUn->m_TagScale.m_X = GTI.m_Tag.m_XScale;
+  m_pUn->m_TagScale.m_Y = GTI.m_Tag.m_YScale;
+  m_pUn->m_TagScale.m_Z = GTI.m_Tag.m_ZScale;
+  m_pUn->m_TagRotation  = GTI.m_Tag.m_Rotation;
+  m_pUn->m_TagVisible   = GTI.m_Tag.m_Visible;
+
+  m_pUn->m_LoBnd.m_X    = GTI.m_LoBnd.m_X;
+  m_pUn->m_LoBnd.m_Y    = GTI.m_LoBnd.m_Y;
+  m_pUn->m_LoBnd.m_Z    = GTI.m_LoBnd.m_Z;
+  m_pUn->m_HiBnd.m_X    = GTI.m_HiBnd.m_X;
+  m_pUn->m_HiBnd.m_Y    = GTI.m_HiBnd.m_Y;
+  m_pUn->m_HiBnd.m_Z    = GTI.m_HiBnd.m_Z;
+
   m_pUn->Write();
   }
 
@@ -536,9 +683,26 @@ void CNeutralGrfImportExport::WriteLink(LPCTSTR Group, CGrfTagInfo & GTI, CDblTr
   strcpy(m_pLk->m_sTag, AdjustTag(GTI.m_sTag()));
   strcpy(m_pLk->m_sPage, pPage);
   strcpy(m_pLk->m_sClassID, GTI.m_sClass());
-  m_pLk->m_Insert.m_X = GTI.x-Org.m_X;
-  m_pLk->m_Insert.m_Y = GTI.y-Org.m_Y;
-  m_pLk->m_Insert.m_Z = GTI.z-Org.m_Z;
+  m_pLk->m_Insert.m_X   = GTI.m_Node.m_X-Org.m_X;
+  m_pLk->m_Insert.m_Y   = GTI.m_Node.m_Y-Org.m_Y;
+  m_pLk->m_Insert.m_Z   = GTI.m_Node.m_Z-Org.m_Z;
+
+  m_pLk->m_TagPt.m_X    = GTI.m_Tag.m_X-GTI.m_Node.m_X;//m_pLk->m_Insert.m_X;// Org.m_X;
+  m_pLk->m_TagPt.m_Y    = GTI.m_Tag.m_Y-GTI.m_Node.m_Y;//m_pLk->m_Insert.m_Y;// Org.m_Y;
+  m_pLk->m_TagPt.m_Z    = GTI.m_Tag.m_Z-GTI.m_Node.m_Z;//m_pLk->m_Insert.m_Z;// Org.m_Z;
+  m_pLk->m_TagScale.m_X = GTI.m_Tag.m_XScale;
+  m_pLk->m_TagScale.m_Y = GTI.m_Tag.m_YScale;
+  m_pLk->m_TagScale.m_Z = GTI.m_Tag.m_ZScale;
+  m_pLk->m_TagRotation  = GTI.m_Tag.m_Rotation;
+  m_pLk->m_TagVisible   = GTI.m_Tag.m_Visible;
+
+  m_pLk->m_LoBnd.m_X    = GTI.m_LoBnd.m_X;
+  m_pLk->m_LoBnd.m_Y    = GTI.m_LoBnd.m_Y;
+  m_pLk->m_LoBnd.m_Z    = GTI.m_LoBnd.m_Z;
+  m_pLk->m_HiBnd.m_X    = GTI.m_HiBnd.m_X;
+  m_pLk->m_HiBnd.m_Y    = GTI.m_HiBnd.m_Y;
+  m_pLk->m_HiBnd.m_Z    = GTI.m_HiBnd.m_Z;
+
   //m_pLk->lLinePoints = GTI.PointsCount;
   m_pLk->Write();
 
@@ -1202,13 +1366,23 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
           CB.Scl.X=m_pUn->m_Scale.m_X;
           CB.Scl.Y=m_pUn->m_Scale.m_Y;
           CB.Scl.Z=m_pUn->m_Scale.m_Z;
-          CB.Rotate=m_pUn->m_dRotation;
-          //CB.ATagBase=MInfo.DefTag();
+          CB.Rotate=m_pUn->m_Rotation;
 
           // Unit Symbols
           CB.ASymbol=FixSymbol(m_pUn->m_sSymbol, m_pUn->m_sClassID);
           ImportSymbol(CB.ASymbol(), false);
+          Attr_Settings &ASet=pGDoc->GCB.Tag_Attr_Set;
+          Attr_Settings SetMem=ASet;
+          
+          pGDoc->GCB.Tag_InsertPt.X=m_pUn->m_TagPt.m_X;
+          pGDoc->GCB.Tag_InsertPt.Y=m_pUn->m_TagPt.m_Y;
+          pGDoc->GCB.Tag_InsertPt.Z=m_pUn->m_TagPt.m_Z;
+          pGDoc->GCB.HideTag=!m_pUn->m_TagVisible;
+          ASet.XScl=m_pUn->m_TagScale.m_X;
+          ASet.Rot=m_pUn->m_TagRotation;
+
           pGDoc->GCB.DoInsertNodeGrf(&CB, true);
+          ASet=SetMem;
           }
 
         ndrs->MoveNext();
@@ -1293,8 +1467,27 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
           PrevTag = m_pLl->m_sTag;
           PrevSeqNo = m_pLl->m_lSeqNo;
           LDH.InitPoints();
-          LDH.SetTag(m_pLl->m_sTag);
+
+          CString LSQL;
+          LSQL.Format("SELECT * FROM GraphicsLinks WHERE [Tag] = '%s'", m_pLl->m_sTag);
+          m_pLk->OpenQuery(NULL, LSQL, 0/*dbReadOnly*/);
+          ADODB::_RecordsetPtr llks = m_pLk->Recordset();
+          if (!llks->adEOF)
+            llks->MoveFirst();
+          if (!llks->adEOF)
+            {
+            m_pLk->Read();
+            LDH.SetShowTag(m_pLk->m_TagVisible!=0);
+            LDH.SetTag(m_pLk->m_sTag, m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+            LDH.SetTagProps(m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+            }
+          else
+            {
+            LDH.SetShowTag(FALSE);
+            LDH.SetTag(m_pLl->m_sTag);
+            }
           }
+
         Pt.Set(m_pLl->m_Vertex.m_X, m_pLl->m_Vertex.m_Y, m_pLl->m_Vertex.m_Z);
         LDH.AddPoint(Pt, m_pLl->m_lSeqNo-PrevSeqNo>1 ? LPT_Break : LPT_Line);
         PrevSeqNo = m_pLl->m_lSeqNo;
@@ -1403,13 +1596,26 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             CB.Scl.X=m_pIn->m_Scale.m_X*m_Scale.m_X;
             CB.Scl.Y=m_pIn->m_Scale.m_Y*m_Scale.m_Y;
             CB.Scl.Z=m_pIn->m_Scale.m_Z*m_Scale.m_Z;
-            CB.Rotate=m_pIn->m_dRotation;
+            CB.Rotate=m_pIn->m_Rotation;
             //CB.ATagBase=MInfo.DefTag();
 
             // Unit Symbols
             CB.ASymbol=FixSymbol(m_pIn->m_sSymbol, CB.AClass());
             ImportSymbol(CB.ASymbol(), false);
+
+            Attr_Settings &rASet=pDoc->GCB.Tag_Attr_Set;
+            Attr_Settings ASet=rASet;
+            
+            pDoc->GCB.Tag_InsertPt.X=m_pIn->m_TagPt.m_X;
+            pDoc->GCB.Tag_InsertPt.Y=m_pIn->m_TagPt.m_Y;
+            pDoc->GCB.Tag_InsertPt.Z=m_pIn->m_TagPt.m_Z;
+            pDoc->GCB.HideTag=!m_pIn->m_TagVisible;
+            rASet.XScl=m_pIn->m_TagScale.m_X;
+            rASet.Rot=m_pIn->m_TagRotation;
+  
+            ImportSymbol(CB.ASymbol(), false);
             pDoc->GCB.DoInsertNodeGrf(&CB, true);
+            rASet=ASet;
             }
 
           ndrs->MoveNext();
@@ -1448,13 +1654,28 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             CB.Scl.X=m_pUn->m_Scale.m_X*m_Scale.m_X;
             CB.Scl.Y=m_pUn->m_Scale.m_Y*m_Scale.m_Y;
             CB.Scl.Z=m_pUn->m_Scale.m_Z*m_Scale.m_Z;
-            CB.Rotate=m_pUn->m_dRotation;
-            //CB.ATagBase=MInfo.DefTag();
+            CB.Rotate=m_pUn->m_Rotation;
 
+            // Unit Symbols
+
+  
             // Unit Symbols
             CB.ASymbol=FixSymbol(m_pUn->m_sSymbol, m_pUn->m_sClassID);
             ImportSymbol(CB.ASymbol(), false);
+
+            Attr_Settings &ASet=pDoc->GCB.Tag_Attr_Set;
+            Attr_Settings SetMem=ASet;
+            
+            pDoc->GCB.Tag_InsertPt.X=m_pUn->m_TagPt.m_X;
+            pDoc->GCB.Tag_InsertPt.Y=m_pUn->m_TagPt.m_Y;
+            pDoc->GCB.Tag_InsertPt.Z=m_pUn->m_TagPt.m_Z;
+            pDoc->GCB.HideTag=!m_pUn->m_TagVisible;
+            ASet.XScl=m_pUn->m_TagScale.m_X;
+            ASet.Rot=m_pUn->m_TagRotation;
+
             pDoc->GCB.DoInsertNodeGrf(&CB, true);
+
+            ASet=SetMem;
             }
 
           ndrs->MoveNext();
@@ -1529,8 +1750,28 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             LDH.InitPoints();
             PrevTag = m_pLl->m_sTag;
             CString Tg = AdjustTag(m_pLl->m_sTag);
-            LDH.SetTag((char*)(LPCSTR)Tg);
+            //LDH.SetTag((char*)(LPCSTR)Tg);
+
+            CString LSQL;                                                           
+            LSQL.Format("SELECT * FROM [GraphicsLinks] WHERE [Tag] = '%s' AND [Group] = '%s'", m_pLl->m_sTag, m_sGroup);
+            m_pLk->OpenQuery(NULL, LSQL, 0/*dbReadOnly*/);
+            ADODB::_RecordsetPtr llks = m_pLk->Recordset();
+            if (!llks->adEOF)
+              llks->MoveFirst();
+            if (!llks->adEOF)
+              {
+              m_pLk->Read();
+              LDH.SetShowTag(m_pLk->m_TagVisible!=0);
+              LDH.SetTag(Tg, m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+              LDH.SetTagProps(m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+              }
+            else
+              {
+              LDH.SetShowTag(FALSE);
+              LDH.SetTag(Tg);
+              }
             }
+
           Pt.Set(m_pLl->m_Vertex.m_X*m_Scale.m_X+m_Move.m_X, 
                  m_pLl->m_Vertex.m_Y*m_Scale.m_Y+m_Move.m_Y, 
                  m_pLl->m_Vertex.m_Z*m_Scale.m_Z+m_Move.m_Z);

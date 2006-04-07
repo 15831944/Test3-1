@@ -102,6 +102,11 @@ class CNeutralGroupInserts : public CFileRec
     char        m_sInsertPg[CommonDBMaxPhNmLen];
     CDblTriPt   m_Insert;
     CDblTriPt   m_Scale;
+    CDblTriPt   m_TagPt;
+    CDblTriPt   m_TagScale;
+    double      m_TagRotation;
+    BOOL        m_TagVisible;
+
     int         m_iFixupRule;
     char        m_sFixupString1[CommonDBMaxTagLen];
     char        m_sFixupString2[CommonDBMaxTagLen];

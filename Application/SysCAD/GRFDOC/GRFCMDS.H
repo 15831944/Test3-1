@@ -103,10 +103,16 @@ class CLineDrawHelper
     void            SetShowDigPoints(bool ShowDigPoints) { m_bShowDigPoint = ShowDigPoints; };
     double          LineWidth() { return m_LineWidth; };
     void            SetLineWidth(double LineWidth) { m_LineWidth = LineWidth; };
-    char*           Tag() { return m_sTag(); };
-    void            SetTag(char* Tag) { m_sTag = Tag; };
+    LPCTSTR         Tag() { return m_sTag(); };
+    void            SetTag(LPCTSTR Tag) { m_sTag = Tag; };
+    void            SetTag(LPCTSTR Tag, double X, double Y, double Z) { m_sTag = Tag; m_TagPt.X=X; m_TagPt.Y=Y; m_TagPt.Z=Z; };
+    Pt_3f      &    TagPt() { return m_TagPt; };
+    void            SetTagPt(double X, double Y, double Z) { m_TagPt.X=X; m_TagPt.Y=Y; m_TagPt.Z=Z; };
     bool            ShowTag() { return m_bShowTag; };
+    double          TagRotation() { return m_TagRotation; };
+    Pt_3f      &    TagScale() { return m_TagScale; };
     void            SetShowTag(bool ShowTag) { m_bShowTag = ShowTag; };
+    void            SetTagProps(double Scale, double Rot) { m_TagScale.X = Scale; m_TagScale.Y = Scale; m_TagScale.Z = Scale; m_TagRotation = Rot; };
 
   protected:
     LineDrawMethod    m_eLineMethod;
@@ -121,7 +127,10 @@ class CLineDrawHelper
     DXF_Drawing     * m_pDrw;
     Strng             m_sTag;
     bool              m_bShowTag;
+    double            m_TagRotation;
   public:
+    Pt_3f             m_TagPt;
+    Pt_3f             m_TagScale;
     Pt_3f             m_InsertPt;
     Block           * m_pBlock;
 
@@ -290,6 +299,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     int                 nTxtEnt;
     Text_Settings       Text_Set;
     Attr_Settings       Attr_Set, Tag_Attr_Set;
+    Pt_3f               Tag_InsertPt;
     int                 iTBxpos;     //grf dynamic toolbar position
     int                 iTBypos;     //grf dynamic toolbar position
     Strng               sLogMsg;     //log message to be sent
@@ -437,7 +447,8 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     DXF_ENTITY     AddUnitDrawing(pchar TagBase,pchar DrawTyp, pchar ModelTyp, pchar Tag,
                                   Pt_3f Pt, Pt_3f Scl, float Rotate,
                                   flag CompleteBlock,
-                                  Attr_Settings &ASet = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"));
+                                  Attr_Settings &ASet = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"),
+                                  Pt_3f * TagPt = NULL);
     int            AddUnitModel(pchar ModelTyp, pchar Tag);
     DXF_ENTITY     AddLink(pchar Typ, pchar Tag,
                          pchar SrcTag, pchar SrcOut,
