@@ -104,6 +104,7 @@ namespace SysCAD.Editor
         }
       }
       (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
+      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Text = groupName;
     }
 
     private void barManager1_CommandClick(object sender, BarCommandLinkEventArgs e)
@@ -175,22 +176,21 @@ namespace SysCAD.Editor
           break;
 
         case "Edit.Copy":
-          this.Edit_Copy();
+          this.CopyToClipboard();
           break;
 
         case "Edit.Cut":
-          this.Edit_Cut();
+          this.CutToClipboard();
           break;
 
         case "Edit.Paste":
-          this.Edit_Paste();
+          this.PasteFromClipboard(10.0F, 10.0F);
           break;
       }
     }
 
     public Dictionary<string, Link> cbLinks;
     public Dictionary<string, Item> cbItems;
-    string cbParent;
 
     private void Edit_Paste()
     {
@@ -273,316 +273,176 @@ namespace SysCAD.Editor
 
     #region clipboard support
 
-    /// <summary>
-    /// Copies the current selection of items to the clipboard.
-    /// </summary>
-    /// <param name="copy">true if you want data to remain on the Clipboard after this application exits; otherwise, false.</param>
-    /// <returns>true if items were successfully copied; otherwise, false.</returns>
-    public bool CopyToClipboard(bool copy)
+    public void CopyToClipboard()
     {
-      bool result = false;
-
       // create clones of selected items
-      GraphicData data = copySelection(frmFlowChart.fcFlowChart, true);
-      if (data == null) return false;
+      GraphicData data = copySelection(frmFlowChart.fcFlowChart);
 
-      // add the clones to an empty flowchart document
-      FlowChart clipHelper = new FlowChart();
-      if (pasteSelection(clipHelper, data, null, 0, 0))
+      DataFormats.Format format =
+           DataFormats.GetFormat("Kenwalt.GraphicData");
+
+      //now copy to clipboard
+      IDataObject dataObj = new DataObject();
+      dataObj.SetData(format.Name, false, data);
+      Clipboard.SetDataObject(dataObj, false);
+    }
+
+    public void CutToClipboard()
+    {
+      CopyToClipboard();
+
+      // that returns the active composite if somebody has already created one
+      CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
+
+      // delete selected items
+      ChartObjectCollection temp = new ChartObjectCollection();
+      foreach (ChartObject item in frmFlowChart.fcFlowChart.Selection.Objects)
+        temp.Add(item);
+
+      frmFlowChart.fcFlowChart.Selection.Clear();
+
+      foreach (ChartObject item in temp)
+        frmFlowChart.fcFlowChart.DeleteObject(item);
+
+      if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
       {
-        // save the clones into a memory stream
-        MemoryStream stream = new MemoryStream(40960);
-        clipHelper.SaveToStream(stream, true);
-
-        // copy the memory stream to clipboard
-        Clipboard.SetDataObject(stream, copy);
-
-        result = true;
+        // this is our own composite cmd
+        composite.Title = "Cut";
+        composite.Execute();
       }
-      clipHelper.Dispose();
-
-      return result;
     }
 
-    public bool CutToClipboard(bool copy)
+    public void PasteFromClipboard(float dx, float dy)
     {
-      if (frmFlowChart.fcFlowChart.Selection.Objects.Count == 0) return false;
-
-      if (CopyToClipboard(copy))
-      {
-        // that returns the active composite if somebody has already created one
-        CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_fcnet_");
-
-        // delete selected items
-        ChartObjectCollection temp = new ChartObjectCollection();
-        foreach (ChartObject item in frmFlowChart.fcFlowChart.Selection.Objects)
-          temp.Add(item);
-
-        frmFlowChart.fcFlowChart.Selection.Clear();
-
-        foreach (ChartObject item in temp)
-          frmFlowChart.fcFlowChart.DeleteObject(item);
-
-        if (composite != null && composite.Title == "_fcnet_")
-        {
-          // this is our own composite cmd
-          composite.Title = "Cut";
-          composite.Execute();
-        }
-
-        return true;
-      }
-
-      return false;
-    }
-
-    public bool PasteFromClipboard(float dx, float dy)
-    {
-      return PasteFromClipboard(dx, dy, false);
-    }
-
-    public bool PasteFromClipboard(float dx, float dy, bool unconnectedArrows)
-    {
-      bool result = false;
-      IDataObject dataObj = null;
-      FlowChart clipHelper = null;
-
       try
       {
         // try getting clipboard data; might throw exceptions
-        dataObj = Clipboard.GetDataObject();
+        IDataObject dataObj = Clipboard.GetDataObject();
 
         // is there anything of interest in the clipboard ?
-        if (dataObj != null && dataObj.GetDataPresent(typeof(MemoryStream)))
+        if (dataObj != null && dataObj.GetDataPresent("Kenwalt.GraphicData"))
         {
-          MemoryStream stream = dataObj.
-            GetData(typeof(MemoryStream)) as MemoryStream;
-          stream.Seek(0, SeekOrigin.Begin);
+          GraphicData pasteData = dataObj.GetData("Kenwalt.GraphicData") as GraphicData;
 
-          // load the stream into an empty flowchart document
-          // might throw FileLoadException exceptions
-          clipHelper = new FlowChart();
-          clipHelper.LoadFromStream(stream);
-          foreach (ChartObject item in clipHelper.Objects)
-            item.Selected = true;
+          Dictionary<string, string> tagConversion = new Dictionary<string,string>();
 
-          // now copy items
-          GraphicData data =
-            copySelection(clipHelper, unconnectedArrows);
-          if (data != null)
+          if (pasteData != null)
           {
-            // that returns the active composite if somebody has already created one
-            CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_fcnet_");
-
-            // add the copied items to the document
-            result = pasteSelection(frmFlowChart.fcFlowChart, data, composite, dx, dy);
-
-            if (composite != null && composite.Title == "_fcnet_")
+            foreach (Item item in pasteData.items.Values)
             {
-              // this is our own composite cmd
-              composite.Title = "Paste";
-              composite.Execute();
+              Item newItem = frmFlowChart.NewItem(item, null, tvNavigation.SelectedNode.Text, dx, dy);
+             tagConversion.Add(item.Tag, newItem.Tag);
             }
 
-            // fire *pasted events
-            foreach (Item item in data.items.Values)
-              fireItemPasted(item);
+            foreach (Link link in pasteData.links.Values)
+            {
+              Link newLink = new Link(link.Tag);
+
+              newLink.Destination = link.Destination;
+              newLink.Origin = link.Origin;
+
+              foreach (PointF point in link.controlPoints)
+              {
+                newLink.controlPoints.Add(new PointF(point.X, point.Y));
+              }
+
+              // use new tags for connected items.
+              if (tagConversion.ContainsKey(newLink.Origin))
+                newLink.Origin = tagConversion[newLink.Origin];
+              else
+                newLink.Origin = "";
+              if (tagConversion.ContainsKey(newLink.Destination))
+                newLink.Destination = tagConversion[newLink.Destination];
+              else
+                newLink.Destination = "";
+
+              frmFlowChart.NewLink(newLink, null, dx, dy);
+            }
+            //// that returns the active composite if somebody has already created one
+            //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
+
+            //// add the copied items to the document
+            //result = pasteSelection(frmFlowChart.fcFlowChart, data, composite, dx, dy);
+
+            //if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
+            //{
+            //  // this is our own composite cmd
+            //  composite.Title = "Paste";
+            //  composite.Execute();
+            //}
+
+            //// fire *pasted events
+            //foreach (Item item in data.items.Values)
+            //  fireItemPasted(item);
           }
         }
       }
-      catch (Exception)
+      catch
       {
-        // data could not be retrieved from the clipboard
-        // or it was of unrecognized format
-        return false;
       }
-      finally
-      {
-        if (clipHelper != null)
-          clipHelper.Dispose();
-      }
-
-      return result;
     }
 
-    //internal DummyNode Dummy;
-
-    private GraphicData copySelection(
-      FlowChart doc, bool unconnectedArrows)
+    private GraphicData copySelection(FlowChart doc)
     {
       if (doc.Selection.Objects.Count == 0)
         return null;
 
       GraphicData copyGraphic = new GraphicData();
-      // determine which items and groups to copy
-      ChartObjectCollection items = new ChartObjectCollection();
-      GroupCollection groups = new GroupCollection();
-      Hashtable indexMap = new Hashtable();
-      for (int i = 0; i < doc.Selection.Objects.Count; ++i)
+
+      //Dictionary<string, int> areaCount = new Dictionary<string,int>();
+
+      foreach (Box box in doc.Selection.Boxes)
       {
-        ChartObject item = doc.Selection.Objects[i];
-
-        // do not copy unconncted arrows if specified
-        if (!unconnectedArrows && item is Arrow)
+        Item item;
+        if (graphic.items.TryGetValue(box.Text, out item))
         {
-          Arrow arrow = item as Arrow;
-          if (!arrow.IsConnected) continue;
+          Item copyItem = new Item(box.Text);
+          copyItem.X = item.X;
+          copyItem.Y = item.Y;
+          copyItem.Width = item.Width;
+          copyItem.Height = item.Height;
+          copyItem.Angle = item.Angle;
+          copyItem.Model = item.Model;
+          copyItem.Shape = item.Shape;
+          copyItem.MirrorX = item.MirrorX;
+          copyItem.MirrorY = item.MirrorY;
+          copyItem.fillColor = item.fillColor;
+
+          copyGraphic.items.Add(box.Text, copyItem);
+
+          // calculate the most contained area for pasting later-on -- going to use the currently selected area instead.
+          //string areaText = tvNavigation.GetNodeByKey(box.Text).Parent.Text;
+          //if (areaCount.ContainsKey(areaText))
+          //  areaCount[areaText] = areaCount[areaText] + 1;
+          //else
+          //  areaCount.Add(areaText, 0);
         }
-
-        indexMap[item] = items.Count;
-        items.Add(item);
-
-        if (item.SubordinateGroup != null)
-          groups.Add(item.SubordinateGroup);
       }
 
-      // add subordinated group items
-      foreach (Group group in groups)
+      //foreach (string key in areaCount.Keys)
+      //areaCount.OnDeserialization
+
+      foreach (Arrow arrow in doc.Selection.Arrows)
       {
-        foreach (ChartObject item in group.AttachedObjects)
+        Link link;
+        if (graphic.links.TryGetValue(arrow.Text, out link))
         {
-          if (!items.Contains(item))
+          Link copyLink = new Link(arrow.Text);
+          copyLink.Tag = link.Tag;
+          copyLink.ClassID = link.ClassID;
+          copyLink.Origin = link.Origin;
+          copyLink.Destination = link.Destination;
+
+          foreach (PointF point in link.controlPoints)
           {
-            indexMap[item] = items.Count;
-            items.Add(item);
+            copyLink.controlPoints.Add(point);
           }
-        }
-      }
 
-      // copy nodes
-      for (int i = 0; i < items.Count; ++i)
-      {
-        ChartObject item = items[i];
-
-        if (item is Box) items[i] = new Box((Box)item);
-        if (item is ControlHost) items[i] = new ControlHost((ControlHost)item);
-        if (item is Table) items[i] = new Table((Table)item);
-      }
-
-      // copy arrows, linking them to node clones
-      for (int i = 0; i < items.Count; ++i)
-      {
-        if (items[i] is Arrow)
-        {
-          Arrow arrow = items[i] as Arrow;
-
-          int srcIndex = indexMap.Contains(arrow.Origin) ?
-            (int)indexMap[arrow.Origin] : -1;
-          int dstIndex = indexMap.Contains(arrow.Destination) ?
-            (int)indexMap[arrow.Destination] : -1;
-
-          //items[i] = new Arrow(arrow,
-          //  srcIndex == -1 ? Dummy : items[srcIndex] as Node,
-          //  dstIndex == -1 ? Dummy : items[dstIndex] as Node);
+          copyGraphic.links.Add(arrow.Text, copyLink);
         }
       }
 
       return copyGraphic;
-    }
-
-    private bool pasteSelection(FlowChart doc, GraphicData data,
-      CompositeCmd cmd, float dx, float dy)
-    {
-      if (data.items.Count == 0) return false;
-      doc.Selection.Clear();
-
-      // add nodes
-      foreach (Item item in data.items.Values)
-      {
-        frmFlowChart.NewItem(item, null);
-        //if (item is Node)
-        //{
-        //  doc.Add(item);
-        //  doc.Selection.AddObject(item);
-        //}
-      }
-
-      foreach (Link link in data.links.Values)
-      {
-        frmFlowChart.bod.newLink(link, null, true);
-        //if (item is Arrow)
-        //{
-        //  Arrow arrow = item as Arrow;
-
-        //  doc.Add(arrow);
-        //  doc.Selection.AddObject(arrow);
-        //}
-      }
-
-      // add groups
-      //foreach (Group group in data.groups)
-      //  doc.Add(group);
-
-      // offset to the right and down
-      //foreach (ChartObject item in data.items)
-      //{
-      //  ModifyItemCmd mc = (cmd == null) ? null : new ModifyItemCmd(item);
-
-      //  if (item is Node && item.MasterGroup == null)
-      //  {
-      //    Node node = item as Node;
-      //    RectangleF rect = node.BoundingRect;
-      //    rect.Offset(dx, dy);
-      //    node.BoundingRect = rect;
-      //  }
-      //  if (item is Arrow)
-      //  {
-      //    Arrow arrow = item as Arrow;
-      //    for (int i = 0; i < arrow.ControlPoints.Count; ++i)
-      //    {
-      //      PointF pt = arrow.SavedPoints[i];
-      //      arrow.ControlPoints[i] = new PointF(pt.X + dx, pt.Y + dy);
-      //    }
-      //    arrow.UpdateFromPoints();
-      //  }
-
-      //  if (mc != null)
-      //  {
-      //    mc.Execute(true);
-      //    cmd.AddSubCmd(mc);
-      //  }
-      //}
-
-      return true;
-    }
-
-    internal void fireItemPasted(Item item)
-    {
-      //switch (item.getType())
-      //{
-      //  case ItemType.Box:
-      //    if (BoxPasted != null)
-      //    {
-      //      Box box = item as Box;
-      //      BoxEventArgs args = new BoxEventArgs(box);
-      //      BoxPasted(this, args);
-      //    }
-      //    break;
-      //  case ItemType.ControlHost:
-      //    if (ControlHostPasted != null)
-      //    {
-      //      ControlHost host = item as ControlHost;
-      //      ControlHostEventArgs args = new ControlHostEventArgs(host);
-      //      ControlHostPasted(this, args);
-      //    }
-      //    break;
-      //  case ItemType.Table:
-      //    if (TablePasted != null)
-      //    {
-      //      Table table = item as Table;
-      //      TableEventArgs args = new TableEventArgs(table);
-      //      TablePasted(this, args);
-      //    }
-      //    break;
-      //  case ItemType.Arrow:
-      //    if (ArrowPasted != null)
-      //    {
-      //      Arrow arrow = item as Arrow;
-      //      ArrowEventArgs args = new ArrowEventArgs(arrow);
-      //      ArrowPasted(this, args);
-      //    }
-      //    break;
-      //}
     }
 
     #endregion
@@ -791,6 +651,11 @@ namespace SysCAD.Editor
         tvNavigation_SetProject();
         frmFlowChart.SetProject(graphic, config, tvNavigation);
 
+        foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
+        {
+          node.Select();
+        }
+
         (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Clear();
         foreach (string key in config.modelStencils.Keys)
         {
@@ -855,17 +720,17 @@ namespace SysCAD.Editor
 
     private void tvNavigation_AfterNodeCheck(PureComponents.TreeView.Node oNode)
     {
-      this.tvNavigation.AfterNodeCheck -= new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
+      //this.tvNavigation.AfterNodeCheck -= new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
 
-      CheckSubNodes(oNode);
+      //CheckSubNodes(oNode);
 
-      if (graphic.items.ContainsKey(oNode.Text as string)) // This is an item, not an area.
-      {
-        frmFlowChart.bod.ThingVisible(oNode.Text, oNode.Checked);
-      }
+      //if (graphic.items.ContainsKey(oNode.Text as string)) // This is an item, not an area.
+      //{
+      //  frmFlowChart.bod.ThingVisible(oNode.Text, oNode.Checked);
+      //}
 
-       this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
-      frmFlowChart.ZoomToVisible();
+      // this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
+      //frmFlowChart.ZoomToVisible();
     }
 
     private void CheckSubNodes(PureComponents.TreeView.Node oNode)

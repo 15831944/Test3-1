@@ -36,7 +36,9 @@ namespace SysCAD.Editor
       // fcFlowChart
       // 
       this.fcFlowChart.AllowDrop = true;
+      this.fcFlowChart.AllowRefLinks = false;
       this.fcFlowChart.AllowUnconnectedArrows = true;
+      this.fcFlowChart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
       this.fcFlowChart.ArrowBaseSize = 2.5F;
       this.fcFlowChart.ArrowBrush = new MindFusion.FlowChartX.SolidBrush("#FF000000");
       this.fcFlowChart.ArrowCrossings = MindFusion.FlowChartX.ArrowCrossings.BreakOff;

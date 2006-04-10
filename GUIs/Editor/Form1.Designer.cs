@@ -256,8 +256,11 @@ namespace SysCAD.Editor
       // 
       // tvNavigation
       // 
+      this.tvNavigation.AllowAdding = false;
+      this.tvNavigation.AllowDeleting = false;
       this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.tvNavigation.ExpandOnDblClick = false;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);
       this.tvNavigation.Margin = new System.Windows.Forms.Padding(2);
       this.tvNavigation.Multiline = false;

@@ -278,7 +278,22 @@ namespace SysCAD.Editor
             savedDestinationAnchor = e.Arrow.DestAnchor;
           }
         }
-        e.Arrow.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+
+        // Failed attempt to improve arrow manipulation behaviour.
+        //PointF originBoxCenter = new PointF((originBox.BoundingRect.Left + originBox.BoundingRect.Right) / 2.0F,
+        //                                    (originBox.BoundingRect.Top + originBox.BoundingRect.Bottom) / 2.0F);
+        //SizeF originBoxOffset = new SizeF(Math.Abs(e.Arrow.ControlPoints[0].X - originBoxCenter.X),
+        //                                 Math.Abs(e.Arrow.ControlPoints[0].Y - originBoxCenter.Y));
+        //if (originBoxOffset.Width < originBoxOffset.Height)
+        //{ // more below/above than to the side.
+        //  //if (e.Arrow.PrpStartOrientation == MindFusion.FlowChartX.Orientation.Horizontal)
+        //    e.Arrow.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+        //}
+        //if (originBoxOffset.Width > originBoxOffset.Height)
+        //{ // cmove to the side than above/below.
+        //  //if (e.Arrow.PrpStartOrientation == MindFusion.FlowChartX.Orientation.Vertical)
+        //    e.Arrow.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+        //}
       }
     }
 
@@ -481,7 +496,7 @@ namespace SysCAD.Editor
     {
     }
 
-    public void NewItem(RectangleF rect, Box box)
+    public void NewItem(RectangleF rect, Box box, string area)
     {
       while (bod.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
@@ -494,21 +509,21 @@ namespace SysCAD.Editor
       newItem.Model = currentModelShape;
       newItem.Shape = currentGraphicShape;
 
-      tvNavigation.Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
+      tvNavigation.GetNodeByKey(area).Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
 
       NewGraphicItem(newItem, box, true);
 
-      tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
+      //tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
     }
 
-    public void NewItem(Item item, Box box)
+    public Item NewItem(Item item, Box box, string area, float dx, float dy)
     {
       while (bod.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
       Item newItem = new Item("N_" + tempBoxKey.ToString());
       bod.graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
-      newItem.X = item.X;
-      newItem.Y = item.Y;
+      newItem.X = item.X + dx;
+      newItem.Y = item.Y + dy;
       newItem.Width = item.Width;
       newItem.Height = item.Height;
       newItem.Model = item.Model;
@@ -517,26 +532,76 @@ namespace SysCAD.Editor
       newItem.MirrorY = item.MirrorY;
       newItem.fillColor = item.fillColor;
 
-      tvNavigation.Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
+      tvNavigation.GetNodeByKey(area).Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
 
       NewGraphicItem(newItem, box, true);
 
       tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
+
+      return newItem;
     }
+
+    public Link NewLink(Link link, Arrow arrow, float dx, float dy)
+    {
+      while (bod.Exists("A_" + tempBoxKey.ToString()))
+        tempBoxKey++;
+
+      Link newLink = new Link("A_" + tempBoxKey.ToString());
+      newLink.Destination = link.Destination;
+      newLink.Origin = link.Origin;
+
+      foreach (PointF point in link.controlPoints)
+      {
+        newLink.controlPoints.Add(new PointF(point.X + dx, point.Y + dy));
+      }
+
+      if (arrow == null)
+        arrow = fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+
+      bod.newLink(newLink, arrow, true);
+
+      return newLink;
+    }
+
+    Box overBox;
+    Arrow overArrow;
 
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       MouseEventArgs me = e as MouseEventArgs;
-      Box overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location));
-      Arrow overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 1);
+      overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location));
+      overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
 
-      if ((overBox == null) && (overArrow == null)) // we're in free space...
+      if (me.Button == MouseButtons.Left)
       {
-        if (fcFlowChart.Behavior == BehaviorType.CreateBox)
+        if ((overBox == null) && (overArrow == null)) // we're in free space...
         {
-          NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), bod.config.graphicStencils[currentGraphicShape].defaultSize), null);          
+          if (fcFlowChart.Behavior == BehaviorType.CreateBox)
+          {
+            NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), bod.config.graphicStencils[currentGraphicShape].defaultSize), null, tvNavigation.SelectedNode.Text);
+          }
         }
       }
+      if (me.Button == MouseButtons.Right)
+      {
+        if (overBox != null)
+        {
+          ContextMenu boxMenu = new ContextMenu();
+          boxMenu.MenuItems.Add("Unfinished");
+          boxMenu.Show(fcFlowChart, me.Location);
+        }
+        else if (overArrow != null)
+        {
+          ContextMenu arrowMenu = new ContextMenu();
+          arrowMenu.MenuItems.Add("Route arrow", new EventHandler(RouteArrow));
+          arrowMenu.Show(fcFlowChart, me.Location);
+        }
+      }
+    }
+
+    private void RouteArrow(object sender, EventArgs e)
+    {
+      overArrow.Route();
     }
 
     private void FrmFlowChart_Resize(object sender, EventArgs e)
