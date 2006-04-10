@@ -24,9 +24,9 @@
 
 XID xid_HORRqdDH          = RctXID(1000);
 //XID xid_HORDefT           = RctXID(1001);
-XID xid_totHORRef         = RctXID(1002);
-XID xid_mlHORRef          = RctXID(1003);
-XID xid_msHORRef          = RctXID(1004);
+XID xid_totHORUsrDef      = RctXID(1002);
+XID xid_mlHORUsrDef       = RctXID(1003);
+XID xid_msHORUsrDef       = RctXID(1004);
 XID xid_msHfRef           = RctXID(1005);
 XID xid_totHORRctPr       = RctXID(1006);
 XID xid_mlHORRctPr        = RctXID(1007);

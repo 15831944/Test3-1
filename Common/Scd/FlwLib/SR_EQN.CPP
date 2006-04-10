@@ -423,18 +423,18 @@ void CR_EqnHeat::BuildDataDefn(DataDefnBlk & DDB)
   else
     Tag=SDB[m_Eq.Reactant[m_iTermNo].SpcId].SymOrTag();
   SDB.AddSpCnv(m_iCnvBasisAct, Tag, "", dcA, pCnvTxtA);
-  if (CReactionBlock::sm_AllVars & SRSX_RefInfo)
-    DDB.Double("msdH",      "HoR@Ref",    dcA,       pCnvTxtA, xid_msHORRef,    &m_Eq, isResult|noFile|noSnap);
-  DDB.Double("msdH@Fd",    "HoR@Fd",      dcA,       pCnvTxtA, xid_msHORRctFd,  &m_Eq, isResult|noFile|noSnap);
-  DDB.Double("msdH@Pr",    "HoR@Pr",      dcA,       pCnvTxtA, xid_msHORRctPr,  &m_Eq, isResult|noFile|noSnap);
-  if (CReactionBlock::sm_AllVars & SRSX_RefInfo)
-    DDB.Double("mldH",      "mlHoR@Ref",  DC_HMl, "kJ/kmol",   xid_mlHORRef,    &m_Eq, isResult|noFile|noSnap|InitHidden);
-  DDB.Double("mldH@Fd",    "mlHoR@Fd",    DC_HMl, "kJ/kmol",   xid_mlHORRctFd,  &m_Eq, isResult|noFile|noSnap|InitHidden);
-  DDB.Double("mldH@Pr",    "mlHoR@Pr",    DC_HMl, "kJ/kmol",   xid_mlHORRctPr,  &m_Eq, isResult|noFile|noSnap|InitHidden);
-  if (CReactionBlock::sm_AllVars & SRSX_RefInfo)
-    DDB.Double("totdH",     "HsGain@Ref", DC_Pwr, "kJ/s",      xid_totHORRef,   &m_Eq, isResult|noFile|noSnap|InitHidden);
-  DDB.Double("totdH@Fd",   "HsGain@Fd", DC_Pwr, "kJ/s",      xid_totHORRctFd, &m_Eq, isResult|noFile|noSnap|InitHidden);
-  DDB.Double("totdH@Pr",   "HsGain@Pr", DC_Pwr, "kJ/s",      xid_totHORRctPr, &m_Eq, isResult|noFile|noSnap|InitHidden);
+  if (CReactionBlock::sm_AllVars & SRSX_UsrDefInfo)
+    DDB.Double("msdH",      "HoR@UsrDef",     dcA,     pCnvTxtA,  xid_msHORUsrDef,  &m_Eq, isResult|noFile|noSnap);
+  DDB.Double("msdH@Fd",    "HoR@Fd",          dcA,     pCnvTxtA,  xid_msHORRctFd,   &m_Eq, isResult|noFile|noSnap);
+  DDB.Double("msdH@Pr",    "HoR@Pr",          dcA,     pCnvTxtA,  xid_msHORRctPr,   &m_Eq, isResult|noFile|noSnap);
+  if (CReactionBlock::sm_AllVars & SRSX_UsrDefInfo)
+    DDB.Double("mldH",      "mlHoR@UsrDef",   DC_HMl, "kJ/kmol",  xid_mlHORUsrDef,  &m_Eq, isResult|noFile|noSnap|InitHidden);
+  DDB.Double("mldH@Fd",    "mlHoR@Fd",        DC_HMl, "kJ/kmol",  xid_mlHORRctFd,   &m_Eq, isResult|noFile|noSnap|InitHidden);
+  DDB.Double("mldH@Pr",    "mlHoR@Pr",        DC_HMl, "kJ/kmol",  xid_mlHORRctPr,   &m_Eq, isResult|noFile|noSnap|InitHidden);
+  if (CReactionBlock::sm_AllVars & SRSX_UsrDefInfo)
+    DDB.Double("totdH",     "HsGain@UsrDef",  DC_Pwr, "kJ/s",     xid_totHORUsrDef, &m_Eq, isResult|noFile|noSnap|InitHidden);
+  DDB.Double("totdH@Fd",   "HsGain@Fd",       DC_Pwr, "kJ/s",     xid_totHORRctFd,  &m_Eq, isResult|noFile|noSnap|InitHidden);
+  DDB.Double("totdH@Pr",   "HsGain@Pr",       DC_Pwr, "kJ/s",     xid_totHORRctPr,  &m_Eq, isResult|noFile|noSnap|InitHidden);
   //DDB.Double("tot_dH",     "HsGain",     DC_Pwr, "kJ/s",      xid_totHORRct, &m_Eq, isResult|noFile|noSnap|InitHidden);
   };
 
@@ -444,15 +444,15 @@ flag CR_EqnHeat::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
-    case xid_msHORRef:    DCB.D=msDHf(m_RB.Model, m_RB.m_RefTempK, m_RB.m_Press);  return 1;
-    case xid_mlHORRef:    DCB.D=mlDHf(m_RB.Model, m_RB.m_RefTempK, m_RB.m_Press);  return 1;
-    case xid_totHORRef:   DCB.D=totDHf(m_RB.Model, m_RB.m_RefTempK, m_RB.m_Press)/ICGetTimeInc(); return 1;
-    case xid_msHORRctFd:  DCB.D=msDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press);  return 1;
-    case xid_mlHORRctFd:  DCB.D=mlDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press);  return 1;
-    case xid_totHORRctFd: DCB.D=totDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press)/ICGetTimeInc(); return 1;
-    case xid_msHORRctPr:  DCB.D=msDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press);  return 1;
-    case xid_mlHORRctPr:  DCB.D=mlDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press);  return 1;
-    case xid_totHORRctPr: DCB.D=totDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press)/ICGetTimeInc(); return 1;
+    case xid_msHORUsrDef:   DCB.D=msDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP);  return 1;
+    case xid_mlHORUsrDef:   DCB.D=mlDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP);  return 1;
+    case xid_totHORUsrDef:  DCB.D=totDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP)/ICGetTimeInc(); return 1;
+    case xid_msHORRctFd:    DCB.D=msDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press);  return 1;
+    case xid_mlHORRctFd:    DCB.D=mlDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press);  return 1;
+    case xid_totHORRctFd:   DCB.D=totDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press)/ICGetTimeInc(); return 1;
+    case xid_msHORRctPr:    DCB.D=msDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press);  return 1;
+    case xid_mlHORRctPr:    DCB.D=mlDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press);  return 1;
+    case xid_totHORRctPr:   DCB.D=totDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press)/ICGetTimeInc(); return 1;
     }
   return 0;
   };
@@ -2693,7 +2693,7 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
         RSBLcl.m_HORDiff+=E.totDHf(RB.Model, ZeroCinK, StdP)-E.totDHf(NULL, ZeroCinK, StdP);//E.HORDiff();
         RSBLcl.m_Hf_FdT+=E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
         RSBLcl.m_Hf_PrT+=E.totDHf(RB.Model, RB.m_TempKProd, RB.m_Press);
-        RSBLcl.m_Hf_RefT+=E.totDHf(RB.Model, RB.m_RefTempK, RB.m_Press);
+        RSBLcl.m_Hf_RefT+=E.totDHf(RB.Model, RB.m_UsrDefT, RB.m_UsrDefP);
         RSBLcl.m_Hf_ZeroT+=E.totDHf(RB.Model, ZeroCinK, RB.m_Press);
         RSBLcl.m_dHfZeroTAtmP+=E.totDHf(RB.Model, ZeroCinK, StdP);
         RSBLcl.fCpsOK&=E.CpsOK();

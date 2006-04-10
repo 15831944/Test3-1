@@ -536,7 +536,8 @@ class DllImportExport CReactionBlock : public TaggedObject
     double         m_TempKFeed;    // temperature @ Start
     double         m_TempKRct;     // temperature @ Rct
     double         m_TempKProd;    // temperature @ End
-    double         m_RefTempK;     // temperature @ Start
+    double         m_UsrDefT;      
+    double         m_UsrDefP;      
     double         m_dEstFinalT;   // Estimated final temperature
     double         m_Press;        // pressure
 
@@ -549,7 +550,7 @@ class DllImportExport CReactionBlock : public TaggedObject
 
   };
 
-const byte SRSX_RefInfo  = 0x01;
+const byte SRSX_UsrDefInfo  = 0x01;
 const byte SRSX_FeedInfo = 0x02;
 const byte SRSX_ProdInfo = 0x04;
 const byte SRSX_All      = 0x07;

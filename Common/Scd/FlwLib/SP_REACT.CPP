@@ -284,7 +284,8 @@ void CReactionBlock::Clear(flag fClearMsg)
   m_TempKFeed          = Std_T;
   m_TempKRct           = Std_T;
   m_TempKProd          = Std_T;
-  m_RefTempK           = C_2_K(25.0);
+  m_UsrDefT            = C_2_K(25.0);
+  m_UsrDefP            = StdP;
   m_pModelOwn          = NULL;
   m_pOvr               = NULL;
   m_Press              = Std_P;
@@ -944,7 +945,7 @@ static DDBValueLst DDBExtentTypes[] = {
 
 static DDBValueLst DDBExtraInfo[] = {
   { 0,                "Remove All"},
-  { SRSX_RefInfo,     "Include RefInfo"},
+  { SRSX_UsrDefInfo,  "Include UsrDefInfo"},
   { SRSX_FeedInfo,    "Include FeedInfo"},
   { SRSX_ProdInfo,    "Include ProdInfo"},   
   { SRSX_All,         "Include All"},  
@@ -996,7 +997,9 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     DDB.String("RunState",          "",    DC_,     "",      xidRCTRunState,  this, MultiLineStr|noFileAtAll);
     DDB.CheckBoxBtn("StdRefModel",  "",    DC_,     "",      &m_UseStdRefModel, this, isParm);
     DDB.Visibility(SHM_All, sm_AllVars!=0);
-    DDB.Double("RefTemp",           "",    DC_T,    "C",     &m_RefTempK,     this, isParm);
+    //DDB.Double("RefTemp",           "",    DC_T,    "C",     &m_RefTempK,     this, isParm);
+    DDB.Double("UsrDefT",           "",    DC_T,    "C",     &m_UsrDefT,      this, isParm);
+    DDB.Double("UsrDefP",           "",    DC_P,    "kPa",   &m_UsrDefP,      this, isParm);
     DDB.Visibility();
     DDB.Double("Press",             "",    DC_P,    "kPa",   &m_Press,        this, isResult);
     DDB.Double("TempFeed",          "",    DC_T,    "C",     &m_TempKFeed,    this, isResult);
@@ -1015,7 +1018,7 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
 //    DDB.Double("HfGain.Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, isResult|noFile|noSnap|InitHidden);
 //    DDB.Double("HfLoss.Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, isResult|noFile|noSnap|InitHidden);
 //    DDB.Double("HfErr",             "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, isResult|noFile|noSnap|InitHidden);
-    if (sm_AllVars & SRSX_RefInfo)
+    if (sm_AllVars & SRSX_UsrDefInfo)
       {
       if (DDB.BeginStruct(this, "dH@Ref", NULL, DDB_NoPage, 0, MarkerClosed))
         {
