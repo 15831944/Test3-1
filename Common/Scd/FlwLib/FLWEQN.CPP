@@ -1310,7 +1310,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
       if (DCB.rD)
         {
         Eqn()->m_FlwRqd.m_RqdQvCap=*DCB.rD;
-        Eqn()->m_FlwRqd.m_RqdQmCap=*DCB.rD*Eqn()->m_FlwRqd.m_MeasDens;
+        if (OrigPrjFileVerNo()>=90)
+          Eqn()->m_FlwRqd.m_RqdQmCap=*DCB.rD*Eqn()->m_FlwRqd.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdQvCap;
       return 1;
@@ -1318,7 +1319,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
       if (DCB.rD)
         {
         Eqn()->m_FlwRqd.m_MinQvCap=*DCB.rD;
-        Eqn()->m_FlwRqd.m_MinQmCap=*DCB.rD*Eqn()->m_FlwRqd.m_MeasDens;
+        if (OrigPrjFileVerNo()>=90)
+          Eqn()->m_FlwRqd.m_MinQmCap=*DCB.rD*Eqn()->m_FlwRqd.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MinQvCap;
       return 1;
@@ -1326,7 +1328,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
       if (DCB.rD)
         {
         Eqn()->m_FlwRqd.m_MaxQvCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQvCap, *DCB.rD) : dNAN;
-        Eqn()->m_FlwRqd.m_MaxQmCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQvCap, *DCB.rD)*Eqn()->m_FlwRqd.m_MeasDens : dNAN;
+        if (OrigPrjFileVerNo()>=90)
+          Eqn()->m_FlwRqd.m_MaxQmCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQvCap, *DCB.rD)*Eqn()->m_FlwRqd.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MaxQvCap;
       return 1;

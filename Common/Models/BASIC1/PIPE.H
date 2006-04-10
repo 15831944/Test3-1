@@ -22,6 +22,7 @@
 #endif
 
 // ===========================================================================
+
 DEFINE_TAGOBJ(Pipe);
 
 class DllImportExport Pipe : public MN_Lnk
@@ -35,7 +36,9 @@ class DllImportExport Pipe : public MN_Lnk
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
+
   private:
+    bool           m_UseNewCapVars;
   };
 
 //=========================================================================== 

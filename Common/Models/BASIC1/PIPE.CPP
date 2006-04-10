@@ -148,6 +148,8 @@ Pipe::Pipe(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttac
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(Pipe), 0, mmio_CONNECT, NULL);
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(Pipe), 1, mmio_CONNECT, NULL);
+
+  m_UseNewCapVars =false;
   };
 
 //--------------------------------------------------------------------------
@@ -172,9 +174,6 @@ static DDBValueLst DDBXfCapOpt[]={
 void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   {
   //const flag IsXfer=((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlwMode();
-  const flag IsXfer=(!SolveDirectMethod() && (((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlowMode()));
-  const flag IsPipe=!IsXfer;
-  const flag IsSrcSnk=!IsXfer && GetActiveHold();
 
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
@@ -198,6 +197,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       DDB.Long ("LnkMode",       "",     DC_,     "",      xidLnkMode, this, isParmStopped|SetOnChange, DDB0a);
     }
 
+  const flag IsXfer=(!SolveDirectMethod() && (((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlowMode()));
+  const flag IsPipe=!IsXfer;
+  const flag IsSrcSnk=!IsXfer && GetActiveHold();
+
   if (SolveDirectMethod())
     {
     DDB.Visibility(SM_Direct|HM_All);
@@ -207,7 +210,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   else
     {
     DDB.Text   ("");
-    if (OrigPrjFileVerNo()<94 )
+    if (OrigPrjFileVerNo()<94)
+      DDB.CheckBoxBtn("UseNewCapVars",      "",   DC_,  "",  &m_UseNewCapVars,       this, isParm);
+
+    if (!m_UseNewCapVars && OrigPrjFileVerNo()<94)
       {
       DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
       DDB.Double ("",               "Qm_Rqd",       DC_Qm,   "kg/s",  xidOldQmReqd,           this, isParm|NAN_OK, DDBNAN_NotSpecd);
