@@ -271,6 +271,8 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
 #if USESCDEXPLORER
     afx_msg void OnExplorer();
     afx_msg void OnUpdateExplorer(CCmdUI* pCmdUI);
+    afx_msg void OnWindowSelectwindow();
+    afx_msg void OnUpdateWindowSelectwindow(CCmdUI* pCmdUI);
 #else
     afx_msg void OnWindowSelectwindow();
     afx_msg void OnUpdateWindowSelectwindow(CCmdUI* pCmdUI);

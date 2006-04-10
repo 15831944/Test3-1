@@ -134,6 +134,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 #if USESCDEXPLORER
   ON_COMMAND(ID_VIEW_EXPLORER, OnExplorer)
   ON_UPDATE_COMMAND_UI(ID_VIEW_EXPLORER, OnUpdateExplorer)
+  ON_COMMAND(ID_WNDW_SELECT, OnWindowSelectwindow)
+  ON_UPDATE_COMMAND_UI(ID_WNDW_SELECT, OnUpdateWindowSelectwindow)
 #else
   ON_COMMAND(ID_WNDW_SELECT, OnWindowSelectwindow)
   ON_UPDATE_COMMAND_UI(ID_WNDW_SELECT, OnUpdateWindowSelectwindow)
@@ -2063,6 +2065,21 @@ void CMainFrame::OnUpdateExplorer(CCmdUI* pCmdUI)
   pCmdUI->Enable(EnableNotStopped());
   }
 
+void CMainFrame::OnWindowSelectwindow()
+  {
+  if (CExploreScd::UseSelectWndList())
+    CExploreScd::OpenIt();
+  else
+    {
+    CSelectWindowDlg Dlg(this);
+    Dlg.DoModal();
+    }
+  }
+
+void CMainFrame::OnUpdateWindowSelectwindow(CCmdUI* pCmdUI)
+  {
+  pCmdUI->Enable(EnableNotStopped());
+  }
 #else
 
 void CMainFrame::OnWindowSelectwindow()

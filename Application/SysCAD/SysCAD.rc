@@ -686,6 +686,7 @@ BEGIN
         MENUITEM "&Tile",                       ID_WNDW_TILE
         MENUITEM "&Arrange Icons",              ID_WNDW_ARRANGE
         MENUITEM SEPARATOR
+        MENUITEM "Select &Window ...\tCtrl+W",  ID_WNDW_SELECT
         MENUITEM "A&rrange Windows ...",        ID_WNDW_ARRANGESPECIAL
     END
     POPUP "&Help"
@@ -978,6 +979,7 @@ BEGIN
         MENUITEM "&Tile",                       ID_WNDW_TILE
         MENUITEM "&Arrange Icons",              ID_WNDW_ARRANGE
         MENUITEM SEPARATOR
+        MENUITEM "Select &Window ...\tCtrl+W",  ID_WNDW_SELECT
         MENUITEM "A&rrange Windows ...",        ID_WNDW_ARRANGESPECIAL
     END
     POPUP "&Help"
@@ -1190,6 +1192,7 @@ BEGIN
         MENUITEM "&Tile",                       ID_WNDW_TILE
         MENUITEM "&Arrange Icons",              ID_WNDW_ARRANGE
         MENUITEM SEPARATOR
+        MENUITEM "Select &Window ...\tCtrl+W",  ID_WNDW_SELECT
         MENUITEM "A&rrange Windows ...",        ID_WNDW_ARRANGESPECIAL
     END
     POPUP "&Help"
@@ -1447,6 +1450,7 @@ BEGIN
         MENUITEM "&Tile",                       ID_WNDW_TILE
         MENUITEM "&Arrange Icons",              ID_WNDW_ARRANGE
         MENUITEM SEPARATOR
+        MENUITEM "Select &Window ...\tCtrl+W",  ID_WNDW_SELECT
         MENUITEM "A&rrange Windows ...",        ID_WNDW_ARRANGESPECIAL
     END
     POPUP "&Help"
@@ -1625,6 +1629,7 @@ BEGIN
         MENUITEM "&Tile",                       ID_WNDW_TILE
         MENUITEM "&Arrange Icons",              ID_WNDW_ARRANGE
         MENUITEM SEPARATOR
+        MENUITEM "Select &Window ...\tCtrl+W",  ID_WNDW_SELECT
         MENUITEM "A&rrange Windows ...",        ID_WNDW_ARRANGESPECIAL
     END
     POPUP "&Help"
