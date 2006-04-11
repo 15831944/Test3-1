@@ -52,6 +52,17 @@ interface IScdProfile : IDispatch{
   [id(6), helpstring("Write a Double")] HRESULT WriteDouble([in] BSTR File, [in] BSTR Section, [in] BSTR Entry, [in] double newVal);
   };
 [
+	object,
+	uuid(E8AFF309-B486-46AA-9AD5-B96488429D77),
+	dual,
+	nonextensible,
+	helpstring("IScdUtils Interface"),
+	pointer_default(unique)
+]
+interface IScdUtils : IDispatch{
+  [id(1), helpstring("method Sleep")] HRESULT Sleep([in] LONG PeriodMS);
+  };
+[
 	uuid(03763CF2-5A3B-4D02-87A2-B478CFF4E04A),
 	version(1.0),
 	helpstring("SysCAD Helper Objects for VB")
@@ -262,5 +273,13 @@ library ScdVBLib
 	coclass ScdProfile
 	{
 		[default] interface IScdProfile;
+	};
+	[
+		uuid(A80EF604-A63B-4156-97E1-92A204AB03DD),
+		helpstring("ScdUtils Class")
+	]
+	coclass ScdUtils
+	{
+		[default] interface IScdUtils;
 	};
 };

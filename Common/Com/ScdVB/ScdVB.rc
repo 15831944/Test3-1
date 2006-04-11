@@ -133,6 +133,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_SOUTH_AFRICA
 //
 
 IDR_SCDPROFILE          REGISTRY                "ScdProfile.rgs"
+IDR_SCDUTILS            REGISTRY                "ScdUtils.rgs"
 #endif    // English (South Africa) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -10,6 +10,7 @@
 #define IDR_SCDEVENTRELAY               107
 #define IDR_SCDSTOPWATCH                108
 #define IDR_SCDPROFILE                  109
+#define IDR_SCDUTILS                    110
 #define E_UNABLE_TO_CREATE_WORKER_THREAD 513
 #define E_GENERAL_ERROR                 514
 #define E_FAILED_TO_CREATE_EVENT        515
@@ -21,6 +22,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        201
 #define _APS_NEXT_COMMAND_VALUE         32768
 #define _APS_NEXT_CONTROL_VALUE         201
-#define _APS_NEXT_SYMED_VALUE           110
+#define _APS_NEXT_SYMED_VALUE           111
 #endif
 #endif
