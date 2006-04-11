@@ -1,0 +1,26 @@
+HKCR
+{
+	ScdVB.ScdUtils.1 = s 'ScdUtils Class'
+	{
+		CLSID = s '{A80EF604-A63B-4156-97E1-92A204AB03DD}'
+	}
+	ScdVB.ScdUtils = s 'ScdUtils Class'
+	{
+		CLSID = s '{A80EF604-A63B-4156-97E1-92A204AB03DD}'
+		CurVer = s 'ScdVB.ScdUtils.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A80EF604-A63B-4156-97E1-92A204AB03DD} = s 'ScdUtils Class'
+		{
+			ProgID = s 'ScdVB.ScdUtils.1'
+			VersionIndependentProgID = s 'ScdVB.ScdUtils'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{03763CF2-5A3B-4D02-87A2-B478CFF4E04A}'
+		}
+	}
+}
