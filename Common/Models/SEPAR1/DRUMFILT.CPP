@@ -6,7 +6,7 @@
 #include "stdafx.h"
 #define  __DRUMFILT_CPP
 #include "DrumFilt.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 //==========================================================================
 /*#D:#T:DrumFilt
