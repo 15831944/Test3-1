@@ -3852,7 +3852,6 @@ class DllImportExport FlwNode : public CTNode
     virtual void   EvalState() {};
 
     virtual CFlwRegBlk * GetFlwRegulator() { return NULL; };
-    virtual void   SetFlwRegulator()       { };
 
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts) { return false; };

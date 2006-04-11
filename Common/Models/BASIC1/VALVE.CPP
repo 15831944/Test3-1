@@ -290,7 +290,7 @@ flag Valve_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
   Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_VPB.On(),  "Close", 0));
   Acts.SetAtGrow(2, MdlAction(2, MAT_Value, m_VPB.On(),  "Manual Posn (%)", true,
                                       m_VPB.ManualPosition(this)*100, 0.0, 100.0,     
-                                      m_VPB.ActualPosition(this)*100));                
+                                      m_VPB.ActualPosition(this, &m_FRB)*100));                
   Acts.SetAtGrow(3, MdlAction(3, MAT_Switch));
   return True;
   }
@@ -332,7 +332,7 @@ flag Valve_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
     if (Task!=FET_GetMode)
       FB.SetRegulator(m_FRB.What());
     if (NoFlwIOs()>=2 && IOId_Self(0)==IOId_2IOIn && IOId_Self(1)==IOId_2IOOut)
-      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.On(), true, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
+      return FB.EvaluateFlwEqn(Task, pProps, m_VPB.On()!=0, true, m_VPB.ActualPosition(this, &m_FRB), &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
     FB.SetQmReqd(0.0);
     return true;
     }
@@ -402,7 +402,7 @@ dword Valve_GP::ModelStatus()
   dword Status=MN_BstRes::ModelStatus();
   if (!gs_Exec.Stopped() && SolveDynamicMethod())
     {
-    Status |= ((m_VPB.On() && m_VPB.ActualPosition(this)>0.0) ? FNS_On : FNS_Off);
+    Status |= ((m_VPB.On() && m_VPB.ActualPosition(this, &m_FRB)>0.0) ? FNS_On : FNS_Off);
     }
   return Status;
   }

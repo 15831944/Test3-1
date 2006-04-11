@@ -8,6 +8,7 @@
 #define  __PIPETERM_CPP
 #include "pipeterm.h"
 #include "scd_wm.h"
+//#include "optoff.h"
 
 //==========================================================================
 
@@ -246,7 +247,7 @@ flag CPipeTerm::GetModelAction(Strng & Tag, MdlActionArray & Acts)
   MdlAction M1(1, MAT_State, m_VPB.On(),  "Close", 0);
   MdlAction M2(2, MAT_Value, m_VPB.On(),  "Manual Posn (%)", true,
                   m_VPB.ManualPosition(this)*100, 0.0, 100.0,
-                  m_VPB.ActualPosition(this)*100);
+                  m_VPB.ActualPosition(this, &m_FRB)*100);
 
   Acts.SetSize(0);
   Acts.SetAtGrow(0, M0);
@@ -380,9 +381,7 @@ flag CPipeTerm::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
   if (Task!=FET_GetMode)
     IOFB(0,FE)->SetRegulator(m_FRB.What());
 
-  //dbgpln("XXXXXXXXXXX %10.4f", m_VPB.ActualPosition(this)*100);
-  
-  return IOFB(0,FE)->EvaluateFlwEqn(Task, pProps, m_VPB.On(), false, m_VPB.ActualPosition(this), &IOFBFlng_Rmt(0)->PhD(), NULL);
+  return IOFB(0,FE)->EvaluateFlwEqn(Task, pProps, m_VPB.On()!=0, false, m_VPB.ActualPosition(this, &m_FRB), &IOFBFlng_Rmt(0)->PhD(), NULL);
   };
 
 //--------------------------------------------------------------------------
@@ -402,8 +401,8 @@ void CPipeTerm::EvalCtrlActions()
     //    m_VPB.SetReqdPosition(CIO_Value(io));
     //  }
 
-  if (!m_FRB.On())
-    m_VPB.EvalCtrlActions(this);
+  //if (!m_FRB.On())
+  m_VPB.EvalCtrlActions(this);
   }
 
 //--------------------------------------------------------------------------
@@ -489,7 +488,7 @@ dword  CPipeTerm::ModelStatus()
   dword Status=MdlNode::ModelStatus();
   if (NoFlwIOs()>0)
     {
-    Status |= ((m_VPB.On() && m_VPB.ActualPosition(this)>0.0) ? FNS_On : FNS_Off);
+    Status |= ((m_VPB.On() && m_VPB.ActualPosition(this, &m_FRB)>0.0) ? FNS_On : FNS_Off);
   
     Status |= (IOConduit(0)->QMass()>UsableMass ? FNS_UFlw : FNS_UNoFlw);
 

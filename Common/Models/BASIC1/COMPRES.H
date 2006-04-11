@@ -38,7 +38,6 @@ class DllImportExport GasPump_GP : public MN_BstRes
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 
     virtual CFlwRegBlk * GetFlwRegulator()  { return &m_FRB; };
-    virtual void   SetFlwRegulator()        { }
 
     virtual double LnkFlowDefined()             { return !GetActiveHold() && m_PSB.On() ? PBQmEst : 0.0; };
     virtual bool   LnkFlowDefinedIn(int IONo)   { return m_PSB.On() && MdlNode::LnkFlowDefinedIn(IONo); };

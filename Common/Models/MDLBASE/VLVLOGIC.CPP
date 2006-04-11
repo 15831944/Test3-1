@@ -204,9 +204,13 @@ void VL_Basic::EvalCtrlActions(FlwNode* pFNode)
 
 //---------------------------------------------------------------------------
 
-double VL_Basic::ActualPosition(FlwNode* pFNode)
+double VL_Basic::ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  dPosition=Range(0.0, dPosition, 1.0);
+  if (pFRB)
+    dPosition=pFRB->Ctrl();
+  else
+    dPosition=Range(0.0, dPosition, 1.0);
+
   dPhysPosn = dLeakOpening+(bReverseAction?(1.0-dPosition):dPosition)/(1.0-dLeakOpening);
   return dPhysPosn;   
   //return dLeakOpening+dPosition/(1.0-dLeakOpening);   
@@ -387,9 +391,9 @@ void VL_Stroke::EvalCtrlActions(FlwNode* pFNode)
 
 //---------------------------------------------------------------------------
 
-double VL_Stroke::ActualPosition(FlwNode* pFNode)
+double VL_Stroke::ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  return VL_Basic::ActualPosition(pFNode);
+  return VL_Basic::ActualPosition(pFNode, pFRB);
   };
 
 //===========================================================================
@@ -616,9 +620,13 @@ void VL_StrokeOC::EvalCtrlActions(FlwNode* pFNode)
 
 //---------------------------------------------------------------------------
 
-double VL_StrokeOC::ActualPosition(FlwNode* pFNode)
+double VL_StrokeOC::ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  dMapPosn=Range(0.0, dMapPosn, 1.0);
+  if (pFRB)
+    dMapPosn=pFRB->Ctrl();
+  else
+    dMapPosn=Range(0.0, dMapPosn, 1.0);
+
   dPhysPosn = dLeakOpening+(bReverseAction?(1.0-dMapPosn):dMapPosn)/(1.0-dLeakOpening);
   return dPhysPosn;   
   };

@@ -78,12 +78,6 @@ class DllImportExport CPipeTerm : public MdlNode
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 
     virtual CFlwRegBlk * GetFlwRegulator()  { return &m_FRB; };
-    virtual void         SetFlwRegulator() 
-      { 
-      double Posn=m_FRB.Ctrl();
-      m_VPB.SetReqdPosition(Posn); 
-      m_VPB.SetActualPosition(Posn); 
-      };
 
     virtual void   EvalState();
     virtual void   ClosureInfo();

@@ -373,7 +373,7 @@ flag Pump_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
       //    break;
       //  }
       //SetCI(1, ShowBug);
-      return FB.EvaluateFlwEqn(Task, pProps, m_PSB.On(), true, m_PSB.Speed(this, &m_FRB)/**Max(1e-3, m_FRB.Ctrl())*/, &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
+      return FB.EvaluateFlwEqn(Task, pProps, m_PSB.On()!=0, true, m_PSB.Speed(this, &m_FRB)/**Max(1e-3, m_FRB.Ctrl())*/, &IOFBFlng_Rmt(0)->PhD(), &IOFBFlng_Rmt(1)->PhD());
       }
     FB.SetQmReqd(0.0);
     return true;

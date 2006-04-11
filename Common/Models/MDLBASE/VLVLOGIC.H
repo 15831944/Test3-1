@@ -59,7 +59,7 @@ class VL_Base : public CIO_Logic
     virtual void   SetActualPosition(double Posn) { dPosition=Posn; };
     virtual double ManualPosition(FlwNode* pFNode) { return dManualPosition; };
     virtual double ReqdPosition(FlwNode* pFNode)   { return dReqdPosition; };  
-    virtual double ActualPosition(FlwNode* pFNode)=0;   
+    virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL)=0;   
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
   };
 
@@ -90,7 +90,7 @@ class VL_Basic : public VL_Base
     virtual void   EvalDiscrete(FlwNode* pFNode) {};
     virtual void   EvalCtrlActions(FlwNode* pNd);
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
-    virtual double ActualPosition(FlwNode* pFNode);
+    virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);
     virtual void   SetActualPosition(double Posn);
     virtual flag   On();
     virtual void   SetOn(int On);
@@ -124,7 +124,7 @@ class DllImportExport CIO_VlvPosBlk : public CIO_Blk
     void           SetActualPosition(double P) { ((VL_Base*)pLogic)->SetActualPosition(P); };
     double         ManualPosition(FlwNode* pFNode) { return ((VL_Base*)pLogic)->ManualPosition(pFNode); };
     double         ReqdPosition(FlwNode* pFNode) { return ((VL_Base*)pLogic)->ReqdPosition(pFNode); };
-    double         ActualPosition(FlwNode* pFNode) { return ((VL_Base*)pLogic)->ActualPosition(pFNode); };
+    double         ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL) { return ((VL_Base*)pLogic)->ActualPosition(pFNode, pFRB); };
     void           Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg) { ((VL_Base*)pLogic)->Ctrl_ConnIDStr(i, ID, Tg); };
   };
 
@@ -148,7 +148,7 @@ class VL_Stroke : public VL_Basic
     virtual void   EvalDiscrete(pFlwNode pFNode) {};
     virtual void   EvalCtrlActions(FlwNode* pNd);
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
-    virtual double ActualPosition(FlwNode* pFNode);
+    virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);
   };
 
 // ===========================================================================
@@ -189,7 +189,7 @@ class VL_StrokeOC : public VL_Base
 
     virtual flag   On();
     virtual void   SetOn(int On);                  
-    virtual double ActualPosition(FlwNode* pFNode);   
+    virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);   
   };
 
 // ===========================================================================

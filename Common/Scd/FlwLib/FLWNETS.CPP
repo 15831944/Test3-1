@@ -19,7 +19,7 @@
 #include "scd_wm.h"
 #include "nrecipe.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 const double MinFxdQmDiff          = 1.0e-10;
 const double ArrayReAnalyseRatio   = 100.0;
@@ -660,12 +660,13 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
           {
           m_nResTHist++;
           m_iResTIndex=(m_iResTIndex+1)%iLen;
+          m_ResTHist.SetSize(iLen);
           }
         m_iNetLoop=iLoop;
 
         if (m_nResTHist>0)
           {
-          m_ResTHist.SetAtGrow(m_iResTIndex, m_ResTCalc);
+          m_ResTHist[m_iResTIndex]=m_ResTCalc;
           m_ResT  = 0.0;
           int n=Min(m_nResTHist, iLen);
           for (int j=0; j<n; j++)
@@ -3542,7 +3543,6 @@ void CGrpFlwRegBlk:: SetFlwRegulator(double R)
   {
   m_dCtrlCur=R;
   m_pFRB->m_dCtrlCur=Range(m_pFRB->m_dCtrlMin, (float)R, m_pFRB->m_dCtrlMax);
-  m_pNd->SetFlwRegulator();
   }
 
 //--------------------------------------------------------------------------
@@ -3582,7 +3582,10 @@ class CRegSolver: public MRootFinderBase
           pGrp->m_Regulator.SetFlwRegulator(x);
           pGrp->ConvergeQm(iMaxLoops, fFirstOuterLoop, fLastOuterLoop);
 
-          dbgpln("-----Target %20.11f %17.6f %17.6f %17.6f %14.8f %s", x, dTarget, pGrp->m_Regulator.m_dMeasValue, pGrp->m_QmEstIn, pFRB->m_pFB?pFRB->m_pFB->m_MeasRho:0.0, ObjTag());
+#if dbgFlwNets
+          if (dbgRegulators())
+            dbgpln("-----Target %20.11f %17.6f %17.6f %17.6f %14.8f %s", x, dTarget, pGrp->m_Regulator.m_dMeasValue, pGrp->m_QmEstIn, pFRB->m_pFB?pFRB->m_pFB->m_MeasRho:0.0, ObjTag());
+#endif
 
           return (pGrp->m_Regulator.m_dMeasValue);
           };

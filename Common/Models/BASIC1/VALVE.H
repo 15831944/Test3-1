@@ -47,12 +47,6 @@ class DllImportExport Valve_GP : public MN_BstRes
     virtual void   EvalCtrlActions();
 
     virtual CFlwRegBlk * GetFlwRegulator() { return &m_FRB; };
-    virtual void         SetFlwRegulator() 
-      { 
-      double Posn=m_FRB.Ctrl();
-      m_VPB.SetReqdPosition(Posn); 
-      m_VPB.SetActualPosition(Posn); 
-      };
 
     virtual dword  ModelStatus();
 
