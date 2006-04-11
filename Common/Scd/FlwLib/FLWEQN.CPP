@@ -621,6 +621,10 @@ CFlwBlkData::CFlwBlkData()
   m_pNdPB=NULL;
   m_pFlPB=NULL;
   dBstDamping=0.0;
+  m_ResTHist.SetSize(0,4);
+  m_nResTHist=0;
+  m_iResTIndex=0;
+  m_iNetLoop=1000;
   
   ResetData(true);//Initialise();
   };
@@ -685,6 +689,10 @@ void CFlwBlkData::ResetData(flag Complete)
   m_dPmQ                = 0.0;
   m_dPmdQ               = 0.0;
   m_ResT                = 0.0;
+  m_ResTCalc            = 0.0;
+  m_nResTHist           = 0;
+  m_iResTIndex          = 0;
+  m_iNetLoop            = 1000;
   m_Vel                 = dNAN;
   m_VelSonic            = dNAN;
   m_MomentScl           = 1.0;
@@ -2317,7 +2325,8 @@ flag CFlwBlkBase::SolveFlwEqn(CSpPropInfo *pProps, double Regulation, double P1_
   ClrFunctOfPress();
   ClrEvalFwdOnly();
   ClrEvalRevOnly();
-  CFlwBlkData Mem=*this;
+  _asm int 3; // next line must be be restored
+  //CFlwBlkData Mem=*this;
 
   m_Qm=NZ(EstFlw);
   ASSERT(fabs(m_Qm)>1.0e-200);
@@ -2364,7 +2373,8 @@ flag CFlwBlkBase::SolveFlwEqn(CSpPropInfo *pProps, double Regulation, double P1_
       break;
     }
   EstFlw=m_Qm;
-  *(static_cast<CFlwBlkData*>(this))=Mem;
+  _asm int 3; // next line must be be restored
+  //*(static_cast<CFlwBlkData*>(this))=Mem;
 
   return b;
   };

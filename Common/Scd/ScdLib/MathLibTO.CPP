@@ -543,7 +543,7 @@ int MRootFinderBase::Solve_Brent()
 
 #define NewSolveFromEst 0
 
-int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax) 
+int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax, double dChgInit) 
   {
   if (pMRootFinderBusy)
     *pMRootFinderBusy=1;
@@ -553,8 +553,8 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax)
   double NegV=-1.0e10, NegF=-1.0e10;
   bool PosOk=0, NegOk=0, DoBrent=0;
 
-  double aChgMax=fabs(dChgMax);
-  //Est=Range(dMin+aChgMax*1.5, Est, dMax-aChgMax*1.5);
+  if (!Valid(dChgInit))
+    dChgInit=dChgMax;
 
   iter=-2;//testing estimate
   double EstV=Est;
@@ -571,12 +571,12 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax)
     PosF=EstF;
     PosV=EstV;
     PosOk=1;
-    EstV-=Sign*dChgMax;//*0.001; // EstV too High
+    EstV-=Sign*dChgInit;//*0.001; // EstV too High
     #if NewSolveFromEst
     if (V0<=dMax && EstV>=dMax)
-      EstV=V0-dChgMax;
+      EstV=V0-dChgInit;
     else if (V0>=dMin && EstV<=dMin)
-      EstV=V0+dChgMax;
+      EstV=V0+dChgInit;
     #endif
     }
   else if (/*Sign**/(EstF-dTarget)<0.0)
@@ -584,12 +584,12 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax)
     NegF=EstF;
     NegV=EstV;
     NegOk=1;
-    EstV+=Sign*dChgMax;//*0.001; // EstV too Low
+    EstV+=Sign*dChgInit;//*0.001; // EstV too Low
     #if NewSolveFromEst
     if (V0<=dMax && EstV>=dMax)
-      EstV=V0-dChgMax;
+      EstV=V0-dChgInit;
     else if (V0>=dMin && EstV<=dMin)
-      EstV=V0+dChgMax;
+      EstV=V0+dChgInit;
     #endif
     }
   else

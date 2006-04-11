@@ -517,7 +517,7 @@ class DllImportExport MRootFinderBase
     virtual int     Start(double X1, double X2, double Fn1=dNAN, double Fn2=dNAN);
     virtual double  Function(double x) = 0;
     virtual int     Solve_Brent();
-    virtual int     SolveFromEst(double Est, double Sign, double dChgFrac=0.01);
+    virtual int     SolveFromEst(double Est, double Sign, double dChgFrac=0.01, double dChgInit=dNAN);
     virtual bool    Converged(double X1, double X2, double Fn1, double Fn2);
 
     virtual LPCTSTR ObjTag()                                { return ""; };

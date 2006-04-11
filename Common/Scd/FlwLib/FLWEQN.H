@@ -666,7 +666,13 @@ class DllImportExport CFlwBlkData
                    m_dPmB,           // Momentum_Head Boost Component
                    m_dPmQ,           // Momentum_Head Resist Component
                    m_dPmdQ,          // 1st Derivative of Resist Component
-                   m_ResT;           // Resistance (Total)
+                   m_ResT,           // Resistance (Total)
+                   m_ResTCalc;       // Resistance (Total - Calculated)
+    
+    CArray<double,double> m_ResTHist;       // Resistance (Total - History)
+    int            m_nResTHist;    
+    int            m_iResTIndex;    
+    int            m_iNetLoop;    
 
     double         m_SimpleRes;      // Simple Mode Resistance = 
 

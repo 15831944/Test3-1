@@ -33,8 +33,6 @@
 
 #define WithOLDMAXFXDPRESS 0
 
-#define NODEMAXRESRATIO 0
-
 extern DllImportExport const double MinFxdQmDiff;
 extern DllImportExport const double ArrayReAnalyseRatio;
 extern DllImportExport const double MinimumResistance;
@@ -400,8 +398,6 @@ class CGrpFlwBlk
     double         m_dVPrevQm, m_dLPrevQm;
     double         m_dVResMtx, m_dLResMtx;
 
-    double         m_dResAdj;
-
     #ifdef _DEBUG
     dword          m_dwIterNo;
     long           m_nTraverse;
@@ -655,10 +651,6 @@ class CSubNetBlk
 
     CGrpFlwList     m_RegGrps;
     
-    #if NODEMAXRESRATIO
-    CJoinPtrList    ResCheckTies;
-    #endif
-
     FlwBlkList     m_UDFFBs;
 
     CJoinRec *     m_pFirstJoin;
@@ -891,21 +883,7 @@ class CFullNetBlk
   friend class CFlwSolver;
 
   public:
-//#if NDSTOPWATCHES
-//    CStopWatch      m_swConvergeTicks;
-//    CStopWatch      MeasureTicks;
-//    CStopWatch      SolveTicks;
-//    CStopWatch      LoadSurgeTicks;
-//    CStopWatch      CalcIndicesTicks;
-//    CStopWatch      MtxBuildTicks;
-//    CStopWatch      MtxSolveTicks;
-//    CStopWatch      MtxExtractTicks;
-//    CStopWatch      ChkJoinsTicks;
-//    CStopWatch      EvalJoinQTicks;
-//    CStopWatch      EvalJoinPTicks;
-//    CStopWatch      SolveFxdFlwQTicks;
-//    CStopWatch      SolveFxdFlwPTicks;
-//#endif
+
   private:
     long            TotalSolveCnt, MaxSolveCnt;
                     
@@ -915,7 +893,6 @@ class CFullNetBlk
     int             NNets;
     NetArray        Nets;
                     
-//    double          Lnk_Eps_A, Lnk_Eps_R, Net_DeRating;
     flag            fStopReqd;
                     
     #ifdef _DEBUG   
@@ -929,6 +906,8 @@ class CFullNetBlk
     long            m_lNetCnvCnt;
     long            m_lMaxUDFIters;
     flag            m_fAllowFastConverge;
+    long            m_lResRunAvgStart;
+    long            m_lResRunAvgCount;
 
     CToleranceBlock m_LnkEPS;
     CToleranceBlock m_QmFndEPS;

@@ -396,6 +396,8 @@ XID xidNetCnvCount                    = FlwXID(5201);
 XID xidUDFCnvCount                    = FlwXID(5202);
 XID xidNetMaxResRatio                 = FlwXID(5203);
 XID xidNetFastConverge                = FlwXID(5204);
+XID xidNetResRunAvgStart              = FlwXID(5205);
+XID xidNetResRunAvgCount              = FlwXID(5206);
 
 XID xidNetVFlowOptions                = FlwXID(5210);
 XID xidNetLFlowOptions                = FlwXID(5211);
@@ -6295,6 +6297,8 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("Net_DeRating",      "", DC_,      "",    xidLnkNetDerate,      &FlwSlvNd, isParm );
     DDB.Double("Net_MaxResRatio",   "", DC_,      "",    xidNetMaxResRatio,    &FlwSlvNd, isParm );
     DDB.Long  ("NetCnvCount",       "", DC_,      "",    xidNetCnvCount,       &FlwSlvNd, isParm );
+    DDB.Long  ("Net_ResRunAvgStart","", DC_,      "",    xidNetResRunAvgStart, &FlwSlvNd, isParm );
+    DDB.Long  ("Net_ResRunAvgCount","", DC_,      "",    xidNetResRunAvgCount, &FlwSlvNd, isParm );
     DDB.Long  ("UDFCnvCount",       "", DC_,      "",    xidUDFCnvCount,       &FlwSlvNd, isParm );
     DDB.CheckBoxBtn("FastConverge", "", DC_,      "",    xidNetFastConverge,   &FlwSlvNd, isParm, DDBOnOff);
     //DDB.CheckBoxBtn("ForceVapCalcs","", DC_,      "",    xidNetForceVFlow,     &FlwSlvNd, isParm, DDBOnOff);
@@ -6670,6 +6674,16 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB)
         FlwNets.m_fAllowFastConverge=*DCB.rB;
       DCB.B=FlwNets.m_fAllowFastConverge;
+      return 1;
+    case xidNetResRunAvgStart:
+      if (DCB.rL)
+        FlwNets.m_lResRunAvgStart=*DCB.rL;
+      DCB.L=FlwNets.m_lResRunAvgStart;
+      return 1;
+    case xidNetResRunAvgCount:
+      if (DCB.rL)
+        FlwNets.m_lResRunAvgCount=*DCB.rL;
+      DCB.L=FlwNets.m_lResRunAvgCount;
       return 1;
     case xidNetVFlowOptions:
       if (DCB.rB)
