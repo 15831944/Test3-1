@@ -7,18 +7,33 @@ using System.Runtime.Remoting.Lifetime;
 using System.Drawing;
 using System.Threading;
 
+using System.Runtime.Remoting.Channels.Ipc;
+using System.Runtime.Remoting.Channels;
+using System.Collections;
+using System.Runtime.Remoting.Channels.Tcp;
+
 namespace SysCAD.Interface
 {
   [Serializable]
-  public class GraphicData : MarshalByRefObject
+//  public class GraphicData : MarshalByRefObject
+//  {
+//  }
+
+//----------------------------
+
+  public class Graphic : MarshalByRefObject
   {
+    private Graphic remoteGraphic;
+
+    public string connectionError = "";
+
     public String name;
 
     public Dictionary<string, Link> links;
     public Dictionary<string, Item> items;
     public Dictionary<string, Area> ___areas;
 
-    public GraphicData()
+    public Graphic()
     {
       links = new Dictionary<string, Link>();
       items = new Dictionary<string, Item>();
@@ -30,63 +45,44 @@ namespace SysCAD.Interface
       get { return name; }
     }
 
-    //string tempTag;
-    //RectangleF tempBoundingRect;
-
     public void ModifyItem(String tag, RectangleF boundingRect, Single angle)
     {
-      Item item;
-      if (items.TryGetValue(tag, out item))
-      {
-        item.X = boundingRect.X;
-        item.Y = boundingRect.Y;
-        item.Width = boundingRect.Width;
-        item.Height = boundingRect.Height;
-        item.Angle = angle;
-
-        //tempTag = tag;
-        //tempBoundingRect = boundingRect;
-
-        //Thread thr = new Thread(new ThreadStart(SendOnItemModified));
-        //thr.Start();
-      }
+      remoteGraphic.OnItemModified(tag, boundingRect, angle);
     }
 
-    //public void SendOnItemModified()
-    //{
-    //  OnItemModified(tempTag, tempBoundingRect);
-    //}
+    public delegate void ItemModifiedHandler(string tag, RectangleF boundingRect, Single angle);
 
-    //public delegate void ItemModifiedHandler(string tag, RectangleF boundingRect);
-    //public ItemModifiedHandler ItemModified;
+    public ItemModifiedHandler ItemModified;
 
-    //public void OnItemModified(string tag, RectangleF boundingRect)
-    //{
-    //  if (ItemModified != null)
-    //  {
-    //    ItemModified(tag, boundingRect);
-    //  }
-    //}
+    public void OnItemModified(string tag, RectangleF boundingRect, Single angle)
+    {
+      if (ItemModified != null)
+      {
+        ItemModified(tag, boundingRect, angle);
+      }
+    }
 
     public override Object InitializeLifetimeService()
     {
       return null;
     }
-  }
-
-//----------------------------
-
-  public class Graphic : GraphicData
-  {
-    private GraphicData remoteGraphic;
-
-    public string connectionError = "";
 
     public bool Connect(string URL)
     {
       try
       {
-        remoteGraphic = Activator.GetObject(typeof(GraphicData), URL) as GraphicData;
+        BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+        serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+        BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+        IDictionary tcpProps = new Hashtable();
+        tcpProps["port"] = "0";
+        //tcpProps["typeFilterLevel"] = TypeFilterLevel.Full;
+        TcpChannel tcpChannel = new TcpChannel(tcpProps, null, null);
+        ChannelServices.RegisterChannel(tcpChannel, false);
+
+        remoteGraphic = Activator.GetObject(typeof(Graphic), URL) as Graphic;
         name = remoteGraphic.Name; // Force a test of the connection.
         connectionError = "";
         return true;
@@ -118,47 +114,22 @@ namespace SysCAD.Interface
       memoryStream.Seek(0, SeekOrigin.Begin);
       ___areas = bf.Deserialize(memoryStream) as Dictionary<string, Area>;
 
-      //remoteGraphic.ItemModified += new GraphicData.ItemModifiedHandler(remoteGraphic_ItemModified);
+      remoteGraphic.ItemModified += new Graphic.ItemModifiedHandler(remoteGraphic_ItemModified);
     }
 
-    //public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect)
-    //{
-    //  Item item;
-    //  if (items.TryGetValue(tag, out item))
-    //  {
-    //    item.X = boundingRect.X;
-    //    item.Y = boundingRect.Y;
-    //    item.Width = boundingRect.Width;
-    //    item.height = boundingRect.Height;
+    public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect, Single angle)
+    {
+      Item item;
+      if (items.TryGetValue(tag, out item))
+      {
+        item.X = boundingRect.X;
+        item.Y = boundingRect.Y;
+        item.Width = boundingRect.Width;
+        item.Height = boundingRect.Height;
+        item.Angle = angle;
 
-    //    OnItemModified(tag, boundingRect);
-    //  }
-    //}
-
-    //string tempTag;
-    //RectangleF tempBoundingRect;
-
-    //new public void ModifyItem(string tag, RectangleF boundingRect)
-    //{
-    //  Item item;
-    //  if (items.TryGetValue(tag, out item))
-    //  {
-    //    item.X = boundingRect.X;
-    //    item.Y = boundingRect.Y;
-    //    item.Width = boundingRect.Width;
-    //    item.height = boundingRect.Height;
-
-    //    tempTag = tag;
-    //    tempBoundingRect = boundingRect;
-
-    //    Thread thr = new Thread(new ThreadStart(SendModifyItem));
-    //    thr.Start();
-    //  }
-    //}
-
-    //public void SendModifyItem()
-    //{
-    //  remoteGraphic.ModifyItem(tempTag, tempBoundingRect);
-    //}
+        OnItemModified(tag, boundingRect, angle);
+      }
+    }
   }
 }

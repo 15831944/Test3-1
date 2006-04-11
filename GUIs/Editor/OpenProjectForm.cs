@@ -18,6 +18,18 @@ namespace SysCAD.Editor
     public OpenProjectForm()
     {
       InitializeComponent();
+
+      if (config.Connect(repositoryURLTextBox.Text + "Global"))
+      {
+        config.Sync();
+        projectListBox.Items.Clear();
+        foreach (String projectString in config.projectList)
+        {
+          projectListBox.Items.Add(projectString);
+        }
+
+        projectListBox.Enabled = true;
+      }
     }
 
     private void listProjectsButton_Click(object sender, EventArgs e)

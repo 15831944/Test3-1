@@ -276,7 +276,7 @@ namespace SysCAD.Editor
     public void CopyToClipboard()
     {
       // create clones of selected items
-      GraphicData data = copySelection(frmFlowChart.fcFlowChart);
+      Graphic data = copySelection(frmFlowChart.fcFlowChart);
 
       DataFormats.Format format =
            DataFormats.GetFormat("Kenwalt.GraphicData");
@@ -322,7 +322,7 @@ namespace SysCAD.Editor
         // is there anything of interest in the clipboard ?
         if (dataObj != null && dataObj.GetDataPresent("Kenwalt.GraphicData"))
         {
-          GraphicData pasteData = dataObj.GetData("Kenwalt.GraphicData") as GraphicData;
+          Graphic pasteData = dataObj.GetData("Kenwalt.GraphicData") as Graphic;
 
           Dictionary<string, string> tagConversion = new Dictionary<string,string>();
 
@@ -382,12 +382,12 @@ namespace SysCAD.Editor
       }
     }
 
-    private GraphicData copySelection(FlowChart doc)
+    private Graphic copySelection(FlowChart doc)
     {
       if (doc.Selection.Objects.Count == 0)
         return null;
 
-      GraphicData copyGraphic = new GraphicData();
+      Graphic copyGraphic = new Graphic();
 
       //Dictionary<string, int> areaCount = new Dictionary<string,int>();
 

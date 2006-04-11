@@ -35,6 +35,8 @@ namespace SysCAD.Editor
 
     internal void SetProject(Graphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
+      graphic.ItemModified += new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified);
+
       this.bod.graphic = graphic;
       this.bod.config = config;
       this.tvNavigation = tvNavigation;
@@ -197,6 +199,18 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(new RectangleF(minX - width * 0.05F, minY - height * 0.05F, width * 1.1F, height * 1.1F));
       else
         fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
+    }
+
+    private void fcFlowChart_ItemModified(string tag, RectangleF boundingRect, Single angle)
+    {
+      BODThing thing;
+      if (bod.things.TryGetValue(tag, out thing))
+      {
+        thing.Model.BoundingRect = boundingRect;
+        thing.Graphic.BoundingRect = boundingRect;
+        thing.Model.RotationAngle = angle;
+        thing.Graphic.RotationAngle = angle;
+      }
     }
 
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
@@ -484,6 +498,7 @@ namespace SysCAD.Editor
     {
       Box graphicBox = (e.Box.Tag as BODThing).Graphic;
       graphicBox.RotationAngle = (e.Box.Tag as BODThing).Model.RotationAngle;
+      bod.graphic.ModifyItem(e.Box.Text, e.Box.BoundingRect, e.Box.RotationAngle);
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)

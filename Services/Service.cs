@@ -22,28 +22,27 @@ namespace SysCAD.Service
     [STAThread]
     static void Main(string[] args) 
     {
-      //BinaryClientFormatterSinkProvider clientProvider = null;
-      //BinaryServerFormatterSinkProvider serverProvider = new BinaryServerFormatterSinkProvider();
-      //serverProvider.TypeFilterLevel = TypeFilterLevel.Full;
+      BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+      serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
-      //IDictionary ipcProps = new Hashtable();
-      //ipcProps["portName"] = "SysCAD.Service";
+      BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+      IDictionary ipcProps = new Hashtable();
+      ipcProps["portName"] = "SysCAD.Service";
       //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      //IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProvider, serverProvider);
-
-      IpcChannel ipcChannel = new IpcChannel("SysCAD.Service");
+      IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
       ChannelServices.RegisterChannel(ipcChannel, false);
 
       //IDictionary tcpProps = new Hashtable();
       //tcpProps["port"] = "8065";
       //tcpProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      //TcpChannel tcpChannel = new TcpChannel(tcpProps, clientProvider, serverProvider);
+      //TcpChannel tcpChannel = new TcpChannel(tcpProps, null, null);
       //ChannelServices.RegisterChannel(tcpChannel, false);
 
       //IDictionary httpProps = new Hashtable();
       //httpProps["port"] = "8066";
       //httpProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      //HttpChannel httpChannel = new HttpChannel(httpProps, clientProvider, serverProvider);
+      //HttpChannel httpChannel = new HttpChannel(httpProps, null, null);
       //ChannelServices.RegisterChannel(httpChannel, false);
 
       ConfigData config = new ConfigData();
@@ -86,7 +85,7 @@ namespace SysCAD.Service
       {
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        GraphicData graphic = new GraphicData();
+        Graphic graphic = new Graphic();
         graphic.name = filename;
 
         {
