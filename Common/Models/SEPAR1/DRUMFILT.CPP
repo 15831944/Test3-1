@@ -102,6 +102,7 @@ DrumFilt::DrumFilt(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   iWashEffSpecie  = 0;
   dSpWashEff      = 0.0;
   bTrackStatus    = true;
+  fOn=True;
   }
 
 //--------------------------------------------------------------------------
@@ -144,6 +145,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
       {FSM_FiltSolConc, "FiltrateConcentration"},
       {0}};
     DDB.Text    ("Requirements");
+    DDB.CheckBox("On",                      "",                DC_,     "",       &fOn,                this, isParm);
     DDB.Byte    ("Filtrate_Method",         "Method",          DC_,     "",       &iRqdFiltMethod,     this, isParm|AffectsStruct, DDB0);
     DDB.Visibility(SHM_All, (iRqdFiltMethod == FSM_FiltSolFrac));
     DDB.Double  ("Rqd_Filtrate_Solids",     "RqdFiltSolids",   DC_Frac, "%",      &RqdFiltSolids,      this, isParm);
@@ -381,67 +383,77 @@ void DrumFilt::EvalProducts(long JoinMask)
       //Fc.SelectModel(&Fd(), false);
       //Ff.SelectModel(&Fd(), false);
      
-      flag HasFlw = (Sd().QMass(som_ALL)>UsableMass);
+      bool HasFlw = (Sd().QMass(som_ALL)>UsableMass);
+      bool HasFeed = (Fd().QMass(som_ALL)>UsableMass);
       //double CFeed = Fd().SpecieConc(Fd().Temp(), iScanEffSpecie, som_Liq);
       double CFeed = Fd().SpecieConc(Fd().Temp(), iWashEffSpecie, som_Liq);
       double CWash = Ww().SpecieConc(Ww().Temp(), iWashEffSpecie, som_Liq);
 
       double RqdFiltSolidsUsed;
-      flag Ok = true;
-      //double POut = AtmosPress(); //force outlet to Atmos P
-      double POut = Std_P; //force outlet to Std_P
-      CFiltSolFracFnd Fnd(Sd(), Fd(), Ww(), Ff, Fc, POut, RqdBypass, RqdCakeMoist);
-      if (iRqdFiltMethod == FSM_FiltSolFrac)
-        {
-        RqdFiltSolidsUsed = RqdFiltSolids;
-        Fnd.Function(RqdFiltSolidsUsed);
-        }
-      else if (iRqdFiltMethod == FSM_FiltSolConc)
-        {
-        RqdFiltSolidsUsed = Valid(FiltSolidsUsed) ? FiltSolidsUsed : 0.01;
-        Fnd.SetTarget(RqdFiltSolConc);
-        Fnd.SetEstimate(RqdFiltSolidsUsed, 1.0);
-        Ok = false;
-        int iRet = Fnd.Start(0.0, 1.0);
-        if (iRet==RF_EstimateOK) //estimate is good, solve not required
-          {
-          double dd = Fnd.Result();
-          RqdFiltSolidsUsed = Fnd.RqdFiltSolidsUsed;
-          Ok = true;
-          }
-        else
-          {
-          if (iRet==RF_BadEstimate)
-            iRet = Fnd.Start(0.0, 1.0); // Restart
-          if (iRet==RF_OK)
-            if (Fnd.Solve_Brent()==RF_OK)
-              {
-              double dd = Fnd.Result();
-              RqdFiltSolidsUsed = Fnd.RqdFiltSolidsUsed;
-              Ok = true;
-              }
-          }
-        }
-      if (!Ok)
-        {
-        //SetCI(???);
-        }
-
-      //use result anyway...
-      RqdFiltSolidsUsed = Fnd.RqdFiltSolidsUsed; 
-
-      //put all vapours (if any) to vent (if present)...
       flag bVentErr = false;
-      const double Qg = Sd().QMass(som_Gas);
-      if (Qg>1e-12)
+      if (fOn && HasFeed)
         {
-        if (pVent)
-          pVent->QSetM(Sd(), som_Gas, Qg, POut);
-        else
-          bVentErr = true;
+        flag Ok = true;
+        //double POut = AtmosPress(); //force outlet to Atmos P
+        double POut = Std_P; //force outlet to Std_P
+        CFiltSolFracFnd Fnd(Sd(), Fd(), Ww(), Ff, Fc, POut, RqdBypass, RqdCakeMoist);
+        if (iRqdFiltMethod == FSM_FiltSolFrac)
+          {
+          RqdFiltSolidsUsed = RqdFiltSolids;
+          Fnd.Function(RqdFiltSolidsUsed);
+          }
+        else if (iRqdFiltMethod == FSM_FiltSolConc)
+          {
+          RqdFiltSolidsUsed = Valid(FiltSolidsUsed) ? FiltSolidsUsed : 0.01;
+          Fnd.SetTarget(RqdFiltSolConc);
+          Fnd.SetEstimate(RqdFiltSolidsUsed, 1.0);
+          Ok = false;
+          int iRet = Fnd.Start(0.0, 1.0);
+          if (iRet==RF_EstimateOK) //estimate is good, solve not required
+            {
+            double dd = Fnd.Result();
+            RqdFiltSolidsUsed = Fnd.RqdFiltSolidsUsed;
+            Ok = true;
+            }
+          else
+            {
+            if (iRet==RF_BadEstimate)
+              iRet = Fnd.Start(0.0, 1.0); // Restart
+            if (iRet==RF_OK)
+              if (Fnd.Solve_Brent()==RF_OK)
+                {
+                double dd = Fnd.Result();
+                RqdFiltSolidsUsed = Fnd.RqdFiltSolidsUsed;
+                Ok = true;
+                }
+            }
+          }
+        if (!Ok)
+          {
+          //SetCI(???);
+          }
+
+        //use result anyway...
+        RqdFiltSolidsUsed = Fnd.RqdFiltSolidsUsed; 
+
+        //put all vapours (if any) to vent (if present)...
+        const double Qg = Sd().QMass(som_Gas);
+        if (Qg>1e-12)
+          {
+          if (pVent)
+            pVent->QSetM(Sd(), som_Gas, Qg, POut);
+          else
+            bVentErr = true;
+          }
+        else if (pVent)
+          pVent->QZero();
         }
-      else if (pVent)
-        pVent->QZero();
+      else
+        {//off or no feed
+        RqdFiltSolidsUsed = 0.0;
+        SigmaQInPMin(Fc, som_ALL, Id_2_Mask(ioidFd));
+        SigmaQInPMin(Ff, som_ALL, Id_2_Mask(ioidWs));
+        }
 
       //results...
       ActCakeSolids   = Fc.MassFrac(som_Sol);
@@ -457,17 +469,17 @@ void DrumFilt::EvalProducts(long JoinMask)
       dSpWashEff = (CFeed - CCake)/NZ(CFeed - CWash);
 
       double CMErr = fabs(1.0 - ActCakeSolids - RqdCakeMoist);
-		  SetCI(1, bTrackStatus && HasFlw && CMErr > 1.0e-6);
+		  SetCI(1, fOn && bTrackStatus && HasFlw && CMErr > 1.0e-6);
       if (iRqdFiltMethod == FSM_FiltSolConc)
         {
         double FCErr = fabs(ActFiltSolConc - RqdFiltSolConc);
-		    SetCI(2, bTrackStatus && HasFlw && FCErr > 1.0e-5);
+		    SetCI(2, fOn && bTrackStatus && HasFlw && FCErr > 1.0e-5);
         }
       else
         {
         ClrCI(2);
         }
-      SetCI(3, HasFlw && bVentErr);
+      SetCI(3, fOn && HasFlw && bVentErr);
       break;
       }
     }

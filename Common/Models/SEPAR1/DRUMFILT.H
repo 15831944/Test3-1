@@ -41,6 +41,7 @@ class DrumFilt : public MN_Surge
     byte           iWashEffSpecie; //eg caustic
     double         dSpWashEff;
     flag           bTrackStatus;
+    flag           fOn;
 
     SpConduit      Qw;
 
