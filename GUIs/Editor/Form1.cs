@@ -12,6 +12,8 @@ using MindFusion.FlowChartX;
 using ActiproSoftware.UIStudio.Bar;
 using MindFusion.FlowChartX.Commands;
 using System.Collections;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 
 namespace SysCAD.Editor
 {
@@ -26,6 +28,19 @@ namespace SysCAD.Editor
     {
       InitializeComponent();
       SetProjectBasedButtons(false);
+
+
+      BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+      serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+      BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+      IDictionary tcpProps = new Hashtable();
+      tcpProps["port"] = "0";
+      //tcpProps["typeFilterLevel"] = TypeFilterLevel.Full;
+      TcpChannel tcpChannel = new TcpChannel(tcpProps, null, null);
+      ChannelServices.RegisterChannel(tcpChannel, false);
+
 
       try
       {
@@ -57,6 +72,7 @@ namespace SysCAD.Editor
     {
       string groupName = "";
 
+      bool rememberEnabled = barManager1.Commands["NewItem.GraphicType"].Enabled;
       barManager1.Commands["NewItem.GraphicType"].Enabled = false;
 
       int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
@@ -68,7 +84,7 @@ namespace SysCAD.Editor
       if (modelStencil != null)
       {
         groupName = modelStencil.groupName;
-        barManager1.Commands["NewItem.GraphicType"].Enabled = true;
+        barManager1.Commands["NewItem.GraphicType"].Enabled = rememberEnabled;
       }
       else
       {
@@ -449,43 +465,45 @@ namespace SysCAD.Editor
 
     private void Mode_CreateLink()
     {
+      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+      barManager1.Commands["NewItem.ModelType"].Enabled = false;
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateArrow;
     }
 
     private void Mode_CreateNode()
     {
+      barManager1.Commands["NewItem.GraphicType"].Enabled = true;
+      barManager1.Commands["NewItem.ModelType"].Enabled = true;
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateBox;
     }
 
     private void Mode_Modify()
     {
+      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+      barManager1.Commands["NewItem.ModelType"].Enabled = false;
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
     }
 
     private void View_SelectItems()
     {
-      frmFlowChart.bod.SelectItems = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked;
+      frmFlowChart.bod.SelectItems = true;
+      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
+      
+      frmFlowChart.bod.SelectLinks = false;
+      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = false;
 
-      if (!frmFlowChart.bod.SelectItems)
-      {
-        foreach (Box box in frmFlowChart.fcFlowChart.Boxes)
-        {
-          box.Selected = false;
-        }
-      }
+      frmFlowChart_fcFlowChart_SelectionChanged();
     }
 
     private void View_SelectArrows()
     {
-      frmFlowChart.bod.SelectLinks = ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked;
+      frmFlowChart.bod.SelectLinks = true;
+      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = true;
 
-      if (!frmFlowChart.bod.SelectLinks)
-      {
-        foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
-        {
-          arrow.Selected = false;
-        }
-      }
+      frmFlowChart.bod.SelectItems = false;
+      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = false;
+
+      frmFlowChart_fcFlowChart_SelectionChanged();
     }
 
     private void View_ShowModels()
@@ -612,20 +630,39 @@ namespace SysCAD.Editor
       barManager1.Commands["Edit.Cut"].Enabled = projectExists;
       barManager1.Commands["Edit.Copy"].Enabled = projectExists;
       barManager1.Commands["Edit.Paste"].Enabled = projectExists;
+
+      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+      barManager1.Commands["NewItem.ModelType"].Enabled = false;
+
+      if (frmFlowChart != null)
+      {
+        frmFlowChart.bod.SelectItems = true;
+        frmFlowChart.bod.SelectLinks = false;
+      }
+
+      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
+      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = false;
     }
 
     private void File_CloseProject()
     {
       SetProjectBasedButtons(false);
+
+      graphic.remoteGraphic.ItemModified -= new Graphic.ItemModifiedHandler(graphic.remoteGraphic_ItemModified);
+
+      config = null;
+      graphic = null;
+
       frmFlowChart.Close();
+      tvNavigation.Nodes.Clear();
+      ovOverview.Document = null;
     }
 
     private void File_OpenProject()
     {
       // Close the one selected first.
       if (frmFlowChart != null)
-        frmFlowChart.Close();
-      tvNavigation.Nodes.Clear();
+        File_CloseProject();
 
       OpenProjectForm openProjectForm = new OpenProjectForm();
 
@@ -636,6 +673,8 @@ namespace SysCAD.Editor
 
         config = openProjectForm.config;
         graphic = openProjectForm.graphic;
+
+        graphic.remoteGraphic.ItemModified += new Graphic.ItemModifiedHandler(graphic.remoteGraphic_ItemModified);
 
         frmFlowChart = new FrmFlowChart();
 
@@ -665,7 +704,7 @@ namespace SysCAD.Editor
 
         frmFlowChart.MdiParent = this;
         frmFlowChart.Text = openProjectForm.graphic.Name;
-        //frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
         frmFlowChart.Show();
 
         ovOverview.Document = frmFlowChart.fcFlowChart;
@@ -715,6 +754,9 @@ namespace SysCAD.Editor
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
+      if (frmFlowChart != null)
+        File_CloseProject();
+
       //dockManager1.SaveToolWindowLayoutToFile("Recent.layout");
     }
 
@@ -845,51 +887,61 @@ namespace SysCAD.Editor
 
     private void frmFlowChart_fcFlowChart_SelectionChanged(object sender, EventArgs e)
     {
-      //frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      frmFlowChart_fcFlowChart_SelectionChanged();
+    }
+
+    private void frmFlowChart_fcFlowChart_SelectionChanged()
+    {
+      frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
       //this.tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
 
-      tvNavigation.ClearSelectedNodes();
+      //tvNavigation.ClearSelectedNodes();
+
+      if (!frmFlowChart.bod.SelectItems)
+      {
+        if (frmFlowChart.fcFlowChart.Selection.Boxes.Count > 1)
+        {
+          foreach (Box box in frmFlowChart.fcFlowChart.Boxes)
+          {
+            box.Selected = false;
+          }
+        }
+      }
 
       foreach (BODThing itemBox in frmFlowChart.bod.things.Values)
       {
-        if (frmFlowChart.bod.SelectItems)
+        itemBox.Model.ZTop();
+        if (itemBox.Graphic.Selected)
         {
-          if (itemBox.Graphic.Selected)
-          {
-            itemBox.Model.Selected = true;
-            itemBox.Graphic.Selected = false;
-          }
+          itemBox.Model.Selected = true;
+          itemBox.Graphic.Selected = false;
+        }
 
-          if (itemBox.Model.Selected)
-          {
-            tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(itemBox.Model.Text));
-            itemBox.Graphic.FillColor = Color.FromArgb(50, itemBox.Graphic.FillColor);
-            itemBox.Graphic.Pen.Color = Color.FromArgb(50, itemBox.Graphic.Pen.Color);
-            itemBox.Graphic.ShadowColor = Color.FromArgb(50, itemBox.Graphic.ShadowColor);
-            itemBox.Model.Visible = true;
-            itemBox.Model.ZTop();
-          }
-          else
-          {
-            itemBox.Graphic.FillColor = Color.FromArgb(255, itemBox.Graphic.FillColor);
-            itemBox.Graphic.Pen.Color = Color.FromArgb(255, itemBox.Graphic.Pen.Color);
-            itemBox.Graphic.ShadowColor = Color.FromArgb(255, itemBox.Graphic.ShadowColor);
-            itemBox.Model.Visible = frmFlowChart.bod.ShowModels;
-            itemBox.Model.ZTop();
-          }
+        if (itemBox.Model.Selected)
+        {
+          tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(itemBox.Model.Text));
+          itemBox.Graphic.FillColor = Color.FromArgb(50, itemBox.Graphic.FillColor);
+          itemBox.Graphic.Pen.Color = Color.FromArgb(50, itemBox.Graphic.Pen.Color);
+          itemBox.Graphic.ShadowColor = Color.FromArgb(50, itemBox.Graphic.ShadowColor);
+          itemBox.Model.Visible = true;
         }
         else
         {
-          itemBox.Model.Selected = false;
-          itemBox.Graphic.Selected = false;
+          itemBox.Graphic.FillColor = Color.FromArgb(255, itemBox.Graphic.FillColor);
+          itemBox.Graphic.Pen.Color = Color.FromArgb(255, itemBox.Graphic.Pen.Color);
+          itemBox.Graphic.ShadowColor = Color.FromArgb(255, itemBox.Graphic.ShadowColor);
+          itemBox.Model.Visible = frmFlowChart.bod.ShowModels;
         }
       }
 
       if (!frmFlowChart.bod.SelectLinks)
       {
-        foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+        if (frmFlowChart.fcFlowChart.Selection.Arrows.Count > 1)
         {
-          arrow.Selected = false;
+          foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+          {
+            arrow.Selected = false;
+          }
         }
       }
 
@@ -950,7 +1002,7 @@ namespace SysCAD.Editor
       }
 
       //this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-      //frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
 
     void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
@@ -967,6 +1019,69 @@ namespace SysCAD.Editor
           item.Shape = graphicString;
           frmFlowChart.bod.SetStencil(item.Tag, graphicShape.ShapeTemplate(item.MirrorX, item.MirrorY));
         }
+      }
+
+      if (label == "Angle")
+      {
+        float angle = (float)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.Angle = angle;
+        frmFlowChart.bod.SetAngle(item.Tag, angle);
+      }
+
+      if (label == "Height")
+      {
+        float height = (float)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.Height = height;
+        frmFlowChart.bod.SetHeight(item.Tag, height);
+      }
+
+      if (label == "Width")
+      {
+        float width = (float)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.Width = width;
+        frmFlowChart.bod.SetWidth(item.Tag, width);
+      }
+
+      if (label == "Left")
+      {
+        float x = (float)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.X = x;
+        frmFlowChart.bod.SetX(item.Tag, x);
+      }
+
+      if (label == "Right")
+      {
+        float y = (float)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.Y = y;
+        frmFlowChart.bod.SetY(item.Tag, y);
+      }
+
+      if (label == "Mirror X")
+      {
+        bool mirrorX = (bool)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.MirrorX = mirrorX;
+        frmFlowChart.bod.SetMirrorX(item.Tag, mirrorX);
+      }
+
+      if (label == "Mirror Y")
+      {
+        bool mirrorY = (bool)e.ChangedItem.Value;
+        Item item = (e.ChangedItem.Parent.Parent.Value as Item);
+
+        item.MirrorY = mirrorY;
+        frmFlowChart.bod.SetMirrorY(item.Tag, mirrorY);
       }
     }
 

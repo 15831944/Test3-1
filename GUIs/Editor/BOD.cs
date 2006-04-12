@@ -186,7 +186,7 @@ namespace SysCAD.Editor
 
     internal void newThing(SysCAD.Interface.Item item, Box modelBox, Box graphicBox, bool isVisible, FlowChart flowchart)
     {
-      modelBox.BoundingRect = new RectangleF(item.X + item.Width * 0.25F, item.Y + item.Height * 0.25F, item.Width * 0.5F, item.Height * 0.5F);
+      modelBox.BoundingRect = new RectangleF(item.X, item.Y, item.Width, item.Height);
       modelBox.RotationAngle = item.Angle;
       modelBox.Text = item.Tag;
       modelBox.ToolTip = "Tag: " + item.Tag + "\n\nModel Type: " + item.Model;
@@ -206,8 +206,8 @@ namespace SysCAD.Editor
           new AnchorPoint(100, 50, true, true, MarkStyle.Rectangle, Color.Red)
         });
 
-      modelBox.FillColor = System.Drawing.Color.BurlyWood;
-      modelBox.FrameColor = System.Drawing.Color.BurlyWood;
+      modelBox.FillColor = Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+      modelBox.FrameColor = Color.FromArgb(200, System.Drawing.Color.BurlyWood);
       modelBox.Visible = ShowModels && isVisible;
 
       graphicBox.BoundingRect = new RectangleF(item.X, item.Y, item.Width, item.Height);
@@ -222,7 +222,7 @@ namespace SysCAD.Editor
         else
           graphicBox.Shape = ShapeTemplate.FromId("Decision2");
       }
-      graphicBox.AttachTo(modelBox, -50, -50, 150, 150);
+      graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
       graphicBox.EnabledHandles = Handles.None;
       graphicBox.HandlesStyle = HandlesStyle.Invisible;
       graphicBox.Visible = ShowGraphics && isVisible;
@@ -288,6 +288,97 @@ namespace SysCAD.Editor
       things.TryGetValue(tag, out thing);
       if (thing != null)
         thing.Graphic.Shape = shapeTemplate;
+    }
+
+    internal void SetAngle(string tag, float angle)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        thing.Model.RotationAngle = angle;
+        thing.Graphic.RotationAngle = angle;
+      }
+    }
+
+    internal void SetHeight(string tag, float height)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        RectangleF boundingRect = thing.Model.BoundingRect;
+        boundingRect.Height = height;
+        thing.Model.BoundingRect = boundingRect;
+        thing.Graphic.BoundingRect = boundingRect;
+      }
+    }
+
+    internal void SetWidth(string tag, float width)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        RectangleF boundingRect = thing.Model.BoundingRect;
+        boundingRect.Width = width;
+        thing.Model.BoundingRect = boundingRect;
+        thing.Graphic.BoundingRect = boundingRect;
+      }
+    }
+
+    internal void SetX(string tag, float x)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        RectangleF boundingRect = thing.Model.BoundingRect;
+        boundingRect.X = x;
+        thing.Model.BoundingRect = boundingRect;
+        thing.Graphic.BoundingRect = boundingRect;
+      }
+    }
+
+    internal void SetY(string tag, float y)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        RectangleF boundingRect = thing.Model.BoundingRect;
+        boundingRect.Y = y;
+        thing.Model.BoundingRect = boundingRect;
+        thing.Graphic.BoundingRect = boundingRect;
+      }
+    }
+
+    internal void SetMirrorX(string tag, bool mirrorX)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        Item item;
+        if (graphic.items.TryGetValue(tag, out item))
+        {
+          GraphicStencil stencil;
+          if (config.graphicStencils.TryGetValue(item.Shape, out stencil))
+          {
+            thing.Graphic.Shape = stencil.ShapeTemplate(item.MirrorX, item.MirrorY);
+          }
+        }
+      }
+    }
+
+    internal void SetMirrorY(string tag, bool mirrorY)
+    {
+      BODThing thing;
+      things.TryGetValue(tag, out thing);
+      if (thing != null)
+      {
+        // Unimplemented...
+      }
     }
   }
 }

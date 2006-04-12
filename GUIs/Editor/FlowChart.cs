@@ -33,6 +33,11 @@ namespace SysCAD.Editor
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
     }
 
+    ~FrmFlowChart()
+    {
+      this.bod.graphic.ItemModified -= new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified);
+    }
+
     internal void SetProject(Graphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
       graphic.ItemModified += new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified);
@@ -519,8 +524,8 @@ namespace SysCAD.Editor
       bod.graphic.items.Add("N_" + tempBoxKey.ToString(), newItem);
       newItem.X = rect.X - rect.Width;
       newItem.Y = rect.Y - rect.Height;
-      newItem.Width = rect.Width * 2.0F;
-      newItem.Height = rect.Height * 2.0F;
+      newItem.Width = rect.Width;
+      newItem.Height = rect.Height;
       newItem.Model = currentModelShape;
       newItem.Shape = currentGraphicShape;
 

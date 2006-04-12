@@ -23,7 +23,7 @@ namespace SysCAD.Interface
 
   public class Graphic : MarshalByRefObject
   {
-    private Graphic remoteGraphic;
+    public Graphic remoteGraphic;
 
     public string connectionError = "";
 
@@ -71,17 +71,6 @@ namespace SysCAD.Interface
     {
       try
       {
-        BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
-        serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
-
-        BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
-
-        IDictionary tcpProps = new Hashtable();
-        tcpProps["port"] = "0";
-        //tcpProps["typeFilterLevel"] = TypeFilterLevel.Full;
-        TcpChannel tcpChannel = new TcpChannel(tcpProps, null, null);
-        ChannelServices.RegisterChannel(tcpChannel, false);
-
         remoteGraphic = Activator.GetObject(typeof(Graphic), URL) as Graphic;
         name = remoteGraphic.Name; // Force a test of the connection.
         connectionError = "";
@@ -113,8 +102,6 @@ namespace SysCAD.Interface
       bf.Serialize(memoryStream, remoteGraphic.___areas);
       memoryStream.Seek(0, SeekOrigin.Begin);
       ___areas = bf.Deserialize(memoryStream) as Dictionary<string, Area>;
-
-      remoteGraphic.ItemModified += new Graphic.ItemModifiedHandler(remoteGraphic_ItemModified);
     }
 
     public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect, Single angle)
