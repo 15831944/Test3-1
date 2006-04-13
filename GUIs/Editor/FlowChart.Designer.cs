@@ -70,17 +70,14 @@ namespace SysCAD.Editor
       this.fcFlowChart.RestrObjsToDoc = MindFusion.FlowChartX.RestrictToDoc.NoRestriction;
       this.fcFlowChart.SelHandleSize = 1.5F;
       this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
-      this.fcFlowChart.Size = new System.Drawing.Size(853, 460);
       this.fcFlowChart.TabIndex = 0;
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
-      this.fcFlowChart.ArrowDeleted += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowDeleted);
+      this.fcFlowChart.ArrowDeleting += new MindFusion.FlowChartX.ArrowConfirmation(this.fcFlowChart_ArrowDeleting);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
-      this.fcFlowChart.BoxCreated += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxCreated);
       this.fcFlowChart.BoxModifying += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModifying);
-      this.fcFlowChart.BoxDeleted += new MindFusion.FlowChartX.BoxEvent(this.fcFlowChart_BoxDeleted);
+      this.fcFlowChart.BoxDeleting += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxDeleting);
       this.fcFlowChart.DrawBox += new MindFusion.FlowChartX.BoxCustomDraw(this.fcFlowChart_DrawBox);
-      this.fcFlowChart.BoxCreating += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxCreating);
       this.fcFlowChart.ArrowCreated += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowCreated);
       this.fcFlowChart.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModifying);
       this.fcFlowChart.Click += new System.EventHandler(this.fcFlowChart_Click);
@@ -89,12 +86,11 @@ namespace SysCAD.Editor
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(853, 460);
       this.Controls.Add(this.fcFlowChart);
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "FrmFlowChart";
       this.Text = "FlowChart";
-      this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+      this.WindowState = System.Windows.Forms.FormWindowState.Normal;
       this.Resize += new System.EventHandler(this.FrmFlowChart_Resize);
       this.ResumeLayout(false);
 

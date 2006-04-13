@@ -36,21 +36,24 @@ namespace SysCAD.Interface
   }
 
   [Serializable]
-  public class Item
+  public class GraphicItem
   {
     private String tag;
 
-    private float x, y, width, height, angle;
     private String model;
-    private String shape;
 
+    private String stencil;
+    private float x;
+    private float y;
+    private float width;
+    private float height;
+    private float angle;
     private bool mirrorX = false;
     private bool mirrorY = false;
-
     public System.Drawing.Color fillColor;
 
     [CategoryAttribute("Model"),
-    DescriptionAttribute("Tag name of the item.")]
+     DescriptionAttribute("Tag name of the item.")]
     public String Tag
     {
       get { return tag; }
@@ -75,8 +78,7 @@ namespace SysCAD.Interface
     //}
 
     [CategoryAttribute("Graphic"),
-    DescriptionAttribute("Position of the left of the item."), 
-     DisplayName("Left")]
+     DescriptionAttribute("Horizontal position of the center of the item.")]
     public float X
     {
       get { return x; }
@@ -84,8 +86,7 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Position of the top of the item."),
-     DisplayName("Top")]
+     DescriptionAttribute("Vertical position of the center of the item.")]
     public float Y
     {
       get { return y; }
@@ -123,8 +124,8 @@ namespace SysCAD.Interface
      DisplayName("Stencil")]
     public string Shape
     {
-      get { return shape; }
-      set { shape = value; }
+      get { return stencil; }
+      set { stencil = value; }
     }
 
     [CategoryAttribute("Model"),
@@ -159,7 +160,7 @@ namespace SysCAD.Interface
     /// Set unique tag.
     /// </summary>
     /// <param name="tag">Unique tag name.</param>
-    public Item(String tag)
+    public GraphicItem(String tag)
     {
       this.tag = tag;
     }
@@ -198,21 +199,21 @@ namespace SysCAD.Interface
         //}
 
         model = itemReader.GetString(0);
-        shape = itemReader.GetString(0);
+        stencil = itemReader.GetString(0);
 
         float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
-        if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
-        if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
-        if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
-        if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
-        if (shape.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
-        if (shape.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
-        if (shape.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
-        if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
-        if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
-        if (shape.Contains("Tank")) { sx = 0.348186528F; sy = 0.777777778F; dy = -2.45F; }
-        if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
-        if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
+        if (stencil.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
+        if (stencil.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
+        if (stencil.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
+        if (stencil.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
+        if (stencil.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
+        if (stencil.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
+        if (stencil.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
+        if (stencil.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
+        if (stencil.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
+        if (stencil.Contains("Tank")) { sx = 0.348186528F; sy = 0.777777778F; dy = -2.45F; }
+        if (stencil.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
+        if (stencil.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
         width = (float)itemReader.GetDouble(3) * 30.0F * sx;
         height = (float)itemReader.GetDouble(4) * 30.0F * sy;

@@ -58,7 +58,7 @@ namespace SysCAD.Service
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
         ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
-        modelStencil.id = Path.GetFileNameWithoutExtension(fullpath);
+        modelStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
         config.modelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), modelStencil);
         stream.Close();
         Console.WriteLine("Added modelstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
@@ -71,7 +71,7 @@ namespace SysCAD.Service
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
         GraphicStencil graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-        graphicStencil.id = Path.GetFileNameWithoutExtension(fullpath);
+        graphicStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
         config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
         stream.Close();
         Console.WriteLine("Added graphicstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
@@ -95,18 +95,18 @@ namespace SysCAD.Service
           OleDbDataReader itemReader = (new OleDbCommand("SELECT DISTINCT Tag FROM GraphicsUnits", connection)).ExecuteReader(CommandBehavior.SingleResult);
           while (itemReader.Read())
           {
-            Item item = new Item(itemReader.GetString(0));
-            item.Populate(connection);
-            graphic.items.Add(itemReader.GetString(0), item);
+            GraphicItem graphicItem = new GraphicItem(itemReader.GetString(0));
+            graphicItem.Populate(connection);
+            graphic.graphicItems.Add(itemReader.GetString(0), graphicItem);
           }
           itemReader.Close();
 
           OleDbDataReader linkReader = (new OleDbCommand("SELECT DISTINCT Tag FROM ModelLinks", connection)).ExecuteReader(CommandBehavior.SingleResult);
           while (linkReader.Read())
           {
-            Link link = new Link(linkReader.GetString(0));
+            GraphicLink link = new GraphicLink(linkReader.GetString(0));
             link.Populate(connection);
-            graphic.links.Add(linkReader.GetString(0), link);
+            graphic.graphicLinks.Add(linkReader.GetString(0), link);
           }
           linkReader.Close();
 
@@ -118,8 +118,8 @@ namespace SysCAD.Service
           }
           areaCountReader.Close();
 
-          Area rootArea = new Area(filename);
-          graphic.___areas.Add(filename, rootArea);
+          GraphicArea rootGraphicArea = new GraphicArea(filename);
+          graphic.___graphicAreas.Add(filename, rootGraphicArea);
 
           OleDbDataReader areaReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
           
@@ -130,8 +130,8 @@ namespace SysCAD.Service
           float dY = 0.0F;
           while (areaReader.Read())
           {
-            Area area = new Area(areaReader.GetString(0));
-            area.Populate(connection, graphic.items, graphic.links, ref dX, ref dY);
+            GraphicArea graphicArea = new GraphicArea(areaReader.GetString(0));
+            graphicArea.Populate(connection, graphic.graphicItems, graphic.graphicLinks, ref dX, ref dY);
 
             i++;
             dX += 400.0F;
@@ -143,7 +143,7 @@ namespace SysCAD.Service
               dY += 320.0F;
             }
 
-            rootArea.areas.Add(areaReader.GetString(0), area);
+            rootGraphicArea.graphicAreas.Add(areaReader.GetString(0), graphicArea);
           }
           areaReader.Close();
         }

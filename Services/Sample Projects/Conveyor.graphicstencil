@@ -10,7 +10,7 @@
 <height>10</height>
 </defaultSize>
 <groupName id="ref-7">Conveyor</groupName>
-<id xsi:null="1"/>
+<tag xsi:null="1"/>
 </a1:GraphicStencil>
 <a2:ArrayList id="ref-4" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>

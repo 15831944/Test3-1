@@ -6,65 +6,44 @@ using System.Drawing;
 
 namespace SysCAD.Interface
 {
-  /// <summary>
-  /// Summary description for Class1.
-  /// </summary>
   [Serializable]
-  public class Area
+  public class GraphicArea
   {
-    /// <summary>
-    /// 
-    /// </summary>
     public String tag;
-    /// <summary>
-    /// 
-    /// </summary>
-    public Dictionary<string, Area> areas;
-    /// <summary>
-    /// 
-    /// </summary>
-    public Dictionary<string, Item> items;
+    public Dictionary<string, GraphicArea> graphicAreas;
+    public Dictionary<string, GraphicItem> graphicItems;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="tag"></param>
-    public Area(String tag)
+    public GraphicArea(String tag)
     {
-      areas = new Dictionary<string, Area>();
-      items = new Dictionary<string, Item>();
-
       this.tag = tag;
+      graphicAreas = new Dictionary<string, GraphicArea>();
+      graphicItems = new Dictionary<string, GraphicItem>();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="connection"></param>
-    public void Populate(OleDbConnection connection, Dictionary<string, Item> items,
-                         Dictionary<string, Link> links, ref float dX, ref float dY)
+    public void Populate(OleDbConnection connection, Dictionary<string, GraphicItem> graphicItems,
+                         Dictionary<string, GraphicLink> graphicLinks, ref float dX, ref float dY)
     {
       OleDbDataReader itemReader = (new OleDbCommand("SELECT Tag FROM GraphicsUnits WHERE Page='"+tag+"'", connection)).ExecuteReader(CommandBehavior.SingleResult);
       while(itemReader.Read()) 
       {
-        this.items.Add(itemReader.GetString(0), items[itemReader.GetString(0)]);
+        this.graphicItems.Add(itemReader.GetString(0), graphicItems[itemReader.GetString(0)]);
       }
       itemReader.Close();
 
       float minX = Single.MaxValue, minY = Single.MaxValue;
       float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
 
-      foreach (string key in this.items.Keys)
+      foreach (string key in this.graphicItems.Keys)
       {
-        Item item = this.items[key] as Item;
-        if (item.X < minX)
-          minX = item.X;
-        if (item.Y < minY)
-          minY = item.Y;
-        if (item.X + item.Width > maxX)
-          maxX = item.X + item.Width;
-        if (item.Y + item.Height > maxY)
-          maxY = item.Y + item.Height;
+        GraphicItem graphicItem = this.graphicItems[key] as GraphicItem;
+        if (graphicItem.X < minX)
+          minX = graphicItem.X;
+        if (graphicItem.Y < minY)
+          minY = graphicItem.Y;
+        if (graphicItem.X + graphicItem.Width > maxX)
+          maxX = graphicItem.X + graphicItem.Width;
+        if (graphicItem.Y + graphicItem.Height > maxY)
+          maxY = graphicItem.Y + graphicItem.Height;
       }
 
       float scaleX = 320.0F / (maxX - minX);
@@ -76,32 +55,32 @@ namespace SysCAD.Interface
       else
         scale = scaleY;
 
-      foreach (string key in this.items.Keys)
+      foreach (string key in this.graphicItems.Keys)
       {
-        Item item = this.items[key] as Item;
+        GraphicItem graphicItem = this.graphicItems[key] as GraphicItem;
 
         // move origin to top-left.
-        item.X -= minX;
-        item.Y -= minY;
+        graphicItem.X -= minX;
+        graphicItem.Y -= minY;
 
         // scale to 0:100
-        item.X *= scale;
-        item.Y *= scale;
-        item.Width *= scale;
-        item.Height *= scale;
+        graphicItem.X *= scale;
+        graphicItem.Y *= scale;
+        graphicItem.Width *= scale;
+        graphicItem.Height *= scale;
 
-        item.X += dX;
-        item.Y += dY;
+        graphicItem.X += dX;
+        graphicItem.Y += dY;
 
-        foreach (Link link in links.Values)
+        foreach (GraphicLink graphicLink in graphicLinks.Values)
         {
-          if ((link.Origin == key))// || (link.Destination == key))
+          if ((graphicLink.Source == key))// || (link.Destination == key))
           {
-            for (int i = 0; i < link.controlPoints.Count; i++)
+            for (int i = 0; i < graphicLink.controlPoints.Count; i++)
             {
-              link.controlPoints[i] = new PointF(link.controlPoints[i].X - minX, link.controlPoints[i].Y - minY);
-              link.controlPoints[i] = new PointF(link.controlPoints[i].X * scale, link.controlPoints[i].Y * scale);
-              link.controlPoints[i] = new PointF(link.controlPoints[i].X + dX, link.controlPoints[i].Y + dY);
+              graphicLink.controlPoints[i] = new PointF(graphicLink.controlPoints[i].X - minX, graphicLink.controlPoints[i].Y - minY);
+              graphicLink.controlPoints[i] = new PointF(graphicLink.controlPoints[i].X * scale, graphicLink.controlPoints[i].Y * scale);
+              graphicLink.controlPoints[i] = new PointF(graphicLink.controlPoints[i].X + dX, graphicLink.controlPoints[i].Y + dY);
             }
           }
         }

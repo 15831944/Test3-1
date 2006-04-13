@@ -6,7 +6,7 @@
 <anchors href="#ref-6"/>
 <fillMode>Alternate</fillMode>
 <groupName id="ref-7">Pump</groupName>
-<id id="ref-8"></id>
+<tag id="ref-8"></tag>
 </a1:ModelStencil>
 <a2:ArrayList id="ref-4" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-9"/>

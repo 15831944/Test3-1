@@ -15,12 +15,6 @@ using System.Runtime.Remoting.Channels.Tcp;
 namespace SysCAD.Interface
 {
   [Serializable]
-//  public class GraphicData : MarshalByRefObject
-//  {
-//  }
-
-//----------------------------
-
   public class Graphic : MarshalByRefObject
   {
     public Graphic remoteGraphic;
@@ -29,15 +23,21 @@ namespace SysCAD.Interface
 
     public String name;
 
-    public Dictionary<string, Link> links;
-    public Dictionary<string, Item> items;
-    public Dictionary<string, Area> ___areas;
+    public Dictionary<string, GraphicLink> graphicLinks;
+    public Dictionary<string, GraphicItem> graphicItems;
+    public Dictionary<string, GraphicArea> ___graphicAreas;
 
     public Graphic()
     {
-      links = new Dictionary<string, Link>();
-      items = new Dictionary<string, Item>();
-      ___areas = new Dictionary<string, Area>();
+      graphicLinks = new Dictionary<string, GraphicLink>();
+      graphicItems = new Dictionary<string, GraphicItem>();
+      ___graphicAreas = new Dictionary<string, GraphicArea>();
+    }
+
+    ~Graphic()
+    {
+      if (remoteGraphic != null)
+        remoteGraphic.ItemModified -= new Graphic.ItemModifiedHandler(remoteGraphic_ItemModified);
     }
 
     public String Name
@@ -72,7 +72,10 @@ namespace SysCAD.Interface
       try
       {
         remoteGraphic = Activator.GetObject(typeof(Graphic), URL) as Graphic;
+
         name = remoteGraphic.Name; // Force a test of the connection.
+        remoteGraphic.ItemModified += new Graphic.ItemModifiedHandler(remoteGraphic_ItemModified);
+
         connectionError = "";
         return true;
       }
@@ -89,31 +92,31 @@ namespace SysCAD.Interface
       BinaryFormatter bf = new BinaryFormatter();
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, remoteGraphic.links);
+      bf.Serialize(memoryStream, remoteGraphic.graphicLinks);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      links = bf.Deserialize(memoryStream) as Dictionary<string, Link>;
+      graphicLinks = bf.Deserialize(memoryStream) as Dictionary<string, GraphicLink>;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, remoteGraphic.items);
+      bf.Serialize(memoryStream, remoteGraphic.graphicItems);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      items = bf.Deserialize(memoryStream) as Dictionary<string, Item>;
+      graphicItems = bf.Deserialize(memoryStream) as Dictionary<string, GraphicItem>;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, remoteGraphic.___areas);
+      bf.Serialize(memoryStream, remoteGraphic.___graphicAreas);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      ___areas = bf.Deserialize(memoryStream) as Dictionary<string, Area>;
+      ___graphicAreas = bf.Deserialize(memoryStream) as Dictionary<string, GraphicArea>;
     }
 
     public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect, Single angle)
     {
-      Item item;
-      if (items.TryGetValue(tag, out item))
+      GraphicItem graphicItem;
+      if (graphicItems.TryGetValue(tag, out graphicItem))
       {
-        item.X = boundingRect.X;
-        item.Y = boundingRect.Y;
-        item.Width = boundingRect.Width;
-        item.Height = boundingRect.Height;
-        item.Angle = angle;
+        graphicItem.X = boundingRect.X;
+        graphicItem.Y = boundingRect.Y;
+        graphicItem.Width = boundingRect.Width;
+        graphicItem.Height = boundingRect.Height;
+        graphicItem.Angle = angle;
 
         OnItemModified(tag, boundingRect, angle);
       }

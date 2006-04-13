@@ -17,19 +17,23 @@ namespace SysCAD.Interface
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
   public class GraphicStencil
   {
+    private string tag;
+
     public ArrayList elements;
     public ArrayList decorations;
     public ArrayList textAreas;
     public FillMode fillMode;
     public SizeF defaultSize;
     public String groupName;
-    public string id;
 
     public GraphicStencil()
     {
-      elements = new ArrayList();
-      decorations = new ArrayList();
-      textAreas = new ArrayList();
+    }
+
+    public String Tag
+    {
+      get { return tag; }
+      set { tag = value; }
     }
 
     public ShapeTemplate ShapeTemplate(bool mirrorX, bool mirrorY)
@@ -200,7 +204,7 @@ namespace SysCAD.Interface
       }
 
       System.Drawing.Drawing2D.FillMode fillMode = this.fillMode;
-      string id = this.id;
+      string id = this.tag;
 
       return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, fillMode, id));
     }

@@ -275,19 +275,8 @@ namespace SysCAD.Editor
       treeViewStyle1.NodeStyle = nodeStyle1;
       this.tvNavigation.Style = treeViewStyle1;
       this.tvNavigation.TabIndex = 1;
-      this.tvNavigation.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.tvNavigation_GiveFeedback);
-      this.tvNavigation.NodeDragLeave += new PureComponents.TreeView.TreeView.NodeDragLeaveEventHandler(this.tvNavigation_NodeDragLeave);
-      this.tvNavigation.DragDrop += new System.Windows.Forms.DragEventHandler(this.tvNavigation_DragDrop);
-      this.tvNavigation.DragEnter += new System.Windows.Forms.DragEventHandler(this.tvNavigation_DragEnter);
-      this.tvNavigation.NodeDragOver += new PureComponents.TreeView.TreeView.NodeDragOverEventHandler(this.tvNavigation_NodeDragOver);
-      this.tvNavigation.NodeDragEnter += new PureComponents.TreeView.TreeView.NodeDragEnterEventHandler(this.tvNavigation_NodeDragEnter);
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-      this.tvNavigation.NodeDragDrop += new PureComponents.TreeView.TreeView.NodeDragDropEventHandler(this.tvNavigation_NodeDragDrop);
-      this.tvNavigation.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler(this.tvNavigation_QueryContinueDrag);
-      this.tvNavigation.DragLeave += new System.EventHandler(this.tvNavigation_DragLeave);
       this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
-      this.tvNavigation.AfterNodeCheck += new PureComponents.TreeView.TreeView.AfterNodeCheckEventHandler(this.tvNavigation_AfterNodeCheck);
-      this.tvNavigation.DragOver += new System.Windows.Forms.DragEventHandler(this.tvNavigation_DragOver);
       // 
       // twNavigation
       // 

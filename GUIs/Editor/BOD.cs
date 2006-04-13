@@ -7,9 +7,12 @@ using SysCAD.Interface;
 
 namespace SysCAD.Editor
 {
-  public class BODLink
+  public class Link
   {
     private Arrow arrow;
+
+    private GraphicLink graphicLink;
+
     private bool visible;
 
     public Arrow Arrow
@@ -25,11 +28,13 @@ namespace SysCAD.Editor
     }
   }
 
-  public class BODThing
+  public class Item
   {
     private Box model;
     private Box graphic;
     private PureComponents.TreeView.Node node;
+
+    private GraphicItem graphicItem;
 
     private bool visible;
     private bool selected;
@@ -74,7 +79,7 @@ namespace SysCAD.Editor
       get { return model.OutgoingArrows; }
     }
 
-    public BODThing(Box model, Box graphic, bool visible)
+    public Item(Box model, Box graphic, bool visible)
     {
       this.model = model;
       this.graphic = graphic;
@@ -84,13 +89,13 @@ namespace SysCAD.Editor
 
   //---------------------------------------------------------
 
-  public class BOD
+  public class State
   {
-    public Dictionary<string, BODLink> links = new Dictionary<string, BODLink>();
-    public Dictionary<string, BODThing> things = new Dictionary<string, BODThing>();
+    private Dictionary<string, Link> links = new Dictionary<string, Link>();
+    private Dictionary<string, Item> items = new Dictionary<string, Item>();
 
-    public Graphic graphic;
-    public Config config;
+    private Graphic graphic;
+    private Config config;
 
     public bool ShowModels = false;
     public bool ShowGraphics = true;
@@ -102,34 +107,54 @@ namespace SysCAD.Editor
 
     private Box justCreatedModelBox;
 
+    public IEnumerable<GraphicStencil> GraphicStencils
+    {
+      get { return config.graphicStencils.Values; }
+    }
+
+    public IEnumerable<ModelStencil> ModelStencils
+    {
+      get { return config.modelStencils.Values; }
+    }
+
+    public Config Config
+    {
+      set { config = value; }
+    }
+
+    public Graphic Graphic
+    {
+      set { graphic = value; }
+    }
+
     public Arrow Arrow(string tag)
     {
-      BODLink link;
+      Link link;
       links.TryGetValue(tag, out link);
       return link.Arrow;
     }
 
-    public BODThing Thing(string tag)
+    public Item item(string tag)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      return thing;
+      Item item;
+      items.TryGetValue(tag, out item);
+      return item;
     }
 
     public void setArrow(string tag, Arrow arrow)
     {
-      BODLink link = new BODLink();
+      Link link = new Link();
       link.Arrow = arrow;
       links.Add(tag, link);
     }
 
-    internal void newLink(SysCAD.Interface.Link link, Arrow arrow, bool visible)
+    internal void newGraphicLink(SysCAD.Interface.GraphicLink link, Arrow arrow, bool visible)
     {
-      BODThing origin = null; 
-      BODThing destination = null;
+      Item origin = null; 
+      Item destination = null;
 
-      if (link.Origin != null) origin = Thing(link.Origin);
-      if (link.Destination != null) destination = Thing(link.Destination);
+      if (link.Source != null) origin = item(link.Source);
+      if (link.Destination != null) destination = item(link.Destination);
 
       PointF pointOrigin = new PointF();
       PointF pointDestination = new PointF();
@@ -146,7 +171,7 @@ namespace SysCAD.Editor
         arrow.Destination = destination.Model;
 
       arrow.Text = link.Tag;
-      arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Origin + "\nDestination: " + link.Destination;
+      arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 
@@ -160,7 +185,7 @@ namespace SysCAD.Editor
         PointCollection a = arrow.ControlPoints;
       }
 
-      BODLink bodLink = new BODLink();
+      Link bodLink = new Link();
       bodLink.Arrow = arrow;
       bodLink.Visible = true;
 
@@ -171,30 +196,30 @@ namespace SysCAD.Editor
       links.Add(link.Tag, bodLink);
     }
 
-    internal void Remove(BODThing thing, FlowChart flowchart)
+    internal void Remove(Item item, FlowChart flowchart)
     {
-      if (thing != null)
+      if (item != null)
       {
-        if (thing.Model != null)
-          flowchart.DeleteObject(thing.Model);
-        if (thing.Graphic != null)
-          flowchart.DeleteObject(thing.Graphic);
-        if (thing.Node != null)
-          thing.Node.Remove();
+        if (item.Model != null)
+          flowchart.DeleteObject(item.Model);
+        if (item.Graphic != null)
+          flowchart.DeleteObject(item.Graphic);
+        if (item.Node != null)
+          item.Node.Remove();
       }
     }
 
-    internal void newThing(SysCAD.Interface.Item item, Box modelBox, Box graphicBox, bool isVisible, FlowChart flowchart)
+    internal void newItem(SysCAD.Interface.GraphicItem graphicItem, Box modelBox, Box graphicBox, bool isVisible, FlowChart flowchart)
     {
-      modelBox.BoundingRect = new RectangleF(item.X, item.Y, item.Width, item.Height);
-      modelBox.RotationAngle = item.Angle;
-      modelBox.Text = item.Tag;
-      modelBox.ToolTip = "Tag: " + item.Tag + "\n\nModel Type: " + item.Model;
+      modelBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      modelBox.RotationAngle = graphicItem.Angle;
+      modelBox.Text = graphicItem.Tag;
+      modelBox.ToolTip = "Tag: " + graphicItem.Tag + "\n\nModel Type: " + graphicItem.Model;
       modelBox.Style = BoxStyle.Shape;
       {
         ModelStencil stencil;
-        if (config.modelStencils.TryGetValue(item.Model, out stencil))
-          modelBox.Shape = stencil.ShapeTemplate(item.MirrorX, item.MirrorY);
+        if (config.modelStencils.TryGetValue(graphicItem.Model, out stencil))
+          modelBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
         else
           modelBox.Shape = ShapeTemplate.FromId("Decision2");
       }
@@ -210,19 +235,18 @@ namespace SysCAD.Editor
       modelBox.FrameColor = Color.FromArgb(200, System.Drawing.Color.BurlyWood);
       modelBox.Visible = ShowModels && isVisible;
 
-      graphicBox.BoundingRect = new RectangleF(item.X, item.Y, item.Width, item.Height);
-      graphicBox.RotationAngle = item.Angle;
-      graphicBox.Text = item.Tag;
-      graphicBox.ToolTip = "Tag: " + item.Tag + "\n\nStencil: " + item.Shape; ;
+      graphicBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      graphicBox.RotationAngle = graphicItem.Angle;
+      graphicBox.Text = graphicItem.Tag;
+      graphicBox.ToolTip = "Tag: " + graphicItem.Tag + "\n\nStencil: " + graphicItem.Shape; ;
       graphicBox.Style = BoxStyle.Shape;
       {
         GraphicStencil stencil;
-        if (config.graphicStencils.TryGetValue(item.Shape, out stencil))
-          graphicBox.Shape = stencil.ShapeTemplate(item.MirrorX, item.MirrorY);
+        if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          graphicBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
         else
           graphicBox.Shape = ShapeTemplate.FromId("Decision2");
       }
-      graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
       graphicBox.EnabledHandles = Handles.None;
       graphicBox.HandlesStyle = HandlesStyle.Invisible;
       graphicBox.Visible = ShowGraphics && isVisible;
@@ -232,140 +256,140 @@ namespace SysCAD.Editor
 
       justCreatedModelBox = modelBox;
 
-      BODThing thing = new BODThing(modelBox, graphicBox, isVisible);
+      Item item = new Item(modelBox, graphicBox, isVisible);
 
-      modelBox.Tag = thing;
-      graphicBox.Tag = thing;
+      modelBox.Tag = item;
+      graphicBox.Tag = item;
 
-      things.Add(item.Tag, thing);
+      items.Add(graphicItem.Tag, item);
     }
 
-    internal void ThingVisible(string tag, bool visible)
+    internal void ItemVisible(string tag, bool visible)
     {
-      BODThing thing;
-      if (things.TryGetValue(tag, out thing))
+      Item item;
+      if (items.TryGetValue(tag, out item))
       {
-        thing.Model.Visible = visible && (thing.Model.Selected || ShowModels);
-        thing.Graphic.Visible = visible && ShowGraphics;
+        item.Model.Visible = visible && (item.Model.Selected || ShowModels);
+        item.Graphic.Visible = visible && ShowGraphics;
 
-        foreach (Arrow arrowDestination in thing.Model.IncomingArrows)
+        foreach (Arrow arrowDestination in item.Model.IncomingArrows)
         {
           arrowDestination.Visible = visible && ShowLinks;
         }
 
-        foreach (Arrow arrowOrigin in thing.Model.OutgoingArrows)
+        foreach (Arrow arrowOrigin in item.Model.OutgoingArrows)
         {
           arrowOrigin.Visible = visible && ShowLinks;
         }
       }
     }
 
-    internal void ThingSelected(string tag, bool selected)
+    internal void ItemSelected(string tag, bool selected)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        thing.Selected = selected;
-        thing.Model.Selected = selected && thing.Visible;
+        item.Selected = selected;
+        item.Model.Selected = selected && item.Visible;
       }
     }
 
     internal bool Exists(string tag)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
+      Item item;
+      items.TryGetValue(tag, out item);
 
-      BODLink link;
+      Link link;
       links.TryGetValue(tag, out link);
 
-      return ((link != null) || (thing != null));
+      return ((link != null) || (item != null));
     }
 
     internal void SetStencil(string tag, ShapeTemplate shapeTemplate)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
-        thing.Graphic.Shape = shapeTemplate;
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
+        item.Graphic.Shape = shapeTemplate;
     }
 
     internal void SetAngle(string tag, float angle)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        thing.Model.RotationAngle = angle;
-        thing.Graphic.RotationAngle = angle;
+        item.Model.RotationAngle = angle;
+        item.Graphic.RotationAngle = angle;
       }
     }
 
     internal void SetHeight(string tag, float height)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        RectangleF boundingRect = thing.Model.BoundingRect;
+        RectangleF boundingRect = item.Model.BoundingRect;
         boundingRect.Height = height;
-        thing.Model.BoundingRect = boundingRect;
-        thing.Graphic.BoundingRect = boundingRect;
+        item.Model.BoundingRect = boundingRect;
+        item.Graphic.BoundingRect = boundingRect;
       }
     }
 
     internal void SetWidth(string tag, float width)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        RectangleF boundingRect = thing.Model.BoundingRect;
+        RectangleF boundingRect = item.Model.BoundingRect;
         boundingRect.Width = width;
-        thing.Model.BoundingRect = boundingRect;
-        thing.Graphic.BoundingRect = boundingRect;
+        item.Model.BoundingRect = boundingRect;
+        item.Graphic.BoundingRect = boundingRect;
       }
     }
 
     internal void SetX(string tag, float x)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        RectangleF boundingRect = thing.Model.BoundingRect;
+        RectangleF boundingRect = item.Model.BoundingRect;
         boundingRect.X = x;
-        thing.Model.BoundingRect = boundingRect;
-        thing.Graphic.BoundingRect = boundingRect;
+        item.Model.BoundingRect = boundingRect;
+        item.Graphic.BoundingRect = boundingRect;
       }
     }
 
     internal void SetY(string tag, float y)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        RectangleF boundingRect = thing.Model.BoundingRect;
+        RectangleF boundingRect = item.Model.BoundingRect;
         boundingRect.Y = y;
-        thing.Model.BoundingRect = boundingRect;
-        thing.Graphic.BoundingRect = boundingRect;
+        item.Model.BoundingRect = boundingRect;
+        item.Graphic.BoundingRect = boundingRect;
       }
     }
 
     internal void SetMirrorX(string tag, bool mirrorX)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
-        Item item;
-        if (graphic.items.TryGetValue(tag, out item))
+        GraphicItem graphicItem;
+        if (graphic.graphicItems.TryGetValue(tag, out graphicItem))
         {
           GraphicStencil stencil;
-          if (config.graphicStencils.TryGetValue(item.Shape, out stencil))
+          if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           {
-            thing.Graphic.Shape = stencil.ShapeTemplate(item.MirrorX, item.MirrorY);
+            item.Graphic.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
           }
         }
       }
@@ -373,12 +397,112 @@ namespace SysCAD.Editor
 
     internal void SetMirrorY(string tag, bool mirrorY)
     {
-      BODThing thing;
-      things.TryGetValue(tag, out thing);
-      if (thing != null)
+      Item item;
+      items.TryGetValue(tag, out item);
+      if (item != null)
       {
         // Unimplemented...
       }
+    }
+
+    internal ModelStencil ModelStencil(string stencilName)
+    {
+      ModelStencil modelStencil;
+      config.modelStencils.TryGetValue(stencilName, out modelStencil);
+      return modelStencil;
+    }
+
+    internal GraphicStencil GraphicStencil(string stencilName)
+    {
+      GraphicStencil graphicStencil;
+      config.graphicStencils.TryGetValue(stencilName, out graphicStencil);
+      return graphicStencil;
+    }
+
+    internal GraphicItem GraphicItem(string tag)
+    {
+      GraphicItem graphicItem;
+      graphic.graphicItems.TryGetValue(tag, out graphicItem);
+      return graphicItem;
+    }
+
+    internal GraphicLink GraphicLink(string tag)
+    {
+      GraphicLink graphicLink;
+      graphic.graphicLinks.TryGetValue(tag, out graphicLink);
+      return graphicLink;
+    }
+
+    internal IEnumerable<GraphicItem> GraphicItems
+    {
+      get { return graphic.graphicItems.Values; }
+    }
+
+    internal IEnumerable<GraphicLink> GraphicLinks
+    {
+      get { return graphic.graphicLinks.Values; }
+    }
+
+    internal IEnumerable<GraphicArea> GraphicAreas
+    {
+      get { return graphic.___graphicAreas.Values; }
+    }
+
+    internal Item Item(string tag)
+    {
+      Item item;
+      items.TryGetValue(tag, out item);
+      return item;
+    }
+
+    internal Link Link(string tag)
+    {
+      Link link;
+      links.TryGetValue(tag, out link);
+      return link;
+    }
+
+    internal IEnumerable<Item> Items
+    {
+      get { return items.Values; }
+    }
+
+    internal IEnumerable<Link> Links
+    {
+      get { return links.Values; }
+    }
+
+  
+  internal bool IsItem(string tag)
+    {
+      return graphic.graphicItems.ContainsKey(tag);
+    }
+
+    internal void ModifyGraphicItem(string tag, RectangleF boundingRect, float angle)
+    {
+      graphic.ModifyItem(tag, boundingRect, angle);
+    }
+
+    internal GraphicItem NewGraphicItem(string tag)
+    {
+      GraphicItem graphicItem = new GraphicItem(tag);
+      return NewGraphicItem(tag, graphicItem);
+    }
+
+    internal GraphicItem NewGraphicItem(string tag, GraphicItem graphicItem)
+    {
+      graphic.graphicItems.Add(tag, graphicItem);
+      return graphicItem;
+    }
+
+    internal void ConnectGraphicItemModified(Graphic.ItemModifiedHandler itemModifiedHandler)
+    {
+      graphic.ItemModified += itemModifiedHandler;
+    }
+
+    internal void DisconnectGraphicItemModified(Graphic.ItemModifiedHandler itemModifiedHandler)
+    {
+      graphic.ItemModified -= itemModifiedHandler; 
     }
   }
 }

@@ -17,17 +17,22 @@ namespace SysCAD.Interface
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
   public class ModelStencil
   {
-    public ArrayList elements = new ArrayList();
-    public ArrayList decorations = new ArrayList();
-    public ArrayList anchors = new ArrayList();
+    private string tag;
+
+    public ArrayList elements;
+    public ArrayList decorations;
+    public ArrayList anchors;
     public FillMode fillMode;
     public String groupName;
-    public string id;
 
     public ModelStencil()
     {
-      fillMode = FillMode.Alternate;
-      id = "";
+    }
+
+    public String Tag
+    {
+      get { return tag; }
+      set { tag = value; }
     }
 
     public ArrayList Anchors
@@ -214,7 +219,7 @@ namespace SysCAD.Interface
         i++;
       }
 
-      return (new ShapeTemplate(elementTemplate, decorationTemplate, null, fillMode, id));
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, null, fillMode, tag));
     }
   }
 }
