@@ -47,13 +47,25 @@ namespace SysCAD.Service
 
       ConfigData config = new ConfigData();
 
+      string args1;
       string args0;
-      if (args.Length == 1)
+      if (args.Length >= 2)
+      {
+        args1 = args[1];
         args0 = args[0];
+      }
+      else if (args.Length == 1)
+      {
+        args1 = ".\\";
+        args0 = args[0];
+      }
       else
+      {
+        args1 = ".\\";
         args0 = ".\\";
+      }
 
-      foreach (string fullpath in Directory.GetFiles(args0, "*.modelstencil"))
+      foreach (string fullpath in Directory.GetFiles(args1, "*.modelstencil"))
       {
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
@@ -66,7 +78,7 @@ namespace SysCAD.Service
 
       Console.WriteLine("\n");
 
-      foreach (string fullpath in Directory.GetFiles(args0, "*.graphicstencil"))
+      foreach (string fullpath in Directory.GetFiles(args1, "*.graphicstencil"))
       {
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
