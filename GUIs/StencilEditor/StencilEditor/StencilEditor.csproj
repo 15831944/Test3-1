@@ -45,14 +45,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FlowChart.NET, Version=4.0.2.26317, Culture=neutral, PublicKeyToken=a0d18338041985ba">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\FlowChart.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="Ruler, Version=4.0.2.20151, Culture=neutral, PublicKeyToken=a0d18338041985ba, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files\MindFusion Limited\FlowChart.NET Demo\Assemblies for .NET 2.0\Ruler.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -86,7 +78,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="StencilEditor_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -98,17 +89,25 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Interfaces\Interface.csproj">
-      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
-      <Name>Interface</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
       <ProductName>.NET Framework 2.0</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Interfaces\Interface.csproj">
+      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
+      <Name>Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FlowChart.NET\FlowChart.NET.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FlowChart.NET\Ruler\Ruler.csproj">
+      <Project>{5110A502-A186-45A5-AC45-9944DB886509}</Project>
+      <Name>Ruler</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
