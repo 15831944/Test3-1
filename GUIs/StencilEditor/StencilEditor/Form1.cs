@@ -977,6 +977,8 @@ namespace StencilEditor
         if (modelStencilButton.Checked)
         {
           ModelStencil stencil = new ModelStencil();
+          stencil.elements = new System.Collections.ArrayList();
+          stencil.decorations = new System.Collections.ArrayList();
 
           foreach (Arrow arrow in elementList)
           {
@@ -1051,6 +1053,9 @@ namespace StencilEditor
         else if (graphicStencilButton.Checked)
         {
           GraphicStencil stencil = new GraphicStencil();
+          stencil.elements = new System.Collections.ArrayList();
+          stencil.decorations = new System.Collections.ArrayList();
+          stencil.textAreas = new System.Collections.ArrayList();
 
           foreach (Arrow arrow in elementList)
           {

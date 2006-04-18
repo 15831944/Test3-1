@@ -211,7 +211,7 @@ namespace SysCAD.Interface
         if (stencil.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
         if (stencil.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
         if (stencil.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
-        if (stencil.Contains("Tank")) { sx = 0.348186528F; sy = 0.777777778F; dy = -2.45F; }
+        if (stencil.Contains("Tank")) { sx = 0.6348186528F; sy = 0.777777778F; dy = -2.45F; }
         if (stencil.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
         if (stencil.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
