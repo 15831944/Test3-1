@@ -758,7 +758,8 @@ class DllImportExport CSpecie : public CSpecieCommonData, public CPropertyBase
     Strng         sTag;
     Strng         sSym;
     Strng         m_sPhaseSym;
-    int           eOcc;
+    int           m_eOcc;
+    PhMask        m_OccMsk;
     PhMask        m_PhMsk;
     int           m_PhInx;
     int           m_iBOccT;

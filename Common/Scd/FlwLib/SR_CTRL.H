@@ -231,6 +231,78 @@ DEFINE_CLASSBUILDER1(CEC_FinalConc, CR_EqnControl, pCR_Eqn)
 //
 //===========================================================================
 
+class DllImportExport CEC_MSFinalFrac : public CR_EqnControl
+  {
+  public:
+    CEC_MSFinalFrac(CR_EqnControlFactory * Factory, pCR_Eqn pEqn) : CR_EqnControl(Factory, pEqn) { Clear(); };
+    virtual ~CEC_MSFinalFrac() { Clear(); };
+    virtual eScdReactionBasis Basis() { return RctEquilibrium;};
+    virtual void   Clear();
+    virtual void   Parse(CRCTTokenFile &TF);
+    virtual void   SetUp();
+    virtual LPCTSTR GetRctString();
+
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    // Methods Required by "Default ReactingMoles())"
+    virtual void   CalcKs(double ProdMoles, double &EqK, double &K);
+    virtual double ExtentReqd();
+    virtual double ExtentActual(double ProdMoles=0.0);
+
+  public:
+    CEqnSpRef      m_Spc;
+    DualDbl        m_ddRqdFrac; // % mass frac in total
+    int            m_iFReactTerm;
+    int            m_iFProdTerm;
+    flag           m_AsTotal;
+  };
+
+DEFINE_CLASSBUILDER1(CEC_MSFinalFrac, CR_EqnControl, pCR_Eqn)
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class DllImportExport CEC_MLFinalFrac : public CR_EqnControl
+  {
+  public:
+    CEC_MLFinalFrac(CR_EqnControlFactory * Factory, pCR_Eqn pEqn) : CR_EqnControl(Factory, pEqn) { Clear(); };
+    virtual ~CEC_MLFinalFrac() { Clear(); };
+    virtual eScdReactionBasis Basis() { return RctEquilibrium;};
+    virtual void   Clear();
+    virtual void   Parse(CRCTTokenFile &TF);
+    virtual void   SetUp();
+    virtual LPCTSTR GetRctString();
+
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    // Methods Required by "Default ReactingMoles())"
+    virtual void   CalcKs(double ProdMoles, double &EqK, double &K);
+    virtual double ExtentReqd();
+    virtual double ExtentActual(double ProdMoles=0.0);
+
+  public:
+    CEqnSpRef      m_Spc;
+    DualDbl        m_ddRqdFrac; // % mass frac in phase
+    int            m_iFReactTerm;
+    int            m_iFProdTerm;
+    flag           m_AsTotal;
+  };
+
+DEFINE_CLASSBUILDER1(CEC_MLFinalFrac, CR_EqnControl, pCR_Eqn)
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 #undef DllImportExport
 
 #endif

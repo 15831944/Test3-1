@@ -375,10 +375,14 @@ double CR_EqnControl::ExtentError()
     {
     if (Valid(m_dKEOStep))
       {
-      if (fabs(ExtentReqd())>0.0)
-        return Range(-9999.0, m_dKEOStep/ExtentReqd()-1.0, 9999.0);
-      else     
-        return 0.0;
+      // Old 
+      //if (fabs(ExtentReqd())>0.0)
+      //  return Range(-9999.0, m_dKEOStep/ExtentReqd()-1.0, 9999.0);
+      //else     
+      //  return 0.0;
+      const double Vt = Max(fabs(m_dKEOStep), fabs(ExtentReqd()));
+      double Err = (m_dKEOStep-ExtentReqd()) / GTZ(Vt);
+      return Range(-9999.0, Err, 9999.0);
       }
     return dNAN; 
     }

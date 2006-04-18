@@ -72,6 +72,8 @@ class DllImportExport CR_EqnControl
     virtual eScdReactionBasis Basis() { return RctEquilibrium; };
     virtual void   Clear();
     virtual void   Parse(CRCTTokenFile &TF) {};
+    void           ParseExtent(CRCTTokenFile &TF);
+    void           ParseDynamic(CRCTTokenFile &TF);
     virtual void   SetUp() {};
     virtual LPCTSTR GetRctString() { m_AsString="CR_EqnControl"; return m_AsString; };
 

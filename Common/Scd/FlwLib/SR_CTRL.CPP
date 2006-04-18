@@ -74,6 +74,52 @@ flag CEqnSpRef::SetUp(CReactionBlock & RB, CR_Eqn & Eq)
 //
 //===========================================================================
 
+void CR_EqnControl::ParseExtent(CRCTTokenFile &TF)
+  {
+  m_bExtentType=RBXT_Target;
+  if (TF.TokenIs("Strict"))
+    {
+    if (DynamicRate())
+      CReactionBlock::Error(&RB, 'B', -1, "'Strict' not Allowed in a container");
+    else
+      m_bExtentType=RBXT_Strict;
+    }
+  else if (TF.TokenIs("Target"))
+    {
+    if (DynamicRate())
+      CReactionBlock::Error(&RB, 'B', -1, "'Target' not Allowed in a container");
+    else
+      m_bExtentType=RBXT_Target;
+    }
+  }
+
+void CR_EqnControl::ParseDynamic(CRCTTokenFile &TF)
+  {
+  if (DynamicRate())
+    {
+    if (TF.TokenIs("Rate"))
+      {
+      TF.TestToken("=");
+      double r=GEZ(TF.DoubleToken());
+      if (TF.TokenIs("%"))
+        r*=0.01;
+      m_ddFracRate=r;
+      m_bDoRate=true;
+      m_bStablize=TF.TokenIs("Stabilised")!=0;
+      }
+    //else if (TF.TokenIs("@"))
+    //  {
+    //  m_dRqdExtDT=Max(1.0e-3, TF.DoubleToken());
+    //  }
+    }
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 IMPLEMENT_CLASSBUILDER1(CEC_Equilibrium, CR_EqnControl, "Equilibrium", pCR_Eqn)
 
 void CEC_Equilibrium::Clear()
@@ -408,6 +454,8 @@ void CEC_Ratio::Parse(CRCTTokenFile &TF)
   {
   Clear();
 
+  ParseExtent(TF);
+
   CEqnSpRef Ref(TF.NextToken());
   m_Sp.Add(Ref);
   while (TF.TokenIs(":"))
@@ -654,26 +702,9 @@ void CEC_FracExt::Parse(CRCTTokenFile &TF)
   {
   Clear();
 
-  LPCSTR Tkn=TF.NextToken();
-  m_bExtentType=RBXT_Target;
-  if (stricmp(Tkn, "Strict")==0)
-    {
-    if (DynamicRate())
-      CReactionBlock::Error(&RB, 'B', -1, "'Strict' not Allowed in a container");
-    else
-      m_bExtentType=RBXT_Strict;
-    Tkn=TF.NextToken();
-    }
-  else if (stricmp(Tkn, "Target")==0)
-    {
-    if (DynamicRate())
-      CReactionBlock::Error(&RB, 'B', -1, "'Target' not Allowed in a container");
-    else
-      m_bExtentType=RBXT_Target;
-    Tkn=TF.NextToken();
-    }
+  ParseExtent(TF);
 
-  m_Spc.m_Name=Tkn;
+  m_Spc.m_Name=TF.NextToken();
 
   m_dRqdExtentLcl=1.0;
   m_dRelRate=1;
@@ -702,23 +733,7 @@ void CEC_FracExt::Parse(CRCTTokenFile &TF)
     m_dRelRate=Range(0.0, m_dRelRate, 1e6);
     }
 
-  if (DynamicRate())
-    {
-    if (TF.TokenIs("Rate"))
-      {
-      TF.TestToken("=");
-      double r=GEZ(TF.DoubleToken());
-      if (TF.TokenIs("%"))
-        r*=0.01;
-      m_ddFracRate=r;
-      m_bDoRate=true;
-      m_bStablize=TF.TokenIs("Stabilised")!=0;
-      }
-    //else if (TF.TokenIs("@"))
-    //  {
-    //  m_dRqdExtDT=Max(1.0e-3, TF.DoubleToken());
-    //  }
-    }
+  ParseDynamic(TF);
   };
 
 //---------------------------------------------------------------------------
@@ -983,6 +998,7 @@ void CEC_FinalConc::Clear()
 void CEC_FinalConc::Parse(CRCTTokenFile &TF)
   {
   Clear();
+  ParseExtent(TF);
   m_Spc.m_Name=TF.NextToken();
   TF.CheckToken("=");
   m_ddRqdConc.SetVal(GEZ(TF.DoubleToken()), &Eq);
@@ -994,6 +1010,7 @@ void CEC_FinalConc::Parse(CRCTTokenFile &TF)
     if (TF.TokenIs("K"))
       m_dRqdTemp=K2C(m_dRqdTemp);
     }
+  //ParseDynamic(TF);
   };
 
 //---------------------------------------------------------------------------
@@ -1115,7 +1132,7 @@ double CEC_FinalConc::ExtentActual(double ProdMoles)
   else
     C=0.0;
 
-  if (10)
+  if (0)
     {
     dbgp("FinalConc:Actual: %14.8f %14.8f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f|",
           ProdMoles, C, ExtentReqd(), M, MW, V, Valid(m_dRqdTemp)?m_dRqdTemp:RB.EstFinalT(), RB.m_Press);
@@ -1129,6 +1146,303 @@ double CEC_FinalConc::ExtentActual(double ProdMoles)
     dbgpln("");
     }
   return C;
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+IMPLEMENT_CLASSBUILDER1(CEC_MSFinalFrac, CR_EqnControl, "msFinalFraction", pCR_Eqn)
+
+//---------------------------------------------------------------------------
+
+void CEC_MSFinalFrac::Clear()
+  {
+  CR_EqnControl::Clear();
+  m_ddRqdFrac.SetVal(0.0, &Eq);
+  m_iFReactTerm=-1;
+  m_iFProdTerm=-1;
+  m_AsTotal=false;
+  m_Spc.Clear();
+  };
+
+//---------------------------------------------------------------------------
+
+void CEC_MSFinalFrac::Parse(CRCTTokenFile &TF)
+  {
+  Clear();
+  m_AsTotal=TF.TokenIs("Total");
+  ParseExtent(TF);
+  m_Spc.m_Name=TF.NextToken();
+  TF.CheckToken("=");
+  m_ddRqdFrac.SetVal(GEZ(TF.DoubleToken()), &Eq);
+  m_iFReactTerm=-1;
+  m_iFProdTerm=-1;
+
+  //ParseDynamic(TF);
+  //??if (DynamicRate())
+  //  {
+  //  if (TF.TokenIs("Rate"))
+  //    {
+  //    TF.TestToken("=");
+  //    double r=GEZ(TF.DoubleToken());
+  //    if (TF.TokenIs("%"))
+  //      r*=0.01;
+  //    m_ddFracRate=r;
+  //    m_bDoRate=true;
+  //    m_bStablize=TF.TokenIs("Stabilised")!=0;
+  //    }
+  //  //else if (TF.TokenIs("@"))
+  //  //  {
+  //  //  m_dRqdExtDT=Max(1.0e-3, TF.DoubleToken());
+  //  //  }
+  //  }
+  };
+
+//---------------------------------------------------------------------------
+
+void CEC_MSFinalFrac::SetUp()
+  {
+  flag OK=m_Spc.SetUp(RB, Eq);
+  if (OK)
+    {
+    OK=Eq.SetReactProdInx(m_Spc.m_SpcId, m_iFReactTerm, m_iFProdTerm);
+    }
+//  if (OK)
+//    iFSpcId=Spc.ReactTerm>=0 ? Spc.ReactTerm : Spc.ProdTerm;
+//  else
+//    iFSpcId=-1;
+  };
+
+//---------------------------------------------------------------------------
+
+LPCTSTR CEC_MSFinalFrac::GetRctString()
+  {
+  m_AsString=m_pFactory ? m_pFactory->ClassId() : "";
+  return m_AsString;
+  }
+
+//---------------------------------------------------------------------------
+
+void CEC_MSFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
+  {
+  Strng T;
+  T.Set("Final Mass %sFraction %s", m_AsTotal?"":"Phase ", m_Spc.m_Name());
+
+  DDB.Text  (T());
+  DDEF_Flags VFlags=DDB.GetVisibility();
+  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.SetVisibility(VFlags);
+
+  if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
+    {
+    CCnvIndex dc;
+    pchar pCnvTxt;
+    SDB.AddSpCnv(DC_Frac, SDB[m_Spc.m_SpcId].SymOrTag(), "%", dc, pCnvTxt);
+    m_ddRqdFrac.BuildDataDefn(DDB, "Frac_Rqd", "",  dc, pCnvTxt,  xid_RCTExtent,    &Eq, "Cfg", "Rqd");
+    DDB.Double("Frac_EOStep",      "Frac_Act",      dc, pCnvTxt,   &m_dKEOStep,      &Eq, isResult);
+    DDB.Double("Frac_Final",       "",              dc, pCnvTxt,   &m_dKFinal,       &Eq, isResult|NAN_OK);
+    DDB.Double("ExtentError",      "",              DC_Frac, "%",  xid_ExtentError,  &Eq, isResult|noFile|noSnap|NAN_OK);
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+flag CEC_MSFinalFrac::DataXchg(DataChangeBlk & DCB)
+  {
+  switch (DCB.lHandle)
+    {
+    case xid_ExtentError:
+      DCB.D=ExtentError();
+      return 1;
+    }
+
+  if (m_ddRqdFrac.DataXchg(DCB, xid_RCTExtent, &Eq))
+    return 1;
+  return 0;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CEC_MSFinalFrac::ValidateData(ValidateDataBlk & VDB)
+  {
+  return True;
+  };
+
+//---------------------------------------------------------------------------
+
+void CEC_MSFinalFrac::CalcKs(double ProdMoles, double &EqK, double &K)
+  {
+  K=ExtentActual(ProdMoles);
+  EqK=ExtentReqd();
+  }
+
+double CEC_MSFinalFrac::ExtentReqd()
+  {
+  return ExtentDynamicScale(m_ddRqdFrac());
+  };
+
+double CEC_MSFinalFrac::ExtentActual(double ProdMoles)
+  {
+  SpMArray NewMoles;
+  SpMArray NewMass;
+  NewMoles=RB.Moles;
+  CR_EqnControl::ApplyChanges(ProdMoles, NewMoles);
+  RB.AdjustForSrcSnks(NewMoles);
+
+  NewMass.ToMass(NewMoles);
+
+  double F;
+  if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
+    F=(NewMass[m_Spc.m_SpcId])/GTZ(NewMass.Mass(m_AsTotal ? som_ALL : SDB[m_Spc.m_SpcId].m_OccMsk));
+  else
+    F=0.0;
+
+  if (0)
+    dbgpln("FinalFrac:Actual: %14.8f %14.8f |",
+            ProdMoles, F, ExtentReqd());
+  return F;
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+IMPLEMENT_CLASSBUILDER1(CEC_MLFinalFrac, CR_EqnControl, "mlFinalFraction", pCR_Eqn)
+
+//---------------------------------------------------------------------------
+
+void CEC_MLFinalFrac::Clear()
+  {
+  CR_EqnControl::Clear();
+  m_ddRqdFrac.SetVal(0.0, &Eq);
+  m_iFReactTerm=-1;
+  m_iFProdTerm=-1;
+  m_AsTotal=false;
+  m_Spc.Clear();
+  };
+
+//---------------------------------------------------------------------------
+
+void CEC_MLFinalFrac::Parse(CRCTTokenFile &TF)
+  {
+  Clear();
+  m_AsTotal=TF.TokenIs("Total");
+  ParseExtent(TF);
+  m_Spc.m_Name=TF.NextToken();
+  TF.CheckToken("=");
+  m_ddRqdFrac.SetVal(GEZ(TF.DoubleToken()), &Eq);
+  m_iFReactTerm=-1;
+  m_iFProdTerm=-1;
+  //ParseDynamic(TF);
+  };
+
+//---------------------------------------------------------------------------
+
+void CEC_MLFinalFrac::SetUp()
+  {
+  flag OK=m_Spc.SetUp(RB, Eq);
+  if (OK)
+    {
+    OK=Eq.SetReactProdInx(m_Spc.m_SpcId, m_iFReactTerm, m_iFProdTerm);
+    }
+//  if (OK)
+//    iFSpcId=Spc.ReactTerm>=0 ? Spc.ReactTerm : Spc.ProdTerm;
+//  else
+//    iFSpcId=-1;
+  };
+
+//---------------------------------------------------------------------------
+
+LPCTSTR CEC_MLFinalFrac::GetRctString()
+  {
+  m_AsString=m_pFactory ? m_pFactory->ClassId() : "";
+  return m_AsString;
+  }
+
+//---------------------------------------------------------------------------
+
+void CEC_MLFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
+  {
+  Strng T;
+  T.Set("Final Mole %sFraction %s", m_AsTotal?"":"Phase ", m_Spc.m_Name());
+
+  DDB.Text  (T());
+  DDEF_Flags VFlags=DDB.GetVisibility();
+  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.SetVisibility(VFlags);
+
+  if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
+    {
+    CCnvIndex dc;
+    pchar pCnvTxt;
+    SDB.AddSpCnv(DC_Frac, SDB[m_Spc.m_SpcId].SymOrTag(), "%", dc, pCnvTxt);
+    m_ddRqdFrac.BuildDataDefn(DDB, "Frac_Rqd", "",  dc, pCnvTxt,  xid_RCTExtent,    &Eq, "Cfg", "Rqd");
+    DDB.Double("Frac_EOStep",      "Frac_Act",      dc, pCnvTxt,   &m_dKEOStep,      &Eq, isResult);
+    DDB.Double("Frac_Final",       "",              dc, pCnvTxt,   &m_dKFinal,       &Eq, isResult|NAN_OK);
+    DDB.Double("ExtentError",      "",              DC_Frac, "%",  xid_ExtentError,  &Eq, isResult|noFile|noSnap|NAN_OK);
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+flag CEC_MLFinalFrac::DataXchg(DataChangeBlk & DCB)
+  {
+  switch (DCB.lHandle)
+    {
+    case xid_ExtentError:
+      DCB.D=ExtentError();
+      return 1;
+    }
+
+  if (m_ddRqdFrac.DataXchg(DCB, xid_RCTExtent, &Eq))
+    return 1;
+  return 0;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CEC_MLFinalFrac::ValidateData(ValidateDataBlk & VDB)
+  {
+  return True;
+  };
+
+//---------------------------------------------------------------------------
+
+void CEC_MLFinalFrac::CalcKs(double ProdMoles, double &EqK, double &K)
+  {
+  K=ExtentActual(ProdMoles);
+  EqK=ExtentReqd();
+  }
+
+double CEC_MLFinalFrac::ExtentReqd()
+  {
+  return ExtentDynamicScale(m_ddRqdFrac());
+  };
+
+double CEC_MLFinalFrac::ExtentActual(double ProdMoles)
+  {
+  SpMArray NewMoles;
+  NewMoles=RB.Moles;
+  CR_EqnControl::ApplyChanges(ProdMoles, NewMoles);
+  RB.AdjustForSrcSnks(NewMoles);
+
+  double F;
+  if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
+    F=(NewMoles[m_Spc.m_SpcId])/GTZ(NewMoles.Mass(m_AsTotal ? som_ALL : SDB[m_Spc.m_SpcId].m_OccMsk));
+  else
+    F=0.0;
+
+  if (0)
+    dbgpln("FinalPhaseFrac:Actual: %14.8f %14.8f |",
+            ProdMoles, F, ExtentReqd());
+  return F;
   };
 
 //===========================================================================

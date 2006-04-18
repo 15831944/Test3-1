@@ -661,8 +661,9 @@ m_H2O(H2ODB)
   m_PhInx=0;
   m_iBOccT=0;
 
-  eOcc=BOT_Null;
+  m_eOcc=BOT_Null;
   m_PhMsk=0;
+  m_OccMsk=0;
 
   //  m_dMoleWt=0;
   m_dTsTol=25;
@@ -827,11 +828,11 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
   switch (Phase[0])
     {
-    case 'l' : eOcc=BOT_Liquid;  break;
-    case 'v' : eOcc= BOT_Gas;    break;
-    case 'g' : eOcc= BOT_Gas;    break;
+    case 'l' : m_eOcc=BOT_Liquid;  break;
+    case 'v' : m_eOcc= BOT_Gas;    break;
+    case 'g' : m_eOcc= BOT_Gas;    break;
     case 's' :
-    default  : eOcc=BOT_Solid;   break;
+    default  : m_eOcc=BOT_Solid;   break;
     }
   iCId=-1;
 
@@ -847,9 +848,9 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
   m_dTsTol=25;
   m_dTeTol=25;
 
-  if (UseH2OFns && ((eOcc==BOT_Liquid) || (eOcc==BOT_Gas)))
+  if (UseH2OFns && ((m_eOcc==BOT_Liquid) || (m_eOcc==BOT_Gas)))
     {
-    if (eOcc==BOT_Liquid)
+    if (m_eOcc==BOT_Liquid)
       {
       if (pC->m_bLiqDone)
         return false;
@@ -875,7 +876,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
       // Check to see if this is a Vapour and whether
       // only a constant RHo has been is specified
       Strng S((const char*)Values[ColNo]);
-      if (eOcc==BOT_Gas)
+      if (m_eOcc==BOT_Gas)
         {
         Strng SU=S;
         SU.Upper();
@@ -1012,7 +1013,7 @@ flag CSpecie::FixMissingData(CComponent * pC)
         }
       else
         {
-        switch (eOcc)
+        switch (m_eOcc)
           {
           case BOT_Solid:
             DataLo.m_pRho[i]=CSpDBEqn::Construct(&DataLo, "2000.0");
@@ -1040,7 +1041,7 @@ flag CSpecie::FixMissingData(CComponent * pC)
         }
       else
         {
-        switch (eOcc)
+        switch (m_eOcc)
           {
           case BOT_Solid:  S="1.0"; break;
           case BOT_Gas: S="1.0"; break;
@@ -2735,9 +2736,9 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               {
               if (UseH2OFns)
                 {
-                if (pSp->eOcc==BOT_Liquid)
+                if (pSp->m_eOcc==BOT_Liquid)
                   m_pWater=pSp;
-                else if (pSp->eOcc==BOT_Gas)
+                else if (pSp->m_eOcc==BOT_Gas)
                   m_pSteam=pSp;
                 else
                   ASSERT_ALWAYS(0, "Solid water phase not allowed!");
@@ -2767,13 +2768,13 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
                     {
                     CSpecie * Sp1=pC->m_PhaseData[i-1];
                     CSpecie * Sp2=pC->m_PhaseData[i];
-                    if (Sp2->eOcc > Sp1->eOcc)
+                    if (Sp2->m_eOcc > Sp1->m_eOcc)
                       break;
-                    else if (Sp2->eOcc == Sp1->eOcc)
+                    else if (Sp2->m_eOcc == Sp1->m_eOcc)
                       {
                       if (Sp2->m_sPhaseSym.XStrCmp(Sp1->m_sPhaseSym)>0)
                         break;
-                      if (!PhaseNamePrimary(Sp2->eOcc, Sp2->m_sPhaseSym()) && PhaseNamePrimary(Sp1->eOcc, Sp1->m_sPhaseSym()))
+                      if (!PhaseNamePrimary(Sp2->m_eOcc, Sp2->m_sPhaseSym()) && PhaseNamePrimary(Sp1->m_eOcc, Sp1->m_sPhaseSym()))
                         break;
                       }
                     Exchange(pC->m_PhaseData[i-1], pC->m_PhaseData[i]);
@@ -3065,7 +3066,7 @@ void CComponentDataBase::AddSpecieD(int c, CComponent & C, CSpecie * pSpD, int p
 #if dbgBuildSDB
     if (dbgBuildSpc())
       dbgpln("                                           Add: %2i %-35.35s %s",
-      C.m_PhaseData[p]->iSId,Sp.SymOrTag(), OccurenceNames[Sp.eOcc]);
+      C.m_PhaseData[p]->iSId,Sp.SymOrTag(), OccurenceNames[Sp.m_eOcc]);
 #endif
     }
   };
@@ -3129,7 +3130,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         Sp.sSym="";
       Sp.m_dMoleWt=C.MoleWt();
 
-      if (Sp.eOcc==BOT_Gas)
+      if (Sp.m_eOcc==BOT_Gas)
         {
         CRqdSpItem * pRS=RqdSpc.Find(Sp.SymOrTag());
         //ASSERT(pRS!=NULL);
@@ -3190,7 +3191,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       else
         {
         CSpecie &Sp=*C.m_PhaseData[p];
-        PrvOcc=Sp.eOcc;
+        PrvOcc=Sp.m_eOcc;
         p++;
         }
 
@@ -3255,7 +3256,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     bool Found=false;
     for (int ip=0; ip<m_PhInfoCount[BOT_All]; ip++)
       {
-      if (m_PhInfo[ip].m_eOcc==S.eOcc)
+      if (m_PhInfo[ip].m_eOcc==S.m_eOcc)
         {
         int iCmp=m_PhInfo[ip].m_Sym.XStrCmp(S.m_sPhaseSym());
         if (iCmp==0)
@@ -3264,7 +3265,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
           break; // keep ip correct
           }
         }
-      if (m_PhInfo[ip].m_eOcc>S.eOcc)
+      if (m_PhInfo[ip].m_eOcc>S.m_eOcc)
         break;
       }
 
@@ -3273,12 +3274,12 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       //dbgpln("Insert Phase at %3i %s", ip, S.m_sPhaseSym());
       if (m_PhInfoCount[BOT_All]<MaxPhases)
         {
-        m_PhInfoCount[S.eOcc]++;
+        m_PhInfoCount[S.m_eOcc]++;
         m_PhInfoCount[BOT_All]++;
         for (int i=m_PhInfoCount[BOT_All]; i>ip; i--)
           m_PhInfo[i]=m_PhInfo[i-1];
         m_PhInfo[ip].m_Sym=S.m_sPhaseSym;
-        m_PhInfo[ip].m_eOcc=S.eOcc;
+        m_PhInfo[ip].m_eOcc=S.m_eOcc;
         m_PhInfo[ip].m_nSpecies=0;
         }
       else
@@ -3468,7 +3469,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     for (int s=0; s<m_SDB.m_iNo; s++)
       {
       CSpecie & S=m_SDB[s];
-      for (i=m_PhInfoFirst[S.eOcc]; i<=m_PhInfoLast[S.eOcc]; i++)
+      for (i=m_PhInfoFirst[S.m_eOcc]; i<=m_PhInfoLast[S.m_eOcc]; i++)
         {
         CPhaseInfo & Ph = m_PhInfo[i];
         if (S.m_sPhaseSym.XStrCmp(Ph.m_Sym)==0)
@@ -3483,6 +3484,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       S.m_PhMsk=Msk;
       if (S.IsSol())
         {
+        S.m_OccMsk=som_Sol;
         S.m_iBOccT=BOT_Solid;
         S.m_bCpOvrMask=SPO_SCp;
         S.m_bDensOvrMask=SPO_SDens;
@@ -3490,6 +3492,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         }
       else if (S.IsLiq())
         {
+        S.m_OccMsk=som_Liq;
         S.m_iBOccT=BOT_Liquid;
         S.m_bCpOvrMask=SPO_LCp;
         S.m_bDensOvrMask=SPO_LDens;
@@ -3497,6 +3500,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         }
       else
         {
+        S.m_OccMsk=som_Gas;
         S.m_iBOccT=BOT_Gas;
         S.m_bCpOvrMask=SPO_VCp;
         S.m_bDensOvrMask=SPO_VDens;
@@ -3513,7 +3517,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
 
 #if dbgBuildSDB
       if (dbgBuildSpc())
-        dbgpln("c%4i/s%4i)Cmp:%-15.15s  Spc:%-15.15s  %#08x %3i %3i", c, s, CmD[c]->SymOrTag(), S.SymOrTag(), Msk, S.m_PhInx, S.eOcc);
+        dbgpln("c%4i/s%4i)Cmp:%-15.15s  Spc:%-15.15s  %#08x %3i %3i", c, s, CmD[c]->SymOrTag(), S.SymOrTag(), Msk, S.m_PhInx, S.m_eOcc);
 #endif
       if (!(S.m_Data[0].m_bChecked || S.m_Data[1].m_bChecked || S.m_bReference))
         {
