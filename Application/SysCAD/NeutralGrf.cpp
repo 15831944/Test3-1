@@ -849,7 +849,7 @@ void CNeutralGrfImportExport::DoExport(eScdNDBOptions Opts, CGrfDoc * pDoc)
           }
         else
           {
-          TagTyp=-1;
+          TagTyp=3;
           I.m_sClass = "";
           }
 
@@ -867,7 +867,7 @@ void CNeutralGrfImportExport::DoExport(eScdNDBOptions Opts, CGrfDoc * pDoc)
           ExportSymbol(I, m_Origin, pDoc->m_sDocGUID());
           }
         }
-      if (TagTyp==-1)
+      if (TagTyp==3)
         {
         I.m_sTag.Set("$%i$", ++InsertCnt);
         I.m_sClass="Insert";
