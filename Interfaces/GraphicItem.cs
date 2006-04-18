@@ -109,6 +109,11 @@ namespace SysCAD.Interface
       set { height = value; }
     }
 
+    public RectangleF BoundingRect
+    {
+      get { return new RectangleF(x, y, width, height); }
+    }
+
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Angle of the item.")]
     public float Angle

@@ -13,6 +13,7 @@ using System.ComponentModel.Design.Serialization;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
+using System.Drawing.Text;
 using System.IO;
 using System.Reflection;
 using System.Resources;
@@ -42,6 +43,9 @@ namespace MindFusion.FlowChartX
 	{
 		#region initialization
 
+		/// <summary>
+		/// Initializes a new instance of the FlowChart class.
+		/// </summary>
 		public FlowChart()
 		{
 			license = LicenseManager.Validate(typeof(FlowChart), this);
@@ -162,7 +166,7 @@ namespace MindFusion.FlowChartX
 			dynamicArrows = false;
 			arrowsSnapToBorders = false;
 			arrowsRetainForm = false;
-			prpArrowStartOrnt = Orientation.Auto;
+			arrowCascadeOrientation = Orientation.Auto;
 
 			curPointer = Cursors.Arrow;
 			curCannotCreate = Cursors.No;
@@ -215,6 +219,7 @@ namespace MindFusion.FlowChartX
 
 			dirty = false;
 			antiAlias = SmoothingMode.None;
+			textRendering = TextRenderingHint.SystemDefault;
 
 			// tooltips
 			showToolTips = true;
@@ -232,7 +237,7 @@ namespace MindFusion.FlowChartX
 			inplaceAcceptOnEnter = false;
 			inplaceCancelOnEsc = true;
 
-			arrowsSplittable = false;
+			allowSplitArrows = false;
 
 			printOptions = new PrintOptions(this);
 			printOptions.EnableBackground = false;
@@ -284,6 +289,8 @@ namespace MindFusion.FlowChartX
 			crossRadius = 1.5f;
 			redrawNonModified = false;
 
+			roundRectFactor = 1;
+
 			scriptHelper = new ScriptHelper(this);
 
 			// link routing options
@@ -297,6 +304,7 @@ namespace MindFusion.FlowChartX
 			forceCacheRedraw = false;
 
 			showHandlesOnDrag = true;
+			mergeThreshold = 0;
 		}
 
 		~FlowChart()
@@ -310,8 +318,13 @@ namespace MindFusion.FlowChartX
 		#region diagram structure and contents
 
 		/// <summary>
-		/// Creates a new table
+		/// Creates a new table at the specified location.
 		/// </summary>
+		/// <param name="x">Specifies the horizontal position of the table.</param>
+		/// <param name="y">Specifies the vertical position of the table.</param>
+		/// <param name="width">Specifies the width of the table.</param>
+		/// <param name="height">Specifies the height of the table.</param>
+		/// <returns>A new Table instance.</returns>
 		public Table CreateTable(float x, float y, float width, float height)
 		{
 			// create the box object and store it in the collection
@@ -324,8 +337,13 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Creates a relation between two tables
+		/// Creates a relation between the specified rows of two tables.
 		/// </summary>
+		/// <param name="src">The source table.</param>
+		/// <param name="srcRow">The source row.</param>
+		/// <param name="dest">The destination table.</param>
+		/// <param name="destRow">The destination row.</param>
+		/// <returns>A new Arrow instance.</returns>
 		public Arrow CreateRelation(Table src, int srcRow, Table dest, int destRow)
 		{
 			return CreateArrow(src, srcRow, dest, destRow);
@@ -435,8 +453,10 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Deletes an object
+		/// Removes an item from the diagram.
 		/// </summary>
+		/// <param name="obj">Refers to the item that should be removed.</param>
+		/// <returns>true if the item was deleted successfully, otherwise false.</returns>
 		public bool DeleteObject(ChartObject obj)
 		{
 			if (obj == null) return false;
@@ -481,7 +501,7 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Deletes all objects
+		/// Removes all items and groups from the diagram.
 		/// </summary>
 		public void ClearAll()
 		{
@@ -652,8 +672,11 @@ namespace MindFusion.FlowChartX
 		private ChartObjectCollection zOrder;
 
 		/// <summary>
-		/// Creates a group of attached items
+		/// Creates a new hierarchical group.
 		/// </summary>
+		/// <param name="mainObj">The group master item; the subordinated items will follow the
+		/// master one when it is moved around.</param>
+		/// <returns>A new Group instance.</returns>
 		public Group CreateGroup(ChartObject mainObj)
 		{
 			if (mainObj == null) return null;
@@ -674,8 +697,9 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Destroys a group
+		/// Destroys the specified group; the group items are not deleted.
 		/// </summary>
+		/// <param name="group">The group that should be destroyed.</param>
 		public void DestroyGroup(Group group)
 		{
 			new RemoveGroupCmd(group.MainObject, group).Execute();
@@ -891,6 +915,11 @@ namespace MindFusion.FlowChartX
 			return null;
 		}
 
+		/// <summary>
+		/// Returns the top-most node that lies at the specified position.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <returns>A Node instance if a node lies at the specified location, otherwise null.</returns>
 		public Node GetNodeAt(PointF pt)
 		{
 			Node obj = null;
@@ -910,6 +939,11 @@ namespace MindFusion.FlowChartX
 			return obj;
 		}
 
+		/// <summary>
+		/// Returns the top-most box that lies at the specified position.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <returns>A Box instance if a box lies at the specified location, otherwise null.</returns>
 		public Box GetBoxAt(PointF pt)
 		{
 			Box box = null;
@@ -930,6 +964,11 @@ namespace MindFusion.FlowChartX
 			return box;
 		}
 
+		/// <summary>
+		/// Returns the top-most control host that lies at the specified position.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <returns>A ControlHost instance if one lies at the specified location, otherwise null.</returns>
 		public ControlHost GetControlHostAt(PointF pt)
 		{
 			ControlHost host = null;
@@ -950,6 +989,11 @@ namespace MindFusion.FlowChartX
 			return host;
 		}
 
+		/// <summary>
+		/// Returns the top-most table that lies at the specified position.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <returns>A Table instance if a table lies at the specified location, otherwise null.</returns>
 		public Table GetTableAt(PointF pt)
 		{
 			Table table = null;
@@ -970,6 +1014,12 @@ namespace MindFusion.FlowChartX
 			return table;
 		}
 
+		/// <summary>
+		/// Returns the top-most arrow that lies at the specified position.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <param name="maxDist">The maximum distance between tested arrows and the specified point.</param>
+		/// <returns>An Arrow object found near the specified point.</returns>
 		public Arrow GetArrowAt(PointF pt, float maxDist)
 		{
 			int segmNum = 0;
@@ -1681,6 +1731,17 @@ namespace MindFusion.FlowChartX
 		private SmoothingMode antiAlias;
 
 		[Category("Appearance")]
+		[DefaultValue(typeof(TextRenderingHint), "SystemDefault")]
+		[Description("Text rendering mode.")]
+		public TextRenderingHint TextRendering
+		{
+			get { return textRendering; }
+			set { textRendering = value; }
+		}
+
+		private TextRenderingHint textRendering;
+
+		[Category("Appearance")]
 		[DefaultValue(false)]
 		[Description("Enables or disables the DoubleBuffer ControlStyles bit. Enabling it reduces flicker in Remote Desktop Connection sessions.")]
 		public bool DoubleBuffer
@@ -1827,6 +1888,7 @@ namespace MindFusion.FlowChartX
 			if (renderOptions.EnableBackground)
 				drawBack(g, clip, transforms, renderOptions);
 			g.SmoothingMode = antiAlias;
+			g.TextRenderingHint = textRendering;
 
 			// draw the background image
 			if (renderOptions.EnableBackgroundImage)
@@ -2340,6 +2402,7 @@ namespace MindFusion.FlowChartX
 				}
 			}
 			g.SmoothingMode = this.antiAlias;
+			g.TextRenderingHint = this.textRendering;
 
 			// print the background image
 			if (BackgroundImage != null && renderOptions.EnableBackgroundImage)
@@ -2760,6 +2823,24 @@ namespace MindFusion.FlowChartX
 		}
 
 		private float crossRadius;
+
+		[Category("Appearance")]
+		[DefaultValue(1f)]
+		[Description("Specifies a multiplier for the radius of rounded rectangle shapes.")]
+		public float RoundRectFactor
+		{
+			get { return roundRectFactor; }
+			set
+			{
+				if (roundRectFactor != value && value >= 0)
+				{
+					roundRectFactor = value;
+					Invalidate();
+				}
+			}
+		}
+
+		private float roundRectFactor;
 
 		internal ArrowCollection getArrowsFromZ(bool lessThan, int z)
 		{
@@ -3196,6 +3277,7 @@ namespace MindFusion.FlowChartX
 				Bitmap tempBuffer = createBackBuffer(ClientRectangle, g);
 				Graphics tg = Graphics.FromImage(tempBuffer);
 				tg.SmoothingMode = antiAlias;
+				tg.TextRenderingHint = textRendering;
 
 				// update the item position
 				redrawNonModified = false;
@@ -4114,6 +4196,24 @@ namespace MindFusion.FlowChartX
 			return curSecDgnlResize != Cursors.SizeNESW;
 		}
 
+		[Category("Behavior")]
+		[DefaultValue(0f)]
+		[Description("The maximum distance between adjacent control points of an arrow at which the respective segments can be merged.")]
+		public float MergeThreshold
+		{
+			get { return mergeThreshold; }
+			set { mergeThreshold = value; }
+		}
+
+		internal bool mergePoints(PointF point1, PointF point2)
+		{
+			return
+				Math.Abs(point1.X - point2.X) <= mergeThreshold &&
+				Math.Abs(point1.Y - point2.Y) <= mergeThreshold;
+		}
+
+		private float mergeThreshold;
+
 		#endregion
 
 		#region behavior
@@ -4385,13 +4485,13 @@ namespace MindFusion.FlowChartX
 		[Category("Behavior")]
 		[DefaultValue(false)]
 		[Description("Specifies whether arrow segments can be added and removed interactively.")]
-		public bool ArrowsSplittable
+		public bool AllowSplitArrows
 		{
-			get { return arrowsSplittable; }
-			set { arrowsSplittable = value;	}
+			get { return allowSplitArrows; }
+			set { allowSplitArrows = value;	}
 		}
 
-		private bool arrowsSplittable;
+		private bool allowSplitArrows;
 
 		/// <summary>
 		/// Sets the control behavior on user`s actions
@@ -4562,28 +4662,31 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		internal bool rerouteArrow(Arrow arrow)
 		{
-			if (routingOptions.TriggerRerouting == RerouteArrows.WhenModified) return true;
-			if (routingOptions.TriggerRerouting == RerouteArrows.Never) return false;
+			if ((routingOptions.TriggerRerouting & RerouteArrows.WhenModified) != 0)
+				return true;
 
-			RectangleF arrowRect = arrow.BoundingRect;
-			for (int j = 0; j < zOrder.Count; ++j)
+			if ((routingOptions.TriggerRerouting & RerouteArrows.WhenIntersectNode) != 0)
 			{
-				if (zOrder[j] is Node)
+				RectangleF arrowRect = arrow.BoundingRect;
+				for (int j = 0; j < zOrder.Count; ++j)
 				{
-					Node node = zOrder[j] as Node;
-					if (node == arrow.Origin || node == arrow.Destination)
-						continue;
-					RectangleF rect = node.getRotatedBounds();
-					if (arrowRect.IntersectsWith(rect))
+					if (zOrder[j] is Node)
 					{
-						if (arrow.Intersects(node))
-							return true;
+						Node node = zOrder[j] as Node;
+						if (node == arrow.Origin || node == arrow.Destination)
+							continue;
+						RectangleF rect = node.getRotatedBounds();
+						if (arrowRect.IntersectsWith(rect))
+						{
+							if (arrow.Intersects(node))
+								return true;
 
-					}	// if (arrowRect.IntersectsWith(rect))
+						}	// if (arrowRect.IntersectsWith(rect))
 
-				}	// if (zOrder[j] is Node)
+					}	// if (zOrder[j] is Node)
 
-			}	// for (int j = 0; j < zOrder.Count; ++j)
+				}	// for (int j = 0; j < zOrder.Count; ++j)
+			}
 
 			return false;
 		}
@@ -4601,7 +4704,8 @@ namespace MindFusion.FlowChartX
 
 			RectangleF objRect = modified.getRotatedBounds();
 			RectangleF invalid = objRect;
-			if (routingOptions.TriggerRerouting == RerouteArrows.WhenModified || node == null)
+			if (node == null ||
+				(routingOptions.TriggerRerouting & RerouteArrows.WhenModified) != 0)
 			{
 				foreach (Arrow arrow in arrows)
 				{
@@ -4742,7 +4846,7 @@ namespace MindFusion.FlowChartX
 
 			hScrollBar.Minimum = (int)docExtents.Left;
 			hScrollBar.Maximum = (int)docExtents.Right;
-			hScrollBar.Value = Math.Max(hScrollBar.Minimum, (int)ScrollX);
+			hScrollBar.Value = (int)valueInScrollRange(scrollX, hScrollBar);
 			hScrollBar.LargeChange = (int)vsblDoc.Width;
 			hScrollBar.Visible = hScrollBar.LargeChange <
 				hScrollBar.Maximum - hScrollBar.Minimum;
@@ -4751,12 +4855,17 @@ namespace MindFusion.FlowChartX
 
 			vScrollBar.Minimum = (int)docExtents.Top;
 			vScrollBar.Maximum = (int)docExtents.Bottom;
-			vScrollBar.Value = Math.Max(vScrollBar.Minimum, (int)ScrollY);
+			vScrollBar.Value = (int)valueInScrollRange(scrollY, vScrollBar);
 			vScrollBar.LargeChange = (int)vsblDoc.Height;
 			vScrollBar.Visible = vScrollBar.LargeChange <
 				vScrollBar.Maximum - vScrollBar.Minimum;
 			if (!vScrollBar.Visible)
 				setScrollY(docExtents.Top);
+		}
+
+		private float valueInScrollRange(float value, ScrollBar scrollBar)
+		{
+			return Math.Min(Math.Max(value, scrollBar.Minimum), scrollBar.Maximum);
 		}
 
 		private RectangleF docExtents;
@@ -5041,11 +5150,7 @@ namespace MindFusion.FlowChartX
 				{
 					setScrollX(value);
 					if (hScrollBar != null)
-					{
-						if (scrollX >= hScrollBar.Minimum &&
-							scrollX <= hScrollBar.Maximum)
-							hScrollBar.Value = (int)scrollX;
-					}
+						hScrollBar.Value = (int)valueInScrollRange(scrollX, hScrollBar);
 				}
 			}
 		}
@@ -5089,11 +5194,7 @@ namespace MindFusion.FlowChartX
 				{
 					setScrollY(value);
 					if (vScrollBar != null)
-					{
-						if (scrollY >= vScrollBar.Minimum &&
-							scrollY <= vScrollBar.Maximum)
-							vScrollBar.Value = (int)scrollY;
-					}
+						vScrollBar.Value = (int)valueInScrollRange(scrollY, vScrollBar);
 				}
 			}
 		}
@@ -5311,7 +5412,7 @@ namespace MindFusion.FlowChartX
 				tableRowHeight = fc.tableRowHeight;
 				tableCaptionHeight = fc.tableCaptionHeight;
 				tableCaption = fc.tableCaption;
-				prpArrowStartOrnt = fc.prpArrowStartOrnt;
+				arrowCascadeOrientation = fc.arrowCascadeOrientation;
 				tableCellBorders = fc.tableCellBorders;
 				boxesExpandable = fc.boxesExpandable;
 				tablesScrollable = fc.tablesScrollable;
@@ -5378,7 +5479,7 @@ namespace MindFusion.FlowChartX
 				fc.tableRowHeight = tableRowHeight;
 				fc.tableCaptionHeight = tableCaptionHeight;
 				fc.tableCaption = tableCaption;
-				fc.prpArrowStartOrnt = prpArrowStartOrnt;
+				fc.arrowCascadeOrientation = arrowCascadeOrientation;
 				fc.tableCellBorders = tableCellBorders;
 				fc.boxesExpandable = boxesExpandable;
 				fc.tablesScrollable = tablesScrollable;
@@ -5423,7 +5524,7 @@ namespace MindFusion.FlowChartX
 			private int dsl;
 			private StringDigitSubstitute dsm;
 			private StringFormatFlags sff;
-			private System.Drawing.Text.HotkeyPrefix hp;
+			private HotkeyPrefix hp;
 			private StringAlignment lal;
 			private StringTrimming tr;
 			float fto;
@@ -5453,7 +5554,7 @@ namespace MindFusion.FlowChartX
 			private float tableRowHeight;
 			private float tableCaptionHeight;
 			private string tableCaption;
-			private Orientation prpArrowStartOrnt;
+			private Orientation arrowCascadeOrientation;
 			private CellFrameStyle tableCellBorders;
 			ArrowAnchor boxIncmAnchor;
 			ArrowAnchor boxOutgAnchor;
@@ -5512,7 +5613,7 @@ namespace MindFusion.FlowChartX
 				writer.Write((double)tableRowHeight);
 				writer.Write((double)tableCaptionHeight);
 				writer.Write(tableCaption);
-				writer.Write((int)prpArrowStartOrnt);
+				writer.Write((int)arrowCascadeOrientation);
 				writer.Write((int)tableCellBorders);
 				writer.Write((int)boxIncmAnchor);
 				writer.Write((int)boxOutgAnchor);
@@ -5572,7 +5673,7 @@ namespace MindFusion.FlowChartX
 				tableRowHeight = (float)reader.ReadDouble();
 				tableCaptionHeight = (float)reader.ReadDouble();
 				tableCaption = reader.ReadString();
-				prpArrowStartOrnt = (Orientation)reader.ReadInt32();
+				arrowCascadeOrientation = (Orientation)reader.ReadInt32();
 				tableCellBorders = (CellFrameStyle)reader.ReadInt32();
 				boxIncmAnchor = (ArrowAnchor)reader.ReadInt32();
 				boxOutgAnchor = (ArrowAnchor)reader.ReadInt32();
@@ -6446,7 +6547,16 @@ namespace MindFusion.FlowChartX
 					Arrow arrow = item as Arrow;
 					for (int i = 0; i < arrow.ControlPoints.Count; ++i)
 					{
-						PointF pt = arrow.SavedPoints[i];
+						// the first point might be already offset if connected to a node
+						if (i == 0 && !(arrow.Origin is DummyNode))
+							continue;
+
+						// the last point might be already offset if connected to a node
+						if (i == arrow.ControlPoints.Count - 1 && !(arrow.Destination is DummyNode))
+							continue;
+
+						// offset the point
+						PointF pt = arrow.ControlPoints[i];
 						arrow.ControlPoints[i] = new PointF(pt.X + dx, pt.Y + dy);
 					}
 					arrow.UpdateFromPoints();
@@ -6895,23 +7005,23 @@ namespace MindFusion.FlowChartX
 		[Category("Behavior")]
 		[DefaultValue(typeof(Orientation), "Auto")]
 		[Description("Orientation for the first segment of 'perpendicular'-style arrows.")]
-		public Orientation PrpArrowStartOrnt
+		public Orientation ArrowCascadeOrientation
 		{
 			get
 			{
-				return prpArrowStartOrnt;
+				return arrowCascadeOrientation;
 			}
 			set
 			{
-				if (prpArrowStartOrnt != value)
+				if (arrowCascadeOrientation != value)
 				{
-					prpArrowStartOrnt = value;
+					arrowCascadeOrientation = value;
 					setDirty();
 				}
 			}
 		}
 
-		private Orientation prpArrowStartOrnt;
+		private Orientation arrowCascadeOrientation;
 		
 		/// <summary>
 		/// Visual style of table cell borders

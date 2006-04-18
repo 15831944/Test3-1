@@ -17,8 +17,6 @@ namespace SysCAD.Editor
   {
     public State state = new State();
 
-    private PureComponents.TreeView.TreeView tvNavigation;
-
     public string currentModelShape;
     public string currentGraphicShape;
 
@@ -42,10 +40,9 @@ namespace SysCAD.Editor
     {
       state.Graphic = graphic;
       state.Config = config;
+      state.TvNavigation = tvNavigation;
 
       state.ConnectGraphicItemModified(new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified));
-
-      this.tvNavigation = tvNavigation;
 
       SuspendLayout();
       fcFlowChart.UndoManager.UndoEnabled = false;
@@ -56,7 +53,7 @@ namespace SysCAD.Editor
 
       foreach (GraphicItem graphicItem in graphic.graphicItems.Values)
       {
-        NewGraphicItem(graphicItem, null, false);
+        state.newItem(graphicItem, false, fcFlowChart);
       }
 
       foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
@@ -84,14 +81,6 @@ namespace SysCAD.Editor
     internal void UnsetProject()
     {
 
-    }
-
-    private void NewGraphicItem(GraphicItem graphicItem, Box graphicBox, bool isVisible)
-    {
-      Box modelBox = fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
-      if (graphicBox == null)
-        graphicBox = fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
-      state.newItem(graphicItem, modelBox, graphicBox, isVisible, fcFlowChart);
     }
 
     public void ZoomToVisible()
@@ -517,45 +506,28 @@ namespace SysCAD.Editor
       graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
     }
 
-    public void NewItem(RectangleF rect, Box box, string area)
+    public GraphicItem NewGraphicItem(GraphicItem graphicItem, string area)
+    {
+      return NewGraphicItem(graphicItem.BoundingRect, graphicItem.Model, graphicItem.Shape, 
+        graphicItem.MirrorX, graphicItem.MirrorY, graphicItem.fillColor, area);
+    }
+
+    public GraphicItem NewGraphicItem(RectangleF rect, string model, string shape, bool mirrorX, bool mirrorY, Color fillColor, string area)
     {
       while (state.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
-      GraphicItem newGraphicItem = state.NewGraphicItem("N_" + tempBoxKey.ToString());
+      GraphicItem newGraphicItem = state.NewGraphicItem("N_" + tempBoxKey.ToString(), area);
       newGraphicItem.X = rect.X - rect.Width;
       newGraphicItem.Y = rect.Y - rect.Height;
       newGraphicItem.Width = rect.Width;
       newGraphicItem.Height = rect.Height;
-      newGraphicItem.Model = currentModelShape;
-      newGraphicItem.Shape = currentGraphicShape;
+      newGraphicItem.Model = model;
+      newGraphicItem.Shape = shape;
+      newGraphicItem.MirrorX = mirrorX;
+      newGraphicItem.MirrorY = mirrorY;
+      newGraphicItem.fillColor = fillColor;
 
-      tvNavigation.GetNodeByKey(area).Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
-
-      NewGraphicItem(newGraphicItem, box, true);
-
-      //tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
-    }
-
-    public GraphicItem NewGraphicItem(GraphicItem graphicItem, Box box, string area, float dx, float dy)
-    {
-      while (state.Exists("N_" + tempBoxKey.ToString()))
-        tempBoxKey++;
-      GraphicItem newGraphicItem = state.NewGraphicItem("N_" + tempBoxKey.ToString(), graphicItem);
-      newGraphicItem.X = graphicItem.X + dx;
-      newGraphicItem.Y = graphicItem.Y + dy;
-      newGraphicItem.Width = graphicItem.Width;
-      newGraphicItem.Height = graphicItem.Height;
-      newGraphicItem.Model = graphicItem.Model;
-      newGraphicItem.Shape = graphicItem.Shape;
-      newGraphicItem.MirrorX = graphicItem.MirrorX;
-      newGraphicItem.MirrorY = graphicItem.MirrorY;
-      newGraphicItem.fillColor = graphicItem.fillColor;
-
-      tvNavigation.GetNodeByKey(area).Nodes.Add("N_" + tempBoxKey.ToString(), "N_" + tempBoxKey.ToString());
-
-      NewGraphicItem(newGraphicItem, box, true);
-
-      tvNavigation.GetNodeByKey("N_" + tempBoxKey.ToString()).Checked = true;
+      state.newItem(newGraphicItem, true, fcFlowChart);
 
       return newGraphicItem;
     }
@@ -597,7 +569,14 @@ namespace SysCAD.Editor
         {
           if (fcFlowChart.Behavior == BehaviorType.CreateBox)
           {
-            NewItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicStencil(currentGraphicShape).defaultSize), null, tvNavigation.SelectedNode.Text);
+            NewGraphicItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), 
+              state.GraphicStencil(currentGraphicShape).defaultSize), 
+              currentModelShape,
+              currentGraphicShape,
+              false,
+              false,
+              Color.LightBlue,
+              state.CurrentArea);
           }
         }
       }

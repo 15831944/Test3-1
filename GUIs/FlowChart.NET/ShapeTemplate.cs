@@ -23,6 +23,7 @@ namespace MindFusion.FlowChartX
 		internal abstract float[] initData(RectangleF rc, float rotation);
 		internal abstract void updateData(RectangleF rc, float[] data, float rotation);
 		internal abstract void updatePath(GraphicsPath path, float[] data);
+		internal abstract bool outsideBounds();
 		public abstract object Clone();
 
 		public abstract int getClassId();
@@ -91,6 +92,14 @@ namespace MindFusion.FlowChartX
 		{
 			if (data[2] > 0 && data[3] > 0)
 				path.AddArc(data[0], data[1], data[2], data[3], data[4], s);
+		}
+
+		internal override bool outsideBounds()
+		{
+			if (x < 0 || y < 0 || x + w > 100 || y + h > 100)
+				return true;
+
+			return false;
 		}
 
 		public override object Clone()
@@ -202,6 +211,15 @@ namespace MindFusion.FlowChartX
 				data[4], data[5], data[6], data[7]);
 		}
 
+		internal override bool outsideBounds()
+		{
+			for (int i = 0; i < pts.Length; ++i)
+				if (pts[i] < 0 || pts[i] > 100)
+					return true;
+
+			return false;
+		}
+
 		public override object Clone()
 		{
 			BezierTemplate clone = new BezierTemplate(pts[0], pts[1],
@@ -279,6 +297,15 @@ namespace MindFusion.FlowChartX
 		internal override void updatePath(GraphicsPath path, float[] data)
 		{
 			path.AddLine(data[0], data[1], data[2], data[3]);
+		}
+
+		internal override bool outsideBounds()
+		{
+			for (int i = 0; i < pts.Length; ++i)
+				if (pts[i] < 0 || pts[i] > 100)
+					return true;
+
+			return false;
 		}
 
 		public override object Clone()
@@ -397,6 +424,7 @@ namespace MindFusion.FlowChartX
 
 			private float[][] data;
 			private RectangleF bounds;
+			private RectangleF textBounds;
 		}
 
 		public ShapeTemplate(ElementTemplate[] elements, FillMode fillMode) :
@@ -418,6 +446,8 @@ namespace MindFusion.FlowChartX
 				if (ShapeAdded != null)
 					ShapeAdded(this, new EventArgs());
 			}
+
+			textOutside = false;
 		}
 
 		public ShapeTemplate(byte[] outline) :
@@ -459,6 +489,8 @@ namespace MindFusion.FlowChartX
 				if (ShapeAdded != null)
 					ShapeAdded(this, new EventArgs());
 			}
+
+			textOutside = false;
 		}
 
 		public ShapeTemplate(ElementTemplate[] elements,
@@ -485,6 +517,20 @@ namespace MindFusion.FlowChartX
 				defaultShapes[id] = this;
 				if (ShapeAdded != null)
 					ShapeAdded(this, new EventArgs());
+			}
+
+			// check whether a part of the text area lays outside the shape bounds
+			textOutside = false;
+			if (textArea != null)
+			{
+				for (int i = 0; i < textArea.Length; i++)
+				{
+					if (textArea[i].outsideBounds())
+					{
+						textOutside = true;
+						break;
+					}
+				}
 			}
 		}
 
@@ -639,12 +685,15 @@ namespace MindFusion.FlowChartX
 				rotatePath(data, path, rotationAngle);
 			}
 
-			path.Flatten();
-
 			RectangleF result = path.GetBounds();
 			path.Dispose();
 
 			return result;
+		}
+
+		internal bool isTextOutside()
+		{
+			return textOutside;
 		}
 
 		public object Clone()
@@ -3008,5 +3057,7 @@ namespace MindFusion.FlowChartX
 		{
 			return Id;
 		}
+
+		private bool textOutside;
 	}
 }

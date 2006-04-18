@@ -37,7 +37,7 @@ namespace MindFusion.FlowChartX
 			return false;
 		}
 
-		internal override bool pointInHandle(System.Drawing.PointF pt, ref int handle)
+		public override bool HitTestHandle(System.Drawing.PointF pt, ref int handle)
 		{
 			return false;
 		}

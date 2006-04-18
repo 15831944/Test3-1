@@ -40,28 +40,31 @@ namespace MindFusion.FlowChartX.Behaviors
 			Arrow arrow = null;
 			int segmentToSplit = 0;
 
-			// if Ctrl is pressed
+			// draw a selection rectangle if the appropriate modifier key is pressed
 			if ((fc.ModifierKeyActions.GetKeys(ModifierKeyAction.Select) &
 				Control.ModifierKeys) != 0)
 			{
 				ist = new InteractionState(fc.Selection, 8, Action.Create);
 			}
-			else if (fc.Selection.pointInHandle(pt, ref handle))
+			else
+
+			// or move selection if the mouse points to a handle in multiple selection
+			if (fc.Selection.HitTestHandle(pt, ref handle))
 			{
 				ist = new InteractionState(fc.Selection, handle, Action.Modify);
 			}
-			else if (fc.ArrowsSplittable &&
-				((arrow = fc.GetArrowAt(pt, Constants.getLineHitTest(fc.MeasureUnit)/2,
-				true, ref segmentToSplit)) != null) &&
-				!arrow.pointInHandle(pt) && arrow.Style != ArrowStyle.Bezier &&
-				(arrow == fc.ActiveObject || arrow == fc.getAutoHObj()))
+			else
+			
+			// or split the arrow if appropriate
+			if ((arrow = shouldSplitArrow(pt, ref segmentToSplit)) != null)
 			{
 				ist = new InteractionState(arrow, segmentToSplit, Action.Split);
 			}
 			else
 			{
+				// select the auto-handles object
 				if (fc.getAutoHObj() != null &&
-					fc.getAutoHObj().pointInHandle(pt, ref handle))
+					fc.getAutoHObj().HitTestHandle(pt, ref handle))
 				{
 					RectangleF rcInv = fc.Selection.getRepaintRect(false);
 					fc.Selection.Change(fc.getAutoHObj());
@@ -75,6 +78,7 @@ namespace MindFusion.FlowChartX.Behaviors
 					fc.Invalidate(rcInvDev);
 				}
 
+				// start operation defined by the distinct behavior types
 				ist = StartDraw(pt);
 			}
 
@@ -143,6 +147,29 @@ namespace MindFusion.FlowChartX.Behaviors
 			{
 				fc.Cursor = fc.CurModify;
 			}
+		}
+
+		private Arrow shouldSplitArrow(PointF point, ref int segmentToSplit)
+		{
+			if (!fc.AllowSplitArrows)
+				return null;
+
+			Arrow arrow = fc.GetArrowAt(point,
+				 Constants.getLineHitTest(fc.MeasureUnit)/2, true, ref segmentToSplit);
+			
+			if (arrow != null && (arrow == fc.ActiveObject || arrow == fc.getAutoHObj()))
+			{
+				if (!arrow.pointInHandle(point) && arrow.Style != ArrowStyle.Bezier)
+					return arrow;
+
+				int handle = -1;
+				segmentToSplit = 0;
+				if (arrow.Style == ArrowStyle.Cascading && arrow.SegmentCount == 2 &&
+					arrow.HitTestHandle(point, ref handle) && handle == 1)
+					return arrow;
+			}
+
+			return null;
 		}
 	}
 }

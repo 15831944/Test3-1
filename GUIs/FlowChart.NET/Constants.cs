@@ -133,22 +133,22 @@ namespace MindFusion.FlowChartX
 			return 2;
 		}
 
-		internal static float getRoundRectArc(GraphicsUnit currUnit)
+		internal static float getRoundRectArc(GraphicsUnit currUnit, float factor)
 		{
 			switch (currUnit)
 			{
 			case GraphicsUnit.Millimeter:
-				return 7;
+				return 7 * factor;
 			case GraphicsUnit.Inch:
-				return 3.0f/8;
+				return (3.0f/8) * factor;
 			case GraphicsUnit.Point:
-				return 220.0f/8;
+				return (220.0f/8) * factor;
 			case GraphicsUnit.Pixel:
-				return 20;
+				return 20 * factor;
 			case GraphicsUnit.Document:
-				return 900.0f/8;
+				return (900.0f/8) * factor;
 			case GraphicsUnit.Display:
-				return 230.0f/8;
+				return (230.0f/8) * factor;
 			}
 
 			return 7;
@@ -407,5 +407,6 @@ namespace MindFusion.FlowChartX
 
 		internal const int ARROW_CROSSINGS = 3;
 		internal const int KEY_WRAPPER = 1234;
+		internal const int ARROW_TEXT = 4;
 	}
 }

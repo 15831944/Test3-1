@@ -2573,7 +2573,7 @@ namespace MindFusion.FlowChartX
 				if (style == TableStyle.RoundedRectangle)
 				{
 					roundRect = Utilities.getRoundRect(rc.X, rc.Y, rc.Width, rc.Height,
-						Constants.getRoundRectArc(fcParent.MeasureUnit));
+						Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 				}
 
 				// fill the table shape
@@ -2738,7 +2738,7 @@ namespace MindFusion.FlowChartX
 					pen.DashStyle = DashStyle.Dash;
 				
 					GraphicsPath gp = Utilities.getRoundRect(
-						rc.X, rc.Y, rc.Width, rc.Height, Constants.getRoundRectArc(fcParent.MeasureUnit));
+						rc.X, rc.Y, rc.Width, rc.Height, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 					g.DrawPath(pen, gp);
 
 					gp.Dispose();
@@ -2821,7 +2821,7 @@ namespace MindFusion.FlowChartX
 			return Utilities.pointInRect(pt, rect);
 		}
 
-		internal override bool pointInHandle(PointF pt, ref int handle)
+		public override bool HitTestHandle(PointF pt, ref int handle)
 		{
 			if (selStyle != HandlesStyle.Custom)
 			{
@@ -3280,7 +3280,7 @@ namespace MindFusion.FlowChartX
 			RectangleF rc = Utilities.normalizeRect(rect);
 
 			if (style == TableStyle.RoundedRectangle)
-				return Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit));
+				return Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 
 			return new Region(rc);
 		}
@@ -3292,7 +3292,7 @@ namespace MindFusion.FlowChartX
 				case TableStyle.Rectangle:
 					return new Region(rc);
 				case TableStyle.RoundedRectangle:
-					return Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit));
+					return Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 			}
 
 			return null;
@@ -3319,7 +3319,7 @@ namespace MindFusion.FlowChartX
 			{
 				GraphicsPath path = Utilities.getRoundRect(
 					rcTable.X, rcTable.Y, rcTable.Width, rcTable.Height,
-					Constants.getRoundRectArc(fcParent.MeasureUnit));
+					Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 				path.Flatten();
 				Utilities.getPathIntersection(path, ptOrg, ptEnd, ref pt);
 				path.Dispose();

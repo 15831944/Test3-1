@@ -201,6 +201,11 @@ namespace MindFusion.FlowChartX
 			constructed = true;
 		}
 
+		internal void completeCreate()
+		{
+			constructed = true;
+		}
+
 		internal abstract bool allowCreate(PointF current);
 
 
@@ -335,7 +340,7 @@ namespace MindFusion.FlowChartX
 
 		internal abstract bool containsPoint(PointF pt);
 
-		internal abstract bool pointInHandle(PointF pt, ref int handle);
+		public abstract bool HitTestHandle(PointF pt, ref int handle);
 
 		internal virtual int getHandleIdx(PointF pt)
 		{

@@ -22,10 +22,9 @@ namespace MindFusion.FlowChartX
 			points = null;
 		}
 
-		internal bool prpHorzFirst;
+		internal bool cascadeStartHorizontal;
 		internal bool reflexive;
 		internal PointCollection points;
-		internal PointCollection savedPoints;
 		internal short segmentCount;
 		internal ArrowStyle style;
 

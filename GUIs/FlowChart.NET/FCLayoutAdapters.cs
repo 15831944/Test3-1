@@ -543,8 +543,6 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			_arrow.SegmentCount = (short)(points.Count - 1);
 			_arrow.Points.Clear();
 			_arrow.Points.AddRange(points);
-			_arrow.SavedPoints.Clear();
-			_arrow.SavedPoints.AddRange(points);
 			_arrow.SilentAutoRoute = route;
 
 			_arrow.UpdateFromPoints();

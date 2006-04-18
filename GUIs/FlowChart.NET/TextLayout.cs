@@ -481,7 +481,7 @@ namespace MindFusion.FlowChartX.Text
 		}
 
 		/// <summary>
-		/// Tries to fits as many words from the source text
+		/// Tries to fit as many words from the source text
 		/// as possible in the specified rectangle, starting
 		/// from the word with the specified index.
 		/// </summary>

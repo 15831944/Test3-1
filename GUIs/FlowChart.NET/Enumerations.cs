@@ -77,7 +77,8 @@ namespace MindFusion.FlowChartX
 	{
 		Center,
 		Rotate,
-		OverLongestSegment
+		OverLongestSegment,
+		Follow
 	}
 
 	public enum AttachTo
@@ -314,9 +315,11 @@ namespace MindFusion.FlowChartX
 
 	public enum RerouteArrows
 	{
-		WhenModified,
-		WhenIntersectNode,
-		Never
+		Never = 0,
+		WhenModified = 1,
+		WhenIntersectNode = 2,
+		WhileCreating = 4,
+		WhileModifying = 8,
 	}
 
 	public enum RestrictToDoc

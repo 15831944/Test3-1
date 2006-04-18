@@ -24,7 +24,7 @@ namespace MindFusion.FlowChartX.Behaviors
 			ChartObject ac = fc.ActiveObject;
 			int handle = 0;
 
-			if (ac != null && !ac.notInteractive() && ac.pointInHandle(pt, ref handle))
+			if (ac != null && !ac.notInteractive() && ac.HitTestHandle(pt, ref handle))
 			{
 				return new InteractionState(ac, handle, Action.Modify);
 			}
@@ -41,11 +41,11 @@ namespace MindFusion.FlowChartX.Behaviors
 			bool active = false;
 			bool autoh = false;
 
-			if (fc.Selection.pointInHandle(pt, ref handle))
+			if (fc.Selection.HitTestHandle(pt, ref handle))
 				fc.Cursor = fc.CurModify;
 			else
-			if ((fc.ActiveObject != null && fc.ActiveObject.pointInHandle(pt, ref handle) && (active = true)) ||
-					(fc.getAutoHObj() != null && fc.getAutoHObj().pointInHandle(pt, ref handle) && (autoh = true)))
+			if ((fc.ActiveObject != null && fc.ActiveObject.HitTestHandle(pt, ref handle) && (active = true)) ||
+					(fc.getAutoHObj() != null && fc.getAutoHObj().HitTestHandle(pt, ref handle) && (autoh = true)))
 				setModfCursor(pt, handle, active, autoh);
 			else
 				fc.Cursor = fc.CurPointer;

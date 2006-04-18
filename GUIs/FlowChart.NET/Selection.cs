@@ -70,6 +70,7 @@ namespace MindFusion.FlowChartX
 		internal override void startModify(PointF org, int handle, InteractionState ist)
 		{
 			base.startModify(org, handle, ist);
+			relatedInteraction = ist;
 
 			ptLastTopLeft.X = rect.Left;
 			ptLastTopLeft.Y = rect.Top;
@@ -122,6 +123,7 @@ namespace MindFusion.FlowChartX
 		internal override void completeModify(PointF end, InteractionState ist)
 		{
 			base.completeModify(end, ist);
+			relatedInteraction = null;
 			RectangleF rcBounding = new RectangleF(0, 0, 0, 0);
 
 			if (modifyHandle == 8)
@@ -232,6 +234,7 @@ namespace MindFusion.FlowChartX
 		internal override void cancelModify(InteractionState ist)
 		{
 			base.cancelModify(ist);
+			relatedInteraction = null;
 
 			// call CancelModify method of all selected objects
 			foreach (ChartObject obj in selectedItems)
@@ -364,12 +367,12 @@ namespace MindFusion.FlowChartX
 			return obj != null && obj.Selected;
 		}
 
-		internal override bool pointInHandle(PointF pt, ref int handle)
+		public override bool HitTestHandle(PointF pt, ref int handle)
 		{
 			if (selectedItems.Count <= 1) return false;
 
 			if (fcParent.ActiveObject != null &&
-				fcParent.ActiveObject.pointInHandle(pt, ref handle))
+				fcParent.ActiveObject.HitTestHandle(pt, ref handle))
 			{
 				handle = 8;
 				return true;
@@ -866,9 +869,21 @@ namespace MindFusion.FlowChartX
 			if (obj.getType() == ItemType.Arrow)
 			{
 				Arrow arrow = (Arrow)obj;
+
 				if (arrow.bothEndsSelected() && !arrowsToMove.Contains(arrow) &&
 					arrow.Origin.canModify(8) && arrow.Destination.canModify(8))
+				{
 					arrowsToMove.Add(arrow);
+					return;
+				}
+
+				if (arrow.Origin.getModifying() && arrow.Destination.getModifying() &&
+					!arrowsToMove.Contains(arrow) && relatedInteraction != null &&
+					!relatedInteraction.affectedArrows.Contains(arrow))
+				{
+					arrowsToMove.Add(arrow);
+					return;
+				}
 			}
 		}
 
@@ -929,5 +944,7 @@ namespace MindFusion.FlowChartX
 		}
 
 		private bool includeItemsIfIntersect;
+
+		private InteractionState relatedInteraction;
 	}
 }

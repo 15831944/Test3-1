@@ -82,6 +82,7 @@ namespace MindFusion.Diagramming.Export
 		/// </summary>
 		public VisioExporter()
 		{
+			templatePath = "";
 		}
 
 		/// <summary>
@@ -113,6 +114,21 @@ namespace MindFusion.Diagramming.Export
 			set
 			{
 				m_ExportTablesAsGroups = value;
+			}
+		}
+
+		/// <summary>
+		/// Specifies the full path to the VisioExport.vxt file.
+		/// </summary>
+		public string TemplatePath
+		{
+			get
+			{
+				return templatePath;
+			}
+			set
+			{
+				templatePath = value;
 			}
 		}
 
@@ -904,22 +920,33 @@ namespace MindFusion.Diagramming.Export
 				doc = new XmlDocument();
 				string sXml = null, sTempPath = "VisioExport.vxt";
 
-				// search for the template file in the exe or dll folder
-				string asmLoc = typeof(VisioExporter).Assembly.Location;
-				string prcLoc = Assembly.GetEntryAssembly().Location;
-				string[] searchPath = new string[] { 
-													   asmLoc.Substring(0, asmLoc.LastIndexOf('\\') + 1),
-													   prcLoc.Substring(0, prcLoc.LastIndexOf('\\') + 1),
-													   Directory.GetCurrentDirectory()
-												   };
-				for (int i = 0; i < 3; ++i)
+				if (templatePath != "")
 				{
-					if (searchPath[i][searchPath[i].Length - 1] != '\\')
-						searchPath[i] += "\\";
-					if (File.Exists(searchPath[i] + sTempPath))
+					sTempPath = templatePath;
+				}
+				else
+				{
+					// search for the template file in the exe or dll folder
+					string asmLoc = typeof(VisioExporter).Assembly.Location;
+					string prcLoc = asmLoc;
+					Assembly entryAssembly = Assembly.GetEntryAssembly();
+					if (entryAssembly != null)
+						prcLoc = entryAssembly.Location;
+				
+					string[] searchPath = new string[] { 
+														   asmLoc.Substring(0, asmLoc.LastIndexOf('\\') + 1),
+														   prcLoc.Substring(0, prcLoc.LastIndexOf('\\') + 1),
+														   Directory.GetCurrentDirectory()
+													   };
+					for (int i = 0; i < 3; ++i)
 					{
-						sTempPath = searchPath[i] + sTempPath;
-						break;
+						if (searchPath[i][searchPath[i].Length - 1] != '\\')
+							searchPath[i] += "\\";
+						if (File.Exists(searchPath[i] + sTempPath))
+						{
+							sTempPath = searchPath[i] + sTempPath;
+							break;
+						}
 					}
 				}
 
@@ -2674,5 +2701,7 @@ namespace MindFusion.Diagramming.Export
 
 		
 		}
+
+		private string templatePath;
 	}
 }

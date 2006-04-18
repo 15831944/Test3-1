@@ -334,7 +334,7 @@ namespace MindFusion.FlowChartX
 			return Utilities.pointInRect(pt, rect);
 		}
 
-		internal override bool pointInHandle(System.Drawing.PointF pt, ref int handle)
+		public override bool HitTestHandle(System.Drawing.PointF pt, ref int handle)
 		{
 			if (selStyle != HandlesStyle.Custom)
 			{

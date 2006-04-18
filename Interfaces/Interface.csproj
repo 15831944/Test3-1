@@ -47,9 +47,9 @@
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="GraphicStencil.cs" />
-    <Compile Include="Item.cs" />
+    <Compile Include="GraphicItem.cs" />
     <Compile Include="Line.cs" />
-    <Compile Include="Link.cs" />
+    <Compile Include="GraphicLink.cs" />
     <Compile Include="Graphic.cs" />
     <Compile Include="ModelStencil.cs" />
   </ItemGroup>

@@ -201,9 +201,7 @@ namespace SysCAD.Editor
         graphicItem.Tag += ".";
         graphicItem.X += 10.0F;
         graphicItem.Y += 10.0F;
-        Box modelBox = frmFlowChart.fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
-        Box graphicBox = frmFlowChart.fcFlowChart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
-        frmFlowChart.state.newItem(graphicItem, modelBox, graphicBox, true, frmFlowChart.fcFlowChart);
+        frmFlowChart.state.newItem(graphicItem, true, frmFlowChart.fcFlowChart);
         tvNavigation.Nodes.Add(graphicItem.Tag, graphicItem.Tag);
         tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(graphicItem.Tag));
       }
@@ -332,8 +330,10 @@ namespace SysCAD.Editor
           {
             foreach (GraphicItem graphicItem in pasteData.graphicItems.Values)
             {
-              GraphicItem newGraphicItem = frmFlowChart.NewGraphicItem(graphicItem, null, tvNavigation.SelectedNode.Text, dx, dy);
-             tagConversion.Add(graphicItem.Tag, newGraphicItem.Tag);
+              graphicItem.X += 10.0F;
+              graphicItem.Y += 10.0F;
+              GraphicItem newGraphicItem = frmFlowChart.NewGraphicItem(graphicItem, tvNavigation.SelectedNode.Text);
+              tagConversion.Add(graphicItem.Tag, newGraphicItem.Tag);
             }
 
             foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)

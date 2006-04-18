@@ -34,7 +34,7 @@ namespace MindFusion.FlowChartX
 		internal float baseSize;
 		internal float intermSize;
 		internal Color penColor;
-		internal Orientation prpStartOrientation;
+		internal Orientation cascadeOrientation;
 		internal bool retainForm;
 		internal string text;
 		internal Color textColor;

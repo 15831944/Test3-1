@@ -166,28 +166,44 @@ namespace MindFusion.FlowChartX
 		internal override RectangleF getRotatedBounds()
 		{
 			if (rotation() != 0)
-			{
-				PointF[] p = new PointF[] {
-					new PointF(rect.Left, rect.Top),
-					new PointF(rect.Right, rect.Top),
-					new PointF(rect.Right, rect.Bottom),
-					new PointF(rect.Left, rect.Bottom)
-				};
-				Utilities.rotatePointsAt(p, getCenter(), rotation());
-
-				float minX = Math.Min(p[0].X, Math.Min(p[1].X, Math.Min(p[2].X, p[3].X)));
-				float minY = Math.Min(p[0].Y, Math.Min(p[1].Y, Math.Min(p[2].Y, p[3].Y)));
-				float maxX = Math.Max(p[0].X, Math.Max(p[1].X, Math.Max(p[2].X, p[3].X)));
-				float maxY = Math.Max(p[0].Y, Math.Max(p[1].Y, Math.Max(p[2].Y, p[3].Y)));
-				return RectangleF.FromLTRB(minX, minY, maxX, maxY);
-			}
+				return getRotatedBounds(rect, getCenter(), rotation());
 
 			return Utilities.normalizeRect(rect);
+		}
+
+		private RectangleF getRotatedBounds(RectangleF rect, PointF center, float angle)
+		{
+			PointF[] p = new PointF[] {
+				new PointF(rect.Left, rect.Top),
+				new PointF(rect.Right, rect.Top),
+				new PointF(rect.Right, rect.Bottom),
+				new PointF(rect.Left, rect.Bottom)
+			};
+			
+			Utilities.rotatePointsAt(p, center, angle);
+
+			float minX = Math.Min(p[0].X, Math.Min(p[1].X, Math.Min(p[2].X, p[3].X)));
+			float minY = Math.Min(p[0].Y, Math.Min(p[1].Y, Math.Min(p[2].Y, p[3].Y)));
+			float maxX = Math.Max(p[0].X, Math.Max(p[1].X, Math.Max(p[2].X, p[3].X)));
+			float maxY = Math.Max(p[0].Y, Math.Max(p[1].Y, Math.Max(p[2].Y, p[3].Y)));
+
+			return RectangleF.FromLTRB(minX, minY, maxX, maxY);
 		}
 
 		internal override RectangleF getRepaintRect(bool includeConnected)
 		{
 			RectangleF repaintRect = base.getRepaintRect(true);
+
+			// include the text area of custom shapes
+			if (shapeTemplate != null && style == BoxStyle.Shape &&
+				shapeTemplate.isTextOutside() && text != "")
+			{
+				RectangleF textRect = shapeTemplate.getTextRect(shapeData, 0);
+				float angle = rotateContents ? rotation() : 0;
+				if (angle != 0)
+					textRect = getRotatedBounds(textRect, getCenter(), angle);
+				repaintRect = RectangleF.Union(repaintRect, textRect);
+			}
 
 			// include the rotation handle
 			if ((enabledHandles & Handles.Rotate) != 0)
@@ -588,7 +604,7 @@ namespace MindFusion.FlowChartX
 						break;
 					case BoxStyle.RoundedRectangle:
 						GraphicsPath gp = Utilities.getRoundRect(
-							rc.X, rc.Y, rc.Width, rc.Height, Constants.getRoundRectArc(fcParent.MeasureUnit));
+							rc.X, rc.Y, rc.Width, rc.Height, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 						g.FillPath(br, gp);
 						if (!shadow) drawInterior(g);
 						g.DrawPath(p, gp);
@@ -875,7 +891,7 @@ namespace MindFusion.FlowChartX
 			return false;
 		}
 
-		internal override bool pointInHandle(PointF pt, ref int handle)
+		public override bool HitTestHandle(PointF pt, ref int handle)
 		{
 			if (selStyle != HandlesStyle.Custom)
 			{
@@ -1077,7 +1093,7 @@ namespace MindFusion.FlowChartX
 				}
 				break;
 			case BoxStyle.RoundedRectangle:
-				rgn = Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit));
+				rgn = Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
 				break;
 			case BoxStyle.Rhombus:
 				{

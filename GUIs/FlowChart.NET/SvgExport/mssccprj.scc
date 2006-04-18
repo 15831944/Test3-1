@@ -5,5 +5,5 @@ SCC_Aux_Path = "C:\development\SourceSafe"
 SCC_Project_Name = "$/FlowChart.NET/SvgExport", YHDAAAAA
 
 [SvgExport.csproj]
-SCC_Aux_Path = "C:\development\SourceSafe"
+SCC_Aux_Path = "C:\development\Visual SourceSafe"
 SCC_Project_Name = "$/FlowChart.NET/SvgExport", YHDAAAAA

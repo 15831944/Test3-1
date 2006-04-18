@@ -97,6 +97,8 @@ namespace SysCAD.Editor
     private Graphic graphic;
     private Config config;
 
+    private PureComponents.TreeView.TreeView tvNavigation;
+
     public bool ShowModels = false;
     public bool ShowGraphics = true;
     public bool ShowLinks = true;
@@ -125,6 +127,11 @@ namespace SysCAD.Editor
     public Graphic Graphic
     {
       set { graphic = value; }
+    }
+
+    public PureComponents.TreeView.TreeView TvNavigation
+    {
+      set { tvNavigation = value; }
     }
 
     public Arrow Arrow(string tag)
@@ -209,8 +216,11 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void newItem(SysCAD.Interface.GraphicItem graphicItem, Box modelBox, Box graphicBox, bool isVisible, FlowChart flowchart)
+    internal void newItem(SysCAD.Interface.GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
+      Box modelBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+      Box graphicBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+
       modelBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       modelBox.RotationAngle = graphicItem.Angle;
       modelBox.Text = graphicItem.Tag;
@@ -472,6 +482,11 @@ namespace SysCAD.Editor
       get { return links.Values; }
     }
 
+    internal string CurrentArea
+    {
+      get {return tvNavigation.SelectedNode.Text; }
+    }
+
   
   internal bool IsItem(string tag)
     {
@@ -483,13 +498,14 @@ namespace SysCAD.Editor
       graphic.ModifyItem(tag, boundingRect, angle);
     }
 
-    internal GraphicItem NewGraphicItem(string tag)
+    internal GraphicItem NewGraphicItem(string tag, string area)
     {
       GraphicItem graphicItem = new GraphicItem(tag);
-      return NewGraphicItem(tag, graphicItem);
+      tvNavigation.GetNodeByKey(area).Nodes.Add(tag, tag);
+      return NewGraphicItem(tag, area, graphicItem);
     }
 
-    internal GraphicItem NewGraphicItem(string tag, GraphicItem graphicItem)
+    internal GraphicItem NewGraphicItem(string tag, string area, GraphicItem graphicItem)
     {
       graphic.graphicItems.Add(tag, graphicItem);
       return graphicItem;

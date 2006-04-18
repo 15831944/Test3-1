@@ -14,6 +14,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using MindFusion.Geometry.Geometry2D;
+using GeoConvert = MindFusion.Geometry.Geometry2D.Convert;
 
 
 namespace MindFusion.FlowChartX
@@ -157,6 +158,7 @@ namespace MindFusion.FlowChartX
 			text = parent.ArrowText;
 			textStyle = parent.ArrowTextStyle;
 			textColor = parent.TextColor;
+			updateText();
 
 			reflexive = false;
 
@@ -164,9 +166,8 @@ namespace MindFusion.FlowChartX
 			snapToNodeBorder = parent.ArrowsSnapToBorders;
 			retainForm = parent.ArrowsRetainForm;
 
-			prpStartOrientation = parent.PrpArrowStartOrnt;
-			prpHorzFirst = true;
-			oldHorzFirst = prpHorzFirst;
+			cascadeOrientation = parent.ArrowCascadeOrientation;
+			cascadeStartHorizontal = true;
 
 			orgnLink = null;
 			destLink = null;
@@ -201,6 +202,7 @@ namespace MindFusion.FlowChartX
 			autoRoute = fcParent.RouteArrows;
 
 			customDraw = parent.ArrowCustomDraw;
+			savedSegments = null;
 		}
 
 		public Arrow(FlowChart parent, Node src, Node dest) : this(parent)
@@ -243,15 +245,15 @@ namespace MindFusion.FlowChartX
 			text = prototype.text;
 			textStyle = prototype.textStyle;
 			textColor = prototype.textColor;
+			updateText();
 
 			reflexive = prototype.reflexive;
 
 			dynamic = prototype.dynamic;
 			snapToNodeBorder = prototype.snapToNodeBorder;
 			retainForm = prototype.retainForm;
-			prpStartOrientation = prototype.prpStartOrientation;
-			prpHorzFirst = prototype.prpHorzFirst;
-			oldHorzFirst = prpHorzFirst;
+			cascadeOrientation = prototype.cascadeOrientation;
+			cascadeStartHorizontal = prototype.cascadeStartHorizontal;
 
 			orgnLink = null;
 			destLink = null;
@@ -289,9 +291,7 @@ namespace MindFusion.FlowChartX
 				dest.createLink(this, dest.getCenter(), true));
 
 			for (int i = 0; i < points.Count; ++i)
-			{
-				points[i] = savedPoints[i] = prototype.points[i];
-			}
+				points[i] = prototype.points[i];
 
 			OrgnIndex = prototype.OrgnIndex;
 			DestIndex = prototype.DestIndex;
@@ -299,17 +299,29 @@ namespace MindFusion.FlowChartX
 			DestAnchor = prototype.DestAnchor;
 
 			int l = points.Count - 1;
-			if (Origin is DummyNode) points[0] = savedPoints[0] = prototype.points[0];
-			if (Destination is DummyNode) points[l] = savedPoints[l] = prototype.points[l];
+			if (Origin is DummyNode)
+				points[0] = prototype.points[0];
+			if (Destination is DummyNode)
+				points[l] = prototype.points[l];
 
 			customDraw = prototype.customDraw;
 
 			autoRoute = prototype.autoRoute;
+			savedSegments = null;
 		}
 
 		public Arrow(FlowChart parent, Node orgnNode) : this(parent)
 		{
 			this.orgnNode = orgnNode;
+		}
+
+		internal override void onAdd()
+		{
+			base.onAdd();
+
+			// Listen for changes in FlowChart' unit of measure
+			parentUnitChanged = new EventHandler(OnParentUnitChanged);
+			fcParent.MeasureUnitChanged += parentUnitChanged;
 		}
 
 		#endregion
@@ -319,6 +331,12 @@ namespace MindFusion.FlowChartX
 		internal override void onRemove()
 		{
 			base.onRemove();
+
+			if (parentUnitChanged != null)
+			{
+				fcParent.MeasureUnitChanged -= parentUnitChanged;
+				parentUnitChanged = null;
+			}
 
 			// fire an ArrowDeleted event
 			if (constructed)
@@ -364,11 +382,11 @@ namespace MindFusion.FlowChartX
 			writer.Write((double)intermSize);
 			ctx.saveColor(fillColor);
 			writer.Write(dynamic);
-			writer.Write((int)prpStartOrientation);
-			writer.Write(prpHorzFirst);
+			writer.Write((int)cascadeOrientation);
+			writer.Write(cascadeStartHorizontal);
 			writer.Write(reflexive);
 			ctx.saveReference(this, points, 3);
-			ctx.saveReference(this, savedPoints, 4);
+			ctx.saveReference(this, null, 4);
 
 			ctx.saveObject(pen);
 			ctx.saveReference(this, brush, 5);
@@ -417,9 +435,8 @@ namespace MindFusion.FlowChartX
 			intermSize = (float)reader.ReadDouble();
 			fillColor = ctx.loadColor();
 			dynamic = reader.ReadBoolean();
-			prpStartOrientation = (Orientation)reader.ReadInt32();
-			prpHorzFirst = reader.ReadBoolean();
-			oldHorzFirst = prpHorzFirst;
+			cascadeOrientation = (Orientation)reader.ReadInt32();
+			cascadeStartHorizontal = reader.ReadBoolean();
 			reflexive = reader.ReadBoolean();
 			ctx.loadReference(this);
 			ctx.loadReference(this);
@@ -489,6 +506,8 @@ namespace MindFusion.FlowChartX
 					}
 				}
 			}
+
+			updateText();
 		}
 
 		public override void setReference(int refId, IPersists obj)
@@ -507,7 +526,7 @@ namespace MindFusion.FlowChartX
 					points = (PointCollection)obj;
 					break;
 				case 4:
-					savedPoints = (PointCollection)obj;
+					// not used anymore: savedPoints = (PointCollection)obj;
 					updateArrowHeads();
 					break;
 				case 5:
@@ -546,22 +565,80 @@ namespace MindFusion.FlowChartX
 		{
 			base.updateCreate(current);
 
-			//compute the arrow points
-			updatePoints(ptEnd);
+			if (autoRoute &&
+				(fcParent.RoutingOptions.TriggerRerouting & RerouteArrows.WhileCreating) != 0)
+			{
+				Link target = routeGetTarget(current);
+				points[points.Count-1] = current;
+				if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
+				{
+					setEndPoints(orgnLink, target, current);
+					points[points.Count-1] = ptEnd;
+				}
+				
+				doRoute(false, orgnLink, target);
+			}
+			else
+			{
+				//compute the arrow points
+				updatePoints(ptEnd);
 
-			resetCrossings();
+				resetCrossings();
+				updateText();
+			}
 		}
 
 		internal override void completeCreate(PointF end)
 		{
+			bool routedWhileCreating = autoRoute &&
+				(fcParent.RoutingOptions.TriggerRerouting & RerouteArrows.WhileCreating) != 0;
+
 			// get the object under mouse cursor
 			Node obj = fcParent.getCurrBehavior().GetTargetNode(end);
-			if (obj == null) obj = fcParent.Dummy;
+			if (obj == null)
+				obj = fcParent.Dummy;
 
-			end = obj.getAnchor(ptEnd, this, true, ref destAnchor);
-			base.completeCreate(end);
+			if (routedWhileCreating)
+			{
+				base.completeCreate();
+				destLink = obj.createLink(this, end, true);
+				reflexive = destLink.sameNode(orgnLink);
+			}
+			else
+			{
+				end = obj.getAnchor(ptEnd, this, true, ref destAnchor);
+				base.completeCreate(end);
 
-			destLink = obj.createLink(this, end, true);
+				destLink = obj.createLink(this, end, true);
+				setEndPoints(orgnLink, destLink, end);
+
+				// set reflexive arrow position & form
+				if (reflexive)
+				{
+					setReflexive();
+				}
+				else
+				{
+					if (dynamic)
+						updatePosFromOrgAndDest(true);
+					else
+						// compute the arrow points
+						updatePoints(ptEnd);
+				}
+
+				// route arrow
+				doRoute();
+				resetCrossings();
+				updateText();
+			}
+
+			// relative position to nodes
+			orgnLink.saveEndRelative();
+			destLink.saveEndRelative();
+		}
+
+		private void setEndPoints(Link orgnLink, Link destLink, PointF end)
+		{
 			reflexive = destLink.sameNode(orgnLink);
 
 			// align the end points of the arrow to the outlines of the connected nodes
@@ -586,32 +663,10 @@ namespace MindFusion.FlowChartX
 				// should not be contained within a node
 				if (autoRoute && !dynamic && orgnAnchor == -1 && destAnchor == -1)
 				{
-					chooseRouteOutlinePoints(ref ptOrg, ref ptEnd);
+					chooseRouteOutlinePoints(orgnLink, destLink, ref ptOrg, ref ptEnd);
 					points[0] = ptOrg;
 				}
 			}
-
-			// set reflexive arrow position & form
-			if (reflexive)
-			{
-				setReflexive();
-			}
-			else
-			{
-				if (dynamic)
-					updatePosFromOrgAndDest(true);
-				else
-					// compute the arrow points
-					updatePoints(ptEnd);
-			}
-
-			// relative position to nodes
-			orgnLink.saveEndRelative();
-			destLink.saveEndRelative();
-
-			// route arrow
-			doRoute();
-			resetCrossings();
 		}
 
 		Node orgnNode = null;
@@ -622,7 +677,7 @@ namespace MindFusion.FlowChartX
 
 			// don't allow creation if the arrow doesn't point a object
 			if (ptOrg == current) return false;
-			Node node = fcParent.GetNodeAt(current);
+			Node node = fcParent.getCurrBehavior().GetTargetNode(current);
 			if (node == null)
 			{
 				objNewDest = fcParent.Dummy;
@@ -699,13 +754,13 @@ namespace MindFusion.FlowChartX
 				fcParent.setAutoAnchors(node);
 			}
 			else 
-			if (style == ArrowStyle.Cascading &&
+				if (style == ArrowStyle.Cascading &&
 				(modifyHandle == 1 || modifyHandle == points.Count - 2))
 			{
 				int h = modifyHandle;
 				PointF ptp = points[h-1];
 				PointF ptn = points[h+1];
-				if ((prpHorzFirst && h%2 > 0) || (!prpHorzFirst && h%2 == 0))
+				if ((cascadeStartHorizontal && h%2 > 0) || (!cascadeStartHorizontal && h%2 == 0))
 				{
 					ptp.Y = points[h].Y;
 					ptn.X = points[h].X;
@@ -737,9 +792,8 @@ namespace MindFusion.FlowChartX
 
 			base.startModify(points[0], 0, ist);
 
-			for (int i = 0; i < points.Count; ++i)
-				savedPoints[i] = points[i];
-			oldHorzFirst = prpHorzFirst;
+			// save the state of segments so it can be restored from cancelModify
+			savedSegments = saveSegments();
 
 			if (groupAttached != null) groupAttached.beginModification(ist);
 
@@ -753,9 +807,8 @@ namespace MindFusion.FlowChartX
 
 			base.startModify(points[points.Count-1], points.Count-1, ist);
 
-			for (int i = 0; i < points.Count; ++i)
-				savedPoints[i] = points[i];
-			oldHorzFirst = prpHorzFirst;
+			// save the state of segments so it can be restored from cancelModify
+			savedSegments = saveSegments();
 
 			if (groupAttached != null) groupAttached.beginModification(ist);
 
@@ -771,16 +824,15 @@ namespace MindFusion.FlowChartX
 
 			base.startModify(org, handle, ist);
 
-			for (int i = 0; i < points.Count; ++i)
-				savedPoints[i] = points[i];
-			oldHorzFirst = prpHorzFirst;
+			// save the state of segments so it can be restored from cancelModify
+			savedSegments = saveSegments();
 
 			if (groupAttached != null) groupAttached.beginModification(ist);
 
 			cycleProtect = false;
 		}
 
-		private void updateRelatedPoints()
+		private void updateRelatedPoints(PointF current, InteractionState ist)
 		{
 			// when the arrow style is asBezier it has two kinds of control points
 			// 1. the points through which the curve go, when they are moved the adjacent
@@ -818,21 +870,124 @@ namespace MindFusion.FlowChartX
 			if (style == ArrowStyle.Cascading)
 			{
 				int h = modifyHandle;
-				int s = points.Count;
 				int ip = modifyHandle - 1;
 				int ix = modifyHandle + 1;
 
-				float dX = points[s-1].X - points[0].X;
-				float dY = points[s-1].Y - points[0].Y;
-				if (prpStartOrientation == Orientation.Auto && (h == 0 || h == s-1) &&
-					((prpHorzFirst && Math.Abs(dX)<Math.Abs(dY)) || (!prpHorzFirst && Math.Abs(dX)>Math.Abs(dY))))
+				float dX = points[points.Count - 1].X - points[0].X;
+				float dY = points[points.Count - 1].Y - points[0].Y;
+
+				// when dragging an end point, change the start segment orientation
+				// if the dx/dy ratio does not correspond to the current orientation
+				if (cascadeOrientation == Orientation.Auto && (h == 0 || h == points.Count - 1) &&
+					((cascadeStartHorizontal && Math.Abs(dX) < Math.Abs(dY)) ||
+					(!cascadeStartHorizontal && Math.Abs(dX) > Math.Abs(dY))))
 				{
-					prpHorzFirst = Math.Abs(dX) > Math.Abs(dY);
+					cascadeStartHorizontal = Math.Abs(dX) > Math.Abs(dY);
 					arrangePrpSegments(dX, dY);
 				}
 				else
 				{
-					if ((prpHorzFirst && h%2 != 0) || (!prpHorzFirst && !(h%2 !=0 )))
+					// let users change the segment orientation using a mouse gesture
+					// while dragging a point next to the first or last one
+					float mouseDX = current.X - ist.StartPoint.X;
+					float mouseDY = current.Y - ist.StartPoint.Y;
+
+					if (cascadeOrientation == Orientation.Auto)
+					{
+						bool transpose = false;
+
+						if (h == 1)
+						{
+							float segmentDX = points[2].X - points[1].X;
+							float segmentDY = points[2].Y - points[1].Y;
+							float pointDX = current.X - points[0].X;
+							float pointDY = current.Y - points[0].Y;
+
+							transpose = CascadeStartHorizontal ?
+								Math.Abs(pointDY) > Math.Abs(pointDX) && mouseDY * segmentDY > 0 :
+								Math.Abs(pointDX) > Math.Abs(pointDY) && mouseDX * segmentDX > 0;
+						}
+						else
+
+						if (h == points.Count - 2)
+						{
+							float segmentDX = points[points.Count - 2].X - points[points.Count - 1].X;
+							float segmentDY = points[points.Count - 2].Y - points[points.Count - 1].Y;
+							float pointDX = current.X - points[points.Count - 1].X;
+							float pointDY = current.Y - points[points.Count - 1].Y;
+
+							transpose = CascadeEndHorizontal ?
+								Math.Abs(pointDY) > Math.Abs(pointDX) && mouseDY * segmentDY > 0 :
+								Math.Abs(pointDX) > Math.Abs(pointDY) && mouseDX * segmentDX > 0;
+						}
+
+						if (transpose)
+						{
+							if (fcParent.AllowSplitArrows)
+							{
+								if (ist.splitToChangeOrient)
+								{
+									// insert a new segment and change only the orientation of the one at the end
+									segmentCount++;
+									if (h == 1)
+									{
+										cascadeStartHorizontal = !cascadeStartHorizontal;
+										points[1] = points[2];
+										points.Insert(1, current);
+									}
+									else
+									if (h == points.Count - 2)
+									{
+										points[points.Count - 2] = points[points.Count - 3];
+										points.Insert(points.Count - 1, current);
+										h++; ip++; ix++;
+										modifyHandle++;
+										ist.setHandleIndex(ist.SelectionHandle + 1);
+									}
+								}
+								else
+								{
+									// remove the segment that was added for the previous change of orientation
+									segmentCount--;
+									if (h == 1)
+									{
+										cascadeStartHorizontal = !cascadeStartHorizontal;
+										points.RemoveAt(1);
+									}
+									else
+									if (h == points.Count - 2)
+									{
+										points.RemoveAt(points.Count - 2);
+										h--; ip--; ix--;
+										modifyHandle--;
+										ist.setHandleIndex(ist.SelectionHandle - 1);
+									}
+								}
+
+								ist.splitToChangeOrient = !ist.splitToChangeOrient;
+							}
+							else
+							{
+								cascadeStartHorizontal = !cascadeStartHorizontal;
+
+								// change the orientation of all segments
+								PointF start = points[0];
+								for (int i = 1; i < points.Count - 1; ++i)
+								{
+									PointF point = points[i];
+									point.X = (point.X - start.X) / dX * 100;
+									point.Y = (point.Y - start.Y) / dY * 100;
+									points[i] = new PointF(
+										start.X + point.Y * dX / 100, start.Y + point.X * dY / 100);
+								}
+								points[h] = current;
+							}
+						}
+					}
+
+					// align the adjacent control points so the segments
+					// keep their horizontal or vertical orientation
+					if ((cascadeStartHorizontal && h%2 != 0) || (!cascadeStartHorizontal && !(h%2 !=0 )))
 					{
 						if (ip == 0)
 							points[h] = new PointF(points[h].X, points[ip].Y);
@@ -882,7 +1037,7 @@ namespace MindFusion.FlowChartX
 				retain(dx, dy, false);
 
 			points[modifyHandle] = current;
-			updateRelatedPoints();
+			updateRelatedPoints(current, ist);
 
 			if (dynamic && style != ArrowStyle.Cascading &&  points.Count > 2 &&
 				(modifyHandle == 1 || modifyHandle == points.Count - 2))
@@ -890,6 +1045,7 @@ namespace MindFusion.FlowChartX
 
 			updateArrowHeads();
 			resetCrossings();
+			updateText();
 
 			if (groupAttached != null)
 				groupAttached.updateObjects(ist);
@@ -907,6 +1063,7 @@ namespace MindFusion.FlowChartX
 
 			if (autoRoute && fcParent.rerouteArrow(this)) doRoute();
 			resetCrossings();
+			updateText();
 
 			if (groupAttached != null) groupAttached.endModification();
 
@@ -948,7 +1105,7 @@ namespace MindFusion.FlowChartX
 			// update ctrl. point position
 			base.completeModify(end, ist);
 			points[modifyHandle] = end;
-			updateRelatedPoints();
+			updateRelatedPoints(end, ist);
 
 			// update the links if the origin object has changed
 			if (modifyHandle == 0)
@@ -999,7 +1156,7 @@ namespace MindFusion.FlowChartX
 				PointF ptNext = points[modifyHandle + 1];
 
 				// for polylines: if the angle between them is ~180
-				if (style == ArrowStyle.Polyline && fcParent.ArrowsSplittable)
+				if (style == ArrowStyle.Polyline && fcParent.AllowSplitArrows)
 				{
 					PointCollection pts = new PointCollection(2);
 					pts.SetAt(0, ptPrev);
@@ -1014,31 +1171,29 @@ namespace MindFusion.FlowChartX
 					if (d*35 < len)
 					{
 						points.RemoveAt(modifyHandle);
-						savedPoints.RemoveAt(modifyHandle);
 						segmentCount--;
 						if (groupAttached != null)
 							groupAttached.onArrowSplit(false, modifyHandle, 1);
 					}
 				}
 
-				// for perp. arrows: if points overlap
+				// combine segments of cascading arrows if two adjacent control points overlap
 				if (style == ArrowStyle.Cascading && segmentCount > 3 &&
-					fcParent.ArrowsSplittable)
+					fcParent.AllowSplitArrows)
 				{
 					int toDel = -1;
 
-					if (ptPrev == ptCurr && modifyHandle > 1)
+					if (modifyHandle > 1 && fcParent.mergePoints(ptPrev, ptCurr))
 						toDel = modifyHandle - 1;
-					if (ptNext == ptCurr && modifyHandle < points.Count - 2)
+					if (modifyHandle < points.Count - 2 && fcParent.mergePoints(ptNext, ptCurr))
 						toDel = modifyHandle;
 
 					if (toDel != -1)
 					{
 						points.RemoveAt(toDel);
-						savedPoints.RemoveAt(toDel);
 						points.RemoveAt(toDel);
-						savedPoints.RemoveAt(toDel);
 						segmentCount -= 2;
+						updateEndPtsPrp();
 						if (groupAttached != null)
 							groupAttached.onArrowSplit(false, toDel, 2);
 					}
@@ -1063,6 +1218,7 @@ namespace MindFusion.FlowChartX
 			if (groupAttached != null)
 				groupAttached.endModification();
 			resetCrossings();
+			updateText();
 
 			fcParent.fireObjModified(this, end, modifyHandle);
 			cycleProtect = false;
@@ -1082,6 +1238,7 @@ namespace MindFusion.FlowChartX
 			headTemplates[(int)arrowBase].recalcArrowHead(ahBase, points[1], points[0]);
 			headTemplates[(int)arrowHead].recalcArrowHead(ahHead, points[points.Count-2], points[points.Count-1]);
 			resetCrossings();
+			updateText();
 
 			if (groupAttached != null)
 				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
@@ -1097,15 +1254,18 @@ namespace MindFusion.FlowChartX
 
 			base.cancelModify(ist);
 
-			for (int i = 0; i < points.Count; ++i)
-				points[i] = savedPoints[i];
-			prpHorzFirst = oldHorzFirst;
+			if (savedSegments != null)
+			{
+				restoreSegments(savedSegments);
+				savedSegments = null;
+			}
 
 			headTemplates[(int)arrowBase].recalcArrowHead(ahBase, points[1], points[0]);
 			headTemplates[(int)arrowHead].recalcArrowHead(ahHead, points[points.Count-2], points[points.Count-1]);
 
 			if (groupAttached != null) groupAttached.cancelModification(ist);
 			resetCrossings();
+			updateText();
 
 			cycleProtect = false;
 		}
@@ -1817,6 +1977,32 @@ namespace MindFusion.FlowChartX
 				// draw the text
 				g.DrawString(text, Font, brText, center, cf);
 			}
+			else if (textStyle == ArrowTextStyle.Follow)
+			{
+				// Draw the text
+				if (textLayout != null)
+				{
+					for (int i = 0; i < textLayout.Strings.Count; i++)
+					{
+						string part = textLayout.Strings[i] as string;
+						RectangleF rect = (RectangleF)textLayout.Rectangles[i];
+						float angle = (float)textLayout.Angles[i];
+
+						if (part.Length == 0)
+							continue;
+
+						GraphicsState state = g.Save();
+
+						g.TranslateTransform(rect.X, rect.Y);
+						g.RotateTransform(angle);
+						g.TranslateTransform(-rect.X, -rect.Y);
+
+						g.DrawString(part, Font, brText, rect.X, rect.Y);
+
+						g.Restore(state);
+					}
+				}
+			}
 
 			brText.Dispose();
 		}
@@ -1881,6 +2067,19 @@ namespace MindFusion.FlowChartX
 			// cleanup
 			brush.Dispose();
 			pen.Dispose();
+		}
+
+		public override bool Visible
+		{
+			get { return base.Visible; }
+			set
+			{
+				if (base.Visible != value)
+				{
+					base.Visible = value;
+					resetCrossings();
+				}
+			}
 		}
 
 		#endregion
@@ -2108,6 +2307,16 @@ namespace MindFusion.FlowChartX
 		private int orgnAnchor;
 		private int destAnchor;
 
+		internal void setOrgnAnchor(int value)
+		{
+			orgnAnchor = value;
+		}
+
+		internal void setDestAnchor(int value)
+		{
+			destAnchor = value;
+		}
+
 		public int OrgnAnchor
 		{
 			get { return orgnAnchor; }
@@ -2180,6 +2389,7 @@ namespace MindFusion.FlowChartX
 					setSegments(value);
 					arrangePoints(Anchoring.Keep);
 					resetCrossings();
+					updateText();
 
 					fcParent.setDirty();
 					fcParent.invalidate(getRepaintRect(false));
@@ -2225,21 +2435,19 @@ namespace MindFusion.FlowChartX
 				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			resetCrossings();
+			updateText();
 			fcParent.invalidate(getRepaintRect(false));
 
 			if (style == ArrowStyle.Cascading)
 			{
-				if (prpStartOrientation == Orientation.Auto)
-					prpHorzFirst = points[0].X != points[1].X;
-				else if (prpStartOrientation == Orientation.Horizontal)
-					prpHorzFirst = true;
+				if (cascadeOrientation == Orientation.Auto)
+					cascadeStartHorizontal = points[0].X != points[1].X;
+				else if (cascadeOrientation == Orientation.Horizontal)
+					cascadeStartHorizontal = true;
 				else
-					prpHorzFirst = false;
+					cascadeStartHorizontal = false;
 			}
 		}
-
-		private PointCollection savedPoints;
-		internal PointCollection SavedPoints { get { return savedPoints; } }
 
 		internal PointF getStartPt() { return points[0]; }
 		internal PointF getEndPt() { return points[points.Count-1]; }
@@ -2274,6 +2482,7 @@ namespace MindFusion.FlowChartX
 
 			updateArrowHeads();
 			resetCrossings();
+			updateText();
 		}
 
 		SizeF textSize;
@@ -2296,10 +2505,6 @@ namespace MindFusion.FlowChartX
 			}
 
 			points = new PointCollection(ctrlPoints);
-			savedPoints = new PointCollection(ctrlPoints);
-			for (int i = 0; i < ctrlPoints; ++i)
-				savedPoints[i] = new PointF(0, 0);
-
 			segmentCount = segments;
 
 			if (groupAttached != null)
@@ -2329,6 +2534,7 @@ namespace MindFusion.FlowChartX
 			headTemplates[(int)arrowBase].recalcArrowHead(ahBase, points[1], points[0]);
 			headTemplates[(int)arrowHead].recalcArrowHead(ahHead, points[points.Count-2], points[points.Count-1]);
 			resetCrossings();
+			updateText();
 
 			if (groupAttached != null)
 				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
@@ -2419,17 +2625,17 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Defines the orientation of the first segment of perpendicular arrows
 		/// </summary>
-		public Orientation PrpStartOrientation
+		public Orientation CascadeOrientation
 		{
 			get
 			{
-				return prpStartOrientation;
+				return cascadeOrientation;
 			}
 			set
 			{
-				if (prpStartOrientation != value)
+				if (cascadeOrientation != value)
 				{
-					prpStartOrientation = value;
+					cascadeOrientation = value;
 					fcParent.setDirty();
 					if (style == ArrowStyle.Cascading)
 					{
@@ -2441,15 +2647,44 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		internal bool PrpHorzFirst
+		internal bool CascadeStartHorizontal
 		{
-			get { return prpHorzFirst; }
-			set { prpHorzFirst = value; }
+			get { return cascadeStartHorizontal; }
+			set { cascadeStartHorizontal = value; }
 		}
 
-		private Orientation prpStartOrientation;
-		private bool prpHorzFirst;
-		private bool oldHorzFirst;
+		internal bool CascadeEndHorizontal
+		{
+			get
+			{
+				int l = points.Count - 1;
+				if ((cascadeStartHorizontal && (l%2 != 0)) || (!cascadeStartHorizontal && (l%2 == 0)))
+					return true;
+				else
+					return false;
+			}
+		}
+
+		private Orientation cascadeOrientation;
+		private bool cascadeStartHorizontal;
+
+		private ArrowSegmentsState saveSegments()
+		{
+			ArrowSegmentsState state = new ArrowSegmentsState();
+			state.controlPoints = points.Clone();
+			state.segmentCount = segmentCount;
+			state.cascadeStartHorizontal = cascadeStartHorizontal;
+			return state;
+		}
+
+		private void restoreSegments(ArrowSegmentsState state)
+		{
+			points = state.controlPoints.Clone();
+			segmentCount = state.segmentCount;
+			cascadeStartHorizontal = state.cascadeStartHorizontal;
+		}
+
+		private ArrowSegmentsState savedSegments;
 
 		public bool AllowMoveStart
 		{
@@ -2525,6 +2760,7 @@ namespace MindFusion.FlowChartX
 
 					doRoute();
 					resetCrossings();
+					updateText();
 
 					fcParent.invalidate(getRepaintRect(false));
 				}
@@ -2646,15 +2882,29 @@ namespace MindFusion.FlowChartX
 						text = "";
 					else
 						text = value;
+
+					updateText();
 					fcParent.setDirty();
 					fcParent.invalidate(getRepaintRect(false));
 				}
+
 				if (fcParent.IsTrialVersion && ZIndex > 50)
 					text = "FlowChart.NET\nDemo Version";
 			}
 		}
 
 		private string text;
+
+		public override Font Font
+		{
+			get { return base.Font; }
+			set
+			{
+				base.Font = value;
+				updateText();
+			}
+		}
+
 
 		public ArrowTextStyle TextStyle
 		{
@@ -2667,6 +2917,8 @@ namespace MindFusion.FlowChartX
 				if(textStyle != value)
 				{
 					textStyle = value;
+
+					updateText();
 					fcParent.setDirty();
 					fcParent.invalidate(getRepaintRect(false));
 				}
@@ -2856,10 +3108,10 @@ namespace MindFusion.FlowChartX
 		internal bool pointInHandle(PointF pt)
 		{
 			int handle = 0;
-			return pointInHandle(pt, ref handle);
+			return HitTestHandle(pt, ref handle);
 		}
 
-		internal override bool pointInHandle(PointF pt, ref int handle)
+		public override bool HitTestHandle(PointF pt, ref int handle)
 		{
 			for (int i = 0; i < points.Count; ++i)
 			{
@@ -2915,6 +3167,7 @@ namespace MindFusion.FlowChartX
 				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			resetCrossings();
+			updateText();
 
 			orgnLink.saveEndRelative();
 			destLink.saveEndRelative();
@@ -3020,15 +3273,20 @@ namespace MindFusion.FlowChartX
 
 		public void ReassignAnchorPoints()
 		{
-			putEndPointsAtNodeBorders();
+			putEndPointsAtNodeBorders(autoRoute);
 		}
 
 		internal void doRoute()
 		{
-			doRoute(false);
+			doRoute(false, orgnLink, destLink);
 		}
 
 		internal void doRoute(bool force)
+		{
+			doRoute(force, orgnLink, destLink);
+		}
+
+		internal void doRoute(bool force, Link orgnLink, Link destLink)
 		{
 			if (!force)
 				if (!autoRoute) return;
@@ -3051,65 +3309,9 @@ namespace MindFusion.FlowChartX
 
 			PointF startPoint = points[0];
 			PointF endPoint = points[points.Count - 1];
-
-			// find the intersection of the nodes outlines with the four rays
-			// that go outwards from the start/end points
-			PointF[] opts = new PointF[4];
-			PointF ptoCenter = startPoint;
-			RectangleF or = orgnLink.getNodeRect(true);
-			Utilities.getProjections(startPoint, or, opts);
-
-			PointF[] dpts = new PointF[4];
-			PointF ptdCenter = endPoint;
-			RectangleF dr = destLink.getNodeRect(true);
-			Utilities.getProjections(endPoint, dr, dpts);
-
-			// get the intersection point nearest to the origin and destination centers.
-			int oNearest = 0;
-			int oLen = opts.Length;
-			if (fcParent.RoutingOptions.StartOrientation == Orientation.Horizontal)
-			{
-				oNearest = 2;
-			}
-			else if (fcParent.RoutingOptions.StartOrientation == Orientation.Vertical)
-			{
-				oLen = 2;
-			}
-
-			for (i = oNearest + 1; i < oLen; i++)
-			{
-				if (Math.Abs(opts[i].X - ptoCenter.X) + Math.Abs(opts[i].Y - ptoCenter.Y) <
-					Math.Abs(opts[oNearest].X - ptoCenter.X) + Math.Abs(opts[oNearest].Y - ptoCenter.Y))
-					oNearest = i;
-			}
-
-			int dNearest = 0;
-			int dLen = dpts.Length;
-			if (fcParent.RoutingOptions.EndOrientation == Orientation.Horizontal)
-			{
-				dNearest = 2;
-			}
-			else if (fcParent.RoutingOptions.EndOrientation == Orientation.Vertical)
-			{
-				dLen = 2;
-			}
-
-			for (i = dNearest + 1; i < dLen; i++)
-			{
-				if (Math.Abs(dpts[i].X - ptdCenter.X) + Math.Abs(dpts[i].Y - ptdCenter.Y) <
-					Math.Abs(dpts[dNearest].X - ptdCenter.X) + Math.Abs(dpts[dNearest].Y - ptdCenter.Y))
-					dNearest = i;
-			}
-
-			startPoint = opts[oNearest];
-			endPoint = dpts[dNearest];
-
-			// Offset the starting and ending point a little bit
-			float[,] pull = new float[4, 2] { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 } };
-			startPoint.X += pull[oNearest, 0] * gridSize;
-			startPoint.Y += pull[oNearest, 1] * gridSize;
-			endPoint.X += pull[dNearest, 0] * gridSize;
-			endPoint.Y += pull[dNearest, 1] * gridSize;
+			int oNearest = 0, dNearest = 0;
+			routeGetEndPoints(ref startPoint, ref endPoint,
+				ref oNearest, ref dNearest, orgnLink, destLink);
 
 			// Get the starting and ending square
 			Point ptStart = new Point((int)((startPoint.X - bounds.X) / gridSize),
@@ -3134,131 +3336,7 @@ namespace MindFusion.FlowChartX
 			RouteHeuristics calcRouteHeuristics = hurry ?
 				RoutingOptions.DistSquare : fcParent.RoutingOptions.RouteHeuristics;
 
-			int dx = Math.Abs(ptStart.X - ptEnd.X);
-			int dy = Math.Abs(ptStart.Y - ptEnd.Y);
-			bool elongate = !(dx < 3 && dy < 3);
-
-			switch (oNearest)
-			{
-
-				case 0:
-					grid[ptStart.X, ptStart.Y + 1] = 255;
-
-					// Pull further if possible
-					if (ptStart.Y - 1 > 0 && elongate)
-					{
-						if (grid[ptStart.X, ptStart.Y - 1] != 255)
-						{
-							grid[ptStart.X, ptStart.Y] = 255;
-							ptStart.Y -= 1;
-						}
-					}
-					break;
-
-				case 1:
-					grid[ptStart.X, ptStart.Y - 1] = 255;
-
-					// Pull further if possible
-					if (ptStart.Y + 1 < gridRows && elongate)
-					{
-						if (grid[ptStart.X, ptStart.Y + 1] != 255)
-						{
-							grid[ptStart.X, ptStart.Y] = 255;
-							ptStart.Y += 1;
-						}
-					}
-					break;
-
-				case 2:
-					grid[ptStart.X - 1, ptStart.Y] = 255;
-
-					// Pull further if possible
-					if (ptStart.X + 1 < gridCols && elongate)
-					{
-						if (grid[ptStart.X + 1, ptStart.Y] != 255)
-						{
-							grid[ptStart.X, ptStart.Y] = 255;
-							ptStart.X += 1;
-						}
-					}
-					break;
-
-				case 3:
-					grid[ptStart.X + 1, ptStart.Y] = 255;
-
-					// Pull further if possible
-					if (ptStart.X - 1 > 0 && elongate)
-					{
-						if (grid[ptStart.X - 1, ptStart.Y] != 255)
-						{
-							grid[ptStart.X, ptStart.Y] = 255;
-							ptStart.X -= 1;
-						}
-					}
-					break;
-
-			}
-			switch (dNearest)
-			{
-
-				case 0:
-					grid[ptEnd.X, ptEnd.Y + 1] = 255;
-
-					// Pull further if possible
-					if (ptEnd.Y - 1 > 0 && elongate)
-					{
-						if (grid[ptEnd.X, ptEnd.Y - 1] != 255)
-						{
-							grid[ptEnd.X, ptEnd.Y] = 255;
-							ptEnd.Y -= 1;
-						}
-					}
-					break;
-
-				case 1:
-					grid[ptEnd.X, ptEnd.Y - 1] = 255;
-
-					// Pull further if possible
-					if (ptEnd.Y + 1 < gridRows && elongate)
-					{
-						if (grid[ptEnd.X, ptEnd.Y + 1] != 255)
-						{
-							grid[ptEnd.X, ptEnd.Y] = 255;
-							ptEnd.Y += 1;
-						}
-					}
-					break;
-
-				case 2:
-					grid[ptEnd.X - 1, ptEnd.Y] = 255;
-
-					// Pull further if possible
-					if (ptEnd.X + 1 < gridCols && elongate)
-					{
-						if (grid[ptEnd.X + 1, ptEnd.Y] != 255)
-						{
-							grid[ptEnd.X, ptEnd.Y] = 255;
-							ptEnd.X += 1;
-						}
-					}
-					break;
-
-				case 3:
-					grid[ptEnd.X + 1, ptEnd.Y] = 255;
-
-					// Pull further if possible
-					if (ptEnd.X - 1 > 0 && elongate)
-					{
-						if (grid[ptEnd.X - 1, ptEnd.Y] != 255)
-						{
-							grid[ptEnd.X, ptEnd.Y] = 255;
-							ptEnd.X -= 1;
-						}
-					}
-					break;
-
-			}
-
+			routeFixEndRegions(grid, ref ptStart, oNearest, ref ptEnd, dNearest, gridCols, gridRows);
 			grid[ptStart.X, ptStart.Y] = 0;
 			grid[ptEnd.X, ptEnd.Y] = 0;
 
@@ -3319,7 +3397,7 @@ namespace MindFusion.FlowChartX
 					bool straight = best.Parent == null ||
 						(best.Parent.Y == best.Y && off[i, 1] == 0) ||
 						(best.Parent.X == best.X && off[i, 0] == 0);
-					if (best.Parent == null && (
+					if (best.Parent == null && oNearest >= 0 && (
 						oNearest < 2 && off[i, 1] == 0 || oNearest >= 2 && off[i, 1] == 1))
 						straight = false;
 					if (!straight) g += turnCost;
@@ -3504,7 +3582,7 @@ namespace MindFusion.FlowChartX
 					if (i == 1)
 					{
 						// Align to the last point
-						if (dNearest == 2 || dNearest == 3)
+						if (pt.Y == current[0].Y)
 							ptDoc.Y = ptLast.Y;
 						else
 							ptDoc.X = ptLast.X;
@@ -3512,26 +3590,13 @@ namespace MindFusion.FlowChartX
 					if (i == current.Count - 2)
 					{
 						// Align to the first point
-						if (oNearest == 2 || oNearest == 3)
+						if (pt.Y == current[current.Count - 1].Y)
 							ptDoc.Y = ptFirst.Y;
 						else
 							ptDoc.X = ptFirst.X;
 
-						if(style == ArrowStyle.Cascading)
-						{
-							if(ptDoc.X == ptFirst.X)
-							{
-								prpHorzFirst = false;
-								oldHorzFirst = prpHorzFirst;
-								prpStartOrientation = Orientation.Vertical;
-							}
-							else
-							{
-								prpHorzFirst = true;
-								oldHorzFirst = prpHorzFirst;
-								prpStartOrientation = Orientation.Horizontal;
-							}
-						}
+						if (style == ArrowStyle.Cascading)
+							cascadeStartHorizontal = (ptDoc.X != ptFirst.X);
 					}
 
 					points[current.Count - i - 1] = ptDoc;
@@ -3546,7 +3611,7 @@ namespace MindFusion.FlowChartX
 					ptf1 = points[0];
 					ptf2 = points[points.Count - 1];
 					ptf = ptf1;
-					if (prpHorzFirst)
+					if (cascadeStartHorizontal)
 						ptf.X = ptf2.X;
 					else
 						ptf.Y = ptf2.Y;
@@ -3614,8 +3679,6 @@ namespace MindFusion.FlowChartX
 					points = newPoints;
 				}
 
-				savedPoints = points.Clone();
-
 				// Update SegmentCount property value
 				if (style == ArrowStyle.Bezier)
 					segmentCount = (short)((points.Count - 1) / 3);
@@ -3633,17 +3696,14 @@ namespace MindFusion.FlowChartX
 
 				if (style == ArrowStyle.Cascading)
 				{
-					prpStartOrientation = Orientation.Auto;
+					cascadeOrientation = Orientation.Auto;
 					segmentCount = 3;
 				}
 				else
 					segmentCount = 1;
 
 				while (points.Count > ptsToLeave)
-				{
 					points.RemoveAt(1);
-					savedPoints.RemoveAt(1);
-				}
 
 				if (style == ArrowStyle.Cascading && points.Count == 3)
 					segmentCount = 2;
@@ -3660,8 +3720,259 @@ namespace MindFusion.FlowChartX
 			}
 
 			resetCrossings();
+			updateText();
 
 			fcParent.fireArrowRoutedEvent(this);
+		}
+
+		private void routeGetEndPoints(ref PointF startPoint, ref PointF endPoint,
+			ref int oNearest, ref int dNearest, Link orgnLink, Link destLink)
+		{
+			if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
+			{
+				float gridSize = fcParent.RoutingOptions.GridSize;
+
+				// find the intersection of the nodes outlines with the four rays
+				// that go outwards from the start/end points
+				PointF[] opts = new PointF[4];
+				PointF ptoCenter = startPoint;
+				RectangleF or = orgnLink.getNodeRect(true);
+				Utilities.getProjections(startPoint, or, opts);
+
+				PointF[] dpts = new PointF[4];
+				PointF ptdCenter = endPoint;
+				RectangleF dr = destLink.getNodeRect(true);
+				Utilities.getProjections(endPoint, dr, dpts);
+
+				// get the intersection point nearest to the origin and destination centers.
+		
+				int oLen = opts.Length;
+				if (fcParent.RoutingOptions.StartOrientation == Orientation.Horizontal)
+				{
+					oNearest = 2;
+				}
+				else if (fcParent.RoutingOptions.StartOrientation == Orientation.Vertical)
+				{
+					oLen = 2;
+				}
+
+				for (int i = oNearest + 1; i < oLen; i++)
+				{
+					if (Math.Abs(opts[i].X - ptoCenter.X) + Math.Abs(opts[i].Y - ptoCenter.Y) <
+						Math.Abs(opts[oNearest].X - ptoCenter.X) + Math.Abs(opts[oNearest].Y - ptoCenter.Y))
+						oNearest = i;
+				}
+
+				int dLen = dpts.Length;
+				if (fcParent.RoutingOptions.EndOrientation == Orientation.Horizontal)
+				{
+					dNearest = 2;
+				}
+				else if (fcParent.RoutingOptions.EndOrientation == Orientation.Vertical)
+				{
+					dLen = 2;
+				}
+
+				for (int i = dNearest + 1; i < dLen; i++)
+				{
+					if (Math.Abs(dpts[i].X - ptdCenter.X) + Math.Abs(dpts[i].Y - ptdCenter.Y) <
+						Math.Abs(dpts[dNearest].X - ptdCenter.X) + Math.Abs(dpts[dNearest].Y - ptdCenter.Y))
+						dNearest = i;
+				}
+
+				startPoint = opts[oNearest];
+				endPoint = dpts[dNearest];
+
+				// Offset the starting and ending point a little bit
+				float[,] pull = new float[4, 2] { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 } };
+				startPoint.X += pull[oNearest, 0] * gridSize;
+				startPoint.Y += pull[oNearest, 1] * gridSize;
+				endPoint.X += pull[dNearest, 0] * gridSize;
+				endPoint.Y += pull[dNearest, 1] * gridSize;
+			}
+			else
+			{
+				oNearest = -1;
+				dNearest = -1;
+
+				if (fcParent.RoutingOptions.Anchoring == Anchoring.Reassign)
+				{
+					putEndPointsAtNodeBorders(true, orgnLink, destLink);
+					startPoint = points[0];
+					endPoint = points[points.Count - 1];
+				}
+			}
+		}
+
+		private void routeFixEndRegions(byte[,] grid,
+			ref Point ptStart, int oNearest, ref Point ptEnd, int dNearest, int gridCols, int gridRows)
+		{
+			if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
+			{
+				int dx = Math.Abs(ptStart.X - ptEnd.X);
+				int dy = Math.Abs(ptStart.Y - ptEnd.Y);
+				bool elongate = !(dx < 3 && dy < 3);
+
+				switch (oNearest)
+				{
+				case 0:
+					if (ptStart.Y + 1 < gridRows)
+						grid[ptStart.X, ptStart.Y + 1] = 255;
+
+					// Pull further if possible
+					if (ptStart.Y - 1 > 0 && elongate)
+					{
+						if (grid[ptStart.X, ptStart.Y - 1] != 255)
+						{
+							grid[ptStart.X, ptStart.Y] = 255;
+							ptStart.Y -= 1;
+						}
+					}
+					break;
+
+				case 1:
+					if (ptStart.Y - 1 >= 0)
+						grid[ptStart.X, ptStart.Y - 1] = 255;
+
+					// Pull further if possible
+					if (ptStart.Y + 1 < gridRows && elongate)
+					{
+						if (grid[ptStart.X, ptStart.Y + 1] != 255)
+						{
+							grid[ptStart.X, ptStart.Y] = 255;
+							ptStart.Y += 1;
+						}
+					}
+					break;
+
+				case 2:
+					if (ptStart.X - 1 >= 0)
+						grid[ptStart.X - 1, ptStart.Y] = 255;
+
+					// Pull further if possible
+					if (ptStart.X + 1 < gridCols && elongate)
+					{
+						if (grid[ptStart.X + 1, ptStart.Y] != 255)
+						{
+							grid[ptStart.X, ptStart.Y] = 255;
+							ptStart.X += 1;
+						}
+					}
+					break;
+
+				case 3:
+					if (ptStart.X + 1 < gridCols)
+						grid[ptStart.X + 1, ptStart.Y] = 255;
+
+					// Pull further if possible
+					if (ptStart.X - 1 > 0 && elongate)
+					{
+						if (grid[ptStart.X - 1, ptStart.Y] != 255)
+						{
+							grid[ptStart.X, ptStart.Y] = 255;
+							ptStart.X -= 1;
+						}
+					}
+					break;
+				}
+
+				switch (dNearest)
+				{
+				case 0:
+					if (ptEnd.Y + 1 < gridRows)
+						grid[ptEnd.X, ptEnd.Y + 1] = 255;
+
+					// Pull further if possible
+					if (ptEnd.Y - 1 > 0 && elongate)
+					{
+						if (grid[ptEnd.X, ptEnd.Y - 1] != 255)
+						{
+							grid[ptEnd.X, ptEnd.Y] = 255;
+							ptEnd.Y -= 1;
+						}
+					}
+					break;
+
+				case 1:
+					if (ptEnd.Y - 1 >= 0)
+						grid[ptEnd.X, ptEnd.Y - 1] = 255;
+
+					// Pull further if possible
+					if (ptEnd.Y + 1 < gridRows && elongate)
+					{
+						if (grid[ptEnd.X, ptEnd.Y + 1] != 255)
+						{
+							grid[ptEnd.X, ptEnd.Y] = 255;
+							ptEnd.Y += 1;
+						}
+					}
+					break;
+
+				case 2:
+					if (ptEnd.X - 1 >= 0)
+						grid[ptEnd.X - 1, ptEnd.Y] = 255;
+
+					// Pull further if possible
+					if (ptEnd.X + 1 < gridCols && elongate)
+					{
+						if (grid[ptEnd.X + 1, ptEnd.Y] != 255)
+						{
+							grid[ptEnd.X, ptEnd.Y] = 255;
+							ptEnd.X += 1;
+						}
+					}
+					break;
+
+				case 3:
+					if (ptEnd.X + 1 < gridCols)
+						grid[ptEnd.X + 1, ptEnd.Y] = 255;
+
+					// Pull further if possible
+					if (ptEnd.X - 1 > 0 && elongate)
+					{
+						if (grid[ptEnd.X - 1, ptEnd.Y] != 255)
+						{
+							grid[ptEnd.X, ptEnd.Y] = 255;
+							ptEnd.X -= 1;
+						}
+					}
+					break;
+				}
+			}
+			else
+			{
+				byte cost = fcParent.RoutingOptions.NodeVicinityCost;
+				for (int i = -1; i <= 1; ++i)
+				{
+					for (int j = -1; j <= 1; ++j)
+					{
+						if (i == 0 && j == 0)
+							continue;
+
+						int sx = ptStart.X + i;
+						int sy = ptStart.Y + j;
+						int ex = ptEnd.X + i;
+						int ey = ptEnd.Y + j;
+
+						if (sx >= 0 && sx < gridCols && sy >= 0 && sy < gridRows)
+							grid[sx, sy] = cost;
+						if (ex >= 0 && ex < gridCols && ey >= 0 && ey < gridRows)
+							grid[ex, ey] = cost;
+					}
+				}
+			}
+		}
+
+		private Link routeGetTarget(PointF point)
+		{
+			if (destLink != null)
+				return destLink;
+
+			Node target = fcParent.getCurrBehavior().GetTargetNode(point);
+			if (target == null)
+				target = fcParent.Dummy;
+
+			return target.createLink(this, point, true);
 		}
 
 		#endregion
@@ -3691,7 +4002,7 @@ namespace MindFusion.FlowChartX
 						points[points.Count - 2 - i] = new PointF(
 							points[points.Count-1].X, points[0].Y - w/3);
 					}
-					prpHorzFirst = false;
+					cascadeStartHorizontal = false;
 				}
 				else
 				{
@@ -3728,9 +4039,9 @@ namespace MindFusion.FlowChartX
 				if (!orgnLink.objsIntersect(destLink))
 				{
 					if (!keepOrg) points[0] = orgnLink.getIntersection(
-						points[0], points[points.Count-1]);
+									  points[0], points[points.Count-1]);
 					if (!keepDest) points[points.Count-1] = destLink.getIntersection(
-						points[points.Count-1], points[0]);
+									   points[points.Count-1], points[0]);
 				}
 
 				// if reassigning anchors...
@@ -3749,14 +4060,14 @@ namespace MindFusion.FlowChartX
 					bool setDest = keepAnchorsPos == Anchoring.Ignore || destAnchor == -1;
 					if (setDest) points[points.Count-1] = destLink.getInitialPt();
 
-					if (prpStartOrientation == Orientation.Auto)
-						prpHorzFirst =
+					if (cascadeOrientation == Orientation.Auto)
+						cascadeStartHorizontal =
 							Math.Abs(points[0].X - points[points.Count-1].X) >
 							Math.Abs(points[0].Y - points[points.Count-1].Y);
-					else if (prpStartOrientation == Orientation.Horizontal)
-						prpHorzFirst = true;
+					else if (cascadeOrientation == Orientation.Horizontal)
+						cascadeStartHorizontal = true;
 					else
-						prpHorzFirst = false;
+						cascadeStartHorizontal = false;
 
 					if (!orgnLink.objsIntersect(destLink))
 					{
@@ -3787,26 +4098,26 @@ namespace MindFusion.FlowChartX
 
 						if (setOrg)
 						{
-							if (prpHorzFirst && !bEven)
+							if (cascadeStartHorizontal && !bEven)
 								points[0] = (or.X < el.X) ? or : ol;
 							else
-							if (prpHorzFirst && bEven)
+								if (cascadeStartHorizontal && bEven)
 								points[0] = (ol.X > er.X) ? ol : or;
 							else
-							if (!prpHorzFirst && !bEven)
+								if (!cascadeStartHorizontal && !bEven)
 								points[0] = (ob.Y < et.Y) ? ob : ot;
 							else
 								points[0] = (ot.Y > eb.Y) ? ot : ob;
 						}
 						if (setDest)
 						{
-							if (prpHorzFirst && !bEven)
+							if (cascadeStartHorizontal && !bEven)
 								points[points.Count-1] = (or.X < el.X) ? el : er;
 							else
-							if (prpHorzFirst && bEven)
+								if (cascadeStartHorizontal && bEven)
 								points[points.Count-1] = (ol.Y < et.Y) ? et : eb;
 							else
-							if (!prpHorzFirst && !bEven)
+								if (!cascadeStartHorizontal && !bEven)
 								points[points.Count-1] = (ob.Y < et.Y) ? et : eb;
 							else
 								points[points.Count-1] = (ot.X < el.X) ? el : er;
@@ -3907,35 +4218,32 @@ namespace MindFusion.FlowChartX
 
 			switch (style)
 			{
-			case ArrowStyle.Polyline:
-				ptPos = segment + 1;
-				points.Insert(ptPos, pt);
-				savedPoints.Insert(ptPos, pt);
-				segmentCount++;
+				case ArrowStyle.Polyline:
+					ptPos = segment + 1;
+					points.Insert(ptPos, pt);
+					segmentCount++;
 
-				if (groupAttached != null)
-					groupAttached.onArrowSplit(true, ptPos, 1);
+					if (groupAttached != null)
+						groupAttached.onArrowSplit(true, ptPos, 1);
 
-				return ptPos;
-			case ArrowStyle.Cascading:
-				pt1 = points[segment];
-				pt2 = points[segment + 1];
-				pt.X = (pt1.X + pt2.X) / 2;
-				pt.Y = (pt1.Y + pt2.Y) / 2;
+					return ptPos;
+				case ArrowStyle.Cascading:
+					pt1 = points[segment];
+					pt2 = points[segment + 1];
+					pt.X = (pt1.X + pt2.X) / 2;
+					pt.Y = (pt1.Y + pt2.Y) / 2;
 
-				ptPos = segment + 1;
-				points.Insert(ptPos, pt);
-				savedPoints.Insert(ptPos, pt);
-				ptPos++;
+					ptPos = segment + 1;
+					points.Insert(ptPos, pt);
+					ptPos++;
 
-				points.Insert(ptPos, pt);
-				savedPoints.Insert(ptPos, pt);
-				segmentCount += 2;
+					points.Insert(ptPos, pt);
+					segmentCount += 2;
 
-				if (groupAttached != null)
-					groupAttached.onArrowSplit(true, segment + 1, 2);
+					if (groupAttached != null)
+						groupAttached.onArrowSplit(true, segment + 1, 2);
 
-				return ptPos;
+					return ptPos;
 			}
 
 			return 0;
@@ -3968,12 +4276,12 @@ namespace MindFusion.FlowChartX
 				float dx = p.X - points[0].X;
 				float dy = p.Y - points[0].Y;
 
-				if (prpStartOrientation == Orientation.Auto)
-					prpHorzFirst = Math.Abs(dx) > Math.Abs(dy);
-				else if (prpStartOrientation == Orientation.Horizontal)
-					prpHorzFirst = true;
+				if (cascadeOrientation == Orientation.Auto)
+					cascadeStartHorizontal = Math.Abs(dx) > Math.Abs(dy);
+				else if (cascadeOrientation == Orientation.Horizontal)
+					cascadeStartHorizontal = true;
 				else
-					prpHorzFirst = false;
+					cascadeStartHorizontal = false;
 
 				arrangePrpSegments(dx, dy);
 			}
@@ -4014,7 +4322,7 @@ namespace MindFusion.FlowChartX
 			int i;
 			for (i = 1; i < pts - 1; ++i)
 			{
-				if (prpHorzFirst)
+				if (cascadeStartHorizontal)
 				{
 					if (i % 2 != 0)
 					{
@@ -4043,7 +4351,7 @@ namespace MindFusion.FlowChartX
 				points[i] = new PointF(points[i-1].X + ax, points[i-1].Y + ay);
 			}
 			i--;
-			if ((prpHorzFirst && (i%2 != 0)) || (!prpHorzFirst && !(i%2 != 0)))
+			if ((cascadeStartHorizontal && (i%2 != 0)) || (!cascadeStartHorizontal && !(i%2 != 0)))
 				points[pts-2] = new PointF(points[pts-1].X, points[pts-2].Y);
 			else
 				points[pts-2] = new PointF(points[pts-2].X, points[pts-1].Y);
@@ -4058,17 +4366,17 @@ namespace MindFusion.FlowChartX
 			float lx = points[pts-2].X;
 			float ly = points[pts-2].Y;
 
-			if (prpHorzFirst) fy = points[0].Y;
+			if (cascadeStartHorizontal) fy = points[0].Y;
 			else fx = points[0].X;
 			
 			if (pts % 2 != 0)
 			{
-				if (prpHorzFirst) lx= points[pts-1].X;
+				if (cascadeStartHorizontal) lx= points[pts-1].X;
 				else ly = points[pts-1].Y;
 			}
 			else
 			{
-				if (prpHorzFirst) ly = points[pts-1].Y;
+				if (cascadeStartHorizontal) ly = points[pts-1].Y;
 				else lx = points[pts-1].X;
 			}
 
@@ -4076,9 +4384,18 @@ namespace MindFusion.FlowChartX
 			{
 				// The second point and the point before the last
 				// actually coincide, so pay heed to this special case
-				float x = prpHorzFirst ? lx : fx;
-				float y = prpHorzFirst ? fy : ly;
+				float x = cascadeStartHorizontal ? lx : fx;
+				float y = cascadeStartHorizontal ? fy : ly;
 				points[1] = new PointF(x, y);
+			}
+			else
+			if (segmentCount == 3)
+			{
+				points[1] = new PointF(fx, fy);
+				if (cascadeStartHorizontal)
+					points[pts-2] = new PointF(fx, ly);
+				else
+					points[pts-2] = new PointF(lx, fy);
 			}
 			else
 			{
@@ -4191,7 +4508,15 @@ namespace MindFusion.FlowChartX
 
 		private void chooseRouteOutlinePoints(ref PointF ptOrg, ref PointF ptDest)
 		{
+			chooseRouteOutlinePoints(orgnLink, destLink, ref ptOrg, ref ptDest);
+		}
+
+		private void chooseRouteOutlinePoints(Link orgnLink, Link destLink,
+			ref PointF ptOrg, ref PointF ptDest)
+		{
 			RoutingOptions rop = fcParent.RoutingOptions;
+			Node origin = orgnLink.getNode();
+			Node destination = destLink.getNode();
 
 			// how many points to consider ?
 			int srcCount = rop.StartOrientation == Orientation.Auto ? 4 : 2;
@@ -4206,32 +4531,32 @@ namespace MindFusion.FlowChartX
 			if (rop.StartOrientation != Orientation.Vertical)
 			{
 				srcPoints[srcIdx++] = orgnLink.getIntersection(ptOrg,
-					new PointF(ptOrg.X - 2*Origin.BoundingRect.Width, ptOrg.Y));
+					new PointF(ptOrg.X - 2*origin.BoundingRect.Width, ptOrg.Y));
 				srcPoints[srcIdx++] = orgnLink.getIntersection(ptOrg,
-					new PointF(ptOrg.X + 2*Origin.BoundingRect.Width, ptOrg.Y));
+					new PointF(ptOrg.X + 2*origin.BoundingRect.Width, ptOrg.Y));
 			}
 			if (rop.StartOrientation != Orientation.Horizontal)
 			{
 				srcPoints[srcIdx++] = orgnLink.getIntersection(ptOrg,
-					new PointF(ptOrg.X, ptOrg.Y - 2*Origin.BoundingRect.Height));
+					new PointF(ptOrg.X, ptOrg.Y - 2*origin.BoundingRect.Height));
 				srcPoints[srcIdx++] = orgnLink.getIntersection(ptOrg,
-					new PointF(ptOrg.X, ptOrg.Y + 2*Origin.BoundingRect.Height));
+					new PointF(ptOrg.X, ptOrg.Y + 2*origin.BoundingRect.Height));
 			}
 
 			// destination points
 			if (rop.EndOrientation != Orientation.Vertical)
 			{
 				dstPoints[dstIdx++] = dstPoints[1] = destLink.getIntersection(ptDest,
-					new PointF(ptDest.X - 2*Destination.BoundingRect.Width, ptDest.Y));
+					new PointF(ptDest.X - 2*destination.BoundingRect.Width, ptDest.Y));
 				dstPoints[dstIdx++] = destLink.getIntersection(ptDest,
-					new PointF(ptDest.X + 2*Destination.BoundingRect.Width, ptDest.Y));
+					new PointF(ptDest.X + 2*destination.BoundingRect.Width, ptDest.Y));
 			}
 			if (rop.EndOrientation != Orientation.Horizontal)
 			{
 				dstPoints[dstIdx++] = destLink.getIntersection(ptDest,
-					new PointF(ptDest.X, ptDest.Y - 2*Destination.BoundingRect.Height));
+					new PointF(ptDest.X, ptDest.Y - 2*destination.BoundingRect.Height));
 				dstPoints[dstIdx++] = destLink.getIntersection(ptDest,
-					new PointF(ptDest.X, ptDest.Y + 2*Destination.BoundingRect.Height));
+					new PointF(ptDest.X, ptDest.Y + 2*destination.BoundingRect.Height));
 			}
 
 			// check which of these points are closest
@@ -4240,11 +4565,11 @@ namespace MindFusion.FlowChartX
 			float minDist = Single.MaxValue;
 			for (int sidx = 0; sidx < srcCount; ++sidx)
 			{
-				if (Destination.containsPoint(srcPoints[sidx])) continue;
+				if (destination.containsPoint(srcPoints[sidx])) continue;
 
 				for (int didx = 0; didx < dstCount; ++didx)
 				{
-					if (Origin.containsPoint(dstPoints[didx])) continue;
+					if (origin.containsPoint(dstPoints[didx])) continue;
 
 					float dist = Utilities.Distance(
 						srcPoints[sidx], dstPoints[didx]);
@@ -4264,7 +4589,12 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		private void putEndPointsAtNodeBorders()
+		private void putEndPointsAtNodeBorders(bool routing)
+		{
+			putEndPointsAtNodeBorders(routing, orgnLink, destLink);
+		}
+
+		private void putEndPointsAtNodeBorders(bool routing, Link orgnLink, Link destLink)
 		{
 			PointF ptOrg = orgnLink.getInitialPt();
 			PointF ptDest = destLink.getInitialPt();
@@ -4276,17 +4606,17 @@ namespace MindFusion.FlowChartX
 				if (style == ArrowStyle.Cascading)
 					updateEndPtsPrp();
 				ptOrg = orgnLink.getIntersection(ptOrg,
-					autoRoute ? ptDest : points[1]);
+					routing ? ptDest : points[1]);
 				ptDest = destLink.getIntersection(ptDest,
-					autoRoute ? ptOrg : points[points.Count - 2]);
+					routing ? ptOrg : points[points.Count - 2]);
 			}
 			else
 			{
 				// if the arrow will be rerouted, choose the closest points on the
 				// horizontal line intersections with the node outlines. These points
 				// should not be contained within a node
-				if (autoRoute)
-					chooseRouteOutlinePoints(ref ptOrg, ref ptDest);
+				if (routing)
+					chooseRouteOutlinePoints(orgnLink, destLink, ref ptOrg, ref ptDest);
 			}
 
 			// snap to nearest anchors
@@ -4312,7 +4642,7 @@ namespace MindFusion.FlowChartX
 
 			if (dynamic && !reflexive)
 			{
-				putEndPointsAtNodeBorders();
+				putEndPointsAtNodeBorders(autoRoute);
 			}
 			else
 			{
@@ -4328,7 +4658,7 @@ namespace MindFusion.FlowChartX
 					{
 						float fx = points[1].X;
 						float fy = points[1].Y;
-						if (prpHorzFirst) fy = points[0].Y;
+						if (cascadeStartHorizontal) fy = points[0].Y;
 						else  fx = points[0].X;
 						points[1] = new PointF(fx, fy);
 					}
@@ -4348,12 +4678,12 @@ namespace MindFusion.FlowChartX
 						float ly = points[pts-2].Y;
 						if (pts % 2 != 0)
 						{
-							if (prpHorzFirst) lx = points[pts-1].X;
+							if (cascadeStartHorizontal) lx = points[pts-1].X;
 							else  ly = points[pts-1].Y;
 						}
 						else
 						{
-							if (prpHorzFirst) ly = points[pts-1].Y;
+							if (cascadeStartHorizontal) ly = points[pts-1].Y;
 							else  lx = points[pts-1].X;
 						}
 						points[pts-2] = new PointF(lx, ly);
@@ -4384,6 +4714,7 @@ namespace MindFusion.FlowChartX
 				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			resetCrossings();
+			updateText();
 		}
 
 		#endregion
@@ -4401,11 +4732,10 @@ namespace MindFusion.FlowChartX
 
 			ArrowState astate = (ArrowState)state;
 			astate.points = points.Clone();
-			astate.savedPoints = savedPoints.Clone();
 			astate.segmentCount = segmentCount;
 			astate.style = style;
 			astate.reflexive = reflexive;
-			astate.prpHorzFirst = prpHorzFirst;
+			astate.cascadeStartHorizontal = cascadeStartHorizontal;
 
 			astate.orgnLink = orgnLink;
 			astate.orgnAnchor = orgnAnchor;
@@ -4424,10 +4754,8 @@ namespace MindFusion.FlowChartX
 			style = astate.style;
 			segmentCount = astate.segmentCount;
 			points = astate.points.Clone();
-			savedPoints = astate.savedPoints.Clone();
 			reflexive = astate.reflexive;
-			prpHorzFirst = astate.prpHorzFirst;
-			oldHorzFirst = prpHorzFirst;
+			cascadeStartHorizontal = astate.cascadeStartHorizontal;
 
 			if (orgnLink != astate.orgnLink)
 			{
@@ -4454,6 +4782,7 @@ namespace MindFusion.FlowChartX
 			destLink.PtRelative = astate.destPoint;
 
 			resetCrossings();
+			updateText();
 		}
 
 		internal override ItemProperties createProperties()
@@ -4478,7 +4807,7 @@ namespace MindFusion.FlowChartX
 			aprops.baseSize = baseSize;
 			aprops.intermSize = intermSize;
 			aprops.penColor = penColor;
-			aprops.prpStartOrientation = prpStartOrientation;
+			aprops.cascadeOrientation = cascadeOrientation;
 			aprops.retainForm = retainForm;
 			aprops.text = text;
 			aprops.textColor = textColor;
@@ -4505,7 +4834,7 @@ namespace MindFusion.FlowChartX
 			ArrowBaseSize = aprops.baseSize;
 			IntermHeadSize = aprops.intermSize;
 			penColor = aprops.penColor;
-			prpStartOrientation = aprops.prpStartOrientation;
+			cascadeOrientation = aprops.cascadeOrientation;
 			retainForm = aprops.retainForm;
 			text = aprops.text;
 			textColor = aprops.textColor;
@@ -4578,6 +4907,24 @@ namespace MindFusion.FlowChartX
 		}
 
 		#region crossings
+
+		/// <summary>
+		/// Stores a list of rectangles and a list of angles,
+		/// which contain the destination of the arrow text.
+		/// </summary>
+		private class TextLayout
+		{
+			public TextLayout()
+			{
+				Rectangles = new ArrayList();
+				Angles = new ArrayList();
+				Strings = new ArrayList();
+			}
+
+			public ArrayList Rectangles;
+			public ArrayList Angles;
+			public ArrayList Strings;
+		}
 
 		/// <summary>
 		/// stores a collection of PointCollection, each PointCollection
@@ -4694,7 +5041,8 @@ namespace MindFusion.FlowChartX
 					for (int i = 0; i < arrows.Count; ++i)
 					{
 						Arrow arrow = arrows[i];
-						if (arrow.Style == ArrowStyle.Bezier) continue;
+						if (!arrow.Visible || arrow.Style == ArrowStyle.Bezier)
+							continue;
 
 						// dont check segments if arrow bounding rects dont intersect at all
 						RectangleF rcTest = arrow.getBoundingRect();
@@ -4776,6 +5124,202 @@ namespace MindFusion.FlowChartX
 		{
 			resetCrossings();
 		}
+
+		/// <summary>
+		/// todo: move this someplace else.
+		/// </summary>
+		private double Rad(double degree)
+		{
+			return Math.PI * degree / 180;
+		}
+
+		/// <summary>
+		/// Calculates how many characters from the specified
+		/// text would fit in the specified space when drawn
+		/// with the specified font.
+		/// </summary>
+		private int Fit(string text, float width, Font font, Graphics graphics)
+		{
+			string ctext = text;
+			int chars = 0;
+
+			if (ctext.Length == 0)
+				return 0;
+
+			StringFormat f = new StringFormat();
+			f.SetMeasurableCharacterRanges(
+				new CharacterRange[]
+				{
+					new CharacterRange(0, 1)
+				});
+			RectangleF rect = new RectangleF(0, 0, int.MaxValue, int.MaxValue);
+
+			float totalWidth = 0;
+			while (true)
+			{
+				if (ctext.Length == 0)
+					return chars;
+
+				totalWidth += graphics.MeasureCharacterRanges(
+					ctext, font, rect, f)[0].GetBounds(graphics).Width;
+
+				if (totalWidth > width)
+					return Math.Max(0, chars);
+
+				chars++;
+				ctext = ctext.Substring(1);
+			}
+		}
+
+		/// <summary>
+		/// Updates the arrow's text.
+		/// </summary>
+		private void updateText()
+		{
+			if (textStyle == ArrowTextStyle.Follow)
+			{
+				textLayout = new TextLayout();
+				PointF[] poly = points.getArray();
+
+				if (style == ArrowStyle.Bezier)
+				{
+					GraphicsPath temp = new GraphicsPath();
+					temp.AddBeziers(poly);
+					temp.Flatten(new Matrix(), 1f);
+					poly = temp.PathPoints;
+					temp.Dispose();
+				}
+
+				// Check whether to reverse the arrow points
+				if (poly[0].X > poly[poly.Length - 1].X)
+				{
+					for (int i = 0; i < poly.Length / 2; i++)
+					{
+						PointF t = poly[i];
+						poly[i] = poly[poly.Length - i - 1];
+						poly[poly.Length - i - 1] = t;
+					}
+				}
+
+				Graphics graphics = fcParent.CreateGraphics();
+				fcParent.setTransforms(graphics);
+
+				float textHeight = Font.GetHeight(graphics);
+
+				PointF startPoint = poly[0];
+				for (int i = 0; i < poly.Length - 1; i++)
+				{
+					// The processed segment
+					PointF p = poly[i];
+					PointF t = poly[i + 1];
+
+					float a = 0;
+					float r = 0;
+					GeoConvert.DekartToPolar(t, p, ref a, ref r);
+
+					// Find the angle between the segments
+					float angle = 0;
+
+					// The angle for the last segment remains 0
+					float a2 = 0;
+					float r2 = 0;
+					if (i < poly.Length - 2)
+					{
+						// The next segment
+						PointF p2 = poly[i + 1];
+						PointF t2 = poly[i + 2];
+
+						GeoConvert.DekartToPolar(p2, t2, ref a2, ref r2);
+
+						if (a2 < a)
+							a2 += 360;
+
+						angle = a2 - a;
+					}
+
+					// Calculate the real length (the start point might have been offset)
+					float rr = 0;
+					float aa = 0;
+					GeoConvert.DekartToPolar(startPoint, t, ref aa, ref rr);
+
+					PointF d1 = startPoint;
+					PointF d2 = t;
+					PointF d3 = PointF.Empty;
+					PointF d4 = PointF.Empty;
+
+					float width = 0;
+					if (angle < 180)
+					{
+						// No restrictions
+						GeoConvert.PolarToDekart(d1, a - 90, textHeight, ref d4);
+						GeoConvert.PolarToDekart(d2, a - 90, textHeight, ref d3);
+
+						width = rr;
+
+						startPoint = t;
+					}
+					else
+					{
+						GeoConvert.PolarToDekart(d1, a - 90, textHeight, ref d4);
+
+						float alpha2 = (360 - angle) / 2;
+						float xx = textHeight / (float)Math.Sin(Rad(alpha2));
+						float xxProj = (float)Math.Sqrt(Math.Pow(xx, 2) - Math.Pow(textHeight, 2));
+
+						if (xxProj > rr)
+						{
+							xxProj = rr;
+							xx = (float)Math.Sqrt(Math.Pow(xxProj, 2) + Math.Pow(textHeight, 2));
+						}
+
+						GeoConvert.PolarToDekart(d2, a - alpha2, xx, ref d3);
+						GeoConvert.PolarToDekart(d2, a, xxProj, ref d2);
+
+						width = rr - xxProj;
+
+						if (xxProj > r2)
+							xxProj = r2;
+						GeoConvert.PolarToDekart(t, a2, xxProj, ref startPoint);
+					}
+
+					textLayout.Rectangles.Add(new RectangleF(d4.X, d4.Y, width, textHeight));
+					textLayout.Angles.Add(180 - a);
+				}
+
+				string tempText = this.text;
+				for (int i = 0; i < textLayout.Rectangles.Count; i++)
+				{
+					RectangleF rect = (RectangleF)textLayout.Rectangles[i];
+					float angle = (float)textLayout.Angles[i];
+
+					int chars = Fit(tempText, rect.Width, Font, graphics);
+					if (chars == 0)
+					{
+						textLayout.Strings.Add("");
+						continue;
+					}
+
+					string part = tempText.Substring(0, chars);
+					tempText = tempText.Substring(chars);
+
+					textLayout.Strings.Add(part);
+				}
+
+				graphics.Dispose();
+			}
+		}
+
+		private TextLayout textLayout;
+
+		/// <summary>
+		/// Handles the FlowChart.MeasureUnitChanged event.
+		/// </summary>
+		private void OnParentUnitChanged(object sender, EventArgs e)
+		{
+			updateText();
+		}
+
+		private EventHandler parentUnitChanged = null;
 
 		#endregion
 

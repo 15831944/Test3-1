@@ -63,7 +63,7 @@ using System.Security;
 //       documentation for more information on this.
 //
 [assembly: AssemblyDelaySign(false)]
-//[assembly: AssemblyKeyFile("../../../fcnet.snk")]
+[assembly: AssemblyKeyFile("../../../fcnet.snk")]
 [assembly: AssemblyKeyName("")]
 
 [assembly: AllowPartiallyTrustedCallers]

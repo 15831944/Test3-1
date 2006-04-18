@@ -26,6 +26,7 @@ namespace MindFusion.FlowChartX
 
 			cycleRoots = new ChartObjectCollection();
 			affectedArrows = new ArrowCollection();
+			splitToChangeOrient = true;
 		}
 
 		public ChartObject CurrentObject
@@ -38,9 +39,19 @@ namespace MindFusion.FlowChartX
 			get { return selectionHandle; }
 		}
 
+		internal void setHandleIndex(int newIndex)
+		{
+			selectionHandle = newIndex;
+		}
+
 		public Action Action
 		{
 			get { return action; }
+		}
+
+		public PointF StartPoint
+		{
+			get { return startPoint; }
 		}
 
 		internal RectangleF InvalidRect
@@ -255,5 +266,9 @@ namespace MindFusion.FlowChartX
 		internal ChartObjectCollection cycleRoots;
 		internal ArrowCollection affectedArrows;
 		internal float savedAngle;
+
+		// if a segment has been inserted in order to change the orientation of a cascading arrow,
+		// do not add any more segments if the orientation must be changed again
+		internal bool splitToChangeOrient;
 	}
 }

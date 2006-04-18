@@ -332,9 +332,9 @@ namespace MindFusion.FlowChartX.LayoutSystem
 									v = true;
 							}
 							if (v)
-								a.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+								a.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
 							else
-								a.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+								a.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
 
 							a.SegmentCount = 2;
 
@@ -372,9 +372,9 @@ namespace MindFusion.FlowChartX.LayoutSystem
 
 							if( Direction == TreeLayoutDirection.LeftToRight ||
 								Direction == TreeLayoutDirection.RightToLeft)
-								a.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+								a.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
 							else
-								a.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+								a.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
 
 							// Adjust the arrow which connects the boxes.
 							if (ignoredDirection)
@@ -478,9 +478,9 @@ namespace MindFusion.FlowChartX.LayoutSystem
 
 							if( Direction == TreeLayoutDirection.LeftToRight ||
 								Direction == TreeLayoutDirection.RightToLeft)
-								a.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+								a.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
 							else
-								a.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+								a.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
 
 							// Adjust the arrow which connects the boxes.
 							if (ignoredDirection)
@@ -1381,14 +1381,14 @@ namespace MindFusion.FlowChartX.LayoutSystem
 								break;
 
 							case Anchoring.Reassign:
-							{
 								arrow.Points[0] =
 									arrow.Origin.getNearestAnchor(
-										arrow.Points[0], arrow, false, ref anchor);
+									arrow.Points[0], arrow, false, ref orgnAnchor);
 								arrow.Points[arrow.Points.Count - 1] =
 									arrow.Destination.getNearestAnchor(
-										arrow.Points[arrow.Points.Count - 1], arrow, true, ref anchor);
-							}
+									arrow.Points[arrow.Points.Count - 1], arrow, true, ref destAnchor);
+								arrow.setOrgnAnchor(orgnAnchor);
+								arrow.setDestAnchor(destAnchor);
 								break;
 
 						}

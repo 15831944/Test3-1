@@ -70,7 +70,7 @@ using System.Security;
 //       documentation for more information on this.
 //
 [assembly: AssemblyDelaySign(false)]
-//[assembly: AssemblyKeyFile(@"D:\Projects\FlowChart.NET\Source code\fcnet.snk")]
+[assembly: AssemblyKeyFile(@"D:\Projects\FlowChart.NET\Source code\fcnet.snk")]
 [assembly: AssemblyKeyName("")]
 
 [assembly: AllowPartiallyTrustedCallers]

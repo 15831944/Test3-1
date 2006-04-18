@@ -25,6 +25,8 @@ namespace MindFusion.FlowChartX
 			endOrientation = Orientation.Auto;
 			triggerRerouting = RerouteArrows.WhenModified;
 
+			anchoring = Anchoring.Ignore;
+
 			SetDefaultMode();
 		}
 
@@ -157,6 +159,14 @@ namespace MindFusion.FlowChartX
 			set { endOrientation = value; }
 		}
 
+		[DefaultValue(typeof(Anchoring), "Ignore")]
+		[Description("Specifies how to align arrows to the anchor points of nodes.")]
+		public Anchoring Anchoring
+		{
+			get { return anchoring; }
+			set { anchoring = value; }
+		}
+
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public RouteHeuristics RouteHeuristics
@@ -216,6 +226,7 @@ namespace MindFusion.FlowChartX
 		private RerouteArrows triggerRerouting;
 		private Orientation startOrientation;
 		private Orientation endOrientation;
+		private Anchoring anchoring;
 
 		private RouteHeuristics routeHeuristics;
 
