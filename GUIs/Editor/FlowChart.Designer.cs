@@ -73,7 +73,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.RoutingOptions.TriggerRerouting = MindFusion.FlowChartX.RerouteArrows.WhileCreating;
       this.fcFlowChart.SelHandleSize = 1.5F;
       this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
-      
+      this.fcFlowChart.Size = new System.Drawing.Size(292, 266);
       this.fcFlowChart.TabIndex = 0;
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
@@ -95,9 +95,7 @@ namespace SysCAD.Editor
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "FrmFlowChart";
       this.Text = "FlowChart";
-      this.Resize += new System.EventHandler(this.FrmFlowChart_Resize);
       this.ResumeLayout(false);
-
     }
 
     #endregion

@@ -116,9 +116,9 @@ namespace SysCAD.Service
           OleDbDataReader linkReader = (new OleDbCommand("SELECT DISTINCT Tag FROM ModelLinks", connection)).ExecuteReader(CommandBehavior.SingleResult);
           while (linkReader.Read())
           {
-            GraphicLink link = new GraphicLink(linkReader.GetString(0));
-            link.Populate(connection);
-            graphic.graphicLinks.Add(linkReader.GetString(0), link);
+            GraphicLink graphicLink = new GraphicLink(linkReader.GetString(0));
+            graphicLink.Populate(connection, graphic.graphicItems);
+            graphic.graphicLinks.Add(linkReader.GetString(0), graphicLink);
           }
           linkReader.Close();
 

@@ -155,21 +155,21 @@ namespace SysCAD.Editor
       links.Add(tag, link);
     }
 
-    internal void newGraphicLink(SysCAD.Interface.GraphicLink link, Arrow arrow, bool visible)
+    internal void newGraphicLink(SysCAD.Interface.GraphicLink graphicLink, Arrow arrow, bool visible)
     {
       Item origin = null; 
       Item destination = null;
 
-      if (link.Source != null) origin = item(link.Source);
-      if (link.Destination != null) destination = item(link.Destination);
+      if (graphicLink.Source != null) origin = item(graphicLink.Source);
+      if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
 
       PointF pointOrigin = new PointF();
       PointF pointDestination = new PointF();
 
-      if (link.controlPoints.Count > 1)
+      if (graphicLink.controlPoints.Count > 1)
       {
-        pointOrigin = link.controlPoints[0];
-        pointDestination = link.controlPoints[link.controlPoints.Count - 1];
+        pointOrigin = graphicLink.controlPoints[0];
+        pointDestination = graphicLink.controlPoints[graphicLink.controlPoints.Count - 1];
       }
 
       if (origin != null) 
@@ -177,30 +177,30 @@ namespace SysCAD.Editor
       if (destination != null)
         arrow.Destination = destination.Model;
 
-      arrow.Text = link.Tag;
-      arrow.ToolTip = "Tag: " + link.Tag + "\n\nOrigin: " + link.Source + "\nDestination: " + link.Destination;
+      arrow.Text = graphicLink.Tag;
+      arrow.ToolTip = "Tag: " + graphicLink.Tag + "\n\nOrigin: " + graphicLink.Source + "\nDestination: " + graphicLink.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 
-      if (link.controlPoints.Count > 1)
+      if (graphicLink.controlPoints.Count > 1)
       {
-        arrow.SegmentCount = (short)(link.controlPoints.Count-1);
+        arrow.SegmentCount = (short)(graphicLink.controlPoints.Count-1);
         int i = 0;
-        foreach (PointF point in link.controlPoints)
+        foreach (PointF point in graphicLink.controlPoints)
           arrow.ControlPoints[i++] = point;
         arrow.UpdateFromPoints();
         PointCollection a = arrow.ControlPoints;
       }
 
-      Link bodLink = new Link();
-      bodLink.Arrow = arrow;
-      bodLink.Visible = true;
+      Link link = new Link();
+      link.Arrow = arrow;
+      link.Visible = true;
 
-      arrow.Tag = bodLink;
+      arrow.Tag = link;
 
       arrow.Visible = ShowLinks && visible;
 
-      links.Add(link.Tag, bodLink);
+      links.Add(graphicLink.Tag, link);
     }
 
     internal void Remove(Item item, FlowChart flowchart)

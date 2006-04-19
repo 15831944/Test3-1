@@ -223,8 +223,8 @@ namespace SysCAD.Editor
 
     private void Edit_Copy()
     {
-      cbGraphicItems = new Dictionary<string,GraphicItem>();
-      cbGraphicLinks = new Dictionary<string,GraphicLink>();
+      cbGraphicItems = new Dictionary<string, GraphicItem>();
+      cbGraphicLinks = new Dictionary<string, GraphicLink>();
 
       //frmFlowChart.fcFlowChart.CopyToClipboard(true);
 
@@ -653,10 +653,19 @@ namespace SysCAD.Editor
         Refresh();
 
         frmFlowChart = new FrmFlowChart();
+
+        frmFlowChart.SuspendLayout();
+        SuspendLayout();
+
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+
+        frmFlowChart.MdiParent = this;
+        frmFlowChart.Text = openProjectForm.graphic.Name;
+        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
         frmFlowChart.SetProject(openProjectForm.graphic, openProjectForm.config, tvNavigation);
         tvNavigation_SetProject();
+        ovOverview.Document = frmFlowChart.fcFlowChart;
 
         (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Clear();
         foreach (ModelStencil modelStencil in frmFlowChart.state.ModelStencils)
@@ -665,22 +674,14 @@ namespace SysCAD.Editor
         }
         (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
 
-        frmFlowChart.MdiParent = this;
-        frmFlowChart.Text = openProjectForm.graphic.Name;
-        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+        SetProjectBasedButtons(true);
+
         frmFlowChart.Show();
 
-        ovOverview.Document = frmFlowChart.fcFlowChart;
-        
-        // Force update of the panels.
-        //twOverview.Invalidate();
-        //this.Invalidate();
-        //twOverview.Size = new Size(twOverview.Size.Width, twOverview.Size.Height + 1);
-        //this.Size = new Size(this.Size.Width, this.Size.Height + 1);
-        //twOverview.Size = new Size(twOverview.Size.Width, twOverview.Size.Height - 1);
-        //this.Size = new Size(this.Size.Width, this.Size.Height - 1);
+        ResumeLayout(true);
+        frmFlowChart.ResumeLayout(true);
 
-        SetProjectBasedButtons(true);
+        frmFlowChart.ZoomToVisible();
       }
     }
 

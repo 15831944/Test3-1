@@ -54,7 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BOD.cs" />
+    <Compile Include="State.cs" />
     <Compile Include="FlowChart.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -44,7 +44,6 @@ namespace SysCAD.Editor
 
       state.ConnectGraphicItemModified(new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified));
 
-      SuspendLayout();
       fcFlowChart.UndoManager.UndoEnabled = false;
       fcFlowChart.UseWaitCursor = true;
       fcFlowChart.ValidityChecks = false;
@@ -70,12 +69,6 @@ namespace SysCAD.Editor
       fcFlowChart.ValidityChecks = true;
       fcFlowChart.Visible = true;
       fcFlowChart.Enabled = true;
-
-      FixDocExtents();
-
-      ResumeLayout(false);
-
-      ZoomToVisible();
     }
 
     internal void UnsetProject()
@@ -316,7 +309,7 @@ namespace SysCAD.Editor
 
     public void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
     {
-      SuspendLayout();
+      //SuspendLayout();
 
       Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
       Item hoverItemBox = null;
@@ -442,7 +435,7 @@ namespace SysCAD.Editor
       oldHoverItemBox = hoverItemBox;
       oldHoverArrow = hoverArrow;
 
-      ResumeLayout(false);
+      //ResumeLayout(false);
     }
 
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
@@ -602,16 +595,10 @@ namespace SysCAD.Editor
       overArrow.Route();
     }
 
-    private void FrmFlowChart_Resize(object sender, EventArgs e)
-    {
-      fcFlowChart.Invalidate();
-    }
-
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)
     {
       e.Confirm = false;
-      MessageBox.Show("Not Implemented");
-      //state.Remove(e.Box.Tag as Item, fcFlowChart);
+      state.Remove(e.Box.Tag as Item, fcFlowChart);
     }
 
     private void fcFlowChart_ArrowDeleting(object sender, ArrowConfirmArgs e)
