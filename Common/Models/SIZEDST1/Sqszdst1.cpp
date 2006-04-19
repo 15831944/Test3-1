@@ -4528,32 +4528,23 @@ flag SQSzDist1Edt::DoRButtonUp(UINT nFlags, CPoint point)
             }
           else
             {
-             //
-              // Must be a right click on the PSD data page
-              // 
-              // Need to get Format to use for PSD Tab Data
-
-              static CnvAttribute lcnv;
-              static FmtAttribute fmt;
-              CnvAttribute* cnvref = &lcnv;
-              cnvref = rSD.m_PSDTB->GetCnv( EI.FieldId );
-              if (cnvref)
-                WrkIB.Set(EI.Fld->Tag, cnvref , &fmt );
-              else
-                WrkIB.Set(EI.Fld->Tag, &lcnv , &fmt );              
-
-/*
-Need more work here on conversions and formats
-*/
-//              WrkIB.Set(EI.Fld->Tag, &SD_Defn.XCnv, &SD_Defn.XFmt);
+            // Must be a right click on the PSD data page
+            // 
+            // Need to get Format to use for PSD Tab Data
+            static CnvAttribute lcnv;
+            static FmtAttribute fmt;
+            CnvAttribute* cnvref = &lcnv;
+            cnvref = rSD.m_PSDTB->GetCnv( EI.FieldId );
+            if (cnvref)
+              WrkIB.Set(EI.Fld->Tag, cnvref , &fmt );
+            else
+              WrkIB.Set(EI.Fld->Tag, &lcnv , &fmt );              
+            /*Need more work here on conversions and formats*/
+            //WrkIB.Set(EI.Fld->Tag, &SD_Defn.XCnv, &SD_Defn.XFmt);
 #else
-
           else
             {
-
             return(ret);
-
- 
 #endif
             }
 
@@ -4593,7 +4584,6 @@ Need more work here on conversions and formats
       }
     }
   return ret;
-  //return 0;
   }
 
 //---------------------------------------------------------------------------
