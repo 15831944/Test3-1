@@ -652,7 +652,7 @@ void CDLLCfgDlg::SaveTree()
   for (i=0; i<pSheet->DLLs.GetSize(); i++)
     {
     CDllInfo & DLLI = pSheet->DLLs[i];
-    if (stricmp(DLLI.Name(), "flwlib.dll")==0)
+    if (_stricmp(DLLI.Name(), "flwlib.dll")==0)
       DLLI.bLoad = 1;
     if (DLLI.bLoad)
       {
@@ -682,7 +682,7 @@ void CDLLCfgDlg::SaveTree()
   for (i=0; i<pSheet->DLLs.GetSize(); i++)
     {
     CDllInfo & DLLI = pSheet->DLLs[i];
-    if (DLLI.bLoad || stricmp(DLLI.Name(), "flwlib.dll")==0)
+    if (DLLI.bLoad || _stricmp(DLLI.Name(), "flwlib.dll")==0)
       {
       Tag.Set("M%04i", Cnt++);
       pSheet->Cfg.WrStr("ModelDLLs", Tag(), DLLI.Name());
@@ -802,7 +802,7 @@ if (OK)
 for (int i=0; i<m_SMDKDLLList.GetItemCount(); i++)
 {
 CString S = m_SMDKDLLList.GetItemText(i, 0);
-if (stricmp((const char*)S, (const char*)NewName)==0)
+if (_stricmp((const char*)S, (const char*)NewName)==0)
 {
 OK = false;
 m_SMDKDLLList.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
@@ -833,7 +833,7 @@ void CDLLCfgDlg::OnShowSpecies()
   for (int i=0; i<pSheet->DLLs.GetSize(); i++)
     {
     CDllInfo & DLLI = pSheet->DLLs[i];
-    if (DLLI.bLoad && DLLI.m_RqdSpcs.GetSize()>0 && stricmp(DLLI.Name(), "flwlib.dll")!=0)
+    if (DLLI.bLoad && DLLI.m_RqdSpcs.GetSize()>0 && _stricmp(DLLI.Name(), "flwlib.dll")!=0)
       {
       for (int j=0; j<DLLI.m_RqdSpcs.GetSize(); j++)
         {
@@ -858,7 +858,7 @@ void CDLLCfgDlg::BldRqdSpeciesList()
   for (int i=0; i<pSheet->DLLs.GetSize(); i++)
     {
     CDllInfo & DLLI = pSheet->DLLs[i];
-    if (DLLI.bLoad && DLLI.m_RqdSpcs.GetSize()>0 && stricmp(DLLI.Name(), "flwlib.dll")!=0)
+    if (DLLI.bLoad && DLLI.m_RqdSpcs.GetSize()>0 && _stricmp(DLLI.Name(), "flwlib.dll")!=0)
       {
       for (int j=0; j<DLLI.m_RqdSpcs.GetSize(); j++)
         {
@@ -983,10 +983,10 @@ int CMdlCfgSheet::GetLoadableDLLs(char * pPath)
           {
           for (int i=0; Exclude[i]; i++)
             {
-            if (stricmp(fd.cFileName, Exclude[i])==0)
+            if (_stricmp(fd.cFileName, Exclude[i])==0)
               break;
             }
-          if ((Exclude[i]==NULL) && (stricmp(&(fd.cFileName[strlen(fd.cFileName)-4]), ".dll")==0))
+          if ((Exclude[i]==NULL) && (_stricmp(&(fd.cFileName[strlen(fd.cFileName)-4]), ".dll")==0))
             {
             Tmp=Folder;
             Tmp+=fd.cFileName;
@@ -1050,7 +1050,7 @@ int CMdlCfgSheet::GetLoadableDLLs(char * pPath)
   //      if ((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0) 
   //        {
   //        for (int i=0; Exclude[i]; i++)
-  //          if (stricmp(fd.cFileName, Exclude[i])==0)
+  //          if (_stricmp(fd.cFileName, Exclude[i])==0)
   //            break;
   //        if (Exclude[i]==NULL)
   //          {
@@ -2290,7 +2290,7 @@ BOOL CMdlCfgOpt::OnKillActive()
 //  int Cnt=0;
 //  Strng Tag, Old, S;
 //  for (int i=0; i<DLLs.GetSize(); i++)
-//    if (DLLs[i].bLoad || stricmp(DLLs[i].Name(), "flwlib.dll")==0)
+//    if (DLLs[i].bLoad || _stricmp(DLLs[i].Name(), "flwlib.dll")==0)
 //      {
 //      Tag.Set("M%04i", Cnt++);
 //      Cfg.WrStr("ModelDLLs", Tag(), DLLs[i].Name());
@@ -2458,7 +2458,7 @@ static int SpDBTest(void * p, void * q)
   char *c2=(r2->Comp)();
   while (*c1!=0 && !isalpha(*c1)) c1++;
   while (*c2!=0 && !isalpha(*c2)) c2++;
-  return stricmp(c1,c2)<0; 
+  return _stricmp(c1,c2)<0; 
   }
 
 void CMdlCfgSpcs::BuildSpDBList()

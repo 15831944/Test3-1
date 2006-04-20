@@ -43,7 +43,7 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
   private:
     static CExecObj   * sm_pExecObj;
   public:
-    static SetExecObj(CExecObj * p) { sm_pExecObj=p; };
+    static void SetExecObj(CExecObj * p) { sm_pExecObj=p; };
     static CExecObj   * ExecObj() { return sm_pExecObj; };
 
 

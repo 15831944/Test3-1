@@ -3,12 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="Zip32"
-	ProjectGUID="{DB21C6FD-22C4-4AB1-974D-D39221D7E857}"
-
-
-
-
-	>
+	ProjectGUID="{DB21C6FD-22C4-4AB1-974D-D39221D7E857}">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -106,6 +101,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
+				ShowProgress="2"
 				OutputFile="..\..\..\Bin\Zip32.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -330,39 +326,9 @@
 		</File>
 		<File
 			RelativePath=".\zipfile.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release_Dbg|Win32">
-				<Tool
-					Name="VCCLCompilerTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"/>
-			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\zipup.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release_Dbg|Win32">
-				<Tool
-					Name="VCCLCompilerTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"/>
-			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\win32\zipup.h">

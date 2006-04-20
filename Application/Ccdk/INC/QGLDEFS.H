@@ -10,6 +10,11 @@
 #ifndef     QGLDEFS
 #define     QGLDEFS
 
+
+#if _MSC_VER >=1400
+#pragma warning(disable:4996)
+#endif
+
 #include    <qglcmpl.h>
 
 #ifndef     NULL

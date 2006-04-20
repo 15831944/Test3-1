@@ -268,7 +268,7 @@ BOOL OTagGroup::AddTag( OModbusTag* pTag )
       }
 
    if( pos )     // found a position
-      tags.InsertBefore( pos, (CObject*)pTag );
+      tags.InsertBefore( pos, /*(CObject*)*/pTag );
    else              // past the end
       tags.AddTail( pTag );
    return TRUE;

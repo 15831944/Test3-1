@@ -1951,6 +1951,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        25594
 #define _APS_NEXT_COMMAND_VALUE         30515
 #define _APS_NEXT_CONTROL_VALUE         25748
-#define _APS_NEXT_SYMED_VALUE           25601
+#define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif

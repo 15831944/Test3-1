@@ -133,14 +133,14 @@ DWORD COleExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
         if (p->cValue)
           {
           const int len = strlen(p->cValue);
-          if (len==6 && stricmp(p->cValue, "TheEnd")==0)
+          if (len==6 && _stricmp(p->cValue, "TheEnd")==0)
             {
             COleReportTrendMngr* pM = (COleReportTrendMngr*)(p->iSrcID);
             pM->Lock();
             pM->bQueryDone = 1;
             pM->Unlock();
             }
-          else if (len>6 && strnicmp(p->cValue, "TheTags", 7)==0)
+          else if (len>6 && _strnicmp(p->cValue, "TheTags", 7)==0)
             {
             COleReportTrendMngr* pM = (COleReportTrendMngr*)(p->iSrcID);
             pM->Lock();

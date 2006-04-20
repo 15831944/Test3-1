@@ -263,7 +263,7 @@ TearVarBlk *TearVarBlk::Add(TearPosBlk *Pos, char *Tag)
     {
     TearVarBlkIter TCBs(TearVarBlk::List);
     for (TearVarBlk* pT=TCBs.First(); pT; pT=TCBs.Next())
-      if (stricmp(pT->Tag(), p->Tag())>0)
+      if (_stricmp(pT->Tag(), p->Tag())>0)
         break;
     if (pT)
       p->ListPos=List.InsertBefore(pT->ListPos, p);
@@ -284,7 +284,7 @@ TearVarBlk *TearVarBlk::Add(TearVarBlk *Blk)
     {
     TearVarBlkIter TCBs(TearVarBlk::List);
     for (TearVarBlk* pT=TCBs.First(); pT; pT=TCBs.Next())
-      if (stricmp(pT->Tag(), Blk->Tag())>0)
+      if (_stricmp(pT->Tag(), Blk->Tag())>0)
         break;
     if (pT)
       Blk->ListPos=List.InsertBefore(pT->ListPos, Blk);
@@ -997,7 +997,7 @@ void TearVarBlk::AdvAdaptDirect(EqnSlvCtrlBlk & EqnCB, double Damping)
   for (int iVar=0; iVar<nVariables; iVar++)
     {
 #ifndef _RELEASE
-    if (DoTrack && stricmp(TV[iVar].Tag(), TrackTag())==0)
+    if (DoTrack && _stricmp(TV[iVar].Tag(), TrackTag())==0)
       {
       Strng ss;
       if (!DoneHeader)
@@ -1067,7 +1067,7 @@ void TearVarBlk::AdvAdaptDirect(EqnSlvCtrlBlk & EqnCB, double Damping)
     #endif
 
 #ifndef _RELEASE
-    if (DoTrack && stricmp(TV[iVar].Tag(), TrackTag())==0)
+    if (DoTrack && _stricmp(TV[iVar].Tag(), TrackTag())==0)
       {
       Strng ss;
       ss.Set("%d,After,%g,%g,%g,%g,%g,%g,%g,%g,%g", m_lStageCnt, TV[iVar].Y[2], TV[iVar].Y[1], TV[iVar].Y[0],

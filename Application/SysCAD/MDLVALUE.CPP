@@ -2041,11 +2041,11 @@ void CRptTagLists::LoadModelType()
   while (pTOC)
     {
     char *pG=pTOC->Group();
-    if (stricmp(pG, FlwUnitGrp)==0 || 
-        stricmp(pG, FlwLinkGrp)==0 || 
-        stricmp(pG, CtrlLinkGrp)==0 || 
-        stricmp(pG, ElecLinkGrp)==0 || 
-        stricmp(pG, AirLinkGrp)==0)
+    if (_stricmp(pG, FlwUnitGrp)==0 || 
+        _stricmp(pG, FlwLinkGrp)==0 || 
+        _stricmp(pG, CtrlLinkGrp)==0 || 
+        _stricmp(pG, ElecLinkGrp)==0 || 
+        _stricmp(pG, AirLinkGrp)==0)
       {
       Strng CLSID(pTOC->ClassIdNoVersion());
       if (m_ModelType.FindString(-1, CLSID())==CB_ERR)

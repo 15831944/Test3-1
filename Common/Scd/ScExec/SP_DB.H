@@ -2150,7 +2150,7 @@ class DllImportExport CSysVector
     CSVData     SVData()                                            { return &m_d[0]; }
 
 #ifdef _DEBUG
-    virtual     CheckIt() {};
+    virtual  void CheckIt() {};
 #endif
 
   protected:
@@ -2255,7 +2255,7 @@ class DllImportExport SpMArray : public CSysVector
     operator CSVData()                               { return m_d; }
 
 #ifdef _DEBUG
-    virtual     CheckIt() { if (m_d!=&m_M[0]) DoBreak(); };
+    virtual void CheckIt() { if (m_d!=&m_M[0]) DoBreak(); };
 #endif
 
   protected:
@@ -2292,7 +2292,7 @@ class DllImportExport SpVector : public CSysVector
     operator CDVector &()                                 { return m_M; };
 
 #ifdef _DEBUG
-    virtual     CheckIt()                                 { if (m_d!=&m_M[0]) DoBreak(); };
+    virtual void CheckIt()                                 { if (m_d!=&m_M[0]) DoBreak(); };
 #endif
 
   protected:

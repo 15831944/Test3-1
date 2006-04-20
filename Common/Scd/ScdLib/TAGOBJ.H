@@ -663,7 +663,7 @@ class DllImportExport TagObjClass
 inline Strng GetClassIdNoVersion(LPCTSTR pClass)
   {
   Strng ClassNV(pClass);
-  char *pVer=strchr(pClass, '-');
+  const char *pVer=strchr(pClass, '-');
   ClassNV.SetLength(pVer ? (pVer-pClass): strlen(pClass));
   return ClassNV;
   }

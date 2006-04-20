@@ -76,7 +76,7 @@ class DllImportExport CPwrSupply
     virtual CPwrTypes Type() { return CPS_None; };
     virtual void      BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pTagObj, LPCSTR Tag, bool AsParm) {};
     virtual bool      On()            { return m_bOn; };
-    virtual           SetOn(bool On)  { m_bOn=On; };
+    virtual void      SetOn(bool On)  { m_bOn=On; };
     virtual bool      Present()       { return false; };
     virtual bool      SetPower(CPwrLoad * pLoad)                                  { return true; };
     //virtual bool      SetPower(CPwrUserSocket * pSocket)                          { return true; };

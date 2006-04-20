@@ -273,8 +273,8 @@ class DllImportExport C2DFn : public FxdEdtBookRef, public TaggedObject
     inline flag AutoScale() { return bAutoScale; };
     inline double YpFrac(long i) { if (bReDoFrac) ReCalcFrac(); return (*pYFrac)[i]; };
     inline double XpFrac(long i) { if (i<0) return dXLoLim; int N=X.GetLen(); return i<N ? X[i] : Max(X[N-1], dXUpLim); };
-    inline GraphWidth() { return iGraphWidth; };
-    inline GraphHeight() { return iGraphHeight; };
+    inline int GraphWidth() { return iGraphWidth; };
+    inline int GraphHeight() { return iGraphHeight; };
   };
 
 // ===========================================================================

@@ -21,11 +21,11 @@
 
 // -------------------------------------------------------------------------
 
-const PF_Ignore=0;
-const PF_ConstG=1;
-const PF_ConstD=2;
-const PF_LinearG=3;
-const PF_LinearD=4;
+const int PF_Ignore=0;
+const int PF_ConstG=1;
+const int PF_ConstD=2;
+const int PF_LinearG=3;
+const int PF_LinearD=4;
 
 class PrecipFn
   {

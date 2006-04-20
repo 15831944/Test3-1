@@ -648,7 +648,7 @@ void CPrjForm::OnDblclkEnvList(NMHDR* pNMHDR, LRESULT* pResult)
     {
     char Buff[1024];
     EnvList.GetItemText(nItem, 0, Buff, sizeof(Buff));
-    if (stricmp(Buff, "CfgFile")==0)
+    if (_stricmp(Buff, "CfgFile")==0)
       {
       EnvList.GetItemText(nItem, 1, Buff, sizeof(Buff));
       if (strlen(Buff)>0)
@@ -702,7 +702,7 @@ void CPrjForm::OnRclickMdlTree(NMHDR* pNMHDR, LRESULT* pResult)
     if (hParent)
       {
       CString ParentTxt = MdlTree.GetItemText(hParent);
-      flag MissingDrawing = (stricmp((const char*)ParentTxt, MissingFromDrawingsTxt)==0);
+      flag MissingDrawing = (_stricmp((const char*)ParentTxt, MissingFromDrawingsTxt)==0);
       flag MissingDatabase = (ParentTxt.Find(MissingFromDatabaseTxt)>0);
       hCurrentSeln = HTI.hItem;
       CString Tag = MdlTree.GetItemText(HTI.hItem);
@@ -1225,7 +1225,7 @@ void CPrjForm::RebuildFileTree()
           Path.FnDrivePath();
 
           Strng s=Fn;
-          if (Path() && stricmp(Path(), PrjFiles())!=0)
+          if (Path() && _stricmp(Path(), PrjFiles())!=0)
             s.Set("%s    [ %s ]", Fn(), Path());
 
           flag InsertIt = 1;
@@ -1322,7 +1322,7 @@ void CPrjForm::RebuildFileTree()
           Path.FnDrivePath(s());
 
           s = Fn();
-          if (Path() && stricmp(Path(), PrjFiles())!=0)
+          if (Path() && _stricmp(Path(), PrjFiles())!=0)
             s.Set("%s    [ %s ]", Fn(), Path());
           if (IS.hParent==TVI_ROOT)
             {
@@ -1369,7 +1369,7 @@ void CPrjForm::RebuildFileTree()
         Path.FnDrivePath(s());
 
         s = Fn();
-        if (m_FileView!=0 && Path() && stricmp(Path(), PrjFiles())!=0)
+        if (m_FileView!=0 && Path() && _stricmp(Path(), PrjFiles())!=0)
           s.Set("%s    [ %s ]", Fn(), Path());
 
         IS.item.pszText = s();
@@ -1424,10 +1424,10 @@ static int SpPFTest(void * p, void * q)
   for (int i=0; i<4 && Cmp==0; i++)
     switch (CPrjForm::iOrdCol[i])
       {
-      case 0: Cmp=stricmp(r1->Fn(), r2->Fn())*CPrjForm::iOrdDir[i]; break;
-      case 1: Cmp=stricmp(r1->Path() ? r1->Path() : "", r2->Path() ? r2->Path() : "")*CPrjForm::iOrdDir[i]; break;
-      case 2: Cmp=stricmp(r1->Grp(), r2->Grp())*CPrjForm::iOrdDir[i]; break;
-      case 3: Cmp=stricmp(r1->Exists() ? r1->Exists() : "", r2->Exists() ? r2->Exists() : "")*CPrjForm::iOrdDir[i]; break;
+      case 0: Cmp=_stricmp(r1->Fn(), r2->Fn())*CPrjForm::iOrdDir[i]; break;
+      case 1: Cmp=_stricmp(r1->Path() ? r1->Path() : "", r2->Path() ? r2->Path() : "")*CPrjForm::iOrdDir[i]; break;
+      case 2: Cmp=_stricmp(r1->Grp(), r2->Grp())*CPrjForm::iOrdDir[i]; break;
+      case 3: Cmp=_stricmp(r1->Exists() ? r1->Exists() : "", r2->Exists() ? r2->Exists() : "")*CPrjForm::iOrdDir[i]; break;
       }
   return Cmp<0;
   };
@@ -1578,9 +1578,9 @@ static int TagRefTest(void * p, void * q)
   for (int i=0; i<5 && Cmp==0; i++)
     switch (CPrjForm::iTROrdCol[i])
       {
-      case 0: Cmp=stricmp(r1->Used(), r2->Used())*CPrjForm::iTROrdDir[i]; break;
-      case 1: Cmp=stricmp(r1->Type(), r2->Type())*CPrjForm::iTROrdDir[i]; break;
-      case 2: Cmp=stricmp(r1->Tag() , r2->Tag() )*CPrjForm::iTROrdDir[i]; break;
+      case 0: Cmp=_stricmp(r1->Used(), r2->Used())*CPrjForm::iTROrdDir[i]; break;
+      case 1: Cmp=_stricmp(r1->Type(), r2->Type())*CPrjForm::iTROrdDir[i]; break;
+      case 2: Cmp=_stricmp(r1->Tag() , r2->Tag() )*CPrjForm::iTROrdDir[i]; break;
       case 3: Cmp=(r1->iGetCnt-r2->iGetCnt)*CPrjForm::iTROrdDir[i]; break;
       case 4: Cmp=(r1->iSetCnt-r2->iSetCnt)*CPrjForm::iTROrdDir[i]; break;
       }

@@ -247,7 +247,7 @@ BOOL CDBHelperBase::CheckFieldNames(char ** FieldNames)
       _bstr_t nm=m_pRS->Fields->GetItem(_variant_t((long)j))->Name;
       for (short i=0; i<ExpectedFldCnt && !Fnd; i++)
         {
-        if (stricmp(FieldNames[i], nm)==0)
+        if (_stricmp(FieldNames[i], nm)==0)
           {
           //if (FieldIndexes[i]>=0)
           //  return FALSE; //field name occurs twice!
@@ -285,7 +285,7 @@ BOOL CDBHelperBase::CheckOptionalFieldNames(char ** FieldNames)
       for (short j=0; j<FldCnt; j++)
         {
         //m_pRS->GetFieldInfo(j, fi);
-        if (stricmp(FieldNames[i], (const char*)m_pRS->Fields->GetItem(_variant_t((long)j))->Name)==0)
+        if (_stricmp(FieldNames[i], (const char*)m_pRS->Fields->GetItem(_variant_t((long)j))->Name)==0)
           {
           FieldIndexes[OldSize + i] = j;
           break;

@@ -3011,7 +3011,7 @@ static void AdjustFracsBU(double *Frac, double *Reqd, int N)
     OldTotal+=Frac[ss];
     }
 
-  const ReqdTotal=1;
+  const int ReqdTotal=1;
 
   for (int ss=0; ss<N; ss++)
     {
@@ -6829,7 +6829,7 @@ void SpModel::FindTFromHAtP(double ThePress)
 #ifndef _RELEASE
       if (CSpecieDataBase::gs_bDoTestEstTP && (EstT<0.001 || EstT>10001.0))
         {
-        static s_TestCount=0;
+        static int s_TestCount=0;
         if (s_TestCount++<3)
           {
         //  ASSERT_ALWAYS(FALSE, "Temperature Range in FindTFromHAtP!");
@@ -8754,7 +8754,7 @@ void SpModelOwner::ChangeShape(pSpShape &pShape, pchar ReqdShapeDesc)
   {
   TagObjClass* pOldClass=pShape ? pShape->Class() : NULL;
   pchar ReqdShape=NULL;
-  if (ReqdShapeDesc && stricmp(ReqdShapeDesc, pShape->ShortDesc())!=0)
+  if (ReqdShapeDesc && _stricmp(ReqdShapeDesc, pShape->ShortDesc())!=0)
     {
     Strng S;
     for (int i=0; ;i++)
@@ -8830,7 +8830,7 @@ void SpModelOwner::ChangeModel(SpModel * &pModel, pchar ReqdModelDesc, bool UseA
   pchar ReqdModel=NULL;
   if (fPermModel && pOldClass!=NULL)
     return ;//pOldClass;
-  if (ReqdModelDesc && stricmp(ReqdModelDesc, UseAsClassid?pModel->ClassId():pModel->ShortDesc())!=0)
+  if (ReqdModelDesc && _stricmp(ReqdModelDesc, UseAsClassid?pModel->ClassId():pModel->ShortDesc())!=0)
     {
     //    gs_SpModelCOMClasses.FindClass(
 

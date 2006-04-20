@@ -457,7 +457,7 @@ SparesList::SparesList(char * ClassName, dword MaxCount, dword Size)
   pNextList=NULL;
   StartupLock.Lock();
   SparesList *p=pFirstList, *p1=NULL;
-  while (p && stricmp(p->pClassName, ClassName)<0)
+  while (p && _stricmp(p->pClassName, ClassName)<0)
     {
     p1=p;
     p=p->pNextList;
@@ -990,9 +990,9 @@ flag StrMatchWildCard(pchar WildCard, pchar p)
   const int l = strcspn(WildCard, "*");
   const int tl = strlen(WildCard);
   if (l == tl)
-    return (stricmp(WildCard, p) == 0);
+    return (_stricmp(WildCard, p) == 0);
   else
-    return (strnicmp(WildCard, p, l) == 0);
+    return (_strnicmp(WildCard, p, l) == 0);
   }
 
 //---------------------------------------------------------------------------
@@ -1625,7 +1625,7 @@ flag Strng::TokenIs(pchar RqdToken)
   #endif
 
   pchar ps = Pos + strspn(Pos, " ");// start searched string after any initial spaces
-  if (strnicmp(ps, RqdToken, strlen(RqdToken)) == 0)
+  if (_strnicmp(ps, RqdToken, strlen(RqdToken)) == 0)
     {
     pchar pe = ps+strlen(RqdToken);
     if ((!isalnum(RqdToken[0])) || (!isalnum(pe[0])))
@@ -1907,7 +1907,7 @@ int Strng::FindI(pchar item)
       while (p && pos<=MaxSearchPos)
         {
         pos = (int)(p - Buff);
-        if (strnicmp(p, item, FindLen)==0)
+        if (_strnicmp(p, item, FindLen)==0)
           return pos;
         p = strchr(&Buff[++pos], c);
         }
@@ -2055,10 +2055,10 @@ char* Strng::MakeAlpha(long dw, int MinLen/*-1*/, int Base/*=26*/)
   ASSERT(Base>1);
   *this = "";
   long c = abs(dw);
-  div_t div_result;
+  ldiv_t div_result;
   while (c>0)
     {
-    div_result = div(c-1, Base);
+    div_result = ldiv(c-1, (long)Base);
     *this += (char)(65 + div_result.rem);
     c = div_result.quot;
     }
@@ -2282,7 +2282,7 @@ int Strng_Queue::Get(Strng &b)
 //---------------------------------------------------------------------------
 
 /*#F:Removes all the Strngs from the Strng Queue.*/
-Strng_Queue::Clear()
+int Strng_Queue::Clear()
   {
   pStrng p = qTail;
   while (p)
@@ -2694,7 +2694,7 @@ flag CSVector::Reverse()
   {
   if (m_Len>1)
     {
-    const long k = div(m_Len,2).quot;
+    const long k = div(m_Len,2L).quot;
     for (long i=0; i<k; i++)
       {
       Strng temp = m_d[i];
@@ -2732,7 +2732,7 @@ long CSVector::Find(char* s, flag CaseSensitive, long StartIndex)
           }
         else
           {
-          if (stricmp(m_d[i](), s)==0)
+          if (_stricmp(m_d[i](), s)==0)
             return i;
           }
         }
@@ -3540,7 +3540,7 @@ char* FnMakeFileRelative(char * RefPath, Strng &Fn, flag ExpContract)
       {
       if (*p=='\\')
         {
-        if (ll==2 && (strnicmp(p, ".\\", 2)==0))
+        if (ll==2 && (_strnicmp(p, ".\\", 2)==0))
           {
           }
         else
@@ -3574,10 +3574,10 @@ char * FnMakePathInLocal(Strng & Fn)
     int lPFAlias=strlen(PrjFilesAlias());
     int lRCAlias=strlen(PrjRmtCpyFilesAlias());
 
-    if (stricmp(Fn(), PrjFilesAlias())==0 ||
-        strnicmp(Fn(), PrjFilesAlias(), lPFAlias)==0 &&
-        ((lFn>=lPFAlias+3 && strnicmp(&Fn[lPFAlias], "..\\", 3)!=0) &&
-         (lFn>=lPFAlias+2 && strnicmp(&Fn[lPFAlias], "~\\", 2)!=0)))
+    if (_stricmp(Fn(), PrjFilesAlias())==0 ||
+        _strnicmp(Fn(), PrjFilesAlias(), lPFAlias)==0 &&
+        ((lFn>=lPFAlias+3 && _strnicmp(&Fn[lPFAlias], "..\\", 3)!=0) &&
+         (lFn>=lPFAlias+2 && _strnicmp(&Fn[lPFAlias], "~\\", 2)!=0)))
       {
       // resides in the original project
       Strng D;//, Path;
@@ -3590,11 +3590,11 @@ char * FnMakePathInLocal(Strng & Fn)
       { // in RmtCpy
       Strng D;
       D=PrjRmtCpyFiles();
-      if (strnicmp(Fn(), D(), D.Length())==0)
+      if (D()==NULL || _strnicmp(Fn(), D(), D.Length())==0)
         D=Fn();// Already in RmtCpy
-      else if (strnicmp(Fn(), PrjRmtCpyFilesAlias(), lRCAlias)==0)
+      else if (_strnicmp(Fn(), PrjRmtCpyFilesAlias(), lRCAlias)==0)
         D+=&Fn[lRCAlias];
-      else if (strnicmp(Fn(), PrjFilesAlias(), lPFAlias)==0)
+      else if (_strnicmp(Fn(), PrjFilesAlias(), lPFAlias)==0)
         D+=&Fn[lPFAlias];
       else
         D+=Fn;
@@ -4435,7 +4435,7 @@ Strng_List & FnLocalFilesDifferentList()  { return _FnLocalFilesDifferent; };
 
 bool FnLocalCompareFiles(LPCTSTR SymFullFileRmt, LPCTSTR FullFileRmt, LPCTSTR FullFileLcl)
   {
-  if (stricmp(FullFileRmt, FullFileLcl)==0)
+  if (_stricmp(FullFileRmt, FullFileLcl)==0)
     return true; //Rmt and Lcl files are the same
 
   Strng RCFolder=PrjRmtCpyFiles();
@@ -4977,7 +4977,7 @@ flag ClearFolder(LPCTSTR DirName, bool DeleteIt)
     return true;
   while (!AllDone)
     {
-    if (stricmp(FD.cFileName, ".")!=0 && stricmp(FD.cFileName, "..")!=0)
+    if (_stricmp(FD.cFileName, ".")!=0 && _stricmp(FD.cFileName, "..")!=0)
       {
       T=D;
       T+=FD.cFileName;
@@ -6576,13 +6576,13 @@ int CUpGrdCompletion::Complete(flag OK)
 flag SCDLibMakeCompatible(LPCTSTR MakeName)
   {
   flag OK;
-  if (stricmp(_MAKENAME, "Debug")==0)
+  if (_stricmp(_MAKENAME, "Debug")==0)
     {
-    OK=(stricmp(MakeName, _MAKENAME)==0);
+    OK=(_stricmp(MakeName, _MAKENAME)==0);
     }
   else
     {
-    OK=(stricmp(MakeName, "Release")==0) || (stricmp(MakeName, "Dbg_Release")==0);
+    OK=(_stricmp(MakeName, "Release")==0) || (_stricmp(MakeName, "Dbg_Release")==0);
     }
   return OK;
   };

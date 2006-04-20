@@ -410,19 +410,19 @@ int CNF_Contents::Parse(char *Fn)
         if (C[0])
           {
           double DimScl=(*(C[0])=='M') ? 0.001 : 0.0254;
-          if (stricmp(C[0], "DRAW")==0)
+          if (_stricmp(C[0], "DRAW")==0)
             {
             }
-          else if (stricmp(C[0], "LOAD")==0 || stricmp(C[0], "MLOAD")==0)
+          else if (_stricmp(C[0], "LOAD")==0 || _stricmp(C[0], "MLOAD")==0)
             {
             }
-          else if (stricmp(C[0], "LSET")==0)
+          else if (_stricmp(C[0], "LSET")==0)
             {
             }
-          else if (stricmp(C[0], "CODE")==0)
+          else if (_stricmp(C[0], "CODE")==0)
             {
             }
-          else if (stricmp(C[0], "PROP")==0 || stricmp(C[0], "MPROP")==0)
+          else if (_stricmp(C[0], "PROP")==0 || _stricmp(C[0], "MPROP")==0)
             {
             CNF_Comp & Cmp=m_Comps.GetTail();
             // Check Values 0,1,2
@@ -437,10 +437,10 @@ int CNF_Contents::Parse(char *Fn)
               default:;
               }
             }
-          else if (stricmp(C[0], "LNOD")==0 || stricmp(C[0], "MLNOD")==0)
+          else if (_stricmp(C[0], "LNOD")==0 || _stricmp(C[0], "MLNOD")==0)
             {
             }
-          else if (stricmp(C[0], "NODE")==0 || stricmp(C[0], "MNODE")==0)
+          else if (_stricmp(C[0], "NODE")==0 || _stricmp(C[0], "MNODE")==0)
             {
             CNF_Node N;
             N.m_lNo=SafeAtoL(C[1],-1);
@@ -467,7 +467,7 @@ int CNF_Contents::Parse(char *Fn)
             Cmp.m_sData2=C[4]?C[4]:"";
 
             for (int i=CNFT_Null+1; i<CNFT_Missing; i++)
-              if (stricmp(C[0], CmpInfo[i].Str)==0)
+              if (_stricmp(C[0], CmpInfo[i].Str)==0)
                 break;
             const CmpInfoStruct & CIS=CmpInfo[i];
             Cmp.m_bType=i;

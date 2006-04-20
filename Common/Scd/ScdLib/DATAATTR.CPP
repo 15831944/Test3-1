@@ -205,7 +205,7 @@ int FmtAttribute::FindFmt(char* pNm)
   {
   if (pNm)
     for (int i=0; i<DefinedFmts.GetSize(); i++)
-      if (stricmp(pNm, DefinedFmts[i].Name())==0)
+      if (_stricmp(pNm, DefinedFmts[i].Name())==0)
         return i;
   return -1;
   }
@@ -298,7 +298,7 @@ void FmtAttribute::AddToMenu(CMenu& Menu, flag WithOverride)//, char* CheckItem)
     int Flag=MF_STRING;
     if (i>0 && (DefinedFmts[i].cTyp!=DefinedFmts[i-1].cTyp))
       Flag|=MF_MENUBARBREAK;
-    if (strlen(DefinedFmts[i].Name())==lc && stricmp(Nm(), DefinedFmts[i].Name())==0)
+    if (strlen(DefinedFmts[i].Name())==lc && _stricmp(Nm(), DefinedFmts[i].Name())==0)
       Flag|=MF_CHECKED;
     Menu.AppendMenu(Flag, i+iCmdIndex, DefinedFmts[i].sNm());
     }
@@ -332,7 +332,7 @@ void FmtAttribute::AddToMenu(CMenu& Menu, flag WithOverride)//, char* CheckItem)
       AMenu.CreatePopupMenu();
       Menu.AppendMenu(MF_POPUP, (unsigned int)AMenu.m_hMenu, Heads[iMenuItem++]);
       }
-    if (strlen(DefinedFmts[i].Name())==lc && stricmp(Nm(), DefinedFmts[i].Name())==0)
+    if (strlen(DefinedFmts[i].Name())==lc && _stricmp(Nm(), DefinedFmts[i].Name())==0)
       {
       Menu.CheckMenuItem(iMenuItem-1, MF_BYPOSITION |MF_CHECKED);
       Flag|=MF_CHECKED;

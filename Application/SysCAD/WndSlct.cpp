@@ -473,9 +473,9 @@ void CWndSlctWnd::DoTheRefresh()
       LPCTSTR p=WL.Wnds[i].m_sName; 
       if (iPass==3)
         { // Filter out some windows
-        if (stricmp(p, "Command")==0 ||
-            stricmp(p, "Order of Evaluation")==0 ||
-            strnicmp(p, "SysCAD ", 7)==0)
+        if (_stricmp(p, "Command")==0 ||
+            _stricmp(p, "Order of Evaluation")==0 ||
+            _strnicmp(p, "SysCAD ", 7)==0)
           continue;
         }
 

@@ -809,7 +809,7 @@ DynamicSegment* Viewport::FindDynamicSegment(pchar Tag, pchar Var, byte DynTyp)
   DynamicSegment* pDS = dynm_list;
   while (pDS)
     {
-    if (DynTyp==pDS->GetDynTyp() && stricmp(Tag, pDS->GetTag())==0 && stricmp(Var, pDS->GetVar())==0)
+    if (DynTyp==pDS->GetDynTyp() && _stricmp(Tag, pDS->GetTag())==0 && _stricmp(Var, pDS->GetVar())==0)
       return pDS;
     pDS = pDS->GetNext();
     }
@@ -1067,7 +1067,7 @@ void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
 
     SetMapMode(my_HDC, MM_ANISOTROPIC);
     SIZE Size;
-    SetWindowExtEx(my_HDC, 2*m_XAspect*XScl, 2*m_YAspect*YScl, &Size);
+    SetWindowExtEx(my_HDC, int(2*m_XAspect*XScl), int(2*m_YAspect*YScl), &Size);
     POINT Pt;
     SetViewportOrgEx(my_HDC, 0, 0, &Pt);
     SetViewportExtEx(my_HDC, Rect.right, Rect.bottom, &Size);

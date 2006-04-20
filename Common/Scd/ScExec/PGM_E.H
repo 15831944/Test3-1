@@ -1039,7 +1039,7 @@ class GCFCBBuff
     char Buff[1024];
 
     inline char* Name() { return Buff; };
-    inline flag  NameIs(char* Nm) { return (stricmp(Buff, Nm)==0); };
+    inline flag  NameIs(char* Nm) { return (_stricmp(Buff, Nm)==0); };
     inline void* Data() { return &Buff[strlen(Buff)+1]; };
     inline flag  HasName() { return (Hd.nTotalLen-sizeof(Hd)>0); };
 

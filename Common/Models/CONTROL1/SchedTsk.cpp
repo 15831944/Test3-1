@@ -288,7 +288,7 @@ flag ScheduleTask::DataXchg(DataChangeBlk & DCB, TaggedObject* pObj)
         sRepEndTime = DCB.rpC;
         if (sRepEndTime.Len()==0)
           sRepEndTime = "*";
-        if (stricmp(sRepEndTime(), "*")!=0)
+        if (_stricmp(sRepEndTime(), "*")!=0)
           {
           double EndTime;
           if (!HMSDatetoSecs(sRepEndTime(), EndTime))
@@ -300,7 +300,7 @@ flag ScheduleTask::DataXchg(DataChangeBlk & DCB, TaggedObject* pObj)
             char bb[64];
             SecstoHMSDate(EndTime, bb);
             sRepEndTime = bb;
-            if (stricmp(sRepEndTime(), "?")==0)
+            if (_stricmp(sRepEndTime(), "?")==0)
               EndTimeErr = true;
             }
           }
@@ -366,8 +366,8 @@ void ScheduleTask::EvalDiscrete()
     if ((iScrSchedType==STT_Count) && iScrIterCnt>0)
       {
       sScrStatus = "Execute";
-      div_t div_result;
-      div_result = div(iScrIterCnt, iScrExecCnt);
+      ldiv_t div_result;
+      div_result = ldiv(iScrIterCnt, iScrExecCnt);
       if (div_result.rem==0)
         ExecScr();
       }
@@ -394,8 +394,8 @@ void ScheduleTask::EvalDiscrete()
     if ((iMcrSchedType==STT_Count) && iMcrIterCnt>0)
       {
       sMcrStatus = "Execute";
-      div_t div_result;
-      div_result = div(iMcrIterCnt, iMcrExecCnt);
+      ldiv_t div_result;
+      div_result = ldiv(iMcrIterCnt, iMcrExecCnt);
       if (div_result.rem==0)
         ExecMcr();
       }
@@ -422,8 +422,8 @@ void ScheduleTask::EvalDiscrete()
     if ((iRepSchedType==STT_Count) && iRepIterCnt>0)
       {
       sRepStatus = "Execute";
-      div_t div_result;
-      div_result = div(iRepIterCnt, iRepExecCnt);
+      ldiv_t div_result;
+      div_result = ldiv(iRepIterCnt, iRepExecCnt);
       if (div_result.rem==0)
         ExecRep();
       }
@@ -513,7 +513,7 @@ void ScheduleTask::ExecRep()
     sRepStatus = "No tags specified!";
     }
   double EndTime;
-  if (sRepEndTime.Len()==0 || stricmp(sRepEndTime(), "*")==0)
+  if (sRepEndTime.Len()==0 || _stricmp(sRepEndTime(), "*")==0)
     EndTime = gs_Exec.Time();
   else
     {
@@ -527,7 +527,7 @@ void ScheduleTask::ExecRep()
       char bb[64];
       SecstoHMSDate(EndTime, bb);
       sRepEndTime = bb;
-      if (stricmp(sRepEndTime(), "?")==0)
+      if (_stricmp(sRepEndTime(), "?")==0)
         {
         OK = false;
         sRepStatus = "Invalid end time!";

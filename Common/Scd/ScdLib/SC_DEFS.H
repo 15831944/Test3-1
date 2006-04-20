@@ -224,7 +224,7 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
           "Address: %08x\n\n"                                                   \
           "Thread terminating\n\n"                                              \
           "Push OK to exit SysCAD",                                             \
-      Where, e.Name, e.Code, e.getAddress);                                     \
+          Where, e.Name, e.Code, &MSysException::getAddress);                   \
                                                                                 \
     AfxMessageBox(S(), MB_OK);                                                  \
                                                                                 \

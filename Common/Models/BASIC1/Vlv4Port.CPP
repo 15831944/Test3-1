@@ -618,7 +618,7 @@ void C4PortValve::LoadVlvConfigurations()//LPCTSTR Fn)
 bool C4PortValve::TokenIs(CTokenParser &Tkns, LPCTSTR pRqdToken)
   {
   const char * p=Tkns.NextToken();
-  if (stricmp(p, pRqdToken)==0)
+  if (_stricmp(p, pRqdToken)==0)
     return True;
   Tkns.SetReturnSameToken();
   return False;
@@ -629,7 +629,7 @@ bool C4PortValve::TokenIs(CTokenParser &Tkns, LPCTSTR pRqdToken)
 bool C4PortValve::CheckToken(CTokenParser &Tkns, LPCTSTR pRqdToken)
   {
   const char * p=Tkns.NextToken();
-  if (stricmp(p, pRqdToken)!=0)
+  if (_stricmp(p, pRqdToken)!=0)
     {
     if (!m_bErrorFound)
       LogError(FullObjTag(), 0, "'%s' Unexpected while parsing %s", p, Tkns.GetWholeLine());

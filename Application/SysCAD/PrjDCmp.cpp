@@ -428,7 +428,7 @@ static flag ExpandObject(CXM_ObjectData *pObjData, CObjTagList& List, CObjTagMap
           TagStack[iTag]+=".";
           }
         TagStack[iTag]+=Tag.Str();
-        if (pPItem->Class() && stricmp(pPItem->Class(), "*")!=0)
+        if (pPItem->Class() && _stricmp(pPItem->Class(), "*")!=0)
           ClsStack[iTag]=pPItem->Class();
         else
           {
@@ -569,8 +569,8 @@ flag CPrjDataCompare::CompareObject(CObjTagList& List0, CObjTagMap & Map0,
             Typ0=tt_Double;
             Typ1=tt_Double;
             }
-          else if ((IsNumData(Typ0) && stricmp(pStr1, "*")==0) || 
-                   (IsNumData(Typ1) && stricmp(pStr0, "*")==0))
+          else if ((IsNumData(Typ0) && _stricmp(pStr1, "*")==0) || 
+                   (IsNumData(Typ1) && _stricmp(pStr0, "*")==0))
             {
             if (DoMessage(ClsTag0))
               fprintf(hRpt, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%i\"\n", pObj0->Str(), ClsTag0, "", pStr0, pStr1, "Disabled");
@@ -596,7 +596,7 @@ flag CPrjDataCompare::CompareObject(CObjTagList& List0, CObjTagMap & Map0,
             }
           else //if (IsFloatData(Typ0))
             {
-            if (stricmp(pStr0, pStr1)!=0 && DoMessage(ClsTag0))
+            if (_stricmp(pStr0, pStr1)!=0 && DoMessage(ClsTag0))
               fprintf(hRpt, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n", pObj0->Str(), ClsTag0, "", pStr0, pStr1, "");
             }
           }

@@ -2645,14 +2645,14 @@ void CReportsDlg::BuildList(CRPFLIArray& List, int& RepSelected, int& SetSelecte
       CReportsProfileLineInfo* pRPLI = new CReportsProfileLineInfo;
       pRPLI->Name = RepName;
       pRPLI->Type = PF.RdStr("Reports", TSect(), (char*)RepKey_GetValues);
-      if (stricmp(pRPLI->Type(), "Tag Values")==0)
+      if (_stricmp(pRPLI->Type(), "Tag Values")==0)
         pRPLI->Type = RepKey_GetValues;
       Strng RepFileName = PF.RdStr("Reports", FSect(), "x.xls");
       if (PF.RdLong("Reports", SSect(), 0) != 0)
         {
-        if (stricmp(pRPLI->Type(), RepKey_SetValues)==0)
+        if (_stricmp(pRPLI->Type(), RepKey_SetValues)==0)
           SetSelected = i;
-        else if (stricmp(pRPLI->Type(), RepKey_Macro)==0)
+        else if (_stricmp(pRPLI->Type(), RepKey_Macro)==0)
           MacroSelected = i;
         else
           RepSelected = i;
@@ -2749,13 +2749,13 @@ BOOL CReportsDlg::OnInitDialog()
     {
     CReportsProfileLineInfo* pRPLI = List[i];
     s.Set("%s\t%s\t%s\t%s", pRPLI->FileOnly(), pRPLI->Name(), pRPLI->Type(), pRPLI->Path());
-    if (stricmp(pRPLI->Type(), RepKey_SetValues)==0)
+    if (_stricmp(pRPLI->Type(), RepKey_SetValues)==0)
       {
       j = m_SetList.AddString(s());
       if (i==SetSelected)
         m_SetList.SetCurSel(j);
       }
-    else if (stricmp(pRPLI->Type(), RepKey_Macro)==0)
+    else if (_stricmp(pRPLI->Type(), RepKey_Macro)==0)
       {
       j = m_MacroList.AddString(s());
       if (i==MacroSelected)
@@ -2977,15 +2977,15 @@ void CReportsDlg::GenerateOne(int index)
   CString RepName, RepFilename, RepType;
   ParseLine(index, RepName, RepFilename, RepType);
   short Opt = SUB_REPORT_GETVALUES;
-  if (stricmp((const char*)RepType, RepKey_GetValues)==0)
+  if (_stricmp((const char*)RepType, RepKey_GetValues)==0)
     Opt = SUB_REPORT_GETVALUES;
-  else if (stricmp((const char*)RepType, RepKey_Trend)==0)
+  else if (_stricmp((const char*)RepType, RepKey_Trend)==0)
     Opt = SUB_REPORT_TREND;
-  else if (stricmp((const char*)RepType, RepKey_SetValues)==0)
+  else if (_stricmp((const char*)RepType, RepKey_SetValues)==0)
     Opt = SUB_REPORT_SETVALUES;
-  else if (stricmp((const char*)RepType, RepKey_Macro)==0)
+  else if (_stricmp((const char*)RepType, RepKey_Macro)==0)
     Opt = SUB_REPORT_MACRO;
-  else if (stricmp((const char*)RepType, RepKey_GenInfo)==0)
+  else if (_stricmp((const char*)RepType, RepKey_GenInfo)==0)
     Opt = SUB_REPORT_GENERALINFO;
   
   CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, (char*)(const char*)RepFilename, (char*)(const char*)RepName, Opt);

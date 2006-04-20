@@ -126,7 +126,7 @@ flag CGenSexn::Add (pchar generalSection, pchar subSection)
     {
     CGenSexn*pn = new CGenSexn ( generalSection, subSection  );
     CGenSexn*p=pFirstGen, *p1=NULL;
-    while (p && ((stricmp(p->genStrng(), generalSection)<0)))
+    while (p && ((_stricmp(p->genStrng(), generalSection)<0)))
       {
       p1=p;
       p=p->pNxt;
@@ -259,8 +259,8 @@ CDbgMngr::CDbgMngr(pchar pSection, pchar pGroup)
 
   CDbgMngr*p=pFirst, *p1=NULL;
   while (p && 
-         ((stricmp(p->sSection(), pSection)<0) ||
-         ((stricmp(p->sSection(), pSection)==0) && (stricmp(p->sGroup(), pGroup)<0))))
+         ((_stricmp(p->sSection(), pSection)<0) ||
+         ((_stricmp(p->sSection(), pSection)==0) && (_stricmp(p->sGroup(), pGroup)<0))))
     {
     p1=p;
     p=p->pNxt;
@@ -427,7 +427,7 @@ void CDbgMngr::LoadAll()
 #else
   NewDbgMngrFilename+="Scd_Dbg.ini"; // specifies the DbgMngrFile to be used  
 #endif
-  flag ForceLoad=stricmp(NewDbgMngrFilename(), DbgMngrFilename())!=0;
+  flag ForceLoad=_stricmp(NewDbgMngrFilename(), DbgMngrFilename())!=0;
   struct _stat FileTime;            //if used an unallocated pointer memory would be unstable
   long CurrentFileTime = 0;
   if ((_stat( DbgMngrFilename(), &FileTime )) == 0) // if file info obtained ie file exists

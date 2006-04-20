@@ -86,7 +86,7 @@ void CTagVwCmdBlk::OnActivateDoc(flag bActivate)
 
 void CTagVwCmdBlk::BuildVNT()
   {
-  SETVNT("SCRoll",      "Timebase",            "Start FBack BAck FOrward FForward End In Out Dialog Global Local",   1, (CmdFn)DoScroll,        EF_ERS);
+  SETVNT("SCRoll",      "Timebase",            "Start FBack BAck FOrward FForward End In Out Dialog Global Local",   1, (CmdFn)&CTagVwCmdBlk::DoScroll,        EF_ERS);
 
   SETCIS(ID_TREND_START,               "Scroll Timebase Start\r");
   SETCIS(ID_TREND_SCROLL_BACKWARD,     "Scroll Timebase Back\r");
@@ -871,7 +871,7 @@ flag CTagVwSlot::ChangeCnv(char* pNewCnv)
         {
         Strng s = sValue;
         s.Trim();
-        if (s.Length()>0 && stricmp("*", s())!=0)
+        if (s.Length()>0 && _stricmp("*", s())!=0)
           {
           double d = atof(s());
           d = Cnvs[Cnv.Index()]->Normal(d, Cnv.Text());
@@ -880,7 +880,7 @@ flag CTagVwSlot::ChangeCnv(char* pNewCnv)
           }
         s = sMinVal;
         s.Trim();
-        if (s.Length()>0 && stricmp("*", s())!=0)
+        if (s.Length()>0 && _stricmp("*", s())!=0)
           {
           double d = atof(s());
           d = Cnvs[Cnv.Index()]->Normal(d, Cnv.Text());
@@ -889,7 +889,7 @@ flag CTagVwSlot::ChangeCnv(char* pNewCnv)
           }
         s = sMaxVal;
         s.Trim();
-        if (s.Length()>0 && stricmp("*", s())!=0)
+        if (s.Length()>0 && _stricmp("*", s())!=0)
           {
           double d = atof(s());
           d = Cnvs[Cnv.Index()]->Normal(d, Cnv.Text());
@@ -1988,7 +1988,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
         if (C[i])
           XStrTrim(C[i], "\"\' \t");
         }
-      if ((stricmp(C[enType], "Tag")==0) || (stricmp(C[enType], "CtrlTag")==0) || (stricmp(C[enType], "Comment")==0) || (stricmp(C[enType], "Function")==0) )
+      if ((_stricmp(C[enType], "Tag")==0) || (_stricmp(C[enType], "CtrlTag")==0) || (_stricmp(C[enType], "Comment")==0) || (_stricmp(C[enType], "Function")==0) )
         {
         i = SafeAtoI(C[enLineNo], -1);
         DS.CheckSize(i+1);
@@ -1996,9 +1996,9 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
         if (i<0 || i>=NoSlots() || C[enLineNo]==NULL || strlen(C[enLineNo])==0)
           break;
         Strng Tg(C[enTag]);
-        if (stricmp(C[enType], "Comment")==0 && C[enTag][0]!='\'')
+        if (_stricmp(C[enType], "Comment")==0 && C[enTag][0]!='\'')
           Tg.Set("\'%s", C[enTag]);
-        DS[i].bCtrlSlot=(stricmp(C[enType], "CtrlTag")==0);
+        DS[i].bCtrlSlot=(_stricmp(C[enType], "CtrlTag")==0);
         DS[i].SetTag(Tg());
         DS[i].sMinVal=C[enMin];
         DS[i].sMaxVal=C[enMax];
@@ -2027,17 +2027,17 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
           DS[i].bScaleApplied=(byte)abs(S);
           }
         }
-      else if (stricmp(C[enType], "Other")==0)
+      else if (_stricmp(C[enType], "Other")==0)
         {
         nParms = ParseCSVFunction(C[enTag], f, Quote);
         if (nParms>0 && f[0])
           {
-          if (stricmp(f[0], "Counts")==0)
+          if (_stricmp(f[0], "Counts")==0)
             {
             DS.CheckSize(SafeAtoI(f[1], DS.GetSize()));
             Trend.CheckSize(SafeAtoI(f[2], Trend.GetSize()));
             }
-          else if (stricmp(f[0], "Labels")==0)
+          else if (_stricmp(f[0], "Labels")==0)
             {
             SD  = (SafeAtoI(f[1], SD)==0 ? 0 : 1);
             ST  = (SafeAtoI(f[2], ST)==0 ? 0 : 1);
@@ -2046,30 +2046,30 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             Dur = (SafeAtoI(f[5], Dur)==0 ? 0 : 1);
             HS  = (SafeAtoI(f[6], HS)==0 ? 0 : 1);
             }
-          else if (stricmp(f[0], "Grid")==0)
+          else if (_stricmp(f[0], "Grid")==0)
             {
             iNXGridDivs = SafeAtoI(f[1], iNXGridDivs);
             iNYGridDivs = SafeAtoI(f[2], iNXGridDivs);
             }
-          else if (stricmp(f[0], "Timebase")==0)
+          else if (_stricmp(f[0], "Timebase")==0)
             {
             TB.StartTime = SafeAtoF(f[1], GTB.StartTime);
             TB.EndTime = TB.StartTime+SafeAtoF(f[2], 1.0);
             TB.TrackingTime = (SafeAtoI(f[3], TB.TrackingTime)==0 ? 0 : 1);
             TB.AllowLatch = 0;
             }
-          else if (stricmp(f[0], "General")==0)
+          else if (_stricmp(f[0], "General")==0)
             {
             Scroll = (SafeAtoI(f[1], Scroll)==0 ? 0 : 1);
             }
-          else if (stricmp(f[0], "ColumnWidths")==0)
+          else if (_stricmp(f[0], "ColumnWidths")==0)
             {
             ColumnWidths[0]= SafeAtoI(f[1], ColumnWidths[0]);
             ColumnWidths[1]= SafeAtoI(f[2], ColumnWidths[1]);
             ColumnWidths[2]= SafeAtoI(f[3], ColumnWidths[2]);
             ColumnWidths[3]= SafeAtoI(f[4], ColumnWidths[3]);
             }
-          else if (stricmp(f[0], "BackGroundColour")==0)
+          else if (_stricmp(f[0], "BackGroundColour")==0)
             {
             int R=GetRValue(BackGroundColour);
             int G=GetGValue(BackGroundColour);
@@ -2079,7 +2079,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             B = SafeAtoI(f[3], B);
             BackGroundColour=RGB(R,G,B);
             }
-          else if (stricmp(f[0], "BorderColour")==0)
+          else if (_stricmp(f[0], "BorderColour")==0)
             {
             int R=GetRValue(BorderColour);
             int G=GetGValue(BorderColour);
@@ -2089,7 +2089,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             B = SafeAtoI(f[3], B);
             BorderColour=RGB(R,G,B);
             }
-          else if (stricmp(f[0], "GridColour")==0)
+          else if (_stricmp(f[0], "GridColour")==0)
             {
             int R=GetRValue(GridColour);
             int G=GetGValue(GridColour);
@@ -2099,7 +2099,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             B = SafeAtoI(f[3], B);
             GridColour=RGB(R,G,B);
             }
-          else if (stricmp(f[0], "CTimeColour")==0)
+          else if (_stricmp(f[0], "CTimeColour")==0)
             {
             int R=GetRValue(CTimeColour);
             int G=GetGValue(CTimeColour);
@@ -2109,7 +2109,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             B = SafeAtoI(f[3], B);
             CTimeColour=RGB(R,G,B);
             }
-          else if (stricmp(f[0], "DigColour")==0)
+          else if (_stricmp(f[0], "DigColour")==0)
             {
             int R=GetRValue(DigColour);
             int G=GetGValue(DigColour);
@@ -2119,7 +2119,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             B = SafeAtoI(f[3], B);
             DigColour=RGB(R,G,B);
             }
-          else if (stricmp(f[0], "TextColourBusy")==0)
+          else if (_stricmp(f[0], "TextColourBusy")==0)
             {
             int R=GetRValue(TextColourBusy);
             int G=GetGValue(TextColourBusy);
@@ -2129,7 +2129,7 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             B = SafeAtoI(f[3], B);
             TextColourBusy=RGB(R,G,B);
             }
-          else if (stricmp(f[0], "TextColourNotBusy")==0)
+          else if (_stricmp(f[0], "TextColourNotBusy")==0)
             {
             int R=GetRValue(TextColourNotBusy);
             int G=GetGValue(TextColourNotBusy);
@@ -3171,7 +3171,7 @@ int CTagVwDoc::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   for (int i=0; i<NoSlots(); i++)
     if (DS[i].TagValid() && (DS[i].sTag.Len()>=len))
       {
-      if (strnicmp(pOldTag, DS[i].sTag(), len)==0 && (DS[i].sTag.Len()==len || DS[i].sTag[len]=='.' || DS[i].sTag[len]==' '))
+      if (_strnicmp(pOldTag, DS[i].sTag(), len)==0 && (DS[i].sTag.Len()==len || DS[i].sTag[len]=='.' || DS[i].sTag[len]==' '))
         {
         Strng s = pNewTag;
         s += DS[i].sTag.Mid(len, 256);
@@ -3184,7 +3184,7 @@ int CTagVwDoc::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
         if (OpenPos>0)
           {
           int ClosePos = DS[i].sTag.Find(']');
-          if (ClosePos-OpenPos-1==len && strnicmp(pOldTag, &(DS[i].sTag[OpenPos+1]), len)==0)
+          if (ClosePos-OpenPos-1==len && _strnicmp(pOldTag, &(DS[i].sTag[OpenPos+1]), len)==0)
             {
             Strng s = DS[i].sTag.Left(OpenPos+1);
             s += pNewTag;
@@ -3227,7 +3227,7 @@ int CTagVwDoc::EO_DeleteTag(pchar pDelTag)
   for (int i=0; i<NoSlots(); i++)
     if (DS[i].TagValid() && (DS[i].sTag.Len()>=len))
       {
-      if (strnicmp(pDelTag, DS[i].sTag(), len)==0 && (DS[i].sTag.Len()==len || DS[i].sTag[len]=='.' || DS[i].sTag[len]==' '))
+      if (_strnicmp(pDelTag, DS[i].sTag(), len)==0 && (DS[i].sTag.Len()==len || DS[i].sTag[len]=='.' || DS[i].sTag[len]==' '))
         {
         DS[i].ConnectTag(this, TRUE);
         RetCode = EODT_DONE;

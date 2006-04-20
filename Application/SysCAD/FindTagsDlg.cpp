@@ -314,7 +314,7 @@ static int HpTagTest(void * p, void * q)
   {
   CFTItem * r1=(CFTItem*)p;
   CFTItem * r2=(CFTItem*)q;
-  int Cmp=stricmp(r1->m_sTag, r2->m_sTag);
+  int Cmp=_stricmp(r1->m_sTag, r2->m_sTag);
   //CArray<int,int> &SO = r1->m_Dlg.m_SortOrder;
   //int Cmp=0;
   //for (int i=0; i<ColCount; i++)
@@ -325,10 +325,10 @@ static int HpTagTest(void * p, void * q)
   //  int iDir=SO[i]>0?1:-1;
   //  switch (iCol)
   //    {
-  //    case ColNumberClass   : Cmp=stricmp(r1->m_pClassId->m_sClassId, r2->m_pClassId->m_sClassId); break;
-  //    case ColNumberCurrent : Cmp=stricmp(r1->m_sTag, r2->m_sCurrent); break;
-  //    //case ColNumberReplace : Cmp=stricmp(r1->GetString(ColNumberReplace), r2->GetString(ColNumberReplace)); break;
-  //    //case ColNumberStatus  : Cmp=stricmp(r1->m_sStatus, r2->m_sStatus); break;
+  //    case ColNumberClass   : Cmp=_stricmp(r1->m_pClassId->m_sClassId, r2->m_pClassId->m_sClassId); break;
+  //    case ColNumberCurrent : Cmp=_stricmp(r1->m_sTag, r2->m_sCurrent); break;
+  //    //case ColNumberReplace : Cmp=_stricmp(r1->GetString(ColNumberReplace), r2->GetString(ColNumberReplace)); break;
+  //    //case ColNumberStatus  : Cmp=_stricmp(r1->m_sStatus, r2->m_sStatus); break;
   //    }
   //  Cmp*=iDir;
   //  if (Cmp)
@@ -341,7 +341,7 @@ static int HpClassTest(void * p, void * q)
   {
   CFTClass * r1=(CFTClass*)p;
   CFTClass * r2=(CFTClass*)q;
-  int Cmp=stricmp(r1->m_sClassId, r2->m_sClassId);
+  int Cmp=_stricmp(r1->m_sClassId, r2->m_sClassId);
   return Cmp<0;
   }
 
@@ -349,7 +349,7 @@ static int HpPageTest(void * p, void * q)
   {
   CFTPage * r1=(CFTPage*)p;
   CFTPage * r2=(CFTPage*)q;
-  int Cmp=stricmp(r1->m_sPageId, r2->m_sPageId);
+  int Cmp=_stricmp(r1->m_sPageId, r2->m_sPageId);
   return Cmp<0;
   }
 

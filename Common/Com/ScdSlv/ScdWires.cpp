@@ -51,7 +51,7 @@ STDMETHODIMP CScdWires::Wire( VARIANT  WhichOne,  IScdWire * *  pItem)
         SCD_LclStr(Name, WhichOne.bstrVal);
         for (int i=0; i<m_Wires.GetSize(); i++)
           {
-          if (stricmp(m_Wires[i]->m_sTag, Name)==0)
+          if (_stricmp(m_Wires[i]->m_sTag, Name)==0)
             {
             IScdWire * p;
             ::CoCreateInstance(CLSID_ScdWire, NULL, CLSCTX_ALL, IID_IScdWire, (void**)&p);

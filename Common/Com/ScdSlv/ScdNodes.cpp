@@ -255,7 +255,7 @@ STDMETHODIMP CScdNodes::AddUnit(BSTR bsClass, BSTR bsTag, IScdNode ** pUnit)
 
     //DWORD LicCat = gs_License.LicCatagories();
     //DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-    //if (DataErr || stricmp(MInfo.Group(), FlwUnitGrp)!=0)
+    //if (DataErr || _stricmp(MInfo.Group(), FlwUnitGrp)!=0)
     //  return Scd.Return(eScdUC_BadLicense, "Class Type NOT allowed: AddUnit '%s' of type '%s' failed!", Tag, Class);
 
     //TODO this errcode needs to be sorted out
@@ -310,7 +310,7 @@ STDMETHODIMP CScdNodes::AddLink(BSTR bsClass, BSTR bsTag, BSTR bsSrcTag, BSTR bs
 
     //DWORD LicCat = gs_License.LicCatagories();
     //DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-    //if (DataErr || stricmp(MInfo.Group(), FlwLinkGrp)!=0)
+    //if (DataErr || _stricmp(MInfo.Group(), FlwLinkGrp)!=0)
     //  return ScdError(10, MyFnName, "Class Type NOT allowed: CreateLink '%s' of type '%s' failed!", Tag, Class);
 
     CString Src, Dst;
@@ -343,7 +343,7 @@ STDMETHODIMP CScdNodes::AddLink(BSTR bsClass, BSTR bsTag, BSTR bsSrcTag, BSTR bs
     //
     //    //DWORD LicCat = gs_License.LicCatagories();
     //    //DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-    //    //if (DataErr || stricmp(MInfo.Group(), FlwUnitGrp)!=0)
+    //    //if (DataErr || _stricmp(MInfo.Group(), FlwUnitGrp)!=0)
     //    //  return ScdError(3, MyFnName, "Class Type NOT allowed: AddUnit '%s' of type '%s' failed!", Tag, Class);
     //
     //    int err = gs_pSfeSrvr->FE_DoInsert(Class, Tag, NULL, NULL);
@@ -389,7 +389,7 @@ STDMETHODIMP CScdNodes::AddCable(BSTR bsClass, BSTR bsTag, BSTR bsSrcTag, BSTR b
 
     //DWORD LicCat = gs_License.LicCatagories();
     //DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-    //if (DataErr || stricmp(MInfo.Group(), FlwLinkGrp)!=0)
+    //if (DataErr || _stricmp(MInfo.Group(), FlwLinkGrp)!=0)
     //  return ScdError(10, MyFnName, "Class Type NOT allowed: CreateLink '%s' of type '%s' failed!", Tag, Class);
 
     CString Src, Dst;
@@ -432,7 +432,7 @@ STDMETHODIMP CScdNodes::AddCable(BSTR bsClass, BSTR bsTag, BSTR bsSrcTag, BSTR b
     //
     //    //DWORD LicCat = gs_License.LicCatagories();
     //    //DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-    //    //if (DataErr || stricmp(MInfo.Group(), FlwUnitGrp)!=0)
+    //    //if (DataErr || _stricmp(MInfo.Group(), FlwUnitGrp)!=0)
     //    //  return ScdError(3, MyFnName, "Class Type NOT allowed: AddUnit '%s' of type '%s' failed!", Tag, Class);
     //
     //    int err = gs_pSfeSrvr->FE_DoInsert(Class, Tag, NULL, NULL);

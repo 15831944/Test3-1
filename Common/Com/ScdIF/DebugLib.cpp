@@ -668,10 +668,10 @@ CGlblStopWatchList::CGlblStopWatchList()
 bool CGlblStopWatchList::GroupIndices(LPCTSTR Group, int &First, int &Last)
   {
   for (int i=0; i<GetSize(); i++)
-    if (stricmp(GetAt(i)->Group(), Group)==0)
+    if (_stricmp(GetAt(i)->Group(), Group)==0)
       {
       for (int j=i+1; j<GetSize(); j++)
-        if (stricmp(GetAt(j)->Group(), Group)!=0)
+        if (_stricmp(GetAt(j)->Group(), Group)!=0)
           break;
       First=i;
       Last=j-1;
@@ -690,14 +690,14 @@ double CGlblStopWatchList::TotalTime(int i)
   for (int j=i-1; j>=0; j--)
     {
     CGlblStopWatch &SWJ=*GetAt(j);
-    if (stricmp(SW.m_sGroup, SWJ.m_sGroup)!=0)
+    if (_stricmp(SW.m_sGroup, SWJ.m_sGroup)!=0)
       break;
     T+=SWJ.m_dTimeMem;
     }
   for (int j=i+1; j<GetSize(); j++)
     {
     CGlblStopWatch &SWJ=*GetAt(j);
-    if (stricmp(SW.m_sGroup, SWJ.m_sGroup)!=0)
+    if (_stricmp(SW.m_sGroup, SWJ.m_sGroup)!=0)
       break;
     T+=SWJ.m_dTimeMem;
     }
@@ -732,7 +732,7 @@ LPCTSTR DbgFltString(double V, int eSig, int fSig, int RqdLen) // only one call 
   dbglock();
 
   static CString Ss[20];
-  static iStrng=0;
+  static int iStrng=0;
   CString &S=Ss[iStrng];
   iStrng=(iStrng+1)%20;
   CString *pS=&S;

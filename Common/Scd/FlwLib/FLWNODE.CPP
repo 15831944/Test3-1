@@ -1141,7 +1141,7 @@ void CFlange::BumpMakeUpCnt()
 //const char* TstTag = "A723S501//A723H01";
 double CFlange::MakeUpReqd()
   {
-  /*if (stricmp(FullTag(), TstTag)==0 || stricmp(FullTag(), "A723H01//A723PRC05")==0)
+  /*if (_stricmp(FullTag(), TstTag)==0 || _stricmp(FullTag(), "A723H01//A723PRC05")==0)
     {
     Strng s(FullTag());
     int xx=0; }*/
@@ -1151,7 +1151,7 @@ double CFlange::MakeUpReqd()
 void CFlange::SetMakeUpReqd(double A)
   {
   iMkUpRqdOK=iMkUpOKNext;
-  /*if (stricmp(FullTag(), TstTag)==0 || stricmp(FullTag(), "A723H01//A723PRC05")==0)
+  /*if (_stricmp(FullTag(), TstTag)==0 || _stricmp(FullTag(), "A723H01//A723PRC05")==0)
     {
     Strng s(FullTag());
     int xx=0; }*/
@@ -1161,7 +1161,7 @@ void CFlange::SetMakeUpReqd(double A)
 void CFlange::ClrMakeUpReqd()
   {
   iMkUpRqdOK=0;
-  /*if (stricmp(FullTag(), TstTag)==0 || stricmp(FullTag(), "A723H01//A723PRC05")==0)
+  /*if (_stricmp(FullTag(), TstTag)==0 || _stricmp(FullTag(), "A723H01//A723PRC05")==0)
     {
     Strng s(FullTag());
     int xx=0; }*/
@@ -2051,7 +2051,7 @@ bool FlwNode::FixElectricalIO(IOAreaRec * FixedIOPts, CETermStripDefnArray & New
 
 void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
   {
-  const dbgSwapIOAreas=0;
+  const int dbgSwapIOAreas=0;
   int NXtra=0;
   bool InUse[MaxIOList+1];
   bool Retained[MaxIOList+1];
@@ -2085,7 +2085,7 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
     for (i=0; IOArea(i).pDesc!=NULL; i++)
       {
       for (int j=0; IOAreas_[j].pDesc!=NULL; j++)
-        if (stricmp(IOArea(i).pName, IOAreas_[j].pName)==0)
+        if (_stricmp(IOArea(i).pName, IOAreas_[j].pName)==0)
           {
           NewDescPos[i]=j;
           Retained[i]=true;
@@ -3273,8 +3273,8 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       //  {
       if (DCB.rpC)
         {
-        SetActive(stricmp(DCB.rpC, Inactive_Str)!=0 && stricmp(DCB.rpC, InactiveHold_Str)!=0);
-        SetActiveHold(stricmp(DCB.rpC, ActiveHold_Str)==0 || stricmp(DCB.rpC, InactiveHold_Str)==0);
+        SetActive(_stricmp(DCB.rpC, Inactive_Str)!=0 && _stricmp(DCB.rpC, InactiveHold_Str)!=0);
+        SetActiveHold(_stricmp(DCB.rpC, ActiveHold_Str)==0 || _stricmp(DCB.rpC, InactiveHold_Str)==0);
         StructureChanged(NULL);
         }
 
@@ -3290,7 +3290,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
         {
         if (DCB.rpC)
           {
-          SetActive(stricmp(DCB.rpC, Inactive_Str)!=0);
+          SetActive(_stricmp(DCB.rpC, Inactive_Str)!=0);
           StructureChanged(NULL);
           }
         }
@@ -3298,8 +3298,8 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
         {
         if (DCB.rpC)
           {
-          SetActive(stricmp(DCB.rpC, Inactive_Str)!=0 && stricmp(DCB.rpC, InactiveHold_Str)!=0);
-          SetActiveHold(stricmp(DCB.rpC, ActiveHold_Str)==0 || stricmp(DCB.rpC, InactiveHold_Str)==0);
+          SetActive(_stricmp(DCB.rpC, Inactive_Str)!=0 && _stricmp(DCB.rpC, InactiveHold_Str)!=0);
+          SetActiveHold(_stricmp(DCB.rpC, ActiveHold_Str)==0 || _stricmp(DCB.rpC, InactiveHold_Str)==0);
           StructureChanged(NULL);
           }
         DCB.pC="";
@@ -3732,7 +3732,7 @@ pchar FlwNode::FullIOTag(int OId, int Inx, TagUniqueness TU, flag InternalNodes,
                 }
               int lr=strlen(result);
               int lm=pIO->pMapTo ? strlen(pIO->pMapTo) : 0;
-              if (lm>0 && stricmp(&result[lr-lm], pIO->pMapTo)==0)
+              if (lm>0 && _stricmp(&result[lr-lm], pIO->pMapTo)==0)
                 {
                 strcpy(&result[lr-lm], pIO->pName);
                 break;
@@ -4886,7 +4886,7 @@ int FindIOAreaProc(pchar TagIn, IOAreaRec * al)
   if (al)
     {
     i = 0;
-    while (al[i].pName && al[i].pName[0] && stricmp(TagIn, al[i].pName))
+    while (al[i].pName && al[i].pName[0] && _stricmp(TagIn, al[i].pName))
       i++;
     if (al[i].pName == NULL || al[i].pName[0] == 0)
       i = -1;
@@ -9036,13 +9036,13 @@ void CMacroMdl::RegisterNode(CMacroMdlIOArray &MMIOs, const type_info * pNdType,
 //  {
 //
 //  for (int i=0; i<MMIOs.GetSize(); i++)
-//    if ((stricmp(pClassId, MMIOs[i].m_pClassId)==0) && ioId==MMIOs[i].m_ioId && fIsModel==MMIOs[i].m_fIsModel)
+//    if ((_stricmp(pClassId, MMIOs[i].m_pClassId)==0) && ioId==MMIOs[i].m_ioId && fIsModel==MMIOs[i].m_fIsModel)
 //      return True;
 //
 //  TagObjClass *pC=(TagObjClass*)TagObjClass::FindGroupId(FlwUnitGrp);
 //  while (pC)
 //    {
-//    if (stricmp(pClassId, pC->ClassId())==0)
+//    if (_stricmp(pClassId, pC->ClassId())==0)
 //      break;
 //    pC=pC->NextClassInGrp();
 //    }
@@ -9052,7 +9052,7 @@ void CMacroMdl::RegisterNode(CMacroMdlIOArray &MMIOs, const type_info * pNdType,
 //    pC=(TagObjClass*)TagObjClass::FindGroupId(FlwLinkGrp);
 //    while (pC)
 //      {
-//      if (stricmp(pClassId, pC->ClassId())==0)
+//      if (_stricmp(pClassId, pC->ClassId())==0)
 //        break;
 //      pC=pC->NextClassInGrp();
 //      }
@@ -9764,7 +9764,7 @@ void CDirectFlwIO::MakeAreaTag()
 
 //--------------------------------------------------------------------------
 
-static gs_DisableDirectFlwIO=false;
+static bool gs_DisableDirectFlwIO=false;
 
 flag CDirectFlwIO::GlobalConnect()
   {

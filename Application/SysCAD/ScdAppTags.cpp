@@ -70,7 +70,7 @@ STDMETHODIMP CScdAppTags::Add(BSTR bsTag)
 //
 //    //DWORD LicCat = gs_License.LicCatagories();
 //    //DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-//    //if (DataErr || stricmp(MInfo.Group(), FlwTagGrp)!=0)
+//    //if (DataErr || _stricmp(MInfo.Group(), FlwTagGrp)!=0)
 //    //  return Scd.Return(eScdAppTagsCode_BadLicense, "Class Type NOT allowed: AddTag '%s' of type '%s' failed!", Tag, Class);
 //
 //#pragma chFIXIT(this errcode needs to be sorted out)

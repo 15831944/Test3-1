@@ -803,7 +803,7 @@ void CGrfTagGroups::Reset(int Size/*=0*/)
 int CGrfTagGroups::Find(char* pGrpName)
   {
   for (int i=0; i<Groups.GetSize(); i++)
-    if (stricmp(pGrpName, Groups[i].Buffer())==0)
+    if (_stricmp(pGrpName, Groups[i].Buffer())==0)
       return i;
   return -1;
   }
@@ -1015,7 +1015,7 @@ int DLLVersionOK(char * FullName)
     NameOnly.FnNameExt(FullName);
     for (int i=0; KenwaltDLLs[i]; i++)
       {
-      if (stricmp(NameOnly(), KenwaltDLLs[i])==0)
+      if (_stricmp(NameOnly(), KenwaltDLLs[i])==0)
         break;
       }
     if (KenwaltDLLs[i]!=NULL)
@@ -1714,7 +1714,7 @@ void BuildFolderList(char* pRoot, int Depth, CStringArray& List)
     if (fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
       {
       for (int i=0; ExcludeDir[i]; i++)
-        if (stricmp(fd.cFileName, ExcludeDir[i])==0)
+        if (_stricmp(fd.cFileName, ExcludeDir[i])==0)
           break;
       if (ExcludeDir[i]==NULL)
         {
@@ -2761,7 +2761,7 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
     m_sCfgHome.FnCheckEndBSlash();
     };
 
-  if (stricmp(m_sCfgFiles(), m_sCfgHome())==0)
+  if (_stricmp(m_sCfgFiles(), m_sCfgHome())==0)
     {//change the CfgHome to one folder back...
     m_sCfgHome[m_sCfgHome.Len()-1]=' ';
     const int j = m_sCfgHome.ReverseFind('\\');
@@ -2784,7 +2784,7 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
     if (DllName())
       {
       DllName.FnCheckExtension("DLL");
-      if (stricmp("compres1.dll", DllName())!=0)
+      if (_stricmp("compres1.dll", DllName())!=0)
         {
         DllListSpecd=True;
         DLLs.Add(DllName);
@@ -3210,7 +3210,7 @@ flag CModelInfo::EnsureCfgIsInList()
     Strng Name(ScdPFUser.RdStr("Configuration", NameI(), ""));
     if (Name.GetLength()>0)
       {
-      if (stricmp(Name(), m_sCfgFile())==0)  
+      if (_stricmp(Name(), m_sCfgFile())==0)  
         return false; //cfg file is already in list
       }
     else
@@ -3449,7 +3449,7 @@ flag SFEMdlLibArray::LoadFlwDLLs(Strng &DLLList, pchar FlwLibTag, pchar EO_Locat
 
     Strng Fn(DLL);
     Fn.FnNameExt();
-    if (stricmp(Fn(), "FLWLIB.DLL")!=0) //don't try load flwlib again
+    if (_stricmp(Fn(), "FLWLIB.DLL")!=0) //don't try load flwlib again
       {
       CDlgBusy::SetLine(3, "%s : %s", CfgName(), DLL());
 

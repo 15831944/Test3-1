@@ -333,7 +333,7 @@ void MN_Surge::SetState(eScdMdlStateActs RqdState)
       m_PrevQmL=0.0;
       break;
     case MSA_EmptySpillTargets:
-      if (stricmp(FullObjTag(), "Floor")==0)
+      if (_stricmp(FullObjTag(), "Floor")==0)
         Contents.SetState(MSA_Empty);
       break;
     case MSA_SteadyState:

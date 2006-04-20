@@ -3,6 +3,7 @@
 //      but are changed infrequently
 
 //**************************************************************************
+
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 #define _WIN32_DCOM
 

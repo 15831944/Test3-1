@@ -30,12 +30,12 @@ enum TokenTypes { //list of possible token types that may be returned
   TokString };
 #endif
 
-const TP_MaxLineLen = 4096;       //maximum length of a line in the files being parsed
-const TP_MaxBackLineLen = 512;
-const TP_MaxWhiteSpace = 16;
-const TP_MaxSeperators = 128;
-const TP_MaxIncludeFiles = 8;     //maximum "depth" of include files
-const TP_MaxTtlIncludeFiles = 32; //maximum number of include files used
+const int TP_MaxLineLen = 4096;       //maximum length of a line in the files being parsed
+const int TP_MaxBackLineLen = 512;
+const int TP_MaxWhiteSpace = 16;
+const int TP_MaxSeperators = 128;
+const int TP_MaxIncludeFiles = 8;     //maximum "depth" of include files
+const int TP_MaxTtlIncludeFiles = 32; //maximum number of include files used
 //#E
 
 //----------------------------------------------------------------------------

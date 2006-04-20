@@ -424,7 +424,7 @@ class LocalInterfacePointer
     CComPtr<Itf> m_pItf; // temp imported pointer
   // prevent misuse
     LocalInterfacePointer(const LocalInterfacePointer&);
-    operator = (const LocalInterfacePointer&);
+    LocalInterfacePointer & operator = (const LocalInterfacePointer&);
   public:
     LocalInterfacePointer(const GlobalInterfacePointer<Itf, 
       piid>& rhs)//,HRESULT& hr)

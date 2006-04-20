@@ -633,7 +633,7 @@ static char THIS_FILE[] = __FILE__;
 //      {
 //      pchar pCfg, pCfgName;
 //      ProfFn.GetProfItem(pBuff, pCfg, pCfgName);
-//      if(stricmp(pCfgName, Name())!=0)
+//      if(_stricmp(pCfgName, Name())!=0)
 //        pBuff2+=1+sprintf(pBuff2, "Cfg=%s", pCfgName);
 //      }
 //    }
@@ -753,36 +753,36 @@ static char THIS_FILE[] = __FILE__;
 //        if (NeedItem)
 //          ProfFn.GetProfItem(pBuff, pName, pExp);
 //        NeedItem=1;
-//        if(stricmp(pName, "CnvMethod")==0) EqnCB().Cfg.iConvergeMeth=(byte)atol(pExp);
-//        else if(stricmp(pName, "Eps_Rel")==0) EqnCB().Cfg.dEps_Rel = atof(pExp);
-//        else if(stricmp(pName, "Eps_Abs")==0) EqnCB().Cfg.dEps_Abs = atof(pExp);
-//        else if(stricmp(pName, "Damping")==0) EqnCB().Cfg.dDamping = atof(pExp);
-//        else if(stricmp(pName, "MaxIters")==0) EqnCB().Cfg.nMaxIters = atol(pExp);
-//        else if(stricmp(pName, "OptMethod")==0) UpdateOptMeth(Range(CMM_None, (byte)atol(pExp), CMM_Last));
-//        else if (stricmp(pName, "Target_Exp")==0)
+//        if(_stricmp(pName, "CnvMethod")==0) EqnCB().Cfg.iConvergeMeth=(byte)atol(pExp);
+//        else if(_stricmp(pName, "Eps_Rel")==0) EqnCB().Cfg.dEps_Rel = atof(pExp);
+//        else if(_stricmp(pName, "Eps_Abs")==0) EqnCB().Cfg.dEps_Abs = atof(pExp);
+//        else if(_stricmp(pName, "Damping")==0) EqnCB().Cfg.dDamping = atof(pExp);
+//        else if(_stricmp(pName, "MaxIters")==0) EqnCB().Cfg.nMaxIters = atol(pExp);
+//        else if(_stricmp(pName, "OptMethod")==0) UpdateOptMeth(Range(CMM_None, (byte)atol(pExp), CMM_Last));
+//        else if (_stricmp(pName, "Target_Exp")==0)
 //          {
 //          Slv().Targets.SetSize(Slv().Targets.GetSize()+1);
 //          CTarget &Trg=Slv().Targets[Slv().Targets.GetSize()-1];
 //          Trg.Exp.sExp=pExp;
 //          //g.Val.sExp="";
 //          ProfFn.GetProfItem(pBuff, pName, pExp);
-//          if(stricmp(pName, "Target_Val")==0)
+//          if(_stricmp(pName, "Target_Val")==0)
 //            Trg.Val.sExp=pExp;
 //          else
 //            NeedItem=0;
 //          }
-//        else if(stricmp(pName, "Parm_Exp")==0)
+//        else if(_stricmp(pName, "Parm_Exp")==0)
 //          {
 //          Slv().Params.SetSize(Slv().Params.GetSize()+1);
 //          CParam &Prm=Slv().Params[Slv().Params.GetSize()-1];
 //          Prm.Exp.sExp=pExp;
 //          ProfFn.GetProfItem(pBuff, pName, pExp);
-//          if(stricmp(pName, "Parm_Min")==0)
+//          if(_stricmp(pName, "Parm_Min")==0)
 //            {
 //            Prm.Min.sExp=pExp;
 //            ProfFn.GetProfItem(pBuff, pName, pExp);
 //            }
-//          if(stricmp(pName, "Parm_Max")==0)
+//          if(_stricmp(pName, "Parm_Max")==0)
 //            Prm.Max.sExp=pExp;
 //          else
 //            NeedItem=0;

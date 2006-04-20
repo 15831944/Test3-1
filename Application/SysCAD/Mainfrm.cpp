@@ -644,11 +644,19 @@ void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
       Txt+= " - Dynamic Flow";
     else
       Txt+= " - Dynamic Full";
-
+#if _MSC_VER >=1400
+      Txt+= " [VS2005]";
+#endif
     UpdateFrameTitleForDocument(Txt());
     }
   else
-    UpdateFrameTitleForDocument(NULL);
+    {
+    Strng Txt;
+#if _MSC_VER >=1400
+    Txt+= " [VS2005]";
+#endif
+    UpdateFrameTitleForDocument(Txt());
+    }
   };
 
 //---------------------------------------------------------------------------
@@ -2004,7 +2012,7 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
         {//refresh the access window
         for (int i=0; i<NAccessWnds; i++)
           {
-          if (gs_AccessWnds.CurTag(i) && (pTxt==NULL || stricmp(pTxt, gs_AccessWnds.CurTag(i))==0))
+          if (gs_AccessWnds.CurTag(i) && (pTxt==NULL || _stricmp(pTxt, gs_AccessWnds.CurTag(i))==0))
             gs_AccessWnds.PostMessage(i, WMU_ACCREFRESHSAVE);
           }
         break;

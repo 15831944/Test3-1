@@ -159,7 +159,7 @@ CPSDTestData::eTestDataType CPSDTestData::GetTypeStringType(const Strng &s)
           return (eTestDataType)DDB_TestDataType[i].m_lVal;
       }
 
-    return(eTestDataType::eTest_WeightPercent);
+    return(eTest_WeightPercent);
   }
 
 //===========================================================================

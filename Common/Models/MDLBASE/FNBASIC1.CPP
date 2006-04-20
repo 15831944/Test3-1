@@ -122,18 +122,18 @@ int CFn1_TSpline::SetParm(char *Fld, flag Start)
   byte Type;
   double Slp;
 
-  if ((stricmp(Fld, "Sig")==0) && p!=NULL)
+  if ((_stricmp(Fld, "Sig")==0) && p!=NULL)
     {
     Slp=SafeAtoF(p);
     Spln.SetSigma(Slp);
     return 1;
     }
 
-  if (stricmp(Fld, "Free")==0)
+  if (_stricmp(Fld, "Free")==0)
     Type=TSpline::iSlopeFree;
-  else if (stricmp(Fld, "Seg")==0)
+  else if (_stricmp(Fld, "Seg")==0)
     Type=TSpline::iSlopeOfSegment;
-  else if ((stricmp(Fld, "Slp")==0) && p!=NULL)
+  else if ((_stricmp(Fld, "Slp")==0) && p!=NULL)
     {
     Type=TSpline::iSlopeSpecd;
     Slp=SafeAtoF(p);

@@ -349,7 +349,7 @@ int CZipFile::UnZipIt()
 
   for (int i=0; i<m_nCmds; i++)
     {
-    if (stricmp(m_Cmds[i], "-x")==0)
+    if (_stricmp(m_Cmds[i], "-x")==0)
       {
       i++;
       break;

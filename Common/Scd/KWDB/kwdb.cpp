@@ -2370,7 +2370,7 @@ void KWDatabase::ConvertToType( LPCTSTR strValue, ADOX::DataTypeEnum nType, COle
     {
     case ADODB::adBoolean:
       var.ChangeType(VT_BOOL);
-      if (stricmp(strValue, _T("YES"))==0 || stricmp(strValue, _T("TRUE"))==0 ||
+      if (_stricmp(strValue, _T("YES"))==0 || _stricmp(strValue, _T("TRUE"))==0 ||
         strcmp(strValue, _T("1"))==0 )
         var = static_cast<VARIANT_BOOL>(TRUE);
       else

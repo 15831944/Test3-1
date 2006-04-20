@@ -408,7 +408,7 @@ flag CMMFlashTrain::PBInitialise()
     if (Nd.m_pNdVarTypeId)
       if (*Nd.m_pNdVarTypeId==typeid(CFT_Flash))
         {
-        if (TagLvl<2 && stricmp(pFNd->Tag(), T1())<0)
+        if (TagLvl<2 && _stricmp(pFNd->Tag(), T1())<0)
           {
           T1=pFNd->Tag();
           TagLvl=2;
@@ -423,7 +423,7 @@ flag CMMFlashTrain::PBInitialise()
         }
       else if (*Nd.m_pNdVarTypeId==typeid(CFT_Condenser))
         {
-        if (TagLvl<1 && stricmp(pFNd->Tag(), T1())<0)
+        if (TagLvl<1 && _stricmp(pFNd->Tag(), T1())<0)
           {
           T1=pFNd->Tag();
           TagLvl=1;
@@ -438,7 +438,7 @@ flag CMMFlashTrain::PBInitialise()
         }
       else if (*Nd.m_pNdVarTypeId==typeid(CFT_Mixer))
         {
-        if (TagLvl<0 && stricmp(pFNd->Tag(), T1())<0)
+        if (TagLvl<0 && _stricmp(pFNd->Tag(), T1())<0)
           {
           T1=pFNd->Tag();
           TagLvl=0;

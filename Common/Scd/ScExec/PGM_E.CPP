@@ -130,7 +130,7 @@ long GCTagVar::m_nXRefNumber=0;
 
 GCTagVar::GCTagVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags)
   {
-static
+//static
   //m_bDynTag=0;
   m_bTempDynTag=0;
   m_bOnlyAllowGet=0;
@@ -1158,12 +1158,12 @@ void GCPushClassRefIns::Exec(GCInsMngr & IB)
     int pos = IB.m_iClassRefPos;
     IB.m_iClassRefPos++;
     pGCVar pVar = IB.m_pClassRefStack[pos]->m_pVarList->Find(m_Index);
-    while (pos>0 && (pVar==NULL || pVar->WhatAmI()!=VarClass || stricmp(pVar->Name(), m_pClassVar->Name())!=0))
+    while (pos>0 && (pVar==NULL || pVar->WhatAmI()!=VarClass || _stricmp(pVar->Name(), m_pClassVar->Name())!=0))
       {
       pos--;
       pVar = IB.m_pClassRefStack[pos]->m_pVarList->Find(m_Index);
       }
-    ASSERT(pVar && pVar->WhatAmI()==VarClass && stricmp(pVar->Name(), m_pClassVar->Name())==0);
+    ASSERT(pVar && pVar->WhatAmI()==VarClass && _stricmp(pVar->Name(), m_pClassVar->Name())==0);
     //it is remotely possible for all the above conditions to be met, but pVar points to the wrong class?
     IB.m_pClassRefStack[IB.m_iClassRefPos] = (pGCClassVar)pVar;
     }
@@ -1359,7 +1359,7 @@ pGCIns GCWatchDef::Construct(GCInsMngr & IB)
           int index0 = -1;
           int index1 = -1;
           bool DoAll = false;
-          if (stricmp(Tkn,"All") == 0)
+          if (_stricmp(Tkn,"All") == 0)
             {
             DoAll = true;
             strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
@@ -2565,7 +2565,7 @@ pGCVar GCVar::Find(pchar pName)
   pGCVar pVar = this;
   pchar pDot = strchr(pName, '.');
   size_t n = pDot ? pDot-pName : strlen(pName);
-  while (pVar && (strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+  while (pVar && (strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
     pVar = pVar->m_pNext;
   if (pVar)
     {
@@ -2586,7 +2586,7 @@ pGCVar GCVar::Find(pchar pName, short &Index)
     {
     pchar pDot = strchr(pName, '.');
     size_t n = pDot-pName;
-    while (pVar && (strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+    while (pVar && (strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
       {
       Index++;
       pVar = pVar->m_pNext;
@@ -2602,7 +2602,7 @@ pGCVar GCVar::Find(pchar pName, short &Index)
   else
     {
     size_t n = strlen(pName);
-    while (pVar && (strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+    while (pVar && (strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
       {
       Index++;
       pVar = pVar->m_pNext;
@@ -2633,7 +2633,7 @@ pGCVar GCVar::FindTag(pchar pName)
   {
   pGCVar pVar = this;
   size_t n = strlen(pName);
-  while (pVar && (strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+  while (pVar && (strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
     pVar = pVar->m_pNext;
   return pVar;
   }
@@ -2644,7 +2644,7 @@ pGCVar GCVar::FindTagByType(pchar pName, char TagType)
   {
   pGCVar pVar = this;
   size_t n = strlen(pName);
-  while (pVar && (pVar->WhatAmI()!=TagType || strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+  while (pVar && (pVar->WhatAmI()!=TagType || strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
     pVar = pVar->m_pNext;
   return pVar;
   }
@@ -2656,7 +2656,7 @@ pGCClassVar GCVar::FindClass(pchar pName)
   pGCVar pVar = this;
   pchar pDot = strchr(pName, '.');
   size_t n = pDot ? pDot-pName : strlen(pName);
-  while (pVar && (strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+  while (pVar && (strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
     pVar = pVar->m_pNext;
   if (pVar)
     {
@@ -2678,7 +2678,7 @@ pGCClassVar GCVar::FindClass(pchar pName, short& ClassIndex)
   pchar pDot = strchr(pName, '.');
   size_t n = pDot ? pDot-pName : strlen(pName);
   ClassIndex = 0;
-  while (pVar && (strlen(pVar->m_pName)!=n || strnicmp(pName,pVar->m_pName,n) != 0))
+  while (pVar && (strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
     {
     pVar = pVar->m_pNext;
     ClassIndex++;
@@ -4367,8 +4367,8 @@ flag GCInsMngr::ParseTerminalIO()
   Tkn[sizeof(Tkn)-1] = 0;
 
   strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
-  bool IsIn=stricmp(Tkn, "In")==0;
-  bool IsOut=stricmp(Tkn, "Out")==0;
+  bool IsIn=_stricmp(Tkn, "In")==0;
+  bool IsOut=_stricmp(Tkn, "Out")==0;
   if (IsIn || IsOut)
     {
     // Get Name
@@ -4381,7 +4381,7 @@ flag GCInsMngr::ParseTerminalIO()
       CString WireName[100],S;
       long N=0;
       strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
-      if (stricmp(Tkn, "[")==0)
+      if (_stricmp(Tkn, "[")==0)
         {
         strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
         while (m_pH->m_pTknParser->GetCurTokenType()==TokAlpha ||
@@ -4394,10 +4394,10 @@ flag GCInsMngr::ParseTerminalIO()
           N++;
           strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
 
-          if (stricmp(Tkn, ",")==0)
+          if (_stricmp(Tkn, ",")==0)
             strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
           };
-        if (stricmp(Tkn, "]")!=0)
+        if (_stricmp(Tkn, "]")!=0)
           Err(ErrBuild, 159);
         }
       else
@@ -4460,7 +4460,7 @@ void GCInsMngr::Build( pGCDef pExitDef,
   while (!m_pH->m_pTknParser->AtEnd() && (pDef != pExitDef))
     {
     strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
-    if (stricmp(Tkn, "TerminalStrip")==0)
+    if (_stricmp(Tkn, "TerminalStrip")==0)
       {
       ParseTerminalIO();
       strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
@@ -5214,7 +5214,7 @@ int GCInsMngr::Execute(CGExecContext &ECtx, LPCTSTR TriggerName, CNodeElectrics 
         {
         for (GCVar * pFn=m_pVarList; pFn; pFn=pFn->Next())
           {
-          if (stricmp(pFn->Name(), TriggerName)==0)
+          if (_stricmp(pFn->Name(), TriggerName)==0)
             {
             // create a call
             char LclMem[256];
@@ -6712,7 +6712,7 @@ void GCInsMngr::DoConstructClass()
       if (pVar &&
           (pVar->WhatAmI() == VarClass) &&
           (pVar->m_flags & VarClassDefn) &&
-          (stricmp(m_pH->m_pClassVar->Name(),pVar->Name())!=0))
+          (_stricmp(m_pH->m_pClassVar->Name(),pVar->Name())!=0))
         {
         GCClassDec.m_pClassVar = (pGCClassVar)pVar;
         DoConstructVars(GCClassDec, pClassVar->m_pVarList); //construct instances of classes
@@ -6904,9 +6904,9 @@ GCDef::GCDef(pchar Name_)
 pGCDef GCDef::Find(pchar pName)
   {
   pGCDef ptr = GCDef::m_pFirst;
-  while ((stricmp(pName,ptr->m_pName) != 0) && (ptr->m_pNext != NULL))
+  while ((_stricmp(pName,ptr->m_pName) != 0) && (ptr->m_pNext != NULL))
     ptr = ptr->m_pNext;
-  if (stricmp(pName,ptr->m_pName) == 0)
+  if (_stricmp(pName,ptr->m_pName) == 0)
     return ptr;
   return NULL;
   }

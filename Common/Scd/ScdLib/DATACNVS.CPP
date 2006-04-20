@@ -694,9 +694,9 @@ BOOL CCnvsMngr::ParseCnvLineADO(int LineNo, CStringArray& Values, BOOL LogErrs, 
         LogError("Cnvs", 0, "Valid ScaleOffset expected. Line %u:(%s  %s  %s)", LineNo, (const char*)Values[denCnv], (const char*)Values[denUnit], (const char*)Values[denSclOff]);
       return False;
       }
-    if (stricmp(f[0], "SIUnit")==0)
+    if (_stricmp(f[0], "SIUnit")==0)
       Primary = True;
-    else if (stricmp(f[0], "scloff")==0)
+    else if (_stricmp(f[0], "scloff")==0)
       {
       if (nParms<2 || nParms>3)
         {
@@ -840,9 +840,9 @@ BOOL CCnvsMngr::ParseCnvLineADO(int LineNo, CStringArray& Values, BOOL LogErrs, 
 //        LogError("Cnvs", 0, "scd_cnvs file line %u: Valid ScaleOffset expected", LineNo);
 //      return False;
 //      }
-//    if (stricmp(f[0],"SIUnit")==0)
+//    if (_stricmp(f[0],"SIUnit")==0)
 //      Primary = True;
-//    else if (stricmp(f[0],"scloff")==0)
+//    else if (_stricmp(f[0],"scloff")==0)
 //      {
 //      if (nParms!=2)
 //        {
@@ -874,7 +874,7 @@ BOOL CCnvsMngr::ParseCnvLineADO(int LineNo, CStringArray& Values, BOOL LogErrs, 
 //        LogError("Cnvs", 0, "scd_cnvs file line %u: Valid MinMax expected", LineNo);
 //      return False;
 //      }
-//    if (stricmp(f[0],"MinMax")==0)
+//    if (_stricmp(f[0],"MinMax")==0)
 //      {
 //      if (nParms!=2)
 //        {

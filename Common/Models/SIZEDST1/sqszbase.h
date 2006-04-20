@@ -338,7 +338,7 @@ class DllImportExport CSD_ColumnOptArray : public CArray <CSD_ColumnOpt, CSD_Col
 
 // ==========================================================================
 
-const MaxCSDMeasurements=40;
+const int MaxCSDMeasurements=40;
 
 enum eSDMeasTypes 
   {

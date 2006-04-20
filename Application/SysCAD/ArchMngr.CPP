@@ -218,32 +218,32 @@ bool CArchiveTrigger::Parse(LPCTSTR Cfg)
       char *p;
       while ((p=strchr(c[i],' '))!=NULL)
         memmove(p, p+1, strlen(p+1));
-      if (strnicmp(c[i], "delta=", 6)==0)
+      if (_strnicmp(c[i], "delta=", 6)==0)
         {
         m_bAny=true;
         m_dDeltaAny=fabs(SafeAtoF(c[1]+6,1));
         }
-      else if (strnicmp(c[i], "rise=", 5)==0)
+      else if (_strnicmp(c[i], "rise=", 5)==0)
         {
         m_bRise=true;
         m_dDeltaRise=fabs(SafeAtoF(c[1]+5,1));
         }
-      else if (strnicmp(c[i], "fall=", 5)==0)
+      else if (_strnicmp(c[i], "fall=", 5)==0)
         {
         m_bFall=true;
         m_dDeltaFall=fabs(SafeAtoF(c[1]+5,1));
         }
-      else if (stricmp(c[i], "delta")==0)
+      else if (_stricmp(c[i], "delta")==0)
         {
         m_bAny=true;
         m_dDeltaAny=1;
         }
-      else if (stricmp(c[i], "rise")==0)
+      else if (_stricmp(c[i], "rise")==0)
         {
         m_bRise=true;
         m_dDeltaRise=1;
         }
-      else if (stricmp(c[i], "fall")==0)
+      else if (_stricmp(c[i], "fall")==0)
         {
         m_bFall=true;
         m_dDeltaFall=1;
@@ -654,7 +654,7 @@ CArchiveManager::CArchiveManager() :
     {
     long n=m_Inputs.GetSize();
     for (long i=0; i<n; i++)
-      if (stricmp(m_Inputs[i]->m_sScdMTag, Tag)==0)
+      if (_stricmp(m_Inputs[i]->m_sScdMTag, Tag)==0)
         return i;
     return -1;
     };
@@ -665,7 +665,7 @@ CArchiveManager::CArchiveManager() :
     { 
     long n=m_Fields.GetSize();
     for (long i=0; i<n; i++)
-      if (stricmp(m_Fields[i]->m_sScdMTag, Tag)==0)
+      if (_stricmp(m_Fields[i]->m_sScdMTag, Tag)==0)
         return i;
     return -1;
     };
@@ -1190,12 +1190,12 @@ CArchiveManager::CArchiveManager() :
     for (int i=1; i<=nParms; i++)
       {
       byte iFn=ADBFn_Null;
-      if      (stricmp(f[i], ADBFuncTags[ADBFn_Instant])==0)      iFn=ADBFn_Instant;
-      else if (stricmp(f[i], ADBFuncTags[ADBFn_Minimum])==0)      iFn=ADBFn_Minimum;
-      else if (stricmp(f[i], ADBFuncTags[ADBFn_Maximum])==0)      iFn=ADBFn_Maximum;
-      else if (stricmp(f[i], ADBFuncTags[ADBFn_PeriodAvg])==0)    iFn=ADBFn_PeriodAvg;
-      //else if (stricmp(f[i], ADBFuncTags[ADBFn_RunningAvg])==0) iFn=ADBFn_RunningAvg
-      else if (stricmp(f[i], ADBFuncTags[ADBFn_Count])==0)        iFn=ADBFn_Count;
+      if      (_stricmp(f[i], ADBFuncTags[ADBFn_Instant])==0)      iFn=ADBFn_Instant;
+      else if (_stricmp(f[i], ADBFuncTags[ADBFn_Minimum])==0)      iFn=ADBFn_Minimum;
+      else if (_stricmp(f[i], ADBFuncTags[ADBFn_Maximum])==0)      iFn=ADBFn_Maximum;
+      else if (_stricmp(f[i], ADBFuncTags[ADBFn_PeriodAvg])==0)    iFn=ADBFn_PeriodAvg;
+      //else if (_stricmp(f[i], ADBFuncTags[ADBFn_RunningAvg])==0) iFn=ADBFn_RunningAvg
+      else if (_stricmp(f[i], ADBFuncTags[ADBFn_Count])==0)        iFn=ADBFn_Count;
       else
         {
         LogError(ArcName, 0, "%s has Invalid Function Spec: %s", Tag, f[i]);
@@ -2149,7 +2149,7 @@ CArchiveManager::CArchiveManager() :
       const int j = m_Inputs.GetSize();
       for (int i=0; i<j; i++)
         {
-        if (strnicmp(pOldTag, m_Inputs[i]->m_sScdMTag, len)==0)
+        if (_strnicmp(pOldTag, m_Inputs[i]->m_sScdMTag, len)==0)
           return EOCT_ARCNOTALLOWED;
         }
       }
@@ -2165,7 +2165,7 @@ CArchiveManager::CArchiveManager() :
     for (int i=0; i<j; i++)
       {
       CArchiveInput * pInput = m_Inputs[i];
-      if (strnicmp(pOldTag, pInput->m_sScdMTag, len)==0)
+      if (_strnicmp(pOldTag, pInput->m_sScdMTag, len)==0)
         {
         ASSERT(!gs_Exec.Busy());
         LogWarning(ArcName, 0, "Changing tag '%s' affects archiver", pOldTag);
@@ -2226,7 +2226,7 @@ CArchiveManager::CArchiveManager() :
           break;
         case RQ_Tags: //return info on all tags based on request criteria...
         case RQ_TagsConns: //return info on all tags based on request criteria...
-          //if (Info.Count()<m_Items.GetSize() && (Rqst.pGroup==NULL || stricmp(Rqst.pGroup, ArcName)==0))
+          //if (Info.Count()<m_Items.GetSize() && (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, ArcName)==0))
           //  {
           //  Info.sData = m_Items[Info.Count()]->m_sTag();
           //  return true;

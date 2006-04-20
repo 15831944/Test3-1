@@ -41,7 +41,7 @@ const pchar CReaction::GroupName="Specie_Reaction";
 flag CRCTTokenFile::TokenIs(const char * pRqdToken)
   {
   const char * p=NextToken();
-  if (stricmp(p, pRqdToken)==0)
+  if (_stricmp(p, pRqdToken)==0)
     return True;
   m_ReturnSameToken= True;
   return False;
@@ -52,7 +52,7 @@ flag CRCTTokenFile::TokenIs(const char * pRqdToken)
 void CRCTTokenFile::CheckToken(const char * pRqdToken)
   {
   const char * p=NextToken();
-  if (stricmp(p, pRqdToken)!=0)
+  if (_stricmp(p, pRqdToken)!=0)
     CReactionBlock::Error(&RB, 'B', 1);
   }
 

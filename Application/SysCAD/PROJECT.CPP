@@ -378,7 +378,7 @@ int CWindowLists::BuildSingleList(BOOL Sorted/*=false*/)
   if (Sorted)
     {
     for (i=1; i<Wnds.GetSize(); i++)
-      for (int j=i; j>=1 && (stricmp(Wnds[j].m_sName, Wnds[j-1].m_sName)<0); j--)
+      for (int j=i; j>=1 && (_stricmp(Wnds[j].m_sName, Wnds[j-1].m_sName)<0); j--)
         {
         CTopWindowInfo temp = Wnds[j-1];
         Wnds[j-1] = Wnds[j];
@@ -416,19 +416,19 @@ int CWindowLists::BuildZOrder(BOOL Sorted)
 
 int CWindowLists::Find(byte Type, char* pTitle)
   {
-  if (strnicmp(pTitle, "Messages:", 9)==0)
+  if (_strnicmp(pTitle, "Messages:", 9)==0)
     {
     for (int i=0; i<Wnds.GetSize(); i++)
       {
       if ((Wnds[i].iType==0) &&
-           strnicmp(pTitle, (const char*)(Wnds[i].m_sName), 9)==0)
+           _strnicmp(pTitle, (const char*)(Wnds[i].m_sName), 9)==0)
         return i;
       }
     }
   for (int i=0; i<Wnds.GetSize(); i++)
     {
     if ((Wnds[i].iType==Type || Type==255) &&
-         stricmp(pTitle, (const char*)(Wnds[i].m_sName))==0)
+         _stricmp(pTitle, (const char*)(Wnds[i].m_sName))==0)
       return i;
     }
   return -1;
@@ -440,7 +440,7 @@ int CWindowLists::Find(char* pTitle)
   {
   for (int i=0; i<Wnds.GetSize(); i++)
     {
-    if (stricmp(pTitle, (const char*)(Wnds[i].m_sName))==0)
+    if (_stricmp(pTitle, (const char*)(Wnds[i].m_sName))==0)
       return i;
     }
   return -1;
@@ -585,7 +585,7 @@ CDocument* CWindowLists::GetGrfWndByName(char* pTitle)
       {
       CDocument* pDoc = (CDocument*)(ScdApp()->Template(iGraphTemplate).GetNextDoc(Pos));
       int len2 = strlen(pDoc->GetTitle());
-      if ((len==len2 || len==len2-4) && strnicmp(pTitle, pDoc->GetTitle(), len)==0)
+      if ((len==len2 || len==len2-4) && _strnicmp(pTitle, pDoc->GetTitle(), len)==0)
         {
         return pDoc;
         }
@@ -802,7 +802,7 @@ int CPrjFilesLists::Find(char* pName)
   {
   for (int i=0; i<GetSize(); i++)
     {
-    if (stricmp(pName, pExecFiles[i]->sExecName())==0)
+    if (_stricmp(pName, pExecFiles[i]->sExecName())==0)
       return i;
     }
   return -1;
@@ -815,7 +815,7 @@ int CPrjFilesLists::FindFile(char* pFileName)
   for (int i=0; i<GetSize(); i++)
     {
     for (int j=0; j<pExecFiles[i]->Files.GetSize(); j++)
-      if (stricmp(pExecFiles[i]->Files[j].sFilename(), pFileName)==0)
+      if (_stricmp(pExecFiles[i]->Files[j].sFilename(), pFileName)==0)
         return i;
     }
   return -1;
@@ -886,10 +886,10 @@ void CPrjFilesLists::CheckUnknown()
           const int l = NameExt.Len();
           for (int j=0; j<KnownExtCnt; j++)
             {
-            if (stricmp(OtherExts(j), Ext())==0)
+            if (_stricmp(OtherExts(j), Ext())==0)
               break;
             const int el = strlen(OtherExtsEx(j));
-            if (el && l>el && strnicmp(OtherExtsEx(j), &NameExt[l-el], el)==0)
+            if (el && l>el && _strnicmp(OtherExtsEx(j), &NameExt[l-el], el)==0)
               break;
             }
           OtherFiles[j].Add(S);
@@ -909,9 +909,9 @@ void CPrjFilesLists::CheckUnknown()
 //
 //===========================================================================
 
-const VersionChar='-';
-const ComStartChar='(';
-const ComEndChar=')';
+const int VersionChar='-';
+const int ComStartChar='(';
+const int ComEndChar=')';
 
 static char* SwingFileNameToDest(Strng & Fn, Strng & OrigPrj, Strng & DestPrj)
   {
@@ -1814,7 +1814,7 @@ flag Project::PutFrameInfo(CProfINIFile& PF, CWnd* w, pchar Section, Strng& s, C
     int MaxX=CR.right-(2*GetSystemMetrics(SM_CXSIZE)+GetSystemMetrics(SM_CXSIZEFRAME));
     int MaxY=CR.bottom-(GetSystemMetrics(SM_CYSIZE)+GetSystemMetrics(SM_CYSIZEFRAME));
 
-    if (stricmp((const char*)Txt, s())==0 && WndListLen<128)
+    if (_stricmp((const char*)Txt, s())==0 && WndListLen<128)
       {
       WndList[WndListLen++] = w;
       //TRACE("--%s--\n",pName);
@@ -1952,7 +1952,7 @@ void Project::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, fl
     char Section[256];
     sprintf(Section, "Window%i", i);
     Strng s = PF.RdStr(Section, "Name", "");
-    if (s.Length()>0 && stricmp(pWindowName, s())==0)
+    if (s.Length()>0 && _stricmp(pWindowName, s())==0)
       {
       CWnd* w = pWnd;
       if (!(w->IsKindOf(RUNTIME_CLASS(CFrameWnd))))// || w->IsKindOf(RUNTIME_CLASS(CDialog))))
@@ -2143,11 +2143,11 @@ int Project::FixSnapshot(pchar FixFn)
     int nToks=ParseTokenList(Buff, C, " \t\n");
     if (nToks>=3)
       {
-      if (stricmp(C[0], "end")==0)
+      if (_stricmp(C[0], "end")==0)
         goto Done;
-      else if (stricmp(C[0], "set")==0)
+      else if (_stricmp(C[0], "set")==0)
         {
-        if (stricmp(C[2], "=")==0)
+        if (_stricmp(C[2], "=")==0)
           C[2]=C[3];
 
         Strng WrkTag, WrkCnvTxt;
@@ -2207,7 +2207,7 @@ flag Project::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
   #if WITHZIP
   Strng Ext;
   Ext.FnExt(Fn());
-  bool IsZip = (Ext.Len() && stricmp(Ext(), ".zip")==0);
+  bool IsZip = (Ext.Len() && _stricmp(Ext(), ".zip")==0);
   #else
   bool IsZip = false;
   #endif
@@ -2272,7 +2272,7 @@ flag Project::DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArray
   if (Fn.Length()==0)
     return false;
   Ext.FnExt(Fn());
-  if (Ext.Len()==0 || stricmp(Ext(), (DoSnapShot ? ".snp" : ".scn"))!=0)
+  if (Ext.Len()==0 || _stricmp(Ext(), (DoSnapShot ? ".snp" : ".scn"))!=0)
     {//force correct extension
     Fn = Fn.Left(Fn.Len()-Ext.Len());
     Fn += (DoSnapShot ? ".snp" : ".scn");
@@ -2898,7 +2898,7 @@ void Project::CloseDDEManager(BOOL ForExit/*=FALSE*/)
 
 BOOL Project::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoErrDlg/*=FALSE*/, BOOL FindNext/*=FALSE*/)
   {//if pTag is specified assume search is in graphics
-  char * pGrfPg=strchr(pTag, '\t');
+  char * pGrfPg=(char*)strchr(pTag, '\t');
   if (pGrfPg)
     {
     *pGrfPg++=0;
@@ -2974,7 +2974,7 @@ BOOL Project::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoE
             CGrfDoc* pGrfDoc = (CGrfDoc*)(ScdApp()->Template(iTemp).GetNextDoc(Pos));
             if (pGrfDoc->GCB.bGrfLoadDefered)
               DocNotLoadedCnt++;
-            else if (!pGrfPg || stricmp(pGrfDoc->GetTitle(), pGrfPg)==0)
+            else if (!pGrfPg || _stricmp(pGrfDoc->GetTitle(), pGrfPg)==0)
               {
               pGrfDoc->OnActivate(true);  // direct cmds to this document
       //        Cmd.Set("mark entity goto %s \r", sFindTag());
@@ -3907,9 +3907,9 @@ void Project::LoadHelpFileList()
             Strng Name(Tkn());
             if (Name.Length()<=4)
               Name += ".HLP";
-            else if (stricmp(&Name[Name.Length()-4], ".HLP")!=0)
+            else if (_stricmp(&Name[Name.Length()-4], ".HLP")!=0)
               Name += ".HLP";
-            KwMdlHelpSpecd = (KwMdlHelpSpecd || (stricmp(Name(), "Models.hlp")==0));
+            KwMdlHelpSpecd = (KwMdlHelpSpecd || (_stricmp(Name(), "Models.hlp")==0));
             //Strng HelpPath;
             //HelpPath.Set("%sBIN\\%s", RootDirectory(), Name());
             // Does This Help file Exist
@@ -3962,7 +3962,7 @@ flag Project::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
   #if WithRmtFile
   const int MaxCnt = 7;
   #else
-  const MaxCnt = 6;
+  const int MaxCnt = 6;
   #endif
   switch (Rqst.RQ_Type)
     {
@@ -4134,7 +4134,7 @@ int CScreenSaverInfo::FindWindow(CString& s)
   const char* p = (const char*)s;
   for (int i=0; i<Windows.GetSize(); i++)
     {
-    if (stricmp((const char*)(Windows.GetAt(i)), p)==0)
+    if (_stricmp((const char*)(Windows.GetAt(i)), p)==0)
       return i;
     }
   return -1;
@@ -5240,7 +5240,7 @@ flag Project::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL 
     Strng HDir(CfgHome());
     /*//rather than check for cfgfiles in path, perhaps test if specie mdb is in this folder...?
     const int HDirLen = HDir.Len();
-    if (HDirLen>9 && strnicmp(&HDir[HDirLen-9], "CfgFiles", 7)==0)
+    if (HDirLen>9 && _strnicmp(&HDir[HDirLen-9], "CfgFiles", 7)==0)
       HDir=HDir.Left(HDirLen-9);*/
     #endif
 
@@ -5598,8 +5598,8 @@ flag Project::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL 
   Strng NewPrjFolderName(NewPrjFolder);
   NewPrjFolder.FnCheckEndBSlash();
 
-  //flag NewPrj = (PrjFile()==NULL || (stricmp(PrjFile(), NewPrjFile())!=0));
-  m_Save.m_bIsNewPrj = (PrjFile()==NULL || (stricmp(PrjFile(), NewPrjFile())!=0));
+  //flag NewPrj = (PrjFile()==NULL || (_stricmp(PrjFile(), NewPrjFile())!=0));
+  m_Save.m_bIsNewPrj = (PrjFile()==NULL || (_stricmp(PrjFile(), NewPrjFile())!=0));
   Strng OrigPrjFiles=PrjFiles();
   Strng OrigPrjFile=PrjFile();
 
@@ -6151,13 +6151,13 @@ static void DoRdStorage(WCHAR * WFn, IStoragePtr & spRtStorage, LPCTSTR Path)
         P.FnCheckEndBSlash();
         if (PrjFileVerNo()<31)
           {
-          if (stricmp(Name, OldCfgFolderName())==0)
+          if (_stricmp(Name, OldCfgFolderName())==0)
             strcpy(Name, DefCfgFolderName());
-          else if (stricmp(Name, OldCfgDBFileName())==0)
+          else if (_stricmp(Name, OldCfgDBFileName())==0)
             strcpy(Name, CfgDBFileName());
-          else if (stricmp(Name, OldBCfgFolderName())==0)
+          else if (_stricmp(Name, OldBCfgFolderName())==0)
             strcpy(Name, BCfgFolderName());
-          else if (stricmp(Name, OldBCfgDBFileName())==0)
+          else if (_stricmp(Name, OldBCfgDBFileName())==0)
             strcpy(Name, BCfgDBFileName());
           }
         P+=Name;
@@ -7044,7 +7044,7 @@ flag Project::OnSave(pchar pPrjPath)
     gs_pPrj->bDoingSaveAsNV=true;
     }
 
-  if (gs_pPrj->bDoingSaveAs || (pPrjPath && stricmp(PrjFile(), pPrjPath)!=0))
+  if (gs_pPrj->bDoingSaveAs || (pPrjPath && _stricmp(PrjFile(), pPrjPath)!=0))
     {
     bCmdSuccess = OnProjectSaveas(pPrjPath);
     if (bCmdSuccess)

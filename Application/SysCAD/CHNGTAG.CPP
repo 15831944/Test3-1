@@ -144,7 +144,7 @@ void CChangeTag::OnOK()
           gs_AccessWnds.CloseWnd(-1);
           for (int a=0; a<NAccessWnds; a++)
             {
-            if (!fCallAccess && gs_AccessWnds.CurTag(a) && strlen(gs_AccessWnds.CurTag(a))>0 && stricmp(gs_AccessWnds.CurTag(a), OldTag())==0)
+            if (!fCallAccess && gs_AccessWnds.CurTag(a) && strlen(gs_AccessWnds.CurTag(a))>0 && _stricmp(gs_AccessWnds.CurTag(a), OldTag())==0)
               {
               fCallAccess = 1;
               break;
@@ -894,7 +894,7 @@ void CCopyTagBlkDlg::BuildOtherUnitsList()
     CModelTypeList* pTagList = List[index];
     for (i=0; i<pTagList->GetSize(); i++)
       {
-      if (iSrc!=ACB_Selected || stricmp(sTag(), pTagList->GetTagAt(i))!=0)
+      if (iSrc!=ACB_Selected || _stricmp(sTag(), pTagList->GetTagAt(i))!=0)
         OtherUnitsList.AddString(pTagList->GetTagAt(i));
       }
     }
@@ -1074,7 +1074,7 @@ void CCopyTagBlkDlg::OnSelchangeCpymodel()
     {
     CString Txt;
     m_ModelCombo.GetLBText(i, Txt);
-    if (stricmp((const char*)Txt, sModelClass())!=0)
+    if (_stricmp((const char*)Txt, sModelClass())!=0)
       {
       sModelClass = (const char*)Txt;
       NewBlocks.SetSize(0);
@@ -1103,7 +1103,7 @@ void CCopyTagBlkDlg::OnSelchangeCpyunit()
     {
     CString Txt;
     m_UnitsCombo.GetLBText(i, Txt);
-    if (stricmp((const char*)Txt, sTag())!=0)
+    if (_stricmp((const char*)Txt, sTag())!=0)
       {
       sTag = (const char*)Txt;
       BuildTree();

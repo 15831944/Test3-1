@@ -65,6 +65,8 @@
 #include ".\syscad.h"
 #include ".\opcsrvrwrapper.h"
 
+#include "optoff.h"
+
 #import "c:\program files\common files\system\ado\msado15.dll" rename("EOF", "adEOF") implementation_only
 #import "c:\Program Files\Common Files\system\ado\msadox.dll" implementation_only
 
@@ -310,7 +312,7 @@ class CMyCommandLineInfo : public CCommandLineInfo
       };
     virtual void ParseParam(const char* pszParam, BOOL bFlag, BOOL bLast)
       {
-      if (stricmp(pszParam, "RegServer")==0)
+      if (_stricmp(pszParam, "RegServer")==0)
          m_bRegServer=true;
       else
         CCommandLineInfo::ParseParam(pszParam, bFlag, bLast);
@@ -524,6 +526,9 @@ BOOL CSysCADApp::InitInstStartup()
 #if !DotNet
       {"msvcrtd.dll",  6,0,8797,0,  false},//sp5
       {"mfc42d.dll",   6,0,8665,0,  false},//sp5
+#elif _MSC_VER >= 1400 
+      {"msvcr80d.dll",  8,0,50727,42,  true },//.net
+      {"mfc80d.dll",    8,0,50727,42,  true },//.net
 #else
       {"msvcr71d.dll", 7,0,9466,0,  false},//.net
       {"mfc71d.dll",   7,0,9466,0,  false},//.net
@@ -531,9 +536,12 @@ BOOL CSysCADApp::InitInstStartup()
 #else
       //{"msvcrt.dll",   6,0,8337,0,  true },//sp3
       //{"mfc42.dll",    6,0,8267,0,  false},//sp3
-#if !DotNet
+#if (!DotNet)
       {"msvcrt.dll",   6,0,8797,0,  true },//sp5
       {"mfc42.dll",    6,0,8665,0,  true},//sp5
+#elif (_MSC_VER >= 1400)
+      {"msvcr80.dll",  8,0,50727,42,  true },//.net
+      {"mfc80.dll",    8,0,50727,42,  true },//.net
 #else
       {"msvcr71.dll",  7,0,0x24fa,0,  true },//.net
       {"mfc71.dll",    7,0,0x24fa,0,  true },//.net
@@ -553,8 +561,12 @@ BOOL CSysCADApp::InitInstStartup()
   _set_new_handler( handle_program_memory_depletion );
   _set_new_mode(1);
 
+#if (_MSC_VER>=1400)
+  // 1016 = MAX_ALLOC_DATA_SIZE will fail if larger
+  _set_sbh_threshold((size_t)1016);
+#else
   _set_sbh_threshold((size_t)1920);
-
+#endif
 
   SET_CRT_DEBUG_FIELD( _CRTDBG_LEAK_CHECK_DF );
 
@@ -831,7 +843,7 @@ BOOL CSysCADApp::InitInstFolder()
       }
     Strng DirTest(WDir);
     DirTest += "SysCAD.EXE";
-    if (wdirlen>4 && stricmp(&WDir[wdirlen-4], "bin\\")==0 && FileExists(DirTest()))
+    if (wdirlen>4 && _stricmp(&WDir[wdirlen-4], "bin\\")==0 && FileExists(DirTest()))
       WDir[wdirlen-4] = 0;
     SetStartupDirectory(WDir);
     }
@@ -2833,7 +2845,7 @@ BOOL CSysCADApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlag
     else
       {
       strInitialDir = ProgFiles();
-      if (stricmp(strInitialDir.Right(4), "bin\\")==0)
+      if (_stricmp(strInitialDir.Right(4), "bin\\")==0)
         strInitialDir = strInitialDir.Left(strInitialDir.GetLength()-4);
       }
     strTitle += " Project";

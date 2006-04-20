@@ -32,7 +32,7 @@
 
 //const unsigned char HstVerNo = 3;
 const unsigned char HstVerNo = 4; //changed 28/11/95
-const HD_SlotSpace = 512;
+const int HD_SlotSpace = 512;
 
 //=========================================================================
 

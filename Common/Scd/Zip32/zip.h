@@ -56,6 +56,7 @@ freely, subject to the following restrictions:
 #ifndef __zip_h
 #define __zip_h 1
 
+
 #define ZIP   /* for crypt.c:  include zip password functions, not unzip */
 
 /* Set up portability */

@@ -275,7 +275,7 @@ inline REAL       &Attr_Rotation(DXF_ENTITY e) {return DXF_ATTRIB_ROT_ANG(e);};
 inline REAL       *Attr_Pt(DXF_ENTITY e) {return DXF_ATTRIB_PT(e);};
 inline int        &Attr_AFlags(DXF_ENTITY e) {return DXF_ATTRIB_AFLAGS(e);};
 inline int        &Attr_GFlags(DXF_ENTITY e) {return DXF_ATTRIB_GFLAGS(e);};
-inline flag        Attr_Is(DXF_ENTITY e, pchar RqdTag) {return (stricmp(DXF_ATTRIB_TAG_GET(e), RqdTag)==0);};
+inline flag        Attr_Is(DXF_ENTITY e, pchar RqdTag) {return (_stricmp(DXF_ATTRIB_TAG_GET(e), RqdTag)==0);};
 inline void        Show_Attr(DXF_ENTITY e) {DXF_ATTRIB_AFLAGS(e) &= ~Attrib_InVisible;};
 inline void        Hide_Attr(DXF_ENTITY e) {DXF_ATTRIB_AFLAGS(e) |= Attrib_InVisible;};
 inline REAL       *Insert_BasePt(DXF_ENTITY Ins) {return DXF_INSERT_PT(Ins);};
@@ -780,7 +780,7 @@ for ( it=DML_FIRST(list) ; \
 for ( l=layers ; \
      ( l != NULL); \
        l = l->Nxt ) \
-  if (LayName == NULL || (l->Def!=NULL && strnicmp(LayName, DXF_LAYER_NAME_GET(l->Def), strlen(LayName)) == 0))
+  if (LayName == NULL || (l->Def!=NULL && _strnicmp(LayName, DXF_LAYER_NAME_GET(l->Def), strlen(LayName)) == 0))
 
 #define WALK_BLOCKS(blocks, b) \
 for ( b=blocks ; \

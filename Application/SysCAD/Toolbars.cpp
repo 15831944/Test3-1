@@ -1170,7 +1170,7 @@ CDynToolBar* CToolBarMngr::AddToolbar(char* pTitle, BOOL CanConfigure, UINT Wind
 CDynToolBar* CToolBarMngr::FindToolbar(char* pTitle)
   {
   for (int i=0; i<MaxDynToolBars; i++)
-    if (ToolBars[i] && stricmp((const char*)ToolBars[i]->sTitle, pTitle)==0)
+    if (ToolBars[i] && _stricmp((const char*)ToolBars[i]->sTitle, pTitle)==0)
       return ToolBars[i];
   return NULL;
   }
@@ -1190,7 +1190,7 @@ int CToolBarMngr::FindToolbar(CDynToolBar* pTB)
 void CToolBarMngr::RemoveToolbar(char* pTitle)
   {
   for (int i=0; i<MaxDynToolBars; i++)
-    if (ToolBars[i] && stricmp((const char*)ToolBars[i]->sTitle, pTitle)==0)
+    if (ToolBars[i] && _stricmp((const char*)ToolBars[i]->sTitle, pTitle)==0)
       {
       delete ToolBars[i];
       ToolBars[i] = NULL;

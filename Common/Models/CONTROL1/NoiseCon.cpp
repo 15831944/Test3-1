@@ -65,8 +65,8 @@ double NoiseConInfo::ExecIns()
     Noise.GetVal();
   else
     {
-    div_t div_result;
-    div_result = div(iIterCnt, iExecCnt);
+    ldiv_t div_result;
+    div_result = ldiv(iIterCnt, iExecCnt);
     if (div_result.rem==0)
       Noise.GetVal();
     }

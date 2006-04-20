@@ -705,7 +705,7 @@
 #  ifdef NO_STRNICMP
 #    define STRNICMP zstrnicmp
 #  else
-#    define STRNICMP strnicmp
+#    define STRNICMP _strnicmp
 #  endif
 #endif
 

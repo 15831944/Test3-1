@@ -1765,7 +1765,7 @@ int CMultiStorage::GetOutputStreamIndex(char* pStreamTag)
   if (pStreamTag && strlen(pStreamTag)>0)
     {
     for (int i=0; i<NoFlwIOs(); i++)
-      if (IOId_Self(i)==idProd && stricmp(Nd_Rmt(i)->Tag(), pStreamTag)==0)
+      if (IOId_Self(i)==idProd && _stricmp(Nd_Rmt(i)->Tag(), pStreamTag)==0)
         return i;
     }
   return -1;

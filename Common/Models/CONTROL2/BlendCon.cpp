@@ -404,7 +404,7 @@ bool BlendCon_ChangeTag(pchar pOldTag, pchar pNewTag, Strng &sTag)
     const int TLen = sTag.Len();
     if (TLen>=len)
       {
-      if (strnicmp(pOldTag, sTag(), len)==0 && (TLen==len || sTag[len]=='.' || sTag[len]==' '))
+      if (_strnicmp(pOldTag, sTag(), len)==0 && (TLen==len || sTag[len]=='.' || sTag[len]==' '))
         {
         Strng s;
         s = pNewTag;
@@ -439,7 +439,7 @@ bool BlendCon_DeleteTag(pchar pDelTag, Strng &sTag)
     const int TLen = sTag.Len();
     if (TLen>=len)
       {
-      if (strnicmp(pDelTag, sTag(), len)==0 && (TLen==len || sTag[len]=='.' || sTag[len]==' '))
+      if (_strnicmp(pDelTag, sTag(), len)==0 && (TLen==len || sTag[len]=='.' || sTag[len]==' '))
         return true;
       }
     }
@@ -628,7 +628,7 @@ void CBlendCriteriaHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB, in
   DDB_AssayNames[i].m_lVal = 0;
   DDB_AssayNames[i].m_pStr = 0;
 
-  if (m_pBCrit->m_eConstraintType == CBlendCriteria::eConstraintType::eCT_Ratio)
+  if (m_pBCrit->m_eConstraintType == CBlendCriteria::eCT_Ratio)
     {
     // Need To Select Two Assay Sums for the constraint
     DDB.Long("A1", "", DC_, "", (long*)&(m_pBCrit->m_AssayIndex1), pTagObj, isParmStopped|SetOnChange, DDB_AssayNames);

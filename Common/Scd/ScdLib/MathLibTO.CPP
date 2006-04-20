@@ -119,7 +119,7 @@ CToleranceBlock::CToleranceBlock(DWORD Use, LPCTSTR Name, double Abs, double Rel
   if ((m_dwFlags&TBF_LocalOnly)==0)
     {
     for (int i=0; i<s_Array.GetSize(); i++)
-      if (stricmp(Name, s_Array[i]->GetName())<=0)
+      if (_stricmp(Name, s_Array[i]->GetName())<=0)
         break;
     if (i<s_Array.GetSize())
       s_Array.InsertAt(i, this);
@@ -158,7 +158,7 @@ CToleranceBlock::CToleranceBlock(DWORD Use, CToleranceBlock * pParent, LPCTSTR N
   if ((m_dwFlags&TBF_LocalOnly)==0)
     {
     for (int i=0; i<s_Array.GetSize(); i++)
-      if (stricmp(Name, s_Array[i]->GetName())<=0)
+      if (_stricmp(Name, s_Array[i]->GetName())<=0)
         break;
     if (i<s_Array.GetSize())
       s_Array.InsertAt(i, this);

@@ -710,7 +710,7 @@ HRESULT CScdCmdIF::CreateUnit(/*[in]*/ LPCTSTR Class, /*[in]*/ LPCTSTR Tag )
     }
   DWORD LicCat = gs_License.LicCatagories();
   DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-  if (DataErr || stricmp(MInfo.Group(), FlwUnitGrp)!=0)
+  if (DataErr || _stricmp(MInfo.Group(), FlwUnitGrp)!=0)
     {
     LogError("ScdCOM", 0, "Class Type NOT allowed: CreateUnit '%s' of type '%s' failed!", Tag, Class);
     return S_OK;
@@ -817,7 +817,7 @@ HRESULT CScdCmdIF::CreateLink(/*[in]*/ LPCTSTR Class, /*[in]*/ LPCTSTR Tag, /*[i
     }
   DWORD LicCat = gs_License.LicCatagories();
   DataErr = !( ((LicCat & TOC_MDL_MASK & MInfo.Category)!=0) && ((LicCat & TOC_SOLVE_MASK & MInfo.Category)!=0) );
-  if (DataErr || stricmp(MInfo.Group(), FlwLinkGrp)!=0)
+  if (DataErr || _stricmp(MInfo.Group(), FlwLinkGrp)!=0)
     {
     LogError("ScdCOM", 0, "Class Type NOT allowed: CreateLink '%s' of type '%s' failed!", Tag, Class);
     return S_OK;

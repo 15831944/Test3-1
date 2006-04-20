@@ -50,7 +50,7 @@ STDMETHODIMP CScdComponents::Component( VARIANT  WhichOne,  IScdComponent * *  p
       //  SCD_LclStr(Name, WhichOne.bstrVal);
       //  for (int i=0; i<m_Components.GetSize(); i++)
       //    {
-      //    if (stricmp(m_Components[i]->, Name)==0)
+      //    if (_stricmp(m_Components[i]->, Name)==0)
       //      {
       //      IScdComponent * p;
       //      ::CoCreateInstance(CLSID_ScdComponent, NULL, CLSCTX_ALL, IID_IScdComponent, (void**)&p);

@@ -108,7 +108,7 @@ class RT_OreProps
       { return pOreProps[index]; };
     int FindByMaterialName(char* pName)
       { for (int i=0; i<iCount; i++)
-          if (stricmp(pOreProps[i].sMaterial, pName)==0)
+          if (_stricmp(pOreProps[i].sMaterial, pName)==0)
             return i; 
         return -1;
       };
@@ -116,7 +116,7 @@ class RT_OreProps
     int OtherPropCount() { return iOtherCount; };
     int FindOtherProp(char* pName)
       { for (int i=0; i<iOtherCount; i++)
-          if (stricmp(pOtherPropNames[i].PropName(), pName)==0)
+          if (_stricmp(pOtherPropNames[i].PropName(), pName)==0)
             return i; 
         return -1;
       };

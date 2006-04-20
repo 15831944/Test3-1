@@ -1746,7 +1746,7 @@ void CTagVwText::OnFormat(UINT id)
     if (i==id-IDM_ACC_FMT1) 
       break;
 
-  if (DefinedFmts[i].Name() && stricmp(DefinedFmts[i].Name(), pMenuSlt->Fmt.Name())!=0)
+  if (DefinedFmts[i].Name() && _stricmp(DefinedFmts[i].Name(), pMenuSlt->Fmt.Name())!=0)
     {//format has changed...
     int S1=-1;
     for (pFxdEdtFld pFld=FirstSlctFld(); pFld; pFld=NextSlctFld())
@@ -1763,7 +1763,7 @@ void CTagVwText::OnFormat(UINT id)
             {
             Strng s = pSlt->sValue;
             s.Trim();
-            if (s.Len()>0 && stricmp("*", s())!=0)
+            if (s.Len()>0 && _stricmp("*", s())!=0)
               pSlt->Fmt.FormatFloat(atof(s()), pSlt->sValue, pSlt->sStrList.Length()>0 ? &pSlt->sStrList:NULL);
             }
           }
@@ -1774,7 +1774,7 @@ void CTagVwText::OnFormat(UINT id)
 //      {
 //      Strng s = pMenuSlt->sValue;
 //      s.Trim();
-//      if (s.Length()>0 && stricmp("*", s())!=0)
+//      if (s.Length()>0 && _stricmp("*", s())!=0)
 //        {
 //        double d = atof(s());
 //        pMenuSlt->Fmt.FormatFloat(d, pMenuSlt->sValue);

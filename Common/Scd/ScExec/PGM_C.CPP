@@ -24,7 +24,7 @@
 
 //===========================================================================
 
-template <class T> VDifferent(T a, T b)
+template <class T> int VDifferent(T a, T b)
   {
   flag av=Valid(a);
   flag bv=Valid(b);

@@ -181,7 +181,7 @@ SpecieProp * CSpeciePropDataBase::FindSolid(char* Tag)
     {
     CSpecie & psd = SDB[j];
     //if (psd.IsSol() && strncmp(Tag, psd.CmpTag())==0)
-    if (psd.IsSol() && strlen(psd.SymOrTag())==size_t(len+3) && strnicmp(Tag, psd.SymOrTag(), len)==0)
+    if (psd.IsSol() && strlen(psd.SymOrTag())==size_t(len+3) && _strnicmp(Tag, psd.SymOrTag(), len)==0)
       return SP[j];
     }
   return NULL;

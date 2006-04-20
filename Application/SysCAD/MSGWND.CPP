@@ -536,7 +536,7 @@ void CMsgWnd::OnSize(UINT nType, int cx, int cy)
 
 //---------------------------------------------------------------------------
 
-static LastBeepCount=GetTickCount();
+static DWORD LastBeepCount=GetTickCount();
   
 LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
   {

@@ -252,7 +252,7 @@ BOOL CGrfDoc::OnNewDocument()
     int Len=10;
     float Scl=1;
     for (int i=0; Scls[i].Nm; i++)
-      if (stricmp(gs_pPrj->m_sGrfFrameName()+DelimitPrefixLen, Scls[i].Nm)==0)
+      if (_stricmp(gs_pPrj->m_sGrfFrameName()+DelimitPrefixLen, Scls[i].Nm)==0)
         {
         Scl=Scls[i].Scl;
         break;
@@ -359,7 +359,7 @@ int CGrfDoc::GetTagListInfo(bool AllInserts, CGrfTagInfoArray & GTIA)
 //        pTagObjClass pTagObjC = TagObjClass::FindClassId(I.sClass());
 //        if (pTagObjC==NULL)
 //          pTagObjC = TagObjClass::FindClassName(I.sClass());
-//        if (pTagObjC && (stricmp(FlwLinkGrp, pTagObjC->Group())==0 || stricmp(CtrlLinkGrp, pTagObjC->Group())==0))
+//        if (pTagObjC && (_stricmp(FlwLinkGrp, pTagObjC->Group())==0 || _stricmp(CtrlLinkGrp, pTagObjC->Group())==0))
 //          TagTyp = 2; //link
 //        else
 //          TagTyp = 1; //unit/node

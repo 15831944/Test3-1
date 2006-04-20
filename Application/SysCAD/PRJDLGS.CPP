@@ -529,7 +529,7 @@ void CHistPage::SaveInfo()
     HstMngr.iHstFilesMin = Min(HstMngr.iHstFilesMin, HstMngr.iHstFilesMax);
     HstMngr.lHstEvFileSize = Min(HstMngr.lHstEvFileSize, gs_License.MaxHistSizeAllowed());
     }
-  if (stricmp(HstMngr.sHistorianName(), HstMngr.sHstScenName())==0)
+  if (_stricmp(HstMngr.sHistorianName(), HstMngr.sHstScenName())==0)
     {
     LogError("History", LF_Exclamation, "Historian name and scenario name must NOT be the same");
     //HstMngr.sHstScenName += "_0";
@@ -915,7 +915,7 @@ void CGenPage::SetLibraryOptions()
       while (Pos)
         {
         CNeutralGrpDescItem &I=List.GetNext(Pos);
-        if (strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
+        if (_strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
           m_PageFrame.AddString(I.m_sGroup);
         }
       int xxx=0;
@@ -2593,7 +2593,7 @@ void CMergeReportDlg::PopulateTabList()
             {
             Strng s1,s2;
             for (int i=0; i<pMPI->PostChangeRefFiles.GetSize(); i++)
-              if (stricmp(pMPI->PostNewRefFiles[i](), "Unknown")==0)
+              if (_stricmp(pMPI->PostNewRefFiles[i](), "Unknown")==0)
                 {
                 s1.FnNameExt(pMPI->PostChangeRefFiles[i]());
                 s.Set("%s\t", pMPI->PostChangeRefFiles[i]());
@@ -2605,7 +2605,7 @@ void CMergeReportDlg::PopulateTabList()
                   while (ss.Len()==0 && MasterCnt<pMPI->MasterRefFiles.GetSize())
                     {
                     s2.FnNameExt(pMPI->MasterRefFiles[MasterCnt]());
-                    if (stricmp(s1(), s2())==0)
+                    if (_stricmp(s1(), s2())==0)
                       ss = pMPI->MasterRefModels[MasterCnt]();
                     MasterCnt++;
                     }
@@ -2619,7 +2619,7 @@ void CMergeReportDlg::PopulateTabList()
                   while (ss.Len()==0 && SlaveCnt<pMPI->SlaveRefFiles.GetSize())
                     {
                     s2.FnNameExt(pMPI->SlaveRefFiles[SlaveCnt]());
-                    if (stricmp(s1(), s2())==0)
+                    if (_stricmp(s1(), s2())==0)
                       ss = pMPI->SlaveRefModels[SlaveCnt]();
                     SlaveCnt++;
                     }
@@ -2634,7 +2634,7 @@ void CMergeReportDlg::PopulateTabList()
             {
             m_List.AddString("Import files that cannot be copied because files with the same name allready exist in the current project:");
             for (i=0; i<pMPI->PostChangeRefFiles.GetSize(); i++)
-              if (stricmp(pMPI->PostNewRefFiles[i](), "Exists")==0)
+              if (_stricmp(pMPI->PostNewRefFiles[i](), "Exists")==0)
                 m_List.AddString(pMPI->PostChangeRefFiles[i]());
             m_List.AddString("");
             }
@@ -2642,7 +2642,7 @@ void CMergeReportDlg::PopulateTabList()
             {
             m_List.AddString("Warning: Referenced files from imported project that will NOT be copied to current project:");
             for (i=0; i<pMPI->PostChangeRefFiles.GetSize(); i++)
-              if (stricmp(pMPI->PostNewRefFiles[i](), "Unknown")==0)
+              if (_stricmp(pMPI->PostNewRefFiles[i](), "Unknown")==0)
                 m_List.AddString(pMPI->PostChangeRefFiles[i]());
             m_List.AddString("");
             }
@@ -2650,7 +2650,7 @@ void CMergeReportDlg::PopulateTabList()
             m_List.AddString("Files to be copied into current project:");
           }
         for (i=0; i<pMPI->PostChangeRefFiles.GetSize(); i++)
-          if (stricmp(pMPI->PostNewRefFiles[i](), "Unknown")!=0 && stricmp(pMPI->PostNewRefFiles[i](), "Exists")!=0)
+          if (_stricmp(pMPI->PostNewRefFiles[i](), "Unknown")!=0 && _stricmp(pMPI->PostNewRefFiles[i](), "Exists")!=0)
             m_List.AddString(pMPI->PostChangeRefFiles[i]());
         break;
         }

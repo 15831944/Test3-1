@@ -36,6 +36,7 @@
 // for formatted printing of matrices
 #include <sstream>       
 
+#pragma warning(disable:4996) 
 
 #ifdef MV_VECTOR_BOUNDS_CHECK
 #   include <assert.h>

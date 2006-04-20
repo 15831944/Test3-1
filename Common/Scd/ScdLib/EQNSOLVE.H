@@ -256,7 +256,7 @@ inline LPCTSTR TearConvergeMethodStr(int i)
 inline long FindTearConvergeMethod(LPCTSTR Str)
   {
   for (int i=0; i<TCM_Last; i++)
-    if (stricmp(Str, TearMethodStrings[i])==0)
+    if (_stricmp(Str, TearMethodStrings[i])==0)
       {
       return i;
       }
@@ -373,7 +373,7 @@ class DllImportExport TearVarBlk : public TaggedObject
     bool           SetEPSStrategy(LPCTSTR Str)
       {
       for (int i=0; i<TCM_Last; i++)
-        if (stricmp(Str, EPSStrategyStrings[i])==0)
+        if (_stricmp(Str, EPSStrategyStrings[i])==0)
           {
           m_iEPSStrategy=i;
           return true;

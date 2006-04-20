@@ -31,7 +31,7 @@ ANY data ;
         dxf_open_header ( file ) ;
     if ( DX_FILE_HEADER_CLOSED(file) )
         RETURN ( FALSE ) ;
-    if ( stricmp ( var_name, "$HANDLING" ) == 0 && *(INT*)data )
+    if ( _stricmp ( var_name, "$HANDLING" ) == 0 && *(INT*)data )
         DX_FILE_SET_ENT_HNDL_ENABLED(file) ;
     RETURN ( dx0_put_string_group ( file, 9, var_name ) && 
         dx0_put_object ( file, (char*)data, template, TRUE, TRUE ) ) ;

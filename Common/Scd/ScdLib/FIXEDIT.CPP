@@ -1852,7 +1852,7 @@ void SetEditControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, int EditPos,
     LimText=Max((short)(pEdtCtrlFld->ColN-pEdtCtrlFld->Col1), Fld->BigStrLength);
   else
     {
-    const ExtraCharsInField=256;
+    const int ExtraCharsInField=256;
     LimText=pEdtCtrlFld->ColN-pEdtCtrlFld->Col1+ExtraCharsInField;
     }
   pEdtControl->SetLimitText(LimText);
@@ -1931,7 +1931,7 @@ void SetCBoxControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, flag ShowDrp
     MaxWide=Max(MaxWide, (int)strlen((pS->Str() ? pS->Str() : "")));
 
   const int cx=GetSystemMetrics(SM_CXHSCROLL);
-  const XtraX=(Fld->HasNANStrings ? 0:3);
+  const int XtraX=(Fld->HasNANStrings ? 0:3);
   int DDRows=pL->Length()+(Fld->HasNANStrings ?1:0);
 
   Rect.SetRect(pCBoxCtrlFld->Xs(pView->ScrGB)-2,
@@ -1958,7 +1958,7 @@ void SetCBoxControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, flag ShowDrp
     for (pStrng pS=pL->First(); pS; pS=pS->Next())
       {
       char *pStr=(pS->Str() ? pS->Str() : "");
-      ValueInList = ValueInList || stricmp(pStr, Fld->Str())==0;
+      ValueInList = ValueInList || _stricmp(pStr, Fld->Str())==0;
       Strng S;
       if (Fld->HasNANStrings)
         S=pStr;

@@ -1093,7 +1093,7 @@ void COrdWnd::GetOrderInfo()
       {
       double l=log10(GTZ(m_dMax[ic]));//-1.999;
       m_iPower[ic]=(int)(l<0 ? l-0.9999999:l);
-      m_dScale[ic]=pow(10, m_iPower[ic]);
+      m_dScale[ic]=pow(10.0, m_iPower[ic]);
       }
     }
 

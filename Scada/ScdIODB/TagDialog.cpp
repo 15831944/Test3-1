@@ -108,7 +108,7 @@ void TagDialog::CreateDescription()
    //m_scalingDescription = scale + alarm;
 }
 
-TagDialog::UpdateTag(OModbusTag* pTag)
+int TagDialog::UpdateTag(OModbusTag* pTag)
 {
    ASSERT_VALID( pTag );
    pTag->name = m_name;

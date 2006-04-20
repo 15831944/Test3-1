@@ -1727,82 +1727,82 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       *pOpn=0;
       *pCls=0;
       }
-    if (stricmp(Str, SDBE_Const::Name())==0) 
+    if (_stricmp(Str, SDBE_Const::Name())==0) 
       {
       pn=SDBE_Const::Name();
       p=new SDBE_Const(pSpD);
       }
-    else if (stricmp(Str, SDBE_Poly::Name())==0) 
+    else if (_stricmp(Str, SDBE_Poly::Name())==0) 
       {
       pn=SDBE_Poly::Name();
       p=new SDBE_Poly(pSpD);
       }
-    else if (stricmp(Str, SDBE_LinearGasDensity::Name())==0) 
+    else if (_stricmp(Str, SDBE_LinearGasDensity::Name())==0) 
       {
       pn=SDBE_LinearGasDensity::Name();
       p=new SDBE_LinearGasDensity(pSpD);
       }
-    else if (stricmp(Str, SDBE_IdealGasDensity::Name())==0) 
+    else if (_stricmp(Str, SDBE_IdealGasDensity::Name())==0) 
       {
       pn=SDBE_IdealGasDensity::Name();
       p=new SDBE_IdealGasDensity(pSpD);
       }
-    else if (stricmp(Str, SDBE_LiqH2ORho::Name())==0) 
+    else if (_stricmp(Str, SDBE_LiqH2ORho::Name())==0) 
       {
       pn=SDBE_LiqH2ORho::Name();
       p=new SDBE_LiqH2ORho(pSpD);
       }
-    else if (stricmp(Str, SDBE_Ts::Name())==0) 
+    else if (_stricmp(Str, SDBE_Ts::Name())==0) 
       {
       pn=SDBE_Ts::Name();
       p=new SDBE_Ts(pSpD);
       }
-    else if (stricmp(Str, SDBE_CRC_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_CRC_Cp::Name())==0) 
       {
       pn=SDBE_CRC_Cp::Name();
       p=new SDBE_CRC_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_CRC1_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_CRC1_Cp::Name())==0) 
       {
       pn=SDBE_CRC1_Cp::Name();
       p=new SDBE_CRC1_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_HSC_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_HSC_Cp::Name())==0) 
       {
       pn=SDBE_HSC_Cp::Name();
       p=new SDBE_HSC_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_Poly_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_Poly_Cp::Name())==0) 
       {
       pn=SDBE_Poly_Cp::Name();
       p=new SDBE_Poly_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_API_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_API_Cp::Name())==0) 
       {
       pn=SDBE_API_Cp::Name();
       p=new SDBE_API_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_HTE_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_HTE_Cp::Name())==0) 
       {
       pn=SDBE_HTE_Cp::Name();
       p=new SDBE_HTE_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_Shomate_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_Shomate_Cp::Name())==0) 
       {
       pn=SDBE_Shomate_Cp::Name();
       p=new SDBE_Shomate_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_QAL_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_QAL_Cp::Name())==0) 
       {
       pn=SDBE_QAL_Cp::Name();
       p=new SDBE_QAL_Cp(pSpD);
       }
-    else if (stricmp(Str, SDBE_Vp::Name())==0) 
+    else if (_stricmp(Str, SDBE_Vp::Name())==0) 
       {
       pn=SDBE_Vp::Name();
       p=new SDBE_Vp(pSpD);
       }
-    else if (stricmp(Str, SDBE_VpKPa::Name())==0) 
+    else if (_stricmp(Str, SDBE_VpKPa::Name())==0) 
       {
       pn=SDBE_VpKPa::Name();
       p=new SDBE_VpKPa(pSpD);
@@ -1827,37 +1827,37 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
 #endif
 
 #if WithSatH2OMdl
-    else if (stricmp(Str, SatOnly_WaterDensity::Name())==0) 
+    else if (_stricmp(Str, SatOnly_WaterDensity::Name())==0) 
       {
       pn=SatOnly_WaterDensity::Name();
       p=new SatOnly_WaterDensity(pSpD);
       }
-    else if (stricmp(Str, SatOnly_SteamDensity::Name())==0) 
+    else if (_stricmp(Str, SatOnly_SteamDensity::Name())==0) 
       {
       pn=SatOnly_SteamDensity::Name();
       p=new SatOnly_SteamDensity(pSpD);
       }
-    else if (stricmp(Str, SatOnly_WaterHeatCapacity::Name())==0) 
+    else if (_stricmp(Str, SatOnly_WaterHeatCapacity::Name())==0) 
       {
       pn=SatOnly_WaterHeatCapacity::Name();
       p=new SatOnly_WaterHeatCapacity(pSpD);
       }
-    else if (stricmp(Str, SatOnly_SteamHeatCapacity::Name())==0) 
+    else if (_stricmp(Str, SatOnly_SteamHeatCapacity::Name())==0) 
       {
       pn=SatOnly_SteamHeatCapacity::Name();
       p=new SatOnly_SteamHeatCapacity(pSpD);
       }
-    else if (stricmp(Str, SatOnly_WaterEnthalpy::Name())==0) 
+    else if (_stricmp(Str, SatOnly_WaterEnthalpy::Name())==0) 
       {
       pn=SatOnly_WaterEnthalpy::Name();
       p=new SatOnly_WaterEnthalpy(pSpD);
       }
-    else if (stricmp(Str, SatOnly_SteamEnthalpy::Name())==0) 
+    else if (_stricmp(Str, SatOnly_SteamEnthalpy::Name())==0) 
       {
       pn=SatOnly_SteamEnthalpy::Name();
       p=new SatOnly_SteamEnthalpy(pSpD);
       }
-    else if (stricmp(Str, SatOnly_WaterVapourPress::Name())==0) 
+    else if (_stricmp(Str, SatOnly_WaterVapourPress::Name())==0) 
       {
       pn=SatOnly_WaterVapourPress::Name();
       p=new SatOnly_WaterVapourPress(pSpD);
@@ -1866,17 +1866,17 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
 
 #if WithHFC134a
     
-    else if (stricmp(Str, SDBE_HFC134a_GasCp::Name())==0) 
+    else if (_stricmp(Str, SDBE_HFC134a_GasCp::Name())==0) 
       {
       pn=SDBE_HFC134a_GasCp::Name();
       p=new SDBE_HFC134a_GasCp(pSpD);
       }
-    else if (stricmp(Str, SDBE_HFC134a_LiqRho::Name())==0) 
+    else if (_stricmp(Str, SDBE_HFC134a_LiqRho::Name())==0) 
       {
       pn=SDBE_HFC134a_LiqRho::Name();
       p=new SDBE_HFC134a_LiqRho(pSpD);
       }
-    else if (stricmp(Str, SDBE_HFC134a_Vp::Name())==0) 
+    else if (_stricmp(Str, SDBE_HFC134a_Vp::Name())==0) 
       {
       pn=SDBE_HFC134a_Vp::Name();
       p=new SDBE_HFC134a_Vp(pSpD);

@@ -406,11 +406,11 @@ flag CPwrUser::ValidateData(ValidateDataBlk & VDB)//, TaggedObject * pTagObj)
 CPwrUser::CPwrUserConns CPwrUser::SetConnectRqd(LPCTSTR pName)
   {
   m_sPwrSupply=pName;
-  if (stricmp(pName, "Socket")==0)
+  if (_stricmp(pName, "Socket")==0)
     m_eConnectRqd=CPU_Socket;
-  else if (stricmp(pName, "Wired")==0)
+  else if (_stricmp(pName, "Wired")==0)
     m_eConnectRqd=CPU_Wired;
-  else if (stricmp(pName, "None")==0)
+  else if (_stricmp(pName, "None")==0)
     m_eConnectRqd=CPU_None;
   else 
     m_eConnectRqd=CPU_ByName;
@@ -464,7 +464,7 @@ flag CPwrUser::GlobalConnect(FlwNode * pFlwNd, CPwrSupply * pSupply)
           if (m_pSocket==NULL)
             {
             pTaggedObject p1=p->pAttachments;
-            while (p1 && (stricmp(p1->Tag(), &TheTag[ObjTagLen+1])!=0))
+            while (p1 && (_stricmp(p1->Tag(), &TheTag[ObjTagLen+1])!=0))
               p1=p1->pNxtAttachment;
             if (p1)
               p=p1;

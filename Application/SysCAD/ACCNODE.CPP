@@ -1114,7 +1114,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
               for (pStrng pS=f.ValLst.First(); pS; pS=pS->Next())
                 {
                 pchar pStr=pS->Str() ? pS->Str() : "";
-                if (stricmp(pStr, pVal)==0)
+                if (_stricmp(pStr, pVal)==0)
                   {
                   DoWrt=0;
                   char Buff[256];
@@ -1293,7 +1293,7 @@ void AccNodeWnd::SaveNdHist()
 //ss    char *p=Buff;
 //ss    while (*p==' ') p++; // Skip Blanks
 //ss    if (*p=='[')
-//ss      if (strnicmp(++p, Name, l)==0)
+//ss      if (_strnicmp(++p, Name, l)==0)
 //ss        if (*(p+l)==']')
 //ss          {
 //ss          Found=true;
@@ -1367,7 +1367,7 @@ void AccNodeWnd::SaveNdHist()
 //ss              //  p="Standard";
 //ss              Names.Append(p);
 //ss              ReadOnlyList.Add(ReadOnly);
-//ss              if (stricmp(p, "Standard")==0)
+//ss              if (_stricmp(p, "Standard")==0)
 //ss                GotDefault=1;
 //ss              break;
 //ss              }
@@ -1436,7 +1436,7 @@ void AccNodeWnd::SaveNdHist()
 //ss
 //ssflag AccNodeWnd::SSSave(const char * Name)
 //ss  {
-//ss  if (stricmp(Name, "-")==0)
+//ss  if (_stricmp(Name, "-")==0)
 //ss    return false;
 //ss
 //ss  //Strng FnR(PrjDirectory()), FnW(PrjDirectory());
@@ -1530,7 +1530,7 @@ void AccNodeWnd::SaveNdHist()
 //ss  SSReadOnly=false;
 //ss  for (int i=0; i<NData; i++)
 //ss    Data[i].fUsed=false;
-//ss  if ((strlen(Name)>0) && (stricmp(Name, "-")!=0))
+//ss  if ((strlen(Name)>0) && (_stricmp(Name, "-")!=0))
 //ss    {
 //ss    flag GotPers=0;
 //ss   // NBNB use PrjBaseDirectory if Reqd
@@ -1566,7 +1566,7 @@ void AccNodeWnd::SaveNdHist()
 //ss      }
 //ss    if (GotPers && (NFlds>0))
 //ss      return true;
-//ss    //if (stricmp(Name, "Standard")!=0)
+//ss    //if (_stricmp(Name, "Standard")!=0)
 //ss    //  return false;
 //ss    }
 //ss
@@ -5050,7 +5050,7 @@ int AccNodeWnd::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   const int len = strlen(pOldTag);
   for (int i=0; i<Size; i++)
     {
-    if (NdHistList[i].Len()==len && strnicmp(NdHistList[i](), pOldTag, len)==0)
+    if (NdHistList[i].Len()==len && _strnicmp(NdHistList[i](), pOldTag, len)==0)
       NdHistList[i] = pNewTag;
     }
   return EOCT_DONE;
@@ -5063,10 +5063,10 @@ int AccNodeWnd::EO_DeleteTag(pchar pDelTag)
   const int len = strlen(pDelTag);
   for (int i=0; i<NdHistList.GetSize(); i++)
     {
-    if (NdHistList[i].Len()==len && strnicmp(NdHistList[i](), pDelTag, len)==0)
+    if (NdHistList[i].Len()==len && _strnicmp(NdHistList[i](), pDelTag, len)==0)
       NdHistList.RemoveAt(i);
     }
-  if (NdTag.Len()==len && strnicmp(NdTag(), pDelTag, len)==0)
+  if (NdTag.Len()==len && _strnicmp(NdTag(), pDelTag, len)==0)
     {
     /*gs_pAccWnd->*/CloseAccessData(false, true, true);
     /*gs_pAccWnd->*/CloseWnd();

@@ -677,7 +677,7 @@ void CPSDTB::Build(FxdEdtBookRef* pFxdEdt)
           pFxdEdt->SetTag(Tg(), m_PSDTestData[i].m_SizeCnvTxt.Str());
    
 
-          if (lTestDataType == CPSDTestData::eTestDataType::eTest_WeightPercent)
+          if (lTestDataType == CPSDTestData::eTest_WeightPercent)
             {
             pFxdEdt->SetData(L,"", Id_Offset + Id_Frac+i*MaxTestData + j , FieldWidth , 2, "", true );
 

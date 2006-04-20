@@ -859,7 +859,7 @@ CFlwEqn * CFlwEqnPtr::AssignFlwEqnGroup(CFlwEqnGrp &Group, pchar Rqd, TaggedObje
   E.m_pAttachedTo=pAttach;
   if (E.m_pEqn)
     {
-    if (stricmp(Group.Name(), E.m_pEqn->Group())!=0)
+    if (_stricmp(Group.Name(), E.m_pEqn->Group())!=0)
       {
       delete E.m_pEqn;
       E.m_pEqn=NULL;
@@ -877,7 +877,7 @@ CFlwEqn * CFlwEqnPtr::AssignFlwEqnGroup(CFlwEqnGrp &Group, pchar Rqd, TaggedObje
 CFlwEqn * CFlwEqnPtr::CreateFlwEqn(pchar Name_)
   {
   CFlwEqn * pEq=NULL;
-  if (Name_ && strlen(Name_)>0 && stricmp(Name_,NoEqnName)!=0)
+  if (Name_ && strlen(Name_)>0 && _stricmp(Name_,NoEqnName)!=0)
     pEq=(CFlwEqn*)TagObjClass::Construct(GroupName(), Name_, NULL, "CFlwEqn", AttachedTo(), AttachedTo() ? TOA_Embedded : TOA_Free);
   else
     pEq=(CFlwEqn*)TagObjClass::Construct(NoEqnGroup, NoEqnName, NULL, "CFlwEqn", AttachedTo(), AttachedTo() ? TOA_Embedded : TOA_Free);
@@ -933,10 +933,10 @@ CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pchar Name_, flag ChgDefault)
   Strng OldName, OldEDesc, OldEMemo, OldEIdStr, OldELocation;
   CFBPhysData OldPhD;
   CFlwEqnFlwRqd OldFR;
-  //if (Name_ && (strlen(Name_)==0 || stricmp(Name_,NoEqnName)==0))
+  //if (Name_ && (strlen(Name_)==0 || _stricmp(Name_,NoEqnName)==0))
   //  Name_=NULL;
 
-  if (Eqn2Use().m_pEqn && (Name_==NULL || (Name_ && stricmp(Name_, Eqn2Use().m_pEqn->FlwEqnName())!=0)))
+  if (Eqn2Use().m_pEqn && (Name_==NULL || (Name_ && _stricmp(Name_, Eqn2Use().m_pEqn->FlwEqnName())!=0)))
     {
     Eqn()->StructureChanged(Eqn());
     OldPhD =Eqn()->m_PhD;
@@ -1159,9 +1159,9 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
       {
       if (DCB.rpC)
         {
-        int IsNone=(stricmp(DCB.rpC, NoEqnName)==0);
+        int IsNone=(_stricmp(DCB.rpC, NoEqnName)==0);
         if (PrjFileVerNo()<39 && !IsNone)
-          IsNone=(stricmp(DCB.rpC, "Null CFlwEqn")==0);
+          IsNone=(_stricmp(DCB.rpC, "Null CFlwEqn")==0);
 
         if (IsNone)
           {
@@ -2740,7 +2740,7 @@ void CFlwThermalBlk::AddWorkPower(double Power, double Press)
   //m_pCd->SetHoldEquilibrate(); 
   //double Hf=m_pCd->totHf()+Power; 
 
-  const MaxDT=1000;
+  const int MaxDT=1000;
   double DT=Power/NZ(m_pCd->totCp());
   if (fabs(DT)>1000)
     Power*=1000/DT;
@@ -2767,7 +2767,7 @@ void CFlwThermalBlk::AddHeatPower(double Power, double Press)
   //m_pCd->SetHoldEquilibrate(); 
   //double Hf=m_pCd->totHf()+Power; 
 
-  const MaxDT=1000;
+  const int MaxDT=1000;
   double DT=Power/NZ(m_pCd->totCp());
   if (fabs(DT)>1000)
     Power*=1000/DT;

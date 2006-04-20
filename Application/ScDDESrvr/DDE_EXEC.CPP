@@ -169,7 +169,7 @@ flag CReport::DoExcelReports()
       j = jStart;
       while (!found && j<nToks)
         {
-        if (strnicmp(c[j], ReportKey, ReportKeyLen)==0)
+        if (_strnicmp(c[j], ReportKey, ReportKeyLen)==0)
           {
           if (ParseFn(c[j]))
             found = (bAll || sReportName==sName);
@@ -1088,9 +1088,9 @@ int CDdeExec::InterpretRequest( pchar szItem,
   int nFlds = ParseCSVFunction(szItem, f, Quote);
   if (Quote || nFlds<6)
     return 2; //Quotes mismatched or too few fields
-  if (stricmp(f[0], "AllPoints")==0)
+  if (_stricmp(f[0], "AllPoints")==0)
     Opt = All;
-  else if (stricmp(f[0], "AvePoints")==0)
+  else if (_stricmp(f[0], "AvePoints")==0)
     Opt = AveEqualySpaced;
   else
     return 3; //function unknown
@@ -1098,13 +1098,13 @@ int CDdeExec::InterpretRequest( pchar szItem,
     return 4;
   if (!HMSDatetoSecs(f[2], LastTime))
     return 5;
-  if (stricmp("Full", f[3])==0)
+  if (_stricmp("Full", f[3])==0)
     TimeOpt = Full;
-  else if (stricmp("Secs", f[3])==0)
+  else if (_stricmp("Secs", f[3])==0)
     TimeOpt = Seconds;
-  else if (stricmp("Both", f[3])==0)
+  else if (_stricmp("Both", f[3])==0)
     TimeOpt = Both;
-  else if (stricmp("None", f[3])==0)
+  else if (_stricmp("None", f[3])==0)
     TimeOpt = None;
   else
     return 6;

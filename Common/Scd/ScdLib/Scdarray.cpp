@@ -264,7 +264,7 @@ flag CDArray::OpDiv(CDArray &v)
 //              if (s.Length()>0)
 //                {
 //                pCDataCnv pCnv=gs_CnvsMngr.FindSecCnv(iCnvDC, sCnvTxt());
-//                if (pCnv==NULL && stricmp(sCnvTxt(), "(null)")!=0)
+//                if (pCnv==NULL && _stricmp(sCnvTxt(), "(null)")!=0)
 //                  LogError("Vectors", 0, "Conversion %s not Found", s());
 //                }
 //              H.bGotCnv=True;
@@ -860,7 +860,7 @@ flag CIArray::OpDiv(CIArray &v)
 //              //if (s.Length()>0)
 //              //  {
 //              //  pCDataCnv pCnv=gs_CnvsMngr.FindSecCnv(iCnvDC, sCnvTxt());
-//              //  if (pCnv==NULL && stricmp(sCnvTxt(), "(null)")!=0)
+//              //  if (pCnv==NULL && _stricmp(sCnvTxt(), "(null)")!=0)
 //              //    LogError("Vectors", 0, "Conversion %s not Found", s());
 //              //  }
 //              H.bGotCnv=True;

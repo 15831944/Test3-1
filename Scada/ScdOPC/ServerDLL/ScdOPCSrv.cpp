@@ -15,6 +15,7 @@
 //  MFC applications). If it is not defined, it statically links.
 //**************************************************************************
 
+
 #include "stdafx.h"
 #include "OPCServer.h"
 //#include <atlimpl.cpp>
@@ -281,6 +282,7 @@ static HRESULT WINAPI MyUpdateRegistryFromResourceS(LPCTSTR EXEName, CAtlModule 
 	struct _ATL_REGMAP_ENTRY* pMapEntries /*= NULL*/) throw()
 {
 	CRegObject ro;
+  ro.FinalConstruct();
 
 	if (pMapEntries != NULL)
 	{
@@ -322,9 +324,13 @@ static HRESULT WINAPI MyUpdateRegistryFromResourceS(LPCTSTR EXEName, CAtlModule 
 #endif
 
 	OLECHAR pszSrvModuleUnquoted[_MAX_PATH * 2], pszDllModuleUnquoted[_MAX_PATH * 2];
+#if (_MSC_VER >= 1400) 
+  Module.EscapeSingleQuote(pszSrvModuleUnquoted, _MAX_PATH * 2, pszSrvModule);
+	Module.EscapeSingleQuote(pszDllModuleUnquoted, _MAX_PATH * 2, pszDllModule);
+#else
 	Module.EscapeSingleQuote(pszSrvModuleUnquoted, pszSrvModule);
 	Module.EscapeSingleQuote(pszDllModuleUnquoted, pszDllModule);
-	
+#endif
 	HRESULT hRes;
 	if (EXEName || (hInst == NULL) || (hInst == GetModuleHandle(NULL))) // register as EXE
 	{
@@ -333,7 +339,11 @@ static HRESULT WINAPI MyUpdateRegistryFromResourceS(LPCTSTR EXEName, CAtlModule 
 		// quoted
 		OLECHAR pszSrvModuleQuote[(_MAX_PATH + _ATL_QUOTES_SPACE)*2]; 		
 		pszSrvModuleQuote[0] = OLESTR('\"');
+#if (_MSC_VER >= 1400)
+		ocscpy_s(pszSrvModuleQuote + 1, (_MAX_PATH + _ATL_QUOTES_SPACE)*2, pszSrvModuleUnquoted);
+#else
 		ocscpy(pszSrvModuleQuote + 1, pszSrvModuleUnquoted);
+#endif
 		int nLen = ocslen(pszSrvModuleQuote);
 		pszSrvModuleQuote[nLen] = OLESTR('\"');
 		pszSrvModuleQuote[nLen + 1] = 0;

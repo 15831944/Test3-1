@@ -4145,7 +4145,7 @@ void MdlNode::MakeUpNodeTransferReqd(int JoinId)
   if (dbg)
     dbgpln("NdReqd %s", Tag());
 
-  //if (stricmp(sTag(), "A723H01")==0)
+  //if (_stricmp(sTag(), "A723H01")==0)
   //  { int xx=0; }
 
   bNodeMakeUpReqd=0;

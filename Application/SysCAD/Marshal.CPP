@@ -1561,7 +1561,7 @@ int CIOMarshal::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
 //    const int j = ConnSubsItems.GetSize();
 //    for (int i=0; i<j; i++)
 //      {
-//      if (strnicmp(pOldTag, ConnSubsItems[i]->m_pCon->m_sTag(), len)==0)
+//      if (_strnicmp(pOldTag, ConnSubsItems[i]->m_pCon->m_sTag(), len)==0)
 //        return EOCT_DRVNOTALLOWED;
 //      }
 //    }
@@ -1577,7 +1577,7 @@ int CIOMarshal::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 //  for (int i=0; i<j; i++)
 //    {
 //    pCConnSubsItem pSubsItem = ConnSubsItems[i];
-//    if (strnicmp(pOldTag, pSubsItem->m_pCon->m_sTag(), len)==0)
+//    if (_strnicmp(pOldTag, pSubsItem->m_pCon->m_sTag(), len)==0)
 //      {
 //      ASSERT(!gs_Exec.Busy());
 //      LogWarning("IOMarshal", 0, "Changing tag '%s' affects a driver connection tag for '%s'", pOldTag, pSubsItem->m_pCon->m_pParentSlot->sTag());
@@ -1646,7 +1646,7 @@ flag CIOMarshal::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
 //        break;
 //      case RQ_Tags: //return info on all tags based on request criteria...
 //      case RQ_TagsConns: //return info on all tags based on request criteria...
-//        if (Info.Count()<Slots.GetSize() && (Rqst.pGroup==NULL || stricmp(Rqst.pGroup, "Driver")==0))
+//        if (Info.Count()<Slots.GetSize() && (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, "Driver")==0))
 //          {
 //          Info.sData = Slots[Info.Count()]->sTag();
 //          return true;

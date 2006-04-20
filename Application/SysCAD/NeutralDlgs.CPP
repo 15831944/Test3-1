@@ -1477,7 +1477,7 @@ void CNeutralInsertGroupDlg::UpdateGroupTree()
 
         XStrTrim(pS, " ");
         hItem=m_GroupTree.InsertItem(pS, 0, 0, hParent);
-        //if (stricmp(MInfo.Class(), InitialSelect)==0)
+        //if (_stricmp(MInfo.Class(), InitialSelect)==0)
         //  hSelected=hItem;
         if (hFirst==NULL)
           hFirst=hItem;

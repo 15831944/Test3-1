@@ -238,7 +238,7 @@ Model type:Unit#n
 static IOAreaRec BasePIDIOArea = {NULL, NULL, CtrlIOId(0), LIO_In, nc_CLnk, 0, 1};
 static CArray <IOAreaRec, IOAreaRec&> PIDIOAreaList;
 static CSArray IONames;
-static s_nPIDControls=0;
+static int s_nPIDControls=0;
 #define PIDCOUNT PID.GetSize()
 
 static double Drw_PIDControl[] =

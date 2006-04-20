@@ -55,13 +55,13 @@ long CSlotConnPrf::Parse(LPCSTR File)
 
       if (nFlds>0)
         {
-        if (stricmp(Buff, "ABS")==0)
+        if (_stricmp(Buff, "ABS")==0)
           m_Mode=eABS;
-        else if (stricmp(Buff, "SCL")==0)
+        else if (_stricmp(Buff, "SCL")==0)
           m_Mode=eSCL;
-        else if (stricmp(Buff, "SCL%")==0)
+        else if (_stricmp(Buff, "SCL%")==0)
           m_Mode=eSCLPERC;
-        else if (stricmp(Buff, "CONTRONIC")==0)
+        else if (_stricmp(Buff, "CONTRONIC")==0)
           m_Mode=eCONTRONIC;
         else
           {

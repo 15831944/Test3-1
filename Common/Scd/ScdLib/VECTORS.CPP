@@ -219,7 +219,7 @@ flag CDVector::Reverse()
   {
   if (m_Len>1)
     {
-    const long k = div(m_Len,2).quot;
+    const long k = div(m_Len,2L).quot;
     for (long i=0; i<k; i++)
       {
       double temp = m_d[i];
@@ -376,7 +376,7 @@ flag CDVector::Load(rCVMLoadHelper H, //Helper class with all the options set
               if (s.Length()>0)
                 {
                 pCDataCnv pCnv=gs_CnvsMngr.FindSecCnv(iCnvDC, sCnvTxt());
-                if (pCnv==NULL && stricmp(sCnvTxt(), "(null)")!=0)
+                if (pCnv==NULL && _stricmp(sCnvTxt(), "(null)")!=0)
                   LogError("Vectors", 0, "Conversion %s not Found", s());
                 }
               H.bGotCnv=True;
@@ -656,7 +656,7 @@ flag CLVector::Reverse()
   {
   if (m_Len>1)
     {
-    const long k = div(m_Len,2).quot;
+    const long k = div(m_Len,2L).quot;
     for (long i=0; i<k; i++)
       {
       long temp = m_d[i];
@@ -1749,11 +1749,11 @@ flag CDMatrix::Load(rCVMLoadHelper H, dword BlankFlag)
             m_d[j][k] = SetNANFlag(BlankFlag);
           else if (Tkns[i][0]=='*')
             m_d[j][k] = dNAN;
-          else if (stricmp(Tkns[i], "Free")==0 || toupper(Tkns[i][0])=='F')
+          else if (_stricmp(Tkns[i], "Free")==0 || toupper(Tkns[i][0])=='F')
             m_d[j][k] = SetNANFlag(NF_Free);
-          else if (stricmp(Tkns[i], "Hold")==0 || toupper(Tkns[i][0])=='H')
+          else if (_stricmp(Tkns[i], "Hold")==0 || toupper(Tkns[i][0])=='H')
             m_d[j][k] = SetNANFlag(NF_Hold);
-          else if (stricmp(Tkns[i], "Pulse")==0 || toupper(Tkns[i][0])=='P')
+          else if (_stricmp(Tkns[i], "Pulse")==0 || toupper(Tkns[i][0])=='P')
             m_d[j][k] = SetNANFlag(NF_Pulse);
           else
             m_d[j][k] = atof(Tkns[i]);

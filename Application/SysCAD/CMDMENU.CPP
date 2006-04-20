@@ -1150,7 +1150,7 @@ void CommandWnd::FindAndReplaceCmdLn(pchar F)
       if (T[l-1] == '>')
         {
         S->Token(T);
-        if (strnicmp(T, FndRep.Text, strlen(FndRep.Text))==0)
+        if (_strnicmp(T, FndRep.Text, strlen(FndRep.Text))==0)
           {
           if (FndRep.Line == Line)
             {
@@ -1522,7 +1522,7 @@ int VNTRqdLen(pchar s)
 
 STATIC_FN flag TokEq(pchar a, pchar b)
   {
-  return (strnicmp(a,b, VNTRqdLen(b)) == 0);
+  return (_strnicmp(a,b, VNTRqdLen(b)) == 0);
   }
 
 //---------------------------------------------------------------------------

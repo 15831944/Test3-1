@@ -226,7 +226,7 @@ static byte SpIm_End  =0x59;
 //#if dbgProblem
 //      dbgpln("SpTargetTags::Find() -BBB");
 //#endif
-//      while (p1 && (stricmp(p1->Tag(), &AreaName[ObjTagLen+1])!=0))
+//      while (p1 && (_stricmp(p1->Tag(), &AreaName[ObjTagLen+1])!=0))
 //        {
 //        p1=p1->pNxtAttachment;
 //#if dbgProblem
@@ -1570,9 +1570,9 @@ flag SpContainer::ValidateData(ValidateDataBlk & VDB)
   flag OK=true;
   if (OrigPrjFileVerNo()<90)
     {
-    if (SpillExists() && stricmp(Spill.AreaTag, "Floor.Content")==0)
+    if (SpillExists() && _stricmp(Spill.AreaTag, "Floor.Content")==0)
       Spill.AreaTag="";
-    if (VentExists() && stricmp(Vent.AreaTag, "VentGas.Content")==0)
+    if (VentExists() && _stricmp(Vent.AreaTag, "VentGas.Content")==0)
       Vent.AreaTag="";
     }
 
@@ -3366,7 +3366,7 @@ flag SpImage::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=true;
   #if dbgSpCont
-  const doDbg=0||dbgValidate() || dbgValidateBrk() && DoDbgBrk();
+  const int doDbg=0||dbgValidate() || dbgValidateBrk() && DoDbgBrk();
   if (doDbg)
     {
     dbgpln("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");

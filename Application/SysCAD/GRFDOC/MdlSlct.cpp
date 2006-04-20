@@ -200,7 +200,7 @@ int CModelListHelper::BuildList(LPCTSTR SectName, char* pGroup, CComboBox* pCB, 
 
         XStrTrim(pS, " ");
         hItem=pTree->InsertItem(pS, 0, 0, hParent);
-        if (stricmp(MInfo.Class(), InitialSelect)==0)
+        if (_stricmp(MInfo.Class(), InitialSelect)==0)
           hSelected=hItem;
         if (hFirst==NULL)
           hFirst=hItem;

@@ -1964,14 +1964,14 @@ void CSlotMngr::ApplyHold(eConnSrcDst Src, long Item, bool On)
 //      {
 //      for (int i=0; i<LinksSize; i++)
 //        {
-//        if (strnicmp(m_Links[i]->m_sTag, pStr, n)==0)
+//        if (_strnicmp(m_Links[i]->m_sTag, pStr, n)==0)
 //          {
 //          if (iBestInx<0)
 //            {
 //            sBestTag = m_Links[i]->m_sTag;
 //            iBestInx = i;
 //            }
-//          else if (stricmp(m_Slots[i]->m_sTag, sBestTag)<0)
+//          else if (_stricmp(m_Slots[i]->m_sTag, sBestTag)<0)
 //            {
 //            sBestTag = m_Links[i]->m_sTag;
 //            iBestInx = i;
@@ -1983,7 +1983,7 @@ void CSlotMngr::ApplyHold(eConnSrcDst Src, long Item, bool On)
 //      {
 //      for (int i=0; i<SlotsSize; i++)
 //        {
-//        if (strnicmp(m_Slots[i]->m_sTag, pStr, n)==0)
+//        if (_strnicmp(m_Slots[i]->m_sTag, pStr, n)==0)
 //          {
 //          if (iBestInx<0)
 //            {
@@ -1991,7 +1991,7 @@ void CSlotMngr::ApplyHold(eConnSrcDst Src, long Item, bool On)
 //            iBestInx = i;
 //            iBestIsSlot = true;
 //            }
-//          else if (stricmp(m_Slots[i]->m_sTag, sBestTag)<0)
+//          else if (_stricmp(m_Slots[i]->m_sTag, sBestTag)<0)
 //            {
 //            sBestTag = m_Slots[i]->m_sTag;
 //            iBestInx = i;
@@ -2105,7 +2105,7 @@ bool CSlotMngr::FindTagHandle(LPCSTR Tag, DWORD &dwHandle)
     {
     *(DotLast++)=0;
     for (long i=0; iSubItem<0 && IOMSIs[i].Id>=0; i++)
-      if (stricmp(DotLast, IOMSIs[i].Str)==0)
+      if (_stricmp(DotLast, IOMSIs[i].Str)==0)
         iSubItem=IOMSIs[i].Id;
     }
   if (iSubItem<0)
@@ -2123,7 +2123,7 @@ bool CSlotMngr::FindTagHandle(LPCSTR Tag, DWORD &dwHandle)
   if (ListStr)
     {
     for (long i=0; iList<0 && IOMLs[i].Id>=0; i++)
-      if (stricmp(ListStr, IOMLs[i].Str)==0)
+      if (_stricmp(ListStr, IOMLs[i].Str)==0)
         iList=IOMLs[i].Id;
     // Now Look for Atual Tag
     if (iList>=0 && iSubItem>=0)

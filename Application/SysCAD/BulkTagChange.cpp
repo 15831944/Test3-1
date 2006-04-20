@@ -467,10 +467,10 @@ static int HpTagTest(void * p, void * q)
     int iDir=SO[i]>0?1:-1;
     switch (iCol)
       {
-      case ColNumberClass   : Cmp=stricmp(r1->m_pClassId->m_sClassId, r2->m_pClassId->m_sClassId); break;
-      case ColNumberCurrent : Cmp=stricmp(r1->m_sCurrent, r2->m_sCurrent); break;
-      case ColNumberReplace : Cmp=stricmp(r1->GetString(ColNumberReplace), r2->GetString(ColNumberReplace)); break;
-      case ColNumberStatus  : Cmp=stricmp(r1->m_sStatus, r2->m_sStatus); break;
+      case ColNumberClass   : Cmp=_stricmp(r1->m_pClassId->m_sClassId, r2->m_pClassId->m_sClassId); break;
+      case ColNumberCurrent : Cmp=_stricmp(r1->m_sCurrent, r2->m_sCurrent); break;
+      case ColNumberReplace : Cmp=_stricmp(r1->GetString(ColNumberReplace), r2->GetString(ColNumberReplace)); break;
+      case ColNumberStatus  : Cmp=_stricmp(r1->m_sStatus, r2->m_sStatus); break;
       }
     Cmp*=iDir;
     if (Cmp)
@@ -483,7 +483,7 @@ static int HpClassTest(void * p, void * q)
   {
   CBTCClass * r1=(CBTCClass*)p;
   CBTCClass * r2=(CBTCClass*)q;
-  int Cmp=stricmp(r1->m_sClassId, r2->m_sClassId);
+  int Cmp=_stricmp(r1->m_sClassId, r2->m_sClassId);
   return Cmp<0;
   }
 
@@ -491,7 +491,7 @@ static int HpPageTest(void * p, void * q)
   {
   CBTCPage * r1=(CBTCPage*)p;
   CBTCPage * r2=(CBTCPage*)q;
-  int Cmp=stricmp(r1->m_sPageId, r2->m_sPageId);
+  int Cmp=_stricmp(r1->m_sPageId, r2->m_sPageId);
   return Cmp<0;
   }
 
@@ -1778,7 +1778,7 @@ int CBulkTagChange::SetATag(LPCTSTR OldTag, LPCTSTR NewTag)
       //gs_AccessWnds.CloseWnd(-1);
       //for (int a=0; a<NAccessWnds; a++)
       //  {
-      //  if (!fCallAccess && gs_AccessWnds.CurTag(a) && strlen(gs_AccessWnds.CurTag(a))>0 && stricmp(gs_AccessWnds.CurTag(a), OldTag)==0)
+      //  if (!fCallAccess && gs_AccessWnds.CurTag(a) && strlen(gs_AccessWnds.CurTag(a))>0 && _stricmp(gs_AccessWnds.CurTag(a), OldTag)==0)
       //    {
       //    fCallAccess = 1;
       //    break;

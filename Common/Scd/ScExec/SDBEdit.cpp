@@ -1215,7 +1215,7 @@ static MyFldInfo SolnFI[] =
 static MyFldInfo * FindFld(LPCTSTR Name,  MyFldInfo * FI)
   {
   for (int i=0; FI[i].m_Name; i++)
-    if (stricmp(Name, FI[i].m_Name)==0)
+    if (_stricmp(Name, FI[i].m_Name)==0)
       return &FI[i];
   return NULL;
   }
@@ -1514,7 +1514,7 @@ BOOL CSCD_DB::CheckFieldNames(ADOX::_TablePtr &pTbl, MyFldInfo * MFI, char*TablN
     for (i=0; i<ExpectedFldCnt; i++)
       {
       ADOX::_ColumnPtr pCol=pTbl->Columns->GetItem((long)j);
-      if (stricmp(MFI[i].m_Name, pCol->Name)==0)
+      if (_stricmp(MFI[i].m_Name, pCol->Name)==0)
         {
         if (pCol->Type==MFI[i].m_nType)
           {
@@ -2780,7 +2780,7 @@ BOOL CSDBSpecie::ImportSpecies()
       }
     else if (Ext.XStrICmp(".mdb")==0)
       {
-      if (stricmp((LPCTSTR)Filename(), Fn())==0)
+      if (_stricmp((LPCTSTR)Filename(), Fn())==0)
         {
         LogWarning("MDB Import", LF_Exclamation, "Cannot select file to import data to itself!");
         }
@@ -4395,9 +4395,9 @@ BOOL CSDBCnvs::OnInitDialog()
         Col.SetAlignment(1);
         }
 
-//      if (stricmp(FI.m_strName, "ID")==0)
+//      if (_stricmp(FI.m_strName, "ID")==0)
 //        Col.SetWidth(4*8.0f);
-//      else if (stricmp(FI.m_strName, "Conversion")==0)
+//      else if (_stricmp(FI.m_strName, "Conversion")==0)
 //        Col.SetWidth(8*8.0f);
       }
     }

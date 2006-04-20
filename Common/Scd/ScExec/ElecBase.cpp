@@ -1340,7 +1340,7 @@ CETermStripArray &CETermStripArray::operator=(const CETermStripDefnArray & D)
     {
     CETermStrip &TS=*ElementAt(i);
     for (int j=0; j<D.GetSize(); j++)
-      if (stricmp(TS.Name(), D[j].Name())==0)
+      if (_stricmp(TS.Name(), D[j].Name())==0)
         break;
     if (j>=D.GetSize())
       {// this element is not needed
@@ -1355,7 +1355,7 @@ CETermStripArray &CETermStripArray::operator=(const CETermStripDefnArray & D)
     {
     const CETermStripDefn &TSD=D[i];
     for (int j=0; j<GetSize(); j++)
-      if (stricmp(TSD.Name(), ElementAt(j)->Name())==0)
+      if (_stricmp(TSD.Name(), ElementAt(j)->Name())==0)
         break;
     if (j>=GetSize())
       {// this element is needed

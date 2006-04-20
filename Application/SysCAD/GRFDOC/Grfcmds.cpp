@@ -384,67 +384,67 @@ GrfCmdBlk::~GrfCmdBlk()
 void GrfCmdBlk::BuildVNT()
   {
   //TRACE("Open Graphics VNT");
-  ObjAccFn->Set((CmdFn)DoObjectAccess, EF_ERS);
-  ObjVwFn->Set((CmdFn)DoObjectView, EF_ERS);
+  ObjAccFn->Set((CmdFn)&GrfCmdBlk::DoObjectAccess, EF_ERS);
+  ObjVwFn->Set((CmdFn)&GrfCmdBlk::DoObjectView, EF_ERS);
 
-  SETVNT("ACCess",    "Parms", "@ SELect", 1, (CmdFn)DoConfig, EF_ERS);
-  SETVNT("ACCess",    "Vars",  "@ SELect", 1, (CmdFn)DoConfig, EF_ERS);
-  SETVNT("INsert",    "UNit",  "@ Tag Basetag Scale XScale YScale Rotate XY X Y Model * ", 1, (CmdFn)DoInsert, EF_Edit);
-  SETVNT("INsert",    "LInk",  "@ Tag BASetag Ortho Free BRk BACk SNd SIo DNd DIo MOdel MEthod * ", 1, (CmdFn)DoConnect, EF_Edit);
-  SETVNT("CHange",    "UNit",  "@ * = ", 1, (CmdFn)DoChangeUnit, EF_Edit);
-  SETVNT("MOve",      "LInk",  "@ Lnk Ortho Free BRk BAck", 1, (CmdFn)DoMoveLink, EF_Edit);
-  SETVNT("CONStruct", "SYmbol","@ IWin CWin Tag Unitid Symbol Model * CTag ", 1, (CmdFn)DoConstructSymbol, EF_ERS);
-  SETVNT("CONStruct", "UNit", "@ IWin CWin Tag Unitid Symbol Model * CTag ", 1, (CmdFn)DoConstructUnit, EF_ERS);
-  SETVNT("CONStruct", "LInk", "@ IWin CWin SNd SIo DNd DIo Tag Unitid SYmbol Model * CTag ", 1, (CmdFn)DoConstructLink, EF_ERS);
-  SETVNT("CONStruct", "Tie", "Intersect ", 1, (CmdFn)DoConstructTie, EF_ERS);
+  SETVNT("ACCess",    "Parms", "@ SELect", 1, (CmdFn)&GrfCmdBlk::DoConfig, EF_ERS);
+  SETVNT("ACCess",    "Vars",  "@ SELect", 1, (CmdFn)&GrfCmdBlk::DoConfig, EF_ERS);
+  SETVNT("INsert",    "UNit",  "@ Tag Basetag Scale XScale YScale Rotate XY X Y Model * ", 1, (CmdFn)&GrfCmdBlk::DoInsert, EF_Edit);
+  SETVNT("INsert",    "LInk",  "@ Tag BASetag Ortho Free BRk BACk SNd SIo DNd DIo MOdel MEthod * ", 1, (CmdFn)&GrfCmdBlk::DoConnect, EF_Edit);
+  SETVNT("CHange",    "UNit",  "@ * = ", 1, (CmdFn)&GrfCmdBlk::DoChangeUnit, EF_Edit);
+  SETVNT("MOve",      "LInk",  "@ Lnk Ortho Free BRk BAck", 1, (CmdFn)&GrfCmdBlk::DoMoveLink, EF_Edit);
+  SETVNT("CONStruct", "SYmbol","@ IWin CWin Tag Unitid Symbol Model * CTag ", 1, (CmdFn)&GrfCmdBlk::DoConstructSymbol, EF_ERS);
+  SETVNT("CONStruct", "UNit", "@ IWin CWin Tag Unitid Symbol Model * CTag ", 1, (CmdFn)&GrfCmdBlk::DoConstructUnit, EF_ERS);
+  SETVNT("CONStruct", "LInk", "@ IWin CWin SNd SIo DNd DIo Tag Unitid SYmbol Model * CTag ", 1, (CmdFn)&GrfCmdBlk::DoConstructLink, EF_ERS);
+  SETVNT("CONStruct", "Tie", "Intersect ", 1, (CmdFn)&GrfCmdBlk::DoConstructTie, EF_ERS);
 
-  SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
-  SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
-  SETVNT("EXplode",   "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)DoExplode, EF_Edit);
-  SETVNT("EXplode",   "SYmbol", "@ IWin CWin Redraw ; Tag", 1, (CmdFn)DoExplode, EF_Edit);
-  SETVNT("HElp",      "Unit", "@", 1, (CmdFn)DoHelpUnit, EF_ERS);
-  SETVNT("TAg",       "Change", "@ IWin CWin Redraw ;", 1, (CmdFn)DoBulkTagChange, EF_Edit);
+  SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
+  SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
+  SETVNT("EXplode",   "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoExplode, EF_Edit);
+  SETVNT("EXplode",   "SYmbol", "@ IWin CWin Redraw ; Tag", 1, (CmdFn)&GrfCmdBlk::DoExplode, EF_Edit);
+  SETVNT("HElp",      "Unit", "@", 1, (CmdFn)&GrfCmdBlk::DoHelpUnit, EF_ERS);
+  SETVNT("TAg",       "Change", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoBulkTagChange, EF_Edit);
 
-  SETVNT("DIVide",    "LInes", "@", 1, (CmdFn)DoDivide, EF_Edit);
-  SETVNT("ALIgn",     "ENtity", "@", 1, (CmdFn)DoAlign, EF_Edit);
-  SETVNT("ALTer",     "ENtity", "@ IWin CWin ; REdraw SP SM RP RM * D1", 1, (CmdFn)DoAlterEntity, EF_Edit);
-  SETVNT("MArk",      "ENtity", "@ IWin CWin CLear Attach Tag Goto *", 5, (CmdFn)DoSelect, EF_Edit);
-  SETVNT("FInd",      "ENtity", "Goto ", 1, (CmdFn)DoFind, EF_Edit);
-  SETVNT("DUmp",      "ENtity", "@ IWin CWin CLear File", 1, (CmdFn)DoDump, EF_Edit);
-  SETVNT("TRanslate", "ENtity", "@ ; Win XScale YScale XY X Y NX NY SCale SPread", 1, (CmdFn)DoTranslate, EF_Edit);
-  SETVNT("MOve",      "ENtity", "@ IWin CWin ; Redraw", 1, (CmdFn)DoMoveEntity, EF_Edit);
-  SETVNT("LOad",      "DRawing", AName, -1, (CmdFn)DoLoad, EF_Stop);
-  SETVNT("MErge",     "DRawing", AName, -1, (CmdFn)DoMerge, EF_Stop);
-  SETVNT("IMport",    "PDS",     AName, -1, (CmdFn)DoImportPDS, EF_Stop);
-  SETVNT("IMport",    "ELMs",    AName, -1, (CmdFn)Do3DImport, EF_Stop);
-  SETVNT("SAve",      "DRawing", AName, -1, (CmdFn)DoSave, EF_Stop);
-  SETVNT("SAve",      "SYmbols", AName, -1, (CmdFn)DoSaveSymbols, EF_Stop);
-  SETVNT("SEt",       "AUToXEC", AName, -1, (CmdFn)DoSetAutoXEC, EF_ERS);
-  SETVNT("COPy",      "BITmap", N_A, -1, (CmdFn)DoCopyBitmap, EF_ERS);
-  SETVNT("ZOom",      "View", "Win All Page Left Right Down Up IN OUt Set Purge ISo ONce", 1, (CmdFn)DoZoom, EF_ERS);
-  SETVNT("REDraw",     N_A, N_A, -1, (CmdFn)DoReDraw, EF_ERS);
+  SETVNT("DIVide",    "LInes", "@", 1, (CmdFn)&GrfCmdBlk::DoDivide, EF_Edit);
+  SETVNT("ALIgn",     "ENtity", "@", 1, (CmdFn)&GrfCmdBlk::DoAlign, EF_Edit);
+  SETVNT("ALTer",     "ENtity", "@ IWin CWin ; REdraw SP SM RP RM * D1", 1, (CmdFn)&GrfCmdBlk::DoAlterEntity, EF_Edit);
+  SETVNT("MArk",      "ENtity", "@ IWin CWin CLear Attach Tag Goto *", 5, (CmdFn)&GrfCmdBlk::DoSelect, EF_Edit);
+  SETVNT("FInd",      "ENtity", "Goto ", 1, (CmdFn)&GrfCmdBlk::DoFind, EF_Edit);
+  SETVNT("DUmp",      "ENtity", "@ IWin CWin CLear File", 1, (CmdFn)&GrfCmdBlk::DoDump, EF_Edit);
+  SETVNT("TRanslate", "ENtity", "@ ; Win XScale YScale XY X Y NX NY SCale SPread", 1, (CmdFn)&GrfCmdBlk::DoTranslate, EF_Edit);
+  SETVNT("MOve",      "ENtity", "@ IWin CWin ; Redraw", 1, (CmdFn)&GrfCmdBlk::DoMoveEntity, EF_Edit);
+  SETVNT("LOad",      "DRawing", AName, -1, (CmdFn)&GrfCmdBlk::DoLoad, EF_Stop);
+  SETVNT("MErge",     "DRawing", AName, -1, (CmdFn)&GrfCmdBlk::DoMerge, EF_Stop);
+  SETVNT("IMport",    "PDS",     AName, -1, (CmdFn)&GrfCmdBlk::DoImportPDS, EF_Stop);
+  SETVNT("IMport",    "ELMs",    AName, -1, (CmdFn)&GrfCmdBlk::Do3DImport, EF_Stop);
+  SETVNT("SAve",      "DRawing", AName, -1, (CmdFn)&GrfCmdBlk::DoSave, EF_Stop);
+  SETVNT("SAve",      "SYmbols", AName, -1, (CmdFn)&GrfCmdBlk::DoSaveSymbols, EF_Stop);
+  SETVNT("SEt",       "AUToXEC", AName, -1, (CmdFn)&GrfCmdBlk::DoSetAutoXEC, EF_ERS);
+  SETVNT("COPy",      "BITmap", N_A, -1, (CmdFn)&GrfCmdBlk::DoCopyBitmap, EF_ERS);
+  SETVNT("ZOom",      "View", "Win All Page Left Right Down Up IN OUt Set Purge ISo ONce", 1, (CmdFn)&GrfCmdBlk::DoZoom, EF_ERS);
+  SETVNT("REDraw",     N_A, N_A, -1, (CmdFn)&GrfCmdBlk::DoReDraw, EF_ERS);
 
-  SETVNT("INsert",    "Group",  "@ Scale XScale YScale Rotate XY X Y * ", 1, (CmdFn)DoInsertGroup, EF_Edit);
-  SETVNT("SAve",      "Group",  "@ IWin CWin ", 1, (CmdFn)DoSaveGroup, EF_Edit);
+  SETVNT("INsert",    "Group",  "@ Scale XScale YScale Rotate XY X Y * ", 1, (CmdFn)&GrfCmdBlk::DoInsertGroup, EF_Edit);
+  SETVNT("SAve",      "Group",  "@ IWin CWin ", 1, (CmdFn)&GrfCmdBlk::DoSaveGroup, EF_Edit);
 
-  //SETVNT("SHOw",      "Tags", "@ Win All Like NOLike Size Rotation Position NOSize NORotation NAme Display NODisplay", 1, (CmdFn)DoShowAttrs, EF_ERS);
-  //SETVNT("HIde",      "Tags", "@ Win All Like NOLike", 1, (CmdFn)DoHideAttrs, EF_ERS);
-  //SETVNT("MOve",      "Tags", "@ Win All Like NOLike", 1, (CmdFn)DoMoveAttrs, EF_ERS);
-  SETVNT("UPdate",    "TAgs", "@ IWin CWin * All Like NOLike SIze NOSize ROtation NORotation NAme NOName Position NOPosition SHow Hide REdraw NEXt", 1, (CmdFn)DoUpdateTags, EF_ERS);
+  //SETVNT("SHOw",      "Tags", "@ Win All Like NOLike Size Rotation Position NOSize NORotation NAme Display NODisplay", 1, (CmdFn)&GrfCmdBlk::DoShowAttrs, EF_ERS);
+  //SETVNT("HIde",      "Tags", "@ Win All Like NOLike", 1, (CmdFn)&GrfCmdBlk::DoHideAttrs, EF_ERS);
+  //SETVNT("MOve",      "Tags", "@ Win All Like NOLike", 1, (CmdFn)&GrfCmdBlk::DoMoveAttrs, EF_ERS);
+  SETVNT("UPdate",    "TAgs", "@ IWin CWin * All Like NOLike SIze NOSize ROtation NORotation NAme NOName Position NOPosition SHow Hide REdraw NEXt", 1, (CmdFn)&GrfCmdBlk::DoUpdateTags, EF_ERS);
 
-  SETVNT("CReate",    "Fill", "@ Vars * MIn MAx All", 1, (CmdFn)DoCreateFill, EF_ERS);
-  SETVNT("UPdate",    "Fill", "@ Delete", 1, (CmdFn)DoUpdFill, EF_ERS);
-  SETVNT("CReate",    "Bars", "@ * Tags Vars MIn MAx Scale", 1, (CmdFn)DoCreateBars, EF_ERS);
-  SETVNT("UPdate",    "Bars", "@ *", 1, (CmdFn)DoUpdBars, EF_ERS);
-  SETVNT("CReate",    "Annotation", "@ * Tags Vars Scale", 1, (CmdFn)DoNewCreateAnno, EF_ERS);
-  SETVNT("REFresh",   "Annotation", "All", -1, (CmdFn)DoNewRefreshAnno, EF_ERS);
-  SETVNT("UPdate",    "Annotation", "@ *", 1, (CmdFn)DoNewUpdAnno, EF_ERS);
-  SETVNT("CReate",    "TOggle", "@ * Tags Vars Scale", 1, (CmdFn)DoCreateTogg, EF_ERS);
-  SETVNT("UPdate",    "TOggle", "@ *", 1, (CmdFn)DoUpdTogg, EF_ERS);
-  SETVNT("ALTer",     "TExt", "@ * ; Create Update Apply Scale Rotation Txt", 1, (CmdFn)DoAlterText, EF_ERS);
+  SETVNT("CReate",    "Fill", "@ Vars * MIn MAx All", 1, (CmdFn)&GrfCmdBlk::DoCreateFill, EF_ERS);
+  SETVNT("UPdate",    "Fill", "@ Delete", 1, (CmdFn)&GrfCmdBlk::DoUpdFill, EF_ERS);
+  SETVNT("CReate",    "Bars", "@ * Tags Vars MIn MAx Scale", 1, (CmdFn)&GrfCmdBlk::DoCreateBars, EF_ERS);
+  SETVNT("UPdate",    "Bars", "@ *", 1, (CmdFn)&GrfCmdBlk::DoUpdBars, EF_ERS);
+  SETVNT("CReate",    "Annotation", "@ * Tags Vars Scale", 1, (CmdFn)&GrfCmdBlk::DoNewCreateAnno, EF_ERS);
+  SETVNT("REFresh",   "Annotation", "All", -1, (CmdFn)&GrfCmdBlk::DoNewRefreshAnno, EF_ERS);
+  SETVNT("UPdate",    "Annotation", "@ *", 1, (CmdFn)&GrfCmdBlk::DoNewUpdAnno, EF_ERS);
+  SETVNT("CReate",    "TOggle", "@ * Tags Vars Scale", 1, (CmdFn)&GrfCmdBlk::DoCreateTogg, EF_ERS);
+  SETVNT("UPdate",    "TOggle", "@ *", 1, (CmdFn)&GrfCmdBlk::DoUpdTogg, EF_ERS);
+  SETVNT("ALTer",     "TExt", "@ * ; Create Update Apply Scale Rotation Txt", 1, (CmdFn)&GrfCmdBlk::DoAlterText, EF_ERS);
 
-  SETVNT("CONFigure", "LAyers", "* LAyer_name HIde SHow COlor", -1, (CmdFn)DoCfgLayers, EF_ERS);
-  SETVNT("BReak",     "LIne", "Int", 1, (CmdFn)DoBreakLine, EF_ERS);
+  SETVNT("CONFigure", "LAyers", "* LAyer_name HIde SHow COlor", -1, (CmdFn)&GrfCmdBlk::DoCfgLayers, EF_ERS);
+  SETVNT("BReak",     "LIne", "Int", 1, (CmdFn)&GrfCmdBlk::DoBreakLine, EF_ERS);
 
   SETCIS(ID_GRF_Zoom, "zoom view ");
   SETCIS(ID_GRF_DoZoomAll, "zoom view all\r");
@@ -849,10 +849,10 @@ int GrfCmdBlk::CheckEntity(char* pTag)
     pTagObjClass pTagObjC = TagObjClass::FindClassId(Class());
     if (pTagObjC==NULL)
       pTagObjC = TagObjClass::FindClassName(Class());
-    if (pTagObjC && (stricmp(FlwLinkGrp, pTagObjC->Group())==0 ||
-                     stricmp(CtrlLinkGrp, pTagObjC->Group())==0 ||
-                     stricmp(ElecLinkGrp, pTagObjC->Group())==0 ||
-                     stricmp(AirLinkGrp, pTagObjC->Group())==0))
+    if (pTagObjC && (_stricmp(FlwLinkGrp, pTagObjC->Group())==0 ||
+                     _stricmp(CtrlLinkGrp, pTagObjC->Group())==0 ||
+                     _stricmp(ElecLinkGrp, pTagObjC->Group())==0 ||
+                     _stricmp(AirLinkGrp, pTagObjC->Group())==0))
       return 2; //link
     return 1; //unit/node
     }
@@ -937,7 +937,7 @@ flag GetAFileName(pchar Fn1In, pchar Sel1, pchar Fn1, int Fn1Len,
     int Pos = 0;
     if (E && strlen(E)>0)
       {
-      if (stricmp(&E[1], "dxf")==0)
+      if (_stricmp(&E[1], "dxf")==0)
         sprintf(Filter, "Drawing Files (*%s)", E);
       else
         sprintf(Filter, "(*%s)", E);
@@ -2360,10 +2360,10 @@ void GrfCmdBlk::DoChangeUnit()
                   TagObjClass * pTagObjC = TagObjClass::FindClassId(Class());
                   if (pTagObjC==NULL)
                     pTagObjC = TagObjClass::FindClassName(Class());
-                  if (pTagObjC && (stricmp(FlwLinkGrp, pTagObjC->Group())==0 ||
-                                  stricmp(CtrlLinkGrp, pTagObjC->Group())==0 ||
-                                  stricmp(ElecLinkGrp, pTagObjC->Group())==0 ||
-                                  stricmp(AirLinkGrp, pTagObjC->Group())==0))
+                  if (pTagObjC && (_stricmp(FlwLinkGrp, pTagObjC->Group())==0 ||
+                                  _stricmp(CtrlLinkGrp, pTagObjC->Group())==0 ||
+                                  _stricmp(ElecLinkGrp, pTagObjC->Group())==0 ||
+                                  _stricmp(AirLinkGrp, pTagObjC->Group())==0))
                     {
                     pDsp->Vp1->ClearAllEntity();
                     pDsp->Vp1->ClrSelectionAllList();
@@ -3634,7 +3634,7 @@ void GrfCmdBlk::DoConnect()
   pDsp->Open();
   CConnectBlk* CB = ((CConnectBlk*)gs_pCmd->GetDataBlk());
 
-  //SETVNT("INsert",    "LInk",  "@ Tag BASetag Ortho Free BRk BACk SNd SIo DNd DIo MOdel MEthod * ", 1, (CmdFn)DoConnect, EF_Edit);
+  //SETVNT("INsert",    "LInk",  "@ Tag BASetag Ortho Free BRk BACk SNd SIo DNd DIo MOdel MEthod * ", 1, (CmdFn)&GrfCmdBlk::DoConnect, EF_Edit);
   enum MId { MID_Dig=1, MID_Tag, MID_BaseTag, MID_Ortho, MID_Free, MID_Brk, MID_Back,
              MID_SNd, MID_SIo, MID_DNd, MID_DIo, MID_MOdel, MID_MEthod, MID_Dlg};
 
@@ -4037,7 +4037,7 @@ void GrfCmdBlk::DoMoveLink()
   pDsp->Open();
   CConnectBlk* CB = ((CConnectBlk*)gs_pCmd->GetDataBlk());
 
-  //SETVNT("MOve",      "LInk",  "@ Lnk Ortho Free BRk BAck", 1, (CmdFn)DoMoveLink, EF_Edit);
+  //SETVNT("MOve",      "LInk",  "@ Lnk Ortho Free BRk BAck", 1, (CmdFn)&GrfCmdBlk::DoMoveLink, EF_Edit);
   enum MId { MID_Dig=1, MID_Lnk, MID_Ortho, MID_Free, MID_Brk, MID_Back };
 
   bool DoCleanup = false;
@@ -4542,7 +4542,7 @@ void GrfCmdBlk::DoConstructSymbol()
 
 void GrfCmdBlk::DoConstructUnit()
   {
-  //SETVNT("CONStruct", "UNit", "@ IWin CWin Tag Unitid Symbol Model * CTag ", 1, (CmdFn)DoConstructUnit, EF_ERS);
+  //SETVNT("CONStruct", "UNit", "@ IWin CWin Tag Unitid Symbol Model * CTag ", 1, (CmdFn)&GrfCmdBlk::DoConstructUnit, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static CInsertUnitDlg* sm_pCnsDlg = NULL;
@@ -4829,7 +4829,7 @@ void GrfCmdBlk::DoConstructUnit()
 
 void GrfCmdBlk::DoConstructLink()
   {
-  //SETVNT("CONStruct", "LInk", "@ IWin CWin SNd SIo DNd DIo Tag Unitid SYmbol Model * CTag ", 1, (CmdFn)DoConstructLink, EF_ERS);
+  //SETVNT("CONStruct", "LInk", "@ IWin CWin SNd SIo DNd DIo Tag Unitid SYmbol Model * CTag ", 1, (CmdFn)&GrfCmdBlk::DoConstructLink, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static CInsertUnitDlg* sm_pCnsDlg = NULL;
@@ -5498,7 +5498,7 @@ void GrfCmdBlk::DoBreakLine()
 
 void GrfCmdBlk::DoTranslate()
   {
-  //SETVNT("TRanslate", "ENtity", "@ ; Win XScale YScale XY X Y NX NY SCale SPread", 1, (CmdFn)DoTranslate, EF_Edit);
+  //SETVNT("TRanslate", "ENtity", "@ ; Win XScale YScale XY X Y NX NY SCale SPread", 1, (CmdFn)&GrfCmdBlk::DoTranslate, EF_Edit);
   pDsp->Open();
   switch (When)
     {
@@ -5626,7 +5626,7 @@ void GrfCmdBlk::DoTranslate()
 
 void GrfCmdBlk::DoMoveEntity()
   {
-  //SETVNT("MOve", "ENtity", "@ IWin CWin ; Redraw", 1, (CmdFn)DoMoveEntity, EF_Edit);
+  //SETVNT("MOve", "ENtity", "@ IWin CWin ; Redraw", 1, (CmdFn)&GrfCmdBlk::DoMoveEntity, EF_Edit);
   enum MID { MID_Dig=1, MID_IWin, MID_CWin, MID_Next, MID_Redraw };
   pDsp->Open();
   switch (When)
@@ -5834,7 +5834,7 @@ typedef CArray <CEntInView*, CEntInView*&> EntityArray;
 
 void GrfCmdBlk::DoAlterEntity()
   {
-  //SETVNT("ALter", "ENtity", "@ IWin CWin ; REdraw SP SM RP RM * D1 D2", 1, (CmdFn)DoAlterEntity, EF_Edit);
+  //SETVNT("ALter", "ENtity", "@ IWin CWin ; REdraw SP SM RP RM * D1 D2", 1, (CmdFn)&GrfCmdBlk::DoAlterEntity, EF_Edit);
   static CScaleRotateDlg* pSclRotDlg = NULL;
   pDsp->Open();
   switch (When)
@@ -6111,7 +6111,7 @@ static char * b999[] =
 
 void GrfCmdBlk::DoSelect()
   {
-  //SETVNT("MArk", "ENtity", "@ IWin CWin CLear Attach Tag Goto *", 5, (CmdFn)DoSelect, EF_Edit);
+  //SETVNT("MArk", "ENtity", "@ IWin CWin CLear Attach Tag Goto *", 5, (CmdFn)&GrfCmdBlk::DoSelect, EF_Edit);
   pDsp->Open();
   flag DoGoto = 0;
   flag GotoFromToolbar = 0;
@@ -6292,7 +6292,7 @@ void GrfCmdBlk::DoSelect()
 
 void GrfCmdBlk::DoFind()
   {
-  //SETVNT("MArk", "ENtity", "@ IWin CWin CLear Attach Tag Goto *", 5, (CmdFn)DoSelect, EF_Edit);
+  //SETVNT("MArk", "ENtity", "@ IWin CWin CLear Attach Tag Goto *", 5, (CmdFn)&GrfCmdBlk::DoSelect, EF_Edit);
   pDsp->Open();
   flag DoGoto = 0;
   flag GotoFromToolbar = 0;
@@ -6402,7 +6402,7 @@ void GrfCmdBlk::DoFind()
 
 void GrfCmdBlk::DoDump()
   {
-  //SETVNT("DUmp", "ENtity", "@ IWin CWin CLear File", 1, (CmdFn)DoDump, EF_Edit);
+  //SETVNT("DUmp", "ENtity", "@ IWin CWin CLear File", 1, (CmdFn)&GrfCmdBlk::DoDump, EF_Edit);
   pDsp->Open();
   switch (When)
     {
@@ -6688,8 +6688,8 @@ typedef CArray <tExpBlkEntry, tExpBlkEntry&> ExpBlk;
 
 void GrfCmdBlk::DoExplode()
   {
-  //SETVNT("EXplode",   "UNit",   "@ IWin CWin Redraw ;", 1, (CmdFn)DoExplode, EF_Edit);
-  //SETVNT("EXplode",   "SYmbol", "@ IWin CWin Redraw ; Tag", 1, (CmdFn)DoExplode, EF_Edit);
+  //SETVNT("EXplode",   "UNit",   "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoExplode, EF_Edit);
+  //SETVNT("EXplode",   "SYmbol", "@ IWin CWin Redraw ; Tag", 1, (CmdFn)&GrfCmdBlk::DoExplode, EF_Edit);
   enum MId { MID_Dig=1, MID_IWin, MID_CWin, MID_Redraw, MID_Next, MID_Tag };
   if (gs_Exec.Busy())
     return;
@@ -7320,7 +7320,7 @@ void GrfCmdBlk::DoHelpUnit()
                 //  {
                 //  Strng HlpFile(pMdlDLL);
                 //  int l=HlpFile.Length();
-                //  if (stricmp(&HlpFile[l-4], ".dll")==0)
+                //  if (_stricmp(&HlpFile[l-4], ".dll")==0)
                 //    HlpFile.SetLength(l-4);
                 //  HlpFile+=".hlp";
                 //  ::WinHelp(pWnd->m_hWnd, HlpFile(), HELP_PARTIALKEY, (UINT)Class());
@@ -7356,8 +7356,8 @@ void GrfCmdBlk::DoHelpUnit()
 
 void GrfCmdBlk::DoDelete()
   {
-  //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
-  //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
+  //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
+  //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
   if (gs_Exec.Busy())
     return;
   pDsp->Open();
@@ -7568,8 +7568,8 @@ void GrfCmdBlk::DoDelete()
 
 void GrfCmdBlk::DoBulkTagChange()
   {
-  //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
-  //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
+  //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
+  //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
   if (gs_Exec.Busy())
     return;
   pDsp->Open();
@@ -7924,8 +7924,8 @@ void GrfCmdBlk::DoInsertGroup()
 void GrfCmdBlk::DoSaveGroup()
   {
   static CNeutralExportDBDlg * pDBDlg = NULL;
-  //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
-  //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)DoDelete, EF_Edit);
+  //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
+  //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
   if (gs_Exec.Busy())
     return;
   pDsp->Open();
@@ -8561,7 +8561,7 @@ void GrfCmdBlk::DoSetAutoXEC()
 
 void GrfCmdBlk::DoZoom()
   {
-  //SETVNT("ZOom",      "View", "Win All Page Left Right Down Up IN OUt Set Purge ISo ONce", 1, (CmdFn)DoZoom, EF_ERS);
+  //SETVNT("ZOom",      "View", "Win All Page Left Right Down Up IN OUt Set Purge ISo ONce", 1, (CmdFn)&GrfCmdBlk::DoZoom, EF_ERS);
   pDsp->Open();
   switch (When)
     {
@@ -8655,7 +8655,7 @@ void GrfCmdBlk::DoReDraw()
 
 void GrfCmdBlk::DoCopyBitmap()
   {
-  //SETVNT("COPy",      "BITmap", N_A, -1, (CmdFn)DoCopyBitmap, EF_ERS);
+  //SETVNT("COPy",      "BITmap", N_A, -1, (CmdFn)&GrfCmdBlk::DoCopyBitmap, EF_ERS);
   if (When==EX_EXEC)
     {
     pDsp->Open();
@@ -8706,7 +8706,7 @@ void GrfCmdBlk::ShowAttrs(DXF_ENTITY Ins, flag Tags)
         {
         int TLen = strlen (Attr_Tag (TAtt));
         int VLen = strlen (Attr_Value (TAtt));
-        if ((strnicmp(Attr_Tag(TAtt), Attr_Value(TAtt), TLen) != 0) && (Attr_Value(TAtt)[TLen] != ':'))
+        if ((_strnicmp(Attr_Tag(TAtt), Attr_Value(TAtt), TLen) != 0) && (Attr_Value(TAtt)[TLen] != ':'))
           {
           pchar vs = & (Attr_Value(TAtt)[TLen + 1]);
           memmove(vs, Attr_Value(TAtt), VLen + 1);
@@ -8717,7 +8717,7 @@ void GrfCmdBlk::ShowAttrs(DXF_ENTITY Ins, flag Tags)
       if (AttrName < 0)
         {
         int TLen = strlen (Attr_Tag (TAtt));
-        if ((strnicmp(Attr_Tag(TAtt), Attr_Value(TAtt), TLen) == 0) && (Attr_Value(TAtt)[TLen] == ':'))
+        if ((_strnicmp(Attr_Tag(TAtt), Attr_Value(TAtt), TLen) == 0) && (Attr_Value(TAtt)[TLen] == ':'))
           {
           pchar vs = & (Attr_Value(TAtt)[TLen + 1]);
           memmove(Attr_Value(TAtt), vs, strlen(vs) + 1);
@@ -8783,7 +8783,7 @@ DXF_ENTITY GrfCmdBlk::FirstAttr(DXF_ENTITY Ins, flag Tags)
 
 void GrfCmdBlk::DoUpdateTags()
   {
-  //SETVNT("UPdate", "TAgs", "@ IWin CWin * All Like NOLike SIze NOSize ROtation NORotation NAme NOName Position NOPosition SHow Hide REdraw NEXt", 1, (CmdFn)DoUpdateTags, EF_ERS);
+  //SETVNT("UPdate", "TAgs", "@ IWin CWin * All Like NOLike SIze NOSize ROtation NORotation NAme NOName Position NOPosition SHow Hide REdraw NEXt", 1, (CmdFn)&GrfCmdBlk::DoUpdateTags, EF_ERS);
   enum MId { MID_Dig=1, MID_IWin, MID_CWin, MID_Dlg, MID_All, MID_Like, MID_NoLike, MID_Size, MID_NoSize, MID_Rotation, MID_NoRotation, MID_Name, MID_NoName, MID_Position, MID_NoPosition, MID_Show, MID_Hide, MID_Redraw, MID_Next };
   static CUpdateTagsDlg* pTagsDlg = NULL;
   pDsp->Open();
@@ -9064,7 +9064,7 @@ void GrfCmdBlk::DoUpdateTags()
 
 void GrfCmdBlk::DoCreateFill()
   {
-  //SETVNT("CReate", "Fill", "@ Vars * MIn MAx All", 1, (CmdFn)DoCreateFill, EF_ERS);
+  //SETVNT("CReate", "Fill", "@ Vars * MIn MAx All", 1, (CmdFn)&GrfCmdBlk::DoCreateFill, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static flag doit;
@@ -9318,7 +9318,7 @@ void GrfCmdBlk::DoCreateFill()
 
 void GrfCmdBlk::DoUpdFill()
   {
-  //SETVNT("UPdate", "Fill", "@ Delete", 1, (CmdFn)DoUpdFill, EF_ERS);
+  //SETVNT("UPdate", "Fill", "@ Delete", 1, (CmdFn)&GrfCmdBlk::DoUpdFill, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static DXF_ENTITY TheInsert = NULL;
@@ -9448,7 +9448,7 @@ void GrfCmdBlk::DoUpdFill()
 
 void GrfCmdBlk::DoCreateBars()
   {
-  //SETVNT("CReate", "Bars", "@ * Tags Vars MIn MAx Scale", 1, (CmdFn)DoCreateBars, EF_ERS);
+  //SETVNT("CReate", "Bars", "@ * Tags Vars MIn MAx Scale", 1, (CmdFn)&GrfCmdBlk::DoCreateBars, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static CCreateBarDlg* pBarsDlg = NULL;
@@ -9810,7 +9810,7 @@ void GrfCmdBlk::DoUpdBars()
 
 void GrfCmdBlk::DoCreateTogg()
   {
-  //SETVNT("CReate", "Toggle", "@ * Tags Vars Scale", 1, (CmdFn)DoCreateTogg, EF_ERS);
+  //SETVNT("CReate", "Toggle", "@ * Tags Vars Scale", 1, (CmdFn)&GrfCmdBlk::DoCreateTogg, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static bool TagsOn;
@@ -9998,7 +9998,7 @@ void GrfCmdBlk::DoCreateTogg()
 
 void GrfCmdBlk::DoUpdTogg()
   {
-  //SETVNT("UPdate", "Toggle", "@ *", 1, (CmdFn)DoUpdTogg, EF_ERS);
+  //SETVNT("UPdate", "Toggle", "@ *", 1, (CmdFn)&GrfCmdBlk::DoUpdTogg, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static CUpdateBarDlg* pBarsDlg = NULL;
@@ -10097,7 +10097,7 @@ void GrfCmdBlk::DoUpdTogg()
 
 void GrfCmdBlk::DoNewCreateAnno()
   {
-  //SETVNT("CReate", "Annotation", "@ * Size", 1, (CmdFn)DoNewCreateAnno, EF_ERS);
+  //SETVNT("CReate", "Annotation", "@ * Size", 1, (CmdFn)&GrfCmdBlk::DoNewCreateAnno, EF_ERS);
   if (gs_Exec.Busy())
     return;
   static bool TagsOn;
@@ -10296,7 +10296,7 @@ void GrfCmdBlk::DoNewCreateAnno()
 
 void GrfCmdBlk::DoNewRefreshAnno()
   {
-  //SETVNT("REFresh", "Annotation", "All", -1, (CmdFn)DoNewRefreshAnno, EF_ERS);
+  //SETVNT("REFresh", "Annotation", "All", -1, (CmdFn)&GrfCmdBlk::DoNewRefreshAnno, EF_ERS);
   if (When==EX_MODIFIER_RDY)
     {
     pDsp->Open();
@@ -10456,7 +10456,7 @@ void GrfCmdBlk::DoAlterText()
     return;
 #define UseBlockAndAttrib 0
 
-  //SETVNT("ALTer",     "TExt", "@ * ; Create Update Apply Scale Rotation Txt", 1, (CmdFn)DoAlterText, EF_ERS);
+  //SETVNT("ALTer",     "TExt", "@ * ; Create Update Apply Scale Rotation Txt", 1, (CmdFn)&GrfCmdBlk::DoAlterText, EF_ERS);
   enum MId { MID_Dig=1, MID_Dlg, MID_Next, MID_Create, MID_Update, MID_Apply, MID_Scale, MID_Rotation, MID_Txt };
   static CGrfTextDlg* pTextDlg = NULL;
   pDsp->Open();
@@ -10676,7 +10676,7 @@ void GrfCmdBlk::DoAlterText()
 
 void GrfCmdBlk::DoCfgLayers()
   {
-  //SETVNT("CONFigure", "LAyers", "* LAyer_name HIde SHow COlor", -1, (CmdFn)DoCfgLayers, EF_ERS);
+  //SETVNT("CONFigure", "LAyers", "* LAyer_name HIde SHow COlor", -1, (CmdFn)&GrfCmdBlk::DoCfgLayers, EF_ERS);
   static CLayersDlg* pLayDlg = NULL;
   pDsp->Open();
   switch (When)
@@ -11079,7 +11079,7 @@ flag GrfCmdBlk::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar p
     if (TAtt && Attr_Is(TAtt, "Tag"))
       {
       pchar pAttr=Attr_Value(TAtt);
-      if (stricmp(pTag, pAttr) == 0)
+      if (_stricmp(pTag, pAttr) == 0)
         return false; //found tag
       }
     Ins = pDrw->Next_Insert(InsInfo);
@@ -11173,7 +11173,7 @@ void GrfCmdBlk::Do3DImport()
       {
       CEvalOrderItem &I=Info[t];
       flag b = gs_pPrj->RequestModelClassId(I.m_sTag(), ClassId);
-      if (stricmp(ClassId(), "pipe-1")!=0)
+      if (_stricmp(ClassId(), "pipe-1")!=0)
         {
         long NoFIOs=I.m_FIOs.GetSize();
         long NoCIOs=I.m_CIOs.GetSize();
@@ -11263,7 +11263,7 @@ void GrfCmdBlk::Do3DImport()
       {
       CEvalOrderItem &I=Info[t];
       flag b = gs_pPrj->RequestModelClassId(I.m_sTag(), ClassId);
-      if (stricmp(ClassId(), "pipe-1")==0)
+      if (_stricmp(ClassId(), "pipe-1")==0)
         {
         if (1)
           {
@@ -11536,7 +11536,7 @@ void GrfCmdBlk::Do3DImport()
 
 /*void GrfCmdBlk::DoShowHideAttrs(flag Show, flag Tags)
   {
-  //SETVNT("SHow", "Annotation", "@ IWin CWin All Like NOLike Size NOSize Rotation NORotation Display NODisplay NAme NOName Position", 1, (CmdFn)DoShowAttrs, EF_ERS);
+  //SETVNT("SHow", "Annotation", "@ IWin CWin All Like NOLike Size NOSize Rotation NORotation Display NODisplay NAme NOName Position", 1, (CmdFn)&GrfCmdBlk::DoShowAttrs, EF_ERS);
   pDsp->Open();
   switch (When)
     {

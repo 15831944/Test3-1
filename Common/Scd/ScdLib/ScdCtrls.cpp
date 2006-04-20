@@ -1142,7 +1142,7 @@ int CHeaderListBox::FindStringExactInColumn(int nColumn, int nIndexStart, LPCTST
     {
     CString Txt;
     GetTextInColumn(nColumn, i, Txt);
-    if (Txt.GetLength()==len && stricmp((const char*)Txt, lpszFind)==0)
+    if (Txt.GetLength()==len && _stricmp((const char*)Txt, lpszFind)==0)
       return i;
     }
   return LB_ERR;
@@ -1386,7 +1386,7 @@ HTREEITEM CCustomTreeCtrl::FindChildItem(HTREEITEM H, char* pTxt)
   while (HH)
     {
     CString s = GetItemText(HH);
-    if (stricmp((const char*)s, pTxt)==0)
+    if (_stricmp((const char*)s, pTxt)==0)
       return HH;
     if (GetChildItem(HH))
       {
@@ -1430,7 +1430,7 @@ HTREEITEM CCustomTreeCtrl::FindItem(HTREEITEM H, byte Level, char* pTxt, byte Rq
     else
       {
       CString s = GetItemText(H);
-      if (stricmp((const char*)s, pTxt)==0)
+      if (_stricmp((const char*)s, pTxt)==0)
         return H;
       }
     H = GetNextSiblingItem(H);

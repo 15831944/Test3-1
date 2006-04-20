@@ -472,7 +472,7 @@ MPSDDefn & MPSDDefns::operator[](long index) { return m_Defs[index]; };
 
 bool MInitialise()
   {
-  static InitReqd = true;
+  static bool InitReqd = true;
   if (InitReqd)
     {
     InitReqd = false;

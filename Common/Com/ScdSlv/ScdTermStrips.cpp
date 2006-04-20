@@ -50,7 +50,7 @@ STDMETHODIMP CScdTermStrips::TermStrip( VARIANT  WhichOne,  IScdTermStrip * *  p
         SCD_LclStr(Name, WhichOne.bstrVal);
         for (int i=0; i<m_TermStrips.GetCount(); i++)
           {
-          if (stricmp(m_TermStrips[i]->m_sName, Name)==0)
+          if (_stricmp(m_TermStrips[i]->m_sName, Name)==0)
             {
             IScdTermStrip * p;
             ::CoCreateInstance(CLSID_ScdTermStrip, NULL, CLSCTX_ALL, IID_IScdTermStrip, (void**)&p);

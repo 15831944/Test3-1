@@ -244,7 +244,7 @@ byte CHistCat::Load(flag HdOnly/*=false*/)
             for (long i=0; i<Data.iCatItemCnt; i++)
               {
               F.Read((void*)&TempData, sizeof(HD_CatItem));
-              if (stricmp(TempData.sScenName, pHistory->Data.sScenName)==0)
+              if (_stricmp(TempData.sScenName, pHistory->Data.sScenName)==0)
                 {
                 MakeCatItemSpace();
                 CatItems[iCatItemCnt] = new CCatItem;
@@ -352,7 +352,13 @@ void CHistCat::AddCatItem(WORD CatNo)
   CatItems[iCatItemCnt]->Data.dStartTime = pHistory->dTime;
   CatItems[iCatItemCnt]->Data.dLastTime = pHistory->dTime;
   CatItems[iCatItemCnt]->lRecNo = Data.iCatItemCnt;
+#if 0 /*_MSC_VER >= 1400*/ 
+  time_t t;
+  time(&t);
+  CatItems[iCatItemCnt]->Data.lCreateTime=(long)t;
+#else
   time(&CatItems[iCatItemCnt]->Data.lCreateTime);
+#endif
   ItemsMap.SetAt(CatNo, iCatItemCnt);
   iCatItemCnt++;
   Data.iCatItemCnt++;

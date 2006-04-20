@@ -151,7 +151,7 @@ void DocRoot::SetTitle(LPCTSTR lpszTitle)
         if (pDoc!=this)
           {
           CString Title = pDoc->GetTitle();
-          if (Title.GetLength()==s.GetLength() && stricmp((const char*)s, (const char*)Title)==0)
+          if (Title.GetLength()==s.GetLength() && _stricmp((const char*)s, (const char*)Title)==0)
             Found = True;
           }
         }
@@ -201,7 +201,7 @@ void DocRoot::SetPathName(LPCTSTR pszPathName, BOOL bAddToMRU/* = TRUE*/)
   {
   Strng T;
   T.FnExt((pchar)pszPathName);
-  CDocument::SetPathName(pszPathName, (stricmp(T() ? T():"", ".spj")==0));
+  CDocument::SetPathName(pszPathName, (_stricmp(T() ? T():"", ".spj")==0));
   }
 
 //---------------------------------------------------------------------------
@@ -429,7 +429,7 @@ BOOL DocRoot::OnSaveDocument(const char* pszPathName)
       if (pDoc!=this)
         {
         CString PathName = pDoc->GetPathName();
-        if (PathName.GetLength()==len && stricmp((const char*)PathName, pszPathName)==0)
+        if (PathName.GetLength()==len && _stricmp((const char*)PathName, pszPathName)==0)
           {
           LogError("SysCAD", LF_Exclamation, "Save As '%s' failed. Document/window allready open!", pszPathName);
           return False;
@@ -491,7 +491,7 @@ BOOL DocRoot::OpenDocument(const char* pszPathName)
   pchar ext=Ext.GetBuffer(0);
   const int l=strlen(Fn);
   const int el=strlen(ext);
-  if (l<=el || (stricmp(&Fn[l-el], ext)!=0 && Fn[l-el]!='.'))
+  if (l<=el || (_stricmp(&Fn[l-el], ext)!=0 && Fn[l-el]!='.'))
     strcat(Fn, ext);
 
   FILE* pFile= fopen(Fn, "rt");
@@ -564,7 +564,7 @@ BOOL DocRoot::SaveDocument(const char* pszPathName)
   const int el=strlen(ext);
   if (l<=el)
     strcat(Fn, ext);
-  else if (stricmp(&Fn[l-el], ext)!=0)
+  else if (_stricmp(&Fn[l-el], ext)!=0)
     {
     if (Fn[l-el]=='.')
       Fn[l-el]=0; //"old" or "incorect" extension needs to be replaced
@@ -671,13 +671,13 @@ void DocCmdBlk::OnActivateDoc(flag bActivate)
 void DocCmdBlk::BuildVNT()
   {
   //TRACE("Open Root VNT\n");
-  //SETVNT("ACTivate",   "Flwsheet_Cmds",      N_A,                1, (CmdFn)DoActivate,     EF_ERS);
-  //SETVNT("ACTivate",   "Instrument_Cmds",    N_A,                1, (CmdFn)DoActivate,     EF_ERS);
-  SETVNT("NEw",        "DOcument",           N_A,                1, (CmdFn)DoNew,          EF_ERS);
-  SETVNT("LOad",       "DOcument",           AName,              1, (CmdFn)DoOpen,         EF_ERS);
-  SETVNT("SAve",       "DOcument",           AName,              1, (CmdFn)DoSave,         EF_ERS);
-  SETVNT("CLOse",      "DOcument",           N_A,                1, (CmdFn)DoClose,        EF_ERS);
-  //SETVNT("CLEar",      "DOcument",           N_A,                1, (CmdFn)DoClear,        EF_ERS);
+  //SETVNT("ACTivate",   "Flwsheet_Cmds",      N_A,                1, (CmdFn)&DocCmdBlk::DoActivate,     EF_ERS);
+  //SETVNT("ACTivate",   "Instrument_Cmds",    N_A,                1, (CmdFn)&DocCmdBlk::DoActivate,     EF_ERS);
+  SETVNT("NEw",        "DOcument",           N_A,                1, (CmdFn)&DocCmdBlk::DoNew,          EF_ERS);
+  SETVNT("LOad",       "DOcument",           AName,              1, (CmdFn)&DocCmdBlk::DoOpen,         EF_ERS);
+  SETVNT("SAve",       "DOcument",           AName,              1, (CmdFn)&DocCmdBlk::DoSave,         EF_ERS);
+  SETVNT("CLOse",      "DOcument",           N_A,                1, (CmdFn)&DocCmdBlk::DoClose,        EF_ERS);
+  //SETVNT("CLEar",      "DOcument",           N_A,                1, (CmdFn)&DocCmdBlk::DoClear,        EF_ERS);
 
   //VERIFY(NCmds<MaxCmds);
   }
@@ -894,7 +894,7 @@ void OleDocRoot::SetTitle(LPCTSTR lpszTitle)
         if (pDoc!=this)
           {
           CString Title = pDoc->GetTitle();
-          if (Title.GetLength()==s.GetLength() && stricmp((const char*)s, (const char*)Title)==0)
+          if (Title.GetLength()==s.GetLength() && _stricmp((const char*)s, (const char*)Title)==0)
             Found = True;
           }
         }
@@ -936,7 +936,7 @@ void OleDocRoot::SetPathName(LPCTSTR pszPathName, BOOL bAddToMRU/* = TRUE*/)
   {
   Strng T;
   T.FnExt((pchar)pszPathName);
-  COleLinkingDoc::SetPathName(pszPathName, (stricmp(T(), ".spj")==0));
+  COleLinkingDoc::SetPathName(pszPathName, (_stricmp(T(), ".spj")==0));
   }
 
 //---------------------------------------------------------------------------
@@ -1162,7 +1162,7 @@ BOOL OleDocRoot::OnSaveDocument(const char* pszPathName)
       if (pDoc!=this)
         {
         CString PathName = pDoc->GetPathName();
-        if (PathName.GetLength()==len && stricmp((const char*)PathName, pszPathName)==0)
+        if (PathName.GetLength()==len && _stricmp((const char*)PathName, pszPathName)==0)
           {
           LogError("SysCAD", LF_Exclamation, "Save As '%s' failed. Document/window allready open!", pszPathName);
           return False;
@@ -1224,7 +1224,7 @@ void OleDocRoot::DeleteContents()
 //  pchar ext=Ext.GetBuffer(0);
 //  int l=strlen(Fn);
 //  int el=strlen(ext);
-//  if (l<=el || stricmp(&Fn[l-el], ext)!=0)
+//  if (l<=el || _stricmp(&Fn[l-el], ext)!=0)
 //    strcat(Fn, ext);
 //
 //  FILE* pFile= fopen(Fn, "rt");
@@ -1295,7 +1295,7 @@ void OleDocRoot::DeleteContents()
 //  pchar ext=Ext.GetBuffer(0);
 //  int l=strlen(Fn);
 //  int el=strlen(ext);
-//  if (l<=el || stricmp(&Fn[l-el], ext)!=0)
+//  if (l<=el || _stricmp(&Fn[l-el], ext)!=0)
 //    strcat(Fn, ext);
 //
 //  FILE* pFile= fopen(Fn, "wt");

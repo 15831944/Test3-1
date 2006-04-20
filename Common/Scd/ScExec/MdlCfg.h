@@ -183,7 +183,7 @@ class CDllInfoArray : public CBaseDllInfoArray
     int FindByName(char* pName)
       {
       for (int i=0; i<GetSize(); i++)
-        if (stricmp(ElementAt(i).Name(), pName)==0)
+        if (_stricmp(ElementAt(i).Name(), pName)==0)
           return i;
       return -1;
       };
@@ -213,7 +213,7 @@ class SpCfgSpecies : public BaseSpCfgSpecies
         return -1;
       const int len = strlen(pName);
       for (int i=0; i<GetSize(); i++)
-        if (ElementAt(i).Comp.Len()==len && stricmp(ElementAt(i).Comp(), pName)==0)
+        if (ElementAt(i).Comp.Len()==len && _stricmp(ElementAt(i).Comp(), pName)==0)
           return i;
       return -1;
       };

@@ -19,10 +19,24 @@
   #define LIBCOMMENTHD  ""
 #endif
 
+#if _MSC_VER>=1400
+
 #if defined(_DEBUG)
-#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "DBG" b ".lib")
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Dbg8" b ".lib")
 #elif defined(_RELEASE)
-#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "RLS" b ".lib")
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Rls8" b ".lib")
 #else
-#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "RDB" b ".lib")
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "RDb8" b ".lib")
+#endif
+
+#else
+
+#if defined(_DEBUG)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Dbg" b ".lib")
+#elif defined(_RELEASE)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Rls" b ".lib")
+#else
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "RDb" b ".lib")
+#endif
+
 #endif

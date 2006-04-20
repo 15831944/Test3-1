@@ -117,6 +117,7 @@ return;
 
 #define STDIO_BUF_SIZE 16384
 
+#if (_MSC_VER<1400)
 int __far __cdecl printf(const char *format, ...)
 {
 va_list argptr;
@@ -141,6 +142,7 @@ GlobalUnlock(hMemory);
 GlobalFree(hMemory);
 return len;
 }
+#endif
 
 /* fprintf clone for code in zip.c, etc. */
 int __far __cdecl fprintf(FILE *file, const char *format, ...)
@@ -173,9 +175,10 @@ GlobalFree(hMemory);
 return len;
 }
 
+#if (_MSC_VER<1400)
 void __far __cdecl perror(const char *parm1)
 {
 printf(parm1);
 }
-
+#endif
 

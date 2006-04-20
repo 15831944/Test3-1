@@ -15,7 +15,8 @@
 //========================================================================
 //NB Do NOT change CopyNotice!
 const char* CopyNotice = "SysCAD 7.1 - Historian file - Copyright (C) Kenwalt 1995                      \r\n";
-                        //12345678901234567890123456789012345678901234567890123456789012345678901234567890
+                        //012345678901234567890123456789012345678901234567890123456789012345678901234567890
+                        //          1         2         3         4         5         6         7         8
 const char* NewBlkKey = "NEW_BLK_NOT_INITIALISED!!!@#$%^&*xXxX";
 
 //===========================================================================
@@ -53,8 +54,8 @@ HD_Hist::HD_Hist()
   iMaxDeltaTimeCnt = DefaultTimeCnt;  
   lMaxTimeSliceLen = DefaultSliceSize;
   iCurCatNo = 0;
-  strncpy(sScenName, "scn1", sizeof(sScenName));
-  strncpy(sCopyNotice, CopyNotice, sizeof(sCopyNotice));
+  strncpy(sScenName, "scn1", strlen("scn1")+1);//sizeof(sScenName));
+  memcpy(sCopyNotice, CopyNotice, sizeof(sCopyNotice));
   memset(sSpare, 0, sizeof(sSpare));
   }
 
@@ -145,7 +146,7 @@ HD_CatHead::HD_CatHead()
   { 
   iCatItemCnt = 0; 
   iNextCatNo_ = 0;
-  strncpy(sCopyNotice, CopyNotice, sizeof(sCopyNotice));
+  memcpy(sCopyNotice, CopyNotice, sizeof(sCopyNotice));
   memset(sSpare, 0, sizeof(sSpare));
   }
 

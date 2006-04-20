@@ -2120,7 +2120,7 @@ void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGNodeInfo  ** pIns, C
     FlwNode *pSrc=p->CXRef_SrcNd(i);
     FlwNode *pDst=p->CXRef_DstNd(i);
 
-    //if (stricmp(pRef->SFGNodeTag(p), "L_Gro_PT_Feed.QiI.SQMt")==0)
+    //if (_stricmp(pRef->SFGNodeTag(p), "L_Gro_PT_Feed.QiI.SQMt")==0)
     //  { int xxx=0;};
 
     #if dbgFlwSolve
@@ -3643,6 +3643,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
       if (p->IsLnk())
         {
         FlwBlk &FB=*p->IOFB(0,0);//*(p->FBlk());
+dbgpln("%10.3e %s", FB.GetQmEst(), p->Tag());
         sint NewDirn = (sint)ZSign(FlwExists(FB.GetQmEst()) ? FB.GetQmEst() : 0.0);
         if (FB.PrevDirn!= NewDirn)
           {
@@ -8745,7 +8746,7 @@ static void FnSearchReplaceParts(Strng & Fn, LPTSTR Old, LPTSTR New)
   int n=lf-lo+1;
   for (int i=0; i<n; i++)
     if ((i==0 || Fn[i-1]=='\\') && (i+lo==lf || Fn[i+lo]=='\\'))
-      if (strnicmp(&Fn[i], Old, lo)==0)
+      if (_strnicmp(&Fn[i], Old, lo)==0)
         {
         // found - replace
         Strng T;
@@ -8793,19 +8794,19 @@ bool CFlwSolver::ParseSpecieDef2(int nToks, CSVColArray & C, CDBInitRec &CDBI, i
   CSysVecItem * p = NULL;
   //SVI.Add(p);
   // NBNB Check Validity of Data
-  if (stricmp(C[0], "Specie")==0)
+  if (_stricmp(C[0], "Specie")==0)
     p=SVI.ParseSpecie(nToks, C, CDBI);
-  else if (stricmp(C[0], "Attribute")==0)
+  else if (_stricmp(C[0], "Attribute")==0)
     p=SVI.ParseAttribute(nToks, C, CDBI);
-  else if (stricmp(C[0], "Calculation")==0)
+  else if (_stricmp(C[0], "Calculation")==0)
     p=SVI.ParseCalculation(nToks, C, CDBI);
-  else if (stricmp(C[0], "Marker")==0)
+  else if (_stricmp(C[0], "Marker")==0)
     p=SVI.ParseAnnotation(nToks, C, CDBI, SVA_Marker);
-  else if (stricmp(C[0], "Text")==0)
+  else if (_stricmp(C[0], "Text")==0)
     p=SVI.ParseAnnotation(nToks, C, CDBI, SVA_Text);
-  else if (stricmp(C[0], "Page")==0)
+  else if (_stricmp(C[0], "Page")==0)
     p=SVI.ParseAnnotation(nToks, C, CDBI, SVA_OptPage);
-  else if (stricmp(C[0], "RqdPage")==0)
+  else if (_stricmp(C[0], "RqdPage")==0)
     p=SVI.ParseAnnotation(nToks, C, CDBI, SVA_RqdPage);
   else
     LogError("SpecieConfig", LF_Exclamation, "Unknown specie config type %s", C[0]);
@@ -9630,7 +9631,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
             }
           DDB.Double((LPTSTR)SW.FullName(), "", DC_Frac,  "%", xidGlblSWExec0+i,  this, isResult|noScenario|noSnap|DDEF_NOCOMPARE);
           GrpCnt++;
-          if (GrpCnt>0 && (i==gs_swExecute.GetSize()-1 || stricmp(PrevGrp, gs_swFlwSolve[i+1]->Group())!=0))
+          if (GrpCnt>0 && (i==gs_swExecute.GetSize()-1 || _stricmp(PrevGrp, gs_swFlwSolve[i+1]->Group())!=0))
             {
             CString S(SW.Group());
             S+=".Total";
@@ -9653,7 +9654,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
             }
           DDB.Double((LPTSTR)SW.FullName(), "", DC_Frac,  "%", xidGlblSWFlw0+i,  this, isResult|noScenario|noSnap|DDEF_NOCOMPARE);
           GrpCnt++;
-          if (GrpCnt>1 && (i==gs_swFlwSolve.GetSize()-1 || stricmp(PrevGrp, gs_swFlwSolve[i+1]->Group())!=0))
+          if (GrpCnt>1 && (i==gs_swFlwSolve.GetSize()-1 || _stricmp(PrevGrp, gs_swFlwSolve[i+1]->Group())!=0))
             {
             CString S(SW.Group());
             S+=".Total";
@@ -11210,9 +11211,9 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
   FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
   if (p && !p->Internal)
     {
-    bool GrpOK=stricmp(p->Group(), FlwLinkGrp)==0 ||
-      stricmp(p->Group(), ElecLinkGrp)==0 ||
-      stricmp(p->Group(), CtrlLinkGrp)==0;
+    bool GrpOK=_stricmp(p->Group(), FlwLinkGrp)==0 ||
+      _stricmp(p->Group(), ElecLinkGrp)==0 ||
+      _stricmp(p->Group(), CtrlLinkGrp)==0;
     if (GrpOK)
       {
       ASSERT_RDB(p->NoProcessIOs()<=2, "A link should have two or less IOs!");
@@ -11631,7 +11632,7 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
         {
         if (!pSaveNode->Internal)
           {
-          if (Rqst.pGroup==NULL || stricmp(Rqst.pGroup, pSaveNode->ClassId())==0)
+          if (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, pSaveNode->ClassId())==0)
             {
             Info.sData = pSaveNode->FullObjTag();
             if (Rqst.RQ_Type==RQ_TagsConns)
@@ -11685,7 +11686,7 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
           {
           if (!pSaveNode->Internal)
             {
-            if (Rqst.pGroup==NULL || stricmp(Rqst.pGroup, pSaveNode->ClassId())==0)
+            if (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, pSaveNode->ClassId())==0)
               Info.dwData++;
             }
           }
@@ -11818,9 +11819,9 @@ int CFlwSolver::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
   FlwNode * p=(FlwNode *)CTNode::FindObjTag(pOldTag, false, ObjTagLen, 0);
   if (p==NULL)
     return EOCT_NOTFOUND;
-  if (stricmp("FlwSolve", p->ClassId())==0)
+  if (_stricmp("FlwSolve", p->ClassId())==0)
     return EOCT_NOTALLOWED;
-  if (stricmp("Area", p->ClassId())==0)
+  if (_stricmp("Area", p->ClassId())==0)
     return EOCT_NOTALLOWED;
   return EOCT_FOUND;
   }
@@ -11860,7 +11861,7 @@ int CFlwSolver::EO_QueryDeleteTag(pchar pDelTag)
     return EODT_NOTFOUND;
   if (TaggedObject::TestIfReservedTag(pDelTag))
     return EODT_RESERVED;
-  return (stricmp("FlwSolve", p->ClassId())==0) ? EODT_NOTALLOWED : EODT_FOUND;
+  return (_stricmp("FlwSolve", p->ClassId())==0) ? EODT_NOTALLOWED : EODT_FOUND;
   }
 
 //--------------------------------------------------------------------------
@@ -12492,7 +12493,7 @@ Done:
           dbgp("--");
       dbgpln("--| Pi Pd | Proc | Ci Cd | Ctrl");
 
-      static InitOrds=1;
+      static int InitOrds=1;
       static CArray <FlwNode*,FlwNode*> ProcOrd, CtrlOrd;
       if (InitOrds)
         {
@@ -13164,34 +13165,34 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
         if ((pObj==NULL) && (FCB.Type()==TOF_DBase))
           {
           // Prevent any other FlwSolvers Etc being created
-          if (stricmp(pItem->Class(), CFlwSolverClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), CFlwSolverClass.ClassId())==0)
             goto Done;
-          if (stricmp(pItem->Class(), FlwSlvPBClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), FlwSlvPBClass.ClassId())==0)
             goto Done;
-          if (stricmp(pItem->Class(), FlwSlvDynClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), FlwSlvDynClass.ClassId())==0)
             goto Done;
-          if (stricmp(pItem->Class(), SDBObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), SDBObjectClass.ClassId())==0)
             goto Done;
-          if (stricmp(pItem->Class(), TearObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), TearObjectClass.ClassId())==0)
             goto Done;
 #if WITHCTRLOBJ
-          if (stricmp(pItem->Class(), CtrlObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), CtrlObjectClass.ClassId())==0)
             goto Done;
 #endif
 #if WITHCHANGEOBJ
-          if (stricmp(pItem->Class(), ChgObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), ChgObjectClass.ClassId())==0)
             goto Done;
 #endif
-          if (stricmp(pItem->Class(), TolObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), TolObjectClass.ClassId())==0)
             goto Done;
 #if WITHORDEROBJ
-          if (stricmp(pItem->Class(), OrderObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), OrderObjectClass.ClassId())==0)
             goto Done;
 #endif
-          if (stricmp(pItem->Class(), PwrObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), PwrObjectClass.ClassId())==0)
             goto Done;
 #if WITHIOOBJ
-          if (stricmp(pItem->Class(), IOObjectClass.ClassId())==0)
+          if (_stricmp(pItem->Class(), IOObjectClass.ClassId())==0)
             goto Done;
 #endif
           pObj=InsertNode(this, pItem->Class(), pItem->SubClass(), pItem->PrimaryCfg(), pItem->SymOrTag(), NULL, TOA_Free);//pchar TypIdIn, pchar TagIn)
@@ -13211,13 +13212,13 @@ Done:;
               }
             }
           }
-        else if ((stricmp(pItem->Class(), "TbPID")==0) ||
-                 (stricmp(pItem->Class(), "TbPID2")==0))
+        else if ((_stricmp(pItem->Class(), "TbPID")==0) ||
+                 (_stricmp(pItem->Class(), "TbPID2")==0))
           {
           LogNote(pItem->SymOrTag(), 0, "Object %s Removed", pItem->Class());
           }
 #if !WITHCTRLOBJ
-        else if (stricmp(pItem->Class(), "FS_Ctrl")==0)
+        else if (_stricmp(pItem->Class(), "FS_Ctrl")==0)
           {
           LogNote(pItem->SymOrTag(), 0, "Object %s Skipped", pItem->Class());
           }
@@ -13284,12 +13285,12 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
       while (pItem)
         {
         pchar pTag=pItem->SymOrTag();
-        if (stricmp(pTag, "Src")==0)
+        if (_stricmp(pTag, "Src")==0)
           pSrc=pItem->Value()->GetString();
-        else if (stricmp(pTag, "Dst")==0)
+        else if (_stricmp(pTag, "Dst")==0)
           pDst=pItem->Value()->GetString();
         // Renamed InIONo to SrcIONo
-        else if (stricmp(pTag, "SrcIONo")==0 || stricmp(pTag, "InIONo")==0 || stricmp(pTag, "DstIONo")==0)
+        else if (_stricmp(pTag, "SrcIONo")==0 || _stricmp(pTag, "InIONo")==0 || _stricmp(pTag, "DstIONo")==0)
           {
           int i;
           if (pItem->Type()==tt_Generic)
@@ -13345,7 +13346,7 @@ flag CFlwSolver::EO_EndLoad(FilingControlBlock &FCB)
     {
     p->OnLoad(Label());
 #ifdef _DEBUG
-    if (stricmp(p->Tag(), "T_125")==0)
+    if (_stricmp(p->Tag(), "T_125")==0)
       {
       int xxx=0;
       }

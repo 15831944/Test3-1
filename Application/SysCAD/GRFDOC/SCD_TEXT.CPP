@@ -293,7 +293,7 @@ draw_octant_arc(double &xc,double &yc,int rad,int sgn,int soct,int noct,int dfla
   yc = epp[1];
 }
 
-parse_acad_shape_file(double xi,double yi,text_info *ti,VP_VIEWPORT vp,double *xmin,double *ymin,double *xmax,double *ymax,int dflag)
+int parse_acad_shape_file(double xi,double yi,text_info *ti,VP_VIEWPORT vp,double *xmin,double *ymin,double *xmax,double *ymax,int dflag)
 {
     PT3 pp;
     char *c = ti->text;

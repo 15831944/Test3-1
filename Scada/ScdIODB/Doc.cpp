@@ -457,7 +457,7 @@ void InsertAlphabetically(OModbusTag* pTag, OTagList& list )
       }
 
    if( pos )     // found a position
-      list.InsertBefore( pos, (CObject*)pTag );
+      list.InsertBefore( pos, /*(CObject*)*/pTag );
    else              // past the end
       list.AddTail( pTag );
 }

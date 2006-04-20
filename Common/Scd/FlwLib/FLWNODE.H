@@ -277,7 +277,7 @@ class CTODirectPtr
             while (p1)
               {
               Strng S=p1->PrefixTag();
-              if (stricmp(p1->PrefixTag().Str(), &TheTag[ObjTagLen+1])==0)
+              if (_stricmp(p1->PrefixTag().Str(), &TheTag[ObjTagLen+1])==0)
                 break;
               p1=p1->pNxtAttachment;
               }

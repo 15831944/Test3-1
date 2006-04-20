@@ -1052,75 +1052,75 @@ int CCmdExec::AddCmd(char* Txt)
   int nParms = ParseCSVFunction(Txt, f, Quote) - 1;
   if (Quote)
     return 2;
-  if (stricmp(f[0], CmdNames(ComCmd_LoadProject))==0 && nParms==1)
+  if (_stricmp(f[0], CmdNames(ComCmd_LoadProject))==0 && nParms==1)
     AddCmd(new CCmdLoadProject(StrQuotesTrim(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_SaveProject))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_SaveProject))==0 && nParms==0)
     AddCmd(new CCmdDirect(ComCmd_SaveProject, ComCmd_SaveProject, ID_PROJECT_SAVEALL, CmdFlagStopped | CmdFlagDoNotExecNext));
-  else if (stricmp(f[0], CmdNames(ComCmd_CloseProject))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_CloseProject))==0 && nParms==0)
     AddCmd(new CCmdCloseProject());
-  else if (stricmp(f[0], CmdNames(ComCmd_LoadSnapshot))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_LoadSnapshot))==0 && nParms==1)
     AddCmd(new CCmdLoadSnapshot(StrQuotesTrim(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_SaveSnapshot))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_SaveSnapshot))==0 && nParms==1)
     AddCmd(new CCmdSaveSnapshot(StrQuotesTrim(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_LoadScenario))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_LoadScenario))==0 && nParms==1)
     AddCmd(new CCmdLoadScenario(StrQuotesTrim(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_SaveScenario))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_SaveScenario))==0 && nParms==1)
     AddCmd(new CCmdSaveScenario(StrQuotesTrim(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_StartDynamicSolve))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_StartDynamicSolve))==0 && nParms==0)
     AddCmd(new CCmdSolveDyn(ComCmd_StartDynamicSolve, ComState_StepDynamic, ID_ACTIONS_RUNDYN, /*CmdFlagStopIdle |*/ CmdFlagDoNotExecNext));
-  else if (stricmp(f[0], CmdNames(ComCmd_RunToSteadyState))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_RunToSteadyState))==0 && nParms==0)
     AddCmd(new CCmdSolveDyn(ComCmd_RunToSteadyState, ComState_StepDynamic, ID_ACTIONS_RUN_STEADY, /*CmdFlagStopIdle |*/ CmdFlagDoNotExecNext));
-  else if (stricmp(f[0], CmdNames(ComCmd_StartProbalSolve))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_StartProbalSolve))==0 && nParms==0)
     AddCmd(new CCmdSolvePB(ComCmd_StartProbalSolve, ComState_StepProbal, ID_ACTIONS_RUNPB, /*CmdFlagStopIdle |*/ CmdFlagDoNotExecNext));
-  //else if (stricmp(f[0], CmdNames(ComCmd_Start))==0 && nParms==0)
+  //else if (_stricmp(f[0], CmdNames(ComCmd_Start))==0 && nParms==0)
   //  AddCmd(new CCmdSolve(ComCmd_Start, ComState_??, ID_ACTIONS_RUN, CmdFlagStopIdle | CmdFlagDoNotExecNext));
-  else if (stricmp(f[0], CmdNames(ComCmd_Idle))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Idle))==0 && nParms==0)
     AddCmd(new CCmdDirect(ComCmd_Idle, ComState_Idle, ID_ACTIONS_IDLE, CmdFlagStopRun | CmdFlagDoNotExecNext));
-  else if (stricmp(f[0], CmdNames(ComCmd_Stop))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Stop))==0 && nParms==0)
     AddCmd(new CCmdDirect(ComCmd_Stop, ComState_Stop, ID_ACTIONS_EDIT, CmdFlagIdleRun | CmdFlagDoNotExecNext));
-  else if (stricmp(f[0], CmdNames(ComCmd_Wait))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Wait))==0 && nParms==1)
     AddCmd(new CCmdWait(atof(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_WaitCount))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_WaitCount))==0 && nParms==1)
     AddCmd(new CCmdWaitCount(atol(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_WaitTillStop))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_WaitTillStop))==0 && nParms==0)
     AddCmd(new CCmdWaitTillStop());
-  else if (stricmp(f[0], CmdNames(ComCmd_WaitTillSteadyState))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_WaitTillSteadyState))==0 && nParms==0)
     AddCmd(new CCmdWaitTillSteadyState());
-  else if (stricmp(f[0], CmdNames(ComCmd_ResetWait))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_ResetWait))==0 && nParms==0)
     AddCmd(new CCmdResetWait());
-  else if (stricmp(f[0], CmdNames(ComCmd_Report_GetValues))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Report_GetValues))==0 && nParms==2)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_GETVALUES, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
-  else if (stricmp(f[0], CmdNames(ComCmd_Report_Trend))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Report_Trend))==0 && nParms==2)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_TREND, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
-  else if (stricmp(f[0], CmdNames(ComCmd_Report_SetValues))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Report_SetValues))==0 && nParms==2)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_SETVALUES, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
-  else if (stricmp(f[0], CmdNames(ComCmd_Report_SaveAndClose))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Report_SaveAndClose))==0 && nParms==1)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_SAVEANDCLOSE, StrQuotesTrim(f[1]), ""));
-  else if (stricmp(f[0], CmdNames(ComCmd_Report_ExecuteMacro))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Report_ExecuteMacro))==0 && nParms==2)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_MACRO, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
-  else if (stricmp(f[0], CmdNames(ComCmd_SetTag))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_SetTag))==0 && nParms==2)
     AddCmd(new CCmdSetTag(StrQuotesTrim(f[1]), f[2][0]=='*' ? dNAN : atof(f[2])));
-  else if (stricmp(f[0], CmdNames(ComCmd_RestartHistorian))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_RestartHistorian))==0 && nParms==0)
     AddCmd(new CCmdRestartHistorian());
-  else if (stricmp(f[0], CmdNames(ComCmd_CompareOptions))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_CompareOptions))==0 && nParms==2)
     AddCmd(new CCmdCompareOptions(StrQuotesTrim(f[1]), (atoi(f[2])!=0)));
-  else if (stricmp(f[0], CmdNames(ComCmd_CompareOptions2))==0 && nParms==5)
+  else if (_stricmp(f[0], CmdNames(ComCmd_CompareOptions2))==0 && nParms==5)
     AddCmd(new CCmdCompareOptions2(atol(f[1]), atof(f[2]), atof(f[3]), (atoi(f[4])!=0), (atoi(f[5])!=0)));
-  else if (stricmp(f[0], CmdNames(ComCmd_CompareReset))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_CompareReset))==0 && nParms==0)
     AddCmd(new CCmdCompareReset());
-  else if (stricmp(f[0], CmdNames(ComCmd_CompareScenarios))==0 && nParms==2)
+  else if (_stricmp(f[0], CmdNames(ComCmd_CompareScenarios))==0 && nParms==2)
     AddCmd(new CCmdCompareScenarios(False, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
-  else if (stricmp(f[0], CmdNames(ComCmd_CompareScenarioToCurrent))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_CompareScenarioToCurrent))==0 && nParms==1)
     AddCmd(new CCmdCompareScenarios(True, StrQuotesTrim(f[1]), ""));
-  else if (stricmp(f[0], CmdNames(ComCmd_TestScenario))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_TestScenario))==0 && nParms==1)
     AddCmd(new CCmdTestScenario(StrQuotesTrim(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_Sleep))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Sleep))==0 && nParms==1)
     AddCmd(new CCmdSleep(atol(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_Exit))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Exit))==0 && nParms==0)
     AddCmd(new CCmdExit(0));
-  else if (stricmp(f[0], CmdNames(ComCmd_Exit))==0 && nParms==1)
+  else if (_stricmp(f[0], CmdNames(ComCmd_Exit))==0 && nParms==1)
     AddCmd(new CCmdExit(atol(f[1])));
-  else if (stricmp(f[0], CmdNames(ComCmd_EOC))==0 && nParms==0)
+  else if (_stricmp(f[0], CmdNames(ComCmd_EOC))==0 && nParms==0)
     AddCmd(new CCmdEOC());
   else
     return 3;
@@ -1411,7 +1411,7 @@ DWORD CCmdExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
       case XM_QueryString:
         {
         /*pXB_QueryString p = XM.QueryString();
-        if (p->cValue && strlen(p->cValue)==6 && stricmp(p->cValue, "TheEnd")==0)
+        if (p->cValue && strlen(p->cValue)==6 && _stricmp(p->cValue, "TheEnd")==0)
           {
           COleReportTrendMngr* pM = (COleReportTrendMngr*)(p->iSrcID);
           pM->Lock();

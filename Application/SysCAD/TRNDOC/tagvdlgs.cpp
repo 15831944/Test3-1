@@ -538,7 +538,7 @@ void CTrndInfoDlg::OnApply()
       pDoc->DS[Index].sMinVal.Set("%g", m_DispMin);
       pDoc->DS[Index].sMaxVal.Set("%g", m_DispMax);
       bDidChange = 1;
-      if (stricmp(pDoc->DS[Index].Tag(), (const char*)m_Tag)!=0)
+      if (_stricmp(pDoc->DS[Index].Tag(), (const char*)m_Tag)!=0)
         {
         pDoc->DS[Index].SetTag((char*)(const char*)m_Tag);
         bDidTagChange = 1;

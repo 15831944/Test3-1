@@ -215,7 +215,7 @@ flag CRepTrend::Start1()
     if (tl>0)
       {
       for (int j=0; j<iTagCnt; j++)
-        if (Tags[j].Len()>=tl && strnicmp(Tags[j](), WrkTag(), tl)==0 && (Tags[j].Len()==tl || Tags[j]()[tl]==' '))
+        if (Tags[j].Len()>=tl && _strnicmp(Tags[j](), WrkTag(), tl)==0 && (Tags[j].Len()==tl || Tags[j]()[tl]==' '))
           DupErr = true;
       if (DupErr)
         {
@@ -353,11 +353,11 @@ void CRepTrend::End()
 
 flag CRepTrend::ProcessMsg(CXM_QueryString* p)
   {
-  if (strlen(p->cValue)==6 && stricmp(p->cValue, "TheEnd")==0)
+  if (strlen(p->cValue)==6 && _stricmp(p->cValue, "TheEnd")==0)
     {
     AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_END, (LPARAM)this);
     }
-  else if (strlen(p->cValue)>6 && strnicmp(p->cValue, "TheTags", 7)==0)
+  else if (strlen(p->cValue)>6 && _strnicmp(p->cValue, "TheTags", 7)==0)
     {
     sTagList = p->cValue;
     bQueryTagsDone = 1;
@@ -389,7 +389,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRow* p)
         const int tl = s1.Len();
         for (int i=0; i<iTagCnt; i++)
           {
-          if (Tags[i].Len()>=tl && strnicmp(Tags[i](), s1(), tl)==0 && (Tags[i].Len()==tl || Tags[i]()[tl]==' '))
+          if (Tags[i].Len()>=tl && _strnicmp(Tags[i](), s1(), tl)==0 && (Tags[i].Len()==tl || Tags[i]()[tl]==' '))
             {
             TagOffsets[Cnt] = i;
             i = iTagCnt;
@@ -439,7 +439,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRowEx* p)
         const int tl = s1.Len();
         for (int i=0; i<iTagCnt; i++)
           {
-          if (Tags[i].Len()>=tl && strnicmp(Tags[i](), s1(), tl)==0 && (Tags[i].Len()==tl || Tags[i]()[tl]==' '))
+          if (Tags[i].Len()>=tl && _strnicmp(Tags[i](), s1(), tl)==0 && (Tags[i].Len()==tl || Tags[i]()[tl]==' '))
             {
             TagOffsets[Cnt] = i;
             i = iTagCnt;

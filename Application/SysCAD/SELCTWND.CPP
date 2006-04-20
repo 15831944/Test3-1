@@ -106,7 +106,7 @@ CTagTreeItem* CTagTreeItem::FindChildTag(char* pTag)
   CTagTreeItem* p = pChild;
   while (p)
     {
-    if (stricmp(p->sTag(), pTag)==0)
+    if (_stricmp(p->sTag(), pTag)==0)
       return p;
     p = p->pNxt;
     }
@@ -274,7 +274,7 @@ int CTagTrees::FindModelName(char* pModelName)
   {
   if (pModelName)
     for (int i=0; i<List.GetSize(); i++)
-      if (stricmp(pModelName, (const char*)(List[i]->sModelName))==0)
+      if (_stricmp(pModelName, (const char*)(List[i]->sModelName))==0)
         return i;
   return -1;
   }
@@ -285,7 +285,7 @@ int CTagTrees::FindPartModelName(char* pModelName, int IndexStart)
   {
   if (pModelName)
     for (int i=Max(IndexStart+1, 0); i<List.GetSize(); i++)
-      if (strnicmp(pModelName, (const char*)(List[i]->sModelName), List[i]->sModelName.GetLength())==0)
+      if (_strnicmp(pModelName, (const char*)(List[i]->sModelName), List[i]->sModelName.GetLength())==0)
         return i;
   return -1;
   }
@@ -897,7 +897,7 @@ void CSelectTagDlg::OnChangeTag()
     pTI->GetFullTag(FullTag);
   if ( s.Len()<iLastTagLen || 
        FullTag.Len()<iLastTagLen || 
-       strnicmp(s(), FullTag(), iLastTagLen)!=0 ||
+       _strnicmp(s(), FullTag(), iLastTagLen)!=0 ||
        (s.Len()==iLastTagLen+1 && s[s.Len()-1]!='.') ||
        (s.Len()>iLastTagLen+1 && s[s.Len()-1]=='.') )
     {

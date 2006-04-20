@@ -729,14 +729,14 @@ Done:;
 //  //for (int iSrc=0; iSrc<m_SrcTerms.GetItemCount(); iSrc++)
 //  //  {
 //  //  Src=m_SrcTerms.GetItemText(iSrc,1);
-//  //  if (strnicmp(SrcTS, Src, SrcLen)!=0)
+//  //  if (_strnicmp(SrcTS, Src, SrcLen)!=0)
 //  //    continue;
 //  //  for (int iDst=0; iDst<m_DstTerms.GetItemCount(); iDst++)
 //  //    {
 //  //    Dst=m_DstTerms.GetItemText(iDst,1);
-//  //    if (strnicmp(DstTS, Dst, DstLen)!=0)
+//  //    if (_strnicmp(DstTS, Dst, DstLen)!=0)
 //  //      continue;
-//  //    if (stricmp(((LPCTSTR)Src)+SrcLen, ((LPCTSTR)Dst)+DstLen)==0)
+//  //    if (_stricmp(((LPCTSTR)Src)+SrcLen, ((LPCTSTR)Dst)+DstLen)==0)
 //  //      {
 //  //      AddAWire(iSrc,iDst);
 //  //      iSrc--; // in anticipation of increment
@@ -790,7 +790,7 @@ void CELnkWiring::OnBnClickedWirematchOut2In()
       if (SrcLen<=SrcKeyLen)
         continue;
       SrcLen++;
-      if (strnicmp(LPCTSTR(Src)+SrcLen-SrcKeyLen, SrcKey, SrcKeyLen)!=0)
+      if (_strnicmp(LPCTSTR(Src)+SrcLen-SrcKeyLen, SrcKey, SrcKeyLen)!=0)
         continue;
     //
     //CString DstTS=m_DstTerms.GetItemText(m_DstTerms.GetSelectionMark(), 1);
@@ -802,14 +802,14 @@ void CELnkWiring::OnBnClickedWirematchOut2In()
       CString DstTS=Src.Left(SrcLen-SrcKeyLen)+DstKey;
       long DstLen=DstTS.GetLength();
   
-      //if (strnicmp(SrcTS, Src, SrcLen)!=0)
+      //if (_strnicmp(SrcTS, Src, SrcLen)!=0)
       //  continue;
       for (int iDst=0; iDst<m_DstTrm.GetSize(); iDst++)
         {
         Dst=m_DstTrm[iDst].m_sFullName;
-        if (strnicmp(DstTS, Dst, DstLen)!=0)
+        if (_strnicmp(DstTS, Dst, DstLen)!=0)
           continue;
-        if (stricmp(((LPCTSTR)Src)+SrcLen, ((LPCTSTR)Dst)+DstLen)==0)
+        if (_stricmp(((LPCTSTR)Src)+SrcLen, ((LPCTSTR)Dst)+DstLen)==0)
           {
           AddAWire(iSrc,iDst);
           //iSrc--; // in anticipation of increment

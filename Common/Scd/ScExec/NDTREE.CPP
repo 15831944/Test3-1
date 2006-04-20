@@ -519,7 +519,7 @@ CTNode* CTNode::FindChildTag(pchar pTag)
   else
     {
     CTNode* p = NULL;
-    while (GetObj(p) && (stricmp(p->Tag(), pTag) != 0));
+    while (GetObj(p) && (_stricmp(p->Tag(), pTag) != 0));
     return p;
     }
   }

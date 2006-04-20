@@ -28,11 +28,11 @@ template<> DllExport UINT AFXAPI HashKey<LPTSTR> (LPTSTR Key)
 //
 template<> DllExport BOOL AFXAPI CompareElements<LPTSTR, LPTSTR> (const LPTSTR* E1, const LPTSTR* E2)
   { 
-  return (stricmp(*E1, *E2)==0);
+  return (_stricmp(*E1, *E2)==0);
   };
 
 template<> DllExport BOOL AFXAPI CompareElements<LPCTSTR, LPCTSTR> (const LPCTSTR* E1, const LPCTSTR* E2)
   { 
-  return (stricmp(*E1, *E2)==0);
+  return (_stricmp(*E1, *E2)==0);
   };
 

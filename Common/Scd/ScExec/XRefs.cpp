@@ -897,7 +897,7 @@ void CXRefItem::SetXRefStrValue(char* p, bool DoCnts)
 
   const int len1 = m_Value.m_sValue.Len();
   const int len2 = p ? strlen(p) : 0;
-  if (len1!=len2 || (len1>0 && stricmp(p, m_Value.m_sValue())!=0)) 
+  if (len1!=len2 || (len1>0 && _stricmp(p, m_Value.m_sValue())!=0)) 
     {
     //IncChgs(); 
     m_Value.m_bChanged=true; 
@@ -1023,8 +1023,8 @@ IMPLEMENT_SPARES(CTagRefsMapItem, 1000);
 CTagRefStatusWord CTagRefsMapItem::GetStatusWord()
   {
   //int dbg=0;
-  //if (stricmp(m_sTag, "MW_SR4_SEPARATION.GM.IOs.[M30P133].Splt.Other(Ru)")==0)// ||
-  ////    stricmp(m_sTag, "P105b.Stats.Reset_Stats")==0)
+  //if (_stricmp(m_sTag, "MW_SR4_SEPARATION.GM.IOs.[M30P133].Splt.Other(Ru)")==0)// ||
+  ////    _stricmp(m_sTag, "P105b.Stats.Reset_Stats")==0)
   //  { dbg=1; }
 
   CTagRefStatusWord W=FFM_Off;
@@ -1967,7 +1967,7 @@ BOOL CTgFnIoVar::ChangeTag(Strng & SrcTag, char* pOldTag, char* pNewTag)
     const int TLen = SrcTag.Len();
     if (TLen>=len)
       {
-      if (strnicmp(pOldTag, SrcTag(), len)==0 && (TLen==len || SrcTag[len]=='.' || SrcTag[len]==' '))
+      if (_strnicmp(pOldTag, SrcTag(), len)==0 && (TLen==len || SrcTag[len]=='.' || SrcTag[len]==' '))
         {
         Strng s;
         s = pNewTag;
@@ -1981,7 +1981,7 @@ BOOL CTgFnIoVar::ChangeTag(Strng & SrcTag, char* pOldTag, char* pNewTag)
         if (OpenPos>0)
           {
           int ClosePos = SrcTag.Find(']');
-          if (ClosePos-OpenPos-1==len && strnicmp(pOldTag, &(SrcTag[OpenPos+1]), len)==0)
+          if (ClosePos-OpenPos-1==len && _strnicmp(pOldTag, &(SrcTag[OpenPos+1]), len)==0)
             {
             Strng s = SrcTag.Left(OpenPos+1);
             s += pNewTag;
@@ -2011,7 +2011,7 @@ BOOL CTgFnIoVar::ContainsTag(Strng & SrcTag, char* pTag)
     const int TLen = SrcTag.Len();
     if (TLen>=len)
       {
-      if (strnicmp(pTag, SrcTag(), len)==0 && (TLen==len || SrcTag[len]=='.' || SrcTag[len]==' '))
+      if (_strnicmp(pTag, SrcTag(), len)==0 && (TLen==len || SrcTag[len]=='.' || SrcTag[len]==' '))
         return TRUE;
       else
         {
@@ -2019,7 +2019,7 @@ BOOL CTgFnIoVar::ContainsTag(Strng & SrcTag, char* pTag)
         if (OpenPos>0)
           {
           int ClosePos = SrcTag.Find(']');
-          if (ClosePos-OpenPos-1==len && strnicmp(pTag, &(SrcTag[OpenPos+1]), len)==0)
+          if (ClosePos-OpenPos-1==len && _strnicmp(pTag, &(SrcTag[OpenPos+1]), len)==0)
             return TRUE;
           }
         }

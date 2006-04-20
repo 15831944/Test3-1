@@ -686,7 +686,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       return FALSE;
       }
     bLicensed = 1;
-    DWORD dw = (DWORD)pow(2, CK_NumDefinedLevels) - 1;
+    DWORD dw = (DWORD)pow(2.0, CK_NumDefinedLevels) - 1;
     bTrialMode = ((dwOpLevel & dw)==CK_TrialLevel);
     iDaysLeft = (Get1RestInfo(1)==0) ? CK_InfiniteDays : Get1RestInfo(2) - Get1RestInfo(3);
     bDemoMode = 0;
@@ -843,7 +843,7 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
   Dlg.m_AppPath = sAppPath;
   if (Dlg.DoModal()==IDOK)
     {
-    if (stricmp((const char*)sAppPath, (const char*)Dlg.m_AppPath)!=0)
+    if (_stricmp((const char*)sAppPath, (const char*)Dlg.m_AppPath)!=0)
       {
       CString PrevAppPath = sAppPath;
       sAppPath = Dlg.m_AppPath;
@@ -1040,7 +1040,7 @@ BOOL CLicense::DoDirectTransfer()
   Dlg.m_sPath = Path;
   if (Dlg.DoModal()==IDOK)
     {
-    if (stricmp(Path, (const char*)Dlg.m_sPath)==0)
+    if (_stricmp(Path, (const char*)Dlg.m_sPath)==0)
       {
       Error("Direct Transfer\nCannot transfer license onto itself!");
       return FALSE;
@@ -1377,7 +1377,7 @@ BOOL CLicense::UpdateCrypkeyINI(char* path)
         AfxMessageBox(bbb);
         }
       }
-    else if (len==PathBuffLen && strnicmp(PathBuff, Buff1, PathBuffLen)==0)
+    else if (len==PathBuffLen && _strnicmp(PathBuff, Buff1, PathBuffLen)==0)
       {//path is allready in INI file!
       //return FALSE;
       Done = TRUE; //Force service to restart anyway...
@@ -1627,7 +1627,7 @@ BOOL CLicenseInfoDlg::OnInitDialog()
   //DWORD msk = 0x80000000;
   for (int i=0; i<CK_NoOfOptions; i++)
     {
-    DWORD msk = (DWORD)pow(2, 31-CK_OptionNames[i].iBitNumber);
+    DWORD msk = (DWORD)pow(2.0, 31-CK_OptionNames[i].iBitNumber);
     bool IsYes = ((gs_License.OpLevel() & msk)!=0);
     if (CK_OptionNames[i].fNormallyShow || IsYes)
       {

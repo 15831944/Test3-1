@@ -127,7 +127,7 @@ flag CEvBlk::Open(CCatItem* CatItem)
       }
     memset(pEvHead->sSpare, 0, sizeof(pEvHead->sSpare));
     strncpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName));
-    strncpy(pEvHead->sCopyNotice, CopyNotice, sizeof(pEvHead->sCopyNotice));
+    memcpy(pEvHead->sCopyNotice, CopyNotice, sizeof(pEvHead->sCopyNotice));
     FlushViewOfFile((void*)pEvHead, 0);
     }
 

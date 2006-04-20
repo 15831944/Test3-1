@@ -4039,47 +4039,47 @@ H2OEQNEND
 
 bool TryConstructIF97(CSpecieData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p)
   {
-  if (stricmp(Str, IF97_WaterDensity::Name())==0)
+  if (_stricmp(Str, IF97_WaterDensity::Name())==0)
     {
     pn=IF97_WaterDensity::Name();
     p=new IF97_WaterDensity(pSpD);
     }
-  else if (stricmp(Str, IF97_SteamDensity::Name())==0)
+  else if (_stricmp(Str, IF97_SteamDensity::Name())==0)
     {
     pn=IF97_SteamDensity::Name();
     p=new IF97_SteamDensity(pSpD);
     }
-  else if (stricmp(Str, IF97_WaterHeatCapacity::Name())==0)
+  else if (_stricmp(Str, IF97_WaterHeatCapacity::Name())==0)
     {
     pn=IF97_WaterHeatCapacity::Name();
     p=new IF97_WaterHeatCapacity(pSpD);
     }
-  else if (stricmp(Str, IF97_SteamHeatCapacity::Name())==0)
+  else if (_stricmp(Str, IF97_SteamHeatCapacity::Name())==0)
     {
     pn=IF97_SteamHeatCapacity::Name();
     p=new IF97_SteamHeatCapacity(pSpD);
     }
-  else if (stricmp(Str, IF97_WaterEnthalpy::Name())==0)
+  else if (_stricmp(Str, IF97_WaterEnthalpy::Name())==0)
     {
     pn=IF97_WaterEnthalpy::Name();
     p=new IF97_WaterEnthalpy(pSpD);
     }
-  else if (stricmp(Str, IF97_SteamEnthalpy::Name())==0)
+  else if (_stricmp(Str, IF97_SteamEnthalpy::Name())==0)
     {
     pn=IF97_SteamEnthalpy::Name();
     p=new IF97_SteamEnthalpy(pSpD);
     }
-  else if (stricmp(Str, IF97_WaterEntropy::Name())==0)
+  else if (_stricmp(Str, IF97_WaterEntropy::Name())==0)
     {
     pn=IF97_WaterEntropy::Name();
     p=new IF97_WaterEntropy(pSpD);
     }
-  else if (stricmp(Str, IF97_SteamEntropy::Name())==0)
+  else if (_stricmp(Str, IF97_SteamEntropy::Name())==0)
     {
     pn=IF97_SteamEntropy::Name();
     p=new IF97_SteamEntropy(pSpD);
     }
-  else if (stricmp(Str, IF97_WaterVapourPress::Name())==0)
+  else if (_stricmp(Str, IF97_WaterVapourPress::Name())==0)
     {
     pn=IF97_WaterVapourPress::Name();
     p=new IF97_WaterVapourPress(pSpD);

@@ -1058,18 +1058,18 @@ int CPC_Spline::SetParm(char *Fld, flag Start)
   byte Type;
   double Slp;
 
-  if ((stricmp(Fld, "Sig")==0) && p!=NULL)
+  if ((_stricmp(Fld, "Sig")==0) && p!=NULL)
     {
     Slp=SafeAtoF(p);
     Spln.SetSigma(Slp);
     return 1;
     }
 
-  if (stricmp(Fld, "Free")==0)
+  if (_stricmp(Fld, "Free")==0)
     Type=TSpline::iSlopeFree;
-  else if (stricmp(Fld, "Seg")==0)
+  else if (_stricmp(Fld, "Seg")==0)
     Type=TSpline::iSlopeOfSegment;
-  else if ((stricmp(Fld, "Slp")==0) && p!=NULL)
+  else if ((_stricmp(Fld, "Slp")==0) && p!=NULL)
     {
     Type=TSpline::iSlopeSpecd;
     Slp=SafeAtoF(p);
@@ -1188,7 +1188,7 @@ bool CPumpDataSet::SetUp(CStringArray & Values/*char **C*/, char * PumpDBSpec)
   int Quote;
   CSVColArray Prms;
 
-  char *pN=strchr(Values[enControl], '='), *pMn, *pMx, *pCnv;
+  char * pN=(char*)strchr(Values[enControl], '='), *pMn, *pMx, *pCnv;
   pCnv=NULL;
   if (pN)
     {
@@ -1263,22 +1263,22 @@ bool CPumpDataSet::SetUp(CStringArray & Values/*char **C*/, char * PumpDBSpec)
   if (strchr(Values[enType], '(')!=NULL)
     {
     int nParms = ParseCSVFunction(Values[enType].GetBuffer(256), Prms, Quote)-1;
-    if (stricmp(Prms[0], "Head")==0)
+    if (_stricmp(Prms[0], "Head")==0)
       {
       iHdType=PHT_Head;
       iHdCnv=DC_L;
       }
-    else if (stricmp(Prms[0], "Press")==0 || stricmp(Prms[0], "Boost")==0)
+    else if (_stricmp(Prms[0], "Press")==0 || _stricmp(Prms[0], "Boost")==0)
       {
       iHdType=PHT_Press;
       iHdCnv=DC_DP;
       }
-    else if (stricmp(Prms[0], "Isentropic")==0)
+    else if (_stricmp(Prms[0], "Isentropic")==0)
       {
       iHdType=PHT_Isentropic;
       iHdCnv=DC_HMs;
       }
-    else if (stricmp(Prms[0], "Adiabatic")==0)
+    else if (_stricmp(Prms[0], "Adiabatic")==0)
       {
       iHdType=PHT_Adiabatic;
       iHdCnv=DC_L;
@@ -1520,7 +1520,7 @@ flag PC_DBase::SetPumpTo(char *RqdSpec)
 
 
 //      while (!PCDone && ParseTokens(Buff, sizeof(Buff), C))
-//        if (strlen(C[0])>0 && stricmp(C[0], RqdSpec)==0)
+//        if (strlen(C[0])>0 && _stricmp(C[0], RqdSpec)==0)
 //          {
 //          PumpDBSpec=RqdSpec;
 //          PCFnd=1;

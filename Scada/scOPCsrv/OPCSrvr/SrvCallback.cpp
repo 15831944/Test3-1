@@ -1610,7 +1610,7 @@ void ShellBrowser::AddTags( Branch* pBranch )
       CString name( path + pTag->m_name );
       if (m_bDoStringFilter)
         {
-        if (name.GetLength()>=m_iFilterLen && strnicmp((const char*)name, (const char*)m_stringFilter, m_iFilterLen)==0)
+        if (name.GetLength()>=m_iFilterLen && _strnicmp((const char*)name, (const char*)m_stringFilter, m_iFilterLen)==0)
           m_paths.AddTail(name);
         }
       else

@@ -841,14 +841,14 @@ bool CSysCADMarshalDoc::SetSelection(CSelection & Selection)
   //    for (int i=0; i<LinksSize; i++)
   //      {
   //      CString & Tag = (iWhat==eFindStr_LinkTag ? m_LinkCfgs[i]->m_sTag : m_LinkCfgs[i]->m_sSimTag);
-  //      if (strnicmp(Tag, String, n)==0)
+  //      if (_strnicmp(Tag, String, n)==0)
   //        {
   //        if (iBestInx<0)
   //          {
   //          sBestTag = Tag;
   //          iBestInx = i;
   //          }
-  //        else if (stricmp(Tag, sBestTag)<0)
+  //        else if (_stricmp(Tag, sBestTag)<0)
   //          {
   //          sBestTag = Tag;
   //          iBestInx = i;
@@ -861,7 +861,7 @@ bool CSysCADMarshalDoc::SetSelection(CSelection & Selection)
   //    for (int i=0; i<SlotsSize; i++)
   //      {
   //      CString & Tag = (iWhat==eFindStr_SlotTag ? m_SlotCfgs[i]->m_sTag : m_SlotCfgs[i]->m_sOPCTag);
-  //      if (strnicmp(Tag, String, n)==0)
+  //      if (_strnicmp(Tag, String, n)==0)
   //        {
   //        if (iBestInx<0)
   //          {
@@ -869,7 +869,7 @@ bool CSysCADMarshalDoc::SetSelection(CSelection & Selection)
   //          iBestInx = i;
   //          iBestIsSlot = true;
   //          }
-  //        else if (stricmp(Tag, sBestTag)<0)
+  //        else if (_stricmp(Tag, sBestTag)<0)
   //          {
   //          sBestTag = Tag;
   //          iBestInx = i;

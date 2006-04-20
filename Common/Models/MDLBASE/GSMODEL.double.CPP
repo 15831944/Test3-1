@@ -198,7 +198,7 @@ void GSIOAlpha::BuildDataDefn(DataDefnBlk & DDB, rGSModel Mdl, flag Visible, int
     {GSA_QmVolumeFlow,  "VolumeFlow"},
     {0}};
 
-  if (strnicmp(Mdl.FullObjTag(), "x_22", 4)==0)
+  if (_strnicmp(Mdl.FullObjTag(), "x_22", 4)==0)
     { int xxx=0; }
   DDB.Byte   ("",             "QmMode",   DC_,    "",     &iQmMode,         &Mdl, isParmStopped | AffectsStruct | SetOnChange, DDB0);
 

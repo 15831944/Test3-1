@@ -341,7 +341,7 @@ class DllImportExport CSArray : public CArray <Strng, Strng&>
         }
       else
         for (int i=0; i<GetSize(); i++)
-          if (stricmp(m_pData[i](), s)==0) 
+          if (_stricmp(m_pData[i](), s)==0) 
             return i;
       return -1;
       }

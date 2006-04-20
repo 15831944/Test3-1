@@ -426,7 +426,7 @@ CDeviceCfg::CDeviceCfg(LPCSTR Name):
   m_sProgID="ScdIODB.OPC.1";
   m_sGroupName="SysCAD";
   m_sNode="";
-  m_bLocalOnly=(stricmp(Name, "Local")==0);
+  m_bLocalOnly=(_stricmp(Name, "Local")==0);
   m_dwTrickleCount=0;
   m_dwTrickleIndex=0;
   };

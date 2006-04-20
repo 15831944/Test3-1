@@ -693,9 +693,9 @@ class DllImportExport Strng
          value < 0    Strng less than String.#n
          value = 0    Strng identical to String.#n
          value > 0    Strng greater than String.*/
-    int      XStrICmp(Strng & String) { return stricmp(Buff, String.Buff); };
-    int      XStrICmp(pchar String) { return stricmp(Buff, String); };
-    int      XStrICmp(const char * String) { return stricmp(Buff, String); };
+    int      XStrICmp(Strng & String) { return _stricmp(Buff, String.Buff); };
+    int      XStrICmp(pchar String) { return _stricmp(Buff, String); };
+    int      XStrICmp(const char * String) { return _stricmp(Buff, String); };
     /*#F:This is a case sensitive Strng comparison function.
         #R:An integer value indicating the result of the comparison :#n
          value < 0    Strng less than String.#n
@@ -709,9 +709,9 @@ class DllImportExport Strng
          value < 0    Strng less than String.#n
          value = 0    Strng identical to String.#n
          value > 0    Strng greater than String.*/
-    int      XStrNICmp(Strng & String, int Number) { return strnicmp(Buff, String.Buff, Number); };
-    int      XStrNICmp(pchar String, int Number) { return strnicmp(Buff, String, Number); };
-    int      XStrNICmp(const char * String, int Number) { return strnicmp(Buff, String, Number); };
+    int      XStrNICmp(Strng & String, int Number) { return _strnicmp(Buff, String.Buff, Number); };
+    int      XStrNICmp(pchar String, int Number) { return _strnicmp(Buff, String, Number); };
+    int      XStrNICmp(const char * String, int Number) { return _strnicmp(Buff, String, Number); };
     /*#F:This is a Strng search function..
         #R: A pointer to the first occurrence of any character from charSet in Strng, or a NULL pointer if the search is unsuccessfull.*/
     pchar    XStrPBrk(Strng charSet) { return strpbrk(Buff, charSet.Buff); };

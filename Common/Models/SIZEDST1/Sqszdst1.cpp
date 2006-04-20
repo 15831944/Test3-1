@@ -1008,9 +1008,9 @@ flag SQSzDist1::AllowSizeEdits()
   //return true if model allows size distribution fractions to be set
   //if (pAttachedTo && pAttachedTo->pAttachedTo)
   //  {
-  //  if (stricmp(pAttachedTo->pAttachedTo->Tag(), "Qo")==0 || //used in link
-  //      stricmp(pAttachedTo->pAttachedTo->Tag(), "Disch")==0 || //used in mill,crush1,rollscrusher
-  //      stricmp(pAttachedTo->pAttachedTo->Tag(), "Flows")==0) //used in feeder
+  //  if (_stricmp(pAttachedTo->pAttachedTo->Tag(), "Qo")==0 || //used in link
+  //      _stricmp(pAttachedTo->pAttachedTo->Tag(), "Disch")==0 || //used in mill,crush1,rollscrusher
+  //      _stricmp(pAttachedTo->pAttachedTo->Tag(), "Flows")==0) //used in feeder
   //    return false;
   //  }
   //return true;
@@ -3110,7 +3110,7 @@ void SQSzDist1Edt::Build()
         DoneGap=false;
         DoneCumGap=false;
         SetDesc(L, "Grf On",  -1, 14,  1, " ");
-        const FirstPen=3;
+        const int FirstPen=3;
         int iPen=FirstPen;
         for (ci=0; ci<NColmns; ci++)
           {
@@ -4234,7 +4234,7 @@ void SQSzDist1Edt::OnDrawBack(rGDIBlk GB,int PgNo, CRgn &ClipRgn)
       const int dCrossX = XPix/150;
       const int dCrossY = YPix/150;
 
-      const FirstPen=3;
+      const int FirstPen=3;
       if (0 && (len>0))
         {
         //draw crosses at each point...
@@ -6068,7 +6068,7 @@ void SzPartCrv1Edt::OnDrawBack(rGDIBlk GB,int PgNo, CRgn &ClipRgn)
       const int dCrossX = XPix/150;
       const int dCrossY = YPix/150;
 
-      const FirstPen=3;
+      const int FirstPen=3;
     
       //draw the curves...
       int iPen=FirstPen;

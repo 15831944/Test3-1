@@ -50,7 +50,7 @@ STDMETHODIMP CScdTerminals::Terminal( VARIANT  WhichOne,  IScdTerminal * *  pIte
         SCD_LclStr(Name, WhichOne.bstrVal);
         for (int i=0; i<m_Terminals.GetSize(); i++)
           {
-          if (stricmp(m_Terminals[i]->m_sName, Name)==0)
+          if (_stricmp(m_Terminals[i]->m_sName, Name)==0)
             {
             IScdTerminal * p;
             ::CoCreateInstance(CLSID_ScdTerminal, NULL, CLSCTX_ALL, IID_IScdTerminal, (void**)&p);

@@ -341,3 +341,24 @@ double LeastSquareFit::Param(int iParam, int iOrder)
 //
 //
 //===========================================================================
+
+double ParseNANFlag(const char * Str, double Val/*=dNAN*/)
+  {
+  if (_stricmp(Str, "*Free")==0 || _strnicmp(Str, "*F", 2)==0) 
+    return SetNANFlag(NF_Free, Val);
+  if (_stricmp(Str, "*Hold")==0 || _strnicmp(Str, "*H", 2)==0) 
+    return SetNANFlag(NF_Hold, Val);
+  if (_stricmp(Str, "*Pulse")==0 || _strnicmp(Str, "*P", 2)==0) 
+    return SetNANFlag(NF_Pulse, Val);
+  if (_stricmp(Str, "*Ignore")==0 || _strnicmp(Str, "*I", 2)==0) 
+    return SetNANFlag(NF_Ignore, Val);
+  if (_stricmp(Str, "*Block")==0 || _strnicmp(Str, "*B", 2)==0) 
+    return SetNANFlag(NF_Block, Val);
+  if (_stricmp(Str, "*+")==0 || _strnicmp(Str, "*+", 2)==0) 
+    return SetNANFlag(NF_Plus, Val);
+  if (_stricmp(Str, "*-")==0 || _strnicmp(Str, "*-", 2)==0) 
+    return SetNANFlag(NF_Minus, Val);
+  if (_stricmp(Str, "**")==0 || _strnicmp(Str, "**", 2)==0) 
+    return SetNANFlag(NF_Star, Val);
+  return Val;
+  }

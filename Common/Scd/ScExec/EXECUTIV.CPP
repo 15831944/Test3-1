@@ -1634,7 +1634,7 @@ int CExecutive::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
   if (pOldTag==NULL || pNewTag==NULL || pOldTag[0]==0 || pNewTag[0]==0)
     return EOCT_NULLTAG;
-  if (stricmp(pOldTag, pNewTag)==0)
+  if (_stricmp(pOldTag, pNewTag)==0)
     return EOCT_NOTDIFFER;
   if (strlen(pNewTag)>SCDPartTagLen-2)
     return EOCT_BADTAGLEN;
@@ -4090,7 +4090,7 @@ flag CExecutive::RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
   if (Rqst.bFirst)
     {
     Info.OInx = 0;
-    if (Info.OInx<Objs_Reg.GetSize() && Rqst.sExcludeExecObj.Len()!=0 && stricmp(Objs_Reg[Info.OInx]->Name(), Rqst.sExcludeExecObj())==0)
+    if (Info.OInx<Objs_Reg.GetSize() && Rqst.sExcludeExecObj.Len()!=0 && _stricmp(Objs_Reg[Info.OInx]->Name(), Rqst.sExcludeExecObj())==0)
       Info.OInx++;
     Info.iCount = -1;
     }
@@ -4111,7 +4111,7 @@ flag CExecutive::RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
       return true;
       }
     Info.OInx++;
-    if (Info.OInx<Objs_Reg.GetSize() && Rqst.sExcludeExecObj.Len()!=0 && stricmp(Objs_Reg[Info.OInx]->Name(), Rqst.sExcludeExecObj())==0)
+    if (Info.OInx<Objs_Reg.GetSize() && Rqst.sExcludeExecObj.Len()!=0 && _stricmp(Objs_Reg[Info.OInx]->Name(), Rqst.sExcludeExecObj())==0)
       Info.OInx++;
     Rqst.bFirst = true;
     Info.iCount = -1;
@@ -4194,7 +4194,7 @@ flag CExecutive::XFindObject(CExecObj *pEO, pchar pName, CXM_Route &Route, flag 
     if (a!=pEO || AllowSelf)
       {
       flag GotRoute=0;
-      if (stricmp(pName, Objs_Reg[OInx]->Name())==0)
+      if (_stricmp(pName, Objs_Reg[OInx]->Name())==0)
         GotRoute=1;
       else if (a->Client() && a->EO_FindObject(pName, Route))
         GotRoute=1;
@@ -4252,7 +4252,7 @@ DWORD CExecutive::XSendMessage(CExecObj *pEO, CXMsgLst &XM, CXM_Route &Route, fl
     if (dbgRouteCmp())
       dbgpln("RouteCmp:%s<>%s  %i<>%i", LclRoute.NodeName(0), NdName, LclRoute.NodeObjId(0), pEO->Id());
     #endif
-    ASSERT(stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
+    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
     #endif
     LclRoute.RemoveNode(0);
     }
@@ -4275,7 +4275,7 @@ DWORD CExecutive::XSendMessage(CExecObj *pEO, CXMsgLst &XM, CXM_Route &Route, fl
     if (dbgRouteCmp())
       dbgpln("RouteCmp:%s<>%s  %i<>%i", LclRoute.NodeName(0), NdName, LclRoute.NodeObjId(0), pDst->Id());
     #endif
-    ASSERT(stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
+    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
     #endif
     LclRoute.RemoveNode(0);
 
@@ -4396,7 +4396,7 @@ int CExecutive::XWriteTaggedItem(CExecObj *pEO, CXM_ObjectData &ObjData, CXM_Rou
   #ifdef _DEBUG
   NodeNameBuff NdName;
   CXM_Route::MakeNodeName(pEO->sName(), NdName);
-  ASSERT(stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
+  ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
   #endif
   LclRoute.RemoveNode(0);
 
@@ -4414,7 +4414,7 @@ int CExecutive::XWriteTaggedItem(CExecObj *pEO, CXM_ObjectData &ObjData, CXM_Rou
     //flag ResWasValid=TaggedObject::GlblResultsValid();
     #ifdef _DEBUG
     CXM_Route::MakeNodeName(pDst->sName(), NdName);
-    ASSERT(stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
+    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
     #endif
     LclRoute.RemoveNode(0);
 
@@ -5137,7 +5137,7 @@ int CExecutive::DoLoadDBase2(long DBFmt, DWORD DBOpts, char * pRoot)
         #endif
 
         for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-          if (stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
+          if (_stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
             break;
 
         if (Objs_Reg.GetSize()>m_LDB.m_LoadIt.GetSize())
@@ -5487,7 +5487,7 @@ int CExecutive::DoLoadSnapShotScenario(flag DoSnapShot, char * pRoot, char * pSS
       #endif
 
       for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-        if (stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
+        if (_stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
           break;
 
       if (OInx<Objs_Reg.GetSize() && LoadIt[OInx])
@@ -5753,7 +5753,7 @@ ASSERT_ALWAYS(!XM.MsgAvail(), "Too Many Messages"); //only expect one object in 
           {
 //          pItem2 = (CPkDataItem*)(pFirstMsgByte2 + Itms2[j]);
           pItem2 = (CPkDataItem*)(pFirstMsgByte2 + WS.Itm(1, j));
-          if ((int)strlen(pItem2->SymOrTag())==len && strnicmp(Tag1(), pItem2->SymOrTag(), len)==0 && WS.Tag(WS.Ind(0, i))==WS.Tag(WS.Ind(1, j)))
+          if ((int)strlen(pItem2->SymOrTag())==len && _strnicmp(Tag1(), pItem2->SymOrTag(), len)==0 && WS.Tag(WS.Ind(0, i))==WS.Tag(WS.Ind(1, j)))
             {
             ItmsFound[j] = 1;
             FindPos = j+1;
@@ -6019,7 +6019,7 @@ int CExecutive::CompareScenarios(CCompareInfo& Info)
           dbgpln("%6i:%2i %3i %5i %6i %s:%s", CurPos, ((byte)DH.eType)-((byte)SS_End), DH.HeaderLength(), DH.DataLength(), DH.RecordLength(), DHC.XName(), DHC.ObjTag());
         #endif
         for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-          if (stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
+          if (_stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
             break;
 
         if (OInx<Objs_Reg.GetSize())
@@ -6107,7 +6107,7 @@ int CExecutive::CompareScenarios(CCompareInfo& Info)
         dbgpln("%6i:%2i %3i %5i %6i %s:%s", CurPos, ((byte)DH.eType)-((byte)SS_End), DH.HeaderLength(), DH.DataLength(), DH.RecordLength(), DHC.XName(), DHC.ObjTag());
       #endif
       for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-        if (stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
+        if (_stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
           break;
 
       if (OInx<Objs_Reg.GetSize())
@@ -6191,7 +6191,7 @@ int CExecutive::CompareScenarios(CCompareInfo& Info)
                 const int LastPos = (FindPos>0 ? FindPos-1 : nObjs2-1);
                 while (j!=LastPos)
                   {
-                  if (ObjTags[j].GetLength()==len && strnicmp(Tag1(), (const char*)ObjTags[j], len)==0)
+                  if (ObjTags[j].GetLength()==len && _strnicmp(Tag1(), (const char*)ObjTags[j], len)==0)
                     {
                     FindPos = j+1;
                     FoundObjTag = 1;
@@ -6217,7 +6217,7 @@ int CExecutive::CompareScenarios(CCompareInfo& Info)
                     dbgpln("%6i:%2i %3i %5i %6i %s:%s", APos, ((byte)DH2.eType)-((byte)SS_End), DH2.HeaderLength(), DH2.DataLength(), DH2.RecordLength(), DHC2.XName(), DHC2.ObjTag());
                   #endif
                   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-                    if (stricmp(Objs_Reg[OInx]->Name(), DHC2.XName())==0)
+                    if (_stricmp(Objs_Reg[OInx]->Name(), DHC2.XName())==0)
                       break;
                   ASSERT(OInx<Objs_Reg.GetSize());
                   ASSERT(DH.eType==SS_DefinedData);
@@ -6401,7 +6401,7 @@ void CExecutive::PrepareMergeChangeTags(CMergeProjectsInfo& MPI)
     ReplyTagInfoRec AInfo;
     while (RequestTagInfo(ARqst, AInfo))
       {
-      if (stricmp(AInfo.sData(), MPI.sFlwExecName())!=0)
+      if (_stricmp(AInfo.sData(), MPI.sFlwExecName())!=0)
         {
         MPI.PreChangeTags[Cnt] = AInfo.sData;
         MPI.MakeNewTag(AInfo.sData(), true, sNewTag);
@@ -6724,7 +6724,7 @@ int CExecutive::CheckMerge(CMergeProjectsInfo& MPI)
     MPI.iErrorNo = -1;
     return MPI.iErrorNo;
     }
-  if (stricmp(PrjName(), MPI.sSlavePrj())==0)
+  if (_stricmp(PrjName(), MPI.sSlavePrj())==0)
     {
     MPI.sError = "Cannot merge project onto itself";
     MPI.iErrorNo = -2;
@@ -6760,13 +6760,13 @@ int CExecutive::CheckMerge(CMergeProjectsInfo& MPI)
     }
   MPI.sSlaveModelCfg = PF.RdStr("General", "ModelConfiguration", "");
   MPI.sSlaveModelCfg = PF.RdStr("General", "CfgFile", MPI.sSlaveModelCfg()); // Incase newer version
-  //if (MPI.sSlaveModelCfg.Len()==0 || stricmp(MPI.sMasterModelCfg(), MPI.sSlaveModelCfg())!=0)
+  //if (MPI.sSlaveModelCfg.Len()==0 || _stricmp(MPI.sMasterModelCfg(), MPI.sSlaveModelCfg())!=0)
   //  {
   Strng Fn1(MPI.sSlaveModelCfg), Fn2(MPI.sMasterModelCfg());
   if (Fn1())
     Fn1.FnNameExt();
   Fn2.FnNameExt();
-  if (Fn1.Len()==0 || stricmp(Fn1(), Fn2())!=0)
+  if (Fn1.Len()==0 || _stricmp(Fn1(), Fn2())!=0)
     {
     Strng S;
     S.Set("Import project model configuration does not match current project.\n\n"
@@ -6787,7 +6787,7 @@ int CExecutive::CheckMerge(CMergeProjectsInfo& MPI)
   //find flow solver executive object...
   MPI.pFlwExec = NULL;
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-    if (stricmp(Objs_Reg[OInx]->Name(), MPI.sFlwExecName())==0)
+    if (_stricmp(Objs_Reg[OInx]->Name(), MPI.sFlwExecName())==0)
       {
       MPI.pFlwExec = Objs_Reg[OInx];
       break;
@@ -6946,13 +6946,13 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
   const int PrjFilesAliasLen = strlen(PrjFilesAlias());
   for (i=0; i<MPI.MasterRefFiles.GetSize(); i++)
     {
-    if (MPI.MasterRefFiles[i].Len()>PrjFilesAliasLen && MPI.MasterRefFiles[i][PrjFilesAliasLen]!='~'  && strnicmp(PrjFilesAlias(), MPI.MasterRefFiles[i](), PrjFilesAliasLen)==0)
+    if (MPI.MasterRefFiles[i].Len()>PrjFilesAliasLen && MPI.MasterRefFiles[i][PrjFilesAliasLen]!='~'  && _strnicmp(PrjFilesAlias(), MPI.MasterRefFiles[i](), PrjFilesAliasLen)==0)
       s = MPI.MasterRefFiles[i].Right(MPI.MasterRefFiles[i].Len()-PrjFilesAliasLen);
     else
       s.FnNameExt(MPI.MasterRefFiles[i]());
     MasterFilenames[i] = s();
     //ss.FnDrivePath(MPI.MasterRefFiles[i]());
-    //MasterPrjDir[i] = (stricmp(ss(), PrjFiles())==0);
+    //MasterPrjDir[i] = (_stricmp(ss(), PrjFiles())==0);
     }
   for (i=0; i<MPI.SlaveRefFiles.GetSize(); i++)
     {
@@ -6964,7 +6964,7 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
       MPI.SlaveRefFiles[i]=ss;
       MPI.SlaveRefFiles[i]+=s;
       }
-    else if (ss.Len()>PrjFilesAliasLen && ss[PrjFilesAliasLen]!='~' && strnicmp(PrjFilesAlias(), ss(), PrjFilesAliasLen)==0)
+    else if (ss.Len()>PrjFilesAliasLen && ss[PrjFilesAliasLen]!='~' && _strnicmp(PrjFilesAlias(), ss(), PrjFilesAliasLen)==0)
       {
       s=ss.Right(ss.Len()-PrjFilesAliasLen);
       s+=ss.FnNameExt(MPI.SlaveRefFiles[i]());
@@ -6974,12 +6974,12 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
       }
 
     //const int SlavePrjDirLen = MPI.sSlavePrjDir.Len();
-    //if (ss.Len()>=SlavePrjDirLen && strnicmp(ss(), MPI.sSlavePrjDir(), SlavePrjDirLen)==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
-    if (stricmp(ss(), MPI.sSlavePrjDir())==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
+    //if (ss.Len()>=SlavePrjDirLen && _strnicmp(ss(), MPI.sSlavePrjDir(), SlavePrjDirLen)==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
+    if (_stricmp(ss(), MPI.sSlavePrjDir())==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
       {
       MPI.PostChangeRefFiles.Add(MPI.SlaveRefFiles[i]());
       int index = MasterFilenames.Find(s());
-      if (index>=0 && stricmp(MPI.MasterRefFiles[index](), MPI.SlaveRefFiles[i]())!=0)
+      if (index>=0 && _stricmp(MPI.MasterRefFiles[index](), MPI.SlaveRefFiles[i]())!=0)
         {
         MPI.iProblemRefFiles++;
         MPI.iRefFilesUnknownCnt++;
@@ -7019,26 +7019,26 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
       {
       const byte Type = pItem->Type();
       if (!pItem->Empty() && pItem->Contains(PDI_Tag) && pItem->Contains(PDI_Value)
-          && Type!=tt_Blob && stricmp(pItem->SymOrTag(), MPI.sFlwExecName())!=0)
+          && Type!=tt_Blob && _stricmp(pItem->SymOrTag(), MPI.sFlwExecName())!=0)
         {
         dbgpln("Found tag:%s   Value:%s   Type:%s  Class:%s", pItem->SymOrTag(), pItem->Value()->GetString(), tt_TypeString(Type), pItem->Class()?pItem->Class():"");
         char* pClass=pItem->Class();
         if (pClass && (
-          stricmp(pClass, "FS_PB")==0 ||
-          stricmp(pClass, "FS_Dyn")==0 ||
-          stricmp(pClass, "FS_SDB")==0 ||
-          stricmp(pClass, "FS_Tears")==0 ||
-          stricmp(pClass, "FS_Chgs")==0 ||
-          stricmp(pClass, "FS_Tols")==0 ||
-          stricmp(pClass, "FS_Ctrl")==0 ||
-          stricmp(pClass, "FS_Order")==0 ||
-          stricmp(pClass, "FS_Pwr")==0 ||
-          stricmp(pClass, "FS_IO")==0 ||
-          stricmp(pClass, "TbFlange")==0 ||
-          stricmp(pClass, "TbPID2")==0 ||
-          stricmp(pClass, "TbPID")==0 ||
-          stricmp(pClass, "TbFlshTrn")==0 ||
-          stricmp(pClass, "Area")==0) )
+          _stricmp(pClass, "FS_PB")==0 ||
+          _stricmp(pClass, "FS_Dyn")==0 ||
+          _stricmp(pClass, "FS_SDB")==0 ||
+          _stricmp(pClass, "FS_Tears")==0 ||
+          _stricmp(pClass, "FS_Chgs")==0 ||
+          _stricmp(pClass, "FS_Tols")==0 ||
+          _stricmp(pClass, "FS_Ctrl")==0 ||
+          _stricmp(pClass, "FS_Order")==0 ||
+          _stricmp(pClass, "FS_Pwr")==0 ||
+          _stricmp(pClass, "FS_IO")==0 ||
+          _stricmp(pClass, "TbFlange")==0 ||
+          _stricmp(pClass, "TbPID2")==0 ||
+          _stricmp(pClass, "TbPID")==0 ||
+          _stricmp(pClass, "TbFlshTrn")==0 ||
+          _stricmp(pClass, "Area")==0) )
           {
           // Skip It
           }
@@ -7075,7 +7075,7 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
     ss = "Referenced files with same name in both projects:\n  ";
     for (i=0; i<MPI.PostChangeRefFiles.GetSize(); i++)
       {
-      if (stricmp(MPI.PostNewRefFiles[i](), "Unknown")==0)
+      if (_stricmp(MPI.PostNewRefFiles[i](), "Unknown")==0)
         {
         ss += MPI.PostChangeRefFiles[i]();
         ss += "\n  ";
@@ -7181,7 +7181,7 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
     bool FoundOne = false;
     for (i=0; i<MPI.PostChangeRefFiles.GetSize(); i++)
       {
-      if (MPI.bIgnoreProbRefFiles && stricmp(MPI.PostNewRefFiles[i](), "Unknown")==0)
+      if (MPI.bIgnoreProbRefFiles && _stricmp(MPI.PostNewRefFiles[i](), "Unknown")==0)
         FoundOne = true;
       else
         {
@@ -7194,7 +7194,7 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
       OutF.WriteString("\nWarning: Referenced files from imported project that will NOT be copied to current project:\n");
       for (i=0; i<MPI.PostChangeRefFiles.GetSize(); i++)
         {
-        if (MPI.bIgnoreProbRefFiles && stricmp(MPI.PostNewRefFiles[i](), "Unknown")==0)
+        if (MPI.bIgnoreProbRefFiles && _stricmp(MPI.PostNewRefFiles[i](), "Unknown")==0)
           {
           s.Set("%s\n", MPI.PostChangeRefFiles[i]());
           OutF.WriteString(s());
@@ -7225,7 +7225,7 @@ int CExecutive::DoMergeA(CMergeProjectsInfo& MPI)
   //copy relavent files...
   for (i=0; i<MPI.PostChangeRefFiles.GetSize(); i++)
     {
-    if (stricmp(MPI.PostNewRefFiles[i](), "Unknown")!=0)
+    if (_stricmp(MPI.PostNewRefFiles[i](), "Unknown")!=0)
       {
       Strng ss;
       ss.FnDrivePath(MPI.PostNewRefFiles[i]());

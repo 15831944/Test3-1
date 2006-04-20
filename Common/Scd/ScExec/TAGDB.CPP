@@ -476,7 +476,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
   dbgIndent+=3;  
 #endif
 
-  flag IsConn=(stricmp(pObjType, ConnObjType)==0);
+  flag IsConn=(_stricmp(pObjType, ConnObjType)==0);
   if (IsConn)
     {
     ClassNV=GetConnectTableName();
@@ -957,7 +957,7 @@ long CTagDBMDB::BumpRevisionNo()
 void CTagDBMDB::StartSaveSequence(pchar pObjType)
   {
   //  const char * TabName;
-  m_DoingConnects=(stricmp(pObjType, ConnObjType)==0);
+  m_DoingConnects=(_stricmp(pObjType, ConnObjType)==0);
   if (!m_DoingConnects)
     {
     //IncrementRevNumber();
@@ -982,7 +982,7 @@ void CTagDBMDB::StartLoadSequence(pchar pObjType)
   {
   const char * TabName;
   CString strFind;
-  m_DoingConnects=(stricmp(pObjType, ConnObjType)==0);
+  m_DoingConnects=(_stricmp(pObjType, ConnObjType)==0);
   if (m_DoingConnects)
     {
     TabName=GetConnectTableName();
@@ -1034,14 +1034,14 @@ char * CTagDBMDB::XchgTag(char * Tag)
     return Tag;
   if (strlen(Tag)>(dword)sOldFlwSolveTag.Length() &&
     Tag[sOldFlwSolveTag.Length()]=='.' &&
-    strnicmp(Tag, sOldFlwSolveTag(), sOldFlwSolveTag.Length())==0)
+    _strnicmp(Tag, sOldFlwSolveTag(), sOldFlwSolveTag.Length())==0)
     {
     XTagsCnt=(XTagsCnt+1)%8;
     XTags[XTagsCnt]=PlantModelTag;
     XTags[XTagsCnt]+=&Tag[sOldFlwSolveTag.Length()];
     return XTags[XTagsCnt]();
     }
-  else if (stricmp(Tag, sOldFlwSolveTag())==0)
+  else if (_stricmp(Tag, sOldFlwSolveTag())==0)
     return sNewFlwSolveTag();
 
   return Tag;
@@ -1058,7 +1058,7 @@ char * CTagDBMDB::XchgClass(char * pClass)
     return pClass;
 
   for (int i=0; SwopClass[i].Old; i++)
-    if (stricmp(pClass, SwopClass[i].Old)==0)
+    if (_stricmp(pClass, SwopClass[i].Old)==0)
       {
       LogNote("TagDB", 0, "Class changed %s -> %s", pClass, SwopClass[i].New);
       return SwopClass[i].New;
@@ -1931,7 +1931,7 @@ int CTagDBase::LoadObject(pchar Tag, CXM_ObjectData *pObjData)
 
 void CTagDBase::EscapeFlds(Strng &Tag)
   {
-  static AssertDone=0;
+  static int AssertDone=0;
   if (Tag.XStrPBrk("{}")!=NULL && !AssertDone)
     {
     AssertDone=1;

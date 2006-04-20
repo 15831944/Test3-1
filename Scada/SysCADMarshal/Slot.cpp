@@ -263,30 +263,30 @@ CSVColArray f;
     while (i>0)
       {
       i--;
-      //if      (stricmp(f[i], "r")==0)   Cfg.bRecordIt = 1;
-      //if (stricmp(f[i], "h")==0)   Cfg.bRecordIt = 1;
-      if (stricmp(f[i], "wo")==0)  m_bWrite=true;
-      else if (stricmp(f[i], "ro")==0)  m_bRead=true;
-      else if (stricmp(f[i], "rw")==0)  m_bRead=m_bWrite=true;
-      else if (stricmp(f[i], "l")==0)   m_bLocal = 1;
-      else if (stricmp(f[i], "b")==0)   ChangeType(VT_BOOL);
-      else if (stricmp(f[i], "u8")==0)  ChangeType(VT_UI1);
-      else if (stricmp(f[i], "u16")==0) ChangeType(VT_UI2);
-      else if (stricmp(f[i], "u32")==0) ChangeType(VT_UI4);
-      else if (stricmp(f[i], "i8")==0)  ChangeType(VT_I1);
-      else if (stricmp(f[i], "i16")==0) ChangeType(VT_I2);
-      else if (stricmp(f[i], "i32")==0) ChangeType(VT_I4);
-      else if (stricmp(f[i], "f32")==0) ChangeType(VT_R4);
-      else if (stricmp(f[i], "f64")==0) ChangeType(VT_R8);
-      //else if (stricmp(f[i], "f")==0)   Cfg.bEnableForces = 1;
-      //else if (stricmp(f[i], "iw")==0)  Cfg.bIgnoreWrites = 1;
-      //else if (stricmp(f[i], "ir")==0)  Cfg.bIgnoreReads = 1;
-      //else if (stricmp(f[i], "irw")==0)
+      //if      (_stricmp(f[i], "r")==0)   Cfg.bRecordIt = 1;
+      //if (_stricmp(f[i], "h")==0)   Cfg.bRecordIt = 1;
+      if (_stricmp(f[i], "wo")==0)  m_bWrite=true;
+      else if (_stricmp(f[i], "ro")==0)  m_bRead=true;
+      else if (_stricmp(f[i], "rw")==0)  m_bRead=m_bWrite=true;
+      else if (_stricmp(f[i], "l")==0)   m_bLocal = 1;
+      else if (_stricmp(f[i], "b")==0)   ChangeType(VT_BOOL);
+      else if (_stricmp(f[i], "u8")==0)  ChangeType(VT_UI1);
+      else if (_stricmp(f[i], "u16")==0) ChangeType(VT_UI2);
+      else if (_stricmp(f[i], "u32")==0) ChangeType(VT_UI4);
+      else if (_stricmp(f[i], "i8")==0)  ChangeType(VT_I1);
+      else if (_stricmp(f[i], "i16")==0) ChangeType(VT_I2);
+      else if (_stricmp(f[i], "i32")==0) ChangeType(VT_I4);
+      else if (_stricmp(f[i], "f32")==0) ChangeType(VT_R4);
+      else if (_stricmp(f[i], "f64")==0) ChangeType(VT_R8);
+      //else if (_stricmp(f[i], "f")==0)   Cfg.bEnableForces = 1;
+      //else if (_stricmp(f[i], "iw")==0)  Cfg.bIgnoreWrites = 1;
+      //else if (_stricmp(f[i], "ir")==0)  Cfg.bIgnoreReads = 1;
+      //else if (_stricmp(f[i], "irw")==0)
       //  {
       //  Cfg.bIgnoreWrites = 1;
       //  Cfg.bIgnoreReads = 1;
       //  }
-      else if (strnicmp(f[i], "l=", 2)==0)
+      else if (_strnicmp(f[i], "l=", 2)==0)
         {
         m_bLocal = 1;
         if (f[i][2])
@@ -295,18 +295,18 @@ CSVColArray f;
           //Cfg.dInitVal = SafeAtoF(&(f[i][2]));
           }
         }
-      else if (strnicmp(f[i], "f=", 2)==0)
+      else if (_strnicmp(f[i], "f=", 2)==0)
         {
         //Cfg.bEnableForces = 1;
         //if (f[i][2])
         //  Cfg.dForceVal = SafeAtoF(&(f[i][2]));
         }
-      else if (stricmp(f[i], "?")==0)
+      else if (_stricmp(f[i], "?")==0)
         {        
         SetError(SErr_SlotExcluded, false);
         return false;
         }
-      else if (stricmp(f[i], "!")==0)
+      else if (_stricmp(f[i], "!")==0)
         m_bSltDbgOn=1;
       else
         {
@@ -426,9 +426,9 @@ CSVColArray f;
       SetError(SErr_Range, "Range expected.");
       return false;
       }
-    else if ((stricmp(f[0], "none")==0) || (strlen(f[0])==0))
+    else if ((_stricmp(f[0], "none")==0) || (strlen(f[0])==0))
       m_Range.m_bValid = false;
-    else if (nParms!=2 || stricmp(f[0], "range")!=0)
+    else if (nParms!=2 || _stricmp(f[0], "range")!=0)
       {
       SetError(SErr_Range, "Ranges(Min,Max) expected.");
       return false;
@@ -491,7 +491,7 @@ CSVColArray f;
         SetError(SErr_Range, "Valid modifier expected");
         return false;
         }
-      else if (stricmp(f[0],"span")==0)
+      else if (_stricmp(f[0],"span")==0)
         {
         if (nParms!=2)
           {
@@ -512,7 +512,7 @@ CSVColArray f;
           }
         m_Span.m_bValid=true;
         }
-      else if (stricmp(f[0],"clamp")==0)
+      else if (_stricmp(f[0],"clamp")==0)
         {
         if (nParms!=2)
           {
@@ -533,7 +533,7 @@ CSVColArray f;
           }
         m_Clamp.m_bValid=true;
         }
-      //else if (stricmp(f[0],"bit")==0) // Single Bit in Word numbering 1..16
+      //else if (_stricmp(f[0],"bit")==0) // Single Bit in Word numbering 1..16
       //  {
       //  if (nParms!=1)
       //    {
@@ -555,7 +555,7 @@ CSVColArray f;
       //    return false;
       //    }
       //  }
-      //else if (stricmp(f[0],"mask")==0) // Mask multiple bits and shift
+      //else if (_stricmp(f[0],"mask")==0) // Mask multiple bits and shift
       //  {
       //  if (nParms!=1)
       //    {
@@ -579,7 +579,7 @@ CSVColArray f;
       //      }
       //    }
       //  }
-      else if (stricmp(f[0],"none")==0)
+      else if (_stricmp(f[0],"none")==0)
         m_Span.m_bValid = false;
       else if (strlen(f[0])>0)
         {
@@ -623,7 +623,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
     SetError(SErr_ConnectionOp, "Valid Connection Operator expected");
     return false;
     }
-  if (stricmp(pOp,"Filter")==0)
+  if (_stricmp(pOp,"Filter")==0)
     {
     if (nParms<1)// CNM Allow filter of integral types || !IsFloatDataVT)
       {
@@ -638,7 +638,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
       pC->AddOp(new CSlotConnOp_Filter((byte)SafeAtoL(f[1],1), SafeAtoF(f[2],0.0)));
       }
     }
-  else if (stricmp(pOp,"Noise")==0)
+  else if (_stricmp(pOp,"Noise")==0)
     {
     if (nParms<3 || !IsFloatDataVT)
       {
@@ -664,7 +664,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
       pC->AddOp(new CSlotConnOp_Noise(NoiseTypes(SafeAtoL(f[2],0)), SafeAtoL(f[1],0)!=0, SafeAtoF(f[3], 1.0), SafeAtoF(f[4], 0.0)));
       }
     }
-  else if (stricmp(pOp,"Oscillator")==0)
+  else if (_stricmp(pOp,"Oscillator")==0)
     {
     if (nParms<3 || !IsFloatDataVT)
       {
@@ -683,7 +683,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
                                            (float)SafeAtoF(f[5], 0.1)));
       }
     }
-  else if (stricmp(pOp,"Not")==0 || stricmp(pOp,"Invert")==0 || stricmp(pOp,"Inv")==0)
+  else if (_stricmp(pOp,"Not")==0 || _stricmp(pOp,"Invert")==0 || _stricmp(pOp,"Inv")==0)
     {
     if (nParms!=0)
       {
@@ -695,7 +695,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
       pC->AddOp(new CSlotConnOp_Not());
       }
     }
-  else if (stricmp(pOp,"Profile")==0)
+  else if (_stricmp(pOp,"Profile")==0)
     {
     if (nParms<1 || nParms>2)
       {
@@ -732,7 +732,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
       delete pProfile;
       }
     }
-  else if (stricmp(pOp,"Scale")==0 || stricmp(pOp,"Scl")==0 || stricmp(pOp,"Tweak")==0)
+  else if (_stricmp(pOp,"Scale")==0 || _stricmp(pOp,"Scl")==0 || _stricmp(pOp,"Tweak")==0)
     {
     if (nParms<1 || nParms>2)
       {
@@ -744,7 +744,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
       pC->AddOp(new CSlotConnOp_Scale(SafeAtoF(f[1],1.0), SafeAtoF(f[2],0.0)));
       }
     }
-  else if (stricmp(pOp,"Sqr")==0)
+  else if (_stricmp(pOp,"Sqr")==0)
     {
     if (nParms<1 || nParms>5)
       {
@@ -764,7 +764,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
     double dMax2=SafeAtoF(f[5],dMax1);
     pC->AddOp(new CSlotConnOp_Sqr(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(pOp,"Sqrt")==0)
+  else if (_stricmp(pOp,"Sqrt")==0)
     {
     if (nParms<1 || nParms>5)
       {
@@ -784,7 +784,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
     double dMax2=SafeAtoF(f[5],dMax1);
     pC->AddOp(new CSlotConnOp_Sqrt(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(pOp,"Range")==0 || stricmp(pOp,"Rng")==0)
+  else if (_stricmp(pOp,"Range")==0 || _stricmp(pOp,"Rng")==0)
     {
     if (nParms<1 || nParms>2)
       {
@@ -800,7 +800,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
     double dMax=SafeAtoF(f[2],1.0e100);
     pC->AddOp(new CSlotConnOp_Range(dMin, dMax));
     }
-  else if (stricmp(pOp,"Cmp")==0)
+  else if (_stricmp(pOp,"Cmp")==0)
     {
     if (nParms!=2 || IsFloatDataVT)
     // cnm if (nParms!=3 || Cfg.iTyp!=tt_Bool)
@@ -813,15 +813,15 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
       return NULL;
       }
     int Op=100;
-    if (stricmp(f[1], "<")==0)
+    if (_stricmp(f[1], "<")==0)
       Op=-2;
-    else if (stricmp(f[1], "<=")==0)
+    else if (_stricmp(f[1], "<=")==0)
       Op=-1;
-    else if (stricmp(f[1], "==")==0)
+    else if (_stricmp(f[1], "==")==0)
       Op=0;
-    else if (stricmp(f[1], ">=")==0)
+    else if (_stricmp(f[1], ">=")==0)
       Op=1;
-    else if (stricmp(f[1], ">")==0)
+    else if (_stricmp(f[1], ">")==0)
       Op=2;
     else
       {
@@ -860,7 +860,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     SetError(SErr_ConnectionFn, "Valid connection expected");
     return NULL;
     }
-  if (stricmp(f[0],"get")==0/* || stricmp(f[0],"getinv")==0*/)
+  if (_stricmp(f[0],"get")==0/* || _stricmp(f[0],"getinv")==0*/)
     {
     if (nParms!=1)
       {
@@ -872,9 +872,9 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     //  SetError(1, "Valid connection expected: Slot must have write access");
     //  return NULL;
     //  }
-    TheConn=AddGetConnect(f[1], stricmp(f[0],"getinv")==0);//, CCS_Null, 0);
+    TheConn=AddGetConnect(f[1], _stricmp(f[0],"getinv")==0);//, CCS_Null, 0);
     }
-  else if (stricmp(f[0],"set")==0 || stricmp(f[0],"setinv")==0)
+  else if (_stricmp(f[0],"set")==0 || _stricmp(f[0],"setinv")==0)
     {
     if (nParms<1 || nParms>3)
       {
@@ -891,7 +891,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     DWORD DelayTime1 = 0;
     if (f[2]==NULL || strlen(f[2])==0)
       DelayTime1 = 0;
-    else if (strnicmp(f[2], "inf", 3)==0)
+    else if (_strnicmp(f[2], "inf", 3)==0)
       DelayTime1 = InfiniteDelay;
     else
       DelayTime1 = SafeAtoL(f[2]);
@@ -900,14 +900,14 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (nParms==3)
       {
       UseDelay2 = 1;
-      if (strnicmp(f[3], "inf", 3)==0)
+      if (_strnicmp(f[3], "inf", 3)==0)
         DelayTime2 = InfiniteDelay;
       else
         DelayTime2 = SafeAtoL(f[3]);
       }
-    TheConn=AddSetConnect(f[1], stricmp(f[0],"setinv")==0, DelayTime1, DelayTime2, UseDelay2);
+    TheConn=AddSetConnect(f[1], _stricmp(f[0],"setinv")==0, DelayTime1, DelayTime2, UseDelay2);
     }
-  else if (stricmp(f[0],"getcmp")==0)
+  else if (_stricmp(f[0],"getcmp")==0)
     {
     if (nParms!=3 || IsFloatDataVT)
     // cnm if (nParms!=3 || Cfg.iTyp!=tt_Bool)
@@ -920,15 +920,15 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
       return NULL;
       }
     int Op=100;
-    if (stricmp(f[2], "<")==0)
+    if (_stricmp(f[2], "<")==0)
       Op=-2;
-    else if (stricmp(f[2], "<=")==0)
+    else if (_stricmp(f[2], "<=")==0)
       Op=-1;
-    else if (stricmp(f[2], "==")==0)
+    else if (_stricmp(f[2], "==")==0)
       Op=0;
-    else if (stricmp(f[2], ">=")==0)
+    else if (_stricmp(f[2], ">=")==0)
       Op=1;
-    else if (stricmp(f[2], ">")==0)
+    else if (_stricmp(f[2], ">")==0)
       Op=2;
     if (Op==100)
       {
@@ -945,7 +945,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (TheConn)
       TheConn->AddOp(new CSlotConnOp_Cmp(Op, SafeAtoF(f[3], 0.0)));
     }
-  else if (stricmp(f[0],"getabs")==0)
+  else if (_stricmp(f[0],"getabs")==0)
     {
     if (nParms!=1 || !IsFloatDataVT)
       {
@@ -964,7 +964,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (TheConn)
       TheConn->AddOp(new CSlotConnOp_Abs);
     }
-  else if (stricmp(f[0],"getrev")==0)
+  else if (_stricmp(f[0],"getrev")==0)
     {
     if (nParms!=2 || !IsFloatDataVT)
       {
@@ -984,7 +984,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (TheConn)
       TheConn->AddOp(new CSlotConnOp_Rev(SafeAtoF(f[2], 0.0)));
     }
-  else if (stricmp(f[0],"getsqr")==0)
+  else if (_stricmp(f[0],"getsqr")==0)
     {
     if (nParms<2 || nParms>6)
       {
@@ -1006,7 +1006,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (TheConn)
       TheConn->AddOp(new CSlotConnOp_Sqr(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(f[0],"getsqrt")==0)
+  else if (_stricmp(f[0],"getsqrt")==0)
     {
     if (nParms<2 || nParms>6)
       {
@@ -1028,7 +1028,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (TheConn)
       TheConn->AddOp(new CSlotConnOp_Sqrt(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(f[0],"getprofile")==0)
+  else if (_stricmp(f[0],"getprofile")==0)
     {
     if (nParms<2 || nParms>3)
       {
@@ -1059,7 +1059,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
       delete pProfile;
       }
     }
-  else if (stricmp(f[0],"setrev")==0)
+  else if (_stricmp(f[0],"setrev")==0)
     {
     if (nParms!=3)
       {
@@ -1075,7 +1075,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     //  SetError(1, "Valid connection expected: Slot must have read access");
 
     DWORD DelayTime1 = 0;
-    if (strnicmp(f[3], "inf", 3)==0)
+    if (_strnicmp(f[3], "inf", 3)==0)
       DelayTime1 = InfiniteDelay;
     else
       DelayTime1 = SafeAtoL(f[3]);
@@ -1083,7 +1083,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     bool UseDelay2 = 0;
     TheConn=AddSetConnect(f[1], false, DelayTime1, DelayTime2, UseDelay2);//, true, SafeAtoF(f[2]));
     }
-  else if (stricmp(f[0],"none")==0)
+  else if (_stricmp(f[0],"none")==0)
     {
     }
   else if (strlen(f[0])>0)
@@ -1091,7 +1091,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     //bool Input=false;
     //for (int i=0; RmtIO[i].m_Name; i++)
     //  {
-    //  if (stricmp(f[0], RmtIO[i].m_Name)==0)
+    //  if (_stricmp(f[0], RmtIO[i].m_Name)==0)
     //    {
     //    Input=(RmtIO[i].m_Type==CRIO_In);
     //    break;

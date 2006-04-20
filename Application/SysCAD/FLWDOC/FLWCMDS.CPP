@@ -64,7 +64,7 @@ void FlwCmdBlk::OnActivateDoc(flag bActivate)
 
 void FlwCmdBlk::BuildVNT()
   {
-  SETVNT("HELP",     "MODEL",      N_A,  -1, (CmdFn)DoLoadUserDocs, EF_ERS);
+  SETVNT("HELP",     "MODEL",      N_A,  -1, (CmdFn)&FlwCmdBlk::DoLoadUserDocs, EF_ERS);
 
   SETCIS(ID_HELP_UserDocs, "HELP MODEL\r");
 
@@ -151,7 +151,7 @@ flag FlwCmdBlk::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar p
     if (TAtt && Attr_Is(TAtt, "Tag"))
       {
       pchar pAttr=Attr_Value(TAtt);
-      if (stricmp(pTag, pAttr) == 0)
+      if (_stricmp(pTag, pAttr) == 0)
         return false; //found tag
       }
     Ins = pDrw->Next_Insert(InsInfo);

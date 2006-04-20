@@ -351,7 +351,7 @@ int CDriverManager::FindSubsItem(char* pTag)
   const int len = strlen(pTag);
   for (int i=0; i<Size; i++)
     {
-    if (ConnSubsItems[i]->m_pCon->m_sTag.Length()==len && stricmp(ConnSubsItems[i]->m_pCon->m_sTag(), pTag)==0)
+    if (ConnSubsItems[i]->m_pCon->m_sTag.Length()==len && _stricmp(ConnSubsItems[i]->m_pCon->m_sTag(), pTag)==0)
       return i;
     }
   return -1;
@@ -422,32 +422,32 @@ int CDriverManager::Slt_CfgOptions(CDrvCfgHelper &Cfg, char* pOpts, int line_num
     while (i>0)
       {
       i--;
-      //if      (stricmp(f[i], "r")==0)   Cfg.bRecordIt = 1;
-      if (stricmp(f[i], "h")==0)   Cfg.bRecordIt = 1;
-      //else if (stricmp(f[i], "w")==0)   Cfg.iAction = XIO_InOut;
-      else if (stricmp(f[i], "wo")==0)  Cfg.iAction = XIO_In;
-      else if (stricmp(f[i], "ro")==0)  Cfg.iAction = XIO_Out;
-      else if (stricmp(f[i], "rw")==0)  Cfg.iAction = XIO_InOut;
-      else if (stricmp(f[i], "l")==0)   Cfg.bLocal = 1;
-      else if (stricmp(f[i], "b")==0)   Cfg.iTyp = tt_Bool;
-      else if (stricmp(f[i], "u8")==0)  Cfg.iTyp = tt_Byte;
-      else if (stricmp(f[i], "u16")==0) Cfg.iTyp = tt_Word;
-      else if (stricmp(f[i], "u32")==0) Cfg.iTyp = tt_DWord;
-      else if (stricmp(f[i], "i8")==0)  Cfg.iTyp = tt_Char;
-      else if (stricmp(f[i], "i16")==0) Cfg.iTyp = tt_Short;
-      else if (stricmp(f[i], "i32")==0) Cfg.iTyp = tt_Long;
-      else if (stricmp(f[i], "f16")==0) Cfg.iTyp = tt_Flt16;
-      else if (stricmp(f[i], "f32")==0) Cfg.iTyp = tt_Float;
-      else if (stricmp(f[i], "f64")==0) Cfg.iTyp = tt_Double;
-      else if (stricmp(f[i], "f")==0)   Cfg.bEnableForces = 1;
-      else if (stricmp(f[i], "iw")==0)  Cfg.bIgnoreWrites = 1;
-      else if (stricmp(f[i], "ir")==0)  Cfg.bIgnoreReads = 1;
-      else if (stricmp(f[i], "irw")==0)
+      //if      (_stricmp(f[i], "r")==0)   Cfg.bRecordIt = 1;
+      if (_stricmp(f[i], "h")==0)   Cfg.bRecordIt = 1;
+      //else if (_stricmp(f[i], "w")==0)   Cfg.iAction = XIO_InOut;
+      else if (_stricmp(f[i], "wo")==0)  Cfg.iAction = XIO_In;
+      else if (_stricmp(f[i], "ro")==0)  Cfg.iAction = XIO_Out;
+      else if (_stricmp(f[i], "rw")==0)  Cfg.iAction = XIO_InOut;
+      else if (_stricmp(f[i], "l")==0)   Cfg.bLocal = 1;
+      else if (_stricmp(f[i], "b")==0)   Cfg.iTyp = tt_Bool;
+      else if (_stricmp(f[i], "u8")==0)  Cfg.iTyp = tt_Byte;
+      else if (_stricmp(f[i], "u16")==0) Cfg.iTyp = tt_Word;
+      else if (_stricmp(f[i], "u32")==0) Cfg.iTyp = tt_DWord;
+      else if (_stricmp(f[i], "i8")==0)  Cfg.iTyp = tt_Char;
+      else if (_stricmp(f[i], "i16")==0) Cfg.iTyp = tt_Short;
+      else if (_stricmp(f[i], "i32")==0) Cfg.iTyp = tt_Long;
+      else if (_stricmp(f[i], "f16")==0) Cfg.iTyp = tt_Flt16;
+      else if (_stricmp(f[i], "f32")==0) Cfg.iTyp = tt_Float;
+      else if (_stricmp(f[i], "f64")==0) Cfg.iTyp = tt_Double;
+      else if (_stricmp(f[i], "f")==0)   Cfg.bEnableForces = 1;
+      else if (_stricmp(f[i], "iw")==0)  Cfg.bIgnoreWrites = 1;
+      else if (_stricmp(f[i], "ir")==0)  Cfg.bIgnoreReads = 1;
+      else if (_stricmp(f[i], "irw")==0)
         {
         Cfg.bIgnoreWrites = 1;
         Cfg.bIgnoreReads = 1;
         }
-      else if (strnicmp(f[i], "l=", 2)==0)
+      else if (_strnicmp(f[i], "l=", 2)==0)
         {
         Cfg.bLocal = 1;
         if (f[i][2])
@@ -456,15 +456,15 @@ int CDriverManager::Slt_CfgOptions(CDrvCfgHelper &Cfg, char* pOpts, int line_num
           Cfg.dInitVal = atof(&(f[i][2]));
           }
         }
-      else if (strnicmp(f[i], "f=", 2)==0)
+      else if (_strnicmp(f[i], "f=", 2)==0)
         {
         Cfg.bEnableForces = 1;
         if (f[i][2])
           Cfg.dForceVal = atof(&(f[i][2]));
         }
-      else if (stricmp(f[i], "?")==0)
+      else if (_stricmp(f[i], "?")==0)
         return -1; // dont load
-      else if (stricmp(f[i], "!")==0)
+      else if (_stricmp(f[i], "!")==0)
         Cfg.bSltDbgOn=1;
       else
         {
@@ -551,7 +551,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
     LogError("DrvMngr", 0, "Line %u: '%s' Valid Connection Operator expected", line_number, Cfg.sTag());
     return false;
     }
-  if (stricmp(pMod,"Filter")==0)
+  if (_stricmp(pMod,"Filter")==0)
     {
     if (nParms<1)// CNM Allow filter of integral types || !IsFloatData(Cfg.iTyp))
       {
@@ -566,7 +566,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
       pC->AddOp(new CDrvSubsConnOp_Filter((byte)SafeAtoL(f[1],1), SafeAtoF(f[2],0.0)));
       }
     }
-  else if (stricmp(pMod,"Noise")==0)
+  else if (_stricmp(pMod,"Noise")==0)
     {
     if (nParms<3 || !IsFloatData(Cfg.iTyp))
       {
@@ -592,7 +592,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
       pC->AddOp(new CDrvSubsConnOp_Noise(SafeAtoL(f[1],0)!=0, NoiseTypes(SafeAtoL(f[2],0)), SafeAtoF(f[3], 1.0), SafeAtoF(f[4], 0.0)));
       }
     }
-  else if (stricmp(pMod,"Not")==0 || stricmp(pMod,"Invert")==0 || stricmp(pMod,"Inv")==0)
+  else if (_stricmp(pMod,"Not")==0 || _stricmp(pMod,"Invert")==0 || _stricmp(pMod,"Inv")==0)
     {
     if (nParms!=0)
       {
@@ -604,7 +604,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
       pC->AddOp(new CDrvSubsConnOp_Not());
       }
     }
-  else if (stricmp(pMod,"Profile")==0)
+  else if (_stricmp(pMod,"Profile")==0)
     {
     if (nParms<1 || nParms>2)
       {
@@ -633,7 +633,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
       delete pProfile;
       }
     }
-  else if (stricmp(pMod,"Scale")==0 || stricmp(pMod,"Scl")==0 || stricmp(pMod,"Tweak")==0)
+  else if (_stricmp(pMod,"Scale")==0 || _stricmp(pMod,"Scl")==0 || _stricmp(pMod,"Tweak")==0)
     {
     if (nParms<1 || nParms>2)
       {
@@ -645,7 +645,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
       pC->AddOp(new CDrvSubsConnOp_Scale(SafeAtoF(f[1],1.0), SafeAtoF(f[2],0.0)));
       }
     }
-  else if (stricmp(pMod,"Sqr")==0)
+  else if (_stricmp(pMod,"Sqr")==0)
     {
     if (nParms<1 || nParms>5)
       {
@@ -665,7 +665,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
     double dMax2=SafeAtoF(f[5],dMax1);
     pC->AddOp(new CDrvSubsConnOp_Sqr(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(pMod,"Sqrt")==0)
+  else if (_stricmp(pMod,"Sqrt")==0)
     {
     if (nParms<1 || nParms>5)
       {
@@ -685,7 +685,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
     double dMax2=SafeAtoF(f[5],dMax1);
     pC->AddOp(new CDrvSubsConnOp_Sqrt(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(pMod,"Range")==0 || stricmp(pMod,"Rng")==0)
+  else if (_stricmp(pMod,"Range")==0 || _stricmp(pMod,"Rng")==0)
     {
     if (nParms<1 || nParms>2)
       {
@@ -701,7 +701,7 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
     double dMax=SafeAtoF(f[2],1.0e100);
     pC->AddOp(new CDrvSubsConnOp_Range(dMin, dMax));
     }
-  else if (stricmp(pMod,"Cmp")==0)
+  else if (_stricmp(pMod,"Cmp")==0)
     {
     if (nParms!=2 || IsFloatData(Cfg.iTyp))
     // cnm if (nParms!=3 || Cfg.iTyp!=tt_Bool)
@@ -714,15 +714,15 @@ bool CDriverManager::ParseConnOperator(CDrvSubsConn *pC, CDrvCfgHelper &Cfg, cha
       return NULL;
       }
     int Op=100;
-    if (stricmp(f[1], "<")==0)
+    if (_stricmp(f[1], "<")==0)
       Op=-2;
-    else if (stricmp(f[1], "<=")==0)
+    else if (_stricmp(f[1], "<=")==0)
       Op=-1;
-    else if (stricmp(f[1], "==")==0)
+    else if (_stricmp(f[1], "==")==0)
       Op=0;
-    else if (stricmp(f[1], ">=")==0)
+    else if (_stricmp(f[1], ">=")==0)
       Op=1;
-    else if (stricmp(f[1], ">")==0)
+    else if (_stricmp(f[1], ">")==0)
       Op=2;
     else
       {
@@ -758,7 +758,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     LogError("DrvMngr", 0, "Line %u: '%s' Valid connection expected", line_number, Cfg.sTag());
     return NULL;
     }
-  if (stricmp(f[0],"get")==0/* || stricmp(f[0],"getinv")==0*/)
+  if (_stricmp(f[0],"get")==0/* || _stricmp(f[0],"getinv")==0*/)
     {
     if (nParms!=1)
       {
@@ -770,9 +770,9 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
       LogError("DrvMngr", 0, "Line %u: '%s' Valid connection expected: Slot must have write access", line_number, Cfg.sTag());
       return NULL;
       }
-    TheConn=CDrvSubsConn::AddGetConnect(Cfg.pConSlot, f[1], stricmp(f[0],"getinv")==0);//, CCS_Null, 0);
+    TheConn=CDrvSubsConn::AddGetConnect(Cfg.pConSlot, f[1], _stricmp(f[0],"getinv")==0);//, CCS_Null, 0);
     }
-  else if (stricmp(f[0],"set")==0 || stricmp(f[0],"setinv")==0)
+  else if (_stricmp(f[0],"set")==0 || _stricmp(f[0],"setinv")==0)
     {
     if (nParms<1 || nParms>3)
       {
@@ -789,7 +789,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     DWORD DelayTime1 = 0;
     if (f[2]==NULL || strlen(f[2])==0)
       DelayTime1 = 0;
-    else if (strnicmp(f[2], "inf", 3)==0)
+    else if (_strnicmp(f[2], "inf", 3)==0)
       DelayTime1 = InfiniteDelay;
     else
       DelayTime1 = atol(f[2]);
@@ -798,14 +798,14 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     if (nParms==3)
       {
       UseDelay2 = 1;
-      if (strnicmp(f[3], "inf", 3)==0)
+      if (_strnicmp(f[3], "inf", 3)==0)
         DelayTime2 = InfiniteDelay;
       else
         DelayTime2 = atol(f[3]);
       }
-    CDrvSubsConn::AddSetConnect(Cfg.pConSlot, f[1], stricmp(f[0],"setinv")==0, DelayTime1, DelayTime2, UseDelay2);
+    CDrvSubsConn::AddSetConnect(Cfg.pConSlot, f[1], _stricmp(f[0],"setinv")==0, DelayTime1, DelayTime2, UseDelay2);
     }
-  else if (stricmp(f[0],"getcmp")==0)
+  else if (_stricmp(f[0],"getcmp")==0)
     {
     if (nParms!=3 || IsFloatData(Cfg.iTyp))
     // cnm if (nParms!=3 || Cfg.iTyp!=tt_Bool)
@@ -818,15 +818,15 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
       return NULL;
       }
     int Op=100;
-    if (stricmp(f[2], "<")==0)
+    if (_stricmp(f[2], "<")==0)
       Op=-2;
-    else if (stricmp(f[2], "<=")==0)
+    else if (_stricmp(f[2], "<=")==0)
       Op=-1;
-    else if (stricmp(f[2], "==")==0)
+    else if (_stricmp(f[2], "==")==0)
       Op=0;
-    else if (stricmp(f[2], ">=")==0)
+    else if (_stricmp(f[2], ">=")==0)
       Op=1;
-    else if (stricmp(f[2], ">")==0)
+    else if (_stricmp(f[2], ">")==0)
       Op=2;
     if (Op=100)
       {
@@ -843,7 +843,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     if (TheConn)
       TheConn->AddOp(new CDrvSubsConnOp_Cmp(Op, SafeAtoF(f[3], 0.0)));
     }
-  else if (stricmp(f[0],"getabs")==0)
+  else if (_stricmp(f[0],"getabs")==0)
     {
     if (nParms!=1 || !IsFloatData(Cfg.iTyp))
       {
@@ -862,7 +862,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     if (TheConn)
       TheConn->AddOp(new CDrvSubsConnOp_Abs);
     }
-  else if (stricmp(f[0],"getrev")==0)
+  else if (_stricmp(f[0],"getrev")==0)
     {
     if (nParms!=2 || !IsFloatData(Cfg.iTyp))
       {
@@ -882,7 +882,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     if (TheConn)
       TheConn->AddOp(new CDrvSubsConnOp_Rev(SafeAtoF(f[2], 0.0)));
     }
-  else if (stricmp(f[0],"getsqr")==0)
+  else if (_stricmp(f[0],"getsqr")==0)
     {
     if (nParms<2 || nParms>6)
       {
@@ -904,7 +904,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     if (TheConn)
       TheConn->AddOp(new CDrvSubsConnOp_Sqr(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(f[0],"getsqrt")==0)
+  else if (_stricmp(f[0],"getsqrt")==0)
     {
     if (nParms<2 || nParms>6)
       {
@@ -926,7 +926,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     if (TheConn)
       TheConn->AddOp(new CDrvSubsConnOp_Sqrt(dMult, dMin1, dMax1, dMin2, dMax2));
     }
-  else if (stricmp(f[0],"getprofile")==0)
+  else if (_stricmp(f[0],"getprofile")==0)
     {
     if (nParms<2 || nParms>3)
       {
@@ -957,7 +957,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
       delete pProfile;
       }
     }
-  else if (stricmp(f[0],"setrev")==0)
+  else if (_stricmp(f[0],"setrev")==0)
     {
     if (nParms!=3)
       {
@@ -973,7 +973,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     //  LogError("DrvMngr", 0, "Line %u: '%s' Valid connection expected: Slot must have read access", line_number, Cfg.sTag());
      
     DWORD DelayTime1 = 0;
-    if (strnicmp(f[3], "inf", 3)==0)
+    if (_strnicmp(f[3], "inf", 3)==0)
       DelayTime1 = InfiniteDelay;
     else
       DelayTime1 = atol(f[3]);
@@ -981,7 +981,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     flag UseDelay2 = 0;
     TheConn=CDrvSubsConn::AddSetConnect(Cfg.pConSlot, f[1], false, DelayTime1, DelayTime2, UseDelay2);//, true, atof(f[2]));
     }
-  else if (stricmp(f[0],"none")==0)
+  else if (_stricmp(f[0],"none")==0)
     {
     }
   else if (strlen(f[0])>0)
@@ -989,7 +989,7 @@ CDrvSubsConn * CDriverManager::ParseConnFunction(CDrvCfgHelper &Cfg, char* pConn
     bool Input=false;
     for (int i=0; RmtIO[i].m_Name; i++)
 	    {
-      if (stricmp(f[0], RmtIO[i].m_Name)==0)
+      if (_stricmp(f[0], RmtIO[i].m_Name)==0)
 	      {
         Input=(RmtIO[i].m_Type==CRIO_In);
         break;
@@ -1156,12 +1156,12 @@ int CDriverManager::Slt_CfgArchiveDB(CDrvCfgHelper &Cfg, char *pACfg, int line_n
       for (int j=1; j<=nParms; j++)
         {
         byte What=ADBFn_Null;
-        if      (stricmp(f[j], ADBFuncTags[ADBFn_Instant])==0)      What=ADBFn_Instant;
-        else if (stricmp(f[j], ADBFuncTags[ADBFn_Minimum])==0)      What=ADBFn_Minimum;
-        else if (stricmp(f[j], ADBFuncTags[ADBFn_Maximum])==0)      What=ADBFn_Maximum;
-        else if (stricmp(f[j], ADBFuncTags[ADBFn_PeriodAvg])==0)    What=ADBFn_PeriodAvg;
-        //else if (stricmp(f[j], ADBFuncTags[ADBFn_RunningAvg])==0)   What=ADBFn_RunningAvg
-        else if (stricmp(f[j], ADBFuncTags[ADBFn_Count])==0)        What=ADBFn_Count;
+        if      (_stricmp(f[j], ADBFuncTags[ADBFn_Instant])==0)      What=ADBFn_Instant;
+        else if (_stricmp(f[j], ADBFuncTags[ADBFn_Minimum])==0)      What=ADBFn_Minimum;
+        else if (_stricmp(f[j], ADBFuncTags[ADBFn_Maximum])==0)      What=ADBFn_Maximum;
+        else if (_stricmp(f[j], ADBFuncTags[ADBFn_PeriodAvg])==0)    What=ADBFn_PeriodAvg;
+        //else if (_stricmp(f[j], ADBFuncTags[ADBFn_RunningAvg])==0)   What=ADBFn_RunningAvg
+        else if (_stricmp(f[j], ADBFuncTags[ADBFn_Count])==0)        What=ADBFn_Count;
 
         DrvArcCfg * p=new DrvArcCfg;
         p->m_sTable=f[0];
@@ -1224,7 +1224,7 @@ int CDriverManager::Slt_CfgModifier(CDrvCfgHelper &Cfg, char *pMod, int line_num
         LogError("DrvMngr", 0, "Line %u: '%s' Valid modifier expected", line_number, Cfg.sTag());
         return -1;
         }
-      else if (stricmp(f[0],"span")==0)
+      else if (_stricmp(f[0],"span")==0)
         {
         Cfg.bUseSpan = true;
         if (nParms!=2)
@@ -1245,7 +1245,7 @@ int CDriverManager::Slt_CfgModifier(CDrvCfgHelper &Cfg, char *pMod, int line_num
           return -1;
           }
         }
-      else if (stricmp(f[0],"clamp")==0)
+      else if (_stricmp(f[0],"clamp")==0)
         {
         if (nParms!=2)
           {
@@ -1265,7 +1265,7 @@ int CDriverManager::Slt_CfgModifier(CDrvCfgHelper &Cfg, char *pMod, int line_num
           return -1;
           }
         }
-      else if (stricmp(f[0],"bit")==0) // Single Bit in Word numbering 1..16
+      else if (_stricmp(f[0],"bit")==0) // Single Bit in Word numbering 1..16
         {
         if (nParms!=1)
           {
@@ -1287,7 +1287,7 @@ int CDriverManager::Slt_CfgModifier(CDrvCfgHelper &Cfg, char *pMod, int line_num
           return -1;
           }
         }
-      else if (stricmp(f[0],"mask")==0) // Mask multiple bits and shift
+      else if (_stricmp(f[0],"mask")==0) // Mask multiple bits and shift
         {
         if (nParms!=1)
           {
@@ -1311,7 +1311,7 @@ int CDriverManager::Slt_CfgModifier(CDrvCfgHelper &Cfg, char *pMod, int line_num
             }
           }
         }
-      else if (stricmp(f[0],"none")==0)
+      else if (_stricmp(f[0],"none")==0)
         Cfg.bUseSpan = false;
       else if (strlen(f[0])>0)
         {
@@ -1354,9 +1354,9 @@ int CDriverManager::Slt_CfgRange(CDrvCfgHelper &Cfg, char *pRng, int line_number
       LogError("DrvMngr", 0, "Line %u: '%s' Range expected.", line_number, Cfg.sTag());
       return -1;
       }
-    else if ((stricmp(f[0], "none")==0) || (strlen(f[0])==0))
+    else if ((_stricmp(f[0], "none")==0) || (strlen(f[0])==0))
       Cfg.bUseRange = false;
-    else if (nParms!=2 || stricmp(f[0], "range")!=0)
+    else if (nParms!=2 || _stricmp(f[0], "range")!=0)
       {
       LogError("DrvMngr", 0, "Line %u: '%s' Ranges(Min,Max) expected.", line_number, Cfg.sTag());
       return -1;
@@ -1418,7 +1418,7 @@ int CDriverManager::Slt_CfgFilter(CDrvCfgHelper &Cfg, char *pFlt, int line_numbe
         LogError("DrvMngr", 0, "Line %u: '%s' Invalid filter.", line_number, Cfg.sTag());
         return -1;
         }
-      if (stricmp(f[0],"window")==0)
+      if (_stricmp(f[0],"window")==0)
         {
         if (nParms!=1)
           {
@@ -1428,7 +1428,7 @@ int CDriverManager::Slt_CfgFilter(CDrvCfgHelper &Cfg, char *pFlt, int line_numbe
         Cfg.nH.iFilterAlg |= HSFA_MovingAve;
         Cfg.nH.iWinFltCount = atol(f[1]);
         }
-      else if (stricmp(f[0],"first")==0)
+      else if (_stricmp(f[0],"first")==0)
         {
         if (nParms!=3)
           {
@@ -1467,7 +1467,7 @@ int CDriverManager::Slt_CfgCompression(CDrvCfgHelper &Cfg, char *pCmp, int line_
       LogError("DrvMngr", 0, "Line %u: '%s' Valid compression expected.", line_number, Cfg.sTag());
       return -1;
       }
-    if (stricmp(f[0],"box")==0)
+    if (_stricmp(f[0],"box")==0)
       {
       if (nParms!=1)
         {
@@ -1477,7 +1477,7 @@ int CDriverManager::Slt_CfgCompression(CDrvCfgHelper &Cfg, char *pCmp, int line_
       Cfg.nH.iBoxcarAlg    = HSA_Boxcar;
       Cfg.nH.dDeltaLo      = atof(f[1]);
       }
-    else if (stricmp(f[0],"abox")==0)
+    else if (_stricmp(f[0],"abox")==0)
       {
       if (nParms!=5)
         {
@@ -2489,7 +2489,7 @@ int CDriverManager::FindChanForTag(const char * pTag)
   /*int n = Slots.GetSize();
   for (int i=0; i<n; i++)
     {
-    if (stricmp(Slots[i]->sTag(), pTag)==0)
+    if (_stricmp(Slots[i]->sTag(), pTag)==0)
       return i;
     }
   return -1;*/
@@ -2514,7 +2514,7 @@ int CDriverManager::FindCodeBlkForTag(const char* pTag, CDrvCodeBlk *&pCdBlk, GC
       pVar=m_CodeBlks[Index]->m_Code.m_pVarList->FindTag(pVarTg);
       //while (pVar)
       //  {
-      //  if (stricmp(pCBTg, pVar->FindTag())
+      //  if (_stricmp(pCBTg, pVar->FindTag())
       //  pVar=pVar->Next();
       //  }
       if (pVar)
@@ -2527,7 +2527,7 @@ int CDriverManager::FindCodeBlkForTag(const char* pTag, CDrvCodeBlk *&pCdBlk, GC
   /*int n = Slots.GetSize();
   for (int i=0; i<n; i++)
     {
-    if (stricmp(Slots[i]->sTag(), pTag)==0)
+    if (_stricmp(Slots[i]->sTag(), pTag)==0)
       return i;
     }
   return -1;*/
@@ -3534,7 +3534,7 @@ int CDriverManager::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
     const int j = ConnSubsItems.GetSize();
     for (int i=0; i<j; i++)
       {
-      if (strnicmp(pOldTag, ConnSubsItems[i]->m_pCon->m_sTag(), len)==0)
+      if (_strnicmp(pOldTag, ConnSubsItems[i]->m_pCon->m_sTag(), len)==0)
         return EOCT_DRVNOTALLOWED;
       }
     }
@@ -3550,7 +3550,7 @@ int CDriverManager::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   for (int i=0; i<j; i++)
     {
     pCConnSubsItem pSubsItem = ConnSubsItems[i];
-    if (strnicmp(pOldTag, pSubsItem->m_pCon->m_sTag(), len)==0)
+    if (_strnicmp(pOldTag, pSubsItem->m_pCon->m_sTag(), len)==0)
       {
       ASSERT(!gs_Exec.Busy());
       LogWarning("DrvMngr", 0, "Changing tag '%s' affects a driver connection tag for '%s'", pOldTag, pSubsItem->m_pCon->m_pParentSlot->sTag());
@@ -3619,7 +3619,7 @@ flag CDriverManager::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec&
         break;
       case RQ_Tags: //return info on all tags based on request criteria...
       case RQ_TagsConns: //return info on all tags based on request criteria...
-        if (Info.Count()<Slots.GetSize() && (Rqst.pGroup==NULL || stricmp(Rqst.pGroup, "Driver")==0))
+        if (Info.Count()<Slots.GetSize() && (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, "Driver")==0))
           {
           Info.sData = Slots[Info.Count()]->sTag();
           return true;

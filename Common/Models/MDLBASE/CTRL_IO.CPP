@@ -82,7 +82,7 @@ CIO_Logic * CIO_Blk::CreateLogic(pchar Name_, pTaggedObject pAttach)
 void CIO_Blk::ChangeLogic(pchar Name_)
   { 
   ASSERT(pLogic);
-  if (Name_ && (stricmp(Name_, pLogic->ClassId())!=0))
+  if (Name_ && (_stricmp(Name_, pLogic->ClassId())!=0))
     {
     ASSERT(pLogic->pAttachedTo);
     pLogic->StructureChanged(pLogic->pAttachedTo);

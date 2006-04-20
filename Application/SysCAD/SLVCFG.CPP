@@ -403,7 +403,7 @@ int CALLBACK CActivePage::CompareFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
     return 1;
   if (pAT1->NTags>0 && pAT2->NTags==0)
     return -1;
-  return stricmp(pAT1->Name(), pAT2->Name());
+  return _stricmp(pAT1->Name(), pAT2->Name());
   };
   
 //--------------------------------------------------------------------------

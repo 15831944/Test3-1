@@ -554,7 +554,7 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
       if (DbgFlags & DBG_TrvGetMode)
         {
         LPSTR EqnNm=Eqn() && Eqn()->FlwEqnName() ? Eqn()->FlwEqnName() : "";
-        if (stricmp(EqnNm, "None")==0)
+        if (_stricmp(EqnNm, "None")==0)
           EqnNm=" ";
 
         dbglock();
@@ -755,7 +755,7 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
       if (/*!GFb.m_fFixed &&*/ DbgFlags & DBG_TraverseP)
         {
         LPSTR EqnNm=Eqn() && Eqn()->FlwEqnName() ? Eqn()->FlwEqnName() : "";
-        if (stricmp(EqnNm, "None")==0)
+        if (_stricmp(EqnNm, "None")==0)
           EqnNm=" ";
         dbglock();
         Strng FS;
@@ -872,7 +872,7 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
         S3.Set(Valid(m_QmRqd) ? "%#*.*g" : "*",QWide,QPrec,m_QmRqd);
 
         LPSTR EqnNm=Eqn() && Eqn()->FlwEqnName() ? Eqn()->FlwEqnName() : "";
-        if (stricmp(EqnNm, "None")==0)
+        if (_stricmp(EqnNm, "None")==0)
           EqnNm=" ";
         Strng FS;
         FS.Set(m_iFxdOrder>=0 ? "%4i":"    ", m_iFxdOrder);
@@ -1042,7 +1042,7 @@ void FlwBlk::EvalFlowX(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int 
       else if (DbgFlags & DBG_TraverseQ)
         {
         LPSTR EqnNm=Eqn() && Eqn()->FlwEqnName() ? Eqn()->FlwEqnName() : "";
-        if (stricmp(EqnNm, "None")==0)
+        if (_stricmp(EqnNm, "None")==0)
           EqnNm=" ";
         dbgpln("%s%s%s%s %-2.2s %3.3s %11.4f %11.4f %16s %16s %16s %16s %s",
           SgnStr(FBDirn), (m_fFixed ? m_fIsDegFree ? "F" : "f" : " "), " ",
@@ -1908,8 +1908,8 @@ void CGrpFlwBlk::TraverseGetMode(flag GoFwd, CGrpFlwBlkSD & Src, CGrpFlwBlkSD & 
     }
 #endif
 
-  if (stricmp(Src.Nd()->FullObjTag(), PlantAreaTag)==0 ||
-    stricmp(Dst.Nd()->FullObjTag(), PlantAreaTag)==0)
+  if (_stricmp(Src.Nd()->FullObjTag(), PlantAreaTag)==0 ||
+    _stricmp(Dst.Nd()->FullObjTag(), PlantAreaTag)==0)
     {
     int xxx=0;
 

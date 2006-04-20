@@ -73,7 +73,7 @@ CEntInView::~CEntInView()
 
 extern "C"
 {
-  mypolypolyline(int xoff, int yoff, LONGPOINT *p, short *t, DWORD *x, DWORD cxx, double level, double level2, int dytype, int colorrqd, int *colordrwn, int ovrcolorrqd, int ovrpenrqd, int *ovrcolordrwn, HBRUSH hFillBrush, double thickness);
+  int mypolypolyline(int xoff, int yoff, LONGPOINT *p, short *t, DWORD *x, DWORD cxx, double level, double level2, int dytype, int colorrqd, int *colordrwn, int ovrcolorrqd, int ovrpenrqd, int *ovrcolordrwn, HBRUSH hFillBrush, double thickness);
 };
 
 

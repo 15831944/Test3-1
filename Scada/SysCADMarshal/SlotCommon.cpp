@@ -720,7 +720,7 @@ void CSlotValueSet::SetValueID(LPCTSTR ValueID, COleVariant & vValue, eConnSrcDs
   {    
   int L=strlen(ValueID);
   for (int i=0; i<m_Values.GetSize(); i++)
-    if (strnicmp(m_Values[i], ValueID, L)==0 && m_Values[i][L]=='=')
+    if (_strnicmp(m_Values[i], ValueID, L)==0 && m_Values[i][L]=='=')
       break;
       
   if (i<m_Values.GetSize())

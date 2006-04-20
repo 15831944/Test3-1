@@ -183,7 +183,7 @@ class DllImportExport CETermStripDefnArray : public CArray <CETermStripDefn, CET
     long            Find(LPCTSTR Nm) 
       {
       for (int i=0; i<GetSize(); i++)
-        if (stricmp(Nm, ElementAt(i).Name())==0)
+        if (_stricmp(Nm, ElementAt(i).Name())==0)
           return i;
       return -1;
       }
@@ -381,7 +381,7 @@ class DllImportExport CETermStrip
     CETerminal  * Find(LPCTSTR Nm)
       {
       for (int i=0; i<m_Terms.GetSize(); i++)
-        if (stricmp(Nm, m_Terms[i]->Name())==0)
+        if (_stricmp(Nm, m_Terms[i]->Name())==0)
           return m_Terms[i];
       return NULL;
       }
@@ -712,7 +712,7 @@ class DllImportExport CNodeElectrics
     CETermStrip   * Find(LPCTSTR Nm) 
       {
       for (int i=0; i<m_lTermStripCount; i++)
-        if (stricmp(Nm, m_TermStrips[i]->Name())==0)
+        if (_stricmp(Nm, m_TermStrips[i]->Name())==0)
           return m_TermStrips[i];
       return NULL;
       }

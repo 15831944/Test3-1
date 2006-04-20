@@ -94,26 +94,7 @@ inline int SafeAOtoI(const char * Str, int Default=0)
 
 // -----------------------------------------------------------
 
-inline double ParseNANFlag(const char * Str, double Val=dNAN)
-  {
-  if (stricmp(Str, "*Free")==0 || strnicmp(Str, "*F", 2)==0) 
-    return SetNANFlag(NF_Free, Val);
-  if (stricmp(Str, "*Hold")==0 || strnicmp(Str, "*H", 2)==0) 
-    return SetNANFlag(NF_Hold, Val);
-  if (stricmp(Str, "*Pulse")==0 || strnicmp(Str, "*P", 2)==0) 
-    return SetNANFlag(NF_Pulse, Val);
-  if (stricmp(Str, "*Ignore")==0 || strnicmp(Str, "*I", 2)==0) 
-    return SetNANFlag(NF_Ignore, Val);
-  if (stricmp(Str, "*Block")==0 || strnicmp(Str, "*B", 2)==0) 
-    return SetNANFlag(NF_Block, Val);
-  if (stricmp(Str, "*+")==0 || strnicmp(Str, "*+", 2)==0) 
-    return SetNANFlag(NF_Plus, Val);
-  if (stricmp(Str, "*-")==0 || strnicmp(Str, "*-", 2)==0) 
-    return SetNANFlag(NF_Minus, Val);
-  if (stricmp(Str, "**")==0 || strnicmp(Str, "**", 2)==0) 
-    return SetNANFlag(NF_Star, Val);
-  return Val;
-  }
+DllExport double ParseNANFlag(const char * Str, double Val=dNAN);
 
 inline double SafeAtoF(const char * Str, double Default=0.0)
   {

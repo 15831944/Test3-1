@@ -210,7 +210,7 @@ void C2DFn::CopyFunction(C2DFn& Fn)
   bRedist = Fn.bRedist;
   bAutoScale = Fn.bAutoScale;
   bReDoFrac = True;
-  if (stricmp(Fn.ModelName(), ModelName())!=0)
+  if (_stricmp(Fn.ModelName(), ModelName())!=0)
     {
     pM->Destroy();
     pM = C2DModel::Create(this, Fn.ModelName());
@@ -277,7 +277,7 @@ pchar C2DFn::FindModelByClassId(pchar pReqdModelClassId)
       break;
     else 
       {
-      if (stricmp(pC->ClassId(), pReqdModelClassId)==0)
+      if (_stricmp(pC->ClassId(), pReqdModelClassId)==0)
         {
         pReqdModel = pC->ClassId();
         break;

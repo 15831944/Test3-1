@@ -190,7 +190,7 @@ int CIncomer::ChangeTag(pchar pOldTag, pchar pNewTag)
   if (sConnectTag.XStrICmp(pOldTag)==0)
     sConnectTag=pNewTag;
   const int len = strlen(pOldTag);
-  //if (m_sCFTag.Len()>=len && strnicmp(m_sCFTag(), pOldTag, len)==0 && (m_sCFTag.Len()==len || m_sCFTag[len]=='.'))
+  //if (m_sCFTag.Len()>=len && _strnicmp(m_sCFTag(), pOldTag, len)==0 && (m_sCFTag.Len()==len || m_sCFTag[len]=='.'))
   //  {
   //  Strng Right = m_sCFTag.Mid(len, 256);
   //  m_sCFTag = pNewTag;

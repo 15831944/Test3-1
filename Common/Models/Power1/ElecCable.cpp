@@ -551,7 +551,7 @@ void CElecCable::ConnectElectrics()
 
 void CElecCable::EvalDiscrete()
   {
-  const DoDbg=0;
+  const int DoDbg=0;
   if (NoEIOs()==2)
     {
     FlwNode * pSrcNd=Nd_Rmt(EIO1());

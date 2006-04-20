@@ -751,7 +751,7 @@ void CSlot::Changed(flag Force)
       if (IsStrng(MeasVal.Type()))
         {
       //Do = (fabs((Data.PrevSaveVal.GetDouble()-MeasVal.GetDouble())/Data.PrevSaveVal.GetDouble())>pHistory->dRecordATol);
-        Do = stricmp(Data.PrevSaveVal.GetString(), MeasVal.GetString())!=0;
+        Do = _stricmp(Data.PrevSaveVal.GetString(), MeasVal.GetString())!=0;
         }
       else
         {

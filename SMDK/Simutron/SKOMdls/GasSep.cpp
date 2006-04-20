@@ -901,7 +901,7 @@ bool CGasSep::EvalFlowEquations(eScdFlwEqnTasks Task, long IONo, long FE, long L
         FB.SetDerivsBad(false);
         FB.SetDPb(0.0, 0.0); // In is Positive
 
-        const HoldIterAll=false;
+        const bool HoldIterAll=false;
 
         switch (FlwIOs[IONo].Id)
           {

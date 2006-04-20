@@ -15,7 +15,7 @@ struct TrendPenRec
   HPEN hOldPen;
   };
 
-CTagVwTrend_FWDDEF(CTagVwTrend);
+//CTagVwTrend_FWDDEF(CTagVwTrend);
 
 //===========================================================================
 

@@ -798,11 +798,11 @@ static flag PhaseNamePrimary(int eOcc, LPSTR PhName)
   switch (eOcc)
     {
     case BOT_Liquid:
-      return stricmp(PhName, "l")==0;
+      return _stricmp(PhName, "l")==0;
     case BOT_Gas:
-      return stricmp(PhName, "v")==0 || stricmp(PhName, "g")==0;
+      return _stricmp(PhName, "v")==0 || _stricmp(PhName, "g")==0;
     case BOT_Solid:
-      return stricmp(PhName, "s")==0;
+      return _stricmp(PhName, "s")==0;
     }
   return false;
   }
@@ -2423,7 +2423,7 @@ void CH2ODataBase::Select(const char * ClassId)
   {
   m_iSelected=-1;
   for (int i=0; i<m_nMdls; i++)
-    if (stricmp(m_Mdl[i]->ClassId(), ClassId)==0)
+    if (_stricmp(m_Mdl[i]->ClassId(), ClassId)==0)
       {
       m_iSelected=i;
       break;
@@ -2675,7 +2675,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
 
           const char* pElDef = (const char*)Values[2];
 
-          flag UseH2OFns=UseStdFns4H2O && (stricmp(pElDef, "H2O1")==0);
+          flag UseH2OFns=UseStdFns4H2O && (_stricmp(pElDef, "H2O1")==0);
           // Now decide on the new Component
           pC = NULL;
           if (RqdCmp.Find(pSym, true)!=NULL) // do we want this one ?
@@ -3681,7 +3681,7 @@ flag CComponentDataBase::LoadBIPs(CDBInitRec & CDBInit, char* FilePath)
     char *p;
     for (p=StrToken(Pos, ",\n"); !feof(f) ; p=StrToken(Pos, ",\n"))
       {
-      if (p && stricmp(p, "Compound")==0)
+      if (p && _stricmp(p, "Compound")==0)
         break;
       fgets(Buff, sizeof(Buff), f);
       LnNo++;
@@ -6365,7 +6365,7 @@ bool CSysVecFn::SimpleParse(LPCSTR Str)
 
 //--------------------------------------------------------------------------
 
-const SVErrType_Load = 0;
+const int SVErrType_Load = 0;
 bool SetError(long When, long What)
   {
   Strng errDesc;

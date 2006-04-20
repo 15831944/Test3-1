@@ -54,7 +54,7 @@ void COptimizer::Initialise()
 flag COptimizer::ChangeModel(pchar EqnName)
   {
   for (int i=0; i<MdlCnt; i++)
-    if (stricmp(EqnName, Eqns[i].Nm)==0)
+    if (_stricmp(EqnName, Eqns[i].Nm)==0)
       break;
   if (i>=MdlCnt)
     return False;

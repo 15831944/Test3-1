@@ -29,13 +29,13 @@ extern "C"
 
 // CExploreScd dialog
 
-const Img_Grf     = 0;
-const Img_Trnd    = 1;
-const Img_Other   = 2;
-const Img_Node    = 3;
-const Img_Class   = 4;
-const Img_LostGrf = 5;
-const Img_LostMdl = 6;
+const int Img_Grf     = 0;
+const int Img_Trnd    = 1;
+const int Img_Other   = 2;
+const int Img_Node    = 3;
+const int Img_Class   = 4;
+const int Img_LostGrf = 5;
+const int Img_LostMdl = 6;
 
 const int PgType2TrIDs[3]={TrID_Other, TrID_Grf, TrID_Trnd};
 const int PgType2ImgIDs[3]={Img_Other, Img_Grf, Img_Trnd};
@@ -326,7 +326,7 @@ static int HpTagTest(void * p, void * q)
   {
   CXTTag * r1=(CXTTag*)p;
   CXTTag * r2=(CXTTag*)q;
-  int Cmp=stricmp(r1->m_sTag, r2->m_sTag);
+  int Cmp=_stricmp(r1->m_sTag, r2->m_sTag);
   return Cmp<0;
   }
 
@@ -334,7 +334,7 @@ static int HpTagHTest(void * p, void * q)
   {
   CXTTagHPair * r1=(CXTTagHPair*)p;
   CXTTagHPair * r2=(CXTTagHPair*)q;
-  int Cmp=stricmp(r1->m_pTag->m_sTag, r2->m_pTag->m_sTag);
+  int Cmp=_stricmp(r1->m_pTag->m_sTag, r2->m_pTag->m_sTag);
   return Cmp<0;
   }
 
@@ -342,7 +342,7 @@ static int HpClassTest(void * p, void * q)
   {
   CXTClass * r1=(CXTClass*)p;
   CXTClass * r2=(CXTClass*)q;
-  int Cmp=stricmp(r1->m_sClassId, r2->m_sClassId);
+  int Cmp=_stricmp(r1->m_sClassId, r2->m_sClassId);
   return Cmp<0;
   }
 
@@ -350,7 +350,7 @@ static int HpPageTest(void * p, void * q)
   {
   CXTPage * r1=(CXTPage*)p;
   CXTPage * r2=(CXTPage*)q;
-  int Cmp=stricmp(r1->m_sPageId, r2->m_sPageId);
+  int Cmp=_stricmp(r1->m_sPageId, r2->m_sPageId);
   return Cmp<0;
   }
 
@@ -358,7 +358,7 @@ static int HpPageHTest(void * p, void * q)
   {
   CXTPageHPair * r1=(CXTPageHPair*)p;
   CXTPageHPair * r2=(CXTPageHPair*)q;
-  int Cmp=stricmp(r1->m_pPage->m_sPageId, r2->m_pPage->m_sPageId);
+  int Cmp=_stricmp(r1->m_pPage->m_sPageId, r2->m_pPage->m_sPageId);
   return Cmp<0;
   }
 
@@ -644,7 +644,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
 
     for (int j=0; TrimWnds[j]; j++)
       {
-      if (strnicmp(PgName(), TrimWnds[j], strlen(TrimWnds[j]))==0)
+      if (_strnicmp(PgName(), TrimWnds[j], strlen(TrimWnds[j]))==0)
         {
         PgId=TrimWnds[j];
         break;
@@ -658,7 +658,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
       {
       for (int j=0; PageExts[j]; j++)
         {
-        if (stricmp(PgExt(), PageExts[j])==0)
+        if (_stricmp(PgExt(), PageExts[j])==0)
           {
           PgId.FnName();
           break;
@@ -678,7 +678,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
       {
       for (int j=0; ExcludeWnds[j]; j++)
         {
-        if (strnicmp(WL.Wnds[i].m_sName, ExcludeWnds[j], strlen(ExcludeWnds[j]))==0)
+        if (_strnicmp(WL.Wnds[i].m_sName, ExcludeWnds[j], strlen(ExcludeWnds[j]))==0)
           goto NextWindow;
         }
 

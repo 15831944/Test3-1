@@ -303,10 +303,10 @@ int COleExcelBaseAuto::Open(OWorkbooks* pWkBooks, OWorkbook* pWkBook, flag OpenA
         {
         pWkBook->AttachDispatch(pExcel->Workbooks(i), TRUE);
         CString WorkbookName = pWkBook->GetName();
-        if (stricmp((const char*)WorkbookName, (const char*)sWorkbookName)==0) //check if workbook names are the same
+        if (_stricmp((const char*)WorkbookName, (const char*)sWorkbookName)==0) //check if workbook names are the same
           {
           CString FullName = pWkBook->GetFullName();
-          if (stricmp(sFileName(), (const char*)FullName)==0) //check if workbook full paths are the same
+          if (_stricmp(sFileName(), (const char*)FullName)==0) //check if workbook full paths are the same
             WorkbookFound = 1;
           else
             {
@@ -434,7 +434,7 @@ int COleExcelBaseAuto::OpenAndInit(OWorkbooks* pWkBooks, OWorksheets* pWkSheets,
     pWkSheet->AttachDispatch(pWkBook->Worksheets(i), TRUE);
     CString SheetName = pWkSheet->GetName();
     WkSheetNames[i-1] = (const char*)SheetName;
-    if (stricmp((const char*)SheetName, (const char*)FeedbackPageName)==0)
+    if (_stricmp((const char*)SheetName, (const char*)FeedbackPageName)==0)
       FeedbackFound = 1;
     }
 
@@ -456,10 +456,10 @@ int COleExcelBaseAuto::OpenAndInit(OWorkbooks* pWkBooks, OWorksheets* pWkSheets,
   UserWkSheets.SetSize(WkSheetNames.GetSize());
   for (int i=0; i<WkSheetNames.GetSize(); i++)
     {
-    UserWkSheets[i] = (stricmp(WkSheetNames[i](), (char*)OleReportFeedbackKey)!=0) &&
-                      (stricmp(WkSheetNames[i](), (char*)OleReportTrendFeedbackKey)!=0) &&
-                      (stricmp(WkSheetNames[i](), (char*)OleSetTagsFeedbackKey)!=0) &&
-                      (strnicmp(WkSheetNames[i](), (char*)OleGenInfoWorksheetKey, strlen((char*)OleGenInfoWorksheetKey))!=0);
+    UserWkSheets[i] = (_stricmp(WkSheetNames[i](), (char*)OleReportFeedbackKey)!=0) &&
+                      (_stricmp(WkSheetNames[i](), (char*)OleReportTrendFeedbackKey)!=0) &&
+                      (_stricmp(WkSheetNames[i](), (char*)OleSetTagsFeedbackKey)!=0) &&
+                      (_strnicmp(WkSheetNames[i](), (char*)OleGenInfoWorksheetKey, strlen((char*)OleGenInfoWorksheetKey))!=0);
     }
   return 0;
   }
@@ -697,7 +697,7 @@ int CExcelReport::ParseOffsetFn(char* Func, OWorksheet* pWkSheet, int& Row, int&
   CString OFunc = M.GetString(Row, Col, pWkSheet, &R);
   Strng Fn = (const char*)OFunc;
   Fn.Trim("\n\r\t ");
-  if (Fn.Len()<(int)strlen(OleReportListKey) || strnicmp(OleReportListKey, Fn(), strlen(OleReportListKey))!=0)
+  if (Fn.Len()<(int)strlen(OleReportListKey) || _strnicmp(OleReportListKey, Fn(), strlen(OleReportListKey))!=0)
     return -3;
   if (ParseFn(Fn())!=0)
     {
@@ -1046,7 +1046,7 @@ int COleReportMngr::DoAutomation()
             {
             Strng TempName = (const char*)Name;
             TempName.Trim("\n\r\t \"\'");
-            if (bAll || (TempName.Length()==sReportName.Length() && stricmp(TempName(), sReportName())==0))
+            if (bAll || (TempName.Length()==sReportName.Length() && _stricmp(TempName(), sReportName())==0))
               {
               CExcelReport R(this, &WkBook);
               R.sName = TempName;
@@ -1057,14 +1057,14 @@ int COleReportMngr::DoAutomation()
               StatusBarTxt.Set("SysCAD: Report %s (%s) ...", R.sName(), R.ResLoc.sSheet());
               pExcel->SetStatusBar(StatusBarTxt());
               ss = GetString(RowCnt, Col+4, &WkSheet, &R2);
-              if (ss.GetLength()==0 || strnicmp((const char*)ss, "h", 1)==0)
+              if (ss.GetLength()==0 || _strnicmp((const char*)ss, "h", 1)==0)
                 R.bResVert = 0;
               ss = GetString(RowCnt, Col+5, &WkSheet, &R2);
               ii = GetShort(RowCnt, Col+6, &WkSheet, &R2);
               jj = GetShort(RowCnt, Col+7, &WkSheet, &R2);
               R.PriLoc.Set((char*)(const char*)ss, ii, jj);
               ss = GetString(RowCnt, Col+8, &WkSheet, &R2);
-              if (ss.GetLength()==0 || strnicmp((const char*)ss, "h", 1)==0)
+              if (ss.GetLength()==0 || _strnicmp((const char*)ss, "h", 1)==0)
                 R.bPriVert = 0;
               R.iPriLen = GetShort(RowCnt, Col+9, &WkSheet, &R2);
               R.iPriMaxLen = GetShort(RowCnt, Col+10, &WkSheet, &R2);
@@ -1073,7 +1073,7 @@ int COleReportMngr::DoAutomation()
               jj = GetShort(RowCnt, Col+13, &WkSheet, &R2);
               R.SecLoc.Set((char*)(const char*)ss, ii, jj);
               ss = GetString(RowCnt, Col+14, &WkSheet, &R2);
-              if (ss.GetLength()==0 || strnicmp((const char*)ss, "v", 1)==0)
+              if (ss.GetLength()==0 || _strnicmp((const char*)ss, "v", 1)==0)
                 R.bSecVert = 1;
               R.iSecLen = GetShort(RowCnt, Col+15, &WkSheet, &R2);
               R.iSecMaxLen = GetShort(RowCnt, Col+16, &WkSheet, &R2);
@@ -1141,11 +1141,11 @@ int COleReportMngr::DoAutomation()
         flag OK = true;
         flag SearchStrOK = true;
         int SearchTypes = -1;
-        if (FnLen>(int)strlen(OleReportKey) && strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
+        if (FnLen>(int)strlen(OleReportKey) && _strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
           SearchTypes = 0;
-        else if (FnLen>(int)strlen(OleReportListKey) && strnicmp(Fn(), OleReportListKey, strlen(OleReportListKey))==0)
+        else if (FnLen>(int)strlen(OleReportListKey) && _strnicmp(Fn(), OleReportListKey, strlen(OleReportListKey))==0)
           SearchTypes = 1;
-        else if (FnLen>(int)strlen(OleReportListOffsetKey) && strnicmp(Fn(), OleReportListOffsetKey, strlen(OleReportListOffsetKey))==0)
+        else if (FnLen>(int)strlen(OleReportListOffsetKey) && _strnicmp(Fn(), OleReportListOffsetKey, strlen(OleReportListOffsetKey))==0)
           SearchTypes = 2;
         else
           {
@@ -1177,7 +1177,7 @@ int COleReportMngr::DoAutomation()
           }
         if (OK)
           {
-          if (bAll || (R.sName.Length()==sReportName.Length() && stricmp(R.sName(), sReportName())==0))
+          if (bAll || (R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0))
             {
             s.Set("Generate report %s at cell(%s)...", R.sName(), CellName(Row, Col, CellNm));
             SendInfo(s());
@@ -1227,7 +1227,7 @@ int COleReportMngr::DoAutomation()
             {
             if (OffsetFnErr==0 || OffsetFnErr==-1)
               DoMsg = true;
-            if (OffsetFnErr<-1 && R.sName.Length()==sReportName.Length() && stricmp(R.sName(), sReportName())==0)
+            if (OffsetFnErr<-1 && R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0)
               DoMsg = true;
             if (ReportFnErr==0 || ReportFnErr==-1)
               DoMsg = true;
@@ -1497,7 +1497,7 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
   flag OK = 1;
   if (Quote)// || nParms==0)
     OK = 0;
-  else if ((stricmp(f[0], OleReportTrendKey)==0 && !VertOpts) || (stricmp(f[0], OleReportTrend2Key)==0 && VertOpts))
+  else if ((_stricmp(f[0], OleReportTrendKey)==0 && !VertOpts) || (_stricmp(f[0], OleReportTrend2Key)==0 && VertOpts))
     {
     if (nParms==1)
       {
@@ -1506,7 +1506,7 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
       bGotName = 1;
       }
     }
-  else if (stricmp(f[0], "Location")==0)
+  else if (_stricmp(f[0], "Location")==0)
     {
     if (nParms!=3 || strlen(f[1])==0 || strlen(f[2])==0 || strlen(f[3])==0)
       OK = 0;
@@ -1518,37 +1518,37 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
       ResLoc.Set(s(), atoi(f[2]), atoi(f[3]));
       }
     }
-  else if (stricmp(f[0], "Start")==0)
+  else if (_stricmp(f[0], "Start")==0)
     {
     if (nParms!=1 || !HMSDatetoSecs(f[1], dStartTime))
       OK = 0;
     else
       bGotStart = 1;
     }
-  else if (stricmp(f[0], "End")==0)
+  else if (_stricmp(f[0], "End")==0)
     {
     if (nParms!=1 || !HMSDatetoSecs(f[1], dEndTime))
       OK = 0;
     else
       bGotEnd = 1;
     }
-  else if (stricmp(f[0], "Duration")==0)
+  else if (_stricmp(f[0], "Duration")==0)
     {
     if (nParms!=1 || !HMStoSecs(f[1], dDuration))
       OK = 0;
     else
       bGotDuration = 1;
     }
-  else if (stricmp(f[0], "Headings")==0)
+  else if (_stricmp(f[0], "Headings")==0)
     {
     bGotHeadings = 1;
     }
-  else if (stricmp(f[0], "AllPoints")==0)
+  else if (_stricmp(f[0], "AllPoints")==0)
     {
     iOpt = 0;//All
     bGotOpt = 1;
     }
-  else if (stricmp(f[0], "AvePoints")==0)
+  else if (_stricmp(f[0], "AvePoints")==0)
     {
     if (nParms!=1 || strlen(f[1])<1)
       OK = 0;
@@ -1564,7 +1564,7 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
         }
       }
     }
-  else if (stricmp(f[0], "EndPoints")==0)
+  else if (_stricmp(f[0], "EndPoints")==0)
     {
     if (nParms!=1 || strlen(f[1])<1)
       OK = 0;
@@ -1580,7 +1580,7 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
         }
       }
     }
-  else if (stricmp(f[0], "Time")==0)
+  else if (_stricmp(f[0], "Time")==0)
     {
     if (nParms!=1 || strlen(f[1])<1)
       OK = 0;
@@ -1601,15 +1601,15 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
         }
       }
     }
-  else if (stricmp(f[0], "TimeDate")==0)
+  else if (_stricmp(f[0], "TimeDate")==0)
     {
     bTimeOptVariant = 1;
     }
-  else if (stricmp(f[0], "TimeFull")==0)
+  else if (_stricmp(f[0], "TimeFull")==0)
     {
     bTimeOptFull = 1;
     }
-  else if (stricmp(f[0], "DoChart")==0)
+  else if (_stricmp(f[0], "DoChart")==0)
     {
     if (nParms!=1 || strlen(f[1])<1)
       OK = 0;
@@ -1689,7 +1689,7 @@ flag CExcelReportTrend::DoReport()
       const int tl = s1.Len();
       for (i=0; i<iTagLen; i++)
         {
-        if (Tags[i].Len()>=tl && strnicmp(Tags[i](), s1(), tl)==0 && (Tags[i].Len()==tl || Tags[i]()[tl]==' '))
+        if (Tags[i].Len()>=tl && _strnicmp(Tags[i](), s1(), tl)==0 && (Tags[i].Len()==tl || Tags[i]()[tl]==' '))
           {
           TagOffsets[Cnt] = i;
           i = iTagLen;
@@ -2041,16 +2041,16 @@ int COleReportTrendMngr::DoAutomation()
           if (OK)
             {
             if (VertOpts)
-              OK_Key = strnicmp(Fn(), OleReportTrend2Key, strlen(OleReportTrend2Key))==0;
+              OK_Key = _strnicmp(Fn(), OleReportTrend2Key, strlen(OleReportTrend2Key))==0;
             else
-              OK_Key = strnicmp(Fn(), OleReportTrendKey, strlen(OleReportTrendKey))==0;
+              OK_Key = _strnicmp(Fn(), OleReportTrendKey, strlen(OleReportTrendKey))==0;
             OK = OK_Key;
             if (OK)
               OK = R.ParseFn(Fn(), VertOpts);
             }
           if (OK)
             {
-            if (bAll || (R.sName.Length()==sReportName.Length() && stricmp(R.sName(), sReportName())==0))
+            if (bAll || (R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0))
               {
               SendInfo("Generate report %s...", R.sName());
               FeedbackBlanks(1);
@@ -2120,7 +2120,7 @@ int COleReportTrendMngr::DoAutomation()
                   TaggedObject::SplitTagCnv(Fn(), WrkTag, WrkCnvTxt);
                   const int tl = WrkTag.Len();
                   for (int j=0; j<R.iTagLen; j++)
-                    if (R.Tags[j].Len()>=tl && strnicmp(R.Tags[j](), WrkTag(), tl)==0 && (R.Tags[j].Len()==tl || R.Tags[j]()[tl]==' '))
+                    if (R.Tags[j].Len()>=tl && _strnicmp(R.Tags[j](), WrkTag(), tl)==0 && (R.Tags[j].Len()==tl || R.Tags[j]()[tl]==' '))
                       DupErr = true;
                   if (DupErr)
                     {
@@ -2397,7 +2397,7 @@ int CExcelSetTags::ParseOffsetFn(char* Func, OWorksheet* pWkSheet, int& Row, int
   CString OFunc = M.GetString(Row, Col, pWkSheet, &R);
   Strng Fn = (const char*)OFunc;
   Fn.Trim("\n\r\t ");
-  if (Fn.Len()<(int)strlen(OleSetTagListKey) || strnicmp(OleSetTagListKey, Fn(), strlen(OleSetTagListKey))!=0)
+  if (Fn.Len()<(int)strlen(OleSetTagListKey) || _strnicmp(OleSetTagListKey, Fn(), strlen(OleSetTagListKey))!=0)
     return -3;
   if (!ParseFn(Fn()))
     {
@@ -2508,7 +2508,7 @@ flag CExcelSetTags::DoSetTags(OWorksheet& WkSheet)
           if (FirstTag.Length()==0)
             FirstTag = WrkTag;
           LastTag = WrkTag;
-          flag isNAN = (ss.Len()==1 && stricmp(ss(), "*")==0);
+          flag isNAN = (ss.Len()==1 && _stricmp(ss(), "*")==0);
           flag UseCnv = ((!isNAN) && (WrkCnvTxt.Len()>0));
           CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
           CXM_ObjectData ObjData;
@@ -2815,7 +2815,7 @@ int COleSetTagsMngr::DoAutomation()
             }
           if (OK)
             {
-            if (bAll || (R.sName.Length()==sTagSetName.Length() && stricmp(R.sName(), sTagSetName())==0))
+            if (bAll || (R.sName.Length()==sTagSetName.Length() && _stricmp(R.sName(), sTagSetName())==0))
               {
               s.Set("Process tag set %s at cell(%s)...", R.sName(), CellName(Row, Col, CellNm));
               SendInfo(s());
@@ -2863,7 +2863,7 @@ int COleSetTagsMngr::DoAutomation()
             flag DoMsg = bAll;
             if (!bAll && (OffsetFnErr==0 || OffsetFnErr==-1))
               DoMsg = true;
-            if (!bAll && OffsetFnErr<-1 && R.sName.Length()==sTagSetName.Length() && stricmp(R.sName(), sTagSetName())==0)
+            if (!bAll && OffsetFnErr<-1 && R.sName.Length()==sTagSetName.Length() && _stricmp(R.sName(), sTagSetName())==0)
               DoMsg = true;
             if (DoMsg)
               {
@@ -3081,7 +3081,7 @@ int COleSaveCloseExcel::DoAutomation()
           {
           WkBook.AttachDispatch(pExcel->Workbooks(i), TRUE);
           CString WorkbookName = WkBook.GetName();
-          if (stricmp((const char*)WorkbookName, (const char*)sWorkbookName)==0) //check if workbook names are the same
+          if (_stricmp((const char*)WorkbookName, (const char*)sWorkbookName)==0) //check if workbook names are the same
             {
             WorkbookFound = 1;
             SendInfo("Save and close %s", (const char*)sWorkbookName);
@@ -3692,7 +3692,7 @@ int COleInfoReportMngr::DoAutomation()
         WkSheet.AttachDispatch(WkBook.Worksheets(i), TRUE);
         CString SheetName = WkSheet.GetName();
         WkSheetNames[i-1] = (const char*)SheetName;
-        if (stricmp((const char*)SheetName, WorksheetNameBuff)==0)
+        if (_stricmp((const char*)SheetName, WorksheetNameBuff)==0)
           RqdWorksheetFound = 1;
         }
 

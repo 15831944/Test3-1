@@ -264,7 +264,7 @@ dbgpln("%-25s %-25s %-25s %-25s %-25s %-25s ", pClassName_, pGroup_, pClassId_, 
 
   sGroup=pGroup_;
   p=pFirstClass;
-  while (p && stricmp(p->sGroup(), sGroup())!=0)
+  while (p && _stricmp(p->sGroup(), sGroup())!=0)
     p=p->pNxtClass;
   pFirstClassInGrp=p;
   pNxtClassInGrp=NULL;
@@ -444,7 +444,7 @@ TagObjClass* TagObjClass::FindClassId(pchar ClassId_, flag fWithVersion/*=True*/
         {
         if (SubClass)
           {
-          if (p->SubClassId() && stricmp(SubClass, p->SubClassId())==0)
+          if (p->SubClassId() && _stricmp(SubClass, p->SubClassId())==0)
             goto Done;
           }
         else
@@ -458,11 +458,11 @@ TagObjClass* TagObjClass::FindClassId(pchar ClassId_, flag fWithVersion/*=True*/
     while (p)
       {
       if (((int)strlen(ClassId_)==p->ClassIdLenNoVersion()) &&
-           (strnicmp(p->sClassId(), ClassId_, p->ClassIdLenNoVersion())==0))
+           (_strnicmp(p->sClassId(), ClassId_, p->ClassIdLenNoVersion())==0))
         {
         if (SubClass)
           {
-          if (p->SubClassId() && stricmp(SubClass, p->SubClassId())==0)
+          if (p->SubClassId() && _stricmp(SubClass, p->SubClassId())==0)
             goto Done;
           }
         else
@@ -499,7 +499,7 @@ TagObjClass* TagObjClass::FindClassIndexed(pchar GroupId_, int iIndex, bool Igno
     {
 //dbgpln("%s %2i, %s %s", GroupId_, p->Selectable(), p->ClassId(), p->SubClassId());
 
-    if (!p->Selectable(IgnoreSelFn) && stricmp(GroupId_, "Hidden")==0)
+    if (!p->Selectable(IgnoreSelFn) && _stricmp(GroupId_, "Hidden")==0)
       iIndex--;
     else if (p->Selectable(IgnoreSelFn) && strcmpi(p->sGroup(), GroupId_)==0)
       iIndex--;
@@ -552,7 +552,7 @@ TagObjClass* TagObjClass::FindDuplicateClassId(TagObjClass* pStartAt)
   {
   TagObjClass* p=pStartAt ? pStartAt : pFirstClass;
   for (p=pFirstClass; p; p=p->pNxtClass)
-    if ((p!=this) && (stricmp(p->sClassId(), sClassId())==0))
+    if ((p!=this) && (_stricmp(p->sClassId(), sClassId())==0))
       {
       //if (p->sSubClassId() && sSubClassId())
       //  {
@@ -573,7 +573,7 @@ TaggedObject *TagObjClass::Construct(pchar pGroup_, pchar pClassId_, pchar pSubC
 
   if (pC)
     {
-    if (strlen(pGroup_)>0 && stricmp(pGroup_, pC->sGroup())!=0)
+    if (strlen(pGroup_)>0 && _stricmp(pGroup_, pC->sGroup())!=0)
       {
       dbgpln("Bad Class %s (groups don't match): %s <> %s", pClassId_, pGroup_, pC->sGroup());
       return NULL;
@@ -922,7 +922,7 @@ void DataDefnBlk::DoChecks(DWORD RetAddress, dword UserInfo)
       CRS->m_lOpenCnt=Chk[lCallLevel].lOpenCnts;
       }
 
-    if (pTag && strlen(pTag) && (!GotSym || stricmp(pTag, pSym)!=0))
+    if (pTag && strlen(pTag) && (!GotSym || _stricmp(pTag, pSym)!=0))
       {
       T.Concat(Chk[lCallLevel].pTagStart, strlen(Chk[lCallLevel].pTagStart)?".":"", pTag);
       if (!CheckMap.Lookup(T(), CRT))
@@ -970,9 +970,9 @@ void DataDefnBlk::DoChecks(DWORD RetAddress, dword UserInfo)
     for (int ir=0; ReservedTags[ir]; ir++)
       if (lCallLevel>ReservedLvls[ir])
         {
-        bool Er=(pSym && stricmp(pSym, ReservedTags[ir])==0);
+        bool Er=(pSym && _stricmp(pSym, ReservedTags[ir])==0);
         if (!Er && (pSym==NULL || strlen(pSym)==0))
-          Er=(pTag && stricmp(pTag, ReservedTags[ir])==0);
+          Er=(pTag && _stricmp(pTag, ReservedTags[ir])==0);
         if (Er)
           {
           char Buff[1024];
@@ -1174,7 +1174,7 @@ void FilingControlBlock::SetSaveAs(char* pOldPrjFiles)
 //DoBreak();
 //#pragma chFIXIT(??????)
 ///*
-//  if (strnicmp(PrjPrevDirectory(), sOldPrjFiles(), strlen(PrjPrevDirectory()))==0)
+//  if (_strnicmp(PrjPrevDirectory(), sOldPrjFiles(), strlen(PrjPrevDirectory()))==0)
 //    bFarCopy = 0;
 //*/
   }
@@ -1652,7 +1652,7 @@ int TaggedObject::TagCmp(pchar pTag, pchar pSrchTag, int MinTagLen)
     return 0;
 
   const int lt=strlen(pTag);
-  const int le=strnicmp(pTag, pSrchTag, lt); // will fail if ls<lt
+  const int le=_strnicmp(pTag, pSrchTag, lt); // will fail if ls<lt
   if (le==0) // will fail if ls<lt
     {
     const int ls=strlen(pSrchTag);
@@ -1674,7 +1674,7 @@ int TaggedObject::TagCmpFn(pchar pTag, pchar pSrchTag, int MinTagLen)
     return 0;
 
   const int lt=strlen(pTag);
-  const int le=strnicmp(pTag, pSrchTag, lt); // will fail if ls<lt
+  const int le=_strnicmp(pTag, pSrchTag, lt); // will fail if ls<lt
   if (le==0) // will fail if ls<lt
     {
     const int ls=strlen(pSrchTag);
@@ -2237,13 +2237,13 @@ flag TaggedObject::TestIfReservedTag(char* pTag)
     if (pTag[0]=='$')
       {
       for (int i=0; i<DollarReservedTagsCnt; i++)
-        if (stricmp(pTag, DollarReservedTags[i])==0)
+        if (_stricmp(pTag, DollarReservedTags[i])==0)
           return 1;
       }
     else
       {
       for (int i=0; i<OtherReservedTagsCnt; i++)
-        if (stricmp(pTag, OtherReservedTags[i])==0)
+        if (_stricmp(pTag, OtherReservedTags[i])==0)
           return 1;
       }
     }
@@ -2368,7 +2368,7 @@ PkDataUnion * DDBDataInfo::FixGenericData(PkDataUnion &LclDataValue, PkDataUnion
       char*pStr=DataValue.GetString();
       for ( ; pValueList->m_pStr; pValueList++)
         {
-        if (stricmp(pStr, pValueList->m_pStr)==0)
+        if (_stricmp(pStr, pValueList->m_pStr)==0)
           {
           LclDataValue.SetTypeLong(iType, pValueList->m_lVal);
           Done=1;
@@ -3990,7 +3990,7 @@ void DataDefnBlk::AnalyseItem(DDBPkListItem *Parent, long & iItemNo, long &MsgNe
         // Look for a previous occurence of the struct
         pDDBPkListItem p=(*Parent->pMap)[Item.uHash];
         while (p)
-          if ((p->iType==Item.iType) && (stricmp(p->pTag, Item.pTag)==0))
+          if ((p->iType==Item.iType) && (_stricmp(p->pTag, Item.pTag)==0))
             break;
           else
             p=p->pNextInMap;
@@ -4060,7 +4060,7 @@ DDBPkListItem * DataDefnBlk::FindChildItem(int MsgItemLevel, char *pTag, char * 
     pChild=(*pParent->pMap)[uHash];
     while (pChild)
       {
-      if (stricmp(pSym, pChild->pTag)==0)
+      if (_stricmp(pSym, pChild->pTag)==0)
         {
         if ((pChild->iType==iType) || ((pChild->iType==tt_Generic) && (IsData(iType))))
           return pChild;
@@ -4081,7 +4081,7 @@ DDBPkListItem * DataDefnBlk::FindChildItem(int MsgItemLevel, char *pTag, char * 
     pChild=(*pParent->pMap)[uHash];
     while (pChild)
       {
-      if (stricmp(pTag, pChild->pTag)==0)
+      if (_stricmp(pTag, pChild->pTag)==0)
         {
         if ((pChild->iType==iType) || ((pChild->iType==tt_Generic) && (IsData(iType))))
           return pChild;

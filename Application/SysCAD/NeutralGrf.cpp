@@ -590,7 +590,7 @@ void CheckSymbol(char* DrwGrp, Strng & sym)
     sl = sym.Len();
     }
   const int gl = strlen(DrwGrp);
-  if (sl>gl && sym[gl]=='$' && strnicmp(sym(), DrwGrp, gl)==0)
+  if (sl>gl && sym[gl]=='$' && _strnicmp(sym(), DrwGrp, gl)==0)
     sym = sym.Right(sl-gl-1);
   }
 
@@ -840,10 +840,10 @@ void CNeutralGrfImportExport::DoExport(eScdNDBOptions Opts, CGrfDoc * pDoc)
           pTagObjC = TagObjClass::FindClassId(I.m_sClass());
           if (pTagObjC==NULL)
             pTagObjC = TagObjClass::FindClassName(I.m_sClass());
-          if (pTagObjC && (stricmp(FlwLinkGrp, pTagObjC->Group())==0 || 
-            stricmp(CtrlLinkGrp, pTagObjC->Group())==0 || 
-            stricmp(ElecLinkGrp, pTagObjC->Group())==0 || 
-            stricmp(AirLinkGrp, pTagObjC->Group())==0))
+          if (pTagObjC && (_stricmp(FlwLinkGrp, pTagObjC->Group())==0 || 
+            _stricmp(CtrlLinkGrp, pTagObjC->Group())==0 || 
+            _stricmp(ElecLinkGrp, pTagObjC->Group())==0 || 
+            _stricmp(AirLinkGrp, pTagObjC->Group())==0))
             TagTyp = 2; //link
           else
             TagTyp = 1; //unit/node
@@ -1313,7 +1313,7 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
           {
           m_pGI->Read();
           //LogNote(m_pGI->m_sPage, 0, m_pGI->m_sTag);
-          if (pGDoc==NULL || stricmp(m_pGI->m_sInsertPg, PrevPage())!=0)
+          if (pGDoc==NULL || _stricmp(m_pGI->m_sInsertPg, PrevPage())!=0)
             {
             PrevPage = m_pGI->m_sInsertPg;
             Page = m_pGI->m_sInsertPg;
@@ -1352,7 +1352,7 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
         {
         m_pUn->Read();
         //LogNote(m_pUn->m_sPage, 0, m_pUn->m_sTag);
-        if (pGDoc==NULL || stricmp(m_pUn->m_sPage, PrevPage())!=0)
+        if (pGDoc==NULL || _stricmp(m_pUn->m_sPage, PrevPage())!=0)
           {
           PrevPage = m_pUn->m_sPage;
           Page = m_pUn->m_sPage;
@@ -1418,13 +1418,13 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
       while (!llrs->adEOF)
         {
         m_pLl->Read();
-        if (pGDoc==NULL || stricmp(m_pLl->m_sPage, PrevPage())!=0 || stricmp(m_pLl->m_sTag, PrevTag())!=0)
+        if (pGDoc==NULL || _stricmp(m_pLl->m_sPage, PrevPage())!=0 || _stricmp(m_pLl->m_sTag, PrevTag())!=0)
           {
           if (pGDoc!=NULL)
             {
             pGDoc->GCB.DoInsertLinkGrf(&CB, true);
             }
-          if (pGDoc==NULL || stricmp(m_pLl->m_sPage, PrevPage())!=0)
+          if (pGDoc==NULL || _stricmp(m_pLl->m_sPage, PrevPage())!=0)
             {
             PrevPage = m_pLl->m_sPage;
             Page = m_pLl->m_sPage;
@@ -1461,14 +1461,14 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
         {
         m_pLl->Read();
         //LogNote(m_pLl->m_sPage, 0, m_pLl->m_sTag);
-        if (pGDoc==NULL || stricmp(m_pLl->m_sPage, PrevPage())!=0 || stricmp(m_pLl->m_sTag, PrevTag())!=0)
+        if (pGDoc==NULL || _stricmp(m_pLl->m_sPage, PrevPage())!=0 || _stricmp(m_pLl->m_sTag, PrevTag())!=0)
           {
           if (pGDoc!=NULL)
             {
             //todo check if parms are legal!!!
             pGDoc->GCB.DoInsertLinkGrf(LDH, NULL, NULL, true);
             }
-          if (pGDoc==NULL || stricmp(m_pLl->m_sPage, PrevPage())!=0)
+          if (pGDoc==NULL || _stricmp(m_pLl->m_sPage, PrevPage())!=0)
             {
             PrevPage = m_pLl->m_sPage;
             Page = m_pLl->m_sPage;
@@ -1743,7 +1743,7 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
         while (!llrs->adEOF)
           {
           m_pLl->Read();
-          if (PrevTag.GetLength()>0 && stricmp(m_pLl->m_sTag, PrevTag())!=0)
+          if (PrevTag.GetLength()>0 && _stricmp(m_pLl->m_sTag, PrevTag())!=0)
             {
             pDoc->GCB.DoInsertLinkGrf(&CB, true);
             CB.iLineMethod=0;
@@ -1772,7 +1772,7 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
         while (!llrs->adEOF)
           {
           m_pLl->Read();
-          if (PrevTag.GetLength()>0 && stricmp(m_pLl->m_sTag, PrevTag())!=0)
+          if (PrevTag.GetLength()>0 && _stricmp(m_pLl->m_sTag, PrevTag())!=0)
             {
             pDoc->GCB.DoInsertLinkGrf(LDH, NULL, NULL, true);
             PrevTag="";

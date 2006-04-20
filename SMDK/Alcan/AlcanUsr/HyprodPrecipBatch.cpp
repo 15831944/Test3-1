@@ -234,8 +234,8 @@ bool BatchPrecip::ValidateDataFields()
 void BatchPrecip::EvalProducts()
   {
   #if ForceOptimizeOff
-  static Cnt = 0;
-  if (stricmp(getTag(), "SpeciauxUE")==0)
+  static int Cnt = 0;
+  if (_stricmp(getTag(), "SpeciauxUE")==0)
     {
     Cnt++;//place breakpoint here to stop for specified model
     }

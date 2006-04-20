@@ -72,11 +72,11 @@ void GrfComCmdBlk::OpenVNT()
 
 void GrfComCmdBlk::BuildVNT()
   {
-  SETVNT("ACTivate",   "Flwsheet_Cmds",      N_A,                1, (CmdFn)DoActivate,     EF_ERS);
-  SETVNT("ACTivate",   "Instrument_Cmds",    N_A,                1, (CmdFn)DoActivate,     EF_ERS);
-  //SETVNT("LOad",       "DOcument",           AName,              1, (CmdFn)DoLoad,         EF_ERS);
-  //SETVNT("SAve",       "DOcument",           AName,              1, (CmdFn)DoSave,         EF_ERS);
-  //SETVNT("CLear",      "DOcument",           N_A,                1, (CmdFn)DoClear,        EF_ERS);
+  SETVNT("ACTivate",   "Flwsheet_Cmds",      N_A,                1, (CmdFn)&GrfCmdBlk::DoActivate,     EF_ERS);
+  SETVNT("ACTivate",   "Instrument_Cmds",    N_A,                1, (CmdFn)&GrfCmdBlk::DoActivate,     EF_ERS);
+  //SETVNT("LOad",       "DOcument",           AName,              1, (CmdFn)&GrfCmdBlk::DoLoad,         EF_ERS);
+  //SETVNT("SAve",       "DOcument",           AName,              1, (CmdFn)&GrfCmdBlk::DoSave,         EF_ERS);
+  //SETVNT("CLear",      "DOcument",           N_A,                1, (CmdFn)&GrfCmdBlk::DoClear,        EF_ERS);
 
   SETCIS(ID_GRF_FlowsheetCommands, "ACTIVATE FLWSHEET_CMDS\r");
 

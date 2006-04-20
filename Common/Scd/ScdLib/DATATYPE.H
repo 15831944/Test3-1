@@ -214,7 +214,7 @@ inline const byte tt_StringType(LPCTSTR tStr)
   { 
   const TagObjTypeStruct *p=&TagObjTypeNames[0]; 
   while (p->Str) 
-    if (stricmp(p->Str, tStr)==0) 
+    if (_stricmp(p->Str, tStr)==0) 
       return p->t; 
     else p++; 
   return tt_NULL;
@@ -260,7 +260,7 @@ class DllImportExport DDBValueLstMem
       { 
       if (Str)
         for (int i=0; i<Len; i++)
-          if (stricmp(Lst[i].m_pStr, Str)==0)
+          if (_stricmp(Lst[i].m_pStr, Str)==0)
             return i;
       return -1;
       };

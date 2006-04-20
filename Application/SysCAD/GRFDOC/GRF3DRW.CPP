@@ -595,8 +595,8 @@ flag CGrfLayer::ChangeTag(pchar pOldTag, pchar pNewTag)
         //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
         //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
 
-        if ( DXF_ATTRIB_TAG_GET(e1) && !stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag") &&
-          DXF_ATTRIB_VALUE_GET(e1) && !stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
+        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag") &&
+          DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
           {
           DXF_ATTRIB_VALUE_SET(e1, pNewTag);
           TagChngd = 1;
@@ -627,8 +627,8 @@ void CGrfLayer::CollectTags(Strng_List & TagList)
         //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
         //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
 
-        if( DXF_ATTRIB_TAG_GET(e1) && !stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))// &&
-          //DXF_ATTRIB_VALUE_GET(e1) && !stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
+        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))// &&
+          //DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
           {
           //DXF_ATTRIB_VALUE_SET(e1,pNewTag);
           TagList.Append(DXF_ATTRIB_VALUE_GET(e1));
@@ -917,7 +917,7 @@ char* fetch_dxf_tag_value(DXF_ENTITY e,char *s)
     return((char *)NULL);
   WALK_ENTITY_LIST(l1, it1, e1)
     {
-    if (stricmp(DXF_ATTRIB_TAG_GET(e1), s) == 0)
+    if (_stricmp(DXF_ATTRIB_TAG_GET(e1), s) == 0)
       {
       return DXF_ATTRIB_VALUE_GET(e1);
       }
@@ -992,7 +992,7 @@ void CGrfLayer::SetDiscColor(DML_LIST llist,int on)
     DML_WALK_LIST(llist,item)
       {
       l = (DXF_TABLE_ENTRY)DML_RECORD(item);
-      if( stricmp(DXF_LAYER_NAME_GET(l),DXF_LAYER_NAME_GET(Def)) == 0)
+      if( _stricmp(DXF_LAYER_NAME_GET(l),DXF_LAYER_NAME_GET(Def)) == 0)
         {
         m_DiscColor = DXF_LAYER_COLOR(l);
         break;
@@ -1084,7 +1084,7 @@ DML_LIST CGrfLayer::SelectInsertsOnAttrCombo(DML_LIST l, pchar *AttrTags, pchar 
             break;
             }
           }
-        else if (stricmp(pv, *pVal))
+        else if (_stricmp(pv, *pVal))
           {
           break;
           }
@@ -1857,7 +1857,7 @@ BOOL LayerCollection::SetLayerState(pViewport vp, pchar LayName, BOOL set, int s
   DML_WALK_LIST(llist, item)
     {
     layer = (DXF_TABLE_ENTRY)DML_RECORD(item);
-    if (stricmp(DXF_LAYER_NAME_GET(layer), ucstr) == 0)
+    if (_stricmp(DXF_LAYER_NAME_GET(layer), ucstr) == 0)
       {
       if (set)
         DXF_LAYER_FLAGS(layer) |= state;
@@ -1890,7 +1890,7 @@ BOOL LayerCollection::SetLayerColor(pViewport vp, pchar LayName, int color)
   DML_WALK_LIST(llist, item)
     {
     layer = (DXF_TABLE_ENTRY)DML_RECORD(item);
-    if (stricmp(DXF_LAYER_NAME_GET(layer), ucstr) == 0)
+    if (_stricmp(DXF_LAYER_NAME_GET(layer), ucstr) == 0)
       {
       DXF_LAYER_COLOR(layer) = color;
       ret = TRUE;
@@ -1942,7 +1942,7 @@ CGrfLayer * LayerCollection::Find(pchar LayerName)
   CGrfLayer * l = NULL;
   WALK_LAYERS(Layers,NULL, l)
     if (l->Def)
-      if (stricmp(LayerName, DXF_LAYER_NAME_GET(l->Def))==0)
+      if (_stricmp(LayerName, DXF_LAYER_NAME_GET(l->Def))==0)
         break;
   return l;
   }
@@ -2366,7 +2366,7 @@ void LayerCollection::AttrValuesInWin(pchar AttrTag, PT3 mn, PT3 mx, pStrng_List
         DML_ITEM it1;
         DXF_ENTITY e1;
         WALK_ENTITY_LIST(l1, it1, e1)
-          if (stricmp(DXF_ATTRIB_TAG_GET(e1), AttrTag)==0)
+          if (_stricmp(DXF_ATTRIB_TAG_GET(e1), AttrTag)==0)
             {
             if (!Lst)
               Lst = new Strng_List();
@@ -3783,7 +3783,7 @@ pBlock BlockCollection::Find(pchar BlkName)
   WALK_BLOCKS(Blocks, b)
     {
     char* p = DXF_BLOCK_NAME_GET(b->Def);
-    if (stricmp(BlkName, p) == 0)
+    if (_stricmp(BlkName, p) == 0)
       return b;
     }
   return (pBlock)NULL;
@@ -3798,7 +3798,7 @@ pBlock BlockCollection::Find(pchar BlkName, int& index)
   WALK_BLOCKS(Blocks, b)
     {
     char* p = DXF_BLOCK_NAME_GET(b->Def);
-    if (stricmp(BlkName, p) == 0)
+    if (_stricmp(BlkName, p) == 0)
       return b;
     index++;
     }
@@ -4533,7 +4533,7 @@ int BlockCollection::FindUnique(pchar CoreName, int NoFindRet)
   pBlock b = NULL;
   WALK_BLOCKS(Blocks, b)
     {
-    if (b && strnicmp(CoreName, DXF_BLOCK_NAME_GET(b->Def), len) == 0)
+    if (b && _strnicmp(CoreName, DXF_BLOCK_NAME_GET(b->Def), len) == 0)
       {
       pchar s = DXF_BLOCK_NAME_GET(b->Def);
       s += len;
@@ -4647,7 +4647,7 @@ void BlockCollection::Merge(DXF_FILE file)
       {//ignore blocks with blank names
       b = NULL;
       WALK_BLOCKS(Blocks, b)
-        if (b && stricmp(DXF_BLOCK_NAME_GET(blockn), DXF_BLOCK_NAME_GET(b->Def))==0)
+        if (b && _stricmp(DXF_BLOCK_NAME_GET(blockn), DXF_BLOCK_NAME_GET(b->Def))==0)
           break;
       if (b)
         {
@@ -5197,7 +5197,7 @@ void DXF_Drawing::SetGfxLayer(int Ocol,int Lvl,CGrfLayer * eLay,CGrfLayer * iLay
 
       if( EntityColor == 256  || EntityColor == -1  )// color is bylayer use layer color
         {
-        if (stricmp(EntityLay, "0") == 0 && Lvl > 1 && iLay && iLay->Def)
+        if (_stricmp(EntityLay, "0") == 0 && Lvl > 1 && iLay && iLay->Def)
           {
           grr_set_color(DXF_LAYER_COLOR(iLay->Def));
           }
@@ -5227,7 +5227,7 @@ void DXF_Drawing::SetGfxLayer(int Ocol,int Lvl,CGrfLayer * eLay,CGrfLayer * iLay
       }
     else // autocad coloring now ignored and discipline colors are used
       {
-      if (stricmp(EntityLay, "0") == 0 && Lvl > 1 && iLay && iLay->m_DiscColor != -1 )
+      if (_stricmp(EntityLay, "0") == 0 && Lvl > 1 && iLay && iLay->m_DiscColor != -1 )
         {
         grr_set_color(iLay->m_DiscColor);
         }
@@ -5423,8 +5423,8 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
         char * pBlockName=DXF_BLOCK_NAME_GET(b->Def);
         int AllowBoxSlct=
           (pBlockName &&
-          strnicmp(pBlockName, "Pipe-", 5)!=0 &&
-          strnicmp(pBlockName, "Link-", 5)!=0);
+          _strnicmp(pBlockName, "Pipe-", 5)!=0 &&
+          _strnicmp(pBlockName, "Link-", 5)!=0);
 
         CEntInView* l = new CEntInView(item, e, (C3_CURVE)NULL, vp, AllowBoxSlct, RqdColor, -1, -1, DXF_ENTITY_THICKNESS(e), entitytag);
         if (!l->NumPoint())
@@ -5769,7 +5769,7 @@ void DXF_Drawing::Draw(C3_CURVE c, pViewport vp, C3_BOX box, int color, int Lvl,
 
     if( vp->Curseg_level != -1 && vp->Curseg_level != vp->Curseg_offset.GetLen() )
       {
-      // if( stricmp(DXF_LAYER_NAME(pLay->Def),LayerNames[Drawing_Layer]) == 0 )
+      // if( _stricmp(DXF_LAYER_NAME(pLay->Def),LayerNames[Drawing_Layer]) == 0 )
       //   {
       vp->Curseg_offset[vp->Curseg_level] = get_buffer_offset();
       vp->Curseg_level += 1;
@@ -6136,7 +6136,7 @@ DXF_ENTITY DXF_Drawing::ClosestAttr(pchar AttrTag, Pt_SLW pt)
   WALK_ENTITY_LIST(l1, it1, e1)
     {
     //TRACE("Att '%s'",DXF_ATTRIB_TAG(e1));
-    if (stricmp(DXF_ATTRIB_TAG_GET(e1), AttrTag)==0)
+    if (_stricmp(DXF_ATTRIB_TAG_GET(e1), AttrTag)==0)
       return e1;
     }
   return NULL;
@@ -6182,7 +6182,7 @@ DXF_ENTITY Find_Attr(DXF_ENTITY Insert, pchar Tag)
   DXF_ENTITY Att = First_Ent(Attr_List(Insert), Info);
   while (Att)
     {
-    if (stricmp(Tag, Attr_Tag(Att)) == 0)
+    if (_stricmp(Tag, Attr_Tag(Att)) == 0)
       return Att;
     Att = Next_Ent(Info);
     }
@@ -6207,7 +6207,7 @@ void Remove_Attr(DXF_ENTITY Insert, pchar Tag)
       {
       a = (DXF_ENTITY)DML_RECORD(item);
       pchar ptag = DXF_ATTRIB_TAG_GET(a);
-      if (ptag && stricmp(ptag, Tag)==0)
+      if (ptag && _stricmp(ptag, Tag)==0)
         {
         dml_remove_item(attlist, item);
         dxf_free_entity(a);
@@ -6482,7 +6482,7 @@ void DXF_Drawing::MergeLTypeDefs(DXF_FILE f)
     DML_WALK_LIST(LTypeLst, it)
       {
       LType = (DXF_TABLE_ENTRY)DML_RECORD(it);
-      if (stricmp(DXF_LTYPE_NAME_GET(LTypen), DXF_LTYPE_NAME_GET(LType)) == 0)
+      if (_stricmp(DXF_LTYPE_NAME_GET(LTypen), DXF_LTYPE_NAME_GET(LType)) == 0)
         break;
       }
     if (it)
@@ -6510,7 +6510,7 @@ void DXF_Drawing::MergeLayerDefs(DXF_FILE f)
     DML_WALK_LIST(LayerLst, it)
       {
       layer = (DXF_TABLE_ENTRY)DML_RECORD(it);
-      if (stricmp(DXF_LAYER_NAME_GET(layern), DXF_LAYER_NAME_GET(layer)) == 0)
+      if (_stricmp(DXF_LAYER_NAME_GET(layern), DXF_LAYER_NAME_GET(layer)) == 0)
         {
         //  start change  - let the incoming layer on off state have precedence
         // probably not necesary
@@ -6562,7 +6562,7 @@ DXF_TABLE_ENTRY DXF_Drawing::FindStyleDef(pchar StyleName)
   DML_WALK_LIST(StyleLst, it)
     {
     style = (DXF_TABLE_ENTRY)DML_RECORD(it);
-    if (stricmp(DXF_STYLE_NAME_GET(style), StyleName) == 0)
+    if (_stricmp(DXF_STYLE_NAME_GET(style), StyleName) == 0)
       return style;
     }
   return NULL;
@@ -6589,7 +6589,7 @@ DXF_TABLE_ENTRY DXF_Drawing::FindLayerDef(pchar LayerName)
   DML_WALK_LIST(LayerLst, it)
     {
     layer = (DXF_TABLE_ENTRY)DML_RECORD(it);
-    if (stricmp(DXF_LAYER_NAME_GET(layer), LayerName) == 0)
+    if (_stricmp(DXF_LAYER_NAME_GET(layer), LayerName) == 0)
       return layer;
     }
   //AfxMessageBox(LayerName);
@@ -6825,7 +6825,7 @@ DXF_ENTITY DXF_Drawing::Create_Fill_Block(CExecObj *pDb, DXF_ENTITY Insert, pcha
           continue;
         if (!iBlock)
           continue;
-        if (stricmp(eBlock, iBlock))
+        if (_stricmp(eBlock, iBlock))
           continue;
 
         //remove all attributes...
@@ -6917,7 +6917,7 @@ DXF_ENTITY DXF_Drawing::Delete_Fill_Block(DXF_ENTITY Insert, flag ApplyToAll)
           continue;
         if (!iBlock)
           continue;
-        if (stricmp(eBlock, iBlock))
+        if (_stricmp(eBlock, iBlock))
           continue;
 
         //remove all attributes...
@@ -7501,11 +7501,11 @@ flag DXF_Drawing::ChangeTag_NewAnnotation_Block(pchar pOldTag, pchar pNewTag)
   ASSERT(Tags.Length()==TLbs.Length());
   for (ptmp = Tags.First(), ktmp = TLbs.First(); ptmp; ptmp = Tags.Next(), ktmp = TLbs.Next())
     {
-    if (ptmp->Str() && ptmp->Len()>0 && stricmp(pOldTag, ptmp->Str())==0)
+    if (ptmp->Str() && ptmp->Len()>0 && _stricmp(pOldTag, ptmp->Str())==0)
       {
       AnyTagAnnotChngd = 1;
       ptmp->Set("%s", pNewTag);
-      if (ktmp->Str() && ktmp->Len()>0 && stricmp(pOldTag, ktmp->Str())==0)
+      if (ktmp->Str() && ktmp->Len()>0 && _stricmp(pOldTag, ktmp->Str())==0)
         {
         ktmp->Set("%s", pNewTag); //change the label iif it was the same as the tag
         }
@@ -7688,7 +7688,7 @@ DXF_ENTITY DXF_Drawing::Create_NewAnnotation_Block(CExecObj *pDb, Strng_List &Ta
         CPkDataItem* pPkDI = ObjData.FirstItem();
         if (pPkDI->CnvIndex()!=0)// && pPkDI->CnvTxt())
           {
-          if (stricmp(pCvs, "*")==0 || Cnvs[pPkDI->CnvIndex()]->Find(pCvs)==NULL)
+          if (_stricmp(pCvs, "*")==0 || Cnvs[pPkDI->CnvIndex()]->Find(pCvs)==NULL)
             sprintf(Buff, " %s(%s) ", pVLb, pPkDI->CnvTxt());
           else
             sprintf(Buff, " %s(%s) ", pVLb, pCvs);
@@ -7753,7 +7753,7 @@ DXF_ENTITY DXF_Drawing::Create_NewAnnotation_Block(CExecObj *pDb, Strng_List &Ta
         double d;
         if (pPkDI->CnvIndex()!=0)// && pPkDI->CnvTxt())
           {
-          if (stricmp(pCvs, "*")==0 || Cnvs[pPkDI->CnvIndex()]->Find(pCvs)==NULL)
+          if (_stricmp(pCvs, "*")==0 || Cnvs[pPkDI->CnvIndex()]->Find(pCvs)==NULL)
             d = pPkDI->Value()->GetDouble(pPkDI->CnvIndex(), pPkDI->CnvTxt());
           else
             d = pPkDI->Value()->GetDouble(pPkDI->CnvIndex(), pCvs);
@@ -8985,7 +8985,7 @@ flag DXF_Drawing::GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs,
       {
       case DD_Name:
         pName=pNGI->GetPChar();
-        Found=(stricmp(NodeName, pName)==0);
+        Found=(_stricmp(NodeName, pName)==0);
         break;
       case DD_Scale:
         pNGI->SetScale(pNGI->GetDVal()/1000.0);

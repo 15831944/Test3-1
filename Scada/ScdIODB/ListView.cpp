@@ -26,14 +26,14 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 enum Column_Ids{
-  COLUMN_NO, 
-  COLUMN_NAME, 
-  COLUMN_TYPE, 
-  // COLUMN_LOC, 
-  // COLUMN_PROCESSING,
-  COLUMN_VALUE, 
-  //COLUMN_QUALITY, 
-  COLUMN_DESC
+  eCOLUMN_NO, 
+  eCOLUMN_NAME, 
+  eCOLUMN_TYPE, 
+  // eCOLUMN_LOC, 
+  // eCOLUMN_PROCESSING,
+  eCOLUMN_VALUE, 
+  //eCOLUMN_QUALITY, 
+  eCOLUMN_DESC
   };
 LPARAM      lastCol = 555;
 
@@ -231,11 +231,11 @@ void CTagView::OnInitialUpdate()
    CListCtrl& list = GetListCtrl();
    while( list.DeleteColumn( 0 ) )
       ;
-   list.InsertColumn( COLUMN_NO,    _T("No"),           LVCFMT_RIGHT, 40, COLUMN_NO);  
-   list.InsertColumn( COLUMN_NAME,  _T("Name"),         LVCFMT_LEFT, 110, COLUMN_NAME);
-   list.InsertColumn( COLUMN_TYPE,  _T("Type"),         LVCFMT_LEFT,  80, COLUMN_TYPE);
-   list.InsertColumn( COLUMN_VALUE, _T("Value"),        LVCFMT_RIGHT, 80, COLUMN_VALUE);
-   list.InsertColumn( COLUMN_DESC,  _T("Description"),  LVCFMT_LEFT, 120, COLUMN_DESC);
+   list.InsertColumn( eCOLUMN_NO,    _T("No"),           LVCFMT_RIGHT, 40, eCOLUMN_NO);  
+   list.InsertColumn( eCOLUMN_NAME,  _T("Name"),         LVCFMT_LEFT, 110, eCOLUMN_NAME);
+   list.InsertColumn( eCOLUMN_TYPE,  _T("Type"),         LVCFMT_LEFT,  80, eCOLUMN_TYPE);
+   list.InsertColumn( eCOLUMN_VALUE, _T("Value"),        LVCFMT_RIGHT, 80, eCOLUMN_VALUE);
+   list.InsertColumn( eCOLUMN_DESC,  _T("Description"),  LVCFMT_LEFT, 120, eCOLUMN_DESC);
 
    VERIFY( DDE_ID == SetTimer( DDE_ID, 100, NULL ) );
 
@@ -284,7 +284,7 @@ void CTagView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
    LV_ITEM lv_item;
    lv_item.mask = LVIF_TEXT | LVIF_PARAM | LVIF_IMAGE;
    lv_item.iImage = 5;
-   lv_item.iSubItem = COLUMN_NO;
+   lv_item.iSubItem = eCOLUMN_NO;
 
    // if pHint, then this one tag needs updating
    if( pHint != NULL )
@@ -311,13 +311,13 @@ void CTagView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
          else
             lv_item.iImage = 7;
          list.SetItem(&lv_item);
-         list.SetItem(foundItem,COLUMN_NAME,LVIF_TEXT,pTag->name.GetBuffer(0),0,0,0,0);
-         list.SetItem(foundItem,COLUMN_TYPE,LVIF_TEXT,pTag->TypeString(),0,0,0,0);
-         //list.SetItem(foundItem,COLUMN_LOC,LVIF_TEXT,pTag->LocationString().GetBuffer(0),0,0,0,0);
+         list.SetItem(foundItem,eCOLUMN_NAME,LVIF_TEXT,pTag->name.GetBuffer(0),0,0,0,0);
+         list.SetItem(foundItem,eCOLUMN_TYPE,LVIF_TEXT,pTag->TypeString(),0,0,0,0);
+         //list.SetItem(foundItem,eCOLUMN_LOC,LVIF_TEXT,pTag->LocationString().GetBuffer(0),0,0,0,0);
          //if( pTag->enableProcessing )
-         //   list.SetItem(foundItem,COLUMN_PROCESSING,LVIF_TEXT,_T("Custom"),0,0,0,0);
-         //list.SetItem(foundItem,COLUMN_QUALITY,LVIF_TEXT,_T(""),0,0,0,0);
-         list.SetItem(foundItem,COLUMN_DESC,LVIF_TEXT,pTag->description,0,0,0,0);
+         //   list.SetItem(foundItem,eCOLUMN_PROCESSING,LVIF_TEXT,_T("Custom"),0,0,0,0);
+         //list.SetItem(foundItem,eCOLUMN_QUALITY,LVIF_TEXT,_T(""),0,0,0,0);
+         list.SetItem(foundItem,eCOLUMN_DESC,LVIF_TEXT,pTag->description,0,0,0,0);
          }
       return;
       }
@@ -374,7 +374,7 @@ void CTagView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 //            else if( (pTag->quality & OPC_QUALITY_MASK) == OPC_QUALITY_BAD )
 //               text = _T("Bad");
 //            }
-         list.SetItem( index, COLUMN_VALUE, LVIF_TEXT, text.GetBuffer(0),0,0,0,0);
+         list.SetItem( index, eCOLUMN_VALUE, LVIF_TEXT, text.GetBuffer(0),0,0,0,0);
          text="";
          if( (pTag->quality & OPC_QUALITY_MASK) != OPC_QUALITY_GOOD )
            {
@@ -383,7 +383,7 @@ void CTagView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
            else if( (pTag->quality & OPC_QUALITY_MASK) == OPC_QUALITY_BAD )
              text = _T("Bad");
            }
-         //list.SetItem( index, COLUMN_QUALITY, LVIF_TEXT, text.GetBuffer(0),0,0,0,0);
+         //list.SetItem( index, eCOLUMN_QUALITY, LVIF_TEXT, text.GetBuffer(0),0,0,0,0);
          }
       list.SetRedraw( TRUE );
       return;
@@ -416,13 +416,13 @@ void CTagView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
       //else
       //   lv_item.iImage = 6;
       int item = list.InsertItem(&lv_item);
-      list.SetItem(item,COLUMN_NAME,LVIF_TEXT,pTag->name.GetBuffer(0),0,0,0,0);
-      list.SetItem(item,COLUMN_TYPE,LVIF_TEXT,pTag->TypeString(),0,0,0,0);
-      //list.SetItem(item,COLUMN_LOC,LVIF_TEXT,(LPTSTR)(LPCTSTR)pTag->LocationString(),0,0,0,0);
+      list.SetItem(item,eCOLUMN_NAME,LVIF_TEXT,pTag->name.GetBuffer(0),0,0,0,0);
+      list.SetItem(item,eCOLUMN_TYPE,LVIF_TEXT,pTag->TypeString(),0,0,0,0);
+      //list.SetItem(item,eCOLUMN_LOC,LVIF_TEXT,(LPTSTR)(LPCTSTR)pTag->LocationString(),0,0,0,0);
       //if( pTag->enableProcessing )
-      //   list.SetItem(item,COLUMN_PROCESSING,LVIF_TEXT,_T("Custom"),0,0,0,0);
-      //list.SetItem(item,COLUMN_QUALITY,LVIF_TEXT,_T(""),0,0,0,0);
-      list.SetItem(item,COLUMN_DESC,LVIF_TEXT,pTag->description,0,0,0,0);
+      //   list.SetItem(item,eCOLUMN_PROCESSING,LVIF_TEXT,_T("Custom"),0,0,0,0);
+      //list.SetItem(item,eCOLUMN_QUALITY,LVIF_TEXT,_T(""),0,0,0,0);
+      list.SetItem(item,eCOLUMN_DESC,LVIF_TEXT,pTag->description,0,0,0,0);
       }
    list.SetRedraw( TRUE );
    }
@@ -536,7 +536,7 @@ void CTagView::OnItemchanged(NMHDR* pNMHDR, LRESULT* pResult)
    // CNM
    CListCtrl& list = GetListCtrl();
    list.GetItemRect(pNMListView->iItem, &m_Rct, LVIR_BOUNDS);
-   for (int i=0; i<COLUMN_VALUE; i++)
+   for (int i=0; i<eCOLUMN_VALUE; i++)
      m_Rct.left+=list.GetColumnWidth(i);
    m_Rct.right=m_Rct.left+list.GetColumnWidth(i);
 
@@ -579,19 +579,19 @@ CompareTags( OModbusTag* pTag1, OModbusTag* pTag2, LPARAM lCol )
    int nCmp = 0;
    switch( lCol )
       {
-      case COLUMN_NO:
+      case eCOLUMN_NO:
          nCmp = pTag1->idno-pTag2->idno;
          break;
-      case COLUMN_NAME:
+      case eCOLUMN_NAME:
          nCmp = pTag1->name.CompareNoCase( pTag2->name );
          break;
-      case COLUMN_TYPE:
+      case eCOLUMN_TYPE:
          nCmp=pTag1->value.vt-pTag2->value.vt;
          break;
-      //case COLUMN_LOC:
+      //case eCOLUMN_LOC:
       //   nCmp = 0;//pTag1->LocationString().CompareNoCase( pTag2->LocationString() );
       //   break;
-      case COLUMN_DESC:
+      case eCOLUMN_DESC:
          nCmp = 0;//pTag1->description.CompareNoCase( pTag2->description );
          break;
       default:

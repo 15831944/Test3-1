@@ -2433,7 +2433,7 @@ int CHistorian::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   int Err = EOCT_NOTFOUND;
   const size_t len = strlen(pOldTag);
   for (long i=0; i<Data.lSlotsUsed; i++)
-    if (strlen(Slots[i]->Data.sTag)>=len && strnicmp(pOldTag, Slots[i]->Data.sTag, len)==0)
+    if (strlen(Slots[i]->Data.sTag)>=len && _strnicmp(pOldTag, Slots[i]->Data.sTag, len)==0)
       {
       SlotMap.RemoveKey(Slots[i]->Data.sTag);
       Strng ss = Slots[i]->Data.Tag();
@@ -2749,7 +2749,7 @@ bool CHistorianMngr::DoOpenHistorian(bool ShowBusyDlg/*=false*/)
     LogWarning("History", 0, "Historian scenario name truncated. Should be 8 or less characters.");
     sHstScenName = sHstScenName.Left(8);
     }
-  if (stricmp(sHistorianName(), sHstScenName())==0)
+  if (_stricmp(sHistorianName(), sHstScenName())==0)
     {
     LogError("History", LF_Exclamation, "Historian name and scenario name must NOT be the same");
     return false;

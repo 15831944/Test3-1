@@ -170,7 +170,7 @@ void C3DFn::CopyFunction(C3DFn& Fn)
   iContourIntervals = Fn.iContourIntervals;
   iNoCrsPts = Fn.iNoCrsPts;
   CrsSection = Fn.CrsSection;
-  if (stricmp(Fn.ModelName(), ModelName())!=0)
+  if (_stricmp(Fn.ModelName(), ModelName())!=0)
     {
     pM->Destroy();
     pM = C3DModel::Create(this, Fn.ModelName());
