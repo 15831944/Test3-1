@@ -231,6 +231,23 @@ class FE_CompAir : public CFlwEqn
     virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
+//============================================================================
+//============================================================================
+
+DEFINE_TAGOBJ(FE_MSBackFill);
+class FE_MSBackFill : public CFlwEqn
+  {
+  public:
+    double         R_Fxd;
+
+    FE_MSBackFill(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
+
+    virtual ~FE_MSBackFill();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual void   SetPhysData(double DZ);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+  };
+
 // ===========================================================================
 // ===========================================================================
 

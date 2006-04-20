@@ -9,6 +9,7 @@
 
 #include "pipeeqns.h"
 #include "m_link.h"
+#include "tspline.h"
 //#include "optoff.h"
 
 //==========================================================================
@@ -1407,6 +1408,92 @@ flag FE_CompAir::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
 
   FE.SetDPq(-FE.QmSign()*Rf*Sqr(FE.QmMeas())*FE.TotLength()*1e-3/wRho,
             -FE.QmSign()*2.0*Rf*FE.QmMeas()*FE.TotLength()*1e-3/wRho);
+
+  return True;
+  };
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+IMPLEMENT_FLWEQN(FE_MSBackFill, PipeGroup.Name(), "FE_MS_BackFill", "", TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_MINESERVE,
+                  "MS BackFill",
+                  " MineServe Back Fill Pressure drop relationship");
+
+FE_MSBackFill::FE_MSBackFill(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach) : \
+CFlwEqn(pClass_, pTag, pAttach, eAttach)
+  {
+  R_Fxd=10000.0;
+
+  TSpline       m_Spln;
+
+  if (1) // do this once off
+    {
+    m_Spln.AddPt(0.0, 1.0);  // Add Points ...
+    m_Spln.AddPt(1.0, 1.2);
+    m_Spln.AddPt(2.0, 1.3);
+    m_Spln.AddPt(3.0, 1.4);
+
+    m_Spln.SetSigma(1.0);  // optional - tension approx 1e-10 slack approx 1e10 tight (almost straight lines)
+
+    //  Type=TSpline::iSlopeFree;
+    //  Type=TSpline::iSlopeOfSegment;
+    //  Type=TSpline::iSlopeSpecd;
+
+    m_Spln.SetSlopeLo(TSpline::iSlopeSpecd, 0.0); // optional slope at 'beginning' (tends to this)
+    m_Spln.SetSlope1(TSpline::iSlopeFree, 0.0); // optional slope at first point
+    m_Spln.SetSlopeN(TSpline::iSlopeFree, 0.0); // optional slope at last point
+    m_Spln.SetSlopeHi(TSpline::iSlopeSpecd, 1.0);// optional slope at 'end' (tends to this)
+
+    m_Spln.Fit();
+    }
+
+  double reqdy=m_Spln.Yx(1.5);
+  BreakPoint();
+
+  }
+
+//--------------------------------------------------------------------------
+
+FE_MSBackFill::~FE_MSBackFill()
+  {
+
+
+
+  }
+
+//--------------------------------------------------------------------------
+
+void FE_MSBackFill::BuildDataDefn(DataDefnBlk & DDB)
+  {
+  DDB.Double ("Resistance",   "Resistn",  DC_,     "",      &R_Fxd,          NULL,  isParm);
+  DDB.Double ("Length",       "",         DC_L,    "m",     xidFlwEqnRqdLen, NULL,  isParmStopped);
+  DDB.Double ("Diam",         "",         DC_L,    "mm",    xidFlwEqnDiam,   NULL,  isParm);
+  //DDB.Double ("TempRise",     "",         DC_dT,   "C",     &dTRiseRqd,      NULL,  isParm|NAN_OK);
+  BuildDataDefnOveride(DDB);
+  };
+
+//--------------------------------------------------------------------------
+
+void FE_MSBackFill::SetPhysData(double DZ)
+  {
+//  CFBPhysData &D=PhDCfg();
+  SetActLength(Max(fabs(DZ), RqdLength()));
+//  D.SetDiam(Diam);
+  };
+
+//--------------------------------------------------------------------------
+
+flag FE_MSBackFill::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+  {
+  FE.SetDPq(-FE.QmSign()*FE.QmMeas()*FE.TotLength()*R_Fxd, -FE.QmSign()*FE.TotLength()*R_Fxd);
+//  FE.SetArea(PI/4.0*Sqr(Diam));
+  FE.SetMomentum(pProps, FE.MeanFBPress());
+  FE.SetKFact(0);
+
+  FE.SetDPz(FE.StaticHead(pProps));
 
   return True;
   };
