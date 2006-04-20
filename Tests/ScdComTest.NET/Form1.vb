@@ -82,6 +82,7 @@ Friend Class Form1
   Friend WithEvents ImportUser As System.Windows.Forms.Button
   Friend WithEvents FlwsheetImport As System.Windows.Forms.Button
   Friend WithEvents ExportBlank As System.Windows.Forms.Button
+  Public WithEvents LdAndRunMineServe As System.Windows.Forms.Button
   <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
     Me.components = New System.ComponentModel.Container
     Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
@@ -126,6 +127,7 @@ Friend Class Form1
     Me.ImportUser = New System.Windows.Forms.Button
     Me.Label1 = New System.Windows.Forms.Label
     Me.Label2 = New System.Windows.Forms.Label
+    Me.LdAndRunMineServe = New System.Windows.Forms.Button
     Me.Frame5.SuspendLayout()
     Me.Frame1.SuspendLayout()
     Me.Frame4.SuspendLayout()
@@ -491,6 +493,7 @@ Friend Class Form1
     Me.Frame3.Controls.Add(Me.OpenCloseApp)
     Me.Frame3.Controls.Add(Me.Frame2)
     Me.Frame3.Controls.Add(Me.GroupBox1)
+    Me.Frame3.Controls.Add(Me.LdAndRunMineServe)
     Me.Frame3.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.Frame3.ForeColor = System.Drawing.SystemColors.ControlText
     Me.Frame3.Location = New System.Drawing.Point(264, 40)
@@ -676,6 +679,19 @@ Friend Class Form1
     Me.Label2.Size = New System.Drawing.Size(33, 17)
     Me.Label2.TabIndex = 10
     Me.Label2.Text = "Path:"
+    '
+    'LdAndRunMineServe
+    '
+    Me.LdAndRunMineServe.BackColor = System.Drawing.SystemColors.Control
+    Me.LdAndRunMineServe.Cursor = System.Windows.Forms.Cursors.Default
+    Me.LdAndRunMineServe.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+    Me.LdAndRunMineServe.ForeColor = System.Drawing.SystemColors.ControlText
+    Me.LdAndRunMineServe.Location = New System.Drawing.Point(256, 192)
+    Me.LdAndRunMineServe.Name = "LdAndRunMineServe"
+    Me.LdAndRunMineServe.RightToLeft = System.Windows.Forms.RightToLeft.No
+    Me.LdAndRunMineServe.Size = New System.Drawing.Size(120, 25)
+    Me.LdAndRunMineServe.TabIndex = 23
+    Me.LdAndRunMineServe.Text = "Ld && Rn MineServe"
     '
     'Form1
     '
@@ -881,7 +897,7 @@ ErrorHandler:
     End If
 
     Solver = Prj.Solver
-    Solver.RunMode = eScdMode.eScdSolve_DynamicFull Or eScdMode.eScdHeat_Full
+    Solver.RunMode = eScdMode.eScdNet_Dynamic Or eScdMode.eScdHeat_Full
 
     MsgLog = Solver.Messages
 
@@ -1661,7 +1677,7 @@ Done1:
 
     Dynamic = Solver.Dynamic
 
-    Solver.RunMode = eScdMode.eScdSolve_DynamicFull Or eScdMode.eScdHeat_Full
+    Solver.RunMode = eScdMode.eScdNet_Dynamic Or eScdMode.eScdHeat_Full
 
 
     Tags.TagValue("F1.Mode") = "Source_ConstP"
@@ -1844,7 +1860,7 @@ Done:
     End If
 
     Solver = Prj.Solver
-        Solver.RunMode = ScdSlv.eScdMode.eScdSolve_DynamicFull Or ScdSlv.eScdMode.eScdHeat_Full
+    Solver.RunMode = ScdSlv.eScdMode.eScdNet_Dynamic Or ScdSlv.eScdMode.eScdHeat_Full
 
     MsgLog = Solver.Messages
 
@@ -1916,7 +1932,7 @@ ErrorHandler:
     End If
 
     Solver = Prj.Solver
-    Solver.RunMode = eScdMode.eScdSolve_DynamicFull Or eScdMode.eScdHeat_Full
+    Solver.RunMode = eScdMode.eScdNet_Dynamic Or eScdMode.eScdHeat_Full
 
     MsgLog = Solver.Messages
 
@@ -2059,6 +2075,84 @@ ErrorHandler:
     List1.Items.Add("-->" & Hex(Err.Number) & "[" & (Err.Number And 255) & "] - " & Err.Source & " - " & Err.Description)
     System.Diagnostics.Debug.WriteLine("-->" & Hex(Err.Number) & "[" & (Err.Number And 255) & "] - " & Err.Source & " - " & Err.Description)
     Resume Next
+
+  End Sub
+
+  Private Sub LdAndRunMineServe_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LdAndRunMineServe.Click
+
+    ShiftLists()
+
+    Const GoodTagSetPlace = 1
+
+    Dim RetCode As Integer
+    Dim I As Integer
+    Dim Grfs As ScdGraphics
+    Dim Trends As ScdTrends
+    Dim Tags As ScdAppTags
+    Dim Historian As ScdHistorian
+    Dim Snapshot As ScdSnapshot
+    Dim Dbg As ScdDebug
+    Dim Test As ScdTest
+    Dim Messages As ScdMessages
+
+    Dim STest As ScdTest
+    Dim Test1 As ScdTest
+    Dim Dynamic As ScdDynamic
+
+    On Error GoTo ErrorHandler
+
+    If App Is Nothing Then
+      App = New ScdApplication
+      ScdOpn.CheckState = System.Windows.Forms.CheckState.Checked
+    End If
+
+
+    If Prj Is Nothing Then
+      Prj = App.CreateProject("D:\Projects\M\MineServe2\CfgFiles", "D:\Projects\M\MineServe2\Water Valve testWS(Correct)-03.spf")
+    End If
+
+    Solver = Prj.Solver
+    Solver.RunMode = eScdMode.eScdNet_Dynamic Or eScdMode.eScdHeat_Full
+
+    MsgLog = Solver.Messages
+
+
+    Dynamic = Solver.Dynamic
+
+    '' still need this
+    'Dim TemplateLibFolder As String
+    'Dim FileName As String
+    '' Copy the required ECB's from the TemplateLib to the project folder
+    '' NBNB FUTURES: This needs to be improved With the manner in which templates are stored.
+    'TemplateLibFolder = Prj.PrjFolder & "..\Templates\"
+    'FileName = Dir(TemplateLibFolder & "*.ecb", FileAttribute.Normal)    ' Retrieve the first entry.
+    'Do While FileName <> ""   ' Start the loop.
+    '  FileCopy(TemplateLibFolder & FileName, Prj.PrjFolder & FileName)
+    '  FileName = Dir()   ' Get next entry.
+    'Loop
+
+    'List1.Items.Add("Import - Start")
+    'Dim ExFn As String
+    'ExFn = RootPath.Text & NeutralFiles & DBFileName
+    'If GroupInserts Then
+    '  Prj.ImportNeutralDB(eScdNDBOptions.eNDB_StdImport Or eScdNDBOptions.eNDB_GroupInserts, ExFn, ExFn, Nothing)
+    'Else
+    '  Prj.ImportNeutralDB(eScdNDBOptions.eNDB_StdImport, ExFn, ExFn, Nothing)
+    'End If
+    'List1.Items.Add("Import - Done : " & ExFn)
+
+    RunDynamic(Solver)
+
+    SetAllNothing()
+
+Done:
+    Exit Sub
+
+ErrorHandler:
+    List1.Items.Add("-->" & Hex(Err.Number) & "[" & (Err.Number And 255) & "] - " & Err.Source & " - " & Err.Description)
+    System.Diagnostics.Debug.WriteLine("-->" & Hex(Err.Number) & "[" & (Err.Number And 255) & "] - " & Err.Source & " - " & Err.Description)
+    Resume Next
+
 
   End Sub
 End Class
