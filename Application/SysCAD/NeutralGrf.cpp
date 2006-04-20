@@ -2,9 +2,14 @@
 #include ".\neutralgrf.h"
 #include ".\dbhelper.h"
 #include "msgwnd.h"
+
 //#include "optoff.h"
 
 #define KEEPTEMPFOLDERS 0
+
+static double DefValZero=0.0;
+static double DefValOne=1.0;
+static double DefValNAN=dNAN;
 
 //===========================================================================
 
@@ -53,19 +58,19 @@ void CNeutralGrfInserts::Init()
     CreateVal("InsertX", &m_Insert.m_X, ADOX::adDouble, FF_Required);
     CreateVal("InsertY", &m_Insert.m_Y, ADOX::adDouble, FF_Required);
     CreateVal("InsertZ", &m_Insert.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("Rotation", &m_Rotation, ADOX::adDouble, FF_Required);
+    CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("Rotation", &m_Rotation, ADOX::adDouble, FF_None, &DefValZero);
 
-    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
-    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_None);
 
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
@@ -123,26 +128,26 @@ void CNeutralGrfUnits::Init()
     CreateVal("InsertX", &m_Insert.m_X, ADOX::adDouble, FF_Required);
     CreateVal("InsertY", &m_Insert.m_Y, ADOX::adDouble, FF_Required);
     CreateVal("InsertZ", &m_Insert.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("Rotation", &m_Rotation, ADOX::adDouble, FF_Required);
+    CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("Rotation", &m_Rotation, ADOX::adDouble, FF_None, &DefValZero);
 
-    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
-    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_None);
 
-    CreateVal("LoBndX", &m_LoBnd.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("LoBndY", &m_LoBnd.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("LoBndZ", &m_LoBnd.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("HiBndX", &m_HiBnd.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("HiBndY", &m_HiBnd.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("HiBndZ", &m_HiBnd.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("LoBndX", &m_LoBnd.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("LoBndY", &m_LoBnd.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("LoBndZ", &m_LoBnd.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("HiBndX", &m_HiBnd.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("HiBndY", &m_HiBnd.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("HiBndZ", &m_HiBnd.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
 
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
@@ -194,21 +199,21 @@ void CNeutralGrfLinks::Init()
     CreateVal("InsertY", &m_Insert.m_Y, ADOX::adDouble, FF_Required);
     CreateVal("InsertZ", &m_Insert.m_Z, ADOX::adDouble, FF_Required);
 
-    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
-    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_None);
 
-    CreateVal("LoBndX", &m_LoBnd.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("LoBndY", &m_LoBnd.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("LoBndZ", &m_LoBnd.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("HiBndX", &m_HiBnd.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("HiBndY", &m_HiBnd.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("HiBndZ", &m_HiBnd.m_Z, ADOX::adDouble, FF_Required);
+    CreateVal("LoBndX", &m_LoBnd.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("LoBndY", &m_LoBnd.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("LoBndZ", &m_LoBnd.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("HiBndX", &m_HiBnd.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("HiBndY", &m_HiBnd.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("HiBndZ", &m_HiBnd.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
 
     CreateIndex("Tag", false, false);
     sm_bDoneInit = 1;
@@ -1374,6 +1379,12 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
           Attr_Settings &ASet=pGDoc->GCB.Tag_Attr_Set;
           Attr_Settings SetMem=ASet;
           
+          if (!Valid(m_pUn->m_TagPt.m_X))
+            {
+            m_pUn->m_TagPt.m_X=m_pUn->m_Insert.m_X;
+            m_pUn->m_TagPt.m_Y=m_pUn->m_Insert.m_Y;
+            m_pUn->m_TagPt.m_Z=m_pUn->m_Insert.m_Z;
+            }
           pGDoc->GCB.Tag_InsertPt.X=m_pUn->m_TagPt.m_X;
           pGDoc->GCB.Tag_InsertPt.Y=m_pUn->m_TagPt.m_Y;
           pGDoc->GCB.Tag_InsertPt.Z=m_pUn->m_TagPt.m_Z;
@@ -1477,6 +1488,13 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
           if (!llks->adEOF)
             {
             m_pLk->Read();
+            if (!Valid(m_pLk->m_TagPt.m_X))
+              {
+              m_pLk->m_TagPt.m_X=m_pLk->m_Insert.m_X;
+              m_pLk->m_TagPt.m_Y=m_pLk->m_Insert.m_Y;
+              m_pLk->m_TagPt.m_Z=m_pLk->m_Insert.m_Z;
+              }
+
             LDH.SetShowTag(m_pLk->m_TagVisible!=0);
             LDH.SetTag(m_pLk->m_sTag, m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
             LDH.SetTagProps(m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
@@ -1606,6 +1624,14 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             Attr_Settings &rASet=pDoc->GCB.Tag_Attr_Set;
             Attr_Settings ASet=rASet;
             
+
+            if (!Valid(m_pIn->m_TagPt.m_X))
+              {
+              m_pIn->m_TagPt.m_X=CB.Pt.World.X;
+              m_pIn->m_TagPt.m_Y=CB.Pt.World.Y;
+              m_pIn->m_TagPt.m_Z=CB.Pt.World.Z;
+              }
+
             pDoc->GCB.Tag_InsertPt.X=m_pIn->m_TagPt.m_X;
             pDoc->GCB.Tag_InsertPt.Y=m_pIn->m_TagPt.m_Y;
             pDoc->GCB.Tag_InsertPt.Z=m_pIn->m_TagPt.m_Z;
@@ -1666,6 +1692,13 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             Attr_Settings &ASet=pDoc->GCB.Tag_Attr_Set;
             Attr_Settings SetMem=ASet;
             
+            if (!Valid(m_pUn->m_TagPt.m_X))
+              {
+              m_pUn->m_TagPt.m_X=CB.Pt.World.X;
+              m_pUn->m_TagPt.m_Y=CB.Pt.World.Y;
+              m_pUn->m_TagPt.m_Z=CB.Pt.World.Z;
+              }
+
             pDoc->GCB.Tag_InsertPt.X=m_pUn->m_TagPt.m_X;
             pDoc->GCB.Tag_InsertPt.Y=m_pUn->m_TagPt.m_Y;
             pDoc->GCB.Tag_InsertPt.Z=m_pUn->m_TagPt.m_Z;
@@ -1761,6 +1794,14 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             if (!llks->adEOF)
               {
               m_pLk->Read();
+
+              if (!Valid(m_pLk->m_TagPt.m_X))
+                {
+                m_pLk->m_TagPt.m_X=m_pLk->m_Insert.m_X;
+                m_pLk->m_TagPt.m_Y=m_pLk->m_Insert.m_Y;
+                m_pLk->m_TagPt.m_Z=m_pLk->m_Insert.m_Z;
+                }
+
               LDH.SetShowTag(m_pLk->m_TagVisible!=0);
               LDH.SetTag(Tg, m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
               LDH.SetTagProps(m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);

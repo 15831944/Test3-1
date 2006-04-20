@@ -446,6 +446,24 @@ int CFileRec::BaseRead()
               ASSERT(FALSE); //unhandled db Type !!!
             }
           }
+        else if (Val.vt==VT_NULL)
+          {
+          switch (Def.pDef->nType)
+            {
+            //case ADODB::adUnsignedTinyInt: break;
+            case ADODB::adBoolean:   *((BOOL*)Def.pData)   = 0;   break;
+            case ADODB::adSmallInt:  *((short*)Def.pData)  = 0;  break;
+            case ADODB::adInteger:   *((long*)Def.pData)   = 0;   break;
+            case ADODB::adSingle:    *((float*)Def.pData)  = fNAN;  break;
+            case ADODB::adDouble:    *((double*)Def.pData) = dNAN; break;
+            case ADODB::adVarWChar:      
+              memset((LPTSTR)Def.pData, 0, Def.pDef->nTypeSize);
+              ((LPTSTR)(Def.pData))[Def.pDef->nTypeSize-1] = 0;
+              break;
+            default:
+              ASSERT(FALSE); //unhandled db Type !!!
+            }
+          }
         else
           {
           switch (Def.pDef->nType)

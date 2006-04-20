@@ -2,7 +2,13 @@
 #include ".\neutralgrf.h"
 #include ".\dbhelper.h"
 
+//#include "optoff.h"
+
 //===========================================================================
+
+static double DefValZero=0.0;
+static double DefValOne=1.0;
+static double DefValNAN=dNAN;
 
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
@@ -238,21 +244,21 @@ void CNeutralGroupInserts::Init()
     //CreateVal("DoGraphics", &m_sDoGraphics, ADOX::adBoolean, FF_Required);
     //CreateVal("DoModels", &m_sDoModels, ADOX::adBoolean, FF_Required);
     CreateStr("Page", m_sInsertPg, sizeof(m_sInsertPg)-1, FF_None);
-    CreateVal("InsertX", &m_Insert.m_X, ADOX::adDouble, FF_None);
-    CreateVal("InsertY", &m_Insert.m_Y, ADOX::adDouble, FF_None);
-    CreateVal("InsertZ", &m_Insert.m_Z, ADOX::adDouble, FF_None);
-    CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_None);
-    CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_None);
-    CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_None);
+    CreateVal("InsertX", &m_Insert.m_X, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("InsertY", &m_Insert.m_Y, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("InsertZ", &m_Insert.m_Z, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("ScaleX", &m_Scale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("ScaleY", &m_Scale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("ScaleZ", &m_Scale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
 
-    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_Required);
-    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_Required);
-    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_Required);
-    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_Required);
+    CreateVal("TagX", &m_TagPt.m_X, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagY", &m_TagPt.m_Y, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagZ", &m_TagPt.m_Z, ADOX::adDouble, FF_None, &DefValNAN);
+    CreateVal("TagScaleX", &m_TagScale.m_X, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleY", &m_TagScale.m_Y, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagScaleZ", &m_TagScale.m_Z, ADOX::adDouble, FF_None, &DefValOne);
+    CreateVal("TagRotation", &m_TagRotation, ADOX::adDouble, FF_None, &DefValZero);
+    CreateVal("TagVisible", &m_TagVisible, ADOX::adBoolean, FF_None);
 
     CreateVal("FixupRule", &m_iFixupRule, ADOX::adInteger, FF_None);
     CreateStr("FixupString1", m_sFixupString1, sizeof(m_sFixupString1)-1, FF_None);

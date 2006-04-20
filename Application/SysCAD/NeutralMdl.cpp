@@ -1219,6 +1219,7 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
 
   try
     {
+    gs_Exec.SetHoldValidateData(true, true, true);
     gs_pTheSFELib->FE_SetHoldGlobalLinks(true);
 
     //determine Sequence of required Nodes ...
@@ -1299,8 +1300,10 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
             {
             pItem->GetStrList(sStrList);
             pStrng pS = sStrList.Find(m_pCf->m_sValue);
-            const int Indx = (pS==NULL ? 0 : pS->Index());
-            DU.SetTypeLong(Type, Indx);
+            if (pS)
+              DU.SetTypeLong(Type, pS->Index());
+            else
+              DU.SetTypeLong(Type, atol(m_pCf->m_sValue));
             }
           else
             DU.SetTypeLong(Type, SafeAtoL(m_pCf->m_sValue));
@@ -1405,6 +1408,7 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
       }
 
     gs_pTheSFELib->FE_SetHoldGlobalLinks(false);
+    gs_Exec.SetHoldValidateData(false, true, true);
     }
   catch(_com_error & e)
     {
