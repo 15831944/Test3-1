@@ -12,6 +12,7 @@
 #ifndef __FLWEQN_H
   #include "flweqn.h"
 #endif
+#include "tspline.h"
 
 #if defined(__PIPEEQNS_CPP)
   #define DllImportExport DllExport
@@ -238,12 +239,17 @@ DEFINE_TAGOBJ(FE_MSBackFill);
 class FE_MSBackFill : public CFlwEqn
   {
   public:
-    double         R_Fxd;
+    double         m_LoLimVel;
+    double         m_DP;
+    //double         m_A, m_B, m_C, m_D;
+    double         m_PrevDiam;
+    TSpline        m_Spln;
 
     FE_MSBackFill(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
 
     virtual ~FE_MSBackFill();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   SetPhysData(double DZ);
     virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };

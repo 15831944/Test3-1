@@ -9,7 +9,6 @@
 
 #include "pipeeqns.h"
 #include "m_link.h"
-#include "tspline.h"
 //#include "optoff.h"
 
 //==========================================================================
@@ -1425,55 +1424,44 @@ IMPLEMENT_FLWEQN(FE_MSBackFill, PipeGroup.Name(), "FE_MS_BackFill", "", TOC_DYNA
 FE_MSBackFill::FE_MSBackFill(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach) : \
 CFlwEqn(pClass_, pTag, pAttach, eAttach)
   {
-  R_Fxd=10000.0;
-
-  TSpline       m_Spln;
-
-  if (1) // do this once off
-    {
-    m_Spln.AddPt(0.0, 1.0);  // Add Points ...
-    m_Spln.AddPt(1.0, 1.2);
-    m_Spln.AddPt(2.0, 1.3);
-    m_Spln.AddPt(3.0, 1.4);
-
-    m_Spln.SetSigma(1.0);  // optional - tension approx 1e-10 slack approx 1e10 tight (almost straight lines)
-
-    //  Type=TSpline::iSlopeFree;
-    //  Type=TSpline::iSlopeOfSegment;
-    //  Type=TSpline::iSlopeSpecd;
-
-    m_Spln.SetSlopeLo(TSpline::iSlopeSpecd, 0.0); // optional slope at 'beginning' (tends to this)
-    m_Spln.SetSlope1(TSpline::iSlopeFree, 0.0); // optional slope at first point
-    m_Spln.SetSlopeN(TSpline::iSlopeFree, 0.0); // optional slope at last point
-    m_Spln.SetSlopeHi(TSpline::iSlopeSpecd, 1.0);// optional slope at 'end' (tends to this)
-
-    m_Spln.Fit();
-    }
-
-  double reqdy=m_Spln.Yx(1.5);
-  BreakPoint();
-
+  m_PrevDiam  = -1;
+  m_LoLimVel  = 0.001;
+  m_DP        = 0;
+  
   }
 
 //--------------------------------------------------------------------------
 
 FE_MSBackFill::~FE_MSBackFill()
   {
-
-
-
   }
 
 //--------------------------------------------------------------------------
 
 void FE_MSBackFill::BuildDataDefn(DataDefnBlk & DDB)
   {
-  DDB.Double ("Resistance",   "Resistn",  DC_,     "",      &R_Fxd,          NULL,  isParm);
-  DDB.Double ("Length",       "",         DC_L,    "m",     xidFlwEqnRqdLen, NULL,  isParmStopped);
-  DDB.Double ("Diam",         "",         DC_L,    "mm",    xidFlwEqnDiam,   NULL,  isParm);
+  //DDB.Double ("Resistance",   "Resistn",  DC_,     "",      &R_Fxd,          NULL,  isParm);
+  DDB.Double ("Diameter",        "Diam",      DC_L,    "mm",     xidFlwEqnDiam,       NULL, isParmStopped);
+  DDB.Double ("Length",          RQDLEN,      DC_L,    "m",      xidFlwEqnRqdLen,     NULL, isParmStopped);
+  DDB.Double ("FittingLength",   "Fit_Len",   DC_L,    "m",      xidFlwEqnFitLen,     NULL, isParmStopped);
+  DDB.Double ("CalcLength",      "CalcLen",   DC_L,    "m",      xidFlwEqnActLen,     NULL, isResult);
+
+  DDB.Double ("Density",         "",          DC_Rho,  "kg/m^3", &m_dDensMeas,        NULL, isResult);
+  DDB.Double ("Viscosity",       "",          DC_Visc, "cP",     &m_dViscMeas,        NULL, isResult);
+  DDB.Double ("Velocity",        "Vel",       DC_Ldt,  "m/s",    &m_dVelMeas,         NULL, isResult);
+
+  //DDB.Double ("Length",       "",         DC_L,    "m",     xidFlwEqnRqdLen, NULL,  isParmStopped);
+  //DDB.Double ("Diam",         "",         DC_L,    "mm",    xidFlwEqnDiam,   NULL,  isParm);
   //DDB.Double ("TempRise",     "",         DC_dT,   "C",     &dTRiseRqd,      NULL,  isParm|NAN_OK);
   BuildDataDefnOveride(DDB);
   };
+
+//--------------------------------------------------------------------------
+
+flag FE_MSBackFill::ValidateData(ValidateDataBlk & VDB)
+  {
+  return CFlwEqn::ValidateData(VDB);
+  }
 
 //--------------------------------------------------------------------------
 
@@ -1486,10 +1474,79 @@ void FE_MSBackFill::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
+const int NPts=10;
+const int NCrvs=5;
+// array 
+struct CDataPt { double m_Vel, m_DP; }; 
+static struct { double m_Diam; CDataPt m_Data[NPts]; } s_Curves[NCrvs] =
+  {
+  // Diam   V,DP     V,DP     V,DP     V,DP     V,DP     V,DP     V,DP     V,DP      V,DP       V,DP
+    {0.1, {{1,1.4}, {2,2.8}, {3,4.2}, {4,5.6}, {5,7.0}, {6,8.4}, {7,9.8}, {8,11.2}, {9,12.6}, {10,14.0}}},
+    {0.2, {{1,1.3}, {2,2.6}, {3,3.9}, {4,5.2}, {5,6.5}, {6,7.8}, {7,9.1}, {8,10.4}, {9,11.7}, {10,13.0}}},
+    {0.3, {{1,1.2}, {2,2.4}, {3,3.6}, {4,4.8}, {5,6.0}, {6,7.2}, {7,8.4}, {8, 9.6}, {9,10.8}, {10,12.0}}},
+    {0.4, {{1,1.1}, {2,2.2}, {3,3.3}, {4,4.4}, {5,5.5}, {6,6.6}, {7,7.7}, {8, 8.8}, {9, 9.9}, {10,11.0}}},
+    {0.5, {{1,1.0}, {2,2.0}, {3,3.0}, {4,4.0}, {5,5.0}, {6,6.0}, {7,7.0}, {8, 8.0}, {9, 9.0}, {10,10.0}}},
+  };
+
+//--------------------------------------------------------------------------
+
 flag FE_MSBackFill::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
-  FE.SetDPq(-FE.QmSign()*FE.QmMeas()*FE.TotLength()*R_Fxd, -FE.QmSign()*FE.TotLength()*R_Fxd);
-//  FE.SetArea(PI/4.0*Sqr(Diam));
+  if (Diam()!=m_PrevDiam)
+    {
+    m_PrevDiam=Diam();
+    m_Spln.Clear();
+    dbgpln("===================");
+
+    for (int p=0; p<NPts; p++)
+      {
+      TSpline       Spln;
+
+      //double Vel=s_Curves[0].m_Data[p].m_Vel;
+      double Vel=s_Curves[0].m_Data[p].m_Vel;
+      for (int c=0; c<NCrvs; c++)
+        {
+        ASSERT_ALWAYS(Vel==s_Curves[c].m_Data[p].m_Vel, "BackFill Bad Curves");
+        Spln.AddPt(s_Curves[c].m_Diam, s_Curves[c].m_Data[p].m_DP);  // Add Points ...
+        }
+      //Spln.SetSigma(1.0);  // optional - tension approx 1e-10 slack approx 1e10 tight (almost straight lines)
+
+      //  Type=TSpline::iSlopeFree;
+      //  Type=TSpline::iSlopeOfSegment;
+      //  Type=TSpline::iSlopeSpecd;
+
+      //Spln.SetSlopeLo(TSpline::iSlopeSpecd, 0.0); // optional slope at 'beginning' (tends to this)
+      Spln.SetSlopeLo(TSpline::iSlopeFree, 0.0); // optional slope at first point
+      Spln.SetSlope1(TSpline::iSlopeFree, 0.0); // optional slope at first point
+      Spln.SetSlopeN(TSpline::iSlopeFree, 0.0); // optional slope at last point
+      Spln.SetSlopeHi(TSpline::iSlopeFree, 0.0); // optional slope at last point
+      //Spln.SetSlopeHi(TSpline::iSlopeSpecd, 1.0);// optional slope at 'end' (tends to this)
+
+      Spln.Fit();
+
+      double DP=Spln.Yx(Diam());
+      m_Spln.AddPt(Vel, DP);
+      dbgpln("%10.4f %10.4f %10.4f", Diam(), Vel, DP); 
+      }
+    
+    m_Spln.Fit();
+    dbgpln("===================");
+    }
+
+  double Area = PI * Sqr(Diam()/2.0);
+  double P1   = Max(1.0, ((FE.QmSign()>0) ? FE.FlngPress() : FE.NodePress()));
+  m_dDensMeas = FE.MeanRho(pProps, P1);
+  m_dViscMeas = FE.MeanViscosity(pProps);
+  FE.SetVelMeasRange(m_dDensMeas, Area, m_LoLimVel);
+
+  m_dVelMeas  = FE.VelMeas();
+  double DPL  = m_Spln.Yx(m_dVelMeas);
+  dbgpln("%10.4f %10.4f %10.4f", Diam(), m_dVelMeas, DPL); 
+
+  m_DP        = FE.TotLength()*DPL;
+  FE.SetDPq(-FE.QmSign()*m_DP, 0);
+  FE.SetDerivsBad();
+
   FE.SetMomentum(pProps, FE.MeanFBPress());
   FE.SetKFact(0);
 
