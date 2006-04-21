@@ -8157,11 +8157,24 @@ void CNetBlk::BldSubNets()
       GrpFlwIter G(SNI.Grps);
       for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
         {
-        dbgp("GFb : %s", g->m_Src.m_pNd->FullObjTag());
-        JoinIter L(g->m_Lnks);
-        for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
-          dbgp(" -> %s", pJ->Nd()->FullObjTag());
-        dbgpln(" -> %s [%s]", g->m_Dst.m_pNd->FullObjTag(), g->FwdTag());
+        Strng S0;
+        S0.Set(Valid(g->m_QmEstIn) ? "%#*.*g" : "*",QWide,QPrec,g->m_QmEstIn);
+        if (g->m_QmEstIn>=0.0)
+          {
+          dbgp("GFb : %s %s", S0(), g->m_Src.m_pNd->FullObjTag());
+          JoinIter L(g->m_Lnks);
+          for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
+            dbgp(" -> %s", pJ->Nd()->FullObjTag());
+          dbgpln(" -> %s [%s]", g->m_Dst.m_pNd->FullObjTag(), g->FwdTag());
+          }
+        else
+          {
+          dbgp("GFb : %s %s", S0(), g->m_Dst.m_pNd->FullObjTag());
+          JoinIter L(g->m_Lnks);
+          for (CJoinRec * pJ = L.Last(); (pJ); pJ = L.Prev())
+            dbgp(" -> %s", pJ->Nd()->FullObjTag());
+          dbgpln(" -> %s [%s]", g->m_Src.m_pNd->FullObjTag(), g->RevTag());
+          }
         }
       Strng S;
       dbgpln("Fixed PList -----------------");

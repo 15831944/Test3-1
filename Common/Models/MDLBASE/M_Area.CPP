@@ -390,10 +390,11 @@ flag MN_Area::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
 
   if (Task==FET_GetMode)
     {
-    flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, true, false, 1.0, NULL, NULL);
-    return EqnOK || pFB->m_fFixed;
-    //pFB->SetQmFree();
-    //return false;
+    pFB->SetXferMode();
+    pFB->SetXferCapacity(LargePosFlow);
+    return true;
+    //flag EqnOK=pFB->EvaluateFlwEqn(Task, pProps, true, false, 1.0, NULL, NULL);
+    //return EqnOK || pFB->m_fFixed;
     }
   else
     {

@@ -2791,7 +2791,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       {
       for (int i=0; i<2; i++)
         {
-        dbgpln("List %i", i);
+        dbgpln("Proc List %i ------------------------------------------------------------", i);
         CNodeEvalIndexIter FO(m_TOList[i]);
         for (CNodeEvalIndex NJ=FO.First(); FO.ItemValid(); NJ=FO.Next())
           dbgpln("%s ", NJ.Nd.FullObjTag());
@@ -2819,6 +2819,12 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       Lst0.AddTail(NJ);//CNodeEvalIndex(pNJ,-1));
 
     long iOrder=0;
+
+    #if dbgFlwSolve
+    if (dbgBuildOrder())
+      dbgpln("Proc List 1 ------------------------------------------------------------");
+    #endif
+
     while (!Lst0.IsEmpty())
       {
       CNodeEvalIndex NJ=Lst0.RemoveHead();
@@ -2835,7 +2841,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
 
       #if dbgFlwSolve
       if (dbgBuildOrder())
-        dbgpln("Proc List 1 %s", NJ.m_pNd->FullObjTag());
+        dbgpln("%s", NJ.m_pNd->FullObjTag());
       #endif
 
       //p->m_nFlwIOsInDone=0;
@@ -2844,18 +2850,22 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
         {
         #if dbgFlwSolve
         if (dbgBuildOrder())
-          dbgp(" %-20s %3i %3i ", p->Tag(), Deps[d], p->m_IOs[Deps[d]].iClusterId);
+          dbgp("                        %3i %3i ", Deps[d], p->m_IOs[Deps[d]].iClusterId);
         #endif
 
         FlwNode * pRmt=p->Nd_Rmt(Deps[d]);
         CJoinCluster *pCRmt=p->IO_Cluster_Rmt(Deps[d]);
         if (pCRmt)
           {
+          #if dbgFlwSolve
+          if (dbgBuildOrder())
+            dbgp("  C:%2i i:%4i o:%4i dn:%4i rq:%4i", pCRmt->m_iCluster, pCRmt->m_nFlwIOsIn, pCRmt->m_nFlwIOsOut, pCRmt->m_nFlwIOsInDone+1, pCRmt->m_nFlwIOsInReqd);
+          #endif
           if (InterlockedIncrement(&(pCRmt->m_nFlwIOsInDone))==pCRmt->m_nFlwIOsInReqd)
             {
             #if dbgFlwSolve
             if (dbgBuildOrder())
-              dbgp("  Add  %3i %s", pCRmt->m_iCluster, pRmt->Tag());
+              dbgp("  Add %s", pRmt->Tag());
             #endif
             Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask));
             // pRmt->m_nFlwIOsInDone=0;
@@ -2863,7 +2873,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           }
         else
           {
-          dbgpln("Bad Rmt Cluster %s", pRmt->Tag());
+          dbgp("BAD RMT CLUSTER %s", pRmt->Tag());
           }
 
         #if dbgFlwSolve
@@ -2875,13 +2885,17 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
 
     // --------------------------
     CNodeEvalIndexIter F1(m_ProcTOList2);
+    #if dbgFlwSolve
+    if (dbgBuildOrder())
+      dbgpln("Proc List 2 ------------------------------------------------------------");
+    #endif
     for (NJ=F1.First(); F1.ItemValid(); NJ=F1.Next())
       {
       NJ.Cluster.m_iProcOrder=iOrder++;
       ProcTOSequence.AddTail(NJ);
       #if dbgFlwSolve
       if (dbgBuildOrder())
-        dbgpln("Proc List 2 %s", NJ.m_pNd->FullObjTag());
+        dbgpln("  %s", NJ.m_pNd->FullObjTag());
       #endif
       };
 
@@ -2896,7 +2910,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       {
       for (int i=2; i<4; i++)
         {
-        dbgpln("List %i", i);
+        dbgpln("Ctrl List %i ------------------------------------------------------------", i);
         CNodeEvalIndexIter FO(m_TOList[i]);
         for (CNodeEvalIndex NJ=FO.First(); FO.ItemValid(); NJ=FO.Next())
           dbgpln("%s ", NJ.Nd.FullObjTag());
@@ -3643,7 +3657,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
       if (p->IsLnk())
         {
         FlwBlk &FB=*p->IOFB(0,0);//*(p->FBlk());
-dbgpln("%10.3e %s", FB.GetQmEst(), p->Tag());
+//dbgpln("%10.3e %s", FB.GetQmEst(), p->Tag());
         sint NewDirn = (sint)ZSign(FlwExists(FB.GetQmEst()) ? FB.GetQmEst() : 0.0);
         if (FB.PrevDirn!= NewDirn)
           {
@@ -4235,8 +4249,8 @@ void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds)
           Q.Set("%13.7f",FB.GetQm());
         dbgp("  Lnk : %13s", Q());
         //byte tt= NJ.Nd.Internal ? TT_NoTear : (J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)->TearType());
-        byte tt= (J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)->TearType());
-        dbgp("  %+8.8s", tt==TT_SystemTear ? "Tear" : tt==TT_ManualTear ? "Man_Tear" : tt==TT_Break ? "Break" : "");
+        int tt= J.Flng(0)?(J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)?J.Flng(1)->TearType():-1):-2;
+        dbgp("  %+8.8s", tt==-1 ? "?1" : tt==-2 ? "?0" : tt==TT_SystemTear ? "Tear" : tt==TT_ManualTear ? "Man_Tear" : tt==TT_Break ? "Break" : "");
         dbgp(" Est:%14.6g", FB.GetQmEst());
         dbgpln("      {%2i}%.20s",j,NJ.Nd.FullObjTag());
         }
