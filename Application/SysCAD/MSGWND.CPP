@@ -564,7 +564,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
 
     if (XBusy() && (Msg.m_dwFlags & (LogFlag_Fatal | LogFlag_Stop)))
       {
-      AfxMessageBox("SysCAD Stopping", MB_OK); 
+      //AfxMessageBox("SysCAD Stopping", MB_OK); 
       LogNote("SysCAD", 0, "Stopping"); 
       gs_Exec.GotoEditMode();
       }

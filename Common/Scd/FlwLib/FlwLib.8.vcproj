@@ -52,6 +52,8 @@
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;SYSCAD10;_RELEASE;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
+				FloatingPointModel="1"
+				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -148,6 +150,8 @@
 				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;SYSCAD10;_DEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="3"
+				FloatingPointModel="1"
+				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -245,6 +249,8 @@
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;SYSCAD10;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="2"
+				FloatingPointModel="1"
+				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -1554,11 +1560,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
 				>
 			</File>
 			<File
@@ -1566,11 +1572,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
 				>
 			</File>
 			<File

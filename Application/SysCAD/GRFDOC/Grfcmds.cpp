@@ -40,7 +40,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
 #define dbgdxfmem 0x0
-#define dbgdrw    0x01
+#define dbgdrw    0x0
 
 #if dbgdxfmem
     extern "C"

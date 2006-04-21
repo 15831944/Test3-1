@@ -385,7 +385,7 @@ int CMessageLog::LogLn(HWND hWndOwn, DWORD Flags, LPCTSTR Where, UINT BoxFlags, 
     }
   
   if (dbgtestfileopen())
-    dbgpln(DbgLine);
+    dbgpln("%s", DbgLine);
 
   if (m_lComCallLevel)
     return 0; //NO USER PROMPT MESSAGE BOXES !!!
