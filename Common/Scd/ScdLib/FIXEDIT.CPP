@@ -394,11 +394,16 @@ FxdEdtRow::~FxdEdtRow()
 
 FxdEdtFld * FxdEdtRow::SetFld(pFxdEdtView pView_, int RowNo_, int BlkId_, pchar InitStr, int FieldId, int Width, UCHAR Just, BOOL Editable, byte FieldType)
   {
-  RDBASSERT(NFields < MaxFixedFields, "Too many fixed fields");
+  RDBASSERT(NFields < MaxFixedFields, "Too many fixed fields per row");
   pView=pView_;
   RowNo=RowNo_;
   if (InitStr)
     {
+    }
+  if (NFields>=MaxFixedFields)
+    {
+    //TROUBLE!!!
+    return NULL;
     }
 
   Field[NFields]=new FxdEdtFld(pView, this, BlkId_, FieldId, Cols, Cols+Width, InitStr, Just, Editable, FieldType);

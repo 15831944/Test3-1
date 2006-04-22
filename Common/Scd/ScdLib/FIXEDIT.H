@@ -968,21 +968,24 @@ inline FxdEdtFld* FxdEdtBook::SetTreeNd(int RowNo, flag fPlus, int FieldId, int 
 
 inline void FxdEdtBook::SetTag(char * TagStr, char * CnvTxt)
   {
-  pPrevFld->SetTag(TagStr, CnvTxt);
+  if (pPrevFld)
+    pPrevFld->SetTag(TagStr, CnvTxt);
   }
 
 //---------------------------------------------------------------------------
 
 inline void FxdEdtBook::SetBigStrLength(int Len)
   {
-  pPrevFld->SetBigStrLength(Len);
+  if (pPrevFld)
+    pPrevFld->SetBigStrLength(Len);
   }
 
 //---------------------------------------------------------------------------
 
 inline void FxdEdtBook::SetMarkerFlags(UCHAR nMarks)
   {
-  pPrevFld->SetMarks(nMarks);
+  if (pPrevFld)
+    pPrevFld->SetMarks(nMarks);
   }
 
 //---------------------------------------------------------------------------
