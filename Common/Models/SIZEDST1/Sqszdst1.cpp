@@ -18,8 +18,9 @@
 //set this to 1 to allow user to enter manual size distribution sieve size ranges
 #define UseManualSizeDefn 0
 
+#define WithSauterMeanD 0
 
-#define  dbgSzDist   1
+#define  dbgSzDist   WITHDEBUG
 
 #if dbgSzDist
 static CDbgMngr dbgSzDistSplits("SzDist", "Splits");
@@ -2721,7 +2722,11 @@ void SQSzDist1Edt::Build()
     //StartPage(DD().Name(), true);//(strlen(p)>0) ? p : "Fn");
     if (1) // Header 2 Blk
       {
-      StartBlk((GraphOn() ? 6 : 4)+1, 0, NULL);
+      int HedLen = (GraphOn() ? 5 : 3);
+      #if WithSauterMeanD
+      HedLen++;
+      #endif
+      StartBlk(HedLen, 0, NULL);
       int L=0;
       if (GraphOn())
         {
@@ -2767,7 +2772,7 @@ void SQSzDist1Edt::Build()
           }
       if (!GotOne)
         FldHasFixedStrValue(-1, " ");
-      L++;
+      //L++;
       SetSpace(L, 1);
       SetDParm(L, "Hide", 5, "", Id_CurHide, 25, 0, "");
       GotOne=0;
@@ -2781,9 +2786,11 @@ void SQSzDist1Edt::Build()
       if (!GotOne)
         FldHasFixedStrValue(-1, " ");
 
+#if WithSauterMeanD
       L++;
       SetSpace(L, 1);
       SetDParm(L, "SauterMeanD", 15, "", Id_RqdSauterl32, 32, 0, "");
+#endif
       }
 
     flag DoneGap=false;
@@ -2890,7 +2897,7 @@ void SQSzDist1Edt::Build()
         }
       }
     
-     if (1) // Data Blk
+    if (1) // Data Blk
       {
       int L=0;
       int HedLen = 2;
@@ -2912,11 +2919,12 @@ void SQSzDist1Edt::Build()
       StartBlk(BlkLen, HedLen, NULL);
       L=0;
 
-#ifdef USE_PSD_TB
+      if (MultOre && ColWidth>14)
+        ColWidth=14;
 
+#ifdef USE_PSD_TB
       if (rSD.fAllowSizeEdits)
         {
-
         SetSpace(L, 1);
         SetDesc(L, "Test Data", -1, 10, 1, " ");
         SetCheckBox(L, "TstDat" , Id_TestDataChk , 2, 2 , "", true);
@@ -2928,8 +2936,7 @@ void SQSzDist1Edt::Build()
           for (int ci=0; ci<NColmns; ci++)
             {
             int c=DDefn.DispColIndices[ci];
-
-            if ((Columns(c).Editable()) && (Columns(c).iSpId >=0))
+            if ((Columns(c).Editable())&&(Columns(c).iSpId >=0))
               {
               SetButton(L, "Set", Id_CopyTest+ci , ColWidth , 0, "");
               }
@@ -2941,11 +2948,183 @@ void SQSzDist1Edt::Build()
           L++;
           }
         }
-
 #endif
 
-      //...
+      //heading...
       if (MultOre)
+        {
+        DoneGap=false;
+        SetSpace(L, 4);
+        for (int ci=0; ci<NColmns; ci++)
+          {
+          int c=DDefn.DispColIndices[ci];
+          if (Columns(c).Reqd(Model()))
+            {
+            if (!Columns(c).ForCum() && !DoneGap)
+              {
+              DoneGap=true;
+              SetDesc(L, "Size", -1, 10, 1, " ");
+              }
+            if (!Columns(c).ForCum())
+              {
+              S=Columns(c).sName();
+              S+=':';
+              S.SetLength(Min(S.Length(), ColWidth));
+              SetDesc(L, S(), -1, ColWidth, 1, "");
+              }
+            }
+          }
+        L++;
+
+        DoneGap=false;
+        SetDesc(L, "Int",  -1, 4,  1, "");
+        for (int ci=0; ci<NColmns; ci++)
+          {
+          int c=DDefn.DispColIndices[ci];
+          if (Columns(c).Reqd(Model()))
+            {
+            if (!Columns(c).ForCum() && !DoneGap)
+              {
+              DoneGap=true;
+              SetDesc(L, "Range", -1, 10, 1, " ");
+              }
+            if (!Columns(c).ForCum())
+              {
+              S=Columns(c).sSpName();
+              S.SetLength(Min(S.Length(), ColWidth));
+              SetDesc(L, S(), -1, ColWidth, 1, "");
+              }
+            }
+          }
+        L++;
+        }
+      else
+        {
+        DoneGap=false;
+        DoneCumGap=false;
+        SetDesc(L, "Int",  -1, 4,  1, "");
+        for (int ci=0; ci<NColmns; ci++)
+          {
+          int c=DDefn.DispColIndices[ci];
+          if (Columns(c).Reqd(Model()))
+            {
+            if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
+              {
+              DoneGap=true;
+              SetDesc(L, MultOre ? "Range" : "Size Range", -1, 10, 1, " ");
+              }
+            if (Columns(c).ForCum() && !DoneCumGap)
+              {
+              DoneCumGap = true;
+              SetSpace(L, 2);
+              S="Size";
+              S.SetLength(Min(S.Length(), 10));
+              SetDesc(L, S(), -1, 10, 1, " ");
+              }
+            S=(MultOre ? Columns(c).sSpName() : Columns(c).sName());
+            S.SetLength(Min(S.Length(), ColWidth));
+            SetDesc(L, S(), -1, ColWidth, 1, "");
+            }
+          }
+        L++;
+        }
+
+      if (rSD.pModel->UseAsFlow())
+        {
+        //...
+        if (MultOre)
+          {
+          DoneGap=false;
+          S.Set("Qm Total(%s)", SD_Defn.YQmCnv.Text());
+          SetDesc(L, S(), -1, 14, 2, " ");
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneGap)
+                DoneGap = true;
+              if (!Columns(c).ForCum())
+                {
+                if (Columns(c).iSpId>=0)
+                  {
+                  FxdEdtFld* fef = SetParm(L, "", Id_YQmTtl+c, ColWidth, 2, "");
+                  Tg.Set("%s.QmTtl.%s", FullObjTag(), Columns(c).sSpName());
+                  //pView->SetTag(Tg(), SD_Defn.YQmCnv.Text());
+                  SetTag(Tg(), SD_Defn.YQmCnv.Text());
+                  }
+                else
+                  SetSpace(L, ColWidth);
+                }
+              }
+            }
+          SetSpace(L, 1);
+          SetDesc(L, SD_Defn.YQmCnv.Text(), 0, 16, 0, "");
+          L++;
+          }
+        else
+          {
+          DoneGap=false;
+          DoneCumGap=false;
+          S.Set("Qm Total(%s)", SD_Defn.YQmCnv.Text());
+          SetDesc(L, S(), -1, 14, 2, " ");
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
+                DoneGap = true;
+              if (Columns(c).ForCum() && !DoneCumGap)
+                {
+                DoneCumGap = true;
+                if (DoneGap)
+                  {
+                  SetSpace(L, 1);
+                  SetDesc(L, SD_Defn.YQmCnv.Text(), 0, 12, 0, "");
+                  //SetSpace(L, 2+10+1);
+                  }
+                }
+              if (Columns(c).iSpId>=0)
+                {
+                FxdEdtFld* fef = SetParm(L, "", Id_YQmTtl+c, ColWidth, 2, "");
+                Tg.Set("%s.QmTtl.%s", FullObjTag(), Columns(c).sSpName());
+                //pView->SetTag(Tg(), SD_Defn.YQmCnv.Text());
+                SetTag(Tg(), SD_Defn.YQmCnv.Text());
+                }
+              else
+                SetSpace(L, ColWidth);
+              }
+            }
+          SetSpace(L, 1);
+          SetDesc(L, SD_Defn.YQmCnv.Text(), 0, 16, 0, "");
+          L++;
+          }
+        }
+
+      //..
+      if (MultOre)
+        {
+        DoneGap=false;
+        SetSpace(L, 4);
+        for (int ci=0; ci<NColmns; ci++)
+          {
+          int c=DDefn.DispColIndices[ci];
+          if (Columns(c).Reqd(Model()))
+            {
+            if (!Columns(c).ForCum() && !DoneGap)
+              {
+              DoneGap = true;
+              SetDesc(L, SD_Defn.XCnv.Text(),  -1, 10,  2, " ");
+              }
+            if (!Columns(c).ForCum())
+              {
+              SetDesc(L, Columns(c).pCnv->Text(),  -1, ColWidth,  2, "");
+              }
+            }
+          }
+        }
+      else
         {
         DoneGap=false;
         DoneCumGap=false;
@@ -2957,202 +3136,377 @@ void SQSzDist1Edt::Build()
             {
             if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
               {
-              DoneGap=true;
-              SetDesc(L, "Size", -1, 10, 1, " ");
-              }
-            if (Columns(c).ForCum() && !DoneCumGap)
-              {
-              DoneCumGap = true;
-              SetSpace(L, 2+10+1);
-              }
-            S=Columns(c).sName();
-            S+=':';
-            S.SetLength(Min(S.Length(), ColWidth));
-            SetDesc(L, S(), -1, ColWidth, 1, "");
-            }
-          }
-        L++;
-        }
-
-      //...
-      DoneGap=false;
-      DoneCumGap=false;
-      SetDesc(L, "Int",  -1, 4,  1, "");
-      for (int ci=0; ci<NColmns; ci++)
-        {
-        int c=DDefn.DispColIndices[ci];
-        if (Columns(c).Reqd(Model()))
-          {
-          if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
-            {
-            DoneGap=true;
-            SetDesc(L, MultOre ? "Range" : "Size Range", -1, 10, 1, " ");
-            }
-          if (Columns(c).ForCum() && !DoneCumGap)
-            {
-            DoneCumGap = true;
-            SetSpace(L, 2);
-            S="Size";
-            S.SetLength(Min(S.Length(), 10));
-            SetDesc(L, S(), -1, 10, 1, " ");
-            }
-          S=(MultOre ? Columns(c).sSpName() : Columns(c).sName());
-          S.SetLength(Min(S.Length(), ColWidth));
-          SetDesc(L, S(), -1, ColWidth, 1, "");
-          }
-        }
-      L++;
-
-      if (rSD.pModel->UseAsFlow())
-        {
-        //...
-        DoneGap=false;
-        DoneCumGap=false;
-        S.Set("Qm Total(%s)", SD_Defn.YQmCnv.Text());
-        SetDesc(L, S(), -1, 14, 2, " ");
-        for (ci=0; ci<NColmns; ci++)
-          {
-          int c=DDefn.DispColIndices[ci];
-          if (Columns(c).Reqd(Model()))
-            {
-            if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
               DoneGap = true;
-            if (Columns(c).ForCum() && !DoneCumGap)
-              {
-              DoneCumGap = true;
-              if (DoneGap)
-                {
-                SetSpace(L, 1);
-                SetDesc(L, SD_Defn.YQmCnv.Text(), 0, 12, 0, "");
-                //SetSpace(L, 2+10+1);
-                }
-              }
-            if (Columns(c).iSpId>=0)
-              {
-              SetParm(L, "", Id_YQmTtl+c, ColWidth, 2, "");
-              Tg.Set("%s.QmTtl.%s", FullObjTag(), Columns(c).sSpName());
-              SetTag(Tg(), SD_Defn.YQmCnv.Text());
-              }
-            else
-              SetSpace(L, ColWidth);
-            }
-          }
-        SetSpace(L, 1);
-        SetDesc(L, SD_Defn.YQmCnv.Text(), 0, 16, 0, "");
-        L++;
-        }
-
-      //..
-      DoneGap=false;
-      DoneCumGap=false;
-      SetSpace(L, 4);
-      for (ci=0; ci<NColmns; ci++)
-        {
-        int c=DDefn.DispColIndices[ci];
-        if (Columns(c).Reqd(Model()))
-          {
-          if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
-            {
-            DoneGap = true;
-            SetDesc(L, SD_Defn.XCnv.Text(),  -1, 10,  2, " ");
-            }
-          if (Columns(c).ForCum() && !DoneCumGap)
-            {
-            DoneCumGap = true;
-            SetSpace(L, 2);
-            SetDesc(L, SD_Defn.XCnv.Text(),  -1, 10,  2, " ");
-            }
-          SetDesc(L, Columns(c).pCnv->Text(),  -1, ColWidth,  2, "");
-          }
-        }
-
-      //..
-      const int Intr = D().NIntervals();
-      int iSz=fSzAscend ? 0 : Intr-1;
-      int inc=fSzAscend ? 1 : -1;
-      for ( ; iSz>=0 && iSz<Intr; iSz+=inc)
-        {
-        L++;
-        S.Set("I%i", iSz);
-        SetDesc(L, S(), -1 , 4, 3, "");
-        DoneGap=false;
-        DoneCumGap=false;
-        for (int ci=0; ci<NColmns; ci++)
-          {
-          int c=DDefn.DispColIndices[ci];
-          if (Columns(c).Reqd(Model()))
-            {
-            if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
-              {
-              DoneGap = true;
-              SetParm(L, "",  Id_XIntRng, 10, 2, " ");
-              Tg.Set("%s.%s.%s", FullObjTag(), S(), "SzRange");
-              SetTag(Tg(), SD_Defn.XCnv.Text());
+              SetDesc(L, SD_Defn.XCnv.Text(),  -1, 10,  2, " ");
               }
             if (Columns(c).ForCum() && !DoneCumGap)
               {
               DoneCumGap = true;
               SetSpace(L, 2);
-              SetParm(L, "",  Id_XInt, 10, 2, " ");
-              Tg.Set("%s.%s.%s", FullObjTag(), S(), "Size");
-              SetTag(Tg(), SD_Defn.XCnv.Text());
+              SetDesc(L, SD_Defn.XCnv.Text(),  -1, 10,  2, " ");
               }
-            SetParm(L, "",  Id_YData+c, ColWidth, 2, "");
-            Tg.Set("%s.%s.%s", FullObjTag(), S(), Columns(c).sFullName());
-            SetTag(Tg(), Columns(c).pCnv->Text());
+            SetDesc(L, Columns(c).pCnv->Text(),  -1, ColWidth,  2, "");
             }
           }
         }
-      if (GraphOn())
+
+      //..
+      if (MultOre)
         {
-        //...
-        L++;
+        const int Intr = D().NIntervals();
+        int iSz=fSzAscend ? 0 : Intr-1;
+        int inc=fSzAscend ? 1 : -1;
+        for ( ; iSz>=0 && iSz<Intr; iSz+=inc)
+          {
+          L++;
+          S.Set("I%i", iSz);
+          SetDesc(L, S(), -1 , 4, 3, "");
+          DoneGap=false;
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneGap)
+                {
+                DoneGap = true;
+                SetParm(L, "",  Id_XIntRng, 10, 2, " ");
+                Tg.Set("%s.%s.%s", FullObjTag(), S(), "SzRange");
+                SetTag(Tg(), SD_Defn.XCnv.Text());
+                }
+              if (!Columns(c).ForCum())
+                {
+                SetParm(L, "",  Id_YData+c, ColWidth, 2, "");
+                Tg.Set("%s.%s.%s", FullObjTag(), S(), Columns(c).sFullName());
+                SetTag(Tg(), Columns(c).pCnv->Text());
+                }
+              }
+            }
+          }
+        if (GraphOn())
+          {
+          //...
+          L++;
+          DoneGap=false;
+          SetDesc(L, "Grf On",  -1, 14,  1, " ");
+          const int FirstPen=3;
+          int iPen=FirstPen;
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneGap)
+                DoneGap = true;
+              if (!Columns(c).ForCum())
+                {
+                //SetButton(L, Columns(c).GrfOn() ? " On>Off " : " Off>On ", Id_YGrfOn+c, ColWidth-2, 0, "  ");
+                SetButton(L, Columns(c).GrfOn() ? "  On>Off  " : "  Off>On  ", Id_YGrfOn+c, ColWidth, 0, "");
+                iPen++;
+                }
+              }
+            }
+
+          //...
+          L++;
+          DoneGap=false;
+          SetDesc(L, "Disp_Max",  -1, 14,  1, " ");
+          for (ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneGap)
+                DoneGap = true;
+              if (!Columns(c).ForCum())
+                {
+                SetParm(L, "", Id_YFMax+c, ColWidth, 2, "");
+                }
+              }
+            }
+          }
+        }
+      else
+        {
+        const int Intr = D().NIntervals();
+        int iSz=fSzAscend ? 0 : Intr-1;
+        int inc=fSzAscend ? 1 : -1;
+        for ( ; iSz>=0 && iSz<Intr; iSz+=inc)
+          {
+          L++;
+          S.Set("I%i", iSz);
+          SetDesc(L, S(), -1 , 4, 3, "");
+          DoneGap=false;
+          DoneCumGap=false;
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
+                {
+                DoneGap = true;
+                SetParm(L, "",  Id_XIntRng, 10, 2, " ");
+                Tg.Set("%s.%s.%s", FullObjTag(), S(), "SzRange");
+                SetTag(Tg(), SD_Defn.XCnv.Text());
+                }
+              if (Columns(c).ForCum() && !DoneCumGap)
+                {
+                DoneCumGap = true;
+                SetSpace(L, 2);
+                SetParm(L, "",  Id_XInt, 10, 2, " ");
+                Tg.Set("%s.%s.%s", FullObjTag(), S(), "Size");
+                SetTag(Tg(), SD_Defn.XCnv.Text());
+                }
+              SetParm(L, "",  Id_YData+c, ColWidth, 2, "");
+              Tg.Set("%s.%s.%s", FullObjTag(), S(), Columns(c).sFullName());
+              SetTag(Tg(), Columns(c).pCnv->Text());
+              }
+            }
+          }
+        if (GraphOn())
+          {
+          //...
+          L++;
+          DoneGap=false;
+          DoneCumGap=false;
+          SetDesc(L, "Grf On",  -1, 14,  1, " ");
+          const int FirstPen=3;
+          int iPen=FirstPen;
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
+                DoneGap = true;
+              if (Columns(c).ForCum() && !DoneCumGap)
+                {
+                DoneCumGap = true;
+                if (DoneGap)
+                  SetSpace(L, 2+10+1);
+                }
+              //SetButton(L, Columns(c).GrfOn() ? " On>Off " : " Off>On ", Id_YGrfOn+c, ColWidth-2, 0, "  ");
+              SetButton(L, Columns(c).GrfOn() ? "  On>Off  " : "  Off>On  ", Id_YGrfOn+c, ColWidth, 0, "");
+              iPen++;
+              }
+            }
+
+          //...
+          L++;
+          DoneGap=false;
+          DoneCumGap=false;
+          SetDesc(L, "Disp_Max",  -1, 14,  1, " ");
+          for (ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
+                DoneGap = true;
+              if (Columns(c).ForCum() && !DoneCumGap)
+                {
+                DoneCumGap = true;
+                if (DoneGap)
+                  SetSpace(L, 2+10+1);
+                }
+              SetParm(L, "", Id_YFMax+c, ColWidth, 2, "");
+              }
+            }
+          }
+        }
+
+      }
+      
+    //Cumulative data...
+    if (MultOre)
+    if (1) // Cum Data Blk
+      {
+      int L=0;
+      int HedLen = 3;
+      if (rSD.pModel->UseAsFlow())
+        HedLen++;
+      int BlkLen = D().NIntervals() + HedLen + 1;
+      if (GraphOn())
+        BlkLen+=2;
+      StartBlk(BlkLen, HedLen, NULL);
+      L=0;
+
+      if (MultOre)
+        {
+        //heading...
         DoneGap=false;
-        DoneCumGap=false;
-        SetDesc(L, "Grf On",  -1, 14,  1, " ");
-        const int FirstPen=3;
-        int iPen=FirstPen;
-        for (ci=0; ci<NColmns; ci++)
+        SetSpace(L, 4);
+        for (int ci=0; ci<NColmns; ci++)
           {
           int c=DDefn.DispColIndices[ci];
           if (Columns(c).Reqd(Model()))
             {
-            if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
-              DoneGap = true;
-            if (Columns(c).ForCum() && !DoneCumGap)
+            if (Columns(c).ForCum() && !DoneGap)
               {
-              DoneCumGap = true;
-              if (DoneGap)
-                SetSpace(L, 2+10+1);
+              DoneGap=true;
+              SetDesc(L, "Size", -1, 10, 1, " ");
               }
-            //SetButton(L, Columns(c).GrfOn() ? " On>Off " : " Off>On ", Id_YGrfOn+c, ColWidth-2, 0, "  ");
-            SetButton(L, Columns(c).GrfOn() ? "  On>Off  " : "  Off>On  ", Id_YGrfOn+c, ColWidth, 0, "");
-            iPen++;
+            if (Columns(c).ForCum())
+              {
+              S=Columns(c).sName();
+              S+=':';
+              S.SetLength(Min(S.Length(), ColWidth));
+              SetDesc(L, S(), -1, ColWidth, 1, "");
+              }
+            }
+          }
+        L++;
+
+        DoneGap=false;
+        SetDesc(L, "Int",  -1, 4,  1, "");
+        for (int ci=0; ci<NColmns; ci++)
+          {
+          int c=DDefn.DispColIndices[ci];
+          if (Columns(c).Reqd(Model()))
+            {
+            if (Columns(c).ForCum() && !DoneGap)
+              {
+              DoneGap=true;
+              SetDesc(L, "", -1, 10, 1, " ");
+              }
+            if (Columns(c).ForCum())
+              {
+              S=Columns(c).sSpName();
+              S.SetLength(Min(S.Length(), ColWidth));
+              SetDesc(L, S(), -1, ColWidth, 1, "");
+              }
+            }
+          }
+        L++;
+
+        if (rSD.pModel->UseAsFlow())
+          {
+          //...
+          DoneGap=false;
+          S.Set("Qm Total(%s)", SD_Defn.YQmCnv.Text());
+          SetDesc(L, S(), -1, 14, 2, " ");
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (Columns(c).ForCum() && !DoneGap)
+                DoneGap = true;
+              if (Columns(c).ForCum())
+                {
+                if (Columns(c).iSpId>=0)
+                  {
+                  FxdEdtFld* fef = SetParm(L, "", Id_YQmTtl+c, ColWidth, 2, "");
+                  Tg.Set("%s.QmTtl.%s", FullObjTag(), Columns(c).sSpName());
+                  //pView->SetTag(Tg(), SD_Defn.YQmCnv.Text());
+                  SetTag(Tg(), SD_Defn.YQmCnv.Text());
+                  }
+                else
+                  SetSpace(L, ColWidth);
+                }
+              }
+            }
+          SetSpace(L, 1);
+          SetDesc(L, SD_Defn.YQmCnv.Text(), 0, 16, 0, "");
+          L++;
+          }
+
+        //..
+        DoneGap=false;
+        SetSpace(L, 4);
+        for (int ci=0; ci<NColmns; ci++)
+          {
+          int c=DDefn.DispColIndices[ci];
+          if (Columns(c).Reqd(Model()))
+            {
+            if (Columns(c).ForCum() && !DoneGap)
+              {
+              DoneGap = true;
+              SetDesc(L, SD_Defn.XCnv.Text(),  -1, 10,  2, " ");
+              }
+            if (Columns(c).ForCum())
+              {
+              SetDesc(L, Columns(c).pCnv->Text(),  -1, ColWidth,  2, "");
+              }
             }
           }
 
-        //...
-        L++;
-        DoneGap=false;
-        DoneCumGap=false;
-        SetDesc(L, "Disp_Max",  -1, 14,  1, " ");
-        for (ci=0; ci<NColmns; ci++)
+        //..
+        const int Intr = D().NIntervals();
+        int iSz=fSzAscend ? 0 : Intr-1;
+        int inc=fSzAscend ? 1 : -1;
+        for ( ; iSz>=0 && iSz<Intr; iSz+=inc)
           {
-          int c=DDefn.DispColIndices[ci];
-          if (Columns(c).Reqd(Model()))
+          L++;
+          S.Set("I%i", iSz);
+          SetDesc(L, S(), -1 , 4, 3, "");
+          DoneGap=false;
+          for (int ci=0; ci<NColmns; ci++)
             {
-            if (!Columns(c).ForCum() && !DoneCumGap && !DoneGap)
-              DoneGap = true;
-            if (Columns(c).ForCum() && !DoneCumGap)
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
               {
-              DoneCumGap = true;
-              if (DoneGap)
-                SetSpace(L, 2+10+1);
+              if (Columns(c).ForCum() && !DoneGap)
+                {
+                DoneGap = true;
+                SetParm(L, "",  Id_XInt, 10, 2, " ");
+                Tg.Set("%s.%s.%s", FullObjTag(), S(), "Size");
+                SetTag(Tg(), SD_Defn.XCnv.Text());
+                }
+              if (Columns(c).ForCum())
+                {
+                SetParm(L, "",  Id_YData+c, ColWidth, 2, "");
+                Tg.Set("%s.%s.%s", FullObjTag(), S(), Columns(c).sFullName());
+                SetTag(Tg(), Columns(c).pCnv->Text());
+                }
               }
-            SetParm(L, "", Id_YFMax+c, ColWidth, 2, "");
+            }
+          }
+        if (GraphOn())
+          {
+          //...
+          L++;
+          DoneGap=false;
+          SetDesc(L, "Grf On",  -1, 14,  1, " ");
+          const int FirstPen=3;
+          int iPen=FirstPen;
+          for (int ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (Columns(c).ForCum() && !DoneGap)
+                DoneGap = true;
+              if (Columns(c).ForCum())
+                {
+                //SetButton(L, Columns(c).GrfOn() ? " On>Off " : " Off>On ", Id_YGrfOn+c, ColWidth-2, 0, "  ");
+                SetButton(L, Columns(c).GrfOn() ? "  On>Off  " : "  Off>On  ", Id_YGrfOn+c, ColWidth, 0, "");
+                iPen++;
+                }
+              }
+            }
+
+          //...
+          L++;
+          DoneGap=false;
+          SetDesc(L, "Disp_Max",  -1, 14,  1, " ");
+          for (ci=0; ci<NColmns; ci++)
+            {
+            int c=DDefn.DispColIndices[ci];
+            if (Columns(c).Reqd(Model()))
+              {
+              if (Columns(c).ForCum() && !DoneGap)
+                DoneGap = true;
+              if (Columns(c).ForCum())
+                {
+                SetParm(L, "", Id_YFMax+c, ColWidth, 2, "");
+                }
+              }
             }
           }
         }
+
       }
     
     if (1) // Base Blk
@@ -3488,12 +3842,14 @@ void SQSzDist1Edt::Load(FxdEdtInfo &EI, Strng & Str)
               }
           break;
           }
+        #if WithSauterMeanD
         case Id_RqdSauterl32:
           {
           //KGAFIX
           Str="Set";
           break;
           }
+        #endif
         }
       }
 
@@ -3581,6 +3937,49 @@ void SQSzDist1Edt::Load(FxdEdtInfo &EI, Strng & Str)
 			      }
         }
       }
+    const flag MultOre = (NColumns() && !Columns(0).SimpleNames());
+    if (MultOre)
+    if (CurrentBlk(EI))
+      {//cum data
+      int p=EI.PageNo;
+      int i=(int)(EI.BlkRowNo-EI.Index);
+      switch (EI.FieldId)
+        {
+        case Id_XIntRng:
+        case Id_XInt:
+          GetRangeLbl(i, Str, EI.FieldId==Id_XIntRng);
+          EI.Fld->fEditable=false;
+          break;
+        default:
+          if (EI.FieldId>=Id_YData && EI.FieldId<Id_YData+MaxColumns)
+            {
+            if (!fSzAscend)
+              i = D().rIntervals.GetUpperBound()-i;
+            const int c = EI.FieldId-Id_YData;
+            CSD_Column &C = Columns(c);
+            const double dd = GetYData(C, i);
+            C.pFmt->FormatFloat(C.pCnv->Human(dd), Str);
+            EI.Fld->fEditable = (C.Editable() && C.iSpId>=0 && rSD.fAllowSizeEdits);
+            }
+          else if (EI.FieldId>=Id_YQmTtl && EI.FieldId<Id_YQmTtl+NColumns())
+            {
+            CSD_Column &C=Columns(EI.FieldId-Id_YQmTtl);
+            SD_Defn.YQmFmt.FormatFloat(SD_Defn.YQmCnv.Human(D().GetMass(&rSD.pModel->m_Ovr, rSD.pModel->MArray(), C.iSpId)), Str);
+            EI.Fld->fEditable = false;
+			      }
+          else if (EI.FieldId>=Id_YMin && EI.FieldId<Id_YMin+NColumns())
+            {
+            CSD_Column &C=Columns(EI.FieldId-Id_YMin);
+            C.pFmt->FormatFloat(C.pCnv->Human(C.dDispMin), Str);
+			      }
+          else if (EI.FieldId>=Id_YFMax && EI.FieldId<Id_YFMax+NColumns())
+            {
+            CSD_Column &C=Columns(EI.FieldId-Id_YFMax);
+            C.pFmt->FormatFloat(C.pCnv->Human(C.dFDispMax), Str);
+            EI.Fld->fEditable = (!AutoScale());
+			      }
+        }
+      }
     if (CurrentBlk(EI))
       {//other
       switch (EI.FieldId)
@@ -3598,7 +3997,7 @@ void SQSzDist1Edt::Load(FxdEdtInfo &EI, Strng & Str)
           EI.Fld->fEditable=false;
           break;
         case Id_IntervalCnt : 
-          Str.Set("%i", D().NIntervals());
+          Str.Set("%i", D().NIntervals());//SD_Defn.GetDist(d)->NIntervals());
           EI.Fld->fEditable=false; 
           break;
         }
@@ -3663,7 +4062,6 @@ void SQSzDist1Edt::Load(FxdEdtInfo &EI, Strng & Str)
 
   }
 
-
 //---------------------------------------------------------------------------
 
 long SQSzDist1Edt::Parse(FxdEdtInfo &EI, Strng & Str)
@@ -3714,6 +4112,7 @@ long SQSzDist1Edt::Parse(FxdEdtInfo &EI, Strng & Str)
           break;
 
           }
+        #if WithSauterMeanD
         case Id_RqdSauterl32:
           {
 //          D().rIntervals.GetUpperBound()-i;
@@ -3737,6 +4136,7 @@ long SQSzDist1Edt::Parse(FxdEdtInfo &EI, Strng & Str)
           //??
           break;
           }
+        #endif
         }
       }
     
@@ -3747,6 +4147,51 @@ long SQSzDist1Edt::Parse(FxdEdtInfo &EI, Strng & Str)
 
     if (CurrentBlk(EI))
       {//data
+      int p=EI.PageNo;
+      int i=(int)(EI.BlkRowNo-EI.Index);
+      switch (EI.FieldId)
+        {
+        case Id_XIntRng :
+          /*sprintf(Str, "%g", D().rIntervals[i]); */ 
+          break;
+        case Id_XInt :
+          /*sprintf(Str, "%g", D().rIntervals[i]); */ 
+          break;
+        default:
+          if (!fSzAscend)
+            i=D().rIntervals.GetUpperBound()-i;
+          if (EI.FieldId>=Id_YData && EI.FieldId<Id_YData+NColumns())
+            {
+            const int c = EI.FieldId-Id_YData;
+            CSD_Column &C=Columns(c);
+            const double dd = C.pCnv->Normal(SafeAtoF(Str, 0.0));
+            SetYData(C, i, dd); 
+            View().DoReload();
+            }
+          else if (EI.FieldId>=Id_YQmTtl && EI.FieldId<Id_YQmTtl+NColumns())
+            {
+            //CSD_Column &C=Columns(EI.FieldId-Id_YQmTtl);
+            //C.dFDispMax=C.pCnv->Normal(SafeAtoF(Str, 1.0));
+            //View().DoReload();
+            }
+          else if (EI.FieldId>=Id_YMin && EI.FieldId<Id_YMin+NColumns())
+            {
+				    CSD_Column &C=Columns(EI.FieldId-Id_YMin);
+            C.dDispMin=C.pCnv->Normal(SafeAtoF(Str, 0.0));
+            View().DoReload();
+            }
+          else if (EI.FieldId>=Id_YFMax && EI.FieldId<Id_YFMax+NColumns())
+            {
+            CSD_Column &C=Columns(EI.FieldId-Id_YFMax);
+            C.dFDispMax=C.pCnv->Normal(SafeAtoF(Str, 1.0));
+            View().DoReload();
+            }
+        }
+      }
+    const flag MultOre = (NColumns() && !Columns(0).SimpleNames());
+    if (MultOre)
+    if (CurrentBlk(EI))
+      {//cum data
       int p=EI.PageNo;
       int i=(int)(EI.BlkRowNo-EI.Index);
       switch (EI.FieldId)
@@ -4011,6 +4456,22 @@ long SQSzDist1Edt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         }
 #endif
 
+      if (EI.FieldId>=Id_YGrfOn && EI.FieldId<Id_YGrfOn+NColumns())
+        {
+        CSD_Column &C=Columns(EI.FieldId-Id_YGrfOn);
+        C.SetGrfOn(!C.GrfOn());
+        //View().DoReload();
+        View().DoRebuild();
+        Fix=1;
+        }
+      }
+
+    const flag MultOre = (NColumns() && !Columns(0).SimpleNames());
+    if (MultOre)
+    if (CurrentBlk(EI))
+      {//data cum
+      int p=EI.PageNo;
+      int i=(int)(EI.BlkRowNo-EI.Index);
       if (EI.FieldId>=Id_YGrfOn && EI.FieldId<Id_YGrfOn+NColumns())
         {
         CSD_Column &C=Columns(EI.FieldId-Id_YGrfOn);
