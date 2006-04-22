@@ -1266,7 +1266,6 @@ CExecutive::CExecutive() :
 
   Ids=0;
 
-
   pExecThread=NULL;
   pSolveTool=NULL;
 
@@ -1379,6 +1378,8 @@ CExecutive::CExecutive() :
   LastLowerPriority=0;
 
   m_DBFormat=DBConnect_JET2000;
+
+  m_sHstTaglistFolder = PrjFiles();
   };
 
 //---------------------------------------------------------------------------

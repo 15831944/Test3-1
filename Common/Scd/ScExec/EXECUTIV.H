@@ -1063,10 +1063,11 @@ class DllImportExport CExecutive : public ConditionBlk
 
     CLDBStuff      m_LDB;
 
+    Strng          m_sHstTaglistFolder;
     Strng          m_sHstTaglistFilename;
-	  flag           m_bHstRestartOnStart;
+    flag           m_bHstRestartOnStart;
     flag           m_bHstSetTaglistOnStart;
-	  flag           m_bResetTimeOnStart;
+    flag           m_bResetTimeOnStart;
     double         m_dOnStartTime;
 
     double         m_dRunTime;
@@ -1167,6 +1168,8 @@ class DllImportExport CExecutive : public ConditionBlk
     double         GetDynProgress() { return m_dDynProgress; };
     void           SetDynProgress(double DynProgress) { m_dDynProgress = DynProgress; };
 
+    char*          HstTaglistFolder() { return m_sHstTaglistFolder(); };
+    void           SetHstTaglistFolder(char* HstTaglistFolder) { m_sHstTaglistFolder=HstTaglistFolder; };
     char*          HstTaglistFile() { return m_sHstTaglistFilename(); };
     void           SetHstTaglistFile(char* HstTaglistFilename) { m_sHstTaglistFilename=HstTaglistFilename; };
     flag           HstRestartOnStart() { return m_bHstRestartOnStart; };

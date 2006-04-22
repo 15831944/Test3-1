@@ -345,7 +345,10 @@ XID xidGlblSWFlw0                     = FlwXID(4000);
 XID xidGlblSWFlwTot0                  = FlwXID(4500);
 
 XID xidHistTagFile                    = FlwXID(5125);
-XID xidHistSetTagsNow                 = FlwXID(5126);
+XID xidHistTagFolder                  = FlwXID(5126);
+XID xidHistTagEdit                    = FlwXID(5127);
+XID xidHistTagBrowse                  = FlwXID(5128);
+XID xidHistSetTagsNow                 = FlwXID(5129);
 
 XID xidGenVerStr                      = FlwXID(5130);
 XID xidGenUpdateVerStr                = FlwXID(5131);
@@ -6388,15 +6391,23 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("EventLogIteration", "", DC_,       "",   &gs_EventLog.lIteration, &FlwSlvNd, isResult|InitHidden);
     DDB.Double("EventLogStartTime", "", DC_Time,   "s",  &gs_EventLog.dStartTime, &FlwSlvNd, isResult|noView);
     DDB.Text  ("");
-    DDB.String("HistorianTagFile",  "", DC_,       "",   xidHistTagFile,          &FlwSlvNd, isParm);
-    DDB.Button("Set_TagList_Now",   "", DC_,       "",   xidHistSetTagsNow,       &FlwSlvNd, isParm);
-    DDB.Text  ("");
     DDB.Text  ("At startup...");
     DDB.CheckBoxBtn("RestartHistorian", "", DC_,   "",   xidAtStartRestartHist,   &FlwSlvNd, isParm, DDBOnOff);
     DDB.CheckBoxBtn("SetHistorianTagList", "", DC_, "",  xidAtStartSetHistTags,   &FlwSlvNd, isParm, DDBOnOff);
     DDB.CheckBoxBtn("ResetTime",    "", DC_,       "",   xidAtStartResetTime,     &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm, DDBOnOff);
     DDB.String("TimeAtStart",       "", DC_,       "",   xidAtStartTime,          &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm);
 
+    DDB.Text  ("");
+    if (DDB.BeginStruct(&FlwSlvNd, "HistorianTagList", NULL, DDB_NoPage))
+      {
+      //DDB.Text  ("Historian Tag List...");
+      DDB.String("Folder",            "", DC_,       "",   xidHistTagFolder,        &FlwSlvNd, isResult);
+      DDB.String("File",              "", DC_,       "",   xidHistTagFile,          &FlwSlvNd, isParm);
+      DDB.Button("Edit",              "", DC_,       "",   xidHistTagEdit,          &FlwSlvNd, isParm);
+      DDB.Button("Browse",            "", DC_,       "",   xidHistTagBrowse,        &FlwSlvNd, isParm);
+      DDB.Button("Set_TagList_Now",   "", DC_,       "",   xidHistSetTagsNow,       &FlwSlvNd, isParm);
+      }
+    DDB.EndStruct();
 
     DDB.Page  ("SS Monitor", DDB_RqdPage);
     static DDBValueLst DDBSSTests[]={
@@ -6757,14 +6768,105 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         gs_EventLog.SetUseLog(*DCB.rB ? 1 : 0);
       DCB.B=gs_EventLog.UsingLog();
       return 1;
+    case xidHistTagFolder:
+      {
+      Strng Path(gs_Exec.HstTaglistFolder());
+      if (DCB.rpC)
+        {
+        Path = DCB.rpC;
+        Path.FnContract();
+        gs_Exec.SetHstTaglistFolder(DCB.rpC);
+        }
+      if (DCB.ForFileSnpScn())
+        {
+        Path.FnContract();//ensure it is always in contract form!
+        }
+      else
+        {
+        if (SymbolicPaths())
+          Path.FnContract();
+        else
+          Path.FnExpand();
+        }
+      m_sDispHistTagListPath = Path();
+      DCB.pC = m_sDispHistTagListPath();
+      return 1;
+      }
     case xidHistTagFile:
       if (DCB.rpC)
         gs_Exec.SetHstTaglistFile(DCB.rpC);
       DCB.pC=gs_Exec.HstTaglistFile();
       return 1;
+    case xidHistTagEdit:
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        Strng FullFilename;
+        HANDLE hProcess = NULL;
+        DWORD dwProcessId = 0;
+        Strng File(gs_Exec.HstTaglistFile());
+        if (File.Len()==0)
+          {
+          File = "HistTagList.txt";
+          gs_Exec.SetHstTaglistFolder(PrjFiles());
+          gs_Exec.SetHstTaglistFile(File());
+          FullFilename = gs_Exec.HstTaglistFolder();
+          FullFilename.FnExpand();
+          FullFilename += File();
+          FILE* f = fopen(FullFilename(), "wt");
+          if (f)
+            {
+            char Buff[2048];
+            strcpy(Buff, "Tag\n");
+            fwrite(Buff, sizeof(char), strlen(Buff), f);
+            fclose(f);
+            }
+          FullFilename = "";
+          }
+        Strng Path(gs_Exec.HstTaglistFolder());
+        int RetCode = DCB.DoEditBtn(hProcess, dwProcessId, Path(), File(), NULL, &FullFilename, true);
+        if (RetCode==-1)
+          {
+          FILE* f = fopen(FullFilename(), "wt");
+          if (f)
+            {
+            char Buff[2048];
+            strcpy(Buff, "Tag\n");
+            fwrite(Buff, sizeof(char), strlen(Buff), f);
+            fclose(f);
+            }
+          RetCode = DCB.DoEditBtn(hProcess, dwProcessId, Path(), File(), NULL);
+          }
+        }
+      DCB.B=0;
+      return 1;
+    case xidHistTagBrowse:
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        Strng Path(gs_Exec.HstTaglistFolder());
+        Strng File(gs_Exec.HstTaglistFile());
+        DCB.DoBrowseBtn(NULL/*"csv"*/, "SysCAD Historian Tag List", Path, File);
+        gs_Exec.SetHstTaglistFolder(Path());
+        gs_Exec.SetHstTaglistFile(File());
+        }
+      DCB.B=0;
+      return 1;
     case xidHistSetTagsNow:
       if (DCB.rB && (*DCB.rB!=0))
-        gs_Exec.KeepHistoryFile(gs_Exec.HstTaglistFile());
+        {
+        Strng File(gs_Exec.HstTaglistFile());
+        if (File.Len()>0)
+          {
+          Strng FullFilename(gs_Exec.HstTaglistFolder());
+          if (FullFilename.Len()==0)
+            {
+            FullFilename = PrjFiles();
+            gs_Exec.SetHstTaglistFolder(FullFilename());
+            }
+          FullFilename.FnExpand();
+          FullFilename += File();
+          gs_Exec.KeepHistoryFile(FullFilename());
+          }
+        }
       DCB.B=0;
       return 1;
     case xidAtStartRestartHist:
@@ -10256,6 +10358,23 @@ void CFlwSolver::SetState(eScdMdlStateActs RqdState)
         }
       break;
     }
+  }
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::FilesUsed(CFilesUsedArray & Files)
+  {
+  int Cnt = 0;
+  Strng File(gs_Exec.HstTaglistFile());
+  if (File.Len()>0)
+    {
+    Strng Fn(gs_Exec.HstTaglistFolder());
+    Fn.FnExpand();
+    Fn += File();
+    Files.AddFile(Fn(), FU_CopyFile|FU_EditTxt);
+    Cnt++;
+    }
+  return Cnt;
   }
 
 //--------------------------------------------------------------------------

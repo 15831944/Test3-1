@@ -4019,7 +4019,19 @@ flag Project::EO_PrePreStart()
     }
   if (gs_Exec.HstSetTaglistOnStart())
     {
-    gs_Exec.KeepHistoryFile(gs_Exec.HstTaglistFile());
+    Strng File(gs_Exec.HstTaglistFile());
+    if (File.Len()>0)
+      {
+      Strng FullFilename(gs_Exec.HstTaglistFolder());
+      if (FullFilename.Len()==0)
+        {
+        FullFilename = PrjFiles();
+        gs_Exec.SetHstTaglistFolder(FullFilename());
+        }
+      FullFilename.FnExpand();
+      FullFilename += File();
+      gs_Exec.KeepHistoryFile(FullFilename());
+      }
     }
   if (ScrollTrendsToEnd)
     CTagVwDoc::AdjustTimebaseToEndAll();

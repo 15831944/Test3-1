@@ -2185,36 +2185,36 @@ Build 115 : 14 July 2005
    specie model) as the reference model for internal heat of reaction (HOR)
    calculations. The new option "StdRefModel" can be checked to force the use of
    the "standard" model. IMPORTANT NOTE: Depending on reactions and reaction
-   configuration, old projects loaded in this Build could result in different
+   configuration, old projects loaded in this Build could result in different 
    reaction output conditions.
 2) (#208) Added an option in reactions where a reference temperature and pressure
    for HOR can be specified. The pressure is separated by a , and is optional.
-   (eg HeatOfReaction : msFixed = -897.87 / NiS(s) At 25,101.325) If reference
-   temperature is not specified then reaction feed temperature (and pressure)
+   (eg HeatOfReaction : msFixed = -897.87 / NiS(s) At 25,101.325) If reference 
+   temperature is not specified then reaction feed temperature (and pressure) 
    is assumed (this is behaviour in previous versions). Other valid
-   options for specifying HOR temperature and pressure are "Feed", "Prod" and
+   options for specifying HOR temperature and pressure are "Feed", "Prod" and 
    "Std" (eg "HeatOfReaction: msFixed = -125/Na2CO3(l) At Feed")
-3) In reactions added a new option "ExtraInfo" which can be used to remove a
+3) In reactions added a new option "ExtraInfo" which can be used to remove a 
    number of tags previously shown in reactions.
 4) Further improvements in the Audit report, especially in terms of reaction
    energy balances.
 5) (#178) Implemented functionality where blocks of tags that are of no interest
-   in your project can be globaly removed. Because these tags don't exist, they
-   are not visible and the access windows are shorter and neater without the
+   in your project can be globaly removed. Because these tags don't exist, they 
+   are not visible and the access windows are shorter and neater without the 
    unwanted data. The other important benefit if this is a significantly improved
    speed performance for tag access (eg PGM and PID tag references, etc). This
-   functionality also allows user to configure what views for specie lists are
+   functionality also allows user to configure what views for specie lists are 
    available.
-6) Changed layout of RB, EHX and VLE in terms of the check boxes and sequence of
-   tab pages (each always on their own page) to be consistent in all models. Note
+6) Changed layout of RB, EHX and VLE in terms of the check boxes and sequence of 
+   tab pages (each always on their own page) to be consistent in all models. Note 
    that if RB and EHX are both present, that EHX occurs after reactions.
-7) (#183) Added ability to allow EHX in a tie model (Dynamic and ProBal). Added
+7) (#183) Added ability to allow EHX in a tie model (Dynamic and ProBal). Added 
    ability to allow EHX in a tank model in ProBal mode.
 8) In the pipe model, you can select the sequence of action for RB and EHX.
    Historically the sequence was EHX then RB, the default for new projects will
    now be RB then EHX.
 9) (#176) Most fields that may accept a '*' (NAN) as a valid data entry now have
-   a dropdown list display with a short description of what '*' represents. For
+   a dropdown list display with a short description of what '*' represents. For 
    data entry, a '*' is still a valid input as well as the string or index value.
 10) (#189) All Bayer specie model feed calculators now operate correctly if vapours
     or other liquids are included in the makeup.
@@ -2223,23 +2223,23 @@ Build 115 : 14 July 2005
     or pipe spills. A usefull option for "debugging" spills is where SysCAD goes to
     idle mode (pauses) when a spill occurs so that you can review the cause of the
     problem.
-13) The option "PlantModel.ClosureTests" has been extended similar to the new
-    PlantModel.SpillReporting option. Generally this would be off, but can be
+13) The option "PlantModel.ClosureTests" has been extended similar to the new 
+    PlantModel.SpillReporting option. Generally this would be off, but can be 
     switched on for checking mass and energy balance (closure) tests in models
     each iteration.
 14) Added option "PlantModel.RandomSeedAtStart" which can be used to seed the
     random number generator at the start of a simulation run. Use "*" to use a
     random seed.
-15) In the dyanmic setup dialog, improved method for setting real time, iteration
+15) In the dyanmic setup dialog, improved method for setting real time, iteration 
     time and step size.
-16) (#251) For dynamic mode, implemented an option where the start time can be set at
+16) (#251) For dynamic mode, implemented an option where the start time can be set at 
     startup, as well as restarting the historian.
 17) Improved status bar displays of progress for ProBal and Dynamic solve.
 18) (#272) Implemented a new option in insert link and redraw link to leave a break in the
     line. This can be done by holding down the Ctrl key while selecting a point or
     by first selecting the new 'Break' button. Changed the 'Orthogonal' and 'Free'
     drawing mode buttons.
-19) (#273) Implemented a new option in insert link and redraw link to select an
+19) (#273) Implemented a new option in insert link and redraw link to select an 
     'arrow drawing rule'.
 20) (#273) Improved redraw link to operate similar to insert link.
 21) (#279) Fix for moving "dumb" graphics line segment.
@@ -2247,8 +2247,8 @@ Build 115 : 14 July 2005
 23) (#262) Improvement and clarity in options for setting values for a manual tear.
 24) (#214) Do not allow historian 'stop gap' to be very small as this prevents correct
     storage of start and stop values in historian.
-25) (#214) For the historian equally spaced average values Trend report, the first
-    data points returned at time 'zero' are the current values at that time, all
+25) (#214) For the historian equally spaced average values Trend report, the first 
+    data points returned at time 'zero' are the current values at that time, all 
     subsequent points are average values for preceeding time interval.
 26) Added a new optional field "MolecularDiam" to the specie database. The optional
     fields are "MolecularDiam", "MolarVol" and "CpCv". If this data is entered it may
@@ -2258,15 +2258,15 @@ Build 115 : 14 July 2005
     individual species.
 28) (#293) Added test for temperature cross-over for "loss to ambient" methods in
     EHX used in units (eg tanks, ties).
-29) Shell&Tube Heat exchanger changes: Added new field "UALMTD" which is the
+29) Shell&Tube Heat exchanger changes: Added new field "UALMTD" which is the 
     theoretical duty which is not always equal to the actual duty. Added new
     field "ThearArea" which displays the theoretical area required based on HTC,
     actual LMTD and duty. If not in fully condensing mode, there is now an option
     to specify "ApproachDT".
 30) For shell&tube in condensing mode, added a new option to set the fraction of
-    non-condensable gases to be vented. Added new field to display how much
+    non-condensable gases to be vented. Added new field to display how much 
     steam is actually condensed. (#249) Error message is now provided when there is
-    steam present in the condensate outlet stream. Fixed problem where too much
+    steam present in the condensate outlet stream. Fixed problem where too much 
     steam was condensed (this occurred where duty was higher than maximum available
     duty defined by U*A*LMTD). For backward compatibility, added option "IgnoreAreaLimit"
     which allows extra steam to be condensed.
@@ -2275,21 +2275,21 @@ Update 1 : 3 August 2005
 ------------------------------
 1) (#158) In SMDK added option to SetDefaultTag to include/exclude the Usr prefix.
 2) Fix for crash during program exit under certain conditions.
-3) PGM enhancements: Added variable PauseSimulation which can be used to put SysCAD
-   into Idle mode (ie paused). Added function strcat4 and strcat5 which can be used
-   to combine 5 and 6 string or Str parameters respectively. Fixed a PGM crash that
+3) PGM enhancements: Added variable PauseSimulation which can be used to put SysCAD 
+   into Idle mode (ie paused). Added function strcat4 and strcat5 which can be used 
+   to combine 5 and 6 string or Str parameters respectively. Fixed a PGM crash that 
    occured under certain conditions when referencing parameters of nested classes.
 
 Update 2 : 15 August 2005
 ------------------------------
 1) (#319) In the PGM for the Array or Matrix classes, you can now watch the variables
-   corresponding to the contents of the array or matrix. To do this use the watch
-   command. If the index is out of range for the array dimensions then the value
-   returned is always NAN ('*') and a set value is ignored. Examples for an
-   individual element in an array are "Watch A[2]" or "Watch A@[2]" for a read-only
+   corresponding to the contents of the array or matrix. To do this use the watch 
+   command. If the index is out of range for the array dimensions then the value 
+   returned is always NAN ('*') and a set value is ignored. Examples for an 
+   individual element in an array are "Watch A[2]" or "Watch A@[2]" for a read-only 
    tag. An example for a range is "Watch A[All,5]" which would show the first 5
-   elements of the array. Examples for an individual element in a matrix are
-   "Watch M[2,1]" or "Watch M@[0,0]" for a read-only tag. An example for a range
+   elements of the array. Examples for an individual element in a matrix are 
+   "Watch M[2,1]" or "Watch M@[0,0]" for a read-only tag. An example for a range 
    is "Watch M[All,4,2]".
 2) In a PGM, when declaring a variable that should be visible as a read-only tag,
    the '*' is now optional. So instead of "double d*@", "double d@" can be used.
@@ -2300,7 +2300,7 @@ Update 2 : 15 August 2005
    included in the calculation for determining turbine exit conditions. This has
    been fixed and only the adiabatic efficiency is used. Added new output fields
    "TurbineWork" and "TurbinePower" which are the results before applying losses
-   for any form of mechanical efficiency. The fields "Work" and "Power" are the
+   for any form of mechanical efficiency. The fields "Work" and "Power" are the 
    final useful output power or work.
    IMPORTANT NOTE: Any projects using the turbine with a MechEfficiency less than
    100% will now predict different outlet conditions for the turbine.
@@ -2311,7 +2311,7 @@ Update 2 : 15 August 2005
 7) The VarSelect options were not being saved and recovered for older projects.
 8) (#326) Added new Excel trend report option "SysCAD_TrendReport()" where options
    and tags can be listed vertically rather than in two horizontal rows for
-   "TrendReport()" option. The options can be listed vertically any order below
+   "TrendReport()" option. The options can be listed vertically any order below 
    the keyword SysCAD_TrendReport(ReportName), then there should be at least
    one (up to 5) blank cells, then all the tags should be listed.
 
@@ -2323,13 +2323,13 @@ Update 3 : 26 August 2005
 
 Update 4 : 1 September 2005
 ------------------------------
-1) PGM improvements: EndFile can be used as an alternative to $. Implemented new
+1) PGM improvements: EndFile can be used as an alternative to $. Implemented new 
    functions: FltToStr(double Value), IntToStr(long Value), StrToFlt(Str Value)
    and StrToInt(Str Value).
 2) (#320) Implemented the ability to declare arrays of user classes. This can
-   only be done in the global scope. Use square braces "[" and "]" to index
-   array elements. First element is at index 0. Example of declaration would
-   be "MyClass C[5]". Examples to access a class member "C[0].a = 5";
+   only be done in the global scope. Use square braces "[" and "]" to index 
+   array elements. First element is at index 0. Example of declaration would 
+   be "MyClass C[5]". Examples to access a class member "C[0].a = 5"; 
    "C[i].Exec()"; "x = C[i].a + C[i].GetResult(g)".
 3) For dynamic bar annotation, added the ability to set the colour for each
    of the bars.
@@ -2343,12 +2343,12 @@ Update 5 : 17 September 2005
 1) Added getSizePassingFraction and getFractionPassingSize to MIPSD in SMDK.
 2) Fixed an error in manual tear for Bayer stream with Bayer feed calculator.
 3) Added option "PlantModel.IncludeSpcCnvs" which by default is on. If this
-   is switched off then the "special" specie engineering conversion units are
+   is switched off then the "special" specie engineering conversion units are 
    not created. eg reaction extent "%.H2O(l)"
 4) Fixed a crash in PGM for large number of function string parameters.
 5) Added ExcludeWatch command to PGM, which is used to make the variables of a
    class not visible in the access window. eg "ExcludeWatch C[0]"
-6) For PGM array (and matrix) classes added the functions IncAt(Index, value)
+6) For PGM array (and matrix) classes added the functions IncAt(Index, value) 
    and DecAt(Index,Value). eg "DataArray.IncAt(3, Qty)" is more effecient than
    "DataArray.SetAt(3, DataArray.GetAt(3) + Qty)"
 7) (#307) Can move text as part of grouped graphics.
@@ -2357,7 +2357,7 @@ Update 6 : 29 September 2005
 ------------------------------
 1) (#220,#324) Fixes to flash tank and shell&tube operation in dynamic
    transfer mode.
-2) Fix for a tie with vapour flows in ProBal mode where the incorrect outlet
+2) Fix for a tie with vapour flows in ProBal mode where the incorrect outlet 
    pressure was used if PSat was selected.
 3) (#348) Fix for reaction HeatExchange Power option in dynamic mode.
 4) (#349) Fix for COM interface for ProBal start, stop, etc.
@@ -2367,10 +2367,10 @@ Update 7 : 27 October 2005
 1) (#372) Fixed error introduced in Update5 for shell&tube in flash train
    where if a new heater was used it would not condense steam.
 2) (#350) IgnoreAreaLimit in the stand-alone shell&tube heat exchanger can
-   now be used to fully condense all steam regardless of user specified HTC
+   now be used to fully condense all steam regardless of user specified HTC 
    and area.
 3) Added an option for dynamic bars to include or exclude the labels.
-4) (#354) Fixed error where the selection of Access97 for database format
+4) (#354) Fixed error where the selection of Access97 for database format 
    was ignored for many of the create or save database options.
 5) (#357) Fixed error for pressure conversion units for gauge pressures.
    Improved display on Conversions tab page in Project window.
@@ -2418,12 +2418,29 @@ Update 11 : 13 March 2005
    text file with a list of all tags (ignoring first line) to be recorded in 
    the data historian.
 
-Update 12 : 21 March 2005
+Update 12 : 24 March 2005
 ------------------------------
 1) (#421) Fixed error "unable to open ..\cfgfiles\cfgfiles\.." which sometimes
    occured for opening or creating a project.
 2) Added field NoOfReactions to reaction block reporting count of sources, 
    reactions and sinks.
+3) (#430) Added tag "IntervalCnt" to the "Sz" tab page in the Access window
+   which returns the number of intervals in the PSD.
+4) (#422) There are now 5 tuning factors for the cyclone model using the Plitt
+   method they are F1 d50, F2 sharpness m, F3 pressure drop, F4 S, and F5 Liquid 
+   overflow.
+5) (#431) Fixed error in cyclone plitt method lynch partition calculation. 
+   NOTE: This will affect the PSD distribution. 
+   Added other corrections and improvements that are used if check box "OldCalcs"
+   is not selected. Added display fields for Alpha and reference temperature.
+
+Update 13 : 21 April 2005
+------------------------------
+1) (#439) Fixed crash where large number of species have PSD data.
+2) Improved display of PSD data where more than one specie contains PSD data. All
+   the cumulative PSD data is now displayed in a separate table.
+3) (#417) Improveved functionality in "Dynamic Info" for managing a tag list of
+   tags to be recorded in the historian.
 
 
 

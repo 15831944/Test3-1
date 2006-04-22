@@ -403,6 +403,8 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     CDynRunStats    DynStats;
 
     dword           dwIterNo;
+
+    Strng           m_sDispHistTagListPath;
   };
 
 // ==========================================================================
@@ -491,6 +493,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   SetState(eScdMdlStateActs RqdState);
+    virtual int    FilesUsed(CFilesUsedArray & Files);
 
     virtual void   Set_All_Zs();
     virtual void   Set_All_Sizes();
