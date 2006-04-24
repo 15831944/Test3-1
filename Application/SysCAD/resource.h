@@ -958,10 +958,12 @@
 #define IDD_MERGEREPDLG                 24565
 #define IDC_DLGTOOLTIPS                 24565
 #define IDC_REGEXPON                    24565
+#define IDC_KEEPGRFSIZED                24565
 #define IDC_EDITFILE                    24566
 #define IDC_COMPARE                     24566
 #define IDC_PVFILETREE                  24566
 #define IDD_RUNTEAR                     24566
+#define IDC_KEEPTRNDSIZED               24566
 #define IDD_MESSAGESBACK1               24567
 #define IDD_PF_FORM                     24568
 #define IDC_MAXCOUNT                    24569
@@ -1945,7 +1947,7 @@
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25594

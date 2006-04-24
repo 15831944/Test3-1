@@ -222,6 +222,11 @@ static void dbgDumpFilesAliases()
 
 //===========================================================================
 
+int gs_FileNewFlag  = 0;
+int gs_FileOpenFlag = 0;
+int gs_BlockSizeAdjustment = 0;
+int gs_ProjectOpenFlag = 0;
+
 #define WithRmtFile 0
 
 char* CWindowLists::MainWndTitle = "SysCAD 9.0 © Kenwalt";
@@ -1301,6 +1306,9 @@ void Project::Clear()
   m_bRunOptInitialiseAll=0;
   m_bRunOptResetStats=0;   
   m_bRunOptOnceOnly=0;    
+
+  m_KeepGrfSameSize=0;
+  m_KeepTrndSameSize=0;
 
 #if WITHNETSERVER
   pCS_Mngr->SetServer(false);
@@ -4561,6 +4569,9 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
         m_sGrfFrameName = PF.RdStr("General", "GraphicsFrame", m_sGrfFrameName());
         m_sGrfFrameFilter = PF.RdStr("General", "GraphicsFilter", m_sGrfFrameFilter());
 
+        m_KeepGrfSameSize = PF.RdLong("General", "KeepGrfSameSize", PrjFileVerNo()>=96?1:0)!=0;
+        m_KeepTrndSameSize = PF.RdLong("General", "KeepTrndSameSize", PrjFileVerNo()>=96?1:0)!=0;
+
         bGrfDeferLoad = (PF.RdLong("General", "GrfDeferLoad", bGrfDeferLoad) != 0);
         bGrfAutoLoad = (PF.RdLong("General", "GrfAutoLoad", bGrfAutoLoad) != 0);
         bGrfUpdateAnnot = (PF.RdLong("General", "GrfUpdateAnnotation", bGrfUpdateAnnot) != 0);
@@ -5204,6 +5215,8 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
     // Set version to latest
     SetPrjFileVerNo(PrjFileVer);
     }
+  
+  gs_ProjectOpenFlag++;
   return OK;
   }
 
@@ -6395,6 +6408,9 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   PF.WrLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad);
   PF.WrLong("General", "NonNumericTagChr", TaggedObject::NonNumericTagChr);
 
+  PF.WrLong("General", "KeepGrfSameSize",   m_KeepGrfSameSize);
+  PF.WrLong("General", "KeepTrndSameSize", m_KeepTrndSameSize);
+
   PF.WrLong("RunStartup", "EmptyAll",     m_bRunOptEmptyAll     ?1:0);
   PF.WrLong("RunStartup", "EmptySpills",  m_bRunOptEmptySpills  ?1:0);
   PF.WrLong("RunStartup", "ZeroFlows",    m_bRunOptZeroFlows    ?1:0);    
@@ -6632,6 +6648,8 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
   {
   if (gs_Exec.TestRunning())
     return false;
+
+  gs_ProjectOpenFlag=0;
 
   CWaitMsgCursor Wait("Closing project");
 

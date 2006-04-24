@@ -2422,6 +2422,8 @@ void CSysCADApp::OnHelpModels()
 
 void CSysCADApp::OnFileOpen()
   {
+  CIncDecFlag IDF(gs_FileOpenFlag);
+
   if (!gs_License.Blocked())
     OnFileOpenX();
     //CWinApp::OnFileOpen();
@@ -2436,6 +2438,8 @@ void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
 
 void CSysCADApp::OnFileNew()
   {
+  CIncDecFlag IDF(gs_FileNewFlag);
+
   if (!gs_License.Blocked())
     {
     //SetUsingPrjLclFiles(false);
@@ -2932,7 +2936,7 @@ void CSysCADApp::OnFileNewX()
 
 void CSysCADApp::OnFileOpenX()
   {
-  // prompt the user (with all document templates)
+    // prompt the user (with all document templates)
   CString newName;
   if (!DoPromptFileName(newName, AFX_IDS_OPENFILE,
     OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, true, NULL, (gs_pPrj && gs_pPrj->pPrjDoc)))

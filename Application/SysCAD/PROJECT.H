@@ -56,6 +56,22 @@
 
 //=========================================================================
 
+class CIncDecFlag 
+  {
+  public:
+    CIncDecFlag(int & Flag) : m_Flag(Flag) { m_Flag++; };
+    ~CIncDecFlag()                         { m_Flag--; };
+  protected:
+    int & m_Flag;
+  };
+
+extern DllImportExport int gs_FileNewFlag;
+extern DllImportExport int gs_FileOpenFlag;
+extern DllImportExport int gs_BlockSizeAdjustment;
+extern DllImportExport int gs_ProjectOpenFlag;
+
+//=========================================================================
+
 const bool AllowHistStr = true;
 
 typedef CWnd* pCWnd;
@@ -114,8 +130,8 @@ class DllImportExport CWindowLists
 #endif
     CWnd*   pAutWnd;    //
     CWnd*   pPrjWnd;    //CPrjFrameWnd<--CMDIChildWnd
-    CArray<pCWnd, pCWnd&> TrndWnds; //CTagVwSplit<--CMDIChildWnd
-    CArray<pCWnd, pCWnd&> GrfWnds;  //CGrfFrameWnd<--CMDIChildWnd
+    CArray<CWnd*, CWnd*> TrndWnds; //CTagVwSplit<--CMDIChildWnd
+    CArray<CWnd*, CWnd*> GrfWnds;  //CGrfFrameWnd<--CMDIChildWnd
     CArray<CTopWindowInfo, CTopWindowInfo&> Wnds; //list of ALL windows
     static char* MainWndTitle;
     //static char* AccessWndTitle;
@@ -450,6 +466,8 @@ class DllImportExport Project : public CExecObj
                   m_bRunOptResetStats,   
                   m_bRunOptOnceOnly;    
 
+    flag          m_KeepGrfSameSize,
+                  m_KeepTrndSameSize;
 
     byte          bDrvStartFBKCheck;
 

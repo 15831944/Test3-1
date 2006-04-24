@@ -12,6 +12,7 @@ class CTagVwSplit : public CMDIChildWnd
     CTagVwSplit();      // protected constructor used by dynamic creation
     CSplitterWnd  m_wndSplitter;
     pCTagVwDoc    pDoc;
+    bool          m_CreateDone;
   public:
     virtual ~CTagVwSplit();
     virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);

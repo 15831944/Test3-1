@@ -25,6 +25,7 @@ IMPLEMENT_DYNCREATE(CTagVwSplit, CMDIChildWnd)
 CTagVwSplit::CTagVwSplit()
   {
   pDoc = NULL;
+  m_CreateDone=false;
   }
 
 //---------------------------------------------------------------------------
@@ -50,6 +51,7 @@ BOOL CTagVwSplit::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
   pDoc = (CTagVwDoc*)pContext->m_pCurrentDoc;
   pDoc->pTrnd = (CView*)m_wndSplitter.GetPane(0,0);
   pDoc->pText = (CView*)m_wndSplitter.GetPane(1,0);
+  m_CreateDone=true;
   return TRUE;
   }
 
@@ -122,6 +124,61 @@ void CTagVwSplit::OnSize(UINT nType, int cx, int cy)
     CWindowLists::SetWndMaxMode(TRUE);
   else if (nType==SIZE_MINIMIZED || nType==SIZE_RESTORED)
     CWindowLists::SetWndMaxMode(FALSE);
+
+  if (m_CreateDone && gs_pPrj->m_KeepTrndSameSize && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
+    {
+    CIncDecFlag IDF(gs_BlockSizeAdjustment);
+    CWindowLists WL;
+    if (WL.BuildSingleList()<0)
+      return;
+
+    if (gs_FileNewFlag)
+      {
+      for (int i=0; i<WL.TrndWnds.GetCount(); i++)
+        {
+        if (WL.TrndWnds[i]!=this)
+          {
+          WINDOWPLACEMENT wp;
+          wp.length = sizeof(wp);
+          WL.TrndWnds[i]->GetWindowPlacement(&wp);
+          int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
+          int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
+
+          // set new one
+          wp.length = sizeof(wp);
+          GetWindowPlacement(&wp);
+          wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
+          wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
+          wp.length = sizeof(wp);
+          SetWindowPlacement(&wp);
+          break; // done
+          }
+        }
+      }
+    else
+      {
+      WINDOWPLACEMENT wp;
+      wp.length = sizeof(wp);
+      GetWindowPlacement(&wp);
+      int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
+      int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
+
+      for (int i=0; i<WL.TrndWnds.GetCount(); i++)
+        {
+        if (WL.TrndWnds[i]!=this)
+          {
+
+          WINDOWPLACEMENT wp;
+          wp.length = sizeof(wp);
+          WL.TrndWnds[i]->GetWindowPlacement(&wp);
+          wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
+          wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
+          wp.length = sizeof(wp);
+          WL.TrndWnds[i]->SetWindowPlacement(&wp);
+          }
+        }
+      }
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -161,6 +218,7 @@ BOOL CTagVwSplitC::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
   pDoc->pTrnd = (CView*)m_wndSplitter.GetPane(0,0);
   pDoc->pText = (CView*)m_wndSplitter.GetPane(1,0);
   pDocC = (CTagVwDocC*)pContext->m_pCurrentDoc;
+  m_CreateDone=true;
   return TRUE;
   }
 

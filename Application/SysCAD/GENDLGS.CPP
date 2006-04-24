@@ -184,6 +184,14 @@ class COtherPage : public CCustomPropertyPage
     afx_msg void OnUpdateLoadGrf(CCmdUI* pCmdUi);
     virtual void OnOK();
     DECLARE_MESSAGE_MAP()
+  public:
+    afx_msg void OnBnClickedKeepgrfsized();
+  public:
+    afx_msg void OnBnClickedKeeptrndsized();
+  public:
+    BOOL m_KeepGrfSized;
+  public:
+    BOOL m_KeepTrndSized;
   };
 
 //===========================================================================
@@ -1026,6 +1034,8 @@ void CTrendsPage::OnOK()
 IMPLEMENT_DYNCREATE(COtherPage, CCustomPropertyPage)
 
 COtherPage::COtherPage() : CCustomPropertyPage(COtherPage::IDD)
+, m_KeepGrfSized(true)
+, m_KeepTrndSized(true)
   {
   bGrfChanged = 0;
   bAllGrfLoaded = 0;
@@ -1051,6 +1061,8 @@ void COtherPage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_ANIMATIONON, m_GrfAnimationOn);
 	DDX_Check(pDX, IDC_DBCOPYFROMOLD, m_CopyDBFromOld);
 	DDX_Check(pDX, IDC_DBREMOVEPREVREVS, m_RemovePrevRev);
+  DDX_Check(pDX, IDC_KEEPGRFSIZED, m_KeepGrfSized);
+	DDX_Check(pDX, IDC_KEEPTRNDSIZED, m_KeepTrndSized);
   //}}AFX_DATA_MAP
   GetDlgItem(IDC_PRJGRFAUTOLOAD)->EnableWindow(m_GrfDeferLoad);
   }
@@ -1066,6 +1078,8 @@ BEGIN_MESSAGE_MAP(COtherPage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_ANIMATIONON, OnGrfChanged)
   //}}AFX_MSG_MAP
   ON_UPDATE_COMMAND_UI(IDC_PRJLOADGRF, OnUpdateLoadGrf)
+  ON_BN_CLICKED(IDC_KEEPGRFSIZED, &COtherPage::OnBnClickedKeepgrfsized)
+  ON_BN_CLICKED(IDC_KEEPTRNDSIZED, &COtherPage::OnBnClickedKeeptrndsized)
 END_MESSAGE_MAP()
 
 //--------------------------------------------------------------------------
@@ -1078,6 +1092,8 @@ BOOL COtherPage::OnInitDialog()
   m_GrfAnimationOn = gs_pPrj->bGrfAnimationOn;
   bAllGrfLoaded    = gs_pPrj->AllGrfLoaded();
   m_RemovePrevRev  = gs_pPrj->m_bRemoveRevs;
+  m_KeepGrfSized   = gs_pPrj->m_KeepGrfSameSize!=0;
+  m_KeepTrndSized  = gs_pPrj->m_KeepTrndSameSize!=0;
   m_CopyDBFromOld  = false;//ALWAYS default to false!!! gs_pPrj->m_bCopyDBFiles;
   CCustomPropertyPage::OnInitDialog();
   UpdateDialogControls(this, FALSE);
@@ -1097,6 +1113,8 @@ void COtherPage::OnOK()
       gs_pPrj->bGrfAutoLoad = m_GrfAutoLoad;
       gs_pPrj->bGrfUpdateAnnot = m_GrfUpdateAnnot;
       gs_pPrj->bGrfAnimationOn = m_GrfAnimationOn;
+      gs_pPrj->m_KeepGrfSameSize = m_KeepGrfSized;
+      gs_pPrj->m_KeepTrndSameSize = m_KeepTrndSized;
       }
     gs_pPrj->m_bRemoveRevs  = m_RemovePrevRev; 
     gs_pPrj->m_bCopyDBFiles = m_CopyDBFromOld; 
@@ -1114,6 +1132,20 @@ void COtherPage::OnGrfDeferLoad()
 //---------------------------------------------------------------------------
 
 void COtherPage::OnGrfChanged() 
+  {
+  bGrfChanged = 1;
+  }
+
+//---------------------------------------------------------------------------
+
+void COtherPage::OnBnClickedKeepgrfsized()
+  {
+  bGrfChanged = 1;
+  }
+
+//---------------------------------------------------------------------------
+
+void COtherPage::OnBnClickedKeeptrndsized()
   {
   bGrfChanged = 1;
   }
@@ -4498,3 +4530,4 @@ void CCompareDlg::OnDblclkFilelist()
   }
 
 //===========================================================================
+
