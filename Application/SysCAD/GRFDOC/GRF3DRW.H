@@ -148,13 +148,13 @@ class Pt_3f
 
     Pt_3f() { X = 0.0; Y = 0.0; Z = 0.0; };
     Pt_3f(REAL Xi, REAL Yi=0.0, REAL Zi=0.0) { X = Xi; Y = Yi; Z = Zi; };
-    Pt_3f(PT3 p) { X = p[0]; Y = p[1]; Z = p[2]; };
+    Pt_3f(const PT3 p) { X = p[0]; Y = p[1]; Z = p[2]; };
     ~Pt_3f() {};
 
     REAL& operator[](const int i) { return ((REAL*)&X)[i]; }
-    Pt_3f& operator+(Pt_3f & Pt);
-    Pt_3f& operator-(Pt_3f & Pt);
-    Pt_3f& operator*(Pt_3f & Pt);
+    Pt_3f operator+(Pt_3f & Pt);
+    Pt_3f operator-(Pt_3f & Pt);
+    Pt_3f operator*(Pt_3f & Pt);
 
     void Zero() { X = 0.0; Y = 0.0; Z = 0.0; };
     void Set(REAL Xi=0.0, REAL Yi=0.0, REAL Zi=0.0) { X = Xi; Y = Yi; Z = Zi; };
@@ -193,8 +193,8 @@ class DllImportExport Pt_SLW
     void GetX(const Pt_SLW &Pt);
     void GetY(const Pt_SLW &Pt);
     void GetZ(const Pt_SLW &Pt);
-    Pt_SLW& operator+=(Pt_SLW &Pt);
-    Pt_SLW& operator-=(Pt_SLW &Pt);
+    Pt_SLW operator+=(Pt_SLW &Pt);
+    Pt_SLW operator-=(Pt_SLW &Pt);
   };
 
 typedef CArray <Pt_SLW, Pt_SLW&> Pt_SLW_Array;

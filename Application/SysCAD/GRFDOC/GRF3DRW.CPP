@@ -233,32 +233,35 @@ void Pt_3f::Scale(double Scale)
 
 //---------------------------------------------------------------------------
 
-Pt_3f& Pt_3f::operator+(Pt_3f & Pt)
+Pt_3f Pt_3f::operator+(Pt_3f & Pt)
   {
-  X += Pt.X;
-  Y += Pt.Y;
-  Z += Pt.Z;
-  return *this;
+  Pt_3f A(*this);
+  A.X = X + Pt.X;
+  A.Y = Y + Pt.Y;
+  A.Z = Z + Pt.Z;
+  return A;
   }
 
 //---------------------------------------------------------------------------
 
-Pt_3f& Pt_3f::operator-(Pt_3f & Pt)
+Pt_3f Pt_3f::operator-(Pt_3f & Pt)
   {
-  X -= Pt.X;
-  Y -= Pt.Y;
-  Z -= Pt.Z;
-  return *this;
+  Pt_3f A(*this);
+  A.X = X - Pt.X;
+  A.Y = Y - Pt.Y;
+  A.Z = Z - Pt.Z;
+  return A;
   }
 
 //---------------------------------------------------------------------------
 
-Pt_3f& Pt_3f::operator*(Pt_3f & Pt)
+Pt_3f Pt_3f::operator*(Pt_3f & Pt)
   {
-  X *= Pt.X;
-  Y *= Pt.Y;
-  Z *= Pt.Z;
-  return *this;
+  Pt_3f A(*this);
+  A.X = X * Pt.X;
+  A.Y = Y * Pt.Y;
+  A.Z = Z * Pt.Z;
+  return A;
   }
 
 //===========================================================================
@@ -312,32 +315,34 @@ void Pt_SLW::GetZ(const Pt_SLW &Pt)
 
 //---------------------------------------------------------------------------
 
-Pt_SLW& Pt_SLW::operator+=(Pt_SLW &Pt)
+Pt_SLW Pt_SLW::operator+=(Pt_SLW &Pt)
   {
-  Screen.X  += Pt.Screen.X;
-  Screen.Y  += Pt.Screen.Y;
-  Logical.X += Pt.Logical.X;
-  Logical.Y += Pt.Logical.Y;
-  Logical.Z += Pt.Logical.Z;
-  World.X   += Pt.World.X;
-  World.Y   += Pt.World.Y;
-  World.Z   += Pt.World.Z;
-  return *this;
+  Pt_SLW A; 
+  A.Screen.X  = Screen.X  + Pt.Screen.X;
+  A.Screen.Y  = Screen.Y  + Pt.Screen.Y;
+  A.Logical.X = Logical.X + Pt.Logical.X;
+  A.Logical.Y = Logical.Y + Pt.Logical.Y;
+  A.Logical.Z = Logical.Z + Pt.Logical.Z;
+  A.World.X   = World.X   + Pt.World.X;
+  A.World.Y   = World.Y   + Pt.World.Y;
+  A.World.Z   = World.Z   + Pt.World.Z;
+  return A;
   }
 
 //---------------------------------------------------------------------------
 
-Pt_SLW& Pt_SLW::operator-=(Pt_SLW &Pt)
+Pt_SLW Pt_SLW::operator-=(Pt_SLW &Pt)
   {
-  Screen.X  -= Pt.Screen.X;
-  Screen.Y  -= Pt.Screen.Y;
-  Logical.X -= Pt.Logical.X;
-  Logical.Y -= Pt.Logical.Y;
-  Logical.Z -= Pt.Logical.Z;
-  World.X   -= Pt.World.X;
-  World.Y   -= Pt.World.Y;
-  World.Z   -= Pt.World.Z;
-  return *this;
+  Pt_SLW A; 
+  A.Screen.X  = Screen.X  - Pt.Screen.X;
+  A.Screen.Y  = Screen.Y  - Pt.Screen.Y;
+  A.Logical.X = Logical.X - Pt.Logical.X;
+  A.Logical.Y = Logical.Y - Pt.Logical.Y;
+  A.Logical.Z = Logical.Z - Pt.Logical.Z;
+  A.World.X   = World.X   - Pt.World.X;
+  A.World.Y   = World.Y   - Pt.World.Y;
+  A.World.Z   = World.Z   - Pt.World.Z;
+  return A;
   }
 
 //============================================================================
