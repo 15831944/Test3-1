@@ -9,6 +9,9 @@
 #ifndef __SC_DEFS_H
   #include "sc_defs.h"
 #endif
+#ifndef __SCDVER_H
+  #include "scdver.h"
+#endif
 #ifndef __M_BASE_H
   #include "m_base.h"
 #endif
@@ -21,10 +24,9 @@
 #ifndef __MULTIFB_H
   #include "multifb.h"
 #endif
-#ifndef __SCDVER_H
-  #include "scdver.h"
-#endif
 #include "m_area.h"
+#include "blockevaluator.h"
+#include "evapblock.h"
 
 #ifdef __M_LINK_CPP
   #define DllImportExport DllExport
@@ -417,7 +419,7 @@ class DllImportExport MN_Lnk : public MdlNode
 
   protected:
     CFlwThermalBlk m_FTB;
-    CFlwEqnPtr      m_FEP;
+    CFlwEqnPtr     m_FEP;
     CMultiFlwBlk   m_MFB;
     bool           m_bWithOP;
 
@@ -490,6 +492,10 @@ class DllImportExport MN_Lnk : public MdlNode
   public:
     CReactionBase  m_RB;
     CVLEBase       m_VLE;
+    CEvapBase      m_Evap;
+#if (WITHBLOCKEVALUATOR)    
+    CBlockEvaluator m_BlkEval;
+#endif
 
     // Plugflow Data
     CArray <CFlowSamplePt, CFlowSamplePt&> m_SamplePt;

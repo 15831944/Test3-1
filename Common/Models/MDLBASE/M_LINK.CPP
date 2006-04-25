@@ -641,6 +641,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   m_RB(this, false),
   m_VLE(this, VLEF_QPFlash),
+  m_Evap(this),
   m_MFB("MFB", this, TOA_Embedded, 0, 1, &m_VLE),
   m_PFI(this),
   m_FEP(NULL, FBOpt_HasSimpleRes, 0.1),
@@ -648,6 +649,9 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillIn),
   m_Src(eDIO_Src, this, false, true, "Src"),
   m_Snk(eDIO_Snk, this, false, true, "Snk")
+#if (WITHBLOCKEVALUATOR)
+  , m_BlkEval(&m_RB, NULL, &EHX, &m_VLE, &m_Evap)
+#endif
   {
   AttachClassInfo(nc_MLnk,NULL);
   dZ_Rqd=dNAN;
@@ -848,10 +852,17 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_FTB.DataXchg(DCB))
     return 1;
+#if (WITHBLOCKEVALUATOR)    
+  if (m_BlkEval.DataXchg(DCB))
+    return 1;
+#endif
   if (m_RB.DataXchg(DCB))
     return 1;
   if (m_VLE.DataXchg(DCB))
     return 1;
+  if (m_Evap.DataXchg(DCB))
+    return 1;
+
 
   if (DCB.dwUserInfo==300 && m_Spill.DataXchg(DCB))
     return 1;
@@ -3047,6 +3058,10 @@ void MN_Lnk::EvalProducts(long JoinMask)
       //dbgpln("B  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
       //dbgpln("EvalProducts N  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
+#if WITHBLOCKEVALUATOR
+      double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
+      m_BlkEval.EvalProductsPipe(m_FTB, Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut)); 
+#else
       if (m_iBlockSeq==BS_EHX_RB_VLE && EHX.Enabled())
         {
         m_FTB.AddEHXBegin();
@@ -3079,6 +3094,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
         m_VLE.QPFlash(Fo, IOP_Flng(iOut), 0.0, VLEF_Null);
         m_FTB.AddVLEEnd();
         }
+#endif
       //dbgpln("EvalProducts R  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
       //dbgpln("C  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());

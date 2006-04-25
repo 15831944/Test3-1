@@ -55,6 +55,7 @@
 #define WITHRCTEDITDLG        1
 #define WITHDOUBLEGSMODEL     1
 #define WITHSURGECTRLDOUBLE   1
+#define WITHBLOCKEVALUATOR    1
 
 
 //discontinued functionality...

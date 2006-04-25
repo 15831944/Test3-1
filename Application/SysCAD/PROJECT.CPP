@@ -179,7 +179,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int PrjFileVer = 93; //CNM 15/11/2005 Fix 4PortValve
 //const int PrjFileVer = 94; //CNM 11/11/2005 FlowMode fixes
 //const int PrjFileVer = 95; //CNM 19/01/2006 remove table FB_Eqn from Database
-const int PrjFileVer = 96; //CNM 19/01/2006 Changed 'Location' to 'PlantArea'
+//const int PrjFileVer = 96; //CNM 19/01/2006 Changed 'Location' to 'PlantArea'
+const int PrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
 
 //===========================================================================
 //

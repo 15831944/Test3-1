@@ -318,7 +318,15 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
+				RelativePath=".\BlockEvaluator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CTRL_IO.CPP"
+				>
+			</File>
+			<File
+				RelativePath=".\EvapBlock.cpp"
 				>
 			</File>
 			<File
@@ -423,7 +431,15 @@
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
 			<File
+				RelativePath=".\BlockEvaluator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CTRL_IO.H"
+				>
+			</File>
+			<File
+				RelativePath=".\EvapBlock.h"
 				>
 			</File>
 			<File

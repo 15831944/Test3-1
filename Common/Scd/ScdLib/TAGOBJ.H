@@ -747,6 +747,8 @@ typedef const long XID;
 #define SpcXID(i)     ((i)+(XID)  50000000)
 #define RctXID(i)     ((i)+(XID)  60000000)
 #define VleXID(i)     ((i)+(XID)  70000000)
+#define EvapXID(i)    ((i)+(XID)  71000000)
+#define EvalBlkXID(i) ((i)+(XID)  72000000)
 #define XyXID(i)      ((i)+(XID)  80000000)
 #define Qual0XID(i)   ((i)+(XID)  90000000)
 #define Qual1XID(i)   ((i)+(XID)  91000000)
@@ -761,7 +763,7 @@ typedef const long XID;
 
 #define SysXID(i)     ((i)+(XID) 10000000)
 #define PwrXID(i)     ((i)+(XID) 11000000)
-#define SMDKXID(i)    ((i)+(XID) 12000000)
+#define SMDKXID(i)    ((i)+(XID) 20000000)
 
 XID xidTag           = SysXID(1);
 XID xidParent        = SysXID(2);

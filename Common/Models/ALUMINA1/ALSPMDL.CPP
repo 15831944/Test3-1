@@ -66,7 +66,7 @@ byte SMBayer::sm_iBPEMethod = BPM_Dewey;
 // ==========================================================================
 
 flag     CConcentrations::NaFactorOK=0;
-SpVector CConcentrations::NaFactor(0.0);
+SpVector CConcentrations::NaFactor(0);
 
 CConcentrations::CConcentrations(SMBayer *pMdl) 
   { 
