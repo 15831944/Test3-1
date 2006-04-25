@@ -391,6 +391,13 @@ enum PrjLoadTypes    {PLT_Null, PLT_Normal, PLT_Local};
 const BOOL WithVersionDefault=true;
 const BOOL RemoveOldDefault=false;
 
+// Window Behaviour
+const int WB_None           = 0x00;
+const int WB_MoveTogether   = 0x01;
+const int WB_SizeTogether   = 0x02;
+const int WB_Together       = WB_MoveTogether|WB_SizeTogether;
+const int WB_Coincident     = 0x04;
+
 _FWDDEF(Project)
 class DllImportExport Project : public CExecObj
   {
@@ -466,8 +473,8 @@ class DllImportExport Project : public CExecObj
                   m_bRunOptResetStats,   
                   m_bRunOptOnceOnly;    
 
-    flag          m_KeepGrfSameSize,
-                  m_KeepTrndSameSize;
+    int           m_GrfBehaviour,
+                  m_TrndBehaviour;
 
     byte          bDrvStartFBKCheck;
 

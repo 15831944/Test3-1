@@ -160,8 +160,12 @@ class DllImportExport CGrfFrameWnd : public CMDIChildWnd
     //{{AFX_MSG(CGrfFrameWnd)
     afx_msg void OnSetFocus(CWnd* pOldWnd);
     afx_msg void OnSize(UINT nType, int cx, int cy);
+    afx_msg void OnMove(int x, int y);
     //}}AFX_MSG
     DECLARE_MESSAGE_MAP()
+
+  int m_PrevClientX;
+  int m_PrevClientY;
   };
 
 //---------------------------------------------------------------------------

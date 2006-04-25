@@ -970,6 +970,8 @@ IMPLEMENT_DYNCREATE(CGrfFrameWnd, CMDIChildWnd)
 
 CGrfFrameWnd::CGrfFrameWnd()
   {
+  m_PrevClientX=0;
+  m_PrevClientY=0;
   }
 
 //---------------------------------------------------------------------------
@@ -984,6 +986,7 @@ BEGIN_MESSAGE_MAP(CGrfFrameWnd, CMDIChildWnd)
   //{{AFX_MSG_MAP(CGrfFrameWnd)
   ON_WM_SETFOCUS()
   ON_WM_SIZE()
+  ON_WM_MOVE()
   //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1043,7 +1046,7 @@ void CGrfFrameWnd::OnSize(UINT nType, int cx, int cy)
   else if (nType==SIZE_MINIMIZED || nType==SIZE_RESTORED)
     CWindowLists::SetWndMaxMode(FALSE);
 
-  if (gs_pPrj->m_KeepGrfSameSize && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
+  if (gs_pPrj->m_GrfBehaviour && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
     {
     CIncDecFlag IDF(gs_BlockSizeAdjustment);
     CWindowLists WL;
@@ -1052,26 +1055,6 @@ void CGrfFrameWnd::OnSize(UINT nType, int cx, int cy)
 
     if (gs_FileNewFlag)
       {
-      for (int i=0; i<WL.GrfWnds.GetCount(); i++)
-        {
-        if (WL.GrfWnds[i]!=this)
-          {
-          WINDOWPLACEMENT wp;
-          wp.length = sizeof(wp);
-          WL.GrfWnds[i]->GetWindowPlacement(&wp);
-          int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
-          int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
-
-          // set new one
-          wp.length = sizeof(wp);
-          GetWindowPlacement(&wp);
-          wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
-          wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
-          wp.length = sizeof(wp);
-          SetWindowPlacement(&wp);
-          break; // done
-          }
-        }
       }
     else
       {
@@ -1085,18 +1068,108 @@ void CGrfFrameWnd::OnSize(UINT nType, int cx, int cy)
         {
         if (WL.GrfWnds[i]!=this)
           {
-
-          WINDOWPLACEMENT wp;
-          wp.length = sizeof(wp);
-          WL.GrfWnds[i]->GetWindowPlacement(&wp);
-          wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
-          wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
-          wp.length = sizeof(wp);
-          WL.GrfWnds[i]->SetWindowPlacement(&wp);
+          WINDOWPLACEMENT wpt;
+          wpt.length = sizeof(wpt);
+          WL.GrfWnds[i]->GetWindowPlacement(&wpt);
+          if (gs_pPrj->m_GrfBehaviour & WB_Coincident)
+            {
+            wpt.rcNormalPosition=wp.rcNormalPosition;
+            }
+          else if (gs_pPrj->m_GrfBehaviour & WB_SizeTogether)
+            {
+            wpt.rcNormalPosition.right=wpt.rcNormalPosition.left+W;
+            wpt.rcNormalPosition.bottom=wpt.rcNormalPosition.top+H;
+            }
+          wpt.length = sizeof(wpt);
+          WL.GrfWnds[i]->SetWindowPlacement(&wpt);
           }
         }
       }
     }
+  }
+
+//---------------------------------------------------------------------------
+
+void CGrfFrameWnd::OnMove(int x, int y)
+  {
+  CMDIChildWnd::OnMove(x, y);
+
+  WINDOWPLACEMENT wp;
+  wp.length = sizeof(wp);
+  GetWindowPlacement(&wp);
+  int DX=wp.rcNormalPosition.left-m_PrevClientX;
+  int DY=wp.rcNormalPosition.top-m_PrevClientY;
+
+  if ((gs_pPrj->m_GrfBehaviour || gs_FileNewFlag) && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
+    {
+    CIncDecFlag IDF(gs_BlockSizeAdjustment);
+    CWindowLists WL;
+    if (WL.BuildSingleList()<0)
+      return;
+
+    if (gs_FileNewFlag)
+      {
+      CWnd * pTopWnd=NULL;
+      int Z=10000;
+      WL.BuildZOrder(true);
+      for (int i=0; i<WL.Wnds.GetCount(); i++)
+        {
+        CTopWindowInfo & WI=WL.Wnds[i];
+        CWnd * pWnd=WI.pWnd;
+        if (pWnd->IsKindOf(RUNTIME_CLASS(CGrfFrameWnd)) && pWnd!=this)
+          {
+          if (WI.iZOrd<Z)
+            {
+            Z=WI.iZOrd;
+            pTopWnd=WI.pWnd;
+            }
+          }
+        }
+      if (pTopWnd)
+        {
+        wp.length = sizeof(wp);
+        pTopWnd->GetWindowPlacement(&wp);
+        wp.length = sizeof(wp);
+        SetWindowPlacement(&wp);
+        }
+      }
+    else
+      {
+      //WINDOWPLACEMENT wp;
+      wp.length = sizeof(wp);
+      GetWindowPlacement(&wp);
+      int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
+      int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
+
+      for (int i=0; i<WL.GrfWnds.GetCount(); i++)
+        {
+        if (WL.GrfWnds[i]!=this)
+          {
+          WINDOWPLACEMENT wpt;
+          wpt.length = sizeof(wpt);
+          WL.GrfWnds[i]->GetWindowPlacement(&wpt);
+          if (gs_pPrj->m_GrfBehaviour & WB_Coincident)
+            {
+            wpt.rcNormalPosition=wp.rcNormalPosition;
+            }
+          else if (gs_pPrj->m_GrfBehaviour & WB_MoveTogether)
+            {
+            wpt.rcNormalPosition.left+=DX;
+            wpt.rcNormalPosition.right+=DX;
+            wpt.rcNormalPosition.top+=DY;
+            wpt.rcNormalPosition.bottom+=DY;
+            }
+          wpt.length = sizeof(wpt);
+          WL.GrfWnds[i]->SetWindowPlacement(&wpt);
+          }
+        }
+      }
+    }
+
+  wp.length = sizeof(wp);
+  GetWindowPlacement(&wp);
+  m_PrevClientX=wp.rcNormalPosition.left;
+  m_PrevClientY=wp.rcNormalPosition.top;
   }
 
 //---------------------------------------------------------------------------

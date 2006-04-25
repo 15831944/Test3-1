@@ -1307,8 +1307,8 @@ void Project::Clear()
   m_bRunOptResetStats=0;   
   m_bRunOptOnceOnly=0;    
 
-  m_KeepGrfSameSize=0;
-  m_KeepTrndSameSize=0;
+  m_GrfBehaviour=WB_None;
+  m_TrndBehaviour=WB_None;
 
 #if WITHNETSERVER
   pCS_Mngr->SetServer(false);
@@ -4569,8 +4569,8 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
         m_sGrfFrameName = PF.RdStr("General", "GraphicsFrame", m_sGrfFrameName());
         m_sGrfFrameFilter = PF.RdStr("General", "GraphicsFilter", m_sGrfFrameFilter());
 
-        m_KeepGrfSameSize = PF.RdLong("General", "KeepGrfSameSize", PrjFileVerNo()>=96?1:0)!=0;
-        m_KeepTrndSameSize = PF.RdLong("General", "KeepTrndSameSize", PrjFileVerNo()>=96?1:0)!=0;
+        m_GrfBehaviour = PF.RdLong("General",  "GrfBehaviour",  PrjFileVerNo()>=96?WB_Together:WB_None);
+        m_TrndBehaviour = PF.RdLong("General", "TrndBehaviour", PrjFileVerNo()>=96?WB_Together:WB_None);
 
         bGrfDeferLoad = (PF.RdLong("General", "GrfDeferLoad", bGrfDeferLoad) != 0);
         bGrfAutoLoad = (PF.RdLong("General", "GrfAutoLoad", bGrfAutoLoad) != 0);
@@ -6408,8 +6408,8 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   PF.WrLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad);
   PF.WrLong("General", "NonNumericTagChr", TaggedObject::NonNumericTagChr);
 
-  PF.WrLong("General", "KeepGrfSameSize",   m_KeepGrfSameSize);
-  PF.WrLong("General", "KeepTrndSameSize", m_KeepTrndSameSize);
+  PF.WrLong("General", "GrfBehaviour",  m_GrfBehaviour);
+  PF.WrLong("General", "TrndBehaviour", m_TrndBehaviour);
 
   PF.WrLong("RunStartup", "EmptyAll",     m_bRunOptEmptyAll     ?1:0);
   PF.WrLong("RunStartup", "EmptySpills",  m_bRunOptEmptySpills  ?1:0);
