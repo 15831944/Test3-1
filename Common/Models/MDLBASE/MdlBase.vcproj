@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="MdlBase"
 	ProjectGUID="{0A8278E5-D181-4E45-9AB9-A09BC9BA3CA4}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -219,7 +215,13 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90">
 			<File
+				RelativePath=".\BlockEvaluator.cpp">
+			</File>
+			<File
 				RelativePath=".\CTRL_IO.CPP">
+			</File>
+			<File
+				RelativePath=".\EvapBlock.cpp">
 			</File>
 			<File
 				RelativePath=".\FlshTrn.cpp">
@@ -298,7 +300,13 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;fi;fd">
 			<File
+				RelativePath=".\BlockEvaluator.h">
+			</File>
+			<File
 				RelativePath=".\CTRL_IO.H">
+			</File>
+			<File
+				RelativePath=".\EvapBlock.h">
 			</File>
 			<File
 				RelativePath=".\FLSHTRN.H">
