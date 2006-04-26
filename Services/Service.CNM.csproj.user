@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartWorkingDirectory>D:\SysCAD\trunk\Sample Projects</StartWorkingDirectory>
-    <StartArguments>"D:\SysCAD\trunk\Sample Projects"</StartArguments>
+    <StartArguments>"D:\SysCAD\trunk\Sample Projects" "D:\SysCAD\trunk\Stencils"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <StartArguments>"D:\SysCAD\trunk\Sample Projects"</StartArguments>
