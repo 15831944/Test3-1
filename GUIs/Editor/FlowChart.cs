@@ -199,9 +199,9 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
     }
 
-    private void fcFlowChart_ItemModified(string tag, RectangleF boundingRect, Single angle)
+    private void fcFlowChart_ItemModified(Guid guid, RectangleF boundingRect, Single angle)
     {
-      Item item = state.Item(tag);
+      Item item = state.Item(guid);
       if (item != null)
       {
         item.Model.BoundingRect = boundingRect;
@@ -309,7 +309,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private Item oldHoverItemBox = null;
+    private Item oldHoverItem = null;
     private Arrow oldHoverArrow = null;
 
     public void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
@@ -327,33 +327,33 @@ namespace SysCAD.Editor
       }
 
       Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
-      Item hoverItemBox = null;
+      Item hoverItem = null;
       if (hoverBox != null)
-        hoverItemBox = hoverBox.Tag as Item;
+        hoverItem = hoverBox.Tag as Item;
 
       Arrow hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 1);
 
 
-      if (oldHoverItemBox != null) // deal with old itemBox.
+      if (oldHoverItem != null) // deal with old itemBox.
       {
-        if (oldHoverItemBox == hoverItemBox) // nothings changed.
+        if (oldHoverItem == hoverItem) // nothings changed.
           return;
         else // we've moved on, un-hover the old one.
         {
-          oldHoverItemBox.Graphic.Visible = state.ShowGraphics;
-          oldHoverItemBox.Graphic.ZBottom();
-          oldHoverItemBox.Model.Visible = oldHoverItemBox.Model.Selected || state.ShowModels;
-          oldHoverItemBox.Model.ZTop();
+          oldHoverItem.Graphic.Visible = oldHoverItem.Visible && state.ShowGraphics;
+          oldHoverItem.Graphic.ZBottom();
+          oldHoverItem.Model.Visible = oldHoverItem.Visible && (oldHoverItem.Model.Selected || state.ShowModels);
+          oldHoverItem.Model.ZTop();
 
-          foreach (Arrow arrow in oldHoverItemBox.IncomingArrows)
+          foreach (Arrow arrow in oldHoverItem.IncomingArrows)
           {
-            arrow.Visible = state.ShowLinks;
+            arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
             arrow.ZTop();
           }
 
-          foreach (Arrow arrow in oldHoverItemBox.OutgoingArrows)
+          foreach (Arrow arrow in oldHoverItem.OutgoingArrows)
           {
-            arrow.Visible = state.ShowLinks;
+            arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
             arrow.ZTop();
           }
         }
@@ -368,26 +368,26 @@ namespace SysCAD.Editor
           Box originBox = (oldHoverArrow.Origin as Box);
           if (originBox != null)
           {
-            Item originItemBox = originBox.Tag as Item;
-            if (originItemBox != null)
+            Item originItem = originBox.Tag as Item;
+            if (originItem != null)
             {
-              originItemBox.Graphic.Visible = state.ShowGraphics;
-              originItemBox.Graphic.ZBottom();
-              originItemBox.Model.Visible = originItemBox.Model.Selected || state.ShowModels;
-              originItemBox.Model.ZTop();
+              originItem.Graphic.Visible = originItem.Visible && state.ShowGraphics;
+              originItem.Graphic.ZBottom();
+              originItem.Model.Visible = originItem.Visible && (originItem.Model.Selected || state.ShowModels);
+              originItem.Model.ZTop();
             }
           }
 
           Box destinationBox = (oldHoverArrow.Destination as Box);
           if (destinationBox != null)
           {
-            Item destinationItemBox = destinationBox.Tag as Item;
-            if (destinationItemBox != null)
+            Item destinationItem = destinationBox.Tag as Item;
+            if (destinationItem != null)
             {
-              destinationItemBox.Graphic.Visible = state.ShowGraphics;
-              destinationItemBox.Graphic.ZBottom();
-              destinationItemBox.Model.Visible = destinationItemBox.Model.Selected || state.ShowModels;
-              destinationItemBox.Model.ZTop();
+              destinationItem.Graphic.Visible = destinationItem.Visible && state.ShowGraphics;
+              destinationItem.Graphic.ZBottom();
+              destinationItem.Model.Visible = destinationItem.Visible && (destinationItem.Model.Selected || state.ShowModels);
+              destinationItem.Model.ZTop();
             }
           }
         }
@@ -396,22 +396,22 @@ namespace SysCAD.Editor
         oldHoverArrow.ZTop();
       }
 
-      if (hoverItemBox != null)
+      if (hoverItem != null)
       {
-        hoverItemBox.Graphic.Visible = true;
-        hoverItemBox.Graphic.ZBottom();
-        hoverItemBox.Model.Visible = true;
-        hoverItemBox.Model.ZTop();
+        hoverItem.Graphic.Visible = hoverItem.Visible;
+        hoverItem.Graphic.ZBottom();
+        hoverItem.Model.Visible = hoverItem.Visible;
+        hoverItem.Model.ZTop();
 
-        foreach (Arrow arrow in hoverItemBox.IncomingArrows)
+        foreach (Arrow arrow in hoverItem.IncomingArrows)
         {
-          arrow.Visible = true;
+          arrow.Visible = hoverItem.Visible;
           arrow.ZTop();
         }
 
-        foreach (Arrow arrow in hoverItemBox.OutgoingArrows)
+        foreach (Arrow arrow in hoverItem.OutgoingArrows)
         {
-          arrow.Visible = true;
+          arrow.Visible = hoverItem.Visible;
           arrow.ZTop();
         }
       }
@@ -420,26 +420,26 @@ namespace SysCAD.Editor
         Box originBox = (hoverArrow.Origin as Box);
         if (originBox != null)
         {
-          Item originItemBox = originBox.Tag as Item;
-          if (originItemBox != null)
+          Item originItem = originBox.Tag as Item;
+          if (originItem != null)
           {
-            originItemBox.Graphic.Visible = true;
-            originItemBox.Graphic.ZBottom();
-            originItemBox.Model.Visible = true;
-            originItemBox.Model.ZTop();
+            originItem.Graphic.Visible = originItem.Visible;
+            originItem.Graphic.ZBottom();
+            originItem.Model.Visible = originItem.Visible;
+            originItem.Model.ZTop();
           }
         }
 
         Box destinationBox = (hoverArrow.Destination as Box);
         if (destinationBox != null)
         {
-          Item destinationItemBox = destinationBox.Tag as Item;
-          if (destinationItemBox != null)
+          Item destinationItem = destinationBox.Tag as Item;
+          if (destinationItem != null)
           {
-            destinationItemBox.Graphic.Visible = true;
-            destinationItemBox.Graphic.ZBottom();
-            destinationItemBox.Model.Visible = true;
-            destinationItemBox.Model.ZTop();
+            destinationItem.Graphic.Visible = destinationItem.Visible;
+            destinationItem.Graphic.ZBottom();
+            destinationItem.Model.Visible = destinationItem.Visible;
+            destinationItem.Model.ZTop();
           }
         }
 
@@ -447,7 +447,7 @@ namespace SysCAD.Editor
         hoverArrow.ZTop();
       }
 
-      oldHoverItemBox = hoverItemBox;
+      oldHoverItem = hoverItem;
       oldHoverArrow = hoverArrow;
 
       //ResumeLayout(false);
@@ -640,10 +640,10 @@ namespace SysCAD.Editor
       GraphicLink newGraphicLink = new GraphicLink(newLinkTag);
 
       if (destinationBox != null)
-        newGraphicLink.Destination = destinationBox.Text;
+        newGraphicLink.Destination = (destinationBox.Tag as Item).Guid;
 
       if (sourceBox != null)
-        newGraphicLink.Source = sourceBox.Text;
+        newGraphicLink.Source = (sourceBox.Tag as Item).Guid;
 
       newGraphicLink.controlPoints = new List<PointF>();
       foreach (PointF point in e.Arrow.ControlPoints)

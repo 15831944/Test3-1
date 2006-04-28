@@ -13,15 +13,21 @@ namespace SysCAD.Interface
 	[Serializable]
 	public class GraphicLink
 	{
+    private Guid guid;
     private String tag;
 
     private String classID;
-    private String source;
-    private String destination;
+    private Guid source;
+    private Guid destination;
     private String sourcePort;
     private String destinationPort;
 
     public List<PointF> controlPoints;
+
+    public Guid Guid
+    {
+      get { return guid; }
+    }
 
     [CategoryAttribute("Model"),
      DescriptionAttribute("Tag name of the link.")]
@@ -43,7 +49,7 @@ namespace SysCAD.Interface
     [CategoryAttribute("Model"),
      DescriptionAttribute("Source item of the link."),
      ReadOnlyAttribute(true)]
-    public String Source
+    public Guid Source
     {
       get { return source; }
       set { source = value; }
@@ -52,7 +58,7 @@ namespace SysCAD.Interface
     [CategoryAttribute("Model"),
      DescriptionAttribute("Destination item of the link."),
      ReadOnlyAttribute(true)]
-    public String Destination
+    public Guid Destination
     {
       get { return destination; }
       set { destination = value; }
@@ -76,26 +82,31 @@ namespace SysCAD.Interface
       set { destinationPort = value; }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="tag"></param>
-		public GraphicLink(String tag)
-		{
+    public GraphicLink(String tag)
+    {
+      this.guid = Guid.NewGuid();
       this.tag = tag;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="connection"></param>
-    public void Populate(OleDbConnection connection, Dictionary<string, GraphicItem> graphicItems)
+    public GraphicLink(Guid guid, String tag)
+    {
+      this.guid = guid;
+      this.tag = tag;
+    }
+
+    public void Populate(OleDbConnection connection, Dictionary<Guid, GraphicItem> graphicItems)
     {
       OleDbDataReader linkReader = (new OleDbCommand("SELECT SrcTag, DstTag, ClassID FROM ModelLinks WHERE Tag='"+tag+"'", connection)).ExecuteReader();
       if(linkReader.Read()) 
       {
-        source = linkReader.GetString(0);
-        destination = linkReader.GetString(1);
+        OleDbDataReader sourceGuidReader = (new OleDbCommand("SELECT EqpGUID FROM ModelUnits WHERE Tag='" + linkReader.GetString(0) + "'", connection)).ExecuteReader();
+        if (sourceGuidReader.Read())
+          source = new Guid(sourceGuidReader.GetString(0));
+
+        OleDbDataReader destinationGuidReader = (new OleDbCommand("SELECT EqpGUID FROM ModelUnits WHERE Tag='" + linkReader.GetString(1) + "'", connection)).ExecuteReader();
+        if (destinationGuidReader.Read())
+          destination = new Guid(destinationGuidReader.GetString(0));
+
         classID = linkReader.GetString(2);
       }
       linkReader.Close();

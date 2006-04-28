@@ -9,11 +9,25 @@ namespace SysCAD.Editor
 {
   public class Link
   {
+    private Guid guid;
+
+    private String tag;
+
     private Arrow arrow;
 
     private GraphicLink graphicLink;
 
     private bool visible;
+
+    public Guid Guid
+    {
+      get { return guid; }
+    }
+
+    public String Tag
+    {
+      get { return tag; }
+    }
 
     public Arrow Arrow
     {
@@ -26,10 +40,17 @@ namespace SysCAD.Editor
       get { return visible; }
       set { visible = value; }
     }
+
+    public Link(Guid guid, String tag)
+    {
+      this.guid = guid;
+      this.tag = tag;
+    }
   }
 
   public class Item
   {
+    private Guid guid;
     private String tag;
     private Box model;
     private Box graphic;
@@ -39,6 +60,11 @@ namespace SysCAD.Editor
 
     private bool visible;
     private bool selected;
+
+    public Guid Guid
+    {
+      get { return guid; }
+    }
 
     public String Tag
     {
@@ -88,6 +114,15 @@ namespace SysCAD.Editor
 
     public Item(Box model, Box graphic, bool visible)
     {
+      this.guid = Guid.NewGuid();
+      this.model = model;
+      this.graphic = graphic;
+      this.visible = visible;
+    }
+
+    public Item(Guid guid, Box model, Box graphic, bool visible)
+    {
+      this.guid = guid;
       this.model = model;
       this.graphic = graphic;
       this.visible = visible;
@@ -98,8 +133,8 @@ namespace SysCAD.Editor
 
   public class State
   {
-    private Dictionary<string, Link> links = new Dictionary<string, Link>();
-    private Dictionary<string, Item> items = new Dictionary<string, Item>();
+    private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
+    private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
 
     private Graphic graphic;
     private Config config;
@@ -141,28 +176,28 @@ namespace SysCAD.Editor
       set { tvNavigation = value; }
     }
 
-    public Arrow Arrow(string tag)
+    public Arrow Arrow(Guid guid)
     {
       Link link;
-      links.TryGetValue(tag, out link);
+      links.TryGetValue(guid, out link);
       return link.Arrow;
     }
 
-    public Item item(string tag)
+    public Item item(Guid guid)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       return item;
     }
 
-    public void setArrow(string tag, Arrow arrow)
+    public void setArrow(Guid guid, String tag, Arrow arrow)
     {
-      Link link = new Link();
+      Link link = new Link(guid, tag);
       link.Arrow = arrow;
-      links.Add(tag, link);
+      links.Add(guid, link);
     }
 
-    internal void newGraphicLink(SysCAD.Interface.GraphicLink graphicLink, Arrow arrow, bool visible)
+    internal void newGraphicLink(GraphicLink graphicLink, Arrow arrow, bool visible)
     {
       Item origin = null; 
       Item destination = null;
@@ -199,7 +234,7 @@ namespace SysCAD.Editor
         PointCollection a = arrow.ControlPoints;
       }
 
-      Link link = new Link();
+      Link link = new Link(graphicLink.Guid, graphicLink.Tag);
       link.Arrow = arrow;
       link.Visible = true;
 
@@ -207,7 +242,7 @@ namespace SysCAD.Editor
 
       arrow.Visible = ShowLinks && visible;
 
-      links.Add(graphicLink.Tag, link);
+      links.Add(link.Guid, link);
     }
 
     internal void Remove(Item item, FlowChart flowchart)
@@ -223,7 +258,7 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void newItem(SysCAD.Interface.GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
+    internal void newItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
       Box modelBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       Box graphicBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
@@ -273,18 +308,18 @@ namespace SysCAD.Editor
 
       justCreatedModelBox = modelBox;
 
-      Item item = new Item(modelBox, graphicBox, isVisible);
+      Item item = new Item(graphicItem.Guid, modelBox, graphicBox, isVisible);
 
       modelBox.Tag = item;
       graphicBox.Tag = item;
 
-      items.Add(graphicItem.Tag, item);
+      items.Add(item.Guid, item);
     }
 
-    internal void ItemVisible(string tag, bool visible)
+    internal void ItemVisible(Guid guid, bool visible)
     {
       Item item;
-      if (items.TryGetValue(tag, out item))
+      if (items.TryGetValue(guid, out item))
       {
         item.Visible = visible;
         item.Model.Visible = visible && (item.Model.Selected || ShowModels);
@@ -302,10 +337,10 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void ItemSelected(string tag, bool selected)
+    internal void ItemSelected(Guid guid, bool selected)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         item.Selected = selected;
@@ -313,29 +348,46 @@ namespace SysCAD.Editor
       }
     }
 
-    internal bool Exists(string tag)
+    internal bool Exists(Guid guid)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
 
       Link link;
-      links.TryGetValue(tag, out link);
+      links.TryGetValue(guid, out link);
 
       return ((link != null) || (item != null));
     }
 
-    internal void SetStencil(string tag, ShapeTemplate shapeTemplate)
+    internal bool Exists(String tag)
+    {
+      foreach (Item item in items.Values)
+      {
+        if (item.Tag == tag)
+          return true;
+      }
+
+      foreach (Link link in links.Values)
+      {
+        if (link.Tag == tag)
+          return true;
+      }
+
+      return false;
+    }
+
+    internal void SetStencil(Guid guid, ShapeTemplate shapeTemplate)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
         item.Graphic.Shape = shapeTemplate;
     }
 
-    internal void SetAngle(string tag, float angle)
+    internal void SetAngle(Guid guid, float angle)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         item.Model.RotationAngle = angle;
@@ -343,10 +395,10 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetHeight(string tag, float height)
+    internal void SetHeight(Guid guid, float height)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         RectangleF boundingRect = item.Model.BoundingRect;
@@ -356,10 +408,10 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetWidth(string tag, float width)
+    internal void SetWidth(Guid guid, float width)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         RectangleF boundingRect = item.Model.BoundingRect;
@@ -369,10 +421,10 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetX(string tag, float x)
+    internal void SetX(Guid guid, float x)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         RectangleF boundingRect = item.Model.BoundingRect;
@@ -382,10 +434,10 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetY(string tag, float y)
+    internal void SetY(Guid guid, float y)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         RectangleF boundingRect = item.Model.BoundingRect;
@@ -395,14 +447,14 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetMirrorX(string tag, bool mirrorX)
+    internal void SetMirrorX(Guid guid, bool mirrorX)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         GraphicItem graphicItem;
-        if (graphic.graphicItems.TryGetValue(tag, out graphicItem))
+        if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
         {
           GraphicStencil stencil;
           if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
@@ -413,10 +465,10 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetMirrorY(string tag, bool mirrorY)
+    internal void SetMirrorY(Guid guid, bool mirrorY)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       if (item != null)
       {
         // Unimplemented...
@@ -437,17 +489,31 @@ namespace SysCAD.Editor
       return graphicStencil;
     }
 
-    internal GraphicItem GraphicItem(string tag)
+    internal GraphicItem GraphicItem(Guid guid)
     {
       GraphicItem graphicItem;
-      graphic.graphicItems.TryGetValue(tag, out graphicItem);
+      graphic.graphicItems.TryGetValue(guid, out graphicItem);
       return graphicItem;
     }
 
-    internal GraphicLink GraphicLink(string tag)
+    internal GraphicItem GraphicItem(Box box)
+    {
+      GraphicItem graphicItem;
+      graphic.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
+      return graphicItem;
+    }
+
+    internal GraphicLink GraphicLink(Guid guid)
     {
       GraphicLink graphicLink;
-      graphic.graphicLinks.TryGetValue(tag, out graphicLink);
+      graphic.graphicLinks.TryGetValue(guid, out graphicLink);
+      return graphicLink;
+    }
+
+    internal GraphicLink GraphicLink(Arrow arrow)
+    {
+      GraphicLink graphicLink;
+      graphic.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
       return graphicLink;
     }
 
@@ -466,17 +532,17 @@ namespace SysCAD.Editor
       get { return graphic.___graphicAreas.Values; }
     }
 
-    internal Item Item(string tag)
+    internal Item Item(Guid guid)
     {
       Item item;
-      items.TryGetValue(tag, out item);
+      items.TryGetValue(guid, out item);
       return item;
     }
 
-    internal Link Link(string tag)
+    internal Link Link(Guid guid)
     {
       Link link;
-      links.TryGetValue(tag, out link);
+      links.TryGetValue(guid, out link);
       return link;
     }
 
@@ -496,26 +562,34 @@ namespace SysCAD.Editor
     }
 
   
-  internal bool IsItem(string tag)
+  internal bool IsItem(Guid guid)
     {
-      return graphic.graphicItems.ContainsKey(tag);
+      return graphic.graphicItems.ContainsKey(guid);
     }
 
-    internal void ModifyGraphicItem(string tag, RectangleF boundingRect, float angle)
+    internal void ModifyGraphicItem(Guid guid, RectangleF boundingRect, float angle)
     {
-      graphic.ModifyItem(tag, boundingRect, angle);
+      graphic.ModifyItem(guid, boundingRect, angle);
     }
 
-    internal GraphicItem NewGraphicItem(string tag, string area)
+    internal GraphicItem NewGraphicItem(Guid guid, String tag, String area)
     {
-      GraphicItem graphicItem = new GraphicItem(tag);
-      tvNavigation.GetNodeByKey(area).Nodes.Add(tag, tag);
-      return NewGraphicItem(tag, area, graphicItem);
+      GraphicItem graphicItem = new GraphicItem(guid, tag);
+      tvNavigation.GetNodeByKey(area).Nodes.Add(tag, guid.ToString());
+      return NewGraphicItem(guid, area, graphicItem);
     }
 
-    internal GraphicItem NewGraphicItem(string tag, string area, GraphicItem graphicItem)
+    internal GraphicItem NewGraphicItem(String tag, String area)
     {
-      graphic.graphicItems.Add(tag, graphicItem);
+      Guid guid = Guid.NewGuid();
+      GraphicItem graphicItem = new GraphicItem(guid, tag);
+      tvNavigation.GetNodeByKey(area).Nodes.Add(tag, guid.ToString());
+      return NewGraphicItem(guid, area, graphicItem);
+    }
+
+    internal GraphicItem NewGraphicItem(Guid guid, string area, GraphicItem graphicItem)
+    {
+      graphic.graphicItems.Add(guid, graphicItem);
       return graphicItem;
     }
 

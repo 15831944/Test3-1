@@ -194,82 +194,82 @@ namespace SysCAD.Editor
     public Dictionary<string, GraphicLink> cbGraphicLinks;
     public Dictionary<string, GraphicItem> cbGraphicItems;
 
-    private void Edit_Paste()
-    {
-      foreach (GraphicItem graphicItem in cbGraphicItems.Values)
-      {
-        graphicItem.Tag += ".";
-        graphicItem.X += 10.0F;
-        graphicItem.Y += 10.0F;
-        frmFlowChart.state.newItem(graphicItem, true, frmFlowChart.fcFlowChart);
-        tvNavigation.Nodes.Add(graphicItem.Tag, graphicItem.Tag);
-        tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(graphicItem.Tag));
-      }
+    //private void Edit_Paste()
+    //{
+    //  foreach (GraphicItem graphicItem in cbGraphicItems.Values)
+    //  {
+    //    graphicItem.Tag += ".";
+    //    graphicItem.X += 10.0F;
+    //    graphicItem.Y += 10.0F;
+    //    frmFlowChart.state.newItem(graphicItem, true, frmFlowChart.fcFlowChart);
+    //    tvNavigation.Nodes.Add(graphicItem.Tag, graphicItem.Tag);
+    //    tvNavigation.AddSelectedNode(tvNavigation.GetNodeByKey(graphicItem.Tag));
+    //  }
 
-      foreach (GraphicLink graphicLink in cbGraphicLinks.Values)
-      {
-        graphicLink.Tag += ".";
-        graphicLink.Source += ".";
-        graphicLink.Destination += ".";
-        Arrow arrow = frmFlowChart.fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
-        frmFlowChart.state.newGraphicLink(graphicLink, arrow, true);
-      }
-    }
+    //  foreach (GraphicLink graphicLink in cbGraphicLinks.Values)
+    //  {
+    //    graphicLink.Tag += ".";
+    //    graphicLink.Source += ".";
+    //    graphicLink.Destination += ".";
+    //    Arrow arrow = frmFlowChart.fcFlowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+    //    frmFlowChart.state.newGraphicLink(graphicLink, arrow, true);
+    //  }
+    //}
 
-    private void Edit_Cut()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
+    //private void Edit_Cut()
+    //{
+    //  throw new Exception("The method or operation is not implemented.");
+    //}
 
-    private void Edit_Copy()
-    {
-      cbGraphicItems = new Dictionary<string, GraphicItem>();
-      cbGraphicLinks = new Dictionary<string, GraphicLink>();
+    //private void Edit_Copy()
+    //{
+    //  cbGraphicItems = new Dictionary<string, GraphicItem>();
+    //  cbGraphicLinks = new Dictionary<string, GraphicLink>();
 
-      //frmFlowChart.fcFlowChart.CopyToClipboard(true);
+    //  //frmFlowChart.fcFlowChart.CopyToClipboard(true);
 
-      foreach (ChartObject chartObject in frmFlowChart.fcFlowChart.Selection.Objects)
-      {
-        if (chartObject is Box)
-        {
-          Box box = chartObject as Box;
-          GraphicItem graphicItem = frmFlowChart.state.GraphicItem(box.Text);
-          if (graphicItem != null)
-          {
-            GraphicItem cbGraphicItem = new GraphicItem(box.Text);
-            cbGraphicItem.X = graphicItem.X + 10.0F;
-            cbGraphicItem.Y = graphicItem.Y + 10.0F;
-            cbGraphicItem.Width = graphicItem.Width;
-            cbGraphicItem.Height = graphicItem.Height;
-            cbGraphicItem.Angle = graphicItem.Angle;
-            cbGraphicItem.Model = graphicItem.Model;
-            cbGraphicItem.Shape = graphicItem.Shape;
-            cbGraphicItem.MirrorX = graphicItem.MirrorX;
-            cbGraphicItem.MirrorY = graphicItem.MirrorY;
-            cbGraphicItem.fillColor = graphicItem.fillColor;
+    //  foreach (ChartObject chartObject in frmFlowChart.fcFlowChart.Selection.Objects)
+    //  {
+    //    if (chartObject is Box)
+    //    {
+    //      Box box = chartObject as Box;
+    //      GraphicItem graphicItem = frmFlowChart.state.GraphicItem(box.Text);
+    //      if (graphicItem != null)
+    //      {
+    //        GraphicItem cbGraphicItem = new GraphicItem(box.Text);
+    //        cbGraphicItem.X = graphicItem.X + 10.0F;
+    //        cbGraphicItem.Y = graphicItem.Y + 10.0F;
+    //        cbGraphicItem.Width = graphicItem.Width;
+    //        cbGraphicItem.Height = graphicItem.Height;
+    //        cbGraphicItem.Angle = graphicItem.Angle;
+    //        cbGraphicItem.Model = graphicItem.Model;
+    //        cbGraphicItem.Shape = graphicItem.Shape;
+    //        cbGraphicItem.MirrorX = graphicItem.MirrorX;
+    //        cbGraphicItem.MirrorY = graphicItem.MirrorY;
+    //        cbGraphicItem.fillColor = graphicItem.fillColor;
 
-            cbGraphicItems.Add(box.Text, cbGraphicItem);
-          }
-        }
+    //        cbGraphicItems.Add(box.Text, cbGraphicItem);
+    //      }
+    //    }
 
-        if (chartObject is Arrow)
-        {
-          Arrow arrow = chartObject as Arrow;
-          GraphicLink graphicLink = frmFlowChart.state.GraphicLink(arrow.Text);
-          if (graphicLink != null)
-          {
-            GraphicLink cbLink = new GraphicLink(arrow.Text);
-            cbLink.Tag = graphicLink.Tag;
-            cbLink.ClassID = graphicLink.ClassID;
-            cbLink.Source = graphicLink.Source;
-            cbLink.Destination = graphicLink.Destination;
+    //    if (chartObject is Arrow)
+    //    {
+    //      Arrow arrow = chartObject as Arrow;
+    //      GraphicLink graphicLink = frmFlowChart.state.GraphicLink(arrow.Text);
+    //      if (graphicLink != null)
+    //      {
+    //        GraphicLink cbLink = new GraphicLink(arrow.Text);
+    //        cbLink.Tag = graphicLink.Tag;
+    //        cbLink.ClassID = graphicLink.ClassID;
+    //        cbLink.Source = graphicLink.Source;
+    //        cbLink.Destination = graphicLink.Destination;
 
-            cbGraphicLinks.Add(arrow.Text, cbLink);
-          }
-        }
+    //        cbGraphicLinks.Add(arrow.Text, cbLink);
+    //      }
+    //    }
 
-      }
-    }
+    //  }
+    //}
 
     #region clipboard support
 
@@ -349,14 +349,14 @@ namespace SysCAD.Editor
               }
 
               // use new tags for connected items.
-              if (tagConversion.ContainsKey(newGraphicLink.Source))
-                newGraphicLink.Source = tagConversion[newGraphicLink.Source];
-              else
-                newGraphicLink.Source = "";
-              if (tagConversion.ContainsKey(newGraphicLink.Destination))
-                newGraphicLink.Destination = tagConversion[newGraphicLink.Destination];
-              else
-                newGraphicLink.Destination = "";
+              //if (tagConversion.ContainsKey(newGraphicLink.Source))
+              //  newGraphicLink.Source = tagConversion[newGraphicLink.Source];
+              //else
+              //  newGraphicLink.Source = "";
+              //if (tagConversion.ContainsKey(newGraphicLink.Destination))
+              //  newGraphicLink.Destination = tagConversion[newGraphicLink.Destination];
+              //else
+              //  newGraphicLink.Destination = "";
 
               frmFlowChart.NewGraphicLink(newGraphicLink, null, dx, dy);
             }
@@ -395,7 +395,7 @@ namespace SysCAD.Editor
 
       foreach (Box box in doc.Selection.Boxes)
       {
-        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(box.Text);
+        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(box);
         if (graphicItem != null)
         {
           GraphicItem copyGraphicItem = new GraphicItem(box.Text);
@@ -410,7 +410,7 @@ namespace SysCAD.Editor
           copyGraphicItem.MirrorY = graphicItem.MirrorY;
           copyGraphicItem.fillColor = graphicItem.fillColor;
 
-          copyGraphic.graphicItems.Add(box.Text, copyGraphicItem);
+          copyGraphic.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
 
           // calculate the most contained area for pasting later-on -- going to use the currently selected area instead.
           //string areaText = tvNavigation.GetNodeByKey(box.Text).Parent.Text;
@@ -426,7 +426,7 @@ namespace SysCAD.Editor
 
       foreach (Arrow arrow in doc.Selection.Arrows)
       {
-        GraphicLink graphicLink = frmFlowChart.state.GraphicLink(arrow.Text);
+        GraphicLink graphicLink = frmFlowChart.state.GraphicLink((arrow.Tag as Link).Guid);
         if (graphicLink != null)
         {
           GraphicLink copyGraphicLink = new GraphicLink(arrow.Text);
@@ -440,7 +440,7 @@ namespace SysCAD.Editor
             copyGraphicLink.controlPoints.Add(point);
           }
 
-          copyGraphic.graphicLinks.Add(arrow.Text, copyGraphicLink);
+          copyGraphic.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
         }
       }
 
@@ -499,10 +499,9 @@ namespace SysCAD.Editor
     {
       frmFlowChart.state.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
 
-      foreach (Item itemBox in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.state.Items)
       {
-        if (itemBox.Visible)
-          itemBox.Model.Visible = frmFlowChart.state.ShowModels;
+        item.Model.Visible = item.Visible && frmFlowChart.state.ShowModels;
       }
     }
 
@@ -510,10 +509,9 @@ namespace SysCAD.Editor
     {
       frmFlowChart.state.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
 
-      foreach (Item itemBox in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.state.Items)
       {
-        if (itemBox.Visible)
-          itemBox.Graphic.Visible = frmFlowChart.state.ShowGraphics;
+        item.Graphic.Visible = item.Visible && frmFlowChart.state.ShowGraphics;
       }
     }
 
@@ -531,8 +529,7 @@ namespace SysCAD.Editor
         if (origin != null) visible = visible && origin.Visible;
         if (destination != null) visible = visible && destination.Visible;
 
-        if (visible)
-          arrow.Visible = frmFlowChart.state.ShowLinks;
+        arrow.Visible = visible && frmFlowChart.state.ShowLinks;
       }
     }
 
@@ -664,11 +661,12 @@ namespace SysCAD.Editor
 
         frmFlowChart.MdiParent = this;
         frmFlowChart.Text = openProjectForm.graphic.Name;
-        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
         frmFlowChart.SetProject(openProjectForm.graphic, openProjectForm.config, tvNavigation);
         tvNavigation_SetProject();
         ovOverview.Document = frmFlowChart.fcFlowChart;
+
+        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
         (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Clear();
         foreach (ModelStencil modelStencil in frmFlowChart.state.ModelStencils)
@@ -692,8 +690,8 @@ namespace SysCAD.Editor
     {
       foreach (GraphicArea graphicArea in frmFlowChart.state.GraphicAreas)
       {
-        PureComponents.TreeView.Node areaNode = tvNavigation.Nodes.Add(graphicArea.tag, graphicArea.tag);
-        areaNode.Tag = graphicArea.tag;
+        PureComponents.TreeView.Node areaNode = tvNavigation.Nodes.Add(graphicArea.Tag, graphicArea.Guid.ToString());
+        areaNode.Tag = graphicArea.Tag;
         areaNode.AllowDrag = true;
         areaNode.AllowDrop = true;
         SetArea(areaNode, graphicArea);
@@ -711,16 +709,16 @@ namespace SysCAD.Editor
       foreach (string areaKey in graphicArea.graphicAreas.Keys)
       {
         GraphicArea subGraphicArea = graphicArea.graphicAreas[areaKey] as GraphicArea;
-        PureComponents.TreeView.Node areaNode = node.Nodes.Add(subGraphicArea.tag, subGraphicArea.tag);
-        areaNode.Tag = subGraphicArea.tag;
+        PureComponents.TreeView.Node areaNode = node.Nodes.Add(subGraphicArea.Tag, subGraphicArea.Guid.ToString());
+        areaNode.Tag = subGraphicArea.Tag;
         areaNode.AllowDrag = true;
         areaNode.AllowDrop = true;
         SetArea(areaNode, subGraphicArea);
       }
-      foreach (string key in graphicArea.graphicItems.Keys)
+      foreach (Guid guid in graphicArea.graphicItems.Keys)
       {
-        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(key);
-        PureComponents.TreeView.Node itemNode = node.Nodes.Add(graphicItem.Tag, graphicItem.Tag);
+        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(guid);
+        PureComponents.TreeView.Node itemNode = node.Nodes.Add(graphicItem.Tag, graphicItem.Guid.ToString());
         itemNode.Tag = graphicItem.Tag;
         itemNode.AllowDrag = true;
         itemNode.AllowDrop = false;
@@ -743,18 +741,18 @@ namespace SysCAD.Editor
 
       foreach (GraphicArea graphicArea in frmFlowChart.state.GraphicAreas)
       {
-        SelectSubNodes(graphicArea.tag);
+        SelectSubNodes(graphicArea.Guid.ToString());
       }
 
       wasSelectedNodes.Clear();
       foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
       {
-        wasSelectedNodes.Add(node.Text, node);
+        wasSelectedNodes.Add(new Guid(node.Key), node);
       }
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
       {
-        frmFlowChart.state.ItemVisible(node.Key, true);
+        frmFlowChart.state.ItemVisible(new Guid(node.Key), true);
       }
 
       frmFlowChart.ZoomToVisible();
@@ -781,7 +779,7 @@ namespace SysCAD.Editor
         {
           if (innerNode.Key != null)
           {
-            frmFlowChart.state.ItemVisible(innerNode.Key, innerNode.IsSelected);
+            frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), innerNode.IsSelected);
             SelectSubNodes(innerNode.Key);
           }
         }
@@ -793,7 +791,7 @@ namespace SysCAD.Editor
         {
           if (innerNode.Key != null)
           {
-            frmFlowChart.state.ItemVisible(innerNode.Key, false);
+            frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), false);
             tvNavigation.RemoveSelectedNode(innerNode);
             SelectSubNodes(innerNode.Key);
           }
@@ -806,7 +804,7 @@ namespace SysCAD.Editor
         {
           if (innerNode.Key != null)
           {
-            frmFlowChart.state.ItemVisible(innerNode.Key, true);
+            frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), true);
             tvNavigation.AddSelectedNode(innerNode);
             SelectSubNodes(innerNode.Key);
           }
@@ -870,18 +868,18 @@ namespace SysCAD.Editor
         if (item.Model.Selected)
         {
           item.Model.ZTop();
-          item.Model.Visible = true;
+          item.Model.Visible = item.Visible;
         }
         else
         {
-          item.Model.Visible = frmFlowChart.state.ShowModels;
+          item.Model.Visible = item.Visible && frmFlowChart.state.ShowModels;
         }
       }
 
       if (frmFlowChart.fcFlowChart.ActiveObject is Arrow)
       {
         Arrow activeArrow = frmFlowChart.fcFlowChart.ActiveObject as Arrow;
-        GraphicLink graphicLink = frmFlowChart.state.GraphicLink(activeArrow.Text);
+        GraphicLink graphicLink = frmFlowChart.state.GraphicLink(activeArrow);
         if (graphicLink != null)
         {
           propertyGrid1.SelectedObject = graphicLink;
@@ -891,7 +889,7 @@ namespace SysCAD.Editor
       if (frmFlowChart.fcFlowChart.ActiveObject is Box)
       {
         Box activeBox = frmFlowChart.fcFlowChart.ActiveObject as Box;
-        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox.Text);
+        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox);
         if (graphicItem != null)
         {
           propertyGrid1.SelectedObject = graphicItem;
@@ -948,7 +946,7 @@ namespace SysCAD.Editor
           GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
           graphicItem.Shape = graphicString;
-          frmFlowChart.state.SetStencil(graphicItem.Tag, graphicShape.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY));
+          frmFlowChart.state.SetStencil(graphicItem.Guid, graphicShape.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY));
         }
       }
 
@@ -958,7 +956,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.Angle = angle;
-        frmFlowChart.state.SetAngle(graphicItem.Tag, angle);
+        frmFlowChart.state.SetAngle(graphicItem.Guid, angle);
       }
 
       if (label == "Height")
@@ -967,7 +965,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.Height = height;
-        frmFlowChart.state.SetHeight(graphicItem.Tag, height);
+        frmFlowChart.state.SetHeight(graphicItem.Guid, height);
       }
 
       if (label == "Width")
@@ -976,7 +974,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.Width = width;
-        frmFlowChart.state.SetWidth(graphicItem.Tag, width);
+        frmFlowChart.state.SetWidth(graphicItem.Guid, width);
       }
 
       if (label == "Left")
@@ -985,7 +983,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.X = x;
-        frmFlowChart.state.SetX(graphicItem.Tag, x);
+        frmFlowChart.state.SetX(graphicItem.Guid, x);
       }
 
       if (label == "Right")
@@ -994,7 +992,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.Y = y;
-        frmFlowChart.state.SetY(graphicItem.Tag, y);
+        frmFlowChart.state.SetY(graphicItem.Guid, y);
       }
 
       if (label == "Mirror X")
@@ -1003,7 +1001,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.MirrorX = mirrorX;
-        frmFlowChart.state.SetMirrorX(graphicItem.Tag, mirrorX);
+        frmFlowChart.state.SetMirrorX(graphicItem.Guid, mirrorX);
       }
 
       if (label == "Mirror Y")
@@ -1012,7 +1010,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
         graphicItem.MirrorY = mirrorY;
-        frmFlowChart.state.SetMirrorY(graphicItem.Tag, mirrorY);
+        frmFlowChart.state.SetMirrorY(graphicItem.Guid, mirrorY);
       }
     }
 

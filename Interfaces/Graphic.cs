@@ -23,15 +23,15 @@ namespace SysCAD.Interface
 
     public String name;
 
-    public Dictionary<string, GraphicLink> graphicLinks;
-    public Dictionary<string, GraphicItem> graphicItems;
-    public Dictionary<string, GraphicArea> ___graphicAreas;
+    public Dictionary<Guid, GraphicLink> graphicLinks;
+    public Dictionary<Guid, GraphicItem> graphicItems;
+    public Dictionary<Guid, GraphicArea> ___graphicAreas;
 
     public Graphic()
     {
-      graphicLinks = new Dictionary<string, GraphicLink>();
-      graphicItems = new Dictionary<string, GraphicItem>();
-      ___graphicAreas = new Dictionary<string, GraphicArea>();
+      graphicLinks = new Dictionary<Guid, GraphicLink>();
+      graphicItems = new Dictionary<Guid, GraphicItem>();
+      ___graphicAreas = new Dictionary<Guid, GraphicArea>();
     }
 
     ~Graphic()
@@ -45,20 +45,20 @@ namespace SysCAD.Interface
       get { return name; }
     }
 
-    public void ModifyItem(String tag, RectangleF boundingRect, Single angle)
+    public void ModifyItem(Guid guid, RectangleF boundingRect, Single angle)
     {
-      remoteGraphic.OnItemModified(tag, boundingRect, angle);
+      remoteGraphic.OnItemModified(guid, boundingRect, angle);
     }
 
-    public delegate void ItemModifiedHandler(string tag, RectangleF boundingRect, Single angle);
+    public delegate void ItemModifiedHandler(Guid guid, RectangleF boundingRect, Single angle);
 
     public ItemModifiedHandler ItemModified;
 
-    public void OnItemModified(string tag, RectangleF boundingRect, Single angle)
+    public void OnItemModified(Guid guid, RectangleF boundingRect, Single angle)
     {
       if (ItemModified != null)
       {
-        ItemModified(tag, boundingRect, angle);
+        ItemModified(guid, boundingRect, angle);
       }
     }
 
@@ -94,23 +94,23 @@ namespace SysCAD.Interface
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteGraphic.graphicLinks);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicLinks = bf.Deserialize(memoryStream) as Dictionary<string, GraphicLink>;
+      graphicLinks = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicLink>;
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteGraphic.graphicItems);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicItems = bf.Deserialize(memoryStream) as Dictionary<string, GraphicItem>;
+      graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteGraphic.___graphicAreas);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      ___graphicAreas = bf.Deserialize(memoryStream) as Dictionary<string, GraphicArea>;
+      ___graphicAreas = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicArea>;
     }
 
-    public void remoteGraphic_ItemModified(string tag, RectangleF boundingRect, Single angle)
+    public void remoteGraphic_ItemModified(Guid guid, RectangleF boundingRect, Single angle)
     {
       GraphicItem graphicItem;
-      if (graphicItems.TryGetValue(tag, out graphicItem))
+      if (graphicItems.TryGetValue(guid, out graphicItem))
       {
         graphicItem.X = boundingRect.X;
         graphicItem.Y = boundingRect.Y;
@@ -118,7 +118,7 @@ namespace SysCAD.Interface
         graphicItem.Height = boundingRect.Height;
         graphicItem.Angle = angle;
 
-        OnItemModified(tag, boundingRect, angle);
+        OnItemModified(guid, boundingRect, angle);
       }
     }
   }

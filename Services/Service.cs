@@ -107,18 +107,22 @@ namespace SysCAD.Service
           OleDbDataReader itemReader = (new OleDbCommand("SELECT DISTINCT Tag FROM GraphicsUnits", connection)).ExecuteReader(CommandBehavior.SingleResult);
           while (itemReader.Read())
           {
-            GraphicItem graphicItem = new GraphicItem(itemReader.GetString(0));
-            graphicItem.Populate(connection);
-            graphic.graphicItems.Add(itemReader.GetString(0), graphicItem);
+            OleDbDataReader itemGuidReader = (new OleDbCommand("SELECT EqpGUID FROM ModelUnits WHERE Tag='" + itemReader.GetString(0) + "'", connection)).ExecuteReader();
+            if (itemGuidReader.Read())
+            {
+              GraphicItem graphicItem = new GraphicItem(new Guid(itemGuidReader.GetString(0)), itemReader.GetString(0));
+              graphicItem.Populate(connection);
+              graphic.graphicItems.Add(graphicItem.Guid, graphicItem);
+            }
           }
           itemReader.Close();
 
-          OleDbDataReader linkReader = (new OleDbCommand("SELECT DISTINCT Tag FROM ModelLinks", connection)).ExecuteReader(CommandBehavior.SingleResult);
+          OleDbDataReader linkReader = (new OleDbCommand("SELECT DISTINCT Tag, EqpGUID FROM ModelLinks", connection)).ExecuteReader(CommandBehavior.SingleResult);
           while (linkReader.Read())
           {
-            GraphicLink graphicLink = new GraphicLink(linkReader.GetString(0));
+            GraphicLink graphicLink = new GraphicLink(new Guid(linkReader.GetString(1)), linkReader.GetString(0));
             graphicLink.Populate(connection, graphic.graphicItems);
-            graphic.graphicLinks.Add(linkReader.GetString(0), graphicLink);
+            graphic.graphicLinks.Add(graphicLink.Guid, graphicLink);
           }
           linkReader.Close();
 
@@ -131,7 +135,7 @@ namespace SysCAD.Service
           areaCountReader.Close();
 
           GraphicArea rootGraphicArea = new GraphicArea(filename);
-          graphic.___graphicAreas.Add(filename, rootGraphicArea);
+          graphic.___graphicAreas.Add(rootGraphicArea.Guid, rootGraphicArea);
 
           OleDbDataReader areaReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
           

@@ -38,6 +38,7 @@ namespace SysCAD.Interface
   [Serializable]
   public class GraphicItem
   {
+    private Guid guid;
     private String tag;
 
     private String model;
@@ -51,6 +52,12 @@ namespace SysCAD.Interface
     private bool mirrorX = false;
     private bool mirrorY = false;
     public System.Drawing.Color fillColor;
+
+    public Guid Guid
+    {
+      get { return guid; }
+      set { guid = value; }
+    }
 
     [CategoryAttribute("Model"),
      DescriptionAttribute("Tag name of the item.")]
@@ -161,19 +168,18 @@ namespace SysCAD.Interface
       set { mirrorY = value; }
     }
 
-    /// <summary>
-    /// Set unique tag.
-    /// </summary>
-    /// <param name="tag">Unique tag name.</param>
-    public GraphicItem(String tag)
+    public GraphicItem(Guid guid, String tag)
     {
+      this.guid = guid;
       this.tag = tag;
     }
 
-    /// <summary>
-    /// Extract all information from the database.
-    /// </summary>
-    /// <param name="connection">Database connection.</param>
+    public GraphicItem(String tag)
+    {
+      this.guid = Guid.NewGuid();
+      this.tag = tag;
+    }
+
     public void Populate(OleDbConnection connection)
     {
       OleDbDataReader itemReader = (new OleDbCommand("SELECT ClassID, InsertX, InsertY, ScaleX, ScaleY, Rotation FROM GraphicsUnits WHERE Tag='"+tag+"'", connection)).ExecuteReader();
@@ -205,6 +211,10 @@ namespace SysCAD.Interface
 
         model = itemReader.GetString(0);
         stencil = itemReader.GetString(0);
+
+        OleDbDataReader itemGuidReader = (new OleDbCommand("SELECT EqpGUID FROM ModelUnits WHERE Tag='" + tag + "'", connection)).ExecuteReader();
+        if (itemGuidReader.Read())
+          guid = new Guid(itemGuidReader.GetString(0));
 
         float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
         if (stencil.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
