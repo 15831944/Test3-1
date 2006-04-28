@@ -10,6 +10,7 @@ using MindFusion.FlowChartX;
 using SysCAD.Interface;
 using PureComponents.TreeView;
 using System.Windows.Forms;
+using ActiproSoftware.UIStudio.Bar;
 
 namespace SysCAD.Editor
 {
@@ -23,8 +24,12 @@ namespace SysCAD.Editor
     private int tempBoxKey = 0;
     private int tempArrowKey = 0;
 
-    public FrmFlowChart()
+    private Form1 form1;
+
+    public FrmFlowChart(Form1 form1)
     {
+      this.form1 = form1;
+
       InitializeComponent();
 
       fcFlowChart.DocExtents = new RectangleF(0.0F, 0.0F, 297.0F, 210.0F);
@@ -309,7 +314,17 @@ namespace SysCAD.Editor
 
     public void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
     {
-      //SuspendLayout();
+      if (e.Button == MouseButtons.Left)
+      {
+        overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(e.Location));
+        overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(e.Location), 2);
+
+        if ((overBox != null) || (overArrow != null)) // we're not in free space...
+        {
+          if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
+            form1.Mode_Modify();
+        }
+      }
 
       Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
       Item hoverItemBox = null;
@@ -560,10 +575,10 @@ namespace SysCAD.Editor
       {
         if ((overBox == null) && (overArrow == null)) // we're in free space...
         {
-          if (fcFlowChart.Behavior == BehaviorType.CreateBox)
+          if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
           {
-            NewGraphicItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location), 
-              state.GraphicStencil(currentGraphicShape).defaultSize), 
+            NewGraphicItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location),
+              state.GraphicStencil(currentGraphicShape).defaultSize),
               currentModelShape,
               currentGraphicShape,
               false,
@@ -571,8 +586,13 @@ namespace SysCAD.Editor
               Color.LightBlue,
               state.CurrentArea);
           }
+          else
+          {
+            form1.Mode_Modify();
+          }
         }
       }
+
       if (me.Button == MouseButtons.Right)
       {
         if (overBox != null)
@@ -580,12 +600,14 @@ namespace SysCAD.Editor
           ContextMenu boxMenu = new ContextMenu();
           boxMenu.MenuItems.Add("Unfinished");
           boxMenu.Show(fcFlowChart, me.Location);
+          form1.Mode_Modify();
         }
         else if (overArrow != null)
         {
           ContextMenu arrowMenu = new ContextMenu();
           arrowMenu.MenuItems.Add("Route arrow", new EventHandler(RouteArrow));
           arrowMenu.Show(fcFlowChart, me.Location);
+          form1.Mode_Modify();
         }
       }
     }
@@ -623,12 +645,28 @@ namespace SysCAD.Editor
       if (sourceBox != null)
         newGraphicLink.Source = sourceBox.Text;
 
+      newGraphicLink.controlPoints = new List<PointF>();
       foreach (PointF point in e.Arrow.ControlPoints)
       {
         newGraphicLink.controlPoints.Add(point);
       }
 
       state.newGraphicLink(newGraphicLink, e.Arrow, true);
+    }
+
+    private void fcFlowChart_MouseDown(object sender, MouseEventArgs e)
+    {
+      overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(e.Location));
+      overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(e.Location), 2);
+
+      if (e.Button == MouseButtons.Left)
+      {
+        if ((overBox != null) || (overArrow != null)) // we're not in free space...
+        {
+          if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
+          form1.Mode_Modify();
+        }
+      }
     }
   }
 }

@@ -76,6 +76,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.Size = new System.Drawing.Size(292, 266);
       this.fcFlowChart.TabIndex = 0;
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
+      this.fcFlowChart.MouseDown += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseDown);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
       this.fcFlowChart.BoxModifying += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModifying);
@@ -96,6 +97,7 @@ namespace SysCAD.Editor
       this.Name = "FrmFlowChart";
       this.Text = "FlowChart";
       this.ResumeLayout(false);
+
     }
 
     #endregion

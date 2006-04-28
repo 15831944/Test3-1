@@ -57,12 +57,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_200F93A8E4F147A0B9A6EE7B140876B5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_22D57FD734C4C7D43D1B93EB9803301C"
         "OwnerKey" = "8:_A314DDC4A605788C8AF27474692EB267"
         "MsmSig" = "8:_UNDEFINED"
@@ -177,6 +171,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6E6419A137BC4D44AA067E24A0E54CBE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_74137E552A614A688AF5C0F25DAE14E0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -280,13 +280,13 @@
         "Entry"
         {
         "MsmKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
-        "OwnerKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
+        "OwnerKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
-        "OwnerKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
+        "OwnerKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -370,13 +370,31 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
+        "OwnerKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -407,24 +425,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_22D57FD734C4C7D43D1B93EB9803301C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -622,26 +622,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_200F93A8E4F147A0B9A6EE7B140876B5"
-            {
-            "SourcePath" = "8:..\\..\\..\\Sample Projects\\NiCuDemo.MDB"
-            "TargetName" = "8:NiCuDemo.MDB"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_22D57FD734C4C7D43D1B93EB9803301C"
             {
             "AssemblyRegister" = "3:1"
@@ -677,7 +657,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.0.4.28635, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.0.4.19447, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_28E7E0CB775B1EEF9FC6B629E02404B9"
@@ -964,6 +944,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E6419A137BC4D44AA067E24A0E54CBE"
+            {
+            "SourcePath" = "8:..\\..\\..\\Sample Projects\\NiCuDemo.MDB"
+            "TargetName" = "8:NiCuDemo.MDB"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74137E552A614A688AF5C0F25DAE14E0"
@@ -1303,7 +1303,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.28634, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.19446, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_ABA12FE0E89DB487A1720CD2491FC139"
@@ -1394,7 +1394,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.28634, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.19446, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
@@ -1658,18 +1658,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Editor & Service"
-        "ProductCode" = "8:{A80D6B74-A19F-49E5-A0C6-F250ED46751F}"
-        "PackageCode" = "8:{4E88E96B-ABEE-480D-8B00-FE3A6D7965FE}"
+        "ProductCode" = "8:{5D33F2B9-DD5D-44BC-8B8D-63923366C0A9}"
+        "PackageCode" = "8:{893A078D-0062-4668-BEE9-FD6B6330B5E7}"
         "UpgradeCode" = "8:{D662DE63-23E0-4793-AE99-B412D97F451F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:10.0.2"
+        "ProductVersion" = "8:10.0.5"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:Editor & Stencil"
+        "Title" = "8:\"Editor & Stencil\""
         "Subject" = "8:"
         "ARPCONTACT" = "8:Kenwalt"
         "Keywords" = "8:"

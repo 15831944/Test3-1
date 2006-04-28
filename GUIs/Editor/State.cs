@@ -30,6 +30,7 @@ namespace SysCAD.Editor
 
   public class Item
   {
+    private String tag;
     private Box model;
     private Box graphic;
     private PureComponents.TreeView.Node node;
@@ -38,6 +39,12 @@ namespace SysCAD.Editor
 
     private bool visible;
     private bool selected;
+
+    public String Tag
+    {
+      get { return tag; }
+      set { tag = value; }
+    }
 
     public Box Model
     {
@@ -178,7 +185,7 @@ namespace SysCAD.Editor
         arrow.Destination = destination.Model;
 
       arrow.Text = graphicLink.Tag;
-      arrow.ToolTip = "Tag: " + graphicLink.Tag + "\n\nOrigin: " + graphicLink.Source + "\nDestination: " + graphicLink.Destination;
+      arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Source + "\nDst: " + graphicLink.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 
@@ -224,7 +231,7 @@ namespace SysCAD.Editor
       modelBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       modelBox.RotationAngle = graphicItem.Angle;
       modelBox.Text = graphicItem.Tag;
-      modelBox.ToolTip = "Tag: " + graphicItem.Tag + "\n\nModel Type: " + graphicItem.Model;
+      modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       modelBox.Style = BoxStyle.Shape;
       {
         ModelStencil stencil;
@@ -248,7 +255,7 @@ namespace SysCAD.Editor
       graphicBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       graphicBox.RotationAngle = graphicItem.Angle;
       graphicBox.Text = graphicItem.Tag;
-      graphicBox.ToolTip = "Tag: " + graphicItem.Tag + "\n\nStencil: " + graphicItem.Shape; ;
+      graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       graphicBox.Style = BoxStyle.Shape;
       {
         GraphicStencil stencil;
@@ -279,6 +286,7 @@ namespace SysCAD.Editor
       Item item;
       if (items.TryGetValue(tag, out item))
       {
+        item.Visible = visible;
         item.Model.Visible = visible && (item.Model.Selected || ShowModels);
         item.Graphic.Visible = visible && ShowGraphics;
 

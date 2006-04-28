@@ -788,7 +788,7 @@ namespace SysCAD.Editor
     private ActiproSoftware.UIStudio.Dock.ToolWindow twOverview;
     private Overview ovOverview;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea3;
-    private ActiproSoftware.UIStudio.Bar.BarManager barManager1;
+    public ActiproSoftware.UIStudio.Bar.BarManager barManager1;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea1;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea4;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea2;

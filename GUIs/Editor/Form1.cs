@@ -460,14 +460,17 @@ namespace SysCAD.Editor
     {
       barManager1.Commands["NewItem.GraphicType"].Enabled = true;
       barManager1.Commands["NewItem.ModelType"].Enabled = true;
-      frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateBox;
+      //frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateBox;
     }
 
-    private void Mode_Modify()
+    public void Mode_Modify()
     {
       barManager1.Commands["NewItem.GraphicType"].Enabled = false;
       barManager1.Commands["NewItem.ModelType"].Enabled = false;
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+      (barManager1.Commands["Mode.Modify"] as BarButtonCommand).Checked = true;
+      (barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked = false;
+      (barManager1.Commands["Mode.CreateLink"] as BarButtonCommand).Checked = false;
     }
 
     private void View_SelectItems()
@@ -652,7 +655,7 @@ namespace SysCAD.Editor
         openProjectForm.Close();
         Refresh();
 
-        frmFlowChart = new FrmFlowChart();
+        frmFlowChart = new FrmFlowChart(this);
 
         frmFlowChart.SuspendLayout();
         SuspendLayout();
@@ -875,61 +878,60 @@ namespace SysCAD.Editor
         }
       }
 
-      //if (frmFlowChart.fcFlowChart.ActiveObject is Arrow)
-      //{
-      //  Arrow activeArrow = frmFlowChart.fcFlowChart.ActiveObject as Arrow;
-      //  GraphicLink graphicLink = frmFlowChart.state.GraphicLink(activeArrow.Text);
-      //  if (graphicLink != null)
-      //  {
-      //    propertyGrid1.SelectedObject = graphicLink;
+      if (frmFlowChart.fcFlowChart.ActiveObject is Arrow)
+      {
+        Arrow activeArrow = frmFlowChart.fcFlowChart.ActiveObject as Arrow;
+        GraphicLink graphicLink = frmFlowChart.state.GraphicLink(activeArrow.Text);
+        if (graphicLink != null)
+        {
+          propertyGrid1.SelectedObject = graphicLink;
+        }
+      }
 
-      //  }
-      //}
-      
-      //if (frmFlowChart.fcFlowChart.ActiveObject is Box)
-      //{
-      //  Box activeBox = frmFlowChart.fcFlowChart.ActiveObject as Box;
-      //  GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox.Text);
-      //  if (graphicItem != null)
-      //  {
-      //    propertyGrid1.SelectedObject = graphicItem;
-      //    propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid1_PropertyValueChanged);
+      if (frmFlowChart.fcFlowChart.ActiveObject is Box)
+      {
+        Box activeBox = frmFlowChart.fcFlowChart.ActiveObject as Box;
+        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox.Text);
+        if (graphicItem != null)
+        {
+          propertyGrid1.SelectedObject = graphicItem;
+          propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid1_PropertyValueChanged);
 
-      //    int i;
-          
-      //    i = 0;
-      //    foreach (string model in (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items)
-      //    {
-      //      if (model == graphicItem.Model)
-      //      {
-      //        (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
-      //        (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Text = model;
-      //      }
-      //      i++;
-      //    }
-      //    if ((barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
-      //      (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
+          int i;
 
-      //    ModelStencil modelStencil = frmFlowChart.state.ModelStencil(graphicItem.Model);
-      //    if (modelStencil != null)
-      //    {
-      //      GraphicType_Populate(modelStencil.groupName);
-      //    }
+          i = 0;
+          foreach (string model in (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items)
+          {
+            if (model == graphicItem.Model)
+            {
+              (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
+              (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Text = model;
+            }
+            i++;
+          }
+          if ((barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
+            (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
 
-      //    i = 0;
-      //    foreach (string shape in (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items)
-      //    {
-      //      if (shape == graphicItem.Shape)
-      //      {
-      //        (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
-      //        (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Text = shape;
-      //      }
-      //      i++;
-      //    }
-      //    if ((barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
-      //      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
-      //  }
-      //}
+          ModelStencil modelStencil = frmFlowChart.state.ModelStencil(graphicItem.Model);
+          if (modelStencil != null)
+          {
+            GraphicType_Populate(modelStencil.groupName);
+          }
+
+          i = 0;
+          foreach (string shape in (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items)
+          {
+            if (shape == graphicItem.Shape)
+            {
+              (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
+              (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Text = shape;
+            }
+            i++;
+          }
+          if ((barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
+            (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
+        }
+      }
 
       frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
