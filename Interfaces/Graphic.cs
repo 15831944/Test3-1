@@ -25,13 +25,11 @@ namespace SysCAD.Interface
 
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicItem> graphicItems;
-    public Dictionary<Guid, GraphicArea> ___graphicAreas;
 
     public Graphic()
     {
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicItems = new Dictionary<Guid, GraphicItem>();
-      ___graphicAreas = new Dictionary<Guid, GraphicArea>();
     }
 
     ~Graphic()
@@ -100,11 +98,6 @@ namespace SysCAD.Interface
       bf.Serialize(memoryStream, remoteGraphic.graphicItems);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
-
-      memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, remoteGraphic.___graphicAreas);
-      memoryStream.Seek(0, SeekOrigin.Begin);
-      ___graphicAreas = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicArea>;
     }
 
     public void remoteGraphic_ItemModified(Guid guid, RectangleF boundingRect, Single angle)

@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="Anchor.cs" />
     <Compile Include="Arc.cs" />
-    <Compile Include="Area.cs" />
     <Compile Include="Bezier.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />

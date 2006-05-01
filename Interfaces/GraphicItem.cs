@@ -40,6 +40,7 @@ namespace SysCAD.Interface
   {
     private Guid guid;
     private String tag;
+    private String path;
 
     private String model;
 
@@ -57,6 +58,11 @@ namespace SysCAD.Interface
     {
       get { return guid; }
       set { guid = value; }
+    }
+
+    public String Path
+    {
+      get { return path; }
     }
 
     [CategoryAttribute("Model"),
@@ -180,34 +186,12 @@ namespace SysCAD.Interface
       this.tag = tag;
     }
 
-    public void Populate(OleDbConnection connection)
+    public void Populate(String filename, OleDbConnection connection)
     {
-      OleDbDataReader itemReader = (new OleDbCommand("SELECT ClassID, InsertX, InsertY, ScaleX, ScaleY, Rotation FROM GraphicsUnits WHERE Tag='"+tag+"'", connection)).ExecuteReader();
+      OleDbDataReader itemReader = (new OleDbCommand("SELECT ClassID, InsertX, InsertY, ScaleX, ScaleY, Rotation, Page FROM GraphicsUnits WHERE Tag='"+tag+"'", connection)).ExecuteReader();
       if(itemReader.Read()) 
       {
-        //shape = itemReader.GetString(0);
-        // Quick and dirty ClassId <-> shape mapping...
-        //switch (shape)
-        //{
-        //  case "Tie-1":
-        //    shape = "Tie-1";
-        //    break;
-        //  case "Feed_XPG-1":
-        //    shape = "Feed_XPG-1";
-        //    break;
-        //  case "Valve-1":
-        //    shape = "Valve-1";
-        //    break;
-        //  case "GControl":
-        //    shape = "GControl";
-        //    break;
-        //  case "PID_Cont-1":
-        //    shape = "GControl";
-        //    break;
-        //  default:
-        //    shape = "Valve_Default";
-        //    break;
-        //}
+        path = "/"+filename+"/"+itemReader.GetString(6)+"/";
 
         model = itemReader.GetString(0);
         stencil = itemReader.GetString(0);

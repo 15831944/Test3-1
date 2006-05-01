@@ -391,8 +391,6 @@ namespace SysCAD.Editor
 
       Graphic copyGraphic = new Graphic();
 
-      //Dictionary<string, int> areaCount = new Dictionary<string,int>();
-
       foreach (Box box in doc.Selection.Boxes)
       {
         GraphicItem graphicItem = frmFlowChart.state.GraphicItem(box);
@@ -411,18 +409,8 @@ namespace SysCAD.Editor
           copyGraphicItem.fillColor = graphicItem.fillColor;
 
           copyGraphic.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
-
-          // calculate the most contained area for pasting later-on -- going to use the currently selected area instead.
-          //string areaText = tvNavigation.GetNodeByKey(box.Text).Parent.Text;
-          //if (areaCount.ContainsKey(areaText))
-          //  areaCount[areaText] = areaCount[areaText] + 1;
-          //else
-          //  areaCount.Add(areaText, 0);
         }
       }
-
-      //foreach (string key in areaCount.Keys)
-      //areaCount.OnDeserialization
 
       foreach (Arrow arrow in doc.Selection.Arrows)
       {
@@ -688,40 +676,16 @@ namespace SysCAD.Editor
 
     private void tvNavigation_SetProject()
     {
-      foreach (GraphicArea graphicArea in frmFlowChart.state.GraphicAreas)
+      foreach (GraphicItem graphicItem in frmFlowChart.state.GraphicItems)
       {
-        PureComponents.TreeView.Node areaNode = tvNavigation.Nodes.Add(graphicArea.Tag, graphicArea.Guid.ToString());
-        areaNode.Tag = graphicArea.Tag;
-        areaNode.AllowDrag = true;
-        areaNode.AllowDrop = true;
-        SetArea(areaNode, graphicArea);
+        PureComponents.TreeView.Node node = 
+          tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
       }
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
       {
         node.Select();
         node.Expand();
-      }
-    }
-
-    private void SetArea(PureComponents.TreeView.Node node, GraphicArea graphicArea)
-    {
-      foreach (string areaKey in graphicArea.graphicAreas.Keys)
-      {
-        GraphicArea subGraphicArea = graphicArea.graphicAreas[areaKey] as GraphicArea;
-        PureComponents.TreeView.Node areaNode = node.Nodes.Add(subGraphicArea.Tag, subGraphicArea.Guid.ToString());
-        areaNode.Tag = subGraphicArea.Tag;
-        areaNode.AllowDrag = true;
-        areaNode.AllowDrop = true;
-        SetArea(areaNode, subGraphicArea);
-      }
-      foreach (Guid guid in graphicArea.graphicItems.Keys)
-      {
-        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(guid);
-        PureComponents.TreeView.Node itemNode = node.Nodes.Add(graphicItem.Tag, graphicItem.Guid.ToString());
-        itemNode.Tag = graphicItem.Tag;
-        itemNode.AllowDrag = true;
-        itemNode.AllowDrop = false;
       }
     }
 
@@ -733,81 +697,77 @@ namespace SysCAD.Editor
       //dockManager1.SaveToolWindowLayoutToFile("Recent.layout");
     }
 
-    static System.Collections.Hashtable wasSelectedNodes = new System.Collections.Hashtable();
+    static List<PureComponents.TreeView.Node> wasSelectedNodes = new List<PureComponents.TreeView.Node>();
 
     private void tvNavigation_NodeSelectionChange(object sender, EventArgs e)
     {
       tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
 
-      foreach (GraphicArea graphicArea in frmFlowChart.state.GraphicAreas)
+      if (tvNavigation.SelectedNodes.Length > 0)
       {
-        SelectSubNodes(graphicArea.Guid.ToString());
-      }
+        foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
+        {
+          if (node.Key == null) // not an item.
+            SelectSubNodes(node);
+        }
 
-      wasSelectedNodes.Clear();
-      foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
-      {
-        wasSelectedNodes.Add(new Guid(node.Key), node);
-      }
+        wasSelectedNodes.Clear();
+        foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
+        {
+          wasSelectedNodes.Add(node);
+        }
 
-      foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
-      {
-        frmFlowChart.state.ItemVisible(new Guid(node.Key), true);
-      }
+        //foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
+        //{
+        //  if (node.Key != null)
+        //    frmFlowChart.state.ItemVisible(new Guid(node.Key), true);
+        //}
 
-      frmFlowChart.ZoomToVisible();
+        frmFlowChart.ZoomToVisible();
+      }
 
       tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
     }
 
-    private void SelectSubNodes(string key)
+    private void SelectSubNodes(PureComponents.TreeView.Node node)
     {
-      PureComponents.TreeView.Node wasNode = (wasSelectedNodes[key] as PureComponents.TreeView.Node);
-
-      bool wasSelected = false;
-      if (wasNode != null)
-        wasSelected = true;
-
-      PureComponents.TreeView.Node isNode = tvNavigation.GetNodeByKey(key);
-
-      bool isSelected = isNode.IsSelected;
+      bool isSelected = node.IsSelected;
+      bool wasSelected = wasSelectedNodes.Contains(node);
 
       if (wasSelected == isSelected)
       {
         // Nothings changed at area level, update flowchart with innerNodes selection status.
-        foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
+        foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
           {
             frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), innerNode.IsSelected);
-            SelectSubNodes(innerNode.Key);
           }
+          SelectSubNodes(innerNode);
         }
       }
       else if (wasSelected && !isSelected)
       {
         // Been deselected, deselect all underlings and update flowchart.
-        foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
+        foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
-          {
             frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), false);
-            tvNavigation.RemoveSelectedNode(innerNode);
-            SelectSubNodes(innerNode.Key);
-          }
+
+          tvNavigation.RemoveSelectedNode(innerNode);
+          SelectSubNodes(innerNode);
         }
       }
       else if (!wasSelected && isSelected)
       {
         // Been selected, select all underlings and update flowchart.
-        foreach (PureComponents.TreeView.Node innerNode in isNode.Nodes)
+        foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
-          {
             frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), true);
-            tvNavigation.AddSelectedNode(innerNode);
-            SelectSubNodes(innerNode.Key);
-          }
+
+          tvNavigation.AddSelectedNode(innerNode);
+          SelectSubNodes(innerNode);
         }
       }
 

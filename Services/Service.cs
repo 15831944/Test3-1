@@ -10,10 +10,12 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 using System.Data;
 using System.Data.OleDb;
+using System.Drawing;
 
 using SysCAD.Interface;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Soap;
+using System.Collections.Generic;
 
 namespace SysCAD.Service
 {
@@ -111,7 +113,7 @@ namespace SysCAD.Service
             if (itemGuidReader.Read())
             {
               GraphicItem graphicItem = new GraphicItem(new Guid(itemGuidReader.GetString(0)), itemReader.GetString(0));
-              graphicItem.Populate(connection);
+              graphicItem.Populate(filename, connection);
               graphic.graphicItems.Add(graphicItem.Guid, graphicItem);
             }
           }
@@ -127,27 +129,25 @@ namespace SysCAD.Service
           linkReader.Close();
 
           int pages = 0;
-          OleDbDataReader areaCountReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
-          while (areaCountReader.Read())
+          OleDbDataReader pageCountReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
+          while (pageCountReader.Read())
           {
             pages++;
           }
-          areaCountReader.Close();
+          pageCountReader.Close();
 
-          GraphicArea rootGraphicArea = new GraphicArea(filename);
-          graphic.___graphicAreas.Add(rootGraphicArea.Guid, rootGraphicArea);
+          OleDbDataReader pageReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
 
-          OleDbDataReader areaReader = (new OleDbCommand("SELECT DISTINCT Page FROM GraphicsUnits ORDER BY Page", connection)).ExecuteReader(CommandBehavior.SingleResult);
-          
+          Dictionary<String, PointF> pageOffset = new Dictionary<String,PointF>();
+
           int sqrtPages = (int)System.Math.Round(System.Math.Sqrt((double)pages)+0.5);
           int i = 0;
           int j = 0;
           float dX = 0.0F;
           float dY = 0.0F;
-          while (areaReader.Read())
+          while (pageReader.Read())
           {
-            GraphicArea graphicArea = new GraphicArea(areaReader.GetString(0));
-            graphicArea.Populate(connection, graphic.graphicItems, graphic.graphicLinks, ref dX, ref dY);
+            pageOffset.Add("/" + filename + "/" + pageReader.GetString(0) + "/", new PointF(dX, dY));
 
             i++;
             dX += 400.0F;
@@ -158,10 +158,33 @@ namespace SysCAD.Service
               j++;
               dY += 320.0F;
             }
-
-            rootGraphicArea.graphicAreas.Add(areaReader.GetString(0), graphicArea);
           }
-          areaReader.Close();
+          pageReader.Close();
+
+          foreach (GraphicItem graphicItem in graphic.graphicItems.Values)
+          {
+            graphicItem.X += pageOffset[graphicItem.Path].X;
+            graphicItem.Y += pageOffset[graphicItem.Path].Y;
+          }
+
+          foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
+          {
+            GraphicItem sourceGraphicItem;
+            graphic.graphicItems.TryGetValue(graphicLink.Source, out sourceGraphicItem);
+
+            GraphicItem destinationGraphicItem;
+            graphic.graphicItems.TryGetValue(graphicLink.Source, out destinationGraphicItem);
+
+            if ((sourceGraphicItem != null) || (destinationGraphicItem != null))
+            {
+              List<PointF> controlPoints = new List<PointF>();
+              foreach (PointF point in graphicLink.controlPoints)
+              {
+                controlPoints.Add(new PointF(point.X + pageOffset[sourceGraphicItem.Path].X, point.Y + pageOffset[sourceGraphicItem.Path].Y));
+              }
+              graphicLink.controlPoints = controlPoints;
+            }
+          }
         }
 
         RemotingServices.Marshal(graphic, filename);

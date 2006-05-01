@@ -527,11 +527,6 @@ namespace SysCAD.Editor
       get { return graphic.graphicLinks.Values; }
     }
 
-    internal IEnumerable<GraphicArea> GraphicAreas
-    {
-      get { return graphic.___graphicAreas.Values; }
-    }
-
     internal Item Item(Guid guid)
     {
       Item item;
@@ -556,9 +551,9 @@ namespace SysCAD.Editor
       get { return links.Values; }
     }
 
-    internal string CurrentArea
+    internal string CurrentPath
     {
-      get {return tvNavigation.SelectedNode.Text; }
+      get {return tvNavigation.SelectedNode.Key; }
     }
 
   

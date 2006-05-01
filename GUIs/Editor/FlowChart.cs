@@ -514,17 +514,17 @@ namespace SysCAD.Editor
       graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
     }
 
-    public GraphicItem NewGraphicItem(GraphicItem graphicItem, string area)
+    public GraphicItem NewGraphicItem(GraphicItem graphicItem, string path)
     {
       return NewGraphicItem(graphicItem.BoundingRect, graphicItem.Model, graphicItem.Shape, 
-        graphicItem.MirrorX, graphicItem.MirrorY, graphicItem.fillColor, area);
+        graphicItem.MirrorX, graphicItem.MirrorY, graphicItem.fillColor, path);
     }
 
-    public GraphicItem NewGraphicItem(RectangleF rect, string model, string shape, bool mirrorX, bool mirrorY, Color fillColor, string area)
+    public GraphicItem NewGraphicItem(RectangleF rect, string model, string shape, bool mirrorX, bool mirrorY, Color fillColor, string path)
     {
       while (state.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
-      GraphicItem newGraphicItem = state.NewGraphicItem("N_" + tempBoxKey.ToString(), area);
+      GraphicItem newGraphicItem = state.NewGraphicItem("N_" + tempBoxKey.ToString(), path);
       newGraphicItem.X = rect.X - rect.Width;
       newGraphicItem.Y = rect.Y - rect.Height;
       newGraphicItem.Width = rect.Width;
@@ -584,7 +584,7 @@ namespace SysCAD.Editor
               false,
               false,
               Color.LightBlue,
-              state.CurrentArea);
+              state.CurrentPath);
           }
           else
           {
