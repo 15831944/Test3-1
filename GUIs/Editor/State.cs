@@ -112,17 +112,19 @@ namespace SysCAD.Editor
       get { return model.OutgoingArrows; }
     }
 
-    public Item(Box model, Box graphic, bool visible)
+    public Item(String tag, Box model, Box graphic, bool visible)
     {
       this.guid = Guid.NewGuid();
+      this.tag = tag;
       this.model = model;
       this.graphic = graphic;
       this.visible = visible;
     }
 
-    public Item(Guid guid, Box model, Box graphic, bool visible)
+    public Item(Guid guid, String tag, Box model, Box graphic, bool visible)
     {
       this.guid = guid;
+      this.tag = tag;
       this.model = model;
       this.graphic = graphic;
       this.visible = visible;
@@ -274,13 +276,16 @@ namespace SysCAD.Editor
         else
           modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-        AnchorPointCollection anchorPointCollection = new AnchorPointCollection(); 
-        foreach (Anchor anchor in stencil.Anchors)
+        AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
+        if (stencil.Anchors != null)
         {
-          anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y,
-            (anchor.maxIn > 0), (anchor.maxOut > 0), MarkStyle.Circle, Color.Blue));
+          foreach (Anchor anchor in stencil.Anchors)
+          {
+            anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y,
+              (anchor.maxIn > 0), (anchor.maxOut > 0), MarkStyle.Circle, Color.Blue));
+          }
+          modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
         }
-        modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
       }
 
       modelBox.FillColor = Color.FromArgb(150, System.Drawing.Color.BurlyWood);
@@ -308,7 +313,7 @@ namespace SysCAD.Editor
 
       justCreatedModelBox = modelBox;
 
-      Item item = new Item(graphicItem.Guid, modelBox, graphicBox, isVisible);
+      Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, isVisible);
 
       modelBox.Tag = item;
       graphicBox.Tag = item;

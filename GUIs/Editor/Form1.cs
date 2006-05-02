@@ -525,27 +525,23 @@ namespace SysCAD.Editor
     {
       frmFlowChart.state.ShowTags = ((IBarCheckableCommand)barManager1.Commands["View.ShowTags"]).Checked;
 
-      foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+      foreach (Link link in frmFlowChart.state.Links)
       {
         if (frmFlowChart.state.ShowTags)
-          arrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
+          link.Arrow.Text = link.Tag;
         else
-          arrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
+          link.Arrow.Text = "";
       }
 
-      foreach (Item itemBox in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.state.Items)
       {
         if (frmFlowChart.state.ShowTags)
-        {
-          itemBox.Graphic.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
-          itemBox.Model.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F);
-        }
+          item.Graphic.Text = item.Tag;
         else
-        {
-          itemBox.Graphic.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
-          itemBox.Model.Font = new System.Drawing.Font("Microsoft Sans Serif", 0.25F);
-        }
-      }  
+          item.Graphic.Text = "";
+      }
+
+      frmFlowChart.fcFlowChart.Invalidate();
     }
 
     private void View_ZoomToVisible()
@@ -713,17 +709,19 @@ namespace SysCAD.Editor
 
         wasSelectedNodes.Clear();
         foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
-        {
           wasSelectedNodes.Add(node);
-        }
-
-        //foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
-        //{
-        //  if (node.Key != null)
-        //    frmFlowChart.state.ItemVisible(new Guid(node.Key), true);
-        //}
 
         frmFlowChart.ZoomToVisible();
+      }
+      else
+      {
+        foreach (PureComponents.TreeView.Node node in wasSelectedNodes)
+        {
+          if (node.Key != null)
+            frmFlowChart.state.ItemVisible(new Guid(node.Key), false);
+        }
+
+        wasSelectedNodes.Clear();
       }
 
       tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
@@ -767,18 +765,6 @@ namespace SysCAD.Editor
 
           tvNavigation.AddSelectedNode(innerNode);
           SelectSubNodes(innerNode);
-        }
-      }
-
-      foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
-      {
-        if ((arrow.Destination.Selected) && (arrow.Origin.Selected))
-        {
-          arrow.Selected = true;
-        }
-        else
-        {
-          arrow.Selected = false;
         }
       }
     }
