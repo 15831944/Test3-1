@@ -57,6 +57,19 @@ namespace StencilEditor
       this.newStencilButton = new System.Windows.Forms.ToolStripButton();
       this.loadStencilButton = new System.Windows.Forms.ToolStripButton();
       this.saveStencilButton = new System.Windows.Forms.ToolStripButton();
+      this.toolStrip4 = new System.Windows.Forms.ToolStrip();
+      this.toolStripLabel6 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+      this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
+      this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripTextBox2 = new System.Windows.Forms.ToolStripTextBox();
+      this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripTextBox3 = new System.Windows.Forms.ToolStripTextBox();
+      this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripTextBox4 = new System.Windows.Forms.ToolStripTextBox();
+      this.toolStripLabel5 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripTextBox5 = new System.Windows.Forms.ToolStripTextBox();
       this.ruler1 = new MindFusion.FlowChartX.Ruler();
       this.toolStripContainer1.ContentPanel.SuspendLayout();
       this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -67,6 +80,7 @@ namespace StencilEditor
       this.toolStrip1.SuspendLayout();
       this.toolStrip3.SuspendLayout();
       this.toolStrip2.SuspendLayout();
+      this.toolStrip4.SuspendLayout();
       this.SuspendLayout();
       // 
       // toolStripContainer1
@@ -78,7 +92,7 @@ namespace StencilEditor
       this.toolStripContainer1.ContentPanel.AutoScroll = true;
       this.toolStripContainer1.ContentPanel.Controls.Add(this.splitContainer1);
       this.toolStripContainer1.ContentPanel.Margin = new System.Windows.Forms.Padding(2);
-      this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(923, 453);
+      this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(923, 428);
       this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.toolStripContainer1.LeftToolStripPanelVisible = false;
       this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
@@ -94,6 +108,7 @@ namespace StencilEditor
       this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
       this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip3);
       this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip2);
+      this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip4);
       // 
       // splitContainer1
       // 
@@ -108,7 +123,7 @@ namespace StencilEditor
       // splitContainer1.Panel2
       // 
       this.splitContainer1.Panel2.Controls.Add(this.flowChart2);
-      this.splitContainer1.Size = new System.Drawing.Size(923, 453);
+      this.splitContainer1.Size = new System.Drawing.Size(923, 428);
       this.splitContainer1.SplitterDistance = 624;
       this.splitContainer1.TabIndex = 0;
       this.splitContainer1.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.splitContainer1_SplitterMoving);
@@ -130,12 +145,12 @@ namespace StencilEditor
       this.flowChart1.Location = new System.Drawing.Point(0, 0);
       this.flowChart1.Margin = new System.Windows.Forms.Padding(2);
       this.flowChart1.Name = "flowChart1";
-      this.flowChart1.Size = new System.Drawing.Size(624, 453);
+      this.flowChart1.Size = new System.Drawing.Size(624, 428);
       this.flowChart1.TabIndex = 1;
       this.flowChart1.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.flowChart1_ArrowModified);
+      this.flowChart1.SelectionChanged += new MindFusion.FlowChartX.SelectionEvent(this.flowChart1_SelectionChanged);
       this.flowChart1.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.flowChart1_BoxModified);
       this.flowChart1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.flowChart1_MouseClick);
-      this.flowChart1.SelectionChanged += new MindFusion.FlowChartX.SelectionEvent(this.flowChart1_SelectionChanged);
       this.flowChart1.ArrowDeleting += new MindFusion.FlowChartX.ArrowConfirmation(this.flowChart1_ArrowDeleting);
       this.flowChart1.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.flowChart1_ArrowModifying);
       this.flowChart1.BoxDeleting += new MindFusion.FlowChartX.BoxConfirmation(this.flowChart1_BoxDeleting);
@@ -151,7 +166,7 @@ namespace StencilEditor
       this.flowChart2.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.flowChart2.Location = new System.Drawing.Point(0, 0);
       this.flowChart2.Name = "flowChart2";
-      this.flowChart2.Size = new System.Drawing.Size(295, 453);
+      this.flowChart2.Size = new System.Drawing.Size(295, 428);
       this.flowChart2.TabIndex = 0;
       // 
       // toolStrip1
@@ -168,7 +183,7 @@ namespace StencilEditor
             this.modelStencilButton});
       this.toolStrip1.Location = new System.Drawing.Point(3, 0);
       this.toolStrip1.Name = "toolStrip1";
-      this.toolStrip1.Size = new System.Drawing.Size(521, 25);
+      this.toolStrip1.Size = new System.Drawing.Size(552, 25);
       this.toolStrip1.TabIndex = 2;
       // 
       // showFillAreaLinesButton
@@ -263,7 +278,7 @@ namespace StencilEditor
             this.DefaultSizeYTextBox});
       this.toolStrip3.Location = new System.Drawing.Point(3, 25);
       this.toolStrip3.Name = "toolStrip3";
-      this.toolStrip3.Size = new System.Drawing.Size(560, 25);
+      this.toolStrip3.Size = new System.Drawing.Size(529, 25);
       this.toolStrip3.TabIndex = 4;
       // 
       // groupNameLabel
@@ -383,6 +398,99 @@ namespace StencilEditor
       this.saveStencilButton.Text = "Save Stencil";
       this.saveStencilButton.Click += new System.EventHandler(this.saveStencilButton_Click);
       // 
+      // toolStrip4
+      // 
+      this.toolStrip4.Dock = System.Windows.Forms.DockStyle.None;
+      this.toolStrip4.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripLabel6,
+            this.toolStripSeparator7,
+            this.toolStripLabel1,
+            this.toolStripTextBox1,
+            this.toolStripLabel2,
+            this.toolStripTextBox2,
+            this.toolStripLabel3,
+            this.toolStripTextBox3,
+            this.toolStripLabel4,
+            this.toolStripTextBox4,
+            this.toolStripLabel5,
+            this.toolStripTextBox5});
+      this.toolStrip4.Location = new System.Drawing.Point(3, 75);
+      this.toolStrip4.Name = "toolStrip4";
+      this.toolStrip4.Size = new System.Drawing.Size(920, 25);
+      this.toolStrip4.TabIndex = 5;
+      // 
+      // toolStripLabel6
+      // 
+      this.toolStripLabel6.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.toolStripLabel6.Name = "toolStripLabel6";
+      this.toolStripLabel6.Size = new System.Drawing.Size(47, 22);
+      this.toolStripLabel6.Text = "Anchor";
+      // 
+      // toolStripSeparator7
+      // 
+      this.toolStripSeparator7.Name = "toolStripSeparator7";
+      this.toolStripSeparator7.Size = new System.Drawing.Size(6, 25);
+      // 
+      // toolStripLabel1
+      // 
+      this.toolStripLabel1.Name = "toolStripLabel1";
+      this.toolStripLabel1.Size = new System.Drawing.Size(32, 22);
+      this.toolStripLabel1.Text = "Tag: ";
+      // 
+      // toolStripTextBox1
+      // 
+      this.toolStripTextBox1.Name = "toolStripTextBox1";
+      this.toolStripTextBox1.Size = new System.Drawing.Size(100, 25);
+      this.toolStripTextBox1.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox1_Validating);
+      // 
+      // toolStripLabel2
+      // 
+      this.toolStripLabel2.Name = "toolStripLabel2";
+      this.toolStripLabel2.Size = new System.Drawing.Size(76, 22);
+      this.toolStripLabel2.Text = "Min Incoming: ";
+      // 
+      // toolStripTextBox2
+      // 
+      this.toolStripTextBox2.Name = "toolStripTextBox2";
+      this.toolStripTextBox2.Size = new System.Drawing.Size(100, 25);
+      this.toolStripTextBox2.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox2_Validating);
+      // 
+      // toolStripLabel3
+      // 
+      this.toolStripLabel3.Name = "toolStripLabel3";
+      this.toolStripLabel3.Size = new System.Drawing.Size(80, 22);
+      this.toolStripLabel3.Text = "Max Incoming: ";
+      // 
+      // toolStripTextBox3
+      // 
+      this.toolStripTextBox3.Name = "toolStripTextBox3";
+      this.toolStripTextBox3.Size = new System.Drawing.Size(100, 25);
+      this.toolStripTextBox3.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox3_Validating);
+      // 
+      // toolStripLabel4
+      // 
+      this.toolStripLabel4.Name = "toolStripLabel4";
+      this.toolStripLabel4.Size = new System.Drawing.Size(77, 22);
+      this.toolStripLabel4.Text = "Min Outgoing: ";
+      // 
+      // toolStripTextBox4
+      // 
+      this.toolStripTextBox4.Name = "toolStripTextBox4";
+      this.toolStripTextBox4.Size = new System.Drawing.Size(100, 25);
+      this.toolStripTextBox4.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox4_Validating);
+      // 
+      // toolStripLabel5
+      // 
+      this.toolStripLabel5.Name = "toolStripLabel5";
+      this.toolStripLabel5.Size = new System.Drawing.Size(81, 22);
+      this.toolStripLabel5.Text = "Max Outgoing: ";
+      // 
+      // toolStripTextBox5
+      // 
+      this.toolStripTextBox5.Name = "toolStripTextBox5";
+      this.toolStripTextBox5.Size = new System.Drawing.Size(100, 21);
+      this.toolStripTextBox5.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox5_Validating);
+      // 
       // ruler1
       // 
       this.ruler1.AllowDrop = true;
@@ -417,6 +525,8 @@ namespace StencilEditor
       this.toolStrip3.PerformLayout();
       this.toolStrip2.ResumeLayout(false);
       this.toolStrip2.PerformLayout();
+      this.toolStrip4.ResumeLayout(false);
+      this.toolStrip4.PerformLayout();
       this.ResumeLayout(false);
 
     }
@@ -452,6 +562,19 @@ namespace StencilEditor
     private System.Windows.Forms.ToolStripButton graphicStencilButton;
     private System.Windows.Forms.ToolStripButton modelStencilButton;
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+    private System.Windows.Forms.ToolStrip toolStrip4;
+    private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+    private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
+    private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+    private System.Windows.Forms.ToolStripTextBox toolStripTextBox2;
+    private System.Windows.Forms.ToolStripLabel toolStripLabel3;
+    private System.Windows.Forms.ToolStripTextBox toolStripTextBox3;
+    private System.Windows.Forms.ToolStripLabel toolStripLabel4;
+    private System.Windows.Forms.ToolStripTextBox toolStripTextBox4;
+    private System.Windows.Forms.ToolStripLabel toolStripLabel5;
+    private System.Windows.Forms.ToolStripTextBox toolStripTextBox5;
+    private System.Windows.Forms.ToolStripLabel toolStripLabel6;
+    private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
 
 
 

@@ -740,9 +740,8 @@ namespace SysCAD.Editor
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
-          {
             frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), innerNode.IsSelected);
-          }
+
           SelectSubNodes(innerNode);
         }
       }

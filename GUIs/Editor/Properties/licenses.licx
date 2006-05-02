@@ -1,9 +1,5 @@
-MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.17194, Culture=neutral, PublicKeyToken=null
-ActiproSoftware.UIStudio.Bar.BarManager, ActiproSoftware.UIStudio.Bar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6
-ActiproSoftware.UIStudio.Dock.DockManager, ActiproSoftware.UIStudio.Dock, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b
 MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.19480, Culture=neutral, PublicKeyToken=null
 PureComponents.TreeView.TreeView, PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512
-MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.18950, Culture=neutral, PublicKeyToken=null
-MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.19010, Culture=neutral, PublicKeyToken=null
-MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.19446, Culture=neutral, PublicKeyToken=null
-MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.19189, Culture=neutral, PublicKeyToken=null
+MindFusion.FlowChartX.FlowChart, FlowChart.NET, Version=4.0.4.21538, Culture=neutral, PublicKeyToken=null
+ActiproSoftware.UIStudio.Dock.DockManager, ActiproSoftware.UIStudio.Dock, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b
+ActiproSoftware.UIStudio.Bar.BarManager, ActiproSoftware.UIStudio.Bar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6

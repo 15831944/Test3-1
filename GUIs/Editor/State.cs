@@ -265,7 +265,6 @@ namespace SysCAD.Editor
 
       modelBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       modelBox.RotationAngle = graphicItem.Angle;
-      modelBox.Text = graphicItem.Tag;
       modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       modelBox.Style = BoxStyle.Shape;
       {
@@ -274,14 +273,15 @@ namespace SysCAD.Editor
           modelBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
         else
           modelBox.Shape = ShapeTemplate.FromId("Decision2");
-      }
-      modelBox.AnchorPattern = new AnchorPattern(new AnchorPoint[]
+
+        AnchorPointCollection anchorPointCollection = new AnchorPointCollection(); 
+        foreach (Anchor anchor in stencil.Anchors)
         {
-          new AnchorPoint(50, 0, false, true, MarkStyle.Circle, Color.Blue),
-          new AnchorPoint(0, 50, true, false, MarkStyle.Circle, Color.Blue),
-          new AnchorPoint(50, 100, true, false, MarkStyle.Rectangle, Color.Green),
-          new AnchorPoint(100, 50, true, true, MarkStyle.Rectangle, Color.Red)
-        });
+          anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y,
+            (anchor.maxIn > 0), (anchor.maxOut > 0), MarkStyle.Circle, Color.Blue));
+        }
+        modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
+      }
 
       modelBox.FillColor = Color.FromArgb(150, System.Drawing.Color.BurlyWood);
       modelBox.FrameColor = Color.FromArgb(200, System.Drawing.Color.BurlyWood);
