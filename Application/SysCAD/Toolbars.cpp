@@ -1094,10 +1094,16 @@ CToolBarMngr::~CToolBarMngr()
   {
   for (int i=0; i<MaxDynToolBars; i++)
     if (ToolBars[i])
+      {
       delete ToolBars[i];
+      ToolBars[i]=NULL;
+      }
   for (i=0; i<MaxDynBitmaps; i++)
     if (Bitmaps[i])
+      {
       delete Bitmaps[i];
+      Bitmaps[i]=NULL;
+      }
   }
 
 //---------------------------------------------------------------------------

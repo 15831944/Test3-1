@@ -371,7 +371,7 @@ int CGrfDoc::GetTagListInfo(bool AllInserts, CGrfTagInfoArray & GTIA)
 //
 //      if (TagTyp==2)
 //        {
-//        LinePointsArray LPA;
+//        CLinePointsArray LPA;
 //        GCB.pDrw->CollectLinkInfo(I, LPA);
 //        EGH.WriteLink(I, LPA, Page());
 //        }

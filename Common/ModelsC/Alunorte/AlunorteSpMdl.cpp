@@ -72,7 +72,7 @@ byte AlunorteBayer::sm_iViscMethod = VSM_Standard;
 // ==========================================================================
 
 flag     CConcentrations::NaFactorOK=0;
-SpVector CConcentrations::NaFactor(0.0);
+SpVector CConcentrations::NaFactor(true);
 
 CConcentrations::CConcentrations(AlunorteBayer *pMdl) 
   { 

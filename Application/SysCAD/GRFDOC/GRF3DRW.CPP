@@ -3994,7 +3994,7 @@ static void SwapPT3(PT3 & A, PT3 & B)
   q=A[2]; A[2]=B[2]; B[2]=q;
   }
 
-void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA)
+void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA)
   {
   pBlock b = Blocks.Find(DXF_INSERT_BLOCK_GET(GTI.e));
   if (b)

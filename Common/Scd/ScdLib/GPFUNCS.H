@@ -732,10 +732,12 @@ class DllImportExport Strng
     /*#F:#R:Returns the current value of the zero based index of the Strng*/
     int      Index() { return iIndex; };
 
+#if !_MANAGED
     double   SafeAtoF(double Default=0.0) { return ::SafeAtoF(Buff, Default); };
     long     SafeAtoL(long Default=0) { return ::SafeAtoL(Buff, Default); };
     char*    MakeBinary(DWORD dw, int MinLen, int Grp = -1);
     char*    MakeAlpha(long dw, int MinLen = -1, int Base = 26);
+#endif
 
   //protected:
     pchar    Buff;//stores the contents of the Strng.
@@ -823,11 +825,15 @@ DllImportExport Strng operator+(LPCTSTR lpsz, const Strng& string);
 
 // -------------------------------------------------------------------------
 
+#if !_MANAGED
+
 inline double SafeAtoF(Strng & Str, double Default=0.0)
   { return SafeAtoF(Str(), Default); };
 
 inline long SafeAtoL(Strng & Str, long Default=0)
   { return SafeAtoL(Str(), Default); };
+
+#endif
 
 // -------------------------------------------------------------------------
 
@@ -1123,6 +1129,7 @@ DllImportExport DWORD FreeVirtualMemory();
 
 // -------------------------------------------------------------------------
 // SysCAD Wrapper class - used to ensure that the LOCALE remains "C"
+#if !_MANAGED
 
 class DllImportExport CSCDFileDialog : public CFileDialog
   {
@@ -1137,6 +1144,8 @@ class DllImportExport CSCDFileDialog : public CFileDialog
     virtual int DoModal( );
     virtual BOOL OnFileNameOK( );
   };
+
+#endif
 
 
 BOOL DllImportExport MyPostMessage(CWnd* pWnd, UINT message, WPARAM wParam = 0, LPARAM lParam = 0);
@@ -1212,6 +1221,8 @@ extern DllImportExport CProfINIFile ScdPFMachine;
 //
 // ==========================================================================
 
+#if !_MANAGED
+
 class DllImportExport CStopWatchItem : public CStopWatch
   {
   public:
@@ -1231,6 +1242,8 @@ class DllImportExport CStopWatchList : public CList<CStopWatchItem*, CStopWatchI
 #define STATICSW(x) static CStopWatchItem SSWItm##x(#x);
 #define STATICSWSTART(x) SSWItm##x.Start();
 #define STATICSWSTOP(x) SSWItm##x.Stop();
+
+#endif
 
 // ==========================================================================
 //

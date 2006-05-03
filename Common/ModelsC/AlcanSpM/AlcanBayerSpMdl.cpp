@@ -81,7 +81,7 @@ double ASMBayer::sm_CarbonFactor = 2.0;
 // ==========================================================================
 
 flag     CConcentrations::NaFactorOK=0;
-SpVector CConcentrations::NaFactor(0.0);
+SpVector CConcentrations::NaFactor(true);
 
 CConcentrations::CConcentrations(ASMBayer *pMdl) 
   { 

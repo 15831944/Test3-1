@@ -13,6 +13,7 @@
 #include "datatype.h"
 #include "scdarray.h"
 #include "propertybase.h"
+#include "scdver.h"
 #include "..\..\..\smdk\include\md_share3.h"
 
 #ifdef WITHSCDINTERFACES
@@ -75,9 +76,9 @@ class CFieldMonitorTOCls;
 
 #ifdef _RELEASE
 //ensure no overhead checking tags,cnvs,etc when in full release mode!
-#define DoDDBChecks 1
+#define DoDDBChecks 0
 #else
-#define DoDDBChecks 1
+#define DoDDBChecks (!SYSCAD10)
 #endif
 
 #if DoDDBChecks
@@ -1272,7 +1273,7 @@ struct DDBFnParms
 
 //---------------------------------------------------------------------------
 
-#if DoDDBChecks
+#if (DoDDBChecks && !SYSCAD10)
 
 class DllImportExport DDBCheckItem
   {

@@ -60,7 +60,7 @@ const double MW_C        = 12.011;
 // ==========================================================================
 
 flag     CQConcentrations::NaFactorOK=0;
-SpVector CQConcentrations::NaFactor(0.0);
+SpVector CQConcentrations::NaFactor(true);
 
 CQConcentrations::CQConcentrations(QSMBayer *pMdl) 
   { 

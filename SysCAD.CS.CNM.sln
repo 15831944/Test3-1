@@ -1,17 +1,16 @@
-
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "GUIs\Editor\Editor.CNM.csproj", "{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor.CNM", "GUIs\Editor\Editor.CNM.csproj", "{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Services\Service.CNM.csproj", "{A1A03BDC-DBB9-4580-A598-10629434BC72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.CNM", "Services\Service.CNM.csproj", "{A1A03BDC-DBB9-4580-A598-10629434BC72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "Interfaces\Interface.CNM.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface.CNM", "Interfaces\Interface.CNM.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "EditorSetup", "GUIs\Editor\Setup\Setup.vdproj", "{1C3DD84C-2BAA-43A7-A985-0D0E11CB36DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowChart.NET", "GUIs\FlowChart.NET\FlowChart.NET.csproj", "{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overview", "GUIs\FlowChart.NET\Overview\Overview.CNM.csproj", "{77CCAE13-E283-4677-B227-D39E75BA48EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overview.CNM", "GUIs\FlowChart.NET\Overview\Overview.CNM.csproj", "{77CCAE13-E283-4677-B227-D39E75BA48EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

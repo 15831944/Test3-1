@@ -326,6 +326,34 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<AssemblyReference
+			RelativePath="System.Data.dll"
+			AssemblyName="System.Data, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=x86"
+		/>
+		<AssemblyReference
+			RelativePath="System.Runtime.Remoting.dll"
+			AssemblyName="System.Runtime.Remoting, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+		/>
+		<AssemblyReference
+			RelativePath="System.Runtime.Serialization.Formatters.Soap.dll"
+			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+		/>
+		<AssemblyReference
+			RelativePath="..\..\bin\Interface.dll"
+			AssemblyName="Interface, Version=0.0.0.0, processorArchitecture=MSIL"
+		/>
+		<AssemblyReference
+			RelativePath="..\..\bin\FlowChart.NET.dll"
+			AssemblyName="FlowChart.NET, Version=4.0.4.28157, processorArchitecture=MSIL"
+		/>
+		<AssemblyReference
+			RelativePath="System.dll"
+			AssemblyName="System, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+		/>
+		<AssemblyReference
+			RelativePath="System.Drawing.dll"
+			AssemblyName="System.Drawing, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -514,6 +542,54 @@
 			</File>
 			<File
 				RelativePath=".\MsjDib.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NETServer.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="3"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_Dbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="3"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="3"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\NetServerU.cpp"
 				>
 			</File>
 			<File
@@ -1067,6 +1143,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NETServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NetServerU.h"
+				>
+			</File>
+			<File
 				RelativePath=".\NeutralCommon.h"
 				>
 			</File>
@@ -1244,14 +1328,6 @@
 			</File>
 			<File
 				RelativePath=".\SELCTWND.H"
-				>
-			</File>
-			<File
-				RelativePath=".\res\Selecttag.cur"
-				>
-			</File>
-			<File
-				RelativePath=".\res\SelectText.cur"
 				>
 			</File>
 			<File
@@ -3127,6 +3203,14 @@
 			</File>
 			<File
 				RelativePath=".\res\Selecttag.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Selecttag.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\res\SelectText.cur"
 				>
 			</File>
 			<File

@@ -334,6 +334,7 @@ double LeastSquareFit::Param(int iParam, int iOrder)
       break;
     }
   DoBreak();
+  return dNAN;
   };
 
 //===========================================================================

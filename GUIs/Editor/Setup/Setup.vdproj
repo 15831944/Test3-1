@@ -15,13 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_04EB4953AC2548178F5EA625EA12014A"
+        "MsmKey" = "8:_096AA091673C4D94B5EF9611D2D0CD9B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_11707F14628F4A4396471F1996AF0606"
+        "MsmKey" = "8:_1072165E15C04E8CA1AFD33B7B54D1DD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -33,13 +33,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_12A095E3AFA343B7B996809DABCF06A1"
+        "MsmKey" = "8:_1436BDC1C00041A6B25513CA918BC829"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_15C776A36CDB47C1A26B73A896F5F4ED"
+        "MsmKey" = "8:_15C241A93B53476AACEEE2F7373D560C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -51,7 +51,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1DEB899C7C8D4DD98B6D5B11A1F1F296"
+        "MsmKey" = "8:_1725CAEF527A48999B1EFDA1ED213F11"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_196F9269C53545BDB00769B1E8A93738"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1DF5B23EEAD9410695A43EA5870915EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_22124E0C20C54B7FB80763520238B93D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -81,19 +99,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
-        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_354103579D1E40DCA699190D2707F799"
+        "MsmKey" = "8:_2B106B826BB5429A94DB4237FC3317CC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_376EA5185F6F4C09B721676E5B5C3172"
+        "MsmKey" = "8:_2BAFAB6869B04A44AAAE8BF11AAFC51C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -117,56 +129,80 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_395592BCB63643DDBEFE1916846D08D9"
+        "MsmKey" = "8:_37E78C91F57845E29BD5B9BED6396C1D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_489030ED0315404D83E82DA87BD36C5A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4AA7E2A2BD1F4F06AA7E0CBF5DD1730F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5033F928F60B470D8467D170F23FD518"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5192D133391B42F6AC87863DC6BA3A83"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_57C6AAA7777B42AEA1E6F2DF60F1075B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_580BD089204441A2A242186F946713B8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6313C7928A80464090C2C3F221703597"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_63D0D299F7D578B83CE644E57DDB3DF8"
+        "MsmKey" = "8:_44B4BA5400A172476A90B8B3FC7D8764"
         "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_45F13EDF44A44C94AC7845D437DE7F79"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4AB93591338147C6B33EC6E6FFADE498"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4E1349D23EDF42DDA12ED694F49BE428"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4EAA70D9D0CB4266886783555B65D676"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4FAB9028A5B944C89E78AFB9B14A68CF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_558B95B22CF64030BF46646C5F3A5F9D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5E98C83BA9C4190BBA7BCBC8BD763B20"
+        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_64C9B213F3A99353D105F1FC958453FB"
+        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_64C9B213F3A99353D105F1FC958453FB"
+        "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_68CF87578EB845D599EBCFC1BE676FB5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6C5A892BD20A4838B066E777B1EC5B8F"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -177,79 +213,73 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_74137E552A614A688AF5C0F25DAE14E0"
+        "MsmKey" = "8:_6E8126A05B044002BF06CA186E03A0D8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_784674B481A44A99A1985557866D1D31"
+        "MsmKey" = "8:_71F41B694B1D4FD78BEEA6D0C3E2CF62"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_7C0198D45B1B46F2B656C427469428BA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7D616C9DF4384DDAB7B47A087289A2C0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8343D3D1966E4757A7E8710A86F7C0A4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_902CD729640F4468A383DF7CA4275891"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
+        "MsmKey" = "8:_7267E5A5BF16C4ECE229E3EA899CAC05"
         "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
+        "MsmKey" = "8:_7267E5A5BF16C4ECE229E3EA899CAC05"
         "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_93701B0D4B13434A8F706454F76D2B92"
+        "MsmKey" = "8:_7267E5A5BF16C4ECE229E3EA899CAC05"
+        "OwnerKey" = "8:_64C9B213F3A99353D105F1FC958453FB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_754CC702B2EA46FAB4063DFDBE11A2E1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_973374B3B1A2497F922AEFC196C23178"
+        "MsmKey" = "8:_7C12E9524FC7446E9F2FDAE98ECE9E60"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_98CC78AA3B174A0CB15FF6458680B662"
+        "MsmKey" = "8:_7FB5FBB629FB45F7885A8D823AF35B15"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9F032A11C23E437BA0394B328EAC2BB5"
+        "MsmKey" = "8:_8D4E9E34B9054FD9B0328C0B225A83C9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A2E6F5F25ED24A7A85E471A49CF866D8"
+        "MsmKey" = "8:_92C085AD3BFE43638D1B2481ADC9E3B7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_951F71225A0B42A786DB5073D72298C4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9C8CDC1F622E4B6CAE58E22E7CDE2D5C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -267,97 +297,73 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A43685FAF34F4E48B3E76B48797378C4"
+        "MsmKey" = "8:_AC089265E4354751A27F694F60DE28B8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
+        "MsmKey" = "8:_C2F4E5914698408C855AF316349055B9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C41130043EF14D2FA0956A5379C3ACD1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C5786496E08D4B519794A7EE4AAB987D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C59A2620128A489F88BDA49F7232E131"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CBF11F03591E47F390C22B83374B93A9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D4324E84E8D549E48302581475176ACC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E93B360D9BCA4DF2B15504846F36BA83"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ECB14D4E54F54E388ACAE81981DC4653"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F3EB8FBE64A7529E491ABD4A367DAD24"
         "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
-        "OwnerKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
+        "MsmKey" = "8:_F3EB8FBE64A7529E491ABD4A367DAD24"
+        "OwnerKey" = "8:_44B4BA5400A172476A90B8B3FC7D8764"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
-        "OwnerKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B5964B1453994122BD90A787131DD1AD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B82A3E7F60DB43B5ABDBC96B5AED3E71"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_BEA06C2D5CC740018E06E52F41B887EA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
-        "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CADC6E963BC84404A9BA5887E871603B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D5E5126E79724DDB92EEDD5E26EA2B53"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DCAA4D29E5B64CD3ADEDB025775A5AE0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E3C7B854E75246F49E7B06A38ECECAB5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E675AC9794A047E7A7160B887CBC964B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F0099385425C421285592EF76CE53F2A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F24DB5E72ABF45BEAEF7F906958A426C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FE13F57FD3BF4F73B4A62C51CBD4FDFE"
+        "MsmKey" = "8:_FFE30F77C27B476A9E87A48DC62DAF14"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -376,13 +382,31 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
+        "OwnerKey" = "8:_64C9B213F3A99353D105F1FC958453FB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_63D0D299F7D578B83CE644E57DDB3DF8"
+        "OwnerKey" = "8:_7267E5A5BF16C4ECE229E3EA899CAC05"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_44B4BA5400A172476A90B8B3FC7D8764"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F3EB8FBE64A7529E491ABD4A367DAD24"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5E98C83BA9C4190BBA7BCBC8BD763B20"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -407,24 +431,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_22D57FD734C4C7D43D1B93EB9803301C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_926AD6CF9FCA6CB7C84DD9A27DA50469"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_28E7E0CB775B1EEF9FC6B629E02404B9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ABA12FE0E89DB487A1720CD2491FC139"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -522,10 +528,10 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_04EB4953AC2548178F5EA625EA12014A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_096AA091673C4D94B5EF9611D2D0CD9B"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Conveyor.graphicstencil"
-            "TargetName" = "8:Conveyor.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Actuator.graphicstencil"
+            "TargetName" = "8:Actuator.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -542,10 +548,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_11707F14628F4A4396471F1996AF0606"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1072165E15C04E8CA1AFD33B7B54D1DD"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\FlshTank-1.modelstencil"
-            "TargetName" = "8:FlshTank-1.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\FlshTank-1.graphicstencil"
+            "TargetName" = "8:FlshTank-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -562,9 +568,69 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_12A095E3AFA343B7B996809DABCF06A1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1436BDC1C00041A6B25513CA918BC829"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Transmitter.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\PID_Cont-1.modelstencil"
+            "TargetName" = "8:PID_Cont-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15C241A93B53476AACEEE2F7373D560C"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Tie-1.modelstencil"
+            "TargetName" = "8:Tie-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1725CAEF527A48999B1EFDA1ED213F11"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\ContctHt-1.modelstencil"
+            "TargetName" = "8:ContctHt-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_196F9269C53545BDB00769B1E8A93738"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Transmitter.graphicstencil"
             "TargetName" = "8:Transmitter.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
@@ -582,10 +648,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15C776A36CDB47C1A26B73A896F5F4ED"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DF5B23EEAD9410695A43EA5870915EB"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\ContctHt-1.graphicstencil"
-            "TargetName" = "8:ContctHt-1.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Thicken-1.graphicstencil"
+            "TargetName" = "8:Thicken-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -602,10 +668,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DEB899C7C8D4DD98B6D5B11A1F1F296"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_22124E0C20C54B7FB80763520238B93D"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Valve-1.graphicstencil"
-            "TargetName" = "8:Valve-1.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\FiltPrss-1.graphicstencil"
+            "TargetName" = "8:FiltPrss-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -653,40 +719,9 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_28E7E0CB775B1EEF9FC6B629E02404B9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2B106B826BB5429A94DB4237FC3317CC"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.0.4.19482, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_28E7E0CB775B1EEF9FC6B629E02404B9"
-                    {
-                    "Name" = "8:Overview.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Overview.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_354103579D1E40DCA699190D2707F799"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Events.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Events.modelstencil"
             "TargetName" = "8:Events.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
@@ -704,10 +739,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_376EA5185F6F4C09B721676E5B5C3172"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BAFAB6869B04A44AAAE8BF11AAFC51C"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Conveyor.modelstencil"
-            "TargetName" = "8:Conveyor.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Tie-1.graphicstencil"
+            "TargetName" = "8:Tie-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -755,10 +790,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_395592BCB63643DDBEFE1916846D08D9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_37E78C91F57845E29BD5B9BED6396C1D"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\GControl.modelstencil"
-            "TargetName" = "8:GControl.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Noise.graphicstencil"
+            "TargetName" = "8:Noise.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -775,9 +810,100 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_489030ED0315404D83E82DA87BD36C5A"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_44B4BA5400A172476A90B8B3FC7D8764"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\FiltPrss-1.modelstencil"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.0.4.14150, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_44B4BA5400A172476A90B8B3FC7D8764"
+                    {
+                    "Name" = "8:Overview.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Overview.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_45F13EDF44A44C94AC7845D437DE7F79"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Events.graphicstencil"
+            "TargetName" = "8:Events.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4AB93591338147C6B33EC6E6FFADE498"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Transmitter.modelstencil"
+            "TargetName" = "8:Transmitter.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E1349D23EDF42DDA12ED694F49BE428"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\ContctHt-1.graphicstencil"
+            "TargetName" = "8:ContctHt-1.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4EAA70D9D0CB4266886783555B65D676"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\FiltPrss-1.modelstencil"
             "TargetName" = "8:FiltPrss-1.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
@@ -795,10 +921,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4AA7E2A2BD1F4F06AA7E0CBF5DD1730F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FAB9028A5B944C89E78AFB9B14A68CF"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\ECell.graphicstencil"
-            "TargetName" = "8:ECell.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Feed_XPG-1.graphicstencil"
+            "TargetName" = "8:Feed_XPG-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -815,10 +941,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5033F928F60B470D8467D170F23FD518"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_558B95B22CF64030BF46646C5F3A5F9D"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Pump-1.graphicstencil"
-            "TargetName" = "8:Pump-1.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Washer-1.graphicstencil"
+            "TargetName" = "8:Washer-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -835,94 +961,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5192D133391B42F6AC87863DC6BA3A83"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\GControl.graphicstencil"
-            "TargetName" = "8:GControl.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57C6AAA7777B42AEA1E6F2DF60F1075B"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\PID_Cont-1.modelstencil"
-            "TargetName" = "8:PID_Cont-1.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_580BD089204441A2A242186F946713B8"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Valve-1.modelstencil"
-            "TargetName" = "8:Valve-1.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6313C7928A80464090C2C3F221703597"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Feed_XPG-1.modelstencil"
-            "TargetName" = "8:Feed_XPG-1.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_63D0D299F7D578B83CE644E57DDB3DF8"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_5E98C83BA9C4190BBA7BCBC8BD763B20"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512"
                 "ScatterAssemblies"
                 {
-                    "_63D0D299F7D578B83CE644E57DDB3DF8"
+                    "_5E98C83BA9C4190BBA7BCBC8BD763B20"
                     {
                     "Name" = "8:PureComponents.TreeViewV2.dll"
                     "Attributes" = "3:512"
@@ -946,154 +992,14 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E6419A137BC4D44AA067E24A0E54CBE"
-            {
-            "SourcePath" = "8:..\\..\\..\\Sample Projects\\NiCuDemo.MDB"
-            "TargetName" = "8:NiCuDemo.MDB"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74137E552A614A688AF5C0F25DAE14E0"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Transmitter.modelstencil"
-            "TargetName" = "8:Transmitter.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_784674B481A44A99A1985557866D1D31"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Actuator.modelstencil"
-            "TargetName" = "8:Actuator.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C0198D45B1B46F2B656C427469428BA"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Thicken-1.modelstencil"
-            "TargetName" = "8:Thicken-1.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D616C9DF4384DDAB7B47A087289A2C0"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Washer-1.modelstencil"
-            "TargetName" = "8:Washer-1.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8343D3D1966E4757A7E8710A86F7C0A4"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Tie-1.graphicstencil"
-            "TargetName" = "8:Tie-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_902CD729640F4468A383DF7CA4275891"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\ContctHt-1.modelstencil"
-            "TargetName" = "8:ContctHt-1.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_926AD6CF9FCA6CB7C84DD9A27DA50469"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_64C9B213F3A99353D105F1FC958453FB"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:Interface, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_926AD6CF9FCA6CB7C84DD9A27DA50469"
+                    "_64C9B213F3A99353D105F1FC958453FB"
                     {
                     "Name" = "8:Interface.dll"
                     "Attributes" = "3:512"
@@ -1117,10 +1023,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93701B0D4B13434A8F706454F76D2B92"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_68CF87578EB845D599EBCFC1BE676FB5"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Tie-1.modelstencil"
-            "TargetName" = "8:Tie-1.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\GControl.modelstencil"
+            "TargetName" = "8:GControl.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -1137,10 +1043,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_973374B3B1A2497F922AEFC196C23178"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6C5A892BD20A4838B066E777B1EC5B8F"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Tank-1.modelstencil"
-            "TargetName" = "8:Tank-1.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Noise.modelstencil"
+            "TargetName" = "8:Noise.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -1157,10 +1063,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_98CC78AA3B174A0CB15FF6458680B662"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E6419A137BC4D44AA067E24A0E54CBE"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Events.graphicstencil"
-            "TargetName" = "8:Events.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\Sample Projects\\NiCuDemo.MDB"
+            "TargetName" = "8:NiCuDemo.MDB"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -1177,30 +1083,201 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9F032A11C23E437BA0394B328EAC2BB5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E8126A05B044002BF06CA186E03A0D8"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\ECell.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Pump-1.modelstencil"
+            "TargetName" = "8:Pump-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71F41B694B1D4FD78BEEA6D0C3E2CF62"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\FlshTank-1.modelstencil"
+            "TargetName" = "8:FlshTank-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7267E5A5BF16C4ECE229E3EA899CAC05"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.14475, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_7267E5A5BF16C4ECE229E3EA899CAC05"
+                    {
+                    "Name" = "8:FlowChart.NET.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:FlowChart.NET.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_754CC702B2EA46FAB4063DFDBE11A2E1"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Valve-1.modelstencil"
+            "TargetName" = "8:Valve-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C12E9524FC7446E9F2FDAE98ECE9E60"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\PID_Cont-1.graphicstencil"
+            "TargetName" = "8:PID_Cont-1.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7FB5FBB629FB45F7885A8D823AF35B15"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Thicken-1.modelstencil"
+            "TargetName" = "8:Thicken-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D4E9E34B9054FD9B0328C0B225A83C9"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Pump-1.graphicstencil"
+            "TargetName" = "8:Pump-1.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_92C085AD3BFE43638D1B2481ADC9E3B7"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Washer-1.modelstencil"
+            "TargetName" = "8:Washer-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_951F71225A0B42A786DB5073D72298C4"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Feed_XPG-1.modelstencil"
+            "TargetName" = "8:Feed_XPG-1.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C8CDC1F622E4B6CAE58E22E7CDE2D5C"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\ECell.modelstencil"
             "TargetName" = "8:ECell.modelstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2E6F5F25ED24A7A85E471A49CF866D8"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Washer-1.graphicstencil"
-            "TargetName" = "8:Washer-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -1279,9 +1356,29 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A43685FAF34F4E48B3E76B48797378C4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC089265E4354751A27F694F60DE28B8"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\HeatXchg-1.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Valve-1.graphicstencil"
+            "TargetName" = "8:Valve-1.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2F4E5914698408C855AF316349055B9"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\HeatXchg-1.modelstencil"
             "TargetName" = "8:HeatXchg-1.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
@@ -1299,41 +1396,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_ABA12FE0E89DB487A1720CD2491FC139"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C41130043EF14D2FA0956A5379C3ACD1"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.19480, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_ABA12FE0E89DB487A1720CD2491FC139"
-                    {
-                    "Name" = "8:FlowChart.NET.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:FlowChart.NET.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B5964B1453994122BD90A787131DD1AD"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Pump-1.modelstencil"
-            "TargetName" = "8:Pump-1.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Actuator.modelstencil"
+            "TargetName" = "8:Actuator.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -1350,10 +1416,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B82A3E7F60DB43B5ABDBC96B5AED3E71"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C5786496E08D4B519794A7EE4AAB987D"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Noise.modelstencil"
-            "TargetName" = "8:Noise.modelstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\GControl.graphicstencil"
+            "TargetName" = "8:GControl.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -1370,9 +1436,29 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BEA06C2D5CC740018E06E52F41B887EA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C59A2620128A489F88BDA49F7232E131"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\HeatXchg-1.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Conveyor.graphicstencil"
+            "TargetName" = "8:Conveyor.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CBF11F03591E47F390C22B83374B93A9"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\HeatXchg-1.graphicstencil"
             "TargetName" = "8:HeatXchg-1.graphicstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
@@ -1390,14 +1476,74 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D4324E84E8D549E48302581475176ACC"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Conveyor.modelstencil"
+            "TargetName" = "8:Conveyor.modelstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E93B360D9BCA4DF2B15504846F36BA83"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\ECell.graphicstencil"
+            "TargetName" = "8:ECell.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECB14D4E54F54E388ACAE81981DC4653"
+            {
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Tank-1.graphicstencil"
+            "TargetName" = "8:Tank-1.graphicstencil"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F3EB8FBE64A7529E491ABD4A367DAD24"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.19480, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.13996, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
+                    "_F3EB8FBE64A7529E491ABD4A367DAD24"
                     {
                     "Name" = "8:FlowChart.NET.dll"
                     "Attributes" = "3:512"
@@ -1421,150 +1567,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CADC6E963BC84404A9BA5887E871603B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FFE30F77C27B476A9E87A48DC62DAF14"
             {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\FiltPrss-1.graphicstencil"
-            "TargetName" = "8:FiltPrss-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D5E5126E79724DDB92EEDD5E26EA2B53"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\FlshTank-1.graphicstencil"
-            "TargetName" = "8:FlshTank-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DCAA4D29E5B64CD3ADEDB025775A5AE0"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\PID_Cont-1.graphicstencil"
-            "TargetName" = "8:PID_Cont-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E3C7B854E75246F49E7B06A38ECECAB5"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Thicken-1.graphicstencil"
-            "TargetName" = "8:Thicken-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E675AC9794A047E7A7160B887CBC964B"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Feed_XPG-1.graphicstencil"
-            "TargetName" = "8:Feed_XPG-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0099385425C421285592EF76CE53F2A"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Noise.graphicstencil"
-            "TargetName" = "8:Noise.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F24DB5E72ABF45BEAEF7F906958A426C"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Tank-1.graphicstencil"
-            "TargetName" = "8:Tank-1.graphicstencil"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FE13F57FD3BF4F73B4A62C51CBD4FDFE"
-            {
-            "SourcePath" = "8:..\\..\\..\\Stencils\\Actuator.graphicstencil"
-            "TargetName" = "8:Actuator.graphicstencil"
+            "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Tank-1.modelstencil"
+            "TargetName" = "8:Tank-1.modelstencil"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
             "Condition" = "8:"
@@ -2261,6 +2267,9 @@
                 {
                 }
             }
+        }
+        "VJSharpPlugin"
+        {
         }
     }
 }

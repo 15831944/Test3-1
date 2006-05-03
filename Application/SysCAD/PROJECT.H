@@ -24,6 +24,8 @@
 #include "accnode.h"
 #endif
 
+#include "NETServer.h"
+
 //#include ".\opcsrvrwrapper.h"
 
 //#ifdef __PROJECT_CPP
@@ -579,6 +581,11 @@ class DllImportExport Project : public CExecObj
   public:
     SFEFlwLib      m_FlwLib, *pFlwLib;
     SFEMdlLibArray MdlLibs;
+
+#if SYSCAD10
+    CNETServer   * m_pCLRSrvr;
+#endif
+  public:
 
     Project();
     ~Project();

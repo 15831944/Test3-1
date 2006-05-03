@@ -7,6 +7,10 @@
 
 #include "..\..\..\SMDK\Include\MsgLog.h"
 
+#ifndef __SC_DEFS_H
+  #include "sc_defs.h"
+#endif
+
 #ifdef __ERRORLOG_CPP
   #define DllImportExport DllExport
 #elif !defined(SCDLIB)
@@ -15,15 +19,14 @@
   #define DllImportExport
 #endif
 
-#ifndef __SC_DEFS_H
-  #include "sc_defs.h"
-#endif
 
 //===========================================================================
 
 DllImportExport const char * FindWinError(DWORD Code);
 
 //===========================================================================
+
+#if !_MANAGED
 
 class ConditionArray  : public CArray < byte, byte &> {};
 class ConditionSeqNos : public CArray < DWORD, DWORD &> {};
@@ -86,6 +89,7 @@ class DllImportExport ConditionBlk
     virtual flag   ClrCIVirt(int No, flag State)          { DoBreak(); return 0; };
     virtual int    CBContextVirt()                        { DoBreak(); return 0; };
   };
+
 
 #define DEFINE_CI(Class, BaseClass, MaxMsgs)                                         \
 virtual flag   CIStrng(int No, pchar & S);                                           \
@@ -180,7 +184,6 @@ virtual flag SetCIVirt(int No, flag State)          { return SetCI(No, State); }
 virtual flag ClrCIVirt(int No, flag State)          { return ClrCI(No, State); };   \
 virtual int  CBContextVirt()                        { return CBContext();      };
 
-
 //===========================================================================
 //
 //
@@ -202,6 +205,7 @@ public:
   char* ErrStr() { return m_pszMessage ? m_pszMessage : "";};
 };
 
+#endif
 
 //===========================================================================
 //

@@ -13,7 +13,7 @@
 #include "ArchMngr.h"
 #if WITHNETSERVER
 #include "cs_mngr.h"
-#endif
+#endif                     
 #include "..\schist\hstmain.h"
 #include "accnode.h"
 #include "msgwnd.h"
@@ -1149,6 +1149,10 @@ Project::Project()
 
   m_bWithVersion = WithVersionDefault;
   m_bRemoveOld   = RemoveOldDefault;
+
+#if SYSCAD10
+  m_pCLRSrvr = NULL;
+#endif
   }
 
 //---------------------------------------------------------------------------
@@ -5216,8 +5220,19 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
     // Set version to latest
     SetPrjFileVerNo(PrjFileVer);
     }
-  
-  gs_ProjectOpenFlag++;
+
+#if SYSCAD10
+  if (01 && OK)
+    {
+    m_pCLRSrvr = new CNETServer;
+    m_pCLRSrvr->Startup();
+    }
+  else
+    m_pCLRSrvr = NULL;
+#endif
+
+  if (OK)
+    gs_ProjectOpenFlag++;
   return OK;
   }
 
@@ -6650,6 +6665,14 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
   if (gs_Exec.TestRunning())
     return false;
 
+#if SYSCAD10
+  if (m_pCLRSrvr)
+    {
+    m_pCLRSrvr->Shutdown();
+    delete m_pCLRSrvr;
+    }
+#endif
+
   gs_ProjectOpenFlag=0;
 
   CWaitMsgCursor Wait("Closing project");
@@ -7706,8 +7729,7 @@ flag Project::put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode)
     }
   return false;
   }
-
-
+     
 //===========================================================================
 //
 //

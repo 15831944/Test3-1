@@ -34,14 +34,18 @@ MUnitDefBase::MUnitDefBase(bool WithDevelopementChecks)
   m_WithDevelopementChecks=WithDevelopementChecks;
   m_AddUsrPrefix=false;
 
+#if DoDDBChecks
   if (m_WithDevelopementChecks)
     ::DevelopementChecksOn();
+#endif
   }
 
 MUnitDefBase::~MUnitDefBase()
   {
+#if DoDDBChecks
   if (m_WithDevelopementChecks)
     ::DevelopementChecksOff();
+#endif
   delete m_pClassDef;
   delete m_pDrawEntry;
   }

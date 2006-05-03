@@ -429,7 +429,7 @@ class LinePoint
     double z;
   };
 
-class LinePointsArray : public CArray<LinePoint, LinePoint&>
+class CLinePointsArray : public CArray<LinePoint, LinePoint&>
   {
   public:
   };
@@ -680,7 +680,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     flag              ChangeTag(pchar pOldTag, pchar pNewTag);
     void              CollectTags(Strng_List & TagList);
     void              CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA);
-    void              CollectLinkInfo(CGrfTagInfo & GTI, LinePointsArray & LPA);
+    void              CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA);
 
     DML_LIST          SelectNearbyCurves(PT3 p,REAL tol);
     DML_LIST          SelectNearbyCurves(DML_LIST l,PT3 p,REAL tol);

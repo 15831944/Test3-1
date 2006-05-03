@@ -3340,8 +3340,9 @@ class DllImportExport FlwNode : public CTNode
     IOAreaRec     *getIOAreas()           { return m_pIOAreasOwned ? m_pIOAreasOwned : m_pIOAreas; };
     long           IOAreaCount()          { IOAreaRec *p=IOAreas; for (long N=0; p->pDesc!=NULL; p++, N++) {}; return N; };
     IOAreaRec     &IOArea(int i)          { return m_pIOAreasOwned ? m_pIOAreasOwned[i] : m_pIOAreas[i]; };
-    CIORec         &IO_Self(int i)        { return m_IOs[i];};
-    CIORec         &IO_Rmt(int i)         { return (Nd_Rmt(i)->m_IOs[m_IOs[i].IONoRmt]);};
+    IOAreaRec     &IOArea_Rmt(int i)      { return Nd_Rmt(i)->IOArea(m_IOs[i].IONoRmt); };
+    CIORec        &IO_Self(int i)         { return m_IOs[i];};
+    CIORec        &IO_Rmt(int i)          { return (Nd_Rmt(i)->m_IOs[m_IOs[i].IONoRmt]);};
     IOAreaRec     *IODesc_Self(int i)     { return &(IOAreas[m_IOs[i].IODescSelf]);};
     IOAreaRec     *IODesc_Rmt(int i)      { return &(Nd_Rmt(i)->IOAreas[m_IOs[i].IODescRmt]);};
     int            IODescNo_Self(int i)   { return m_IOs[i].IODescSelf;};

@@ -83,5 +83,6 @@ namespace SysCAD.Interface
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicStencils = bf.Deserialize(memoryStream) as Dictionary<string, GraphicStencil>;
     }
+
   }
 }

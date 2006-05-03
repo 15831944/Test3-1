@@ -160,7 +160,7 @@ class CNeutralGrfImportExport : public CNeutralGroupTagEditor
     void            Close();
     void            WriteInsert(LPCTSTR Group, CGrfTagInfo & GTI, CDblTriPt Org, LPCTSTR pPage, LPCTSTR pDocGUID);
     void            WriteUnit(LPCTSTR Group, CGrfTagInfo & GTI, CDblTriPt Org, LPCTSTR pPage, LPCTSTR pDocGUID);
-    void            WriteLink(LPCTSTR Group, CGrfTagInfo & GTI, CDblTriPt Org, LinePointsArray & LPA, char* pPage, LPCTSTR pDocGUID);
+    void            WriteLink(LPCTSTR Group, CGrfTagInfo & GTI, CDblTriPt Org, CLinePointsArray & LPA, char* pPage, LPCTSTR pDocGUID);
     void            WriteGroupInfo(LPCTSTR Group, LPCTSTR Desc, CDblTriPt Org, CDblTriPt Lo, CDblTriPt Hi, CDblTriPt AlignLo, CDblTriPt AlignHi);
 
     bool            OpenSymbolExport();

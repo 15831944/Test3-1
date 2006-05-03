@@ -608,6 +608,7 @@ inline int CmdIDFromRptType(int iRpt)
     default:
       DoBreak();
     }
+  return -1;
   };
 
 CCmdGenerateReport::CCmdGenerateReport(short ReportType, char* RepFilename, char* RepName) :

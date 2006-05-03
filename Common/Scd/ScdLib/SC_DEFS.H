@@ -114,7 +114,9 @@ const flag True=1;
 
 // ========================================================================
 
+#if !_MANAGED
 #include "mathlib.h"
+#endif
 
 // ========================================================================
 
@@ -134,6 +136,8 @@ const flag True=1;
 //  Structured Exception Handling
 //
 // ========================================================================
+
+#if !_MANAGED
 
 #include <eh.h>
 inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
@@ -241,6 +245,7 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
 //#pragma warning(disable : 4995) // .Net deprecated
 //#pragma warning(disable : 4996) // .Net deprecated
 //#pragma warning(disable : 4244) // Loss of data
+#endif
 
 #if _MSC_VER>= 1300
 #define DotNet 1

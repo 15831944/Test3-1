@@ -681,7 +681,7 @@ void CNeutralGrfImportExport::WriteUnit(LPCTSTR Group, CGrfTagInfo & GTI, CDblTr
 
 //---------------------------------------------------------------------------
 
-void CNeutralGrfImportExport::WriteLink(LPCTSTR Group, CGrfTagInfo & GTI, CDblTriPt Org, LinePointsArray & LPA, char* pPage, LPCTSTR pDocGUID)
+void CNeutralGrfImportExport::WriteLink(LPCTSTR Group, CGrfTagInfo & GTI, CDblTriPt Org, CLinePointsArray & LPA, char* pPage, LPCTSTR pDocGUID)
   {
   //assume string lengths are long enough!
   strcpy(m_pLk->m_sGroup, Group?Group:"");
@@ -861,7 +861,7 @@ void CNeutralGrfImportExport::DoExport(eScdNDBOptions Opts, CGrfDoc * pDoc)
         if (TagTyp==2)
           {
           DoneOne = true;
-          LinePointsArray LPA;
+          CLinePointsArray LPA;
           pDoc->GCB.pDrw->CollectLinkInfo(I, LPA);
           WriteLink(m_sGroup, I, m_Origin, LPA, Page(), pDoc->m_sDocGUID());
           }

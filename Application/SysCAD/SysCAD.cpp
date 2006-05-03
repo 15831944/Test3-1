@@ -64,6 +64,7 @@
 #include "wirepanel.h"
 #include ".\syscad.h"
 #include ".\opcsrvrwrapper.h"
+#include "scdver.h"
 
 //#include "optoff.h"
 
@@ -1364,11 +1365,22 @@ BOOL CSysCADApp::InitInstance()
   if (!InitInstStartup())
     return false;
 
+#if SYSCAD10
+	INITCOMMONCONTROLSEX InitCtrls;
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	// Set this to include all the common control classes you want to use
+	// in your application.
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+#endif
+
+#if !SYSCAD10
   if (!AfxOleInit())
     {
     AfxMessageBox("Unable to initialise OLE libraries.");
     return false;
     }
+#endif
 
   if (!InitATL())
     return FALSE;
@@ -1460,13 +1472,6 @@ BOOL CSysCADApp::InitInstance()
   if (!InitInstCmdLineOnly())
     return false;
 
-  StartAppComThread(WMU_APPEVT);
-
-  // create main MDI Frame window
-  CMainFrame* pMainFrame = new CMainFrame;
-  if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
-    return false;
-
   // Parse command line for standard shell commands, DDE, file open
   CMyCommandLineInfo cmdInfo;
   ParseCommandLine(cmdInfo);
@@ -1480,6 +1485,14 @@ BOOL CSysCADApp::InitInstance()
       COPCSrvrWrapper::RegisterOPCServer();
     return TRUE;
     }
+
+  StartAppComThread(WMU_APPEVT);
+
+  // create main MDI Frame window
+  CMainFrame* pMainFrame = new CMainFrame;
+  if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
+    return false;
+
 
   // Check to see if launched as OLE server
   if (cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated)
@@ -1729,7 +1742,7 @@ BOOL CSysCADApp::InitInstance()
     else
       MainWnd()->ShowWindow(SW_MINIMIZE);
     }
-
+                     
   return true;
   }
 

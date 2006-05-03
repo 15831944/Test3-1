@@ -168,7 +168,7 @@ inline double Pow(double a, double b) { return (b == 0.0 ? 1.0 : (a == 0.0 ? 0.0
 
 // ----------------------------------------------------------------------
 
-#define DoBreak() { __asm { int 03h }; }
+#define DoBreak() { __debugbreak(); };//__asm { int 03h }; }
 #define BreakPoint() { int xxx=0; }
 
 const double Gc           =   9.81;
@@ -341,6 +341,8 @@ class MSysException
 
   };
 
+#if !_MANAGED
+
 class MFPPException : public MSysException
   {
   public:
@@ -360,6 +362,7 @@ class MFPPException : public MSysException
       _controlfp(CW, _MCW_EM);
       };
   };
+#endif
 
 //---------------------------------------------------------------------------
 // Tolerance Block Flags
@@ -411,7 +414,7 @@ const DWORD TBF_LocalOnly     = 0x00100000;
 
 extern bool DllImportExport MakeVersionOK(LPCTSTR FileName, LPCTSTR MakeName, WORD V0, WORD V1, WORD V2, WORD V3, bool DoMsg=true);
 
-#define DoBreak() { __asm { int 03h }; }
+#define DoBreak() { __debugbreak(); };//__asm { int 03h }; }
 
 DllImportExport void DoAssert1(char * pMsg);
 
