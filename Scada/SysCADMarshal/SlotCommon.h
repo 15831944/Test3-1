@@ -300,13 +300,15 @@ class CKwikList
 class CDelayBlock
   {
   public:
-    DWORD        m_dwTime1;  //time in mSecs for delay for sets
-    DWORD        m_dwTime2; //time in mSecs for delay for sets for bit slot
-    bool         m_bUseTime2; //must the second delay time be used for bit=1
-    bool         m_bEdge;      //bit slot, reacting to rising or falling edge (one delay time = INF)
-   
     CDelayBlock();
     void Advance(DWORD DT);
+
+  public:
+    DWORD        m_dwTime1;   //time in mSecs for delay for sets
+    DWORD        m_dwTime2;   //time in mSecs for delay for sets for bit slot
+    bool         m_bUseTime2; //must the second delay time be used for bit=1
+    bool         m_bEdge;     //bit slot, reacting to rising or falling edge (one delay time = INF)
+    DWORD        m_dwTimer;
   };
 
 // =======================================================================

@@ -551,16 +551,18 @@ void ReportErrorBox(HRESULT hr, LPCSTR Fmt, ...)
 CDelayBlock::CDelayBlock(void)
   {
   //m_bDelayLock=false;
-  m_dwTime1 = 0;
-  m_dwTime2 = 0;
+  m_dwTime1   = 0;
+  m_dwTime2   = 0;
+  m_dwTimer   = 0;
   m_bUseTime2 = false;
-  m_bEdge = false;
+  m_bEdge     = false;
   }
 
 void CDelayBlock::Advance(DWORD DT)
   {
-  m_dwTime1 = Max(DWORD(0), m_dwTime1 - DT);
-  if(m_bUseTime2) m_dwTime2 = Max(DWORD(0), m_bUseTime2 - DT);
+  m_dwTimer = Max(DWORD(0), m_dwTimer- DT);
+  //m_dwTime1 = Max(DWORD(0), m_dwTime1 - DT);
+  //if(m_bUseTime2) m_dwTime2 = Max(DWORD(0), m_dwTime2 - DT);
   }
 
 // =======================================================================

@@ -1161,26 +1161,80 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
       }
     else
       {
-      pNew->m_Delay = *pDelay;
-      DWORD T1=pDelay->m_dwTime1+m_Cfg.m_dwDelayResolution; // enforce at least 1 interval delay
-
-      // Add in order
-      CChangeItem * pChg=m_DelayChgList.Head();
-      CChangeItem * pPrev=NULL;
-      while (pChg && pChg->m_Delay.m_dwTime1<=T1)
+      CFullValue CurrentV;
+      switch (pNew->m_eDst)
         {
-        pPrev=pChg;
-        pChg=pChg->m_pNext;
+        case eCSD_Link:
+          {
+          int I=pNew->m_lDstInx;
+          if (I>=0 && I<m_Links.GetSize())
+            CurrentV=m_Links[I]->FullValue();
+          else
+            ReportError("AppendChange", 0, "Change %i has Bad Link Index %i <0 or >%i ", pNew->m_dwNumber, I, m_Links.GetSize()-1);
+          break;
+          };
+        case eCSD_Slot:
+          {
+          int I=pNew->m_lDstInx;
+          if (I>=0 && I<m_Slots.GetSize())
+            CurrentV=m_Slots[I]->FullValue();
+          else
+            ReportError("AppendChange", 0, "Change %i has Bad Slot Index %i <0 or >%i ", pNew->m_dwNumber, I, m_Slots.GetSize()-1);
+          break;
+          }
+        default:
+          ReportError("AppendChange", 0, "Invalid Destination %i ", pNew->m_eDst);
         }
-      if (pChg)
+
+      bool Falling = true;
+      switch (FullValue.Type())
         {
-        if (pPrev)
-          m_DelayChgList.AddAfter(pPrev, pNew);
+        case VT_R4  : Falling = (FullValue.m_vValue.fltVal  < CurrentV.m_vValue.fltVal ); break;
+        case VT_R8  : Falling = (FullValue.m_vValue.dblVal  < CurrentV.m_vValue.dblVal ); break;
+        case VT_I1  : Falling = (FullValue.m_vValue.bVal    < CurrentV.m_vValue.bVal   ); break;
+        case VT_I2  : Falling = (FullValue.m_vValue.intVal  < CurrentV.m_vValue.intVal ); break;
+        case VT_I4  : Falling = (FullValue.m_vValue.lVal    < CurrentV.m_vValue.lVal   ); break;
+        case VT_UI1 : Falling = (FullValue.m_vValue.uiVal   < CurrentV.m_vValue.uiVal  ); break;
+        case VT_UI2 : Falling = (FullValue.m_vValue.uintVal < CurrentV.m_vValue.uintVal); break;
+        case VT_UI4 : Falling = (FullValue.m_vValue.ulVal   < CurrentV.m_vValue.ulVal  ); break;
+        case VT_BOOL: Falling = (!FullValue.m_vValue.boolVal);                            break;
+        }
+
+      pNew->m_Delay = *pDelay;
+      DWORD Timer;
+      if (Falling && pDelay->m_bUseTime2)
+        Timer = pDelay->m_dwTime2; 
+      else
+        Timer = pDelay->m_dwTime1; 
+      
+      if (Timer!=InfiniteDelay)
+        {
+        pNew->m_Delay.m_dwTimer = Timer;
+
+        DWORD T1=pNew->m_Delay.m_dwTimer+m_Cfg.m_dwDelayResolution; // enforce at least 1 interval delay
+        // Add in order
+        CChangeItem * pChg=m_DelayChgList.Head();
+        CChangeItem * pPrev=NULL;
+        while (pChg && pChg->m_Delay.m_dwTimer<=T1)
+          {
+          pPrev=pChg;
+          pChg=pChg->m_pNext;
+          }
+        if (pChg)
+          {
+          if (pPrev)
+            m_DelayChgList.AddAfter(pPrev, pNew);
+          else
+            m_DelayChgList.AddHead(pNew);
+          }
         else
-          m_DelayChgList.AddHead(pNew);
+          m_DelayChgList.AddTail(pNew);
         }
       else
-        m_DelayChgList.AddTail(pNew);
+        {
+        // This Change to be ignored
+        delete pNew;
+        }
       }
     }
   };
@@ -1292,14 +1346,14 @@ long CSlotMngr::FlushChangeQueue()
     {
     m_DelayChgList.Lock();
     pChg=m_DelayChgList.Head();
-    if (pChg && (pChg->m_Delay.m_dwTime1<=DT))
+    if (pChg && (pChg->m_Delay.m_dwTimer<=DT))
       {
       pChg=m_DelayChgList.RemoveHead();
       m_DelayChgList.UnLock();
       n++;
 
       // Update TimeStamp;
-      //CoFileTimeNow(&pChg->m_ftTimeStamp);
+      CoFileTimeNow(&pChg->m_ftTimeStamp);
       //ApplyChange(pChg, true);
       m_ChangeList.AddTail(pChg);
       }
