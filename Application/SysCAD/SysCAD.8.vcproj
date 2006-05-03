@@ -344,7 +344,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\bin\FlowChart.NET.dll"
-			AssemblyName="FlowChart.NET, Version=4.0.4.28157, processorArchitecture=MSIL"
+			AssemblyName="FlowChart.NET, Version=4.0.4.21182, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"
@@ -580,6 +580,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
