@@ -535,10 +535,7 @@ namespace SysCAD.Editor
 
       foreach (Item item in frmFlowChart.state.Items)
       {
-        if (frmFlowChart.state.ShowTags)
-          item.Graphic.Text = item.Tag;
-        else
-          item.Graphic.Text = "";
+          item.Text.Visible = frmFlowChart.state.ShowTags;
       }
 
       frmFlowChart.fcFlowChart.Invalidate();
@@ -808,12 +805,15 @@ namespace SysCAD.Editor
         {
           item.Model.Selected = true;
           item.Graphic.Selected = false;
+          item.Text.Selected = false;
         }
 
         if (item.Model.Selected)
         {
-          item.Model.ZTop();
           item.Model.Visible = item.Visible;
+          item.Model.ZIndex = item.Graphic.ZIndex + 1;
+          item.Text.Visible = item.Visible && frmFlowChart.state.ShowTags;
+          item.Text.ZIndex = item.Graphic.ZIndex + 2;
         }
         else
         {

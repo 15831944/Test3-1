@@ -341,20 +341,22 @@ namespace SysCAD.Editor
         else // we've moved on, un-hover the old one.
         {
           oldHoverItem.Graphic.Visible = oldHoverItem.Visible && state.ShowGraphics;
-          oldHoverItem.Graphic.ZBottom();
+          //oldHoverItem.Graphic.ZTop();
           oldHoverItem.Model.Visible = oldHoverItem.Visible && (oldHoverItem.Model.Selected || state.ShowModels);
-          oldHoverItem.Model.ZTop();
+          oldHoverItem.Model.ZIndex = oldHoverItem.Graphic.ZIndex + 1;
+          oldHoverItem.Text.Visible = oldHoverItem.Visible && state.ShowTags;
+          oldHoverItem.Text.ZIndex = oldHoverItem.Graphic.ZIndex + 2;
 
           foreach (Arrow arrow in oldHoverItem.IncomingArrows)
           {
             arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
-            arrow.ZTop();
+            arrow.ZIndex = oldHoverItem.Graphic.ZIndex + 1;
           }
 
           foreach (Arrow arrow in oldHoverItem.OutgoingArrows)
           {
             arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
-            arrow.ZTop();
+            arrow.ZIndex = oldHoverItem.Graphic.ZIndex + 1;
           }
         }
       }
@@ -372,9 +374,11 @@ namespace SysCAD.Editor
             if (originItem != null)
             {
               originItem.Graphic.Visible = originItem.Visible && state.ShowGraphics;
-              originItem.Graphic.ZBottom();
+              //originItem.Graphic.ZBottom();
               originItem.Model.Visible = originItem.Visible && (originItem.Model.Selected || state.ShowModels);
-              originItem.Model.ZTop();
+              originItem.Model.ZIndex = originItem.Graphic.ZIndex + 1;
+              originItem.Text.Visible = originItem.Visible && state.ShowTags;
+              originItem.Text.ZIndex = originItem.Graphic.ZIndex + 2;
             }
           }
 
@@ -385,23 +389,27 @@ namespace SysCAD.Editor
             if (destinationItem != null)
             {
               destinationItem.Graphic.Visible = destinationItem.Visible && state.ShowGraphics;
-              destinationItem.Graphic.ZBottom();
+              //destinationItem.Graphic.ZBottom();
               destinationItem.Model.Visible = destinationItem.Visible && (destinationItem.Model.Selected || state.ShowModels);
-              destinationItem.Model.ZTop();
+              destinationItem.Model.ZIndex = destinationItem.Graphic.ZIndex + 1;
+              destinationItem.Text.Visible = destinationItem.Visible && state.ShowTags;
+              destinationItem.Text.ZIndex = destinationItem.Graphic.ZIndex + 2;
             }
           }
         }
 
         oldHoverArrow.Visible = state.ShowLinks;
-        oldHoverArrow.ZTop();
+        //oldHoverArrow.ZTop();
       }
 
       if (hoverItem != null)
       {
         hoverItem.Graphic.Visible = hoverItem.Visible;
-        hoverItem.Graphic.ZBottom();
+        //hoverItem.Graphic.ZBottom();
         hoverItem.Model.Visible = hoverItem.Visible;
-        hoverItem.Model.ZTop();
+        hoverItem.Model.ZIndex = hoverItem.Graphic.ZIndex + 1;
+        hoverItem.Text.Visible = hoverItem.Visible && state.ShowTags;
+        hoverItem.Text.ZIndex = hoverItem.Graphic.ZIndex + 2;
 
         foreach (Arrow arrow in hoverItem.IncomingArrows)
         {
@@ -412,7 +420,7 @@ namespace SysCAD.Editor
         foreach (Arrow arrow in hoverItem.OutgoingArrows)
         {
           arrow.Visible = hoverItem.Visible;
-          arrow.ZTop();
+          arrow.ZIndex = hoverItem.Graphic.ZIndex + 1;
         }
       }
       else if (hoverArrow != null)
@@ -424,9 +432,11 @@ namespace SysCAD.Editor
           if (originItem != null)
           {
             originItem.Graphic.Visible = originItem.Visible;
-            originItem.Graphic.ZBottom();
+            //originItem.Graphic.ZBottom();
             originItem.Model.Visible = originItem.Visible;
-            originItem.Model.ZTop();
+            originItem.Model.ZIndex = originItem.Graphic.ZIndex + 1;
+            originItem.Text.Visible = originItem.Visible && state.ShowTags;
+            originItem.Text.ZIndex = originItem.Graphic.ZIndex + 2;
           }
         }
 
@@ -437,14 +447,16 @@ namespace SysCAD.Editor
           if (destinationItem != null)
           {
             destinationItem.Graphic.Visible = destinationItem.Visible;
-            destinationItem.Graphic.ZBottom();
+            //destinationItem.Graphic.ZBottom();
             destinationItem.Model.Visible = destinationItem.Visible;
-            destinationItem.Model.ZTop();
+            destinationItem.Model.ZIndex = destinationItem.Graphic.ZIndex + 1;
+            destinationItem.Text.Visible = destinationItem.Visible && state.ShowTags;
+            destinationItem.Text.ZIndex = destinationItem.Graphic.ZIndex + 2;
           }
         }
 
         hoverArrow.Visible = true;
-        hoverArrow.ZTop();
+        //hoverArrow.ZIndex = hoverItem.Graphic.ZIndex + 1;
       }
 
       oldHoverItem = hoverItem;
@@ -504,14 +516,14 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
-      fcFlowChart_BoxModifying(sender, e);
+      //fcFlowChart_BoxModifying(sender, e);
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)
     {
-      Box graphicBox = (e.Box.Tag as Item).Graphic;
-      graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
-      graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
+      //Box graphicBox = (e.Box.Tag as Item).Graphic;
+      //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
+      //graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
     }
 
     public GraphicItem NewGraphicItem(GraphicItem graphicItem, string path)

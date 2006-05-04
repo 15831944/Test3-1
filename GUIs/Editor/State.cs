@@ -54,6 +54,7 @@ namespace SysCAD.Editor
     private String tag;
     private Box model;
     private Box graphic;
+    private Box text;
     private PureComponents.TreeView.Node node;
 
     private GraphicItem graphicItem;
@@ -84,6 +85,12 @@ namespace SysCAD.Editor
       set { graphic = value; }
       }
 
+    public Box Text
+    {
+      get { return text; }
+      set { text = value; }
+    }
+
     public PureComponents.TreeView.Node Node
       {
       get { return node; }
@@ -112,21 +119,23 @@ namespace SysCAD.Editor
       get { return model.OutgoingArrows; }
       }
 
-    public Item(String tag, Box model, Box graphic, bool visible)
+    public Item(String tag, Box model, Box graphic, Box text, bool visible)
       {
       this.guid = Guid.NewGuid();
       this.tag = tag;
       this.model = model;
       this.graphic = graphic;
+      this.text = text;
       this.visible = visible;
       }
 
-    public Item(Guid guid, String tag, Box model, Box graphic, bool visible)
+    public Item(Guid guid, String tag, Box model, Box graphic, Box text, bool visible)
       {
       this.guid = guid;
       this.tag = tag;
       this.model = model;
       this.graphic = graphic;
+      this.text = text;
       this.visible = visible;
       }
     }
@@ -150,8 +159,6 @@ namespace SysCAD.Editor
 
     public bool SelectLinks = true;
     public bool SelectItems = true;
-
-    private Box justCreatedModelBox;
 
     public IEnumerable<GraphicStencil> GraphicStencils
       {
@@ -264,6 +271,7 @@ namespace SysCAD.Editor
       {
       Box modelBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       Box graphicBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+      Box textBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
 
       modelBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       modelBox.RotationAngle = graphicItem.Angle;
@@ -293,8 +301,8 @@ namespace SysCAD.Editor
       modelBox.Visible = ShowModels && isVisible;
 
       graphicBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
       graphicBox.RotationAngle = graphicItem.Angle;
-      graphicBox.Text = graphicItem.Tag;
       graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       graphicBox.Style = BoxStyle.Shape;
         {
@@ -308,15 +316,18 @@ namespace SysCAD.Editor
       graphicBox.HandlesStyle = HandlesStyle.Invisible;
       graphicBox.Visible = ShowGraphics && isVisible;
 
-      graphicBox.ZBottom();
-      modelBox.ZTop();
+      textBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      textBox.AttachTo(modelBox, 0, 100, 100, 150);
+      textBox.FillColor = Color.FromArgb(0, System.Drawing.Color.Black);
+      textBox.FrameColor = Color.FromArgb(0, System.Drawing.Color.Black);
+      textBox.Visible = ShowTags && isVisible;
+      textBox.Text = graphicItem.Tag;
 
-      justCreatedModelBox = modelBox;
-
-      Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, isVisible);
+      Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible);
 
       modelBox.Tag = item;
       graphicBox.Tag = item;
+      textBox.Tag = item;
 
       items.Add(item.Guid, item);
       }
@@ -329,6 +340,7 @@ namespace SysCAD.Editor
         item.Visible = visible;
         item.Model.Visible = visible && (item.Model.Selected || ShowModels);
         item.Graphic.Visible = visible && ShowGraphics;
+        item.Text.Visible = visible && ShowTags;
 
         foreach (Arrow arrowDestination in item.Model.IncomingArrows)
           {
