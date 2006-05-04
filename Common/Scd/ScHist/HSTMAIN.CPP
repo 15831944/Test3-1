@@ -1490,11 +1490,12 @@ DWORD CHistorian::EO_Message(CXMsgLst &XM, CXM_Route &Route)
                     if (IsNumData(cType))
                       {
                       strcpy(cTag, WrkTag());
-                      const bool HasCnv = (WrkCnvTxt.Len()>0);
+                      CCnvIndex CnvIndx = pItem->CnvIndex();
+                      const bool HasCnv = (CnvIndx>0);
                       if (HasCnv)
                         {
-                        strcpy(cCnv, WrkCnvTxt());
-                        strcpy(cFam, pItem->CnvFam());
+                        strcpy(cCnv, Cnvs[CnvIndx]->Txt());
+                        strcpy(cFam, Cnvs[CnvIndx]->Fam());
                         }
                       else
                         {
