@@ -40,7 +40,7 @@ CBlockEvaluator::CBlockEvaluator(CReactionBase * pRB, CHXBase *pHX, CEnvironHXBa
   m_Sequence[4] = m_pEvap ? BES_Evap  : BES_Null;
   m_Sequence[5] = BES_Null;
 
-  ASSERT(m_Sequence[MaxBEBlocks+1]==BES_Null);
+  ASSERT(m_Sequence[MaxBEBlocks]==BES_Null);
 
   Strng S;
   for (int i=0; i<MaxBEBlocks; i++)
