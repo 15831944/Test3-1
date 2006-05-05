@@ -1526,12 +1526,16 @@ void CMainFrame::OnProjectEditSdb()
     BrowseFolder = BaseCfgFiles();
     if (BrowseFolder.FindI(BCfgFolderName())>=0)
       BrowseFolder = BrowseFolder.Left(BrowseFolder.FindI(BCfgFolderName()));
+    BrowseFolder = ScdPFUser.RdStr("ProjectEdit", "EditSdbFolder", BrowseFolder());
     Dlg.m_ofn.lpstrInitialDir = BrowseFolder();
     }
   Dlg.m_ofn.lpstrTitle = "Open SysCAD Database";
 
   if (Dlg.DoModal()==IDOK)
+    {
+    ScdPFUser.WrStr("ProjectEdit", "EditSdbFolder", Dlg.GetPathName());
     CSCDDatabase::DoSDBEdit(Dlg.GetPathName());
+    }
   }
 
 void CMainFrame::OnUpdateProjectEditSdb(CCmdUI* pCmdUI)
@@ -1546,11 +1550,15 @@ void CMainFrame::OnProjectEditDefSdb()
   Strng s;
   CSCDFileDialog Dlg(true, NULL, BCfgDBFileName(), OFN_CREATEPROMPT|OFN_HIDEREADONLY/*OFN_FILEMUSTEXIST*/,
                      "SysCAD Databases (*.mdb)|*.mdb||");
-  Dlg.m_ofn.lpstrInitialDir = BaseCfgFiles();
+  Strng BrowseFolder = ScdPFUser.RdStr("ProjectEdit", "EditDefSdbFolder", BaseCfgFiles());
+  Dlg.m_ofn.lpstrInitialDir = BrowseFolder();
   Dlg.m_ofn.lpstrTitle = "Open SysCAD Database";
 
   if (Dlg.DoModal()==IDOK)
+    {
+    ScdPFUser.WrStr("ProjectEdit", "EditDefSdbFolder", Dlg.GetPathName());
     CSCDDatabase::DoSDBEdit(Dlg.GetPathName());
+    }
   }
 
 void CMainFrame::OnUpdateProjectEditDefSdb(CCmdUI* pCmdUI)

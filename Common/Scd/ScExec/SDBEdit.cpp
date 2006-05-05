@@ -245,8 +245,8 @@ struct HSCInfo
   double  MW;
   double  MeltingPoint;
   double  BoilingPoint;
-  double  T1;
-  double  T2;
+  double  m_T1;
+  double  m_T2;
   double  H;
   double  S;
   double  A;
@@ -263,12 +263,21 @@ struct HSCInfo
 
   flag    IsValid;
   Strng   Occurence;
+  flag    m_FormatA;
+  flag    m_FormatAOK;
+  flag    m_Selected;
+  int     m_iPhase;
+  int     m_iPhaseInd;
+  int     m_iRecNo;
+  int     m_iInfoIndex;
+  double  m_Hx;
+
 
   HSCInfo();
   double IntegrateCp(double T1, double T2);
-  void CopyData(HSCData &Data, flag HIsForm, double &SumH);
-
-  void Update(CCElementDataBase & EDB);
+  void CopyData(HSCData &Data, flag HIsForm);
+  void UpdateA(int iRecNo, int & iPhase, Strng & sPrevFormula, HSCInfo *pPrevInfo);
+  void UpdateB(CCElementDataBase & EDB, CArray<HSCInfo*,HSCInfo*> & Info, int iInfo);
   flag Valid() { return IsValid; };
   };
 
@@ -277,6 +286,12 @@ struct HSCInfo
 HSCInfo::HSCInfo()
   {
   IsValid=false;
+  m_FormatA=false;
+  m_FormatAOK=false;
+  m_Selected=false;
+  m_iPhase=-1;
+  m_iRecNo=-1;
+  m_iInfoIndex=-1;
   }
 
 // --------------------------------------------------------------------------
@@ -292,28 +307,50 @@ inline void Copy(Strng &Str, char * Data, int Len)
 
 // --------------------------------------------------------------------------
 
+#define MLCP(T, P) (a + (b * T) + (c / GTZ(T*T)) + (d * T*T)) 
+
 inline double HSCInfo::IntegrateCp(double T1, double T2)
   {
-  int Sgn=1;
-  if (T1>T2)
-    {
-    Sgn=-1;
-    Exchange(T1, T2);
-    }
-
   double a=A;
   double b=B*1.0e-3;
   double c=C*1.0e+5;
   double d=D*1.0e-6;
-  return Sgn*(a * (T2 - T1) +
-              ((b / 2.0) * (Sqr(T2) - Sqr(T1))) -
-              (c * (1.0 / T2 - 1.0 / T1)) +
-              ((d / 3.0) * (Pow(T2,3) - Pow(T1,3))));
+
+  int Sgn=T1>T2 ? -1 : 1; 
+  if (Sgn < 0)
+    Exchange(T2, T1);
+
+  double HCp=0.0;
+  if (T2<m_T1)
+    HCp = Sgn*(T2-T1)*MLCP(m_T1, P);
+  else if (T1>=m_T2)
+    HCp = Sgn*(T2-T1)*MLCP(m_T2, P);
+  else
+    {
+    // Part Of Curve gets used
+    if (T2>m_T2)
+      {
+      HCp = HCp + Sgn*(T2-m_T2)*MLCP(m_T2, P);
+      T2=m_T2;
+      }
+    if (T1<m_T1)
+      {
+      HCp = HCp + Sgn*(m_T1-T1)*MLCP(m_T1, P);
+      T1=m_T1;
+      }
+
+    HCp += Sgn*(a * (T2 - T1) + 
+      ((b / 2.0) * (Sqr(T2) - Sqr(T1))) - 
+      (c * (1.0 / T2 - 1.0 / T1)) + 
+      ((d / 3.0) * (Pow(T2,3) - Pow(T1,3))));
+    }
+
+  return HCp;
   }
 
+#undef MLCP
 
-//HSCInfo & HSCInfo::operator=(HSCData &Data)
-void HSCInfo::CopyData(HSCData &Data, flag HIsForm, double &SumH)
+void HSCInfo::CopyData(HSCData &Data, flag HIsForm)
   {
   Copy(FormulaRaw, Data.Formula, sizeof(Data.Formula));
   Copy(Formula, Data.Formula, sizeof(Data.Formula));
@@ -328,8 +365,8 @@ void HSCInfo::CopyData(HSCData &Data, flag HIsForm, double &SumH)
   MW                   = Data.MW;
   MeltingPoint         = Data.MeltingPoint;
   BoilingPoint         = Data.BoilingPoint;
-  T1                   = Data.T1;
-  T2                   = Data.T2;
+  m_T1                 = Data.T1;
+  m_T2                 = Data.T2;
   Copy(Phase, Data.Phase, sizeof(Data.Phase));
 
   H                    = Data.H*4.184*1000.0;
@@ -346,26 +383,17 @@ void HSCInfo::CopyData(HSCData &Data, flag HIsForm, double &SumH)
   Copy(Reference, Data.Reference, sizeof(Data.Reference));
   ReliabilityClass     = Data.ReliabilityClass;
 
-  if (T1>1.0 && T2>1.0)
-    {
-    if (HIsForm)
-      { // Heat of Formation
-      SumH  = H;
-      }
-    else // Heat of Transition
-      {
-      SumH  += H;
-      H = SumH-IntegrateCp(C_2_K(25.0), T1);
-      }
-    double RefT=C_2_K(25.0);
-    SumH+=IntegrateCp(T1, T2);
-    }
+  m_FormatA            = !FormulaRaw.CmpLastChar(')');
+  m_FormatAOK          = m_FormatA;
+  m_Hx                 = H;
+
   };
 
 // --------------------------------------------------------------------------
 
-void HSCInfo::Update(CCElementDataBase & EDB)
+void HSCInfo::UpdateA(int iRecNo, int & iPhase, Strng & sPrevFormula, HSCInfo *pPrevInfo)
   {
+  m_iRecNo=iRecNo;
   if (Formula[0]=='e')
     IsValid=false;  // Electron
   else
@@ -385,7 +413,7 @@ void HSCInfo::Update(CCElementDataBase & EDB)
         else if (Formula[i]==']')
           nBrack--;
 
-      IsValid=(nParen==0 && nBrack==0);
+        IsValid=(nParen==0 && nBrack==0);
       }
     else
       IsValid=false;
@@ -395,80 +423,122 @@ void HSCInfo::Update(CCElementDataBase & EDB)
     else if (Phase())
       {
       if (Phase.XStrCmp("s")==0)
-         Occurence="s";
+        Occurence="s";
       else if (Phase.XStrCmp("l")==0 ||
-               Phase.XStrCmp("a")==0 ||
-               Phase.XStrCmp("ai")==0 ||
-               Phase.XStrCmp("ao")==0 ||
-               Phase.XStrCmp("aq")==0)
-         Occurence="l";
+        Phase.XStrCmp("a")==0 ||
+        Phase.XStrCmp("ai")==0 ||
+        Phase.XStrCmp("ao")==0 ||
+        Phase.XStrCmp("aq")==0)
+        Occurence="l";
       else if (Phase.XStrCmp("g")==0)
-         Occurence="g";
+        {
+        Occurence="g";
+        m_FormatAOK=false;
+        }
       else
         {
+        m_FormatAOK=false;
         IsValid=false;
         LogNote("HSC Import", 0, "Bad Phase '%s' in %s", Phase(), Formula());
         }
 
-      if (Formula[Formula.Length()-1] != ')')
-        {
-        Formula+="(";
-        Formula+=Phase();
-        Formula+=")";
-        }
+      if (Formula=="AgBr")
+        { int xxx=0; }
+      if (Formula=="AgBrO3")
+        { int xxx=0; }
 
-      Strng T;
-      T=Formula.Left(Formula.Length()-1); //trim right
-      for (int i=T.Length()-1; i>=0; i--)
-        if (T[i]=='(')
-          break;
-      Phase=T.Right(T.Length()-i-1);
-      Formula=T.Left(i);
-      Formula.LRTrim();
+      if (pPrevInfo && pPrevInfo->Formula!=Formula && pPrevInfo->m_iPhase==0)
+        pPrevInfo->m_iPhase=-1;
 
-      if (IsValid)
-        IsValid=MakeSpDefn(Formula, Defn, EDB);
+      if (sPrevFormula!=Formula)
+        iPhase=0;
 
-      if (IsValid)
-        {
-        // Kcal to KJ
-//        H*=4.184*1000;
-//        S*=4.184;
-//        A*=4.184;
-//        B*=4.184;
-//        C*=4.184;
-//        D*=4.184;
+      if (m_FormatAOK && m_FormatA)
+        m_iPhase=iPhase++;
 
-//        Density*=1000.0;
-
-        double dMoleWt=0.0;
-        Strng Elements, Element;
-        GetElements(Defn, Elements);
-        while (Elements.Token(Element, " ,", 0, " ,"))
-          {
-          int e=EDB.Find(Element());
-          if (e>=0)
-            {
-//            #if dbgBuildSDB
-//            if (dbgBuild())
-//              dbgp(" %s %g ",Element(), GetElemAmt(pC->ElDef, Element));
-//            #endif
-            double dMoles=GetElemAmt(Defn, Element);
-            dMoleWt+=EDB[e].AtmWt*dMoles;
-            //ElemComp EC(e, dMoles);
-            //pC->ElComp.Add(EC);
-            }
-          else
-            LogNote("Import HSC", 0, "Element '%s' not found", Element());
-          }
-        if (fabs(MW-dMoleWt)>0.001*dMoleWt)
-          LogWarning("Import HSC", 0, "MoleWt Difference %.3f <> %.3f in %s(%s)", dMoleWt, MW, Formula(), Phase());
-        }
+      sPrevFormula=Formula;
       }
     else
       {
       LogNote("HSC Import", 0, "No Phase in %s", Formula());
       IsValid=false;
+      }
+    }
+  }
+
+// --------------------------------------------------------------------------
+
+void HSCInfo::UpdateB(CCElementDataBase & EDB, CArray<HSCInfo*,HSCInfo*> & Info, int iInfo)//, int & iPhase, Strng & sPrevFormula)
+  {
+
+  if (IsValid)
+    {
+    if (m_iPhase<0)
+      m_FormatAOK=false;
+
+    if (m_FormatAOK && m_iPhaseInd>=0)
+      Phase.Set("%c%s", 'A'+m_iPhaseInd, Phase());
+    //Phase.Set("%c", 'A'+m_iPhaseInd);
+
+    if (Formula[Formula.Length()-1] != ')')
+      {
+      Formula+="(";
+      Formula+=Phase();
+      Formula+=")";
+      }
+
+    Strng T;
+    T=Formula.Left(Formula.Length()-1); //trim right
+    for (int i=T.Length()-1; i>=0; i--)
+      if (T[i]=='(')
+        break;
+    Phase=T.Right(T.Length()-i-1);
+    Formula=T.Left(i);
+    Formula.LRTrim();
+
+    if (IsValid)
+      IsValid=MakeSpDefn(Formula, Defn, EDB);
+
+    if (IsValid)
+      {
+
+      double dMoleWt=0.0;
+      Strng Elements, Element;
+      GetElements(Defn, Elements);
+      while (Elements.Token(Element, " ,", 0, " ,"))
+        {
+        int e=EDB.Find(Element());
+        if (e>=0)
+          {
+          double dMoles=GetElemAmt(Defn, Element);
+          dMoleWt+=EDB[e].AtmWt*dMoles;
+          }
+        else
+          LogNote("Import HSC", 0, "Element '%s' not found", Element());
+        }
+      if (fabs(MW-dMoleWt)>0.001*dMoleWt)
+        LogWarning("Import HSC", 0, "MoleWt Difference %.3f <> %.3f in %s(%s)", dMoleWt, MW, Formula(), Phase());
+
+      if (m_FormatAOK && m_iPhase>0)
+        {
+        int iInfo0=iInfo-1;
+        while ((iInfo0>0) && (Info[iInfo0]->m_iPhase>0))
+          iInfo0--;
+
+        double Ht=Info[iInfo0]->H;
+        for (int i=iInfo0+1; i<=iInfo; i++)
+          {
+          HSCInfo & I0=*Info[i-1];
+          HSCInfo & I1=*Info[i];
+          double Htemp = Ht + I0.IntegrateCp(I0.m_T1, I0.m_T2) + I1.m_Hx;
+          dbgpln("  %15.3f (+Cp)%15.3f (+dH)%15.3f = %15.3f [%6.1f->%6.1f] %s %s > %s", 
+            Ht, I0.IntegrateCp(I0.m_T1, I0.m_T2), I1.m_Hx, Htemp, I0.m_T1, I0.m_T2, I0.Formula(), I0.Phase(), I1.Phase());
+          Ht = Htemp;
+          }
+        H = Ht - IntegrateCp(C2K(25), m_T1);
+
+        dbgpln("  %15.3f (-Cp)%15.3f      %15s = %15.3f %16s %s %s", Ht, IntegrateCp(C2K(25), m_T1), "", H, "", Formula(), Phase());
+        }
       }
     }
   }
@@ -508,9 +578,7 @@ struct SDBInfo
   SDBInfo();
   void Update(CCElementDataBase & EDB);
   flag Valid() { return IsValid; };
-  //double IntegrateCp(double T1, double T2);
-  //void CopyData(SDBData &Data, flag HIsForm, double &SumH);
-  void CopyData(CStringArray &Values, int iOC_MolecularDiam, int iOC_MolVol, int iOC_CpCv, int iOC_Reference); //,  true, SumH);
+  void CopyData(CStringArray &Values, int iOC_MolecularDiam, int iOC_MolVol, int iOC_CpCv, int iOC_Reference);
 
   };
 
@@ -761,7 +829,7 @@ protected:
     BOOL BuildRowList(char * PositionAt=NULL);
     BOOL LoadRecord(int ItemIndex);
     BOOL UpdateRecord(flag ForceIt);
-    BOOL ImportRecord(HSCInfo &Info);
+    BOOL ImportRecords(CArray<HSCInfo*, HSCInfo*> & InfoArray);
     BOOL ImportRecord(SDBInfo &Info);
     void ClearDisplay(int DoEnable=-1);
     BOOL DeleteRecords();
@@ -823,15 +891,18 @@ class CHSCSlct : public CDialog
 	//}}AFX_MSG
 	  DECLARE_MESSAGE_MAP()
 
-    CArray <int, int&> iIndices;
-    CArray <DWORD, DWORD&> dwPositions;
+    CArray <HSCInfo*, HSCInfo*> m_InfoSelected;
     Strng m_Filename;
     HANDLE m_hFile;
     CCElementDataBase m_EDB;
+    CArray<HSCInfo*, HSCInfo*> m_InfoArray;
+
 
   public:
     int GetSelectedCount();
-    flag GetSelectedInfo(int No, HSCInfo & Info);
+    flag GetSelectedInfo(int No1, int Count, CArray <HSCInfo*, HSCInfo*> & InfoArray);
+    void CompleteUpdate(CArray<HSCInfo*,HSCInfo*> & InfoArray, bool DoDump);
+
   };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2532,42 +2603,47 @@ BOOL CSDBSpecie::UpdateRecord(flag ForceIt)//int ItemIndex)
 
 // --------------------------------------------------------------------------
 
-BOOL CSDBSpecie::ImportRecord(HSCInfo &Info)
+BOOL CSDBSpecie::ImportRecords(CArray<HSCInfo*, HSCInfo*> & InfoArray)
   {
   if (1)//Recordset()->CanUpdate())
     {
     try
       {
-      Recordset()->AddNew();
-      Strng NullStr;
-      Strng Str("???");
-      COleVariant var;
-      IMPS(StrSpName,   Info.Name)
-      IMPS(StrCompound, Info.Formula)
-      IMPS(StrSpDefn,   Info.Defn)
-      IMPS(StrPhase,    Info.Phase)
-      IMPS(StrOcc,      Info.Occurence)
+      for (int i=0; i<InfoArray.GetCount(); i++)
+        {
+        HSCInfo & Info=*InfoArray[i];
+        Recordset()->AddNew();
+        Strng NullStr;
+        Strng Str("???");
+        COleVariant var;
+        IMPS(StrSpName,   Info.Name)
+        IMPS(StrCompound, Info.Formula)
+        IMPS(StrSpDefn,   Info.Defn)
+        IMPS(StrPhase,    Info.Phase)
+        IMPS(StrOcc,      Info.Occurence)
 
-      IMPS(StrChecked,  NullStr);//Info.Reference)
-      IMPD(StrTs,       Info.T1)
-      IMPD(StrTe,       Info.T2)
-      IMPS(StrRho,      (Str.Set(Info.Density>1.0e-6?"%.3f":"", Info.Density), Str))
-      IMPS(StrdHf,      (Str.Set("%.3f", Info.H), Str))
-      IMPS(StrS,        (Str.Set("%.3f", Info.S), Str))
-      IMPS(StrCp,       (Str.Set("HSC_Cp(%.3f,%.3f,%.3f,%.3f)", Info.A, Info.B, Info.C, Info.D), Str))
-      IMPS(StrVp,       NullStr)
-      IMPS(StrPc,       NullStr)
-      IMPS(StrTc,       NullStr)
-      IMPS(StrVc,       NullStr)
-      IMPS(StrAc,       NullStr)
-      IMPS(StrReference, NullStr)
+        IMPS(StrChecked,  NullStr);//Info.Reference)
+        IMPD(StrTs,       Info.m_T1)
+        IMPD(StrTe,       Info.m_T2)
+        IMPS(StrRho,      (Str.Set(Info.Density>1.0e-6?"%.3f":"", Info.Density), Str))
+        IMPS(StrdHf,      (Str.Set("%.3f", Info.H), Str))
+        IMPS(StrS,        (Str.Set("%.3f", Info.S), Str))
+        IMPS(StrCp,       (Str.Set("HSC_Cp(%.3f,%.3f,%.3f,%.3f)", Info.A, Info.B, Info.C, Info.D), Str))
+        IMPS(StrVp,       NullStr)
+        IMPS(StrPc,       NullStr)
+        IMPS(StrTc,       NullStr)
+        IMPS(StrVc,       NullStr)
+        IMPS(StrAc,       NullStr)
+        IMPS(StrReference, NullStr)
 
-      m_CompPhaseUpd=Info.Formula;
-      m_CompPhaseUpd+="(";
-      m_CompPhaseUpd+=Info.Phase;
-      m_CompPhaseUpd+=")";
+        m_CompPhaseUpd=Info.Formula;
+        m_CompPhaseUpd+="(";
+        m_CompPhaseUpd+=Info.Phase;
+        m_CompPhaseUpd+=")";
 
-      Recordset()->Update();
+        dbgpln("  Import [%6.1f->%6.1f] %15.6f %15.6f %s %s",  Info.m_T1, Info.m_T2, Info.H, Info.m_Hx, Info.Formula(), Info.Phase());
+        Recordset()->Update();
+        }
       }
     catch(_com_error & e)
       {
@@ -2744,15 +2820,25 @@ BOOL CSDBSpecie::ImportSpecies()
 
   s=BaseCfgFiles();
   s+=BCfgDBFileName();
+  s=ScdPFUser.RdStr("ImportSpecies", "File", s());
 
   CSCDFileDialog Dlg(true, NULL, s(), OFN_FILEMUSTEXIST | OFN_SHAREAWARE | OFN_HIDEREADONLY, 
                     "SysCAD Database(*.mdb)|*.mdb|HSC Databases (*.hsc)|*.hsc||");
   //Dlg.m_ofn.lpstrInitialDir = "C:\\HSC3\\";
-  Dlg.m_ofn.lpstrTitle = "Open Specie Database";
+  Dlg.m_ofn.lpstrTitle = "Import Species from Database";
+
+  // What was this here for ... CNM
+  //if (Dlg.DoModal()==IDOK)
+  //  {
+  //  ScdPFUser.WrStr("ImportSpecies", "File", Dlg.GetPathName());
+  //  CSCDDatabase::DoSDBEdit(Dlg.GetPathName());
+  //  }
+
 
   flag OK=false;
   if (Dlg.DoModal()==IDOK)
     {
+    ScdPFUser.WrStr("ImportSpecies", "File", Dlg.GetPathName());
     // Repaint
     RedrawWindow();
     Strng Fn((char*)(const char*)Dlg.GetPathName());
@@ -2768,13 +2854,11 @@ BOOL CSDBSpecie::ImportSpecies()
         int N=HSCSlct.GetSelectedCount();
         if (N>0)
           {
-          HSCInfo Info;
-          for (int i=0; i<N; i++)
-            {
-            HSCSlct.GetSelectedInfo(i, Info);
-            if (ImportRecord(Info))
-              OK=true;
-            }      
+          CArray <HSCInfo*, HSCInfo*> InfoArray;
+          HSCSlct.GetSelectedInfo(0, N, InfoArray);
+          if (ImportRecords(InfoArray))
+            OK=true;
+
           }
         }
       }
@@ -2830,6 +2914,9 @@ CHSCSlct::CHSCSlct(char * Filename, CWnd* pParent /*=NULL*/)
 
 CHSCSlct::~CHSCSlct()
   {
+  for (int iInfo=0; iInfo<m_InfoArray.GetSize(); iInfo++)
+    delete m_InfoArray[iInfo];
+
   if (m_hFile!=INVALID_HANDLE_VALUE)
     CloseHandle(m_hFile);
   m_EDB.Term();
@@ -2883,65 +2970,48 @@ BOOL CHSCSlct::OnInitDialog()
     int FormLen=10;
     int NameLen=10;
     HSCData Data;
-    //HSCData DataPrev;
     DWORD NBytesRead;
-    WORD wRecNo=0;
-    WORD wRecNo1=0;
-    Strng PrevFormula;
-    //double SumH=0.0;
-    //flag HIsForm=true;
-    //DWORD dwCurrentFilePosition;
-    //dwCurrentFilePosition = SetFilePointer( m_hFile, 0, NULL, FILE_CURRENT);  // provides offset from current position
+
+    int iPhase=0;
+    Strng sPrevFormula;
+    m_InfoArray.SetSize(0, 1024);
+    HSCInfo * pPrevInfo=NULL;
+    int iRecNo=0;
     while (ReadFile(m_hFile, &Data, sizeof(Data), &NBytesRead, NULL) && (NBytesRead==sizeof(Data)))
       {
-      double SumH=0.0;
-      HSCInfo Info;
-      Info.CopyData(Data, true, SumH);
-      Info.Update(m_EDB);
-      #if dbgDumpAll
-      dbgpln("%3.3s %-25.25s %-3.3s %8.2f %8.2f %-30.30s %8.2f %15.2f %8.2f %8.2f %8.2f %8.2f %12.5f %-55.55s %-33.33s",
-             Info.Valid()?"":"BAD",
-             Info.Formula(), Info.Occurence(), Info.T1, Info.T2, Info.Defn(),
-             Info.S, Info.H, Info.A, Info.B, Info.C, Info.D, Info.Density,
-             Info.Name()?Info.Name():"", Info.StructuralFormula()?Info.StructuralFormula():"");
-      #endif
+      HSCInfo * pInfo=new HSCInfo;
+      pInfo->CopyData(Data, true);//, SumH);
+      pInfo->UpdateA(iRecNo++, iPhase, sPrevFormula, pPrevInfo);
+      if (pInfo->IsValid)
+        {
+        pInfo->m_iInfoIndex=m_InfoArray.GetCount();
+        m_InfoArray.Add(pInfo);
+        pPrevInfo=pInfo;
+        }
+      }
+
+    CompleteUpdate(m_InfoArray, dbgDumpAll);
+  
+    for (int iInfo=0; iInfo<m_InfoArray.GetSize(); iInfo++)
+      {
+      HSCInfo &Info=*m_InfoArray[iInfo];
       if (Info.Valid())
         {
         Strng S,X;
         X.Set("%s(%s)", Info.Formula(),Info.Phase());
-        S.Set("%s\t%8.2f\t%8.2f\t%s", X(), Info.T1, Info.T2, Info.Name()?Info.Name():"");
+        S.Set("%s\t%8.2f\t%8.2f\t%s", X(), Info.m_T1, Info.m_T2, Info.Name()?Info.Name():"");
         S.LTrim();
         FormLen=Max(FormLen, X.Length());
         NameLen=Max(NameLen, Info.Name.Length());
         int Pos=m_List.AddString(S());
-
-        if (PrevFormula.XStrICmp(Info.FormulaRaw())!=0)
-          {
-          PrevFormula=Info.FormulaRaw;
-          wRecNo1=wRecNo;
-//          SumH=0.0;
-//          HIsForm=true;
-          }
-//        else
-//          HIsForm=false;
         if (Pos!=LB_ERR && Pos!=LB_ERRSPACE)
           {
-          DWORD dwPos=(wRecNo1 << 8) | ((wRecNo-wRecNo1) & 0x00ff);
-          if (m_List.SetItemData(Pos, dwPos)==LB_ERR)
+          if (m_List.SetItemData(Pos, (DWORD)m_InfoArray[iInfo])==LB_ERR)
             {
             int xxx=0;
             };
           }
-        wRecNo++;
         }
-      else
-        {
-        wRecNo++;
-        wRecNo1=wRecNo;
-        }
-
-    //  dwCurrentFilePosition = SetFilePointer(m_hFile, 0, NULL, FILE_CURRENT);
-      //DataPrev=Data;
       }
 
     CRect Rect;
@@ -2962,47 +3032,109 @@ BOOL CHSCSlct::OnInitDialog()
 
 // --------------------------------------------------------------------------
 
+void CHSCSlct::CompleteUpdate(CArray<HSCInfo*,HSCInfo*> & InfoArray, bool DoDump)
+  {
+
+  for (int i=0; i<InfoArray.GetSize(); )
+    {
+    HSCInfo &Infoi=*InfoArray[i];
+    Infoi.m_iPhaseInd=Infoi.m_iPhase;
+    if (Infoi.m_FormatAOK)
+      {
+      int n=1;
+      Infoi.m_iPhaseInd=n-1;//Infoj.m_iPhase;
+      for (int j=i+1; j<InfoArray.GetSize(); j++)
+        {
+        HSCInfo &Infoj=*InfoArray[j];
+        Infoj.m_iPhaseInd=n;//Infoj.m_iPhase;
+        if (Infoj.Formula==Infoi.Formula && Infoj.Occurence==Infoi.Occurence)
+          n++;
+        else
+          break;
+        }
+      if (n==1)
+        Infoi.m_iPhaseInd=-1;
+
+      i+=n;
+      }
+    else
+      i++;
+    }
+
+  if (DoDump)
+    dbgpln("-----------------------------------------------");
+
+  for (int iInfo=0; iInfo<InfoArray.GetSize(); iInfo++)
+    {
+    HSCInfo &Info=*InfoArray[iInfo];
+    Info.UpdateB(m_EDB, InfoArray, iInfo);
+    if (DoDump)
+      {
+      dbgpln("%3.3s %s %s %s %2i %2i %-25.25s %-8.8s %-3.3s %8.2f %8.2f %-30.30s %8.2f %15.2f %8.2f %8.2f %8.2f %8.2f %12.5f %-55.55s %-33.33s",
+        Info.Valid()?"":"BAD",
+        Info.m_FormatA?"A":" ",
+        Info.m_FormatAOK?"OK":"  ",
+        Info.m_FormatAOK && Info.m_iPhase>0?"Xfrm":"    ",
+        Info.m_iPhase,
+        Info.m_iPhaseInd,
+        Info.FormulaRaw(), 
+        //Info.Formula(), 
+        Info.Phase(), Info.Occurence(), Info.m_T1, Info.m_T2, Info.Defn(),
+        Info.S, Info.H, Info.A, Info.B, Info.C, Info.D, Info.Density,
+        Info.Name()?Info.Name():"", Info.StructuralFormula()?Info.StructuralFormula():"");
+      }
+    }
+
+  if (DoDump)
+    dbgpln("-----------------------------------------------");
+
+  }
+
+// --------------------------------------------------------------------------
+
 int CHSCSlct::GetSelectedCount()
   {
-  return dwPositions.GetSize();
+  return m_InfoSelected.GetSize();
   };
 
 // --------------------------------------------------------------------------
 
-flag CHSCSlct::GetSelectedInfo(int No, HSCInfo & Info)
+flag CHSCSlct::GetSelectedInfo(int No1, int Count, CArray <HSCInfo*, HSCInfo*> & InfoArray)
   {
-//  DWORD dwCurrentFilePosition=dwOffsets[No];
-  DWORD dwStartFilePosition=(dwPositions[No] >> 8)*sizeof(HSCData);
-  DWORD dwOffset=(dwPositions[No] & 0x00ff);
-  DWORD Ptr=SetFilePointer(m_hFile, dwStartFilePosition, NULL, FILE_BEGIN);
-  double SumH=0.0;
-  flag HIsForm=true;
-  if (Ptr!=0xFFFFFFFF)
+  for (int i=0; i<m_InfoArray.GetSize(); i++)
+    m_InfoArray[i]->m_Selected=false;
+
+  for (int i=No1; i<No1+Count; i++)
     {
-    DWORD NBytesRead;
-    HSCData Data;
-    while ((dwOffset>=0) &&
-        ReadFile(m_hFile, &Data, sizeof(Data), &NBytesRead, NULL) &&
-        (NBytesRead==sizeof(Data)))
+    HSCInfo * pInfo = m_InfoSelected[i];
+    if (pInfo->IsValid)
       {
-      Info.CopyData(Data, HIsForm, SumH);
-      HIsForm=false;
-      if (dwOffset==0)
+      pInfo->m_Selected=true;
+      int iPrevPhase=pInfo->m_iPhase;
+      int j;
+      for (j=pInfo->m_iInfoIndex-1 ; j>=0 && m_InfoArray[j]->m_iPhase>=0; j--)
+        m_InfoArray[j]->m_Selected=true;
+      for (j=pInfo->m_iInfoIndex+1 ; j<m_InfoArray.GetSize() && m_InfoArray[j]->m_iPhase>iPrevPhase; j++)
         {
-        Info.Update(m_EDB);
-        #if dbgDumpIns
-        dbgpln("%3.3s %-25.25s %-3.3s %8.2f %8.2f %-30.30s %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %-55.55s %-33.33s",
-               Info.Valid()?"":"BAD",
-               Info.Formula(), Info.Occurence(), Info.T1, Info.T2, Info.Defn(),
-               Info.S, Info.H, Info.A, Info.B, Info.C, Info.D,
-               Info.Name()?Info.Name():"", Info.StructuralFormula()?Info.StructuralFormula():"");
-        #endif
-        return Info.Valid();
+        m_InfoArray[j]->m_Selected=true;
+        iPrevPhase=m_InfoArray[j]->m_iPhase;
         }
-      dwOffset--;
       }
+    else 
+      { ASSERT(FALSE); /*return false;*/ }
     }
-  return false;
+
+  InfoArray.SetSize(0, 1024);
+  for (int i=0; i<m_InfoArray.GetSize(); i++)
+    {
+    HSCInfo * pInfo = m_InfoArray[i];
+    if (pInfo->m_Selected)
+      InfoArray.Add(pInfo);
+    }
+
+  CompleteUpdate(InfoArray, dbgDumpIns);
+
+  return true;
   };
 
 // --------------------------------------------------------------------------
@@ -3010,17 +3142,20 @@ flag CHSCSlct::GetSelectedInfo(int No, HSCInfo & Info)
 void CHSCSlct::OnOK()
   {
   int N=m_List.GetSelCount();
-  int M=dwPositions.GetSize();
+  int M=m_InfoSelected.GetSize();
+  CArray <int, int&> iIndices;
   iIndices.SetSize(N);
-  dwPositions.SetSize(M+N);
+  m_InfoSelected.SetSize(M+N);
   if (N>0)
     {
     int NSel=m_List.GetSelItems(N, &iIndices[0]);
     ASSERT(NSel==N);
     for (int i=0; i<N; i++)
-      dwPositions[M+i]=m_List.GetItemData(iIndices[i]);
+      m_InfoSelected[M+i]=(HSCInfo*)m_List.GetItemData(iIndices[i]);
     }	
-	CDialog::OnOK();
+
+
+  CDialog::OnOK();
   }
 
 // --------------------------------------------------------------------------
@@ -3028,18 +3163,22 @@ void CHSCSlct::OnOK()
 void CHSCSlct::OnImport()
   {
   int N=m_List.GetSelCount();
-  int M=dwPositions.GetSize();
+  int M=m_InfoSelected.GetSize();
+  CArray <int, int&> iIndices;
   iIndices.SetSize(N);
-  dwPositions.SetSize(M+N);
+  m_InfoSelected.SetSize(M+N);
   if (N>0)
     {
     int NSel=m_List.GetSelItems(N, &iIndices[0]);
     ASSERT(NSel==N);
     for (int i=0; i<N; i++)
       {
-      dwPositions[M+i]=m_List.GetItemData(iIndices[i]);
+      m_InfoSelected[M+i]=(HSCInfo*)m_List.GetItemData(iIndices[i]);
       m_List.SetSel(iIndices[i],false);
+      ASSERT_ALWAYS((i<1 || iIndices[i]>iIndices[i-1]), "BAD SPECIE IMPORT LIST ORDER");
       }
+    for (int i=N-1; i>=0; i--)
+      m_List.DeleteString(iIndices[i]);
     }	
   }
 
@@ -3098,18 +3237,8 @@ BOOL CSDBSlct::OnInitDialog()
 	CDialog::OnInitDialog();
   CWaitCursor Curs;
 
-  //m_hFile=CreateFile(m_Filename(),
-  //                    GENERIC_READ, FILE_SHARE_READ, NULL,
-  //                    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL , NULL);
-  //if (m_hFile!=INVALID_HANDLE_VALUE)
-  //  {
   int FormLen=10;
   int NameLen=10;
-  //  HSCData Data;
-  //  //HSCData DataPrev;
-  //  DWORD NBytesRead;
-  //DWORD dwRecNo=0;
-//  WORD wRecNo1=0;
   Strng PrevFormula;
 
 
@@ -3160,52 +3289,14 @@ BOOL CSDBSlct::OnInitDialog()
             NameLen=Max(NameLen, Info.Name.Length());
             int Pos=m_List.AddString(S());
 
-//            if (0)
-//              {
-////              if (PrevFormula.XStrICmp(Info.FormulaRaw())!=0)
-////                {
-////                PrevFormula=Info.FormulaRaw;
-////                wRecNo1=wRecNo;
-////      //          SumH=0.0;
-////      //          HIsForm=true;
-////                }
-////      //        else
-////      //          HIsForm=false;
-//              }
-//            else
-//              wRecNo1=wRecNo;
-
             if (Pos!=LB_ERR && Pos!=LB_ERRSPACE)
               {
-              //DWORD dwPos=(wRecNo1 << 8) | ((wRecNo-wRecNo1) & 0x00ff);
               if (m_List.SetItemData(Pos, pDB->GetLineNo())==LB_ERR)
                 {
                 int xxx=0;
                 };
               }
-            //wRecNo++;
             }
-          else
-            {
-            //wRecNo++;
-//            wRecNo1=wRecNo;
-            }
-
-    //  dwCurrentFilePosition = SetFilePointer(m_hFile, 0, NULL, FILE_CURRENT);
-      //DataPrev=Data;
-//
-//          Strng SymBuff;
-//          const char* pTag = (const char*)Values[0];
-//          const char* pSym = CheckSymbolName((const char*)Values[1], SymBuff);
-//          if (strlen(pSym)==0)
-//            break;
-//          if (strlen(pTag)==0)
-//            pTag = pSym;
-//
-//          const char* pElDef = (const char*)Values[2];
-//
-//
-          int xxx=0;
           }
         }
       else
@@ -3214,67 +3305,7 @@ BOOL CSDBSlct::OnInitDialog()
         //Ok = false;
         }
       pDB->MoveFirst();
-      //DB.Close();
       }
-    //else
-    //  LogError("Specie Import", 0, "FIle Not OpeIncorrect field names: Table 'Species' in '%s'", DataFile);
-    //double SumH=0.0;
-    //flag HIsForm=true;
-    //DWORD dwCurrentFilePosition;
-    //dwCurrentFilePosition = SetFilePointer( m_hFile, 0, NULL, FILE_CURRENT);  // provides offset from current position
-    /*
-    while (ReadFile(m_hFile, &Data, sizeof(Data), &NBytesRead, NULL) && (NBytesRead==sizeof(Data)))
-      {
-      double SumH=0.0;
-      HSCInfo Info;
-      Info.CopyData(Data, true, SumH);
-      Info.Update(m_EDB);
-      #if dbgDumpAll
-      dbgpln("%3.3s %-25.25s %-3.3s %8.2f %8.2f %-30.30s %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %-55.55s %-33.33s",
-             Info.Valid()?"":"BAD",
-             Info.Formula(), Info.Occurence(), Info.T1, Info.T2, Info.Defn(),
-             Info.S, Info.H, Info.A, Info.B, Info.C, Info.D,
-             Info.Name()?Info.Name():"", Info.StructuralFormula()?Info.StructuralFormula():"");
-      #endif
-      if (Info.Valid())
-        {
-        Strng S,X;
-        X.Set("%s(%s)", Info.Formula(),Info.Phase());
-        S.Set("%s\t%8.2f\t%8.2f\t%s", X(), Info.T1, Info.T2, Info.Name()?Info.Name():"");
-        S.LTrim();
-        FormLen=Max(FormLen, X.Length());
-        NameLen=Max(NameLen, Info.Name.Length());
-        int Pos=m_List.AddString(S());
-
-        if (PrevFormula.XStrICmp(Info.FormulaRaw())!=0)
-          {
-          PrevFormula=Info.FormulaRaw;
-          wRecNo1=wRecNo;
-//          SumH=0.0;
-//          HIsForm=true;
-          }
-//        else
-//          HIsForm=false;
-        if (Pos!=LB_ERR && Pos!=LB_ERRSPACE)
-          {
-          DWORD dwPos=(wRecNo1 << 8) | ((wRecNo-wRecNo1) & 0x00ff);
-          if (m_List.SetItemData(Pos, dwPos)==LB_ERR)
-            {
-            int xxx=0;
-            };
-          }
-        wRecNo++;
-        }
-      else
-        {
-        wRecNo++;
-        wRecNo1=wRecNo;
-        }
-
-    //  dwCurrentFilePosition = SetFilePointer(m_hFile, 0, NULL, FILE_CURRENT);
-      //DataPrev=Data;
-      }
-    */
 
     CRect Rect;
     Rect.SetRect(0,0,4,8);
