@@ -536,9 +536,8 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
   byte En = 2;
   switch (nID)
     {
-    #if !NextVersion
+    #if !WITHIMPORTPDS
     case ID_GRF_ImportPDSFile:
-    case ID_GRF_ZoomIso:
       En = 0;
       break;
     #endif
@@ -576,7 +575,7 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
     case ID_GRF_SaveSymbols:
     case ID_GRF_LoadDrawing:
     case ID_GRF_SaveDrawing:
-    #if NextVersion
+    #if WITHIMPORTPDS
     case ID_GRF_ImportPDSFile:
     #endif
     case ID_GRF_ImportELMS3DFile:
@@ -592,9 +591,7 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
     case ID_GRF_DoRedraw:
     case ID_GRF_Redraw:
     case ID_GRF_CopyBitmap:
-    #if NextVersion
     case ID_GRF_ZoomIso:
-    #endif
     case ID_GRF_ZoomAll:
     case ID_GRF_ZoomIn:
     case ID_GRF_ZoomOut:
@@ -3354,6 +3351,7 @@ bool GrfCmdBlk::DoInsertLink(CConnectBlk* CB)
 bool GrfCmdBlk::DoInsertGroup(CInsertBlk* CB)
   {
   bool OK = false;
+#if WITHGRFGROUP
 //  pDsp->Open();
 
   if (CB->m_sGroupName.GetLength()>0)
@@ -3366,6 +3364,7 @@ bool GrfCmdBlk::DoInsertGroup(CInsertBlk* CB)
     }
 
 //  pDsp->Close();
+#endif
   return OK;
   }
 
@@ -7923,6 +7922,7 @@ void GrfCmdBlk::DoInsertGroup()
 
 void GrfCmdBlk::DoSaveGroup()
   {
+#if WITHGRFGROUP
   static CNeutralExportDBDlg * pDBDlg = NULL;
   //SETVNT("DElete",    "UNit", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
   //SETVNT("DElete",    "SYmbol", "@ IWin CWin Redraw ;", 1, (CmdFn)&GrfCmdBlk::DoDelete, EF_Edit);
@@ -8197,6 +8197,7 @@ void GrfCmdBlk::DoSaveGroup()
       break;
     }
   pDsp->Close();
+#endif
   };
 
 //---------------------------------------------------------------------------
@@ -8394,7 +8395,7 @@ void GrfCmdBlk::DoLoad()
 
 void GrfCmdBlk::DoImportPDS()
   {
-  #if NextVersion
+  #if WITHIMPORTPDS
   dbgMemoryState("Start Import");
 //  DoLoadMerge(False);
 
@@ -8582,9 +8583,7 @@ void GrfCmdBlk::DoZoom()
         case 9 : pDsp->SetZoom(Zoom_PanRel, 0.0, 0.0, 2.0, 2.0); break;
         case 10: gs_pCmd->SetDigInfo(GC_RectCurs, 1); DoRepaint = 0; pGWnd->SetCursor(IDC_SELECTBOX); break;
         case 11: gs_pCmd->SetDigInfo(GC_RectCurs, 1); DoRepaint = 0; pGWnd->SetCursor(IDC_SELECTBOX); break;
-        #if NextVersion
         case 12: pDsp->SetZoom(Zoom_Iso); break;
-        #endif
         case 13: RemoveToolbar(); gs_pCmd->SetDigInfo(GC_RectCurs, 1); DoRepaint = 0; pGWnd->SetCursor(IDC_SELECTBOX); break;
         default: DoRepaint = 0; break;
         }

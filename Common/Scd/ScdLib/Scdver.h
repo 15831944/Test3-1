@@ -12,18 +12,6 @@
 
 // --------------------------------------------------------------------------
 
-#define NextVersion           0
-
-#if NextVersion
-#define WITHAUTOMATION        0
-#define WITHVISIODOC          1
-#else
-#define WITHAUTOMATION        0
-#define WITHVISIODOC          0
-#endif
-
-// --------------------------------------------------------------------------
-
 #define USESCDEXPLORER        1
 #define BLDDEPENDENTFILES     1
 #define WITHCOMCMD            0
@@ -46,17 +34,19 @@
 #define WITHCTRLEDIT          1
 #define WITHORDEROBJ          1
 #define WITHIOOBJ             1
-
 #define WITHXMENUS            1
-#define WITHCHANGEOBJ         0
-#define WITHGRFDOCFRAME       1
-#define WITHGRFGROUP          1
-#define WITHAUTOVLE           1
-#define WITHRCTEDITDLG        1
 #define WITHDOUBLEGSMODEL     1
 #define WITHSURGECTRLDOUBLE   1
+#define WITHGRFDOCFRAME       1
+#define WITHAUTOVLE           1
+#define WITHGRFGROUP          1
+#define WITHGRFGROUPCONFIG    1
 #define WITHBLOCKEVALUATOR    1
 
+//perhaps developing new functionality...
+#define WITHCHANGEOBJ         0 //too slow...???
+#define WITHAUTOMATION        0
+#define WITHRCTEDITDLG        0
 
 //discontinued functionality...
 #define WITHLOCALCOPY         0
@@ -65,6 +55,9 @@
 #define WITHSCRCYCLES         0 // for Ken at machodorp
 #define WITHSPECSHEETS        0
 #define WITHNETSERVER         0
+#define WITHVISIODOC          0
+#define WITHIMPORTPDS         0
+#define WITHANALYSE           0
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++ Used for changing SysCAD version numbers.           ++

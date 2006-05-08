@@ -1306,11 +1306,13 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         #if (!WITHSCRCYCLES)
         DeleteMenuItem(ID_VIEW_SCREENSAVER);
         #endif
-        #if (!NextVersion)
-        DeleteMenuItem(ID_GRF_ZoomIso);
+        #if (!WITHIMPORTPDS)
         DeleteMenuItem(ID_GRF_ImportPDSFile);
+        #endif
+        #if (!WITHANALYSE)
         DeleteMenuItem(ID_ACTIONS_Analyse);
         #endif
+        //DeleteMenuItem(ID_GRF_ZoomIso);
         DeleteMenuItem(ID_FILE_DUMMY);
         //gs_pPrj->bChangedRuntimeMenu=1;
         DrawMenuBar();
@@ -2330,7 +2332,7 @@ LRESULT CMainFrame::OnAddToRptTagLists(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnAnalyse()
   {
-  #if (NextVersion)
+  #if (WITHANALYSE)
   if (gs_License.AllowAnalyse() && EnableNotBusy() && EnableNotStopped())
     {
 //TODO Must be Expanded ...
@@ -2367,7 +2369,7 @@ void CMainFrame::OnAnalyse()
 
 void CMainFrame::OnUpdateAnalyse(CCmdUI* pCmdUI)
   {
-  #if (NextVersion)
+  #if (WITHANALYSE)
   pCmdUI->Enable(gs_License.AllowAnalyse() && EnableNotBusy() && EnableNotStopped());
   #else
   pCmdUI->Enable(0);

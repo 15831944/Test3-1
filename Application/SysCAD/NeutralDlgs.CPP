@@ -497,8 +497,15 @@ BOOL CNeutralSaveGroupDlg::OnInitDialog()
   SetDBNameSymb(PF.RdStr("NeutralGroup", "Database", "$CfgFiles\\GroupLibrary.MDB"));
   m_editDatabase.SetWindowText(m_sDatabaseSymb());
 
+  #if WITHGRFGROUPCONFIG
   m_WithConfig.SetCheck(PF.RdLong("CreateGroup", "WithConfig", 1));
   m_WithState.SetCheck(PF.RdLong("CreateGroup", "WithState", 0));
+  #else
+  m_WithConfig.SetCheck(0);
+  m_WithState.SetCheck(0);
+  m_WithConfig.EnableWindow(false);
+  m_WithState.EnableWindow(false);
+  #endif
     
   m_XOrgOpts.AddString("As Digitised");
   m_XOrgOpts.AddString("Left");
@@ -591,7 +598,10 @@ void CNeutralSaveGroupDlg::OnOK()
   SetDBNameSymb(GetWndText(m_editDatabase));
 
   PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb);
+  #if WITHGRFGROUPCONFIG
   PF.WrLong("CreateGroup", "WithConfig", m_WithConfig.GetCheck());
+  PF.WrLong("CreateGroup", "WithState", m_WithState.GetCheck());
+  #endif
 
   CString Sx, Sy;
   m_XOrgOpts.GetWindowText(Sx);
@@ -629,7 +639,6 @@ void CNeutralSaveGroupDlg::OnBnClickedCancel()
   }
 
 //--------------------------------------------------------------------------
-
 
 void CNeutralSaveGroupDlg::OnBnClickedWithconfig()
   {
