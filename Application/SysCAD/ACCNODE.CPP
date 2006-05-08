@@ -44,6 +44,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #define dbgANW              0
 #define dbgDumpObject       0
 
+#define CHECKSRGT           01
+
 //static int DoTagOnly=0;
 
 #define WithSendToCustom 0
@@ -2517,6 +2519,13 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           VW=14;
           }
 
+#if CHECKSRGT
+        if (d.fHasCheck)
+          {
+          WdtAdj=Max(0,VW-2); 
+          }
+        else
+#endif
         if (d.ValLst.Length()==0)
           {
           switch (f.iType)
@@ -2587,16 +2596,23 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         //SetSpace(LnNo,d.m_iChildLvl);
         if (d.fHasCheck)
           {
-          FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), NamW-TagComLen/*+WdtAdj*/, 3, TagComStr());
+#if CHECKSRGT
+          int DWidth = NamW-TagComLen+WdtAdj;
+          int VWidth = VW-WdtAdj;
+#else
+          int DWidth = NamW-TagComLen;
+          int VWidth = 2;
+#endif
+          FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
           pFld->fUnderLine=true;
           if (d.sFullTag())
             SetTag(d.sFullTag());
           SetMarkerFlags(d.m_Markers);
           
           if (d.fHasButton)
-            f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, 2/*VW-WdtAdj*/, 0, "", d.fIsParam);
+            f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
           else
-            f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, 2/*VW-WdtAdj*/, 0, "", d.fIsParam);
+            f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
           }
         else if (d.fHasButton)
           {
