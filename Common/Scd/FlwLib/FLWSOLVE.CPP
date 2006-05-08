@@ -9195,7 +9195,10 @@ flag CFlwSolver::Init()
               LogError("Sfe_Server", 0, "%s Model Class not available", Tg());
             }
           else
-            LogError("Sfe_Server", LF_Exclamation, "%s Unknown Model Class", Tg());
+            {
+            if (stricmp(Tg(), "CEnvelope-1")!=0)
+              LogError("Sfe_Server", LF_Exclamation, "%s Unknown Model Class", Tg());
+            }
           }
         }
       }
