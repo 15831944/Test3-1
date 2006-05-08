@@ -1289,10 +1289,19 @@ double SMBayer::Na2SO4toC()
 
 double SMBayer::BoilingPtElevation(double P_, CSysVector * pMA)
   {
-  double T_=Temp();
-  double BPE=BoilPtElev(T_, pMA);
-  //return BPE;
-  return Max(0.0, BPE);
+
+  if (0)
+    {
+    double A=SaturationT(P_, pMA);
+    double B=PureSaturationT(P_, pMA);
+    dbgpln("SMBayer::BoilingPtElevation %10.3f %10.3f %10.3f %10.3f", P_, A-B, A, B);
+    }
+  return SaturationT(P_, pMA) - PureSaturationT(P_, pMA);
+
+  //double T_=Temp();
+  //double BPE=BoilPtElev(T_, pMA);
+  ////return BPE;
+  //return Max(0.0, BPE);
   }
 
 //---------------------------------------------------------------------------
@@ -1348,6 +1357,8 @@ double SMBayer::BoilPtElev(double T_, CSysVector * pMA/*=NULL*/)
                 - (0.032647*gmSumPerH2O*Pow((gmSumPerH2O*T_/1000.0),2))
                 + (Pow(T_*0.001,5.0) * (5.9705*gmSumPerH2O
                 -0.57532*gmSumPerH2O*gmSumPerH2O + 0.10417*Pow(gmSumPerH2O,3)));
+    if (0)
+      dbgpln("Bayer     %7.3f %10.3f %10.3f", T_, gmSumPerH2O , BPE);
     }
   else
     {
@@ -1431,7 +1442,10 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA)
       break;
     BPE = NewBPE;
     }
+
   double SatP = SpModelEx::SaturationP(T_-BPE, &MA);
+  if (0)
+    dbgpln("Bayer     SatP = %10.3f %10.3f %10.3f", T_, BPE, SatP);
 
   #if dbgModels
   if (dbgSpecies() && DoDbgBrk())

@@ -7613,6 +7613,12 @@ double SpModel::BoilingPtElevation(double P_, CSysVector * pMA)
   if (m_Ovr.bUse & SPO_BPEle)
     return m_Ovr.fBPEle;
 
+  if (0)
+    {
+    double A=SaturationT(P_, pMA);
+    double B=PureSaturationT(P_, pMA);
+    dbgpln("SpModel::BoilingPtElevation %10.3f %10.3f %10.3f %10.3f", P_, A-B, A, B);
+    }
   return SaturationT(P_, pMA) - PureSaturationT(P_, pMA);
   };
 

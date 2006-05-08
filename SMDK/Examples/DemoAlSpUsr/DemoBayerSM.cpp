@@ -467,6 +467,9 @@ double CDemoBayerSM::get_SaturationP(double T, MArray *pMA)
     BPE = NewBPE;
     }
   double SatP = MSpModelBase::get_SaturationP(T-BPE, pMA);
+  if (0)
+    Dbg.PrintLn("DemoBayer SatP = %10.3f %10.3f %10.3f", T, BPE, SatP);
+
   if (WaterFrac>sm_dH2OTestFrac1)
     {
     const double Std_SatP = MSpModelBase::get_SaturationP(T, &MA);
@@ -534,6 +537,8 @@ double CDemoBayerSM::BoilPtElev(MArray & MA, double T)
                 - (0.032647*gmSumPerH2O*Pow((gmSumPerH2O*T/1000.0),2))
                 + (Pow(T*0.001,5.0) * (5.9705*gmSumPerH2O
                     -0.57532*gmSumPerH2O*gmSumPerH2O + 0.10417*Pow(gmSumPerH2O,3)));
+    if (0)
+      Dbg.PrintLn("DemoBayer %7.3f %10.3f %10.3f", T, gmSumPerH2O , BPE);
     }
   else
     {//sm_iBPEMethod==BPM_Adamson
