@@ -25,6 +25,8 @@
   #include "2d_fn.h"
 #endif
 
+#include "blockevalbase.h"
+
 #ifdef __M_HXBASE_CPP
   #define DllImportExport DllExport
 #elif !defined(MdlBase)
@@ -202,7 +204,7 @@ XID xidEnvHXEqnNm  = MdlBsXID(32002);
 
 // ===========================================================================
 
-class DllImportExport CEnvironHXBase
+class DllImportExport CEnvironHXBase : public CBlockEvalBase
   {
   protected:
     flag            fFixed;
@@ -440,7 +442,7 @@ XID xidHXEffArea          = MdlBsXID(32006);
 XID xidHXEffUA            = MdlBsXID(32007);
 XID xidHXAreaUsed         = MdlBsXID(32008);
 
-class DllImportExport CHXBase
+class DllImportExport CHXBase : public CBlockEvalBase
   {
   protected:
     TagObjClass    *pRqdHXClass;

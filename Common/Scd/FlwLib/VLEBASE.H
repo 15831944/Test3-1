@@ -9,15 +9,8 @@
 #ifndef __FLWNODE_H
 #include "flwnode.h"
 #endif
-//#ifndef __M_HXBASE_H
-//  #include "m_hxbase.h"
-//#endif
-//#ifndef __SP_REACT_H
-//  #include "sp_react.h"
-//#endif
-#ifndef __SCDARRAY_H
+#include "blockevalbase.h"
 #include "scdarray.h"
-#endif
 
 #if defined(__VLEBASE_CPP)
 #define DllImportExport DllExport
@@ -26,6 +19,7 @@
 #else
 #define DllImportExport
 #endif
+
 
 // =========================================================================
 
@@ -135,7 +129,7 @@ class DllImportExport CVLEBlock : public TaggedObject
 
 //============================================================================
 
-class DllImportExport CVLEBase : public CClosureHfGain
+class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
   {
   public:
     CVLEBase(pTaggedObject pAttach, dword SelectMask) { pVLE=NULL; pNd=pAttach; fEnabled=fFixed=False; dwSelectMask=SelectMask; };

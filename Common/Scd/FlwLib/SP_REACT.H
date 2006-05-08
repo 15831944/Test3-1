@@ -26,6 +26,8 @@
   #include "flwnode.h"
 #endif
 
+#include "blockevalbase.h"
+
 #ifdef __SP_REACT_CPP
   #define DllImportExport DllExport
 #elif !defined(FLWLIB)
@@ -565,7 +567,7 @@ const byte SRSC_All   = 0x03;
 //
 //===========================================================================
 
-class DllImportExport CReactionBase
+class DllImportExport CReactionBase : public CBlockEvalBase
   {
   public:
     CReactionBase(FlwNode * pAttach, bool IsSurgeType, LPTSTR Tag="RB") 

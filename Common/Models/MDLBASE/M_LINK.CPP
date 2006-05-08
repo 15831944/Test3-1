@@ -650,7 +650,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_Src(eDIO_Src, this, false, true, "Src"),
   m_Snk(eDIO_Snk, this, false, true, "Snk")
 #if (WITHBLOCKEVALUATOR)
-  , m_BlkEval(&m_RB, NULL, &EHX, &m_VLE, &m_Evap)
+  , m_BlkEval(&m_RB, 1, NULL, 0, &EHX, 2, &m_VLE, 3, &m_Evap, 4)
 #endif
   {
   AttachClassInfo(nc_MLnk,NULL);
@@ -1776,6 +1776,11 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
     else if (Fo.QMass()<1.0e-6 && Fi.QMass()>1.0e-6)
       Fo.QCopy(Fi);
     }
+
+#if (WITHBLOCKEVALUATOR)    
+  if (!m_BlkEval.ValidateData(VDB))
+    OK=false;
+#endif
 
   return OK;
   }

@@ -344,7 +344,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\bin\FlowChart.NET.dll"
-			AssemblyName="FlowChart.NET, Version=4.0.4.21182, processorArchitecture=MSIL"
+			AssemblyName="FlowChart.NET, Version=4.0.4.12435, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"

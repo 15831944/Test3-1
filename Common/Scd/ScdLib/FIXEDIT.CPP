@@ -4589,8 +4589,8 @@ BOOL FxdEdtView::OnCommand( WPARAM wParam, LPARAM lParam )
           }
         case CBN_SELENDCANCEL:
           {
-          if (pCBoxControl && !fCBoxSelEndDone)
-            pCBoxControl->fAcceptChgs=false;
+          //if (pCBoxControl && !fCBoxSelEndDone)
+          //  pCBoxControl->fAcceptChgs=false;
           fCBoxSelEndDone=true;
           break;
           }

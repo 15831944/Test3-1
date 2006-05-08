@@ -1,6 +1,7 @@
 #pragma once
 
 #include "flwnode.h"
+#include "blockevalbase.h"
 
 #ifdef __EVAPBLOCK_CPP
   #define DllImportExport DllExport
@@ -79,7 +80,7 @@ DEFINE_EHX(CEvBlk_Percentage);
 //
 // ===========================================================================
 
-class DllImportExport CEvapBase
+class DllImportExport CEvapBase : public CBlockEvalBase
   {
   public:
 
