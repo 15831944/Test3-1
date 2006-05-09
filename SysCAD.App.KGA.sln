@@ -990,6 +990,7 @@ Global
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Debug - Full.ActiveCfg = Debug|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Debug - Full.Build.0 = Debug|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release.ActiveCfg = Release|Win32
+		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release.Build.0 = Release|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release - Full.ActiveCfg = Release|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release - Full.Build.0 = Release|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg.ActiveCfg = Release_Dbg|Win32

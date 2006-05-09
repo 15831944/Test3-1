@@ -220,6 +220,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90">
 			<File
+				RelativePath=".\BlockEvalBase.cpp">
+			</File>
+			<File
 				RelativePath=".\copyblk.cpp">
 			</File>
 			<File
@@ -399,6 +402,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;fi;fd">
+			<File
+				RelativePath=".\BlockEvalBase.h">
+			</File>
 			<File
 				RelativePath=".\Copyblk.h">
 			</File>
