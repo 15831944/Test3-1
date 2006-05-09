@@ -591,6 +591,8 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     CReactionBlock * operator() () { return bOn ? pRB : NULL; };
 
     flag           Open();
+    flag           Open(long OnOffSeq) { CBlockEvalBase::Open(OnOffSeq); return Open(); }
+    long           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     flag           Load(char * pRCTFn) { return Open() ? pRB->Load(pRCTFn, false) : False; };
     char          *RBTag()   { return m_sRBTag(); };
     flag           SetRCTName(char * pRCTFn) { return Open() ? pRB->SetRCTName(pRCTFn) : False; };

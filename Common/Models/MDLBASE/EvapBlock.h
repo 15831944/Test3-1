@@ -88,6 +88,8 @@ class DllImportExport CEvapBase : public CBlockEvalBase
     virtual ~CEvapBase()              { delete m_pEvapB; };
 
     flag           Open(TagObjClass * pEvapClass=NULL, flag Fixed=False);
+    flag           Open(long OnOffSeq, TagObjClass * pEvapClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pEvapClass, Fixed); }
+    long           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
     //int TPFlashReqd() { return (dwSelectMask&VLEF_TPFlash)!=0; };

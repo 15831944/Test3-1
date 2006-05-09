@@ -864,7 +864,11 @@ void CEnvironHXBase::Close()
 
 void CEnvironHXBase::Add_OnOff(DataDefnBlk& DDB, dword Flags)
   {
+#if WITHBLOCKEVALUATOR
+  DDB.Byte("",     "EnvironHX",  DC_,    "",     xidEnvHXEnable,  pNd, Flags, GetOnOffValLst());
+#else
   DDB.CheckBoxBtn("",     "EnvironHX",  DC_,    "",     xidEnvHXEnable,  pNd, Flags, DDBOnOff);
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -904,10 +908,10 @@ flag CEnvironHXBase::DataXchg(DataChangeBlk & DCB)
     case xidEnvHXEnable:
       if (DCB.rB)
         if (*DCB.rB)
-          Open();
+          Open(*DCB.rB);
         else
           Close();
-      DCB.B=(Enabled());
+      DCB.B=OpenStatus();// (Enabled());
       return 1;
     case xidEnvHXEqnNm:
       if (DCB.rpC && !fFixed)
@@ -2017,7 +2021,7 @@ void CHXBase::SetRqdHXClass(TagObjClass * pHXClass)
 
 //--------------------------------------------------------------------------
 
-flag CHXBase::Open(/*TagObjClass * pHXClass,*/ flag Fixed)
+flag CHXBase::Open(TagObjClass * pHXClass, flag Fixed)
   {
   fEnabled=True;
 
@@ -2054,7 +2058,11 @@ void CHXBase::Close()
 
 void CHXBase::Add_OnOff(DataDefnBlk& DDB, dword Flags)
   {
+#if WITHBLOCKEVALUATOR
+  DDB.Byte("",     "HeatXChg",  DC_,    "",     xidHXEnable,  pNd, Flags, GetOnOffValLst());
+#else
   DDB.CheckBoxBtn("",     "HeatXChg",  DC_,    "",     xidHXEnable,  pNd, Flags, DDBOnOff);
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -2089,10 +2097,10 @@ flag CHXBase::DataXchg(DataChangeBlk & DCB)
     case xidHXEnable:
       if (DCB.rB)
         if (*DCB.rB)
-          Open(fFixed);
+          Open(*DCB.rB, NULL, fFixed);
         else if (!fFixed)
           Close();
-      DCB.B=(Enabled());
+      DCB.B=OpenStatus();// (Enabled());
       return 1;
     }
   return 0;//return pGSM ? pGSM->DataXchg(DCB) : 0;

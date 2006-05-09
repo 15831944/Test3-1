@@ -2707,6 +2707,7 @@ CList<CReactionBase*, CReactionBase*> CReactionBase::sm_AllRBs;
 
 flag CReactionBase::Open()
   {
+  //CBlockEvalBase::Open();
   fEnabled=True;
   if (pRB==NULL)
     {
@@ -2751,7 +2752,11 @@ void CReactionBase::Close()
 
 void CReactionBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
+#if WITHBLOCKEVALUATOR
+  DDB.Byte("",     "Reactions",  DC_,    "",     xidRCTEnable,  m_pNd, Flags, GetOnOffValLst());
+#else
   DDB.CheckBoxBtn("",     "Reactions",  DC_,    "",     xidRCTEnable,  m_pNd, Flags, DDBOnOff);
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -2797,11 +2802,11 @@ flag CReactionBase::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB)
         {
         if (*DCB.rB)
-          Open();
+          Open(*DCB.rB);
         else
           Close();
         }
-      DCB.B=(Enabled());
+      DCB.B=OpenStatus();// (Enabled());
       return 1;
     }
   return 0;

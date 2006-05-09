@@ -174,7 +174,11 @@ void CEvapBase::Close()
 
 void CEvapBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
+#if WITHBLOCKEVALUATOR
+  DDB.Byte("",     "Evaporator",  DC_,    "",     xidEvapEnable,  m_pNd, Flags, GetOnOffValLst());
+#else
   DDB.CheckBoxBtn("",     "Evaporator",  DC_,    "",     xidEvapEnable,  m_pNd, Flags, DDBOnOff);
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -215,11 +219,11 @@ flag CEvapBase::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB)
         {
         if (*DCB.rB)
-          Open();
+          Open(*DCB.rB);
         else
           Close();
         }
-      DCB.B=(Enabled());
+      DCB.B=OpenStatus();// (Enabled());
       return 1;
     case xidEvapEqnNm:
       if (DCB.rpC && !m_fFixed)

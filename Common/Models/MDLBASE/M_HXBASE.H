@@ -216,6 +216,8 @@ class DllImportExport CEnvironHXBase : public CBlockEvalBase
     ~CEnvironHXBase() { delete pHL; };
 
     flag           Open(TagObjClass * pEHXClass=NULL, flag Fixed=False);
+    flag           Open(long OnOffSeq, TagObjClass * pEHXClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pEHXClass, Fixed); }
+    long           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
     CEnvironHX *    operator() () { return fEnabled ? pHL : NULL; };
@@ -457,7 +459,9 @@ class DllImportExport CHXBase : public CBlockEvalBase
     ~CHXBase();
 
     void           SetRqdHXClass(TagObjClass * pHXClass);
-    flag           Open(flag Fixed=false);
+    flag           Open(TagObjClass * pHXClass=NULL, flag Fixed=false);
+    flag           Open(long OnOffSeq, TagObjClass * pHXClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pHXClass, Fixed); }
+    long           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
     CHXBlock      *operator() () { return pHX; };

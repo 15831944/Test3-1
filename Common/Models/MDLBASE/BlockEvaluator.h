@@ -13,6 +13,9 @@
   #define DllImportExport
 #endif
 
+//#undef    WITHBLOCKEVALUATOR
+//#define   WITHBLOCKEVALUATOR        0
+
 #if WITHBLOCKEVALUATOR
 
 class DllImportExport CBlockEvaluator
@@ -53,6 +56,7 @@ class DllImportExport CBlockEvaluator
     void              EvalProductsPipe(CFlwThermalBlk & FTB, SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   protected:
+    int               m_nBlocks;
     int               m_nSequence;
     byte              m_Sequence[MaxBEBlocks+1];
 
@@ -69,7 +73,7 @@ class DllImportExport CBlockEvaluator
     byte              m_EvapDefSeq;
 
     Strng             m_sBlkSeq;
-    DDBValueLstMem    m_SeqValLst;  
+    DDBValueLstMem    m_OnOffValLst;  
   };
 
 #endif
