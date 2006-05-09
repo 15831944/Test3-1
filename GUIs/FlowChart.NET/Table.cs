@@ -308,7 +308,7 @@ namespace MindFusion.FlowChartX
 
 					// Draw cell picture if available
 					if (picture != null)
-						Utilities.drawPicture(g, picture, imgRect, picturePos);
+						Utilities.drawImage(g, picture, imgRect, picturePos);
 
 					// additional custom draw type
 					if (table.CellCustomDraw == CustomDraw.Additional)
@@ -408,7 +408,7 @@ namespace MindFusion.FlowChartX
 
 			private string toolTip;
 
-			public Image Picture
+			public Image Image
 			{
 				get { return picture; }
 				set
@@ -421,7 +421,7 @@ namespace MindFusion.FlowChartX
 
 			private Image picture;
 
-			public ImageAlign PicturePos
+			public ImageAlign ImageAlign
 			{
 				get { return picturePos; }
 				set
@@ -1335,8 +1335,8 @@ namespace MindFusion.FlowChartX
 					this[c, r].ToolTip = prototype[c, r].ToolTip;
 					this[c, r].TextFormat = prototype[c, r].TextFormat;
 					this[c, r].Text = prototype[c, r].Text;
-					this[c, r].PicturePos = prototype[c, r].PicturePos;
-					this[c, r].Picture = prototype[c, r].Picture;
+					this[c, r].ImageAlign = prototype[c, r].ImageAlign;
+					this[c, r].Image = prototype[c, r].Image;
 					this[c, r].ColumnSpan = prototype[c, r].ColumnSpan;
 					this[c, r].RowSpan = prototype[c, r].RowSpan;
 				}
@@ -1684,7 +1684,7 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Image painted inside the table.
 		/// </summary>
-		public Image Picture
+		public Image Image
 		{
 			get
 			{
@@ -2525,6 +2525,8 @@ namespace MindFusion.FlowChartX
 			System.Drawing.Pen pen = null;
 			Region oldClipReg = g.Clip;
 			Region newClipReg = null;
+			bool paintFrame = false;
+			GraphicsPath roundRect = null;
 
 			// select appropriate brush and pen
 			if (shadow)
@@ -2569,7 +2571,6 @@ namespace MindFusion.FlowChartX
 			}
 			else
 			{
-				GraphicsPath roundRect = null;
 				if (style == TableStyle.RoundedRectangle)
 				{
 					roundRect = Utilities.getRoundRect(rc.X, rc.Y, rc.Width, rc.Height,
@@ -2610,7 +2611,7 @@ namespace MindFusion.FlowChartX
 
 					// draw the table picture
 					if (picture != null && fcParent.RenderOptions.EnableImages)
-						Utilities.drawPicture(g, picture, rc, picturePos);
+						Utilities.drawImage(g, picture, rc, picturePos);
 
 					// additional custom draw type
 					if (customDraw == CustomDraw.Additional)
@@ -2672,28 +2673,12 @@ namespace MindFusion.FlowChartX
 								image = imageCollapse;
 							else
 								image = imageExpand;
-							Utilities.drawPicture(g, image, iconRect, ImageAlign.Center);
+							Utilities.drawImage(g, image, iconRect, ImageAlign.Center);
 						}
 					}
 				}
 
-				// reset clipping region
-				if (newClipReg != null)
-				{
-					g.SetClip(oldClipReg, CombineMode.Replace);
-					newClipReg.Dispose();
-					newClipReg = null;
-				}
-
-				// paint the table frame
-				if (style == TableStyle.Rectangle)
-					g.DrawRectangle(pen, tableRect.Left, tableRect.Top,
-						tableRect.Width, tableRect.Height);
-				else
-					g.DrawPath(pen, roundRect);
-
-				if (roundRect != null)
-					roundRect.Dispose();
+				paintFrame = true;
 			}
 
 			// draw the scroller
@@ -2704,6 +2689,17 @@ namespace MindFusion.FlowChartX
 			{
 				g.SetClip(oldClipReg, CombineMode.Replace);
 				newClipReg.Dispose();
+				newClipReg = null;
+			}
+
+			// paint the table frame
+			if (paintFrame)
+			{
+				if (style == TableStyle.Rectangle)
+					g.DrawRectangle(pen, tableRect.Left, tableRect.Top,
+						tableRect.Width, tableRect.Height);
+				else
+					g.DrawPath(pen, roundRect);
 			}
 
 			// additional2 custom draw type
@@ -2723,6 +2719,8 @@ namespace MindFusion.FlowChartX
 			brCaption.Dispose();
 			pen.Dispose();
 			br.Dispose();
+			if (roundRect != null)
+				roundRect.Dispose();
 		}
 
 		internal override void drawSelHandles(Graphics g, Color color)
@@ -3672,7 +3670,7 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Defines the placement of the box picture
 		/// </summary>
-		public ImageAlign PicturePos
+		public ImageAlign ImageAlign
 		{
 			get
 			{

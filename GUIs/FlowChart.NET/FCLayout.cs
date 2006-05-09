@@ -1358,8 +1358,6 @@ namespace MindFusion.FlowChartX.LayoutSystem
 						arrow.Points[arrow.Points.Count - 1] = arrow.getDestLink().getIntersection(
 							arrow.Points[arrow.Points.Count - 2], arrow.Destination.getCenter());
 
-						int anchor = 0;
-
 						switch (_anchoring)
 						{
 

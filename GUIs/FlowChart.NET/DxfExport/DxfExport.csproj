@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{77CCAE13-E283-4677-B227-D39E75BA48EC}"
+        ProjectGuid = "{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "Overview"
+                AssemblyName = "DxfExport"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -18,7 +18,7 @@
                 OutputType = "Library"
                 PreBuildEvent = ""
                 PostBuildEvent = ""
-                RootNamespace = "MindFusion.FlowChartX"
+                RootNamespace = "MindFusion.Diagramming.Export"
                 RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
@@ -32,11 +32,11 @@
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
-                    IncrementalBuild = "true"
+                    IncrementalBuild = "false"
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "false"
-                    OutputPath = "bin\debug\"
+                    OutputPath = "bin\Debug\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -54,27 +54,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
                     NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "true"
-                    OutputPath = "..\..\Output\Retail.1.1\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Standard"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "false"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
+                    NoWarn = "1591,0168,0162,0183"
                     Optimize = "true"
                     OutputPath = "..\..\Output\Retail.1.1\"
                     RegisterForComInterop = "false"
@@ -87,27 +67,27 @@
                 <Reference
                     Name = "System"
                     AssemblyName = "System"
-                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.dll"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
                     Name = "System.Data"
                     AssemblyName = "System.Data"
-                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Data.dll"
-                />
-                <Reference
-                    Name = "System.Drawing"
-                    AssemblyName = "System.Drawing"
-                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Drawing.dll"
-                />
-                <Reference
-                    Name = "System.Windows.Forms"
-                    AssemblyName = "System.Windows.Forms"
-                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Windows.Forms.dll"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
                 />
                 <Reference
                     Name = "System.XML"
                     AssemblyName = "System.Xml"
-                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
+                />
+                <Reference
+                    Name = "System.Windows.Forms"
+                    AssemblyName = "System.Windows.Forms"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Windows.Forms.dll"
+                />
+                <Reference
+                    Name = "System.Drawing"
+                    AssemblyName = "System.Drawing"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
                 />
                 <Reference
                     Name = "FlowChart.NET"
@@ -120,23 +100,43 @@
         <Files>
             <Include>
                 <File
+                    RelPath = "ArrowUtils.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "AssemblyInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Overview.bmp"
-                    BuildAction = "EmbeddedResource"
-                />
-                <File
-                    RelPath = "Overview.cs"
-                    SubType = "Component"
+                    RelPath = "DxfExporter.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Overview.resx"
-                    DependentUpon = "Overview.cs"
+                    RelPath = "DxfExporter.xml"
                     BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "DxfHelper.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Geometry.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Text.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TextLayout.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
             </Include>
         </Files>

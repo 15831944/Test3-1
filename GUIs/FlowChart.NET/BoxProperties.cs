@@ -21,15 +21,15 @@ namespace MindFusion.FlowChartX
 		{
 			base.freeResources();
 
-			if (picture != null)
+			if (image != null)
 			{
-				picture = null;
+				image = null;
 				System.GC.Collect();
 			}
 		}
 
 		internal CustomDraw customDraw;
-		internal Image picture;
+		internal Image image;
 		internal ImageAlign picturePos;
 		internal HandlesStyle selStyle;
 		internal float shapeRotation;

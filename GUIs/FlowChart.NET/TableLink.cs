@@ -316,12 +316,15 @@ namespace MindFusion.FlowChartX
 				return base.getAnchorPos(anchorIdx, ref point);
 
 			AnchorPattern rowap = table.getRowAnchorPattern(row);
-			RectangleF rowRect = table.getRowRect(row);
 			if (rowap != null && anchorIdx >= 0 &&
 				anchorIdx < rowap.Points.Count)
 			{
 				AnchorPoint ap = rowap.Points[anchorIdx];
-				point = ap.getPos(rowRect);
+
+				RectangleF targetRect = (ap.Column == -1) ?
+					table.getRowRect(row) : table.getSpannedCellRect(row, ap.Column);
+				point = ap.getPos(targetRect);
+
 				return true;
 			}
 

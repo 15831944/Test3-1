@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root id="" before="" after="">
+<header id="" before="" after="">
+</header>
+<tables id="" before="" after="">
+<ltypes id="" before="TABLE" after="ENDTAB">
+</ltypes>
+<layers id="" before="TABLE" after="ENDTAB">
+</layers>
+<style id="" before="TABLE" after="ENDTAB">
+</style>
+<view id="" before="TABLE" after="ENDTAB">
+</view>
+</tables>
+<blocks id="" before="" after="">
+</blocks>
+<entities id="" before="" after="">
+</entities>
+</root>

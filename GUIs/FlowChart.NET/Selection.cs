@@ -690,8 +690,9 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// checks whether an item is already moving because of its master item;
-		/// this method is intended to be called only in updateModify
+		/// checks whether an item shouldn't be moved by the Selection object itself, either because
+		/// its group master moves it, or if it's an arrow whose origin or dest. nodes aren't modified;
+		/// this method is intended to be called only from updateModify
 		/// </summary>
 		private bool ignoreItem(ChartObject item, InteractionState ist)
 		{
@@ -700,6 +701,14 @@ namespace MindFusion.FlowChartX
 				// ignore the item if its group master is already moving
 				if (item.MasterGroup.MainObject.getModifying() &&
 					!ist.cycleRoots.Contains(item))
+					return true;
+			}
+
+			// ignore arrows whose source and destination aren't modified
+			Arrow arrow = item as Arrow;
+			if (arrow != null)
+			{
+				if (!arrow.Origin.getModifying() && !arrow.Destination.getModifying())
 					return true;
 			}
 

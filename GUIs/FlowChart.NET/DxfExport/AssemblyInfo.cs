@@ -1,11 +1,3 @@
-// Copyright (c) 2003-2006, MindFusion Limited - Gibraltar.
-// This source code is provided to you as part of the FlowChart.NET control software
-// package you have purchased. Its purpose is to help you trace and/or fix
-// problems or customize the Control as needed for your application. To get permission
-// to use the sources in any other way, please contact us at info@mindfusion.org
-// Redistribution or any usage of the sources in a way not mentioned above is
-// illegal and shall be pursued and punished with all means provided by Copyright laws.
-
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -14,7 +6,7 @@ using System.Runtime.CompilerServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("FlowChart.NET Visio Importer Component")]
+[assembly: AssemblyTitle("FlowChart.NET DXF Importer Component")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("MindFusion Ltd.")]

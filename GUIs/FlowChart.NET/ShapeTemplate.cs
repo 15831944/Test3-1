@@ -424,7 +424,6 @@ namespace MindFusion.FlowChartX
 
 			private float[][] data;
 			private RectangleF bounds;
-			private RectangleF textBounds;
 		}
 
 		public ShapeTemplate(ElementTemplate[] elements, FillMode fillMode) :
@@ -438,6 +437,7 @@ namespace MindFusion.FlowChartX
 			this.decorations = null;
 			this.textArea = null;
 			this.fillMode = fillMode;
+			this.image = null;
 
 			// Add to the map
 			if(id != null && id != "")
@@ -481,6 +481,7 @@ namespace MindFusion.FlowChartX
 			this.decorations = null;
 			this.textArea = null;
 			this.fillMode = FillMode.Winding;
+			this.image = null;
 
 			// Add to the map
 			if (id != null && id != "")
@@ -510,6 +511,7 @@ namespace MindFusion.FlowChartX
 			this.decorations = decorations;
 			this.textArea = textArea;
 			this.fillMode = fillMode;
+			this.image = null;
 
 			// Add to the map
 			if(id != null && id != "")
@@ -783,14 +785,24 @@ namespace MindFusion.FlowChartX
 			get { return textArea; }
 		}
 
-		// the shape
+		public Image Image
+		{
+			get { return image; }
+			set { image = value; }
+		}
+
+		public RectangleF ImageRectangle
+		{
+			get { return imageRectangle; }
+			set { imageRectangle = value; }
+		}
+
 		private ElementTemplate[] elements;
-		// decoration elements
 		private ElementTemplate[] decorations;
-		// text area
 		private ElementTemplate[] textArea;
-		// path filling mode
 		private FillMode fillMode;
+		private Image image;
+		private RectangleF imageRectangle = new RectangleF(0, 0, 100, 100);
 
 		public string Id
 		{
@@ -2107,7 +2119,8 @@ namespace MindFusion.FlowChartX
 							new LineTemplate(32, 30, 32, 60),
 							new LineTemplate(32, 60, 25, 60),
 							new LineTemplate(25, 60, 25, 25),
-							new ArcTemplate(25, 20, 10, 10, 180, 90)
+							new ArcTemplate(25, 20, 10, 10, 180, 90),
+							new LineTemplate(30, 20, 50, 20)
 						},
 						FillMode.Winding, "Actor");
 

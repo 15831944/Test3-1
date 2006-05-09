@@ -1,0 +1,967 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DxfExport</name>
+    </assembly>
+    <members>
+        <member name="T:MindFusion.Diagramming.Export.ArrowUtils">
+            <summary>
+            Summary description for ArrowUtils.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.ArrowUtils.getLongestSegment">
+            <summary>
+            returns the index of a segment that has the longest length
+            </summary>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.ArrowUtils.getSegmentCenter(System.Int32)">
+            <summary>
+            returns the center point of a segment
+            </summary>
+        </member>
+        <member name="T:MindFusion.Diagramming.Export.DxfExporter">
+            <summary>
+            Main class of the DxfExport assembly
+            encapsulates functionality of Flowchart.NET to DXF
+            exporting
+            </summary>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfExporter.Export(MindFusion.FlowChartX.FlowChart,System.String)">
+            <summary>
+            Method exports Flowchart.NET drawing into Autodesk DXF version 14 format
+            </summary>
+            <param name="flowChart">Flowchart reference</param>
+            <param name="filePath">Output DXF file path to be saved</param>
+            <returns>Empty string if call was succeded error description otherwise</returns>
+        </member>
+        <member name="P:MindFusion.Diagramming.Export.DxfExporter.ExportExternalImages">
+            <summary>
+            ExportExternalImages - if true embedded images to be
+            included into DXF as external files and stored into the same folder
+            as main DXF file
+            </summary>
+        </member>
+        <member name="P:MindFusion.Diagramming.Export.DxfExporter.ExportTextAsMultiline">
+            <summary>
+            ExportTextAsMultiline - if true then multiline text groups (MTEXT) is inserted into DXF
+            single line text groups ( TEXT) used otherwise ( if false )
+            </summary>
+        </member>
+        <member name="T:MindFusion.Diagramming.Export.DxfHelper">
+            <summary>
+            Helper class intended to perform all operation 
+            of DXF file elements creation
+            </summary>
+            
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.#ctor(System.String,MindFusion.FlowChartX.FlowChart,System.Boolean,System.Boolean,System.String,System.String)">
+            <summary>
+            Helper class constructor
+            </summary>
+            <param name="filePath">Path of the DXF file</param>
+            <param name="fChart">Flowchart object reference</param>
+            <param name="ExportTextAsMultiline">ExportTextAsMultiline property value</param>
+            <param name="ExportExternalImages">ExportExternalImages property value</param>
+            <param name="NamePattern">Image files name pattern</param>
+            <param name="ImagePath">Path for image files saving</param>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Color2Aci(System.Drawing.Color)">
+            <summary>
+            Static method converts Color into ACI
+            </summary>
+            <param name="cr">Color value</param>
+            <returns>Corresponded autocad color index value</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Save">
+            <summary>
+            Saves content of the temporarily XML into output DXF file
+            </summary>
+            <returns>true if succeded otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Finalize">
+            <summary>
+            Helper class destructor
+            </summary>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.IsValid">
+            <summary>
+            Check whether class instance if valid
+            </summary>
+            <returns>true if valid otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.GetStatus">
+            <summary>
+            Returns class instance status
+            </summary>
+            <returns>Status value</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Pt2String(System.Drawing.PointF[],System.Drawing.Color,System.String,MindFusion.Diagramming.Export.DxfHelper.DxLineType,System.Drawing.Drawing2D.DashStyle,System.Single)">
+            <summary>
+            Produces DXF output from various type of lines
+            </summary>
+            <param name="pt">Point array of the line points</param>
+            <param name="crLine">Line color</param>
+            <param name="LayerName">Name of the layer to place the line</param>
+            <param name="dlt">Line type according to DxLineType enum</param>
+            <param name="dash">Line dash style</param>
+            <param name="LineWidth">Used for bezier curves ( if 8 - points, 16 - controls points )</param>
+            <returns>DXF output string</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Rect2Pts(System.Drawing.RectangleF)">
+            <summary>
+            Converts Rectangle into point array
+            </summary>
+            <param name="rect">Rectangle to be converted</param>
+            <returns>Corresponded point array</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.PtColl2Pts(MindFusion.FlowChartX.PointCollection)">
+            <summary>
+            Converts PointCollection object into point array
+            </summary>
+            <param name="ptc">PointCollection to be converted</param>
+            <returns>Corresponded point array</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.IsPredefined(System.Xml.XmlNode)">
+            <summary>
+            Check whether temporarily XML node is pre-defined sub-root
+            </summary>
+            <param name="node">Node name</param>
+            <returns>true if node is sub-root</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.ChartObject2String(MindFusion.FlowChartX.ChartObject)">
+            <summary>
+            Common method converts any Flowchart object into corresponded
+            DXF string
+            </summary>
+            <param name="co">Flowchart object</param>
+            <returns>Corresponded DXF string</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddEntity(System.String,System.String)">
+            <summary>
+            Method inserts DXF string definition for the entity into temporarily XML
+            </summary>
+            <param name="Name">Definition name</param>
+            <param name="Value">Definition value</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddObject(System.String,System.String)">
+            <summary>
+            Method inserts DXF string definition for the object into temporarily XML
+            </summary>
+            <param name="Name">Definition name</param>
+            <param name="Value">Definition value</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddNode(System.String,System.String,System.Xml.XmlNode)">
+            <summary>
+            Method inserts DXF string definition into temporarily XML
+            </summary>
+            <param name="Name">Definition name</param>
+            <param name="Value">Definition value</param>
+            <param name="ParentNode">Parent XML node name</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Attr2String(System.Xml.XmlNode,System.String)">
+            <summary>
+            Get attributes' value of XML node
+            </summary>
+            <param name="node">Node name</param>
+            <param name="AttrName">Attribute name</param>
+            <returns>Attribute value as string</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.CountChilds(System.Xml.XmlNode)">
+            <summary>
+            Counts child node of the XML node to eliminate 'empty' nodes
+            </summary>
+            <param name="node">Node name</param>
+            <returns>Childs count</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.ProcessNode(System.Xml.XmlNode)">
+            <summary>
+            Process node of the temporarily XML saving it into  DXF file
+            </summary>
+            <param name="node">Node name</param>
+            <returns>true if successful otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.SetParam(System.Xml.XmlNode,System.String,System.String)">
+            <summary>
+            Set XML node param's value
+            </summary>
+            <param name="node">Node name</param>
+            <param name="ParamName">Param name</param>
+            <param name="ParamValue"></param>
+            <returns>true if successful otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddText(System.Object)">
+            <summary>
+            Methods produces DXF string for text of the Flowchart object
+            </summary>
+            <param name="co">Flowchart object to extract text from</param>
+            <returns>true if successful otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddText(System.Object,System.Object,System.Drawing.RectangleF)">
+            <summary>
+            Methods produces DXF string for text of the Flowchart object
+            </summary>
+            <param name="co">Flowchart object to extract text from</param>
+            <param name="po">Parent object if any exist</param>
+            <param name="rect">Object's rectangle if applicable</param>
+            <returns>true if successful otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.___TextCallback(System.String,System.Drawing.RectangleF,MindFusion.FlowChartX.Text.DrawTextHint)">
+            <summary>
+            Callback routine for word-by-word text processing
+            </summary>
+            <param name="text">Text word as 'plain-text'</param>
+            <param name="dest">Text word's rectangle</param>
+            <param name="hint">DrawTextHint object</param>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddText(System.Int64,System.Drawing.RectangleF,System.String,System.Drawing.Color,System.Drawing.Font,System.Drawing.StringFormat,System.Boolean,System.Single,System.Boolean)">
+            <summary>
+            Methods directly produces DXF string for text of the Flowchart object
+            </summary>
+            <param name="TextID">Id of the text tag</param>
+            <param name="rect">Text's rectangle</param>
+            <param name="sText">Text string</param>
+            <param name="crText">Text color</param>
+            <param name="fnText">Text font</param>
+            <param name="sft">Text format</param>
+            <param name="Multiline">true if text is multi-lined</param>
+            <param name="RA">Rotation angle of the text</param>
+            <param name="IsArrowText">true if text is on arrow ( not used )</param>
+            <returns>true if succesfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.IsTransparent(System.Drawing.Color,MindFusion.FlowChartX.ChartObject)">
+            <summary>
+            Check whether color passed is transparent
+            </summary>
+            <param name="cr">Color value</param>
+            <param name="co">Object of the color</param>
+            <returns>true if color is transparent false otherwise</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.docToLocal(System.Drawing.PointF[],System.Drawing.RectangleF)">
+            <summary>
+            Transforms points' coordinates by Rectangle's dimensions
+            </summary>
+            <param name="points">Point array</param>
+            <param name="rect">Rectangle for transformation</param>
+            <returns>Modified point array</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.ApproxColors(System.Drawing.Color,System.Drawing.Color)">
+            <summary>
+            Approximate two color of gradient to get corresponded ACI
+            </summary>
+            <param name="cr1">Color 1 of gradient</param>
+            <param name="cr2">Color 2 of gradient</param>
+            <returns></returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.ExtractColor(System.Object,System.Drawing.Color)">
+            <summary>
+            Determine color of object. If color couldn't be detected uses crDefault instead of it
+            </summary>
+            <param name="obj">Flowchart object</param>
+            <param name="crDefault">Default color</param>
+            <returns>Color of the object</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.getTextRect(System.Drawing.Graphics,MindFusion.FlowChartX.ArrowStyle,MindFusion.FlowChartX.ArrowTextStyle,MindFusion.FlowChartX.PointCollection,System.Drawing.Color,System.Int32,System.String,System.Drawing.Font,System.Drawing.RectangleF,System.Single@)">
+            <summary>
+            Gets rectangle of the arrow text
+            </summary>
+            <param name="g">GraphicsPath</param>
+            <param name="style">Style of the arrow</param>
+            <param name="textStyle">Style of the arrow text</param>
+            <param name="points">Arrow's point collection</param>
+            <param name="textColor">Text color</param>
+            <param name="segmentCount">Arrow segments count</param>
+            <param name="text">Arrow's text itself</param>
+            <param name="textFont">Arrow's text font</param>
+            <param name="rect">Bounding rect</param>
+            <param name="a">Text's rotation angle to be returned</param>
+            <returns>Arrow text's rectangle</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.TextBox2Path(MindFusion.FlowChartX.Box,System.Single,System.Drawing.Drawing2D.GraphicsPath@)">
+            <summary>
+            Gets GraphicsPath of the Box's TextArea
+            </summary>
+            <param name="oBox">Flowchart box</param>
+            <param name="Offset">Box offset if necessary</param>
+            <param name="gr">Graphics path to be assigned</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.TextRect2Path(System.Drawing.RectangleF,System.Drawing.Drawing2D.GraphicsPath@)">
+            <summary>
+            Gets GraphicsPath from Rectangle
+            </summary>
+            <param name="rect">Rectangle</param>
+            <param name="gr">Graphics path to be assigned</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Box2Str(MindFusion.FlowChartX.Box,System.Single,System.Drawing.Drawing2D.GraphicsPath@,System.String@)">
+            <summary>
+            Produces DXF output for Flowchart Box
+            </summary>
+            <param name="oBox">Flowchart box</param>
+            <param name="Offset">Offset if necessary</param>
+            <param name="gr">GraphicsPath to be assigned</param>
+            <param name="result">DXF output string</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.Shape2Str(System.Drawing.RectangleF,MindFusion.FlowChartX.BoxStyle,MindFusion.FlowChartX.ElementTemplate[],System.Drawing.Color,System.Single,System.Drawing.Drawing2D.DashStyle,System.Single,System.Single,System.Boolean,System.Drawing.Drawing2D.GraphicsPath@,System.String@)">
+            <summary>
+            Produces DXF output for Flowchart shape
+            </summary>
+            <param name="rect">Bounding Rectangle</param>
+            <param name="ShapeStyle">Flowchart shape style</param>
+            <param name="st">ElementTemplate reference if shape is complex null otherwise</param>
+            <param name="crLine">Line color</param>
+            <param name="RA">Rotation angle</param>
+            <param name="dash">DashStyle</param>
+            <param name="LineWidth">Line width ( not used)</param>
+            <param name="Offset">Offset if it's necessary</param>
+            <param name="WCS2UCS">if true conversion for world-coordinate to user-coordinate is required</param>
+            <param name="gr">GraphicsPath to be assigned</param>
+            <param name="result">>DXF output string</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.TranslateCoords(System.Single,System.Drawing.PointF,System.Boolean,System.Drawing.Drawing2D.GraphicsPath@)">
+            <summary>
+            Translates coordinates of the Graphics path applying rotation if it's necessary
+            </summary>
+            <param name="Rotation">Rotation angle</param>
+            <param name="RotationPoint">Point of the rotation ( used if RA is not 0)</param>
+            <param name="WCS2UCS">if true then translate from UCS to WCS </param>
+            <param name="gr">GraphicsPath to be processed</param>
+            <returns>true if succesfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.RotatePoints(System.Single,System.Drawing.PointF,System.Drawing.Drawing2D.GraphicsPath)">
+            <summary>
+            Rotates GraphicsPath using specified rotation angle and rotation point
+            </summary>
+            <param name="Rotation">Rotation angle</param>
+            <param name="RotationPoint">Point of the rotation</param>
+            <param name="gr">GraphicsPath to be processed</param>
+            <returns>Array of the rotated points</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddImage(System.Drawing.RectangleF,System.Drawing.Image,System.Int64)">
+            <summary>
+            Adds embedded image to DXF output
+            </summary>
+            <param name="rect1">Image bounding rect</param>
+            <param name="oImage">Image itself</param>
+            <param name="ImageID">Uniques ID of the image</param>
+            <returns>true if succesfull otherwsie false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddImage(System.Drawing.RectangleF,System.Drawing.Image,System.Int64,MindFusion.FlowChartX.ImageAlign,System.Drawing.Color)">
+            <summary>
+            Adds embedded image to DXF output
+            </summary>
+            <param name="rect1">Image bounding rect</param>
+            <param name="oImage">Image itself</param>
+            <param name="ImageID">Uniques ID of the image</param>
+            <param name="ia">Image alignment</param>
+            <param name="Color2Repl">Color that to be replace transparent one in the image</param>
+            <returns>true if succesfull otherwsie false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.HashNode(System.String,System.Xml.XmlNode@)">
+            <summary>
+            Intended for hashing some XML nodes
+            </summary>
+            <param name="NodeName">Node name</param>
+            <param name="nodeOut">Variable for saving node</param>
+            <returns>true if succesfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.NextID">
+            <summary>
+            Get next unique ID
+            </summary>
+            <returns>Value of the unique ID</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.ArrowHead2Str(MindFusion.FlowChartX.ArrowHeadShape,System.Drawing.Color,System.Drawing.Drawing2D.DashStyle,System.Drawing.Color,System.String@)">
+            <summary>
+            Get DXF string output for arrow's head
+            </summary>
+            <param name="ahs">Arrow head type</param>
+            <param name="crLine">Arrow head line color</param>
+            <param name="dst">Arrow line dash style</param>
+            <param name="crFill">Arrow head fill color</param>
+            <param name="sFill">DXF output for arrow head's fill</param>
+            <returns>DXF string for arrow head frame</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.AddRect(System.Drawing.RectangleF,System.Int64,System.Drawing.Color,System.Drawing.Color,System.Drawing.Color,System.Drawing.Drawing2D.DashStyle,System.String,System.Drawing.Font,System.Drawing.StringFormat)">
+            <summary>
+            Produces DXF output for Rectangle with its fill
+            </summary>
+            <param name="rect">Rectangle to be processed</param>
+            <param name="RectID">Unique id of the rectangle</param>
+            <param name="crLine">Line color</param>
+            <param name="crFill">Fill color</param>
+            <param name="crText">RESERVED</param>
+            <param name="dst">Line style</param>
+            <param name="str_text">RESERVED</param>
+            <param name="fnText">RESERVED</param>
+            <param name="sft">RESERVED</param>
+            <returns>Produced DXf string</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.IsLineClosed(System.Drawing.PointF[])">
+            <summary>
+            Returns true if the line is closed ( start = end points are equal )
+            </summary>
+            <param name="pts">Line points</param>
+            <returns>Returns true if the line is closed ( start = end points are equal )</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.GetImageDim(System.Drawing.Image,System.Drawing.RectangleF,MindFusion.FlowChartX.ImageAlign,System.Single@,System.Single@,System.Single@,System.Single@)">
+            <summary>
+            Returns new dimensions of the image's bounding rect according to its parameters
+            </summary>
+            <param name="pict">Image reference</param>
+            <param name="rect">Image bounding rect</param>
+            <param name="ppos">Image alignment</param>
+            <param name="picw">New image's width value</param>
+            <param name="pich">New image's height value</param>
+            <param name="xoff">Image's X offset</param>
+            <param name="yoff">Image's Y offset</param>
+            <returns>true if successfull otherwise false</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.setTransforms(System.Drawing.Graphics)">
+            <summary>
+            Inherited from Flowchart source
+            </summary>
+            <param name="g"></param>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.deviceToDoc(System.Drawing.Graphics,System.Drawing.RectangleF)">
+            <summary>
+            Inherited from Flowchart source
+            </summary>
+            <param name="g"></param>
+            <param name="r"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MindFusion.Diagramming.Export.DxfHelper.BoxComparer">
+            <summary>
+            Helper class intended for Flowchart boxes comparison
+            when boxes are being sorted
+            </summary>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.BoxComparer.#ctor(System.Boolean)">
+            <summary>
+            Comparer class constructor
+            </summary>
+            <param name="SortAsc">If true sorting ascending otherwise descending</param>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.BoxComparer.Compare(System.Object,System.Object)">
+            <summary>
+            Compares two elements of Flowchart.Box type
+            </summary>
+            <param name="x">First element of Flowchart.Box type</param>
+            <param name="y">Second element of Flowchart.Box type</param>
+            <returns>Comparision result</returns>
+        </member>
+        <member name="T:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter">
+            <summary>
+            Helper class intended for formatting strings for DXF groups
+            </summary>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter.ControlTracking(System.Boolean)">
+            <summary>
+            Call the method to start collecting handle IDs
+            </summary>
+            <param name="Start">if true start collecting otherwise false</param>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter.#ctor(System.Single,System.String)">
+            <summary>
+            UnitFormatter constructor
+            </summary>
+            <param name="scale">Scale factor for unit conversion ( default 1)</param>
+            <param name="separator">Decimal separator</param>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter.GetFormat(System.Type)">
+            <summary>
+            This method returns an object that implements ICustomFormatter to do the formatting
+            </summary>
+            <param name="argType">Type of the argument to be formatted</param>
+            <returns>Formatter object for the type passed</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter.NextID">
+            <summary>
+            Returns next unique long utilized by 'handle'
+            </summary>
+            <returns>Unique long value</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter.IsNumericType(System.Type)">
+            <summary>
+            Check whether type passed is numeric one
+            </summary>
+            <param name="type">Type of the argument to be checked</param>
+            <returns>Returns true if type passed is numeric one false otherwise</returns>
+        </member>
+        <member name="M:MindFusion.Diagramming.Export.DxfHelper.UnitFormatter.Format(System.String,System.Object,System.IFormatProvider)">
+            <summary>
+            This method does the custom formatting if it recognizes the 
+            format specification
+            </summary>
+            <param name="formatString">Format string</param>
+            <param name="argToBeFormatted">Argument to be formatted value</param>
+            <param name="provider">Format provider object reference</param>
+            <returns>Formatted string got from argument passed</returns>
+        </member>
+        <member name="T:MindFusion.Diagramming.Export.DxfHelper.DxLineType">
+            <summary>
+            Enum consist of possible line types ( used by Ps2String())
+            </summary>
+        </member>
+        <member name="T:MindFusion.Diagramming.Export.DxfHelper.EArrowHeadElement">
+            <summary>
+            Enum consists of possible arrow head element types
+            </summary>
+        </member>
+        <member name="T:MindFusion.Geometry.Geometry2D.Convert">
+            <summary>
+            Provides various conversions.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Convert.PolarToDekart(System.Drawing.PointF,System.Single,System.Single,System.Drawing.PointF@)">
+            <summary>
+            Converts polar coordinates to the corresponding
+            dekart coordinates, using the specified point as
+            a center of the coordinate system.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Convert.DekartToPolar(System.Drawing.PointF,System.Drawing.PointF,System.Single@,System.Single@)">
+            <summary>
+            Converts dekart coordinates to the corresponding
+            polar coordinates, using the specified point as
+            a center of the coordinate system.
+            </summary>
+        </member>
+        <member name="T:MindFusion.Geometry.Geometry2D.PointList">
+            <summary>
+            Represents collection of points.
+            </summary>
+        </member>
+        <member name="T:MindFusion.Geometry.Geometry2D.Line">
+            <summary>
+            Represents line in the plane.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Line.IntersectLine(System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Calculates the intersection point with the line
+            defined by the given points. If there is no intersection
+            the return value is an infinite point.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Line.IntersectLine(MindFusion.Geometry.Geometry2D.Line)">
+            <summary>
+            Calculates the intersection point with the specified line.
+            If there is no intersection the return value is an infinite point.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Line.IntersectSegment(System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Calculates the intersection point with the 
+            line segment defined by the given points.
+            If there is no intersection the return
+            value is an infinite point.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Line.IntersectSegment(MindFusion.Geometry.Geometry2D.Line)">
+            <summary>
+            Calculates the intersection point with the given line segment.
+            If there is no intersection the return value is an infinite point.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Line.ContainsInSegment(System.Drawing.PointF)">
+            <summary>
+            Checks whether the given point lies on the line segment.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Line.Between(System.Single,System.Single,System.Single,System.Boolean)">
+            <summary>
+            Checks whether x lies between y and z.
+            </summary>
+        </member>
+        <member name="P:MindFusion.Geometry.Geometry2D.Line.Bounds">
+            <summary>
+            Gets the smallest rectangle bounding the segment
+            which defines the line.
+            </summary>
+        </member>
+        <member name="T:MindFusion.Geometry.Geometry2D.Polygon">
+            <summary>
+            Represents immutable closed plane figure with
+            three or more straight sides.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.#ctor(MindFusion.Geometry.Geometry2D.PointList)">
+            <summary>
+            Builds new polygon object from a given points list.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.#ctor(System.Drawing.RectangleF)">
+            <summary>
+            Builds new polygon object from the specified rectangle.
+            </summary>
+            <param name="rect"></param>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.#ctor(System.Drawing.RectangleF,System.Int32)">
+            <summary>
+            Build new polygon from ellipse. The ellipse is
+            defined by the specified bounding rectangle. The
+            second parameter specifies how close the
+            polygon approximates the ellipse.
+            Factor of 0 specifies simplest polygon, while
+            factor 100 specifies the most complex polygon.
+            </summary>
+            <param name="bounds"></param>
+            <param name="factor"></param>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.Complete">
+            <summary>
+            Internal initialization routine.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.IntersectSegment(System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Calculates the intersections between the 
+            polygon and the line segment defined by the given points.
+            The result is a list containing all points of intersection.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.IntersectSegment(MindFusion.Geometry.Geometry2D.Line)">
+            <summary>
+            Calculates the intersections between the 
+            polygon and the given line segment. The result is
+            a list containing all points of intersection.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.IntersectLine(System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Calculates the intersections between the 
+            polygon and the line defined by the given points.
+            The result is a list containing all points of intersection.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.IntersectLine(MindFusion.Geometry.Geometry2D.Line)">
+            <summary>
+            Calculates the intersections between the 
+            polygon and the given line. The result is
+            a list containing all points of intersection.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.Contains(System.Drawing.PointF)">
+            <summary>
+            Checks whether the specified point lies
+            whithin the polygon.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.Intersect(System.Drawing.PointF,System.Drawing.PointF,System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Given two line segments, determine if they intersect.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.CCW(System.Drawing.PointF,System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Determines, given three points, if when travelling from the first to
+            the second to the third, we travel in a counterclockwise direction.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.GetInternalPoint">
+            <summary>
+            Finds a point inside the polygon.
+            </summary>
+        </member>
+        <member name="M:MindFusion.Geometry.Geometry2D.Polygon.FindConvexVertex">
+            <summary>
+            Finds a convex vertex of the polygon.
+            </summary>
+        </member>
+        <member name="P:MindFusion.Geometry.Geometry2D.Polygon.Points">
+            <summary>
+            Gets a collection of the polygon points.
+            </summary>
+        </member>
+        <member name="P:MindFusion.Geometry.Geometry2D.Polygon.Bounds">
+            <summary>
+            Gets the smallest rectangle bounding the polygon.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.Styles">
+            <summary>
+            Defines styles that can be applied to styled text.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.Word">
+            <summary>
+            Represents succession of either printable characters,
+            whitespaces or linebreaks.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Word.UpdateMeasures(System.Drawing.Graphics,System.Drawing.Font)">
+            <summary>
+            Updates the width of the word as it would be
+            when drawn with the specified font in the specified graphics.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Word.IsWhitespace">
+            <summary>
+            Gets a value, indicating whether the word
+            contains only whitespace characters.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Word.IsLineBreak">
+            <summary>
+            Gets a value, indicating whether the word
+            contains linebreaking characters.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Word.Value">
+            <summary>
+            Gets the text representation of the word.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Word.Width">
+            <summary>
+            Gets the width of the word.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.WordList">
+            <summary>
+            List of word objects.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.Text">
+            <summary>
+            Defines base implementation for immutable text objects.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Text.Setup(System.String,System.Drawing.Graphics,System.Drawing.Font)">
+            <summary>
+            Assigns new text to the object. The text is formatted
+            according to the specified font and graphics objects.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Text.ProcessText">
+            <summary>
+            Invoked after new text has been assigned to the object to
+            allow clients to perform custom text processing.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Text.Split(System.String)">
+            <summary>
+            Subdivides the specified string to whitespaces and text.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Text.Words">
+            <summary>
+            Gets a read-only list containing the words in the text.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Text.RawText">
+            <summary>
+            Gets the raw text.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Text.PlainText">
+            <summary>
+            Gets the text stripped of any formatting tags.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Text.InnerWords">
+            <summary>
+            Gets the list containing the words of the text.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.Text.Height">
+            <summary>
+            Gets the height of the text as it is
+            specified in the last Setup operation.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.PlainText">
+            <summary>
+            Represents text with no formatting.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.PlainText.#ctor">
+            <summary>
+            Builds new plain text object.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.PlainText.ProcessText">
+            <summary>
+            Performs simple parsing of the text.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.StyledText">
+            <summary>
+            Represents a text which can, but not necessarily would,
+            contain formatting tags.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.#ctor">
+            <summary>
+            Builds new styled text object.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.ProcessText">
+            <summary>
+            Processes formatting text.
+            </summary>
+        </member>
+        <member name="F:MindFusion.FlowChartX.Text.StyledText._recognizer">
+            <summary>
+            Regular expression recognizer object used
+            internally in the parsing process.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.StyledText.PlainText">
+            <summary>
+            Gets the text stripped of any formatting tags.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.StyledText.FormatToken">
+            <summary>
+            Represents single formatting tag.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.StyledText.StyledWord">
+            <summary>
+            Represents word with uniform formatting.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.StyledWord.UpdateMeasures(System.Drawing.Graphics,System.Drawing.Font)">
+            <summary>
+            Updates the measures of the word as it would be
+            when drawn with the specified font in the specified graphics,
+            making sure word style is taken into account.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.StyledWord.CreateFont(System.Drawing.Font)">
+            <summary>
+            Applies the word style to the given font.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.StyledWord.DisposeFont(System.Drawing.Font)">
+            <summary>
+            Disposes the specified font.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.StyledWord.CreateBrush(System.Drawing.Brush)">
+            <summary>
+            Applies the word style to the given brush.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.StyledText.StyledWord.DisposeBrush(System.Drawing.Brush)">
+            <summary>
+            Disposes the specified brush.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.StyledText.StyledWord.Format">
+            <summary>
+            Gets the word formatting.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.StyledText.StyledWord.Color">
+            <summary>
+            Gets the word color or empty color if no
+            color is associated with the word.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.StyledText.StyledWord.YOffset">
+            <summary>
+            Gets the y-offset of this word in graphics units.
+            In most cases this is 0, except when
+            the text is sub- or sup- ed.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.DrawTextHint">
+            <summary>
+            Structured data used in formatted text rendering.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.LayoutOptions">
+            <summary>
+            Contains options for text layouting.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.LayoutOptions.Alignment">
+            <summary>
+            Specifies the horizontal alignment of the text.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.LayoutOptions.LineAlignment">
+            <summary>
+            Specifies the vertical alignment of the text.
+            </summary>
+        </member>
+        <member name="P:MindFusion.FlowChartX.Text.LayoutOptions.LineDistance">
+            <summary>
+            Specifies the distance between adjacent text lines.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.Layout">
+            <summary>
+            Layouts text in the interior of various shapes.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.#ctor">
+            <summary>
+            Builds a new text layouter.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.LayoutInPolygon(MindFusion.FlowChartX.Text.Text,System.Drawing.PointF[],MindFusion.FlowChartX.Text.LayoutOptions)">
+            <summary>
+            Layouts text inside polygonal area.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.Draw(System.Single,System.Single,MindFusion.FlowChartX.Text.RenderTextCallback,MindFusion.FlowChartX.Text.DrawTextHint)">
+            <summary>
+            Draws a previously laid-out text at a specified offset.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.GetHLines(System.Int32)">
+            <summary>
+            Returns the appropriate h-lines collection
+            depending on the line alignment and the total
+            number of lines.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.FirstLine(System.Int32)">
+            <summary>
+            Returns the index of the first h-line depending
+            on the line alignment and the total number of lines.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.FitTextInRect(System.Int32,System.Drawing.RectangleF,System.Boolean@)">
+            <summary>
+            Tries to fits as many words from the source text
+            as possible in the specified rectangle, starting
+            from the word with the specified index.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.BuildLine(System.Single)">
+            <summary>
+            Creates single h-line at the specified vertical offset.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.BuildLines">
+            <summary>
+            Finds all h-lines which could fit in the specified
+            area depending on the current layout settings.
+            </summary>
+        </member>
+        <member name="M:MindFusion.FlowChartX.Text.Layout.PolygonIntersect(System.Drawing.PointF,System.Drawing.PointF)">
+            <summary>
+            Calculates all intersections between the internal
+            polygon and the line segment defined by pt1 and pt2.
+            </summary>
+        </member>
+        <member name="T:MindFusion.FlowChartX.Text.RenderTextCallback">
+            <summary>
+            Delegate used by the layouting objects
+            when the text needs to be drawn.
+            </summary>
+        </member>
+    </members>
+</doc>

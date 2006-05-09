@@ -97,6 +97,13 @@ namespace MindFusion.LayoutSystem
 		/// of points which define the link.
 		/// </summary>
 		void SetPoints(ArrayList points);
+
+		/// <summary>
+		/// Returns the node at the opposite end of the link.
+		/// </summary>
+		/// <param name="aNode">Specifies a node whose opposite node should be returned.</param>
+		/// <returns>The node opposite to aNode.</returns>
+		INode GetOppositeNode(INode aNode);
 	}
 	#endregion
 
@@ -121,6 +128,11 @@ namespace MindFusion.LayoutSystem
 		/// of the document, containing the graph.
 		/// </summary>
 		RectangleF DocRect { get; }
+
+		/// <summary>
+		/// Specifies whether the direction of links in this graph should be considered.
+		/// </summary>
+		bool Directed { get; }
 	}
 	#endregion
 

@@ -362,7 +362,8 @@ namespace MindFusion.LayoutSystem
 					INode lastNode = path.Nodes[path.Nodes.Count - 1];
 					foreach (ILink link in lastNode.OutLinks)
 					{
-						INode nodeToAdd = link.Destination;
+						INode nodeToAdd = graph.Directed ?
+							link.Destination : link.GetOppositeNode(lastNode);
 
 						// test for cycles
 						PathStats testPaths = nodeToAdd.Data as PathStats;
@@ -544,7 +545,8 @@ namespace MindFusion.LayoutSystem
 						INode nextNode;
 
 						// Get the next node in the path
-						nextNode = link.Destination;
+						nextNode = graph.Directed ?
+							link.Destination : link.GetOppositeNode(lastNode);
 
 						// Check if the path target is reached
 						if (nextNode.Equals(to))

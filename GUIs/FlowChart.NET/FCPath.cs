@@ -135,10 +135,26 @@ namespace MindFusion.FlowChartX
 	public sealed class PathFinder
 	{
 		/// <summary>
-		/// Prevent instantiation.
+		/// Initializes a new instance of the PathFinder class.
+		/// Path-finding will depend on the direction of arrows.
 		/// </summary>
-		private PathFinder()
+		/// <param name="diagram">A FlowChart instance in which to look for paths or cycles.</param>
+		public PathFinder(FlowChart diagram)
 		{
+			graph = new FCGraph(diagram, false);
+			ignoreDirection = false;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the PathFinder class.
+		/// </summary>
+		/// <param name="diagram">A FlowChart instance in which to look for paths or cycles.</param>
+		/// <param name="ignoreDirection">Specifies whether the direction of arrows
+		/// should be considered when looking for paths or cycles.</param>
+		public PathFinder(FlowChart diagram, bool ignoreDirection)
+		{
+			graph = new FCGraph(diagram, false, ignoreDirection);
+			this.ignoreDirection = ignoreDirection;
 		}
 
 		/// <summary>
@@ -146,9 +162,8 @@ namespace MindFusion.FlowChartX
 		/// ending at node 'to'. Returns empty collection if no
 		/// path exists.
 		/// </summary>
-		public static PathCollection FindAllPaths(FlowChart diagram, Node from, Node to)
+		public PathCollection FindAllPaths(Node from, Node to)
 		{
-			FCGraph graph = new FCGraph(diagram, false);
 			FCNode fromNode = null;
 			FCNode toNode = null;
 
@@ -170,9 +185,8 @@ namespace MindFusion.FlowChartX
 		/// Finds and returns the shortest path between from and to.
 		/// Returns null if no path exists.
 		/// </summary>
-		public static Path FindShortestPath(FlowChart diagram, Node from, Node to)
+		public Path FindShortestPath(Node from, Node to)
 		{
-			FCGraph graph = new FCGraph(diagram, false);
 			FCNode fromNode = null;
 			FCNode toNode = null;
 
@@ -198,10 +212,8 @@ namespace MindFusion.FlowChartX
 		/// considering the weight of the nodes, the weight of the 
 		/// links or both.
 		/// </summary>
-		public static Path FindShortestPath(FlowChart diagram, Node from, Node to,
-			bool useNodeWeights, bool useLinkWeights)
+		public Path FindShortestPath(Node from, Node to, bool useNodeWeights, bool useLinkWeights)
 		{
-			FCGraph graph = new FCGraph(diagram, false);
 			FCNode fromNode = null;
 			FCNode toNode = null;
 
@@ -227,9 +239,8 @@ namespace MindFusion.FlowChartX
 		/// Finds the longest path between two nodes.
 		/// Returns null if no path exists.
 		/// </summary>
-		public static Path FindLongestPath(FlowChart diagram, Node from, Node to)
+		public Path FindLongestPath(Node from, Node to)
 		{
-			FCGraph graph = new FCGraph(diagram, false);
 			FCNode fromNode = null;
 			FCNode toNode = null;
 
@@ -254,10 +265,8 @@ namespace MindFusion.FlowChartX
 		/// Finds the longest path in the graph.
 		/// Returns null if no path exists.
 		/// </summary>
-		public static Path FindLongestPath(FlowChart diagram)
+		public Path FindLongestPath()
 		{
-			FCGraph graph = new FCGraph(diagram, false);
-
 			MindFusion.LayoutSystem.Path path =
 				MindFusion.LayoutSystem.PathFinder.FindLongestPath(graph);
 
@@ -273,10 +282,8 @@ namespace MindFusion.FlowChartX
 		/// milliseconds.
 		/// Returns null if no path is found.
 		/// </summary>
-		public static Path FindLongestPath(FlowChart diagram, long timeLimit)
+		public Path FindLongestPath(long timeLimit)
 		{
-			FCGraph graph = new FCGraph(diagram, false);
-
 			MindFusion.LayoutSystem.Path path =
 				MindFusion.LayoutSystem.PathFinder.FindLongestPath(graph, timeLimit);
 
@@ -289,10 +296,9 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Detects whether the specified node participates in a cycle.
 		/// </summary>
-		public static Path FindCycle(FlowChart diagram, Node participant)
+		public Path FindCycle(Node participant)
 		{
 			StraightFactory factory = new StraightFactory();
-			FCGraph graph = new FCGraph(diagram, false);
 			FCNode participantNode = factory.CreateNode(participant, false, false) as FCNode;
 
 			foreach (FCNode node in graph.Nodes)
@@ -316,10 +322,8 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Detects whether there is a cycle in a graph.
 		/// </summary>
-		public static Path FindCycle(FlowChart diagram)
+		public Path FindCycle()
 		{
-			FCGraph graph = new FCGraph(diagram, false);
-
 			MindFusion.LayoutSystem.Path path =
 				MindFusion.LayoutSystem.PathFinder.FindCycle(graph);
 
@@ -329,15 +333,16 @@ namespace MindFusion.FlowChartX
 				return null;
 		}
 
-		public static PathCollection FindAllCycles(FlowChart diagram)
+		public PathCollection FindAllCycles()
 		{
-			FCGraph graph = new FCGraph(diagram, false);
-
 			MindFusion.LayoutSystem.PathList paths =
 				MindFusion.LayoutSystem.PathFinder.FindAllCycles(graph);
 
 			return new PathCollection(paths);
 		}
+
+		FCGraph graph;
+		bool ignoreDirection;
 	}
 	#endregion
 }

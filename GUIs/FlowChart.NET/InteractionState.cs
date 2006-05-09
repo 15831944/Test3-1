@@ -72,7 +72,11 @@ namespace MindFusion.FlowChartX
 			}
 
 			if (action == Action.Create)
+			{
+				fc.raiseInitEvent(currentObject);
 				currentObject.startCreate(pt);
+			}
+
 			if (action == Action.Modify)
 				currentObject.startModify(pt, selectionHandle, this);
 

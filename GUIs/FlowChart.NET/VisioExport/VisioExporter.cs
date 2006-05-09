@@ -932,12 +932,12 @@ namespace MindFusion.Diagramming.Export
 					Assembly entryAssembly = Assembly.GetEntryAssembly();
 					if (entryAssembly != null)
 						prcLoc = entryAssembly.Location;
-				
+
 					string[] searchPath = new string[] { 
-														   asmLoc.Substring(0, asmLoc.LastIndexOf('\\') + 1),
-														   prcLoc.Substring(0, prcLoc.LastIndexOf('\\') + 1),
-														   Directory.GetCurrentDirectory()
-													   };
+						asmLoc.Substring(0, asmLoc.LastIndexOf('\\') + 1),
+						prcLoc.Substring(0, prcLoc.LastIndexOf('\\') + 1),
+						Directory.GetCurrentDirectory()
+					};
 					for (int i = 0; i < 3; ++i)
 					{
 						if (searchPath[i][searchPath[i].Length - 1] != '\\')
@@ -967,8 +967,6 @@ namespace MindFusion.Diagramming.Export
 					sr.Close();
 				
 				}
-
-				
 				
 				ns =new XmlNamespaceManager(doc.NameTable);
 				root = doc.DocumentElement;
@@ -1690,7 +1688,7 @@ namespace MindFusion.Diagramming.Export
 		/// <returns>[true] if successfull [false] otherwise</returns>
 		private bool AddBox(MindFusion.FlowChartX.Box newBox, MindFusion.FlowChartX.Group mainGroup, bool IsGroup)
 		{
-			return AddBox(newBox.BoundingRect, getID(newBox), newBox.RotationAngle, newBox.ShapeOrientation, newBox.Picture,
+			return AddBox(newBox.BoundingRect, getID(newBox), newBox.RotationAngle, newBox.ShapeOrientation, newBox.Image,
 				newBox.FillColor, newBox.FrameColor, newBox.TextColor, newBox.Font, newBox.Transparent, newBox.Pen, newBox.Brush,
 				newBox.EnableStyledText,newBox.Text, newBox.Style, newBox.Shape, (mainGroup == null) ? RectangleF.Empty : ( mainGroup.MainObject as Node ).BoundingRect , IsGroup,
 				newBox.TextFormat.Alignment);
@@ -1990,9 +1988,9 @@ namespace MindFusion.Diagramming.Export
 		private bool AddTable2(MindFusion.FlowChartX.Table newTable)
 		{
 			bool IsAdded = false;
-			if (AddBox(newTable.BoundingRect, getID(newTable), 0, 0 , newTable.Picture,
-				Color.Transparent, newTable.FrameColor, newTable.TextColor, newTable.Font, false , newTable.Pen, newTable.Brush,
-				newTable.EnableStyledText, "" , BoxStyle.Rectangle, null , RectangleF.Empty, true, StringAlignment.Center))
+			if (AddBox(newTable.BoundingRect, getID(newTable), 0, 0, newTable.Image,
+				Color.Transparent, newTable.FrameColor, newTable.TextColor, newTable.Font, false, newTable.Pen, newTable.Brush,
+				newTable.EnableStyledText, "", BoxStyle.Rectangle, null, RectangleF.Empty, true, StringAlignment.Center))
 			{
 
 				AddBox(newTable.BoundingRect, NextID(), 0, 0 , null,
@@ -2022,7 +2020,7 @@ namespace MindFusion.Diagramming.Export
 				fSumW =0;
 				foreach ( Table.Column col in newTable.Columns)
 				{
-					if (col.ColumnStyle == ColumnStyle.AutoWidth )
+					if (col.ColumnStyle == MindFusion.FlowChartX.ColumnStyle.AutoWidth )
 						AutoColls++;
 					else
 						fSumW+=col.Width;
@@ -2068,7 +2066,7 @@ namespace MindFusion.Diagramming.Export
 								bool bPass = true;
 								for (int j = ColCount; j < ColCount + cell.ColumnSpan; j++)
 								{
-									if (( newTable.Columns[ColCount].ColumnStyle == ColumnStyle.AutoWidth ) && bPass)
+									if ((newTable.Columns[ColCount].ColumnStyle == MindFusion.FlowChartX.ColumnStyle.AutoWidth) && bPass)
 									{
 										fStepW = ( newTable.BoundingRect.Width - fSumW ) / AutoColls;
 										bPass = false;
@@ -2101,17 +2099,17 @@ namespace MindFusion.Diagramming.Export
 							IsAdded = AddBox(cellRect, NextID(), 0, 0 , null,
 								Color.Transparent , (( newTable.CellFrameStyle == CellFrameStyle.None ) ? Color.Transparent : newTable.FrameColor), cell.TextColor, (newTable.Font == null) ? pChart.Font : newTable.Font , false , newTable.Pen, newTable.Brush,
 								newTable.EnableStyledText, cell.Text , BoxStyle.Rectangle, null , newTable.BoundingRect , false, ( cell.TextFormat == null ) ? StringAlignment.Center : cell.TextFormat.Alignment );
-										
-										
-							if ( cell.Picture != null )
+
+
+							if (cell.Image != null)
 							{
 								float fiX = 0, fiY = 0, fiW = 0, fiH = 0;
-								if ( GetImageDim(cell.Picture, cellRect, cell.PicturePos , ref fiW,
-									ref fiH , ref fiX, ref fiY))
+								if (GetImageDim(cell.Image, cellRect, cell.ImageAlign, ref fiW,
+									ref fiH, ref fiX, ref fiY))
 								{
 									RectangleF cellImageRect = new RectangleF(fiX, fiY, fiW, fiH);
-									IsAdded = AddBox(cellImageRect, NextID(), 0, 0 , cell.Picture,
-										Color.Transparent, Color.Transparent, Color.Transparent, (newTable.Font == null) ? pChart.Font : newTable.Font , true , newTable.Pen, newTable.Brush,
+									IsAdded = AddBox(cellImageRect, NextID(), 0, 0, cell.Image,
+										Color.Transparent, Color.Transparent, Color.Transparent, (newTable.Font == null) ? pChart.Font : newTable.Font, true, newTable.Pen, newTable.Brush,
 										false, "" , BoxStyle.Rectangle, null , newTable.BoundingRect , false, StringAlignment.Center);
 								}
 							}

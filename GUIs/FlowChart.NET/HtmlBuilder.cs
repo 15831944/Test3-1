@@ -261,7 +261,7 @@ namespace MindFusion.FlowChartX
 		{
 			string str;
 
-			Bitmap bmp = flowChart.CreateBmpFromChart();
+			Bitmap bmp = flowChart.CreateImage();
 			bmp.Save(imgLocalPath, imgFormat);
 
 			Point docExtents = DocToClient(new PointF(flowChart.DocExtents.Width, flowChart.DocExtents.Height));

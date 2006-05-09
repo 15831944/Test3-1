@@ -1504,14 +1504,14 @@ namespace MindFusion.FlowChartX
 			return false;
 		}
 
-		internal static void drawPicture(Graphics g, Image pict,
+		internal static void drawImage(Graphics g, Image pict,
 			RectangleF rect, ImageAlign ppos)
 		{
-			drawPicture(g, pict, rect, ppos, 0);
+			drawImage(g, pict, rect, ppos, 0, PointF.Empty);
 		}
 
-		internal static void drawPicture(Graphics g, Image pict,
-			RectangleF rect, ImageAlign ppos, float rotationAngle)
+		internal static void drawImage(Graphics g, Image pict,
+			RectangleF rect, ImageAlign ppos, float rotationAngle, PointF pivot)
 		{
 			float xoff = 0, yoff = 0;
 			int xc = 0, yc = 0;
@@ -1606,10 +1606,6 @@ namespace MindFusion.FlowChartX
 				break;
 			}
 
-			PointF center = new PointF(
-				rect.X + rect.Width / 2,
-				rect.Y + rect.Height / 2);
-
 			if (ppos != ImageAlign.Tile)
 			{
 				Point alignedDevPos = docToDevice(g, new PointF(xoff, yoff));
@@ -1618,9 +1614,9 @@ namespace MindFusion.FlowChartX
 				if (rotationAngle != 0)
 				{
 					// Apply rotation transformation
-					g.TranslateTransform(center.X, center.Y);
+					g.TranslateTransform(pivot.X, pivot.Y);
 					g.RotateTransform(rotationAngle);
-					g.TranslateTransform(-center.X, -center.Y);
+					g.TranslateTransform(-pivot.X, -pivot.Y);
 				}
 
 				g.DrawImage(pict, alignedDocPos.X, alignedDocPos.Y, picw, pich);
@@ -1628,9 +1624,9 @@ namespace MindFusion.FlowChartX
 				if (rotationAngle != 0)
 				{
 					// Remove rotation
-					g.TranslateTransform(center.X, center.Y);
+					g.TranslateTransform(pivot.X, pivot.Y);
 					g.RotateTransform(-rotationAngle);
-					g.TranslateTransform(-center.X, -center.Y);
+					g.TranslateTransform(-pivot.X, -pivot.Y);
 				}
 			}
 			else
@@ -1645,9 +1641,9 @@ namespace MindFusion.FlowChartX
 				if (rotationAngle != 0)
 				{
 					// Apply rotation transformation
-					g.TranslateTransform(center.X, center.Y);
+					g.TranslateTransform(pivot.X, pivot.Y);
 					g.RotateTransform(rotationAngle);
-					g.TranslateTransform(-center.X, -center.Y);
+					g.TranslateTransform(-pivot.X, -pivot.Y);
 				}
 
 				for (int x = 0; x < xc; x++)
@@ -1657,9 +1653,9 @@ namespace MindFusion.FlowChartX
 				if (rotationAngle != 0)
 				{
 					// Remove rotation
-					g.TranslateTransform(center.X, center.Y);
+					g.TranslateTransform(pivot.X, pivot.Y);
 					g.RotateTransform(-rotationAngle);
-					g.TranslateTransform(-center.X, -center.Y);
+					g.TranslateTransform(-pivot.X, -pivot.Y);
 				}
 			}
 		}

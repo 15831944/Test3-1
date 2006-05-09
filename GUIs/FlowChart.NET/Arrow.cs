@@ -573,10 +573,19 @@ namespace MindFusion.FlowChartX
 				if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
 				{
 					setEndPoints(orgnLink, target, current);
+					if (!target.sameNode(orgnLink))
+					{
+						PointF startPoint = points[0];
+						PointF endPoint = current;
+						int oNearest = 0, dNearest = 0;
+						routeGetEndPoints(ref startPoint, ref endPoint,
+							ref oNearest, ref dNearest, orgnLink, target, true);
+						ptEnd = endPoint = target.getIntersection(target.getInitialPt(), endPoint);
+					}
 					points[points.Count-1] = ptEnd;
 				}
 				
-				doRoute(false, orgnLink, target);
+				doRoute(false, orgnLink, target, true);
 			}
 			else
 			{
@@ -1260,8 +1269,7 @@ namespace MindFusion.FlowChartX
 				savedSegments = null;
 			}
 
-			headTemplates[(int)arrowBase].recalcArrowHead(ahBase, points[1], points[0]);
-			headTemplates[(int)arrowHead].recalcArrowHead(ahHead, points[points.Count-2], points[points.Count-1]);
+			updateArrowHeads();
 
 			if (groupAttached != null) groupAttached.cancelModification(ist);
 			resetCrossings();
@@ -2423,7 +2431,7 @@ namespace MindFusion.FlowChartX
 			get { return points; }
 		}
 
-		public void UpdateFromPoints()
+		private void onShapeChanged()
 		{
 			//compute the arrow points
 			updateArrowHeads();
@@ -2436,6 +2444,11 @@ namespace MindFusion.FlowChartX
 
 			resetCrossings();
 			updateText();
+		}
+
+		public void UpdateFromPoints()
+		{
+			onShapeChanged();
 			fcParent.invalidate(getRepaintRect(false));
 
 			if (style == ArrowStyle.Cascading)
@@ -3142,35 +3155,38 @@ namespace MindFusion.FlowChartX
 			return -1;
 		}
 
+		/// <summary>
+		/// Call this method to align the arrow ends to the contour of the nodes it connects.
+		/// </summary>
 		internal void updateIntersections()
 		{
-			ptOrg = points[0] = orgnLink.getInitialPt();
-			ptEnd = points[points.Count-1] = destLink.getInitialPt();
+			// if an arrow is connected to anchor points,
+			// do not align its ends to nodes' outlines
+			if (orgnAnchor > -1 && destAnchor > -1)
+				return;
 
+			// make the arrow point to the centers of nodes
+			if (orgnAnchor == -1)
+				ptOrg = points[0] = orgnLink.getInitialPt();
+			if (destAnchor == -1)
+				ptEnd = points[points.Count - 1] = destLink.getInitialPt();
+
+			// if the nodes do not intersect, place the arrow ends at their outlines
 			if (!orgnLink.objsIntersect(destLink))
 			{
 				if (style == ArrowStyle.Cascading)
 					updateEndPtsPrp();
-				ptOrg = points[0] = 
-					orgnLink.getIntersection(ptOrg, points[1]);
-				ptEnd = points[points.Count-1] = 
-					destLink.getIntersection(ptEnd, points[points.Count - 2]);
+
+				if (orgnAnchor == -1)
+					ptOrg = points[0] = orgnLink.getIntersection(ptOrg, points[1]);
+				if (destAnchor == -1)
+					ptEnd = points[points.Count - 1] = destLink.getIntersection(ptEnd, points[points.Count - 2]);
 			}
 
 			if (style == ArrowStyle.Cascading)
 				updateEndPtsPrp();
 
-			// compute the arrow points
-			updateArrowHeads();
-
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
-
-			resetCrossings();
-			updateText();
-
-			orgnLink.saveEndRelative();
-			destLink.saveEndRelative();
+			onShapeChanged();
 		}
 
 		internal override RectangleF getBoundingRect()
@@ -3273,45 +3289,57 @@ namespace MindFusion.FlowChartX
 
 		public void ReassignAnchorPoints()
 		{
+			fcParent.invalidate(getRepaintRect(false));
 			putEndPointsAtNodeBorders(autoRoute);
+			onShapeChanged();
+			fcParent.invalidate(getRepaintRect(false));
 		}
 
 		internal void doRoute()
 		{
-			doRoute(false, orgnLink, destLink);
+			if (reflexive)
+				return;
+
+			doRoute(false, orgnLink, destLink, false);
 		}
 
 		internal void doRoute(bool force)
 		{
-			doRoute(force, orgnLink, destLink);
+			if (reflexive)
+				return;
+
+			doRoute(force, orgnLink, destLink, false);
 		}
 
-		internal void doRoute(bool force, Link orgnLink, Link destLink)
+		internal void doRoute(bool force, Link orgnLink, Link destLink, bool nowCreating)
 		{
 			if (!force)
 				if (!autoRoute) return;
 
-			if (reflexive) return;
-			if (fcParent.DontRouteForAwhile) return;
+			if (fcParent.DontRouteForAwhile)
+				return;
 
 			int i;
 
 			float gridSize = fcParent.RoutingOptions.GridSize;
 
+			PointF startPoint = points[0];
+			PointF endPoint = points[points.Count - 1];
+
 			// get a rectangle bounding both the origin and the destination
 			RectangleF bounds = orgnLink.getNodeRect(true);
 			bounds = Utilities.unionRects(bounds, destLink.getNodeRect(true));
+			bounds = RectangleF.Union(bounds, Utilities.normalizeRect(
+				RectangleF.FromLTRB(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y)));
 			if (bounds.Width < gridSize * 4)
 				bounds.Inflate(gridSize * 4, 0);
 			if (bounds.Height < gridSize * 4)
 				bounds.Inflate(0, gridSize * 4);
 			bounds.Inflate(bounds.Width, bounds.Height);
 
-			PointF startPoint = points[0];
-			PointF endPoint = points[points.Count - 1];
 			int oNearest = 0, dNearest = 0;
 			routeGetEndPoints(ref startPoint, ref endPoint,
-				ref oNearest, ref dNearest, orgnLink, destLink);
+				ref oNearest, ref dNearest, orgnLink, destLink, nowCreating);
 
 			// Get the starting and ending square
 			Point ptStart = new Point((int)((startPoint.X - bounds.X) / gridSize),
@@ -3726,7 +3754,7 @@ namespace MindFusion.FlowChartX
 		}
 
 		private void routeGetEndPoints(ref PointF startPoint, ref PointF endPoint,
-			ref int oNearest, ref int dNearest, Link orgnLink, Link destLink)
+			ref int oNearest, ref int dNearest, Link orgnLink, Link destLink, bool nowCreating)
 		{
 			if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
 			{
@@ -3795,7 +3823,8 @@ namespace MindFusion.FlowChartX
 				oNearest = -1;
 				dNearest = -1;
 
-				if (fcParent.RoutingOptions.Anchoring == Anchoring.Reassign)
+				if (nowCreating ||
+					fcParent.RoutingOptions.Anchoring == Anchoring.Reassign)
 				{
 					putEndPointsAtNodeBorders(true, orgnLink, destLink);
 					startPoint = points[0];
@@ -4039,9 +4068,9 @@ namespace MindFusion.FlowChartX
 				if (!orgnLink.objsIntersect(destLink))
 				{
 					if (!keepOrg) points[0] = orgnLink.getIntersection(
-									  points[0], points[points.Count-1]);
+						points[0], points[points.Count-1]);
 					if (!keepDest) points[points.Count-1] = destLink.getIntersection(
-									   points[points.Count-1], points[0]);
+						points[points.Count-1], points[0]);
 				}
 
 				// if reassigning anchors...
@@ -4101,10 +4130,10 @@ namespace MindFusion.FlowChartX
 							if (cascadeStartHorizontal && !bEven)
 								points[0] = (or.X < el.X) ? or : ol;
 							else
-								if (cascadeStartHorizontal && bEven)
+							if (cascadeStartHorizontal && bEven)
 								points[0] = (ol.X > er.X) ? ol : or;
 							else
-								if (!cascadeStartHorizontal && !bEven)
+							if (!cascadeStartHorizontal && !bEven)
 								points[0] = (ob.Y < et.Y) ? ob : ot;
 							else
 								points[0] = (ot.Y > eb.Y) ? ot : ob;
@@ -4114,10 +4143,10 @@ namespace MindFusion.FlowChartX
 							if (cascadeStartHorizontal && !bEven)
 								points[points.Count-1] = (or.X < el.X) ? el : er;
 							else
-								if (cascadeStartHorizontal && bEven)
+							if (cascadeStartHorizontal && bEven)
 								points[points.Count-1] = (ol.Y < et.Y) ? et : eb;
 							else
-								if (!cascadeStartHorizontal && !bEven)
+							if (!cascadeStartHorizontal && !bEven)
 								points[points.Count-1] = (ob.Y < et.Y) ? et : eb;
 							else
 								points[points.Count-1] = (ot.X < el.X) ? el : er;
@@ -4218,32 +4247,32 @@ namespace MindFusion.FlowChartX
 
 			switch (style)
 			{
-				case ArrowStyle.Polyline:
-					ptPos = segment + 1;
-					points.Insert(ptPos, pt);
-					segmentCount++;
+			case ArrowStyle.Polyline:
+				ptPos = segment + 1;
+				points.Insert(ptPos, pt);
+				segmentCount++;
 
-					if (groupAttached != null)
-						groupAttached.onArrowSplit(true, ptPos, 1);
+				if (groupAttached != null)
+					groupAttached.onArrowSplit(true, ptPos, 1);
 
-					return ptPos;
-				case ArrowStyle.Cascading:
-					pt1 = points[segment];
-					pt2 = points[segment + 1];
-					pt.X = (pt1.X + pt2.X) / 2;
-					pt.Y = (pt1.Y + pt2.Y) / 2;
+				return ptPos;
+			case ArrowStyle.Cascading:
+				pt1 = points[segment];
+				pt2 = points[segment + 1];
+				pt.X = (pt1.X + pt2.X) / 2;
+				pt.Y = (pt1.Y + pt2.Y) / 2;
 
-					ptPos = segment + 1;
-					points.Insert(ptPos, pt);
-					ptPos++;
+				ptPos = segment + 1;
+				points.Insert(ptPos, pt);
+				ptPos++;
 
-					points.Insert(ptPos, pt);
-					segmentCount += 2;
+				points.Insert(ptPos, pt);
+				segmentCount += 2;
 
-					if (groupAttached != null)
-						groupAttached.onArrowSplit(true, segment + 1, 2);
+				if (groupAttached != null)
+					groupAttached.onArrowSplit(true, segment + 1, 2);
 
-					return ptPos;
+				return ptPos;
 			}
 
 			return 0;
@@ -4517,6 +4546,7 @@ namespace MindFusion.FlowChartX
 			RoutingOptions rop = fcParent.RoutingOptions;
 			Node origin = orgnLink.getNode();
 			Node destination = destLink.getNode();
+			bool reflexive = orgnLink.sameNode(destLink);
 
 			// how many points to consider ?
 			int srcCount = rop.StartOrientation == Orientation.Auto ? 4 : 2;
@@ -4565,16 +4595,19 @@ namespace MindFusion.FlowChartX
 			float minDist = Single.MaxValue;
 			for (int sidx = 0; sidx < srcCount; ++sidx)
 			{
-				if (destination.containsPoint(srcPoints[sidx])) continue;
+				if (!reflexive && destination.containsPoint(srcPoints[sidx]))
+					continue;
 
 				for (int didx = 0; didx < dstCount; ++didx)
 				{
-					if (origin.containsPoint(dstPoints[didx])) continue;
+					if (!reflexive && origin.containsPoint(dstPoints[didx]))
+						continue;
 
 					float dist = Utilities.Distance(
 						srcPoints[sidx], dstPoints[didx]);
 
-					if (dist < 2 * rop.GridSize) continue;
+					if (dist < 2 * rop.GridSize)
+						continue;
 
 					// we prefer these to be on the same side
 					if (sidx != didx) dist *= 3;

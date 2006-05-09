@@ -42,7 +42,7 @@ namespace MindFusion.FlowChartX
 			fillColor = parent.BoxFillColor;
 			frameColor = parent.BoxFrameColor;
 
-			picture = null;
+			image = null;
 			transparent = false;
 
 			text = parent.BoxText;
@@ -78,7 +78,7 @@ namespace MindFusion.FlowChartX
 		{
 			style = prototype.style;
 
-			picture = prototype.picture;
+			image = prototype.image;
 			transparent = prototype.transparent;
 
 			text = prototype.text;
@@ -151,10 +151,10 @@ namespace MindFusion.FlowChartX
 			base.freeResources();
 
 			// cleanup
-			if (picture != null)
+			if (image != null)
 			{
-				//picture.Dispose();
-				picture = null;
+				//image.Dispose();
+				image = null;
 				System.GC.Collect();
 			}
 		}
@@ -179,7 +179,7 @@ namespace MindFusion.FlowChartX
 				new PointF(rect.Right, rect.Bottom),
 				new PointF(rect.Left, rect.Bottom)
 			};
-			
+
 			Utilities.rotatePointsAt(p, center, angle);
 
 			float minX = Math.Min(p[0].X, Math.Min(p[1].X, Math.Min(p[2].X, p[3].X)));
@@ -316,7 +316,7 @@ namespace MindFusion.FlowChartX
 			writer.Write((int)style);
 			ctx.saveColor(fillColor);
 			ctx.saveColor(frameColor);
-			writer.Write((int)PicturePos);
+			writer.Write((int)ImageAlign);
 			writer.Write(text);
 			ctx.saveColor(textColor);
 			ctx.saveStringFormat(textFormat);
@@ -328,7 +328,7 @@ namespace MindFusion.FlowChartX
 			writer.Write((int)0/*anchorOutgoing*/);
 			writer.Write((int)customDraw);
 
-			ctx.saveImage(picture);
+			ctx.saveImage(image);
 
 			ctx.saveObject(pen);
 			ctx.saveReference(this, brush, 3);
@@ -408,7 +408,7 @@ namespace MindFusion.FlowChartX
 			ArrowAnchor anchorOutgoing= (ArrowAnchor)reader.ReadInt32();
 			customDraw = (CustomDraw)reader.ReadInt32();
 
-			picture = ctx.loadImage();
+			image = ctx.loadImage();
 
 			pen.Width = PenWidth;
 			pen.Color = frameColor;
@@ -579,7 +579,7 @@ namespace MindFusion.FlowChartX
 					RectangleF rct = Utilities.normalizeRect(rect);
 					rct.Offset(ShadowOffsetX, ShadowOffsetY);
 
-					Region newClipReg = getRgnInRect(ref rct);
+					Region newClipReg = getRgnInRect(rct);
 					if (newClipReg != null)
 						g.SetClip(newClipReg, CombineMode.Intersect);
 
@@ -645,27 +645,51 @@ namespace MindFusion.FlowChartX
 					case BoxStyle.Shape:
 						if (rc.Width > 0  && rc.Height > 0)
 						{
-							GraphicsPath path = shapeTemplate.getPath(
-								shapeData, rotation());
-							if (shadow)
+							/*
+							if (shadow && this.shadow != null)
 							{
-								Matrix matrix = new Matrix();
-								matrix.Translate(ShadowOffsetX, ShadowOffsetY);
-								path.Transform(matrix);
+								RectangleF b = this.BoundingRect;
+								g.DrawImage(this.shadow,
+									b.X + ShadowOffsetX - dispersion,
+									b.Y + ShadowOffsetY - dispersion,
+									b.Width + 2 * dispersion, b.Height + 2 * dispersion);
 							}
-							g.FillPath(br, path);
-							if (!shadow) drawInterior(g);
-							g.DrawPath(p, path);
-							path.Dispose();
+							else
+							{*/
+								GraphicsPath path = shapeTemplate.getPath(
+									shapeData, rotation());
 
-							// Draw decorations
-							path = shapeTemplate.getDecorationPath(
-								shapeData, rotation());
-							if (path != null)
-							{
+								if (shadow)
+								{
+									Matrix matrix = new Matrix();
+									matrix.Translate(ShadowOffsetX, ShadowOffsetY);
+									path.Transform(matrix);
+								}
+
+								g.FillPath(br, path);
+								if (!shadow) drawInterior(g);
 								g.DrawPath(p, path);
+								/*
+								{
+									// Emboss
+									RectangleF b = this.BoundingRect;
+									Region oldClip = g.Clip;
+									g.SetClip(path, CombineMode.Intersect);
+									g.DrawImage(this.emboss, b.X - 1.5f, b.Y - 1.5f, emboss.Width, emboss.Height);
+									g.Clip = oldClip;
+								}
+								*/
 								path.Dispose();
-							}
+
+								// Draw decorations
+								path = shapeTemplate.getDecorationPath(
+									shapeData, rotation());
+								if (path != null)
+								{
+									g.DrawPath(p, path);
+									path.Dispose();
+								}
+							//}
 						}
 						break;
 					}
@@ -694,22 +718,27 @@ namespace MindFusion.FlowChartX
 
 		private void drawInterior(Graphics g)
 		{
-			if (picture != null || customDraw == CustomDraw.Additional)
+			Image image = getImage();
+			if (image != null || customDraw == CustomDraw.Additional)
 			{
 				Region oldClipReg = g.Clip;
 
 				RectangleF rct = Utilities.normalizeRect(rect);
-				Region newClipReg = getRgnInRect(ref rct);
+				Region newClipReg = getRgnInRect(rct);
 				if (newClipReg != null)
 					g.SetClip(newClipReg, CombineMode.Intersect);
 
-				if (picture != null && fcParent.RenderOptions.EnableImages)
+				if (image != null && fcParent.RenderOptions.EnableImages)
 				{
 					float angle = 0;
 					if (rotateContents)
 						angle = rotation();
 
-					Utilities.drawPicture(g, picture, rct, picturePos, angle);
+					PointF pivot = new PointF(
+						rect.X + rect.Width / 2,
+						rect.Y + rect.Height / 2);
+
+					Utilities.drawImage(g, image, getImageRect(), picturePos, angle, pivot);
 				}
 
 				// additional custom draw type
@@ -1155,24 +1184,24 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Image painted inside the box
 		/// </summary>
-		public Image Picture
+		public Image Image
 		{
 			get
 			{
-				return picture;
+				return image;
 			}
 			set
 			{
-				picture = value;
+				image = value;
 				fcParent.setDirty();
 				fcParent.invalidate(getRepaintRect(false));
 			}
 		}
 
 		/// <summary>
-		/// Defines the placement of the box picture
+		/// Defines the placement of the box image
 		/// </summary>
-		public ImageAlign PicturePos
+		public ImageAlign ImageAlign
 		{
 			get
 			{
@@ -1190,7 +1219,7 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Only the box picture and text are displayed if set
+		/// Only the box image and text are displayed if set
 		/// </summary>
 		public bool Transparent
 		{
@@ -1213,8 +1242,38 @@ namespace MindFusion.FlowChartX
 
 		#region data: appearance
 
+		private Image getImage()
+		{
+			if (image != null)
+				return image;
+
+			if (style == BoxStyle.Shape && shapeTemplate != null)
+				return shapeTemplate.Image;
+
+			return null;
+		}
+
+		private RectangleF getImageRect()
+		{
+			RectangleF imageRect = Utilities.normalizeRect(rect);
+
+			if (style == BoxStyle.Shape && shapeTemplate != null)
+			{
+				RectangleF percent = shapeTemplate.ImageRectangle;
+				float w = imageRect.Width;
+				float h = imageRect.Height;
+
+				imageRect.X = imageRect.X + w * percent.X / 100;
+				imageRect.Y = imageRect.Y + h * percent.Y / 100;
+				imageRect.Width = w * percent.Width / 100;
+				imageRect.Height = h * percent.Height / 100;
+			}
+
+			return imageRect;
+		}
+
 		private BoxStyle style;
-		private Image picture;
+		private Image image;
 		private ImageAlign picturePos;
 		private bool transparent;
 
@@ -1543,23 +1602,32 @@ namespace MindFusion.FlowChartX
 		#region interface: placement
 
 		/// <summary>
-		/// Makes the box the same size as its picture
+		/// Makes the box the same size as its image
 		/// </summary>
-		public void FitSizeToPicture()
+		public void FitSizeToImage()
 		{
 			fcParent.invalidate(getRepaintRect(true));
 
-			if (picture != null)
+			Image image = getImage();
+			if (image != null)
 			{
-				int w = picture.Width;
-				int h = picture.Height;
+				int w = image.Width;
+				int h = image.Height;
 
 				Graphics g = fcParent.CreateGraphics();
 				fcParent.setTransforms(g);
 				RectangleF sizeDev = RectangleF.FromLTRB(0, 0,
-					(float)w / picture.HorizontalResolution * g.DpiX * g.PageScale,
-					(float)h / picture.VerticalResolution * g.DpiY * g.PageScale);
+					(float)w / image.HorizontalResolution * g.DpiX * g.PageScale,
+					(float)h / image.VerticalResolution * g.DpiY * g.PageScale);
 				RectangleF newRect = Utilities.deviceToDoc(g, sizeDev);
+
+				// consider the image rectangle set in the current shape template
+				if (style == BoxStyle.Shape && shapeTemplate != null)
+				{
+					RectangleF imageRect = shapeTemplate.ImageRectangle;
+					newRect.Width *= 100 / imageRect.Width;
+					newRect.Height *= 100 / imageRect.Height;
+				}
 
 				newRect.X = rect.X;
 				newRect.Y = rect.Y;
@@ -2050,10 +2118,30 @@ namespace MindFusion.FlowChartX
 					shapeData = shapeTemplate.initData(rc, shapeRotation);
 				else
 					shapeTemplate.updateData(rc, shapeData, shapeRotation);
+
+/*
+				if (shadow != null)
+					shadow.Dispose();
+
+				GraphicsPath path = Shape.getPath(shapeData, rotation());
+				shadow = MindFusion.Drawing.Effects.GenerateShadow(
+					path, dispersion, ShadowColor);
+
+				if (emboss != null)
+					emboss.Dispose();
+
+				emboss = MindFusion.Drawing.Effects.GenerateEmboss(path);
+				*/
 			}
 
 			layoutText();
 		}
+
+		/*
+		private Bitmap shadow = null;
+		private int dispersion = 2;
+		private Bitmap emboss = null;
+		*/
 
 		internal override PointF getAnchor(PointF pt,
 			Arrow arrow, bool incm, ref int idx)
@@ -2069,10 +2157,9 @@ namespace MindFusion.FlowChartX
 		}
 
 
-		Region getRgnInRect(ref RectangleF rc)
+		Region getRgnInRect(RectangleF rc)
 		{
 			Region rgn = null;
-			rc = Utilities.normalizeRect(rc);
 
 			switch (style)
 			{
@@ -2198,7 +2285,7 @@ namespace MindFusion.FlowChartX
 			BoxProperties bprops = (BoxProperties)props;
 
 			bprops.customDraw = customDraw;
-			bprops.picture = picture;
+			bprops.image = image;
 			bprops.picturePos = picturePos;
 			bprops.selStyle = selStyle;
 			bprops.shapeRotation = shapeRotation;
@@ -2217,7 +2304,7 @@ namespace MindFusion.FlowChartX
 			BoxProperties bprops = (BoxProperties)props;
 
 			customDraw = bprops.customDraw;
-			picture = bprops.picture;
+			image = bprops.image;
 			picturePos = bprops.picturePos;
 			selStyle = bprops.selStyle;
 			text = bprops.text;
@@ -2307,7 +2394,7 @@ namespace MindFusion.FlowChartX
 
 		/// <summary>
 		/// Specifies whether to rotate the contents, such
-		/// as text and picture, along with the box.
+		/// as text and image, along with the box.
 		/// </summary>
 		private bool rotateContents;
 	}

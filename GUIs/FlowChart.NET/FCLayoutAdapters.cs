@@ -563,6 +563,14 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			get { return _arrow.Weight; }
 		}
 
+		public virtual INode GetOppositeNode(INode aNode)
+		{
+			if (aNode == Destination)
+				return Origin;
+
+			return Destination;
+		}
+
 		/// <summary>
 		/// Gets the underlying FlowChart object.
 		/// </summary>
@@ -587,6 +595,7 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		public FCGraph(FlowChart chart)
 		{
 			_chart = chart;
+			directed = true;
 
 			_nodes = new NodeCollection();
 			_links = new LinkCollection();
@@ -599,6 +608,7 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		public FCGraph(FlowChart chart, bool keepGroups)
 		{
 			_chart = chart;
+			directed = true;
 
 			Build(keepGroups, false);
 		}
@@ -610,6 +620,7 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		public FCGraph(FlowChart chart, bool keepGroups, bool ignoreArrowDirection)
 		{
 			_chart = chart;
+			directed = !ignoreArrowDirection;
 
 			Build(keepGroups, ignoreArrowDirection);
 		}
@@ -704,6 +715,11 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			get { return _chart.DocExtents; }
 		}
 
+		public virtual bool Directed
+		{
+			get { return directed; }
+		}
+
 		/// <summary>
 		/// Gets the root node of this graph (assuming that the graph is tree).
 		/// If there is no root node, returns null.
@@ -754,6 +770,7 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		private FlowChart _chart;
 		private NodeCollection _nodes;
 		private LinkCollection _links;
+		private bool directed;
 	}
 	#endregion
 

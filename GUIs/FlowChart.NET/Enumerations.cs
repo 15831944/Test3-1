@@ -318,8 +318,7 @@ namespace MindFusion.FlowChartX
 		Never = 0,
 		WhenModified = 1,
 		WhenIntersectNode = 2,
-		WhileCreating = 4,
-		WhileModifying = 8,
+		WhileCreating = 4
 	}
 
 	public enum RestrictToDoc

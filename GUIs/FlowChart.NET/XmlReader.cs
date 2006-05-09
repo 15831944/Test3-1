@@ -88,6 +88,12 @@ namespace MindFusion.FlowChartX.Xml
 			_propertyMap["TableRowsCount"] = "TableRowCount";
 			_propertyMap["TableColumnsCount"] = "TableColumnCount";
 			_propertyMap["ShapeRotation"] = "ShapeOrientation";
+			_propertyMap["PrpStartOrientation"] = "CascadeOrientation";
+			_propertyMap["PrpArrowStartOrnt"] = "ArrowCascadeOrientation";
+			_propertyMap["PrpHorzFirst"] = "CascadeStartHorizontal";
+			_propertyMap["ArrowsSplittable"] = "AllowSplitArrows";
+			_propertyMap["Picture"] = "Image";
+			_propertyMap["PicturePos"] = "ImageAlign";
 		}
 
 		public XmlReaderOptions Options

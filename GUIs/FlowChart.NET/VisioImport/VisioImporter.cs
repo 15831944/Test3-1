@@ -1761,7 +1761,7 @@ namespace MindFusion.Diagramming.Import
 				else if  ( sVisioShape == "swimlane")
 				{
 					Result = "Rectangle";
-					if ( oBox is Box )
+					if (oBox != null)
 						oBox.Transparent = true;
 
 					//FillColor = Color.Transparent;
@@ -1776,7 +1776,7 @@ namespace MindFusion.Diagramming.Import
 				{
 					Result = "MessageToUser";
 					DontHideGroup = true;
-					if ( oBox is Box )
+					if (oBox != null)
 						oBox.ShapeOrientation = 180;
 				}
 				else if  ( sVisioShape == "constraint")
@@ -1787,7 +1787,7 @@ namespace MindFusion.Diagramming.Import
 				else if  ( sVisioShape == "watermark title")
 				{
 					Result = "Rectangle";
-					if ( oBox is Box )
+					if (oBox != null)
 						oBox.Transparent = true;
 					
 					//FillColor = Color.Transparent;
@@ -2456,7 +2456,7 @@ namespace MindFusion.Diagramming.Import
 					if ( oBox == null )
 						return false;
 
-					oBox.Picture = img;
+					oBox.Image = img;
 			
 
 				}

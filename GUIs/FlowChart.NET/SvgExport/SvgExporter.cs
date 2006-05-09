@@ -566,7 +566,7 @@ namespace MindFusion.Diagramming.Export
 					newTable.FrameColor,
 					null,
 					null,
-					newTable.Picture);
+					newTable.Image);
 
 				sMan.AddGradient(last_node, newTable.Brush);
 
@@ -585,7 +585,7 @@ namespace MindFusion.Diagramming.Export
 					newTable.FrameColor,
 					null,
 					null,
-					newTable.Picture);
+					newTable.Image);
 
 				sMan.AddGradient(last_node, newTable.Brush);
 
@@ -676,7 +676,7 @@ namespace MindFusion.Diagramming.Export
 								newTable.TextColor , cell.TextFormat, newTable.EnableStyledText);
 
 							
-							sMan.AddRect(Unit2PixStr(cellRect.X), Unit2PixStr(cellRect.Y), Unit2PixStr(cellRect.Width), Unit2PixStr(cellRect.Height), "1px", Color.Transparent,Color.Transparent,null,null,cell.Picture, newTable.FillColor, cell.PicturePos, cellRect);
+							sMan.AddRect(Unit2PixStr(cellRect.X), Unit2PixStr(cellRect.Y), Unit2PixStr(cellRect.Width), Unit2PixStr(cellRect.Height), "1px", Color.Transparent,Color.Transparent,null,null,cell.Image, newTable.FillColor, cell.ImageAlign, cellRect);
 							if ( newTable.CellFrameStyle!= CellFrameStyle.None)
 								sMan.AddRect(Unit2PixStr(cellRect.X), Unit2PixStr(cellRect.Y), Unit2PixStr(cellRect.Width), Unit2PixStr(cellRect.Height), "1px", Color.Transparent,newTable.FrameColor);
 						
@@ -726,7 +726,7 @@ namespace MindFusion.Diagramming.Export
 				if  (( !newBox.Visible ) && ( !InvisibleItems))
 					return true;
 
-				if (( newBox.Transparent ) && (newBox.Picture == null))
+				if (( newBox.Transparent ) && (newBox.Image == null))
 				{
 					sMan.AddText(newBox);
 					return true;
@@ -786,7 +786,7 @@ namespace MindFusion.Diagramming.Export
 							newBox.Pen.Color,
 							null,
 							null,
-							newBox.Picture,
+							newBox.Image,
 							newBox.Transparent ? pChart.BackColor : Color.Empty);
 
 						break;
@@ -801,7 +801,7 @@ namespace MindFusion.Diagramming.Export
 							newBox.Pen.Color,
 							"10px",
 							"10px",
-							newBox.Picture,
+							newBox.Image,
 							newBox.Transparent ? pChart.BackColor : Color.Empty);
 						break;
 

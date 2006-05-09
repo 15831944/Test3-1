@@ -1132,6 +1132,12 @@ namespace MindFusion.FlowChartX
 		internal override bool isExpanded() { return expanded; }
 		internal override void setExpanded(bool e) { expanded = e; }
 
+		public void SetExpandedFlag(bool expanded)
+		{
+			setExpanded(expanded);
+			fcParent.invalidate(getRepaintRect(false));
+		}
+
 		internal protected void setExpandable(bool exp)
 		{
 			if (expander != null)

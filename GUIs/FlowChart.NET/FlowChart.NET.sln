@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgExport", "SvgExport\SvgE
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DxfExport", "DxfExport\DxfExport.csproj", "{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -91,6 +95,14 @@ Global
 		{FA676536-DDCB-4F39-B257-9D75D50F9361}.Standard.Build.0 = Release|.NET
 		{FA676536-DDCB-4F39-B257-9D75D50F9361}.Trial.ActiveCfg = Release|.NET
 		{FA676536-DDCB-4F39-B257-9D75D50F9361}.Trial.Build.0 = Release|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Debug.ActiveCfg = Debug|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Debug.Build.0 = Debug|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Release.ActiveCfg = Release|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Release.Build.0 = Release|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Standard.ActiveCfg = Release|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Standard.Build.0 = Release|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Trial.ActiveCfg = Release|.NET
+		{D77A0A71-CD6C-4C7B-A4C9-6F70891B8902}.Trial.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

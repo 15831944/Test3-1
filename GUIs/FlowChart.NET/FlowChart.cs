@@ -1018,7 +1018,7 @@ namespace MindFusion.FlowChartX
 		/// Returns the top-most arrow that lies at the specified position.
 		/// </summary>
 		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
-		/// <param name="maxDist">The maximum distance between tested arrows and the specified point.</param>
+		/// <param name="maxDist">The maximum distance allowed between tested arrows and the specified point.</param>
 		/// <returns>An Arrow object found near the specified point.</returns>
 		public Arrow GetArrowAt(PointF pt, float maxDist)
 		{
@@ -1026,12 +1026,29 @@ namespace MindFusion.FlowChartX
 			return GetArrowAt(pt, maxDist, true, ref segmNum);
 		}
 
+		/// <summary>
+		/// Returns the top-most arrow that lies at the specified position;
+		/// optionally exclude locked arrows from the search.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <param name="maxDist">The maximum distance allowed between tested arrows and the specified point.</param>
+		/// <param name="exclLocked">Specifies whether locked arrows should be excluded from the search.</param>
+		/// <returns>An Arrow object found near the specified point.</returns>
 		public Arrow GetArrowAt(PointF pt, float maxDist, bool exclLocked)
 		{
 			int segmNum = 0;
 			return GetArrowAt(pt, maxDist, exclLocked, ref segmNum);
 		}
 
+		/// <summary>
+		/// Returns the top-most arrow that lies at the specified position;
+		/// optionally exclude locked arrows from the search.
+		/// </summary>
+		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <param name="maxDist">The maximum distance allowed between tested arrows and the specified point.</param>
+		/// <param name="exclLocked">Specifies whether locked arrows should be excluded from the search.</param>
+		/// <param name="segmNum">Returns the index of the arrow segment that list at the specified point.</param>
+		/// <returns>An Arrow object found near the specified point.</returns>
 		public Arrow GetArrowAt(PointF pt, float maxDist, bool exclLocked, ref int segmNum)
 		{
 			Arrow nearest = null;
@@ -1067,6 +1084,12 @@ namespace MindFusion.FlowChartX
 			return nearest;
 		}
 
+		/// <summary>
+		/// Returns the top-most diagram item lying at the specified location.
+		/// </summary>
+		/// <param name="pt">Specifies a location in the diagram where to look for items.</param>
+		/// <param name="exclLocked">Specifies whether locked items should be excluded from the search.</param>
+		/// <returns>A ChartObject instance found at the specified point.</returns>
 		public ChartObject GetObjectAt(PointF pt, bool exclLocked)
 		{
 			if (hitTestPriority == HitTestPriority.NodesBeforeArrows)
@@ -1106,6 +1129,13 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
+		/// <summary>
+		/// Returns the top-most node lying at the specified location.
+		/// </summary>
+		/// <param name="pt">Specifies a location in the diagram where to look for nodes.</param>
+		/// <param name="excludeLocked">Specifies whether locked nodes should be excluded from the search.</param>
+		/// <param name="excludeSelected">Specifies whether selected nodes should be excluded from the search.</param>
+		/// <returns>A Node object found at the specified point.</returns>
 		public Node GetNodeAt(PointF pt,
 			bool excludeLocked, bool excludeSelected)
 		{
@@ -1725,7 +1755,14 @@ namespace MindFusion.FlowChartX
 		public SmoothingMode AntiAlias
 		{
 			get { return antiAlias; }
-			set	{ antiAlias = value; }
+			set
+			{
+				if (antiAlias != value && value != SmoothingMode.Invalid)
+				{
+					antiAlias = value;
+					Invalidate();
+				}
+			}
 		}
 
 		private SmoothingMode antiAlias;
@@ -1736,7 +1773,14 @@ namespace MindFusion.FlowChartX
 		public TextRenderingHint TextRendering
 		{
 			get { return textRendering; }
-			set { textRendering = value; }
+			set
+			{
+				if (textRendering != value)
+				{
+					textRendering = value;
+					Invalidate();
+				}
+			}
 		}
 
 		private TextRenderingHint textRendering;
@@ -1747,10 +1791,14 @@ namespace MindFusion.FlowChartX
 		public bool DoubleBuffer
 		{
 			get { return GetStyle(ControlStyles.DoubleBuffer); }
-			set	{ SetStyle(ControlStyles.DoubleBuffer, value); }
+			set { SetStyle(ControlStyles.DoubleBuffer, value); }
 		}
 
-		public Bitmap CreateBmpFromChart()
+		/// <summary>
+		/// Creates a bitmap containing an image of the flowchart.
+		/// </summary>
+		/// <returns>A Bitmap instance containing the flowchart image.</returns>
+		public Bitmap CreateImage()
 		{
 			Bitmap bmp = null;
 			Graphics g = null;
@@ -1783,6 +1831,55 @@ namespace MindFusion.FlowChartX
 			}
 
 			return bmp;
+		}
+
+		/// <summary>
+		/// Draws a formatted text string, the same way text is drawn in boxes
+		/// whose EnableStyledText property is set to true. This method lets you display
+		/// styled text in custom-drawn nodes or links.
+		/// </summary>
+		/// <param name="graphics">A .NET Graphics object used to draw the text.</param>
+		/// <param name="text">The formatted text that should be displayed.</param>
+		/// <param name="font">The font used to draw the text.</param>
+		/// <param name="bounds">The bounds of the text layout rectangle.</param>
+		/// <param name="format">Specifies the text alignment</param>
+		public void DrawStyledText(Graphics graphics,
+			string text, Font font, RectangleF bounds, StringFormat format)
+		{
+			System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(TextColor);
+
+			// parse the text
+			MindFusion.FlowChartX.Text.StyledText styledText =
+				new MindFusion.FlowChartX.Text.StyledText();
+			styledText.Setup(text, graphics, font);
+
+			// setup the alignment options
+			MindFusion.FlowChartX.Text.LayoutOptions options =
+				new MindFusion.FlowChartX.Text.LayoutOptions();
+			options.Alignment = format.Alignment;
+			options.LineAlignment = format.LineAlignment;
+
+			// lay out the text
+			MindFusion.FlowChartX.Text.Layout layout =
+				new MindFusion.FlowChartX.Text.Layout();
+			layout.LayoutInRectangle(styledText, bounds, options);
+
+			// render it
+			MindFusion.FlowChartX.Text.DrawTextHint hint =
+				new MindFusion.FlowChartX.Text.DrawTextHint(graphics, font, brush, format,
+					(format.Trimming & StringTrimming.EllipsisWord) != 0);
+			layout.Draw(0, 0,
+				new MindFusion.FlowChartX.Text.RenderTextCallback(DrawText), hint);
+
+			brush.Dispose();
+		}
+
+		private void DrawText(string text, RectangleF dest,
+			MindFusion.FlowChartX.Text.DrawTextHint hint)
+		{
+			// Render formatted text
+			hint.Graphics.DrawString(
+				text, hint.Font, hint.Brush, dest, hint.Format);
 		}
 
 		private void drawBack(Graphics g, Rectangle clip, bool toScreen, PrintOptions renderOptions)
@@ -1822,22 +1919,38 @@ namespace MindFusion.FlowChartX
 					System.Drawing.Brush extBrush = exteriorBrush.CreateGDIBrush(
 						docExtents, -docExtents.Left, -docExtents.Top);
 
+					// paint the exterior to the left
+					if (rc.Left < docExtents.Left)
+					{
+						RectangleF ext = rc;
+						ext.Width = docExtents.Left - ext.Left;
+						g.FillRectangle(extBrush, ext);
+					}
+
+					// paint the exterior to the top
+					if (rc.Top < docExtents.Top)
+					{
+						RectangleF ext = rc;
+						ext.Height = docExtents.Top - ext.Top;
+						g.FillRectangle(extBrush, ext);
+					}
+
 					// paint the exterior to the right
 					if (rc.Right > docExtents.Right)
 					{
-						RectangleF ext1 = rc;
-						ext1.X = Math.Max(rc.Left, docExtents.Right);
-						ext1.Width = rc.Right - ext1.Left;
-						g.FillRectangle(extBrush, ext1);
+						RectangleF ext = rc;
+						ext.X = Math.Max(rc.Left, docExtents.Right);
+						ext.Width = rc.Right - ext.Left;
+						g.FillRectangle(extBrush, ext);
 					}
 
 					// paint the exterior to the bottom
 					if (rc.Bottom > docExtents.Bottom)
 					{
-						RectangleF ext2 = rc;
-						ext2.Y = Math.Max(rc.Top, docExtents.Bottom);
-						ext2.Height = rc.Bottom - ext2.Top;
-						g.FillRectangle(extBrush, ext2);
+						RectangleF ext = rc;
+						ext.Y = Math.Max(rc.Top, docExtents.Bottom);
+						ext.Height = rc.Bottom - ext.Top;
+						g.FillRectangle(extBrush, ext);
 					}
 					
 					extBrush.Dispose();
@@ -1894,7 +2007,7 @@ namespace MindFusion.FlowChartX
 			if (renderOptions.EnableBackgroundImage)
 			{
 				if (BackgroundImage != null)
-					drawPicture(g, imagePos, transforms);
+					drawImage(g, imagePos, transforms);
 			}
 
 			// set the coordinate transformations
@@ -2229,14 +2342,14 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		private void drawPicture(Graphics g, ImageAlign imgPos, bool transforms)
+		private void drawImage(Graphics g, ImageAlign imgPos, bool transforms)
 		{
 			if (imagePos < ImageAlign.Document)
 			{
 				RectangleF rcs = new RectangleF(
 					ClientRectangle.X, ClientRectangle.Y,
 					ClientRectangle.Width, ClientRectangle.Height);
-				Utilities.drawPicture(g, BackgroundImage, rcs, imgPos);
+				Utilities.drawImage(g, BackgroundImage, rcs, imgPos);
 			}
 			else
 			{
@@ -2248,7 +2361,7 @@ namespace MindFusion.FlowChartX
 					g.PageScale = zoomFactor / 100F;
 				}
 
-				Utilities.drawPicture(g, BackgroundImage, DocExtents,
+				Utilities.drawImage(g, BackgroundImage, DocExtents,
 					(ImageAlign)(imgPos - ImageAlign.Document));
 				unsetTransforms(g);
 			}
@@ -2410,11 +2523,11 @@ namespace MindFusion.FlowChartX
 				// Printing of back images occur only if ImageAlign.Document is set
 				if (imagePos < ImageAlign.Document)
 				{
-					Utilities.drawPicture(g, BackgroundImage, pageRect, imagePos);
+					Utilities.drawImage(g, BackgroundImage, pageRect, imagePos);
 				}
 				else
 				{
-					Utilities.drawPicture(g, BackgroundImage, DocExtents,
+					Utilities.drawImage(g, BackgroundImage, DocExtents,
 						(ImageAlign)(imagePos - ImageAlign.Document));
 				}
 			}
@@ -2536,7 +2649,7 @@ namespace MindFusion.FlowChartX
 
 		public void PrintPreview(PrintDocument doc)
 		{
-			printDoc= doc;
+			printDoc = doc;
 
 			doc.BeginPrint += beginPrintHandler;
 			doc.PrintPage += printPageHandler;
@@ -2544,6 +2657,26 @@ namespace MindFusion.FlowChartX
 			PrintPreviewDialog dlg = new PrintPreviewDialog();
 			dlg.Document = doc;
 			dlg.ShowDialog(this);
+
+			doc.PrintPage -= printPageHandler;
+			doc.BeginPrint -= beginPrintHandler;
+		}
+
+		public void PrintPreviewEx(Form previewForm)
+		{
+			// setup the .NET print document
+			PrintDocument doc = new PrintDocument();
+			doc.DocumentName = printOptions.DocumentName;
+			doc.DefaultPageSettings.Margins = printOptions.Margins;
+
+			printDoc = doc;
+
+			doc.BeginPrint += beginPrintHandler;
+			doc.PrintPage += printPageHandler;
+
+			if (previewForm is IPrintPreview)
+				(previewForm as IPrintPreview).Document = doc;
+			previewForm.ShowDialog(this);
 
 			doc.PrintPage -= printPageHandler;
 			doc.BeginPrint -= beginPrintHandler;
@@ -2826,7 +2959,7 @@ namespace MindFusion.FlowChartX
 
 		[Category("Appearance")]
 		[DefaultValue(1f)]
-		[Description("Specifies a multiplier for the radius of rounded rectangle shapes.")]
+		[Description("Specifies the relative size of arcs displayed at the corners of rounded rectangles.")]
 		public float RoundRectFactor
 		{
 			get { return roundRectFactor; }
@@ -7004,7 +7137,7 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		[Category("Behavior")]
 		[DefaultValue(typeof(Orientation), "Auto")]
-		[Description("Orientation for the first segment of 'perpendicular'-style arrows.")]
+		[Description("Orientation of the first segment of cascading arrows.")]
 		public Orientation ArrowCascadeOrientation
 		{
 			get
@@ -8069,6 +8202,10 @@ namespace MindFusion.FlowChartX
 		#region events
 
 		[Category("Arrows")]
+		[Description("Raised when a user starts drawing an arrow.")]
+		public event ArrowEvent InitializeArrow;
+
+		[Category("Arrows")]
 		[Description("Raised when the user draws a new arrow.")]
 		public event ArrowEvent ArrowCreated;
 
@@ -8127,6 +8264,10 @@ namespace MindFusion.FlowChartX
 		[Category("Arrows")]
 		[Description("Lets you validate anchor points when an arrow connects to a node.")]
 		public event AttachConfirmation ValidateAnchorPoint;
+
+		[Category("Boxes")]
+		[Description("Raised when a user starts drawing a box.")]
+		public event BoxEvent InitializeBox;
 
 		[Category("Boxes")]
 		[Description("Raised when the user draws a new box.")]
@@ -8191,6 +8332,10 @@ namespace MindFusion.FlowChartX
 		[Category("Clipboard")]
 		[Description("Raised when a table is pasted from the clipboard.")]
 		public event TableEvent TablePasted;
+
+		[Category("Control Hosts")]
+		[Description("Raised when a user starts drawing a ControlHost node.")]
+		public event ControlHostEvent InitializeControlHost;
 
 		[Category("Control Hosts")]
 		[Description("Raised when a control host is deleted.")]
@@ -8361,6 +8506,10 @@ namespace MindFusion.FlowChartX
 		public event SelectionEvent SelectionChanged;
 
 		[Category("Tables")]
+		[Description("Raised when a user starts drawing a table.")]
+		public event TableEvent InitializeTable;
+
+		[Category("Tables")]
 		[Description("Raised when the user draws a new table.")]
 		public event TableEvent TableCreated;
 
@@ -8439,6 +8588,41 @@ namespace MindFusion.FlowChartX
 		[Category("Undo")]
 		[Description("Raised when an action is about to be saved in undo history.")]
 		public event UndoConfirmEventHandler ActionRecording;
+
+		internal void raiseInitEvent(ChartObject item)
+		{
+			switch (item.getType())
+			{
+			case ItemType.Box:
+				if (InitializeBox != null)
+				{
+					BoxEventArgs args = new BoxEventArgs(item as Box);
+					InitializeBox(this, args);
+				}
+				break;
+			case ItemType.ControlHost:
+				if (InitializeControlHost != null)
+				{
+					ControlHostEventArgs args = new ControlHostEventArgs(item as ControlHost);
+					InitializeControlHost(this, args);
+				}
+				break;
+			case ItemType.Table:
+				if (InitializeTable != null)
+				{
+					TableEventArgs args = new TableEventArgs(item as Table);
+					InitializeTable(this, args);
+				}
+				break;
+			case ItemType.Arrow:
+				if (InitializeArrow != null)
+				{
+					ArrowEventArgs args = new ArrowEventArgs(item as Arrow);
+					InitializeArrow(this, args);
+				}
+				break;
+			}
+		}
 
 		internal void drawBox(Graphics g, Box box, bool shadow, RectangleF rc)
 		{
