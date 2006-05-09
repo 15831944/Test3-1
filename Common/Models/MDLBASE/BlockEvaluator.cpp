@@ -478,8 +478,9 @@ void CBlockEvaluator::EvalProductsPipe(CFlwThermalBlk & FTB, SpConduit & Fo, dou
         break;
 
       case BES_Evap:  
-        _asm int 3;
+        FTB.AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 
+        FTB.AddEvapEnd();
         break;
       }
     //}

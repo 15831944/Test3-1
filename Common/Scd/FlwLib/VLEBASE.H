@@ -136,8 +136,8 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual ~CVLEBase() { delete pVLE; };
 
     flag           Open(TagObjClass * pVLEClass=NULL, flag Fixed=False);
-    flag           Open(long OnOffSeq, TagObjClass * pVLEClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pVLEClass, Fixed); }
-    long           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
+    flag           Open(byte OnOffSeq, TagObjClass * pVLEClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pVLEClass, Fixed); }
+    byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
     int TPFlashReqd() { return (dwSelectMask&VLEF_TPFlash)!=0; };

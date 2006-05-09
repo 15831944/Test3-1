@@ -2598,6 +2598,7 @@ CFlwThermalBlk::CFlwThermalBlk(FlwNode * Nd, CFlwEqnPtr * FEP)//, CVLEBase * VLE
   m_TRiseVLE        = 0.0;     
   m_TRiseEHX        = 0.0;     
   m_TRiseRB         = 0.0;      
+  m_TRiseEvap       = 0.0;      
   m_TRiseAC         = 0.0;      
   m_TRiseTot        = 0.0;
   m_TRiseCorr       = 0.0;
@@ -2606,6 +2607,7 @@ CFlwThermalBlk::CFlwThermalBlk(FlwNode * Nd, CFlwEqnPtr * FEP)//, CVLEBase * VLE
   m_PowerHeat       = 0.0;     
   m_PowerEHX        = 0.0;     
   m_PowerRB         = 0.0;      
+  m_PowerEvap       = 0.0;      
   m_PowerAC         = 0.0;      
   m_PowerTot        = 0.0;
   m_PowerCorr       = 0.0;
@@ -2653,6 +2655,7 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
       DDB.Double ("TRise.AutoComp",   "",  DC_dT,  "C", &m_TRiseAC,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.VLE",          "",  DC_dT,  "C", &m_TRiseVLE,     m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Reactions",    "",  DC_dT,  "C", &m_TRiseRB,      m_pNd, isResult|noFileAtAll);
+    DDB.Double ("TRise.Evaporation",  "",  DC_dT,  "C", &m_TRiseEvap,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Environment",  "",  DC_dT,  "C", &m_TRiseEHX,     m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Correction",   "",  DC_dT,  "C", &m_TRiseCorr,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Total",        "",  DC_dT,  "C", &m_TRiseTot,     m_pNd, isResult|noFileAtAll);
@@ -2665,6 +2668,7 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
     if (Flags & FEOF_WithAutoComp)
       DDB.Double ("Power.AutoComp",   "",  DC_Pwr,  "kW",   &m_PowerAC,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Reactions",    "",  DC_Pwr,  "kW",   &m_PowerRB,      m_pNd, isResult|noFileAtAll);
+    DDB.Double ("Power.Evaporation",  "",  DC_Pwr,  "kW",   &m_PowerRB,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Environment",  "",  DC_Pwr,  "kW",   &m_PowerEHX,     m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Correction",   "",  DC_Pwr,  "kW",   &m_PowerCorr,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Total",        "",  DC_Pwr,  "kW",   &m_PowerTot,     m_pNd, isResult|noFileAtAll);
@@ -2841,6 +2845,28 @@ void CFlwThermalBlk::AddRBEnd()
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f  RB:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseRB-m_TRiseRBTmp, m_TRiseRB); 
+  #endif
+  };
+
+//--------------------------------------------------------------------------
+
+void CFlwThermalBlk::AddEvapBegin() 
+  {
+  #if (dbgFlwEqns)
+  if (dbgThermals())
+    dbgpln("AddEvapBegin           %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
+  m_TRiseEvapTmp=m_TRiseEvap;      
+  #endif
+  m_PowerEvap-=m_pCd->totHf();
+  m_TRiseEvap-=m_pCd->Temp();      
+  };
+void CFlwThermalBlk::AddEvapEnd() 
+  {
+  m_PowerEvap+=m_pCd->totHf();
+  m_TRiseEvap+=m_pCd->Temp();      
+  #if (dbgFlwEqns)
+  if (dbgThermals())
+    dbgpln("                       %10.2f %10.2f %10.2f  Evap:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEvap-m_TRiseEvapTmp, m_TRiseEvap); 
   #endif
   };
 

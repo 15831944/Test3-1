@@ -1123,6 +1123,8 @@ class DllImportExport CFlwThermalBlk
     void          AddEHXEnd();
     void          AddRBBegin();
     void          AddRBEnd();
+    void          AddEvapBegin();
+    void          AddEvapEnd();
     void          AddACPower(double Power, double Press);
     void          EndEvalProducts();
 
@@ -1134,11 +1136,13 @@ class DllImportExport CFlwThermalBlk
     double        TRiseVLE()    { return m_TRiseVLE;    };
     double        TRiseEHX()    { return m_TRiseEHX;    };
     double        TRiseRB()     { return m_TRiseRB;     };
+    double        TRiseEvap()   { return m_TRiseEvap;   };
     double        TRiseAC()     { return m_TRiseAC;     };
 
     double        PowerMech()   { return m_PowerMech;   };
     double        PowerEHX()    { return m_PowerEHX;    };
     double        PowerRB()     { return m_PowerRB;     };
+    double        PowerEvap()   { return m_PowerEvap;   };
     double        PowerAC()     { return m_PowerAC;     };
 
     void          GetClosureInfo(CClosureInfo &CI, bool DoRB, bool DoEHX);
@@ -1160,12 +1164,14 @@ class DllImportExport CFlwThermalBlk
     double        m_TRiseVLE;      // Temp Rise due to flashing
     double        m_TRiseEHX;      // Temp Rise due to Environment
     double        m_TRiseRB;       // Temp Rise due to Reactions
+    double        m_TRiseEvap;     // Temp Rise due to Evaporation
     double        m_TRiseAC;       // Temp Rise due to Auto Compression
 
     double        m_PowerMech;     // Pwr due to Power Input - Resistance-  etc
     double        m_PowerHeat;     // Pwr due to Heat Exchange
     double        m_PowerEHX;      // Pwr due to Environment
     double        m_PowerRB;       // Pwr due to Reactions
+    double        m_PowerEvap;     // Pwr due to Evaporation
     double        m_PowerAC;       // Pwr due to Auto Compression
 
     double        m_HfIn;           
@@ -1184,6 +1190,7 @@ class DllImportExport CFlwThermalBlk
     double        m_TRiseVLETmp;     
     double        m_TRiseEHXTmp;     
     double        m_TRiseRBTmp;      
+    double        m_TRiseEvapTmp;      
     double        m_TRiseACTmp;      
     #endif
     

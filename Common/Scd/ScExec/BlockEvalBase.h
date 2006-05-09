@@ -30,8 +30,8 @@ class DllImportExport CBlockEvalBase
     void              SetOnOffValLst(DDBValueLstMem  * ValLst);
     DDBValueLst     * GetOnOffValLst();
 
-    void              Open(long L);
-    long              OpenStatus(flag Enabled);
+    void              Open(byte L);
+    byte              OpenStatus(flag Enabled);
 
   protected:
     byte              m_iBlockSeqNo;
