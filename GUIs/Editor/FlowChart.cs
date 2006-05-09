@@ -516,6 +516,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
+
       //fcFlowChart_BoxModifying(sender, e);
     }
 
