@@ -255,6 +255,7 @@ class DllImportExport DDBValueLstMem
     DDBValueLstMem* operator()() { return this; };
     DDBValueLst* List() { return &Lst[0]; };
     DDBValueLst* Item(int i=0) { return &Lst[i]; };
+    DDBValueLst & operator[](int i) { return Lst[i]; };
     int Length() { return Len; };
     int Find(char * Str) 
       { 

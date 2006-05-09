@@ -4970,6 +4970,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       DDBCompListMix.Empty();
       DDBCompListMixImg.Empty();
       DDBCompListDash.Add(-1, "-");
+      DDBCompListDashVapLiq.Add(-1, "-");
       DDBCompListMix.Add(m_CDB.MixtureId(), "Mixture");
       DDBCompListMixImg.Add(m_CDB.MixtureId(), "Mixture");
       DDBCompListMixImg.Add(m_CDB.ImageId(), "MixImage");
@@ -4979,7 +4980,10 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         DDBCompListMix.Add(c, m_CDB[c].SymOrTag());
         DDBCompListDash.Add(c, m_CDB[c].SymOrTag());
         if (m_CDB[c].LiqPhInx()>=0 && m_CDB[c].VapPhInx()>=0)
+          {
           DDBCompListVapLiq.Add(c, m_CDB[c].SymOrTag());
+          DDBCompListDashVapLiq.Add(c, m_CDB[c].SymOrTag());
+          }
         }
       }
 

@@ -4,31 +4,27 @@
 #include "blockevalbase.h"
 
 #ifdef __EVAPBLOCK_CPP
-  #define DllImportExport DllExport
+#define DllImportExport DllExport
 #elif !defined(MdlBase)
-  #define DllImportExport DllImport
+#define DllImportExport DllImport
 #else
-  #define DllImportExport
+#define DllImportExport
 #endif
 
 // ==========================================================================
 //
-// Environmental Heat xchg
+// Evaporation Blocks
 //
 // ==========================================================================
 
-#define DEFINE_EHX(SM) DEFINE_TAGOBJ(SM)
+#define DEFINE_EVAL(SM) DEFINE_TAGOBJ(SM)
 #define IMPLEMENT_EVAP(Obj, ModelId, Version, Cat, SDesc, LDesc) \
-        IMPLEMENT_TAGOBJ(Obj, CEvapBlock::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
+  IMPLEMENT_TAGOBJ(Obj, CEvapBlock::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
 
 class DllImportExport CEvapBlock : public TaggedObject
   {
   public:
     static const pchar GroupName;
-
-    //double       dHeatFlow;
-    //double       TempKFeed;
-    //double       TempKProd;
 
     CEvapBlock(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEvapBlock();
@@ -37,46 +33,47 @@ class DllImportExport CEvapBlock : public TaggedObject
     virtual flag   DataXchg(DataChangeBlk & DCB) { return 0; };
 
     virtual flag   ValidateData(ValidateDataBlk & VDB) { return 1; };
-    //virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    //virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
-    //virtual double HeatFlow() { return dHeatFlow; };
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
-  
+
   };
 
-DEFINE_EHX(CEvapBlock);
+DEFINE_EVAL(CEvapBlock);
 
 // ===========================================================================
 
 class DllImportExport CEvBlk_Percentage: public CEvapBlock
   {
   public:
-    //double         dHperQm;
-
     CEvBlk_Percentage(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEvBlk_Percentage();
 
     virtual void   BuildDataDefn(DataDefnBlk& DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+
+  public:
+
+    class CEvapComp
+      {
+      public:
+        long      m_CIndex;
+        byte      m_Dest;
+        double    m_Fraction;
+      };
+
+    CArray <CEvapComp, CEvapComp&> m_Components;
+
   };
 
-DEFINE_EHX(CEvBlk_Percentage);
-
-//class DllImportExport CEvapBlock
-//  {
-//  public:
-//    CEvapBlock(void);
-//  public:
-//    ~CEvapBlock(void);
-//  };
+DEFINE_EVAL(CEvBlk_Percentage);
 
 // ===========================================================================
 //
-//
+// Evaporation Base
 //
 // ===========================================================================
 
@@ -91,11 +88,6 @@ class DllImportExport CEvapBase : public CBlockEvalBase
     flag           Open(byte OnOffSeq, TagObjClass * pEvapClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pEvapClass, Fixed); }
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
-
-    //int TPFlashReqd() { return (dwSelectMask&VLEF_TPFlash)!=0; };
-    //int QPFlashReqd() { return (dwSelectMask&VLEF_QPFlash)!=0; };
-    //int QVFlashReqd() { return (dwSelectMask&VLEF_QVFlash)!=0; };
-    //int QMVapFlashReqd() { return (dwSelectMask&VLEF_QMVapFlash)!=0; };
 
     CEvapBlock *   operator->() { return m_pEvapB; };
     flag           Enabled() { return m_fEnabled && (m_pEvapB!=NULL); };
@@ -117,9 +109,6 @@ class DllImportExport CEvapBase : public CBlockEvalBase
     flag            m_fEnabled;
     CEvapBlock    * m_pEvapB;
     pTaggedObject   m_pNd;
-    //dword           dwSelectMask;
-
-    //double          m_SensHtIn;
 
   public:
 

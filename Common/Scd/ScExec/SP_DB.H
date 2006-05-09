@@ -1412,6 +1412,7 @@ class DllImportExport CComponentDataBase
     DDBValueLstMem DDBCompListDash;
     DDBValueLstMem DDBCompListDashMix;
     DDBValueLstMem DDBCompListDashMixImg;
+    DDBValueLstMem DDBCompListDashVapLiq;
 
   protected:
   };

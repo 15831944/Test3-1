@@ -11,6 +11,7 @@
 
 XID xidEvapEnable = EvapXID(1);
 XID xidEvapEqnNm  = EvapXID(2);
+XID xidCompCount  = EvapXID(3);
 
 //============================================================================
 //
@@ -24,11 +25,8 @@ IMPLEMENT_EVAP(CEvapBlock, "EvapNone", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWA
 
 
 CEvapBlock::CEvapBlock(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
-  TaggedObject(pClass_, Tag_, pAttach, eAttach)
+TaggedObject(pClass_, Tag_, pAttach, eAttach)
   {
-  //dHeatFlow=0.0;
-  //TempKFeed=Std_T;
-  //TempKProd=Std_T;
   }
 
 //--------------------------------------------------------------------------
@@ -41,9 +39,8 @@ CEvapBlock::~CEvapBlock()
 
 void CEvapBlock::BuildDataDefn(DataDefnBlk& DDB)
   {
-  if (DDB.BeginStruct(this, "Evap", NULL, DDB_NoPage))
+  if (DDB.BeginStruct(this, NULL/*"Evap"*/, NULL, DDB_NoPage))
     {
-    //DDB.Double ("",     "HeatFlow",   DC_Pwr,  "kW",    &dHeatFlow,  this, isResult|0);
     }
   DDB.EndStruct();
   };
@@ -52,16 +49,10 @@ void CEvapBlock::BuildDataDefn(DataDefnBlk& DDB)
 
 void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
-//  dHeatFlow=0.0;
-//  //TempKFeed=Qf.Temp();
-//  //TempKProd=TempKFeed;
   };
 
 void CEvapBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
-//  dHeatFlow=0.0;
-//  //TempKFeed=Qf.Temp();
-//  //TempKProd=TempKFeed;
   };
 
 //============================================================================
@@ -70,12 +61,26 @@ void CEvapBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, doubl
 //
 //============================================================================
 
+#define VER1 01
+
+const byte Dest_Mix     = -2;
+const byte Dest_Discard = -1;
+const byte Dest_IO1     = 0; //????????????????
+
 IMPLEMENT_EVAP(CEvBlk_Percentage, "EvapPerc", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Percentage",  " ");
 
 CEvBlk_Percentage::CEvBlk_Percentage(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
-  CEvapBlock(pClass_, Tag_, pAttach, eAttach)
+CEvapBlock(pClass_, Tag_, pAttach, eAttach)
   {
-  //dHperQm = 0.0;
+#if VER1
+  m_Components.SetSize(gs_CDB.DDBCompListVapLiq.Length());
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    m_Components[i].m_CIndex   = gs_CDB.DDBCompListVapLiq[i].m_lVal;
+    m_Components[i].m_Dest     = 0;
+    m_Components[i].m_Fraction = 0.0;
+    }
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -86,14 +91,48 @@ CEvBlk_Percentage::~CEvBlk_Percentage()
 
 //--------------------------------------------------------------------------
 
+static DDBValueLst DDBDestinations[] =
+  {
+    { Dest_Mix      , "Mixture"},
+    { Dest_Discard  , "Discard"},
+    { 0 }
+  };
+
 void CEvBlk_Percentage::BuildDataDefn(DataDefnBlk& DDB)
   {
-  if (DDB.BeginStruct(this, "Evap", NULL, DDB_NoPage))
+
+  if (DDB.BeginStruct(this, "EvapPerc", NULL, DDB_NoPage))
     {
-    //DDB.Double ("",     "LossPerQm",  DC_HMs, "kJ/kg", &dHperQm,    this, isParm);
-    //DDB.Double ("",     "HeatFlow",   DC_Pwr,  "kW",    &dHeatFlow,  this, isResult|0);
-    //DDB.Double ("TempFeed",     "",   DC_T,    "C",     &TempKFeed,  this, isResult);//|noFileAtAll);
-    //DDB.Double ("TempProd",     "",   DC_T,    "C",     &TempKProd,  this, isResult);//|noFileAtAll);
+    DDB.Text(" ");
+#if VER1
+    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
+      {
+      for (int i=0; i<m_Components.GetSize(); i++)
+        {
+        LPTSTR Tg=gs_CDB[m_Components[i].m_CIndex].SymOrTag();
+        if (DDB.BeginElement(this, Tg, NULL, i))
+          {
+          DDB.Byte  ("", "Destination", DC_,     "",  &m_Components[i].m_Dest,      this, isParm, DDBDestinations);
+          DDB.Double("", "Fraction",    DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
+          }
+        }
+      }
+    DDB.EndArray();
+#else
+    DDB.Int("CompCount",     "",   DC_, "", xidCompCount,    this, isParm);
+    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
+      {
+      for (int i=0; i<m_Components.GetSize(); i++)
+        {
+        if (DDB.BeginElement(this, i, NULL, i))
+          {
+          DDB.Long  ("", "Component", DC_,     "",  &m_Components[i].m_CIndex,    this, isParmStopped, &gs_CDB.DDBCompListDashVapLiq);
+          DDB.Double("", "Fraction",  DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
+          }
+        }
+      }
+    DDB.EndArray();
+#endif
     }
   DDB.EndStruct();
   };
@@ -102,23 +141,95 @@ void CEvBlk_Percentage::BuildDataDefn(DataDefnBlk& DDB)
 
 flag CEvBlk_Percentage::DataXchg(DataChangeBlk & DCB)
   {
+#if VER1
+#else
+  switch (DCB.lHandle)
+    {
+    case xidCompCount:
+      if (DCB.rL)
+        {
+        int Old=m_Components.GetSize();
+        m_Components.SetSize(*DCB.rL);
+        for (int i=Old; i<m_Components.GetSize(); i++)
+          {
+          m_Components[i].m_CIndex=-1;
+          m_Components[i].m_Fraction=0.0;
+          }
+        }
+      DCB.L=m_Components.GetSize();
+      return 1;
+    }
+#endif
   return 0;
+  }
+
+//--------------------------------------------------------------------------
+
+flag CEvBlk_Percentage::ValidateData(ValidateDataBlk & VDB)
+  {
+#if VER1
+#else
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    int iComp=m_Components[i].m_CIndex;
+    if (iComp>=0)
+      {
+      for (int j=i+1; j<m_Components.GetSize(); j++)
+        {
+        if (iComp==m_Components[j].m_CIndex)
+          {
+          m_Components.RemoveAt(j);
+          j--;
+          }
+        }
+      }
+    }
+#endif
+
+  for (int i=0; i<m_Components.GetSize(); i++)
+    m_Components[i].m_Fraction=Range(0.0, m_Components[i].m_Fraction, 1.0);
+
+  return CEvapBlock::ValidateData(VDB); 
   }
 
 //--------------------------------------------------------------------------
 
 void CEvBlk_Percentage::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
-//  dHeatFlow=0.0;
-//  //TempKFeed=Qf.Temp();
-//  //TempKProd=TempKFeed;
+  Qf.SetPress(Po);
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    CEvapComp  & EC = m_Components[i];
+    CComponent & C  = gs_CDB[EC.m_CIndex];
+    int iLiq=C.LiqPhInx();
+    int iVap=C.VapPhInx();
+    double Liq=Qf.VMass[iLiq];
+    double Vap=Qf.VMass[iVap];
+    double D=Liq*EC.m_Fraction;
+
+    double H=Qf.totHf();
+    Qf.SetVValue(iLiq, Liq-D);
+    Qf.SetVValue(iVap, Vap+D);
+    Qf.Set_totHf(H);
+
+    switch (EC.m_Dest)
+      {
+      case Dest_Discard:
+        {
+        double T=Qf.Temp();
+        double P=Qf.Press();
+        Qf.SetVValue(iVap, Vap); // reset to original vapour mass
+        Qf.SetTempPress(T, P);
+        break;
+        }
+      };
+
+    }
   };
 
 void CEvBlk_Percentage::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
-//  dHeatFlow=0.0;
-//  //TempKFeed=Qf.Temp();
-//  //TempKProd=TempKFeed;
+  EvalProducts(Qf, Po, FinalTEst);
   };
 
 //============================================================================
@@ -126,14 +237,6 @@ void CEvBlk_Percentage::EvalProductsPipe(SpConduit & Qf, double Len, double Diam
 //
 //
 //============================================================================
-
-//CEvapBase::CEvapBase(void)
-//  {
-//  }
-//
-//CEvapBase::~CEvapBase(void)
-//  {
-//  }
 
 flag CEvapBase::Open(TagObjClass * pEvapClass, flag Fixed)
   {
