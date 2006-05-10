@@ -6,12 +6,18 @@
 
 static const LPTSTR SeqNames[] =
   {
-  "First",
+/*  "First",
   "Second",
   "Third",
   "Fourth",
   "Fifth",
-  "Sixth",
+  "Sixth",*/
+  "On (Priority 1)",
+  "On (Priority 2)",
+  "On (Priority 3)",
+  "On (Priority 4)",
+  "On (Priority 5)",
+  "On (Priority 6)",
   };
 
 
@@ -29,12 +35,9 @@ void CBlockEvalBase::BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence)
   {
   ValLst->Empty();
   ValLst->Add(BlkEval_Off, "Off");
-
+  ValLst->Add(BlkEval_On, "On");
   for (int i=0; i<NInSequence; i++)
     ValLst->Add(BlkEval_First+i, SeqNames[i]);
-
-  ValLst->Add(BlkEval_On, "On");
-
   };
 
 void CBlockEvalBase::SetOnOffValLst(DDBValueLstMem  * ValLst)

@@ -11,8 +11,8 @@
 #endif
 
 const int BlkEval_Off   = 0;
-const int BlkEval_On    = 10;
-const int BlkEval_First = 1;
+const int BlkEval_On    = 1;
+const int BlkEval_First = 2;
 
 
 class DllImportExport CBlockEvalBase

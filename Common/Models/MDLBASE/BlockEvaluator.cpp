@@ -142,7 +142,7 @@ void CBlockEvaluator::Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages
   {
   if (1)
     {
-    DDB.String("BlkSeq", "", DC_, "", &m_sBlkSeq, pThis, 0); 
+    DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, pThis, 0); 
 
     Strng S;
     if (m_pRB)
