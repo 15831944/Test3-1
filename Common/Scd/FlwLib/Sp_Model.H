@@ -115,9 +115,10 @@ XID xidSMMlSFrac        = SpcXID(100043);
 XID xidSMMlLFrac        = SpcXID(100044);
 XID xidSMMlVFrac        = SpcXID(100045);
 
-XID xidSMSatTemp        = SpcXID(100050);
-XID xidSMSatPress       = SpcXID(100051);
-XID xidSMBoilPtEle      = SpcXID(100052);
+XID xidSMPureSatTemp    = SpcXID(100050);
+XID xidSMSatTemp        = SpcXID(100051);
+XID xidSMSatPress       = SpcXID(100052);
+XID xidSMBoilPtEle      = SpcXID(100053);
 
 XID xidSMSmsH           = SpcXID(100060);
 XID xidSMLmsH           = SpcXID(100061);

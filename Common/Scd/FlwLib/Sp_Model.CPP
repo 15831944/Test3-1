@@ -1453,6 +1453,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
 
   DDB.Text("");
   DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
+  DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
   DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
   DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
   DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFile|noSnap|InitHidden);
@@ -4297,6 +4298,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlLFrac     : DCB.D = MoleFrac(som_Liq);          return 1;
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);          return 1;
 
+    case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());   return 1;
     case xidSMSatTemp     : DCB.D = SaturationT(Press());       return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp());        return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());   return 1;
