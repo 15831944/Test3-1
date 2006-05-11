@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\Bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD91.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -185,7 +185,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\Bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD91.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -288,7 +288,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\Bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD91.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -344,7 +344,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\bin\FlowChart.NET.dll"
-			AssemblyName="FlowChart.NET, Version=4.0.4.32890, processorArchitecture=MSIL"
+			AssemblyName="FlowChart.NET, Version=4.1.0.13806, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"

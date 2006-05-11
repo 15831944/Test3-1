@@ -437,6 +437,7 @@
     <Compile Include="PrintOptions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PrintPreview.cs" />
     <Compile Include="PrintPreviewForm.cs">
       <SubType>Form</SubType>
     </Compile>
