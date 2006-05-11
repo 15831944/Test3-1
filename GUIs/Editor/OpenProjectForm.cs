@@ -13,7 +13,7 @@ namespace SysCAD.Editor
   public partial class OpenProjectForm : Form
   {
     public Config config = new Config();
-    public Graphic graphic = new Graphic();
+    public ClientGraphic graphic = new ClientGraphic();
 
     public OpenProjectForm()
     {

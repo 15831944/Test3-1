@@ -38,16 +38,16 @@ namespace SysCAD.Editor
 
     ~FrmFlowChart()
     {
-      state.DisconnectGraphicItemModified(new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified));
+      state.DisconnectGraphicItemModified(new ClientGraphic.ItemModifiedHandler(fcFlowChart_ItemModified));
     }
 
-    internal void SetProject(Graphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
+    internal void SetProject(ClientGraphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
       state.Graphic = graphic;
       state.Config = config;
       state.TvNavigation = tvNavigation;
 
-      state.ConnectGraphicItemModified(new Graphic.ItemModifiedHandler(fcFlowChart_ItemModified));
+      state.ConnectGraphicItemModified(new ClientGraphic.ItemModifiedHandler(fcFlowChart_ItemModified));
 
       fcFlowChart.UndoManager.UndoEnabled = false;
       fcFlowChart.UseWaitCursor = true;
@@ -118,9 +118,9 @@ namespace SysCAD.Editor
       float height = maxY - minY;
 
       if (foundVisibleObject)
-        fcFlowChart.ZoomToRect(new RectangleF(minX - width * 0.05F, minY - height * 0.05F, width * 1.1F, height * 1.1F));
+        fcFlowChart.ZoomToRect(RectangleF.FromLTRB(minX - width * 0.05F, minY - height * 0.05F, maxX + width * 0.05F, maxY + height * 0.05F));
       else
-        fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
+        fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
 
       fcFlowChart.Invalidate();
     }
@@ -154,7 +154,7 @@ namespace SysCAD.Editor
       float height = maxY - minY;
 
       if (foundObject)
-        fcFlowChart.DocExtents= new RectangleF(minX - width * 0.05F, minY - height * 0.05F, width * 1.1F, height * 1.1F);
+        fcFlowChart.DocExtents = RectangleF.FromLTRB(minX - width * 0.05F, minY - height * 0.05F, maxX + width * 0.05F, maxY + height * 0.05F);
     }
 
     public void ZoomToSelected()
@@ -194,12 +194,12 @@ namespace SysCAD.Editor
       float height = maxY - minY;
 
       if (foundSelectedObject)
-        fcFlowChart.ZoomToRect(new RectangleF(minX - width * 0.05F, minY - height * 0.05F, width * 1.1F, height * 1.1F));
+        fcFlowChart.ZoomToRect(RectangleF.FromLTRB(minX - width * 0.05F, minY - height * 0.05F, maxX + width * 0.05F, maxY + height * 0.05F));
       else
-        fcFlowChart.ZoomToRect(new RectangleF(fcFlowChart.DocExtents.Left, fcFlowChart.DocExtents.Top, fcFlowChart.DocExtents.Width, fcFlowChart.DocExtents.Height));
+        fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
     }
 
-    private void fcFlowChart_ItemModified(Guid guid, RectangleF boundingRect, Single angle)
+    private void fcFlowChart_ItemModified(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       Item item = state.Item(guid);
       if (item != null)
@@ -516,14 +516,33 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
+      GraphicItem graphicItem = state.GraphicItem((e.Box.Tag as Item).Guid);
       Box modelBox = (e.Box.Tag as Item).Model;
-      Box textBox = (e.Box.Tag as Item).Text;
+      //Box textBox = (e.Box.Tag as Item).Text;
 
-      int x1 = (int)((textBox.BoundingRect.Left - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width*100.0);
-      int y1 = (int)((textBox.BoundingRect.Top - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
-      int x2 = (int)((textBox.BoundingRect.Right - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width * 100.0);
-      int y2 = (int)((textBox.BoundingRect.Bottom - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
-      textBox.AttachTo(modelBox, x1, y1, x2, y2);
+      //int x1 = (int)((textBox.BoundingRect.Left - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width*100.0);
+      //int y1 = (int)((textBox.BoundingRect.Top - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
+      //int x2 = (int)((textBox.BoundingRect.Right - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width * 100.0);
+      //int y2 = (int)((textBox.BoundingRect.Bottom - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
+      //textBox.AttachTo(modelBox, x1, y1, x2, y2);
+
+      // calculate new boundingbox...
+      uint requestID;
+      if (!state.ModifyGraphicItem(out requestID,
+        graphicItem.Guid,
+        graphicItem.Tag,
+        graphicItem.Path,
+        graphicItem.Model,
+        graphicItem.Shape,
+        modelBox.BoundingRect,
+        graphicItem.Angle,
+        graphicItem.fillColor,
+        graphicItem.MirrorX,
+        graphicItem.MirrorY))
+      { // failure, revert back to previous.
+        modelBox.BoundingRect = graphicItem.BoundingRect;
+      }
+
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)

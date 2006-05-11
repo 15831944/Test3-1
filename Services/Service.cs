@@ -99,7 +99,7 @@ namespace SysCAD.Service
       {
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        Graphic graphic = new Graphic();
+        ServiceServiceGraphic graphic = new ServiceServiceGraphic();
         graphic.name = filename;
 
         {

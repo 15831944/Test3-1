@@ -42,15 +42,17 @@
   <ItemGroup>
     <Compile Include="Anchor.cs" />
     <Compile Include="Arc.cs" />
+    <Compile Include="BaseGraphic.cs" />
     <Compile Include="Bezier.cs" />
+    <Compile Include="ClientGraphic.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="GraphicStencil.cs" />
     <Compile Include="GraphicItem.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="GraphicLink.cs" />
-    <Compile Include="Graphic.cs" />
     <Compile Include="ModelStencil.cs" />
+    <Compile Include="ServiceGraphic.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
