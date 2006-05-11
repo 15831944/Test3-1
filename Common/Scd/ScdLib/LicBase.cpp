@@ -27,7 +27,7 @@
 //===========================================================================
 //=== Generic Code...
 
-const char* LicINISection = "License90";
+const char* LicINISection = "License91";
 
 char* CK_KeyFile = "syscad.exe";
 char* CK_AppName = "SysCAD";
