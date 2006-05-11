@@ -33,7 +33,7 @@ set fn=%foldr%\ScdBins
 :continue 
 rem ========== SysCAD Standard Files ==========
 del %fn%_SysCAD.zip
-wzzip -a %fn%_SysCAD.zip ..\bin\syscad.exe
+wzzip -a %fn%_SysCAD.zip ..\bin\syscad91.exe ..\bin\syscad.exe
 wzzip -a %fn%_SysCAD.zip ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\control1.dll
 wzzip -a %fn%_SysCAD.zip ..\bin\flwlib.dll ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll 
 wzzip -a %fn%_SysCAD.zip ..\bin\mdlbase.dll ..\bin\scdcom.dll ..\bin\scddesrvr.dll ..\bin\scdif.dll 
