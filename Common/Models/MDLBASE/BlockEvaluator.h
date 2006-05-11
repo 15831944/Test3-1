@@ -30,18 +30,12 @@ class DllImportExport CBlockEvaluator
     static const byte BES_VLE          = 0x04;
     static const byte BES_Evap         = 0x05;
 
-    CBlockEvaluator(CReactionBase * pRB = NULL,   byte iRB = 0, 
-                    CHXBase *pHX = NULL,          byte iHX = 0, 
-                    CEnvironHXBase * pEHX = NULL, byte iEHX = 0, 
-                    CVLEBase * pVLE = NULL,       byte iVLE = 0, 
-                    CEvapBase * pEvap = NULL,     byte iEvap = 0);
+    CBlockEvaluator(CReactionBase * pRB = NULL,
+                    CHXBase *pHX = NULL,
+                    CEnvironHXBase * pEHX = NULL,
+                    CVLEBase * pVLE = NULL,
+                    CEvapBase * pEvap = NULL);
     ~CBlockEvaluator(void);
-
-    void              SetDefSequence(byte iRB = 0, 
-                                     byte iHX = 0, 
-                                     byte iEHX = 0, 
-                                     byte iVLE = 0, 
-                                     byte iEvap = 0);
 
     void              Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages PageIs=DDB_NoPage);
     void              BuildDataDefn(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages PageIs=DDB_RqdPage);

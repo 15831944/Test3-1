@@ -653,7 +653,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   , m_Bleed(eDIO_Bleed, this, false, true, "Bleed")
 #endif
 #if (WITHBLOCKEVALUATOR)
-  , m_BlkEval(&m_RB, 1, NULL, 0, &EHX, 2, &m_VLE, 3, &m_Evap, 4)
+  , m_BlkEval(&m_RB, NULL, &EHX, &m_VLE, &m_Evap)
 #endif
   {
   AttachClassInfo(nc_MLnk,NULL);
