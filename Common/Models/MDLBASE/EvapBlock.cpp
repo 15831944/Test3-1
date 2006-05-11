@@ -27,6 +27,7 @@ IMPLEMENT_EVAP(CEvapBlock, "EvapNone", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWA
 CEvapBlock::CEvapBlock(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 TaggedObject(pClass_, Tag_, pAttach, eAttach)
   {
+  m_pEvapBase = NULL;
   }
 
 //--------------------------------------------------------------------------
@@ -196,7 +197,12 @@ flag CEvBlk_Percentage::ValidateData(ValidateDataBlk & VDB)
 
 void CEvBlk_Percentage::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
+  SpConduit & Discard = m_pEvapBase->DiscardCd();
+  Discard.QZero();
+  SpMArray OldVap;
+
   Qf.SetPress(Po);
+  double H=Qf.totHf();
   for (int i=0; i<m_Components.GetSize(); i++)
     {
     CEvapComp  & EC = m_Components[i];
@@ -207,24 +213,33 @@ void CEvBlk_Percentage::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
     double Vap=Qf.VMass[iVap];
     double D=Liq*EC.m_Fraction;
 
-    double H=Qf.totHf();
     Qf.SetVValue(iLiq, Liq-D);
     Qf.SetVValue(iVap, Vap+D);
-    Qf.Set_totHf(H);
 
+    Discard.SetVValue(iVap, D);
+    OldVap.SetVValue(iVap, Vap);
+    }
+  Qf.Set_totHf(H);
+
+  double T=Qf.Temp();
+  double P=Qf.Press();
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    CEvapComp  & EC = m_Components[i];
+    int iVap = gs_CDB[EC.m_CIndex].VapPhInx();
     switch (EC.m_Dest)
       {
-      case Dest_Discard:
-        {
-        double T=Qf.Temp();
-        double P=Qf.Press();
-        Qf.SetVValue(iVap, Vap); // reset to original vapour mass
-        Qf.SetTempPress(T, P);
+      case Dest_Mix:
+        // Qf is at correct conditions
+        Discard.SetVValue(iVap, 0.0);
         break;
-        }
-      };
-
+      case Dest_Discard:
+        Qf.SetVValue(iVap, OldVap[iVap]); // reset to original vapour mass
+        break;
+      }
     }
+  Qf.SetTempPress(T, P);
+  Discard.SetTempPress(T, P);
   };
 
 void CEvBlk_Percentage::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
@@ -253,6 +268,7 @@ flag CEvapBase::Open(TagObjClass * pEvapClass, flag Fixed)
   else
     m_pEvapB=(CEvapBlock*)CEvapBlockClass.Construct(NULL, "Evap", m_pNd, TOA_Embedded);//pNd);
   m_pNd->StructureChanged(NULL);
+  m_pEvapB->m_pEvapBase=this;
 
   m_fEnabled=m_pEvapB!=NULL;
   return m_fEnabled;

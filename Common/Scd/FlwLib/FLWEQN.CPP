@@ -2717,6 +2717,7 @@ void CFlwThermalBlk::BeginEvalProducts(SpConduit & Cd)
   m_TRiseVLE    = 0.0;     
   m_TRiseEHX    = 0.0;     
   m_TRiseRB     = 0.0;      
+  m_TRiseEvap   = 0.0;      
   m_TRiseAC     = 0.0;      
   m_TRiseCorr   = 0.0;
   m_TRiseTot    = 0.0;
@@ -2725,6 +2726,7 @@ void CFlwThermalBlk::BeginEvalProducts(SpConduit & Cd)
   m_PowerHeat    = 0.0;     
   m_PowerEHX     = 0.0;     
   m_PowerRB      = 0.0;      
+  m_PowerEvap    = 0.0;      
   m_PowerAC      = 0.0;      
   m_PowerTot     = 0.0;
   m_PowerCorr    = 0.0;

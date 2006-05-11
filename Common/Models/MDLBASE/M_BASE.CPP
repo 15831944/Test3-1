@@ -2351,190 +2351,250 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmNett:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoProcessIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
-      DCB.D=Sig;
+      if (gs_EvalBalances)
+        {
+        double Sig=0.0;
+        for (int i=0; i<NoProcessIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
+        DCB.D=Sig;
+        }
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_QmBalance:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoProcessIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+      if (gs_EvalBalances)
         {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.FlowMass;
+        double Sig=0.0;
+        for (int i=0; i<NoProcessIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.FlowMass;
+          }
+        DCB.D=Sig;
         }
-      DCB.D=Sig;
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_QmBalanceRel:
       {
-      double Sig=0.0;
-      double SigPos=0.0;
-      double SigNeg=0.0;
-      for (int i=0; i<NoProcessIOs(); i++)
+      if (gs_EvalBalances)
         {
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
-        if (IO_In(i))
-          SigPos+=IOAreaSum(i)->FlowMass;
-        else if (IO_Out(i))
-          SigNeg+=IOAreaSum(i)->FlowMass;
+        double Sig=0.0;
+        double SigPos=0.0;
+        double SigNeg=0.0;
+        for (int i=0; i<NoProcessIOs(); i++)
+          {
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
+          if (IO_In(i))
+            SigPos+=IOAreaSum(i)->FlowMass;
+          else if (IO_Out(i))
+            SigNeg+=IOAreaSum(i)->FlowMass;
+          }
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.FlowMass;
+          if (D.NdSignImplied>0)
+            SigPos+=D.Sum.FlowMass;
+          else if (D.NdSignImplied<0)
+            SigNeg+=D.Sum.FlowMass;
+          }
+        DCB.D=Sig/GTZ(Max(SigPos, SigNeg));
         }
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
-        {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.FlowMass;
-        if (D.NdSignImplied>0)
-          SigPos+=D.Sum.FlowMass;
-        else if (D.NdSignImplied<0)
-          SigNeg+=D.Sum.FlowMass;
-        }
-      DCB.D=Sig/GTZ(Max(SigPos, SigNeg));
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_QmNettTotal:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoProcessIOs(); i++)
+      if (gs_EvalBalances)
         {
-        //dbgpln("%3i %3i %3i %3i %10.6f %10.6f %10.6f %10.6f %10.6f", i, IOId_Self(i), IO_In(i), IO_Out(i), IOQm_In(i), IOQm_Out(i), IOQmEst_In(i), IOQmEst_Out(i), IOAreaSum(i)->TotalMass);
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
+        double Sig=0.0;
+        for (int i=0; i<NoProcessIOs(); i++)
+          {
+          //dbgpln("%3i %3i %3i %3i %10.6f %10.6f %10.6f %10.6f %10.6f", i, IOId_Self(i), IO_In(i), IO_Out(i), IOQm_In(i), IOQm_Out(i), IOQmEst_In(i), IOQmEst_Out(i), IOAreaSum(i)->TotalMass);
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
+          }
+        DCB.D=Sig;
         }
-      DCB.D=Sig;
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_QmBalanceTotal:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoProcessIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+      if (gs_EvalBalances)
         {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.TotalMass;
+        double Sig=0.0;
+        for (int i=0; i<NoProcessIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.TotalMass;
+          }
+        DCB.D=Sig;
         }
-      DCB.D=Sig;
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_QmBalanceTotalRel:
       {
-      double Sig=0.0;
-      double SigPos=0.0;
-      double SigNeg=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
+      if (gs_EvalBalances)
         {
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
-        if (IO_In(i))
-          SigPos+=IOAreaSum(i)->TotalMass;
-        else if (IO_Out(i))
-          SigNeg+=IOAreaSum(i)->TotalMass;
+        double Sig=0.0;
+        double SigPos=0.0;
+        double SigNeg=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          {
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
+          if (IO_In(i))
+            SigPos+=IOAreaSum(i)->TotalMass;
+          else if (IO_Out(i))
+            SigNeg+=IOAreaSum(i)->TotalMass;
+          }
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.TotalMass;
+          if (D.NdSignImplied>0)
+            SigPos+=D.Sum.TotalMass;
+          else if (D.NdSignImplied<0)
+            SigNeg+=D.Sum.TotalMass;
+          }
+        DCB.D=Sig/GTZ(Max(SigPos, SigNeg));
         }
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
-        {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.TotalMass;
-        if (D.NdSignImplied>0)
-          SigPos+=D.Sum.TotalMass;
-        else if (D.NdSignImplied<0)
-          SigNeg+=D.Sum.TotalMass;
-        }
-      DCB.D=Sig/GTZ(Max(SigPos, SigNeg));
+      else
+        DCB.D=dNAN;
       return true;
       }
 
     case xidIO_HzNett:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
-      DCB.D=Sig;
+      if (gs_EvalBalances)
+        {
+        double Sig=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
+        DCB.D=Sig;
+        }
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_HzBalance:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+      if (gs_EvalBalances)
         {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.FlowHz;
+        double Sig=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.FlowHz;
+          }
+        DCB.D=Sig;
         }
-      DCB.D=Sig;
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_HzBalanceRel:
       {
-      double Sig=0.0;
-      double SigPos=0.0;
-      double SigNeg=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
+      if (gs_EvalBalances)
         {
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
-        if (IO_In(i))
-          SigPos+=IOAreaSum(i)->FlowHz;
-        else if (IO_Out(i))
-          SigNeg+=IOAreaSum(i)->FlowHz;
+        double Sig=0.0;
+        double SigPos=0.0;
+        double SigNeg=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          {
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
+          if (IO_In(i))
+            SigPos+=IOAreaSum(i)->FlowHz;
+          else if (IO_Out(i))
+            SigNeg+=IOAreaSum(i)->FlowHz;
+          }
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.FlowHz;
+          if (D.NdSignImplied>0)
+            SigPos+=D.Sum.FlowHz;
+          else if (D.NdSignImplied<0)
+            SigNeg+=D.Sum.FlowHz;
+          }
+        DCB.D=Sig/GTZ(Max(SigPos,SigNeg));
         }
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
-        {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.FlowHz;
-        if (D.NdSignImplied>0)
-          SigPos+=D.Sum.FlowHz;
-        else if (D.NdSignImplied<0)
-          SigNeg+=D.Sum.FlowHz;
-        }
-      DCB.D=Sig/GTZ(Max(SigPos,SigNeg));
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_HzNettTotal:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
-      DCB.D=Sig;
+      if (gs_EvalBalances)
+        {
+        double Sig=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
+        DCB.D=Sig;
+        }
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_HzBalanceTotal:
       {
-      double Sig=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+      if (gs_EvalBalances)
         {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.TotalHz;
+        double Sig=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.TotalHz;
+          }
+        DCB.D=Sig;
         }
-      DCB.D=Sig;
+      else
+        DCB.D=dNAN;
       return true;
       }
     case xidIO_HzBalanceTotalRel:
       {
-      double Sig=0.0;
-      double SigPos=0.0;
-      double SigNeg=0.0;
-      for (int i=0; i<NoFlwIOs(); i++)
+      if (gs_EvalBalances)
         {
-        Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
-        if (IO_In(i))
-          SigPos+=IOAreaSum(i)->TotalHz;
-        else if (IO_Out(i))
-          SigNeg+=IOAreaSum(i)->TotalHz;
+        double Sig=0.0;
+        double SigPos=0.0;
+        double SigNeg=0.0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          {
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
+          if (IO_In(i))
+            SigPos+=IOAreaSum(i)->TotalHz;
+          else if (IO_Out(i))
+            SigNeg+=IOAreaSum(i)->TotalHz;
+          }
+        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+          {
+          CDirectFlwIO &D=*m_DirectIOs[d];
+          Sig+=D.NdSignImplied*D.Sum.TotalHz;
+          if (D.NdSignImplied>0)
+            SigPos+=D.Sum.TotalHz;
+          else if (D.NdSignImplied<0)
+            SigNeg+=D.Sum.TotalHz;
+          }
+        DCB.D=Sig/GTZ(Max(SigPos, SigNeg));
         }
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
-        {
-        CDirectFlwIO &D=*m_DirectIOs[d];
-        Sig+=D.NdSignImplied*D.Sum.TotalHz;
-        if (D.NdSignImplied>0)
-          SigPos+=D.Sum.TotalHz;
-        else if (D.NdSignImplied<0)
-          SigNeg+=D.Sum.TotalHz;
-        }
-      DCB.D=Sig/GTZ(Max(SigPos, SigNeg));
+      else
+        DCB.D=dNAN;
       return true;
       }
 
@@ -3723,7 +3783,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
         DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+d,       this, isResult|isTag|noFile|noSnap);
         }
       }
-    DDB.Double("QmBalance",  "", DC_Qm , "kg/s",    xidIO_QmBalance,       this, isResult|noFile|noSnap);
+    DDB.Double("QmBalance",  "", DC_Qm , "kg/s",    xidIO_QmBalance,       this, isResult|noFile|noSnap|NAN_OK);
     }
 
   if (m_dwAuditOptions && !DDB.ForFileSnpScn())
@@ -3762,7 +3822,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
         DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_DrHz0+d,       this, isResult|isTag|noFile|noSnap);
         }
       }
-    DDB.Double("HzBalance",  "", DC_Pwr , "kJ/s",    xidIO_HzBalance,       this, isResult|noFile|noSnap);
+    DDB.Double("HzBalance",  "", DC_Pwr , "kJ/s",    xidIO_HzBalance,       this, isResult|noFile|noSnap|NAN_OK);
     }
   }
 //---------------------------------------------------------------------------
@@ -3791,7 +3851,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             iIO++;
             }
 
-          DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap);
+          DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap|NAN_OK);
 
           int iDir=0;
           for (int d=0; d<NoDirDIOs(); d++) 
@@ -3816,8 +3876,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
               iDir++;
               }
             }
-          DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap);
-          DDB.Double("Balance.Rel", "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap);
+          DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
+          DDB.Double("Balance.Rel", "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
           }
         DDB.EndStruct();
 
@@ -3833,7 +3893,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             iIO++;
             }
 
-          DDB.Double("Nett",       "", DC_Pwr, "kJ/s",      xidIO_HzNett,        this, isResult|noFile|noSnap);
+          DDB.Double("Nett",       "", DC_Pwr, "kJ/s",      xidIO_HzNett,        this, isResult|noFile|noSnap|NAN_OK);
 
           int iDir=0;
           for (int d=0; d<NoDirDIOs(); d++) 
@@ -3858,8 +3918,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
               iDir++;
               }
             }
-          DDB.Double("Balance",     "", DC_Pwr , "kJ/s",    xidIO_HzBalance,       this, isResult|noFile|noSnap);
-          DDB.Double("Balance.Rel", "", DC_Frac,  "%",      xidIO_HzBalanceRel,    this, isResult|noFile|noSnap);
+          DDB.Double("Balance",     "", DC_Pwr , "kJ/s",    xidIO_HzBalance,       this, isResult|noFile|noSnap|NAN_OK);
+          DDB.Double("Balance.Rel", "", DC_Frac,  "%",      xidIO_HzBalanceRel,    this, isResult|noFile|noSnap|NAN_OK);
           }
         DDB.EndStruct();
         }
@@ -3880,7 +3940,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             iIO++;
             }
 
-          DDB.Double("Nett",       "", DC_M ,  "kg",     xidIO_QmNettTotal,       this, isResult|noFile|noSnap);
+          DDB.Double("Nett",       "", DC_M ,  "kg",     xidIO_QmNettTotal,       this, isResult|noFile|noSnap|NAN_OK);
 
           int iDir=0;
           for (int d=0; d<NoDirDIOs(); d++) 
@@ -3905,8 +3965,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
               iDir++;
               }
             }
-          DDB.Double("Balance",       "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap);
-          DDB.Double("Balance.Rel",   "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap);
+          DDB.Double("Balance",       "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
+          DDB.Double("Balance.Rel",   "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK);
           }
         DDB.EndStruct();
 
@@ -3922,7 +3982,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             iIO++;
             }
 
-          DDB.Double("Nett",       "", DC_E, "kJ",      xidIO_HzNettTotal,          this, isResult|noFile|noSnap);
+          DDB.Double("Nett",       "", DC_E, "kJ",      xidIO_HzNettTotal,          this, isResult|noFile|noSnap|NAN_OK);
 
           int iDir=0;
           for (int d=0; d<NoDirDIOs(); d++) 
@@ -3947,8 +4007,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
               iDir++;
               }
             }
-          DDB.Double("Balance",     "", DC_E , "kJ",    xidIO_HzBalanceTotal,       this, isResult|noFile|noSnap);
-          DDB.Double("Balance.Rel", "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap);
+          DDB.Double("Balance",     "", DC_E , "kJ",    xidIO_HzBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
+          DDB.Double("Balance.Rel", "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK);
           }
         DDB.EndStruct();
         }

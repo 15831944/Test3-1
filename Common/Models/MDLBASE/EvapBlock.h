@@ -13,6 +13,14 @@
 
 // ==========================================================================
 //
+//
+//
+// ==========================================================================
+
+class CEvapBase;
+
+// ==========================================================================
+//
 // Evaporation Blocks
 //
 // ==========================================================================
@@ -24,18 +32,20 @@
 class DllImportExport CEvapBlock : public TaggedObject
   {
   public:
-    static const pchar GroupName;
-
     CEvapBlock(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEvapBlock();
 
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB) { return 0; };
+    virtual void    BuildDataDefn(DataDefnBlk& DDB);
+    virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
 
-    virtual flag   ValidateData(ValidateDataBlk & VDB) { return 1; };
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
+    virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+  public:
+    static const pchar GroupName;
+
+    CEvapBase     * m_pEvapBase;
   };
 
 DEFINE_EVAL(CEvapBlock);
@@ -104,11 +114,15 @@ class DllImportExport CEvapBase : public CBlockEvalBase
     void           EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pEvapB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
 
+    SpConduit    & DiscardCd() { return m_DiscardCd; };
+
   protected:
     flag            m_fFixed;
     flag            m_fEnabled;
     CEvapBlock    * m_pEvapB;
     pTaggedObject   m_pNd;
+
+    SpConduit       m_DiscardCd;
 
   public:
 

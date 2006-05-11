@@ -974,6 +974,9 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300);
     m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 301);
     m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 302);
+#if WITHLINKBLEED 
+    m_Bleed.BuildDataDefn(DDB, NULL, DDB_NoPage, 303);
+#endif
     }
 
   if (DDB.ForFileSnpScn() && GlblDynamicMode())

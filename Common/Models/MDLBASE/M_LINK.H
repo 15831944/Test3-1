@@ -325,6 +325,8 @@ const byte XCO_Accept = 1;
 //const byte FP_Single  = 3;
 //const byte FP_Either  = 4;
 
+#define WITHLINKBLEED 0
+
 class DllImportExport MN_Lnk : public MdlNode
   {
   friend CLinkStatInfo;
@@ -522,6 +524,9 @@ class DllImportExport MN_Lnk : public MdlNode
     CDirectFlwIO   m_Spill;          
     CDirectFlwIO   m_Src;
     CDirectFlwIO   m_Snk;
+#if WITHLINKBLEED 
+    CDirectFlwIO   m_Bleed;
+#endif
 
     bool           SpillFlowing()       { return m_Spill.Cd.QMass(som_ALL)>1.0e-12; };
     void           SpillClear()         { m_Spill.Cd.QZero(); };//.QSetTraceMass(); };

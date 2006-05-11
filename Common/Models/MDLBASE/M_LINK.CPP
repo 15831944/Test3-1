@@ -649,6 +649,9 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillIn),
   m_Src(eDIO_Src, this, false, true, "Src"),
   m_Snk(eDIO_Snk, this, false, true, "Snk")
+#if WITHLINKBLEED 
+  , m_Bleed(eDIO_Bleed, this, false, true, "Bleed")
+#endif
 #if (WITHBLOCKEVALUATOR)
   , m_BlkEval(&m_RB, 1, NULL, 0, &EHX, 2, &m_VLE, 3, &m_Evap, 4)
 #endif
@@ -870,6 +873,10 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (DCB.dwUserInfo==302 && m_Snk.DataXchg(DCB))
     return 1;
+#if WITHLINKBLEED 
+  if (DCB.dwUserInfo==303 && m_Bleed.DataXchg(DCB))
+    return 1;
+#endif
 
   if (DCB.lHandle>=xidFEFirst && DCB.lHandle<xidFELast)
     {
@@ -1890,6 +1897,9 @@ void MN_Lnk::GlobalConnect()
   {
   m_Src.SysEnable = m_RB.Enabled();
   m_Snk.SysEnable = m_RB.Enabled();
+#if WITHLINKBLEED 
+  m_Bleed.SysEnable = m_Evap.Enabled();
+#endif
   MdlNode::GlobalConnect();
   }
 
@@ -2631,6 +2641,10 @@ flag MN_Lnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IO
     return true;
   if (m_Snk.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
     return true;
+#if WITHLINKBLEED 
+  if (m_Bleed.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
+    return true;
+#endif
 
   FlwBlk & FB=*IOFB(IONo, FE);
   if (fDoDbgBrk)
@@ -3173,14 +3187,16 @@ void MN_Lnk::EvalProducts(long JoinMask)
       BreakPoint();
     m_Src.Set(*m_RB.MsSumSrc(), 0);//m_RB.HfSumSrc();
     m_Snk.Set(*m_RB.MsSumSnk(), 0);
-    //m_Src.Cd.Set_totHf(m_RB.HfSumSrc(), m_RB.Pressure());
-    //m_Snk.Cd.Set_totHf(m_RB.HfSumSnk(), m_RB.Pressure());
     }
   else
     {
     m_Src.Sum.ZeroFlows();
     m_Snk.Sum.ZeroFlows();
     }
+
+  if (m_Evap.Enabled())
+    m_Snk.Add(m_Evap.DiscardCd());//m_RB.HfSumSrc();
+
 #if DBGCHG
   #define DBGIT(A,B,D,T)  \
             dbgpln("EP %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6 %s %s", \

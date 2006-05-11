@@ -1659,7 +1659,7 @@ const int IOId_2IOLeakI     = LeakIOId(0);
 const int IOId_2IOLeakO     = LeakIOId(1);
 
 const int IOId_Makeup2Area  = MakeupIOId(0);        
-const int IOId_Blead2Area   = BleadIOId(0);
+const int IOId_Bleed2Area   = BleadIOId(0);
 const int IOId_Spill2Area   = SpillIOId(0);
 const int IOId_Vent2Area    = VentIOId(0);
 const int IOId_Leak2Area    = LeakIOId(0);
@@ -1674,6 +1674,7 @@ DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
 DllImportExport IOAreaRec TwoIOAreaListWithSL[];
 DllImportExport IOAreaRec TwoIOAreaListWithL[];
+DllImportExport IOAreaRec TwoIOAreaListWithBS[];
 
 #define MAKEUP2AREA(Tg,Id) {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
 #define BLEED2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
