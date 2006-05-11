@@ -13,7 +13,7 @@
 #ifdef _DEBUG
 #define BYPASSLICENSING       01
 #elif  _RELEASE
-#define BYPASSLICENSING       01
+#define BYPASSLICENSING       0
 #else
 #define BYPASSLICENSING       01
 #endif

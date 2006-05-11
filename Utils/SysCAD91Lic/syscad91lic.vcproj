@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="SysCAD91Lic"
-	ProjectGUID="{E9D95605-468F-4F4E-A368-DB1A5695A124}"
+	ProjectGUID="{19EB7266-EDF8-455b-8E82-54E0AF7C94BB}"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory=".\Rls"
+			IntermediateDirectory=".\Rls"
 			ConfigurationType="1"
 			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile=".\Release/SysCAD91Lic.pdb"
@@ -77,8 +77,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory=".\Dbg"
+			IntermediateDirectory=".\Dbg"
 			ConfigurationType="1"
 			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -102,7 +102,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\bin\SysCAD.exe"
+				OutputFile="..\..\Bin\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -126,6 +126,71 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				ResourceOutputFileName=".\SysCAD91Lic.res"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release_Dbg|Win32"
+			OutputDirectory=".\Rdb"
+			IntermediateDirectory=".\Rdb"
+			ConfigurationType="1"
+			UseOfMFC="1"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				OptimizeForProcessor="1"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Release/SysCAD91Lic.pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="..\..\Bin\SysCAD.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				ProgramDatabaseFile=".\Release/SysCAD91Lic.pdb"
+				SubSystem="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/SysCAD91Lic.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
 				ResourceOutputFileName=".\SysCAD91Lic.res"/>
 			<Tool
@@ -165,6 +230,13 @@
 						Optimization="0"
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_Dbg|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="StdAfx.cpp">
@@ -184,6 +256,14 @@
 						PreprocessorDefinitions=""
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_Dbg|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="SysCAD91Lic.cpp">
@@ -199,6 +279,13 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_Dbg|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>

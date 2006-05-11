@@ -961,9 +961,13 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
     else
       {
       S1 = LongPath;
-      //S1 = S1.Left(S1.Len()-10); //strip syscad.exe from end of string
-      S1.FnDrivePath();
+#if SYSCAD10
+      S1 = S1.Left(S1.Len()-16); //strip bin\syscad91.exe from end of string
+      //S1.FnDrivePath();
       S1 += "License91\\";
+#else
+      S1 = S1.Left(S1.Len()-12); //strip syscad.exe from end of string
+#endif
       }
     S = ScdPFMachine.RdStr(LicINISection, "LicenseLocation", S1());
     if (S.Len()<1)
