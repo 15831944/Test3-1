@@ -257,30 +257,39 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
 
 int CBlockEvaluator::DefBlkSeqNo(byte SeqID)
   {
+  int Seq=255;
+
   switch (SeqID)
     {
-    case BES_RB:    return m_pRB->Enabled() ? m_RBDefSeq : 255;
-    case BES_HX:    return m_pHX->Enabled() ? m_HXDefSeq : 255;
-    case BES_EHX:   return m_pEHX->Enabled() ? m_EHXDefSeq : 255;
-    case BES_VLE:   return m_pVLE->Enabled() ? m_VLEDefSeq : 255;
-    case BES_Evap:  return m_pEvap->Enabled() ? m_EvapDefSeq : 255;
+    case BES_RB:    if (m_pRB->Enabled()) Seq=m_RBDefSeq; break;
+    case BES_HX:    if (m_pHX->Enabled()) Seq=m_HXDefSeq; break;
+    case BES_EHX:   if (m_pEHX->Enabled()) Seq=m_EHXDefSeq; break;
+    case BES_VLE:   if (m_pVLE->Enabled()) Seq=m_VLEDefSeq; break;
+    case BES_Evap:  if (m_pEvap->Enabled()) Seq=m_EvapDefSeq; break;
     }
-  return 255;
+  
+  return Seq;
   }
 
 //-------------------------------------------------------------------------
 
 int CBlockEvaluator::BlkSeqNo(byte SeqID)
   {
+  int Seq=255;
+  
   switch (SeqID)
     {
-    case BES_RB:    return m_pRB->Enabled() ? m_pRB->BlockSeqNo() : 255;
-    case BES_HX:    return m_pHX->Enabled() ? m_pHX->BlockSeqNo() : 255;
-    case BES_EHX:   return m_pEHX->Enabled() ? m_pEHX->BlockSeqNo() : 255;
-    case BES_VLE:   return m_pVLE->Enabled() ? m_pVLE->BlockSeqNo() : 255;
-    case BES_Evap:  return m_pEvap->Enabled() ? m_pEvap->BlockSeqNo() : 255;
+    case BES_RB:    if (m_pRB->Enabled()) Seq=m_pRB->BlockSeqNo(); break;
+    case BES_HX:    if (m_pHX->Enabled()) Seq=m_pHX->BlockSeqNo(); break;
+    case BES_EHX:   if (m_pEHX->Enabled()) Seq=m_pEHX->BlockSeqNo(); break;
+    case BES_VLE:   if (m_pVLE->Enabled()) Seq=m_pVLE->BlockSeqNo(); break;
+    case BES_Evap:  if (m_pEvap->Enabled()) Seq=m_pEvap->BlockSeqNo(); break;
     }
-  return 255;
+
+  if (Seq==BlkEval_On) 
+    Seq=254;
+
+  return Seq;
   }
 
 //-------------------------------------------------------------------------
