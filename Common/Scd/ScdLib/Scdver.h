@@ -40,7 +40,7 @@
 #define WITHGRFDOCFRAME       1
 #define WITHAUTOVLE           1
 #define WITHGRFGROUP          1
-#define WITHGRFGROUPCONFIG    1
+#define WITHGRFGROUPCONFIG    0
 #define WITHBLOCKEVALUATOR    1
 
 //perhaps developing new functionality...
@@ -93,8 +93,8 @@
 
 #define SCD_VERINFO_Company       "Kenwalt\0"
 #define SCD_VERINFO_CompanyFull   "Kenwalt Pty Ltd\0"
-#define SCD_VERINFO_Copyright     "Copyright © 1995-2005\0"
-#define SCD_VERINFO_CopyrightFull "Copyright © Kenwalt 1995-2005\0"
+#define SCD_VERINFO_Copyright     "Copyright © 1995-2006\0"
+#define SCD_VERINFO_CopyrightFull "Copyright © Kenwalt 1995-2006\0"
 #define SCD_VERINFO_Legal         "-\0"
 #define SCD_VERINFO_Company2      "KWA Kenwalt\0"
 #define SCD_VERINFO_Company2Full  "KWA Kenwalt Australia Pty Ltd\0"

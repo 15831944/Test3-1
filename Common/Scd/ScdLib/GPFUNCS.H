@@ -1,7 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
 //===========================================================================
-
 #ifndef  __GPFUNCS_H
 #define  __GPFUNCS_H
 
@@ -22,6 +21,8 @@
 #include <afxmt.h>
 #include <afxtempl.h> // "xafxtempl.h"
 
+// ========================================================================
+// ========================================================================
 // Define allocation debugging line numbers
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC

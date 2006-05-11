@@ -66,7 +66,7 @@
 #include ".\opcsrvrwrapper.h"
 #include "scdver.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 #import "c:\program files\common files\system\ado\msado15.dll" rename("EOF", "adEOF") implementation_only
 #import "c:\Program Files\Common Files\system\ado\msadox.dll" implementation_only
@@ -957,15 +957,18 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
     Strng S,S1;
     char LongPath[_MAX_PATH];
     if (GetModuleFileName(NULL, LongPath, sizeof(LongPath))<1)
-      S1 = "c:\\Program Files\\SysCAD90License\\";
+      S1 = "c:\\Program Files\\SysCAD91License\\";
     else
       {
       S1 = LongPath;
-      S1 = S1.Left(S1.Len()-10); //strip syscad.exe from end of string
+      //S1 = S1.Left(S1.Len()-10); //strip syscad.exe from end of string
+      S1.FnDrivePath();
+      S1 += "License91\\";
       }
     S = ScdPFMachine.RdStr(LicINISection, "LicenseLocation", S1());
     if (S.Len()<1)
       S = S1;
+    ScdPFMachine.WrStr(LicINISection, "LicenseLocation", S());
     gs_License.SetAppPath(S());
     }
 

@@ -21,14 +21,14 @@
 
 // ----------------------------------------------------------------------
 
-const double PI               = 3.14159265358979;
-
 extern DllImportExport const double ZeroLimit;        //the numerical limit below which all numbers are considered to be zero
 extern DllImportExport const double UsableMass;
 extern DllImportExport const double TraceMass;
 extern DllImportExport const double SmallMassFrac;
 extern DllImportExport const double DisplayZeroLimit;
 
+// ----------------------------------------------------------------------
+//Useful test and functions:
 template <class T> T GTZ(const T x) { return (x > (T)ZeroLimit ? x : (T)ZeroLimit); };
 template <class T> T GEZ(const T x) { return (x > 0 ? x : (T)0); };
 template <class T> T LTZ(const T x) { return (x < (T)-ZeroLimit ? x : (T)-ZeroLimit); };
@@ -46,13 +46,10 @@ template <class T> T Sqr(const T x) { return (x * x); };
 template <class T> T Sqrt(const T x) { return sqrt(x); };
 template <class T> T Range(const T n, const T x, const T m) { return (x >= n) ? ((x <= m) ? x : m ) : n; };
 template <class T> bool InRange( const T a, const T b , const T c) { return (a<=b && b<=c); };
-
-// ----------------------------------------------------------------------
-
 template <class T> void Exchange(T&a, T&b) {T c=a; a=b; b=c;};
 
 // ----------------------------------------------------------------------
-
+//NAN functions:
 inline bool Valid(float a) { return !_isnan(a); };
 inline bool Valid(double a) { return !_isnan(a); };
 inline bool Finite(float a) { return _finite(a)!=0; };
@@ -156,9 +153,8 @@ inline double ClrNANFlagShft(long Index, double D=dNAN)
   };
 
 // ----------------------------------------------------------------------
+//'Safe' log, etc functions:
 
-inline double Rads2Degs(double a) { return a*57.2957795131; };
-inline double Degs2Rads(double a) { return a/57.2957795131; };
 inline double Exps(double a) { return (a < -230.0 ? exp(-230.0) : (a > 230.0 ? exp(230.0) : exp(a)));};
 inline double Lns(double a) { return (a < 1.0e-100 ? log(1.0e-100) : log(a)); };
 inline double Ln(double a) { return (a < 1.0e-100 ? log(1.0e-100) : log(a)); };
@@ -168,38 +164,45 @@ inline double Pow(double a, double b) { return (b == 0.0 ? 1.0 : (a == 0.0 ? 0.0
 
 // ----------------------------------------------------------------------
 
-#define DoBreak() { __debugbreak(); };//__asm { int 03h }; }
+#define DoBreak() { __debugbreak(); };
 #define BreakPoint() { int xxx=0; }
 
+// ----------------------------------------------------------------------
+//Useful constents:
+const double PI           =   3.14159265358979;
 const double Gc           =   9.81;
 const double Gc_Kpa       =   (9.81 * 0.001);
  //Universal Gas Constant =   8.314472  +/- 0.000015 J /mol, K
 //see: http://nvl.nist.gov/pub/nistpubs/sp958-lide/339-343.pdf  http://physics.nist.gov/cuu/Constants/index.html  http://www.codata.org/
 const double R_c          =   (8.314472  /* kPa, m^3/kg-mole, K */);
-const double ZeroCinK     =   273.16;
+const double ZeroCinK     =   273.16; //This should be 273.15 NEEDS changing in a future version!
 
+// ----------------------------------------------------------------------
+//Conversion factors:
 const double PSI_per_kPa  =   0.145038;
 const double GPM_per_m3s  =   (4.403*3600.0);
 const double kg_per_lb    =   0.4535924;
 const double m3_per_ft3   =   0.028316847;
 const double m_per_ft     =   0.3048;
 
-
-//inline double C2K(double t) { return t+273.16; };
-//inline double K2C(double t) { return t-273.16; };
-inline double C_2_K(double t) { return t+ZeroCinK; };
-inline double K_2_C(double t) { return t-ZeroCinK; };
+// ----------------------------------------------------------------------
+//Useful 'hardwired' conversions:
+inline double C_2_K(double t) { return t+ZeroCinK;};
+inline double K_2_C(double t) { return t-ZeroCinK;};
 inline double C_2_F(double t) { return 32.0+t*1.8;};
 inline double K_2_F(double t) { return C_2_F(K_2_C(t));};
 inline double F_2_C(double t) { return (t-32.0)/1.8;};
 inline double F_2_K(double t) { return C_2_K(F_2_C(t));};
 
-inline double C2K(double t) { return t+ZeroCinK; };
-inline double K2C(double t) { return t-ZeroCinK; };
+inline double C2K(double t) { return t+ZeroCinK;};
+inline double K2C(double t) { return t-ZeroCinK;};
 inline double C2F(double t) { return 32.0+t*1.8;};
 inline double K2F(double t) { return C2F(K2C(t));};
 inline double F2C(double t) { return (t-32.0)/1.8;};
 inline double F2K(double t) { return C2K(F2C(t));};
+
+inline double Rads2Degs(double a) { return a*57.2957795131; };
+inline double Degs2Rads(double a) { return a/57.2957795131; };
 
 inline double kPa_2_PSI(double t) { return t*PSI_per_kPa;};
 inline double PSI_2_kPa(double t) { return t/PSI_per_kPa;};
@@ -207,7 +210,7 @@ inline double PSI_2_kPa(double t) { return t/PSI_per_kPa;};
 inline double m3s_2_GPM(double t) { return t*GPM_per_m3s;};
 inline double GPM_2_m3s(double t) { return t/GPM_per_m3s;};
 
-inline double PSI_GPM_2_kPa_m3s(double t) {return t*GPM_per_m3s/PSI_per_kPa;};
+inline double PSI_GPM_2_kPa_m3s(double t) { return t*GPM_per_m3s/PSI_per_kPa;};
 
 inline double lb_2_kg(double t) { return t*kg_per_lb;};
 inline double kg_2_lb(double t) { return t/kg_per_lb;};
@@ -236,7 +239,7 @@ inline double um_2_ft(double E) { return E/(m_per_ft*1.0e6);};
 inline double ft_2_um(double E) { return E*(m_per_ft*1.0e6);};
 
 //===========================================================================
-// Atmospheric Conditions
+// Environment / Atmospheric Conditions
 
 #undef DllImportExport
 #if defined(__DATACNVS_CPP)
@@ -262,16 +265,13 @@ inline double NormTemp()   { return gs_NormTemp;  };
 #define NormP          NormPress()
 #define NormT          NormTemp()
 
-//===========================================================================
-// Atmospheric Conditions
-
 extern DllImportExport double gs_BaseElevation;
 extern DllImportExport double gs_AmbientTemp;
 extern DllImportExport double gs_WindSpeed;
 extern DllImportExport double gs_WindDirection;
 extern DllImportExport double gs_RelHumidity;
 
-inline double BaseElevation()   { return gs_BaseElevation;      };
+inline double BaseElevation()   { return gs_BaseElevation;  };
 inline double WindSpeed()       { return gs_WindSpeed;      };
 inline double WindDirection()   { return gs_WindDirection;  };
 inline double RelHumidity()     { return gs_RelHumidity;    };
@@ -281,12 +281,15 @@ extern DllImportExport double AtmosPress(double RelElevation=0.0);
 extern DllImportExport double AtmosDensity(double RelElevation=0.0);
 
 #undef DllImportExport
+
 //===========================================================================
 
 typedef short CCnvIndex;
 
-//---------------------------------------------------------------------------
+//===========================================================================
+//Exceptions...
 
+//SMDK Exception:
 class MMdlException
   {
   protected:
@@ -309,6 +312,7 @@ class MMdlException
 
 //---------------------------------------------------------------------------
 
+//System Exception:
 class MSysException
   {
   private:
@@ -327,7 +331,6 @@ class MSysException
       {
       }
 
-
     unsigned int getCode()        { return m_nCode; };
     unsigned int getAddress()     { return m_nAdd;  };
     LPCTSTR      getName()        { return m_sName; };
@@ -343,6 +346,7 @@ class MSysException
 
 #if !_MANAGED
 
+//Floating Point Processor Exception:
 class MFPPException : public MSysException
   {
   public:
@@ -386,8 +390,7 @@ const DWORD TBF_BothSys       = (TBF_Both|TBF_Sys);
 
 const DWORD TBF_LocalOnly     = 0x00100000;
 
-//---------------------------------------------------------------------------
-
+// ==========================================================================
 #undef DllImportExport
 #if defined(__GPFUNCS_CPP)
 #define DllImportExport __declspec(dllexport)
@@ -397,24 +400,9 @@ const DWORD TBF_LocalOnly     = 0x00100000;
 #define DllImportExport
 #endif
 
-#define SCD_BUILDNO      1000                  /* Build number*/
-#define SCD_BUILDDATE    "7 April 2006"        /* Build release date*/
-#define SCD_VERINFO_V0   9                     /* Major Version */
-#define SCD_VERINFO_V1   0                     /* Minor Version */
-#define SCD_VERINFO_V2   4                     /* Incompatible Version, ie check these numbers match in DLLs*/
-#define SCD_VERINFO_V3   SCD_BUILDNO           /* Compatible Version - should change every time a version is issued*/
-
-#ifdef _DEBUG
-  #define _MAKENAME "Debug"
-#elif  _RELEASE
-  #define _MAKENAME "Release"
-#else
-  #define _MAKENAME "Dbg_Release"
-#endif
-
 extern bool DllImportExport MakeVersionOK(LPCTSTR FileName, LPCTSTR MakeName, WORD V0, WORD V1, WORD V2, WORD V3, bool DoMsg=true);
 
-#define DoBreak() { __debugbreak(); };//__asm { int 03h }; }
+#define DoBreak() { __debugbreak(); };
 
 DllImportExport void DoAssert1(char * pMsg);
 
@@ -433,7 +421,26 @@ DllImportExport void DoAssert1(char * pMsg);
 #define INCOMPLETECODE()     { char Buff[2000]; sprintf(Buff, "INCOMPLETECODE\n\n%s[%i]", __FILE__, __LINE__); DoAssert1(Buff); DoBreak() ; }
 #define INCOMPLETECODE1(Msg) { char Buff[2000]; sprintf(Buff, "%s\n\n%s[%i]", Msg, __FILE__, __LINE__); DoAssert1(Buff); DoBreak() ; }
 
-// ==========================================================================
+// ========================================================================
+// ========================================================================
+
+#define SCD_BUILDNO      116                  /* Build number*/
+#define SCD_BUILDDATE    "11 May 2006"        /* Build release date*/
+#define SCD_VERINFO_V0   9                     /* Major Version */
+#define SCD_VERINFO_V1   1                     /* Minor Version */
+#define SCD_VERINFO_V2   4                     /* Incompatible Version, ie check these numbers match in DLLs*/
+#define SCD_VERINFO_V3   SCD_BUILDNO           /* Compatible Version - should change every time a version is issued*/
+
+#ifdef _DEBUG
+  #define _MAKENAME "Debug"
+#elif  _RELEASE
+  #define _MAKENAME "Release"
+#else
+  #define _MAKENAME "Dbg_Release"
+#endif
+
+// ========================================================================
+// ========================================================================
 
 #undef DllImportExport
 
