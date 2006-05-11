@@ -582,7 +582,7 @@ class DllImportExport Project : public CExecObj
     SFEFlwLib      m_FlwLib, *pFlwLib;
     SFEMdlLibArray MdlLibs;
 
-#if SYSCAD10
+#if CREATENETSERVER
     CNETServer   * m_pCLRSrvr;
 #endif
   public:

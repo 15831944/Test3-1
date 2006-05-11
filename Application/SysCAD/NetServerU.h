@@ -2,6 +2,10 @@
 
 //========================================================================
 
+#if CREATENETSERVER
+
+//========================================================================
+
 class CGrfTagInfo;
 class CLinePointsArray;
 class CNSMdlNode;
@@ -155,5 +159,9 @@ class CNETServerU
     //CMap  <CNSMdlNode*, CNSMdlNode*, LPCTSTR*, LPCTSTR*> m_MdlTagMap;
     //CMap  <CNSMdlNode*, CNSMdlNode*, LPCTSTR*, LPCTSTR*> m_MdlGuidMap;
   };
+
+//========================================================================
+
+#endif
 
 //========================================================================

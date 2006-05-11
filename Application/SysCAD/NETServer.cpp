@@ -1,26 +1,15 @@
-//#include "stdafxclr.h"
 #include <afxwin.h>         // MFC core and standard components
-//#include <afxext.h>         // MFC extensions
-//#include <afxdisp.h>        // MFC Automation classes
-//#include <afxdtctl.h>		// MFC support for Internet Explorer 4 Common Controls
-
-
-//#include <afxcmn.h>         // MFC extensions
-//#include <afxdlgs.h>         // MFC extensions
-//#include <afxext.h>         // MFC extensions
-//#include <afxole.h>         // MFC extensions
-//#include <afxdisp.h>        // MFC Automation classes
-//#include <afxdtctl.h>		// MFC support for Internet Explorer 4 Common Controls
-
-//#include "..\..\common\scd\scdlib\sc_defs.h"
-//#include "..\..\smdk\include\scdif.h"
 #include "..\..\common\scd\scdlib\gpfuncs.h"
-//#include ".\grfdoc\grfdoc.h"
 #include "errorlog.h"
 
 #include "NETServer.h"
 #include "NETServerU.h"
 
+//========================================================================
+
+#if CREATENETSERVER
+
+//========================================================================
 
 using namespace System;
 using namespace System::IO;
@@ -277,3 +266,8 @@ void CNETServer::Shutdown()
   LogNote("CNETServer", 0, "Shutdown");
   };
 
+//========================================================================
+
+#endif
+
+//========================================================================
