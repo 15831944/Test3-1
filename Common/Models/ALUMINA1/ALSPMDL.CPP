@@ -445,7 +445,6 @@ void SMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
   //DDB.Double("TOOC@T",        "",   DC_Conc,  "g/L",     xidSlurryTOOC,          this,  isResult|noFile|noSnap|InitHidden);
   DDB.Double("TOC@T",         "",   DC_Conc,  "g/L",     xidSlurryTOC,           this,  isResult|noFile|noSnap|InitHidden);
   DDB.Double("SolidsConcT",   "",   DC_Conc,  "g/L",     xidSlurrySolidsConc,    this,  isResult|noFile);
-  DDB.Double("BoilPtElev",    "",   DC_dT,    "C",       xidBayerBPE,            this,  isResult|noFile);
   
   DDB.Text("");
   DDB.Text("Bayer Liquor Precipitation Values @ Temp");
@@ -457,8 +456,10 @@ void SMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
   DDB.Double("OxalateEq",     "",     DC_Conc,  "g/L",   xidOxalateEquilibrium,  this,  isResult|noFile|noSnap|InitHidden);
 
   DDB.Text("");
-  DDB.Text("Bayer Liquor Cps @ Temp");
-  DDB.Double("H2O.Cp",        "", DC_CpMs,  "kJ/kg.C",   xidAlSpMdlH2OCp,         this,  isResult|noFile|noSnap);
+  DDB.Text("Other");
+  DDB.Double("BoilPtElev",    "",   DC_dT,    "C",       xidBayerBPE,            this,  isResult|noFile);
+  //DDB.Text("Bayer Liquor Cps @ Temp");
+  DDB.Double("H2O.Cp@T",        "", DC_CpMs,  "kJ/kg.C",   xidAlSpMdlH2OCp,         this,  isResult|noFile|noSnap|InitHidden);
 
   }
 
@@ -495,7 +496,7 @@ flag SMBayer::DataXchg(DataChangeBlk & DCB)
     case xidSlurrySolidsConc:      DCB.D=SolidsConc(Temp()); return 1;
     case xidSlurrySolidsConc25:    DCB.D=SolidsConc(C_2_K(25.0)); return 1;
     case xidSlurryFreeCaustic25:   DCB.D=FreeCaustic(C_2_K(25.0)); return 1;
-    case xidBayerBPE:              DCB.D=BoilPtElev(Temp()); return 1;
+    case xidBayerBPE:              DCB.D=BoilingPtElevation(Press()); return 1;//BoilPtElev(Temp()); return 1;WRONG
 
     case xidOrganateConc25:        DCB.D=OrganateConc(); return 1;
     case xidTotalOrgConc25:        DCB.D=TotalOrganics(); return 1;
@@ -526,8 +527,6 @@ flag SMBayer::DataXchg(DataChangeBlk & DCB)
       Mxx.SetVMass(Water.LiqPhInx(), Mxx, MWater*0.999);
       DCB.D -= totHs(som_ALL, Temp(), Press(), &Mxx);
       DCB.D /= GTZ(K2C(Temp())*MWater*0.001);
-
-
       return 1;
       }
     //toc = (OrConc*5 + OxConc*2) *12/106

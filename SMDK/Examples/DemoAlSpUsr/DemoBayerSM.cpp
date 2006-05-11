@@ -482,7 +482,7 @@ double CDemoBayerSM::get_SaturationP(double T, MArray *pMA)
 //---------------------------------------------------------------------------
 
 double CDemoBayerSM::BoilPtElev(MArray & MA, double T)
-  {
+  {//parameter T is the PureWaterSaturation temperature at the given pressure
   double TLiq=MA.Mass(MP_Liq); // Total Liquid kg/s
   
   SMFnRanges.SetInRange(eSpFn_BPE, true);
@@ -664,13 +664,16 @@ enum {
 
  idSeparator5				       ,	
 
- idBoilPtElev				       ,
  idAluminaConcSat			     ,
  idAtoCSaturation			     ,
  idSSNRatio				         ,
+ idOxalateEquilibrium	     ,
+
+ idSeparator6				       ,	
+
+ idBoilPtElev				       ,
  idTHAMassFlow   			     ,
  idTHADens				         ,
- idOxalateEquilibrium	     ,
 
   idMPI_EndOfProps		   
   };
@@ -774,14 +777,18 @@ long CDemoBayerSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
     case idSeparator5			  : Info.SetText("..."); return Inx;
 
-    case idBoilPtElev			  : Info.SetText("--Other Bayer Liquor Properties @ T-------");
-                              Info.Set(ePT_Double,    "", "BoilPtElev",               MC_dT,   "C",      0,      0,  MP_Result|MP_NoFiling, "Boiling Point Elevation"); return Inx;
-    case idAluminaConcSat		: Info.Set(ePT_Double,    "", "AluminaSatConc",           MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation Concentration @ T"); return Inx;
+    case idAluminaConcSat		: Info.SetText("--Other Bayer Liquor Properties @ T-------");
+                              Info.Set(ePT_Double,    "", "AluminaSatConc",           MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation Concentration @ T"); return Inx;
     case idAtoCSaturation		: Info.Set(ePT_Double,    "", "ASat_To_C",                MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation to Caustic ratio @ T"); return Inx;
     case idSSNRatio				  : Info.Set(ePT_Double,    "", "SSNRatio",                 MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "A/C actual to ASat/C ratio @ T"); return Inx;
+    case idOxalateEquilibrium	: Info.Set(ePT_Double,  "", "OxalateEquilibrium",       MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Oxalate Equilibrium Concentration @ T"); return Inx;
+
+    case idSeparator6			  : Info.SetText("..."); return Inx;
+
+    case idBoilPtElev			  : Info.SetText("--Other-------");
+                              Info.Set(ePT_Double,    "", "BoilPtElev",               MC_dT,   "C",      0,      0,  MP_Result|MP_NoFiling, "Boiling Point Elevation"); return Inx;
     case idTHAMassFlow   		: Info.Set(ePT_Double,    "", "THAMassFlow",              MC_Qm,   "kg/s",   0,      0,  MP_Result|MP_NoFiling, "THA flow rate"); return Inx;
     case idTHADens				  : Info.Set(ePT_Double,    "", "THADens",                  MC_Rho,  "kg/m^3", 0,      0,  MP_Result|MP_NoFiling, "THA Density"); return Inx;
-    case idOxalateEquilibrium	: Info.Set(ePT_Double,  "", "OxalateEquilibrium",       MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Oxalate Equilibrium Concentration @ T"); return Inx;
 
     case idMPI_EndOfProps		: return MPI_EndOfProps;    
 
@@ -873,7 +880,6 @@ void CDemoBayerSM::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T
     case idNa2SO4toC			  : Value=Na2SO4toC();                        return; 
     case idNa2CO3toS			  : Value=Na2CO3toS();                        return; 
 
-    case idBoilPtElev			  : Value=BoilPtElev(MArray(this), T);        return; 
     case idLVolume25			  : Value=LVolume25();                        return; 
     case idSLVolume25			  : Value=SLVolume25();                       return; 
     case idOrganateConc25		: Value=OrganateConc25();                   return; 
@@ -887,6 +893,7 @@ void CDemoBayerSM::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T
     case idOxalateEquilibrium	: Value=OxalateEquilibrium(T);            return; 
     case idAtoCSaturation		: Value=AtoCSaturation(T);                  return; 
     case idSSNRatio				  : Value=SSNRatio(T);                        return; 
+    case idBoilPtElev			  : Value=getBoilingPtElevation(P, NULL);     return;//BoilPtElev(MArray(this), T);        return; 
 
     case idLDensity25			  : Value=LDensity25();                       return; 
     case idSLDensity25			: Value=SLDensity25();                      return; 

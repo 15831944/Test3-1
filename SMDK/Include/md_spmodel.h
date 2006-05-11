@@ -130,6 +130,8 @@ class DllImportExport MSpModelBase : public MSubConstructBase
     double          getTemperature();              
     MSMFnRanges   & getSMFnRanges();
 
+    double          getBoilingPtElevation(double P, MArray * pMA);
+
     
     __declspec(property(get=getM,put=putM))       double        M[];
     __declspec(property(get=getMl,put=putMl))     double        Ml[];

@@ -113,8 +113,8 @@ class CDemoBayerSM : public MSpModelBase, public MIBayer
     //Other properties
     double          LVolume25();
     double          SLVolume25();
-    double			LDensity25();
-    double			SLDensity25();
+    double			    LDensity25();
+    double			    SLDensity25();
     double          TotalSodiumConc25();
     double          TotalSodium();
     double          AtoCSaturation(double T_);
@@ -125,8 +125,8 @@ class CDemoBayerSM : public MSpModelBase, public MIBayer
     double          TotalOrganicsConc25();
     double          ChlorineConc25();
     double          SulphateConc25();
-	double			TOC25();
-	double			SolidsConc25();
+    double			    TOC25();
+    double			    SolidsConc25();
 
   };
 

@@ -46,6 +46,8 @@ class DllImportExport FlashTank : public MN_Surge
     int            m_nRmtScl;
     double         dTempIn;
     double         dBPEIn;
+    double         dBPE;
+    double         dWaterSatT;
     
     CFT_Flash      m_FTF;
     SpConduit      CWrk;

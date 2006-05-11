@@ -201,12 +201,19 @@ double MSpModelBase::get_SaturationP(double T, MArray * pMA)                    
 double MSpModelBase::get_DynamicViscosity(long Phases, double T, double P, MArray * pMA)    { return m_pSpMdlX->SpModel::DynamicViscosity(Phases, T, P, pMA?(CSysVector*)(*pMA):NULL); };
 double MSpModelBase::get_ThermalConductivity(long Phases, double T, double P, MArray * pMA) { return m_pSpMdlX->SpModel::ThermalConductivity(Phases, T, P, pMA?(CSysVector*)(*pMA):NULL); };
 
+
 //double MSpModelBase::BoilPtElev(double T_, double MassL)
 //  {
 //  _asm int 3;
 //  return -1;//m_pSpMdlX->SpModelEx::);
 //  };
 //
+double MSpModelBase::getBoilingPtElevation(double P, MArray * pMA)
+  {
+  //return m_pSpMdlX->SpModel::SaturationT(P, pMA?(CSysVector*)(*pMA):NULL) - m_pSpMdlX->SpModel::PureSaturationT(P, pMA?(CSysVector*)(*pMA):NULL);
+  return get_SaturationT(P, pMA) - m_pSpMdlX->SpModel::PureSaturationT(P, pMA?(CSysVector*)(*pMA):NULL);
+  };
+
 double MSpModelBase::DensityMix(double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, MArray & M)
   {
   return SDB.RhoMix(m_pSpMdlX->Fidelity(), FSol, Ds, FLiq, Dl, FVap, Dv, T_, P_, &m_pSpMdlX->m_Ovr, &M[0]);

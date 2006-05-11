@@ -214,6 +214,8 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
   dTempIn=Std_T;
   dBPEIn=0.0;
+  dBPE=0.0;
+  dWaterSatT=Std_T;
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(FlashTank), ioidFT_Vap, mmio_MODEL, &typeid(CFT_Flash));
   };
@@ -263,6 +265,9 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("Results");
   DDB.Double  ("TemperatureIn",   "Ti",  DC_T,    "C",     &dTempIn,           this, isResult|noFile|noSnap);
   DDB.Double  ("BoilPtElevIn",  "BPEIn", DC_dT,   "C",     &dBPEIn,            this, isResult|noFile|noSnap);
+  DDB.Double  ("BoilPtElev", "BPE",      DC_dT,   "C",     &dBPE,              this, isResult|noFile|noSnap);
+  DDB.Double  ("",  "WaterSatT",         DC_T,    "C",     &dWaterSatT,        this, isResult|noFile|noSnap|InitHidden);
+
   m_FTF.BuildDataDefn(DDB);
 
   DDB.Visibility(SM_Buffered|HM_All);
@@ -616,6 +621,8 @@ void FlashTank::EvalProducts(long JoinMask)
           Qv.QSetF(Ql, som_ALL, 0.0, PIn);
           m_FTF.m_dQVap=0.0;
           }
+        dWaterSatT = Ql.PureSaturationT(m_FTF.m_dFlashP);
+        dBPE = Ql.BoilingPtElevation(m_FTF.m_dFlashP);
 
 #if WITHOTHERVAPSPLIT
         //AFTER doing all the VLE work, if required, move "extra" vapours to vapour stream
