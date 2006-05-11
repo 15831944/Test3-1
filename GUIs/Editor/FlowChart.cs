@@ -516,8 +516,14 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
+      Box modelBox = (e.Box.Tag as Item).Model;
+      Box textBox = (e.Box.Tag as Item).Text;
 
-      //fcFlowChart_BoxModifying(sender, e);
+      int x1 = (int)((textBox.BoundingRect.Left - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width*100.0);
+      int y1 = (int)((textBox.BoundingRect.Top - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
+      int x2 = (int)((textBox.BoundingRect.Right - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width * 100.0);
+      int y2 = (int)((textBox.BoundingRect.Bottom - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
+      textBox.AttachTo(modelBox, x1, y1, x2, y2);
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)
