@@ -54,12 +54,20 @@ namespace SysCAD.Interface
     private bool mirrorY = false;
     public System.Drawing.Color fillColor;
 
+    [CategoryAttribute("Model"),
+     DescriptionAttribute("Guid of the item."),
+     ReadOnlyAttribute(true),
+     DisplayName("Guid")]
     public Guid Guid
       {
       get { return guid; }
       set { guid = value; }
       }
 
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Area path of the item."),
+     ReadOnlyAttribute(true),
+    DisplayName("Area Path")]
     public String Path
       {
       get { return path; }
@@ -122,6 +130,10 @@ namespace SysCAD.Interface
       set { height = value; }
       }
 
+    [CategoryAttribute("Graphic"),
+    DescriptionAttribute("Bounding rectangle of the item."),
+    ReadOnlyAttribute(true),
+   DisplayName("Bounding Rect")]
     public RectangleF BoundingRect
       {
       get { return new RectangleF(x, y, width, height); }

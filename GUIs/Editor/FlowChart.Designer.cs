@@ -53,7 +53,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.AutoSizeDoc = MindFusion.FlowChartX.AutoSize.AllDirections;
       this.fcFlowChart.Behavior = MindFusion.FlowChartX.BehaviorType.Modify;
       this.fcFlowChart.BoxCustomDraw = MindFusion.FlowChartX.CustomDraw.Additional2;
-      this.fcFlowChart.BoxHandlesStyle = MindFusion.FlowChartX.HandlesStyle.HatchHandles2;
+      this.fcFlowChart.BoxHandlesStyle = MindFusion.FlowChartX.HandlesStyle.EasyMove;
       this.fcFlowChart.BoxStyle = MindFusion.FlowChartX.BoxStyle.Shape;
       this.fcFlowChart.DefaultControlType = typeof(System.Windows.Forms.Button);
       this.fcFlowChart.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("fcFlowChart.DocExtents")));

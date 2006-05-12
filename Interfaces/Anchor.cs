@@ -8,6 +8,7 @@ namespace SysCAD.Interface
   public class Anchor
 	{
     public string tag;
+    public string type; // Electrical, Control, or Process
     public PointF position;
     public uint minIn = 0;
     public uint maxIn = 0;
@@ -18,7 +19,7 @@ namespace SysCAD.Interface
     {
     }
 
-    public Anchor(string tag, PointF position, uint minIn, uint maxIn, uint minOut, uint maxOut)
+    public Anchor(string tag, string type, PointF position, uint minIn, uint maxIn, uint minOut, uint maxOut)
     {
       this.position = position;
       this.minIn = minIn;
@@ -27,7 +28,7 @@ namespace SysCAD.Interface
       this.maxOut = maxOut;
     }
 
-    public Anchor(string tag, float X, float Y, uint minIn, uint maxIn, uint minOut, uint maxOut)
+    public Anchor(string tag, string type, float X, float Y, uint minIn, uint maxIn, uint minOut, uint maxOut)
     {
       this.position = new PointF(X, Y);
       this.minIn = minIn;

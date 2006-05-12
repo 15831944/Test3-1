@@ -922,7 +922,7 @@ namespace SysCAD.Editor
         frmFlowChart.state.SetWidth(graphicItem.Guid, width);
       }
 
-      if (label == "Left")
+      if (label == "X")
       {
         float x = (float)e.ChangedItem.Value;
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
@@ -931,7 +931,7 @@ namespace SysCAD.Editor
         frmFlowChart.state.SetX(graphicItem.Guid, x);
       }
 
-      if (label == "Right")
+      if (label == "Y")
       {
         float y = (float)e.ChangedItem.Value;
         GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);

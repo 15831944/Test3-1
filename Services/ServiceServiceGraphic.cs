@@ -36,5 +36,10 @@ namespace SysCAD.Interface
 
       return true;
     }
+
+    public override Object InitializeLifetimeService()
+    {
+      return null;
+    }
   }
 }

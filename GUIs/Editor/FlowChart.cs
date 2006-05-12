@@ -535,21 +535,24 @@ namespace SysCAD.Editor
         graphicItem.Model,
         graphicItem.Shape,
         modelBox.BoundingRect,
-        graphicItem.Angle,
+        modelBox.RotationAngle,
         graphicItem.fillColor,
         graphicItem.MirrorX,
         graphicItem.MirrorY))
       { // failure, revert back to previous.
         modelBox.BoundingRect = graphicItem.BoundingRect;
+        modelBox.RotationAngle = graphicItem.Angle;
       }
+
+      form1.propertyGrid1.Refresh();
 
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)
     {
-      //Box graphicBox = (e.Box.Tag as Item).Graphic;
+      Box graphicBox = (e.Box.Tag as Item).Graphic;
       //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
-      //graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
+      graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
     }
 
     public GraphicItem NewGraphicItem(GraphicItem graphicItem, string path)

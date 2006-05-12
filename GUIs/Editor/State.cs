@@ -571,7 +571,7 @@ namespace SysCAD.Editor
 
     internal string CurrentPath
     {
-      get { return tvNavigation.SelectedNode.Key; }
+      get { return tvNavigation.SelectedNode.FullPath; }
     }
 
 
@@ -596,7 +596,7 @@ namespace SysCAD.Editor
     {
       Guid guid = Guid.NewGuid();
       GraphicItem graphicItem = new GraphicItem(guid, tag);
-      tvNavigation.GetNodeByKey(area).Nodes.Add(tag, guid.ToString());
+      tvNavigation.GetNodeByPath(area).Nodes.Add(tag, guid.ToString());
       return NewGraphicItem(guid, area, graphicItem);
     }
 
