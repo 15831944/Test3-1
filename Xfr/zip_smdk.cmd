@@ -14,7 +14,7 @@ if .%1 == . goto blankname
 @echo on
 set foldr=SMDK_%1
 md %foldr%
-set fn=_xfr\%foldr%\SMDK_%1
+set fn=xfr\%foldr%\SMDK_%1
 
 goto continue
 
@@ -29,7 +29,7 @@ rem pause
 @echo on
 set foldr=SMDK
 md %foldr%
-set fn=_xfr\%foldr%\SMDK
+set fn=xfr\%foldr%\SMDK
 
 :continue 
 
