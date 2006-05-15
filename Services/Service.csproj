@@ -12,6 +12,7 @@
     <AssemblyName>Service</AssemblyName>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
+    <ApplicationIcon>Logo32.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,5 +59,8 @@
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>Interface</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Logo32.ico" />
   </ItemGroup>
 </Project>

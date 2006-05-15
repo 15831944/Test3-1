@@ -391,7 +391,6 @@ namespace StencilEditor
           MenuItem anchorMenu = new MenuItem("Anchor Points...");
           anchorMenu.MenuItems.Add(new MenuItem("Insert &In", new EventHandler(InsertAnchorPointIn)));
           anchorMenu.MenuItems.Add(new MenuItem("Insert &Out", new EventHandler(InsertAnchorPointOut)));
-          anchorMenu.MenuItems.Add(new MenuItem("Insert &In/Out", new EventHandler(InsertAnchorPointInOut)));
           if ((contextBox != null)&&(anchorPointList.ContainsKey(contextBox)))
           {
             anchorMenu.MenuItems.Add(new MenuItem("&Remove", new EventHandler(RemoveAnchorPoint)));
@@ -467,7 +466,7 @@ namespace StencilEditor
       newBox.Shape = ShapeTemplate.FromId("Or");
       newBox.CustomDraw = CustomDraw.ShadowOnly;
       newBox.FillColor = Color.Blue;
-      anchorPointList.Add(newBox, new Anchor("", new PointF(0.0F, 0.0F), 1, 1, 0, 0));
+      anchorPointList.Add(newBox, new Anchor("", AnchorType.Process, SysCAD.Interface.AnchorDirection.In, new PointF(0.0F, 0.0F), 0, 1));
       flowChart1.Selection.Clear();
       flowChart1.Selection.AddObject(newBox);
       toolStripTextBox1.Focus();
@@ -482,22 +481,7 @@ namespace StencilEditor
       newBox.Shape = ShapeTemplate.FromId("Or");
       newBox.CustomDraw = CustomDraw.ShadowOnly;
       newBox.FillColor = Color.Green;
-      anchorPointList.Add(newBox, new Anchor("", new PointF(0.0F, 0.0F), 0, 0, 1, 1));
-      flowChart1.Selection.Clear();
-      flowChart1.Selection.AddObject(newBox);
-      toolStripTextBox1.Focus();
-      SetShape();
-    }
-
-    public void InsertAnchorPointInOut(object sender, EventArgs e)
-    {
-      Box newBox = flowChart1.CreateBox(20.0F, 20.0F, gridSize * 2.0F, gridSize * 2.0F);
-      newBox.HandlesStyle = HandlesStyle.MoveOnly;
-      newBox.Style = BoxStyle.Shape;
-      newBox.Shape = ShapeTemplate.FromId("Or");
-      newBox.CustomDraw = CustomDraw.ShadowOnly;
-      newBox.FillColor = Color.Yellow;
-      anchorPointList.Add(newBox, new Anchor("", new PointF(0.0F, 0.0F), 1, 1, 1, 1));
+      anchorPointList.Add(newBox, new Anchor("", AnchorType.Process, SysCAD.Interface.AnchorDirection.Out, new PointF(0.0F, 0.0F), 0, 1));
       flowChart1.Selection.Clear();
       flowChart1.Selection.AddObject(newBox);
       toolStripTextBox1.Focus();
@@ -611,10 +595,8 @@ namespace StencilEditor
             if (anchorPointList.TryGetValue(box, out anchor))
             {
               toolStripTextBox1.Text = anchor.tag;
-              toolStripTextBox2.Text = anchor.minIn.ToString();
-              toolStripTextBox3.Text = anchor.maxIn.ToString();
-              toolStripTextBox4.Text = anchor.minOut.ToString();
-              toolStripTextBox5.Text = anchor.maxOut.ToString();
+              toolStripTextBox2.Text = anchor.min.ToString();
+              toolStripTextBox3.Text = anchor.max.ToString();
               toolStrip4.Enabled = true;
               contextBox = box;
             }
@@ -819,12 +801,10 @@ namespace StencilEditor
             newBox.Style = BoxStyle.Shape;
             newBox.Shape = ShapeTemplate.FromId("Or");
             newBox.CustomDraw = CustomDraw.ShadowOnly;
-            if ((anchor.maxIn > 0) && (anchor.maxOut == 0))
+            if (anchor.direction == SysCAD.Interface.AnchorDirection.In)
               newBox.FillColor = Color.Blue;
-            else if ((anchor.maxIn == 0) && (anchor.maxOut > 0))
+            else
               newBox.FillColor = Color.Green;
-            else if ((anchor.maxIn > 0) && (anchor.maxOut > 0))
-              newBox.FillColor = Color.Yellow;
             anchorPointList.Add(newBox, new Anchor());
             SetShape();
           }
@@ -1216,36 +1196,18 @@ namespace StencilEditor
 
     private void toolStripTextBox2_Validating(object sender, CancelEventArgs e)
     {
-      uint minIn;
-      if (uint.TryParse((sender as ToolStripTextBox).Text, out minIn))
-        anchorPointList[contextBox].minIn = minIn;
+      uint min;
+      if (uint.TryParse((sender as ToolStripTextBox).Text, out min))
+        anchorPointList[contextBox].min = min;
       else
         e.Cancel = true;
     }
 
     private void toolStripTextBox3_Validating(object sender, CancelEventArgs e)
     {
-      uint maxIn;
-      if (uint.TryParse((sender as ToolStripTextBox).Text, out maxIn))
-        anchorPointList[contextBox].maxIn = maxIn;
-      else
-        e.Cancel = true;
-    }
-
-    private void toolStripTextBox4_Validating(object sender, CancelEventArgs e)
-    {
-      uint minOut;
-      if (uint.TryParse((sender as ToolStripTextBox).Text, out minOut))
-        anchorPointList[contextBox].minOut = minOut;
-      else
-        e.Cancel = true;
-    }
-
-    private void toolStripTextBox5_Validating(object sender, CancelEventArgs e)
-    {
-      uint maxOut;
-      if (uint.TryParse((sender as ToolStripTextBox).Text, out maxOut))
-        anchorPointList[contextBox].maxOut = maxOut;
+      uint max;
+      if (uint.TryParse((sender as ToolStripTextBox).Text, out max))
+        anchorPointList[contextBox].max = max;
       else
         e.Cancel = true;
     }

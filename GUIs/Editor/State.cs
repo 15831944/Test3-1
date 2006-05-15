@@ -269,6 +269,7 @@ namespace SysCAD.Editor
 
     internal void newItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
+      flowchart.SuspendLayout();
       Box modelBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       Box graphicBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       Box textBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
@@ -289,8 +290,10 @@ namespace SysCAD.Editor
         {
           foreach (Anchor anchor in stencil.Anchors)
           {
-            anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y,
-              (anchor.maxIn > 0), (anchor.maxOut > 0), MarkStyle.Circle, Color.Blue));
+            if (anchor.direction == AnchorDirection.In)
+              anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, (anchor.max > 0), false, MarkStyle.Circle, Color.Blue));
+            else
+              anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, false, (anchor.max > 0), MarkStyle.Circle, Color.Green));
           }
           modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
         }
@@ -331,6 +334,7 @@ namespace SysCAD.Editor
       textBox.Tag = item;
 
       items.Add(item.Guid, item);
+      flowchart.ResumeLayout();
     }
 
     internal void ItemVisible(Guid guid, bool visible)
@@ -516,8 +520,9 @@ namespace SysCAD.Editor
 
     internal GraphicItem GraphicItem(Box box)
     {
-      GraphicItem graphicItem;
-      graphic.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
+      GraphicItem graphicItem = null;
+      if (box.Tag != null)
+        graphic.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
       return graphicItem;
     }
 

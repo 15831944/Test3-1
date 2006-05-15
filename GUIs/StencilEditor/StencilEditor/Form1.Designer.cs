@@ -66,10 +66,6 @@ namespace StencilEditor
       this.toolStripTextBox2 = new System.Windows.Forms.ToolStripTextBox();
       this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
       this.toolStripTextBox3 = new System.Windows.Forms.ToolStripTextBox();
-      this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripTextBox4 = new System.Windows.Forms.ToolStripTextBox();
-      this.toolStripLabel5 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripTextBox5 = new System.Windows.Forms.ToolStripTextBox();
       this.ruler1 = new MindFusion.FlowChartX.Ruler();
       this.toolStripContainer1.ContentPanel.SuspendLayout();
       this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -409,11 +405,7 @@ namespace StencilEditor
             this.toolStripLabel2,
             this.toolStripTextBox2,
             this.toolStripLabel3,
-            this.toolStripTextBox3,
-            this.toolStripLabel4,
-            this.toolStripTextBox4,
-            this.toolStripLabel5,
-            this.toolStripTextBox5});
+            this.toolStripTextBox3});
       this.toolStrip4.Location = new System.Drawing.Point(3, 75);
       this.toolStrip4.Name = "toolStrip4";
       this.toolStrip4.Size = new System.Drawing.Size(920, 25);
@@ -466,30 +458,6 @@ namespace StencilEditor
       this.toolStripTextBox3.Name = "toolStripTextBox3";
       this.toolStripTextBox3.Size = new System.Drawing.Size(100, 25);
       this.toolStripTextBox3.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox3_Validating);
-      // 
-      // toolStripLabel4
-      // 
-      this.toolStripLabel4.Name = "toolStripLabel4";
-      this.toolStripLabel4.Size = new System.Drawing.Size(77, 22);
-      this.toolStripLabel4.Text = "Min Outgoing: ";
-      // 
-      // toolStripTextBox4
-      // 
-      this.toolStripTextBox4.Name = "toolStripTextBox4";
-      this.toolStripTextBox4.Size = new System.Drawing.Size(100, 25);
-      this.toolStripTextBox4.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox4_Validating);
-      // 
-      // toolStripLabel5
-      // 
-      this.toolStripLabel5.Name = "toolStripLabel5";
-      this.toolStripLabel5.Size = new System.Drawing.Size(81, 22);
-      this.toolStripLabel5.Text = "Max Outgoing: ";
-      // 
-      // toolStripTextBox5
-      // 
-      this.toolStripTextBox5.Name = "toolStripTextBox5";
-      this.toolStripTextBox5.Size = new System.Drawing.Size(100, 21);
-      this.toolStripTextBox5.Validating += new System.ComponentModel.CancelEventHandler(this.toolStripTextBox5_Validating);
       // 
       // ruler1
       // 
@@ -569,10 +537,6 @@ namespace StencilEditor
     private System.Windows.Forms.ToolStripTextBox toolStripTextBox2;
     private System.Windows.Forms.ToolStripLabel toolStripLabel3;
     private System.Windows.Forms.ToolStripTextBox toolStripTextBox3;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel4;
-    private System.Windows.Forms.ToolStripTextBox toolStripTextBox4;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel5;
-    private System.Windows.Forms.ToolStripTextBox toolStripTextBox5;
     private System.Windows.Forms.ToolStripLabel toolStripLabel6;
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
 
