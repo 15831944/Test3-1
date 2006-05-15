@@ -179,7 +179,7 @@ namespace StencilEditor
             this.modelStencilButton});
       this.toolStrip1.Location = new System.Drawing.Point(3, 0);
       this.toolStrip1.Name = "toolStrip1";
-      this.toolStrip1.Size = new System.Drawing.Size(552, 25);
+      this.toolStrip1.Size = new System.Drawing.Size(521, 25);
       this.toolStrip1.TabIndex = 2;
       // 
       // showFillAreaLinesButton
@@ -408,7 +408,7 @@ namespace StencilEditor
             this.toolStripTextBox3});
       this.toolStrip4.Location = new System.Drawing.Point(3, 75);
       this.toolStrip4.Name = "toolStrip4";
-      this.toolStrip4.Size = new System.Drawing.Size(920, 25);
+      this.toolStrip4.Size = new System.Drawing.Size(467, 25);
       this.toolStrip4.TabIndex = 5;
       // 
       // toolStripLabel6
@@ -438,8 +438,8 @@ namespace StencilEditor
       // toolStripLabel2
       // 
       this.toolStripLabel2.Name = "toolStripLabel2";
-      this.toolStripLabel2.Size = new System.Drawing.Size(76, 22);
-      this.toolStripLabel2.Text = "Min Incoming: ";
+      this.toolStripLabel2.Size = new System.Drawing.Size(30, 22);
+      this.toolStripLabel2.Text = "Min: ";
       // 
       // toolStripTextBox2
       // 
@@ -450,8 +450,8 @@ namespace StencilEditor
       // toolStripLabel3
       // 
       this.toolStripLabel3.Name = "toolStripLabel3";
-      this.toolStripLabel3.Size = new System.Drawing.Size(80, 22);
-      this.toolStripLabel3.Text = "Max Incoming: ";
+      this.toolStripLabel3.Size = new System.Drawing.Size(34, 22);
+      this.toolStripLabel3.Text = "Max: ";
       // 
       // toolStripTextBox3
       // 
@@ -475,9 +475,10 @@ namespace StencilEditor
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(923, 528);
       this.Controls.Add(this.toolStripContainer1);
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "Form1";
-      this.Text = "Form1";
+      this.Text = "Stencil Editor";
       this.Resize += new System.EventHandler(this.Form1_Resize);
       this.toolStripContainer1.ContentPanel.ResumeLayout(false);
       this.toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
