@@ -542,7 +542,7 @@ bool CArchiveDBTable::CreateDBRecordset()
     }
   catch (_com_error & e)
     {
-    m_rAM.DisplayException(e, LF_Exclamation, "Open RS %s", (LPCTSTR)m_sName);
+    m_rAM.DisplayException(e, LF_Exclamation, "Open RS ", (LPCTSTR)m_sName);
     m_pRst.Release();
     return false;
     }
@@ -579,7 +579,7 @@ bool CArchiveDBTable::AddDBRecord(const CXM_TimeControl &CB)
     }
   catch (_com_error & e)
     {
-    m_rAM.DisplayException(e, LF_Exclamation, "Adding Record %s", (LPCTSTR)m_sName);
+    m_rAM.DisplayException(e, LF_Exclamation, "Adding Record ", (LPCTSTR)m_sName);
     return false;
     }
   return true;
@@ -602,7 +602,7 @@ bool CArchiveDBTable::CloseDBTable()
     }
   catch (_com_error & e)
     {
-    m_rAM.DisplayException(e, LF_Exclamation, "Closing Table %s", (LPCTSTR)m_sName);
+    m_rAM.DisplayException(e, LF_Exclamation, "Closing Table ", (LPCTSTR)m_sName);
     return false;
     }
   return true;
@@ -1555,29 +1555,31 @@ CArchiveManager::CArchiveManager() :
 
   bool CArchiveManager::CloseDB()
     {
-    try
+    if (m_pCnn!=NULL)
       {
-      for (int t=0; t<m_Tables.GetSize(); t++)
-        m_Tables[t]->CloseDBTable();
-      if (m_pCnn!=NULL && m_pCnn->State!=ADODB::adStateClosed)
-        m_pCnn->Close();
-      m_pCnn.Release();
-      m_pCat.Release();
-      }
-    catch (_com_error & e)
-      {
-      DisplayException(e, LF_Exclamation, "Close Database %s", (LPCTSTR)m_sDataFile );
-      m_pCnn.Release();
-      m_pCat.Release();
-      //delete m_pDB;
-      //m_pDB=NULL;
-      return false;
-      }
-
+      try
+        {
+        for (int t=0; t<m_Tables.GetSize(); t++)
+          m_Tables[t]->CloseDBTable();
+        if (m_pCnn!=NULL && m_pCnn->State!=ADODB::adStateClosed)
+          m_pCnn->Close();
+        m_pCnn.Release();
+        m_pCat.Release();
+        }
+      catch (_com_error & e)
+        {
+        DisplayException(e, LF_Exclamation, "Close Database ", (LPCTSTR)m_sDataFile );
+        m_pCnn.Release();
+        m_pCat.Release();
+        //delete m_pDB;
+        //m_pDB=NULL;
+        return false;
+        }
 #if dbgArchiver
-    if (dbgDBState())
-      dbgpln("CloseDB");
+      if (dbgDBState())
+        dbgpln("CloseDB");
 #endif
+      }
     return true;
     };
 
