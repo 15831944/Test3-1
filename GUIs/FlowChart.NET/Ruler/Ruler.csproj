@@ -73,11 +73,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FlowChart.NET">
-      <Name>FlowChart.NET</Name>
-      <HintPath>..\..\FlowChart.NET.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -111,6 +106,12 @@
     <EmbeddedResource Include="Ruler.resx">
       <DependentUpon>Ruler.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FlowChart.NET.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
