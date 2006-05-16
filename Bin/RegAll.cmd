@@ -7,6 +7,6 @@ regsvr32 /s SysCADMarshal_ps.dll
 
 ScdIODB       /regserver
 SysCADMarshal /regserver
-SysCAD        /regserver
+SysCAD91      /regserver
 
 rem pause
