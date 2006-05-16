@@ -371,6 +371,8 @@ extern CDevLicApp theApp;
 	
 }
 
+//---------------------------------------------------------------------------
+
 void CDevLicDlg::OnCheckLicense() 
 {
 extern CDevLicApp theApp;
@@ -388,6 +390,8 @@ extern CDevLicApp theApp;
   }
 	
 }
+
+//---------------------------------------------------------------------------
 
 void CDevLicDlg::OnBnClickedClipboardcopy()
   {
@@ -407,3 +411,5 @@ void CDevLicDlg::OnBnClickedClipboardcopy()
     CloseClipboard();
     }
   }
+
+//---------------------------------------------------------------------------

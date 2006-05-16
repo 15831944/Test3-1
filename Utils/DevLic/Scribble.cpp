@@ -15,7 +15,7 @@ static char THIS_FILE[]=__FILE__;
 
 unsigned short CScribble::ver_major = 2;
 unsigned short CScribble::ver_minor = 0;
-char CScribble::ver_minorchar = 'a';
+char CScribble::ver_minorchar = 'b';
 const int ver_infosize = sizeof(CScribble::ver_major) + sizeof(CScribble::ver_minor) + sizeof(CScribble::ver_minorchar);
 
 //===========================================================================
