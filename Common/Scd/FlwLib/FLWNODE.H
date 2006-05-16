@@ -3422,20 +3422,28 @@ class DllImportExport FlwNode : public CTNode
       LeaveCriticalSection(&m_LockSect); 
       };
 
-    //void           LockFlanges()
-    //  {
-    //  ConnectCodeLock.Lock(); // Prevent possible deadlock;
-    //  for (int i=0;i<NoFlwIOs(); i++)
-    //    m_IOs[i].pFlng->Lock();
-    //  ConnectCodeLock.UnLock();
-    //  };
-    //void           UnLockFlanges()
-    //  {
-    //  for (int i=0;i<NoFlwIOs(); i++)
-    //    m_IOs[i].pFlng->UnLock();
-    //  };
-    flag           Ctrl_In(int i)                 { return (IOAreas[m_IOs[i].IODescSelf].Dirn & LIO_In)!=0; };
-    flag           Ctrl_Out(int i)                { return (IOAreas[m_IOs[i].IODescSelf].Dirn & LIO_Out)!=0; };
+    flag           Ctrl_In(int i)
+      { 
+      byte Dirn=IOAreas[m_IOs[i].IODescSelf].Dirn;
+      if ((Dirn & LIO_InOut)==LIO_InOut)
+        {
+        byte RemDirn=IOArea_Rmt(i).Dirn;
+        ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control In Direction");
+        return (RemDirn & LIO_Out)!=0; 
+        }
+      return (Dirn & LIO_In)!=0; 
+      };
+    flag           Ctrl_Out(int i)                
+      { 
+      byte Dirn=IOAreas[m_IOs[i].IODescSelf].Dirn;
+      if ((Dirn & LIO_InOut)==LIO_InOut)
+        {
+        byte RemDirn=IOArea_Rmt(i).Dirn;
+        ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control Out Direction");
+        return (RemDirn & LIO_In)!=0; 
+        }
+      return (Dirn & LIO_Out)!=0; 
+      };
     CTerminal     *Ctrl_Terminal(int i)           { return m_IOs[i].m_pTerm; };
     flag           Ctrl_EvalSeqStartOK(int i)     { return false; };
     void           Ctrl_GetConnIDStr(int i, Strng & ID, Strng & Tg)       { ID=Tg=""; m_IOs[i].Rmt->Ctrl_ConnIDStr(IOIONo_Rmt(i), ID, Tg); };
