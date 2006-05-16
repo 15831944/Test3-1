@@ -60,6 +60,19 @@ wzzip -a -P -r %fn2% smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib
 wzzip -a -P -r %fn2% smdk\examples\demospusr\*.h smdk\examples\demospusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demospusr\demospusr.sln
+
+rem ========== SMDK Alumina Props ==========
+set fn2=%fn%_AlProps.zip
+del %fn2%
+wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
+wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
+wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
+wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib
+wzzip -a -P -r %fn2% smdk\examples\demospusr\*.h smdk\examples\demospusr\*.cpp
+wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demospusr\demospusr.sln
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\*.h smdk\examples\demoalspusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\demoalspusr\demoalspusr.sln
 
@@ -116,8 +129,6 @@ wzzip -a -P -r %fn2% smdk\examples\demousr\*.h smdk\examples\demousr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj vsmdk\examples\demousr\demousr.sln
 wzzip -a -P -r %fn2% smdk\examples\demospusr\*.h smdk\examples\demospusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demospusr\demospusr.sln
-wzzip -a -P -r %fn2% smdk\examples\demoalspusr\*.h smdk\examples\demoalspusr\*.cpp
-wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\demoalspusr\demoalspusr.sln
 wzzip -a -P -r %fn2% smdk\simutron\skomdls\*.h smdk\simutron\skomdls\*.cpp
 wzzip -a -P -r %fn2% smdk\simutron\skomdls\skomdls.vcproj smdk\simutron\skomdls\skomdls.sln
 wzzip -a -P -r %fn2% smdk\simutron\skospmdls\*.h smdk\simutron\skospmdls\*.cpp

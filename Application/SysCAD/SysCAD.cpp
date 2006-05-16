@@ -66,7 +66,7 @@
 #include ".\opcsrvrwrapper.h"
 #include "scdver.h"
 
-#include "optoff.h"
+//#include "optoff.h"
 
 #import "c:\program files\common files\system\ado\msado15.dll" rename("EOF", "adEOF") implementation_only
 #import "c:\Program Files\Common Files\system\ado\msadox.dll" implementation_only
