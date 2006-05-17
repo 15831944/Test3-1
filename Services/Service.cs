@@ -170,10 +170,10 @@ namespace SysCAD.Service
           foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
           {
             GraphicItem sourceGraphicItem;
-            graphic.graphicItems.TryGetValue(graphicLink.Source, out sourceGraphicItem);
+            graphic.graphicItems.TryGetValue(graphicLink.Origin, out sourceGraphicItem);
 
             GraphicItem destinationGraphicItem;
-            graphic.graphicItems.TryGetValue(graphicLink.Source, out destinationGraphicItem);
+            graphic.graphicItems.TryGetValue(graphicLink.Origin, out destinationGraphicItem);
 
             if ((sourceGraphicItem != null) || (destinationGraphicItem != null))
             {

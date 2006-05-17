@@ -341,7 +341,7 @@ namespace SysCAD.Editor
               GraphicLink newGraphicLink = new GraphicLink(graphicLink.Tag);
 
               newGraphicLink.Destination = graphicLink.Destination;
-              newGraphicLink.Source = graphicLink.Source;
+              newGraphicLink.Origin = graphicLink.Origin;
 
               foreach (PointF point in graphicLink.controlPoints)
               {
@@ -420,7 +420,7 @@ namespace SysCAD.Editor
           GraphicLink copyGraphicLink = new GraphicLink(arrow.Text);
           copyGraphicLink.Tag = graphicLink.Tag;
           copyGraphicLink.ClassID = graphicLink.ClassID;
-          copyGraphicLink.Source = graphicLink.Source;
+          copyGraphicLink.Origin = graphicLink.Origin;
           copyGraphicLink.Destination = graphicLink.Destination;
 
           foreach (PointF point in graphicLink.controlPoints)

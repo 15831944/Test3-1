@@ -33,20 +33,14 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_47BF8BC6EC0F0F83EF1A66C045B23DC8"
+        "OwnerKey" = "8:_FA84603E4D2F834BDF33EEEA81A0AC57"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B77C4ADB9C1E4ABC90ECC011C21EDC2D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B8FA9F25C576E8CD863BD1A8379F614F"
-        "OwnerKey" = "8:_B77C4ADB9C1E4ABC90ECC011C21EDC2D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B8FA9F25C576E8CD863BD1A8379F614F"
-        "OwnerKey" = "8:_FA84603E4D2F834BDF33EEEA81A0AC57"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -71,12 +65,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_FA84603E4D2F834BDF33EEEA81A0AC57"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_B8FA9F25C576E8CD863BD1A8379F614F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -215,7 +203,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.22468, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.24953, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_47BF8BC6EC0F0F83EF1A66C045B23DC8"
@@ -242,42 +230,11 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B8FA9F25C576E8CD863BD1A8379F614F"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.0.4.21667, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_B8FA9F25C576E8CD863BD1A8379F614F"
-                    {
-                    "Name" = "8:FlowChart.NET.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:FlowChart.NET.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_0BCEEABE1B08404C877271413272953E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FA84603E4D2F834BDF33EEEA81A0AC57"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Ruler, Version=4.1.0.23184, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Ruler, Version=4.1.0.24961, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_FA84603E4D2F834BDF33EEEA81A0AC57"
@@ -370,14 +327,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:StencilEditor"
-        "ProductCode" = "8:{A4E5D8CA-4D9A-4A2A-BDDA-31FA1EEBBBFE}"
-        "PackageCode" = "8:{50DFD517-2826-4E66-8747-F24276EB9B0E}"
+        "ProductCode" = "8:{C642FCD9-DA8C-4595-9920-DA04AEB2717D}"
+        "PackageCode" = "8:{A4703DD2-5487-45DA-82CD-0974BDB68BF8}"
         "UpgradeCode" = "8:{D4E91EC6-0B81-4242-A4D3-0D830D68CD31}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.0.1"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

@@ -21,6 +21,8 @@ namespace SysCAD.Editor
     public string currentModelShape;
     public string currentGraphicShape;
 
+    public Arrow arrowBeingModified;
+
     private int tempBoxKey = 0;
     private int tempArrowKey = 0;
 
@@ -229,28 +231,52 @@ namespace SysCAD.Editor
       }
     }
 
-    MindFusion.FlowChartX.Node savedOrigin;
-    MindFusion.FlowChartX.Node savedDestination;
-
-    int savedOriginAnchor;
-    int savedDestinationAnchor;
-
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
+      arrowBeingModified = null;
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
         PointCollection controlPoints = e.Arrow.ControlPoints.Clone();
 
-        if (savedOrigin != null)
+        if (e.Arrow.Origin is Box)
         {
-          e.Arrow.Origin = savedOrigin;
-          e.Arrow.OrgnAnchor = savedOriginAnchor;
+          Item originItem = (e.Arrow.Origin.Tag as Item);
+          if (originItem != null)
+            (e.Arrow.Tag as Link).graphicLink.Origin = originItem.Guid;
+          e.Arrow.Origin = originItem.Model;
+          e.Arrow.OrgnAnchor = -1;
+        }
+        else
+        {
+          Guid originGuid = (e.Arrow.Tag as Link).graphicLink.Origin;
+          Item originItem = state.Item(originGuid);
+
+          if (originItem != null)
+          {
+            e.Arrow.Origin = originItem.Model;
+            e.Arrow.OrgnAnchor = -1;
+          }
         }
 
-        if (savedDestination != null)
+        if (e.Arrow.Destination is Box)
         {
-          e.Arrow.Destination = savedDestination;
-          e.Arrow.DestAnchor = savedDestinationAnchor;
+          Item destinationItem = (e.Arrow.Destination.Tag as Item);
+          if (destinationItem != null)
+            (e.Arrow.Tag as Link).graphicLink.Destination = destinationItem.Guid;
+          e.Arrow.Destination = destinationItem.Model;
+          e.Arrow.DestAnchor = -1;
+
+        }
+        else
+        {
+          Guid destinationGuid = (e.Arrow.Tag as Link).graphicLink.Destination;
+          Item destinationItem = state.Item(destinationGuid);
+
+          if (destinationItem != null)
+          {
+            e.Arrow.Destination = destinationItem.Model;
+            e.Arrow.DestAnchor = -1;
+          }
         }
 
         e.Arrow.ControlPoints.Clear();
@@ -266,46 +292,7 @@ namespace SysCAD.Editor
     {
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-        savedOrigin = null;
-        savedDestination = null;
-
-        Box originBox = (e.Arrow.Origin as Box);
-        if (originBox != null)
-        {
-          Item originItem = originBox.Tag as Item;
-          if (originItem != null)
-          {
-            savedOrigin = originItem.Model;
-            savedOriginAnchor = e.Arrow.OrgnAnchor;
-          }
-        }
-
-        Box destinationBox = (e.Arrow.Destination as Box);
-        if (destinationBox != null)
-        {
-          Item destinationItem = destinationBox.Tag as Item;
-          if (destinationItem != null)
-          {
-            savedDestination = destinationItem.Model;
-            savedDestinationAnchor = e.Arrow.DestAnchor;
-          }
-        }
-
-        // Failed attempt to improve arrow manipulation behaviour.
-        //PointF originBoxCenter = new PointF((originBox.BoundingRect.Left + originBox.BoundingRect.Right) / 2.0F,
-        //                                    (originBox.BoundingRect.Top + originBox.BoundingRect.Bottom) / 2.0F);
-        //SizeF originBoxOffset = new SizeF(Math.Abs(e.Arrow.ControlPoints[0].X - originBoxCenter.X),
-        //                                 Math.Abs(e.Arrow.ControlPoints[0].Y - originBoxCenter.Y));
-        //if (originBoxOffset.Width < originBoxOffset.Height)
-        //{ // more below/above than to the side.
-        //  //if (e.Arrow.PrpStartOrientation == MindFusion.FlowChartX.Orientation.Horizontal)
-        //    e.Arrow.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Vertical;
-        //}
-        //if (originBoxOffset.Width > originBoxOffset.Height)
-        //{ // cmove to the side than above/below.
-        //  //if (e.Arrow.PrpStartOrientation == MindFusion.FlowChartX.Orientation.Vertical)
-        //    e.Arrow.PrpStartOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
-        //}
+        arrowBeingModified = e.Arrow;
       }
     }
 
@@ -474,6 +461,7 @@ namespace SysCAD.Editor
 
         if (arrow.DestAnchor != -1)
         {
+
           dx = e.Box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
           dy = e.Box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
         }
@@ -588,7 +576,7 @@ namespace SysCAD.Editor
 
       GraphicLink newGraphicLink = new GraphicLink("A_" + tempBoxKey.ToString());
       newGraphicLink.Destination = graphicLink.Destination;
-      newGraphicLink.Source = graphicLink.Source;
+      newGraphicLink.Origin = graphicLink.Origin;
 
       foreach (PointF point in graphicLink.controlPoints)
       {
@@ -684,7 +672,7 @@ namespace SysCAD.Editor
         newGraphicLink.Destination = (destinationBox.Tag as Item).Guid;
 
       if (sourceBox != null)
-        newGraphicLink.Source = (sourceBox.Tag as Item).Guid;
+        newGraphicLink.Origin = (sourceBox.Tag as Item).Guid;
 
       newGraphicLink.controlPoints = new List<PointF>();
       foreach (PointF point in e.Arrow.ControlPoints)

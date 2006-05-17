@@ -15,7 +15,7 @@ namespace SysCAD.Editor
 
     private Arrow arrow;
 
-    private GraphicLink graphicLink;
+    public GraphicLink graphicLink;
 
     private bool visible;
 
@@ -41,10 +41,11 @@ namespace SysCAD.Editor
       set { visible = value; }
     }
 
-    public Link(Guid guid, String tag)
+    public Link(Guid guid, String tag, GraphicLink graphicLink)
     {
       this.guid = guid;
       this.tag = tag;
+      this.graphicLink = graphicLink;
     }
   }
 
@@ -199,9 +200,9 @@ namespace SysCAD.Editor
       return item;
     }
 
-    public void setArrow(Guid guid, String tag, Arrow arrow)
+    public void setArrow(Guid guid, String tag, Arrow arrow, GraphicLink graphicLink)
     {
-      Link link = new Link(guid, tag);
+      Link link = new Link(guid, tag, graphicLink);
       link.Arrow = arrow;
       links.Add(guid, link);
     }
@@ -211,7 +212,7 @@ namespace SysCAD.Editor
       Item origin = null;
       Item destination = null;
 
-      if (graphicLink.Source != null) origin = item(graphicLink.Source);
+      if (graphicLink.Origin != null) origin = item(graphicLink.Origin);
       if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
 
       PointF pointOrigin = new PointF();
@@ -229,7 +230,7 @@ namespace SysCAD.Editor
         arrow.Destination = destination.Model;
 
       arrow.Text = graphicLink.Tag;
-      arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Source + "\nDst: " + graphicLink.Destination;
+      arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Origin + "\nDst: " + graphicLink.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 
@@ -243,7 +244,7 @@ namespace SysCAD.Editor
         PointCollection a = arrow.ControlPoints;
       }
 
-      Link link = new Link(graphicLink.Guid, graphicLink.Tag);
+      Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
       link.Arrow = arrow;
       link.Visible = true;
 
