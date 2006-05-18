@@ -517,6 +517,8 @@ void CReactionBlock::Parse(CRCTTokenFile &TF)
   pTagObjClass pC=NULL;//pCFirst;
   int SeqNo=0;
   flag UsrSeq=0;
+  bool SeqReqd=false;
+  bool FirstRct=true;
   Strng RTag;
   Strng BlkComment;
   Strng RctComment;
@@ -597,8 +599,17 @@ void CReactionBlock::Parse(CRCTTokenFile &TF)
     TF.SetIgnoreComments(true);
     pRct->Parse(TF);
 
-    if (TF.TokenIs("Sequence"))
+    flag IsSeq=TF.TokenIs("Sequence");
+
+    if (dynamic_cast<CR_Eqn*>(pRct))
       {
+      if (IsSeq && !FirstRct && !SeqReqd)
+        Error(this, 'B', 17);
+      }
+    
+    if (IsSeq && (SeqReqd || FirstRct))
+      {
+      SeqReqd = true;
       TF.CheckToken(":");
       SeqNo=abs(TF.IntToken());
       UsrSeq=1;
@@ -609,6 +620,10 @@ void CReactionBlock::Parse(CRCTTokenFile &TF)
     pRct->SeqNo=abs(SeqNo);
 
     All.Add(pRct);
+
+    if (dynamic_cast<CR_Eqn*>(pRct))
+      FirstRct=false;
+
     TF.SetIgnoreComments(false);
 
     RctComment=ScanComments(TF);
@@ -867,6 +882,8 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
     case 15: errDesc.Set("Heat of Reaction Required");
       break;
     case 16: errDesc.Set("Specie %s : Heat of formation not Specified", s);
+      break;
+    case 17: errDesc.Set("'Sequence' Unexpected");
       break;
     default: errDesc = ((s !=NULL) && (strlen(s)>0)) ? s : "Unknown Error Number";
     };
