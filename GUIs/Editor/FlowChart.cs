@@ -294,6 +294,7 @@ namespace SysCAD.Editor
       {
         arrowBeingModified = e.Arrow;
       }
+      fcFlowChart.Invalidate();
     }
 
     private Item oldHoverItem = null;
@@ -456,49 +457,80 @@ namespace SysCAD.Editor
     {
       foreach (Arrow arrow in e.Box.IncomingArrows)
       {
-        float dx = 0.5F;
-        float dy = 0.5F;
-
-        if (arrow.DestAnchor != -1)
+        if (arrow != arrowBeingModified)
         {
+          float dx = 0.5F;
+          float dy = 0.5F;
 
-          dx = e.Box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-          dy = e.Box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+          if (arrow.DestAnchor != -1)
+          {
+
+            dx = e.Box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+            dy = e.Box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+          }
+
+          PointF anchorPointPos = new PointF(
+            e.Box.BoundingRect.Left + e.Box.BoundingRect.Width * dx,
+            e.Box.BoundingRect.Top + e.Box.BoundingRect.Height * dy);
+
+          PointF[] extensionPoints =
+            new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+
+          System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+          e.Graphics.DrawLines(pen, extensionPoints);
         }
-
-        PointF anchorPoint = new PointF(
-          e.Box.BoundingRect.Left + e.Box.BoundingRect.Width * dx,
-          e.Box.BoundingRect.Top + e.Box.BoundingRect.Height * dy);
-
-        PointF[] extensionPoints =
-          new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPoint };
-
-        System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
-        e.Graphics.DrawLines(pen, extensionPoints);
       }
 
       foreach (Arrow arrow in e.Box.OutgoingArrows)
       {
-        float dx = 0.5F;
-        float dy = 0.5F;
-
-        if (arrow.OrgnAnchor != -1)
+        if (arrow != arrowBeingModified)
         {
-          dx = e.Box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-          dy = e.Box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+          float dx = 0.5F;
+          float dy = 0.5F;
+
+          if (arrow.OrgnAnchor != -1)
+          {
+            dx = e.Box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+            dy = e.Box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+          }
+
+          PointF anchorPointPos = new PointF(
+            e.Box.BoundingRect.Left + e.Box.BoundingRect.Width * dx,
+            e.Box.BoundingRect.Top + e.Box.BoundingRect.Height * dy);
+
+          PointF[] extensionPoints =
+            new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+          System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+          e.Graphics.DrawLines(pen, extensionPoints);
         }
+      }
 
-        PointF anchorPoint = new PointF(
-          e.Box.BoundingRect.Left + e.Box.BoundingRect.Width * dx,
-          e.Box.BoundingRect.Top + e.Box.BoundingRect.Height * dy);
+      if (arrowBeingModified != null)
+      {
+        PointF originPos = arrowBeingModified.ControlPoints[0];
+        Box originBox = fcFlowChart.GetBoxAt(originPos);
+        if (originBox == null)
+        {
+          if (e.Box.AnchorPattern != null)
+          {
+            foreach (AnchorPoint anchorPoint in e.Box.AnchorPattern.Points)
+            {
+              float dx = anchorPoint.X / 100.0F;
+              float dy = anchorPoint.Y / 100.0F;
+              PointF anchorPointPos = new PointF(
+              e.Box.BoundingRect.Left + e.Box.BoundingRect.Width * dx,
+              e.Box.BoundingRect.Top + e.Box.BoundingRect.Height * dy);
 
-        PointF[] extensionPoints =
-          new PointF[] { arrow.ControlPoints[0], anchorPoint };
-
-        System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
-        e.Graphics.DrawLines(pen, extensionPoints);
+              PointF[] extensionPoints =
+                new PointF[] { arrowBeingModified.ControlPoints[0], anchorPointPos };
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Red, 5.0F);
+              e.Graphics.DrawLines(pen, extensionPoints);
+            }
+          }
+        }
       }
     }
 
