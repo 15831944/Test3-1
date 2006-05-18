@@ -233,7 +233,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
-      PointF pf = fcFlowChart.ClientToDoc(MousePosition);
       arrowBeingModified = null;
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
@@ -492,6 +491,8 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
     {
+      PointF mousePos = fcFlowChart.ClientToDoc(MousePosition);
+
       foreach (Arrow arrow in e.Box.IncomingArrows)
       {
         if (arrow != arrowBeingModified)
