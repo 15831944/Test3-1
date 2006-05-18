@@ -233,6 +233,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
+      PointF pf = fcFlowChart.ClientToDoc(MousePosition);
       arrowBeingModified = null;
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
@@ -242,9 +243,19 @@ namespace SysCAD.Editor
         {
           Item originItem = (e.Arrow.Origin.Tag as Item);
           if (originItem != null)
+          {
+            Box originBox = originItem.Model;
             (e.Arrow.Tag as Link).graphicLink.Origin = originItem.Guid;
-          e.Arrow.Origin = originItem.Model;
-          e.Arrow.OrgnAnchor = -1;
+            e.Arrow.Origin = originBox;
+            e.Arrow.OrgnAnchor = -1;
+            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
+            {
+              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+              {
+                e.Arrow.OrgnAnchor = i;
+              }
+            }
+          }
         }
         else
         {
@@ -253,8 +264,16 @@ namespace SysCAD.Editor
 
           if (originItem != null)
           {
-            e.Arrow.Origin = originItem.Model;
+            Box originBox = originItem.Model;
+            e.Arrow.Origin = originBox;
             e.Arrow.OrgnAnchor = -1;
+            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
+            {
+              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+              {
+                e.Arrow.OrgnAnchor = i;
+              }
+            }
           }
         }
 
@@ -262,9 +281,19 @@ namespace SysCAD.Editor
         {
           Item destinationItem = (e.Arrow.Destination.Tag as Item);
           if (destinationItem != null)
+          {
+            Box destinationBox = destinationItem.Model;
             (e.Arrow.Tag as Link).graphicLink.Destination = destinationItem.Guid;
-          e.Arrow.Destination = destinationItem.Model;
-          e.Arrow.DestAnchor = -1;
+            e.Arrow.Destination = destinationItem.Model;
+            e.Arrow.DestAnchor = -1;
+            for (int i=0; i<destinationBox.AnchorPattern.Points.Count; i++)
+            {
+              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+              {
+                e.Arrow.DestAnchor = i;
+              }
+            }
+          }
 
         }
         else
@@ -274,8 +303,16 @@ namespace SysCAD.Editor
 
           if (destinationItem != null)
           {
-            e.Arrow.Destination = destinationItem.Model;
+            Box destinationBox = destinationItem.Model;
+            e.Arrow.Destination = destinationBox;
             e.Arrow.DestAnchor = -1;
+            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
+            {
+              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+              {
+                e.Arrow.DestAnchor = i;
+              }
+            }
           }
         }
 
@@ -512,26 +549,77 @@ namespace SysCAD.Editor
       {
         PointF originPos = arrowBeingModified.ControlPoints[0];
         Box originBox = fcFlowChart.GetBoxAt(originPos);
-        if (originBox == null)
+        if (originBox != null)
         {
-          if (e.Box.AnchorPattern != null)
+          originBox = (originBox.Tag as Item).Model;
+          if (originBox != null)
           {
-            foreach (AnchorPoint anchorPoint in e.Box.AnchorPattern.Points)
+            if (originBox.AnchorPattern != null)
             {
-              float dx = anchorPoint.X / 100.0F;
-              float dy = anchorPoint.Y / 100.0F;
-              PointF anchorPointPos = new PointF(
-              e.Box.BoundingRect.Left + e.Box.BoundingRect.Width * dx,
-              e.Box.BoundingRect.Top + e.Box.BoundingRect.Height * dy);
+              foreach (AnchorPoint anchorPoint in originBox.AnchorPattern.Points)
+              {
+                if (anchorPoint.AllowOutgoing)
+                {
+                  float dx = anchorPoint.X / 100.0F;
+                  float dy = anchorPoint.Y / 100.0F;
+                  PointF anchorPointPos = new PointF(
+                  originBox.BoundingRect.Left + originBox.BoundingRect.Width * dx,
+                  originBox.BoundingRect.Top + originBox.BoundingRect.Height * dy);
 
-              PointF[] extensionPoints =
-                new PointF[] { arrowBeingModified.ControlPoints[0], anchorPointPos };
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Red, 5.0F);
-              e.Graphics.DrawLines(pen, extensionPoints);
+                  PointF[] extensionPoints =
+                    new PointF[] { anchorPointPos, anchorPointPos };
+                  System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, 5.0F);
+                  e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
+                    anchorPointPos.X - 1.0F,
+                    anchorPointPos.Y - 1.0F,
+                    anchorPointPos.X + 1.0F,
+                    anchorPointPos.Y + 1.0F));
+                  e.Graphics.DrawLines(pen, extensionPoints);
+                }
+              }
+            }
+          }
+        }
+
+        PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count-1];
+        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos);
+        if (destinationBox != null)
+        {
+          destinationBox = (destinationBox.Tag as Item).Model;
+          if (destinationBox != null)
+          {
+            if (destinationBox.AnchorPattern != null)
+            {
+              foreach (AnchorPoint anchorPoint in destinationBox.AnchorPattern.Points)
+              {
+                if (anchorPoint.AllowIncoming)
+                {
+                  float dx = anchorPoint.X / 100.0F;
+                  float dy = anchorPoint.Y / 100.0F;
+                  PointF anchorPointPos = new PointF(
+                  destinationBox.BoundingRect.Left + destinationBox.BoundingRect.Width * dx,
+                  destinationBox.BoundingRect.Top + destinationBox.BoundingRect.Height * dy);
+
+                  PointF[] extensionPoints =
+                    new PointF[] { anchorPointPos, anchorPointPos };
+                  System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, 5.0F);
+                  e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
+                    anchorPointPos.X - 1.0F,
+                    anchorPointPos.Y - 1.0F,
+                    anchorPointPos.X + 1.0F,
+                    anchorPointPos.Y + 1.0F));
+                  e.Graphics.DrawLines(pen, extensionPoints);
+                }
+              }
             }
           }
         }
       }
+    }
+
+    private void fcFlowChart_DrawArrow(object sender, ArrowDrawArgs e)
+    {
+
     }
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)

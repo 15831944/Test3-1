@@ -760,7 +760,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.1.0.26145, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.1.0.20973, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_28E7E0CB775B1EEF9FC6B629E02404B9"
@@ -1346,7 +1346,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.26143, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.20969, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_ABA12FE0E89DB487A1720CD2491FC139"
@@ -1477,7 +1477,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.26143, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.20969, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_C9ECE6EECF7CACAE08BA9F65C4E3DA3F"
@@ -1702,7 +1702,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Editor & Service"
         "ProductCode" = "8:{5D33F2B9-DD5D-44BC-8B8D-63923366C0A9}"
-        "PackageCode" = "8:{82767F42-4F33-431F-9FCE-2A0FE3D64348}"
+        "PackageCode" = "8:{1EBB66A8-EC2D-41AA-A140-C08738863095}"
         "UpgradeCode" = "8:{D662DE63-23E0-4793-AE99-B412D97F451F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"

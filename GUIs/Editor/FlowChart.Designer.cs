@@ -43,6 +43,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowBaseSize = 2.5F;
       this.fcFlowChart.ArrowBrush = new MindFusion.FlowChartX.SolidBrush("#FF000000");
       this.fcFlowChart.ArrowCrossings = MindFusion.FlowChartX.ArrowCrossings.BreakOff;
+      this.fcFlowChart.ArrowCustomDraw = MindFusion.FlowChartX.CustomDraw.Additional;
       this.fcFlowChart.ArrowHandlesStyle = MindFusion.FlowChartX.HandlesStyle.SquareHandles2;
       this.fcFlowChart.ArrowHead = MindFusion.FlowChartX.ArrowHead.None;
       this.fcFlowChart.ArrowHeadSize = 2.5F;
@@ -78,6 +79,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.TextRendering = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
       this.fcFlowChart.MouseDown += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseDown);
+      this.fcFlowChart.DrawArrow += new MindFusion.FlowChartX.ArrowCustomDraw(this.fcFlowChart_DrawArrow);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
       this.fcFlowChart.BoxModifying += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModifying);
