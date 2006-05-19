@@ -251,10 +251,14 @@ void CR_Src::SrcSnkStart()
   for (int s=0; s<SDB.Count(); s++)
     AddMoles=Max(AddMoles, RB.Moles[s]);
 
+  //dbgpln("============================================================");
   AddMoles*=1000.0;
   for (int i = 0; i < NSpcs(); i++) 
-    RB.Moles.VValue[Spcs[i].SpcId]+=AddMoles;
-
+    {
+    int SpcId=Spcs[i].SpcId;
+    RB.Moles.VValue[SpcId]+=AddMoles;
+    //dbgpln("Src Start : %14.6f %14.6f %14s %s", AddMoles, RB.Moles.VValue[SpcId], "", SDB[SpcId].SymOrTag());
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -270,9 +274,11 @@ void CR_Src::SrcSnkEnd(CRctSolveBlk & RSB)//SpMArray &dMass, double &dHeat)
     RB.Moles.VValue[SpcId]=Max(0.0, Remainder);
     Spcs[i].Demand*=SDB[SpcId].MoleWt();
     RSB.dMass.VValue[SpcId]+=Spcs[i].Demand;
+    //dbgpln("Src End   : %14.6f %14.6f %14.6f %s", AddMoles, RB.Moles.VValue[SpcId], Spcs[i].Demand, SDB[SpcId].SymOrTag());
     }
   RSB.m_Hf_FdT=totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
   RSB.m_Hf_PrT=totDHf(RB.Model, RB.m_TempKProd, RB.m_Press);
+  //dbgpln("============================================================");
   }
 
 //---------------------------------------------------------------------------
@@ -284,8 +290,12 @@ void CR_Src::SrcSnkAdjust(SpMArray & M)//SpMArray &dMass, double &dHeat)
     {
     int SpcId=Spcs[i].SpcId;
     double Remainder=M[SpcId]-AddMoles;
-    Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
+    //Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
     M.VValue[SpcId]=Max(0.0, Remainder);
+
+    double Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
+
+    //dbgpln("Src Adjust: %14.6f %14.6f %14.6f %s", AddMoles, M.VValue[SpcId], /*Spcs[i].*/Demand, SDB[SpcId].SymOrTag());
     }
   }
 
