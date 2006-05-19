@@ -18,7 +18,7 @@ namespace SysCAD.Interface
   public abstract class ServiceGraphic : BaseGraphic
   {
     uint requestID = 0;
-    uint eventID = 0;
+    protected uint eventID = 0;
 
     public ServiceGraphic()
     {
@@ -30,7 +30,8 @@ namespace SysCAD.Interface
 
     public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
-      requestID = this.requestID++;
+      this.requestID++;
+      requestID = this.requestID;
       if (graphicItems.ContainsKey(guid))
         return ModifyItem(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
       else
@@ -38,10 +39,5 @@ namespace SysCAD.Interface
     }
 
     protected abstract bool ModifyItem(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-
-    public override Object InitializeLifetimeService()
-    {
-      return null;
-    }
   }
 }

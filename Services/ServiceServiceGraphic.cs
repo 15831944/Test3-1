@@ -27,19 +27,15 @@ namespace SysCAD.Interface
 
     protected override bool ModifyItem(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
+      eventID++;
       // decide whether to do it.
       // do it.
       // fire off ItemModified event.
       // return true or false.
 
-      OnItemModified(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
 
       return true;
-    }
-
-    public override Object InitializeLifetimeService()
-    {
-      return null;
     }
   }
 }

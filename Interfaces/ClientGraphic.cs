@@ -71,7 +71,7 @@ namespace SysCAD.Interface
       graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
     }
 
-    public void remoteGraphic_ItemModified(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void remoteGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       GraphicItem graphicItem;
       if (graphicItems.TryGetValue(guid, out graphicItem))
@@ -82,7 +82,7 @@ namespace SysCAD.Interface
         graphicItem.Height = boundingRect.Height;
         graphicItem.Angle = angle;
 
-        OnItemModified(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
   }
