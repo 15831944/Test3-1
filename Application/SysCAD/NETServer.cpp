@@ -138,6 +138,7 @@ ref class CNETServerThread
 
     void MarshalGraphics()
       {
+/**
       String ^ filename;
       Graphic ^ graphic = gcnew Graphic;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -185,6 +186,7 @@ ref class CNETServerThread
       RemotingServices::Marshal(graphic, filename);
       m_Config->projectList->Add(filename);
       LogNote("Srvr", 0, "Added project %s to ProjectList.", filename);
+      */
       };
 
 

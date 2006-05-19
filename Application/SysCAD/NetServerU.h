@@ -1,5 +1,7 @@
 #pragma once
 
+#include "scdver.h"
+
 //========================================================================
 
 #if CREATENETSERVER
