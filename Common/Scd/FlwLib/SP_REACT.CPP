@@ -883,7 +883,7 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
       break;
     case 16: errDesc.Set("Specie %s : Heat of formation not Specified", s);
       break;
-    case 17: errDesc.Set("'Sequence' Unexpected");
+    case 17: errDesc.Set("First Reaction must have a Sequence number");
       break;
     default: errDesc = ((s !=NULL) && (strlen(s)>0)) ? s : "Unknown Error Number";
     };
