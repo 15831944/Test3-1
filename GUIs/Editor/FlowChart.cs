@@ -203,6 +203,24 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
+      GraphicItem graphicItem = state.GraphicItem(guid);
+
+      if (graphicItem != null)
+      {
+        graphicItem.Tag = tag;
+        graphicItem.Path = path;
+        graphicItem.Model = model;
+        graphicItem.Shape = shape;
+        graphicItem.X = boundingRect.X;
+        graphicItem.Y = boundingRect.Y;
+        graphicItem.Width = boundingRect.Width;
+        graphicItem.Height = boundingRect.Height;
+        graphicItem.Angle = angle;
+        graphicItem.fillColor = fillColor;
+        graphicItem.MirrorX = mirrorX;
+        graphicItem.MirrorY = mirrorY;
+      }
+
       Item item = state.Item(guid);
       if (item != null)
       {
@@ -216,20 +234,22 @@ namespace SysCAD.Editor
     private void fcFlowChart_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       GraphicItem graphicItem = new GraphicItem(guid, tag);
-      graphicItem.X = boundingRect.X - boundingRect.Width;
-      graphicItem.Y = boundingRect.Y - boundingRect.Height;
-      graphicItem.Width = boundingRect.Width;
-      graphicItem.Height = boundingRect.Height;
+      graphicItem.Path = path;
       graphicItem.Model = model;
       graphicItem.Shape = shape;
+      graphicItem.X = boundingRect.X;
+      graphicItem.Y = boundingRect.Y;
+      graphicItem.Width = boundingRect.Width;
+      graphicItem.Height = boundingRect.Height;
+      graphicItem.Angle = angle;
+      graphicItem.fillColor = fillColor;
       graphicItem.MirrorX = mirrorX;
       graphicItem.MirrorY = mirrorY;
-      graphicItem.fillColor = fillColor;
 
       state.AddNode(path, tag, guid);
       state.AddGraphicItem(guid, graphicItem);
 
-      state.newItem(graphicItem, true, fcFlowChart);
+      state.newItem(state.GraphicItem(guid), true, fcFlowChart);
     }
 
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)

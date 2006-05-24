@@ -120,17 +120,7 @@ namespace SysCAD.Editor
       get { return model.OutgoingArrows; }
     }
 
-    public Item(String tag, Box model, Box graphic, Box text, bool visible)
-    {
-      this.guid = Guid.NewGuid();
-      this.tag = tag;
-      this.model = model;
-      this.graphic = graphic;
-      this.text = text;
-      this.visible = visible;
-    }
-
-    public Item(Guid guid, String tag, Box model, Box graphic, Box text, bool visible)
+    public Item(Guid guid, String tag, Box model, Box graphic, Box text, bool visible, GraphicItem graphicItem)
     {
       this.guid = guid;
       this.tag = tag;
@@ -138,6 +128,7 @@ namespace SysCAD.Editor
       this.graphic = graphic;
       this.text = text;
       this.visible = visible;
+      this.graphicItem = graphicItem;
     }
   }
 
@@ -329,7 +320,7 @@ namespace SysCAD.Editor
       textBox.Visible = ShowTags && isVisible;
       textBox.Text = graphicItem.Tag;
 
-      Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible);
+      Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
 
       modelBox.Tag = item;
       graphicBox.Tag = item;
