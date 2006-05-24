@@ -49,5 +49,14 @@ namespace SysCAD.Interface
     }
 
     protected abstract bool CreateItem(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+
+    public bool DeleteItem(out uint requestID, Guid guid)
+    {
+      this.requestID++;
+      requestID = this.requestID;
+      return DeleteItem(requestID, guid);
+    }
+
+    protected abstract bool DeleteItem(uint requestID, Guid guid);
   }
 }

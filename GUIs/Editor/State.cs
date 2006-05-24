@@ -597,6 +597,11 @@ namespace SysCAD.Editor
       return graphic.CreateItem(out requestID, out guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
+    internal bool DeleteGraphicItem(out uint requestID, Guid guid)
+    {
+      return graphic.DeleteItem(out requestID, guid);
+    }
+
     internal void ConnectGraphicItemModified(ClientGraphic.ItemModifiedHandler itemModifiedHandler)
     {
       graphic.ItemModified += itemModifiedHandler;
@@ -615,6 +620,16 @@ namespace SysCAD.Editor
     internal void DisconnectGraphicItemCreated(ClientGraphic.ItemCreatedHandler itemCreatedHandler)
     {
       graphic.ItemCreated -= itemCreatedHandler;
+    }
+
+    internal void ConnectGraphicItemDeleted(ClientGraphic.ItemDeletedHandler itemDeletedHandler)
+    {
+      graphic.ItemDeleted += itemDeletedHandler;
+    }
+
+    internal void DisconnectGraphicItemDeleted(ClientGraphic.ItemDeletedHandler itemDeletedHandler)
+    {
+      graphic.ItemDeleted -= itemDeletedHandler;
     }
 
     internal void AddNode(string path, string tag, Guid guid)

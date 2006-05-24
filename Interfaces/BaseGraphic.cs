@@ -41,12 +41,12 @@ namespace SysCAD.Interface
 
     public delegate void ItemCreatedHandler(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemModifiedHandler(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate void ItemDeletedHandler(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemDeletedHandler(uint eventID, uint requestID, Guid guid);
 
 
     public delegate void LinkCreatedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort);
     public delegate void LinkModifiedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort);
-    public delegate void LinkDeletedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort);
+    public delegate void LinkDeletedHandler(uint eventID, uint requestID, Guid guid);
 
 
 
@@ -73,10 +73,10 @@ namespace SysCAD.Interface
         ItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    public void OnItemDeleted(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemDeleted(uint eventID, uint requestID, Guid guid)
     {
       if (ItemDeleted != null)
-        ItemDeleted(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        ItemDeleted(eventID, requestID, guid);
     }
 
 
@@ -92,10 +92,10 @@ namespace SysCAD.Interface
         LinkModified(eventID, requestID, guid, tag, classID, origin, destination, originPort, destinationPort);
     }
 
-    public void OnLinkDeleted(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort)
+    public void OnLinkDeleted(uint eventID, uint requestID, Guid guid)
     {
       if (LinkDeleted != null)
-        LinkDeleted(eventID, requestID, guid, tag, classID, origin, destination, originPort, destinationPort);
+        LinkDeleted(eventID, requestID, guid);
     }
 
 

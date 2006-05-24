@@ -41,6 +41,11 @@ namespace SysCAD.Interface
       return serviceGraphic.CreateItem(out requestID, out guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
+    public bool DeleteItem(out uint requestID, Guid guid)
+    {
+      return serviceGraphic.DeleteItem(out requestID, guid);
+    }
+
     public bool Connect(string URL)
     {
       try
@@ -93,17 +98,12 @@ namespace SysCAD.Interface
 
     public void remoteGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
-      GraphicItem graphicItem;
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-        graphicItem.X = boundingRect.X;
-        graphicItem.Y = boundingRect.Y;
-        graphicItem.Width = boundingRect.Width;
-        graphicItem.Height = boundingRect.Height;
-        graphicItem.Angle = angle;
-
-        OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
-      }
+      OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
+
+    public void remoteGraphic_ItemDeleted(uint eventID, uint requestID, Guid guid)
+    {
+      OnItemDeleted(eventID, requestID, guid);
+    }  
   }
 }

@@ -38,5 +38,12 @@ namespace SysCAD.Interface
       OnItemCreated(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
       return true;
     }
+
+    protected override bool DeleteItem(uint requestID, Guid guid)
+    {
+      eventID++;
+      OnItemDeleted(eventID, requestID, guid);
+      return true;
+    }
   }
 }
