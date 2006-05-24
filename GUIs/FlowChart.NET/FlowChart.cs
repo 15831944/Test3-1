@@ -220,6 +220,7 @@ namespace MindFusion.FlowChartX
 			dirty = false;
 			antiAlias = SmoothingMode.None;
 			textRendering = TextRenderingHint.SystemDefault;
+			sortGroupsByZ = false;
 
 			// tooltips
 			showToolTips = true;
@@ -942,26 +943,42 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Returns the top-most box that lies at the specified position.
 		/// </summary>
-		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <param name="point">A PointF specifying a diagram point in logical coordinates.</param>
 		/// <returns>A Box instance if a box lies at the specified location, otherwise null.</returns>
-		public Box GetBoxAt(PointF pt)
+		public Box GetBoxAt(PointF point)
 		{
-			Box box = null;
+			return GetBoxAt(point, 0);
+		}
+
+		/// <summary>
+		/// Returns the top-most box that lies at the specified position.
+		/// </summary>
+		/// <param name="point">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <param name="threshold">A float threshold value specifying how far from the box the point is allowed to be.</param>
+		/// <returns>A Box instance if a box lies at the specified location, otherwise null.</returns>
+		public Box GetBoxAt(PointF point, float threshold)
+		{
+			Box foundBox = null;
 
 			//search the bounding rectangle
 			for (int i = zOrder.Count - 1; i >= 0; i--)
 			{
-				ChartObject obj = zOrder[i];
-				if (obj.getType() == ItemType.Box &&
-					obj.containsPoint(pt) && !obj.notInteractive())
+				ChartObject item = zOrder[i];
+				if (item.getType() == ItemType.Box && !item.notInteractive())
 				{
-					//found
-					box = (Box)obj;
-					break;
+					Box aBox = item as Box;
+					bool contains = threshold == 0 ?
+						item.containsPoint(point) : aBox.containsPoint(point, threshold);
+
+					if (contains)
+					{
+						foundBox = aBox;
+						break;
+					}
 				}
 			}
 
-			return box;
+			return foundBox;
 		}
 
 		/// <summary>
@@ -1787,6 +1804,24 @@ namespace MindFusion.FlowChartX
 
 		[Category("Appearance")]
 		[DefaultValue(false)]
+		[Description("Specifies whether groups should be sorted by Z order when their items are drawn.")]
+		public bool SortGroupsByZ
+		{
+			get { return sortGroupsByZ; }
+			set
+			{
+				if (sortGroupsByZ != value)
+				{
+					sortGroupsByZ = value;
+					Invalidate();
+				}
+			}
+		}
+
+		private bool sortGroupsByZ;
+
+		[Category("Appearance")]
+		[DefaultValue(false)]
 		[Description("Enables or disables the DoubleBuffer ControlStyles bit. Enabling it reduces flicker in Remote Desktop Connection sessions.")]
 		public bool DoubleBuffer
 		{
@@ -2369,9 +2404,29 @@ namespace MindFusion.FlowChartX
 
 		private void drawHierarchy(Graphics g, ChartObject obj, bool shadows)
 		{
-			PainterVisitor painter = new PainterVisitor(g, shadows);
-			obj.visitHierarchy(painter);
+			if (!sortGroupsByZ)
+			{
+				PainterVisitor painter = new PainterVisitor(g, shadows);
+				obj.visitHierarchy(painter);
+			}
+			else
+			{
+				MethodCallVisitor visitor =
+					new MethodCallVisitor(new VisitOperation(addToSortedList));
+				obj.visitHierarchy(visitor);
+				foreach (ChartObject item in sortedByZ.Keys)
+					item.Draw(g, shadows);
+				sortedByZ.Clear();
+			}
 		}
+
+		private void addToSortedList(ChartObject obj)
+		{
+			if (!sortedByZ.ContainsKey(obj))
+				sortedByZ.Add(obj, null);
+		}
+
+		SortedList sortedByZ = new SortedList(new ZOrderComparer());
 
 		[Browsable(true)]
 		[Category("Printing")]

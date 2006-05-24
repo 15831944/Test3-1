@@ -840,6 +840,30 @@ namespace MindFusion.FlowChartX
 
 		// ************ placement ************
 
+		internal bool containsPoint(PointF point, float threshold)
+		{
+			// do not perform the test if the bounding rectangle does not contain the point
+			RectangleF bounds = getRotatedBounds();
+			bounds.Inflate(threshold, threshold);
+			if (!bounds.Contains(point))
+				return false;
+
+			// get a region corresponding to the enlarged box shape
+			bounds = Utilities.normalizeRect(rect);
+			bounds.Inflate(threshold, threshold);
+			Region region = getRgnInRect(bounds);
+
+			// check whether the region contains that point
+			bool contains = false;
+			if (region != null)
+			{
+				contains = region.IsVisible(point);
+				region.Dispose();
+			}
+
+			return contains;
+		}
+
 		internal override bool containsPoint(PointF pt)
 		{
 			RectangleF bounds = getRotatedBounds();
@@ -2399,3 +2423,4 @@ namespace MindFusion.FlowChartX
 		private bool rotateContents;
 	}
 }
+
