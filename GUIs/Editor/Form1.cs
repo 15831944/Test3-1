@@ -324,7 +324,6 @@ namespace SysCAD.Editor
         {
           BaseGraphic pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseGraphic;
 
-          Dictionary<string, string> tagConversion = new Dictionary<string,string>();
 
           if (pasteData != null)
           {
@@ -332,8 +331,7 @@ namespace SysCAD.Editor
             {
               graphicItem.X += 10.0F;
               graphicItem.Y += 10.0F;
-              GraphicItem newGraphicItem = frmFlowChart.NewGraphicItem(graphicItem, tvNavigation.SelectedNode.Text);
-              tagConversion.Add(graphicItem.Tag, newGraphicItem.Tag);
+              frmFlowChart.NewGraphicItem(graphicItem, tvNavigation.SelectedNode.Text);
             }
 
             foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)

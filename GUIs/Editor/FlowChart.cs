@@ -213,6 +213,25 @@ namespace SysCAD.Editor
       }
     }
 
+    private void fcFlowChart_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      GraphicItem graphicItem = new GraphicItem(guid, tag);
+      graphicItem.X = boundingRect.X - boundingRect.Width;
+      graphicItem.Y = boundingRect.Y - boundingRect.Height;
+      graphicItem.Width = boundingRect.Width;
+      graphicItem.Height = boundingRect.Height;
+      graphicItem.Model = model;
+      graphicItem.Shape = shape;
+      graphicItem.MirrorX = mirrorX;
+      graphicItem.MirrorY = mirrorY;
+      graphicItem.fillColor = fillColor;
+
+      state.AddNode(path, tag, guid);
+      state.AddGraphicItem(guid, graphicItem);
+
+      state.newItem(graphicItem, true, fcFlowChart);
+    }
+
     private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
     {
       if (e.ChangingOrigin) // Origin is trying to be being changed.
@@ -664,30 +683,20 @@ namespace SysCAD.Editor
       graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
     }
 
-    public GraphicItem NewGraphicItem(GraphicItem graphicItem, string path)
+    public void NewGraphicItem(GraphicItem graphicItem, string path)
     {
-      return NewGraphicItem(graphicItem.BoundingRect, graphicItem.Model, graphicItem.Shape, 
-        graphicItem.MirrorX, graphicItem.MirrorY, graphicItem.fillColor, path);
+      NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.fillColor, graphicItem.MirrorX, graphicItem.MirrorY);
     }
 
-    public GraphicItem NewGraphicItem(RectangleF rect, string model, string shape, bool mirrorX, bool mirrorY, Color fillColor, string path)
+    public void NewGraphicItem(String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
     {
+      uint requestID;
+      Guid guid;
+
       while (state.Exists("N_" + tempBoxKey.ToString()))
         tempBoxKey++;
-      GraphicItem newGraphicItem = state.NewGraphicItem("N_" + tempBoxKey.ToString(), path);
-      newGraphicItem.X = rect.X - rect.Width;
-      newGraphicItem.Y = rect.Y - rect.Height;
-      newGraphicItem.Width = rect.Width;
-      newGraphicItem.Height = rect.Height;
-      newGraphicItem.Model = model;
-      newGraphicItem.Shape = shape;
-      newGraphicItem.MirrorX = mirrorX;
-      newGraphicItem.MirrorY = mirrorY;
-      newGraphicItem.fillColor = fillColor;
-
-      state.newItem(newGraphicItem, true, fcFlowChart);
-
-      return newGraphicItem;
+      
+      state.CreateGraphicItem(out requestID, out guid, "N_" + tempBoxKey.ToString(), path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public GraphicLink NewGraphicLink(GraphicLink graphicLink, Arrow arrow, float dx, float dy)
@@ -727,14 +736,16 @@ namespace SysCAD.Editor
         {
           if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
           {
-            NewGraphicItem(new RectangleF(fcFlowChart.ClientToDoc(me.Location),
-              state.GraphicStencil(currentGraphicShape).defaultSize),
+            NewGraphicItem(
+              state.CurrentPath,
               currentModelShape,
               currentGraphicShape,
-              false,
-              false,
+              new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicStencil(currentGraphicShape).defaultSize),
+              0.0F,
               Color.LightBlue,
-              state.CurrentPath);
+              false,
+              false
+              );
           }
           else
           {

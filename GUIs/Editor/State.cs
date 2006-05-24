@@ -271,6 +271,7 @@ namespace SysCAD.Editor
     internal void newItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
       flowchart.SuspendLayout();
+
       Box modelBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       Box graphicBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
       Box textBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
@@ -591,25 +592,9 @@ namespace SysCAD.Editor
       return graphic.ModifyItem(out requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    internal GraphicItem NewGraphicItem(Guid guid, String tag, String area)
+    internal bool CreateGraphicItem(out uint requestID, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
     {
-      GraphicItem graphicItem = new GraphicItem(guid, tag);
-      tvNavigation.GetNodeByKey(area).Nodes.Add(tag, guid.ToString());
-      return NewGraphicItem(guid, area, graphicItem);
-    }
-
-    internal GraphicItem NewGraphicItem(String tag, String area)
-    {
-      Guid guid = Guid.NewGuid();
-      GraphicItem graphicItem = new GraphicItem(guid, tag);
-      tvNavigation.GetNodeByPath(area).Nodes.Add(tag, guid.ToString());
-      return NewGraphicItem(guid, area, graphicItem);
-    }
-
-    internal GraphicItem NewGraphicItem(Guid guid, string area, GraphicItem graphicItem)
-    {
-      graphic.graphicItems.Add(guid, graphicItem);
-      return graphicItem;
+      return graphic.CreateItem(out requestID, out guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     internal void ConnectGraphicItemModified(ClientGraphic.ItemModifiedHandler itemModifiedHandler)
@@ -620,6 +605,26 @@ namespace SysCAD.Editor
     internal void DisconnectGraphicItemModified(ClientGraphic.ItemModifiedHandler itemModifiedHandler)
     {
       graphic.ItemModified -= itemModifiedHandler;
+    }
+
+    internal void ConnectGraphicItemCreated(ClientGraphic.ItemCreatedHandler itemCreatedHandler)
+    {
+      graphic.ItemCreated += itemCreatedHandler;
+    }
+
+    internal void DisconnectGraphicItemCreated(ClientGraphic.ItemCreatedHandler itemCreatedHandler)
+    {
+      graphic.ItemCreated -= itemCreatedHandler;
+    }
+
+    internal void AddNode(string path, string tag, Guid guid)
+    {
+      tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
+    }
+
+    internal void AddGraphicItem(Guid guid, GraphicItem graphicItem)
+    {
+      graphic.graphicItems.Add(guid, graphicItem);
     }
   }
 }
