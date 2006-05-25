@@ -174,21 +174,25 @@ class SFEFlwLib : public SFEMdlLib, CExecObj
 
     void           EO_SetSolveMode(long RunMds, long RunMdsMsk);
     flag           EO_Starting(flag fBeginStarting);
-    flag           EO_SetTime(double TimeRqd, bool Rewind);
-    flag           EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    flag           EO_Start(const CXM_TimeControl &CB);
+    flag           EO_SetTime(CTimeValue TimeRqd, bool Rewind);
+    flag           EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    flag           EO_GotoRunStart(CXM_TimeControl &CB);
+    flag           EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged);
+    flag           EO_PreStart(CXM_TimeControl &CB);
+    flag           EO_Start(CXM_TimeControl &CB);
     void           EO_QuerySubsReqd(CXMsgLst &XM);
     void           EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     flag           EO_ReadSubsData(CXMsgLst &XM);
     flag           EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);
     DWORD          EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
     int            EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route);
-    flag           EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
+    flag           EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
     flag           EO_StepDone();
-    flag           EO_Stop(const CXM_TimeControl &CB);
+    flag           EO_QueryStop(CXM_TimeControl &CB, bool Starting);
+    flag           EO_Stop(CXM_TimeControl &CB);
     flag           EO_Stopping(flag BeginStopping);
-    flag           EO_BeginPause(const CXM_TimeControl &CB);
-    flag           EO_EndPause(const CXM_TimeControl &CB);
+    flag           EO_BeginPause(CXM_TimeControl &CB);
+    flag           EO_EndPause(CXM_TimeControl &CB);
                    
     flag           EO_BeginSave(FilingControlBlock &FCB);
     flag           EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM);

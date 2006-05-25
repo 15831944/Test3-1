@@ -489,14 +489,14 @@ flag CMainFrame::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
 
 //---------------------------------------------------------------------------
 
-flag CMainFrame::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CMainFrame::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return True;
   };
 
 //---------------------------------------------------------------------------
 
-flag CMainFrame::EO_Start(const CXM_TimeControl &CB)
+flag CMainFrame::EO_Start(CXM_TimeControl &CB)
   {
 //  gs_TheRunMngr.DoEO_Starting();
   return True;
@@ -592,7 +592,7 @@ flag CMainFrame::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CMainFrame::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CMainFrame::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   //gs_TheRunMngr.DoEO_Execute();
   return False;
@@ -600,7 +600,7 @@ flag CMainFrame::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag CMainFrame::EO_Stop(const CXM_TimeControl &CB)
+flag CMainFrame::EO_Stop(CXM_TimeControl &CB)
   {
   return True;
   };
@@ -3591,40 +3591,39 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
   if (gs_Exec.Busy())
     {
     const int IsDynMode=gs_Exec.GlblDynamicMode();
-    const double Progress = IsDynMode ? gs_Exec.GetDynProgress() : -1.0;
-    char Buff2[256];
+    const double Progress = IsDynMode ? gs_Exec.DynProgress : -1.0;
+    CString Buff2;
     if (IsDynMode)
       {
-      Buff2[0]=0;
       if (CB.m_bRealTime)
         {
-        __time64_t t=(__time64_t)CB.m_Time;
+        __time64_t t=(__time64_t)CB.m_TheTime.Seconds;
         struct tm T, *pT=_localtime64(&t);
         if (pT)
           {
           memcpy(&T, pT, sizeof(T));
-          sprintf(Buff2, "%2i:%02i:%02i", T.tm_hour, T.tm_min, T.tm_sec);//t % 60); // t % 60 used because t may have
+          Buff2.Format("%2i:%02i:%02i", T.tm_hour, T.tm_min, T.tm_sec);//t % 60); // t % 60 used because t may have
           }
         else
-          strcpy(Buff2, "??:??:??");
+          Buff2="??:??:??";
         }
       else
         {
-        if (Valid(CB.m_Time))
+        if (ValidTime(CB.m_TheTime))
           {
           if (Progress<0.0)
-            SecstoHMSCnv(CB.m_Time, Buff2, false, CB.m_StepSize>=60.0);
+            Buff2=CB.m_TheTime.Format(TD_Time|(CB.m_StepSize>=60.0?TD_IntegralSecs:0));
           else
             {
-            const double d = CB.m_Time-CB.m_StartTime;
-            SecstoDHMSCnv(d, Buff2, CB.m_StepSize>=60.0 || d>3600.0);
+            CTimeValue d = gs_Exec.TheTime-gs_Exec.TimeStarted;
+            Buff2=d.Format(TD_Time|TD_Days|((CB.m_StepSize>=60.0 || d>3600.0) ? TD_IntegralSecs:0));
             }
           }
         else
-          strcpy(Buff2, "??:??:??");
+          Buff2="??:??:??";
         }
-      if (Buff2[0])
-        pStatusBar->UpdateIndicator(1, Buff2, true);
+      if (Buff2.GetLength())
+        pStatusBar->UpdateIndicator(1, Buff2.GetBuffer(0), true);
       }
     else
       {//do nothing indicator updated elsewhere
@@ -3636,10 +3635,10 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
       case 2: //ProBal solving...
         break; //do nothing indicator updated elsewhere
       case 1: //Idling...
-        sprintf(Buff2, "Idling %c", StatusRotate[IdlingCnt++]);
+        Buff2.Format("Idling %c", StatusRotate[IdlingCnt++]);
         if (IdlingCnt>3)
           IdlingCnt=0;
-        pStatusBar->UpdateIndicator(2, Buff2, true);
+        pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
         break;
       case 3: ////Dynamic running...
         if (CB.m_bSyncWithClock)
@@ -3649,14 +3648,14 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
           if (Progress<0.0)
             {
             if (CB.m_StepSize>3600.0)
-              sprintf(Buff2, "StepSize:%.3gh", CB.m_StepSize/3600.0);
+              Buff2.Format("StepSize:%.3gh", CB.m_StepSize/3600.0);
             else
-              sprintf(Buff2, "StepSize:%.4g", CB.m_StepSize);
+              Buff2.Format("StepSize:%.4g", CB.m_StepSize);
             }
           else
-            sprintf(Buff2, "%.2f%%", Progress*100.0);
+            Buff2.Format("%.2f%%", Progress*100.0);
 
-          pStatusBar->UpdateIndicator(2, Buff2, true);
+          pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
           }
         break;
       default:

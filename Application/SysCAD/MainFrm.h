@@ -98,14 +98,14 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     virtual flag   EO_Stopping(flag fBeginStopping);
     virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
 
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag   EO_Start(const CXM_TimeControl &CB);
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);
     virtual void   EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     virtual flag   EO_ReadSubsData(CXMsgLst &XM);  
     virtual flag   EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);  
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag   EO_Stop(const CXM_TimeControl &CB);
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag   EO_Stop(CXM_TimeControl &CB);
 
 
     #ifdef _DEBUG

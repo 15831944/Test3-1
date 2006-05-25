@@ -5,34 +5,41 @@ import "oaidl.idl";
 // type library (SysCADMarshal.tlb).
 
 typedef enum tagScd_RunTerms 
-{ 
-	Scd_RTRM_None, 
-	Scd_RTRM_For, 
-	Scd_RTRM_Until, 
-	Scd_RTRM_SteadyState, 
-	Scd_RTRM_ForIters 
-}   Scd_RunTerms ;
-		
+  { 
+  Scd_ScnTyp_None, 
+  Scd_ScnTyp_Duration, 
+  Scd_ScnTyp_Until, 
+  Scd_ScnTyp_ForIters, 
+  Scd_ScnTyp_SteadyState, 
+  }   Scd_RunTerms ;
+
+typedef enum tagScd_StopActions
+  { 
+  Scd_ScnTA_None, 
+  Scd_ScnTA_Edit, 
+  Scd_ScnTA_Idle 
+  }   Scd_StopActions;
+
 typedef enum tagSCD_XIOAction 
-{ 
-	Scd_XIO_Null, 
-	Scd_XIO_In, 
-	Scd_XIO_Out, 
-	Scd_XIO_InOut 
-} SCD_XIOAction;
-				   
-			   
+  { 
+  Scd_XIO_Null, 
+  Scd_XIO_In, 
+  Scd_XIO_Out, 
+  Scd_XIO_InOut 
+  } SCD_XIOAction;
+
+
 //// Data Definitions Flags	 NBNBNB Limited to those in the first 32 bits
 
 cpp_quote("")
 cpp_quote("const DWORD SCD_NOCOMPARE           = 0x00000040;")// Maybe masked out ??
 cpp_quote("const DWORD SCD_NAN_OK              = 0x00000080;")
-                                      
+
 cpp_quote("const DWORD SCD_NOFILE              = 0x00000100;")
 cpp_quote("const DWORD SCD_NOVIEW              = 0x00000200;")
 cpp_quote("const DWORD SCD_NOSNAPSHOT          = 0x00000400;")
 cpp_quote("const DWORD SCD_NOSCENARIO          = 0x00000800;")
-                                      
+
 cpp_quote("const DWORD SCD_PARAM               = 0x00001000;")
 cpp_quote("const DWORD SCD_WRITEPROTECT        = 0x00002000;") 
 cpp_quote("const DWORD SCD_HIDDEN              = 0x00004000;")
@@ -56,27 +63,29 @@ cpp_quote("const DWORD SCD_NOPUTSHORTCUT       = 0x80000000;")  // Facilty Unuse
 //cpp_quote("const DWORD SCD_RESULT              = 0x0000000100000000")
 //cpp_quote("const DWORD SCD_DUALVALUE           = 0x0000000200000000")
 //cpp_quote("const DWORD SCD_DUALVALUEOVR        = 0x0000000400000000")
-				    
-typedef struct tagSCD_EXECUTIONCONTROL
-{
-    BOOL             m_bRealTime;
-    BOOL             m_bSyncWithClock;
-    BOOL             m_bHoldAdv;
-    double           m_dTime;
-    double           m_dStepSize;
-    double           m_dStepSizeMax;
-    double           m_dStepSizeNxt;
-    double           m_dStopTime;
-    double           m_dRealTimeMult;
-    long             m_nSteps;         
-    long             m_nMaxSteps;			    
-    
-    //EqnSlvCtrlBlk    m_EqnCB;
-    //  
-    Scd_RunTerms    m_iRunTerm;
-    double           m_dTimeUntilStop;
 
-} SCD_EXECUTIONCONTROL;
+typedef struct tagSCD_EXECUTIONCONTROL
+  {
+  BOOL             m_bRealTime;
+  BOOL             m_bSyncWithClock;
+  BOOL             m_bHoldAdv;
+  double           m_dTime;
+  double           m_dStepSize;
+  double           m_dStepSizeMax;
+  double           m_dStepSizeNxt;
+  double           m_dStopTime;
+  double           m_dRealTimeMult;
+  long             m_nStepCount;         
+  long             m_nStepCountMax;			    
+
+  //EqnSlvCtrlBlk    m_EqnCB;
+  //  
+  Scd_RunTerms    m_ScnType;
+  Scd_StopActions m_TermAction;
+  double           m_ScnStopTime;
+  double           m_ScnDuration;
+
+  } SCD_EXECUTIONCONTROL;
 
 typedef struct tagSCD_EXECRETURN
   {
@@ -85,100 +94,100 @@ typedef struct tagSCD_EXECRETURN
   } SCD_EXECRETURN;
 
 typedef struct tagSCD_TAGITEM
-{
-[string]    LPSTR /*LPWSTR*/  m_szTag;
-[string]    LPSTR /*LPWSTR*/  m_szCnv;
-			VARTYPE         m_vtType;
-			DWORD           m_dwItemIndex;
-			DWORD			m_dwHandle;
-			DWORD			m_dwOptions;
-			SCD_XIOAction	m_dwAction;
-} SCD_TAGITEM;
+  {
+  [string]    LPSTR /*LPWSTR*/  m_szTag;
+  [string]    LPSTR /*LPWSTR*/  m_szCnv;
+  VARTYPE         m_vtType;
+  DWORD           m_dwItemIndex;
+  DWORD			m_dwHandle;
+  DWORD			m_dwOptions;
+  SCD_XIOAction	m_dwAction;
+  } SCD_TAGITEM;
 
 typedef struct tagSCD_DATAITEM
-{
-			DWORD           m_dwItemIndex;
-			DWORD			m_dwHandle;
-			DWORD			m_dwOptions;
-			VARIANT         m_vValue;
-} SCD_DATAITEM;
+  {
+  DWORD           m_dwItemIndex;
+  DWORD			m_dwHandle;
+  DWORD			m_dwOptions;
+  VARIANT         m_vValue;
+  } SCD_DATAITEM;
 
 
 [
-	object,
-	uuid(057E8131-C4D6-4E0F-BACD-7615743704B1),
-	helpstring("IScdMarshal Interface"),
-	pointer_default(unique)
+  object,
+  uuid(057E8131-C4D6-4E0F-BACD-7615743704B1),
+  helpstring("IScdMarshal Interface"),
+  pointer_default(unique)
 ]
 interface IScdMarshal : IUnknown
-{
-	[helpstring("method Open")] HRESULT Open([in, string] LPCWSTR Filename, [out] long *Return);
-	[helpstring("method Close")] HRESULT Close([in] VARIANT_BOOL Save, [out] long *Return);
-};
+  {
+  [helpstring("method Open")] HRESULT Open([in, string] LPCWSTR Filename, [out] long *Return);
+  [helpstring("method Close")] HRESULT Close([in] VARIANT_BOOL Save, [out] long *Return);
+  };
 
 [
-	object,
-	uuid(426AB2D6-83E3-47C3-8C85-F6DFA704C01D),
-	//oleautomation, // to enforce registration															   
-	helpstring("IScdExecObject Interface"),
-	pointer_default(unique)
+  object,
+  uuid(426AB2D6-83E3-47C3-8C85-F6DFA704C01D),
+  //oleautomation, // to enforce registration															   
+  helpstring("IScdExecObject Interface"),
+  pointer_default(unique)
 ]
 interface IScdExecObject : IUnknown
-{
-	[helpstring("method Start")] HRESULT Start(
-			[in] SCD_EXECUTIONCONTROL * pTmCB, 
-			[in, out] DWORD * pdwReturn);
-	[helpstring("method Start")] HRESULT Execute(
-			[in] SCD_EXECUTIONCONTROL * pTmCB, 
-			[in, out] SCD_EXECRETURN * pEORet, 
-			[in, out] DWORD * pdwReturn);
-	[helpstring("method Start")] HRESULT Stop(
-			[in] SCD_EXECUTIONCONTROL * pTmCB, 
-			[in, out] DWORD * pdwReturn);
-	[helpstring("method QueryTime")] HRESULT QueryTime(
-			[in] SCD_EXECUTIONCONTROL * pTmCB, 
-			[in, out] double * pdTimeReqd, 
-			[in, out] double * pdDeltaTReqd);
-	[helpstring("method QuerySubscriptionTagsRequired")] HRESULT QuerySubscriptionTagsRequired(
-			[in] VARIANT_BOOL Start,
-			[in, out] DWORD *dwMaxCount, 
-			[in, out] DWORD *dwCount, 
-			[in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_TAGITEM **pTags);
-	[helpstring("method QuerySubscriptionTagsAvailable")] HRESULT QuerySubscriptionTagsAvailable(
-			[in, out] DWORD *dwMaxCount, 
-			[in, out] DWORD *dwCount, 
-			[in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_TAGITEM **pTags);
-	[helpstring("method ReadSubscriptionData")] HRESULT ReadSubscriptionData(
-			[in] VARIANT_BOOL Start, 
-			[in] VARIANT_BOOL ReadAll, 
-			[in, out] DWORD *dwMaxCount, 
-			[in, out] DWORD *dwCount, 
-			[in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_DATAITEM **pData);
-	[helpstring("method WriteSubscriptionData")] HRESULT WriteSubscriptionData(
-			[in, out] DWORD *dwMaxCount, 
-			[in, out] DWORD *dwCount, 
-			[in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_DATAITEM **pData);
-    [helpstring("method ReadTaggedItems")] HRESULT ReadTaggedItems(
-			[in] DWORD dwCount, 
-			[in, size_is(dwCount)] SCD_TAGITEM *pTags, 
-			[out, size_is(dwCount)] SCD_DATAITEM *pData, 
-			[out, size_is(dwCount)] DWORD *pReturn);
-	[helpstring("method WriteTaggedItems")] HRESULT WriteTaggedItems(
-			[in] DWORD dwCount, 
-			[in, size_is(dwCount)] SCD_TAGITEM *pTags, 
-			[in, out, size_is(dwCount)] SCD_DATAITEM *pData, 
-			[out, size_is(dwCount)] DWORD *pReturn);
-};
-  	 
+  {
+  [helpstring("method Start")] HRESULT Start(
+    [in] SCD_EXECUTIONCONTROL * pTmCB, 
+    [in, out] DWORD * pdwReturn);
+  [helpstring("method Start")] HRESULT Execute(
+    [in] SCD_EXECUTIONCONTROL * pTmCB, 
+    [in, out] SCD_EXECRETURN * pEORet, 
+    [in, out] DWORD * pdwReturn);
+  [helpstring("method Start")] HRESULT Stop(
+    [in] SCD_EXECUTIONCONTROL * pTmCB, 
+    [in, out] DWORD * pdwReturn);
+  [helpstring("method QueryTime")] HRESULT QueryTime(
+    [in] SCD_EXECUTIONCONTROL * pTmCB, 
+    [in, out] double * pdTimeReqd, 
+    [in, out] double * pdDeltaTReqd);
+  [helpstring("method QuerySubscriptionTagsRequired")] HRESULT QuerySubscriptionTagsRequired(
+    [in] VARIANT_BOOL Start,
+    [in, out] DWORD *dwMaxCount, 
+    [in, out] DWORD *dwCount, 
+    [in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_TAGITEM **pTags);
+  [helpstring("method QuerySubscriptionTagsAvailable")] HRESULT QuerySubscriptionTagsAvailable(
+    [in, out] DWORD *dwMaxCount, 
+    [in, out] DWORD *dwCount, 
+    [in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_TAGITEM **pTags);
+  [helpstring("method ReadSubscriptionData")] HRESULT ReadSubscriptionData(
+    [in] VARIANT_BOOL Start, 
+    [in] VARIANT_BOOL ReadAll, 
+    [in, out] DWORD *dwMaxCount, 
+    [in, out] DWORD *dwCount, 
+    [in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_DATAITEM **pData);
+  [helpstring("method WriteSubscriptionData")] HRESULT WriteSubscriptionData(
+    [in, out] DWORD *dwMaxCount, 
+    [in, out] DWORD *dwCount, 
+    [in, out, size_is( ,*dwMaxCount), length_is( ,*dwCount)] SCD_DATAITEM **pData);
+  [helpstring("method ReadTaggedItems")] HRESULT ReadTaggedItems(
+    [in] DWORD dwCount, 
+    [in, size_is(dwCount)] SCD_TAGITEM *pTags, 
+    [out, size_is(dwCount)] SCD_DATAITEM *pData, 
+    [out, size_is(dwCount)] DWORD *pReturn);
+  [helpstring("method WriteTaggedItems")] HRESULT WriteTaggedItems(
+    [in] DWORD dwCount, 
+    [in, size_is(dwCount)] SCD_TAGITEM *pTags, 
+    [in, out, size_is(dwCount)] SCD_DATAITEM *pData, 
+    [out, size_is(dwCount)] DWORD *pReturn);
+  };
+
 [
-	object,
-	//oleautomation,
-	uuid(B2C38331-751E-47C1-B375-4CBDFD0D938C),
-	helpstring("_IScdMarshalEvents Interface")
+  object,
+  //oleautomation,
+  uuid(B2C38331-751E-47C1-B375-4CBDFD0D938C),
+  helpstring("_IScdMarshalEvents Interface")
 ]
 interface _IScdMarshalEvents  : IUnknown	 
-{				    
-};
+  {				    
+  };
 
 
 //return codes from XReadTaggedItem (EO_ReadTaggedItem)...
@@ -192,75 +201,75 @@ cpp_quote("#define SCDTAG_IsParm        0x0040")   //tag has isParm flag set
 cpp_quote("#define SCDTAG_BadCnvs       0x0080")   //tag has different Converions
 
 [					   
-	object,
-	//oleautomation,
-	uuid(4DD2D65E-E0F4-4B8E-AE8D-67F442AF9869),
-	helpstring("_IScdExecObjectEvents Interface"),
-	pointer_default(unique)
+  object,
+  //oleautomation,
+  uuid(4DD2D65E-E0F4-4B8E-AE8D-67F442AF9869),
+  helpstring("_IScdExecObjectEvents Interface"),
+  pointer_default(unique)
 ]
 interface _IScdExecObjectEvents	: IUnknown
-{
-	//[helpstring("method ReadTaggedItem")] HRESULT ReadTaggedItem([in] SCD_TAGITEM *Tag, [out] SCD_DATAITEM *Data, [out] DWORD *Return);
-	[helpstring("method ReadTaggedItems")] HRESULT ReadTaggedItems(
-			[in] DWORD dwCount, 
-			[in, size_is( ,dwCount)] SCD_TAGITEM **pTags, 
-			[in, out, size_is( ,dwCount)] SCD_DATAITEM **pData, 
-			[in, out, size_is( ,dwCount)] DWORD **pReturn);
-};
+  {
+  //[helpstring("method ReadTaggedItem")] HRESULT ReadTaggedItem([in] SCD_TAGITEM *Tag, [out] SCD_DATAITEM *Data, [out] DWORD *Return);
+  [helpstring("method ReadTaggedItems")] HRESULT ReadTaggedItems(
+    [in] DWORD dwCount, 
+    [in, size_is( ,dwCount)] SCD_TAGITEM **pTags, 
+    [in, out, size_is( ,dwCount)] SCD_DATAITEM **pData, 
+    [in, out, size_is( ,dwCount)] DWORD **pReturn);
+  };
 
-	    
+
 
 [ uuid(708DC249-6838-4822-A2D5-E408FD829B07), version(1.0) ]
 library SysCADMarshal
-{
-	importlib("stdole32.tlb");
-	importlib("stdole2.tlb");
+  {
+  importlib("stdole32.tlb");
+  importlib("stdole2.tlb");
 
 
-	//  Primary dispatch interface for CSysCADMarshalDoc
-	
-	[ uuid(8DD18AB7-D600-4085-8E4F-B34E51C44D26) ]
-	dispinterface ISysCADMarshal
-	{
-		properties:
-			// NOTE - ClassWizard will maintain property information here.
-			//    Use extreme caution when editing this section.
-			//{{AFX_ODL_PROP(CSysCADMarshalDoc)
-			//}}AFX_ODL_PROP
-			
-		methods:
-			// NOTE - ClassWizard will maintain method information here.
-			//    Use extreme caution when editing this section.
-			//{{AFX_ODL_METHOD(CSysCADMarshalDoc)
-			//}}AFX_ODL_METHOD
+  //  Primary dispatch interface for CSysCADMarshalDoc
 
-	};
-	//  Class information for CSysCADMarshalDoc
-	
-	[ uuid(01E21D76-DF1D-43DD-A2A9-6A40C14765B1) ]
-	coclass Document
-	{
-		[default] dispinterface ISysCADMarshal;
-	};						   
+  [ uuid(8DD18AB7-D600-4085-8E4F-B34E51C44D26) ]
+  dispinterface ISysCADMarshal
+    {
+    properties:
+      // NOTE - ClassWizard will maintain property information here.
+      //    Use extreme caution when editing this section.
+      //{{AFX_ODL_PROP(CSysCADMarshalDoc)
+      //}}AFX_ODL_PROP
 
-	//{{AFX_APPEND_ODL}}
-	//}}AFX_APPEND_ODL}}
+    methods:
+      // NOTE - ClassWizard will maintain method information here.
+      //    Use extreme caution when editing this section.
+      //{{AFX_ODL_METHOD(CSysCADMarshalDoc)
+      //}}AFX_ODL_METHOD
 
-	[
-		uuid(35725B10-C090-4C48-AE31-F9C614C87CD0),
-		helpstring("ScdMarshal Class")
-	]
-	coclass ScdMarshal
-	{
-		[default] interface IScdMarshal;
-		[default, source] interface _IScdMarshalEvents;
+    };
+  //  Class information for CSysCADMarshalDoc
 
-		interface IScdExecObject;
-		[source] interface _IScdExecObjectEvents;
-	};
+  [ uuid(01E21D76-DF1D-43DD-A2A9-6A40C14765B1) ]
+  coclass Document
+    {
+    [default] dispinterface ISysCADMarshal;
+    };						   
 
-	interface _IScdMarshalEvents;
-	interface _IScdExecObjectEvents;
-	interface IScdMarshal;
-	interface IScdExecObject;
-};
+  //{{AFX_APPEND_ODL}}
+  //}}AFX_APPEND_ODL}}
+
+  [
+    uuid(35725B10-C090-4C48-AE31-F9C614C87CD0),
+    helpstring("ScdMarshal Class")
+  ]
+  coclass ScdMarshal
+    {
+    [default] interface IScdMarshal;
+    [default, source] interface _IScdMarshalEvents;
+
+    interface IScdExecObject;
+    [source] interface _IScdExecObjectEvents;
+    };
+
+  interface _IScdMarshalEvents;
+  interface _IScdExecObjectEvents;
+  interface IScdMarshal;
+  interface IScdExecObject;
+  };

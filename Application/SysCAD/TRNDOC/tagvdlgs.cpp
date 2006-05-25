@@ -713,11 +713,8 @@ END_MESSAGE_MAP()
 BOOL CTBaseSetDlg::OnInitDialog()
   {
   pTTC = new CCustomToolTipCtrl(this);
-  char buff[256];
-  SecstoHMSDate(pDoc->TimeBaseStart(), buff);
-  m_Start = buff;
-  SecstoHMSCnv(pDoc->TimeBaseDuration(), buff);
-  m_Duration = buff;
+  m_Start = pDoc->TimeBaseStart().Format(TD_TimeDate);
+  m_Duration = pDoc->TimeBaseDuration().Format(TD_Time);
   m_TrendTitle = pDoc->GetTitle();
   CDialog::OnInitDialog();
   return TRUE;
@@ -747,9 +744,9 @@ void CTBaseSetDlg::OnOK()
   {
   UpdateData(TRUE);
   int i = 0;
-  double ts, td;
-  flag OK1 = HMSDatetoSecs(m_Start.GetBuffer(0), ts);
-  flag OK2 = HMStoSecs(m_Duration.GetBuffer(0), td);
+  CTimeValue ts, td;
+  flag OK1 = ts.Parse(m_Start);
+  flag OK2 = td.Parse(m_Duration);
   if (OK1 && OK2)
     {
     pDoc->SetTimebase(ts, td, true);

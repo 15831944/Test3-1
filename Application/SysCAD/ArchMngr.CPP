@@ -127,7 +127,7 @@ flag CArchiveDBField::GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ fla
 
 //---------------------------------------------------------------------------
 
-flag CArchiveDBField::Execute(const CXM_TimeControl &CB, CArchiveManager & ArcMan)
+flag CArchiveDBField::Execute(CXM_TimeControl &CB, CArchiveManager & ArcMan)
   {
   double CurVal=m_Src.GetValue(ArcMan);//0;//ArcMan.Slots[m_lSlotIndex]->GetRawValueDble();
 
@@ -292,7 +292,7 @@ bool CArchiveTrigger::TestTrigger(CArchiveManager  & ArcMan)
 CArchiveDBTable::CArchiveDBTable(CArchiveManager *pADB) : m_rAM(*pADB)
   {
   m_bInitReqd=true;
-  m_dNextSaveTime=0;
+  m_dNextSaveTime=CTimeValue(0.0);
   m_bPeriodOn=false;
   //m_pDef=NULL;
   //m_pRst=NULL;
@@ -344,37 +344,40 @@ bool CArchiveDBTable::AddTrigger(LPCTSTR Cfg)
 
 //---------------------------------------------------------------------------
 
-bool CArchiveDBTable::Execute(const CXM_TimeControl &CB, CArchiveManager & ArcMan)
+bool CArchiveDBTable::Execute(CXM_TimeControl &CB, CArchiveManager & ArcMan)
   {
   bool DoSavePer=false;
   bool DoSaveTrg=false;
+
+  CTimeValue Period((double)m_lPeriod);
+  CTimeValue Offset((double)m_lOffset);
 
   if (m_bInitReqd)
     {
     if (m_bPeriodOn)
       {
-      __time64_t tt=(__time64_t)CB.m_Time;
+      __time64_t tt=(__time64_t)CB.m_TheTime.Seconds;
       tm* t=_localtime64(&tt);
 
-      long CurTimeInDay=t->tm_sec+t->tm_min*SecondsInMinute+t->tm_hour*SecondsInHour;
-      long SaveTimeInDay=m_lOffset;
+      CTimeValue CurTimeInDay((double)(t->tm_sec+t->tm_min*SecondsInMinute+t->tm_hour*SecondsInHour));
+      CTimeValue SaveTimeInDay(Offset);
 
       //simple - could be more efficient  
-      while (SaveTimeInDay-m_lPeriod>CurTimeInDay)
-        SaveTimeInDay-=m_lPeriod;
+      while (SaveTimeInDay-Period>CurTimeInDay)
+        SaveTimeInDay-=Period;
       while (SaveTimeInDay<CurTimeInDay)
-        SaveTimeInDay+=m_lPeriod;
+        SaveTimeInDay+=Period;
 
-      m_dNextSaveTime=CB.m_Time-CurTimeInDay+SaveTimeInDay;
+      m_dNextSaveTime=CB.m_TheTime-CurTimeInDay+SaveTimeInDay;
       }
 
     m_bInitReqd=false;
     }
 
-  if (m_bPeriodOn && (CB.m_Time>=m_dNextSaveTime))
+  if (m_bPeriodOn && (CB.m_TheTime>=m_dNextSaveTime))
     {
     DoSavePer=true;
-    m_dNextSaveTime+=m_lPeriod;
+    m_dNextSaveTime+=Period;
     }
 
   for (int tr=0; tr<m_Triggers.GetSize(); tr++)
@@ -384,19 +387,13 @@ bool CArchiveDBTable::Execute(const CXM_TimeControl &CB, CArchiveManager & ArcMa
     {
 #if dbgArchiver
     if (dbgArchiverWrites())
-      {
-      char Buff[64];
-      LogNote(ArcName,0,"%s %s %s", SecstoHMS(CB.m_Time, Buff, true), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
-      }
+      LogNote(ArcName,0,"%s %s %s", CB.m_TheTime.Format(TD_Time), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
 #endif
 
     if (ArcMan.m_bDBOK)
       AddDBRecord(CB);
     else
-      {
-      char Buff[64];
-      LogWarning(ArcName,0,"Record not written : %s %s %s", SecstoHMS(CB.m_Time, Buff, true), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
-      }
+      LogWarning(ArcName,0,"Record not written : %s %s %s", CB.m_TheTime.Format(TD_Time), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
 
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       m_Fields[fd]->m_bReset=true;
@@ -551,14 +548,14 @@ bool CArchiveDBTable::CreateDBRecordset()
 
 //---------------------------------------------------------------------------
 
-bool CArchiveDBTable::AddDBRecord(const CXM_TimeControl &CB)
+bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
   {
   if (m_pRst==NULL)
     return false;
 
   try
     {
-    __time64_t tt=(__time64_t)CB.m_Time;
+    __time64_t tt=(__time64_t)CB.m_TheTime.Seconds;
     tm* t=_localtime64(&tt);
 
     COleDateTime DT;
@@ -789,7 +786,7 @@ CArchiveManager::CArchiveManager() :
       m_Tables.Add(pTb);
 
       // NBNBNB No Checking
-      double P,O;
+      CTimeValue P,O;
       pTb->m_sName=TbName;
       pTb->m_sCfgSection=TbSect;
 
@@ -798,9 +795,9 @@ CArchiveManager::CArchiveManager() :
         dbgpln("Tb:%-20s",(LPCTSTR)pTb->m_sName);
 #endif
 
-      P = HMStoSecs((LPSTR)PF.RdStr(TbSect, "Period", ""), P) ? P : -1;
-      O = HMStoSecs((LPSTR)PF.RdStr(TbSect, "Offset", ""), O) ? O : 0;
-      pTb->AddPeriod((long)P, (long)O);
+      P = P.Parse(PF.RdStr(TbSect, "Period", "")) ? P : -1.0;
+      O = O.Parse(PF.RdStr(TbSect, "Offset", "")) ? O : 0.0;
+      pTb->AddPeriod((long)P.Seconds, (long)O.Seconds);
 
       for (int j=0; ;j++)
         {
@@ -1382,7 +1379,7 @@ CArchiveManager::CArchiveManager() :
 
   //---------------------------------------------------------------------------
 
-  flag CArchiveManager::Execute(const CXM_TimeControl &CB)//, CArchiveManager & ArcMan)
+  flag CArchiveManager::Execute(CXM_TimeControl &CB)//, CArchiveManager & ArcMan)
     {
     if (!m_bIsOpen)
       return 0;
@@ -1757,14 +1754,14 @@ CArchiveManager::CArchiveManager() :
 
   //---------------------------------------------------------------------------
 
-  flag CArchiveManager::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+  flag CArchiveManager::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
     {
     return true;
     }
 
   //---------------------------------------------------------------------------
 
-  flag CArchiveManager::EO_Start(const CXM_TimeControl &CB)
+  flag CArchiveManager::EO_Start(CXM_TimeControl &CB)
     {
     //  if (!bRecordHistDone)
     //    RecordSlots(); //ensure the historian knows what to record
@@ -1954,7 +1951,7 @@ CArchiveManager::CArchiveManager() :
 
   //---------------------------------------------------------------------------
 
-  flag CArchiveManager::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+  flag CArchiveManager::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
     {
     SendExec();
     return false;
@@ -1962,7 +1959,7 @@ CArchiveManager::CArchiveManager() :
 
   //---------------------------------------------------------------------------
 
-  flag CArchiveManager::EO_Stop(const CXM_TimeControl &CB)
+  flag CArchiveManager::EO_Stop(CXM_TimeControl &CB)
     {
     SendStop();
 

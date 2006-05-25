@@ -380,7 +380,7 @@ void Valve_GP::UnlinkAllXRefs()
   };
 //--------------------------------------------------------------------------
 
-void Valve_GP::EvalCtrlActions()
+void Valve_GP::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   if (!m_FRB.On())
     {

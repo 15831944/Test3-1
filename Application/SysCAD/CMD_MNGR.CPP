@@ -1430,16 +1430,16 @@ DWORD CCmdExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
 
 //---------------------------------------------------------------------------
 
-flag CCmdExec::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CCmdExec::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag CCmdExec::EO_Start(const CXM_TimeControl &CB)
+flag CCmdExec::EO_Start(CXM_TimeControl &CB)
   {
-  dStartTime = CB.m_Time;
+  dStartTime = CB.m_TheTime;
   dwIterCount = 0;
   return True;
   }
@@ -1480,10 +1480,10 @@ flag CCmdExec::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CCmdExec::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CCmdExec::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   dwIterCount++;
-  dCurTime = CB.m_Time;
+  dCurTime = CB.m_TheTime;
   CCmdBase* pCmd = Cmds.IsEmpty() ? NULL : Cmds.GetHead();
   if (pCmd && pCmd->flags & CmdFlagExecuteWait)
     {
@@ -1498,7 +1498,7 @@ flag CCmdExec::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag CCmdExec::EO_Stop(const CXM_TimeControl &CB)
+flag CCmdExec::EO_Stop(CXM_TimeControl &CB)
   {
   return True;
   }

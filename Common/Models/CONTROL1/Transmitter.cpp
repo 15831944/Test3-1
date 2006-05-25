@@ -825,7 +825,7 @@ void CTransmitter::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void CTransmitter::EvalCtrlStrategy()
+void CTransmitter::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

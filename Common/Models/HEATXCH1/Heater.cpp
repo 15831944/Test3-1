@@ -370,7 +370,7 @@ flag SimpleHeater::ValidateData(ValidateDataBlk & VDB)
 
 //---------------------------------------------------------------------------
 
-void SimpleHeater::EvalCtrlActions()
+void SimpleHeater::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   if (bOnLine && iDutyMethod==HDM_DutyTag && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {
@@ -382,8 +382,8 @@ void SimpleHeater::EvalCtrlActions()
 
     //solve pgm functions...
     CGExecContext ECtx(this);
-    ECtx.dIC_Time = ICGetTime();
-    ECtx.dIC_dTime = ICGetTimeInc();
+    ECtx.dIC_Time.Seconds = ICGetTime();
+    ECtx.dIC_dTime.Seconds  = ICGetTimeInc();
     ECtx.OnStart = bAboutToStart;
     ECtx.HoldNearXRefXfer=true;
     FnMngr().Execute(ECtx);
@@ -406,7 +406,7 @@ void SimpleHeater::EvalCtrlActions()
     else
       dFarDutyVal = 0.0;
     }
-  MN_BstRes::EvalCtrlActions();
+  MN_BstRes::EvalCtrlActions(Tasks);
   }
 
 //---------------------------------------------------------------------------
@@ -457,9 +457,9 @@ void SimpleHeater::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void SimpleHeater::EvalCtrlStrategy()
+void SimpleHeater::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  MN_BstRes::EvalCtrlStrategy();
+  MN_BstRes::EvalCtrlStrategy(Tasks);
   /*if (bOnLine && iDutyMethod==HDM_DutyTag && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {
 

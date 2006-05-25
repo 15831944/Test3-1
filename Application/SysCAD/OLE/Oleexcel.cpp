@@ -1347,10 +1347,10 @@ int COleReportMngr::DoAutomation()
 
 //===========================================================================
 
-CRepTrndItem::CRepTrndItem(double Time, int nPts)// : Values(nPts)
+CRepTrndItem::CRepTrndItem(CTimeValue Time, int nPts)// : Values(nPts)
   {
   Values.SetSize(nPts);
-  dTime = Time;
+  m_dTime = Time;
   pNxt = NULL;
   }
 
@@ -1434,7 +1434,7 @@ flag CExcelReportTrend::CheckParms(bool VertOpts)
   flag ValidTimeOpt = 1;
   if (bGotDuration && !bGotStart && !bGotEnd)
     {
-    dEndTime = gs_Exec.TheStopTime(); //current time
+    dEndTime = gs_Exec.TimeStopped.Seconds; //current time
     dStartTime = dEndTime - dDuration;
     }
   else if (bGotDuration && bGotStart && !bGotEnd)
@@ -1456,24 +1456,22 @@ flag CExcelReportTrend::CheckParms(bool VertOpts)
     }
   if (ValidTimeOpt && dEndTime<0.0)
     {
-    char buff[256];
-    M.Feedback("Start and End time cannot be less than '%s'", SecstoHMSDate(0.0, buff, true));
+    M.Feedback("Start and End time cannot be less than '%s'", CTimeValue(0.0).Format(TD_TimeDate));
     OK = False;
     }
   if (ValidTimeOpt && dStartTime<0.0)
     {
-    char buff[256];
     if (iOpt==0)
       {//All
       dStartTime=0.0;
-      M.Feedback("Warning: Start time too low, changed to '%s'", SecstoHMSDate(dStartTime, buff, true));
+      M.Feedback("Warning: Start time too low, changed to '%s'", dStartTime.Format(TD_TimeDate));
       }
     else
       {//AveEqualySpaced or LastEqualySpaced
-      const double Interval = dDuration/Max(1L, iNoOfPts-1);
-      iNoOfPts = Max(1L, iNoOfPts - (long)floor(fabs(dStartTime)/Interval) - 1L);
-      dStartTime = dEndTime - ((iNoOfPts-1)*Interval);
-      M.Feedback("Warning: Start time too low, changed to '%s'", SecstoHMSDate(dStartTime, buff, true));
+      CTimeValue Interval = dDuration/double(Max(1L, iNoOfPts-1));
+      iNoOfPts = Max(1L, iNoOfPts - (long)floor(fabs(dStartTime.Seconds)/Interval.Seconds) - 1L);
+      dStartTime = dEndTime - (Interval*double(iNoOfPts-1));
+      M.Feedback("Warning: Start time too low, changed to '%s'", dStartTime.Format(TD_TimeDate));
       M.Feedback("Warning: Ave number of points changed to %d", iNoOfPts);
       }
     }
@@ -1520,21 +1518,21 @@ flag CExcelReportTrend::ParseFn(char* Func, bool VertOpts)
     }
   else if (_stricmp(f[0], "Start")==0)
     {
-    if (nParms!=1 || !HMSDatetoSecs(f[1], dStartTime))
+    if (nParms!=1 || !dStartTime.Parse(f[1]))
       OK = 0;
     else
       bGotStart = 1;
     }
   else if (_stricmp(f[0], "End")==0)
     {
-    if (nParms!=1 || !HMSDatetoSecs(f[1], dEndTime))
+    if (nParms!=1 || !dEndTime.Parse(f[1]))
       OK = 0;
     else
       bGotEnd = 1;
     }
   else if (_stricmp(f[0], "Duration")==0)
     {
-    if (nParms!=1 || !HMStoSecs(f[1], dDuration))
+    if (nParms!=1 || !dDuration.Parse(f[1]))
       OK = 0;
     else
       bGotDuration = 1;
@@ -1645,7 +1643,7 @@ flag CExcelReportTrend::DoReport()
   M.bQueryDone = 0;
   M.bQueryTagsDone = 0;
   CXMsgLst XM;
-  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime, dEndTime, (long)pMngr, iOpt, iTimeOptUnits, bTimeOptFull, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0, dReportTimeOffset);
+  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime.Seconds, dEndTime.Seconds, (long)pMngr, iOpt, iTimeOptUnits, bTimeOptFull, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0, dReportTimeOffset.Seconds);
   for (int i=0; i<iTagLen; i++)
     {
     TagOffsets.Add(0L);
@@ -1757,7 +1755,7 @@ flag CExcelReportTrend::DoReport()
       Col = ResLoc.iColumn;
       if (bTimeOptFull)
         {
-        SecstoHMSDate(M.pFirst->dTime, &Buff[1]);
+        strcpy(&Buff[1], M.pFirst->m_dTime.Format(TD_TimeDate));
         V = Buff;
         M.Set(Row, Col++, V, &WSheet, &Range);
         }
@@ -1765,7 +1763,7 @@ flag CExcelReportTrend::DoReport()
         {
         V.ChangeType(VT_EMPTY);
         V.ChangeType(VT_DATE);
-        SecsToDate1900Var(M.pFirst->dTime, ((LPVARIANT)V));
+        SecsToDate1900Var(M.pFirst->m_dTime, ((LPVARIANT)V));
         V.ChangeType(VT_R8);
         M.Set(Row, Col++, V, &WSheet, &Range); //in-explicably, this sometimes throws an exception if variant is of type VT_DATE
         }
@@ -1773,10 +1771,10 @@ flag CExcelReportTrend::DoReport()
         {
         switch (iTimeOptUnits)
           {
-          case 1: V = (M.pFirst->dTime - dStartTime); break;
-          case 2: V = (M.pFirst->dTime - dStartTime)/60.0; break;
-          case 3: V = (M.pFirst->dTime - dStartTime)/3600.0; break;
-          case 4: V = (M.pFirst->dTime - dStartTime)/86400.0; break;
+          case 1: V = (M.pFirst->m_dTime - dStartTime).Seconds; break;
+          case 2: V = ((M.pFirst->m_dTime - dStartTime)/60.0).Seconds; break;
+          case 3: V = ((M.pFirst->m_dTime - dStartTime)/3600.0).Seconds; break;
+          case 4: V = ((M.pFirst->m_dTime - dStartTime)/86400.0).Seconds; break;
           }
         M.Set(Row, Col++, V, &WSheet, &Range);
         }

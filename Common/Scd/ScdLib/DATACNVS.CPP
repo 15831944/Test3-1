@@ -291,6 +291,9 @@ CCnvIndex    DC_KinVisc  = 0;
 CCnvIndex    DC_ElectVA  = 0;
 CCnvIndex    DC_Humidity = 0;
 
+CCnvIndex    DC_TimeStr  = 0;
+CCnvIndex    DC_dTimeStr = 0;
+
 //===========================================================================
 
 CDataCnvFam::CDataCnvFam(char* Fam, char* Desc, double Min, double Max_)
@@ -596,6 +599,10 @@ void CCnvsMngr::Init()
     DC_KinVisc  = AddSI("KinVisc"  , "m^2/s"      , "Kinematic Viscosity (Stoke)"   ,    0.0 ,            1.0, false);
     DC_ElectVA  = AddSI("ElectVA"  , "VA"         , "VoltAmps (V*A)"                ,    0.0 ,            1.0, false);
     DC_Humidity = AddSI("Humidity" , "kg(l)/kg(v)"  , "Specific Humidity"           ,    0.0 ,            0.01, false);
+
+    DC_TimeStr  = AddSI("TimeStr"  , "s"          , "TimeString"                    ,    0.0 ,         3600.0, false);
+    DC_dTimeStr = AddSI("dTimeStr" , "s"          , "dTimeString"                   ,    0.0 ,         3600.0, false);
+
     //NB: ensure new cnvs are added to SMDK (md_share2.h and md_defn.cpp)!
 
     //add some required secondary cnvs...
@@ -637,6 +644,39 @@ void CCnvsMngr::Init()
     Cnvs[DC_FracPh30]->AddSecondaryCnv("%(Ph30)", 100.0, 0.0, false);
     Cnvs[DC_FracPh31]->AddSecondaryCnv("%(Ph31)", 100.0, 0.0, false);
 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm0"   , 1.0, 0.0, false);   
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm0."  , 1.0, 0.0, false);   
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm"    , 1.0, 0.0, false);   
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm."   , 1.0, 0.0, false);   
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DyTm0" , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DyTm0.", 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DyTm"  , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DyTm." , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DdTm0" , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DdTm0.", 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DdTm"  , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DdTm." , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DtTm0" , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DtTm0.", 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DtTm"  , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("DtTm." , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm0Dt" , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm0.Dt", 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("TmDt"  , 1.0, 0.0, false); 
+    Cnvs[DC_TimeStr]->AddSecondaryCnv("Tm.Dt" , 1.0, 0.0, false); 
+
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("Tm0"   , 1.0, 0.0, false);   
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("Tm0."  , 1.0, 0.0, false);   
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("Tm"    , 1.0, 0.0, false);   
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("Tm."   , 1.0, 0.0, false);   
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DyTm0" , 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DyTm0.", 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DyTm"  , 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DyTm." , 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DdTm0" , 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DdTm0.", 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DdTm"  , 1.0, 0.0, false); 
+    Cnvs[DC_dTimeStr]->AddSecondaryCnv("DdTm." , 1.0, 0.0, false); 
     }
   }
 

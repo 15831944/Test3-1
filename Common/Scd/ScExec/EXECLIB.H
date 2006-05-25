@@ -358,7 +358,7 @@ class DllImportExport CXM_KeepHistoryFile : public CXM_Header
 class DllImportExport CXM_QueryHistory : public CXM_Header
   {
   public:
-    double        dStartTime, dEndTime;
+    CTimeValue    dStartTime, dEndTime;
     long          iRqstNo;
     long          iSrcID;
     int           nTags;
@@ -584,11 +584,11 @@ class DllImportExport CXM_HistRecordingOn : public CXM_Header
 class DllImportExport CXM_QueryTime : public CXM_Header
   {
   public:
-    double         TimeRqd;
-    double         dTimeRqd;
+    CTimeValue     TimeRqd;
+    CTimeValue     dTimeRqd;
 
     CXM_QueryTime();
-    CXM_QueryTime(double TimeRqd_, double dTimeRqd_);
+    CXM_QueryTime(CTimeValue TimeRqd_, CTimeValue dTimeRqd_);
 
     DEFINE_SPARES(CXM_QueryTime)
   };
@@ -598,44 +598,60 @@ class DllImportExport CXM_QueryTime : public CXM_Header
 class DllImportExport CXM_Execute : public CXM_Header
   {
   public:
-    double         Time;
-    double         dTimeNext;
+    CTimeValue    Time;
+    CTimeValue    dTimeNext;
 
     CXM_Execute();
-    CXM_Execute(double Time_, double dTimeNext_);
+    CXM_Execute(CTimeValue Time_, CTimeValue dTimeNext_);
 
     DEFINE_SPARES(CXM_Execute)
   };
 
 //-------------------------------------------------------------------------
 
-enum RunTerms { RTRM_None, RTRM_For, RTRM_Until, RTRM_SteadyState, RTRM_ForIters };
+enum eScnTypes       { ScnTyp_Manual, ScnTyp_Duration, ScnTyp_StopTime, ScnTyp_Steps, RTT_SteadyState};
+enum eScnTermActions { ScnTA_None, ScnTA_Edit, ScnTA_Idle };
+enum eScnState       { Scn_Off, Scn_Start, Scn_Busy, Scn_Complete, Scn_Ignore };
+enum eScnContRest    { Scr_Continue, Scr_ReStart };
+enum eScnBlkRest     { Sbr_Block, Sbr_ReStart };
 
 class DllImportExport CXM_TimeControl : public CXM_Header
   {
   public:
-    flag             m_bRealTime;
-    flag             m_bSyncWithClock;
-    flag             m_bHoldAdv;
-    double           m_Time;
-    double           m_StepSize;
-    double           m_StepSizeMax;
-    double           m_StepSizeNxt;
-    double           m_StartTime;
-    double           m_StopTime;
-    double           m_RealTimeMult;
-    long             m_nSteps;
-    long             m_nMaxSteps;
+    flag              m_bRealTime;
+    flag              m_bSyncWithClock;
+    flag              m_bHoldAdv;
+    CTimeValue        m_TheTime;
+    CTimeValue        m_StepSize;
+    CTimeValue        m_StepSizeMax;
+    CTimeValue        m_StepSizeNxt;
+    CTimeValue        m_TimeToStop;
+    CTimeValue        m_ScnTime;
+    CTimeValue        m_ScnTimeMax;
+    double            m_RealTimeMult;
+    long              m_StepCount;
+    long              m_StepCountMax;
+                      
+    EqnSlvCtrlBlk     m_EqnCB;
+                      
+    eScnState         m_ScnState;
 
-    EqnSlvCtrlBlk    m_EqnCB;
+    eScnContRest      m_ManualScnReStart;
+    eScnContRest      m_ReStartIfScnBusy;
+    eScnBlkRest       m_ReStartIfScnComplete;
+                      
+    eScnTypes         m_ScnType;
+    eScnTermActions   m_TermAction;
+    CTimeValue        m_ScnDuration;
+    CTimeValue        m_ScnStopTime;
 
-    RunTerms         m_iRunTerm;
-    double           m_dTimeUntilStop;
+    flag            & m_RestartPGMOnStart;
+    flag            & m_RestartPrfOnStart;
 
-    CXM_TimeControl();
-    CXM_TimeControl(CXM_TimeControl &TC);
+    CXM_TimeControl(flag & RestartPGMOnStart, flag & m_RestartPrfOnStart);
+    //CXM_TimeControl(CXM_TimeControl &TC);
 
-    long             StepSizeMaxMS() { return (long)(m_StepSizeMax*1000); };
+    long             StepSizeMaxMS() { return (long)(m_StepSizeMax.mSeconds); };
 
     DEFINE_SPARES(CXM_TimeControl)
   };
@@ -789,15 +805,15 @@ class DllImportExport CXM_OleErrorCode : public CXM_Header
 class DllImportExport CXM_RepTrendDB : public CXM_Header
   {
   public:
-    double          dEndTime;
-    double          dDuration;
+    CTimeValue      dEndTime;
+    CTimeValue      dDuration;
     long            iNoOfPts;
     long            iTableNamePos;
     long            iTagsPos;
     int             nTags;
     char            cBuff[MaxCXMsgLstSize-sizeof(CXM_Header)-100 /*Space for data members*/];
 
-    CXM_RepTrendDB(char* FileName, char* TableName, double EndTime, double Duration, long NoOfPts);
+    CXM_RepTrendDB(char* FileName, char* TableName, CTimeValue EndTime, CTimeValue Duration, long NoOfPts);
     char          * FileName() { return cBuff; };
     char          * TableName() { return &cBuff[iTableNamePos]; };
     flag            xAddTag(char* pNewTag);

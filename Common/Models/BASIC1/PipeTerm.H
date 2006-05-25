@@ -94,7 +94,7 @@ class DllImportExport CPipeTerm : public MdlNode
 
     //virtual void   EvalPBMakeUpReqd(long JoinMask);
     //virtual void   EvalPBMakeUpAvail(long JoinMask);
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
 
     //double OutputChg(double RqdOut, double CurOut, double Tau, double dTime)
     //   {

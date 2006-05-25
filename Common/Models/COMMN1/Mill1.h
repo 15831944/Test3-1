@@ -62,7 +62,7 @@ class Mill1 : public MN_Surge
     virtual void   EvalProducts(long JoinMask);
 
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalPowerRequired();
     virtual void   ClosureInfo();
     

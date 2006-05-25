@@ -91,7 +91,7 @@ class CGenStats : public FlwNode
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual flag   PreStartCheck();
-    virtual void   EvalStatistics();
+    virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All);
     virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    DeleteTag(pchar pDelTag);
 

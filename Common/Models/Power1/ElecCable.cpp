@@ -537,13 +537,13 @@ void CElecCable::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-//void CElecCable::EvalCtrlActions()
+//void CElecCable::EvalCtrlActions(eScdCtrlTasks Tasks)
 //  {
 //  }
 //
 ////--------------------------------------------------------------------------
 //
-//void CElecCable::EvalCtrlStrategy()
+//void CElecCable::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 //  {
 //  }
 //

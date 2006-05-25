@@ -570,7 +570,7 @@ void CFlowStats::ResetAllStats()
 
 //--------------------------------------------------------------------------
 
-void CFlowStats::EvalStatistics()
+void CFlowStats::EvalStatistics(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

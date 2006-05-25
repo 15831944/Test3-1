@@ -162,5 +162,79 @@ void HD_CatHead::dbgDump()
   }
 
 //========================================================================
+//
+//
+//
+//===========================================================================
+
+// This converts a time in seconds into the corresponding date ( day/month/year ) and time ( hour:minute:second. hundredth of a second).
+pchar SecstoDateHMS(double time_in, // the time in seconds.
+                    pchar buff,  // the buffer into which the result is to be stored.
+                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
+  {
+  if (!WithDate)
+    return SecstoHMS(time_in, buff);
+  __time64_t tt=(__time64_t)(time_in);
+  tm* t=_localtime64(&tt);
+  int hsec=(int)((time_in-tt)*100.0);
+  if (t)
+    sprintf(buff, "%02i/%02i/%04i  %02i:%02i:%02i.%02i",t->tm_mday,t->tm_mon+1,t->tm_year+1900,t->tm_hour,t->tm_min,t->tm_sec,hsec);
+  else
+    strcpy(buff, "?");
+  return buff;
+  };
+
+//---------------------------------------------------------------------------
+// This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).
+pchar SecstoHMS(double time_in,// the time in seconds
+                pchar buff,  // the buffer in which the result is to be stored.
+                flag TruncDate, //must the date be ignored ie max hours=23
+                flag TruncMilliSecs)
+  {
+  long t=(long)time_in;
+  long hsecs=(long)((time_in-t)*100.0);
+  long secs=t%60;
+  long mins=(t/60)%60;
+  long hours=t/3600; //does not work ??? TIME ZONES !!!
+  if (TruncDate)
+    hours=hours%24;
+
+  if (TruncMilliSecs)
+    {
+    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+    }
+  else
+    {
+    long hsecs=(long)((time_in-t)*100.0);
+    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+    }
+  return buff;
+  };
+
+//---------------------------------------------------------------------------
+// This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second) and date ( day/month/year ).
+pchar SecstoHMSDate(double time_in, // the time in seconds.
+                    pchar buff,  // the buffer in which the result is to be stored.
+                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
+  {
+  //time_in = floor(time_in*1.0e6+0.5)/1.0e6; //round for lost precision on LSD
+  if (!WithDate)
+    return SecstoHMS(time_in, buff);
+  __time64_t tt=(__time64_t)(time_in);
+  tm* t=_localtime64(&tt);
+  int hsec=(int)((time_in-tt)*100.0);
+  if (t)
+    sprintf(buff, "%02i:%02i:%02i.%02i  %02i/%02i/%04i",t->tm_hour,t->tm_min,t->tm_sec,hsec,t->tm_mday,t->tm_mon+1,t->tm_year+1900);
+  else
+    strcpy(buff, "?");
+  //TRACE2("Secs>> %15.2g %s",time_in, buff);
+  return buff;
+  };
+
+//========================================================================
+//
+//
+//
+//===========================================================================
 
 #endif

@@ -940,7 +940,7 @@ double C4PortValve::GetMaxTimeInc()
 
 //--------------------------------------------------------------------------
 
-void C4PortValve::EvalCtrlActions()
+void C4PortValve::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   if (!m_bErrorFound)
     {

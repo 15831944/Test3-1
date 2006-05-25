@@ -222,16 +222,16 @@ void CBBTransfer::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void CBBTransfer::EvalDiscrete()                      { DoEvalDiscrete(); }
-void CBBTransfer::EvalCtrlInitialise()                { DoEvalCtrlInitialise(); }
-void CBBTransfer::EvalCtrlActions()                   { DoEvalCtrlActions(); }
-void CBBTransfer::EvalCtrlStrategy()                  { DoEvalCtrlStrategy(); }
-void CBBTransfer::EvalCtrlTerminate()                 { DoEvalCtrlTerminate(); }
-void CBBTransfer::EvalStatistics()                    { DoEvalStatistics(); }
-void CBBTransfer::EvalPowerAvailable()                { DoEvalPowerAvailable(); }
-void CBBTransfer::EvalPowerRequired()                 { DoEvalPowerRequired(); }
-void CBBTransfer::EvalState()                         { DoEvalState(); }
-void CBBTransfer::SetState(eScdMdlStateActs RqdState) { DoSetState(RqdState); }
+void CBBTransfer::EvalDiscrete()                          { DoEvalDiscrete(); }
+void CBBTransfer::EvalCtrlInitialise(eScdCtrlTasks Tasks) { DoEvalCtrlInitialise(Tasks); }
+void CBBTransfer::EvalCtrlActions(eScdCtrlTasks Tasks)    { DoEvalCtrlActions(Tasks); }
+void CBBTransfer::EvalCtrlStrategy(eScdCtrlTasks Tasks)   { DoEvalCtrlStrategy(Tasks); }
+void CBBTransfer::EvalCtrlTerminate(eScdCtrlTasks Tasks)  { DoEvalCtrlTerminate(Tasks); }
+void CBBTransfer::EvalStatistics(eScdCtrlTasks Tasks)     { DoEvalStatistics(Tasks); }
+void CBBTransfer::EvalPowerAvailable()                    { DoEvalPowerAvailable(); }
+void CBBTransfer::EvalPowerRequired()                     { DoEvalPowerRequired(); }
+void CBBTransfer::EvalState()                             { DoEvalState(); }
+void CBBTransfer::SetState(eScdMdlStateActs RqdState)     { DoSetState(RqdState); }
 
 //--------------------------------------------------------------------------
 

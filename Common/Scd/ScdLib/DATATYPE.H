@@ -13,6 +13,7 @@
 #include "..\..\..\SMDK\Include\md_share2.h"
 #include "scdtempl.h"
 #include "errorlog.h"
+#include "datacnvs.h"
 
 
 #undef DllImportExport
@@ -901,7 +902,14 @@ inline void PkDataUnion::PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt)
 inline char* PkDataUnion::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/)
   {
   if (IsStrng(iType) || IsStructure(iType) || IsLayout(iType) || iType==tt_Generic)
+    {
+    if (IsStrng(iType) && IsTimeCnv(iCnv))
+      {
+      CTimeValue V(String());
+      return (LPTSTR)V.Format(pCnvTxt);
+      }
     return String();//?pChar;
+    }
   else 
     return DataUnionCom::GetString(IFmt, FFmt, iCnv, pCnvTxt);
   }

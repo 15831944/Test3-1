@@ -510,17 +510,32 @@ flag CSfeSrvr::EO_Starting(flag fBeginStarting)
   return SfeFS->EO_Starting(fBeginStarting);
   };
 
-flag CSfeSrvr::EO_SetTime(double TimeRqd, bool Rewind) 
+flag CSfeSrvr::EO_SetTime(CTimeValue TimeRqd, bool Rewind) 
   {
   return SfeFS->EO_SetTime(TimeRqd, Rewind); 
   };
 
-flag CSfeSrvr::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) 
+flag CSfeSrvr::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) 
   {
   return SfeFS->EO_QueryTime(CB, TimeRqd, dTimeRqd); 
   };
 
-flag CSfeSrvr::EO_Start(const CXM_TimeControl &CB)    
+flag CSfeSrvr::EO_GotoRunStart(CXM_TimeControl &CB)
+  {
+  return SfeFS->EO_GotoRunStart(CB);
+  }
+
+flag CSfeSrvr::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
+  {
+  return SfeFS->EO_GotoRunEnd(CB, TimeChanged);
+  }
+
+flag CSfeSrvr::EO_PreStart(CXM_TimeControl &CB)
+  {
+  return SfeFS->EO_PreStart(CB);
+  }
+
+flag CSfeSrvr::EO_Start(CXM_TimeControl &CB)    
   {
   #if dbgSFE_Srvr && HEAP_SPARES
   if (dbgMemStats())
@@ -561,7 +576,7 @@ int CSfeSrvr::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   return SfeFS->EO_WriteTaggedItem(ObjData, Route); 
   };
 
-flag CSfeSrvr::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) 
+flag CSfeSrvr::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) 
   {
   flag b=SfeFS->EO_Execute(CB, EORet); 
   
@@ -605,7 +620,13 @@ flag CSfeSrvr::EO_StepDone()
   return b;
   };
 
-flag CSfeSrvr::EO_Stop(const CXM_TimeControl &CB)     
+flag CSfeSrvr::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
+  {
+  return SfeFS->EO_QueryStop(CB, Starting); 
+  };
+;
+
+flag CSfeSrvr::EO_Stop(CXM_TimeControl &CB)     
   {
   flag b=SfeFS->EO_Stop(CB); 
   
@@ -617,12 +638,12 @@ flag CSfeSrvr::EO_Stop(const CXM_TimeControl &CB)
   return b;
   };
 
-flag CSfeSrvr::EO_BeginPause(const CXM_TimeControl &CB)
+flag CSfeSrvr::EO_BeginPause(CXM_TimeControl &CB)
   {
   return SfeFS->EO_BeginPause(CB); 
   };
 
-flag CSfeSrvr::EO_EndPause(const CXM_TimeControl &CB)
+flag CSfeSrvr::EO_EndPause(CXM_TimeControl &CB)
   {
   return SfeFS->EO_EndPause(CB); 
   };

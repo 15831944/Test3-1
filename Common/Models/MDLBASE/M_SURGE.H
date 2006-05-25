@@ -76,7 +76,7 @@ class DllImportExport MN_Surge : public MdlNode
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   EvalDiscrete();
     virtual void   DumpDerivs();
-    virtual void   EvalStatistics();
+    virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All);
 
     //virtual void   EvalIOPAverage(int AveIter);
     virtual flag   EvalPressureSens();

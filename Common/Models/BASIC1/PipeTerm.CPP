@@ -392,7 +392,7 @@ void CPipeTerm::EvalState()
 
 //--------------------------------------------------------------------------
 
-void CPipeTerm::EvalCtrlActions()
+void CPipeTerm::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
     //if (NoCtrlIOs()>0)
     //  {

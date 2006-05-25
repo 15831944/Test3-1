@@ -1251,14 +1251,14 @@ DWORD CDdeExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
 
 //---------------------------------------------------------------------------
 
-flag CDdeExec::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) 
+flag CDdeExec::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) 
   {
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag CDdeExec::EO_Start(const CXM_TimeControl &CB)                      
+flag CDdeExec::EO_Start(CXM_TimeControl &CB)                      
   {
   CScdDDEManager::pTheMngr->UpdateStatusWnd((WPARAM)SUB_UPDATE_EOSTART);
   return True;
@@ -1396,7 +1396,7 @@ flag CDdeExec::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CDdeExec::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) 
+flag CDdeExec::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) 
   {
   //CScdDDEManager::pTheMngr->UpdateStatusWnd((WPARAM)SUB_UPDATE_EOEXEC);
   return False;
@@ -1404,7 +1404,7 @@ flag CDdeExec::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag CDdeExec::EO_Stop(const CXM_TimeControl &CB)                       
+flag CDdeExec::EO_Stop(CXM_TimeControl &CB)                       
   {
   CScdDDEManager::pTheMngr->UpdateStatusWnd((WPARAM)SUB_UPDATE_EOSTOP);
   return True;

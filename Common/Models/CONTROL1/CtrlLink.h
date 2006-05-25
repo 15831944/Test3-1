@@ -47,8 +47,8 @@ class CCtrlLink : public FlwNode
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual void   EvalCtrlInitialise();
-    virtual void   EvalCtrlStrategy();
+    virtual void   EvalCtrlInitialise(eScdCtrlTasks=CO_All);
+    virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalDiscrete();
     virtual dword  ModelStatus();
     

@@ -65,7 +65,7 @@ class DllImportExport CIsoPRV : public MdlNode
     //virtual bool      EvalProductClusters(int Index, long & JoinMask);
     virtual void      EvalProducts(long JoinMask);
 
-    virtual void      EvalCtrlActions();
+    virtual void      EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual void      EvalDiscrete();
 
     virtual void      DumpDerivs();

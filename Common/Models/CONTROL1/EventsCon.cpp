@@ -497,7 +497,7 @@ flag CEventsCon::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-void CEventsCon::EvalCtrlStrategy()
+void CEventsCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

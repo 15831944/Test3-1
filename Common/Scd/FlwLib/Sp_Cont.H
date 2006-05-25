@@ -860,7 +860,7 @@ class DllImportExport SpContainer : public SpModelOwner
     //void           EvalVStates() {pModel->EvalVStates();};
     void           ApplyDerivs(double dTime, flag DoDbg);
     void           ODEOperate(CODEDataBlock & ODB);
-    void           EvalStatistics();
+    void           EvalStatistics(eScdCtrlTasks Tasks=CO_All);
 
     double         Mass(PhMask PhaseM=som_ALL) {return pModel->Mass(PhaseM);}
     double         Moles(PhMask PhaseM=som_ALL) {return pModel->Moles(PhaseM);}

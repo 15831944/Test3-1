@@ -204,34 +204,40 @@ CStopWatch s_swTiming;
 //
 //===========================================================================
 
-XID xidWorstMagInt0                   = FlwXID(2001);
-XID xidWorstMagInt1                   = FlwXID(2002);
-XID xidWorstMagInt2                   = FlwXID(2003);
-XID xidWorstMagInt3                   = FlwXID(2004);
-XID xidWorstMagInt4                   = FlwXID(2005);
-XID xidWorstMagInt5                   = FlwXID(2006);
-XID xidWorstMagInt6                   = FlwXID(2007);
-XID xidWorstMagInt7                   = FlwXID(2008);
-XID xidWorstMagInt8                   = FlwXID(2009);
-XID xidWorstMagInt9                   = FlwXID(2010);
+XID xidWorstMagInt0                   = FlwXID(1000);
+XID xidWorstMagInt1                   = FlwXID(1001);
+XID xidWorstMagInt2                   = FlwXID(1002);
+XID xidWorstMagInt3                   = FlwXID(1003);
+XID xidWorstMagInt4                   = FlwXID(1004);
+XID xidWorstMagInt5                   = FlwXID(1005);
+XID xidWorstMagInt6                   = FlwXID(1006);
+XID xidWorstMagInt7                   = FlwXID(1007);
+XID xidWorstMagInt8                   = FlwXID(1008);
+XID xidWorstMagInt9                   = FlwXID(1009);
+                                               
+XID xidLnkEPSAbs                      = FlwXID(1010);
+XID xidLnkEPSRel                      = FlwXID(1011);
+XID xidLnkNetDerate                   = FlwXID(1012);
+XID xidLnkQmMatchAbs                  = FlwXID(1013);
+XID xidLnkQmMatchRel                  = FlwXID(1014);
 
-XID xidLnkEPSAbs                      = FlwXID(2011);
-XID xidLnkEPSRel                      = FlwXID(2012);
-XID xidLnkNetDerate                   = FlwXID(2013);
-XID xidLnkQmMatchAbs                  = FlwXID(2014);
-XID xidLnkQmMatchRel                  = FlwXID(2015);
+XID xidH2OProperties                  = FlwXID(1015);
+XID xidUseSurfaces                    = FlwXID(1016);
+XID xidDoSmoothing                    = FlwXID(1017);
+XID xidNThreads                       = FlwXID(1018);
+XID xidRqdThreads                     = FlwXID(1019);
 
-XID xidH2OProperties                  = FlwXID(2016);
-XID xidUseSurfaces                    = FlwXID(2017);
-XID xidDoSmoothing                    = FlwXID(2018);
-XID xidNThreads                       = FlwXID(2019);
-XID xidRqdThreads                     = FlwXID(2020);
-
-XID xidDefaultArea                    = FlwXID(2021);
+XID xidDefaultArea                    = FlwXID(1020);
 //XID xidMissSpillAreas                 = FlwXID(2022);
-XID xidODEMethod                      = FlwXID(2023);
-XID xidODESSCtrl                      = FlwXID(2024);
-XID xidODETime                        = FlwXID(2025);
+XID xidODEMethod                      = FlwXID(1521);
+XID xidODESSCtrl                      = FlwXID(1522);
+XID xidODETime                        = FlwXID(1523);
+XID xidTimeF                          = FlwXID(1524);
+XID xidTimeD                          = FlwXID(1525);
+XID xidStepSizeF                      = FlwXID(1526);
+XID xidStepSizeD                      = FlwXID(1527);
+XID xidStepCount                      = FlwXID(1528);
+
 XID xidODETimeInc                     = FlwXID(2026);
 XID xidStepSizeRqd                    = FlwXID(2027);
 XID xidODETimeIncMxRqd                = FlwXID(2028);
@@ -315,22 +321,60 @@ XID xidXSWSteps                       = FlwXID(2111);
 XID xidXSWMVAvgPts                    = FlwXID(2112);
 XID xidXSWSecsStart                   = FlwXID(2113);
 
-XID xidDTTime                         = FlwXID(2190);
-XID xidDTTimeDesc                     = FlwXID(2191);
-XID xidDTTimeFullDesc                 = FlwXID(2192);
-XID xidDTDay                          = FlwXID(2193);
-XID xidDTMonth                        = FlwXID(2194);
-XID xidDTYear                         = FlwXID(2195);
+XID xidDTTime                         = FlwXID(2180);
+XID xidDTTimeHMS                      = FlwXID(2181);
+XID xidDTTimeDHMS                     = FlwXID(2182);
+XID xidDTTimeDate                     = FlwXID(2183);
+XID xidDTmSecsCount                   = FlwXID(2184);
+XID xidDTSecsCount                    = FlwXID(2185);
+XID xidDTMinsCount                    = FlwXID(2186);
+XID xidDTHoursCount                   = FlwXID(2187);
+XID xidDTDaysCount                    = FlwXID(2188);
+XID xidDTDateDay                      = FlwXID(2189);
+XID xidDTDateMonth                    = FlwXID(2190);
+XID xidDTDateYear                     = FlwXID(2191);
+XID xidDTDateDayOfWeek                = FlwXID(2192);
+XID xidDTDateDayOfYear                = FlwXID(2193);
+XID xidDTDateDaysInMonth              = FlwXID(2194);
+XID xidDTDateDaysInYear               = FlwXID(2195);
 
-XID xidPGMExecTimeOut                 = FlwXID(2200);
-XID xidRandomSeed                     = FlwXID(2201);
+XID xidScnState                       = FlwXID(2200);
+XID xidManualScnRestart               = FlwXID(2201);
+XID xidReStartIfScnBusy               = FlwXID(2202);
+XID xidReStartIfScnComplete           = FlwXID(2203);
 
+XID xidScnType                        = FlwXID(2210);
+XID xidScnTypeLast                    = FlwXID(2211);
+XID xidScnTermAction                  = FlwXID(2212);
+XID xidRunDurationF                   = FlwXID(2213);
+XID xidRunStopTimeF                   = FlwXID(2214);
+XID xidRunDurationD                   = FlwXID(2215);
+XID xidRunStopTimeD                   = FlwXID(2216);
+XID xidStepCountMax                   = FlwXID(2217);
+XID xidRunTimeToStopF                 = FlwXID(2218);
+XID xidRunTimeToStopD                 = FlwXID(2219);
+XID xidScnTimeF                       = FlwXID(2220);
+XID xidScnTimeD                       = FlwXID(2221);
+XID xidScnTimeMaxF                    = FlwXID(2222);
+XID xidScnTimeMaxD                    = FlwXID(2223);
 
-XID xidDIOSpillsVents                 = FlwXID(2220); 
-XID xidDIOLeaks                       = FlwXID(2221);       
-XID xidDIOAudit                       = FlwXID(2222);       
-XID xidAuditXXX                       = FlwXID(2223);
+XID xidPGMExecTimeOut                 = FlwXID(2222);
+XID xidRandomSeed                     = FlwXID(2223);
 
+XID xidDIOSpillsVents                 = FlwXID(2230); 
+XID xidDIOLeaks                       = FlwXID(2231);       
+XID xidDIOAudit                       = FlwXID(2232);       
+XID xidAuditXXX                       = FlwXID(2233);
+
+XID xidProgress                       = FlwXID(2300);
+XID xidClock                          = FlwXID(2301);
+XID xidClockToGo                      = FlwXID(2302);
+XID xidClockTotal                     = FlwXID(2303);
+XID xidElapsedSteps                   = FlwXID(2304);
+
+XID xidDynCmdScnRestart               = FlwXID(2314);
+XID xidDynCmdResetTime                = FlwXID(2315);
+XID xidDynCmdRestartHist              = FlwXID(2316);
 
 //XID xidConvergeTm                     = FlwXID(2120);
 //XID xidFlwSolveTm                     = FlwXID(2121);
@@ -344,31 +388,41 @@ XID xidGlblSWExecTot0                 = FlwXID(3500);
 XID xidGlblSWFlw0                     = FlwXID(4000);
 XID xidGlblSWFlwTot0                  = FlwXID(4500);
 
-XID xidHistTagFile                    = FlwXID(5125);
-XID xidHistTagFolder                  = FlwXID(5126);
-XID xidHistTagEdit                    = FlwXID(5127);
-XID xidHistTagBrowse                  = FlwXID(5128);
-XID xidHistSetTagsNow                 = FlwXID(5129);
+XID xidHistTagFile                    = FlwXID(5025);
+XID xidHistTagFolder                  = FlwXID(5026);
+XID xidHistTagEdit                    = FlwXID(5027);
+XID xidHistTagBrowse                  = FlwXID(5028);
+XID xidHistSetTagsNow                 = FlwXID(5029);
 
-XID xidGenVerStr                      = FlwXID(5130);
-XID xidGenUpdateVerStr                = FlwXID(5131);
-XID xidGenBuildNo                     = FlwXID(5132);
-XID xidGenBuildDate                   = FlwXID(5133);
-XID xidGenDateAndTime                 = FlwXID(5134);
-XID xidGenTime1970                    = FlwXID(5135);
+XID xidGenVerStr                      = FlwXID(5030);
+XID xidGenUpdateVerStr                = FlwXID(5031);
+XID xidGenBuildNo                     = FlwXID(5032);
+XID xidGenBuildDate                   = FlwXID(5033);
+XID xidGenDateAndTime                 = FlwXID(5034);
+XID xidGenTime1970                    = FlwXID(5035);
 
-XID xidSetStateAll                    = FlwXID(5140);
-XID xidIncludeSpcCnvs                 = FlwXID(5141);
-XID xidShowSpcRangeErrors             = FlwXID(5142);
-XID xidShowSpcXRangeErrors            = FlwXID(5143);
+XID xidSetStateAll                    = FlwXID(5040);
+XID xidIncludeSpcCnvs                 = FlwXID(5041);
+XID xidShowSpcRangeErrors             = FlwXID(5042);
+XID xidShowSpcXRangeErrors            = FlwXID(5043);
 
-XID xidDynStatReset                   = FlwXID(5144);
-XID xidDynStatStopTm                  = FlwXID(5145);
-XID xidAtStartRestartHist             = FlwXID(5146);
-XID xidAtStartSetHistTags             = FlwXID(5147);
-XID xidAtStartResetTime               = FlwXID(5148);
-XID xidAtStartTime                    = FlwXID(5149);
-XID xidEventLogOn                     = FlwXID(5150);
+XID xidDynStatReset                   = FlwXID(5100);
+XID xidDynStatStopTm                  = FlwXID(5101);
+XID xidAtStartRestartHist             = FlwXID(5102);
+XID xidAtStartSetHistTags             = FlwXID(5103);
+XID xidAtStartResetTime               = FlwXID(5104);
+XID xidAtStartRestartPGM              = FlwXID(5105);
+XID xidAtStartRestartPrf              = FlwXID(5106);
+XID xidAtStartTimeF                   = FlwXID(5107);
+XID xidAtStartTimeD                   = FlwXID(5108);
+XID xidEventLogOn                     = FlwXID(5109);
+XID xidAtStartAllZeroFlows            = FlwXID(5110);        
+XID xidAtStartAllEmpty                = FlwXID(5111);            
+XID xidAtStartAllPreSet               = FlwXID(5112);           
+XID xidAtStartAllSteadyState          = FlwXID(5113);      
+XID xidAtStartAllDynStatsRunInit      = FlwXID(5114);  
+XID xidAtStartAllEmptySpillTargets    = FlwXID(5115);
+
 
 XID xidMCloseTolAbs                   = FlwXID(5151);
 XID xidMCloseTolRel                   = FlwXID(5152);
@@ -1194,116 +1248,6 @@ flag CollectGrpNodes(CMacroMdlClassDef *pC, CMacroMdl *pG, FlwNode *p, int IONo,
 #endif
   p->Busy=0;
   return GotOne;
-  }
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-CDynRunStats::CDynRunStats()
-  {
-  dStopSimTime = dNAN;
-  bPreventStart = 0;
-  ResetStats();
-  }
-
-//--------------------------------------------------------------------------
-
-void CDynRunStats::ResetStats()
-  {
-  dbgpln("CDynRunStats::ResetStats()");
-  dSimTime = 0.0;
-  dRunTime = 0.0;
-  dProgress = 0.0;
-  dSolveTm = 0.0;
-  dEstSolveTmRem = 0.0;
-  dEstSolveTmTtl = 0.0;
-  iIterCnt = 0;
-  bStopRqd = 0;
-  if (Valid(dStopSimTime))
-    gs_Exec.SetDynProgress(0.0);
-  else
-    gs_Exec.SetDynProgress(-1.0);
-  gs_Exec.SetStartTime(gs_Exec.Time());
-  }
-
-//--------------------------------------------------------------------------
-
-void CDynRunStats::BuildDataDefn(DataDefnBlk & DDB, TaggedObject* pObj)
-  {
-  DDB.BeginStruct(pObj, "DynStats", NULL, DDB_NoPage);
-  DDB.Text  ("");
-  DDB.Button("Reset_Stats",      "",          DC_,     "",      xidDynStatReset, pObj, isParm);
-  DDB.Double("RqdTime",          "RqdTm",     DC_Time, "s",     xidDynStatStopTm, pObj, isParm|NAN_OK);
-  DDB.Visibility(SM_All|HM_All, Valid(dStopSimTime));
-  DDB.CheckBoxBtn("PreventStart", "",         DC_,     "",      &bPreventStart, pObj, isParm );
-  //DDB.Visibility(SM_All|HM_All, Valid(dStopSimTime) && !bPreventStart);
-  //DDB.CheckBoxBtn("ReStart", "", DC_,    "",    &bReStart,    pObj, isParm );
-  DDB.Visibility();
-  //DDB.Text  ("");
-  DDB.Double("Time",             "Tm",        DC_Time, "s",     &dSimTime,      pObj, isResult);
-  DDB.Double("",                 "Progress",  DC_Frac, "%",     &dProgress,     pObj, isResult|noFileAtAll);
-  DDB.Long  ("",                 "Iterations",DC_,     "",      &iIterCnt,      pObj, isResult);
-  DDB.Double("SolveTime",        "SolveTm",   DC_Time, "s",     &dSolveTm,      pObj, isResult);
-  DDB.Double("EstSolveTimeRemaining", "EstSolveTmRem", DC_Time, "s", &dEstSolveTmRem, pObj, isResult);
-  DDB.Double("EstSolveTimeTotal", "EstSolveTmTtl", DC_Time, "s", &dEstSolveTmTtl, pObj, isResult);
-  DDB.Text  ("");
-  DDB.EndStruct();
-  }
-
-//--------------------------------------------------------------------------
-
-flag CDynRunStats::DataXchg(DataChangeBlk & DCB, TaggedObject* pObj)
-  {
-  switch (DCB.lHandle)
-    {
-    case xidDynStatReset:
-      if (DCB.rB && (*DCB.rB!=0))
-        ResetStats();
-      DCB.B=0;
-      return True;
-    case xidDynStatStopTm:
-      if (DCB.rD)
-        {
-        dStopSimTime = *DCB.rD;
-        if (Valid(dStopSimTime))
-          dStopSimTime = Max(0.001, dStopSimTime);
-        bStopRqd = (Valid(dStopSimTime) && dSimTime>=dStopSimTime);
-        }
-      DCB.D = dStopSimTime;
-      return True;
-    }
-  return false;
-  }
-
-//--------------------------------------------------------------------------
-
-void CDynRunStats::ExecIns(double dT)
-  {
-  if (dT>0.0)
-    {
-    iIterCnt++;
-    dSimTime += dT;
-    }
-  //dRunTime += ?;
-  dSolveTm = XSW().m_swRun.Secs()-XSW().m_dStartingTime;
-  if (Valid(dStopSimTime))
-    {
-    dProgress = dSimTime/GTZ(dStopSimTime);
-    dEstSolveTmRem = dSolveTm/GTZ(dProgress) - dSolveTm;
-    bStopRqd = (dSimTime+(0.05*dT)>dStopSimTime);
-    gs_Exec.SetDynProgress(dProgress);
-    }
-  else
-    {
-    gs_Exec.SetDynProgress(-1.0);
-    dProgress = 0.0;
-    dEstSolveTmRem = 0.0;
-    bStopRqd = 0;
-    }
-  dEstSolveTmTtl = dSolveTm + dEstSolveTmRem;
   }
 
 //===========================================================================
@@ -5091,7 +5035,7 @@ void FlwSlvPB::FITPBEvalCtrlActions(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     //p->LockFlanges();
     p->LockNode();
     XT.LockDone();//(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
-    p->EvalCtrlActions();
+    p->EvalCtrlActions(CO_All);
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -5116,7 +5060,7 @@ void FlwSlvPB::FITPBEvalCtrlStrategy(CFlwNodeList & List)//CLkFlwNodeIter & Iter
     //p->LockFlanges();
     p->LockNode();
     XT.LockDone();//(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
-    p->EvalCtrlStrategy();
+    p->EvalCtrlStrategy(CO_All);
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -5173,7 +5117,7 @@ void FlwSlvPB::EvalAllBalance()
     }
   }
 
-void FlwSlvPB::EvalAllCtrlInitialise()
+void FlwSlvPB::EvalAllCtrlInitialise(eScdCtrlTasks Tasks)
   {
   CThreadTimer  XT(eFITPBEvalCtrlInitialise, FSW_EvalCtrlInitialise);
   CFlwNodeIter All(m_AllNds);//m_AllTOSequence);
@@ -5181,14 +5125,14 @@ void FlwSlvPB::EvalAllCtrlInitialise()
     {
     XT.StartLoop(p);
     XT.LockDone();//(p, eFITPBEvalCtrlInitialise, FSW_EvalCtrlInitialise);
-    p->EvalCtrlInitialise();
+    p->EvalCtrlInitialise(Tasks);
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlInitialise, FSW_EvalCtrlInitialise);
     XT.EndLoop();//PostambleUnLock();
     }
   XT.Complete();//PostambleTl();
   }
 
-void FlwSlvPB::EvalAllCtrlStrategy()
+void FlwSlvPB::EvalAllCtrlStrategy(eScdCtrlTasks Tasks)
   {
   CThreadTimer  XT(eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
   CNodeEvalIndexIter CtrlOrder(m_CtrlTOSequence);
@@ -5196,7 +5140,7 @@ void FlwSlvPB::EvalAllCtrlStrategy()
     {
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
-    NJ.Nd.EvalCtrlStrategy();
+    NJ.Nd.EvalCtrlStrategy(Tasks);
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     XT.EndLoop();
     MYASSERT(_CrtCheckMemory());
@@ -5204,7 +5148,7 @@ void FlwSlvPB::EvalAllCtrlStrategy()
   XT.Complete();//PostambleTl();
   }
 
-void FlwSlvPB::EvalAllCtrlActions()
+void FlwSlvPB::EvalAllCtrlActions(eScdCtrlTasks Tasks)
   {
   CThreadTimer  XT(eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
   CNodeEvalIndexIter All(m_AllTOSequence);
@@ -5212,14 +5156,14 @@ void FlwSlvPB::EvalAllCtrlActions()
     {
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
-    NJ.Nd.EvalCtrlActions();
+    NJ.Nd.EvalCtrlActions(Tasks);
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
     XT.EndLoop();
     }
   XT.Complete();//PostambleTl();
   }
 
-void FlwSlvPB::EvalAllCtrlTerminate()
+void FlwSlvPB::EvalAllCtrlTerminate(eScdCtrlTasks Tasks)
   {
   CThreadTimer  XT(eFITPBEvalCtrlTerminate, FSW_EvalCtrlTerminate);
   CFlwNodeIter All(m_AllNds);//m_AllTOSequence);
@@ -5227,7 +5171,7 @@ void FlwSlvPB::EvalAllCtrlTerminate()
     {
     XT.StartLoop(p);
     XT.LockDone();//(p, eFITPBEvalCtrlTerminate, FSW_EvalCtrlTerminate);
-    p->EvalCtrlTerminate();
+    p->EvalCtrlTerminate(Tasks);
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlTerminate, FSW_EvalCtrlTerminate);
     XT.EndLoop();
     }
@@ -5245,7 +5189,7 @@ void FlwSlvPB::EvalAllCtrlTerminate()
 //    {
 //    XT.StartLoop(p);
 //    XT.LockDone();//(p, eFITPowerRequired, FSW_Null);
-//    p->EvalCtrlStrategy();
+//    p->EvalCtrlStrategy(eScdCtrlTasks Tasks);
 //    p->CheckDataRanges();
 //    XT.ExecDone();//Postamble(p, eFITPowerRequired, FSW_Null);
 //    XT.EndLoop();
@@ -5256,7 +5200,7 @@ void FlwSlvPB::EvalAllCtrlTerminate()
 //    {
 //    XT.StartLoop(p);
 //    XT.LockDone();//(p, eFITElectrics, FSW_Null);
-//    p->EvalCtrlActions();
+//    p->EvalCtrlActions(eScdCtrlTasks Tasks);
 //    p->CheckDataRanges();
 //    XT.ExecDone();//Postamble(p, eFITElectrics, FSW_Null);
 //    XT.EndLoop();
@@ -5373,7 +5317,7 @@ int FlwSlvPB::InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn)
 
   if (1)
     {
-    EvalAllCtrlInitialise();
+    EvalAllCtrlInitialise(CO_All);
 
     if (BuildCtrlNdListReqd())
       {
@@ -5594,8 +5538,8 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
       BuildCtrlNdList();
       FindTOSequence((FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
       }
-    EvalAllCtrlStrategy();
-    EvalAllCtrlActions();
+    EvalAllCtrlStrategy(CO_All);
+    EvalAllCtrlActions(CO_All);
     //EvalAllPowerAvailable();
     }
 
@@ -5697,7 +5641,7 @@ int FlwSlvPB::TermSolution(const EqnSlvCtrlBlk & EQCtrl)
       BuildCtrlNdList();
       FindTOSequence((FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
       }
-    EvalAllCtrlTerminate();
+    EvalAllCtrlTerminate(CO_All);
     }
 
 
@@ -6185,7 +6129,7 @@ void FlwSlvDyn::Construct()
   bDoSystemDefn=false;
 
   m_SolutionBlksOk=0;
-  StopTime=dNAN;
+  //StopTime=dNAN;
 
   m_SSTest=eSS_Network;
   m_SSStopCount=3;
@@ -6217,56 +6161,235 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
   {
   if (DDB.BeginStruct(&FlwSlvNd, "Dyn", NULL, DDB_NoPage))
     {
-    DDB.Text("Integration");
-    static DDBValueLst DDB0[] = {
-      {ODE_Euler,    "Euler"},
-      {ODE_RK2,      "Runge-Kutta 2"},
-      {ODE_RK4,      "Runge-Kutta 4"},
-      {ODE_LastMethod,  "Self",         MDD_Hidden}, // Remove Old
-      {ODE_LastMethod,  "Implicit",     MDD_Hidden}, // Remove Old
-      {0}};
-    DDB.Byte  ("Method",            "", DC_,      "",    xidODEMethod,        &FlwSlvNd, 0/*isParm*/, DDB0);
-    static DDBValueLst DDB1[]={
-      {ODE_SSC_Fixed, "Fixed"},
-      {ODE_SSC_Var_1, "Variable"},
-      {0}};
-    static DDBValueLst DDB2[]={
-      {ECA_Start, "Start"},
-      {ECA_End,   "End"},
-      {0}};
+    DDB.Text("");
+    DDB.Text("Executive");
+
+    static DDBValueLst DDBIncCtrl[]=
+      {
+        {ODE_SSC_Fixed, "Fixed"},
+        {ODE_SSC_Var_1, "Variable"},
+        {0}
+      };
 
     if (PrjFileVerNo()<55)
       {
-      DDB.Byte  ("StepSizeCtrl",      "", DC_    , "",    xidODESSCtrl,       &FlwSlvNd, 0/*isParm*/, DDB1);
+      DDB.Byte  ("StepSizeCtrl",      "", DC_    , "",    xidODESSCtrl,       &FlwSlvNd, 0/*isParm*/, DDBIncCtrl);
 
       DDB.Double("Time",              "", DC_Time,  "s",   xidODETime,          &FlwSlvNd, 0 | DDEF_NOCOMPARE);
       DDB.Double("dTime",             "", DC_Time,  "s",   xidODETimeInc,       &FlwSlvNd, 0/*isParm*/ );
-      DDB.Double("StopTime",          "", DC_Time,  "s",   &StopTime,           &FlwSlvNd, isParm|NAN_OK );
+      //DDB.Double("StopTime",          "", DC_Time,  "s",   &StopTime,           &FlwSlvNd, isParm|NAN_OK );
       DDB.Double("StepSize",          "", DC_Time,  "s",   xidStepSizeRqd,      &FlwSlvNd, isParm );
       DDB.Double("dTimeMax",          "", DC_Time,  "s",   xidODETimeIncMxRqd,  &FlwSlvNd, isParm );
       DDB.Double("dTimeMin",          "", DC_Time,  "s",   xidODETimeIncMnRqd,  &FlwSlvNd, isParm );
       }
     else
       {
-      DDB.Text  ("");
-      DDB.Double("Time",              "", DC_Time, "s",   xidODETime,           &FlwSlvNd, 0/*isParm*/ );
-      DDB.String("TimeDesc",          "", DC_,     "",    xidODETimeDesc,       &FlwSlvNd, InitHidden);
-      DDB.String("TimeFullDesc",      "", DC_,     "",    xidODETimeFullDesc,   &FlwSlvNd, InitHidden);
+      //DDB.Text  ("");
+      DDB.String("Time.Fmt",          "", DC_TimeStr, "DyTm.", xidTimeF,             &FlwSlvNd, 0/*isParm*/ );
+      DDB.Double("Time",              "", DC_Time,    "s",     xidTimeD,             &FlwSlvNd, 0/*isParm*/|InitHidden );
+      //DDB.Text  ("");
+      DDB.String("StepSize.Fmt",      "", DC_dTimeStr, "Tm.",   xidStepSizeF,         &FlwSlvNd, isParm );
+      //DDB.Text  ("");
+      DDB.Double("StepSize",          "", DC_Time,    "s",     xidStepSizeD,         &FlwSlvNd, isParm |InitHidden);
+      DDB.Long  ("StepCount",         "", DC_,        "",      xidStepCount,         &FlwSlvNd, 0);
+      //DDB.String("TimeDesc",          "", DC_TimeStr, "Tm.", xidODETimeDesc,       &FlwSlvNd, InitHidden);
+      //DDB.String("TimeFullDesc",      "", DC_TimeStr, "TmDt", xidODETimeFullDesc,   &FlwSlvNd, InitHidden);
       DDB.CheckBoxBtn("RealTimeOn",   "", DC_,     "",    xidRealTimeOn,        &FlwSlvNd, isParmStopped, DDBOnOff);
       DDB.Double("RealTimeMultiplier","", DC_Frac, "%",   xidRealTimeMultiplier,&FlwSlvNd, isParm);
+      //DDB.Text  ("");
+      }
+
+    DDB.Text  ("");
+    if (DDB.BeginStruct(&FlwSlvNd, "TimeRec", NULL, DDB_NoPage))
+      {
+      DDB.Long  ("mSecs",             "", DC_,      "",    xidDTmSecsCount,     &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Secs",              "", DC_,      "",    xidDTSecsCount,      &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Mins",              "", DC_,      "",    xidDTMinsCount,      &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Hours",             "", DC_,      "",    xidDTHoursCount,     &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Days",              "", DC_,      "",    xidDTDaysCount,      &FlwSlvNd, isResult|noFileAtAll);
+      }
+    DDB.EndStruct();
+    if (DDB.BeginStruct(&FlwSlvNd, "DateRec", NULL, DDB_NoPage))
+      {
+      DDB.Long  ("Day",              "", DC_,      "",    xidDTDateDay,        &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Month",            "", DC_,      "",    xidDTDateMonth,      &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("Year",             "", DC_,      "",    xidDTDateYear,       &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("DayOfWeek",        "", DC_,      "",    xidDTDateDayOfWeek,  &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("DayOfYear",        "", DC_,      "",    xidDTDateDayOfYear,  &FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("DaysInMonth",      "", DC_,      "",    xidDTDateDaysInMonth,&FlwSlvNd, isResult|noFileAtAll);
+      DDB.Long  ("DaysInYear",       "", DC_,      "",    xidDTDateDaysInYear, &FlwSlvNd, isResult|noFileAtAll);
+      }
+    DDB.EndStruct();
+    DDB.Text  ("");
+
+    //DDB.Page  ("Scenario", DDB_RqdPage);
+    //DDB.Text  ("");
+    if (DDB.BeginStruct(&FlwSlvNd, "Scenario", NULL, DDB_RqdPage))
+      {
+      DDB.Text("");
+      DDB.Text("Specification");
+
+      static DDBValueLst DDBTypes[] = 
+        {
+          {ScnTyp_Manual,       "Manual"},
+          {ScnTyp_Duration,     "Duration"},
+          {ScnTyp_StopTime,     "StopTime"},
+          {ScnTyp_Steps,        "Steps"},
+          //{RTT_SteadyState,  "SteadyState"},
+          {0},
+        };
+      DDB.Long("Type",              "", DC_,          "",       xidScnType,         &FlwSlvNd, isParmStopped|SetOnChange, DDBTypes);
+      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_Duration);
+      DDB.String("DurationRqd.Fmt", "", DC_dTimeStr,  "DyTm0.", xidRunDurationF,    &FlwSlvNd, isParmStopped);
+      DDB.Double("DurationRqd",     "", DC_Time,      "s",      xidRunDurationD,    &FlwSlvNd, isParmStopped);
+      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_StopTime);
+      DDB.String("StopTimeRqd.Fmt", "", DC_TimeStr,   "DyTm0.", xidRunStopTimeF,    &FlwSlvNd, isParmStopped);
+      DDB.Double("StopTimeRqd",     "", DC_Time,      "s",      xidRunStopTimeD,    &FlwSlvNd, isParmStopped|InitHidden);
+      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_Steps);
+      DDB.Long  ("StepCountRqd",    "", DC_,          "",       xidStepCountMax,   &FlwSlvNd, isParmStopped);
+      DDB.Visibility();
+
+      static DDBValueLst DDBScnState[] = {{Scn_Off, "Off"}, {Scn_Start, "Start"}, {Scn_Busy, "Busy"}, {Scn_Complete, "Complete"}, {Scn_Ignore, "Ignore"}, {}};
+
+      DDB.Byte  ("ScnState",       "",  DC_, "",  xidScnState,             &FlwSlvNd, 0,                         DDBScnState);
+      DDB.String("StopTime.Fmt",    "", DC_TimeStr,   "DyTm0.", xidRunTimeToStopF,  &FlwSlvNd, InitHidden);
+      DDB.Double("StopTime",        "", DC_Time,      "s",      xidRunTimeToStopD,  &FlwSlvNd, InitHidden|NAN_OK);
+      DDB.String("ScnTime.Fmt",     "", DC_dTimeStr,  "DyTm0.", xidScnTimeF,        &FlwSlvNd,  InitHidden);
+      DDB.Double("ScnTime",         "", DC_Time,      "s",      xidScnTimeD,        &FlwSlvNd,  InitHidden|NAN_OK);
+      DDB.String("ScnTimeEnd.Fmt",  "", DC_dTimeStr,  "DyTm0.", xidScnTimeMaxF,     &FlwSlvNd,  InitHidden);
+      DDB.Double("ScnTimeEnd",      "", DC_Time,      "s",      xidScnTimeMaxD,     &FlwSlvNd,  InitHidden|NAN_OK);
+      DDB.Visibility(SHM_All, false, true, true, true);
+      DDB.Long  ("Type.Last",       "", DC_,          "",       xidScnTypeLast,     &FlwSlvNd, isParmStopped, DDBTypes);
+      DDB.Visibility();
+
+      static DDBValueLst DDBIfBusy[]     =  { {Scr_Continue, "Continue"}, {Scr_ReStart,  "ReStart"}, {}};
+      static DDBValueLst DDBIfComplete[] =  { {Sbr_Block,    "Ignore"},   {Sbr_ReStart,  "ReStart"}, {}};
+      DDB.Text("");
+      DDB.Text  ("Start Action");
+      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_Manual);
+      DDB.Byte("IfManualScn",    "",  DC_, "",  xidManualScnRestart,     &FlwSlvNd, isParmStopped|SetOnChange, DDBIfBusy);
+      DDB.Visibility(SHM_All, gs_Exec.ScnType!=ScnTyp_Manual);
+      DDB.Byte("IfScnBusy",      "",  DC_, "",  xidReStartIfScnBusy,     &FlwSlvNd, isParmStopped|SetOnChange, DDBIfBusy);
+      DDB.Byte("IfScnComplete",  "",  DC_, "",  xidReStartIfScnComplete, &FlwSlvNd, isParmStopped|SetOnChange, DDBIfComplete);
+      DDB.Visibility();
+
+      DDB.Text("");
+      DDB.Text("Elapsed Time & Progress");
+      //double dddd=0;
+      DDB.Double("Progress",              "", DC_Frac, "%",   xidProgress,      &FlwSlvNd, isParmConstruct|NAN_OK);
+      DDB.Double("Elapsed.Time",          "", DC_Time, "s",   xidClock,         &FlwSlvNd, 0|noFileAtAll);
+      DDB.Double("Elapsed.EstToGo",       "", DC_Time, "s",   xidClockToGo,     &FlwSlvNd, 0|noFileAtAll);
+      DDB.Double("Elapsed.EstTotal",      "", DC_Time, "s",   xidClockTotal,    &FlwSlvNd, 0|noFileAtAll);
+      DDB.Long  ("Elapsed.Steps",         "", DC_Time, "s",   xidElapsedSteps,  &FlwSlvNd, isParmConstruct);
+
       DDB.Text  ("");
-      DDB.Text("Integration");
-      DDB.Byte  ("TimeIncCtrl",      "", DC_,      "",    xidODESSCtrl,         &FlwSlvNd, 0/*isParm*/, DDB1);
+      //DDB.Text  ("At Scenario Start");
+
+      if (DDB.BeginStruct(&FlwSlvNd, "Start", NULL, DDB_NoPage))
+        {
+        DDB.CheckBoxBtn("SetTime",              "", DC_,        "",       xidAtStartResetTime,            &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped), DDBOnOff);
+        DDB.String     ("StartAt.Fmt",          "", DC_TimeStr, "DyTm0.", xidAtStartTimeF,                &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped));
+        DDB.Double     ("StartAt",              "", DC_Time,    "s",      xidAtStartTimeD,                &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped)|InitHidden);
+        DDB.Text  ("");
+        DDB.CheckBoxBtn("RestartHistorian",     "", DC_,        "",       xidAtStartRestartHist,          &FlwSlvNd, (gs_Exec.ResetTimeOnStart?0:isParmStopped), DDBOnOff);
+        DDB.CheckBoxBtn("SetHistorianTagList",  "", DC_,        "",       xidAtStartSetHistTags,          &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.Text  ("");
+        DDB.CheckBoxBtn("InitialisePGM",        "", DC_,        "",       xidAtStartRestartPGM,           &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("RestartProfiles",      "", DC_,        "",       xidAtStartRestartPrf,           &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("DynStatsRunInit",      "", DC_,        "",       xidAtStartAllDynStatsRunInit,   &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.Text  ("");
+        DDB.CheckBoxBtn("ZeroFlows",            "", DC_,        "",       xidAtStartAllZeroFlows,         &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("Empty",                "", DC_,        "",       xidAtStartAllEmpty,             &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("Preset",               "", DC_,        "",       xidAtStartAllPreSet,            &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("SteadyState",          "", DC_,        "",       xidAtStartAllSteadyState,       &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("EmptySpillTargets",    "", DC_,        "",       xidAtStartAllEmptySpillTargets, &FlwSlvNd, isParmStopped, DDBOnOff);
+        //DDB.Text  ("");
+        }
+      DDB.EndStruct();
+
+      DDB.Text("");
+      //DDB.Text("At Scenario End");
+      if (DDB.BeginStruct(&FlwSlvNd, "End", NULL, DDB_NoPage))
+        {
+        static DDBValueLst DDBActs[] = { /*{ScnTA_None, "None"},*/ { ScnTA_Edit, "Stop"}, { ScnTA_Idle, "Idle"}, {0}, };
+        DDB.Long("Action",    "",          DC_,        "",   xidScnTermAction,   &FlwSlvNd, isParmStopped|SetOnChange, DDBActs);
+        }
+      DDB.EndStruct();
+
+
+      }
+    DDB.EndStruct();
+
+
+    if (DDB.BeginStruct(&FlwSlvNd, "Cmds", NULL, DDB_RqdPage))
+      {
+      static DDBValueLst DDBDoIt[] = 
+        {
+          {0, "Execute"},
+          {1, "DoIt"},
+          {0},
+        };
+      DDB.Text("");
+      DDB.Text("Scenario");
+      DDB.Button("Reset Scenario",       "", DC_,    "", xidDynCmdScnRestart,  &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      DDB.Text("");
+      DDB.Button("SetTime",             "", DC_,    "", xidDynCmdResetTime,   &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped)|noFileAtAll/*, DDBDoIt*/);//, DDBOnOff);
+      DDB.Button("RestartHistorian",    "", DC_,    "", xidDynCmdRestartHist, &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);//, DDBOnOff);
+      //DDB.Button("SetHistorianTagList",  "", DC_,        "",       xidAtStartSetHistTags, &FlwSlvNd, isParmStopped, DDBOnOff);
+      //DDB.String     ("TimeAtStart.Fmt",      "", DC_TimeStr, "DyTm0.", xidAtStartTimeF,       &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped));
+      //DDB.Double     ("TimeAtStart",          "", DC_Time,    "s",      xidAtStartTimeD,       &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped)|InitHidden);
+
+      DDB.Text("");
+      DDB.Button("ZeroFlows",           "", DC_, "", xidSetStateAllZeroFlows,        &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      DDB.Button("Empty",               "", DC_, "", xidSetStateAllEmpty,            &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      DDB.Button("Preset",              "", DC_, "", xidSetStateAllPreSet,           &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      DDB.Button("SteadyState",         "", DC_, "", xidSetStateAllSteadyState,      &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      DDB.Button("DynStatsRunInit",     "", DC_, "", xidSetStateAllDynStatsRunInit,  &FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      DDB.Button("EmptySpillTargets",   "", DC_, "", xidSetStateAllEmptySpillTargets,&FlwSlvNd, isParmStopped|noFileAtAll/*, DDBDoIt*/);
+      }
+    DDB.EndStruct();
+
+    static DDBValueLst DDBMethod[] = 
+      {
+        {ODE_Euler,    "Euler"},
+        {ODE_RK2,      "Runge-Kutta 2"},
+        {ODE_RK4,      "Runge-Kutta 4"},
+        {ODE_LastMethod,  "Self",         MDD_Hidden}, // Remove Old
+        {ODE_LastMethod,  "Implicit",     MDD_Hidden}, // Remove Old
+        {0}
+      };
+    static DDBValueLst DDBCtrl[]=
+      {
+        {ECA_Start, "Start"},
+        {ECA_End,   "End"},
+        {0}
+      };
+
+    DDB.Text  ("");
+    if (PrjFileVerNo()>=55)
+      {
+      //DDB.Text  ("");
+      DDB.Page  ("Integration", DDB_RqdPage);
+      DDB.Text  ("");
+      DDB.Byte  ("Method",            "", DC_,     "",    xidODEMethod,        &FlwSlvNd, 0/*isParm*/, DDBMethod);
+      DDB.Byte  ("TimeIncCtrl",       "", DC_,     "",    xidODESSCtrl,         &FlwSlvNd, 0/*isParm*/, DDBIncCtrl);
+      DDB.Long  ("IterationsPerStep", "", DC_,     "",    xidIterPerStep,       &FlwSlvNd, 0 );
       DDB.Double("TimeInc",           "", DC_Time, "s",   xidODETimeInc,        &FlwSlvNd, 0/*isParm*/ );
       DDB.Double("TimeIncMax",        "", DC_Time, "s",   xidODETimeIncMxRqd,   &FlwSlvNd, isParm );
       DDB.Double("TimeIncMin",        "", DC_Time, "s",   xidODETimeIncMnRqd,   &FlwSlvNd, isParm );
       DDB.Double("DerivEstInc",       "", DC_Time, "s",   xidODEDerivEstInc,    &FlwSlvNd, isParm );
       DDB.Double("SettleTime",        "", DC_Time, "s",   xidODESettleTime,     &FlwSlvNd, isParm );
-      DDB.Byte  ("CtrlEval",          "", DC_,     "",    &m_EvalCtrlAt,        &FlwSlvNd, isParmStopped, DDB2);
-      DDB.Text  ("");
-      DDB.Double("StepSize",          "", DC_Time, "s",   xidStepSizeRqd,       &FlwSlvNd, isParm );
-      DDB.Long  ("IterationsPerStep", "", DC_,     "",    xidIterPerStep,       &FlwSlvNd, 0 );
+      DDB.Byte  ("CtrlEval",          "", DC_,     "",    &m_EvalCtrlAt,        &FlwSlvNd, isParmStopped, DDBCtrl);
       }
+    //if (OrigPrjFileVerNo()<98)
+    //  {
+    //  DDB.Text  ("At startup...");
+    //  DDB.CheckBoxBtn("RestartHistorian", "", DC_,   "",   xidAtStartRestartHist,   &FlwSlvNd, isParm, DDBOnOff);
+    //  DDB.CheckBoxBtn("SetHistorianTagList", "", DC_, "",  xidAtStartSetHistTags,   &FlwSlvNd, isParm, DDBOnOff);
+    //  DDB.CheckBoxBtn("ResetTime",    "", DC_,       "",   xidAtStartResetTime,     &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm, DDBOnOff);
+    //  DDB.String("TimeAtStart",       "", DC_,       "",   xidAtStartTime,          &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm);
+    //  }
+    //DDB.Text  ("At startup...");
 
     DDB.Text  ("");
     DDB.Double("Mag_Eps_Abs",       "", DC_,      "",    xidODEMag_Eps_A,     &FlwSlvNd, isParm );
@@ -6295,23 +6418,34 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.String("WorstMagInt8",      "", DC_,      "",    xidWorstMagInt8,     &FlwSlvNd, InitHidden | noFile|noSnap);
     DDB.String("WorstMagInt9",      "", DC_,      "",    xidWorstMagInt9,     &FlwSlvNd, InitHidden | noFile|noSnap);
     DDB.Text  ("");
-    if (DDB.BeginStruct(&FlwSlvNd, "DateTime", NULL, DDB_NoPage))
-      {
-      DDB.Double("Time",            "", DC_Time,  "s",   xidDTTime,           &FlwSlvNd, isResult|noFileAtAll);
-      DDB.String("TimeDesc",        "", DC_,      "",    xidDTTimeDesc,       &FlwSlvNd, isResult|noFileAtAll);
-      DDB.String("TimeFullDesc",    "", DC_,      "",    xidDTTimeFullDesc,   &FlwSlvNd, isResult|noFileAtAll);
-      DDB.Long  ("Day",             "", DC_,      "",    xidDTDay,            &FlwSlvNd, isResult|noFileAtAll);
-      DDB.Long  ("Month",           "", DC_,      "",    xidDTMonth,          &FlwSlvNd, isResult|noFileAtAll);
-      DDB.Long  ("Year",            "", DC_,      "",    xidDTYear,           &FlwSlvNd, isResult|noFileAtAll);
-      }
-    DDB.EndStruct();
+    //if (DDB.BeginStruct(&FlwSlvNd, "DateTime", NULL, DDB_NoPage))
+    //  {
+    //  //DDB.Double("Time",            "", DC_Time,  "s",   xidDTTime,           &FlwSlvNd, isResult|noFileAtAll);
+    //  //DDB.String(""/*"TimeDesc"*/,     "HMS", DC_TimeStr, "Tm",  xidDTTimeHMS,        &FlwSlvNd, isResult|noFileAtAll);
+    //  //DDB.String("",          "DayHMS", DC_TimeStr, "DyTm",    xidDTTimeDHMS,       &FlwSlvNd, isResult|noFileAtAll);
+    //  //DDB.String(""/*"TimeFullDesc"*/,"HMSDate", DC_TimeStr, "TmDt", xidDTTimeDate,       &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("mSecsCount",      "", DC_,      "",    xidDTmSecsCount,     &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("SecsCount",       "", DC_,      "",    xidDTSecsCount,      &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("MinsCount",       "", DC_,      "",    xidDTMinsCount,      &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("HoursCount",      "", DC_,      "",    xidDTHoursCount,     &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("DaysCount",       "", DC_,      "",    xidDTDaysCount,      &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("Day",             "", DC_,      "",    xidDTDateDay,        &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("Month",           "", DC_,      "",    xidDTDateMonth,      &FlwSlvNd, isResult|noFileAtAll);
+    //  DDB.Long  ("Year",            "", DC_,      "",    xidDTDateYear,       &FlwSlvNd, isResult|noFileAtAll);
+    //  }
+    //DDB.EndStruct();
+
 
     DDB.Page  ("Network", DDB_RqdPage);
+    DDB.Text(" ");
+    DDB.Text("Link Convergence");
     if (PrjFileVerNo()<53 || !DDB.ForFileSnpScn())
       {
       FlwNets.m_LnkEPS.GetAbsDD().BuildDataDefn(DDB, "Lnk_Eps_Abs", "", DC_, "", xidLnkEPSAbs, &FlwSlvNd, "Def", "Ovr");
       FlwNets.m_LnkEPS.GetRelDD().BuildDataDefn(DDB, "Lnk_Eps_Rel", "", DC_, "", xidLnkEPSRel, &FlwSlvNd, "Def", "Ovr");
       }
+    DDB.Text(" ");
+    DDB.Text("Network Convergence");
     DDB.Double("Net_DeRating",      "", DC_,      "",    xidLnkNetDerate,      &FlwSlvNd, isParm );
     DDB.Double("Net_MaxResRatio",   "", DC_,      "",    xidNetMaxResRatio,    &FlwSlvNd, isParm );
     DDB.Long  ("NetCnvCount",       "", DC_,      "",    xidNetCnvCount,       &FlwSlvNd, isParm );
@@ -6322,6 +6456,8 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     //DDB.CheckBoxBtn("ForceVapCalcs","", DC_,      "",    xidNetForceVFlow,     &FlwSlvNd, isParm, DDBOnOff);
     //DDB.CheckBoxBtn("ForceLiqCalcs","", DC_,      "",    xidNetForceLFlow,     &FlwSlvNd, isParm, DDBOnOff);
 
+    DDB.Text(" ");
+    DDB.Text("Flow Calculations");
     static DDBValueLst DDBNetCalcs[]={
       {0,  "Allow"},
       {1,  "Force"},
@@ -6336,23 +6472,27 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       {FBB_ShowAs_Warn,  "Warning"},
       {FBB_ShowAs_Error, "Error"},
       {0}};
-    DDB.Text  ("Tests");
+    DDB.Text(" ");
+    DDB.Text  ("Velocity Limits");
     DDB.Byte("ShowVelLimitAs",      "",           DC_,      "",    &CFlwBlkBase::sm_iShowVelLimitAs,  &FlwSlvNd, isParm, DDBShowAs);
     DDB.Double("VelLimit.Liq",      "VelLimitSL", DC_Ldt,   "m/s", &CFlwBlkBase::sm_dVelLimitSL,      &FlwSlvNd, isParm);
     DDB.Double("VelLimit.Vap",      "VelLimitV",  DC_Ldt,   "m/s", &CFlwBlkBase::sm_dVelLimitV,       &FlwSlvNd, isParm);
+    DDB.Text(" ");
+    DDB.Text  ("Mass Flow Differences");
     DDB.Byte("ShowQmDiffAs",        "",           DC_,      "",    &CFlwBlkBase::sm_iShowQmDiffAs,    &FlwSlvNd, isParm, DDBShowAs);
     CFlwBlkBase::m_QmMatchTol.GetAbsDD().BuildDataDefn(DDB, "QmMatchAbs", "", DC_Qm,    "kg/s",    xidLnkQmMatchAbs, &FlwSlvNd, "Def", "Ovr");
     CFlwBlkBase::m_QmMatchTol.GetRelDD().BuildDataDefn(DDB, "QmMatchRel", "", DC_Frac,  "%",       xidLnkQmMatchRel, &FlwSlvNd, "Def", "Ovr");
 
     DDB.Text  ("");
+    DDB.Text  ("Options");
     DDB.String("DefaultArea",       "", DC_,      "",    xidDefaultArea,  &FlwSlvNd, isParmStopped|isTag);
     //DDB.String("MissingSpills",     "", DC_,      "",    xidMissSpillAreas,  &FlwSlvNd, MultiLineStr|noFile|noSnap);
     DDB.Byte  ("Momentum",          "", DC_,      "",    &CFlwBlkBase::fMomentumOn,  &FlwSlvNd, isParm, DDBOnOff);
     DDB.Double("KFactMult",         "", DC_Frac,  "",    &PressDropKFactMult, &FlwSlvNd, isParm);
 
     DDB.Page  ("Tears", DDB_RqdPage);
-    DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
-    DDB.Double("Tear_EPS_Abs",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm);
+    //DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
+    //DDB.Double("Tear_EPS_Abs",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm);
     if (DDB.ForFiling() && DDB.DoingPutData())
       {
       DDB.Long  ("Tear_MaxIters",     "", DC_,      "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm);
@@ -6360,17 +6500,20 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Byte  ("Tear_Method",       "", DC_,      "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
       }
 
-    static DDBValueLst DDBTM[] = {
-      {TCM_DirectSubs,  "DirectSubs"},
-      {TCM_AdaptSubs,   "AdaptSubs"},
-      {TCM_Wegstein,    "Wegstein"},
-      //{TCM_Kalman,      "Kalman"},
-      {0}};
-    DDB.Text(" ");
+    static DDBValueLst DDBTM[] =
+      {
+        {TCM_DirectSubs,  "DirectSubs"},
+        {TCM_AdaptSubs,   "AdaptSubs"},
+        {TCM_Wegstein,    "Wegstein"},
+        //{TCM_Kalman,      "Kalman"},
+        {0}
+      };
 
+    DDB.Text(" ");
     DDB.Text("Tolerance Defaults");
     DDB.Double("Tear.EPS_Rel",           "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm );
     DDB.Double("Tear.EPS_Abs",           "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm );
+    DDB.Text(" ");
     DDB.Text("Convergence Defaults");
     DDB.Long  ("Tear.MaxIters",          "", DC_    , "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
     //DDB.Short ("Tear.CnvgdIters",        "", DC_    , "",    &DynEqnCB().Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
@@ -6382,20 +6525,39 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("Tear.WegsteinBound",     "", DC_,     "",    &DynEqnCB().Cfg.dWA_Bound,      &FlwSlvNd, isParm );
     DDB.Double("Tear.WegsteinClamp",     "", DC_,     "",    &DynEqnCB().Cfg.dWA_Clamping,   &FlwSlvNd, isParm );
 
-    DDB.Page  ("Options", DDB_RqdPage);
-    DynStats.BuildDataDefn(DDB, this);
+    DDB.Page  ("SS Monitor", DDB_RqdPage);
+    static DDBValueLst DDBSSTests[]={
+      {eSS_Off,       "Off"},
+      {eSS_Network,   "Network"},
+      {0}};
+    DDB.Text  ("");
+    DDB.Text  ("SteadyState Tests");
+    DDB.Long  ("SS.Test",         "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
+    DDB.Long  ("SS.StopCount",    "", DC_,      "",   &m_SSStopCount,         &FlwSlvNd, isParm);//, DDBOnOff);
+    DDB.Long  ("SS.MaxIters",     "", DC_,      "",   &m_SSMaxIters,          &FlwSlvNd, isParm);//, DDBOnOff);
+    DDB.Text  ("Progress");
+    DDB.Long  ("SS.Iteration",    "", DC_,      "",   &m_SSIters,             &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Long  ("SS.Steady",       "", DC_,      "",   &m_SSSteady,            &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.Double("SS.MaxChange",    "", DC_Frac,  "%",  &m_SSMaxChange,         &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.String("SS.MaxChangeTag", "", DC_,      "",   &m_SSMaxTag,            &FlwSlvNd, isResult);//, DDBOnOff);
 
-    DDB.Double("StopTime",          "", DC_Time,   "s",  &StopTime,               &FlwSlvNd, isParm|NAN_OK );
-    DDB.Text  ("");
-    DDB.CheckBoxBtn("EventLogOn",   "", DC_,       "",   xidEventLogOn,           &FlwSlvNd, isParm, DDBOnOff);
-    DDB.Long  ("EventLogIteration", "", DC_,       "",   &gs_EventLog.lIteration, &FlwSlvNd, isResult|InitHidden);
-    DDB.Double("EventLogStartTime", "", DC_Time,   "s",  &gs_EventLog.dStartTime, &FlwSlvNd, isResult|noView);
-    DDB.Text  ("");
-    DDB.Text  ("At startup...");
-    DDB.CheckBoxBtn("RestartHistorian", "", DC_,   "",   xidAtStartRestartHist,   &FlwSlvNd, isParm, DDBOnOff);
-    DDB.CheckBoxBtn("SetHistorianTagList", "", DC_, "",  xidAtStartSetHistTags,   &FlwSlvNd, isParm, DDBOnOff);
-    DDB.CheckBoxBtn("ResetTime",    "", DC_,       "",   xidAtStartResetTime,     &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm, DDBOnOff);
-    DDB.String("TimeAtStart",       "", DC_,       "",   xidAtStartTime,          &FlwSlvNd, gs_Exec.SyncWithClock() ? 0 : isParm);
+    DDB.Text  ("Tolerances");
+    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
+    m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
+    m_SSQmTol.GetAbsDD().BuildDataDefn(DDB,     "SS.Qm.Abs",  "", DC_Qm,    "kg/s",   xidSSQmTolAbs,  &FlwSlvNd, "Def", "Ovr");
+    m_SSQmTol.GetRelDD().BuildDataDefn(DDB,     "SS.Qm.Rel",  "", DC_Frac,  "%",      xidSSQmTolRel,  &FlwSlvNd, "Def", "Ovr");
+
+    DDB.Page  ("Options", DDB_RqdPage);
+
+    if (DDB.BeginStruct(&FlwSlvNd, "EventLog", NULL, DDB_NoPage))
+      {
+      //DDB.Double("StopTime",          "", DC_Time,   "s",  &StopTime,               &FlwSlvNd, isParm|NAN_OK );
+      DDB.Text  ("");
+      DDB.CheckBoxBtn("On",   "", DC_,       "",   xidEventLogOn,           &FlwSlvNd, isParm, DDBOnOff);
+      DDB.Long  ("Iteration", "", DC_,       "",   &gs_EventLog.lIteration, &FlwSlvNd, isResult|InitHidden);
+      DDB.Double("StartTime", "", DC_Time,   "s",  &gs_EventLog.dStartTime, &FlwSlvNd, isResult|noView);
+      }
+    DDB.EndStruct();
 
     DDB.Text  ("");
     if (DDB.BeginStruct(&FlwSlvNd, "HistorianTagList", NULL, DDB_NoPage))
@@ -6409,25 +6571,6 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       }
     DDB.EndStruct();
 
-    DDB.Page  ("SS Monitor", DDB_RqdPage);
-    static DDBValueLst DDBSSTests[]={
-      {eSS_Off,       "Off"},
-      {eSS_Network,   "Network"},
-      {0}};
-    DDB.Text  ("");
-    DDB.Text  ("SteadyState_Tests");
-    DDB.Long    ("SS.Test",         "", DC_,      "",   (long*)&m_SSTest,       &FlwSlvNd, isParm, DDBSSTests);
-    DDB.Long    ("SS.StopCount",    "", DC_,      "",   &m_SSStopCount,         &FlwSlvNd, isParm);//, DDBOnOff);
-    DDB.Long    ("SS.MaxIters",     "", DC_,      "",   &m_SSMaxIters,          &FlwSlvNd, isParm);//, DDBOnOff);
-    DDB.Long    ("SS.Iteration",    "", DC_,      "",   &m_SSIters,             &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.Long    ("SS.Steady",       "", DC_,      "",   &m_SSSteady,            &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.Double  ("SS.MaxChange",    "", DC_Frac,  "%",  &m_SSMaxChange,         &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.String  ("SS.MaxChangeTag", "", DC_,      "",   &m_SSMaxTag,            &FlwSlvNd, isResult);//, DDBOnOff);
-
-    m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
-    m_SSPressTol.GetRelDD().BuildDataDefn(DDB,  "SS.P.Rel",   "", DC_Frac,  "%",      xidSSPTolRel,   &FlwSlvNd, "Def", "Ovr");
-    m_SSQmTol.GetAbsDD().BuildDataDefn(DDB,     "SS.Qm.Abs",  "", DC_Qm,    "kg/s",   xidSSQmTolAbs,  &FlwSlvNd, "Def", "Ovr");
-    m_SSQmTol.GetRelDD().BuildDataDefn(DDB,     "SS.Qm.Rel",  "", DC_Frac,  "%",      xidSSQmTolRel,  &FlwSlvNd, "Def", "Ovr");
 
     }
   DDB.EndStruct();
@@ -6456,7 +6599,7 @@ void FlwSlvDyn::BuildDataDefnOld(DataDefnBlk & DDB)
 
     DDB.Double("Time",              "", DC_Time,  "s",   xidODETime,          &FlwSlvNd, 0 | DDEF_NOCOMPARE);
     DDB.Double("dTime",             "", DC_Time,  "s",   xidODETimeInc,       &FlwSlvNd, 0/*isParm*/ );
-    DDB.Double("StopTime",          "", DC_Time,  "s",   &StopTime,           &FlwSlvNd, isParm|NAN_OK );
+    //DDB.Double("StopTime",          "", DC_Time,  "s",   &StopTime,           &FlwSlvNd, isParm|NAN_OK );
     DDB.Double("StepSize",          "", DC_Time,  "s",   xidStepSizeRqd,      &FlwSlvNd, isParm );
     DDB.Double("dTimeMax",          "", DC_Time,  "s",   xidODETimeIncMxRqd,  &FlwSlvNd, isParm );
     DDB.Double("dTimeMin",          "", DC_Time,  "s",   xidODETimeIncMnRqd,  &FlwSlvNd, isParm );
@@ -6535,9 +6678,6 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
   if (FlwSlvBlk::DataXchg(DCB))
     return 1;
 
-  if (DynStats.DataXchg(DCB, &FlwSlvNd))
-    return 1;
-
   switch (DCB.lHandle)
     {
     case xidODEMethod:
@@ -6555,18 +6695,31 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         IntCB.SetTime(*DCB.rD);
       DCB.D=IntCB.GetTime();
       return 1;
+    case xidTimeF:
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.Format(DCB.pDataInfo->pCnvTxt);
+      return 1;
+    case xidTimeD:
+      DCB.D=gs_Exec.TheTime.Seconds;
+      return 1;
+    case xidStepSizeF:
+      if (DCB.rpC)
+        gs_Exec.StepSizeMax.Parse(DCB.rpC);
+      DCB.pC=(LPTSTR)gs_Exec.StepSizeMax.Format(DCB.pDataInfo->pCnvTxt);
+      return 1;
+    case xidStepSizeD:
+      if (DCB.rD)
+        gs_Exec.StepSizeMax=*DCB.rD;  
+      DCB.D=gs_Exec.StepSizeMax.Seconds;
+      return 1;
+    case xidStepCount:
+      DCB.L=gs_Exec.StepCount;
+      return 1;
     case xidODETimeDesc:
-      {
-      char buff[256];
-      DCB.pC=SecstoHMSDate(IntCB.GetTime(), buff, false);
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.Format(TD_Time);
       return 1;
-      }
     case xidODETimeFullDesc:
-      {
-      char buff[256];
-      DCB.pC=SecstoHMSDate(IntCB.GetTime(), buff, true);
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.Format(TD_TimeDate);
       return 1;
-      }
     case xidODETimeInc:
       if (DCB.rD)
         IntCB.SetTimeInc(*DCB.rD);
@@ -6578,7 +6731,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       DCB.D=TimeCB().m_StepSizeMax;
       return 1;
     case xidIterPerStep:
-      DCB.L=(long)(TimeCB().m_StepSizeMax/IntCB.GetTimeInc());
+      DCB.L=(long)(TimeCB().m_StepSizeMax.Seconds/IntCB.GetTimeInc());
       return 1;
     case xidODETimeIncMxRqd:
       if (DCB.rD)
@@ -6641,7 +6794,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       DCB.D=ODE().GetBADShrink();
       return 1;
     case xidODESteps:
-      DCB.L=TimeCB().m_nSteps;//XSW().nStepCnt;
+      DCB.L=TimeCB().m_StepCount;//XSW().nStepCnt;
       return 1;
     case xidODEGoodIters:
       DCB.L=ODE().GetGoodIters();
@@ -6770,12 +6923,12 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidHistTagFolder:
       {
-      Strng Path(gs_Exec.HstTaglistFolder());
+      Strng Path(gs_Exec.HstTaglistFolder);
       if (DCB.rpC)
         {
         Path = DCB.rpC;
         Path.FnContract();
-        gs_Exec.SetHstTaglistFolder(DCB.rpC);
+        gs_Exec.HstTaglistFolder=DCB.rpC;
         }
       if (DCB.ForFileSnpScn())
         {
@@ -6794,8 +6947,8 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       }
     case xidHistTagFile:
       if (DCB.rpC)
-        gs_Exec.SetHstTaglistFile(DCB.rpC);
-      DCB.pC=gs_Exec.HstTaglistFile();
+        gs_Exec.HstTaglistFile=DCB.rpC;
+      DCB.pC=gs_Exec.HstTaglistFile;
       return 1;
     case xidHistTagEdit:
       if (DCB.rB && (*DCB.rB!=0))
@@ -6803,13 +6956,13 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         Strng FullFilename;
         HANDLE hProcess = NULL;
         DWORD dwProcessId = 0;
-        Strng File(gs_Exec.HstTaglistFile());
+        Strng File(gs_Exec.HstTaglistFile);
         if (File.Len()==0)
           {
           File = "HistTagList.txt";
-          gs_Exec.SetHstTaglistFolder(PrjFiles());
-          gs_Exec.SetHstTaglistFile(File());
-          FullFilename = gs_Exec.HstTaglistFolder();
+          gs_Exec.HstTaglistFolder=PrjFiles();
+          gs_Exec.HstTaglistFile=File();
+          FullFilename = gs_Exec.HstTaglistFolder;
           FullFilename.FnExpand();
           FullFilename += File();
           FILE* f = fopen(FullFilename(), "wt");
@@ -6822,7 +6975,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
             }
           FullFilename = "";
           }
-        Strng Path(gs_Exec.HstTaglistFolder());
+        Strng Path(gs_Exec.HstTaglistFolder);
         int RetCode = DCB.DoEditBtn(hProcess, dwProcessId, Path(), File(), NULL, &FullFilename, true);
         if (RetCode==-1)
           {
@@ -6842,25 +6995,25 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
     case xidHistTagBrowse:
       if (DCB.rB && (*DCB.rB!=0))
         {
-        Strng Path(gs_Exec.HstTaglistFolder());
-        Strng File(gs_Exec.HstTaglistFile());
+        Strng Path(gs_Exec.HstTaglistFolder);
+        Strng File(gs_Exec.HstTaglistFile);
         DCB.DoBrowseBtn(NULL/*"csv"*/, "SysCAD Historian Tag List", Path, File);
-        gs_Exec.SetHstTaglistFolder(Path());
-        gs_Exec.SetHstTaglistFile(File());
+        gs_Exec.HstTaglistFolder=Path();
+        gs_Exec.HstTaglistFile=File();
         }
       DCB.B=0;
       return 1;
     case xidHistSetTagsNow:
       if (DCB.rB && (*DCB.rB!=0))
         {
-        Strng File(gs_Exec.HstTaglistFile());
+        Strng File(gs_Exec.HstTaglistFile);
         if (File.Len()>0)
           {
-          Strng FullFilename(gs_Exec.HstTaglistFolder());
+          Strng FullFilename(gs_Exec.HstTaglistFolder);
           if (FullFilename.Len()==0)
             {
             FullFilename = PrjFiles();
-            gs_Exec.SetHstTaglistFolder(FullFilename());
+            gs_Exec.HstTaglistFolder=FullFilename();
             }
           FullFilename.FnExpand();
           FullFilename += File();
@@ -6869,88 +7022,300 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         }
       DCB.B=0;
       return 1;
+    case xidAtStartResetTime:
+      if (DCB.rB)
+        gs_Exec.ResetTimeOnStart=*DCB.rB;
+      DCB.B=gs_Exec.ResetTimeOnStart;
+      return 1;
     case xidAtStartRestartHist:
       if (DCB.rB)
-        gs_Exec.SetHstRestartOnStart(*DCB.rB ? 1 : 0);
-      DCB.B=gs_Exec.HstRestartOnStart();
+        gs_Exec.RestartHstOnStart=*DCB.rB;
+      DCB.B=gs_Exec.RestartHstOnStart || gs_Exec.ResetTimeOnStart;
       return 1;
     case xidAtStartSetHistTags:
       if (DCB.rB)
-        gs_Exec.SetHstSetTaglistOnStart(*DCB.rB ? 1 : 0);
-      DCB.B=gs_Exec.HstSetTaglistOnStart();
+        gs_Exec.SetHstTaglistOnStart=*DCB.rB;
+      DCB.B=gs_Exec.SetHstTaglistOnStart;
       return 1;
-    case xidAtStartResetTime:
+    case xidAtStartRestartPGM:
       if (DCB.rB)
-        gs_Exec.SetResetTimeOnStart(*DCB.rB ? 1 : 0);
-      DCB.B=gs_Exec.ResetTimeOnStart();
+        gs_Exec.RestartPGMOnStart=*DCB.rB;
+      DCB.B=gs_Exec.RestartPGMOnStart;
       return 1;
-    case xidAtStartTime:
+    case xidAtStartRestartPrf:
+      if (DCB.rB)
+        gs_Exec.RestartPrfOnStart=*DCB.rB;
+      DCB.B=gs_Exec.RestartPrfOnStart;
+      return 1;
+    case xidAtStartTimeF:
+    case xidAtStartTimeD:
       {
-      if (DCB.rpC)
+      if (DCB.rpC || DCB.rD)
         {
-        double RqdTime;
-        flag OK = HMSDatetoSecs(DCB.rpC, RqdTime);
+        CTimeValue RqdTime;
+        flag OK=true;
+        if (DCB.lHandle==xidAtStartTimeF)
+          OK = RqdTime.Parse(DCB.rpC);//HMSDatetoSecs(DCB.rpC, RqdTime);
+        else
+          RqdTime.Seconds=*DCB.rD;
+
         if (OK)
           {
           if (IntCB.GetTimeInc()>86400.0*0.999) //1day
             {
-            RqdTime = floor(RqdTime/3600.0+0.5)*3600.0; //round to hour
+            RqdTime=RqdTime.Round(CTimeValue(3600.0));
+            //RqdTime = floor(RqdTime/3600.0+0.5)*3600.0; //round to hour
             }
           else if (IntCB.GetTimeInc()>3600.0*0.999) //1hour
             {
-            RqdTime = floor(RqdTime/60.0+0.5)*60.0; //round to minute
+            RqdTime=RqdTime.Round(CTimeValue(60.0));
+            //RqdTime = floor(RqdTime/60.0+0.5)*60.0; //round to minute
             }
           else if (IntCB.GetTimeInc()>60.0*0.999) //1minute
             {
-            RqdTime = floor(RqdTime/1.0+0.5)*1.0; //round to second
+            RqdTime=RqdTime.Round(CTimeValue(1.0));
+            //RqdTime = floor(RqdTime/1.0+0.5)*1.0; //round to second
             }
-          gs_Exec.SetOnStartTime(Max(0.0, RqdTime));
+          gs_Exec.TimeAtStart=Max(0.0, RqdTime);
           }
         }
-      char buff[256];
-      DCB.pC=SecstoHMSDate(gs_Exec.OnStartTime(), buff, true);
+      if (DCB.lHandle==xidAtStartTimeF)
+        DCB.pC=(LPTSTR)gs_Exec.TimeAtStart.Format(TD_Time|TD_DaysJoined);
+      else
+        DCB.D=gs_Exec.TimeAtStart.Seconds;
       return 1;
       }
+
+    case xidAtStartAllZeroFlows:
+      if (DCB.rB)
+        {
+        };
+      DCB.B=0;
+      return 1;
+    case xidAtStartAllEmpty:
+      if (DCB.rB)
+        {
+        };
+      DCB.B=0;
+      return 1;
+    case xidAtStartAllPreSet:
+      if (DCB.rB)
+        {
+        };
+      DCB.B=0;
+      return 1;
+    case xidAtStartAllSteadyState:
+      if (DCB.rB)
+        {
+        };
+      DCB.B=0;
+      return 1;
+    case xidAtStartAllDynStatsRunInit:
+      if (DCB.rB)
+        {
+        };
+      DCB.B=0;
+      return 1;
+    case xidAtStartAllEmptySpillTargets:
+      if (DCB.rB)
+        {
+        };
+      DCB.B=0;
+      return 1;
+
+
     case xidDTTime:
-      DCB.D=IntCB.GetTime();
+      DCB.D=gs_Exec.TheTime.Seconds;
       return 1;
-    case xidDTTimeDesc:
-      {
-      char buff[256];
-      DCB.pC=SecstoHMSDate(IntCB.GetTime(), buff, false);
+    case xidDTTimeHMS:
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.Format(TD_Time|TD_TrimTime);
       return 1;
-      }
-    case xidDTTimeFullDesc:
-      {
-      char buff[256];
-      DCB.pC=SecstoHMSDate(IntCB.GetTime(), buff, true);
+    case xidDTTimeDHMS:
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.Format(TD_Time|TD_DaysJoined|TD_TrimTime);
       return 1;
-      }
-    case xidDTDay:
-      {
-      double time_in = IntCB.GetTime();
-      __time64_t tt=(__time64_t)(time_in);
-      tm* t=_localtime64(&tt);
-      DCB.L=t->tm_mday;
+    case xidDTTimeDate:
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.Format(TD_TimeDate);
       return 1;
-      }
-    case xidDTMonth:
-      {
-      double time_in = IntCB.GetTime();
-      __time64_t tt=(__time64_t)(time_in);
-      tm* t=_localtime64(&tt);
-      DCB.L=t->tm_mon+1;
+    case xidDTmSecsCount:
+      DCB.L=gs_Exec.TheTime.TimemSeconds;
       return 1;
-      }
-    case xidDTYear:
-      {
-      double time_in = IntCB.GetTime();
-      __time64_t tt=(__time64_t)(time_in);
-      tm* t=_localtime64(&tt);
-      DCB.L=t->tm_year+1900;
+    case xidDTSecsCount:
+      DCB.L=gs_Exec.TheTime.TimeSeconds;
       return 1;
-      }
-      
+    case xidDTMinsCount:
+      DCB.L=gs_Exec.TheTime.TimeMinutes;
+      return 1;
+    case xidDTHoursCount:
+      DCB.L=gs_Exec.TheTime.TimeHours;
+      return 1;
+    case xidDTDaysCount:
+      DCB.L=gs_Exec.TheTime.TimeDays;
+      return 1;
+    case xidDTDateDay:
+      DCB.L=gs_Exec.TheTime.DateDay;
+      return 1;
+    case xidDTDateMonth:
+      DCB.L=gs_Exec.TheTime.DateMonth;
+      return 1;
+    case xidDTDateYear:
+      DCB.L=gs_Exec.TheTime.DateYear;
+      return 1;
+    case xidDTDateDayOfWeek:
+      DCB.L=gs_Exec.TheTime.DayOfWeek;
+      return 1;
+    case xidDTDateDayOfYear:
+      DCB.L=gs_Exec.TheTime.DayOfYear;
+      return 1;
+    case xidDTDateDaysInMonth :
+      DCB.L=gs_Exec.TheTime.DaysInMonth;
+      return 1;
+    case xidDTDateDaysInYear:
+      DCB.L=gs_Exec.TheTime.DaysInYear;
+      return 1;
+
+    case xidScnState:
+      if (DCB.rB)
+        gs_Exec.ScnState=(eScnState)*DCB.rB;
+      DCB.B=gs_Exec.ScnState;
+      return 1;
+    case xidManualScnRestart:
+      if (DCB.rB)
+        gs_Exec.ManualScnReStart=(eScnContRest)*DCB.rB;
+      DCB.B=gs_Exec.ManualScnReStart;
+      return 1;
+    case xidReStartIfScnBusy:
+      if (DCB.rB)
+        gs_Exec.ReStartIfScnBusy=(eScnContRest)*DCB.rB;
+      DCB.B=gs_Exec.ReStartIfScnBusy;
+      return 1;
+    case xidReStartIfScnComplete:
+      if (DCB.rB)
+        gs_Exec.ReStartIfScnComplete=(eScnBlkRest)*DCB.rB;
+      DCB.B=gs_Exec.ReStartIfScnComplete;
+      return 1;
+
+    case xidScnType:
+      if (DCB.rL)
+        gs_Exec.SetScnType((eScnTypes)*DCB.rL, !DCB.ForFileSnpScn());
+      DCB.L=gs_Exec.ScnType;
+      return 1;
+    case xidScnTypeLast:
+      if (DCB.rL)
+        gs_Exec.ScnTypeLast=(eScnTypes)*DCB.rL;
+      DCB.L=gs_Exec.ScnTypeLast;
+      return 1;
+    case xidScnTermAction:
+      if (DCB.rL)
+        gs_Exec.ScnTermAction=(eScnTermActions)*DCB.rL;
+      DCB.L=gs_Exec.ScnTermAction;
+      return 1;
+    case xidRunDurationF:
+      if (DCB.rpC)
+        gs_Exec.ScnDuration=CTimeValue(DCB.rpC);
+      DCB.pC=(LPTSTR)gs_Exec.ScnDuration.Format(TD_Time|TD_DaysJoined|TD_TrimTime|TD_IntegralSecs);
+      return 1;
+    case xidRunDurationD:
+      if (DCB.rD)
+        gs_Exec.ScnDuration=*DCB.rD;
+      DCB.D=gs_Exec.ScnDuration.Seconds;
+      return 1;
+    case xidRunStopTimeF:
+      if (DCB.rpC)
+        gs_Exec.ScnStopTime=CTimeValue(DCB.rpC);
+      DCB.pC=(LPTSTR)gs_Exec.ScnStopTime.Format(TD_Time|TD_DaysJoined|TD_TrimTime|TD_IntegralSecs);
+      return 1;
+    case xidRunStopTimeD:
+      if (DCB.rD)
+        gs_Exec.ScnStopTime=*DCB.rD;
+      DCB.D=gs_Exec.ScnStopTime.Seconds;
+      return 1;
+    case xidStepCountMax:
+      if (DCB.rL)
+        gs_Exec.StepCountMax=*DCB.rL;
+      DCB.L=gs_Exec.StepCountMax;
+      return 1;
+    case xidRunTimeToStopF:
+      if (DCB.rpC)
+        gs_Exec.TimeToStop=CTimeValue(DCB.rpC);
+      DCB.pC=(LPTSTR)gs_Exec.TimeToStop.Format(TD_Time|TD_DaysJoined|TD_TrimTime|TD_IntegralSecs);
+      return 1;
+    case xidRunTimeToStopD:
+      if (DCB.rD)
+        gs_Exec.TimeToStop=*DCB.rD;
+      DCB.D=gs_Exec.TimeToStop.Seconds;
+      return 1;
+    case xidScnTimeF:
+      if (DCB.rpC)
+        gs_Exec.ScnTime=CTimeValue(DCB.rpC);
+      DCB.pC=(LPTSTR)gs_Exec.ScnTime.Format(TD_Time|TD_DaysJoined|TD_TrimTime|TD_IntegralSecs);
+      return 1;
+    case xidScnTimeD:
+      if (DCB.rD)
+        gs_Exec.ScnTime=*DCB.rD;
+      DCB.D=gs_Exec.ScnTime.Seconds;
+      return 1;
+    case xidScnTimeMaxF:
+      if (DCB.rpC)
+        gs_Exec.ScnTimeMax=CTimeValue(DCB.rpC);
+      DCB.pC=(LPTSTR)gs_Exec.ScnTimeMax.Format(TD_Time|TD_DaysJoined|TD_TrimTime|TD_IntegralSecs);
+      return 1;
+    case xidScnTimeMaxD:
+      if (DCB.rD)
+        gs_Exec.ScnTimeMax=*DCB.rD;
+      DCB.D=gs_Exec.ScnTimeMax.Seconds;
+      return 1;
+
+    case xidProgress:
+      if (DCB.rD)
+        gs_Exec.DynProgress=Valid(*DCB.rD) ? *DCB.rD : -1.0;
+      DCB.D=(gs_Exec.DynProgress>=0 ? gs_Exec.DynProgress : dNAN);
+      return 1;
+    case xidClock:
+      //if (DCB.rD)
+      //  gs_Exec.Clock=*DCB.rD;
+      DCB.D=gs_Exec.Clock;
+      return 1;
+    case xidClockToGo:
+      //if (DCB.rD)
+      //  gs_Exec.ClockEstToGo=*DCB.rD;
+      DCB.D=gs_Exec.ClockEstToGo;
+      return 1;
+    case xidClockTotal:
+      //if (DCB.rD)
+      //  gs_Exec.ClockEstTotal=*DCB.rD;
+      DCB.D=gs_Exec.ClockEstTotal;
+      return 1;
+    case xidElapsedSteps:
+      if (DCB.rL)
+        gs_Exec.StepCount=*DCB.rL;
+      DCB.L=gs_Exec.StepCount;
+      return 1;
+
+    case xidDynCmdScnRestart:
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        CWaitCursor Wait;
+        gs_Exec.ResetRunState(true, 0);
+        };
+      DCB.B=0;
+      return 1;
+    case xidDynCmdResetTime:
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        CWaitCursor Wait;
+        //gs_Exec.ResetRunState(true, 0);
+        };
+      DCB.B=0;
+      return 1;
+    case xidDynCmdRestartHist:
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        CWaitCursor Wait;
+        //gs_Exec.ResetRunState(true, 0);
+        };
+      DCB.B=0;
+      return 1;
+
     case xidSSPTolAbs:
       return m_SSPressTol.GetAbsDD().DataXchg(DCB, xidSSPTolAbs, &FlwSlvNd);
     case xidSSPTolRel:
@@ -7689,7 +8054,7 @@ void FlwSlvDyn::FITEvalCtrlActions(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     XT.StartLoop(p);
     p->LockCtrls();
     XT.LockDone();//(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
-    p->EvalCtrlActions();
+    p->EvalCtrlActions(CO_All);
     XT.ExecDone();//Postamble(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
     p->UnLockCtrls();
     XT.EndLoop();//PostambleUnLock();
@@ -7712,7 +8077,7 @@ void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
     XT.StartLoop(p);
     CtrlLoopStart(Iter, p, Iter.List().GetCount());
     XT.LockDone();//(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
-    p->EvalCtrlStrategy();
+    p->EvalCtrlStrategy(CO_All);
     XT.ExecDone();//Postamble(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     CtrlLoopEnd(Iter, p, Iter.List().GetCount());
     XT.EndLoop();//PostambleUnLock();
@@ -7750,7 +8115,7 @@ void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
 //    {
 //    XT.StartLoop(p);
 //    XT.LockDone();//(p, eFITElectrics, FSW_Null);
-//    p->EvalCtrlActions();
+//    p->EvalCtrlActions(eScdCtrlTasks Tasks);
 //    p->CheckDataRanges();
 //    XT.ExecDone();//Postamble(p, eFITElectrics, FSW_Null);
 //    XT.EndLoop();
@@ -7768,7 +8133,7 @@ void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
 //    {
 //    XT.StartLoop(p);
 //    XT.LockDone();//(p, eFITPowerRequired, FSW_Null);
-//    p->EvalCtrlStrategy();
+//    p->EvalCtrlStrategy(eScdCtrlTasks Tasks);
 //    p->CheckDataRanges();
 //    XT.ExecDone();//Postamble(p, eFITPowerRequired, FSW_Null);
 //    XT.EndLoop();
@@ -7779,7 +8144,7 @@ void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
 //    {
 //    XT.StartLoop(p);
 //    XT.LockDone();//(p, eFITPowerRequired, FSW_Null);
-//    p->EvalCtrlStrategy();
+//    p->EvalCtrlStrategy(eScdCtrlTasks Tasks);
 //    p->CheckDataRanges();
 //    XT.ExecDone();//Postamble(p, eFITPowerRequired, FSW_Null);
 //    XT.EndLoop();
@@ -7798,7 +8163,7 @@ void FlwSlvDyn::FITEvalStatistics(CFlwNodeList & List)
     XT.StartLoop(p);
     p->LockNode();
     XT.LockDone();//(p, eFITEvalStatistics, FSW_EvalStatistics);
-    p->EvalStatistics();
+    p->EvalStatistics(CO_All);
     XT.ExecDone();//Postamble(p, eFITEvalStatistics, FSW_EvalStatistics);
     p->UnLockNode();
     XT.EndLoop();//PostambleUnLock();
@@ -7934,7 +8299,7 @@ bool FlwSlvBlk::BuildCtrlNdListReqd()
   return DoBuild;
   }
 
-void FlwSlvDyn::EvalAllCtrlInitialise()
+void FlwSlvDyn::EvalAllCtrlInitialise(eScdCtrlTasks Tasks)
   {
   STARTPROGRESS;
   SHOWPROGRESS(10, "EvalAllCtrlInitialise");
@@ -7945,7 +8310,7 @@ void FlwSlvDyn::EvalAllCtrlInitialise()
     {
     XT.StartLoop(p);
     XT.LockDone();
-    p->EvalCtrlInitialise();
+    p->EvalCtrlInitialise(Tasks);
 
     //dbgpln("   %10.1fms %s", SW.Lap()*1e3, p->FullObjTag());
 
@@ -7956,7 +8321,7 @@ void FlwSlvDyn::EvalAllCtrlInitialise()
   SHOWPROGRESS(1, "EvalAllCtrlInitialise");
   }
 
-void FlwSlvDyn::EvalAllCtrlActions()
+void FlwSlvDyn::EvalAllCtrlActions(eScdCtrlTasks Tasks)
   {
 //dbgpln("FlwSlvDyn::EvalAllCtrlActions()");
   CStopWatchLap SWLapCtrlActions(gs_swCtrlActions);
@@ -7973,7 +8338,7 @@ void FlwSlvDyn::EvalAllCtrlActions()
       {
       XT.StartLoop(p);
       XT.LockDone();//(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
-      p->EvalCtrlActions();
+      p->EvalCtrlActions(Tasks);
       XT.ExecDone();//Postamble(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
       XT.EndLoop();
       }
@@ -7981,7 +8346,7 @@ void FlwSlvDyn::EvalAllCtrlActions()
     }
   }
 
-void FlwSlvDyn::EvalAllCtrlStrategy()
+void FlwSlvDyn::EvalAllCtrlStrategy(eScdCtrlTasks Tasks)
   {
   CStopWatchLap SWLapCtrlStrategy(gs_swCtrlStrategy);
   if (ALLOWCTRLTHREADING && FSTC.NThreads())
@@ -7996,7 +8361,7 @@ void FlwSlvDyn::EvalAllCtrlStrategy()
       {
       XT.StartLoop(NJ.m_pNd);
       XT.LockDone();//(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
-      NJ.Nd.EvalCtrlStrategy();
+      NJ.Nd.EvalCtrlStrategy(Tasks);
       XT.ExecDone();//Postamble(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
       XT.EndLoop();
       MYASSERT(_CrtCheckMemory());
@@ -8005,7 +8370,7 @@ void FlwSlvDyn::EvalAllCtrlStrategy()
     }
   }
 
-void FlwSlvDyn::EvalAllCtrlTerminate()
+void FlwSlvDyn::EvalAllCtrlTerminate(eScdCtrlTasks Tasks)
   {
   //gs_swCtrlTerminate.Start();
   CFlwNodeIter All(m_AllNds);
@@ -8014,7 +8379,7 @@ void FlwSlvDyn::EvalAllCtrlTerminate()
     {
     XT.StartLoop(p);
     XT.LockDone();//(p, eFITEvalCtrlTerminate, FSW_EvalCtrlTerminate);
-    p->EvalCtrlTerminate();
+    p->EvalCtrlTerminate(Tasks);
     XT.ExecDone();//Postamble(p, eFITEvalCtrlTerminate, FSW_EvalCtrlTerminate);
     XT.EndLoop();
     }
@@ -8022,7 +8387,7 @@ void FlwSlvDyn::EvalAllCtrlTerminate()
   XT.Complete();//PostambleTl();
   }
 
-void FlwSlvDyn::EvalAllStatistics()
+void FlwSlvDyn::EvalAllStatistics(eScdCtrlTasks Tasks)
   {
   //gs_swStatistics.Start();
   //if (0) // temporary disable FSTC.NThreads())
@@ -8039,7 +8404,7 @@ void FlwSlvDyn::EvalAllStatistics()
       {
       XT.StartLoop(NJ.m_pNd);
       XT.LockDone();//(p, eFITEvalStatistics, FSW_EvalStatistics);
-      NJ.Nd.EvalStatistics();
+      NJ.Nd.EvalStatistics(Tasks);
       XT.ExecDone();//Postamble(p, eFITEvalStatistics, FSW_EvalStatistics);
       XT.EndLoop();
       }
@@ -8050,7 +8415,7 @@ void FlwSlvDyn::EvalAllStatistics()
 
 //--------------------------------------------------------------------------
 
-flag FlwSlvDyn::QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag FlwSlvDyn::QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   // CNM
   double StartScale=1.0; //0.5;
@@ -8063,7 +8428,7 @@ flag FlwSlvDyn::QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dT
 //    dTimeRqd=Min(CB.dTimeMax, IntCB.GetTimeIncMxRqd());
 //  else
 //    dTimeRqd=IntCB.GetTimeInc();
-  TimeRqd=IntCB.GetTime();
+  TimeRqd.Seconds=IntCB.GetTime();
 
   //CheckFlwSolnSettings(true);
   return true;
@@ -8071,7 +8436,7 @@ flag FlwSlvDyn::QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dT
 
 //--------------------------------------------------------------------------
 
-flag FlwSlvDyn::Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
+flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
   {
 #if TimingLaps
   s_swTiming.ReStart();
@@ -8121,20 +8486,6 @@ flag FlwSlvDyn::Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
     //return 0;
     }
 
-  if (!Valid(DynStats.dStopSimTime))
-    DynStats.ResetStats();
-  DynStats.ExecIns(0.0);
-  if (DynStats.bStopRqd)
-    {
-    if (DynStats.bPreventStart)
-      {
-      LogWarning("Solver", 0, "Not Started : Reached required simulation time");
-      return 1;
-      }
-    LogNote("Solver", 0, "Restarted timer for required simulation time");
-    DynStats.ResetStats();
-    }
-
   SHOWPROGRESS(1, "DynStart 4");
 
   m_SSSteady=0;
@@ -8165,9 +8516,17 @@ flag FlwSlvDyn::Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
       EvalAllElectrics(false); // this is here to create connections etc and termstrip etc.
       SHOWPROGRESS(1, "DynStart 7.1");
       
-      EvalAllCtrlInitialise();
-      SHOWPROGRESS(1, "DynStart 7.2");
-      
+      if (CB.m_ScnState==Scn_Start)
+        {
+        eScdCtrlTasks Tasks=eScdCtrlTasks(0);
+        if (CB.m_RestartPGMOnStart)
+          Tasks=eScdCtrlTasks(Tasks|CO_InitPGM);
+        if (CB.m_RestartPrfOnStart)
+          Tasks=eScdCtrlTasks(Tasks|CO_InitPrf);
+        EvalAllCtrlInitialise(Tasks);
+        SHOWPROGRESS(1, "DynStart 7.2");
+        }
+
       if (BuildCtrlNdListReqd())// || true)
         {
         SHOWPROGRESS(1, "DynStart 7.3");
@@ -8241,7 +8600,7 @@ flag FlwSlvDyn::ReStart()
 
 //--------------------------------------------------------------------------
 
-flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   #if (dbgFlwSolveTiming)
   gs_ExecIterTime.Clear();
@@ -8263,15 +8622,15 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
   gs_ThreadTiming.Reset();
 
-  IntCB.SetTime(CB.m_Time);
+  IntCB.SetTime(CB.m_TheTime.Seconds);
   long NIters;
 
   double TimeInc;
   if (ODE().StepSizeControl()==ODE_SSC_Fixed)
     {
-    TimeInc=Min(CB.m_StepSize, IntCB.GetTimeIncMxRqd());
-    NIters=long(0.999+CB.m_StepSize/GTZ(TimeInc));
-    TimeInc=CB.m_StepSize/NIters;
+    TimeInc=Min(CB.m_StepSize.Seconds, IntCB.GetTimeIncMxRqd());
+    NIters=long(0.999+CB.m_StepSize.Seconds/GTZ(TimeInc));
+    TimeInc=CB.m_StepSize.Seconds/NIters;
     IntCB.SetTimeInc(TimeInc);
     }
   else
@@ -8279,7 +8638,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     NIters=100;
     TimeInc=IntCB.GetTimeIncMx();
     }
-  StopTime=CB.m_StopTime;
+  //StopTime=CB.m_TimeToStop.Seconds;
   dwIterNo++;
 
   CFlwNodeIter All(m_AllNds);
@@ -8319,9 +8678,12 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   SHOWPROGRESS(1, "Execute 3");
   
   bool DoClosureTests=(gs_ClosureOption!=CloseTest_Off);
-  bool StopRequested=false;
-  for ( ;NIters>0 && !StopRequested;NIters--)
+  bool StopRequired=false;
+  for ( ;NIters>0 && !StopRequired;NIters--)
     {
+
+    CheckStopConditions(CB);
+
     if (m_SSTest)
       {
       for (FlwNode * p=All.First(); (p); p=All.Next())
@@ -8338,7 +8700,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
     SHOWPROGRESS(1, "Execute 3");
 
     MYASSERT(_CrtCheckMemory());
-    EvalAllCtrlActions();
+    EvalAllCtrlActions(CO_All);
     MYASSERT(_CrtCheckMemory());
     //EvalAllPowerAvailable();
     EvalAllElectrics(false);
@@ -8354,7 +8716,7 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
         BuildCtrlNdList();
         FindTOSequence(FTS_DynMode|(FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
         }
-      EvalAllCtrlStrategy();
+      EvalAllCtrlStrategy(CO_All);
       }
     MYASSERT(_CrtCheckMemory());
 
@@ -8407,13 +8769,13 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 
     MYASSERT(_CrtCheckMemory());
-    EORet.m_Time=IntCB.GetTime();
+    EORet.m_Time.Seconds=IntCB.GetTime();
     //dTimeNext=IntCB.GetTimeIncNext();
     EvalAllStates();
     MYASSERT(_CrtCheckMemory());
     SHOWPROGRESS(1, "Execute E");
 
-    EvalAllStatistics();
+    EvalAllStatistics(CO_All);
     MYASSERT(_CrtCheckMemory());
 
     SHOWPROGRESS(1, "Execute F");
@@ -8434,14 +8796,10 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
         
         }
       MYASSERT(_CrtCheckMemory());
-      EvalAllCtrlStrategy();
+      EvalAllCtrlStrategy(CO_All);
       }
     MYASSERT(_CrtCheckMemory());
     SHOWPROGRESS(1, "Execute G");
-
-    DynStats.ExecIns(IntCB.GetTimeInc());
-    MYASSERT(_CrtCheckMemory());
-    SHOWPROGRESS(1, "Execute H");
 
     MarkClosureDataAvail(ProcTOSequence);
     if (DoClosureTests)
@@ -8457,42 +8815,9 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       }
 
     SHOWPROGRESS(1, "Execute I");
-    if (DynStats.bStopRqd)
-      {
-      LogNote("Solver", 0, "Stopping : Reached required simulation time");
-      FlwNode::ExecObj()->XStop();
-      StopRequested=true;
-      }
 
-
-    if (this->FlwSlvNd.fStopOnError && FlwNets.StopReqd())
-      {
-      LogError("Solver", LF_Hand, "Stopping : Errors Exist");
-      FlwNode::ExecObj()->XStop();
-      StopRequested=true;
-      }
-    else if (SteadyReqdFlag() || (CB.m_iRunTerm==RTRM_SteadyState))
-      {
-      if (m_SSSteady>=m_SSStopCount)
-        {
-        LogNote("Solver", 0, "Stopping : Reached Steady State");
-        FlwNode::ExecObj()->XStop();
-        StopRequested=true;
-        }
-      else if (m_SSIters>=m_SSMaxIters)
-        {
-        LogWarning("Solver", 0, "Stopping : Reached Max Iterations");
-        FlwNode::ExecObj()->XStop();
-        StopRequested=true;
-        }
-      }
-    else if (CB.m_iRunTerm==RTRM_ForIters && CB.m_nSteps>=CB.m_nMaxSteps)
-      {
-      LogNote("Solver", 0, "Stopping : Reached Max Iterations");
-      FlwNode::ExecObj()->XStop();
-      StopRequested=true;
-      }
-
+    if (CheckStopRequired(CB, false, false))
+      StopRequired=true;
     }
   MYASSERT(_CrtCheckMemory());
 
@@ -8538,7 +8863,71 @@ flag FlwSlvDyn::Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //--------------------------------------------------------------------------
 
-flag FlwSlvDyn::Stop(const CXM_TimeControl &CB)
+void FlwSlvDyn::CheckStopConditions(CXM_TimeControl &CB)
+  {
+  };
+
+//--------------------------------------------------------------------------
+
+flag FlwSlvDyn::CheckStopRequired(CXM_TimeControl &CB, bool Starting, bool ShowMsgs)
+  {
+  LPCTSTR Msg = Starting ? "Start prevented" : "Stopping";
+
+  //if (FlwSlvNd.fStopOnError && FlwNets.StopReqd())
+  //  {
+  //  LogError("Solver", LF_Hand, "Stopping : Errors Exist");
+  //  return true;
+  //  }
+  //else
+  if (SteadyReqdFlag() || (CB.m_ScnType==RTT_SteadyState))
+    {
+    if (m_SSSteady>=m_SSStopCount)
+      {
+      CB.m_ScnState=Scn_Complete;
+      if (ShowMsgs)
+        LogNote("Solver", 0, "%s : Reached Steady State", Msg);
+      return true;
+      }
+    else if (m_SSIters>=m_SSMaxIters)
+      {
+      CB.m_ScnState=Scn_Complete;
+      if (ShowMsgs)
+        LogWarning("Solver", 0, "%s : Reached Max Iterations", Msg);
+      return true;
+      }
+    }
+  else if (CB.m_ScnType==ScnTyp_Steps && CB.m_StepCount>=CB.m_StepCountMax)
+    {
+    CB.m_ScnState=Scn_Complete;
+    if (ShowMsgs)
+      LogNote("Solver", 0, "%s : Reached Max Iterations", Msg);
+    return true;
+    }
+  else if (CB.m_ScnType==ScnTyp_Duration && CB.m_TheTime>=CB.m_TimeToStop)
+    {
+    CB.m_ScnState=Scn_Complete;
+    if (ShowMsgs)
+      LogNote("Solver", 0, "%s : Reached Duration", Msg);
+    return true;
+    }
+  else if (CB.m_ScnType==ScnTyp_StopTime && CB.m_TheTime>=CB.m_TimeToStop)
+    {
+    CB.m_ScnState=Scn_Complete;
+    if (ShowMsgs)
+      {
+      if (CB.m_TheTime>CB.m_TimeToStop)
+        LogWarning("Solver", 0, "%s : Passed StopTime", Msg);
+      else
+        LogNote("Solver", 0, "%s : Reached StopTime", Msg);
+      }
+    return true;
+    }
+  return false;
+  }
+
+//--------------------------------------------------------------------------
+
+flag FlwSlvDyn::Stop(CXM_TimeControl &CB)
   {
   if (1)
     {
@@ -8550,12 +8939,15 @@ flag FlwSlvDyn::Stop(const CXM_TimeControl &CB)
       FindTOSequence(FTS_DynMode|(FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
       }
 
-    EvalAllCtrlTerminate();
+    if (CB.m_ScnState==Scn_Complete)
+      {
+      EvalAllCtrlTerminate(CO_All);
+      }
     // force rebuild next time;
     m_fCtrlTOSeqValid=0;
     }
 
-  if (CB.m_nSteps>0)
+  if (CB.m_StepCount>0)
     FlwNets.CheckForErrors();
 
   CFlwNodeIter All(m_AllNds);
@@ -9463,45 +9855,37 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 
   //==========PlantModel==========
 
-  //TODO Check surfaces & smoothing for H2O
-  //flag AllowSurfaces = true;
-  #ifdef _RELEASE
-  flag AllowSurfaces = false; //KGA: 15/9/05 Why was this true if surfaces, etc is buggy!?!?
-  #else
-  flag AllowSurfaces = true;
-  #endif
-  if (!AllowSurfaces)
-    CSurfaceCommon::m_UseSurface=0;//force off
-  #ifdef _RELEASE
-  flag AllowSmoothing = false;
-  #else
-  flag AllowSmoothing = true;
-  #endif
-  if (!AllowSmoothing)
-    CSurfaceCommon::m_DoSmoothing=0;//force off
 
   if (DDB.BeginStruct(this))
     {
-    DDB.Long  ("ConditionCount",        "", DC_, "",   xidConditionCnt,                    this, isResult);
+
+    DDB.Text  ("Commands");
+    DDB.Visibility();
+    DDB.Long  ("State",                 "", DC_,     "",  xidExecState,      this, InitHidden|DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.String("StateDesc",             "", DC_,     "",  xidExecStateDesc,  this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.Button("Cmd.Start",             "", DC_, "", xidExecStart,                   this, isParm);
+    DDB.Button("Cmd.Idle",              "", DC_, "", xidExecIdle,                    this, isParm);
+    DDB.Button("Cmd.Stop",              "", DC_, "", xidExecStop,                    this, isParm);
+    //DDB.Text  ("");
+    DDB.Bool("SetStateAll",             "", DC_,     "",  xidSetStateAll,    this, isParm|noFileAtAll|InitHidden, SetStateStrs);
+    DDB.Button("Cmd.ZeroFlows",         "", DC_, "", xidSetStateAllZeroFlows,        this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.Empty",             "", DC_, "", xidSetStateAllEmpty,            this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.Preset",            "", DC_, "", xidSetStateAllPreSet,           this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.SteadyState",       "", DC_, "", xidSetStateAllSteadyState,      this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.PBInit",            "", DC_, "", xidSetStateAllPBInit,           this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateAllDynStatsRunInit,  this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateAllEmptySpillTargets,this, isParm|noFileAtAll|InitHidden);
+
+    // For Compatibility with older flowsheets
+    //DDB.Text  ("");
+    DDB.Double("Dyn.Time",              "", DC_Time, "s", xidODETime,        this, InitHidden|noFile|noScenario|noSnap);
+    DDB.Double("Dyn.dTime",             "", DC_Time, "s", xidODETimeInc,     this, InitHidden|noFile|noScenario|noSnap);
+    //DDB.Double("Dyn.StopTime",          "", DC_Time, "s", &Dyn.StopTime,     this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double("Dyn.dTimeMax",          "", DC_Time, "s", xidODETimeIncMxRqd,this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,this, InitHidden|noFile|noScenario|noSnap|isParm);
 
     DDB.Text  ("");
-    DDB.Long  ("H2OProperties",         "", DC_,     "",  xidH2OProperties,                   this, isParmStopped|SetOnChange, CDB.H2ODDBList());
-    DDB.CheckBoxBtn("FunctionSurfaces", "", DC_,     "",  xidUseSurfaces,                     this, AllowSurfaces ? isParmStopped : 0);
-    DDB.CheckBoxBtn("SmoothSurfaces",   "", DC_,     "",  xidDoSmoothing,                     this, AllowSmoothing ? isParmStopped : 0);
-#if UseNewSurfaces
-    //DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DFrame::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
-    DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DFrame::m_nGlblFrameCnt,  this, InitHidden|noFile|noScenario|noSnap);
-#else
-    DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DElement::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
-#endif
-    DDB.CheckBoxBtn("IncludeSpcCnvs",   "", DC_,     "",  xidIncludeSpcCnvs,                  this, isParmStopped);
-    DDB.Visibility(SM_All|HM_Simple|HM_Full);
-    DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
-    DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
-    DDB.Visibility();
-    DDB.Text  ("");
-    DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
-    //DDB.Long  ("SpMdlMixStrategy",      "", DC_,     "",  (long*)&SpModel::iSpMdlMixStrategy, this, isParmStopped|SetOnChange, DDBSpMixStrat);
+    DDB.Text("Balance & Closure");
     DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
@@ -9509,21 +9893,16 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
  //   DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
  //   DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
     DDB.Text  ("");
+    DDB.Text  ("Information");
+    DDB.Long  ("ConditionCount",        "", DC_, "",   xidConditionCnt,                    this, isResult);
 
-    DDB.Bool("SetStateAll",             "", DC_,     "",  xidSetStateAll,    this, isParm|noFileAtAll, SetStateStrs);
-    if (1)
-      {
-      DDB.Button("Cmd.ZeroFlows",         "", DC_, "", xidSetStateAllZeroFlows,        this, isParm|noFileAtAll|InitHidden);
-      DDB.Button("Cmd.Empty",             "", DC_, "", xidSetStateAllEmpty,            this, isParm|noFileAtAll|InitHidden);
-      DDB.Button("Cmd.Preset",            "", DC_, "", xidSetStateAllPreSet,           this, isParm|noFileAtAll|InitHidden);
-      DDB.Button("Cmd.SteadyState",       "", DC_, "", xidSetStateAllSteadyState,      this, isParm|noFileAtAll|InitHidden);
-      DDB.Button("Cmd.PBInit",            "", DC_, "", xidSetStateAllPBInit,           this, isParm|noFileAtAll|InitHidden);
-      DDB.Button("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateAllDynStatsRunInit,  this, isParm|noFileAtAll|InitHidden);
-      DDB.Button("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateAllEmptySpillTargets,this, isParm|noFileAtAll|InitHidden);
-      }
+
     DDB.Text  ("");
-
+    DDB.Text  ("Options");
     DDB.Byte  ("StopOnError",           "", DC_,     "",  &fStopOnError,     this, isParmStopped|SetOnChange, DDBYesNo);
+    DDB.Double("PGM_ExecuteTimeout",    "", DC_Time, "s", xidPGMExecTimeOut, this, isParmStopped);
+    DDB.Double("RandomSeedAtStart",     "", DC_,     "",  xidRandomSeed,     this, isParmStopped|NAN_OK);
+
     DDB.Text  ("");
     DDB.Text  ("MultiProcessing");
     // Removed By CNM - why would ew need these ???
@@ -9532,42 +9911,22 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("NoOfProcessors",        "", DC_,     "",  &nProcessors,      this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
     DDB.Long  ("NoOfSolveThreads",      "", DC_,     "",  xidNThreads,       this, 0);
     DDB.Long  ("NoOfSolveThreadsRqd",   "", DC_,     "",  xidRqdThreads,     this, isParmStopped);
+
     DDB.Text  ("");
     DDB.Text("DirectIOs");
-    DDBValueLst DDBSV[]= { {eDIOSlct_None, "None"}, {eDIOSlct_All, "All"}, /*{eDIOSlct_Selected, "Selected"}, */{0} };
-    if (DDB.BeginStruct(this, "DIO"))
+    if (DDB.BeginStruct(this, "DIO", NULL, DDB_NoPage))
       {
+      static DDBValueLst DDBSV[]= { {eDIOSlct_None, "None"}, {eDIOSlct_All, "All"}, /*{eDIOSlct_Selected, "Selected"}, */{0} };
       DDB.Long("ConnectSpills",         "", DC_,   "",  xidDIOSpillsVents,          this, isParmStopped, DDBSV);
       DDB.Long("ConnectLeaks",          "", DC_,   "",  xidDIOLeaks,                this, isParmStopped, DDBSV);
       DDB.Long("ConnectAudit",          "", DC_,   "",  xidDIOAudit,                this, isParmStopped, DDBSV);
       DDB.Text(" ");
       }
     DDB.EndStruct();
-    if (0)
-      {
-      //DDB.Text("Audit Calculations");
-      if (DDB.BeginStruct(this, "Audit"))
-        {
-        DDB.Long("Calculations",          "", DC_,   "",  xidAuditXXX,              this, isParmStopped, DDBSV);
-        }
-      DDB.EndStruct();
-      }
 
-    DDB.Text  ("");
-    DDB.Text  ("Other");
-    DDB.Double("PGM_ExecuteTimeout",    "", DC_Time, "s", xidPGMExecTimeOut, this, isParmStopped);
-    DDB.Double("RandomSeedAtStart",     "", DC_,     "",  xidRandomSeed,     this, isParmStopped|NAN_OK);
 
-    DDB.Text  ("Executive");
+    //DDB.Text  ("Executive");
     //if (DDB.BeginStruct(this, "Exec", NULL, DDB_NoPage))
-      {
-      DDB.Visibility();
-      DDB.Long  ("State",                 "", DC_,     "",  xidExecState,      this, InitHidden|DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-      DDB.String("StateDesc",             "", DC_,     "",  xidExecStateDesc,  this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-      DDB.Button("Try_Start",        "", DC_,     "",  xidExecStart,      this, isParm);
-      DDB.Button("Try_Idle",         "", DC_,     "",  xidExecIdle,       this, isParm);
-      DDB.Button("Try_Stop",         "", DC_,     "",  xidExecStop,       this, isParm);
-      }
 
 /*
     DDB.Text  ("Environment");
@@ -9586,9 +9945,52 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 */
 
     //==========General==========
-    DDB.Page("General", DDB_RqdPage);
+    DDB.Page("Species", DDB_RqdPage);
     DDB.Text  ("");
-    DDB.Text  ("Atmosphere...");
+    //TODO Check surfaces & smoothing for H2O
+    //flag AllowSurfaces = true;
+#ifdef _RELEASE
+    flag AllowSurfaces = false; //KGA: 15/9/05 Why was this true if surfaces, etc is buggy!?!?
+#else
+    flag AllowSurfaces = true;
+#endif
+    if (!AllowSurfaces)
+      CSurfaceCommon::m_UseSurface=0;//force off
+#ifdef _RELEASE
+    flag AllowSmoothing = false;
+#else
+    flag AllowSmoothing = true;
+#endif
+    if (!AllowSmoothing)
+      CSurfaceCommon::m_DoSmoothing=0;//force off
+
+    //DDB.Text  ("");
+    DDB.Text  ("Specie Database");
+    DDB.Double("NormalTemp",    "NormT",  DC_T,   "C",    xidNormT,       this, isResult|noFileAtAll);
+    DDB.Double("NormalPress",   "NormP",  DC_P,   "kPa",  xidNormP,       this, isResult|noFileAtAll);
+    DDB.Double("StandardTemp",  "StdT",   DC_T,   "C",    xidStdT,        this, isResult|noFileAtAll);
+    DDB.Double("StandardPress", "StdP",   DC_P,   "kPa",  xidStdP,        this, isResult|noFileAtAll);
+    DDB.Text  ("");
+    DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
+    DDB.Long  ("H2OProperties",         "", DC_,     "",  xidH2OProperties,                   this, isParmStopped|SetOnChange, CDB.H2ODDBList());
+    DDB.CheckBoxBtn("FunctionSurfaces", "", DC_,     "",  xidUseSurfaces,                     this, AllowSurfaces ? isParmStopped : 0);
+    DDB.CheckBoxBtn("SmoothSurfaces",   "", DC_,     "",  xidDoSmoothing,                     this, AllowSmoothing ? isParmStopped : 0);
+#if UseNewSurfaces
+    //DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DFrame::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
+    DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DFrame::m_nGlblFrameCnt,  this, InitHidden|noFile|noScenario|noSnap);
+#else
+    DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DElement::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
+#endif
+    DDB.CheckBoxBtn("IncludeSpcCnvs",   "", DC_,     "",  xidIncludeSpcCnvs,                  this, isParmStopped);
+    DDB.Visibility(SM_All|HM_Simple|HM_Full);
+    DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
+    DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
+
+
+    DDB.Visibility();
+    DDB.Text  ("");
+    //DDB.Long  ("SpMdlMixStrategy",      "", DC_,     "",  (long*)&SpModel::iSpMdlMixStrategy, this, isParmStopped|SetOnChange, DDBSpMixStrat);
+    //DDB.Text  ("Atmosphere...");
     gs_Environment.BuildDataDefn(this, "Environment", DDB);
 
 
@@ -9602,35 +10004,34 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 
     */
 
-    DDB.Text  ("");
-    DDB.Text  ("Other...");
-    DDB.Double("NormalTemp",    "NormT",  DC_T,   "C",    xidNormT,       this, isResult|noFileAtAll);
-    DDB.Double("NormalPress",   "NormP",  DC_P,   "kPa",  xidNormP,       this, isResult|noFileAtAll);
-    DDB.Double("StandardTemp",  "StdT",   DC_T,   "C",    xidStdT,        this, isResult|noFileAtAll);
-    DDB.Double("StandardPress", "StdP",   DC_P,   "kPa",  xidStdP,        this, isResult|noFileAtAll);
-
-    DDB.Visibility();
-    DDB.Text  ("");
-    DDB.Text  ("General...");
-    if (DDB.BeginStruct(this, "General", NULL, DDB_NoPage))
+        //DDB.Visibility();
+    //DDB.Text  ("");
+    //DDB.Text  ("System...");
+    if (DDB.BeginStruct(this, "System", NULL, DDB_RqdPage))
       {
+      DDB.Text  ("");
+      DDB.Text  ("Executable Build...");
       DDB.String("VersionOnly",     "", DC_,       "", xidGenVerStr,       this, InitHidden|isResult|noFile|noScenario|noSnap);
       DDB.String("Version",         "", DC_,       "", xidGenUpdateVerStr, this, isResult|noFile|noScenario|noSnap);
       DDB.Long  ("BuildNo",         "", DC_,       "", xidGenBuildNo,      this, isResult|noFile|noSnap);
       DDB.String("BuildDate",       "", DC_,       "", xidGenBuildDate,    this, isResult|noFile|noScenario|noSnap);
 
+      DDB.Text  ("");
+      DDB.Text  ("Project...");
       DDB.String("PrjFile",         "", DC_,       "", xidPrjFile,         this, isResult|noFile|noScenario|noSnap);
       DDB.String("CfgFile",         "", DC_,       "", xidCfgFile,         this, isResult|noFile|noScenario|noSnap);
       DDB.String("DateAndTime",     "", DC_,       "", xidGenDateAndTime,  this, isResult|noFile|noScenario|noSnap);
       DDB.Double("Time1970",        "", DC_Time,  "s", xidGenTime1970,     this, isResult|noFile|noScenario|noSnap);
       }
     DDB.EndStruct();
-    if (DDB.ForView() && DDB.DoingGetData())
-      gs_GrfTagGroups.Rebuild();
+
 
     //==========Pages==========
     if (DDB.BeginStruct(this, "Pages", NULL, DDB_RqdPage))
       {
+      if (DDB.ForView() && DDB.DoingGetData())
+        gs_GrfTagGroups.Rebuild();
+
       DDB.Long  ("Count",           "", DC_,       "", xidGrfCount,        this, isResult|noFile|noScenario|noSnap);
       const long GrfCnt = gs_GrfTagGroups.Count();
       Strng GrfTag;
@@ -9644,13 +10045,6 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
       }
     DDB.EndStruct();
 
-    // For Compatibility with older flowsheets
-    DDB.Text  ("");
-    DDB.Double("Dyn.Time",              "", DC_Time, "s", xidODETime,        this, InitHidden|noFile|noScenario|noSnap);
-    DDB.Double("Dyn.dTime",             "", DC_Time, "s", xidODETimeInc,     this, InitHidden|noFile|noScenario|noSnap);
-    DDB.Double("Dyn.StopTime",          "", DC_Time, "s", &Dyn.StopTime,     this, InitHidden|noFile|noScenario|noSnap|isParm);
-    DDB.Double("Dyn.dTimeMax",          "", DC_Time, "s", xidODETimeIncMxRqd,this, InitHidden|noFile|noScenario|noSnap|isParm);
-    DDB.Double("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,this, InitHidden|noFile|noScenario|noSnap|isParm);
 
     //==========Stats==========
     DDB.Page("Statistics", DDB_RqdPage);
@@ -10134,14 +10528,14 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
       };
       return 1;
 
-    case xidXSWSteps        : DCB.L=TimeCB().m_nSteps; return 1;//XSW().nStepCnt; return 1;
+    case xidXSWSteps        : DCB.L=TimeCB().m_StepCount; return 1;//XSW().nStepCnt; return 1;
     case xidSolveIters      : DCB.L=NetProbalMethod() ? PBEqnCB().NIters() : ODE().GetGoodIters(); return 1;
     case xidSolveItersBad   : DCB.L=NetProbalMethod() ? 0 : ODE().GetBadIters(); return 1;
     case xidXSWSecsStart    : DCB.D=XSW().m_dStartingTime; return 1;
     case xidXSWSecs         : DCB.D=XSW().m_swRun.Secs(); return 1;
     case xidXSWSecsDesc     : DCB.pC=(LPTSTR)XSW().m_swRun.MinSecHunDesc(SecsBuff); return 1;
-    case xidXSWSimSecs      : DCB.D=XSW().m_dSimulatedTime; return 1;
-    case xidXSWSimSecsDesc  : DCB.pC=(LPTSTR)CStopWatch::DayHourMinSecHunDesc(XSW().m_dSimulatedTime, SecsBuff); return 1;
+    case xidXSWSimSecs      : DCB.D=XSW().m_dSimulatedTime.Seconds; return 1;
+    case xidXSWSimSecsDesc  : DCB.pC=(LPTSTR)(LPCTSTR)(XSW().m_dSimulatedTime.Format(TD_Time|TD_Days)); return 1;
     case xidXSWStepI        : DCB.D=XSW().StepTimeInst(); return 1;
     case xidXSWStepMA       : DCB.D=XSW().StepTimeMvAvg(); return 1;
     case xidXSWStepA        : DCB.D=XSW().StepTimeAvg(); return 1;
@@ -10211,7 +10605,7 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidGenBuildNo      : DCB.L=SCD_BUILDNO; return 1;
     case xidGenBuildDate    : DCB.pC=BuildDate(); return 1;
     case xidGenDateAndTime  : DCB.pC=CurDateTime(SecsBuff); return 1;
-    case xidGenTime1970     : DCB.D=GetCurrentTime_1970(); return 1;
+    case xidGenTime1970     : DCB.D=GetCurrentTime_1970().Seconds; return 1;
 
     case xidGrfCount        : DCB.L=gs_GrfTagGroups.Count(); return 1;
 
@@ -10343,7 +10737,8 @@ void CFlwSolver::SetState(eScdMdlStateActs RqdState)
     case MSA_SteadyState:
       break;*/
     case MSA_DynStatsRunInit:
-      Dyn.DynStats.ResetStats();
+      //__debugbreak(); // to restore
+      //Dyn.DynStats.ResetStats();
       gs_EventLog.StartFile(true);
       if (1)
         {
@@ -10368,10 +10763,10 @@ void CFlwSolver::SetState(eScdMdlStateActs RqdState)
 int CFlwSolver::FilesUsed(CFilesUsedArray & Files)
   {
   int Cnt = 0;
-  Strng File(gs_Exec.HstTaglistFile());
+  Strng File(gs_Exec.HstTaglistFile);
   if (File.Len()>0)
     {
-    Strng Fn(gs_Exec.HstTaglistFolder());
+    Strng Fn(gs_Exec.HstTaglistFolder);
     Fn.FnExpand();
     Fn += File();
     Files.AddFile(Fn(), FU_CopyFile|FU_EditTxt);
@@ -11041,7 +11436,7 @@ void CFlwSolver::FE_SetFlwMomentumOn(byte On)
 
 //--------------------------------------------------------------------------
 
-void CFlwSolver::DoChangeTrace(dword Flags)
+void CFlwSolver::DoTraceChanges(dword Flags)
   {
 #if WITHCHANGEOBJ
   ChgObj.StartAddition();
@@ -11053,13 +11448,13 @@ void CFlwSolver::DoChangeTrace(dword Flags)
   CFlwNodeList &Order = (NetProbalMethod() ? PB.m_AllNds : Dyn.m_AllNds);
   CFlwNodeIter It(Order);
 
-  if (Flags & CSF_DoInitialise)
+  if (Flags & TCO_DoInitialise)
     {
     for (FlwNode * p = It.First(); p; p=It.Next())
       p->InitChangeTrace();
     }
 
-  if (Flags & CSF_DoCollect)
+  if (Flags & TCO_DoCollect)
     {
     CTraceItem::BumpCount();
     for (FlwNode * p = It.First(); p; p=It.Next())
@@ -11067,7 +11462,7 @@ void CFlwSolver::DoChangeTrace(dword Flags)
     }
 
 #if WITHCHANGEOBJ
-  if (Flags & CSF_DoCollect)
+  if (Flags & TCO_DoCollect)
     {
     CFlwNodeList &Order = (NetProbalMethod() ? PB.m_AllNds : Dyn.m_AllNds);
     CFlwNodeIter It(Order);
@@ -11075,7 +11470,7 @@ void CFlwSolver::DoChangeTrace(dword Flags)
       ChgObj.DoAddition(Flags, p->GetChangeTrace(Flags));
     }
 
-  if (Flags & CSF_DoSort)
+  if (Flags & TCO_DoSort)
     ChgObj.DoSort();
 #endif
   };
@@ -12074,7 +12469,7 @@ flag CFlwSolver::EO_Starting(flag fBeginStarting)
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_SetTime(double TimeRqd, bool Rewind)
+flag CFlwSolver::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
   {
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_SetTime");
@@ -12087,7 +12482,7 @@ flag CFlwSolver::EO_SetTime(double TimeRqd, bool Rewind)
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CFlwSolver::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_QueryTime");
@@ -12095,14 +12490,14 @@ flag CFlwSolver::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double
 
   if (gs_Exec.SolvingPB())
     {
-    dTimeRqd=1.0; // ProBal Mode always steps 1 Sec at a time.
-    TimeCB().m_StepSizeMax=1.0;
+    dTimeRqd=CTimeValue(1.0); // ProBal Mode always steps 1 Sec at a time.
+    TimeCB().m_StepSizeMax=CTimeValue(1.0);
     }
   else
     {
     Dyn.QueryTime(CB, TimeRqd, dTimeRqd);
     }
-  TimeRqd=ODE().GetTime();
+  TimeRqd.Seconds=ODE().GetTime();
 
   ASSERT(_CrtCheckMemory());
 
@@ -12135,14 +12530,23 @@ static int HpEvalPosn(void * p, void * q)
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
+flag CFlwSolver::EO_GotoRunStart(CXM_TimeControl &CB)
   {
+  dbgpln("CFlwSolver::EO_GotoRunStart");
+  return true;
+  };
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
+  {
+  dbgpln("CFlwSolver::EO_GotoRunEnd");
   // Set the Time - regardless
-  ODE().SetTime(CB.m_Time);
+  ODE().SetTime(CB.m_TheTime.Seconds);
   //ODE().ClSetItersTotal(0);
 
   STARTPROGRESS;
-  SHOWPROGRESS(10, "EO_Start");
+  SHOWPROGRESS(10, "EO_GotoRunStart");
 
   gs_MsgLog.SetDefer(true);
 
@@ -12158,7 +12562,7 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
 
   bool OK=1;
 
-  SHOWPROGRESS(1, "EO_Start 1");
+  SHOWPROGRESS(1, "EO_GotoRunStart 1");
 
   if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
     {
@@ -12171,7 +12575,7 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
     LogError("Solver", 0, "Bad Component Database");
     }
 
-  SHOWPROGRESS(1, "EO_Start 2");
+  SHOWPROGRESS(1, "EO_GotoRunStart 2");
 
   CFlwNodeList AllNds;
 
@@ -12245,7 +12649,7 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
   //    }
   //  }
 
-  SHOWPROGRESS(1, "EO_Start 3");
+  SHOWPROGRESS(1, "EO_GotoRunStart 3");
 
   int nBad=0, nAct=0;//Dyn=0, nPB=0;
   CFlwNodeIter All(AllNds);
@@ -12266,7 +12670,7 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
     }
   #endif
 
-  SHOWPROGRESS(1, "EO_Start 4");
+  SHOWPROGRESS(1, "EO_GotoRunStart 4");
 
   XDataClear();
 
@@ -12275,35 +12679,219 @@ flag CFlwSolver::EO_Start(const CXM_TimeControl &CB)
     if (gs_Exec.SolvingPB())
       {
       OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
-      SHOWPROGRESS(1, "EO_Start 4.1p");
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.1p");
       CtrlSeq().Initialise();
-      SHOWPROGRESS(1, "EO_Start 4.2p");
-      DoChangeTrace(CSF_DoInitialise | CSF_DoCalcs | CSF_DoCollect | CSF_DoSort);
-      SHOWPROGRESS(1, "EO_Start 4.3p");
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.2p");
+      DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.3p");
       gs_Exec.XGlblResultValidity(false, false);
-      SHOWPROGRESS(1, "EO_Start 4.4p");
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.4p");
       }
     else
       {
       OK=(Dyn.Start(CB, AllNds)==0);
-      SHOWPROGRESS(1, "EO_Start 4.1d");
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.1d");
       CtrlSeq().Initialise();
-      SHOWPROGRESS(1, "EO_Start 4.2d");
-      DoChangeTrace(CSF_DoInitialise | CSF_DoCalcs | CSF_DoCollect | CSF_DoSort);
-      SHOWPROGRESS(1, "EO_Start 4.3d");
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.2d");
+      DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.3d");
       gs_Exec.XGlblResultValidity(true, true);
-      SHOWPROGRESS(1, "EO_Start 4.4d");
+      SHOWPROGRESS(1, "EO_GotoRunStart 4.4d");
       }
     }
   else
     OK=false;
-  SHOWPROGRESS(1, "EO_Start 5");
+  SHOWPROGRESS(1, "EO_GotoRunStart 5");
 
   ASSERT(_CrtCheckMemory());
 
   gs_MsgLog.SetDefer(false);
   gs_MsgLog.FlushWndQ();
-  SHOWPROGRESS(1, "EO_Start 6");
+  SHOWPROGRESS(1, "EO_GotoRunStart 6");
+
+  return OK;
+  }
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::EO_PreStart(CXM_TimeControl &CB)
+  {
+  dbgpln("CFlwSolver::EO_PreStart");
+  return true;
+  }
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
+  {
+  dbgpln("CFlwSolver::EO_Start");
+  // Set the Time - regardless
+  //ODE().SetTime(CB.m_Time.Seconds);
+  ////ODE().ClSetItersTotal(0);
+
+  //STARTPROGRESS;
+  //SHOWPROGRESS(10, "EO_Start");
+
+  //gs_MsgLog.SetDefer(true);
+
+  //// Check All Connected are Active
+  //FlwNode * p = NULL;
+  //if (GetObj_All(p))
+  //  {
+  //  p->SetActive(true); // Force Flwsolver to be active
+  //  while (GetObj_All(p))
+  //    if (p->GetActive())
+  //      SetConnectedActive(p);
+  //  }
+
+  bool OK=1;
+
+  SHOWPROGRESS(1, "EO_Start 1");
+
+  //if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
+  //  {
+  //  OK=0;
+  //  LogError("Solver", 0, "H2O Properties model '%s' not enabled by licensing", CDB.H2OPropertiesSelectedBlk().Class()->ShortDesc());
+  //  }
+  //if (CDB.Bad())
+  //  {
+  //  OK=0;
+  //  LogError("Solver", 0, "Bad Component Database");
+  //  }
+
+  //SHOWPROGRESS(1, "EO_Start 2");
+
+  //CFlwNodeList AllNds;
+
+  //if (0)
+  //  {
+  //  int NFlwNodes=0;
+  //  for (FlwNode * p=NULL; GetObj_All(p); )
+  //    {
+  //    if (p->GetActive())
+  //      {
+  //      NFlwNodes++;
+  //      AllNds.AddTail(p);
+  //      }
+  //    else
+  //      p->iAllIndex=-1;
+  //    }
+  //  }
+  //else if (1)
+  //  {
+  //  int NFlwNodes=0;
+  //  for (FlwNode * p=NULL; GetObj_All(p); )
+  //    {
+  //    if (p->GetActive())
+  //      NFlwNodes++;
+  //    }
+
+  //  m_TempNdPtrs.SetSize(Max(m_TempNdPtrs.GetSize(), NFlwNodes));
+
+  //  int nObj=0;
+  //  for (FlwNode * p=NULL; GetObj_All(p); )
+  //    {
+  //    if (p->GetActive())
+  //      m_TempNdPtrs[nObj++]=p;
+  //    else
+  //      p->iAllIndex=-1;
+  //    }
+
+  //  HpSort(NFlwNodes, (void**)&m_TempNdPtrs[0], HpEvalPosn);
+
+  //  for (int i=0; i<NFlwNodes; i++)
+  //    {
+  //    FlwNode *p=m_TempNdPtrs[i];
+  //    AllNds.AddTail(m_TempNdPtrs[i]);
+  //    }
+  //  }
+  ////else
+  ////  {
+
+  ////  p = NULL;
+  ////  if (GetObj_All(p))
+  ////    {
+  ////    p->iAllIndex=-1; //skip Flwsolver
+  ////    //p->SetNodeSolveMode();
+  ////    for (int nObj=0; GetObj_All(p); nObj++)
+  ////      {
+  ////      if (p->GetActive())
+  ////        {
+  ////        CFlwNodeIterWithPos All(AllNds);
+  ////        for (FlwNode * pp=All.First(); (pp); pp=All.Next())
+  ////          if (pp->m_iEvalPosn>p->m_iEvalPosn)
+  ////            break;
+
+  ////        if (pp)
+  ////          AllNds.InsertBefore(All.Pos(), p);       
+  ////        else
+  ////          AllNds.AddTail(p);
+  ////        }
+  ////      else
+  ////        p->iAllIndex=-1;
+  ////      }
+  ////    }
+  ////  }
+
+  //SHOWPROGRESS(1, "EO_Start 3");
+
+  //int nBad=0, nAct=0;//Dyn=0, nPB=0;
+  //CFlwNodeIter All(AllNds);
+  //for (FlwNode * p=All.First(); (p); p=All.Next())
+  //  {
+  //  p->iAllIndex=nAct++;
+  //  if (!p->ConnectionsOK())
+  //    nBad++;
+  //  //dbgpln("All: %4i %s", p->iAllIndex, p->FullObjTag());
+  //  }
+
+  //#if (dbgFlwSolve)
+  //if (nAct!=NdCallCntLen)
+  //  {
+  //  delete NdCallCntArray;
+  //  NdCallCntArray=NULL;
+  //  NdCallCntLen=nAct;
+  //  }
+  //#endif
+
+  //SHOWPROGRESS(1, "EO_Start 4");
+
+  //XDataClear();
+
+  //if (nBad==0 && OK)
+  //  {
+  //  if (gs_Exec.SolvingPB())
+  //    {
+  //    OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
+  //    SHOWPROGRESS(1, "EO_Start 4.1p");
+  //    CtrlSeq().Initialise();
+  //    SHOWPROGRESS(1, "EO_Start 4.2p");
+  //    DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
+  //    SHOWPROGRESS(1, "EO_Start 4.3p");
+  //    gs_Exec.XGlblResultValidity(false, false);
+  //    SHOWPROGRESS(1, "EO_Start 4.4p");
+  //    }
+  //  else
+  //    {
+  //    OK=(Dyn.Start(CB, AllNds)==0);
+  //    SHOWPROGRESS(1, "EO_Start 4.1d");
+  //    CtrlSeq().Initialise();
+  //    SHOWPROGRESS(1, "EO_Start 4.2d");
+  //    DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
+  //    SHOWPROGRESS(1, "EO_Start 4.3d");
+  //    gs_Exec.XGlblResultValidity(true, true);
+  //    SHOWPROGRESS(1, "EO_Start 4.4d");
+  //    }
+  //  }
+  //else
+  //  OK=false;
+  //SHOWPROGRESS(1, "EO_Start 5");
+
+  //ASSERT(_CrtCheckMemory());
+
+  //gs_MsgLog.SetDefer(false);
+  //gs_MsgLog.FlushWndQ();
+  //SHOWPROGRESS(1, "EO_Start 6");
 
   return OK;
   }
@@ -12545,7 +13133,7 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
 
 //#include "optoff.h"
 
-flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CFlwSolver::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   CStopWatchLap SWLapOverall(gs_swTotalExecTicks);
   STARTPROGRESS;
@@ -12566,12 +13154,12 @@ flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
   if (gs_Exec.SolvingPB())
     {
-    EORet.m_Time=CB.m_Time+CB.m_StepSize;
+    EORet.m_Time=CB.m_TheTime+CB.m_StepSize;
     EORet.m_StepSizeNxt=CB.m_StepSize;
-    ICSetTime(CB.m_Time);
-    ICSetTimeInc(CB.m_StepSize);
+    ICSetTime(CB.m_TheTime.Seconds);
+    ICSetTimeInc(CB.m_StepSize.Seconds);
     ret=PB.StepSolution(CB.m_EqnCB)!=0;
-    DoChangeTrace(CSF_DoCalcs | CSF_DoCollect | CSF_DoSort);
+    DoTraceChanges(TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
     gs_MsgLog.SetDefer(false);
     gs_MsgLog.FlushWndQ();
 
@@ -12582,6 +13170,7 @@ flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
   ASSERT(_CrtCheckMemory());
 
+  //dbgpln("Dyn.Execute >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
   ret=Dyn.Execute(CB, EORet);
 
   SHOWPROGRESS(1, "EO_Execute 2");
@@ -12591,7 +13180,7 @@ flag CFlwSolver::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
   if (1)
     {
     CStopWatchLap SWLapChangeTrace(gs_swChangeTrace);
-    DoChangeTrace(CSF_DoCalcs | CSF_DoCollect | CSF_DoSort);
+    DoTraceChanges(TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
     }
 
   SHOWPROGRESS(1, "EO_Execute 3");
@@ -12806,7 +13395,15 @@ flag CFlwSolver::EO_StepDone()
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_Stop(const CXM_TimeControl &CB)
+flag CFlwSolver::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
+  {
+  if (!gs_Exec.SolvingPB())
+    return Dyn.CheckStopRequired(CB, Starting, true);
+    //return Dyn.m_StopRequired;
+  return false;
+  };
+
+flag CFlwSolver::EO_Stop(CXM_TimeControl &CB)
   {
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_Stop");
@@ -12826,7 +13423,7 @@ flag CFlwSolver::EO_Stop(const CXM_TimeControl &CB)
     gs_Exec.XGlblResultValidity(true, false);
     }
 
-  DoChangeTrace(CSF_DoCalcs | CSF_DoCollect | CSF_DoSort);
+  DoTraceChanges(TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
 
   gs_MsgLog.SetDefer(false);
   gs_MsgLog.FlushWndQ();
@@ -12869,7 +13466,7 @@ flag CFlwSolver::EO_Stopping(flag BeginStopping)
 
 //---------------------------------------------------------------------------
 
-flag CFlwSolver::EO_BeginPause(const CXM_TimeControl &CB)
+flag CFlwSolver::EO_BeginPause(CXM_TimeControl &CB)
   {
   if (gs_Exec.SolvingPB())
     {
@@ -12880,7 +13477,7 @@ flag CFlwSolver::EO_BeginPause(const CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
-flag CFlwSolver::EO_EndPause(const CXM_TimeControl &CB)
+flag CFlwSolver::EO_EndPause(CXM_TimeControl &CB)
   {
   return true;
   };

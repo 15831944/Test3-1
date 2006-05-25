@@ -25,6 +25,7 @@ DWORD QryCnt1;
 static CDbgMngr dbgHistQuery("Historian", "Query");
 #endif
 
+
 //===========================================================================
 
 IMPLEMENT_DYNAMIC(CHstQueryException, CException);

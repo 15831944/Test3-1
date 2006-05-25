@@ -84,7 +84,7 @@ class CDriverManager : public CExecObj, public CDriverManagerBase, public CNodeX
   friend class CDriverPage;
   friend class CSlotsPage;
   public:
-    double          dCurrentTime;
+    CTimeValue      dCurrentTime;
     int             UsedSlots; //number of slots
     int             UsedConns; //number of connections
     int             UsedCodeBlks;
@@ -204,8 +204,8 @@ class CDriverManager : public CExecObj, public CDriverManagerBase, public CNodeX
     
     // ExecObj Overrides
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route);
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag   EO_Start(const CXM_TimeControl &CB);
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QueryHistoryCfg(CXMsgLst &XM); 
     virtual void   EO_QueryArchiveCfg(CXMsgLst &XM); 
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);
@@ -214,8 +214,8 @@ class CDriverManager : public CExecObj, public CDriverManagerBase, public CNodeX
     virtual flag   EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);  
     virtual DWORD  EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
     virtual int    EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route);
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag   EO_Stop(const CXM_TimeControl &CB);
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag   EO_Stop(CXM_TimeControl &CB);
     virtual flag   EO_TagsNotAvail(CXMsgLst &XM);
     virtual flag   EO_BeginSave(FilingControlBlock &FCB);
     virtual flag   EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM);

@@ -180,7 +180,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int PrjFileVer = 94; //CNM 11/11/2005 FlowMode fixes
 //const int PrjFileVer = 95; //CNM 19/01/2006 remove table FB_Eqn from Database
 //const int PrjFileVer = 96; //CNM 19/01/2006 Changed 'Location' to 'PlantArea'
-const int PrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
+//const int PrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
+const int PrjFileVer = 98; //CNM 15/05/2006 Chainge in 'Time' Management
 
 //===========================================================================
 //
@@ -1219,11 +1220,13 @@ void Project::Clear()
   bAccHistoryInfoVis=0;
   gs_Exec.SetRealTime(0);
   gs_Exec.SetRealTimeMult(1);
-  gs_Exec.SetStepSizeMax(1.0);
-  gs_Exec.SetTime(0.0);
-  gs_Exec.SetRunTermination(RTRM_None);
-  gs_Exec.SetTimeUntilStop(3600.0);
-  gs_Exec.SetMaxRunSteps(1);
+  gs_Exec.StepSizeMax=1.0;
+  gs_Exec.SetTheTime(0.0, "PrjClear");
+  gs_Exec.SetScnType(ScnTyp_Manual, false);
+  gs_Exec.ScnTermAction=ScnTA_Edit;
+  gs_Exec.ScnStopTime=3600.0;
+  gs_Exec.ScnDuration=3600.0;
+  gs_Exec.StepCountMax=1;
 
   m_sDefGrpLib      = "$BaseCfgFiles\\GroupLibrary.MDB";
   m_sGrfFrameName   = "Extents-A3";
@@ -2476,6 +2479,7 @@ flag Project::OnLoadAltCfg()
 
 void Project::OpenHistorian()
   {
+  dbgpln("Project::OpenHistorian");
   bHstOK=0;
   HstMngr.SetHstOpen(0);//make sure is correct
   HstMngr.SetExecObj(this);//make sure is correct
@@ -2492,6 +2496,7 @@ void Project::OpenHistorian()
 
 void Project::DeleteHistorian()
   {
+  dbgpln("Project::DeleteHistorian");
   if (HstMngr.DoDeleteHistorian())
     CTagVwDoc::RebuildAll(); //force all trends to reconnect etc
   }
@@ -2500,6 +2505,7 @@ void Project::DeleteHistorian()
 
 void Project::RestartHistorian()
   {
+  dbgpln("Project::RestartHistorian");
   HstMngr.DoRestart();
   }
 
@@ -2507,6 +2513,7 @@ void Project::RestartHistorian()
 
 void Project::CloseHistorian(BOOL ForExit/*=FALSE*/)
   {
+  dbgpln("Project::CloseHistorian");
   if (HstMngr.HstOpen())
     {
     if (ForExit)
@@ -3420,7 +3427,7 @@ void Project::HistorianQuery()
     }
   else
     {
-    double EndTime = gs_Exec.TimeCB().m_Time;
+    double EndTime = gs_Exec.TheTime.Seconds;
     double Interval = 60.0;
     double Duration = 24.0*60*Interval;
     double StartTime = EndTime - Duration;
@@ -4013,47 +4020,105 @@ flag Project::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_PrePreStart()
+flag Project::EO_GotoRunStart(CXM_TimeControl &CB)
   {
-  bool ScrollTrendsToEnd = false;
-  if (gs_Exec.HstRestartOnStart())
+  //bool ScrollTrendsToEnd = TimeChanged;
+  //if (gs_Exec.RestartHstOnStart)
+  //  {
+
+  //  gs_pPrj->CloseHistorian();
+  //  gs_pPrj->RestartHistorian();
+  //  gs_pPrj->OpenHistorian();
+  //  //ScrollTrendsToEnd = true;
+  //  //if (gs_Exec.GlblProbalMode())
+  //  //  gs_Exec.SetTime(0.0); //reset time to "zero"
+  //  }
+  ////if (gs_Exec.ResetTimeOnStart && !gs_Exec.GlblProbalMode() && !gs_Exec.SyncWithClock())
+  ////  {
+  ////  gs_Exec.SetTime(gs_Exec.TimeAtStart, gs_Exec.RestartHstOnStart!=eOOO_Off);
+  ////  ScrollTrendsToEnd = true;
+  ////  }
+  ////if (gs_Exec.SetHstTaglistOnStart)
+  ////  {
+  ////  Strng File(gs_Exec.HstTaglistFile);
+  ////  if (File.Len()>0)
+  ////    {
+  ////    Strng FullFilename(gs_Exec.HstTaglistFolder);
+  ////    if (FullFilename.Len()==0)
+  ////      {
+  ////      FullFilename = PrjFiles();
+  ////      gs_Exec.HstTaglistFolder=FullFilename();
+  ////      }
+  ////    FullFilename.FnExpand();
+  ////    FullFilename += File();
+  ////    gs_Exec.KeepHistoryFile(FullFilename());
+  ////    }
+  ////  }
+
+  ////if (gs_Exec.RestartHstOnStart==eOOO_Once)
+  ////  gs_Exec.RestartHstOnStart=eOOO_Off;
+  ////if (gs_Exec.ResetTimeOnStart==eOOO_Once)
+  ////  gs_Exec.ResetTimeOnStart=eOOO_Off;
+  ////if (gs_Exec.SetHstTaglistOnStart==eOOO_Once)
+  ////  gs_Exec.SetHstTaglistOnStart=eOOO_Off;
+
+  //if (TimeChanged)
+  //  CTagVwDoc::AdjustTimebaseToEndAll();
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
+flag Project::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
+  {
+  bool ScrollTrendsToEnd = TimeChanged;
+  if (CB.m_ScnState==Scn_Start && gs_Exec.RestartHstOnStart)
     {
+
     gs_pPrj->CloseHistorian();
     gs_pPrj->RestartHistorian();
     gs_pPrj->OpenHistorian();
-    ScrollTrendsToEnd = true;
-    if (gs_Exec.GlblProbalMode())
-      gs_Exec.SetTime(0.0); //reset time to "zero"
+    //ScrollTrendsToEnd = true;
+    //if (gs_Exec.GlblProbalMode())
+    //  gs_Exec.SetTime(0.0); //reset time to "zero"
     }
-  if (gs_Exec.ResetTimeOnStart() && !gs_Exec.GlblProbalMode() && !gs_Exec.SyncWithClock())
-    {
-    gs_Exec.SetTime(gs_Exec.OnStartTime());
-    ScrollTrendsToEnd = true;
-    }
-  if (gs_Exec.HstSetTaglistOnStart())
-    {
-    Strng File(gs_Exec.HstTaglistFile());
-    if (File.Len()>0)
-      {
-      Strng FullFilename(gs_Exec.HstTaglistFolder());
-      if (FullFilename.Len()==0)
-        {
-        FullFilename = PrjFiles();
-        gs_Exec.SetHstTaglistFolder(FullFilename());
-        }
-      FullFilename.FnExpand();
-      FullFilename += File();
-      gs_Exec.KeepHistoryFile(FullFilename());
-      }
-    }
-  if (ScrollTrendsToEnd)
+  //if (gs_Exec.ResetTimeOnStart && !gs_Exec.GlblProbalMode() && !gs_Exec.SyncWithClock())
+  //  {
+  //  gs_Exec.SetTime(gs_Exec.TimeAtStart, gs_Exec.RestartHstOnStart!=eOOO_Off);
+  //  ScrollTrendsToEnd = true;
+  //  }
+  //if (gs_Exec.SetHstTaglistOnStart)
+  //  {
+  //  Strng File(gs_Exec.HstTaglistFile);
+  //  if (File.Len()>0)
+  //    {
+  //    Strng FullFilename(gs_Exec.HstTaglistFolder);
+  //    if (FullFilename.Len()==0)
+  //      {
+  //      FullFilename = PrjFiles();
+  //      gs_Exec.HstTaglistFolder=FullFilename();
+  //      }
+  //    FullFilename.FnExpand();
+  //    FullFilename += File();
+  //    gs_Exec.KeepHistoryFile(FullFilename());
+  //    }
+  //  }
+
+  //if (gs_Exec.RestartHstOnStart==eOOO_Once)
+  //  gs_Exec.RestartHstOnStart=eOOO_Off;
+  //if (gs_Exec.ResetTimeOnStart==eOOO_Once)
+  //  gs_Exec.ResetTimeOnStart=eOOO_Off;
+  //if (gs_Exec.SetHstTaglistOnStart==eOOO_Once)
+  //  gs_Exec.SetHstTaglistOnStart=eOOO_Off;
+
+  if (TimeChanged)
     CTagVwDoc::AdjustTimebaseToEndAll();
   return true;
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_PreStart()
+flag Project::EO_PreStart(CXM_TimeControl &CB)
   {
   if (m_bRunOptEmptySpills)
     {
@@ -4113,7 +4178,7 @@ flag Project::EO_Stopping(flag fBeginStopping)
   {
   if (!fBeginStopping)
     {
-    //ScdPFUser.WrDouble("General", "ExecTime", gs_Exec.Time());
+    //ScdPFUser.WrDouble("General", "ExecTime", gs_Exec.TheTime);
     // Save Current State
     }
   return true;
@@ -4562,13 +4627,26 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
         m_bRunOptResetStats   = PF.RdLong("RunStartup", "ResetStats",   m_bRunOptResetStats   ?1:0)!=0;   
         m_bRunOptOnceOnly     = PF.RdLong("RunStartup", "OnceOnly",     m_bRunOptOnceOnly    ?1:0)!=0;    
 
-        gs_Exec.SetTime(PF.RdDouble("General", "ExecTime", gs_Exec.Time()));
-        gs_Exec.SetStepSizeMax(PF.RdDouble("General", "StepSizeMax", gs_Exec.StepSizeMax()));
+        if (PrjFileVerNo()>=98)
+          {
+          gs_Exec.SetTheTime(CTimeValue(PF.RdInt64("General", "ExecTime", gs_Exec.TheTime.Raw)), "PrjLoad");
+          gs_Exec.StepSizeMax=CTimeValue(PF.RdInt64("General", "StepSizeMax", gs_Exec.StepSizeMax.Raw));
+          gs_Exec.ScnStopTime=CTimeValue(PF.RdInt64("General", "ScnStopTime", gs_Exec.ScnStopTime.Raw));
+          gs_Exec.ScnDuration=CTimeValue(PF.RdInt64("General", "ScnDuration", gs_Exec.ScnDuration.Raw));
+          }
+        else
+          {
+          gs_Exec.SetTheTime(CTimeValue(PF.RdDouble("General", "ExecTime", gs_Exec.TheTime.Seconds)), "PrjLoad");
+          gs_Exec.StepSizeMax=CTimeValue(PF.RdDouble("General", "StepSizeMax", gs_Exec.StepSizeMax.Seconds));
+          gs_Exec.ScnStopTime=CTimeValue(PF.RdInt64("General", "ScnStopTime", gs_Exec.ScnStopTime.Raw));
+          gs_Exec.ScnDuration=CTimeValue(PF.RdInt64("General", "ScnDuration", gs_Exec.ScnDuration.Raw));
+          //gs_Exec.SetTimeUntilStop(CTimeValue(PF.RdDouble("General", "TimeUntilStop", gs_Exec.TimeUntilStop.Seconds)));
+          }
         gs_Exec.SetRealTime(PF.RdLong("General", "RealTime", gs_Exec.RealTime()) != 0);
         gs_Exec.SetRealTimeMult(PF.RdDouble("General", "RealTimeMult", gs_Exec.RealTimeMult()));
-        gs_Exec.SetRunTermination((RunTerms)PF.RdInt("General", "RunTerm", (int)gs_Exec.RunTermination()));
-        gs_Exec.SetTimeUntilStop(PF.RdDouble("General", "TimeUntilStop", gs_Exec.TimeUntilStop()));
-        gs_Exec.SetMaxRunSteps(PF.RdLong("General", "MaxRunIters", gs_Exec.MaxRunSteps()));
+        gs_Exec.SetScnType((eScnTypes)PF.RdInt("General", "TermType", (int)gs_Exec.ScnType), false);
+        gs_Exec.ScnTermAction=(eScnTermActions)PF.RdInt("General", "TermAction", (int)gs_Exec.ScnTermAction);
+        gs_Exec.StepCountMax=PF.RdLong("General", "MaxRunIters", gs_Exec.StepCountMax);
 
         m_sDefGrpLib = PF.RdStr("General", "DefaultLibrary", m_sDefGrpLib());
         m_sGrfFrameName = PF.RdStr("General", "GraphicsFrame", m_sGrfFrameName());
@@ -4602,8 +4680,16 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
         m_bRemoveRevs=(PF.RdLong("Database", "RemovePreviousRevisions", m_bRemoveRevs)!=0);
         m_bCopyDBFiles=(PF.RdLong("Database", "CopyDBFiles", m_bCopyDBFiles)!=0);
 
-        CTagVwDoc::GTB.StartTime = PF.RdDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime);
-        CTagVwDoc::GTB.EndTime = CTagVwDoc::GTB.StartTime + PF.RdDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration());
+        if (PrjFileVerNo()>=98)
+          {
+          CTagVwDoc::GTB.StartTime.Raw = PF.RdInt64("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime.Raw);
+          CTagVwDoc::GTB.EndTime.Raw = CTagVwDoc::GTB.StartTime.Raw + PF.RdInt64("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration().Raw);
+          }
+        else
+          {
+          CTagVwDoc::GTB.StartTime = CTimeValue(PF.RdDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime.Seconds));
+          CTagVwDoc::GTB.EndTime = CTimeValue(CTagVwDoc::GTB.StartTime.Seconds + PF.RdDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration().Seconds));
+          }
         CTagVwDoc::GTB.TrackingTime = (PF.RdInt("Trend", "GlobalTrackingTime", CTagVwDoc::GTB.TrackingTime)!=0);
 
         Solver.fStateWnd=PF.RdInt("Solver", "StatusWnd", Solver.fStateWnd);
@@ -4615,7 +4701,7 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
         if (PrjFileVerNo()<54)
           {
           gs_Exec.SetRealTime(PF.RdLong("Historian", "RealTime", gs_Exec.RealTime()) != 0);
-          gs_Exec.SetStepSizeMax(PF.RdDouble("Historian", "TimeMax", gs_Exec.StepSizeMax()));
+          gs_Exec.StepSizeMax=CTimeValue(PF.RdDouble("Historian", "TimeMax", gs_Exec.StepSizeMax.Seconds));
           }
         /*kga 15/8/01 removed because does not recover correctly for real time
         if (gs_Exec.RealTime())
@@ -5058,8 +5144,9 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
         //  m_RmtCpyFolder="";
         //  }
 
-        // Overide any other setting for Time which may have been set
-        gs_Exec.SetTime(gs_Exec.QueryCurrentTime());
+        //CNM Skip This
+        //// Overide any other setting for Time which may have been set
+        //gs_Exec.SetTime(gs_Exec.QueryCurrentTime());
 
         if (gs_pPrj->pFlwLib)
           gs_pPrj->pFlwLib->FE_SetSpModelFixupStrategy(PF.RdLong("SpModel", "FixupStrategy", FUS_Largest));
@@ -6388,14 +6475,16 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   //PF.WrInt("General", "BackupUsage", 0);
   PF.WrInt("General", "LocalPrjFiles", UsingPrjLclFiles());
 
-  PF.WrDouble("General", "ExecTime", gs_Exec.Time());
-  PF.WrDouble("General", "StepSizeMax", gs_Exec.StepSizeMax());
+  PF.WrInt64("General", "ExecTime", gs_Exec.TheTime.Raw);
+  PF.WrInt64("General", "StepSizeMax", gs_Exec.StepSizeMax.Raw);
   PF.WrLong("General", "RealTime", gs_Exec.RealTime() != 0);
   PF.WrDouble("General", "RealTimeMult", gs_Exec.RealTimeMult());
 
-  PF.WrInt("General", "RunTerm", (int)gs_Exec.RunTermination());
-  PF.WrDouble("General", "TimeUntilStop", gs_Exec.TimeUntilStop());
-  PF.WrLong("General", "MaxRunIters", gs_Exec.MaxRunSteps());
+  PF.WrInt("General", "TermType", (int)gs_Exec.ScnType);
+  PF.WrInt("General", "TermAction", (int)gs_Exec.ScnTermAction);
+  PF.WrInt64("General", "ScnStopTime", gs_Exec.ScnStopTime.Raw);
+  PF.WrInt64("General", "ScnDuration", gs_Exec.ScnDuration.Raw);
+  PF.WrLong("General", "MaxRunIters", gs_Exec.StepCountMax);
   PF.WrLong("General", "ToolBarTips", bToolTips);
   PF.WrLong("General", "ToolBarFlyBys", bFlyBys);
   PF.WrLong("General", "DefaultRecordIt", bDefaultRecordIt);
@@ -6445,8 +6534,17 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
 
   PF.WrLong("SpModel", "FixupStrategy", gs_pPrj->pFlwLib->FE_SpModelFixupStrategy());
 
-  PF.WrDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime);
-  PF.WrDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration());
+  if (PrjFileVerNo()>=98)
+    {
+    PF.WrInt64("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime.Raw);
+    PF.WrInt64("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration().Raw);
+    }
+  else
+    {
+    __debugbreak();
+    //PF.WrDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime);
+    //PF.WrDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration());
+    }
   PF.WrInt("Trend", "GlobalTrackingTime", CTagVwDoc::GTB.TrackingTime);
 
   HstMngr.SaveSettings(PF);

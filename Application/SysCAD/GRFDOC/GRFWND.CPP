@@ -344,14 +344,14 @@ int CGrfWnd::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
-flag CGrfWnd::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CGrfWnd::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag CGrfWnd::EO_Start(const CXM_TimeControl &CB)
+flag CGrfWnd::EO_Start(CXM_TimeControl &CB)
   {
   return True;
   }
@@ -491,7 +491,7 @@ flag CGrfWnd::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CGrfWnd::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CGrfWnd::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   return False;
   }
@@ -518,7 +518,7 @@ flag CGrfWnd::EO_Stopping(flag fBeginStopping)
 
 //---------------------------------------------------------------------------
 
-flag CGrfWnd::EO_Stop(const CXM_TimeControl &CB)
+flag CGrfWnd::EO_Stop(CXM_TimeControl &CB)
   {
   CSingleLock Lock(&m_XDataLock, true);
 

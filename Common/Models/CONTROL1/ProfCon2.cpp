@@ -288,7 +288,7 @@ flag CProfileCon2::DataXchg(DataChangeBlk & DCB)
               for (byte j=0; j<PCI.Prof.ColCnt(); j++)
                 PCI.Prof.pInfo[j].dStartTime = (*DCB.rD);
               }
-            DCB.D = PCI.Prof.ColCnt() ? PCI.Prof.StartTime(0) : 0.0;
+            DCB.D = PCI.Prof.ColCnt() ? PCI.Prof.StartTime(0).Seconds : 0.0;
             break;
           case 16:
             if (DCB.rD)
@@ -298,7 +298,7 @@ flag CProfileCon2::DataXchg(DataChangeBlk & DCB)
               for (byte j=0; j<PCI.Prof.ColCnt(); j++)
                 PCI.Prof.pInfo[j].dLastTime = (*DCB.rD);
               }
-            DCB.D = PCI.Prof.ColCnt() ? PCI.Prof.LastTime(0) : 0.0;
+            DCB.D = PCI.Prof.ColCnt() ? PCI.Prof.LastTime(0).Seconds : 0.0;
             break;
           case 17: //NBNB: order is important, this must be last
             if (DCB.rL)
@@ -319,7 +319,7 @@ flag CProfileCon2::DataXchg(DataChangeBlk & DCB)
           case 18:
             //if (DCB.rD)
             //  ???
-            DCB.D = PCI.Prof.ColCnt() ? PCI.Prof.TimePassed(0) : 0.0;
+            DCB.D = PCI.Prof.ColCnt() ? PCI.Prof.TimePassed(0).Seconds : 0.0;
             break;
           case 19:
             if (DCB.rB)
@@ -436,7 +436,18 @@ void CProfileCon2::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void CProfileCon2::EvalCtrlStrategy()
+void CProfileCon2::EvalCtrlInitialise(eScdCtrlTasks Tasks)
+  {
+  if (Tasks&CO_InitPrf)
+    {
+    //DoLoad();
+    PCI.Prof.StartAll(ICGetTime());
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void CProfileCon2::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (PCI.bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

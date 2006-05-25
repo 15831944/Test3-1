@@ -76,11 +76,11 @@ class DllImportExport CBBBase
     void      DoEvalIntegral(long JoinMask);
     
     void      DoEvalDiscrete();
-    void      DoEvalCtrlInitialise();
-    void      DoEvalCtrlActions();
-    void      DoEvalCtrlStrategy();
-    void      DoEvalCtrlTerminate();
-    void      DoEvalStatistics();
+    void      DoEvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);
+    void      DoEvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
+    void      DoEvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
+    void      DoEvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All);
+    void      DoEvalStatistics(eScdCtrlTasks Tasks=CO_All);
 
     void      DoEvalPowerAvailable();
     void      DoEvalPowerRequired();

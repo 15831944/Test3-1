@@ -3064,7 +3064,7 @@ void SpContainer::ODEOperate(CODEDataBlock & ODB)
 
 //--------------------------------------------------------------------------
 
-void SpContainer::EvalStatistics()
+void SpContainer::EvalStatistics(eScdCtrlTasks Tasks)
   {
   if (pStats)
     pStats->ExecIns(this);

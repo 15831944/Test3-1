@@ -57,8 +57,8 @@ class CCmdExec : public CExecObj
     //CCmdBase*    pFirstCmd;    //first command to be executed
     //CCmdBase*    pLastCmd;     //last command to be executed
     //int          iCmdCount;    //number of commands in script
-    double       dStartTime;   //for running simulation timer
-    double       dCurTime;     //current simulation time
+    CTimeValue   dStartTime;   //for running simulation timer
+    CTimeValue   dCurTime;     //current simulation time
     DWORD        dwIterCount;  //syscad iteration counter
     int          iCmdAttempts; //
     WORD         wCmdWaiting;  //ID of command waiting to be completed before executing next command
@@ -95,14 +95,14 @@ class CCmdExec : public CExecObj
 
     // CExecObj Overrides
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route);
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag   EO_Start(const CXM_TimeControl &CB);
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);
     virtual void   EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     virtual flag   EO_ReadSubsData(CXMsgLst &XM);
     virtual flag   EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag   EO_Stop(const CXM_TimeControl &CB);
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag   EO_Stop(CXM_TimeControl &CB);
     virtual flag   EO_Stopping(flag fBeginStopping);
     virtual int    EO_CanClose(Strng_List & Problems);
   };

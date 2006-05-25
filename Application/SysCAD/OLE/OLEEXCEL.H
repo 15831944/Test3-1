@@ -137,12 +137,12 @@ class COleReportMngr : public COleExcelBaseAuto
 class CRepTrndItem
   {
   public:
-    double dTime;
+    CTimeValue m_dTime;
     //CDVector Values;
     CArray <COleVariant,COleVariant> Values;
     CRepTrndItem* pNxt;
 
-    CRepTrndItem(double Time, int nPts);
+    CRepTrndItem(CTimeValue Time, int nPts);
   };
 
 //---------------------------------------------------------------------------
@@ -158,10 +158,10 @@ class CExcelReportTrend
     CArray <short,short> TagOffsets; //offset of returned data relative to request
     COleReportTrendMngr* pMngr;//
     OWorkbook* pWkBook;   //
-    double dStartTime;    //
-    double dEndTime;      //
-    double dDuration;     //
-    double dReportTimeOffset;
+    CTimeValue dStartTime;    //
+    CTimeValue dEndTime;      //
+    CTimeValue dDuration;     //
+    CTimeValue dReportTimeOffset;
     Strng sChartName;     //
     long iNoOfPts;        //
     byte iOpt;            //

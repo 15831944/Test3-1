@@ -42,7 +42,7 @@ class CGenPage : public CCustomPropertyPage
 
     flag    m_bTimeChanged:1,
             m_bTagNamingChanged:1;
-    double  m_CurrentTimeAtInit;
+    CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
     enum { IDD = IDD_PRJGENDLG };
@@ -502,7 +502,7 @@ void CHistPage::LoadInfo()
   m_UseTol       = HstMngr.bHstUseTol;
   m_ATol         = HstMngr.dHstRecordATol;
   m_RTol         = HstMngr.dHstRecordRTol;
-  m_StopGap      = HstMngr.dHstStopGap;
+  //m_StopGap      = HstMngr.dHstStopGap;
   m_MidTimeFactor= HstMngr.dHstMidTimeFactor;
   }
 
@@ -791,12 +791,10 @@ BOOL CGenPage::OnInitDialog()
   m_HeatMode=TaggedObject::GlblHeatMode();
   m_SyncWithClock = gs_Exec.SyncWithClock()!=0;
 
-  char buff[256];
-  SecstoHMSDate(gs_Exec.Time(), buff, true/*m_SyncWithClock*/);
-  m_CurrentTimeHMS = buff;
-  m_CurrentTimeAtInit = gs_Exec.Time();
-  SecstoHMSDate(gs_Exec.Time(), buff, false);
-  SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : buff);
+  m_CurrentTimeHMS = gs_Exec.TheTime.Format(TD_TimeDate);
+  m_CurrentTimeAtInit = gs_Exec.TheTime;
+  LPCTSTR Tm=gs_Exec.TheTime.Format(TD_Time);
+  SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : Tm);
 
   m_NumTagsOK = !TaggedObject::NumericTagsBad;
   m_NumStartingOK = !TaggedObject::NumericStartingTagsBad;
@@ -985,9 +983,9 @@ void CGenPage::OnOK()
     if (m_bTimeChanged || m_bTagNamingChanged)
       {
       gs_pPrj->bTimeChanged = m_bTimeChanged;
-      double RqdTime;
-      flag OK1 = HMSDatetoSecs(m_CurrentTimeHMS.GetBuffer(0), RqdTime);
-      if (RqdTime<m_CurrentTimeAtInit && RqdTime>=m_CurrentTimeAtInit-0.002) // rounding errors in (2 msecs)
+      CTimeValue RqdTime;
+      flag OK1 = RqdTime.Parse(m_CurrentTimeHMS);
+      if (RqdTime<m_CurrentTimeAtInit && RqdTime>=m_CurrentTimeAtInit-CTimeValue(0.002)) // rounding errors in (2 msecs)
         RqdTime=m_CurrentTimeAtInit;
       if (OK1)
         {
@@ -1010,7 +1008,7 @@ void CGenPage::OnOK()
 
         if (m_bTimeChanged)
           {
-          gs_Exec.SetTime(RqdTime);
+          gs_Exec.SetTheTime(RqdTime, "GenPage");
           gs_Exec.SetSyncWithClock(m_SyncWithClock);
           if (m_SyncWithClock)
             {
@@ -1078,16 +1076,15 @@ void CGenPage::OnTimeChanged()
 void CGenPage::OnKillfocusPrjCurrenttime()
   {
   UpdateData(true);
-  char buff[256];
-  double t;
-  if (HMSDatetoSecs(m_CurrentTimeHMS.GetBuffer(0), t))
+  CTimeValue t;
+  if (t.Parse(m_CurrentTimeHMS))
     {
     if (t>=0.0)
       {
-      SecstoHMSDate(t, buff, true/*m_SyncWithClock*/);
-      m_CurrentTimeHMS = buff;
-      SecstoHMSDate(t, buff, false);
-      SetDlgItemText(IDC_DATETIME_TXT, buff);
+      LPCTSTR Tm=t.Format(TD_TimeDate);
+      m_CurrentTimeHMS = Tm;
+      Tm=t.Format(TD_Time);
+      SetDlgItemText(IDC_DATETIME_TXT, Tm);
       UpdateData(false);
       }
     }
@@ -1164,22 +1161,20 @@ void CGenPage::OnSynchronise()
 void CGenPage::DoSyncChange()
   {
   m_bTimeChanged = 1;
-  char buff[256];
   if (m_SyncWithClock)
     {
     __time64_t t;
     _time64(&t); //this Initialisation must occur
-    SecstoHMSDate((double)t, buff, true);
-    m_CurrentTimeHMS = buff;
-    SecstoHMSDate((double)t, buff, false);
-    SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : buff);
+    CTimeValue tv((double)t);
+    m_CurrentTimeHMS = tv.Format(TD_TimeDate);
+    SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : tv.Format(TD_Time));
     }
   else
     {
-    SecstoHMSDate(m_CurrentTimeAtInit, buff, true/*m_SyncWithClock*/);
-    m_CurrentTimeHMS = buff;
-    SecstoHMSDate(m_CurrentTimeAtInit, buff, false);
-    SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : buff);
+    LPCTSTR Tm=m_CurrentTimeAtInit.Format(TD_TimeDate);
+    m_CurrentTimeHMS = Tm;
+    Tm=m_CurrentTimeAtInit.Format(TD_Time);
+    SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : Tm);
     }
   }
 

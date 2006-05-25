@@ -324,7 +324,7 @@ void Crusher::Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)
 
 // --------------------------------------------------------------------------
 
-void Crusher::EvalCtrlActions()
+void Crusher::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   //int io=CIOWithId_Self(CIOId_Spd);
   //if (io>=0)

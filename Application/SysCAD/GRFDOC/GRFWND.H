@@ -130,15 +130,15 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
 
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag   EO_Start(const CXM_TimeControl &CB);
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);
     virtual void   EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     virtual flag   EO_TagsNotAvail(CXMsgLst &XM);
     virtual flag   EO_ReadSubsData(CXMsgLst &XM);  
     virtual flag   EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);  
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag   EO_Stop(const CXM_TimeControl &CB);
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag   EO_Stop(CXM_TimeControl &CB);
     virtual flag   EO_Stopping(flag fBeginStopping);
     virtual void   EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB);
     

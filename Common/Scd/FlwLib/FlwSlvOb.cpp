@@ -2543,7 +2543,7 @@ int ChgObject::DoAddition(dword Flags, CTraceArray * pSA)
     ChgStatsArrayList.AddTail(pSA);
     CTraceArray & A=*pSA;
     //double 
-    if (Flags & CSF_DoCalcs)
+    if (Flags & TCO_DoCalcs)
       for (i=0; i<A.GetSize(); i++)
         A[i].DoCalculations(dSmoothing);
 

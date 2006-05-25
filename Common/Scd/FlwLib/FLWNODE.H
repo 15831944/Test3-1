@@ -2862,10 +2862,10 @@ class CFilesUsedArray : public CArray <FilesUsedItem, FilesUsedItem &>
 
 //---------------------------------------------------------------------------
 
-const dword CSF_DoInitialise  = 0x00000001;
-const dword CSF_DoCalcs       = 0x00000002;
-const dword CSF_DoCollect     = 0x00000004;
-const dword CSF_DoSort        = 0x00000008;
+const dword TCO_DoInitialise  = 0x00000001;
+const dword TCO_DoCalcs       = 0x00000002;
+const dword TCO_DoCollect     = 0x00000004;
+const dword TCO_DoSort        = 0x00000008;
 
 //---------------------------------------------------------------------------
 
@@ -3857,8 +3857,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalJoinFlows(int JoinNo) {};
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo) { return false; };
-    //virtual void   EvalCtrlActions() {};
-    //virtual void   EvalCtrlStrategy() {};
+    //virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All) {};
+    //virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All) {};
     virtual void   EvalState() {};
 
     virtual CFlwRegBlk * GetFlwRegulator() { return NULL; };
@@ -3914,12 +3914,12 @@ class DllImportExport FlwNode : public CTNode
     virtual void   EvalBalance(int Pass);
     virtual void   GetBalanceReport(CNodeAuditInfo & Audit);
     virtual void   CheckXRefs();
-    virtual void   EvalCtrlInitialise() {};
-    virtual void   EvalCtrlActions() {};
-    virtual void   EvalCtrlStrategy() {};
-    virtual void   EvalCtrlTerminate() {};
+    virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All) {};
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All) {};
+    virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All) {};
+    virtual void   EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All) {};
     virtual void   EvalPowerRequired() {};
-    virtual void   EvalStatistics() {};
+    virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All) {};
 
 #if WithIOChgMonitor
     virtual void   MonitorPreEvalProducts();

@@ -44,7 +44,7 @@ class DllImportExport Valve_GP : public MN_BstRes
     virtual bool   IsXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
 
     virtual CFlwRegBlk * GetFlwRegulator() { return &m_FRB; };
 

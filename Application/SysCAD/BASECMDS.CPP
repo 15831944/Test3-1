@@ -306,14 +306,14 @@ void BaseCmdBlk::DoRun()
     case EX_EXEC:
       {
       if (Valid(EndTime))
-        gs_Exec.SetStopTime(EndTime);
+        gs_Exec.TimeToStop=EndTime;
       else if (Valid(dTime))
-        gs_Exec.SetStopTime(gs_Exec.Time()+dTime);
+        gs_Exec.TimeToStop=gs_Exec.TheTime+dTime;
       else
-        gs_Exec.SetStopTime(dNAN);
+        gs_Exec.TimeToStop=TimeNAN;
 
       if (Valid(StepTime))
-        gs_Exec.SetStepSizeMax(StepTime);
+        gs_Exec.StepSizeMax=StepTime;
       DoBreak();
       //gs_Exec.StartExec();
       }

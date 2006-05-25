@@ -330,6 +330,18 @@ class CQueryInfoStats
   };
 
 //-------------------------------------------------------------------------
+//===========================================================================
+// Moved
+pchar SecstoDateHMS(double time_in, // the time in seconds.
+                    pchar buff,     // the buffer into which the result is to be stored.
+                    flag WithDate=1); // if True it returns the date followed by the time, if False only the time is returned.
+pchar SecstoHMS(double time_in,// the time in seconds
+                pchar buff,  // the buffer in which the result is to be stored.
+                flag TruncDate=0, //must the date be ignored ie max hours=23
+                flag TruncMilliSecs=0);
+pchar SecstoHMSDate(double time_in, // the time in seconds.
+                    pchar buff,  // the buffer in which the result is to be stored.
+                    flag WithDate=1);// if True it returns the date followed by the time, if False only the time is returned.
 
 //=========================================================================
 #undef DllImportExport 

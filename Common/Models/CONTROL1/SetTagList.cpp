@@ -305,7 +305,7 @@ flag CTagListCon::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-void CTagListCon::EvalCtrlInitialise()
+void CTagListCon::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
   if (bOn && bSetBeforeStart && !GetActiveHold())
     {
@@ -315,7 +315,7 @@ void CTagListCon::EvalCtrlInitialise()
 
 //--------------------------------------------------------------------------
 
-void CTagListCon::EvalCtrlStrategy()
+void CTagListCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bAboutToStart)
     {

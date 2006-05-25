@@ -741,7 +741,7 @@ class DllImportExport CDriver
     virtual flag      Stop() = 0;         //called by CDrvMngr::EO_Stop
     virtual flag      ReadSubsData() = 0; //called by CDrvMngr::EO_ReadSubsData
     virtual flag      ReadTaggedItem(pchar pTag, CDrvCfgHelper * pCfg) = 0; //called by CDrvMngr::EO_ReadTaggedItem
-    virtual flag      Execute(const CXM_TimeControl &CB) = 0;  //called by CDrvMngr::EO_Execute
+    virtual flag      Execute(CXM_TimeControl &CB) = 0;  //called by CDrvMngr::EO_Execute
     virtual pCDrvSlot AddSlot(CDrvCfgHelper * pCfg) = 0;
     virtual flag      CfgSlot(CDrvCfgHelper * pCfg, pCDrvSlot pSlot = NULL) = 0;
     virtual int       InitSlot(pCDrvSlot pSlot, CDrvTimeout * pTO) { return 0; }; // -1=Busy 0=Done 1=Fail

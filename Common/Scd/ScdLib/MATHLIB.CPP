@@ -363,3 +363,388 @@ double ParseNANFlag(const char * Str, double Val/*=dNAN*/)
     return SetNANFlag(NF_Star, Val);
   return Val;
   }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+CTimeValue TimeNAN(dNAN);
+
+const long   CTimeValue::Divisor = 1000;
+const double CTimeValue::MinResolution = 1.0/Divisor;
+
+//---------------------------------------------------------------------------
+
+int CTimeValue::getTimemSeconds() { return int(mSeconds%Divisor); };
+int CTimeValue::getTimeSeconds()  { return int(SecondsI64%60); };
+int CTimeValue::getTimeMinutes()  { return int((SecondsI64/60)%60); };
+int CTimeValue::getTimeHours()    { return int((SecondsI64/3600)%24); };
+int CTimeValue::getTimeDays()     { return int(SecondsI64/86400); };
+int CTimeValue::getDateDay()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    return DateTime->tm_mday;
+  return -1;
+  };
+int CTimeValue::getDateMonth()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    return DateTime->tm_mon+1;
+  return -1;
+  };
+int CTimeValue::getDateYear()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    return DateTime->tm_year+1900;
+  return -1;
+  };
+
+// Leap Year rules 
+//A year that is divisible by 4 is a leap year. (Y % 4) == 0 
+//Exception to rule 1: a year that is divisible by 100 is not a leap year. (Y % 100) != 0 
+//Exception to rule 2: a year that is divisible by 400 is a leap year. (Y % 400) == 0
+// IS_LEAP_YEAR(Y)     ( ((Y)>0) && !((Y)%4) && ( ((Y)%100) || !((Y)%400) ) )</PRE>
+
+inline bool IsLeapYear(int Y) { return (Y>0) && !(Y%4) && ( (Y%100) || !(Y%400) ) ; };
+static int MonthDays[12] = {31,-2,31,30,31,30,31,31,30,31,30,31};
+
+int CTimeValue::getDaysInMonth()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    {
+    if (DateTime->tm_mon==1) // Feb
+      return (IsLeapYear(DateTime->tm_year+1900) ? 29:28);
+    return MonthDays[DateTime->tm_mon];
+    }
+  return -1;
+  };
+int CTimeValue::getDaysInYear()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    {
+    return (IsLeapYear(DateTime->tm_year+1900) ? 366:365);
+    }
+  return -1;
+  };
+int CTimeValue::getDayOfWeek()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    {
+    int d=DateTime->tm_wday; // returns 0-6 Sunday = 0; 
+    return d==0 ? 7:d; // we want 1-7 : Mon-Sun
+    }
+  return -1;
+  };
+int CTimeValue::getDayOfYear()
+  {
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_localtime64(&tt);
+  if (DateTime)
+    return DateTime->tm_yday+1;
+  return -1;
+  };
+
+//---------------------------------------------------------------------------
+
+LPCTSTR CTimeValue::Format(LPCTSTR CnvStr) const
+  {
+  if (CnvStr==NULL)
+    CnvStr="DyTm";
+  
+  //dbgpln("CTimeValue::Format %s", CnvStr);
+
+  if (strcmp(CnvStr, "s"   )==0)   return Format(TD_Seconds);
+
+  if (strcmp(CnvStr, "Tm0" )==0)   return Format(TD_Time);
+  if (strcmp(CnvStr, "Tm0.")==0)   return Format(TD_Time|TD_IntegralSecs);
+  if (strcmp(CnvStr, "Tm"  )==0)   return Format(TD_Time|TD_TrimTime);
+  if (strcmp(CnvStr, "Tm." )==0)   return Format(TD_Time|TD_TrimTime|TD_IntegralSecs);
+
+  if (strcmp(CnvStr, "DyTm0" )==0)   return Format(TD_DaysJoined|TD_Time);
+  if (strcmp(CnvStr, "DyTm0.")==0)   return Format(TD_DaysJoined|TD_Time|TD_IntegralSecs);
+  if (strcmp(CnvStr, "DyTm"  )==0)   return Format(TD_DaysJoined|TD_Time|TD_TrimTime);
+  if (strcmp(CnvStr, "DyTm." )==0)   return Format(TD_DaysJoined|TD_Time|TD_TrimTime|TD_IntegralSecs);
+
+  if (strcmp(CnvStr, "DdTm0" )==0)   return Format(TD_Days|TD_Time);
+  if (strcmp(CnvStr, "DdTm0.")==0)   return Format(TD_Days|TD_Time|TD_IntegralSecs);
+  if (strcmp(CnvStr, "DdTm"  )==0)   return Format(TD_Days|TD_Time|TD_TrimTime);
+  if (strcmp(CnvStr, "DdTm." )==0)   return Format(TD_Days|TD_Time|TD_TrimTime|TD_IntegralSecs);
+
+  if (strcmp(CnvStr, "DtTm0" )==0)   return Format(TD_DateLeft|TD_Time);
+  if (strcmp(CnvStr, "DtTm0.")==0)   return Format(TD_DateLeft|TD_Time|TD_IntegralSecs);
+  if (strcmp(CnvStr, "DtTm"  )==0)   return Format(TD_DateLeft|TD_Time|TD_TrimTime);
+  if (strcmp(CnvStr, "DtTm." )==0)   return Format(TD_DateLeft|TD_Time|TD_TrimTime|TD_IntegralSecs);
+
+  if (strcmp(CnvStr, "Tm0Dt" )==0)   return Format(TD_DateRight|TD_Time);
+  if (strcmp(CnvStr, "Tm0.Dt")==0)   return Format(TD_DateRight|TD_Time|TD_IntegralSecs);
+  if (strcmp(CnvStr, "TmDt"  )==0)   return Format(TD_DateRight|TD_Time|TD_TrimTime);
+  if (strcmp(CnvStr, "Tm.Dt" )==0)   return Format(TD_DateRight|TD_Time|TD_TrimTime|TD_IntegralSecs);
+
+  return "TmFmt?";
+  }
+
+//---------------------------------------------------------------------------
+
+LPCTSTR CTimeValue::Format(DWORD Options) const
+  {
+  static CString s_Buffers[100];
+  static int s_iPtr=-1;
+  static CCriticalSection s_Lock;
+  
+  s_Lock.Lock();
+  s_iPtr=(s_iPtr+1)%100;
+  CString &S=s_Buffers[s_iPtr];
+  s_Lock.Unlock();
+
+  CString Dt,Tm;
+
+  if (!ValidTime(m_mSecs))
+    {
+    S="*";
+    goto Return;
+    }
+
+  if (Options & TD_Seconds)
+    {
+    __int64 lSecs = SecondsI64;                       
+    __int64 msecs = m_mSecs % Divisor;
+    S.Format("%I64i.%03I64i", lSecs, msecs);
+    goto Return;
+    }
+
+  S="?";
+  __time64_t tt=(__time64_t)SecondsI64;
+  tm* DateTime=_gmtime64(&tt);
+  if (DateTime)
+    {
+
+    int mday=DateTime->tm_mday;
+    int mon=DateTime->tm_mon+1;
+    int year=DateTime->tm_year+1900;
+    
+    __int64 lSecs = SecondsI64;                       
+    __int64 days = SecondsI64/86400;
+    __int64 hour = lSecs/3600;
+    __int64 min  = (lSecs/60)%60;
+    __int64 secs = lSecs % 60;
+    __int64 msecs = m_mSecs % Divisor;
+
+    ASSERT_ALWAYS(Options & (TD_Time|TD_DateLeft|TD_DateRight), "CTimeValue::Format - No Options");
+
+    if (Options & (TD_DateLeft|TD_DateRight))
+      {
+      hour = hour%24;
+      Dt.Format("%02i/%02i/%04i", mday, mon, year);
+      }
+    else
+      Dt="Date";
+
+    if (Options & TD_Days)
+      Options &= ~TD_TrimTime;
+
+    if (Options & (TD_Days|TD_DaysJoined))
+      {
+      hour = hour%24;
+      if (Options & TD_DaysJoined)
+        {
+        if (Options & TD_IntegralSecs)
+          Tm.Format("%I64i:%02I64i:%02I64i:%02I64i", days, hour, min, secs);
+        else
+          Tm.Format("%I64i:%02I64i:%02I64i:%02I64i.%03I64i", days, hour, min, secs, msecs);
+        }
+      else
+        {
+        if (Options & TD_IntegralSecs)
+          Tm.Format("%I64i days %02I64i:%02I64i:%02I64i", days, hour, min, secs);
+        else
+          Tm.Format("%I64i days %02I64i:%02I64i:%02I64i.%03I64i", days, hour, min, secs, msecs);
+        }
+      }
+    else
+      {
+      if (Options & TD_IntegralSecs)
+        Tm.Format("%02I64i:%02I64i:%02I64i", hour, min, secs);
+      else
+        Tm.Format("%02I64i:%02I64i:%02I64i.%03I64i", hour, min, secs, msecs);
+      }
+
+    if ((Options & TD_DateLeft) && (Options & TD_Time))
+      S.Format("%s %s", Dt, Tm);
+    else if ((Options & TD_DateRight) && (Options & TD_Time))
+      S.Format("%s %s", Tm, Dt);
+    else if (Options & TD_Time)
+      {
+      if (Options & TD_TrimTime)
+        {
+        int iColon=Tm.Find(':');
+        while (iColon>0)
+          {
+          while (Tm[0]=='0')
+            Tm.Delete(0, 1);
+          if (Tm[0]==':')
+            Tm.Delete(0, 1);
+          else
+            goto Done;
+          iColon=Tm.Find(':');
+          }
+Done:
+        while (Tm.Left(2)=="00")
+          Tm.Delete(0,1);
+        }
+      S=Tm;
+      }
+    }
+
+Return:
+  //dbgpln("CTimeValue::Format %08x %15I64i.%03I64i > %s", Options, m_mSecs/1000, m_mSecs%1000, S);
+
+  return S;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CTimeValue::Parse(/*byte Options,*/ LPCTSTR Str)
+  {
+  if (strchr(Str, '*'))
+    {
+    *this=TimeNAN;
+    return true;
+    }
+
+  //tm t;
+  //memset(&t, 0, sizeof(t));
+  int year=-1;
+  int mon=-1;
+  int mday=-1;
+  int days=0;
+  int hours=0;
+  int mins=0;
+  int secs=0;
+  //long tm_hsec=0;
+  double FracSecs=0;
+  char b[256], *p=b;
+  strcpy(b, Str);
+  int e=strlen(b)-1;
+  if (e>=0 && (b[e]==':' || b[e]=='.'))
+    strcat(b, "0");
+  else if (e>=0 && (b[e]=='/'))
+    strcat(b, "96");
+  strcat(b, " ");
+  int BusyTime=1, TOK=0, DOK=0;//, done=0;
+  flag fTime=1, fDate=0;
+  while (1)//!done)
+    {
+    pchar d=strpbrk(p, " :/.");
+    int   l=d-p;
+
+    if (d && isdigit(*p))
+      {
+      if (*d=='/')
+        {
+        fTime=0;
+        fDate=1;
+        }
+      else if (*d==':')
+        {
+        fTime=1;
+        fDate=0;
+        }
+
+      if (fTime)
+        {
+        BusyTime=1;
+        days=hours;
+        hours=mins;
+        mins=secs;
+        secs=atol(p);
+        if (*d=='.')
+          {
+          p=d+1;
+          FracSecs=0.0;
+          int Div=10;
+          for (int n=0; isdigit(*(p+n)); n++) 
+            {
+            FracSecs+=(*(p+n)-char('0'))/Div;
+            Div*=10;
+            };
+          p+=n;
+          fTime=0;
+          }
+        else
+          {
+          FracSecs=0;
+          p=d+1;
+          }
+        TOK=1;
+        }
+      else
+        {
+        BusyTime=0;
+        year=mon;
+        mon=mday;
+        mday=atol(p);
+        DOK=1;
+        p=d+1;
+        }
+      }
+    else if (*p==' ')
+      {
+      p++;
+      }
+    else
+      break;
+    }
+  if (!DOK)
+    m_mSecs = (days*__int64(86400)+hours*__int64(3600)+mins*__int64(60)+secs)*Divisor+__int64(FracSecs*Divisor);//+tm_hsec/100.0;
+  else
+    {
+    if (mday>=1900) // swap day & year
+      Exchange(mday,year);
+    tm DateTime;
+    memset(&DateTime, 0, sizeof(DateTime));
+    DateTime.tm_year=year-1900;
+    DateTime.tm_mon=mon-1;
+    DateTime.tm_mday=mday;
+    DateTime.tm_hour=hours;
+    DateTime.tm_min=mins;
+    DateTime.tm_sec=secs;
+    m_mSecs = _mkgmtime64(&DateTime)*Divisor+__int64(FracSecs*Divisor);
+
+    //if (0)
+    //  {
+    //  time_t ttt= (time_t)m_mSecs /Divisor;
+    //  tm DateTime1,DateTime2;
+    //  memcpy(&DateTime1, gmtime(&ttt), sizeof(DateTime1));
+    //  memcpy(&DateTime2, localtime(&ttt), sizeof(DateTime2));
+    //  
+    //  time_t ttt1=_mktime64(&DateTime1);
+    //  time_t ttt2=_mkgmtime64(&DateTime1);
+    //  int xxx=0;
+    //  }
+
+    }
+
+  //dbgpln("CTimeValue::Parse       %15I64i.%03I64i < %s", m_mSecs/1000, m_mSecs%1000, Str);
+
+  return TOK||DOK;
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================

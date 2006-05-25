@@ -144,14 +144,14 @@ void ProfConInfo::ExecIns(double ICTime)
   if (Prof.Loaded())
     {
     Prof.GetVal(ICTime, 0);
-    //dbgpln("            Time = %10.2f ", Prof.TimePassed());
+    dbgpln("            Time = %10.2f Passed : %10.2f ", ICTime, Prof.TimePassed());
     for (int j=0; j<iColCnt; j++)
       {
       ProfColInfo &C=*ColData[j];
       C.m_dOutput = Prof.GetVal(ICTime, j+1);
       if (Valid(C.m_dOutput))
         C.m_dOutput=C.m_dOffset+C.m_dOutput*C.m_dGain;
-      //dbgpln("            %i) %10.2f %s", j, ColData[j]->m_dOutput, ColData[j]->m_OutputVar.sVar());
+      dbgpln("            %i) %10.2f %s", j, ColData[j]->m_dOutput, ColData[j]->m_OutputVar.sVar());
       }
     }
   }
@@ -563,7 +563,7 @@ flag CProfileCon::DataXchg(DataChangeBlk & DCB)
                 for (byte j=0; j<p->Prof.ColCnt(); j++)
                   p->Prof.pInfo[j].dStartTime = (*DCB.rD);
                 }
-              DCB.D = p->Prof.ColCnt() ? p->Prof.StartTime(0) : 0.0;
+              DCB.D = p->Prof.ColCnt() ? p->Prof.StartTime(0).Seconds : 0.0;
               break;
             case 16:
               if (DCB.rD)
@@ -573,7 +573,7 @@ flag CProfileCon::DataXchg(DataChangeBlk & DCB)
                 for (byte j=0; j<p->Prof.ColCnt(); j++)
                   p->Prof.pInfo[j].dLastTime = (*DCB.rD);
                 }
-              DCB.D = p->Prof.ColCnt() ? p->Prof.LastTime(0) : 0.0;
+              DCB.D = p->Prof.ColCnt() ? p->Prof.LastTime(0).Seconds : 0.0;
               break;
             case 17: //NBNB: order is important, this must be last
               if (DCB.rL)
@@ -594,7 +594,7 @@ flag CProfileCon::DataXchg(DataChangeBlk & DCB)
             case 18:
               //if (DCB.rD)
               //  ???
-              DCB.D = p->Prof.ColCnt() ? p->Prof.TimePassed(0) : 0.0;
+              DCB.D = p->Prof.ColCnt() ? p->Prof.TimePassed(0).Seconds : 0.0;
               break;
             default:
               if (SubIndex>=FirstColIndex)
@@ -693,7 +693,19 @@ void CProfileCon::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void CProfileCon::EvalCtrlStrategy()
+void CProfileCon::EvalCtrlInitialise(eScdCtrlTasks Tasks)
+  {
+  if (Tasks&CO_InitPrf)
+    {
+    for (int i=0; i<iCount; i++)
+      //DataBlk[i]->DoLoad();
+      DataBlk[i]->Prof.StartAll(ICGetTime());
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void CProfileCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

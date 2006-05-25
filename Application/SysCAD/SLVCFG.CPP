@@ -160,11 +160,12 @@ class CRunCfgPage : public CCustomPropertyPage
     //}}AFX_DATA
 
     void FixTimes(byte FixWhat=0xFF);
-    RunTerms  iRunTerm;
-    double    dTimeUntilStop;
-    double    m_CurrentTimeAtInit;
-    bool      m_CurrentTimeChgd;
-    BOOL      m_PrevSyncWithClock;
+    eScnTypes   m_iRunTerm;
+    CTimeValue      m_ScnStopTime;
+    CTimeValue      m_ScnDuration;
+    CTimeValue      m_CurrentTimeAtInit;
+    bool            m_CurrentTimeChgd;
+    BOOL            m_PrevSyncWithClock;
 
     //{{AFX_VIRTUAL(CRunCfgPage)
     protected:
@@ -948,7 +949,7 @@ CSolveOptnPage::CSolveOptnPage() : CCustomPropertyPage(CSolveOptnPage::IDD)
 	m_Initialise=0;
 	m_StatePinned=gs_pPrj->Solver.fStatePinned;
 	m_IdleWhenDone=PBEqnCB().Cfg.fIdleWhenDone;
-	m_ResetHist = gs_Exec.HstRestartOnStart();
+	m_ResetHist = gs_Exec.RestartHstOnStart;
 	//}}AFX_DATA_INIT
   }
 
@@ -1009,7 +1010,7 @@ void CSolveOptnPage::OnOK()
     if (ScrollTrendsToEnd)
       CTagVwDoc::AdjustTimebaseToEndAll();
 
-  	gs_Exec.SetHstRestartOnStart(m_ResetHist!=0);
+    gs_Exec.RestartHstOnStart=(m_ResetHist!=0);// ? eOOO_On:eOOO_Off);
     //gs_pPrj->Solver.fStateWnd=m_StateWnd;
     gs_pPrj->Solver.fStatePinned=m_StatePinned;
     PBEqnCB().Cfg.fIdleWhenDone=m_IdleWhenDone;
@@ -1045,21 +1046,21 @@ IMPLEMENT_DYNCREATE(CRunCfgPage, CCustomPropertyPage)
 
 CRunCfgPage::CRunCfgPage() : CCustomPropertyPage(CRunCfgPage::IDD)
   {
-  iRunTerm=gs_Exec.RunTermination();
-  dTimeUntilStop=gs_Exec.TimeUntilStop();
-  m_CurrentTimeAtInit = gs_Exec.Time();
+  m_iRunTerm=gs_Exec.ScnType;
+  m_ScnStopTime=gs_Exec.ScnStopTime;
+  m_ScnDuration=gs_Exec.ScnDuration;
+  m_CurrentTimeAtInit = gs_Exec.TheTime;
   m_PrevSyncWithClock = gs_Exec.SyncWithClock();
   m_CurrentTimeChgd=false;
-  char buff[256];
-  SecstoHMSDate(gs_Exec.Time(), buff, true);
+  LPCTSTR Tm=gs_Exec.TheTime.Format(TD_TimeDate);
   //{{AFX_DATA_INIT(CRunCfgPage)
   m_ForTime = _T("");
   m_UntilTime = _T("");
-  m_ForIters = gs_Exec.MaxRunSteps();
+  m_ForIters = gs_Exec.StepCountMax;
   m_SyncWithClock = gs_Exec.SyncWithClock();
 	m_RealTime = (gs_Exec.RealTime()!=0);
 	m_RealTimeMult = gs_Exec.RealTimeMult();
-	m_CurrentTimeHMS = buff;
+	m_CurrentTimeHMS = Tm;
 	//}}AFX_DATA_INIT
 
   FixTimes(FixFor|FixUntil);
@@ -1086,15 +1087,14 @@ BOOL CRunCfgPage::OnInitDialog()
   GetDlgItem(IDC_REALTIMEMULT)->EnableWindow(!m_SyncWithClock && m_RealTime);
   GetDlgItem(IDC_CURRENTTIME)->EnableWindow(!m_SyncWithClock);
 
-  char buff[256];
-  SecstoHMSDate(gs_Exec.Time(), buff, false);
-  SetDlgItemText(IDC_DATETIME_TXT, buff);
+  LPCTSTR Tm=gs_Exec.TheTime.Format(TD_TimeDate);
+  SetDlgItemText(IDC_DATETIME_TXT, Tm);
 
-  switch (iRunTerm)
+  switch (m_iRunTerm)
     {
-    case RTRM_For:         GetDlgItem(IDC_FORTIME)->SetFocus();    return TRUE;
-    case RTRM_Until:       GetDlgItem(IDC_UNTILTIME)->SetFocus();  return TRUE;
-    case RTRM_ForIters:    GetDlgItem(IDC_FORITERS)->SetFocus();   return TRUE;
+    case ScnTyp_Duration:         GetDlgItem(IDC_FORTIME)->SetFocus();    return TRUE;
+    case ScnTyp_StopTime:       GetDlgItem(IDC_UNTILTIME)->SetFocus();  return TRUE;
+    case ScnTyp_Steps:    GetDlgItem(IDC_FORITERS)->SetFocus();   return TRUE;
     default: return TRUE;
     }
   return TRUE;
@@ -1118,15 +1118,15 @@ void CRunCfgPage::DoDataExchange(CDataExchange* pDX)
   
   if (!pDX->m_bSaveAndValidate)
     {
-    ((CButton*)GetDlgItem(IDC_RUNFOREVER))->SetCheck(iRunTerm==RTRM_None);
-    ((CButton*)GetDlgItem(IDC_RUNSTEADY))->SetCheck(iRunTerm==RTRM_SteadyState);
-    ((CButton*)GetDlgItem(IDC_RUNFOR))->SetCheck(iRunTerm==RTRM_For);
-    ((CButton*)GetDlgItem(IDC_RUNUNTIL))->SetCheck(iRunTerm==RTRM_Until);
-    ((CButton*)GetDlgItem(IDC_RUNFORITERS))->SetCheck(iRunTerm==RTRM_ForIters);
+    ((CButton*)GetDlgItem(IDC_RUNFOREVER))->SetCheck(m_iRunTerm==ScnTyp_Manual);
+    ((CButton*)GetDlgItem(IDC_RUNSTEADY))->SetCheck(m_iRunTerm==RTT_SteadyState);
+    ((CButton*)GetDlgItem(IDC_RUNFOR))->SetCheck(m_iRunTerm==ScnTyp_Duration);
+    ((CButton*)GetDlgItem(IDC_RUNUNTIL))->SetCheck(m_iRunTerm==ScnTyp_StopTime);
+    ((CButton*)GetDlgItem(IDC_RUNFORITERS))->SetCheck(m_iRunTerm==ScnTyp_Steps);
 
-    ((CEdit*)GetDlgItem(IDC_FORTIME))->EnableWindow(iRunTerm==RTRM_For);
-    ((CEdit*)GetDlgItem(IDC_UNTILTIME))->EnableWindow(iRunTerm==RTRM_Until);
-    ((CEdit*)GetDlgItem(IDC_FORITERS))->EnableWindow(iRunTerm==RTRM_ForIters);
+    ((CEdit*)GetDlgItem(IDC_FORTIME))->EnableWindow(m_iRunTerm==ScnTyp_Duration);
+    ((CEdit*)GetDlgItem(IDC_UNTILTIME))->EnableWindow(m_iRunTerm==ScnTyp_StopTime);
+    ((CEdit*)GetDlgItem(IDC_FORITERS))->EnableWindow(m_iRunTerm==ScnTyp_Steps);
     }
   }
 
@@ -1162,9 +1162,10 @@ void CRunCfgPage::OnOK()
   {
   if (Inited())
     {
-    gs_Exec.SetRunTermination(iRunTerm);
-    gs_Exec.SetTimeUntilStop(dTimeUntilStop);
-    gs_Exec.SetMaxRunSteps(m_ForIters);
+    gs_Exec.SetScnType(m_iRunTerm, false);
+    gs_Exec.ScnStopTime=m_ScnStopTime;
+    gs_Exec.ScnDuration=m_ScnDuration;
+    gs_Exec.StepCountMax=m_ForIters;
     gs_Exec.SetSyncWithClock(m_SyncWithClock);
     if (m_SyncWithClock)
       {
@@ -1174,14 +1175,14 @@ void CRunCfgPage::OnOK()
     gs_Exec.SetRealTime(m_RealTime);
     gs_Exec.SetRealTimeMult(Range(0.0001, m_RealTimeMult, 100000.0));
 
-    double RqdTime;
+    CTimeValue RqdTime;
     bool RestartHistorian = false;
     bool SetTime = false;
     bool ScrollTrendsToEnd = false;
 
     if (!m_SyncWithClock)
       {
-      flag OK1 = HMSDatetoSecs(m_CurrentTimeHMS.GetBuffer(0), RqdTime);
+      flag OK1 = RqdTime.Parse(m_CurrentTimeHMS);
       if (RqdTime<m_CurrentTimeAtInit && RqdTime>=m_CurrentTimeAtInit-0.002) // rounding errors in (2 msecs)
         RqdTime=m_CurrentTimeAtInit;
       if (OK1)
@@ -1224,7 +1225,7 @@ void CRunCfgPage::OnOK()
       }
     if (SetTime)
       {
-      gs_Exec.SetTime(RqdTime);
+      gs_Exec.SetTheTime(RqdTime, "CfgPage");
       ScrollTrendsToEnd = true;
       }
     if (ScrollTrendsToEnd)
@@ -1237,28 +1238,27 @@ void CRunCfgPage::OnOK()
 
 void CRunCfgPage::FixTimes(byte FixWhat)
   {
-  switch (iRunTerm)
+  switch (m_iRunTerm)
     {
-    case RTRM_None:
+    case ScnTyp_Manual:
       m_ForTime = _T("");
       m_UntilTime = _T("Stopped");
       break;
-    case RTRM_SteadyState:
+    case RTT_SteadyState:
       m_ForTime = _T("");
       m_UntilTime = _T("Until Steady");
       break;
-    case RTRM_ForIters:
+    case ScnTyp_Steps:
       m_ForTime = _T("For N Steps");//Iterations");
       m_UntilTime = _T("");
       break;
-    case RTRM_For:
-    case RTRM_Until:
+    case ScnTyp_Duration:
+    case ScnTyp_StopTime:
       {
-      char Buff[1024];
       if (FixWhat & FixFor)
-        m_ForTime = SecstoHMSCnv(dTimeUntilStop+0.005, Buff);
+        m_ForTime = m_ScnDuration.Format(TD_Time);
       if (FixWhat & FixUntil)
-        m_UntilTime=SecstoHMSCnv(gs_Exec.Time()+dTimeUntilStop+0.005, Buff);
+        m_UntilTime = m_ScnStopTime.Format(TD_Time);
       break;
       }
     }
@@ -1273,31 +1273,31 @@ void CRunCfgPage::FixTimes(byte FixWhat)
 void CRunCfgPage::OnRunfor()
   {
   UpdateData(TRUE);
-  if (iRunTerm==RTRM_For || iRunTerm==RTRM_Until)
-    if (HMStoSecs(m_ForTime.GetBuffer(0), dTimeUntilStop))
-      dTimeUntilStop=Max(0.01, dTimeUntilStop);
-  iRunTerm=RTRM_For;
+  if (m_iRunTerm==ScnTyp_Duration || m_iRunTerm==ScnTyp_StopTime)
+    if (m_ScnDuration.Parse(m_ForTime))
+      m_ScnDuration=Max(0.0, m_ScnDuration);
+  m_iRunTerm=ScnTyp_Duration;
   FixTimes(FixFor|FixUntil|FixUpdate);
   SetModified(TRUE);
   }
 
 void CRunCfgPage::OnRunforiters() 
   {
-  iRunTerm=RTRM_ForIters;
+  m_iRunTerm=ScnTyp_Steps;
   FixTimes(FixFor|FixUntil|FixUpdate);
   SetModified(TRUE);
   }
 
 void CRunCfgPage::OnRunforever()
   {
-  iRunTerm=RTRM_None;
+  m_iRunTerm=ScnTyp_Manual;
   FixTimes(FixFor|FixUntil|FixUpdate);
   SetModified(TRUE);
   }
 
 void CRunCfgPage::OnRunsteady()
   {
-  iRunTerm=RTRM_SteadyState;
+  m_iRunTerm=RTT_SteadyState;
   FixTimes(FixFor|FixUntil|FixUpdate);
   SetModified(TRUE);
   }
@@ -1305,18 +1305,17 @@ void CRunCfgPage::OnRunsteady()
 void CRunCfgPage::OnRununtil()
   {
   UpdateData(TRUE);
-  double UTime;
-  if (iRunTerm==RTRM_For || iRunTerm==RTRM_Until)
-    if (HMStoSecs(m_UntilTime.GetBuffer(0), UTime))
-      dTimeUntilStop=Max(0.01, UTime-gs_Exec.Time());
-  iRunTerm=RTRM_Until;
+  if (m_iRunTerm==ScnTyp_Duration || m_iRunTerm==ScnTyp_StopTime)
+    if (m_ScnStopTime.Parse(m_UntilTime))
+      m_ScnStopTime=Max(0.0, m_ScnStopTime);
+  m_iRunTerm=ScnTyp_StopTime;
   FixTimes(FixFor|FixUntil|FixUpdate);
   SetModified(TRUE);
   }
 
 void CRunCfgPage::OnSetfocusFortime() 
   {
-  iRunTerm=RTRM_For;
+  m_iRunTerm=ScnTyp_Duration;
   FixTimes(FixFor|FixUntil);//|FixUpdate);
 //  if (Inited())
 //    FixTimes(FixUpdate);
@@ -1325,7 +1324,7 @@ void CRunCfgPage::OnSetfocusFortime()
 
 void CRunCfgPage::OnSetfocusUntiltime() 
   {
-  iRunTerm=RTRM_Until;
+  m_iRunTerm=ScnTyp_StopTime;
   FixTimes(FixFor|FixUntil);//|FixUpdate);
 //  if (Inited())
 //    FixTimes(FixUpdate);
@@ -1334,7 +1333,7 @@ void CRunCfgPage::OnSetfocusUntiltime()
 
 void CRunCfgPage::OnSetfocusForiters() 
   {
-  iRunTerm=RTRM_ForIters;
+  m_iRunTerm=ScnTyp_Steps;
   FixTimes(FixFor|FixUntil);//|FixUpdate);
 //  if (Inited())
 //    FixTimes(FixUpdate);
@@ -1349,26 +1348,25 @@ void CRunCfgPage::OnKillfocusForiters()
 void CRunCfgPage::OnKillfocusFortime()
   {
   UpdateData(TRUE);
-  if (HMStoSecs(m_ForTime.GetBuffer(0), dTimeUntilStop))
-    dTimeUntilStop=Max(0.01, dTimeUntilStop);
+  if (m_ScnDuration.Parse(m_ForTime))
+    m_ScnDuration=Max(0.0, m_ScnDuration);
   FixTimes(FixFor|FixUntil|FixUpdate);
   }
 
 void CRunCfgPage::OnKillfocusUntiltime()
   {
   UpdateData(TRUE);
-  double UTime;
-  if (HMStoSecs(m_UntilTime.GetBuffer(0), UTime))
-    dTimeUntilStop=Max(0.01, UTime-gs_Exec.Time());
+  if (m_ScnStopTime.Parse(m_UntilTime))
+    m_ScnStopTime=Max(0.0, m_ScnStopTime);
   FixTimes(FixFor|FixUntil|FixUpdate);
   }
 
 void CRunCfgPage::OnChangeFortime()
   {
   UpdateData(TRUE);
-  iRunTerm=RTRM_For;
-  if (HMStoSecs(m_ForTime.GetBuffer(0), dTimeUntilStop))
-    dTimeUntilStop=Max(0.01, dTimeUntilStop);
+  m_iRunTerm=ScnTyp_Duration;
+  if (m_ScnDuration.Parse(m_ForTime))
+    m_ScnDuration=Max(0.0, m_ScnDuration);
   FixTimes(FixUntil|FixUpdate);
   SetModified(TRUE);
   }
@@ -1376,10 +1374,9 @@ void CRunCfgPage::OnChangeFortime()
 void CRunCfgPage::OnChangeUntiltime()
   {
   UpdateData(TRUE);
-  iRunTerm=RTRM_Until;
-  double UTime;
-  if (HMStoSecs(m_UntilTime.GetBuffer(0), UTime))
-    dTimeUntilStop=Max(0.01, UTime-gs_Exec.Time());
+  m_iRunTerm=ScnTyp_StopTime;
+  if (m_ScnStopTime.Parse(m_UntilTime))
+    m_ScnStopTime=Max(0.0, m_ScnStopTime);
   FixTimes(FixFor|FixUpdate);
   SetModified(TRUE);
   }
@@ -1419,16 +1416,16 @@ void CRunCfgPage::OnChangeRealtimeMult()
 void CRunCfgPage::OnKillfocusCurrenttime() 
   {
   UpdateData(TRUE);
-  char buff[256];
-  double t;
-  if (HMSDatetoSecs(m_CurrentTimeHMS.GetBuffer(0), t))
+  //char buff[256];
+  CTimeValue t;
+  if (t.Parse(m_CurrentTimeHMS))
     {
     if (t>=0.0)
       {
-      SecstoHMSDate(t, buff, true/*m_SyncWithClock*/);
-      m_CurrentTimeHMS = buff;
-      SecstoHMSDate(t, buff, false);
-      SetDlgItemText(IDC_DATETIME_TXT, buff);
+      LPCTSTR Tm=t.Format(TD_TimeDate);
+      m_CurrentTimeHMS = Tm;
+      Tm=t.Format(TD_Time);
+      SetDlgItemText(IDC_DATETIME_TXT, Tm);
       UpdateData(FALSE);
       }
     }
@@ -1465,7 +1462,7 @@ CRunMethodPage::CRunMethodPage() : CCustomPropertyPage(CRunMethodPage::IDD)
   m_Step_Cur = FE()->FE_ODE_GetTimeInc();
   m_Step_Max = FE()->FE_ODE_GetTimeIncMxRqd();
   m_Step_Min = FE()->FE_ODE_GetTimeIncMnRqd();
-  m_MaxStepTime = gs_Exec.StepSizeMax();
+  m_MaxStepTime = gs_Exec.StepSizeMax.Seconds;
   m_StepCount = long(m_MaxStepTime/m_Step_Cur);
   //}}AFX_DATA_INIT
   m_iMethod=FE()->FE_ODE_Method();
@@ -1580,7 +1577,7 @@ void CRunMethodPage::OnOK()
     if (m_iStep!=CB_ERR)
       FE()->FE_ODE_SetStepSizeControl(m_iStep);
 
-    gs_Exec.SetStepSizeMax(Range(0.00001, m_MaxStepTime, MaxIterStep));
+    gs_Exec.StepSizeMax=Range(0.00001, m_MaxStepTime, MaxIterStep);
     }
 
   CCustomPropertyPage::OnOK();
@@ -1972,13 +1969,12 @@ CRunOptionPage::CRunOptionPage() : CCustomPropertyPage(CRunOptionPage::IDD)
 , m_bResetStats(gs_pPrj->m_bRunOptResetStats)
 , m_bOptnsOnce(gs_pPrj->m_bRunOptOnceOnly)
   {
-  char buff[256];
-  SecstoHMSDate(gs_Exec.OnStartTime(), buff, true);
+  LPCTSTR Tm=gs_Exec.TimeAtStart.Format(TD_TimeDate);
   //{{AFX_DATA_INIT(CRunOptionPage)
   m_MomentumOn = FE()->FE_FlwMomentumOn();
-	m_ResetHist = gs_Exec.HstRestartOnStart();
-	m_ResetTime = gs_Exec.ResetTimeOnStart();
-	m_ResetTimeOnStart = buff;
+	m_ResetHist = gs_Exec.RestartHstOnStart;
+	m_ResetTime = gs_Exec.ResetTimeOnStart;
+	m_ResetTimeOnStart = Tm;
 	//}}AFX_DATA_INIT
   }
 
@@ -2044,16 +2040,16 @@ void CRunOptionPage::OnOK()
 
     FE()->FE_SetFlwMomentumOn(m_MomentumOn);
 
-  	gs_Exec.SetHstRestartOnStart(m_ResetHist!=0);
+    gs_Exec.RestartHstOnStart=(m_ResetHist!=0);// ? eOOO_On:eOOO_Off);
     if (gs_Exec.SyncWithClock() || !m_ResetHist)
       m_ResetTime = false;
-	  gs_Exec.SetResetTimeOnStart(m_ResetTime!=0);
+	  gs_Exec.ResetTimeOnStart=(m_ResetTime!=0);// ? eOOO_On:eOOO_Off);
     if (m_ResetTime)
       {
-      double RqdTime;
-      flag OK = HMSDatetoSecs(m_ResetTimeOnStart.GetBuffer(0), RqdTime);
+      CTimeValue RqdTime;
+      flag OK = RqdTime.Parse(m_ResetTimeOnStart);
       if (OK)
-        gs_Exec.SetOnStartTime(Max(0.0, RqdTime));
+        gs_Exec.TimeAtStart=Max(0.0, RqdTime);
       else
         AfxMessageBox("Invalid time at start");
       }

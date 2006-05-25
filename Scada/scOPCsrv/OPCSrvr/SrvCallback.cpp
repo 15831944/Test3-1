@@ -165,7 +165,8 @@ bool CScdOPCTag::CheckTag()
       {
       SYSTEMTIME ST;
       FILETIME FT;
-      __time64_t t      = (__time64_t)TimeCB().m_Time;
+      //__time64_t t      = (__time64_t)TimeCB().m_Time;
+      __time64_t t      = (__time64_t)TimeCB().m_TheTime.Seconds;
       struct tm *pT     = _localtime64(&t);
       ST.wSecond        = pT->tm_sec;
       ST.wMinute        = pT->tm_min;
@@ -1282,7 +1283,7 @@ void CScdOPCCallBack::SetEnable(bool On)
 // CExecObj Overrides
 //*******************************************************************
 
-flag CScdOPCCallBack::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CScdOPCCallBack::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
 #if dbgOPCSrvr
   dbgpln("CallBack::EO_QueryTime(?,)");
@@ -1290,7 +1291,7 @@ flag CScdOPCCallBack::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, d
   return true;
   };
 
-flag CScdOPCCallBack::EO_Start(const CXM_TimeControl &CB)
+flag CScdOPCCallBack::EO_Start(CXM_TimeControl &CB)
   {
 #if dbgOPCSrvr
   dbgpln("CallBack::EO_Start(?,)");
@@ -1366,7 +1367,8 @@ flag CScdOPCCallBack::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastB
   FILETIME FT;  // Local File Time based on SysCAD time
   FILETIME UTCFT; // File time @ UTC
 
-  __time64_t t=(__time64_t)TimeCB().m_Time;
+  //__time64_t t=(__time64_t)TimeCB().m_Time;
+  __time64_t t      = (__time64_t)TimeCB().m_TheTime.Seconds;
   struct tm *pT=_localtime64(&t);
 
 
@@ -1449,7 +1451,7 @@ flag CScdOPCCallBack::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastB
   return true;
   };
 
-flag CScdOPCCallBack::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CScdOPCCallBack::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
 #if dbgOPCSrvr
   dbgpln("CallBack::EO_Execute(?,)");
@@ -1459,7 +1461,7 @@ flag CScdOPCCallBack::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet
   return false;
   };
 
-flag CScdOPCCallBack::EO_Stop(const CXM_TimeControl &CB)
+flag CScdOPCCallBack::EO_Stop(CXM_TimeControl &CB)
   {
 #if dbgOPCSrvr
   dbgpln("CallBack::EO_Stop(?,)");

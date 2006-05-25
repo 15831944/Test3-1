@@ -290,16 +290,14 @@ flag ScheduleTask::DataXchg(DataChangeBlk & DCB, TaggedObject* pObj)
           sRepEndTime = "*";
         if (_stricmp(sRepEndTime(), "*")!=0)
           {
-          double EndTime;
-          if (!HMSDatetoSecs(sRepEndTime(), EndTime))
+          CTimeValue EndTime;
+          if (!EndTime.Parse(sRepEndTime()))
             {
             EndTimeErr = true;
             }
           else
             {
-            char bb[64];
-            SecstoHMSDate(EndTime, bb);
-            sRepEndTime = bb;
+            sRepEndTime = EndTime.Format(TD_TimeDate);
             if (_stricmp(sRepEndTime(), "?")==0)
               EndTimeErr = true;
             }
@@ -512,21 +510,19 @@ void ScheduleTask::ExecRep()
     OK = false;
     sRepStatus = "No tags specified!";
     }
-  double EndTime;
+  CTimeValue EndTime;
   if (sRepEndTime.Len()==0 || _stricmp(sRepEndTime(), "*")==0)
-    EndTime = gs_Exec.Time();
+    EndTime = gs_Exec.TheTime;
   else
     {
-    if (!HMSDatetoSecs(sRepEndTime(), EndTime))
+    if (!EndTime.Parse(sRepEndTime()))
       {
       OK = false;
       sRepStatus = "Invalid end time!";
       }
     else
       {
-      char bb[64];
-      SecstoHMSDate(EndTime, bb);
-      sRepEndTime = bb;
+      sRepEndTime = EndTime.Format(TD_TimeDate);
       if (_stricmp(sRepEndTime(), "?")==0)
         {
         OK = false;

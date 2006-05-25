@@ -314,10 +314,10 @@ class DllImportExport CTimeStateBlock
     flag           Discrete()                       { return (m_Flags & IC_Discrete)!=0; };
     flag           StepPreStart()                   { return (m_Flags & IC_StepPreStart)!=0; };
 
-    void           SetTime(double Time);
-    void           SetTimeInc(double dTimeRqd);
-    void           SetTimeIncMxRqd(double dTimeRqd);
-    void           SetTimeIncMnRqd(double dTimeRqd);
+    void           SetTime(CTimeValue Time);
+    void           SetTimeInc(CTimeValue dTimeRqd);
+    void           SetTimeIncMxRqd(CTimeValue dTimeRqd);
+    void           SetTimeIncMnRqd(CTimeValue dTimeRqd);
     void           SetDerivEstInc(double DerivEstInc);
     void           SetSettleTime(double SettleTime);
   };
@@ -390,20 +390,20 @@ public:
     void           SetMagEPSAbs(double Eps);
     void           SetMagEPSRel(double Eps);
 
-    double         GetTime()               { return rIC.GetTime(); };
-    void           SetTime(double T)       { rIC.SetTime(T); };
-    double         GetTimeInc()              { return rIC.GetTimeInc(); };
-    void           SetTimeInc(double T)      { rIC.SetTimeInc(T); };
-    double         GetTimeIncMxRqd()         { return rIC.GetTimeIncMxRqd(); };
-    void           SetTimeIncMxRqd(double T) { rIC.SetTimeIncMxRqd(T); };
-    double         GetTimeIncMnRqd()         { return rIC.GetTimeIncMnRqd(); };
-    void           SetTimeIncMnRqd(double T) { rIC.SetTimeIncMnRqd(T); };
-    double         GetTimeStepStart()      { return Time_s; };            // Time at start of step
+    double         GetTime()                      { return rIC.GetTime(); };
+    void           SetTime(CTimeValue T)          { rIC.SetTime(T); };
+    double         GetTimeInc()                   { return rIC.GetTimeInc(); };
+    void           SetTimeInc(CTimeValue T)       { rIC.SetTimeInc(T); };
+    double         GetTimeIncMxRqd()              { return rIC.GetTimeIncMxRqd(); };
+    void           SetTimeIncMxRqd(CTimeValue T)  { rIC.SetTimeIncMxRqd(T); };
+    double         GetTimeIncMnRqd()              { return rIC.GetTimeIncMnRqd(); };
+    void           SetTimeIncMnRqd(CTimeValue T)  { rIC.SetTimeIncMnRqd(T); };
+    double         GetTimeStepStart()             { return Time_s; };            // Time at start of step
 
-    double         GetDerivEstInc(void)    { return rIC.GetDerivEstInc(); };
-    void           SetDerivEstInc(double T) { rIC.SetDerivEstInc(T); };
-    double         GetSettleTime(void)     { return rIC.GetSettleTime(); };
-    void           SetSettleTime(double T) { rIC.SetSettleTime(T); };
+    double         GetDerivEstInc(void)           { return rIC.GetDerivEstInc(); };
+    void           SetDerivEstInc(double T)       { rIC.SetDerivEstInc(T); };
+    double         GetSettleTime(void)            { return rIC.GetSettleTime(); };
+    void           SetSettleTime(double T)        { rIC.SetSettleTime(T); };
 
     void           SetSafetyScale(double S)    { SafetyScale=S;};
     double         GetSafetyScale()            { return SafetyScale; };
@@ -470,28 +470,28 @@ extern DllImportExport CTimeStateBlock * g_pDynIntCB;
 extern DllImportExport CODESolver & ODE();
 extern DllImportExport CTimeStateBlock & IntCB(); 
 
-inline void   ICAdvanceTime(double Advance)    { IntCB().AdvanceTime(Advance); };
-inline double ICGetTime(void)                  { return IntCB().GetTime(); };
-inline double ICGetTimeInc(void)                 { return IntCB().GetTimeInc(); };
-inline double ICGetTimeIncMxRqd(void)            { return IntCB().GetTimeIncMxRqd(); };
-inline double ICGetTimeIncMx(void)               { return IntCB().GetTimeIncMx(); };
-inline double ICGetTimeIncMnRqd(void)            { return IntCB().GetTimeIncMnRqd(); };
-inline double ICGetTimeIncMn(void)               { return IntCB().GetTimeIncMn(); };
-inline double ICGetTimeIncNext(void)            { return IntCB().GetTimeIncNext(); };
-inline double ICGetTimeIncInit(void)            { return IntCB().GetTimeIncInit(); };
-inline word   ICGetFlags(void)                 { return IntCB().GetFlags(); };
-inline double ICGetDerivEstInc(void)           { return IntCB().GetDerivEstInc(); };
-inline double ICGetSettleTime(void)            { return IntCB().GetSettleTime(); };
-inline flag   ICStepStart()                    { return IntCB().StepStart(); };
-inline flag   ICStepReStart()                  { return IntCB().StepReStart(); };
-inline flag   ICDiscrete()                     { return IntCB().Discrete(); };
-inline flag   ICStepPreStart()                 { return IntCB().StepPreStart(); };
-inline void   ICSetTime(double Time)           { IntCB().SetTime(Time); };
-inline void   ICSetTimeInc(double dTimeRqd)      { IntCB().SetTimeInc(dTimeRqd); };
-inline void   ICSetTimeIncMxRqd(double dTimeRqd) { IntCB().SetTimeIncMxRqd(dTimeRqd); };
-inline void   ICSetTimeIncMnRqd(double dTimeRqd) { IntCB().SetTimeIncMnRqd(dTimeRqd); };
-inline void   ICSetDerivEstInc(double DerivEstInc) { IntCB().SetDerivEstInc(DerivEstInc); };
-inline void   ICSetSettleTime(double SettleTime) { IntCB().SetSettleTime(SettleTime); };
+inline void   ICAdvanceTime(double Advance)            { IntCB().AdvanceTime(Advance); };
+inline double ICGetTime(void)                          { return IntCB().GetTime(); };
+inline double ICGetTimeInc(void)                       { return IntCB().GetTimeInc(); };
+inline double ICGetTimeIncMxRqd(void)                  { return IntCB().GetTimeIncMxRqd(); };
+inline double ICGetTimeIncMx(void)                     { return IntCB().GetTimeIncMx(); };
+inline double ICGetTimeIncMnRqd(void)                  { return IntCB().GetTimeIncMnRqd(); };
+inline double ICGetTimeIncMn(void)                     { return IntCB().GetTimeIncMn(); };
+inline double ICGetTimeIncNext(void)                   { return IntCB().GetTimeIncNext(); };
+inline double ICGetTimeIncInit(void)                   { return IntCB().GetTimeIncInit(); };
+inline word   ICGetFlags(void)                         { return IntCB().GetFlags(); };
+inline double ICGetDerivEstInc(void)                   { return IntCB().GetDerivEstInc(); };
+inline double ICGetSettleTime(void)                    { return IntCB().GetSettleTime(); };
+inline flag   ICStepStart()                            { return IntCB().StepStart(); };
+inline flag   ICStepReStart()                          { return IntCB().StepReStart(); };
+inline flag   ICDiscrete()                             { return IntCB().Discrete(); };
+inline flag   ICStepPreStart()                         { return IntCB().StepPreStart(); };
+inline void   ICSetTime(CTimeValue Time)               { IntCB().SetTime(Time); };
+inline void   ICSetTimeInc(CTimeValue dTimeRqd)        { IntCB().SetTimeInc(dTimeRqd); };
+inline void   ICSetTimeIncMxRqd(CTimeValue dTimeRqd)   { IntCB().SetTimeIncMxRqd(dTimeRqd); };
+inline void   ICSetTimeIncMnRqd(CTimeValue dTimeRqd)   { IntCB().SetTimeIncMnRqd(dTimeRqd); };
+inline void   ICSetDerivEstInc(double DerivEstInc)     { IntCB().SetDerivEstInc(DerivEstInc); };
+inline void   ICSetSettleTime(double SettleTime)       { IntCB().SetSettleTime(SettleTime); };
 
 // ===========================================================================
 

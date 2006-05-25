@@ -808,7 +808,7 @@ void CActuator::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void CActuator::EvalCtrlStrategy()
+void CActuator::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

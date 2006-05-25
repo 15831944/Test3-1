@@ -335,7 +335,7 @@ class DllImportExport CMultiStorage : public MdlNode
     virtual void   ODEOperate(CODEDataBlock & ODB);
 
     virtual void   EvalPowerRequired();
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
 
     virtual void   EvalDiscrete();
 

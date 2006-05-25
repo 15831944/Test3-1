@@ -1120,21 +1120,25 @@ class DllImportExport CSfeSrvrBase
 
     virtual void         EO_SetSolveMode(long RunMds, long RunMdsMsk) { };
     virtual flag         EO_Starting(flag fBeginStarting) { return 0; };
-    virtual flag         EO_SetTime(double TimeRqd, bool Rewind) { return true;};
-    virtual flag         EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) { return 0; };
-    virtual flag         EO_Start(const CXM_TimeControl &CB) { return 0; };
-    virtual void         EO_QuerySubsReqd(CXMsgLst &XM) { };
-    virtual void         EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet) { };
-    virtual flag         EO_ReadSubsData(CXMsgLst &XM) { return 0; };
+    virtual flag         EO_SetTime(CTimeValue TimeRqd, bool Rewind) { return true;};
+    virtual flag         EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) { return 0; };
+    virtual flag         EO_GotoRunStart(CXM_TimeControl &CB)                        { return 0; }
+    virtual flag         EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)        { return 0; }
+    virtual flag         EO_PreStart(CXM_TimeControl &CB)                             { return 1; }
+    virtual flag         EO_Start(CXM_TimeControl &CB)                                { return 0; };
+    virtual void         EO_QuerySubsReqd(CXMsgLst &XM)                               { };
+    virtual void         EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)             { };
+    virtual flag         EO_ReadSubsData(CXMsgLst &XM)                                { return 0; };
     virtual flag         EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock) { return 0; };
     virtual DWORD        EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route) { return 0; };
     virtual int          EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route) { return 0; };
-    virtual flag         EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) { return 0; };
+    virtual flag         EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) { return 0; };
     virtual flag         EO_StepDone() { return 0; };
-    virtual flag         EO_Stop(const CXM_TimeControl &CB) { return 0; };
+    virtual flag         EO_QueryStop(CXM_TimeControl &CB, bool Starting) { return 0; };
+    virtual flag         EO_Stop(CXM_TimeControl &CB) { return 0; };
     virtual flag         EO_Stopping(flag BeginStopping) { return 0; };
-    virtual flag         EO_BeginPause(const CXM_TimeControl &CB) { return 0; };
-    virtual flag         EO_EndPause(const CXM_TimeControl &CB) { return 0; };
+    virtual flag         EO_BeginPause(CXM_TimeControl &CB) { return 0; };
+    virtual flag         EO_EndPause(CXM_TimeControl &CB) { return 0; };
     virtual flag         EO_BeginSave(FilingControlBlock &FCB) { return 0; };
     virtual flag         EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM) { return 0; };
     virtual flag         EO_SaveOtherData(FilingControlBlock &FCB) { return 0; };

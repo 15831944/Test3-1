@@ -48,6 +48,7 @@ int  LogWarning(char * Where, UINT BoxFlags, char * fmt, ...);
 
 char* SecstoHMS(double t, char* buff, flag TruncDate=false);
 char* SecstoHMSDate(double time_in, char* buff, flag WithDate=true);
+char* SecstoHMSDate(CTimeValue time_in, char* buff, flag WithDate=true);
 
 // -------------------------------------------------------------------------
 // -------------------------------------------------------------------------

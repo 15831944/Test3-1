@@ -252,10 +252,10 @@ class FlwSlvPB : public FlwSlvBlk, public CTNode
 
     void           EvalAllDiscrete();
     void           EvalAllBalance();
-    void           EvalAllCtrlInitialise();
-    void           EvalAllCtrlStrategy();
-    void           EvalAllCtrlActions();
-    void           EvalAllCtrlTerminate();
+    void           EvalAllCtrlInitialise(eScdCtrlTasks Tasks);
+    void           EvalAllCtrlStrategy(eScdCtrlTasks Tasks);
+    void           EvalAllCtrlActions(eScdCtrlTasks Tasks);
+    void           EvalAllCtrlTerminate(eScdCtrlTasks Tasks);
     //bool           EvalAllElectrics(long What);
 //    virtual void   EvalAllPowerAvailable();
 //    virtual void   EvalAllPowerRequired();
@@ -283,30 +283,9 @@ class FlwSlvPB : public FlwSlvBlk, public CTNode
 //
 // ==========================================================================
 
-class CDynRunStats
-  {
-  public:
-    double         dSimTime;
-    double         dStopSimTime;
-    double         dRunTime;
-    double         dProgress;
-    double         dSolveTm;
-    double         dEstSolveTmRem;
-    double         dEstSolveTmTtl;
-    long           iIterCnt;
-    flag           bPreventStart;
-    flag           bStopRqd;
-
-    CDynRunStats();
-    void BuildDataDefn(DataDefnBlk & DDB, TaggedObject* pObj);
-    flag DataXchg(DataChangeBlk & DCB, TaggedObject* pObj);
-    void ResetStats();
-    void ExecIns(double dT);
-  };
-
+// Control Evaluation
 const byte ECA_Start=0;
 const byte ECA_End=1;
-
 
 _FWDDEF(FlwSlvBlk)
 class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
@@ -341,21 +320,23 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     
     virtual void   EvalAllDiscrete();
     virtual void   EvalAllBalance();
-    virtual void   EvalAllCtrlInitialise();
-    virtual void   EvalAllCtrlActions();
-    virtual void   EvalAllCtrlStrategy();
-    virtual void   EvalAllStatistics();
-    void           EvalAllCtrlTerminate();
+    virtual void   EvalAllCtrlInitialise(eScdCtrlTasks Tasks);
+    virtual void   EvalAllCtrlActions(eScdCtrlTasks Tasks);
+    virtual void   EvalAllCtrlStrategy(eScdCtrlTasks Tasks);
+    void           EvalAllCtrlTerminate(eScdCtrlTasks Tasks);
+    virtual void   EvalAllStatistics(eScdCtrlTasks Tasks);
     //bool           EvalAllElectrics(long What);
     //virtual void   EvalAllPowerAvailable();
     //virtual void   EvalAllPowerRequired();
 
-    flag           QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    flag           Start(const CXM_TimeControl &CB, CFlwNodeList &AllNdsIn);
+    flag           QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    flag           Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn);
     flag           ReStart();
 
-    flag           Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    flag           Stop(const CXM_TimeControl &CB);
+    flag           Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    void           CheckStopConditions(CXM_TimeControl &CB);
+    flag           CheckStopRequired(CXM_TimeControl &CB, bool Starting, bool ShowMsgs);
+    flag           Stop(CXM_TimeControl &CB);
     flag           PartialStop();
     //flag           FlowsSteady() {return ;};
 
@@ -378,11 +359,12 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     void           FITEvalStatistics(CFlwNodeList & List);
     void           FITEvalBalance(CLkNodeEvalIter & Iter);
 
-    CFullNetBlk      FlwNets;
+    CFullNetBlk     FlwNets;
     word            NNetNds;
     word            NNets;
 
-    double          StopTime;
+    //double          StopTime;
+    //bool            m_StopRequired;
 
     eScdSSTests     m_SSTest;
     long            m_SSStopCount;
@@ -399,8 +381,6 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     CTimeStateBlock IntCB;
     CODESolver      m_ODE;
     byte            m_EvalCtrlAt;
-
-    CDynRunStats    DynStats;
 
     dword           dwIterNo;
 
@@ -522,20 +502,20 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     void           FE_SetFlwMomentumOn(byte On);
 
 
-    byte           FE_ODE_Method()                 { return ODE().Method(); };
-    byte           FE_ODE_StepSizeControl()        { return ODE().StepSizeControl(); };
-    void           FE_ODE_SetMethod(byte Method_)  { ODE().SetMethod(Method_); };
+    byte           FE_ODE_Method()                      { return ODE().Method(); };
+    byte           FE_ODE_StepSizeControl()             { return ODE().StepSizeControl(); };
+    void           FE_ODE_SetMethod(byte Method_)       { ODE().SetMethod(Method_); };
     void           FE_ODE_SetStepSizeControl(byte StepSizeControl_) { ODE().SetStepSizeControl(StepSizeControl_); };
-    double         FE_ODE_GetMagEPSAbs()           { return ODE().GetMagEPSAbs(); };
-    double         FE_ODE_GetMagEPSRel()           { return ODE().GetMagEPSRel(); };
-    void           FE_ODE_SetMagEPSAbs(double Eps) { ODE().SetMagEPSAbs(Eps); };
-    void           FE_ODE_SetMagEPSRel(double Eps) { ODE().SetMagEPSRel(Eps); };
-    double         FE_ODE_GetTimeInc()               { return ODE().GetTimeInc(); };
-    void           FE_ODE_SetTimeInc(double T)       { ODE().SetTimeInc(T); };
-    double         FE_ODE_GetTimeIncMxRqd()          { return ODE().GetTimeIncMxRqd(); };
-    void           FE_ODE_SetTimeIncMxRqd(double T)  { ODE().SetTimeIncMxRqd(T); };
-    double         FE_ODE_GetTimeIncMnRqd()          { return ODE().GetTimeIncMnRqd(); };
-    void           FE_ODE_SetTimeIncMnRqd(double T)  { ODE().SetTimeIncMnRqd(T); };
+    double         FE_ODE_GetMagEPSAbs()                { return ODE().GetMagEPSAbs(); };
+    double         FE_ODE_GetMagEPSRel()                { return ODE().GetMagEPSRel(); };
+    void           FE_ODE_SetMagEPSAbs(double Eps)      { ODE().SetMagEPSAbs(Eps); };
+    void           FE_ODE_SetMagEPSRel(double Eps)      { ODE().SetMagEPSRel(Eps); };
+    double         FE_ODE_GetTimeInc()                  { return ODE().GetTimeInc(); };
+    void           FE_ODE_SetTimeInc(CTimeValue T)      { ODE().SetTimeInc(T); };
+    double         FE_ODE_GetTimeIncMxRqd()             { return ODE().GetTimeIncMxRqd(); };
+    void           FE_ODE_SetTimeIncMxRqd(CTimeValue T) { ODE().SetTimeIncMxRqd(T); };
+    double         FE_ODE_GetTimeIncMnRqd()             { return ODE().GetTimeIncMnRqd(); };
+    void           FE_ODE_SetTimeIncMnRqd(CTimeValue T) { ODE().SetTimeIncMnRqd(T); };
 
     double         FE_Net_GetLnkEPSAbs()             { return Dyn.FlwNets.m_LnkEPS.GetAbs();};
     double         FE_Net_GetLnkEPSRel()             { return Dyn.FlwNets.m_LnkEPS.GetRel();};
@@ -546,7 +526,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     LPCTSTR        FE_Net_GetSpillArea()             { return gs_DirectFlwIOTagDefault();};
     void           FE_Net_SetSpillArea(LPCTSTR Spill) { gs_DirectFlwIOTagDefault=Spill;};
     
-    void           DoChangeTrace(dword Flags);
+    void           DoTraceChanges(dword Flags);
 
     flag           RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
 
@@ -582,33 +562,37 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           EO_SetModelAction(Strng & Tag, MdlAction & Act);
 
     // Executiv Overrides
-    virtual void   EO_OnAppActivate(BOOL bActive);
-    virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
-    virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
-    virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
-    virtual int    EO_QueryDeleteTag(pchar pDelTag);
-    virtual int    EO_DeleteTag(pchar pDelTag);
-    virtual int    EO_CanClose(Strng_List & Problems);
+    void           EO_OnAppActivate(BOOL bActive);
+    flag           EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
+    int            EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
+    int            EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    int            EO_QueryDeleteTag(pchar pDelTag);
+    int            EO_DeleteTag(pchar pDelTag);
+    int            EO_CanClose(Strng_List & Problems);
 
-    virtual int    EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
+    int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 
     void           EO_SetSolveMode(long RunMds, long RunMdsMsk);
     flag           EO_Starting(flag fBeginStarting);
-    flag           EO_SetTime(double TimeRqd, bool Rewind);
-    flag           EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    flag           EO_Start(const CXM_TimeControl &CB);
+    flag           EO_SetTime(CTimeValue TimeRqd, bool Rewind);
+    flag           EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    flag           EO_GotoRunStart(CXM_TimeControl &CB);
+    flag           EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged);
+    flag           EO_PreStart(CXM_TimeControl &CB);
+    flag           EO_Start(CXM_TimeControl &CB);
     void           EO_QuerySubsReqd(CXMsgLst &XM);
     void           EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     flag           EO_ReadSubsData(CXMsgLst &XM);
     flag           EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);
     DWORD          EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
     int            EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route);
-    flag           EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
+    flag           EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
     flag           EO_StepDone();
-    flag           EO_Stop(const CXM_TimeControl &CB);
+    flag           EO_QueryStop(CXM_TimeControl &CB, bool Starting);
+    flag           EO_Stop(CXM_TimeControl &CB);
     flag           EO_Stopping(flag BeginStopping);
-    flag           EO_BeginPause(const CXM_TimeControl &CB);
-    flag           EO_EndPause(const CXM_TimeControl &CB);
+    flag           EO_BeginPause(CXM_TimeControl &CB);
+    flag           EO_EndPause(CXM_TimeControl &CB);
 
     flag           EO_BeginSave(FilingControlBlock &FCB);
     flag           EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM);

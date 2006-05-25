@@ -88,7 +88,7 @@ class CArchiveDBField
 
     flag GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ flag Complete);
     double GetValue() { return m_dValue; };
-    flag Execute(const CXM_TimeControl &CB, CArchiveManager & DrvMan);
+    flag Execute(CXM_TimeControl &CB, CArchiveManager & DrvMan);
     void ClearChanged() { m_bChanged=false; };
     bool Changed() { return m_bChanged; };
 
@@ -129,11 +129,11 @@ class CArchiveDBTable
     long            m_lPeriod;
     long            m_lOffset;
     bool            m_bInitReqd;
-    double          m_dNextSaveTime;
+    CTimeValue      m_dNextSaveTime;
     bool            m_bPeriodOn;
                     
     CATriggerArray  m_Triggers;
-    CADBFieldArray    m_Fields;
+    CADBFieldArray  m_Fields;
 
     CArchiveManager  &m_rAM;
     ADODB::_RecordsetPtr m_pRst;
@@ -149,13 +149,13 @@ class CArchiveDBTable
     ~CArchiveDBTable();
     bool AddPeriod(long Period, long Offset);
     bool AddTrigger(LPCTSTR Cfg);
-    bool Execute(const CXM_TimeControl &CB, CArchiveManager & DrvMan);
+    bool Execute(CXM_TimeControl &CB, CArchiveManager & DrvMan);
     bool CreateDBTable();
     bool CreateDBFields(ADOX::_TablePtr & pTbl);
     bool CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc=false);
     bool CreateDBRecordset();
     bool CloseDBTable();
-    bool AddDBRecord(const CXM_TimeControl &CB);
+    bool AddDBRecord(CXM_TimeControl &CB);
   };
 
 class CADBTableArray : public CArray<CArchiveDBTable*, CArchiveDBTable*> {};
@@ -214,7 +214,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            ReadCfg();
     bool            CompleteOpen();
                     
-    flag            Execute(const CXM_TimeControl &CB);
+    flag            Execute(CXM_TimeControl &CB);
                     
     long            AddField(LPCTSTR Table, LPCTSTR CfgString);
     long            AddField(LPCTSTR Tag, LPCTSTR Table, byte iFn, byte iType, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
@@ -269,16 +269,16 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
    
     // ExecObj Overrides
     virtual DWORD   EO_Message(CXMsgLst &XM, CXM_Route &Route);
-    virtual flag    EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag    EO_Start(const CXM_TimeControl &CB);
+    virtual flag    EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag    EO_Start(CXM_TimeControl &CB);
     virtual void    EO_QuerySubsReqd(CXMsgLst &XM);
     virtual void    EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     virtual flag    EO_ReadSubsData(CXMsgLst &XM);  
     virtual flag    EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);  
     virtual DWORD   EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
     virtual int     EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route);
-    virtual flag    EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag    EO_Stop(const CXM_TimeControl &CB);
+    virtual flag    EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag    EO_Stop(CXM_TimeControl &CB);
     virtual flag    EO_TagsNotAvail(CXMsgLst &XM);
     virtual flag    EO_BeginSave(FilingControlBlock &FCB);
     virtual flag    EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM);

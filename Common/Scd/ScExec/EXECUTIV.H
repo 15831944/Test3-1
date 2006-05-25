@@ -377,7 +377,7 @@ typedef CArray<MdlAction, MdlAction&> MdlActionArray;
 
 //---------------------------------------------------------------------------
 
-DllImportExport double GetCurrentTime_1970();
+DllImportExport CTimeValue GetCurrentTime_1970();
 
 //===========================================================================
 //
@@ -438,18 +438,18 @@ static DDBValueLst SetStateStrs[]={
 
 struct DllImportExport CEOExecReturn
   {
-  double m_Time;
-  double m_StepSizeNxt;
+  CTimeValue m_Time;
+  CTimeValue m_StepSizeNxt;
 
   CEOExecReturn()
     {
-    m_Time=dNAN;
-    m_StepSizeNxt=dNAN;
+    m_Time=TimeNAN;
+    m_StepSizeNxt=TimeNAN;
     }
   void Clear()
     {
-    m_Time=dNAN;
-    m_StepSizeNxt=dNAN;
+    m_Time=TimeNAN;
+    m_StepSizeNxt=TimeNAN;
     }
   };
 
@@ -473,7 +473,7 @@ class DllImportExport CExecObj
     flag           bAllowForceWriteOnStart;
 
     CWinThread    *pObjThread;
-    double         dEOTime;
+    CTimeValue     dEOTime;
 
     int            nTags;
     CXTagArray     aTags;   // a Kludge because CMap etc are not dll-interfaced
@@ -484,7 +484,7 @@ class DllImportExport CExecObj
 
     CRITICAL_SECTION csObjLock;
 
-    void           SetEOTime(double Time) { dEOTime=Time; };
+    void           SetEOTime(CTimeValue Time) { dEOTime=Time; };
 
   public:
     CExecObj();
@@ -511,7 +511,7 @@ class DllImportExport CExecObj
     void           EO_SynchronousDataIO();
     void           EO_ASynchronousDataIO();
     flag           EO_ChangeName(const char* pName);
-    double         EO_Time() { return dEOTime; };
+    CTimeValue     EO_Time() { return dEOTime; };
 
     virtual void   EO_ThreadInitialise()                                { };
     virtual void   EO_ThreadTerminate()                                 { };
@@ -537,12 +537,13 @@ class DllImportExport CExecObj
     virtual int    EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine) { return -1; };
 
     virtual void   EO_SetSolveMode(long RunMds, long RunMdsMsk)                        { };
-    virtual flag   EO_PrePreStart()                                     { return True;};
-    virtual flag   EO_PreStart()                                        { return True;};
-    virtual flag   EO_Starting(flag fBeginStarting)                     { return True;};
-    virtual flag   EO_SetTime(double TimeRqd, bool Rewind)              { return True;};
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) {return True;}; // False return will prevent run
-    virtual flag   EO_Start(const CXM_TimeControl &CB)                   { return False;}; // False return will prevent run
+    virtual flag   EO_GotoRunStart(CXM_TimeControl &CB)                 { return True;};
+    virtual flag   EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged) { return True;};
+    virtual flag   EO_PreStart(CXM_TimeControl &CB)                      { return True;};
+    virtual flag   EO_Starting(flag fBeginStarting)                      { return True;};
+    virtual flag   EO_SetTime(CTimeValue TimeRqd, bool Rewind)           { return True;};
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) {return True;}; // False return will prevent run
+    virtual flag   EO_Start(CXM_TimeControl &CB)                   { return False;}; // False return will prevent run
     virtual void   EO_QueryHistoryCfg(CXMsgLst &XM)                      { XM.Clear(); };
     virtual void   EO_QueryArchiveCfg(CXMsgLst &XM)                      { XM.Clear(); };
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM)                        { XM.Clear(); };
@@ -559,26 +560,27 @@ class DllImportExport CExecObj
     virtual void   EO_EndBulkChange()                                    { ;};
 
     //virtual flag   EO_UpdateOutputs()                                   {return True;};
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) {return False;};
-    virtual flag   EO_StepDone()                                        { return False; };
-    virtual flag   EO_Stopping(flag fBeginStopping)                     { return True;};
-    virtual flag   EO_Stop(const CXM_TimeControl &CB)                    { return True;};
-    virtual flag   EO_BeginPause(const CXM_TimeControl &CB)              { return True;};
-    virtual flag   EO_EndPause(const CXM_TimeControl &CB)                { return True;};
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) {return False;};
+    virtual flag   EO_StepDone()                                         { return False; };
+    virtual flag   EO_Stopping(flag fBeginStopping)                      { return True;};
+    virtual flag   EO_QueryStop(CXM_TimeControl &CB, bool Starting){ return False;};
+    virtual flag   EO_Stop(CXM_TimeControl &CB)                    { return True;};
+    virtual flag   EO_BeginPause(CXM_TimeControl &CB)              { return True;};
+    virtual flag   EO_EndPause(CXM_TimeControl &CB)                { return True;};
     virtual void   EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB) { };
 
-    virtual flag   EO_BeginSave(FilingControlBlock &FCB)                { return False;};
+    virtual flag   EO_BeginSave(FilingControlBlock &FCB)                 { return False;};
     virtual flag   EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM) { return False;};
-    virtual flag   EO_SaveOtherData(FilingControlBlock &FCB)            { return False;};
+    virtual flag   EO_SaveOtherData(FilingControlBlock &FCB)             { return False;};
     virtual flag   EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)    { return False;};
-    virtual flag   EO_EndSave(FilingControlBlock &FCB)                  { return False;};
-    virtual flag   EO_SaveComplete(FilingControlBlock &FCB)             { return True;};
-    virtual flag   EO_BeginLoad(FilingControlBlock &FCB)                { return False;};
+    virtual flag   EO_EndSave(FilingControlBlock &FCB)                   { return False;};
+    virtual flag   EO_SaveComplete(FilingControlBlock &FCB)              { return True;};
+    virtual flag   EO_BeginLoad(FilingControlBlock &FCB)                 { return False;};
     virtual flag   EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM) { return False;};
-    virtual flag   EO_LoadOtherData(FilingControlBlock &FCB)            { return False;};
+    virtual flag   EO_LoadOtherData(FilingControlBlock &FCB)             { return False;};
     virtual flag   EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)    { return False;};
-    virtual flag   EO_EndLoad(FilingControlBlock &FCB)                  { return False;};
-    virtual flag   EO_LoadComplete(FilingControlBlock &FCB)             { return True;};
+    virtual flag   EO_EndLoad(FilingControlBlock &FCB)                   { return False;};
+    virtual flag   EO_LoadComplete(FilingControlBlock &FCB)              { return True;};
 
     virtual flag   EO_FindObject(char* pObjName, CXM_Route &Route)       { return False;};
     //virtual flag   EO_SendMessage(CXMsgLst &XM, CXM_Route &Route)         {return False;};
@@ -790,9 +792,9 @@ class DllImportExport CCompareWorkSpace
 const long MaxMsgHistory=1024;
 struct MsgHistoryRec
   {
-  UINT      Cmd;
-  CExecObj *pEO;
-  double    Time;
+  UINT       Cmd;
+  CExecObj * pEO;
+  CTimeValue Time;
   };
 #endif
 
@@ -840,7 +842,7 @@ class DllImportExport CXStopWatches
                 m_swStep,
                 m_swRun;
     
-    double m_dSimulatedTime;
+    CTimeValue m_dSimulatedTime;
     double m_dStartingTime;
 
     double m_dStepTimeI[MaxMvAvgPts];
@@ -974,6 +976,8 @@ struct CLDBStuff
   CArray <flag, flag> m_LoadIt;
   };
 
+//enum eOnOffOnce {eOOO_Off, eOOO_On, eOOO_Once};
+
 class DllImportExport CExecutive : public ConditionBlk  
   {
   friend class ObjTagIndex;
@@ -981,115 +985,14 @@ class DllImportExport CExecutive : public ConditionBlk
   friend class CExecSequence;
   friend class CMdlRunManager;
   friend class CAppRunManager;
-  protected:
-    CRITICAL_SECTION csExecLock;
-
-    long           Ids;
-    long           NObjs_Reg;            // No of Registered Objects
-
-    CExecObjArray Objs_Reg;             // Registered Objects
-    CExecObjArray Objs_Exec;            // Objects in Execution Order
-    CExecObjArray Objs_Solve;           // Objects in Solve Order
-    CExecObjArray Objs_Search;          // Objects in Search Order
-
-    CExecObjArray Objs_ToReg;           // Objects To register during next execution gap
-    CExecObjArray Objs_ToDeReg;         // Objects To Deregister during next execution gap
-
-    word           wState;
-
-    flag           bActive;
-    flag           bStopReqd;
-    flag           bStepReqd;
-    flag           bPauseReqd;
-    flag           bListRebuildReqd;
-    flag           bListUpdateReqd;
-    flag           bRegistrationListtoChange;
-    flag           bSolveListRebuildReqd;
-    flag           bHoldAdv;
-    flag           bAutomationBusy;
-    flag           m_bSendIdleEvent;
-    flag           m_bSendStopEvent;
-    flag           m_ReadWriteAllReqd;
-    UINT           m_GotoCmdOnceStopped;
-
-    flag           bSelfConnect;
-    HANDLE         hPauseEvent;
-
-    CWinThread    *pExecThread;
-
-    long           lExecThreadsBusy;
-    long           lExecThreadsDone;
-
-    long           LastLowerPriority;
-
-    CRITICAL_SECTION csTimerLock;
-    flag           bTimerExpired, bWorkDone;
-    UINT           iTimerId;
-    HANDLE         m_hAppIdleDone;
-    HANDLE         m_hStopSleep;
-    DWORD          m_dwLoopCount;
-    flag           fDoingPB;
-
-    bool           m_bDidPauseWork;
-    long           m_lPauseUpdateCount;
-    long           m_lWaitCompleteCount;
-    long           m_lWaitCompleteTime;
-
-    SolveToolBase *pSolveTool;
-
-    long           lUpdateTagDataIterCount;
-
-    long           lLastTickCount;
-
-    ExecCoupling   eCoupling;
-
-    ExecFiling     eFileWhat;
-    Strng          SaveLoadRoot;
-    Strng          SaveLoadLabel;
-    Strng          SaveLoadOldPrjFiles;
-    Strng          SaveLoadSnapShotScenarioName;
-
-    // Allow deferred activation - prevent lockup
-    byte           bDoAppActivate;
-
-    // Allow deferred SetModelState
-    eScdMdlStateActs    eRqdState;
-    Strng_List     sRqdTags;
-
-    // Allow deferred GlblResultValidity - prevent lockup
-    flag           bDoGlblResultValidity;
-
-    int            m_DBFormat;
-
-    CLDBStuff      m_LDB;
-
-    Strng          m_sHstTaglistFolder;
-    Strng          m_sHstTaglistFilename;
-    flag           m_bHstRestartOnStart;
-    flag           m_bHstSetTaglistOnStart;
-    flag           m_bResetTimeOnStart;
-    double         m_dOnStartTime;
-
-    double         m_dRunTime;
-    double         m_dTheStartTime;
-    double         m_dTheStopTime;
-    double         m_dDynProgress;
 
   public:
+
     enum RqdRunMode { RRM_Current, RRM_PBMd, RRM_DynMd, RRM_DynMdFlow, RRM_DynMdFull };
-
-    CXM_TimeControl DynTmCB;
-    CXM_TimeControl PBTmCB;
-    CXM_TimeControl &TimeCB() { return fDoingPB ? PBTmCB : DynTmCB; };
-
-    EqnSolverBlk   EqnSlv;
-    CtrlSequencer  CtrlSeq;
-    CExecSequence  m_Seq;
-
-    CXStopWatches  XSW, XSWDsp;
+    enum UpdateOps  { UO_Reset, UO_Start, UO_StartDone, UO_Step, UO_Stop, UO_StopAgain  };
 
   public:
-    CExecutive();//(DWORD dwSysCADId_);
+    CExecutive();
     ~CExecutive();
 
     void           Initialise();
@@ -1110,6 +1013,8 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           StartThreads(byte ThrdFlag, UINT Cmd, word Extra=0);
     LONG           PostCmd(CExecObj *pSrcEO, word Cmd, LONG lParam=0, CExecObj *pEO=NULL, word Extra=0);
     void           UpdateDisplays(flag ForceUpd=false, flag ColoursChgd=false);
+    void           SetStopTimeEtc(bool ForceIt);
+    void           UpdateState(UpdateOps Op, eScnState RqdManState, eScnState RqdScnState);
     void           DoOneExecMessage(UINT wParam, LONG lParam);
     void           LowerPriority();
 
@@ -1148,53 +1053,135 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           BetweenSteps();
     flag           AutomationBusy();
     flag           Filing();
-    double         Time();
-    double         TheStartTime(); //return most recently used start time, or Time() if never started
-    double         TheStopTime(); //return Time() if not stopped
-    double         StepSizeMax();
     flag           SyncWithClock();
     flag           RealTime();
     double         RealTimeMult();
-    long           MaxRunSteps();
+    //long           MaxRunSteps();
     void           SetSyncWithClock(flag SyncWithClock_);
     void           SetRealTime(flag RealTime_);
     void           SetRealTimeMult(double M);
-    flag           SetTime(double Time_, bool Rewind=false);
-    void           SetStartTime(double StartTime_);
-    void           SetStopTime(double StopTime_);
-    void           SetStepSizeMax(double dTimeMax_);
+    flag           SetTheTime(CTimeValue Time_, LPCTSTR Where, bool Rewind=false);
     DWORD          LoopCount();
-    void           SetMaxRunSteps(long MaxIters_);
-    double         GetDynProgress() { return m_dDynProgress; };
-    void           SetDynProgress(double DynProgress) { m_dDynProgress = DynProgress; };
 
-    char*          HstTaglistFolder() { return m_sHstTaglistFolder(); };
-    void           SetHstTaglistFolder(char* HstTaglistFolder) { m_sHstTaglistFolder=HstTaglistFolder; };
-    char*          HstTaglistFile() { return m_sHstTaglistFilename(); };
-    void           SetHstTaglistFile(char* HstTaglistFilename) { m_sHstTaglistFilename=HstTaglistFilename; };
-    flag           HstRestartOnStart() { return m_bHstRestartOnStart; };
-    void           SetHstRestartOnStart(bool HstRestartOnStart) { m_bHstRestartOnStart=HstRestartOnStart; };
-    flag           HstSetTaglistOnStart() { return m_bHstSetTaglistOnStart; };
-    void           SetHstSetTaglistOnStart(bool HstSetTaglistOnStart) { m_bHstSetTaglistOnStart=HstSetTaglistOnStart; };
-    flag           ResetTimeOnStart() { return m_bResetTimeOnStart; };
-    void           SetResetTimeOnStart(bool ResetTimeOnStart) { m_bResetTimeOnStart=ResetTimeOnStart; };
-    double         OnStartTime() { return m_dOnStartTime; };
-    void           SetOnStartTime(double OnStartTime) { m_dOnStartTime=OnStartTime; };
+    flag           ResetRunState(bool Reset, LPARAM lParam);
 
-    double         RunTime() { return m_dRunTime; };
-    void           SetRunTime(double T) { m_dRunTime=T; };
-    long           SequenceNo() { return m_Seq.SequenceNo(); };
-    void           SetSequenceNo(long SeqNo) { m_Seq.SetSequenceNo(SeqNo); };
 
-    double         QueryCurrentTime();
+    LPTSTR         getHstTaglistFolder()                      { return m_sHstTaglistFolder(); };
+    void           putHstTaglistFolder(LPTSTR Str)            { m_sHstTaglistFolder=Str; };
+    LPTSTR         getHstTaglistFile()                        { return m_sHstTaglistFilename(); };
+    void           putHstTaglistFile(LPTSTR Str)              { m_sHstTaglistFilename=Str; };
+    
+    flag           getResetTimeOnStart()                      { return m_ResetTimeOnStart; };
+    void           putResetTimeOnStart(flag O)                { m_ResetTimeOnStart=O; };
+    flag           getRestartHstOnStart()                     { return m_RestartHstOnStart; };
+    void           putRestartHstOnStart(flag O)               { m_RestartHstOnStart=O; };
+    flag           getSetHstTaglistOnStart()                  { return m_SetHstTaglistOnStart; };
+    void           putSetHstTaglistOnStart(flag O)            { m_SetHstTaglistOnStart=O; };
 
-    RunTerms       RunTermination() { return TimeCB().m_iRunTerm; };
-    void           SetRunTermination(RunTerms RunTerm) { TimeCB().m_iRunTerm=RunTerm; };
+    flag           getRestartPGMOnStart()                     { return m_RestartPGMOnStart; };
+    void           putRestartPGMOnStart(flag O)               { m_RestartPGMOnStart=O; };
+    flag           getRestartPrfOnStart()                     { return m_RestartPrfOnStart; };
+    void           putRestartPrfOnStart(flag O)               { m_RestartPrfOnStart=O; };
 
-    double         TimeUntilStop() { return TimeCB().m_dTimeUntilStop; };
-    void           SetTimeUntilStop(double TimeUntilStop) { TimeCB().m_dTimeUntilStop=TimeUntilStop; };
+    eScnState      getScnState()                              { return TimeCB().m_ScnState; };
+    void           putScnState(eScnState On)                  { TimeCB().m_ScnState=On; };
+    eScnContRest   getManualScnReStart()                      { return TimeCB().m_ManualScnReStart; };
+    void           putManualScnReStart(eScnContRest On)       { TimeCB().m_ManualScnReStart=On; };
+    eScnContRest   getReStartIfScnBusy()                      { return TimeCB().m_ReStartIfScnBusy; };
+    void           putReStartIfScnBusy(eScnContRest On)       { TimeCB().m_ReStartIfScnBusy=On; };
+    eScnBlkRest    getReStartIfScnComplete()                  { return TimeCB().m_ReStartIfScnComplete; };
+    void           putReStartIfScnComplete(eScnBlkRest On)    { TimeCB().m_ReStartIfScnComplete=On; };
+
+    eScnTypes      getScnType()                               { return TimeCB().m_ScnType; };
+    void           SetScnType(eScnTypes T, bool ResetState);
+    eScnTypes      getScnTypeLast()                           { return m_ScnTypeLast; };
+    void           putScnTypeLast(eScnTypes T)                { m_ScnTypeLast=T; };
+    eScnTermActions getScnTermAction()                        { return TimeCB().m_TermAction; };
+    void           putScnTermAction(eScnTermActions A)        { TimeCB().m_TermAction=A; };
+
+    CTimeValue     getTheTime()                               { return TimeCB().m_TheTime;};
+    //void           putTheTime(const CTimeValue Value);
+    CTimeValue     getTimeStarted()                           { return ValidTime(m_TimeStarted) ? m_TimeStarted : TimeCB().m_TheTime;};
+    void           putTimeStarted(const CTimeValue Value)     { m_TimeStarted = Value;} 
+    CTimeValue     getTimeStopped()                           { return ValidTime(m_TimeStopped) ? m_TimeStopped : TimeCB().m_TheTime;};
+    void           putTimeStopped(const CTimeValue Value)     { m_TimeStopped = Value;} 
+    CTimeValue     getStepSize()                              { return TimeCB().m_StepSize;};
+    void           putStepSize(const CTimeValue Value)        { TimeCB().m_StepSize=Value;}
+    CTimeValue     getStepSizeNxt()                           { return TimeCB().m_StepSizeNxt;};
+    void           putStepSizeNxt(const CTimeValue Value)     { TimeCB().m_StepSizeNxt=Value;}
+    CTimeValue     getStepSizeMax()                           { return TimeCB().m_StepSizeMax;};
+    void           putStepSizeMax(const CTimeValue Value)     { TimeCB().m_StepSizeMax=Value;}
+    CTimeValue     getTimeAtStart()                           { return m_dTimeAtStart; };
+    void           putTimeAtStart(CTimeValue TimeAtStart)     { m_dTimeAtStart=TimeAtStart; };
+    CTimeValue     getTimeToStop()                            { return TimeCB().m_TimeToStop; };
+    void           putTimeToStop(CTimeValue T)                { TimeCB().m_TimeToStop=T; };
+    CTimeValue     getScnDuration()                           { return TimeCB().m_ScnDuration; };
+    void           putScnDuration(CTimeValue Duration)        { TimeCB().m_ScnDuration=Duration; };
+    CTimeValue     getScnStopTime()                           { return TimeCB().m_ScnStopTime; };
+    void           putScnStopTime(CTimeValue StopTime)        { TimeCB().m_ScnStopTime=StopTime; };
+
+    long           getStepCount()                             { return TimeCB().m_StepCount; };
+    void           putStepCount(long N)                       { TimeCB().m_StepCount=N; };
+    long           getStepCountMax()                          { return TimeCB().m_StepCountMax; };
+    void           putStepCountMax(long N)                    { TimeCB().m_StepCountMax=N; };
+    CTimeValue     getScnTime()                               { return TimeCB().m_ScnTime; };
+    void           putScnTime(CTimeValue T)                   { TimeCB().m_ScnTime=T; };
+    CTimeValue     getScnTimeMax()                            { return TimeCB().m_ScnTimeMax; };
+    void           putScnTimeMax(CTimeValue T)                { TimeCB().m_ScnTimeMax=T; };
+
+
+    double         getDynProgress()                           { return m_DynProgress; };
+    void           putDynProgress(double D)                   { m_DynProgress=D; };
+    double         getClock()                                 { return m_Clock.Secs(); };
+    double         getClockEstToGo()                          { return m_ClockEstToGo; };
+    double         getClockEstTotal()                         { return m_ClockEstTotal; };
+
+    __declspec(property(get=getScnState,              put=putScnState))               eScnState     ScnState;
+    __declspec(property(get=getManualScnReStart,      put=putManualScnReStart))       eScnContRest  ManualScnReStart;
+    __declspec(property(get=getReStartIfScnBusy,      put=putReStartIfScnBusy))       eScnContRest  ReStartIfScnBusy;
+    __declspec(property(get=getReStartIfScnComplete,  put=putReStartIfScnComplete))   eScnBlkRest   ReStartIfScnComplete;
+
+    __declspec(property(get=getScnType))                             eScnTypes       ScnType;
+    __declspec(property(get=getScnTypeLast,   put=putScnTypeLast))   eScnTypes       ScnTypeLast;
+    __declspec(property(get=getScnTermAction, put=putScnTermAction)) eScnTermActions ScnTermAction;
+    __declspec(property(get=getScnDuration,   put=putScnDuration))   CTimeValue      ScnDuration;
+    __declspec(property(get=getScnStopTime,   put=putScnStopTime))   CTimeValue      ScnStopTime;
+    __declspec(property(get=getTheTime))                             CTimeValue      TheTime;
+    __declspec(property(get=getTimeToStop,    put=putTimeToStop))    CTimeValue      TimeToStop;
+    __declspec(property(get=getScnTime,       put=putScnTime))       CTimeValue      ScnTime;
+    __declspec(property(get=getScnTimeMax,    put=putScnTimeMax))    CTimeValue      ScnTimeMax;
+    __declspec(property(get=getTimeStarted,   put=putTimeStarted))   CTimeValue      TimeStarted;
+    __declspec(property(get=getTimeStopped,   put=putTimeStopped))   CTimeValue      TimeStopped;
+    __declspec(property(get=getStepSize,      put=putStepSize))      CTimeValue      StepSize;
+    __declspec(property(get=getStepSizeNxt,   put=putStepSizeNxt))   CTimeValue      StepSizeNxt;
+    __declspec(property(get=getStepSizeMax,   put=putStepSizeMax))   CTimeValue      StepSizeMax;
+    __declspec(property(get=getTimeAtStart,   put=putTimeAtStart))   CTimeValue      TimeAtStart;
+    __declspec(property(get=getStepCount,     put=putStepCount))     long            StepCount;
+    __declspec(property(get=getStepCountMax,  put=putStepCountMax))  long            StepCountMax;
+
+    __declspec(property(get=getResetTimeOnStart,put=putResetTimeOnStart))         flag     ResetTimeOnStart;
+    __declspec(property(get=getHstTaglistFolder,put=putHstTaglistFolder))         LPTSTR   HstTaglistFolder;
+    __declspec(property(get=getHstTaglistFile,put=putHstTaglistFile))             LPTSTR   HstTaglistFile;
+    __declspec(property(get=getRestartHstOnStart,put=putRestartHstOnStart))       flag     RestartHstOnStart;
+    __declspec(property(get=getSetHstTaglistOnStart,put=putSetHstTaglistOnStart)) flag     SetHstTaglistOnStart;
+    __declspec(property(get=getRestartPGMOnStart,put=putRestartPGMOnStart))       flag     RestartPGMOnStart;
+    __declspec(property(get=getRestartPrfOnStart,put=putRestartPrfOnStart))       flag     RestartPrfOnStart;
+
+    __declspec(property(get=getDynProgress,put=putDynProgress))     double      DynProgress;
+    __declspec(property(get=getClock))                              double      Clock;
+    __declspec(property(get=getClockEstToGo))                       double      ClockEstToGo;
+    __declspec(property(get=getClockEstTotal))                      double      ClockEstTotal;
+
+    long           SequenceNo()                               { return m_Seq.SequenceNo(); };
+    void           SetSequenceNo(long SeqNo)                  { m_Seq.SetSequenceNo(SeqNo); };
+
+    CTimeValue     QueryCurrentTime();
+
 
     flag           TestRunning();
+
+    flag           ScnStartupRequired();
+    flag           ScnStepAllowed();
 
     void           GotoEditMode();
     void           GotoRunMode(RqdRunMode Md, int Action);
@@ -1299,6 +1286,119 @@ class DllImportExport CExecutive : public ConditionBlk
     long lMsgHistory;
     void DumpMsgHistory();
 #endif
+  protected:
+    CRITICAL_SECTION csExecLock;
+
+    long           Ids;
+    long           NObjs_Reg;            // No of Registered Objects
+
+    CExecObjArray Objs_Reg;             // Registered Objects
+    CExecObjArray Objs_Exec;            // Objects in Execution Order
+    CExecObjArray Objs_Solve;           // Objects in Solve Order
+    CExecObjArray Objs_Search;          // Objects in Search Order
+
+    CExecObjArray Objs_ToReg;           // Objects To register during next execution gap
+    CExecObjArray Objs_ToDeReg;         // Objects To Deregister during next execution gap
+
+    word           wState;
+
+    flag           bActive;
+    flag           bStopReqd;
+    flag           bStepReqd;
+    flag           bPauseReqd;
+    flag           bListRebuildReqd;
+    flag           bListUpdateReqd;
+    flag           bRegistrationListtoChange;
+    flag           bSolveListRebuildReqd;
+    flag           bHoldAdv;
+    flag           bAutomationBusy;
+    flag           m_bSendIdleEvent;
+    flag           m_bSendStopEvent;
+    flag           m_ReadWriteAllReqd;
+    UINT           m_GotoCmdOnceStopped;
+
+    flag           bSelfConnect;
+    HANDLE         hPauseEvent;
+
+    CWinThread    *pExecThread;
+
+    long           lExecThreadsBusy;
+    long           lExecThreadsDone;
+
+    long           LastLowerPriority;
+
+    CRITICAL_SECTION csTimerLock;
+    flag           bTimerExpired, bWorkDone;
+    UINT           iTimerId;
+    HANDLE         m_hAppIdleDone;
+    HANDLE         m_hStopSleep;
+    DWORD          m_dwLoopCount;
+    flag           fDoingPB;
+
+    bool           m_bDidPauseWork;
+    long           m_lPauseUpdateCount;
+    long           m_lWaitCompleteCount;
+    long           m_lWaitCompleteTime;
+
+    SolveToolBase *pSolveTool;
+
+    long           lUpdateTagDataIterCount;
+
+    long           lLastTickCount;
+
+    ExecCoupling   eCoupling;
+
+    ExecFiling     eFileWhat;
+    Strng          SaveLoadRoot;
+    Strng          SaveLoadLabel;
+    Strng          SaveLoadOldPrjFiles;
+    Strng          SaveLoadSnapShotScenarioName;
+
+    // Allow deferred activation - prevent lockup
+    byte           bDoAppActivate;
+
+    // Allow deferred SetModelState
+    eScdMdlStateActs eRqdState;
+    Strng_List     sRqdTags;
+
+    // Allow deferred GlblResultValidity - prevent lockup
+    flag           bDoGlblResultValidity;
+
+    int            m_DBFormat;
+
+    CLDBStuff      m_LDB;
+
+    Strng          m_sHstTaglistFolder;
+    Strng          m_sHstTaglistFilename;
+    flag           m_ResetTimeOnStart;
+    flag           m_RestartHstOnStart;
+    flag           m_SetHstTaglistOnStart;
+    flag           m_RestartPGMOnStart;
+    flag           m_RestartPrfOnStart;
+    CTimeValue     m_dTimeAtStart;
+
+    CTimeValue     m_TimeStarted; // Model Time Started
+    CTimeValue     m_TimeStopped; // Model Time Stopped
+    eScnTypes      m_ScnTypeLast;
+
+    double         m_DynProgress;
+
+    CStopWatch     m_Clock;
+    double         m_ClockEstToGo;   // RealTime ToGo
+    double         m_ClockEstTotal;  // RealTime Ttl
+
+  public:
+
+    CXM_TimeControl DynTmCB;
+    CXM_TimeControl PBTmCB;
+    CXM_TimeControl &TimeCB() { return fDoingPB ? PBTmCB : DynTmCB; };
+
+    EqnSolverBlk   EqnSlv;
+    CtrlSequencer  CtrlSeq;
+    CExecSequence  m_Seq;
+
+    CXStopWatches  XSW, XSWDsp;
+
 
   };
 
@@ -1318,14 +1418,10 @@ inline flag   CExecutive::Paused()                      { return (wState & EXF_P
 inline flag   CExecutive::BetweenSteps()                { return (wState & EXF_BetweenSteps)!=0;};
 inline flag   CExecutive::AutomationBusy()              { return bAutomationBusy;};
 inline flag   CExecutive::Filing()                      { return (eFileWhat!=EF_Null);};
-inline double CExecutive::Time()                        { return TimeCB().m_Time;};
-inline double CExecutive::TheStartTime()                { return Valid(m_dTheStartTime) ? m_dTheStartTime : TimeCB().m_Time;};
-inline double CExecutive::TheStopTime()                 { return Valid(m_dTheStopTime) ? m_dTheStopTime : TimeCB().m_Time;};
-inline double CExecutive::StepSizeMax()                 { return TimeCB().m_StepSizeMax;};
 inline flag   CExecutive::SyncWithClock()               { return TimeCB().m_bSyncWithClock;};
 inline flag   CExecutive::RealTime()                    { return TimeCB().m_bRealTime;};
 inline double CExecutive::RealTimeMult()                { return TimeCB().m_RealTimeMult;};
-inline long   CExecutive::MaxRunSteps()                 { return TimeCB().m_nMaxSteps;};
+//inline long   CExecutive::MaxRunSteps()                 { return TimeCB().m_nMaxSteps;};
 inline DWORD  CExecutive::LoopCount()                   { return m_dwLoopCount; };
 
 inline flag   CExecutive::Stopped()                     { return (wState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused

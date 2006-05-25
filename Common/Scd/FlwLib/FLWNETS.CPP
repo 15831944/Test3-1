@@ -8689,6 +8689,8 @@ m_RegSolveEPS(TBF_DynSys, "FlwNets:RegSolveEPS", 0, 1e-8)
   m_lResRunAvgStart=5; 
   m_lResRunAvgCount=5;
 
+  //fStopReqd=0;
+
   NNets=0;
   };
 
@@ -8704,7 +8706,7 @@ CFullNetBlk::~CFullNetBlk()
 
 flag CFullNetBlk::Initialise(/*double Lnk_Eps_A_, double Lnk_Eps_R_, double Net_DeRating_*/)
   {
-  fStopReqd=0;
+  //fStopReqd=0;
 
   MakeNetNodeList();
 

@@ -555,7 +555,7 @@ void CElecBlk::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-void CElecBlk::EvalCtrlInitialise()
+void CElecBlk::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
   iIterCnt = -1;
   DoEvalCtrl("CtrlInitialise"); 
@@ -564,7 +564,7 @@ void CElecBlk::EvalCtrlInitialise()
 
 //--------------------------------------------------------------------------
 
-void CElecBlk::EvalCtrlStrategy()
+void CElecBlk::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   iIterCnt++;
   DoEvalCtrl("CtrlStrategy"); 
@@ -574,7 +574,7 @@ void CElecBlk::EvalCtrlStrategy()
 
 //--------------------------------------------------------------------------
 
-void CElecBlk::EvalCtrlActions()
+void CElecBlk::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   //iIterCnt++;
   DoEvalCtrl("CtrlActions"); 
@@ -591,7 +591,7 @@ void CElecBlk::EvalCtrlActions()
 
 //--------------------------------------------------------------------------
 
-void CElecBlk::EvalCtrlTerminate()
+void CElecBlk::EvalCtrlTerminate(eScdCtrlTasks Tasks)
   {
   DoEvalCtrl("CtrlTerminate"); 
   }

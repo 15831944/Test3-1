@@ -371,13 +371,13 @@ void CBlendCon::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void CBlendCon::EvalCtrlStrategy()
+void CBlendCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {
     GetNearXRefValues();
 
-    //BCI.EvalCtrlStrategy();
+    //BCI.EvalCtrlStrategy(eScdCtrlTasks Tasks);
     if (bValid)
       {
       CMultiStorage *pS = m_pStorage;

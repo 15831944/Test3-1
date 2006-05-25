@@ -721,7 +721,7 @@ void GControl::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void GControl::EvalCtrlInitialise()
+void GControl::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
   iIterCnt = -1;
   DoEvalCtrl(); 
@@ -730,7 +730,7 @@ void GControl::EvalCtrlInitialise()
 
 //--------------------------------------------------------------------------
 
-void GControl::EvalCtrlStrategy()
+void GControl::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   iIterCnt++;
   DoEvalCtrl();
@@ -740,7 +740,7 @@ void GControl::EvalCtrlStrategy()
 
 //--------------------------------------------------------------------------
 
-void GControl::EvalCtrlTerminate()
+void GControl::EvalCtrlTerminate(eScdCtrlTasks Tasks)
   {
   DoEvalCtrl(); 
   }

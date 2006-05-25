@@ -1721,7 +1721,7 @@ void CMultiStorage::EvalPowerRequired()
 
 //--------------------------------------------------------------------------
 
-void CMultiStorage::EvalCtrlActions()
+void CMultiStorage::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   //m_BeltSB.EvalCtrlActions(this);
   }

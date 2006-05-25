@@ -34,8 +34,8 @@ class CProfileInfo
     byte   iPulseSeq;       //sequence defining a pulse
     WORD   iCurIndex;       //current index in array
     WORD   iPrvIndex;       //previous index in array
-    double dStartTime;      //start time of profile
-    double dLastTime;       //last time GetVal was called
+    CTimeValue dStartTime;      //start time of profile
+    CTimeValue dLastTime;       //last time GetVal was called
     double dPausedVal;      //value at which profile was paused
     double dFullArea;       //Area for full profile
     double dPrevVal;        //value at previous output
@@ -60,29 +60,29 @@ class DllImportExport CSimpleProfiler
     int Load(char* Filename, flag LoadHeadings);
     void Options(flag Linear, flag WrapArround, byte Column = 1);
     void SetAllOptions(flag Linear, flag WrapArround);
-    double Start(double Time, byte Column = 1);
-    void StartAll(double Time);
-    double GetVal(double Time, byte Column = 1);
-    double GetAveVal(double Time, byte Column = 1);
-    double Pause(double Time, byte Column = 1);
-    double Continue(double Time, byte Column = 1);
+    double Start(CTimeValue Time, byte Column = 1);
+    void StartAll(CTimeValue Time);
+    double GetVal(CTimeValue Time, byte Column = 1);
+    double GetAveVal(CTimeValue Time, byte Column = 1);
+    double Pause(CTimeValue Time, byte Column = 1);
+    double Continue(CTimeValue Time, byte Column = 1);
 //    void Copy(pCSimpleProfiler p);
     inline flag Loaded() { return bLoaded; };
     inline flag Linear(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (flag)(pInfo[Column].bLinear); return False; };
     inline flag WrapArround(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (flag)(pInfo[Column].bWrapArround); return True; };
     inline flag Started(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (flag)(pInfo[Column].bStarted); return False; };
     inline flag Paused(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (flag)(pInfo[Column].bPaused); return False; };
-    inline double StartTime(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (pInfo[Column].dStartTime); return 0.0; };
-    inline double LastTime(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (pInfo[Column].dLastTime); return 0.0; };
+    inline CTimeValue StartTime(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (pInfo[Column].dStartTime); return 0.0; };
+    inline CTimeValue LastTime(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (pInfo[Column].dLastTime); return 0.0; };
     inline double PausedVal(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (pInfo[Column].dPausedVal); return 0.0; };
     inline byte ColCnt() { if (bLoaded) return (byte)Data.GetCols(); return 0; };
     inline long RowCnt(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return pInfo[Column].iLen; return 0; };
     inline double FullTime(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return Data[pInfo[Column].iLen-1][0]; return 0.0; };
-    inline double TimePassed(byte Column = 1) { if (bLoaded && Column<Data.GetCols() && pInfo[Column].bStarted) return pInfo[Column].dLastTime - pInfo[Column].dStartTime; return 0.0; };
+    inline CTimeValue TimePassed(byte Column = 1) { if (bLoaded && Column<Data.GetCols() && pInfo[Column].bStarted) return pInfo[Column].dLastTime - pInfo[Column].dStartTime; return 0.0; };
     inline long CurIndex(byte Column = 1) { if (bLoaded && Column<Data.GetCols()) return (long)(pInfo[Column].iCurIndex); return 0; };
   private:
-    void JustLoaded(double Time, byte Column);
-    double CalcArea(double T1, double T2, byte Column);
+    void JustLoaded(CTimeValue Time, byte Column);
+    double CalcArea(CTimeValue T1, CTimeValue T2, byte Column);
   };
 
 //===========================================================================

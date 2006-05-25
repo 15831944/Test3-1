@@ -103,7 +103,7 @@ flag CCtrlLink::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void CCtrlLink::EvalCtrlInitialise()
+void CCtrlLink::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
   if (NoCIOs()>=2 && m_bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {
@@ -112,7 +112,7 @@ void CCtrlLink::EvalCtrlInitialise()
 
 //--------------------------------------------------------------------------
 
-void CCtrlLink::EvalCtrlStrategy()
+void CCtrlLink::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (fDoDbgBrk)
     { int xxx=0;}

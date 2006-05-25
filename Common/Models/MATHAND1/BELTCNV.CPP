@@ -757,7 +757,7 @@ void BeltCnv::EvalPowerRequired()
 
 //--------------------------------------------------------------------------
 
-void BeltCnv::EvalCtrlActions()
+void BeltCnv::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   m_BeltSB.EvalCtrlActions(this);
   }

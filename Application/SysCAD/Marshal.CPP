@@ -539,19 +539,21 @@ void CopyTmCB(SCD_EXECUTIONCONTROL &TmCB, const CXM_TimeControl &CB)
   TmCB.m_bRealTime          = CB.m_bRealTime;     
   TmCB.m_bSyncWithClock     = CB.m_bSyncWithClock;
   TmCB.m_bHoldAdv           = CB.m_bHoldAdv;      
-  TmCB.m_dTime              = CB.m_Time;          
-  TmCB.m_dStepSize          = CB.m_StepSize;      
-  TmCB.m_dStepSizeMax       = CB.m_StepSizeMax;   
-  TmCB.m_dStepSizeNxt       = CB.m_StepSizeNxt;   
-  TmCB.m_dStopTime          = CB.m_StopTime;      
+  TmCB.m_dTime              = CB.m_TheTime.Seconds;          
+  TmCB.m_dStepSize          = CB.m_StepSize.Seconds;      
+  TmCB.m_dStepSizeMax       = CB.m_StepSizeMax.Seconds;   
+  TmCB.m_dStepSizeNxt       = CB.m_StepSizeNxt.Seconds;   
+  TmCB.m_dStopTime          = CB.m_TimeToStop.Seconds;      
   TmCB.m_dRealTimeMult      = CB.m_RealTimeMult;  
-  TmCB.m_nSteps             = CB.m_nSteps;        
-  TmCB.m_nMaxSteps          = CB.m_nMaxSteps;     
+  TmCB.m_nStepCount         = CB.m_StepCount;        
+  TmCB.m_nStepCountMax      = CB.m_StepCountMax;     
   
     //EqnSlvCtrlBlk    m_EqnCB;
       
-  TmCB.m_iRunTerm           = (Scd_RunTerms)CB.m_iRunTerm;
-  TmCB.m_dTimeUntilStop     = CB.m_dTimeUntilStop;
+  TmCB.m_ScnType            = (Scd_RunTerms)CB.m_ScnType;
+  TmCB.m_TermAction         = (Scd_StopActions)CB.m_TermAction;
+  TmCB.m_ScnStopTime        = CB.m_ScnStopTime.Seconds;
+  TmCB.m_ScnDuration        = CB.m_ScnDuration.Seconds;
   }
   
 // --------------------------------------------------------------------------
@@ -603,7 +605,7 @@ DWORD CIOMarshal::EO_Message(CXMsgLst& XM, CXM_Route& Route)
 
 //---------------------------------------------------------------------------
 
-flag CIOMarshal::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CIOMarshal::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
 dbgpln(">>EO_QueryTime");
   USES_CONVERSION;
@@ -625,7 +627,7 @@ dbgpln("  EO_QueryTime");
 
 //---------------------------------------------------------------------------
 
-flag CIOMarshal::EO_Start(const CXM_TimeControl &CB)
+flag CIOMarshal::EO_Start(CXM_TimeControl &CB)
   {
 dbgpln(">>EO_Start");
   flag OK=true;
@@ -1332,7 +1334,7 @@ int CIOMarshal::EO_WriteTaggedItem(CXM_ObjectData& ObjData, CXM_Route& Route)
 
 //---------------------------------------------------------------------------
 
-flag CIOMarshal::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CIOMarshal::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
 dbgpln(">>EO_Execute");
   flag OK=true;
@@ -1340,8 +1342,8 @@ dbgpln(">>EO_Execute");
   SCD_EXECRETURN EXRet;
   DWORD Ret=0;
   CopyTmCB(TmCB, CB);
-  EXRet.m_Time=EORet.m_Time;
-  EXRet.m_StepSizeNxt=EORet.m_StepSizeNxt;
+  EXRet.m_Time=EORet.m_Time.Seconds;
+  EXRet.m_StepSizeNxt=EORet.m_StepSizeNxt.Seconds;
   HRESULT hr=m_ExecObject->Execute(&TmCB, &EXRet, &Ret);
   if (FAILED(hr))
     {
@@ -1358,7 +1360,7 @@ dbgpln("  EO_Execute");
 
 //---------------------------------------------------------------------------
 
-flag CIOMarshal::EO_Stop(const CXM_TimeControl &CB)
+flag CIOMarshal::EO_Stop(CXM_TimeControl &CB)
   {
   dbgpln(">>EO_Stop");
   SCD_EXECUTIONCONTROL TmCB;

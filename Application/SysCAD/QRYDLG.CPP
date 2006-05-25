@@ -17,8 +17,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 CQueryDlg::CQueryDlg(CWnd* pParent,
                      pCTagVwDoc Doc,
-                     double StartTime,
-                     double EndTime)
+                     CTimeValue StartTime,
+                     CTimeValue EndTime)
   : CDialog(CQueryDlg::IDD, pParent)
   {
   pTTC = NULL;
@@ -34,11 +34,8 @@ CQueryDlg::CQueryDlg(CWnd* pParent,
 	m_TimeOptUnits = 0;
 	//}}AFX_DATA_INIT
   pDoc = Doc;
-  char Buff[256];
-  SecstoHMSDate(StartTime, Buff);
-  m_StartTime = Buff;
-  SecstoHMSDate(EndTime, Buff);
-  m_EndTime = Buff;
+  m_StartTime = StartTime.Format(TD_TimeDate);
+  m_EndTime = EndTime.Format(TD_TimeDate);
   Create(CQueryDlg::IDD, pParent);
   }
 
@@ -164,10 +161,10 @@ void CQueryDlg::OnOK()
   {
   UpdateData(True);
   SaveOptions();
-  double StartTime; 
-  double LastTime;
-  flag Ok = HMSDatetoSecs((char*)(const char*)m_StartTime, StartTime);
-  Ok = HMSDatetoSecs((char*)(const char*)m_EndTime, LastTime);
+  CTimeValue StartTime; 
+  CTimeValue LastTime;
+  flag Ok = StartTime.Parse(m_StartTime);
+  Ok = LastTime.Parse(m_EndTime);
 
   short TagCnt = m_TagList.GetCount();
 
@@ -180,7 +177,7 @@ void CQueryDlg::OnOK()
     if (pDoc->StartFile((char*)(const char*)m_Filename))
       {
       //HRoute.dbgDump("Historian Route ");
-      CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (StartTime, LastTime, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0, 0.0);
+      CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (StartTime.Seconds, LastTime.Seconds, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0, 0.0);
       CXMsgLst XM;
       for (int i=0; i<TagCnt; i++)
         {
@@ -190,7 +187,7 @@ void CQueryDlg::OnOK()
           {//???
           XM.PackMsg(xb);
           XM.PackMsg(new CXM_Route(HRoute));
-          xb=new CXM_QueryHistoryOther (StartTime, LastTime, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0, 0.0);
+          xb=new CXM_QueryHistoryOther (StartTime.Seconds, LastTime.Seconds, (long)pDoc, (byte)m_Option, (byte)m_TimeOptUnits, m_TimeOptFull, m_Headings, m_NoPts, dNAN, 1/*File*/, NULL, NULL, 0, 0.0);
           i--;
           }
         }

@@ -224,14 +224,14 @@ class TrndTimeBase
   {
   DEFINE_MEMSTATS(TrndTimeBase)
   public:
-    double         EndTime;
-    double         StartTime;
+    CTimeValue     EndTime;
+    CTimeValue     StartTime;
     flag           TrackingTime;
     flag           AllowLatch;
 
-    TrndTimeBase() { EndTime=3600.0; StartTime=0.0; TrackingTime=1; AllowLatch=0; };
+    TrndTimeBase() { EndTime=CTimeValue(3600.0); StartTime=CTimeValue(0.0); TrackingTime=1; AllowLatch=0; };
 
-    inline double Duration() { return EndTime-StartTime; };
+    inline CTimeValue Duration() { return EndTime-StartTime; };
     flag operator ==(TrndTimeBase & TB) { return EndTime==TB.EndTime && StartTime==TB.StartTime && TrackingTime==TB.TrackingTime; };
     flag operator !=(TrndTimeBase & TB) { return EndTime!=TB.EndTime || StartTime!=TB.StartTime || TrackingTime!=TB.TrackingTime; };
   };
@@ -253,8 +253,8 @@ class CTrendSclBlk
 const int  TrndIntInvalid=-32768;
 inline int IntRound(long Lo, double X, long Hi) 
   { return (X > Hi ? Hi : (X < Lo ? Lo : (int)X));};
-inline int TimePixel(double Time, TrndTimeBase& TB) 
-  { return IntRound(LONG_MIN, ((TrendXMax/(double)(TB.Duration())*(Time-TB.StartTime))/TrendLUperPT)*TrendLUperPT, LONG_MAX/*TrendXMax-1*/);};
+inline int TimePixel(CTimeValue Time, TrndTimeBase& TB) 
+  { return IntRound(LONG_MIN, ((TrendXMax/NZ(TB.Duration().Seconds)*(Time-TB.StartTime).Seconds)/TrendLUperPT)*TrendLUperPT, LONG_MAX/*TrendXMax-1*/);};
 inline int YPixel(double Val, CTrendSclBlk & Scl) 
   { return Valid(Val) ? IntRound(0, TrendYMax/NZ((double)(Scl.YMx-Scl.YMn))*(Val-Scl.YMn), TrendYMax-1) : TrndIntInvalid; };
 
@@ -271,8 +271,8 @@ class CTrendPtBlk
 
     CTrendPtBlk();
     ~CTrendPtBlk();
-    flag AddPt(double Time, double Val, byte Typ, int SltNo, int Fwd, CTrendSclBlk & Scl, CTagVwDoc *Doc);
-    void ShiftPts(double d, CTrendSclBlk & Scl, CTagVwDoc *Doc);
+    flag AddPt(CTimeValue Time, double Val, byte Typ, int SltNo, int Fwd, CTrendSclBlk & Scl, CTagVwDoc *Doc);
+    void ShiftPts(CTimeValue dTIme, CTrendSclBlk & Scl, CTagVwDoc *Doc);
     void UpdateYMnMx(CTrendSclBlk & OldScl, CTrendSclBlk & NewScl, CTagVwDoc *Doc);
     
     CPoint & operator[](int i) { ASSERT(i>=0 && i < MaxTrendPtBlk); return Pt[i];};
@@ -308,8 +308,8 @@ class CTrendSlot
     CTrendPtBlkList PtBlks;//, FreeBlks;          
 
     CTrendPtBlk*   pStartOfTail;
-    double         dBuildStartTime;
-    double         LastMeasTime;
+    CTimeValue     dBuildStartTime;
+    CTimeValue     LastMeasTime;
     double         LastMeasValue;
 
     CTrendSlot();
@@ -319,14 +319,14 @@ class CTrendSlot
     CTrendPtBlk*   GetPtBlk();
     void           Clear();
     void           ClearTail();
-    void           AddStartPt(double Tim, double Val);
+    void           AddStartPt(CTimeValue Tim, double Val);
 
     void           Connect(int No, /*pCTagVwTrend Vw_, */pCTagVwSlot Slt_, pCTagVwDoc Doc_); 
     flag           Connected() { return (pSlt!=NULL);};
     void           Draw(CDC* pDC, flag DoingAll, flag OnlyNew, flag fFromHeadOnly);
-    void           AppendMeasured(double TheTime);
-    void           BuildFromEvent(double Time, double Val);
-    void           ShiftDrwPts(double d);
+    void           AppendMeasured(CTimeValue TheTime);
+    void           BuildFromEvent(CTimeValue Time, double Val);
+    void           ShiftDrwPts(CTimeValue dTime);
     void           UpdateYMnMx(double NewMin, double NewMax);
 
     void           Start();
@@ -469,14 +469,14 @@ class CTagVwDoc : public DocRoot, public CExecObj, CNodeXRefMngr
 
     void             FixTimeBase();
     void             SetTimeGlobal(flag On);
-    void             SetTimebase(double Start, double Duration, flag bGlobal);
-    void             AdjustTimebase(double Shift, double Scale, flag TrackingOn, flag AllowLatch);
+    void             SetTimebase(CTimeValue Start, CTimeValue Duration, flag bGlobal);
+    void             AdjustTimebase(double ShiftFrac, double Scale, flag TrackingOn, flag AllowLatch);
     void             UpdateTimebase(TrndTimeBase & TTB);
     static void      DoSetTimeGlobal(flag On);
     static flag      TimeBaseGlobal() { return fTimeBaseGlobal; };
-    double           TimeBaseStart(flag bGlobal=False) { return bGlobal ? GTB.StartTime : TB.StartTime; };
-    double           TimeBaseEnd(flag bGlobal=False) { return bGlobal ? GTB.EndTime : TB.EndTime; };
-    double           TimeBaseDuration(flag bGlobal=False) { return bGlobal ? GTB.Duration() : TB.Duration(); };
+    CTimeValue       TimeBaseStart(flag bGlobal=False) { return bGlobal ? GTB.StartTime : TB.StartTime; };
+    CTimeValue       TimeBaseEnd(flag bGlobal=False) { return bGlobal ? GTB.EndTime : TB.EndTime; };
+    CTimeValue       TimeBaseDuration(flag bGlobal=False) { return bGlobal ? GTB.Duration() : TB.Duration(); };
     flag             TimeBaseTracking(flag bGlobal=False) { return bGlobal ? GTB.TrackingTime : TB.TrackingTime; };
 
     TrndTimeBase &   GetCurrentTimeBase() { return TB; };
@@ -557,15 +557,15 @@ class CTagVwDoc : public DocRoot, public CExecObj, CNodeXRefMngr
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_QueryDeleteTag(pchar pDelTag);
     virtual int    EO_DeleteTag(pchar pDelTag);
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag   EO_Start(const CXM_TimeControl &CB);
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);
     virtual void   EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     virtual flag   EO_TagsNotAvail(CXMsgLst &XM);
     virtual flag   EO_ReadSubsData(CXMsgLst &XM);  
     virtual flag   EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);  
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag   EO_Stop(const CXM_TimeControl &CB);
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag   EO_Stop(CXM_TimeControl &CB);
     virtual flag   EO_Starting(flag fBeginStarting);
     virtual flag   EO_Stopping(flag fBeginStopping);
     virtual void   EO_GlblResultValidity(flag IsValid, flag IsAlwaysValid);

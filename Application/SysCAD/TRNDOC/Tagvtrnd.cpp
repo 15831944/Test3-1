@@ -113,8 +113,8 @@ CTagVwTrend::CTagVwTrend() :
   STWnd(this), ETWnd(this) ,DurWnd(this)
   {
   m_lNChanges=0;
-  DrwStartTime=0;
-  DrwCurrentTime=0;
+  DrwStartTime=CTimeValue(0.0);
+  DrwCurrentTime=CTimeValue(0.0);
 
   for (int f=0; f<3; f++) 
     Font[f]=NULL;
@@ -187,52 +187,66 @@ void CTagVwTrend::OnActivateView( BOOL bActivate, CView* pActivateView, CView* p
 
 void CTagVwTrend::ShowLabels()
   {
-  char Buff1[256],Buff2[256];
+  CString Buff1,Buff2;
+  int Len;
   pCTagVwDoc pDoc = Doc();
   TrndTimeBase TB = pDoc->GetCurrentTimeBase();
   if ((pDoc->ST || pDoc->SD) && !gs_Exec.SolvingPB())
     {
     STWnd.ShowWindow(SW_SHOW);
-    Buff2[0] = 0;
     if (pDoc->ST)
       {
-      SecstoHMS(TB.StartTime, Buff1, True);
+      Buff1=TB.StartTime.Format(TD_Time);
       if (!pDoc->HS)
-        *strchr(Buff1, '.') = 0;
+        {
+        //*strchr(Buff1, '.') = 0;
+        Len=Buff1.Find('.');
+        if (Len>=0)
+          Buff1=Buff1.Left(Len);
+        }
       if (pDoc->SD)
-        SecstoDate(TB.StartTime, Buff2);
+        Buff2=TB.StartTime.Format(TD_DateLeft);
       }
     else
-      SecstoDate(TB.StartTime, Buff1);
-    STWnd.SetTextToFit(Buff1, Buff2, 0, 0);
+      Buff1=TB.StartTime.Format(TD_DateLeft);
+    STWnd.SetTextToFit(Buff1.GetBuffer(0), Buff2.GetBuffer(0), 0, 0);
     }
   else
     STWnd.ShowWindow(SW_HIDE);
   if ((pDoc->ET || pDoc->ED) && !gs_Exec.SolvingPB())
     {
     ETWnd.ShowWindow(SW_SHOW);
-    Buff2[0] = 0;
     if (pDoc->ET)
       {
-      SecstoHMS(TB.EndTime, Buff1, True);
+      Buff1=TB.EndTime.Format(TD_Time);
       if (!pDoc->HS)
-        *strchr(Buff1, '.') = 0;
+        {
+        //*strchr(Buff1, '.') = 0;
+        Len=Buff1.Find('.');
+        if (Len>=0)
+          Buff1=Buff1.Left(Len);
+        }
       if (pDoc->ED)
-        SecstoDate(TB.EndTime, Buff2);
+        Buff2=TB.EndTime.Format(TD_DateLeft);
       }
     else
-      SecstoDate(TB.EndTime, Buff1);
-    ETWnd.SetTextToFit(Buff1, Buff2, 2, 0);
+      Buff1=TB.EndTime.Format(TD_DateLeft);
+    ETWnd.SetTextToFit(Buff1.GetBuffer(0), Buff2.GetBuffer(0), 2, 0);
     }
   else
     ETWnd.ShowWindow(SW_HIDE);
   if ((pDoc->Dur) && !gs_Exec.SolvingPB())
     {
     DurWnd.ShowWindow(SW_SHOW);
-    sprintf(Buff1, "<%s>", SecstoDHMSCnv(TB.EndTime-TB.StartTime, Buff2));
-    if (!pDoc->HS && (TB.EndTime-TB.StartTime>10))
-      strcpy(strchr(Buff1, '.'), ">");
-    DurWnd.SetTextToFit(Buff1, "", 1, 2);
+    Buff1.Format("<%s>", (TB.EndTime-TB.StartTime).Format(TD_Days|TD_Time));
+    if (!pDoc->HS && (TB.EndTime-TB.StartTime>CTimeValue(10.0)))
+      {
+      Len=Buff1.Find('.');
+      if (Len>=0)
+        Buff1=Buff1.Left(Len);
+      Buff1+=">";
+      }
+    DurWnd.SetTextToFit(Buff1.GetBuffer(0), "", 1, 2);
     }
   else
     DurWnd.ShowWindow(SW_HIDE);
@@ -276,10 +290,10 @@ void CTagVwTrend::OnUpdate(CView*pSender, LPARAM lHint, CObject* pHint)
   if (lHint & (TGU_UpdateAll))
     {
     pCTagVwDoc pDoc=Doc();
-    UpdateTimeCurs(dNAN, pDoc->BackGroundColour, pDoc->CTimeColour); // Clear
+    UpdateTimeCurs(TimeNAN, pDoc->BackGroundColour, pDoc->CTimeColour); // Clear
     for (int i=0; i<NoTrends(); i++)
       UpdateTrend(i, OTU_FromHead);
-    UpdateTimeCurs(gs_Exec.Time(), pDoc->BackGroundColour, pDoc->CTimeColour); // Redraw 
+    UpdateTimeCurs(gs_Exec.TheTime, pDoc->BackGroundColour, pDoc->CTimeColour); // Redraw 
     }
   }
 
@@ -413,9 +427,9 @@ void CTagVwTrend::OnDraw(CDC* pDC)
 
   pCTagVwDoc pDoc=Doc();
   TrndTimeBase TB = pDoc->GetCurrentTimeBase();
-  double TimeWindow=TB.EndTime-TB.StartTime;
-  double TrndStartTime=TB.StartTime+(long)(TimeWindow*((double)(ReDrawR.left-DrawR.left))/
-                                                           (DrawR.right-DrawR.left));
+  CTimeValue TimeWindow=TB.EndTime-TB.StartTime;
+  CTimeValue TrndStartTime=TB.StartTime+CTimeValue((double)((long)CTimeValue(TimeWindow*(((double)(ReDrawR.left-DrawR.left))/
+                                                            (DrawR.right-DrawR.left))).Seconds));
   CRect ClpBox;
   pDC->GetClipBox(&ClpBox);
 
@@ -646,8 +660,8 @@ double TimeDivSize(TrndTimeBase TB, int nDivs)
       3600., 2*3600., 4*3600., 6*3600., 8*3600.,12*3600.,          // Hours
       86400., 2*86400., 4*86400., 7*86400., 14*86400., 28*86400.   // Days
     };
-  double TimeWindow=TB.EndTime-TB.StartTime;
-  double TDiv=ceil(TimeWindow/nDivs);
+  CTimeValue TimeWindow=TB.EndTime-TB.StartTime;
+  double TDiv=ceil(TimeWindow.Seconds/nDivs);
   
   for (int i=0; i<sizeof(AllowableDivs)/sizeof(AllowableDivs[0]); i++)
     if (AllowableDivs[i]>=TDiv)
@@ -668,7 +682,7 @@ void CTagVwTrend::DrawGrid(CDC* pDC)
     {
     TrndTimeBase TB = pDoc->GetCurrentTimeBase();
     double dT=TimeDivSize(TB, pDoc->iNXGridDivs);
-    double T=floor(TB.StartTime/dT)*dT;
+    double T=floor(TB.StartTime.Seconds/dT)*dT;
 
     while (1)//i=0; i<pDoc->iNXGridDivs+1; i++)
       {
@@ -786,7 +800,7 @@ void CTagVwTrend::HiLiteTrend(int iTrnd, flag On)
       PopMapping(dc, MapSv);
       }
   FreeDoc();
-  UpdateTimeCurs(gs_Exec.Time(), pDoc->BackGroundColour, pDoc->CTimeColour); // Redraw 
+  UpdateTimeCurs(gs_Exec.TheTime, pDoc->BackGroundColour, pDoc->CTimeColour); // Redraw 
   }
 
 //---------------------------------------------------------------------------
@@ -834,7 +848,7 @@ void CTagVwTrend::ToggleDigCursor(POINT &Pt)
 
 //---------------------------------------------------------------------------
 
-void CTagVwTrend::UpdateTimeCurs(double Time, COLORREF BackGndColour, COLORREF TimeColour)
+void CTagVwTrend::UpdateTimeCurs(CTimeValue Time, COLORREF BackGndColour, COLORREF TimeColour)
   {
   if (bDispCleared)
     {
@@ -865,12 +879,12 @@ void CTagVwTrend::UpdateTimeCurs(double Time, COLORREF BackGndColour, COLORREF T
     int OldMode=dc.SetROP2(R2_XORPEN);
 
     int NewTimeCursPos=-1;
-    if (Valid(Time))
+    if (ValidTime(Time))
       {
       pCTagVwDoc pDoc=Doc();
       TrndTimeBase TB = pDoc->GetCurrentTimeBase();
 
-      double TPos=(Time-TB.StartTime)/(TB.EndTime-TB.StartTime);
+      double TPos=(Time-TB.StartTime).Seconds/GTZ((TB.EndTime-TB.StartTime).Seconds);
       if (TPos >=0.0 && TPos <=1.0)
         NewTimeCursPos=TrendR.left+(long)((TrendR.right-TrendR.left)*TPos+1.5);    
       }
@@ -918,7 +932,7 @@ void CTagVwTrend::SetRangeValues(flag FixIndicator)
   pCTagVwDoc pDoc=Doc();
   TrndTimeBase TB = pDoc->GetCurrentTimeBase();
 
-  double TimeWindow=TB.EndTime-TB.StartTime;
+  CTimeValue TimeWindow=TB.EndTime-TB.StartTime;
   }
 
 //---------------------------------------------------------------------------
@@ -933,19 +947,20 @@ void CTagVwTrend::SetDigValues(TrackTrend &WrkTrnd)
     rCTagVwSlot Slot= *Trend.pSlt;
     const char* Tag = Slot.sTag();
     const char* Desc = Slot.sDesc();
-    char DateBuff[256];
+    const char* Date;
+    //char DateBuff[256];
     TrndTimeBase TB = pDoc->GetCurrentTimeBase();
-    double XMn = TB.StartTime;
-    double XMx = TB.EndTime; 
-    long t = (long)(((XMx-XMn)*WrkTrnd.XY.x)/TrendXMax);
-    SecstoHMSDate(XMn + t, DateBuff, gs_Exec.SyncWithClock());
+    CTimeValue XMn = TB.StartTime;
+    CTimeValue XMx = TB.EndTime; 
+    long t = (long)(((XMx-XMn).Seconds*WrkTrnd.XY.x)/TrendXMax);
+    Date=(XMn + CTimeValue((double)t)).Format(TD_Time|(gs_Exec.SyncWithClock()?TD_DateRight:0));
     double YMn = Trend.Scl.YMn;
     double YMx = Trend.Scl.YMx;
     double Val = YMn+((YMx-YMn)*WrkTrnd.XY.y)/TrendYMax;
     FreeDoc();
 
     char InfoDate[512], /*InfoTag[512],*/ InfoVal[512], InfoRange[512];
-    sprintf(InfoDate, "%s     (%dsecs)", DateBuff, t);              //sprintf(InfoTag, Desc ? "%s[%s]" : "%s", Tag, Desc);
+    sprintf(InfoDate, "%s     (%dsecs)", Date, t);              //sprintf(InfoTag, Desc ? "%s[%s]" : "%s", Tag, Desc);
     //sprintf(InfoDesc, "%s", Tag, Desc);
     //Strng SVal, SMn, SMx;
     Slot.Fmt.FormatFloat(Val, InfoVal, sizeof(InfoVal));
@@ -1255,16 +1270,16 @@ void CTagVwTrend::OnLButtonDblClk(UINT nFlags, CPoint point)
     {
     if (abs(DblPts[0].x-DblPts[1].x) > TrendXMax*0.01)
       {
-      double St=DrwStartTime+(DrwEndTime-DrwStartTime)*Min(DblPts[0].x, DblPts[1].x)/TrendXMax;
-      double En=DrwStartTime+(DrwEndTime-DrwStartTime)*Max(DblPts[0].x, DblPts[1].x)/TrendXMax;
+      CTimeValue St=DrwStartTime+double(DrwEndTime-DrwStartTime)*Min(DblPts[0].x, DblPts[1].x)/TrendXMax;
+      CTimeValue En=DrwStartTime+double(DrwEndTime-DrwStartTime)*Max(DblPts[0].x, DblPts[1].x)/TrendXMax;
       pCTagVwDoc pDoc=Doc();
       pDoc->SetTimebase(St, Max(0.01, En-St), true);
       }
     else
       {
-      double D=DrwEndTime-DrwStartTime;
-      double St=DrwStartTime-0.5*D;
-      double En=DrwEndTime+0.5*D;
+      CTimeValue D=DrwEndTime-DrwStartTime;
+      CTimeValue St=DrwStartTime-D*0.5;
+      CTimeValue En=DrwEndTime+D*0.5;
       pCTagVwDoc pDoc=Doc();
       pDoc->SetTimebase(St, Max(0.01, En-St), true);
       }
@@ -1385,7 +1400,7 @@ LRESULT CTagVwTrend::OnScrollByMsg(WPARAM wParam, LPARAM lParam)
     RECT ClntRct;
     GetClientRect(&ClntRct);
     TrndTimeBase &TB = pDoc->GetCurrentTimeBase();
-    long dx=(long)(d/(TB.EndTime-TB.StartTime)*(ClntRct.right-ClntRct.left));
+    long dx=(long)(d/NZ((TB.EndTime-TB.StartTime).Seconds)*(ClntRct.right-ClntRct.left));
     if (pDoc->ET || pDoc->ED)
       ETWnd.ShowWindow(SW_HIDE);
     if (pDoc->Dur)

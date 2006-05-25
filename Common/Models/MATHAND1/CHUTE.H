@@ -52,7 +52,7 @@ class Chute : public MdlNode
     virtual void   EvalJoinPressures(long JoinMask);
 
     virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual dword  ModelStatus();
   private:
   };

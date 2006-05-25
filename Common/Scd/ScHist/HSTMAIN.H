@@ -182,17 +182,17 @@ class DllImportExport CHistorian
   private:
     // ExecObj Overrides
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route);
-    virtual flag   EO_SetTime(double TimeRqd, bool Rewind);
-    virtual flag   EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd);
-    virtual flag   EO_Start(const CXM_TimeControl &CB);
+    virtual flag   EO_SetTime(CTimeValue TimeRqd, bool Rewind);
+    virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
+    virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);
     virtual void   EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet);
     virtual flag   EO_ReadSubsData(CXMsgLst &XM);
     virtual flag   EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock);
-    virtual flag   EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet);
-    virtual flag   EO_BeginPause(const CXM_TimeControl &CB);
-    virtual flag   EO_EndPause(const CXM_TimeControl &CB);
-    virtual flag   EO_Stop(const CXM_TimeControl &CB);
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
+    virtual flag   EO_BeginPause(CXM_TimeControl &CB);
+    virtual flag   EO_EndPause(CXM_TimeControl &CB);
+    virtual flag   EO_Stop(CXM_TimeControl &CB);
     virtual flag   EO_BeginSave(FilingControlBlock &FCB);
     virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);

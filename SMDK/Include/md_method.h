@@ -755,11 +755,11 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     virtual void    EvalIntegral(double StepSize) {}; // each Dyn Iteration - Advance the model StepSize
 
     virtual void    EvalDiscrete()                {}; // each Dyn Iteration -
-    virtual void    EvalCtrlInitialise()          {}; // each Start of Run
-    virtual void    EvalCtrlActions()             {}; // each Iteration - To apply result of control
-    virtual void    EvalCtrlStrategy()            {}; // each Iteration - To calculate required control actions
-    virtual void    EvalCtrlTerminate()           {}; // each End of Run
-    virtual void    EvalStatistics()              {}; // each Iteration End to calculate Stats relevant to model
+    virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All)          {}; // each Start of Run
+    virtual void    EvalCtrlActions(eScdCtrlTasks Tasks=CO_All)             {}; // each Iteration - To apply result of control
+    virtual void    EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All)            {}; // each Iteration - To calculate required control actions
+    virtual void    EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All)           {}; // each End of Run
+    virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              {}; // each Iteration End to calculate Stats relevant to model
 
     virtual void    EvalPowerAvailable()          {};
     virtual void    EvalPowerRequired()           {};

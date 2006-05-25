@@ -995,10 +995,10 @@ void MN_Surge::ApplyDerivs(double dTime, flag DoDbg)
 
 //---------------------------------------------------------------------------
 
-void MN_Surge::EvalStatistics()
+void MN_Surge::EvalStatistics(eScdCtrlTasks Tasks)
   {
-  Contents.EvalStatistics();
-  MdlNode::EvalStatistics();
+  Contents.EvalStatistics(Tasks);
+  MdlNode::EvalStatistics(Tasks);
   }
 
 //--------------------------------------------------------------------------

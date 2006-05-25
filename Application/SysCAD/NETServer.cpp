@@ -138,7 +138,7 @@ ref class CNETServerThread
 
     void MarshalGraphics()
       {
-/**
+      /*
       String ^ filename;
       Graphic ^ graphic = gcnew Graphic;
       filename = gcnew String(m_pUnmanaged->m_PrjName);

@@ -103,7 +103,7 @@ class BeltCnv2 : public MdlNode
     virtual void   EvalProducts(long JoinMask);
     
     virtual void   EvalPowerRequired();
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
 
     virtual void   EvalDiscrete();
     virtual void   ClosureInfo();

@@ -3044,6 +3044,16 @@ void GCClassVar::SaveVal(FilingControlBlock &FCB,
 
 void GCClassVar::SaveVal(FilingControlBlock &FCB,
                         pchar pValName,
+                        CTimeValue d)
+  {
+  __debugbreak();
+  GCFCBAppendRec(FCB, 't', pValName, &d, sizeof(d));
+  }
+
+//---------------------------------------------------------------------------
+
+void GCClassVar::SaveVal(FilingControlBlock &FCB,
+                        pchar pValName,
                         int i)
   {
   GCFCBAppendRec(FCB, 'i', pValName, &i, sizeof(i));

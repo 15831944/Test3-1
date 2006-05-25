@@ -669,7 +669,7 @@ void Crush1::Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)
 
 // --------------------------------------------------------------------------
 
-void Crush1::EvalCtrlActions()
+void Crush1::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   //int io=CIOWithId_Self(CIOId_Spd);
   //if (io>=0)

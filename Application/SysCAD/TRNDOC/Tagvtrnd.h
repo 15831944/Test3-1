@@ -76,14 +76,14 @@ protected://public:
 
   CSize            CrSz, CharSize[3];
   
-  double           DrwStartTime;
-  double           DrwEndTime;
-  double           DrwCurrentTime;
+  CTimeValue       DrwStartTime;
+  CTimeValue       DrwEndTime;
+  CTimeValue       DrwCurrentTime;
   UINT             MouseFlags;
 
   long             LastTimeCursPos;
 
-  double           TimeOfLastBuild;
+  CTimeValue       TimeOfLastBuild;
 
   int              LastTrndNo;
   TrackTrend       TrkTrend;
@@ -123,7 +123,7 @@ protected:
   void             PointtoLP(POINT &Pt);
 
   void             ToggleDigCursor(POINT &Pt);
-  void             UpdateTimeCurs(double Time, COLORREF BackGndColour, COLORREF TimeColour);
+  void             UpdateTimeCurs(CTimeValue Time, COLORREF BackGndColour, COLORREF TimeColour);
   void             SetRangeValues(flag FixIndicator);
   void             SetDigValues(TrackTrend &WrkTrnd);
   void             ShowLabels();

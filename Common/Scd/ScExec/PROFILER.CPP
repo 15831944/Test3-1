@@ -22,8 +22,8 @@ CProfileInfo::CProfileInfo()
   iPulseSeq = 0;
   iCurIndex = 0;
   iPrvIndex = -1;
-  dStartTime = 0.0;
-  dLastTime = 0.0;
+  dStartTime = CTimeValue(0.0);
+  dLastTime = CTimeValue(0.0);
   dPausedVal = 0.0;
   dFullArea = 0.0;
   dPrevVal = 0.0;
@@ -149,7 +149,7 @@ void CSimpleProfiler::SetAllOptions(flag Linear, flag WrapArround)
 
 //---------------------------------------------------------------------------
 
-void CSimpleProfiler::JustLoaded(double Time, byte Column)
+void CSimpleProfiler::JustLoaded(CTimeValue Time, byte Column)
   {
   pInfo[Column].dStartTime = Time - (pInfo[Column].dLastTime - pInfo[Column].dStartTime);
   pInfo[Column].dLastTime = Time;
@@ -160,7 +160,7 @@ void CSimpleProfiler::JustLoaded(double Time, byte Column)
 
 //---------------------------------------------------------------------------
 
-double CSimpleProfiler::CalcArea(double T1, double T2, byte Column)
+double CSimpleProfiler::CalcArea(CTimeValue T1, CTimeValue T2, byte Column)
   {
   if (bLoaded && Column<Data.GetCols())
     {
@@ -171,7 +171,7 @@ double CSimpleProfiler::CalcArea(double T1, double T2, byte Column)
     CProfileInfo& Info = pInfo[Column];
     ASSERT(T1>=0.0 && T2<=Data[Info.iLen-1][0] && T2>T1);
     double Area = 0.0;
-    double DeltaX = 0.0;
+    CTimeValue DeltaX = 0.0;
     int i = 0;
     while (T1>Data[i][0])
       i++;
@@ -184,8 +184,8 @@ double CSimpleProfiler::CalcArea(double T1, double T2, byte Column)
       {
       if (i>0 && T2>Data[i][0])
         {
-        DeltaX = Data[i][0] - T1;
-        Area += (DeltaX * Data[i-1][Column]);
+        DeltaX = CTimeValue(Data[i][0]) - T1;
+        Area += (DeltaX.Seconds * Data[i-1][Column]);
         }
       flag First = 1;
       while (T2>Data[i][0])
@@ -194,13 +194,13 @@ double CSimpleProfiler::CalcArea(double T1, double T2, byte Column)
           First = 0;
         else
           {
-          DeltaX = Data[i][0] - Data[i-1][0];
-          Area += (DeltaX * Data[i-1][Column]);
+          DeltaX = CTimeValue(Data[i][0]) - Data[i-1][0];
+          Area += (DeltaX.Seconds * Data[i-1][Column]);
           }
         i++;
         }
       DeltaX = T2 - Max(T1, Data[i-1][0]);
-      Area += (DeltaX * Data[i-1][Column]);
+      Area += (DeltaX.Seconds * Data[i-1][Column]);
       }
     return Area;
     }
@@ -209,7 +209,7 @@ double CSimpleProfiler::CalcArea(double T1, double T2, byte Column)
 
 //---------------------------------------------------------------------------
 
-double CSimpleProfiler::Start(double Time, byte Column/*=1*/)
+double CSimpleProfiler::Start(CTimeValue Time, byte Column/*=1*/)
   {
   if (bLoaded && Column<Data.GetCols())
     {
@@ -231,7 +231,7 @@ double CSimpleProfiler::Start(double Time, byte Column/*=1*/)
 
 //---------------------------------------------------------------------------
 
-void CSimpleProfiler::StartAll(double Time)
+void CSimpleProfiler::StartAll(CTimeValue Time)
   {
   if (bLoaded)
     {
@@ -242,11 +242,17 @@ void CSimpleProfiler::StartAll(double Time)
 
 //---------------------------------------------------------------------------
 
-double CSimpleProfiler::GetVal(double Time, byte Column/*=1*/)
+
+double CSimpleProfiler::GetVal(CTimeValue Time, byte Column/*=1*/)
   {
   if (bLoaded && Column<Data.GetCols())
     {
     CProfileInfo& Info = pInfo[Column];
+
+    dbgpln("%3i %s %s %10.2f %10.2f %10.2f %s", Column,
+      Info.bStarted?"S":" ", Info.bPaused?"P":" ", Info.dLastTime, 
+      Info.dPrevVal, Info.dStartTime, Info.sColTagName());
+
     if (Info.bJustLoaded)
       JustLoaded(Time, Column);
     if (!Info.bStarted)
@@ -254,8 +260,8 @@ double CSimpleProfiler::GetVal(double Time, byte Column/*=1*/)
     if (Info.bPaused)
       return Info.dPausedVal;
     Info.dLastTime = Time;
-    double RelTime = Time - Info.dStartTime;
-    double FullTime = Data[Info.iLen-1][0];
+    CTimeValue RelTime = Time - Info.dStartTime;
+    CTimeValue FullTime = CTimeValue(Data[Info.iLen-1][0]);
     if (RelTime>FullTime)
       {
       if (!Info.bWrapArround)
@@ -275,13 +281,13 @@ double CSimpleProfiler::GetVal(double Time, byte Column/*=1*/)
       RqdValue= Data[0][Column];
     else if (Info.bLinear || (Column==0))
       {
-      double DeltaX = Data[Info.iCurIndex][0] - Data[Info.iCurIndex-1][0];
+      CTimeValue DeltaX = CTimeValue(Data[Info.iCurIndex][0]) - CTimeValue(Data[Info.iCurIndex-1][0]);
       RqdValue=Data[Info.iCurIndex][Column];
       if (Valid(RqdValue))
         {
-        if (fabs(DeltaX)>1.0e-10)
-          RqdValue=Data[Info.iCurIndex-1][Column] + ((RelTime - Data[Info.iCurIndex-1][0]) * 
-                    ((RqdValue - Data[Info.iCurIndex-1][Column]) / DeltaX));
+        if (fabs(DeltaX.Seconds)>1.0e-10)
+          RqdValue=Data[Info.iCurIndex-1][Column] + ((RelTime - CTimeValue(Data[Info.iCurIndex-1][0])).Seconds * 
+                    ((RqdValue - Data[Info.iCurIndex-1][Column]) / DeltaX.Seconds));
         else
           RqdValue=Data[Info.iCurIndex-1][Column];
         }
@@ -324,7 +330,7 @@ double CSimpleProfiler::GetVal(double Time, byte Column/*=1*/)
 
 //---------------------------------------------------------------------------
 
-double CSimpleProfiler::GetAveVal(double Time, byte Column/*=1*/)
+double CSimpleProfiler::GetAveVal(CTimeValue Time, byte Column/*=1*/)
   {
   if (bLoaded && Column<Data.GetCols())
     {
@@ -335,21 +341,21 @@ double CSimpleProfiler::GetAveVal(double Time, byte Column/*=1*/)
       return Start(Time, Column);
     if (Info.bPaused)
       return Info.dPausedVal;
-    double LastTime = Info.dLastTime;
-    double TheLastTime = Info.dLastTime;
-    double StepTime = Time - LastTime;
+    CTimeValue LastTime = Info.dLastTime;
+    CTimeValue TheLastTime = Info.dLastTime;
+    CTimeValue StepTime = Time - LastTime;
     double Area = 0.0;
     Info.dLastTime = Time;
-    double RelTime = Time - Info.dStartTime;
-    double FullTime = Data[Info.iLen-1][0];
+    CTimeValue RelTime = Time - Info.dStartTime;
+    CTimeValue FullTime = Data[Info.iLen-1][0];
     if (RelTime>FullTime)
       {
       if (LastTime<Info.dStartTime+FullTime)
         Area += CalcArea(LastTime - Info.dStartTime, Data[Info.iLen-1][0], Column);
       if (!Info.bWrapArround)
         {
-        Area += (Data[Info.iLen-1][Column]*(RelTime-Max(FullTime, LastTime-Info.dStartTime)));
-        return Area/StepTime;
+        Area += (Data[Info.iLen-1][Column]*(RelTime-Max(FullTime, LastTime-Info.dStartTime)).Seconds);
+        return Area/StepTime.Seconds;
         }
       flag First = 1;
       LastTime = Info.dStartTime + FullTime;
@@ -370,14 +376,14 @@ double CSimpleProfiler::GetAveVal(double Time, byte Column/*=1*/)
     Area += CalcArea(LastTime-Info.dStartTime, Time-Info.dStartTime, Column);
     while (RelTime>Data[Info.iCurIndex][0])
       Info.iCurIndex++;
-    return Area/StepTime;
+    return Area/StepTime.Seconds;
     }
   return 0.0;
   }
 
 //---------------------------------------------------------------------------
 
-double CSimpleProfiler::Pause(double Time, byte Column/*=1*/)
+double CSimpleProfiler::Pause(CTimeValue Time, byte Column/*=1*/)
   { 
   CProfileInfo& Info = pInfo[Column];
   if (bLoaded && Column<Data.GetCols()) 
@@ -391,7 +397,7 @@ double CSimpleProfiler::Pause(double Time, byte Column/*=1*/)
 
 //---------------------------------------------------------------------------
 
-double CSimpleProfiler::Continue(double Time, byte Column/*=1*/) 
+double CSimpleProfiler::Continue(CTimeValue Time, byte Column/*=1*/) 
   { 
   CProfileInfo& Info = pInfo[Column];
   if (bLoaded && Column<Data.GetCols())

@@ -154,14 +154,14 @@ void EngStateWnd::OnDrawLine(rGDIBlk GB,int PgNo, int RowNo)
 
 //---------------------------------------------------------------------------
 
-flag EngStateWnd::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) 
+flag EngStateWnd::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) 
   {
   return True;
   };
 
 //---------------------------------------------------------------------------
 
-flag EngStateWnd::EO_Start(const CXM_TimeControl &CB)                      
+flag EngStateWnd::EO_Start(CXM_TimeControl &CB)                      
   {
 //  gs_TheRunMngr.DoEO_Starting();
   return True;
@@ -327,7 +327,7 @@ flag EngStateWnd::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock
 
 //---------------------------------------------------------------------------
 
-flag EngStateWnd::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) 
+flag EngStateWnd::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) 
   {
   //gs_TheRunMngr.DoEO_Execute();
   return False;
@@ -335,7 +335,7 @@ flag EngStateWnd::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag EngStateWnd::EO_Stop(const CXM_TimeControl &CB)                       
+flag EngStateWnd::EO_Stop(CXM_TimeControl &CB)                       
   {
   return True;
   };

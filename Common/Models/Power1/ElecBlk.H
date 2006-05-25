@@ -52,10 +52,10 @@ class CElecBlk : public FlwNode//, GCXRefHelper
     virtual void   CollectElectrics(CNodeElectricsArray & TSCA);
     virtual void   ConnectElectrics();
     virtual flag   PreStartCheck();
-    virtual void   EvalCtrlInitialise();
-    virtual void   EvalCtrlActions(); 
-    virtual void   EvalCtrlStrategy(); 
-    virtual void   EvalCtrlTerminate();
+    virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All); 
+    virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All); 
+    virtual void   EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All);
             void   DoEvalCtrl(LPCTSTR TriggerName); 
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);

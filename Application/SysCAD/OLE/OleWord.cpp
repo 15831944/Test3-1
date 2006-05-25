@@ -1434,7 +1434,7 @@ flag CExcelReportTrend::CheckParms(bool VertOpts)
   flag ValidTimeOpt = 1;
   if (bGotDuration && !bGotStart && !bGotEnd)
     {
-    dEndTime = gs_Exec.TheStopTime(); //current time
+    dEndTime = gs_Exec.TimeStopped(); //current time
     dStartTime = dEndTime - dDuration;
     }
   else if (bGotDuration && bGotStart && !bGotEnd)

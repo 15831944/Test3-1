@@ -2814,14 +2814,14 @@ DWORD CDriverManager::EO_Message(CXMsgLst &XM, CXM_Route &Route)
 
 //---------------------------------------------------------------------------
 
-flag CDriverManager::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CDriverManager::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return true;
   }
 
 //---------------------------------------------------------------------------
 
-flag CDriverManager::EO_Start(const CXM_TimeControl &CB)
+flag CDriverManager::EO_Start(CXM_TimeControl &CB)
   {
   if (!bRecordHistDone)
     RecordSlots(); //ensure the historian knows what to record
@@ -3217,7 +3217,7 @@ flag CDriverManager::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBl
         while (pCon)
           {
           if (!pCon->m_pParentSlot->bIgnoreWrites)
-            pCon->PutSubsValue2Slot(this, pPItem, bForcesOn, TimeCB().m_StepSize, bNoiseOn);
+            pCon->PutSubsValue2Slot(this, pPItem, bForcesOn, TimeCB().m_StepSize.Seconds, bNoiseOn);
           pCon = pCon->m_pNxtSubs;
           }
         }
@@ -3301,12 +3301,12 @@ int CDriverManager::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route
 
 //---------------------------------------------------------------------------
 
-flag CDriverManager::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CDriverManager::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   if (pDrvSheet)
     pDrvSheet->UpdateStats();
 
-  if (CB.m_Time>dCurrentTime)
+  if (CB.m_TheTime>dCurrentTime)
     {
     if (iRollingRdCntRqd)
       {
@@ -3332,7 +3332,7 @@ flag CDriverManager::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
       }
     }
 
-  dCurrentTime = CB.m_Time;
+  dCurrentTime = CB.m_TheTime;
   for (int i=0; i<Drivers.InUse(); i++)
     Drivers.At(i)->Execute(CB);
   return false;
@@ -3340,13 +3340,13 @@ flag CDriverManager::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag CDriverManager::EO_Stop(const CXM_TimeControl &CB)
+flag CDriverManager::EO_Stop(CXM_TimeControl &CB)
   {
 
   if (pDrvSheet)
     pDrvSheet->Stop();
 
-  dCurrentTime = CB.m_Time;
+  dCurrentTime = CB.m_TheTime;
   for (int i=0; i<Drivers.InUse(); i++)
     Drivers.At(i)->Stop();
 

@@ -684,7 +684,7 @@ END_CODE(Time)
 
 void GCTimeIns::Exec(rGCInsMngr IB)
   {
-  IB.m_dCalcStack[++IB.m_iCalcPos] = IB.m_dIC_Time;
+  IB.m_dCalcStack[++IB.m_iCalcPos] = IB.m_dIC_Time.Seconds;
   Advance(IB);
   };
 
@@ -703,7 +703,7 @@ END_CODE(Deltatime)
 
 void GCDeltatimeIns::Exec(rGCInsMngr IB)
   {
-  IB.m_dCalcStack[++IB.m_iCalcPos] = IB.m_dIC_dTime;
+  IB.m_dCalcStack[++IB.m_iCalcPos] = IB.m_dIC_dTime.Seconds;
   Advance(IB);
   };
 

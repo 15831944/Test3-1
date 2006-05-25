@@ -156,6 +156,9 @@ extern DllImportExport CCnvIndex    DC_KinVisc ;
 extern DllImportExport CCnvIndex    DC_ElectVA ;
 extern DllImportExport CCnvIndex    DC_Humidity;
 
+extern DllImportExport CCnvIndex    DC_TimeStr ;
+extern DllImportExport CCnvIndex    DC_dTimeStr;
+
 //CNM extern DllImportExport CCnvIndex    DC_IsenHd;
 
 //ScdComTempl.h
@@ -335,6 +338,10 @@ class DllImportExport CCnvFamily
 
 #define DATACNV_SEC(I, SS, Scl, Off, Mn, Mx, PrjCnv) static CCnvIndex DATACNV_SEC1(I,__LINE__)=gs_CnvsMngr.AddSec(I, SS, Scl, Off, PrjCnv);
 
+
+//===========================================================================
+
+inline bool IsTimeCnv(CCnvIndex i) { return i>=DC_TimeStr && i<=DC_dTimeStr; };
 
 //===========================================================================
 

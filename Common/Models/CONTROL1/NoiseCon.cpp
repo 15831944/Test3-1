@@ -458,7 +458,7 @@ void CNoiseCon::ResetAllStats()
 
 //--------------------------------------------------------------------------
 
-void CNoiseCon::EvalCtrlStrategy()
+void CNoiseCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

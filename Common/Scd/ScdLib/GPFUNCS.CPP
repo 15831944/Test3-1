@@ -2790,295 +2790,295 @@ void CSVector::dbgDump( pchar Desc,
 //
 //===========================================================================
 
-/*#F:This converts a time in seconds into the corresponding date ( day/month/year ) and time ( hour:minute:second. hundredth of a second).*/
-pchar SecstoDateHMS(double time_in, // the time in seconds.
-                    pchar buff,  // the buffer into which the result is to be stored.
-                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
-  {
-  if (!WithDate)
-    return SecstoHMS(time_in, buff);
-  __time64_t tt=(__time64_t)(time_in);
-  tm* t=_localtime64(&tt);
-  int hsec=(int)((time_in-tt)*100.0);
-  if (t)
-    sprintf(buff, "%02i/%02i/%04i  %02i:%02i:%02i.%02i",t->tm_mday,t->tm_mon+1,t->tm_year+1900,t->tm_hour,t->tm_min,t->tm_sec,hsec);
-  else
-    strcpy(buff, "?");
-  return buff;
-  };
-
-//---------------------------------------------------------------------------
-
-/*#F:This converts a date ( day/month/year ) and time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
-flag DateHMStoSecs(pchar buff, //the buffer in which the date and time are stored,
-                   double &time_out) //the resultant time in seconds.
-  {
-  tm t;
-  memset(&t, 0, sizeof(t));
-  long tm_hsec=0;
-  char b[256], *p=b;
-  strcpy(b, buff);
-  int e=strlen(b)-1;
-  if (e>=0 && (b[e]==':' || b[e]=='.'))
-    strcat(b, "0");
-  else if (e>=0 && (b[e]=='/'))
-    strcat(b, "96");
-  strcat(b, " ");
-  int BusyTime=1, TOK=0, DOK=0;//, done=0;
-  flag fTime=1, fDate=0;
-  while (1)//!done)
-    {
-    pchar d=strpbrk(p, " :/.");
-    int   l=d-p;
-
-    if (d && isdigit(*p))
-      {
-      if (*d=='/')
-        {
-        fTime=0;
-        fDate=1;
-        }
-      else if (*d==':')
-        {
-        fTime=1;
-        fDate=0;
-        }
-
-      if (fTime)
-        {
-        BusyTime=1;
-        t.tm_hour=t.tm_min;
-        t.tm_min=t.tm_sec;
-        t.tm_sec=atol(p);
-        if (*d=='.')
-          {
-          p=d+1;
-          for (int n=0; isdigit(*(p+n)); n++) {};
-          tm_hsec=Min(99L, (long)((strlen(d)>0) ? atol(p) : 0));
-          if (n==1)
-            tm_hsec/=10;
-          p+=n;
-          fTime=0;
-          }
-        else
-          {
-          tm_hsec=0;
-          p=d+1;
-          }
-        TOK=1;
-        }
-      else
-        {
-        BusyTime=0;
-        t.tm_year=t.tm_mon+1-1900;
-        t.tm_mon=t.tm_mday-1;
-        t.tm_mday=atol(p);
-        DOK=1;
-        p=d+1;
-        }
-      }
-    else
-      break;
-    }
-  if (!DOK)
-    time_out= t.tm_hour*3600.0+t.tm_min*60.0+t.tm_sec+tm_hsec/100.0;
-  else
-    time_out=mktime(&t)+tm_hsec/100.0;
-  //TRACE2(">>Secs %15.2g %s\n",time_out, buff);
-
-  return TOK||DOK;
-  };
-
-//===========================================================================
-
-/*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second) and date ( day/month/year ).*/
-pchar SecstoHMSDate(double time_in, // the time in seconds.
-                    pchar buff,  // the buffer in which the result is to be stored.
-                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
-  {
-  //time_in = floor(time_in*1.0e6+0.5)/1.0e6; //round for lost precision on LSD
-  if (!WithDate)
-    return SecstoHMS(time_in, buff);
-  __time64_t tt=(__time64_t)(time_in);
-  tm* t=_localtime64(&tt);
-  int hsec=(int)((time_in-tt)*100.0);
-  if (t)
-    sprintf(buff, "%02i:%02i:%02i.%02i  %02i/%02i/%04i",t->tm_hour,t->tm_min,t->tm_sec,hsec,t->tm_mday,t->tm_mon+1,t->tm_year+1900);
-  else
-    strcpy(buff, "?");
-  //TRACE2("Secs>> %15.2g %s",time_in, buff);
-  return buff;
-  };
-
-//---------------------------------------------------------------------------
-
-/*#F:This converts a date ( day/month/year ) and time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
-flag HMSDatetoSecs(pchar buff, //the buffer in which the date and time are stored.
-                   double &time_out) //the resultant time in seconds.
-  {
-  tm t;
-  memset(&t, 0, sizeof(t));
-  long tm_hsec=0;
-  char b[256], *p=b;
-  strcpy(b, buff);
-
-  int BusyTime=1, TOK=0, DOK=0, done=0, DoneSpace=0, DoneDot=0;
-  while (!done)
-    {
-    pchar d=strpbrk(p, " :/.");
-    int   l=d-p;
-    if (d==NULL)
-      {
-      d=" ";
-      done=1;
-      }
-    if ((*d==':' || *d=='.' || *d==' ') && (!DoneSpace))
-      {
-      if (*d==' ')
-        DoneSpace=1;
-      if (*d=='.')
-        DoneDot=1;
-
-      BusyTime=1;
-      t.tm_hour=t.tm_min;
-      t.tm_min=t.tm_sec;
-      t.tm_sec=tm_hsec;
-      tm_hsec=atol(p);
-      TOK=1;
-      }
-    else if (*d=='/' || *d==' ')
-      {
-      BusyTime=0;
-      t.tm_mday=t.tm_mon;
-      t.tm_mon=t.tm_year;
-      t.tm_year=atol(p);
-      DOK=1;
-      }
-    p=d+1;
-    }
-  if (!DoneDot)
-    {
-    t.tm_hour=t.tm_min;
-    t.tm_min=t.tm_sec;
-    t.tm_sec=tm_hsec;
-    tm_hsec=0;
-    }
-  if (!DOK)
-    time_out= t.tm_hour*3600.0+t.tm_min*60.0+t.tm_sec+tm_hsec/100.0;
-  else
-    {
-    if (t.tm_year>1900)
-      t.tm_year -= 1900;
-    t.tm_mon--;
-    time_out=(double)mktime(&t)+tm_hsec/100.0;
-    }
-  return TOK||DOK;
-  };
-
-//---------------------------------------------------------------------------
-/*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
-pchar SecstoHMS(double time_in,// the time in seconds
-                pchar buff,  // the buffer in which the result is to be stored.
-                flag TruncDate/*=0*/, //must the date be ignored ie max hours=23
-                flag TruncMilliSecs/*=0*/)
-  {
-  long t=(long)time_in;
-  long hsecs=(long)((time_in-t)*100.0);
-  long secs=t%60;
-  long mins=(t/60)%60;
-  long hours=t/3600; //does not work ??? TIME ZONES !!!
-  if (TruncDate)
-    hours=hours%24;
-
-  if (TruncMilliSecs)
-    {
-    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
-    }
-  else
-    {
-    long hsecs=(long)((time_in-t)*100.0);
-    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
-    }
-  return buff;
-  };
-
-//---------------------------------------------------------------------------
-/*#F:This converts a time in seconds into the corresponding date ( day/month/year ).*/
-pchar SecstoDate(double time_in,// the time in seconds
-                    pchar buff)  // the buffer in which the result is to be stored.
-  {
-  __time64_t tt=(__time64_t)(time_in);
-  tm* t=_localtime64(&tt);
-  if (t)
-    sprintf(buff, "%02i/%02i/%04i", t->tm_mday, t->tm_mon+1, t->tm_year+1900);
-  else
-    strcpy(buff, "?");
-  return buff;
-  };
-
-//---------------------------------------------------------------------------
-/*#F:This converts a time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
-flag HMStoSecs(pchar buff,//the buffer in which the time is stored.
-                   double &time_out) //the resultant time in seconds
-  {
-  return DateHMStoSecs(buff, time_out);
-  };
-
-//---------------------------------------------------------------------------
-/*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
-pchar SecstoHMSCnv(double time_in,// the time in seconds
-                   pchar buff,  // the buffer in which the result is to be stored.
-                   flag TruncDate/*=0*/, //must the date be ignored ie max hours=23
-                   flag TruncMilliSecs/*=0*/)
-  {
-  long t=(long)time_in;
-  long secs=t%60;
-  long mins=(t/60)%60;
-  long hours=t/3600;
-  if (TruncDate)
-    hours=hours%24;
-
-  if (TruncMilliSecs)
-    {
-    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
-    }
-  else
-    {
-    long hsecs=(long)((time_in-t)*100.0);
-    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
-    }
-  return buff;
-  };
-
-//---------------------------------------------------------------------------
-/*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
-pchar SecstoDHMSCnv(double time_in,// the time in seconds
-                    pchar buff,  // the buffer in which the result is to be stored.
-                    flag TruncMilliSecs/*=0*/)
-  {
-  long t=(long)time_in;
-  const long secs=t%60;
-  const long mins=(t/60)%60;
-  const long days=t/86400;
-  const long hours=(days>1 ? (t/3600)%24 : t/3600);
-  if (TruncMilliSecs)
-    {
-    if (days>1)
-      sprintf(buff, "%ddays %02i:%02i:%02i", days, hours, mins, secs);
-    else
-      sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
-    }
-  else
-    {
-    long hsecs=(long)((time_in-t)*100.0);
-    if (days>1)
-      sprintf(buff, "%ddays %02i:%02i:%02i.%02i", days, hours, mins, secs, hsecs);
-    else
-      sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
-    }
-  return buff;
-  };
-
+///*#F:This converts a time in seconds into the corresponding date ( day/month/year ) and time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoDateHMS(double time_in, // the time in seconds.
+//                    pchar buff,  // the buffer into which the result is to be stored.
+//                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
+//  {
+//  if (!WithDate)
+//    return SecstoHMS(time_in, buff);
+//  __time64_t tt=(__time64_t)(time_in);
+//  tm* t=_localtime64(&tt);
+//  int hsec=(int)((time_in-tt)*100.0);
+//  if (t)
+//    sprintf(buff, "%02i/%02i/%04i  %02i:%02i:%02i.%02i",t->tm_mday,t->tm_mon+1,t->tm_year+1900,t->tm_hour,t->tm_min,t->tm_sec,hsec);
+//  else
+//    strcpy(buff, "?");
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+///*#F:This converts a date ( day/month/year ) and time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
+//flag DateHMStoSecs(pchar buff, //the buffer in which the date and time are stored,
+//                   double &time_out) //the resultant time in seconds.
+//  {
+//  tm t;
+//  memset(&t, 0, sizeof(t));
+//  long tm_hsec=0;
+//  char b[256], *p=b;
+//  strcpy(b, buff);
+//  int e=strlen(b)-1;
+//  if (e>=0 && (b[e]==':' || b[e]=='.'))
+//    strcat(b, "0");
+//  else if (e>=0 && (b[e]=='/'))
+//    strcat(b, "96");
+//  strcat(b, " ");
+//  int BusyTime=1, TOK=0, DOK=0;//, done=0;
+//  flag fTime=1, fDate=0;
+//  while (1)//!done)
+//    {
+//    pchar d=strpbrk(p, " :/.");
+//    int   l=d-p;
+//
+//    if (d && isdigit(*p))
+//      {
+//      if (*d=='/')
+//        {
+//        fTime=0;
+//        fDate=1;
+//        }
+//      else if (*d==':')
+//        {
+//        fTime=1;
+//        fDate=0;
+//        }
+//
+//      if (fTime)
+//        {
+//        BusyTime=1;
+//        t.tm_hour=t.tm_min;
+//        t.tm_min=t.tm_sec;
+//        t.tm_sec=atol(p);
+//        if (*d=='.')
+//          {
+//          p=d+1;
+//          for (int n=0; isdigit(*(p+n)); n++) {};
+//          tm_hsec=Min(99L, (long)((strlen(d)>0) ? atol(p) : 0));
+//          if (n==1)
+//            tm_hsec/=10;
+//          p+=n;
+//          fTime=0;
+//          }
+//        else
+//          {
+//          tm_hsec=0;
+//          p=d+1;
+//          }
+//        TOK=1;
+//        }
+//      else
+//        {
+//        BusyTime=0;
+//        t.tm_year=t.tm_mon+1-1900;
+//        t.tm_mon=t.tm_mday-1;
+//        t.tm_mday=atol(p);
+//        DOK=1;
+//        p=d+1;
+//        }
+//      }
+//    else
+//      break;
+//    }
+//  if (!DOK)
+//    time_out= t.tm_hour*3600.0+t.tm_min*60.0+t.tm_sec+tm_hsec/100.0;
+//  else
+//    time_out=mktime(&t)+tm_hsec/100.0;
+//  //TRACE2(">>Secs %15.2g %s\n",time_out, buff);
+//
+//  return TOK||DOK;
+//  };
+//
+////===========================================================================
+//
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second) and date ( day/month/year ).*/
+//pchar SecstoHMSDate(double time_in, // the time in seconds.
+//                    pchar buff,  // the buffer in which the result is to be stored.
+//                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
+//  {
+//  //time_in = floor(time_in*1.0e6+0.5)/1.0e6; //round for lost precision on LSD
+//  if (!WithDate)
+//    return SecstoHMS(time_in, buff);
+//  __time64_t tt=(__time64_t)(time_in);
+//  tm* t=_localtime64(&tt);
+//  int hsec=(int)((time_in-tt)*100.0);
+//  if (t)
+//    sprintf(buff, "%02i:%02i:%02i.%02i  %02i/%02i/%04i",t->tm_hour,t->tm_min,t->tm_sec,hsec,t->tm_mday,t->tm_mon+1,t->tm_year+1900);
+//  else
+//    strcpy(buff, "?");
+//  //TRACE2("Secs>> %15.2g %s",time_in, buff);
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+///*#F:This converts a date ( day/month/year ) and time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
+//flag HMSDatetoSecs(pchar buff, //the buffer in which the date and time are stored.
+//                   double &time_out) //the resultant time in seconds.
+//  {
+//  tm t;
+//  memset(&t, 0, sizeof(t));
+//  long tm_hsec=0;
+//  char b[256], *p=b;
+//  strcpy(b, buff);
+//
+//  int BusyTime=1, TOK=0, DOK=0, done=0, DoneSpace=0, DoneDot=0;
+//  while (!done)
+//    {
+//    pchar d=strpbrk(p, " :/.");
+//    int   l=d-p;
+//    if (d==NULL)
+//      {
+//      d=" ";
+//      done=1;
+//      }
+//    if ((*d==':' || *d=='.' || *d==' ') && (!DoneSpace))
+//      {
+//      if (*d==' ')
+//        DoneSpace=1;
+//      if (*d=='.')
+//        DoneDot=1;
+//
+//      BusyTime=1;
+//      t.tm_hour=t.tm_min;
+//      t.tm_min=t.tm_sec;
+//      t.tm_sec=tm_hsec;
+//      tm_hsec=atol(p);
+//      TOK=1;
+//      }
+//    else if (*d=='/' || *d==' ')
+//      {
+//      BusyTime=0;
+//      t.tm_mday=t.tm_mon;
+//      t.tm_mon=t.tm_year;
+//      t.tm_year=atol(p);
+//      DOK=1;
+//      }
+//    p=d+1;
+//    }
+//  if (!DoneDot)
+//    {
+//    t.tm_hour=t.tm_min;
+//    t.tm_min=t.tm_sec;
+//    t.tm_sec=tm_hsec;
+//    tm_hsec=0;
+//    }
+//  if (!DOK)
+//    time_out= t.tm_hour*3600.0+t.tm_min*60.0+t.tm_sec+tm_hsec/100.0;
+//  else
+//    {
+//    if (t.tm_year>1900)
+//      t.tm_year -= 1900;
+//    t.tm_mon--;
+//    time_out=(double)mktime(&t)+tm_hsec/100.0;
+//    }
+//  return TOK||DOK;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoHMS(double time_in,// the time in seconds
+//                pchar buff,  // the buffer in which the result is to be stored.
+//                flag TruncDate/*=0*/, //must the date be ignored ie max hours=23
+//                flag TruncMilliSecs/*=0*/)
+//  {
+//  long t=(long)time_in;
+//  long hsecs=(long)((time_in-t)*100.0);
+//  long secs=t%60;
+//  long mins=(t/60)%60;
+//  long hours=t/3600; //does not work ??? TIME ZONES !!!
+//  if (TruncDate)
+//    hours=hours%24;
+//
+//  if (TruncMilliSecs)
+//    {
+//    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+//    }
+//  else
+//    {
+//    long hsecs=(long)((time_in-t)*100.0);
+//    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+//    }
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding date ( day/month/year ).*/
+//pchar SecstoDate(double time_in,// the time in seconds
+//                    pchar buff)  // the buffer in which the result is to be stored.
+//  {
+//  __time64_t tt=(__time64_t)(time_in);
+//  tm* t=_localtime64(&tt);
+//  if (t)
+//    sprintf(buff, "%02i/%02i/%04i", t->tm_mday, t->tm_mon+1, t->tm_year+1900);
+//  else
+//    strcpy(buff, "?");
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
+//flag HMStoSecs(pchar buff,//the buffer in which the time is stored.
+//                   double &time_out) //the resultant time in seconds
+//  {
+//  return DateHMStoSecs(buff, time_out);
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoHMSCnv(double time_in,// the time in seconds
+//                   pchar buff,  // the buffer in which the result is to be stored.
+//                   flag TruncDate/*=0*/, //must the date be ignored ie max hours=23
+//                   flag TruncMilliSecs/*=0*/)
+//  {
+//  long t=(long)time_in;
+//  long secs=t%60;
+//  long mins=(t/60)%60;
+//  long hours=t/3600;
+//  if (TruncDate)
+//    hours=hours%24;
+//
+//  if (TruncMilliSecs)
+//    {
+//    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+//    }
+//  else
+//    {
+//    long hsecs=(long)((time_in-t)*100.0);
+//    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+//    }
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoDHMSCnv(double time_in,// the time in seconds
+//                    pchar buff,  // the buffer in which the result is to be stored.
+//                    flag TruncMilliSecs/*=0*/)
+//  {
+//  long t=(long)time_in;
+//  const long secs=t%60;
+//  const long mins=(t/60)%60;
+//  const long days=t/86400;
+//  const long hours=(days>1 ? (t/3600)%24 : t/3600);
+//  if (TruncMilliSecs)
+//    {
+//    if (days>1)
+//      sprintf(buff, "%ddays %02i:%02i:%02i", days, hours, mins, secs);
+//    else
+//      sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+//    }
+//  else
+//    {
+//    long hsecs=(long)((time_in-t)*100.0);
+//    if (days>1)
+//      sprintf(buff, "%ddays %02i:%02i:%02i.%02i", days, hours, mins, secs, hsecs);
+//    else
+//      sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+//    }
+//  return buff;
+//  };
+//
 //---------------------------------------------------------------------------
 
 bool SecsToDate1900Var(double Secs1970, VARIANT * pVal)
@@ -3119,12 +3119,356 @@ bool Date1900VarToSecs(VARIANT Val, double * pSecs1970)
       t.tm_hour   =      ST.wHour;
       t.tm_min    =      ST.wMinute;
       t.tm_sec    =      ST.wSecond;
+      (*pSecs1970) =     (double)_mktime64(&t);
+      return true;
+      }
+    }
+  return false;
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+///*#F:This converts a time in seconds into the corresponding date ( day/month/year ) and time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoDateHMS(CTimeValue time_in, // the time in seconds.
+//                    pchar buff,  // the buffer into which the result is to be stored.
+//                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
+//  {
+//  __debugbreak();
+//  if (!WithDate)
+//    return SecstoHMS(time_in, buff);
+//  __time64_t tt=(__time64_t)time_in.SecondsI64;
+//  tm* t=_localtime64(&tt);
+//  int hsec=(int)((time_in.Seconds-tt)*100.0);
+//  if (t)
+//    sprintf(buff, "%02i/%02i/%04i  %02i:%02i:%02i.%02i",t->tm_mday,t->tm_mon+1,t->tm_year+1900,t->tm_hour,t->tm_min,t->tm_sec,hsec);
+//  else
+//    strcpy(buff, "?");
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+///*#F:This converts a date ( day/month/year ) and time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
+//flag DateHMStoSecs(pchar buff, //the buffer in which the date and time are stored,
+//                   CTimeValue &time_out) //the resultant time in seconds.
+//  {
+//  tm t;
+//  memset(&t, 0, sizeof(t));
+//  long tm_hsec=0;
+//  char b[256], *p=b;
+//  strcpy(b, buff);
+//  int e=strlen(b)-1;
+//  if (e>=0 && (b[e]==':' || b[e]=='.'))
+//    strcat(b, "0");
+//  else if (e>=0 && (b[e]=='/'))
+//    strcat(b, "96");
+//  strcat(b, " ");
+//  int BusyTime=1, TOK=0, DOK=0;//, done=0;
+//  flag fTime=1, fDate=0;
+//  while (1)//!done)
+//    {
+//    pchar d=strpbrk(p, " :/.");
+//    int   l=d-p;
+//
+//    if (d && isdigit(*p))
+//      {
+//      if (*d=='/')
+//        {
+//        fTime=0;
+//        fDate=1;
+//        }
+//      else if (*d==':')
+//        {
+//        fTime=1;
+//        fDate=0;
+//        }
+//
+//      if (fTime)
+//        {
+//        BusyTime=1;
+//        t.tm_hour=t.tm_min;
+//        t.tm_min=t.tm_sec;
+//        t.tm_sec=atol(p);
+//        if (*d=='.')
+//          {
+//          p=d+1;
+//          for (int n=0; isdigit(*(p+n)); n++) {};
+//          tm_hsec=Min(99L, (long)((strlen(d)>0) ? atol(p) : 0));
+//          if (n==1)
+//            tm_hsec/=10;
+//          p+=n;
+//          fTime=0;
+//          }
+//        else
+//          {
+//          tm_hsec=0;
+//          p=d+1;
+//          }
+//        TOK=1;
+//        }
+//      else
+//        {
+//        BusyTime=0;
+//        t.tm_year=t.tm_mon+1-1900;
+//        t.tm_mon=t.tm_mday-1;
+//        t.tm_mday=atol(p);
+//        DOK=1;
+//        p=d+1;
+//        }
+//      }
+//    else
+//      break;
+//    }
+//  if (!DOK)
+//    time_out= t.tm_hour*3600.0+t.tm_min*60.0+t.tm_sec+tm_hsec/100.0;
+//  else
+//    time_out=mktime(&t)+tm_hsec/100.0;
+//  //TRACE2(">>Secs %15.2g %s\n",time_out, buff);
+//
+//  return TOK||DOK;
+//  };
+//
+////===========================================================================
+//
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second) and date ( day/month/year ).*/
+//pchar SecstoHMSDate(CTimeValue time_in, // the time in seconds.
+//                    pchar buff,  // the buffer in which the result is to be stored.
+//                    flag WithDate)// if True it returns the date followed by the time, if False only the time is returned.
+//  {
+//  //time_in = floor(time_in*1.0e6+0.5)/1.0e6; //round for lost precision on LSD
+//  if (!WithDate)
+//    return SecstoHMS(time_in, buff);
+//  __time64_t tt=(__time64_t)time_in.SecondsI64;
+//  tm* t=_localtime64(&tt);
+//  int hsec=(int)((time_in.Seconds-tt)*100.0);
+//  if (t)
+//    sprintf(buff, "%02i:%02i:%02i.%02i  %02i/%02i/%04i",t->tm_hour,t->tm_min,t->tm_sec,hsec,t->tm_mday,t->tm_mon+1,t->tm_year+1900);
+//  else
+//    strcpy(buff, "?");
+//  //TRACE2("Secs>> %15.2g %s",time_in, buff);
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+///*#F:This converts a date ( day/month/year ) and time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
+//flag HMSDatetoSecs(pchar buff, //the buffer in which the date and time are stored.
+//                   CTimeValue &time_out) //the resultant time in seconds.
+//  {
+//  tm t;
+//  memset(&t, 0, sizeof(t));
+//  long tm_hsec=0;
+//  char b[256], *p=b;
+//  strcpy(b, buff);
+//
+//  int BusyTime=1, TOK=0, DOK=0, done=0, DoneSpace=0, DoneDot=0;
+//  while (!done)
+//    {
+//    pchar d=strpbrk(p, " :/.");
+//    int   l=d-p;
+//    if (d==NULL)
+//      {
+//      d=" ";
+//      done=1;
+//      }
+//    if ((*d==':' || *d=='.' || *d==' ') && (!DoneSpace))
+//      {
+//      if (*d==' ')
+//        DoneSpace=1;
+//      if (*d=='.')
+//        DoneDot=1;
+//
+//      BusyTime=1;
+//      t.tm_hour=t.tm_min;
+//      t.tm_min=t.tm_sec;
+//      t.tm_sec=tm_hsec;
+//      tm_hsec=atol(p);
+//      TOK=1;
+//      }
+//    else if (*d=='/' || *d==' ')
+//      {
+//      BusyTime=0;
+//      t.tm_mday=t.tm_mon;
+//      t.tm_mon=t.tm_year;
+//      t.tm_year=atol(p);
+//      DOK=1;
+//      }
+//    p=d+1;
+//    }
+//  if (!DoneDot)
+//    {
+//    t.tm_hour=t.tm_min;
+//    t.tm_min=t.tm_sec;
+//    t.tm_sec=tm_hsec;
+//    tm_hsec=0;
+//    }
+//  if (!DOK)
+//    time_out= t.tm_hour*3600.0+t.tm_min*60.0+t.tm_sec+tm_hsec/100.0;
+//  else
+//    {
+//    if (t.tm_year>1900)
+//      t.tm_year -= 1900;
+//    t.tm_mon--;
+//    time_out=CTimeValue(mktime(&t))+tm_hsec/100.0;
+//    }
+//  return TOK||DOK;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoHMS(CTimeValue time_in,// the time in seconds
+//                pchar buff,  // the buffer in which the result is to be stored.
+//                flag TruncDate/*=0*/, //must the date be ignored ie max hours=23
+//                flag TruncMilliSecs/*=0*/)
+//  {
+//  long t=(long)time_in.SecondsI64;
+//  long hsecs=(long)((time_in.Seconds-t)*100.0);
+//  long secs=t%60;
+//  long mins=(t/60)%60;
+//  long hours=t/3600; //does not work ??? TIME ZONES !!!
+//  if (TruncDate)
+//    hours=hours%24;
+//
+//  if (TruncMilliSecs)
+//    {
+//    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+//    }
+//  else
+//    {
+//    long hsecs=(long)((time_in.Seconds-t)*100.0);
+//    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+//    }
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding date ( day/month/year ).*/
+//pchar SecstoDate(CTimeValue time_in,// the time in seconds
+//                    pchar buff)  // the buffer in which the result is to be stored.
+//  {
+//  __time64_t tt=(__time64_t)time_in.SecondsI64;
+//  tm* t=_localtime64(&tt);
+//  if (t)
+//    sprintf(buff, "%02i/%02i/%04i", t->tm_mday, t->tm_mon+1, t->tm_year+1900);
+//  else
+//    strcpy(buff, "?");
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time ( hour:minute:second. hundredth of a second) into the corresponding time in seconds.*/
+//flag HMStoSecs(pchar buff,//the buffer in which the time is stored.
+//                   CTimeValue &time_out) //the resultant time in seconds
+//  {
+//  return DateHMStoSecs(buff, time_out);
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoHMSCnv(CTimeValue time_in,// the time in seconds
+//                   pchar buff,  // the buffer in which the result is to be stored.
+//                   flag TruncDate/*=0*/, //must the date be ignored ie max hours=23
+//                   flag TruncMilliSecs/*=0*/)
+//  {
+//  long t=(long)time_in.Seconds;
+//  long secs=t%60;
+//  long mins=(t/60)%60;
+//  long hours=t/3600;
+//  if (TruncDate)
+//    hours=hours%24;
+//
+//  if (TruncMilliSecs)
+//    {
+//    sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+//    }
+//  else
+//    {
+//    long hsecs=(long)((time_in.Seconds-t)*100.0);
+//    sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+//    }
+//  return buff;
+//  };
+//
+////---------------------------------------------------------------------------
+///*#F:This converts a time in seconds into the corresponding time ( hour:minute:second. hundredth of a second).*/
+//pchar SecstoDHMSCnv(CTimeValue time_in,// the time in seconds
+//                    pchar buff,  // the buffer in which the result is to be stored.
+//                    flag TruncMilliSecs/*=0*/)
+//  {
+//  long t=(long)time_in.Seconds;
+//  const long secs=t%60;
+//  const long mins=(t/60)%60;
+//  const long days=t/86400;
+//  const long hours=(days>1 ? (t/3600)%24 : t/3600);
+//  if (TruncMilliSecs)
+//    {
+//    if (days>1)
+//      sprintf(buff, "%ddays %02i:%02i:%02i", days, hours, mins, secs);
+//    else
+//      sprintf(buff, "%02i:%02i:%02i", hours, mins, secs);
+//    }
+//  else
+//    {
+//    long hsecs=(long)((time_in.Seconds-t)*100.0);
+//    if (days>1)
+//      sprintf(buff, "%ddays %02i:%02i:%02i.%02i", days, hours, mins, secs, hsecs);
+//    else
+//      sprintf(buff, "%02i:%02i:%02i.%02i", hours, mins, secs, hsecs);
+//    }
+//  return buff;
+//  };
+
+//---------------------------------------------------------------------------
+
+bool SecsToDate1900Var(CTimeValue Secs1970, VARIANT * pVal)
+  {
+  if (pVal)
+    {
+    __time64_t t = (__time64_t)Max(0.0, Secs1970.Seconds);
+    struct tm *pT=_localtime64(&t);
+    SYSTEMTIME ST;
+    ST.wYear=pT->tm_year+1900;
+    ST.wMonth=pT->tm_mon+1;
+    ST.wDay=pT->tm_mday;
+    ST.wHour=pT->tm_hour;
+    ST.wMinute=pT->tm_min;
+    ST.wSecond=pT->tm_sec;
+    ST.wMilliseconds=0;
+    pVal->vt=VT_DATE;
+    SystemTimeToVariantTime(&ST, &pVal->dblVal);
+    return true;
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+bool Date1900VarToSecs(VARIANT Val, CTimeValue * pSecs1970)
+  {
+  if (pSecs1970)
+    {
+    if (Val.vt==VT_DATE)
+      {
+      SYSTEMTIME ST;
+      VariantTimeToSystemTime(Val.dblVal, &ST);
+      tm t;
+      t.tm_year   =      ST.wYear-1900;
+      t.tm_mon    =      ST.wMonth-1;
+      t.tm_mday   =      ST.wDay;
+      t.tm_hour   =      ST.wHour;
+      t.tm_min    =      ST.wMinute;
+      t.tm_sec    =      ST.wSecond;
       (*pSecs1970) = mktime(&t);
       return true;
       }
     }
   return false;
   }
+
 //---------------------------------------------------------------------------
 
 char* CurDateTime(Strng& s)
@@ -5569,6 +5913,46 @@ CProfINIFile::~CProfINIFile()
     Flush();
   }
 
+//---------------------------------------------------------------------------
+
+__int64 CProfINIFile::RdInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iDefault)
+  {
+  DWORD Len;
+  char Buff[256];
+  if (m_bUseRegistry)
+    {
+    CString S=/*AfxGetApp()->*/GetProfileString(lpszSection, lpszEntry, "X");
+    strcpy(Buff, S);
+    Len=strlen(S);
+    }
+  else
+    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), sFilename());
+  if (Len==0)
+    return iDefault;
+  return _atoi64(Buff);
+  }
+
+//---------------------------------------------------------------------------
+
+void CProfINIFile::WrInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iValue)
+  {
+  char Buff[256];
+  _i64toa_s(iValue, Buff, sizeof(Buff)-1, 10);
+  BOOL b;
+  if (m_bUseRegistry)
+    b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, Buff);
+  else
+    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, sFilename());
+  #ifndef _RELEASE
+  if (!b)
+    {
+    DWORD Err=GetLastError();
+    Strng E;
+    E.GetSystemErrorStr(Err);
+    ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+    }
+  #endif
+  }
 //---------------------------------------------------------------------------
 
 double CProfINIFile::RdDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dDefault)

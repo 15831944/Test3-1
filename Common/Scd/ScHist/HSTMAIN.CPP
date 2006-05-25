@@ -12,6 +12,7 @@
 #include "hstdlgs.h"
 #endif
 #include "hstqyinf.h"
+#include "hstmsg.h"
 //#include "optoff.h"
 
 #define  dbgHistorian  WITHDEBUG
@@ -109,8 +110,8 @@ void CHistorian::Initialise()
   bOpen = 0;
   bShowQueryInfo = 1;
   m_bWasPaused=false;
-  m_StopGap=0;
-  m_MidTimeFactor=59.0/60.0;
+  m_StopGap=CTimeValue::MinResolution*0.1;
+  m_MidTimeFactor=99.0/100.0;// CNM59.0/60.0;
   }
 
 //---------------------------------------------------------------------------
@@ -185,7 +186,7 @@ void CHistorian::Configure( char* Path,
   bUseTolerance = UseTol;
   dRecordATol = min(0.1, ATol);
   dRecordRTol = min(0.1, RTol);
-  m_StopGap = Max(0.0, StopGap);
+  //m_StopGap = Max(0.0, StopGap);
   m_MidTimeFactor = Range(0.001, MidTimeFactor, 0.999);
   bDoneConfig = 1;
   bOpen = 0;
@@ -1566,7 +1567,7 @@ DWORD CHistorian::EO_Message(CXMsgLst &XM, CXM_Route &Route)
         CXM_QueryHistory * pQH = XM.QueryHistory();
         CXM_Route * pXRoute = XM.Route();
         //pXRoute->dbgDump("QueryHistory");
-        pCQueryHist pQuery = new CQueryHist(pQH->dStartTime, pQH->dEndTime, *pXRoute, pQH->iRqstNo, pQH->iSrcID, True, True);
+        pCQueryHist pQuery = new CQueryHist(pQH->dStartTime.Seconds, pQH->dEndTime.Seconds, *pXRoute, pQH->iRqstNo, pQH->iSrcID, True, True);
         int TrndNo;
         for (char *pTag=pQH->FirstTag(TrndNo); pTag; pTag=pQH->NextTag(TrndNo, pTag))
           {
@@ -1831,7 +1832,7 @@ DWORD CHistorian::EO_Message(CXMsgLst &XM, CXM_Route &Route)
 
 //const double InitTimeGap = 0.0;// CNM 0025; // 0.0005 > 0.00025 so that each start/stop advance 0.001 secs only
 
-flag CHistorian::EO_SetTime(double TimeRqd, bool Rewind)
+flag CHistorian::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
   {
   if (TimeRqd < GetLastTime())
     {
@@ -1851,14 +1852,14 @@ flag CHistorian::EO_SetTime(double TimeRqd, bool Rewind)
       }
     }
 
-  dTime=TimeRqd-m_StopGap;
-  dPrevTime=TimeRqd-m_StopGap;
+  dTime=(TimeRqd-m_StopGap).Seconds;
+  dPrevTime=(TimeRqd-m_StopGap).Seconds;
   dMidTime=dPrevTime+(m_StopGap*0.5);
   dTimeRunStarted=dTime;
   return True;
   };
 
-flag CHistorian::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CHistorian::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   if (!pCurEvBlk)
     {
@@ -1870,24 +1871,29 @@ flag CHistorian::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double
 //    return True;
   if (CB.m_bSyncWithClock)
     {
-    if (CB.m_Time < (GetLastTime() + m_StopGap))
+    if (CB.m_TheTime < (CTimeValue(GetLastTime()) + m_StopGap))
       {
       LogError("History", 0, "Last Time > Current Time");
       return False;
       }
     }
   else
-    TimeRqd = GetLastTime();// CNM + 0.01;
+    {
+    //dbgpln("HistLastTime %23.6f", GetLastTime());
+    TimeRqd = CTimeValue(GetLastTime());// CNM + 0.01;
+    }
+  //dbgpln("Hist QueryTime    %15.3f %s", dTime, TimeRqd.Format(TD_DaysJoined|TD_Time)); 
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag CHistorian::EO_Start(const CXM_TimeControl &CB)
+flag CHistorian::EO_Start(CXM_TimeControl &CB)
   {
+
   bDoneWrite      = False;
   bJustStarted    = True;
-  dTimeRunStarted = CB.m_Time;
+  dTimeRunStarted = CB.m_TheTime.Seconds;
   bDoSaveAll      = True;
   bSwitchedOff    = (pCurEvBlk==NULL);
   lEvSlotNoCnt    = 0;
@@ -1895,6 +1901,8 @@ flag CHistorian::EO_Start(const CXM_TimeControl &CB)
   for (long i=0; i<Data.lSlotsUsed; i++)
     Slots[i]->bIsRecording = False;
   ResetStats();
+
+  //dbgpln("Hist Start Time A %15.3f %s", dTime, gs_Exec.TheTime.Format(TD_DaysJoined|TD_Time)); 
   return True;
   }
 
@@ -2027,7 +2035,7 @@ void CHistorian::WriteSlots(flag MustDoSaveAll)
 
 flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   {
-  //dbgpln("Write  :%13.3f   %13.3f", dPrevTime, dTime);
+  //dbgpln("Hist WriteSubs    %15.3f %s", dTime, gs_Exec.TheTime.Format(TD_DaysJoined|TD_Time)); 
 
   //Some notes:
   // Historian must be given all tags that (will potentially) be recorded in the
@@ -2098,14 +2106,28 @@ flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
     if (bJustStarted)
       {
       bJustStarted = False;
-      dTime = gs_Exec.Time() - m_StopGap;
-      pCurEvBlk->Start(dTime); //put start StopGap seconds in past
+      //dTime = gs_Exec.TheTime.Seconds - m_StopGap;
+      //pCurEvBlk->Start(dTime); //put start StopGap seconds in past
       }
     dPrevTime = dTime;
-    dTime = gs_Exec.Time();
+    dTime = gs_Exec.TheTime.Seconds;
+    double Total2Add=0.0;
+    while (dTime+Total2Add<=dPrevTime+m_StopGap*0.01)
+      Total2Add += m_StopGap;
+    if (0)
+      {
+      if (Total2Add>0)
+        dbgpln("  Hist  Total2Add %12.6f",Total2Add);
+      }
+
+    if (Total2Add>=CTimeValue::MinResolution)
+      LogWarning("History", 0, "Time advanced by %i!",int(Total2Add*1000));
+
+    dTime += Total2Add;
     dMidTime = dPrevTime + ((dTime - dPrevTime) * m_MidTimeFactor);
 
-    //dbgpln("Hist::EO_WriteSubsData %10.3f",dTime-3600.0*floor(dTime/3600.0));
+    if (0)
+      dbgpln("  Hist  %18.6f > %18.6f [%+12.6f]",dPrevTime,dTime,dTime-dPrevTime);
 
     if (dTime<dPrevTime)
       {
@@ -2116,6 +2138,7 @@ flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
       LogWarning("History", 0, "Received EO_Execute at earlier time!");
       return False;
       }
+
     if (dTime==dPrevTime)
       {
       bDoneWrite = True; //CNM BUG 3 : received execute at same time as previous execute ???
@@ -2132,7 +2155,7 @@ flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
     if (dMidTime>=dTime)
       {//CNM BUG 2 : this does happen sometimes !!! startup and when scan time is small??? because stopgap is small!?!?
       bDoneWrite = True;
-      LogWarning("History", 0, "dMidTime>=dTime!");
+      LogWarning("History", 0, "MidTime >= Time!");
       return True;
       dMidTime = dTime + 0.001;
       dTime += 0.002;
@@ -2252,7 +2275,7 @@ flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CHistorian::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CHistorian::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   const long MaxScanNo=(LONG_MAX-2)/2;
 
@@ -2303,12 +2326,14 @@ flag CHistorian::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag CHistorian::EO_Stop(const CXM_TimeControl &CB)
+flag CHistorian::EO_Stop(CXM_TimeControl &CB)
   {
-  if (dTime != CB.m_Time)
+  //dbgpln("Hist Stop Time A  %15.3f %s", dTime, gs_Exec.TheTime.Format(TD_DaysJoined|TD_Time)); 
+  
+  if (dTime != CB.m_TheTime.Seconds)
     {
     dPrevTime = dTime;
-    dTime = CB.m_Time;
+    dTime = CB.m_TheTime.Seconds;
     dMidTime = dPrevTime + ((dTime - dPrevTime) * m_MidTimeFactor);
     }
   if (dMidTime>=dTime || bDoneWrite)
@@ -2316,6 +2341,9 @@ flag CHistorian::EO_Stop(const CXM_TimeControl &CB)
     dMidTime = dTime + m_StopGap;
     dTime = dMidTime + m_StopGap; //force last save to go .001 seconds into the future
     }
+
+  //dbgpln("               B  %15.3f %s", dTime, gs_Exec.TheTime.Format(TD_DaysJoined|TD_Time)); 
+  
   for (long i=0; i<Data.lSlotsUsed; i++)
     Slots[i]->bWriteMidTime = 0;
   lEvSlotNoCnt = 0;
@@ -2334,14 +2362,14 @@ flag CHistorian::EO_Stop(const CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
-flag CHistorian::EO_BeginPause(const CXM_TimeControl &CB)
+flag CHistorian::EO_BeginPause(CXM_TimeControl &CB)
   {
   return True;
   };
 
 //---------------------------------------------------------------------------
 
-flag CHistorian::EO_EndPause(const CXM_TimeControl &CB)
+flag CHistorian::EO_EndPause(CXM_TimeControl &CB)
   {
   return True;
   };
@@ -2719,8 +2747,9 @@ bool CHistorianMngr::DoCfgHistorian()
     }
   else
     {
-    const double StpSz = gs_Exec.StepSizeMax();
-    dHstStopGap = Range(StpSz*0.0001, dHstStopGap, StpSz*0.1);
+    const double StpSz = gs_Exec.StepSizeMax.Seconds;
+    //dHstStopGap = Range(StpSz*0.0001, dHstStopGap, StpSz*0.1);
+    dHstStopGap = Range(/*StpSz**/0.0001, dHstStopGap, StpSz*0.1);
     }
 
   Strng DD(sHstDataDir);
@@ -2776,7 +2805,7 @@ bool CHistorianMngr::DoOpenHistorian(bool ShowBusyDlg/*=false*/)
   switch (RetCode)
     {
     case 0:
-      gs_Exec.SetTime(HstMngr.GetLastTime());// + 0.001);// CNM 10.0);
+      //gs_Exec.SetTime(HstMngr.GetLastTime());// + 0.001);// CNM 10.0);
       return true;
       break;
     case HST_ERR_OPENHED:

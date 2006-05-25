@@ -86,13 +86,13 @@ flag CAirLink::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void CAirLink::EvalCtrlActions()
+void CAirLink::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   }
 
 //--------------------------------------------------------------------------
 
-void CAirLink::EvalCtrlStrategy()
+void CAirLink::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   }
 

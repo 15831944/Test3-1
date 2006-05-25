@@ -34,7 +34,7 @@ class CDataHist : public CFileRec
     CSVector Tags;
     int iWriteCnt;
   public:
-    double dTime;
+    double m_dTime;
     char TimeDesc[DBMaxTimeDescLen];
     double* Val;
   };
@@ -70,7 +70,7 @@ void CDataHist::Init()
   if (m_pDB)
     {
     DefineClass();
-    CreateVal("Time",        &dTime,     ADOX::adDouble, FF_Required);
+    CreateVal("Time",        &m_dTime,   ADOX::adDouble, FF_Required);
     CreateStr("TimeDesc",    TimeDesc,   DBMaxTimeDescLen-1);//, FF_AllowZeroLen);
     for (int i=0; i<iTagCnt; i++)
       {
@@ -108,9 +108,9 @@ class CRepTrend
     CSVector RqdTags;     //array of requested tags
     CSVector Tags;        //array of tags for query
     CArray <short,short> TagOffsets; //offset of returned data relative to request
-    double dStartTime;    //
-    double dEndTime;      //
-    double dDuration;     //
+    CTimeValue dStartTime;    //
+    CTimeValue dEndTime;      //
+    CTimeValue dDuration;     //
     long iNoOfPts;
     byte iOpt;
     Strng sDBName;
@@ -149,7 +149,7 @@ CRepTrend::CRepTrend(CRepExec* Exec)
   {
   pExecObj = Exec;
   pf = NULL;
-  dEndTime = gs_Exec.TheStopTime();
+  dEndTime = gs_Exec.TimeStopped;
   dDuration = 3600.0;
   iNoOfPts = 61;
   iOpt = 1;//AveEqualySpaced
@@ -294,7 +294,7 @@ flag CRepTrend::Start2()
   //bQueryDone = 0;
   //bQueryTagsDone = 0;
   CXMsgLst XM;
-  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime, dEndTime, (long)this, iOpt, 0, 0, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0, 0.0);
+  CXM_QueryHistoryOther *xb=new CXM_QueryHistoryOther (dStartTime.Seconds, dEndTime.Seconds, (long)this, iOpt, 0, 0, 0, iNoOfPts, dNAN, 3/*OLE*/, NULL, NULL, 0, 0.0);
   for (int i=0; i<iTagCnt; i++)
     {
     TagOffsets.Add(0L);
@@ -306,7 +306,7 @@ flag CRepTrend::Start2()
 
   pExecObj->XSendMessage(XM, HRoute);
 
-  SecstoHMSDate(dEndTime, pf->TimeDesc);
+  strcpy(pf->TimeDesc, CTimeValue(dEndTime).Format(TD_TimeDate));
   LogNote("Report", 0, "Start: Retrieve historical data for %d tags over %d data points (%.1f seconds) for time ending %s",
           iTagCnt, iNoOfPts, dDuration, pf->TimeDesc);
 
@@ -320,8 +320,9 @@ void CRepTrend::WriteData()
   for (int i=0; i<iRecCnt; i++)
     {
     const int offset = i*(iTagCnt+1);
-    pf->dTime = DatVals[offset + 0];
-    SecstoHMSDate(pf->dTime, pf->TimeDesc);
+    pf->m_dTime = DatVals[offset + 0];
+    strcpy(pf->TimeDesc, CTimeValue(pf->m_dTime).Format(TD_TimeDate));
+    //SecstoHMSDate(pf->m_dTime, pf->TimeDesc);
     for (int j=0; j<iTagCnt; j++)
       pf->Val[j] = DatVals[offset + j + 1];
     pf->Write(true);
@@ -581,14 +582,14 @@ DWORD CRepExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
 
 //---------------------------------------------------------------------------
 
-flag CRepExec::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag CRepExec::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag CRepExec::EO_Start(const CXM_TimeControl &CB)
+flag CRepExec::EO_Start(CXM_TimeControl &CB)
   {
   return True;
   }
@@ -629,14 +630,14 @@ flag CRepExec::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CRepExec::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag CRepExec::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   return False;
   }
 
 //---------------------------------------------------------------------------
 
-flag CRepExec::EO_Stop(const CXM_TimeControl &CB)
+flag CRepExec::EO_Stop(CXM_TimeControl &CB)
   {
   return True;
   }

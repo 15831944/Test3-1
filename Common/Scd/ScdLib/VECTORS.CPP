@@ -1755,6 +1755,11 @@ flag CDMatrix::Load(rCVMLoadHelper H, dword BlankFlag)
             m_d[j][k] = SetNANFlag(NF_Hold);
           else if (_stricmp(Tkns[i], "Pulse")==0 || toupper(Tkns[i][0])=='P')
             m_d[j][k] = SetNANFlag(NF_Pulse);
+          else if (strchr(Tkns[i], ':')!=0) // Time
+            {
+            CTimeValue V(Tkns[i]);
+            m_d[j][k] = V.Seconds;
+            }
           else
             m_d[j][k] = atof(Tkns[i]);
           NCols=Max(NCols, k+1);

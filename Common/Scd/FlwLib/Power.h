@@ -262,7 +262,7 @@ class DllImportExport CPwrUserSocket : public TaggedObject
     void            SetSupply(CPwrSupply * pSupply);
     CPwrSupply   *  Supply();
 
-    void            EvalCtrlActions();
+    void            EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     void            EvalPowerRequired();
 
     CPwrLoad      * Load() { return m_pUser ? m_pUser->m_pLoad : m_pLclLoad; };

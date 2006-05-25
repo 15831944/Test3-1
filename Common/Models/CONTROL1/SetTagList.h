@@ -76,8 +76,8 @@ class CTagListCon : public FlwNode
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual flag   PreStartCheck();
-    virtual void   EvalCtrlInitialise();
-    virtual void   EvalCtrlStrategy();
+    virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
     virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    DeleteTag(pchar pDelTag);
     virtual int    FilesUsed(CFilesUsedArray & Files);

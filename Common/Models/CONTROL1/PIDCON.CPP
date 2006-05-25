@@ -977,7 +977,7 @@ void PIDControl::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void PIDControl::EvalCtrlStrategy()
+void PIDControl::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

@@ -57,6 +57,88 @@ static CDbgMngr dbgFldMonitorChg("TagObj",   "FldMonitor.Chg");
 //
 //========================================================================
 
+enum eO2NTypes 
+  {
+  eO2N_End,// End Of List
+  eO2N_Direct, // Direct Replacement
+  };
+
+class COld2NewItem 
+  {
+  public:
+    bool    MakeNewTag(LPTSTR sTag, Strng & NewTag);
+  public:
+    int     m_Type;
+    LPCTSTR m_OldTag;
+    //LPCTSTR m_OldSym;
+    LPCTSTR m_NewTag;
+    LPCTSTR m_Comment;
+    bool    m_Logged;
+  };
+
+bool COld2NewItem::MakeNewTag(LPTSTR sTag, Strng & NewTag)
+  {
+  NewTag=m_NewTag;
+  return true;
+  };
+
+static COld2NewItem gs_Old2New[] =
+  {
+    {eO2N_Direct, "$Dyn.DynStats.RqdTime",            "$Dyn.Scenario.DurationRqd",              "$Dyn.Scenario.Type should be set to Duration"},
+    {eO2N_Direct, "$Dyn.DynStats.RqdTm",              "$Dyn.Scenario.DurationRqd",              "$Dyn.Scenario.Type should be set to Duration"},
+    {eO2N_Direct, "$Dyn.DateTime.Time",               "$Dyn.Time",                              ""},
+    {eO2N_Direct, "$Dyn.DateTime.TimeDesc",           "$Dyn.Time.Fmt",                          ""},
+    {eO2N_Direct, "$Dyn.DateTime.TimeFullDesc",       "$Dyn.Time.Fmt",                          ""},
+    {eO2N_Direct, "$Dyn.DateTime.Day",                "$Dyn.DateRec.Day",                       ""},
+    {eO2N_Direct, "$Dyn.DateTime.Month",              "$Dyn.DateRec.Month",                     ""},
+    {eO2N_Direct, "$Dyn.DateTime.Year",               "$Dyn.DateRec.Year",                      ""},
+    {eO2N_Direct, "$Dyn.ResetTime",                   "$Dyn.Scenario.Start.SetTime",            ""},
+    {eO2N_Direct, "$Dyn.TimeAtStart",                 "$Dyn.Scenario.Start.StartAt.Fmt",        ""},
+    {eO2N_Direct, "$Dyn.RestartHistorian",            "$Dyn.Scenario.Start.RestartHistorian",   ""},
+    {eO2N_Direct, "$Dyn.Try_Start",                   "$Dyn.Cmd.Start",                         ""},
+    {eO2N_Direct, "$Dyn.Try_Idle",                    "$Dyn.Cmd.Idle",                          ""},
+    {eO2N_Direct, "$Dyn.Try_Stop",                    "$Dyn.Cmd.Stop",                          ""},
+
+
+    {eO2N_End},
+  };
+static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMap;
+
+COld2NewItem * FindOld2New(LPCTSTR OldTag)
+  {
+  if (gs_Old2NewMap.GetCount()==0)
+    {
+    gs_Old2NewMap.InitHashTable(113);
+
+    for (int i=0; gs_Old2New[i].m_Type>0; i++)
+      gs_Old2NewMap.SetAt(gs_Old2New[i].m_OldTag, &gs_Old2New[i]);
+    }
+
+  COld2NewItem *pRet=NULL;
+  if (gs_Old2NewMap.Lookup(OldTag, pRet))
+    {
+    if (!pRet->m_Logged)
+      {
+      LogWarning("Executive", 0, 
+        pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'", 
+        OldTag, pRet->m_NewTag, pRet->m_Comment);
+      //LogWarning(OldTag, 0, 
+      //  pRet->m_Comment ? "Changed to '%s' : %s":"Changed to '%s'", 
+      //  pRet->m_NewTag, pRet->m_Comment);
+      pRet->m_Logged=true;
+      }
+    return pRet;
+    }
+  return NULL;
+
+  };
+
+//========================================================================
+//
+//
+//
+//========================================================================
+
 CGlobalInterfaceTable g_GIT;
 
 //========================================================================
@@ -5636,6 +5718,9 @@ flag TagAccessBlk::LoadAddress(flag FndShortcut)
   {
   static int DoDbg=0;
   //dbgpln("                         LoadAddress %s", pFullItemTag);
+
+  bool ReMapTried=false;
+
   if (FndShortcut)
     {
     if (!Shortcut.fOK)
@@ -5659,6 +5744,8 @@ flag TagAccessBlk::LoadAddress(flag FndShortcut)
     if (DoDbg)
       dbgpln("LoadAddress - Find it                                  %s", sTag());
     }
+
+ReTry:
   if (pAccObj==NULL )
     {
     CStopWatch SW(true);
@@ -5672,7 +5759,7 @@ flag TagAccessBlk::LoadAddress(flag FndShortcut)
       if (pAccObj==NULL)
         {
   //CNM       pAccObj=pSrchRoot;
-        return False;
+        goto Failed;
         }
       m_pTagFound=sTag();//[ObjTagLen];
       if (FndShortcut)
@@ -5687,6 +5774,24 @@ flag TagAccessBlk::LoadAddress(flag FndShortcut)
       }
     m_LoadAddress.Add(SW);
     }
+  
+Failed:
+  if (!Ok && !ReMapTried)
+    {
+    ReMapTried=true;
+    // Try Remap ????
+    COld2NewItem *pOld2New = FindOld2New(sTag());
+    if (pOld2New)
+      {
+      Strng NewTag;
+      pOld2New->MakeNewTag(sTag(), NewTag);
+      sTag=NewTag;
+      sTag=NewTag;
+      pAccObj=NULL;
+      goto ReTry;
+      }
+    }
+
   return Ok;
   }
 

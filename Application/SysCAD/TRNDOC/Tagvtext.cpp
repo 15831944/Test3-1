@@ -569,7 +569,8 @@ void CTagVwText::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
     ASSERT_ALWAYS((r-1)==nValFlds, "UpdFld Index Mismatch");
     if (IsStrng(DS.cType))
       {
-      ValFlds.SetAtGrow(nValFlds, SetData(r,"", TV_MeasFldId, MeasWdt+MinWdt+MaxWdt+2, 0, " "));
+      byte Just= IsTimeCnv(DS.Cnv.Index()) ?2:0;
+      ValFlds.SetAtGrow(nValFlds, SetData(r,"", TV_MeasFldId, MeasWdt+MinWdt+MaxWdt+2, Just, " "));
       MinFlds.SetAtGrow(nValFlds, NULL);
       MaxFlds.SetAtGrow(nValFlds, NULL);
       }

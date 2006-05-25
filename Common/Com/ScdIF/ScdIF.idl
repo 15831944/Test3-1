@@ -817,6 +817,26 @@ typedef enum eScdMode
 
   } eScdMode;
 
+//----------------------------------------------  
+[  
+  uuid(DC1EA201-1A8A-4615-883E-94BA6B14DB85),
+  helpstring("eScdCtrlTasks"),
+  v1_enum
+]
+typedef enum eScdCtrlTasks
+  { 
+  CO_InitPGM       = 0x00000001, 
+  CO_InitPrf       = 0x00000002, 
+  CO_InitAll       = 0x000000ff, 
+
+  CO_OperatePGM    = 0x00000100, 
+  CO_OperatePrf    = 0x00000200, 
+  CO_OperateAll    = 0x0000ff00, 
+
+  CO_All           = 0xffffffff, 
+
+  } eScdCtrlTasks;
+
 //----------------------------------------------
 [
   object,

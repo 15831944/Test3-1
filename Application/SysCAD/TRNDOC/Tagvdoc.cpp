@@ -34,6 +34,7 @@ static CDbgMngr dbgReBuildPts   ("Trends", "ReBuildPts");
 static CDbgMngr dbgQueryHistory ("Trends", "QueryHistory");
 
 inline double dbgTimeRound(double Tim) {return Tim-3600.0*floor(Tim/3600.0);};
+inline double dbgTimeRound(CTimeValue Tim) { return Tim.Seconds; };//-3600.0*floor(Tim/3600.0);};
 #endif
 
 #define ALLOWFUNCS 0 /* CNM - FOR NOW DISBALE FUNCTIONS in TrendWindows*/
@@ -356,7 +357,7 @@ flag CTagVwSlot::SetSlotAsData(pCTagVwDoc pDoc, CPkDataItem & Item)
   else
     Cnv.SetText(Item.CnvTxt());
   sCnvTxt=Cnv.Text();
-  if (sCnvTxt.Len()>0)
+  if (sCnvTxt.Len()>0)// && Cnv.Index()!=DC_TimeStr)
     sTag.Set("%s (%s)", sTagOnly(), sCnvTxt());
   else
     sTag.Set("%s", sTagOnly());
@@ -897,6 +898,13 @@ flag CTagVwSlot::ChangeCnv(char* pNewCnv)
           sMaxVal.Set("%g", d);
           }
         }
+      else if (IsStrng(cType) && IsTimeCnv(Cnv.Index()))
+        {
+        Strng s = sValue;
+        s.Trim();
+        CTimeValue X((LPCTSTR)s());
+        sValue=X.Format(pNewCnv);
+        }
       Cnv.SetText(pNewCnv);
 
 //      Strng WrkTag, WrkCnvTxt;
@@ -1104,7 +1112,7 @@ CTrendPtBlk::~CTrendPtBlk()
 
 //---------------------------------------------------------------------------
 /*#F:Adds a point to a trend.*/
-flag CTrendPtBlk::AddPt(double Time, double Val, byte Typ, int SltNo, int Fwd, CTrendSclBlk & Scl, CTagVwDoc *Doc)
+flag CTrendPtBlk::AddPt(CTimeValue Time, double Val, byte Typ, int SltNo, int Fwd, CTrendSclBlk & Scl, CTagVwDoc *Doc)
   {
   CPoint pt(TimePixel(Time, Doc->TB), YPixel(Val, Scl));
   
@@ -1160,11 +1168,11 @@ flag CTrendPtBlk::AddPt(double Time, double Val, byte Typ, int SltNo, int Fwd, C
 
 //---------------------------------------------------------------------------
 
-void CTrendPtBlk::ShiftPts(double d, CTrendSclBlk & Scl, CTagVwDoc *Doc)
+void CTrendPtBlk::ShiftPts(CTimeValue d, CTrendSclBlk & Scl, CTagVwDoc *Doc)
   {
   ASSERT(iNPts>=0 && iNPts<=MaxTrendPtBlk);
-  double XSc=TrendXMax/(double)(Doc->TB.EndTime-Doc->TB.StartTime);
-  long dx=(int)(XSc*d);
+  double XSc=TrendXMax/(Doc->TB.EndTime-Doc->TB.StartTime).Seconds;
+  long dx=(int)(XSc*d.Seconds);
 
   for (int i=0; i<iNPts; i++)
     Pt[i].x-=dx;
@@ -1304,7 +1312,7 @@ void CTrendSlot::ClearTail()
 
 //---------------------------------------------------------------------------
 
-void CTrendSlot::AddStartPt(double Tim, double Val)
+void CTrendSlot::AddStartPt(CTimeValue Tim, double Val)
   {
   #if dbgTrends 
   if (dbgReBuild()) dbgpln("Slot::AddStartPoint() [%i]",iNo);
@@ -1355,13 +1363,13 @@ void CTrendSlot::Connect(int No, CTagVwSlot* Slt_, pCTagVwDoc Doc_)
 
 //---------------------------------------------------------------------------  
 
-void CTrendSlot::AppendMeasured(double TheTime)
+void CTrendSlot::AppendMeasured(CTimeValue TheTime)
   {
   #if XXdbgReBuild
   dbgpln("RB:Trend Build From Measured");
   dbgpln("RB:Start %li",BldPts.StartTime-Hst().TimeRunStarted);
   dbgpln("RB:End   %li",BldPts.EndTime-Hst().TimeRunStarted);
-  dbgpln("RB:Time:%li  %g",gs_Exec.Time(), HS->fMeas());
+  dbgpln("RB:Time:%li  %g",gs_Exec.TheTime, HS->fMeas());
   #endif
 
   if (pSlt)
@@ -1425,12 +1433,12 @@ void CTrendSlot::AppendMeasured(double TheTime)
 //---------------------------------------------------------------------------
 /*#F:The document is adding a point to the trend.*/
 
-void CTrendSlot::BuildFromEvent(double Time, double Val)
+void CTrendSlot::BuildFromEvent(CTimeValue Time, double Val)
   {
   #if dbgTrends 
   if (dbgReBuild()) dbgpln("Slot::BuildFromEvent() [%i] %8.1f = %9.2f %s",iNo,dbgTimeRound(Time),Val,pSlt->sTag());
   #endif
-  if (Valid(dBuildStartTime) && (Time > dBuildStartTime+0.005))
+  if (ValidTime(dBuildStartTime) && (Time > dBuildStartTime+0.005))
     {
     #if dbgTrends 
     if (dbgReBuild()) dbgpln("  -DISCARD");
@@ -1488,7 +1496,7 @@ void CTrendSlot::BuildFromEvent(double Time, double Val)
 
 //---------------------------------------------------------------------------
 
-void CTrendSlot::ShiftDrwPts(double d)
+void CTrendSlot::ShiftDrwPts(CTimeValue d)
   {
   POSITION Pos=PtBlks.GetHeadPosition();
   while (Pos)
@@ -2053,8 +2061,9 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             }
           else if (_stricmp(f[0], "Timebase")==0)
             {
-            TB.StartTime = SafeAtoF(f[1], GTB.StartTime);
-            TB.EndTime = TB.StartTime+SafeAtoF(f[2], 1.0);
+            TB.StartTime.Seconds = SafeAtoF(f[1], GTB.StartTime.Seconds);
+            TB.EndTime.Seconds = TB.StartTime.Seconds+SafeAtoF(f[2], 1.0);
+            TB.EndTime=TB.EndTime.GreaterThan(TB.StartTime);
             TB.TrackingTime = (SafeAtoI(f[3], TB.TrackingTime)==0 ? 0 : 1);
             TB.AllowLatch = 0;
             }
@@ -2276,7 +2285,7 @@ BOOL CTagVwDoc::WriteDocument(const char* pszPathName, FILE* pFile)
 
   fprintf(pFile, "Other,-1,\"Labels(%i,%i,%i,%i,%i,%i)\",,,-1,,,,,\"ShowLabels(StartDate,StartTime,EndDate,EndTime,Duration,HundredSecs)\"\n", SD, ST, ED, ET, Dur, HS);
   fprintf(pFile, "Other,-1,\"Grid(%i,%i)\",,,-1,,,,,\"Grid(NoOfXDivisions,NoOfYDivisions)\"\n", iNXGridDivs, iNYGridDivs);
-  fprintf(pFile, "Other,-1,\"Timebase(%g,%g,%i)\",,,-1,,,,,\"Timebase(Start,Duration,Tracking)\"\n", TimeBaseStart(), TimeBaseDuration(), TimeBaseTracking());
+  fprintf(pFile, "Other,-1,\"Timebase(%g,%g,%i)\",,,-1,,,,,\"Timebase(Start,Duration,Tracking)\"\n", TimeBaseStart().Seconds, TimeBaseDuration().Seconds, TimeBaseTracking());
   fprintf(pFile, "Other,-1,\"General(%i)\",,,-1,,,,,\"General(Scroll)\"\n", Scroll);
   fprintf(pFile, "Other,-1,\"ColumnWidths(%i,%i,%i,%i)\",,,-1,,,,,\"ColumnWidths(Tag,Value,Min,Max)\"\n", ColumnWidths[0], ColumnWidths[1], ColumnWidths[2], ColumnWidths[3]);
 
@@ -2330,6 +2339,10 @@ void CTagVwDoc::FixTimeBase()
   if (fTimeBaseGlobal)
     TB=GTB;
 
+  CTimeValue ST=TB.StartTime;
+  CTimeValue ETr=Min(TB.EndTime, gs_Exec.TheTime);
+  CTimeValue ET=TB.EndTime;
+
   ClearAllTrends();
   for (int i=0; i<NoTrends(); i++)
     if (Trend[i].Connected())
@@ -2339,8 +2352,8 @@ void CTagVwDoc::FixTimeBase()
 
       Trend[i].pSlt->UpdateYMnMx(this);
 
-      double LMT=Trend[i].LastMeasTime;
-      if (gs_Exec.Busy() && Valid(LMT) && (LMT >= ST) && (LMT <= ET))
+      CTimeValue LMT=Trend[i].LastMeasTime;
+      if (gs_Exec.Busy() && ValidTime(LMT) && (LMT >= ST) && (LMT <= ET))
         {
         Trend[i].AppendMeasured(LMT);
         Trend[i].dBuildStartTime=LMT;
@@ -2356,9 +2369,6 @@ void CTagVwDoc::FixTimeBase()
   CXM_Route HRoute;
   if (XFindObject(pExecName_Historian, HRoute))
     {
-    double ST=TB.StartTime;
-    double ETr=Min(TB.EndTime, gs_Exec.Time());
-    double ET=TB.EndTime;
     flag FoundOne = False;
     CXM_QueryHistory *xb=NULL;
     for (int i=0; i<NoTrends(); i++)
@@ -2369,7 +2379,7 @@ void CTagVwDoc::FixTimeBase()
         if (dbgReBuild()) dbgpln("  Slot::Rqst() [%i] %s",i,Trend[i].pSlt->sTag());
         #endif
         if (!xb)
-          xb = new CXM_QueryHistory (ST, ETr, ++iRqstNo, (long)this);
+          xb = new CXM_QueryHistory (ST.Seconds, ETr.Seconds, ++iRqstNo, (long)this);
         xb->xAddTag(i, Trend[i].pSlt->sTag());
         FoundOne = True;
         }
@@ -2402,42 +2412,42 @@ void CTagVwDoc::TryScrollWindow()
   {
   CTagVwTrend* pTrend = (CTagVwTrend*)pTrnd;
   if (!pTrend->MouseFlags)
-    if (TB.TrackingTime && gs_Exec.Time() >= TB.EndTime)
+    if (TB.TrackingTime && gs_Exec.TheTime >= TB.EndTime)
       {
       #if dbgTrends 
       if (dbgReBuild()) 
         dbgpln("Trend::ScrollWindow()");
       #endif
-      double PosCurs = TB.EndTime-((TB.EndTime-TB.StartTime)*ShiftRatio);
-      double d = gs_Exec.Time()-PosCurs;
+      CTimeValue PosCurs = TB.EndTime-((TB.EndTime-TB.StartTime)*ShiftRatio);
+      CTimeValue d = gs_Exec.TheTime-PosCurs;
       for (int i=0; i<NoTrends(); i++)
         if (Trend[i].Connected())
           Trend[i].ShiftDrwPts(d);
       TB.StartTime += d;
       TB.EndTime += d;
       CFloatLParamUnion FL;
-      FL.f=(float)d;
+      FL.f=(float)d.Seconds;
       SendOrPostMessage(pTrnd, !gs_TheRunMngr.AutomationBusy(), WMU_SCROLL, 0, FL.L);
       }
   }
 
 //---------------------------------------------------------------------------
 
-void CTagVwDoc::SetTimebase(double Start, double Duration, flag bDoGlobalUpdate)
+void CTagVwDoc::SetTimebase(CTimeValue Start, CTimeValue Duration, flag bDoGlobalUpdate)
   {
   Lock();
     
-  Duration=Max(Duration,0.01);
+  Duration=Max(Duration,Max(0.01, CTimeValue::MinResolution));
   TB.StartTime=Start;
   TB.EndTime=Start+Duration;
-  double ExecTime = gs_Exec.Time();
-  if (TB.EndTime > gs_Exec.Time())
+  CTimeValue ExecTime = gs_Exec.TheTime;
+  if (TB.EndTime > gs_Exec.TheTime)
     {
-    double d=(TB.EndTime - (gs_Exec.Time()+1+(Duration*ShiftRatio)));
+    CTimeValue d(TB.EndTime - (gs_Exec.TheTime+1.0+(Duration*ShiftRatio)));
     TB.StartTime-=d;
     TB.EndTime-=d;
     }
-  if (TB.AllowLatch && (TB.EndTime>=gs_Exec.Time()))
+  if (TB.AllowLatch && (TB.EndTime>=gs_Exec.TheTime))
     TB.TrackingTime=1;
 
   GTB=TB;
@@ -2468,17 +2478,17 @@ void CTagVwDoc::AdjustTimebase(double ShiftFrac, double Scale, flag TrackingOn, 
   {
   Lock();
   
-  double Shift;
-  double ExecTime=gs_Exec.Time();
+  CTimeValue Shift;
+  CTimeValue ExecTime=gs_Exec.TheTime;
   if (ShiftFrac > 1.0e35)
-//    Shift=gs_Exec.Time()-TB.EndTime+0.1;//10;
-    Shift=ExecTime-(TB.StartTime+(1.0-ShiftRatio)*(TB.EndTime-TB.StartTime));
+//    Shift=gs_Exec.TheTime-TB.EndTime+0.1;//10;
+    Shift=ExecTime-(TB.StartTime+(TB.EndTime-TB.StartTime)*(1.0-ShiftRatio));
   else if (ShiftFrac < -1.0e35)
-    Shift=0;
+    Shift=CTimeValue(0.0);
   else
-    Shift=(ShiftFrac*(TB.EndTime-TB.StartTime));
+    Shift=((TB.EndTime-TB.StartTime)*ShiftFrac);
 
-  double Win=TB.EndTime-TB.StartTime;
+  double Win=(TB.EndTime-TB.StartTime).Seconds;
   double edWin=0;
   double sdWin=0;
   if (fabs(Scale-1.0) > 0.01)
@@ -2518,14 +2528,14 @@ void CTagVwDoc::AdjustTimebase(double ShiftFrac, double Scale, flag TrackingOn, 
   TB.StartTime+=Shift+sdWin;
   TB.EndTime+=Shift+edWin;
 
-  if (TB.EndTime > gs_Exec.Time())
+  if (TB.EndTime > gs_Exec.TheTime)
     {
-    double PosCurs=TB.EndTime-((TB.EndTime-TB.StartTime)*ShiftRatio);
-    double d=PosCurs-gs_Exec.Time();
+    CTimeValue PosCurs=TB.EndTime-((TB.EndTime-TB.StartTime)*ShiftRatio);
+    CTimeValue d=PosCurs-gs_Exec.TheTime;
     TB.StartTime-=d;
     TB.EndTime-=d;
     }
-  TB.TrackingTime=TrackingOn;//(TB.EndTime>=gs_Exec.Time());
+  TB.TrackingTime=TrackingOn;//(TB.EndTime>=gs_Exec.TheTime);
   TB.AllowLatch=AllowLatch;
   GTB=TB;
 
@@ -2849,8 +2859,8 @@ void CTagVwDoc::AdjustTimebaseToEndAll()
       while (Pos)
         {
         CTagVwDoc* pUpdDoc = (CTagVwDoc*)(ScdApp()->Template(iTemp).GetNextDoc(Pos));
-        double duration = pUpdDoc->TB.EndTime - pUpdDoc->TB.StartTime;
-        double start = gs_Exec.Time()+10.0; //force to end
+        CTimeValue duration = pUpdDoc->TB.EndTime - pUpdDoc->TB.StartTime;
+        CTimeValue start = gs_Exec.TheTime+10.0; //force to end
         pUpdDoc->SetTimebase(start, duration, false);
         }
       }
@@ -3244,14 +3254,14 @@ int CTagVwDoc::EO_DeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
-flag CTagVwDoc::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) 
+flag CTagVwDoc::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) 
   {
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag CTagVwDoc::EO_Start(const CXM_TimeControl &CB)                      
+flag CTagVwDoc::EO_Start(CXM_TimeControl &CB)                      
   {
   iExecCnt = 0;
   UpdateAllViewsByMsg(NULL, TGU_Start, NULL, gs_TheRunMngr.AutomationBusy());
@@ -3440,7 +3450,7 @@ flag CTagVwDoc::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
     for (int i=0; i<NoTrends(); i++)
       if (Trend[i].Connected())
         {
-        Trend[i].AppendMeasured(gs_Exec.Time());
+        Trend[i].AppendMeasured(gs_Exec.TheTime);
         Trend[i].Execute();
         }
     Free();
@@ -3458,7 +3468,7 @@ flag CTagVwDoc::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag CTagVwDoc::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) 
+flag CTagVwDoc::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) 
   {
   if (iExecCnt<10)
     iExecCnt++;
@@ -3504,7 +3514,7 @@ flag CTagVwDoc::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
 
 //---------------------------------------------------------------------------
 
-flag CTagVwDoc::EO_Stop(const CXM_TimeControl &CB)                       
+flag CTagVwDoc::EO_Stop(CXM_TimeControl &CB)                       
   {
   UpdateAllViewsByMsg(NULL, TGU_Stop, NULL);
   for (int i=0; i<NoSlots(); i++)
@@ -3610,7 +3620,7 @@ void CTagVwDoc::TrendQueryDlg()
   {
   if (!gs_License.Blocked())
     {
-    double ST=TB.StartTime, ET=TB.EndTime;
+    CTimeValue ST=TB.StartTime, ET=TB.EndTime;
     CQueryDlg* pDlg = new CQueryDlg(pTrnd, this, ST, ET);
     for (int i=0; i<NoTrends(); i++)
       if (Trend[i].Connected())

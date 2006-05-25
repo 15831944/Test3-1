@@ -401,7 +401,7 @@ void GasPump_GP::UnlinkAllXRefs()
 
 // --------------------------------------------------------------------------
 
-void GasPump_GP::EvalCtrlActions()
+void GasPump_GP::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   double D;
   if (m_SpdVar.GetValue(D))

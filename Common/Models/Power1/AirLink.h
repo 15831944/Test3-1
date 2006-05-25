@@ -48,8 +48,8 @@ class CAirLink : public FlwNode
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual void   EvalCtrlActions();
-    virtual void   EvalCtrlStrategy();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalDiscrete();
 
     virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);

@@ -590,7 +590,7 @@ void CQueueCon::UnlinkAllXRefs()
 
 //--------------------------------------------------------------------------
 
-void CQueueCon::EvalCtrlStrategy()
+void CQueueCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   if (QCI.bOn && !GetActiveHold() && QCI.iCurIndex>=0 && ICGetTimeInc()>0.0)
     {

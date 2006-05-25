@@ -422,7 +422,7 @@ void Pump_GP::UnlinkAllXRefs()
   };
 // --------------------------------------------------------------------------
 
-void Pump_GP::EvalCtrlActions()
+void Pump_GP::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   double D;
   if (m_SpdVar.GetValue(D))

@@ -884,8 +884,8 @@ CXM_HistRecordingOn::CXM_HistRecordingOn(char * Tag, flag RecordingOn)
 
 CXM_QueryTime::CXM_QueryTime()
   {
-  TimeRqd=dNAN;
-  dTimeRqd=dNAN;
+  TimeRqd=TimeNAN;
+  dTimeRqd=TimeNAN;
   //CXM_Header
   Id=XM_QueryTime;
   m_dwLength=sizeof(*this);
@@ -893,7 +893,7 @@ CXM_QueryTime::CXM_QueryTime()
 
 //-------------------------------------------------------------------------
 
-CXM_QueryTime::CXM_QueryTime(double TimeRqd_, double dTimeRqd_)
+CXM_QueryTime::CXM_QueryTime(CTimeValue TimeRqd_, CTimeValue dTimeRqd_)
   {
   TimeRqd=TimeRqd_;
   dTimeRqd=dTimeRqd_;
@@ -906,8 +906,8 @@ CXM_QueryTime::CXM_QueryTime(double TimeRqd_, double dTimeRqd_)
 
 CXM_Execute::CXM_Execute()
   {
-  Time=dNAN;
-  dTimeNext=dNAN;
+  Time=TimeNAN;
+  dTimeNext=TimeNAN;
   // CXM_Header
   Id=XM_Execute;
   m_dwLength=sizeof(*this);
@@ -915,7 +915,7 @@ CXM_Execute::CXM_Execute()
 
 //-------------------------------------------------------------------------
 
-CXM_Execute::CXM_Execute(double Time_, double dTimeNext_)
+CXM_Execute::CXM_Execute(CTimeValue Time_, CTimeValue dTimeNext_)
   {
   Time=Time_;
   dTimeNext=dTimeNext_;
@@ -926,35 +926,45 @@ CXM_Execute::CXM_Execute(double Time_, double dTimeNext_)
 
 //===========================================================================
 
-CXM_TimeControl::CXM_TimeControl()
+CXM_TimeControl::CXM_TimeControl(flag & RestartPGMOnStart, flag & RestartPrfOnStart) :
+  m_RestartPGMOnStart(RestartPGMOnStart),
+  m_RestartPrfOnStart(RestartPrfOnStart)
   {
   // CXM_Header
   Id=XM_TimeControl;
   m_dwLength=sizeof(*this);
+
   };
 
 //-------------------------------------------------------------------------
 
-CXM_TimeControl::CXM_TimeControl(CXM_TimeControl &TC)
-  {
-  m_bRealTime=TC.m_bRealTime;
-  m_bHoldAdv=TC.m_bHoldAdv;
-  m_Time=TC.m_Time;
-  m_StepSize=TC.m_StepSize;
-  m_StepSizeMax=TC.m_StepSizeMax;
-  m_StepSizeNxt=TC.m_StepSizeNxt;
-  m_StartTime=TC.m_StartTime;
-  m_StopTime=TC.m_StopTime;
-  m_RealTimeMult=TC.m_RealTimeMult;
-  m_nSteps=TC.m_nSteps;
-  m_iRunTerm=TC.m_iRunTerm;
-  m_dTimeUntilStop=TC.m_dTimeUntilStop;
-  m_EqnCB=TC.m_EqnCB;
-
-  // CXM_Header
-  Id=XM_TimeControl;
-  m_dwLength=sizeof(*this);
-  };
+//CXM_TimeControl::CXM_TimeControl(CXM_TimeControl &TC)
+//  {
+//  m_bRealTime             = TC.m_bRealTime;
+//  m_bHoldAdv              = TC.m_bHoldAdv;
+//  m_TheTime               = TC.m_TheTime;
+//  m_StepSize              = TC.m_StepSize;
+//  m_StepSizeMax           = TC.m_StepSizeMax;
+//  m_StepSizeNxt           = TC.m_StepSizeNxt;
+//  m_TimeToStop            = TC.m_TimeToStop;
+//  m_ScnTime               = TC.m_ScnTime;
+//  m_ScnTimeMax            = TC.m_ScnTimeMax;
+//  m_RealTimeMult          = TC.m_RealTimeMult;
+//  m_StepCount             = TC.m_StepCount;
+//  m_StepCountMax          = TC.m_StepCountMax;
+//  m_ScnState              = TC.m_ScnState;
+//  m_ManualScnReStart      = TC.m_ManualScnReStart; 
+//  m_ReStartIfScnBusy      = TC.m_ReStartIfScnBusy;
+//  m_ReStartIfScnComplete  = TC.m_ReStartIfScnComplete;
+//  m_ScnType               = TC.m_ScnType;
+//  m_ScnDuration           = TC.m_ScnDuration;
+//  m_ScnStopTime           = TC.m_ScnStopTime;
+//  m_EqnCB                 = TC.m_EqnCB;
+//
+//  // CXM_Header
+//  Id=XM_TimeControl;
+//  m_dwLength=sizeof(*this);
+//  };
 
 //===========================================================================
 
@@ -1030,7 +1040,7 @@ CXM_OleErrorCode::CXM_OleErrorCode(long ErrorNumber, char *Msg)
 
 //===========================================================================
 
-CXM_RepTrendDB::CXM_RepTrendDB(char* FileName, char* TableName, double EndTime, double Duration, long NoOfPts)
+CXM_RepTrendDB::CXM_RepTrendDB(char* FileName, char* TableName, CTimeValue EndTime, CTimeValue Duration, long NoOfPts)
   {
   dEndTime = EndTime;
   dDuration = Duration;

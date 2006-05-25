@@ -3349,11 +3349,11 @@ void MN_Lnk::EvalDiscrete()
 
 //---------------------------------------------------------------------------
 
-void MN_Lnk::EvalStatistics()
+void MN_Lnk::EvalStatistics(eScdCtrlTasks Tasks)
   {
   if (pStats)
     pStats->ExecIns(this);
-  MdlNode::EvalStatistics();
+  MdlNode::EvalStatistics(Tasks);
   }
 
 //---------------------------------------------------------------------------

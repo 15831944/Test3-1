@@ -65,11 +65,11 @@ class CBBSurge : public MN_Surge, CBBBase
     virtual void   EvalIntegral(long JoinMask);
 
     virtual void   EvalDiscrete();
-    virtual void   EvalCtrlInitialise();
-    virtual void   EvalCtrlActions();
-    virtual void   EvalCtrlStrategy();
-    virtual void   EvalCtrlTerminate();
-    virtual void   EvalStatistics();
+    virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All);
+    virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All);
     
     virtual void   EvalPowerAvailable();
     virtual void   EvalPowerRequired();

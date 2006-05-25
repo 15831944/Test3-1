@@ -15,7 +15,7 @@ _FWDDEF(CQueryDlg)
 class CQueryDlg : public CDialog
   {
   public:
-    CQueryDlg(CWnd* pParent, pCTagVwDoc Doc, double StartTime, double EndTime);
+    CQueryDlg(CWnd* pParent, pCTagVwDoc Doc, CTimeValue StartTime, CTimeValue EndTime);
     ~CQueryDlg();
     //{{AFX_DATA(CQueryDlg)
     enum { IDD = IDD_QUERYDLG };

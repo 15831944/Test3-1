@@ -1191,7 +1191,7 @@ void BeltCnv2::EvalPowerRequired()
 
 //--------------------------------------------------------------------------
 
-void BeltCnv2::EvalCtrlActions()
+void BeltCnv2::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   m_BeltSB.EvalCtrlActions(this);
   for (int i=0; i<m_FeedDrives.GetSize(); i++)

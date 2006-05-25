@@ -459,7 +459,7 @@ void CGenStats::ResetAllStats()
 
 //--------------------------------------------------------------------------
 
-void CGenStats::EvalStatistics()
+void CGenStats::EvalStatistics(eScdCtrlTasks Tasks)
   {
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {

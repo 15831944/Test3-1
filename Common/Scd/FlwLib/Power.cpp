@@ -825,7 +825,7 @@ CPwrSupply * CPwrUserSocket::Supply()
 
 //--------------------------------------------------------------------------
 
-void CPwrUserSocket::EvalCtrlActions()
+void CPwrUserSocket::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   };
 

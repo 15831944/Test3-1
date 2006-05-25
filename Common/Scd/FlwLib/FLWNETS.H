@@ -893,7 +893,7 @@ class CFullNetBlk
     int             NNets;
     NetArray        Nets;
                     
-    flag            fStopReqd;
+    //flag            fStopReqd;
                     
     #ifdef _DEBUG   
     dword           dwIterNo;
@@ -930,7 +930,7 @@ class CFullNetBlk
     flag           ProblemOK() {return Nets.GetSize()>0;};
     void           Solve(dword IterNo);
     int            CheckForErrors();
-    flag           StopReqd() { return fStopReqd; };
+    //flag           StopReqd() { return fStopReqd; };
 
     void           SetQmEstAndQm();
     void           SaveQmEst();

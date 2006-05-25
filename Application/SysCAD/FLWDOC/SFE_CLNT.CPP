@@ -537,11 +537,17 @@ void SFEFlwLib::EO_SetSolveMode(long RunMds, long RunMdsMsk)
   { VENTER pSfe->EO_SetSolveMode(RunMds, RunMdsMsk); VLEAVE};
 flag SFEFlwLib::EO_Starting(flag fBeginStarting)
   { FENTER(false) pSfe->EO_Starting(fBeginStarting);  FLEAVE};
-flag SFEFlwLib::EO_SetTime(double TimeRqd, bool Rewind)
+flag SFEFlwLib::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
   { FENTER(false) pSfe->EO_SetTime(TimeRqd, Rewind); FLEAVE };
-flag SFEFlwLib::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag SFEFlwLib::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   { FENTER(false) pSfe->EO_QueryTime(CB, TimeRqd, dTimeRqd); FLEAVE };
-flag SFEFlwLib::EO_Start(const CXM_TimeControl &CB)
+flag SFEFlwLib::EO_GotoRunStart(CXM_TimeControl &CB)
+  { FENTER(false) pSfe->EO_GotoRunStart(CB); FLEAVE};
+flag SFEFlwLib::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
+  { FENTER(false) pSfe->EO_GotoRunEnd(CB, TimeChanged); FLEAVE};
+flag SFEFlwLib::EO_PreStart(CXM_TimeControl &CB)
+  { FENTER(false) pSfe->EO_PreStart(CB); FLEAVE};
+flag SFEFlwLib::EO_Start(CXM_TimeControl &CB)
   { FENTER(false) pSfe->EO_Start(CB); FLEAVE};
 void SFEFlwLib::EO_QuerySubsReqd(CXMsgLst &XM)
   { VENTER pSfe->EO_QuerySubsReqd(XM); VLEAVE};
@@ -555,7 +561,7 @@ DWORD SFEFlwLib::EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjDa
   { DWENTER(0) pSfe->EO_ReadTaggedItem(ObjTag, ObjData, Route); DWLEAVE};
 int  SFEFlwLib::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   { IENTER(TOData_NotFound) pSfe->EO_WriteTaggedItem(ObjData, Route); ILEAVE };
-flag SFEFlwLib::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag SFEFlwLib::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   { 
   FENTER(false) 
   pSfe->EO_Execute(CB, EORet);
@@ -572,7 +578,13 @@ flag SFEFlwLib::EO_StepDone()
   pSfe->EO_StepDone();
   FLEAVE
   };
-flag SFEFlwLib::EO_Stop(const CXM_TimeControl &CB)
+flag SFEFlwLib::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
+  { 
+  FENTER(false) 
+  pSfe->EO_QueryStop(CB, Starting); 
+  FLEAVE
+  };
+flag SFEFlwLib::EO_Stop(CXM_TimeControl &CB)
   { 
   FENTER(false) 
   pSfe->EO_Stop(CB); 
@@ -587,7 +599,7 @@ flag SFEFlwLib::EO_Stopping(flag BeginStopping)
   pSfe->EO_Stopping(BeginStopping); 
   FLEAVE
   };
-flag SFEFlwLib::EO_BeginPause(const CXM_TimeControl &CB)
+flag SFEFlwLib::EO_BeginPause(CXM_TimeControl &CB)
   { 
   FENTER(false) 
   pSfe->EO_BeginPause(CB); 
@@ -596,7 +608,7 @@ flag SFEFlwLib::EO_BeginPause(const CXM_TimeControl &CB)
     FE_LoadAllModelStatus();
   FLEAVE
   };
-flag SFEFlwLib::EO_EndPause(const CXM_TimeControl &CB)
+flag SFEFlwLib::EO_EndPause(CXM_TimeControl &CB)
   { FENTER(false) pSfe->EO_EndPause(CB); FLEAVE};
 
 flag SFEFlwLib::EO_BeginSave(FilingControlBlock &FCB)

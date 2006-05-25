@@ -720,8 +720,9 @@ class DllImportExport Project : public CExecObj
     // ExecObj Overridables
     virtual void   EO_OnAppActivate(BOOL bActive);
     virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
-    virtual flag   EO_PrePreStart();
-    virtual flag   EO_PreStart();
+    virtual flag   EO_GotoRunStart(CXM_TimeControl &CB);
+    virtual flag   EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged);
+    virtual flag   EO_PreStart(CXM_TimeControl &CB);
     virtual flag   EO_Starting(flag fBeginStarting);
     virtual flag   EO_Stopping(flag fBeginStopping);
 

@@ -59,7 +59,7 @@ STDMETHODIMP CScdDynamic::get_StepSize(double *pVal)
   {
   dllSCD_COMENTRYGET(long, pVal)
     {
-    * pVal=gs_Exec.StepSizeMax();  
+    * pVal=gs_Exec.StepSizeMax.Seconds;  
     }
   SCD_COMEXIT
   };
@@ -68,7 +68,7 @@ STDMETHODIMP CScdDynamic::put_StepSize(double newVal)
   {
   dllSCD_COMENTRY(long)
     {
-    gs_Exec.SetStepSizeMax(newVal);  
+    gs_Exec.StepSizeMax=newVal;  
     }
   SCD_COMEXIT
   };

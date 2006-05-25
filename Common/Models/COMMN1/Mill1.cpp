@@ -309,7 +309,7 @@ void Mill1::Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)
 
 //--------------------------------------------------------------------------
 
-void Mill1::EvalCtrlActions()
+void Mill1::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   MSB.EvalCtrlActions(this);
   }

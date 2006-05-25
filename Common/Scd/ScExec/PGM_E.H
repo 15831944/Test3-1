@@ -181,8 +181,8 @@ class CGExecContext
   public:
     //set
     CNodeXRefMngr* pXRM;
-    double  dIC_Time;
-    double  dIC_dTime;
+    CTimeValue dIC_Time;
+    CTimeValue dIC_dTime;
     pchar   StartLabel;
     pchar   EndLabel;
     flag    OnInitialise;
@@ -203,8 +203,8 @@ class CGExecContext
       pXRM = ERH;
       m_RunMode = gs_Exec.GlblSolveMode();
       m_HeatMode = gs_Exec.GlblHeatMode();
-      dIC_Time = 0.0;
-      dIC_dTime = 0.0;
+      dIC_Time = CTimeValue(0.0);
+      dIC_dTime = CTimeValue(0.0);
       StartLabel = NULL;
       EndLabel = NULL;
       OnInitialise = False;
@@ -304,8 +304,8 @@ class DllImportExport GCInsMngr
     void           DbgExe();
   public:
     CNodeXRefMngr *m_pXRM;              //pointer to the external ref helper, ie the code that is using the PGM
-    double         m_dIC_Time;          //IntegrationControl Time
-    double         m_dIC_dTime;         //IntegrationControl dTime
+    CTimeValue     m_dIC_Time;          //IntegrationControl Time
+    CTimeValue     m_dIC_dTime;         //IntegrationControl dTime
     CSVector       m_FilesUsed;         //array of all files directly used by PGM
     CArray<FILETIME, FILETIME&> m_FilesTime; //array of all files times directly used by PGM
     GCLoadHelp*    m_pH;                //
@@ -847,6 +847,9 @@ class DllImportExport GCClassVar : public GCVar
                         double d);
     void SaveVal(FilingControlBlock &FCB,
                         pchar pValName,
+                        CTimeValue d);
+    void SaveVal(FilingControlBlock &FCB,
+                        pchar pValName,
                         int i);
     void SaveVal(FilingControlBlock &FCB,
                         pchar pValName,
@@ -1051,6 +1054,11 @@ class GCFCBBuff
     inline char*  S() { return &Buff[strlen(Buff)+1]; };
 
     inline flag Try(char *Nm, double &D) { if (!NameIs(Nm)) return False; D=*((double*)&Buff[strlen(Buff)+1]); return True; };
+    inline flag Try(char *Nm, CTimeValue &D) 
+      { 
+      __debugbreak();
+      if (!NameIs(Nm)) return False; D=*((double*)&Buff[strlen(Buff)+1]); return True; 
+      };
     inline flag Try(char *Nm, long   &L) { if (!NameIs(Nm)) return False; L=*((long*)&Buff[strlen(Buff)+1]); return True; };
     inline flag Try(char *Nm, int    &I) { if (!NameIs(Nm)) return False; I=*((int*)&Buff[strlen(Buff)+1]); return True; };
     inline flag Try(char *Nm, flag   &B) { if (!NameIs(Nm)) return False; B=*((flag*)&Buff[strlen(Buff)+1]); return True; };

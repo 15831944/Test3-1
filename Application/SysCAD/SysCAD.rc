@@ -602,8 +602,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
         MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
-        MENUITEM "Pro&Bal Info",                ID_VIEW_PROBALINFO
-        MENUITEM "&Dynamic Info",               ID_VIEW_DYNAMICINFO
+        MENUITEM "Pro&Bal Configuration",                ID_VIEW_PROBALINFO
+        MENUITEM "&Dynamic Configuration",               ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
@@ -854,8 +854,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
         MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
-        MENUITEM "Pro&Bal Info",                ID_VIEW_PROBALINFO
-        MENUITEM "&Dynamic Info",               ID_VIEW_DYNAMICINFO
+        MENUITEM "Pro&Bal Configuration",                ID_VIEW_PROBALINFO
+        MENUITEM "&Dynamic Configuration",               ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
@@ -1062,8 +1062,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
         MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
-        MENUITEM "Pro&Bal Info",                ID_VIEW_PROBALINFO
-        MENUITEM "&Dynamic Info",               ID_VIEW_DYNAMICINFO
+        MENUITEM "Pro&Bal Configuration",                ID_VIEW_PROBALINFO
+        MENUITEM "&Dynamic Configuration",               ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
@@ -1269,8 +1269,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
         MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
-        MENUITEM "Pro&Bal Info",                ID_VIEW_PROBALINFO
-        MENUITEM "&Dynamic Info",               ID_VIEW_DYNAMICINFO
+        MENUITEM "Pro&Bal Configuration",                ID_VIEW_PROBALINFO
+        MENUITEM "&Dynamic Configuration",               ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
@@ -1519,8 +1519,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
         MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
-        MENUITEM "Pro&Bal Info",                ID_VIEW_PROBALINFO
-        MENUITEM "&Dynamic Info",               ID_VIEW_DYNAMICINFO
+        MENUITEM "Pro&Bal Configuration",                ID_VIEW_PROBALINFO
+        MENUITEM "&Dynamic Configuration",               ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS

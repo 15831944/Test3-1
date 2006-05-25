@@ -44,7 +44,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #define dbgANW              0
 #define dbgDumpObject       0
 
-#define CHECKSRGT           01
+#define CHECKBOXESRIGHT     0
+#define BASICWIDTH          20 /*14*/
+#define SHORTFLDS           0  /*1*/
 
 //static int DoTagOnly=0;
 
@@ -250,7 +252,23 @@ void AccNdData::AdjTextValue(char * NewCnv, bool SaveOld)
         dVal=C.Human(dVal, Cnv.Text());
       }
     //if (Valid(dVal))
-      FormatFloat();
+    FormatFloat();
+    }
+  else if (IsStrng(iType) && IsTimeCnv(Cnv.Index()))
+    {
+    CDataCnv & C=*Cnvs[Cnv.Index()];
+    CTimeValue V((LPCTSTR)sValue());
+    if (NewCnv)
+      sIndividualCnv=NewCnv;
+    if (C.OverTxt())
+      {
+      if (SaveOld)
+        sIndividualCnv=Cnv.Text();
+      Cnv.SetText(C.OverTxt());
+      }
+    else
+      Cnv.SetText(sIndividualCnv());
+    sValue=V.Format(Cnv.Text());
     }
   }
 
@@ -622,8 +640,9 @@ flag AccNodeWnd::LoadAccessData()
   CWaitCursor Wait;
   WndTitle.Set("Loading - %s", NdTag());
   m_pMyFrm->SetWindowText(WndTitle());
-
-  CXM_ObjectTag ObjTag(NdTag(), TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
+  
+  TABOptions ForXtra=0;//(fAllFldsVis?TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario:0);
+  CXM_ObjectTag ObjTag(NdTag(), ForXtra|TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
   CXM_ObjectData ObjData(0);
 
   for (int i = 0; i < MaxAccNdFlds; i++)
@@ -2513,13 +2532,13 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         ValStr=d.sValue;
         WdtAdj=0;
         int VW=ValW, XVW=0;
-        if (VW>14)
+        if (VW>BASICWIDTH)
           {
-          XVW=VW-14;
-          VW=14;
+          XVW=VW-BASICWIDTH;
+          VW=BASICWIDTH;
           }
 
-#if CHECKSRGT
+#if CHECKBOXESRIGHT
         if (d.fHasCheck)
           {
           WdtAdj=Max(0,VW-2); 
@@ -2531,15 +2550,15 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           switch (f.iType)
             {
             case tt_Bool   :
-            case tt_Bit    : WdtAdj=Max(0,VW-3); break;
+            case tt_Bit    : if (SHORTFLDS) WdtAdj=Max(0,VW-3); break;
             case tt_Byte   :
-            case tt_Char   : WdtAdj=Max(0,VW-5); break;
+            case tt_Char   : if (SHORTFLDS) WdtAdj=Max(0,VW-5); break;
             case tt_Word   :
-            case tt_Short  : WdtAdj=Max(0,VW-7); break;
+            case tt_Short  : if (SHORTFLDS) WdtAdj=Max(0,VW-7); break;
             case tt_DWord  :
-            case tt_Long   : WdtAdj=Max(0,VW-12); break;
+            case tt_Long   : if (SHORTFLDS) WdtAdj=Max(0,VW-12); break;
             case tt_Double :
-            case tt_Float  : WdtAdj=Max(0,VW-14); break;
+            case tt_Float  : if (SHORTFLDS) WdtAdj=Max(0,VW-14); break;
             case tt_pChar  :
             case tt_ppChar :
 //            case tt_Strng  : WdtAdj=0; VW=30; break;
@@ -2549,7 +2568,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           }
         else // if (d.ValLst.Length()>0)
           {
-          VW=14;
+          VW=BASICWIDTH;
           WdtAdj=0;
           for (pStrng p=d.ValLst.First(); p; p=p->Next())
             VW=Max(VW, p->Length()+2);
@@ -2596,7 +2615,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         //SetSpace(LnNo,d.m_iChildLvl);
         if (d.fHasCheck)
           {
-#if CHECKSRGT
+#if CHECKBOXESRIGHT
           int DWidth = NamW-TagComLen+WdtAdj;
           int VWidth = VW-WdtAdj;
 #else
@@ -2622,7 +2641,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             if (d.sFullTag())
               SetTag(d.sFullTag());
             pStrng p=d.ValLst.First(); 
-            f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Min(NamW+ValW, Max(14, NameBuff.Length()+2)), 0, "");
+            f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
 //            f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Max(ValW, 14), 0, "");
             }
           else
@@ -2632,7 +2651,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             SetDesc(LnNo, Nm(),Id_FldBtns+fi,NamW-TagComLen, 3,TagComStr());
             if (d.sFullTag())
               SetTag(d.sFullTag());
-            f.ValFld=SetButton(LnNo, NameBuff(),  Id_FldBtns+fi, Min(NamW+ValW, Max(14, NameBuff.Length()+2)), 0, "");
+            f.ValFld=SetButton(LnNo, NameBuff(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
             }
           }
         else if (d.fIsParam)
@@ -2646,7 +2665,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
           const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
           char*pSep=d.fHasNANStr?"  ":" ";
-          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, d.fIsStrng?0:2, pSep);
+          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep);
           if (d.iFlags & DDEF_FUNCTPARM)
             {
             SetBigStrLength(1024);
@@ -2692,7 +2711,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
           SetMarkerFlags(d.m_Markers);
 
-          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, d.fIsStrng?0:2, " "/*CnvStr()*/, false);
+          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, " "/*CnvStr()*/, false);
           if (d.ValLst.Length()>0)
             for (pStrng p=d.ValLst.First(); p; p=p->Next())
               FldHasFixedStrValue(p->Index(), p->Str());
@@ -2708,7 +2727,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           SetMarkerFlags(d.m_Markers);
 
           const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
-          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, d.fIsStrng?0:2, /*HasTag ? "" : " "*/" ", false);
+          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, /*HasTag ? "" : " "*/" ", false);
 
           if (HasTag)
             {
@@ -2896,7 +2915,7 @@ void AccNodeWnd::Load(FxdEdtInfo &EI, Strng & Str)
         if (f>=0 && Flds[f].HasData())
           {
           AccNdData & d=Flds[f]();
-          if (IsFloatData(d.iType))// && Valid(d.dVal))
+          if (IsFloatData(d.iType) || (IsStrng(d.iType) && IsTimeCnv(d.Cnv.Index())))// && Valid(d.dVal))
             {
             CDataCnv & C=*Cnvs[d.Cnv.Index()];
             if (C.OverTxt())
@@ -4416,7 +4435,7 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
         RecMenu.AppendMenu(MF_STRING, IDM_ACC_HISTORY_ALLOFF, "All Off");
 
         Menu.AppendMenu(MF_POPUP, (unsigned int)CnvMenu.m_hMenu, "&Conversions");
-        if (d.Cnv.Index()<=0 || !IsFloatData(d.iType))
+        if (d.Cnv.Index()<=0 || !(IsFloatData(d.iType)||(IsStrng(d.iType)&& IsTimeCnv(d.Cnv.Index()))))
           Menu.EnableMenuItem(0, MF_BYPOSITION|MF_GRAYED);
 
         Menu.AppendMenu(MF_POPUP, (unsigned int)FormatMenu.m_hMenu, "&Format");
@@ -4934,14 +4953,14 @@ flag AccNodeWnd::DoPaste(pFxdEdtFld pFld, char *buff)
 
 //---------------------------------------------------------------------------
 
-flag AccNodeWnd::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd)
+flag AccNodeWnd::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return true;
   };
 
 //---------------------------------------------------------------------------
 
-flag AccNodeWnd::EO_Start(const CXM_TimeControl &CB)
+flag AccNodeWnd::EO_Start(CXM_TimeControl &CB)
   {
   return true;
   };
@@ -4983,14 +5002,14 @@ flag AccNodeWnd::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag AccNodeWnd::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet)
+flag AccNodeWnd::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   return false;
   };
 
 //---------------------------------------------------------------------------
 
-flag AccNodeWnd::EO_Stop(const CXM_TimeControl &CB)
+flag AccNodeWnd::EO_Stop(CXM_TimeControl &CB)
   {
   return true;
   };
@@ -5032,7 +5051,7 @@ void AccNodeWnd::EO_GlblResultValidity(flag IsValid, flag IsAlwaysValid)
 
 //---------------------------------------------------------------------------
 
-flag AccNodeWnd::EO_BeginPause(const CXM_TimeControl &CB)
+flag AccNodeWnd::EO_BeginPause(CXM_TimeControl &CB)
   {
   if (!FxdEdtView::Changed() && gs_pPrj->bAccUpdateOnRun)
     {
@@ -5046,7 +5065,7 @@ flag AccNodeWnd::EO_BeginPause(const CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
-flag AccNodeWnd::EO_EndPause(const CXM_TimeControl &CB)
+flag AccNodeWnd::EO_EndPause(CXM_TimeControl &CB)
   {
   return true;
   }

@@ -159,14 +159,14 @@ DWORD COleExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
 
 //---------------------------------------------------------------------------
 
-flag COleExec::EO_QueryTime(const CXM_TimeControl &CB, double &TimeRqd, double &dTimeRqd) 
+flag COleExec::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) 
   {
   return True;
   }
 
 //---------------------------------------------------------------------------
 
-flag COleExec::EO_Start(const CXM_TimeControl &CB)                      
+flag COleExec::EO_Start(CXM_TimeControl &CB)                      
   {
   return True;
   }
@@ -207,14 +207,14 @@ flag COleExec::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
 //---------------------------------------------------------------------------
 
-flag COleExec::EO_Execute(const CXM_TimeControl &CB, CEOExecReturn &EORet) 
+flag COleExec::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) 
   {
   return False;
   }
 
 //---------------------------------------------------------------------------
 
-flag COleExec::EO_Stop(const CXM_TimeControl &CB)                       
+flag COleExec::EO_Stop(CXM_TimeControl &CB)                       
   {
   return True;
   }

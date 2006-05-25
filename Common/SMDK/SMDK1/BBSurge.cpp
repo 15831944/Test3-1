@@ -307,11 +307,11 @@ void CBBSurge::EvalIntegral(long JoinMask)
 //--------------------------------------------------------------------------
 
 void CBBSurge::EvalDiscrete()                       { DoEvalDiscrete(); }
-void CBBSurge::EvalCtrlInitialise()                 { DoEvalCtrlInitialise(); }
-void CBBSurge::EvalCtrlActions()                    { DoEvalCtrlActions(); }
-void CBBSurge::EvalCtrlStrategy()                   { DoEvalCtrlStrategy(); }
-void CBBSurge::EvalCtrlTerminate()                  { DoEvalCtrlTerminate(); }
-void CBBSurge::EvalStatistics()                     { DoEvalStatistics(); }
+void CBBSurge::EvalCtrlInitialise(eScdCtrlTasks Tasks)                 { DoEvalCtrlInitialise(Tasks); }
+void CBBSurge::EvalCtrlActions(eScdCtrlTasks Tasks)                    { DoEvalCtrlActions(Tasks); }
+void CBBSurge::EvalCtrlStrategy(eScdCtrlTasks Tasks)                   { DoEvalCtrlStrategy(Tasks); }
+void CBBSurge::EvalCtrlTerminate(eScdCtrlTasks Tasks)                  { DoEvalCtrlTerminate(Tasks); }
+void CBBSurge::EvalStatistics(eScdCtrlTasks Tasks)                     { DoEvalStatistics(Tasks); }
 void CBBSurge::EvalPowerAvailable()                 { DoEvalPowerAvailable(); }
 void CBBSurge::EvalPowerRequired()                  { DoEvalPowerRequired(); }
 void CBBSurge::EvalState()                          { DoEvalState(); }

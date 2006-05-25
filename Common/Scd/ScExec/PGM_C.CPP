@@ -471,7 +471,7 @@ double GCPID2::CallFunct(rGCInsMngr IB, void* pSubClass, short FunctId, pGCClass
     {
     case Idf_PID2Solve:
       pPID2->m_Meas = IB.GetDParm(); 
-      pPID2->m_Period = IB.m_dIC_dTime;
+      pPID2->m_Period = IB.m_dIC_dTime.Seconds;
       return pPID2->ExecIns();
       break;
     case Idf_PID2Init:
@@ -980,7 +980,7 @@ double GCPID3::CallFunct(rGCInsMngr IB, void* pSubClass, short FunctId, pGCClass
     {
     case Idf_PID3Solve:
       pPID3->m_Meas = IB.GetDParm(); 
-      pPID3->m_Period = IB.m_dIC_dTime;
+      pPID3->m_Period = IB.m_dIC_dTime.Seconds;
       return pPID3->ExecIns();
       break;
     case Idf_PID3Init:
@@ -1564,7 +1564,7 @@ double GCPID4::CallFunct(rGCInsMngr IB, void* pSubClass, short FunctId, pGCClass
     {
     case Idf_PID4Solve:
       pPID4->m_Meas = IB.GetDParm(); 
-      pPID4->m_Period = IB.m_dIC_dTime;
+      pPID4->m_Period = IB.m_dIC_dTime.Seconds;
       return pPID4->ExecIns();
       break;
     case Idf_PID4Init:

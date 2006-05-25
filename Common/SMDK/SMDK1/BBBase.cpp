@@ -298,35 +298,35 @@ void CBBBase::DoEvalDiscrete()
     return;
   Method.EvalDiscrete(); 
   };
-void CBBBase::DoEvalCtrlInitialise() 
+void CBBBase::DoEvalCtrlInitialise(eScdCtrlTasks Tasks) 
   {
   if (!m_pMethod)
     return;
-  Method.EvalCtrlInitialise(); 
+  Method.EvalCtrlInitialise(Tasks); 
   };
-void CBBBase::DoEvalCtrlActions() 
+void CBBBase::DoEvalCtrlActions(eScdCtrlTasks Tasks) 
   {
   if (!m_pMethod)
     return;
-  Method.EvalCtrlActions(); 
+  Method.EvalCtrlActions(Tasks); 
   };
-void CBBBase::DoEvalCtrlStrategy() 
+void CBBBase::DoEvalCtrlStrategy(eScdCtrlTasks Tasks) 
   {
   if (!m_pMethod)
     return;
-  Method.EvalCtrlStrategy(); 
+  Method.EvalCtrlStrategy(Tasks); 
   };
-void CBBBase::DoEvalCtrlTerminate() 
+void CBBBase::DoEvalCtrlTerminate(eScdCtrlTasks Tasks) 
   {
   if (!m_pMethod)
     return;
-  Method.EvalCtrlTerminate(); 
+  Method.EvalCtrlTerminate(Tasks); 
   };
-void CBBBase::DoEvalStatistics() 
+void CBBBase::DoEvalStatistics(eScdCtrlTasks Tasks) 
   {
   if (!m_pMethod)
     return;
-  Method.EvalStatistics(); 
+  Method.EvalStatistics(Tasks); 
   };
 
 void CBBBase::DoEvalPowerAvailable() 

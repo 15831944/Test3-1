@@ -116,9 +116,9 @@ void CIsoPRV ::StartStep()
 
 //--------------------------------------------------------------------------
 
-void CIsoPRV::EvalCtrlActions()
+void CIsoPRV::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
-  MdlNode::EvalCtrlActions();
+  MdlNode::EvalCtrlActions(Tasks);
   };
 
 //--------------------------------------------------------------------------

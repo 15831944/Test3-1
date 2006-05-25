@@ -248,7 +248,7 @@ void Chute::EvalProducts(long JoinMask)
 
 //---------------------------------------------------------------------------
 
-void Chute::EvalCtrlActions()
+void Chute::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
   for (int i=0; i<VPB.GetSize(); i++)
     VPB[i]->EvalCtrlActions(this);

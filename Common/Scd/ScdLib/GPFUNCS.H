@@ -963,17 +963,30 @@ const byte LCF_LclMissing = 0x08;
 //---------------------------------------------------------------------------
 
 //DllImportExport pchar ftoa(double f, pchar buff);
-DllImportExport pchar  SecstoDateHMS(double t, pchar buff, flag WithDate=1);
-DllImportExport flag   DateHMStoSecs(pchar buff, double &t);
-DllImportExport pchar  SecstoHMSDate(double t, pchar buff, flag WithDate=1);
-DllImportExport flag   HMSDatetoSecs(pchar buff, double &t);
-DllImportExport pchar  SecstoHMS(double t, pchar buff, flag TruncDate=0, flag TruncMilliSecs=0);
-DllImportExport pchar  SecstoDate(double t, pchar buff);
-DllImportExport flag   HMStoSecs(pchar buff, double &t);
-DllImportExport pchar  SecstoHMSCnv(double time_in, pchar buff, flag TruncDate=0, flag TruncMilliSecs=0);
-DllImportExport pchar  SecstoDHMSCnv(double time_in, pchar buff, flag TruncMilliSecs=0);
+//DllImportExport pchar  SecstoDateHMS(double t, pchar buff, flag WithDate=1);
+//DllImportExport flag   DateHMStoSecs(pchar buff, double &t);
+//DllImportExport pchar  SecstoHMSDate(double t, pchar buff, flag WithDate=1);
+//DllImportExport flag   HMSDatetoSecs(pchar buff, double &t);
+//DllImportExport pchar  SecstoHMS(double t, pchar buff, flag TruncDate=0, flag TruncMilliSecs=0);
+//DllImportExport pchar  SecstoDate(double t, pchar buff);
+//DllImportExport flag   HMStoSecs(pchar buff, double &t);
+//DllImportExport pchar  SecstoHMSCnv(double time_in, pchar buff, flag TruncDate=0, flag TruncMilliSecs=0);
+//DllImportExport pchar  SecstoDHMSCnv(double time_in, pchar buff, flag TruncMilliSecs=0);
 DllImportExport bool   SecsToDate1900Var(double Secs1970, VARIANT * pVal);
 DllImportExport bool   Date1900VarToSecs(VARIANT Val, double * pSecs1970);
+
+//DllImportExport pchar  SecstoDateHMS(CTimeValue t, pchar buff, flag WithDate=1);
+//DllImportExport flag   DateHMStoSecs(pchar buff, CTimeValue &t);
+//DllImportExport pchar  SecstoHMSDate(CTimeValue t, pchar buff, flag WithDate=1);
+//DllImportExport flag   HMSDatetoSecs(pchar buff, CTimeValue &t);
+//DllImportExport pchar  SecstoHMS(CTimeValue t, pchar buff, flag TruncDate=0, flag TruncMilliSecs=0);
+//DllImportExport pchar  SecstoDate(CTimeValue t, pchar buff);
+//DllImportExport flag   HMStoSecs(pchar buff, CTimeValue &t);
+//DllImportExport pchar  SecstoHMSCnv(CTimeValue time_in, pchar buff, flag TruncDate=0, flag TruncMilliSecs=0);
+//DllImportExport pchar  SecstoDHMSCnv(CTimeValue time_in, pchar buff, flag TruncMilliSecs=0);
+DllImportExport bool   SecsToDate1900Var(CTimeValue Secs1970, VARIANT * pVal);
+DllImportExport bool   Date1900VarToSecs(VARIANT Val, CTimeValue * pSecs1970);
+
 DllImportExport char*  CurDateTime(Strng& s);
 DllImportExport char*  CurDateTime(CString& s);
 
@@ -1180,6 +1193,8 @@ class DllImportExport CProfINIFile : protected CRegistry
     CProfINIFile(LPCSTR pFilename = "");
     CProfINIFile(LPCSTR pDir, LPCSTR pFilename);
     ~CProfINIFile();
+    __int64 RdInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iDefault);
+    void WrInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iValue);
     double RdDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dDefault);
     void WrDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dValue);
     long RdLong(LPCTSTR lpszSection, LPCTSTR lpszEntry, long nDefault);

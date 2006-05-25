@@ -1438,9 +1438,9 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
   Menu.AppendMenu(MF_STRING, 105,  "Plant Model");
   Menu.AppendMenu(MF_STRING, 125,  "Plant Area");
   if (TaggedObject::GlblProbalMode())
-    Menu.AppendMenu(MF_STRING, 106,  "ProBal Info");
+    Menu.AppendMenu(MF_STRING, 106,  "ProBal Configuration");
   else
-    Menu.AppendMenu(MF_STRING, 107,  "Dynamic Info");
+    Menu.AppendMenu(MF_STRING, 107,  "Dynamic Configuration");
 #if WITHCTRLOBJ
   Menu.AppendMenu(MF_STRING, 111,  "Controls");
 #endif

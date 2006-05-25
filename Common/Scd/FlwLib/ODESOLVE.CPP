@@ -528,22 +528,23 @@ void CTimeStateBlock::AdvanceTime(double Advance)
 
 //---------------------------------------------------------------------------
 
-void CTimeStateBlock::SetTime(double Time_)
+void CTimeStateBlock::SetTime(CTimeValue Time_)
   {
-  m_Time=Time_;
+  //__debugbreak(); // how often does this get called ????????
+  m_Time=Time_.Seconds;
   };
-void CTimeStateBlock::SetTimeInc(double dTime_)
+void CTimeStateBlock::SetTimeInc(CTimeValue dTime_)
   {
-  m_TimeInc=GTZ(dTime_);
+  m_TimeInc=GTZ(dTime_.Seconds);
   m_TimeIncNext=dNAN;
   }
-void CTimeStateBlock::SetTimeIncMxRqd(double dTimeMxRqd_)
+void CTimeStateBlock::SetTimeIncMxRqd(CTimeValue dTimeMxRqd_)
   {
-  m_TimeIncMxRqd=Max(1.0e-6, dTimeMxRqd_);
+  m_TimeIncMxRqd=Max(1.0e-6, dTimeMxRqd_.Seconds);
   };
-void CTimeStateBlock::SetTimeIncMnRqd(double dTimeMnRqd_)
+void CTimeStateBlock::SetTimeIncMnRqd(CTimeValue dTimeMnRqd_)
   {
-  m_TimeIncMnRqd=Max(1.0e-9, dTimeMnRqd_);
+  m_TimeIncMnRqd=Max(1.0e-9, dTimeMnRqd_.Seconds);
   };
 void CTimeStateBlock::SetDerivEstInc(double DerivEstInc)
   {

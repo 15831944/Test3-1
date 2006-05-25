@@ -707,9 +707,9 @@ void RTCrusher::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void RTCrusher::EvalCtrlActions()
+void RTCrusher::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
-  MdlNode::EvalCtrlActions();
+  MdlNode::EvalCtrlActions(Tasks);
   }
 
 //---------------------------------------------------------------------------

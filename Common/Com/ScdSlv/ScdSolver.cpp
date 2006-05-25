@@ -337,10 +337,10 @@ STDMETHODIMP CScdSolver::get_Time(eScdTimeFormat Fmt, VARIANT * pVal)
       case eScdTimeFmt_Seconds: 
       case eScdTimeFmt_Secs1970: 
         pVal->vt=VT_R8; 
-        pVal->dblVal=gs_Exec.Time(); 
+        pVal->dblVal=gs_Exec.TheTime.Seconds; 
         break;
       case eScdTimeFmt_Date1900: 
-        SecsToDate1900Var(gs_Exec.Time(), pVal);
+        SecsToDate1900Var(gs_Exec.TheTime/*.Seconds*/, pVal);
         break;
       default:                  
         DoBreak();
@@ -363,7 +363,7 @@ STDMETHODIMP CScdSolver::put_Time(eScdTimeFormat Fmt, VARIANT newVal)
         {
         HRESULT hr=VariantChangeType(&T, &newVal, 0, VT_R8);
         if (SUCCEEDED(hr))
-          gs_Exec.SetTime(T.dblVal, true);
+          gs_Exec.SetTheTime(T.dblVal, "ScdSolver", true);
         else
           Scd.ReturnH(hr);
         break;
@@ -373,10 +373,10 @@ STDMETHODIMP CScdSolver::put_Time(eScdTimeFormat Fmt, VARIANT newVal)
         HRESULT hr=VariantChangeType(&T, &newVal, 0, VT_DATE);
         if (SUCCEEDED(hr))
           {
-          double RqdTime;
+          CTimeValue RqdTime;
           if (Date1900VarToSecs(T, &RqdTime))
             {
-            gs_Exec.SetTime(RqdTime, true);
+            gs_Exec.SetTheTime(RqdTime, "ScdSolver", true);
             }
           //else
           //  Scd.ReturnH(?hr);

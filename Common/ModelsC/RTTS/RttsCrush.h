@@ -80,7 +80,7 @@ class RTCrusher : public MdlNode
     virtual flag   PreStartCheck();
 
     virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalCtrlActions();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual void   ConfigureJoins();
 
     virtual dword  ModelStatus();

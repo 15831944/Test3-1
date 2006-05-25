@@ -53,8 +53,8 @@ class DllImportExport Pump_GP : public MN_BstRes
     virtual bool   IsXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
-    virtual void   EvalCtrlActions();
-    //virtual void   EvalCtrlStrategy();
+    virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
+    //virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalPowerRequired();
     virtual dword  ModelStatus();
 
