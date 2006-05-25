@@ -531,6 +531,7 @@
     <Compile Include="XmlWriter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ZOrderComparer.cs" />
     <EmbeddedResource Include="AngleEdit.resx">
       <DependentUpon>AngleEdit.cs</DependentUpon>
     </EmbeddedResource>

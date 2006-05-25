@@ -75,6 +75,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.SelHandleSize = 1.5F;
       this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
       this.fcFlowChart.Size = new System.Drawing.Size(292, 266);
+      this.fcFlowChart.SortGroupsByZ = true;
       this.fcFlowChart.TabIndex = 0;
       this.fcFlowChart.TextRendering = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);

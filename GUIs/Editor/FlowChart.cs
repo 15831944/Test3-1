@@ -379,7 +379,7 @@ namespace SysCAD.Editor
     {
       if (e.Button == MouseButtons.Left)
       {
-        overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(e.Location));
+        overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(e.Location), 2);
         overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(e.Location), 2);
 
         if ((overBox != null) || (overArrow != null)) // we're not in free space...
@@ -389,7 +389,7 @@ namespace SysCAD.Editor
         }
       }
 
-      Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)));
+      Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2);
       Item hoverItem = null;
       if (hoverBox != null)
         hoverItem = hoverBox.Tag as Item;
@@ -588,7 +588,7 @@ namespace SysCAD.Editor
       if (arrowBeingModified != null)
       {
         PointF originPos = arrowBeingModified.ControlPoints[0];
-        Box originBox = fcFlowChart.GetBoxAt(originPos);
+        Box originBox = fcFlowChart.GetBoxAt(originPos, 2);
         if (originBox != null)
         {
           originBox = (originBox.Tag as Item).Model;
@@ -622,7 +622,7 @@ namespace SysCAD.Editor
         }
 
         PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count-1];
-        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos);
+        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2);
         if (destinationBox != null)
         {
           destinationBox = (destinationBox.Tag as Item).Model;
@@ -747,7 +747,7 @@ namespace SysCAD.Editor
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       MouseEventArgs me = e as MouseEventArgs;
-      overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location));
+      overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2);
       overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
 
       if (me.Button == MouseButtons.Left)
@@ -837,7 +837,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_MouseDown(object sender, MouseEventArgs e)
     {
-      overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(e.Location));
+      overBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(e.Location), 2);
       overArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(e.Location), 2);
 
       if (e.Button == MouseButtons.Left)
