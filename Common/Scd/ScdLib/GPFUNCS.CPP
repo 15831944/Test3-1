@@ -5937,7 +5937,11 @@ __int64 CProfINIFile::RdInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iD
 void CProfINIFile::WrInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iValue)
   {
   char Buff[256];
+#if (_MSC_VER>=1400)
   _i64toa_s(iValue, Buff, sizeof(Buff)-1, 10);
+#else
+  _i64toa(iValue, Buff, 10);
+#endif
   BOOL b;
   if (m_bUseRegistry)
     b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, Buff);

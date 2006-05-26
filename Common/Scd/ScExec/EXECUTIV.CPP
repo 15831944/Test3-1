@@ -121,7 +121,20 @@ CTimeValue GetCurrentTime_1970()
   {
   struct timeb t;
   ftime(&t);
-  return CTimeValue(t.time+t.millitm/1000.0);
+
+  TIME_ZONE_INFORMATION TZI;
+  memset(&TZI, 0, sizeof(TZI));
+  switch (GetTimeZoneInformation(&TZI))
+    {
+    case 0:
+      return CTimeValue(t.time+t.millitm/1000.0-TZI.Bias*60.0);
+    case 1: // Std Time
+      return CTimeValue(t.time+t.millitm/1000.0-(TZI.Bias+TZI.StandardBias)*60.0);
+    case 2: // Daylight Time 
+      return CTimeValue(t.time+t.millitm/1000.0-(TZI.Bias+TZI.DaylightBias)*60.0);
+    }
+
+  return TimeNAN;
   }
 
 //===========================================================================
@@ -3225,7 +3238,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
     dbgpln("ExecLap %s   [= %10.6f] %s",EXM_MSGS[XCMD(Cmd)], SW.Lap(), pEO ? pEO->Name() : "EXEC");
   #endif
   }
-#include <sal.h>
+
 //---------------------------------------------------------------------------
 
 CTimeValue CExecutive::QueryCurrentTime()

@@ -370,10 +370,11 @@ double ParseNANFlag(const char * Str, double Val/*=dNAN*/)
 //
 //===========================================================================
 
-CTimeValue TimeNAN(dNAN);
 
-const long   CTimeValue::Divisor = 1000;
-const double CTimeValue::MinResolution = 1.0/Divisor;
+const long    CTimeValue::Divisor       = 1000;
+const double  CTimeValue::MinResolution = 1.0/Divisor;
+const __int64 CTimeValue::NANMask       = 0x800000000000000;
+CTimeValue TimeNAN(CTimeValue::NANMask);//dNAN);
 
 //---------------------------------------------------------------------------
 
@@ -465,7 +466,7 @@ LPCTSTR CTimeValue::Format(LPCTSTR CnvStr) const
   if (CnvStr==NULL)
     CnvStr="DyTm";
   
-  //dbgpln("CTimeValue::Format %s", CnvStr);
+  dbgpln("CTimeValue::Format %s", CnvStr);
 
   if (strcmp(CnvStr, "s"   )==0)   return Format(TD_Seconds);
 
@@ -610,7 +611,7 @@ Done:
     }
 
 Return:
-  //dbgpln("CTimeValue::Format %08x %15I64i.%03I64i > %s", Options, m_mSecs/1000, m_mSecs%1000, S);
+  dbgpln("CTimeValue::Format %08x %15I64i.%03I64i > %s", Options, m_mSecs/1000, m_mSecs%1000, S);
 
   return S;
   };
@@ -722,7 +723,29 @@ bool CTimeValue::Parse(/*byte Options,*/ LPCTSTR Str)
     DateTime.tm_hour=hours;
     DateTime.tm_min=mins;
     DateTime.tm_sec=secs;
+#if (_MSC_VER>=1400)
     m_mSecs = _mkgmtime64(&DateTime)*Divisor+__int64(FracSecs*Divisor);
+#else
+    TIME_ZONE_INFORMATION TZI;
+    memset(&TZI, 0, sizeof(TZI));
+    switch (GetTimeZoneInformation(&TZI))
+      {
+      case 0:
+        m_mSecs = _mktime64(&DateTime)*Divisor+__int64(FracSecs*Divisor);
+        m_mSecs -= TZI.Bias*60000;
+        break;
+      case 1: // Std Time
+        m_mSecs = _mktime64(&DateTime)*Divisor+__int64(FracSecs*Divisor);
+        m_mSecs -= TZI.Bias*60000;
+        m_mSecs -= TZI.StandardBias*60000;
+        break;
+      case 2: // Daylight Time 
+        m_mSecs = _mktime64(&DateTime)*Divisor+__int64(FracSecs*Divisor);
+        m_mSecs -= TZI.Bias*60000;
+        m_mSecs -= TZI.DaylightBias*60000;
+        break;
+      }
+#endif
 
     //if (0)
     //  {
@@ -738,7 +761,7 @@ bool CTimeValue::Parse(/*byte Options,*/ LPCTSTR Str)
 
     }
 
-  //dbgpln("CTimeValue::Parse       %15I64i.%03I64i < %s", m_mSecs/1000, m_mSecs%1000, Str);
+  dbgpln("CTimeValue::Parse       %15I64i.%03I64i < %s", m_mSecs/1000, m_mSecs%1000, Str);
 
   return TOK||DOK;
   };

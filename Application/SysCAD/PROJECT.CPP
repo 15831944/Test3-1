@@ -4644,6 +4644,7 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
           }
         gs_Exec.SetRealTime(PF.RdLong("General", "RealTime", gs_Exec.RealTime()) != 0);
         gs_Exec.SetRealTimeMult(PF.RdDouble("General", "RealTimeMult", gs_Exec.RealTimeMult()));
+        gs_Exec.SetSyncWithClock(PF.RdLong("General", "SyncWithClock", gs_Exec.SyncWithClock()) != 0);
         gs_Exec.SetScnType((eScnTypes)PF.RdInt("General", "TermType", (int)gs_Exec.ScnType), false);
         gs_Exec.ScnTermAction=(eScnTermActions)PF.RdInt("General", "TermAction", (int)gs_Exec.ScnTermAction);
         gs_Exec.StepCountMax=PF.RdLong("General", "MaxRunIters", gs_Exec.StepCountMax);
@@ -6479,6 +6480,7 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   PF.WrInt64("General", "StepSizeMax", gs_Exec.StepSizeMax.Raw);
   PF.WrLong("General", "RealTime", gs_Exec.RealTime() != 0);
   PF.WrDouble("General", "RealTimeMult", gs_Exec.RealTimeMult());
+  PF.WrLong("General", "SyncWithClock", gs_Exec.SyncWithClock() != 0);
 
   PF.WrInt("General", "TermType", (int)gs_Exec.ScnType);
   PF.WrInt("General", "TermAction", (int)gs_Exec.ScnTermAction);

@@ -267,9 +267,10 @@ class DllImportExport CTimeValue
   public:
     static const long   Divisor;
     static const double MinResolution;
+    static const __int64 NANMask;
 
     CTimeValue()                        { m_mSecs = 0; };
-    CTimeValue(double T)                { if (Valid(T)) Seconds = T; else m_mSecs = 0x800000000000000; };
+    CTimeValue(double T)                { if (Valid(T)) Seconds = T; else m_mSecs = NANMask; };
     CTimeValue(__int64 T)               { m_mSecs = T; };
     CTimeValue(const CTimeValue & T)    { m_mSecs = T.m_mSecs; };
     CTimeValue(const time_t & T)        { m_mSecs = T*Divisor; };
