@@ -461,12 +461,16 @@ int CTimeValue::getDayOfYear()
 
 //---------------------------------------------------------------------------
 
+#define dbgCTimeValue 0
+
 LPCTSTR CTimeValue::Format(LPCTSTR CnvStr) const
   {
   if (CnvStr==NULL)
     CnvStr="DyTm";
   
+#if dbgCTimeValue 
   dbgpln("CTimeValue::Format %s", CnvStr);
+#endif
 
   if (strcmp(CnvStr, "s"   )==0)   return Format(TD_Seconds);
 
@@ -611,8 +615,11 @@ Done:
     }
 
 Return:
-  dbgpln("CTimeValue::Format %08x %15I64i.%03I64i > %s", Options, m_mSecs/1000, m_mSecs%1000, S);
 
+#if dbgCTimeValue 
+  dbgpln("CTimeValue::Format %08x %15I64i.%03I64i > %s", Options, m_mSecs/1000, m_mSecs%1000, S);
+#endif
+  
   return S;
   };
 
@@ -761,8 +768,9 @@ bool CTimeValue::Parse(/*byte Options,*/ LPCTSTR Str)
 
     }
 
+#if dbgCTimeValue 
   dbgpln("CTimeValue::Parse       %15I64i.%03I64i < %s", m_mSecs/1000, m_mSecs%1000, Str);
-
+#endif
   return TOK||DOK;
   };
 

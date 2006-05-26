@@ -12538,15 +12538,21 @@ flag CFlwSolver::EO_GotoRunStart(CXM_TimeControl &CB)
 
 //--------------------------------------------------------------------------
 
+#define RESTORE_EO_Start 0
+
 flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
   {
+#if RESTORE_EO_Start
+  return 1;
+#endif
+
   dbgpln("CFlwSolver::EO_GotoRunEnd");
   // Set the Time - regardless
   ODE().SetTime(CB.m_TheTime.Seconds);
   //ODE().ClSetItersTotal(0);
 
   STARTPROGRESS;
-  SHOWPROGRESS(10, "EO_GotoRunStart");
+  SHOWPROGRESS(10, "EO_GotoRunEnd");
 
   gs_MsgLog.SetDefer(true);
 
@@ -12562,7 +12568,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
 
   bool OK=1;
 
-  SHOWPROGRESS(1, "EO_GotoRunStart 1");
+  SHOWPROGRESS(1, "EO_GotoRunEnd 1");
 
   if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
     {
@@ -12575,7 +12581,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
     LogError("Solver", 0, "Bad Component Database");
     }
 
-  SHOWPROGRESS(1, "EO_GotoRunStart 2");
+  SHOWPROGRESS(1, "EO_GotoRunEnd 2");
 
   CFlwNodeList AllNds;
 
@@ -12649,7 +12655,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
   //    }
   //  }
 
-  SHOWPROGRESS(1, "EO_GotoRunStart 3");
+  SHOWPROGRESS(1, "EO_GotoRunEnd 3");
 
   int nBad=0, nAct=0;//Dyn=0, nPB=0;
   CFlwNodeIter All(AllNds);
@@ -12670,7 +12676,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
     }
   #endif
 
-  SHOWPROGRESS(1, "EO_GotoRunStart 4");
+  SHOWPROGRESS(1, "EO_GotoRunEnd 4");
 
   XDataClear();
 
@@ -12679,35 +12685,35 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
     if (gs_Exec.SolvingPB())
       {
       OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.1p");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.1p");
       CtrlSeq().Initialise();
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.2p");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.2p");
       DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.3p");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.3p");
       gs_Exec.XGlblResultValidity(false, false);
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.4p");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.4p");
       }
     else
       {
       OK=(Dyn.Start(CB, AllNds)==0);
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.1d");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.1d");
       CtrlSeq().Initialise();
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.2d");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.2d");
       DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.3d");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.3d");
       gs_Exec.XGlblResultValidity(true, true);
-      SHOWPROGRESS(1, "EO_GotoRunStart 4.4d");
+      SHOWPROGRESS(1, "EO_GotoRunEnd 4.4d");
       }
     }
   else
     OK=false;
-  SHOWPROGRESS(1, "EO_GotoRunStart 5");
+  SHOWPROGRESS(1, "EO_GotoRunEnd 5");
 
   ASSERT(_CrtCheckMemory());
 
   gs_MsgLog.SetDefer(false);
   gs_MsgLog.FlushWndQ();
-  SHOWPROGRESS(1, "EO_GotoRunStart 6");
+  SHOWPROGRESS(1, "EO_GotoRunEnd 6");
 
   return OK;
   }
@@ -12725,173 +12731,177 @@ flag CFlwSolver::EO_PreStart(CXM_TimeControl &CB)
 flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
   {
   dbgpln("CFlwSolver::EO_Start");
+#if !RESTORE_EO_Start
+  return 1;
+#endif
+
   // Set the Time - regardless
-  //ODE().SetTime(CB.m_Time.Seconds);
-  ////ODE().ClSetItersTotal(0);
+  ODE().SetTime(CB.m_TheTime.Seconds);
+  //ODE().ClSetItersTotal(0);
 
-  //STARTPROGRESS;
-  //SHOWPROGRESS(10, "EO_Start");
+  STARTPROGRESS;
+  SHOWPROGRESS(10, "EO_Start");
 
-  //gs_MsgLog.SetDefer(true);
+  gs_MsgLog.SetDefer(true);
 
-  //// Check All Connected are Active
-  //FlwNode * p = NULL;
-  //if (GetObj_All(p))
-  //  {
-  //  p->SetActive(true); // Force Flwsolver to be active
-  //  while (GetObj_All(p))
-  //    if (p->GetActive())
-  //      SetConnectedActive(p);
-  //  }
+  // Check All Connected are Active
+  FlwNode * p = NULL;
+  if (GetObj_All(p))
+    {
+    p->SetActive(true); // Force Flwsolver to be active
+    while (GetObj_All(p))
+      if (p->GetActive())
+        SetConnectedActive(p);
+    }
 
   bool OK=1;
 
   SHOWPROGRESS(1, "EO_Start 1");
 
-  //if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
-  //  {
-  //  OK=0;
-  //  LogError("Solver", 0, "H2O Properties model '%s' not enabled by licensing", CDB.H2OPropertiesSelectedBlk().Class()->ShortDesc());
-  //  }
-  //if (CDB.Bad())
-  //  {
-  //  OK=0;
-  //  LogError("Solver", 0, "Bad Component Database");
-  //  }
+  if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
+    {
+    OK=0;
+    LogError("Solver", 0, "H2O Properties model '%s' not enabled by licensing", CDB.H2OPropertiesSelectedBlk().Class()->ShortDesc());
+    }
+  if (CDB.Bad())
+    {
+    OK=0;
+    LogError("Solver", 0, "Bad Component Database");
+    }
 
-  //SHOWPROGRESS(1, "EO_Start 2");
+  SHOWPROGRESS(1, "EO_Start 2");
 
-  //CFlwNodeList AllNds;
+  CFlwNodeList AllNds;
 
-  //if (0)
-  //  {
-  //  int NFlwNodes=0;
-  //  for (FlwNode * p=NULL; GetObj_All(p); )
-  //    {
-  //    if (p->GetActive())
-  //      {
-  //      NFlwNodes++;
-  //      AllNds.AddTail(p);
-  //      }
-  //    else
-  //      p->iAllIndex=-1;
-  //    }
-  //  }
-  //else if (1)
-  //  {
-  //  int NFlwNodes=0;
-  //  for (FlwNode * p=NULL; GetObj_All(p); )
-  //    {
-  //    if (p->GetActive())
-  //      NFlwNodes++;
-  //    }
+  if (0)
+    {
+    int NFlwNodes=0;
+    for (FlwNode * p=NULL; GetObj_All(p); )
+      {
+      if (p->GetActive())
+        {
+        NFlwNodes++;
+        AllNds.AddTail(p);
+        }
+      else
+        p->iAllIndex=-1;
+      }
+    }
+  else if (1)
+    {
+    int NFlwNodes=0;
+    for (FlwNode * p=NULL; GetObj_All(p); )
+      {
+      if (p->GetActive())
+        NFlwNodes++;
+      }
 
-  //  m_TempNdPtrs.SetSize(Max(m_TempNdPtrs.GetSize(), NFlwNodes));
+    m_TempNdPtrs.SetSize(Max(m_TempNdPtrs.GetSize(), NFlwNodes));
 
-  //  int nObj=0;
-  //  for (FlwNode * p=NULL; GetObj_All(p); )
-  //    {
-  //    if (p->GetActive())
-  //      m_TempNdPtrs[nObj++]=p;
-  //    else
-  //      p->iAllIndex=-1;
-  //    }
+    int nObj=0;
+    for (FlwNode * p=NULL; GetObj_All(p); )
+      {
+      if (p->GetActive())
+        m_TempNdPtrs[nObj++]=p;
+      else
+        p->iAllIndex=-1;
+      }
 
-  //  HpSort(NFlwNodes, (void**)&m_TempNdPtrs[0], HpEvalPosn);
+    HpSort(NFlwNodes, (void**)&m_TempNdPtrs[0], HpEvalPosn);
 
-  //  for (int i=0; i<NFlwNodes; i++)
-  //    {
-  //    FlwNode *p=m_TempNdPtrs[i];
-  //    AllNds.AddTail(m_TempNdPtrs[i]);
-  //    }
-  //  }
-  ////else
-  ////  {
-
-  ////  p = NULL;
-  ////  if (GetObj_All(p))
-  ////    {
-  ////    p->iAllIndex=-1; //skip Flwsolver
-  ////    //p->SetNodeSolveMode();
-  ////    for (int nObj=0; GetObj_All(p); nObj++)
-  ////      {
-  ////      if (p->GetActive())
-  ////        {
-  ////        CFlwNodeIterWithPos All(AllNds);
-  ////        for (FlwNode * pp=All.First(); (pp); pp=All.Next())
-  ////          if (pp->m_iEvalPosn>p->m_iEvalPosn)
-  ////            break;
-
-  ////        if (pp)
-  ////          AllNds.InsertBefore(All.Pos(), p);       
-  ////        else
-  ////          AllNds.AddTail(p);
-  ////        }
-  ////      else
-  ////        p->iAllIndex=-1;
-  ////      }
-  ////    }
-  ////  }
-
-  //SHOWPROGRESS(1, "EO_Start 3");
-
-  //int nBad=0, nAct=0;//Dyn=0, nPB=0;
-  //CFlwNodeIter All(AllNds);
-  //for (FlwNode * p=All.First(); (p); p=All.Next())
-  //  {
-  //  p->iAllIndex=nAct++;
-  //  if (!p->ConnectionsOK())
-  //    nBad++;
-  //  //dbgpln("All: %4i %s", p->iAllIndex, p->FullObjTag());
-  //  }
-
-  //#if (dbgFlwSolve)
-  //if (nAct!=NdCallCntLen)
-  //  {
-  //  delete NdCallCntArray;
-  //  NdCallCntArray=NULL;
-  //  NdCallCntLen=nAct;
-  //  }
-  //#endif
-
-  //SHOWPROGRESS(1, "EO_Start 4");
-
-  //XDataClear();
-
-  //if (nBad==0 && OK)
-  //  {
-  //  if (gs_Exec.SolvingPB())
-  //    {
-  //    OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
-  //    SHOWPROGRESS(1, "EO_Start 4.1p");
-  //    CtrlSeq().Initialise();
-  //    SHOWPROGRESS(1, "EO_Start 4.2p");
-  //    DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
-  //    SHOWPROGRESS(1, "EO_Start 4.3p");
-  //    gs_Exec.XGlblResultValidity(false, false);
-  //    SHOWPROGRESS(1, "EO_Start 4.4p");
-  //    }
-  //  else
-  //    {
-  //    OK=(Dyn.Start(CB, AllNds)==0);
-  //    SHOWPROGRESS(1, "EO_Start 4.1d");
-  //    CtrlSeq().Initialise();
-  //    SHOWPROGRESS(1, "EO_Start 4.2d");
-  //    DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
-  //    SHOWPROGRESS(1, "EO_Start 4.3d");
-  //    gs_Exec.XGlblResultValidity(true, true);
-  //    SHOWPROGRESS(1, "EO_Start 4.4d");
-  //    }
-  //  }
+    for (int i=0; i<NFlwNodes; i++)
+      {
+      FlwNode *p=m_TempNdPtrs[i];
+      AllNds.AddTail(m_TempNdPtrs[i]);
+      }
+    }
   //else
-  //  OK=false;
-  //SHOWPROGRESS(1, "EO_Start 5");
+  //  {
 
-  //ASSERT(_CrtCheckMemory());
+  //  p = NULL;
+  //  if (GetObj_All(p))
+  //    {
+  //    p->iAllIndex=-1; //skip Flwsolver
+  //    //p->SetNodeSolveMode();
+  //    for (int nObj=0; GetObj_All(p); nObj++)
+  //      {
+  //      if (p->GetActive())
+  //        {
+  //        CFlwNodeIterWithPos All(AllNds);
+  //        for (FlwNode * pp=All.First(); (pp); pp=All.Next())
+  //          if (pp->m_iEvalPosn>p->m_iEvalPosn)
+  //            break;
 
-  //gs_MsgLog.SetDefer(false);
-  //gs_MsgLog.FlushWndQ();
-  //SHOWPROGRESS(1, "EO_Start 6");
+  //        if (pp)
+  //          AllNds.InsertBefore(All.Pos(), p);       
+  //        else
+  //          AllNds.AddTail(p);
+  //        }
+  //      else
+  //        p->iAllIndex=-1;
+  //      }
+  //    }
+  //  }
+
+  SHOWPROGRESS(1, "EO_Start 3");
+
+  int nBad=0, nAct=0;//Dyn=0, nPB=0;
+  CFlwNodeIter All(AllNds);
+  for (FlwNode * p=All.First(); (p); p=All.Next())
+    {
+    p->iAllIndex=nAct++;
+    if (!p->ConnectionsOK())
+      nBad++;
+    //dbgpln("All: %4i %s", p->iAllIndex, p->FullObjTag());
+    }
+
+  #if (dbgFlwSolve)
+  if (nAct!=NdCallCntLen)
+    {
+    delete NdCallCntArray;
+    NdCallCntArray=NULL;
+    NdCallCntLen=nAct;
+    }
+  #endif
+
+  SHOWPROGRESS(1, "EO_Start 4");
+
+  XDataClear();
+
+  if (nBad==0 && OK)
+    {
+    if (gs_Exec.SolvingPB())
+      {
+      OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
+      SHOWPROGRESS(1, "EO_Start 4.1p");
+      CtrlSeq().Initialise();
+      SHOWPROGRESS(1, "EO_Start 4.2p");
+      DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
+      SHOWPROGRESS(1, "EO_Start 4.3p");
+      gs_Exec.XGlblResultValidity(false, false);
+      SHOWPROGRESS(1, "EO_Start 4.4p");
+      }
+    else
+      {
+      OK=(Dyn.Start(CB, AllNds)==0);
+      SHOWPROGRESS(1, "EO_Start 4.1d");
+      CtrlSeq().Initialise();
+      SHOWPROGRESS(1, "EO_Start 4.2d");
+      DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
+      SHOWPROGRESS(1, "EO_Start 4.3d");
+      gs_Exec.XGlblResultValidity(true, true);
+      SHOWPROGRESS(1, "EO_Start 4.4d");
+      }
+    }
+  else
+    OK=false;
+  SHOWPROGRESS(1, "EO_Start 5");
+
+  ASSERT(_CrtCheckMemory());
+
+  gs_MsgLog.SetDefer(false);
+  gs_MsgLog.FlushWndQ();
+  SHOWPROGRESS(1, "EO_Start 6");
 
   return OK;
   }

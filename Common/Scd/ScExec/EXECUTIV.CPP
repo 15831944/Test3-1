@@ -1971,6 +1971,13 @@ void CExecutive::DumpMsgHistory()
 
 flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
   {
+
+  //wState|=EXF_Busy;
+  if (fDoingPB)
+    wState|=EXF_SolvingPB;
+  else
+    wState&=(~EXF_SolvingPB);
+
   if (!Reset && (ScnState==Scn_Complete) && !ReStartIfScnComplete)
     {
     LogNote("Executive", 0, "Scenario Complete - Restart Ignored");
@@ -2314,10 +2321,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       wState&=(~EXF_StartError);
       wState|=EXF_Busy;
-      if (fDoingPB)
-        wState|=EXF_SolvingPB;
-      else
-        wState&=(~EXF_SolvingPB);
+      
+      //moved to ResetRunState
+      //if (fDoingPB)
+      //  wState|=EXF_SolvingPB;
+      //else
+      //  wState&=(~EXF_SolvingPB);
 
       bWorkDone=false;
       bTimerExpired=false;
