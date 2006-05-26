@@ -126,7 +126,8 @@ flag CEvBlk::Open(CCatItem* CatItem)
       pEvHead->JmpTimes[i] = 0.0;
       }
     memset(pEvHead->sSpare, 0, sizeof(pEvHead->sSpare));
-    strncpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName)-1); //PKH
+    //strncpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName));
+    memcpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName)); //KGA/PKH//CNM/KGA
     memcpy(pEvHead->sCopyNotice, CopyNotice, sizeof(pEvHead->sCopyNotice));
     FlushViewOfFile((void*)pEvHead, 0);
     }
