@@ -61,6 +61,7 @@
     <Compile Include="GraphicLink.cs" />
     <Compile Include="ModelStencil.cs" />
     <Compile Include="ServiceGraphic.cs" />
+    <Compile Include="SysCADServiceGraphic.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

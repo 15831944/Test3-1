@@ -138,9 +138,8 @@ ref class CNETServerThread
 
     void MarshalGraphics()
       {
-      /*
       String ^ filename;
-      Graphic ^ graphic = gcnew Graphic;
+      SysCADServiceGraphic ^ graphic = gcnew SysCADServiceGraphic;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
 
       POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
@@ -186,7 +185,6 @@ ref class CNETServerThread
       RemotingServices::Marshal(graphic, filename);
       m_Config->projectList->Add(filename);
       LogNote("Srvr", 0, "Added project %s to ProjectList.", filename);
-      */
       };
 
 

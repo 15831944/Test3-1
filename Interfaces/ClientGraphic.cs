@@ -28,7 +28,7 @@ namespace SysCAD.Interface
     ~ClientGraphic()
     {
       if (serviceGraphic != null)
-        serviceGraphic.ItemModified -= new ServiceGraphic.ItemModifiedHandler(remoteGraphic_ItemModified);
+        serviceGraphic.ItemModified -= new ServiceGraphic.ItemModifiedHandler(serviceGraphic_ItemModified);
     }
 
     public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -53,7 +53,7 @@ namespace SysCAD.Interface
         serviceGraphic = Activator.GetObject(typeof(BaseGraphic), URL) as ServiceGraphic;
 
         name = serviceGraphic.Name; // Force a test of the connection.
-        serviceGraphic.ItemModified += new ServiceGraphic.ItemModifiedHandler(remoteGraphic_ItemModified);
+        serviceGraphic.ItemModified += new ServiceGraphic.ItemModifiedHandler(serviceGraphic_ItemModified);
 
         connectionError = "";
         return true;
@@ -81,17 +81,17 @@ namespace SysCAD.Interface
       graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
     }
 
-    public void remoteGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void serviceGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    public void remoteGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void serviceGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    public void remoteGraphic_ItemDeleted(uint eventID, uint requestID, Guid guid)
+    public void serviceGraphic_ItemDeleted(uint eventID, uint requestID, Guid guid)
     {
       OnItemDeleted(eventID, requestID, guid);
     }  
