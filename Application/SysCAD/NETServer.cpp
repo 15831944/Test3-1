@@ -187,13 +187,70 @@ ref class CNETServerThread
       }
     }
 
+    bool CreateLink(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    {
+      if (true) // Decide whether to create an link.
+      { // We're going to do it.
+        // Create the item.
+        
+        // Raise event(s).
+        graphic->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool ModifyLink(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    {
+      if (true) // Decide whether to modify an link.
+      { // We're going to do it.
+        // Modify the item.
+        
+        // Raise event(s).
+        graphic->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool DeleteLink(ServiceGraphic^ graphic, uint requestID, Guid guid)
+    {
+      if (true) // Decide whether to delete an link.
+      { // We're going to do it.
+        // Delete the item.
+        
+        // Raise event(s).
+        graphic->DoLinkDeleted(requestID, guid);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
     void MarshalGraphics()
       {
-      String ^ filename;
       ServiceGraphic::CreateItemDelegate^ createItem = gcnew ServiceGraphic::CreateItemDelegate(this, &CNETServerThread::CreateItem);
       ServiceGraphic::ModifyItemDelegate^ modifyItem = gcnew ServiceGraphic::ModifyItemDelegate(this, &CNETServerThread::ModifyItem);
       ServiceGraphic::DeleteItemDelegate^ deleteItem = gcnew ServiceGraphic::DeleteItemDelegate(this, &CNETServerThread::DeleteItem);
-      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem);
+
+      ServiceGraphic::CreateLinkDelegate^ createLink = gcnew ServiceGraphic::CreateLinkDelegate(this, &CNETServerThread::CreateLink);
+      ServiceGraphic::ModifyLinkDelegate^ modifyLink = gcnew ServiceGraphic::ModifyLinkDelegate(this, &CNETServerThread::ModifyLink);
+      ServiceGraphic::DeleteLinkDelegate^ deleteLink = gcnew ServiceGraphic::DeleteLinkDelegate(this, &CNETServerThread::DeleteLink);
+
+      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink);
+
+      String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
 
       POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();

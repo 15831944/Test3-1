@@ -198,54 +198,6 @@ namespace SysCAD.Editor
       links.Add(guid, link);
     }
 
-    internal void newGraphicLink(GraphicLink graphicLink, Arrow arrow, bool visible)
-    {
-      Item origin = null;
-      Item destination = null;
-
-      if (graphicLink.Origin != null) origin = item(graphicLink.Origin);
-      if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
-
-      PointF pointOrigin = new PointF();
-      PointF pointDestination = new PointF();
-
-      if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
-      {
-        pointOrigin = graphicLink.controlPoints[0];
-        pointDestination = graphicLink.controlPoints[graphicLink.controlPoints.Count - 1];
-      }
-
-      if (origin != null)
-        arrow.Origin = origin.Model;
-      if (destination != null)
-        arrow.Destination = destination.Model;
-
-      arrow.Text = graphicLink.Tag;
-      arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Origin + "\nDst: " + graphicLink.Destination;
-      arrow.ArrowHead = ArrowHead.Triangle;
-      arrow.Style = ArrowStyle.Cascading;
-
-      if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
-      {
-        arrow.SegmentCount = (short)(graphicLink.controlPoints.Count - 1);
-        int i = 0;
-        foreach (PointF point in graphicLink.controlPoints)
-          arrow.ControlPoints[i++] = point;
-        arrow.UpdateFromPoints();
-        PointCollection a = arrow.ControlPoints;
-      }
-
-      Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
-      link.Arrow = arrow;
-      link.Visible = true;
-
-      arrow.Tag = link;
-
-      arrow.Visible = ShowLinks && visible;
-
-      links.Add(link.Guid, link);
-    }
-
     internal void Remove(Item item, FlowChart flowchart)
     {
       if (item != null)
@@ -259,7 +211,7 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void newItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
+    internal void CreateItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
       flowchart.SuspendLayout();
 
@@ -329,6 +281,71 @@ namespace SysCAD.Editor
       items.Add(item.Guid, item);
       flowchart.ResumeLayout();
     }
+
+    internal bool DeleteItem(Guid guid)
+    {
+      //TBD: unlink connected links first
+      return items.Remove(guid);
+    }
+
+
+    
+    internal void CreateLink(GraphicLink graphicLink, bool isVisible, FlowChart flowchart)
+    {
+      Arrow arrow = flowchart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+
+      Item origin = null;
+      Item destination = null;
+
+      if (graphicLink.Origin != null) origin = item(graphicLink.Origin);
+      if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
+
+      PointF pointOrigin = new PointF();
+      PointF pointDestination = new PointF();
+
+      if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
+      {
+        pointOrigin = graphicLink.controlPoints[0];
+        pointDestination = graphicLink.controlPoints[graphicLink.controlPoints.Count - 1];
+      }
+
+      if (origin != null)
+        arrow.Origin = origin.Model;
+      if (destination != null)
+        arrow.Destination = destination.Model;
+
+      arrow.Text = graphicLink.Tag;
+      arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Origin + "\nDst: " + graphicLink.Destination;
+      arrow.ArrowHead = ArrowHead.Triangle;
+      arrow.Style = ArrowStyle.Cascading;
+
+      if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
+      {
+        arrow.SegmentCount = (short)(graphicLink.controlPoints.Count - 1);
+        int i = 0;
+        foreach (PointF point in graphicLink.controlPoints)
+          arrow.ControlPoints[i++] = point;
+        arrow.UpdateFromPoints();
+        PointCollection a = arrow.ControlPoints;
+      }
+
+      Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
+      link.Arrow = arrow;
+      link.Visible = true;
+
+      arrow.Tag = link;
+
+      arrow.Visible = ShowLinks && isVisible;
+
+      links.Add(link.Guid, link);
+    }
+
+    internal bool DeleteLink(Guid guid)
+    {
+      return links.Remove(guid);
+    }
+
+
 
     internal void ItemVisible(Guid guid, bool visible)
     {
@@ -578,6 +595,8 @@ namespace SysCAD.Editor
       return graphic.graphicItems.ContainsKey(guid);
     }
 
+
+
     internal bool ModifyGraphicItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       return graphic.ModifyItem(out requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
@@ -593,44 +612,65 @@ namespace SysCAD.Editor
       return graphic.DeleteItem(out requestID, guid);
     }
 
-    internal void ConnectGraphicItemModified(ClientGraphic.ItemModifiedHandler itemModifiedHandler)
+
+
+    internal bool ModifyGraphicLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      graphic.ItemModified += itemModifiedHandler;
+      return graphic.ModifyLink(out requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    internal void DisconnectGraphicItemModified(ClientGraphic.ItemModifiedHandler itemModifiedHandler)
+    internal bool CreateGraphicLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      graphic.ItemModified -= itemModifiedHandler;
+      return graphic.CreateLink(out requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    internal void ConnectGraphicItemCreated(ClientGraphic.ItemCreatedHandler itemCreatedHandler)
+    internal bool DeleteGraphicLink(out uint requestID, Guid guid)
+    {
+      return graphic.DeleteLink(out requestID, guid);
+    }
+
+
+
+    internal void ConnectGraphic(
+      ClientGraphic.ItemCreatedHandler itemCreatedHandler,
+      ClientGraphic.ItemModifiedHandler itemModifiedHandler,
+      ClientGraphic.ItemDeletedHandler itemDeletedHandler,
+      ClientGraphic.LinkCreatedHandler LinkCreatedHandler,
+      ClientGraphic.LinkModifiedHandler LinkModifiedHandler,
+      ClientGraphic.LinkDeletedHandler LinkDeletedHandler)
     {
       graphic.ItemCreated += itemCreatedHandler;
+      graphic.ItemModified += itemModifiedHandler;
+      graphic.ItemDeleted += itemDeletedHandler;
+
+      graphic.LinkCreated += LinkCreatedHandler;
+      graphic.LinkModified += LinkModifiedHandler;
+      graphic.LinkDeleted += LinkDeletedHandler;
     }
 
-    internal void DisconnectGraphicItemCreated(ClientGraphic.ItemCreatedHandler itemCreatedHandler)
+
+    internal void DisconnectGraphic(
+      ClientGraphic.ItemCreatedHandler itemCreatedHandler,
+      ClientGraphic.ItemModifiedHandler itemModifiedHandler,
+      ClientGraphic.ItemDeletedHandler itemDeletedHandler,
+      ClientGraphic.LinkCreatedHandler LinkCreatedHandler,
+      ClientGraphic.LinkModifiedHandler LinkModifiedHandler,
+      ClientGraphic.LinkDeletedHandler LinkDeletedHandler)
     {
       graphic.ItemCreated -= itemCreatedHandler;
-    }
-
-    internal void ConnectGraphicItemDeleted(ClientGraphic.ItemDeletedHandler itemDeletedHandler)
-    {
-      graphic.ItemDeleted += itemDeletedHandler;
-    }
-
-    internal void DisconnectGraphicItemDeleted(ClientGraphic.ItemDeletedHandler itemDeletedHandler)
-    {
+      graphic.ItemModified -= itemModifiedHandler;
       graphic.ItemDeleted -= itemDeletedHandler;
+
+      graphic.LinkCreated -= LinkCreatedHandler;
+      graphic.LinkModified -= LinkModifiedHandler;
+      graphic.LinkDeleted -= LinkDeletedHandler;
     }
+
+
 
     internal void AddNode(string path, string tag, Guid guid)
     {
       tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
-    }
-
-    internal void AddGraphicItem(Guid guid, GraphicItem graphicItem)
-    {
-      graphic.graphicItems.Add(guid, graphicItem);
     }
   }
 }

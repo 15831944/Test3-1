@@ -6769,7 +6769,7 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
   if (m_pCLRSrvr)
     {
     m_pCLRSrvr->Shutdown();
-    delete m_pCLRSrvr;
+    //PKH delete m_pCLRSrvr;
     }
 #endif
 

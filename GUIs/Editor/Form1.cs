@@ -37,17 +37,17 @@ namespace SysCAD.Editor
       }
       catch (Exception) { }
 
-      (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
+      (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
+      (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
     }
 
     void NewItem_GraphicType_Changed(object sender, EventArgs e)
     {
-      int stencilIndex = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex;
+      int stencilIndex = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex;
 
       if (stencilIndex != -1)
       {
-        string stencilName = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+        string stencilName = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
         if (stencilName != "-------")
         {
           frmFlowChart.currentGraphicShape = stencilName;
@@ -59,18 +59,18 @@ namespace SysCAD.Editor
     {
       string groupName = "";
 
-      bool rememberEnabled = barManager1.Commands["NewItem.GraphicType"].Enabled;
-      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
+      bool rememberEnabled = barManager1.Commands["CreateItem.GraphicType"].Enabled;
+      barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
 
-      int stencilIndex = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
-      string stencilName = (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+      int stencilIndex = (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
+      string stencilName = (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
       frmFlowChart.currentModelShape = stencilName;
 
       ModelStencil modelStencil = frmFlowChart.state.ModelStencil(stencilName);
       if (modelStencil != null)
       {
         groupName = modelStencil.groupName;
-        barManager1.Commands["NewItem.GraphicType"].Enabled = rememberEnabled;
+        barManager1.Commands["CreateItem.GraphicType"].Enabled = rememberEnabled;
       }
       else
       {
@@ -82,31 +82,31 @@ namespace SysCAD.Editor
 
     private void GraphicType_Populate(string groupName)
     {
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
+      (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
       GlobalShapes.list.Clear();
 
       foreach (GraphicStencil graphicStencil in frmFlowChart.state.GraphicStencils)
       {
         if (groupName == graphicStencil.groupName)
         {
-          int i = (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.Tag);
+          int i = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.Tag);
           GlobalShapes.list.Add(graphicStencil.Tag);
         }
       }
 
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
+      (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
       GlobalShapes.list.Add("-------");
 
       foreach (GraphicStencil graphicStencil in frmFlowChart.state.GraphicStencils)
       {
         if (groupName != graphicStencil.groupName)
         {
-          (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.Tag);
+          (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.Tag);
           GlobalShapes.list.Add(graphicStencil.Tag);
         }
       }
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
-      (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Text = groupName;
+      (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
+      (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Text = groupName;
     }
 
     private void barManager1_CommandClick(object sender, BarCommandLinkEventArgs e)
@@ -356,7 +356,7 @@ namespace SysCAD.Editor
               //else
               //  newGraphicLink.Destination = "";
 
-              frmFlowChart.NewGraphicLink(newGraphicLink, null, dx, dy);
+              frmFlowChart.NewGraphicLink(newGraphicLink, dx, dy);
             }
             //// that returns the active composite if somebody has already created one
             //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
@@ -437,22 +437,22 @@ namespace SysCAD.Editor
 
     private void Mode_CreateLink()
     {
-      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-      barManager1.Commands["NewItem.ModelType"].Enabled = false;
+      barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
+      barManager1.Commands["CreateItem.ModelType"].Enabled = false;
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateArrow;
     }
 
     private void Mode_CreateNode()
     {
-      barManager1.Commands["NewItem.GraphicType"].Enabled = true;
-      barManager1.Commands["NewItem.ModelType"].Enabled = true;
+      barManager1.Commands["CreateItem.GraphicType"].Enabled = true;
+      barManager1.Commands["CreateItem.ModelType"].Enabled = true;
       //frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateBox;
     }
 
     public void Mode_Modify()
     {
-      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-      barManager1.Commands["NewItem.ModelType"].Enabled = false;
+      barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
+      barManager1.Commands["CreateItem.ModelType"].Enabled = false;
       frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
       (barManager1.Commands["Mode.Modify"] as BarButtonCommand).Checked = true;
       (barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked = false;
@@ -588,7 +588,7 @@ namespace SysCAD.Editor
       barManager1.Commands["View.ShowTags"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
       barManager1.Commands["Selection.SelectLinks"].Enabled = projectExists;
-      barManager1.Commands["NewItem.ModelType"].Enabled = projectExists;
+      barManager1.Commands["CreateItem.ModelType"].Enabled = projectExists;
       barManager1.Commands["Mode.Modify"].Enabled = projectExists;
       barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
       barManager1.Commands["Mode.CreateLink"].Enabled = projectExists;
@@ -596,8 +596,8 @@ namespace SysCAD.Editor
       barManager1.Commands["Edit.Copy"].Enabled = projectExists;
       barManager1.Commands["Edit.Paste"].Enabled = projectExists;
 
-      barManager1.Commands["NewItem.GraphicType"].Enabled = false;
-      barManager1.Commands["NewItem.ModelType"].Enabled = false;
+      barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
+      barManager1.Commands["CreateItem.ModelType"].Enabled = false;
 
       if (frmFlowChart != null)
       {
@@ -647,12 +647,12 @@ namespace SysCAD.Editor
 
         frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
-        (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Clear();
+        (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Clear();
         foreach (ModelStencil modelStencil in frmFlowChart.state.ModelStencils)
         {
-          (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items.Add(modelStencil.Tag);
+          (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Add(modelStencil.Tag);
         }
-        (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
+        (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
 
         SetProjectBasedButtons(true);
 
@@ -841,17 +841,17 @@ namespace SysCAD.Editor
           int i;
 
           i = 0;
-          foreach (string model in (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Items)
+          foreach (string model in (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items)
           {
             if (model == graphicItem.Model)
             {
-              (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
-              (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).Text = model;
+              (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
+              (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Text = model;
             }
             i++;
           }
-          if ((barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
-            (barManager1.Commands["NewItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
+          if ((barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
+            (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
 
           ModelStencil modelStencil = frmFlowChart.state.ModelStencil(graphicItem.Model);
           if (modelStencil != null)
@@ -860,17 +860,17 @@ namespace SysCAD.Editor
           }
 
           i = 0;
-          foreach (string shape in (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Items)
+          foreach (string shape in (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items)
           {
             if (shape == graphicItem.Shape)
             {
-              (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
-              (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).Text = shape;
+              (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
+              (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Text = shape;
             }
             i++;
           }
-          if ((barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
-            (barManager1.Commands["NewItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
+          if ((barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
+            (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
         }
       }
 

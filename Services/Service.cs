@@ -39,7 +39,26 @@ namespace SysCAD.Service
       return true;
     }
 
-    
+    private static bool CreateLink(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    {
+      graphic.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+      return true;
+    }
+
+    private static bool ModifyLink(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    {
+      graphic.DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+      return true;
+    }
+
+    private static bool DeleteLink(ServiceGraphic graphic, uint requestID, Guid guid)
+    {
+      graphic.DoLinkDeleted(requestID, guid);
+      return true;
+    }
+
+
+
     [STAThread]
     static void Main(string[] args) 
     {
@@ -118,7 +137,7 @@ namespace SysCAD.Service
       {
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem);
+        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink);
         graphic.name = filename;
 
         {

@@ -66,8 +66,8 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonCommand filePrintPreviewBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "PrintPreview", "Print Pre&view", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileExitBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Exit", "E&xit", -1);
       ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand newMenuNewMenuBarPopupButtonCommand = new ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand("New Menu", "New Menu", "New Menu", -1);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "ModelType", "ModelType", -1);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("NewItem", "GraphicType", "GraphicType", -1);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("CreateItem", "ModelType", "ModelType", -1);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("CreateItem", "GraphicType", "GraphicType", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowGraphicsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowGraphics", "Show Graphics", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowModelsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowModels", "Show Models", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowLinksBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowLinks", "Show Links", -1);

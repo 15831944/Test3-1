@@ -44,8 +44,8 @@ namespace SysCAD.Interface
     public delegate void ItemDeletedHandler(uint eventID, uint requestID, Guid guid);
 
 
-    public delegate void LinkCreatedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort);
-    public delegate void LinkModifiedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort);
+    public delegate void LinkCreatedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate void LinkModifiedHandler(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate void LinkDeletedHandler(uint eventID, uint requestID, Guid guid);
 
 
@@ -80,16 +80,17 @@ namespace SysCAD.Interface
     }
 
 
-    public void OnLinkCreated(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort)
+
+    public void OnLinkCreated(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       if (LinkCreated != null)
-        LinkCreated(eventID, requestID, guid, tag, classID, origin, destination, originPort, destinationPort);
+        LinkCreated(eventID, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    public void OnLinkModified(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort)
+    public void OnLinkModified(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       if (LinkModified != null)
-        LinkModified(eventID, requestID, guid, tag, classID, origin, destination, originPort, destinationPort);
+        LinkModified(eventID, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public void OnLinkDeleted(uint eventID, uint requestID, Guid guid)
