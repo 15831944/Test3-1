@@ -44,25 +44,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       guid = new Guid();
-      if (createItemDelegate(this, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY))
-      {
-        GraphicItem graphicItem = new GraphicItem(guid, tag);
-        graphicItem.Path = path;
-        graphicItem.Model = model;
-        graphicItem.Shape = shape;
-        graphicItem.BoundingRect = boundingRect;
-        graphicItem.Angle = angle;
-        graphicItem.FillColor = fillColor;
-        graphicItem.MirrorX = mirrorX;
-        graphicItem.MirrorY = mirrorY;
-
-        graphicItems.Add(guid, graphicItem);
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return createItemDelegate(this, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -70,26 +52,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicItems.ContainsKey(guid))
-      {
-        if (modifyItemDelegate(this, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY))
-        {
-          GraphicItem graphicItem = graphicItems[guid];
-          graphicItem.Tag = tag;
-          graphicItem.Path = path;
-          graphicItem.Model = model;
-          graphicItem.Shape = shape;
-          graphicItem.BoundingRect = boundingRect;
-          graphicItem.Angle = angle;
-          graphicItem.FillColor = fillColor;
-          graphicItem.MirrorX = mirrorX;
-          graphicItem.MirrorY = mirrorY;
-          return true;
-        }
-        else
-        {
-          return false;
-        }
-      }
+        return modifyItemDelegate(this, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
       else
         return false;
     }
@@ -99,35 +62,53 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicItems.ContainsKey(guid))
-      {
-        if (deleteItemDelegate(this, requestID, guid))
-        {
-          graphicItems.Remove(guid);
-          return true;
-        }
-        else
-        {
-          return false;
-        }
-      }
+        return deleteItemDelegate(this, requestID, guid);
       else
         return false;
     }
 
     public void DoItemCreated(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
+      GraphicItem graphicItem = new GraphicItem(guid, tag);
+      graphicItem.Path = path;
+      graphicItem.Model = model;
+      graphicItem.Shape = shape;
+      graphicItem.BoundingRect = boundingRect;
+      graphicItem.Angle = angle;
+      graphicItem.FillColor = fillColor;
+      graphicItem.MirrorX = mirrorX;
+      graphicItem.MirrorY = mirrorY;
+
+      graphicItems.Add(guid, graphicItem);
+
       eventID++;
       OnItemCreated(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoItemModified(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
+      GraphicItem graphicItem;
+      if (graphicItems.TryGetValue(guid, out graphicItem))
+      {
+        graphicItem.Tag = tag;
+        graphicItem.Path = path;
+        graphicItem.Model = model;
+        graphicItem.Shape = shape;
+        graphicItem.BoundingRect = boundingRect;
+        graphicItem.Angle = angle;
+        graphicItem.FillColor = fillColor;
+        graphicItem.MirrorX = mirrorX;
+        graphicItem.MirrorY = mirrorY;
+      }
+
       eventID++;
       OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoItemDeleted(uint requestID, Guid guid)
     {
+      graphicItems.Remove(guid);
+
       eventID++;
       OnItemDeleted(eventID, requestID, guid);
     }

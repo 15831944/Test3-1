@@ -404,7 +404,7 @@ namespace SysCAD.Editor
           copyGraphicItem.Shape = graphicItem.Shape;
           copyGraphicItem.MirrorX = graphicItem.MirrorX;
           copyGraphicItem.MirrorY = graphicItem.MirrorY;
-          copyGraphicItem.fillColor = graphicItem.fillColor;
+          copyGraphicItem.FillColor = graphicItem.FillColor;
 
           copyGraphic.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
         }

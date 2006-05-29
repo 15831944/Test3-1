@@ -216,7 +216,7 @@ namespace SysCAD.Editor
         graphicItem.Width = boundingRect.Width;
         graphicItem.Height = boundingRect.Height;
         graphicItem.Angle = angle;
-        graphicItem.fillColor = fillColor;
+        graphicItem.FillColor = fillColor;
         graphicItem.MirrorX = mirrorX;
         graphicItem.MirrorY = mirrorY;
       }
@@ -242,7 +242,7 @@ namespace SysCAD.Editor
       graphicItem.Width = boundingRect.Width;
       graphicItem.Height = boundingRect.Height;
       graphicItem.Angle = angle;
-      graphicItem.fillColor = fillColor;
+      graphicItem.FillColor = fillColor;
       graphicItem.MirrorX = mirrorX;
       graphicItem.MirrorY = mirrorY;
 
@@ -684,7 +684,7 @@ namespace SysCAD.Editor
         graphicItem.Shape,
         modelBox.BoundingRect,
         modelBox.RotationAngle,
-        graphicItem.fillColor,
+        graphicItem.FillColor,
         graphicItem.MirrorX,
         graphicItem.MirrorY))
       { // failure, revert back to previous.
@@ -705,7 +705,7 @@ namespace SysCAD.Editor
 
     public void NewGraphicItem(GraphicItem graphicItem, string path)
     {
-      NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.fillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+      NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
     }
 
     public void NewGraphicItem(String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
