@@ -21,6 +21,25 @@ namespace SysCAD.Service
 {
 	class Service
 	{
+    private static bool CreateItem(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      graphic.DoItemCreated(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return true;
+    }
+
+    private static bool ModifyItem(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      graphic.DoItemModified(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return true;
+    }
+
+    private static bool DeleteItem(ServiceGraphic graphic, uint requestID, Guid guid)
+    {
+      graphic.DoItemDeleted(requestID, guid);
+      return true;
+    }
+
+    
     [STAThread]
     static void Main(string[] args) 
     {
@@ -99,7 +118,7 @@ namespace SysCAD.Service
       {
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        ServiceServiceGraphic graphic = new ServiceServiceGraphic();
+        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem);
         graphic.name = filename;
 
         {

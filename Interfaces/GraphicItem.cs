@@ -52,7 +52,7 @@ namespace SysCAD.Interface
     private float angle;
     private bool mirrorX = false;
     private bool mirrorY = false;
-    public System.Drawing.Color fillColor;
+    private System.Drawing.Color fillColor;
 
     [CategoryAttribute("Model"),
      DescriptionAttribute("Guid of the item."),
@@ -138,6 +138,13 @@ namespace SysCAD.Interface
     public RectangleF BoundingRect
     {
       get { return new RectangleF(x, y, width, height); }
+      set
+      {
+        x = value.X;
+        y = value.Y;
+        width = value.Width;
+        height = value.Height;
+      }
     }
 
     [CategoryAttribute("Graphic"),
@@ -167,6 +174,15 @@ namespace SysCAD.Interface
     {
       get { return model; }
       set { model = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Color of fill."),
+     DisplayName("Fill Color")]
+    public System.Drawing.Color FillColor
+    {
+      get { return fillColor; }
+      set { fillColor = value; }
     }
 
     [CategoryAttribute("Graphic"),

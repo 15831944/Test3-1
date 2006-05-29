@@ -41,7 +41,6 @@
   -->
   <ItemGroup>
     <Compile Include="Service.cs" />
-    <Compile Include="ServiceServiceGraphic.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

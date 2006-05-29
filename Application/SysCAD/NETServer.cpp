@@ -136,10 +136,64 @@ ref class CNETServerThread
       RemotingServices::Marshal(m_Config, "Global");
       }
 
+    bool CreateItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, String^ model, String^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      if (true) // Decide whether to create an item.
+      { // We're going to do it.
+        // Create the item.
+        
+        // Raise event(s).
+        graphic->DoItemCreated(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool ModifyItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, String^ model, String^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      if (true) // Decide whether to modify an item.
+      { // We're going to do it.
+        // Modify the item.
+        
+        // Raise event(s).
+        graphic->DoItemModified(requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool DeleteItem(ServiceGraphic^ graphic, uint requestID, Guid guid)
+    {
+      if (true) // Decide whether to delete an item.
+      { // We're going to do it.
+        // Delete the item.
+        
+        // Raise event(s).
+        graphic->DoItemDeleted(requestID, guid);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
     void MarshalGraphics()
       {
       String ^ filename;
-      SysCADServiceGraphic ^ graphic = gcnew SysCADServiceGraphic;
+      ServiceGraphic::CreateItemDelegate^ createItem = gcnew ServiceGraphic::CreateItemDelegate(this, &CNETServerThread::CreateItem);
+      ServiceGraphic::ModifyItemDelegate^ modifyItem = gcnew ServiceGraphic::ModifyItemDelegate(this, &CNETServerThread::ModifyItem);
+      ServiceGraphic::DeleteItemDelegate^ deleteItem = gcnew ServiceGraphic::DeleteItemDelegate(this, &CNETServerThread::DeleteItem);
+      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem);
       filename = gcnew String(m_pUnmanaged->m_PrjName);
 
       POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
