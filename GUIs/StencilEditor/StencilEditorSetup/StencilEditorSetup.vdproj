@@ -203,7 +203,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.24953, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.18002, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_47BF8BC6EC0F0F83EF1A66C045B23DC8"
@@ -234,7 +234,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Ruler, Version=4.1.0.24961, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Ruler, Version=4.1.0.18004, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_FA84603E4D2F834BDF33EEEA81A0AC57"
@@ -327,14 +327,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:StencilEditor"
-        "ProductCode" = "8:{C642FCD9-DA8C-4595-9920-DA04AEB2717D}"
-        "PackageCode" = "8:{A4703DD2-5487-45DA-82CD-0974BDB68BF8}"
+        "ProductCode" = "8:{4A630FE0-6940-4289-8AAD-CEC67A82807E}"
+        "PackageCode" = "8:{C3956A1D-2EBF-483C-9A61-87E8081C8418}"
         "UpgradeCode" = "8:{D4E91EC6-0B81-4242-A4D3-0D830D68CD31}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.1"
+        "ProductVersion" = "8:1.0.2"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

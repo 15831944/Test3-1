@@ -45,10 +45,7 @@ namespace SysCAD.Interface
     private String model;
 
     private String stencil;
-    private float x;
-    private float y;
-    private float width;
-    private float height;
+    private RectangleF boundingRect;
     private float angle;
     private bool mirrorX = false;
     private bool mirrorY = false;
@@ -82,53 +79,36 @@ namespace SysCAD.Interface
       set { tag = value; }
     }
 
-    //[CategoryAttribute("Graphic"), 
-    // DescriptionAttribute("Bounding Rectangle if the Item")]
-    //public RectangleF BoundingRect
-    //{
-    //  get
-    //  {
-    //    return new RectangleF(x, y, width, height);
-    //  }
-    //  set
-    //  {
-    //    x = value.X;
-    //    y = value.Y;
-    //    width = value.Width;
-    //    height = value.Height;
-    //  }
-    //}
-
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Horizontal position of the center of the item.")]
     public float X
     {
-      get { return x; }
-      set { x = value; }
+      get { return boundingRect.X; }
+      set { boundingRect.X = value; }
     }
 
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Vertical position of the center of the item.")]
     public float Y
     {
-      get { return y; }
-      set { y = value; }
+      get { return boundingRect.Y; }
+      set { boundingRect.Y = value; }
     }
 
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Width of the item.")]
     public float Width
     {
-      get { return width; }
-      set { width = value; }
+      get { return boundingRect.Width; }
+      set { boundingRect.Width = value; }
     }
 
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Height of the item.")]
     public float Height
     {
-      get { return height; }
-      set { height = value; }
+      get { return boundingRect.Height; }
+      set { boundingRect.Height = value; }
     }
 
     [CategoryAttribute("Graphic"),
@@ -137,14 +117,8 @@ namespace SysCAD.Interface
    DisplayName("Bounding Rect")]
     public RectangleF BoundingRect
     {
-      get { return new RectangleF(x, y, width, height); }
-      set
-      {
-        x = value.X;
-        y = value.Y;
-        width = value.Width;
-        height = value.Height;
-      }
+      get { return boundingRect; }
+      set { boundingRect = value; }
     }
 
     [CategoryAttribute("Graphic"),
@@ -243,23 +217,23 @@ namespace SysCAD.Interface
         if (stencil.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
         if (stencil.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
-        width = (float)itemReader.GetDouble(3) * 30.0F * sx;
-        height = (float)itemReader.GetDouble(4) * 30.0F * sy;
+        boundingRect.Width = (float)itemReader.GetDouble(3) * 30.0F * sx;
+        boundingRect.Height = (float)itemReader.GetDouble(4) * 30.0F * sy;
 
-        if (width < 0.0F)
+        if (boundingRect.Width < 0.0F)
         {
           mirrorX = true;
-          width = -width;
+          boundingRect.Width = -boundingRect.Width;
         }
 
-        if (height < 0.0F)
+        if (boundingRect.Height < 0.0F)
         {
           mirrorY = true;
-          height = -height;
+          boundingRect.Height = -boundingRect.Height;
         }
 
-        x = (float)itemReader.GetDouble(1) - width / 2.0F + dx;
-        y = -(float)itemReader.GetDouble(2) - height / 2.0F + dy;
+        boundingRect.X = (float)itemReader.GetDouble(1) - boundingRect.Width / 2.0F + dx;
+        boundingRect.Y = -(float)itemReader.GetDouble(2) - boundingRect.Height / 2.0F + dy;
         angle = (float)itemReader.GetDouble(5);
       }
       itemReader.Close();
@@ -286,23 +260,23 @@ namespace SysCAD.Interface
       if (stencil.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
       if (stencil.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
-      width = ScaleX * 30.0F * sx;
-      height = ScaleY * 30.0F * sy;
+      boundingRect.Width = ScaleX * 30.0F * sx;
+      boundingRect.Height = ScaleY * 30.0F * sy;
 
-      if (width < 0.0F)
+      if (boundingRect.Width < 0.0F)
       {
         mirrorX = true;
-        width = -width;
+        boundingRect.Width = -boundingRect.Width;
       }
 
-      if (height < 0.0F)
+      if (boundingRect.Height < 0.0F)
       {
         mirrorY = true;
-        height = -height;
+        boundingRect.Height = -boundingRect.Height;
       }
 
-      x = InsertX - width / 2.0F + dx;
-      y = -InsertY - height / 2.0F + dy;
+      boundingRect.X = InsertX - boundingRect.Width / 2.0F + dx;
+      boundingRect.Y = -InsertY - boundingRect.Height / 2.0F + dy;
       angle = Rotation;
 
     }

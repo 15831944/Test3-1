@@ -14,8 +14,6 @@ using System.Runtime.Serialization.Formatters.Soap;
 
 namespace StencilEditor
 {
-  public enum AnchorDirection {incoming, outgoing, bidirectional}
-
   public partial class Form1 : Form
   {
     LinkedList<Arrow> elementList;
@@ -475,7 +473,7 @@ namespace StencilEditor
 
     public void InsertAnchorPointOut(object sender, EventArgs e)
     {
-      Box newBox = flowChart1.CreateBox(20.0F, 20.0F, gridSize * 2.0F, gridSize * 2.0F);
+      Box newBox = flowChart1.CreateBox(mouseClickPos.X, mouseClickPos.Y, gridSize * 2.0F, gridSize * 2.0F);
       newBox.HandlesStyle = HandlesStyle.MoveOnly;
       newBox.Style = BoxStyle.Shape;
       newBox.Shape = ShapeTemplate.FromId("Or");
