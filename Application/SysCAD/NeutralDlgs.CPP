@@ -85,10 +85,11 @@ BOOL CNeutralExportDBDlg::OnInitDialog()
   {
   CDialog::OnInitDialog();
 
-  Strng s;
+  Strng S(PrjFiles());
+  S+="NeutralDB.MDB";
   CProfINIFile PF(PrjIniFile());
-  m_GrfDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "GrfDatabase", "\\NeutralDB.MDB"));
-  m_MdlDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "MdlDatabase", "\\NeutralDB.MDB"));
+  m_GrfDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "GrfDatabase", S()));
+  m_MdlDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "MdlDatabase", S()));
   m_SeparateDBs.SetCheck(PF.RdLong("NeutralImportExport", "SeparateDBs", 0));
   m_WithModels.SetCheck(PF.RdLong("NeutralImportExport", "ExportModels", 1));
   m_WithGraphics.SetCheck(PF.RdLong("NeutralImportExport", "ExportGraphics", 1));
@@ -254,10 +255,11 @@ BOOL CNeutralImportDBDlg::OnInitDialog()
   {
   CDialog::OnInitDialog();
 
-  Strng s;
+  Strng S(PrjFiles());
+  S+="NeutralDB.MDB";
   CProfINIFile PF(PrjIniFile());
-  m_GrfDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "GrfDatabase", "\\NeutralDB.MDB"));
-  m_MdlDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "MdlDatabase", "\\NeutralDB.MDB"));
+  m_GrfDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "GrfDatabase", S()));
+  m_MdlDatabase.SetWindowText(PF.RdStr("NeutralImportExport", "MdlDatabase", S()));
   m_SeparateDBs.SetCheck(PF.RdLong("NeutralImportExport", "SeparateDBs", 0));
   m_WithModels.SetCheck(PF.RdLong("NeutralImportExport", "ImportModels", 1));
   m_WithGraphics.SetCheck(PF.RdLong("NeutralImportExport", "ImportGraphics", 1));

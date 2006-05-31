@@ -1411,6 +1411,10 @@ TaggedObject::~TaggedObject()
   while (pAttachments)
     pAttachments->DetachMeFromOwner();
 
+  POSITION VPos=m_List2Validate.Find(this);
+  if (VPos)
+    m_List2Validate.RemoveAt(VPos);
+
   #if dbgTagObjAttach
   dbgpln("Destroy   %8x %s %s",this,m_pClass->ClassId(), sTag());
   #endif

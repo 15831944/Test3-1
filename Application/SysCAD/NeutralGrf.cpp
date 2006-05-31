@@ -1327,7 +1327,9 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
             GImport.SetGroup(m_pGI->m_sGroup);
             GImport.SetImportOrigin(m_pGI->m_Insert, m_pGI->m_Scale);
             GImport.SetImportTagFixups(m_pGI->m_iFixupRule, m_pGI->m_sFixupString1, m_pGI->m_sFixupString2, NULL, NULL);
-            if (!GImport.DoImportGroup(eScdNDBOptions(eNDB_Sequence|eNDB_Graphics), pGDoc, m_pGI->m_sLibrary))
+            Strng LibNm;
+            LibNm.FnExpand(m_pGI->m_sLibrary);
+            if (!GImport.DoImportGroup(eScdNDBOptions(eNDB_Sequence|eNDB_Graphics), pGDoc, LibNm()))
               {
               LogError("GraphicslNDB", 0, "Graphics Template not Imported %s(%s)", m_pGI->m_sLibrary, m_pGI->m_sGroup);
               };

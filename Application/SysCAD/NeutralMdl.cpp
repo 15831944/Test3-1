@@ -943,7 +943,9 @@ bool CNeutralMdlImportExport::ImportGroupInserts()
     MImport.SetGroup(m_pGI->m_sGroup);
     //GImport.SetImportOrigin(m_pGI->m_InsertX, m_pGI->m_InsertY, m_pGI->m_InsertZ);
     MImport.SetImportTagFixups(m_pGI->m_iFixupRule, m_pGI->m_sFixupString1, m_pGI->m_sFixupString2, NULL, NULL);
-    if (!MImport.DoImportGroup(eScdNDBOptions(eNDB_Sequence|eNDB_Models|eNDB_Configuration|eNDB_Parameters|eNDB_State), m_pGI->m_sLibrary))
+    Strng LibNm;
+    LibNm.FnExpand(m_pGI->m_sLibrary);
+    if (!MImport.DoImportGroup(eScdNDBOptions(eNDB_Sequence|eNDB_Models|eNDB_Configuration|eNDB_Parameters|eNDB_State), LibNm()))
       {
       LogError("ModelNDB", 0, "Model Template not Imported %s(%s)", m_pGI->m_sLibrary, m_pGI->m_sGroup);
       };
