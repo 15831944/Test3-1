@@ -6,6 +6,7 @@
 #include "solvextr.h"
 #include "sr_eqn.h"
 #include "sr_ctrl.h"
+//#include "optoff.h"
 
 //==========================================================================
 /*#D:#T:Solvent Extraction Mixer-Settler model. 
@@ -113,11 +114,11 @@ const int ioidOrgOut   = 3;
 const int ioidOverflow = 4;
 
 static IOAreaRec MixerSettlerIOAreaList[] =
-  {{"Aqueous_Inlet",   "AqIn"      , ioidAqIn,      LIO_In0 ,   nc_MLnk, 1, 20,  0, 0.0f },
-   {"Aqueous_Outlet",  "AqOut"     , ioidAqOut,     LIO_Out0,   nc_MLnk, 1, 1,  0, (float)0.75},
-   {"Organic_Inlet",   "OrgIn"     , ioidOrgIn,     LIO_In1,    nc_MLnk, 1, 20,  0, 0.0f },
-   {"Organic_Outlet",  "OrgOut"    , ioidOrgOut,    LIO_Out1,   nc_MLnk, 1, 1,  0, (float)0.75},
-   {"OverFlow",        "OverFlw"   , ioidOverflow,  LIO_Out,   nc_MLnk, 0, 10, 0, 1.0f },
+  {{"Aqueous_Inlet",   "AqIn"      , ioidAqIn,      LIO_In0 ,   nc_MLnk, 1, 20, IOOptsHide|IOGRP(1), 0.0f  },
+   {"Aqueous_Outlet",  "AqOut"     , ioidAqOut,     LIO_Out0,   nc_MLnk, 1,  1, IOOptsHide|IOGRP(1), 0.75f },
+   {"Organic_Inlet",   "OrgIn"     , ioidOrgIn,     LIO_In1,    nc_MLnk, 1, 20, IOOptsHide|IOGRP(1), 0.0f  },
+   {"Organic_Outlet",  "OrgOut"    , ioidOrgOut,    LIO_Out1,   nc_MLnk, 1,  1, IOOptsHide|IOGRP(1), 0.75f },
+   {"OverFlow",        "OverFlw"   , ioidOverflow,  LIO_Out,    nc_MLnk, 0, 10, IOOptsHide|IOGRP(1), 1.0f  },
    {NULL}};
 
 static double Drw_MixerSettler[] = { DD_Poly, -30, 7, -30, -5, 30, -5, 30, 5, -17, 5, -17, -5, -17, 6,
@@ -155,6 +156,8 @@ MixerSettler::MixerSettler(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   AttachIOAreas(MixerSettlerIOAreaList);
   Mixer.SetStateAction(IE_Integrate);
   Settler.SetStateAction(IE_Integrate);
+
+  SetAllowedSolveModes(SM_Direct|SM_Inline/*|SM_Buffered*/);//"Transfer", "Inline", "Buffered");
 
   MixOFLev    = 0.85;
   MxResT      = 1.0;
@@ -224,7 +227,7 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(SM_Buffered|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Pressure",        "P",      DC_P,    "kPag",   xidPMean,       this, 0);
   DDB.Double  ("Temperature",     "T",      DC_T,    "C",      xidTemp,        this, 0);
@@ -272,15 +275,15 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",              "MinOrgConc", DC_Conc, "g/L",  &MinOrgConc, this, isResult);
   DDB.Visibility(SHM_All, iMethod==SVM_Isotherms && !Extraction);
   DDB.Double  ("",              "MinAqsConc", DC_Conc, "g/L",  &MinAqsConc, this, isResult);
-  DDB.Visibility(SM_Direct|HM_All, iMethod==SVM_Isotherms);
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, iMethod==SVM_Isotherms);
 #ifndef _RELEASE
   DDB.Double  ("",              "IntersectPt1", DC_Conc, "g/L",  &IntersectPt1, this, isResult|InitHidden);
   DDB.Double  ("",              "IntersectPt2", DC_Conc, "g/L",  &IntersectPt2, this, isResult|InitHidden);
 #endif
   DDB.Double  ("",              "ReactExtent", DC_Frac, "%",     &dReactExt,  this, isResult);
-  DDB.Visibility(SM_Direct|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && Extraction));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && Extraction));
   DDB.Double  ("",              "MaxLoadedConc", DC_Conc, "g/L", &MaxLoadedConc, this, isResult);
-  DDB.Visibility(SM_Direct|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && !Extraction));
+  DDB.Visibility(SM_Direct|SM_Inline|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && !Extraction));
   DDB.Double  ("",              "MaxStripConc", DC_Conc, "g/L",  &MaxStripConc, this, isResult);
   DDB.Visibility();
 
@@ -324,7 +327,7 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
 	DDB.Text    ("");
   RB.Add_OnOff(DDB);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(SM_Buffered|HM_All);
 	DDB.Text    ("");
   DDB.Bool    ("LMS_On/Off", "", DC_,  "", &DoLMS,       this, isParm, DDBOnOff);
   DDB.Double  ("LMS_Beta",   "", DC_,  "", &LMS1.Beta,   this, isParm);
@@ -343,12 +346,15 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.Object(&SecIsotherm, this, NULL, NULL, DDB_RqdPage); //(pTaggedObject)
   DDB.Visibility();
 
-  DDB.Visibility(SM_DynBoth|HM_All);
-	DDB.Object(&Mixer,       this, NULL, NULL, DDB_RqdPage);
-  DDB.Object(&Settler,     this, NULL, NULL, DDB_RqdPage);
-  DDB.Object(&QMxOFlow,    this, NULL, NULL, DDB_RqdPage);
-  DDB.Visibility();
-  
+  if (SolveBufferedMethod())
+    {
+    DDB.Visibility(SM_Buffered|HM_All);
+	  DDB.Object(&Mixer,       this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&Settler,     this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&QMxOFlow,    this, NULL, NULL, DDB_RqdPage);
+    DDB.Visibility();
+    }
+
   DDB.EndStruct();
  
   };
@@ -389,10 +395,10 @@ flag MixerSettler::InitialiseSolution()
   switch (SolveMethod())
     {
     case SM_Direct:
+    case SM_Inline:
       Mixer.SetStateAction(IE_Disabled);
 	    Settler.SetStateAction(IE_Disabled);
       break;
-    case SM_Inline:
     case SM_Buffered:
       Mixer.SetStateAction(IE_Integrate);
 	    Settler.SetStateAction(IE_Integrate);
@@ -445,22 +451,21 @@ flag MixerSettler::Set_Sizes()
 void MixerSettler::ConfigureJoins()
   {
   int i;
-  switch (NetMethod())
+  if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-    case NM_Probal:
-      for (i=0; i<NoFlwIOs(); i++)
-        SetIO_Join(i, 0);
-      /*for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOrgIn); i++)
-        SetIO_Join(i, idAqIn);
-	    for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOverflow) && (IOId_Self(i)>idAqOut); i++)
-        SetIO_Join(i, idOrgIn);*/
-      break;
-    case NM_Dynamic:
-      for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idMx); i++)
-        SetIO_Open(i, 0, false, ESS_Allowed);
-      for (  ; i<NoFlwIOs(); i++)
-        SetIO_Join(i, 0);
-      break;
+    for (i=0; i<NoFlwIOs(); i++)
+      SetIO_Join(i, 0);
+    /*for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOrgIn); i++)
+      SetIO_Join(i, idAqIn);
+	  for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOverflow) && (IOId_Self(i)>idAqOut); i++)
+      SetIO_Join(i, idOrgIn);*/
+    }
+  else
+    {
+    for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idMx); i++)
+      SetIO_Open(i, 0, false, ESS_Allowed);
+    for (  ; i<NoFlwIOs(); i++)
+      SetIO_Join(i, 0);
     }
   };  
 
@@ -839,6 +844,7 @@ void MixerSettler::EvalProducts(long JoinMask)
   switch (SolveMethod())
     {
     case SM_Direct:
+    case SM_Inline:
       {
       ClrCI(1);
       SigmaQInPMin(Aq(), som_ALL, Id_2_Mask(ioidAqIn));
@@ -999,7 +1005,6 @@ void MixerSettler::EvalProducts(long JoinMask)
       //MN_Surge::EvalProducts(long JoinMask);
       break;
       }
-    case SM_Inline:
     case SM_Buffered:
       {
       SigmaQInPMin(QMxInEst, som_ALL, 0x5); /*0 & 2*/
