@@ -897,7 +897,7 @@ double SpShVolFixedP::Height()
   };
 double SpShVolFixedP::Level(double SLVolume)
   {
-  return m_dVapVolScl*SLVolume/ActualVolume();
+  return m_dVapVolScl*SLVolume/Max(0.001, ActualVolume());
   };
 double SpShVolFixedP::RLevel(double SLVolume)
   {
