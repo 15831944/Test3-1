@@ -5274,7 +5274,7 @@ flag FileExists(char * FileName)
 flag CnmVersion()
   {
 #if ALLOWCNMVERSION       
-  Strng CnmVersionFile(ProgFiles());
+  Strng CnmVersionFile(TemporaryFiles());
   CnmVersionFile+="CNMVERSION.TXT";
   return FileExists(CnmVersionFile());
 #else
