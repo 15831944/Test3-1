@@ -735,6 +735,8 @@ class DllImportExport CFlwBlkData
 
 // ===========================================================================
 
+const double SmallRegulation=1.0e-6;
+
 class DllImportExport CFlwEqnPtr //: public CFBPhysData
   {
   friend class CFlwEqn;

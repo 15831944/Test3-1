@@ -268,7 +268,7 @@ void PC_FixBst::BuildDataDefn(DataDefnBlk & DDB)
 flag PC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
-  if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
+  if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
     {
     FE.SetQmReqd(0.0);
     FE.SetDPb(0.0, 0.0);
@@ -412,7 +412,7 @@ flag PC_FixHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   Regulation=Range(0.0, Regulation, 2.0);
   double Rho=FE.MeanRho(pProps);
   
-  if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
+  if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
     {
     FE.SetQmReqd(0.0);
     FE.SetDPb(0.0, 0.0);
@@ -563,7 +563,7 @@ flag PC_SmplCrvBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CF
     { int xxx=0; }
 
   Regulation=Range(0.0, Regulation, 2.0);
-  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
+  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
     {
     FE.SetQmReqd(0.0);
     FE.SetDPb(0.0, 0.0);
@@ -741,7 +741,7 @@ flag PC_SmplCrvHead::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, C
   Rho=Max(m_dPrimeRho, Rho);
 
   Regulation=Range(0.0, Regulation, 2.0);
-  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
+  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
     {
     FE.SetQmReqd(0.0);
     FE.SetDPb(0.0, 0.0);
@@ -896,7 +896,7 @@ flag PC_SmplCrvHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFl
 //  double SG = (Rho > 500.0) ? Rho/1000.0 : 1.0; // hss - this is not a good test, try to change.
 //  double mtokPa = 9.80707 * SG;
 
-  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
+  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
     {
     FE.SetQmReqd(0.0);
     FE.SetDPb(0.0, 0.0);
@@ -2073,7 +2073,7 @@ flag PC_DataBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlw
   FE.ClrDerivsBad();
   m_Head=0.0;
 
-  if (!m_PDB.OK() || Regulation <1.0e-6)
+  if (!m_PDB.OK() || Regulation <SmallRegulation)
     return true;
 
 //  if (Regulation<0.01)

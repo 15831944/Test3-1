@@ -206,7 +206,7 @@ void VL_Basic::EvalCtrlActions(FlwNode* pFNode)
 
 double VL_Basic::ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  if (pFRB)
+  if (pFRB && pFRB->What()!=FBReg_Off)
     dPosition=pFRB->Ctrl();
   else
     dPosition=Range(0.0, dPosition, 1.0);
@@ -622,7 +622,7 @@ void VL_StrokeOC::EvalCtrlActions(FlwNode* pFNode)
 
 double VL_StrokeOC::ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  if (pFRB)
+  if (pFRB && pFRB->What()!=FBReg_Off)
     dMapPosn=pFRB->Ctrl();
   else
     dMapPosn=Range(0.0, dMapPosn, 1.0);

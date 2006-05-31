@@ -424,7 +424,7 @@ void PL_FwdRev::EvalCtrlActions(FlwNode* pFNode)
 
 double PL_FwdRev::Speed(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  if (pFRB)
+  if (pFRB && pFRB->What()!=FBReg_Off)
     m_dSpeedReg=m_dSpeed*pFRB->Ctrl();
   else
     m_dSpeedReg=m_dSpeed;
@@ -571,7 +571,7 @@ void PL_SoftStart::EvalCtrlActions(FlwNode* pFNode)
 
 double PL_SoftStart::Speed(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  if (pFRB)
+  if (pFRB && pFRB->What()!=FBReg_Off)
     m_dSpeedReg=m_dMapSpeed*pFRB->Ctrl();
   else
     m_dSpeedReg=m_dMapSpeed;
@@ -758,7 +758,7 @@ void PL_SoftStSp::EvalCtrlActions(FlwNode* pFNode)
 
 double PL_SoftStSp::Speed(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  if (pFRB)
+  if (pFRB && pFRB->What()!=FBReg_Off)
     m_dSpeedReg=m_dMapSpeed*pFRB->Ctrl();
   else
     m_dSpeedReg=m_dMapSpeed;

@@ -1565,7 +1565,7 @@ void CFlwBlkBase::ResetData(flag Complete)
 
 double CFlwBlkBase::RangeFlow(double Flow, double LoLimit)
   {
-  ASSERT(TstGTZ(LoLimit));
+  //ASSERT(TstGTZ(LoLimit));
   Flow=fabs(Flow);
   if (Flow>LoLimit)
     return Flow;
@@ -2089,6 +2089,9 @@ void CFlwBlkBase::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bo
       //if (IONo==0 && FE==0)
       //  {
   bool DoXfer=(FlowMode==FBMode_Xfer);
+  
+  if (Regulation<SmallRegulation)
+    On=false;
 
   FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
 
@@ -2285,7 +2288,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
         else
           m_SimpleRes=0;//1e-6;
 
-        if (Regulation<1.0e-6)
+        if (Regulation<SmallRegulation)
           {
           SetQmReqd(0);
           b=true;

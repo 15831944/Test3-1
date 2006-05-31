@@ -853,7 +853,7 @@ flag CC_DataBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlw
       FE.SetFunctOfPress();
       Head=0.0;
 
-      if (!PDB.OK() || Regulation <1.0e-6)
+      if (!PDB.OK() || Regulation <SmallRegulation)
         return True;
 
       double RegMin = PDB.m_RegMin;
