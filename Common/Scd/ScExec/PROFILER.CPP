@@ -199,8 +199,16 @@ double CSimpleProfiler::CalcArea(CTimeValue T1, CTimeValue T2, byte Column)
           }
         i++;
         }
-      DeltaX = T2 - Max(T1, Data[i-1][0]);
-      Area += (DeltaX.Seconds * Data[i-1][Column]);
+      if (i==0)
+        {
+        DeltaX = T2 - T1;
+        Area += (DeltaX * Data[i][Column]);
+        }
+      else
+        {
+        DeltaX = T2 - Max(T1, Data[i-1][0]);
+        Area += (DeltaX * Data[i-1][Column]);
+        }
       }
     return Area;
     }
@@ -266,6 +274,8 @@ double CSimpleProfiler::GetVal(CTimeValue Time, byte Column/*=1*/)
       {
       if (!Info.bWrapArround)
         return Data[Info.iLen-1][Column];
+      if (FullTime==0.0)
+        return Data[Info.iLen-1][Column]; //last entry is at time zero, return this value
       while (RelTime>FullTime)
         {
         Info.dStartTime += FullTime;
