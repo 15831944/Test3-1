@@ -6676,23 +6676,39 @@ void GCInsMngr::DoConstructVarCnv(pGCVar pVar)
   char Tkn[MaxTknMemSize];
   Tkn[MaxTknSize] = 0;
   strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
+  XStrTrim(Tkn, " ");
   CCnvIndex CnvIndex = gs_CnvsMngr.FindCnv(Tkn);
   if ((CnvIndex)<0)
     Err(ErrBuild, 146);
+  CDataCnv* pCnv = NULL;
   strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
-  if (Tkn[0] != ',')
-    Err(ErrBuild, 106);
-  strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
-  CDataCnv* pCnv = Cnvs[CnvIndex]->Find(Tkn);
-  if (pCnv==NULL)
+  if (Tkn[0] == ')')
     {
-    char ErrBuff[256];
-    sprintf(ErrBuff, "Conversion family : '%s'", Cnvs[CnvIndex]->Fam());
-    Err(ErrBuild, 147, ErrBuff);
+    pCnv = Cnvs[CnvIndex]->SICnv();
     }
-  strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
-  if (Tkn[0] != ')')
-    Err(ErrBuild, 107);
+  else
+    {
+    if (Tkn[0] != ',')
+      Err(ErrBuild, 106);
+    strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
+    XStrTrim(Tkn, " ");
+    pCnv = Tkn[0] ? Cnvs[CnvIndex]->Find(Tkn) : Cnvs[CnvIndex]->SICnv();
+    if (pCnv==NULL)
+      {
+      char ErrBuff[256];
+      sprintf(ErrBuff, "Conversion family : '%s'", Cnvs[CnvIndex]->Fam());
+      Err(ErrBuild, 147, ErrBuff);
+      }
+    strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
+    if (Tkn[0] != ')')
+      Err(ErrBuild, 107);
+    }
+  if (pCnv==Cnvs[DC_Frac]->SICnv())
+    {//Kludge: Special case because of cnv SI cnv "" for fraction.
+    pCnv = Cnvs[DC_Frac]->Find("Frac");
+    if (pCnv==NULL)
+      Cnvs[DC_Frac]->SICnv();
+    }
   pVar->AddCnvInfo(CnvIndex, pCnv->Txt());
   }
 
