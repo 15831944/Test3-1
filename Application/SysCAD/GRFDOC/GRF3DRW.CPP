@@ -317,32 +317,30 @@ void Pt_SLW::GetZ(const Pt_SLW &Pt)
 
 Pt_SLW Pt_SLW::operator+=(Pt_SLW &Pt)
   {
-  Pt_SLW A; 
-  A.Screen.X  = Screen.X  + Pt.Screen.X;
-  A.Screen.Y  = Screen.Y  + Pt.Screen.Y;
-  A.Logical.X = Logical.X + Pt.Logical.X;
-  A.Logical.Y = Logical.Y + Pt.Logical.Y;
-  A.Logical.Z = Logical.Z + Pt.Logical.Z;
-  A.World.X   = World.X   + Pt.World.X;
-  A.World.Y   = World.Y   + Pt.World.Y;
-  A.World.Z   = World.Z   + Pt.World.Z;
-  return A;
+  Screen.X  = Screen.X  + Pt.Screen.X;
+  Screen.Y  = Screen.Y  + Pt.Screen.Y;
+  Logical.X = Logical.X + Pt.Logical.X;
+  Logical.Y = Logical.Y + Pt.Logical.Y;
+  Logical.Z = Logical.Z + Pt.Logical.Z;
+  World.X   = World.X   + Pt.World.X;
+  World.Y   = World.Y   + Pt.World.Y;
+  World.Z   = World.Z   + Pt.World.Z;
+  return *this;
   }
 
 //---------------------------------------------------------------------------
 
 Pt_SLW Pt_SLW::operator-=(Pt_SLW &Pt)
   {
-  Pt_SLW A; 
-  A.Screen.X  = Screen.X  - Pt.Screen.X;
-  A.Screen.Y  = Screen.Y  - Pt.Screen.Y;
-  A.Logical.X = Logical.X - Pt.Logical.X;
-  A.Logical.Y = Logical.Y - Pt.Logical.Y;
-  A.Logical.Z = Logical.Z - Pt.Logical.Z;
-  A.World.X   = World.X   - Pt.World.X;
-  A.World.Y   = World.Y   - Pt.World.Y;
-  A.World.Z   = World.Z   - Pt.World.Z;
-  return A;
+  Screen.X  = Screen.X  - Pt.Screen.X;
+  Screen.Y  = Screen.Y  - Pt.Screen.Y;
+  Logical.X = Logical.X - Pt.Logical.X;
+  Logical.Y = Logical.Y - Pt.Logical.Y;
+  Logical.Z = Logical.Z - Pt.Logical.Z;
+  World.X   = World.X   - Pt.World.X;
+  World.Y   = World.Y   - Pt.World.Y;
+  World.Z   = World.Z   - Pt.World.Z;
+  return *this;
   }
 
 //============================================================================
@@ -3162,7 +3160,7 @@ long LayerCollection::TranslateEntitiesInWin(pViewport vp,PT3 S1, PT3 S2, PT3 E1
 //KGA: 30/10/96 New code for moving selected entities...
 long LayerCollection::TranslateEntitiesInList(pViewport vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
   {
-  bool doDbg=0; 
+  bool doDbg=01; 
   if (doDbg)
     dbgpln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
