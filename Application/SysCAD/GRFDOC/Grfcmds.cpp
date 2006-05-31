@@ -338,7 +338,8 @@ GrfComCmdBlk(64 + ExtraCmds, 64 + ExtraCIS),
 
   InsNo = 1;
 
-  Scl.Set(1.0, 1.0, 1.0);
+  NdScl.Set(1.0, 1.0, 1.0);
+  GrpScl.Set(1.0, 1.0, 1.0);
   Rotate = (float)0.0;
   //Length = 10.0;
   //Diameter = 0.1;
@@ -1903,9 +1904,9 @@ void GrfCmdBlk::DoInsert()
         {
         case MID_Tag     : ATag = gs_pCmd->LastToken(); break;
         case MID_BaseTag : TagBase = gs_pCmd->LastToken(); break;
-        case MID_Scale   : gs_pCmd->dParm(Scl[gs_pCmd->ParmNumber()]); break;
-        case MID_XScale  : gs_pCmd->dParm(Scl.X); break;
-        case MID_YScale  : gs_pCmd->dParm(Scl.Y); break;
+        case MID_Scale   : gs_pCmd->dParm(NdScl[gs_pCmd->ParmNumber()]); break;
+        case MID_XScale  : gs_pCmd->dParm(NdScl.X); break;
+        case MID_YScale  : gs_pCmd->dParm(NdScl.Y); break;
         case MID_Rotate  : gs_pCmd->fParm(Rotate); break;
         case MID_XY      : gs_pCmd->dParm(Pt1.World[gs_pCmd->ParmNumber()]); break;
         case MID_X       : gs_pCmd->dParm(Pt1.World.X); gs_pCmd->SetDigInfo(GC_BigCurs, 1); break;
@@ -1942,8 +1943,8 @@ void GrfCmdBlk::DoInsert()
 
             ASymbol = pMdlDlg->m_SymbolName();
             TagBase = pMdlDlg->m_BaseTag;
-            Scl.X = pMdlDlg->Scl_X();
-            Scl.Y = pMdlDlg->Scl_Y();
+            NdScl.X = pMdlDlg->Scl_X();
+            NdScl.Y = pMdlDlg->Scl_Y();
             Rotate = (float)pMdlDlg->Rotation();
             HideTag = pMdlDlg->m_HideTag;
             HideEqpId = True;//pMdlDlg->m_HideEqpId;
@@ -1955,11 +1956,11 @@ void GrfCmdBlk::DoInsert()
           CB->ASymbol = ASymbol;
           CB->ATagBase = TagBase;
           CB->Pt = Pt1;
-          CB->Scl = Scl;
+          CB->NdScl = NdScl;
           //CB->Scl.X = Max(0.001, CB->Scl.X);
           //CB->Scl.Y = Max(0.001, CB->Scl.Y);
           //CB->Scl.Z = Max(0.001, CB->Scl.Z);
-          CB->Scl.Z = CB->Scl.X; //make Z scale same as X
+          CB->NdScl.Z = CB->NdScl.X; //make Z scale same as X
           CB->Rotate = Range(-360.0F, Rotate, 360.0F);
           CB->MdlInsertErr = -1;
 
@@ -2011,7 +2012,7 @@ void GrfCmdBlk::DoInsert()
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
 
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->Scl, (float)CB->Rotate, True, Tag_Attr_Set);
+            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
             if (CB->e)
               {
               pDsp->Draw(CB->e, -1);
@@ -2206,8 +2207,8 @@ void GrfCmdBlk::DoChangeUnit()
 
             ASymbol = pMdlDlg->m_SymbolName();
             TagBase = pMdlDlg->m_BaseTag;
-            Scl.X = pMdlDlg->Scl_X();
-            Scl.Y = pMdlDlg->Scl_Y();
+            NdScl.X = pMdlDlg->Scl_X();
+            NdScl.Y = pMdlDlg->Scl_Y();
             Rotate = (float)pMdlDlg->Rotation();
             HideTag = pMdlDlg->m_HideTag;
             HideEqpId = True;//pMdlDlg->m_HideEqpId;
@@ -2219,7 +2220,7 @@ void GrfCmdBlk::DoChangeUnit()
             CB->ATagBase = pMdlDlg->m_BaseTag;
 
             CB->Pt = Pt1;
-            CB->Scl = Scl;
+            CB->Scl = NdScl;
             CB->Scl.Z = CB->Scl.X; //make Z scale same as X
             CB->Rotate = Range(-360.0F, Rotate, 360.0F);
 
@@ -3164,7 +3165,7 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
 
   Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
 
-  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->Scl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
+  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
     pDsp->Draw(CB->e, -1);
 
@@ -3357,7 +3358,7 @@ bool GrfCmdBlk::DoInsertGroup(CInsertBlk* CB)
   if (CB->m_sGroupName.GetLength()>0)
     {
     CNeutralImportExport NImport;
-    NImport.SetImportOrigin(CDblTriPt(CB->Pt.World.X, CB->Pt.World.Y, CB->Pt.World.Z), CDblTriPt(CB->Scl.X, CB->Scl.Y, CB->Scl.Z));
+    NImport.SetImportOrigin(CDblTriPt(CB->Pt.World.X, CB->Pt.World.Y, CB->Pt.World.Z), CDblTriPt(CB->GrpScl.X, CB->GrpScl.Y, CB->GrpScl.Z));
     NImport.SetImportFilter(CB->m_sGroupName());
     NImport.SetImportTagFixups(CB->m_iFixupRule, CB->m_sString1(), CB->m_sString2(), CB->m_pOldTags, CB->m_pNewTags);
     OK=NImport.DoImportGroup(CB->m_NDBOptions, dynamic_cast<CGrfDoc*>(pDoc), CB->m_sGroupLibrary(), CB->m_sGroupLibrary());
@@ -7773,9 +7774,9 @@ void GrfCmdBlk::DoInsertGroup()
         {
         //case MID_Tag     : ATag = gs_pCmd->LastToken(); break;
         //case MID_BaseTag : TagBase = gs_pCmd->LastToken(); break;
-        case MID_Scale   : gs_pCmd->dParm(Scl[gs_pCmd->ParmNumber()]); break;
-        case MID_XScale  : gs_pCmd->dParm(Scl.X); break;
-        case MID_YScale  : gs_pCmd->dParm(Scl.Y); break;
+        case MID_Scale   : gs_pCmd->dParm(NdScl[gs_pCmd->ParmNumber()]); break;
+        case MID_XScale  : gs_pCmd->dParm(NdScl.X); break;
+        case MID_YScale  : gs_pCmd->dParm(NdScl.Y); break;
         case MID_Rotate  : gs_pCmd->fParm(Rotate); break;
         case MID_XY      : gs_pCmd->dParm(Pt1.World[gs_pCmd->ParmNumber()]); break;
         case MID_X       : gs_pCmd->dParm(Pt1.World.X); gs_pCmd->SetDigInfo(GC_BigCurs, 1); break;
@@ -7825,11 +7826,11 @@ void GrfCmdBlk::DoInsertGroup()
           CB->ASymbol = ASymbol;
           CB->ATagBase = TagBase;
           CB->Pt = Pt1;
-          CB->Scl = Scl;
+          CB->GrpScl = GrpScl;
           //CB->Scl.X = Max(0.001, CB->Scl.X);
           //CB->Scl.Y = Max(0.001, CB->Scl.Y);
           //CB->Scl.Z = Max(0.001, CB->Scl.Z);
-          CB->Scl.Z = CB->Scl.X; //make Z scale same as X
+          CB->GrpScl.Z = CB->GrpScl.X; //make Z scale same as X
           CB->Rotate = Range(-360.0F, Rotate, 360.0F);
           CB->MdlInsertErr = -1;
 
@@ -7839,7 +7840,7 @@ void GrfCmdBlk::DoInsertGroup()
 
             //CDocTemplate & GT = ScdApp()->GraphTemplate();
             CNeutralImportExport NImport;
-            NImport.SetImportOrigin(CDblTriPt(CB->Pt.World.X, CB->Pt.World.Y, CB->Pt.World.Z), CDblTriPt(CB->Scl.X, CB->Scl.Y, CB->Scl.Z));
+            NImport.SetImportOrigin(CDblTriPt(CB->Pt.World.X, CB->Pt.World.Y, CB->Pt.World.Z), CDblTriPt(CB->GrpScl.X, CB->GrpScl.Y, CB->GrpScl.Z));
             NImport.SetImportFilter(CB->m_sGroupName());
             NImport.SetImportTagFixups(eFixup_ExchangeTags, "", "", CB->m_pOldTags, CB->m_pNewTags);
             NImport.DoImportGroup(eNDB_StdImport, dynamic_cast<CGrfDoc*>(pDoc), CB->m_sGroupLibrary(), CB->m_sGroupLibrary());
@@ -11217,9 +11218,9 @@ void GrfCmdBlk::Do3DImport()
           CB.Pt.World.X=X;
           CB.Pt.World.Y=Y;
           CB.Pt.World.Z=0.0;
-          CB.Scl.X=1.0;
-          CB.Scl.Y=1.0;
-          CB.Scl.Z=1.0;
+          CB.NdScl.X=1.0;
+          CB.NdScl.Y=1.0;
+          CB.NdScl.Z=1.0;
           CB.Rotate=0.0;
           CB.ATagBase="x";//MInfo.DefTag();
           //if (Symbol && strchr(Symbol, '.'))

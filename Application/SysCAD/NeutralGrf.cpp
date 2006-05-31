@@ -1370,9 +1370,9 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
           CB.Pt.World.X=m_pUn->m_Insert.m_X;
           CB.Pt.World.Y=m_pUn->m_Insert.m_Y;
           CB.Pt.World.Z=m_pUn->m_Insert.m_Z;
-          CB.Scl.X=m_pUn->m_Scale.m_X;
-          CB.Scl.Y=m_pUn->m_Scale.m_Y;
-          CB.Scl.Z=m_pUn->m_Scale.m_Z;
+          CB.NdScl.X=m_pUn->m_Scale.m_X;
+          CB.NdScl.Y=m_pUn->m_Scale.m_Y;
+          CB.NdScl.Z=m_pUn->m_Scale.m_Z;
           CB.Rotate=m_pUn->m_Rotation;
 
           // Unit Symbols
@@ -1613,9 +1613,9 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             CB.Pt.World.X=m_pIn->m_Insert.m_X*m_Scale.m_X+m_Move.m_X;
             CB.Pt.World.Y=m_pIn->m_Insert.m_Y*m_Scale.m_Y+m_Move.m_Y;
             CB.Pt.World.Z=m_pIn->m_Insert.m_Z*m_Scale.m_Z+m_Move.m_Z;
-            CB.Scl.X=m_pIn->m_Scale.m_X*m_Scale.m_X;
-            CB.Scl.Y=m_pIn->m_Scale.m_Y*m_Scale.m_Y;
-            CB.Scl.Z=m_pIn->m_Scale.m_Z*m_Scale.m_Z;
+            CB.GrpScl.X=m_pIn->m_Scale.m_X*m_Scale.m_X;
+            CB.GrpScl.Y=m_pIn->m_Scale.m_Y*m_Scale.m_Y;
+            CB.GrpScl.Z=m_pIn->m_Scale.m_Z*m_Scale.m_Z;
             CB.Rotate=m_pIn->m_Rotation;
             //CB.ATagBase=MInfo.DefTag();
 
@@ -1679,9 +1679,9 @@ bool CNeutralGrfImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc * pDoc,
             CB.Pt.World.X=m_pUn->m_Insert.m_X*m_Scale.m_X+m_Move.m_X;
             CB.Pt.World.Y=m_pUn->m_Insert.m_Y*m_Scale.m_Y+m_Move.m_Y;
             CB.Pt.World.Z=m_pUn->m_Insert.m_Z*m_Scale.m_Z+m_Move.m_Z;
-            CB.Scl.X=m_pUn->m_Scale.m_X*m_Scale.m_X;
-            CB.Scl.Y=m_pUn->m_Scale.m_Y*m_Scale.m_Y;
-            CB.Scl.Z=m_pUn->m_Scale.m_Z*m_Scale.m_Z;
+            CB.NdScl.X=m_pUn->m_Scale.m_X*m_Scale.m_X;
+            CB.NdScl.Y=m_pUn->m_Scale.m_Y*m_Scale.m_Y;
+            CB.NdScl.Z=m_pUn->m_Scale.m_Z*m_Scale.m_Z;
             CB.Rotate=m_pUn->m_Rotation;
 
             // Unit Symbols

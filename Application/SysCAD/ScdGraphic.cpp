@@ -134,9 +134,9 @@ STDMETHODIMP CScdGraphic::AddUnit(BSTR bsTag, double X, double Y, double Z, BSTR
       CB.Pt.World.X=X;
       CB.Pt.World.Y=Y;
       CB.Pt.World.Z=Z;
-      CB.Scl.X=XScale;
-      CB.Scl.Y=YScale;
-      CB.Scl.Z=YScale;
+      CB.NdScl.X=XScale;
+      CB.NdScl.Y=YScale;
+      CB.NdScl.Z=YScale;
       CB.Rotate=(float)Rotation;
       CB.ATagBase=MInfo.DefTag();
       if (Symbol && strchr(Symbol, ':'))
@@ -343,9 +343,9 @@ STDMETHODIMP CScdGraphic::InsertGroup(BSTR bsLibrary, BSTR bsGroup, DOUBLE X, DO
       CB.Pt.World.X=X;
       CB.Pt.World.Y=Y;
       CB.Pt.World.Z=Z;
-      CB.Scl.X=XScale;
-      CB.Scl.Y=YScale;
-      CB.Scl.Z=YScale;
+      CB.GrpScl.X=XScale;
+      CB.GrpScl.Y=YScale;
+      CB.GrpScl.Z=YScale;
 
       _bstr_t String1, String2;
       DataErr=FAILED(TagFixups->get_Rule((eScdTagFixupRules*)&CB.m_iFixupRule));

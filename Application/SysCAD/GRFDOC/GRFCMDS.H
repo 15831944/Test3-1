@@ -142,7 +142,8 @@ class CInsertBlk
   {
   public :
     CInsertBlk() : \
-      Scl(1,1,1),
+      NdScl(1,1,1),
+      GrpScl(1,1,1),
       Rotate(0),
       e(0),
       MdlInsertErr(0)
@@ -161,7 +162,8 @@ class CInsertBlk
     Strng         ATag, AClass, ASymbol, ATagBase;
     Strng         m_sGroupLibrary, m_sGroupName;
     Pt_SLW        Pt;
-    Pt_3f         Scl;
+    Pt_3f         NdScl;
+    Pt_3f         GrpScl;
     double        Rotate;
     DXF_ENTITY    e;
     int           MdlInsertErr;
@@ -271,7 +273,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     Strng               Mods;
     Pt_SLW              Pt1, Pt2, Pt3, Pt4, DPt, RefPt;
     CEntInView        * pEnt1;
-    Pt_3f               Scl,Delta,Pos;
+    Pt_3f               NdScl,GrpScl,Delta,Pos;
     float               Rotate;
     long                InsNo;
     int                 iDispOpts;
