@@ -18,19 +18,17 @@ namespace StencilEditor
   {
     LinkedList<Arrow> elementList;
     LinkedList<Arrow> decorationList;
-    LinkedList<Arrow> textAreaList;
+    Box textArea;
 
     Dictionary<Box, Anchor> anchorPointList;
 
-    PointF tagPosition;
     SizeF defaultSize;
 
     float gridSize = 2.0F;
 
     Arrow axisX, axisY;
     Box canvas1, canvas2;
-    Box tagPositionBox;
-    Box example1, example2, example3;
+    Box example1, examplet;//, example2, example3;
 
     Color savedFrameColor;
 
@@ -51,16 +49,14 @@ namespace StencilEditor
 
       elementList = new LinkedList<Arrow>();
       decorationList = new LinkedList<Arrow>();
-      textAreaList = new LinkedList<Arrow>();
       anchorPointList = new Dictionary<Box, Anchor>();
-      tagPosition = new PointF(50.0F, 50.0F);
       defaultSize = new SizeF(10.0F, 10.0F);
 
       flowChart1.ClearAll();
       flowChart2.ClearAll();
 
-      flowChart1.DocExtents = new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F);
-      flowChart2.DocExtents = new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F);
+      flowChart1.DocExtents = new RectangleF(-75.0F, -75.0F, 250.0F, 250.0F);
+      flowChart2.DocExtents = new RectangleF(-200.0F, -200.0F, 400.0F, 400.0F);
 
       axisX = flowChart1.CreateArrow(new PointF(50.0F + (gridSize / 2.0F), -1000000.0F), new PointF(50.0F + (gridSize / 2.0F), 1000000.0F));
       axisX.CustomDraw = CustomDraw.ShadowOnly;
@@ -90,38 +86,42 @@ namespace StencilEditor
       canvas2.Shape = ShapeTemplate.FromId("Rectangle");
       canvas2.Locked = true;
 
-      tagPositionBox = flowChart1.CreateBox(tagPosition.X - (gridSize*1.5F), tagPosition.Y - (gridSize*1.5F), gridSize * 3.0F, gridSize * 3.0F);
-      tagPositionBox.HandlesStyle = HandlesStyle.MoveOnly;
-      tagPositionBox.Style = BoxStyle.Shape;
-      tagPositionBox.Shape = ShapeTemplate.FromId("Or");
-      tagPositionBox.CustomDraw = CustomDraw.ShadowOnly;
+      textArea = flowChart1.CreateBox(-50, 110, 200, 25);
+      textArea.CustomDraw = CustomDraw.ShadowOnly;
+      textArea.FillColor = Color.FromArgb(30, Color.White);
+      textArea.FrameColor = Color.FromArgb(50, Color.White);
+      textArea.Style = BoxStyle.Shape;
+      textArea.Shape = ShapeTemplate.FromId("Rectangle");
 
-      textAreaList.Clear();
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F)));
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F)));
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F), new PointF(tagPosition.X - 200.0F, tagPosition.Y + 0.0F)));
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y + 0.0F), new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F)));
-
-      example1 = flowChart2.CreateBox(0.0F, 0.0F, 100.0F, 100.0F);
+      example1 = flowChart2.CreateBox(-50.0F, -50.0F, 100.0F, 100.0F);
       example1.CustomDraw = CustomDraw.ShadowOnly;
       example1.Style = BoxStyle.Shape;
-      example1.Text = "SAMPLETAG";
       example1.TextFormat.FormatFlags = StringFormatFlags.NoWrap;
       example1.Locked = true;
 
-      example2 = flowChart2.CreateBox(110.0F, 5.0F, 50.0F, 50.0F);
-      example2.CustomDraw = CustomDraw.ShadowOnly;
-      example2.Style = BoxStyle.Shape;
-      example2.Text = "SAMPLETAG";
-      example2.TextFormat.FormatFlags = StringFormatFlags.NoWrap;
-      example2.Locked = true;
+      examplet = flowChart2.CreateBox(-50.0F, 60.0F, 100.0F, 100.0F);
+      examplet.CustomDraw = CustomDraw.ShadowOnly;
+      examplet.Style = BoxStyle.Shape;
+      examplet.Shape = ShapeTemplate.FromId("Rectangle");
+      examplet.Text = "SampleTag";
+      examplet.FillColor = Color.FromArgb(30, Color.White);
+      examplet.FrameColor = Color.FromArgb(50, Color.White);
+      examplet.TextFormat.FormatFlags = StringFormatFlags.NoWrap;
+      examplet.Locked = true;
 
-      example3 = flowChart2.CreateBox(110.0F, 70.0F, 25.0F, 25.0F);
-      example3.CustomDraw = CustomDraw.ShadowOnly;
-      example3.Style = BoxStyle.Shape;
-      example3.Text = "SAMPLETAG";
-      example3.TextFormat.FormatFlags = StringFormatFlags.NoWrap;
-      example3.Locked = true;
+      //example2 = flowChart2.CreateBox(110.0F, 5.0F, 50.0F, 50.0F);
+      //example2.CustomDraw = CustomDraw.ShadowOnly;
+      //example2.Style = BoxStyle.Shape;
+      //example2.Text = "SAMPLETAG";
+      //example2.TextFormat.FormatFlags = StringFormatFlags.NoWrap;
+      //example2.Locked = true;
+
+      //example3 = flowChart2.CreateBox(110.0F, 70.0F, 25.0F, 25.0F);
+      //example3.CustomDraw = CustomDraw.ShadowOnly;
+      //example3.Style = BoxStyle.Shape;
+      //example3.Text = "SAMPLETAG";
+      //example3.TextFormat.FormatFlags = StringFormatFlags.NoWrap;
+      //example3.Locked = true;
 
       savedFrameColor = example1.FrameColor;
 
@@ -133,6 +133,7 @@ namespace StencilEditor
       flowChart1.GridStyle = MindFusion.FlowChartX.GridStyle.Lines;
       flowChart1.ShowGrid = true;
 
+      SetShape();
       ZoomFlowCharts();
     }
 
@@ -155,6 +156,7 @@ namespace StencilEditor
       elementList.AddLast(flowChart1.CreateArrow(bl, tl));
 
       SetShape();
+      ZoomFlowCharts();
     }
 
     Node origin;
@@ -163,13 +165,15 @@ namespace StencilEditor
 
     private void flowChart1_ArrowModified(object sender, ArrowMouseArgs e)
     {
+      mousePoint = new PointF((float)(Math.Round((e.X + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)),
+                              (float)(Math.Round((e.Y + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)));
+
+      toolStripStatusLabel1.Text = "X: " + ((int)mousePoint.X - (gridSize / 2.0F)).ToString() + "  Y: " + ((int)mousePoint.Y - (gridSize / 2.0F)).ToString();
+
       if (elementList.Find(e.Arrow) != null)
       {
         if ((e.SelectionHandle == 0) || (e.SelectionHandle == e.Arrow.ControlPoints.Count - 1))
         {
-          mousePoint = new PointF((float)(Math.Round((e.X + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)),
-                                  (float)(Math.Round((e.Y + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)));
-
           PointCollection points = e.Arrow.ControlPoints.Clone();
 
           if (e.SelectionHandle == 0)
@@ -204,13 +208,15 @@ namespace StencilEditor
 
     private void flowChart1_ArrowModifying(object sender, ArrowMouseArgs e)
     {
-      if (elementList.Find(e.Arrow)!=null)
+      mousePoint = new PointF((float)(Math.Round((e.X + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)),
+                              (float)(Math.Round((e.Y + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)));
+
+      toolStripStatusLabel1.Text = "X: " + ((int)mousePoint.X - (gridSize / 2.0F)).ToString() + "  Y: " + ((int)mousePoint.Y - (gridSize / 2.0F)).ToString();
+
+      if (elementList.Find(e.Arrow) != null)
       {
         if ((e.SelectionHandle == 0) || (e.SelectionHandle == e.Arrow.ControlPoints.Count - 1))
         {
-          mousePoint = new PointF((float)(Math.Round((e.X + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)),
-                                  (float)(Math.Round((e.Y + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)));
-
           origin = e.Arrow.Origin;
           destination = e.Arrow.Destination;
 
@@ -288,52 +294,44 @@ namespace StencilEditor
         decoration = decoration.Next;
       }
 
-      ElementTemplate[] textAreas = new ElementTemplate[textAreaList.Count];
-      LinkedListNode<Arrow> textArea = textAreaList.First;
-      for (int i = 0; i < textAreaList.Count; i++)
-      {
-        Arrow arrow = textArea.Value;
-        if (arrow.Style == ArrowStyle.Polyline)
-        {
-          textAreas[i] = new LineTemplate(arrow.ControlPoints[0].X - (gridSize / 2.0F), arrow.ControlPoints[0].Y - 2.5F,
-                                            arrow.ControlPoints[1].X - (gridSize / 2.0F), arrow.ControlPoints[1].Y - 2.5F);
-        }
-        if (arrow.Style == ArrowStyle.Bezier)
-        {
-          textAreas[i] = new BezierTemplate(arrow.ControlPoints[0].X - (gridSize / 2.0F), arrow.ControlPoints[0].Y - (gridSize / 2.0F),
-                                              arrow.ControlPoints[1].X - (gridSize / 2.0F), arrow.ControlPoints[1].Y - (gridSize / 2.0F),
-                                              arrow.ControlPoints[2].X - (gridSize / 2.0F), arrow.ControlPoints[2].Y - (gridSize / 2.0F),
-                                              arrow.ControlPoints[3].X - (gridSize / 2.0F), arrow.ControlPoints[3].Y - (gridSize / 2.0F));
-        }
-        textArea = textArea.Next;
-      }
+      RectangleF e1bb = RectangleF.FromLTRB(
+        -50.0F * defaultSize.Width / 10.0F,
+        -50.0F * defaultSize.Height / 10.0F,
+        50.0F * defaultSize.Width / 10.0F,
+        50.0F * defaultSize.Height / 10.0F);
+
+      example1.BoundingRect = e1bb;
+
+      examplet.AttachTo(example1, (int)textArea.BoundingRect.Left, (int)textArea.BoundingRect.Top, (int)textArea.BoundingRect.Right, (int)textArea.BoundingRect.Bottom);
+
+//      examplet.BoundingRect = textArea.BoundingRect;
 
       if (modelStencilButton.Checked)
       {
         example1.FrameColor = example1.FillColor;
-        example1.Text = "";
-        example2.FrameColor = example2.FillColor;
-        example2.Text = "";
-        example3.FrameColor = example3.FillColor;
-        example3.Text = "";
-        tagPositionBox.Visible = false;
+        examplet.Visible = false;
+        textArea.Visible = false;
+        //example2.FrameColor = example2.FillColor;
+        //example2.Text = "";
+        //example3.FrameColor = example3.FillColor;
+        //example3.Text = "";
       }
       else if (graphicStencilButton.Checked)
       {
         example1.FrameColor = savedFrameColor;
-        example1.Text = "SAMPLETAG";
-        example2.FrameColor = savedFrameColor;
-        example2.Text = "SAMPLETAG";
-        example3.FrameColor = savedFrameColor;
-        example3.Text = "SAMPLETAG";
-        tagPositionBox.Visible = true;
+        //example2.FrameColor = savedFrameColor;
+        //example2.Text = "SAMPLETAG";
+        //example3.FrameColor = savedFrameColor;
+        //example3.Text = "SAMPLETAG";
+        examplet.Visible = true;
+        textArea.Visible = true;
       }
 
-      ShapeTemplate shape = new ShapeTemplate(elements, decorations, textAreas, FillMode.Winding);
+      ShapeTemplate shape = new ShapeTemplate(elements, decorations, null, FillMode.Winding);
 
       example1.Shape = shape;
-      example2.Shape = shape;
-      example3.Shape = shape;
+      //example2.Shape = shape;
+      //example3.Shape = shape;
 
       foreach (Box box in anchorPointList.Keys)
       {
@@ -622,17 +620,24 @@ namespace StencilEditor
       e.Confirm = false;
     }
 
+
+    private void flowChart1_BoxModifying(object sender, BoxMouseArgs e)
+    {
+      mousePoint = new PointF((float)(Math.Round((e.X + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)),
+                              (float)(Math.Round((e.Y + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)));
+
+      toolStripStatusLabel1.Text = "X: " + ((int)mousePoint.X - (gridSize / 2.0F)).ToString() + "  Y: " + ((int)mousePoint.Y - (gridSize / 2.0F)).ToString();
+
+      SetShape();
+    }
+
     private void flowChart1_BoxModified(object sender, BoxMouseArgs e)
     {
-      tagPosition.X = (tagPositionBox.BoundingRect.Left + tagPositionBox.BoundingRect.Right) / 2.0F;
-      tagPosition.Y = (tagPositionBox.BoundingRect.Top + tagPositionBox.BoundingRect.Bottom) / 2.0F;
-      
-      textAreaList.Clear();
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F)));
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F)));
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F), new PointF(tagPosition.X - 200.0F, tagPosition.Y + 0.0F)));
-      textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y + 0.0F), new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F)));
-      
+      mousePoint = new PointF((float)(Math.Round((e.X + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)),
+                              (float)(Math.Round((e.Y + (gridSize / 2.0F)) / gridSize) * gridSize - (gridSize / 2.0F)));
+
+      toolStripStatusLabel1.Text = "X: " + ((int)mousePoint.X - (gridSize / 2.0F)).ToString() + "  Y: " + ((int)mousePoint.Y - (gridSize / 2.0F)).ToString();
+
       SetShape();
     }
 
@@ -655,7 +660,6 @@ namespace StencilEditor
       {
         elementList.Clear();
         decorationList.Clear();
-        textAreaList.Clear();
         anchorPointList.Clear();
 
         reset();
@@ -822,6 +826,14 @@ namespace StencilEditor
           Box destination = new Box(flowChart1);
           Arrow firstArrow = new Arrow(flowChart1);
 
+          defaultSize = stencil.defaultSize;
+          textArea.BoundingRect = RectangleF.FromLTRB(
+            (stencil.textAreas[0] as Line).x1,
+            (stencil.textAreas[0] as Line).y1,
+            (stencil.textAreas[2] as Line).x1,
+            (stencil.textAreas[2] as Line).y1);
+
+
           foreach (Element element in stencil.elements)
           {
             flowChart1.ArrowColor = Color.Red;
@@ -962,16 +974,6 @@ namespace StencilEditor
           }
           x /= count;
           y /= count;
-
-          tagPosition.X = x;
-          tagPosition.Y = y;
-          tagPositionBox.BoundingRect = new RectangleF(tagPosition.X - (gridSize*1.5F), tagPosition.Y - (gridSize*1.5F), gridSize * 3.0F, gridSize * 3.0F);
-
-          textAreaList.Clear();
-          textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F)));
-          textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y - 0.0F), new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F)));
-          textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X + 200.0F, tagPosition.Y + 0.0F), new PointF(tagPosition.X - 200.0F, tagPosition.Y + 0.0F)));
-          textAreaList.AddLast(new Arrow(flowChart1, new PointF(tagPosition.X - 200.0F, tagPosition.Y + 0.0F), new PointF(tagPosition.X - 200.0F, tagPosition.Y - 0.0F)));
         }
       }
       SetShape();
@@ -1101,23 +1103,22 @@ namespace StencilEditor
                                                  arrow.ControlPoints.GetAt(3).Y));
           }
 
-          foreach (Arrow arrow in textAreaList)
-          {
-            if (arrow.Style == ArrowStyle.Polyline)
-              stencil.textAreas.Add(new Line(arrow.ControlPoints.GetAt(0).X,
-                                               arrow.ControlPoints.GetAt(0).Y,
-                                               arrow.ControlPoints.GetAt(1).X,
-                                               arrow.ControlPoints.GetAt(1).Y));
-            else if (arrow.Style == ArrowStyle.Bezier)
-              stencil.textAreas.Add(new Bezier(arrow.ControlPoints.GetAt(0).X,
-                                                 arrow.ControlPoints.GetAt(0).Y,
-                                                 arrow.ControlPoints.GetAt(1).X,
-                                                 arrow.ControlPoints.GetAt(1).Y,
-                                                 arrow.ControlPoints.GetAt(2).X,
-                                                 arrow.ControlPoints.GetAt(2).Y,
-                                                 arrow.ControlPoints.GetAt(3).X,
-                                                 arrow.ControlPoints.GetAt(3).Y));
-          }
+          stencil.textAreas.Add(new Line(
+            textArea.BoundingRect.X, textArea.BoundingRect.Y,
+            textArea.BoundingRect.X + textArea.BoundingRect.Width, textArea.BoundingRect.Y));
+
+          stencil.textAreas.Add(new Line(
+            textArea.BoundingRect.X + textArea.BoundingRect.Width, textArea.BoundingRect.Y,
+            textArea.BoundingRect.X + textArea.BoundingRect.Width, textArea.BoundingRect.Y + textArea.BoundingRect.Height));
+          
+          stencil.textAreas.Add(new Line(
+            textArea.BoundingRect.X + textArea.BoundingRect.Width, textArea.BoundingRect.Y + textArea.BoundingRect.Height,
+            textArea.BoundingRect.X, textArea.BoundingRect.Y + textArea.BoundingRect.Height));
+          
+          stencil.textAreas.Add(new Line(
+            textArea.BoundingRect.X, textArea.BoundingRect.Y + textArea.BoundingRect.Height,
+            textArea.BoundingRect.X, textArea.BoundingRect.Y));
+
 
           stencil.groupName = groupNameComboBox.Text;
           stencil.defaultSize = defaultSize;
@@ -1136,7 +1137,7 @@ namespace StencilEditor
     {
       try
       {
-        Double.Parse(DefaultSizeXTextBox.Text);
+        defaultSize.Width = (float)Double.Parse(DefaultSizeXTextBox.Text);
         DefaultSizeXTextBox.BackColor = originalBackColor;
         DefaultSizeXTextBox.ToolTipText = "";
       }
@@ -1146,6 +1147,24 @@ namespace StencilEditor
         DefaultSizeXTextBox.BackColor = Color.Yellow;
         DefaultSizeXTextBox.ToolTipText = "Please enter numeric value.";
       }
+      SetShape();
+    }
+
+    private void DefaultSizeYTextBox_Validating(object sender, CancelEventArgs e)
+    {
+      try
+      {
+        defaultSize.Height = (float)Double.Parse(DefaultSizeYTextBox.Text);
+        DefaultSizeYTextBox.BackColor = originalBackColor;
+        DefaultSizeYTextBox.ToolTipText = "";
+      }
+      catch (Exception)
+      {
+        e.Cancel = true;
+        DefaultSizeYTextBox.BackColor = Color.Yellow;
+        DefaultSizeYTextBox.ToolTipText = "Please enter numeric value.";
+      }
+      SetShape();
     }
 
     private void Form1_Resize(object sender, EventArgs e)
@@ -1155,8 +1174,8 @@ namespace StencilEditor
 
     private void ZoomFlowCharts()
     {
-      flowChart1.ZoomToRect(new RectangleF(-25.0F, -25.0F, 150.0F, 150.0F));
-      flowChart2.ZoomToRect(new RectangleF(-25.0F, -25.0F, 200.0F, 150.0F));
+      flowChart1.ZoomToRect(new RectangleF(-75.0F, -75.0F, 250.0F, 250.0F));
+      flowChart2.ZoomToRect(new RectangleF(-200.0F, -200.0F, 400.0F, 400.0F));
     }
 
     private void graphicStencilButton_Click(object sender, EventArgs e)

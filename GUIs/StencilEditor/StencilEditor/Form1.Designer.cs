@@ -31,6 +31,7 @@ namespace StencilEditor
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
       this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
       this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+      this.statusStrip1 = new System.Windows.Forms.StatusStrip();
       this.flowChart1 = new MindFusion.FlowChartX.FlowChart();
       this.flowChart2 = new MindFusion.FlowChartX.FlowChart();
       this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -67,12 +68,14 @@ namespace StencilEditor
       this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
       this.toolStripTextBox3 = new System.Windows.Forms.ToolStripTextBox();
       this.ruler1 = new MindFusion.FlowChartX.Ruler();
+      this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
       this.toolStripContainer1.ContentPanel.SuspendLayout();
       this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
       this.toolStripContainer1.SuspendLayout();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
       this.splitContainer1.SuspendLayout();
+      this.statusStrip1.SuspendLayout();
       this.toolStrip1.SuspendLayout();
       this.toolStrip3.SuspendLayout();
       this.toolStrip2.SuspendLayout();
@@ -114,6 +117,7 @@ namespace StencilEditor
       // 
       // splitContainer1.Panel1
       // 
+      this.splitContainer1.Panel1.Controls.Add(this.statusStrip1);
       this.splitContainer1.Panel1.Controls.Add(this.flowChart1);
       // 
       // splitContainer1.Panel2
@@ -124,6 +128,16 @@ namespace StencilEditor
       this.splitContainer1.TabIndex = 0;
       this.splitContainer1.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.splitContainer1_SplitterMoving);
       this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
+      // 
+      // statusStrip1
+      // 
+      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+      this.statusStrip1.Location = new System.Drawing.Point(0, 406);
+      this.statusStrip1.Name = "statusStrip1";
+      this.statusStrip1.Size = new System.Drawing.Size(624, 22);
+      this.statusStrip1.TabIndex = 2;
+      this.statusStrip1.Text = "statusStrip1";
       // 
       // flowChart1
       // 
@@ -146,6 +160,7 @@ namespace StencilEditor
       this.flowChart1.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.flowChart1_ArrowModified);
       this.flowChart1.SelectionChanged += new MindFusion.FlowChartX.SelectionEvent(this.flowChart1_SelectionChanged);
       this.flowChart1.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.flowChart1_BoxModified);
+      this.flowChart1.BoxModifying += new MindFusion.FlowChartX.BoxMouseEvent(this.flowChart1_BoxModifying);
       this.flowChart1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.flowChart1_MouseClick);
       this.flowChart1.ArrowDeleting += new MindFusion.FlowChartX.ArrowConfirmation(this.flowChart1_ArrowDeleting);
       this.flowChart1.ArrowModifying += new MindFusion.FlowChartX.ArrowMouseEvent(this.flowChart1_ArrowModifying);
@@ -351,6 +366,7 @@ namespace StencilEditor
       // 
       this.DefaultSizeYTextBox.Name = "DefaultSizeYTextBox";
       this.DefaultSizeYTextBox.Size = new System.Drawing.Size(100, 25);
+      this.DefaultSizeYTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.DefaultSizeYTextBox_Validating);
       // 
       // toolStrip2
       // 
@@ -469,6 +485,11 @@ namespace StencilEditor
       this.ruler1.TabIndex = 0;
       this.ruler1.Text = "ruler1";
       // 
+      // toolStripStatusLabel1
+      // 
+      this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+      this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -486,8 +507,11 @@ namespace StencilEditor
       this.toolStripContainer1.ResumeLayout(false);
       this.toolStripContainer1.PerformLayout();
       this.splitContainer1.Panel1.ResumeLayout(false);
+      this.splitContainer1.Panel1.PerformLayout();
       this.splitContainer1.Panel2.ResumeLayout(false);
       this.splitContainer1.ResumeLayout(false);
+      this.statusStrip1.ResumeLayout(false);
+      this.statusStrip1.PerformLayout();
       this.toolStrip1.ResumeLayout(false);
       this.toolStrip1.PerformLayout();
       this.toolStrip3.ResumeLayout(false);
@@ -540,6 +564,8 @@ namespace StencilEditor
     private System.Windows.Forms.ToolStripTextBox toolStripTextBox3;
     private System.Windows.Forms.ToolStripLabel toolStripLabel6;
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+    private System.Windows.Forms.StatusStrip statusStrip1;
+    private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
 
 
 
