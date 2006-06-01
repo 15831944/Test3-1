@@ -1052,7 +1052,6 @@ Global
 		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Debug - Full.ActiveCfg = Debug|.NET
 		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Release.ActiveCfg = Release|.NET
 		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Release - Full.ActiveCfg = Release|.NET
-		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Release - Full.Build.0 = Release|.NET
 		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Release_Dbg.ActiveCfg = Release|.NET
 		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Release_Dbg Full.ActiveCfg = Release|.NET
 		{E9C7910A-6751-47AB-A29D-427080E6C3B6}.Release_Dbg Marshal.ActiveCfg = Release|.NET

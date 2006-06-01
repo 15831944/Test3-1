@@ -29,7 +29,7 @@ rem pause
 @echo on
 set foldr=SMDK
 md %foldr%
-set fn=xfr\%foldr%\SMDK
+set fn=xfr\%foldr%\SMDK_116
 
 :continue 
 

@@ -28,7 +28,7 @@ echo .
 @echo on
 set foldr=ScdBins
 md %foldr%
-set fn=%foldr%\ScdBins
+set fn=%foldr%\Bins116
 
 :continue 
 rem ========== SysCAD Standard Files ==========
