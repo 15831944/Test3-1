@@ -175,6 +175,7 @@ double CSimpleProfiler::CalcArea(CTimeValue T1, CTimeValue T2, byte Column)
     int i = 0;
     while (T1>Data[i][0])
       i++;
+
     if (Info.bLinear || (Column==0))
       {
       //TODO GetAveVal for linear profile Not implemented yet!
@@ -184,30 +185,42 @@ double CSimpleProfiler::CalcArea(CTimeValue T1, CTimeValue T2, byte Column)
       {
       if (i>0 && T2>Data[i][0])
         {
-        DeltaX = CTimeValue(Data[i][0]) - T1;
-        Area += (DeltaX.Seconds * Data[i-1][Column]);
+        if (Valid(Data[i-1][Column]))
+          {
+          DeltaX = CTimeValue(Data[i][0]) - T1;
+          Area += (DeltaX.Seconds * Data[i-1][Column]);
+          }
         }
       flag First = 1;
       while (T2>Data[i][0])
         {
         if (First)
           First = 0;
-        else
+        else 
           {
-          DeltaX = CTimeValue(Data[i][0]) - Data[i-1][0];
-          Area += (DeltaX.Seconds * Data[i-1][Column]);
+          if (Valid(Data[i-1][Column]))
+            {
+            DeltaX = CTimeValue(Data[i][0]) - Data[i-1][0];
+            Area += (DeltaX.Seconds * Data[i-1][Column]);
+            }
           }
         i++;
         }
       if (i==0)
         {
-        DeltaX = T2 - T1;
-        Area += (DeltaX * Data[i][Column]);
+        if (Valid(Data[i][Column]))
+          {
+          DeltaX = T2 - T1;
+          Area += (DeltaX * Data[i][Column]);
+          }
         }
-      else
+      else 
         {
-        DeltaX = T2 - Max(T1, Data[i-1][0]);
-        Area += (DeltaX * Data[i-1][Column]);
+        if (Valid(Data[i-1][Column]))
+          {
+          DeltaX = T2 - Max(T1, Data[i-1][0]);
+          Area += (DeltaX * Data[i-1][Column]);
+          }
         }
       }
     return Area;
