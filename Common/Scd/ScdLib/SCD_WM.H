@@ -86,6 +86,7 @@
 #define WMU_GRFTAGGROUPS         (WM_USER + 574)
 #define WMU_NODEAUDIT            (WM_USER + 575)
 #define WMU_EDITRCTDLG           (WM_USER + 576)
+#define WMU_EXCEPTION            (WM_USER + 577)
 
 //WPARAM sub-messages used by WMU_TAGACTION...
 #define SUB_TAGACTION_ACCESS          1

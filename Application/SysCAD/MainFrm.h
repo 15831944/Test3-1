@@ -325,6 +325,8 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg LRESULT OnNodeAudit(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEditRctDlg(WPARAM wParam, LPARAM lParam);
 
+    afx_msg LRESULT OnException(WPARAM wParam, LPARAM lParam);
+
     DECLARE_MESSAGE_MAP()
 
     void GoToIdleMode();

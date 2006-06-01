@@ -243,11 +243,11 @@ void CBlockEvaluator::SortBlocks()
       i++;
     };
 
-  if (1)
+  if (0)
     {
-    dbgpln("===============");
+    dbgpln("SortBlks ===============");
     for (i=0 ; i<m_nSequence; i++)
-      dbgpln("Seq: %5i %5i", m_Sequence[i], BlkSeqNo(m_Sequence[i]));
+      dbgpln("  Seq: %5i %5i", m_Sequence[i], BlkSeqNo(m_Sequence[i]));
     }
 
   m_sBlkSeq="";

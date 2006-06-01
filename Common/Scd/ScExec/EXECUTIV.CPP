@@ -477,10 +477,11 @@ UINT EO_ExecThread(LPVOID pEO_)
 
     pEO->EO_ThreadTerminate();
 
+
+
   SCDCATCH1(pEO->Name());
 #ifndef _RELEASE
-  DoBreak();
-    int xxx=0;
+  __debugbreak();
 #endif
   SCDCATCH2(pEO->Name());
 

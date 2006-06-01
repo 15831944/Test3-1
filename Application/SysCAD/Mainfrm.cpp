@@ -275,6 +275,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_MESSAGE(WMU_EDITRCTDLG, OnEditRctDlg)
 
   //ON_MESSAGE(WMU_EXECACTION, OnExecAction)
+  ON_MESSAGE(WMU_EXCEPTION, OnException)
 
   // Global help commands
   ON_COMMAND(ID_HELP_FINDER, CMDIFrameWnd::OnHelpFinder)
@@ -4101,4 +4102,15 @@ void CMainFrame::OnUpdateImportDB(CCmdUI* pCmdUI)
 #endif
   }
 
-//---------------------------------------------------------------------------
+//===========================================================================
+
+LRESULT CMainFrame::OnException(WPARAM wParam, LPARAM lParam)
+  {
+  Strng *pS=(Strng*)wParam;
+  bool  *pDone=(bool*)lParam;
+  AfxMessageBox((*pS)(), MB_OK);
+  *pDone=true;
+  return 0;
+  }
+
+//===========================================================================
