@@ -46,8 +46,8 @@ class DllImportExport CBlockEvaluator
     void              SetBlkSeqNo(byte SeqID, byte No);
     void              SortBlocks();
 
-    void              EvalProducts(CFlwThermalBlk & FTB, SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    void              EvalProductsPipe(CFlwThermalBlk & FTB, SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    void              EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
+    void              EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
 
   protected:
     int               m_nBlocks;

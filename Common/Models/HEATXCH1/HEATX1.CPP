@@ -1237,7 +1237,7 @@ double DutyFinder1::Function(double Frac)
     }
 
   #ifndef _RELEASE
-  bool OldTET=SpModel::SetDoTestEstTP(0);
+  int OldTET=SpModel::SetDoTestEstTP(0);
   #endif
   ColdSd.m_pCd->Set_totHf(ColdSd.Hi+ColdSd.Sgn*Blk.m_dDuty+ColdSd.dHEnv+HotSd.dHEnv);
   ColdSd.To=ColdSd.m_pCd->Temp();

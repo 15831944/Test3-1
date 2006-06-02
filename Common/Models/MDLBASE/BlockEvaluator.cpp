@@ -98,15 +98,15 @@ void CBlockEvaluator::Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages
 
     Strng S;
     if (m_pRB)
-      m_pRB->Add_OnOff(DDB);
+      m_pRB->Add_OnOff(DDB, isParmStopped|SetOnChange);
     if (m_pHX)
-      m_pHX->Add_OnOff(DDB);
+      m_pHX->Add_OnOff(DDB, isParmStopped|SetOnChange);
     if (m_pEHX)
-      m_pEHX->Add_OnOff(DDB);
+      m_pEHX->Add_OnOff(DDB, isParmStopped|SetOnChange);
     if (m_pVLE)
-      m_pVLE->Add_OnOff(DDB);
+      m_pVLE->Add_OnOff(DDB, isParmStopped|SetOnChange);
     if (m_pEvap)
-      m_pEvap->Add_OnOff(DDB);
+      m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
     }
 
   DDB.Text("");
@@ -132,6 +132,16 @@ void CBlockEvaluator::BuildDataDefn(TaggedObject * pThis, DataDefnBlk &DDB, DDBP
 
 flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
   {
+  if (m_pRB && /*m_pRB->Enabled() &&*/ m_pRB->DataXchg(DCB))
+    return 1;
+  if (m_pHX && /*m_pHX->Enabled() &&*/ m_pHX->DataXchg(DCB))
+    return 1;
+  if (m_pEHX && /*m_pEHX->Enabled() &&*/ m_pEHX->DataXchg(DCB))
+    return 1;
+  if (m_pVLE && /*m_pVLE->Enabled() &&*/ m_pVLE->DataXchg(DCB))
+    return 1;
+  if (m_pEvap && /*m_pEvap->Enabled() &&*/ m_pEvap->DataXchg(DCB))
+    return 1;
 
   return 0;
   };
@@ -305,16 +315,18 @@ void CBlockEvaluator::SortBlocks()
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::EvalProducts(CFlwThermalBlk & FTB, SpConduit & Fo, double Po, double FinalTEst)
+void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
   for (int i=0; i<m_nSequence; i++)
     {
     switch (m_Sequence[i])
       {
       case BES_RB:    
-        FTB.AddRBBegin();
+        if (pFTB)
+          pFTB->AddRBBegin();
         m_pRB->EvalProducts(Fo);
-        FTB.AddRBEnd();
+        if (pFTB)
+          pFTB->AddRBEnd();
         break;
 
       case BES_HX:    
@@ -325,20 +337,27 @@ void CBlockEvaluator::EvalProducts(CFlwThermalBlk & FTB, SpConduit & Fo, double 
         break;
 
       case BES_EHX:  
-        FTB.AddEHXBegin();
+        if (pFTB)
+          pFTB->AddEHXBegin();
         m_pEHX->EvalProducts(Fo);
-        FTB.AddEHXEnd();
+        if (pFTB)
+          pFTB->AddEHXEnd();
         break;
 
       case BES_VLE:   
-        FTB.AddVLEBegin();
+        if (pFTB)
+          pFTB->AddVLEBegin();
         m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
-        FTB.AddVLEEnd();
+        if (pFTB)
+          pFTB->AddVLEEnd();
         break;
 
       case BES_Evap:  
-        _asm int 3;
+        if (pFTB)
+          pFTB->AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 
+        if (pFTB) 
+          pFTB->AddEvapEnd();
         break;
       }
     //      }
@@ -347,16 +366,18 @@ void CBlockEvaluator::EvalProducts(CFlwThermalBlk & FTB, SpConduit & Fo, double 
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::EvalProductsPipe(CFlwThermalBlk & FTB, SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst)
+void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
   for (int i=0; i<m_nSequence; i++)
     {
     switch (m_Sequence[i])
       {
       case BES_RB:    
-        FTB.AddRBBegin();
+        if (pFTB)
+          pFTB->AddRBBegin();
         m_pRB->EvalProducts(Fo);
-        FTB.AddRBEnd();
+        if (pFTB)
+          pFTB->AddRBEnd();
         break;
 
       case BES_HX:    
@@ -367,21 +388,27 @@ void CBlockEvaluator::EvalProductsPipe(CFlwThermalBlk & FTB, SpConduit & Fo, dou
         break;
 
       case BES_EHX:  
-        FTB.AddEHXBegin();
+        if (pFTB)
+          pFTB->AddEHXBegin();
         m_pEHX->EvalProductsPipe(Fo, Len, Diam);
-        FTB.AddEHXEnd();
+        if (pFTB)
+          pFTB->AddEHXEnd();
         break;
 
       case BES_VLE:   
-        FTB.AddVLEBegin();
+        if (pFTB)
+          pFTB->AddVLEBegin();
         m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
-        FTB.AddVLEEnd();
+        if (pFTB)
+          pFTB->AddVLEEnd();
         break;
 
       case BES_Evap:  
-        FTB.AddEvapBegin();
+        if (pFTB)
+          pFTB->AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 
-        FTB.AddEvapEnd();
+        if (pFTB)
+          pFTB->AddEvapEnd();
         break;
       }
     //}

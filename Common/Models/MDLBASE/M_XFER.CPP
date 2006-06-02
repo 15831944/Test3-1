@@ -22,7 +22,11 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_RB(this, false),
   m_PBPCtrl0(PBPC_MinFd, Std_P, true),
   m_FTM(this),
-  m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakIn)
+  m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakIn),
+  m_Evap(this)
+#if (WITHBLOCKEVALUATOR)
+  , m_BlkEval(&m_RB, NULL, &EHX, NULL/*&m_VLE*/, &m_Evap)
+#endif
   {
   AttachClassInfo(nc_MXfer,NULL);
   Joins.SetSize(1);
@@ -45,8 +49,13 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
   {
   if (DCB.dwUserInfo==100 && m_Leak.DataXchg(DCB))
     return 1;
+#if (WITHBLOCKEVALUATOR)    
+  if (m_BlkEval.DataXchg(DCB))
+    return 1;
+#endif
   if (m_RB.DataXchg(DCB))
     return 1;
+
   switch(DCB.lHandle)
     {
     case xidNetworkIsolator:
@@ -105,6 +114,11 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
   
   if (!MdlNode::ValidateData(VDB))
     OK=false;
+
+#if (WITHBLOCKEVALUATOR)    
+  if (!m_BlkEval.ValidateData(VDB))
+    OK=false;
+#endif
 
   return OK;
   };
@@ -412,13 +426,21 @@ void MN_Xfer::EvalProducts(long JoinMask)
       {
       case SM_Direct:
         if (NJoins()>0)
+#if (WITHBLOCKEVALUATOR)
+          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0, &m_BlkEval);
+#else
           Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0);
+#endif
         break;
       case SM_Inline:
       case SM_Buffered:
         {
         for (int j=0; j<NJoins(); j++)
-            Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
+#if (WITHBLOCKEVALUATOR)
+          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
+#else
+          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
+#endif
         }
         break;
       }                

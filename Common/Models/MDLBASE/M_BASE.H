@@ -37,6 +37,7 @@
   #include "sp_queue.h"
 #endif
 #include "sp_react.h"
+#include "blockevaluator.h"
 
 #ifdef __M_BASE_CPP
   #define DllImportExport DllExport
@@ -208,9 +209,17 @@ class DllImportExport MdlNode : public FlwNode
 
     // Performs the basic EvalProducts for Ties
     void           Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CPBPressCtrl *pPC);
+#if (WITHBLOCKEVALUATOR)
+    void           Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
+#else
     void           Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX);
+#endif
     void           Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CPBPressCtrl *pPC);
+#if (WITHBLOCKEVALUATOR)
+    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CPBPressCtrl *pPC = NULL, CBlockEvaluator *pBlkEval = NULL);
+#else
     virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CPBPressCtrl *pPC = NULL);
+#endif
     virtual void   Xfer_EvalProducts(Xfer_EvalProducts_Info & S1, Xfer_EvalProducts_Info & S2, CHXBase * pHX);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);

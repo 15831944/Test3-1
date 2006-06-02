@@ -78,7 +78,7 @@ class DllImportExport MN_BstRes : public MdlNode
     virtual dword  ModelStatus();
 
   public:
-    CFlwEqnPtr      m_FEP;
+    CFlwEqnPtr     m_FEP;
     CFlwThermalBlk m_FTB;
     flag           bOnLine;
     flag           bIsentropic; //ProBal

@@ -1006,7 +1006,7 @@ flag Pipe::DataXchg(DataChangeBlk & DCB)
   if (m_BlkEval.DataXchg(DCB))
     return 1;
 #endif
-	if (m_RB.DataXchg(DCB))
+  if (m_RB.DataXchg(DCB))
     return 1;
 
   return 0;

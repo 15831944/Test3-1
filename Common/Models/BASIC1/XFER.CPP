@@ -97,9 +97,18 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     }
   if (!m_NetworkIsolator)
     {
-    DDB.Text("");
-    m_RB.Add_OnOff(DDB);
-    EHX.Add_OnOff(DDB);
+#if (WITHBLOCKEVALUATOR)
+    m_BlkEval.Add_OnOff(this, DDB);  
+    if (PrjFileVerNo()<97 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
+#else
+    if (1)
+#endif
+      {                      
+      DDB.Text("");
+      m_RB.Add_OnOff(DDB);
+      EHX.Add_OnOff(DDB);
+      }
+
     DDB.Visibility(SM_Buffered|HM_All);
     m_Leak.Add_OnOff(DDB,0,100);
     DDB.Visibility();
@@ -122,8 +131,13 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     }
   else //if (1)//SolveDirectMethod())
     {
+    DDB.Text("");
+#if (WITHBLOCKEVALUATOR)
+    m_BlkEval.BuildDataDefn(this, DDB);
+#else
     m_RB.BuildDataDefn(DDB);
     EHX.BuildDataDefn(DDB);
+#endif
     GSM.BuildDataDefn(DDB);
     m_QFeed(); // ensure exists
     if (m_QFeed.Exists())
@@ -151,6 +165,11 @@ flag X_Tie::DataXchg(DataChangeBlk & DCB)
 //  for (int i=0; i<NoFlwIOs(); i++)
 //    if (DCB.dwUserInfo==i+1 && IOFB(i,0)->DataXchg(DCB))
 //      return 1;
+
+#if (WITHBLOCKEVALUATOR)
+  if (m_BlkEval.DataXchg(DCB))
+    return 1;
+#endif
 
   if (MN_Xfer::DataXchg(DCB))
     return 1;

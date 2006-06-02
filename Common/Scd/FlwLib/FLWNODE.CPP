@@ -7485,7 +7485,7 @@ LPCTSTR FlwNode::GetQmEstType2IO()
   if (NoFlwIOs()>0)
     { 
     FlwBlk & FB=*IOFB(0,0);
-    if (FB.m_pGFb==NULL)      return "NULL";
+    if (FB.m_pGFb==NULL)              return "";
     if (FB.m_pGFb->m_fFixedExternal)  return "Set Remote";
     if (FB.m_pGFb->m_fFixedXfer)      return "Transfer";           
     if (FB.m_pGFb->m_fUnDefined)      return "No Set(Zero)";

@@ -3079,7 +3079,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
 
 #if WITHBLOCKEVALUATOR
       double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
-      m_BlkEval.EvalProductsPipe(m_FTB, Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut)); 
+      m_BlkEval.EvalProductsPipe(Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
 #else
       if (m_iBlockSeq==BS_EHX_RB_VLE && EHX.Enabled())
         {
