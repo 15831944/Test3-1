@@ -41,14 +41,14 @@ namespace SysCAD.Interface
 
 
 
-    public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
-      return serviceGraphic.ModifyItem(out requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return serviceGraphic.ModifyItem(out requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    public bool CreateItem(out uint requestID, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public bool CreateItem(out uint requestID, out Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
-      return serviceGraphic.CreateItem(out requestID, out guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return serviceGraphic.CreateItem(out requestID, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public bool DeleteItem(out uint requestID, Guid guid)
@@ -119,14 +119,14 @@ namespace SysCAD.Interface
 
 
 
-    public void serviceGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void serviceGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (!graphicItems.ContainsKey(guid))
       {
         GraphicItem graphicItem = new GraphicItem(guid, tag);
         graphicItem.Path = path;
         graphicItem.Model = model;
-        graphicItem.Shape = shape;
+        graphicItem.Stencil = stencil;
         graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.FillColor = fillColor;
@@ -135,11 +135,11 @@ namespace SysCAD.Interface
 
         graphicItems.Add(guid, graphicItem);
 
-        OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemModified(eventID, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 
-    public void serviceGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void serviceGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       GraphicItem graphicItem;
       if (graphicItems.TryGetValue(guid, out graphicItem))
@@ -147,14 +147,14 @@ namespace SysCAD.Interface
         graphicItem.Tag = tag;
         graphicItem.Path = path;
         graphicItem.Model = model;
-        graphicItem.Shape = shape;
+        graphicItem.Stencil = stencil;
         graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.FillColor = fillColor;
         graphicItem.MirrorX = mirrorX;
         graphicItem.MirrorY = mirrorY;
 
-        OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemModified(eventID, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 

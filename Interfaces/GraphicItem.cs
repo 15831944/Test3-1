@@ -8,33 +8,6 @@ using System.Collections.Generic;
 
 namespace SysCAD.Interface
 {
-  public class GlobalShapes
-  {
-    public static List<string> list = new List<string>();
-  }
-
-  public class ShapeConverter : StringConverter
-  {
-    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-    {
-      //true means show a combobox
-      return true;
-    }
-
-    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-    {
-      //true will limit to list. false will show the list, 
-      //but allow free-form entry
-      return true;
-    }
-
-    public override System.ComponentModel.TypeConverter.StandardValuesCollection
-           GetStandardValues(ITypeDescriptorContext context)
-    {
-      return new StandardValuesCollection(GlobalShapes.list.ToArray());
-    }
-  }
-
   [Serializable]
   public class GraphicItem
   {
@@ -42,9 +15,9 @@ namespace SysCAD.Interface
     private String tag;
     private String path;
 
-    private String model;
+    private Model model;
 
-    private String stencil;
+    private Stencil stencil;
     private RectangleF boundingRect;
     private float angle;
     private bool mirrorX = false;
@@ -64,7 +37,7 @@ namespace SysCAD.Interface
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Area path of the item."),
      ReadOnlyAttribute(true),
-    DisplayName("Area Path")]
+    DisplayName("Path")]
     public String Path
     {
       get { return path; }
@@ -113,9 +86,9 @@ namespace SysCAD.Interface
 
     [CategoryAttribute("Graphic"),
     DescriptionAttribute("Bounding rectangle of the item."),
-    ReadOnlyAttribute(true),
+    //ReadOnlyAttribute(true),
    DisplayName("Bounding Rect")]
-    public RectangleF BoundingRect
+    public ARectangleF BoundingRect
     {
       get { return boundingRect; }
       set { boundingRect = value; }
@@ -132,9 +105,9 @@ namespace SysCAD.Interface
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Stencil name to be used for displaying the item."),
      Browsable(true),
-     TypeConverter(typeof(ShapeConverter)),
+     TypeConverter(typeof(StencilConverter)),
      DisplayName("Stencil")]
-    public string Shape
+    public Stencil Stencil
     {
       get { return stencil; }
       set { stencil = value; }
@@ -144,7 +117,7 @@ namespace SysCAD.Interface
      DescriptionAttribute("Model type of the item."),
      ReadOnlyAttribute(true),
      DisplayName("Model")]
-    public string Model
+    public Model Model
     {
       get { return model; }
       set { model = value; }

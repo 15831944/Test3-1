@@ -255,7 +255,7 @@ namespace SysCAD.Editor
       graphicBox.Style = BoxStyle.Shape;
       {
         GraphicStencil stencil;
-        if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+        if (config.graphicStencils.TryGetValue(graphicItem.Stencil, out stencil))
           graphicBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
         else
           graphicBox.Shape = ShapeTemplate.FromId("Decision2");
@@ -489,7 +489,7 @@ namespace SysCAD.Editor
         if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
         {
           GraphicStencil stencil;
-          if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          if (config.graphicStencils.TryGetValue(graphicItem.Stencil, out stencil))
           {
             item.Graphic.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
           }

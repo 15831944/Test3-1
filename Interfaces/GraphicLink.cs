@@ -129,8 +129,8 @@ namespace SysCAD.Interface
       float distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
       if ((sourceItem != null) && (controlPoints.Count > 0))
       {
-        distanceSource0 = distance(controlPoints[0], sourceItem.BoundingRect);
-        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], sourceItem.BoundingRect);
+        distanceSource0 = distance(controlPoints[0], (RectangleF)sourceItem.BoundingRect);
+        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)sourceItem.BoundingRect);
       }
       else // make so that it won't ever reverse.
       {
@@ -140,8 +140,8 @@ namespace SysCAD.Interface
 
       if ((destinationItem != null) && (controlPoints.Count > 0))
       {
-        distanceDestination0 = distance(controlPoints[0], destinationItem.BoundingRect);
-        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], destinationItem.BoundingRect);
+        distanceDestination0 = distance(controlPoints[0], (RectangleF)destinationItem.BoundingRect);
+        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)destinationItem.BoundingRect);
       }
       else // make so that it won't ever reverse.
       {
@@ -183,8 +183,8 @@ namespace SysCAD.Interface
       float distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
       if ((sourceItem != null) && (controlPoints.Count > 0))
       {
-        distanceSource0 = distance(controlPoints[0], sourceItem.BoundingRect);
-        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], sourceItem.BoundingRect);
+        distanceSource0 = distance(controlPoints[0], (RectangleF)sourceItem.BoundingRect);
+        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)sourceItem.BoundingRect);
       }
       else // make so that it won't ever reverse.
       {
@@ -194,8 +194,8 @@ namespace SysCAD.Interface
 
       if ((destinationItem != null) && (controlPoints.Count > 0))
       {
-        distanceDestination0 = distance(controlPoints[0], destinationItem.BoundingRect);
-        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], destinationItem.BoundingRect);
+        distanceDestination0 = distance(controlPoints[0], (RectangleF)destinationItem.BoundingRect);
+        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)destinationItem.BoundingRect);
       }
       else // make so that it won't ever reverse.
       {

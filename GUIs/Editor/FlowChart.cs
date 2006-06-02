@@ -18,8 +18,8 @@ namespace SysCAD.Editor
   {
     public State state = new State();
 
-    public string currentModelShape;
-    public string currentGraphicShape;
+    public string currentModel;
+    public string currentStencil;
 
     public Arrow arrowBeingModified;
 
@@ -212,13 +212,13 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
     }
 
-    private void fcFlowChart_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       state.AddNode(path, tag, guid);
       state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
     }
 
-    private void fcFlowChart_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       Item item = state.Item(guid);
       if (item != null)
@@ -691,7 +691,7 @@ namespace SysCAD.Editor
         graphicItem.Tag,
         graphicItem.Path,
         graphicItem.Model,
-        graphicItem.Shape,
+        graphicItem.Stencil,
         modelBox.BoundingRect,
         modelBox.RotationAngle,
         graphicItem.FillColor,
@@ -715,7 +715,7 @@ namespace SysCAD.Editor
 
     public void NewGraphicItem(GraphicItem graphicItem, string path)
     {
-      NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+      NewGraphicItem(path, graphicItem.Model, graphicItem.Stencil, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
     }
 
     public void NewGraphicItem(String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
@@ -765,9 +765,9 @@ namespace SysCAD.Editor
           {
             NewGraphicItem(
               state.CurrentPath,
-              currentModelShape,
-              currentGraphicShape,
-              new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicStencil(currentGraphicShape).defaultSize),
+              currentModel,
+              currentStencil,
+              new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicStencil(currentStencil).defaultSize),
               0.0F,
               Color.LightBlue,
               false,

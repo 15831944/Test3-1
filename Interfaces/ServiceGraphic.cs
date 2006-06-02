@@ -20,8 +20,8 @@ namespace SysCAD.Interface
     private uint requestID = 0;
     private uint eventID = 0;
 
-    public delegate bool CreateItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool CreateItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate bool DeleteItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
 
     public delegate bool CreateLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
@@ -53,20 +53,20 @@ namespace SysCAD.Interface
     {
     }
 
-    public bool CreateItem(out uint requestID, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public bool CreateItem(out uint requestID, out Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       this.requestID++;
       requestID = this.requestID;
       guid = new Guid();
-      return createItemDelegate(this, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return createItemDelegate(this, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       this.requestID++;
       requestID = this.requestID;
       if (graphicItems.ContainsKey(guid))
-        return modifyItemDelegate(this, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        return modifyItemDelegate(this, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       else
         return false;
     }
@@ -109,15 +109,15 @@ namespace SysCAD.Interface
         return false;
     }
 
-    public void DoItemCreated(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void DoItemCreated(uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (!graphicItems.ContainsKey(guid))
       {
         GraphicItem graphicItem = new GraphicItem(guid, tag);
         graphicItem.Path = path;
         graphicItem.Model = model;
-        graphicItem.Shape = shape;
-        graphicItem.BoundingRect = boundingRect;
+        graphicItem.Stencil = stencil;
+        graphicItem.BoundingRect = (ARectangleF)boundingRect;
         graphicItem.Angle = angle;
         graphicItem.FillColor = fillColor;
         graphicItem.MirrorX = mirrorX;
@@ -126,11 +126,11 @@ namespace SysCAD.Interface
         graphicItems.Add(guid, graphicItem);
 
         eventID++;
-        OnItemCreated(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemCreated(eventID, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 
-    public void DoItemModified(uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void DoItemModified(uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       GraphicItem graphicItem;
       if (graphicItems.TryGetValue(guid, out graphicItem))
@@ -138,15 +138,15 @@ namespace SysCAD.Interface
         graphicItem.Tag = tag;
         graphicItem.Path = path;
         graphicItem.Model = model;
-        graphicItem.Shape = shape;
-        graphicItem.BoundingRect = boundingRect;
+        graphicItem.Stencil = stencil;
+        graphicItem.BoundingRect = (ARectangleF)boundingRect;
         graphicItem.Angle = angle;
         graphicItem.FillColor = fillColor;
         graphicItem.MirrorX = mirrorX;
         graphicItem.MirrorY = mirrorY;
 
         eventID++;
-        OnItemModified(eventID, requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemModified(eventID, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 

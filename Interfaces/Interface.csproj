@@ -51,8 +51,13 @@
     <Compile Include="GraphicItem.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="GraphicLink.cs" />
+    <Compile Include="Model.cs" />
     <Compile Include="ModelStencil.cs" />
+    <Compile Include="ARectangleF.cs" />
+    <Compile Include="ARectangleFConverter.cs" />
     <Compile Include="ServiceGraphic.cs" />
+    <Compile Include="Stencil.cs" />
+    <Compile Include="StencilConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

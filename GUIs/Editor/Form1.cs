@@ -50,7 +50,7 @@ namespace SysCAD.Editor
         string stencilName = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
         if (stencilName != "-------")
         {
-          frmFlowChart.currentGraphicShape = stencilName;
+          frmFlowChart.currentStencil = stencilName;
         }
       }
     }
@@ -64,7 +64,7 @@ namespace SysCAD.Editor
 
       int stencilIndex = (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
       string stencilName = (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
-      frmFlowChart.currentModelShape = stencilName;
+      frmFlowChart.currentModel = stencilName;
 
       ModelStencil modelStencil = frmFlowChart.state.ModelStencil(stencilName);
       if (modelStencil != null)
@@ -83,26 +83,26 @@ namespace SysCAD.Editor
     private void GraphicType_Populate(string groupName)
     {
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
-      GlobalShapes.list.Clear();
+      StencilConverter.stencilList.Clear();
 
       foreach (GraphicStencil graphicStencil in frmFlowChart.state.GraphicStencils)
       {
         if (groupName == graphicStencil.groupName)
         {
           int i = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.Tag);
-          GlobalShapes.list.Add(graphicStencil.Tag);
+          StencilConverter.stencilList.Add(graphicStencil.Tag);
         }
       }
 
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
-      GlobalShapes.list.Add("-------");
+      StencilConverter.stencilList.Add("-------");
 
       foreach (GraphicStencil graphicStencil in frmFlowChart.state.GraphicStencils)
       {
         if (groupName != graphicStencil.groupName)
         {
           (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add(graphicStencil.Tag);
-          GlobalShapes.list.Add(graphicStencil.Tag);
+          StencilConverter.stencilList.Add(graphicStencil.Tag);
         }
       }
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
@@ -401,7 +401,7 @@ namespace SysCAD.Editor
           copyGraphicItem.Height = graphicItem.Height;
           copyGraphicItem.Angle = graphicItem.Angle;
           copyGraphicItem.Model = graphicItem.Model;
-          copyGraphicItem.Shape = graphicItem.Shape;
+          copyGraphicItem.Stencil = graphicItem.Stencil;
           copyGraphicItem.MirrorX = graphicItem.MirrorX;
           copyGraphicItem.MirrorY = graphicItem.MirrorY;
           copyGraphicItem.FillColor = graphicItem.FillColor;
@@ -862,7 +862,7 @@ namespace SysCAD.Editor
           i = 0;
           foreach (string shape in (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items)
           {
-            if (shape == graphicItem.Shape)
+            if (shape == graphicItem.Stencil)
             {
               (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
               (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Text = shape;
@@ -888,7 +888,7 @@ namespace SysCAD.Editor
         {
           GraphicItem graphicItem = (e.ChangedItem.Parent.Parent.Value as GraphicItem);
 
-          graphicItem.Shape = graphicString;
+          graphicItem.Stencil = graphicString;
           frmFlowChart.state.SetStencil(graphicItem.Guid, graphicShape.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY));
         }
       }
