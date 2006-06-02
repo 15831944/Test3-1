@@ -964,6 +964,19 @@ double CEC_FracExt::ExtentActual(double ProdMoles)
         EA=ExtentReqd();
       }
     }
+  if (1)
+    {
+    dbgp("Extent   :Actual: Prod:%14.8g Act:%14.8f Rqd:%14.8f|", ProdMoles, EA, ExtentReqd());
+    //for (int i=0; i<SVSpcCount();i++)
+    //  if (RB.Moles[i]>0.0 || NewMoles[i]>0)
+    //    dbgp(" %10.6f", RB.Moles[i]);
+    dbgpln("");
+    //dbgp("                  %14s %14s %14s|", "", "", "", "", "", "", "", "");
+    //for (int i=0; i<SVSpcCount();i++)
+    //  if (RB.Moles[i]>0.0 || NewMoles[i]>0)
+    //    dbgp(" %10.6f", NewMoles[i]);
+    //dbgpln("");
+    }
   if (0)
     {
     dbgp("FracExt:Actual:  %10.4f  %10.4f  %10.4f  ",
@@ -1132,17 +1145,25 @@ double CEC_FinalConc::ExtentActual(double ProdMoles)
   else
     C=0.0;
 
-  if (0)
+  if (1)
     {
-    dbgp("FinalConc:Actual: %14.8f %14.8f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f|",
+    if (1)
+      dbgp("FinalConc:Actual: Prod:%14.8g Act:%14.8f Rqd:%14.8f %10.4f %10.4f|",
+          ProdMoles, C, ExtentReqd(), M, V);
+    else
+      dbgp("FinalConc:Actual: %14.8f %14.8f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f|",
           ProdMoles, C, ExtentReqd(), M, MW, V, Valid(m_dRqdTemp)?m_dRqdTemp:RB.EstFinalT(), RB.m_Press);
     for (int i=0; i<SVSpcCount();i++)
-      dbgp(" %10.4f", RB.Moles[i]);
+      if (RB.Moles[i]>0.0 || NewMoles[i]>0)
+        dbgp(" %10.6f", RB.Moles[i]);
     dbgpln("");
-    dbgp("                  %14s %14s %10s %10s %10s %10s %10s %10s|",
-          "", "", "", "", "", "", "", "");
+    if (1)
+      dbgp("                  %14s %14s %14s %10s %10s|", "", "", "", "", "", "", "", "");
+    else
+      dbgp("                  %14s %14s %10s %10s %10s %10s %10s %10s|", "", "", "", "", "", "", "", "");
     for (int i=0; i<SVSpcCount();i++)
-      dbgp(" %10.4f", NewMoles[i]);
+      if (RB.Moles[i]>0.0 || NewMoles[i]>0)
+        dbgp(" %10.6f", NewMoles[i]);
     dbgpln("");
     }
   return C;

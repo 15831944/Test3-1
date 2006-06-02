@@ -14,15 +14,15 @@
 #define dbgReaction  WITHDEBUG
 #if dbgReaction
 #include "dbgmngr.h"
-static CDbgMngr dbgRctSolve("RctEqns", "Solve");
-static CDbgMngr dbgRctSolveEqn("RctEqns", "SolveEqn");
-static CDbgMngr dbgRctSolveEqnSpc("RctEqns", "SolveEqnSpc");
+static CDbgMngr dbgRctSolve       ("RctEqns", "Solve");
+static CDbgMngr dbgRctSolveEqn    ("RctEqns", "SolveEqn");
+static CDbgMngr dbgRctSolveEqnSpc ("RctEqns", "SolveEqnSpc");
 static CDbgMngr dbgRctSolveEqnCnvg("RctEqns", "SolveEqnCnvg");
 static CDbgMngr dbgRctSolveEqnXfer("RctEqns", "SolveEqnXfer");
 static CDbgMngr dbgRctSolveEqnHeat("RctEqns", "SolveEqnHeat");
-static CDbgMngr dbgRctSolveIter("RctEqns", "SolveIter");
+static CDbgMngr dbgRctSolveIter   ("RctEqns", "SolveIter");
 static CDbgMngr dbgRctSolveSimplex("RctEqns", "SolveSimplex");
-static CDbgMngr dbgRctDumpSimplex("RctEqns", "DumpSimplex");
+static CDbgMngr dbgRctDumpSimplex ("RctEqns", "DumpSimplex");
 #endif
 
 //===========================================================================

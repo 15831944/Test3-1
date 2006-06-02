@@ -13,7 +13,7 @@
 #define dbgReaction  WITHDEBUG
 #if dbgReaction
 #include "dbgmngr.h"
-static CDbgMngr dbgRctSolve("Reactions", "Solve");
+static CDbgMngr dbgRctSrcSnks("RctEqns", "SrcSnks");
 #endif
 
 //===========================================================================
@@ -31,11 +31,11 @@ _FWDDEF(CR_Src);
 IMPLEMENT_REACTION(CR_Src, "SR_Src", "", TOC_SYSTEM, "Source", "Source of Material");
 
 CR_Src::CR_Src(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  CReaction(pClass_, Tag_, pAttach, eAttach),
-  Spcs(*(new CR_SrcTermArray))
+CReaction(pClass_, Tag_, pAttach, eAttach),
+Spcs(*(new CR_SrcTermArray))
   {   
   Clear();
-  //dbgpln("********************************CR_Src: Cons");
+  //dbgpln("-------------------------------- CR_Src: Cons");
   }
 
 //---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ CR_Src::~CR_Src()
   {
   Clear();
   delete &Spcs;
-  //dbgpln("********************************CR_Src: Dest");
+  //dbgpln("-------------------------------- CR_Src: Dest");
   }
 
 //---------------------------------------------------------------------------
@@ -73,7 +73,7 @@ void CR_Src::BuildDataDefn(DataDefnBlk & DDB)
         Spc+=".Dmnd";
       DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Demand, this, isResult|0);
       }
-    
+
     DDB.Double("totEnthalpy", "HsGain",     DC_Pwr,     "kJ/s",     xidRCTSrcHs, this, isResult|0);
     DDB.Double("",            "HfGain",     DC_Pwr,     "kJ/s",     xidRCTSrcHf, this, isResult|0);
     }
@@ -104,7 +104,7 @@ flag CR_Src::DataXchg(DataChangeBlk & DCB)
         }
       return 1;
     }
-  
+
   return 0;
   };
 
@@ -120,8 +120,8 @@ flag CR_Src::ValidateData(ValidateDataBlk & VDB)
 void CR_Src::Clear()
   {
   Spcs.SetSize(0);
-//  m_dHs=0.0;
-//  dHf=0;
+  //  m_dHs=0.0;
+  //  dHf=0;
   StructureChanged(this);
   }
 
@@ -159,7 +159,7 @@ flag CR_Src::ParseTerm(CR_SrcTerm &Term)
 
 void CR_Src::Parse(CRCTTokenFile &TF)
   {
-  //dbgpln("********************************CR_Src: Parse");
+  //dbgpln("-------------------------------- CR_Src: Parse");
   //CRCTTokenFile &TF=*RB.pTkns;
   Strng Tkn;
   CR_SrcTerm ATerm;
@@ -230,7 +230,7 @@ LPCTSTR CR_Src::GetRctString(dword Options)
 //  {
 //  return 0.0;
 //  }
-  
+
 
 //---------------------------------------------------------------------------
 //
@@ -242,30 +242,42 @@ LPCTSTR CR_Src::GetRctString(dword Options)
 
 void CR_Src::SrcSnkStart()
   {
-  //dbgpln("********************************CR_Src: Start");
-  
-//  m_dHs=0.0;
-//  dHf=0.0;
+#if dbgReaction
+  if (dbgRctSrcSnks())
+    dbgpln("-------------------------------- CR_Src: Start");
+#endif
+
+  //  m_dHs=0.0;
+  //  dHf=0.0;
 
   AddMoles=0.0;
   for (int s=0; s<SDB.Count(); s++)
     AddMoles=Max(AddMoles, RB.Moles[s]);
 
-  //dbgpln("============================================================");
   AddMoles*=1000.0;
   for (int i = 0; i < NSpcs(); i++) 
     {
     int SpcId=Spcs[i].SpcId;
     RB.Moles.VValue[SpcId]+=AddMoles;
-    //dbgpln("Src Start : %14.6f %14.6f %14s %s", AddMoles, RB.Moles.VValue[SpcId], "", SDB[SpcId].SymOrTag());
+#if dbgReaction
+    if (dbgRctSrcSnks())
+      dbgpln("Src Start : %14.6f %14.6f %14s %s", AddMoles, RB.Moles.VValue[SpcId], "", SDB[SpcId].SymOrTag());
+#endif
     }
+#if dbgReaction
+  if (dbgRctSrcSnks())
+    dbgpln("--------------------------------");
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 void CR_Src::SrcSnkEnd(CRctSolveBlk & RSB)//SpMArray &dMass, double &dHeat)
   {
-  //dbgpln("********************************CR_Src: End");
+#if dbgReaction
+  if (dbgRctSrcSnks())
+    dbgpln("-------------------------------- CR_Src: End");
+#endif
   for (int i = 0; i < NSpcs(); i++) 
     {
     int SpcId=Spcs[i].SpcId;
@@ -274,29 +286,45 @@ void CR_Src::SrcSnkEnd(CRctSolveBlk & RSB)//SpMArray &dMass, double &dHeat)
     RB.Moles.VValue[SpcId]=Max(0.0, Remainder);
     Spcs[i].Demand*=SDB[SpcId].MoleWt();
     RSB.dMass.VValue[SpcId]+=Spcs[i].Demand;
-    //dbgpln("Src End   : %14.6f %14.6f %14.6f %s", AddMoles, RB.Moles.VValue[SpcId], Spcs[i].Demand, SDB[SpcId].SymOrTag());
+#if dbgReaction
+    if (dbgRctSrcSnks())
+      dbgpln("Src End   : %14.6f %14.6f %14.6f %s", AddMoles, RB.Moles.VValue[SpcId], Spcs[i].Demand, SDB[SpcId].SymOrTag());
+#endif
     }
   RSB.m_Hf_FdT=totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
   RSB.m_Hf_PrT=totDHf(RB.Model, RB.m_TempKProd, RB.m_Press);
-  //dbgpln("============================================================");
+#if dbgReaction
+  if (dbgRctSrcSnks())
+    dbgpln("--------------------------------");
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 void CR_Src::SrcSnkAdjust(SpMArray & M)//SpMArray &dMass, double &dHeat)
   {
-  //dbgpln("********************************CR_Src: End");
+#if dbgReaction
+  if (dbgRctSrcSnks())
+    dbgpln("-------------------------------- CR_Src: Adjust");
+#endif
   for (int i = 0; i < NSpcs(); i++) 
     {
     int SpcId=Spcs[i].SpcId;
     double Remainder=M[SpcId]-AddMoles;
-    //Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
+    Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
     M.VValue[SpcId]=Max(0.0, Remainder);
 
     double Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
 
-    //dbgpln("Src Adjust: %14.6f %14.6f %14.6f %s", AddMoles, M.VValue[SpcId], /*Spcs[i].*/Demand, SDB[SpcId].SymOrTag());
+#if dbgReaction
+    if (dbgRctSrcSnks())
+      dbgpln("Src Adjust: Add:%14.6f Spc:%3i M[Spc]:%14.6f Dmnd:%14.6f %s", AddMoles, SpcId, M.VValue[SpcId], /*Spcs[i].*/Demand, SDB[SpcId].SymOrTag());
+#endif
     }
+#if dbgReaction
+  if (dbgRctSrcSnks())
+    dbgpln("--------------------------------");
+#endif
   }
 
 //---------------------------------------------------------------------------
@@ -359,8 +387,8 @@ _FWDDEF(CR_Snk);
 IMPLEMENT_REACTION(CR_Snk, "SR_Snk", "", TOC_SYSTEM, "Sink", "Sink of Material");
 
 CR_Snk::CR_Snk(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  CReaction(pClass_, Tag_, pAttach, eAttach),
-  Spcs(*(new CR_SnkTermArray))
+CReaction(pClass_, Tag_, pAttach, eAttach),
+Spcs(*(new CR_SnkTermArray))
   {
   Clear();
   }
@@ -457,8 +485,8 @@ flag CR_Snk::ValidateData(ValidateDataBlk & VDB)
 void CR_Snk::Clear()
   {
   Spcs.SetSize(0);
-//  m_dHs=0.0;
-//  dHf=0.0;
+  //  m_dHs=0.0;
+  //  dHf=0.0;
   StructureChanged(this);
   }
 
@@ -584,7 +612,7 @@ LPCTSTR CR_Snk::GetRctString(dword Options)
 //  {
 //  return 0.0;
 //  }
-  
+
 
 //---------------------------------------------------------------------------
 //
@@ -685,7 +713,7 @@ _FWDDEF(CR_HX);
 IMPLEMENT_REACTION(CR_HX, "SR_HX", "", TOC_SYSTEM, "HeatExchange", "Heat Exchange");
 
 CR_HX::CR_HX(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  CReaction(pClass_, Tag_, pAttach, eAttach)
+CReaction(pClass_, Tag_, pAttach, eAttach)
   {
   Clear();
   }
@@ -865,7 +893,7 @@ void CR_HX::Parse(CRCTTokenFile &TF)
       m_theBasis=RctHX2;
       Ok=1;
       }
-// Done before T Estimated.-------------
+    // Done before T Estimated.-------------
     else if (TF.TokenIs("FinalT"))
       {
       m_iWhat=CR_HX_FinalT;
@@ -943,7 +971,7 @@ void CR_HX::Parse(CRCTTokenFile &TF)
       m_theBasis=RctHX1;
       Ok=1;
       }
-// -------------------------------------
+    // -------------------------------------
     else if (TF.TokenIs(","))
       {
       Ok=0;
@@ -1025,7 +1053,7 @@ LPCTSTR CR_HX::GetRctString(dword Options)
 //  {
 //  return 0.0;//Control().ReactingMoles();
 //  }
-  
+
 //---------------------------------------------------------------------------
 
 double LMTDCalc (double In1, double Out1, double In2, double Out2)
