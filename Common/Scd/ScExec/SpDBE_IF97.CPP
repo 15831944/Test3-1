@@ -3859,12 +3859,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWlc);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return 18.01528*SfWtrCp(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3879,12 +3885,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWvc);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return 18.01528*SfStmCp(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3899,12 +3911,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWlh);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return 18.01528*SfWtrH(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3919,12 +3937,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWvh);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return 18.01528*SfStmH(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3939,12 +3963,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWls);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return 18.01528*SfWtrS(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3959,12 +3989,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWvs);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return 18.01528*SfStmS(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3979,12 +4015,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWld);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return SfWtrDens(Temp, Min(IF97MaxPress, Press*0.01));
@@ -3999,12 +4041,18 @@ virtual double AtTP(double Temp, double Press)
   {
   H2OTIMERLAP(sv_swSWvd);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Press*0.01>IF97MaxPress)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Press*0.01>IF97MaxPress)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Pressure %10.2f", Press);
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+    }
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Press*0.01<IF97MaxPress, "Excessive pressure in IF97!!!");
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangePress
   return SfStmDens(Temp, Min(IF97MaxPress, Press*0.01));
@@ -4019,9 +4067,12 @@ virtual double AtT(double Temp)
   {
   H2OTIMERLAP(sv_swSWvp);
   #ifndef _RELEASE
-  if (CSpecieDataBase::gs_bDoTestEstTP && Temp>IF97MaxTemp)
+  if (CSpecieDataBase::gs_nDoTestEstTP && Temp>IF97MaxTemp)
+    {
+    CSpecieDataBase::gs_nDoTestEstTP--;
     LogError("IF97", 0, "Excessive Temperature %10.2f", Temp);
-  //ASSERT_ALWAYS(!CSpecieDataBase::gs_bDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
+    }
+  //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!");
   #endif
 #if DoRangeTemp
   return 100.0*SfVapP(Min(IF97MaxTemp, Temp));

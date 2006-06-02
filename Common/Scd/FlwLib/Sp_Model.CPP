@@ -6675,7 +6675,9 @@ void SpModel::FindTFromHAtP(double ThePress)
   TestMStatesOK();
   SPMDLTIMERLAP(sm_swEvalT);
 #ifndef _RELEASE
-  CSpecieDataBase::gs_bDoTestEstTP=!dbgHoldTestEstTP();
+  int TstTP=CSpecieDataBase::gs_nDoTestEstTP=!dbgHoldTestEstTP();
+  if (dbgHoldTestEstTP())
+    CSpecieDataBase::gs_nDoTestEstTP=0;
 #endif
 
   if (fDoDbgBrk)
@@ -6829,7 +6831,7 @@ void SpModel::FindTFromHAtP(double ThePress)
       h0=EstH;
       EstT=EstT*Damp+t*(1.0-Damp);
 #ifndef _RELEASE
-      if (CSpecieDataBase::gs_bDoTestEstTP && (EstT<0.001 || EstT>10001.0))
+      if (CSpecieDataBase::gs_nDoTestEstTP && (EstT<0.001 || EstT>10001.0))
         {
         static int s_TestCount=0;
         if (s_TestCount++<3)
@@ -6888,6 +6890,10 @@ Done:
     }
 
 Finished:;
+#ifndef _RELEASE
+  CSpecieDataBase::gs_nDoTestEstTP=TstTP;
+#endif
+
 #if WITHDEBUGDUMPENTHALPY
   if (DumpOn)
     CSpecieDataBase::DebugHDumpOn--;

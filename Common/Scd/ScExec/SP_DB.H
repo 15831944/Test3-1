@@ -1108,7 +1108,7 @@ class DllImportExport CSpecieDataBase
     static int DebugHDumpOn;
 #endif
 #ifndef _RELEASE
-    static bool    gs_bDoTestEstTP;
+    static int gs_nDoTestEstTP;
 #endif
   };
 

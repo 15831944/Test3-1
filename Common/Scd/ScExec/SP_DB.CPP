@@ -1457,7 +1457,7 @@ int CComponent::VapPhInx(LPCSTR PhSym)
 int CSpecieDataBase::DebugHDumpOn=0;
 #endif
 #ifndef _RELEASE
-bool CSpecieDataBase::gs_bDoTestEstTP=true;
+int CSpecieDataBase::gs_nDoTestEstTP=10;
 #endif
 
 CSpecieDataBase::CSpecieDataBase()
@@ -1492,7 +1492,7 @@ void CSpecieDataBase::Init()
   m_iH2Og=-1;
   m_iCO2g=-1;
 #ifndef _RELEASE
-  CSpecieDataBase::gs_bDoTestEstTP=false;
+  CSpecieDataBase::gs_nDoTestEstTP=0;
 #endif
   };
 

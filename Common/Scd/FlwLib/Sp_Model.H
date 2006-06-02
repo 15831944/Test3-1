@@ -959,7 +959,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual MIBayer      * GetMIBayer()                                           { return dynamic_cast<MIBayer*>(this) ; };
 
 #ifndef _RELEASE
-    static bool    SetDoTestEstTP(bool On) { bool Was=CSpecieDataBase::gs_bDoTestEstTP; CSpecieDataBase::gs_bDoTestEstTP=On; return Was; };
+    static int     SetDoTestEstTP(int OnCnt) { int Was=CSpecieDataBase::gs_nDoTestEstTP; CSpecieDataBase::gs_nDoTestEstTP=OnCnt; return Was; };
     static bool    m_bTestMassNotNeg;
     void           DoTestMassNotNeg();
 #endif
