@@ -369,7 +369,7 @@ bool MBaseMethod::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
   MInOutDefStruct *pIODef;
   if (IONo>=0)
     {
-    MInOutDefStruct *pIODef = m_pIODefs;
+    pIODef = m_pIODefs;
     int Id=m_pNd->IOId_Self(IONo);
     while (pIODef->m_sName!=NULL && pIODef->m_lId<Id)
       pIODef++;
