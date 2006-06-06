@@ -6256,21 +6256,23 @@ void CPBPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, long Al
     //{PBPC_SuperHt  , "SuperHeat_Vap", ((PBPC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
     {0}};
 
+  //const DDEF_Flags flgs = SM_Direct|HM_All;
+  const DDEF_Flags flgs = SM_Direct|SM_Inline|HM_All;
 
   DDB.BeginStruct(pObj, "PBPress");
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(flgs);
   DDB.Long ("Method",    "", DC_,  "",    &m_iMethod, pObj, isParm|SetOnChange, DDBPBP);
 
-  DDB.Visibility(SM_Direct|HM_All, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0);
+  DDB.Visibility(flgs, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0);
   DDB.CheckBoxBtn("IgnoreLowQm",   "", DC_,  "",    &m_fIgnoreLoQm, pObj, isParm|SetOnChange, DDBOnOff);
-  DDB.Visibility(SM_Direct|HM_All, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0 && m_fIgnoreLoQm);
+  DDB.Visibility(flgs, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0 && m_fIgnoreLoQm);
   DDB.Double("LowQmFrac", "", DC_Frac, "%",&m_dLowQmFrac, pObj, isParm|SetOnChange);
 
-  DDB.Visibility(SM_Direct|HM_All, m_iMethod==PBPC_Reqd);
+  DDB.Visibility(flgs, m_iMethod==PBPC_Reqd);
   DDB.Double("Reqd",      "", DC_P, "kPa", &m_dPRqd,   pObj, m_iMethod==PBPC_Reqd?isParm:0);
-  DDB.Visibility(SM_Direct|HM_All, m_iMethod==PBPC_ReqdSatT);
+  DDB.Visibility(flgs, m_iMethod==PBPC_ReqdSatT);
   DDB.Double("ReqdT",     "", DC_T, "C",   &m_dTRqd,   pObj, isParm);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(flgs);
   DDB.Double("Result",    "", DC_P, "kPa", &m_dP2Set,  pObj, isResult);
   DDB.Visibility();
   DDB.EndStruct();
