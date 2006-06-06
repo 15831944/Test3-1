@@ -498,6 +498,7 @@ void MN_BstRes::EvalProducts(long JoinMask)
         m_LeakO.EvalProducts(Fo, false);
       else
         Fo.QSetTraceMass();
+      dDuty = 0.0;
       }
     else
       {
@@ -507,8 +508,30 @@ void MN_BstRes::EvalProducts(long JoinMask)
       SpConduit & Fi=*IOConduit(In);
       SpConduit & Fo=*IOConduit(Out);
 
-      dDuty = 0.0;//???
       Fo.QCopy(Fi);   
+
+      //heat loss/gain for simple heater:
+      const double PresO = Fo.Press();
+      if (Valid(dTout_Rqd))
+        {
+        const double h0 = Fo.totHf();
+        Fo.SetTemp(dTout_Rqd);
+        dDuty = Fo.totHf() - h0;
+        const double h1 = Fo.totHf();
+        Fo.SetPress(PresO);
+        Fo.Set_totHf(h1); //restore enthalpy
+        }
+      else if (fabs(dDuty_Rqd)>1.0e-12)
+        {
+        const double h0 = Fo.totHf();
+        Fo.Set_totHf(h0+dDuty_Rqd);
+        dDuty = dDuty_Rqd;
+        const double h1 = Fo.totHf();
+        Fo.SetPress(PresO);
+        Fo.Set_totHf(h1); //restore enthalpy
+        }
+      else
+        dDuty = 0.0;
 
       if (In==IOId_2IOIn && m_LeakI.Enabled)
         m_LeakI.EvalProducts(Fo, true);
