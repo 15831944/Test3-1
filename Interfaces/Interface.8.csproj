@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -60,17 +60,15 @@
     <Compile Include="StencilConverter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FlowChart.NET, Version=4.1.0.16274, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\FlowChart.NET.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.csproj">
-      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
-      <Name>FlowChart.NET</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>
