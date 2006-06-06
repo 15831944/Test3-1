@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #define __XBLOCKBLOCK_CPP
-#include "AdjustBlock.h"
+#include "BleedBlock.h"
 
 #if WITHBLOCKEVALUATOR
 
@@ -12,7 +12,7 @@
 //=========================================================================
 
 XID xidAdjustEnable = AdjustXID(1);
-XID xidAdjustEqnNm  = AdjustXID(2);
+XID xidAdjustMdlNm  = AdjustXID(2);
 
 //============================================================================
 //
@@ -20,12 +20,12 @@ XID xidAdjustEqnNm  = AdjustXID(2);
 //
 //============================================================================
 
-const pchar CXBlock::GroupName="AdjustBlock";
+const pchar CBleedBlock::GroupName="AdjustBlock";
 
-IMPLEMENT_XBLOCK(CXBlock, "X_None", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "None",  " ");
+IMPLEMENT_BLEEDBLOCK(CBleedBlock, "BB_None", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "None",  " ");
 
 
-CXBlock::CXBlock(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
+CBleedBlock::CBleedBlock(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 TaggedObject(pClass_, Tag_, pAttach, eAttach)
   {
   m_pAdjustBase = NULL;
@@ -33,13 +33,13 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
 
 //--------------------------------------------------------------------------
 
-CXBlock::~CXBlock()
+CBleedBlock::~CBleedBlock()
   {
   };
 
 //--------------------------------------------------------------------------
 
-void CXBlock::BuildDataDefn(DataDefnBlk& DDB)
+void CBleedBlock::BuildDataDefn(DataDefnBlk& DDB)
   {
   if (DDB.BeginStruct(this, NULL/*"Evap"*/, NULL, DDB_NoPage))
     {
@@ -49,213 +49,12 @@ void CXBlock::BuildDataDefn(DataDefnBlk& DDB)
 
 //--------------------------------------------------------------------------
 
-void CXBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
+void CBleedBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
   };
 
-void CXBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CBleedBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
-  };
-
-//============================================================================
-//
-//
-//
-//============================================================================
-
-//#define VER1 01
-//
-//const byte Dest_Mix     = -2;
-//const byte Dest_Discard = -1;
-//const byte Dest_IO1     = 0; //????????????????
-//
-IMPLEMENT_XBLOCK(CXBlk_Makeup, "X_Makeup", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Makeup",  " ");
-
-CXBlk_Makeup::CXBlk_Makeup(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
-CXBlock(pClass_, Tag_, pAttach, eAttach)
-  {
-//#if VER1
-//  m_Components.SetSize(gs_CDB.DDBCompListVapLiq.Length());
-//  for (int i=0; i<m_Components.GetSize(); i++)
-//    {
-//    m_Components[i].m_CIndex   = gs_CDB.DDBCompListVapLiq[i].m_lVal;
-//    m_Components[i].m_Dest     = 0;
-//    m_Components[i].m_Fraction = 0.0;
-//    }
-//#endif
-  
-  m_Type=Type_Qm;
-  m_QmRqd=0;
-  }
-
-//--------------------------------------------------------------------------
-
-CXBlk_Makeup::~CXBlk_Makeup()
-  {
-  }
-
-//--------------------------------------------------------------------------
-
-//static DDBValueLst DDBDestinations[] =
-//  {
-//    { Dest_Mix      , "Mixture"},
-//    { Dest_Discard  , "Discard"},
-//    { 0 }
-//  };
-
-void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
-  {
-
-  if (DDB.BeginStruct(this, "AdjustQm", NULL, DDB_NoPage))
-    {
-    static DDBValueLst DDBType[] =
-      {
-        {Type_Qm, "Qm"},
-        {}
-      };
-    DDB.Text(" ");
-    DDB.Long  ("", "Type",        DC_,     "%", (long*)&m_Type,  this, isParm, DDBType);
-    DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
-//#if VER1
-//    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
-//      {
-//      for (int i=0; i<m_Components.GetSize(); i++)
-//        {
-//        LPTSTR Tg=gs_CDB[m_Components[i].m_CIndex].SymOrTag();
-//        if (DDB.BeginElement(this, Tg, NULL, i))
-//          {
-//          DDB.Byte  ("", "Destination", DC_,     "",  &m_Components[i].m_Dest,      this, isParm, DDBDestinations);
-//          DDB.Double("", "Fraction",    DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
-//          }
-//        }
-//      }
-//    DDB.EndArray();
-//#else
-//    DDB.Int("CompCount",     "",   DC_, "", xidCompCount,    this, isParm);
-//    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
-//      {
-//      for (int i=0; i<m_Components.GetSize(); i++)
-//        {
-//        if (DDB.BeginElement(this, i, NULL, i))
-//          {
-//          DDB.Long  ("", "Component", DC_,     "",  &m_Components[i].m_CIndex,    this, isParmStopped, &gs_CDB.DDBCompListDashVapLiq);
-//          DDB.Double("", "Fraction",  DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
-//          }
-//        }
-//      }
-//    DDB.EndArray();
-//#endif
-    }
-  DDB.EndStruct();
-  };
-
-//--------------------------------------------------------------------------
-
-flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
-  {
-//#if VER1
-//#else
-//  switch (DCB.lHandle)
-//    {
-//    case xidCompCount:
-//      if (DCB.rL)
-//        {
-//        int Old=m_Components.GetSize();
-//        m_Components.SetSize(*DCB.rL);
-//        for (int i=Old; i<m_Components.GetSize(); i++)
-//          {
-//          m_Components[i].m_CIndex=-1;
-//          m_Components[i].m_Fraction=0.0;
-//          }
-//        }
-//      DCB.L=m_Components.GetSize();
-//      return 1;
-//    }
-//#endif
-  return 0;
-  }
-
-//--------------------------------------------------------------------------
-
-flag CXBlk_Makeup::ValidateData(ValidateDataBlk & VDB)
-  {
-//#if VER1
-//#else
-//  for (int i=0; i<m_Components.GetSize(); i++)
-//    {
-//    int iComp=m_Components[i].m_CIndex;
-//    if (iComp>=0)
-//      {
-//      for (int j=i+1; j<m_Components.GetSize(); j++)
-//        {
-//        if (iComp==m_Components[j].m_CIndex)
-//          {
-//          m_Components.RemoveAt(j);
-//          j--;
-//          }
-//        }
-//      }
-//    }
-//#endif
-//
-//  for (int i=0; i<m_Components.GetSize(); i++)
-//    m_Components[i].m_Fraction=Range(0.0, m_Components[i].m_Fraction, 1.0);
-
-  return CXBlock::ValidateData(VDB); 
-  }
-
-//--------------------------------------------------------------------------
-
-void CXBlk_Makeup::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
-  {
-  //SpConduit & Discard = m_pAdjustBase->DiscardCd();
-  //Discard.QZero();
-  //SpMArray OldVap;
-
-  //Qf.SetPress(Po);
-  //double H=Qf.totHf();
-  //for (int i=0; i<m_Components.GetSize(); i++)
-  //  {
-  //  CAdjustComp  & EC = m_Components[i];
-  //  CComponent & C  = gs_CDB[EC.m_CIndex];
-  //  int iLiq=C.LiqPhInx();
-  //  int iVap=C.VapPhInx();
-  //  double Liq=Qf.VMass[iLiq];
-  //  double Vap=Qf.VMass[iVap];
-  //  double D=Liq*EC.m_Fraction;
-
-  //  Qf.SetVValue(iLiq, Liq-D);
-  //  Qf.SetVValue(iVap, Vap+D);
-
-  //  Discard.SetVValue(iVap, D);
-  //  OldVap.SetVValue(iVap, Vap);
-  //  }
-  //Qf.Set_totHf(H);
-
-  //double T=Qf.Temp();
-  //double P=Qf.Press();
-  //for (int i=0; i<m_Components.GetSize(); i++)
-  //  {
-  //  CAdjustComp  & EC = m_Components[i];
-  //  int iVap = gs_CDB[EC.m_CIndex].VapPhInx();
-  //  switch (EC.m_Dest)
-  //    {
-  //    case Dest_Mix:
-  //      // Qf is at correct conditions
-  //      Discard.SetVValue(iVap, 0.0);
-  //      break;
-  //    case Dest_Discard:
-  //      Qf.SetVValue(iVap, OldVap[iVap]); // reset to original vapour mass
-  //      break;
-  //    }
-  //  }
-  //Qf.SetTempPress(T, P);
-  //Discard.SetTempPress(T, P);
-  };
-
-void CXBlk_Makeup::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
-  {
-  EvalProducts(Qf, Po, FinalTEst);
   };
 
 //============================================================================
@@ -270,10 +69,22 @@ void CXBlk_Makeup::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, dou
 //const byte Dest_Discard = -1;
 //const byte Dest_IO1     = 0; //????????????????
 //
-IMPLEMENT_XBLOCK(CXBlk_Bleed, "X_Bleed", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Bleed",  " ");
+//============================================================================
+//
+//
+//
+//============================================================================
+
+//#define VER1 01
+//
+//const byte Dest_Mix     = -2;
+//const byte Dest_Discard = -1;
+//const byte Dest_IO1     = 0; //????????????????
+//
+IMPLEMENT_BLEEDBLOCK(CXBlk_Bleed, "BB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Simple",  " ");
 
 CXBlk_Bleed::CXBlk_Bleed(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
-CXBlock(pClass_, Tag_, pAttach, eAttach)
+CBleedBlock(pClass_, Tag_, pAttach, eAttach)
   {
 //#if VER1
 //  m_Components.SetSize(gs_CDB.DDBCompListVapLiq.Length());
@@ -404,7 +215,7 @@ flag CXBlk_Bleed::ValidateData(ValidateDataBlk & VDB)
 //  for (int i=0; i<m_Components.GetSize(); i++)
 //    m_Components[i].m_Fraction=Range(0.0, m_Components[i].m_Fraction, 1.0);
 
-  return CXBlock::ValidateData(VDB); 
+  return CBleedBlock::ValidateData(VDB); 
   }
 
 //--------------------------------------------------------------------------
@@ -467,28 +278,27 @@ void CXBlk_Bleed::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, doub
 //
 //============================================================================
 
-CAdjustBase::CAdjustBase(TaggedObject * pAttach, int Index) : CBlockEvalBase(BEId_Adj)
+CBleedBase::CBleedBase(TaggedObject * pAttach, int Index) : CBlockEvalBase(BEId_Adj)
   { 
   m_pAdjustB=NULL; 
   m_pNd=pAttach; 
   m_fEnabled=false;
   m_fFixed=false; 
   m_Index=Index; 
-  //m_sTag.Set("X%i", Index);
   };
-CAdjustBase::~CAdjustBase()  
+CBleedBase::~CBleedBase()  
   { 
   delete m_pAdjustB; 
   };
 
-Strng CAdjustBase::Name()
+Strng CBleedBase::Name()
   {
   Strng S;
-  S.Set("X%i", m_Index+1);
+  S.Set("B%i", m_Index+1);
   return S;
   }
 
-flag CAdjustBase::Open(TagObjClass * pAdjustClass, flag Fixed)
+flag CBleedBase::Open(TagObjClass * pAdjustClass, flag Fixed)
   {
   m_fEnabled=True;
 
@@ -499,9 +309,9 @@ flag CAdjustBase::Open(TagObjClass * pAdjustClass, flag Fixed)
   m_fFixed=Fixed;
 
   if (pAdjustClass)
-    m_pAdjustB=(CXBlock*)pAdjustClass->Construct(NULL, "Adjust", m_pNd, TOA_Embedded);//pNd);
+    m_pAdjustB=(CBleedBlock*)pAdjustClass->Construct(NULL, "Bleed", m_pNd, TOA_Embedded);//pNd);
   else
-    m_pAdjustB=(CXBlock*)CXBlockClass.Construct(NULL, "Adjust", m_pNd, TOA_Embedded);//pNd);
+    m_pAdjustB=(CBleedBlock*)CBleedBlockClass.Construct(NULL, "Bleed", m_pNd, TOA_Embedded);//pNd);
   m_pNd->StructureChanged(NULL);
   m_pAdjustB->m_pAdjustBase=this;
 
@@ -511,31 +321,26 @@ flag CAdjustBase::Open(TagObjClass * pAdjustClass, flag Fixed)
 
 //--------------------------------------------------------------------------
 
-void CAdjustBase::Close()
+void CBleedBase::Close()
   {
   if (m_fFixed)
     return;
   m_fEnabled=False;
-  //if (pAdjustClass==NULL)
-  //  return;
-  ////pGSM->StructureChanged(NULL);
-  ////pGSM->Gammas.SetSize(0);
-  ////pGSM->IOAlpha.SetSize(0);
-  //delete pAdjustClass;
-  //pAdjustClass=NULL;
   };
 //--------------------------------------------------------------------------
 
-void CAdjustBase::Add_OnOff(DataDefnBlk &DDB, dword Flags, int UserInfo)
+void CBleedBase::Add_OnOff(DataDefnBlk &DDB, dword Flags, int UserInfo)
   {
+  Strng S;
+  S.Set("Bleed%i", m_Index+1);
   DDB.PushUserInfo(UserInfo);
-  DDB.Byte(Name()(), "",  DC_,    "",     xidAdjustEnable,  m_pNd, Flags, GetOnOffValLst());
+  DDB.Byte(S(), "",  DC_,    "",     xidAdjustEnable,  m_pNd, Flags, GetOnOffValLst());
   DDB.PopUserInfo();
   }
 
 //--------------------------------------------------------------------------
 
-void CAdjustBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, DDBPages PageIs, dword UserInfo)
+void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, DDBPages PageIs, dword UserInfo)
   {
   DDB.PushUserInfo(UserInfo);
   if (pTag==NULL)
@@ -544,11 +349,11 @@ void CAdjustBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
   DDB.Visibility(SHM_All, m_fEnabled);
   if (Enabled())//pHL)
     {
-    if (DDB.BeginStruct(m_pNd, Name()(), pTagComment, PageIs))
+    if (DDB.BeginObject(m_pNd, Name()(), "EB_Bleed", pTagComment, PageIs))
       {
       DDBValueLstMem DDB0;
-      TagObjClass::GetSDescValueLst(CXBlock::GroupName, DDB0);
-      DDB.String  ("Model",      "",       DC_    , "",      xidAdjustEqnNm  , m_pNd,m_fFixed ? 0 : isParm|SetOnChange, DDB0());
+      TagObjClass::GetSDescValueLst(CBleedBlock::GroupName, DDB0);
+      DDB.String  ("Model",      "",       DC_    , "",      xidAdjustMdlNm  , m_pNd,m_fFixed ? 0 : isParm|SetOnChange, DDB0());
 
       if (m_pAdjustB)
         {
@@ -556,7 +361,7 @@ void CAdjustBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
         m_pAdjustB->BuildDataDefn(DDB);
         }
       }
-    DDB.EndStruct();
+    DDB.EndObject();
     }
   DDB.SetVisibility(Old);
   DDB.PopUserInfo();
@@ -564,7 +369,7 @@ void CAdjustBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
 
 //--------------------------------------------------------------------------
 
-flag CAdjustBase::DataXchg(DataChangeBlk & DCB)
+flag CBleedBase::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
@@ -578,11 +383,11 @@ flag CAdjustBase::DataXchg(DataChangeBlk & DCB)
         }
       DCB.B=OpenStatus();// (Enabled());
       return 1;
-    case xidAdjustEqnNm:
+    case xidAdjustMdlNm:
       if (DCB.rpC && !m_fFixed)
         {
         int WasEnabled=m_fEnabled;
-        TagObjClass * pC=CXBlockClass.FindGrpShortDesc(DCB.rpC);
+        TagObjClass * pC=CBleedBlockClass.FindGrpShortDesc(DCB.rpC);
         if (pC)
           Open(pC);
         else

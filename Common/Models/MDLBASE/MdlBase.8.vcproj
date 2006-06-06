@@ -318,7 +318,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
-				RelativePath=".\AdjustBlock.cpp"
+				RelativePath=".\BleedBlock.cpp"
 				>
 			</File>
 			<File
@@ -375,6 +375,10 @@
 			</File>
 			<File
 				RelativePath=".\M_XFER.CPP"
+				>
+			</File>
+			<File
+				RelativePath=".\MakeupBlock.cpp"
 				>
 			</File>
 			<File
@@ -435,7 +439,7 @@
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
 			<File
-				RelativePath=".\AdjustBlock.h"
+				RelativePath=".\BleedBlock.h"
 				>
 			</File>
 			<File
@@ -492,6 +496,10 @@
 			</File>
 			<File
 				RelativePath=".\M_XFER.H"
+				>
+			</File>
+			<File
+				RelativePath=".\MakeupBlock.h"
 				>
 			</File>
 			<File

@@ -16,7 +16,8 @@
 //
 //=========================================================================
 
-XID xidAdjusts       = EvalBlkXID(1);
+XID xidNMakeups       = EvalBlkXID(1);
+XID xidNBleeds        = EvalBlkXID(2);
 
 CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
                                  CReactionBase * pRB,
@@ -53,10 +54,15 @@ CBlockEvaluator::~CBlockEvaluator(void)
   RemBlk(m_pVLE); 
   RemBlk(m_pEvap); 
 
-  for (int a=0; a<m_pAdjs.GetSize(); a++)
+  for (int a=0; a<m_pMakeups.GetSize(); a++)
     {
-    RemBlk(m_pAdjs[a]);
-    delete m_pAdjs[a];
+    RemBlk(m_pMakeups[a]);
+    delete m_pMakeups[a];
+    }
+  for (int a=0; a<m_pBleeds.GetSize(); a++)
+    {
+    RemBlk(m_pBleeds[a]);
+    delete m_pBleeds[a];
     }
   }
 
@@ -95,10 +101,15 @@ void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
 
 void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
   {
-  if (1)
+  BOOL DoIt=true;
+  if (PrjFileVerNo()>=98)
+    DoIt=DDB.BeginObject(m_pThis, "EB", "EB_Slct", 0, DDB_NoPage);
+  
+  if (DoIt)
     {
     DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, m_pThis, 0); 
-    DDB.Long("Adjustments", "", DC_, "", xidAdjusts, m_pThis, isParmStopped|SetOnChange); 
+    DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pThis, isParmStopped|SetOnChange); 
+    DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pThis, isParmStopped|SetOnChange); 
 
     Strng S;
     if (m_pRB)
@@ -113,9 +124,14 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
       m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
 
     //DDB.Text("");
-    for (int a=0; a<m_pAdjs.GetSize(); a++)
-      m_pAdjs[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 10000+a);
+    for (int a=0; a<m_pMakeups.GetSize(); a++)
+      m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 10000+a);
+    for (int a=0; a<m_pBleeds.GetSize(); a++)
+      m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 20000+a);
     }
+
+  if (PrjFileVerNo()>=98)
+    DDB.EndObject();
 
   DDB.Text("");
   };
@@ -136,11 +152,19 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
   if (m_pEvap && m_pEvap->Enabled())
     m_pEvap->BuildDataDefn(DDB);
   bool TheFirst=true;
-  for (int a=0; a<m_pAdjs.GetSize(); a++)
+  for (int a=0; a<m_pMakeups.GetSize(); a++)
     {
-    if (m_pAdjs[a]->Enabled())
+    if (m_pMakeups[a]->Enabled())
       {
-      m_pAdjs[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 10000+a);
+      m_pMakeups[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 10000+a);
+      TheFirst=false;
+      }
+    }
+  for (int a=0; a<m_pBleeds.GetSize(); a++)
+    {
+    if (m_pBleeds[a]->Enabled())
+      {
+      m_pBleeds[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 20000+a);
       TheFirst=false;
       }
     }
@@ -152,42 +176,75 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
-    case xidAdjusts:
+    case xidNMakeups:
       if (DCB.rL)
         {
         int N=*DCB.rL;
-        N=Range(0, N, MaxAdjBlocks); 
-        for (int a=N; a<m_pAdjs.GetSize(); a++)
+        N=Range(0, N, MaxMakeupBlocks); 
+        for (int a=N; a<m_pMakeups.GetSize(); a++)
           {
-          RemBlk(m_pAdjs[a]);
-          delete m_pAdjs[a];
+          RemBlk(m_pMakeups[a]);
+          delete m_pMakeups[a];
           }
-        int NOld=m_pAdjs.GetSize();
-        m_pAdjs.SetSize(N);
+        int NOld=m_pMakeups.GetSize();
+        m_pMakeups.SetSize(N);
         for (int a=NOld; a<N; a++)
           {
-          m_pAdjs[a] = new CAdjustBase(m_pThis, a);
-          m_pAdjs[a]->Enable();
-          AddBlk(m_pAdjs[a], 1+a*2);
+          m_pMakeups[a] = new CMakeupBase(m_pThis, a);
+          m_pMakeups[a]->Enable();
+          AddBlk(m_pMakeups[a], 1+a*2);
           }
         }
-      DCB.L=m_pAdjs.GetSize();
+      DCB.L=m_pMakeups.GetSize();
+      return 1;
+    case xidNBleeds:
+      if (DCB.rL)
+        {
+        int N=*DCB.rL;
+        N=Range(0, N, MaxBleedBlocks); 
+        for (int a=N; a<m_pBleeds.GetSize(); a++)
+          {
+          RemBlk(m_pBleeds[a]);
+          delete m_pBleeds[a];
+          }
+        int NOld=m_pBleeds.GetSize();
+        m_pBleeds.SetSize(N);
+        for (int a=NOld; a<N; a++)
+          {
+          m_pBleeds[a] = new CBleedBase(m_pThis, a);
+          m_pBleeds[a]->Enable();
+          AddBlk(m_pBleeds[a], 1+a*2);
+          }
+        }
+      DCB.L=m_pBleeds.GetSize();
       return 1;
     }
-  if (m_pRB && /*m_pRB->Enabled() &&*/ m_pRB->DataXchg(DCB))
+  if (m_pRB && m_pRB->DataXchg(DCB))
     return 1;
-  if (m_pHX && /*m_pHX->Enabled() &&*/ m_pHX->DataXchg(DCB))
+  if (m_pHX && m_pHX->DataXchg(DCB))
     return 1;
-  if (m_pEHX && /*m_pEHX->Enabled() &&*/ m_pEHX->DataXchg(DCB))
+  if (m_pEHX && m_pEHX->DataXchg(DCB))
     return 1;
-  if (m_pVLE && /*m_pVLE->Enabled() &&*/ m_pVLE->DataXchg(DCB))
+  if (m_pVLE && m_pVLE->DataXchg(DCB))
     return 1;
-  if (m_pEvap && /*m_pEvap->Enabled() &&*/ m_pEvap->DataXchg(DCB))
+  if (m_pEvap && m_pEvap->DataXchg(DCB))
     return 1;
-  for (int a=0; a<m_pAdjs.GetSize(); a++)
-    if (DCB.dwUserInfo==10000+a && m_pAdjs[a]->DataXchg(DCB))
-      return 1;
-
+  for (int a=0; a<m_pMakeups.GetSize(); a++)
+    {
+    if (DCB.dwUserInfo==10000+a)
+      {
+      if (m_pMakeups[a]->DataXchg(DCB))
+        return 1;
+      }
+    }
+  for (int a=0; a<m_pBleeds.GetSize(); a++)
+    {
+    if (DCB.dwUserInfo==20000+a)
+      {
+      if (m_pBleeds[a]->DataXchg(DCB))
+        return 1;
+      }
+    }
   return 0;
   };
 

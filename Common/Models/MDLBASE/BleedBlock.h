@@ -20,7 +20,7 @@
 //
 // ==========================================================================
 
-class CAdjustBase;
+class CBleedBase;
 
 // ==========================================================================
 //
@@ -28,15 +28,15 @@ class CAdjustBase;
 //
 // ==========================================================================
 
-#define DEFINE_XBLOCK(SM) DEFINE_TAGOBJ(SM)
-#define IMPLEMENT_XBLOCK(Obj, ModelId, Version, Cat, SDesc, LDesc) \
-  IMPLEMENT_TAGOBJ(Obj, CXBlock::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
+#define DEFINE_BLEEDBLOCK(SM) DEFINE_TAGOBJ(SM)
+#define IMPLEMENT_BLEEDBLOCK(Obj, ModelId, Version, Cat, SDesc, LDesc) \
+  IMPLEMENT_TAGOBJ(Obj, CBleedBlock::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
 
-class DllImportExport CXBlock : public TaggedObject
+class DllImportExport CBleedBlock : public TaggedObject
   {
   public:
-    CXBlock(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CXBlock();
+    CBleedBlock(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    virtual ~CBleedBlock();
 
     virtual void    BuildDataDefn(DataDefnBlk& DDB);
     virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
@@ -48,50 +48,14 @@ class DllImportExport CXBlock : public TaggedObject
   public:
     static const pchar GroupName;
 
-    CAdjustBase     * m_pAdjustBase;
+    CBleedBase     * m_pAdjustBase;
   };
 
-DEFINE_XBLOCK(CXBlock);
+DEFINE_BLEEDBLOCK(CBleedBlock);
 
 // ===========================================================================
 
-class DllImportExport CXBlk_Makeup: public CXBlock
-  {
-  public:
-    CXBlk_Makeup(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CXBlk_Makeup();
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
-
-  public:
-    enum eType     {Type_Qm, };
-
-    eType           m_Type;
-    double          m_QmRqd;
-
-    //class CAdjustSpce
-    //  {
-    //  public:
-    //    long      m_CIndex;
-    //    byte      m_Dest;
-    //    double    m_Value;
-    //    double    m_;
-    //  };
-
-    //CArray <CAdjustComp, CAdjustComp&> m_Components;
-
-  };
-
-DEFINE_XBLOCK(CXBlk_Makeup);
-
-// ===========================================================================
-
-class DllImportExport CXBlk_Bleed: public CXBlock
+class DllImportExport CXBlk_Bleed: public CBleedBlock
   {
   public:
     CXBlk_Bleed(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
@@ -125,7 +89,7 @@ class DllImportExport CXBlk_Bleed: public CXBlock
 
   };
 
-DEFINE_XBLOCK(CXBlk_Bleed);
+DEFINE_BLEEDBLOCK(CXBlk_Bleed);
 
 // ===========================================================================
 //
@@ -133,12 +97,12 @@ DEFINE_XBLOCK(CXBlk_Bleed);
 //
 // ===========================================================================
 
-class DllImportExport CAdjustBase : public CBlockEvalBase
+class DllImportExport CBleedBase : public CBlockEvalBase
   {
   public:
 
-    CAdjustBase(TaggedObject * pAttach, int Index);
-    ~CAdjustBase();
+    CBleedBase(TaggedObject * pAttach, int Index);
+    ~CBleedBase();
 
     virtual Strng  Name();
 
@@ -147,7 +111,7 @@ class DllImportExport CAdjustBase : public CBlockEvalBase
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
-    CXBlock *   operator->() { return m_pAdjustB; };
+    CBleedBlock *   operator->() { return m_pAdjustB; };
     flag           Enabled() { return m_fEnabled && (m_pAdjustB!=NULL); };
     void           Enable() { m_fEnabled = true; };
     void           Disable() { m_fEnabled = false; };
@@ -167,7 +131,7 @@ class DllImportExport CAdjustBase : public CBlockEvalBase
   protected:
     flag              m_fFixed;
     flag              m_fEnabled;
-    CXBlock    * m_pAdjustB;
+    CBleedBlock    * m_pAdjustB;
     TaggedObject    * m_pNd;
     int               m_Index;
     //Strng             m_sTag;

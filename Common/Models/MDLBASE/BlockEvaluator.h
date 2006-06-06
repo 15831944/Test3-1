@@ -4,7 +4,8 @@
 #include "sp_react.h"
 #include "m_hxbase.h"
 #include "evapblock.h"
-#include "adjustblock.h"
+#include "makeupblock.h"
+#include "bleedblock.h"
 
 #ifdef __BLOCKEVALUATOR_CPP
   #define DllImportExport DllExport
@@ -23,9 +24,10 @@ class DllImportExport CBlockEvaluator
   {
   public:
 
-    static const int MaxAdjBlocks       =  10;
+    static const int MaxMakeupBlocks       =  5;
+    static const int MaxBleedBlocks        =  5;
     //                                     RB, HX, EHX, VLE
-    static const int MaxBEBlocks        =   1  +1   +1   +1   +MaxAdjBlocks;
+    static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxMakeupBlocks+MaxBleedBlocks;
 
     CBlockEvaluator(FlwNode * pThis,
                     CReactionBase * pRB = NULL,
@@ -63,7 +65,8 @@ class DllImportExport CBlockEvaluator
     CEnvironHXBase  * m_pEHX;
     CVLEBase        * m_pVLE;
     CEvapBase       * m_pEvap;
-    CArray <CAdjustBase*, CAdjustBase*> m_pAdjs;
+    CArray <CMakeupBase*, CMakeupBase*> m_pMakeups;
+    CArray <CBleedBase*, CBleedBase*> m_pBleeds;
 
     Strng             m_sBlkSeq;
     DDBValueLstMem    m_OnOffValLst;  
