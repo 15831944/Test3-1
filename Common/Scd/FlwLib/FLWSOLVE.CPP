@@ -12741,7 +12741,6 @@ flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
 #ifndef _RELEASE
   SpModel::SetDoTestEstTP(10);
 #endif
-
   // Set the Time - regardless
   ODE().SetTime(CB.m_TheTime.Seconds);
   //ODE().ClSetItersTotal(0);

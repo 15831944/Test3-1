@@ -1993,7 +1993,7 @@ flag CHXBlock::CIStrng(int No, pchar & pS)
 //
 //============================================================================
 
-CHXBase::CHXBase(pFlwNode pAttach, TagObjClass *RqdHXClass, flag Fixed)
+CHXBase::CHXBase(pFlwNode pAttach, TagObjClass *RqdHXClass, flag Fixed) : CBlockEvalBase(BEId_HX)
   {
   pRqdHXClass=RqdHXClass;
   pHX=NULL;

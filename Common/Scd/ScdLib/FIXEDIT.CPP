@@ -1512,6 +1512,7 @@ class CFxdEdtCBox : public CComboBox
   public:
     flag    fAcceptChgs;
     int     nStartCharAtStart;
+    CString m_TextOnKillFocus;
   protected:
     void FixCaret();
 
@@ -1696,6 +1697,7 @@ void CFxdEdtCBox::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     {
     case VK_RETURN  :
       fAcceptChgs=true;
+      //ClrCBoxControl();
       if (pCBoxCtrlView)
         pCBoxCtrlView->SetFocus();
       break;
@@ -1731,6 +1733,7 @@ void CFxdEdtCBox::OnSetFocus( CWnd* pOldWnd )
 
 void CFxdEdtCBox::OnKillFocus( CWnd* pNewWnd )
   {
+  GetWindowText(m_TextOnKillFocus);
   CComboBox::OnKillFocus( pNewWnd );
   HideCaret();
   DestroyCaret();
@@ -1950,6 +1953,8 @@ void SetCBoxControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, flag ShowDrp
 
   CString S(pCBoxCtrlFld->Str());
 
+  int iStr2Slct=-1;
+  CString sStr2Slct;
   if (pCBoxControl==NULL)
     {
     pCBoxControl= new CFxdEdtCBox();
@@ -1960,6 +1965,11 @@ void SetCBoxControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, flag ShowDrp
     pCBoxControl->SetItemHeight(-1,pView->ScrGB.RowHgt()-2);
     pCBoxControl->ResetContent();
     bool ValueInList=false;
+    int iOffset=1000;
+    Strng FU(" ");
+    FU[0]=nChar;
+    FU.Upper();
+
     for (pStrng pS=pL->First(); pS; pS=pS->Next())
       {
       char *pStr=(pS->Str() ? pS->Str() : "");
@@ -1970,9 +1980,22 @@ void SetCBoxControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, flag ShowDrp
       else
         S.Set("%s%*s%c%2i", pStr, Max(0, (int)(MaxWide-strlen(pStr))),"", IndexMarker, pS->Index());
       pCBoxControl->AddString(S());
+
+      // find closest in list match char closest to begin
+      Strng SU(pStr);
+      SU.Upper();
+      char*pF=SU.XStrStr(FU);
+      int i=pF ? pF-SU() : 1000;
+      if (i<iOffset)
+        {
+        iOffset=i;
+        iStr2Slct=pCBoxControl->GetCount()-1;
+        sStr2Slct=S();
+        }
       }
     if (Fld->HasNANStrings && !ValueInList) // Optionally Add current value
       pCBoxControl->AddString(Fld->Str());
+
     pCBoxControl->SetFocus();
     
     if (ShowDrpDwn)
@@ -1986,15 +2009,26 @@ void SetCBoxControl(FxdEdtFld * Fld, pFxdEdtView pView, UINT nChar, flag ShowDrp
   DestroyCaret();
   pCBoxCtrlView->CaretOK=0;
 
-  S=pCBoxCtrlFld->Str();
-  pCBoxControl->SelectString(-1, S);
-
   pCBoxControl->SetFocus();
-  if (nChar)
+
+  if (iStr2Slct>=0)
+    {
+    pCBoxControl->SetWindowTextA(sStr2Slct);
+    pCBoxControl->SetCurSel(iStr2Slct);
+    }
+  else
+    {
+    S=pCBoxCtrlFld->Str();
+    if (pCBoxControl->FindString(-1, S)>=0)
+      pCBoxControl->SelectString(-1, S);
+    }
+
+  if (nChar)// && iStr2Slct<0)
     pCBoxControl->SendMessage(WM_CHAR, nChar, 0);
     //pCBoxControl->OnChar(nChar, nRepCnt, nFlags);
 //  pCBoxControl->SetWindowPos(NULL, Rect.left, Rect.top, 0,0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
   pCBoxControl->SetWindowPos(&CWnd::wndTop, Rect.left, Rect.top, 0,0, SWP_NOSIZE | SWP_SHOWWINDOW);
+
   fCBoxSelEndDone=false;
   }
 
@@ -2008,8 +2042,9 @@ void ClrCBoxControl()
 
     if (pCBoxControl->fAcceptChgs)
       {
-      CString WT;
-      pCBoxControl->GetWindowText(WT);
+      //CString WT;
+      //pCBoxControl->GetWindowText(WT);
+      CString WT=pCBoxControl->m_TextOnKillFocus;//GetWindowText(WT);
       int i=WT.ReverseFind(IndexMarker);
       if (i>=0)
         WT.Delete(i,1024);

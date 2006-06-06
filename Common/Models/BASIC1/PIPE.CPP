@@ -442,7 +442,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
 #if (WITHBLOCKEVALUATOR)
-  m_BlkEval.Add_OnOff(this, DDB);  
+  m_BlkEval.Add_OnOff(DDB);  
   if (PrjFileVerNo()<97 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
 #else
   if (1)
@@ -843,7 +843,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
 #if (WITHBLOCKEVALUATOR)
-  m_BlkEval.BuildDataDefn(this, DDB);
+  m_BlkEval.BuildDataDefn(DDB);
 #else
   m_RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);

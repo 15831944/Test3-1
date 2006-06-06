@@ -6,24 +6,32 @@
 
 static const LPTSTR SeqNames[] =
   {
-/*  "First",
-  "Second",
-  "Third",
-  "Fourth",
-  "Fifth",
-  "Sixth",*/
-  "On (Priority 1)",
-  "On (Priority 2)",
-  "On (Priority 3)",
-  "On (Priority 4)",
-  "On (Priority 5)",
-  "On (Priority 6)",
+  //"On (Priority 1)",
+  //"On (Priority 2)",
+  //"On (Priority 3)",
+  //"On (Priority 4)",
+  //"On (Priority 5)",
+  //"On (Priority 6)",
+  "On-1",
+  "On-2",
+  "On-3",
+  "On-4",
+  "On-5",
+  "On-6",
+  "On-7",
+  "On-8",
+  "On-9",
+  "On-10",
+  "On-11",
+  "On-12",
   };
 
 
-CBlockEvalBase::CBlockEvalBase(void)
+CBlockEvalBase::CBlockEvalBase(byte BEId)
   {
-  m_iBlockSeqNo=0;
+  m_BEId=BEId;
+  m_iBlkSeqNo=0;
+  m_iDefBlkSeqNo=255;
   m_pOnOffValLst=NULL;
   }
 
@@ -53,13 +61,35 @@ DDBValueLst * CBlockEvalBase::GetOnOffValLst()
 void CBlockEvalBase::Open(byte L)
   {
   if (L>BlkEval_Off)
-    BlockSeqNo(L);
+    SetBlkSeqNo(L);
   };
 
 byte CBlockEvalBase::OpenStatus(flag Enabled)
   {
   if (Enabled)
-    return BlockSeqNo();
+    return BlkSeqNo();
   else
     return BlkEval_Off;
   };
+
+byte CBlockEvalBase::BlkSeqNo(bool ForSort)
+  {
+  int Seq=255;
+  if (Enabled()) 
+    Seq=m_iBlkSeqNo; 
+
+  if (ForSort && (Seq==BlkEval_On))
+    Seq=254;
+
+  //dbgpln("BlkSeqNo %08x %3i = %3i", this, m_BEId, Seq);
+  return Seq;
+  };
+
+Strng CBlockEvalBase::Name()
+  {
+  static LPTSTR Names[] =  {"Null", "RB", "HX", "EHX", "VLE", "Evap", "X", };
+
+  return Strng(Names[m_BEId]);
+  }
+
+

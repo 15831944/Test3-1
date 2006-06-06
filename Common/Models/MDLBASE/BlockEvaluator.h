@@ -4,6 +4,7 @@
 #include "sp_react.h"
 #include "m_hxbase.h"
 #include "evapblock.h"
+#include "adjustblock.h"
 
 #ifdef __BLOCKEVALUATOR_CPP
   #define DllImportExport DllExport
@@ -21,50 +22,48 @@
 class DllImportExport CBlockEvaluator
   {
   public:
-    static const int MaxBEBlocks = 5;
 
-    static const byte BES_Null         = 0x00;
-    static const byte BES_RB           = 0x01;
-    static const byte BES_HX           = 0x02;
-    static const byte BES_EHX          = 0x03;
-    static const byte BES_VLE          = 0x04;
-    static const byte BES_Evap         = 0x05;
+    static const int MaxAdjBlocks       =  10;
+    //                                     RB, HX, EHX, VLE
+    static const int MaxBEBlocks        =   1  +1   +1   +1   +MaxAdjBlocks;
 
-    CBlockEvaluator(CReactionBase * pRB = NULL,
+    CBlockEvaluator(FlwNode * pThis,
+                    CReactionBase * pRB = NULL,
                     CHXBase *pHX = NULL,
                     CEnvironHXBase * pEHX = NULL,
                     CVLEBase * pVLE = NULL,
                     CEvapBase * pEvap = NULL);
     ~CBlockEvaluator(void);
 
-    void              Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages PageIs=DDB_NoPage);
-    void              BuildDataDefn(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages PageIs=DDB_RqdPage);
+    void              AddBlk(CBlockEvalBase *p, int DefSeqNo);
+    void              RemBlk(CBlockEvalBase *p);
+
+    void              Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs=DDB_NoPage);
+    void              BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs=DDB_RqdPage);
     flag              DataXchg(DataChangeBlk & DCB);
     flag              ValidateData(ValidateDataBlk & VDB);
-    int               DefBlkSeqNo(byte SeqID);
-    int               BlkSeqNo(byte SeqID);
-    void              SetBlkSeqNo(byte SeqID, byte No);
+    //int               DefBlkSeqNo(byte SeqID);
+    //int               BlkSeqNo(byte SeqID);
+    //void              SetBlkSeqNo(byte SeqID, byte No);
     void              SortBlocks();
 
     void              EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
     void              EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
 
   protected:
+    FlwNode         * m_pThis;
     int               m_nBlocks;
-    int               m_nSequence;
-    byte              m_Sequence[MaxBEBlocks+1];
+    //int               m_nBEInSeq;
+    //byte              m_BEInSeq[MaxBEBlocks+1];
+    CBlockEvalBase  * m_Blks[MaxBEBlocks+1];
+
 
     CReactionBase   * m_pRB;
     CHXBase         * m_pHX;
     CEnvironHXBase  * m_pEHX;
     CVLEBase        * m_pVLE;
     CEvapBase       * m_pEvap;
-
-    byte              m_RBDefSeq; 
-    byte              m_HXDefSeq; 
-    byte              m_EHXDefSeq; 
-    byte              m_VLEDefSeq; 
-    byte              m_EvapDefSeq;
+    CArray <CAdjustBase*, CAdjustBase*> m_pAdjs;
 
     Strng             m_sBlkSeq;
     DDBValueLstMem    m_OnOffValLst;  

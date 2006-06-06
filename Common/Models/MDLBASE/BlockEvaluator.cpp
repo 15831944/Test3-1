@@ -8,7 +8,7 @@
 #if WITHBLOCKEVALUATOR
 
 
-#define DISABLESIMULTANEOUS   1
+#define DISABLESIMULTANEOUS   01
 
 //=========================================================================
 //
@@ -16,30 +16,17 @@
 //
 //=========================================================================
 
-//XID xidEvalSeqRB   = EvalBlkXID(1);
-//XID xidEvalSeqHX   = EvalBlkXID(2);
-//XID xidEvalSeqEHX  = EvalBlkXID(3);
-//XID xidEvalSeqVLE  = EvalBlkXID(4);
-//XID xidEvalSeqEvap = EvalBlkXID(5);
+XID xidAdjusts       = EvalBlkXID(1);
 
-static LPTSTR Names[] = 
+CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
+                                 CReactionBase * pRB,
+                                 CHXBase *pHX,
+                                 CEnvironHXBase * pEHX,
+                                 CVLEBase * pVLE,
+                                 CEvapBase * pEvap)
   {
-  "Null",
-  "RB",
-  "HX",
-  "EHX",
-  "VLE",
-  "Evap",
-  };
-
-CBlockEvaluator::CBlockEvaluator(CReactionBase * pRB,
-                                CHXBase *pHX,
-                                CEnvironHXBase * pEHX,
-                                CVLEBase * pVLE,
-                                CEvapBase * pEvap)
-  {
+  m_pThis     = pThis;
   m_nBlocks   = 0;
-  m_nSequence = 0;
 
   m_pRB   = pRB;
   m_pHX   = pHX;
@@ -47,54 +34,71 @@ CBlockEvaluator::CBlockEvaluator(CReactionBase * pRB,
   m_pVLE  = pVLE;
   m_pEvap = pEvap;
 
-  m_RBDefSeq   = 2;  
-  m_HXDefSeq   = 3; 
-  m_EHXDefSeq  = 4; 
-  m_VLEDefSeq  = 5; 
-  m_EvapDefSeq = 6;
+  AddBlk(m_pRB, 2);
+  AddBlk(m_pHX, 4); 
+  AddBlk(m_pEHX, 6); 
+  AddBlk(m_pVLE, 8); 
+  AddBlk(m_pEvap, 10); 
 
   SortBlocks();
-
-  if (m_pRB) 
-    {
-    m_pRB->SetOnOffValLst(&m_OnOffValLst);
-    m_nBlocks++;
-    };
-  if (m_pHX) 
-    {
-    m_pHX->SetOnOffValLst(&m_OnOffValLst);
-    m_nBlocks++;
-    };
-  if (m_pEHX) 
-    {
-    m_pEHX->SetOnOffValLst(&m_OnOffValLst);
-    m_nBlocks++;
-    };
-  if (m_pVLE) 
-    {
-    m_pVLE->SetOnOffValLst(&m_OnOffValLst);
-    m_nBlocks++;
-    };
-  if (m_pEvap) 
-    {
-    m_pEvap->SetOnOffValLst(&m_OnOffValLst);
-    m_nBlocks++;
-    };
   };
 
 //-------------------------------------------------------------------------
 
 CBlockEvaluator::~CBlockEvaluator(void)
   {
+  RemBlk(m_pRB);
+  RemBlk(m_pHX); 
+  RemBlk(m_pEHX); 
+  RemBlk(m_pVLE); 
+  RemBlk(m_pEvap); 
+
+  for (int a=0; a<m_pAdjs.GetSize(); a++)
+    {
+    RemBlk(m_pAdjs[a]);
+    delete m_pAdjs[a];
+    }
   }
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages PageIs)
+void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
+  {
+  if (p)
+    {
+    p->SetOnOffValLst(&m_OnOffValLst);
+    p->SetDefBlkSeqNo(DefSeqNo);
+    m_Blks[m_nBlocks++]=p;
+    }
+  };
+
+//-------------------------------------------------------------------------
+
+void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
+  {
+  if (p)
+    {
+    for (int i=0; i<m_nBlocks; i++)
+      {
+      if (m_Blks[i]==p)
+        {
+        m_nBlocks--;
+        for (int j=i; j<m_nBlocks; j++)
+          m_Blks[j]=m_Blks[j+1];
+        break;
+        }
+      }
+    }
+  }
+
+//-------------------------------------------------------------------------
+
+void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
   {
   if (1)
     {
-    DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, pThis, 0); 
+    DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, m_pThis, 0); 
+    DDB.Long("Adjustments", "", DC_, "", xidAdjusts, m_pThis, isParmStopped|SetOnChange); 
 
     Strng S;
     if (m_pRB)
@@ -107,6 +111,10 @@ void CBlockEvaluator::Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages
       m_pVLE->Add_OnOff(DDB, isParmStopped|SetOnChange);
     if (m_pEvap)
       m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
+
+    //DDB.Text("");
+    for (int a=0; a<m_pAdjs.GetSize(); a++)
+      m_pAdjs[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 10000+a);
     }
 
   DDB.Text("");
@@ -114,8 +122,9 @@ void CBlockEvaluator::Add_OnOff(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::BuildDataDefn(TaggedObject * pThis, DataDefnBlk &DDB, DDBPages PageIs)
+void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
   {
+
   if (m_pRB && m_pRB->Enabled())
     m_pRB->BuildDataDefn(DDB);
   if (m_pHX && m_pHX->Enabled())
@@ -126,12 +135,45 @@ void CBlockEvaluator::BuildDataDefn(TaggedObject * pThis, DataDefnBlk &DDB, DDBP
     m_pVLE->BuildDataDefn(DDB);
   if (m_pEvap && m_pEvap->Enabled())
     m_pEvap->BuildDataDefn(DDB);
+  bool TheFirst=true;
+  for (int a=0; a<m_pAdjs.GetSize(); a++)
+    {
+    if (m_pAdjs[a]->Enabled())
+      {
+      m_pAdjs[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 10000+a);
+      TheFirst=false;
+      }
+    }
   };
 
 //-------------------------------------------------------------------------
 
 flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
   {
+  switch (DCB.lHandle)
+    {
+    case xidAdjusts:
+      if (DCB.rL)
+        {
+        int N=*DCB.rL;
+        N=Range(0, N, MaxAdjBlocks); 
+        for (int a=N; a<m_pAdjs.GetSize(); a++)
+          {
+          RemBlk(m_pAdjs[a]);
+          delete m_pAdjs[a];
+          }
+        int NOld=m_pAdjs.GetSize();
+        m_pAdjs.SetSize(N);
+        for (int a=NOld; a<N; a++)
+          {
+          m_pAdjs[a] = new CAdjustBase(m_pThis, a);
+          m_pAdjs[a]->Enable();
+          AddBlk(m_pAdjs[a], 1+a*2);
+          }
+        }
+      DCB.L=m_pAdjs.GetSize();
+      return 1;
+    }
   if (m_pRB && /*m_pRB->Enabled() &&*/ m_pRB->DataXchg(DCB))
     return 1;
   if (m_pHX && /*m_pHX->Enabled() &&*/ m_pHX->DataXchg(DCB))
@@ -142,6 +184,9 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_pEvap && /*m_pEvap->Enabled() &&*/ m_pEvap->DataXchg(DCB))
     return 1;
+  for (int a=0; a<m_pAdjs.GetSize(); a++)
+    if (DCB.dwUserInfo==10000+a && m_pAdjs[a]->DataXchg(DCB))
+      return 1;
 
   return 0;
   };
@@ -157,95 +202,18 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
 
 //-------------------------------------------------------------------------
 
-int CBlockEvaluator::DefBlkSeqNo(byte SeqID)
-  {
-  int Seq=255;
-
-  switch (SeqID)
-    {
-    case BES_RB:    if (m_pRB->Enabled()) Seq=m_RBDefSeq; break;
-    case BES_HX:    if (m_pHX->Enabled()) Seq=m_HXDefSeq; break;
-    case BES_EHX:   if (m_pEHX->Enabled()) Seq=m_EHXDefSeq; break;
-    case BES_VLE:   if (m_pVLE->Enabled()) Seq=m_VLEDefSeq; break;
-    case BES_Evap:  if (m_pEvap->Enabled()) Seq=m_EvapDefSeq; break;
-    }
-  
-  return Seq;
-  }
-
-//-------------------------------------------------------------------------
-
-int CBlockEvaluator::BlkSeqNo(byte SeqID)
-  {
-  int Seq=255;
-  
-  switch (SeqID)
-    {
-    case BES_RB:    if (m_pRB->Enabled()) Seq=m_pRB->BlockSeqNo(); break;
-    case BES_HX:    if (m_pHX->Enabled()) Seq=m_pHX->BlockSeqNo(); break;
-    case BES_EHX:   if (m_pEHX->Enabled()) Seq=m_pEHX->BlockSeqNo(); break;
-    case BES_VLE:   if (m_pVLE->Enabled()) Seq=m_pVLE->BlockSeqNo(); break;
-    case BES_Evap:  if (m_pEvap->Enabled()) Seq=m_pEvap->BlockSeqNo(); break;
-    }
-
-  if (Seq==BlkEval_On) 
-    Seq=254;
-
-  return Seq;
-  }
-
-//-------------------------------------------------------------------------
-
-void CBlockEvaluator::SetBlkSeqNo(byte SeqID, byte No)
-  {
-  switch (SeqID)
-    {
-    case BES_RB:    if (m_pRB->Enabled()) m_pRB->BlockSeqNo(No); break;
-    case BES_HX:    if (m_pHX->Enabled()) m_pHX->BlockSeqNo(No); break;
-    case BES_EHX:   if (m_pEHX->Enabled()) m_pEHX->BlockSeqNo(No); break;
-    case BES_VLE:   if (m_pVLE->Enabled()) m_pVLE->BlockSeqNo(No); break;
-    case BES_Evap:  if (m_pEvap->Enabled()) m_pEvap->BlockSeqNo(No); break;
-    }
-  }
-//-------------------------------------------------------------------------
-
 void CBlockEvaluator::SortBlocks()
   {
-  int i;
-
-  m_Sequence[0] = m_pRB   && m_pRB->Enabled()   ? BES_RB    : BES_Null;
-  m_Sequence[1] = m_pHX   && m_pHX->Enabled()   ? BES_HX    : BES_Null;
-  m_Sequence[2] = m_pEHX  && m_pEHX->Enabled()  ? BES_EHX   : BES_Null;
-  m_Sequence[3] = m_pVLE  && m_pVLE->Enabled()  ? BES_VLE   : BES_Null;
-  m_Sequence[4] = m_pEvap && m_pEvap->Enabled() ? BES_Evap  : BES_Null;
-  m_Sequence[5] = BES_Null;
-
-  ASSERT(m_Sequence[MaxBEBlocks]==BES_Null);
-
-  for (i=0; i<MaxBEBlocks; i++)
-    {
-    if (m_Sequence[i]==BES_Null)
-      {
-      for (int j=i; j<MaxBEBlocks; j++)
-        m_Sequence[j]=m_Sequence[j+1];
-      }
-    }
-
-  m_nSequence=0;
-  for (i=0; i<MaxBEBlocks; i++)
-    if (m_Sequence[i]!=BES_Null)
-      m_nSequence=i+1;
-
   CBlockEvalBase::BuildOnOffValLst(&m_OnOffValLst, m_nBlocks);
 
-  //int i;
-  for (i=1 ; i<m_nSequence; )
+  int i;
+  for (i=1 ; i<m_nBlocks; )
     {
-    if (BlkSeqNo(m_Sequence[i-1])>BlkSeqNo(m_Sequence[i]) ||
-        (BlkSeqNo(m_Sequence[i-1])==BlkSeqNo(m_Sequence[i]) && DefBlkSeqNo(m_Sequence[i-1])>DefBlkSeqNo(m_Sequence[i])))
+    if (m_Blks[i-1]->BlkSeqNo(true)>m_Blks[i]->BlkSeqNo(true) ||
+        (m_Blks[i-1]->BlkSeqNo(true)==m_Blks[i]->BlkSeqNo(true) && m_Blks[i-1]->DefBlkSeqNo()>m_Blks[i]->DefBlkSeqNo()))
       {
       // swap
-      Exchange(m_Sequence[i-1], m_Sequence[i]);
+      Exchange(m_Blks[i-1], m_Blks[i]);
       if (i>1)
         i--;
       }
@@ -253,44 +221,64 @@ void CBlockEvaluator::SortBlocks()
       i++;
     };
 
-  if (0)
+  if (1)
     {
     dbgpln("SortBlks ===============");
-    for (i=0 ; i<m_nSequence; i++)
-      dbgpln("  Seq: %5i %5i", m_Sequence[i], BlkSeqNo(m_Sequence[i]));
+    for (i=0 ; i<m_nBlocks; i++)
+      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name(), m_Blks[i]->BlkSeqNo(true));
+    }
+
+
+#if DISABLESIMULTANEOUS
+  if (1)
+    {
+    i=0;
+    for (; i<m_nBlocks && m_Blks[i]->BlkSeqNo()<BlkEval_On; )
+      {
+      int N=1;
+      int iSeq=m_Blks[i]->BlkSeqNo();
+      i++;
+
+      if (i<m_nBlocks && m_Blks[i]->BlkSeqNo()==iSeq)
+        {
+        for (int j=i; j<m_nBlocks; j++)
+          {
+          m_Blks[j]->SetBlkSeqNo(m_Blks[j]->BlkSeqNo()+1);
+          if (j<m_nBlocks-1 && m_Blks[j]->BlkSeqNo()<m_Blks[j+1]->BlkSeqNo()) 
+            break;
+          }
+        }
+      }
+    }
+#endif
+
+  if (1)
+    {
+    dbgpln("         ===============");
+    for (i=0 ; i<m_nBlocks; i++)
+      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name(), m_Blks[i]->BlkSeqNo(true));
+    dbgpln("         ===============");
     }
 
   m_sBlkSeq="";
   i=0;
-  for (; i<m_nSequence && BlkSeqNo(m_Sequence[i])<BlkEval_On; )
+  for (; i<m_nBlocks&& m_Blks[i]->BlkSeqNo(true)<BlkEval_On; )
     {
-    Strng S(Names[m_Sequence[i]]);
+    Strng S(m_Blks[i]->Name());
     int N=1;
-    int iSeq=BlkSeqNo(m_Sequence[i]);
+    int iSeq=m_Blks[i]->BlkSeqNo(true);
     i++;
 
-#if DISABLESIMULTANEOUS
-    if (i<m_nSequence && BlkSeqNo(m_Sequence[i])==iSeq)
-      {
-      for (int j=i; j<m_nSequence; j++)
-        {
-        SetBlkSeqNo(m_Sequence[j], BlkSeqNo(m_Sequence[j])+1);
-        if (j<m_nSequence-1 && BlkSeqNo(m_Sequence[j])<BlkSeqNo(m_Sequence[j+1])) 
-          break;
-        }
-      }
-#endif
-
-    for (  ; i<m_nSequence && BlkSeqNo(m_Sequence[i])==iSeq; i++)
+    for (  ; i<m_nBlocks && m_Blks[i]->BlkSeqNo(true)==iSeq; i++)
       {
       N++;
-      S+=", ";
-      S+=Names[m_Sequence[i]];
+      S+=",";
+      S+=m_Blks[i]->Name();
       }
     if (N>1)
       {
       if (m_sBlkSeq.GetLength()>0)
-        m_sBlkSeq+=" > ";
+        m_sBlkSeq+=".";
       m_sBlkSeq+="[";
       m_sBlkSeq+=S;
       m_sBlkSeq+="]";
@@ -298,16 +286,16 @@ void CBlockEvaluator::SortBlocks()
     else
       {
       if (m_sBlkSeq.GetLength()>0)
-        m_sBlkSeq+=" > ";
+        m_sBlkSeq+=".";
       m_sBlkSeq+=S;
       }
     }
 
-  for (  ; i<m_nSequence /*&& BlkSeqNo(m_Sequence[i])==0*/ && BlkSeqNo(m_Sequence[i])<255; i++)
+  for (  ; i<m_nBlocks && m_Blks[i]->BlkSeqNo()<255; i++)
     {
     if (m_sBlkSeq.GetLength()>0)
-      m_sBlkSeq+=" > ";
-    m_sBlkSeq+=Names[m_Sequence[i]];
+      m_sBlkSeq+=".";
+    m_sBlkSeq+=m_Blks[i]->Name();
     }
 
   int xxx=0;
@@ -317,11 +305,11 @@ void CBlockEvaluator::SortBlocks()
 
 void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
-  for (int i=0; i<m_nSequence; i++)
+  for (int i=0; i<m_nBlocks ; i++)
     {
-    switch (m_Sequence[i])
+    switch (m_Blks[i]->BEId())
       {
-      case BES_RB:    
+      case BEId_RB:    
         if (pFTB)
           pFTB->AddRBBegin();
         m_pRB->EvalProducts(Fo);
@@ -329,14 +317,14 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
           pFTB->AddRBEnd();
         break;
 
-      case BES_HX:    
-        _asm int 3; // this needs thought
+      case BEId_HX:    
+        __debugbreak(); // this needs thought
         //FTB.AddHXBegin();
         m_pHX->EvalProducts(); 
         //FTB.AddHXEnd();
         break;
 
-      case BES_EHX:  
+      case BEId_EHX:  
         if (pFTB)
           pFTB->AddEHXBegin();
         m_pEHX->EvalProducts(Fo);
@@ -344,7 +332,7 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
           pFTB->AddEHXEnd();
         break;
 
-      case BES_VLE:   
+      case BEId_VLE:   
         if (pFTB)
           pFTB->AddVLEBegin();
         m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
@@ -352,7 +340,7 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
           pFTB->AddVLEEnd();
         break;
 
-      case BES_Evap:  
+      case BEId_Evap:  
         if (pFTB)
           pFTB->AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 
@@ -368,11 +356,11 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
 
 void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
-  for (int i=0; i<m_nSequence; i++)
+  for (int i=0; i<m_nBlocks; i++)
     {
-    switch (m_Sequence[i])
+    switch (m_Blks[i]->BEId())
       {
-      case BES_RB:    
+      case BEId_RB:    
         if (pFTB)
           pFTB->AddRBBegin();
         m_pRB->EvalProducts(Fo);
@@ -380,14 +368,14 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
           pFTB->AddRBEnd();
         break;
 
-      case BES_HX:    
-        _asm int 3; // this needs thought
+      case BEId_HX:    
+        __debugbreak(); // this needs thought
         //FTB.AddHXBegin();
         m_pHX->EvalProducts(); 
         //FTB.AddHXEnd();
         break;
 
-      case BES_EHX:  
+      case BEId_EHX:  
         if (pFTB)
           pFTB->AddEHXBegin();
         m_pEHX->EvalProductsPipe(Fo, Len, Diam);
@@ -395,7 +383,7 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
           pFTB->AddEHXEnd();
         break;
 
-      case BES_VLE:   
+      case BEId_VLE:   
         if (pFTB)
           pFTB->AddVLEBegin();
         m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
@@ -403,7 +391,7 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
           pFTB->AddVLEEnd();
         break;
 
-      case BES_Evap:  
+      case BEId_Evap:  
         if (pFTB)
           pFTB->AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 

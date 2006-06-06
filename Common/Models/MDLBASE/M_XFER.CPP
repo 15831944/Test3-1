@@ -25,7 +25,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakIn),
   m_Evap(this)
 #if (WITHBLOCKEVALUATOR)
-  , m_BlkEval(&m_RB, NULL, &EHX, NULL/*&m_VLE*/, &m_Evap)
+  , m_BlkEval(this, &m_RB, NULL, &EHX, NULL/*&m_VLE*/, &m_Evap)
 #endif
   {
   AttachClassInfo(nc_MXfer,NULL);

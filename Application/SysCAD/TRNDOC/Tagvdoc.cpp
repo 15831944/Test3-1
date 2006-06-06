@@ -384,7 +384,7 @@ flag CTagVwSlot::SetSlotAsData(pCTagVwDoc pDoc, CPkDataItem & Item)
       //dValue=i;
       pStrng p=sStrList.AtIndexVal(i);
       if (p)
-        sValue.Set("%i-%s", i, p->Str());
+        sValue.Set("%i:%s", i, p->Str());
       else
         sValue.Set("%i", i);
       bValueValid=1;
@@ -400,8 +400,8 @@ flag CTagVwSlot::SetSlotAsData(pCTagVwDoc pDoc, CPkDataItem & Item)
     sMaxVal.Trim();
     if (!IsNumData(cType) && sStrList.Length()>0)
       {
-      sMinVal.Set("%i-%s", sStrList.First()->Index(), sStrList.First()->Str());
-      sMaxVal.Set("%i-%s", sStrList.Last()->Index(), sStrList.Last()->Str());
+      sMinVal.Set("%i:%s", sStrList.First()->Index(), sStrList.First()->Str());
+      sMaxVal.Set("%i:%s", sStrList.Last()->Index(), sStrList.Last()->Str());
       }
     else if (Item.GetRange(pDMin, pDMax))
       {
@@ -996,7 +996,7 @@ void CTagVwSlot::LoadData(pCTagVwDoc pDoc)
           long i=pItem->Value()->GetLong(Cnv.Index(), Cnv.Text());
           pStrng p=sStrList.AtIndexVal(i);
           if (p)
-            sValue.Set("%i-%s", i, p->Str());
+            sValue.Set("%i:%s", i, p->Str());
           else
             sValue.Set("%i", i);
           }
@@ -3380,7 +3380,7 @@ flag CTagVwDoc::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
               long i=pItem->Value()->GetLong(Slt.Cnv.Index(), Slt.Cnv.Text());
               pStrng p=Slt.sStrList.AtIndexVal(i);
               if (p)
-                Slt.sValue.Set("%i-%s", i, p->Str());
+                Slt.sValue.Set("%i:%s", i, p->Str());
               else
                 Slt.sValue.Set("%i", i);
               }
