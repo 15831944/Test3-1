@@ -26,6 +26,7 @@
 
 #if dbgFlwNode
 static CDbgMngr dbgAccCalcs         ("FlwNode",  "AccCalcs");
+static CDbgMngr dbgBuildJoinList    ("FlwNode",  "BuildJoinList");
 static CDbgMngr dbgConstruction     ("FlwNode",  "Construction");
 static CDbgMngr dbgGlobalConnects   ("FlwNode",  "GlobalConnects");
 static CDbgMngr dbgJoinsBld         ("FlwNode",  "JoinsBld");
@@ -4638,7 +4639,10 @@ void FlwNode::BuildJoinList()
       }
     }
 
-  //dbgpln("FlwNode::BuildJoinList      m_nJoins %i %s", m_nJoins, Tag()); 
+#if dbgFlwNode
+  if (dbgBuildJoinList())
+    dbgpln("FlwNode::BuildJoinList      m_nJoins %i %s", m_nJoins, Tag()); 
+#endif
   }
 
 //--------------------------------------------------------------------------

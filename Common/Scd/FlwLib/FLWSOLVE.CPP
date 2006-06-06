@@ -12533,6 +12533,9 @@ static int HpEvalPosn(void * p, void * q)
 flag CFlwSolver::EO_GotoRunStart(CXM_TimeControl &CB)
   {
   dbgpln("CFlwSolver::EO_GotoRunStart");
+  
+  TryDoGlobalLinks();
+  
   return true;
   };
 
