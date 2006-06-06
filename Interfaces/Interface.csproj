@@ -67,10 +67,4 @@
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.csproj">
-      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
-      <Name>FlowChart.NET</Name>
-    </ProjectReference>
-  </ItemGroup>
 </Project>

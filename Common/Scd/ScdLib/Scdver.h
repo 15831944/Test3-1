@@ -19,7 +19,8 @@
 #define WITHTWOPHASE          0
 #define WITH_H2O_FNS_ALWAYS   1
 
-#define CREATENETSERVER       (0 && SYSCAD10)
+#define SYSCAD10              0
+#define CREATENETSERVER       (1 && SYSCAD10)
 
 //Water model selection...
 #define WithSatH2OMdl         0
