@@ -126,7 +126,7 @@ flag CEvBlk::Open(CCatItem* CatItem)
       pEvHead->JmpTimes[i] = 0.0;
       }
     memset(pEvHead->sSpare, 0, sizeof(pEvHead->sSpare));
-    //strncpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName));
+    //strncpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName)); change to line below to avoid ASSERT
     memcpy(pEvHead->sScenName, pCatItem->Data.sScenName, sizeof(pEvHead->sScenName)); //KGA/PKH//CNM/KGA
     memcpy(pEvHead->sCopyNotice, CopyNotice, sizeof(pEvHead->sCopyNotice));
     FlushViewOfFile((void*)pEvHead, 0);

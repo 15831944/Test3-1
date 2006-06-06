@@ -554,7 +554,7 @@ void CCnvsMngr::Init()
     DC_SurfTens = AddSI("SurfTens" , "N/m"        , "Surface Tension"               ,    0.0 ,         1000.0, false);
     DC_EntRate  = AddSI("EntRate"  , "Frac.s/kg"  , "EntrainRate"                   ,    0.0 ,            1.0, false);
     DC_DPperVol = AddSI("DPperVol" , "kPa/m^3/s"  , "PressDropPerVolFlow"           ,    0.0 ,            1.0, false);
-    DC_SurfAreaM= AddSI("SurfAreaM", "m^2/g"      , "Surface Area (Mass)"           ,    0.0 ,            1.0, false); //"Specific Surface Area"
+    DC_SurfAreaM= AddSI("SurfAreaM", "m^2/g"      , "Surface Area (Mass)"           ,    0.0 ,            1.0, false); //Shouldn't SI Units be per kg!!!??? "Specific Surface Area"
     DC_SurfAreaL= AddSI("SurfAreaL", "m^2/L"      , "Surface Area (Volume)"         ,    0.0 ,            1.0, false); //"Total Surface Area"
     DC_FracSol  = AddSI("Frac(Sol)", ""           , "Fraction (Solids)"             ,    0.0 ,            1.0, false);
     DC_FracLiq  = AddSI("Frac(Liq)", ""           , "Fraction (Liquids)"            ,    0.0 ,            1.0, false);

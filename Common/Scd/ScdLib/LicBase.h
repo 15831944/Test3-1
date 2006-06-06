@@ -232,6 +232,38 @@ typedef struct
         Client_QAL       : 1,  //31 allow standard QAL owned models
         Client_Other     : 1;  //32 allow custom user/client models
   } CK_SysCADSecurityOpts;
+/*  DWORD Level            : 2,  //allows 4 levels
+        Mode_ProBal      : 1,  // 3 allow ProBal mode
+        Mode_DynamicFlow : 1,  // 4 allow Dynamic flow based/mathand mode
+        Mode_DynamicFull : 1,  // 5 allow detailed Dynamic pressure based mode
+        Mode_Electrical  : 1,  // 6 allow Electrical design & simulation mode
+        Mode_SteadyState : 1,  // 7 if set then integrators and similar are put into Hold mode
+        Spare_8          : 1,  // 8
+        Func_FullEdit    : 1,  // 9 allow full license (if false then run-time)
+        Func_COM         : 1,  //10 allow access to full VB COM interface
+        Func_COMProp     : 1,  //11 allow COM interface to object properties (not implemented)
+        Func_Drivers     : 1,  //12 allow drivers including OPC client 
+        Func_OPCServer   : 1,  //13 allow OPC Server funcionality
+        Spare_14         : 1,  //14
+        Spare_15         : 1,  //15
+        Mdls_HeatBal     : 1,  //16 allow Kenwalt HeatEx models
+        Mdls_HeatExtra   : 1,  //17 allow Kenwalt HeatEx PowerPlant models
+        Mdls_SizeDist    : 1,  //18 allow Kenwalt size-distribution/communition models
+        Mdls_Alumina     : 1,  //19 allow Kenwalt alumina models
+        Mdls_Electrical  : 1,  //20 allow Kenwalt Electrical & Power models
+        Mdls_BlackBox    : 1,  //21 allow SMDK runtim (BlackBox) models
+        Spare_22         : 1,  //22
+        Spare_23         : 1,  //23
+        Academic         : 1,  //24
+        Spare_25         : 1,  //25
+        Spare_26         : 1,  //26
+        Spare_27         : 1,  //27
+        Client_MineServe : 1,  //28 GMSI MineServe Mdls
+        Client_Alcan     : 1,  //29 allow Alcan owned models
+        Client_RTTS      : 1,  //30 allow Rio Tinto Technical Services owned models
+        Client_QAL       : 1,  //31 allow standard QAL owned models
+        Client_Other     : 1;  //32 allow custom user/client models
+  } CK_SysCADSecurityOpts;*/
 
 typedef struct
   {

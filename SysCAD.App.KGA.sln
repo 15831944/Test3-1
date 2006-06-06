@@ -285,6 +285,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SysCAD91Lic", "Utils\syscad
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic1", "Common\Models\BASIC1\Basic1.vcproj", "{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Control1", "Common\Models\CONTROL1\Control1.vcproj", "{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -1068,6 +1076,42 @@ Global
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Debug.ActiveCfg = Debug|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Debug.Build.0 = Debug|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Debug - Full.ActiveCfg = Debug|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Debug - Full.Build.0 = Debug|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release.ActiveCfg = Release|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release.Build.0 = Release|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release - Full.ActiveCfg = Release|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release - Full.Build.0 = Release|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg.Build.0 = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg Full.Build.0 = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg Marshal.Build.0 = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{99E4E2B3-AE1C-44D5-8A8D-10795E21F2C1}.SMDK_Debug.Build.0 = Debug|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Debug.ActiveCfg = Debug|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Debug.Build.0 = Debug|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Debug - Full.ActiveCfg = Debug|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Debug - Full.Build.0 = Debug|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release.ActiveCfg = Release|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release.Build.0 = Release|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release - Full.ActiveCfg = Release|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release - Full.Build.0 = Release|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg.Build.0 = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg Full.Build.0 = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg Marshal.Build.0 = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{201EA12D-D5FF-4B42-A1A9-8AA7FC31E6B4}.SMDK_Debug.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		Common\BldCopyCOMDll-H.Cmd = Common\BldCopyCOMDll-H.Cmd
