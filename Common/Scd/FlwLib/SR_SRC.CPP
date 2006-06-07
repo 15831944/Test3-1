@@ -311,7 +311,7 @@ void CR_Src::SrcSnkAdjust(SpMArray & M)//SpMArray &dMass, double &dHeat)
     {
     int SpcId=Spcs[i].SpcId;
     double Remainder=M[SpcId]-AddMoles;
-    Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
+    //Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
     M.VValue[SpcId]=Max(0.0, Remainder);
 
     double Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
