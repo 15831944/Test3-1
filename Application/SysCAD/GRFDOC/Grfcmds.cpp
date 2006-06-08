@@ -7466,7 +7466,7 @@ void GrfCmdBlk::DoDelete()
             pDsp->Vp1->AddSelectionAttribList("Tag");
             while (gs_pPrj->RequestModelIOConn(pTag, i++, Info))
               {
-              if (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0)
+              if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
                 {
                 char *a[] = { "Tag",    (pchar)NULL };
                 char *b[] = { Info.Tag(), (pchar)NULL };

@@ -270,6 +270,7 @@ MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   {
   AttachIOAreas(MakeupSrcIOAreaList);
   m_Content.SetView(SVV_AsMassFrac);  
+  m_bForceAudit=true;
   }
 
 //--------------------------------------------------------------------------
@@ -286,7 +287,7 @@ void MakeupSrc::PrepareDefinedData()
 
 void MakeupSrc::BuildDataDefn(DataDefnBlk & DDB)
   {
-  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents);
+  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents|BDDAO_SrcSnk);
   };  
 
 //--------------------------------------------------------------------------
@@ -333,6 +334,7 @@ BleedSnk::BleedSnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   {
   AttachIOAreas(BleedSnkIOAreaList);
   m_Content.SetView(SVV_AsMassFrac);  
+  m_bForceAudit=true;
   }
 
 //--------------------------------------------------------------------------
@@ -349,7 +351,7 @@ void BleedSnk::PrepareDefinedData()
 
 void BleedSnk::BuildDataDefn(DataDefnBlk & DDB)
   {
-  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals);
+  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_SrcSnk);
   };  
 
 //--------------------------------------------------------------------------

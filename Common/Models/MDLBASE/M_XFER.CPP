@@ -596,7 +596,7 @@ void MN_Xfer::EvalIntegral(long JoinMask)
 
 void MN_Xfer::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  ASSERT(SolveDynamicMethod());
+  //ASSERT(SolveDynamicMethod());
 
   //if (RB())
   //  {

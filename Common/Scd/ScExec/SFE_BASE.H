@@ -157,6 +157,7 @@ typedef struct
   int iGrp;
   int iDirn;
   flag fAutoConnect;
+  flag fIsDirectConnect;
   } RequestModelIOConnRec;
 
 typedef flag         (*fn_CallBack)(PVOID FS, int iCode, long lData, pvoid pData);

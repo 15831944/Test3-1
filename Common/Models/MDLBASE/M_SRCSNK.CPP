@@ -15,14 +15,14 @@ int MN_SrcSnk::sm_nCFQuals=-1;
 CArray<Strng, Strng&> MN_SrcSnk::sm_CFQualsNm;
 
 MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MdlNode(pClass_, TagIn, pAttach, eAttach),
-  Contents("Content", this, TOA_Embedded),
-  Flows("Flows", this, TOA_Embedded),
-  P_RegB("RL_Basic", this, NULL),
-  T_RegB("RL_Basic", this, NULL),
-  m_VLE(this, VLEF_TPFlash),
-  m_Src(eDIO_Src, this, false, true, "Src"), 
-  m_Snk(eDIO_Snk, this, false, true, "Snk")
+MdlNode(pClass_, TagIn, pAttach, eAttach),
+Contents("Content", this, TOA_Embedded),
+Flows("Flows", this, TOA_Embedded),
+P_RegB("RL_Basic", this, NULL),
+T_RegB("RL_Basic", this, NULL),
+m_VLE(this, VLEF_TPFlash),
+m_Src(eDIO_Src, this, false, true, "Src"), 
+m_Snk(eDIO_Snk, this, false, true, "Snk")
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
   //Initialise();
@@ -54,7 +54,7 @@ MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
   m_bKeepTrace=(PrjFileVerNo()>73 ? 0 : 1);
 
   iRevFlw=SSQmRev_Null;
-//  fOutFlwIsInFlw=false;
+  //  fOutFlwIsInFlw=false;
 
   Contents.SetVLE(&m_VLE);
   Contents.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
@@ -62,10 +62,10 @@ MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
 
   SetAllowedSolveModes(SM_Direct|SM_Inline/*|SM_Buffered*/);// "Transfer", "Inline", NULL);
 
-//  Contents.SetSQCreateOK(true);
-//  //Contents.SetSQRemoveOK(true);
-//  Contents.SetSQDispCreate(true);
-//  Contents.SetSQEditable(true);
+  //  Contents.SetSQCreateOK(true);
+  //  //Contents.SetSQRemoveOK(true);
+  //  Contents.SetSQDispCreate(true);
+  //  Contents.SetSQEditable(true);
   //Contents.SetSQDispRemove(true);
   fCopyFlw2Contents=false;
   fGlblConnectsInPlace=false;
@@ -94,7 +94,7 @@ MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
 
   m_CFQualsOn.SetSize(sm_nCFQuals);
   for (int i=0; i<sm_nCFQuals; i++)
-     m_CFQualsOn[i]=1;
+    m_CFQualsOn[i]=1;
   };
 
 // -------------------------------------------------------------------------
@@ -399,7 +399,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
   TaggedObject::ValidateTag(sConnectTag);
   if (!OK)
-	  { int xxx=0; }
+    { int xxx=0; }
   return OK;
   };
 
@@ -438,20 +438,20 @@ flag MN_SrcSnk::GetModelAction(Strng & Tag, MdlActionArray & Acts)
   //MdlAction {MAT_NULL, MAT_State, MAT_Value};
 
   MdlAction M0(0, MAT_Value, SSMode&SSM_ConstP && fabs(Contents.PRqd()-Std_P)>0.1,
-                  "Pressure (kPa)", false,
-                  (Contents.PRqd()-Std_P)*P_RegB.Output(), 0.0, Contents.PRqd()-Std_P);
+    "Pressure (kPa)", false,
+    (Contents.PRqd()-Std_P)*P_RegB.Output(), 0.0, Contents.PRqd()-Std_P);
 
   MdlAction M1(1, MAT_Value, SSMode&SSM_ConstQm && fabs(Contents.QmRqd())>1.0e-3,
-                  "Flow (kg/s)", false,
-                  (Contents.QmRqd())*P_RegB.Output(), 0.0, Contents.QmRqd());
+    "Flow (kg/s)", false,
+    (Contents.QmRqd())*P_RegB.Output(), 0.0, Contents.QmRqd());
 
   MdlAction M2(2, MAT_Value, 1,
-                  "Temperature (%)", false,
-                  K_2_C(Contents.TRqd())*T_RegB.Output(), 0.0, K_2_C(Contents.TRqd()));
+    "Temperature (%)", false,
+    K_2_C(Contents.TRqd())*T_RegB.Output(), 0.0, K_2_C(Contents.TRqd()));
 
   MdlAction M3(3, MAT_Follow, 1,
-                  "Find Connected"/*sConnectedTag()*/, false,
-                  0.0, 0.0, 0.0);
+    "Find Connected"/*sConnectedTag()*/, false,
+    0.0, 0.0, 0.0);
 
   Acts.SetSize(0);
   Acts.SetAtGrow(0, M0);
@@ -527,7 +527,7 @@ long MN_SrcSnk::NodeFlwTask(NodeFlwTasks Task)
 void MN_SrcSnk::GlobalConnect()
   {
   fGlblConnectsInPlace=true;
-  
+
   bool AllOK=false;
   Contents.SetSQFlags(SQF_Source, true);
   if (sConnectTag.Length() > 0 && fConnectionOn)
@@ -884,8 +884,8 @@ flag MN_SrcSnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
         }
       }
     else if (((Valid(Contents.QmRqd()) && ((SSMode&SSM_ConstQm)!=0)) ||
-              (Valid(Contents.QvRqd()) && ((SSMode&SSM_ConstQv)!=0)) ||
-              (Valid(Contents.NQvRqd()) && ((SSMode&SSM_ConstNQv)!=0))))
+      (Valid(Contents.QvRqd()) && ((SSMode&SSM_ConstQv)!=0)) ||
+      (Valid(Contents.NQvRqd()) && ((SSMode&SSM_ConstNQv)!=0))))
       {
       Contents.SetPRqdTo(IOP_Flng(IONo));
       double PFeed=Contents.Press();
@@ -922,7 +922,7 @@ void MN_SrcSnk::ClosureInfo()
 
   if (fCrossConnected)
     return;
-  
+
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
@@ -1080,31 +1080,6 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
           }
         }
 
-      if (1)//NoDirectIOs()>0)
-        {
-        int IOOut=IOWithId_Self(SSIO_Src);
-        if (IOOut>=0)
-          {
-          m_Src.SetF(*IOConduit(IOOut));
-          //IOConduit(IOSrc)->QCopy(*IOConduit(IOOut));
-          //int IOSrc=IOWithId_Self(IOId_Src2Area);
-          //if (IOSrc>=0)
-          //  IOConduit(IOSrc)->QCopy(*IOConduit(IOOut));
-          //else
-          //  LogError(FullObjTag(), 0, "Src Direct Missing");
-          }
-
-        int IOIn=IOWithId_Self(SSIO_Snk);
-        if (IOIn>=0)
-          {
-          m_Snk.SetF(*IOConduit(IOIn));
-          //int IOSnk=IOWithId_Self(IOId_Snk2Area);
-          //if (IOSnk>=0)
-          //  IOConduit(IOSnk)->QCopy(*IOConduit(IOIn));
-          //else
-          //  LogError(FullObjTag(), 0, "Snk Direct Missing");
-          }
-        }
       break;
       }
     case SM_Direct:
@@ -1179,6 +1154,17 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
         }
       break;
       }
+    };
+
+  if (1)//NoDirectIOs()>0)
+    {
+    int IOOut=IOWithId_Self(SSIO_Src);
+    if (IOOut>=0)
+      m_Src.SetF(*IOConduit(IOOut));
+
+    int IOIn=IOWithId_Self(SSIO_Snk);
+    if (IOIn>=0)
+      m_Snk.SetF(*IOConduit(IOIn));
     }
 
   // This piece of code will overwrite the makeup image if acting as a sink
@@ -1202,8 +1188,8 @@ void MN_SrcSnk::EvalProductsInit(EvalProductsInitTasks Task)
     {
     DoEvalProducts(false, ICGetTimeInc());
     for (int i=0;i<NoMLnkIOs(); i++)
-    if (IO_Out(i) || IO_Zero(i))
-       EvalProductsInit_Source(Task, i, IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas));
+      if (IO_Out(i) || IO_Zero(i))
+        EvalProductsInit_Source(Task, i, IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas));
     }
   }
 
@@ -1240,10 +1226,10 @@ void MN_SrcSnk::EvalProducts(long JoinMask)
       //    fCopyFlw2Contents;
       }
 
-    #if dbgDumpSpcInfo
+#if dbgDumpSpcInfo
     //if (Forcedbg)
     //  dbgSpFlows("XPG ", Tag(), IOFlange(Out)->Q, 1);
-    #endif
+#endif
 
     }
   else
@@ -1279,8 +1265,8 @@ void MN_SrcSnk::EvalDiscrete()
       for (int q=0; q<pMdl->nQuals; q++)
         {
         if (pMdl->Quals[q].m_iAct!=SQA_Create &&
-            pMdl->Quals[q].Exists()/* &&
-            strcmp(pMdl->Quals[q].pQ->Class()->ClassName(), "SQSzDist1")==0*/)
+          pMdl->Quals[q].Exists()/* &&
+                                 strcmp(pMdl->Quals[q].pQ->Class()->ClassName(), "SQSzDist1")==0*/)
           {
           pMdl->QualityRemove(q);
           }
@@ -1314,8 +1300,8 @@ void MN_SrcSnk::EvalDiscrete()
     BatchAvail = Max(0.0, BatchAvail-(ICGetTimeInc() * dQmOut/nQmOut));
 
   if (!fCrossConnected && (Valid(Contents.QmRqd()) && (SSMode&SSM_ConstQm) ||
-                           Valid(Contents.QvRqd()) && (SSMode&SSM_ConstQv) ||
-                           Valid(Contents.NQvRqd()) && (SSMode&SSM_ConstNQv)))
+    Valid(Contents.QvRqd()) && (SSMode&SSM_ConstQv) ||
+    Valid(Contents.NQvRqd()) && (SSMode&SSM_ConstNQv)))
     {
     if (NoMLnkIOs()>0)// && IO_Out(0))
       {
@@ -1487,7 +1473,7 @@ double MN_SrcSnk::QRequired(double Rho)
   {
   double Qr= ((SSMode & SSM_ConstQm)!=0) ? Contents.QmRqd() : Contents.QvRqd() * Rho;
   if (!Valid(Qr))
-  	return 0;
+    return 0;
   if (!NetProbalMethod())
     {
     double dO = OutputChg(P_RegB.Output(), dQ_Out, dQ_Tau, dTime);
@@ -1590,8 +1576,8 @@ void MN_SrcSnk::EvalMsAGDatas()
       MsJoins[0].m_ConstAG.SetAll(0);
       }
 
-//    SpMArray * AMI[1]={IO_Out(0) ? &M : NULL};
-//    SpMArray * AMO[1]={IO_In(0) ? &M : NULL};
+    //    SpMArray * AMI[1]={IO_Out(0) ? &M : NULL};
+    //    SpMArray * AMO[1]={IO_In(0) ? &M : NULL};
     MdlNode::EvalMsAGDatas();
     }
   else

@@ -231,6 +231,7 @@ class DllImportExport MN_Area : public MdlNode
     static const byte BDDAO_Contents = 0x04;
     static const byte BDDAO_AllVis   = 0x0f;
     static const byte BDDAO_Copy     = 0x10;
+    static const byte BDDAO_SrcSnk   = 0x20;
 
     MN_Area(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~MN_Area();
@@ -292,6 +293,7 @@ class DllImportExport MN_Area : public MdlNode
   protected:
 
     bool            m_bDoAudit;
+    bool            m_bForceAudit;
 
     SpImage         m_Content;
 

@@ -35,11 +35,11 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
   m_pVLE  = pVLE;
   m_pEvap = pEvap;
 
-  AddBlk(m_pRB, 2);
-  AddBlk(m_pHX, 4); 
-  AddBlk(m_pEHX, 6); 
-  AddBlk(m_pVLE, 8); 
-  AddBlk(m_pEvap, 10); 
+  AddBlk(m_pRB, MaxMakeupBlocks+2);
+  AddBlk(m_pHX, MaxMakeupBlocks+3); 
+  AddBlk(m_pEHX, MaxMakeupBlocks+4); 
+  AddBlk(m_pVLE, MaxMakeupBlocks+5); 
+  AddBlk(m_pEvap, MaxMakeupBlocks+6); 
 
   SortBlocks();
   };
@@ -113,7 +113,10 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
     DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pThis, isParmStopped|SetOnChange); 
     DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pThis, isParmStopped|SetOnChange); 
 
-    Strng S;
+    //DDB.Text("");
+    for (int a=0; a<m_pMakeups.GetSize(); a++)
+      m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 100000+a*1000);
+
     if (m_pRB)
       m_pRB->Add_OnOff(DDB, isParmStopped|SetOnChange);
     if (m_pHX)
@@ -125,9 +128,6 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
     if (m_pEvap)
       m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
 
-    //DDB.Text("");
-    for (int a=0; a<m_pMakeups.GetSize(); a++)
-      m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 100000+a*1000);
     for (int a=0; a<m_pBleeds.GetSize(); a++)
       m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 200000+a*1000);
     }
@@ -195,7 +195,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           {
           m_pMakeups[a] = new CMakeupBase(m_pThis, a);
           m_pMakeups[a]->Enable();
-          AddBlk(m_pMakeups[a], 1+a*2);
+          AddBlk(m_pMakeups[a], 1+a);
           }
         }
       DCB.L=m_pMakeups.GetSize();
@@ -216,7 +216,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           {
           m_pBleeds[a] = new CBleedBase(m_pThis, a);
           m_pBleeds[a]->Enable();
-          AddBlk(m_pBleeds[a], 1+a*2);
+          AddBlk(m_pBleeds[a], MaxMakeupBlocks*2+a);
           }
         }
       DCB.L=m_pBleeds.GetSize();

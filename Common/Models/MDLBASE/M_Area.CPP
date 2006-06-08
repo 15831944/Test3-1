@@ -27,38 +27,38 @@ static CDbgMngr dbgDumpReports     ("Areas", "DumpReports");
 
 const int ARSign[AR_Size] = 
   { 
-    1,   // AR_Balance, 
-    1,   // AR_BalanceRel, 
-    +1,   // AR_LnksI, 
-    -1,   // AR_LnksO, 
-    -1,   // AR_Spills, 
-    -1,   // AR_Vents, 
-    +1,   // AR_LeaksI, 
-    -1,   // AR_LeaksO, 
-    +1,   // AR_Srcs, 
-    -1,   // AR_Snks, 
-    +1,   // AR_Makeups, 
-    -1,   // AR_Bleeds, 
-    -1,   // AR_AccumI, 
-    +1,   // AR_AccumO, 
+  1,   // AR_Balance, 
+  1,   // AR_BalanceRel, 
+  +1,   // AR_LnksI, 
+  -1,   // AR_LnksO, 
+  -1,   // AR_Spills, 
+  -1,   // AR_Vents, 
+  +1,   // AR_LeaksI, 
+  -1,   // AR_LeaksO, 
+  +1,   // AR_Srcs, 
+  -1,   // AR_Snks, 
+  +1,   // AR_Makeups, 
+  -1,   // AR_Bleeds, 
+  -1,   // AR_AccumI, 
+  +1,   // AR_AccumO, 
   };
 
 const LPCTSTR ARName[AR_Size] = 
   { 
-    "Balance",        // AR_Balance, 
-    "Balance_Rel",    // AR_BalanceRel, 
-    "Links In",       // AR_LnksI, 
-    "Links Out",      // AR_LnksO, 
-    "Spills",         // AR_Spills, 
-    "Vents",          // AR_Vents, 
-    "Leaks In",       // AR_LeaksI, 
-    "Leaks Out",      // AR_LeaksO, 
-    "Srcs",           // AR_Srcs, 
-    "Snks",           // AR_Snks, 
-    "Makeups",        // AR_Makeups, 
-    "Bleeds",         // AR_Bleeds, 
-    "Accumulation",   // AR_AccumI, 
-    "Depletion",      // AR_AccumO, 
+  "Balance",        // AR_Balance, 
+  "Balance_Rel",    // AR_BalanceRel, 
+  "Links In",       // AR_LnksI, 
+  "Links Out",      // AR_LnksO, 
+  "Spills",         // AR_Spills, 
+  "Vents",          // AR_Vents, 
+  "Leaks In",       // AR_LeaksI, 
+  "Leaks Out",      // AR_LeaksO, 
+  "Srcs",           // AR_Srcs, 
+  "Snks",           // AR_Snks, 
+  "Makeups",        // AR_Makeups, 
+  "Bleeds",         // AR_Bleeds, 
+  "Accumulation",   // AR_AccumI, 
+  "Depletion",      // AR_AccumO, 
   };
 
 //==========================================================================
@@ -69,9 +69,9 @@ const LPCTSTR ARName[AR_Size] =
 
 //TODO What to do about Tearing of LeaksIn
 
-MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MdlNode(pClass_, TagIn, pAttach, eAttach),
-  m_Content("Content", this, TOA_Embedded)
+MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) : \
+MdlNode(pClass_, TagIn, pAttach, eAttach),
+m_Content("Content", this, TOA_Embedded)
   {
   AttachClassInfo(nc_MSrcSnk|nc_Audit,NULL);
   m_PFeed=Std_P;
@@ -80,9 +80,10 @@ MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagO
 
   m_dwAuditOptions = 0;
   m_bDoAudit       = true;
+  m_bForceAudit    = false;
 
   m_OvResults.ZeroFlows();
-  
+
   for (int j=0; j<AR_Size; j++)
     m_nCounts[j]=0;
 
@@ -111,10 +112,13 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
   Strng S;
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
-  DDB.Text  ("");
-  DDB.CheckBoxBtn("AuditOn",   "",    DC_,    "",  &m_bDoAudit,       this, isParm);
-  DDB.Text  ("");
+  if (!m_bForceAudit)
+    {
+    DDB.Text  ("");
+    DDB.CheckBoxBtn("AuditOn",   "",    DC_,    "",  &m_bDoAudit,       this, isParm);
+    }
 
+  DDB.Text  ("");
   DDB.Double ("Temperature",  "T",    DC_T,    "C",      xidTemp,       this, isResult|noFile|noSnap);
   DDB.Double ("Density",      "Rho",  DC_Rho,  "kg/m^3", xidRho,        this, isResult|noFile|noSnap);
   DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
@@ -129,7 +133,7 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
   BuildDataDefnElevation(DDB);
 
   //CDirectFlwIO::sm_
-  if (m_bDoAudit && gs_EvalAudits)
+  if (m_bDoAudit && gs_EvalAudits || m_bForceAudit)
     {
     if (What & BDDAO_Flows)
       {
@@ -217,25 +221,25 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
       }
     }
 
-    if (What & (BDDAO_Flows|BDDAO_Totals))
-      {
-
-  DDB.Text(" ");
-  if (DDB.BeginStruct(this, "Counts", NULL, DDB_RqdPage))
+  if (What & (BDDAO_Flows|BDDAO_Totals))
     {
-    DDB.Long   ("",   "Spills",   DC_,     "",       xidSpillsInCnt,  this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "Vents",    DC_,     "",       xidVentsInCnt,   this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "LeaksIn",  DC_,     "",       xidLeaksInCnt,   this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "LeaksOut", DC_,     "",       xidLeaksOutCnt,  this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "Srcs",     DC_,     "",       xidSrcsInCnt,    this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "Snks",     DC_,     "",       xidSnksInCnt,    this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "Makeups",  DC_,     "",       xidMakeupsInCnt, this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "Bleeds",   DC_,     "",       xidBleedsInCnt,  this, isResult|noFile|noSnap); 
-    DDB.Long   ("",   "Accums",   DC_,     "",       xidAccumsInCnt,  this, isResult|noFile|noSnap); 
-    //DDB.Long   ("",   "Nett",     DC_,     "",       xidNettInCnt,    this, isResult|noFile|noSnap); 
-    }
-  DDB.EndStruct();
+
+    DDB.Text(" ");
+    if (DDB.BeginStruct(this, "Counts", NULL, DDB_RqdPage))
+      {
+      DDB.Long   ("",   "Spills",   DC_,     "",       xidSpillsInCnt,  this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "Vents",    DC_,     "",       xidVentsInCnt,   this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "LeaksIn",  DC_,     "",       xidLeaksInCnt,   this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "LeaksOut", DC_,     "",       xidLeaksOutCnt,  this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "Srcs",     DC_,     "",       xidSrcsInCnt,    this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "Snks",     DC_,     "",       xidSnksInCnt,    this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "Makeups",  DC_,     "",       xidMakeupsInCnt, this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "Bleeds",   DC_,     "",       xidBleedsInCnt,  this, isResult|noFile|noSnap); 
+      DDB.Long   ("",   "Accums",   DC_,     "",       xidAccumsInCnt,  this, isResult|noFile|noSnap); 
+      //DDB.Long   ("",   "Nett",     DC_,     "",       xidNettInCnt,    this, isResult|noFile|noSnap); 
       }
+    DDB.EndStruct();
+    }
   DDB.Text(" ");
   DDB.Text("Audit Clipboard options:");
   DDB.Button("Copy_All",       "", DC_, "", xidIO_CopyAdtAll, this, isParm);
@@ -283,7 +287,7 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
     case xidSrcsInCnt   :         DCB.L = m_nCounts[AR_Srcs];               return 1;
     case xidSnksInCnt   :         DCB.L = m_nCounts[AR_Snks];               return 1;
     case xidAccumsInCnt :         DCB.L = m_nCounts[AR_AccumI];                return 1;
-                                          
+
     case xidMakeupsInQm:          DCB.D = m_OvResults.m_Sum[AR_Makeups].FlowMass;    return 1;
     case xidMakeupsInHz:          DCB.D = m_OvResults.m_Sum[AR_Makeups].FlowHz;      return 1;
     case xidMakeupsInQmSum:       DCB.D = m_OvResults.m_Sum[AR_Makeups].TotalMass;   return 1;
@@ -354,9 +358,9 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
       switch (DCB.lHandle)
         {
         case xidIO_CopyAdtAll         :  Options =    SUB_NA_ADT_MASS      |
-                                                      SUB_NA_ADT_MASSTOTAL |
-                                                      SUB_NA_ADT_HEAT      |
-                                                      SUB_NA_ADT_HEATTOTAL ; break;
+                                           SUB_NA_ADT_MASSTOTAL |
+                                           SUB_NA_ADT_HEAT      |
+                                           SUB_NA_ADT_HEATTOTAL ; break;
         case xidIO_CopyAdtMass        :  Options =    SUB_NA_ADT_MASS      ; break;
         case xidIO_CopyAdtMassTotal   :  Options =    SUB_NA_ADT_MASSTOTAL ; break;
         case xidIO_CopyAdtHeat        :  Options =    SUB_NA_ADT_HEAT      ; break;
@@ -413,7 +417,7 @@ flag MN_Area::ValidateData(ValidateDataBlk & VDB)
 
 long MN_Area::CheckDataRanges(bool CheckIO)
   {
-  return MdlNode::CheckDataRanges(m_bDoAudit && CheckIO);
+  return MdlNode::CheckDataRanges((m_bDoAudit && gs_EvalAudits || m_bForceAudit) && CheckIO);
   }
 
 // -------------------------------------------------------------------------
@@ -600,10 +604,10 @@ void MN_Area::ClosureInfo()
   bool InRange=true;
   for (int i=0; i<NoFlwIOs(); i++)
     InRange = InRange && IOConduit(i)->SMFnsInRange();
-//  InRange = InRange && m_OvResults.m_Sum[AR_Srcs].SMFnsInRange() && m_OvResults.m_Sum[AR_Srcs].SMFnsInRange();
-//  InRange = InRange && m_OvResults.m_Sum[AR_Snks].SMFnsInRange() && m_OvResults.m_Sum[AR_Snks].SMFnsInRange();
-//  InRange = InRange && m_OvResults.m_Sum[AR_Spills].SMFnsInRange() && m_OvResults.m_Sum[AR_Spills].SMFnsInRange();
-//  InRange = InRange && m_OvResults.m_Sum[AR_LeaksI].SMFnsInRange() && m_OvResults.m_Sum[AR_LeaksO].SMFnsInRange();
+  //  InRange = InRange && m_OvResults.m_Sum[AR_Srcs].SMFnsInRange() && m_OvResults.m_Sum[AR_Srcs].SMFnsInRange();
+  //  InRange = InRange && m_OvResults.m_Sum[AR_Snks].SMFnsInRange() && m_OvResults.m_Sum[AR_Snks].SMFnsInRange();
+  //  InRange = InRange && m_OvResults.m_Sum[AR_Spills].SMFnsInRange() && m_OvResults.m_Sum[AR_Spills].SMFnsInRange();
+  //  InRange = InRange && m_OvResults.m_Sum[AR_LeaksI].SMFnsInRange() && m_OvResults.m_Sum[AR_LeaksO].SMFnsInRange();
   FlwNode::SetCI(29, !InRange);
 
   if (m_Closure.DoFlows())
@@ -714,59 +718,59 @@ void MN_Area::EvalAudit(int Pass)
     {
     case 0:
       {
-  //// Integrate All DirectIOs
-  //POSITION Pos=m_NdsInArea.GetHeadPosition();
-  //while (Pos)
-  //  {
-  //  FlwNode &Nd=*m_NdsInArea.GetNext(Pos);
+      //// Integrate All DirectIOs
+      //POSITION Pos=m_NdsInArea.GetHeadPosition();
+      //while (Pos)
+      //  {
+      //  FlwNode &Nd=*m_NdsInArea.GetNext(Pos);
 
-  //  //for (int io=0; io<Nd.NoProcessIOs(); io++)
-  //  //  {
-  //  //  double Qm=Sign(Nd.IOQm_In(io))*Nd.IOConduit(io)->QMass();
-  //  //  double Hz=Sign(Nd.IOQm_In(io))*Nd.IOConduit(io)->totHz();
-  //  //  }
-  //
-  //  int i=0;
-  //  POSITION DPos=Nd.m_DirectIOs.GetHeadPosition();
-  //  while (DPos)
-  //    {
-  //    CDirectFlwIO &D=*m_DirectIOs.GetNext(DPos);
-  //    FlwNode &DNd=D.Nd;
+      //  //for (int io=0; io<Nd.NoProcessIOs(); io++)
+      //  //  {
+      //  //  double Qm=Sign(Nd.IOQm_In(io))*Nd.IOConduit(io)->QMass();
+      //  //  double Hz=Sign(Nd.IOQm_In(io))*Nd.IOConduit(io)->totHz();
+      //  //  }
+      //
+      //  int i=0;
+      //  POSITION DPos=Nd.m_DirectIOs.GetHeadPosition();
+      //  while (DPos)
+      //    {
+      //    CDirectFlwIO &D=*m_DirectIOs.GetNext(DPos);
+      //    FlwNode &DNd=D.Nd;
 
-  //    if (D.Connected && (DNd.m_pArea==this))
-  //      {
-  //      if (D.IsIO)
-  //        D.Sum.Set(D.Cd);
-  //      D.Sum.Integrate(ICGetTimeInc());
-  //      }
-  //    }
-  //  }
+      //    if (D.Connected && (DNd.m_pArea==this))
+      //      {
+      //      if (D.IsIO)
+      //        D.Sum.Set(D.Cd);
+      //      D.Sum.Integrate(ICGetTimeInc());
+      //      }
+      //    }
+      //  }
 
-  //POSITION DPos=m_DirectIOsConnected.GetHeadPosition();
-  //while (DPos)
-  //  {
-  //  CDirectFlwIO &D=*m_DirectIOsConnected.GetNext(DPos);
-  //  FlwNode &DNd=D.Nd;
-  //  if (D.Connected && (&DNd.Area!=this) && (&D.Area==this))
-  //    D.Sum.Integrate(ICGetTimeInc());
-  //  }
-  
+      //POSITION DPos=m_DirectIOsConnected.GetHeadPosition();
+      //while (DPos)
+      //  {
+      //  CDirectFlwIO &D=*m_DirectIOsConnected.GetNext(DPos);
+      //  FlwNode &DNd=D.Nd;
+      //  if (D.Connected && (&DNd.Area!=this) && (&D.Area==this))
+      //    D.Sum.Integrate(ICGetTimeInc());
+      //  }
+
       break;
       }  
     case 1:
       {
       m_OvResults.ZeroFlows();
-      
-      if (!m_bDoAudit) 
+
+      if (!(m_bDoAudit && gs_EvalAudits || m_bForceAudit)) 
         break;
 
       for (int j=0; j<AR_Size; j++)
         m_nCounts[j]=0;
 
-      #if dbgAreas
+#if dbgAreas
       if (dbgCalculations() || dbgCalculationsDbg())
         dbgpln("Area : ========================================================================================= %s", FullObjTag());
-      #endif
+#endif
 
       int iNd=0;
       POSITION Pos=m_NdsInArea.GetHeadPosition();
@@ -781,12 +785,12 @@ void MN_Area::EvalAudit(int Pass)
 
         NdR.m_pNd=&Nd;
         NdR.ZeroFlows();
- 
-        #if dbgAreas
+
+#if dbgAreas
         if (dbgCalculations() || dbgCalculationsDbg() && Nd.DoDbgBrk())
           dbgpln("------------------------------------------------------------------------------------------------ %s [%s]", Nd.FullObjTag(), Nd.ClassId());
-        #endif
-        
+#endif
+
         for (int io=0; io<Nd.NoProcessIOs(); io++)
           {
           if (Nd.IOQm_In(io)>0)
@@ -800,7 +804,7 @@ void MN_Area::EvalAudit(int Pass)
             NdR.m_Sum[AR_LnksO].Add(*Nd.IOAreaSum(io));
             }
 
-          #if dbgAreas
+#if dbgAreas
           if (dbgCalculations() || dbgCalculationsDbg() && Nd.DoDbgBrk())
             {
             //if (Nd.Nd_Rmt(io))
@@ -809,9 +813,9 @@ void MN_Area::EvalAudit(int Pass)
               DbgFltString(Nd.IOAreaSum(io)->FlowHz),
               "","",Nd.IODesc_Self(io)->pName, Nd.Nd_Rmt(io)->FullObjTag());
             }
-          #endif
+#endif
           }
-      
+
         int i=0;
         for (int d=0; i<Nd.NoDirectIOs(); d++)
           {
@@ -821,7 +825,7 @@ void MN_Area::EvalAudit(int Pass)
           if (D.Connected && (DNd.m_pArea==this))
             {
 
-            #if dbgAreas
+#if dbgAreas
             if (dbgCalculations() || dbgCalculationsDbg() && DNd.DoDbgBrk())
               {
               //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Cd.QMass(),7,10), DbgFltString(D.Cd.FlowHz()), D.Tag, TheNd->FullObjTag());
@@ -829,7 +833,7 @@ void MN_Area::EvalAudit(int Pass)
                 i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHz), 
                 "", "", D.Tag, DNd.FullObjTag(), DNd.ClassId());
               }
-            #endif
+#endif
             switch (D.Type)
               {
               case eDIO_Makeup:
@@ -918,13 +922,13 @@ void MN_Area::EvalAudit(int Pass)
             LogError(FullObjTag(), 0, "Area : the following code is still to be checked");
           DoErrorMsg=false;
           //ASSERT_ALWAYS(false, "Area : the following code is still to be checked");
-          #if dbgAreas
+#if dbgAreas
           if (dbgCalculations() || dbgCalculationsDbg() && DNd.DoDbgBrk())
             //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Sum.QMass(),7,10), DbgFltString(D.Sum.FlowHz()), D.Tag, TheNd->FullObjTag());
             dbgpln("DrctIO:%2i %2i %20s %20s %12s %12s   %-10s : %s [%s]", 
-              i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHz),
-              "", "", D.Tag, DNd.FullObjTag(), DNd.ClassId());
-          #endif
+            i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHz),
+            "", "", D.Tag, DNd.FullObjTag(), DNd.ClassId());
+#endif
           switch (D.Type)
             {
             case eDIO_Makeup:
@@ -992,7 +996,7 @@ void MN_Area::EvalAudit(int Pass)
         delete m_NdResults[j]; 
       m_NdResults.SetSize(iNd);
 
-      #if dbgAreas
+#if dbgAreas
       if (dbgDumpReports())
         {
         const LPCTSTR PassName[4]={"Mass Flows", "Heat Flows", "Mass Total Flows", "Heat Totals Flows"};
@@ -1046,7 +1050,7 @@ void MN_Area::EvalAudit(int Pass)
           dbgpln("================================================================================================================");
           }
         }
-      #endif
+#endif
       break;
       }
     }
@@ -1283,7 +1287,7 @@ void MN_Area::SetState(eScdMdlStateActs RqdState)
     case MSA_PreSet:
     case MSA_ZeroFlows:
     case MSA_EmptySpillTargets:
-    //case MSA_SteadyState:
+      //case MSA_SteadyState:
       {
       m_OvResults.ZeroFlows();
       for (int i=0; i<m_NdResults.GetCount(); i++)

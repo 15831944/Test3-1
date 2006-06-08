@@ -5119,7 +5119,7 @@ void FlwSlvPB::EvalAllDiscrete()
 
 void FlwSlvPB::EvalAllBalance()
   {
-  if (gs_EvalAudits)
+  if (1)//gs_EvalAudits)
     {
     for (int Pass=0; Pass<2; Pass++)
       {
@@ -8266,7 +8266,7 @@ void FlwSlvDyn::FITEvalAudit(CLkNodeEvalIter & Iter)
 void FlwSlvDyn::EvalAllBalance()
   {
   CStopWatchLap SWLapDiscrete(gs_swBalance);
-  if (gs_EvalAudits)
+  if (1)//gs_EvalAudits)
     {
     for (int Pass=0; Pass<2; Pass++)
       {
@@ -9914,7 +9914,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
-    DDB.Long  ("EvaluateAudit",         "", DC_,     "",  &gs_EvalAudits,                   this, isParmStopped|SetOnChange, DDBEvalAudits);
+    DDB.Long  ("EvaluateAudit",         "", DC_,     "",  &gs_EvalAudits,                     this, isParmStopped|SetOnChange, DDBEvalAudits);
  //   DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
  //   DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
     DDB.Text  ("");
@@ -11644,6 +11644,7 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
     else
       Info.iDirn = p->IODesc_Self(iNo)->Dirn & LIO_In ? 1 : -1;
     Info.fAutoConnect= p->IOAutoConnect(iNo)!=0;
+    Info.fIsDirectConnect = IsDirectIOId(Info.iId);
     return true;
     }
   return false;
