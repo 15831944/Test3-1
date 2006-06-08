@@ -918,8 +918,8 @@ void MN_Area::EvalAudit(int Pass)
 
         if (D.Connected && (&DNd.Area!=this) && (&D.Area==this))
           {
-          if (DoErrorMsg)
-            LogError(FullObjTag(), 0, "Area : the following code is still to be checked");
+          //if (DoErrorMsg)
+          //  LogError(FullObjTag(), 0, "Area : the following code is still to be checked");
           DoErrorMsg=false;
           //ASSERT_ALWAYS(false, "Area : the following code is still to be checked");
 #if dbgAreas

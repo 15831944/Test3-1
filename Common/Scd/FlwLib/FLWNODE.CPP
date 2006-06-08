@@ -2425,12 +2425,15 @@ void FlwNode::DoGlobalConnect()
 
 void FlwNode::GlobalConnect()
   {
-  flag OK=true;
+  flag AreaOK=true;
+  flag AuditOK=true;
+  int BadDirects=0;
+  int BadPower=0;
   if (!GetActive())
-    return;
+    goto Done;
 
   MakeAreaTag();
-  if (m_pArea.Connect(this, "Area"))
+  if (m_pArea.Connect(this, -1, "Area"))
     {
     if (m_pArea->IsValidAuditNode())
       {
@@ -2440,20 +2443,22 @@ void FlwNode::GlobalConnect()
     else
       {
       m_pArea.DisConnect();
-      LogError(FullTag(), 0, "%s Not an Audit Node", m_pArea.m_sTag());
+      //LogError(FullTag(), 0, "%s Not an Audit Node", m_pArea.m_sTag());
+      AuditOK=false;
       }
     }
   else
     {
-    LogError(FullTag(), 0, "%s NOT Found", m_pArea.m_sTag());
-    OK=false;
+    //LogError(FullTag(), 0, "%s NOT Found", m_pArea.m_sTag());
+    AreaOK=false;
     }
 
   for (int d=0; d<m_DirectIOs.GetSize(); d++)
     if (!m_DirectIOs[d]->GlobalConnect())
-      OK=false;
+      BadDirects++;
   for (int d=0; d<m_DirectIOs.GetSize(); d++)
     m_DirectIOs[d]->GlobalConnectFinal();
+
 
   //POSITION Pos=m_DirectIOs.GetHeadPosition();
   //while (Pos)
@@ -2465,7 +2470,29 @@ void FlwNode::GlobalConnect()
 
   for (int i=0; i<m_PwrUsers.GetSize(); i++)
     if (!m_PwrUsers[i]->GlobalConnect(this, NULL))
-      OK=false;
+      BadPower++;
+
+Done:
+  if (AuditOK)
+    ClrCI(30);
+  else
+    SetCI(30, "W\t%s NOT an Audit Node", m_pArea.m_sTag());
+
+  if (AreaOK)
+    ClrCI(31);
+  else
+    SetCI(31, "W\tArea %s NOT Found", m_pArea.m_sTag());
+
+  if (BadDirects==0)
+    ClrCI(32);
+  else
+    SetCI(32, "W\t%i Bad Direct connection(s)", BadDirects);
+
+  if (BadPower==0)
+    ClrCI(33);
+  else
+    SetCI(33, "W\t%i Bad Power connection(s)", BadPower);
+
 
   };
 
@@ -6806,6 +6833,10 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 27: pS="W\tEngineering units invalid";              return 1;
     case 28: pS="W\tDynTags missing ";                       return 1;
     case 29: pS="W\tSpecie Model Operating Out of Range";    return 1;
+    case 30: pS="W\tNotAuditNode";                           return 1;
+    case 31: pS="W\tAreaNotFOund";                           return 1;
+    case 32: pS="W\tNBadDirects";                            return 1;
+    case 33: pS="W\tNBadPwrCOnnects";                        return 1;
     default:
       return CTNode::CIStrng(No, pS);
     }
@@ -9505,16 +9536,20 @@ eDIOConnectSelects CDirectFlwIO::sm_ConnectVentSpills  = eDIOSlct_All;
 eDIOConnectSelects CDirectFlwIO::sm_ConnectLeaks       = eDIOSlct_All;
 eDIOConnectSelects CDirectFlwIO::sm_ConnectAudit       = eDIOSlct_All;
 
-CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId) :
+CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
   m_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
+  m_sRmtTypeName=RmtTypeName?RmtTypeName:"Area"; 
+  m_sRmtTagDef=RmtTagDef;
   Initialise(eType, Nd);
   InitialiseIO(ShowUsr, SysEnable, Tag, ioLclId, ioRmtId);
   };
 
-CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag) :
+CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
   m_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
+  m_sRmtTypeName=RmtTypeName?RmtTypeName:"Area"; 
+  m_sRmtTagDef=RmtTagDef;
   m_NdSignImp=0;
   m_RmtListPos=NULL;
   Initialise(eType, Nd);
@@ -9681,8 +9716,21 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, 
 
   if (DDB.BeginObject(m_pNd, Tag ? Tag:m_sTag(), "DirectedIO", NULL, PgOpt, UserInfo))
     {
-    DDB.String  ("Area",     "",       DC_,      "",       xidDrctArea,       m_pNd, isParmStopped);
-    //DDB.String  ("Area",        "",       DC_,      "",       xidDrctAreaConnd,  m_pNd, 0);
+    DDB.String  (m_sRmtTypeName(),     "",       DC_,      "",       xidRmtTag,       m_pNd, isParmStopped);
+    
+    static DDBValueLst DDBConnected [] = 
+      {
+        {TOD_OK          , "OK"             },
+        {TOD_NoTag       , "No Tag"         },
+        {TOD_BadTag      , "Bad Tag"        }, 
+        {TOD_Inactive    , "Inactive Node"  }, 
+        {TOD_BadConn     , "Missing IO"     }, 
+        {TOD_Disconected , "Disconected"    }, 
+        {0} 
+      };
+
+    DDB.Byte    ("Connect",            "",       DC_,      "",   xidConnectState, m_pNd, 0, DDBConnected);
+    //DDB.String  ("Area",        "",       DC_,      "",       xidRmtTagConnd,  m_pNd, 0);
     //DDB.TagComment(m_sAreaSrc());
     if (!m_bIsXfer)
       DDB.Double  ("Opening",   "",       DC_Frac,  "%",      &m_Opening,        m_pNd, isParm);
@@ -9714,7 +9762,8 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       DCB.B=m_bUsrEnable;
       return 1;
       }
-    case xidDrctArea:
+
+    case xidRmtTag:
       if (DCB.rpC)
         {
         if (*DCB.rpC!='<')
@@ -9725,6 +9774,8 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
         }
       if (m_sRmtTag.GetLength()>0)
         m_sRmtTmp=m_sRmtTag;
+      else if (m_sRmtTagDef.GetLength()>0)
+        m_sRmtTmp=m_sRmtTagDef;
       else if (DCB.ForFileSnpScn())
         m_sRmtTmp="";
       else if (m_pNd->m_sAreaTag.GetLength()>0)
@@ -9733,11 +9784,15 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
         m_sRmtTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
       DCB.pC=m_sRmtTmp();
       return 1;
-    case xidDrctAreaConnd:
+
+    case xidRmtTagConnd:
       DCB.pC=m_pRmt.m_sTag();
       return 1;
     case xidDrctQm:
       DCB.D=HasConduit ? Cd.QMass() : Sum.FlowMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QMass() : Cd.QMass() : 0);
+      return 1;
+    case xidConnectState:
+      DCB.B=m_pRmt.ConnectState();
       return 1;
     //case xidDrctQv:
     //  DCB.D=Sum.totMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QVolume() : Cd.QVolume() : 0);
@@ -9782,6 +9837,8 @@ void CDirectFlwIO::MakeRmtTag()
 
   if (m_sRmtTag.GetLength()>0)
     m_pRmt.m_sTag=m_sRmtTag;
+  else if (m_sRmtTagDef.GetLength()>0)
+    m_pRmt.m_sTag=m_sRmtTagDef;
   else if (m_pNd && m_pNd->m_sAreaTag.GetLength()>0)
     m_pRmt.m_sTag=m_pNd->m_sAreaTag;
   else
@@ -9829,7 +9886,7 @@ flag CDirectFlwIO::GlobalConnect()
   dbgpln(" .A %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
 
-  m_bConnected = m_pRmt.Connect(m_pNd, "Area");
+  m_bConnected = m_pRmt.Connect(m_pNd, m_iRmtIOId, m_sRmtTypeName());
   if (!m_bConnected && m_pRmt.m_sTag.GetLength()>0)
     {
     //LogError(m_pNd->FullObjTag(), 0, "Envelope %s not found", m_sAreaTag());

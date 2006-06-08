@@ -64,7 +64,8 @@ void CMakeupBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, dou
 //============================================================================
 
 CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index) : CBlockEvalBase(BEId_Makeup, Index),
-m_In(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, true, "Makeup", IOId_Makeup2Area+Index, IOId_AreaMakeupO)
+m_In(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, true, 
+     "Makeup", IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
   { 
   m_pMakeupB=NULL; 
   m_pNd=pAttach; 

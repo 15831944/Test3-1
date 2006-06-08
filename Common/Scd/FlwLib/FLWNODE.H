@@ -244,20 +244,29 @@ typedef CSCDListXIter<CNodeEvalIndexList, CNodeEvalIndex> CNodeEvalIndexIter;
 //
 //===========================================================================
 
+const byte TOD_OK           = 0;
+const byte TOD_NoTag        = 1;
+const byte TOD_BadTag       = 2;
+const byte TOD_Inactive     = 3;
+const byte TOD_BadConn      = 4;
+const byte TOD_Disconected  = 5;
+
 template<class TYPE>
 class CTODirectPtr
   {
   public:
-    CTODirectPtr()                    { m_Ptr=NULL;};
+    CTODirectPtr()                    { m_Ptr=NULL; m_State=TOD_NoTag; };
     ~CTODirectPtr()                   { };
 
     operator TYPE*()                  { return m_Ptr;   };
     TYPE* operator->()                { return m_Ptr;   };
 
     flag Connected()                  { return m_Ptr!=NULL; }
+    byte ConnectState()               { return m_State; }
 
-    flag Connect(FlwNode * pNd, LPCTSTR NodeTypeName=NULL)
+    flag Connect(FlwNode * pNd, int ReqdIOId, LPCTSTR NodeTypeName=NULL)
       {
+      m_State=TOD_OK;
       ASSERT(pNd!=NULL);
       m_pNd=pNd;
       m_Ptr=NULL;
@@ -287,17 +296,33 @@ class CTODirectPtr
             }
           if (!m_Ptr->GetActive())
             m_Ptr=NULL;
+
+          if (ReqdIOId>=0)
+            {
+            FlwNode * pNd=dynamic_cast<FlwNode*>(p);
+            if (pNd && pNd->IOAreaWithIOId(ReqdIOId)<0)
+              {
+              LogError(m_pNd->FullObjTag(), 0, "%s %s missing Reqd IO Connection",NodeTypeName?NodeTypeName:"Direct Tag",m_sTag());
+              m_State=TOD_BadConn;
+              return NULL;
+              }
+            }
+          m_State=m_Ptr?TOD_OK:TOD_Inactive;
           return m_Ptr!=NULL;
           }
         LogError(m_pNd->FullObjTag(), 0, "%s %s not Found",NodeTypeName?NodeTypeName:"Direct Tag",m_sTag());
+        m_State=TOD_BadTag;
         }
-      if (m_Ptr && !m_Ptr->GetActive())
-        m_Ptr=NULL;
+      else
+        m_State=TOD_NoTag;
+      //if (m_Ptr && !m_Ptr->GetActive())
+      //  m_Ptr=NULL;
       return m_Ptr!=NULL;
       };
 
     void DisConnect()
       {
+      m_State=TOD_Disconected;
       m_Ptr=NULL;
       };
 
@@ -306,6 +331,7 @@ class CTODirectPtr
   protected:
     FlwNode      *m_pNd;
     TYPE         *m_Ptr;
+    byte          m_State;
   };
 
 // =========================================================================
@@ -391,11 +417,11 @@ class DllImportExport CDirectAccCalc
 
 //---------------------------------------------------------------------------
 
-XID xidDrctArea         = MdlBsXID(5203);
-XID xidDrctAreaConnd    = MdlBsXID(5204);
+XID xidRmtTag           = MdlBsXID(5203);
+XID xidRmtTagConnd      = MdlBsXID(5204);
 XID xidDrctQm           = MdlBsXID(5205);
 XID xidDrctEnable       = MdlBsXID(5206);
-//XID xidDrctQv           = MdlBsXID(5206);
+XID xidConnectState     = MdlBsXID(5207);
 //XID xidDrctNQv          = MdlBsXID(5207);
 
 enum eDirectIO 
@@ -420,9 +446,9 @@ class DllImportExport CDirectFlwIO
   public:
 
 
-    CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId);
-    CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag);
-    ~CDirectFlwIO();
+    CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
+    CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
+    ~CDirectFlwIO();                                                                    
 
     void          Initialise(eDirectIO eType, FlwNode* Nd);
     void          InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId);
@@ -502,6 +528,9 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getConduit))                     SpConduit   & Cd;
 
   protected:
+
+    Strng         m_sRmtTypeName;
+
     eDirectIO     m_eType;
     FlwNode     * m_pNd;
     flag          m_bSysEnable;
@@ -511,6 +540,7 @@ class DllImportExport CDirectFlwIO
     Strng         m_sTag;
     Strng         m_sRmtTag;
     Strng         m_sRmtTmp;
+    Strng         m_sRmtTagDef;
     CFlwEqnPtr     m_FEP;
     flag          m_bConnected;
     int           m_iMyConnectedIO;
@@ -3347,6 +3377,7 @@ class DllImportExport FlwNode : public CTNode
 
     IOAreaRec     *getIOAreas()           { return m_pIOAreasOwned ? m_pIOAreasOwned : m_pIOAreas; };
     long           IOAreaCount()          { IOAreaRec *p=IOAreas; for (long N=0; p->pDesc!=NULL; p++, N++) {}; return N; };
+    long           IOAreaWithIOId(int Id) { IOAreaRec *p=IOAreas; for (long N=0; p->pDesc!=NULL; p++, N++) { if (p->m_Id==Id) return N; }; return -1; };
     IOAreaRec     &IOArea(int i)          { return m_pIOAreasOwned ? m_pIOAreasOwned[i] : m_pIOAreas[i]; };
     IOAreaRec     &IOArea_Rmt(int i)      { return Nd_Rmt(i)->IOArea(m_IOs[i].IONoRmt); };
     CIORec        &IO_Self(int i)         { return m_IOs[i];};
@@ -4003,7 +4034,7 @@ class DllImportExport FlwNode : public CTNode
     virtual void   SetCIOValue(long Id, double D) { long i = CIOWithId_Self(Id); if (i>=0)  SetCIO_Value(i, D); };
 
     // ConditionBlk Override
-    DEFINE_CI(FlwNode, CTNode, 32);
+    DEFINE_CI(FlwNode, CTNode, 36);
 
     virtual void   SetXRefCI(long Id, bool On, LPCTSTR Text=NULL)  
       { 

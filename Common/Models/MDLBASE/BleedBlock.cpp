@@ -64,7 +64,8 @@ void CBleedBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, doub
 //============================================================================
 
 CBleedBase::CBleedBase(TaggedObject * pAttach, int Index) : CBlockEvalBase(BEId_Bleed, Index),
-m_Out(eDIO_Bleed, dynamic_cast<FlwNode*>(pAttach), false, true, "Bleed", IOId_Bleed2Area+Index, IOId_AreaBleedI)
+m_Out(eDIO_Bleed, dynamic_cast<FlwNode*>(pAttach), false, true, 
+      "Bleed", IOId_Bleed2Area+Index, IOId_AreaBleedI, "BleedSnk", "BleedSnk_1")
   { 
   m_pBleedB=NULL; 
   m_pNd=pAttach; 
