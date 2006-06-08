@@ -24,7 +24,7 @@ class CMakeupBase;
 
 // ==========================================================================
 //
-// Evaporation Blocks
+// Makeup Blocks
 //
 // ==========================================================================
 
@@ -45,60 +45,31 @@ class DllImportExport CMakeupBlock : public TaggedObject
     virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void    EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+    inline CDirectFlwIO   & getIn();
+
   public:
     static const pchar GroupName;
 
     CMakeupBase     * m_pMakeupBase;
+
+    _declspec(property(get=getIn))          CDirectFlwIO   & In;    
+
   };
 
 DEFINE_MAKEUPBLOCK(CMakeupBlock);
 
 // ===========================================================================
-
-class DllImportExport CXBlk_Makeup: public CMakeupBlock
-  {
-  public:
-    CXBlk_Makeup(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CXBlk_Makeup();
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
-
-  public:
-    enum eType     {Type_Qm, };
-
-    eType           m_Type;
-    double          m_QmRqd;
-
-    //class CMakeupSpce
-    //  {
-    //  public:
-    //    long      m_CIndex;
-    //    byte      m_Dest;
-    //    double    m_Value;
-    //    double    m_;
-    //  };
-
-    //CArray <CMakeupComp, CMakeupComp&> m_Components;
-
-  };
-
-DEFINE_MAKEUPBLOCK(CXBlk_Makeup);
-
-// ===========================================================================
 //
-// Evaporation Base
+// Makeup Base
 //
 // ===========================================================================
 
 class DllImportExport CMakeupBase : public CBlockEvalBase
   {
-  public:
+  friend class CMakeupBlock;
+  friend class CBlockEvaluator;
 
+  public:
     CMakeupBase(TaggedObject * pAttach, int Index);
     ~CMakeupBase();
 
@@ -124,21 +95,32 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     void           EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pMakeupB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
 
-    SpConduit    & DiscardCd() { return m_DiscardCd; };
-
   protected:
     flag              m_fFixed;
     flag              m_fEnabled;
     CMakeupBlock    * m_pMakeupB;
     TaggedObject    * m_pNd;
-    int               m_Index;
-    //Strng             m_sTag;
 
-    SpConduit         m_DiscardCd;
+    CDirectFlwIO      m_In;
 
   public:
 
   };
+
+// ===========================================================================
+//
+// 
+//
+// ===========================================================================
+
+CDirectFlwIO & CMakeupBlock::getIn() { return m_pMakeupBase->m_In; };    
+
+// ===========================================================================
+//
+// 
+//
+// ===========================================================================
+
 
 #undef DllImportExport
 

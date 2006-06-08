@@ -226,10 +226,16 @@ class DllImportExport CSumResult
 class DllImportExport MN_Area : public MdlNode
   {
   public:
+    static const byte BDDAO_Flows    = 0x01;
+    static const byte BDDAO_Totals   = 0x02;
+    static const byte BDDAO_Contents = 0x04;
+    static const byte BDDAO_AllVis   = 0x0f;
+    static const byte BDDAO_Copy     = 0x10;
 
     MN_Area(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~MN_Area();
     virtual void   ResetData(flag Complete);
+            void   BuildDataDefn(DataDefnBlk & DDB, byte What);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges(bool CheckIO);
@@ -259,7 +265,7 @@ class DllImportExport MN_Area : public MdlNode
     virtual void   ClosureInfo();
 
     virtual void   EvalDiscrete();
-    virtual void   EvalBalance(int Pass);
+    virtual void   EvalAudit(int Pass);
     virtual void   GetBalanceReport(CNodeAuditInfo & Audit);
     virtual void   DoEvalProducts(flag Validating, double dTime);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);

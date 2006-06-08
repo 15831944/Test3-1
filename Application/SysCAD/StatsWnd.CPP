@@ -437,7 +437,7 @@ static struct tColHeads
     { true,   FSW_EvalIntegral,           "Integral"        },          
     { true,   FSW_ODEOperate,             "ODEOperate"      },            
     { true,   FSW_EvalDiscrete,           "Discrete"        },          
-    { true,   FSW_EvalBalance,            "Balance"         },          
+    { true,   FSW_EvalAudit,              "Audit"           },          
     { false,  FSW_CheckXRefs,             "CtrlConns"       },  
     { false,  FSW_EvalCtrlInitialise,     "CtrlInit"        },    
     { true,   FSW_EvalCtrlActions,        "CtrlActs"        },       

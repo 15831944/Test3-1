@@ -570,7 +570,7 @@ const byte SRSC_All   = 0x03;
 class DllImportExport CReactionBase : public CBlockEvalBase
   {
   public:
-    CReactionBase(FlwNode * pAttach, bool IsSurgeType, LPTSTR Tag="RB") : CBlockEvalBase(BEId_RB)
+    CReactionBase(FlwNode * pAttach, bool IsSurgeType, LPTSTR Tag="RB") : CBlockEvalBase(BEId_RB, 0)
       { 
       m_sRBTag=Tag;
       pRB=NULL; 

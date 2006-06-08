@@ -19,8 +19,8 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_VLE(this, VLEF_QPFlash),
   m_FEP(NULL, FBOpt_HasSimpleRes, 1.0),
   m_FTB(this, &m_FEP),
-  m_LeakI(eDIO_Leak, this, true, false, "Inlet_Leak", IOId_2IOLeakI, IOId_AreaLeakIn),
-  m_LeakO(eDIO_Leak, this, true, false, "Outlet_Leak", IOId_2IOLeakO, IOId_AreaLeakIn)
+  m_LeakI(eDIO_Leak, this, true, false, "Inlet_Leak", IOId_2IOLeakI, IOId_AreaLeakI),
+  m_LeakO(eDIO_Leak, this, true, false, "Outlet_Leak", IOId_2IOLeakO, IOId_AreaLeakO)
   {
 
   bOnLine=1;

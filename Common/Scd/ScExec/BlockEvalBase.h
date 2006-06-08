@@ -20,18 +20,20 @@ const byte BEId_HX           = 2;
 const byte BEId_EHX          = 3;
 const byte BEId_VLE          = 4;
 const byte BEId_Evap         = 5;
-const byte BEId_Adj          = 6;
+const byte BEId_Makeup       = 6;
+const byte BEId_Bleed        = 7;
 
 class DllImportExport CBlockEvalBase
   {
   public:
-    CBlockEvalBase(byte BEId);
+    CBlockEvalBase(byte BEId, int Index);
   public:
     virtual ~CBlockEvalBase(void);
 
     static void       BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence);
 
     byte              BEId()                       { return m_BEId; };
+    int               Index()                      { return m_Index; };
 
     byte              BlkSeqNo(bool ForSort=false);
     void              SetBlkSeqNo(byte SeqNo)      { m_iBlkSeqNo=SeqNo; };
@@ -53,6 +55,7 @@ class DllImportExport CBlockEvalBase
     byte              m_iBlkSeqNo;
     byte              m_iDefBlkSeqNo;
     byte              m_BEId;
+    int               m_Index;
     DDBValueLstMem  * m_pOnOffValLst;
   };
 

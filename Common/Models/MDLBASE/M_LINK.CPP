@@ -586,7 +586,7 @@ void CLinkStatInfo::ExecIns(MN_Lnk* pPipe)
   if (dT > 0.0)
     {
     dTtlTime += dT;
-    ASSERT(pPipe->NoProcessIOs() >= 2);
+    ASSERT(pPipe->NoMLnkIOs() >= 2);
     const int i = (pPipe->IO_In(0) ? 0 : 1);
     SpConduit* pSpCond = pPipe->IOConduit(i);
     const double dMeasQm = pPipe->IOFB(0,0)->GetQm(); //xidQm code from m_base
@@ -646,7 +646,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_PFI(this),
   m_FEP(NULL, FBOpt_HasSimpleRes, 0.1),
   m_FTB(this, &m_FEP),
-  m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillIn),
+  m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
   m_Src(eDIO_Src, this, false, true, "Src"),
   m_Snk(eDIO_Snk, this, false, true, "Snk")
 #if WITHLINKBLEED 
@@ -882,7 +882,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     {
     XID Handle=((DCB.lHandle-xidFEFirst)/NxidFEIOs)*NxidFEIOs+xidFEFirst;
     //int IONo=(DCB.lHandle-xidFEFirst)%NxidFEIOs;
-    if (NoProcessIOs()<2)
+    if (NoMLnkIOs()<2)
       {
       DCB.D=dNAN;
       return True;
@@ -939,7 +939,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       DCB.B=m_iFlwPhaseRqd;
       return 1;
     case xidFlwPhaseAct:
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         DCB.B=IOFB(0,0)->m_iFlwPh_Act;
       else
         DCB.B=FPh_UnKnown;
@@ -957,10 +957,10 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       DCB.D=GetQm2IO(DCB.rD);
       return 1;
     case xidQi:
-      DCB.D=(NoProcessIOs()>0) ? IOQm_In(0) : dNAN;
+      DCB.D=(NoMLnkIOs()>0) ? IOQm_In(0) : dNAN;
       return 1;
     case xidQo:
-      DCB.D=(NoProcessIOs()>1) ? IOQm_Out(1) : dNAN;
+      DCB.D=(NoMLnkIOs()>1) ? IOQm_Out(1) : dNAN;
       return 1;
     case xidLnkMode:
       {
@@ -992,7 +992,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       }
     case xidPropertySelect:
       {
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         FlwBlk &FB=*IOFB(0,0);
         if (DCB.rB)
@@ -1070,7 +1070,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB)
         {
         m_bWithOP = (*DCB.rB!=0);
-        if (NoProcessIOs()>0)
+        if (NoMLnkIOs()>0)
           {
           if (m_bWithOP)
             {
@@ -1089,7 +1089,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       return 1;
       }
    case xidSrcHFrc:
-      if (NoProcessIOs()>=1)
+      if (NoMLnkIOs()>=1)
         {
         if (DCB.rD)
           Nd_Rmt(0)->SetIORelFracHgt_Flng(IOIONo_Rmt(0), *DCB.rD);
@@ -1099,7 +1099,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.D=0.0;
       return 1;
     case xidDstHFrc:
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rD)
           Nd_Rmt(1)->SetIORelFracHgt_Flng(IOIONo_Rmt(1), *DCB.rD);
@@ -1109,19 +1109,19 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.D=0.0;
       return 1;
     case xidSrcHgt :
-      if (NoProcessIOs()>=1)
+      if (NoMLnkIOs()>=1)
         DCB.D= IODatum_Flng(0);
       else
         DCB.D=0.0;
       return 1;
     case xidDstHgt :
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         DCB.D= IODatum_Flng(1);
       else
         DCB.D=0.0;
       return 1;
     case xidSrcAperture:
-      if (NoProcessIOs()>=1)
+      if (NoMLnkIOs()>=1)
         {
         if (DCB.rD)
           Nd_Rmt(0)->SetIOAperture(IOIONo_Rmt(0), *DCB.rD);
@@ -1131,7 +1131,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.D=0.0;
       return 1;
     case xidDstAperture:
-      if (NoProcessIOs()>=1)
+      if (NoMLnkIOs()>=1)
         {
         if (DCB.rD)
           Nd_Rmt(1)->SetIOAperture(IOIONo_Rmt(1), *DCB.rD);
@@ -1152,13 +1152,13 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     //  }
     //  return 1;
     case xidVelocity:
-      if (NoProcessIOs()>=1)
+      if (NoMLnkIOs()>=1)
         DCB.D=IOFB(0,0)->Velocity()*IOFB(0,0)->GetQm()/NZ(IOFB(0,0)->GetQmEst());
       else
         DCB.D=0.0;
       return 1;
     case xidChokeVelocity:
-      if ((NoProcessIOs() > 1) && IOFlange(1))
+      if ((NoMLnkIOs() > 1) && IOFlange(1))
         {
         //double X=C.MassFrac(som_Gas);
         //if (X>1.0e-10)
@@ -1196,7 +1196,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidCalcRes:
       {
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         DCB.D=fabs(IOP_Self(1)-IOP_Self(0))/GTZ(IOConduit(0)->QMass(som_ALL));
       else
         DCB.D=dNAN;
@@ -1214,7 +1214,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidCopyCurrent:
       if (DCB.rB && (*DCB.rB!=0) && DCB.ForView())
         {
-        if (NoProcessIOs()>=2)
+        if (NoMLnkIOs()>=2)
           {
           SrcSnk.dPress=0.5*(IOConduit(0)->Press()+IOConduit(1)->Press());
           SrcSnk.dTemp=0.5*(IOConduit(0)->Temp()+IOConduit(1)->Temp());
@@ -1225,7 +1225,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearType:
       {
       int iT=0;
-      if (DCB.rB && NoProcessIOs()>=2)
+      if (DCB.rB && NoMLnkIOs()>=2)
         {
         IOFlange(iT)->SetRqdTearType(*DCB.rB);
         if (IOFlange(iT)->RqdTearType()>=TT_ManualTear)
@@ -1234,7 +1234,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
           IOFlange(iT)->ClrTearImage(this);
         UpdateSQFlags();
         }
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         DCB.B=Max(IOFlange(iT)->RqdTearType(), IOFlange(1)->RqdTearType());
       else
         DCB.B=TT_NoTear;
@@ -1243,13 +1243,13 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearState:
       {
       int iT=0;
-      if (DCB.rB && NoProcessIOs()>=2)
+      if (DCB.rB && NoMLnkIOs()>=2)
         {
         IOFlange(iT)->SetTearType(*DCB.rB, this);
         if (IOFlange(iT)->TearType()!=TT_NoTear)
           IOFlange(iT)->SetTearImage(this);
         }
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         DCB.B=Max(IOFlange(iT)->TearType(), IOFlange(1)->TearType());
       else
         DCB.B=TT_NoTear;
@@ -1258,9 +1258,9 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearPriority:
       {
       int iT=0;
-      if (DCB.rB && NoProcessIOs()>=2)
+      if (DCB.rB && NoMLnkIOs()>=2)
         IOFlange(iT)->SetTearPriority(*DCB.rB);
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         DCB.B=Max(IOFlange(iT)->TearPriority(), IOFlange(1)->TearPriority());
       else
         DCB.B=TP_Normal;
@@ -1269,7 +1269,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearInitWhen:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rB)
           IOFlange(iT)->SetTearInitWhen(*DCB.rB);
@@ -1283,7 +1283,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearInitHow:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rB)
           IOFlange(iT)->SetTearInitHow(*DCB.rB);
@@ -1297,7 +1297,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearInitEstUsage:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rB)
           {
@@ -1313,7 +1313,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearInitActive:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         CFlange &F=*IOFlange(iT);
         if (F.TearInitActive())
@@ -1343,7 +1343,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearInitActivate:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rB)
           IOFlange(iT)->SetTearInitActive(*DCB.rB!=0, !DCB.ForFileSnpScn());
@@ -1357,7 +1357,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearCntRqd:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rB)
           IOFlange(iT)->SetTearHoldRqdCnt(*DCB.rB);
@@ -1371,7 +1371,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearCntAct:
       {
       int iT=0;
-      if (NoProcessIOs()>=2)
+      if (NoMLnkIOs()>=2)
         {
         if (DCB.rB)
           IOFlange(iT)->SetTearHoldCount(*DCB.rB);
@@ -1385,7 +1385,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearQmMode:
       {
       int iT=0;
-      if (NoProcessIOs()>1 && IOFlange(iT)->TearImageExists())
+      if (NoMLnkIOs()>1 && IOFlange(iT)->TearImageExists())
         {
         SpImage &I=*IOFlange(iT)->TearImage();
         if (DCB.rB)
@@ -1399,7 +1399,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearQmRqd:
       {
       int iT=0;
-      if (NoProcessIOs()>1 && IOFlange(iT)->TearImageExists())
+      if (NoMLnkIOs()>1 && IOFlange(iT)->TearImageExists())
         {
         SpImage &I=*IOFlange(iT)->TearImage();
         if (DCB.rD)
@@ -1413,7 +1413,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearQvRqd:
       {
       int iT=0;
-      if (NoProcessIOs()>1 && IOFlange(iT)->TearImageExists())
+      if (NoMLnkIOs()>1 && IOFlange(iT)->TearImageExists())
         {
         SpImage &I=*IOFlange(iT)->TearImage();
         if (DCB.rD)
@@ -1427,7 +1427,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearNQvRqd:
       {
       int iT=0;
-      if (NoProcessIOs()>1 && IOFlange(iT)->TearImageExists())
+      if (NoMLnkIOs()>1 && IOFlange(iT)->TearImageExists())
         {
         SpImage &I=*IOFlange(iT)->TearImage();
         if (DCB.rD)
@@ -1441,7 +1441,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearTRqd:
       {
       int iT=0;
-      if (NoProcessIOs()>1 && IOFlange(iT)->TearImageExists())
+      if (NoMLnkIOs()>1 && IOFlange(iT)->TearImageExists())
         {
         if (DCB.rD)
           IOFlange(iT)->TearImage()->SetTRqdTo(*DCB.rD);
@@ -1454,7 +1454,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     case xidTearPRqd:
       {
       int iT=0;
-      if (NoProcessIOs()>1 && IOFlange(iT)->TearImageExists())
+      if (NoMLnkIOs()>1 && IOFlange(iT)->TearImageExists())
         {
         if (DCB.rD)
           IOFlange(iT)->TearImage()->SetPRqdTo(*DCB.rD);
@@ -1500,7 +1500,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       DCB.B=(pStats!=NULL);
       return 1;
     case xidUDFOpenP:
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         if (DCB.rD)
           IOFB(0,0)->SetUDFOpenP(*DCB.rD);
@@ -1510,7 +1510,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.D=0.0;
       return 1;
     case xidUDFActCnt:
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         if (DCB.rL)
           IOFB(0,0)->SetUDFActionCount(*DCB.rL);
@@ -1520,7 +1520,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.L=0;
       return 1;
     case xidUDFState:
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         DCB.B=IOFB(0,0)->UDFIsClosed();
         }
@@ -1654,13 +1654,13 @@ void MN_Lnk::SetPFSectionCount(long N)
 
 flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
   {
-  if (NoProcessIOs()>0 && IOFBs(0)==NULL)
+  if (NoMLnkIOs()>0 && IOFBs(0)==NULL)
     {//TROUBLE !!!
     //LogError(FullObjTag(), LF_Exclamation, "BAD DATA, not connected to unit");
     SetCI(2, true);
     return False; //try prevent crash, don't continue!!!
     }
-  SetCI(2, NoProcessIOs()<2);
+  SetCI(2, NoMLnkIOs()<2);
 
   flag OK=MdlNode::ValidateData(VDB);
 
@@ -1680,7 +1680,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
   if (!m_FTB.ValidateData(VDB))
     OK=false;
 
-  if (NoProcessIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->dwOther) || IOISSETXFER(IODesc_Rmt(1)->dwOther)))
+  if (NoMLnkIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->dwOther) || IOISSETXFER(IODesc_Rmt(1)->dwOther)))
     SetFlowModeReqd(LFM_Xfer);
 
 #if WITHPBDPSTUFF
@@ -1696,7 +1696,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
   else
     SetSamplePtCount(0);
 
-  if (NoProcessIOs()>0 && IOFlange(0)->TearImageExists())
+  if (NoMLnkIOs()>0 && IOFlange(0)->TearImageExists())
     {
     SpImage &I=*IOFlange(0)->TearImage();
     I.ValidateData(VDB);
@@ -1709,7 +1709,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
       }
     }
 
-  if (NoProcessIOs()>=2)
+  if (NoMLnkIOs()>=2)
     {
     if (m_MFB.On())
       {
@@ -1718,7 +1718,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
       }
     else
       {
-      for (int i=0; i<NoProcessIOs(); i++)
+      for (int i=0; i<NoMLnkIOs(); i++)
         {
         if (m_bWithOP && i==0)
           {
@@ -1774,7 +1774,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
 
   UpdateSQFlags();
 
-  if (NoProcessIOs()>=2)
+  if (NoMLnkIOs()>=2)
     {
     SpConduit &Fi=*IOConduit(0);
     SpConduit &Fo=*IOConduit(1);
@@ -1833,7 +1833,7 @@ flag MN_Lnk::SetModelAction(Strng & Tag, MdlAction & Act)
       break;
     case 2:
       {
-      for (int i=0; i<NoProcessIOs(); i++)
+      for (int i=0; i<NoMLnkIOs(); i++)
         {
         SpConduit &Fi=*IOConduit(i);
         if (i==0)
@@ -1848,7 +1848,7 @@ flag MN_Lnk::SetModelAction(Strng & Tag, MdlAction & Act)
     case 3:
       {
       m_FEP.ClrOveride();
-      for (int i=0; i<NoProcessIOs(); i++)
+      for (int i=0; i<NoMLnkIOs(); i++)
         {
         for (int fe=0; fe<NIOFBs(i); fe++)
           IOFB(i,fe)->ClrOveride();
@@ -1858,7 +1858,7 @@ flag MN_Lnk::SetModelAction(Strng & Tag, MdlAction & Act)
       }
     case 4:
       {
-      for (int i=0; i<NoProcessIOs(); i++)
+      for (int i=0; i<NoMLnkIOs(); i++)
         {
         if (i==0)
           m_FEP.SetLinearised(true, IOFB(0,0)->DPq(), IOFB(0,0)->QmMeas(), IOFB(0,0)->Regulation());
@@ -1872,7 +1872,7 @@ flag MN_Lnk::SetModelAction(Strng & Tag, MdlAction & Act)
     case 5:
       {
       m_FEP.ClrLinearised();
-      for (int i=0; i<NoProcessIOs(); i++)
+      for (int i=0; i<NoMLnkIOs(); i++)
         {
         for (int fe=0; fe<NIOFBs(i); fe++)
           IOFB(i,fe)->ClrLinearised();
@@ -1910,6 +1910,12 @@ CFlange * MN_Lnk::GetFlange(int IOId)
   switch (IOId)
     {
     case IOId_Spill2Area: return &m_Spill.Flange;
+    default:
+      {
+      CFlange * pFlng=m_BlkEval.GetFlange(IOId);
+      if (pFlng)
+        return pFlng;
+      }
     }
   return NULL;
   };
@@ -1972,7 +1978,7 @@ void MN_Lnk::PreDisConnect(int IONo)
 
 flag MN_Lnk::PreStartCheck()
   {
-  flag Ok=(NoProcessIOs()==2 && NoFlwIOs()>=2);
+  flag Ok=(NoMLnkIOs()==2 && NoFlwIOs()>=2);
   if (!Ok)
     {
     LogError(FullObjTag(), 0, "Not correctly Connected");
@@ -2023,7 +2029,7 @@ void MN_Lnk::SetState(eScdMdlStateActs RqdState)
       ////if (SpillExists())
       //  Spill.SetTotal(0.0);
 
-      if (NoProcessIOs()<1)
+      if (NoMLnkIOs()<1)
         break;
       double P0 = AtmosPress(IODatum_Term(0));
       Set_JoinP(0, P0);
@@ -2072,7 +2078,7 @@ void MN_Lnk::SetState(eScdMdlStateActs RqdState)
 
       IOFlange(0)->SetTearInitCounters(false);
 
-      if (NoProcessIOs()<2)
+      if (NoMLnkIOs()<2)
         break;
 
       double P1 = AtmosPress(IODatum_Term(1));
@@ -2142,7 +2148,10 @@ bool MN_Lnk::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 void MN_Lnk::ConfigureJoins()
   {
   const int JnId_Pipe=0;
-  const int JnId_Spill=1;
+  //const int JnId_Spill=1;
+  //const int JnId_Makeup=2;
+  //const int JnId_Bleed=3;
+
   if (GetActiveHold())
     {
     SetIO_Open(0, JnId_Pipe, false, ESS_Required, m_iFlwPhaseRqd);
@@ -2176,16 +2185,14 @@ void MN_Lnk::ConfigureJoins()
 
     SetJoin_HasVolume(JnId_Pipe, m_PFI.Method!=VFFX_Off, fVolIsSmall);
 
-    if (m_fFwdOnly && NoProcessIOs()>0)
+    if (m_fFwdOnly && NoMLnkIOs()>0)
       IOFB(0,0)->SetUniDirectionalFlow(True, IOFB(0,0)->UDFOpenP(), 0.0);
 
     }
   
-  if (NoFlwIOs()>2 && IOId_Self(2)==IOId_Spill2Area)
-    {
-    ASSERT_ALWAYS(IOId_Self(2)==IOId_Spill2Area, "Spill not Connected correctly");
-    SetIO_Direct(2, JnId_Spill);
-    }
+  for (int ii=NoMLnkIOs(), jj=JnId_Pipe+1; ii<NoFlwIOs(); ii++, jj++)
+    SetIO_Direct(ii, jj);
+
   };
 
 //--------------------------------------------------------------------------
@@ -3195,7 +3202,7 @@ void MN_Lnk::EvalProducts(long JoinMask)
     }
 
   if (m_Evap.Enabled())
-    m_Snk.Add(m_Evap.DiscardCd());//m_RB.HfSumSrc();
+    m_Snk.AddF(m_Evap.DiscardCd());//m_RB.HfSumSrc();
 
 #if DBGCHG
   #define DBGIT(A,B,D,T)  \

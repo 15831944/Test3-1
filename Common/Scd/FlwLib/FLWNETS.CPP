@@ -1433,6 +1433,9 @@ char *CGrpFlwBlk::FwdTag()
   if (m_FTag.Length()==0)
     {
     m_FTag=m_Src.m_pNd->FullObjTag();
+    m_FTag+=".";
+    m_FTag+=m_Src.m_pNd->IODesc_Self(m_Src.m_iIONo)->pName;
+    
     m_FTag+=" > ";
     if (m_Lnks.GetCount()>0)
       {
@@ -1442,6 +1445,8 @@ char *CGrpFlwBlk::FwdTag()
       m_FTag+=" > ";
       }
     m_FTag+=m_Dst.m_pNd->FullObjTag();
+    m_FTag+=".";
+    m_FTag+=m_Dst.m_pNd->IODesc_Self(m_Dst.m_iIONo)->pName;
     }
   return m_FTag();
   }
@@ -1453,6 +1458,8 @@ char *CGrpFlwBlk::RevTag()
   if (m_RTag.Length()==0)
     {
     m_RTag=m_Dst.m_pNd->FullObjTag();
+    m_RTag+=".";
+    m_RTag+=m_Dst.m_pNd->IODesc_Self(m_Dst.m_iIONo)->pName;
     m_RTag+=" > ";
     if (m_Lnks.GetCount()>0)
       {
@@ -1462,6 +1469,8 @@ char *CGrpFlwBlk::RevTag()
       m_RTag+=" > ";
       }
     m_RTag+=m_Src.m_pNd->FullObjTag();
+    m_RTag+=".";
+    m_RTag+=m_Src.m_pNd->IODesc_Self(m_Src.m_iIONo)->pName;
     }
   return m_RTag();
   }

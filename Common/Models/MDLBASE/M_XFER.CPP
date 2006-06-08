@@ -22,7 +22,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_RB(this, false),
   m_PBPCtrl0(PBPC_MinFd, Std_P, true),
   m_FTM(this),
-  m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakIn),
+  m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakI),
   m_Evap(this)
 #if (WITHBLOCKEVALUATOR)
   , m_BlkEval(this, &m_RB, NULL, &EHX, NULL/*&m_VLE*/, &m_Evap)

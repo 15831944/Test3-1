@@ -72,6 +72,7 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
   {
   if (p)
     {
+    dbgpln("AddBlk %3i", m_nBlocks);
     p->SetOnOffValLst(&m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
     m_Blks[m_nBlocks++]=p;
@@ -91,6 +92,7 @@ void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
         m_nBlocks--;
         for (int j=i; j<m_nBlocks; j++)
           m_Blks[j]=m_Blks[j+1];
+        dbgpln("RemBlk %3i", m_nBlocks);
         break;
         }
       }
@@ -125,9 +127,9 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
 
     //DDB.Text("");
     for (int a=0; a<m_pMakeups.GetSize(); a++)
-      m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 10000+a);
+      m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 100000+a*1000);
     for (int a=0; a<m_pBleeds.GetSize(); a++)
-      m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 20000+a);
+      m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 200000+a*1000);
     }
 
   if (PrjFileVerNo()>=98)
@@ -151,12 +153,13 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
     m_pVLE->BuildDataDefn(DDB);
   if (m_pEvap && m_pEvap->Enabled())
     m_pEvap->BuildDataDefn(DDB);
+  
   bool TheFirst=true;
   for (int a=0; a<m_pMakeups.GetSize(); a++)
     {
     if (m_pMakeups[a]->Enabled())
       {
-      m_pMakeups[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 10000+a);
+      m_pMakeups[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 100000+a*1000);
       TheFirst=false;
       }
     }
@@ -164,7 +167,7 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
     {
     if (m_pBleeds[a]->Enabled())
       {
-      m_pBleeds[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 20000+a);
+      m_pBleeds[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 200000+a*1000);
       TheFirst=false;
       }
     }
@@ -231,7 +234,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
     return 1;
   for (int a=0; a<m_pMakeups.GetSize(); a++)
     {
-    if (DCB.dwUserInfo==10000+a)
+    if (DCB.dwUserInfo>=(dword)100000+a*1000 && DCB.dwUserInfo<(dword)100000+a*1000+1000)
       {
       if (m_pMakeups[a]->DataXchg(DCB))
         return 1;
@@ -239,7 +242,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
     }
   for (int a=0; a<m_pBleeds.GetSize(); a++)
     {
-    if (DCB.dwUserInfo==20000+a)
+    if (DCB.dwUserInfo>=(dword)200000+a*1000 && DCB.dwUserInfo<(dword)200000+a*1000+1000)
       {
       if (m_pBleeds[a]->DataXchg(DCB))
         return 1;
@@ -256,6 +259,19 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
 
   return true;
   };
+
+//-------------------------------------------------------------------------
+
+CFlange * CBlockEvaluator::GetFlange(int IOId)
+  {
+  CFlange * pFlng=NULL;
+  if (IOId>=IOId_Bleed2Area && IOId<IOId_Bleed2Area+CBlockEvaluator::MaxBleedBlocks)
+    pFlng = &(m_pBleeds[IOId-IOId_Bleed2Area]->m_Out.Flange);
+  if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+CBlockEvaluator::MaxMakeupBlocks)
+    pFlng = &(m_pMakeups[IOId-IOId_Makeup2Area]->m_In.Flange);
+  dbgpln("CBlockEvaluator::GetFlange %3i %08x", IOId, pFlng);
+  return pFlng;
+  }
 
 //-------------------------------------------------------------------------
 
@@ -278,7 +294,7 @@ void CBlockEvaluator::SortBlocks()
       i++;
     };
 
-  if (1)
+  if (0)
     {
     dbgpln("SortBlks ===============");
     for (i=0 ; i<m_nBlocks; i++)
@@ -309,7 +325,7 @@ void CBlockEvaluator::SortBlocks()
     }
 #endif
 
-  if (1)
+  if (0)
     {
     dbgpln("         ===============");
     for (i=0 ; i<m_nBlocks; i++)
@@ -455,6 +471,23 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
         if (pFTB)
           pFTB->AddEvapEnd();
         break;
+
+      case BEId_Makeup:  
+        //if (pFTB)
+        //  pFTB->AddEvapBegin();
+        m_pMakeups[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
+        //if (pFTB)
+        //  pFTB->AddEvapEnd();
+        break;
+      case BEId_Bleed:  
+        //if (pFTB)
+        //  pFTB->AddEvapBegin();
+        m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
+        //m_Blks[i]->EvalProducts(Fo, Po); 
+        //if (pFTB)
+        //  pFTB->AddEvapEnd();
+        break;
+
       }
     //}
     }

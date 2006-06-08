@@ -312,6 +312,14 @@ IOAreaRec TwoIOAreaListWithBS[] =
     SPILL2AREA("Spills", IOId_Spill2Area),
     {NULL}
   };
+IOAreaRec TwoIOAreaListWithMBS[] =
+  {
+    TWOIOSTD,
+    MAKEUP2AREA("Makeups", IOId_Makeup2Area),
+    BLEED2AREA("Bleeds", IOId_Bleed2Area),
+    SPILL2AREA("Spills", IOId_Spill2Area),
+    {NULL}
+  };
 
 //===========================================================================
 //
@@ -1825,7 +1833,7 @@ flag FlwNode::fCollectChgStats=0;
 dword FlwNode::m_dwMdlStatusOptions=0;
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
-long gs_EvalBalances    = EvalBalances_Off;
+long gs_EvalAudits      = EvalAudits_Off;
 bool gs_FSIdleRequested = false;
 
 // --------------------------------------------------------------------------
@@ -1851,6 +1859,7 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
 
   //m_IOs         = NULL;
   m_nFIOs         = 0;
+  m_nMLnkIOs      = 0;
   m_nProcessIOs   = 0;
   m_iCIO1         = 0;
   m_nCIOs         = 0;
@@ -4697,9 +4706,9 @@ void FlwNode::ConnectJoinList()
       else if (IO_Closed_Rmt(i))
         S="Closed_Self";
       else if (IO_Direct_Self(i))
-        S="Spill_Self ";
+        S="Direct_Self";
       else if (IO_Direct_Rmt(i))
-        S="Spill_Rmt  ";
+        S="Direct_Rmt ";
       else if (IO_Open_Self(i))
         S="Open_Self  ";
       else if (IO_Open_Rmt(i))
@@ -4818,7 +4827,7 @@ int FlwNode::IOWithId_Self(int  RqdId)
     for (int x=0; x<NoFlwIOs(); x++)
       dbgpln("IOId  : %4i: %i", x, IOId_Self(x));
 
-    //_asm int 3;
+    //__debugbreak();
     dbgpln("= %i [%i]", iIO, RqdId);
     }
   //if (1) // only for test
@@ -4866,7 +4875,7 @@ flag FlwNode::MoveTearFlange(int iTearIO, FlwNode * &pNewTearNd, int &iNewTearIO
     {
     if (Internal)
       return False;
-    if (NoProcessIOs()!=2 || !IO_Out(iTearIO) || !IO_In(OtherEnd(iTearIO)))
+    if (NoMLnkIOs()!=2 || !IO_Out(iTearIO) || !IO_In(OtherEnd(iTearIO)))
       return False;
     }
   if (IO_Out(iTearIO))
@@ -5095,6 +5104,8 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     m_nFIOs++;
     if (IsProcessIOId(AreaId))
       m_nProcessIOs++;
+    if (IsMLnkIOId(AreaId))
+      m_nMLnkIOs++;
     }
 
   m_iCIO1=m_nFIOs;
@@ -5183,6 +5194,8 @@ int FlwNode::Detach(int IONo)
     m_nFIOs--;
     if (IsProcessIOId(AreaId))
       m_nProcessIOs--;
+    if (IsMLnkIOId(AreaId))
+      m_nMLnkIOs--;
     }
 
   if (0)
@@ -6024,7 +6037,7 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
         {
         for (int i=0; i<NoDirectIOs(); i++)
           {
-          if (m_DirectIOs[i]->IsIO)
+          if (m_DirectIOs[i]->HasConduit)
             {
             // TODO
             }
@@ -6162,7 +6175,7 @@ pchar FlwNode::FindFlwNodeShortDescIndexed(pchar pGroup, int iIndex)
 void FlwNode::SetDatumsDone()
   {
   double Z;
-  for (int i=0; i<NoProcessIOs(); i++)
+  for (int i=0; i<NoMLnkIOs(); i++)
     if (IOFlange(i))
       {
       if (Nd_Rmt(i) && (IOPipeEntry_Rmt(i) || IOPipeJoin_Rmt(i)))
@@ -6817,7 +6830,7 @@ int FlwNode::FilesUsed(CFilesUsedArray & Files)
 
 int FlwNode::GetConnectionTags(Strng_List & TagLst)
   {
-  for (int i=0; i<NoProcessIOs(); i++)
+  for (int i=0; i<NoMLnkIOs(); i++)
     {
     Strng *p=new Strng(Nd_Rmt(i)->FullObjTag());
     p->SetIndex(0);
@@ -6986,11 +6999,11 @@ CTraceArray * FlwNode::GetChangeTrace(long i, dword Flags)
 
 //--------------------------------------------------------------------------
 
-void FlwNode::EvalBalance(int Pass)
+void FlwNode::EvalAudit(int Pass)
   {
   bool dbgOn=false;
   if (dbgOn)
-    dbgpln("EvalBalance [%i] %s", Pass, FullObjTag());
+    dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
   switch (Pass)
     {
     case 0:
@@ -9503,7 +9516,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
   m_NdSignImp=0;
-  m_AreaListPos=NULL;
+  m_RmtListPos=NULL;
   Initialise(eType, Nd);
   InitialiseIO(ShowUsr, SysEnable, Tag, -1, -1);
   //InitialiseFlags(ShowUsr, SysEnable, Tag);
@@ -9551,8 +9564,8 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   m_bUsrEnable      = false;
   m_bShowUsr        = false;
 
-  m_sAreaTag        = "";
-  m_sAreaTmp        = "?";
+  m_sRmtTag         = "";
+  m_sRmtTmp         = "?";
   m_bConnected      = false;
   m_iMyConnectedIO  = -1;
   m_Opening         = 1.0;
@@ -9628,7 +9641,7 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int i
     delete m_pFlng;
   if (m_bDeleteSum && m_pSum)
     delete m_pSum;
-  if (IsIO && (m_pFlng == NULL))
+  if (HasConduit && (m_pFlng == NULL))
     {
     m_pFlng         = new CFlange;
     m_pSum          = &m_pFlng->m_Sum;
@@ -9705,26 +9718,26 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       if (DCB.rpC)
         {
         if (*DCB.rpC!='<')
-          m_sAreaTag=DCB.rpC;
+          m_sRmtTag=DCB.rpC;
         else
-          m_sAreaTag="";
-        m_sAreaTag.LRTrim();
+          m_sRmtTag="";
+        m_sRmtTag.LRTrim();
         }
-      if (m_sAreaTag.GetLength()>0)
-        m_sAreaTmp=m_sAreaTag;
+      if (m_sRmtTag.GetLength()>0)
+        m_sRmtTmp=m_sRmtTag;
       else if (DCB.ForFileSnpScn())
-        m_sAreaTmp="";
+        m_sRmtTmp="";
       else if (m_pNd->m_sAreaTag.GetLength()>0)
-        m_sAreaTmp.Set("<%s>", m_pNd->m_sAreaTag());
+        m_sRmtTmp.Set("<%s>", m_pNd->m_sAreaTag());
       else
-        m_sAreaTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
-      DCB.pC=m_sAreaTmp();
+        m_sRmtTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
+      DCB.pC=m_sRmtTmp();
       return 1;
     case xidDrctAreaConnd:
-      DCB.pC=m_pArea.m_sTag();
+      DCB.pC=m_pRmt.m_sTag();
       return 1;
     case xidDrctQm:
-      DCB.D=Sum.FlowMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QMass() : Cd.QMass() : 0);
+      DCB.D=HasConduit ? Cd.QMass() : Sum.FlowMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QMass() : Cd.QMass() : 0);
       return 1;
     //case xidDrctQv:
     //  DCB.D=Sum.totMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QVolume() : Cd.QVolume() : 0);
@@ -9740,7 +9753,7 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
 
 flag CDirectFlwIO::ValidateData(ValidateDataBlk & VDB)
   {
-  MakeAreaTag();
+  MakeRmtTag();
   bool OK=true;
   return OK;
   }
@@ -9761,18 +9774,18 @@ flag CDirectFlwIO::getConnectError()
 
 //--------------------------------------------------------------------------
 
-void CDirectFlwIO::MakeAreaTag()
+void CDirectFlwIO::MakeRmtTag()
   {
-  m_sAreaTag.LRTrim();
+  m_sRmtTag.LRTrim();
   if (m_pNd)
     m_pNd->m_sAreaTag.LRTrim();
 
-  if (m_sAreaTag.GetLength()>0)
-    m_pArea.m_sTag=m_sAreaTag;
+  if (m_sRmtTag.GetLength()>0)
+    m_pRmt.m_sTag=m_sRmtTag;
   else if (m_pNd && m_pNd->m_sAreaTag.GetLength()>0)
-    m_pArea.m_sTag=m_pNd->m_sAreaTag;
+    m_pRmt.m_sTag=m_pNd->m_sAreaTag;
   else
-    m_pArea.m_sTag=gs_DirectFlwIOTagDefault;
+    m_pRmt.m_sTag=gs_DirectFlwIOTagDefault;
   }
 
 //--------------------------------------------------------------------------
@@ -9784,7 +9797,7 @@ flag CDirectFlwIO::GlobalConnect()
   CStopWatch SW;
   SW.Start();
 
-  MakeAreaTag();
+  MakeRmtTag();
 
   bool Disabled=true; 
   switch (m_eType)
@@ -9809,15 +9822,15 @@ flag CDirectFlwIO::GlobalConnect()
 
   #if dbgFlwNode
   if (dbgGlobalConnects())
-    dbgpln("GlobalConnect %4i %-15s %35s.%s > %s", m_iLclIOId, m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pArea.m_sTag());
+    dbgpln("GlobalConnect %5i %5i %-15s %35s.%s > %s", m_iLclIOId, m_iRmtIOId, m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
   #endif
 
 #if dbgKwikConnect
   dbgpln(" .A %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
 
-  m_bConnected = m_pArea.Connect(m_pNd, "Area");
-  if (!m_bConnected && m_pArea.m_sTag.GetLength()>0)
+  m_bConnected = m_pRmt.Connect(m_pNd, "Area");
+  if (!m_bConnected && m_pRmt.m_sTag.GetLength()>0)
     {
     //LogError(m_pNd->FullObjTag(), 0, "Envelope %s not found", m_sAreaTag());
     return false;
@@ -9837,10 +9850,10 @@ flag CDirectFlwIO::GlobalConnect()
   //  Connd.SetAt(this,this);
   //  //dbgpln("+++ %i", Connd.GetCount());
   //  }
-  CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pArea->m_DirectIOsConnected;
+  CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pRmt->m_DirectIOsConnected;
   if (Connd.GetCount()==0 || Connd.Find(this)==NULL)
     {
-    m_AreaListPos=Connd.AddTail(this);
+    m_RmtListPos=Connd.AddTail(this);
     //dbgpln("+++ %i", Connd.GetCount());
     }
 
@@ -9867,16 +9880,16 @@ flag CDirectFlwIO::GlobalConnect()
       return true;
       }
 
-    IOAreaRec * NdIORmt=m_pArea->IOAreas;
+    IOAreaRec * NdIORmt=m_pRmt->IOAreas;
     for (int iI=0; (NdIORmt[iI].pDesc &&NdIORmt[iI].m_Id != m_iRmtIOId); iI++)
       {};
 #if dbgKwikConnect
     dbgpln(" .D %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
 
-    if (m_pArea->NoFlwIOs() >= MaxIOList)
+    if (m_pRmt->NoFlwIOs() >= MaxIOList)
       {
-      LogError(m_pNd->FullObjTag(), 0, "%s has Too many Connections directed to it ", m_pArea->Tag());
+      LogError(m_pNd->FullObjTag(), 0, "%s has Too many Connections directed to it ", m_pRmt->Tag());
       return false;
       }
 
@@ -9886,9 +9899,9 @@ flag CDirectFlwIO::GlobalConnect()
       return false;
       }
 
-    if (!m_pArea->GetActive())
+    if (!m_pRmt->GetActive())
       {
-      LogNote(m_pNd->FullObjTag(), 0, "%s Not Active", m_pArea->Tag());
+      LogNote(m_pNd->FullObjTag(), 0, "%s Not Active", m_pRmt->Tag());
       return false;
       }
 
@@ -9912,14 +9925,14 @@ flag CDirectFlwIO::GlobalConnect()
     dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
     IOInfoBlk Info;
-    if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].pName, m_pArea, NdIORmt[iI].pName, &Info)==0)
+    if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].pName, m_pRmt, NdIORmt[iI].pName, &Info)==0)
       {
       m_iMyConnectedIO = Info[0].IOIndex;
       int iEnvConnectedIO = Info[1].IOIndex;
       m_pNd->SetIOAutoConnect(m_iMyConnectedIO, true);
-      m_pArea->SetIOAutoConnect(iEnvConnectedIO, true);
+      m_pRmt->SetIOAutoConnect(iEnvConnectedIO, true);
 
-      //dbgpln(".. %i %i %s", m_iMyConnectedIO, iEnvConnectedIO, m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
+      dbgpln(".. %s[%i] %s[%i] ", m_pNd->FullObjTag(), m_iMyConnectedIO, m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag(), iEnvConnectedIO);
 #if dbgKwikConnect
       dbgpln(" .F %5i %5i %10.1fus %-20s %s > %s", m_iMyConnectedIO, iEnvConnectedIO, SW.Lap()*1e6, "", m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
 #endif
@@ -9938,7 +9951,7 @@ flag CDirectFlwIO::GlobalDisConnect()
   {
   #if dbgFlwNode
   if (dbgGlobalConnects())
-    dbgpln("GlobalDisConnect %4i %35s.%s > %s", m_iLclIOId, m_pNd->FullObjTag(), m_sTag(), m_pArea.m_sTag());
+    dbgpln("GlobalDisConnect %4i %35s.%s > %s", m_iLclIOId, m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
   #endif
 
   if (m_iLclIOId<0)
@@ -9953,7 +9966,7 @@ flag CDirectFlwIO::GlobalDisConnect()
       }
     }
 
-  if (m_pArea.Connected())
+  if (m_pRmt.Connected())
     {
 
     //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
@@ -9963,13 +9976,13 @@ flag CDirectFlwIO::GlobalDisConnect()
 
     //CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pArea->m_DirectIOsConnected;
     //POSITION Pos=Connd.GetCount()>0 ? Connd.Find(this) : NULL;
-    if (m_AreaListPos)
+    if (m_RmtListPos)
       {
-      m_pArea->m_DirectIOsConnected.RemoveAt(m_AreaListPos);
-      m_AreaListPos=NULL;
+      m_pRmt->m_DirectIOsConnected.RemoveAt(m_RmtListPos);
+      m_RmtListPos=NULL;
       //dbgpln("--- %i", Connd.GetCount());
       }
-    m_pArea.DisConnect();
+    m_pRmt.DisConnect();
     }
   m_bConnected=false;
   return true;
@@ -10056,9 +10069,9 @@ void CDirectFlwIO::EvalProducts(SpConduit & Cd, bool ScaleCd)
 
 void  CDirectFlwIO::Set(CSysVector & V, double Hz)
   {
-  if (IsIO)
+  if (HasConduit)
     {
-    _asm int 3;// should not come here - use copy
+    __debugbreak();// should not come here - use copy
     }
   else
     {
@@ -10068,48 +10081,64 @@ void  CDirectFlwIO::Set(CSysVector & V, double Hz)
 
 // -------------------------------------------------------------------------
 
-void CDirectFlwIO::Set(SpConduit & Cd)
+void CDirectFlwIO::SetF(SpConduit & CdIn, PhMask PhaseM, double Fraction)
   {
-  if (IsIO)
+  if (HasConduit)
     {
-    Cd.QCopy(Cd);
+    Cd.QSetF(CdIn, som_ALL, Fraction, CdIn.Press());
+    Sum.Set(Cd);
     }
   else
+    Sum.Set(CdIn);
+  };
+
+// -------------------------------------------------------------------------
+
+void CDirectFlwIO::SetM(SpConduit & CdIn, PhMask PhaseM, double Qm)
+  {
+  if (HasConduit)
     {
+    Cd.QSetM(CdIn, som_ALL, Qm, CdIn.Press());
     Sum.Set(Cd);
-    //MArray.Set(Cd.MArray(), som_ALL);
-    //m_totHz  = Cd.totHz();
     }
+  else
+    Sum.Set(CdIn);
   };
 
 // -------------------------------------------------------------------------
 
 void  CDirectFlwIO::Add(CSysVector & V, double Hz)
   {
-  if (IsIO)
-    {
-    _asm int 3;// should not come here - use copy
-    }
+  if (HasConduit)
+    __debugbreak();// should not come here - use copy
   else
-    {
     Sum.Add(V, Hz);
-    }
   }
 
 // -------------------------------------------------------------------------
 
-void CDirectFlwIO::Add(SpConduit & Cd)
+void CDirectFlwIO::AddF(SpConduit & CdIn, PhMask PhaseM, double Fraction)
   {
-  if (IsIO)
+  if (HasConduit)
     {
-    Cd.QAddF(Cd, som_ALL, 1.0);
+    Cd.QAddF(CdIn, som_ALL, Fraction);
+    Sum.Set(Cd);
     }
   else
+    Sum.Set(CdIn);
+  };
+
+// -------------------------------------------------------------------------
+
+void CDirectFlwIO::AddM(SpConduit & CdIn, PhMask PhaseM, double Qm)
+  {
+  if (HasConduit)
     {
+    Cd.QAddM(CdIn, som_ALL, Qm);
     Sum.Set(Cd);
-    //MArray.Add(Cd.MArray(), som_ALL);
-    //m_totHz  += Cd.totHz();
     }
+  else
+    Sum.Set(CdIn);
   };
 
 //==========================================================================

@@ -43,7 +43,7 @@ const char* eFITCmdStr(int i)
     case eFITNull:                  return "Null";
     case eFITQuit:                  return "Quit";
     case eFITEvalDiscrete:          return "Discrete";
-    case eFITEvalBalance:           return "Balance";
+    case eFITEvalAudit:             return "EvalAudit";
     case eFITCheckXRefs:            return "CheckXRefs";
     case eFITEvalCtrlInitialise:    return "EvalCtrlInitialise";
     case eFITEvalCtrlActions:       return "EvalCtrlActions";
@@ -284,8 +284,8 @@ UINT FlwIterThread(LPVOID pFST_)
               DUMPOVERHEAD;
               TDB->SignalJobDone();
               break;
-            case eFITEvalBalance:
-              TDB->pDyn->FITEvalBalance(*TDB->pNEI);
+            case eFITEvalAudit:
+              TDB->pDyn->FITEvalAudit(*TDB->pNEI);
               DUMPOVERHEAD;
               TDB->SignalJobDone();
               break;

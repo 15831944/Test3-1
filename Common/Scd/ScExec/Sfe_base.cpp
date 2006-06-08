@@ -3268,10 +3268,12 @@ void CModelInfo::MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char* pC
   Cfg.WrStr("Selectable", "S0001", "1,Feed_XPG-1");
   Cfg.WrStr("Selectable", "S0002", "1,Tank-1");
   Cfg.WrStr("Selectable", "S0003", "1,Tie-1");
-  Cfg.WrStr("Selectable", "S0004", "1,GControl");
-  Cfg.WrStr("Selectable", "S0005", "1,PID_Cont-1");
-  Cfg.WrStr("Selectable", "S0006", "1,Pipe-1");
-  Cfg.WrStr("Selectable", "S0007", "1,Simple");
+  Cfg.WrStr("Selectable", "S0004", "1,MakeupSrc-1");
+  Cfg.WrStr("Selectable", "S0005", "1,BleedSnk-1");
+  Cfg.WrStr("Selectable", "S0006", "1,GControl");
+  Cfg.WrStr("Selectable", "S0007", "1,PID_Cont-1");
+  Cfg.WrStr("Selectable", "S0008", "1,Pipe-1");
+  Cfg.WrStr("Selectable", "S0009", "1,Simple");
   }
 
 //---------------------------------------------------------------------------

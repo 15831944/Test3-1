@@ -250,7 +250,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
   if (fGlblConnectsInPlace && !fCrossConnected)
     {
-    if (NoProcessIOs()>0 && fGlblConnectsInPlace)
+    if (NoMLnkIOs()>0 && fGlblConnectsInPlace)
       if (IOId_Self(0)==SSIO_Snk)
         SSMode = SSMode &~SSM_Source | SSM_Sink;
       else
@@ -264,7 +264,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
     {
     if ((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)
       SSMode = (SSMode & ~SSM_ConstP) | SSM_ConstQm;
-    if (NoProcessIOs()==1)
+    if (NoMLnkIOs()==1)
       {
       if (IOId_Self(0)==0/*Input*/)
         SSMode = (SSMode & ~SSM_Source) | SSM_Sink; //forced to be a sink
@@ -498,9 +498,9 @@ long MN_SrcSnk::NodeFlwTask(NodeFlwTasks Task)
   {
   if (Task==NFT_PBQueryRemove)
     {
-    if (fCrossConnected || NoProcessIOs()>1)
+    if (fCrossConnected || NoMLnkIOs()>1)
       return 0;
-    if (NoProcessIOs()==0 || IO_In(0))
+    if (NoMLnkIOs()==0 || IO_In(0))
       return 0;
 
     long nIn=0;
@@ -541,11 +541,11 @@ void MN_SrcSnk::GlobalConnect()
       goto Done;
       }
 
-    if (NoProcessIOs() > 1)
+    if (NoMLnkIOs() > 1)
       {
       Strng S;
       S.Set("More than one Connection : %s", Nd_Rmt(0)->FullObjTag());
-      for (int i=1; i<NoProcessIOs(); i++)
+      for (int i=1; i<NoMLnkIOs(); i++)
         {
         S+=", ";
         S+=Nd_Rmt(i)->FullObjTag();
@@ -571,13 +571,13 @@ void MN_SrcSnk::GlobalConnect()
     //KGA 1/12/95 need these lines because the sequence in which XPage connecters are checked does
     // not garentee that pOther has allready been checked...
 
-    if (pOther->NoProcessIOs() > 1)
+    if (pOther->NoMLnkIOs() > 1)
       {
       LogError(FullObjTag(), 0, "%s Too many Connections: ", pOther->Tag());
       goto Done;
       }
 
-    flag WithLnks=(NoProcessIOs()==1 && pOther->NoProcessIOs()==1);
+    flag WithLnks=(NoMLnkIOs()==1 && pOther->NoMLnkIOs()==1);
     if (WithLnks && (pOther->IOId_Self(0)==IOId_Self(0)))
       {//kga both cross page connectors have pipes that are connected as sinks or sources !!!
       LogError(FullObjTag(), 0/*LF_Exclamation*/, "%s Cannot Connect: check pipes(links) IO's, both are src or snk", sConnectTag());
@@ -604,9 +604,9 @@ void MN_SrcSnk::GlobalConnect()
 
 
     flag IAmOut=false;
-    if (NoProcessIOs()>0 && (IODesc_Self(0)->Dirn & LIO_Out)!=0)
+    if (NoMLnkIOs()>0 && (IODesc_Self(0)->Dirn & LIO_Out)!=0)
       IAmOut=true;
-    else if (pOther->NoProcessIOs()>0 && (pOther->IODesc_Self(0)->Dirn & LIO_In)!=0)
+    else if (pOther->NoMLnkIOs()>0 && (pOther->IODesc_Self(0)->Dirn & LIO_In)!=0)
       IAmOut=true;
     IOInfoBlk Info;
     if (IAmOut)
@@ -763,16 +763,16 @@ bool MN_SrcSnk::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 void MN_SrcSnk::ConfigureJoins()
   {
-  if (fCrossConnected && (NoProcessIOs()==2))
+  if (fCrossConnected && (NoMLnkIOs()==2))
     {
-    for (int i=0; i<NoProcessIOs(); i++)
+    for (int i=0; i<NoMLnkIOs(); i++)
       SetIO_Join(i, 0);
     }
   else
     {
-    for (int i=0; i<NoProcessIOs(); i++)
+    for (int i=0; i<NoMLnkIOs(); i++)
       SetIO_Open(i, 0, false, ESS_Denied);
-    for (int i=NoProcessIOs(); i<NoFlwIOs(); i++)
+    for (int i=NoMLnkIOs(); i<NoFlwIOs(); i++)
       SetIO_Direct(i, 1);
     }
   };
@@ -810,7 +810,7 @@ flag MN_SrcSnk::MoveTearFlange(int iTearIO, pFlwNode &pNewTearNd, int &iNewTearI
 
 void MN_SrcSnk::EvalJoinPressures(long JoinMask)
   {
-  if (fCrossConnected && (NoProcessIOs()==2))
+  if (fCrossConnected && (NoMLnkIOs()==2))
     {
     int In  = (IO_In(0) ? 0 : OtherEnd(0));
     int Out = OtherEnd(In);
@@ -823,7 +823,7 @@ void MN_SrcSnk::EvalJoinPressures(long JoinMask)
     }
   else
     {
-    const int nfios=NoProcessIOs();
+    const int nfios=NoMLnkIOs();
     if (NetProbalMethod())
       {
       if ((SSMode&SSM_Sink)!=0)
@@ -878,7 +878,7 @@ flag MN_SrcSnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
     {
     if (fCrossConnected)
       {
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         pFB->SetQmFree();
         }
@@ -961,7 +961,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
     case SM_Inline:
     case SM_Buffered:
       {
-      for (i=0;i<NoProcessIOs(); i++)
+      for (i=0;i<NoMLnkIOs(); i++)
         {
         // Output
         if (IO_Out(i) || IO_Zero(i))
@@ -1085,7 +1085,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
         int IOOut=IOWithId_Self(SSIO_Src);
         if (IOOut>=0)
           {
-          m_Src.Set(*IOConduit(IOOut));
+          m_Src.SetF(*IOConduit(IOOut));
           //IOConduit(IOSrc)->QCopy(*IOConduit(IOOut));
           //int IOSrc=IOWithId_Self(IOId_Src2Area);
           //if (IOSrc>=0)
@@ -1097,7 +1097,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
         int IOIn=IOWithId_Self(SSIO_Snk);
         if (IOIn>=0)
           {
-          m_Snk.Set(*IOConduit(IOIn));
+          m_Snk.SetF(*IOConduit(IOIn));
           //int IOSnk=IOWithId_Self(IOId_Snk2Area);
           //if (IOSnk>=0)
           //  IOConduit(IOSnk)->QCopy(*IOConduit(IOIn));
@@ -1109,7 +1109,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
       }
     case SM_Direct:
       {
-      for (i=0;i<NoProcessIOs(); i++)
+      for (i=0;i<NoMLnkIOs(); i++)
         {
         if (IO_Out(i) || IO_Zero(i))
           {
@@ -1195,13 +1195,13 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
 
 void MN_SrcSnk::EvalProductsInit(EvalProductsInitTasks Task)
   {
-  if (NoProcessIOs()>=2 && (fCrossConnected || (IO_In(0)==IO_Out(1))))
+  if (NoMLnkIOs()>=2 && (fCrossConnected || (IO_In(0)==IO_Out(1))))
     {
     }
   else
     {
     DoEvalProducts(false, ICGetTimeInc());
-    for (int i=0;i<NoProcessIOs(); i++)
+    for (int i=0;i<NoMLnkIOs(); i++)
     if (IO_Out(i) || IO_Zero(i))
        EvalProductsInit_Source(Task, i, IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas));
     }
@@ -1211,7 +1211,7 @@ void MN_SrcSnk::EvalProductsInit(EvalProductsInitTasks Task)
 
 void MN_SrcSnk::EvalProducts(long JoinMask)
   {
-  if (NoProcessIOs()>=2 && (fCrossConnected || (IO_In(0)==IO_Out(1))))
+  if (NoMLnkIOs()>=2 && (fCrossConnected || (IO_In(0)==IO_Out(1))))
     {
     // if flowest is zero default to forward 0->1
     int In  = TwoIOInIndex();
@@ -1273,7 +1273,7 @@ void MN_SrcSnk::EvalDiscrete()
     //kga 14/1/2003 :
     //if Contents in feed has quality SzData present, and the feeder is now NOT connected and NOT using Fetch,
     //then the presence of the "old" SzData is NOT deleted. So as a crude fix, lets delete it here now!
-    if (!fCrossConnected && NoProcessIOs()>0)// && IO_Out(0))
+    if (!fCrossConnected && NoMLnkIOs()>0)// && IO_Out(0))
       {
       SpModel * pMdl = Contents.Model();
       for (int q=0; q<pMdl->nQuals; q++)
@@ -1317,7 +1317,7 @@ void MN_SrcSnk::EvalDiscrete()
                            Valid(Contents.QvRqd()) && (SSMode&SSM_ConstQv) ||
                            Valid(Contents.NQvRqd()) && (SSMode&SSM_ConstNQv)))
     {
-    if (NoProcessIOs()>0)// && IO_Out(0))
+    if (NoMLnkIOs()>0)// && IO_Out(0))
       {
       if (!NetProbalMethod())
         {
@@ -1342,7 +1342,7 @@ void MN_SrcSnk::EvalDiscrete()
 //void MN_SrcSnk::EvalIOPAverage(int AveIter)
 //  {
 //  // Same as Set
-//  for (int i=0; i<NoProcessIOs(); i++)
+//  for (int i=0; i<NoMLnkIOs(); i++)
 //    Set_IOP_Ave_Self(i, IOP_Self(i));
 //  };
 
@@ -1507,9 +1507,9 @@ double MN_SrcSnk::QRequired(double Rho)
 
 void MN_SrcSnk::EvalPBMakeUpReqd(long JoinMask)
   {
-  if (fCrossConnected && NoProcessIOs()==2)
+  if (fCrossConnected && NoMLnkIOs()==2)
     MakeUpLinkTransferReqd();
-  else if (NoProcessIOs()==1)
+  else if (NoMLnkIOs()==1)
     {
     //double A=dNAN;
     double R=dNAN;
@@ -1526,9 +1526,9 @@ void MN_SrcSnk::EvalPBMakeUpReqd(long JoinMask)
 
 void MN_SrcSnk::EvalPBMakeUpAvail(long JoinMask)
   {
-  if (fCrossConnected && NoProcessIOs()==2)
+  if (fCrossConnected && NoMLnkIOs()==2)
     MakeUpLinkTransferAvail();
-  else if (NoProcessIOs()==1)
+  else if (NoMLnkIOs()==1)
     {
     double A=dNAN;
     //double R=dNAN;
@@ -1556,7 +1556,7 @@ int MN_SrcSnk::GetConnectionTags(Strng_List & TagLst)
     Strng *p=new Strng(sConnectedTag());
     p->SetIndex(1);
     TagLst.Append(p);
-    for (int i=0; i<NoProcessIOs(); i++)
+    for (int i=0; i<NoMLnkIOs(); i++)
       {
       char * pTag=Nd_Rmt(i)->FullObjTag();
       if (sConnectedTag.XStrICmp(pTag)!=0)
@@ -1576,7 +1576,7 @@ int MN_SrcSnk::GetConnectionTags(Strng_List & TagLst)
 #if DOPBSMOOTHING
 void MN_SrcSnk::EvalMsAGDatas()
   {
-  if (NoProcessIOs()==1 && !fCrossConnected)
+  if (NoMLnkIOs()==1 && !fCrossConnected)
     {
     MsJoins.SetSize(1);
     if (IO_In(0))
@@ -1604,11 +1604,11 @@ void MN_SrcSnk::EvalMsAGDatas()
 dword  MN_SrcSnk::ModelStatus()
   {
   dword Status=MdlNode::ModelStatus();
-  if (NoProcessIOs()>0)
+  if (NoMLnkIOs()>0)
     {
     int HasFlw=0;
     double TFlw=0.0;
-    for (int i=0; i<NoProcessIOs(); i++)
+    for (int i=0; i<NoMLnkIOs(); i++)
       {
       TFlw+=IOQm_In(i);
       if (IOConduit(i)->QMass()>UsableMass)
@@ -1616,7 +1616,7 @@ dword  MN_SrcSnk::ModelStatus()
       }
     if (GetStatusAsStopped())
       {
-      if (!fCrossConnected && (NoProcessIOs()==1))
+      if (!fCrossConnected && (NoMLnkIOs()==1))
         {
         if (IOId_Self(0)==0)
           Status |= FNS_IsSnk;
@@ -1635,14 +1635,14 @@ dword  MN_SrcSnk::ModelStatus()
 
       int HasFlw=0;
       double TFlw=0.0;
-      for (int i=0; i<NoProcessIOs(); i++)
+      for (int i=0; i<NoMLnkIOs(); i++)
         {
         TFlw+=IOQm_In(i);
         if (IOConduit(i)->QMass()>UsableMass)
           HasFlw=1;
         }
       Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);
-      if (NoProcessIOs()==1)
+      if (NoMLnkIOs()==1)
         {
         if (TFlw>1.0e-6)
           Status |= FNS_IsSnk;

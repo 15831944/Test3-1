@@ -36,8 +36,8 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_PresetImg("PresetImg", this, TOA_Embedded),
   m_PBPCtrl0(PrjFileVerNo()<32 ? PBPC_MinFd : PBPC_Atmos, Std_P, true),
   m_EqThermals(this, &Contents),
-  m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillIn),
-  m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentIn),
+  m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
+  m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentI),
   m_AccIn(eDIO_Accum, this, false, true, "Accumulation"),
   m_AccOut(eDIO_Deplete, this, false, true, "Depletion"),
   m_AccCalc(this, m_AccIn, m_AccOut)

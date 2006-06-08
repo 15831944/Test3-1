@@ -27,9 +27,10 @@ static const LPTSTR SeqNames[] =
   };
 
 
-CBlockEvalBase::CBlockEvalBase(byte BEId)
+CBlockEvalBase::CBlockEvalBase(byte BEId, int Index)
   {
   m_BEId=BEId;
+  m_Index=Index;
   m_iBlkSeqNo=0;
   m_iDefBlkSeqNo=255;
   m_pOnOffValLst=NULL;

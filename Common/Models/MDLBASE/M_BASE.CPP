@@ -1363,7 +1363,7 @@ void MdlNode::EvalProductsInit_Node(EvalProductsInitTasks Task, IDMask IOIds)
 
 void MdlNode::EvalProductsInit_Link(EvalProductsInitTasks Task)
   {
-  if (NoProcessIOs()>=2)
+  if (NoMLnkIOs()>=2)
     {
     double q;
     int iIn=IO_In(0) ? 0 : 1;
@@ -2098,7 +2098,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.B=SolveInlineMethod();
       return true;
     case xidRho:
-      if (NoProcessIOs() == 2)
+      if (NoMLnkIOs() == 2)
         {
         int i= (IO_In(0) ? 0 : 1);
         DCB.D=IOConduit(i)->Rho(som_ALL);
@@ -2107,7 +2107,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidNRho:
-      if (NoProcessIOs() == 2)
+      if (NoMLnkIOs() == 2)
         {
         int i= (IO_In(0) ? 0 : 1);
         DCB.D=IOConduit(i)->NRho(som_ALL);
@@ -2123,9 +2123,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.D=dNAN;
       return true;
     case xidQm:
-      if (NoProcessIOs() == 1)
+      if (NoMLnkIOs() == 1)
         DCB.D=IOConduit(0)->QMass();
-      else if (NoProcessIOs() >= 2)
+      else if (NoMLnkIOs() >= 2)
         {
         int i= (!IO_Out(0) ? 0 : 1);
         DCB.D=IOConduit(i)->QMass();
@@ -2134,9 +2134,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidQv:
-      if (NoProcessIOs() == 1)
+      if (NoMLnkIOs() == 1)
         DCB.D=IOConduit(0)->QVolume();
-      else if (NoProcessIOs() >= 2)
+      else if (NoMLnkIOs() >= 2)
         {
         int i= (!IO_Out(0) ? 0 : 1);
         DCB.D=IOConduit(i)->QVolume();
@@ -2145,9 +2145,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidNQv:
-      if (NoProcessIOs() == 1)
+      if (NoMLnkIOs() == 1)
         DCB.D=IOConduit(0)->QNVolume();
-      else if (NoProcessIOs() >= 2)
+      else if (NoMLnkIOs() >= 2)
         {
         int i= (!IO_Out(0) ? 0 : 1);
         DCB.D=IOConduit(i)->QNVolume();
@@ -2159,7 +2159,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.D=dNAN;//pContents->Level();
       return true;
     case xidMomentum:
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         DCB.D=0.0;
         for (int j=0; j<NIOFBs(0); j++)
@@ -2169,7 +2169,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidNettBoost:
-      if (NoProcessIOs()>0)
+      if (NoMLnkIOs()>0)
         {
         DCB.D=0.0;
         for (int j=0; j<NIOFBs(0); j++)
@@ -2179,13 +2179,13 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xiddP:
-      if (NoProcessIOs() >= 2)
+      if (NoMLnkIOs() >= 2)
         DCB.D=IOP_Flng(1)-IOP_Flng(0);
       else
         DCB.D=0.0;
       return true;
     case xidPIn:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         if (DCB.rD)
           Set_IOP_Flng(0, *DCB.rD);
@@ -2195,7 +2195,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPOut:
-      if (NoProcessIOs() >= 2)
+      if (NoMLnkIOs() >= 2)
         {
         if (DCB.rD)
           Set_IOP_Flng(1, *DCB.rD);
@@ -2205,7 +2205,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPInEst:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         if (DCB.rD)
           Set_IOP_Est_Flng(0, *DCB.rD);
@@ -2215,7 +2215,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPOutEst:
-      if (NoProcessIOs() >= 2)
+      if (NoMLnkIOs() >= 2)
         {
         if (DCB.rD)
           Set_IOP_Est_Flng(1, *DCB.rD);
@@ -2225,10 +2225,10 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPInRmt:
-      DCB.D=(NoProcessIOs() >= 1) ? IOP_Term_Rmt(0) : AtmosPress();
+      DCB.D=(NoMLnkIOs() >= 1) ? IOP_Term_Rmt(0) : AtmosPress();
       return true;
     case xidPOutRmt:
-      DCB.D=(NoProcessIOs() >= 2) ? IOP_Term_Rmt(1) : AtmosPress();
+      DCB.D=(NoMLnkIOs() >= 2) ? IOP_Term_Rmt(1) : AtmosPress();
       return true;
     case xidPMean:
       if (DCB.rD)
@@ -2241,43 +2241,43 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.D=JoinP_Est(0);
       return true;
     case xidDPInRmt:
-      DCB.D=(NoProcessIOs() >= 1) ? IOP_Flng(0)-IOP_Term_Rmt(0) : 0;
+      DCB.D=(NoMLnkIOs() >= 1) ? IOP_Flng(0)-IOP_Term_Rmt(0) : 0;
       return true;
     case xidDPOutRmt:
-      DCB.D=(NoProcessIOs() >= 2) ? IOP_Term_Rmt(1) - IOP_Flng(1): 0;
+      DCB.D=(NoMLnkIOs() >= 2) ? IOP_Term_Rmt(1) - IOP_Flng(1): 0;
       return true;
     case xidDPRmt:
-      DCB.D=(NoProcessIOs() >= 2) ? IOP_Flng(1) : AtmosPress();
-      DCB.D-=(NoProcessIOs() >= 1) ? IOP_Flng(0) : AtmosPress();
+      DCB.D=(NoMLnkIOs() >= 2) ? IOP_Flng(1) : AtmosPress();
+      DCB.D-=(NoMLnkIOs() >= 1) ? IOP_Flng(0) : AtmosPress();
       return true;
 
     case xidHzIn:
-      DCB.D=(NoProcessIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
+      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
       return true;
     case xidHzOut:
-      DCB.D=(NoProcessIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
+      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
       return true;
     case xidHzInRmt:
-      DCB.D=(NoProcessIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
+      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
       return true;
     case xidHzOutRmt:
-      DCB.D=(NoProcessIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
+      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
       return true;
     case xidtotHzIn:
-      DCB.D=(NoProcessIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
+      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
       return true;
     case xidtotHzOut:
-      DCB.D=(NoProcessIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
+      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
       return true;
     case xidtotHzInRmt:
-      DCB.D=(NoProcessIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
+      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
       return true;
     case xidtotHzOutRmt:
-      DCB.D=(NoProcessIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
+      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
       return true;
 
     case xidSolFrac:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMass(som_Sol)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2287,7 +2287,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
     case xidLiqFracIn:
     case xidLiqFrac:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMass(som_Liq)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2296,7 +2296,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidLiqFracOut:
-      if (NoProcessIOs() >= 2)
+      if (NoMLnkIOs() >= 2)
         {
         pSpConduit Q=IOConduit(1);
         DCB.D=(Q ? Q->QMass(som_Liq)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2306,7 +2306,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
     case xidVapFracIn:
     case xidVapFrac:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMass(som_Gas)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2315,7 +2315,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidVapFracOut:
-      if (NoProcessIOs() >= 2)
+      if (NoMLnkIOs() >= 2)
         {
         pSpConduit Q=IOConduit(1);
         DCB.D=(Q ? Q->QMass(som_Gas)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2324,7 +2324,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidMoleVapFrac:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMole(som_Gas)/GTZ(Q->QMole(som_ALL)) : dNAN);
@@ -2334,7 +2334,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
     case xidTemp:
     case xidTempIn:
-      if (NoProcessIOs() >= 1)
+      if (NoMLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->Temp() : dNAN);
@@ -2343,7 +2343,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidTempOut:
-      if (NoProcessIOs() >= 2)
+      if (NoMLnkIOs() >= 2)
         {
         pSpConduit Q=IOConduit(1);
         DCB.D=(Q ? Q->Temp() : dNAN);
@@ -2372,7 +2372,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmNett:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2385,7 +2385,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalance:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2403,7 +2403,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceRel:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         double SigPos=0.0;
@@ -2433,7 +2433,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmNettTotal:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2449,7 +2449,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceTotal:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2467,7 +2467,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceTotalRel:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         double SigPos=0.0;
@@ -2498,7 +2498,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
 
     case xidIO_HzNett:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoFlwIOs(); i++)
@@ -2511,7 +2511,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HzBalance:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoFlwIOs(); i++)
@@ -2529,7 +2529,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HzBalanceRel:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         double SigPos=0.0;
@@ -2559,7 +2559,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HzNettTotal:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoFlwIOs(); i++)
@@ -2572,7 +2572,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HzBalanceTotal:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         for (int i=0; i<NoFlwIOs(); i++)
@@ -2590,7 +2590,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HzBalanceTotalRel:
       {
-      if (gs_EvalBalances)
+      if (gs_EvalAudits)
         {
         double Sig=0.0;
         double SigPos=0.0;
@@ -3148,7 +3148,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
         if (dbgSetZsValue())
           dbgpln("-       %s    %-15s      %8.2f %s ", IndentMatch(), Z_StateStr(Z_State), m_dDatum, FullObjTag());
         #endif
-        for (int i = 0; (i < NoProcessIOs()); i++)
+        for (int i = 0; (i < NoMLnkIOs()); i++)
           {
           IOFlange(i)->m_dDatum = m_dDatum + DeltaZ(this, i, Data);
           #if dbgModels
@@ -3231,7 +3231,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
     #endif
 
     CFlange *pC;
-    for (int i = 0; (i < NoProcessIOs()); i++)
+    for (int i = 0; (i < NoMLnkIOs()); i++)
       {
       pC = IOFlange(i);
       if (i != IOIn)
@@ -3260,7 +3260,7 @@ Z_States MdlNode::SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z
   {
   KWIKINDENT
 
-  if (!Done && !Busy && (NoProcessIOs() == 2))
+  if (!Done && !Busy && (NoMLnkIOs() == 2))
     {
     int IOOut = (IOIn+1)%2;
     double Zo;
@@ -3864,7 +3864,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
         if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
           {
           int iIO=0; 
-          for (int i=0; i<NoProcessIOs(); i++)
+          for (int i=0; i<NoMLnkIOs(); i++)
             {
             Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
             Tag.Set("Lnk%i", iIO);
@@ -3906,7 +3906,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
         if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
           {
           int iIO=0; 
-          for (int i=0; i<NoProcessIOs(); i++)
+          for (int i=0; i<NoMLnkIOs(); i++)
             {
             Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
             Tag.Set("Lnk%i", iIO);
@@ -3953,7 +3953,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
         if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
           {
           int iIO=0; 
-          for (int i=0; i<NoProcessIOs(); i++)
+          for (int i=0; i<NoMLnkIOs(); i++)
             {
             Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
             Tag.Set("Lnk.[%i]", iIO);
@@ -3995,7 +3995,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
         if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
           {
           int iIO=0; 
-          for (int i=0; i<NoProcessIOs(); i++)
+          for (int i=0; i<NoMLnkIOs(); i++)
             {
             Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
             Tag.Set("Lnk.[%i]", iIO);

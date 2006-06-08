@@ -1094,7 +1094,7 @@ const bool FITVisible[]=
   false,     //eFITNull                 = 0;
   false,     //eFITBase                 = 1; eFITQuit                 = eFITBase+0;
   true,     //eFITEvalDiscrete         = eFITBase+1;
-  true,     //eFITEvalBalance          = eFITBase+2;
+  true,     //eFITEvalAudit          = eFITBase+2;
   true,     //eFITCheckXRefs           = eFITBase+3;
   false,    //eFITEvalCtrlInitialise   = eFITBase+4;
   true,     //eFITEvalCtrlActions      = eFITBase+5;
@@ -1127,7 +1127,7 @@ const bool FITVisible[]=
   false,    //eFITPBEvalPressures      = eFITBase+32;
   false,    //eFITPBEvalProducts       = eFITBase+33;
   false,    //eFITPBEvalDiscrete       = eFITBase+34;
-  false,    //eFITPBEvalBalance        = eFITBase+35;
+  false,    //eFITPBEvalAudit        = eFITBase+35;
   false,    //eFITPBEvalCtrlInitialise = eFITBase+36;
   false,    //eFITPBEvalCtrlActions    = eFITBase+37;
   false,    //eFITPBEvalCtrlStrategy   = eFITBase+38;
@@ -1942,37 +1942,15 @@ const int MaxEdgeNds=1024; // Expand to Handle the likes of GenCon
 
 void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGNodeInfo  ** pIns, CSFGNodeInfo  **pOuts, int & iIns, int & iOuts)
   {
-  for (int i = 0; i < p->NoFlwIOs(); i++)
+  for (int i = 0; i < p->NoProcessIOs(); i++)
     {
     CFlange *pF=p->IOFlange(i);
     long IOJoinMask = (1 << p->IO_Join_Id(i));
     if ((IOJoinMask & JoinMask)==0)
-      continue;
-
-    #if dbgFlwSolve
-    if (dbgEvalOrdFind())
-      {
-      double QmEstIn=p->IOQmEst_In(i);
-      Strng Me, You;
-      Me.Set("%s.%s", p->FullObjTag(), p->IODesc_Self(i)->pName);
-      You=p->Nd_Rmt(i)->FullObjTag();
-      dbgpln("SetUpFlwNodeEdges %-3s %-6s %-10s %-2s %-3s %20s %-3s %30s %s %s",
-        DoingDynMode?"Dyn":"",
-        pF->RqdTearType()?"Manual":"",
-        p->IO_EvalSeqStartOK(i)?"SeqStartOK":"",
-        p->IOEvalSeq_In(i)?"In":"",
-        p->IOEvalSeq_Out(i)?"Out":"",
-        DbgFltString(p->IOQmEst_In(i)),
-        p->IsLnk()?"Lnk":"",
-        Me(),
-        (QmEstIn>0 ? "<":QmEstIn<0 ? ">":"-"),
-        You()
-        );
-      }
-    #endif
+      goto Continue;
 
     if (pF->RqdTearType()>=TT_ManualTear)
-      continue;
+      goto Continue;
 
     if (!DoingDynMode || !p->IO_EvalSeqStartOK(i))
       {
@@ -1983,7 +1961,7 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGNodeIn
       ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds");
       ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
       }
-    else if (p->IsLnk())
+    else if (p->IsLnk() && i<p->NoMLnkIOs())
       {
       if (p->IOEvalSeq_In(i))
         {
@@ -1994,6 +1972,32 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGNodeIn
       //  pF->SetIsEvalSeqStart(true);
         }
       }
+
+Continue:
+    #if dbgFlwSolve
+    if (dbgEvalOrdFind())
+      {
+      double QmEstIn=p->IOQmEst_In(i);
+      Strng Me, You;
+      Me.Set("%s.%s", p->FullObjTag(), p->IODesc_Self(i)->pName);
+      You=p->Nd_Rmt(i)->FullObjTag();
+      dbgpln("SetUpFlwNodeEdges %-3s %-3s %-3s %-6s %-10s %-2s %-3s %20s %5s %30s %s %s",
+        DoingDynMode?"Dyn":"",
+        p->IsLnk()?"Lnk":"",
+        i<p->NoMLnkIOs()?"MIO":"",
+        pF->RqdTearType()?"Manual":"",
+        p->IO_EvalSeqStartOK(i)?"StartOK":"",
+        p->IOEvalSeq_In(i)?"In":"",
+        p->IOEvalSeq_Out(i)?"Out":"",
+        DbgFltString(p->IOQmEst_In(i)),
+        pF->IsEvalSeqStart()?"START":"",
+        Me(),
+        (QmEstIn>0 ? "<":QmEstIn<0 ? ">":"-"),
+        You()
+        );
+      }
+    #endif
+
     }
   }
 
@@ -2350,7 +2354,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
         C.m_nFlwIOsInReqd=C.m_nFlwIOsIn;
         #if dbgFlwSolve
         if (dbgEvalOrdFind())
-          dbgpln("FlwIOsInReqd <%2i> ------------ %3i -----------------------%s", c,C.m_nFlwIOsInReqd,p->FullObjTag());
+          dbgpln("Cluster <%2i> F:%3i I:%3i R:%3i ------------------------------------%s", c,C.m_nFlwIOs,C.m_nFlwIOsIn,C.m_nFlwIOsInReqd,p->FullObjTag());
         #endif
         //for (int i = 0; i < p->NoFlwIOs(); i++)
         for (int io=0, i; (i=C.IONo(io))>=0; io++)
@@ -2377,9 +2381,29 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
         {
         CJoinCluster &C=p->m_Clusters[c];
         int NDeps=0;
+        #if dbgFlwSolve
+        if (dbgEvalOrdFind())
+          dbgpln("FindFlwDependents %s<%i>", p->FullObjTag(),c);
+        #endif
+        
         for (int io=0, i; (i=C.IONo(io))>=0; io++)
+          {
+          #if dbgFlwSolve
+          if (dbgEvalOrdFind())
+            {
+            dbgpln("  %-3s %-3s %-3s %-6s %10s > %s",
+              p->IOEvalSeq_Out(i) && p->Nd_Rmt(i)->GetActive() && !p->IOFlange(i)->IsEvalSeqStart()?"Add":"",
+              p->IOEvalSeq_Out(i)?"Out":"",
+              p->Nd_Rmt(i)->GetActive()?"Act":"",
+              !p->IOFlange(i)->IsEvalSeqStart()?"!Start":"",
+              p->IODesc_Self(i)->pName,
+              p->Nd_Rmt(i)->FullObjTag());
+            }
+          #endif
+          
           if (p->IOEvalSeq_Out(i) && p->Nd_Rmt(i)->GetActive() && !p->IOFlange(i)->IsEvalSeqStart())//!p->IOFlange(i)->IsTear())
             C.m_FlwDependentIOs.SetAtGrow(NDeps++, i);
+          }
         C.m_FlwDependentIOs.SetSize(NDeps);
         }
       }
@@ -3100,7 +3124,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
       {
       if (DoingProc && (Pass==0) || DoingCtrl && (Pass==1))
         {
-        dbgpln("%-34s      Proc Audt [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ", Pass==0 ? "Process":"Control",
+        dbgpln("%-34s      Lnks Proc Audt [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ", Pass==0 ? "Process":"Control",
           "Pi","Po","PIR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
         long NdCnt=0;
         CNodeEvalIndexIter It(Pass==0?ProcTOSequence:m_CtrlTOSequence);
@@ -3171,8 +3195,9 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             dbgp("");
 
             dbgp("");
-            dbgp("%-7s %14s %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
+            dbgp("%-7s %14s %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(), 
+              Nd.NoMLnkIOs(),
               Nd.NoProcessIOs(),Nd.NoFlwIOs()-Nd.NoProcessIOs(),
               DotNum(pC ? pC->m_nFlwIOsIn:-1),DotNum(pC ? pC->m_nFlwIOsOut:-1),
               DotNum(pC ? pC->m_nFlwIOsInReqd:-1),DotNum(pC ? (pC->m_nFlwIOsIn-pC->m_nFlwIOsInReqd):-1),
@@ -3212,9 +3237,9 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             else
               Q1="--";
 
-            dbgp("%-7s %14s %4i %4s [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
+            dbgp("%-7s %14s %4i %4s %4s [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(),
-              Nd.NoCIOs(), "",
+              Nd.NoCIOs(), "", "",
               DotNum(pC?pC->m_nFlwIOsIn:-1),DotNum(pC?pC->m_nFlwIOsOut:-1),
               DotNum(pC?pC->m_nFlwIOsInReqd:-1),DotNum(pC?(pC->m_nFlwIOsIn-pC->m_nFlwIOsInReqd):-1),
               DotNum(Nd.m_nCtrlIOsIn),DotNum(Nd.m_nCtrlIOsOut),
@@ -3708,7 +3733,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
             p->m_Clusters[0].m_nFlwIOsIn++;
           if (p->IOEvalSeq_Out(0) || p->IOEvalSeq_Out(1))
             p->m_Clusters[0].m_nFlwIOsOut++;
-          for (int i=p->NoProcessIOs(); i<p->NoFlwIOs(); i++)
+          for (int i=p->NoMLnkIOs(); i<p->NoFlwIOs(); i++)
             {
 
             p->SetIOEvalSeq_In(i, p->IO_In(i) && !p->IO_Zero(i));
@@ -4179,7 +4204,7 @@ void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds)
     {
     dbgpln("-----%s",NJ.Nd.FullObjTag());
     for (int i=0; i<NJ.Nd.NoFlwIOs(); i++)
-      dbgpln("  %2i Qm:%14.6g Est:%14.6g",i,NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i));
+      dbgpln("  %2i %-10.10s Qm:%14.6g Est:%14.6g",i,NJ.Nd.IODesc_Self(i)->pName,NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i));
 
     for (int j=0; j<NJ.Nd.NJoins(); j++)
       {
@@ -5094,11 +5119,11 @@ void FlwSlvPB::EvalAllDiscrete()
 
 void FlwSlvPB::EvalAllBalance()
   {
-  if (gs_EvalBalances)
+  if (gs_EvalAudits)
     {
     for (int Pass=0; Pass<2; Pass++)
       {
-      CThreadTimer  XT(eFITPBEvalBalance, FSW_EvalBalance);
+      CThreadTimer  XT(eFITPBEvalAudit, FSW_EvalAudit);
       CNodeEvalIndexIter AllOrder(m_AllTOSequence);
       for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
         {
@@ -5108,7 +5133,7 @@ void FlwSlvPB::EvalAllBalance()
         #endif
         XT.StartLoop(NJ.m_pNd);
         XT.LockDone();//(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
-        NJ.Nd.EvalBalance(Pass);
+        NJ.Nd.EvalAudit(Pass);
         XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
         XT.EndLoop();
         }
@@ -8209,21 +8234,21 @@ void FlwSlvDyn::EvalAllDiscrete()
 
 //---------------------------------------------------------------------------
 
-void FlwSlvDyn::FITEvalBalance(CLkNodeEvalIter & Iter)
+void FlwSlvDyn::FITEvalAudit(CLkNodeEvalIter & Iter)
   {
   CNodeEvalIndex NJ;
   int Cnt;
   int Pass=*(int*)Iter.pOtherData;
   ASSERT(Pass>=0 && Pass<2);
-  CThreadTimer  XT(eFITEvalBalance, FSW_EvalBalance);
+  CThreadTimer  XT(eFITEvalAudit, FSW_EvalAudit);
   while (Iter.RemoveNext(NJ, &Cnt))
     {
     FlwNode * p=&NJ.Nd;
     XT.StartLoop(p);
     ProcLoopStart(Iter, NJ, Cnt);
-    XT.LockDone();//(p, eFITEvalBalance, FSW_EvalBalance);
-    p->EvalBalance(Pass);
-    XT.ExecDone();//Postamble(p, eFITEvalBalance, FSW_EvalBalance);
+    XT.LockDone();//(p, eFITEvalAudit, FSW_EvalAudit);
+    p->EvalAudit(Pass);
+    XT.ExecDone();//Postamble(p, eFITEvalAudit, FSW_EvalAudit);
     ProcLoopEnd(Iter, NJ, Cnt);
     //p->UnLockNode();
     XT.EndLoop();//PostambleUnLock();
@@ -8241,21 +8266,21 @@ void FlwSlvDyn::FITEvalBalance(CLkNodeEvalIter & Iter)
 void FlwSlvDyn::EvalAllBalance()
   {
   CStopWatchLap SWLapDiscrete(gs_swBalance);
-  if (gs_EvalBalances)
+  if (gs_EvalAudits)
     {
     for (int Pass=0; Pass<2; Pass++)
       {
       if (1 && FSTC.NThreads())
-        SolveTOSequenceThrd(eFITEvalBalance, TOSL_All, &Pass);
+        SolveTOSequenceThrd(eFITEvalAudit, TOSL_All, &Pass);
       else
         {
         CNodeEvalIndexIter All(m_AllTOSequence);
-        CThreadTimer  XT(eFITEvalBalance, FSW_EvalBalance);
+        CThreadTimer  XT(eFITEvalAudit, FSW_EvalAudit);
         for (CNodeEvalIndex NJ=All.First(); All.ItemValid(); NJ=All.Next())
           {
           XT.StartLoop(NJ.m_pNd);
           XT.LockDone();//(p, eFITEvalDiscrete, FSW_EvalDiscrete);
-          NJ.Nd.EvalBalance(Pass);
+          NJ.Nd.EvalAudit(Pass);
           XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
           XT.EndLoop();
           }
@@ -9840,9 +9865,9 @@ static DDBValueLst DDBSpillReporting[] = {
   {SpillReports_IdleLinks, "On-Both-IdleLinks"},
   {SpillReports_IdleBoth , "On-Both-Idle"},
   {0}};
-static DDBValueLst DDBEvalBalances[] = {
-  {EvalBalances_Off,    "Off"},
-  {EvalBalances_On ,    "On" },
+static DDBValueLst DDBEvalAudits[] = {
+  {EvalAudits_Off,    "Off"},
+  {EvalAudits_On ,    "On" },
   {0}};
 
 void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
@@ -9889,7 +9914,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
-    DDB.Long  ("BalanceTests",          "", DC_,     "",  &gs_EvalBalances,                   this, isParmStopped|SetOnChange, DDBEvalBalances);
+    DDB.Long  ("EvaluateAudit",         "", DC_,     "",  &gs_EvalAudits,                   this, isParmStopped|SetOnChange, DDBEvalAudits);
  //   DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
  //   DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
     DDB.Text  ("");
@@ -10884,7 +10909,7 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
         {
         if (p->m_dwType & (nc_MLnk))
           {
-          if (p->NoProcessIOs()<2 || p->Nd_Rmt(io)==NULL) // allow for spill
+          if (p->NoMLnkIOs()<2 || p->Nd_Rmt(io)==NULL) // allow for spill
             goto DeleteIt;
           }
         else if (p->m_dwType & (nc_ELnk|nc_CLnk|nc_ALnk))
@@ -11612,9 +11637,9 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
     Info.ClassId   = p->Nd_Rmt(iNo)->ClassId();
     Info.Group     = p->Nd_Rmt(iNo)->Group();
     Info.iGrp      = IOGRP(p->IODesc_Self(iNo)->dwOther);
-    if (p->NoProcessIOs()==2)
+    if (p->NoMLnkIOs()==2)
       Info.iDirn = (iNo==0) ? 1 : -1;
-    else if (p->Nd_Rmt(iNo)->NoProcessIOs()==2)
+    else if (p->Nd_Rmt(iNo)->NoMLnkIOs()==2)
       Info.iDirn = (p->IOIONo_Rmt(iNo)==0) ? -1 : 1;
     else
       Info.iDirn = p->IODesc_Self(iNo)->Dirn & LIO_In ? 1 : -1;
@@ -11747,8 +11772,8 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
       _stricmp(p->Group(), CtrlLinkGrp)==0;
     if (GrpOK)
       {
-      ASSERT_RDB(p->NoProcessIOs()<=2, "A link should have two or less IOs!");
-      for (int iNo=0; iNo<p->NoProcessIOs(); iNo++)
+      ASSERT_RDB(p->NoMLnkIOs()<=2, "A link should have two or less IOs!");
+      for (int iNo=0; iNo<p->NoMLnkIOs(); iNo++)
         {
         if (iNo==0)
           {
@@ -12352,7 +12377,7 @@ int CFlwSolver::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
     return EOCT_NOTFOUND;
   if (_stricmp("FlwSolve", p->ClassId())==0)
     return EOCT_NOTALLOWED;
-  if (_stricmp("Area", p->ClassId())==0)
+  if (_stricmp(pOldTag, PlantAreaTag)==0)
     return EOCT_NOTALLOWED;
   return EOCT_FOUND;
   }
@@ -13732,7 +13757,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
       {
       int nios=0;
       int Start[4] = {0,                          pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
-      int End[4] =   {pSaveNode->NoProcessIOs(),  pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
+      int End[4] =   {pSaveNode->NoMLnkIOs(),     pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
       for (int pass=0; pass<4; pass++)
         {
         for (int i=Start[pass]; i<End[pass]; i++)
@@ -13751,7 +13776,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
   if (pSaveNode)
     {
     int Start[4] = {0,                          pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
-    int End[4] =   {pSaveNode->NoProcessIOs(),  pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
+    int End[4] =   {pSaveNode->NoMLnkIOs(),  pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
     for (int pass=0; pass<4; pass++)
       {
       for (int i=Start[pass]; i<End[pass]; i++)

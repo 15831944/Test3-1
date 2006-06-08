@@ -142,7 +142,7 @@ Pipe::Pipe(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttac
   {
   m_FEP.AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
   m_FEP.SetOptions(0, 1.0);
-  AttachIOAreas(TwoIOAreaListWithS, &PipeGroup, &PipeGroup);
+  AttachIOAreas(TwoIOAreaListWithMBS, &PipeGroup, &PipeGroup);
 
 //  EHX.Open(&CEnvironHXClass);
 

@@ -25,10 +25,6 @@
 //=========================================================================== 
 
 DEFINE_TAGOBJ(CArea);
-/*#C:
-Basic Source and/or Sink of Material.
-Also provides cross page connector capability.
-*/
 class DllImportExport CArea : public MN_Area
   {
   public:
@@ -40,6 +36,29 @@ class DllImportExport CArea : public MN_Area
     
   };
 
+DEFINE_TAGOBJ(MakeupSrc);
+class DllImportExport MakeupSrc : public MN_Area
+  {
+  public:
+    MakeupSrc (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~MakeupSrc (){};
+    virtual void   PrepareDefinedData();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    
+  };
+
+DEFINE_TAGOBJ(BleedSnk);
+class DllImportExport BleedSnk : public MN_Area
+  {
+  public:
+    BleedSnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~BleedSnk(){};
+    virtual void   PrepareDefinedData();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    
+  };
 
 
 //=========================================================================== 

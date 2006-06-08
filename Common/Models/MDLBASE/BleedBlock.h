@@ -24,7 +24,7 @@ class CBleedBase;
 
 // ==========================================================================
 //
-// Evaporation Blocks
+// Bleed Blocks
 //
 // ==========================================================================
 
@@ -45,60 +45,28 @@ class DllImportExport CBleedBlock : public TaggedObject
     virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void    EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+    inline CDirectFlwIO   & getOut();
+
   public:
     static const pchar GroupName;
 
-    CBleedBase     * m_pAdjustBase;
+    CBleedBase     * m_pBleedBase;
+
+    _declspec(property(get=getOut))          CDirectFlwIO   & Out;    
   };
 
 DEFINE_BLEEDBLOCK(CBleedBlock);
 
 // ===========================================================================
-
-class DllImportExport CXBlk_Bleed: public CBleedBlock
-  {
-  public:
-    CXBlk_Bleed(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CXBlk_Bleed();
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
-
-  public:
-
-    enum eType      { Type_TotQm, Type_TotFrac, };
-
-    eType           m_Type;
-    double          m_QmBleed;
-    double          m_Frac;
-
-    //class CAdjustSpce
-    //  {
-    //  public:
-    //    long      m_CIndex;
-    //    byte      m_Dest;
-    //    double    m_Value;
-    //    double    m_;
-    //  };
-
-    //CArray <CAdjustComp, CAdjustComp&> m_Components;
-
-  };
-
-DEFINE_BLEEDBLOCK(CXBlk_Bleed);
-
-// ===========================================================================
 //
-// Evaporation Base
+// Bleed Base
 //
 // ===========================================================================
 
 class DllImportExport CBleedBase : public CBlockEvalBase
   {
+  friend class CBleedBlock;
+  friend class CBlockEvaluator;
   public:
 
     CBleedBase(TaggedObject * pAttach, int Index);
@@ -111,8 +79,8 @@ class DllImportExport CBleedBase : public CBlockEvalBase
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
-    CBleedBlock *   operator->() { return m_pAdjustB; };
-    flag           Enabled() { return m_fEnabled && (m_pAdjustB!=NULL); };
+    CBleedBlock *   operator->() { return m_pBleedB; };
+    flag           Enabled() { return m_fEnabled && (m_pBleedB!=NULL); };
     void           Enable() { m_fEnabled = true; };
     void           Disable() { m_fEnabled = false; };
     void           Add_OnOff(DataDefnBlk &DDB, dword Flags=isParmStopped, int UserInfo=0);
@@ -120,27 +88,37 @@ class DllImportExport CBleedBase : public CBlockEvalBase
     flag           DataXchg(DataChangeBlk & DCB);
 
     flag           ValidateData(ValidateDataBlk & VDB)
-      { return Enabled() ? m_pAdjustB->ValidateData(VDB) : 0; };
+      { return Enabled() ? m_pBleedB->ValidateData(VDB) : 0; };
     void           EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pAdjustB->EvalProducts(Fo, Po, FinalTEst); };
+      { if (Enabled()) m_pBleedB->EvalProducts(Fo, Po, FinalTEst); };
     void           EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pAdjustB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
-
-    SpConduit    & DiscardCd() { return m_DiscardCd; };
+      { if (Enabled()) m_pBleedB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
 
   protected:
     flag              m_fFixed;
     flag              m_fEnabled;
-    CBleedBlock    * m_pAdjustB;
+    CBleedBlock     * m_pBleedB;
     TaggedObject    * m_pNd;
-    int               m_Index;
-    //Strng             m_sTag;
 
-    SpConduit         m_DiscardCd;
+    CDirectFlwIO      m_Out;
 
   public:
 
   };
+
+// ===========================================================================
+//
+// 
+//
+// ===========================================================================
+
+CDirectFlwIO & CBleedBlock::getOut() { return m_pBleedBase->m_Out; };    
+
+// ===========================================================================
+//
+// 
+//
+// ===========================================================================
 
 #undef DllImportExport
 
