@@ -232,13 +232,13 @@ CSlotConnect::~CSlotConnect()
 
 // --------------------------------------------------------------------------
 
-void CSlotConnect::SetDelayTimes(DWORD DelayTime1, DWORD DelayTime2, bool UseDelay2)
+void CSlotConnect::SetDelayTimes(DWORD DelayTime1, DWORD DelayTime2, bool UseDelay2, bool Invert)
   {
   m_Delay.m_dwTime1 = DelayTime1;
   m_Delay.m_dwTime2 = DelayTime2;
   m_Delay.m_bUseTime2 = UseDelay2;
-  m_Delay.m_bEdge = (m_Delay.m_dwTime1==InfiniteDelay ||
-                     (m_Delay.m_bUseTime2 && m_Delay.m_dwTime2==InfiniteDelay));
+  m_Delay.m_bEdge     = (m_Delay.m_dwTime1==InfiniteDelay || (m_Delay.m_bUseTime2 && m_Delay.m_dwTime2==InfiniteDelay));
+  m_Delay.m_bInvert   = Invert;
   }
 
 // --------------------------------------------------------------------------

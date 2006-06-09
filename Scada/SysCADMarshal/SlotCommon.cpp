@@ -12,6 +12,8 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
+const int dbgTimers  = 0;
+
 // =======================================================================
 //
 //
@@ -346,7 +348,7 @@ void StringToVariant(VARTYPE VT, CString &strText, COleVariant &V, bool AsHex)
 
 // -----------------------------------------------------------------------
 
-LPCSTR TimeStampToString(FILETIME Ft, CString &strText, FILETIME *pRef)
+LPCSTR TimeStampToString(FILETIME Ft, CString &strText, bool AddmSecs, FILETIME *pRef)
   {
   //FILETIME FtL;
   //FileTimeToLocalFileTime(&Ft, &FtL);
@@ -368,6 +370,17 @@ LPCSTR TimeStampToString(FILETIME Ft, CString &strText, FILETIME *pRef)
       {
       COleDateTime  DT(Ft);
       strText = DT.Format(VAR_TIMEVALUEONLY);
+      
+      if (AddmSecs)
+        {
+        LARGE_INTEGER LFt;
+        memcpy(&LFt, &Ft, sizeof(Ft));
+        __int64 hnanosecs=LFt.QuadPart%10000000; // no of 100 nanosecs in 1 sec 
+        long msecs=(long)hnanosecs/10000; // no of 100 nanosecs in 1 sec 
+        CString S;
+        S.Format(".%03i", msecs);
+        strText += S;
+        }
       }
     }
   else
@@ -556,11 +569,19 @@ CDelayBlock::CDelayBlock(void)
   m_dwTimer   = 0;
   m_bUseTime2 = false;
   m_bEdge     = false;
+  m_bInvert   = false;
   }
 
 void CDelayBlock::Advance(DWORD DT)
   {
   m_dwTimer = Max(DWORD(0), m_dwTimer- DT);
+
+  if (dbgTimers)
+    {
+    if (m_dwTimer < 5*gs_SlotMngr.m_Cfg.m_dwDelayResolution)
+      dbgpln("Advance Timer %08x %+6i %6i @%10i", this, -DT, m_dwTimer, GetTickCount());
+    }
+
   //m_dwTime1 = Max(DWORD(0), m_dwTime1 - DT);
   //if(m_bUseTime2) m_dwTime2 = Max(DWORD(0), m_dwTime2 - DT);
   }

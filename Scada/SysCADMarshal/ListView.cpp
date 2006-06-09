@@ -671,7 +671,7 @@ void CTagView::SetRuntimeValues(long ListIndex, CSlotCfg * pSlot)
   list.SetItem(&lv_item);
 
 
-  TimeStampToString(*pSlot, V, NULL);
+  TimeStampToString(*pSlot, V, true, NULL);
   list.SetItem(ListIndex, m_lColumn_TIME, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
   V.Format("%i", pSlot->m_lValueChanges);
   list.SetItem(ListIndex, m_lColumn_CHGCNT, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
@@ -761,7 +761,7 @@ void CTagView::SetRuntimeValues(long ListIndex, CLinkCfg * pLink)
   lv_item.pszText   = (LPSTR)(LPCSTR)V;
   list.SetItem(&lv_item);
 
-  TimeStampToString(*pLink, V, NULL);
+  TimeStampToString(*pLink, V, true, NULL);
   list.SetItem(ListIndex, m_lColumn_TIME, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
   V.Format("%i", pLink->m_lValueChanges);
   list.SetItem(ListIndex, m_lColumn_CHGCNT, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
@@ -859,7 +859,7 @@ long CTagView::InsertItem(CChangeItem *pChg)
   VariantToString(C, V, gs_bAsHex);
   list.SetItem(ListIndex, m_lColumn_CHGVAL, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
 
-  TimeStampToString(*pChg, V, NULL);
+  TimeStampToString(*pChg, V, true, NULL);
   list.SetItem(ListIndex, m_lColumn_TIME, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
   if (pChg->m_Delay.m_dwTimer>0)
     V.Format("%i", pChg->m_Delay.m_dwTimer);

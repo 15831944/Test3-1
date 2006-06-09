@@ -192,7 +192,7 @@ void CErrorView::OnUpdate(CView *pSender, LPARAM lHint, CObject *pHint)
 
       lItem = list.InsertItem(&lv_item);
       list.SetItem(lItem ,COLUMN_TAG,LVIF_TEXT,pErr->m_sTag,0,0,0,0);
-      TimeStampToString(pErr->m_ftTimeStamp, V, NULL);
+      TimeStampToString(pErr->m_ftTimeStamp, V, true, NULL);
       list.SetItem(lItem ,COLUMN_TIME,LVIF_TEXT,V,0,0,0,0);
       list.SetItem(lItem ,COLUMN_ERROR,LVIF_TEXT,pErr->m_sError,0,0,0,0);
       }

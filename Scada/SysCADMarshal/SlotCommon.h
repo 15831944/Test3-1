@@ -186,7 +186,7 @@ extern void     ReportError(LPCSTR Tag, HRESULT hr, LPCSTR Fmt, ...);
 extern void     ReportErrorBox(HRESULT hr, LPCSTR Fmt, ...);
 extern bool     VariantsEqual(const VARIANT* pDst, const VARIANT* pSrc);
 extern LPCSTR   VariantToString(VARIANT value, CString &strText, bool AsHex = false);
-extern LPCSTR   TimeStampToString(FILETIME Ft, CString &strText, FILETIME * pRef);
+extern LPCSTR   TimeStampToString(FILETIME Ft, CString &strText, bool AddmSecs, FILETIME * pRef);
 extern LPCSTR   VTAsString(long vt);
 extern void     StringToVariant(VARTYPE VT, CString &strText, COleVariant &V, bool AsHex);
 
@@ -308,6 +308,7 @@ class CDelayBlock
     DWORD        m_dwTime2;   //time in mSecs for delay for sets for bit slot
     bool         m_bUseTime2; //must the second delay time be used for bit=1
     bool         m_bEdge;     //bit slot, reacting to rising or falling edge (one delay time = INF)
+    bool         m_bInvert;   //Invert Direction Logic
     DWORD        m_dwTimer;
   };
 

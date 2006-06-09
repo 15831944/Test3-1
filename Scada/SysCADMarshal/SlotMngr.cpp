@@ -13,7 +13,10 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-const int dbgflush = 0;
+const int dbgflushCQ = 0;
+const int dbgflushHQ = 0;
+const int dbgTimers  = 0;
+const int dbgChanges = 0;
 
 // =======================================================================
 //
@@ -1128,12 +1131,16 @@ void CSlotMngr::EditSlot(bool DeleteIfFound, CSlotCfgStrings * pCfg)
 
 void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long DstI, DWORD TransID, CFullValue &FullValue, CDelayBlock *pDelay, bool OverrideHold, bool Refresh)
   {
-  if (1)
+  if (dbgChanges)
     {
-    CString S;
-    dbgpln("AppendChange %6i from %-9s[%4i] to %-9s[%4i] %-10s %s", 
+    if (Src==eCSD_Manual)
+      dbgpln("--------------------------------------------------------------------------");
+    CString S, S1;
+    dbgpln("AppendChange %6i from %-9s[%4i] to %-9s[%4i] %-10s %s @%s", 
       CChangeItem::sm_dwNumber, SrcDstString(Src), SrcI, SrcDstString(Dst), DstI,
-      TypeToString(FullValue.Type()), VariantToString(FullValue, S, false));
+      TypeToString(FullValue.Type()), VariantToString(FullValue, S, false),
+      TimeStampToString(FullValue.m_ftTimeStamp, S1, true, NULL));
+
     switch (Dst)
       {
       case eCSD_Slot:
@@ -1191,16 +1198,19 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
         {
         case VT_R4  : Falling = (FullValue.m_vValue.fltVal  < CurrentV.m_vValue.fltVal ); break;
         case VT_R8  : Falling = (FullValue.m_vValue.dblVal  < CurrentV.m_vValue.dblVal ); break;
-        case VT_I1  : Falling = (FullValue.m_vValue.bVal    < CurrentV.m_vValue.bVal   ); break;
-        case VT_I2  : Falling = (FullValue.m_vValue.intVal  < CurrentV.m_vValue.intVal ); break;
+        case VT_I1  : Falling = (FullValue.m_vValue.cVal    < CurrentV.m_vValue.cVal   ); break;
+        case VT_I2  : Falling = (FullValue.m_vValue.iVal    < CurrentV.m_vValue.iVal   ); break;
         case VT_I4  : Falling = (FullValue.m_vValue.lVal    < CurrentV.m_vValue.lVal   ); break;
-        case VT_UI1 : Falling = (FullValue.m_vValue.uiVal   < CurrentV.m_vValue.uiVal  ); break;
-        case VT_UI2 : Falling = (FullValue.m_vValue.uintVal < CurrentV.m_vValue.uintVal); break;
+        case VT_UI1 : Falling = (FullValue.m_vValue.bVal    < CurrentV.m_vValue.bVal   ); break;
+        case VT_UI2 : Falling = (FullValue.m_vValue.uiVal   < CurrentV.m_vValue.uiVal  ); break;
         case VT_UI4 : Falling = (FullValue.m_vValue.ulVal   < CurrentV.m_vValue.ulVal  ); break;
         case VT_BOOL: Falling = (!FullValue.m_vValue.boolVal);                            break;
         }
 
       pNew->m_Delay = *pDelay;
+      if (pDelay->m_bInvert)
+        Falling = !Falling;
+
       DWORD Timer;
       if (Falling && pDelay->m_bUseTime2)
         Timer = pDelay->m_dwTime2; 
@@ -1210,6 +1220,10 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
       if (Timer!=InfiniteDelay)
         {
         pNew->m_Delay.m_dwTimer = Timer;
+        if (dbgTimers)
+          dbgpln("Start   Timer %08x %s %s%10i @%10i", &pNew->m_Delay, 
+            Falling?"Fall":"    ", pDelay->m_bUseTime2?"T2":"T1", 
+            pNew->m_Delay.m_dwTimer, GetTickCount());
 
         DWORD T1=pNew->m_Delay.m_dwTimer+m_Cfg.m_dwDelayResolution; // enforce at least 1 interval delay
         // Add in order
@@ -1253,12 +1267,17 @@ bool CSlotMngr::ApplyChange(CChangeItem * pChg, bool IsDelay)
   {
   m_dwTotalChanges++;
 
-  if (1)
+  if (dbgChanges)
     {
-    CString S;
-    dbgpln("Apply Change from %-9s[%4i] to %-9s[%4i] %-10s %s", 
+    CString S, S1;
+    dbgpln("Apply Change        from %-9s[%4i] to %-9s[%4i] %-10s %s @%s %6i %6i %6i", 
       SrcDstString(pChg->m_eSrc), pChg->m_lSrcInx, SrcDstString(pChg->m_eDst), pChg->m_lDstInx,
-      TypeToString(pChg->Type()), VariantToString(pChg->m_vValue, S, false));
+      TypeToString(pChg->Type()), VariantToString(pChg->m_vValue, S, false),
+      TimeStampToString(pChg->m_ftTimeStamp, S1, true, NULL),
+      pChg->m_Delay.m_dwTimer,
+      pChg->m_Delay.m_dwTime1,
+      pChg->m_Delay.m_dwTime2
+      );
     }
 
   LPCSTR Msg= IsDelay ? "FlushDelayChgQueue":"FlushChangeQueue";
@@ -1329,7 +1348,7 @@ bool CSlotMngr::ApplyChange(CChangeItem * pChg, bool IsDelay)
 long CSlotMngr::FlushChangeQueue()
   {
   long dbgon=m_ChangeList.Count()>0;
-  if (dbgflush && dbgon) dbgpln(">>FlushChangeQueue %i", m_ChangeList.Count());
+  if (dbgflushCQ && dbgon) dbgpln(">>FlushChangeQueue %i", m_ChangeList.Count());
   long n=0;
 
   m_dwFlushChangeCalls++;
@@ -1340,8 +1359,10 @@ long CSlotMngr::FlushChangeQueue()
   DWORD DTTst= (Ticks>m_dwLastTickCount) ? Ticks-m_dwLastTickCount: 0;
   m_dwLastTickCount=Ticks;
 
-  // Remove expired delays and add to ChangeList to be acted on 
   CChangeItem * pChg;
+  if (DT>0)
+    {
+  // Remove expired delays and add to ChangeList to be acted on 
   for (;;)
     {
     m_DelayChgList.Lock();
@@ -1372,13 +1393,14 @@ long CSlotMngr::FlushChangeQueue()
     pChg=pChg->m_pNext;
     }
   m_DelayChgList.UnLock();
+    }
 
   while ((pChg=m_ChangeList.RemoveHead())!=NULL)
     {
     n++;
     ApplyChange(pChg, false);
     }
-  if (dbgflush && dbgon) dbgpln("<<FlushChangeQueue %i", m_ChangeList.Count());
+  if (dbgflushCQ && dbgon) dbgpln("<<FlushChangeQueue %i", m_ChangeList.Count());
   return n;
   }
 
@@ -1388,7 +1410,7 @@ long CSlotMngr::FlushHistoryQueue()
   {
   long dbgon=m_HistoryList.Count()>0;
   long n=0;
-  if (dbgflush && dbgon) dbgpln(">>FlushHistoryQueue %i", m_HistoryList.Count());
+  if (dbgflushHQ && dbgon) dbgpln(">>FlushHistoryQueue %i", m_HistoryList.Count());
   CChangeItem *pChg=m_HistoryList.RemoveHead();
   CChangeBlock *pBlock=NULL;
   while (pChg)
@@ -1411,7 +1433,7 @@ long CSlotMngr::FlushHistoryQueue()
       delete pChg;
     pChg=pNxt;
     }
-  if (dbgflush && dbgon) dbgpln("<<FlushHistoryQueue %i", m_HistoryList.Count());
+  if (dbgflushHQ && dbgon) dbgpln("<<FlushHistoryQueue %i", m_HistoryList.Count());
   return n;
   }
 

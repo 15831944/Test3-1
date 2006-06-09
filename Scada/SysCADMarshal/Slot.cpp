@@ -1151,7 +1151,7 @@ CSlotConnect * CSlot::AddSetConnect(LPSTR pTag, bool Inv, DWORD DelayTime1, DWOR
   if (pTag && strlen(pTag)>0)
     {
     CSlotConnect* pNew = new CSlotConnect(pTag, true, Inv);
-    pNew->SetDelayTimes(DelayTime1, DelayTime2, UseDelay2);
+    pNew->SetDelayTimes(DelayTime1, DelayTime2, UseDelay2, Inv);
     m_SetConnects.Add(pNew);
     return pNew;
     //  }
