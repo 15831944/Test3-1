@@ -1362,37 +1362,37 @@ long CSlotMngr::FlushChangeQueue()
   CChangeItem * pChg;
   if (DT>0)
     {
-  // Remove expired delays and add to ChangeList to be acted on 
-  for (;;)
-    {
+    // Remove expired delays and add to ChangeList to be acted on 
+    for (;;)
+      {
+      m_DelayChgList.Lock();
+      pChg=m_DelayChgList.Head();
+      if (pChg && (pChg->m_Delay.m_dwTimer<=DT))
+        {
+        pChg=m_DelayChgList.RemoveHead();
+        m_DelayChgList.UnLock();
+        n++;
+
+        // Update TimeStamp;
+        CoFileTimeNow(&pChg->m_ftTimeStamp);
+        //ApplyChange(pChg, true);
+        m_ChangeList.AddTail(pChg);
+        }
+      else
+        {
+        m_DelayChgList.UnLock();
+        break;
+        }
+      }
+
     m_DelayChgList.Lock();
     pChg=m_DelayChgList.Head();
-    if (pChg && (pChg->m_Delay.m_dwTimer<=DT))
+    while (pChg!=NULL)
       {
-      pChg=m_DelayChgList.RemoveHead();
-      m_DelayChgList.UnLock();
-      n++;
-
-      // Update TimeStamp;
-      CoFileTimeNow(&pChg->m_ftTimeStamp);
-      //ApplyChange(pChg, true);
-      m_ChangeList.AddTail(pChg);
+      pChg->m_Delay.Advance(DT);
+      pChg=pChg->m_pNext;
       }
-    else
-      {
-      m_DelayChgList.UnLock();
-      break;
-      }
-    }
-
-  m_DelayChgList.Lock();
-  pChg=m_DelayChgList.Head();
-  while (pChg!=NULL)
-    {
-    pChg->m_Delay.Advance(DT);
-    pChg=pChg->m_pNext;
-    }
-  m_DelayChgList.UnLock();
+    m_DelayChgList.UnLock();
     }
 
   while ((pChg=m_ChangeList.RemoveHead())!=NULL)
