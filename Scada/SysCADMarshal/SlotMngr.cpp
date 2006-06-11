@@ -1162,7 +1162,7 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
   if (!m_bDoingFullCfg)
     {
     CChangeItem * pNew=new CChangeItem(Src, SrcI, Dst, DstI, -1, TransID, FullValue, OverrideHold, Refresh);
-    if (!pDelay || pDelay->m_dwTime1==0)
+    if (/*1 ||*/ !pDelay || pDelay->m_dwTime1==0 && (!pDelay->m_bUseTime2 || pDelay->m_dwTime2==0))
       {
       m_ChangeList.AddTail(pNew);
       }
@@ -1360,7 +1360,7 @@ long CSlotMngr::FlushChangeQueue()
   m_dwLastTickCount=Ticks;
 
   CChangeItem * pChg;
-  if (DT>0)
+  if (/*1 ||*/ DT>0)
     {
     // Remove expired delays and add to ChangeList to be acted on 
     for (;;)
