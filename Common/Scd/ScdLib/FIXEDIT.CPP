@@ -321,6 +321,15 @@ void FxdEdtFld::Invalidate(rGDIBlk GB)
 
 //---------------------------------------------------------------------------
 
+long GetCheckValue(long L)
+  {
+  if (!InRange(0L,L,2L))
+    L=L?1:0;
+  return L;
+  }
+
+//---------------------------------------------------------------------------
+
 void FxdEdtFld::FixAfterLoad(Strng &Str)
   {
   if (Just<3)
@@ -357,7 +366,7 @@ void FxdEdtFld::FixAfterLoad(Strng &Str)
       {
       CButton* pC=(CButton*)pView->pCtrl[iCtrlIndex].pCtrl;
       if (pC)
-        pC->SetCheck(Str.SafeAtoL() ? 1 :0);
+        pC->SetCheck(GetCheckValue(Str.SafeAtoL()));
       break;
       }
     }
@@ -589,7 +598,7 @@ void FxdEdtPage::LoadStrings()
             //  case FXWC_CHECKBTN:
             //    {
             //    CButton* pC=(CButton*)pView->pCtrl[Fld->iCtrlIndex].pCtrl;
-            //    pC->SetCheck(Fld->Str.SafeAtoL() ? 1 :0);
+            //    pC->SetCheck(GetCheckValue(Fld->Str.SafeAtoL()));
             //    break;
             //    }
             //  }
@@ -621,7 +630,7 @@ void FxdEdtPage::LoadStrings()
           //  case FXWC_CHECKBTN:
           //    {
           //    CButton* pC=(CButton*)pView->pCtrl[Fld->iCtrlIndex].pCtrl;
-          //    pC->SetCheck(Fld->Str.SafeAtoL() ? 1 :0);
+          //    pC->SetCheck(GetCheckValue(Fld->Str.SafeAtoL()));
           //    break;
           //    }
           //  }
@@ -2369,7 +2378,7 @@ void FxdEdtView::PositionWinControls()
           case FXWC_CHECK:
           case FXWC_CHECKBTN:
             {
-            StyleMsk=BS_CHECKBOX;// | BS_LEFTTEXT;
+            StyleMsk=BS_3STATE;// BS_CHECKBOX ;// | BS_LEFTTEXT;
             CButton *pC=new CButton();
             //Strng Titl(pFld->Str);
             //Titl.Trim();
@@ -2380,7 +2389,7 @@ void FxdEdtView::PositionWinControls()
             //  Flags|=WS_DISABLE;
             pC->Create(" ", Flags, Rect, this, FxdEdtCtrlID0+pFld->iCtrlIndex);
             pC->SetFont(ScrGB.pFont[0]);
-            pC->SetCheck(pFld->Str.SafeAtoL() ? 1 :0);
+            pC->SetCheck(GetCheckValue(pFld->Str.SafeAtoL()));
             pC->EnableWindow(pFld->fEditable);
             pCtrl[i].pCtrl=pC;
             break;
@@ -3275,7 +3284,7 @@ void FxdEdtView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
                   Fld->Str="0";
                   Fld->AcceptChanges=true;
                   }
-              ((CButton*)pCtrl[Fld->iCtrlIndex].pCtrl)->SetCheck(Fld->Str.SafeAtoL() ? 1 :0);
+              ((CButton*)pCtrl[Fld->iCtrlIndex].pCtrl)->SetCheck(GetCheckValue(Fld->Str.SafeAtoL()));
               }
             else if ((Fld->m_iCtrlType==FXWC_DDLSTOPT) && Fld->HasNANStrings && isalpha(nChar))
               SetCBoxControl(Fld, this, nChar, true);
@@ -4671,7 +4680,7 @@ BOOL FxdEdtView::OnCommand( WPARAM wParam, LPARAM lParam )
 
                 pFld->FixAfterLoad(pFld->Str);
                 pFld->ButtonDown=1;
-                //((CButton*)pCtrl[iCtrl].pCtrl)->SetCheck(pFld->Str.SafeAtoL() ? 1 :0);
+                //((CButton*)pCtrl[iCtrl].pCtrl)->SetCheck(GetCheckValue(pFld->Str.SafeAtoL()));
                 }
               SetFocus();  // remove Focus from the button
 

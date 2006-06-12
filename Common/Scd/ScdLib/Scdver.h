@@ -44,7 +44,7 @@
 #define WITHAUTOVLE           1
 #define WITHGRFGROUP          1
 #define WITHGRFGROUPCONFIG    0
-#define WITHBLOCKEVALUATOR    0
+#define WITHBLOCKEVALUATOR    1
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???

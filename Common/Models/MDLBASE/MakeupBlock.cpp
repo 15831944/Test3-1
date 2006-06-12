@@ -346,7 +346,11 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Solid); o++)
         {
         CPhaseInfo & P=CDB.PhaseInfo(o);
-        DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
+        Strng T,S;
+        T.Set("(%s)", P.m_Tag());
+        S.Set("(%s)", P.m_Sym());
+        DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
+        //DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
         }
       }
 
@@ -356,7 +360,11 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       for (int o=CDB.PhaseFirst(BOT_Liquid); o<=CDB.PhaseLast(BOT_Liquid); o++)
         {
         CPhaseInfo & P=CDB.PhaseInfo(o);
-        DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
+        Strng T,S;
+        T.Set("(%s)", P.m_Tag());
+        S.Set("(%s)", P.m_Sym());
+        DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
+        //DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
         }
       }
 
@@ -366,7 +374,11 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       for (int o=CDB.PhaseFirst(BOT_Gas); o<=CDB.PhaseLast(BOT_Gas); o++)
         {
         CPhaseInfo & P=CDB.PhaseInfo(o);
-        DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
+        Strng T,S;
+        T.Set("(%s)", P.m_Tag());
+        S.Set("(%s)", P.m_Sym());
+        DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
+        //DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
         }
       }
 
@@ -414,22 +426,22 @@ flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
     case xidMkAll:
       if (DCB.rB)
         m_Phases = *DCB.rB ? som_ALL:0;
-      DCB.B = m_Phases==som_ALL ? 1:0; 
+      DCB.B = (m_Phases==som_ALL) ? 1 : (m_Phases==0) ? 0 : 2; 
       return 1;
     case xidMkSolids:
       if (DCB.rB)
         m_Phases = (m_Phases&~som_Sol) | (*DCB.rB ? som_Sol:0);
-      DCB.B = (m_Phases&som_Sol)==som_Sol? 1:0; 
+      DCB.B = ((m_Phases&som_Sol)==som_Sol)? 1 : ((m_Phases&som_Sol)==0) ? 0 : 2; 
       return 1;
     case xidMkLiquids:
       if (DCB.rB)
         m_Phases = (m_Phases&~som_Liq) | (*DCB.rB ? som_Liq:0);
-      DCB.B = (m_Phases&som_Liq)==som_Liq? 1:0; 
+      DCB.B = ((m_Phases&som_Liq)==som_Liq)? 1 : ((m_Phases&som_Liq)==0) ? 0 : 2; 
       return 1;
     case xidMkGasses:
       if (DCB.rB)
         m_Phases = (m_Phases&~som_Gas) | (*DCB.rB ? som_Gas:0);
-      DCB.B = (m_Phases&som_Gas)==som_Gas? 1:0; 
+      DCB.B = ((m_Phases&som_Gas)==som_Gas)? 1 : ((m_Phases&som_Gas)==0) ? 0 : 2; 
       return 1;
     default:
       if (DCB.lHandle>=xidMkPhase && DCB.lHandle<xidMkPhase+CDB.PhaseCount())
@@ -438,7 +450,7 @@ flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
         CPhaseInfo & P=CDB.PhaseInfo(o);
         if (DCB.rB)
           m_Phases = (m_Phases&~P.m_PhMsk) | (*DCB.rB ? P.m_PhMsk:0);
-        DCB.B = (m_Phases&P.m_PhMsk)==P.m_PhMsk? 1:0; 
+        DCB.B = ((m_Phases&P.m_PhMsk)==P.m_PhMsk)? 1 : ((m_Phases&P.m_PhMsk)==0) ? 0 : 2; 
         return 1;
         }
     }
