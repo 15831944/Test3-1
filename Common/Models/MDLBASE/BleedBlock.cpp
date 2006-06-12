@@ -136,6 +136,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
   DDB.Visibility(SHM_All, m_fEnabled);
   if (Enabled())//pHL)
     {
+    DDB.Text("");
     if (DDB.BeginObject(m_pNd, Name()(), "EB_Bleed", pTagComment, PageIs))
       {
       if (m_Out.Enabled)

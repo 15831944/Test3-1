@@ -1912,9 +1912,11 @@ CFlange * MN_Lnk::GetFlange(int IOId)
     case IOId_Spill2Area: return &m_Spill.Flange;
     default:
       {
+#if (WITHBLOCKEVALUATOR)
       CFlange * pFlng=m_BlkEval.GetFlange(IOId);
       if (pFlng)
         return pFlng;
+#endif
       }
     }
   return NULL;

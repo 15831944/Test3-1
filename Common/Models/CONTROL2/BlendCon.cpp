@@ -305,7 +305,7 @@ void CBlendCon::GlobalConnect()
   FlwNode::GlobalConnect();
   //BCI.Connect(this);
   m_pStorage.m_sTag=sMSTag;
-  bValid = m_pStorage.Connect(this);
+  bValid = m_pStorage.Connect(this, -1);
   if (bValid)
     {
     // Initialise the Blend Controller

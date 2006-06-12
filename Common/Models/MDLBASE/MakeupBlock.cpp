@@ -136,6 +136,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
   DDB.Visibility(SHM_All, m_fEnabled);
   if (Enabled())//pHL)
     {
+    DDB.Text("");
     if (DDB.BeginObject(m_pNd, Name()(), "EB_Makeup", pTagComment, PageIs))
       {
       if (m_In.Enabled)
@@ -206,6 +207,18 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
 class DllImportExport CXBlk_Makeup: public CMakeupBlock
   {
   public:
+    //enum eWhat
+    //  { 
+    //  MW_All, 
+    //  MM_Phase,
+    //  MM_Specie,
+    //  MM_VolumeFlow,
+    //  MM_VolumeRatio,
+    //  MM_NVolumeFlow,
+    //  MM_NVolumeRatio
+    //  };
+
+
     CXBlk_Makeup(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CXBlk_Makeup();
 
@@ -217,10 +230,22 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
-    enum eType     {Type_Qm, };
+    enum eType     
+      { 
+      Type_None, 
+      Type_MassFlow, 
+      Type_MassRatio, 
+      Type_VolumeFlow, 
+      Type_VolumeRatio, 
+      Type_NVolumeFlow, 
+      Type_NVolumeRatio,
+      Type_TotalMassFrac
+      };
 
     eType           m_Type;
+    PhMask          m_Phases;
     double          m_QmRqd;
+
 
   };
 
@@ -232,12 +257,19 @@ DEFINE_MAKEUPBLOCK(CXBlk_Makeup);
 //
 //============================================================================
 
+XID xidMkAll     = AdjustXID(1000);
+XID xidMkSolids  = AdjustXID(1001);
+XID xidMkLiquids = AdjustXID(1002);
+XID xidMkGasses  = AdjustXID(1003);
+XID xidMkPhase   = AdjustXID(1004);
+
 IMPLEMENT_MAKEUPBLOCK(CXBlk_Makeup, "MB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Simple",  " ");
 
 CXBlk_Makeup::CXBlk_Makeup(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   {
-  m_Type=Type_Qm;
+  m_Type=Type_MassRatio;
+  m_Phases=som_ALL;
   m_QmRqd=0;
   }
 
@@ -255,12 +287,90 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   //if (DDB.BeginStruct(this, "MakeupQm", NULL, DDB_NoPage))
   //  {
     static DDBValueLst DDBType[] =
-      {
-        {Type_Qm, "Qm"},
+      {                         
+        {Type_None,           "None"          },
+        {Type_MassFlow,       "MassFlow"      },
+        {Type_MassRatio,      "MassRatio"     },
+        {Type_VolumeFlow,     "VolumeFlow"    },
+        {Type_VolumeRatio,    "VolumeRatio"   },
+        {Type_NVolumeFlow,    "NVolumeFlow"   },
+        {Type_NVolumeRatio,   "NVolumeRatio"  },
+        {Type_TotalMassFrac,  "TotalMassFrac" },
         {}
       };
+    //static DDBValueLstMem DDBPhases;
+    //if (DDBPhases.Length()==0)
+    //  {
+    //  DDBPhases.Add(som_ALL,       "All");
+    //  DDBPhases.Add(som_Sol,       "Solids");
+    //  DDBPhases.Add(som_Liq,       "Liquid");
+    //  DDBPhases.Add(som_Gas,       "Gas");
+    //  DDBPhases.Add(som_SL,        "Slurry");
+    //                for (int p=0; p<CDB.PhaseCount(); p++)
+    //                  {
+    //                  CPhaseInfo &P=CDB.PhaseInfo(p);
+    //                  if (P.m_eOcc==c)
+    //                    DDB.Double(P.m_Tag(), P.m_Sym(),  DC_Frac, "%",  &A[j]->m_PhSplt[p],  this,
+    //                    (j<NPri-1 ? isParm : 0)|(m_iPhMethSpec&GSPM_Total?NAN_OK:0)|ChildLevel(1));
+    //                  }
+    //  
+    //  DDBPhases.Add();
+    //    
+    //    
+    //    
+    //    
+    //    
+    //  };
+
+    //                  static const LPSTR Nm[]={"Solids","Liquids",/*"Aqueous",*/"Gasses"};
+    //              if (m_iPhMethSpec&GSPM_Total)
+    //                DDB.Double(Nm[c], "",  DC_Frac, "%",  &A[j]->m_Splt[c],  this, j<NPri-1 ? isParm : 0);
+    //              if (m_iPhMethSpec&GSPM_Individual)
+    //                {
+    //                for (int p=0; p<CDB.PhaseCount(); p++)
+    //                  {
+    //                  CPhaseInfo &P=CDB.PhaseInfo(p);
+    //                  if (P.m_eOcc==c)
+    //                    DDB.Double(P.m_Tag(), P.m_Sym(),  DC_Frac, "%",  &A[j]->m_PhSplt[p],  this,
+    //                    (j<NPri-1 ? isParm : 0)|(m_iPhMethSpec&GSPM_Total?NAN_OK:0)|ChildLevel(1));
+    //                  }
+    //                }
+
 ///    DDB.Text(" ");
-    DDB.Long  ("", "Type",        DC_,     "%", (long*)&m_Type,  this, isParm, DDBType);
+    DDB.Long       ("", "Type",             DC_,  "", (long*)&m_Type,  this, isParm|SetOnChange, DDBType);
+    DDB.CheckBoxBtn("", "All",              DC_,  "", xidMkAll,     this, isParm);
+
+    DDB.CheckBoxBtn("", "Solids",           DC_,  "", xidMkSolids,  this, isParm);
+    if (CDB.PhaseCount(BOT_Solid)>1)
+      {
+      for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Solid); o++)
+        {
+        CPhaseInfo & P=CDB.PhaseInfo(o);
+        DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
+        }
+      }
+
+    DDB.CheckBoxBtn("", "Liquids",          DC_,  "", xidMkLiquids, this, isParm);
+    if (CDB.PhaseCount(BOT_Liquid)>1)
+      {
+      for (int o=CDB.PhaseFirst(BOT_Liquid); o<=CDB.PhaseLast(BOT_Liquid); o++)
+        {
+        CPhaseInfo & P=CDB.PhaseInfo(o);
+        DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
+        }
+      }
+
+    DDB.CheckBoxBtn("", "Gasses",           DC_,  "", xidMkGasses,  this, isParm);
+    if (CDB.PhaseCount(BOT_Gas)>1)
+      {
+      for (int o=CDB.PhaseFirst(BOT_Gas); o<=CDB.PhaseLast(BOT_Gas); o++)
+        {
+        CPhaseInfo & P=CDB.PhaseInfo(o);
+        DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
+        }
+      }
+
+
     DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
 //#if VER1
 //    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
@@ -299,25 +409,39 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
 
 flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
   {
-//#if VER1
-//#else
-//  switch (DCB.lHandle)
-//    {
-//    case xidCompCount:
-//      if (DCB.rL)
-//        {
-//        int Old=m_Components.GetSize();
-//        m_Components.SetSize(*DCB.rL);
-//        for (int i=Old; i<m_Components.GetSize(); i++)
-//          {
-//          m_Components[i].m_CIndex=-1;
-//          m_Components[i].m_Fraction=0.0;
-//          }
-//        }
-//      DCB.L=m_Components.GetSize();
-//      return 1;
-//    }
-//#endif
+  switch (DCB.lHandle)
+    {
+    case xidMkAll:
+      if (DCB.rB)
+        m_Phases = *DCB.rB ? som_ALL:0;
+      DCB.B = m_Phases==som_ALL ? 1:0; 
+      return 1;
+    case xidMkSolids:
+      if (DCB.rB)
+        m_Phases = (m_Phases&~som_Sol) | (*DCB.rB ? som_Sol:0);
+      DCB.B = (m_Phases&som_Sol)==som_Sol? 1:0; 
+      return 1;
+    case xidMkLiquids:
+      if (DCB.rB)
+        m_Phases = (m_Phases&~som_Liq) | (*DCB.rB ? som_Liq:0);
+      DCB.B = (m_Phases&som_Liq)==som_Liq? 1:0; 
+      return 1;
+    case xidMkGasses:
+      if (DCB.rB)
+        m_Phases = (m_Phases&~som_Gas) | (*DCB.rB ? som_Gas:0);
+      DCB.B = (m_Phases&som_Gas)==som_Gas? 1:0; 
+      return 1;
+    default:
+      if (DCB.lHandle>=xidMkPhase && DCB.lHandle<xidMkPhase+CDB.PhaseCount())
+        {
+        int o=DCB.lHandle-xidMkPhase;
+        CPhaseInfo & P=CDB.PhaseInfo(o);
+        if (DCB.rB)
+          m_Phases = (m_Phases&~P.m_PhMsk) | (*DCB.rB ? P.m_PhMsk:0);
+        DCB.B = (m_Phases&P.m_PhMsk)==P.m_PhMsk? 1:0; 
+        return 1;
+        }
+    }
   return 0;
   }
 
