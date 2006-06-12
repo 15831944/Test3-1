@@ -42,17 +42,17 @@ class DllImportExport CMakeupBlock : public TaggedObject
     virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
 
     virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
-    virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void    EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
-    inline CDirectFlwIO   & getIn();
+    inline CDirectFlwIO & getSrcIO();
 
   public:
     static const pchar GroupName;
 
     CMakeupBase     * m_pMakeupBase;
 
-    _declspec(property(get=getIn))          CDirectFlwIO   & In;    
+    _declspec(property(get=getSrcIO))          CDirectFlwIO   & SrcIO;    
 
   };
 
@@ -90,10 +90,10 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
 
     flag           ValidateData(ValidateDataBlk & VDB)
       { return Enabled() ? m_pMakeupB->ValidateData(VDB) : 0; };
-    void           EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pMakeupB->EvalProducts(Fo, Po, FinalTEst); };
-    void           EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pMakeupB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
+    void           EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN)
+      { if (Enabled()) m_pMakeupB->EvalProducts(QPrd, Po, FinalTEst); };
+    void           EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
+      { if (Enabled()) m_pMakeupB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst); };
 
   protected:
     flag              m_fFixed;
@@ -101,7 +101,7 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     CMakeupBlock    * m_pMakeupB;
     TaggedObject    * m_pNd;
 
-    CDirectFlwIO      m_In;
+    CDirectFlwIO      m_SrcIO;
 
   public:
 
@@ -113,7 +113,7 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
 //
 // ===========================================================================
 
-CDirectFlwIO & CMakeupBlock::getIn() { return m_pMakeupBase->m_In; };    
+CDirectFlwIO & CMakeupBlock::getSrcIO() { return m_pMakeupBase->m_SrcIO; };    
 
 // ===========================================================================
 //

@@ -64,7 +64,7 @@ void CBleedBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, doub
 //============================================================================
 
 CBleedBase::CBleedBase(TaggedObject * pAttach, int Index) : CBlockEvalBase(BEId_Bleed, Index),
-m_Out(eDIO_Bleed, dynamic_cast<FlwNode*>(pAttach), false, true, 
+m_SnkIO(eDIO_Bleed, dynamic_cast<FlwNode*>(pAttach), false, true, 
       "Bleed", IOId_Bleed2Area+Index, IOId_AreaBleedI, "BleedSnk", "BleedSnk_1")
   { 
   m_pBleedB=NULL; 
@@ -139,8 +139,8 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
     DDB.Text("");
     if (DDB.BeginObject(m_pNd, Name()(), "EB_Bleed", pTagComment, PageIs))
       {
-      if (m_Out.Enabled)
-        m_Out.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102);
+      if (m_SnkIO.Enabled)
+        m_SnkIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102);
 
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CBleedBlock::GroupName, DDB0);
@@ -164,7 +164,7 @@ flag CBleedBase::DataXchg(DataChangeBlk & DCB)
   {
   if (DCB.dwUserInfo%1000==102)
     {
-    if (m_Out.DataXchg(DCB))
+    if (m_SnkIO.DataXchg(DCB))
       return 1;
     }
 
@@ -328,33 +328,33 @@ flag CXBlk_Bleed::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void CXBlk_Bleed::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
+void CXBlk_Bleed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
   switch (m_Type)                     
     {
     case Type_QmBleed:
       {
-      double Qm=Qf.QMass();
+      double Qm=QPrd.QMass();
       double QmB=Min(Qm, m_QmBleed);
       //m_pBleedBase->DiscardCd().QSetM(Qf, som_ALL, QmB, Qf.Press()); 
-      Out.Cd.QSetM(Qf, som_ALL, QmB, Qf.Press()); 
-      Qf.QAdjustQmTo(som_ALL, Qm-QmB); 
+      SnkIO.Cd.QSetM(QPrd, som_ALL, QmB, QPrd.Press()); 
+      QPrd.QAdjustQmTo(som_ALL, Qm-QmB); 
       break;
       }
     case Type_QmProduct:
       {
-      double Qm=Qf.QMass();
+      double Qm=QPrd.QMass();
       double QmB=Min(Qm, GEZ(Qm-m_QmProduct));
-      Out.Cd.QSetM(Qf, som_ALL, QmB, Qf.Press()); 
-      Qf.QAdjustQmTo(som_ALL, Qm-QmB); 
+      SnkIO.Cd.QSetM(QPrd, som_ALL, QmB, QPrd.Press()); 
+      QPrd.QAdjustQmTo(som_ALL, Qm-QmB); 
       break;
       }
     case Type_FracBleed:
       {
-      double Qm=Qf.QMass();
+      double Qm=QPrd.QMass();
       double QmB=Qm*m_Frac;
-      Out.SetM(Qf, som_ALL, QmB); 
-      Qf.QAdjustQmTo(som_ALL, Qm-QmB); 
+      SnkIO.SetM(QPrd, som_ALL, QmB); 
+      QPrd.QAdjustQmTo(som_ALL, Qm-QmB); 
       break;
       }
     }
@@ -403,9 +403,9 @@ void CXBlk_Bleed::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   //Discard.SetTempPress(T, P);
   };
 
-void CXBlk_Bleed::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CXBlk_Bleed::EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst)
   {
-  EvalProducts(Qf, Po, FinalTEst);
+  EvalProducts(QPrd, Po, FinalTEst);
   };
 
 //=========================================================================

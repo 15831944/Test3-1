@@ -42,17 +42,17 @@ class DllImportExport CBleedBlock : public TaggedObject
     virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
 
     virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
-    virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void    EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
-    inline CDirectFlwIO   & getOut();
+    inline CDirectFlwIO   & getSnkIO();
 
   public:
     static const pchar GroupName;
 
     CBleedBase     * m_pBleedBase;
 
-    _declspec(property(get=getOut))          CDirectFlwIO   & Out;    
+    _declspec(property(get=getSnkIO))          CDirectFlwIO   & SnkIO;    
   };
 
 DEFINE_BLEEDBLOCK(CBleedBlock);
@@ -89,10 +89,10 @@ class DllImportExport CBleedBase : public CBlockEvalBase
 
     flag           ValidateData(ValidateDataBlk & VDB)
       { return Enabled() ? m_pBleedB->ValidateData(VDB) : 0; };
-    void           EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pBleedB->EvalProducts(Fo, Po, FinalTEst); };
-    void           EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pBleedB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
+    void           EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN)
+      { if (Enabled()) m_pBleedB->EvalProducts(QPrd, Po, FinalTEst); };
+    void           EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
+      { if (Enabled()) m_pBleedB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst); };
 
   protected:
     flag              m_fFixed;
@@ -100,7 +100,7 @@ class DllImportExport CBleedBase : public CBlockEvalBase
     CBleedBlock     * m_pBleedB;
     TaggedObject    * m_pNd;
 
-    CDirectFlwIO      m_Out;
+    CDirectFlwIO      m_SnkIO;
 
   public:
 
@@ -112,7 +112,7 @@ class DllImportExport CBleedBase : public CBlockEvalBase
 //
 // ===========================================================================
 
-CDirectFlwIO & CBleedBlock::getOut() { return m_pBleedBase->m_Out; };    
+CDirectFlwIO & CBleedBlock::getSnkIO() { return m_pBleedBase->m_SnkIO; };    
 
 // ===========================================================================
 //
