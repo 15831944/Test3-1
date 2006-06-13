@@ -63,7 +63,8 @@ library ScdApp
     [id(8), helpstring("method CloseProject")] HRESULT CloseProject([in,defaultvalue(FALSE)] VARIANT_BOOL SaveIt);
     [id(9), helpstring("method SetWindowState")] HRESULT SetWindowState([in] eScdWndStateCmds ReqdState);
     [propget, id(10), helpstring("property Project")] HRESULT Project([out, retval] IScdProject** pVal);
-  };
+    [id(11), helpstring("method Enable")] HRESULT Enable([in] BSTR EnableString);
+    };
 
   //----------------------------------------------
   [

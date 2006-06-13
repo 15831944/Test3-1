@@ -21,7 +21,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 void CLicenseCount::CalcLicUnits()
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   iNoOfIllegalUnits = 0;
   if (gs_pPrj)
     {
@@ -47,7 +47,7 @@ void CLicenseCount::CalcLicUnits()
 
 void CLicenseCount::CountUnits()
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   iNoOfUnits = 0;
   if (gs_pPrj)
     {
@@ -65,7 +65,7 @@ void CLicenseCount::CountUnits()
 
 void CLicenseCount::CalcUnits(flag ForceCnt/*=false*/)
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   flag PrevLicBlock = bLicBlock;
   const int iUnitsAllowed = (gs_Exec.GlblProbalMode() ? gs_License.ProbalUnitsAllowed() : gs_License.DynUnitsAllowed());
   if ((ForceCnt || iUnitsAllowed!=CK_InfiniteUnits) && gs_pPrj)
@@ -91,7 +91,7 @@ void CLicenseCount::CalcUnits(flag ForceCnt/*=false*/)
 
 flag CLicenseCount::DynamicCntExceeded()
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   if (iNoOfUnits==0)
     CountUnits();
   return (iNoOfUnits>gs_License.DynUnitsAllowed());
@@ -104,7 +104,7 @@ flag CLicenseCount::DynamicCntExceeded()
 
 flag CLicenseCount::ProBalCntExceeded()
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   if (iNoOfUnits==0)
     CountUnits();
   return (iNoOfUnits>gs_License.ProbalUnitsAllowed());

@@ -6,18 +6,10 @@
 #define __LICBASE_H
 
 #include "scdver.h"
-#include "scdverlic.h"
 
-//set to 1 if licensing/security is required
-#if BYPASSLICENSING
-#define CK_USECRYPKEY    0 
-#elif defined(_RELEASE)
-#define CK_USECRYPKEY    1 
-#else
-#define CK_USECRYPKEY    1
-#endif
+#define CK_LICENSINGON    1
 
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 #define CK_ALLOWDEMOMODE  1   //set to 1 if SysCAD demo mode is allowed (no license)
 #define CK_USE6134        0             
 #define CK_SCDCOMLIC      0
@@ -35,7 +27,6 @@
 
 //---------------------------------------------------------------------------
 
-#if CK_USECRYPKEY
 //days...
 const int CK_WarnDays = 21;            //no of days to give clear warning before license expires
 const int CK_UrgentWarnDays = 7;       //no of days to give urgent warning (dialog) before license expires
@@ -72,7 +63,6 @@ const int CK_NoOfTrialDays = 12;       //Number of days trial license lasts for
 #else
 const int CK_NoOfTrialDays = 45;       //Number of days trial license lasts for
 #endif
-#endif
 
 const int CK_InfiniteDays = 99999;        //constant representing no time license limit
 const int CK_InfiniteUnits = 999999;      //constant representing no units limit
@@ -87,7 +77,7 @@ const int CK_InfiniteGrfs = 99999;        //constant representing no maximum num
 //generic base class for CrypKey Licensing
 class DllImportExport CLicense
   {
-#if CK_USECRYPKEY
+//#if CK_LICENSINGON
   protected:
     CString sLastPath;       //path used for transfers
     CString sAppPath;        //optional path and name of app for license location
@@ -150,18 +140,17 @@ class DllImportExport CLicense
     //UINT Challenge(ULONG companyNum, ULONG passNum, UINT random1, UINT random2);
     long Challenge32(long companyNum, long passNumDiv2, long random1, long random2);
     int UpdateCrypkeyINI(char* path);
-#else
-  public:
-    inline BOOL UsingSecurity() { return 0; };
-    inline BOOL Blocked() { return 0; };
-    void Exit() {};
-#endif
+//#else
+//  public:
+//    inline BOOL UsingSecurity() { return 0; };
+//    inline BOOL Blocked() { return 0; };
+//    void Exit() {};
+//#endif
   };
 
 //===========================================================================
 //=== SysCAD Specific Code...
 
-#if CK_USECRYPKEY
 //bit31 = Option1
 //bit30 = Option2 etc
 //bit0 and bit1 are used for levels
@@ -269,19 +258,19 @@ typedef struct
   {
   union
     {
-    CK_SysCADSecurityOpts Opts;
-    DWORD OpLevel;
+    CK_SysCADSecurityOpts m_Opts;
+    DWORD m_OpLevel;
     };
   } CK_SysCADSecurity;
 
-#endif
+//#endif
 
 class DllImportExport CSysCADLicense : public CLicense
   {
-#if CK_USECRYPKEY
   protected:
-    BYTE bProbalLiteMode:1,
-         bDynLiteMode:1;
+    BYTE bProbalLiteMode,
+         bDynLiteMode,
+         bCOMMineServeOn;
     CK_SysCADSecurity* pSecOpt;
 
   public:
@@ -301,93 +290,46 @@ class DllImportExport CSysCADLicense : public CLicense
     int GraphicWindowsAllowed();
     DWORD LicCatagories();
 
-    inline void SetAsRunTime()      { pSecOpt->Opts.Func_FullEdit = 0; };
-    inline BOOL IsRunTime()         { return !pSecOpt->Opts.Func_FullEdit; };
-    inline BOOL AllowVer90()        { return pSecOpt->Opts.Ver90 && !bBlocked; };
-    inline BOOL AllowMdlsRTTS()     { return pSecOpt->Opts.Client_RTTS && !bBlocked; };
-    inline BOOL AllowMdlsMineServe(){ return 1; };//TEMP CNM pSecOpt->Opts.Client_MineServe && !bBlocked; };
-    inline BOOL AllowMdlsAlcan()    { return pSecOpt->Opts.Client_Alcan && !bBlocked; };
-    inline BOOL AllowMdlsQALExtra() { return pSecOpt->Opts.Client_QALExtra && !bBlocked; };
-    inline BOOL AllowMdlsQAL()      { return pSecOpt->Opts.Client_QAL && !bBlocked; };
-    inline BOOL AllowMdlsUser()     { return pSecOpt->Opts.Client_Other && !bBlocked; };
-    inline BOOL AllowMdlsBlackBox() { return pSecOpt->Opts.Mdls_BlackBox && !bBlocked; };
-    inline BOOL AllowMdlsHeatExtra(){ return pSecOpt->Opts.Mdls_HeatExtra && !bBlocked; };
-    inline BOOL AllowMdlsHeatBal()  { return pSecOpt->Opts.Mdls_HeatBal && !bBlocked; };
-    inline BOOL AllowMdlsAlumina()  { return pSecOpt->Opts.Mdls_Alumina && !bBlocked; };
-    inline BOOL AllowMdlsSizeDist() { return pSecOpt->Opts.Mdls_SizeDist && !bBlocked; };
-    inline BOOL AllowMdlsElec()     { return pSecOpt->Opts.Mdls_Electrical && !bBlocked; };
-    inline BOOL AllowProBal()       { return pSecOpt->Opts.Mode_ProBal && !bBlocked; };
-    inline BOOL AllowDynamicFlow()  { return pSecOpt->Opts.Mode_DynamicFlow && !bBlocked; };
-    inline BOOL AllowDynamicFull()  { return pSecOpt->Opts.Mode_DynamicFull && !bBlocked; };
-    inline BOOL AllowProBalLite()   { return bProbalLiteMode && !bBlocked; };
-    inline BOOL AllowDynamicLite()  { return bDynLiteMode && !bBlocked; };
-    inline BOOL OnlySteadyState()   { return pSecOpt->Opts.Mode_SteadyState; }
-    //inline BOOL AllowAnalyse()      { return pSecOpt->Opts.Analyse && !bBlocked; };
-    inline BOOL AllowFullLic()      { return pSecOpt->Opts.Func_FullEdit && !bBlocked; };
-    inline BOOL AllowFullLicFlag()  { return pSecOpt->Opts.Func_FullEdit; };
-    inline BOOL AllowDrivers()      { return pSecOpt->Opts.Func_Drivers && !bBlocked; };
-    inline BOOL AllowOPCServer()    { return pSecOpt->Opts.Func_OPCServer && !bBlocked; };
-    inline BOOL AllowCOMInterface() { return pSecOpt->Opts.Func_COM && !bBlocked; };
-    inline BOOL AllowCOMProps()     { return pSecOpt->Opts.Func_COMProp && !bBlocked; };
-    //inline BOOL AllowFullHist()     { return pSecOpt->Opts.FullHistorian && !bBlocked; };
-    inline UCHAR Level()            { return (UCHAR)(pSecOpt->Opts.Level); };
-    //inline CK_SysCADSecurity SecOpt() { return *pSecOpt; };
+    inline void SetAsRunTime();
+    inline BOOL IsRunTime();
+    inline BOOL AllowVer90();
+    inline BOOL AllowMdlsRTTS();
+    inline BOOL ForMineServe();
+    inline void SetForMineServe(bool On);
+    inline BOOL AllowMdlsAlcan();
+    inline BOOL AllowMdlsQALExtra();
+    inline BOOL AllowMdlsQAL();
+    inline BOOL AllowMdlsUser();
+    inline BOOL AllowMdlsBlackBox();
+    inline BOOL AllowMdlsHeatExtra();
+    inline BOOL AllowMdlsHeatBal();
+    inline BOOL AllowMdlsAlumina();
+    inline BOOL AllowMdlsSizeDist();
+    inline BOOL AllowMdlsElec();
+    inline BOOL AllowProBal();
+    inline BOOL AllowDynamicFlow();
+    inline BOOL AllowDynamicFull();
+    inline BOOL AllowProBalLite();
+    inline BOOL AllowDynamicLite();
+    inline BOOL OnlySteadyState();
+    inline BOOL AllowFullLic();
+    inline BOOL AllowFullLicFlag();
+    inline BOOL AllowDrivers();
+    inline BOOL AllowOPCServer();
+    inline BOOL AllowCOMInterface();
+    inline BOOL AllowCOMProps();
+    inline UCHAR Level();
 
 #if CK_SCDCOMLIC
-    inline BOOL AllowCOMMdl()     { return AllowCOMProps(); };
-    inline BOOL AllowCOMSlv()     { return AllowCOMProps(); };
-    inline BOOL AllowCOMApp()     { return AllowCOMInterface(); };
+    inline BOOL AllowCOMMdl()     ;//{ return AllowCOMProps() || ForMineServe(); };
+    inline BOOL AllowCOMSlv()     ;//{ return AllowCOMProps() || ForMineServe(); };
+    inline BOOL AllowCOMApp()     ;//{ return AllowCOMInterface() || ForMineServe(); };
 #else
-    inline BOOL AllowCOMMdl()     { return 1; };
-    inline BOOL AllowCOMSlv()     { return 1; };
-    inline BOOL AllowCOMApp()     { return 1; };
+    inline BOOL AllowCOMMdl()     ;//{ return 1; };
+    inline BOOL AllowCOMSlv()     ;//{ return 1; };
+    inline BOOL AllowCOMApp()     ;//{ return 1; };
 #endif
 
-#else
-  public:
-    CSysCADLicense();
-    virtual ~CSysCADLicense();
-
-    inline int ProbalUnitsAllowed()    { return CK_InfiniteUnits; };
-    inline int DynUnitsAllowed()       { return CK_InfiniteUnits; };
-    inline long MaxHistSizeAllowed()   { return CK_InfiniteHistSize; };
-    inline UINT MaxHistFilesAllowed()  { return CK_InfiniteHistFiles; };
-    inline int TrendWindowsAllowed()   { return CK_InfiniteTrends; };
-    inline int GraphicWindowsAllowed() { return CK_InfiniteGrfs; };
-    DWORD LicCatagories();
-
-    inline BOOL IsRunTime()         { return 0; };
-    inline BOOL AllowMdlsRTTS()     { return 1; };
-    inline BOOL AllowMdlsMineServe(){ return 1; };
-    inline BOOL AllowMdlsAlcan()    { return 1; };
-    inline BOOL AllowMdlsQALExtra() { return 1; };
-    inline BOOL AllowMdlsQAL()      { return 1; };
-    inline BOOL AllowMdlsUser()     { return 1; };
-    inline BOOL AllowMdlsBlackBox() { return 1; };
-    inline BOOL AllowMdlsHeatExtra(){ return 1; };
-    inline BOOL AllowMdlsHeatBal()  { return 1; };
-    inline BOOL AllowMdlsAlumina()  { return 1; };
-    inline BOOL AllowMdlsSizeDist() { return 1; };
-    inline BOOL AllowMdlsElec()     { return 1; };
-    inline BOOL AllowProBal()       { return 1; };
-    inline BOOL AllowDynamicFlow()  { return 1; };
-    inline BOOL AllowDynamicFull()  { return 1; };
-    inline BOOL AllowProBalLite()   { return 1; };
-    inline BOOL AllowDynamicLite()  { return 1; };
-    inline BOOL OnlySteadyState()   { return 0; }
-    //inline BOOL AllowAnalyse()      { return 1; };
-    inline BOOL AllowFullLic()      { return 1; };
-    inline BOOL AllowFullLicFlag()  { return 1; };
-    inline BOOL AllowDrivers()      { return 1; };
-    inline BOOL AllowOPCServer()    { return 1; };
-    inline BOOL AllowCOMInterface() { return 1; };
-    inline BOOL AllowCOMProps()     { return 1; };
-    //inline BOOL AllowFullHist()     { return 1; };
-
-		inline BOOL AllowCOMMdl()     { return 1; };
-    inline BOOL AllowCOMSlv()     { return 1; };
-    inline BOOL AllowCOMApp()     { return 1; };
-#endif
   };
 
 extern DllImportExport CSysCADLicense gs_License;

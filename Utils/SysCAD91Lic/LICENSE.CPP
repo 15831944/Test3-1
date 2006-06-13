@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "license.h"
 
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 #include "resource.h"
 #if CK_USE6134 
 #include "crypkey.6134.h"
@@ -1709,7 +1709,7 @@ CKWALicense Lic;
 //===========================================================================
 //place code similar to this in application init instance...
 
-//  #if CK_USECRYPKEY
+//  #if CK_LICENSINGON
 //  if (!Lic.Init())
 //    return FALSE;
 //  if (!Lic.Check())

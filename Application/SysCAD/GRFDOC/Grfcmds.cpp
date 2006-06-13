@@ -633,7 +633,7 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
       //break;
     }
 
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   if (En==1)
     {//valid ID AND Enabled, check IDs affected by license...
     switch (nID)

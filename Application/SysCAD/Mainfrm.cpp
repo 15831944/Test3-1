@@ -28,7 +28,7 @@
 #include "mdlrunmngr.h"
 #include "licbase.h"
 #include "liccount.h"
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 #include "dlgbusy.h"
 #endif
 #include "analdsgn.h"
@@ -753,7 +753,7 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     CWindowLists::SetGrfTagGroups(true);
     }
 
-  #if (!CK_USECRYPKEY)
+  #if (!CK_LICENSINGON)
   static int BadCount = 0;
   if (wParam==SUB_UPDMAIN_UPDATE)
     {
@@ -1203,7 +1203,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
     }
 
   pMenu = GetMenu();
-  #if (!CK_USECRYPKEY)
+  #if (!CK_LICENSINGON)
   //remove all menu items related to licencing...
   if (pMenu && pMenu->DeleteMenu(ID_CK_LIC_RESETSERVICE, MF_BYCOMMAND))
     {
@@ -2952,7 +2952,7 @@ END_MESSAGE_MAP()
 void CMyMDIClient::OnPaint()
   {
   bool DoPaint = (gs_pPrj && gs_pPrj->LoadBusy());
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   if (!DoPaint)
     DoPaint = (gs_License.DemoMode() || gs_License.Blocked());
   #endif
@@ -2966,7 +2966,7 @@ void CMyMDIClient::OnPaint()
     dc.SetBkColor(RGB(128, 128, 128));
     CFont * pOldFont=NULL;
 
-    #if CK_USECRYPKEY
+    #if CK_LICENSINGON
     if (gs_License.DemoMode() || gs_License.Blocked())
       {
       CFont Font;

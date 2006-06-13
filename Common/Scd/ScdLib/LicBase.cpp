@@ -7,22 +7,25 @@
 #define __LICBASE_CPP
 #include "licbase.h"
 #include "scdver.h"
+#include "scdverlic.h"
 
-#if CK_USECRYPKEY
+//#if CK_LICENSINGON
 #include "sc_defs.h"
 #include "tagobj.h"
 #include "scd_wm.h"
 #include "scdctrls.h"
 //#include "msgwnd.h"
 #include "resource.h"
+#if CK_LICENSINGON
 #if CK_USE6134 
 #include "crypkey.6134.h"
 #else
 #include "crypkey.57.h"
 #endif
+#endif
 #include "winsvc.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 //===========================================================================
 //=== Generic Code...
@@ -39,6 +42,7 @@ char* CK_AppName = "SysCAD";
 #define CK_PASSNUM    984534120  //you can use them in your tests if you need to
 */
 
+#if !BYPASSLICENSING
 //for syscad.exe                
 #if CK_USE6134 
 
@@ -58,22 +62,25 @@ b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
 #define CK_COMPANYNUM 7956342
 #define CK_PASSNUM    482693111
 
-//const int CK_NetworkChecktime = 600;
-const int CK_NetworkChecktime = 900;
-const int CK_TrialVerNo = 1;          //Trial license version number
-const int CK_NumDefinedLevels = 2; //number of bits to be used for level
-const int CK_NumDefinedOpts = 30;
-              
 //NBNB Ensure correct version of CRP32D60.lib is used!
 #if CK_USE6134 
 #pragma comment(lib, "CRP32D60.6134.lib")            
 #else
 #pragma comment(lib, "CRP32D60.57.lib")
 #endif
+
+#endif
+
+//const int CK_NetworkChecktime = 600;
+const int CK_NetworkChecktime = 900;
+const int CK_TrialVerNo = 1;          //Trial license version number
+const int CK_NumDefinedLevels = 2; //number of bits to be used for level
+const int CK_NumDefinedOpts = 30;
+              
 //===========================================================================
 //=== SysCAD Specific Code...
 
-const int CK_NoOfOptions = 23;
+const int CK_NoOfOptions = 24;
 struct CK_OptionDetails
   {
   unsigned char iBitNumber;                          
@@ -87,6 +94,7 @@ CK_OptionDetails CK_OptionNames[CK_NoOfOptions] =
   { 24, "Dynamic Mode (Simple)", true },
   { 23, "Dynamic Mode (Full)", true },
   { 22, "Electrical Mode", false },
+  {  7, "MineServe Mode", false },
   { 20, "Full License (No=run-time only)", true },
   { 16, "OPC Server", true },
   { 17, "Drivers / Marshal", true },
@@ -114,6 +122,127 @@ char* CK_LevelNames[4] =
     "Unused",
     "Unused"
     };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#if BYPASSLICENSING
+int GetNumCopies()          { return 99; };
+int GetNumMultiUsers()      { return 99; };
+ULONG GetLevel(int NoLevels)  
+  {
+  return 1;  
+  };
+int Get1RestInfo(int X)
+  { 
+  return 0;  
+  };
+int GetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, int * num_used)
+  {
+  *authopt=0;
+  *start_date=0;
+  *num_allowed=1000;
+  *num_used=0;
+  return 0;
+  };
+int GetOption(int No, int Index)                  { return 1; };
+int GetAuthorization(dword * dwOpLevel, int dec)  
+  { 
+  CK_SysCADSecurity Opt;
+
+  Opt.m_OpLevel = 0; //clears all bits
+
+  Opt.m_Opts.Level            = 1;
+  Opt.m_Opts.Ver82            = 0;
+  Opt.m_Opts.Ver90            = 1;
+  Opt.m_Opts.Spare_Ver91      = 0;
+  Opt.m_Opts.Spare_Ver92      = 0;
+  Opt.m_Opts.Mode_ProBal      = 1;
+  Opt.m_Opts.Mode_DynamicFlow = 1;
+  Opt.m_Opts.Mode_DynamicFull = 1;
+  Opt.m_Opts.Mode_Electrical  = 1;
+  Opt.m_Opts.Mode_SteadyState = 1;
+  Opt.m_Opts.Func_FullEdit    = 1;
+  Opt.m_Opts.Func_COM         = 1;
+  Opt.m_Opts.Func_COMProp     = 1;
+  Opt.m_Opts.Func_Drivers     = 1;
+  Opt.m_Opts.Func_OPCServer   = 1;
+  Opt.m_Opts.Mdls_Electrical  = 1;
+  Opt.m_Opts.Mdls_BlackBox    = 1;
+  Opt.m_Opts.Mdls_HeatExtra   = 1;
+  Opt.m_Opts.Mdls_HeatBal     = 1;
+  Opt.m_Opts.Mdls_Alumina     = 1;
+  Opt.m_Opts.Mdls_SizeDist    = 1;
+  Opt.m_Opts.Old_Dynamic      = 1;
+  Opt.m_Opts.Old_Probal       = 1;
+  Opt.m_Opts.Client_MineServe = 0;
+  Opt.m_Opts.Client_Alcan     = 1;
+  Opt.m_Opts.Client_RTTS      = 1;
+  Opt.m_Opts.Old_Dynamic82    = 1;
+  Opt.m_Opts.Old_Probal82     = 1;
+  Opt.m_Opts.Client_QALExtra  = 1;
+  Opt.m_Opts.Client_QAL       = 1;
+  Opt.m_Opts.Client_Other     = 1;
+
+
+  *dwOpLevel=Opt.m_OpLevel; 
+
+  return 0; 
+  };
+int CrypkeyVersion()                              { return 11; };
+LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
+#endif
+
+int FixAuthorization(dword * dwOpLevel)  
+  { 
+  CK_SysCADSecurity Opt;
+  Opt.m_OpLevel = * dwOpLevel; 
+
+#if FORCEMINESERVE
+  Opt.m_Opts.Client_MineServe = 1;
+#endif
+
+  if (Opt.m_Opts.Client_MineServe)
+    {
+    Opt.m_Opts.Level            = 1;
+    Opt.m_Opts.Ver82            = 0;
+    Opt.m_Opts.Ver90            = 1;
+    Opt.m_Opts.Spare_Ver91      = 0;
+    Opt.m_Opts.Spare_Ver92      = 0;
+    Opt.m_Opts.Mode_ProBal      = 0;
+    Opt.m_Opts.Mode_DynamicFlow = 1;
+    Opt.m_Opts.Mode_DynamicFull = 0;
+    Opt.m_Opts.Mode_Electrical  = 1;
+    Opt.m_Opts.Mode_SteadyState = 1;
+    Opt.m_Opts.Func_FullEdit    = 0;
+    Opt.m_Opts.Func_COM         = 1;
+    Opt.m_Opts.Func_COMProp     = 0;
+    Opt.m_Opts.Func_Drivers     = 0;
+    Opt.m_Opts.Func_OPCServer   = 0;
+    Opt.m_Opts.Mdls_Electrical  = 1;
+    Opt.m_Opts.Mdls_BlackBox    = 0;
+    Opt.m_Opts.Mdls_HeatExtra   = 0;
+    Opt.m_Opts.Mdls_HeatBal     = 1;
+    Opt.m_Opts.Mdls_Alumina     = 0;
+    Opt.m_Opts.Mdls_SizeDist    = 0;
+    Opt.m_Opts.Old_Dynamic      = 0;
+    Opt.m_Opts.Old_Probal       = 0;
+    Opt.m_Opts.Client_Alcan     = 0;
+    Opt.m_Opts.Client_RTTS      = 0;
+    Opt.m_Opts.Old_Dynamic82    = 0;
+    Opt.m_Opts.Old_Probal82     = 0;
+    Opt.m_Opts.Client_QALExtra  = 0;
+    Opt.m_Opts.Client_QAL       = 0;
+    Opt.m_Opts.Client_Other     = 0;
+    }
+
+  *dwOpLevel=Opt.m_OpLevel; 
+
+  return 0; 
+  };
 
 //===========================================================================
 //=== Generic Code...
@@ -501,6 +630,10 @@ void CTransferDlg::OnOK()
   }
 
 //===========================================================================
+//
+//
+//
+//===========================================================================
                      
 CLicense::CLicense()
   {
@@ -528,8 +661,10 @@ CLicense::~CLicense()
 BOOL CLicense::Init(char* path /*=NULL*/)
   {
   CWaitCursor Wait;
+#if !BYPASSLICENSING
   if (bDidInitCrypkey)
     EndCrypkey();
+#endif
   bDidInitCrypkey = 0;
   bMultiUserFailure = 0;
   OSVERSIONINFO VI;
@@ -564,6 +699,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     }
   if (GetShortPathName(LongPath, ShortPath, sizeof(ShortPath))<1)
     return FALSE;
+#if !BYPASSLICENSING
   int err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
   if (err==-209)
     {
@@ -644,6 +780,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     Error("Incorrect Crypkey version (%d)", Ver);
     return FALSE;
     }
+#endif
   bDidInitCrypkey = 1;
   return TRUE;
   }
@@ -652,8 +789,10 @@ BOOL CLicense::Init(char* path /*=NULL*/)
 
 void CLicense::Exit()
   {
+#if !BYPASSLICENSING
   if (bDidInitCrypkey)
     EndCrypkey();
+#endif
   bDidInitCrypkey = 0;
   }
 
@@ -667,12 +806,16 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   bMultiUserFailure = 0;
   dwOpLevel = 0;
   iDaysLeft = 0;
-  int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
 
+//#if CK_LICENSINGON
+  int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
+  
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL
   if (err==0) //check this only if we think we are authorized
     {
+    FixAuthorization(&dwOpLevel);
+#if !BYPASSLICENSING
     //generate some random numbers - this can be done any way you like
     //random1 = time(NULL);
     //random2 = random1*time(NULL);
@@ -685,6 +828,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       Error("Security Failure.  Challenge function failed");
       return FALSE;
       }
+#endif
     bLicensed = 1;
     DWORD dw = (DWORD)pow(2.0, CK_NumDefinedLevels) - 1;
     bTrialMode = ((dwOpLevel & dw)==CK_TrialLevel);
@@ -709,6 +853,18 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       Error("Get Authorization failed!\nReturned %d : %s", err, ExplainErr(EXP_AUTH_ERR, err));
     }
   CheckForLiteModes();
+
+//#else
+//
+//  bLicensed = 1;
+//  bTrialMode = 0;
+//  iDaysLeft = CK_InfiniteDays ;
+//  bDemoMode = 0;
+//  ScdPFMachine.WrInt(LicINISection, "InDemoMode", bDemoMode);
+//  CheckForLiteModes();
+//
+//#endif
+
   return FALSE;
   }
 
@@ -740,6 +896,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
   int OtherErr = 0;
 
+#if !BYPASSLICENSING
   if (err==0 && CheckLevel>1)
     {
     //generate some random numbers - this can be done any way you like
@@ -766,6 +923,8 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     else
       OtherErr = 3;
     }
+#endif
+  FixAuthorization(&dwOpLevel);
 
   if (err==0 && OtherErr==0)
     bLicensed = 1;
@@ -783,6 +942,10 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
     return FALSE;
     }
+//#else
+//  bLicensed = 1;
+//  dwOpLevel = 0;
+//#endif
   return TRUE;
   }
 
@@ -814,6 +977,7 @@ BOOL CLicense::StartDialog()
 
 BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
   {
+#if !BYPASSLICENSING
   if (Prompt)
     {
     char Buff[256];
@@ -830,6 +994,7 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
     bTrialFailed = 1;
     return FALSE;
     }
+#endif
   Check(); //re-check options etc
   return TRUE;
   }
@@ -864,7 +1029,9 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
             {
             Wait.Restore();
             sAppPath = PrevAppPath;
+#if !BYPASSLICENSING
             EndCrypkey();
+#endif
             bDidInitCrypkey = 0;
             if (!Init())
               Error("Change location\nFailed to re-initialize license!");
@@ -900,6 +1067,7 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
 
 BOOL CLicense::IssueLicense()
   {
+#if !BYPASSLICENSING
   char SiteCode[64];
   int err = GetSiteCode(SiteCode);
   if (err) //let the user authorize
@@ -920,6 +1088,9 @@ BOOL CLicense::IssueLicense()
     return TRUE;
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
@@ -937,6 +1108,7 @@ BOOL CLicense::DoIssue(char* key)
     return FALSE;
 
   CWaitCursor Wait;
+#if !BYPASSLICENSING
   int err = SaveSiteKey(key);
   switch (err)
     {
@@ -953,12 +1125,16 @@ BOOL CLicense::DoIssue(char* key)
       break;
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 BOOL CLicense::DoRegisterTransfer()
   {
+#if !BYPASSLICENSING
   CTransferDlg Dlg("Register Transfer", "Enter path to place registration file:", "");
   Dlg.m_sPath = sLastPath;
   if (Dlg.DoModal()==IDOK)
@@ -971,12 +1147,16 @@ BOOL CLicense::DoRegisterTransfer()
     Error("Register Transfer failed!\n%d : %s", err, ExplainErr(EXP_REG_ERR, err));
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 BOOL CLicense::DoTransferOut()
   {
+#if !BYPASSLICENSING
   char Buff[256];
   sprintf(Buff, "Number of Copies allowed from this site : %d", GetNumCopies());
   CTransferDlg Dlg("Transfer Out", "Enter path find registration file:", Buff);
@@ -994,12 +1174,16 @@ BOOL CLicense::DoTransferOut()
     Error("Transfer Out failed!\n%d : %s", err, ExplainErr(EXP_TO_ERR, err));
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 BOOL CLicense::DoTransferIn()
   {
+#if !BYPASSLICENSING
   char Buff[256];
   Buff[0] = 0;
   if (bLicensed)
@@ -1019,12 +1203,16 @@ BOOL CLicense::DoTransferIn()
     Error("Transfer In failed!\n%d : %s", err, ExplainErr(EXP_TI_ERR, err));
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 BOOL CLicense::DoDirectTransfer()
   {
+#if !BYPASSLICENSING
   char Buff[512];
   sprintf(Buff, "Enter the path of the copy of %s to transfer license to:", CK_AppName);
   char Buff1[256];
@@ -1088,12 +1276,16 @@ BOOL CLicense::DoDirectTransfer()
     Error("Direct Transfer failed!\n%d : %s", err, ExplainErr(EXP_DT_ERR, err));
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 BOOL CLicense::Kill(CString& ConfirmCode)
   {
+#if !BYPASSLICENSING
   if (AfxMessageBox("This will delete your license - Are you sure?", MB_YESNO|MB_ICONSTOP|MB_DEFBUTTON2)==IDYES)
     {
     CWaitCursor Wait;
@@ -1111,6 +1303,9 @@ BOOL CLicense::Kill(CString& ConfirmCode)
       Error("Kill License failed!\n%d : ", ret, ExplainErr(EXP_KL_ERR, ret));
     }
   return FALSE;
+#else
+  return TRUE;
+#endif
   }
 
 //---------------------------------------------------------------------------
@@ -1392,6 +1587,7 @@ BOOL CLicense::UpdateCrypkeyINI(char* path)
 
 BOOL CLicense::NetworkUsersInfo()
   {
+#if !BYPASSLICENSING
   FLS_REC fls[64];
   int Cnt = 0;
   int err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
@@ -1405,6 +1601,7 @@ BOOL CLicense::NetworkUsersInfo()
   for (int i=0; i<Cnt; i++)
     sprintf(Buff, "%s%s: %s  %s   %s\n", Buff, fls[i].status==0 ? "OK" : "Blocked", fls[i].userName, fls[i].computerName, SGTime(fls[i].starttime));
   AfxMessageBox(Buff);
+#endif
   return TRUE;
   }
 
@@ -1412,6 +1609,7 @@ BOOL CLicense::NetworkUsersInfo()
 
 BOOL CLicense::NetworkUsersInfo(char* Buff)
   {
+#if !BYPASSLICENSING
   Buff[0] = 0;
   FLS_REC fls[64];
   int Cnt = 0;
@@ -1423,6 +1621,7 @@ BOOL CLicense::NetworkUsersInfo(char* Buff)
     }
   for (int i=0; i<Cnt; i++)
     sprintf(Buff, "%s%s: %s  %s   %s\n", Buff, fls[i].status==0 ? "OK" : "Blocked", fls[i].userName, fls[i].computerName, SGTime(fls[i].starttime));
+#endif
   return TRUE;
   }
 
@@ -1490,6 +1689,7 @@ void CLicense::Info()
     }
   DWORD d;
   int err = GetAuthorization(&d, 0);
+  FixAuthorization(&d);
   if (err==0)
     sprintf(Buff, "%s (%04X %04X)\n", Buff, HIWORD(d), LOWORD(d));
   else
@@ -1652,6 +1852,7 @@ CSysCADLicense::CSysCADLicense()
   {
   bDynLiteMode = 0;
   bProbalLiteMode = 0;
+  bCOMMineServeOn = 0;
   pSecOpt = (CK_SysCADSecurity*)&dwOpLevel;
   }
 
@@ -1674,36 +1875,36 @@ char* CSysCADLicense::GetAppVersion()
 DWORD CSysCADLicense::GetDemoOptions()
   {
   CK_SysCADSecurity Opt;
-  Opt.OpLevel = 0; //clears all bits
-  Opt.Opts.Level = 0;
+  Opt.m_OpLevel = 0; //clears all bits
+  Opt.m_Opts.Level = 0;
   //version options...
-  Opt.Opts.Ver82 = 0;
-  Opt.Opts.Ver90 = 1;
+  Opt.m_Opts.Ver82 = 0;
+  Opt.m_Opts.Ver90 = 1;
   //standard options...
-  Opt.Opts.Mode_ProBal = 1;
-  Opt.Opts.Mode_DynamicFlow = 1;
-  Opt.Opts.Mode_DynamicFull = 1;
-  Opt.Opts.Mode_Electrical = 0;
-  Opt.Opts.Mode_SteadyState = 0;
-  Opt.Opts.Func_FullEdit = 1;
-  Opt.Opts.Func_COM = 0;
-  Opt.Opts.Func_COMProp = 0;
-  Opt.Opts.Func_Drivers = 0;
-  Opt.Opts.Func_OPCServer = 0;
+  Opt.m_Opts.Mode_ProBal = 1;
+  Opt.m_Opts.Mode_DynamicFlow = 1;
+  Opt.m_Opts.Mode_DynamicFull = 1;
+  Opt.m_Opts.Mode_Electrical = 0;
+  Opt.m_Opts.Mode_SteadyState = 0;
+  Opt.m_Opts.Func_FullEdit = 1;
+  Opt.m_Opts.Func_COM = 0;
+  Opt.m_Opts.Func_COMProp = 0;
+  Opt.m_Opts.Func_Drivers = 0;
+  Opt.m_Opts.Func_OPCServer = 0;
   //model add-ons...
-  Opt.Opts.Mdls_Electrical = 0;
-  Opt.Opts.Mdls_BlackBox = 0;
-  Opt.Opts.Mdls_HeatExtra = 0;
-  Opt.Opts.Mdls_HeatBal = 1;
-  Opt.Opts.Mdls_Alumina = 0;
-  Opt.Opts.Mdls_SizeDist = 0;
+  Opt.m_Opts.Mdls_Electrical = 0;
+  Opt.m_Opts.Mdls_BlackBox = 0;
+  Opt.m_Opts.Mdls_HeatExtra = 0;
+  Opt.m_Opts.Mdls_HeatBal = 1;
+  Opt.m_Opts.Mdls_Alumina = 0;
+  Opt.m_Opts.Mdls_SizeDist = 0;
   //other...
-  Opt.Opts.Old_Dynamic = 0;
-  Opt.Opts.Old_Probal = 0;
-  Opt.Opts.Old_Dynamic82 = 0;
-  Opt.Opts.Old_Probal82 = 0;
-  Opt.Opts.Client_Other = 0;
-  return Opt.OpLevel;
+  Opt.m_Opts.Old_Dynamic = 0;
+  Opt.m_Opts.Old_Probal = 0;
+  Opt.m_Opts.Old_Dynamic82 = 0;
+  Opt.m_Opts.Old_Probal82 = 0;
+  Opt.m_Opts.Client_Other = 0;
+  return Opt.m_OpLevel;
   }
 
 //---------------------------------------------------------------------------
@@ -1711,36 +1912,36 @@ DWORD CSysCADLicense::GetDemoOptions()
 DWORD CSysCADLicense::GetTrialOptions()
   {
   CK_SysCADSecurity Opt;
-  Opt.OpLevel = 0; //clears all bits
-  Opt.Opts.Level = 0;
+  Opt.m_OpLevel = 0; //clears all bits
+  Opt.m_Opts.Level = 0;
   //version options...
-  Opt.Opts.Ver82 = 0;
-  Opt.Opts.Ver90 = 1;
+  Opt.m_Opts.Ver82 = 0;
+  Opt.m_Opts.Ver90 = 1;
   //standard options...
-  Opt.Opts.Mode_ProBal = 1;
-  Opt.Opts.Mode_DynamicFlow = 1;
-  Opt.Opts.Mode_DynamicFull = 1;
-  Opt.Opts.Mode_Electrical = 0;
-  Opt.Opts.Mode_SteadyState = 0;
-  Opt.Opts.Func_FullEdit = 1;
-  Opt.Opts.Func_COM = 1;
-  Opt.Opts.Func_COMProp = 1;
-  Opt.Opts.Func_Drivers = 1;
-  Opt.Opts.Func_OPCServer = 1;
+  Opt.m_Opts.Mode_ProBal = 1;
+  Opt.m_Opts.Mode_DynamicFlow = 1;
+  Opt.m_Opts.Mode_DynamicFull = 1;
+  Opt.m_Opts.Mode_Electrical = 0;
+  Opt.m_Opts.Mode_SteadyState = 0;
+  Opt.m_Opts.Func_FullEdit = 1;
+  Opt.m_Opts.Func_COM = 1;
+  Opt.m_Opts.Func_COMProp = 1;
+  Opt.m_Opts.Func_Drivers = 1;
+  Opt.m_Opts.Func_OPCServer = 1;
   //model add-ons...
-  Opt.Opts.Mdls_Electrical = 1;
-  Opt.Opts.Mdls_BlackBox = 1;
-  Opt.Opts.Mdls_HeatExtra = 1;
-  Opt.Opts.Mdls_HeatBal = 1;
-  Opt.Opts.Mdls_Alumina = 1;
-  Opt.Opts.Mdls_SizeDist = 1;
+  Opt.m_Opts.Mdls_Electrical = 1;
+  Opt.m_Opts.Mdls_BlackBox = 1;
+  Opt.m_Opts.Mdls_HeatExtra = 1;
+  Opt.m_Opts.Mdls_HeatBal = 1;
+  Opt.m_Opts.Mdls_Alumina = 1;
+  Opt.m_Opts.Mdls_SizeDist = 1;
   //other...
-  Opt.Opts.Client_Other = 0;
-  Opt.Opts.Old_Dynamic = 0;
-  Opt.Opts.Old_Probal = 0;
-  Opt.Opts.Old_Dynamic82 = 0;
-  Opt.Opts.Old_Probal82 = 0;
-  return Opt.OpLevel;
+  Opt.m_Opts.Client_Other = 0;
+  Opt.m_Opts.Old_Dynamic = 0;
+  Opt.m_Opts.Old_Probal = 0;
+  Opt.m_Opts.Old_Dynamic82 = 0;
+  Opt.m_Opts.Old_Probal82 = 0;
+  return Opt.m_OpLevel;
   }
 
 //---------------------------------------------------------------------------
@@ -1778,7 +1979,7 @@ int CSysCADLicense::ProbalUnitsAllowed()
     return CK_Demo_ProbalUnits;
   if (bProbalLiteMode)
     return CK_Lite_ProbalUnits;
-  if (pSecOpt->Opts.Level==CK_TrialLevel)
+  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_Trial_ProbalUnits;
   return CK_InfiniteUnits; 
   }
@@ -1791,7 +1992,7 @@ int CSysCADLicense::DynUnitsAllowed()
     return CK_Demo_DynUnits;
   if (bDynLiteMode)
     return CK_Lite_DynUnits;
-  if (pSecOpt->Opts.Level==CK_TrialLevel)
+  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_Trial_DynUnits;
   return CK_InfiniteUnits; 
   }
@@ -1804,7 +2005,7 @@ long CSysCADLicense::MaxHistSizeAllowed()
     return CK_DemoHistSize;
   //if (AllowFullHist())
   //  return CK_InfiniteHistSize; 
-  if (pSecOpt->Opts.Level==CK_TrialLevel)
+  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialHistSize;
   return CK_InfiniteHistSize;
   //return CK_NormalHistSize;
@@ -1818,7 +2019,7 @@ UINT CSysCADLicense::MaxHistFilesAllowed()
     return CK_DemoHistFiles;
   //if (AllowFullHist())
   //  return CK_InfiniteHistFiles; 
-  if (pSecOpt->Opts.Level==CK_TrialLevel)
+  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialHistFiles;
   return CK_InfiniteHistFiles;
   //return CK_NormalHistFiles;
@@ -1830,7 +2031,7 @@ int CSysCADLicense::TrendWindowsAllowed()
   { 
   if (bDemoMode)
     return CK_DemoTrends;
-  if (pSecOpt->Opts.Level==CK_TrialLevel)
+  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialTrends;
   return CK_InfiniteTrends; 
   }
@@ -1841,7 +2042,7 @@ int CSysCADLicense::GraphicWindowsAllowed()
   {
   if (bDemoMode)
     return CK_DemoGrfs;
-  if (pSecOpt->Opts.Level==CK_TrialLevel)
+  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialGrfs;
   return CK_InfiniteGrfs;
   }
@@ -1870,7 +2071,7 @@ DWORD CSysCADLicense::LicCatagories()
     dw |= TOC_QAL;
   if (AllowMdlsQALExtra())
     dw |= TOC_QALEXTRA;
-  if (AllowMdlsMineServe())
+  if (ForMineServe())
     dw |= TOC_MINESERVE;
   if (AllowMdlsAlcan())
     dw |= TOC_ALCAN;
@@ -1888,37 +2089,59 @@ DWORD CSysCADLicense::LicCatagories()
 
 //---------------------------------------------------------------------------
 
+void CSysCADLicense::SetForMineServe(bool On)  
+  { 
+  bCOMMineServeOn=On; 
+  Check();
+  };
+
+void CSysCADLicense::SetAsRunTime()            { pSecOpt->m_Opts.Func_FullEdit = 0; };
+BOOL CSysCADLicense::IsRunTime()               { return !pSecOpt->m_Opts.Func_FullEdit; };
+BOOL CSysCADLicense::AllowVer90()              { return pSecOpt->m_Opts.Ver90 && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsRTTS()           { return pSecOpt->m_Opts.Client_RTTS && !bBlocked; };
+BOOL CSysCADLicense::ForMineServe()            { return pSecOpt->m_Opts.Client_MineServe && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsAlcan()          { return pSecOpt->m_Opts.Client_Alcan && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsQALExtra()       { return pSecOpt->m_Opts.Client_QALExtra && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsQAL()            { return pSecOpt->m_Opts.Client_QAL && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsUser()           { return pSecOpt->m_Opts.Client_Other && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsBlackBox()       { return pSecOpt->m_Opts.Mdls_BlackBox && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsHeatExtra()      { return pSecOpt->m_Opts.Mdls_HeatExtra && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsHeatBal()        { return pSecOpt->m_Opts.Mdls_HeatBal && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsAlumina()        { return pSecOpt->m_Opts.Mdls_Alumina && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsSizeDist()       { return pSecOpt->m_Opts.Mdls_SizeDist && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsElec()           { return pSecOpt->m_Opts.Mdls_Electrical && !bBlocked; };
+BOOL CSysCADLicense::AllowProBal()             { return pSecOpt->m_Opts.Mode_ProBal && !bBlocked; };
+BOOL CSysCADLicense::AllowDynamicFlow()        { return pSecOpt->m_Opts.Mode_DynamicFlow && !bBlocked; };
+BOOL CSysCADLicense::AllowDynamicFull()        { return pSecOpt->m_Opts.Mode_DynamicFull && !bBlocked; };
+BOOL CSysCADLicense::AllowProBalLite()         { return bProbalLiteMode && !bBlocked; };
+BOOL CSysCADLicense::AllowDynamicLite()        { return bDynLiteMode && !bBlocked; };
+BOOL CSysCADLicense::OnlySteadyState()         { return pSecOpt->m_Opts.Mode_SteadyState; }
+BOOL CSysCADLicense::AllowFullLic()            { return pSecOpt->m_Opts.Func_FullEdit && !bBlocked; };
+BOOL CSysCADLicense::AllowFullLicFlag()        { return pSecOpt->m_Opts.Func_FullEdit; };
+BOOL CSysCADLicense::AllowDrivers()            { return pSecOpt->m_Opts.Func_Drivers && !bBlocked; };
+BOOL CSysCADLicense::AllowOPCServer()          { return pSecOpt->m_Opts.Func_OPCServer && !bBlocked; };
+BOOL CSysCADLicense::AllowCOMInterface()       { return pSecOpt->m_Opts.Func_COM && !bBlocked; };
+BOOL CSysCADLicense::AllowCOMProps()           { return pSecOpt->m_Opts.Func_COMProp && !bBlocked; };
+UCHAR CSysCADLicense::Level()                  { return (UCHAR)(pSecOpt->m_Opts.Level); };
+
+#if CK_SCDCOMLIC
+BOOL CSysCADLicense::AllowCOMMdl()     { return AllowCOMProps(); };
+BOOL CSysCADLicense::AllowCOMSlv()     { return AllowCOMProps(); };
+BOOL CSysCADLicense::AllowCOMApp()     { return AllowCOMInterface(); };
 #else
+BOOL CSysCADLicense::AllowCOMMdl()     { return 1; };
+BOOL CSysCADLicense::AllowCOMSlv()     { return 1; };
+BOOL CSysCADLicense::AllowCOMApp()     { return 1; };
+#endif
 
 //===========================================================================
-
-CSysCADLicense::CSysCADLicense()
-  {
-  }
-
-//---------------------------------------------------------------------------
-
-CSysCADLicense::~CSysCADLicense()
-  {
-  }
-
-//---------------------------------------------------------------------------
-
-DWORD CSysCADLicense::LicCatagories()
-  {
-  return 0xffffffff; 
-  }
-
-//---------------------------------------------------------------------------
-
-#endif
 
 CSysCADLicense gs_License;
 
 //===========================================================================
 //place code similar to this in application init instance...
 
-//  #if CK_USECRYPKEY
+//  #if CK_LICENSINGON
 //  if (!gs_License.Init())
 //    return FALSE;
 //  if (!gs_License.Check())

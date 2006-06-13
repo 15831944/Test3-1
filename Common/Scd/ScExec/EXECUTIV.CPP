@@ -14,6 +14,7 @@
 #include "datacnvs.h"
 #include "atlconv.h"
 #include "dbhelper.h"
+#include "licbase.h"
 //#include "scdcomcmdsatlconv.h"
 //#include "optoff.h"
 
@@ -1972,6 +1973,22 @@ void CExecutive::DumpMsgHistory()
 
 flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
   {
+  if (GlblProbalMode() && !gs_License.AllowProBal())
+    {
+    LogNote("Executive", 0, "Probal Mode not Licensed");
+    return FALSE;
+    }
+  else if (GlblDynFlowMode() && !gs_License.AllowDynamicFlow())
+    {
+    LogNote("Executive", 0, "Flow Dynamic Mode not Licensed");
+    return FALSE;
+    }
+  else if (GlblDynFullMode() && !gs_License.AllowDynamicFull())
+    {
+    LogNote("Executive", 0, "Full Dynamic Mode not Licensed");
+    return FALSE;
+    }
+
 
   //wState|=EXF_Busy;
   if (fDoingPB)

@@ -3,15 +3,15 @@
 //===========================================================================
 
 //set to 1 if licensing/security is required
-#define CK_USECRYPKEY    1
+#define CK_LICENSINGON    1
 
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 #define CK_ALLOWDEMOMODE 1        //set to 1 if SysCAD demo mode is allowed (no license)
 #endif
 
 //---------------------------------------------------------------------------
 
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 #define CK_USE6134        0
 
 //days...
@@ -32,7 +32,7 @@ const int CK_InfiniteDays = 99999;        //constant representing no time licens
 //generic base class for CrypKey Licensing
 class CLicense
   {
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
   protected:
     CString sLastPath;       //path used for transfers
     CString sAppPath;        //optional path and name of app for license location
@@ -104,7 +104,7 @@ class CLicense
 //===========================================================================
 //=== KWA Specific Code...
 
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 //bit31 = Option1
 //bit30 = Option2 etc
 //no bits are used for levels
@@ -158,7 +158,7 @@ typedef struct
 
 class CKWALicense : public CLicense
   {
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
   protected:
     CK_KWASecurity* pSecOpt;
 

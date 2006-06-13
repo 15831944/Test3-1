@@ -3438,7 +3438,7 @@ void Project::HistorianQuery()
 
 //---------------------------------------------------------------------------
 
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
 const int CK_DoFullCheck = (int)((double)RAND_MAX * 0.05); //do complete full check 5% of time
 const int CK_DoCheck = (int)((double)RAND_MAX * 0.12); //do full check 12% of time
 static DWORD PrevCheck = GetTickCount();
@@ -3470,7 +3470,7 @@ void CheckLicenseDate()
 
 void Project::CheckLicense(BOOL StartingSolve)
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   if (!gs_License.Blocked())
     {
     if (StartingSolve && (gs_License.DemoMode() || gs_License.TrialMode()))
@@ -3496,7 +3496,7 @@ void Project::CheckLicense(BOOL StartingSolve)
 
 void Project::CheckLicenseConditions()
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   PrevCheck = GetTickCount();
   if (!gs_License.Blocked())
     {
@@ -3683,7 +3683,7 @@ flag Project::ImportFlwsheet()
     PF.WrStr("MergeProject", "CurrentSuffix", MPI.sMasterSuffix());
     PF.WrStr("MergeProject", "ImportSuffix", MPI.sSlaveSuffix());
     CMergeReportDlg RepDlg(&MPI);
-    #if CK_USECRYPKEY
+    #if CK_LICENSINGON
     if (gs_License.TrendWindowsAllowed()!=CK_InfiniteTrends && MPI.MasterTrends.GetSize()+MPI.SlaveTrends.GetSize()>gs_License.TrendWindowsAllowed())
       {
       LogWarning("SysCAD", 0, "Maximum number of trend windows allowed will exceed limit of %d allowed by license", gs_License.TrendWindowsAllowed());

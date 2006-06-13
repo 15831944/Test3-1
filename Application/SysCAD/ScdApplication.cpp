@@ -303,3 +303,13 @@ STDMETHODIMP CScdApplication::get_Project(IScdProject** pVal)
     }
   SCD_COMEXIT
   }
+
+STDMETHODIMP CScdApplication::Enable(BSTR EnableString)
+  {
+  AFX_MANAGE_STATE(AfxGetAppModuleState());
+
+  gs_License.SetForMineServe(true);
+  // TODO: Add your implementation code here
+
+  return S_OK;
+  }

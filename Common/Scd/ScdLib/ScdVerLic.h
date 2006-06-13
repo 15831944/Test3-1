@@ -8,7 +8,14 @@
 //  License Options
 //===========================================================================
 
-#if _MSC_VER>=1400
+#define FORCEMINESERVE        0 
+
+#if (FORCEMINESERVE)
+
+//#define BYPASSLICENSING       01
+#define ALLOWCNMVERSION       01
+
+#elif (_MSC_VER>=1400)
 
 #ifdef _DEBUG
 #define BYPASSLICENSING       01
@@ -22,11 +29,11 @@
 #else
 
 #ifdef _DEBUG
-#define BYPASSLICENSING       01
+#define BYPASSLICENSING       0
 #elif  _RELEASE
 #define BYPASSLICENSING       0
 #else
-#define BYPASSLICENSING       01
+#define BYPASSLICENSING       0
 #endif
 #define ALLOWCNMVERSION       01
 

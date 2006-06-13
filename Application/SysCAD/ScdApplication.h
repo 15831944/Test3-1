@@ -172,6 +172,8 @@ public:
 
   STDMETHOD(SetWindowState)(eScdWndStateCmds ReqdState);
   STDMETHOD(get_Project)(IScdProject** pVal);
-};
+public:
+  STDMETHOD(Enable)(BSTR EnableString);
+  };
 
 #endif //__SCDAPPLICATION_H_

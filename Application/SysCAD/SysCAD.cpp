@@ -940,7 +940,7 @@ BOOL CSysCADApp::InitInstFolder()
 
 BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
   {
-#if CK_USECRYPKEY
+#if CK_LICENSINGON
   CDlgBusy::Open("\n\nChecking License");
   /*if (IsWinNT)
     {
@@ -1018,7 +1018,7 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
 
 BOOL CSysCADApp::InitInstLicense2(bool LicenseFailed)
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   if (LicenseFailed)
     {
     CDlgBusy::Close();
@@ -2667,7 +2667,7 @@ void CSysCADApp::OnUpdateAppExit(CCmdUI* pCmdUI)
 
 void CSysCADApp::OnLicense(UINT nID)
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   switch (nID)
     {
     case ID_CK_LIC_RESETSERVICE:
@@ -2765,7 +2765,7 @@ void CSysCADApp::OnLicense(UINT nID)
 
 void CSysCADApp::OnUpdateLicense(CCmdUI* pCmdUI)
   {
-  #if CK_USECRYPKEY
+  #if CK_LICENSINGON
   flag NotActive = (!EnableActive() && !gs_License.Blocked());
   switch (pCmdUI->m_nID)
     {
