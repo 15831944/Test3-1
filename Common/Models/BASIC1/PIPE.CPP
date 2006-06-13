@@ -443,10 +443,9 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Visibility();
 #if (WITHBLOCKEVALUATOR)
   m_BlkEval.Add_OnOff(DDB);  
-  if (PrjFileVerNo()<97 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
+//  if (PrjFileVerNo()<97 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
 #else
   if (1)
-#endif
     {                      
     //m_BlkEval.BuildDataDefn(this, DDB);
     static DDBValueLst DDBBS[]={
@@ -459,6 +458,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     EHX.Add_OnOff(DDB);
     m_VLE.Add_OnOff(DDB, m_PFI.Method!=VFFX_Plugflow?isParmStopped:0);
     }
+#endif
   
   
   if (!SolveDirectMethod())
@@ -971,11 +971,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   if (SolveDynamicMethod() && m_Spill.Enabled)
     {
     DDB.Page("AreaIO", DDB_RqdPage);
-    m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300);
-    m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 301);
-    m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 302);
+    m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300, DFIO_ShowQm);
+    m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 301, DFIO_ShowQm);
+    m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 302, DFIO_ShowQm);
 #if WITHLINKBLEED 
-    m_Bleed.BuildDataDefn(DDB, NULL, DDB_NoPage, 303);
+    m_Bleed.BuildDataDefn(DDB, NULL, DDB_NoPage, 303, DFIO_ShowQm);
 #endif
     }
 

@@ -353,8 +353,8 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     if (m_Src.Enabled || m_Snk.Enabled)
       {
       DDB.Page("Srcs", DDB_RqdPage);
-      m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1);
-      m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2);
+      m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
+      m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
       }
     }
   DDB.EndStruct();

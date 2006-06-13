@@ -18,6 +18,7 @@
 
 XID xidNMakeups       = EvalBlkXID(1);
 XID xidNBleeds        = EvalBlkXID(2);
+XID xidOldBlkSeq      = EvalBlkXID(3);
 
 CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
                                  CReactionBase * pRB,
@@ -72,7 +73,7 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
   {
   if (p)
     {
-    dbgpln("AddBlk %3i", m_nBlocks);
+    dbgpln("AddBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
     p->SetOnOffValLst(&m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
     m_Blks[m_nBlocks++]=p;
@@ -92,7 +93,7 @@ void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
         m_nBlocks--;
         for (int j=i; j<m_nBlocks; j++)
           m_Blks[j]=m_Blks[j+1];
-        dbgpln("RemBlk %3i", m_nBlocks);
+        dbgpln("RemBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
         break;
         }
       }
@@ -134,6 +135,15 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
 
   if (PrjFileVerNo()>=98)
     DDB.EndObject();
+
+  if (PrjFileVerNo()<98 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
+    {                      
+    static DDBValueLst DDBBS[]={
+      {0, "RB EHX VLE" },
+      {1, "EHX RB VLE" },
+      {0}};
+    DDB.Byte("BlockActionSeq",         "",   DC_,  "",  xidOldBlkSeq, m_pThis, isParmStopped, DDBBS);
+    }
 
   DDB.Text("");
   };
@@ -221,6 +231,26 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
         }
       DCB.L=m_pBleeds.GetSize();
       return 1;
+
+    case xidOldBlkSeq:
+      if (DCB.rB)
+        {
+        switch (*DCB.rB)
+          {
+          case 0:// "RB EHX VLE"
+            m_pRB->SetBlkSeqNo(2);
+            m_pEHX->SetBlkSeqNo(3);
+            m_pVLE->SetBlkSeqNo(4);
+            break;
+          case 1:// "EHX RB VLE"
+            m_pEHX->SetBlkSeqNo(2);
+            m_pRB->SetBlkSeqNo(3);
+            m_pVLE->SetBlkSeqNo(4);
+            break;
+          }
+        }
+      DCB.pC="????";
+      return 1;
     }
   if (m_pRB && m_pRB->DataXchg(DCB))
     return 1;
@@ -294,11 +324,11 @@ void CBlockEvaluator::SortBlocks()
       i++;
     };
 
-  if (0)
+  if (1)
     {
-    dbgpln("SortBlks ===============");
+    dbgpln("SortBlks =============== %s", m_pThis->FullObjTag());
     for (i=0 ; i<m_nBlocks; i++)
-      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name(), m_Blks[i]->BlkSeqNo(true));
+      dbgpln("  Seq: %-6s %i %s %5i", m_Blks[i]->Name()(), m_Blks[i]->OpenStatus(m_Blks[i]->Enabled()), m_Blks[i]->Enabled()?"En":"Da", m_Blks[i]->BlkSeqNo(true));
     }
 
 
@@ -325,11 +355,11 @@ void CBlockEvaluator::SortBlocks()
     }
 #endif
 
-  if (0)
+  if (1)
     {
     dbgpln("         ===============");
     for (i=0 ; i<m_nBlocks; i++)
-      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name(), m_Blks[i]->BlkSeqNo(true));
+      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name()(), m_Blks[i]->BlkSeqNo(true));
     dbgpln("         ===============");
     }
 

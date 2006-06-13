@@ -140,7 +140,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
     if (DDB.BeginObject(m_pNd, Name()(), "EB_Makeup", pTagComment, PageIs))
       {
       if (m_SrcIO.Enabled)
-        m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102);
+        m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
 
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
@@ -623,6 +623,11 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
   SpConduit &QSrc=SrcIO.Cd;
   double QmAdd=0.0;
+
+  // Copy to Src if Self
+  if (m_eSource==Src_Self)
+    QSrc.QSetF(QPrd, som_ALL, 1.0);
+
   double TSrc=QSrc.Temp();
   double TPrd=QPrd.Temp();
   double TReqd=TPrd;

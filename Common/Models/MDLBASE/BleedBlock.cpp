@@ -140,7 +140,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
     if (DDB.BeginObject(m_pNd, Name()(), "EB_Bleed", pTagComment, PageIs))
       {
       if (m_SnkIO.Enabled)
-        m_SnkIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102);
+        m_SnkIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, DFIO_ShowQm);
 
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CBleedBlock::GroupName, DDB0);

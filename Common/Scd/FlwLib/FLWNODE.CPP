@@ -9709,7 +9709,7 @@ void CDirectFlwIO::Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo)
 
 //--------------------------------------------------------------------------
 
-void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, DWORD UserInfo)
+void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, DWORD UserInfo, DWORD Options)
   {
   if (!DDB.ForFileSnpScn() && !Enabled)
     return;
@@ -9735,7 +9735,8 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, 
     if (!m_bIsXfer)
       DDB.Double  ("Opening",   "",       DC_Frac,  "%",      &m_Opening,        m_pNd, isParm);
     //DDB.Text("");
-    DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,    "kg/s",  xidDrctQm,         m_pNd, isResult);
+    if (Options&DFIO_ShowQm)
+      DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,    "kg/s",  xidDrctQm,         m_pNd, isResult);
     //DDB.Double  ("VolFlowOut",  "QvOut",  DC_Qv,    "L/s",   xidDrctQv,         m_pNd, isResult);
     //DDB.Double  ("NVolFlowOut", "NQvOut", DC_NQv,   "NL/s",  xidDrctNQv,        m_pNd, isResult);
     DDB.Text("");

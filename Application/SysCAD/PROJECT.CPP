@@ -181,7 +181,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int PrjFileVer = 95; //CNM 19/01/2006 remove table FB_Eqn from Database
 //const int PrjFileVer = 96; //CNM 19/01/2006 Changed 'Location' to 'PlantArea'
 //const int PrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
-const int PrjFileVer = 98; //CNM 15/05/2006 Chainge in 'Time' Management
+const int PrjFileVer = 98; //CNM 15/05/2006 Change in 'Time' Management
 
 //===========================================================================
 //

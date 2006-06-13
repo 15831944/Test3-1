@@ -128,6 +128,8 @@ CGlblStopWatch CVLEBase::sm_swQMVapFlash(gs_swFlwSolve,  "VLE", "QMVapFlash");
 
 flag CVLEBase::Open(TagObjClass * pVLEClass, flag Fixed)
   {
+  //dbgpln("CVLEBase::Open %s", pNd->FullObjTag());
+
   fEnabled=true;
   
   if (pVLE && (pVLEClass==NULL || pVLE->Class()==pVLEClass))
@@ -151,6 +153,7 @@ flag CVLEBase::Open(TagObjClass * pVLEClass, flag Fixed)
 
 void CVLEBase::Close()
   {
+  //dbgpln("CVLEBase::Close %s", pNd->FullObjTag());
   if (fFixed)
     return;
   fEnabled=false;
@@ -204,10 +207,13 @@ flag CVLEBase::DataXchg(DataChangeBlk & DCB)
     {
     case xidVLEEnable: 
       if (DCB.rB)
+        {
         if (*DCB.rB)
           Open(*DCB.rB);
         else
           Close();
+
+        }
       DCB.B=OpenStatus();// (Enabled()); 
       return 1;
     case xidVLEEqnNm: 

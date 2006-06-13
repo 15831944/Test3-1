@@ -152,7 +152,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
   if (m_Leak.Enabled)
     {
     DDB.Page("AreaIO", DDB_RqdPage);
-    m_Leak.BuildDataDefn(DDB, NULL, DDB_NoPage, 100);
+    m_Leak.BuildDataDefn(DDB, NULL, DDB_NoPage, 100, DFIO_ShowQm);
     }
 
   DDB.EndStruct();

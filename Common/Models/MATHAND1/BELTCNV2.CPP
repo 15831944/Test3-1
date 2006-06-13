@@ -503,10 +503,10 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
     if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {
       DDB.Page("AreaIO", DDB_RqdPage);
-      m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 1);
-      m_Vent.BuildDataDefn(DDB, NULL, DDB_NoPage, 2);
-      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3);
-      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4);
+      m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
+      m_Vent.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
+      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
+      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
       }
     }
 

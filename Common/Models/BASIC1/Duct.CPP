@@ -576,7 +576,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
   if (SolveDynamicMethod() && m_Spill.Enabled)
     {
     DDB.Page("AreaIO", DDB_RqdPage);
-    m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300);
+    m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300, DFIO_ShowQm);
     }
 
 

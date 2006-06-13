@@ -440,11 +440,12 @@ extern DllImportExport Strng gs_DirectFlwIOTagDefault;
 
 //---------------------------------------------------------------------------
 
+const DWORD DFIO_ShowQm = 0x00000001;
+
 class DllImportExport CDirectFlwIO
   {
   friend class FlwNode;
   public:
-
 
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
@@ -454,7 +455,7 @@ class DllImportExport CDirectFlwIO
     void          InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId);
 
     void          Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo);
-    void          BuildDataDefn(DataDefnBlk & DDB, char * LeakTag, DDBPages PgOpt, dword UserInfo);
+    void          BuildDataDefn(DataDefnBlk & DDB, char * LeakTag, DDBPages PgOpt, dword UserInfo, DWORD Options);
     flag          DataXchg(DataChangeBlk & DCB);
     flag          ValidateData(ValidateDataBlk & VDB);
 

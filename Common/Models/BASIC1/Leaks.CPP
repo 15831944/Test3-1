@@ -496,7 +496,7 @@ void CPipeLeak::BuildDataDefn(DataDefnBlk & DDB)
   if (m_Leak.Enabled)
     {
     DDB.Page("Leaks", DDB_RqdPage);
-    m_Leak.BuildDataDefn(DDB, NULL, DDB_NoPage, 101);
+    m_Leak.BuildDataDefn(DDB, NULL, DDB_NoPage, 101, DFIO_ShowQm);
     }
 
   DDB.EndStruct();

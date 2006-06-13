@@ -795,10 +795,10 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
     if (m_Src.Enabled || m_Snk.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {
       DDB.Page("AreaIO", DDB_RqdPage);
-      m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1);
-      m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2);
-      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3);
-      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4);
+      m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
+      m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
+      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
+      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
       }
     }
 

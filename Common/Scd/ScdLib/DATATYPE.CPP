@@ -390,8 +390,8 @@ flag DataUnionCom::IsZero()
     case tt_Short:    return Short  == 0; 
     case tt_Long:     return Long   == 0; 
     case tt_Flt16:    return Flt16  == 0; 
-    case tt_Float:    return Float  == 0.0f; 
-    case tt_Double:   return Double == 0.0; 
+    case tt_Float:    return Valid(Float) ? (Float == 0.0f) : false; 
+    case tt_Double:   return Valid(Double) ? (Double  == 0.0) : false; 
     default:          return false;
     }
   };

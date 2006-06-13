@@ -226,8 +226,8 @@ void Pump_GP::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveDynamicMethod() && (m_LeakI.Enabled || m_LeakO.Enabled))
     {
     DDB.Page("AreaIO", DDB_RqdPage);
-    m_LeakI.BuildDataDefn(DDB, NULL, DDB_NoPage, 101);
-    m_LeakO.BuildDataDefn(DDB, NULL, DDB_NoPage, 102);
+    m_LeakI.BuildDataDefn(DDB, NULL, DDB_NoPage, 101, DFIO_ShowQm);
+    m_LeakO.BuildDataDefn(DDB, NULL, DDB_NoPage, 102, DFIO_ShowQm);
     }
 
   DDB.EndStruct();
