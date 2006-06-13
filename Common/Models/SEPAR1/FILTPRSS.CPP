@@ -139,7 +139,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(SM_Buffered|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Visibility();
 
@@ -176,7 +176,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
   DDB.CheckBox("TrackStatus", "",           DC_,          "",         &bTrackStatus,     this, isParm);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(SM_Buffered|HM_All);
   DDB.Text    (" ");
   DDB.CheckBoxBtn("",   "Filtrate2Washing",    DC_,          "",      &fFilt2Washings,   this, isParm, DDBYesNo);
   DDB.CheckBoxBtn("",   "CakeDisch",           DC_,          "",      &fDischarge,       this, isParm, DDBYesNo);
@@ -187,7 +187,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",   "SpecCakeResistance",  DC_SpCakeRes, "m/kg",     &SpCakeRes,        this, isParm);
   DDB.Double  ("",   "Area",                DC_Area,      "m^2",      &FiltArea,         this, isParm);
 
-  if (SolveDynamicMethod())
+  if (SolveMethod()==SM_Buffered)//SolveDynamicMethod())
     DDB.Object(&Cake, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();
 
@@ -245,41 +245,40 @@ void FilterPress::ConfigureJoins()
   if (iWashings < 0)
     fFilt2Washings=False;
   int i;
-  switch (NetMethod())
+  if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-    case NM_Probal:
-      for (i=0; (i<NoFlwIOs()); i++)
-        SetIO_Join(i, 0);
-      break;
-    case NM_Dynamic:
-      for (i=0; (i<NoFlwIOs()); i++)
+    for (i=0; (i<NoFlwIOs()); i++)
+      SetIO_Join(i, 0);
+    }
+  else
+    {
+    for (i=0; (i<NoFlwIOs()); i++)
+      {
+      switch (IOId_Self(i))
         {
-        switch (IOId_Self(i))
-          {
-          case ioidFiltrate:
-            if (!fFilt2Washings && !fDischarge)
-              SetIO_Join(i, 0);
-            else
-              SetIO_Closed(i, 0);
-            break;
-          case ioidWashings:
-            if (fFilt2Washings && !fDischarge)
-              SetIO_Join(i, 0);
-            else
-              SetIO_Closed(i, 0);
-            break;
-          case ioidCake:
-            if (fDischarge)
-              SetIO_Join(i, 0);
-            else
-              SetIO_Closed(i, 0);
-            break;
-          default:
+        case ioidFiltrate:
+          if (!fFilt2Washings && !fDischarge)
             SetIO_Join(i, 0);
-            break;
-          }
+          else
+            SetIO_Closed(i, 0);
+          break;
+        case ioidWashings:
+          if (fFilt2Washings && !fDischarge)
+            SetIO_Join(i, 0);
+          else
+            SetIO_Closed(i, 0);
+          break;
+        case ioidCake:
+          if (fDischarge)
+            SetIO_Join(i, 0);
+          else
+            SetIO_Closed(i, 0);
+          break;
+        default:
+          SetIO_Join(i, 0);
+          break;
         }
-      break;
+      }
     }
   }
 
@@ -552,7 +551,7 @@ void FilterPress::EvalProducts(long JoinMask)
 
   double washSF = 0.0;
 
-  if (SolveDynamicMethod())
+  if (SolveMethod()==SM_Buffered)//SolveDynamicMethod())
     {
     SolidsToFiltUsed = RqdSolidsToFiltrate;
     iRqdFiltMethod = FSM_SolToFiltFrac;
@@ -618,7 +617,7 @@ void FilterPress::EvalProducts(long JoinMask)
       }
     }
   else
-    {//ProBal...
+    {//ProBal; DynXFer...
     SpConduit * pWash = (iWash>=0 ? IOConduit(iWash) : NULL);
     flag Ok = true;
     //double POut = AtmosPress(); //force outlet to Atmos P
@@ -713,7 +712,7 @@ void FilterPress::EvalProducts(long JoinMask)
   SetCI(1, bTrackStatus && HasFlw && (WashErr > 1.0e-6));
   SetCI(2, bTrackStatus && HasFlw && (washSF > 0.01));
   //SetCI(3, bTrackStatus && (solwash > 1.0e-6));
-  if (SolveDynamicMethod())
+  if (SolveMethod()==SM_Buffered)//SolveDynamicMethod())
     {
     ClrCI(4);
     ClrCI(5);
