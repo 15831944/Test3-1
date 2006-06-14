@@ -46,7 +46,7 @@
 #define WITHGRFGROUPCONFIG    1 
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
 
-#define WITHBLOCKEVALUATOR    (1 && (_MSC_VAR>=1400))
+#define WITHBLOCKEVALUATOR    (1 && (_MSC_VER>=1400))
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???
