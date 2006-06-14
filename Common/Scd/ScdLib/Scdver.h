@@ -43,9 +43,10 @@
 #define WITHGRFDOCFRAME       1
 #define WITHAUTOVLE           1
 #define WITHGRFGROUP          1
-#define WITHGRFGROUPCONFIG    01 // needed by SKO
-#define WITHBLOCKEVALUATOR    01
+#define WITHGRFGROUPCONFIG    1 
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
+
+#define WITHBLOCKEVALUATOR    (1 && (_MSC_VAR>=1400))
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???
