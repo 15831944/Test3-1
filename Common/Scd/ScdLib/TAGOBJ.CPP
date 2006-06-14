@@ -2562,7 +2562,7 @@ PkDataUnion * DDBDataInfo::FixGenericData(PkDataUnion &LclDataValue, PkDataUnion
 //---------------------------------------------------------------------------
 
 #if WITHTAGMONITOR
-bool CFieldMonitor::m_On=true;
+bool CFieldMonitor::m_On=false;
 DWORD CFieldMonitor::m_dwCount=0;
 DWORD CFieldMonitor::gs_dwChgSeqNo=0;
 #endif
@@ -2596,7 +2596,7 @@ void DDBDataInfo::MonitorParameter(TABOptions Opts, PkDataUnion *pNewValue)
     PkDataUnion CurrentValue;
     GetValue(Opts, CurrentValue);
 
-    if (pNewValue->Equal(CurrentValue))
+    if (pNewValue->EqualNANOK(CurrentValue))
       goto SkipIt;
 
     CFieldMonitor FM;
@@ -2612,9 +2612,9 @@ void DDBDataInfo::MonitorParameter(TABOptions Opts, PkDataUnion *pNewValue)
       Tg+=".";
       Tg+=FM.m_sFldTag;
       if (FM.m_sFldCnv())
-        dbgpln("FldMon ADD %6u: %-30s (%s) %s[%i] ", CFieldMonitor::m_dwCount, Tg(), FM.m_sFldCnv(), pMonObj->ClassId(), FM.m_iIndex);
+        dbgpln("FldMon ADD %6u: %s (%s) %s[%i] ", CFieldMonitor::m_dwCount, Tg(), FM.m_sFldCnv(), pMonObj->ClassId(), FM.m_iIndex);
       else
-        dbgpln("FldMon ADD %6u: %-30s %s[%i] ", CFieldMonitor::m_dwCount, Tg(), pMonObj->ClassId(), FM.m_iIndex);
+        dbgpln("FldMon ADD %6u: %s %s[%i] ", CFieldMonitor::m_dwCount, Tg(), pMonObj->ClassId(), FM.m_iIndex);
       }
     #endif
 
@@ -2658,12 +2658,12 @@ void DDBDataInfo::MonitorParameter(TABOptions Opts, PkDataUnion *pNewValue)
   #if dbgTagObj
   if (dbgFldMonitorChg())
     {
-    if (!CV[pFM->m_iIndex]->Equal(pFM->m_InitialValue))
+    if (!CV[pFM->m_iIndex]->EqualNANOK(pFM->m_InitialValue))
       {
       Strng Tg(m_pRootObj->FullObjTag());
       Tg+=".";
       Tg+=pFM->m_sFldTag;
-      dbgpln("FldMon CHG %6u: %-30s = %s (%s)", pFM->m_dwChgSeqNo, Tg(), TOMon.m_CurrentValue[pFM->m_iIndex]->GetString(), pFM->m_InitialValue.GetString());
+      dbgpln("FldMon CHG %6u: %-50s = %20s (%s)", pFM->m_dwChgSeqNo, Tg(), TOMon.m_CurrentValue[pFM->m_iIndex]->GetString(), pFM->m_InitialValue.GetString());
       if (m_sCurrentTag.XStrCmp(Tg)!=0)
         dbgpln("???????????????????????");
       }

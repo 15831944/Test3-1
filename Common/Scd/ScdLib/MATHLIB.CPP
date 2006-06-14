@@ -717,7 +717,7 @@ bool CTimeValue::Parse(/*byte Options,*/ LPCTSTR Str)
       break;
     }
   if (!DOK)
-    m_mSecs = (days*__int64(86400)+hours*__int64(3600)+mins*__int64(60)+secs)*Divisor+__int64(FracSecs*Divisor);//+tm_hsec/100.0;
+    m_mSecs = (days*(__int64)86400+hours*(__int64)3600+mins*(__int64)60+secs)*Divisor+(__int64)(FracSecs*(double)Divisor);//+tm_hsec/100.0;
   else
     {
     if (mday>=1900) // swap day & year

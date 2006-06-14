@@ -3232,6 +3232,7 @@ void CModelInfo::MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char* pC
   Cfg.WrInt("General", "PrjFileVersion", PrjFileVerNo());
   Cfg.WrStr("General", "CfgFiles", CfgFiles());
   Cfg.WrStr("General", "CfgHome", CfgHome());
+  Cfg.WrInt("General", "TagMonitor", 0);
   //Cfg.WrStr("General", "DllPath", "");
   Cfg.WrInt("General", "UseStdFns4H2O", 1);
 

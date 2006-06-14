@@ -1364,6 +1364,28 @@ void Project::Clear()
 
 //---------------------------------------------------------------------------
 
+void Project::SetTagMonitor()
+  {
+#if WITHTAGMONITOR    
+  CProfINIFile Cfg(CfgFile());
+  CFieldMonitor::m_On=Cfg.RdInt("General", "TagMonitor", false)!=0;
+  if (CFieldMonitor::m_On)
+    {
+    if (AfxMessageBox("Do you want to run with the TagMonitor Set\n"
+                      "\n"
+                      "This Option can slow SysCAD down at runtime",
+                      MB_YESNO|MB_ICONEXCLAMATION)==IDNO)
+      {
+      CFieldMonitor::m_On=false;
+      }
+    }
+#else
+  CFieldMonitor::m_On=false;
+#endif
+  };
+
+//---------------------------------------------------------------------------
+
 void Project::SetShowEditStatus(bool On)
   {
   if (On)
@@ -4928,6 +4950,8 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
 
           if (OK)
             {
+            SetTagMonitor();
+
             //AfxGetMainWnd()->UpdateWindow();
             LoadHelpFileList();
 
@@ -7007,6 +7031,7 @@ flag Project::OnNew()
       bCmdSuccess = MdlLibs.LoadFlwDLLs(Info.m_sDLLList, FlwLibTag(), EO_LocationTag(), &m_FlwLib);
       if (bCmdSuccess)
         {
+        SetTagMonitor();
         pFlwLib=&m_FlwLib;
         LoadHelpFileList();
       //if (!bCmdSuccess)

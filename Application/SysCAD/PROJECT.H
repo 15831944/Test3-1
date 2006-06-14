@@ -590,6 +590,7 @@ class DllImportExport Project : public CExecObj
     Project();
     ~Project();
     void           Clear();
+    void           SetTagMonitor();
     void           InitColours();
     void           LoadColours(CProfINIFile & PF);
     void           SaveColours(CProfINIFile & PF);

@@ -499,15 +499,22 @@ BOOL CNeutralSaveGroupDlg::OnInitDialog()
   SetDBNameSymb(PF.RdStr("NeutralGroup", "Database", "$CfgFiles\\GroupLibrary.MDB"));
   m_editDatabase.SetWindowText(m_sDatabaseSymb());
 
-  #if WITHGRFGROUPCONFIG
-  m_WithConfig.SetCheck(PF.RdLong("CreateGroup", "WithConfig", 1));
-  m_WithState.SetCheck(PF.RdLong("CreateGroup", "WithState", 0));
-  #else
-  m_WithConfig.SetCheck(0);
-  m_WithState.SetCheck(0);
-  m_WithConfig.EnableWindow(false);
-  m_WithState.EnableWindow(false);
-  #endif
+#if WITHGRFGROUPCONFIG
+  if (CFieldMonitor::m_On)
+#else
+  if (0)
+#endif
+    {
+    m_WithConfig.SetCheck(PF.RdLong("CreateGroup", "WithConfig", 1));
+    m_WithState.SetCheck(PF.RdLong("CreateGroup", "WithState", 0));
+    }
+  else
+    {
+    m_WithConfig.SetCheck(0);
+    m_WithState.SetCheck(0);
+    m_WithConfig.EnableWindow(false);
+    m_WithState.EnableWindow(false);
+    }
     
   m_XOrgOpts.AddString("As Digitised");
   m_XOrgOpts.AddString("Left");

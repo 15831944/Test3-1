@@ -35,8 +35,6 @@
   #define DllImportExport
 #endif
 
-#define WITHTAGMONITOR 0
-
 //---------------------------------------------------------------------------
 
 _FWDDEF(DDBShortcut);
