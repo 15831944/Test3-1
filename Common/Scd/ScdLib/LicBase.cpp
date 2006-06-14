@@ -2071,7 +2071,7 @@ DWORD CSysCADLicense::LicCatagories()
     dw |= TOC_QAL;
   if (AllowMdlsQALExtra())
     dw |= TOC_QALEXTRA;
-  if (ForMineServe())
+  if (ALSOALLOWMINESERVEMDLS || ForMineServe())
     dw |= TOC_MINESERVE;
   if (AllowMdlsAlcan())
     dw |= TOC_ALCAN;

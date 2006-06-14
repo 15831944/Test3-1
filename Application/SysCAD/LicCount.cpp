@@ -29,10 +29,11 @@ void CLicenseCount::CalcLicUnits()
     Rqst.dwReqData = gs_License.LicCatagories();
     Rqst.sExcludeExecObj = pExecName_DrvMngr; //do NOT include driver tags
     ReplyTagInfoRec Info;
+    int iNoOfLegalUnits = 0;
     while (gs_Exec.RequestTagInfo(Rqst, Info))
-      iNoOfIllegalUnits += Info.dwData;
+      iNoOfLegalUnits += Info.dwData;
     CalcUnits(true);
-    iNoOfIllegalUnits = iNoOfUnits - iNoOfIllegalUnits;
+    iNoOfIllegalUnits = iNoOfUnits - iNoOfLegalUnits;
     if (iNoOfIllegalUnits>0)
       {
       if (!bLicBlock)

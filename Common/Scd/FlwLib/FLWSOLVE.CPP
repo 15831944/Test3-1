@@ -12262,6 +12262,8 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
             {
             if ((pSaveNode->Class()->CategoryMdl() & Rqst.dwReqData)!=0)
               Info.dwData++;
+            else
+              LogNote("FlwSolve", 0, "Unit not Licensed %s", pSaveNode->FullObjTag());
             }
           }
         return true;
