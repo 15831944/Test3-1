@@ -105,7 +105,7 @@ void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
 void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
   {
   BOOL DoIt=true;
-  if (PrjFileVerNo()>=98)
+  if (PrjFileVerNo()>=99)
     DoIt=DDB.BeginObject(m_pThis, "EB", "EB_Slct", 0, DDB_NoPage);
   
   if (DoIt)
@@ -133,10 +133,10 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
       m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 200000+a*1000);
     }
 
-  if (PrjFileVerNo()>=98)
+  if (PrjFileVerNo()>=99)
     DDB.EndObject();
 
-  if (PrjFileVerNo()<98 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
+  if (PrjFileVerNo()<99 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
     {                      
     static DDBValueLst DDBBS[]={
       {0, "RB EHX VLE" },
