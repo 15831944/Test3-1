@@ -1457,7 +1457,7 @@ BOOL CSysCADApp::InitInstance()
   InitVersionStuff();
 
   CWaitCursor Wait;
-  if (!MakeVersionOK("SysCAD.EXE", _MAKENAME, SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_VERINFO_V3))
+  if (!MakeVersionOK("SysCAD91.EXE", _MAKENAME, SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_VERINFO_V3))
     return false;
 
   OSVERSIONINFO VI;
@@ -1565,7 +1565,6 @@ BOOL CSysCADApp::InitInstance()
     dbgpln("SysCAD Init ===================================================");
     dbgpln("CmdLine:%s", m_CLH.sCmdLine());
     dbgpln("ThreadId %4x", GetCurrentThreadId());
-
 
     //DNanValueUnion DSignalNanValue1={0x7ffbffffffffffff};
     //DNanValueUnion DSignalNanValue2={0x7fffffffffffffff};

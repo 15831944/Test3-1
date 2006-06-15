@@ -43,7 +43,7 @@
 				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls8/SysCAD.tlb"
+				TypeLibraryName=".\Rls8/SysCAD91.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -147,7 +147,7 @@
 				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\RDb8/SysCAD.tlb"
+				TypeLibraryName=".\RDb8/SysCAD91.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -249,7 +249,7 @@
 				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Dbg8/SysCAD.tlb"
+				TypeLibraryName=".\Dbg8/SysCAD91.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -339,8 +339,8 @@
 			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
-			RelativePath="..\..\Bin\interface.dll"
-			AssemblyName=""
+			RelativePath="..\..\Bin\Interface.dll"
+			AssemblyName="Interface, Version=0.0.0.0, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\FlowChart.NET.dll"

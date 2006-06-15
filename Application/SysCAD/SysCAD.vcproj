@@ -58,7 +58,7 @@
 				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls/SysCAD.tlb"/>
+				TypeLibraryName=".\Rls/SysCAD91.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"
@@ -127,7 +127,7 @@
 				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rdb/SysCAD.tlb"/>
+				TypeLibraryName=".\Rdb/SysCAD91.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"
@@ -197,7 +197,7 @@
 				AdditionalIncludeDirectories="..\..\common\scd\scdlib;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\ScdSlv"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Dbg/SysCAD.tlb"/>
+				TypeLibraryName=".\Dbg/SysCAD91.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"

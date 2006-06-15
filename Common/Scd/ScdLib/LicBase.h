@@ -91,6 +91,8 @@ class DllImportExport CLicense
          bTrialFailed:1,     //true if attempt to issue trial license has been made AND failed
          bBlocked:1;         //set true if license condition failed and all functionality must be blocked
 
+    BOOL bCOMMineServeOn;
+
   public:
     CLicense();
     virtual ~CLicense();
@@ -120,6 +122,8 @@ class DllImportExport CLicense
     virtual DWORD GetDemoOptions() = 0;
     virtual DWORD GetTrialOptions() = 0;
     virtual void Info();
+
+    virtual dword FixOptions(dword dwOpLevel) { return dwOpLevel; };
     virtual void CheckForLiteModes() {};
 
     inline BOOL DidInitCrypkey()    { return bDidInitCrypkey; };
@@ -269,8 +273,7 @@ class DllImportExport CSysCADLicense : public CLicense
   {
   protected:
     BYTE bProbalLiteMode,
-         bDynLiteMode,
-         bCOMMineServeOn;
+         bDynLiteMode;
     CK_SysCADSecurity* pSecOpt;
 
   public:
@@ -280,6 +283,7 @@ class DllImportExport CSysCADLicense : public CLicense
     virtual DWORD GetDemoOptions();
     virtual DWORD GetTrialOptions();
     virtual void Info();
+    virtual dword FixOptions(dword dwOpLevel);
     virtual void CheckForLiteModes();
 
     int ProbalUnitsAllowed();

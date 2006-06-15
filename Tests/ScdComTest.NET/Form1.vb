@@ -83,6 +83,8 @@ Friend Class Form1
   Friend WithEvents FlwsheetImport As System.Windows.Forms.Button
   Friend WithEvents ExportBlank As System.Windows.Forms.Button
   Public WithEvents LdAndRunMineServe As System.Windows.Forms.Button
+  Public WithEvents OpenCloseMS As System.Windows.Forms.Button
+  Public WithEvents MSOpn As System.Windows.Forms.CheckBox
   <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
     Me.components = New System.ComponentModel.Container
     Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
@@ -125,9 +127,11 @@ Friend Class Form1
     Me.FlwsheetImport = New System.Windows.Forms.Button
     Me.FlwsheetExport = New System.Windows.Forms.Button
     Me.ImportUser = New System.Windows.Forms.Button
+    Me.LdAndRunMineServe = New System.Windows.Forms.Button
     Me.Label1 = New System.Windows.Forms.Label
     Me.Label2 = New System.Windows.Forms.Label
-    Me.LdAndRunMineServe = New System.Windows.Forms.Button
+    Me.OpenCloseMS = New System.Windows.Forms.Button
+    Me.MSOpn = New System.Windows.Forms.CheckBox
     Me.Frame5.SuspendLayout()
     Me.Frame1.SuspendLayout()
     Me.Frame4.SuspendLayout()
@@ -485,6 +489,7 @@ Friend Class Form1
     'Frame3
     '
     Me.Frame3.BackColor = System.Drawing.SystemColors.Control
+    Me.Frame3.Controls.Add(Me.MSOpn)
     Me.Frame3.Controls.Add(Me.CreateElec)
     Me.Frame3.Controls.Add(Me.CloseNoSave)
     Me.Frame3.Controls.Add(Me.QueryInfo)
@@ -494,6 +499,7 @@ Friend Class Form1
     Me.Frame3.Controls.Add(Me.Frame2)
     Me.Frame3.Controls.Add(Me.GroupBox1)
     Me.Frame3.Controls.Add(Me.LdAndRunMineServe)
+    Me.Frame3.Controls.Add(Me.OpenCloseMS)
     Me.Frame3.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.Frame3.ForeColor = System.Drawing.SystemColors.ControlText
     Me.Frame3.Location = New System.Drawing.Point(264, 40)
@@ -654,6 +660,19 @@ Friend Class Form1
     Me.ImportUser.TabIndex = 39
     Me.ImportUser.Text = "Import User"
     '
+    'LdAndRunMineServe
+    '
+    Me.LdAndRunMineServe.BackColor = System.Drawing.SystemColors.Control
+    Me.LdAndRunMineServe.Cursor = System.Windows.Forms.Cursors.Default
+    Me.LdAndRunMineServe.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+    Me.LdAndRunMineServe.ForeColor = System.Drawing.SystemColors.ControlText
+    Me.LdAndRunMineServe.Location = New System.Drawing.Point(256, 192)
+    Me.LdAndRunMineServe.Name = "LdAndRunMineServe"
+    Me.LdAndRunMineServe.RightToLeft = System.Windows.Forms.RightToLeft.No
+    Me.LdAndRunMineServe.Size = New System.Drawing.Size(120, 25)
+    Me.LdAndRunMineServe.TabIndex = 23
+    Me.LdAndRunMineServe.Text = "Ld && Rn MineServe"
+    '
     'Label1
     '
     Me.Label1.BackColor = System.Drawing.SystemColors.Control
@@ -680,18 +699,31 @@ Friend Class Form1
     Me.Label2.TabIndex = 10
     Me.Label2.Text = "Path:"
     '
-    'LdAndRunMineServe
+    'OpenCloseMS
     '
-    Me.LdAndRunMineServe.BackColor = System.Drawing.SystemColors.Control
-    Me.LdAndRunMineServe.Cursor = System.Windows.Forms.Cursors.Default
-    Me.LdAndRunMineServe.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-    Me.LdAndRunMineServe.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.LdAndRunMineServe.Location = New System.Drawing.Point(256, 192)
-    Me.LdAndRunMineServe.Name = "LdAndRunMineServe"
-    Me.LdAndRunMineServe.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.LdAndRunMineServe.Size = New System.Drawing.Size(120, 25)
-    Me.LdAndRunMineServe.TabIndex = 23
-    Me.LdAndRunMineServe.Text = "Ld && Rn MineServe"
+    Me.OpenCloseMS.BackColor = System.Drawing.SystemColors.Control
+    Me.OpenCloseMS.Cursor = System.Windows.Forms.Cursors.Default
+    Me.OpenCloseMS.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+    Me.OpenCloseMS.ForeColor = System.Drawing.SystemColors.ControlText
+    Me.OpenCloseMS.Location = New System.Drawing.Point(24, 80)
+    Me.OpenCloseMS.Name = "OpenCloseMS"
+    Me.OpenCloseMS.RightToLeft = System.Windows.Forms.RightToLeft.No
+    Me.OpenCloseMS.Size = New System.Drawing.Size(97, 32)
+    Me.OpenCloseMS.TabIndex = 23
+    Me.OpenCloseMS.Text = "Open/Close MineServe"
+    '
+    'MSOpn
+    '
+    Me.MSOpn.BackColor = System.Drawing.SystemColors.Control
+    Me.MSOpn.Cursor = System.Windows.Forms.Cursors.Default
+    Me.MSOpn.Enabled = False
+    Me.MSOpn.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+    Me.MSOpn.ForeColor = System.Drawing.SystemColors.ControlText
+    Me.MSOpn.Location = New System.Drawing.Point(8, 80)
+    Me.MSOpn.Name = "MSOpn"
+    Me.MSOpn.RightToLeft = System.Windows.Forms.RightToLeft.No
+    Me.MSOpn.Size = New System.Drawing.Size(17, 25)
+    Me.MSOpn.TabIndex = 39
     '
     'Form1
     '
@@ -1149,6 +1181,131 @@ Done:
     End If
   End Sub
 
+
+  Declare Function GetVolumeInformation Lib "kernel32.dll" Alias _
+  "GetVolumeInformationA" ( _
+      ByVal lpDrive As String, _
+      ByVal lpVolumeName As String, ByVal nVolNameSize As Integer, _
+      ByRef lpVolumeSerialNumber As Long, _
+      ByRef lpMaximumComponentLength As Long, _
+      ByRef lpFileSystemFlags As Long, _
+      ByVal lpFSName As String, ByVal nFSNameSize As Integer _
+      ) As Boolean
+
+
+  '        char VolumeName[1024];
+  '      char FSNameBuff[1024];
+  '     DWORD dwVolSerialNo, dwMaxCompLen, dwFileSysFlags;
+  '    BOOL GotIt=GetVolumeInformation(Drive(),
+  '                                    VolumeName, sizeof(VolumeName)-1,
+  '                                    &dwVolSerialNo, &dwMaxCompLen, &dwFileSysFlags,
+  '                                    FSNameBuff, sizeof(FSNameBuff)-1);
+
+  'BOOL GetVolumeInformation(
+  'LPCTSTR lpRootPathName,
+  'LPTSTR lpVolumeNameBuffer,
+  'DWORD nVolumeNameSize,
+  'LPDWORD lpVolumeSerialNumber,
+  'LPDWORD lpMaximumComponentLength,
+  'LPDWORD lpFileSystemFlags,
+  'LPTSTR lpFileSystemNameBuffer,
+  'DWORD nFileSystemNameSize
+
+  Function GetDiskSerial() As String
+    Dim etVal As Integer
+    Dim DS As String
+    Dim Buffer As String
+    Dim VolumeName As String
+    Dim FSName As String
+    Dim VolumeSerialNumber As Long
+    Dim MaximumComponentLength As Long
+    Dim FileSystemFlags As Long
+
+    DS = ""
+    VolumeName = New String(CChar(" "), 1024)
+    FSName = New String(CChar(" "), 1024)
+    'RetVal = GetUserName(Buffer, 25)
+    If GetVolumeInformation("D:\", VolumeName, 1024, VolumeSerialNumber, _
+      MaximumComponentLength, FileSystemFlags, FSName, 1024) Then
+
+      DS = Hex(VolumeSerialNumber)
+      While DS.Length < 8
+        DS = "0" & DS
+      End While
+
+      GetDiskSerial = DS
+
+    End If
+
+
+  End Function
+
+  Private Sub SetMSLicense()
+    Dim Key As String
+    Dim Str As String
+    Dim Lic As String
+    Dim Ret As Long
+    Dim iKey As Long
+    Dim iLic As Long
+    Dim iChar As Byte
+    Dim sChar As String
+
+    Key = App.License.GetKey
+
+    Str = "Mineserve 1.0"          ' Product
+    Str = Str & Chr(10)
+    Str = Str & "AngloPlats RB"    ' Client
+    Str = Str & Chr(10)
+    Str = Str & "20 Sept 2006"     ' Expiry Date
+    Str = Str & Chr(10)
+    Str = Str & "1.0"              ' A SysCAD Version Number
+    Str = Str & Chr(10)
+    Str = Str & GetDiskSerial()    ' Disk Serial Number
+    Str = Str & Chr(10)
+    Str = Str & "59af52a4"         ' Option 
+
+    'CString KeyOut;
+    iKey = Key.Length - 1
+    For iStr As Long = 0 To Str.Length - 1
+      iChar = Asc(Str.Chars(iStr)) Xor Asc(Key.Chars(iKey))
+      sChar = Hex(iChar)
+      If sChar.Length = 1 Then
+        Lic = Lic & "0"
+      End If
+      Lic = Lic & sChar
+
+      If iKey = 0 Then
+        iKey = Key.Length - 1
+      Else
+        iKey = iKey - 1
+      End If
+    Next iStr
+
+    Ret = App.License.SetLicense(Lic)
+
+    Select Case Ret
+      Case 0 ' All OK
+      Case 1 ' Too Many Attempts > 3
+      Case 2 ' Bad Data
+      Case 3 ' Bad Version
+    End Select
+
+  End Sub
+
+  Private Sub OpenCloseMS_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OpenCloseMS.Click
+
+    If App Is Nothing Then
+      App = New ScdApplication
+      MSOpn.CheckState = System.Windows.Forms.CheckState.Checked
+      SetMSLicense()
+    Else
+      'UPGRADE_NOTE: Object App may not be destroyed until it is garbage collected. Click for more: 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="vbup1029"'
+      App = Nothing
+      MSOpn.CheckState = System.Windows.Forms.CheckState.Unchecked
+    End If
+  End Sub
+
+
   Private Sub ShiftLists()
     Dim I As Integer
 
@@ -1470,7 +1627,7 @@ Done:
     End If
 
     MsgLog.LogFileOpen(("XXX.csv"))
-        MsgLog.Options = ScdSlv.eScdMsg_Options.eScdMsgOpt_COMCalls
+    MsgLog.Options = ScdSlv.eScdMsg_Options.eScdMsgOpt_COMCalls
     Dbg.FileOpen(("XXX.Dbg"))
 
     '-------------------------------------------
@@ -1515,46 +1672,46 @@ Done:
     Tags = Prj.Tags
 
     'UPGRADE_WARNING: Couldn't resolve default property of object Tags.TagRecording(). Click for more: 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="vbup1037"'
-        Tags.TagRecording("P_3.NQv (L/s)") = eScdTagRecState.eScdTRS_HistRecording
+    Tags.TagRecording("P_3.NQv (L/s)") = eScdTagRecState.eScdTRS_HistRecording
 
-        If (Tags.TagRecording("P_3.NQv (L/s)") And eScdTagRecState.eScdTRS_HistRecording) Then
+    If (Tags.TagRecording("P_3.NQv (L/s)") And eScdTagRecState.eScdTRS_HistRecording) Then
 
-        End If
+    End If
 
 
-        'GoTo Done
+    'GoTo Done
 
-        List1.Items.Add("MessageLog:" & MsgLog.ViewLimit & ", " & MsgLog.Count)
+    List1.Items.Add("MessageLog:" & MsgLog.ViewLimit & ", " & MsgLog.Count)
 
-        Dim Msg As IScdMessage
-        Msg = MsgLog.Item(1)
+    Dim Msg As IScdMessage
+    Msg = MsgLog.Item(1)
 
-        For Each Msg In MsgLog
-            List1.Items.Add("Error:" & Msg.Flags & " " & Msg.IDNo & " " & Msg.IterationNo & " " & Msg.SequenceNo & " " & Msg.CallNo & " " & Msg.Source & " " & Msg.Description)
-            If ((Msg.Flags And eScdMsg_Flags.eScdMsg_Error) <> 0) Then
-                List1.Items.Add("--------Error")
-            ElseIf ((Msg.Flags And eScdMsg_Flags.eScdMsg_Warning) <> 0) Then
-                List1.Items.Add("--------Warning")
-            End If
-        Next Msg
+    For Each Msg In MsgLog
+      List1.Items.Add("Error:" & Msg.Flags & " " & Msg.IDNo & " " & Msg.IterationNo & " " & Msg.SequenceNo & " " & Msg.CallNo & " " & Msg.Source & " " & Msg.Description)
+      If ((Msg.Flags And eScdMsg_Flags.eScdMsg_Error) <> 0) Then
+        List1.Items.Add("--------Error")
+      ElseIf ((Msg.Flags And eScdMsg_Flags.eScdMsg_Warning) <> 0) Then
+        List1.Items.Add("--------Warning")
+      End If
+    Next Msg
 Done:
-        'Exit Sub
-        'App.CloseProject
+    'Exit Sub
+    'App.CloseProject
 
-        'Set Solver = Nothing
-        'Set App = Nothing
-        'Set Species = Nothing
-        'Set Tags = Nothing
-        'Set Msg = Nothing
-        '  SetAllNothing
+    'Set Solver = Nothing
+    'Set App = Nothing
+    'Set Species = Nothing
+    'Set Tags = Nothing
+    'Set Msg = Nothing
+    '  SetAllNothing
 
-        Exit Sub
+    Exit Sub
 
 ErrorHandler:
-        List1.Items.Add("-->" & Hex(Err.Number) & " - " & Err.Source & " - " & Err.Description)
-        System.Diagnostics.Debug.WriteLine("-->" & Hex(Err.Number) & " - " & Err.Source & " - " & Err.Description)
+    List1.Items.Add("-->" & Hex(Err.Number) & " - " & Err.Source & " - " & Err.Description)
+    System.Diagnostics.Debug.WriteLine("-->" & Hex(Err.Number) & " - " & Err.Source & " - " & Err.Description)
 
-        Resume Next
+    Resume Next
   End Sub
 
   Private Sub CreateFlwSheet_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles CreateFlwSheet.Click
@@ -2155,4 +2312,5 @@ ErrorHandler:
 
 
   End Sub
+
 End Class

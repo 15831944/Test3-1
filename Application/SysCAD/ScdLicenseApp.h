@@ -16,64 +16,74 @@ class ATL_NO_VTABLE CScdLicenseApp :
   public IConnectionPointContainerImpl<CScdLicenseApp>,
   public IDispatchImpl<IScdLicenseApp, &IID_IScdLicenseApp, &LIBID_ScdApp>,
   public IDispatchImpl<IScdASyncEvents, &IID_IScdASyncEvents, &LIBID_ScdIF>
-{
-public:
-  CScdLicenseApp()  : CScdCOCmdBase(WMU_COM_APP)
   {
-    //m_pUnkMarshaler = NULL;
-  }
+  public:
+    CScdLicenseApp()  : CScdCOCmdBase(WMU_COM_APP)
+      {
+      m_sLicenseGUID="";
+      m_iLicenseAttempt=0;
 
-DECLARE_REGISTRY_RESOURCEID(IDR_SCDLICENSEAPP)
-DECLARE_GET_CONTROLLING_UNKNOWN()
+      //m_pUnkMarshaler = NULL;
+      }
 
-DECLARE_PROTECT_FINAL_CONSTRUCT()
+    DECLARE_REGISTRY_RESOURCEID(IDR_SCDLICENSEAPP)
+    DECLARE_GET_CONTROLLING_UNKNOWN()
 
-BEGIN_COM_MAP(CScdLicenseApp)
-  COM_INTERFACE_ENTRY(IScdLicenseApp)
-  //COM_INTERFACE_ENTRY(IDispatch)
-  COM_INTERFACE_ENTRY2(IDispatch, IScdLicenseApp)
-  COM_INTERFACE_ENTRY(ISupportErrorInfo)
-  COM_INTERFACE_ENTRY(IConnectionPointContainer)
-  //COM_INTERFACE_ENTRY_AGGREGATE(IID_IMarshal, m_pUnkMarshaler.p)
-  COM_INTERFACE_ENTRY(IScdASyncEvents)
-END_COM_MAP()
-BEGIN_CONNECTION_POINT_MAP(CScdLicenseApp)
-END_CONNECTION_POINT_MAP()
+    DECLARE_PROTECT_FINAL_CONSTRUCT()
 
-DECLARE_SCD(long);
+    BEGIN_COM_MAP(CScdLicenseApp)
+      COM_INTERFACE_ENTRY(IScdLicenseApp)
+      //COM_INTERFACE_ENTRY(IDispatch)
+      COM_INTERFACE_ENTRY2(IDispatch, IScdLicenseApp)
+      COM_INTERFACE_ENTRY(ISupportErrorInfo)
+      COM_INTERFACE_ENTRY(IConnectionPointContainer)
+      //COM_INTERFACE_ENTRY_AGGREGATE(IID_IMarshal, m_pUnkMarshaler.p)
+      COM_INTERFACE_ENTRY(IScdASyncEvents)
+    END_COM_MAP()
+    BEGIN_CONNECTION_POINT_MAP(CScdLicenseApp)
+    END_CONNECTION_POINT_MAP()
+
+    DECLARE_SCD(long);
 
 #ifdef _DEBUG
-BEGIN_CATEGORY_MAP(CScdLicenseApp)
-  IMPLEMENTED_CATEGORY(CATID_SysCADAppObject)
-END_CATEGORY_MAP()
+    BEGIN_CATEGORY_MAP(CScdLicenseApp)
+      IMPLEMENTED_CATEGORY(CATID_SysCADAppObject)
+    END_CATEGORY_MAP()
 #endif
 
-  HRESULT FinalConstruct()
-  {
-    return S_OK; //CoCreateFreeThreadedMarshaler(GetControllingUnknown(), &m_pUnkMarshaler.p);
-  }
+    HRESULT FinalConstruct()
+      {
+      return S_OK; //CoCreateFreeThreadedMarshaler(GetControllingUnknown(), &m_pUnkMarshaler.p);
+      }
 
-  void FinalRelease()
-  {
-    //m_pUnkMarshaler.Release();
-  }
+    void FinalRelease()
+      {
+      //m_pUnkMarshaler.Release();
+      }
 
-  //CComPtr<IUnknown> m_pUnkMarshaler;
+    //CComPtr<IUnknown> m_pUnkMarshaler;
 
-// ISupportsErrorInfo
-  STDMETHOD(InterfaceSupportsErrorInfo)(REFIID riid);
+    // ISupportsErrorInfo
+    STDMETHOD(InterfaceSupportsErrorInfo)(REFIID riid);
 
-// IScdLicenseApp
-public:
+    // IScdLicenseApp
+  public:
 
-// IScdASyncEvents
-  STDMETHOD(DoEventMsg)(LONG Evt, LONG Data)
-    {
-    CScdCOCmdBase::DoEventMsg(Evt, Data);
-    return S_OK;
-    }
-  virtual void FireTheEvent(long Evt, long Data);
+    // IScdASyncEvents
+    STDMETHOD(DoEventMsg)(LONG Evt, LONG Data)
+      {
+      CScdCOCmdBase::DoEventMsg(Evt, Data);
+      return S_OK;
+      }
+    virtual void FireTheEvent(long Evt, long Data);
 
-};
+    STDMETHOD(GetKey)(BSTR * KeyString);
+    STDMETHOD(SetLicense)(BSTR LicenseString, long * ErrorReturn);
+
+    CString m_sLicenseGUID;
+    long    m_iLicenseAttempt;
+
+
+  };
 
 #endif //__SCDLICENSEAPP_H_
