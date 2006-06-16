@@ -60,6 +60,7 @@ void SimpleReactor::Init()
 const int idDX_Description = 1;
 const int idDX_ProdT = 2;
 const int idDX_TempDiff = 3;
+const int idDX_DoSomething = 4;
 
 void SimpleReactor::BuildDataFields()
   {
@@ -76,6 +77,9 @@ void SimpleReactor::BuildDataFields()
     {
     DD.Page("RB", false); //when reaction is on, always force this on to a new "RB" tab page
     }
+
+  DD.Nool("Do something", idDX_DoSomething, MF_PARAMETER | MF_BUTTON);
+
   m_RB.BuildDataFields();
   }
 
@@ -98,6 +102,10 @@ bool SimpleReactor::ExchangeDataFields()
     case idDX_TempDiff:
       //do not need to set anything this is simply a calculated result
       DX.Double=m_dProdT-m_dFeedT;
+      return true;
+    case idDX_DoSomething:
+      // Do something here.
+      DX.Bool = false;
       return true;
     }
   return false;
