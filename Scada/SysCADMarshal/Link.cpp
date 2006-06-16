@@ -25,6 +25,7 @@ CLinkValue::CLinkValue(WORD VType)
   m_lValuesIgnored=0;
   m_dwTransactionID=0;
   m_lCfgSequence=-1;
+  m_iLastChgDirn=0;
   };
 
 CLinkValue::CLinkValue(const CLinkValue & V) :
@@ -35,6 +36,7 @@ CLinkValue::CLinkValue(const CLinkValue & V) :
   m_lValueChanges   = V.m_lValueChanges;
   m_lValuesIgnored  = V.m_lValuesIgnored;
   m_lCfgSequence    = V.m_lCfgSequence;
+  m_iLastChgDirn    = V.m_iLastChgDirn;
   m_State           = V.m_State;
   }
 
@@ -46,6 +48,7 @@ CLinkValue & CLinkValue::operator =(const CLinkValue & V)
   m_lValueChanges   = V.m_lValueChanges;
   m_lValuesIgnored  = V.m_lValuesIgnored;
   m_lCfgSequence    = V.m_lCfgSequence;
+  m_iLastChgDirn    = V.m_iLastChgDirn;
   m_State           = V.m_State;
   return *this;
   }
@@ -237,6 +240,7 @@ bool CLink::SetValue(CChangeItem * pRqst)
     }
 
   VARTYPE SlotType=Type();
+  m_iLastChgDirn=FullValue().ChangeDirection(*pRqst);
   FullValue()=*pRqst;
   if (pRqst->m_eSrc==eCSD_Simulator)
     {

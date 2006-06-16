@@ -79,6 +79,7 @@ CSlotValue::CSlotValue()
   m_lValueChanges   = 0;
   m_lValuesIgnored  = 0;
   m_lCfgSequence    = -1;//gs_SlotMngr.m_lCfgSequence;
+  m_iLastChgDirn    = 0;
   }
 CSlotValue::CSlotValue(const CSlotValue & V) :
   CFullValue(V)
@@ -89,6 +90,7 @@ CSlotValue::CSlotValue(const CSlotValue & V) :
   m_lValuesIgnored  = V.m_lValuesIgnored;
   m_lCfgSequence    = V.m_lCfgSequence;
   m_State           = V.m_State;
+  m_iLastChgDirn    = V.m_iLastChgDirn;
   }
 
 CSlotValue & CSlotValue::operator =(const CSlotValue & V)
@@ -99,6 +101,7 @@ CSlotValue & CSlotValue::operator =(const CSlotValue & V)
   m_lValueChanges   = V.m_lValueChanges;
   m_lValuesIgnored  = V.m_lValuesIgnored;
   m_lCfgSequence    = V.m_lCfgSequence;
+  m_iLastChgDirn    = V.m_iLastChgDirn;
   m_State           = V.m_State;
   return *this;
   }
@@ -864,7 +867,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     {
     if (nParms!=1)
       {
-      SetError(SErr_GetFn, "Valid connection expected: get(tag)");
+      SetError(SErr_GetFn, "Valid connection expected: Get(tag)");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_In))
@@ -872,13 +875,13 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     //  SetError(1, "Valid connection expected: Slot must have write access");
     //  return NULL;
     //  }
-    TheConn=AddGetConnect(f[1], _stricmp(f[0],"getinv")==0);//, CCS_Null, 0);
+    TheConn=AddGetConnect(f[1], _stricmp(f[0],"GetInv")==0);//, CCS_Null, 0);
     }
   else if (_stricmp(f[0],"set")==0 || _stricmp(f[0],"setinv")==0)
     {
     if (nParms<1 || nParms>3)
       {
-      SetError(SErr_SetFn, "Valid connection expected: Incorrect number of parameters for set(...) or setinv(...)");
+      SetError(SErr_SetFn, "Valid connection expected: Incorrect number of parameters for Set(...) or SetInv(...)");
       return NULL;
       }
     //if (nParms==3 && Cfg.iTyp!=tt_Bool)
@@ -888,24 +891,22 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     //  }
     //if (!(Cfg.iAction & XIO_Out))
     //  SetError(1, "Valid connection expected: Slot must have read access");
-    DWORD DelayTime1 = 0;
+    DWORD DelayTimeRise = 0;
     if (f[2]==NULL || strlen(f[2])==0)
-      DelayTime1 = 0;
+      DelayTimeRise = 0;
     else if (_strnicmp(f[2], "inf", 3)==0)
-      DelayTime1 = InfiniteDelay;
+      DelayTimeRise = InfiniteDelay;
     else
-      DelayTime1 = SafeAtoL(f[2]);
-    DWORD DelayTime2 = 0;
-    bool UseDelay2 = 0;
+      DelayTimeRise = SafeAtoL(f[2]);
+    DWORD DelayTimeFall = DelayTimeRise;
     if (nParms==3)
       {
-      UseDelay2 = 1;
       if (_strnicmp(f[3], "inf", 3)==0)
-        DelayTime2 = InfiniteDelay;
+        DelayTimeFall = InfiniteDelay;
       else
-        DelayTime2 = SafeAtoL(f[3]);
+        DelayTimeFall = SafeAtoL(f[3]);
       }
-    TheConn=AddSetConnect(f[1], _stricmp(f[0],"setinv")==0, DelayTime1, DelayTime2, UseDelay2);
+    TheConn=AddSetConnect(f[1], _stricmp(f[0],"setinv")==0, DelayTimeRise, DelayTimeFall);
     }
   else if (_stricmp(f[0],"getcmp")==0)
     {
@@ -913,10 +914,10 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     // cnm if (nParms!=3 || Cfg.iTyp!=tt_Bool)
       {
       if (nParms!=3)
-        SetError(SErr_GetCmpFn, "Valid connection expected: getcmp(tag,</<=/==/>=/>,value)");
+        SetError(SErr_GetCmpFn, "Valid connection expected: GetCmp(tag,</<=/==/>=/>,value)");
       // cnm
       if (IsFloatDataVT)
-        SetError(SErr_GetCmpFn, "Valid connection expected: getcmp(tag,</<=/==/>=/>,value) can only be used for a Non Float slot");
+        SetError(SErr_GetCmpFn, "Valid connection expected: GetCmp(tag,</<=/==/>=/>,value) can only be used for a Non Float slot");
       return NULL;
       }
     int Op=100;
@@ -950,9 +951,9 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (nParms!=1 || !IsFloatDataVT)
       {
       if (nParms!=1)
-        SetError(SErr_GetAbsFn, "Valid connection expected: getabs(tag)");
+        SetError(SErr_GetAbsFn, "Valid connection expected: GetAbs(tag)");
       if (IsFloatDataVT)
-        SetError(SErr_GetAbsFn, "Valid connection expected: getabs(tag) can only be used for a float slot");
+        SetError(SErr_GetAbsFn, "Valid connection expected: GetAbs(tag) can only be used for a float slot");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_In))
@@ -969,9 +970,9 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (nParms!=2 || !IsFloatDataVT)
       {
       if (nParms!=2)
-        SetError(SErr_GetRevFn, "Valid connection expected: getrev(tag, value)");
+        SetError(SErr_GetRevFn, "Valid connection expected: GetRev(tag, value)");
       if (!IsFloatDataVT)
-        SetError(SErr_GetRevFn, "Valid connection expected: getrev(tag, value) can only be used for a float slot");
+        SetError(SErr_GetRevFn, "Valid connection expected: GetRev(tag, value) can only be used for a float slot");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_In))
@@ -988,7 +989,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     {
     if (nParms<2 || nParms>6)
       {
-      SetError(SErr_GetSqrFn, "Valid connection expected: getsqr(tag, value, [minI], [maxI], [minO], [maxO])");
+      SetError(SErr_GetSqrFn, "Valid connection expected: GetSqr(tag, value, [minI], [maxI], [minO], [maxO])");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_In))
@@ -1010,7 +1011,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     {
     if (nParms<2 || nParms>6)
       {
-      SetError(SErr_GetSqrtFn, "Valid connection expected: getsqrt(tag, value, [minI], [maxI], [minO], [maxO])");
+      SetError(SErr_GetSqrtFn, "Valid connection expected: GetSqrt(tag, value, [minI], [maxI], [minO], [maxO])");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_In))
@@ -1032,7 +1033,7 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     {
     if (nParms<2 || nParms>3)
       {
-      SetError(SErr_GetProfileFn, "Valid connection expected: getprofile(Tag, FileName, [Reverse])");
+      SetError(SErr_GetProfileFn, "Valid connection expected: GetProfile(Tag, FileName, [Reverse])");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_In))
@@ -1063,25 +1064,80 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     {
     if (nParms!=3)
       {
-      SetError(SErr_SetRevFn, "Valid connection expected: Incorrect number of parameters for setrev(tag,val,delay)");
+      SetError(SErr_SetRevFn, "Valid connection expected: Incorrect number of parameters for SetRev(tag,val,delay)");
       return NULL;
       }
     if (!IsFloatDataVT)
       {
-      SetError(SErr_SetRevFn, "Valid connection expected: can only use setrev for float slot");
+      SetError(SErr_SetRevFn, "Valid connection expected: can only use SetRev for float slot");
       return NULL;
       }
     //if (!(Cfg.iAction & XIO_Out))
     //  SetError(1, "Valid connection expected: Slot must have read access");
 
-    DWORD DelayTime1 = 0;
+    DWORD DelayTimeRise = 0;
     if (_strnicmp(f[3], "inf", 3)==0)
-      DelayTime1 = InfiniteDelay;
+      DelayTimeRise = InfiniteDelay;
     else
-      DelayTime1 = SafeAtoL(f[3]);
-    DWORD DelayTime2 = 0;
-    bool UseDelay2 = 0;
-    TheConn=AddSetConnect(f[1], false, DelayTime1, DelayTime2, UseDelay2);//, true, SafeAtoF(f[2]));
+      DelayTimeRise = SafeAtoL(f[3]);
+    DWORD DelayTimeFall = DelayTimeRise;
+    TheConn=AddSetConnect(f[1], false, DelayTimeRise, DelayTimeFall);//, true, SafeAtoF(f[2]));
+    }
+  else if (_stricmp(f[0],"setonrise")==0)
+    {
+    if (nParms<2)
+      {
+      SetError(SErr_SetOnRiseFn, "Valid connection expected: Incorrect number of parameters for SetOnRise(tag[[,val],delay][,val,delay]...)");
+      return NULL;
+      }
+    //if (!(Cfg.iAction & XIO_Out))
+    //  SetError(1, "Valid connection expected: Slot must have read access");
+
+    TheConn=AddSetConnect(f[1], false);//, true, SafeAtoF(f[2]));
+    int iParm=2;
+    while (nParms-iParm>=0)
+      {
+      COleVariant V(f[iParm]);
+      iParm++;
+
+      DWORD DelayTime = 0;
+      if (nParms-iParm>=0)
+        {
+        DelayTime = (_strnicmp(f[iParm], "inf", 3)==0) ? InfiniteDelay : SafeAtoL(f[iParm]);
+        iParm++;
+        }
+      
+      if (!TheConn->AddRiseValue(V, DelayTime))
+        SetError(SErr_SetOnRiseFn, "Invalid Value for SetOnRise");
+      }
+    }
+  else if (_stricmp(f[0],"setonfall")==0)
+    {
+    if (nParms<2)
+      {
+      SetError(SErr_SetOnFallFn, "Valid connection expected: Incorrect number of parameters for SetOnFall(tag[[,val],delay][,val,delay]...)");
+      return NULL;
+      }
+    //if (!(Cfg.iAction & XIO_Out))
+    //  SetError(1, "Valid connection expected: Slot must have read access");
+
+    TheConn=AddSetConnect(f[1], false);//, true, SafeAtoF(f[2]));
+    int iParm=2;
+    while (nParms-iParm>=0)
+      {
+      COleVariant V(f[iParm]);
+      iParm++;
+
+      DWORD DelayTime = 0;
+      if (nParms-iParm>=0)
+        {
+        DelayTime = (_strnicmp(f[iParm], "inf", 3)==0) ? InfiniteDelay : SafeAtoL(f[iParm]);
+        iParm++;
+        }
+      
+      if (!TheConn->AddFallValue(V, DelayTime))
+        SetError(SErr_SetOnFallFn, "Invalid Value for SetOnFall");
+      }
     }
   else if (_stricmp(f[0],"none")==0)
     {
@@ -1146,15 +1202,27 @@ CSlotConnect * CSlot::AddGetConnect(LPSTR pTag, bool Inv)//, byte Op, double Lcl
 
 // --------------------------------------------------------------------------
 
-CSlotConnect * CSlot::AddSetConnect(LPSTR pTag, bool Inv, DWORD DelayTime1, DWORD DelayTime2, bool UseDelay2)//, byte Op, double LclConst)
+CSlotConnect * CSlot::AddSetConnect(LPSTR pTag, bool Inv, DWORD DelayTimeRise, DWORD DelayTimeFall)//, byte Op, double LclConst)
   {
   if (pTag && strlen(pTag)>0)
     {
     CSlotConnect* pNew = new CSlotConnect(pTag, true, Inv);
-    pNew->SetDelayTimes(DelayTime1, DelayTime2, UseDelay2, Inv);
+    pNew->SetDelayTimes(DelayTimeRise, DelayTimeFall);
     m_SetConnects.Add(pNew);
     return pNew;
-    //  }
+    }
+  return NULL;
+  }
+
+// --------------------------------------------------------------------------
+
+CSlotConnect * CSlot::AddSetConnect(LPSTR pTag, bool Inv)//, byte Op, double LclConst)
+  {
+  if (pTag && strlen(pTag)>0)
+    {
+    CSlotConnect* pNew = new CSlotConnect(pTag, true, Inv);
+    m_SetConnects.Add(pNew);
+    return pNew;
     }
   return NULL;
   }
@@ -1389,6 +1457,7 @@ bool CSlot::SetValue(CChangeItem * pRqst)
 
 
   VARTYPE SlotType=Type();
+  m_iLastChgDirn=FullValue().ChangeDirection(*pRqst);
   FullValue()=*pRqst;
   if (m_bRead && (pRqst->m_eSrc==eCSD_Device))
     ApplySpanInComing(SlotType, FullValue().m_vValue);

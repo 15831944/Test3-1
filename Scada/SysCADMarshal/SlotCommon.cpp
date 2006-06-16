@@ -15,7 +15,7 @@ static char THIS_FILE[] = __FILE__;
 const int dbgTimers  = 0;
 
 // =======================================================================
-//
+// 
 //
 //
 
@@ -563,15 +563,11 @@ void ReportErrorBox(HRESULT hr, LPCSTR Fmt, ...)
 
 CDelayBlock::CDelayBlock(void)
   {
-  //m_bDelayLock=false;
-  m_dwTime1   = 0;
-  m_dwTime2   = 0;
-  m_dwTimer   = 0;
-  m_bUseTime2 = false;
-  m_bEdge     = false;
-  m_bInvert   = false;
+  m_UseValues   = false;
   }
 
+<<<<<<< .mine
+=======
 void CDelayBlock::Advance(DWORD DT)
   {
   m_dwTimer = Max(DWORD(0), m_dwTimer- DT);
@@ -586,6 +582,7 @@ void CDelayBlock::Advance(DWORD DT)
   //if(m_bUseTime2) m_dwTime2 = Max(DWORD(0), m_dwTime2 - DT);
   }
 
+>>>>>>> .r624
 // =======================================================================
 //
 //
@@ -596,33 +593,54 @@ DWORD CChangeItem::sm_dwNumber=0;
 
 CChangeItem::CChangeItem(void)
   {
-  m_eSrc = eCSD_Null;
-  m_eDst = eCSD_Null;
-
-  //memset(&m_vValue, 0, sizeof(m_vValue));
-  //m_wQuality=0;
-  //CoFileTimeNow(&m_TimeStamp);
-  m_lSrcInx = -1;
-  m_lDstInx = -1;
-  m_hServer = -1;
-  m_pNext = NULL;
-  m_dwNumber=sm_dwNumber++; 
-  m_bRefresh = false;
+  m_dwDelayTimer        = 0;
+  m_eSrc                = eCSD_Null;
+  m_eDst                = eCSD_Null;
+  m_lSrcInx             = -1;
+  m_lDstInx             = -1;
+  m_hServer             = -1;
+  m_dwTransactionID     = 0;
+  m_dwNumber            = sm_dwNumber++; 
+  m_bOverrideHold       = false;
+  m_pNext               = NULL;
+  m_bRefresh            = false;
   };
 
 CChangeItem::CChangeItem(eConnSrcDst Src, long SrcInx, eConnSrcDst Dst, long DstInx, OPCHANDLE hServer, DWORD TransID, CFullValue &FullValue, bool OverrideHold, bool Refresh)
   {
-  m_eSrc = Src;
-  m_eDst = Dst;
-  m_lSrcInx = SrcInx;
-  m_lDstInx = DstInx;
-  m_hServer = hServer;
-  m_dwTransactionID = TransID;
-  *((CFullValue*)this)= FullValue;
-  m_dwNumber=sm_dwNumber++; 
-  m_bOverrideHold=OverrideHold;
-  m_pNext = NULL;
-  m_bRefresh = Refresh;
+  m_dwDelayTimer        = 0;
+  m_eSrc                = Src;
+  m_eDst                = Dst;
+  m_lSrcInx             = SrcInx;
+  m_lDstInx             = DstInx;
+  m_hServer             = hServer;
+  m_dwTransactionID     = TransID;
+  *((CFullValue*)this)  = FullValue;
+  m_dwNumber            = sm_dwNumber++; 
+  m_bOverrideHold       = OverrideHold;
+  m_pNext               = NULL;
+  m_bRefresh            = Refresh;
+  }
+
+void CChangeItem::Advance(DWORD DT)
+  {
+  m_dwDelayTimer = Max(DWORD(0), m_dwDelayTimer-DT);
+
+  if (dbgTimers)
+    {
+    if (m_dwDelayTimer < 5*gs_SlotMngr.m_Cfg.m_dwDelayResolution)
+      {
+      CString S, S1;
+      dbgpln("Advance Timer[%4i %10i] %13s %20s to %-9s[%4i] %-10s %15s",
+        DT, m_dwDelayTimer, 
+        "", "", SrcDstString(m_eDst), m_lDstInx,
+        TypeToString(Type()), VariantToString(m_vValue, S, false));
+        //,TimeStampToString(m_ftTimeStamp, S1, true, NULL));
+      }
+    }
+
+  //m_dwTime1 = Max(DWORD(0), m_dwTime1 - DT);
+  //if(m_bUseTime2) m_dwTime2 = Max(DWORD(0), m_dwTime2 - DT);
   }
 
 // =======================================================================
@@ -688,6 +706,8 @@ static struct { long ErrNo; LPCSTR Str;} const ErrStrs[]=
     {SErr_SetClientHandles    ,"SetClientHandles"       },
     {SErr_SetFn               ,"SetFn"                  },
     {SErr_SetRevFn            ,"SetRevFn"               },
+    {SErr_SetOnRiseFn         ,"SetOnRiseFn"            },
+    {SErr_SetOnFallFn         ,"SetOnFallFn"            },
     {SErr_SlotExcluded        ,"Slot Excluded"          },
     {SErr_Span                ,"Span"                   },
     {SErr_SqrOp               ,"SqrOp"                  },

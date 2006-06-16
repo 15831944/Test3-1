@@ -49,6 +49,8 @@ class CLinkValue : public CFullValue
     long        m_lValueChanges;   // Number of times the value has changed
     long        m_lValuesIgnored;  // Number of times the value has 'changed' but been ignored because values are the 'same'
     long        m_lCfgSequence;    // Number of times the Configuration has changed
+    int         m_iLastChgDirn;
+
 
     CLinkState  m_State;
     long      & StateLong() { return *(long*)&m_State; };

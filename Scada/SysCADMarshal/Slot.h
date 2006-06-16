@@ -103,6 +103,7 @@ class CSlotValue : public CFullValue
     long        m_lValueChanges;   // Number of times the value has changed
     long        m_lValuesIgnored;  // Number of times the value has 'changed' but been ignored because values are the 'same'
     long        m_lCfgSequence;    // Number of times the Configuration has changed
+    int         m_iLastChgDirn;
 
     CSlotState  m_State;
     long      & StateLong() { return *(long*)&m_State; };
@@ -196,7 +197,8 @@ class CSlot : public CSlotCfg
     bool        ParseConnOperator(CSlotConnect *pC, LPSTR pMod);
     CSlotConnect * ParseConnFunction(LPSTR pConn);
     CSlotConnect * AddGetConnect(LPSTR pTag, bool Inv);
-    CSlotConnect * AddSetConnect(LPSTR pTag, bool Inv, DWORD DelayTime, DWORD DelayTime2, bool UseDelay2);
+    CSlotConnect * AddSetConnect(LPSTR pTag, bool Inv, DWORD DelayTimeRise, DWORD DelayTimeFall);
+    CSlotConnect * AddSetConnect(LPSTR pTag, bool Inv);
 
     bool        MustReConnect(CSlot * Other);
     bool        TransferConfiguration(CSlot * Other);

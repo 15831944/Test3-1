@@ -166,6 +166,7 @@ class CSlotMngr : public CNodeXRefMngr
     static UINT staticMessageHandler(LPVOID pMngr);
     CString     FullFileName(LPCSTR Fn);
 
+    void        AddDelayedChange(CChangeItem * pNew, DWORD Timer);
     void        AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst,long DstI, DWORD TransID, CFullValue  &Value, CDelayBlock *pDelay, bool OverrideHold=false, bool Refresh=false);
     long        RequestQueueFlush(void);
     long        GetTransactionID(void)  { return m_dwTransactionID++; };

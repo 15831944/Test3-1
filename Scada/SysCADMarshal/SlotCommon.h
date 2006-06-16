@@ -39,24 +39,26 @@ const long SErr_ScaleOp             =  26;
 const long SErr_SetClientHandles    =  27;
 const long SErr_SetFn               =  28;
 const long SErr_SetRevFn            =  29;
-const long SErr_SlotExcluded        =  30;
-const long SErr_Span                =  31;
-const long SErr_SqrOp               =  32;
-const long SErr_SqrtOp              =  33;
-const long SErr_TooManyConnectFns   =  34;
-const long SErr_TooManyConnects     =  35;
-const long SErr_Unknown             =  36;
-const long SErr_NotLoaded           =  37;
-const long SErr_MissingSimTag       =  38;
-const long SErr_ReadSubs            =  39;
-const long SErr_ProfNotDone         =  40;
-const long SErr_InvalidFilename     =  41;
-const long SErr_SetValue            =  42;
-const long SErr_SetValueDevice      =  43;
-const long SErr_ApplySpanInComing   =  44;
-const long SErr_ApplySpanOutGoing   =  45;
-const long SErr_ApplyRangeLink2Slot =  46;
-const long SErr_PotentialRecursion  =  47;
+const long SErr_SetOnRiseFn         =  30;
+const long SErr_SetOnFallFn         =  31;
+const long SErr_SlotExcluded        =  32;
+const long SErr_Span                =  33;
+const long SErr_SqrOp               =  34;
+const long SErr_SqrtOp              =  35;
+const long SErr_TooManyConnectFns   =  36;
+const long SErr_TooManyConnects     =  37;
+const long SErr_Unknown             =  38;
+const long SErr_NotLoaded           =  39;
+const long SErr_MissingSimTag       =  40;
+const long SErr_ReadSubs            =  41;
+const long SErr_ProfNotDone         =  42;
+const long SErr_InvalidFilename     =  43;
+const long SErr_SetValue            =  44;
+const long SErr_SetValueDevice      =  45;
+const long SErr_ApplySpanInComing   =  46;
+const long SErr_ApplySpanOutGoing   =  47;
+const long SErr_ApplyRangeLink2Slot =  48;
+const long SErr_PotentialRecursion  =  48;
 
 extern LPCSTR SErr_String(long i);
 
@@ -297,19 +299,22 @@ class CKwikList
 //
 // =======================================================================
 
+class CDelayBlockItem
+  {
+  public:
+    DWORD       m_dwTime;
+    COleVariant m_Value;
+  };
+
 class CDelayBlock
   {
   public:
     CDelayBlock();
-    void Advance(DWORD DT);
-
+    bool         Configured() { return m_OnRise.GetSize()>0 || m_OnFall.GetSize()>0; }
+  
   public:
-    DWORD        m_dwTime1;   //time in mSecs for delay for sets
-    DWORD        m_dwTime2;   //time in mSecs for delay for sets for bit slot
-    bool         m_bUseTime2; //must the second delay time be used for bit=1
-    bool         m_bEdge;     //bit slot, reacting to rising or falling edge (one delay time = INF)
-    bool         m_bInvert;   //Invert Direction Logic
-    DWORD        m_dwTimer;
+    bool         m_UseValues;
+    CArray<CDelayBlockItem, CDelayBlockItem&> m_OnRise, m_OnFall;
   };
 
 // =======================================================================
@@ -359,6 +364,24 @@ class CFullValue
       HRESULT H=VariantChangeType(&m_vValue, pSrc?pSrc:&m_vValue, 0, T); 
       return H;
       };
+
+    int ChangeDirection(CFullValue & V)
+      {
+      switch (Type())
+        {
+        case VT_R4  : { double X=(V.m_vValue.fltVal     - m_vValue.fltVal); return X>0?1:X<0?-1:0 ;}
+        case VT_R8  : { double X=(V.m_vValue.dblVal     - m_vValue.dblVal ); return X>0?1:X<0?-1:0 ;}
+        case VT_I1  : { long X=((long)V.m_vValue.cVal   - m_vValue.cVal   ); return X>0?1:X<0?-1:0 ;};
+        case VT_I2  : { long X=((long)V.m_vValue.iVal   - m_vValue.iVal   ); return X>0?1:X<0?-1:0 ;};
+        case VT_I4  : { long X=((long)V.m_vValue.lVal   - m_vValue.lVal   ); return X>0?1:X<0?-1:0 ;};
+        case VT_UI1 : { long X=((long)V.m_vValue.bVal   - m_vValue.bVal   ); return X>0?1:X<0?-1:0 ;};
+        case VT_UI2 : { long X=((long)V.m_vValue.uiVal  - m_vValue.uiVal  ); return X>0?1:X<0?-1:0 ;};
+        case VT_UI4 : { long X=((long)V.m_vValue.ulVal  - m_vValue.ulVal  ); return X>0?1:X<0?-1:0 ;};
+        case VT_BOOL: { return V.m_vValue.boolVal==m_vValue.boolVal?0: m_vValue.boolVal?1:-1; };
+        }
+      return 0;
+      }
+
   };
 
 inline bool IsNumDataVT(VARTYPE VT) { return VT==VT_R4 || VT==VT_R8 || VT==VT_I1 || VT==VT_I2 || VT==VT_I4 || VT==VT_UI1 || VT==VT_UI2 || VT==VT_UI4; }
@@ -394,7 +417,6 @@ class CChangeItem : public CFullValue
 	  CChangeItem();
     CChangeItem(eConnSrcDst Src, long SrcInx, eConnSrcDst Dst, long DstLink, OPCHANDLE hServer, DWORD TransID, CFullValue &Value, bool OverrideHold/*=false*/, bool Refresh=false);
 
-    CDelayBlock   m_Delay;
     eConnSrcDst   m_eSrc;
     eConnSrcDst   m_eDst;
     DWORD         m_dwTransactionID; 
@@ -403,6 +425,8 @@ class CChangeItem : public CFullValue
     long          m_lSrcInx;
     long          m_lDstInx;
     OPCHANDLE     m_hServer;
+
+    DWORD         m_dwDelayTimer;
 
     CChangeItem * m_pNext; // Simple List to not play with the heap - using spares for allocation
 
@@ -414,7 +438,10 @@ class CChangeItem : public CFullValue
     bool          PeriperalIO() 
       { 
       return (m_eSrc==eCSD_Simulator || m_eSrc==eCSD_Device || m_eSrc==eCSD_Manual  || m_eSrc==eCSD_File|| 
-              m_eDst==eCSD_Simulator || m_eDst==eCSD_Device || m_eDst==eCSD_Manual); };
+              m_eDst==eCSD_Simulator || m_eDst==eCSD_Device || m_eDst==eCSD_Manual); 
+      };
+    
+    void          Advance(DWORD DT);
 
   DEFINE_SPARES(CChangeItem);
   };

@@ -232,14 +232,38 @@ CSlotConnect::~CSlotConnect()
 
 // --------------------------------------------------------------------------
 
-void CSlotConnect::SetDelayTimes(DWORD DelayTime1, DWORD DelayTime2, bool UseDelay2, bool Invert)
+void CSlotConnect::SetDelayTimes(DWORD DelayTimeRise, DWORD DelayTimeFall)
   {
-  m_Delay.m_dwTime1 = DelayTime1;
-  m_Delay.m_dwTime2 = DelayTime2;
-  m_Delay.m_bUseTime2 = UseDelay2;
-  m_Delay.m_bEdge     = (m_Delay.m_dwTime1==InfiniteDelay || (m_Delay.m_bUseTime2 && m_Delay.m_dwTime2==InfiniteDelay));
-  m_Delay.m_bInvert   = Invert;
+  m_Delay.m_UseValues = false;
+  m_Delay.m_OnRise.SetSize(1);
+  m_Delay.m_OnRise[0].m_dwTime=DelayTimeRise;
+  m_Delay.m_OnFall.SetSize(1);
+  m_Delay.m_OnFall[0].m_dwTime=DelayTimeFall;
   }
+
+// --------------------------------------------------------------------------
+
+bool CSlotConnect::AddRiseValue(COleVariant v1, DWORD t1)
+  {
+  m_Delay.m_UseValues = true;
+  int iLast=m_Delay.m_OnRise.GetSize();
+  m_Delay.m_OnRise.SetSize(iLast+1);
+  m_Delay.m_OnRise[iLast].m_dwTime=t1;
+  HRESULT hr=::VariantChangeType(&m_Delay.m_OnRise[iLast].m_Value, &v1, 0, VT_R8);
+  return !FAILED(hr);
+  };
+
+// --------------------------------------------------------------------------
+
+bool CSlotConnect::AddFallValue(COleVariant v1, DWORD t1)
+  {
+  m_Delay.m_UseValues = true;
+  int iLast=m_Delay.m_OnFall.GetSize();
+  m_Delay.m_OnFall.SetSize(iLast+1);
+  m_Delay.m_OnFall[iLast].m_dwTime=t1;
+  HRESULT hr=::VariantChangeType(&m_Delay.m_OnFall[iLast].m_Value, &v1, 0, VT_R8);
+  return !FAILED(hr);
+  };
 
 // --------------------------------------------------------------------------
 

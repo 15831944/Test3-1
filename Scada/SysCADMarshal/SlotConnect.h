@@ -405,7 +405,9 @@ class CSlotConnect
 
     CSlotConnect(LPCSTR pTag, /*LPCSTR pCnvTxt,*/ bool IsSet, bool Inv);
     ~CSlotConnect(); 
-    void          SetDelayTimes(DWORD DelayTime1, DWORD DelayTime2, bool UseDelay2, bool Invert);
+    void          SetDelayTimes(DWORD DelayTimeRise, DWORD DelayTimeFall);
+    bool          AddRiseValue(COleVariant v1, DWORD t1);
+    bool          AddFallValue(COleVariant v1, DWORD t1);
     void          AddOp(CSlotConnOp_Base* pOp) { m_Ops.Add(pOp); };
 
     void          Initialise();

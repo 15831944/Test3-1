@@ -861,8 +861,8 @@ long CTagView::InsertItem(CChangeItem *pChg)
 
   TimeStampToString(*pChg, V, true, NULL);
   list.SetItem(ListIndex, m_lColumn_TIME, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
-  if (pChg->m_Delay.m_dwTimer>0)
-    V.Format("%i", pChg->m_Delay.m_dwTimer);
+  if (pChg->m_dwDelayTimer>0)
+    V.Format("%i", pChg->m_dwDelayTimer);
   else
     V.Format("");
   list.SetItem(ListIndex, m_lColumn_DELAY, LVIF_TEXT, (LPSTR)(LPCSTR)V,0,0,0,0);
