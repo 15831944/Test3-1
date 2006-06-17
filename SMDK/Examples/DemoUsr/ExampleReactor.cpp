@@ -80,7 +80,7 @@ void SimpleReactor::BuildDataFields()
 
   DD.Text("");
   //button example...
-  DD.Bool("DoSomething", "", idDX_DoSomething, MF_PARAMETER | MF_BUTTON); 
+  DD.Button("DoSomething", "", idDX_DoSomething); 
 
   m_RB.BuildDataFields();
   }

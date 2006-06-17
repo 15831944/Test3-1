@@ -592,6 +592,12 @@ void MDataDefn::String(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Fl
     m_pDDB->String((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)NULL);
   }
 
+void MDataDefn::Button(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags)
+  {
+  if (m_pDDB->SearchingAtLevel())
+    m_pDDB->Button((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)NULL);
+  }
+
 //---------------------------------------------------------------------------
 
 void MDataDefn::Show(bool ViewVisible, bool FileVisible, bool SnapVisible)

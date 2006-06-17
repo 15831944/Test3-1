@@ -174,6 +174,7 @@ class DllImportExport MDataDefn : public MBaseMethodCommonRef
     void    Bool    (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values=NULL);  //add a bool (use DataHandle ID to set/retrieve tags)
     void    CheckBox(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags);                             //add a bool as a checkbox (use DataHandle ID to set/retrieve tags)
     void    String  (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags);                             //add a String (use DataHandle ID to set/retrieve tags)
+    void    Button  (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags = MF_PARAMETER);              //add a Button (use DataHandle ID for press button action)
 
     //add a text line
     void    Text(LPCSTR pName, unsigned long Flags=0);
