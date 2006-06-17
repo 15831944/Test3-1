@@ -78,7 +78,9 @@ void SimpleReactor::BuildDataFields()
     DD.Page("RB", false); //when reaction is on, always force this on to a new "RB" tab page
     }
 
-  DD.Nool("Do something", idDX_DoSomething, MF_PARAMETER | MF_BUTTON);
+  DD.Text("");
+  //button example...
+  DD.Bool("DoSomething", "", idDX_DoSomething, MF_PARAMETER | MF_BUTTON); 
 
   m_RB.BuildDataFields();
   }
@@ -104,7 +106,10 @@ bool SimpleReactor::ExchangeDataFields()
       DX.Double=m_dProdT-m_dFeedT;
       return true;
     case idDX_DoSomething:
-      // Do something here.
+      if (DX.HasReqdValue && DX.Bool)
+        {
+        // Do something here, because the button has been pressed
+        }
       DX.Bool = false;
       return true;
     }
