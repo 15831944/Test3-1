@@ -93,6 +93,7 @@ BatchPrecip::BatchPrecip(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMet
   m_dDrawOffTime      = 2.0*3600.0;
   m_dNbSeededDay      = 1.0;
   m_dSeedingTime      = 1.0*3600.0;
+  m_dInTankSSA		  = 0.035;
   }
 
 //---------------------------------------------------------------------------
@@ -103,6 +104,8 @@ void BatchPrecip::Init()
   }
 
 //---------------------------------------------------------------------------
+
+const int idDX_Version = 1;
 
 void BatchPrecip::BuildDataFields()
   {
@@ -121,16 +124,18 @@ void BatchPrecip::BuildDataFields()
   //DD.Double   ("WindSpeed",            &HyprodPrecipHelper::m_dWindSpeed,           MF_PARAMETER, MC_Ldt);
   //DD.CheckBox ("CompletePopulation",   &Precipitator::sm_bCompletePopulation,  MF_PARAMETER);
   DD.Text     ("Global options...");
+  DD.String("Version", "", idDX_Version, MF_RESULT);
   DD.CheckBox ("CompletePopulation", "", &sm_bCompletePopulation, MF_PARAM_STOPPED);
   DD.Show(!sm_bCompletePopulation);
-  DD.CheckBox ("UseStoredPSD", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
+  DD.CheckBox ("Use SSA from Pop Run", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
+  DD.Show( (!sm_bUsePrevPSD)&&(!sm_bCompletePopulation)  );
+  DD.Double("In Tank SSA of solids", "", &m_dInTankSSA, MF_PARAMETER,  MC_);  
+
   DD.Show();
   DD.Text     ("");
   DD.Text     ("Configuration");
   DD.Double   ("Volume", "",               &m_dVolume,              MF_PARAMETER,  MC_Vol ("m^3"));
- // DD.Double   ("Surface", "",              &m_dSurface,           MF_PARAMETER,  MC_Area("m^2"));
   DD.Double   ("KvFac", "",                &m_dKvFac,               MF_PARAMETER,  MC_);
- // DD.Double   ("UCoef", "",                &m_dUCoef,             MF_PARAMETER,  MC_HTC("kcal/h.m^2.C"));
   DD.Double   ("Level", "",                &m_dLevel,               MF_PARAMETER,  MC_Frac("%"));
                       
   static MDDValueLst DDModels[]=
@@ -212,6 +217,19 @@ void BatchPrecip::BuildDataFields()
 
   DD.Object(m_QProd, MDD_RqdPage);
   }
+//---------------------------------------------------------------------------
+
+bool BatchPrecip::ExchangeDataFields()
+  {
+  switch (DX.Handle)
+    {
+    case idDX_Version: 
+      DX.String = VersionDescription;
+      return true;
+    }
+  return false;
+  }
+
 
 //---------------------------------------------------------------------------
 
@@ -234,13 +252,13 @@ bool BatchPrecip::ValidateDataFields()
 void BatchPrecip::EvalProducts()
   {
   #if ForceOptimizeOff
-  static int Cnt = 0;
-  if (_stricmp(getTag(), "SpeciauxUE")==0)
+  static Cnt = 0;
+  if (stricmp(getTag(), "SpeciauxUE")==0)
     {
     Cnt++;//place breakpoint here to stop for specified model
     }
   #endif
-  if (!IsSolveDirect)
+  if (!IsSolveDirect)//(!IsProbal)
     return;
   bool Err = true;
   try
@@ -279,17 +297,17 @@ void BatchPrecip::EvalProducts()
       
       if (!IsNothing(SlurryB) && !IsNothing(ProdB))
         {
-        // ---   --- Thermal Losses. ------------
-        // !! this should be done COMBINED with FLAHSING/evaporation as the Caustic concentration should increase
-        Slurry.SetTP(Slurry.T -m_dFillingTempDrop, Slurry.P);
-        Liquor.SetTP(Liquor.T -m_dFillingTempDrop, Liquor.P);
+		// ---   --- Thermal Losses. ------------
+		// !! this should be done COMBINED with FLAHSING/evaporation as the Caustic concentration should increase
+		Slurry.SetTP(Slurry.T -m_dFillingTempDrop, Slurry.P);
+		Liquor.SetTP(Liquor.T -m_dFillingTempDrop, Liquor.P);
 
         double SlurryH0 = Slurry.totHf(MP_All, Slurry.T, Slurry.P);
-        double LiquorH0 = (m_bHasLiquor ? Liquor.totHf(MP_All, Liquor.T, Liquor.P) : 0.0);
+		double LiquorH0 = (m_bHasLiquor ? Liquor.totHf(MP_All, Liquor.T, Liquor.P) : 0.0);
  
        //Prod.SetTemp(Prod.Temp()-m_dTempDrop);
 	
-	      RunSteady(Slurry, Liquor, Prod);
+	    RunSteady(Slurry, Liquor, Prod);
         
         m_dThermalLoss = (SlurryH0+LiquorH0)-Prod.totHf(MP_All, Prod.T, Prod.P);
         
@@ -357,7 +375,7 @@ void BatchPrecip::EvalProducts()
       }
     CString ProblemModel;
     ProblemModel = getTag();
-    SetStopRequired("Phone Denis!");
+    //SetStopRequired("Phone Denis!");
     }
   Log.SetCondition(Err, 5, MMsg_Error, "Error needs fixing!!!");
   }
@@ -397,6 +415,7 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
   double &Na2OMass     = Vec.MassVector[spOccSoda];     // Na2O
 
   const double Fact = spAlumina.MW/spTHA.MW; // 0.654;
+
   //MIBayer & BVec=Vec.Interfaces;
   MIBayer & BVec=Vec.IF<MIBayer>();
 
@@ -479,6 +498,7 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
     {
     int xx=0; //place breakpoint here to trap this
     }
+
   MISSA & VecSSA=Vec.IF<MISSA>();
   if (NoPerSec>0.0 && !IsNothing(VecSSA))
     {
@@ -518,7 +538,7 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
   else
     {
 	m_bPrevPSDUsed = 0;
-    Sx= 0.035; // a typical SSA in m^2/g
+    Sx = m_dInTankSSA ; // the SSA value manually entered by the user in m^2/g
     }
   Sx=Range(0.020, Sx, 0.085);
  
@@ -564,7 +584,7 @@ bool BatchPrecip::PrecipBatch(double dTime, MVector & Prod, double CurLevel, boo
 
   //adjusting the PSD from 1 gpl to real conc....
   for (m=0; m<NIntervals; m++)
-    ProdHyPsd[m] = gpl1 * ProdHyPsd[m];
+    ProdHyPsd[m]= gpl1 * ProdHyPsd[m];
 
   #if ForceOptimizeOff
   for (m=0; m<NIntervals; m++)
@@ -580,7 +600,7 @@ bool BatchPrecip::PrecipBatch(double dTime, MVector & Prod, double CurLevel, boo
   //variation of Particles due to Agglomeration by Collision
   const double GRate2 = ProdB.GrowthRate();
   if (AgglomON )
-	  ApplyAgglom(GRate2, dTime, m_dKvFac, ProdNNtl);
+	ApplyAgglom(GRate2, dTime, m_dKvFac, ProdNNtl);
 
   //variation due to Nucleation in the Smallest Classes ONLY
   const double NRate = get_NucleationRate(m_eNuclModel, Prod, ProdSSurf, m_eShearRate);
@@ -730,7 +750,6 @@ bool BatchPrecip::BatchCycle(MVector & Slurry, MVector & Liquor, MVector & Prod)
     double target = m_dLevel;
 
     //add seed until specified level (filling tank)
-    int loopCnt = 0;
     while (iLevel < target)
       {
       double dt = 36.0; //seconds
@@ -747,23 +766,22 @@ bool BatchPrecip::BatchCycle(MVector & Slurry, MVector & Liquor, MVector & Prod)
 
         //precip reaction...
         if (ProdB.SolidsConc(C2K(25.0))>5.0) // need a minimum solid conc. to precipitate
-		      if (sm_bCompletePopulation)
-				    {
-				    if (!PrecipBatch(dt, Prod, iLevel, m_bAgglomONwhileFilling))// with population balance
-					    return false;
-				    }
-			    else
-				    {
-				    if (!PrecipBatchSS(dt, Prod, iLevel))// with SSA
-					    return false;
-				    }
+		   if (sm_bCompletePopulation)
+				{
+				if (!PrecipBatch(dt, Prod, iLevel,m_bAgglomONwhileFilling))// with population balance
+					return false;
+				}
+			else
+				{
+				if (!PrecipBatchSS(dt, Prod, iLevel))// with SSA
+					return false;
+				}
         //application.processMessages;
         //if flowsheet.UserCancel then
         //  break;
         }
       else 
         iLevel = target;
-      loopCnt++;
       }//end while
 
     //precip reaction (tank is full)

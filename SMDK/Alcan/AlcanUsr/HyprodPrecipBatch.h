@@ -28,6 +28,7 @@ class BatchPrecip : public MBaseMethod, public HyprodPrecipHelper
     BatchPrecip(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void Init();
     virtual void BuildDataFields();
+	virtual bool ExchangeDataFields();
     virtual bool ValidateDataFields();
     virtual void EvalProducts();
     virtual void ClosureInfo(MClosureInfo & CI);

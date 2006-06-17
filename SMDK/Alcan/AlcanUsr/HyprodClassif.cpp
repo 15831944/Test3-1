@@ -50,6 +50,7 @@ Classifier::Classifier(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMetho
   //default values...
   m_bOn = 1;
   m_bPrecipOn = 1;
+  m_bBrentSolverSelected =1;
   m_eModel = eMdl_Gravity;
   m_eInputMethod = eIM_CutSize,
 
@@ -79,6 +80,8 @@ void Classifier::Init()
   {
   SetIODefinition(s_IODefs);
   }
+
+const int idDX_Version = 1;
 
 //---------------------------------------------------------------------------
 
@@ -113,6 +116,7 @@ void Classifier::BuildDataFields()
     {0}
     };
   DD.Text     ("");
+  DD.String("Version", "", idDX_Version, MF_RESULT);
   DD.CheckBox ("On", "",   &m_bOn,  MF_PARAMETER);
   DD.Long     ("Model", "", (long*)&m_eModel, MF_PARAMETER|MF_SET_ON_CHANGE, DDModels);
   DD.Show(m_eModel==eMdl_Gravity);
@@ -144,6 +148,7 @@ void Classifier::BuildDataFields()
   //DD.Show(m_eInputMethod==eIM_Model || m_eInputMethod==eIM_Underflow);
   //DD.Show(m_eInputMethod!=eIM_CutSize && m_eInputMethod!=eIM_Recovery);
   DD.Show(true);
+  DD.CheckBox ("Use Brent Solver method", "", &m_bBrentSolverSelected, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.Double   ("RqdUF_VolFlow", "", &m_dRqdUFVolFlow, (m_eInputMethod==eIM_Model || m_eInputMethod==eIM_Underflow) ? MF_PARAMETER : MF_RESULT, MC_Qv("m^3/h"));
   DD.Show(m_eInputMethod==eIM_Overflow);
   DD.Double   ("RqdOF_SolidsFlow", "", &m_dRqdOFSolidsTons, MF_PARAMETER, MC_Qm("t/h"));
@@ -174,6 +179,19 @@ void Classifier::BuildDataFields()
 
   DD.Object(m_QProd, MDD_RqdPage);
   }
+//---------------------------------------------------------------------------
+
+bool Classifier::ExchangeDataFields()
+  {
+  switch (DX.Handle)
+    {
+    case idDX_Version: 
+      DX.String = VersionDescription;
+      return true;
+    }
+  return false;
+  }
+
 
 //---------------------------------------------------------------------------
 
@@ -450,13 +468,14 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
   MIBayer & FeedB = Feed.IF<MIBayer>();
   const double T = Feed.T;
   const double TtlVolFlow = Feed.Volume();
+  m_dD50 = Valid(m_dD50) ? Max(Min_d50, m_dD50) : Min_d50*10.0;
+
 
   switch (m_eInputMethod)
     {
     case eIM_CutSize:
     case eIM_Model:
       {
-      m_dD50 = Valid(m_dD50) ? Max(Min_d50, m_dD50) : Min_d50*10.0;
       const bool UseBrentSolver = false;
       if (UseBrentSolver)
         {
@@ -508,6 +527,8 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
 	      {
 		    double UFmass = Max(0.0, FdSolMass - m_dRqdOFSolidsTons);
 		    m_dRqdUFVolFlow = UFmass/m_dRqdUFSolidsConc;
+			m_dRqdRecoveryFracUsed =  UFmass/FdSolMass;
+			m_dRf = (TtlVolFlow - m_dRqdUFVolFlow) / TtlVolFlow;
 	      }
       if (m_eInputMethod==eIM_Underflow)
         {
@@ -515,11 +536,25 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
         m_dRqdRecoveryFracUsed = m_dRqdUFVolFlow * m_dRqdUFSolidsConc / FdSolMass;
         m_dRf = m_dRqdUFVolFlow/TtlVolFlow;
         }
-      else
+      if (m_eInputMethod==eIM_Recovery)
         {
         m_dRqdRecoveryFracUsed = m_dRqdRecoveryFrac;
+		double UFmass = Max(0.0, FdSolMass * m_dRqdRecoveryFracUsed);
+		m_dRqdUFVolFlow = UFmass/m_dRqdUFSolidsConc;
+		m_dRf = (TtlVolFlow - m_dRqdUFVolFlow) / TtlVolFlow;
         }
-      const bool UseBrentSolver = true;
+
+
+if ( (m_dRqdRecoveryFracUsed >= 1) || ( (m_dRf < 0) && (m_dRf > 1)) )
+			{
+			SetStopRequired("Insufficient Feed : revise flowsheet!");
+			Log.SetCondition( true , 12, MMsg_Error, "Insufficient Feed to Classifier!use Recovery Mode");
+			break;
+			}
+
+
+const bool UseBrentSolver = m_bBrentSolverSelected;
+
       if (UseBrentSolver)
         {
         //Solve to determine new d50 to achieve required recovery...
@@ -551,41 +586,50 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
         //m_dRqdUFVolFlow = UF.Volume();// DO WE WANT THIS???
         }
       else
-        {
-        /*
-        double beta = 1.0 - m_dRf;
+        {     // ---------    SECANT  Root Finding Method   -----------------
+		double beta = 1.0 - m_dRf;
+        m_dD50Used = m_dD50;
         ComputeEfficiency(Feed, OF, UF, beta);
-double NewFdSolMass = Feed.Mass(MP_Sol);
-        double UFmass = UF.Mass(MP_Sol);
-        double y1 = FdSolMass * m_dRqdRecoveryFracUsed - UFmass;
-        double Cut1 = m_dD50Used *1.0e6 ;
-        m_dD50Used = m_dD50Used *1.1;
-        m_dRf = UF.Volume() / TtlVolFlow;//Shouldn't do this if (m_eInputMethod==eIM_Underflow)
-        beta = 1.0 - m_dRf; 
-        ComputeEfficiency(Feed, OF, UF, beta);
-        double y2 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
-        double Cut2 = m_dD50Used *1.0e6 ;
-        int reply=0;
         m_dRf = UF.Volume() / TtlVolFlow;
-        while ((fabs(y2) > 0.00001) && (reply <= 100))
+		beta = 1.0 - m_dRf;
+        ComputeEfficiency(Feed, OF, UF, beta);
+		double NewFdSolMass = Feed.Mass(MP_Sol);
+        double y0 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
+        double Cut0 = m_dD50Used *1.0e6 ;
+        
+		m_dD50Used = m_dD50Used *1.1;
+        ComputeEfficiency(Feed, OF, UF, beta);
+        double y1 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
+        double Cut1 = m_dD50Used *1.0e6 ;
+     
+		int reply=0;
+        while ((fabs(y1) > 0.00001) && (reply <= 100))
           {
+		  if ( (y0 >0.0)&& (y1 > y0)) // the secant goes the wrong way so we have to invert the pair of points
+		   { double y_temp = y1;
+			 double Cut_temp = Cut1;
+			 y1	  = y0;
+			 Cut1 = Cut0;
+			 y0	  = y_temp;
+			 Cut0 = Cut_temp;
+			}
           m_dRf = UF.Volume() / TtlVolFlow;
           beta = 1.0 - m_dRf; // This line SHOULD NOT be commented .. Except to simulate HYPROD results
-          m_dD50Used = ( Cut2 - y2* (Cut1-Cut2)/(y1 - y2) ) / 1.0e6;
+          m_dD50Used = ( Cut0 - y0* (Cut1-Cut0)/(y1 - y0) ) / 1.0e6;
           if (m_dD50Used<0.0)
             {//Trouble!!!???
             int xx=0;
-            //m_dD50Used = Min_d50;
+            m_dD50Used = Min_d50;
             }
-          y1 = y2;
-          Cut1 = Cut2 ;
+          y0 = y1;
+          Cut0 = Cut1 ;
           ComputeEfficiency(Feed, OF, UF, beta);
-          y2 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
-          Cut2 = m_dD50Used *1.0e6;
+          y1 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
+          Cut1 = m_dD50Used *1.0e6;
           reply++;
           }
         m_dRqdUFVolFlow = UF.Volume();
-        Log.SetCondition(reply>99, 4, MMsg_Error, "Probleme de convergence de densité");*/
+        Log.SetCondition(reply>99, 4, MMsg_Error, "Probleme de convergence de densité");
         }
       break;
       }
@@ -598,7 +642,7 @@ double NewFdSolMass = Feed.Mass(MP_Sol);
 
 void Classifier::EvalProducts()
   {
-  if (!IsSolveDirect)
+  if (!IsSolveDirect)//(!IsProbal)
     return;
   MStream Prod;
   bool SplitErr = false;
@@ -655,7 +699,7 @@ void Classifier::EvalProducts()
             //  {
             //  SetPSDfromPrev(Prod);
             //  }
-            }
+			}
           }
         }
       m_QProd = Prod; //the stream after precipitation but before separation
@@ -754,11 +798,19 @@ void Classifier::ClosureInfo(MClosureInfo & CI)
 
 bool Classifier::PreStartCheck()
   {
-  if (!sm_bCompletePopulation && m_eInputMethod!=eIM_Recovery)
-    {
-    m_sErrorMsg = "Invalid Method"; 
-    return false;
-    }
+  if (!sm_bCompletePopulation )
+   {
+	m_eInputMethod = eIM_Recovery; // force the method to be recovery 
+	if ( m_dCalcRecoveryFrac<= 0)
+	  {
+	  m_sErrorMsg = "Invalid Method"; 
+	  return false;
+	  }
+	else
+	 {
+	m_dRqdRecoveryFrac = m_dCalcRecoveryFrac;
+     }
+   }
   return true; 
   }
 

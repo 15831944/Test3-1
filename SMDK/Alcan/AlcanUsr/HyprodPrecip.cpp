@@ -47,8 +47,7 @@ static MInOutDefStruct s_IODefs[]=
 static double PrecipDraw[] = { MDrw_Poly,  -5,10,  -5,-10,  5,-10,  5,10,
                       MDrw_End};
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT(Precipitator, "Precip", DLL_GroupName)
-//DEFINE_SURGE_UNIT
+DEFINE_SURGE_UNIT(Precipitator, "Precip", DLL_GroupName)
 
 void Precipitator_UnitDef::GetOptions()
   {
@@ -56,7 +55,7 @@ void Precipitator_UnitDef::GetOptions()
   SetDrawing("Tank", PrecipDraw);
   SetTreeDescription("Process:Unit:Alcan Precipitator");
   SetDescription("Alcan Continuous Precipitator based on Hyprod model");
-  SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow);
+  SetModelSolveMode(MSolveMode_Probal);
   SetModelGroup(MGroup_Alumina);
   SetModelLicense(MLicense_HeatExchange|MLicense_Alumina|MLicense_Alcan);
   };
@@ -71,6 +70,7 @@ Precipitator::Precipitator(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseM
   m_dBypass           = 0.05;
 
   m_dBypassFlow       = 0.0;
+  m_dInTankSSA		  = 0.035;
 
   //m_iAlumina          = gs_MVDefn.Lookup("Al2O3(l)");
   //m_dMwtAl2O3         = gs_MVDefn[m_iAlumina].MolecularWt();     //101.961278                               
@@ -171,7 +171,9 @@ void Precipitator::BuildDataFields()
   DD.String("Version", "", idDX_Version, MF_RESULT);
   DD.CheckBox ("CompletePopulation", "", &sm_bCompletePopulation, MF_PARAM_STOPPED);
   DD.Show(!sm_bCompletePopulation);
-  DD.CheckBox ("UseStoredPSD", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
+  DD.CheckBox ("Use SSA from Pop Run", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
+  DD.Show( (!sm_bUsePrevPSD)&&(!sm_bCompletePopulation)  );
+  DD.Double("In Tank SSA of solids", "", &m_dInTankSSA, MF_PARAMETER,  MC_);  
   DD.Show();
   DD.Text     ("");
   DD.Text     ("Configuration");
@@ -292,7 +294,7 @@ bool Precipitator::ValidateDataFields()
 
 void Precipitator::EvalProducts()
   {
-  if (!IsSolveDirect)
+  if (!IsSolveDirect)//(!IsProbal)
     return;
   try
     {
@@ -319,9 +321,17 @@ void Precipitator::EvalProducts()
       {
       MIBayer & ProdB=Prod.IF<MIBayer>(false);
       MISSA & FeedSSA = Feed.IF<MISSA>(false);
+	  MIPSD & FeedSz = Feed.IF<MIPSD>(false);
       Log.SetCondition(IsNothing(ProdB), 1, MMsg_Warning, "Bad Feed Stream - Not Bayer Model"); //expect stream to have bayer properties
       Log.SetCondition(IsNothing(FeedSSA), 3, MMsg_Warning, "Bad Feed Stream - No SSA Data");
-      
+
+	  /* meansize =FeedSSA.PartDiamFromSAM;
+	  if( meansize > 500)
+		{
+		SetStopRequired("PSD has deviated from typical conditions!");
+		Log.SetCondition( true , 5, MMsg_Error, "PSD has deviated from typical conditions: Reinitialise!");
+		}*/
+
       if (!IsNothing(FeedB) && !IsNothing(ProdB) && !IsNothing(FeedSSA))
         {
         RunSteady(Feed, Prod);
@@ -351,23 +361,23 @@ void Precipitator::EvalProducts()
   catch (MMdlException &e)
     {
     Log.Message(MMsg_Error, e.Description);
-    SetIdleRequired("Phone Denis");
+    //SetIdleRequired("Phone Denis");
     }
   catch (MFPPException &e)
     {
     e.ClearFPP();
     Log.Message(MMsg_Error, e.Description);
-    SetIdleRequired("Phone Denis");
+    //SetIdleRequired("Phone Denis");
     }
   catch (MSysException &e)
     {
     Log.Message(MMsg_Error, e.Description);
-    SetIdleRequired("Phone Denis");
+    //SetIdleRequired("Phone Denis");
     }
   catch (...)
     {
     Log.Message(MMsg_Error, "Some Unknown Exception occured");
-    SetIdleRequired("Phone Denis");
+    //SetIdleRequired("Phone Denis");
     }
   }
 

@@ -42,7 +42,7 @@ HyprodPrecipHelper::HyprodPrecipHelper()
   m_dUCoef            = 100.0;
   m_dLevel            = 1.0;
   m_eAgloModel        = eAgMdl_dlev;
-  m_eHeatBalance	    = eHBal_Normal;	
+  m_eHeatBalance	  = eHBal_Normal;	
   m_eNuclModel		  = eNucl_Hyprod;
   m_eShearRate		  = 500;
 
@@ -55,14 +55,14 @@ HyprodPrecipHelper::HyprodPrecipHelper()
 
   m_dThermalLoss      = 0.0;
   m_dLoss2Ambient     = 0.0;
-  m_dTempIn         = C2K(25);
-  m_dTempOut        = m_dTempIn;
-  m_dACIn           = 0.0;
-  m_dACOut          = 0.0;
-  m_dSolidConcIn    = 0.0;
-  m_dSolidConcOut   = 0.0;
-  m_dResTime        = 0.0;
-  m_dYield          = 0.0;
+  m_dTempIn           = C2K(25);
+  m_dTempOut          = m_dTempIn;
+  m_dACIn             = 0.0;
+  m_dACOut            = 0.0;
+  m_dSolidConcIn      = 0.0;
+  m_dSolidConcOut     = 0.0;
+  m_dResTime          = 0.0;
+  m_dYield            = 0.0;
 
   m_bPrevPSDUsed      = 0;
   }
@@ -114,9 +114,9 @@ void HyprodPrecipHelper::InitAgloData(eAgglomModel eAgloModel, double AgloParam)
             Kva[n][m]=8e-10/1.66*0.21*pow(SizeClass[n]+SizeClass[m], 0.5)
               /(1+0.5*pow(SizeClass[n]/AgloParam, 3))
               /(1+0.5*pow(SizeClass[m]/AgloParam, 3));
-			if (m== 0)
-				Kva[n][m]=Kva[n][m]/10;// Refinement introduced in 19 July 05 to explain
-			if (m == 1)
+			if (m== 0)  
+				Kva[n][m]=Kva[n][m]/10;// Refinement introduced in 19 July 05 to explain 
+			if (m == 1) 
 				Kva[n][m]=Kva[n][m]/3;// the higher apparent nucleation rate in BATCH tanks
             break;
           case eAgMdl_HighAgit:
@@ -223,7 +223,7 @@ double HyprodPrecipHelper::get_NucleationRate(eNuclModel eNucleation,MVector & V
           break;
 		  case eNucl_NBrown:
 		  nuclRate =NuclFact* 0.0009 *exp(21000/(1.987*T))*SuperGPL
-			  *Pow(10, (11.67-0.000301*Sqr(T-273) -0.76*Pow((gpl*Ssurf),0.3)  -4.8*log(SuperGPL) )) /3600/1000000;
+			  *Pow(10, (11.67-0.000301*Sqr(T-273) -0.76*Pow((gpl*Ssurf),0.3)  -4.8*log(SuperGPL) )) /3600/1000000; 
           break;
 		  case eNucl_LowShearRate:
 		  nuclRate = NuclFact*1.80e12 *Pow(ShRate,2.25) * Pow(RelSuper,2.4) * gpl *exp(-102/8.314*1000/T);
@@ -232,11 +232,11 @@ double HyprodPrecipHelper::get_NucleationRate(eNuclModel eNucleation,MVector & V
 		  nuclRate = NuclFact*1.58e24 *Pow(ShRate,2.25) * Pow(RelSuper,4.7) * gpl *exp(-180/8.314*1000/T);
           break;
 		  case eNucl_LowSolidsConc:
-     	  nuclRate = NuclFact*4.39e72 * Pow(ShRate,2.25) * Pow(RelSuper,17) * gpl *exp(-500/8.314*1000/T);
+     	  nuclRate = NuclFact*4.39e72 * Pow(ShRate,2.25) * Pow(RelSuper,17) * gpl *exp(-500/8.314*1000/T);       
           break;
 		  case eNucl_Hybrid:
 		  nuclRate = 1.58e24 * Pow(ShRate,2.25) * Pow(RelSuper,4.7) * gpl *exp(-180/8.314*1000/T);
-		  nuclRate  *= 4.39e72 *Pow(ShRate,2.25) *Pow(RelSuper,17) * gpl *exp(-500/8.314*1000/T);
+		  nuclRate  *= 4.39e72 *Pow(ShRate,2.25) *Pow(RelSuper,17) * gpl *exp(-500/8.314*1000/T); 
 		  nuclRate = Sqrt(nuclRate);
           break;
 		  }
@@ -288,7 +288,7 @@ int HyprodPrecipHelper::PrecipSS(MVector & Feed, MVector & Prod, MStream & QProd
   else
     {
 	  m_bPrevPSDUsed = 0;
-    Sx=ProdSSA.SpecificSurfaceAreaMass(); //m^2/g
+    Sx= m_dInTankSSA ; // Spec Surface that is manually entered by user m^2/g
     }
 
   Sx=Range(0.020, Sx, 0.085);
@@ -594,11 +594,11 @@ void HyprodPrecipHelper::HyprodDist2MassFrac(double SizeClass[],
   #if ForceOptimizeOff
   //check for errors if debug is on
   if (Tot<0.0)
-    throw MMdlException(0,"HyprodDist2MassFrac:Negative sum of total PSD mass!");
+    throw MMdlException(0,"HyprodDist2MassFrac:Negative sum of total PSD mass!"); 
   for (i=0; i<NIntervals; i++)
     if (MassFrac[i]<0.0)
       {
-      throw MMdlException(0,"HyprodDist2MassFrac:Negative PSD!");
+      throw MMdlException(0,"HyprodDist2MassFrac:Negative PSD!"); 
       break;
       }
   #endif

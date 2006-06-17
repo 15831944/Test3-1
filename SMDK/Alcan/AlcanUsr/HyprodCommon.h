@@ -16,9 +16,9 @@
 
 //===========================================================================
 //========== Change these 'global' options as required ==========
-#define ForceOptimizeOff 1
+#define ForceOptimizeOff 1  //set this to 1 for debuging and testing
 #define UseLicensing 0
-#define VersionDescription "Version 1.0 Build 17 (1st Aug 2005)"
+#define VersionDescription "Version 1.0 Build 19 (19th Dec 2005)"
 //===========================================================================
 
 const double THADens=2420.0; //should get this from SysCAD specie database???
@@ -109,7 +109,8 @@ class HyprodPrecipHelper
                     m_dLevel,
                     m_dTempImpos,
                     m_dInTankCooling,
-					m_eShearRate;// !! used in AMIRA Nucleation MODELS
+					m_eShearRate,// !! used in AMIRA Nucleation MODELS
+					m_dInTankSSA;
     eAgglomModel    m_eAgloModel;
     eHeatBalance    m_eHeatBalance;
 	eNuclModel		m_eNuclModel;
@@ -134,12 +135,12 @@ class HyprodPrecipHelper
     double  HPDSize;
     double  HPSMin;
 
-    long    Q[MaxHPSizeClasses][MaxHPSizeClasses]; //agglom data
+    long    Q[MaxHPSizeClasses][MaxHPSizeClasses]; //agglom data             
     double  Vli[MaxHPSizeClasses][MaxHPSizeClasses]; //agglom data
     double  Kva[MaxHPSizeClasses][MaxHPSizeClasses]; //agglom data
     long    mv2;
 
-    double  dPSD[MaxHPSizeClasses];
+    double  dPSD[MaxHPSizeClasses];                             
 
     double  ProdHyPsd[MaxHPSizeClasses];
   };

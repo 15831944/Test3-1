@@ -50,6 +50,7 @@ class Classifier : public MBaseMethod, public HyprodPrecipHelper
     Classifier(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void Init();
     virtual void BuildDataFields();
+	virtual bool ExchangeDataFields();
     virtual bool ValidateDataFields();
     virtual void EvalProducts();
     virtual void ClosureInfo(MClosureInfo & CI);
@@ -63,6 +64,7 @@ class Classifier : public MBaseMethod, public HyprodPrecipHelper
   protected:
     bool          m_bOn;
     bool          m_bPrecipOn;
+	bool		  m_bBrentSolverSelected;
     eClassifModel m_eModel;
     eInputMethod  m_eInputMethod;
     eSharpnessEquation m_eSharpEqn;
