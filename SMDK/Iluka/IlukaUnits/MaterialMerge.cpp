@@ -54,12 +54,14 @@ double **map;
 std::string **mapText;
 
 bool *makeObject;
+bool *enable;
 
 double *totals;
 
 MDDValueLst *targetTypeDropDown;
 
 std::vector<std::string> phases;
+std::vector<std::string> phasestmp;
 
 //---------------------------------------------------------------------------
 
@@ -99,6 +101,9 @@ MaterialMerge::~MaterialMerge()
   if (makeObject != NULL)
     delete[] makeObject;
 
+  if (enable != NULL)
+    delete[] enable;
+
   if (totals != NULL)
     delete[] totals;
 
@@ -128,17 +133,37 @@ void MaterialMerge::BuildDataFields()
       std::string symbol = gs_MVDefn[i].Symbol();
       std::string phase = symbol.substr(symbol.find("(")+1, symbol.length()-symbol.find("(")-2); // leave off the brackets.
 
-      bool exists = false;
-      for (std::vector<std::string>::size_type p=0; p<phases.size(); p++)
+      if ((phase != "s") && (phase != "l") && (phase != "g")) // Don't want elements.
       {
-        if (phases[p] == phase)
-          exists = true;
-      }
+        // All this just allows only the items that have more than one copy.
+        // That means that elements don't get included.
+        bool existstmp = false;
+        for (std::vector<std::string>::size_type p=0; p<phasestmp.size(); p++)
+        {
+          if (phasestmp[p] == phase)
+            existstmp = true;
+        }
 
-      if (!exists)
-      {
-        phases.insert(phases.end(), phase);
-        phaseCount++;
+        if (!existstmp)
+        {
+          phasestmp.insert(phasestmp.end(), phase);
+        }
+        else
+        {
+          // If we're here then we have found a multiple 'phase' so it's to be included.
+          bool exists = false;
+          for (std::vector<std::string>::size_type p=0; p<phases.size(); p++)
+          {
+            if (phases[p] == phase)
+              exists = true;
+          }
+
+          if (!exists)
+          {
+            phases.insert(phases.end(), phase);
+            phaseCount++;
+          }
+        }
       }
     }
 
@@ -170,7 +195,23 @@ void MaterialMerge::BuildDataFields()
   DD.Long("TargetType", "", idDX_MaterialType, MF_PARAM_STOPPED | MF_SET_ON_CHANGE, targetTypeDropDown);
 
   DD.Text("");
-  DD.Text("Mappings...");
+  DD.ObjectBegin("Mapping Enable", "Mapping Enable");
+  if (m_sMaterialType != 0)
+  {
+    if ((map != NULL)&&(mapText != NULL))
+      for (int i=0; i<allCount; i++)
+      {
+        if (makeObject[i])
+        {
+          DD.CheckBox(gs_MVDefn[i].Symbol(), "", &enable[i], MF_PARAMETER); 
+        }
+      }
+  }
+  DD.ObjectEnd();
+
+  DD.Page("Mappings");
+
+  DD.Text("");
 
   if (m_sMaterialType != 0)
   {
@@ -180,9 +221,12 @@ void MaterialMerge::BuildDataFields()
         if (makeObject[i])
         {
           DD.ObjectBegin("Mapping", gs_MVDefn[i].Symbol());
-          for (int j=0; j<destCount; j++)
+          if (enable[i])
           {
-            DD.Double(mapText[i][j].c_str(), "", &map[i][j], MF_PARAMETER, MC_Frac("%"));
+            for (int j=0; j<destCount; j++)
+            {
+              DD.Double(mapText[i][j].c_str(), "", &map[i][j], MF_PARAMETER, MC_Frac("%"));
+            }
           }
           DD.ObjectEnd();
         }
@@ -229,6 +273,9 @@ bool MaterialMerge::ExchangeDataFields()
         if (makeObject != NULL)
           delete[] makeObject;
 
+        if (enable != NULL)
+          delete[] enable;
+
         if (totals != NULL)
           delete[] totals;
 
@@ -270,6 +317,10 @@ bool MaterialMerge::ExchangeDataFields()
         makeObject = new bool[allCount];
         for (int i = 0; i < allCount; i++)
           makeObject[i] = false;
+
+        enable = new bool[allCount];
+        for (int i = 0; i < allCount; i++)
+          enable[i] = false;
 
         totals = new double[allCount];
         for (int i = 0; i < allCount; i++)
@@ -443,13 +494,13 @@ void MaterialMerge::EvalProducts()
     {
       for (int i=0; i<allCount; i++)
       {
-        if (!gs_MVDefn[i].IsGas()) // isn't a gas, clear.
+        if ((enable[i])&&(!gs_MVDefn[i].IsGas())) // isn't a gas, clear.
           QO.M[i] = 0.0;
       }
 
       for (int i=0; i<allCount; i++)
       {
-        if (!gs_MVDefn[i].IsGas()) // isn't a gas
+        if ((enable[i])&&(!gs_MVDefn[i].IsGas())) // isn't a gas
         {
           for (int j=0; j<destCount; j++)
             if (map[i][j]>0.0)
