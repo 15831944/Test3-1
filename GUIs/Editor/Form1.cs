@@ -838,6 +838,25 @@ namespace SysCAD.Editor
           propertyGrid1.SelectedObject = graphicItem;
           propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid1_PropertyValueChanged);
 
+          ModelItem modelItem = new ModelItem(graphicItem.Guid);
+          modelItem.Properties = new BaseAccessItem[6];
+          modelItem.Properties[0] = new FloatAccessItem("zero", "description zero", 074.6F);
+          modelItem.Properties[1] = new FloatAccessItem("one", "description one", 174.6F);
+          modelItem.Properties[2] = new FloatAccessItem("two", "description two", 274.6F);
+          modelItem.Properties[3] = new FloatAccessItem("three", "description three", 374.6F);
+          modelItem.Properties[4] = new FloatAccessItem("four", "description four", 474.6F);
+
+          BaseAccessItem[] properties = new BaseAccessItem[5];
+          properties[0] = new FloatAccessItem("zero branch", "description zero branch", 074.6F);
+          properties[1] = new FloatAccessItem("one branch", "description one branch", 174.6F);
+          properties[2] = new FloatAccessItem("two branch", "description two branch", 274.6F);
+          properties[3] = new FloatAccessItem("three branch", "description three branch", 374.6F);
+          properties[4] = new FloatAccessItem("four branch", "description four branch", 474.6F);
+
+          modelItem.Properties[5] = new BranchAccessItem("branch zero", "description branch zero", properties);
+
+          propertyGrid2.SelectedObject = modelItem;
+
           int i;
 
           i = 0;

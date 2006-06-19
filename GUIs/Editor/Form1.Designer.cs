@@ -30,12 +30,12 @@ namespace SysCAD.Editor
     /// </summary>
     private void InitializeComponent()
     {
-      PureComponents.TreeView.ContextMenuStrings contextMenuStrings1 = new PureComponents.TreeView.ContextMenuStrings();
-      PureComponents.TreeView.TreeViewStyle treeViewStyle1 = new PureComponents.TreeView.TreeViewStyle();
-      PureComponents.TreeView.NodeStyle nodeStyle1 = new PureComponents.TreeView.NodeStyle();
-      PureComponents.TreeView.CheckBoxStyle checkBoxStyle1 = new PureComponents.TreeView.CheckBoxStyle();
-      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle1 = new PureComponents.TreeView.ExpandBoxStyle();
-      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle1 = new PureComponents.TreeView.NodeTooltipStyle();
+      PureComponents.TreeView.ContextMenuStrings contextMenuStrings2 = new PureComponents.TreeView.ContextMenuStrings();
+      PureComponents.TreeView.TreeViewStyle treeViewStyle2 = new PureComponents.TreeView.TreeViewStyle();
+      PureComponents.TreeView.NodeStyle nodeStyle2 = new PureComponents.TreeView.NodeStyle();
+      PureComponents.TreeView.CheckBoxStyle checkBoxStyle2 = new PureComponents.TreeView.CheckBoxStyle();
+      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle2 = new PureComponents.TreeView.ExpandBoxStyle();
+      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle2 = new PureComponents.TreeView.NodeTooltipStyle();
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editUndoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Undo", "&Undo", -1);
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editRedoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Redo", "&Redo", -1);
@@ -66,8 +66,8 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonCommand filePrintPreviewBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "PrintPreview", "Print Pre&view", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileExitBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Exit", "E&xit", -1);
       ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand newMenuNewMenuBarPopupButtonCommand = new ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand("New Menu", "New Menu", "New Menu", -1);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("CreateItem", "ModelType", "ModelType", -1);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand newItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("CreateItem", "GraphicType", "GraphicType", -1);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand createItemModelTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("CreateItem", "ModelType", "ModelType", -1);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxCommand createItemGraphicTypeBarComboBoxCommand = new ActiproSoftware.UIStudio.Bar.BarComboBoxCommand("CreateItem", "GraphicType", "GraphicType", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowGraphicsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowGraphics", "Show Graphics", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowModelsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowModels", "Show Models", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewShowLinksBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ShowLinks", "Show Links", -1);
@@ -160,10 +160,10 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonLink helpSearchBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(helpSearchBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink helpAboutBarButtonLink2 = new ActiproSoftware.UIStudio.Bar.BarButtonLink(helpAboutBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.DockableToolBar newItemDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("newItem");
-      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemModelTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemModelTypeBarComboBoxCommand);
-      ActiproSoftware.UIStudio.Bar.BarComboBoxLink newItemGraphicTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(newItemGraphicTypeBarComboBoxCommand);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxLink createItemModelTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(createItemModelTypeBarComboBoxCommand);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxLink createItemGraphicTypeBarComboBoxLink = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(createItemGraphicTypeBarComboBoxCommand);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxLink createItemModelTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(createItemModelTypeBarComboBoxCommand);
+      ActiproSoftware.UIStudio.Bar.BarComboBoxLink createItemGraphicTypeBarComboBoxLink2 = new ActiproSoftware.UIStudio.Bar.BarComboBoxLink(createItemGraphicTypeBarComboBoxCommand);
       ActiproSoftware.UIStudio.Bar.DockableToolBar selectionControlDockableToolBar = new ActiproSoftware.UIStudio.Bar.DockableToolBar("SelectionControl");
       ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectLinksBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectLinksBarButtonCommand);
       ActiproSoftware.UIStudio.Bar.BarButtonLink selectionSelectItemsBarButtonLink = new ActiproSoftware.UIStudio.Bar.BarButtonLink(selectionSelectItemsBarButtonCommand);
@@ -209,6 +209,8 @@ namespace SysCAD.Editor
       this.twGraphicProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
       this.toolWindowContainer4 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
+      this.toolWindow1 = new ActiproSoftware.UIStudio.Dock.ToolWindow();
+      this.propertyGrid2 = new System.Windows.Forms.PropertyGrid();
       ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
       this.twOverview.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.tvNavigation)).BeginInit();
@@ -218,7 +220,7 @@ namespace SysCAD.Editor
       this.toolWindowContainer2.SuspendLayout();
       this.dockContainerContainer1.SuspendLayout();
       this.twGraphicProperties.SuspendLayout();
-      this.toolWindowContainer4.SuspendLayout();
+      this.toolWindow1.SuspendLayout();
       this.SuspendLayout();
       // 
       // dockManager1
@@ -258,7 +260,7 @@ namespace SysCAD.Editor
       // 
       this.tvNavigation.AllowAdding = false;
       this.tvNavigation.AllowDeleting = false;
-      this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
+      this.tvNavigation.ContextMenuStrings = contextMenuStrings2;
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tvNavigation.ExpandOnDblClick = false;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);
@@ -268,13 +270,13 @@ namespace SysCAD.Editor
       this.tvNavigation.PathSeparator = "/";
       this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
       this.tvNavigation.Size = new System.Drawing.Size(128, 354);
-      nodeStyle1.CheckBoxStyle = checkBoxStyle1;
-      nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
-      nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeTooltipStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeStyle1.TooltipStyle = nodeTooltipStyle1;
-      treeViewStyle1.NodeStyle = nodeStyle1;
-      this.tvNavigation.Style = treeViewStyle1;
+      nodeStyle2.CheckBoxStyle = checkBoxStyle2;
+      nodeStyle2.ExpandBoxStyle = expandBoxStyle2;
+      nodeStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeTooltipStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeStyle2.TooltipStyle = nodeTooltipStyle2;
+      treeViewStyle2.NodeStyle = nodeStyle2;
+      this.tvNavigation.Style = treeViewStyle2;
       this.tvNavigation.TabIndex = 1;
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
       this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
@@ -370,8 +372,8 @@ namespace SysCAD.Editor
             new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131152)});
       filePrintPreviewBarButtonCommand.Enabled = false;
       filePrintPreviewBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("filePrintPreviewBarButtonCommand.Image")));
-      newItemModelTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
-      newItemGraphicTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
+      createItemModelTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
+      createItemGraphicTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
       viewShowGraphicsBarButtonCommand.Checkable = true;
       viewShowGraphicsBarButtonCommand.Checked = true;
       viewShowModelsBarButtonCommand.Checkable = true;
@@ -420,8 +422,8 @@ namespace SysCAD.Editor
             filePrintPreviewBarButtonCommand,
             fileExitBarButtonCommand,
             newMenuNewMenuBarPopupButtonCommand,
-            newItemModelTypeBarComboBoxCommand,
-            newItemGraphicTypeBarComboBoxCommand,
+            createItemModelTypeBarComboBoxCommand,
+            createItemGraphicTypeBarComboBoxCommand,
             viewShowGraphicsBarButtonCommand,
             viewShowModelsBarButtonCommand,
             viewShowLinksBarButtonCommand,
@@ -573,20 +575,20 @@ namespace SysCAD.Editor
             newMenuNewMenuBarPopupButtonLink12});
       mainMenuMenuBar.DockedRow = 0;
       newItemDockableToolBar.Active = true;
-      newItemModelTypeBarComboBoxLink.DefaultText = "ModelType";
-      newItemModelTypeBarComboBoxLink.Text = "ModelType";
-      newItemGraphicTypeBarComboBoxLink.DefaultText = "GraphicType";
-      newItemGraphicTypeBarComboBoxLink.Text = "GraphicType";
+      createItemModelTypeBarComboBoxLink.DefaultText = "ModelType";
+      createItemModelTypeBarComboBoxLink.Text = "ModelType";
+      createItemGraphicTypeBarComboBoxLink.DefaultText = "GraphicType";
+      createItemGraphicTypeBarComboBoxLink.Text = "GraphicType";
       newItemDockableToolBar.CommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
-            newItemModelTypeBarComboBoxLink,
-            newItemGraphicTypeBarComboBoxLink});
-      newItemModelTypeBarComboBoxLink2.DefaultText = "ModelType";
-      newItemModelTypeBarComboBoxLink2.Text = "ModelType";
-      newItemGraphicTypeBarComboBoxLink2.DefaultText = "GraphicType";
-      newItemGraphicTypeBarComboBoxLink2.Text = "GraphicType";
+            createItemModelTypeBarComboBoxLink,
+            createItemGraphicTypeBarComboBoxLink});
+      createItemModelTypeBarComboBoxLink2.DefaultText = "ModelType";
+      createItemModelTypeBarComboBoxLink2.Text = "ModelType";
+      createItemGraphicTypeBarComboBoxLink2.DefaultText = "GraphicType";
+      createItemGraphicTypeBarComboBoxLink2.Text = "GraphicType";
       newItemDockableToolBar.DefaultCommandLinks.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommandLink[] {
-            newItemModelTypeBarComboBoxLink2,
-            newItemGraphicTypeBarComboBoxLink2});
+            createItemModelTypeBarComboBoxLink2,
+            createItemGraphicTypeBarComboBoxLink2});
       newItemDockableToolBar.DockedColumn = 390;
       newItemDockableToolBar.DockedRow = 1;
       selectionControlDockableToolBar.Active = true;
@@ -725,10 +727,10 @@ namespace SysCAD.Editor
       this.twGraphicProperties.Controls.Add(this.propertyGrid1);
       this.twGraphicProperties.Dock = System.Windows.Forms.DockStyle.Fill;
       this.twGraphicProperties.DockManager = this.dockManager1;
-      this.twGraphicProperties.Location = new System.Drawing.Point(4, 25);
+      this.twGraphicProperties.Location = new System.Drawing.Point(0, 0);
       this.twGraphicProperties.Margin = new System.Windows.Forms.Padding(2);
       this.twGraphicProperties.Name = "twGraphicProperties";
-      this.twGraphicProperties.Size = new System.Drawing.Size(149, 491);
+      this.twGraphicProperties.Size = new System.Drawing.Size(149, 467);
       this.twGraphicProperties.TabIndex = 0;
       this.twGraphicProperties.Text = "Graphic Properties";
       // 
@@ -738,12 +740,11 @@ namespace SysCAD.Editor
       this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
       this.propertyGrid1.Margin = new System.Windows.Forms.Padding(2);
       this.propertyGrid1.Name = "propertyGrid1";
-      this.propertyGrid1.Size = new System.Drawing.Size(149, 491);
+      this.propertyGrid1.Size = new System.Drawing.Size(149, 467);
       this.propertyGrid1.TabIndex = 0;
       // 
       // toolWindowContainer4
       // 
-      this.toolWindowContainer4.Controls.Add(this.twGraphicProperties);
       this.toolWindowContainer4.Dock = System.Windows.Forms.DockStyle.Right;
       this.toolWindowContainer4.DockManager = this.dockManager1;
       this.toolWindowContainer4.Location = new System.Drawing.Point(810, 74);
@@ -751,6 +752,27 @@ namespace SysCAD.Editor
       this.toolWindowContainer4.Name = "toolWindowContainer4";
       this.toolWindowContainer4.Size = new System.Drawing.Size(153, 516);
       this.toolWindowContainer4.TabIndex = 12;
+      toolWindowContainer4.Controls.Add(twGraphicProperties);
+      toolWindowContainer4.Controls.Add(toolWindow1);
+      // 
+      // toolWindow1
+      // 
+      this.toolWindow1.Controls.Add(this.propertyGrid2);
+      this.toolWindow1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.toolWindow1.DockManager = this.dockManager1;
+      this.toolWindow1.Location = new System.Drawing.Point(0, 0);
+      this.toolWindow1.Name = "toolWindow1";
+      this.toolWindow1.Size = new System.Drawing.Size(149, 467);
+      this.toolWindow1.TabIndex = 0;
+      this.toolWindow1.Text = "Model Properties";
+      // 
+      // propertyGrid2
+      // 
+      this.propertyGrid2.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.propertyGrid2.Location = new System.Drawing.Point(0, 0);
+      this.propertyGrid2.Name = "propertyGrid2";
+      this.propertyGrid2.Size = new System.Drawing.Size(149, 467);
+      this.propertyGrid2.TabIndex = 0;
       // 
       // Form1
       // 
@@ -778,7 +800,7 @@ namespace SysCAD.Editor
       this.toolWindowContainer2.ResumeLayout(false);
       this.dockContainerContainer1.ResumeLayout(false);
       this.twGraphicProperties.ResumeLayout(false);
-      this.toolWindowContainer4.ResumeLayout(false);
+      this.toolWindow1.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
@@ -801,6 +823,8 @@ namespace SysCAD.Editor
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer4;
     private ActiproSoftware.UIStudio.Dock.ToolWindow twGraphicProperties;
     public System.Windows.Forms.PropertyGrid propertyGrid1;
+    private ActiproSoftware.UIStudio.Dock.ToolWindow toolWindow1;
+    private PropertyGrid propertyGrid2;
   }
 }
 

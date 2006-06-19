@@ -703,7 +703,14 @@ namespace SysCAD.Editor
       }
 
       form1.propertyGrid1.Refresh();
+      
+      ContextMenu propertyGridMenu = form1.propertyGrid1.ContextMenu;
+      
+      if (propertyGridMenu == null)
+        propertyGridMenu = new ContextMenu();
 
+      propertyGridMenu.MenuItems.Add("Test");
+      form1.propertyGrid1.ContextMenu = propertyGridMenu;
     }
 
     private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)

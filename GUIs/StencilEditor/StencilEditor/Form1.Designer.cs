@@ -89,11 +89,11 @@ namespace StencilEditor
       this.toolStripTextBox3 = new System.Windows.Forms.ToolStripTextBox();
       this.toolStripLabel5 = new System.Windows.Forms.ToolStripLabel();
       this.toolStripTextBox4 = new System.Windows.Forms.ToolStripTextBox();
+      this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
       this.DecorationAreaListBox = new System.Windows.Forms.ListBox();
       this.DecorationAreaToolStrip = new System.Windows.Forms.ToolStrip();
       this.NewDecorationLineToolStripButton = new System.Windows.Forms.ToolStripButton();
       this.TextAreaTabPage = new System.Windows.Forms.TabPage();
-      this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
       this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
       this.toolStripContainer1.SuspendLayout();
       this.menuStrip1.SuspendLayout();
@@ -484,7 +484,7 @@ namespace StencilEditor
       this.toolStrip3.Dock = System.Windows.Forms.DockStyle.None;
       this.toolStrip3.Location = new System.Drawing.Point(39, 74);
       this.toolStrip3.Name = "toolStrip3";
-      this.toolStrip3.Size = new System.Drawing.Size(111, 25);
+      this.toolStrip3.Size = new System.Drawing.Size(43, 25);
       this.toolStrip3.TabIndex = 3;
       // 
       // splitContainer1
@@ -616,6 +616,16 @@ namespace StencilEditor
       this.toolStripTextBox4.Size = new System.Drawing.Size(100, 25);
       this.toolStripTextBox4.TextChanged += new System.EventHandler(this.toolStripTextBox_TextChanged);
       // 
+      // toolStripButton1
+      // 
+      this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+      this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+      this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.toolStripButton1.Name = "toolStripButton1";
+      this.toolStripButton1.Size = new System.Drawing.Size(27, 22);
+      this.toolStripButton1.Text = "Set";
+      this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+      // 
       // DecorationAreaListBox
       // 
       this.DecorationAreaListBox.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -656,16 +666,6 @@ namespace StencilEditor
       this.TextAreaTabPage.TabIndex = 2;
       this.TextAreaTabPage.Text = "Text Area";
       this.TextAreaTabPage.UseVisualStyleBackColor = true;
-      // 
-      // toolStripButton1
-      // 
-      this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-      this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-      this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-      this.toolStripButton1.Name = "toolStripButton1";
-      this.toolStripButton1.Size = new System.Drawing.Size(27, 22);
-      this.toolStripButton1.Text = "Set";
-      this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
       // 
       // Form1
       // 

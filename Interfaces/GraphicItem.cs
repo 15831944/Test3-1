@@ -105,7 +105,6 @@ namespace SysCAD.Interface
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Stencil name to be used for displaying the item."),
      Browsable(true),
-     TypeConverter(typeof(StencilConverter)),
      DisplayName("Stencil")]
     public Stencil Stencil
     {
