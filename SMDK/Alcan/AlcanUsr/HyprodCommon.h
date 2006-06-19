@@ -16,7 +16,7 @@
 
 //===========================================================================
 //========== Change these 'global' options as required ==========
-#define ForceOptimizeOff 1  //set this to 1 for debuging and testing
+#define ForceOptimizeOff 0  //set this to 1 for debuging and testing
 #define UseLicensing 0
 #define VersionDescription "Version 1.0 Build 19 (19th Dec 2005)"
 //===========================================================================

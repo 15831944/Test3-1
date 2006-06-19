@@ -79,7 +79,6 @@ void SimpleReactor::BuildDataFields()
     }
 
   DD.Text("");
-  //button example...
   DD.Button("DoSomething", "", idDX_DoSomething); 
 
   m_RB.BuildDataFields();
