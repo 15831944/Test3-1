@@ -202,7 +202,8 @@ typedef struct
         Mode_DynamicFlow : 1,  // 8 allow Dynamic flow based/mathand mode
         Mode_DynamicFull : 1,  // 9 allow detailed Dynamic pressure based mode
         Mode_Electrical  : 1,  //10 allow Electrical design & simulation mode
-        Only_SteadyState : 1,  //11 if set then integrators and similar are put into Hold mode
+        Spare1           : 1,
+        //Only_SteadyState : 1,  //11 if set then integrators and similar are put into Hold mode
         Func_FullEdit    : 1,  //12 allow full license (if false then run-time)
         Func_COM         : 1,  //13 allow access to full VB COM interface
         Func_COMProp     : 1,  //14 allow COM interface to object properties
@@ -315,7 +316,7 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL AllowDynamicFull();
     inline BOOL AllowProBalLite();
     inline BOOL AllowDynamicLite();
-    inline BOOL OnlySteadyState();
+    //inline BOOL OnlySteadyState();
     inline BOOL AllowFullLic();
     inline BOOL AllowFullLicFlag();
     inline BOOL AllowDrivers();

@@ -1597,7 +1597,7 @@ flag TaggedObject::GetActive()             { return m_fActive; };
 void TaggedObject::SetActive(flag Active)  { m_fActive=Active; };
 
 flag TaggedObject::GetActiveHold()
-  { return (m_fActiveHold || fActiveHold_Auto || (m_fActiveHoldIfSS && gs_License.OnlySteadyState())) && GetActiveHoldOK();};
+  { return (m_fActiveHold || fActiveHold_Auto || (m_fActiveHoldIfSS && false/*gs_License.OnlySteadyState()*/)) && GetActiveHoldOK();};
 flag TaggedObject::GetActiveHoldIsAuto()   { return GetActiveHold() && !m_fActiveHold; };
 flag TaggedObject::GetActiveHoldOK()       { return SolveDynamicMethod() ? fActiveHoldOK_Dyn:fActiveHoldOK_PB;};
 void TaggedObject::SetActiveHold(flag Hold) { m_fActiveHold = Hold && GetActiveHoldOK(); };

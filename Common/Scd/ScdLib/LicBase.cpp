@@ -223,7 +223,7 @@ dword CSysCADLicense::FixOptions(dword dwOpLevel)
     Opt.m_Opts.Ver90            |= 1;
     Opt.m_Opts.Mode_DynamicFlow |= 1;
     Opt.m_Opts.Mode_Electrical  |= 1;
-    Opt.m_Opts.Only_SteadyState |= 1;
+    //Opt.m_Opts.Only_SteadyState |= 1;
     Opt.m_Opts.Func_COM         |= 1;
     Opt.m_Opts.Mdls_Electrical  |= 1;
     Opt.m_Opts.Mdls_HeatBal     |= 1;
@@ -1877,7 +1877,7 @@ DWORD CSysCADLicense::GetDemoOptions()
   Opt.m_Opts.Mode_DynamicFlow = 1;
   Opt.m_Opts.Mode_DynamicFull = 1;
   Opt.m_Opts.Mode_Electrical = 0;
-  Opt.m_Opts.Only_SteadyState = 0;
+  //Opt.m_Opts.Only_SteadyState = 0;
   Opt.m_Opts.Func_FullEdit = 1;
   Opt.m_Opts.Func_COM = 0;
   Opt.m_Opts.Func_COMProp = 0;
@@ -1915,7 +1915,7 @@ DWORD CSysCADLicense::GetTrialOptions()
   Opt.m_Opts.Mode_DynamicFlow = 1;
   Opt.m_Opts.Mode_DynamicFull = 1;
   Opt.m_Opts.Mode_Electrical = 0;
-  Opt.m_Opts.Only_SteadyState = 0;
+  //Opt.m_Opts.Only_SteadyState = 0;
   Opt.m_Opts.Func_FullEdit = 1;
   Opt.m_Opts.Func_COM = 1;
   Opt.m_Opts.Func_COMProp = 1;
@@ -2114,7 +2114,7 @@ BOOL CSysCADLicense::AllowDynamicFlow()        { return pSecOpt->m_Opts.Mode_Dyn
 BOOL CSysCADLicense::AllowDynamicFull()        { return pSecOpt->m_Opts.Mode_DynamicFull && !bBlocked; };
 BOOL CSysCADLicense::AllowProBalLite()         { return bProbalLiteMode && !bBlocked; };
 BOOL CSysCADLicense::AllowDynamicLite()        { return bDynLiteMode && !bBlocked; };
-BOOL CSysCADLicense::OnlySteadyState()         { return pSecOpt->m_Opts.Only_SteadyState; }
+//BOOL CSysCADLicense::OnlySteadyState()         { return pSecOpt->m_Opts.Only_SteadyState; }
 BOOL CSysCADLicense::AllowFullLic()            { return pSecOpt->m_Opts.Func_FullEdit && !bBlocked; };
 BOOL CSysCADLicense::AllowFullLicFlag()        { return pSecOpt->m_Opts.Func_FullEdit; };
 BOOL CSysCADLicense::AllowDrivers()            { return pSecOpt->m_Opts.Func_Drivers && !bBlocked; };
