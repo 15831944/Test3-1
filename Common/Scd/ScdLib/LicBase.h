@@ -202,7 +202,7 @@ typedef struct
         Mode_DynamicFlow : 1,  // 8 allow Dynamic flow based/mathand mode
         Mode_DynamicFull : 1,  // 9 allow detailed Dynamic pressure based mode
         Mode_Electrical  : 1,  //10 allow Electrical design & simulation mode
-        Mode_SteadyState : 1,  //11 if set then integrators and similar are put into Hold mode
+        Only_SteadyState : 1,  //11 if set then integrators and similar are put into Hold mode
         Func_FullEdit    : 1,  //12 allow full license (if false then run-time)
         Func_COM         : 1,  //13 allow access to full VB COM interface
         Func_COMProp     : 1,  //14 allow COM interface to object properties
@@ -230,7 +230,7 @@ typedef struct
         Mode_DynamicFlow : 1,  // 4 allow Dynamic flow based/mathand mode
         Mode_DynamicFull : 1,  // 5 allow detailed Dynamic pressure based mode
         Mode_Electrical  : 1,  // 6 allow Electrical design & simulation mode
-        Mode_SteadyState : 1,  // 7 if set then integrators and similar are put into Hold mode
+        Only_SteadyState : 1,  // 7 if set then integrators and similar are put into Hold mode
         Spare_8          : 1,  // 8
         Func_FullEdit    : 1,  // 9 allow full license (if false then run-time)
         Func_COM         : 1,  //10 allow access to full VB COM interface

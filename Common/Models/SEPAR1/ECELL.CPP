@@ -98,8 +98,8 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Density",       "Rho",      DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
   DDB.Double  ("Level",         "Lvl",      DC_Frac, "%",      xidLevel,       this, isResult|0);
-  DDB.Double  ("Mass_Accum",    "QmAcc",    DC_Qm,   "kg/s",   &QmAcc,         this, isResult|0);
-  DDB.Double  ("Vol_Accum",     "QvAcc",    DC_Qv,   "L/s",    &QvAcc,         this, isResult|0);
+  DDB.Double  ("Mass_Accum",    "QmAcc",    DC_Qm,   "kg/s",   &m_QmAcc,       this, isResult|0);
+  DDB.Double  ("Vol_Accum",     "QvAcc",    DC_Qv,   "L/s",    &m_QvAcc,       this, isResult|0);
   DDB.Text    ("");
   DDB.Byte    ("Plated_Metal?", "Metal?",   DC_,     "",       &iMetal,        this, isParm, SDB.DDBSolSpList());
   DDB.Double  ("Cathode_Mass",  "Cathodes", DC_,     "",       &CathMass,      this, isResult|0);

@@ -120,8 +120,8 @@ class DllImportExport MN_Surge : public MdlNode
     CSpContPreset   m_Preset;
     CSurgeControl   m_SrgCtrl;
 
-    double         QmAcc;      //measures mass accumulation of material in the surge unit
-    double         QvAcc;      //measures volume accumulation of material in the surge unit
+    double         m_QmAcc;      //measures mass accumulation of material in the surge unit
+    double         m_QvAcc;      //measures volume accumulation of material in the surge unit
 
     double         SS_Lvl;
 

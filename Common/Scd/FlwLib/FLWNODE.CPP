@@ -9243,12 +9243,14 @@ CAreaSum::eSumAction CAreaSum::sm_eAction=CAreaSum::SumMass;
 
 CAreaSum::CAreaSum()
   {
-  m_FlowHz   = 0;
-  m_FlowMass = 0;
-  m_pFlowArray = NULL;
-  m_TotalHz   = 0;
-  m_TotalMass = 0;
-  m_pTotalArray = NULL;
+  m_FlowHz        = 0;
+  m_FlowMass      = 0;
+  m_pFlowArray    = NULL;
+  m_TotalMass     = 0;
+  m_TotalMassInc  = 0;
+  m_TotalHz       = 0;
+  m_TotalHzInc    = 0;
+  m_pTotalArray   = NULL;
   };
 
 CAreaSum::~CAreaSum()
@@ -9270,9 +9272,17 @@ void CAreaSum::ZeroFlows()
 void CAreaSum::ZeroTotals()
   {
   m_TotalMass = 0;
+  m_TotalMassInc = 0;
   m_TotalHz = 0;
+  m_TotalHzInc = 0;
   if (DoArray)
     TotalArray.Zero();
+  };
+
+void CAreaSum::ZeroTotalIncs()
+  {
+  m_TotalMassInc = 0;
+  m_TotalHzInc = 0;
   };
 
 //--------------------------------------------------------------------------
@@ -9284,8 +9294,10 @@ void CAreaSum::Set(CAreaSum & C)
   if (DoArray)
     FlowArray.Set(C.FlowArray);
 
-  m_TotalMass = C.TotalMass;
-  m_TotalHz = C.TotalHz;
+  m_TotalMass     = C.TotalMass;
+  m_TotalMassInc  = C.TotalMassInc;
+  m_TotalHz       = C.TotalHz;
+  m_TotalHzInc    = C.TotalHzInc;
   if (DoArray)
     TotalArray.Set(C.TotalArray);
   };
@@ -9324,8 +9336,8 @@ void CAreaSum::Add(CAreaSum & C)
   if (DoArray)
     FlowArray.Add(C.FlowArray, som_ALL);
 
-  m_TotalMass += C.TotalMass;
-  m_TotalHz += C.TotalHz;
+  m_TotalMass += C.TotalMassInc;
+  m_TotalHz += C.TotalHzInc;
   if (DoArray)
     TotalArray.Add(C.TotalArray, som_ALL);
   };
@@ -9355,8 +9367,10 @@ void CAreaSum::Add(CSysVector & V, double FlowHz)
 
 void CAreaSum::Integrate(double TimeInc)
   {
-  m_TotalMass+=m_FlowMass*TimeInc;
-  m_TotalHz+=m_FlowHz*TimeInc;
+  m_TotalMassInc=m_FlowMass*TimeInc;
+  m_TotalMass+=m_TotalMassInc;
+  m_TotalHzInc=m_FlowHz*TimeInc;
+  m_TotalHz+=m_TotalHzInc;
   if (DoArray)
     {
     INCOMPLETECODE()
@@ -9600,7 +9614,6 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   m_bShowUsr        = false;
 
   m_sRmtTag         = "";
-  m_sRmtTmp         = "?";
   m_bConnected      = false;
   m_iMyConnectedIO  = -1;
   m_Opening         = 1.0;
@@ -9748,6 +9761,34 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, 
 
 //--------------------------------------------------------------------------
 
+void CDirectFlwIO::SetTarget(LPCTSTR T)
+  {
+  if (T[0]!='<')
+    m_sRmtTag=T;
+  else
+    m_sRmtTag="";
+  m_sRmtTag.LRTrim();
+  };
+
+LPCTSTR CDirectFlwIO::Target()
+  { 
+  return (LPCTSTR)m_sRmtTag();
+  };
+LPCTSTR CDirectFlwIO::TargetStr(flag ForFiling)
+  { 
+  if (m_sRmtTag.GetLength()>0)
+    m_sRmtTmp=m_sRmtTag;
+  else if (m_sRmtTagDef.GetLength()>0)
+    m_sRmtTmp=m_sRmtTagDef;
+  else if (ForFiling)//DCB.ForFileSnpScn())
+    m_sRmtTmp="";
+  else if (m_pNd->m_sAreaTag.GetLength()>0)
+    m_sRmtTmp.Set("<%s>", m_pNd->m_sAreaTag());
+  else
+    m_sRmtTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
+  return (LPCTSTR)m_sRmtTmp(); 
+  };
+
 flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
   {
   if (/*DCB.dwUserInfo==1 &&*/ m_FEP.DataXchg(DCB))
@@ -9766,24 +9807,8 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
 
     case xidRmtTag:
       if (DCB.rpC)
-        {
-        if (*DCB.rpC!='<')
-          m_sRmtTag=DCB.rpC;
-        else
-          m_sRmtTag="";
-        m_sRmtTag.LRTrim();
-        }
-      if (m_sRmtTag.GetLength()>0)
-        m_sRmtTmp=m_sRmtTag;
-      else if (m_sRmtTagDef.GetLength()>0)
-        m_sRmtTmp=m_sRmtTagDef;
-      else if (DCB.ForFileSnpScn())
-        m_sRmtTmp="";
-      else if (m_pNd->m_sAreaTag.GetLength()>0)
-        m_sRmtTmp.Set("<%s>", m_pNd->m_sAreaTag());
-      else
-        m_sRmtTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
-      DCB.pC=m_sRmtTmp();
+        SetTarget(DCB.rpC);
+      DCB.pC=(LPTSTR)TargetStr(DCB.ForFileSnpScn()!=0);
       return 1;
 
     case xidRmtTagConnd:

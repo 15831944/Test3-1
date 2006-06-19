@@ -73,7 +73,8 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
   {
   if (p)
     {
-    dbgpln("AddBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
+    if (0)
+      dbgpln("AddBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
     p->SetOnOffValLst(&m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
     m_Blks[m_nBlocks++]=p;
@@ -93,7 +94,8 @@ void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
         m_nBlocks--;
         for (int j=i; j<m_nBlocks; j++)
           m_Blks[j]=m_Blks[j+1];
-        dbgpln("RemBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
+        if (0)
+          dbgpln("RemBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
         break;
         }
       }
@@ -299,7 +301,8 @@ CFlange * CBlockEvaluator::GetFlange(int IOId)
     pFlng = &(m_pBleeds[IOId-IOId_Bleed2Area]->m_SnkIO.Flange);
   if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+CBlockEvaluator::MaxMakeupBlocks)
     pFlng = &(m_pMakeups[IOId-IOId_Makeup2Area]->m_SrcIO.Flange);
-  dbgpln("CBlockEvaluator::GetFlange %3i %08x", IOId, pFlng);
+  if (0)
+    dbgpln("CBlockEvaluator::GetFlange %3i %08x", IOId, pFlng);
   return pFlng;
   }
 
@@ -324,7 +327,7 @@ void CBlockEvaluator::SortBlocks()
       i++;
     };
 
-  if (1)
+  if (0)
     {
     dbgpln("SortBlks =============== %s", m_pThis->FullObjTag());
     for (i=0 ; i<m_nBlocks; i++)
@@ -355,7 +358,7 @@ void CBlockEvaluator::SortBlocks()
     }
 #endif
 
-  if (1)
+  if (0)
     {
     dbgpln("         ===============");
     for (i=0 ; i<m_nBlocks; i++)

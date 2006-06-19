@@ -348,6 +348,7 @@ class DllImportExport CAreaSum
 
     void          ZeroFlows();
     void          ZeroTotals();
+    void          ZeroTotalIncs();
     void          Set(CSysVector & V, double totHz);
     void          Set(CAreaSum & C);
     void          Set(SpModel & C);
@@ -364,27 +365,35 @@ class DllImportExport CAreaSum
     double        getFlowMass() const           { return m_FlowMass; }
     void          putFlowMass(double M)         { m_FlowMass=M; }
     CSysVector  & getFlowArray()                { if (DoArray && !m_pFlowArray) m_pFlowArray=new SpMArray; return *m_pFlowArray; }
-    double        getTotalHz() const            { return m_TotalHz; }
-    void          putTotalHz(double H)          { m_TotalHz=H; }
     double        getTotalMass() const          { return m_TotalMass; }
     void          putTotalMass(double M)        { m_TotalMass=M; }
+    double        getTotalMassInc() const       { return m_TotalMassInc; }
+    void          putTotalMassInc(double M)     { m_TotalMassInc=M; }
+    double        getTotalHz() const            { return m_TotalHz; }
+    void          putTotalHz(double H)          { m_TotalHz=H; }
+    double        getTotalHzInc() const         { return m_TotalHzInc; }
+    void          putTotalHzInc(double H)       { m_TotalHzInc=H; }
     CSysVector  & getTotalArray()               { if (DoArray && !m_pTotalArray) m_pTotalArray=new SpMArray; return *m_pTotalArray; }
 
-    _declspec(property(get=getDoArray))                       bool          DoArray;
-    _declspec(property(get=getFlowHz,put=putFlowHz))          double        FlowHz;
-    _declspec(property(get=getFlowMass,put=putFlowMass))      double        FlowMass;
-    _declspec(property(get=getFlowArray))                     CSysVector  & FlowArray;
-    _declspec(property(get=getTotalHz,put=putTotalHz))        double        TotalHz;
-    _declspec(property(get=getTotalMass,put=putTotalMass))    double        TotalMass;
-    _declspec(property(get=getTotalArray))                    CSysVector  & TotalArray;
+    _declspec(property(get=getDoArray))                             bool          DoArray;
+    _declspec(property(get=getFlowHz,put=putFlowHz))                double        FlowHz;
+    _declspec(property(get=getFlowMass,put=putFlowMass))            double        FlowMass;
+    _declspec(property(get=getFlowArray))                           CSysVector  & FlowArray;
+    _declspec(property(get=getTotalMass,put=putTotalMass))          double        TotalMass;
+    _declspec(property(get=getTotalMassInc,put=putTotalMassInc))    double        TotalMassInc;
+    _declspec(property(get=getTotalHz,put=putTotalHz))              double        TotalHz;
+    _declspec(property(get=getTotalHzInc,put=putTotalHzInc))        double        TotalHzInc;
+    _declspec(property(get=getTotalArray))                          CSysVector  & TotalArray;
 
   protected:
     double          m_FlowHz;
     double          m_FlowMass;
     SpMArray      * m_pFlowArray;
 
-    double          m_TotalHz;
     double          m_TotalMass;
+    double          m_TotalMassInc;
+    double          m_TotalHz;
+    double          m_TotalHzInc;
     SpMArray      * m_pTotalArray;
   };
 
@@ -475,8 +484,9 @@ class DllImportExport CDirectFlwIO
 
     void          SetTotal(double T)        { m_Total=T; };
     double        Total()                   { return m_Total; };
-    void          SetTarget(LPCTSTR T)      { m_sRmtTag=T; };
-    LPCTSTR       Target()                  { return (LPCTSTR)m_sRmtTag(); };
+    void          SetTarget(LPCTSTR T);//      { m_sRmtTag=T; };
+    LPCTSTR       Target();//                  { return (LPCTSTR)m_sRmtTag(); };
+    LPCTSTR       TargetStr(flag ForFiling);//               { return (LPCTSTR)m_sRmtTmp(); };
     bool          Flowing()                 { return Cd.QMass(som_ALL)>1.0e-12; };
     int           MyConnectedIO()           { return m_iMyConnectedIO; };
     int           LclIOId()                 { return m_iLclIOId; };
@@ -4132,10 +4142,10 @@ class DllImportExport FlwNode : public CTNode
     long           NoFlwIOs()     { return m_nFIOs;};
     long           NoMLnkIOs()    { return m_nMLnkIOs;};
     long           NoProcessIOs() { return m_nProcessIOs;};
-    long           NoDirDIOs()    { return m_nFIOs-m_nProcessIOs;};
-    long           NoAdtDIOs()    { return m_DirectIOs.GetCount()-(m_nFIOs-m_nProcessIOs);};
+    long           NoDirDIOs()    { return m_nFIOs-m_nMLnkIOs;};
+    long           NoAdtDIOs()    { return m_DirectIOs.GetCount()-NoDirDIOs();};
     long           NoDirectIOs()  { return m_DirectIOs.GetCount();};
-    long           FirstAdtDIO()  { return (m_nFIOs-m_nProcessIOs);};
+    long           FirstAdtDIO()  { return NoDirDIOs();};
 
     long           NoCIOs()       { return m_nCIOs;};
     long           NoEIOs()       { return m_nEIOs;};

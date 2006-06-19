@@ -103,8 +103,8 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, noFile|noSnap);
   DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, noFile|noSnap);
   DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, noFile|noSnap);
-  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,  "kg/s",    &QmAcc,         this, noFile|noSnap);
-  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &QvAcc,         this, noFile|noSnap);
+  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,  "kg/s",    &m_QmAcc,       this, noFile|noSnap);
+  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, noFile|noSnap);
   
   //DDB.Text    ("");
   //DDB.Visibility(SM_Direct|HM_All|SSMODE);

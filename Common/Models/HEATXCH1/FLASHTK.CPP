@@ -233,8 +233,8 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
   DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
   DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|0);
-  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,   "kg/s",   &QmAcc,         this, isResult|0);
-  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,   "L/s",    &QvAcc,         this, isResult|0);
+  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,   "kg/s",   &m_QmAcc,       this, isResult|0);
+  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,   "L/s",    &m_QvAcc,       this, isResult|0);
   DDB.Visibility();
 
   DDB.Text    ("");

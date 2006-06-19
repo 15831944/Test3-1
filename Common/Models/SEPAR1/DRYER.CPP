@@ -106,8 +106,8 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
   DDB.Double  ("Density",    "Rho",             DC_Rho,  "kg/m^3", xidRho,         this, 0);
   DDB.Double  ("Level",      "Lvl",             DC_Frac, "%",      xidLevel,       this, 0);
-  DDB.Double  ("Mass_Accum", "QmAcc",           DC_Qm,   "kg/s",   &QmAcc,         this, 0);
-  DDB.Double  ("Vol_Accum",  "QvAcc",           DC_Qv,   "L/s",    &QvAcc,         this, 0);
+  DDB.Double  ("Mass_Accum", "QmAcc",           DC_Qm,   "kg/s",   &m_QmAcc,       this, 0);
+  DDB.Double  ("Vol_Accum",  "QvAcc",           DC_Qv,   "L/s",    &m_QvAcc,       this, 0);
   DDB.Visibility();
   
   DDB.Text    (" ");

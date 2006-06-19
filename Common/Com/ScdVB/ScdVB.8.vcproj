@@ -319,6 +319,108 @@
 				ExcludedFromBuild="false"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release Marshal|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			UseOfATL="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				Description="Performing registration"
+				CommandLine="regsvr32 /s /c &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;&#x0D;&#x0A;"
+				Outputs="$(OutDir)\regsvr32.trg"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Rls8/ScdVB.tlb"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				InlineFunctionExpansion="1"
+				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;WIN32;NDEBUG;_WINDOWS;_USRDLL"
+				StringPooling="true"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="1"
+				FloatingPointExceptions="true"
+				ForceConformanceInForLoopScope="false"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Rls8/ScdVB.pch"
+				AssemblerListingLocation=".\Rls8/"
+				ObjectFile=".\Rls8/"
+				ProgramDataBaseFileName=".\Rls8/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG"
+				Culture="7177"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/MACHINE:I386"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
+				OutputFile="..\..\..\Bin\ScdVB.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				ModuleDefinitionFile=".\ScdVB.def"
+				ProgramDatabaseFile=".\Rls8/ScdVB.pdb"
+				SubSystem="2"
+				ImportLibrary=".\Rls8/ScdVB.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyCOMDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
+				ExcludedFromBuild="false"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -399,6 +501,17 @@
 						InterfaceIdentifierFileName="ScdVB_i.c"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Marshal|Win32"
+					>
+					<Tool
+						Name="VCMIDLTool"
+						GenerateStublessProxies="true"
+						TypeLibraryName="ScdVB.tlb"
+						HeaderFileName="ScdVB.h"
+						InterfaceIdentifierFileName="ScdVB_i.c"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ScdVB.rc"
@@ -427,6 +540,14 @@
 						AdditionalIncludeDirectories="$(OUTDIR);$(NoInherit)"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Marshal|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="$(OUTDIR);$(NoInherit)"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp"
@@ -449,6 +570,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Marshal|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

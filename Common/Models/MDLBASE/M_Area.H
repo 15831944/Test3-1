@@ -294,6 +294,7 @@ class DllImportExport MN_Area : public MdlNode
 
     bool            m_bDoAudit;
     bool            m_bForceAudit;
+    dword           m_dwAreaAuditOptions;
 
     SpImage         m_Content;
 

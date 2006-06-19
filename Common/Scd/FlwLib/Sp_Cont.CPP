@@ -1383,7 +1383,7 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
       if (DCB.rpC!=NULL && (strlen(DCB.rpC)>0))
         Spill.SetTarget(DCB.rpC);
       if (SpillExists())
-        DCB.pC=(LPTSTR)Spill.Target();
+        DCB.pC=(LPTSTR)Spill.TargetStr(DCB.ForFileSnpScn());
       else
         DCB.pC="";
       return 1;
@@ -1419,7 +1419,7 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
         Vent.SetTarget(DCB.rpC);
         }
       if (VentExists())
-        DCB.pC=(LPTSTR)Vent.Target();
+        DCB.pC=(LPTSTR)Vent.TargetStr(DCB.ForFileSnpScn());
       else
         DCB.pC="";
       return 1;

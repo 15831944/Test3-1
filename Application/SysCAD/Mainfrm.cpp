@@ -1505,6 +1505,7 @@ void CMainFrame::OnProjectEditCfg()
   {
   if (!EnablePrjOK() && gs_License.AllowFullLic())
     {
+    CWaitCursor Wait;
     CModelInfo MI;
     MI.EditCfgFile(NULL, gs_License.LicCatagories());
     }

@@ -78,7 +78,8 @@ m_Content("Content", this, TOA_Embedded)
 
   m_Content.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
 
-  m_dwAuditOptions = 0;
+  m_dwBaseAuditOptions = 0;
+  m_dwAreaAuditOptions = MNAudit_Qm/*|MNAudit_Hz|MNAudit_Cnts*/;
   m_bDoAudit       = true;
   m_bForceAudit    = false;
 
@@ -133,46 +134,52 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
   BuildDataDefnElevation(DDB);
 
   //CDirectFlwIO::sm_
-  if (m_bDoAudit && gs_EvalAudits || m_bForceAudit)
+  if ((m_bDoAudit && gs_EvalAudits) || m_bForceAudit)
     {
     if (What & BDDAO_Flows)
       {
       if (DDB.BeginStruct(this, "Flows", NULL, DDB_RqdPage))
         {
-        if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
+        if (m_dwAreaAuditOptions & MNAudit_Qm)
           {
-          DDB.Double ("",   "Spills",       DC_Qm,   "kg/s",  xidSpillsInQm,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Vents",        DC_Qm,   "kg/s",  xidVentsInQm,    this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "LeaksIn",      DC_Qm,   "kg/s",  xidLeaksInQm,    this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "LeaksOut",     DC_Qm,   "kg/s",  xidLeaksOutQm,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Srcs",         DC_Qm,   "kg/s",  xidSrcsInQm,     this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Snks",         DC_Qm,   "kg/s",  xidSnksInQm,     this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Makeups",      DC_Qm,   "kg/s",  xidMakeupsInQm,  this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Bleeds",       DC_Qm,   "kg/s",  xidBleedsInQm,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Accumulation", DC_Qm,   "kg/s",  xidAccumsInQm,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Depletion",    DC_Qm,   "kg/s",  xidAccumsOutQm,  this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Balance",      DC_Qm,   "kg/s",  xidNettInQm,     this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Balance.Rel",  DC_Frac, "%",     xidNettInQmRel,  this, isResult|noFile|noSnap); 
+          if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
+            {
+            DDB.Double ("",   "Spills",       DC_Qm,   "kg/s",  xidSpillsInQm,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Vents",        DC_Qm,   "kg/s",  xidVentsInQm,    this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "LeaksIn",      DC_Qm,   "kg/s",  xidLeaksInQm,    this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "LeaksOut",     DC_Qm,   "kg/s",  xidLeaksOutQm,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Srcs",         DC_Qm,   "kg/s",  xidSrcsInQm,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Snks",         DC_Qm,   "kg/s",  xidSnksInQm,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Makeups",      DC_Qm,   "kg/s",  xidMakeupsInQm,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Bleeds",       DC_Qm,   "kg/s",  xidBleedsInQm,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Accumulation", DC_Qm,   "kg/s",  xidAccumsInQm,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Depletion",    DC_Qm,   "kg/s",  xidAccumsOutQm,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Balance",      DC_Qm,   "kg/s",  xidNettInQm,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Balance.Rel",  DC_Frac, "%",     xidNettInQmRel,  this, isResult|noFile|noSnap); 
+            }
+          DDB.EndStruct();
           }
-        DDB.EndStruct();
 
-        DDB.Text(" ");
-        if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
+        if (m_dwAreaAuditOptions & MNAudit_Hz)
           {
-          DDB.Double ("",   "Spills",       DC_Pwr,   "kJ/s", xidSpillsInHz,    this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Vents",        DC_Pwr,   "kJ/s", xidVentsInHz,     this, isResult|noFile|noSnap);
-          DDB.Double ("",   "LeaksIn",      DC_Pwr,   "kJ/s", xidLeaksInHz,     this, isResult|noFile|noSnap);
-          DDB.Double ("",   "LeaksOut",     DC_Pwr,   "kJ/s", xidLeaksOutHz,    this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Srcs",         DC_Pwr,   "kJ/s", xidSrcsInHz,      this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Snks",         DC_Pwr,   "kJ/s", xidSnksInHz,      this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Makeups",      DC_Pwr,   "kJ/s", xidMakeupsInHz,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Bleeds",       DC_Pwr,   "kJ/s", xidBleedsInHz,    this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Accumulation", DC_Pwr,   "kJ/s", xidAccumsInHz,    this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Depletion",    DC_Pwr,   "kJ/s", xidAccumsOutHz,   this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Balance",      DC_Pwr,   "kJ/s", xidNettInHz,      this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",    xidNettInHzRel,   this, isResult|noFile|noSnap);
+          DDB.Text(" ");
+          if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
+            {
+            DDB.Double ("",   "Spills",       DC_Pwr,   "kJ/s", xidSpillsInHz,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Vents",        DC_Pwr,   "kJ/s", xidVentsInHz,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksIn",      DC_Pwr,   "kJ/s", xidLeaksInHz,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksOut",     DC_Pwr,   "kJ/s", xidLeaksOutHz,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Srcs",         DC_Pwr,   "kJ/s", xidSrcsInHz,      this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Snks",         DC_Pwr,   "kJ/s", xidSnksInHz,      this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Makeups",      DC_Pwr,   "kJ/s", xidMakeupsInHz,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Bleeds",       DC_Pwr,   "kJ/s", xidBleedsInHz,    this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Accumulation", DC_Pwr,   "kJ/s", xidAccumsInHz,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Depletion",    DC_Pwr,   "kJ/s", xidAccumsOutHz,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Balance",      DC_Pwr,   "kJ/s", xidNettInHz,      this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",    xidNettInHzRel,   this, isResult|noFile|noSnap);
+            }
+          DDB.EndStruct();
           }
-        DDB.EndStruct();
         }
       DDB.EndStruct();
       }
@@ -182,64 +189,73 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
       DDB.Text(" ");
       if (DDB.BeginStruct(this, "Totals", NULL, DDB_RqdPage))
         {
-        if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
+        if (m_dwAreaAuditOptions & MNAudit_Qm)
           {
-          DDB.Double ("",   "Spills",       DC_M,     "kg", xidSpillsInQmSum,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Vents",        DC_M,     "kg", xidVentsInQmSum,    this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "LeaksIn",      DC_M,     "kg", xidLeaksInQmSum,    this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "LeaksOut",     DC_M,     "kg", xidLeaksOutQmSum,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Srcs",         DC_M,     "kg", xidSrcsInQmSum,     this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Snks",         DC_M,     "kg", xidSnksInQmSum,     this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Makeups",      DC_M,     "kg", xidMakeupsInQmSum,  this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Bleeds",       DC_M,     "kg", xidBleedsInQmSum,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Accumulation", DC_M,     "kg", xidAccumsInQmSum,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Depletion",    DC_M,     "kg", xidAccumsOutQmSum,  this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Balance",      DC_M,     "kg", xidNettInQmSum,     this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInQmSumRel,  this, isResult|noFile|noSnap); 
+          if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
+            {
+            DDB.Double ("",   "Spills",       DC_M,     "kg", xidSpillsInQmSum,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Vents",        DC_M,     "kg", xidVentsInQmSum,    this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "LeaksIn",      DC_M,     "kg", xidLeaksInQmSum,    this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "LeaksOut",     DC_M,     "kg", xidLeaksOutQmSum,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Srcs",         DC_M,     "kg", xidSrcsInQmSum,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Snks",         DC_M,     "kg", xidSnksInQmSum,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Makeups",      DC_M,     "kg", xidMakeupsInQmSum,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Bleeds",       DC_M,     "kg", xidBleedsInQmSum,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Accumulation", DC_M,     "kg", xidAccumsInQmSum,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Depletion",    DC_M,     "kg", xidAccumsOutQmSum,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Balance",      DC_M,     "kg", xidNettInQmSum,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInQmSumRel,  this, isResult|noFile|noSnap); 
+            }
+          DDB.EndStruct();
           }
-        DDB.EndStruct();
 
-        DDB.Text(" ");
-        if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
+        if (m_dwAreaAuditOptions & MNAudit_Hz)
           {
-          DDB.Double ("",   "Spills",       DC_E,     "kJ", xidSpillsInHzSum,   this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Vents",        DC_E,     "kJ", xidVentsInHzSum,    this, isResult|noFile|noSnap);
-          DDB.Double ("",   "LeaksIn",      DC_E,     "kJ", xidLeaksInHzSum,    this, isResult|noFile|noSnap);
-          DDB.Double ("",   "LeaksOut",     DC_E,     "kJ", xidLeaksOutHzSum,   this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Srcs",         DC_E,     "kJ", xidSrcsInHzSum,     this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Snks",         DC_E,     "kJ", xidSnksInHzSum,     this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Makeups",      DC_E,     "kJ", xidMakeupsInHzSum,  this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Bleeds",       DC_E,     "kJ", xidBleedsInHzSum,   this, isResult|noFile|noSnap); 
-          DDB.Double ("",   "Accumulation", DC_E,     "kJ", xidAccumsInHzSum,   this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Depletion",    DC_E,     "kJ", xidAccumsOutHzSum,  this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Balance",      DC_E,     "kJ", xidNettInHzSum,     this, isResult|noFile|noSnap);
-          DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInHzSumRel,  this, isResult|noFile|noSnap);
+          DDB.Text(" ");
+          if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
+            {
+            DDB.Double ("",   "Spills",       DC_E,     "kJ", xidSpillsInHzSum,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Vents",        DC_E,     "kJ", xidVentsInHzSum,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksIn",      DC_E,     "kJ", xidLeaksInHzSum,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksOut",     DC_E,     "kJ", xidLeaksOutHzSum,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Srcs",         DC_E,     "kJ", xidSrcsInHzSum,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Snks",         DC_E,     "kJ", xidSnksInHzSum,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Makeups",      DC_E,     "kJ", xidMakeupsInHzSum,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Bleeds",       DC_E,     "kJ", xidBleedsInHzSum,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Accumulation", DC_E,     "kJ", xidAccumsInHzSum,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Depletion",    DC_E,     "kJ", xidAccumsOutHzSum,  this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Balance",      DC_E,     "kJ", xidNettInHzSum,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInHzSumRel,  this, isResult|noFile|noSnap);
+            }
+          DDB.EndStruct();
           }
-        DDB.EndStruct();
         }
       DDB.EndStruct();
       }
-    }
 
-  if (What & (BDDAO_Flows|BDDAO_Totals))
-    {
-
-    DDB.Text(" ");
-    if (DDB.BeginStruct(this, "Counts", NULL, DDB_RqdPage))
+    if (What & (BDDAO_Flows|BDDAO_Totals))
       {
-      DDB.Long   ("",   "Spills",   DC_,     "",       xidSpillsInCnt,  this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "Vents",    DC_,     "",       xidVentsInCnt,   this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "LeaksIn",  DC_,     "",       xidLeaksInCnt,   this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "LeaksOut", DC_,     "",       xidLeaksOutCnt,  this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "Srcs",     DC_,     "",       xidSrcsInCnt,    this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "Snks",     DC_,     "",       xidSnksInCnt,    this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "Makeups",  DC_,     "",       xidMakeupsInCnt, this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "Bleeds",   DC_,     "",       xidBleedsInCnt,  this, isResult|noFile|noSnap); 
-      DDB.Long   ("",   "Accums",   DC_,     "",       xidAccumsInCnt,  this, isResult|noFile|noSnap); 
-      //DDB.Long   ("",   "Nett",     DC_,     "",       xidNettInCnt,    this, isResult|noFile|noSnap); 
+      if (m_dwAreaAuditOptions & MNAudit_Cnts)
+        {
+        DDB.Text(" ");
+        if (DDB.BeginStruct(this, "Counts", NULL, DDB_RqdPage))
+          {
+          DDB.Long   ("",   "Spills",   DC_,     "",       xidSpillsInCnt,  this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "Vents",    DC_,     "",       xidVentsInCnt,   this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "LeaksIn",  DC_,     "",       xidLeaksInCnt,   this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "LeaksOut", DC_,     "",       xidLeaksOutCnt,  this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "Srcs",     DC_,     "",       xidSrcsInCnt,    this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "Snks",     DC_,     "",       xidSnksInCnt,    this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "Makeups",  DC_,     "",       xidMakeupsInCnt, this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "Bleeds",   DC_,     "",       xidBleedsInCnt,  this, isResult|noFile|noSnap); 
+          DDB.Long   ("",   "Accums",   DC_,     "",       xidAccumsInCnt,  this, isResult|noFile|noSnap); 
+          //DDB.Long   ("",   "Nett",     DC_,     "",       xidNettInCnt,    this, isResult|noFile|noSnap); 
+          }
+        DDB.EndStruct();
+        }
       }
-    DDB.EndStruct();
     }
+
   DDB.Text(" ");
   DDB.Text("Audit Clipboard options:");
   DDB.Button("Copy_All",       "", DC_, "", xidIO_CopyAdtAll, this, isParm);
@@ -791,7 +807,7 @@ void MN_Area::EvalAudit(int Pass)
           dbgpln("------------------------------------------------------------------------------------------------ %s [%s]", Nd.FullObjTag(), Nd.ClassId());
 #endif
 
-        for (int io=0; io<Nd.NoProcessIOs(); io++)
+        for (int io=0; io<Nd.NoMLnkIOs(); io++)
           {
           if (Nd.IOQm_In(io)>0)
             {

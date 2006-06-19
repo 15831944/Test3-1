@@ -566,23 +566,6 @@ CDelayBlock::CDelayBlock(void)
   m_UseValues   = false;
   }
 
-<<<<<<< .mine
-=======
-void CDelayBlock::Advance(DWORD DT)
-  {
-  m_dwTimer = Max(DWORD(0), m_dwTimer- DT);
-
-  if (dbgTimers)
-    {
-    if (m_dwTimer < 5*gs_SlotMngr.m_Cfg.m_dwDelayResolution)
-      dbgpln("Advance Timer %08x %+6i %6i @%10i", this, DT, m_dwTimer, GetTickCount());
-    }
-
-  //m_dwTime1 = Max(DWORD(0), m_dwTime1 - DT);
-  //if(m_bUseTime2) m_dwTime2 = Max(DWORD(0), m_dwTime2 - DT);
-  }
-
->>>>>>> .r624
 // =======================================================================
 //
 //

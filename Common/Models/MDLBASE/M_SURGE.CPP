@@ -54,8 +54,8 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_PresetImg.SetView(SVV_AsMassFrac);
   m_PresetImg.bSpeciesOnly=true;
 
-  QmAcc=0.0;
-  QvAcc=0.0;
+  m_QmAcc=0.0;
+  m_QvAcc=0.0;
   //pHX=NULL;
 
   SS_Lvl=0.5;
@@ -380,7 +380,7 @@ void MN_Surge::ConfigureJoins()
       for (int i=0; i<NoProcessIOs(); i++)
         {
         int Id=IOId_Self(i);
-        if (IsProcessIOId(Id))
+        if (IsMLnkIOId(Id))
           {
           if (Id<IOId_HX)
             SetIO_Join(i, JnId_Surge);
@@ -393,7 +393,7 @@ void MN_Surge::ConfigureJoins()
       for (int i=0; i<NoFlwIOs(); i++)
         {
         int Id=IOId_Self(i);
-        if (IsProcessIOId(Id))
+        if (IsMLnkIOId(Id))
           {
           if (Id<IOId_HX)
             SetIO_Open(i, JnId_Surge, Contents.Closed() && Contents.NetPressDamp(), SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
@@ -420,6 +420,12 @@ void MN_Surge::StartStep()
   Contents.m_MixSet.StartStep();
   m_SrgCtrl.StartStep();
   m_AccCalc.Start(0, Contents);
+
+  if (1)  //restore Qm/QvAcc
+    {
+    m_QmAcc=Contents.Mass(som_SL);
+    m_QvAcc=Contents.Volume(som_SL);
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -644,19 +650,6 @@ void MN_Surge::EvalDerivs(long JoinMask)
 
   VLE.AddQVDerivs(Contents, 0, 0);
 
-  //double T=Contents.Temp();
-  //double P=Contents.Press();
-  //QmAcc=0.0;
-  //QvAcc=0.0;
-  //for (int i=0; i<SVSpcCount();i++)
-  //  if (!SDB[i].IsGas())
-  //    {
-  //    QmAcc+=Contents.VMassDot[i];
-  //    QvAcc+=Contents.VMassDot[i]*SDB[i].msVolume(Contents.Fidelity(), T, P, Contents.Ovr(), Contents.SVData());
-  //    }
-  //m_Accum.QCopy(
-  //m_AccIn.Cd.QSetF(*Contents.Model()->m_DC.m_pFd, som_ALL, 1.0);
-  //m_AccOut.Cd.QSetF(*Contents.Model()->m_DC.m_pPr, som_ALL, 1.0);
   };
 
 //--------------------------------------------------------------------------
@@ -952,6 +945,12 @@ void MN_Surge::EvalDiscrete()
       Contents.AddDiscrete(*IOConduit(i), IOSign(i));
 
   m_AccCalc.Complete(0, Contents, ICGetTimeInc());
+
+  if (1)  //restore Qm/QvAcc
+    {
+    m_QmAcc=Contents.Mass(som_SL)-m_QmAcc;
+    m_QvAcc=Contents.Volume(som_SL)-m_QvAcc;
+    }
   }
 
 //---------------------------------------------------------------------------

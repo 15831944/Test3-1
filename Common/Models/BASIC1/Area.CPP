@@ -77,7 +77,7 @@ void CArea::PrepareDefinedData()
 
 void CArea::BuildDataDefn(DataDefnBlk & DDB)
   {
-  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents|BDDAO_Copy);
+  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals/*|BDDAO_Contents*/|BDDAO_Copy);
 
   //Strng S;
   //DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
