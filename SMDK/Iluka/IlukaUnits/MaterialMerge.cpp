@@ -195,7 +195,7 @@ void MaterialMerge::BuildDataFields()
   DD.Long("TargetType", "", idDX_MaterialType, MF_PARAM_STOPPED | MF_SET_ON_CHANGE, targetTypeDropDown);
 
   DD.Text("");
-  DD.ObjectBegin("Mapping Enable", "Mapping Enable");
+  DD.ObjectBegin("Mapping Enable", "MappingEnable");
   if (m_sMaterialType != 0)
   {
     if ((map != NULL)&&(mapText != NULL))
