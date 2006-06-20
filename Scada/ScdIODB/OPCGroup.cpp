@@ -52,6 +52,7 @@ CModbusItem::~CModbusItem(void)
 // Initialize does the real work
 OPCGroup::OPCGroup(void)
   {
+  InitializeCriticalSection( &m_cs );
   }
 
 //*******************************************************************
@@ -82,6 +83,7 @@ OPCGroup::~OPCGroup(void)
     CModbusItem *pItem = (CModbusItem *) m_removedItems.RemoveHead();
     delete pItem;       // decrement tag's reference count
     }
+  DeleteCriticalSection( &m_cs );
   }
 
 //*******************************************************************

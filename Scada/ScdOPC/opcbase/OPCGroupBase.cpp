@@ -65,6 +65,7 @@ m_deadBand(0.0), m_LCID(0), m_running(TRUE), m_dataWaiting(FALSE), m_removed(FAL
 m_hASyncThread(NULL), m_hDataThread(NULL), m_hTimer(0), m_hAsyncRequest(0),
 m_transactionID(2), m_parent(NULL), m_bEnable(TRUE)
   {
+  _AtlInitialConstruct();
   InitializeCriticalSection( &m_cs );
   InitializeCriticalSection( &m_IOcs );
   m_DataAdviseSink = NULL;
