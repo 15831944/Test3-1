@@ -183,10 +183,15 @@ class DllImportExport MDataDefn : public MBaseMethodCommonRef
     //set the visibilty of tags on or off.
     void    Show(bool ViewVisible=true, bool FileVisible=true, bool SnapVisible=true);
 
+    //begin structure for a group of tags using pName as part of tag for next 'dot' level.
     void    StructBegin(LPCSTR pName, unsigned long Flags=0);
+    //end structure marker
     void    StructEnd();
+    //begin object (ie structure) for a group of tags using pName as part of tag for next 'dot' level. pClassName is name of table in database for this structure.
     void    ObjectBegin(LPCSTR pClassName, LPCSTR pName, unsigned long Flags=0);
+    //end object marker
     void    ObjectEnd();
+    //Include defined Object
     void    Object(LPTAGGEDOBJECT Object, MDDPages Pg=MDD_OptPage, unsigned long Flags=0);
 
     double  ValidateRange(LPCTSTR What, double MinV=dNAN, double V=dNAN, double MaxV=dNAN, bool *pOK=NULL);
@@ -200,22 +205,24 @@ class DllImportExport MDataChange : public MBaseMethodCommonRef
   public:
     MDataChange(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
 
-    long    getHandle();
-    bool    getHasReqdValue();
+    long    getHandle();       //return data handle
+    bool    getHasReqdValue(); //return true when data is being set
 
-    double  getDouble();
-    float   getFloat();
-    long    getLong();
-    short   getShort();
-    bool    getBool();
-    LPCTSTR getString();
-    void    putDouble(double V);
-    void    putFloat(float  V);
-    void    putLong(long   V);
-    void    putShort(short  V);
-    void    putBool(bool   V);
-    void    putString(LPCTSTR V);
+    double  getDouble();   //retrieve value
+    float   getFloat();    //retrieve value
+    long    getLong();     //retrieve value
+    short   getShort();    //retrieve value
+    bool    getBool();     //retrieve value
+    LPCTSTR getString();   //retrieve value
 
+    void    putDouble(double V);  //set value
+    void    putFloat(float V);    //set value
+    void    putLong(long V);      //set value
+    void    putShort(short V);    //set value
+    void    putBool(bool V);      //set value
+    void    putString(LPCTSTR V); //set value
+
+  public:
     __declspec(property(get=getHandle))                 long    Handle;
     __declspec(property(get=getHasReqdValue))           bool    HasReqdValue;
     __declspec(property(get=getDouble,put=putDouble))   double  Double;
