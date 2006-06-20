@@ -45,8 +45,8 @@ wzzip -a %fn2% ..\bin\unzip32.dll ..\bin\xylib.dll ..\bin\zip32.dll
 wzzip -a %fn2% ..\bin\power1.dll 
 
 wzzip -a %fn2% ..\bin\regall.cmd
-wzzip -a %fn2% ..\bin\scdif.tlb ..\bin\scdmdl.tlb
-wzzip -a %fn2% ..\bin\scdslv.tlb ..\bin\syscad.tlb
+wzzip -a %fn2% ..\bin\syscad91.tlb
+wzzip -a %fn2% ..\bin\scdif.tlb ..\bin\scdmdl.tlb ..\bin\scdslv.tlb 
 wzzip -a %fn2% ..\bin\scdvb.tlb ..\bin\scdcom.tlb
 
 wzzip -a %fn2% ..\bin\crp32001.ngn
