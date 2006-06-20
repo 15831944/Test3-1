@@ -75,35 +75,35 @@ namespace StencilEditor
       this.toolStrip2 = new System.Windows.Forms.ToolStrip();
       this.toolStrip3 = new System.Windows.Forms.ToolStrip();
       this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-      this.EditTabControl = new System.Windows.Forms.TabControl();
-      this.FillAreaTabPage = new System.Windows.Forms.TabPage();
-      this.DecorationAreaTabPage = new System.Windows.Forms.TabPage();
-      this.toolStrip4 = new System.Windows.Forms.ToolStrip();
-      this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
-      this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
-      this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripTextBox2 = new System.Windows.Forms.ToolStripTextBox();
-      this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripTextBox3 = new System.Windows.Forms.ToolStripTextBox();
-      this.toolStripLabel5 = new System.Windows.Forms.ToolStripLabel();
-      this.toolStripTextBox4 = new System.Windows.Forms.ToolStripTextBox();
+      this.editTabControl = new System.Windows.Forms.TabControl();
+      this.fillAreaTabPage = new System.Windows.Forms.TabPage();
+      this.decorationAreaTabPage = new System.Windows.Forms.TabPage();
+      this.decorationAreaLineToolStrip = new System.Windows.Forms.ToolStrip();
+      this.decorationLineToolStripLabel = new System.Windows.Forms.ToolStripLabel();
+      this.decorationLineToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
+      this.decorationAreaLineX1ToolStripLabel = new System.Windows.Forms.ToolStripLabel();
+      this.decorationAreaLineX1ToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+      this.decorationAreaLineY1ToolStripLabel = new System.Windows.Forms.ToolStripLabel();
+      this.decorationAreaLineY1ToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+      this.decorationAreaLineX2ToolStripLabel = new System.Windows.Forms.ToolStripLabel();
+      this.decorationAreaLineX2ToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+      this.decorationAreaLineY2ToolStripLabel = new System.Windows.Forms.ToolStripLabel();
+      this.decorationAreaLineY2ToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
       this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
       this.DecorationAreaListBox = new System.Windows.Forms.ListBox();
-      this.DecorationAreaToolStrip = new System.Windows.Forms.ToolStrip();
-      this.NewDecorationLineToolStripButton = new System.Windows.Forms.ToolStripButton();
-      this.TextAreaTabPage = new System.Windows.Forms.TabPage();
+      this.decorationAreaToolStrip = new System.Windows.Forms.ToolStrip();
+      this.newDecorationLineToolStripButton = new System.Windows.Forms.ToolStripButton();
+      this.textAreaTabPage = new System.Windows.Forms.TabPage();
       this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
       this.toolStripContainer1.SuspendLayout();
       this.menuStrip1.SuspendLayout();
       this.toolStrip1.SuspendLayout();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.SuspendLayout();
-      this.EditTabControl.SuspendLayout();
-      this.DecorationAreaTabPage.SuspendLayout();
-      this.toolStrip4.SuspendLayout();
-      this.DecorationAreaToolStrip.SuspendLayout();
+      this.editTabControl.SuspendLayout();
+      this.decorationAreaTabPage.SuspendLayout();
+      this.decorationAreaLineToolStrip.SuspendLayout();
+      this.decorationAreaToolStrip.SuspendLayout();
       this.SuspendLayout();
       // 
       // statusStrip1
@@ -386,7 +386,7 @@ namespace StencilEditor
             this.helpToolStripButton});
       this.toolStrip1.Location = new System.Drawing.Point(3, 24);
       this.toolStrip1.Name = "toolStrip1";
-      this.toolStrip1.Size = new System.Drawing.Size(208, 25);
+      this.toolStrip1.Size = new System.Drawing.Size(239, 25);
       this.toolStrip1.TabIndex = 1;
       // 
       // newToolStripButton
@@ -484,7 +484,7 @@ namespace StencilEditor
       this.toolStrip3.Dock = System.Windows.Forms.DockStyle.None;
       this.toolStrip3.Location = new System.Drawing.Point(39, 74);
       this.toolStrip3.Name = "toolStrip3";
-      this.toolStrip3.Size = new System.Drawing.Size(43, 25);
+      this.toolStrip3.Size = new System.Drawing.Size(111, 25);
       this.toolStrip3.TabIndex = 3;
       // 
       // splitContainer1
@@ -495,126 +495,126 @@ namespace StencilEditor
       // 
       // splitContainer1.Panel1
       // 
-      this.splitContainer1.Panel1.Controls.Add(this.EditTabControl);
+      this.splitContainer1.Panel1.Controls.Add(this.editTabControl);
       this.splitContainer1.Size = new System.Drawing.Size(783, 409);
       this.splitContainer1.SplitterDistance = 609;
       this.splitContainer1.TabIndex = 2;
       // 
-      // EditTabControl
+      // editTabControl
       // 
-      this.EditTabControl.Controls.Add(this.FillAreaTabPage);
-      this.EditTabControl.Controls.Add(this.DecorationAreaTabPage);
-      this.EditTabControl.Controls.Add(this.TextAreaTabPage);
-      this.EditTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.EditTabControl.Location = new System.Drawing.Point(0, 0);
-      this.EditTabControl.Name = "EditTabControl";
-      this.EditTabControl.SelectedIndex = 0;
-      this.EditTabControl.Size = new System.Drawing.Size(609, 409);
-      this.EditTabControl.TabIndex = 0;
+      this.editTabControl.Controls.Add(this.fillAreaTabPage);
+      this.editTabControl.Controls.Add(this.decorationAreaTabPage);
+      this.editTabControl.Controls.Add(this.textAreaTabPage);
+      this.editTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.editTabControl.Location = new System.Drawing.Point(0, 0);
+      this.editTabControl.Name = "editTabControl";
+      this.editTabControl.SelectedIndex = 0;
+      this.editTabControl.Size = new System.Drawing.Size(609, 409);
+      this.editTabControl.TabIndex = 0;
       // 
-      // FillAreaTabPage
+      // fillAreaTabPage
       // 
-      this.FillAreaTabPage.Location = new System.Drawing.Point(4, 22);
-      this.FillAreaTabPage.Name = "FillAreaTabPage";
-      this.FillAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
-      this.FillAreaTabPage.Size = new System.Drawing.Size(601, 383);
-      this.FillAreaTabPage.TabIndex = 0;
-      this.FillAreaTabPage.Text = "Fill Area";
-      this.FillAreaTabPage.UseVisualStyleBackColor = true;
+      this.fillAreaTabPage.Location = new System.Drawing.Point(4, 22);
+      this.fillAreaTabPage.Name = "fillAreaTabPage";
+      this.fillAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
+      this.fillAreaTabPage.Size = new System.Drawing.Size(601, 383);
+      this.fillAreaTabPage.TabIndex = 0;
+      this.fillAreaTabPage.Text = "Fill Area";
+      this.fillAreaTabPage.UseVisualStyleBackColor = true;
       // 
-      // DecorationAreaTabPage
+      // decorationAreaTabPage
       // 
-      this.DecorationAreaTabPage.Controls.Add(this.toolStrip4);
-      this.DecorationAreaTabPage.Controls.Add(this.DecorationAreaListBox);
-      this.DecorationAreaTabPage.Controls.Add(this.DecorationAreaToolStrip);
-      this.DecorationAreaTabPage.Location = new System.Drawing.Point(4, 22);
-      this.DecorationAreaTabPage.Name = "DecorationAreaTabPage";
-      this.DecorationAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
-      this.DecorationAreaTabPage.Size = new System.Drawing.Size(601, 383);
-      this.DecorationAreaTabPage.TabIndex = 1;
-      this.DecorationAreaTabPage.Text = "Decoration Area";
-      this.DecorationAreaTabPage.UseVisualStyleBackColor = true;
+      this.decorationAreaTabPage.Controls.Add(this.decorationAreaLineToolStrip);
+      this.decorationAreaTabPage.Controls.Add(this.DecorationAreaListBox);
+      this.decorationAreaTabPage.Controls.Add(this.decorationAreaToolStrip);
+      this.decorationAreaTabPage.Location = new System.Drawing.Point(4, 22);
+      this.decorationAreaTabPage.Name = "decorationAreaTabPage";
+      this.decorationAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
+      this.decorationAreaTabPage.Size = new System.Drawing.Size(601, 383);
+      this.decorationAreaTabPage.TabIndex = 1;
+      this.decorationAreaTabPage.Text = "Decoration Area";
+      this.decorationAreaTabPage.UseVisualStyleBackColor = true;
       // 
-      // toolStrip4
+      // decorationAreaLineToolStrip
       // 
-      this.toolStrip4.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.toolStrip4.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripLabel1,
-            this.toolStripSeparator8,
-            this.toolStripLabel2,
-            this.toolStripTextBox1,
-            this.toolStripLabel3,
-            this.toolStripTextBox2,
-            this.toolStripLabel4,
-            this.toolStripTextBox3,
-            this.toolStripLabel5,
-            this.toolStripTextBox4,
+      this.decorationAreaLineToolStrip.Dock = System.Windows.Forms.DockStyle.Bottom;
+      this.decorationAreaLineToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.decorationLineToolStripLabel,
+            this.decorationLineToolStripSeparator,
+            this.decorationAreaLineX1ToolStripLabel,
+            this.decorationAreaLineX1ToolStripTextBox,
+            this.decorationAreaLineY1ToolStripLabel,
+            this.decorationAreaLineY1ToolStripTextBox,
+            this.decorationAreaLineX2ToolStripLabel,
+            this.decorationAreaLineX2ToolStripTextBox,
+            this.decorationAreaLineY2ToolStripLabel,
+            this.decorationAreaLineY2ToolStripTextBox,
             this.toolStripButton1});
-      this.toolStrip4.Location = new System.Drawing.Point(3, 330);
-      this.toolStrip4.Name = "toolStrip4";
-      this.toolStrip4.Size = new System.Drawing.Size(595, 25);
-      this.toolStrip4.TabIndex = 2;
-      this.toolStrip4.Text = "toolStrip4";
-      this.toolStrip4.Visible = false;
+      this.decorationAreaLineToolStrip.Location = new System.Drawing.Point(3, 330);
+      this.decorationAreaLineToolStrip.Name = "decorationAreaLineToolStrip";
+      this.decorationAreaLineToolStrip.Size = new System.Drawing.Size(595, 25);
+      this.decorationAreaLineToolStrip.TabIndex = 2;
+      this.decorationAreaLineToolStrip.Text = "toolStrip4";
+      this.decorationAreaLineToolStrip.Visible = false;
       // 
-      // toolStripLabel1
+      // decorationLineToolStripLabel
       // 
-      this.toolStripLabel1.Name = "toolStripLabel1";
-      this.toolStripLabel1.Size = new System.Drawing.Size(26, 22);
-      this.toolStripLabel1.Text = "Line";
+      this.decorationLineToolStripLabel.Name = "decorationLineToolStripLabel";
+      this.decorationLineToolStripLabel.Size = new System.Drawing.Size(26, 22);
+      this.decorationLineToolStripLabel.Text = "Line";
       // 
-      // toolStripSeparator8
+      // decorationLineToolStripSeparator
       // 
-      this.toolStripSeparator8.Name = "toolStripSeparator8";
-      this.toolStripSeparator8.Size = new System.Drawing.Size(6, 25);
+      this.decorationLineToolStripSeparator.Name = "decorationLineToolStripSeparator";
+      this.decorationLineToolStripSeparator.Size = new System.Drawing.Size(6, 25);
       // 
-      // toolStripLabel2
+      // decorationAreaLineX1ToolStripLabel
       // 
-      this.toolStripLabel2.Name = "toolStripLabel2";
-      this.toolStripLabel2.Size = new System.Drawing.Size(19, 22);
-      this.toolStripLabel2.Text = "x1";
+      this.decorationAreaLineX1ToolStripLabel.Name = "decorationAreaLineX1ToolStripLabel";
+      this.decorationAreaLineX1ToolStripLabel.Size = new System.Drawing.Size(19, 22);
+      this.decorationAreaLineX1ToolStripLabel.Text = "x1";
       // 
-      // toolStripTextBox1
+      // decorationAreaLineX1ToolStripTextBox
       // 
-      this.toolStripTextBox1.Name = "toolStripTextBox1";
-      this.toolStripTextBox1.Size = new System.Drawing.Size(100, 25);
-      this.toolStripTextBox1.TextChanged += new System.EventHandler(this.toolStripTextBox_TextChanged);
+      this.decorationAreaLineX1ToolStripTextBox.Name = "decorationAreaLineX1ToolStripTextBox";
+      this.decorationAreaLineX1ToolStripTextBox.Size = new System.Drawing.Size(100, 25);
+      this.decorationAreaLineX1ToolStripTextBox.TextChanged += new System.EventHandler(this.decorationAreaLineToolStripTextBox_TextChanged);
       // 
-      // toolStripLabel3
+      // decorationAreaLineY1ToolStripLabel
       // 
-      this.toolStripLabel3.Name = "toolStripLabel3";
-      this.toolStripLabel3.Size = new System.Drawing.Size(19, 22);
-      this.toolStripLabel3.Text = "y1";
+      this.decorationAreaLineY1ToolStripLabel.Name = "decorationAreaLineY1ToolStripLabel";
+      this.decorationAreaLineY1ToolStripLabel.Size = new System.Drawing.Size(19, 22);
+      this.decorationAreaLineY1ToolStripLabel.Text = "y1";
       // 
-      // toolStripTextBox2
+      // decorationAreaLineY1ToolStripTextBox
       // 
-      this.toolStripTextBox2.Name = "toolStripTextBox2";
-      this.toolStripTextBox2.Size = new System.Drawing.Size(100, 25);
-      this.toolStripTextBox2.TextChanged += new System.EventHandler(this.toolStripTextBox_TextChanged);
+      this.decorationAreaLineY1ToolStripTextBox.Name = "decorationAreaLineY1ToolStripTextBox";
+      this.decorationAreaLineY1ToolStripTextBox.Size = new System.Drawing.Size(100, 25);
+      this.decorationAreaLineY1ToolStripTextBox.TextChanged += new System.EventHandler(this.decorationAreaLineToolStripTextBox_TextChanged);
       // 
-      // toolStripLabel4
+      // decorationAreaLineX2ToolStripLabel
       // 
-      this.toolStripLabel4.Name = "toolStripLabel4";
-      this.toolStripLabel4.Size = new System.Drawing.Size(19, 22);
-      this.toolStripLabel4.Text = "x2";
+      this.decorationAreaLineX2ToolStripLabel.Name = "decorationAreaLineX2ToolStripLabel";
+      this.decorationAreaLineX2ToolStripLabel.Size = new System.Drawing.Size(19, 22);
+      this.decorationAreaLineX2ToolStripLabel.Text = "x2";
       // 
-      // toolStripTextBox3
+      // decorationAreaLineX2ToolStripTextBox
       // 
-      this.toolStripTextBox3.Name = "toolStripTextBox3";
-      this.toolStripTextBox3.Size = new System.Drawing.Size(100, 25);
-      this.toolStripTextBox3.TextChanged += new System.EventHandler(this.toolStripTextBox_TextChanged);
+      this.decorationAreaLineX2ToolStripTextBox.Name = "decorationAreaLineX2ToolStripTextBox";
+      this.decorationAreaLineX2ToolStripTextBox.Size = new System.Drawing.Size(100, 25);
+      this.decorationAreaLineX2ToolStripTextBox.TextChanged += new System.EventHandler(this.decorationAreaLineToolStripTextBox_TextChanged);
       // 
-      // toolStripLabel5
+      // decorationAreaLineY2ToolStripLabel
       // 
-      this.toolStripLabel5.Name = "toolStripLabel5";
-      this.toolStripLabel5.Size = new System.Drawing.Size(19, 22);
-      this.toolStripLabel5.Text = "y2";
+      this.decorationAreaLineY2ToolStripLabel.Name = "decorationAreaLineY2ToolStripLabel";
+      this.decorationAreaLineY2ToolStripLabel.Size = new System.Drawing.Size(19, 22);
+      this.decorationAreaLineY2ToolStripLabel.Text = "y2";
       // 
-      // toolStripTextBox4
+      // decorationAreaLineY2ToolStripTextBox
       // 
-      this.toolStripTextBox4.Name = "toolStripTextBox4";
-      this.toolStripTextBox4.Size = new System.Drawing.Size(100, 25);
-      this.toolStripTextBox4.TextChanged += new System.EventHandler(this.toolStripTextBox_TextChanged);
+      this.decorationAreaLineY2ToolStripTextBox.Name = "decorationAreaLineY2ToolStripTextBox";
+      this.decorationAreaLineY2ToolStripTextBox.Size = new System.Drawing.Size(100, 25);
+      this.decorationAreaLineY2ToolStripTextBox.TextChanged += new System.EventHandler(this.decorationAreaLineToolStripTextBox_TextChanged);
       // 
       // toolStripButton1
       // 
@@ -636,36 +636,35 @@ namespace StencilEditor
       this.DecorationAreaListBox.TabIndex = 1;
       this.DecorationAreaListBox.SelectedIndexChanged += new System.EventHandler(this.DecorationAreaListBox_SelectedIndexChanged);
       // 
-      // DecorationAreaToolStrip
+      // decorationAreaToolStrip
       // 
-      this.DecorationAreaToolStrip.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.DecorationAreaToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.NewDecorationLineToolStripButton});
-      this.DecorationAreaToolStrip.Location = new System.Drawing.Point(3, 355);
-      this.DecorationAreaToolStrip.Name = "DecorationAreaToolStrip";
-      this.DecorationAreaToolStrip.Size = new System.Drawing.Size(595, 25);
-      this.DecorationAreaToolStrip.TabIndex = 0;
-      this.DecorationAreaToolStrip.Text = "toolStrip4";
+      this.decorationAreaToolStrip.Dock = System.Windows.Forms.DockStyle.Bottom;
+      this.decorationAreaToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newDecorationLineToolStripButton});
+      this.decorationAreaToolStrip.Location = new System.Drawing.Point(3, 355);
+      this.decorationAreaToolStrip.Name = "decorationAreaToolStrip";
+      this.decorationAreaToolStrip.Size = new System.Drawing.Size(595, 25);
+      this.decorationAreaToolStrip.TabIndex = 0;
+      this.decorationAreaToolStrip.Text = "toolStrip4";
       // 
-      // NewDecorationLineToolStripButton
+      // newDecorationLineToolStripButton
       // 
-      this.NewDecorationLineToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-      this.NewDecorationLineToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("NewDecorationLineToolStripButton.Image")));
-      this.NewDecorationLineToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-      this.NewDecorationLineToolStripButton.Name = "NewDecorationLineToolStripButton";
-      this.NewDecorationLineToolStripButton.Size = new System.Drawing.Size(54, 22);
-      this.NewDecorationLineToolStripButton.Text = "New Line";
-      this.NewDecorationLineToolStripButton.Click += new System.EventHandler(this.NewDecorationLineToolStripButton_Click);
+      this.newDecorationLineToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+      this.newDecorationLineToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.newDecorationLineToolStripButton.Name = "newDecorationLineToolStripButton";
+      this.newDecorationLineToolStripButton.Size = new System.Drawing.Size(54, 22);
+      this.newDecorationLineToolStripButton.Text = "New Line";
+      this.newDecorationLineToolStripButton.Click += new System.EventHandler(this.NewDecorationLineToolStripButton_Click);
       // 
-      // TextAreaTabPage
+      // textAreaTabPage
       // 
-      this.TextAreaTabPage.Location = new System.Drawing.Point(4, 22);
-      this.TextAreaTabPage.Name = "TextAreaTabPage";
-      this.TextAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
-      this.TextAreaTabPage.Size = new System.Drawing.Size(601, 383);
-      this.TextAreaTabPage.TabIndex = 2;
-      this.TextAreaTabPage.Text = "Text Area";
-      this.TextAreaTabPage.UseVisualStyleBackColor = true;
+      this.textAreaTabPage.Location = new System.Drawing.Point(4, 22);
+      this.textAreaTabPage.Name = "textAreaTabPage";
+      this.textAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
+      this.textAreaTabPage.Size = new System.Drawing.Size(601, 383);
+      this.textAreaTabPage.TabIndex = 2;
+      this.textAreaTabPage.Text = "Text Area";
+      this.textAreaTabPage.UseVisualStyleBackColor = true;
       // 
       // Form1
       // 
@@ -688,13 +687,13 @@ namespace StencilEditor
       this.toolStrip1.PerformLayout();
       this.splitContainer1.Panel1.ResumeLayout(false);
       this.splitContainer1.ResumeLayout(false);
-      this.EditTabControl.ResumeLayout(false);
-      this.DecorationAreaTabPage.ResumeLayout(false);
-      this.DecorationAreaTabPage.PerformLayout();
-      this.toolStrip4.ResumeLayout(false);
-      this.toolStrip4.PerformLayout();
-      this.DecorationAreaToolStrip.ResumeLayout(false);
-      this.DecorationAreaToolStrip.PerformLayout();
+      this.editTabControl.ResumeLayout(false);
+      this.decorationAreaTabPage.ResumeLayout(false);
+      this.decorationAreaTabPage.PerformLayout();
+      this.decorationAreaLineToolStrip.ResumeLayout(false);
+      this.decorationAreaLineToolStrip.PerformLayout();
+      this.decorationAreaToolStrip.ResumeLayout(false);
+      this.decorationAreaToolStrip.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -748,24 +747,24 @@ namespace StencilEditor
     private System.Windows.Forms.ToolStrip toolStrip2;
     private System.Windows.Forms.ToolStrip toolStrip3;
     private System.Windows.Forms.SplitContainer splitContainer1;
-    private System.Windows.Forms.TabControl EditTabControl;
-    private System.Windows.Forms.TabPage FillAreaTabPage;
-    private System.Windows.Forms.TabPage DecorationAreaTabPage;
-    private System.Windows.Forms.TabPage TextAreaTabPage;
+    private System.Windows.Forms.TabControl editTabControl;
+    private System.Windows.Forms.TabPage fillAreaTabPage;
+    private System.Windows.Forms.TabPage decorationAreaTabPage;
+    private System.Windows.Forms.TabPage textAreaTabPage;
     private System.Windows.Forms.ListBox DecorationAreaListBox;
-    private System.Windows.Forms.ToolStrip DecorationAreaToolStrip;
-    private System.Windows.Forms.ToolStripButton NewDecorationLineToolStripButton;
-    private System.Windows.Forms.ToolStrip toolStrip4;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-    private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel2;
-    private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel3;
-    private System.Windows.Forms.ToolStripTextBox toolStripTextBox2;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel4;
-    private System.Windows.Forms.ToolStripTextBox toolStripTextBox3;
-    private System.Windows.Forms.ToolStripLabel toolStripLabel5;
-    private System.Windows.Forms.ToolStripTextBox toolStripTextBox4;
+    private System.Windows.Forms.ToolStrip decorationAreaToolStrip;
+    private System.Windows.Forms.ToolStripButton newDecorationLineToolStripButton;
+    private System.Windows.Forms.ToolStrip decorationAreaLineToolStrip;
+    private System.Windows.Forms.ToolStripLabel decorationLineToolStripLabel;
+    private System.Windows.Forms.ToolStripSeparator decorationLineToolStripSeparator;
+    private System.Windows.Forms.ToolStripLabel decorationAreaLineX1ToolStripLabel;
+    private System.Windows.Forms.ToolStripTextBox decorationAreaLineX1ToolStripTextBox;
+    private System.Windows.Forms.ToolStripLabel decorationAreaLineY1ToolStripLabel;
+    private System.Windows.Forms.ToolStripTextBox decorationAreaLineY1ToolStripTextBox;
+    private System.Windows.Forms.ToolStripLabel decorationAreaLineX2ToolStripLabel;
+    private System.Windows.Forms.ToolStripTextBox decorationAreaLineX2ToolStripTextBox;
+    private System.Windows.Forms.ToolStripLabel decorationAreaLineY2ToolStripLabel;
+    private System.Windows.Forms.ToolStripTextBox decorationAreaLineY2ToolStripTextBox;
     private System.Windows.Forms.ToolStripButton toolStripButton1;
   }
 }

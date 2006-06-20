@@ -31,40 +31,40 @@ namespace StencilEditor
       if (DecorationAreaListBox.SelectedItem is Line)
       {
         Line line = DecorationAreaListBox.SelectedItem as Line;
-        toolStripTextBox1.Text = line.x1.ToString("N2");
-        toolStripTextBox2.Text = line.x2.ToString("N2");
-        toolStripTextBox3.Text = line.y1.ToString("N2");
-        toolStripTextBox4.Text = line.y2.ToString("N2");
+        decorationAreaLineX1ToolStripTextBox.Text = line.x1.ToString("N2");
+        decorationAreaLineY1ToolStripTextBox.Text = line.x2.ToString("N2");
+        decorationAreaLineX2ToolStripTextBox.Text = line.y1.ToString("N2");
+        decorationAreaLineY2ToolStripTextBox.Text = line.y2.ToString("N2");
 
-        toolStripTextBox1.BackColor = DefaultBackColor;
-        toolStripTextBox2.BackColor = DefaultBackColor;
-        toolStripTextBox3.BackColor = DefaultBackColor;
-        toolStripTextBox4.BackColor = DefaultBackColor;
+        decorationAreaLineX1ToolStripTextBox.BackColor = DefaultBackColor;
+        decorationAreaLineY1ToolStripTextBox.BackColor = DefaultBackColor;
+        decorationAreaLineX2ToolStripTextBox.BackColor = DefaultBackColor;
+        decorationAreaLineY2ToolStripTextBox.BackColor = DefaultBackColor;
         toolStripButton1.Enabled = true;
-        toolStrip4.Visible = true;
+        decorationAreaLineToolStrip.Visible = true;
       }
       else
       {
-        toolStrip4.Visible = false;
+        decorationAreaLineToolStrip.Visible = false;
       }
     }
 
-    private void toolStripTextBox_TextChanged(object sender, EventArgs e)
+    private void decorationAreaLineToolStripTextBox_TextChanged(object sender, EventArgs e)
     {
       try
       {
         Line line = DecorationAreaListBox.SelectedItem as Line;
-        line.x1 = Single.Parse(toolStripTextBox1.Text);
-        line.y1 = Single.Parse(toolStripTextBox2.Text);
-        line.x2 = Single.Parse(toolStripTextBox3.Text);
-        line.y2 = Single.Parse(toolStripTextBox4.Text);
+        line.x1 = Single.Parse(decorationAreaLineX1ToolStripTextBox.Text);
+        line.y1 = Single.Parse(decorationAreaLineY1ToolStripTextBox.Text);
+        line.x2 = Single.Parse(decorationAreaLineX2ToolStripTextBox.Text);
+        line.y2 = Single.Parse(decorationAreaLineY2ToolStripTextBox.Text);
 
-        toolStripTextBox1.BackColor = DefaultBackColor;
+        decorationAreaLineX1ToolStripTextBox.BackColor = DefaultBackColor;
         toolStripButton1.Enabled = true;
       }
       catch
       {
-        toolStripTextBox1.BackColor = Color.Yellow;
+        decorationAreaLineX1ToolStripTextBox.BackColor = Color.Yellow;
         toolStripButton1.Enabled = false;
       }
     }
@@ -72,10 +72,10 @@ namespace StencilEditor
     private void toolStripButton1_Click(object sender, EventArgs e)
     {
       Line line = DecorationAreaListBox.SelectedItem as Line;
-      line.x1 = Single.Parse(toolStripTextBox1.Text);
-      line.y1 = Single.Parse(toolStripTextBox2.Text);
-      line.x2 = Single.Parse(toolStripTextBox3.Text);
-      line.y2 = Single.Parse(toolStripTextBox4.Text);
+      line.x1 = Single.Parse(decorationAreaLineX1ToolStripTextBox.Text);
+      line.y1 = Single.Parse(decorationAreaLineY1ToolStripTextBox.Text);
+      line.x2 = Single.Parse(decorationAreaLineX2ToolStripTextBox.Text);
+      line.y2 = Single.Parse(decorationAreaLineY2ToolStripTextBox.Text);
 
       DecorationAreaListBox.Items[DecorationAreaListBox.SelectedIndex] = line;
       DecorationAreaListBox.Refresh();
