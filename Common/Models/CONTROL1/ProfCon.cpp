@@ -38,6 +38,7 @@ ProfConInfo::ProfConInfo()
   bLinear = 0;
   bWrapArround = 1;
   bUseHeadingRow = 0;
+  bUseGainOffset = 0;
   iPriority = 0;
   sPath = PrjFiles();
   hProcess = NULL;
@@ -144,14 +145,14 @@ void ProfConInfo::ExecIns(double ICTime)
   if (Prof.Loaded())
     {
     Prof.GetVal(ICTime, 0);
-    dbgpln("            Time = %10.2f Passed : %10.2f ", ICTime, Prof.TimePassed());
+    //dbgpln("            Time = %10.2f Passed : %10.2f ", ICTime, Prof.TimePassed());
     for (int j=0; j<iColCnt; j++)
       {
       ProfColInfo &C=*ColData[j];
       C.m_dOutput = Prof.GetVal(ICTime, j+1);
-      if (Valid(C.m_dOutput))
+      if (bUseGainOffset && Valid(C.m_dOutput))
         C.m_dOutput=C.m_dOffset+C.m_dOutput*C.m_dGain;
-      dbgpln("            %i) %10.2f %s", j, ColData[j]->m_dOutput, ColData[j]->m_OutputVar.sVar());
+      //dbgpln("            %i) %10.2f %s", j, ColData[j]->m_dOutput, ColData[j]->m_OutputVar.sVar());
       }
     }
   }

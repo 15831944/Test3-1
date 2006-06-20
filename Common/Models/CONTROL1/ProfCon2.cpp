@@ -65,7 +65,7 @@ void CProfileCon2::ResetData(flag Complete)
 const word idmCheckBtn  = 1000;
 const word idmCfgTags   = 1100;
 
-const word FirstColIndex = 20;
+const word FirstColIndex = 22;
 
 //--------------------------------------------------------------------------
 
@@ -89,6 +89,7 @@ void CProfileCon2::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn("ShowCnv",      "",         DC_, "", &bWithCnvComment, this, isParmStopped, DDBYesNo);
   DDB.Button("Check_tags"/* and functions"*/, "", DC_, "", idmCheckBtn, this, isParmStopped);
   DDB.Text("");
+  DDB.CheckBoxBtn("WithGainOffset","",        DC_,     "",      idmCfgTags+20,this, isParmStopped, DDBYesNo);
   DDB.CheckBoxBtn("Linear",      "",          DC_,     "",      idmCfgTags+12,this, isParm, DDBYesNo);
   DDB.CheckBoxBtn("WrapArround", "",          DC_,     "",      idmCfgTags+13,this, isParm, DDBYesNo);
   DDB.Double("TimePassed",       "",          DC_Time, "s",     idmCfgTags+18,this, isResult|noFileAtAll);
@@ -113,8 +114,11 @@ void CProfileCon2::BuildDataDefn(DataDefnBlk & DDB)
       //sprintf(Buff, "Tag%d", j+1);
       DDB.String("Output_Tag",             "",          DC_,     "",      idmCfgTags+FirstColIndex+j, this, (PCI.bUseHeadingRow ? isResult : isParmStopped)|isTag);
       //sprintf(Buff, "Val%d", j+1);
-      DDB.Double("Gain",             "",          DC_,     "",      &(PCI.ColData[j]->m_dGain),      this, isParm);
-      DDB.Double("Offset",           "",          DC_,     "",      &(PCI.ColData[j]->m_dOffset),    this, isParm);
+      if (PCI.bUseGainOffset)
+        {
+        DDB.Double("Gain",             "",          DC_,     "",      &(PCI.ColData[j]->m_dGain),      this, isParm);
+        DDB.Double("Offset",           "",          DC_,     "",      &(PCI.ColData[j]->m_dOffset),    this, isParm);
+        }
       DDB.Double("Value",            "",          DC_,     "",      &(PCI.ColData[j]->m_dOutput),    this, isResult);
       if (CnvTxt.Len())
         DDB.TagComment(CnvTxt());
@@ -332,6 +336,13 @@ flag CProfileCon2::DataXchg(DataChangeBlk & DCB)
                 }
               }
             DCB.B = PCI.bUseHeadingRow;
+            break;
+          case 20:
+            if (DCB.rB)
+              {
+              PCI.bUseGainOffset = (*DCB.rB);
+              }
+            DCB.B = PCI.bUseGainOffset;
             break;
           default:
             if (SubIndex>=FirstColIndex)

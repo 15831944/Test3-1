@@ -54,7 +54,8 @@ class ProfConInfo : public CXRefStatus
                bReloadRqd:1,
                bLinear:1,       //must linear interpulation be applied between points
                bWrapArround:1,  //must the profile wrap arround after full time
-               bUseHeadingRow:1;//must the tags be obtained from the first row
+               bUseHeadingRow:1,//must the tags be obtained from the first row
+               bUseGainOffset:1;//can a gain and offset be used with the data
     long       iPriority;
 
     Strng      sTagSuffix;
