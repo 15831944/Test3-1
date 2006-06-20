@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\License91\SysCAD.exe"
+				OutputFile="..\..\License\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\Release/SysCAD91Lic.pdb"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\License91\SysCAD.exe"
+				OutputFile="..\..\License\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="true"
@@ -266,7 +266,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\License91\SysCAD.exe"
+				OutputFile="..\..\License\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -362,7 +362,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\License91\SysCAD.exe"
+				OutputFile="..\..\License\SysCAD.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"

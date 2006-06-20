@@ -61,6 +61,7 @@ enum eO2NTypes
   {
   eO2N_End,// End Of List
   eO2N_Direct, // Direct Replacement
+  eO2N_Class,  // Replace With Class
   };
 
 class COld2NewItem 
@@ -70,10 +71,9 @@ class COld2NewItem
   public:
     int     m_Type;
     LPCTSTR m_OldTag;
-    //LPCTSTR m_OldSym;
     LPCTSTR m_NewTag;
     LPCTSTR m_Comment;
-    bool    m_Logged;
+    int     m_nLogged;
   };
 
 bool COld2NewItem::MakeNewTag(LPTSTR sTag, Strng & NewTag)
@@ -99,37 +99,89 @@ static COld2NewItem gs_Old2New[] =
     {eO2N_Direct, "$Dyn.Try_Idle",                    "$Dyn.Cmd.Idle",                          ""},
     {eO2N_Direct, "$Dyn.Try_Stop",                    "$Dyn.Cmd.Stop",                          ""},
 
+    {eO2N_Class,  "Pipe-1.Reactions",                 ".EB.Reactions",                          ""},
+    {eO2N_Class,  "Pipe-1.EnvironHX",                 ".EB.EnvironHX",                          ""},
+    {eO2N_Class,  "Pipe-1.VLEquilibrium",             ".EB.VLEquilibrium",                      ""},
+    {eO2N_Class,  "Pipe-1.Evaporator",                ".EB.Evaporator",                         ""},
 
     {eO2N_End},
   };
-static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMap;
 
-COld2NewItem * FindOld2New(LPCTSTR OldTag)
+static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMapDirect;
+static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMapClass;
+
+COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng & NewTag)
   {
-  if (gs_Old2NewMap.GetCount()==0)
+  const int NLogs=10;
+  if (gs_Old2NewMapDirect.GetCount()==0)
     {
-    gs_Old2NewMap.InitHashTable(113);
-
-    for (int i=0; gs_Old2New[i].m_Type>0; i++)
-      gs_Old2NewMap.SetAt(gs_Old2New[i].m_OldTag, &gs_Old2New[i]);
+    gs_Old2NewMapDirect.InitHashTable(FindNextPrimeNumber(sizeof(gs_Old2New)/sizeof(gs_Old2New[0])));
+    gs_Old2NewMapClass.InitHashTable(FindNextPrimeNumber(sizeof(gs_Old2New)/sizeof(gs_Old2New[0])));
+    for (int i=0; gs_Old2New[i].m_Type!=eO2N_End; i++)
+      {
+      switch (gs_Old2New[i].m_Type)
+        {
+        case eO2N_Direct:
+          gs_Old2NewMapDirect.SetAt(gs_Old2New[i].m_OldTag, &gs_Old2New[i]);
+          break;
+        case eO2N_Class:
+          gs_Old2NewMapClass.SetAt(gs_Old2New[i].m_OldTag, &gs_Old2New[i]);
+          break;
+        }
+      }
     }
 
   COld2NewItem *pRet=NULL;
-  if (gs_Old2NewMap.Lookup(OldTag, pRet))
+  if (gs_Old2NewMapDirect.Lookup(OldTag, pRet))
     {
-    if (!pRet->m_Logged)
+    NewTag=pRet->m_NewTag;
+    if (pRet->m_nLogged<NLogs)
       {
       LogWarning("Executive", 0, 
         pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'", 
-        OldTag, pRet->m_NewTag, pRet->m_Comment);
-      //LogWarning(OldTag, 0, 
-      //  pRet->m_Comment ? "Changed to '%s' : %s":"Changed to '%s'", 
-      //  pRet->m_NewTag, pRet->m_Comment);
-      pRet->m_Logged=true;
+        OldTag, NewTag(), pRet->m_Comment);
+      pRet->m_nLogged++;
       }
     return pRet;
     }
-  return NULL;
+
+  int iDot=0;
+
+  int Len=strlen(OldTag);
+  int MinTagLen=0;
+  Strng NdTag;
+  for (;;)
+    {
+    while (iDot<Len && OldTag[iDot]!='.')
+      NdTag+=OldTag[iDot++];
+
+    int ObjTagLen=0;
+    TaggedObject *p=pSrchRoot->FindObjTag(NdTag(), true, ObjTagLen, MinTagLen);
+    if (p)
+      {
+      Strng ClassTag(p->ClassId());
+      ClassTag+=&OldTag[iDot];
+      if (gs_Old2NewMapClass.Lookup(ClassTag(), pRet))
+        {
+        NewTag=NdTag;
+        NewTag+=pRet->m_NewTag;
+        if (pRet->m_nLogged<NLogs)
+          {
+          LogWarning("Executive", 0, 
+            pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'", 
+            OldTag, NewTag(), pRet->m_Comment);
+          pRet->m_nLogged++;
+          }
+        return pRet;
+        }
+      }
+    else if (iDot>=Len)
+      break;
+    NdTag+='.';
+    }
+
+
+  return pRet;
 
   };
 
@@ -5784,13 +5836,9 @@ Failed:
     {
     ReMapTried=true;
     // Try Remap ????
-    COld2NewItem *pOld2New = FindOld2New(sTag());
+    COld2NewItem *pOld2New = FindAndFixOld2New(pSrchRoot, sTag(), sTag);
     if (pOld2New)
       {
-      Strng NewTag;
-      pOld2New->MakeNewTag(sTag(), NewTag);
-      sTag=NewTag;
-      sTag=NewTag;
       pAccObj=NULL;
       goto ReTry;
       }

@@ -1227,16 +1227,11 @@ Done:
     'RetVal = GetUserName(Buffer, 25)
     If GetVolumeInformation("D:\", VolumeName, 1024, VolumeSerialNumber, _
       MaximumComponentLength, FileSystemFlags, FSName, 1024) Then
-
-      DS = Hex(VolumeSerialNumber)
-      While DS.Length < 8
-        DS = "0" & DS
-      End While
-
-      GetDiskSerial = DS
-
+      DS = Str(VolumeSerialNumber)
+      DS = Trim(DS)
     End If
 
+    GetDiskSerial = DS
 
   End Function
 

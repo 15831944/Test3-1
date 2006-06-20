@@ -4,6 +4,8 @@
 #include "ScdLicenseApp.h"
 #include "licbase.h"
 
+#include "optoff.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CScdLicenseApp
 
@@ -198,7 +200,7 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
                                       FSNameBuff, sizeof(FSNameBuff)-1);
 
       CString m_sDisk; 
-      m_sDisk.Format("%08x", dwVolSerialNo);
+      m_sDisk.Format("%u", dwVolSerialNo);
 
       if (m_sDisk.CompareNoCase(kDisk)==0)
         {
