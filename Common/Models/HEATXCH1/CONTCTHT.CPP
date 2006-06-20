@@ -8,6 +8,8 @@
 #define  __CONTCTHT_CPP
 #include "contctht.h"
 
+#define WithPressureOption 0
+
 //==========================================================================
 /*#D:#T:Direct Contact Heater(1)
 #X:#h<General Description>#n
@@ -69,9 +71,9 @@ const byte ioidSI_ESteam      = 3;
 
 static IOAreaRec ContactHeaterIOAreaList[] =
   {{"Liquor",      "Liquor",     ioidSI_Liq ,   LIO_In0 ,    nc_MLnk, 1,  10, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
-   {"Steam",       "Steam"  ,    ioidSI_Steam,  LIO_In1 ,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
-   {"Hot Liquor",  "HotLiquor",  ioidSI_HotLiq, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
-   {"Excess Steam","ExcessSteam",ioidSI_ESteam, LIO_Out1,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.98},
+   {"Steam",       "Steam"  ,    ioidSI_Steam,  LIO_In1 ,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, 0.5f},
+   {"Hot Liquor",  "HotLiquor",  ioidSI_HotLiq, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, 0.5f},
+   {"Excess Steam","ExcessSteam",ioidSI_ESteam, LIO_Out1,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, 0.98f},
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
@@ -105,8 +107,10 @@ ContactHeater::ContactHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   AttachIOAreas(ContactHeaterIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
 
+  iRqdCalcMode = QST_Free;
   iTempSpec  = QST_TRise;
   dFinalTRqd = C_2_K(220.0);
+  dFinalPRqd = 2000.0;
   dTRiseRqd  = 10.0;
   dTRise     = 0.0;
   dFinalP    = Std_P;
@@ -151,18 +155,35 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, isResult|0);
   DDB.Visibility();
   
-  DDB.Text    ("");
-  DDB.Text    ("Requirements");
   static DDBValueLst DDB0[]={
+    {QST_Free,  "Free"},
+    {QST_ForceDemand, "Steam Demand"},
+    {QST_ForceGeneral, "Stand Alone"},
+    {0}};
+  static DDBValueLst DDB1[]={
     {QST_TRise,  "Temp Rise"},
     {QST_FinalT, "Final Temp"},
+#if WithPressureOption
+    {QST_FinalP, "Final Pressure"},
+#endif
     {0}};
-  DDB.Byte    ("TempSpec",  "",  DC_,     "",      &iTempSpec,  this, isParm|AffectsStruct, DDB0);
+  static DDBValueLst DDB2[]={
+    {QST_FTCActive, "Flash Train"},
+    {QST_Makup,     "Steam Makeup"},
+    {QST_General,   "General"},
+    {0}};
+
+  DDB.Text    ("");
+  DDB.Text    ("Requirements");
+  DDB.Byte    ("RqdCalcMode", "", DC_,    "",      &iRqdCalcMode, this, isParm|AffectsStruct, DDB0);
+  DDB.Byte    ("TempSpec",  "",  DC_,     "",      &iTempSpec,  this, isParm|AffectsStruct, DDB1);
   DDB.Visibility(SHM_All, (iTempSpec == QST_FinalT));
-  DDB.Double  ("FinalTRqd", "",  DC_T,    "C",     &dFinalTRqd, this, isParm);//(iTempSpec==QST_FinalT) ? isParm : 0);
+  DDB.Double  ("FinalTRqd", "",  DC_T,    "C",     &dFinalTRqd, this, isParm);
+  DDB.Visibility(SHM_All, (iTempSpec == QST_FinalP));
+  DDB.Double  ("FinalPRqd", "",  DC_P,    "kPag",  &dFinalPRqd, this, isParm);
   DDB.Visibility(SHM_All, (iTempSpec == QST_TRise));
-  DDB.Double  ("TRiseRqd",  "",  DC_dT,   "C",     &dTRiseRqd,  this, isParm);//(iTempSpec==QST_TRise)  ? isParm : 0);
-  DDB.Visibility();//ALLMODES, (iCalcMode != QST_General));
+  DDB.Double  ("TRiseRqd",  "",  DC_dT,   "C",     &dTRiseRqd,  this, isParm);
+  DDB.Visibility();
   DDB.Double  ("SteamVentRqd", "", DC_Qm, "kg/s",  &dVentRqd,   this, isParm);
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
@@ -181,12 +202,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("SatP",      "",  DC_P,    "kPag",  &dSatPOut,   this, isResult|noFile|noSnap|InitHidden);
   DDB.Visibility(SM_Direct|HM_All);
   DDB.Double  ("VapQmOut",  "",  DC_Qm,   "kg/s",  &dQmVapVent, this, isResult|noFile|noSnap|InitHidden);
-  static DDBValueLst DDB1[]={
-    {QST_FTCActive, "Flash Train"},
-    {QST_Makup,     "Steam Makeup"},
-    {QST_General,   "General"},
-    {0}};
-  DDB.Byte    ("CalcMode",  "",  DC_,     "",      &iCalcMode,  this, isResult|InitHidden, DDB1);
+  DDB.Byte    ("CalcMode",  "",  DC_,     "",      &iCalcMode,  this, isResult/*|InitHidden*/, DDB2);
   DDB.Visibility();
   DDB.Double  ("PrevP",             "",  DC_P,   "kPa",  &dPrevPress,            this, isResult|noView);
 //xx  DDB.Double  ("PrevVapFrac",       "",  DC_Frac, "",    &dVapFracRqd,           this, isResult|noView);
@@ -262,6 +278,7 @@ flag ContactHeater::ValidateData(ValidateDataBlk & VDB)
   flag OK=MN_Surge::ValidateData(VDB);
   dTRiseRqd=ValidateRange(VDB, "TRiseRqd", 0.0, dTRiseRqd, 500.0);
   dFinalTRqd=ValidateRange(VDB, "FinalTRqd", 20.0, dFinalTRqd, IF97_MaxSatT);
+  dFinalPRqd=ValidateRange(VDB, "FinalPRqd", 2.0, dFinalPRqd, IF97_MaxSatP);
   return OK;
   }
 
@@ -436,7 +453,17 @@ void ContactHeater::EvalProducts(long JoinMask)
       dQmVapVent = 0.0;
       double RqdProdTemp;
       CFlange &StmFl=*IOFlange(IOSteam);
-      if (m_FTC.Active() || StmFl.IsMakeUpAvail())
+      bool GeneralCalc = (iRqdCalcMode==QST_ForceGeneral);
+      if (iRqdCalcMode==QST_Free)
+        {
+        GeneralCalc = !(m_FTC.Active() || StmFl.IsMakeUpAvail());
+        }
+      const bool DemandErr = (!GeneralCalc && !m_FTC.Active() && !StmFl.IsMakeUpAvail());
+      SetCI(6, DemandErr);
+      if (DemandErr)
+        GeneralCalc = true; //Force general calc
+
+      if (!GeneralCalc)
         {
         iCalcMode = (byte)(m_FTC.Active() ? QST_FTCActive : QST_Makup);
         SetCI(2, (VapourSteamQ<1.0e-6));
@@ -649,7 +676,7 @@ void ContactHeater::EvalProducts(long JoinMask)
       dSatPOut   = HotLiquor.SaturationP(dFinalT);
       dPrevPress = dSatPOut;
       dTRise     = dFinalT - LiquorT;
-      SetCI(1, HasLiquor && fabs(dFinalT-RqdProdTemp)/RqdProdTemp>1.0e-4);
+      SetCI(1, HasLiquor && !GeneralCalc && fabs(dFinalT-RqdProdTemp)/RqdProdTemp>1.0e-4);
 
       m_FTC.m_dMinSatPress = 1.0; // ToFix
       }
@@ -671,6 +698,7 @@ flag ContactHeater::CIStrng(int No, pchar & pS)
     case 3: pS="W\tNo Vent Defined";                                     return 1;
     case 4: pS="W\tTemperature Required too high based on feed streams"; return 1;
     case 5: pS="W\tExpect pure steam in steam line";                     return 1;
+    case 6: pS="W\tExpect flash-train or makeup steam line arrangement"; return 1;
     default:                                               
       return MN_Surge::CIStrng(No, pS);
     }

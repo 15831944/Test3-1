@@ -22,7 +22,8 @@
 
 // ==========================================================================
 
-enum  QST_TempSpecs { QST_TRise, QST_FinalT };
+enum  QST_OperMode { QST_Free, QST_ForceDemand, QST_ForceGeneral };
+enum  QST_TempSpecs { QST_TRise, QST_FinalT,  QST_FinalP };
 enum  QST_CalcMode { QST_FTCActive, QST_Makup, QST_General };
 
 // ==========================================================================
@@ -36,6 +37,7 @@ class DllImportExport ContactHeater : public MN_Surge
     double         dSatPOut;
     double         dFinalT;
     double         dFinalTRqd;
+    double         dFinalPRqd;
     double         dTRiseRqd;
     double         dTRise;
     double         dVentRqd;
@@ -43,6 +45,7 @@ class DllImportExport ContactHeater : public MN_Surge
     double         dPrevPress;
     double         dVapFracRqd;
     double         dQmVapVent;
+    byte           iRqdCalcMode;
     byte           iTempSpec;
     byte           iCalcMode;
     flag           bTrackSteamStatus;
