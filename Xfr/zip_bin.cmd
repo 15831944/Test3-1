@@ -32,84 +32,98 @@ set fn=%foldr%\Bins116
 
 :continue 
 rem ========== SysCAD Standard Files ==========
-del %fn%_SysCAD.zip
-wzzip -a %fn%_SysCAD.zip ..\bin\syscad91.exe ..\bin\syscad.exe
-wzzip -a %fn%_SysCAD.zip ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\control1.dll
-wzzip -a %fn%_SysCAD.zip ..\bin\flwlib.dll ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll 
-wzzip -a %fn%_SysCAD.zip ..\bin\mdlbase.dll ..\bin\scdcom.dll ..\bin\scddesrvr.dll ..\bin\scdif.dll 
-wzzip -a %fn%_SysCAD.zip ..\bin\scdlib.dll ..\bin\scdmdl.dll ..\bin\scdopcsrv.dll ..\bin\scdslv.dll
-wzzip -a %fn%_SysCAD.zip ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopcsrv.dll 
-wzzip -a %fn%_SysCAD.zip ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll 
-wzzip -a %fn%_SysCAD.zip ..\bin\unzip32.dll ..\bin\xylib.dll ..\bin\zip32.dll
-wzzip -a %fn%_SysCAD.zip ..\bin\power1.dll 
+set fn2=%fn%_SysCAD.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\syscad91.exe ..\bin\syscad.exe
+wzzip -a %fn2% ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\control1.dll
+wzzip -a %fn2% ..\bin\flwlib.dll ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll 
+wzzip -a %fn2% ..\bin\mdlbase.dll ..\bin\scdcom.dll ..\bin\scddesrvr.dll ..\bin\scdif.dll 
+wzzip -a %fn2% ..\bin\scdlib.dll ..\bin\scdmdl.dll ..\bin\scdopcsrv.dll ..\bin\scdslv.dll
+wzzip -a %fn2% ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopcsrv.dll 
+wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll 
+wzzip -a %fn2% ..\bin\unzip32.dll ..\bin\xylib.dll ..\bin\zip32.dll
+wzzip -a %fn2% ..\bin\power1.dll 
 
-wzzip -a %fn%_SysCAD.zip ..\bin\regall.cmd
-wzzip -a %fn%_SysCAD.zip ..\bin\scdcom.tlb ..\bin\scdif.tlb ..\bin\scdmdl.tlb
-wzzip -a %fn%_SysCAD.zip ..\bin\scdslv.tlb ..\bin\syscad.tlb
-wzzip -a %fn%_SysCAD.zip ..\bin\scdvb.tlb
+wzzip -a %fn2% ..\bin\regall.cmd
+wzzip -a %fn2% ..\bin\scdif.tlb ..\bin\scdmdl.tlb
+wzzip -a %fn2% ..\bin\scdslv.tlb ..\bin\syscad.tlb
+wzzip -a %fn2% ..\bin\scdvb.tlb ..\bin\scdcom.tlb
+
+wzzip -a %fn2% ..\bin\crp32001.ngn
 
 rem ========== SysCAD Marshal ==========
-del %fn%_Marshal.zip
-wzzip -a %fn%_Marshal.zip ..\bin\SysCADMarshal.exe
-wzzip -a %fn%_Marshal.zip ..\bin\SysCADMarshal_ps.dll
-wzzip -a %fn%_Marshal.zip ..\bin\ScdIODB.exe
+set fn2=%fn%_Marshal.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\SysCADMarshal.exe
+wzzip -a %fn2% ..\bin\SysCADMarshal_ps.dll
+wzzip -a %fn2% ..\bin\ScdIODB.exe
 
 
 rem ========== Alcan ==========
-del %fn%_Alcan.zip
-wzzip -a %fn%_Alcan.zip ..\bin\alcanspm.dll ..\bin\alcanusr.dll
-rem wzzip -a %fn%_Alcan.zip ..\bin\alcanspusr.dll
+set fn2=%fn%_Alcan.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\alcanspm.dll 
+wzzip -a %fn2% ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
 
 rem ========== QAL ==========
-del %fn%_QAL.zip
-wzzip -a %fn%_QAL.zip ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
-rem wzzip -a %fn%_QAL.zip ..\bin\ttechqal.dll 
+set fn2=%fn%_QAL.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
+rem wzzip -a %fn2% ..\bin\ttechqal.dll 
 
 rem ========== CAR ==========
-del %fn%_CAR.zip
-wzzip -a %fn%_CAR.zip ..\bin\qalspmdl.dll ..\bin\qalmdls.dll
+set fn2=%fn%_CAR.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll
 
 rem ========== Alunorte ==========
-del %fn%_Alunorte.zip
-wzzip -a %fn%_Alunorte.zip ..\bin\alunorte.dll
+set fn2=%fn%_Alunorte.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\alunorte.dll
 
 rem ========== RTTS ==========
-del %fn%_RTTS.zip
-wzzip -a %fn%_RTTS.zip ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
-wzzip -a %fn%_RTTS.zip ..\bin\ts_prc.dll
+set fn2=%fn%_RTTS.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
+wzzip -a %fn2% ..\bin\ts_prc.dll
 
 rem ========== Worsley ==========
-del %fn%_BATC.zip
-wzzip -a %fn%_BATC.zip ..\bin\batc_bayer.dll
+set fn2=%fn%_BATC.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
 
 rem ========== Iluka ==========
-del %fn%_Iluka.zip
-wzzip -a %fn%_Iluka.zip ..\bin\control2.dll
-
-rem ========== Simutron ==========
-del %fn%_Simutron.zip
-wzzip -a %fn%_Simutron.zip ..\bin\SKO.dll
+set fn2=%fn%_Iluka.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
 
 rem ========== Hatch ==========
-del %fn%_HatchAlcoa.zip
-wzzip -a %fn%_HatchAlcoa.zip ..\bin\alcoaspmdl.dll
+set fn2=%fn%_HatchAlcoa.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\alcoaspmdl.dll
+
+rem ========== Simutron ==========
+set fn2=%fn%_Simutron.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
 
 rem ========== Kenwalt ==========
-del %fn%_Kenwalt.zip
-wzzip -a %fn%_Kenwalt.zip ..\bin\scdplcopcsrv.dll ..\bin\plc5.exe
-wzzip -a %fn%_Kenwalt.zip ..\bin\kw_smdk1.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\demousr.dll ..\bin\demospusr.dll ..\bin\demoalspusr.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\csiro_units.dll
+set fn2=%fn%_Kenwalt.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\scdplcopcsrv.dll ..\bin\plc5.exe
+wzzip -a %fn2% ..\bin\kw_smdk1.dll
+wzzip -a %fn2% ..\bin\demousr.dll ..\bin\demospusr.dll ..\bin\demoalspusr.dll
+wzzip -a %fn2% ..\bin\csiro_units.dll
 rem plus all the client DLLs
-wzzip -a %fn%_Kenwalt.zip ..\bin\alcanspm.dll ..\bin\alcanusr.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\alunorte.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\ts_prc.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\batc_bayer.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\control2.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\alcoaspmdl.dll
-wzzip -a %fn%_Kenwalt.zip ..\bin\SKO.dll
+wzzip -a %fn2% ..\bin\alcanspm.dll ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
+wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
+wzzip -a %fn2% ..\bin\alunorte.dll
+wzzip -a %fn2% ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
+wzzip -a %fn2% ..\bin\ts_prc.dll
+wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
+wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
+wzzip -a %fn2% ..\bin\alcoaspmdl.dll
+wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
 
 @echo off
 
@@ -128,8 +142,8 @@ goto done
 
 :use
 echo Usage: zip_bin VersionName
-echo example1: zip_bin bin114
-echo example2: zip_bin bin114u3
+echo example1: zip_bin bin116
+echo example2: zip_bin bin116u3
 
 goto done
 
