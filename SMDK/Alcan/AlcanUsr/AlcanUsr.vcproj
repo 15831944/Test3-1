@@ -5,10 +5,6 @@
 	Name="AlcanUsr"
 	ProjectGUID="{87C2B206-FD06-47B0-88F4-333E0AA50A48}"
 	RootNamespace="AlcanUsr"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -317,6 +313,12 @@
 				RelativePath=".\HyprodPrecipBatch.cpp">
 			</File>
 			<File
+				RelativePath=".\PSDCalculator.cpp">
+			</File>
+			<File
+				RelativePath=".\PSDPersonality.cpp">
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp">
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
@@ -368,6 +370,12 @@
 			</File>
 			<File
 				RelativePath=".\HyprodPrecipBatch.h">
+			</File>
+			<File
+				RelativePath=".\PSDCalculator.h">
+			</File>
+			<File
+				RelativePath=".\PSDPersonality.h">
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">
