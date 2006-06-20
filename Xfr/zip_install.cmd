@@ -31,7 +31,10 @@ set foldr=Install
 md %foldr%
 set fn=xfr\%foldr%\Install_
 
+
 :continue 
+
+copy DoInstall.cmd %foldr%\DoInstall.cmd
 
 pushd ..
 
@@ -43,7 +46,7 @@ wzzip -a %fn2% xfr\winsysdir\*.*
 rem ========== required ==========
 set fn2=%fn%_Main.zip
 del %fn2%
-wzzip -a -P -r %fn2% bin\syscad91.exe bin\syscad.exe
+wzzip -a -P -r %fn2% bin\syscad91.exe
 wzzip -a -P -r %fn2% bin\alumina1.dll bin\basic1.dll bin\commn1.dll bin\control1.dll
 wzzip -a -P -r %fn2% bin\flwlib.dll bin\heatxch1.dll bin\kwdb.dll bin\mathand1.dll 
 wzzip -a -P -r %fn2% bin\mdlbase.dll bin\scddesrvr.dll bin\scdif.dll 
@@ -53,9 +56,8 @@ wzzip -a -P -r %fn2% bin\separ1.dll bin\separ2.dll bin\sizedst1.dll bin\smdk1.dl
 wzzip -a -P -r %fn2% bin\unzip32.dll bin\xylib.dll bin\zip32.dll
 wzzip -a -P -r %fn2% bin\power1.dll 
 wzzip -a -P -r %fn2% bin\regall.cmd
-wzzip -a -P -r %fn2% bin\crp32001.ngn
 wzzip -a -P -r %fn2% bin\scdif.tlb bin\scdmdl.tlb
-wzzip -a -P -r %fn2% bin\scdslv.tlb bin\syscad.tlb
+wzzip -a -P -r %fn2% bin\scdslv.tlb bin\syscad91.tlb
 
 rem wzzip -a -P -r %fn2% bin\scdcom.dll bin\scdvb.dll 
 rem wzzip -a -P -r %fn2% bin\scdcom.tlb bin\scdvb.tlb
@@ -66,9 +68,10 @@ wzzip -a -P -r %fn2% basefiles\default.mdb basefiles\tagdescdata.mdb
 wzzip -a -P -r %fn2% basefiles\symbols\*.*
 wzzip -a -P -r %fn2% basefiles\fonts\*.*
 
-wzzip -a %fn2% license\syscad.exe
-wzzip -a %fn2% license\cks.exe
-wzzip -a %fn2% license\setupex.exe
+wzzip -a -P %fn2% license\syscad.exe
+wzzip -a -P %fn2% license\cks.exe
+wzzip -a -P %fn2% license\setupex.exe
+wzzip -a -P %fn2% license\crp32001.ngn
 
 rem ========== Extra ==========
 set fn2=%fn%_Extra.zip
