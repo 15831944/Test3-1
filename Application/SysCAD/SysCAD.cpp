@@ -66,6 +66,10 @@
 #include ".\opcsrvrwrapper.h"
 #include "scdver.h"
 
+#define SECURITY_WIN32
+#include "security.h"
+#pragma comment(lib, "Secur32.lib")
+
 //#include "optoff.h"
 
 #import "c:\program files\common files\system\ado\msado15.dll" rename("EOF", "adEOF") implementation_only
@@ -587,9 +591,28 @@ BOOL CSysCADApp::InitIniFile()
 
   free((void*)m_pszProfileName);
   m_pszProfileName=_strdup(RegKey());
+  
+  if (USEREGISTRY)
+    {
+    ScdPFUser.SetUseRegistry(true, HKEY_CURRENT_USER, "Kenwalt", m_pszProfileName);
+    ScdPFMachine.SetUseRegistry(true, HKEY_LOCAL_MACHINE, "Kenwalt", m_pszProfileName);
+    }
+  else
+    {
+    char UName[4096];
+    ULONG Len=sizeof(UName)-1;
+    BOOL GotIt=GetUserNameEx(NameSamCompatible, &UName[0], &Len);
+    ASSERT_ALWAYS(GotIt, "NameSamCompatible not available")
 
-  ScdPFUser.SetUseRegistry(true, HKEY_CURRENT_USER, "Kenwalt", m_pszProfileName);
-  ScdPFMachine.SetUseRegistry(true, HKEY_LOCAL_MACHINE, "Kenwalt", m_pszProfileName);
+    char * pName=strchr(UName, '\\');
+    ASSERT_ALWAYS(pName!=NULL, "Bad User Name ")
+    CString UFn, MFn;
+    UFn.Format("%sSysCAD.User.%s.ini", BaseCfgFiles(), pName+1);
+    MFn.Format("%sSysCAD.Machine.ini", BaseCfgFiles());
+    ScdPFUser.SetProfFilename(UFn);
+    ScdPFMachine.SetProfFilename(MFn);
+
+    }
   return TRUE;
   }
 
@@ -954,18 +977,27 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
     gs_License.SetAppPath(m_CLH.sLicenseLoc());
   else
     {
-    Strng S,S1;
+    Strng S,S1,S2;
     char LongPath[_MAX_PATH];
     if (GetModuleFileName(NULL, LongPath, sizeof(LongPath))<1)
       S1 = "c:\\Program Files\\SysCAD91License\\";
     else
       {
+#if (1)
+      // where is license (SysCAD.exe)
       S1 = LongPath;
-#if SYSCAD10
       S1 = S1.Left(S1.Len()-16); //strip bin\syscad91.exe from end of string
-      //S1.FnDrivePath();
-      S1 += "License91\\";
+      S1 += "License\\";
+      S2 = S1;
+      S2 += "syscad.exe";
+      if (!FileExists(S2()))
+        {
+        S1 = LongPath;
+        S1 = S1.Left(S1.Len()-12); //strip syscad91.exe from end of string
+        S1 += "";
+        }
 #else
+      S1 = LongPath;
       S1 = S1.Left(S1.Len()-12); //strip syscad.exe from end of string
 #endif
       }

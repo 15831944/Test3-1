@@ -30,7 +30,7 @@
 //===========================================================================
 //=== Generic Code...
 
-const char* LicINISection = "License91";
+const char* LicINISection = "License";
 
 char* CK_KeyFile = "syscad.exe";
 char* CK_AppName = "SysCAD";
@@ -164,7 +164,7 @@ int GetAuthorization(dword * dwOpLevel, int dec)
   Opt.m_Opts.Mode_DynamicFlow = 1;
   Opt.m_Opts.Mode_DynamicFull = 1;
   Opt.m_Opts.Mode_Electrical  = 1;
-  Opt.m_Opts.Only_SteadyState = 0;
+  //Opt.m_Opts.Only_SteadyState = 0;
   Opt.m_Opts.Func_FullEdit    = 1;
   Opt.m_Opts.Func_COM         = 1;
   Opt.m_Opts.Func_COMProp     = 1;

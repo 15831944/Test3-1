@@ -45,6 +45,7 @@
 #define WITHGRFGROUP          1
 #define WITHGRFGROUPCONFIG    1 
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
+#define USEREGISTRY           0
 
 #define WITHBLOCKEVALUATOR    (1 && (_MSC_VER>=1400))
 
