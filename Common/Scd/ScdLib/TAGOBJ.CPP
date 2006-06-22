@@ -146,7 +146,6 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
     }
 
   int iDot=0;
-
   int Len=strlen(OldTag);
   int MinTagLen=0;
   Strng NdTag;
@@ -174,8 +173,8 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
           }
         return pRet;
         }
-      else if (iDot>=Len)
-        break;
+      else
+        return NULL;
       }
     else if (iDot>=Len)
       break;
