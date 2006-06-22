@@ -1415,12 +1415,12 @@ BOOL CMsgDlg::OnInitDialog()
   BOOL b=m_ImgList.Create(16, 12, false, 0, 10);
   m_ImgList.Add(&BM, (CBitmap*)NULL);
   
-  m_MsgCtrl.InsertColumn(0, "Source",     LVCFMT_LEFT, 100);
+  m_MsgCtrl.InsertColumn(0, "Source",     LVCFMT_LEFT, 104);
   m_MsgCtrl.InsertColumn(1, "ID",         LVCFMT_RIGHT, 32);
-  m_MsgCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 32);
-  m_MsgCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 32);
-  m_MsgCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 32);
-  m_MsgCtrl.InsertColumn(5, "Message",    LVCFMT_LEFT, 300);
+  m_MsgCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 34);
+  m_MsgCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 34);
+  m_MsgCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 34);
+  m_MsgCtrl.InsertColumn(5, "Message",    LVCFMT_LEFT, 356);
   m_MsgCtrl.SetImageList(&m_ImgList ,     LVSIL_SMALL);
 
   Shared.m_iShowWhat = ScdPFUser.RdInt("Messages", "ShowWhat", MWShowNotes);//MWShowWarns);
@@ -1495,8 +1495,10 @@ BOOL CMsgDlg::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
         }
       CRect ErrRect;
       MsgCtrl.GetWindowRect(&ErrRect);
-      const int W = ErrRect.right - ErrRect.left - 20 - MsgCtrl.GetColumnWidth(5);
-      B = MsgCtrl.SetColumnWidth(5, Max(20, W));
+      const int W = ErrRect.right - ErrRect.left - 20;// - MsgCtrl.GetColumnWidth(5);???
+      B = MsgCtrl.SetColumnWidth(5, Range(10, MsgCtrl.GetColumnWidth(5), W));//Max(20, W));
+      //const int W1 = ErrRect.right - MsgCtrl.GetColumnWidth(0) - MsgCtrl.GetColumnWidth(1) - MsgCtrl.GetColumnWidth(2) - MsgCtrl.GetColumnWidth(3) - MsgCtrl.GetColumnWidth(4);
+      //B = MsgCtrl.SetColumnWidth(5, Range(10, W1, W));
       break;
       }
     case LVN_GETDISPINFO:
