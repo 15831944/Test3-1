@@ -178,6 +178,7 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
     else if (iDot>=Len)
       break;
     NdTag+='.';
+    iDot++;
     }
 
 
