@@ -1065,6 +1065,14 @@ class DllImportExport TaggedObject : public ConditionBlk
     long            m_lRunMds;
     long          * m_pRunMds;
 
+    //static long     gs_lFlowMd;
+    //long            m_lFlowMd;
+    //TaggedObject  * m_pFlowModeObj;
+  public:
+    long            m_FlowModeReqd;
+    TaggedObject  * m_FlowModeObj;
+    int             m_FlowModePass;
+
     flag            m_fActive;
     flag            m_fActiveHold;
     flag            m_fActiveHoldIfSS;
@@ -1086,10 +1094,6 @@ class DllImportExport TaggedObject : public ConditionBlk
     TaggedObject *  pAttachedTo;
     TaggedObject *  pAttachments;
     TaggedObject *  pNxtAttachment;
-
-    long            m_FlowModeReqd;
-    TaggedObject  * m_FlowModeObj;
-    int             m_FlowModePass;
 
 #if WITHTAGMONITOR
     CFieldMonitorTO m_Monitor;

@@ -161,7 +161,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories=".,..\ScdOPC\interface,..\ScdOPC\OPCBase"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_WIN32_DCOM"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				StructMemberAlignment="1"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"

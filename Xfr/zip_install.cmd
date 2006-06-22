@@ -29,7 +29,7 @@ rem pause
 @echo on
 set foldr=Install
 md %foldr%
-set fn=xfr\%foldr%\Install_
+set fn=xfr\%foldr%\Install
 
 
 :continue 
@@ -44,7 +44,8 @@ del %fn2%
 wzzip -a %fn2% xfr\winsysdir\*.*
 
 rem ========== required ==========
-set fn2=%fn%_Main.zip
+rem ----------- ScdBins
+set fn2=%fn%_ScdBins.zip
 del %fn2%
 wzzip -a -P -r %fn2% bin\syscad91.exe
 wzzip -a -P -r %fn2% bin\alumina1.dll bin\basic1.dll bin\commn1.dll bin\control1.dll
@@ -59,29 +60,54 @@ wzzip -a -P -r %fn2% bin\regall.cmd
 wzzip -a -P -r %fn2% bin\scdif.tlb bin\scdmdl.tlb
 wzzip -a -P -r %fn2% bin\scdslv.tlb bin\syscad91.tlb
 
-rem wzzip -a -P -r %fn2% bin\scdcom.dll bin\scdvb.dll 
-rem wzzip -a -P -r %fn2% bin\scdcom.tlb bin\scdvb.tlb
-rem wzzip -a -P -r %fn2% bin\SysCADMarshal.exe bin\SysCADMarshal_ps.dll
-rem wzzip -a -P -r %fn2% bin\ScdIODB.exe
+rem ----------- MarshalBins
+set fn2=%fn%_MarshalBins.zip
+del %fn2%
+wzzip -a -P -r %fn2% bin\scdcom.dll bin\scdvb.dll 
+wzzip -a -P -r %fn2% bin\scdcom.tlb bin\scdvb.tlb
+wzzip -a -P -r %fn2% bin\SysCADMarshal.exe bin\SysCADMarshal_ps.dll
+wzzip -a -P -r %fn2% bin\ScdIODB.exe
 
+rem ----------- BaseFiles
+set fn2=%fn%_BaseFiles.zip
+del %fn2%
 wzzip -a -P -r %fn2% basefiles\default.mdb basefiles\tagdescdata.mdb
 wzzip -a -P -r %fn2% basefiles\symbols\*.*
 wzzip -a -P -r %fn2% basefiles\fonts\*.*
 
+rem ----------- License
+set fn2=%fn%_License.zip
+del %fn2%
 wzzip -a -P %fn2% license\syscad.exe
 wzzip -a -P %fn2% license\cks.exe
 wzzip -a -P %fn2% license\setupex.exe
 wzzip -a -P %fn2% license\crp32001.ngn
 
 rem ========== Extra ==========
-set fn2=%fn%_Extra.zip
+rem ----------- Documentation
+set fn2=%fn%_Documentation.zip
 del %fn2%
 wzzip -a -P -r %fn2% "basefiles\Models Help 9.0\*.*"
 wzzip -a -P -r %fn2% "basefiles\PGM Help 9.0\*.*"
 wzzip -a -P -r %fn2% "basefiles\User Manual 9.0\*.*"
 
+rem ----------- Examples
+set fn2=%fn%_Examples.zip
+del %fn2%
 wzzip -a -P -r %fn2% "Tutorial\GeneralTutorial\*.*"
 wzzip -a -P -r %fn2% "Examples\General Examples\*.*"
+
+rem ----------- All In One
+set fn2=%fn%_All.zip
+del %fn2%
+
+wzzip -a -P -r %fn2% DoInstall.cmd
+wzzip -a -P -r %fn2% %fn%_ScdBins.zip
+wzzip -a -P -r %fn2% %fn%_MarshalBins.zip
+wzzip -a -P -r %fn2% %fn%_BaseFiles.zip
+wzzip -a -P -r %fn2% %fn%_License.zip
+wzzip -a -P -r %fn2% %fn%_Documentation.zip
+wzzip -a -P -r %fn2% %fn%_Examples.zip
 
 @echo off
 

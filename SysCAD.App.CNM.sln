@@ -1039,7 +1039,6 @@ Global
 		{B704D979-004D-4662-A659-BE0251381DBC}.Release - Full.ActiveCfg = Release|Win32
 		{B704D979-004D-4662-A659-BE0251381DBC}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
 		{B704D979-004D-4662-A659-BE0251381DBC}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
-		{B704D979-004D-4662-A659-BE0251381DBC}.Release_Dbg Full.Build.0 = Release_Dbg|Win32
 		{B704D979-004D-4662-A659-BE0251381DBC}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
 		{B704D979-004D-4662-A659-BE0251381DBC}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
 		{B704D979-004D-4662-A659-BE0251381DBC}.SMDK_Debug.ActiveCfg = Debug|Win32

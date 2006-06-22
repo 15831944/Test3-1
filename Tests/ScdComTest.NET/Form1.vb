@@ -1211,7 +1211,7 @@ Done:
   'LPTSTR lpFileSystemNameBuffer,
   'DWORD nFileSystemNameSize
 
-  Function GetDiskSerial() As String
+  Function GetDiskSerial(Drive as string) As String
     Dim etVal As Integer
     Dim DS As String
     Dim Buffer As String
@@ -1225,9 +1225,10 @@ Done:
     VolumeName = New String(CChar(" "), 1024)
     FSName = New String(CChar(" "), 1024)
     'RetVal = GetUserName(Buffer, 25)
-    If GetVolumeInformation("D:\", VolumeName, 1024, VolumeSerialNumber, _
+    If GetVolumeInformation(Drive, VolumeName, 1024, VolumeSerialNumber, _
       MaximumComponentLength, FileSystemFlags, FSName, 1024) Then
-      DS = Str(VolumeSerialNumber)
+      ''DS = Format(VolumeSerialNumber, "D")
+      DS = Hex(VolumeSerialNumber)
       DS = Trim(DS)
     End If
 
@@ -1255,7 +1256,9 @@ Done:
     Str = Str & Chr(10)
     Str = Str & "1.0"              ' A SysCAD Version Number
     Str = Str & Chr(10)
-    Str = Str & GetDiskSerial()    ' Disk Serial Number
+    Str = Str & "C:\"              ' Disk Used for Serial Number
+    Str = Str & Chr(10)
+    Str = Str & GetDiskSerial("C:\")    ' Disk Serial Number
     Str = Str & Chr(10)
     Str = Str & "59af52a4"         ' Option 
 

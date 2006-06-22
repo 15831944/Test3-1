@@ -57,29 +57,21 @@ static CDbgMngr dbgFldMonitorChg("TagObj",   "FldMonitor.Chg");
 //
 //========================================================================
 
-enum eO2NTypes 
+enum eO2NTypes
   {
   eO2N_End,// End Of List
   eO2N_Direct, // Direct Replacement
   eO2N_Class,  // Replace With Class
   };
 
-class COld2NewItem 
+class COld2NewItem
   {
-  public:
-    bool    MakeNewTag(LPTSTR sTag, Strng & NewTag);
   public:
     int     m_Type;
     LPCTSTR m_OldTag;
     LPCTSTR m_NewTag;
     LPCTSTR m_Comment;
     int     m_nLogged;
-  };
-
-bool COld2NewItem::MakeNewTag(LPTSTR sTag, Strng & NewTag)
-  {
-  NewTag=m_NewTag;
-  return true;
   };
 
 static COld2NewItem gs_Old2New[] =
@@ -137,8 +129,8 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
     NewTag=pRet->m_NewTag;
     if (pRet->m_nLogged<NLogs)
       {
-      LogWarning("Executive", 0, 
-        pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'", 
+      LogWarning("Executive", 0,
+        pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
         OldTag, NewTag(), pRet->m_Comment);
       pRet->m_nLogged++;
       }
@@ -166,15 +158,14 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
         NewTag+=pRet->m_NewTag;
         if (pRet->m_nLogged<NLogs)
           {
-          LogWarning("Executive", 0, 
-            pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'", 
+          LogWarning("Executive", 0,
+            pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
             OldTag, NewTag(), pRet->m_Comment);
           pRet->m_nLogged++;
           }
         return pRet;
         }
-      else
-        return NULL;
+      return NULL;
       }
     else if (iDot>=Len)
       break;
@@ -1400,6 +1391,9 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   dbgpln("Construct %8x %s %s",this,pClass_->ClassId(), Tag_);
   #endif
 
+  m_lRunMds=0;
+  m_pRunMds=&m_lRunMds;
+
   m_FlowModeReqd=0;
   m_FlowModePass=0;
   m_FlowModeObj=NULL;
@@ -1413,9 +1407,6 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   bUnValidatedData=false;
   bDoSystemDefn=true;
   bSkipSnapLoad=false;
-
-  m_lRunMds=0;
-  m_pRunMds=&m_lRunMds;
 
   dwObjDataVerNo=++m_pClass->dwObjDataVerNo;
 
@@ -5830,7 +5821,7 @@ ReTry:
       }
     m_LoadAddress.Add(SW);
     }
-  
+
 Failed:
   if (!Ok && !ReMapTried)
     {
