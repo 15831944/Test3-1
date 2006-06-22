@@ -3659,6 +3659,7 @@ void GrfCmdBlk::DoConnect()
             CB = new CConnectBlk;
             gs_pCmd->SetDataBlk((void*)CB);
             HideTagOff = false;
+            i1 = 0; //count of failures to select unit
             bFlag1 = 0; //has a dig point been drawn
             bFlag2 = 0; //next dig point is a break
             gs_pCmd->ExtendCmdLine("SNd ");
@@ -3845,9 +3846,18 @@ void GrfCmdBlk::DoConnect()
             }
           else
             {
-            LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Need to select a valid '%s unit', try again.", (Modifier==MID_SNd) ? "source" : "destination");
-            gs_pCmd->ExtendModifier(",x ");
-            gs_pCmd->ExtendCmdLine(Modifier==MID_SNd ? "SNd " : "DNd "); //try again
+            i1++;
+            if (i1<3)
+              {
+              LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Need to select a valid '%s unit', try again (attempt %d of 3).", (Modifier==MID_SNd) ? "source" : "destination", i1+1);
+              gs_pCmd->ExtendModifier(",x ");
+              gs_pCmd->ExtendCmdLine(Modifier==MID_SNd ? "SNd " : "DNd "); //try again
+              }
+            else
+              {//give up and exit...
+              LogError("GrfCmds", LF_DoAfxMsgBox, "Command canceled!  Need to select a valid '%s unit'.", (Modifier==MID_SNd) ? "source" : "destination");
+              gs_pCmd->ExtendCmdLine("\x1b\x1b");
+              }
             }
           }
           break;
@@ -4856,6 +4866,7 @@ void GrfCmdBlk::DoConstructLink()
             {
             gs_pCmd->SetDlgBusy();
             pDsp->Vp1->ClearAllEntity();
+            i1 = 0; //count of failures to select unit
             ATag = "";
             AUnitId = "";
             ASymbol = "";
@@ -5071,15 +5082,16 @@ void GrfCmdBlk::DoConstructLink()
           if (!ConnOK)
             {
             i1++;
-            if (i1<4)
+            if (i1<3)
               {
-              LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Need to select a valid %s unit and connection, try again.", (Modifier==MID_SNd) ? "source" : "destination");
-              gs_pCmd->ExtendModifier(",x");
-              gs_pCmd->ExtendCmdLine((Modifier==MID_SNd) ? "SNd " : "DNd "); //try again
+              LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Need to select a valid '%s unit', try again (attempt %d of 3).", (Modifier==MID_SNd) ? "source" : "destination", i1+1);
+              gs_pCmd->ExtendModifier(",x ");
+              gs_pCmd->ExtendCmdLine(Modifier==MID_SNd ? "SNd " : "DNd "); //try again
               }
             else
               {//give up and exit...
-              gs_pCmd->ExtendCmdLine("\x1b\x1b\x1b");
+              LogError("GrfCmds", LF_DoAfxMsgBox, "Command canceled!  Need to select a valid '%s unit'.", (Modifier==MID_SNd) ? "source" : "destination");
+              gs_pCmd->ExtendCmdLine("\x1b\x1b");
               }
             }
           break;
