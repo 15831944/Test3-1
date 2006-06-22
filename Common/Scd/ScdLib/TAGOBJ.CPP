@@ -17,9 +17,9 @@
 #include "errorlog.h"
 #include "dbgmngr.h"
 #include "licbase.h"
-//#include "optoff.h"
+#include "optoff.h"
 
-#define dbgPutData             01
+#define dbgPutData             0
 #define dbgStructureChanged    0
 #define dbgConstructObj        0
 #define dbgTagObjClass         0
@@ -174,6 +174,8 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
           }
         return pRet;
         }
+      else if (iDot>=Len)
+        break;
       }
     else if (iDot>=Len)
       break;
@@ -181,9 +183,7 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
     iDot++;
     }
 
-
   return pRet;
-
   };
 
 //========================================================================
