@@ -2876,6 +2876,28 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=IOConduit(i)->QMass()*Sign(IOQm_In(i));
         return true;
         }
+      /*if (DCB.lHandle>=xidIO_IoQm0 && DCB.lHandle<xidIO_IoQm0+NoMLnkIOs()+NoDirDIOs())
+        {
+        int i=DCB.lHandle-xidIO_IoQm0;
+        if (i<NoMLnkIOs())
+          {
+          DCB.D=IOConduit(i)->QMass()*Sign(IOQm_In(i));
+          }
+        else
+          {
+          i -= NoMLnkIOs();
+          CDirectFlwIO &D=*m_DirectIOs[i];
+          DCB.D=D.NdSignImplied*D.Sum.FlowMass;//?????
+          }
+        return true;
+        }*/
+      else if (DCB.lHandle>=xidIO_IoQm0+NoFlwIOs() && DCB.lHandle<xidIO_IoQm0+NoFlwIOs()+NoDirDIOs())
+        {
+        int i=DCB.lHandle-xidIO_IoQm0-NoFlwIOs();
+        CDirectFlwIO &D=*m_DirectIOs[i];
+        DCB.D=D.NdSignImplied*D.Sum.FlowMass;//?????
+        return true;
+        }
       else if (DCB.lHandle>=xidIO_DrQm0 && DCB.lHandle<xidIO_DrQm0+m_DirectIOs.GetCount())
         {
         int i=DCB.lHandle-xidIO_DrQm0;

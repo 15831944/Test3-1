@@ -2,6 +2,7 @@
 
 #define __MAKEUPBLOCK_CPP
 #include "MakeupBlock.h"
+//#include "optoff.h"
 
 #if WITHBLOCKEVALUATOR
 
@@ -23,7 +24,6 @@ XID xidMakeupMdlNm  = AdjustXID(2);
 const pchar CMakeupBlock::GroupName="MakeupBlock";
 
 IMPLEMENT_MAKEUPBLOCK(CMakeupBlock, "MB_None", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "None",  " ");
-
 
 CMakeupBlock::CMakeupBlock(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 TaggedObject(pClass_, Tag_, pAttach, eAttach)
@@ -72,7 +72,8 @@ m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, true,
   m_fEnabled=false;
   m_fFixed=false; 
   //m_Index=Index; 
-  };
+  }
+
 CMakeupBase::~CMakeupBase()  
   { 
   delete m_pMakeupB; 
@@ -113,7 +114,8 @@ void CMakeupBase::Close()
   if (m_fFixed)
     return;
   m_fEnabled=False;
-  };
+  }
+
 //--------------------------------------------------------------------------
 
 void CMakeupBase::Add_OnOff(DataDefnBlk &DDB, dword Flags, int UserInfo)
@@ -144,7 +146,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
 
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
-      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd,m_fFixed ? 0 : isParm|SetOnChange, DDB0());
+      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd,m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
 
       if (m_pMakeupB)
         {
@@ -156,7 +158,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
     }
   DDB.SetVisibility(Old);
   DDB.PopUserInfo();
-  };
+  }
 
 //--------------------------------------------------------------------------
 
@@ -234,6 +236,8 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+    double GetRawVal(SpConduit &QPrd);
+
   public:
     enum eSource
       {
@@ -246,10 +250,13 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
       //Type_None, 
       Type_MassFlow, 
       Type_MassRatio, 
+      Type_MassMult, 
       Type_VolumeFlow, 
       Type_VolumeRatio, 
+      Type_VolumeMult, 
       Type_NVolumeFlow, 
       Type_NVolumeRatio,
+      Type_NVolumeMult,
       Type_MassFrac,
       Type_VolumeFrac,
       Type_NVolumeFrac,
@@ -277,6 +284,8 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
 
 
     eSource         m_eSource;
+    double          m_QmMin;
+    double          m_QmMax;
     eType           m_eType;
     eSelect         m_eSelect;
     PhMask          m_Phases;
@@ -286,12 +295,26 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     double          m_QmRatio;
     double          m_QvRatio;
     double          m_NQvRatio;
+    double          m_QmMult;
+    double          m_QvMult;
+    double          m_NQvMult;
     double          m_MassFrac;
     double          m_VolFrac;
     double          m_NVolFrac;
 
     eTemp           m_eRqdTemp;
     double          m_RqdTemp;
+
+    //results
+    double          dSetPoint;
+    double          dMeas;
+    double          dResult;
+    double          dQmMakeup;
+    double          dQmFeed;
+    double          dQmProd;
+    double          dHeatFlow;
+    double          dTempKFeed;
+    double          dTempKProd;
   };
 
 DEFINE_MAKEUPBLOCK(CXBlk_Makeup);
@@ -317,18 +340,33 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_eType      = Type_MassRatio;
   m_eSelect    = Slct_Phase;
   m_Phases    = som_ALL;
+  m_QmMin     = 0.0;
+  m_QmMax     = 10000.0/3.6;
   m_QmRqd     = 0;
   m_QvRqd     = 0;
   m_NQvRqd    = 0;
   m_QmRatio   = 0;
   m_QvRatio   = 0;
   m_NQvRatio  = 0;
+  m_QmMult    = 1.0;
+  m_QvMult    = 1.0;
+  m_NQvMult   = 1.0;
   m_MassFrac  = 0;
   m_VolFrac   = 0;
   m_NVolFrac  = 0;
                        
   m_eRqdTemp  = Temp_Inlet;
   m_RqdTemp   = C2K(25);
+
+  dSetPoint   = 0.0;
+  dMeas       = 0.0;
+  dResult     = 0.0;
+  dQmMakeup   = 0.0;
+  dQmFeed     = 0.0;
+  dQmProd     = 0.0;
+  dHeatFlow   = 0.0;
+  dTempKFeed  = C2K(0.0);
+  dTempKProd  = C2K(0.0);
   }
 
 //--------------------------------------------------------------------------
@@ -346,27 +384,30 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   //  {
     static DDBValueLst DDBCtrl[] =
       {                         
-        {Type_MassFlow,       "MassFlow"      },
-        {Type_MassRatio,      "MassRatio"     },
-        {Type_VolumeFlow,     "VolumeFlow"    },
-        {Type_VolumeRatio,    "VolumeRatio"   },
-        {Type_NVolumeFlow,    "NVolumeFlow"   },
-        {Type_NVolumeRatio,   "NVolumeRatio"  },
-        {Type_MassFrac,       "MassFrac"      },
-        {Type_VolumeFrac,     "VolumeFrac"    },
-        {Type_NVolumeFrac,    "NVolumeFrac"   },
+        {Type_MassFlow,       "MassFlow"        },
+        {Type_MassRatio,      "MassRatio"       },
+        {Type_MassMult,       "MassMultiplier"  },
+        {Type_VolumeFlow,     "VolumeFlow"      },
+        {Type_VolumeRatio,    "VolumeRatio"     },
+        {Type_VolumeMult,     "VolumeMultiplier" },
+        {Type_NVolumeFlow,    "NVolumeFlow"     },
+        {Type_NVolumeRatio,   "NVolumeRatio"    },
+        {Type_NVolumeMult,    "NVolumeMultiplier" },
+        {Type_MassFrac,       "MassFrac"        },
+        {Type_VolumeFrac,     "VolumeFrac"      },
+        {Type_NVolumeFrac,    "NVolumeFrac"     },
         {}
       };
     static DDBValueLst DDBSelect[] =
       {                         
-        {Slct_Phase,          "Phase"         },
-        {Slct_Specie,         "Specie"        },
+        {Slct_Phase,          "Phase"           },
+        {Slct_Specie,         "Specie"          },
         {}
       };
     static DDBValueLst DDBSource[] =
       {                         
-        {Src_Self,            "Self"          },
-        {Src_Remote,          "Remote"        },
+        {Src_Self,            "Self"            },
+        {Src_Remote,          "Remote"          },
         {}
       };
     //static DDBValueLstMem DDBPhases;
@@ -408,32 +449,30 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
     //                }
 
     DDB.Text(" ");
-    DDB.Long       ("", "Type",             DC_,  "", (long*)&m_eType,  this, isParm|SetOnChange, DDBCtrl);
-    //DDB.Text("Requirement");
+    DDB.Text("Requirements");
+    DDB.Long       ("", "Type",             DC_,  "", (long*)&m_eType,  this, isParmStopped|SetOnChange, DDBCtrl);
     DDB.Visibility(SHM_All, m_eType==Type_MassFlow);
     DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_VolumeFlow);
     DDB.Double("", "QvRqd",    DC_Qv, "m^3/s", &m_QvRqd,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_NVolumeFlow);
     DDB.Double("", "NQvRqd",    DC_NQv, "Nm^3/s", &m_NQvRqd,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_MassRatio);
     DDB.Double("", "QmRatio",    DC_Frac, "%", &m_QmRatio,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_VolumeRatio);
     DDB.Double("", "QvRatio",    DC_Frac, "%", &m_QvRatio,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_NVolumeRatio);
     DDB.Double("", "NQvRatio",    DC_Frac, "%", &m_NQvRatio,  this, isParm);
-
+    DDB.Visibility(SHM_All, m_eType==Type_MassMult);
+    DDB.Double("", "QmMult",    DC_Frac, "%", &m_QmMult,  this, isParm);
+    DDB.Visibility(SHM_All, m_eType==Type_VolumeMult);
+    DDB.Double("", "QvMult",    DC_Frac, "%", &m_QvMult,  this, isParm);
+    DDB.Visibility(SHM_All, m_eType==Type_NVolumeMult);
+    DDB.Double("", "NQvMult",    DC_Frac, "%", &m_NQvMult,  this, isParm);
     DDB.Visibility(SHM_All, m_eType==Type_MassFrac);
     DDB.Double("", "MassFrac",    DC_Frac, "%", &m_MassFrac,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_VolumeFrac);
     DDB.Double("", "VolumeFrac",    DC_Frac, "%", &m_VolFrac,  this, isParm);
-
     DDB.Visibility(SHM_All, m_eType==Type_NVolumeFrac);
     DDB.Double("", "NVolumeFrac",    DC_Frac, "%", &m_NVolFrac,  this, isParm);
 
@@ -498,6 +537,8 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
     DDB.Visibility();
     DDB.Text(" ");
     DDB.Long       ("", "Source",           DC_,  "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
+    DDB.Double     ("QmMin", "",            DC_Qm, "kg/s", &m_QmMin, this, isParm);
+    DDB.Double     ("QmMax", "",            DC_Qm, "kg/s", &m_QmMax, this, isParm);
 
     static DDBValueLst DDBTemp[] = 
       {
@@ -514,6 +555,44 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
     DDB.Visibility(SHM_All, m_eRqdTemp==Temp_Const);
     DDB.Double("RqdTemp",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
     DDB.Visibility();
+
+    DDB.Text(" ");
+    DDB.Text("Results");
+    if (0)
+      {
+      Strng CnvTxt;
+      //CnvTxt = "??"; todo, get currently used cnv text based on type
+      DDB.Double ("Meas",              "", DC_,     "",        &dMeas,       this, isResult);
+      //DDB.TagComment(CnvTxt());
+      DDB.Double ("SetPoint",          "", DC_,     "",        &dSetPoint,   this, isResult);
+      //DDB.TagComment(CnvTxt());
+      DDB.Double ("Result",            "", DC_,     "",        &dResult,     this, isResult);
+      //DDB.TagComment(CnvTxt());
+      }
+    else
+      {
+      CCnvIndex CnvUsed;
+      Strng CnvTxt;
+      switch (m_eType)
+        {                         
+        case Type_MassFlow    : CnvUsed=DC_Qm; CnvTxt="kg/s"; break;
+        case Type_VolumeFlow  : CnvUsed=DC_Qv; CnvTxt="m^3/s"; break;
+        case Type_NVolumeFlow : CnvUsed=DC_NQv; CnvTxt="Nm^3/s"; break;
+        default               : CnvUsed=DC_Frac; CnvTxt="%"; break;
+        }
+      DDB.Visibility(SHM_All, m_eType==Type_MassFlow || m_eType==Type_VolumeFlow || m_eType==Type_NVolumeFlow || 
+                              m_eType==Type_MassFrac || m_eType==Type_VolumeFrac || m_eType==Type_NVolumeFrac);
+      DDB.Double ("Meas",              "", CnvUsed, CnvTxt(),  &dMeas,       this, isResult|noFileAtAll);
+      DDB.Visibility();
+      DDB.Double ("SetPoint",          "", CnvUsed, CnvTxt(),  &dSetPoint,   this, isResult|noFileAtAll);
+      DDB.Double ("Result",            "", CnvUsed, CnvTxt(),  &dResult,     this, isResult|noFileAtAll);
+      }
+    DDB.Double ("QmMakeup",          "", DC_Qm,   "kg/s",    &dQmMakeup,   this, isResult);
+    DDB.Double ("QmFeed",            "", DC_Qm,   "kg/s",    &dQmFeed,     this, isResult);
+    DDB.Double ("QmProd",            "", DC_Qm,   "kg/s",    &dQmProd,     this, isResult);
+    DDB.Double ("HeatFlow",          "", DC_Pwr,  "kW",      &dHeatFlow,   this, isResult);
+    DDB.Double ("TempFeed",          "", DC_T,    "C",       &dTempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd",          "", DC_T,    "C",       &dTempKProd,  this, isResult);//|noFileAtAll);
 
     //#if VER1
 //    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
@@ -619,8 +698,39 @@ flag CXBlk_Makeup::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
+double CXBlk_Makeup::GetRawVal(SpConduit &QPrd)
+  {
+  switch (m_eType)
+    {                         
+    case Type_MassFlow:
+    case Type_MassRatio:
+    case Type_MassMult: 
+    case Type_MassFrac:
+      return QPrd.QMass(m_Phases);
+    case Type_VolumeFlow:
+    case Type_VolumeRatio:
+    case Type_VolumeMult: 
+    case Type_VolumeFrac:
+      return QPrd.QVolume(m_Phases);
+    case Type_NVolumeFlow:
+    case Type_NVolumeRatio:
+    case Type_NVolumeMult: 
+    case Type_NVolumeFrac:
+      return QPrd.QNVolume(m_Phases);
+    }
+  return 0.0;
+  }
+
+//--------------------------------------------------------------------------
+
 void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
+  dQmFeed = QPrd.QMass();
+  dTempKFeed = QPrd.Temp();
+  const double RawValIn = GetRawVal(QPrd);
+  const double HfIn = QPrd.totHf();
+  dMeas = RawValIn;
+
   SpConduit &QSrc=SrcIO.Cd;
   double QmAdd=0.0;
 
@@ -652,19 +762,28 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     {                         
     case Type_MassFlow:
       {
-      double QmPrd=QPrd.QMass(m_Phases);
+      dSetPoint = m_QmRqd;
+      double QmPrd=RawValIn;
       if (m_QmRqd>QmPrd)
         QmAdd=m_QmRqd-QmPrd;
       break;
       }
     case Type_MassRatio:
       {
-      QmAdd=QPrd.QMass(m_Phases)*m_QmRatio;
+      dSetPoint = m_QmRatio;
+      QmAdd=RawValIn*m_QmRatio;
+      break;
+      }
+    case Type_MassMult:
+      {
+      dSetPoint = m_QmMult;
+      QmAdd=RawValIn*(m_QmMult-1.0);
       break;
       }
     case Type_VolumeFlow:
       {
-      double QvPrd=QPrd.QVolume(m_Phases);
+      dSetPoint = m_QvRqd;
+      double QvPrd=RawValIn;
       if (m_QvRqd>QvPrd)
         {
         double QvAdd=m_QvRqd-QvPrd;
@@ -674,13 +793,21 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       }
     case Type_VolumeRatio:
       {
-      QmAdd=QPrd.QVolume(m_Phases)*m_QvRatio*QPrd.Rho(m_Phases, QPrd.Temp(), Po);
+      dSetPoint = m_QvRatio;
+      QmAdd=RawValIn*m_QvRatio*QPrd.Rho(m_Phases, QPrd.Temp(), Po);
       break;
       }
       break;
+    case Type_VolumeMult:
+      {
+      dSetPoint = m_QvMult;
+      QmAdd=RawValIn*(m_QvMult-1.0)*QPrd.Rho(m_Phases, QPrd.Temp(), Po);
+      break;
+      }
     case Type_NVolumeFlow:
       {
-      double QvPrd=QPrd.QNVolume(m_Phases);
+      dSetPoint = m_NQvRqd;
+      double QvPrd=RawValIn;
       if (m_NQvRqd>QvPrd)
         {
         double NQvAdd=m_NQvRqd-QvPrd;
@@ -690,40 +817,56 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       }
     case Type_NVolumeRatio:
       {
-      QmAdd=QPrd.QNVolume(m_Phases)*m_QvRatio*QPrd.NRho(m_Phases);
+      dSetPoint = m_NQvRatio;
+      QmAdd=RawValIn*m_NQvRatio*QPrd.NRho(m_Phases);
+      break;
+      }
+    case Type_NVolumeMult:
+      {
+      dSetPoint = m_NQvMult;
+      QmAdd=RawValIn*(m_NQvMult-1.0)*QPrd.NRho(m_Phases);
       break;
       }
     case Type_MassFrac:
       {
-      double QmPh    = QPrd.QMass(m_Phases);
+      dSetPoint = m_MassFrac;
+      double QmPh    = RawValIn;
       double QmTot   = QPrd.QMass();
       double SrcFrac = QSrc.QMass(m_Phases)/GTZ(QSrc.QMass());
       QmAdd   = GEZ((QmPh - m_MassFrac*QmTot) / NZ(m_MassFrac - SrcFrac));
+      dMeas = QmPh/GTZ(QmTot);
       break;
       }
       break;
     case Type_VolumeFrac:
       {
-      double QvPh    = QPrd.QVolume(m_Phases);
+      dSetPoint = m_VolFrac;
+      double QvPh    = RawValIn;
       double QvTot   = QPrd.QVolume();
       double SrcFrac = QSrc.QVolume(m_Phases)/GTZ(QSrc.QVolume());
       double QvAdd   = GEZ((QvPh - m_VolFrac) / NZ(m_VolFrac - SrcFrac));
       QmAdd   = QvAdd*QPrd.Rho(m_Phases);
+      dMeas = QvPh/GTZ(QvTot);
       break;
       }
     case Type_NVolumeFrac:
       {
-      double QvPh    = QPrd.QNVolume(m_Phases);
+      dSetPoint = m_NVolFrac;
+      double QvPh    = RawValIn;
       double QvTot   = QPrd.QNVolume();
       double SrcFrac = QSrc.QNVolume(m_Phases)/GTZ(QSrc.QNVolume());
       double QvAdd   = GEZ((QvPh - m_NVolFrac) / NZ(m_NVolFrac - SrcFrac));
       QmAdd   = QvAdd*QPrd.NRho(m_Phases);
+      dMeas = QvPh/GTZ(QvTot);
       break;
       }
     };
 
-  if (QmAdd>0)
+  if (QmAdd>0.0)
     {
+    QmAdd = Range(m_QmMin, QmAdd, m_QmMax);
+    //todo: CI warning if QmAdd is at Min
+    //todo: CI warning if QmAdd is at Max
     QPrd.QAddM(QSrc, som_ALL, QmAdd);
     QSrc.QAdjustQmTo(som_ALL, QmAdd);
     }
@@ -732,6 +875,38 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
 
   QPrd.SetTempPress(TReqd, Po);
 
+  const double RawValOut = GetRawVal(QPrd);
+  switch (m_eType)
+    {                         
+    case Type_MassFlow: 
+    case Type_VolumeFlow:
+    case Type_NVolumeFlow:
+      dResult = RawValOut; 
+      break;
+    case Type_MassRatio:
+    case Type_VolumeRatio:
+    case Type_NVolumeRatio:
+      dResult = RawValOut/GTZ(RawValIn) - 1.0;
+      break;
+    case Type_MassMult:
+    case Type_VolumeMult:
+    case Type_NVolumeMult:
+      dResult = RawValOut/GTZ(RawValIn);
+      break;
+    case Type_MassFrac:
+      dResult = RawValOut/GTZ(QPrd.QMass());
+      break;
+    case Type_VolumeFrac:
+      dResult = RawValOut/GTZ(QPrd.QVolume());
+      break;
+    case Type_NVolumeFrac: 
+      dResult = RawValOut/GTZ(QPrd.QNVolume());
+      break;
+    }
+  dQmProd = QPrd.QMass();
+  dQmMakeup = dQmProd-dQmFeed;
+  dTempKProd = QPrd.Temp();
+  dHeatFlow = QPrd.totHf() - HfIn;
 
   //SpConduit & Discard = m_pMakeupBase->DiscardCd();
   //Discard.QZero();
