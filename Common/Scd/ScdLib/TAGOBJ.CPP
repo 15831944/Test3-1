@@ -17,7 +17,7 @@
 #include "errorlog.h"
 #include "dbgmngr.h"
 #include "licbase.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgPutData             0
 #define dbgStructureChanged    0
