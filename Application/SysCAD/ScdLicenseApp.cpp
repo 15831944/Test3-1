@@ -121,9 +121,10 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
 
       CString kProduct; 
       CString kClient; 
-      CString kDisk;
       CString kExpTime;
       CString kScdVer;
+      CString kDiskDrive;
+      CString kDiskNo;
       CString kOption; 
       dword dwOptions=0;
 
@@ -138,8 +139,9 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
           case 1: kClient     = Tkn;  break;
           case 2: kExpTime    = Tkn;  break;
           case 3: kScdVer     = Tkn;  break;
-          case 4: kDisk       = Tkn;  break;
-          default : // iTkn>=5
+          case 4: kDiskDrive  = Tkn;  break;
+          case 5: kDiskNo     = Tkn;  break;
+          default : // iTkn>=6
             {
             kOption = Tkn;
             for (int iOpt=0; iOpt<MaxLicOptions; iOpt++)
@@ -187,22 +189,22 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
       //  Tkn=TheKey.Tokenize("\n", iCurPos);
       //  }
 
-      Strng Drive(ProgFiles());
-      Drive.FnDrive();
-      Drive+="\\";;
+      //Strng Drive(ProgFiles());
+      //Drive.FnDrive();
+      //Drive+="\\";;
 
       char VolumeName[1024];
       char FSNameBuff[1024];
       DWORD dwVolSerialNo, dwMaxCompLen, dwFileSysFlags;
-      BOOL GotIt=GetVolumeInformation(Drive(),
+      BOOL GotIt=GetVolumeInformation(kDiskDrive, //Drive(),
                                       VolumeName, sizeof(VolumeName)-1,
                                       &dwVolSerialNo, &dwMaxCompLen, &dwFileSysFlags,
                                       FSNameBuff, sizeof(FSNameBuff)-1);
 
       CString m_sDisk; 
-      m_sDisk.Format("%u", dwVolSerialNo);
-
-      if (m_sDisk.CompareNoCase(kDisk)==0)
+      m_sDisk.Format("%x", dwVolSerialNo);
+                 
+      if (m_sDisk.CompareNoCase(kDiskNo)==0)
         {
         m_iLicenseAttempt=0; // Reset Attempts
         if (kScdVer=="1.0")

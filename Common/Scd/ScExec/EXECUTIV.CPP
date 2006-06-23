@@ -4755,13 +4755,16 @@ DWORD CExecutive::XSendMessage(CExecObj *pEO, CXMsgLst &XM, CXM_Route &Route, fl
   if (pEO!=NULL)
     {
     #ifdef _DEBUG
-    NodeNameBuff NdName;
-    CXM_Route::MakeNodeName(pEO->sName(), NdName);
-    #if dbgExecutive
-    if (dbgRouteCmp())
-      dbgpln("RouteCmp:%s<>%s  %i<>%i", LclRoute.NodeName(0), NdName, LclRoute.NodeObjId(0), pEO->Id());
-    #endif
-    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
+    if (pEO)
+      {
+      NodeNameBuff NdName;
+      CXM_Route::MakeNodeName(pEO->sName(), NdName);
+      #if dbgExecutive
+      if (dbgRouteCmp())
+        dbgpln("RouteCmp:%s<>%s  %i<>%i", LclRoute.NodeName(0), NdName, LclRoute.NodeObjId(0), pEO->Id());
+      #endif
+      ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
+      }
     #endif
     LclRoute.RemoveNode(0);
     }
@@ -4778,13 +4781,16 @@ DWORD CExecutive::XSendMessage(CExecObj *pEO, CXMsgLst &XM, CXM_Route &Route, fl
   if (pDst)
     {
     #ifdef _DEBUG
-    NodeNameBuff NdName;
-    CXM_Route::MakeNodeName(pDst->sName(), NdName);
-    #if dbgExecutive
-    if (dbgRouteCmp())
-      dbgpln("RouteCmp:%s<>%s  %i<>%i", LclRoute.NodeName(0), NdName, LclRoute.NodeObjId(0), pDst->Id());
-    #endif
-    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
+    if (pDst)
+      {
+      NodeNameBuff NdName;
+      CXM_Route::MakeNodeName(pDst->sName(), NdName);
+      #if dbgExecutive
+      if (dbgRouteCmp())
+        dbgpln("RouteCmp:%s<>%s  %i<>%i", LclRoute.NodeName(0), NdName, LclRoute.NodeObjId(0), pDst->Id());
+      #endif
+      ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
+      }
     #endif
     LclRoute.RemoveNode(0);
 
@@ -4900,12 +4906,15 @@ int CExecutive::XWriteTaggedItem(CExecObj *pEO, CXM_ObjectData &ObjData, CXM_Rou
   for (int NObjs=0; NObjs<Objs_Reg.GetSize(); NObjs++)
     XObjs[NObjs]=Objs_Reg[NObjs];
   UnlockExec();
-  ASSERT_ALWAYS(NObjs<256, "XWriteTaggedItem NObjs>=256")
+  ASSERT_ALWAYS(NObjs<256, "XWriteTaggedItem NObjs>=256");
 
   #ifdef _DEBUG
-  NodeNameBuff NdName;
-  CXM_Route::MakeNodeName(pEO->sName(), NdName);
-  ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
+  if (pEO)
+    {
+    NodeNameBuff NdName;
+    CXM_Route::MakeNodeName(pEO->sName(), NdName);
+    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pEO->Id());
+    }
   #endif
   LclRoute.RemoveNode(0);
 
@@ -4922,8 +4931,12 @@ int CExecutive::XWriteTaggedItem(CExecObj *pEO, CXM_ObjectData &ObjData, CXM_Rou
     {
     //flag ResWasValid=TaggedObject::GlblResultsValid();
     #ifdef _DEBUG
-    CXM_Route::MakeNodeName(pDst->sName(), NdName);
-    ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
+    if (pDst)
+      {
+      NodeNameBuff NdName;
+      CXM_Route::MakeNodeName(pDst->sName(), NdName);
+      ASSERT(_stricmp(LclRoute.NodeName(0), NdName)==0 && LclRoute.NodeObjId(0)==pDst->Id());
+      }
     #endif
     LclRoute.RemoveNode(0);
 

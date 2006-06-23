@@ -18,6 +18,7 @@ wzunzip -e -d Install_License
 rem  SetUp License Server
 pushd license
 setupex.exe 
+regsvr32 /s crypkeycom.dll
 popd
 
 rem  Register SysCAD COM

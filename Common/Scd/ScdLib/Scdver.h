@@ -47,7 +47,7 @@
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
 #define USEREGISTRY           0
 
-#define WITHBLOCKEVALUATOR    (1 && (_MSC_VER>=1400))
+#define WITHBLOCKEVALUATOR    1 /*(1 && (_MSC_VER>=1400))*/
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???

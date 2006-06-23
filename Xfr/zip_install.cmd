@@ -82,6 +82,7 @@ wzzip -a -P %fn2% license\syscad.exe
 wzzip -a -P %fn2% license\cks.exe
 wzzip -a -P %fn2% license\setupex.exe
 wzzip -a -P %fn2% license\crp32001.ngn
+wzzip -a -P %fn2% license\crypkeycom.dll
 
 rem ========== Extra ==========
 rem ----------- Documentation
