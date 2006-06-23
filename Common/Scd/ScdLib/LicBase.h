@@ -11,8 +11,6 @@
 
 #if CK_LICENSINGON
 #define CK_ALLOWDEMOMODE  1   //set to 1 if SysCAD demo mode is allowed (no license)
-#define CK_USE6134        0             
-#define CK_SCDCOMLIC      0
 #endif      
                  
 #include "sc_defs.h"
@@ -93,6 +91,8 @@ class DllImportExport CLicense
 
     BOOL bCOMMineServeOn;
 
+    BOOL m_bUseCOM;
+
   public:
     CLicense();
     virtual ~CLicense();
@@ -105,6 +105,8 @@ class DllImportExport CLicense
     BOOL StartDialog();
     BOOL IssueTrial(int NoOfDays, BOOL Prompt);
     int SetLocation(BOOL CheckAndInit = true);
+    void SetUseCOM(BOOL On=false);
+    BOOL UseCOM() { return m_bUseCOM; };
     BOOL IssueLicense();
     BOOL DoIssue(char* key);
     BOOL DoRegisterTransfer();

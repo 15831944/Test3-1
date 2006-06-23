@@ -28,6 +28,7 @@ class  CCmdLineHelper
     WORD          bAllowLoadPrevPrj:1,
                   bLoadPrevPrj:1,
                   bDebugOn:1,
+                  bDeveloper:1,
                   bAutomation:1,
                   bAltLicenseLoc:1,
                   bForceNewCopy:1,

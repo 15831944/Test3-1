@@ -16,13 +16,24 @@
 #include "scdctrls.h"
 //#include "msgwnd.h"
 #include "resource.h"
+
+
 #if CK_LICENSINGON
+
+#define CK_USE6134        01             
+
+#import "CrypKeyCOM.dll" no_namespace named_guids
+static ICrypKeySDKPtr s_ptr;
+
+
 #if CK_USE6134 
 #include "crypkey.6134.h"
 #else
 #include "crypkey.57.h"
 #endif
+
 #endif
+
 #include "winsvc.h"
 
 #include "optoff.h"
@@ -30,7 +41,11 @@
 //===========================================================================
 //=== Generic Code...
 
+#if CK_USE6134 
+const char* LicINISection = "License61";
+#else
 const char* LicINISection = "License";
+#endif
 
 char* CK_KeyFile = "syscad.exe";
 char* CK_AppName = "SysCAD";
@@ -193,7 +208,16 @@ int GetAuthorization(dword * dwOpLevel, int dec)
   return 0; 
   };
 int CrypkeyVersion()                              { return 11; };
-LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
+LPTSTR MyExplainErr(int Func, int err)              { return "Explanation"; };
+#else
+LPTSTR MyExplainErr(int Func, int err)              
+  { 
+  if (gs_License.UseCOM())
+    return s_ptr->ExplainErr(CKExplainEnum(Func), err);
+  return ExplainErr(Func, err);
+//return "Explanation";
+  };
+
 #endif
 
 dword CSysCADLicense::FixOptions(dword dwOpLevel) 
@@ -637,6 +661,7 @@ CLicense::CLicense()
   sAppPath = "";
   dwOpLevel = 0;
   iDaysLeft = 0;
+  m_bUseCOM= 0;
   }
 
 //---------------------------------------------------------------------------
@@ -653,7 +678,15 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   CWaitCursor Wait;
 #if !BYPASSLICENSING
   if (bDidInitCrypkey)
-    EndCrypkey();
+    {
+    if (m_bUseCOM)
+      {
+      s_ptr->EndCrypKey();
+      s_ptr.Release();
+      }
+    else
+      EndCrypkey();
+    }
 #endif
   bDidInitCrypkey = 0;
   bMultiUserFailure = 0;
@@ -690,22 +723,38 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   if (GetShortPathName(LongPath, ShortPath, sizeof(ShortPath))<1)
     return FALSE;
 #if !BYPASSLICENSING
-  int err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+  int err = -1;
+  if (m_bUseCOM)
+    {
+    s_ptr.CreateInstance ("CrypKey.SDK");
+    err = s_ptr->InitCrypKey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+    }
+  else
+    err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+
   if (err==-209)
     {
     Error("Missing license file CRP32001.NGN from application folder.");
     return FALSE;
     }
+
+#if CK_SCDCOMLIC
+  if (err==CKGeneralNetworkNoCKServe)
+#else
   if (err==NETWORK_NO_CKSERVE)
+#endif
     {
     if (IsWIN32)
       {//do this on Windows NT and Windows 2000...
       if (UpdateCrypkeyINI(LongPath))
         {//try again...
-        err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+        if (m_bUseCOM)
+          err = s_ptr->InitCrypKey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+        else
+          err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
         if (err)
           {
-          Error("Initialization Failure %d after Update INI\n%s for %s", err, ExplainErr(EXP_INIT_ERR, err), LongPath);
+          Error("Initialization Failure %d after Update INI\n%s for %s", err, MyExplainErr(EXP_INIT_ERR, err), LongPath);
           return FALSE;
           }
         }
@@ -720,11 +769,15 @@ BOOL CLicense::Init(char* path /*=NULL*/)
       if (err==INIT_THUNK_LIB_NOT_FOUND) //win 95/98 error
         Error("Unable to find DLLs for licensing!\n\n'cryp95e.dll' and/or 'crp9516e.dll'");
       else
-        Error("Initialization Failure %d\n%s for %s", err, ExplainErr(EXP_INIT_ERR, err), LongPath);
+        Error("Initialization Failure %d\n%s for %s", err, MyExplainErr(EXP_INIT_ERR, err), LongPath);
       }
     return FALSE;
     }
-  int Ver = CrypkeyVersion();
+  int Ver;
+  if (m_bUseCOM)
+    Ver = s_ptr->CrypKeyVersion();
+  else
+    Ver = CrypkeyVersion();
   if (Ver==41 || Ver==42)
     {//version 4.1 and 4.2 are old and not supported...
     Error("Old Crypkey version (%d) not supported", Ver);
@@ -781,7 +834,15 @@ void CLicense::Exit()
   {
 #if !BYPASSLICENSING
   if (bDidInitCrypkey)
-    EndCrypkey();
+    {
+    if (m_bUseCOM)
+      {
+      s_ptr->EndCrypKey();
+      s_ptr.Release();
+      }
+    else
+      EndCrypkey();
+    }
 #endif
   bDidInitCrypkey = 0;
   }
@@ -798,7 +859,12 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   iDaysLeft = 0;
 
 //#if CK_LICENSINGON
-  int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
+
+  int err;
+  if (m_bUseCOM)
+    err = s_ptr->GetAuthorization((long*)&dwOpLevel, 0); //check authorization, use up 0 runs
+  else
+    err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
   
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL
@@ -812,7 +878,12 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     ULONG random1 = (time(NULL)<<2)*3;
     ULONG random2 = random1*time(NULL)*rand();
     ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
-    ULONG result2 = CKChallenge32(random1, random2);
+    ULONG result2;
+
+    if (m_bUseCOM)
+      result2 = s_ptr->CKChallenge32(random1, random2);
+    else
+      result2 = CKChallenge32(random1, random2);
     if (result1 != result2)
       {
       Error("Security Failure.  Challenge function failed");
@@ -840,7 +911,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       Error("More than %d users already using this license!\n\n%s", GetNumMultiUsers(), Buff);
       }
     if (Prompt && err!=AUTH_NOT_PRESENT && err<0)
-      Error("Get Authorization failed!\nReturned %d : %s", err, ExplainErr(EXP_AUTH_ERR, err));
+      Error("Get Authorization failed!\nReturned %d : %s", err, MyExplainErr(EXP_AUTH_ERR, err));
     }
   CheckForLiteModes();
   dwOpLevel=FixOptions(dwOpLevel);
@@ -894,7 +965,12 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     ULONG random1 = (time(NULL)<<1)+9;
     ULONG random2 = random1+rand();
     ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
-    ULONG result2 = CKChallenge32(random1, random2);
+    ULONG result2;
+    if (m_bUseCOM)
+      result2 = s_ptr->CKChallenge32(random1, random2);
+    else
+      result2 = CKChallenge32(random1, random2);
+
     if (result1 != result2)
       {
       Error("Security Failure.  Challenge function failed");
@@ -924,7 +1000,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     dwOpLevel = 0;
     SetBlocked();
     if (OtherErr==0)
-      sprintf(Buff, "Security Failure.  License blocked\n\nReturned %d : %s", err, ExplainErr(EXP_AUTH_ERR, err));
+      sprintf(Buff, "Security Failure.  License blocked\n\nReturned %d : %s", err, MyExplainErr(EXP_AUTH_ERR, err));
     else
       sprintf(Buff, "Security Failure.  License blocked (%d)", OtherErr);
     strcat(Buff, "\n\nThe majority of SysCAD commands and functions have been disabled.\n\nPlease exit SysCAD. (Save project if required)");
@@ -982,7 +1058,7 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
   int ret = readyToTryDays(OpLevel, NoOfDays, CK_TrialVerNo, 1);
   if (ret)
     {
-    Error("Issue Trial License failed!\nReturned %d : %s", ret, ExplainErr(EXP_RTT_ERR, ret));
+    Error("Issue Trial License failed!\nReturned %d : %s", ret, MyExplainErr(EXP_RTT_ERR, ret));
     bTrialFailed = 1;
     return FALSE;
     }
@@ -1022,7 +1098,13 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
             Wait.Restore();
             sAppPath = PrevAppPath;
 #if !BYPASSLICENSING
-            EndCrypkey();
+            if (m_bUseCOM)
+              {
+              s_ptr->EndCrypKey();
+              s_ptr.Release();
+              }
+            else
+              EndCrypkey();
 #endif
             bDidInitCrypkey = 0;
             if (!Init())
@@ -1057,25 +1139,53 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
 
 //---------------------------------------------------------------------------
 
+void CLicense::SetUseCOM(BOOL On)
+  {
+  if (!bDidInitCrypkey)
+    {
+    m_bUseCOM=false;
+    if (On)
+      {
+      //CString Path = GetAppPath();
+      //????????
+
+
+      m_bUseCOM=true;
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
 BOOL CLicense::IssueLicense()
   {
+  CAuthLicenseDlg Dlg;
 #if !BYPASSLICENSING
-  char SiteCode[64];
-  int err = GetSiteCode(SiteCode);
+  int err;
+  if (m_bUseCOM)
+    {
+    _bstr_t SiteCode;
+    err=s_ptr->GetSiteCode(&SiteCode.GetBSTR());
+    Dlg.m_SiteCode = (LPCTSTR)SiteCode;
+    }
+  else
+    {
+    char SiteCode[64];
+    err=GetSiteCode(SiteCode);
+    Dlg.m_SiteCode = SiteCode;
+    }
   if (err) //let the user authorize
     {
-    Error("Get site code failed!\nReturned %d : %s", err, ExplainErr(EXP_GET_SITECODE_ERR, err));
+    Error("Get site code failed!\nReturned %d : %s", err, MyExplainErr(EXP_GET_SITECODE_ERR, err));
     return FALSE;
     }
 
-  CAuthLicenseDlg Dlg;
-  Dlg.m_SiteCode = SiteCode;
   Dlg.DoModal();
   if (Dlg.bValid)
     {
 //    CWinApp* pApp = AfxGetApp();
 //    if (pApp)
-    ScdPFMachine.WrStr(LicINISection, "LastSiteCode", SiteCode);
+    ScdPFMachine.WrStr(LicINISection, "LastSiteCode", Dlg.m_SiteCode);
     Check(); //re-check options etc
     return TRUE;
     }
@@ -1101,7 +1211,11 @@ BOOL CLicense::DoIssue(char* key)
 
   CWaitCursor Wait;
 #if !BYPASSLICENSING
-  int err = SaveSiteKey(key);
+  int err;
+  if (m_bUseCOM)
+    err = s_ptr->SaveSiteKey(key);
+  else
+    err = SaveSiteKey(key);
   switch (err)
     {
     case AUTH_OK: // Valid Key
@@ -1133,10 +1247,14 @@ BOOL CLicense::DoRegisterTransfer()
     {
     CWaitCursor Wait;
     sLastPath = Dlg.m_sPath;
-    int err = RegisterTransfer((char*)(const char*)sLastPath);
+    int err;
+    if (m_bUseCOM)
+      err = s_ptr->RegisterTransfer((char*)(const char*)sLastPath);
+    else
+      err = RegisterTransfer((char*)(const char*)sLastPath);
     if (err==0)
       return TRUE;
-    Error("Register Transfer failed!\n%d : %s", err, ExplainErr(EXP_REG_ERR, err));
+    Error("Register Transfer failed!\n%d : %s", err, MyExplainErr(EXP_REG_ERR, err));
     }
   return FALSE;
 #else
@@ -1157,13 +1275,17 @@ BOOL CLicense::DoTransferOut()
     {
     CWaitCursor Wait;
     sLastPath = Dlg.m_sPath;
-    int err = TransferOut((char*)(const char*)sLastPath);
+    int err;
+    if (m_bUseCOM)
+      err = s_ptr->TransferOut((char*)(const char*)sLastPath);
+    else
+      err = TransferOut((char*)(const char*)sLastPath);
     if (err==0)
       {
       Check(); //re-check options etc
       return TRUE;
       }
-    Error("Transfer Out failed!\n%d : %s", err, ExplainErr(EXP_TO_ERR, err));
+    Error("Transfer Out failed!\n%d : %s", err, MyExplainErr(EXP_TO_ERR, err));
     }
   return FALSE;
 #else
@@ -1186,13 +1308,17 @@ BOOL CLicense::DoTransferIn()
     {
     CWaitCursor Wait;
     sLastPath = Dlg.m_sPath;
-    int err = TransferIn((char*)(const char*)sLastPath);
+    int err;
+    if (m_bUseCOM)
+      err = s_ptr->TransferIn((char*)(const char*)sLastPath);
+    else
+      err = TransferIn((char*)(const char*)sLastPath);
     if (err==0)
       {
       Check(); //re-check options etc
       return TRUE;
       }
-    Error("Transfer In failed!\n%d : %s", err, ExplainErr(EXP_TI_ERR, err));
+    Error("Transfer In failed!\n%d : %s", err, MyExplainErr(EXP_TI_ERR, err));
     }
   return FALSE;
 #else
@@ -1245,7 +1371,13 @@ BOOL CLicense::DoDirectTransfer()
       }
 
     //reinstall license back to us
-    EndCrypkey();
+    if (m_bUseCOM)
+      {
+      s_ptr->EndCrypKey();
+      s_ptr.Release();
+      }
+    else
+      EndCrypkey();
     bDidInitCrypkey = 0;
     if (!Init())
       {
@@ -1259,13 +1391,17 @@ BOOL CLicense::DoDirectTransfer()
       }
     if (!DoTrans)
       return FALSE;
-    int err = DirectTransfer((char*)(const char*)Dlg.m_sPath);
+    int err;
+    if (m_bUseCOM)
+      err = s_ptr->DirectTransfer((char*)(const char*)Dlg.m_sPath);
+    else
+      err = DirectTransfer((char*)(const char*)Dlg.m_sPath);
     if (err==0)
       {
       Check(); //re-check options etc
       return TRUE;
       }
-    Error("Direct Transfer failed!\n%d : %s", err, ExplainErr(EXP_DT_ERR, err));
+    Error("Direct Transfer failed!\n%d : %s", err, MyExplainErr(EXP_DT_ERR, err));
     }
   return FALSE;
 #else
@@ -1282,8 +1418,20 @@ BOOL CLicense::Kill(CString& ConfirmCode)
     {
     CWaitCursor Wait;
     ConfirmCode = "";
-    char s[64];
-    int ret = KillLicense(s);
+    CString s;
+    int ret;
+    if (m_bUseCOM)
+      {
+      _bstr_t ss;
+      ret = s_ptr->KillLicense(&ss.GetBSTR());
+      s = (LPCTSTR)ss;
+      }
+    else
+      {
+      char ss[64];
+      ret = KillLicense(ss);
+      s = ss;
+      }
     if (ret==0)
       {
       ConfirmCode = s;
@@ -1292,7 +1440,7 @@ BOOL CLicense::Kill(CString& ConfirmCode)
       return TRUE;
       }
     else
-      Error("Kill License failed!\n%d : ", ret, ExplainErr(EXP_KL_ERR, ret));
+      Error("Kill License failed!\n%d : ", ret, MyExplainErr(EXP_KL_ERR, ret));
     }
   return FALSE;
 #else
@@ -1582,10 +1730,17 @@ BOOL CLicense::NetworkUsersInfo()
 #if !BYPASSLICENSING
   FLS_REC fls[64];
   int Cnt = 0;
-  int err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
+  int err;
+  if (m_bUseCOM)
+    {
+    _asm int 3;
+    //err = s_ptr->FloatingLicenseTakeSnapshot((sizeof(fls), &Cnt, &fls[0]);
+    }
+  else
+    err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
   if (err<0)
     {
-    Error("Get Floating License Snapshot Failure %d\n%s", err, ExplainErr(EXP_INIT_ERR, err));
+    Error("Get Floating License Snapshot Failure %d\n%s", err, MyExplainErr(EXP_INIT_ERR, err));
     return FALSE;
     }
   char Buff[2048];
@@ -1605,10 +1760,17 @@ BOOL CLicense::NetworkUsersInfo(char* Buff)
   Buff[0] = 0;
   FLS_REC fls[64];
   int Cnt = 0;
-  int err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
+  int err;
+  if (m_bUseCOM)
+    {
+    _asm int 3;
+    //err = s_ptr->FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
+    }
+  else
+    err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
   if (err<0)
     {
-    //Error("Get Floating License Snapshot Failure %d\n%s", err, ExplainErr(EXP_INIT_ERR, err));
+    //Error("Get Floating License Snapshot Failure %d\n%s", err, MyExplainErr(EXP_INIT_ERR, err));
     return FALSE;
     }
   for (int i=0; i<Cnt; i++)

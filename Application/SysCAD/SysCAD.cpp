@@ -1008,6 +1008,8 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
     gs_License.SetAppPath(S());
     }
 
+  gs_License.SetUseCOM(m_CLH.bDeveloper);
+
   LicenseFailed = !gs_License.Init();
   if (!LicenseFailed)
     {
@@ -3074,6 +3076,7 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
   bAllowLoadPrevPrj = 1;
   bLoadPrevPrj = 0;
   bDebugOn = 0;
+  bDeveloper = 0;
   bAutomation = 0;
   bAltLicenseLoc = 0;
   bForceNewCopy = 0;
@@ -3153,6 +3156,10 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
       else if (Opt=="/d" && OptStr=="emo")
         {
         bForceDemo = 1;
+        }
+      else if (Opt=="/d" && OptStr=="ev")
+        {
+        bDeveloper = 1;
         }
       else if (Opt=="/d")
         {
