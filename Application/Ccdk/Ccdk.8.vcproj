@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="CCDK"
 	ProjectGUID="{CE6585F2-2A5B-4382-BE94-C9F887D01C39}"
+	RootNamespace="CCDK"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -302,6 +303,79 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Rls8\Ccdk.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Distribution|Win32"
+			OutputDirectory="Distribution8"
+			IntermediateDirectory="Distribution8"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="..\..\Common\Scd\scdlib,..\syscad\grfdoc,.\inc"
+				PreprocessorDefinitions="DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;WIN32;NDEBUG;_WINDOWS;_X86_;__MCRSFTC__;SPLINE;_CCDK_WIN;_NTWIN"
+				RuntimeLibrary="2"
+				FloatingPointModel="1"
+				FloatingPointExceptions="true"
+				ForceConformanceInForLoopScope="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
 				SuppressStartupBanner="true"
 			/>
 			<Tool

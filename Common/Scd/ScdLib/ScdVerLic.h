@@ -10,8 +10,10 @@
 
 #define FORCEMINESERVE          0 
 
-#if (FORCEMINESERVE)
 
+
+#if (FORCEMINESERVE)
+// for debug only
 #define ALSOALLOWMINESERVEMDLS  0
 #define ALLOWCNMVERSION         01
 
@@ -42,6 +44,20 @@
 #define ALLOWCNMVERSION         01
 
 #endif
+
+//===========================================================================
+//
+//===========================================================================
+
+#ifdef DISTRIBUTION
+#undef  BYPASSLICENSING  
+#define BYPASSLICENSING         0
+#undef  ALLOWCNMVERSION 
+#define ALLOWCNMVERSION         0
+#undef  ALSOALLOWMINESERVEMDLS
+#define ALSOALLOWMINESERVEMDLS  0
+#endif
+
 //===========================================================================
 //
 //===========================================================================

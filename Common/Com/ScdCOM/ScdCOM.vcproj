@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ScdCOM"
 	ProjectGUID="{BF6649BA-123F-46CF-93E6-DF0BC644E5AC}"
-
-
-
-
 	Keyword="AtlProj">
 	<Platforms>
 		<Platform
@@ -234,6 +230,79 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Distribution|Win32"
+			OutputDirectory="Distribution"
+			IntermediateDirectory="Distribution"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			UseOfATL="2"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="..\..\..\SMDK\Include,CallbackCustom,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\xylib,..\..\ScdLib\FlwLib,..\ScdIF"
+				PreprocessorDefinitions="DISTRIBUTION;NDEBUG;_RELEASE;SCDCOM;WIN32;_WINDOWS;_USRDLL"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="stdafx.h"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"
+				Description="Performing registration"
+				CommandLine="regsvr32 /s /c &quot;$(TargetPath)&quot;
+echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
+"
+				Outputs="$(OutDir)\regsvr32.trg"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/MACHINE:I386"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
+				OutputFile="..\..\..\Bin\ScdCOM.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				ModuleDefinitionFile=".\ScdCOM.def"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile="$(IntDir)/$(TargetName).pdb"
+				SubSystem="2"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Rls/ScdCOM.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy tlb"
+				CommandLine="..\..\BldCopyCOMDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
+				ExcludedFromBuild="FALSE"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -279,6 +348,15 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 						HeaderFileName="ScdCOM.h"
 						InterfaceIdentifierFileName="ScdCOM_i.c"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCMIDLTool"
+						GenerateStublessProxies="TRUE"
+						TypeLibraryName="ScdCOM.tlb"
+						HeaderFileName="ScdCOM.h"
+						InterfaceIdentifierFileName="ScdCOM_i.c"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ScdCOM.rc">
@@ -300,6 +378,12 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 						Name="VCResourceCompilerTool"
 						AdditionalIncludeDirectories="$(OUTDIR);$(NoInherit)"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="$(OUTDIR);$(NoInherit)"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp">
@@ -317,6 +401,12 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"/>

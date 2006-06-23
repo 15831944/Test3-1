@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ScdSlv"
 	ProjectGUID="{7940B0A6-0272-4E67-833D-B6B179AFC870}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -207,6 +203,77 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				ProgramDatabaseFile=".\Rls/ScdSlv.pdb"
 				SubSystem="2"
 				ImportLibrary=".\Rls/ScdSlv.lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="..\scd\scdlib;..\scdif;..\scdmdl"
+				TypeLibraryName="./ScdSlv.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyCOMDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
+				ExcludedFromBuild="FALSE"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_AFXDLL;_RELEASE;NDEBUG"
+				Culture="7177"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Distribution|Win32"
+			OutputDirectory="Distribution"
+			IntermediateDirectory="Distribution"
+			ConfigurationType="2"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="..\..\Com\scdif;..\..\Com\ScdMdl;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\flwlib;..\..\Scd\xylib"
+				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;SCDSLV;WIN32;_WINDOWS;_USRDLL"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="stdafx.h"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"
+				Description="Performing registration"
+				CommandLine="regsvr32 /s /c &quot;$(TargetPath)&quot;
+echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
+"
+				Outputs="$(OutDir)\regsvr32.trg"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/MACHINE:I386"
+				OutputFile="..\..\..\Bin\ScdSlv.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				ModuleDefinitionFile=".\ScdSlv.def"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
+				SubSystem="2"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				AdditionalIncludeDirectories="..\scd\scdlib;..\scdif;..\scdmdl"
@@ -505,6 +572,15 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 						HeaderFileName="ScdSlv.h"
 						InterfaceIdentifierFileName="ScdSlv_i.c"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCMIDLTool"
+						GenerateStublessProxies="TRUE"
+						TypeLibraryName=".\ScdSlv.tlb"
+						HeaderFileName="ScdSlv.h"
+						InterfaceIdentifierFileName="ScdSlv_i.c"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ScdSlv.rc">
@@ -522,6 +598,12 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="$(OUTDIR);$(NoInherit)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCResourceCompilerTool"
 						AdditionalIncludeDirectories="$(OUTDIR);$(NoInherit)"/>
@@ -576,6 +658,12 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"/>

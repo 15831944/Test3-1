@@ -21,7 +21,9 @@
 
 #if _MSC_VER>=1400
 
-#if defined(_DEBUG)
+#if defined(DISTRIBUTION)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Distribution8" b ".lib")
+#elif defined(_DEBUG)
 #define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Dbg8" b ".lib")
 #elif defined(_RELEASE)
 #define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Rls8" b ".lib")
@@ -31,7 +33,9 @@
 
 #else
 
-#if defined(_DEBUG)
+#if defined(DISTRIBUTION)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Distribution" b ".lib")
+#elif defined(_DEBUG)
 #define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Dbg" b ".lib")
 #elif defined(_RELEASE)
 #define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Rls" b ".lib")

@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ScdLib"
 	ProjectGUID="{9212F7EF-A438-4CE6-99E8-3C45034E403D}"
-
-
-
-
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -217,6 +213,73 @@
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Distribution|Win32"
+			OutputDirectory="Distribution"
+			IntermediateDirectory="Distribution"
+			ConfigurationType="2"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories=".,.\nrecipe,..\..\..\SMDK\Include"
+				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="stdafx.h"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/MACHINE:I386"
+				OutputFile="..\..\..\Bin\ScdLib.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
+				SubSystem="2"
+				BaseAddress="0x10000000"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"/>
+			<Tool
+				Name="VCMIDLTool"
+				MkTypLibCompatible="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Rls/ScdLib.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_AFXDLL;_RELEASE;NDEBUG"
+				AdditionalIncludeDirectories="."/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -247,6 +310,13 @@
 						PreprocessorDefinitions="NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Nrecipe\Complex.h">
@@ -271,6 +341,12 @@
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\NRECIPE\HpSort.cpp">
@@ -288,6 +364,12 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"/>
@@ -319,6 +401,13 @@
 						PreprocessorDefinitions="NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Nrecipe\Nrutil.h">
@@ -346,6 +435,13 @@
 						PreprocessorDefinitions="NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\NRecipe\SIMP2.C">
@@ -368,6 +464,13 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
 			</File>
@@ -394,6 +497,13 @@
 						PreprocessorDefinitions="NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\NRecipe\SIMPLX.C">
@@ -416,6 +526,13 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;SCDLIB;WIN32;_WINDOWS;_AFXEXT;ANSI;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
 			</File>
@@ -562,6 +679,12 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"/>

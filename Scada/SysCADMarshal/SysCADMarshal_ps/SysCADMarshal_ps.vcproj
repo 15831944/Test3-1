@@ -219,6 +219,74 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Distribution|Win32"
+			OutputDirectory="Distribution"
+			IntermediateDirectory="Distribution"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;WIN32;_WINDOWS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="stdafx.h"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="0"/>
+			<Tool
+				Name="VCCustomBuildTool"
+				Description="Performing registration"
+				CommandLine="regsvr32 /s /c &quot;$(TargetPath)&quot;
+echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
+"
+				Outputs="$(OutDir)\regsvr32.trg"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="odbc32.lib odbccp32.lib rpcndr.lib rpcns4.lib rpcrt4.lib"
+				OutputFile="..\..\..\Bin\SysCADMarshal_ps.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				ModuleDefinitionFile=".\SysCADMarshal_ps.def"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Rls/SysCADMarshal_ps.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="7177"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -253,6 +321,14 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="SysCADMarshal_ps.cpp">
@@ -273,6 +349,13 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -328,6 +411,14 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\SysCADMarshal_i.c">
@@ -356,6 +447,14 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\SysCADMarshal_p.c">
@@ -378,6 +477,14 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM;$(NoInherit)"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
