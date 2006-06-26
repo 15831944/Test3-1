@@ -99,16 +99,15 @@ wzzip -a -P -r %fn2% "Tutorial\GeneralTutorial\*.*"
 wzzip -a -P -r %fn2% "Examples\General Examples\*.*"
 
 rem ----------- All In One
-set fn2=%fn%_All.zip
+set fn2=%fn%_Essentials.zip
 del %fn2%
 
-wzzip -a -P -r %fn2% DoInstall.cmd
-wzzip -a -P -r %fn2% %fn%_ScdBins.zip
-wzzip -a -P -r %fn2% %fn%_MarshalBins.zip
-wzzip -a -P -r %fn2% %fn%_BaseFiles.zip
-wzzip -a -P -r %fn2% %fn%_License.zip
-wzzip -a -P -r %fn2% %fn%_Documentation.zip
-wzzip -a -P -r %fn2% %fn%_Examples.zip
+wzzip -a %fn2% xfr\DoInstall.cmd
+wzzip -a %fn2% %fn%_ScdBins.zip
+wzzip -a %fn2% %fn%_MarshalBins.zip
+wzzip -a %fn2% %fn%_BaseFiles.zip
+wzzip -a %fn2% %fn%_WinSys.zip
+wzzip -a %fn2% %fn%_License.zip
 
 @echo off
 
