@@ -32,5 +32,10 @@ namespace SysCAD.Interface
       this.x4 = x4;
       this.y4 = y4;
     }
+
+    public override string ToString()
+    {
+      return "(" + x1.ToString("N2") + ", " + y1.ToString("N2") + ", " + x2.ToString("N2") + ", " + y2.ToString("N2") + ", " + x3.ToString("N2") + ", " + y3.ToString("N2") + ", " + x4.ToString("N2") + ", " + y4.ToString("N2") + ")";
+    }
   }
 }

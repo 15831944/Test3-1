@@ -51,7 +51,7 @@ namespace SysCAD.Interface
               (element as Arc).w,
               (element as Arc).h,
               (element as Arc).a,
-              (element as Arc).x);
+              (element as Arc).s);
           }
           if (element is Line)
           {
@@ -143,7 +143,7 @@ namespace SysCAD.Interface
               (decoration as Arc).w,
               (decoration as Arc).h,
               (decoration as Arc).a,
-              (decoration as Arc).x);
+              (decoration as Arc).s);
           }
           if (decoration is Line)
           {
@@ -179,7 +179,7 @@ namespace SysCAD.Interface
               (textArea as Arc).w,
               (textArea as Arc).h,
               (textArea as Arc).a,
-              (textArea as Arc).x);
+              (textArea as Arc).s);
           }
           if (textArea is Line)
           {
