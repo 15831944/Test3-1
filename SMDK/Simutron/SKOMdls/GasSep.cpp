@@ -901,7 +901,7 @@ bool CGasSep::EvalFlowEquations(eScdFlwEqnTasks Task, long IONo, long FE, long L
         FB.SetDerivsBad(false);
         FB.SetDPb(0.0, 0.0); // In is Positive
 
-        const bool HoldIterAll=false;
+        const int HoldIterAll=false;
 
         switch (FlwIOs[IONo].Id)
           {
@@ -1151,7 +1151,7 @@ void CGasSep::EvalProducts()
         double rfrac = 0.0;
         for (int i=0; i<il; i++)
           {
-//          m_R[i]=(m_ED.m_QmFeedRqd*m_Z[i]-m_ED.m_QmRichRqd*m_Y[i]-m_ED.m_QmStripRqd*m_Z[i])/GTZ(m_ED.m_QmRecycleRqd);
+          //          m_R[i]=(m_ED.m_QmFeedRqd*m_Z[i]-m_ED.m_QmRichRqd*m_Y[i]-m_ED.m_QmStripRqd*m_Z[i])/GTZ(m_ED.m_QmRecycleRqd);
           m_R[i]=(m_ED.m_QmFeedEst*m_Z[i]-m_ED.m_QmRichEst*m_Y[i]-m_ED.m_QmStripEst*m_Z[i])/GTZ(m_ED.m_QmRecycleEst);
           rfrac += m_R[i];
           }
@@ -1164,9 +1164,9 @@ void CGasSep::EvalProducts()
           MYMoles += sm_Wt[i]* m_Y[i];
           MXMoles += sm_Wt[i]* m_X[i];
           MRMoles += sm_Wt[i]* m_R[i];
-//          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
-//          MXMass += sm_Wt[i]* m_X[i] * sm_Wt[i];
-//          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
+          //          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
+          //          MXMass += sm_Wt[i]* m_X[i] * sm_Wt[i];
+          //          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
           }
 
         //m_ED.m_QmRecycleEst=Range(0.0, m_ED.m_QmRecycleEst, QFeed.MassFlow()); // ensure mass balance
@@ -1183,11 +1183,11 @@ void CGasSep::EvalProducts()
           double SpecDiff=0.0;
           double EstTotal = m_ED.m_QmStripEst + m_ED.m_QmRichEst + m_ED.m_QmRecycleEst;
           double SpcInFeed   = QFeed.M[sm_GasId[i]];
-//          double SpcInFeed   = QFeed.M[sm_GasId[i]]* m_ED.m_QmFeedEst / GTZ(QmFeed);
+          //          double SpcInFeed   = QFeed.M[sm_GasId[i]]* m_ED.m_QmFeedEst / GTZ(QmFeed);
           double Spc2Strip   = m_ED.m_QmStripEst*m_X[i]*sm_Wt[i]/MXMoles;
           double Spc2Rich    = m_ED.m_QmRichEst*m_Y[i]*sm_Wt[i]/MYMoles;
           double Spc2Recycle = m_ED.m_QmRecycleEst*m_R[i]*sm_Wt[i]/MRMoles;//GEZ(SpcInFeed-Spc2Rich-Spc2Strip);
-Spc2Recycle = SpcInFeed-Spc2Rich-Spc2Strip;
+          Spc2Recycle = SpcInFeed-Spc2Rich-Spc2Strip;
           if (Spc2Recycle < 0.0)
             {
             Spc2Recycle = 0.0;
@@ -1208,13 +1208,13 @@ Spc2Recycle = SpcInFeed-Spc2Rich-Spc2Strip;
 
           //dbgpln(" %i %20s %20s %20s %20s %20s", i, DbgFltString(SpcInFeed), DbgFltString(Spc2Rec), DbgFltString(Spc2Rich), DbgFltString(Spc2Strip), DbgFltString(Range(0.0, Spc2Rich, SpcInFeed)));
           Spc2Rich=Range(0.0, Spc2Rich, SpcInFeed);
-           QRich.M[sm_GasId[i]]=Spc2Rich;
-           QStrip.M[sm_GasId[i]]=Spc2Strip;
-           QRecycle.M[sm_GasId[i]]=Spc2Recycle;
+          QRich.M[sm_GasId[i]]=Spc2Rich;
+          QStrip.M[sm_GasId[i]]=Spc2Strip;
+          QRecycle.M[sm_GasId[i]]=Spc2Recycle * Est_Crct;
 
-//          QRich.M[sm_GasId[i]]    = Est_Rich_M[i] * Est_Crct;
-//          QStrip.M[sm_GasId[i]]   = Est_Strip_M[i] * Est_Crct;
-//          QRecycle.M[sm_GasId[i]] = Est_Recyc_M[i] * Est_Crct;
+          //           QRich.M[sm_GasId[i]]    = Est_Rich_M[i] * Est_Crct;
+          //           QStrip.M[sm_GasId[i]]   = Est_Strip_M[i] * Est_Crct;
+          //           QRecycle.M[sm_GasId[i]] = Est_Recyc_M[i] * Est_Crct;
 
 
 
@@ -1248,25 +1248,6 @@ Spc2Recycle = SpcInFeed-Spc2Rich-Spc2Strip;
     else
       {
       MBaseMethod::EvalProducts();
-      }
-    if (0)
-      {
-      static MStream MPrev[4];
-      Dbg.PrintLn("===============================");
-      //for (int s=7; s<=11; s++)
-      //  Dbg.Print(" %27s", gs_MVDefn[s].Tag());
-      //Dbg.PrintLn("");
-      for (int i=0; i<FlwIOs.Count; i++)
-        {
-        MFlow F=FlwIOs[i];
-        MStream Q=F.Stream;
-        MStream X=MPrev[i];
-        double T=GTZ(Q.Mass());
-        for (int s=7; s<=11; s++)
-          Dbg.Print(" %15.6f(%10.6f)", 100*Q.M[s]/T, 100*(Q.M[s]-X.M[s]));
-        Dbg.PrintLn("");
-        MPrev[i].Copy(Q);
-        }
       }
     }
   catch (MMdlException &e)
