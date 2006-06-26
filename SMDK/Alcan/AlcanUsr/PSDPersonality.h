@@ -17,6 +17,7 @@ const double HPDSize = 4.0; //should retrieve this from PSD Defn used
 class PSDPersonality
 {
   double * FracPass;
+  double * Intervals;
 
   struct
       {
@@ -42,6 +43,7 @@ class PSDPersonality
     eAlcanPSDTypes m_eType;
 public:
   PSDPersonality();
+  ~PSDPersonality();
   void Init(MIPSD *PSD);
   void BuildDataDefn(MDataDefn & DD);
   void ReplaceDistribution(MIPSD *PSDO);

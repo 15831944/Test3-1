@@ -7,10 +7,36 @@
 #include "md_headers.h"
 #endif
 
+#include <string>
+#include <vector>
+
 //---------------------------------------------------------------------------
 
 class MaterialMerge : public MBaseMethod
   {
+  //---------------------------------------------------------------------------
+
+  int allCount;
+  int destCount;
+  int phaseCount;
+
+  int *destIndex;
+  std::string *destText;
+
+  double **map;
+  std::string **mapText;
+
+  bool *makeObject;
+  bool *enable;
+
+  double *totals;
+
+  MDDValueLst *targetTypeDropDown;
+
+  std::vector<std::string> phases;
+  std::vector<std::string> phasestmp;
+
+
   public:
     MaterialMerge(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     ~MaterialMerge();

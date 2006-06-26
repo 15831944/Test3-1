@@ -12,6 +12,7 @@
 PSDPersonality::PSDPersonality()
   {
   FracPass = NULL;
+  Intervals = NULL;
 
   m_eType = eAlcanPSD_Rosin;
 
@@ -32,6 +33,12 @@ PSDPersonality::PSDPersonality()
   m_Rqd.m_dm20     = dNAN;
   }
 
+
+PSDPersonality::~PSDPersonality()
+{
+  if (FracPass != NULL)
+    delete[] FracPass;
+}
 // --------------------------------------------------------------------------
 
 void PSDPersonality::Init(MIPSD *PSD)
@@ -414,9 +421,16 @@ void PSDPersonality::HyprodDataFromLN (double RegRslt[])
   double WCumul[MaxHPSizeClasses+1];
 
   long NIntervals = m_PSD->getSizeCount(); //pkh m_Q.Distributions[0]->NIntervals();
-  double * Intervals;
-  m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
-  double * FracPass;
+
+  if (Intervals == NULL)
+  {
+    Intervals = new double[NIntervals];
+    m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
+  }
+
+  if (FracPass != NULL)
+    delete[] FracPass;
+  FracPass = new double[NIntervals];
   m_PSD->ExtractFracVector(FracPass, 0); //pkh &m_Q.Distributions[0]->PriSp[0]->FracPass[0];
 
   for (i = 0; i<NIntervals; i++)
@@ -447,11 +461,18 @@ void PSDPersonality::HyprodDataFromRR(double RegRslt[])
   double WCumul[MaxHPSizeClasses+1];
 
   long NIntervals = m_PSD->getSizeCount(); //pkh m_Q.Distributions[0]->NIntervals();
-  double * Intervals;
-  Intervals = new double[NIntervals];
-  m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
+
+  if (Intervals == NULL)
+  {
+    Intervals = new double[NIntervals];
+    m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
+  }
+
+  if (FracPass != NULL)
+    delete[] FracPass;
   FracPass = new double[NIntervals];
   m_PSD->ExtractFracVector(FracPass, 0); //pkh &m_Q.Distributions[0]->PriSp[0]->FracPass[0];
+
 
   //pkh LogNote("Set PSD", 0, "RegRslt[0]:%.12g  RegRslt[1]:%.12g", RegRslt[0], RegRslt[1]);
 
@@ -508,9 +529,16 @@ void PSDPersonality::HyprodDataFromRR(double RegRslt[])
 void PSDPersonality::HyprodDataFromTable(long Count, double Diam[], double WPrct[], double RegRslt[])
   {
   long NIntervals=m_PSD->getSizeCount(); //pkh m_Q.Distributions[0]->NIntervals();
-  double * Intervals;
-  m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
-  double * FracPass;
+
+  if (Intervals == NULL)
+  {
+    Intervals = new double[NIntervals];
+    m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
+  }
+
+  if (FracPass != NULL)
+    delete[] FracPass;
+  FracPass = new double[NIntervals];
   m_PSD->ExtractFracVector(FracPass, 0); //pkh &m_Q.Distributions[0]->PriSp[0]->FracPass[0];
 
   long   i;

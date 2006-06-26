@@ -43,33 +43,27 @@ void MaterialMerge_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
-int allCount = 0;
-int destCount = 0;
-int phaseCount = 0;
-
-int *destIndex;
-std::string *destText;
-
-double **map;
-std::string **mapText;
-
-bool *makeObject;
-bool *enable;
-
-double *totals;
-
-MDDValueLst *targetTypeDropDown;
-
-std::vector<std::string> phases;
-std::vector<std::string> phasestmp;
-
-//---------------------------------------------------------------------------
-
 MaterialMerge::MaterialMerge(MUnitDefBase * pUnitDef, TaggedObject * pNd) : 
 MBaseMethod(pUnitDef, pNd)
 {
   //default values...
   m_sMaterialType = 0;
+  allCount = 0;
+  destCount = 0;
+  phaseCount = 0;
+
+  destIndex = NULL;
+  destText = NULL;
+
+  map = NULL;
+  mapText = NULL;
+
+  makeObject = NULL;
+  enable = NULL;
+
+  totals = NULL;
+
+  targetTypeDropDown = NULL;
 }
 
 //---------------------------------------------------------------------------
