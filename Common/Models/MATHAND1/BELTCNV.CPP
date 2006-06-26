@@ -626,6 +626,15 @@ void BeltCnv::SetState(eScdMdlStateActs RqdState)
       break;
     case MSA_SteadyState:
       break;
+    case MSA_EmptySpillTargets:
+      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      break;
+    case MSA_DynStatsRunInit:
+      //if (pStats)
+      //  pStats->ResetStats();
+      //dInitMt = m_Q.TotalMass();
+      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      break;
     }
   };
 
