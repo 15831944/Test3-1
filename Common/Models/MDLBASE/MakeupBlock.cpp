@@ -264,6 +264,8 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
  
     enum eSelect
       {
+      Slct_All,
+      Slct_Occur,
       Slct_Phase,
       Slct_Specie,
       };
@@ -289,6 +291,8 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     eType           m_eType;
     eSelect         m_eSelect;
     PhMask          m_Phases;
+    SpImage       * m_pImage;
+
     double          m_QmRqd;
     double          m_QvRqd;
     double          m_NQvRqd;
@@ -325,21 +329,23 @@ DEFINE_MAKEUPBLOCK(CXBlk_Makeup);
 //
 //============================================================================
 
-XID xidMkAll     = AdjustXID(1000);
-XID xidMkSolids  = AdjustXID(1001);
-XID xidMkLiquids = AdjustXID(1002);
-XID xidMkGasses  = AdjustXID(1003);
-XID xidMkPhase   = AdjustXID(1004);
+XID xidMkSelect  = AdjustXID(1000);
+XID xidMkAll     = AdjustXID(1001);
+XID xidMkSolids  = AdjustXID(1002);
+XID xidMkLiquids = AdjustXID(1003);
+XID xidMkGasses  = AdjustXID(1004);
+XID xidMkPhase   = AdjustXID(1005);
 
 IMPLEMENT_MAKEUPBLOCK(CXBlk_Makeup, "MB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Simple",  " ");
 
 CXBlk_Makeup::CXBlk_Makeup(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   {
-  m_eSource    = Src_Remote;
-  m_eType      = Type_MassRatio;
-  m_eSelect    = Slct_Phase;
+  m_eSource   = Src_Remote;
+  m_eType     = Type_MassRatio;
+  m_eSelect   = Slct_All;
   m_Phases    = som_ALL;
+  m_pImage    = NULL;
   m_QmMin     = 0.0;
   m_QmMax     = 10000.0/3.6;
   m_QmRqd     = 0;
@@ -382,247 +388,234 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
 
   //if (DDB.BeginStruct(this, "MakeupQm", NULL, DDB_NoPage))
   //  {
-    static DDBValueLst DDBCtrl[] =
-      {                         
-        {Type_MassFlow,       "MassFlow"        },
-        {Type_MassRatio,      "MassRatio"       },
-        {Type_MassMult,       "MassMultiplier"  },
-        {Type_VolumeFlow,     "VolumeFlow"      },
-        {Type_VolumeRatio,    "VolumeRatio"     },
-        {Type_VolumeMult,     "VolumeMultiplier" },
-        {Type_NVolumeFlow,    "NVolumeFlow"     },
-        {Type_NVolumeRatio,   "NVolumeRatio"    },
-        {Type_NVolumeMult,    "NVolumeMultiplier" },
-        {Type_MassFrac,       "MassFrac"        },
-        {Type_VolumeFrac,     "VolumeFrac"      },
-        {Type_NVolumeFrac,    "NVolumeFrac"     },
-        {}
-      };
-    static DDBValueLst DDBSelect[] =
-      {                         
-        {Slct_Phase,          "Phase"           },
-        {Slct_Specie,         "Specie"          },
-        {}
-      };
-    static DDBValueLst DDBSource[] =
-      {                         
-        {Src_Self,            "Self"            },
-        {Src_Remote,          "Remote"          },
-        {}
-      };
-    //static DDBValueLstMem DDBPhases;
-    //if (DDBPhases.Length()==0)
-    //  {
-    //  DDBPhases.Add(som_ALL,       "All");
-    //  DDBPhases.Add(som_Sol,       "Solids");
-    //  DDBPhases.Add(som_Liq,       "Liquid");
-    //  DDBPhases.Add(som_Gas,       "Gas");
-    //  DDBPhases.Add(som_SL,        "Slurry");
-    //                for (int p=0; p<CDB.PhaseCount(); p++)
-    //                  {
-    //                  CPhaseInfo &P=CDB.PhaseInfo(p);
-    //                  if (P.m_eOcc==c)
-    //                    DDB.Double(P.m_Tag(), P.m_Sym(),  DC_Frac, "%",  &A[j]->m_PhSplt[p],  this,
-    //                    (j<NPri-1 ? isParm : 0)|(m_iPhMethSpec&GSPM_Total?NAN_OK:0)|ChildLevel(1));
-    //                  }
-    //  
-    //  DDBPhases.Add();
-    //    
-    //    
-    //    
-    //    
-    //    
-    //  };
+  static DDBValueLst DDBCtrl[] =
+    {                         
+      {Type_MassFlow,       "MassFlow"        },
+      {Type_MassRatio,      "MassRatio"       },
+      {Type_MassMult,       "MassMultiplier"  },
+      {Type_VolumeFlow,     "VolumeFlow"      },
+      {Type_VolumeRatio,    "VolumeRatio"     },
+      {Type_VolumeMult,     "VolumeMultiplier" },
+      {Type_NVolumeFlow,    "NVolumeFlow"     },
+      {Type_NVolumeRatio,   "NVolumeRatio"    },
+      {Type_NVolumeMult,    "NVolumeMultiplier" },
+      {Type_MassFrac,       "MassFrac"        },
+      {Type_VolumeFrac,     "VolumeFrac"      },
+      {Type_NVolumeFrac,    "NVolumeFrac"     },
+      {}
+    };
+  static DDBValueLst DDBSelect[] =
+    {                         
+      {Slct_All,            "All"             },
+      {Slct_Occur,          "Occurence"       },
+      {Slct_Phase,          "Phase"           },
+      {Slct_Specie,         "Specie"          },
+      {}
+    };
+  static DDBValueLst DDBSource[] =
+    {                         
+      {Src_Self,            "Self"            },
+      {Src_Remote,          "Remote"          },
+      {}
+    };
+  //static DDBValueLstMem DDBPhases;
+  //if (DDBPhases.Length()==0)
+  //  {
+  //  DDBPhases.Add(som_ALL,       "All");
+  //  DDBPhases.Add(som_Sol,       "Solids");
+  //  DDBPhases.Add(som_Liq,       "Liquid");
+  //  DDBPhases.Add(som_Gas,       "Gas");
+  //  DDBPhases.Add(som_SL,        "Slurry");
+  //                for (int p=0; p<CDB.PhaseCount(); p++)
+  //                  {
+  //                  CPhaseInfo &P=CDB.PhaseInfo(p);
+  //                  if (P.m_eOcc==c)
+  //                    DDB.Double(P.m_Tag(), P.m_Sym(),  DC_Frac, "%",  &A[j]->m_PhSplt[p],  this,
+  //                    (j<NPri-1 ? isParm : 0)|(m_iPhMethSpec&GSPM_Total?NAN_OK:0)|ChildLevel(1));
+  //                  }
+  //  
+  //  DDBPhases.Add();
+  //    
+  //    
+  //    
+  //    
+  //    
+  //  };
 
-    //                  static const LPSTR Nm[]={"Solids","Liquids",/*"Aqueous",*/"Gasses"};
-    //              if (m_iPhMethSpec&GSPM_Total)
-    //                DDB.Double(Nm[c], "",  DC_Frac, "%",  &A[j]->m_Splt[c],  this, j<NPri-1 ? isParm : 0);
-    //              if (m_iPhMethSpec&GSPM_Individual)
-    //                {
-    //                for (int p=0; p<CDB.PhaseCount(); p++)
-    //                  {
-    //                  CPhaseInfo &P=CDB.PhaseInfo(p);
-    //                  if (P.m_eOcc==c)
-    //                    DDB.Double(P.m_Tag(), P.m_Sym(),  DC_Frac, "%",  &A[j]->m_PhSplt[p],  this,
-    //                    (j<NPri-1 ? isParm : 0)|(m_iPhMethSpec&GSPM_Total?NAN_OK:0)|ChildLevel(1));
-    //                  }
-    //                }
+  //                  static const LPSTR Nm[]={"Solids","Liquids",/*"Aqueous",*/"Gasses"};
+  //              if (m_iPhMethSpec&GSPM_Total)
+  //                DDB.Double(Nm[c], "",  DC_Frac, "%",  &A[j]->m_Splt[c],  this, j<NPri-1 ? isParm : 0);
+  //              if (m_iPhMethSpec&GSPM_Individual)
+  //                {
+  //                for (int p=0; p<CDB.PhaseCount(); p++)
+  //                  {
+  //                  CPhaseInfo &P=CDB.PhaseInfo(p);
+  //                  if (P.m_eOcc==c)
+  //                    DDB.Double(P.m_Tag(), P.m_Sym(),  DC_Frac, "%",  &A[j]->m_PhSplt[p],  this,
+  //                    (j<NPri-1 ? isParm : 0)|(m_iPhMethSpec&GSPM_Total?NAN_OK:0)|ChildLevel(1));
+  //                  }
+  //                }
 
-    DDB.Text(" ");
-    DDB.Text("Requirements");
-    DDB.Long       ("", "Type",             DC_,  "", (long*)&m_eType,  this, isParmStopped|SetOnChange, DDBCtrl);
-    DDB.Visibility(SHM_All, m_eType==Type_MassFlow);
-    DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_VolumeFlow);
-    DDB.Double("", "QvRqd",    DC_Qv, "m^3/s", &m_QvRqd,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_NVolumeFlow);
-    DDB.Double("", "NQvRqd",    DC_NQv, "Nm^3/s", &m_NQvRqd,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_MassRatio);
-    DDB.Double("", "QmRatio",    DC_Frac, "%", &m_QmRatio,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_VolumeRatio);
-    DDB.Double("", "QvRatio",    DC_Frac, "%", &m_QvRatio,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_NVolumeRatio);
-    DDB.Double("", "NQvRatio",    DC_Frac, "%", &m_NQvRatio,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_MassMult);
-    DDB.Double("", "QmMult",    DC_Frac, "%", &m_QmMult,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_VolumeMult);
-    DDB.Double("", "QvMult",    DC_Frac, "%", &m_QvMult,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_NVolumeMult);
-    DDB.Double("", "NQvMult",    DC_Frac, "%", &m_NQvMult,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_MassFrac);
-    DDB.Double("", "MassFrac",    DC_Frac, "%", &m_MassFrac,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_VolumeFrac);
-    DDB.Double("", "VolumeFrac",    DC_Frac, "%", &m_VolFrac,  this, isParm);
-    DDB.Visibility(SHM_All, m_eType==Type_NVolumeFrac);
-    DDB.Double("", "NVolumeFrac",    DC_Frac, "%", &m_NVolFrac,  this, isParm);
+  DDB.Text(" ");
+  DDB.Text("Requirements");
+  DDB.Long       ("", "Type",             DC_,  "", (long*)&m_eType,  this, isParmStopped|SetOnChange, DDBCtrl);
+  DDB.Visibility(SHM_All, m_eType==Type_MassFlow);
+  DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_VolumeFlow);
+  DDB.Double("", "QvRqd",    DC_Qv, "m^3/s", &m_QvRqd,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_NVolumeFlow);
+  DDB.Double("", "NQvRqd",    DC_NQv, "Nm^3/s", &m_NQvRqd,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_MassRatio);
+  DDB.Double("", "QmRatio",    DC_Frac, "%", &m_QmRatio,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_VolumeRatio);
+  DDB.Double("", "QvRatio",    DC_Frac, "%", &m_QvRatio,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_NVolumeRatio);
+  DDB.Double("", "NQvRatio",    DC_Frac, "%", &m_NQvRatio,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_MassMult);
+  DDB.Double("", "QmMult",    DC_Frac, "%", &m_QmMult,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_VolumeMult);
+  DDB.Double("", "QvMult",    DC_Frac, "%", &m_QvMult,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_NVolumeMult);
+  DDB.Double("", "NQvMult",    DC_Frac, "%", &m_NQvMult,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_MassFrac);
+  DDB.Double("", "MassFrac",    DC_Frac, "%", &m_MassFrac,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_VolumeFrac);
+  DDB.Double("", "VolumeFrac",    DC_Frac, "%", &m_VolFrac,  this, isParm);
+  DDB.Visibility(SHM_All, m_eType==Type_NVolumeFrac);
+  DDB.Double("", "NVolumeFrac",    DC_Frac, "%", &m_NVolFrac,  this, isParm);
 
-    DDB.Visibility();
-    DDB.Text(" ");
-    DDB.Long       ("", "Selection",        DC_,  "", (long*)&m_eSelect,  this, isParm|SetOnChange, DDBSelect);
-    //DDB.Text("Selection");
-    if (m_eSelect==Slct_Phase)
+  DDB.Visibility();
+  DDB.Text(" ");
+  DDB.Long       ("", "Selection",        DC_,  "", xidMkSelect,  this, isParm|SetOnChange, DDBSelect);
+  //DDB.Text("Selection");
+  if (!DDB.ForFileSnpScn())
+    {
+    switch (m_eSelect)
       {
-      if (!DDB.ForFileSnpScn())
+      case Slct_All:
+        break;
+      case Slct_Occur:
         {
-        DDB.CheckBoxBtn("", "All",              DC_,  "", xidMkAll,     this, isParm);
-
         DDB.CheckBoxBtn("", "Solids",           DC_,  "", xidMkSolids,  this, isParm);
-        if (CDB.PhaseCount(BOT_Solid)>1)
-          {
-          for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Solid); o++)
-            {
-            CPhaseInfo & P=CDB.PhaseInfo(o);
-            Strng T,S;
-            T.Set("(%s)", P.m_Tag());
-            S.Set("(%s)", P.m_Sym());
-            DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
-            //DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
-            }
-          }
-
         DDB.CheckBoxBtn("", "Liquids",          DC_,  "", xidMkLiquids, this, isParm);
-        if (CDB.PhaseCount(BOT_Liquid)>1)
-          {
-          for (int o=CDB.PhaseFirst(BOT_Liquid); o<=CDB.PhaseLast(BOT_Liquid); o++)
-            {
-            CPhaseInfo & P=CDB.PhaseInfo(o);
-            Strng T,S;
-            T.Set("(%s)", P.m_Tag());
-            S.Set("(%s)", P.m_Sym());
-            DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
-            //DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
-            }
-          }
-
         DDB.CheckBoxBtn("", "Gasses",           DC_,  "", xidMkGasses,  this, isParm);
-        if (CDB.PhaseCount(BOT_Gas)>1)
-          {
-          for (int o=CDB.PhaseFirst(BOT_Gas); o<=CDB.PhaseLast(BOT_Gas); o++)
-            {
-            CPhaseInfo & P=CDB.PhaseInfo(o);
-            Strng T,S;
-            T.Set("(%s)", P.m_Tag());
-            S.Set("(%s)", P.m_Sym());
-            DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
-            //DDB.CheckBoxBtn(P.m_Tag(), P.m_Sym(), DC_,  "", xidMkPhase+o,  this, isParm);
-            }
-          }
-        }  
-      if (1)//DDB.ForFileSnpScn())
+        break;
+        }
+      case Slct_Phase:
         {
-        DDB.Long("", "PhaseMask",               DC_,  "", (long*)&m_Phases,     this, isParm|InitHidden);
+        for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Gas); o++)
+          {
+          CPhaseInfo & P=CDB.PhaseInfo(o);
+          Strng T,S;
+          T.Set("(%s)", P.m_Tag());
+          S.Set("(%s)", P.m_Sym());
+          DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
+          }
+        break;
         }
-      }
+      case Slct_Specie:
+        break;
+      }  
+    }
+  if (1)//DDB.ForFileSnpScn())
+    {
+    DDB.Long("", "PhaseMask",               DC_,  "", (long*)&m_Phases,     this, isParm|InitHidden);
+    }
 
+  DDB.Visibility();
+  DDB.Text(" ");
+  DDB.Long       ("", "Source",           DC_,  "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
+  DDB.Double     ("QmMin", "",            DC_Qm, "kg/s", &m_QmMin, this, isParm);
+  DDB.Double     ("QmMax", "",            DC_Qm, "kg/s", &m_QmMax, this, isParm);
+
+  static DDBValueLst DDBTemp[] = 
+    {
+      {Temp_Inlet,   "InletTemp"},
+      {Temp_Source,  "SourceTemp"},
+      {Temp_Std,     "StdTemp"},
+      {Temp_Const,   "Const"},
+      {Temp_Mixture, "Mixture"},  // Needs work - a solve loop for volume
+      {0}
+    };
+
+  DDB.Text(" ");
+  DDB.Long  ("FinalTemp",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/, DDBTemp);
+  DDB.Visibility(SHM_All, m_eRqdTemp==Temp_Const);
+  DDB.Double("RqdTemp",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
+  DDB.Visibility();
+
+  DDB.Text(" ");
+  DDB.Text("Results");
+  if (0)
+    {
+    Strng CnvTxt;
+    //CnvTxt = "??"; todo, get currently used cnv text based on type
+    DDB.Double ("Meas",              "", DC_,     "",        &dMeas,       this, isResult);
+    //DDB.TagComment(CnvTxt());
+    DDB.Double ("SetPoint",          "", DC_,     "",        &dSetPoint,   this, isResult);
+    //DDB.TagComment(CnvTxt());
+    DDB.Double ("Result",            "", DC_,     "",        &dResult,     this, isResult);
+    //DDB.TagComment(CnvTxt());
+    }
+  else
+    {
+    CCnvIndex CnvUsed;
+    Strng CnvTxt;
+    switch (m_eType)
+      {                         
+      case Type_MassFlow    : CnvUsed=DC_Qm; CnvTxt="kg/s"; break;
+      case Type_VolumeFlow  : CnvUsed=DC_Qv; CnvTxt="m^3/s"; break;
+      case Type_NVolumeFlow : CnvUsed=DC_NQv; CnvTxt="Nm^3/s"; break;
+      default               : CnvUsed=DC_Frac; CnvTxt="%"; break;
+      }
+    DDB.Visibility(SHM_All, m_eType==Type_MassFlow || m_eType==Type_VolumeFlow || m_eType==Type_NVolumeFlow || 
+      m_eType==Type_MassFrac || m_eType==Type_VolumeFrac || m_eType==Type_NVolumeFrac);
+    DDB.Double ("Meas",              "", CnvUsed, CnvTxt(),  &dMeas,       this, isResult|noFileAtAll);
     DDB.Visibility();
-    DDB.Text(" ");
-    DDB.Long       ("", "Source",           DC_,  "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
-    DDB.Double     ("QmMin", "",            DC_Qm, "kg/s", &m_QmMin, this, isParm);
-    DDB.Double     ("QmMax", "",            DC_Qm, "kg/s", &m_QmMax, this, isParm);
+    DDB.Double ("SetPoint",          "", CnvUsed, CnvTxt(),  &dSetPoint,   this, isResult|noFileAtAll);
+    DDB.Double ("Result",            "", CnvUsed, CnvTxt(),  &dResult,     this, isResult|noFileAtAll);
+    }
+  DDB.Double ("QmMakeup",          "", DC_Qm,   "kg/s",    &dQmMakeup,   this, isResult);
+  DDB.Double ("QmFeed",            "", DC_Qm,   "kg/s",    &dQmFeed,     this, isResult);
+  DDB.Double ("QmProd",            "", DC_Qm,   "kg/s",    &dQmProd,     this, isResult);
+  DDB.Double ("HeatFlow",          "", DC_Pwr,  "kW",      &dHeatFlow,   this, isResult);
+  DDB.Double ("TempFeed",          "", DC_T,    "C",       &dTempKFeed,  this, isResult);//|noFileAtAll);
+  DDB.Double ("TempProd",          "", DC_T,    "C",       &dTempKProd,  this, isResult);//|noFileAtAll);
 
-    static DDBValueLst DDBTemp[] = 
-      {
-        {Temp_Inlet,   "InletTemp"},
-        {Temp_Source,  "SourceTemp"},
-        {Temp_Std,     "StdTemp"},
-        {Temp_Const,   "Const"},
-        {Temp_Mixture, "Mixture"},  // Needs work - a solve loop for volume
-        {0}
-      };
+  if (m_eSelect==Slct_Specie && m_pImage!=NULL)
+    {
+    DDB.Object(m_pImage, this, NULL, NULL, DDB_RqdPage);
+    }
 
-    DDB.Text(" ");
-    DDB.Long  ("FinalTemp",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/, DDBTemp);
-    DDB.Visibility(SHM_All, m_eRqdTemp==Temp_Const);
-    DDB.Double("RqdTemp",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
-    DDB.Visibility();
-
-    DDB.Text(" ");
-    DDB.Text("Results");
-    if (0)
-      {
-      Strng CnvTxt;
-      //CnvTxt = "??"; todo, get currently used cnv text based on type
-      DDB.Double ("Meas",              "", DC_,     "",        &dMeas,       this, isResult);
-      //DDB.TagComment(CnvTxt());
-      DDB.Double ("SetPoint",          "", DC_,     "",        &dSetPoint,   this, isResult);
-      //DDB.TagComment(CnvTxt());
-      DDB.Double ("Result",            "", DC_,     "",        &dResult,     this, isResult);
-      //DDB.TagComment(CnvTxt());
-      }
-    else
-      {
-      CCnvIndex CnvUsed;
-      Strng CnvTxt;
-      switch (m_eType)
-        {                         
-        case Type_MassFlow    : CnvUsed=DC_Qm; CnvTxt="kg/s"; break;
-        case Type_VolumeFlow  : CnvUsed=DC_Qv; CnvTxt="m^3/s"; break;
-        case Type_NVolumeFlow : CnvUsed=DC_NQv; CnvTxt="Nm^3/s"; break;
-        default               : CnvUsed=DC_Frac; CnvTxt="%"; break;
-        }
-      DDB.Visibility(SHM_All, m_eType==Type_MassFlow || m_eType==Type_VolumeFlow || m_eType==Type_NVolumeFlow || 
-                              m_eType==Type_MassFrac || m_eType==Type_VolumeFrac || m_eType==Type_NVolumeFrac);
-      DDB.Double ("Meas",              "", CnvUsed, CnvTxt(),  &dMeas,       this, isResult|noFileAtAll);
-      DDB.Visibility();
-      DDB.Double ("SetPoint",          "", CnvUsed, CnvTxt(),  &dSetPoint,   this, isResult|noFileAtAll);
-      DDB.Double ("Result",            "", CnvUsed, CnvTxt(),  &dResult,     this, isResult|noFileAtAll);
-      }
-    DDB.Double ("QmMakeup",          "", DC_Qm,   "kg/s",    &dQmMakeup,   this, isResult);
-    DDB.Double ("QmFeed",            "", DC_Qm,   "kg/s",    &dQmFeed,     this, isResult);
-    DDB.Double ("QmProd",            "", DC_Qm,   "kg/s",    &dQmProd,     this, isResult);
-    DDB.Double ("HeatFlow",          "", DC_Pwr,  "kW",      &dHeatFlow,   this, isResult);
-    DDB.Double ("TempFeed",          "", DC_T,    "C",       &dTempKFeed,  this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd",          "", DC_T,    "C",       &dTempKProd,  this, isResult);//|noFileAtAll);
-
-    //#if VER1
-//    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
-//      {
-//      for (int i=0; i<m_Components.GetSize(); i++)
-//        {
-//        LPTSTR Tg=gs_CDB[m_Components[i].m_CIndex].SymOrTag();
-//        if (DDB.BeginElement(this, Tg, NULL, i))
-//          {
-//          DDB.Byte  ("", "Destination", DC_,     "",  &m_Components[i].m_Dest,      this, isParm, DDBDestinations);
-//          DDB.Double("", "Fraction",    DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
-//          }
-//        }
-//      }
-//    DDB.EndArray();
-//#else
-//    DDB.Int("CompCount",     "",   DC_, "", xidCompCount,    this, isParm);
-//    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
-//      {
-//      for (int i=0; i<m_Components.GetSize(); i++)
-//        {
-//        if (DDB.BeginElement(this, i, NULL, i))
-//          {
-//          DDB.Long  ("", "Component", DC_,     "",  &m_Components[i].m_CIndex,    this, isParmStopped, &gs_CDB.DDBCompListDashVapLiq);
-//          DDB.Double("", "Fraction",  DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
-//          }
-//        }
-//      }
-//    DDB.EndArray();
-//#endif
+  //#if VER1
+  //    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
+  //      {
+  //      for (int i=0; i<m_Components.GetSize(); i++)
+  //        {
+  //        LPTSTR Tg=gs_CDB[m_Components[i].m_CIndex].SymOrTag();
+  //        if (DDB.BeginElement(this, Tg, NULL, i))
+  //          {
+  //          DDB.Byte  ("", "Destination", DC_,     "",  &m_Components[i].m_Dest,      this, isParm, DDBDestinations);
+  //          DDB.Double("", "Fraction",    DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
+  //          }
+  //        }
+  //      }
+  //    DDB.EndArray();
+  //#else
+  //    DDB.Int("CompCount",     "",   DC_, "", xidCompCount,    this, isParm);
+  //    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
+  //      {
+  //      for (int i=0; i<m_Components.GetSize(); i++)
+  //        {
+  //        if (DDB.BeginElement(this, i, NULL, i))
+  //          {
+  //          DDB.Long  ("", "Component", DC_,     "",  &m_Components[i].m_CIndex,    this, isParmStopped, &gs_CDB.DDBCompListDashVapLiq);
+  //          DDB.Double("", "Fraction",  DC_Frac, "%", &m_Components[i].m_Fraction,  this, isParm);
+  //          }
+  //        }
+  //      }
+  //    DDB.EndArray();
+  //#endif
   //  }
   //DDB.EndStruct();
   };
@@ -633,6 +626,24 @@ flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
+    case xidMkSelect:
+      if (DCB.rL)
+        {
+        m_eSelect = (eSelect)*DCB.rL;
+        if (m_eSelect==Slct_Specie && m_pImage==NULL)
+          {
+          m_pImage=new SpImage("Image", this, TOA_Embedded);
+          m_pImage->SetView(SVV_AsMassFrac);  
+          m_pImage->bSpeciesOnly=true;
+          }
+        else if (m_eSelect!=Slct_Specie && m_pImage!=NULL)
+          {
+          delete m_pImage;
+          m_pImage=NULL;
+          }
+        }
+      DCB.L = m_eSelect; 
+      return 1;
     case xidMkAll:
       if (DCB.rB)
         m_Phases = *DCB.rB ? som_ALL:0;
@@ -692,6 +703,18 @@ flag CXBlk_Makeup::ValidateData(ValidateDataBlk & VDB)
 //
 //  for (int i=0; i<m_Components.GetSize(); i++)
 //    m_Components[i].m_Fraction=Range(0.0, m_Components[i].m_Fraction, 1.0);
+
+  if (m_Phases==som_ALL)
+    {
+    switch (m_eType)
+      {                         
+      case Type_MassFrac:
+      case Type_VolumeFrac:
+      case Type_NVolumeFrac:
+        LogError(Tag(), 0, "Fraction Type Invalid");
+        break;
+      }
+    }
 
   return CMakeupBlock::ValidateData(VDB); 
   }

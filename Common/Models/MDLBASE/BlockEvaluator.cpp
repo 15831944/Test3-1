@@ -207,6 +207,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           {
           m_pMakeups[a] = new CMakeupBase(m_pThis, a);
           m_pMakeups[a]->Enable();
+          m_pMakeups[a]->Open(1);
           AddBlk(m_pMakeups[a], 1+a);
           }
         }
@@ -228,6 +229,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           {
           m_pBleeds[a] = new CBleedBase(m_pThis, a);
           m_pBleeds[a]->Enable();
+          m_pBleeds[a]->Open(1);
           AddBlk(m_pBleeds[a], MaxMakeupBlocks*2+a);
           }
         }
