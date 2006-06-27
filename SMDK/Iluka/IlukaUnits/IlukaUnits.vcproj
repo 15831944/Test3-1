@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="IlukaUnits"
 	ProjectGUID="{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
-	SccProjectName="Perforce Project"
-	SccAuxPath=""
-	SccLocalPath="..\..\.."
-	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform

@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="AlcanBayer"
 	ProjectGUID="{2E48B298-5BBC-4D9F-AB8D-CA858811799E}"
-	SccProjectName="Perforce Project"
-	SccAuxPath=""
-	SccLocalPath="..\..\.."
-	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
