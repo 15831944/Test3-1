@@ -1349,7 +1349,7 @@ double MixerSettler::MetalConc(SpConduit* FlwIn, SpMArray &Phse, Strng Metal, do
   double NumElems, SpcMass;
   *MetMass=0.0;
 							 
-  PhseVol=FlwIn->QVolume(Phse);  //m^3/s
+  PhseVol=FlwIn->QVolume(som_ALL, Phse);  //m^3/s
   if (PhseVol>0.0)
    {
     for (int i=0; i<SDB.Count(); i++)

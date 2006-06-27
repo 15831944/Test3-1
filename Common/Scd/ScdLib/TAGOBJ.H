@@ -914,6 +914,18 @@ class DllImportExport TaggedObject : public ConditionBlk
     pchar           BaseTag()                { return pAttachedTo ? pAttachedTo->BaseTag() : Tag(); };
     virtual void    MyTagsHaveChanged(bool FirstOne=true);
 
+    template <class T> T* FindObjOfType(T * X)
+      {
+      TaggedObject *p=pAttachedTo;
+      T *pT=dynamic_cast<T*>(p);
+      while (pT==NULL && p)
+        {
+        p=p->pAttachedTo;
+        pT=dynamic_cast<T*>(p);
+        }
+      return pT;
+      }
+
     dword CurrentDataVersion()               { return dwObjDataVerNo; };// | (wGlblDataVerNo<<16);};
 
     // Utilities

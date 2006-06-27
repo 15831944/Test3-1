@@ -1651,6 +1651,66 @@ double CSpecieDataBase::Density(long Fidelity, PhMask Phase, double T, double P,
 
 //--------------------------------------------------------------------------
 
+double CSpecieDataBase::Density(long Fidelity, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, double *M)
+  {
+  double m=0.0;
+  double v=0.0;
+
+  int i;
+  for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
+    {
+    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+      {
+      const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      if (m_SpD[i]->HasDensCorrs())
+        {
+        const double mm=m_SpD[i]->DensCorrMass(M);
+        m += mm;
+        v += mm*vv;
+        }
+      else
+        {
+        m += M[i];
+        v += M[i]*vv;
+        }
+      }
+    }
+
+  return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
+  };
+
+//--------------------------------------------------------------------------
+
+double CSpecieDataBase::Density(long Fidelity, CSysVector & Scale, double T, double P, SpPropOveride *Ovr, double *M)
+  {
+  double m=0.0;
+  double v=0.0;
+  SpecieIter I(som_ALL);
+
+  for (int i=-1; I.Loop(i); )
+    {
+    if (M[i] > MeasTolerance && m_SpD[i]->DensityDirect())
+      {
+      const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      if (m_SpD[i]->HasDensCorrs())
+        {
+        const double mm=m_SpD[i]->DensCorrMass(M);
+        m += Scale[i]*mm;
+        v += Scale[i]*mm*vv;
+        }
+      else
+        {
+        m += Scale[i]*M[i];
+        v += Scale[i]*M[i]*vv;
+        }
+      }
+    }
+
+  return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
+  };
+
+//--------------------------------------------------------------------------
+
 double CSpecieDataBase::msVolume(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, double *M)
   {
   double m=0.0;
@@ -1753,6 +1813,23 @@ double CSpecieDataBase::Volume(long Fidelity, CIArray & SpIds, double T, double 
 
 //--------------------------------------------------------------------------
 
+double CSpecieDataBase::Volume(long Fidelity, CSysVector &Scale, double T, double P, SpPropOveride *Ovr, double *M)
+  {
+  double v=0.0;
+  SpecieIter I(som_ALL);
+  for (int i=-1; I.Loop(i); )
+    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+      {
+      if (m_SpD[i]->HasDensCorrs())
+        v += Scale[i]*m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      else
+        v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      }
+    return v;
+  };
+
+//--------------------------------------------------------------------------
+
 double CSpecieDataBase::NDensity(long Fidelity, PhMask Phase, SpPropOveride *Ovr, double *M)
   {
   double m=0.0;
@@ -1772,6 +1849,33 @@ double CSpecieDataBase::NDensity(long Fidelity, PhMask Phase, SpPropOveride *Ovr
         {
         m += M[i];
         v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+        }
+      }
+
+    return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
+  };
+
+//--------------------------------------------------------------------------
+
+double CSpecieDataBase::NDensity(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr, double *M)
+  {
+  double m=0.0;
+  double v=0.0;
+  SpecieIter I(som_ALL);
+
+  for (int i=-1; I.Loop(i); )
+    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+      {
+      if (m_SpD[i]->HasDensCorrs())
+        {
+        const double mm=m_SpD[i]->DensCorrMass(M);
+        m += Scale[i]*mm;
+        v += Scale[i]*mm*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+        }
+      else
+        {
+        m += Scale[i]*M[i];
+        v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
         }
       }
 
@@ -1812,6 +1916,25 @@ double CSpecieDataBase::NVolume(long Fidelity, CIArray & SpIds, SpPropOveride *O
         v += m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       else
         v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+      }
+    }
+  return v;
+  };
+
+//--------------------------------------------------------------------------
+
+double CSpecieDataBase::NVolume(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr, double *M)
+  {
+  double v=0.0;
+  SpecieIter I(som_ALL);
+  for (int i=-1; I.Loop(i); )
+    {
+    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+      {
+      if (m_SpD[i]->HasDensCorrs())
+        v += Scale[i]*m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+      else
+        v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       }
     }
   return v;
@@ -8906,6 +9029,24 @@ void CSysVector::Mult(CIArray & SpIds, double Scl)
 
 //--------------------------------------------------------------------------
 
+void CSysVector::Mult(CSysVector & Scale, double Scl)
+  {
+  DMPSYSVEC(1, "Mult2", *this);
+  SPMVECTORTIMERLAP(sm_swOther);
+
+  for (int i=0; i<SVSpcCount(); i++)
+    {
+    CSysVecItem & Itm = SVImg(i);
+    ASSERT(Itm.Type()==SVT_Specie);
+    SclVMass(i, Scale[i]*Scl);
+    }
+
+  DMPSYSVEC(0, "  =", *this);
+  ASSERT_MASS_OK(this);
+  };
+
+//--------------------------------------------------------------------------
+
 flag CSysVector::AddValid(CSysVector &Vec2)
   {
   SPMVECTORTIMERLAP(sm_swAdd);
@@ -9030,6 +9171,17 @@ double CSysVector::Mass(CIArray & SpIds)
 
 //--------------------------------------------------------------------------
 
+double CSysVector::Mass(CSysVector & Scale)
+  {
+  SPMVECTORTIMERLAP(sm_swMass);
+  double s=0.0;
+  for (int i=0; i < SVSpcCount(); i++)
+    s+=Scale[i]*m_d[i];
+  return s;
+  };
+
+//--------------------------------------------------------------------------
+
 double CSysVector::Moles(PhMask Phase)
   {
   SPMVECTORTIMERLAP(sm_swMass);
@@ -9049,6 +9201,17 @@ double CSysVector::Moles(CIArray & SpIds)
   int i=0;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
     s+=m_d[i]/SDB[i].MoleWt();
+  return s;
+  };
+
+//--------------------------------------------------------------------------
+
+double CSysVector::Moles(CSysVector & Scale)
+  {
+  SPMVECTORTIMERLAP(sm_swMass);
+  double s=0.0;
+  for (int i=0; i < SVSpcCount(); i++)
+    s+=Scale[i]*m_d[i]/SDB[i].MoleWt();
   return s;
   };
 

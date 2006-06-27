@@ -825,20 +825,36 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual double Mass(PhMask Phase=som_ALL);
     virtual double Mass(CIArray & SpIds)                          { return m_M.Mass(SpIds); };
+    virtual double Mass(CSysVector & Scale)                       { return m_M.Mass(Scale); };
     virtual double Moles(PhMask Phase=som_ALL)                    { return m_M.Moles(Phase); };
     virtual double Moles(CIArray & SpIds)                         { return m_M.Moles(SpIds); };
+    virtual double Moles(CSysVector & Scale)                      { return m_M.Moles(Scale); };
     virtual double MoleWt(PhMask Phase=som_ALL)                   { return m_M.Mass(Phase)/GTZ(m_M.Moles(Phase)); };
+    virtual double MoleWt(CIArray & SpIds)                        { return m_M.Mass(SpIds)/GTZ(m_M.Moles(SpIds)); };
+    virtual double MoleWt(CSysVector & Scale)                     { return m_M.Mass(Scale)/GTZ(m_M.Moles(Scale)); };
 
     //virtual double Volume(CIArray & SpIds);
     //virtual double NVolume(CIArray & SpIds);
 
     double Volume(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
+    double Volume(CIArray & SpIds, double T_, double P_, CSysVector * pMA=NULL);
+    double Volume(CSysVector & Scale, double T_, double P_, CSysVector * pMA=NULL);
     double Volume(PhMask Phase=som_ALL)                                             { return Volume(Phase, Temp(), Press()); };
+    double Volume(CIArray & SpIds)                                                  { return Volume(SpIds, Temp(), Press()); };
+    double Volume(CSysVector & Scale)                                               { return Volume(Scale, Temp(), Press()); };
     double NVolume(PhMask Phase=som_ALL, CSysVector * pMA=NULL)                     { return Volume(Phase, Norm_T, Norm_P); };
+    double NVolume(CIArray & SpIds, CSysVector * pMA=NULL)                          { return Volume(SpIds, Norm_T, Norm_P); };
+    double NVolume(CSysVector & Scale, CSysVector * pMA=NULL)                       { return Volume(Scale, Norm_T, Norm_P); };
 
-    virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL)   { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
-    virtual double NRho(PhMask Phase=som_ALL, CSysVector * pMA=NULL)                { SPMDLTIMERLAP(sm_swDens); return Rho(Phase, Norm_T, Norm_P, pMA); };
-    double Rho(PhMask Phase=som_ALL)                                                { return Rho(Phase, Temp(), Press()); };
+    virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL)         { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
+    virtual double Rho(CIArray & SpIds, double T_, double P_, CSysVector * pMA=NULL)      { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, SpIds, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
+    virtual double Rho(CSysVector & Scale, double T_, double P_, CSysVector * pMA=NULL)   { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, Scale, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
+    virtual double NRho(PhMask Phase=som_ALL, CSysVector * pMA=NULL)                      { SPMDLTIMERLAP(sm_swDens); return Rho(Phase, Norm_T, Norm_P, pMA); };
+    virtual double NRho(CIArray & SpIds, CSysVector * pMA=NULL)                           { SPMDLTIMERLAP(sm_swDens); return Rho(SpIds, Norm_T, Norm_P, pMA); };
+    virtual double NRho(CSysVector & Scale, CSysVector * pMA=NULL)                        { SPMDLTIMERLAP(sm_swDens); return Rho(Scale, Norm_T, Norm_P, pMA); };
+    double Rho(PhMask Phase=som_ALL)                                                      { return Rho(Phase, Temp(), Press()); };
+    double Rho(CIArray & SpIds)                                                           { return Rho(SpIds, Temp(), Press()); };
+    double Rho(CSysVector & Scale)                                                        { return Rho(Scale, Temp(), Press()); };
 
     virtual double DynamicViscosity(PhMask Phase=som_ALL);
     virtual double DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);

@@ -7234,6 +7234,24 @@ double SpModel::Volume(PhMask Phase, double T_, double P_, CSysVector * pMA)
 
 // --------------------------------------------------------------------------
 
+double SpModel::Volume(CIArray & SpIDs, double T_, double P_, CSysVector * pMA)
+  {
+  double m=pMA ? pMA->Mass(SpIDs) : Mass(SpIDs);
+  double r=(m >= 1.0e-100) ? Rho(SpIDs, T_, P_, pMA) : DefaultRho;
+  return m/GTZ(r);
+  };
+
+// --------------------------------------------------------------------------
+
+double SpModel::Volume(CSysVector &Scale, double T_, double P_, CSysVector * pMA)
+  {
+  double m=pMA ? pMA->Mass(Scale) : Mass(Scale);
+  double r=(m >= 1.0e-100) ? Rho(Scale, T_, P_, pMA) : DefaultRho;
+  return m/GTZ(r);
+  };
+
+// --------------------------------------------------------------------------
+
 double SpModel::DynamicViscosity(PhMask Phase)   { return DynamicViscosity(Phase, Temp(), Press()); };
 double SpModel::DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA)
   {

@@ -171,7 +171,7 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
     {
     if (m_pMakeups[a]->Enabled())
       {
-      m_pMakeups[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 100000+a*1000);
+      m_pMakeups[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst||1?DDB_RqdPage:DDB_OptPage, 100000+a*1000);
       TheFirst=false;
       }
     }
@@ -179,7 +179,7 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
     {
     if (m_pBleeds[a]->Enabled())
       {
-      m_pBleeds[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst?DDB_RqdPage:DDB_OptPage, 200000+a*1000);
+      m_pBleeds[a]->BuildDataDefn(DDB, /*S()*/NULL, NULL, TheFirst||1?DDB_RqdPage:DDB_OptPage, 200000+a*1000);
       TheFirst=false;
       }
     }

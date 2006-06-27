@@ -263,23 +263,36 @@ class DllImportExport SpConduit : public SpModelOwner
     void           QRestoreMass(SpVector & V) { pModel->RestoreMass(V); };
     void           QRestoreMass(CSysVector & A) { pModel->RestoreMass(A); };
 
-    double         QMass(PhMask PhaseM=som_ALL) { return pModel->Mass(PhaseM); };
-    double         QMole(PhMask PhaseM=som_ALL) { return pModel->Moles(PhaseM); };
-    //double         QSpMole(int No) {return pModel->M[No]/SDB[No].MoleWt();};
+    double         QMass(PhMask PhaseM=som_ALL)                                   { return pModel->Mass(PhaseM); };
+    double         QMass(CIArray & SpIds)                                         { return pModel->Mass(SpIds); };
+    double         QMass(CSysVector &Scale)                                       { return pModel->Mass(Scale); };
+    double         QMole(PhMask PhaseM=som_ALL)                                   { return pModel->Moles(PhaseM); };
+    double         QMole(CIArray & SpIds)                                         { return pModel->Moles(SpIds); };
+    double         QMole(CSysVector &Scale)                                       { return pModel->Moles(Scale); };
 
-    double         QVolume(PhMask PhaseM=som_ALL) { return pModel->Volume(PhaseM); };
+    double         QVolume(PhMask PhaseM=som_ALL)                                 { return pModel->Volume(PhaseM); };
     double         QVolume(PhMask PhaseM, double T_, double P_, CSysVector* S=NULL) { return pModel->Volume(PhaseM, T_, P_, S); };
-    //double         QVolume(CIArray & SpIds) { return pModel->Volume(SpIds);};
-    double         QVolume(CSysVector &S) { return pModel->Volume(som_ALL, Temp(), Press(), &S); };
+    double         QVolume(PhMask PhaseM, CSysVector &S)                          { return pModel->Volume(PhaseM, Temp(), Press(), &S); };
+    double         QVolume(CIArray & SpIds)                                       { return pModel->Volume(SpIds); };
+    double         QVolume(CIArray & SpIds, double T_, double P_, CSysVector* S=NULL) { return pModel->Volume(SpIds, T_, P_, S); };
+    double         QVolume(CIArray & SpIds, CSysVector &S)                        { return pModel->Volume(SpIds, Temp(), Press(), &S); };
+    double         QVolume(CSysVector &Scale)                                     { return pModel->Volume(Scale); };
 
-    double         QNVolume(PhMask PhaseM=som_ALL, CSysVector* S=NULL) { return pModel->NVolume(PhaseM, S); };
-    //double         QNVolume(CIArray & SpIds) { return pModel->NVolume(SpIds); };
-    double         QNVolume(CSysVector &S) { return pModel->NVolume(som_ALL, &S); };
+    double         QNVolume(PhMask PhaseM=som_ALL, CSysVector* S=NULL)            { return pModel->NVolume(PhaseM, S); };
+    double         QNVolume(PhMask PhaseM, CSysVector &S)                         { return pModel->NVolume(PhaseM, &S); };
+    double         QNVolume(CIArray & SpIds, CSysVector* S=NULL)                  { return pModel->NVolume(SpIds, S); };
+    double         QNVolume(CIArray & SpIds, CSysVector &S)                       { return pModel->NVolume(SpIds, &S); };
+    double         QNVolume(CSysVector &Scale)                                    { return pModel->NVolume(Scale); };
 
-    double         Rho(PhMask PhaseM=som_ALL) { return pModel->Rho(PhaseM);};
-    double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->Rho(PhaseM, T, P, S);};
-    double         NRho(PhMask PhaseM=som_ALL, CSysVector* S=NULL) { return pModel->NRho(PhaseM, S);};
-    double         NRho(CSysVector &S) { return pModel->NRho(som_ALL, &S); };
+    double         Rho(PhMask PhaseM=som_ALL)                                     { return pModel->Rho(PhaseM);};
+    double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL)     { return pModel->Rho(PhaseM, T, P, S);};
+    double         Rho(CIArray & SpIds)                                           { return pModel->Rho(SpIds);};
+    double         Rho(CIArray & SpIds, double T, double P, CSysVector* S=NULL)   { return pModel->Rho(SpIds, T, P, S);};
+    double         Rho(CSysVector &Scale, double T, double P, CSysVector* S=NULL) { return pModel->Rho(Scale, T, P, S);};
+    double         Rho(CSysVector &Scale)                                         { return pModel->Rho(Scale);};
+    double         NRho(PhMask PhaseM=som_ALL, CSysVector* S=NULL)                { return pModel->NRho(PhaseM, S);};
+    double         NRho(CIArray & SpIds, CSysVector* S=NULL)                      { return pModel->NRho(SpIds, S);};
+    double         NRho(CSysVector &S)                                            { return pModel->NRho(som_ALL, &S); };
 
     double         DynamicViscosity(PhMask PhaseM=som_ALL) { return pModel->DynamicViscosity(PhaseM);};
     double         DynamicViscosity(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->DynamicViscosity(PhaseM, T, P, S);};
