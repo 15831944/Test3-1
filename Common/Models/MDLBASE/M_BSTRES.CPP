@@ -202,8 +202,8 @@ CFlange * MN_BstRes::GetFlange(int IOId)
   {
   switch (IOId)
     {
-    case IOId_2IOLeakI: return &m_LeakI.Flange; 
-    case IOId_2IOLeakO: return &m_LeakO.Flange; 
+    case IOId_2IOLeakI: return &m_LeakI.xFlange; 
+    case IOId_2IOLeakO: return &m_LeakO.xFlange; 
     }
   return NULL;
   };

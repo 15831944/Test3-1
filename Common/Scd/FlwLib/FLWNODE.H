@@ -456,12 +456,13 @@ class DllImportExport CDirectFlwIO
   friend class FlwNode;
   public:
 
-    CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
+    CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
     ~CDirectFlwIO();                                                                    
 
+    void          SetLclIOId(int LclIOId);
     void          Initialise(eDirectIO eType, FlwNode* Nd);
-    void          InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId);
+    void          InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, int LclIOId);
 
     void          Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo);
     void          BuildDataDefn(DataDefnBlk & DDB, char * LeakTag, DDBPages PgOpt, dword UserInfo, DWORD Options);
@@ -489,8 +490,9 @@ class DllImportExport CDirectFlwIO
     LPCTSTR       TargetStr(flag ForFiling);//               { return (LPCTSTR)m_sRmtTmp(); };
     bool          Flowing()                 { return Cd.QMass(som_ALL)>1.0e-12; };
     int           MyConnectedIO()           { return m_iMyConnectedIO; };
-    int           LclIOId()                 { return m_iLclIOId; };
-    int           RmtIOId()                 { return m_iRmtIOId; };
+    int           LclDIOId()                 { return m_iLclDIOId; };
+    int           RmtDIOId()                 { return m_iRmtDIOId; };
+    int           xLclIOId()                 { return xm_iLclIOId; };
 
     void          Add(CSysVector & V, double Hz);
     void          AddF(SpConduit & Cd, PhMask PhaseM=som_ALL, double Fraction=1.0);
@@ -518,7 +520,7 @@ class DllImportExport CDirectFlwIO
 
     flag          getHasConduit()           { return m_eType <= eDIO_Leak; };
     SpConduit   & getConduit();//              { return *m_pFlng->Conduit(false); };
-    CFlange     & getFlange()               { return *m_pFlng; };
+    CFlange     & getFlange()               { return *xm_pFlng; };
 
     _declspec(property(get=getEnabled))                     flag          Enabled;
     _declspec(property(get=getSysEnable,put=putSysEnable))  flag          SysEnable;
@@ -535,7 +537,7 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getNdSignImplied))               int           NdSignImplied;
 
     _declspec(property(get=getHasConduit))                  flag          HasConduit;
-    _declspec(property(get=getFlange))                      CFlange     & Flange;
+    _declspec(property(get=getFlange))                      CFlange     & xFlange;
     _declspec(property(get=getConduit))                     SpConduit   & Cd;
 
   protected:
@@ -556,12 +558,13 @@ class DllImportExport CDirectFlwIO
     flag          m_bConnected;
     int           m_iMyConnectedIO;
     double        m_Opening;
-    int           m_iLclIOId;
-    int           m_iRmtIOId;
+    int           m_iLclDIOId;
+    int           m_iRmtDIOId;
+    int           xm_iLclIOId;
     double        m_Total;
     int           m_NdSignImp;
 
-    CFlange     * m_pFlng;
+    CFlange     * xm_pFlng;
     CAreaSum    * m_pSum;
     bool          m_bDeleteSum;
 
@@ -1698,24 +1701,24 @@ inline bool IsVentIOId(int Id)        { return InRange(VentIOId0,   Id, LeakIOId
 inline bool IsLeakIOId(int Id)        { return InRange(LeakIOId0,   Id, AAAAIOId0   -1);  };
 inline bool IsAreaIOId(int Id)        { return InRange(AreaIOId0,   Id, CtrlIOId0   -1);  };
 
-const int IOId_2IOIn          = FlwIOId(0);
-const int IOId_2IOOut         = FlwIOId(1);
-const int IOId_2IOLeakI       = LeakIOId(0);
-const int IOId_2IOLeakO       = LeakIOId(1);
+const int IOId_2IOIn          = FlwIOId(500);
+const int IOId_2IOOut         = FlwIOId(501);
+const int IOId_2IOLeakI       = LeakIOId(500);
+const int IOId_2IOLeakO       = LeakIOId(501);
 
-const int IOId_Makeup2Area    = MakeupIOId(0);        
-const int IOId_Bleed2Area     = BleedIOId(0);
-const int IOId_Spill2Area     = SpillIOId(0);
-const int IOId_Vent2Area      = VentIOId(0);
-const int IOId_LeakI2Area     = LeakIOId(0);
-const int IOId_LeakO2Area     = LeakIOId(1);
+const int IOId_Makeup2Area    = MakeupIOId(500);        
+const int IOId_Bleed2Area     = BleedIOId(500);
+const int IOId_Spill2Area     = SpillIOId(500);
+const int IOId_Vent2Area      = VentIOId(500);
+const int IOId_LeakI2Area     = LeakIOId(500);
+const int IOId_LeakO2Area     = LeakIOId(501);
 
-const int IOId_AreaMakeupO    = MakeupIOId(0);  //AreaIOId(0);        
-const int IOId_AreaBleedI     = BleedIOId(0);   //AreaIOId(1);
-const int IOId_AreaSpillI     = SpillIOId(0);   //AreaIOId(2);
-const int IOId_AreaVentI      = VentIOId(0);    //AreaIOId(3);
-const int IOId_AreaLeakI      = LeakIOId(0);    //AreaIOId(4);
-const int IOId_AreaLeakO      = LeakIOId(1);    //AreaIOId(5);
+const int IOId_AreaMakeupO    = MakeupIOId(500);  //AreaIOId(0);        
+const int IOId_AreaBleedI     = BleedIOId(500);   //AreaIOId(1);
+const int IOId_AreaSpillI     = SpillIOId(500);   //AreaIOId(2);
+const int IOId_AreaVentI      = VentIOId(500);    //AreaIOId(3);
+const int IOId_AreaLeakI      = LeakIOId(500);    //AreaIOId(4);
+const int IOId_AreaLeakO      = LeakIOId(501);    //AreaIOId(5);
 
 DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
@@ -1787,8 +1790,8 @@ class CHgtOrdInfo
       }
 
     int NOrd() { return Ord.GetSize(); };
-    int NOvr() { return Ovr.GetSize(); };
-    int NGas() { return Gas.GetSize(); };
+    int NOvr() { return m_Ovr.GetSize(); };
+    int NGas() { return m_Gas.GetSize(); };
 
     SpContainer &Container() { return *m_pCn; };
     SpConduit   &ContentFlw() { return m_FlwCd; };
@@ -1800,8 +1803,8 @@ class CHgtOrdInfo
     SpConduit           m_FlwCd;
     CArray <int, int>   Ord;
     CArray <int, int>   Seq;
-    CArray <int, int>   Ovr;
-    CArray <int, int>   Gas;
+    CArray <int, int>   m_Ovr;
+    CArray <int, int>   m_Gas;
   };
 
 class CSrgFlwInfo
@@ -1831,8 +1834,8 @@ const dword dwIOIsBuffer      = 0x00000100;
 const dword dwIOSetXfer       = 0x00000200;
 
 const dword dwIOFlagBase      = 0x00ff0000;
-//const dword dwIOOverflow      = 0x00010000;
-//const dword dwIOGasVent       = 0x00020000;
+const dword dwIOOverflow      = 0x00010000;
+const dword dwIOGasVent       = 0x00020000;
 const dword dwIOPipeEntry     = 0x00040000;
 const dword dwIOPipeJoin      = 0x00080000;
 const dword dwIOApertureHoriz = 0x00100000;
@@ -1854,8 +1857,8 @@ const dword dwIOEqnsHide      = 0x10000000;
 #define IOISSETTEAR(x)    (((x) & dwIOSetTear)!=0)
 
 #define IOIsBuffer        dwIOIsBuffer
-//#define IOOverflow        dwIOOverflow
-//#define IOGasVent         dwIOGasVent
+#define IOOverflow        dwIOOverflow
+#define IOGasVent         dwIOGasVent
 #define IOPipeEntry       dwIOPipeEntry
 #define IOPipeJoin        dwIOPipeJoin
 #define IOApertureHoriz   dwIOApertureHoriz
@@ -1878,7 +1881,7 @@ class DllImportExport IOAreaRec
     DWORD          m_dwType;
     int            m_nIORqd;
     int            m_nIOMax;
-    dword          dwOther;
+    dword          m_dwFlags;
     float          dFracHgt;
     CRct_Dbl       m_GrfTarget;
     LPTSTR         pMapTo;
@@ -3524,10 +3527,10 @@ class DllImportExport FlwNode : public CTNode
     //CAirConduit   &AIO_Conduit(int i) const       { return m_IOs[i].AirConduit(); };
     //void           SetAIO_Conduit(int i, const CAirConduit & d) { m_IOs[i].SetAirConduit(d); };
 
-    flag           IOPipeEntry_Self(int i)     { return (IODesc_Self(i)->dwOther & dwIOPipeEntry)!=0; };
-    flag           IOPipeEntry_Rmt(int i)      { return (IODesc_Rmt(i)->dwOther & dwIOPipeEntry)!=0; };
-    flag           IOPipeJoin_Self(int i)      { return (IODesc_Self(i)->dwOther & dwIOPipeJoin)!=0; };
-    flag           IOPipeJoin_Rmt(int i)       { return (IODesc_Rmt(i)->dwOther & dwIOPipeJoin)!=0; };
+    flag           IOPipeEntry_Self(int i)     { return (IODesc_Self(i)->m_dwFlags & dwIOPipeEntry)!=0; };
+    flag           IOPipeEntry_Rmt(int i)      { return (IODesc_Rmt(i)->m_dwFlags & dwIOPipeEntry)!=0; };
+    flag           IOPipeJoin_Self(int i)      { return (IODesc_Self(i)->m_dwFlags & dwIOPipeJoin)!=0; };
+    flag           IOPipeJoin_Rmt(int i)       { return (IODesc_Rmt(i)->m_dwFlags & dwIOPipeJoin)!=0; };
 
     // EvalSeqStartOK this to be set true if S Transfer sequence is allowed start here
     void           SetIO_Open(int i, int iJoinId, flag Damped, eEvalSeqStart ESS, byte FlwPhasesAllowed = FPh_Default );
@@ -4539,7 +4542,7 @@ inline FlwNode * CMSIO::Nd_Rmt() { return m_pNd->Nd_Rmt(m_iIONo); };
 //
 //===========================================================================
 
-inline SpConduit & CDirectFlwIO::getConduit()       { return *m_pFlng->Conduit(false); };
+inline SpConduit & CDirectFlwIO::getConduit()       { return *xm_pFlng->Conduit(false); };
 
 inline FlwNode & CNodeEvalIndex::getNd()            { return *m_pNd; };
 inline CJoinCluster & CNodeEvalIndex::getCluster()  { return m_pNd->m_Clusters[m_iCluster]; };

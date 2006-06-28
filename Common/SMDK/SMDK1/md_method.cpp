@@ -347,12 +347,12 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
     if (D.m_dwOptions & MIO_Electrical)     N.m_dwType = nc_ELnk;
 
     // TODO Fix these
-    if (D.m_dwOptions & MIO_Transfer)       N.dwOther |= dwIOSetXfer;//dwIOIsBuffer;
-    //if (D.m_dwOptions & MIO_Overflow)       N.dwOther |= dwIOOverflow;
-    //if (D.m_dwOptions & MIO_GasVent)        N.dwOther |= dwIOGasVent;
-    if (D.m_dwOptions & MIO_PipeEntry)      N.dwOther |= dwIOPipeEntry;
-    if (D.m_dwOptions & MIO_PipeJoin)       N.dwOther |= dwIOPipeJoin;
-    if (D.m_dwOptions & MIO_ApertureHoriz)  N.dwOther |= dwIOApertureHoriz;
+    if (D.m_dwOptions & MIO_Transfer)       N.m_dwFlags |= dwIOSetXfer;//dwIOIsBuffer;
+    if (D.m_dwOptions & MIO_Overflow)       N.m_dwFlags |= dwIOOverflow;
+    if (D.m_dwOptions & MIO_GasVent)        N.m_dwFlags |= dwIOGasVent;
+    if (D.m_dwOptions & MIO_PipeEntry)      N.m_dwFlags |= dwIOPipeEntry;
+    if (D.m_dwOptions & MIO_PipeJoin)       N.m_dwFlags |= dwIOPipeJoin;
+    if (D.m_dwOptions & MIO_ApertureHoriz)  N.m_dwFlags |= dwIOApertureHoriz;
     }
 
   memset(&IOA[i], 0, sizeof(IOAreaRec));

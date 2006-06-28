@@ -1680,7 +1680,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
   if (!m_FTB.ValidateData(VDB))
     OK=false;
 
-  if (NoMLnkIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->dwOther) || IOISSETXFER(IODesc_Rmt(1)->dwOther)))
+  if (NoMLnkIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->m_dwFlags) || IOISSETXFER(IODesc_Rmt(1)->m_dwFlags)))
     SetFlowModeReqd(LFM_Xfer);
 
 #if WITHPBDPSTUFF
@@ -1909,7 +1909,7 @@ CFlange * MN_Lnk::GetFlange(int IOId)
   {
   switch (IOId)
     {
-    case IOId_Spill2Area: return &m_Spill.Flange;
+    case IOId_Spill2Area: return &m_Spill.xFlange;
     default:
       {
 #if (WITHBLOCKEVALUATOR)
@@ -1930,7 +1930,7 @@ void MN_Lnk::PostConnect(int IONo)
     {
     MdlNode::PostConnect(IONo);
 
-    if (IOISSETXFER(IODesc_Rmt(IONo)->dwOther))
+    if (IOISSETXFER(IODesc_Rmt(IONo)->m_dwFlags))
       SetFlowModeReqd(LFM_Xfer);
 
     IOConduit(IONo)->AttachMeToObj(this, TOA_Embedded);

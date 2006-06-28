@@ -752,7 +752,7 @@ flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, RequestModelIOInfo
       Info.nIORqd=pIO->nIORqd;
       Info.nIOMax=pIO->nIOMax;
       Info.Dirn=pIO->Dirn;
-      Info.iGrp=IOGRP(pIO->dwOther);
+      Info.iGrp=IOGRP(pIO->m_dwFlags);
       return true;
       }
     }
@@ -772,7 +772,7 @@ flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, RequestModelIOInfo
 //    Info.ClassName = p->Nd_Rmt(iNo)->Class()->ClassName();
 //    Info.ClassId   = p->Nd_Rmt(iNo)->ClassId();
 //    Info.Group     = p->Nd_Rmt(iNo)->Group();
-//    Info.iGrp      = IOGRP(p->IODesc_Self(iNo)->dwOther);
+//    Info.iGrp      = IOGRP(p->IODesc_Self(iNo)->m_dwFlags);
 //    if (p->NIOs==2)
 //      Info.iDirn = (iNo==0) ? 1 : -1;
 //    else if (p->Nd_Rmt(iNo)->NIOs==2)

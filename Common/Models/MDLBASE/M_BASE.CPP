@@ -1424,11 +1424,11 @@ void MdlNode::DoOverflowLinks(CHgtOrdInfo & HO)
       double QOvr=GTZ(Contents.Spill.Cd.QMass(som_SL));
       double QOut=0.0;
       for (int i=0; i<HO.NOvr(); i++)
-        QOut+=IOQmEst_Out(HO.Ovr[i]);
+        QOut+=IOQmEst_Out(HO.m_Ovr[i]);
 
       double Scl=Min(1.0, QOvr/GTZ(QOut));
       for (i=0; i<HO.NOvr(); i++)
-        IOConduit(HO.Ovr[i])->QSetM(Contents.Spill.Cd, som_SL, Scl*IOQmEst_Out(HO.Ovr[i]), Std_P);
+        IOConduit(HO.m_Ovr[i])->QSetM(Contents.Spill.Cd, som_SL, Scl*IOQmEst_Out(HO.m_Ovr[i]), Std_P);
       Contents.Spill.Cd.QScaleMass(som_ALL, GEZ(1.0-QOut/QOvr));
       }
 
@@ -1475,7 +1475,7 @@ void MdlNode::DoOverflowLinks(CHgtOrdInfo & HO)
     Contents.ClrCI(2);
     Contents.ClrCI(3);
     for (int i=0; i<HO.NOvr(); i++)
-      IOConduit(HO.Ovr[i])->QZero();
+      IOConduit(HO.m_Ovr[i])->QZero();
     }
   }
 
@@ -1492,13 +1492,13 @@ void MdlNode::DoGasVentLinks(CHgtOrdInfo & HO)
       double QGas=GTZ(Contents.Vent.Cd.QMass(som_Gas));
       double QOut=0.0;
       for (int i=0; i<HO.NGas(); i++)
-        if (IO_Out(HO.Gas[i]))
-          QOut+=IOQmEst_Out(HO.Gas[i]);
+        if (IO_Out(HO.m_Gas[i]))
+          QOut+=IOQmEst_Out(HO.m_Gas[i]);
 
       double Scl=Min(1.0, QGas/GTZ(QOut));
       for (i=0; i<HO.NGas(); i++)
-        if (IO_Out(HO.Gas[i]))
-          IOConduit(HO.Gas[i])->QSetM(Contents.Vent.Cd, som_Gas, Scl*IOQmEst_Out(HO.Gas[i]), Std_P);
+        if (IO_Out(HO.m_Gas[i]))
+          IOConduit(HO.m_Gas[i])->QSetM(Contents.Vent.Cd, som_Gas, Scl*IOQmEst_Out(HO.m_Gas[i]), Std_P);
       Contents.Vent.Cd.QScaleMass(som_ALL, GEZ(1.0-QOut/QGas));
       }
 
@@ -1540,7 +1540,7 @@ void MdlNode::DoGasVentLinks(CHgtOrdInfo & HO)
     Contents.ClrCI(6);
     for (int i=0; i<HO.NGas(); i++)
       {
-      const int ii = HO.Gas[i];
+      const int ii = HO.m_Gas[i];
       //if (ii>=0 && ii<NoFlwIOs())//if (IOConduit(ii))
         IOConduit(ii)->QZero();
       }
@@ -3402,17 +3402,17 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       {
       DoSort=0;
       Oi=0;
-      for (i = 0; i < NoFlwIOs() && !DoSort; i++)
+      for (i = 0; i < NoMLnkIOs/*NoFlwIOs*/() && !DoSort; i++)
         if ((IOIdMask_Self(i) & D.m_IOIdMask)!=0)
           if (/*IO_Out(i) &&*/ (FHgt[i]<=1.01))
             {
             IOAreaRec * pA=IODesc_Self(i);
-            if ((IsSpillIOId(pA->m_Id) || IsVentIOId(pA->m_Id)) && !Cn.Closed())
+            if ((pA->m_dwFlags & (IOOverflow|IOGasVent)) && !Cn.Closed())
               {
-              if (IsSpillIOId(pA->m_Id))
-                HO.Ovr.SetAtGrow(nOvr++, i);
+              if (pA->m_dwFlags & IOOverflow)
+                HO.m_Ovr.SetAtGrow(nOvr++, i);
               else // IOGasVent
-                HO.Gas.SetAtGrow(nGas++, i);
+                HO.m_Gas.SetAtGrow(nGas++, i);
               }
             else
               {
@@ -3714,7 +3714,7 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
     int N=0;
     for (int i=0; i<NoFlwIOs(); i++)
       {
-      if (Nd_Rmt(i) && (IODesc_Self(i)->dwOther&IOOptsHide)==0)
+      if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOOptsHide)==0)
         N++;
       }
     if (N)
@@ -3725,17 +3725,17 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
         Strng Tg;
         for (int i=0; i<NoFlwIOs(); i++)
           {
-          if (Nd_Rmt(i) && (IODesc_Self(i)->dwOther&IOOptsHide)==0)
+          if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOOptsHide)==0)
             {
             MAKEIOTG4DDB(Tg, i, 0);
             IOAreaRec & D=*IODesc_Self(i);
             if (DDB.BeginElement(this, Tg(), D.pName, 0, DDB_OptPage, 0))
               {
               DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
-              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.dwOther&IOShwFracHgt)?noView:0)|isParmStopped);
-              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.dwOther&IOShwAperture || SolveInlineMethod())?noView:0)|isParmStopped);
+              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOShwFracHgt)?noView:0)|isParmStopped);
+              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.m_dwFlags&IOShwAperture || SolveInlineMethod())?noView:0)|isParmStopped);
               DDB.Double ("Datum",         "Z",    DC_L,        "m",      xidIO_Hgt0+i,         this, isResult|noFile|noSnap);
-              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.dwOther&IOShwAperture || SolveInlineMethod())?noView:0)|isResult|noFile|noSnap);
+              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOShwAperture || SolveInlineMethod())?noView:0)|isResult|noFile|noSnap);
               DDB.Double ("EntrainRateV",  "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateB0+i, this, isParm);
               DDB.Double ("EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateA0+i, this, isParm);
               DDB.Double ("Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm);
@@ -3753,7 +3753,7 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
       int N=0;
       for (int i=0; i<NoFlwIOs(); i++)
         {
-        if (Nd_Rmt(i) && (IODesc_Self(i)->dwOther&IOEqnsHide)==0)
+        if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOEqnsHide)==0)
           N++;
         }
       if (N)
@@ -3762,7 +3762,7 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
           {
           for (int i=0; i<NoFlwIOs(); i++)
             {
-            if (Nd_Rmt(i) && (IODesc_Self(i)->dwOther&IOEqnsHide)==0)
+            if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOEqnsHide)==0)
               {
               Strng Tg;
               for (int fe=0; fe<NIOFBs(i); fe++)

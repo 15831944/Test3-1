@@ -82,6 +82,8 @@ Model type:Unit#n
 const int ioid_Top           = FlwIOId(0);
 const int ioid_Side          = FlwIOId(1);
 const int ioid_Base          = FlwIOId(2);
+//const int ioid_OverFlw       = SpillIOId(0);
+//const int ioid_GasVent       = VentIOId(0);
 const int ioid_OverFlw       = FlwIOId(3);
 const int ioid_GasVent       = FlwIOId(4);
 
@@ -92,8 +94,8 @@ static IOAreaRec TankIOAreaListOld[] =
     {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
     {"Bottom of Tank",             "Base",    ioid_Base,        LIO_InOut0,  nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
     {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
-    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry, 1.0f},
-    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry, 1.0f},
+    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOOverflow, 1.0f},
+    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOGasVent , 1.0f},
     {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1) },
     {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1) },
     {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1) },
@@ -102,14 +104,13 @@ static IOAreaRec TankIOAreaListOld[] =
     {NULL}
   }; //This lists the areas of the model where links can be attached.
 
-
 static IOAreaRec TankIOAreaListNew[] =
   {
     {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
     {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOShwFracHgt|IOShwAperture|IOHidden, (float)0.5},
     {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
-    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry, 1.0f},
-    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry, 1.0f},
+    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOOverflow, 1.0f},
+    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOGasVent , 1.0f},
     {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1) },
     {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1) },
     {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1) },
@@ -134,6 +135,9 @@ CTank::CTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
     AttachIOAreas(TankIOAreaListOld, &PipeEntryGroup);
   else
     AttachIOAreas(TankIOAreaListNew, &PipeEntryGroup);
+
+  m_Spill.SetLclIOId(ioid_OverFlw);
+  m_Vent.SetLclIOId(ioid_GasVent);
 
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);

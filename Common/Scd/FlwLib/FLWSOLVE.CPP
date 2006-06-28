@@ -11551,10 +11551,10 @@ flag CFlwSolver::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArr
         Info[i].nIORqd=pIO->m_nIORqd;
         Info[i].nIOMax=pIO->m_nIOMax;
         Info[i].Dirn=pIO->Dirn;
-        Info[i].iGrp=IOGRP(pIO->dwOther);
+        Info[i].iGrp=IOGRP(pIO->m_dwFlags);
         Info[i].m_dwType=pIO->m_dwType;
         Info[i].m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-        Info[i].m_Hidden=(pIO->dwOther&dwIOHidden)!=0;
+        Info[i].m_Hidden=(pIO->m_dwFlags&dwIOHidden)!=0;
         Info[i].m_GrfTarget=pIO->m_GrfTarget;
         }
       }
@@ -11583,10 +11583,10 @@ flag CFlwSolver::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelI
       Info.nIORqd=pIO->m_nIORqd;
       Info.nIOMax=pIO->m_nIOMax;
       Info.Dirn=pIO->Dirn;
-      Info.iGrp=IOGRP(pIO->dwOther);
+      Info.iGrp=IOGRP(pIO->m_dwFlags);
       Info.m_dwType=pIO->m_dwType;
       Info.m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-      Info.m_Hidden=(pIO->dwOther&dwIOHidden)!=0;
+      Info.m_Hidden=(pIO->m_dwFlags&dwIOHidden)!=0;
       Info.m_GrfTarget=pIO->m_GrfTarget;
       return true;
       }
@@ -11613,10 +11613,10 @@ flag CFlwSolver::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoR
       Info.nIORqd=pIO->m_nIORqd;
       Info.nIOMax=pIO->m_nIOMax;
       Info.Dirn=pIO->Dirn;
-      Info.iGrp=IOGRP(pIO->dwOther);
+      Info.iGrp=IOGRP(pIO->m_dwFlags);
       Info.m_dwType=pIO->m_dwType;
       Info.m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-      Info.m_Hidden=(pIO->dwOther&dwIOHidden)!=0;
+      Info.m_Hidden=(pIO->m_dwFlags&dwIOHidden)!=0;
       return true;
       }
     }
@@ -11636,7 +11636,7 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
     Info.ClassName = p->Nd_Rmt(iNo)->Class()->ClassName();
     Info.ClassId   = p->Nd_Rmt(iNo)->ClassId();
     Info.Group     = p->Nd_Rmt(iNo)->Group();
-    Info.iGrp      = IOGRP(p->IODesc_Self(iNo)->dwOther);
+    Info.iGrp      = IOGRP(p->IODesc_Self(iNo)->m_dwFlags);
     if (p->NoMLnkIOs()==2)
       Info.iDirn = (iNo==0) ? 1 : -1;
     else if (p->Nd_Rmt(iNo)->NoMLnkIOs()==2)

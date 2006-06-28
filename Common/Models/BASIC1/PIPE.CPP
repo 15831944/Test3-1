@@ -731,8 +731,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility(SM_DynBoth|HM_All);
 
-  dword Flgs0=NoFlwIOs()>=1 ? IODesc_Self(0)->dwOther : 0;
-  dword Flgs1=NoFlwIOs()>=2 ? IODesc_Self(1)->dwOther : 0;
+  dword Flgs0=NoFlwIOs()>=1 ? IODesc_Self(0)->m_dwFlags : 0;
+  dword Flgs1=NoFlwIOs()>=2 ? IODesc_Self(1)->m_dwFlags : 0;
   DDB.Double ("SrcHF",        "SrcHFrc", DC_Frac, "%",     xidSrcHFrc,     this, (Flgs0&IOShwFracHgt?noView:0)|isParmStopped|LSOpts);
   DDB.Double ("DstHF",        "DstHFrc", DC_Frac, "%",     xidDstHFrc,     this, (Flgs1&IOShwFracHgt?noView:0)|isParmStopped|LSOpts);
   DDB.Double ("SrcAperture",  "",        DC_Frac, "%",     xidSrcAperture,  this, (Flgs0&IOShwFracHgt&&SolveInlineMethod_Rmt(0)?noView:0)|LSOpts);

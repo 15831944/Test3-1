@@ -4781,14 +4781,14 @@ flag FlwNode::ConnectionsOK()
       int n=NIOsWithId_Self(pA->m_Id);
       int nm=pA->m_nIORqd;
       int nx=pA->m_nIOMax;
-      dword Grp=(pA->dwOther & dwIOGRP);
+      dword Grp=(pA->m_dwFlags & dwIOGRP);
       flag DoTest=0;
       if (Grp>0)
         {
         IOAreaRec * pA1=IOAreas;
         while (!DoTest && pA1->fValid)
           {
-          if ((Grp==(pA1->dwOther & dwIOGRP)) && (NIOsWithId_Self(pA1->m_Id)>0))
+          if ((Grp==(pA1->m_dwFlags & dwIOGRP)) && (NIOsWithId_Self(pA1->m_Id)>0))
             DoTest=1;
           pA1++;
           }
@@ -5029,7 +5029,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     }
 
   CIORec &io=m_IOs[ion];
-  dword flags=IOAreas[LIONo].dwOther;
+  dword flags=IOAreas[LIONo].m_dwFlags;
 
   flag IsProc=(IOAreas[LIONo].m_dwType & nc_MLnk)!=0;
   flag IsCtrl=(IOAreas[LIONo].m_dwType & nc_CLnk)!=0;
@@ -5086,8 +5086,8 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     io.iHgtOrd      = -1;
     io.fSameHgt     = 0;
     //io.PB.Init();
-    io.fIsSetXfer   = IOISSETXFER(IOAreas[LIONo].dwOther);
-    io.fIsBuffer    = IOISBUFFER(IOAreas[LIONo].dwOther);
+    io.fIsSetXfer   = IOISSETXFER(IOAreas[LIONo].m_dwFlags);
+    io.fIsBuffer    = IOISBUFFER(IOAreas[LIONo].m_dwFlags);
     if (io.fIsBuffer)
       {
       pF->fIsBufferPos=true;
@@ -5646,7 +5646,7 @@ bool FlwNode::PostConnectDirect(int IONo)
   for (int d=0; d<m_DirectIOs.GetSize(); d++)
     {
     CDirectFlwIO &D=*m_DirectIOs[d];
-    if (D.m_iLclIOId==IOId)
+    if (D.m_iLclDIOId==IOId)
       {
       D.PostConnect(IONo);
       FlwNode::PostConnect(IONo);
@@ -5672,7 +5672,7 @@ bool FlwNode::PreDisConnectDirect(int IONo)
   for (int d=0; d<m_DirectIOs.GetSize(); d++)
     {
     CDirectFlwIO &D=*m_DirectIOs[d];
-    if (D.m_iLclIOId==IOId)
+    if (D.m_iLclDIOId==IOId)
       {
       D.PreDisConnect(IONo);
       FlwNode::PreDisConnect(IONo);
@@ -9550,13 +9550,13 @@ eDIOConnectSelects CDirectFlwIO::sm_ConnectVentSpills  = eDIOSlct_All;
 eDIOConnectSelects CDirectFlwIO::sm_ConnectLeaks       = eDIOSlct_All;
 eDIOConnectSelects CDirectFlwIO::sm_ConnectAudit       = eDIOSlct_All;
 
-CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
+CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
   m_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
   m_sRmtTypeName=RmtTypeName?RmtTypeName:"Area"; 
   m_sRmtTagDef=RmtTagDef;
   Initialise(eType, Nd);
-  InitialiseIO(ShowUsr, SysEnable, Tag, ioLclId, ioRmtId);
+  InitialiseIO(ShowUsr, SysEnable, Tag, LclDIOId, RmtDIOId, -1);
   };
 
 CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
@@ -9567,7 +9567,8 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_NdSignImp=0;
   m_RmtListPos=NULL;
   Initialise(eType, Nd);
-  InitialiseIO(ShowUsr, SysEnable, Tag, -1, -1);
+
+  InitialiseIO(ShowUsr, SysEnable, Tag, -1, -1, -1);
   //InitialiseFlags(ShowUsr, SysEnable, Tag);
   };
 
@@ -9575,7 +9576,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
 
 CDirectFlwIO::~CDirectFlwIO()
   {
-  delete m_pFlng;
+  delete xm_pFlng;
   if (m_bDeleteSum)
     m_pSum;
   ManageNdDirectIOs(false);
@@ -9617,11 +9618,12 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   m_bConnected      = false;
   m_iMyConnectedIO  = -1;
   m_Opening         = 1.0;
-  m_iLclIOId        = -1;
-  m_iRmtIOId        = -1;
+  m_iLclDIOId       = -1;
+  m_iRmtDIOId       = -1;
+  xm_iLclIOId       = -1;
   m_Total           = 0;
 
-  m_pFlng           = NULL;
+  xm_pFlng           = NULL;
   m_pSum            = NULL;
   m_bDeleteSum      = false;
 
@@ -9672,7 +9674,12 @@ void CDirectFlwIO::ManageNdDirectIOs(bool AddIt)
 
 //--------------------------------------------------------------------------
 
-void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int ioLclId, int ioRmtId)
+void CDirectFlwIO::SetLclIOId(int LclIOId)
+  {
+  xm_iLclIOId = LclIOId;
+  };
+
+void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, int LclIOId)
   {
   m_sTag          = Tag;
   m_bSysEnable    = SysEnable;
@@ -9681,23 +9688,24 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int i
   ASSERT_ALWAYS(!m_bConnected, "CDirectFlwIO Still Connected");
   m_iMyConnectedIO  = -1;
   m_Opening         = 1.0;
-  m_iLclIOId        = ioLclId;
-  m_iRmtIOId        = ioRmtId;
+  m_iLclDIOId       = LclDIOId;
+  m_iRmtDIOId       = RmtDIOId;
+  xm_iLclIOId        = LclIOId;
   m_Total           = 0;
 
-  if (m_pFlng)
-    delete m_pFlng;
+  if (xm_pFlng)
+    delete xm_pFlng;
   if (m_bDeleteSum && m_pSum)
     delete m_pSum;
-  if (HasConduit && (m_pFlng == NULL))
+  if (HasConduit && (xm_pFlng == NULL))
     {
-    m_pFlng         = new CFlange;
-    m_pSum          = &m_pFlng->m_Sum;
+    xm_pFlng         = new CFlange;
+    m_pSum          = &xm_pFlng->m_Sum;
     m_bDeleteSum    = false;
     }
   else
     {
-    m_pFlng         = NULL;
+    xm_pFlng         = NULL;
     m_pSum          = new CAreaSum;
     m_bDeleteSum    = true;
     }
@@ -9883,6 +9891,7 @@ flag CDirectFlwIO::GlobalConnect()
   MakeRmtTag();
 
   bool Disabled=true; 
+
   switch (m_eType)
     {
     case eDIO_Spill:
@@ -9900,19 +9909,25 @@ flag CDirectFlwIO::GlobalConnect()
       break;
     };
 
+  if (xm_iLclIOId>=0)
+    {
+    if (m_pNd->IOWithId_Self(xm_iLclIOId)>0)
+      m_bSysEnable=false;
+    }
+
   if (gs_DisableDirectFlwIO || !Enabled || Disabled)
     return true;
 
   #if dbgFlwNode
   if (dbgGlobalConnects())
-    dbgpln("GlobalConnect %5i %5i %-15s %35s.%s > %s", m_iLclIOId, m_iRmtIOId, m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
+    dbgpln("GlobalConnect %5i %5i %5i %-15s %35s.%s > %s", m_iLclDIOId, m_iRmtDIOId, xm_iLclIOId, m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
   #endif
 
 #if dbgKwikConnect
   dbgpln(" .A %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
 
-  m_bConnected = m_pRmt.Connect(m_pNd, m_iRmtIOId, m_sRmtTypeName());
+  m_bConnected = m_pRmt.Connect(m_pNd, m_iRmtDIOId, m_sRmtTypeName());
   if (!m_bConnected && m_pRmt.m_sTag.GetLength()>0)
     {
     //LogError(m_pNd->FullObjTag(), 0, "Envelope %s not found", m_sAreaTag());
@@ -9940,15 +9955,15 @@ flag CDirectFlwIO::GlobalConnect()
     //dbgpln("+++ %i", Connd.GetCount());
     }
 
-  if (m_iLclIOId<0)
+  if (m_iLclDIOId<0)
     {
-    //dbgpln("  m_iLclIOId<0");
+    //dbgpln("  m_iLclDIOId<0");
     return true;
     }
   else
     {
     IOAreaRec * NdIOLcl=m_pNd->IOAreas;
-    for (int iO=0; (NdIOLcl[iO].pDesc && NdIOLcl[iO].m_Id != m_iLclIOId); iO++)
+    for (int iO=0; (NdIOLcl[iO].pDesc && NdIOLcl[iO].m_Id != m_iLclDIOId); iO++)
       {};
     // if 'NdIOLcl[iO].pDesc' is NULL then this is not defined in the IOList and hence is not needed
 
@@ -9958,13 +9973,13 @@ flag CDirectFlwIO::GlobalConnect()
     if (NdIOLcl[iO].pDesc==NULL) 
       {
 #ifndef _RELEASE
-      dbgpln("Direct Connect Failed LclIOId %i not found in %s", m_iLclIOId, m_pNd->FullObjTag());
+      dbgpln("Direct Connect Failed LclIOId %i not found in %s", m_iLclDIOId, m_pNd->FullObjTag());
 #endif
       return true;
       }
 
     IOAreaRec * NdIORmt=m_pRmt->IOAreas;
-    for (int iI=0; (NdIORmt[iI].pDesc &&NdIORmt[iI].m_Id != m_iRmtIOId); iI++)
+    for (int iI=0; (NdIORmt[iI].pDesc &&NdIORmt[iI].m_Id != m_iRmtDIOId); iI++)
       {};
 #if dbgKwikConnect
     dbgpln(" .D %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
@@ -9990,13 +10005,13 @@ flag CDirectFlwIO::GlobalConnect()
 
     //if (NdIOLcl[iO].pDesc==NULL)
     //  {
-    //  LogWarning(m_pNd->FullObjTag(), 0, "Direct Connect Failed LclIOId %i not found", m_iLclIOId);
+    //  LogWarning(m_pNd->FullObjTag(), 0, "Direct Connect Failed LclIOId %i not found", m_iLclDIOId);
     //  return false;
     //  }
 
     if (NdIORmt[iI].pDesc==NULL)
       {
-      LogWarning(m_pNd->FullObjTag(), 0, "Direct Connect Failed RmtIOId %i not found", m_iRmtIOId);
+      LogWarning(m_pNd->FullObjTag(), 0, "Direct Connect Failed RmtIOId %i not found", m_iRmtDIOId);
       return false;
       }
 
@@ -10034,17 +10049,17 @@ flag CDirectFlwIO::GlobalDisConnect()
   {
   #if dbgFlwNode
   if (dbgGlobalConnects())
-    dbgpln("GlobalDisConnect %4i %35s.%s > %s", m_iLclIOId, m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
+    dbgpln("GlobalDisConnect %4i %35s.%s > %s", m_iLclDIOId, m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
   #endif
 
-  if (m_iLclIOId<0)
+  if (m_iLclDIOId<0)
     {
     }
   else
     {
     if (m_iMyConnectedIO>=0)
       {
-      m_pNd->DisConnect(m_pNd->IOWithId_Self(m_iLclIOId));//m_iMyConnectedIO);
+      m_pNd->DisConnect(m_pNd->IOWithId_Self(m_iLclDIOId));//m_iMyConnectedIO);
       m_iMyConnectedIO=-1;
       }
     }
@@ -10077,7 +10092,7 @@ void CDirectFlwIO::GlobalConnectFinal()
   {
   if (m_iMyConnectedIO>=0)
     {
-    m_iMyConnectedIO=m_pNd->IOWithId_Self(m_iLclIOId);
+    m_iMyConnectedIO=m_pNd->IOWithId_Self(m_iLclDIOId);
     ASSERT(m_iMyConnectedIO>=0);
     }
   };
@@ -10088,7 +10103,7 @@ void CDirectFlwIO::PostConnect(int IONo)
   {
   //m_pNd->PostConnect(IONo);
 
-  if (m_pNd->IOId_Self(IONo)!=m_iLclIOId)
+  if (m_pNd->IOId_Self(IONo)!=m_iLclDIOId)
     return;
 
   m_pNd->IOConduit(IONo)->AttachMeToObj(m_pNd, TOA_Embedded);
@@ -10111,7 +10126,7 @@ void CDirectFlwIO::PreDisConnect(int IONo)
 
 flag CDirectFlwIO::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
-  if ((IONo>=0) && m_pNd->IOId_Self(IONo)==m_iLclIOId)
+  if ((IONo>=0) && m_pNd->IOId_Self(IONo)==m_iLclDIOId)
     return m_pNd->IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, m_Opening, &m_pNd->IOFBFlng_Rmt(IONo)->PhD(), NULL);
   return false;
   }
