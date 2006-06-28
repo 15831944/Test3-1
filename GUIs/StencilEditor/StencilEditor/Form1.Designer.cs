@@ -87,10 +87,14 @@ namespace StencilEditor
       this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
       this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-      this.flowChart1 = new MindFusion.FlowChartX.FlowChart();
-      this.flowChart2 = new MindFusion.FlowChartX.FlowChart();
       this.statusStrip1 = new System.Windows.Forms.StatusStrip();
       this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+      this.textAreaTabPage = new System.Windows.Forms.TabPage();
+      this.textAreaTextBox = new System.Windows.Forms.TextBox();
+      this.flowChart1 = new MindFusion.FlowChartX.FlowChart();
+      this.flowChart2 = new MindFusion.FlowChartX.FlowChart();
+      this.anchorTabPage = new System.Windows.Forms.TabPage();
+      this.anchorTextBox = new System.Windows.Forms.TextBox();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
       this.splitContainer1.SuspendLayout();
@@ -107,6 +111,8 @@ namespace StencilEditor
       this.splitContainer2.Panel2.SuspendLayout();
       this.splitContainer2.SuspendLayout();
       this.statusStrip1.SuspendLayout();
+      this.textAreaTabPage.SuspendLayout();
+      this.anchorTabPage.SuspendLayout();
       this.SuspendLayout();
       // 
       // splitContainer1
@@ -210,6 +216,8 @@ namespace StencilEditor
       // 
       this.tabControl1.Controls.Add(this.elementTabPage);
       this.tabControl1.Controls.Add(this.decorationTabPage);
+      this.tabControl1.Controls.Add(this.textAreaTabPage);
+      this.tabControl1.Controls.Add(this.anchorTabPage);
       this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tabControl1.Location = new System.Drawing.Point(0, 49);
       this.tabControl1.Name = "tabControl1";
@@ -416,7 +424,7 @@ namespace StencilEditor
       this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.newToolStripMenuItem.Name = "newToolStripMenuItem";
       this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-      this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.newToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.newToolStripMenuItem.Text = "&New";
       this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
       // 
@@ -426,14 +434,14 @@ namespace StencilEditor
       this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.openToolStripMenuItem.Name = "openToolStripMenuItem";
       this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-      this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.openToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.openToolStripMenuItem.Text = "&Open";
       this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
       // 
       // toolStripSeparator
       // 
       this.toolStripSeparator.Name = "toolStripSeparator";
-      this.toolStripSeparator.Size = new System.Drawing.Size(149, 6);
+      this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
       // 
       // saveToolStripMenuItem
       // 
@@ -441,21 +449,21 @@ namespace StencilEditor
       this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
       this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-      this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.saveToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.saveToolStripMenuItem.Text = "&Save";
       this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
       // 
       // saveAsToolStripMenuItem
       // 
       this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-      this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.saveAsToolStripMenuItem.Text = "Save &As";
       this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
       // 
       // toolStripSeparator1
       // 
       this.toolStripSeparator1.Name = "toolStripSeparator1";
-      this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+      this.toolStripSeparator1.Size = new System.Drawing.Size(148, 6);
       // 
       // printToolStripMenuItem
       // 
@@ -464,7 +472,7 @@ namespace StencilEditor
       this.printToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.printToolStripMenuItem.Name = "printToolStripMenuItem";
       this.printToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-      this.printToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.printToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.printToolStripMenuItem.Text = "&Print";
       // 
       // printPreviewToolStripMenuItem
@@ -473,18 +481,18 @@ namespace StencilEditor
       this.printPreviewToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("printPreviewToolStripMenuItem.Image")));
       this.printPreviewToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.printPreviewToolStripMenuItem.Name = "printPreviewToolStripMenuItem";
-      this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.printPreviewToolStripMenuItem.Text = "Print Pre&view";
       // 
       // toolStripSeparator2
       // 
       this.toolStripSeparator2.Name = "toolStripSeparator2";
-      this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+      this.toolStripSeparator2.Size = new System.Drawing.Size(148, 6);
       // 
       // exitToolStripMenuItem
       // 
       this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-      this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.exitToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.exitToolStripMenuItem.Text = "E&xit";
       // 
       // editToolStripMenuItem
@@ -651,6 +659,42 @@ namespace StencilEditor
       this.splitContainer2.SplitterDistance = 261;
       this.splitContainer2.TabIndex = 0;
       // 
+      // statusStrip1
+      // 
+      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+      this.statusStrip1.Location = new System.Drawing.Point(0, 525);
+      this.statusStrip1.Name = "statusStrip1";
+      this.statusStrip1.Size = new System.Drawing.Size(693, 22);
+      this.statusStrip1.TabIndex = 1;
+      this.statusStrip1.Text = "statusStrip1";
+      // 
+      // toolStripStatusLabel1
+      // 
+      this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+      this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+      // 
+      // textAreaTabPage
+      // 
+      this.textAreaTabPage.Controls.Add(this.textAreaTextBox);
+      this.textAreaTabPage.Location = new System.Drawing.Point(4, 22);
+      this.textAreaTabPage.Name = "textAreaTabPage";
+      this.textAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
+      this.textAreaTabPage.Size = new System.Drawing.Size(467, 472);
+      this.textAreaTabPage.TabIndex = 2;
+      this.textAreaTabPage.Text = "Text Area";
+      this.textAreaTabPage.UseVisualStyleBackColor = true;
+      // 
+      // textAreaTextBox
+      // 
+      this.textAreaTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textAreaTextBox.Location = new System.Drawing.Point(3, 3);
+      this.textAreaTextBox.Multiline = true;
+      this.textAreaTextBox.Name = "textAreaTextBox";
+      this.textAreaTextBox.Size = new System.Drawing.Size(461, 466);
+      this.textAreaTextBox.TabIndex = 0;
+      this.textAreaTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+      // 
       // flowChart1
       // 
       this.flowChart1.DefaultControlType = typeof(System.Windows.Forms.Button);
@@ -676,20 +720,26 @@ namespace StencilEditor
       this.flowChart2.Size = new System.Drawing.Size(214, 282);
       this.flowChart2.TabIndex = 0;
       // 
-      // statusStrip1
+      // anchorTabPage
       // 
-      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-      this.statusStrip1.Location = new System.Drawing.Point(0, 525);
-      this.statusStrip1.Name = "statusStrip1";
-      this.statusStrip1.Size = new System.Drawing.Size(693, 22);
-      this.statusStrip1.TabIndex = 1;
-      this.statusStrip1.Text = "statusStrip1";
+      this.anchorTabPage.Controls.Add(this.anchorTextBox);
+      this.anchorTabPage.Location = new System.Drawing.Point(4, 22);
+      this.anchorTabPage.Name = "anchorTabPage";
+      this.anchorTabPage.Padding = new System.Windows.Forms.Padding(3);
+      this.anchorTabPage.Size = new System.Drawing.Size(467, 472);
+      this.anchorTabPage.TabIndex = 3;
+      this.anchorTabPage.Text = "Anchors";
+      this.anchorTabPage.UseVisualStyleBackColor = true;
       // 
-      // toolStripStatusLabel1
+      // anchorTextBox
       // 
-      this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-      this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+      this.anchorTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.anchorTextBox.Location = new System.Drawing.Point(3, 3);
+      this.anchorTextBox.Multiline = true;
+      this.anchorTextBox.Name = "anchorTextBox";
+      this.anchorTextBox.Size = new System.Drawing.Size(461, 466);
+      this.anchorTextBox.TabIndex = 0;
+      this.anchorTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
       // 
       // Form1
       // 
@@ -723,6 +773,10 @@ namespace StencilEditor
       this.splitContainer2.ResumeLayout(false);
       this.statusStrip1.ResumeLayout(false);
       this.statusStrip1.PerformLayout();
+      this.textAreaTabPage.ResumeLayout(false);
+      this.textAreaTabPage.PerformLayout();
+      this.anchorTabPage.ResumeLayout(false);
+      this.anchorTabPage.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -792,6 +846,10 @@ namespace StencilEditor
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator16;
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator17;
     private System.Windows.Forms.ToolStripLabel toolStripLabel4;
+    private System.Windows.Forms.TabPage textAreaTabPage;
+    private System.Windows.Forms.TextBox textAreaTextBox;
+    private System.Windows.Forms.TabPage anchorTabPage;
+    private System.Windows.Forms.TextBox anchorTextBox;
   }
 }
 
