@@ -212,7 +212,7 @@ class DllImportExport CEnvironHXBase : public CBlockEvalBase
     CEnvironHX *    pHL;
     FlwNode*        pNd;
   public:
-    CEnvironHXBase(FlwNode* pAttach) : CBlockEvalBase(BEId_EHX, 0) { pHL=NULL; pNd=pAttach; fEnabled=fFixed=False;};
+    CEnvironHXBase(FlwNode* pAttach, LPTSTR Name="EHX") : CBlockEvalBase(BEId_EHX, 0, Name) { pHL=NULL; pNd=pAttach; fEnabled=fFixed=False;};
     ~CEnvironHXBase() { delete pHL; };
 
     flag           Open(TagObjClass * pEHXClass=NULL, flag Fixed=False);
@@ -455,7 +455,7 @@ class DllImportExport CHXBase : public CBlockEvalBase
     FlwNode        *pNd;
 
   public:
-    CHXBase(FlwNode* pAttach, TagObjClass * RqdHXClass, flag Fixed=false);
+    CHXBase(FlwNode* pAttach, TagObjClass * RqdHXClass, flag Fixed=false, LPTSTR Name="HX");
     ~CHXBase();
 
     void           SetRqdHXClass(TagObjClass * pHXClass);

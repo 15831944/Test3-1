@@ -2793,9 +2793,9 @@ void CReactionBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComme
     //if (pTag_==NULL)
     //  pTag_="RB";
     if (pTag_)
-      m_sRBTag = pTag_;
+      m_sName = pTag_;
 
-    if (DDB.BeginObject(m_pNd, m_sRBTag(), "SR_Cfg", pTagComment, PageIs))
+    if (DDB.BeginObject(m_pNd, Name(), "SR_Cfg", pTagComment, PageIs))
       {
       if (pRB)
         {

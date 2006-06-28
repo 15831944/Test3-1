@@ -133,6 +133,7 @@ static const BDDSpecies_Blk sbStore[]= {
   {SVV_AsPartialPFrac, SVV_AsMass, false, false, VAMsk_SpPartialP },
   {SVV_AsNVol,         SVV_AsMass, false, false, VAMsk_SpNVol     },
   {SVV_AsNVolFrac,     SVV_AsMass, false, false, VAMsk_SpNVol     },
+  {SVV_AsSpcConc,      SVV_AsMass, false, false, VAMsk_SpConc     },
   {SVV_AsElem,         SVV_AsMass, false, false, VAMsk_SpElem     },
   {SVV_AsElemFrac,     SVV_AsMass, false, false, VAMsk_SpElem     },
   {SVV_AsElemConc,     SVV_AsMass, false, false, VAMsk_SpElem     },

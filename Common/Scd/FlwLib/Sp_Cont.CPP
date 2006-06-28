@@ -394,6 +394,7 @@ static const BDDSpecies_Blk sbConduit[] = {
   {SVV_AsPartialPFrac, SVV_AsMassFlow,  false, false, VAMsk_SpPartialP  },
   {SVV_AsNVolFlow,     SVV_AsMassFlow,  false, false, VAMsk_SpNVol      },
   {SVV_AsNVolFrac,     SVV_AsMassFlow,  false, false, VAMsk_SpNVol      },
+  {SVV_AsSpcConc,      SVV_AsMassFlow,  false, false, VAMsk_SpConc      },
   {SVV_AsElemFlow,     SVV_AsMassFlow,  false, false, VAMsk_SpElem      },
   {SVV_AsElemFrac,     SVV_AsMassFlow,  false, false, VAMsk_SpElem      },
   {SVV_AsElemConc,     SVV_AsMassFlow,  false, false, VAMsk_SpElem      },
@@ -1035,6 +1036,7 @@ static const BDDSpecies_Blk sbContainer[]= {
   {SVV_AsPartialPFrac, SVV_AsMass, false, false, VAMsk_SpPartialP },
   {SVV_AsNVol,         SVV_AsMass, false, false, VAMsk_SpNVol     },
   {SVV_AsNVolFrac,     SVV_AsMass, false, false, VAMsk_SpNVol     },
+  {SVV_AsSpcConc,      SVV_AsMass, false, false, VAMsk_SpConc     },
   {SVV_AsElem,         SVV_AsMass, false, false, VAMsk_SpElem     },
   {SVV_AsElemFrac,     SVV_AsMass, false, false, VAMsk_SpElem     },
   {SVV_AsElemConc,     SVV_AsMass, false, false, VAMsk_SpElem     },
@@ -2269,7 +2271,7 @@ void CCnMixSet::SetUpDDBGrps()
       m_DDBGrpsRemove[i].Empty();
       m_DDBGrpsAdd[i].Add(-1, " - ");
       if (i>0)
-        m_DDBGrpsAdd[i].Add(-2, "AllAvailable");
+        m_DDBGrpsAdd[i].Add(-2, "All_Available");
       m_DDBGrpsRemove[i].Add(-1, " - ");
 
       CIArray &GI=m_GrpIndex[i];

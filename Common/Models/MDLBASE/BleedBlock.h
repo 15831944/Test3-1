@@ -69,10 +69,10 @@ class DllImportExport CBleedBase : public CBlockEvalBase
   friend class CBlockEvaluator;
   public:
 
-    CBleedBase(TaggedObject * pAttach, int Index);
+    CBleedBase(TaggedObject * pAttach, int Index, LPTSTR Name);
     ~CBleedBase();
 
-    virtual Strng  Name();
+    //virtual Strng  Name();
 
     flag           Open(TagObjClass * pEvapClass=NULL, flag Fixed=False);
     flag           Open(byte OnOffSeq, TagObjClass * pEvapClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pEvapClass, Fixed); }

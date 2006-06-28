@@ -27,7 +27,8 @@ static const LPTSTR SeqNames[] =
   };
 
 
-CBlockEvalBase::CBlockEvalBase(byte BEId, int Index)
+CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name) : \
+  m_sName(Name)
   {
   m_BEId=BEId;
   m_Index=Index;
@@ -86,11 +87,10 @@ byte CBlockEvalBase::BlkSeqNo(bool ForSort)
   return Seq;
   };
 
-Strng CBlockEvalBase::Name()
+LPTSTR CBlockEvalBase::Name()
   {
-  static LPTSTR Names[] =  {"Null", "RB", "HX", "EHX", "VLE", "Evap", "X", };
-
-  return Strng(Names[m_BEId]);
+  return m_sName();
+  //return Strng(Names[m_BEId]);
   }
 
 

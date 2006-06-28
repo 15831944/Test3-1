@@ -205,7 +205,9 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
         m_pMakeups.SetSize(N);
         for (int a=NOld; a<N; a++)
           {
-          m_pMakeups[a] = new CMakeupBase(m_pThis, a);
+          Strng Tg, Nm;
+          Tg.Set("MU%i", a+1);
+          m_pMakeups[a] = new CMakeupBase(m_pThis, a, Tg());
           m_pMakeups[a]->Enable();
           m_pMakeups[a]->Open(1);
           AddBlk(m_pMakeups[a], 1+a);
@@ -227,7 +229,9 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
         m_pBleeds.SetSize(N);
         for (int a=NOld; a<N; a++)
           {
-          m_pBleeds[a] = new CBleedBase(m_pThis, a);
+          Strng Tg, Nm;
+          Tg.Set("BL%i", a+1);
+          m_pBleeds[a] = new CBleedBase(m_pThis, a, Tg());
           m_pBleeds[a]->Enable();
           m_pBleeds[a]->Open(1);
           AddBlk(m_pBleeds[a], MaxMakeupBlocks*2+a);
@@ -333,7 +337,7 @@ void CBlockEvaluator::SortBlocks()
     {
     dbgpln("SortBlks =============== %s", m_pThis->FullObjTag());
     for (i=0 ; i<m_nBlocks; i++)
-      dbgpln("  Seq: %-6s %i %s %5i", m_Blks[i]->Name()(), m_Blks[i]->OpenStatus(m_Blks[i]->Enabled()), m_Blks[i]->Enabled()?"En":"Da", m_Blks[i]->BlkSeqNo(true));
+      dbgpln("  Seq: %-6s %i %s %5i", m_Blks[i]->Name(), m_Blks[i]->OpenStatus(m_Blks[i]->Enabled()), m_Blks[i]->Enabled()?"En":"Da", m_Blks[i]->BlkSeqNo(true));
     }
 
 
@@ -364,7 +368,7 @@ void CBlockEvaluator::SortBlocks()
     {
     dbgpln("         ===============");
     for (i=0 ; i<m_nBlocks; i++)
-      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name()(), m_Blks[i]->BlkSeqNo(true));
+      dbgpln("  Seq: %-6s %5i", m_Blks[i]->Name(), m_Blks[i]->BlkSeqNo(true));
     dbgpln("         ===============");
     }
 

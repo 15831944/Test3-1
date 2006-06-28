@@ -26,7 +26,7 @@ const byte BEId_Bleed        = 7;
 class DllImportExport CBlockEvalBase
   {
   public:
-    CBlockEvalBase(byte BEId, int Index);
+    CBlockEvalBase(byte BEId, int Index, LPTSTR Name);
   public:
     virtual ~CBlockEvalBase(void);
 
@@ -48,7 +48,7 @@ class DllImportExport CBlockEvalBase
     void              Open(byte L);
     byte              OpenStatus(flag Enabled);
 
-    virtual Strng     Name();
+    virtual LPTSTR    Name();
     virtual flag      Enabled() { ASSERT(FALSE); return false; };
 
   protected:
@@ -57,6 +57,8 @@ class DllImportExport CBlockEvalBase
     byte              m_BEId;
     int               m_Index;
     DDBValueLstMem  * m_pOnOffValLst;
+    Strng             m_sName;
+
   };
 
 #undef DllImportExport

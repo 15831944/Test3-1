@@ -570,9 +570,9 @@ const byte SRSC_All   = 0x03;
 class DllImportExport CReactionBase : public CBlockEvalBase
   {
   public:
-    CReactionBase(FlwNode * pAttach, bool IsSurgeType, LPTSTR Tag="RB") : CBlockEvalBase(BEId_RB, 0)
+    CReactionBase(FlwNode * pAttach, bool IsSurgeType, LPTSTR Name="RB") : CBlockEvalBase(BEId_RB, 0, Name)
       { 
-      m_sRBTag=Tag;
+      //m_sRBTag=Name;
       pRB=NULL; 
       m_pNd=pAttach; 
       fEnabled=bOn=0; 
@@ -594,7 +594,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     flag           Open(byte OnOffSeq) { CBlockEvalBase::Open(OnOffSeq); return Open(); }
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     flag           Load(char * pRCTFn) { return Open() ? pRB->Load(pRCTFn, false) : False; };
-    char          *RBTag()   { return m_sRBTag(); };
+    char          *RBTag()   { return Name(); }//m_sRBTag(); };
     flag           SetRCTName(char * pRCTFn) { return Open() ? pRB->SetRCTName(pRCTFn) : False; };
     char          *RCTName() { return Open() ? pRB->RCTName() : NULL; };
     char          *Comment() { return Open() ? pRB->m_sComment() : NULL; };
@@ -655,7 +655,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     flag           fEnabled;
     CReactionBlock * pRB;
     FlwNode       *m_pNd;
-    Strng          m_sRBTag;
+    //Strng          m_sRBTag;
     bool           m_bIsSurgeType;
     double         m_dTimeInc;
   

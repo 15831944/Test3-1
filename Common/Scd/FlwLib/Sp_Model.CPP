@@ -1237,8 +1237,9 @@ static struct {long Inx; long Msk; LPCTSTR Nm; } VASpList[] =
     {3, VAMsk_SpVol,          "SpVol"       },
     {4, VAMsk_SpPartialP,     "SpPartialP"  },
     {5, VAMsk_SpNVol,         "SpNVol"      },
-    {6, VAMsk_SpElem,         "SpElem"      },
-    {7, VAMsk_SpComp,         "SpComp"      },
+    {6, VAMsk_SpConc,         "SpConc"      },
+    {7, VAMsk_SpElem,         "SpElem"      },
+    {8, VAMsk_SpComp,         "SpComp"      },
     {-1 },
   };
 static DDBValueLst DDBShw[] =
@@ -1786,6 +1787,7 @@ void SpModel::AddSpViewBasis(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int
     case SVV_AsNVol:
     case SVV_AsNVolFlow:
     case SVV_AsNVolFrac:
+    case SVV_AsSpcConc:
       {
       static DDBValueLst DDBPhVw[] =
         {
@@ -1830,6 +1832,7 @@ void SpModel::AddSpViewBasis(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int
     case SVV_AsMoleFrac:
     case SVV_AsVolFrac:
     case SVV_AsNVolFrac:
+    case SVV_AsSpcConc:
       {
       static DDBValueLst DDBStrat[]=
         {
@@ -2087,6 +2090,7 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
       case SVV_AsNVol:
       case SVV_AsNVolFlow:
       case SVV_AsNVolFrac:
+      case SVV_AsSpcConc:
         {
         const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
 
@@ -2673,6 +2677,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
           case xidSpMoleFrac:
           case xidSpVolFrac:
           case xidSpNVolFrac:
+          case xidSpConc:
             {
             int Op=SVOperatorsXID(DCB.lHandle);
             int s=SpIndex2(DCB.lHandle2);
@@ -2684,6 +2689,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
               case xidSpMoleFrac: PhTotal=Moles(PhM); break;
               case xidSpVolFrac:  PhTotal=Volume(PhM); break;
               case xidSpNVolFrac: PhTotal=NVolume(PhM); break;
+              case xidSpConc:     PhTotal=Volume(PhM); break;
               }
             if (DCB.rD)
               {
@@ -2740,6 +2746,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
               DCB.D=dNAN;
             return 1;
             }
+            
           case xidSpElem:
           case xidSpElemFrac:
           case xidSpElemConc:
@@ -3630,6 +3637,10 @@ void SpModel::VDS_GetMTmpForFrac(CVDS_WorkSpace & WS, PhMask PhM, bool doDbg)
     case SVV_AsMassFlow:
     case SVV_AsMassFrac:
       Total=Mass();
+      PhValue=Mass(PhM);
+      break;
+    case SVV_AsSpcConc:
+      Total=Volume();
       PhValue=Mass(PhM);
       break;
     case SVV_AsMole:

@@ -648,6 +648,7 @@ typedef enum SV_View
   SVV_AsVol,       SVV_AsVolFlow,       SVV_AsVolFrac,
   SVV_AsPartialP,  SVV_AsPartialPFrac,
   SVV_AsNVol,      SVV_AsNVolFlow,      SVV_AsNVolFrac,
+  SVV_AsSpcConc,
   SVV_AsElem,      SVV_AsElemFlow,      SVV_AsElemFrac,    SVV_AsElemConc,    SVV_AsElemConc25,
   SVV_AsComp,      SVV_AsCompFlow,      SVV_AsCompFrac,    SVV_AsCompConc,    SVV_AsCompConc25
   } SV_View;

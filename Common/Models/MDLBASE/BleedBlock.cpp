@@ -63,9 +63,9 @@ void CBleedBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, doub
 //
 //============================================================================
 
-CBleedBase::CBleedBase(TaggedObject * pAttach, int Index) : CBlockEvalBase(BEId_Bleed, Index),
+CBleedBase::CBleedBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Bleed, Index, Name),
 m_SnkIO(eDIO_Bleed, dynamic_cast<FlwNode*>(pAttach), false, true, 
-      "Bleed", IOId_Bleed2Area+Index, IOId_AreaBleedI, "BleedSnk", "BleedSnk_1")
+      Name/*"Bleed"*/, IOId_Bleed2Area+Index, IOId_AreaBleedI, "BleedSnk", "BleedSnk_1")
   { 
   m_pBleedB=NULL; 
   m_pNd=pAttach; 
@@ -78,12 +78,12 @@ CBleedBase::~CBleedBase()
   delete m_pBleedB; 
   };
 
-Strng CBleedBase::Name()
-  {
-  Strng S;
-  S.Set("B%i", m_Index+1);
-  return S;
-  }
+//Strng CBleedBase::Name()
+//  {
+//  Strng S;
+//  S.Set("B%i", m_Index+1);
+//  return S;
+//  }
 
 flag CBleedBase::Open(TagObjClass * pAdjustClass, flag Fixed)
   {
@@ -137,7 +137,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
   if (Enabled())//pHL)
     {
     DDB.Text("");
-    if (DDB.BeginObject(m_pNd, Name()(), "EB_Bleed", pTagComment, PageIs))
+    if (DDB.BeginObject(m_pNd, Name(), "EB_Bleed", pTagComment, PageIs))
       {
       if (m_SnkIO.Enabled)
         m_SnkIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, DFIO_ShowQm);

@@ -5756,6 +5756,7 @@ const CSV_ViewInfo gs_ViewInfo[] =
     {"NormVol",       "NVl",    xidSpNVol,          SPMDC_NVol,  false, SVV_NameS, VAMsk_SpNVol     },
     {"NormVolFlow",   "NQVl",   xidSpNVol,          SPMDC_NQv,   false, SVV_NameS, VAMsk_SpNVol     },
     {"NormVolFrac",   "NVlF",   xidSpNVolFrac,      SPMDC_Frac,   true, SVV_NameS, VAMsk_SpNVol     },
+    {"SpecieConc",    "Cnc",    xidSpConc,          SPMDC_Conc,   true, SVV_NameS, VAMsk_SpConc     },
     {"Elemnts",       "El",     xidSpElem,          SPMDC_M,     false, SVV_NameE, VAMsk_SpElem     },
     {"ElemntFlow",    "QEl",    xidSpElem,          SPMDC_Qm,    false, SVV_NameE, VAMsk_SpElem     },
     {"ElemntFrac",    "ElF",    xidSpElemFrac,      SPMDC_Frac,   true, SVV_NameE, VAMsk_SpElem     },
@@ -5776,6 +5777,7 @@ const LPCTSTR SV_ViewStr[] = {"NULL",
         "AsVol",       "AsVolFlow",       "AsVolFrac",
         "AsPartialP",  "AsPartailPFrac",
         "AsNVol",      "AsNVolFlow",      "AsNVolFrac",
+        "AsSpcConc",
         "AsElem",      "AsElemFlow",      "AsElemFrac",    "AsElemConc",    "AsElemConc25",
         "AsComp",      "AsCompFlow",      "AsCompFrac",    "AsCompConc",    "AsCompConc25"
         };
@@ -5798,6 +5800,7 @@ byte SVOperatorsXID(XID xid)
     case xidSpNVol:
     case xidSpNVolFlow:
     case xidSpNVolFrac: return SVOP_NVol;
+    case xidSpConc:     return SVOP_Mass;
     };
   return SVOP_;
   };

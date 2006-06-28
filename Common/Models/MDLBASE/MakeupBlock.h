@@ -70,10 +70,10 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
   friend class CBlockEvaluator;
 
   public:
-    CMakeupBase(TaggedObject * pAttach, int Index);
+    CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Tag);
     ~CMakeupBase();
 
-    virtual Strng  Name();
+    //virtual Strng  Name();
 
     flag           Open(TagObjClass * pEvapClass=NULL, flag Fixed=False);
     flag           Open(byte OnOffSeq, TagObjClass * pEvapClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pEvapClass, Fixed); }

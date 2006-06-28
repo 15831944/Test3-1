@@ -132,7 +132,7 @@ class DllImportExport CVLEBlock : public TaggedObject
 class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
   {
   public:
-    CVLEBase(pTaggedObject pAttach, dword SelectMask) : CBlockEvalBase(BEId_VLE,0) { pVLE=NULL; pNd=pAttach; fEnabled=fFixed=False; dwSelectMask=SelectMask; };
+    CVLEBase(pTaggedObject pAttach, dword SelectMask, LPTSTR Name="VLE") : CBlockEvalBase(BEId_VLE,0,Name) { pVLE=NULL; pNd=pAttach; fEnabled=fFixed=False; dwSelectMask=SelectMask; };
     virtual ~CVLEBase() { delete pVLE; };
 
     flag           Open(TagObjClass * pVLEClass=NULL, flag Fixed=False);
