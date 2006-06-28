@@ -612,6 +612,7 @@ BOOL CSysCADApp::InitIniFile()
     ScdPFUser.SetProfFilename(UFn);
     ScdPFMachine.SetProfFilename(MFn);
 
+    SetRegistryKey((LPCTSTR)NULL);
     }
   return TRUE;
   }
