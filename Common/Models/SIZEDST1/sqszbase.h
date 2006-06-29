@@ -45,6 +45,12 @@ class SzSelBrk1;
 
 // ==========================================================================
 
+#if UseExtraColumns
+#define UseAllColumns 0 //kga:if 1 include SumG, xxxG columns (doubt we will ever need these)
+#else
+#define UseAllColumns 0
+#endif
+
 const dword SzDSlct_Fp   = 0x00000001;
 const dword SzDSlct_Qm   = 0x00000002; 
 const dword SzDSlct_M    = 0x00000004;
@@ -54,8 +60,11 @@ const dword SzDSlct_N    = 0x00000020;
 const dword SzDSlct_NpM  = 0x00000040;
 
 const dword SzDSlct_Cum  = 0x00010000;
+#if UseAllColumns
 const dword SzDSlct_CumG = 0x00020000;
+#endif
 
+#if UseAllColumns
 const int DI_MFp     = 0; // Mass Related 
 const int DI_Qm      = 1;
 const int DI_M       = 2;
@@ -81,6 +90,26 @@ const int DI_NpMCum  = 19;
 const int DI_NpMCumG = 20;
 
 const int DI_Xtra    = 21;
+#else
+const int DI_MFp     = 0; // Mass Related 
+const int DI_Qm      = 1;
+const int DI_M       = 2;
+const int DI_MFpCum  = 3;
+const int DI_QmCum   = 4;
+const int DI_MCum    = 5;
+
+const int DI_NFp     = 6; // Count Related
+const int DI_Qn      = 7;
+const int DI_N       = 8;
+const int DI_NFpCum  = 9;
+const int DI_QnCum   = 10;
+const int DI_NCum    = 11;
+
+const int DI_NpM     = 12; // Specific Count
+const int DI_NpMCum  = 13;
+
+const int DI_Xtra    = 14;
+#endif
 
 // ===========================================================================
 //

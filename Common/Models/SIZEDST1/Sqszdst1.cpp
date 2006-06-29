@@ -461,7 +461,9 @@ flag SQSzDist1::BuildDataDefnGlobal(TagObjClass *pClass, TaggedObject * pOwner, 
     DDB.CheckBoxBtn("Count",          "",  DC_ ,    "", SzDSlct_N   , pOwner, isParm);
     DDB.CheckBoxBtn("SpecCount",      "",  DC_ ,    "", SzDSlct_NpM , pOwner, isParm);
     DDB.CheckBoxBtn("Cumulative",     "",  DC_ ,    "", SzDSlct_Cum , pOwner, isParm);
+#if UseAllColumns
     DDB.CheckBoxBtn("CumulativeInv",  "",  DC_ ,    "", SzDSlct_CumG, pOwner, isParm);
+#endif
     DDB.EndStruct();
     }
   DDB.EndObject();
@@ -485,7 +487,9 @@ flag SQSzDist1::DataXchgGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataC
       case SzDSlct_N:
       case SzDSlct_NpM:
       case SzDSlct_Cum:
+#if UseAllColumns
       case SzDSlct_CumG:
+#endif
         if (DCB.rB)
           CSD_Column::sm_VarSlctMask = *DCB.rB ? (CSD_Column::sm_VarSlctMask | DCB.lHandle) : (CSD_Column::sm_VarSlctMask & ~DCB.lHandle);
         DCB.B = (CSD_Column::sm_VarSlctMask & DCB.lHandle)!=0;

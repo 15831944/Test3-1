@@ -1692,6 +1692,7 @@ flag SfeSD_Defn::Initialise()
   int ViewIsMass=1;
   int ViewIsCount=!ViewIsMass;
 
+  #if UseAllColumns
   ColumnInitInfo CI[]=
     {
     //  Name,      fFileIt, fOn,       fForFlow,fForMass,fForCum,     Slct,                       iDataId,    pCnv,     pFmt, fEditable,fGrfOn,dwSaveFlags,fDone
@@ -1719,6 +1720,28 @@ flag SfeSD_Defn::Initialise()
       { "QnCumG",  false, ViewIsCount && false, true,  false, true,   SzDSlct_Qn  |SzDSlct_CumG,  DI_QnCumG,  &YQnCnv,  &YQnFmt,  false, true, noFile|noSnap, false},
       { "NCumG",   false, ViewIsCount && false, false, true,  true,   SzDSlct_N   |SzDSlct_CumG,  DI_NCumG,   &YNCnv,   &YNFmt,   false, true, noFile|noSnap, false},
     };
+  #else
+  ColumnInitInfo CI[]=
+    {
+    //  Name,      fFileIt, fOn,       fForFlow,fForMass,fForCum,     Slct,                       iDataId,    pCnv,     pFmt, fEditable,fGrfOn,dwSaveFlags,fDone
+      { "FP",      true,  ViewIsMass  && true,  true,  true,  false,  SzDSlct_Fp,                 DI_MFp,     &YFCnv,   &YFFmt,   true,  true, 0, false},
+      { "Qm",      false, ViewIsMass  && false, true,  false, false,  SzDSlct_Qm,                 DI_Qm,      &YQmCnv,  &YQmFmt,  false, true, noFile|noSnap, false},
+      { "M",       false, ViewIsMass  && false, false, true,  false,  SzDSlct_M,                  DI_M,       &YMCnv,   &YMFmt,   false, true, noFile|noSnap, false},
+      { "FPCum",   false, ViewIsMass  && true,  true,  true,  true,   SzDSlct_Fp |SzDSlct_Cum,    DI_MFpCum,  &YNFCnv,  &YNFFmt,  false, true, noFile|noSnap, false},
+      { "QmCum",   false, ViewIsMass  && true,  true,  false, true,   SzDSlct_Qm |SzDSlct_Cum,    DI_QmCum,   &YQmCnv,  &YQmFmt,  false, true, noFile|noSnap, false},
+      { "MCum",    false, ViewIsMass  && true,  false, true,  true,   SzDSlct_M  |SzDSlct_Cum,    DI_MCum,    &YMCnv,   &YMFmt,   false, true, noFile|noSnap, false},
+
+      { "SpN",     false, ViewIsCount && true,  true,  true,  false,  SzDSlct_NpM,                DI_NpM,     &YNpMCnv, &YNpMFmt, true,  true, noFile|noSnap, false},
+      { "SpNCum",  false, ViewIsCount && true,  true,  true,  true,   SzDSlct_NpM |SzDSlct_Cum,   DI_NpMCum,  &YNpMCnv, &YNpMFmt, false, true, noFile|noSnap, false},
+
+      { "NFp",     false, ViewIsCount && false, true,  true,  false,  SzDSlct_NFp,                DI_NFp,     &YNFCnv,  &YNFFmt,  true,  true, noFile|noSnap, false},
+      { "Qn",      false, ViewIsCount && false, true,  false, false,  SzDSlct_Qn,                 DI_Qn,      &YQnCnv,  &YQnFmt,  false/*true*/,  true, noFile|noSnap, false},
+      { "N",       false, ViewIsCount && false, false, true,  false,  SzDSlct_N,                  DI_N,       &YNCnv,   &YNFmt,   false/*true*/,  true, noFile|noSnap, false},
+      { "NFpCum",  false, ViewIsCount && false, true,  true,  true,   SzDSlct_NFp |SzDSlct_Cum,   DI_NFpCum,  &YNFCnv,  &YNFFmt,  false, true, noFile|noSnap, false},
+      { "QnCum",   false, ViewIsCount && false, true,  false, true,   SzDSlct_Qn  |SzDSlct_Cum,   DI_QnCum,   &YQnCnv,  &YQnFmt,  false, true, noFile|noSnap, false},
+      { "NCum",    false, ViewIsCount && false, false, true,  true,   SzDSlct_N   |SzDSlct_Cum,   DI_NCum,    &YNCnv,   &YNFmt,   false, true, noFile|noSnap, false},
+    };
+  #endif
 
   flag OK=true;
   CIArray SolidRefd;
@@ -2920,11 +2943,6 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
         GetMass(Ovr, M1, SpId);
         Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
-      case DI_QmCumG:
-      case DI_MCumG :
-        GetMass(Ovr, M1, SpId);
-        Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
-        return 1;
       case DI_MFp:
         if (SpId>=0)
           SetResults(PriSp[SpId]->FracPass);
@@ -2941,6 +2959,12 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
           GetMassFrac(Ovr, M1, SpId);
         Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
+      #if UseAllColumns
+      case DI_QmCumG:
+      case DI_MCumG :
+        GetMass(Ovr, M1, SpId);
+        Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
+        return 1;
       case DI_MFpCumG:
         if (SpId>=0)
           {
@@ -2951,13 +2975,26 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
           GetMassFrac(Ovr, M1, SpId);
         Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
         return 1;
+      case DI_NpMCumG :
+        GetSpCount(Ovr, M1, SpId);
+        Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
+        return 1;
+      case DI_QnCumG:
+      case DI_NCumG :
+        GetCount(Ovr, M1, SpId);
+        Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
+        return 1;
+      case DI_NFpCumG:
+          GetCountFrac(Ovr, M1, SpId);
+          Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
+        return 1;
+      #endif
       case DI_NpM:
         GetSpCount(Ovr, M1, SpId);
         return 1;
       case DI_NpMCum :
-      case DI_NpMCumG :
         GetSpCount(Ovr, M1, SpId);
-        Results().ToCumulative(0.0, dNAN, DataId==DI_NpMCumG, 0);//!fSzAscend);
+        Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
       case DI_Qn:
       case DI_N :
@@ -2965,18 +3002,15 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
         return 1;
       case DI_QnCum:
       case DI_NCum :
-      case DI_QnCumG:
-      case DI_NCumG :
         GetCount(Ovr, M1, SpId);
-        Results().ToCumulative(0.0, dNAN, DataId==DI_MCumG || DataId==DI_QmCumG, 0);//!fSzAscend);
+        Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
       case DI_NFp:
           GetCountFrac(Ovr, M1, SpId);
         return 1;
       case DI_NFpCum:
-      case DI_NFpCumG:
           GetCountFrac(Ovr, M1, SpId);
-          Results().ToCumulative(0.0, dNAN, DataId==DI_NFpCumG, 0);//!fSzAscend);
+          Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
       default :
         return 0;
