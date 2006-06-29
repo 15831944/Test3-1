@@ -54,7 +54,7 @@ namespace SysCAD.Interface
         if (element is Arc)
         {
           Arc arc = element as Arc;
-          elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.x);
+          elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
         }
         if (element is Line)
         {

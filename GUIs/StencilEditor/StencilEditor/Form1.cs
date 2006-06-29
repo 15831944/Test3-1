@@ -23,9 +23,6 @@ namespace StencilEditor
 {
   public partial class Form1 : Form
   {
-    enum StencilChoice { None, Graphic, Model };
-    StencilChoice stencilChoice = StencilChoice.None;
-
     string tempText = "";
     string filename = "";
 
@@ -35,11 +32,15 @@ namespace StencilEditor
     private string[] stringSplitArray = { "MDrw_" };
     private char[] charSplitArray = { ',', ' ', '\r', '\n' };
 
-    MindFusion.FlowChartX.Box box1, box2;
+    private MindFusion.FlowChartX.Box box1,
+                                      textBox1,
+                                      box2;
 
-    double det(double x11, double x21, double x31,
-              double x12, double x22, double x32,
-              double x13, double x23, double x33)
+    private ArrayList anchorPointBoxes = new ArrayList();
+
+    private double det(double x11, double x21, double x31,
+                       double x12, double x22, double x32,
+                       double x13, double x23, double x33)
     {
       return x11 * x22 * x33
            + x13 * x21 * x32 
@@ -53,15 +54,18 @@ namespace StencilEditor
     {
       InitializeComponent();
 
+      flowChart1.Enabled = false;
+      flowChart2.Enabled = false;
+
       newToolStripMenuItem_Click(null, null);
     }
 
-    public static bool IsEven(int intValue)
+    private static bool IsEven(int intValue)
     {
       return ((intValue & 1) == 0);
     }
 
-    public static bool IsOdd(int intValue)
+    private static bool IsOdd(int intValue)
     {
       return ((intValue & 1) == 1);
     }
@@ -781,11 +785,17 @@ namespace StencilEditor
 
       UpdateStencil(graphicStencil.elements, ref minX, ref minY, ref maxX, ref maxY);
       UpdateStencil(graphicStencil.decorations, ref minX, ref minY, ref maxX, ref maxY);
-      UpdateStencil(graphicStencil.textAreas, ref minX, ref minY, ref maxX, ref maxY);
+
+      float textMinX = minX;
+      float textMaxX = maxX;
+      float textMinY = minY;
+      float textMaxY = maxY;
+
+      UpdateStencil(graphicStencil.textAreas, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
 
       ScaleStencil(graphicStencil.elements, minX, minY, maxX, maxY);
       ScaleStencil(graphicStencil.decorations, minX, minY, maxX, maxY);
-      ScaleStencil(graphicStencil.textAreas, minX, minY, maxX, maxY);
+      ScaleStencil(graphicStencil.textAreas, textMinX, textMinY, textMaxX, textMaxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
 
@@ -796,12 +806,16 @@ namespace StencilEditor
       box1.BoundingRect = rect;
       box1.Shape = graphicStencil.ShapeTemplate(false, false);
 
-      box2.BoundingRect = rect;
-      box2.Shape = modelStencil.ShapeTemplate(false, false);
+      RectangleF textRect = new RectangleF(textMinX * scale, textMinY * scale, (textMaxX - textMinX) * scale, (textMaxY - textMinY) * scale);
 
-      rect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
-      flowChart1.DocExtents = rect;
-      flowChart1.ZoomToRect(rect);
+      textBox1.BoundingRect = textRect;
+      textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
+      textBox1.ZTop();
+      textBox1.FillColor = Color.FromArgb(100, Color.HotPink);
+
+      textRect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
+      flowChart1.DocExtents = textRect;
+      flowChart1.ZoomToRect(textRect);
     }
 
     private void UpdateStencil(ModelStencil modelStencil)
@@ -813,9 +827,11 @@ namespace StencilEditor
 
       UpdateStencil(modelStencil.elements, ref minX, ref minY, ref maxX, ref maxY);
       UpdateStencil(modelStencil.decorations, ref minX, ref minY, ref maxX, ref maxY);
+      UpdateStencil(modelStencil.anchors, ref minX, ref minY, ref maxX, ref maxY);
 
       ScaleStencil(modelStencil.elements, minX, minY, maxX, maxY);
       ScaleStencil(modelStencil.decorations, minX, minY, maxX, maxY);
+      ScaleStencil(modelStencil.anchors, minX, minY, maxX, maxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
 
@@ -824,6 +840,30 @@ namespace StencilEditor
       box2.BoundingRect = rect;
       box2.Shape = modelStencil.ShapeTemplate(false, false);
 
+      foreach (Box box in anchorPointBoxes)
+      {
+        flowChart2.DeleteObject(box);
+      }
+
+      anchorPointBoxes.Clear();
+
+      foreach (Anchor anchor in modelStencil.anchors)
+      {
+        RectangleF displayRect = new RectangleF(anchor.position.X / 100.0F * (maxX - minX) * scale,
+                                                anchor.position.Y / 100.0F * (maxY - minY) * scale,
+                                                0.0F, 0.0F);
+        displayRect.Inflate(20.0F, 20.0F);
+        Box box = flowChart2.CreateBox(displayRect.X, displayRect.Y, displayRect.Width, displayRect.Height);
+        anchorPointBoxes.Add(box);
+        box.Style = BoxStyle.Ellipse;
+        box.ZTop();
+        if (anchor.direction == AnchorDirection.In)
+          box.FillColor = Color.Red;
+        else
+          box.FillColor = Color.Green;
+        box.FillColor = Color.FromArgb(100, box.FillColor);
+      }
+
       rect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
       flowChart2.DocExtents = rect;
       flowChart2.ZoomToRect(rect);
@@ -831,7 +871,7 @@ namespace StencilEditor
 
     private void UpdateStencil(ArrayList arrayList, ref float minX, ref float minY, ref float maxX, ref float maxY)
     {
-      foreach (Element element in arrayList)
+      foreach (object element in arrayList)
       {
         if (element is Line)
         {
@@ -903,6 +943,14 @@ namespace StencilEditor
             if (point.Y > maxY) maxY = point.Y;
           }          
         }
+        if (element is Anchor)
+        {
+          Anchor anchor = element as Anchor;
+          if (anchor.position.X < minX) minX = anchor.position.X;
+          if (anchor.position.X > maxX) maxX = anchor.position.X;
+          if (anchor.position.Y < minY) minY = anchor.position.Y;
+          if (anchor.position.Y > maxY) maxY = anchor.position.Y;
+        }
       }
 
       if (maxX == minX) maxX += 0.01F;
@@ -911,7 +959,7 @@ namespace StencilEditor
 
     private void ScaleStencil(ArrayList arrayList, float minX, float minY, float maxX, float maxY)
     {
-      foreach (Element element in arrayList)
+      foreach (object element in arrayList)
       {
         if (element is Line)
         {
@@ -940,6 +988,12 @@ namespace StencilEditor
           bezier.y3 = (bezier.y3 - minY) * 100.0F / (maxY - minY);
           bezier.x4 = (bezier.x4 - minX) * 100.0F / (maxX - minX);
           bezier.y4 = (bezier.y4 - minY) * 100.0F / (maxY - minY);
+        }
+        if (element is Anchor)
+        {
+          Anchor anchor = element as Anchor;
+          anchor.position.X = (anchor.position.X - minX) * 100.0F / (maxX - minX);
+          anchor.position.Y = (anchor.position.Y - minY) * 100.0F / (maxY - minY);
         }
       }
     }
@@ -1038,6 +1092,11 @@ namespace StencilEditor
       box1.Style = MindFusion.FlowChartX.BoxStyle.Shape;
       box1.Shape = graphicStencil.ShapeTemplate(false, false);
 
+      textBox1 = flowChart1.CreateBox(-1.0F, -1.0F, 2.0F, 2.0F);
+      textBox1.Locked = true;
+      textBox1.Style = MindFusion.FlowChartX.BoxStyle.Shape;
+      textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
+
       flowChart2.DocExtents = new RectangleF(-1.0F, -1.0F, 2.0F, 2.0F);
       flowChart2.ZoomToRect(new RectangleF(-1.0F, -1.0F, 2.0F, 2.0F));
 
@@ -1063,39 +1122,24 @@ namespace StencilEditor
       {
         filename = openFileDialog.FileName;
 
-        if (filename.ToLower().EndsWith(".graphicstencil"))
-        {
-          stencilChoice = StencilChoice.Graphic;
-        }
-        else if (filename.ToLower().EndsWith(".modelstencil"))
-        {
-          stencilChoice = StencilChoice.Model;
-        }
-        else
-          return;
-
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(openFileDialog.FileName).BaseStream;
 
-        if (stencilChoice == StencilChoice.Graphic)
+        if (filename.ToLower().EndsWith(".graphicstencil"))
           graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-        else if (stencilChoice == StencilChoice.Model)
+        else if (filename.ToLower().EndsWith(".modelstencil"))
           modelStencil = (ModelStencil)sf.Deserialize(stream);
+        else return;
 
         stream.Close();
 
-        if (stencilChoice == StencilChoice.Graphic)
-        {
-          Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
-          Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-          Generate(graphicStencil.textAreas, graphicStencil.defaultSize, textAreaTextBox);
-        }
-        else if (stencilChoice == StencilChoice.Model)
-        {
-          Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
-          Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-          Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
-        }
+        Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
+        Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+        Generate(graphicStencil.textAreas, graphicStencil.defaultSize, textAreaTextBox);
+
+        Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
+        Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+        Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
 
         Parse(modelStencil.elements, elementTextBox);
         Parse(modelStencil.decorations, decorationTextBox);
@@ -1225,7 +1269,7 @@ namespace StencilEditor
       saveFileDialog.CheckPathExists = true;
       saveFileDialog.DefaultExt = "GraphicStencil";
       saveFileDialog.DereferenceLinks = true;
-      saveFileDialog.Filter = "Graphic Stencil|*.GraphicStencil";
+      saveFileDialog.Filter = "Graphic Stencil|*.GraphicStencil|Model Stencil|*.ModelStencil";
       saveFileDialog.ValidateNames = true;
 
       if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -1235,20 +1279,16 @@ namespace StencilEditor
       }
     }
 
-    private void flowChart1_Resize(object sender, EventArgs e)
-    {
-      UpdateStencil(graphicStencil);
-      UpdateStencil(modelStencil);
-    }
-
     private void saveToolStripMenuItem_Click(object sender, EventArgs e)
     {
       SoapFormatter sf = new SoapFormatter();
       Stream stream = new StreamWriter(filename).BaseStream;
-      if (stencilChoice == StencilChoice.Graphic)
+
+      if (filename.ToLower().EndsWith(".graphicstencil"))
         sf.Serialize(stream, graphicStencil);
-      else if (stencilChoice == StencilChoice.Model)
+      else if (filename.ToLower().EndsWith(".modelstencil"))
         sf.Serialize(stream, modelStencil);
+
       stream.Close();
     }
   }

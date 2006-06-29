@@ -167,6 +167,14 @@ namespace SysCAD.Interface
         }
       }
 
+      System.Drawing.Drawing2D.FillMode fillMode = this.fillMode;
+      string id = this.tag;
+
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], fillMode, id));
+    }
+
+    public ShapeTemplate TextShapeTemplate(bool mirrorX, bool mirrorY)
+    {
       ElementTemplate[] textAreaTemplate = new ElementTemplate[textAreas.Count];
       {
         int i = 0;
@@ -203,10 +211,9 @@ namespace SysCAD.Interface
         }
       }
 
-      System.Drawing.Drawing2D.FillMode fillMode = this.fillMode;
-      string id = this.tag;
+      string id = this.tag+"_textArea";
 
-      return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, fillMode, id));
+      return (new ShapeTemplate(textAreaTemplate, new ElementTemplate[0], new ElementTemplate[0], fillMode, id));
     }
 
 //    [STAThread]
