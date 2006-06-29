@@ -30,6 +30,8 @@ namespace StencilEditor
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
       this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+      this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+      this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
       this.dyUpDown = new System.Windows.Forms.NumericUpDown();
       this.dxUpDown = new System.Windows.Forms.NumericUpDown();
       this.syUpDown = new System.Windows.Forms.NumericUpDown();
@@ -93,12 +95,10 @@ namespace StencilEditor
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
       this.flowChart1 = new MindFusion.FlowChartX.FlowChart();
       this.flowChart2 = new MindFusion.FlowChartX.FlowChart();
-      this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-      this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-      this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
       this.splitContainer1.SuspendLayout();
+      this.statusStrip1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.dyUpDown)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.dxUpDown)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.syUpDown)).BeginInit();
@@ -113,7 +113,6 @@ namespace StencilEditor
       this.splitContainer2.Panel1.SuspendLayout();
       this.splitContainer2.Panel2.SuspendLayout();
       this.splitContainer2.SuspendLayout();
-      this.statusStrip1.SuspendLayout();
       this.SuspendLayout();
       // 
       // splitContainer1
@@ -139,6 +138,21 @@ namespace StencilEditor
       this.splitContainer1.Size = new System.Drawing.Size(693, 547);
       this.splitContainer1.SplitterDistance = 475;
       this.splitContainer1.TabIndex = 0;
+      // 
+      // statusStrip1
+      // 
+      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+      this.statusStrip1.Location = new System.Drawing.Point(0, 525);
+      this.statusStrip1.Name = "statusStrip1";
+      this.statusStrip1.Size = new System.Drawing.Size(475, 22);
+      this.statusStrip1.TabIndex = 8;
+      this.statusStrip1.Text = "statusStrip1";
+      // 
+      // toolStripStatusLabel1
+      // 
+      this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+      this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
       // 
       // dyUpDown
       // 
@@ -538,6 +552,7 @@ namespace StencilEditor
       this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
       this.exitToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
       this.exitToolStripMenuItem.Text = "E&xit";
+      this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
       // 
       // editToolStripMenuItem
       // 
@@ -556,66 +571,66 @@ namespace StencilEditor
       // 
       // undoToolStripMenuItem
       // 
-      this.undoToolStripMenuItem.Enabled = false;
       this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
       this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-      this.undoToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+      this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.undoToolStripMenuItem.Text = "&Undo";
+      this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
       // 
       // redoToolStripMenuItem
       // 
       this.redoToolStripMenuItem.Enabled = false;
       this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
       this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-      this.redoToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+      this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.redoToolStripMenuItem.Text = "&Redo";
       // 
       // toolStripSeparator3
       // 
       this.toolStripSeparator3.Name = "toolStripSeparator3";
-      this.toolStripSeparator3.Size = new System.Drawing.Size(147, 6);
+      this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
       // 
       // cutToolStripMenuItem
       // 
-      this.cutToolStripMenuItem.Enabled = false;
       this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
       this.cutToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
       this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-      this.cutToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+      this.cutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.cutToolStripMenuItem.Text = "Cu&t";
+      this.cutToolStripMenuItem.Click += new System.EventHandler(this.cutToolStripMenuItem_Click);
       // 
       // copyToolStripMenuItem
       // 
-      this.copyToolStripMenuItem.Enabled = false;
       this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
       this.copyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
       this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-      this.copyToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+      this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.copyToolStripMenuItem.Text = "&Copy";
+      this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
       // 
       // pasteToolStripMenuItem
       // 
-      this.pasteToolStripMenuItem.Enabled = false;
       this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
       this.pasteToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
       this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-      this.pasteToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+      this.pasteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.pasteToolStripMenuItem.Text = "&Paste";
+      this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
       // 
       // toolStripSeparator4
       // 
       this.toolStripSeparator4.Name = "toolStripSeparator4";
-      this.toolStripSeparator4.Size = new System.Drawing.Size(147, 6);
+      this.toolStripSeparator4.Size = new System.Drawing.Size(149, 6);
       // 
       // selectAllToolStripMenuItem
       // 
-      this.selectAllToolStripMenuItem.Enabled = false;
       this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-      this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+      this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.selectAllToolStripMenuItem.Text = "Select &All";
+      this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
       // 
       // toolsToolStripMenuItem
       // 
@@ -630,14 +645,14 @@ namespace StencilEditor
       // 
       this.customizeToolStripMenuItem.Enabled = false;
       this.customizeToolStripMenuItem.Name = "customizeToolStripMenuItem";
-      this.customizeToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+      this.customizeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.customizeToolStripMenuItem.Text = "&Customize";
       // 
       // optionsToolStripMenuItem
       // 
       this.optionsToolStripMenuItem.Enabled = false;
       this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-      this.optionsToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+      this.optionsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.optionsToolStripMenuItem.Text = "&Options";
       // 
       // helpToolStripMenuItem
@@ -729,27 +744,13 @@ namespace StencilEditor
       this.flowChart2.TabIndex = 0;
       this.flowChart2.Resize += new System.EventHandler(this.textBox_TextChanged);
       // 
-      // statusStrip1
-      // 
-      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-      this.statusStrip1.Location = new System.Drawing.Point(0, 525);
-      this.statusStrip1.Name = "statusStrip1";
-      this.statusStrip1.Size = new System.Drawing.Size(475, 22);
-      this.statusStrip1.TabIndex = 8;
-      this.statusStrip1.Text = "statusStrip1";
-      // 
-      // toolStripStatusLabel1
-      // 
-      this.toolStripStatusLabel1.Name = "toolStripStatusLabel3";
-      this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
-      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(693, 547);
       this.Controls.Add(this.splitContainer1);
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.MainMenuStrip = this.menuStrip1;
       this.Name = "Form1";
       this.Text = "Form1";
@@ -757,6 +758,8 @@ namespace StencilEditor
       this.splitContainer1.Panel1.PerformLayout();
       this.splitContainer1.Panel2.ResumeLayout(false);
       this.splitContainer1.ResumeLayout(false);
+      this.statusStrip1.ResumeLayout(false);
+      this.statusStrip1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.dyUpDown)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.dxUpDown)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.syUpDown)).EndInit();
@@ -777,8 +780,6 @@ namespace StencilEditor
       this.splitContainer2.Panel1.ResumeLayout(false);
       this.splitContainer2.Panel2.ResumeLayout(false);
       this.splitContainer2.ResumeLayout(false);
-      this.statusStrip1.ResumeLayout(false);
-      this.statusStrip1.PerformLayout();
       this.ResumeLayout(false);
 
     }

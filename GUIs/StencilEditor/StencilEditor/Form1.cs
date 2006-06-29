@@ -43,10 +43,10 @@ namespace StencilEditor
                        double x13, double x23, double x33)
     {
       return x11 * x22 * x33
-           + x13 * x21 * x32 
-           + x12 * x23 * x31 
-           - x13 * x22 * x31 
-           - x11 * x23 * x32 
+           + x13 * x21 * x32
+           + x12 * x23 * x31
+           - x13 * x22 * x31
+           - x11 * x23 * x32
            - x12 * x21 * x33;
     }
 
@@ -69,7 +69,7 @@ namespace StencilEditor
     {
       return ((intValue & 1) == 1);
     }
-    
+
     private bool IsPrimitive(string atom)
     {
       if ((atom == "MDrw_Poly") || (atom == "MDrw_Arc") || (atom == "MDrw_Arc3") || (atom == "MDrw_End"))
@@ -396,7 +396,7 @@ namespace StencilEditor
         float x4 = float.Parse(atoms[6]);
         float y4 = float.Parse(atoms[7]);
 
-        Bezier bezier = new  Bezier(x1, y1, x2, y2, x3, y3, x4, y4);
+        Bezier bezier = new Bezier(x1, y1, x2, y2, x3, y3, x4, y4);
 
         arrayList.Add(bezier);
       }
@@ -757,7 +757,7 @@ namespace StencilEditor
         uint max = uint.Parse(atoms[5]);
 
         tempText += tag + ", ";
-        
+
         if (direction == AnchorDirection.In)
           tempText += "In, ";
         if (direction == AnchorDirection.Out)
@@ -795,6 +795,7 @@ namespace StencilEditor
 
       ScaleStencil(graphicStencil.elements, minX, minY, maxX, maxY);
       ScaleStencil(graphicStencil.decorations, minX, minY, maxX, maxY);
+
       ScaleStencil(graphicStencil.textAreas, textMinX, textMinY, textMaxX, textMaxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
@@ -827,10 +828,17 @@ namespace StencilEditor
 
       UpdateStencil(modelStencil.elements, ref minX, ref minY, ref maxX, ref maxY);
       UpdateStencil(modelStencil.decorations, ref minX, ref minY, ref maxX, ref maxY);
-      UpdateStencil(modelStencil.anchors, ref minX, ref minY, ref maxX, ref maxY);
+
+      float anchorMinX = minX;
+      float anchorMaxX = maxX;
+      float anchorMinY = minY;
+      float anchorMaxY = maxY;
+
+      UpdateStencil(modelStencil.anchors, ref anchorMinX, ref anchorMinY, ref anchorMaxX, ref anchorMaxY);
 
       ScaleStencil(modelStencil.elements, minX, minY, maxX, maxY);
       ScaleStencil(modelStencil.decorations, minX, minY, maxX, maxY);
+
       ScaleStencil(modelStencil.anchors, minX, minY, maxX, maxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
@@ -840,17 +848,17 @@ namespace StencilEditor
       box2.BoundingRect = rect;
       box2.Shape = modelStencil.ShapeTemplate(false, false);
 
+      RectangleF anchorRect = new RectangleF(anchorMinX * scale, anchorMinY * scale, (anchorMaxX - anchorMinX) * scale, (anchorMaxY - anchorMinY) * scale);
+
       foreach (Box box in anchorPointBoxes)
-      {
         flowChart2.DeleteObject(box);
-      }
 
       anchorPointBoxes.Clear();
 
       foreach (Anchor anchor in modelStencil.anchors)
       {
-        RectangleF displayRect = new RectangleF(anchor.position.X / 100.0F * (maxX - minX) * scale,
-                                                anchor.position.Y / 100.0F * (maxY - minY) * scale,
+        RectangleF displayRect = new RectangleF((anchor.position.X / 100.0F * (maxX - minX) + minX) * scale,
+                                                (anchor.position.Y / 100.0F * (maxY - minY) + minY) * scale,
                                                 0.0F, 0.0F);
         displayRect.Inflate(20.0F, 20.0F);
         Box box = flowChart2.CreateBox(displayRect.X, displayRect.Y, displayRect.Width, displayRect.Height);
@@ -864,9 +872,9 @@ namespace StencilEditor
         box.FillColor = Color.FromArgb(100, box.FillColor);
       }
 
-      rect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
-      flowChart2.DocExtents = rect;
-      flowChart2.ZoomToRect(rect);
+      anchorRect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
+      flowChart2.DocExtents = anchorRect;
+      flowChart2.ZoomToRect(anchorRect);
     }
 
     private void UpdateStencil(ArrayList arrayList, ref float minX, ref float minY, ref float maxX, ref float maxY)
@@ -891,7 +899,7 @@ namespace StencilEditor
 
           float a1;
           float a2;
-          
+
           // Sides if they exist.
 
           a1 = arc.a;
@@ -922,7 +930,7 @@ namespace StencilEditor
 
           float x2 = (float)(Math.Cos((arc.a + arc.s) / 180.0F * Math.PI)) * arc.w / 2.0F + arc.x + arc.w / 2.0F;
           float y2 = (float)(Math.Sin((arc.a + arc.s) / 180.0F * Math.PI)) * arc.h / 2.0F + arc.y + arc.h / 2.0F;
-                    
+
           if (x2 < minX) minX = x2;
           if (x2 > maxX) maxX = x2;
           if (y2 < minY) minY = y2;
@@ -941,7 +949,7 @@ namespace StencilEditor
 
             if (point.X > maxX) maxX = point.X;
             if (point.Y > maxY) maxY = point.Y;
-          }          
+          }
         }
         if (element is Anchor)
         {
@@ -1170,7 +1178,7 @@ namespace StencilEditor
         {
           Line line = element as Line;
           GeneratePoly(firstLineInPoly, line, defaultSize);
-          
+
           firstLineInPoly = false;
         }
         else if (element is Arc)
@@ -1180,7 +1188,7 @@ namespace StencilEditor
 
           Arc arc = element as Arc;
           GenerateArc2(arc, defaultSize);
-          
+
           firstLineInPoly = true;
         }
         else if (element is Bezier)
@@ -1212,7 +1220,7 @@ namespace StencilEditor
     {
       if ((first)
          ||
-         ((line.x1 != xj)||(line.y1 != yj)))
+         ((line.x1 != xj) || (line.y1 != yj)))
       {
         if (!first)
           tempText += "\r\n";
@@ -1221,7 +1229,7 @@ namespace StencilEditor
                     (line.x1 / 100.0F * defaultSize.Width).ToString() + ", " + (line.y1 / 100.0F * defaultSize.Height).ToString() + ", " +
                     (line.x2 / 100.0F * defaultSize.Width).ToString() + ", " + (line.y2 / 100.0F * defaultSize.Height).ToString();
       }
-      else 
+      else
       {
         tempText += ", " +
                     (line.x2 / 100.0F * defaultSize.Width).ToString() + ", " + (line.y2 / 100.0F * defaultSize.Height).ToString();
@@ -1290,6 +1298,71 @@ namespace StencilEditor
         sf.Serialize(stream, modelStencil);
 
       stream.Close();
+    }
+
+    private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      Application.Exit();
+    }
+
+    private void cutToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      if (tabControl1.SelectedTab == anchorTabPage)
+        anchorTextBox.Cut();
+      else if (tabControl1.SelectedTab == textAreaTabPage)
+        textAreaTextBox.Cut();
+      else if (tabControl1.SelectedTab == elementTabPage)
+        elementTextBox.Cut();
+      else if (tabControl1.SelectedTab == decorationTabPage)
+        decorationTextBox.Cut();
+    }
+
+    private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      if (tabControl1.SelectedTab == anchorTabPage)
+        anchorTextBox.Copy();
+      else if (tabControl1.SelectedTab == textAreaTabPage)
+        textAreaTextBox.Copy();
+      else if (tabControl1.SelectedTab == elementTabPage)
+        elementTextBox.Copy();
+      else if (tabControl1.SelectedTab == decorationTabPage)
+        decorationTextBox.Copy();
+    }
+
+    private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      if (tabControl1.SelectedTab == anchorTabPage)
+        anchorTextBox.Paste();
+      else if (tabControl1.SelectedTab == textAreaTabPage)
+        textAreaTextBox.Paste();
+      else if (tabControl1.SelectedTab == elementTabPage)
+        elementTextBox.Paste();
+      else if (tabControl1.SelectedTab == decorationTabPage)
+        decorationTextBox.Paste();
+    }
+
+    private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      if (tabControl1.SelectedTab == anchorTabPage)
+        anchorTextBox.SelectAll();
+      else if (tabControl1.SelectedTab == textAreaTabPage)
+        textAreaTextBox.SelectAll();
+      else if (tabControl1.SelectedTab == elementTabPage)
+        elementTextBox.SelectAll();
+      else if (tabControl1.SelectedTab == decorationTabPage)
+        decorationTextBox.SelectAll();
+    }
+
+    private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      if (tabControl1.SelectedTab == anchorTabPage)
+        anchorTextBox.Undo();
+      else if (tabControl1.SelectedTab == textAreaTabPage)
+        textAreaTextBox.Undo();
+      else if (tabControl1.SelectedTab == elementTabPage)
+        elementTextBox.Undo();
+      else if (tabControl1.SelectedTab == decorationTabPage)
+        decorationTextBox.Undo();
     }
   }
 }

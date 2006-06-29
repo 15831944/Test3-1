@@ -8,24 +8,24 @@
 <fillMode>Alternate</fillMode>
 <defaultSize>
 <width>10</width>
-<height>10</height>
+<height>9.25</height>
 </defaultSize>
 <groupName id="ref-7"></groupName>
 </a1:GraphicStencil>
 <a3:ArrayList id="ref-4" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
 <_size>4</_size>
-<_version>4</_version>
+<_version>1343</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-5" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-9"/>
 <_size>1</_size>
-<_version>1</_version>
+<_version>510</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-6" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-10"/>
 <_size>4</_size>
-<_version>4</_version>
+<_version>304</_version>
 </a3:ArrayList>
 <SOAP-ENC:Array id="ref-8" SOAP-ENC:arrayType="xsd:anyType[4]">
 <item href="#ref-11"/>
@@ -43,70 +43,70 @@
 <item href="#ref-19"/>
 </SOAP-ENC:Array>
 <a1:Bezier id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>1</x1>
-<y1>19</y1>
-<x2>1</x2>
-<y2>-5</y2>
-<x3>101</x3>
-<y3>-5</y3>
-<x4>101</x4>
-<y4>19</y4>
+<x1>0</x1>
+<y1>12.1621618</y1>
+<x2>0</x2>
+<y2>-4.05405426</y2>
+<x3>100</x3>
+<y3>-4.05405426</y3>
+<x4>100</x4>
+<y4>12.1621618</y4>
 </a1:Bezier>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>101</x1>
-<y1>19</y1>
-<x2>101</x2>
-<y2>83</y2>
+<x1>100</x1>
+<y1>12.1621618</y1>
+<x2>100</x2>
+<y2>87.83784</y2>
 </a1:Line>
 <a1:Bezier id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>101</x1>
-<y1>83</y1>
-<x2>101</x2>
-<y2>107</y2>
-<x3>1</x3>
-<y3>107</y3>
-<x4>1.00000048</x4>
-<y4>83</y4>
+<x1>100</x1>
+<y1>87.83784</y1>
+<x2>100</x2>
+<y2>104.054054</y2>
+<x3>0</x3>
+<y3>104.054054</y3>
+<x4>0</x4>
+<y4>87.83784</y4>
 </a1:Bezier>
 <a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>1.00000048</x1>
-<y1>83</y1>
-<x2>1.00000048</x2>
-<y2>19.0000019</y2>
+<x1>0</x1>
+<y1>87.83784</y1>
+<x2>0</x2>
+<y2>12.1621618</y2>
 </a1:Line>
 <a1:Bezier id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>1</x1>
-<y1>19</y1>
-<x2>1</x2>
-<y2>43</y2>
-<x3>101</x3>
-<y3>43</y3>
-<x4>101</x4>
-<y4>19</y4>
+<x1>0</x1>
+<y1>12.1621618</y1>
+<x2>0</x2>
+<y2>28.3783779</y2>
+<x3>100</x3>
+<y3>28.3783779</y3>
+<x4>100</x4>
+<y4>12.1621618</y4>
 </a1:Bezier>
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>-150</x1>
-<y1>116</y1>
-<x2>250</x2>
-<y2>116</y2>
+<x1>0</x1>
+<y1>84.15842</y1>
+<x2>100</x2>
+<y2>84.15842</y2>
 </a1:Line>
 <a1:Line id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>250</x1>
-<y1>116</y1>
-<x2>250</x2>
-<y2>116</y2>
+<x1>100</x1>
+<y1>84.15842</y1>
+<x2>100</x2>
+<y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>250</x1>
-<y1>116</y1>
-<x2>-150</x2>
-<y2>116</y2>
+<x1>100</x1>
+<y1>100</y1>
+<x2>0</x2>
+<y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>-150</x1>
-<y1>116</y1>
-<x2>-150</x2>
-<y2>116</y2>
+<x1>0</x1>
+<y1>100</y1>
+<x2>0</x2>
+<y2>84.15842</y2>
 </a1:Line>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

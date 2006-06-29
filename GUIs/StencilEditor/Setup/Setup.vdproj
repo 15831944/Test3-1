@@ -33,6 +33,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BBB0B7D7930D48299E659395A68B363B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_EABDFD704E27D73B90155FEAE2EBEA14"
         "OwnerKey" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
         "MsmSig" = "8:_UNDEFINED"
@@ -149,7 +155,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.39957, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.21462, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_8D2630D3022979763566309D02D99F25"
@@ -174,6 +180,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BBB0B7D7930D48299E659395A68B363B"
+            {
+            "SourcePath" = "8:..\\..\\Editor\\Logo32.ico"
+            "TargetName" = "8:Logo32.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_EABDFD704E27D73B90155FEAE2EBEA14"
@@ -262,14 +288,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Stencil Editor"
-        "ProductCode" = "8:{E91E5248-E0CA-4E27-A68E-BC0381623AA3}"
-        "PackageCode" = "8:{D181052E-07FC-466E-87BE-75AA1C6CA290}"
+        "ProductCode" = "8:{0A40E2F5-2C40-410F-95AE-959F268C5B77}"
+        "PackageCode" = "8:{50C76964-A78A-4227-B399-621C59FC5361}"
         "UpgradeCode" = "8:{9D4431C2-D4F7-423A-A9CA-FFAC905BC3CF}"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.1"
+        "InstallAllUsers" = "11:TRUE"
+        "ProductVersion" = "8:1.1.2"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -278,8 +304,8 @@
         "ARPCONTACT" = "8:Kenwalt"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:Stencil Editor"
-        "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:"
+        "ARPURLINFOABOUT" = "8:http://www.syscad.net"
+        "ARPPRODUCTICON" = "8:_BBB0B7D7930D48299E659395A68B363B"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -783,7 +809,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_16C7FACAD9EA474992D838B2DC7C13FB"
             {
-            "SourcePath" = "8:..\\StencilEditor\\obj\\Release\\StencilEditor.exe"
+            "SourcePath" = "8:..\\StencilEditor\\obj\\Debug\\StencilEditor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
