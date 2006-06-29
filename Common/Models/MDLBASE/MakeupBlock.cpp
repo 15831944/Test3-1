@@ -246,22 +246,22 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     enum eType
       { 
       //Type_None, 
+      Type_MassFrac,
       Type_MassFlow, 
       Type_MassRatio, 
       Type_MassMult, 
-      Type_MoleFlow, 
-      Type_MoleRatio, 
-      Type_MoleMult, 
+      Type_VolumeFrac,
       Type_VolumeFlow, 
       Type_VolumeRatio, 
       Type_VolumeMult, 
+      Type_NVolumeFrac,
       Type_NVolumeFlow, 
       Type_NVolumeRatio,
       Type_NVolumeMult,
-      Type_MassFrac,
       Type_MoleFrac,
-      Type_VolumeFrac,
-      Type_NVolumeFrac,
+      Type_MoleFlow, 
+      Type_MoleRatio, 
+      Type_MoleMult, 
       Type_Conc,
       };
 
@@ -269,7 +269,7 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
       {
       Slct_All,
       Slct_Occur,
-      Slct_Phase,
+      Slct_IndPhase,
       Slct_Specie,
       Slct_Component,
       };
@@ -376,7 +376,7 @@ m_QmTol(TBF_DynSys, "Makeup:QmFndEPS", 1.0e-8, 1.0e-8, 200)
   m_DDBCmpsOK = false;
 
   m_QmMin     = 0.0;
-  m_QmMax     = 10000.0/3.6;
+  m_QmMax     = 10000.0;
 
   m_QmRqd     = 0;
   m_QMlRqd    = 0;
@@ -530,30 +530,30 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   //  {
   static DDBValueLst DDBCtrl[] =
     {                         
+      {Type_MassFrac,       "MassFrac"          },
       {Type_MassFlow,       "MassFlow"          },
       {Type_MassRatio,      "MassRatio"         },
       {Type_MassMult,       "MassMultiplier"    },
-      {Type_MoleFlow,       "MoleFlow"          },
-      {Type_MoleRatio,      "MoleRatio"         },
-      {Type_MoleMult,       "MoleMultiplier"    },
+      {Type_VolumeFrac,     "VolumeFrac"        },
       {Type_VolumeFlow,     "VolumeFlow"        },
       {Type_VolumeRatio,    "VolumeRatio"       },
       {Type_VolumeMult,     "VolumeMultiplier"  },
+      {Type_NVolumeFrac,    "NVolumeFrac"       },
       {Type_NVolumeFlow,    "NVolumeFlow"       },
       {Type_NVolumeRatio,   "NVolumeRatio"      },
       {Type_NVolumeMult,    "NVolumeMultiplier" },
-      {Type_MassFrac,       "MassFrac"          },
       {Type_MoleFrac,       "MoleFrac"          },
-      {Type_VolumeFrac,     "VolumeFrac"        },
-      {Type_NVolumeFrac,    "NVolumeFrac"       },
+      {Type_MoleFlow,       "MoleFlow"          },
+      {Type_MoleRatio,      "MoleRatio"         },
+      {Type_MoleMult,       "MoleMultiplier"    },
       {Type_Conc,           "Concentration"     },
       {}
     };
   static DDBValueLst DDBSelect[] =
     {                         
       {Slct_All,            "All"             },
-      {Slct_Occur,          "Occurence"       },
-      {Slct_Phase,          "Phase"           },
+      {Slct_Occur,          "Phase"           },
+      {Slct_IndPhase,       "IndividualPhase" },
       {Slct_Specie,         "Specie"          },
       {Slct_Component,      "Component"       },
       {}
@@ -613,7 +613,7 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       {
       case Slct_All:
       case Slct_Occur:
-      case Slct_Phase:
+      case Slct_IndPhase:
         DDB.Long("", "PhaseMask",               DC_,  "", (long*)&m_Phases,     this, isParm|InitHidden);
         break;
       case Slct_Specie:
@@ -663,7 +663,7 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
         DDB.CheckBoxBtn("", "Gasses",           DC_,  "", xidMkGasses,  this, isParm);
         break;
         }
-      case Slct_Phase:
+      case Slct_IndPhase:
         {
         for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Gas); o++)
           {
@@ -712,11 +712,14 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       {0}
     };
 
-  DDB.Text(" ");
-  DDB.Long  ("FinalTemp",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/, DDBTemp);
-  DDB.Visibility(SHM_All, m_eRqdTemp==Temp_Const);
-  DDB.Double("RqdTemp",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
-  DDB.Visibility();
+  if (!GlblSkipHeat())
+    {
+    DDB.Text(" ");
+    DDB.Long  ("FinalTemp",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/, DDBTemp);
+    DDB.Visibility(SHM_All, m_eRqdTemp==Temp_Const);
+    DDB.Double("RqdTemp",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
+    DDB.Visibility();
+    }
 
   DDB.Text(" ");
   DDB.Text("Results");
@@ -755,10 +758,12 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("QmMakeup",          "", DC_Qm,   "kg/s",    &m_dQmMakeup,   this, isResult);
   DDB.Double ("QmFeed",            "", DC_Qm,   "kg/s",    &m_dQmFeed,     this, isResult);
   DDB.Double ("QmProd",            "", DC_Qm,   "kg/s",    &m_dQmProd,     this, isResult);
-  DDB.Double ("HeatFlow",          "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
-  DDB.Double ("TempFeed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
-  DDB.Double ("TempProd",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);//|noFileAtAll);
-
+  if (!GlblSkipHeat())
+    {
+    DDB.Double ("HeatFlow",          "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
+    DDB.Double ("TempFeed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);//|noFileAtAll);
+    }
   };
 
 //--------------------------------------------------------------------------
