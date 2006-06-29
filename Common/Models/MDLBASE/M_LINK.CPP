@@ -3428,7 +3428,7 @@ flag MN_Lnk::CIStrng(int No, pchar & pS)
       return MdlNode::CIStrng(No, pS);
       }
     case 5: pS="W\tMassflow achieved thru Pipe != Estimated flow (Pressure dependant)"; return 1;
-    case 6: pS="W\tMassflow into Pipe != Massflow out of Pipe";       return 1;
+    case 6: pS="W\tMassflow into Pipe <> Massflow out of Pipe";       return 1;
     case 7: pS="N\tMassflow into Pipe > Capacity.  Extra Spilt";      return 1;
     case 8: pS="N\tMassflow into Pipe > Capacity.  Capacity Ignored"; return 1;
     case 9: pS="W\tSpill Target not found"; return 1;

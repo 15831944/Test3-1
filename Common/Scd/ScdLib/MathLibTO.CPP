@@ -302,6 +302,15 @@ int MRootFinderBase::Start(double X1, double X2, double F1/*=dNAN*/, double F2/*
       return iError;
       }
     // <<<<<<<< kga 14/11/01
+    if (dEstSlp==0)
+      {
+      F1 = (Finite(F1) ? F1 : Function(x1));
+      F2 = (Finite(F2) ? F2 : Function(x2));
+      if (F2>=F1)
+        dEstSlp=1;
+      else
+        dEstSlp=-1;
+      }
 
     if (fe*dEstSlp < 0.0)
       {
@@ -359,6 +368,10 @@ int MRootFinderBase::Start(double X1, double X2, double F1/*=dNAN*/, double F2/*
 
   if (!Ok1 || !Ok2)
     iError=RF_BadStartValues;
+  else if (m_Tol.ConvergedVV(m_Val1, m_Val2)) 
+    {
+    iError=RF_Independant;
+    }
   else if (m_Err1 * m_Err2 <= 0.0) // Bracketed
     {
     if (x1 > x2)
@@ -562,7 +575,7 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax, doubl
 
   double V0=EstV;
   double F0=EstF;
-      
+
   const int MaxIt=100;
   int It=MaxIt;
 
@@ -607,12 +620,16 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax, doubl
     EstV=Range(dMin, EstV, dMax);
     EstF=Function(EstV); 
     
+    double tol1=2.0*EPS*fabs(EstV)+0.5*m_Tol.GetRel();
+    bConverged=(fabs(0.5*(EstV-V0))<=tol1);
     // Test for no change in measurement
     if (fabs(EstF-F0)<1.0e-14+1.0e-14*fabs(EstF+F0))
       {
       dResult=EstV;
       m_FnVal=EstF;
       m_FnErr=m_FnVal-dTarget;
+      if (!bConverged)
+        iError=RF_NotConverged;
       #if NewSolveFromEst
       if (dResult>=dMax)
         iError=RF_HiLimit;
@@ -624,8 +641,6 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax, doubl
       goto Done;
       }
 
-    double tol1=2.0*EPS*fabs(EstV)+0.5*m_Tol.GetRel();
-    bConverged=(fabs(0.5*(EstV-V0))<=tol1);
     if (bConverged) // Test for convergence
       {
       dResult=EstV;
@@ -635,13 +650,13 @@ int MRootFinderBase::SolveFromEst(double Est, double Sign, double dChgMax, doubl
       }
 
 
-    if (Sign*(EstF-dTarget)>0.0)
+    if (/*Sign**/(EstF-dTarget)>0.0)
       {
       PosF=Min(PosF, EstF);
       PosV=Min(PosV, EstV);
       PosOk=1;
       }
-    else if (Sign*(EstF-dTarget)<0.0)
+    else if (/*Sign**/(EstF-dTarget)<0.0)
       {
       NegF=Max(NegF, EstF);
       NegV=Max(NegV, EstV);
@@ -727,13 +742,40 @@ int MRootFinder::FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double 
   if (Valid(XEst))
     SetEstimate(XEst, XEstSlope);
   int iRet=Start(XLoBnd, XHiBnd);
-  if (iRet==RF_EstimateOK) //estimate is good, solve not required
-    return RF_OK;
+    if (iRet==RF_EstimateOK) //estimate is good, solve not required
+      return RF_OK;
   if (iRet==RF_BadEstimate)
     iRet = Start(XLoBnd, XHiBnd); // Restart
-  if (iRet==RF_OK) 
-    return Solve_Brent();
+    if (iRet==RF_OK) 
+      return Solve_Brent();
   return iRet;
+  }
+
+// ===========================================================================
+
+int MRootFinder::FindRootEst(double FnTarget, double XLoBnd, double XHiBnd, double XEst, double XEstSlope, double ChgMax, double ChgInit)
+  {
+  SetTarget(FnTarget);
+  SetLimits(XLoBnd, XHiBnd);
+
+  if (XEstSlope == 0.0)
+    {
+    if (Function(XHiBnd)>Function(XLoBnd))
+      XEstSlope = 1.0;
+    else
+      XEstSlope = -1.0;
+    }
+
+  if (ChgMax==0.0)
+    ChgMax=0.2*(XHiBnd-XLoBnd);
+
+  if (ChgInit==0.0)
+    ChgInit=0.01*(XHiBnd-XLoBnd);
+
+  if (SolveFromEst(XEst, XEstSlope, ChgMax, ChgInit)==RF_OK)
+    return RF_OK;
+
+  return FindRoot(FnTarget, XLoBnd, XHiBnd, XEst, XEstSlope);
   }
 
 // ===========================================================================

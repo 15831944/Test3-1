@@ -270,9 +270,10 @@ double CSimpleProfiler::GetVal(CTimeValue Time, byte Column/*=1*/)
     {
     CProfileInfo& Info = pInfo[Column];
 
-    dbgpln("%3i %s %s %10.2f %10.2f %10.2f %s", Column,
-      Info.bStarted?"S":" ", Info.bPaused?"P":" ", Info.dLastTime, 
-      Info.dPrevVal, Info.dStartTime, Info.sColTagName());
+    if (0)
+      dbgpln("CSimpleProfiler::GetVal %3i %s %s %10.2f %10.2f %10.2f %s", Column,
+        Info.bStarted?"S":" ", Info.bPaused?"P":" ", Info.dLastTime, 
+        Info.dPrevVal, Info.dStartTime, Info.sColTagName());
 
     if (Info.bJustLoaded)
       JustLoaded(Time, Column);

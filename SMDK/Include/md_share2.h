@@ -486,7 +486,7 @@ const int RF_NotConverged       = 6;
 const int RF_EstimateOK         = 7;
 const int RF_EstimateLoLimit    = 8;
 const int RF_EstimateHiLimit    = 9;
-
+const int RF_Independant        =10;
 // Root Finder Class
 class DllImportExport MRootFinderBase
   {
@@ -525,6 +525,7 @@ class DllImportExport MRootFinderBase
   
     void            SetTarget(double FunctionTarget)        { dTarget=FunctionTarget; };
     void            SetEstimate(double Est, double EstSlp)  { dEst=Est; dEstSlp=EstSlp; bEstSet=1; };
+    double          EstimatedSlope()                        { return dEstSlp; };
     double          Result()                                { return dResult; };
     double          Target()                                { return dTarget; };
     double          FuncValue()                             { return m_FnVal; };
@@ -548,6 +549,7 @@ class DllImportExport MRootFinder: public MRootFinderBase
       {
       };
     int FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double XEst=dNAN, double XEstSlope=1.0);
+    int FindRootEst(double FnTarget, double XLoBnd, double XHiBnd, double XEst, double XEstSlope=1.0, double ChgMax=0.0, double ChgInit=0.0);
   };
 
 // -----------------------------------------------------------
