@@ -102,8 +102,9 @@ static COld2NewItem gs_Old2New[] =
 static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMapDirect;
 static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMapClass;
 
-COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng & NewTag)
+COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strng & NewTag)
   {
+  Strng OldTag(pOldTag);
   const int NLogs=10;
   if (gs_Old2NewMapDirect.GetCount()==0)
     {
@@ -124,21 +125,21 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
     }
 
   COld2NewItem *pRet=NULL;
-  if (gs_Old2NewMapDirect.Lookup(OldTag, pRet))
+  if (gs_Old2NewMapDirect.Lookup(OldTag(), pRet))
     {
     NewTag=pRet->m_NewTag;
     if (pRet->m_nLogged<NLogs)
       {
       LogWarning("Executive", 0,
         pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
-        OldTag, NewTag(), pRet->m_Comment);
+        OldTag(), NewTag(), pRet->m_Comment);
       pRet->m_nLogged++;
       }
     return pRet;
     }
 
   int iDot=0;
-  int Len=strlen(OldTag);
+  int Len=OldTag.GetLength();
   int MinTagLen=0;
   Strng NdTag;
   for (;;)
@@ -160,7 +161,7 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR OldTag, Strng
           {
           LogWarning("Executive", 0,
             pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
-            OldTag, NewTag(), pRet->m_Comment);
+            OldTag(), NewTag(), pRet->m_Comment);
           pRet->m_nLogged++;
           }
         return pRet;
