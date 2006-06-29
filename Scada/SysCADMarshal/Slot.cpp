@@ -536,6 +536,21 @@ CSVColArray f;
           }
         m_Clamp.m_bValid=true;
         }
+      else if (_stricmp(f[0],"deadband")==0)
+        {
+        if (nParms!=1)
+          {
+          SetError(SErr_DBand, "Valid modifier expected DeadBand(Band).");
+          return false;
+          }
+        m_DBand.m_dBand = SafeAtoF(f[1]);
+        if (m_DBand.m_dBand<0)
+          {
+          SetError(SErr_DBand, "Valid modifier expected DeadBand(Band). Band >= 0");
+          return false;
+          }
+        m_DBand.m_bValid=true;
+        }
       //else if (_stricmp(f[0],"bit")==0) // Single Bit in Word numbering 1..16
       //  {
       //  if (nParms!=1)
@@ -628,7 +643,7 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
     }
   if (_stricmp(pOp,"Filter")==0)
     {
-    if (nParms<1)// CNM Allow filter of integral types || !IsFloatDataVT)
+    if (nParms<1)
       {
       if (nParms<1)
         SetError(SErr_FilterOp, "Valid Connection Operator expected: Filter(Type,[Parm1])");
@@ -639,6 +654,21 @@ bool CSlot::ParseConnOperator(CSlotConnect *pC, LPSTR pOp)
     else
       {
       pC->AddOp(new CSlotConnOp_Filter((byte)SafeAtoL(f[1],1), SafeAtoF(f[2],0.0)));
+      }
+    }
+  else if (_stricmp(pOp,"DeadBand")==0)
+    {
+    if (nParms<1)
+      {
+      if (nParms<1)
+        SetError(SErr_FilterOp, "Valid Connection Operator expected: DeadBand(Type,[Parm1])");
+      if (IsFloatDataVT)
+        SetError(SErr_FilterOp, "Valid Connection Operator expected: DeadBand can only be used for a float slot");
+      return false;
+      }
+    else
+      {
+      pC->AddOp(new CSlotConnOp_DeadBand((byte)SafeAtoL(f[1],1), SafeAtoF(f[2],0.0)));
       }
     }
   else if (_stricmp(pOp,"Noise")==0)
@@ -1348,6 +1378,7 @@ bool CSlot::TransferConfiguration(CSlot * Other)
   m_Span    =Other->m_Span;
   m_Range   =Other->m_Range;
   m_Clamp   =Other->m_Clamp;
+  m_DBand   =Other->m_DBand;
   return true;
   };
 
@@ -1378,6 +1409,34 @@ void CSlot::ApplySpanInComing(VARTYPE SlotType, COleVariant &V)
       HRESULT hr=VariantChangeType(&V, &V, 0, VT_UI4);
       if (FAILED(hr))
         SetError(SErr_ApplySpanInComing, hr, "");
+      V.ulVal=(V.ulVal-(unsigned long)m_Span.m_dOffset)/(unsigned long)m_Span.m_dSpan;
+      }
+    }
+
+  if (m_DBand.m_bValid)
+    {
+    if (IsFloatDataVT(V.vt))
+      {
+      HRESULT hr=VariantChangeType(&V, &V, 0, VT_R8);
+      if (FAILED(hr))
+        SetError(SErr_ApplyDBandInComing, hr, "");
+      if (Valid(m_DBand.m_dPrev))
+        {
+        double Half=0.5*m_DBand.m_dBand;
+        if (V.dblVal>m_DBand.m_dPrev+Half)
+          V.dblVal=V.dblVal-Half;
+        else if (V.dblVal<m_DBand.m_dPrev-Half)
+          V.dblVal=V.dblVal+Half;
+        else 
+          V.dblVal=m_DBand.m_dPrev;
+        }
+      m_DBand.m_dPrev=V.dblVal; 
+      }
+    else if (IsSignedDataVT(V.vt))
+      {
+      }
+    else if (IsUnsignedDataVT(V.vt))
+      {
       V.ulVal=(V.ulVal-(unsigned long)m_Span.m_dOffset)/(unsigned long)m_Span.m_dSpan;
       }
     }

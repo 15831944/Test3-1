@@ -258,6 +258,40 @@ class CSlotConnOp_Filter : public CSlotConnOp_Base
       };
   };
 
+class CSlotConnOp_DeadBand : public CSlotConnOp_Base
+  {
+  protected:
+    byte m_iType;
+    double m_dBand;         
+    double m_dPrev;         
+
+  public:
+    CSlotConnOp_DeadBand(byte i_iType, double i_dBand)      
+      {
+      m_iType=i_iType;
+      m_dBand=Max(0.0, i_dBand);
+      m_dPrev=dNAN;
+      };
+    virtual double Exec(double d, double DeltaTime) { return d; };
+    virtual bool   IsConditioning() { return true; };
+    virtual double DoConditioning(double d, double DeltaTime)
+      {
+      //double Alpha = 1.0-exp(-DeltaTime/m_dTau);
+      if (Valid(m_dPrev))
+        {
+        double Half=0.5*m_dBand;
+        if (d>m_dPrev+Half)
+          d=d-Half;
+        else if (d<m_dPrev-Half)
+          d=d+Half;
+        else
+          d=m_dPrev;
+        }
+      m_dPrev=d; 
+      return d;
+      };
+  };
+
 class CSlotConnOp_Noise : public CSlotConnOp_Base , protected CNoise
   {
   protected:

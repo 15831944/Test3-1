@@ -72,6 +72,16 @@ class CSlotClamp
     CSlotClamp() { m_bValid=false; m_dLo=m_dHi=0; };
   };
 
+class CSlotDeadBand
+  {
+  public:
+    double    m_dBand;
+    double    m_dPrev;
+    bool      m_bValid;
+
+    CSlotDeadBand() { m_bValid=false; m_dBand=0; m_dPrev=dNAN; };
+  };
+
 // =======================================================================
 //
 //
@@ -167,6 +177,7 @@ class CSlot : public CSlotCfg
     CSlotSpan   m_Span;
     CSlotRange  m_Range;
     CSlotClamp  m_Clamp;
+    CSlotDeadBand m_DBand;
   
     // Connection
 

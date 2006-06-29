@@ -70,7 +70,7 @@ void CCfgBlock::Read(LPCSTR DevCfgFile)
   m_dwStatusUpdateCycle = PF.RdLong("Thread", "StatusUpdateCycle", m_dwStatusUpdateCycle);
   m_dwMaxChangesInCall  = PF.RdLong("Thread", "MaxChangesInCall", m_dwMaxChangesInCall);
   m_dwConditioningCycle  = PF.RdLong("Thread", "ConditioningCycle", m_dwConditioningCycle);
-  
+
   if (s.CompareNoCase("normal")==0)
     m_nPriority = THREAD_PRIORITY_NORMAL;
   else if (s.CompareNoCase("above_normal")==0)
@@ -215,7 +215,7 @@ CSlotMngr::CSlotMngr()
   m_SlotMap.InitHashTable(4999);
   m_CdBlkMap.InitHashTable(4999);
   m_LinkMap.InitHashTable(4999);
- 
+
   m_nSlots2Write            = 0;
   m_nLinks2Write            = 0;
 
@@ -792,7 +792,7 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
       m_Links[i]->SendStateValue();
 
     }
-  
+
   //if (Doing==eDoingCfgLoad)
   //  Load("LastState");
 
@@ -845,7 +845,7 @@ void CSlotMngr::DoSetValues(CSetValuesOptions & Opt)
           m_Slots2Write[i]=m_nSlots2Write++;
       for (int i=0; i<m_Links.GetSize(); i++)
         if (m_Links[i]->m_bInFilter)
-           m_Links2Write[i]=m_nLinks2Write++;
+          m_Links2Write[i]=m_nLinks2Write++;
       break;
     case CSetValuesOptions::eSelected:
       break;
@@ -860,8 +860,8 @@ void CSlotMngr::DoSetValues(CSetValuesOptions & Opt)
       for (i=0; i<m_Slots2Write.GetSize(); i++)
         {
         CSlot & S = *m_Slots[m_Slots2Write[i]];
-          //if (m_Slots[i]->m_bWrite)
-          m_Slots[i]->WriteCurrentValue2Device();
+        //if (m_Slots[i]->m_bWrite)
+        m_Slots[i]->WriteCurrentValue2Device();
         }
       break;
     case CSetValuesOptions::eSet:
@@ -1027,10 +1027,10 @@ long CSlotMngr::AddLink(CSlot * pSlot, LPCSTR Tag, LPCSTR ConnectTag, LPCSTR Cnv
     if (Cnv==NULL) Cnv="";
     CLink & L=*m_Links[index];
     if ((L.m_sSimTag.CompareNoCase(ConnectTag)==0) &&
-        (L.m_sCnvTxt.CompareNoCase(Cnv)==0) && 
-        (L.m_vValue.vt==VType) &&
-        (L.m_bGet==Get) &&
-        (L.m_bSet==Set))
+      (L.m_sCnvTxt.CompareNoCase(Cnv)==0) && 
+      (L.m_vValue.vt==VType) &&
+      (L.m_bGet==Get) &&
+      (L.m_bSet==Set))
       {
       m_Links[index]->m_bInUse=true;
       AddIt=false;
@@ -1141,7 +1141,7 @@ void CSlotMngr::AddDelayedChange(CChangeItem * pNew, DWORD Timer)
         pNew->m_dwDelayTimer,
         "", "", SrcDstString(pNew->m_eDst), pNew->m_lDstInx,
         TypeToString(pNew->Type()), VariantToString(pNew->m_vValue, S, false));
-        //, TimeStampToString(pNew->m_ftTimeStamp, S1, true, NULL));
+      //, TimeStampToString(pNew->m_ftTimeStamp, S1, true, NULL));
 
       }
     if (Timer==0)
@@ -1236,29 +1236,41 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
 
       if (pDelay->m_UseValues)
         {
-
-        CArray<CDelayBlockItem, CDelayBlockItem&> & DBA = Direction<0? pDelay->m_OnFall : pDelay->m_OnRise;
-        int n=DBA.GetCount();
-        for (int i=0; i<n; i++)
+        if (Direction!=0)
           {
+          CArray<CDelayBlockItem, CDelayBlockItem&> & DBA = Direction<0? pDelay->m_OnFall : pDelay->m_OnRise;
+          int n=DBA.GetCount();
+          for (int i=0; i<n; i++)
+            {
 
-          CDelayBlockItem &DB = DBA[i];
-          CChangeItem * pChg=new CChangeItem(Src, SrcI, Dst, DstI, -1, TransID, FullValue, OverrideHold, Refresh);
-          pChg->m_vValue=DB.m_Value;
-          AddDelayedChange(pChg, DB.m_dwTime);
+            CDelayBlockItem &DB = DBA[i];
+            CChangeItem * pChg=new CChangeItem(Src, SrcI, Dst, DstI, -1, TransID, FullValue, OverrideHold, Refresh);
+            pChg->m_vValue=DB.m_Value;
+            AddDelayedChange(pChg, DB.m_dwTime);
+            }
           }
-
+        else
+          {
+          // Ignore;
+          }
         delete pNew; // done with this
         }
       else
         {
-        DWORD Timer;
-        if (Direction<0)// && pDelay->m_dwTimeFall)
-          Timer = pDelay->m_OnFall[0].m_dwTime; 
-        else
-          Timer = pDelay->m_OnRise[0].m_dwTime; 
+        if (Direction!=0)
+          {
+          DWORD Timer;
+          if (Direction<0)// && pDelay->m_dwTimeFall)
+            Timer = pDelay->m_OnFall[0].m_dwTime; 
+          else
+            Timer = pDelay->m_OnRise[0].m_dwTime; 
 
-        AddDelayedChange(pNew, Timer);
+          AddDelayedChange(pNew, Timer);
+          }
+        else
+          {
+          // Ignore;
+          }
         }
       }
     }
@@ -1311,7 +1323,7 @@ bool CSlotMngr::ApplyChange(CChangeItem * pChg, bool IsDelay)
       //if (I>=0 && I<m_Slots.GetSize())
       // m_Links[I]->SetValue(pChg));
       }
-    break;
+      break;
     case eCSD_Slot:
       I=pChg->m_lDstInx;
       if (I>=0 && I<m_Slots.GetSize())
@@ -1557,7 +1569,7 @@ void CSlotMngr::ProcessCondBlks()
         for (int op=0; op<Ops.GetSize(); op++)
           d=Ops[op]->DoConditioning(d, DeltaTime);
         }
-      
+
       COleVariant T(d);
       CFullValue FV(OPC_QUALITY_GOOD);
       HRESULT hr=VariantChangeType(&FV.m_vValue, &T, 0, L.Type());
@@ -1909,26 +1921,26 @@ void CSlotMngr:: DumpSlotInfo(LPCTSTR Where)
       {
       CSlot &S=*m_Slots[i];
       dbgpln("  Slot %4i S:%4i D:%4i %s %s %s %s Err:%3i %-20s %-15.15s %-15.15s %s",
-            i, S.m_lSlot, S.m_lDevice,
-            S.m_bInUse?"Used":"    ",
-            S.m_bConnected?"Conn":"    ",
-            S.m_bRead?"R":" ",
-            S.m_bWrite?"W":" ",
-            S.m_State.m_nError,
-            S.m_sTag, 
-            S.m_sRange,
-            S.m_sModifier,
-            S.m_sConnects
-            );
+        i, S.m_lSlot, S.m_lDevice,
+        S.m_bInUse?"Used":"    ",
+        S.m_bConnected?"Conn":"    ",
+        S.m_bRead?"R":" ",
+        S.m_bWrite?"W":" ",
+        S.m_State.m_nError,
+        S.m_sTag, 
+        S.m_sRange,
+        S.m_sModifier,
+        S.m_sConnects
+        );
       }
     for (int i=0; i<NLinks; i++)
       {
       CLink &S=*m_Links[i];
       dbgpln("  Link %4i S:%4i %6s %s %s %s %s Err:%3i %-20s %s",
-            i, S.m_lLink, "" ,
-            S.m_bInUse?"Used":"    ", "    "," "," ",
-            S.m_State.m_nError,
-            S.m_sTag, S.m_sSimTag );
+        i, S.m_lLink, "" ,
+        S.m_bInUse?"Used":"    ", "    "," "," ",
+        S.m_State.m_nError,
+        S.m_sTag, S.m_sSimTag );
       }
     }
   }
@@ -2311,7 +2323,7 @@ bool CSlotMngr::GetValueFromHandle(DWORD dwHandle, VARIANT &Value, bool ForceRea
           return true;
         }
       }
-    break;
+      break;
     case IOML_Link:     
       {
       CLink & Link=*m_Links[iItem];
@@ -2385,7 +2397,7 @@ bool CSlotMngr::SetValueFromHandle(eConnSrcDst Src, DWORD dwHandle, VARIANT Valu
           }
         }
       }
-    break;
+      break;
     case IOML_Link:     
       {
       CLink & Link=*m_Links[iItem];
