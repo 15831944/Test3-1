@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #define  __BELTFILT_CPP
 #include "beltfilt.h"
+//#include "optoff.h"
 
 //==========================================================================
 /*#D:#T:Belt Filter
@@ -190,16 +191,17 @@ void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq)
   SpConduit & Qs = *IOConduit(IOWithId_Self(ioidSo));
   SpConduit & Qf = *IOConduit(IOWithId_Self(ioidFt));
 
-  int water = H2O.LiqPhInx(), max = SDB.Count();
-  double Liq = QFd.QMass(som_Liq);
+  const int water = H2O.LiqPhInx(), max = SDB.Count();
+  const double Liq = QFd.QMass(som_Liq);
+  const double c0 = 1.0;
   CDMatrix w(max,temp+1),
            c(max,temp);
   for (int i=0; i<max; i++)
     {
     if ((SDB[i].IsLiq()) && (i != water))
       {
-      double Cin, c0 = 1.0, w0 = 0.0;   
-      Cin = QFd.VMass[i] / Liq;
+      const double mi = QFd.VMass[i];
+      const double Cin = mi / Liq;
       if (Cin > 1e-9)
         {
         w[i][1] = 0.9;
@@ -207,10 +209,8 @@ void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq)
         w[i][1] = ((w[i][1] - w[i][temp])/GTZ(c0 - w[i][temp]));
         filt(w, d, i, temp);
         washcon(w, c, Cin, i, temp);
-        double wash, loss = c[i][temp-1] * CLiq;
-        if (loss < 0.0)
-          loss = 0.0;
-        wash = QFd.VMass[i] - loss;
+        const double loss = Max(0.0, c[i][temp-1] * CLiq);
+        const double wash = QFd.VMass[i] - loss;
         Qs.SetVMass(i, QFd, loss);
         Qf.SetVMass(i, QFd, wash);
         }
@@ -265,7 +265,7 @@ void BeltFilt::EvalProducts(long JoinMask)
   double SoLiq, FtLiq;
   if (QmLIn > 0.0)
     {
-		double LT = QmSIn * RqdCakeMoist/(1.0 - RqdCakeMoist);
+		const double LT = QmSIn * RqdCakeMoist/(1.0 - RqdCakeMoist);
     SoLiq = Range(0.0, LT, QmLIn);
     FtLiq = QmLIn - SoLiq;
     }
@@ -283,19 +283,19 @@ void BeltFilt::EvalProducts(long JoinMask)
 	Qs.QAddM(QFd, som_Liq, SoLiq);
 	Qf.QAddM(QFd, som_Liq, FtLiq);
 
-  int iWw = IOWithId_Self(ioidWS);
+  const int iWw = IOWithId_Self(ioidWS);
 
   WR = 0.0;
   if ((iWw >= 1) && (QmSIn > 1.0e-3) && (Stage > 0) && (SoLiq > 0.0))
     {
     SpConduit *pw = IOConduit(IOWithId_Self(ioidWS));
-    double QmWIn = pw->QMass(som_Liq);
+    const double QmWIn = pw->QMass(som_Liq);
 
 		if (QmWIn > 1.0e-6)
 			{
 			WR = QmWIn / SoLiq;
 
-			long temp = Stage + 1;
+			const long temp = Stage + 1;
 			CDVector  d(temp),
 								f(temp);
 			f[0] = 1.0;
