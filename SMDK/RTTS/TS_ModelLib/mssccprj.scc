@@ -1,0 +1,9 @@
+SCC = This is a Source Code Control file
+
+[TS_ModelLib.sln]
+SCC_Aux_Path = "\\pe1-shared\M&C\SourceSafe"
+SCC_Project_Name = "$/SysCAD Modelling Projects/TSModelLib/TS_ModelLib", ECEAAAAA
+
+[TS_ModelLib.vcproj]
+SCC_Aux_Path = "\\pe1-shared\M&C\SourceSafe"
+SCC_Project_Name = "$/SysCAD Modelling Projects/TSModelLib/TS_ModelLib", ECEAAAAA
