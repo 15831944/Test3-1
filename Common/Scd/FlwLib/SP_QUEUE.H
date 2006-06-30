@@ -136,7 +136,7 @@ typedef CSCDPtrListIterWithPos<CSpPFSectionList, SpQSection *> SpPFSectionIter;
 //
 // ===========================================================================
 
-enum eQIOTypes { QIO_Fixed, QIO_Moving, QIO_Distributed };
+enum eQIOTypes { QIO_Fixed, QIO_FixedEnd, QIO_Moving, QIO_Distributed };
 
 class DllImportExport SpQIO
   {

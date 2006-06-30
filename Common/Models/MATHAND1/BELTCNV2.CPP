@@ -250,11 +250,13 @@ static DDBValueLst DDBFdTypes[] = {
   {0}};
 static DDBValueLst DDBPrTypesA[] = {
   {QIO_Fixed,       "Fixed" },
+  {QIO_FixedEnd,    "FixedAtEnd" },
   {QIO_Moving,      "Moving"},
   //{QIO_Distributed, "Distributed"},
   {0}};
 static DDBValueLst DDBPrTypesB[] = {
   {QIO_Fixed,       "Fixed" },
+  {QIO_FixedEnd,    "FixedAtEnd" },
   {QIO_Moving,      "Moving"},
   {QIO_Distributed, "Tripper"},
   {0}};
@@ -393,20 +395,22 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
         {
         DDB.Long  ("Type",    "",  DC_,      "",          xidProdType0+i,      this, m_TripperOn ? 0:isParmStopped, m_TripperOn ? DDBPrTypesB:DDBPrTypesA);
         eQIOTypes Typ=m_TripperOn ? QIO_Distributed : m_Q.m_Prod[i].Type();
-        if (Typ!=QIO_Fixed)
+        if (Typ!=QIO_Fixed && Typ!=QIO_FixedEnd)
           {
           if (Typ==QIO_Moving)
            DDB.Long     ("DriveNo",  "",  DC_,   "",       xidProdIndex0+i,     this, isParmStopped);
 
           if (m_TripperOn)
             {
-            DDB.Double("BinCentre",     "",  DC_L ,    "m",         xidProdPos0+i,       this, isParm);
-            DDB.Double("BinWidth",    "",  DC_L ,  "m",   xidProdBinWidth0+i,       this, isParm);
-            DDB.Double("SpillMargin", "",  DC_L ,  "m",   xidProdSpillMargin0+i,    this, isParm);
+            DDB.Double("BinCentre",   "",  DC_L ,  "m",   xidProdPos0+i,          this, isParm);
+            DDB.Double("BinWidth",    "",  DC_L ,  "m",   xidProdBinWidth0+i,     this, isParm);
+            DDB.Double("SpillMargin", "",  DC_L ,  "m",   xidProdSpillMargin0+i,  this, isParm);
             }
           }
         if (!m_TripperOn)
-          DDB.Double("Pos",     "",  DC_L ,    "m",         xidProdPos0+i,       this, Typ!=QIO_Moving?isParm:0);
+          {
+          DDB.Double("Pos",     "",  DC_L ,    "m",         xidProdPos0+i,       this, Typ==QIO_Fixed?isParm:isResult);
+          }
         DDB.Double("Removal", "",  DC_Frac , "%",         xidProdRemove0+i,    this, isParm);
         DDB.Double("Qm",      "",  DC_Qm ,   "kg/s",      xidProdQm0+i,        this, isResult);
         DDB.Double("Loss",    "",  DC_Qm ,   "kg/s",      xidProdLoss0+i,      this, isResult);
@@ -551,7 +555,14 @@ flag BeltCnv2::DataXchg(DataChangeBlk & DCB)
     {
     case xidBeltLength:
       if (DCB.rD)
+        {
         m_Q.SetLength(*DCB.rD);
+        for (int i=0; i<m_Q.NProds(); i++)
+          {
+          if (m_Q.m_Prod[i].Type()==QIO_FixedEnd)
+            m_Q.m_Prod[i].SetPosition(m_Q.Length());
+          }
+        }
       DCB.D=m_Q.Length();
       return 1;
     case xidBeltSpeed:
@@ -823,8 +834,12 @@ flag BeltCnv2::ValidateData(ValidateDataBlk & VDB)
 
   flag BadProdPosition=0;
   for (i=0; i<m_Q.NProds(); i++)
+    {
+    if (m_Q.m_Prod[i].Type()==QIO_FixedEnd)
+      m_Q.m_Prod[i].SetPosition(m_Q.Length());
     if (m_Q.m_Prod[i].Position()<0.0 || m_Q.m_Prod[i].Position()>m_Q.Length())
       BadProdPosition=1;
+    }
   SetCI(2, BadProdPosition);
 
   flag BadMtrPosition=0;
