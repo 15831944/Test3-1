@@ -18,6 +18,7 @@ class PSDPersonality
 {
   double * FracPass;
   double * Intervals;
+  long NIntervals;
 
   struct
       {

@@ -13,6 +13,7 @@ PSDPersonality::PSDPersonality()
   {
   FracPass = NULL;
   Intervals = NULL;
+  NIntervals = 0;
 
   m_eType = eAlcanPSD_Rosin;
 
@@ -33,11 +34,14 @@ PSDPersonality::PSDPersonality()
   m_Rqd.m_dm20     = dNAN;
   }
 
+// --------------------------------------------------------------------------
 
 PSDPersonality::~PSDPersonality()
 {
   if (FracPass != NULL)
     delete[] FracPass;
+  if (Intervals != NULL)
+    delete[] Intervals;
 }
 // --------------------------------------------------------------------------
 
@@ -81,7 +85,6 @@ void PSDPersonality::BuildDataDefn(MDataDefn & DD)
   DD.StructEnd();
   DD.Text("");
 
-  //DD.Bool("Set", "", idDX_Set, MF_PARAMETER | MF_BUTTON);
   //DD.Button("Set", "", idDX_Set, MF_PARAMETER);
 
   DD.ObjectEnd();
@@ -108,10 +111,6 @@ bool PSDPersonality::SetDistribution()
   //SortKey : variant ;
   //s1,s2 : string;
 
-  #if dbgModels
-  if (dbgSetSizeData ())
-    dbgpln("-----------------------------------");
-  #endif
   Count = 0 ;
   //Verifie si toutes les donnees PSD sont definie (Voir deuxieme tableau Dlg)
   if (0)//not allPSDDefine 
@@ -204,7 +203,7 @@ bool PSDPersonality::SetDistribution()
       Diam[Count]  = D75 ;
       wPrct[Count] = 0.75;
       Count++;
-      //pkh LogNote("Set PSD", 0, "Diam[0]:%.12g  Diam[1]:%.12g  Diam[2]:%.12g", Diam[0], Diam[1], Diam[2]);      
+      //LogNote("Set PSD", 0, "Diam[0]:%.12g  Diam[1]:%.12g  Diam[2]:%.12g", Diam[0], Diam[1], Diam[2]);      
       }
     };
 
@@ -245,6 +244,25 @@ bool PSDPersonality::SetDistribution()
     };
   if (Count>=2)
     {
+    if (Intervals == NULL)
+    {
+      NIntervals = m_PSD->getSizeCount();
+      Intervals = new double[NIntervals];
+      m_PSD->ExtractSizes(Intervals);
+    }
+    if (FracPass == NULL)
+      FracPass = new double[NIntervals];
+    if (NIntervals != m_PSD->getSizeCount())
+      {//number of intervals has changed
+      if (Intervals != NULL)
+        delete[] Intervals;
+      if (FracPass != NULL)
+        delete[] FracPass;
+      Intervals = new double[NIntervals];
+      m_PSD->ExtractSizes(Intervals);
+      FracPass = new double[NIntervals];
+      }
+
     switch (m_eType)
       {
       case eAlcanPSD_Log:
@@ -270,10 +288,9 @@ bool PSDPersonality::SetDistribution()
     }
   else
     {
-    //pkh LogWarning("Set PSD", 0, "Insufficient data to set PSD");
+    //todo LogWarning("Set PSD", 0, "Insufficient data to set PSD");
     }
-  //F1Book1.free;
-    return true;
+  return true;
   };
 
 // --------------------------------------------------------------------------
@@ -385,11 +402,7 @@ void PSDPersonality::RegressLN (const long Count, const double Diam[], const dou
     {
     x[i] = log10(Diam[i]);
     y[i] = NormInv(WPrct[i]);
-    #if dbgModels
-    if (dbgSetSizeData ())
-      dbgpln("RegressLN  %3i) %14.8f %14.8f %14.8f %14.8f", i, Diam[i], WPrct[i], x[i], y[i]);
-    #endif
-    };
+    }
   RegressXY (Count, x, y, RegRslt);
   };
 
@@ -405,11 +418,7 @@ void PSDPersonality::RegressRR (const long Count, const double Diam[], const dou
     {
     x[i] = log10(Diam[i]) ;
     y[i] = log10(log10(1.0/(1.0 - WPrct[i])));
-    #if dbgModels
-    if (dbgSetSizeData ())
-      dbgpln("RegressRR  %3i) %14.8f %14.8f %14.8f %14.8f", i, Diam[i], WPrct[i], x[i], y[i]);
-    #endif
-    };
+    }
   RegressXY (Count, x, y, RegRslt );
   };
 
@@ -420,18 +429,7 @@ void PSDPersonality::HyprodDataFromLN (double RegRslt[])
   long i;
   double WCumul[MaxHPSizeClasses+1];
 
-  long NIntervals = m_PSD->getSizeCount(); //pkh m_Q.Distributions[0]->NIntervals();
-
-  if (Intervals == NULL)
-  {
-    Intervals = new double[NIntervals];
-    m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
-  }
-
-  if (FracPass != NULL)
-    delete[] FracPass;
-  FracPass = new double[NIntervals];
-  m_PSD->ExtractFracVector(FracPass, 0); //pkh &m_Q.Distributions[0]->PriSp[0]->FracPass[0];
+  m_PSD->ExtractFracVector(FracPass, 0);
 
   for (i = 0; i<NIntervals; i++)
     {
@@ -441,16 +439,8 @@ void PSDPersonality::HyprodDataFromLN (double RegRslt[])
     FracPass[i] = WCumul[i];
     if (i>0)
       FracPass[i] -= WCumul[i-1];
-    #if dbgModels
-    if (dbgSetSizeData ())
-      dbgpln("HyprodData %3i) %14.8f %14.8f %14.8f", i, Intervals[i], WCumul[i], FracPass[i]);
-    #endif
     }
 
-  #if dbgModels
-  HyprodDist(NIntervals, &Intervals[0], WCumul);
-  #endif
-  //ComputeMedian(NIntervals, &Intervals[0], WCumul);
   }; 
 
 // --------------------------------------------------------------------------
@@ -460,21 +450,7 @@ void PSDPersonality::HyprodDataFromRR(double RegRslt[])
   long i;
   double WCumul[MaxHPSizeClasses+1];
 
-  long NIntervals = m_PSD->getSizeCount(); //pkh m_Q.Distributions[0]->NIntervals();
-
-  if (Intervals == NULL)
-  {
-    Intervals = new double[NIntervals];
-    m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
-  }
-
-  if (FracPass != NULL)
-    delete[] FracPass;
-  FracPass = new double[NIntervals];
-  m_PSD->ExtractFracVector(FracPass, 0); //pkh &m_Q.Distributions[0]->PriSp[0]->FracPass[0];
-
-
-  //pkh LogNote("Set PSD", 0, "RegRslt[0]:%.12g  RegRslt[1]:%.12g", RegRslt[0], RegRslt[1]);
+  m_PSD->ExtractFracVector(FracPass, 0);
 
   double Sum = 0.0;
   for (i=0; i<NIntervals; i++)
@@ -518,31 +494,16 @@ void PSDPersonality::HyprodDataFromRR(double RegRslt[])
 
   m_PSD->ReplaceFracVector(FracPass, 0);
 
-  #if dbgModels
-  HyprodDist(NIntervals, &Intervals[0], WCumul);
-  #endif
-  //ComputeMedian(NIntervals, &Intervals[0], WCumul);
   };
 
 // --------------------------------------------------------------------------
 
 void PSDPersonality::HyprodDataFromTable(long Count, double Diam[], double WPrct[], double RegRslt[])
   {
-  long NIntervals=m_PSD->getSizeCount(); //pkh m_Q.Distributions[0]->NIntervals();
-
-  if (Intervals == NULL)
-  {
-    Intervals = new double[NIntervals];
-    m_PSD->ExtractSizes(Intervals); //pkh m_Q.Distributions[0]->Intervals();
-  }
-
-  if (FracPass != NULL)
-    delete[] FracPass;
-  FracPass = new double[NIntervals];
-  m_PSD->ExtractFracVector(FracPass, 0); //pkh &m_Q.Distributions[0]->PriSp[0]->FracPass[0];
-
   long   i;
   double WCumul[MaxHPSizeClasses+1];
+
+  m_PSD->ExtractFracVector(FracPass, 0);
 
   bool Flag = true;
   while (Flag)     // sorting of the entries in ascending order of size
@@ -637,20 +598,11 @@ void PSDPersonality::HyprodDataFromTable(long Count, double Diam[], double WPrct
     Sum2 += FracPass[i];
     }
   FracPass[0] = Max(0.0, 1.0-Sum2);
-
-  #if dbgModels
-  HyprodDist(NIntervals, &Intervals[0], WCumul);
-  #endif
  };
 
 // --------------------------------------------------------------------------
 
 void PSDPersonality::HyprodDist(long NIntervals, double SizeClass[], double WCumul[])
-//void MassFrac2HyprodDist( double SizeClass[],
-//                          double MassFrac[],
-//                          double PS[],
-//                          long NIntervals,
-//                          double &SSurf)
   {
   const double WFact  = PI*2.42/6*1e-12 ; //      { =  Pi/6 * 2.42 g/cm3 * 10^-12 cm3/µm3}
   const double SFact  = PI*1e-8;          //      { = Pi * 10^-8 cm2/µm2 }
@@ -673,11 +625,9 @@ void PSDPersonality::HyprodDist(long NIntervals, double SizeClass[], double WCum
     PCumul += PS[i];
     SCumul += SS;                     // surface en cm2/g
 
-    #if dbgModels
-    if (dbgSetSizeData ())
-      dbgpln("HyprodDist %3i) %14.8f %14.8f %10.3e", i, DMean, WS, PS[i]);
-    #endif
     }
   //ppg := PCumul[50] ;
   SSurf = SCumul/10000.0;
   } //  {end procedure HyprodDist}
+
+// --------------------------------------------------------------------------
