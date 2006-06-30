@@ -1721,6 +1721,7 @@ flag SfeSD_Defn::Initialise()
       { "NCumG",   false, ViewIsCount && false, false, true,  true,   SzDSlct_N   |SzDSlct_CumG,  DI_NCumG,   &YNCnv,   &YNFmt,   false, true, noFile|noSnap, false},
     };
   #else
+  #if UseExtraColumns
   ColumnInitInfo CI[]=
     {
     //  Name,      fFileIt, fOn,       fForFlow,fForMass,fForCum,     Slct,                       iDataId,    pCnv,     pFmt, fEditable,fGrfOn,dwSaveFlags,fDone
@@ -1741,6 +1742,18 @@ flag SfeSD_Defn::Initialise()
       { "QnCum",   false, ViewIsCount && false, true,  false, true,   SzDSlct_Qn  |SzDSlct_Cum,   DI_QnCum,   &YQnCnv,  &YQnFmt,  false, true, noFile|noSnap, false},
       { "NCum",    false, ViewIsCount && false, false, true,  true,   SzDSlct_N   |SzDSlct_Cum,   DI_NCum,    &YNCnv,   &YNFmt,   false, true, noFile|noSnap, false},
     };
+  #else
+  ColumnInitInfo CI[]=
+    {
+    //  Name,      fFileIt, fOn,       fForFlow,fForMass,fForCum,     Slct,                       iDataId,    pCnv,     pFmt, fEditable,fGrfOn,dwSaveFlags,fDone
+      { "FP",      true,  ViewIsMass  && true,  true,  true,  false,  SzDSlct_Fp,                 DI_MFp,     &YFCnv,   &YFFmt,   true,  true, 0, false},
+      { "Qm",      false, ViewIsMass  && false, true,  false, false,  SzDSlct_Qm,                 DI_Qm,      &YQmCnv,  &YQmFmt,  false, true, noFile|noSnap, false},
+      { "M",       false, ViewIsMass  && false, false, true,  false,  SzDSlct_M,                  DI_M,       &YMCnv,   &YMFmt,   false, true, noFile|noSnap, false},
+      { "FPCum",   false, ViewIsMass  && true,  true,  true,  true,   SzDSlct_Fp |SzDSlct_Cum,    DI_MFpCum,  &YNFCnv,  &YNFFmt,  false, true, noFile|noSnap, false},
+      { "QmCum",   false, ViewIsMass  && true,  true,  false, true,   SzDSlct_Qm |SzDSlct_Cum,    DI_QmCum,   &YQmCnv,  &YQmFmt,  false, true, noFile|noSnap, false},
+      //{ "MCum",    false, ViewIsMass  && true,  false, true,  true,   SzDSlct_M  |SzDSlct_Cum,    DI_MCum,    &YMCnv,   &YMFmt,   false, true, noFile|noSnap, false},
+    };
+  #endif
   #endif
 
   flag OK=true;
@@ -2939,7 +2952,9 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
         GetMass(Ovr, M1, SpId);
         return 1;
       case DI_QmCum:
+      #if UseExtraColumns
       case DI_MCum :
+      #endif
         GetMass(Ovr, M1, SpId);
         Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
@@ -2989,6 +3004,7 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
           Results().ToCumulative(0.0, dNAN, true, 0);//!fSzAscend);
         return 1;
       #endif
+      #if UseExtraColumns
       case DI_NpM:
         GetSpCount(Ovr, M1, SpId);
         return 1;
@@ -3006,12 +3022,13 @@ flag CSD_Distribution::CalculateResults(SpPropOveride *Ovr, CSysVector &M1, int 
         Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
       case DI_NFp:
-          GetCountFrac(Ovr, M1, SpId);
+        GetCountFrac(Ovr, M1, SpId);
         return 1;
       case DI_NFpCum:
-          GetCountFrac(Ovr, M1, SpId);
-          Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
+        GetCountFrac(Ovr, M1, SpId);
+        Results().ToCumulative(0.0, dNAN, false, 0);//!fSzAscend);
         return 1;
+      #endif
       default :
         return 0;
       }

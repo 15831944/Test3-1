@@ -3772,6 +3772,7 @@ void SQSzDist1Edt::SetYData(CSD_Column &C, int iInt, double Val)
         D().PriSp[C.iSpId]->FracPass[iInt]=Val;
       D().PriSp[C.iSpId]->FracPass.AdjustCumulativeEnd(1.0, 0.0, 1.0);
       break;
+    #if UseExtraColumns
     case DI_NFp: 
       D().SetCountFrac(&rSD.pModel->m_Ovr, rSD.pModel->MArray(), C.iSpId, iInt, Val);//, rSD.WorkSpace); 
       break;
@@ -3788,6 +3789,7 @@ void SQSzDist1Edt::SetYData(CSD_Column &C, int iInt, double Val)
         D().PriSp[C.iSpId]->FracPass.AdjustCumulativeEnd(1.0, 0.0, 1.0);
         }
       break;
+    #endif
     }
   }
 

@@ -45,6 +45,9 @@ class SzSelBrk1;
 
 // ==========================================================================
 
+#define UseExtraColumns 0 //kga: 16/10/02 : Removed seldom used columns, 
+                        //this has memory/speed/etc savings for project mith large number of ore types
+
 #if UseExtraColumns
 #define UseAllColumns 0 //kga:if 1 include SumG, xxxG columns (doubt we will ever need these)
 #else
@@ -91,6 +94,7 @@ const int DI_NpMCumG = 20;
 
 const int DI_Xtra    = 21;
 #else
+#if UseExtraColumns
 const int DI_MFp     = 0; // Mass Related 
 const int DI_Qm      = 1;
 const int DI_M       = 2;
@@ -109,6 +113,15 @@ const int DI_NpM     = 12; // Specific Count
 const int DI_NpMCum  = 13;
 
 const int DI_Xtra    = 14;
+#else
+const int DI_MFp     = 0; // Mass Related 
+const int DI_Qm      = 1;
+const int DI_M       = 2;
+const int DI_MFpCum  = 3;
+const int DI_QmCum   = 4;
+//const int DI_MCum    = 5;//maybe include this?
+const int DI_Xtra    = 5;
+#endif
 #endif
 
 // ===========================================================================
