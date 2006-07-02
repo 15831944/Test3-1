@@ -3650,9 +3650,9 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
           if (Progress<0.0)
             {
             if (CB.m_StepSize>3600.0)
-              Buff2.Format("StepSize:%.3gh", CB.m_StepSize/3600.0);
+              Buff2.Format("StepSize:%.3gh", CB.m_StepSize.Seconds/3600.0);
             else
-              Buff2.Format("StepSize:%.4g", CB.m_StepSize);
+              Buff2.Format("StepSize:%.4g", CB.m_StepSize.Seconds);
             }
           else
             Buff2.Format("%.2f%%", Progress*100.0);
