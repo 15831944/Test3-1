@@ -3898,8 +3898,10 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
             DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap|NAN_OK);
 
-            DDB.Text("FIX!!!");
-              int iiii=0;                              ?
+            if (0)
+              {
+              DDB.Text("FIX!!!");
+              int iiii=0;                              
               for (int d=0; d<NoDirectIOs(); d++) 
                 {
                 CDirectFlwIO &D=*m_DirectIOs[d];
@@ -3907,31 +3909,34 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                 Tag.Set("Adt%i", iiii++);
                 DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+d,       this, isResult|/*isTag|*/noFile|noSnap);
                 }
+              }
+            else
+              {
 
+              int iDir=0;
+              for (int d=0; d<NoProcDirectIOs(); d++) 
+                {
+                CDirectFlwIO &D=*m_DirectIOs[d];
+                Sym.Set("Dir.%s", D.Tag);
+                Tag.Set("Dir%i", iDir);
+                DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|noFile|noSnap);
+                iIO++;
+                iDir++;
+                }
 
-            //int iDir=0;
-            //for (int d=0; d<NoProcDirectIOs(); d++) 
-            //  {
-            //  CDirectFlwIO &D=*m_DirectIOs[d];
-            //  Sym.Set("Dir.%s", D.Tag);
-            //  Tag.Set("Dir%i", iDir);
-            //  DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|noFile|noSnap);
-            //  iIO++;
-            //  iDir++;
-            //  }
-
-            //if (NoDirectIOs()>0)
-            //  {
-            //  int iAdt=0;
-            //  for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
-            //    {
-            //    CDirectFlwIO &D=*m_DirectIOs[d];
-            //    Sym.Set("Adt.%s", D.Tag);
-            //    Tag.Set("Adt%i", iAdt++);
-            //    DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
-            //    iDir++;
-            //    }
-            //  }
+              if (NoDirectIOs()>0)
+                {
+                int iAdt=0;
+                for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
+                  {
+                  CDirectFlwIO &D=*m_DirectIOs[d];
+                  Sym.Set("Adt.%s", D.Tag);
+                  Tag.Set("Adt%i", iAdt++);
+                  DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
+                  iDir++;
+                  }
+                }
+              }
 
             DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
             DDB.Double("Balance.Rel", "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
