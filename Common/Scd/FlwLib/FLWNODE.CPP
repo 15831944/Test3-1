@@ -10171,7 +10171,10 @@ flag CDirectFlwIO::GlobalConnect()
       m_pNd->SetIOAutoConnect(m_iMyConnectedIO, true);
       m_pRmt->SetIOAutoConnect(iEnvConnectedIO, true);
 
-      dbgpln(".. %s[%i] %s[%i] ", m_pNd->FullObjTag(), m_iMyConnectedIO, m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag(), iEnvConnectedIO);
+      #if dbgFlwNode
+      if (dbgGlobalConnects())
+        dbgpln(".. %s[%i] %s[%i] ", m_pNd->FullObjTag(), m_iMyConnectedIO, m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag(), iEnvConnectedIO);
+      #endif
       #if dbgKwikConnect
       dbgpln(" .F %5i %5i %10.1fus %-20s %s > %s", m_iMyConnectedIO, iEnvConnectedIO, SW.Lap()*1e6, "", m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
       #endif
