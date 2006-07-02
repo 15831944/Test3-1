@@ -1702,7 +1702,7 @@ inline bool IsVentIOId(int Id)        { return InRange(VentIOId0,   Id, LeakIOId
 inline bool IsLeakIOId(int Id)        { return InRange(LeakIOId0,   Id, MakeupIOId0   -1);  };
 inline bool IsMakeupIOId(int Id)      { return InRange(MakeupIOId0, Id, BleedIOId0  -1);  };
 inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, AAAAIOId0  -1);  };
-inline bool IsAuditIOId(int Id)       { return false; }//InRange(ABleedIOId0,  Id, AAAAIOId0  -1);  };
+//inline bool IsAuditIOId(int Id)       { return false; }//InRange(ABleedIOId0,  Id, AAAAIOId0  -1);  };
 //..
 inline bool IsAreaIOId(int Id)        { return InRange(AreaIOId0,   Id, CtrlIOId0   -1);  };
 
@@ -3456,8 +3456,8 @@ class DllImportExport FlwNode : public CTNode
 #endif
     int            IOModifiedIn();
 
-    int            NoAreaSums()           { return NoProcessIOs()+NoDirectIOs(); };
-    CAreaSum     * AreaSum(int i)         { return i<NoProcessIOs() ? IOAreaSum(i) : &m_DirectIOs[i-NoProcessIOs()]->Sum; }
+    int            NoAreaSums()           { return NoProcLnkIOs()+NoEnabledDirectIOs(); };
+    CAreaSum     * AreaSum(int i)         { return i<NoProcLnkIOs() ? IOAreaSum(i) : &m_EnabledDirectIOs[i-NoProcLnkIOs()]->Sum; }
 
     virtual CSpPropInfo *IOGetNetProps(int i, double Qm) { return NULL; };
     virtual void   IOSetNetProps(int i, CSpPropInfo * pNP) { m_IOs[i].pFlng->m_NetProps=*pNP; };
@@ -4156,30 +4156,31 @@ class DllImportExport FlwNode : public CTNode
     int            m_nFIOs;
     int            m_nProcLnkIOs;
     int            m_nProcessIOs;
-    int            m_nMkupIOs;
-    int            m_nAuditIOs;
+    
+    int            m_nProcDirectIOs;
+    int            m_nMkupDirectIOs;
+
     int            m_iCIO1, m_nCIOs;
     int            m_iEIO1, m_nEIOs;
     int            m_iAIO1, m_nAIOs;
 
-    long           NoIOs()              { return m_nIOs; };
-    long           NoFlwIOs()           { return m_nFIOs; };
-    long           NoProcessIOs()       { return m_nProcessIOs; };
-    long           NoProcLnkIOs()       { return m_nProcLnkIOs; };
-    long           NoProcDirectIOs()    { return m_nProcessIOs-m_nProcLnkIOs; };
-    long           NoAuditDirectIOs()   { return m_nAuditIOs; };
-    long           NoDirectIOs()        { return m_DirectIOs.GetCount(); };
-    long           FirstProcDirectIO()  { return m_nProcLnkIOs; };
-    long           FirstMkupDirectIO()  { return m_nProcessIOs; };
-    long           LastMkupDirectIO()   { return m_nProcessIOs+m_nMkupIOs-1; };
-    long           FirstAuditDirectIO() { return m_nProcessIOs+m_nMkupIOs; };
-    long           LastAuditDirectIO()  { return m_nProcessIOs+m_nMkupIOs+m_nAuditIOs-1; };
+    long           NoIOs()                { return m_nIOs; };
+    long           NoFlwIOs()             { return m_nFIOs; };
+    long           NoProcessIOs()         { return m_nProcessIOs; };
+    long           NoProcLnkIOs()         { return m_nProcLnkIOs; };
+
+    long           NoAttachedDirectIOs()  { return m_AttachedDirectIOs.GetCount(); };
+    long           NoEnabledDirectIOs()   { return m_EnabledDirectIOs.GetCount(); };
+
+    long           NoProcDirectIOs()      { return m_nProcDirectIOs; };
+    long           NoRealDirectIOs()      { return m_nProcDirectIOs+m_nMkupDirectIOs; };
+    long           NoAuditDirectIOs()     { return m_EnabledDirectIOs.GetCount()-m_nProcDirectIOs-m_nMkupDirectIOs; };
     
-    long           FirstProcDirect()  { return 0; };
-    long           FirstMkupDirect()  { return m_nProcessIOs-m_nProcLnkIOs; };
-    long           LastMkupDirect()   { return m_nProcessIOs-m_nProcLnkIOs+m_nMkupIOs-1; };
-    long           FirstAuditDirect() { return m_nProcessIOs-m_nProcLnkIOs+m_nMkupIOs; };
-    long           LastAuditDirect()  { return m_nProcessIOs-m_nProcLnkIOs+m_nMkupIOs+m_nAuditIOs-1; };
+    long           FirstProcDirect()      { return 0; };
+    long           FirstMkupDirect()      { return m_nProcDirectIOs; };
+    long           LastMkupDirect()       { return m_nProcDirectIOs+m_nMkupDirectIOs-1; };
+    long           FirstAuditDirect()     { return m_nProcDirectIOs+m_nMkupDirectIOs; };
+    long           LastAuditDirect()      { return m_EnabledDirectIOs.GetCount()-1; };
 
     long           NoCIOs()       { return m_nCIOs;};
     long           NoEIOs()       { return m_nEIOs;};
@@ -4213,9 +4214,9 @@ class DllImportExport FlwNode : public CTNode
     Strng          m_sAreaDisp;
     CTODirectPtr<FlwNode> m_pArea;
     CList<FlwNode*, FlwNode*> m_NdsInArea;
-    CArray<CDirectFlwIO*, CDirectFlwIO*> m_DirectIOs;
+    CArray<CDirectFlwIO*, CDirectFlwIO*> m_AttachedDirectIOs;
+    CArray<CDirectFlwIO*, CDirectFlwIO*> m_EnabledDirectIOs;
     CList<CDirectFlwIO*, CDirectFlwIO*> m_DirectIOsConnected;
-    //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> m_DirectIOsConnected;
     POSITION       m_AreaNdListPos;
 
     JoinArray      Joins;

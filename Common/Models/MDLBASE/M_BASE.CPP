@@ -2375,7 +2375,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (gs_EvalAudits)
         {
         double Sig=0.0;
-        for (int i=0; i<NoProcessIOs(); i++)
+        for (int i=0; i<NoProcLnkIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
         DCB.D=Sig;
         }
@@ -2388,11 +2388,11 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (gs_EvalAudits)
         {
         double Sig=0.0;
-        for (int i=0; i<NoProcessIOs(); i++)
+        for (int i=0; i<NoProcLnkIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
-        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
+        for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowMass;
           }
         DCB.D=Sig;
@@ -2418,7 +2418,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           }
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowMass;
           if (D.NdSignImplied>0)
             SigPos+=D.Sum.FlowMass;
@@ -2456,7 +2456,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalMass;
           }
         DCB.D=Sig;
@@ -2482,7 +2482,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           }
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalMass;
           if (D.NdSignImplied>0)
             SigPos+=D.Sum.TotalMass;
@@ -2518,7 +2518,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowHz;
           }
         DCB.D=Sig;
@@ -2544,7 +2544,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           }
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowHz;
           if (D.NdSignImplied>0)
             SigPos+=D.Sum.FlowHz;
@@ -2579,7 +2579,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalHz;
           }
         DCB.D=Sig;
@@ -2605,7 +2605,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           }
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalHz;
           if (D.NdSignImplied>0)
             SigPos+=D.Sum.TotalHz;
@@ -2886,7 +2886,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         else
           {
           i -= NoProcLnkIOs();
-          CDirectFlwIO &D=*m_DirectIOs[i];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[i];
           DCB.D=D.NdSignImplied*D.Sum.FlowMass;//?????
           }
         return true;
@@ -2894,16 +2894,16 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       else if (DCB.lHandle>=xidIO_IoQm0+NoFlwIOs() && DCB.lHandle<xidIO_IoQm0+NoFlwIOs()+NoProcDirectIOs())
         {
         int i=DCB.lHandle-xidIO_IoQm0-NoFlwIOs();
-        CDirectFlwIO &D=*m_DirectIOs[i];
+        CDirectFlwIO &D=*m_EnabledDirectIOs[i];
         DCB.D=D.NdSignImplied*D.Sum.FlowMass;//?????
         return true;
         }
-      else if (DCB.lHandle>=xidIO_DrQm0 && DCB.lHandle<xidIO_DrQm0+m_DirectIOs.GetCount())
+      else if (DCB.lHandle>=xidIO_DrQm0 && DCB.lHandle<xidIO_DrQm0+m_EnabledDirectIOs.GetCount())
         {
         int i=DCB.lHandle-xidIO_DrQm0;
-        if (i<NoDirectIOs())
+        if (i<NoEnabledDirectIOs())
           {
-          CDirectFlwIO &D=*m_DirectIOs[i];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[i];
           DCB.D=D.NdSignImplied*D.Sum.FlowMass;
           }
         else
@@ -2916,12 +2916,12 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=IOConduit(i)->totHz()*Sign(IOQm_In(i));
         return true;
         }
-      else if (DCB.lHandle>=xidIO_DrHz0 && DCB.lHandle<xidIO_DrHz0+NoDirectIOs())
+      else if (DCB.lHandle>=xidIO_DrHz0 && DCB.lHandle<xidIO_DrHz0+NoEnabledDirectIOs())
         {
         int i=DCB.lHandle-xidIO_DrHz0;
-        if (i<NoDirectIOs())
+        if (i<NoEnabledDirectIOs())
           {
-          CDirectFlwIO &D=*m_DirectIOs[i];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[i];
           DCB.D=D.NdSignImplied*D.Sum.FlowHz;
           }
         else
@@ -2934,12 +2934,12 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=IOFlange(i)->Sum.TotalMass;
         return true;
         }
-      else if (DCB.lHandle>=xidIO_DrQmTotal0 && DCB.lHandle<xidIO_DrQmTotal0+NoDirectIOs())
+      else if (DCB.lHandle>=xidIO_DrQmTotal0 && DCB.lHandle<xidIO_DrQmTotal0+NoEnabledDirectIOs())
         {
         int i=DCB.lHandle-xidIO_DrQmTotal0;
-        if (i<NoDirectIOs())
+        if (i<NoEnabledDirectIOs())
           {
-          CDirectFlwIO &D=*m_DirectIOs[i];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[i];
           DCB.D=D.NdSignImplied*D.Sum.TotalMass;
           }
         else
@@ -2952,12 +2952,12 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=IOFlange(i)->Sum.TotalHz;
         return true;
         }
-      else if (DCB.lHandle>=xidIO_DrHzTotal0 && DCB.lHandle<xidIO_DrHzTotal0+m_DirectIOs.GetCount())
+      else if (DCB.lHandle>=xidIO_DrHzTotal0 && DCB.lHandle<xidIO_DrHzTotal0+m_EnabledDirectIOs.GetCount())
         {
         int i=DCB.lHandle-xidIO_DrHzTotal0;
-        if (i<NoDirectIOs())
+        if (i<NoEnabledDirectIOs())
           {
-          CDirectFlwIO &D=*m_DirectIOs[i];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[i];
           DCB.D=D.NdSignImplied*D.Sum.TotalHz;
           }
         else
@@ -3362,7 +3362,7 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       dbgpln("SortSurgeIOs --------------- %s", Cn.FullObjTag());
     #endif
 
-    for (int i = 0; i < NoFlwIOs(); i++)
+    for (int i = 0; i < NoProcLnkIOs(); i++)
       {
       if (IOIdMask_Self(i)&D.m_IOIdMask)
         {
@@ -3466,6 +3466,9 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
 
     HO.Ord.SetSize(Oi);
     HO.Seq.SetSize(Oi);
+    HO.m_Ovr.SetSize(nOvr);
+    HO.m_Gas.SetSize(nGas);
+
     int HSeq=0;
     for (i = 0; i < Oi; i++)
       {
@@ -3482,6 +3485,10 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       for (i = 0; i < Oi; i++)
         dbgpln("Ord: %3i %3i %3i %3i %6.2f%% %6.2f%% %s",
           i,HO.Ord[i], HO.Seq[i], IOSameHgt((byte)IHgt[i]), FHgt[IHgt[i]]*100, IOAperture(IHgt[i])*100, Nd_Rmt(HO.Ord[i])->FullObjTag());
+      for (i = 0; i < HO.NOvr(); i++)
+        dbgpln("Ovr: %3i %3i %s", i,HO.m_Ovr[i], Nd_Rmt(HO.m_Ovr[i])->FullObjTag());
+      for (i = 0; i < HO.NGas(); i++)
+        dbgpln("Gas: %3i %3i %s", i,HO.m_Gas[i], Nd_Rmt(HO.m_Gas[i])->FullObjTag());
       }
     #endif
     }
@@ -3802,7 +3809,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
       }
     for (int d=0; d<NoProcDirectIOs(); d++) 
       {
-      CDirectFlwIO &D=*m_DirectIOs[d];
+      CDirectFlwIO &D=*m_EnabledDirectIOs[d];
       Sym.Set("IO.%s.Qm", D.Tag);
       Tag.Set("IO.[%i].Qm", i);
       DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+i,       this, isResult|noFile|noSnap);
@@ -3813,14 +3820,14 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
     DDB.Double("Qm_TotalOut",   "QmOut",  DC_Qm , "kg/s",    xidIO_QmTotalOut,    this, isResult|noFile|noSnap|InitHidden);
     DDB.Double("Nett_Qm",       "QmNett", DC_Qm , "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap);
 
-    if (NoDirectIOs()>0)
+    if (NoEnabledDirectIOs()>0)
       {
       int iAdt=0;
       DDB.Text(" ");
       DDB.Text("Mass Audit");
       for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
         {
-        CDirectFlwIO &D=*m_DirectIOs[d];
+        CDirectFlwIO &D=*m_EnabledDirectIOs[d];
         Sym.Set("AI.%s.Qm", D.Tag);
         Tag.Set("AI.[%i].Qm", iAdt++);
         DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+d,       this, isResult|isTag|noFile|noSnap);
@@ -3843,7 +3850,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
       }
     for (int d=0; d<NoProcDirectIOs(); d++) 
       {
-      CDirectFlwIO &D=*m_DirectIOs[d];
+      CDirectFlwIO &D=*m_EnabledDirectIOs[d];
       Sym.Set("IO.%s.Hz", D.Tag);
       Tag.Set("IO.[%i].Hz", i);
       DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_IoHz0+i,       this, isResult|noFile|noSnap);
@@ -3852,14 +3859,14 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
 
     DDB.Double("Nett_Hz",       "HzNett", DC_Pwr, "kJ/s",    xidIO_HzNett,       this, isResult|noFile|noSnap);
 
-    if (NoDirectIOs()>0)
+    if (NoEnabledDirectIOs()>0)
       {
       int iAdt=0;
       DDB.Text(" ");
       DDB.Text("Heat Audit");
       for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
         {
-        CDirectFlwIO &D=*m_DirectIOs[d];
+        CDirectFlwIO &D=*m_EnabledDirectIOs[d];
         Sym.Set("AI.%s.Hz", D.Tag);
         Tag.Set("AI.[%i].Hz", iAdt++);
         DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_DrHz0+d,       this, isResult|isTag|noFile|noSnap);
@@ -3887,55 +3894,29 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           {
           if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
             {
-            int iIO=0; 
-            for (int i=0; i<NoProcLnkIOs(); i++)
+            for (int iIO=0; iIO<NoProcLnkIOs(); iIO++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk%i", iIO);
               DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
-              iIO++;
               }
 
             DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap|NAN_OK);
 
-            if (0)
+            for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
               {
-              DDB.Text("FIX!!!");
-              int iiii=0;                              
-              for (int d=0; d<NoDirectIOs(); d++) 
-                {
-                CDirectFlwIO &D=*m_DirectIOs[d];
-                Sym.Set("Adt.%s", D.Tag);
-                Tag.Set("Adt%i", iiii++);
-                DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+d,       this, isResult|/*isTag|*/noFile|noSnap);
-                }
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
+              Sym.Set("Dir.%s", D.Tag);
+              Tag.Set("Dir%i", iDir);
+              DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|noFile|noSnap);
               }
-            else
+
+            for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
               {
-
-              int iDir=0;
-              for (int d=0; d<NoProcDirectIOs(); d++) 
-                {
-                CDirectFlwIO &D=*m_DirectIOs[d];
-                Sym.Set("Dir.%s", D.Tag);
-                Tag.Set("Dir%i", iDir);
-                DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|noFile|noSnap);
-                iIO++;
-                iDir++;
-                }
-
-              if (NoDirectIOs()>0)
-                {
-                int iAdt=0;
-                for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
-                  {
-                  CDirectFlwIO &D=*m_DirectIOs[d];
-                  Sym.Set("Adt.%s", D.Tag);
-                  Tag.Set("Adt%i", iAdt++);
-                  DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
-                  iDir++;
-                  }
-                }
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iAdt];
+              Sym.Set("Adt.%s", D.Tag);
+              Tag.Set("Adt%i", iAdt);
+              DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iAdt,       this, isResult|/*isTag|*/noFile|noSnap);
               }
 
             DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
@@ -3949,40 +3930,31 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           DDB.Text(" ");
           if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
             {
-            int iIO=0; 
-            for (int i=0; i<NoProcLnkIOs(); i++)
+            for (int iIO=0; iIO<NoProcLnkIOs(); iIO++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk%i", iIO);
               DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",      xidIO_IoHz0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
-              iIO++;
               }
 
             DDB.Double("Nett",       "", DC_Pwr, "kJ/s",      xidIO_HzNett,        this, isResult|noFile|noSnap|NAN_OK);
 
-            int iDir=0;
-            for (int d=0; d<NoProcDirectIOs(); d++) 
+            for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
               {
-              CDirectFlwIO &D=*m_DirectIOs[d];
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
               Sym.Set("Dir.%s", D.Tag);
               Tag.Set("Dir%i", iDir);
-              DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_IoHz0+iIO,       this, isResult|noFile|noSnap);
-              iIO++;
-              iDir++;
+              DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_DrHz0+iDir,       this, isResult|noFile|noSnap);
               }
 
-            if (NoDirectIOs()>0)
+            for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
               {
-              int iAdt=0;
-              for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
-                {
-                CDirectFlwIO &D=*m_DirectIOs[d];
-                Sym.Set("Adt.%s", D.Tag);
-                Tag.Set("Adt%i", iAdt++);
-                DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",  xidIO_DrHz0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
-                iDir++;
-                }
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iAdt];
+              Sym.Set("Adt.%s", D.Tag);
+              Tag.Set("Adt%i", iAdt);
+              DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",  xidIO_DrHz0+iAdt,       this, isResult|/*isTag|*/noFile|noSnap);
               }
+
             DDB.Double("Balance",     "", DC_Pwr , "kJ/s",    xidIO_HzBalance,       this, isResult|noFile|noSnap|NAN_OK);
             DDB.Double("Balance.Rel", "", DC_Frac,  "%",      xidIO_HzBalanceRel,    this, isResult|noFile|noSnap|NAN_OK);
             }
@@ -3999,40 +3971,31 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           {
           if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
             {
-            int iIO=0; 
-            for (int i=0; i<NoProcLnkIOs(); i++)
+            for (int iIO=0; iIO<NoProcLnkIOs(); iIO++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk.[%i]", iIO);
               DDB.Double(Tag(), Sym(),  DC_M , "kg",       xidIO_IoQmTotal0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
-              iIO++;
               }
 
             DDB.Double("Nett",       "", DC_M ,  "kg",     xidIO_QmNettTotal,       this, isResult|noFile|noSnap|NAN_OK);
 
-            int iDir=0;
-            for (int d=0; d<NoProcDirectIOs(); d++) 
+            for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
               {
-              CDirectFlwIO &D=*m_DirectIOs[d];
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
               Sym.Set("Dir.%s", D.Tag);
               Tag.Set("Dir.[%i]", iDir);
-              DDB.Double(Tag(), Sym(),  DC_M , "kg",     xidIO_IoQmTotal0+iIO,       this, isResult|noFile|noSnap);
-              iIO++;
-              iDir++;
+              DDB.Double(Tag(), Sym(),  DC_M , "kg",     xidIO_DrQmTotal0+iDir,       this, isResult|noFile|noSnap);
               }
 
-            if (NoDirectIOs()>0)
+            for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
               {
-              int iAdt=0;
-              for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
-                {
-                CDirectFlwIO &D=*m_DirectIOs[d];
-                Sym.Set("Adt.%s", D.Tag);
-                Tag.Set("Adt.[%i]", iAdt++);
-                DDB.Double(Tag(), Sym(),  DC_M , "kg",   xidIO_DrQmTotal0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
-                iDir++;
-                }
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iAdt];
+              Sym.Set("Adt.%s", D.Tag);
+              Tag.Set("Adt.[%i]", iAdt);
+              DDB.Double(Tag(), Sym(),  DC_M , "kg",   xidIO_DrQmTotal0+iAdt,       this, isResult|/*isTag|*/noFile|noSnap);
               }
+
             DDB.Double("Balance",       "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
             DDB.Double("Balance.Rel",   "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK);
             }
@@ -4044,40 +4007,31 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           DDB.Text(" ");
           if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
             {
-            int iIO=0; 
-            for (int i=0; i<NoProcLnkIOs(); i++)
+            for (int iIO=0; iIO<NoProcLnkIOs(); iIO++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk.[%i]", iIO);
               DDB.Double(Tag(), Sym(),  DC_E , "kJ",      xidIO_IoHzTotal0+iIO,         this, isResult|/*isTag|*/noFile|noSnap);
-              iIO++;
               }
 
             DDB.Double("Nett",       "", DC_E, "kJ",      xidIO_HzNettTotal,          this, isResult|noFile|noSnap|NAN_OK);
 
-            int iDir=0;
-            for (int d=0; d<NoProcDirectIOs(); d++) 
+            for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
               {
-              CDirectFlwIO &D=*m_DirectIOs[d];
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
               Sym.Set("Dir.%s", D.Tag);
               Tag.Set("Dir.[%i]", iDir);
-              DDB.Double(Tag(), Sym(),  DC_E , "kJ",    xidIO_IoHzTotal0+iIO,         this, isResult|noFile|noSnap);
-              iIO++;
-              iDir++;
+              DDB.Double(Tag(), Sym(),  DC_E , "kJ",    xidIO_DrHzTotal0+iDir,         this, isResult|noFile|noSnap);
               }
 
-            if (NoDirectIOs()>0)
+            for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
               {
-              int iAdt=0;
-              for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
-                {
-                CDirectFlwIO &D=*m_DirectIOs[d];
-                Sym.Set("Adt.%s", D.Tag);
-                Tag.Set("Adt.[%i]", iAdt++);
-                DDB.Double(Tag(), Sym(),  DC_E , "kJ",  xidIO_DrHzTotal0+iDir,        this, isResult|/*isTag|*/noFile|noSnap);
-                iDir++;
-                }
+              CDirectFlwIO &D=*m_EnabledDirectIOs[iAdt];
+              Sym.Set("Adt.%s", D.Tag);
+              Tag.Set("Adt.[%i]", iAdt);
+              DDB.Double(Tag(), Sym(),  DC_E , "kJ",  xidIO_DrHzTotal0+iAdt,        this, isResult|/*isTag|*/noFile|noSnap);
               }
+
             DDB.Double("Balance",     "", DC_E , "kJ",    xidIO_HzBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
             DDB.Double("Balance.Rel", "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK);
             }

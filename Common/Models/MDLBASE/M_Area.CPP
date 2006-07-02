@@ -833,9 +833,9 @@ void MN_Area::EvalAudit(int Pass)
           }
 
         int i=0;
-        for (int d=0; i<Nd.NoDirectIOs(); d++)
+        for (int d=0; i<Nd.NoEnabledDirectIOs(); d++)
           {
-          CDirectFlwIO &D=*Nd.m_DirectIOs[d];
+          CDirectFlwIO &D=*Nd.m_EnabledDirectIOs[d];
           FlwNode &DNd=D.Nd;
 
           if (D.Connected && (DNd.m_pArea==this))

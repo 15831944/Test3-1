@@ -1863,8 +1863,10 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_nFIOs         = 0;
   m_nProcLnkIOs   = 0;
   m_nProcessIOs   = 0;
-  m_nMkupIOs      = 0;
-  m_nAuditIOs     = 0;
+
+  m_nProcDirectIOs = 0;
+  m_nMkupDirectIOs = 0;
+
   m_iCIO1         = 0;
   m_nCIOs         = 0;
   m_iEIO1         = 0;
@@ -2461,11 +2463,44 @@ void FlwNode::GlobalConnect()
     AreaOK=false;
     }
 
-  for (int d=0; d<m_DirectIOs.GetSize(); d++)
-    if (!m_DirectIOs[d]->GlobalConnect())
+  int iEnabled=0;
+  m_nMkupDirectIOs=0;
+  m_nProcDirectIOs=0;
+  for (int d=0; d<m_AttachedDirectIOs.GetSize(); d++)
+    {
+    CDirectFlwIO *pDIO=m_AttachedDirectIOs[d];
+    if (pDIO->GlobalConnect())
+      {
+      if (pDIO->Enabled)
+        {
+        m_EnabledDirectIOs.SetAtGrow(iEnabled++, pDIO);
+        switch (pDIO->m_eType)
+          {
+          case eDIO_Spill:
+          case eDIO_Vent:
+          case eDIO_Leak:
+            m_nProcDirectIOs++;
+            break;
+          case eDIO_Makeup:
+          case eDIO_Bleed:
+            m_nMkupDirectIOs++;
+            break;
+          //case eDIO_Src:
+          //case eDIO_Snk:
+          //case eDIO_Accum:
+          //case eDIO_Deplete:
+          default:
+            break;
+          }
+        }
+      }
+    else
       BadDirects++;
-  for (int d=0; d<m_DirectIOs.GetSize(); d++)
-    m_DirectIOs[d]->GlobalConnectFinal();
+    }
+  m_EnabledDirectIOs.SetSize(iEnabled);
+
+  for (int d=0; d<m_EnabledDirectIOs.GetSize(); d++)
+    m_EnabledDirectIOs[d]->GlobalConnectFinal();
 
 
   //POSITION Pos=m_DirectIOs.GetHeadPosition();
@@ -2556,10 +2591,10 @@ void FlwNode::GlobalDisConnect()
   for (int i=0; i<m_PwrUsers.GetSize(); i++)
     m_PwrUsers[i]->GlobalDisConnect();
 
-  for (int d=0; d<m_DirectIOs.GetSize(); d++)
-    m_DirectIOs[d]->GlobalDisConnect();
-  for (int d=0; d<m_DirectIOs.GetSize(); d++)
-    m_DirectIOs[d]->GlobalConnectFinal();
+  for (int d=0; d<m_EnabledDirectIOs.GetSize(); d++)
+    m_EnabledDirectIOs[d]->GlobalDisConnect();
+  for (int d=0; d<m_EnabledDirectIOs.GetSize(); d++)
+    m_EnabledDirectIOs[d]->GlobalConnectFinal();
   //POSITION Pos=m_DirectIOs.GetHeadPosition();
   //while (Pos)
   //  m_DirectIOs.GetNext(Pos)->GlobalDisConnect();
@@ -3891,10 +3926,10 @@ void FlwNode::SetIO_Direct(int i, int iJoinId)
 
   int Id=IOId_Self(i);
   Joins[iJoinId].fIsMkup = IsMakeupIOId(Id);
-  Joins[iJoinId].fIsAudit = IsAuditIOId(Id);
+  Joins[iJoinId].fIsAudit = false;//IsAuditIOId(Id);
 
   if (0)
-    dbgpln("FlwNode::SetIO_Direct %3i %3i %i %i %s", i, iJoinId, IsMakeupIOId(Id), IsAuditIOId(Id), Tag());
+    dbgpln("FlwNode::SetIO_Direct %3i %3i %i %s", i, iJoinId, IsMakeupIOId(Id), Tag());
   };
 
 //--------------------------------------------------------------------------
@@ -4511,51 +4546,24 @@ void FlwNode::CompletePressureSens()
 
 void FlwNode::BuildJoinList()
   {
-
-  static int XXX=0;
-  if (!XXX)
+  if (0)
     {
-    dbgpln("NIOs %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s", 
-            "IOs",              
-            "FlwsIOs",           
-            "ProcIOs",       
-            "PLnkIOs",       
-            "PDirIOs",    
-            "ADirIOs",   
-            "DirsIOs",        
-            "1PrcIO", 
-            "1MkupIO",       
-            "NMkupIO",       
-            "1AudtIO",      
-            "NAudiIO",        
-            "1Prc", 
-            "1Mkup",       
-            "NMkup",       
-            "1Audt",      
-            "NAudi");
+    static int XXX=0;
+    if (!XXX)
+      {
+      dbgpln("NIOs %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s %7s",
+              "IOs","FlwsIOs","ProcIOs","PLnkIOs","PDirIOs",
+              "AttDIOs","EnaDIOs","AdtDIOs",
+              "fProc","fMkup","lMkup","fAudt","lAudt");
+      XXX=1;
+      }
 
-    XXX=1;
+    dbgpln("NIOs %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %s",
+            NoIOs(),NoFlwIOs(),NoProcessIOs(),NoProcLnkIOs(),NoProcDirectIOs(),
+            NoAttachedDirectIOs(),NoEnabledDirectIOs(),NoAuditDirectIOs(),
+            FirstProcDirect(),FirstMkupDirect(),LastMkupDirect(),FirstAuditDirect(),LastAuditDirect(),
+            Tag());
     }
-
-  dbgpln("NIOs %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %7i %s", 
-    NoIOs(),              
-    NoFlwIOs(),           
-    NoProcessIOs(),       
-    NoProcLnkIOs(),       
-    NoProcDirectIOs(),    
-    NoAuditDirectIOs(),   
-    NoDirectIOs(),        
-    FirstProcDirectIO(), 
-    FirstMkupDirectIO(),       
-    LastMkupDirectIO(),       
-    FirstAuditDirectIO(),      
-    LastAuditDirectIO(),
-    FirstProcDirect(), 
-    FirstMkupDirect(),       
-    LastMkupDirect(),       
-    FirstAuditDirect(),      
-    LastAuditDirect(),
-    Tag());
 
   for (int i=0; i<NoFlwIOs(); i++)
     {
@@ -5220,13 +5228,15 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     {
     m_nFIOs++;
     if (IsProcessIOId(AreaId))
+      {
       m_nProcessIOs++;
-    if (IsMLnkIOId(AreaId))
-      m_nProcLnkIOs++;
-    if (IsMakeupIOId(AreaId) || IsBleedIOId(AreaId))
-      m_nMkupIOs++;
-    if (IsAuditIOId(AreaId))
-      m_nAuditIOs++;
+      if (IsMLnkIOId(AreaId))
+        m_nProcLnkIOs++;
+      //else
+      //  m_nProcDirectIOs++;
+      }
+    //if (IsMakeupIOId(AreaId) || IsBleedIOId(AreaId))
+    //  m_nMkupIOs++;
     }
 
   m_iCIO1=m_nFIOs;
@@ -5314,13 +5324,15 @@ int FlwNode::Detach(int IONo)
     {
     m_nFIOs--;
     if (IsProcessIOId(AreaId))
+      {
       m_nProcessIOs--;
-    if (IsMLnkIOId(AreaId))
-      m_nProcLnkIOs--;
-    if (IsMakeupIOId(AreaId) || IsBleedIOId(AreaId))
-      m_nMkupIOs--;
-    if (IsAuditIOId(AreaId))
-      m_nAuditIOs--;
+      if (IsMLnkIOId(AreaId))
+        m_nProcLnkIOs--;
+      //else
+      //  m_nProcDirectIOs--;
+      }
+    //if (IsMakeupIOId(AreaId) || IsBleedIOId(AreaId))
+    //  m_nMkupIOs--;
     }
 
   if (0)
@@ -5741,9 +5753,9 @@ void FlwNode::DisConnectAll()
 bool FlwNode::PostConnectDirect(int IONo)
   {
   int IOId=IOId_Self(IONo);
-  for (int d=0; d<m_DirectIOs.GetSize(); d++)
+  for (int d=0; d<m_AttachedDirectIOs.GetSize(); d++)
     {
-    CDirectFlwIO &D=*m_DirectIOs[d];
+    CDirectFlwIO &D=*m_AttachedDirectIOs[d];
     if (D.m_iLclDIOId==IOId)
       {
       D.PostConnect(IONo);
@@ -5767,9 +5779,9 @@ void FlwNode::PostConnect(int IONo)
 bool FlwNode::PreDisConnectDirect(int IONo)
   {
   int IOId=IOId_Self(IONo);
-  for (int d=0; d<m_DirectIOs.GetSize(); d++)
+  for (int d=0; d<m_AttachedDirectIOs.GetSize(); d++)
     {
-    CDirectFlwIO &D=*m_DirectIOs[d];
+    CDirectFlwIO &D=*m_AttachedDirectIOs[d];
     if (D.m_iLclDIOId==IOId)
       {
       D.PreDisConnect(IONo);
@@ -6160,9 +6172,9 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
         }
       else if (m_dwType & nc_Audit)
         {
-        for (int i=0; i<NoDirectIOs(); i++)
+        for (int i=0; i<NoEnabledDirectIOs(); i++)
           {
-          if (m_DirectIOs[i]->HasConduit)
+          if (m_EnabledDirectIOs[i]->HasConduit)
             {
             // TODO
             }
@@ -7151,12 +7163,12 @@ void FlwNode::EvalAudit(int Pass)
           }
         }
 
-      if (NoDirectIOs()>0)
+      if (NoEnabledDirectIOs()>0)
         {
         // Integrate All DirectIOs
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
-          CDirectFlwIO &D=*m_DirectIOs[d];
+          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
           D.Sum.Integrate(ICGetTimeInc());
           if (dbgOn)
             dbgpln("%2i)[%2i]d %20s %20s %s",i++,d,DbgFltString(D.Sum.FlowMass),DbgFltString(D.Sum.TotalMass), D.Tag);
@@ -9687,6 +9699,24 @@ CDirectFlwIO::~CDirectFlwIO()
 
 //--------------------------------------------------------------------------
 
+static LPCTSTR eTypeStr(eDirectIO eType)
+  {
+  switch (eType)
+    {
+    case eDIO_Spill:       return "Spill";
+    case eDIO_Vent:        return "Vent";
+    case eDIO_Src:         return "Src";
+    case eDIO_Makeup:      return "Makeup";
+    case eDIO_Deplete:     return "Deplete";
+    case eDIO_Snk:         return "Snk";
+    case eDIO_Bleed:       return "Bleed";
+    case eDIO_Accum:       return "Accum";
+    default:               return "???";
+    }
+  }
+
+//--------------------------------------------------------------------------
+
 void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   {
   m_pNd         = Nd;
@@ -9700,6 +9730,8 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
     {
     case eDIO_Spill:
     case eDIO_Vent:
+      m_NdSignImp=-1;
+      break;
     case eDIO_Src:
     case eDIO_Makeup:
     case eDIO_Deplete:
@@ -9742,9 +9774,9 @@ void CDirectFlwIO::ManageNdDirectIOs(bool AddIt)
   if (m_pNd)
     {
     bool Found=false;
-    for (int dPos=0; dPos<m_pNd->m_DirectIOs.GetCount(); dPos++)
+    for (int dPos=0; dPos<m_pNd->m_AttachedDirectIOs.GetCount(); dPos++)
       {
-      if (m_pNd->m_DirectIOs[dPos]==this)
+      if (m_pNd->m_AttachedDirectIOs[dPos]==this)
         {
         Found=true;
         break;
@@ -9755,23 +9787,38 @@ void CDirectFlwIO::ManageNdDirectIOs(bool AddIt)
       if (!Found)
         {
         bool Done=false;
-        for (int d=0; !Done && d<m_pNd->m_DirectIOs.GetCount(); d++)
+        for (int d=0; !Done && d<m_pNd->m_AttachedDirectIOs.GetCount(); d++)
           {
-          CDirectFlwIO *pD=m_pNd->m_DirectIOs[d];
+          CDirectFlwIO *pD=m_pNd->m_AttachedDirectIOs[d];
           if (pD->m_eType>=m_eType)
             {
-            m_pNd->m_DirectIOs.InsertAt(d, this);
+            m_pNd->m_AttachedDirectIOs.InsertAt(d, this);
             Done=true;
+            //dbgpln("DIO Insert %08x @   %3i", this, d);
             }
           }
         if (!Done)
-          m_pNd->m_DirectIOs.Add(this);
+          {
+          m_pNd->m_AttachedDirectIOs.Add(this);
+          //dbgpln("DIO Insert %08x End %3i", this, d);
+          }
+        }
+      else
+        {
+        //dbgpln("DIO Insert %08x Found", this);
         }
       }
     else
       {
       if (Found)
-        m_pNd->m_DirectIOs.RemoveAt(dPos);
+        {
+        m_pNd->m_AttachedDirectIOs.RemoveAt(dPos);
+        //dbgpln("DIO Remove %08x ", this);
+        }
+      else
+        {
+        //dbgpln("DIO Remove %08x NOT FOUND", this);
+        }
       }
     }
   };
@@ -10017,17 +10064,21 @@ flag CDirectFlwIO::GlobalConnect()
   if (m_iLclIOId>=0 && (m_pNd->IOWithId_Self(m_iLclIOId)>0))
     m_bMLnkConnd=true; // Will Disable
 
+  #if dbgFlwNode
+  if (dbgGlobalConnects())
+    dbgpln("GlobalConnect %-7s %5i %5i %5i %5s %5s %5s %-15s %35s.%s > %s",
+            eTypeStr(m_eType), m_iLclDIOId, m_iRmtDIOId, m_iLclIOId,
+            HasConduit?"HasCd":"", Enabled?"ENAB":"", Disabled?"DISAB":"",
+            m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
+  #endif
+
   if (gs_DisableDirectFlwIO || !Enabled || Disabled)
     return true;
 
-  #if dbgFlwNode
-  if (dbgGlobalConnects())
-    dbgpln("GlobalConnect %5i %5i %5i %-15s %35s.%s > %s", m_iLclDIOId, m_iRmtDIOId, m_iLclIOId, m_pNd->ClassId(), m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
-  #endif
 
-#if dbgKwikConnect
+  #if dbgKwikConnect
   dbgpln(" .A %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
-#endif
+  #endif
 
   m_bConnected = m_pRmt.Connect(m_pNd, m_iRmtDIOId, m_sRmtTypeName());
   if (!m_bConnected && m_pRmt.m_sTag.GetLength()>0)
@@ -10039,17 +10090,10 @@ flag CDirectFlwIO::GlobalConnect()
   if (!m_bConnected)
     return false;
 
-#if dbgKwikConnect
+  #if dbgKwikConnect
   dbgpln(" .B %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
-#endif
+  #endif
 
-  //CMap<CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*, CDirectFlwIO*> &Connd = m_pArea->m_DirectIOsConnected;
-  //CDirectFlwIO* X;
-  //if (Connd.GetCount()==0 || !Connd.Lookup(this, X))
-  //  {
-  //  Connd.SetAt(this,this);
-  //  //dbgpln("+++ %i", Connd.GetCount());
-  //  }
   CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pRmt->m_DirectIOsConnected;
   if (Connd.GetCount()==0 || Connd.Find(this)==NULL)
     {
@@ -10057,35 +10101,30 @@ flag CDirectFlwIO::GlobalConnect()
     //dbgpln("+++ %i", Connd.GetCount());
     }
 
-  if (m_iLclDIOId<0)
-    {
-    //dbgpln("  m_iLclDIOId<0");
-    return true;
-    }
-  else
+  if (m_iLclDIOId>=0)
     {
     IOAreaRec * NdIOLcl=m_pNd->IOAreas;
     for (int iO=0; (NdIOLcl[iO].pDesc && NdIOLcl[iO].m_Id != m_iLclDIOId); iO++)
       {};
     // if 'NdIOLcl[iO].pDesc' is NULL then this is not defined in the IOList and hence is not needed
 
-#if dbgKwikConnect
+    #if dbgKwikConnect
     dbgpln(" .C %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
-#endif
+    #endif
     if (NdIOLcl[iO].pDesc==NULL)
       {
-#ifndef _RELEASE
+      #ifndef _RELEASE
       dbgpln("Direct Connect Failed LclDIOId %i not found in %s", m_iLclDIOId, m_pNd->FullObjTag());
-#endif
+      #endif
       return true;
       }
 
     IOAreaRec * NdIORmt=m_pRmt->IOAreas;
     for (int iI=0; (NdIORmt[iI].pDesc &&NdIORmt[iI].m_Id != m_iRmtDIOId); iI++)
       {};
-#if dbgKwikConnect
+    #if dbgKwikConnect
     dbgpln(" .D %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
-#endif
+    #endif
 
     if (m_pRmt->NoFlwIOs() >= MaxIOList)
       {
@@ -10121,9 +10160,9 @@ flag CDirectFlwIO::GlobalConnect()
     ASSERT(NdIOLcl[iO].pDesc!=NULL);
     ASSERT(NdIORmt[iI].pDesc!=NULL);
 
-#if dbgKwikConnect
+    #if dbgKwikConnect
     dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
-#endif
+    #endif
     IOInfoBlk Info;
     if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].pName, m_pRmt, NdIORmt[iI].pName, &Info)==0)
       {
@@ -10133,9 +10172,9 @@ flag CDirectFlwIO::GlobalConnect()
       m_pRmt->SetIOAutoConnect(iEnvConnectedIO, true);
 
       dbgpln(".. %s[%i] %s[%i] ", m_pNd->FullObjTag(), m_iMyConnectedIO, m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag(), iEnvConnectedIO);
-#if dbgKwikConnect
+      #if dbgKwikConnect
       dbgpln(" .F %5i %5i %10.1fus %-20s %s > %s", m_iMyConnectedIO, iEnvConnectedIO, SW.Lap()*1e6, "", m_pNd->FullObjTag(), m_pNd->Nd_Rmt(m_iMyConnectedIO)->FullObjTag());
-#endif
+      #endif
 
       return true;
       }
@@ -10143,6 +10182,7 @@ flag CDirectFlwIO::GlobalConnect()
     LogWarning(m_pNd->FullObjTag(), 0, "Direct Connect Failed");
     return false;
     }
+  return true;
   };
 
 // -------------------------------------------------------------------------
@@ -10154,10 +10194,7 @@ flag CDirectFlwIO::GlobalDisConnect()
     dbgpln("GlobalDisConnect %4i %35s.%s > %s", m_iLclDIOId, m_pNd->FullObjTag(), m_sTag(), m_pRmt.m_sTag());
   #endif
 
-  if (m_iLclDIOId<0)
-    {
-    }
-  else
+  if (m_iLclDIOId>=0)
     {
     if (m_iMyConnectedIO>=0)
       {
