@@ -390,7 +390,7 @@ void MN_Surge::ConfigureJoins()
         }
       break;
     case NM_Dynamic:
-      for (int i=0; i<NoFlwIOs(); i++)
+      for (int i=0; i<NoProcessIOs(); i++)
         {
         int Id=IOId_Self(i);
         if (IsMLnkIOId(Id))
@@ -403,6 +403,8 @@ void MN_Surge::ConfigureJoins()
         else
           SetIO_Direct(i, JnId_Surge);
         }
+      for (int ii=NoProcessIOs(), jj=JnId_Surge+1; ii<NoFlwIOs(); ii++, jj++)
+        SetIO_Direct(ii, jj);
       break;
     }
   };
@@ -444,9 +446,9 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
     switch (NetMethod())
       {
       case NM_Probal:
-        if (NJoins()>=1)
+        if (NoProcessJoins()>=1)
           EvalPBJoinPressure(0, &m_PBPCtrl0, QProd());
-        if (NJoins()>=2)
+        if (NoProcessJoins()>=2)
           EvalPBJoinPressure(1);
         break;
       case NM_Dynamic:
@@ -553,14 +555,14 @@ void MN_Surge::EvalProducts(long JoinMask)
         {
         SetCyclicStorageOut();
         }
-      else if (NJoins()==2)
+      else if (NoProcessJoins()==2)
         {
         Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PBPCtrl0);
         CPBPressCtrl PBCtrl1;
         Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, NULL, NULL, &PBCtrl1);
         Xfer_EvalProducts(I0, I1, &HX);
         }
-      else if (NJoins()>=1)
+      else if (NoProcessJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PBPCtrl0);
       break;
     case SM_Inline:
@@ -569,7 +571,7 @@ void MN_Surge::EvalProducts(long JoinMask)
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
       // fall thru
     case SM_Buffered:
-      if (NJoins()>=2)
+      if (NoProcessJoins()>=2)
         Xfer_EvalProducts(1, Joins[1].Pressure(), NULL, &QProd(), NULL, NULL, NULL);//RB());
 
       if (HX())

@@ -293,7 +293,7 @@ void ContactHeater::EvalJoinPressures(long JoinMask)
         {
         //if (!m_FTC.Active())
         //  m_FTC.SetSuctionP(IOP_Rmt(IOWithId_Self(ioidSI_HotLiq)));what does this do for us?
-        if (NJoins()>0)
+        if (NoProcessJoins()>0)
           {
           //m_FTC.SetSuctionP(Min(dFinalP, GetPBInputPressure(0)));
           m_FTC.SetSuctionP(dFinalP);

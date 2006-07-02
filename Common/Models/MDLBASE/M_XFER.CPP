@@ -79,7 +79,7 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
           m_AccOut=new CDirectFlwIO(eDIO_Deplete, this, false, true, "Depletion");
           m_AccCalc=new CDirectAccCalc(this, *m_AccIn, *m_AccOut);
 
-          Joins.SetSize(2);
+          //Joins.SetSize(2);
           }
         else
           {
@@ -92,7 +92,7 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
           m_AccIn=NULL;
           m_Accumulator=NULL;
 
-          Joins.SetSize(1);
+          //Joins.SetSize(1);
           }
         if (!DCB.ForFileSnpScn())
           DoGlobalConnect();
@@ -148,6 +148,12 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
 
 CFlange * MN_Xfer::GetFlange(int IOId)
   {
+#if (WITHBLOCKEVALUATOR)
+  CFlange * pFlng=m_BlkEval.GetFlange(IOId);
+  if (pFlng)
+    return pFlng;
+#endif
+
   return NULL;
   };
 
@@ -277,17 +283,22 @@ void MN_Xfer::ConfigureJoins()
   {
   if (m_NetworkIsolator)
     {
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
+      {
       if (Nd_Rmt(i)->UserMethod()==LFM_Xfer)
         SetIO_Open(i, 1, false, ESS_Denied);
       else
         SetIO_Open(i, 0, false, ESS_Denied);
-        }
+      }
+    }
   else
     {
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       SetIO_Join(i, 0);
     }
+
+  for (int ii=NoProcessIOs(), jj=1+1; ii<NoFlwIOs(); ii++, jj++)
+    SetIO_Direct(ii, jj);
   };
 
 //--------------------------------------------------------------------------
@@ -343,16 +354,16 @@ void MN_Xfer::EvalJoinPressures(long JoinMask)
       const bool OldCode = false;
       if (OldCode)
         {
-        if (NJoins()>=1)
+        if (NoProcessJoins()>=1)
           EvalPBJoinPressure(0, &m_PBPCtrl0, m_QFeed());//&QProd());
-        //if (NJoins()>=2)
+        //if (NoProcessJoins()>=2)
         //  EvalPBJoinPressure(1);
         }
       else
         {
-        if (NJoins()>=1)
+        if (NoProcessJoins()>=1)
           EvalPBJoinPressure(0, &m_PBPCtrl0, m_QProd());
-        if (NJoins()>=2)
+        if (NoProcessJoins()>=2)
           EvalPBJoinPressure(1);
         }
       break;
@@ -420,12 +431,12 @@ of the surge unit.*/
 
 void MN_Xfer::EvalProducts(long JoinMask)
   {
-  if (NJoins()>0)
+  if (NoProcessJoins()>0)
     {
     switch (SolveMethod())
       {
       case SM_Direct:
-        if (NJoins()>0)
+        if (NoProcessJoins()>0)
 #if (WITHBLOCKEVALUATOR)
           Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0, &m_BlkEval);
 #else
@@ -435,12 +446,18 @@ void MN_Xfer::EvalProducts(long JoinMask)
       case SM_Inline:
       case SM_Buffered:
         {
-        for (int j=0; j<NJoins(); j++)
+        if (NoProcessJoins()>=1)
 #if (WITHBLOCKEVALUATOR)
-          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
+          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
 #else
-          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
+          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
 #endif
+//        for (int j=0; j<NoProcessJoins(); j++)
+//#if (WITHBLOCKEVALUATOR)
+//          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
+//#else
+//          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
+//#endif
         }
         break;
       }                

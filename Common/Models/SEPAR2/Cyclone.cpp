@@ -921,16 +921,16 @@ flag Cyclone::ChangeMode(dword NewMode, dword OldMode)
 
 void Cyclone::ConfigureJoins()
   {
-  Init_NJoins(1);
+  Init_NoJoins(1);
   int i;
   switch (NetMethod())
     {
     case NM_Probal:
-      for (i=0; (i<NoFlwIOs()); i++)
+      for (i=0; (i<NoProcessIOs()); i++)
         SetIO_Join(i, 0);
       break;
     case NM_Dynamic:
-      for (i=0; (i<NoFlwIOs()); i++)
+      for (i=0; (i<NoProcessIOs()); i++)
           SetIO_Join(i, 0);
       break;
     }
@@ -1001,16 +1001,16 @@ void Cyclone::EvalProducts(long JoinMask)
   {
   if (GSM.Enabled())
     {
-    if (NJoins()>0)
+    if (NoProcessJoins()>0)
       switch (SolveMethod())
         {
         case SM_Direct:
-          if (NJoins()>=1)
+          if (NoProcessJoins()>=1)
             Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, GSM(), NULL);
           break;
         case SM_Inline:
         case SM_Buffered:
-          for (int j=0; j<NJoins(); j++)
+          for (int j=0; j<NoProcessJoins(); j++)
             Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, GSM(), NULL);
           break;
         }

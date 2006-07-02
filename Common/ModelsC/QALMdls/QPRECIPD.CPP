@@ -336,7 +336,7 @@ void QPrecipD::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         {
         double P = PBPress();//AtmosPress(IODatum_Term(j));
         SetPBJoinPressure(j, P, true, true);

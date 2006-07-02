@@ -265,12 +265,12 @@ void MN_BstRes::ConfigureJoins()
   {
   if (NetMethod()==NM_Probal)
     {
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       SetIO_Join(i, 0); 
     }
   else
     {
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       {
       switch (IOId_Self(i))
         {
@@ -294,7 +294,7 @@ void MN_BstRes::EvalJoinPressures(long JoinMask)
   if (NoFlwIOs()>0)
     if (NetMethod()==NM_Probal)
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoJoins(); j++)
         {
         //double Pm=GetPBInputPressure(j);
         //SetPBJoinPressure(j, Pm);

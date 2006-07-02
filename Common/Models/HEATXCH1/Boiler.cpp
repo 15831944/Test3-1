@@ -187,7 +187,7 @@ flag Boiler::ValidateData(ValidateDataBlk & VDB)
 
 void Boiler::ConfigureJoins()
   {
-  for (int i=0; i<NoFlwIOs(); i++)
+  for (int i=0; i<NoProcessIOs(); i++)
     SetIO_Join(i, IOId_Self(i)==ioidBlowDown ? 1 : 0);
   }
 
@@ -201,7 +201,7 @@ void Boiler::EvalJoinPressures(long JoinMask)
       {
       case NM_Probal:
         {
-        for (int j=0; j<NJoins(); j++)
+        for (int j=0; j<NoProcessJoins(); j++)
           {
           SetPBJoinPressure(j, (j==0 ? dFinalP : dDrumPress), true, true);
           }

@@ -341,8 +341,8 @@ void PriReform::ConfigureJoins()
     {
     case NM_Dynamic:
       {
-      Set_NJoins(2);
-      for (int i=0; i<NoFlwIOs(); i++)
+      Set_NoJoins(2);
+      for (int i=0; i<NoProcessIOs(); i++)
         if (IOId_Self(i)<=ioidFalseAir)
           SetIO_Open(i, 0, false, ESS_Allowed);
         else

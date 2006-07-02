@@ -265,7 +265,7 @@ flag CSKOGasSep::ChangeMode(dword NewMode, dword OldMode)
 void CSKOGasSep::ConfigureJoins()
   {
   MN_Xfer::ConfigureJoins();
-  //  Init_NJoins(1);
+  //  Init_NoJoins(1);
   //  int i;
   //  switch (NetMethod())
   //    {
@@ -350,16 +350,16 @@ void CSKOGasSep::EvalProducts(long JoinMask)
   {
   if (GSM.Enabled())
     {
-    if (NJoins()>0)
+    if (NoProcessJoins()>0)
       switch (SolveMethod())
       {
         case SM_Direct:
-          if (NJoins()>=1)
+          if (NoProcessJoins()>=1)
             Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, GSM(), NULL);
           break;
         case SM_Inline:
         case SM_Buffered:
-          for (int j=0; j<NJoins(); j++)
+          for (int j=0; j<NoProcessJoins(); j++)
             Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, GSM(), NULL);
           break;
       }

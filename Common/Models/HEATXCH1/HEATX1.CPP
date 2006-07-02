@@ -2314,18 +2314,18 @@ void HeatXchg1::ConfigureJoins()
     case NM_Probal:
       {
       //flag fP=m_HXJ.PriIsJoin();
-      Set_NJoins(2);
+      Set_NoJoins(2);
       m_HXJ.SetJoinIds(0, True, True);
       //flag fP=m_HXJ.P.IsConnected();
       //flag fS=m_HXJ.S.IsConnected();
-      for (int i=0; i<NoFlwIOs(); i++)
+      for (int i=0; i<NoProcessIOs(); i++)
         if (IOId_Self(i)>=ioidPIn && IOId_Self(i)<=ioidPOut)
           if (m_HXJ.PriIsJoined())
             SetIO_Join(i, m_HXJ.P.JoinId());
           else
             SetIO_Closed(i, m_HXJ.P.JoinId());
 
-      for (i=0; i<NoFlwIOs(); i++)
+      for (i=0; i<NoProcessIOs(); i++)
         if (IOId_Self(i)>=ioidSIn && IOId_Self(i)<=ioidSOut)
           {
           // if Fully Condensing then try to prevent Tears
@@ -2342,19 +2342,19 @@ void HeatXchg1::ConfigureJoins()
       {
       if (fDoDbgBrk)
         { int xxx=0; };
-      Set_NJoins(2);
+      Set_NoJoins(2);
       m_HXJ.SetJoinIds(0, m_iPriSgMd!=HXSM_Shell, m_iSecSgMd!=HXSM_Tubes);
 
       if (m_iPriSgMd==HXSM_Shell)
         {
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           if (m_HXJ.PriIO(i))
             SetIO_Open(i, m_HXJ.PriJoinId(), /*m_fDamped*/m_pPriSg->NetPressDamp(),
                           SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
         }
       else
         {
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           if (m_HXJ.PriIO(i))
             if (m_HXJ.PriIsJoined())
               SetIO_Join(i, m_HXJ.P.JoinId(),
@@ -2365,14 +2365,14 @@ void HeatXchg1::ConfigureJoins()
 
       if (m_iSecSgMd==HXSM_Shell)
         {
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           if (m_HXJ.SecIO(i))
             SetIO_Open(i, m_HXJ.SecJoinId(), /*m_fDamped*/m_pSecSg->NetPressDamp(),
                        SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
         }
       else
         {
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           if (m_HXJ.SecIO(i))
             if (m_HXJ.SecIsJoined())
               SetIO_Join(i, m_HXJ.S.JoinId(),
@@ -2403,7 +2403,7 @@ void HeatXchg1::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         {
         double Pj=GetPBInputPressure(j);
 

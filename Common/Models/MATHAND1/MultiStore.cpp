@@ -1235,7 +1235,7 @@ void CMultiStorage::ConfigureJoins()
       //  SetIO_Join(i, 0);
       //break;
     case NM_Dynamic:
-      for (int i = 0; i < NoFlwIOs(); i++)
+      for (int i = 0; i < NoProcessIOs(); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
     }
@@ -1300,7 +1300,7 @@ void CMultiStorage::EvalProducts(long JoinMask)
     {
     case SM_Direct:
       DoBreak();
-      if (NJoins()>=1)
+      if (NoProcessJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL);
       break;
     case SM_Inline:

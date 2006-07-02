@@ -716,7 +716,7 @@ void RTCrusher::EvalCtrlActions(eScdCtrlTasks Tasks)
 
 void RTCrusher::ConfigureJoins()
   {
-  Init_NJoins(1);
+  Init_NoJoins(1);
   int i;
   switch (NetMethod())
     {

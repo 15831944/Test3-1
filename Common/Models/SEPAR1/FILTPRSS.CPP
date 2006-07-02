@@ -240,19 +240,19 @@ void   FilterPress::SetState(eScdMdlStateActs RqdState)
 
 void FilterPress::ConfigureJoins()
   {
-  Init_NJoins(1);
+  Init_NoJoins(1);
   int iWashings = IOWithId_Self(ioidWashings);
   if (iWashings < 0)
     fFilt2Washings=False;
   int i;
   if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-    for (i=0; (i<NoFlwIOs()); i++)
+    for (i=0; (i<NoProcessIOs()); i++)
       SetIO_Join(i, 0);
     }
   else
     {
-    for (i=0; (i<NoFlwIOs()); i++)
+    for (i=0; (i<NoProcessIOs()); i++)
       {
       switch (IOId_Self(i))
         {
@@ -509,7 +509,7 @@ void FilterPress::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         {
         double P = PBPress();//AtmosPress(IODatum_Term(j));
         SetPBJoinPressure(j, P, true, true);

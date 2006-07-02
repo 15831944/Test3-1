@@ -178,7 +178,7 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
       {
       case NM_Probal:
         {
-        for (int j=0; j<NJoins(); j++)
+        for (int j=0; j<NoProcessJoins(); j++)
           {
           double Pj=GetPBInputPressure(j);
           SetPBJoinPressure(j, dFinalP, true, true);

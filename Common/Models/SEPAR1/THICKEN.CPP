@@ -187,7 +187,7 @@ void Thickener::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         {
         double P = PBPress();//AtmosPress(IODatum_Term(j));
         SetPBJoinPressure(j, P, true, true);
@@ -515,7 +515,7 @@ void Thickener::EvalProducts(long JoinMask)
       SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
       EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed());
 
-      //if (NJoins()>=1)
+      //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);
       
       UFSolids = IOConduit(IOWithId_Self(ioidUF))->MassFrac(som_Sol);

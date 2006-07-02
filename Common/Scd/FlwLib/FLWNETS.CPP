@@ -7689,6 +7689,8 @@ void CNetBlk::DumpJoinList()
             if (J.fIsImpNd)  S+="ImpNd ";
             if (J.fIsPumpNd) S+="PumpNd ";
             if (J.fIsAccLnk) S+="AccLnk ";
+            if (J.fIsMkup)   S+="Makeup ";
+            if (J.fIsAudit)  S+="Audit ";
             dbgp("  %2i] %-20s ",j,S());
             }
           else
@@ -7747,7 +7749,7 @@ void CNetBlk::BldSubNets()
     p->PostConnectJoinList();
 
   for (p=N.First(); p; p=N.Next())
-    for (int j=0; j<p->NJoins(); j++)
+    for (int j=0; j<p->NoJoins(); j++)
       Joins.AddTail(&p->Joins[j]);
 
   JoinIter J(Joins);

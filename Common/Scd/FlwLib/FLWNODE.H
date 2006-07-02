@@ -255,7 +255,7 @@ template<class TYPE>
 class CTODirectPtr
   {
   public:
-    CTODirectPtr()                    { m_Ptr=NULL; m_State=TOD_NoTag; };
+    CTODirectPtr()                    { m_pNd=NULL; m_Ptr=NULL; m_State=TOD_NoTag; };
     ~CTODirectPtr()                   { };
 
     operator TYPE*()                  { return m_Ptr;   };
@@ -435,7 +435,8 @@ XID xidConnectState     = MdlBsXID(5207);
 
 enum eDirectIO 
   {
-    eDIO_Makeup, eDIO_Bleed, eDIO_Spill, eDIO_Vent, eDIO_Leak,    // Real IOs
+    eDIO_Spill, eDIO_Vent, eDIO_Leak,    // Real IOs
+    eDIO_Makeup, eDIO_Bleed, 
     eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete                  // Direct 
   };
 
@@ -490,9 +491,9 @@ class DllImportExport CDirectFlwIO
     LPCTSTR       TargetStr(flag ForFiling);//               { return (LPCTSTR)m_sRmtTmp(); };
     bool          Flowing()                 { return Cd.QMass(som_ALL)>1.0e-12; };
     int           MyConnectedIO()           { return m_iMyConnectedIO; };
-    int           LclDIOId()                 { return m_iLclDIOId; };
-    int           RmtDIOId()                 { return m_iRmtDIOId; };
-    int           xLclIOId()                 { return xm_iLclIOId; };
+    int           LclDIOId()                { return m_iLclDIOId; };
+    int           RmtDIOId()                { return m_iRmtDIOId; };
+    int           LclIOId()                 { return m_iLclIOId; };
 
     void          Add(CSysVector & V, double Hz);
     void          AddF(SpConduit & Cd, PhMask PhaseM=som_ALL, double Fraction=1.0);
@@ -505,20 +506,21 @@ class DllImportExport CDirectFlwIO
     flag          getSysEnable()            { return m_bSysEnable; };
     void          putUsrEnable(flag On)     { m_bUsrEnable = On; ManageNdDirectIOs(Enabled!=0); };
     flag          getUsrEnable()            { return m_bUsrEnable; };
-    flag          getEnabled()              { return m_bSysEnable || m_bUsrEnable; };
+    flag          getEnabled()              { return (m_bSysEnable || m_bUsrEnable) && !m_bMLnkConnd; };
     flag          getConnected()            { return m_bConnected; };
     flag          getTagDeferred()          { m_sRmtTag.LRTrim(); return m_sRmtTag.GetLength()==0; };
     flag          getConnectError();
     FlwNode     & getNd()                   { return *m_pNd; };
     eDirectIO     getType()                 { return m_eType; };
     LPCTSTR       getTag()                  { return (LPCTSTR)m_sTag(); };
+    void          putTag(LPCTSTR Tg)        { m_sTag=Tg; };
     LPCTSTR       getAreaTag()              { MakeRmtTag(); return (LPCTSTR)m_pRmt.m_sTag(); };
-    void          putAreaTag(LPCTSTR ATag)  { m_sRmtTag=ATag; };
+    void          putAreaTag(LPCTSTR ATg)   { m_sRmtTag=ATg; };
     FlwNode     & getArea()                 { return *m_pRmt; };
     CAreaSum    & getSum()                  { return *m_pSum; };
     int           getNdSignImplied()        { return m_NdSignImp; };
 
-    flag          getHasConduit()           { return m_eType <= eDIO_Leak; };
+    flag          getHasConduit()           { return m_eType <= eDIO_Bleed; };
     SpConduit   & getConduit();//              { return *m_pFlng->Conduit(false); };
     CFlange     & getFlange()               { return *xm_pFlng; };
 
@@ -530,7 +532,7 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getTagDeferred))                 flag          TagDeferred;
     _declspec(property(get=getNd))                          FlwNode     & Nd;
     _declspec(property(get=getType))                        eDirectIO     Type;
-    _declspec(property(get=getTag))                         LPCTSTR       Tag;
+    _declspec(property(get=getTag,put=putTag))              LPCTSTR       Tag;
     _declspec(property(get=getAreaTag,put=putAreaTag))      LPCTSTR       AreaTag;
     _declspec(property(get=getArea))                        FlwNode     & Area;
     _declspec(property(get=getSum))                         CAreaSum    & Sum;
@@ -548,6 +550,7 @@ class DllImportExport CDirectFlwIO
     FlwNode     * m_pNd;
     flag          m_bSysEnable;
     flag          m_bUsrEnable;
+    flag          m_bMLnkConnd;
     flag          m_bShowUsr;
     bool          m_bIsXfer;
     Strng         m_sTag;
@@ -560,7 +563,7 @@ class DllImportExport CDirectFlwIO
     double        m_Opening;
     int           m_iLclDIOId;
     int           m_iRmtDIOId;
-    int           xm_iLclIOId;
+    int           m_iLclIOId;
     double        m_Total;
     int           m_NdSignImp;
 
@@ -1670,35 +1673,37 @@ inline bool IsAirIOId(int Id)     { return InRange(AirIOId0,   Id, MaxIOId-1);  
 // ----------------------------------------------------------
 // FlwIO Type Ids
 // Real IO
-const int MakeupIOId0     = FlwIOId(1000); // ???
-const int BleedIOId0      = FlwIOId(2000); // ???
-const int SpillIOId0      = FlwIOId(3000); // Slurry to Environment - No Flw Eqns
-const int VentIOId0       = FlwIOId(4000); // Gas to Environment - No Flw Eqns
-const int LeakIOId0       = FlwIOId(5000); // Both to Environment - Flw Eqns
+const int SpillIOId0      = FlwIOId(1000); // Slurry to Environment - No Flw Eqns
+const int VentIOId0       = FlwIOId(2000); // Gas to Environment - No Flw Eqns
+const int LeakIOId0       = FlwIOId(3000); // Both to Environment - Flw Eqns
+const int MakeupIOId0     = FlwIOId(4000); // ???
+const int BleedIOId0      = FlwIOId(5000); // ???
 const int AAAAIOId0       = FlwIOId(6000); // 
 const int BBBBIOId0       = FlwIOId(7000); // 
 const int CCCCIOId0       = FlwIOId(8000); // 
 const int AreaIOId0       = FlwIOId(9000); // Io into/outof Areas
 
-#define MakeupIOId(n)     ( MakeupIOId0 + n )        
-#define BleedIOId(n)      ( BleedIOId0  + n )        
 #define SpillIOId(n)      ( SpillIOId0  + n )        
 #define VentIOId(n)       ( VentIOId0   + n )        
 #define LeakIOId(n)       ( LeakIOId0   + n )        
+#define MakeupIOId(n)     ( MakeupIOId0 + n )        
+#define BleedIOId(n)      ( BleedIOId0  + n )        
 #define AAAAIOId(n)       ( AAAAIOId0   + n )        
 #define BBBBIOId(n)       ( BBBBIOId0   + n )        
 #define CCCCIOId(n)       ( CCCCIOId0   + n )        
 #define AreaIOId(n)       ( AreaIOId0   + n )        
 
-inline bool IsMLnkIOId(int Id)        { return Id<MakeupIOId0;  }
-inline bool IsProcessIOId(int Id)     { return Id<AreaIOId0;/*SpillIOId0;*/  }
-inline bool IsDirectIOId(int Id)      { return InRange(MakeupIOId0,  Id, CtrlIOId0  -1);  }
+inline bool IsMLnkIOId(int Id)        { return Id<SpillIOId0;  }
+inline bool IsProcessIOId(int Id)     { return Id<MakeupIOId0; }
+inline bool IsDirectIOId(int Id)      { return InRange(SpillIOId0,  Id, CtrlIOId0  -1);  }
 
-inline bool IsMakeupIOId(int Id)      { return InRange(MakeupIOId0, Id, BleedIOId0  -1);  };
-inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, SpillIOId0  -1);  };
 inline bool IsSpillIOId(int Id)       { return InRange(SpillIOId0,  Id, VentIOId0   -1);  };
 inline bool IsVentIOId(int Id)        { return InRange(VentIOId0,   Id, LeakIOId0   -1);  };
-inline bool IsLeakIOId(int Id)        { return InRange(LeakIOId0,   Id, AAAAIOId0   -1);  };
+inline bool IsLeakIOId(int Id)        { return InRange(LeakIOId0,   Id, MakeupIOId0   -1);  };
+inline bool IsMakeupIOId(int Id)      { return InRange(MakeupIOId0, Id, BleedIOId0  -1);  };
+inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, AAAAIOId0  -1);  };
+inline bool IsAuditIOId(int Id)       { return false; }//InRange(ABleedIOId0,  Id, AAAAIOId0  -1);  };
+//..
 inline bool IsAreaIOId(int Id)        { return InRange(AreaIOId0,   Id, CtrlIOId0   -1);  };
 
 const int IOId_2IOIn          = FlwIOId(500);
@@ -1706,19 +1711,19 @@ const int IOId_2IOOut         = FlwIOId(501);
 const int IOId_2IOLeakI       = LeakIOId(500);
 const int IOId_2IOLeakO       = LeakIOId(501);
 
-const int IOId_Makeup2Area    = MakeupIOId(500);        
-const int IOId_Bleed2Area     = BleedIOId(500);
 const int IOId_Spill2Area     = SpillIOId(500);
 const int IOId_Vent2Area      = VentIOId(500);
 const int IOId_LeakI2Area     = LeakIOId(500);
 const int IOId_LeakO2Area     = LeakIOId(501);
+const int IOId_Makeup2Area    = MakeupIOId(500);        
+const int IOId_Bleed2Area     = BleedIOId(500);
 
-const int IOId_AreaMakeupO    = MakeupIOId(500);  //AreaIOId(0);        
-const int IOId_AreaBleedI     = BleedIOId(500);   //AreaIOId(1);
-const int IOId_AreaSpillI     = SpillIOId(500);   //AreaIOId(2);
-const int IOId_AreaVentI      = VentIOId(500);    //AreaIOId(3);
-const int IOId_AreaLeakI      = LeakIOId(500);    //AreaIOId(4);
-const int IOId_AreaLeakO      = LeakIOId(501);    //AreaIOId(5);
+const int IOId_AreaSpillI     = SpillIOId(500);   
+const int IOId_AreaVentI      = VentIOId(500);    
+const int IOId_AreaLeakI      = LeakIOId(500);    
+const int IOId_AreaLeakO      = LeakIOId(501);    
+const int IOId_AreaMakeupO    = MakeupIOId(500);          
+const int IOId_AreaBleedI     = BleedIOId(500);   
 
 DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
@@ -2559,6 +2564,8 @@ class DllImportExport CJoinRec
                     fIsImpNd,
                     fIsAccLnk,
                     fIsPumpNd,
+                    fIsMkup,
+                    fIsAudit,
                     fVolPrsFX,
                     fVolIsSmall,
                     //m_fVFlowAllowed,
@@ -3284,8 +3291,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp=NULL, bool Copy=false);
     virtual void   AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp * DefFlwEqnGrp1bool, bool Copy=false);
     virtual CFlange * GetFlange(int IoId) { return NULL; };
-    virtual flag   IsLnk()     { return ((m_dwType & (nc_MLnk|nc_MBst))!=0 && NoMLnkIOs()==2); };
-    virtual flag   IsMLnk()    { return ((m_dwType & (nc_MLnk))!=0 && NoMLnkIOs()==2); };
+    virtual flag   IsLnk()     { return ((m_dwType & (nc_MLnk|nc_MBst))!=0 && NoProcLnkIOs()==2); };
+    virtual flag   IsMLnk()    { return ((m_dwType & (nc_MLnk))!=0 && NoProcLnkIOs()==2); };
     virtual flag   IsCLnk()    { return ((m_dwType & (nc_CLnk))!=0 && NoCIOs()==2); };
     virtual flag   IsELnk()    { return ((m_dwType & (nc_ELnk))!=0 && NoEIOs()==2); };
     virtual flag   IsALnk()    { return ((m_dwType & (nc_ALnk))!=0 && NoAIOs()==2); };
@@ -3306,9 +3313,18 @@ class DllImportExport FlwNode : public CTNode
     bool           XferFlowMode()       { return FlowMode()==LFM_Xfer; };
 
 
-    int NJoins()          { return m_nJoins; };
+    int NoProcessJoins()  { return m_nProcessJoins; };
+    int NoMkupJoins()     { return m_nMkupJoins; };
+    int NoAuditJoins()    { return m_nAuditJoins; };
+    int NoJoins()         { return m_nJoins; };
     int NLinks()          { return m_nLinks; };
     int NClusters()       { return m_Clusters.GetSize(); };
+
+    int FirstMkupJoin()   { return m_nProcessJoins; };
+    int LastMkupJoin()    { return m_nProcessJoins+m_nMkupJoins-1; };
+    int FirstAuditJoin()  { return m_nProcessJoins+m_nMkupJoins; };
+    int LastAuditJoin()   { return m_nProcessJoins+m_nMkupJoins+m_nAuditJoins-1; };
+
     //CJoinRec & DynJoins(int i) { return Joins[i]; };
 
     virtual void   BuildCommonStartDefn(DataDefnBlk & DDB);
@@ -3537,8 +3553,8 @@ class DllImportExport FlwNode : public CTNode
     void           SetIO_Closed(int i, int iJoinId);
     void           SetIO_Join(int i, int iJoinId, eEvalSeqStart ESS=ESS_Denied, byte FlwPhasesAllowed = FPh_Default);
     void           SetIO_Direct(int i, int iJoinId);
-    void           Init_NJoins(int n);
-    void           Set_NJoins(int n);
+    void           Init_NoJoins(int n);
+    void           Set_NoJoins(int n);
     void           Init_NLinks(int n);
     void           Set_NLinks(int n);
     void           LinkJoins(int iConnectId, int iJoinId0, int iJoinId1, CFlwEqnPtr *FEP);
@@ -4130,25 +4146,40 @@ class DllImportExport FlwNode : public CTNode
                    fSolutionForRoot,
                    fElecConnsDone;
     
-    long           m_nJoins, m_nRqdJoins;
-    long           m_nLinks, m_nRqdLinks;
+    int            m_nJoins, m_nRqdJoins;
+    int            m_nLinks, m_nRqdLinks;
+    int            m_nProcessJoins;
+    int            m_nMkupJoins;
+    int            m_nAuditJoins;
 
     int            m_nIOs;
     int            m_nFIOs;
-    int            m_nMLnkIOs;
+    int            m_nProcLnkIOs;
     int            m_nProcessIOs;
+    int            m_nMkupIOs;
+    int            m_nAuditIOs;
     int            m_iCIO1, m_nCIOs;
     int            m_iEIO1, m_nEIOs;
     int            m_iAIO1, m_nAIOs;
 
-    long           NoIOs()        { return m_nIOs;};
-    long           NoFlwIOs()     { return m_nFIOs;};
-    long           NoMLnkIOs()    { return m_nMLnkIOs;};
-    long           NoProcessIOs() { return m_nProcessIOs;};
-    long           NoDirDIOs()    { return m_nFIOs-m_nMLnkIOs;};
-    long           NoAdtDIOs()    { return m_DirectIOs.GetCount()-NoDirDIOs();};
-    long           NoDirectIOs()  { return m_DirectIOs.GetCount();};
-    long           FirstAdtDIO()  { return NoDirDIOs();};
+    long           NoIOs()              { return m_nIOs; };
+    long           NoFlwIOs()           { return m_nFIOs; };
+    long           NoProcessIOs()       { return m_nProcessIOs; };
+    long           NoProcLnkIOs()       { return m_nProcLnkIOs; };
+    long           NoProcDirectIOs()    { return m_nProcessIOs-m_nProcLnkIOs; };
+    long           NoAuditDirectIOs()   { return m_nAuditIOs; };
+    long           NoDirectIOs()        { return m_DirectIOs.GetCount(); };
+    long           FirstProcDirectIO()  { return m_nProcLnkIOs; };
+    long           FirstMkupDirectIO()  { return m_nProcessIOs; };
+    long           LastMkupDirectIO()   { return m_nProcessIOs+m_nMkupIOs-1; };
+    long           FirstAuditDirectIO() { return m_nProcessIOs+m_nMkupIOs; };
+    long           LastAuditDirectIO()  { return m_nProcessIOs+m_nMkupIOs+m_nAuditIOs-1; };
+    
+    long           FirstProcDirect()  { return 0; };
+    long           FirstMkupDirect()  { return m_nProcessIOs-m_nProcLnkIOs; };
+    long           LastMkupDirect()   { return m_nProcessIOs-m_nProcLnkIOs+m_nMkupIOs-1; };
+    long           FirstAuditDirect() { return m_nProcessIOs-m_nProcLnkIOs+m_nMkupIOs; };
+    long           LastAuditDirect()  { return m_nProcessIOs-m_nProcLnkIOs+m_nMkupIOs+m_nAuditIOs-1; };
 
     long           NoCIOs()       { return m_nCIOs;};
     long           NoEIOs()       { return m_nEIOs;};

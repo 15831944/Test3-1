@@ -201,7 +201,7 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
     case NM_Direct:
     //case SSMODE:
       {
-      Set_NJoins(2);
+      Set_NoJoins(2);
       for (int i=0; i<NoFlwIOs(); i++)
         if (IOId_Self(i)>=ioid_ShellIn)
           SetIO_Join(i, 0);
@@ -216,7 +216,7 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
     case NM_Dynamic:
     //case DYNMODE:
       {
-      Set_NJoins(2);
+      Set_NoJoins(2);
       //todo
       break;
       }
@@ -233,7 +233,7 @@ void CTurbine::EvalJoinPressures(long JoinMask)
       {
       case NM_Probal:
         {
-        for (int j=0; j<NJoins(); j++)
+        for (int j=0; j<NoProcessJoins(); j++)
           {
           double Pj=GetPBInputPressure(j);
           SetPBJoinPressure(j, dPOut, true, true);

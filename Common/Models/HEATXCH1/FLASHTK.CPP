@@ -364,7 +364,7 @@ void FlashTank::ConfigureJoins()
   {
   if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       SetIO_Join(i, 0);
 #if DOPBSMOOTHING  
     m_fSolnVapQmValid=false;

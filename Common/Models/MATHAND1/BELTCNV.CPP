@@ -652,11 +652,11 @@ void BeltCnv::ConfigureJoins()
   switch (NetMethod())
     {
     case NM_Probal:
-      for (i=0; (i<NoFlwIOs()); i++)
+      for (i=0; (i<NoProcessIOs()); i++)
         SetIO_Join(i, 0);
       break;
     case NM_Dynamic:
-      for (int i = 0; i < NoFlwIOs(); i++)
+      for (int i = 0; i < NoProcessIOs(); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
     }
@@ -734,7 +734,7 @@ void BeltCnv::EvalProducts(long JoinMask)
   switch (SolveMethod())
     {
     case SM_Direct:
-      if (NJoins()>=1)
+      if (NoProcessJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL);
       #pragma chFIXIT(Correct conveyor output split in ProBal needs implementing)
       break;

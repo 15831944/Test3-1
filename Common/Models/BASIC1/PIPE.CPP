@@ -240,10 +240,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text   ("Flow Conditions");
   DDB.Double("",              "QmPrvPB",  DC_Qm,   "kg/s",   xidFEQmPrvPB,     this, isResult|noView|NAN_OK);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
-  //DDB.Double("Mass_Flow_In",  "QmIn",     DC_Qm, "kg/s", xidQi,            this, isResult|InitHidden|0);
-  ////DDB.Double("",              "QmPB",     DC_Qm, "kg/s", xidFEQmMemPB,     this, isResult|InitHidden|NAN_OK);
-  //DDB.Double("Mass_Flow_Out", "QmOut",    DC_Qm, "kg/s", xidQo,            this, isResult|InitHidden|0);
+  DDB.Text("FIX!");
+  //TODO Restore this : DDB.Visibility(SM_DynBoth|HM_All);
 
   DDB.String("",              "QmEst.Type",DC_,   "",     xidQmEstType,     this, isResult);
   DDB.String("",              "QmEst.Src", DC_,   "",     xidQmEstSrc,      this, isResult|isTag);

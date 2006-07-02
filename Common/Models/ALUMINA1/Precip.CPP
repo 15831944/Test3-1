@@ -360,7 +360,7 @@ void Precip::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         SetPBJoinPressure(j, AtmosPress(IODatum_Term(j)), true, true);
       break;
       }

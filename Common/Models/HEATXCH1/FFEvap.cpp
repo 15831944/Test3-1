@@ -224,8 +224,8 @@ void FFEvap::ConfigureJoins()
     {
     case NM_Probal:
       {
-      Set_NJoins(2);
-      for (int i=0; i<NoFlwIOs(); i++)
+      Set_NoJoins(2);
+      for (int i=0; i<NoProcessIOs(); i++)
         if (IOId_Self(i)>=ioid_ShellIn)
           SetIO_Join(i, 0);
         else
@@ -237,7 +237,7 @@ void FFEvap::ConfigureJoins()
       }
     case NM_Dynamic:
       {
-      Set_NJoins(2);
+      Set_NoJoins(2);
       //todo
       break;
       }
@@ -254,7 +254,7 @@ void FFEvap::EvalJoinPressures(long JoinMask)
       {
       case NM_Probal:
         {
-        for (int j=0; j<NJoins(); j++)
+        for (int j=0; j<NoProcessJoins(); j++)
           {
           double Pj=GetPBInputPressure(j);
 

@@ -65,7 +65,7 @@ void CMakeupBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, dou
 
 CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Makeup, Index, Name),
 m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, true, 
-        Name/*"Makeup"*/, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
+        Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
   { 
   m_pMakeupB=NULL; 
   m_pNd=pAttach; 
@@ -142,7 +142,10 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
     if (DDB.BeginObject(m_pNd, Name(), "EB_Makeup", pTagComment, PageIs))
       {
       if (m_SrcIO.Enabled)
-        m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+        {
+        //m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+        m_SrcIO.BuildDataDefn(DDB, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+        }
 
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
@@ -337,7 +340,7 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
 
     Strng_List      m_ErrorLst;
 
-    CToleranceBlock m_QmTol;
+    static CToleranceBlock sm_QmTol;
 
   };
 
@@ -365,11 +368,12 @@ XID xidMkError   = AdjustXID(1013);
 XID xidMkPhase   = AdjustXID(1200);
 
 
+CToleranceBlock CXBlk_Makeup::sm_QmTol(TBF_DynSys, "Makeup:CtrlEPS", 1.0e-8, 1.0e-8, 200);
+
 IMPLEMENT_MAKEUPBLOCK(CXBlk_Makeup, "MB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "SimpleControl",  " ");
 
 CXBlk_Makeup::CXBlk_Makeup(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
-CMakeupBlock(pClass_, Tag_, pAttach, eAttach),
-m_QmTol(TBF_DynSys, "Makeup:QmFndEPS", 1.0e-8, 1.0e-8, 200)
+CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   {
   m_eSource   = Src_Remote;
   m_eType     = Type_MassRatio;
@@ -965,7 +969,11 @@ flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
       {
       m_ErrorLst.Clear();
       ConditionBlk::GetMyCIs(m_ErrorLst,3);
-      if (m_ErrorLst.Length()>0)
+      if (!SrcIO.Connected)
+        {
+        DCB.pC="Not Connected";
+        }
+      else if (m_ErrorLst.Length()>0)
         {
         Strng &S=*m_ErrorLst.First();
         DCB.pC=S.XStrChr('\t')+1;
@@ -1162,7 +1170,7 @@ class CMkUpFnd : public MRootFinder
       m_Prd.QCopy(m_In);
       m_Prd.QAddM(m_Src, som_ALL, Qm);
       m_Prd.SetTempPress(m_TRqd, m_PRqd);
-      dbgpln("   Converge Qm:%20.6f Meas:%20.6f SetPt:%20.6f", Qm, m_pMU->GetMeasVal(m_In, m_Prd), m_pMU->GetSetPoint());
+      dbgpln("   Converge Qm:%20.6f Meas:%20.6f SetPt:%20.6f In:%20.6f Src:%20.6f", Qm, m_pMU->GetMeasVal(m_In, m_Prd), m_pMU->GetSetPoint(), m_In.QMass(), m_Src.QMass());
       return m_pMU->GetMeasVal(m_In, m_Prd);
       };
 
@@ -1218,7 +1226,7 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       TReqd=QPrd.Temp();
     }
 
-  CMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, m_QmTol);
+  CMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
   //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
   int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
   switch (iRet)
@@ -1263,12 +1271,20 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       break;
     }
 
+  QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+
   m_dSetPoint   = GetSetPoint();
   m_dResult     = GetMeasVal(QIn(), QPrd);
   m_dQmProd     = QPrd.QMass();
   m_dQmMakeup   = m_dQmProd-m_dQmFeed;
   m_dTempKProd  = QPrd.Temp();
   m_dHeatFlow   = QPrd.totHz() - HzIn;
+
+  if (SrcIO.Enabled)
+    SrcIO.Sum.Set(QSrc);
+  else
+    SrcIO.Sum.ZeroFlows();
+
   };
 
 void CXBlk_Makeup::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)

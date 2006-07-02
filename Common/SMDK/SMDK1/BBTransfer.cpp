@@ -151,16 +151,16 @@ void CBBTransfer::ConfigureJoins()
   if (DoConfigureJoins())
     return;
 
-  Init_NJoins(1);
+  Init_NoJoins(1);
   int i;
   switch (NetMethod())
     {
     case NM_Probal:
-      for (i=0; (i<NoFlwIOs()); i++)
+      for (i=0; (i<NoProcessIOs()); i++)
         SetIO_Join(i, 0);
       break;
     case NM_Dynamic:
-      for (i=0; (i<NoFlwIOs()); i++)
+      for (i=0; (i<NoProcessIOs()); i++)
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
     }

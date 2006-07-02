@@ -1218,7 +1218,7 @@ bool C4PortValve::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 void C4PortValve::ConfigureJoins()
   {
-  Set_NJoins(3);
+  Set_NoJoins(3);
   if (m_State.m_iMethod==Meth_Profile && m_iProfile>=0)
     {
     C4PortProfile & Prf= m_Profiles[m_iProfile];
@@ -1273,7 +1273,7 @@ void C4PortValve::ConfigureJoins()
     int JCnt[Max4WayJoins];
     for (int i=0; i<Max4WayJoins; i++)
       JCnt[i]=0;
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       {
       int port=IOId_Self(i);
       int Jn=m_Modes[ModeReqd].m_PortsJoin[port];
@@ -1283,7 +1283,7 @@ void C4PortValve::ConfigureJoins()
       if (JnMidPt>=0)
         JCnt[JnMidPt]++;
       }
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       {
       int IsClosed=true;
       int port=IOId_Self(i);
@@ -1330,7 +1330,7 @@ void C4PortValve::ConfigureJoins()
     }
   else
     {
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       {
       if (fDoDbgBrk)
         dbgpln("SetIO_Closed(%3i %3i) %s", i, 2, FullObjTag());
@@ -1365,9 +1365,9 @@ void C4PortValve ::EvalJoinPressures(long JoinMask)
   switch (NetMethod())
     {
     case NM_Probal:
-      if (NJoins()>=1)
+      if (NoProcessJoins()>=1)
         EvalPBJoinPressure(0, NULL, NULL);//&QProd());
-      //if (NJoins()>=2)
+      //if (NoProcessJoins()>=2)
       //  EvalPBJoinPressure(1);
 
       break;
@@ -1435,17 +1435,17 @@ bool C4PortValve::EvalProductClusters(int Index, long & JoinMask)
 
 void C4PortValve ::EvalProducts(long JoinMask)
   {
-  if (NJoins()>0)
+  if (NoProcessJoins()>0)
     {
     switch (SolveMethod())
       {
       case SM_Direct:
-        if (NJoins()>0)
+        if (NoProcessJoins()>0)
           Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL, NULL);
         break;
       case SM_Inline:
       case SM_Buffered:
-        for (int j=0; j<NJoins(); j++)
+        for (int j=0; j<NoProcessJoins(); j++)
           Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, NULL, NULL);
         break;
       }

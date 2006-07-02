@@ -1961,7 +1961,7 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGNodeIn
       ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds");
       ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
       }
-    else if (p->IsLnk() && i<p->NoMLnkIOs())
+    else if (p->IsLnk() && i<p->NoProcLnkIOs())
       {
       if (p->IOEvalSeq_In(i))
         {
@@ -1984,7 +1984,7 @@ Continue:
       dbgpln("SetUpFlwNodeEdges %-3s %-3s %-3s %-6s %-10s %-2s %-3s %20s %5s %30s %s %s",
         DoingDynMode?"Dyn":"",
         p->IsLnk()?"Lnk":"",
-        i<p->NoMLnkIOs()?"MIO":"",
+        i<p->NoProcLnkIOs()?"MIO":"",
         pF->RqdTearType()?"Manual":"",
         p->IO_EvalSeqStartOK(i)?"StartOK":"",
         p->IOEvalSeq_In(i)?"In":"",
@@ -3197,7 +3197,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             dbgp("");
             dbgp("%-7s %14s %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(), 
-              Nd.NoMLnkIOs(),
+              Nd.NoProcLnkIOs(),
               Nd.NoProcessIOs(),Nd.NoFlwIOs()-Nd.NoProcessIOs(),
               DotNum(pC ? pC->m_nFlwIOsIn:-1),DotNum(pC ? pC->m_nFlwIOsOut:-1),
               DotNum(pC ? pC->m_nFlwIOsInReqd:-1),DotNum(pC ? (pC->m_nFlwIOsIn-pC->m_nFlwIOsInReqd):-1),
@@ -3733,7 +3733,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
             p->m_Clusters[0].m_nFlwIOsIn++;
           if (p->IOEvalSeq_Out(0) || p->IOEvalSeq_Out(1))
             p->m_Clusters[0].m_nFlwIOsOut++;
-          for (int i=p->NoMLnkIOs(); i<p->NoFlwIOs(); i++)
+          for (int i=p->NoProcLnkIOs(); i<p->NoFlwIOs(); i++)
             {
 
             p->SetIOEvalSeq_In(i, p->IO_In(i) && !p->IO_Zero(i));
@@ -4206,7 +4206,7 @@ void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds)
     for (int i=0; i<NJ.Nd.NoFlwIOs(); i++)
       dbgpln("  %2i %-10.10s Qm:%14.6g Est:%14.6g",i,NJ.Nd.IODesc_Self(i)->pName,NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i));
 
-    for (int j=0; j<NJ.Nd.NJoins(); j++)
+    for (int j=0; j<NJ.Nd.NoJoins(); j++)
       {
       CJoinRec &J=NJ.Nd.Joins[j];
       if (J.fIs2IO)// && J.HasFBlk())//())
@@ -4301,7 +4301,7 @@ void FlwSlvBlk::InitClosure()
     if (!TaggedObject::GlblProbalMode())
       {
       p->GetClosureInfo(false, true);
-      for (int j=0; j<p->NJoins(); j++)
+      for (int j=0; j<p->NoProcessJoins(); j++)
         {
         CClosureInfo & CI=p->m_Closure[j];
         CI.m_InitialContent=CI.m_ContentMass;
@@ -4355,8 +4355,8 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
     dbgpln("Test Closure -------------------------------------------------------- %s", NJ.Nd.Tag());
     #endif
 
-    NJ.Nd.m_Closure.Setup(true, NJ.Nd.NJoins());
-    for (int iJoin=0; iJoin<NJ.Nd.NJoins(); iJoin++)
+    NJ.Nd.m_Closure.Setup(true, NJ.Nd.NoProcessJoins());
+    for (int iJoin=0; iJoin<NJ.Nd.NoProcessJoins(); iJoin++)
       {
       CClosureInfo &CI=NJ.Nd.m_Closure[iJoin];
       CJoinRec & J=NJ.Nd.Joins[iJoin];
@@ -10909,7 +10909,7 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
         {
         if (p->m_dwType & (nc_MLnk))
           {
-          if (p->NoMLnkIOs()<2 || p->Nd_Rmt(io)==NULL) // allow for spill
+          if (p->NoProcLnkIOs()<2 || p->Nd_Rmt(io)==NULL) // allow for spill
             goto DeleteIt;
           }
         else if (p->m_dwType & (nc_ELnk|nc_CLnk|nc_ALnk))
@@ -11128,7 +11128,7 @@ long CFlwSolver::MarkFlwNodesPressNetwork(FlwNode * pNd)
   {
   long N=0;
 
-  for (int j=0; j<pNd->NJoins(); j++)
+  for (int j=0; j<pNd->NoProcessJoins(); j++)
     {
     int NetNo=pNd->Joins[j].m_NetNo;
     int SubNo=pNd->Joins[j].m_SubNetNo;
@@ -11137,7 +11137,7 @@ long CFlwSolver::MarkFlwNodesPressNetwork(FlwNode * pNd)
       FlwNode *p=NULL;
       while (GetObj_All(p))
         {
-        for (int j1=0; j1<p->NJoins(); j1++)
+        for (int j1=0; j1<p->NoProcessJoins(); j1++)
           {
           if (NetNo==p->Joins[j1].m_NetNo && SubNo==p->Joins[j1].m_SubNetNo)
             {
@@ -11637,9 +11637,9 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
     Info.ClassId   = p->Nd_Rmt(iNo)->ClassId();
     Info.Group     = p->Nd_Rmt(iNo)->Group();
     Info.iGrp      = IOGRP(p->IODesc_Self(iNo)->m_dwFlags);
-    if (p->NoMLnkIOs()==2)
+    if (p->NoProcLnkIOs()==2)
       Info.iDirn = (iNo==0) ? 1 : -1;
-    else if (p->Nd_Rmt(iNo)->NoMLnkIOs()==2)
+    else if (p->Nd_Rmt(iNo)->NoProcLnkIOs()==2)
       Info.iDirn = (p->IOIONo_Rmt(iNo)==0) ? -1 : 1;
     else
       Info.iDirn = p->IODesc_Self(iNo)->Dirn & LIO_In ? 1 : -1;
@@ -11773,8 +11773,8 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
       _stricmp(p->Group(), CtrlLinkGrp)==0;
     if (GrpOK)
       {
-      ASSERT_RDB(p->NoMLnkIOs()<=2, "A link should have two or less IOs!");
-      for (int iNo=0; iNo<p->NoMLnkIOs(); iNo++)
+      ASSERT_RDB(p->NoProcLnkIOs()<=2, "A link should have two or less IOs!");
+      for (int iNo=0; iNo<p->NoProcLnkIOs(); iNo++)
         {
         if (iNo==0)
           {
@@ -13760,7 +13760,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
       {
       int nios=0;
       int Start[4] = {0,                          pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
-      int End[4] =   {pSaveNode->NoMLnkIOs(),     pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
+      int End[4] =   {pSaveNode->NoProcLnkIOs(),     pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
       for (int pass=0; pass<4; pass++)
         {
         for (int i=Start[pass]; i<End[pass]; i++)
@@ -13779,7 +13779,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
   if (pSaveNode)
     {
     int Start[4] = {0,                          pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
-    int End[4] =   {pSaveNode->NoMLnkIOs(),  pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
+    int End[4] =   {pSaveNode->NoProcLnkIOs(),  pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
     for (int pass=0; pass<4; pass++)
       {
       for (int i=Start[pass]; i<End[pass]; i++)

@@ -150,7 +150,7 @@ flag Chute::ValidateData(ValidateDataBlk & VDB)
 
 void Chute::ConfigureJoins()
   {
-  for (int i=0; i<NoFlwIOs(); i++)
+  for (int i=0; i<NoProcessIOs(); i++)
     SetIO_Open(i, 0, false, ESS_Denied);
   };
 

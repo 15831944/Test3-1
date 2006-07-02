@@ -285,20 +285,9 @@ bool CIsoPRV::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 void CIsoPRV::ConfigureJoins()
   {
-  Set_NJoins(1);
-  //if (IOId_2IOIn
+  Set_NoJoins(1);
   for (int i=0; i<NoProcessIOs(); i++)
-    {
-    //switch (IOId_Self(i))
-    //  {
-    //  case IOId_2IOIn : 
-        SetIO_Open(i, 0, false, ESS_Denied);  
-      //  break;
-      //case IOId_2IOOut: 
-      //  SetIO_Open(i, 0, false, ESS_Denied);  
-      //  break;
-      //}
-    }
+    SetIO_Open(i, 0, false, ESS_Denied);  
   };
 
 //--------------------------------------------------------------------------
@@ -309,7 +298,7 @@ void CIsoPRV ::EvalJoinPressures(long JoinMask)
   switch (NetMethod())
     {
     case NM_Probal:
-      if (NJoins()>=1)
+      if (NoProcessJoins()>=1)
         EvalPBJoinPressure(0, NULL, NULL);//&QProd());
       break;
     case NM_Dynamic:
@@ -372,17 +361,17 @@ void CIsoPRV ::EvalProductsInit(EvalProductsInitTasks Task)
 
 void CIsoPRV ::EvalProducts(long JoinMask)
   {
-  if (NJoins()>0)
+  if (NoProcessJoins()>0)
     {
     switch (SolveMethod())
       {
       case SM_Direct:
-        if (NJoins()>0)
+        if (NoProcessJoins()>0)
           Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, NULL, NULL, NULL);
         break;
       case SM_Inline:
       case SM_Buffered:
-        for (int j=0; j<NJoins(); j++)
+        for (int j=0; j<NoProcessJoins(); j++)
           Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, NULL, NULL);
         break;
       }

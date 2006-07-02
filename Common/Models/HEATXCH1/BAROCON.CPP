@@ -255,7 +255,7 @@ void BarometricCondenser::EvalJoinPressures(long JoinMask)
         const double SuctP = IOP_Flng(IOWithId_Self(ioidBC_Mix));
         m_FTC.SetSuctionP(SuctP);
         }
-      if (NJoins()>0)
+      if (NoProcessJoins()>0)
         {
         const double SuctP = GetPBInputPressure(0);
         m_FTC.SetSuctionP(SuctP);

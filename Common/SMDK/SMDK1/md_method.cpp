@@ -396,11 +396,11 @@ bool MBaseMethod::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
 bool MBaseMethod::ConfigureJoins()
   {
-  m_pNd->Init_NJoins(m_nJoins);
+  m_pNd->Init_NoJoins(m_nJoins);
   if (1) // default for all modes //m_pNd->SolveDirectMethod() || m_pNd->SolveInlineMethod())
     {
     MInOutDefStruct *pDefs = m_pIODefs;
-    for (int i=0; i<m_pNd->NoFlwIOs(); i++)
+    for (int i=0; i<m_pNd->NoProcessIOs(); i++)
       {
       int Id=m_pNd->IOId_Self(i);
       while (pDefs->m_sName!=NULL &&  pDefs->m_lId<Id)
@@ -709,8 +709,8 @@ void   MJoin::EvalProbalP(MProbalPCtrl *pPC, SpModel * pMdl)      { m_pNd->EvalP
 
 //---------------------------------------------------------------------------
 
-long MJoins::getCount()                                       { return m_pNd->NJoins(); };
-void MJoins::putCount(long N)                                 { return m_pNd->Init_NJoins(N); };
+long MJoins::getCount()                                       { return m_pNd->NoProcessJoins(); };
+void MJoins::putCount(long N)                                 { return m_pNd->Init_NoJoins(N); };
 
 //---------------------------------------------------------------------------
 //

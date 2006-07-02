@@ -7,6 +7,7 @@
 
 #if WITHBLOCKEVALUATOR
 
+#define dbgBlkEvalProd 0
 
 #define DISABLESIMULTANEOUS   01
 
@@ -417,6 +418,8 @@ void CBlockEvaluator::SortBlocks()
 
 void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
+  if (dbgBlkEvalProd && m_nBlocks>0)
+    dbgpln("CBlockEvaluator::EvalProducts >> Qm:%10.3f %s", Fo.QMass(), m_pThis->Tag());
   for (int i=0; i<m_nBlocks ; i++)
     {
     switch (m_Blks[i]->BEId())
@@ -459,15 +462,36 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
         if (pFTB) 
           pFTB->AddEvapEnd();
         break;
+
+      case BEId_Makeup:  
+        //if (pFTB)
+        //  pFTB->AddEvapBegin();
+        m_pMakeups[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
+        //if (pFTB)
+        //  pFTB->AddEvapEnd();
+        break;
+      case BEId_Bleed:  
+        //if (pFTB)
+        //  pFTB->AddEvapBegin();
+        m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
+        //m_Blks[i]->EvalProducts(Fo, Po); 
+        //if (pFTB)
+        //  pFTB->AddEvapEnd();
+        break;
+
       }
     //      }
     }
+  if (dbgBlkEvalProd && m_nBlocks>0)
+    dbgpln("                              << Qm:%10.3f", Fo.QMass());
   };
 
 //-------------------------------------------------------------------------
 
 void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
+  if (dbgBlkEvalProd && m_nBlocks>0)
+    dbgpln("CBlockEvaluator::EvalProductsPipe >> Qm:%10.3f %s", Fo.QMass(), m_pThis->Tag());
   for (int i=0; i<m_nBlocks; i++)
     {
     switch (m_Blks[i]->BEId())
@@ -530,6 +554,8 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
       }
     //}
     }
+  if (dbgBlkEvalProd && m_nBlocks>0)
+    dbgpln("                                  << Qm:%10.3f", Fo.QMass());
   };
 
 //=========================================================================

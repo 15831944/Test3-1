@@ -1363,7 +1363,7 @@ void MdlNode::EvalProductsInit_Node(EvalProductsInitTasks Task, IDMask IOIds)
 
 void MdlNode::EvalProductsInit_Link(EvalProductsInitTasks Task)
   {
-  if (NoMLnkIOs()>=2)
+  if (NoProcLnkIOs()>=2)
     {
     double q;
     int iIn=IO_In(0) ? 0 : 1;
@@ -2098,7 +2098,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.B=SolveInlineMethod();
       return true;
     case xidRho:
-      if (NoMLnkIOs() == 2)
+      if (NoProcLnkIOs() == 2)
         {
         int i= (IO_In(0) ? 0 : 1);
         DCB.D=IOConduit(i)->Rho(som_ALL);
@@ -2107,7 +2107,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidNRho:
-      if (NoMLnkIOs() == 2)
+      if (NoProcLnkIOs() == 2)
         {
         int i= (IO_In(0) ? 0 : 1);
         DCB.D=IOConduit(i)->NRho(som_ALL);
@@ -2123,9 +2123,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.D=dNAN;
       return true;
     case xidQm:
-      if (NoMLnkIOs() == 1)
+      if (NoProcLnkIOs() == 1)
         DCB.D=IOConduit(0)->QMass();
-      else if (NoMLnkIOs() >= 2)
+      else if (NoProcLnkIOs() >= 2)
         {
         int i= (!IO_Out(0) ? 0 : 1);
         DCB.D=IOConduit(i)->QMass();
@@ -2134,9 +2134,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidQv:
-      if (NoMLnkIOs() == 1)
+      if (NoProcLnkIOs() == 1)
         DCB.D=IOConduit(0)->QVolume();
-      else if (NoMLnkIOs() >= 2)
+      else if (NoProcLnkIOs() >= 2)
         {
         int i= (!IO_Out(0) ? 0 : 1);
         DCB.D=IOConduit(i)->QVolume();
@@ -2145,9 +2145,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidNQv:
-      if (NoMLnkIOs() == 1)
+      if (NoProcLnkIOs() == 1)
         DCB.D=IOConduit(0)->QNVolume();
-      else if (NoMLnkIOs() >= 2)
+      else if (NoProcLnkIOs() >= 2)
         {
         int i= (!IO_Out(0) ? 0 : 1);
         DCB.D=IOConduit(i)->QNVolume();
@@ -2159,7 +2159,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.D=dNAN;//pContents->Level();
       return true;
     case xidMomentum:
-      if (NoMLnkIOs()>0)
+      if (NoProcLnkIOs()>0)
         {
         DCB.D=0.0;
         for (int j=0; j<NIOFBs(0); j++)
@@ -2169,7 +2169,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidNettBoost:
-      if (NoMLnkIOs()>0)
+      if (NoProcLnkIOs()>0)
         {
         DCB.D=0.0;
         for (int j=0; j<NIOFBs(0); j++)
@@ -2179,13 +2179,13 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xiddP:
-      if (NoMLnkIOs() >= 2)
+      if (NoProcLnkIOs() >= 2)
         DCB.D=IOP_Flng(1)-IOP_Flng(0);
       else
         DCB.D=0.0;
       return true;
     case xidPIn:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         if (DCB.rD)
           Set_IOP_Flng(0, *DCB.rD);
@@ -2195,7 +2195,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPOut:
-      if (NoMLnkIOs() >= 2)
+      if (NoProcLnkIOs() >= 2)
         {
         if (DCB.rD)
           Set_IOP_Flng(1, *DCB.rD);
@@ -2205,7 +2205,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPInEst:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         if (DCB.rD)
           Set_IOP_Est_Flng(0, *DCB.rD);
@@ -2215,7 +2215,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPOutEst:
-      if (NoMLnkIOs() >= 2)
+      if (NoProcLnkIOs() >= 2)
         {
         if (DCB.rD)
           Set_IOP_Est_Flng(1, *DCB.rD);
@@ -2225,10 +2225,10 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=AtmosPress();
       return true;
     case xidPInRmt:
-      DCB.D=(NoMLnkIOs() >= 1) ? IOP_Term_Rmt(0) : AtmosPress();
+      DCB.D=(NoProcLnkIOs() >= 1) ? IOP_Term_Rmt(0) : AtmosPress();
       return true;
     case xidPOutRmt:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOP_Term_Rmt(1) : AtmosPress();
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOP_Term_Rmt(1) : AtmosPress();
       return true;
     case xidPMean:
       if (DCB.rD)
@@ -2241,43 +2241,43 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.D=JoinP_Est(0);
       return true;
     case xidDPInRmt:
-      DCB.D=(NoMLnkIOs() >= 1) ? IOP_Flng(0)-IOP_Term_Rmt(0) : 0;
+      DCB.D=(NoProcLnkIOs() >= 1) ? IOP_Flng(0)-IOP_Term_Rmt(0) : 0;
       return true;
     case xidDPOutRmt:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOP_Term_Rmt(1) - IOP_Flng(1): 0;
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOP_Term_Rmt(1) - IOP_Flng(1): 0;
       return true;
     case xidDPRmt:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOP_Flng(1) : AtmosPress();
-      DCB.D-=(NoMLnkIOs() >= 1) ? IOP_Flng(0) : AtmosPress();
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOP_Flng(1) : AtmosPress();
+      DCB.D-=(NoProcLnkIOs() >= 1) ? IOP_Flng(0) : AtmosPress();
       return true;
 
     case xidHzIn:
-      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
       return true;
     case xidHzOut:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
       return true;
     case xidHzInRmt:
-      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 1) ? IOConduit(0)->msHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
       return true;
     case xidHzOutRmt:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOConduit(1)->msHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
       return true;
     case xidtotHzIn:
-      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Flng(0)) : 0;
       return true;
     case xidtotHzOut:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Flng(1)) : 0;
       return true;
     case xidtotHzInRmt:
-      DCB.D=(NoMLnkIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 1) ? IOConduit(0)->totHz(som_ALL, IOConduit(0)->Temp(), IOP_Term_Rmt(0)) : 0;
       return true;
     case xidtotHzOutRmt:
-      DCB.D=(NoMLnkIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
+      DCB.D=(NoProcLnkIOs() >= 2) ? IOConduit(1)->totHz(som_ALL, IOConduit(1)->Temp(), IOP_Term_Rmt(1)) : 0;
       return true;
 
     case xidSolFrac:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMass(som_Sol)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2287,7 +2287,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
     case xidLiqFracIn:
     case xidLiqFrac:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMass(som_Liq)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2296,7 +2296,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidLiqFracOut:
-      if (NoMLnkIOs() >= 2)
+      if (NoProcLnkIOs() >= 2)
         {
         pSpConduit Q=IOConduit(1);
         DCB.D=(Q ? Q->QMass(som_Liq)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2306,7 +2306,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
     case xidVapFracIn:
     case xidVapFrac:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMass(som_Gas)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2315,7 +2315,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidVapFracOut:
-      if (NoMLnkIOs() >= 2)
+      if (NoProcLnkIOs() >= 2)
         {
         pSpConduit Q=IOConduit(1);
         DCB.D=(Q ? Q->QMass(som_Gas)/GTZ(Q->QMass(som_ALL)) : dNAN);
@@ -2324,7 +2324,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidMoleVapFrac:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->QMole(som_Gas)/GTZ(Q->QMole(som_ALL)) : dNAN);
@@ -2334,7 +2334,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
     case xidTemp:
     case xidTempIn:
-      if (NoMLnkIOs() >= 1)
+      if (NoProcLnkIOs() >= 1)
         {
         pSpConduit Q=IOConduit(0);
         DCB.D=(Q ? Q->Temp() : dNAN);
@@ -2343,7 +2343,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
     case xidTempOut:
-      if (NoMLnkIOs() >= 2)
+      if (NoProcLnkIOs() >= 2)
         {
         pSpConduit Q=IOConduit(1);
         DCB.D=(Q ? Q->Temp() : dNAN);
@@ -2390,7 +2390,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         double Sig=0.0;
         for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowMass;
@@ -2416,7 +2416,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           else if (IO_Out(i))
             SigNeg+=IOAreaSum(i)->FlowMass;
           }
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowMass;
@@ -2454,7 +2454,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         double Sig=0.0;
         for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalMass;
@@ -2472,7 +2472,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         double Sig=0.0;
         double SigPos=0.0;
         double SigNeg=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
           if (IO_In(i))
@@ -2480,7 +2480,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           else if (IO_Out(i))
             SigNeg+=IOAreaSum(i)->TotalMass;
           }
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalMass;
@@ -2514,9 +2514,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (gs_EvalAudits)
         {
         double Sig=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowHz;
@@ -2534,7 +2534,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         double Sig=0.0;
         double SigPos=0.0;
         double SigNeg=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
           if (IO_In(i))
@@ -2542,7 +2542,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           else if (IO_Out(i))
             SigNeg+=IOAreaSum(i)->FlowHz;
           }
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.FlowHz;
@@ -2575,9 +2575,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (gs_EvalAudits)
         {
         double Sig=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalHz;
@@ -2595,7 +2595,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         double Sig=0.0;
         double SigPos=0.0;
         double SigNeg=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
           if (IO_In(i))
@@ -2603,7 +2603,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
           else if (IO_Out(i))
             SigNeg+=IOAreaSum(i)->TotalHz;
           }
-        for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++)
+        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
           {
           CDirectFlwIO &D=*m_DirectIOs[d];
           Sig+=D.NdSignImplied*D.Sum.TotalHz;
@@ -2624,10 +2624,10 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       DCB.L=NoProcessIOs();
       return true;
     case xidIO_DirCount:
-      DCB.L=NoDirDIOs();
+      DCB.L=NoProcDirectIOs();
       return true;
     case xidIO_AdtCount:
-      DCB.L=NoAdtDIOs();
+      DCB.L=NoAuditDirectIOs();
       return true;
 
 
@@ -2876,22 +2876,22 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=IOConduit(i)->QMass()*Sign(IOQm_In(i));
         return true;
         }
-      /*if (DCB.lHandle>=xidIO_IoQm0 && DCB.lHandle<xidIO_IoQm0+NoMLnkIOs()+NoDirDIOs())
+      /*if (DCB.lHandle>=xidIO_IoQm0 && DCB.lHandle<xidIO_IoQm0+NoProcLnkIOs()+NoProcDirectIOs())
         {
         int i=DCB.lHandle-xidIO_IoQm0;
-        if (i<NoMLnkIOs())
+        if (i<NoProcLnkIOs())
           {
           DCB.D=IOConduit(i)->QMass()*Sign(IOQm_In(i));
           }
         else
           {
-          i -= NoMLnkIOs();
+          i -= NoProcLnkIOs();
           CDirectFlwIO &D=*m_DirectIOs[i];
           DCB.D=D.NdSignImplied*D.Sum.FlowMass;//?????
           }
         return true;
         }*/
-      else if (DCB.lHandle>=xidIO_IoQm0+NoFlwIOs() && DCB.lHandle<xidIO_IoQm0+NoFlwIOs()+NoDirDIOs())
+      else if (DCB.lHandle>=xidIO_IoQm0+NoFlwIOs() && DCB.lHandle<xidIO_IoQm0+NoFlwIOs()+NoProcDirectIOs())
         {
         int i=DCB.lHandle-xidIO_IoQm0-NoFlwIOs();
         CDirectFlwIO &D=*m_DirectIOs[i];
@@ -3170,7 +3170,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
         if (dbgSetZsValue())
           dbgpln("-       %s    %-15s      %8.2f %s ", IndentMatch(), Z_StateStr(Z_State), m_dDatum, FullObjTag());
         #endif
-        for (int i = 0; (i < NoMLnkIOs()); i++)
+        for (int i = 0; (i < NoProcLnkIOs()); i++)
           {
           IOFlange(i)->m_dDatum = m_dDatum + DeltaZ(this, i, Data);
           #if dbgModels
@@ -3253,7 +3253,7 @@ Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, doub
     #endif
 
     CFlange *pC;
-    for (int i = 0; (i < NoMLnkIOs()); i++)
+    for (int i = 0; (i < NoProcLnkIOs()); i++)
       {
       pC = IOFlange(i);
       if (i != IOIn)
@@ -3282,7 +3282,7 @@ Z_States MdlNode::SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z
   {
   KWIKINDENT
 
-  if (!Done && !Busy && (NoMLnkIOs() == 2))
+  if (!Done && !Busy && (NoProcLnkIOs() == 2))
     {
     int IOOut = (IOIn+1)%2;
     double Zo;
@@ -3402,7 +3402,7 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       {
       DoSort=0;
       Oi=0;
-      for (i = 0; i < NoMLnkIOs/*NoFlwIOs*/() && !DoSort; i++)
+      for (i = 0; i < NoProcLnkIOs/*NoFlwIOs*/() && !DoSort; i++)
         if ((IOIdMask_Self(i) & D.m_IOIdMask)!=0)
           if (/*IO_Out(i) &&*/ (FHgt[i]<=1.01))
             {
@@ -3800,7 +3800,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
       Tag.Set("IO.[%i].Qm", i);
       DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+i,       this, isResult|isTag|noFile|noSnap);
       }
-    for (int d=0; d<NoDirDIOs(); d++) 
+    for (int d=0; d<NoProcDirectIOs(); d++) 
       {
       CDirectFlwIO &D=*m_DirectIOs[d];
       Sym.Set("IO.%s.Qm", D.Tag);
@@ -3818,7 +3818,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
       int iAdt=0;
       DDB.Text(" ");
       DDB.Text("Mass Audit");
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++) 
+      for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
         {
         CDirectFlwIO &D=*m_DirectIOs[d];
         Sym.Set("AI.%s.Qm", D.Tag);
@@ -3841,7 +3841,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
       Tag.Set("IO.[%i].Hz", i);
       DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_IoHz0+i,       this, isResult|isTag|noFile|noSnap);
       }
-    for (int d=0; d<NoDirDIOs(); d++) 
+    for (int d=0; d<NoProcDirectIOs(); d++) 
       {
       CDirectFlwIO &D=*m_DirectIOs[d];
       Sym.Set("IO.%s.Hz", D.Tag);
@@ -3857,7 +3857,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
       int iAdt=0;
       DDB.Text(" ");
       DDB.Text("Heat Audit");
-      for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++) 
+      for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
         {
         CDirectFlwIO &D=*m_DirectIOs[d];
         Sym.Set("AI.%s.Hz", D.Tag);
@@ -3888,7 +3888,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
             {
             int iIO=0; 
-            for (int i=0; i<NoMLnkIOs(); i++)
+            for (int i=0; i<NoProcLnkIOs(); i++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk%i", iIO);
@@ -3898,29 +3898,41 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
             DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap|NAN_OK);
 
-            int iDir=0;
-            for (int d=0; d<NoDirDIOs(); d++) 
-              {
-              CDirectFlwIO &D=*m_DirectIOs[d];
-              Sym.Set("Dir.%s", D.Tag);
-              Tag.Set("Dir%i", iDir);
-              DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|noFile|noSnap);
-              iIO++;
-              iDir++;
-              }
-
-            if (NoDirectIOs()>0)
-              {
-              int iAdt=0;
-              for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++) 
+            DDB.Text("FIX!!!");
+              int iiii=0;                              ?
+              for (int d=0; d<NoDirectIOs(); d++) 
                 {
                 CDirectFlwIO &D=*m_DirectIOs[d];
                 Sym.Set("Adt.%s", D.Tag);
-                Tag.Set("Adt%i", iAdt++);
-                DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
-                iDir++;
+                Tag.Set("Adt%i", iiii++);
+                DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+d,       this, isResult|/*isTag|*/noFile|noSnap);
                 }
-              }
+
+
+            //int iDir=0;
+            //for (int d=0; d<NoProcDirectIOs(); d++) 
+            //  {
+            //  CDirectFlwIO &D=*m_DirectIOs[d];
+            //  Sym.Set("Dir.%s", D.Tag);
+            //  Tag.Set("Dir%i", iDir);
+            //  DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|noFile|noSnap);
+            //  iIO++;
+            //  iDir++;
+            //  }
+
+            //if (NoDirectIOs()>0)
+            //  {
+            //  int iAdt=0;
+            //  for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
+            //    {
+            //    CDirectFlwIO &D=*m_DirectIOs[d];
+            //    Sym.Set("Adt.%s", D.Tag);
+            //    Tag.Set("Adt%i", iAdt++);
+            //    DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|/*isTag|*/noFile|noSnap);
+            //    iDir++;
+            //    }
+            //  }
+
             DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
             DDB.Double("Balance.Rel", "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
             }
@@ -3933,7 +3945,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
             {
             int iIO=0; 
-            for (int i=0; i<NoMLnkIOs(); i++)
+            for (int i=0; i<NoProcLnkIOs(); i++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk%i", iIO);
@@ -3944,7 +3956,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             DDB.Double("Nett",       "", DC_Pwr, "kJ/s",      xidIO_HzNett,        this, isResult|noFile|noSnap|NAN_OK);
 
             int iDir=0;
-            for (int d=0; d<NoDirDIOs(); d++) 
+            for (int d=0; d<NoProcDirectIOs(); d++) 
               {
               CDirectFlwIO &D=*m_DirectIOs[d];
               Sym.Set("Dir.%s", D.Tag);
@@ -3957,7 +3969,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             if (NoDirectIOs()>0)
               {
               int iAdt=0;
-              for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++) 
+              for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
                 {
                 CDirectFlwIO &D=*m_DirectIOs[d];
                 Sym.Set("Adt.%s", D.Tag);
@@ -3983,7 +3995,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           if (DDB.BeginStruct(this, "Mass", NULL, DDB_NoPage))
             {
             int iIO=0; 
-            for (int i=0; i<NoMLnkIOs(); i++)
+            for (int i=0; i<NoProcLnkIOs(); i++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk.[%i]", iIO);
@@ -3994,7 +4006,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             DDB.Double("Nett",       "", DC_M ,  "kg",     xidIO_QmNettTotal,       this, isResult|noFile|noSnap|NAN_OK);
 
             int iDir=0;
-            for (int d=0; d<NoDirDIOs(); d++) 
+            for (int d=0; d<NoProcDirectIOs(); d++) 
               {
               CDirectFlwIO &D=*m_DirectIOs[d];
               Sym.Set("Dir.%s", D.Tag);
@@ -4007,7 +4019,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             if (NoDirectIOs()>0)
               {
               int iAdt=0;
-              for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++) 
+              for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
                 {
                 CDirectFlwIO &D=*m_DirectIOs[d];
                 Sym.Set("Adt.%s", D.Tag);
@@ -4028,7 +4040,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
             {
             int iIO=0; 
-            for (int i=0; i<NoMLnkIOs(); i++)
+            for (int i=0; i<NoProcLnkIOs(); i++)
               {
               Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
               Tag.Set("Lnk.[%i]", iIO);
@@ -4039,7 +4051,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             DDB.Double("Nett",       "", DC_E, "kJ",      xidIO_HzNettTotal,          this, isResult|noFile|noSnap|NAN_OK);
 
             int iDir=0;
-            for (int d=0; d<NoDirDIOs(); d++) 
+            for (int d=0; d<NoProcDirectIOs(); d++) 
               {
               CDirectFlwIO &D=*m_DirectIOs[d];
               Sym.Set("Dir.%s", D.Tag);
@@ -4052,7 +4064,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
             if (NoDirectIOs()>0)
               {
               int iAdt=0;
-              for (int d=FirstAdtDIO(); d<NoDirectIOs(); d++) 
+              for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++) 
                 {
                 CDirectFlwIO &D=*m_DirectIOs[d];
                 Sym.Set("Adt.%s", D.Tag);
@@ -4197,7 +4209,7 @@ const double MinAvailFrac=1.0e-9;
 
 void MdlNode::MakeUpNodeTransferAvail(int JoinId)
   {
-  if (JoinId>=NJoins())
+  if (JoinId>=NoProcessJoins())
     return;
 
   double A=0.0;
@@ -4251,7 +4263,7 @@ void MdlNode::MakeUpNodeTransferAvail(int JoinId)
 
 void MdlNode::MakeUpNodeTransferReqd(int JoinId)
   {
-  if (JoinId>=NJoins())
+  if (JoinId>=NoProcessJoins())
     return;
 
   double R=0.0, Q=0.0;//, S=0.0;
@@ -4314,7 +4326,7 @@ void MdlNode::MakeUpNodeTransferReqd(int JoinId)
 
 flag MdlNode::MakeUpNodeEvalProducts(int JoinId, SpConduit &Sd)
   {
-  if (JoinId>=NJoins())
+  if (JoinId>=NoProcessJoins())
     return False;
   if (!bNodeMakeUpReqd)
     return False;
@@ -4367,7 +4379,7 @@ flag MdlNode::MakeUpNodeEvalProducts(int JoinId, SpConduit &Sd)
 
 flag MdlNode::MakeUpNodeEvalProducts(int JoinId)
   {
-  if (JoinId>=NJoins())
+  if (JoinId>=NoProcessJoins())
     return False;
   if (!bNodeMakeUpReqd)
     return False;

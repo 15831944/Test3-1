@@ -133,6 +133,25 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
 
   BuildDataDefnElevation(DDB);
 
+  if (What & BDDAO_Contents)
+    {
+    DDB.Visibility();
+    DDB.Object(&m_Content,  this, NULL, NULL, DDB_RqdPage);
+    if (0)
+      {
+      //DDB.Object(&m_SrcsI,   this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_SnksO,   this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_MakeupsI,this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_BleedsO, this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_SpillsO, this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_VentsO,  this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_LeaksI,  this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_OvResults.m_Sum[AR_LeaksO],  this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_AccI,    this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      //DDB.Object(&m_AccO,    this, NULL, NULL, DDB_RqdPage, -1, isResult);
+      }
+    }
+
   //CDirectFlwIO::sm_
   if ((m_bDoAudit && gs_EvalAudits) || m_bForceAudit)
     {
@@ -263,25 +282,6 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
   DDB.Button("Copy_MassTotal", "", DC_, "", xidIO_CopyAdtMassTotal, this, isParm);
   DDB.Button("Copy_Heat",      "", DC_, "", xidIO_CopyAdtHeat, this, isParm);
   DDB.Button("Copy_HeatTotal", "", DC_, "", xidIO_CopyAdtHeatTotal, this, isParm);
-
-  if (What & BDDAO_Contents)
-    {
-    DDB.Visibility();
-    DDB.Object(&m_Content,  this, NULL, NULL, DDB_RqdPage);
-    if (0)
-      {
-      //DDB.Object(&m_SrcsI,   this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_SnksO,   this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_MakeupsI,this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_BleedsO, this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_SpillsO, this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_VentsO,  this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_LeaksI,  this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_OvResults.m_Sum[AR_LeaksO],  this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_AccI,    this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      //DDB.Object(&m_AccO,    this, NULL, NULL, DDB_RqdPage, -1, isResult);
-      }
-    }
 
   DDB.Text("");
   DDB.EndStruct();
@@ -807,7 +807,7 @@ void MN_Area::EvalAudit(int Pass)
           dbgpln("------------------------------------------------------------------------------------------------ %s [%s]", Nd.FullObjTag(), Nd.ClassId());
 #endif
 
-        for (int io=0; io<Nd.NoMLnkIOs(); io++)
+        for (int io=0; io<Nd.NoProcLnkIOs(); io++)
           {
           if (Nd.IOQm_In(io)>0)
             {

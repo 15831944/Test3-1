@@ -742,12 +742,12 @@ int MRootFinder::FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double 
   if (Valid(XEst))
     SetEstimate(XEst, XEstSlope);
   int iRet=Start(XLoBnd, XHiBnd);
-    if (iRet==RF_EstimateOK) //estimate is good, solve not required
-      return RF_OK;
+  if (iRet==RF_EstimateOK) //estimate is good, solve not required
+    return RF_OK;
   if (iRet==RF_BadEstimate)
     iRet = Start(XLoBnd, XHiBnd); // Restart
-    if (iRet==RF_OK) 
-      return Solve_Brent();
+  if (iRet==RF_OK) 
+    return Solve_Brent();
   return iRet;
   }
 

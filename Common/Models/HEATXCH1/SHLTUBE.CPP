@@ -1243,7 +1243,7 @@ void ShellTube::ConfigureJoins()
     {
     m_HXJ.SetJoinIds(0, true, true);
     flag fP=m_HXJ.PriIsJoined();
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       {
       if (IOId_Self(i)>=ioidST_TubeIn && IOId_Self(i)<=ioidST_TubeOut)
         {
@@ -1257,7 +1257,7 @@ void ShellTube::ConfigureJoins()
       }
 
     flag fS=m_HXJ.SecIsJoined();
-    for (i=0; i<NoFlwIOs(); i++)
+    for (i=0; i<NoProcessIOs(); i++)
       {
       if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellOut)
         {
@@ -1278,13 +1278,13 @@ void ShellTube::ConfigureJoins()
     {
     m_HXJ.SetJoinIds(0, true, false);
     flag fP=m_HXJ.PriIsJoined();
-    for (int i=0; i<NoFlwIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
       if (IOId_Self(i)>=ioidST_TubeIn && IOId_Self(i)<=ioidST_TubeOut)
         if (fP)
           SetIO_Join(i, m_HXJ.P.JoinId());
         else
           SetIO_Closed(i, m_HXJ.P.JoinId());
-    for (i=0; i<NoFlwIOs(); i++)
+    for (i=0; i<NoProcessIOs(); i++)
       if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellVent)
         SetIO_Open(i, m_HXJ.SecJoinId(), true, SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
     }
@@ -1305,7 +1305,7 @@ void ShellTube::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         {
         double Pj=GetPBInputPressure(j);
 
@@ -1431,7 +1431,7 @@ void ShellTube::EvalProducts(long JoinMask)
       //
       //      if (m_HXJ.PriIsJoined())
       //        Xfer_EvalProducts(m_HXJ.P.JoinId(), Joins[m_HXJ.P.JoinId()].Pressure(), NULL, &QSigmaOut, NULL, NULL, NULL);
-      ////      if (NJoins()>=1)
+      ////      if (NoProcessJoins()>=1)
       ////        Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);//RB());
       //
       //      if (m_HXJ.PriIsJoined() && m_HXJ.PriConnected())

@@ -453,7 +453,7 @@ void MixerSettler::ConfigureJoins()
   int i;
   if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
     {
-    for (i=0; i<NoFlwIOs(); i++)
+    for (i=0; i<NoProcessIOs(); i++)
       SetIO_Join(i, 0);
     /*for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idOrgIn); i++)
       SetIO_Join(i, idAqIn);
@@ -462,9 +462,9 @@ void MixerSettler::ConfigureJoins()
     }
   else
     {
-    for (i=0; (i<NoFlwIOs()) && (IOId_Self(i)<idMx); i++)
+    for (i=0; (i<NoProcessIOs()) && (IOId_Self(i)<idMx); i++)
       SetIO_Open(i, 0, false, ESS_Allowed);
-    for (  ; i<NoFlwIOs(); i++)
+    for (  ; i<NoProcessIOs(); i++)
       SetIO_Join(i, 0);
     }
   };  
@@ -479,7 +479,7 @@ void MixerSettler::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
-      for (int j=0; j<NJoins(); j++)
+      for (int j=0; j<NoProcessJoins(); j++)
         {
         double P = PBPress();//AtmosPress(IODatum_Term(j));
         SetPBJoinPressure(j, P, true, true);
