@@ -12283,7 +12283,9 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
           {
           if (!pSaveNode->Internal)
             {
-            if ((pSaveNode->Class()->CategoryMdl() & Rqst.dwReqData)!=0)
+            //if ((pSaveNode->Class()->CategoryMdl() & Rqst.dwReqData)!=0) WRONG
+            const DWORD dw1 = pSaveNode->Class()->CategoryMdl();
+            if ((dw1 & Rqst.dwReqData)==dw1) //all mdl test criteria met
               Info.dwData++;
             else
               LogNote("FlwSolve", 0, "Unit not Licensed %s", pSaveNode->FullObjTag());
