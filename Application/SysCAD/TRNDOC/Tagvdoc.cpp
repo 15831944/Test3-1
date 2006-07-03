@@ -42,7 +42,6 @@ inline double dbgTimeRound(CTimeValue Tim) { return Tim.Seconds; };//-3600.0*flo
 #if (!ALLOWFUNCS)
   //TODO Function evaluation disabled in trends!
 #endif
-//#include "optoff.h"
 
 //===========================================================================
 

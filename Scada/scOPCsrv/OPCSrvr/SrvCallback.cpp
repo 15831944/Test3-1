@@ -23,9 +23,6 @@
 #include "scd_wm.h"
 #include "srvmngr.h"
 #include "atlconv.h"
-//#include "scdcomevts.h"
-
-//#include "optoff.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

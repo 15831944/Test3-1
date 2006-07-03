@@ -10,7 +10,6 @@
 #include "tagobj.h"
 #include "scdver.h"
 #include "liccount.h"
-//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

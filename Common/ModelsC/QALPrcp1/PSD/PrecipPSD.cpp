@@ -15,7 +15,6 @@
 #include "qbspmdl.h"
 #include "tknpars.h"
 #include "precippsd.h"
-//#include "optoff.h"
 
 #define dbgModels 01
 #if dbgModels

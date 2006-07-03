@@ -18,8 +18,6 @@
 #include "dbgmngr.h"
 #include "debugnew.h"
 
-//#include "optoff.h"
-
 #define dbgModel          01
 
 #if (0 && dbgModel  && !defined(_RELEASE))

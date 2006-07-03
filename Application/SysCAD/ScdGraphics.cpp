@@ -6,7 +6,6 @@
 
 #include "cmd_mngr.h"
 #include "mainfrm.h"
-//#include "optoff.h"
 
 //#include "..\..\scapp1\docroot.h"
 //#include "..\..\scapp1\project.h"

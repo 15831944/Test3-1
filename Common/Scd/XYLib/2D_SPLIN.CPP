@@ -9,8 +9,6 @@
 #include "2d_fn.h"
 #include "2d_splin.h"
 
-//#include "optoff.h"
-
 // =========================================================================
 
 IMPLEMENT_2D_MODEL(C2DSpline, "2D_Splin", "", TOC_SYSTEM, "Spline-Tension", "Spline Under Tension");

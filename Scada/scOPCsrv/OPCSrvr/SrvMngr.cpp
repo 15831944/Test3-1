@@ -12,8 +12,6 @@
 #include "CommsSrvrBase.h"
 #include "scd_wm.h"
 
-//#include "optoff.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE

@@ -10,7 +10,6 @@
 
 #include "myf2c.h"
 #include "PrecipPSD.h"
-//#include "optoff.h"
 
 #define dbgModels 01
 #if dbgModels

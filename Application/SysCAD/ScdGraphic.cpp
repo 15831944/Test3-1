@@ -7,7 +7,6 @@
 #include "grfdoc.h"
 #include ".\scdgraphic.h"
 //#include "..\..\..\com\scdslv\scdslvwrap.h"
-//#include "optoff.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CScdGraphic

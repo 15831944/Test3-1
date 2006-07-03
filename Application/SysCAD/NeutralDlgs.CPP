@@ -26,7 +26,6 @@
 #include "scdver.h"
 #include "scdcmdif.h"
 #include "dbhelper.h"
-//#include "optoff.h"
 
 extern "C" 
   {

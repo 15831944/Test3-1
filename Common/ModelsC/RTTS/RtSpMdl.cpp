@@ -6,8 +6,6 @@
 #define  __RTSPMDL_CPP
 #include "sp_db.h"
 #include "rtspmdl.h"
-//#include "errorlog.h"
-//#include "optoff.h"
 #define SIZEDST1
 #include "models.h"
 #include "op_db.h"

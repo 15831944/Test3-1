@@ -8,7 +8,6 @@
 #define  __SPDBE_IAF_CPP
 #include "sp_db.h"
 #include "surfaces.h"
-//#include "optoff.h"
 #include "math.h"
 
 //#define dbgBuildSDB    0

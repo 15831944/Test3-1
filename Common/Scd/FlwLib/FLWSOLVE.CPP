@@ -5361,8 +5361,6 @@ int FlwSlvPB::InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn)
 
 //--------------------------------------------------------------------------
 
-//#include "optoff.h"
-
 int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
   {
 #if dbgProBal
@@ -13174,8 +13172,6 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   }
 
 //--------------------------------------------------------------------------
-
-//#include "optoff.h"
 
 flag CFlwSolver::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {

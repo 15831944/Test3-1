@@ -7,7 +7,6 @@
 #include "sp_db.h"
 #include "skospmdl.h"
 #include "errorlog.h"
-//#include "optoff.h"
 
 #include "gassep.h"
 

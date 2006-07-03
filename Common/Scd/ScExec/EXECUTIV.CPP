@@ -2042,7 +2042,9 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
 
     //SetStopTimeEtc(true);
     //ScnState=Scn_Start;
-    LogNote("Executive", 0, "Scenario Start");
+#ifndef _RELEASE
+    LogNote("Executive", 0, "Scenario Start"); //todo fix
+#endif
     }
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
@@ -2329,7 +2331,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       if (ScnStartupRequired())
         {
+#ifndef _RELEASE
         LogNote("Executive", 0, "Performing Prestart");
+#endif
         for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
           Objs_Reg[RInx]->EO_PreStart(TimeCB());
         }

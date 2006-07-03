@@ -12,7 +12,6 @@
 #include "power.h"
 #include "flwnode.h"
 #include "elecbase.h"
-//#include "optoff.h"
 
 //XID xidNomVolts       = PwrXID(1);
 //XID xidNomCurrent     = PwrXID(2);

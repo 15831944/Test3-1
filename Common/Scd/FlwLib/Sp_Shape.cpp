@@ -13,8 +13,6 @@
 #include "executiv.h"
 #include "sp_model.h"
 
-//#include "optoff.h"
-
 #define  dbgSpModel   WITHDEBUG
 
 #if dbgSpModel

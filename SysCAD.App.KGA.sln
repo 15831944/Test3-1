@@ -823,6 +823,7 @@ Global
 		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Debug - Full.ActiveCfg = Debug|Win32
 		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Debug - Full.Build.0 = Debug|Win32
 		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Release.ActiveCfg = Release|Win32
+		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Release.Build.0 = Release|Win32
 		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Release - Full.ActiveCfg = Release|Win32
 		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Release - Full.Build.0 = Release|Win32
 		{0E0CE411-1C70-4BEA-BA6F-AB1301C9F564}.Release_Dbg.ActiveCfg = Release_Dbg|Win32

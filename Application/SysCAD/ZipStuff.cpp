@@ -12,7 +12,6 @@
 #include "zipstuff.h"
 #include "gpfuncs.h"
 #include "errorlog.h"
-//#include "optoff.h"
        
 #define API 1
 #define NO_MKTEMP

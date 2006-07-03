@@ -6,7 +6,6 @@
 #include "stdafx.h"
 #define  __BELTCNV_CPP
 #include "beltcnv.h"
-//#include "optoff.h"
 
 //==========================================================================
 /*#D:#T:Belt Conveyor

@@ -6,9 +6,6 @@
 #include "flwnode.h"
 #define  __PRCPTNK1_CPP
 #include "prcptnk1.h"
-//#include "qp_1.h"
-//#include "qspmdl.h"
-//#include "optoff.h"
 
 //==========================================================================
 

@@ -7,7 +7,6 @@
 #include "sp_db.h"
 #include "alunortespmdl.h"
 #include "errorlog.h"
-//#include "optoff.h"
 
 // ==========================================================================
 

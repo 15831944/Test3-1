@@ -22,7 +22,6 @@
 #include "wndslct.h"
 #include "explorescd.h"
 #include "basecmds.h"
-//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

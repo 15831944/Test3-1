@@ -17,7 +17,6 @@
 #include "project.h"
 #include "selctwnd.h"
 #include "sp_db.h"
-//#include "optoff.h"
 
 #ifdef NOTDEFINEDXXXXX
 

@@ -8,7 +8,6 @@
 #include "prcptnk2.h"
 #include "alspmdlb.h"
 //#include "qspmdl.h"
-//#include "optoff.h"
 
 typedef SMBayerBase SMBayerB;
 

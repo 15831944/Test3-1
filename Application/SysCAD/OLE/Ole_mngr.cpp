@@ -14,7 +14,6 @@
 #include "oleexcel.h"
 #include "project.h"
 #include "scd_wm.h"
-//#include "optoff.h"
 
 //===========================================================================
 

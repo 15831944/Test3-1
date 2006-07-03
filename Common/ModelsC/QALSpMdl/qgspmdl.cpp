@@ -5,8 +5,6 @@
 #define  __QGSPMDL_CPP
 #include "sp_db.h"
 #include "qgspmdl.h"
-//#include "errorlog.h"
-//#include "optoff.h"
 
 // ==========================================================================
 

@@ -9,7 +9,6 @@
 #include "sc_defs.h"
 #include "PSD_TB.h"
 //#include "PSD_TBedt.h"
-//#include "optoff.h"
 
 // =========================================================================
 //

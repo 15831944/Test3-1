@@ -7,8 +7,6 @@
 #include "grf3drw.h"
 #include "dynmseg.h"
 #include "traceent.h"
-
-//#include "optoff.h"
     
 CEntInView::CEntInView(DML_ITEM item_in, DXF_ENTITY e_in, C3_CURVE c_in, pViewport vpin, int BoxSlct, int ColorRqd, int OvrColorRqd, int OvrPenRqd, double Thick, char * Tag)
   {

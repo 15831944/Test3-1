@@ -3849,8 +3849,6 @@ CGlblStopWatch gs_swFixTopoTicks       (gs_swFlwSolve, "Net", "FixTopology",    
 CGlblStopWatch gs_swOverHeadTicks      (gs_swFlwSolve, "Net", "OverHead",        15);
 CGlblStopWatch gs_swTotalDerivative    (gs_swFlwSolve, "Net", "TotalDerivative", 16);
 
-//#include "optoff.h"
-
 CSubNetBlk::CSubNetBlk(): m_SS(0)
   {
   m_Lp0=0; 

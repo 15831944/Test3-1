@@ -10,8 +10,6 @@
 #include "dlgbusy.h"
 #include "dbhelper.h"
 
-//#include "optoff.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
