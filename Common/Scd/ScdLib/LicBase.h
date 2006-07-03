@@ -212,7 +212,7 @@ typedef struct
         Func_Drivers     : 1,  //15 allow drivers including OPC client 
         Func_OPCServer   : 1,  //16 allow OPC Server funcionality
         Mdls_Electrical  : 1,  //17 allow Kenwalt Electrical & Power models
-        Mdls_BlackBox    : 1,  //18 allow Kenwalt BlackBox models
+        Mdls_SMDKRuntime : 1,  //18 allow SMDK runtime (BlackBox) models
         Mdls_HeatExtra   : 1,  //19 allow Kenwalt HeatEx PowerPlant models
         Mdls_HeatBal     : 1,  //20 allow Kenwalt HeatEx models
         Mdls_Alumina     : 1,  //21 allow Kenwalt alumina models
@@ -247,7 +247,7 @@ typedef struct
         Mdls_SizeDist    : 1,  //18 allow Kenwalt size-distribution/communition models
         Mdls_Alumina     : 1,  //19 allow Kenwalt alumina models
         Mdls_Electrical  : 1,  //20 allow Kenwalt Electrical & Power models
-        Mdls_BlackBox    : 1,  //21 allow SMDK runtim (BlackBox) models
+        Mdls_SMDKRuntime : 1,  //21 allow SMDK runtime (BlackBox) models
         Spare_22         : 1,  //22
         Spare_23         : 1,  //23
         Academic         : 1,  //24
@@ -307,7 +307,7 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL AllowMdlsQALExtra();
     inline BOOL AllowMdlsQAL();
     inline BOOL AllowMdlsUser();
-    inline BOOL AllowMdlsBlackBox();
+    inline BOOL AllowMdlsSMDKRuntime();
     inline BOOL AllowMdlsHeatExtra();
     inline BOOL AllowMdlsHeatBal();
     inline BOOL AllowMdlsAlumina();

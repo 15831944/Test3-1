@@ -129,7 +129,7 @@ CSpPropsClassDef::CSpPropsClassDef(pchar pClassName, pchar pGroup_, pchar pClass
 MSpModelDefBase::MSpModelDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR Desc, unsigned long Flgs, LPCTSTR DLL)
   {
   m_pClassDef=new CSpPropsClassDef((LPTSTR)pClass, SpModel::GroupName, (LPTSTR)pClass, (LPTSTR)pSubClass, "", 
-                       "", "UsrProps", TOC_ALL|TOC_GRP_GENERAL|TOC_BLACKBOX, (LPTSTR)ShortDesc, (LPTSTR)Desc, 0xffffffff);
+                       "", "UsrProps", TOC_ALL|TOC_GRP_GENERAL|TOC_SMDKRUNTIME, (LPTSTR)ShortDesc, (LPTSTR)Desc, 0xffffffff);
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
 

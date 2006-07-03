@@ -20,7 +20,7 @@
 
 #if CK_LICENSINGON
 
-#define CK_USE6134        01             
+#define CK_USE6134        0
 
 #import "CrypKeyCOM.dll" no_namespace named_guids
 static ICrypKeySDKPtr s_ptr;
@@ -35,8 +35,6 @@ static ICrypKeySDKPtr s_ptr;
 #endif
 
 #include "winsvc.h"
-
-#include "optoff.h"
 
 //===========================================================================
 //=== Generic Code...
@@ -110,17 +108,17 @@ CK_OptionDetails CK_OptionNames[CK_NoOfOptions] =
   { 23, "Dynamic Mode (Full)", true },
   { 22, "Electrical Mode", false },
   {  7, "MineServe Mode", false },
-  { 20, "Full License (No=run-time only)", true },
+  { 20, "Full License (No=runtime only)", true },
   { 16, "OPC Server", true },
   { 17, "Drivers / Marshal", true },
   { 19, "Application COM Interface", true },
-  { 18, "COM Specie Properties", true },
+  { 18, "COM Specie Properties", false },//true },
   {  7, "Design / Analyse options", false },
   { 12, "Extra models (Heat Exchange)", true },
   { 13, "Extra models (Heat Exchange Extra)", true },
   { 10, "Extra models (Size distribution)", true },
   { 11, "Extra models (Alumina)", true },
-  { 14, "Extra models (Black Box)", true },
+  { 14, "Extra models (SMDK Runtime)", true },
   { 15, "Extra models (Electrical)", false },
   {  0, "Extra models (User)", false },
   {  1, "Extra models (QAL)", false },
@@ -186,7 +184,7 @@ int GetAuthorization(dword * dwOpLevel, int dec)
   Opt.m_Opts.Func_Drivers     = 1;
   Opt.m_Opts.Func_OPCServer   = 1;
   Opt.m_Opts.Mdls_Electrical  = 1;
-  Opt.m_Opts.Mdls_BlackBox    = 1;
+  Opt.m_Opts.Mdls_SMDKRuntime = 1;
   Opt.m_Opts.Mdls_HeatExtra   = 1;
   Opt.m_Opts.Mdls_HeatBal     = 1;
   Opt.m_Opts.Mdls_Alumina     = 1;
@@ -2047,7 +2045,7 @@ DWORD CSysCADLicense::GetDemoOptions()
   Opt.m_Opts.Func_OPCServer = 0;
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical = 0;
-  Opt.m_Opts.Mdls_BlackBox = 0;
+  Opt.m_Opts.Mdls_SMDKRuntime = 0;
   Opt.m_Opts.Mdls_HeatExtra = 0;
   Opt.m_Opts.Mdls_HeatBal = 1;
   Opt.m_Opts.Mdls_Alumina = 0;
@@ -2085,7 +2083,7 @@ DWORD CSysCADLicense::GetTrialOptions()
   Opt.m_Opts.Func_OPCServer = 1;
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical = 1;
-  Opt.m_Opts.Mdls_BlackBox = 1;
+  Opt.m_Opts.Mdls_SMDKRuntime = 1;
   Opt.m_Opts.Mdls_HeatExtra = 1;
   Opt.m_Opts.Mdls_HeatBal = 1;
   Opt.m_Opts.Mdls_Alumina = 1;
@@ -2215,8 +2213,8 @@ DWORD CSysCADLicense::LicCatagories()
     dw |= TOC_SIZEDIST;
   if (AllowMdlsAlumina())
     dw |= TOC_ALUMINA;
-  if (AllowMdlsBlackBox())
-    dw |= TOC_BLACKBOX;
+  if (AllowMdlsSMDKRuntime())
+    dw |= TOC_SMDKRUNTIME;
   if (AllowMdlsElec())
     dw |= TOC_POWERDIST;
 
@@ -2265,7 +2263,7 @@ BOOL CSysCADLicense::AllowMdlsAlcan()          { return pSecOpt->m_Opts.Client_A
 BOOL CSysCADLicense::AllowMdlsQALExtra()       { return pSecOpt->m_Opts.Client_QALExtra && !bBlocked; };
 BOOL CSysCADLicense::AllowMdlsQAL()            { return pSecOpt->m_Opts.Client_QAL && !bBlocked; };
 BOOL CSysCADLicense::AllowMdlsUser()           { return pSecOpt->m_Opts.Client_Other && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsBlackBox()       { return pSecOpt->m_Opts.Mdls_BlackBox && !bBlocked; };
+BOOL CSysCADLicense::AllowMdlsSMDKRuntime()    { return pSecOpt->m_Opts.Mdls_SMDKRuntime && !bBlocked; };
 BOOL CSysCADLicense::AllowMdlsHeatExtra()      { return pSecOpt->m_Opts.Mdls_HeatExtra && !bBlocked; };
 BOOL CSysCADLicense::AllowMdlsHeatBal()        { return pSecOpt->m_Opts.Mdls_HeatBal && !bBlocked; };
 BOOL CSysCADLicense::AllowMdlsAlumina()        { return pSecOpt->m_Opts.Mdls_Alumina && !bBlocked; };

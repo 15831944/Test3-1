@@ -40,7 +40,7 @@ static double Drw_BBNode[] = { DD_Poly, -8,-7, -8,7, 8,7, 8,-7, -8,-7,
 
 //===========================================================================
 
-IMPLEMENT_MODELUNIT(CBBTransfer, "CBBTransfer", "", Drw_BBNode, "Tank", "BBN", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_BLACKBOX,
+IMPLEMENT_MODELUNIT(CBBTransfer, "CBBTransfer", "", Drw_BBNode, "Tank", "BBN", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_SMDKRUNTIME,
                     "Black Box - Node",
                     "Custom Black Box Models")
 

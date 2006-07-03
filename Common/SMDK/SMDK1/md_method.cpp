@@ -109,9 +109,9 @@ const DWORD MLicense_RTTS              = 0x00080000;
 
 void MUnitDefBase::SetModelLicense(dword License)
   {
-  dword DW = TOC_BLACKBOX; //ALL SMDK models MUST have this option set!!!
+  dword DW = TOC_SMDKRUNTIME; //ALL SMDK models MUST have this option set!!!
   if (License & MLicense_Standard) DW = (DW | TOC_STD_KENWALT);
-  if (License & MLicense_BlackBox) DW = (DW | TOC_BLACKBOX);
+  //if (License & MLicense_BlackBox) DW = (DW | TOC_SMDKRUNTIME);
   if (License & MLicense_HeatExchange) DW = (DW | TOC_HEATBAL);
   if (License & MLicense_ExtraHeatExchange) DW = (DW | TOC_HEATEXTRA);
   if (License & MLicense_PSD) DW = (DW | TOC_SIZEDIST);
@@ -197,7 +197,7 @@ MTransferUnitDefBase::MTransferUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LP
   MUnitDefBase(WithDevelopementChecks)
   {
   m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
-                       "Xfer", "X", TOC_PROBAL|TOC_GRP_GENERAL|TOC_BLACKBOX, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+                       "Xfer", "X", TOC_PROBAL|TOC_GRP_GENERAL|TOC_SMDKRUNTIME, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
 
@@ -248,7 +248,7 @@ MSurgeUnitDefBase::MSurgeUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR 
   MUnitDefBase(WithDevelopementChecks)
   {
   m_pClassDef= new CSurgeMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
-                       "Tank", "S", TOC_PROBAL|TOC_GRP_GENERAL|TOC_BLACKBOX, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+                       "Tank", "S", TOC_PROBAL|TOC_GRP_GENERAL|TOC_SMDKRUNTIME, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
 

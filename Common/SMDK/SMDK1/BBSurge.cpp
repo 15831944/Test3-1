@@ -42,7 +42,7 @@ static double Drw_BBSurge[] = { DD_Poly, -10,-9, -10,9, 10,9, 10,-9, -10,-9,
 
 //#include "optoff.h"
 
-IMPLEMENT_MODELUNIT(CBBSurge, "CBBSurge", "", Drw_BBSurge, "Tank", "BBS", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_BLACKBOX,
+IMPLEMENT_MODELUNIT(CBBSurge, "CBBSurge", "", Drw_BBSurge, "Tank", "BBS", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_SMDKRUNTIME,
                     "Black Box - Surge",
                     "Custom Black Box Models containing Surge capacity")
 
