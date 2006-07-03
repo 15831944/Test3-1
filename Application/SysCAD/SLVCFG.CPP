@@ -256,11 +256,11 @@ class CRunMethodPage : public CCustomPropertyPage
     enum { IDD = IDD_RUN_METHOD };
     double m_Abs_Eps;
     double m_Rel_Eps;
-    double m_Step_Cur;
-    double m_Step_Max;
-    double m_Step_Min;
-    double m_MaxStepTime;
-    long m_StepCount;
+    double m_IterTime;
+    double m_IterMax;
+    double m_IterMin;
+    double m_StepTime;
+    long   m_ItersPerStep;
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CRunMethodPage)
@@ -287,6 +287,8 @@ class CRunMethodPage : public CCustomPropertyPage
     afx_msg void OnSelchangeOdeStep();
     //}}AFX_MSG
     DECLARE_MESSAGE_MAP()
+  public:
+    afx_msg void OnEnChangeOdeStepMax();
   };
 
 //===========================================================================
@@ -1459,11 +1461,11 @@ CRunMethodPage::CRunMethodPage() : CCustomPropertyPage(CRunMethodPage::IDD)
   //{{AFX_DATA_INIT(CRunMethodPage)
   m_Abs_Eps = FE()->FE_ODE_GetMagEPSAbs();
   m_Rel_Eps = FE()->FE_ODE_GetMagEPSRel();
-  m_Step_Cur = FE()->FE_ODE_GetTimeInc();
-  m_Step_Max = FE()->FE_ODE_GetTimeIncMxRqd();
-  m_Step_Min = FE()->FE_ODE_GetTimeIncMnRqd();
-  m_MaxStepTime = gs_Exec.StepSizeMax.Seconds;
-  m_StepCount = long(m_MaxStepTime/m_Step_Cur);
+  m_IterTime = FE()->FE_ODE_GetTimeInc();
+  m_IterMax = FE()->FE_ODE_GetTimeIncMxRqd();
+  m_IterMin = FE()->FE_ODE_GetTimeIncMnRqd();
+  m_StepTime = gs_Exec.StepSizeMax.Seconds;
+  m_ItersPerStep = long(m_StepTime/m_IterTime);
   //}}AFX_DATA_INIT
   m_iMethod=FE()->FE_ODE_Method();
   m_iStep=FE()->FE_ODE_StepSizeControl();
@@ -1481,15 +1483,15 @@ void CRunMethodPage::DoDataExchange(CDataExchange* pDX)
   //{{AFX_DATA_MAP(CRunMethodPage)
   DDX_Text(pDX, IDC_ODE_ABS_EPS, m_Abs_Eps);
   DDX_Text(pDX, IDC_ODE_REL_EPS, m_Rel_Eps);
-  DDX_Text(pDX, IDC_ODE_STEP_CUR, m_Step_Cur);
-  DDV_MinMaxDouble(pDX, m_Step_Cur, 0.00001, MaxIterStep);
-  DDX_Text(pDX, IDC_ODE_STEP_MAX, m_Step_Max);
-  DDV_MinMaxDouble(pDX, m_Step_Max, 0.00001, MaxIterStep);
-  DDX_Text(pDX, IDC_ODE_STEP_MIN, m_Step_Min);
-  DDV_MinMaxDouble(pDX, m_Step_Min, 0.00001, MaxIterStep);
-  DDX_Text(pDX, IDC_STEPTIME, m_MaxStepTime);
-  DDV_MinMaxDouble(pDX, m_MaxStepTime, 0.00001, MaxIterStep);
-  DDX_Text(pDX, IDC_STEPCOUNT, m_StepCount);
+  DDX_Text(pDX, IDC_ODE_STEP_CUR, m_IterTime);
+  //DDV_MinMaxDouble(pDX, m_IterTime, 0.00001, MaxIterStep);
+  DDX_Text(pDX, IDC_ODE_STEP_MAX, m_IterMax);
+  //DDV_MinMaxDouble(pDX, m_IterMax, 0.00001, MaxIterStep);
+  DDX_Text(pDX, IDC_ODE_STEP_MIN, m_IterMin);
+  //DDV_MinMaxDouble(pDX, m_IterMin, 0.00001, MaxIterStep);
+  DDX_Text(pDX, IDC_STEPTIME, m_StepTime);
+  //DDV_MinMaxDouble(pDX, m_StepTime, 0.00001, MaxIterStep);
+  DDX_Text(pDX, IDC_STEPCOUNT, m_ItersPerStep);
   //}}AFX_DATA_MAP
 
   CComboBox * pMethLst=(CComboBox *)GetDlgItem(IDC_ODE_METH);
@@ -1514,7 +1516,8 @@ void CRunMethodPage::DoDataExchange(CDataExchange* pDX)
     }
   GetDlgItem(IDC_ODE_ABS_EPS)->EnableWindow(m_iMethod!=ODE_Euler);
   GetDlgItem(IDC_ODE_REL_EPS)->EnableWindow(m_iMethod!=ODE_Euler);
-  GetDlgItem(IDC_ODE_STEP_MIN)->EnableWindow(m_iStep!=0);
+  GetDlgItem(IDC_ODE_STEP_CUR)->EnableWindow(m_iStep!=0);
+  //GetDlgItem(IDC_ODE_STEP_MIN)->EnableWindow(m_iStep!=0);
   GetDlgItem(IDC_ODE_STEP_MAX)->EnableWindow(m_iStep!=0);
   }
 
@@ -1534,6 +1537,7 @@ BEGIN_MESSAGE_MAP(CRunMethodPage, CCustomPropertyPage)
 	ON_CBN_SELCHANGE(IDC_ODE_METH, OnSelchangeOdeMeth)
 	ON_CBN_SELCHANGE(IDC_ODE_STEP, OnSelchangeOdeStep)
 	//}}AFX_MSG_MAP
+  ON_EN_CHANGE(IDC_ODE_STEP_MAX, &CRunMethodPage::OnEnChangeOdeStepMax)
 END_MESSAGE_MAP()
 
 //--------------------------------------------------------------------------
@@ -1551,33 +1555,33 @@ void CRunMethodPage::OnOK()
   {
   if (Inited())
     {
-    m_Step_Cur = Range(0.00001, m_Step_Cur, MaxIterStep);
-    if (m_iStep==0 && m_Step_Max>m_Step_Cur)
-      m_Step_Max = m_Step_Cur;
-    if (m_Step_Min>m_Step_Max)
-      m_Step_Min = m_Step_Max;
+    m_IterTime = Range(0.00001, m_IterTime, MaxIterStep);
+    if (m_iStep==0 && m_IterMax>m_IterTime)
+      m_IterMax = m_IterTime;
+    if (m_IterMin>m_IterMax)
+      m_IterMin = m_IterMax;
     if (m_iStep==0)
       {
-      if (m_MaxStepTime<m_Step_Cur)
-        m_MaxStepTime = m_Step_Cur;
-      m_MaxStepTime = floor(m_MaxStepTime/m_Step_Cur*1.001)*m_Step_Cur;
+      if (m_StepTime<m_IterTime)
+        m_StepTime = m_IterTime;
+      m_StepTime = floor(m_StepTime/m_IterTime*1.001)*m_IterTime;
       }
     else
       {
-      if (m_MaxStepTime<m_Step_Min)
-        m_MaxStepTime = m_Step_Min;
+      if (m_StepTime<m_IterMin)
+        m_StepTime = m_IterMin;
       }
     FE()->FE_ODE_SetMagEPSAbs(m_Abs_Eps);
     FE()->FE_ODE_SetMagEPSRel(m_Rel_Eps);
-    FE()->FE_ODE_SetTimeInc(m_Step_Cur);
-    FE()->FE_ODE_SetTimeIncMxRqd(m_Step_Max);
-    FE()->FE_ODE_SetTimeIncMnRqd(m_Step_Min);
+    FE()->FE_ODE_SetTimeInc(m_IterTime);
+    FE()->FE_ODE_SetTimeIncMxRqd(m_IterMax);
+    FE()->FE_ODE_SetTimeIncMnRqd(m_IterMin);
     if (m_iMethod!=CB_ERR)
       FE()->FE_ODE_SetMethod(m_iMethod);
     if (m_iStep!=CB_ERR)
       FE()->FE_ODE_SetStepSizeControl(m_iStep);
 
-    gs_Exec.StepSizeMax=Range(0.00001, m_MaxStepTime, MaxIterStep);
+    gs_Exec.StepSizeMax=Range(0.00001, m_StepTime, MaxIterStep);
     }
 
   CCustomPropertyPage::OnOK();
@@ -1618,8 +1622,26 @@ void CRunMethodPage::OnChangeOdeStepCur()
   if (s.GetLength()>0)
     {
     UpdateData(TRUE);
-    m_Step_Cur = Range(0.00001, m_Step_Cur, MaxIterStep);
-    m_StepCount = long(m_MaxStepTime/m_Step_Cur);
+    m_IterTime = Range(0.00001, m_IterTime, m_StepTime);
+    m_ItersPerStep = long(m_StepTime/m_IterTime);
+    m_IterTime = Range(0.00001, m_StepTime/m_ItersPerStep, MaxIterStep);
+    UpdateData(FALSE);
+    }
+  }
+
+void CRunMethodPage::OnEnChangeOdeStepMax()
+  {
+  SetModified(TRUE);
+  CString s;
+  GetDlgItem(IDC_ODE_STEP_MAX)->GetWindowText(s);
+  if (s.GetLength()>0)
+    {
+    UpdateData(TRUE);
+    m_IterMax = Range(Max(m_IterMin,0.00001), m_IterMax , m_StepTime);
+    m_ItersPerStep = long(m_StepTime/m_IterMax);
+    m_IterMax  = m_StepTime/m_ItersPerStep;
+    m_IterTime = m_IterMax;
+    m_IterMin  = Min(m_IterMin, m_IterTime);
     UpdateData(FALSE);
     }
   }
@@ -1632,27 +1654,32 @@ void CRunMethodPage::OnChangeMaxStepTime()
   if (s.GetLength()>0)
     {
     UpdateData(TRUE);
-    m_MaxStepTime = Range(0.00001, m_MaxStepTime, MaxIterStep);
-    m_StepCount = long(m_MaxStepTime/m_Step_Cur);
+    m_StepTime = Range(0.00001, m_StepTime, MaxIterStep);
+    m_IterMax = m_StepTime/m_ItersPerStep;//Range(0.00001, m_IterMax, Min(m_StepTime, MaxIterStep));
+    m_IterTime = m_IterMax;
+    m_IterMin  = Min(m_IterMin, m_IterTime);
+    //m_ItersPerStep = long(m_StepTime/m_IterTime);
     UpdateData(FALSE);
     }
   }
 void CRunMethodPage::OnKillfocusMaxStepTime() 
   {
   UpdateData(TRUE);
-  m_MaxStepTime = Range(0.00001, m_MaxStepTime, MaxIterStep);
+  m_StepTime = Range(0.00001, m_StepTime, MaxIterStep);
   if (m_iStep==0)
     {
-    if (m_MaxStepTime<m_Step_Cur)
-      m_MaxStepTime = m_Step_Cur;
-    m_MaxStepTime = floor(m_MaxStepTime/m_Step_Cur*1.001)*m_Step_Cur;
+    if (m_StepTime<m_IterTime)
+      m_StepTime = m_IterTime;
+    m_StepTime = floor(m_StepTime/m_IterTime*1.001)*m_IterTime;
     }
   else
     {
-    if (m_MaxStepTime<m_Step_Min)
-      m_MaxStepTime = m_Step_Min;
+    if (m_StepTime<m_IterMin)
+      m_StepTime = m_IterMin;
     }
-  m_StepCount = long(m_MaxStepTime/m_Step_Cur);
+  m_IterMax = Range(0.00001, m_IterMax, Min(m_StepTime, MaxIterStep));
+  m_IterMin  = Min(m_IterMin, m_IterTime);
+  //m_ItersPerStep = long(m_StepTime/m_IterTime);
   UpdateData(FALSE);
   }
 
@@ -1664,8 +1691,10 @@ void CRunMethodPage::OnChangeStepCount()
   if (s.GetLength()>0)
     {
     UpdateData(TRUE);
-    m_StepCount = Range(1L, m_StepCount, 1000L);
-    m_MaxStepTime = m_Step_Cur*m_StepCount;
+    m_ItersPerStep = Range(1L, m_ItersPerStep, 1000L);
+    m_IterTime = m_StepTime/m_ItersPerStep;
+    m_IterMax  = m_IterTime;
+    m_IterMin  = Min(m_IterMin, m_IterTime);
     UpdateData(FALSE);
     }
   }
@@ -3085,3 +3114,4 @@ BOOL CSolverCfgSheet::OnCommand(WPARAM wParam, LPARAM lParam)
 //
 //
 //===========================================================================
+

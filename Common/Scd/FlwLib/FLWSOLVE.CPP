@@ -6211,7 +6211,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       DDB.String("Time.Fmt",          "", DC_TimeStr, "DyTm.", xidTimeF,             &FlwSlvNd, 0/*isParm*/ );
       DDB.Double("Time",              "", DC_Time,    "s",     xidTimeD,             &FlwSlvNd, 0/*isParm*/|InitHidden );
       //DDB.Text  ("");
-      DDB.String("StepSize.Fmt",      "", DC_dTimeStr, "Tm.",   xidStepSizeF,         &FlwSlvNd, isParm );
+      DDB.String("StepSize.Fmt",      "", DC_dTimeStr, "Tm.",  xidStepSizeF,         &FlwSlvNd, isParm );
       //DDB.Text  ("");
       DDB.Double("StepSize",          "", DC_Time,    "s",     xidStepSizeD,         &FlwSlvNd, isParm |InitHidden);
       DDB.Long  ("StepCount",         "", DC_,        "",      xidStepCount,         &FlwSlvNd, 0);
@@ -6396,9 +6396,9 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Text  ("");
       DDB.Byte  ("Method",            "", DC_,     "",    xidODEMethod,        &FlwSlvNd, 0/*isParm*/, DDBMethod);
       DDB.Byte  ("TimeIncCtrl",       "", DC_,     "",    xidODESSCtrl,         &FlwSlvNd, 0/*isParm*/, DDBIncCtrl);
-      DDB.Long  ("IterationsPerStep", "", DC_,     "",    xidIterPerStep,       &FlwSlvNd, 0 );
+      DDB.Long  ("IterationsPerStep", "", DC_,     "",    xidIterPerStep,       &FlwSlvNd, isParm );
       DDB.Double("TimeInc",           "", DC_Time, "s",   xidODETimeInc,        &FlwSlvNd, 0/*isParm*/ );
-      DDB.Double("TimeIncMax",        "", DC_Time, "s",   xidODETimeIncMxRqd,   &FlwSlvNd, isParm );
+      DDB.Double("TimeIncMax",        "", DC_Time, "s",   xidODETimeIncMxRqd,   &FlwSlvNd, 0/*isParm*/ );
       DDB.Double("TimeIncMin",        "", DC_Time, "s",   xidODETimeIncMnRqd,   &FlwSlvNd, isParm );
       DDB.Double("DerivEstInc",       "", DC_Time, "s",   xidODEDerivEstInc,    &FlwSlvNd, isParm );
       DDB.Double("SettleTime",        "", DC_Time, "s",   xidODESettleTime,     &FlwSlvNd, isParm );
@@ -6726,12 +6726,28 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidStepSizeF:
       if (DCB.rpC)
-        gs_Exec.StepSizeMax.Parse(DCB.rpC);
+        {
+        CTimeValue TV;
+        if (TV.Parse(DCB.rpC))
+          {
+          double NSteps=Max(1.0, TimeCB().m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
+          gs_Exec.StepSizeMax=TV;
+
+          IntCB.SetTimeIncMxRqd(gs_Exec.StepSizeMax/NSteps);
+          IntCB.SetTimeInc(IntCB.GetTimeIncMxRqd());
+          }
+        }
       DCB.pC=(LPTSTR)gs_Exec.StepSizeMax.Format(DCB.pDataInfo->pCnvTxt);
       return 1;
     case xidStepSizeD:
       if (DCB.rD)
-        gs_Exec.StepSizeMax=*DCB.rD;  
+        {
+        double NSteps=Max(1.0, TimeCB().m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
+        gs_Exec.StepSizeMax=*DCB.rD;
+
+        IntCB.SetTimeIncMxRqd(gs_Exec.StepSizeMax/NSteps);
+        IntCB.SetTimeInc(IntCB.GetTimeIncMxRqd());
+        }
       DCB.D=gs_Exec.StepSizeMax.Seconds;
       return 1;
     case xidStepCount:
@@ -6754,16 +6770,21 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       DCB.D=TimeCB().m_StepSizeMax;
       return 1;
     case xidIterPerStep:
+      if (DCB.rL)
+        {
+        IntCB.SetTimeIncMxRqd(TimeCB().m_StepSizeMax.Seconds/(*DCB.rL));
+        IntCB.SetTimeInc(IntCB.GetTimeIncMxRqd());
+        }
       DCB.L=(long)(TimeCB().m_StepSizeMax.Seconds/IntCB.GetTimeInc());
       return 1;
     case xidODETimeIncMxRqd:
       if (DCB.rD)
-        IntCB.SetTimeIncMxRqd(*DCB.rD);
+        IntCB.SetTimeIncMxRqd(Min(*DCB.rD, TimeCB().m_StepSizeMax.Seconds));
       DCB.D=IntCB.GetTimeIncMxRqd();
       return 1;
     case xidODETimeIncMnRqd:
       if (DCB.rD)
-        IntCB.SetTimeIncMnRqd(*DCB.rD);
+        IntCB.SetTimeIncMnRqd(Min(IntCB.GetTimeIncMxRqd(), *DCB.rD));
       DCB.D=IntCB.GetTimeIncMnRqd();
       return 1;
     case xidODEDerivEstInc:

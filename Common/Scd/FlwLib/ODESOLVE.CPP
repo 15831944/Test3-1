@@ -541,10 +541,13 @@ void CTimeStateBlock::SetTimeInc(CTimeValue dTime_)
 void CTimeStateBlock::SetTimeIncMxRqd(CTimeValue dTimeMxRqd_)
   {
   m_TimeIncMxRqd=Max(1.0e-6, dTimeMxRqd_.Seconds);
+  m_TimeIncMnRqd=Min(m_TimeIncMnRqd, m_TimeIncMxRqd);
+  m_TimeInc=Range(m_TimeIncMnRqd, m_TimeInc, m_TimeIncMxRqd);
   };
 void CTimeStateBlock::SetTimeIncMnRqd(CTimeValue dTimeMnRqd_)
   {
-  m_TimeIncMnRqd=Max(1.0e-9, dTimeMnRqd_.Seconds);
+  m_TimeIncMnRqd=Range(1.0e-9, dTimeMnRqd_.Seconds, m_TimeIncMxRqd);
+  m_TimeInc=Max(m_TimeInc, m_TimeIncMnRqd);
   };
 void CTimeStateBlock::SetDerivEstInc(double DerivEstInc)
   {
