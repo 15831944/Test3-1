@@ -945,8 +945,12 @@ BOOL CPrjSaveAsDlg::OnInitDialog()
 
 void CPrjSaveAsDlg::OnBnClickedOk()
   {
+  UpdateData(true);
   m_DbFmt=m_cbFmts.GetCurSel();
-  OnOK();
+  if (m_VerStr.FindOneOf("\\/:*?\"<>|")<0)
+    OnOK();
+  else
+    AfxMessageBox("Invalid Characters in Comment String (\\/:*\"<>|)", MB_ICONEXCLAMATION|MB_OK);
   }
 
 //===========================================================================
