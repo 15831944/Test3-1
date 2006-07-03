@@ -102,7 +102,7 @@ void QPrecipMain1::EvalJoinFlows(int JoinNo)
  
 //--------------------------------------------------------------------------
 
-void QPrecipMain1::EvalProducts(long JoinMask)
+void QPrecipMain1::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -123,7 +123,7 @@ void QPrecipMain1::EvalProducts(long JoinMask)
       break;
       }
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
     

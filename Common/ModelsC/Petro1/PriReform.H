@@ -118,9 +118,9 @@ class DllImportExport PriReform : public MdlNode
     void           EvalJoinPressures(long JoinMask);
     CSpPropInfo*   IOGetNetProps(int i, double Qm);
     flag           EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
-    void           EvalProductsSurge(long JoinMask);
-    void           EvalProducts(long JoinMask);
-    void           EvalDerivs(long JoinMask);
+    void           EvalProductsSurge(CNodeEvalIndex & NEI);
+    void           EvalProducts(CNodeEvalIndex & NEI);
+    void           EvalDerivs(CNodeEvalIndex & NEI);
     void           ODEOperate(CODEDataBlock & ODB);
     void           ApplyDerivs(double dTime, flag DoDbg);
     void           EvalDiscrete();

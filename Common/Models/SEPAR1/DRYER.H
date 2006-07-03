@@ -37,7 +37,7 @@ class Dryer : public MN_Surge
     virtual ~Dryer (){};
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   ClosureInfo();
   private:
   };

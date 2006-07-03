@@ -116,7 +116,7 @@ class CQueueCon : public FlwNode
     virtual void   UnlinkAllXRefs();
 
     virtual void   SetState(eScdMdlStateActs RqdState);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual dword  ModelStatus();
 
     DEFINE_CI(CQueueCon, FlwNode, 4);

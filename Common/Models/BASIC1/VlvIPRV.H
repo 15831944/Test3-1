@@ -63,7 +63,7 @@ class DllImportExport CIsoPRV : public MdlNode
     virtual flag      EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void      EvalProductsInit(EvalProductsInitTasks Task);
     //virtual bool      EvalProductClusters(int Index, long & JoinMask);
-    virtual void      EvalProducts(long JoinMask);
+    virtual void      EvalProducts(CNodeEvalIndex & NEI);
 
     virtual void      EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual void      EvalDiscrete();

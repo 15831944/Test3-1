@@ -71,9 +71,9 @@ class DllImportExport CBBBase
       
     //void      DoEvalProductsInit(EvalProductsInitTasks Task);
     //void      DoEvalProductsSurge();
-    void      DoEvalProducts(long JoinMask);
+    void      DoEvalProducts(CNodeEvalIndex & NEI);
     //void    DoEvalDerivs(double StepSize);
-    void      DoEvalIntegral(long JoinMask);
+    void      DoEvalIntegral(CNodeEvalIndex & NEI);
     
     void      DoEvalDiscrete();
     void      DoEvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);

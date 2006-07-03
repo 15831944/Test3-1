@@ -390,7 +390,7 @@ void CBlendCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 
 //--------------------------------------------------------------------------
 
-void CBlendCon::EvalProducts(long JoinMask)
+void CBlendCon::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

@@ -183,21 +183,21 @@ flag SecReformer::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void SecReformer::EvalProducts(long JoinMask)
+void SecReformer::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
     case SM_Direct:
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
 
 //--------------------------------------------------------------------------
     
-void SecReformer::EvalDerivs(long JoinMask)
+void SecReformer::EvalDerivs(CNodeEvalIndex & NEI)
   {
-  MN_Surge::EvalDerivs(JoinMask);
+  MN_Surge::EvalDerivs(NEI);
   }
 
 //--------------------------------------------------------------------------

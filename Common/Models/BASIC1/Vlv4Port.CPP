@@ -1433,7 +1433,7 @@ bool C4PortValve::EvalProductClusters(int Index, long & JoinMask)
 
 // --------------------------------------------------------------------------
 
-void C4PortValve ::EvalProducts(long JoinMask)
+void C4PortValve ::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoProcessJoins()>0)
     {

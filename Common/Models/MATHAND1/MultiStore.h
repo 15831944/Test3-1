@@ -331,7 +331,7 @@ class DllImportExport CMultiStorage : public MdlNode
     virtual void   EvalJoinPressures(long JoinMask);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   ODEOperate(CODEDataBlock & ODB);
 
     virtual void   EvalPowerRequired();

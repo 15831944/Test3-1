@@ -282,7 +282,7 @@ flag HeatXchg::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
 
 //--------------------------------------------------------------------------
 
-void HeatXchg::EvalProducts(long JoinMask)
+void HeatXchg::EvalProducts(CNodeEvalIndex & NEI)
   {
   //HXJoinInfo m_HXJ.P, m_HXJ.S;
   if (m_HXJ.PriIsJoined())

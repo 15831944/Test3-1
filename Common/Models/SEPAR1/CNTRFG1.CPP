@@ -236,7 +236,7 @@ void Centrifuge1::EvalJoinPressures(long JoinMask)
  
 //--------------------------------------------------------------------------
 
-void Centrifuge1::EvalProducts(long JoinMask)
+void Centrifuge1::EvalProducts(CNodeEvalIndex & NEI)
   {
   const int ioFeed = IOWithId_Self(ioidFeed);
   if (ioFeed>=0)

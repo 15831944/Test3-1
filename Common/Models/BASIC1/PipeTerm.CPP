@@ -443,7 +443,7 @@ void CPipeTerm::EvalProductsInit(EvalProductsInitTasks Task)
 
 //--------------------------------------------------------------------------
 
-void CPipeTerm::EvalProducts(long JoinMask)
+void CPipeTerm::EvalProducts(CNodeEvalIndex & NEI)
   {
 
   int i, nOut=0, nIn=0;
@@ -470,7 +470,7 @@ void CPipeTerm::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void CPipeTerm::EvalDerivs(long JoinMask)
+void CPipeTerm::EvalDerivs(CNodeEvalIndex & NEI)
   {
   };
 

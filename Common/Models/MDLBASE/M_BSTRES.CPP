@@ -352,7 +352,7 @@ double CPumpTempFnd::Function(double x)
   return s;
   }
 
-void MN_BstRes::EvalProducts(long JoinMask)
+void MN_BstRes::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()<2)
     return;

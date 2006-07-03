@@ -55,7 +55,7 @@ class DllImportExport Boiler : public MN_Surge
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
     //virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     flag           MacroMdlValidNd(int iIONo)               { return True; };
     void           MacroMdlEvaluate(eScdMacroMdlEvals Eval) {};

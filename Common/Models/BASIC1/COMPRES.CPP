@@ -324,12 +324,12 @@ flag GasPump_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, in
 
 // --------------------------------------------------------------------------
 
-//void GasPump_GP::EvalProducts(long JoinMask)
+//void GasPump_GP::EvalProducts(CNodeEvalIndex & NEI)
 //  {
 //  _asm int 3;
 // 
 //  if (SolveDirectMethod())
-//    MN_BstRes::EvalProducts(long JoinMask);
+//    MN_BstRes::EvalProducts(CNodeEvalIndex & NEI);
 //  else
 //    {
 //    if (NoFlwIOs()<2)

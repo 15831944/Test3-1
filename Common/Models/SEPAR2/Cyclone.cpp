@@ -997,7 +997,7 @@ flag Cyclone::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
 
 //--------------------------------------------------------------------------
 
-void Cyclone::EvalProducts(long JoinMask)
+void Cyclone::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (GSM.Enabled())
     {

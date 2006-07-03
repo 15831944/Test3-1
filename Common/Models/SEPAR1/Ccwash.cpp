@@ -535,7 +535,7 @@ double CCWashMixEffFnd::Function(double x)
   
 //--------------------------------------------------------------------------
 
-void CCWasher::EvalProducts(long JoinMask)
+void CCWasher::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -700,7 +700,7 @@ void CCWasher::EvalProducts(long JoinMask)
       break;
       }
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
 

@@ -528,7 +528,7 @@ void   CNoiseCon::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void CNoiseCon::EvalProducts(long JoinMask)
+void CNoiseCon::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

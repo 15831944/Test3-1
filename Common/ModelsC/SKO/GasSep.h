@@ -82,7 +82,7 @@ class CSKOGasSep : public MN_Xfer
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual dword  ModelStatus();
 
     DEFINE_CI(CSKOGasSep, MN_Xfer, 4);

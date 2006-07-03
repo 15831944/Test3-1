@@ -2768,7 +2768,7 @@ inline double DiffFrac(double A, double B) { return (A-B)/Max(1.0e-9, Max(fabs(A
 #define WithPoFix 0
 #define DBGCHG    0
 
-void MN_Lnk::EvalProducts(long JoinMask)
+void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
   {
 
 #if DBGCHG
@@ -3267,7 +3267,7 @@ void MN_Lnk::EvalPBMakeUpAvail(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void MN_Lnk::EvalDerivs(long JoinMask)
+void MN_Lnk::EvalDerivs(CNodeEvalIndex & NEI)
   {
   int iIn  = (IO_In(0) ? 0 : 1);
   int iOut = ((iIn+1) % 2);

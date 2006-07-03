@@ -267,7 +267,7 @@ double DSH_FinalTempFnd::Function(double x)
 
 //--------------------------------------------------------------------------
   
-void DeSuperHeater::EvalProducts(long JoinMask)
+void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()==0)
     return;
@@ -385,7 +385,7 @@ void DeSuperHeater::EvalProducts(long JoinMask)
       }
       break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
 

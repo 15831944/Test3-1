@@ -38,6 +38,8 @@ class DllImportExport CBleedBlock : public TaggedObject
     CBleedBlock(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CBleedBlock();
 
+    virtual flag    DoesSomething() { return false; };
+
     virtual void    BuildDataDefn(DataDefnBlk& DDB);
     virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
 

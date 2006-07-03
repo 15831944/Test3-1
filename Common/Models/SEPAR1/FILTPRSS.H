@@ -62,9 +62,9 @@ class FilterPress : public MdlNode
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
 //    virtual flag   CIStrng(int No, pchar & pS);
     
     void DoEvalProducts();

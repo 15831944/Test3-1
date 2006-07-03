@@ -64,13 +64,14 @@ void CMakeupBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, dou
 //============================================================================
 
 CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Makeup, Index, Name),
-m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, true, 
+m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, false, 
         Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
   { 
   m_pMakeupB=NULL; 
   m_pNd=pAttach; 
   m_fEnabled=false;
   m_fFixed=false; 
+  m_SrcIO.UsrEnable=true;//false;
   //m_Index=Index; 
   }
 
@@ -141,15 +142,15 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
     DDB.Text("");
     if (DDB.BeginObject(m_pNd, Name(), "EB_Makeup", pTagComment, PageIs))
       {
+      DDBValueLstMem DDB0;
+      TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
+      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd,m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
+
       if (m_SrcIO.Enabled)
         {
         //m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
         m_SrcIO.BuildDataDefn(DDB, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
         }
-
-      DDBValueLstMem DDB0;
-      TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
-      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd,m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
 
       if (m_pMakeupB)
         {
@@ -200,6 +201,7 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
           }
         else
           Close();
+        m_SrcIO.UsrEnable = m_pMakeupB ? m_pMakeupB->DoesSomething() && Enabled() : false;
         }
       DCB.pC = m_pMakeupB ? m_pMakeupB->ShortDesc() : "";
       return 1;
@@ -224,6 +226,8 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     void           SetUpDDBSpcs();
     void           SetUpDDBCmps();
     void           ClrMeasEtc();
+
+    virtual flag   DoesSomething() { return true; };
 
     virtual void   BuildDataDefn(DataDefnBlk& DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
@@ -305,6 +309,8 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     DDBValueLstMem  m_DDBCmpRem;
     int             m_nLastCmpStr;
     CStringArray    m_CmpStr;
+
+    bool            m_bHasFlow;
 
     double          m_QmRqd;
     double          m_QmRatio;
@@ -402,6 +408,8 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_VolFrac   = 0;
   m_NVolFrac  = 0;
   m_Conc      = 0;
+  
+  m_bHasFlow  = true;
 
   m_eRqdTemp  = Temp_Inlet;
   m_RqdTemp   = C2K(25);
@@ -973,6 +981,10 @@ flag CXBlk_Makeup::DataXchg(DataChangeBlk & DCB)
         {
         DCB.pC="Not Connected";
         }
+      else if (!m_bHasFlow)
+        {
+        DCB.pC="No Flow";
+        }
       else if (m_ErrorLst.Length()>0)
         {
         Strng &S=*m_ErrorLst.First();
@@ -1188,102 +1200,126 @@ class CMkUpFnd : public MRootFinder
 
 void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
-  m_dQmFeed = QPrd.QMass();
-  m_dTempKFeed = QPrd.Temp();
-
-
-  FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
-  ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
-
-  StkSpConduit QIn("QIn", "MkUp", pNd);
-  QIn().QCopy(QPrd);
-
-  m_dMeas = GetMeasVal(QIn(), QPrd);
-  const double HzIn = QPrd.totHz();
-
-  SpConduit &QSrc=SrcIO.Cd;
-
-  // Copy to Src if Self
-  if (m_eSource==Src_Self)
-    QSrc.QSetF(QPrd, som_ALL, 1.0);
-
-  double TReqd;
-  switch (m_eRqdTemp)
+  if (QPrd.QMass()>SmallPosFlow)
     {
-    case Temp_Inlet:
-      TReqd=QPrd.Temp();
-      break;
-    case Temp_Source:
-      TReqd=QSrc.Temp();
-      break;
-    case Temp_Std:
-      TReqd=StdT;
-      break;
-    case Temp_Mixture:
-      TReqd=StdT; //??????
-      break;
-    default:
-      TReqd=QPrd.Temp();
+    m_bHasFlow = true;
+
+    m_dQmFeed = QPrd.QMass();
+    m_dTempKFeed = QPrd.Temp();
+
+
+    FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
+    ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
+
+    StkSpConduit QIn("QIn", "MkUp", pNd);
+    QIn().QCopy(QPrd);
+
+    m_dMeas = GetMeasVal(QIn(), QPrd);
+    const double HzIn = QPrd.totHz();
+
+    SpConduit &QSrc=SrcIO.Cd;
+
+    // Copy to Src if Self
+    if (m_eSource==Src_Self)
+      QSrc.QSetF(QPrd, som_ALL, 1.0);
+
+    double TReqd;
+    switch (m_eRqdTemp)
+      {
+      case Temp_Inlet:
+        TReqd=QPrd.Temp();
+        break;
+      case Temp_Source:
+        TReqd=QSrc.Temp();
+        break;
+      case Temp_Std:
+        TReqd=StdT;
+        break;
+      case Temp_Mixture:
+        TReqd=StdT; //??????
+        break;
+      default:
+        TReqd=QPrd.Temp();
+      }
+
+    CMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
+    //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
+    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
+    switch (iRet)
+      {
+      case RF_OK:         
+        m_dQmMakeup = MkUpFnd.Result();
+        ClrCI(1);
+        ClrCI(2);
+        ClrCI(3);
+        ClrCI(4);
+        break;
+      case RF_LoLimit:    
+      case RF_EstimateLoLimit:    
+        m_dQmMakeup = MkUpFnd.Result();
+        SetCI(1);
+        ClrCI(2);
+        ClrCI(3);
+        ClrCI(4);
+        break;
+      case RF_HiLimit:    
+      case RF_EstimateHiLimit:    
+        m_dQmMakeup = MkUpFnd.Result();   
+        ClrCI(1);
+        SetCI(2);
+        ClrCI(3);
+        ClrCI(4);
+        break;
+      case RF_Independant:
+        MkUpFnd.Function(0);   
+        m_dQmMakeup = MkUpFnd.Result();   
+        ClrCI(1);
+        ClrCI(2);
+        ClrCI(3);
+        SetCI(4);
+        break;
+
+      default: 
+        ClrCI(1);
+        ClrCI(2);
+        SetCI(3, "E\tConverge Error [%i]", iRet);
+        ClrCI(4);
+        break;
+      }
+
+    QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+
+    m_dSetPoint   = GetSetPoint();
+    m_dResult     = GetMeasVal(QIn(), QPrd);
+    m_dQmProd     = QPrd.QMass();
+    m_dQmMakeup   = m_dQmProd-m_dQmFeed;
+    m_dTempKProd  = QPrd.Temp();
+    m_dHeatFlow   = QPrd.totHz() - HzIn;
+
+    if (SrcIO.Enabled)
+      SrcIO.Sum.Set(QSrc);
+    else
+      SrcIO.Sum.ZeroFlows();
     }
-
-  CMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
-  //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
-  int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
-  switch (iRet)
-    {
-    case RF_OK:         
-      m_dQmMakeup = MkUpFnd.Result();
-      ClrCI(1);
-      ClrCI(2);
-      ClrCI(3);
-      ClrCI(4);
-      break;
-    case RF_LoLimit:    
-    case RF_EstimateLoLimit:    
-      m_dQmMakeup = MkUpFnd.Result();
-      SetCI(1);
-      ClrCI(2);
-      ClrCI(3);
-      ClrCI(4);
-      break;
-    case RF_HiLimit:    
-    case RF_EstimateHiLimit:    
-      m_dQmMakeup = MkUpFnd.Result();   
-      ClrCI(1);
-      SetCI(2);
-      ClrCI(3);
-      ClrCI(4);
-      break;
-    case RF_Independant:
-      MkUpFnd.Function(0);   
-      m_dQmMakeup = MkUpFnd.Result();   
-      ClrCI(1);
-      ClrCI(2);
-      ClrCI(3);
-      SetCI(4);
-      break;
-
-    default: 
-      ClrCI(1);
-      ClrCI(2);
-      SetCI(3, "E\tConverge Error [%i]", iRet);
-      ClrCI(4);
-      break;
-    }
-
-  QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
-
-  m_dSetPoint   = GetSetPoint();
-  m_dResult     = GetMeasVal(QIn(), QPrd);
-  m_dQmProd     = QPrd.QMass();
-  m_dQmMakeup   = m_dQmProd-m_dQmFeed;
-  m_dTempKProd  = QPrd.Temp();
-  m_dHeatFlow   = QPrd.totHz() - HzIn;
-
-  if (SrcIO.Enabled)
-    SrcIO.Sum.Set(QSrc);
   else
+    {
+    m_bHasFlow    = false;
+    m_dQmFeed     = QPrd.QMass();
+    m_dQmMakeup   = 0;
+    m_dMeas       = dNAN;
+    m_dSetPoint   = GetSetPoint();
+    m_dResult     = dNAN;
+    m_dQmProd     = 0;
+    m_dQmMakeup   = 0;
+    m_dTempKProd  = QPrd.Temp();
+    m_dHeatFlow   = 0;
+    ClrCI(1);
+    ClrCI(2);
+    ClrCI(3);
+    ClrCI(4);
+    SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
+    }
 
   };
 

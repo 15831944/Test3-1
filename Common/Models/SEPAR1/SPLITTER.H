@@ -56,7 +56,7 @@ class Splitter : public MdlNode
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
 
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual dword  ModelStatus();
 
     DEFINE_CI(Splitter, MdlNode, 4);

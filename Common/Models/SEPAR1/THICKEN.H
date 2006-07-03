@@ -52,7 +52,7 @@ class Thickener : public MN_Surge
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     // ConditionBlk Override
     DEFINE_CI(Thickener, MN_Surge, 6);
   private:

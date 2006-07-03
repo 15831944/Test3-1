@@ -126,7 +126,7 @@ IMPLEMENT_REACTION(CR_VCS, "SR_VCS", "", TOC_SYSTEM, "FreeEnergyMin", "Free Ener
 //
 ////---------------------------------------------------------------------------
 //
-//void CR_VCS::EvalProducts(long JoinMask)
+//void CR_VCS::EvalProducts(CNodeEvalIndex & NEI)
 //  {
 //  };
 //

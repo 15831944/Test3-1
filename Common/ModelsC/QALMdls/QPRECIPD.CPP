@@ -816,7 +816,7 @@ double aeq25=Bm.AluminaConcSat(C2K(25.));
 
 //--------------------------------------------------------------------------
 
-void QPrecipD::EvalProducts(long JoinMask)
+void QPrecipD::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -1136,11 +1136,11 @@ void QPrecipD::EvalProducts(long JoinMask)
         ResidenceTime=ACF.ResTimeHrs*3600.0;            // Secs
         }
       else
-        MN_Surge::EvalProducts(JoinMask);
+        MN_Surge::EvalProducts(NEI);
       break;
       }
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
     

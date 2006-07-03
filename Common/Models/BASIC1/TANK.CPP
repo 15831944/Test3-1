@@ -299,7 +299,7 @@ flag CTank::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void CTank::EvalProducts(long JoinMask)
+void CTank::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -307,7 +307,7 @@ void CTank::EvalProducts(long JoinMask)
     default:
       {
       //SetProdMakeup(PMU_IOId|PMU_Passing, ioid_Condens, Contents, som_SL);
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
 
       // Temp for SKO
       //StkSpConduit InAvg("QPF", chLINEID(), this);
@@ -356,9 +356,9 @@ void CTank::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void CTank::EvalDerivs(long JoinMask)
+void CTank::EvalDerivs(CNodeEvalIndex & NEI)
   {
-  MN_Surge::EvalDerivs(JoinMask);
+  MN_Surge::EvalDerivs(NEI);
   if (!GetActiveHold())
     {
     //if (VLE.Enabled())

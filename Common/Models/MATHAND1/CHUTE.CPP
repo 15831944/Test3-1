@@ -224,7 +224,7 @@ void Chute::EvalJoinPressures(long JoinMask)
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.
 */
-void Chute::EvalProducts(long JoinMask)
+void Chute::EvalProducts(CNodeEvalIndex & NEI)
   {
 
   SigmaQInPMin(QFd, som_ALL, Id_2_Mask(idFeed));

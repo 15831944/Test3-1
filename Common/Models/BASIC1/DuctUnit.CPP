@@ -228,14 +228,14 @@ void DuctUnit::StartStep()
 
 //--------------------------------------------------------------------------
 
-void DuctUnit::EvalProducts(long JoinMask)
+void DuctUnit::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
     case SM_Direct:
     default:
       //SetProdMakeup(PMU_IOId|PMU_Passing, ioid_Condens, Contents, som_SL);
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
 
     }
   }

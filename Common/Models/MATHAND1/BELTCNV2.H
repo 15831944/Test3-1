@@ -100,7 +100,7 @@ class BeltCnv2 : public MdlNode
     virtual void   EvalJoinPressures(long JoinMask);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     
     virtual void   EvalPowerRequired();
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);

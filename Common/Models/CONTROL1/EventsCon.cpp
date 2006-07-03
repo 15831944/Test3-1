@@ -531,7 +531,7 @@ void CEventsCon::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void CEventsCon::EvalProducts(long JoinMask)
+void CEventsCon::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

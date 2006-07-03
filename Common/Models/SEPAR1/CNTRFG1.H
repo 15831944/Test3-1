@@ -60,7 +60,7 @@ class DllImportExport Centrifuge1 : public MN_Surge
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     DEFINE_CI(Centrifuge1, MN_Surge, 4);
 

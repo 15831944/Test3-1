@@ -836,7 +836,7 @@ double MixerSettler::MetalExtract(double StripMass, double StripVol, double ExtC
 
 //--------------------------------------------------------------------------
 
-void MixerSettler::EvalProducts(long JoinMask)
+void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
   {
   StkSpConduit Aq("Aq", chLINEID(), this);
   StkSpConduit Og("Og", chLINEID(), this);
@@ -1002,7 +1002,7 @@ void MixerSettler::EvalProducts(long JoinMask)
       MaxLoadedConc = AqMass/GTZ((AqMass+OrgInQm)/OrgO.Rho(som_Liq));//Based on 100% Extraction
       MaxStripConc = OgMass/GTZ((OgMass+AqInQm)/AqO.Rho(som_Liq));
 
-      //MN_Surge::EvalProducts(long JoinMask);
+      //MN_Surge::EvalProducts(CNodeEvalIndex & NEI);
       break;
       }
     case SM_Buffered:
@@ -1056,7 +1056,7 @@ void MixerSettler::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void MixerSettler::EvalDerivs(long JoinMask)
+void MixerSettler::EvalDerivs(CNodeEvalIndex & NEI)
   {
   Mixer.ZeroDeriv();
 	Settler.ZeroDeriv();

@@ -49,9 +49,9 @@ class DllImportExport MN_Xfer : public MdlNode
     virtual void   EvalJoinPressures(long JoinMask);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
-    virtual void   EvalIntegral(long JoinMask);
+    virtual void   EvalIntegral(CNodeEvalIndex & NEI);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
 
     virtual void   EvalDiscrete();

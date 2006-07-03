@@ -422,7 +422,7 @@ double MerkelTempFnd::Function(double x)
 
 //--------------------------------------------------------------------------
 
-void CoolingTower::EvalProducts(long JoinMask)
+void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -686,7 +686,7 @@ void CoolingTower::EvalProducts(long JoinMask)
       break;
       }
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
     

@@ -60,7 +60,7 @@ class Washer : public MN_Surge
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     // ConditionBlk Override
     DEFINE_CI(Washer, MN_Surge, 6);
   private:

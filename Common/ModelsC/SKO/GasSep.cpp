@@ -346,7 +346,7 @@ flag CSKOGasSep::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, in
 
 //--------------------------------------------------------------------------
 
-void CSKOGasSep::EvalProducts(long JoinMask)
+void CSKOGasSep::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (GSM.Enabled())
     {

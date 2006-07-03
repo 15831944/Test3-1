@@ -35,8 +35,8 @@ class DllImportExport CTank : public MN_Surge
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
 
   private:
   };

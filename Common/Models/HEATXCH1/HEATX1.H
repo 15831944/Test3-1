@@ -168,10 +168,10 @@ class DllImportExport HeatXchg1 : public MdlNode
     CSpPropInfo*   IOGetNetProps(int i, double Qm);
     flag           EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     void           EvalProductsDyn(bool DoSurge, bool DoXferOut);
-    void           EvalProductsSurge(long JoinMask);
-    void           EvalProducts(long JoinMask);
-    void           EvalDerivs(long JoinMask);
-    //void           EvalIntegral(long JoinMask);
+    void           EvalProductsSurge(CNodeEvalIndex & NEI);
+    void           EvalProducts(CNodeEvalIndex & NEI);
+    void           EvalDerivs(CNodeEvalIndex & NEI);
+    //void           EvalIntegral(CNodeEvalIndex & NEI);
     void           ODEOperate(CODEDataBlock & ODB);
     void           ConvergeStates(CConvergeStateBlk &CSB);
     void           EvalDiscrete();

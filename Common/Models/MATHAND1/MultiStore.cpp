@@ -1291,7 +1291,7 @@ flag CMultiStorage::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps,
 
 //--------------------------------------------------------------------------
 
-void CMultiStorage::EvalProducts(long JoinMask)
+void CMultiStorage::EvalProducts(CNodeEvalIndex & NEI)
   {
   #if dbgMultiStore
   int DoDbg = dbgEvalProducts() || DoDbgBrk() && dbgEvalProductsBrk();

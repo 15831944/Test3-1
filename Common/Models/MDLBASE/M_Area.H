@@ -270,8 +270,8 @@ class DllImportExport MN_Area : public MdlNode
     virtual void   GetBalanceReport(CNodeAuditInfo & Audit);
     virtual void   DoEvalProducts(flag Validating, double dTime);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
     //virtual void   PostEvalDerivs();
 
     virtual flag   InitialiseSolution();

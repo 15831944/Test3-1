@@ -132,7 +132,7 @@ flag SzChng::InitialiseSolution()
 
 //--------------------------------------------------------------------------
 
-void SzChng::EvalProducts(long JoinMask)
+void SzChng::EvalProducts(CNodeEvalIndex & NEI)
   {
   const int ioProd = IOWithId_Self(ioidProd);
   const int ioFeed = IOWithId_Self(ioidFeed);

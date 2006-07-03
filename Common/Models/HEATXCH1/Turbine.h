@@ -62,7 +62,7 @@ class DllImportExport CTurbine : public MN_Surge
     virtual void   ClosureInfo();
     virtual void   SetState(eScdMdlStateActs RqdState);
     //virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     //flag           MacroMdlValidNd(int iIONo) { return True; };
     //void           MacroMdlEvaluate(int Option) {};

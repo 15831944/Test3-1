@@ -67,7 +67,7 @@ class DllImportExport DuctUnit : public MN_Surge
     //virtual void   EvalJoinPressures(long JoinMask);
     //virtual void   EvalJoinFlows(int JoinNo);
     virtual void   StartStep();
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual flag   EvalPressureSens();
 
    private:

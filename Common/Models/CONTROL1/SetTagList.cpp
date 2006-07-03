@@ -336,7 +336,7 @@ void CTagListCon::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void CTagListCon::EvalProducts(long JoinMask)
+void CTagListCon::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

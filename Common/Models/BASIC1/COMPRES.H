@@ -48,7 +48,7 @@ class DllImportExport GasPump_GP : public MN_BstRes
     virtual void   ConnectElectrics();
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng &Tg);
 
-    //virtual void   EvalProducts(long JoinMask);
+    //virtual void   EvalProducts(CNodeEvalIndex & NEI);
     
     virtual bool   IsXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);

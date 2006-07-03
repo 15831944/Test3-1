@@ -268,7 +268,7 @@ void CBBBase::DoEvalPBMakeUpAvail(long JoinMask)
 //void CBBBase::DoEvalProductsSurge() { Method.EvalProductsSurge(); };
 //--------------------------------------------------------------------------
 
-//void CBBBase::DoEvalProductsSurge(long JoinMask)
+//void CBBBase::DoEvalProductsSurge(CNodeEvalIndex & NEI)
 //  { 
 //  if (!m_pMethod)
 //    return;
@@ -276,19 +276,20 @@ void CBBBase::DoEvalPBMakeUpAvail(long JoinMask)
 //  Method.EvalProductsSurge(); 
 //  };
 
-void CBBBase::DoEvalProducts(long JoinMask)
+void CBBBase::DoEvalProducts(CNodeEvalIndex & NEI)
   { 
   if (!m_pMethod)
     return;
-  Method.m_lJoinMask = JoinMask;
+  Method.m_lJoinMask = NEI.JoinMask;
+  Method.m_lJoinMask = NEI.JoinMask;
   Method.EvalProducts(); 
   };
 //void CBBBase::DoEvalDerivs(double StepSize) { Method.EvalDerivs(); };
-void CBBBase::DoEvalIntegral(long JoinMask) 
+void CBBBase::DoEvalIntegral(CNodeEvalIndex & NEI) 
   { 
   if (!m_pMethod)
     return;
-  Method.m_lJoinMask = JoinMask;
+  Method.m_lJoinMask = NEI.JoinMask;
   Method.EvalIntegral(ICGetTimeInc()); 
   };
 

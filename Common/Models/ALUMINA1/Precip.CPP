@@ -1083,7 +1083,7 @@ bool bUsePrevAsEstimate = false;
 
 //--------------------------------------------------------------------------
 
-void Precip::EvalProducts(long JoinMask)
+void Precip::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -1102,7 +1102,7 @@ void Precip::EvalProducts(long JoinMask)
       }
       break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
 

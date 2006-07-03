@@ -60,7 +60,7 @@ class DllImportExport QPrecipMain1 : public MN_Surge
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     virtual void   ClosureInfo();
 

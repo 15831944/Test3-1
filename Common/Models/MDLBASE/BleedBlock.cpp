@@ -139,12 +139,12 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
     DDB.Text("");
     if (DDB.BeginObject(m_pNd, Name(), "EB_Bleed", pTagComment, PageIs))
       {
-      if (m_SnkIO.Enabled)
-        m_SnkIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, DFIO_ShowQm);
-
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CBleedBlock::GroupName, DDB0);
       DDB.String  ("Model",      "",       DC_    , "",      xidAdjustMdlNm  , m_pNd,m_fFixed ? 0 : isParm|SetOnChange, DDB0());
+
+      if (m_SnkIO.Enabled)
+        m_SnkIO.BuildDataDefn(DDB, "DIO", DDB_NoPage, UserInfo+102, DFIO_ShowQm);
 
       if (m_pBleedB)
         {
@@ -191,6 +191,7 @@ flag CBleedBase::DataXchg(DataChangeBlk & DCB)
           Close();
         }
       DCB.pC = m_pBleedB ? m_pBleedB->ShortDesc() : "";
+      m_SnkIO.UsrEnable = m_pBleedB ? m_pBleedB->DoesSomething() && Enabled() : false;
       return 1;
     }
   return 0;
@@ -209,6 +210,8 @@ class DllImportExport CXBlk_Bleed: public CBleedBlock
   public:
     CXBlk_Bleed(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CXBlk_Bleed();
+
+    virtual flag   DoesSomething() { return true; };
 
     virtual void   BuildDataDefn(DataDefnBlk& DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);

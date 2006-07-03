@@ -480,7 +480,7 @@ void FlashTank::EvalSteadyState()
 
 //--------------------------------------------------------------------------
 
-void FlashTank::EvalProducts(long JoinMask)
+void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()>0)
     {
@@ -653,7 +653,7 @@ void FlashTank::EvalProducts(long JoinMask)
         }
       break;
       default:
-        MN_Surge::EvalProducts(JoinMask);
+        MN_Surge::EvalProducts(NEI);
       }
     }
   }

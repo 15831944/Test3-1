@@ -181,17 +181,17 @@ class CNodeEvalIndex
   public:
     CNodeEvalIndex()
       {
-      m_pNd       = NULL;
-      m_iCluster  = 0;
-      m_iJoinMask = -1;
-      m_nInstance = 0;
+      m_pNd         = NULL;
+      m_iCluster    = 0;
+      m_iJoinMask   = -1;
+      m_bInSequence = false;
       };
-    CNodeEvalIndex(FlwNode * pNd, long Cluster, long Joins)
+    CNodeEvalIndex(FlwNode * pNd, long Cluster, long Joins, bool InSequence)
       {
-      m_pNd       = pNd;
-      m_iCluster  = Cluster;
-      m_iJoinMask = Joins;
-      m_nInstance = 0;
+      m_pNd         = pNd;
+      m_iCluster    = Cluster;
+      m_iJoinMask   = Joins;
+      m_bInSequence = InSequence;
       };
     
     FlwNode      & getNd();
@@ -207,7 +207,7 @@ class CNodeEvalIndex
     FlwNode   * m_pNd;
     long        m_iCluster;
     long        m_iJoinMask;
-    long        m_nInstance;
+    bool        m_bInSequence;
   };
 
 template<class CLIST, class ARG_TYPE>
@@ -3953,11 +3953,11 @@ class DllImportExport FlwNode : public CTNode
     virtual double GetMaxTimeInc()     { return 1e10; };
     virtual void   EvalProductsInit(EvalProductsInitTasks Task) {};
     virtual bool   EvalProductClusters(int Index, long & JoinMask)   { JoinMask=-1; return Index==0; };
-    virtual void   EvalProductsSurge(long JoinMask) {};
-    virtual void   EvalProducts(long JoinMask)      {};
-    virtual void   EvalDerivs(long JoinMask)        {};
+    virtual void   EvalProductsSurge(CNodeEvalIndex & NEI) {};
+    virtual void   EvalProducts(CNodeEvalIndex & NEI)      {};
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI)        {};
     //virtual void   PostEvalDerivs()    {};
-    virtual void   EvalIntegral(long JoinMask)      { fIntegralDone=false; };
+    virtual void   EvalIntegral(CNodeEvalIndex & NEI)      { fIntegralDone=false; };
     virtual void   ODEOperate(CODEDataBlock & ODB);
 
     // Helper usually called by ODEOperate

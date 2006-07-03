@@ -104,7 +104,7 @@ class CEventsCon : public FlwNode
     virtual int    FilesUsed(CFilesUsedArray & Files);
 
     virtual void   SetState(eScdMdlStateActs RqdState);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual dword  ModelStatus();
 
     DEFINE_CI(CEventsCon, FlwNode, 4);

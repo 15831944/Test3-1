@@ -1211,7 +1211,7 @@ void MN_SrcSnk::EvalProductsInit(EvalProductsInitTasks Task)
 
 //--------------------------------------------------------------------------
 
-void MN_SrcSnk::EvalProducts(long JoinMask)
+void MN_SrcSnk::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoProcLnkIOs()>=2 && (fCrossConnected || (IO_In(0)==IO_Out(1))))
     {
@@ -1262,7 +1262,7 @@ void MN_SrcSnk::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void MN_SrcSnk::EvalDerivs(long JoinMask)
+void MN_SrcSnk::EvalDerivs(CNodeEvalIndex & NEI)
   {
   };
 

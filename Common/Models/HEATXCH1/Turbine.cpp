@@ -340,7 +340,7 @@ double TurbineVapFracFnd::Function(double x)
 
 //--------------------------------------------------------------------------
 
-void CTurbine::EvalProducts(long JoinMask)
+void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
   {
   iExhaustMode = TEM_Inoperative;
   if (NoFlwIOs()<2)
@@ -381,7 +381,7 @@ void CTurbine::EvalProducts(long JoinMask)
 
   if (SolveDynamicMethod())
     {
-    MN_Surge::EvalProducts(JoinMask); //todo implement dynamic version.....
+    MN_Surge::EvalProducts(NEI); //todo implement dynamic version.....
     return;
     }
 

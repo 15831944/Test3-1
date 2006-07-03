@@ -256,7 +256,7 @@ void Splitter::EvalJoinPressures(long JoinMask)
 /*This determines what material should leave through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.*/
-void Splitter::EvalProducts(long JoinMask)
+void Splitter::EvalProducts(CNodeEvalIndex & NEI)
   {
   SpConduit & Qo = *IOConduit(IOWithId_Self(ioidUS));
   SpConduit & Qu = *IOConduit(IOWithId_Self(ioidOS));

@@ -137,7 +137,7 @@ class CBlendCon : public FlwNode , public CXRefStatus
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
 
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual dword  ModelStatus();
 
     DEFINE_CI(CBlendCon, FlwNode, 4);

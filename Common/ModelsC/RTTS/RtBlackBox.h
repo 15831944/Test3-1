@@ -40,7 +40,7 @@ class RTBlackBox : public MdlNode
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual flag   PreStartCheck();
 
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual void   ConfigureJoins();
 

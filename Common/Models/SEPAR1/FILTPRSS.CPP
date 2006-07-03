@@ -524,7 +524,7 @@ void FilterPress::EvalJoinPressures(long JoinMask)
  
 //--------------------------------------------------------------------------
 
-void FilterPress::EvalProducts(long JoinMask)
+void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
   {
   const int iFiltrate = IOWithId_Self(ioidFiltrate);
   const int iCake     = IOWithId_Self(ioidCake);
@@ -734,7 +734,7 @@ void FilterPress::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void FilterPress::EvalDerivs(long JoinMask)
+void FilterPress::EvalDerivs(CNodeEvalIndex & NEI)
   {
   Cake.ZeroDeriv();
   if (!GetActiveHold())

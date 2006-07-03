@@ -241,7 +241,7 @@ CToleranceBlock EvapFnd::s_Tol(TBF_BothSys, "QALCoolTower:EvapFnd", 0, 1.0e-9);
 
 //--------------------------------------------------------------------------
 
-void QCoolingTower::EvalProducts(long JoinMask)
+void QCoolingTower::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -315,7 +315,7 @@ void QCoolingTower::EvalProducts(long JoinMask)
       }
       break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
     

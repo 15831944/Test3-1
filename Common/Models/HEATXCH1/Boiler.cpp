@@ -236,7 +236,7 @@ void   Boiler::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void Boiler::EvalProducts(long JoinMask)
+void Boiler::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()==0)
     return;
@@ -394,7 +394,7 @@ void Boiler::EvalProducts(long JoinMask)
       }
     break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
 

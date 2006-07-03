@@ -237,7 +237,7 @@ void Mill1::EvalSteadyState()
 
 //--------------------------------------------------------------------------
 
-void Mill1::EvalProducts(long JoinMask)
+void Mill1::EvalProducts(CNodeEvalIndex & NEI)
   {
   Eff = Range(0.0, Eff, 1.0);
   flag On = (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed);

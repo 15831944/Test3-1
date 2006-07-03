@@ -352,7 +352,7 @@ void DrumFilt::EvalJoinPressures(long JoinMask)
  
 //--------------------------------------------------------------------------
 
-void DrumFilt::EvalProducts(long JoinMask)
+void DrumFilt::EvalProducts(CNodeEvalIndex & NEI)
   {
   StkSpConduit Sd("Sd", chLINEID(), this);
   StkSpConduit Fd("Fd", chLINEID(), this);

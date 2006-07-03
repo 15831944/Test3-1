@@ -79,7 +79,7 @@ class DllImportExport FFEvap : public MN_Surge
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   SetState(eScdMdlStateActs RqdState);
     //virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     virtual void   ClosureInfo();
 

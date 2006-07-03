@@ -290,17 +290,17 @@ flag CBBSurge::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
 
 //--------------------------------------------------------------------------
 
-void CBBSurge::EvalProducts(long JoinMask)
+void CBBSurge::EvalProducts(CNodeEvalIndex & NEI)
   {
   //MN_Surge::EvalProducts(JoinMask);
-  DoEvalProducts(JoinMask);
+  DoEvalProducts(NEI);
   }
 
 //--------------------------------------------------------------------------
 
-void CBBSurge::EvalIntegral(long JoinMask)
+void CBBSurge::EvalIntegral(CNodeEvalIndex & NEI)
   {
-  DoEvalIntegral(JoinMask);
+  DoEvalIntegral(NEI);
   SetIntegralDone(true);
   }
 

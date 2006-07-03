@@ -61,8 +61,8 @@ class CBBSurge : public MN_Surge, CBBBase
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 
 
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalIntegral(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalIntegral(CNodeEvalIndex & NEI);
 
     virtual void   EvalDiscrete();
     virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);

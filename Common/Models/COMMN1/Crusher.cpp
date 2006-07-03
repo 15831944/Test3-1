@@ -231,7 +231,7 @@ flag Crusher::InitialiseSolution()
 
 //--------------------------------------------------------------------------
 
-void Crusher::EvalProducts(long JoinMask)
+void Crusher::EvalProducts(CNodeEvalIndex & NEI)
   {
   flag On=(SolveDirectMethod() || MSB.Speed(this)>0.9);
 

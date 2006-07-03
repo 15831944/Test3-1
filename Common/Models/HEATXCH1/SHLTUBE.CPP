@@ -1358,7 +1358,7 @@ void ShellTube::EvalJoinPressures(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void ShellTube::EvalProducts(long JoinMask)
+void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -1558,7 +1558,7 @@ void ShellTube::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void ShellTube::EvalDerivs(long JoinMask)
+void ShellTube::EvalDerivs(CNodeEvalIndex & NEI)
   {
   Shell.ZeroDeriv();
   for (int i = 0; i < NoFlwIOs(); i++)

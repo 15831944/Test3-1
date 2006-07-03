@@ -779,7 +779,7 @@ void   CProfileCon::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void CProfileCon::EvalProducts(long JoinMask)
+void CProfileCon::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

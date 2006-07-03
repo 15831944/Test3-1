@@ -84,8 +84,8 @@ class DllImportExport CPipeTerm : public MdlNode
     virtual void   EvalDiscrete();
     //virtual void   DoEvalProducts(flag Validating, double dTime);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
 
     //virtual flag   InitialiseSolution();
     //virtual flag   TerminateSolution();

@@ -401,8 +401,8 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual void   EvalJoinPressures(long JoinMask);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   EvalDiscrete();
     virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All);

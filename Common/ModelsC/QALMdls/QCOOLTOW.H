@@ -36,7 +36,7 @@ class DllImportExport QCoolingTower : public MN_Surge
     virtual void   EvalSteadyState();
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
 
   private:

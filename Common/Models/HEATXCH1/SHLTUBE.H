@@ -139,8 +139,8 @@ class DllImportExport ShellTube : public MdlNode
     void           ConfigureJoins();
     void           StartStep();
     void           EvalJoinPressures(long JoinMask);
-    void           EvalProducts(long JoinMask);
-    void           EvalDerivs(long JoinMask);
+    void           EvalProducts(CNodeEvalIndex & NEI);
+    void           EvalDerivs(CNodeEvalIndex & NEI);
     void           ConvergeStates(CConvergeStateBlk &CSB);
     virtual flag   EvalPressureSens();
     void           EvalDiscrete();

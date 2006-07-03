@@ -413,7 +413,7 @@ void MN_Xfer::EvalProductsInit(EvalProductsInitTasks Task)
 /*#F:This determines what material is leaving through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.*/
-//void MN_Surge::EvalProductsSurge(long JoinMask)
+//void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
 //  {
 //  ASSERT(SolveDynamicMethod());
 //  if (!InlineIntegral())
@@ -429,7 +429,7 @@ of the surge unit.*/
 
 // --------------------------------------------------------------------------
 
-void MN_Xfer::EvalProducts(long JoinMask)
+void MN_Xfer::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoProcessJoins()>0)
     {
@@ -466,7 +466,7 @@ void MN_Xfer::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void MN_Xfer::EvalIntegral(long JoinMask)
+void MN_Xfer::EvalIntegral(CNodeEvalIndex & NEI)
   {
   //dbgpln("EvalIntegral - %s %s %s %s", InlineIntegral()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
   if (m_NetworkIsolator)

@@ -46,7 +46,7 @@ class DllImportExport SzChng : public MdlNode
     virtual Z_States Set_Zs(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
     virtual flag   Set_Sizes();
     virtual void   ConfigureJoins();
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     
     virtual dword  ModelStatus();
   private:

@@ -525,7 +525,7 @@ void   CGenStats::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void CGenStats::EvalProducts(long JoinMask)
+void CGenStats::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

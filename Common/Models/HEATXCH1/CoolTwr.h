@@ -75,7 +75,7 @@ class DllImportExport CoolingTower : public MN_Surge
     virtual flag   InitialiseSolution();
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   ClosureInfo();
 
     // ConditionBlk Override

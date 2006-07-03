@@ -132,8 +132,8 @@ class MixerSettler : public MdlNode
 #endif
 
 	  //overrides EvalProducts_SurgeLevel found in M_Base.h
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
     virtual void   EvalDiscrete(flag ControlEnabled, flag ControlDisabled);
 
     virtual double FindNewYConc(double* InX, double* InY, double* Yintcpt);

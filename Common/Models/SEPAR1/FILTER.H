@@ -43,8 +43,8 @@ class Filter : public MdlNode
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
   
   private:
             void   Conc(CDVector& d, long temp, double CLiq, double FLiq);

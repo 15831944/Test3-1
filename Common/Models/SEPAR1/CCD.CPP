@@ -213,7 +213,7 @@ This determines what material should leave through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.
 */
-void Ccd::EvalProducts(long JoinMask)
+void Ccd::EvalProducts(CNodeEvalIndex & NEI)
   {
   Stage=Max(Stage, 0L);
   StkSpConduit Fd("Fd", chLINEID(), this);

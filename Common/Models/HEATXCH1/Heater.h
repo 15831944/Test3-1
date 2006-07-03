@@ -86,7 +86,7 @@ class DllImportExport SimpleHeater : public MN_BstRes
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual flag   PreStartCheck();
     virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    DeleteTag(pchar pDelTag);

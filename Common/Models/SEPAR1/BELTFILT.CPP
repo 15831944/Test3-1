@@ -245,7 +245,7 @@ This determines what material should leave through each outlet,and rate of
 change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.
 */
-void BeltFilt::EvalProducts(long JoinMask)
+void BeltFilt::EvalProducts(CNodeEvalIndex & NEI)
   {
   Stage=Max(Stage, 0L);
   SpConduit & Qs = *IOConduit(IOWithId_Self(ioidSo));

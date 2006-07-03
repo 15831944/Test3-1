@@ -524,7 +524,7 @@ void MN_Surge::EvalProductsInit(EvalProductsInitTasks Task)
 /*#F:This determines what material is leaving through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.*/
-void MN_Surge::EvalProductsSurge(long JoinMask)
+void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
   {
   if (fDoDbgBrk)
     { int xxx=0; }
@@ -544,7 +544,7 @@ void MN_Surge::EvalProductsSurge(long JoinMask)
 /*#F:This determines what material is leaving through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.*/
-void MN_Surge::EvalProducts(long JoinMask)
+void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (fDoDbgBrk)
     { int xxx=0; }
@@ -594,7 +594,7 @@ void MN_Surge::EvalProducts(long JoinMask)
         }
       if (SolveInlineMethod())
         {
-        EvalIntegral(JoinMask);
+        EvalIntegral(NEI);
         }
       break;
     }
@@ -607,7 +607,7 @@ of the surge unit. It a/lso calculates the mass and volume accumulation of the s
 whether the surge unti is to overflow and, if so, the quantity of material that is to
 overflow.*/
 
-void MN_Surge::EvalDerivs(long JoinMask)
+void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
   {
   const int DoLast10=01;
 
@@ -733,7 +733,7 @@ void MN_Surge::ODEOperate(CODEDataBlock & ODB)
 
 //--------------------------------------------------------------------------
 
-void MN_Surge::EvalIntegral(long JoinMask)
+void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
   {
   //dbgpln("EvalIntegral - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
 

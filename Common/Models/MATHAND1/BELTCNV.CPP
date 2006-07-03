@@ -728,7 +728,7 @@ flag BeltCnv::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
 
 //--------------------------------------------------------------------------
 
-void BeltCnv::EvalProducts(long JoinMask)
+void BeltCnv::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {

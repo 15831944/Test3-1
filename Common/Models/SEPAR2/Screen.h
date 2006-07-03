@@ -142,7 +142,7 @@ class Screen : public MdlNode
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
     //virtual flag   EvalFlowEquations(CSpPropInfo *pProps, int IONo, int FE);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     virtual dword  ModelStatus();
   protected:

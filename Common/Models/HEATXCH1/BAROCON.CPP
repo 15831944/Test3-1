@@ -350,7 +350,7 @@ CToleranceBlock BCSteamFinder::s_Tol(TBF_Both, "BaroCon:SteamFinder", 0.0, 1.0e-
 
 //--------------------------------------------------------------------------
 
-void BarometricCondenser::EvalProducts(long JoinMask)
+void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -500,7 +500,7 @@ void BarometricCondenser::EvalProducts(long JoinMask)
       }
       break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
     

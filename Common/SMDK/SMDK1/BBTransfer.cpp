@@ -215,9 +215,9 @@ flag CBBTransfer::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, i
 
 //--------------------------------------------------------------------------
 
-void CBBTransfer::EvalProducts(long JoinMask)
+void CBBTransfer::EvalProducts(CNodeEvalIndex & NEI)
   {
-  DoEvalProducts(JoinMask);
+  DoEvalProducts(NEI);
   }
 
 //--------------------------------------------------------------------------

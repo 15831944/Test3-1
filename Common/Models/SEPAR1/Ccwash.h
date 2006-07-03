@@ -54,7 +54,7 @@ class DllImportExport CCWasher : public MN_Surge
     virtual void   EvalSteadyState();
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   SetState(eScdMdlStateActs RqdState);
     // ConditionBlk Override
     DEFINE_CI(CCWasher, MN_Surge, 8);

@@ -655,7 +655,7 @@ flag RTCrusher::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-void RTCrusher::EvalProducts(long JoinMask)
+void RTCrusher::EvalProducts(CNodeEvalIndex & NEI)
   {
   //if (NIOs<2)
   //  return;

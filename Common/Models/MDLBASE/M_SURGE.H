@@ -68,11 +68,11 @@ class DllImportExport MN_Surge : public MdlNode
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void   EvalState();
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
-    virtual void   EvalProductsSurge(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
-    virtual void   EvalDerivs(long JoinMask);
+    virtual void   EvalProductsSurge(CNodeEvalIndex & NEI);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
     virtual void   ODEOperate(CODEDataBlock & ODB);
-    virtual void   EvalIntegral(long JoinMask);
+    virtual void   EvalIntegral(CNodeEvalIndex & NEI);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   EvalDiscrete();
     virtual void   DumpDerivs();

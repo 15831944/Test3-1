@@ -393,7 +393,7 @@ double FinalTempFnd::Function(double x)
 
 //--------------------------------------------------------------------------
   
-void ContactHeater::EvalProducts(long JoinMask)
+void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()==0)
     return;
@@ -682,7 +682,7 @@ void ContactHeater::EvalProducts(long JoinMask)
       }
       break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
 

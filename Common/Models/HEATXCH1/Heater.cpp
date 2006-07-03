@@ -411,14 +411,14 @@ void SimpleHeater::EvalCtrlActions(eScdCtrlTasks Tasks)
 
 //---------------------------------------------------------------------------
 
-void SimpleHeater::EvalProducts(long JoinMask)
+void SimpleHeater::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (iDutyMethod==HDM_DutyTag)
     {
     dDuty_Rqd = dFarDutyVal * dDutyFactor;
     dTout_Rqd = dNAN;
     }
-  MN_BstRes::EvalProducts(JoinMask);
+  MN_BstRes::EvalProducts(NEI);
   HSC.SetMdlDuty(dDuty);
   }
 

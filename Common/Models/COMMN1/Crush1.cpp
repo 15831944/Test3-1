@@ -608,7 +608,7 @@ flag Crush1::InitialiseSolution()
 
 //--------------------------------------------------------------------------
 
-void Crush1::EvalProducts(long JoinMask)
+void Crush1::EvalProducts(CNodeEvalIndex & NEI)
   {
   flag On = (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed);
   int ioProd = IOWithId_Self(ioidProd);

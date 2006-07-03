@@ -190,11 +190,11 @@ void Classifier::EvalJoinPressures(long JoinMask)
  
 //--------------------------------------------------------------------------
 
-void Classifier::EvalProducts(long JoinMask)
+void Classifier::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (SolveDynamicMethod())
     {
-    MN_Surge::EvalProducts(JoinMask);
+    MN_Surge::EvalProducts(NEI);
     return;
     }
 

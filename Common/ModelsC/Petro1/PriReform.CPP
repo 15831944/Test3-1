@@ -427,7 +427,7 @@ flag PriReform::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
 
 //--------------------------------------------------------------------------
 
-void PriReform::EvalProductsSurge(long JoinMask)
+void PriReform::EvalProductsSurge(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -444,7 +444,7 @@ void PriReform::EvalProductsSurge(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void PriReform::EvalProducts(long JoinMask)
+void PriReform::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -492,7 +492,7 @@ void PriReform::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void PriReform::EvalDerivs(long JoinMask)
+void PriReform::EvalDerivs(CNodeEvalIndex & NEI)
   {
   m_HotBox.ZeroDeriv();
   m_dCatTempDeriv=0;

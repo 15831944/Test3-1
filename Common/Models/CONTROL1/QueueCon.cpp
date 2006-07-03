@@ -653,7 +653,7 @@ void CQueueCon::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-void CQueueCon::EvalProducts(long JoinMask)
+void CQueueCon::EvalProducts(CNodeEvalIndex & NEI)
   {
   }
 

@@ -337,7 +337,7 @@ double FFE_FinalTempFnd::Function(double x)
 
 //--------------------------------------------------------------------------
 
-void FFEvap::EvalProducts(long JoinMask)
+void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()==0)
     return;
@@ -545,7 +545,7 @@ void FFEvap::EvalProducts(long JoinMask)
       }
       break;
     default:
-      MN_Surge::EvalProducts(JoinMask);
+      MN_Surge::EvalProducts(NEI);
     }
   }
   

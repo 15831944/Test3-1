@@ -359,7 +359,7 @@ void CIsoPRV ::EvalProductsInit(EvalProductsInitTasks Task)
 
 // --------------------------------------------------------------------------
 
-void CIsoPRV ::EvalProducts(long JoinMask)
+void CIsoPRV ::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoProcessJoins()>0)
     {

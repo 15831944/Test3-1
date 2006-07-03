@@ -2415,7 +2415,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
         {
         CJoinCluster &C=p->m_Clusters[c];
         if (C.m_nFlwIOsInReqd==0 && C.m_nFlwIOsOut>0)
-          m_ProcTOList1.AddTail(CNodeEvalIndex(p,c,-1));
+          m_ProcTOList1.AddTail(CNodeEvalIndex(p,c,-1,true));
         }
       }
 
@@ -2432,7 +2432,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
           if (dbgEvalOrdFind())
             dbgpln(">>>>>>>>>>>> <%2i>%s",NJ.m_iCluster, NJ.Nd.Tag());
           #endif
-          m_ProcTOList2.AddTail(CNodeEvalIndex(&NJ.Nd,NJ.m_iCluster,-1));
+          m_ProcTOList2.AddTail(CNodeEvalIndex(&NJ.Nd,NJ.m_iCluster,-1,false));
           }
         }
       }
@@ -2444,7 +2444,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
           {
           CJoinCluster &C=p->m_Clusters[c];
           if (C.m_nFlwIOsIn==0 && C.m_nFlwIOsOut==0)
-            m_ProcTOList2.AddTail(CNodeEvalIndex(p,c,-1));
+            m_ProcTOList2.AddTail(CNodeEvalIndex(p,c,-1,false));
           }
         }
       }
@@ -2520,12 +2520,12 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
     // List 2 @ periphery
     for (p = Ctrl.First(); (p); p=Ctrl.Next())
       if (p->CtrlsInReqd()==0 && p->CtrlsOut()>0)
-        m_CtrlTOList1.AddTail(CNodeEvalIndex(p,-1,-1));
+        m_CtrlTOList1.AddTail(CNodeEvalIndex(p,-1,-1,true));
     // List 3
     for (p = Ctrl.First(); (p); p=Ctrl.Next())
       {
       if (p->CtrlsIn()==0 && p->CtrlsOut()==0)
-        m_CtrlTOList2.AddTail(CNodeEvalIndex(p,-1,-1));
+        m_CtrlTOList2.AddTail(CNodeEvalIndex(p,-1,-1,false));
       }
     }
 
@@ -2838,7 +2838,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
             if (dbgBuildOrder())
               dbgp("  Add %s", pRmt->Tag());
             #endif
-            Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask));
+            Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask,true));
             // pRmt->m_nFlwIOsInDone=0;
             }
           }
@@ -2938,7 +2938,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           pRmt=p->Nd_Rmt(iRmt);
         if (InterlockedIncrement(&(pRmt->m_nCtrlsInDone))==pRmt->CtrlsInReqd())
           {
-          Lst2.AddHead(CNodeEvalIndex(pRmt,-1,-1));
+          Lst2.AddHead(CNodeEvalIndex(pRmt,-1,-1,true));
           //pRmt->m_nCtrlsInDone=0;
           }
         }
@@ -3124,7 +3124,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
       {
       if (DoingProc && (Pass==0) || DoingCtrl && (Pass==1))
         {
-        dbgpln("%-34s      Lnks Proc Audt [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ", Pass==0 ? "Process":"Control",
+        dbgpln("%-40s      Lnks Proc Audt [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ", Pass==0 ? "Process":"Control",
           "Pi","Po","PIR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
         long NdCnt=0;
         CNodeEvalIndexIter It(Pass==0?ProcTOSequence:m_CtrlTOSequence);
@@ -3156,6 +3156,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
           else 
             dbgp("   . ");
           dbgp(Nd.m_iCtrlOrder>=0 ? "%4i ":"   . ", Nd.m_iCtrlOrder);
+          dbgp("%2s ", NJ.m_bInSequence?"Sq":"  ");
           if (Nd.IsProcessSeq())
             {
             dbgp("  ");
@@ -3195,7 +3196,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             dbgp("");
 
             dbgp("");
-            dbgp("%-7s %14s %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
+            dbgp("%-10s %14s %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(), 
               Nd.NoProcLnkIOs(),
               Nd.NoProcessIOs(),Nd.NoFlwIOs()-Nd.NoProcessIOs(),
@@ -3237,7 +3238,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             else
               Q1="--";
 
-            dbgp("%-7s %14s %4i %4s %4s [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
+            dbgp("%-10s %14s %4i %4s %4s [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(),
               Nd.NoCIOs(), "", "",
               DotNum(pC?pC->m_nFlwIOsIn:-1),DotNum(pC?pC->m_nFlwIOsOut:-1),
@@ -3733,6 +3734,9 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
             p->m_Clusters[0].m_nFlwIOsIn++;
           if (p->IOEvalSeq_Out(0) || p->IOEvalSeq_Out(1))
             p->m_Clusters[0].m_nFlwIOsOut++;
+
+          dbgpln("XXX %-5s %-5s %-5s %i %i %s", Fwd?"Fwd":"",Zero0?"Zero0":"",Zero1?"Zero1":"",p->m_Clusters[0].m_nFlwIOsIn, p->m_Clusters[0].m_nFlwIOsOut, p->Tag());
+
           for (int i=p->NoProcLnkIOs(); i<p->NoFlwIOs(); i++)
             {
 
@@ -4843,7 +4847,7 @@ inline static void ProcLoopEnd(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, int
           {
           //InterlockedExchange(&pCRmt->m_nFlwIOsInDone, 0);
           //      Iter.AddTail(pRmt);
-          Iter.AddTail(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask));
+          Iter.AddTail(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask,true));
          
           #if dbgFlwSolve
           if (dbgThreadsNodes())
@@ -5013,7 +5017,7 @@ void FlwSlvPB::FITPBEvalProducts(CLkNodeEvalIter & Iter)
     ProcLoopStart(Iter, NJ, Cnt);
     if (p->fEvalProductsCalled)
       { int xxx=0; };
-    p->EvalProducts(NJ.JoinMask);
+    p->EvalProducts(NJ);
     p->fEvalProductsCalled=true;
     XT.ExecDone();//Postamble(p, eFITPBEvalProducts, FSW_EvalProducts);
     ProcLoopEnd(Iter, NJ, Cnt);
@@ -5512,7 +5516,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
       #endif
       XT.StartLoop(NJ.m_pNd);
       XT.LockDone();//(p, eFITPBEvalProducts, FSW_EvalProducts);
-      NJ.Nd.EvalProducts(NJ.JoinMask);
+      NJ.Nd.EvalProducts(NJ);
       //ASSERT(_CrtCheckMemory());
       NJ.Nd.fEvalProductsCalled=true;
       XT.ExecDone();//Postamble(p, eFITPBEvalPressures, FSW_EvalProducts);
@@ -7595,7 +7599,7 @@ void FlwSlvDyn::FITEvalProductsSurge(CLkNodeEvalIter & Iter)
     //p->LockNode();
     XT.LockDone();//(p, eFITEvalProductsSurge, FSW_EvalProductsSurge);
     // Cluster Mods
-    p->EvalProductsSurge(NJ.JoinMask);
+    p->EvalProductsSurge(NJ);
     p->fEvalProductsSurgeCalled=true;
     XT.ExecDone();//Postamble(p, eFITEvalProductsSurge, FSW_EvalProductsSurge);
     ProcLoopEnd(Iter, NJ, Cnt);
@@ -7635,7 +7639,7 @@ void FlwSlvDyn::FITEvalProducts(CLkNodeEvalIter & Iter)
     //  }
     XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
     //dbgpln("---------------------------- %s", p->FullObjTag());
-    p->EvalProducts(NJ.JoinMask);
+    p->EvalProducts(NJ);
     p->fEvalProductsCalled=true;
     XT.ExecDone();//Postamble(p, eFITEvalProducts, FSW_EvalProducts);
 
@@ -7668,7 +7672,7 @@ void FlwSlvDyn::FITEvalDerivs(CLkNodeEvalIter & Iter)
     //p->LockFlanges();
     ProcLoopStart(Iter, NJ, Cnt);
     XT.LockDone();//(p, eFITEvalDerivs, FSW_EvalDerivs);
-    p->EvalDerivs(NJ.JoinMask);
+    p->EvalDerivs(NJ);
     XT.ExecDone();//Postamble(p, eFITEvalDerivs, FSW_EvalDerivs);
     ProcLoopEnd(Iter, NJ, Cnt);
     XT.EndLoop();//PostambleUnLock();
@@ -7700,7 +7704,7 @@ void FlwSlvDyn::FITEvalIntegral(CLkNodeEvalIter & Iter)
     //p->LockFlanges();
     ProcLoopStart(Iter, NJ, Cnt);
     XT.LockDone();//(p, eFITEvalIntegral, FSW_EvalIntegral);
-    p->EvalIntegral(NJ.JoinMask);
+    p->EvalIntegral(NJ);
     XT.ExecDone();//Postamble(p, eFITEvalIntegral, FSW_EvalIntegral);
     ProcLoopEnd(Iter, NJ, Cnt);
     XT.EndLoop();//PostambleUnLock();
@@ -7727,7 +7731,7 @@ void FlwSlvDyn::ODEDerivs()
   CFlwNodeIter Ctrl(m_PwrCtrlNds);
   for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
     if (p->SolveDynamicMethod())
-      p->EvalDerivs(-1);
+      p->EvalDerivs(CNodeEvalIndex(p,-1,-1,false));
   //for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
   //  if (p->SolveDynamicMethod())
   //    p->PostEvalDerivs();
@@ -7846,7 +7850,7 @@ void FlwSlvDyn::ODEDerivs()
             {
             XT.StartLoop(NJ.m_pNd);
             XT.LockDone();//(p, eFITEvalProductsSurge, FSW_EvalProductsSurge);
-            NJ.Nd.EvalProductsSurge(NJ.JoinMask);
+            NJ.Nd.EvalProductsSurge(NJ);
             NJ.Nd.fEvalProductsSurgeCalled=true;
             XT.ExecDone();//Postamble(p, eFITEvalProductsSurge, FSW_EvalProductsSurge);
             XT.EndLoop();
@@ -7887,7 +7891,7 @@ void FlwSlvDyn::ODEDerivs()
             //  XT.ExecDone();//Postamble(p, eFITNull, FSW_EvalSteadyState);
             //  }
             XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
-            NJ.Nd.EvalProducts(NJ.JoinMask);
+            NJ.Nd.EvalProducts(NJ);
             NJ.Nd.fEvalProductsCalled=true;
             XT.ExecDone();//Postamble(p, eFITEvalProducts, FSW_EvalProducts);
             XT.EndLoop();
@@ -7932,7 +7936,7 @@ void FlwSlvDyn::ODEDerivs()
             {
             XT.StartLoop(NJ.m_pNd);
             XT.LockDone();//(p, eFITEvalDerivs, FSW_EvalDerivs);
-            NJ.Nd.EvalDerivs(NJ.JoinMask);
+            NJ.Nd.EvalDerivs(NJ);
             XT.ExecDone();//Postamble(p, eFITEvalDerivs, FSW_EvalDerivs);
             XT.EndLoop();
             }

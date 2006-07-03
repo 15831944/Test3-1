@@ -2481,7 +2481,7 @@ flag HeatXchg1::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
 
 //--------------------------------------------------------------------------
 
-void HeatXchg1::EvalProductsSurge(long JoinMask)
+void HeatXchg1::EvalProductsSurge(CNodeEvalIndex & NEI)
   {
   if (SolveInlineMethod())
     return;
@@ -2491,7 +2491,7 @@ void HeatXchg1::EvalProductsSurge(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void HeatXchg1::EvalProducts(long JoinMask)
+void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
   {
   switch (SolveMethod())
     {
@@ -2731,7 +2731,7 @@ void HeatXchg1::EvalProductsDyn(bool DoSurge, bool DoXferOut)
 
 //--------------------------------------------------------------------------
 
-void HeatXchg1::EvalDerivs(long JoinMask)
+void HeatXchg1::EvalDerivs(CNodeEvalIndex & NEI)
   {
   if (IntegralDone())
     {
@@ -2853,7 +2853,7 @@ void HeatXchg1::EvalDerivs(long JoinMask)
 
 //--------------------------------------------------------------------------
 /**
-void HeatXchg1::EvalIntegral(long JoinMask)
+void HeatXchg1::EvalIntegral(CNodeEvalIndex & NEI)
   {
 
   int PriIsShell = (m_iPriSgMd==HXSM_Shell);

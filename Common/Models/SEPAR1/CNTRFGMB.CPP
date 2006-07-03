@@ -200,7 +200,7 @@ void CentrifugeMB::EvalJoinPressures(long JoinMask)
 and rate of change of the contents resulting from the flow, of material, 
 out of each outlet of the surge unit.
 */
-void CentrifugeMB::EvalProducts(long JoinMask)
+void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
   {
   StkSpConduit Sd("Sd", chLINEID(), this);
   StkSpConduit Wd("Wd", chLINEID(), this);

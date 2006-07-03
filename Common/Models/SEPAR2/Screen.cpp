@@ -1788,7 +1788,7 @@ This determines what material should leave through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.
 */
-void Screen::EvalProducts(long JoinMask)
+void Screen::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (NoFlwIOs()==0)
     return;

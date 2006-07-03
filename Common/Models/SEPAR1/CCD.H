@@ -42,7 +42,7 @@ class Ccd : public MN_Surge
 
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
   private:
             void   ConcBal(CSysVector & Fd, CDVector& c, CDVector& mass, double UVol, double max, int water);
   };

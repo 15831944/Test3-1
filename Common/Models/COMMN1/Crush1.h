@@ -110,7 +110,7 @@ class DllImportExport Crush1 : public MdlNode
     virtual flag   Set_Sizes();
     virtual void   ConfigureJoins();
 
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalPowerRequired();

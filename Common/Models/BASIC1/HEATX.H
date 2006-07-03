@@ -57,7 +57,7 @@ class DllImportExport HeatXchg : public MdlNode
 
     void           ConfigureJoins();
     flag           EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
-    void           EvalProducts(long JoinMask);
+    void           EvalProducts(CNodeEvalIndex & NEI);
 
   private:
 };

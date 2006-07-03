@@ -700,7 +700,7 @@ void MN_Area::EvalProductsInit(EvalProductsInitTasks Task)
 
 //--------------------------------------------------------------------------
 
-void MN_Area::EvalProducts(long JoinMask)
+void MN_Area::EvalProducts(CNodeEvalIndex & NEI)
   {
   DoEvalProducts(false, ICGetTimeInc());
   }
@@ -709,7 +709,7 @@ void MN_Area::EvalProducts(long JoinMask)
 
 //--------------------------------------------------------------------------
 
-void MN_Area::EvalDerivs(long JoinMask)
+void MN_Area::EvalDerivs(CNodeEvalIndex & NEI)
   {
   }
 

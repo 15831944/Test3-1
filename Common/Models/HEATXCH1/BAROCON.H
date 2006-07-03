@@ -47,7 +47,7 @@ class DllImportExport BarometricCondenser : public MN_Surge
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
 
     virtual void   ClosureInfo();
 
