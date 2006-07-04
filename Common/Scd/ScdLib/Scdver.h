@@ -47,7 +47,9 @@
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
 #define USEREGISTRY           0
 
-#define WITHBLOCKEVALUATOR    1 /*(1 && (_MSC_VER>=1400))*/
+#define WITHBLOCKEVALUATOR    1
+#define WithSimpleBleed       (0 && WITHBLOCKEVALUATOR) //not ready for release
+#define WithSimpleEvap        (0 && WITHBLOCKEVALUATOR) //not ready for release
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???

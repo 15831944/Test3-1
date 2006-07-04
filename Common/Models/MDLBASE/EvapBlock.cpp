@@ -68,7 +68,9 @@ const byte Dest_Mix     = -2;
 const byte Dest_Discard = -1;
 const byte Dest_IO1     = 0; //????????????????
 
+#if WithSimpleEvap
 IMPLEMENT_EVAP(CEvBlk_Percentage, "EvapPerc", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Percentage",  " ");
+#endif
 
 CEvBlk_Percentage::CEvBlk_Percentage(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 CEvapBlock(pClass_, Tag_, pAttach, eAttach)

@@ -241,7 +241,9 @@ DEFINE_BLEEDBLOCK(CXBlk_Bleed);
 //
 //============================================================================
 
+#if WithSimpleBleed
 IMPLEMENT_BLEEDBLOCK(CXBlk_Bleed, "BB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Simple",  " ");
+#endif
 
 CXBlk_Bleed::CXBlk_Bleed(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 CBleedBlock(pClass_, Tag_, pAttach, eAttach)
