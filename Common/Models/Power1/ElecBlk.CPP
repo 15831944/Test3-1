@@ -608,7 +608,9 @@ void CElecBlk::DoEvalCtrl(LPCTSTR TriggerName)
     CGExecContext ECtx(this);
     ECtx.dIC_Time = ICGetTime();
     ECtx.dIC_dTime = XRunning() ? ICGetTimeInc() : 0.0;
-    ECtx.SetFlags(m_bMustInit && !XRunning() && XStarting(), m_bIterOne, m_bMustTerm && !XRunning(), bJustLoaded, bEmpty, bPreset);
+    //flag Initialise = (m_bMustInit && !XRunning() && XStarting());
+    flag Initialise = (m_bMustInit && !XRunning());
+    ECtx.SetFlags(Initialise, m_bIterOne, m_bMustTerm && !XRunning(), bJustLoaded, bEmpty, bPreset);
     PgmMngr.Execute(ECtx, TriggerName, &m_Electrics);
     ClrCI(4);
     if (PgmMngr.m_iRunTimeErr==1)
@@ -644,6 +646,7 @@ void CElecBlk::DoEvalCtrl(LPCTSTR TriggerName)
       LogError(Tag(), 0, "SysCAD paused by ECB");
       ExecObj()->XIdle();
       }
+    m_bMustInit = 0;
     }
   else
     {
