@@ -496,6 +496,7 @@ Crush1::Crush1 (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObj
   {
   AttachClassInfo(nc_Process, Crush1IOAreaList);
 
+  bOnLine = true;
   DischOnSpeed=0.9;
   Power=0.0;
   BWI=16.0;
@@ -514,6 +515,7 @@ void Crush1::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this);
 
   DDB.Text("");
+  DDB.CheckBox("On", "", DC_, "", &bOnLine, this, isParm);
   DDB.Text("Power");
   DDB.Double("Bond_WI",        "BondWI",    DC_WI ,   "kWh/t", &BWI,        this, isParm);
   DDB.Double("Calc_Power",     "UsedPower", DC_Pwr,   "kW",    &Power,      this, isResult|0);
@@ -610,8 +612,8 @@ flag Crush1::InitialiseSolution()
 
 void Crush1::EvalProducts(CNodeEvalIndex & NEI)
   {
-  flag On = (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed);
-  int ioProd = IOWithId_Self(ioidProd);
+  flag On = (bOnLine && (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed));
+  const int ioProd = IOWithId_Self(ioidProd);
   if (ioProd>=0 && On)
     {
     SigmaQInPMin(Disch, som_ALL, Id_2_Mask(ioidFeed));
@@ -657,7 +659,11 @@ void Crush1::EvalProducts(CNodeEvalIndex & NEI)
     IOConduit(ioProd)->QCopy(Disch);
     }
   else if (ioProd>=0)
-    IOConduit(ioProd)->QZero();
+    {
+    SpConduit & Qp=*IOConduit(ioProd); //Qp product
+    Qp.QZero();
+    SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
+    }
   }
 
 //--------------------------------------------------------------------------

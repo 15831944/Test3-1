@@ -38,7 +38,7 @@ class Mill1 : public MN_Surge
     CIO_MtrSpdBlk  MSB;
     CPwrUser       m_Pwr;
     CrushBlk       CB;
-
+    flag           bOnLine;
     double         DischOnSpeed;
     double         Power;
     double         BWI;

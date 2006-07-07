@@ -101,6 +101,7 @@ Mill1::Mill1 (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAt
   Contents.SetClosed(False);
   SS_Lvl = 0.25;
 
+  bOnLine = true;
   DischOnSpeed=0.9;
   Motor = 1000.0;
   Power = 800.0;
@@ -123,6 +124,7 @@ void Mill1::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this);
 
   DDB.Text("");
+  DDB.CheckBox("On", "", DC_, "", &bOnLine, this, isParm);
   DDB.Text("Power");
   DDB.Double("InstalledPower", "Motor",     DC_Pwr,   "kW",    &Motor,      this, isParm);
   DDB.Double("PercentHeat",    "HeatPerc",  DC_Frac,  "%",     &Eff,        this, isParm);
@@ -240,14 +242,14 @@ void Mill1::EvalSteadyState()
 void Mill1::EvalProducts(CNodeEvalIndex & NEI)
   {
   Eff = Range(0.0, Eff, 1.0);
-  flag On = (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed);
-  int ioProd = IOWithId_Self(ioidProd);
+  flag On = (bOnLine && (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed));
+  const int ioProd = IOWithId_Self(ioidProd);
 
   for (int i=0; i<NoFlwIOs(); i++)
     if (IOId_Self(i)==ioidFeed && IO_Out(i))
       IOConduit(i)->QZero();
   
-  if (ioProd>=0)
+  if (ioProd>=0 && On)
     {
     StkSpConduit QFd("Fd", chLINEID(), this);
 
@@ -296,8 +298,12 @@ void Mill1::EvalProducts(CNodeEvalIndex & NEI)
 
     IOConduit(ioProd)->QCopy(Disch);
     }
-  else
-    Disch.QZero();
+  else if (ioProd>=0)
+    {
+    SpConduit & Qp=*IOConduit(ioProd); //Qp product
+    Qp.QZero();
+    SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
+    }
   }
 
 //--------------------------------------------------------------------------

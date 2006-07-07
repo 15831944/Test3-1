@@ -92,7 +92,7 @@ class DllImportExport Crush1 : public MdlNode
     CIO_MtrSpdBlk  MSB;
     CrushBlk       CB;
     CPwrUser       m_Pwr;
-
+    flag           bOnLine;
     double         DischOnSpeed;
     double         Power;
     double         BWI;
