@@ -592,12 +592,12 @@ BOOL CSysCADApp::InitIniFile()
   free((void*)m_pszProfileName);
   m_pszProfileName=_strdup(RegKey());
   
-  if (USEREGISTRY)
+  #if (USEREGISTRY)
     {
     ScdPFUser.SetUseRegistry(true, HKEY_CURRENT_USER, "Kenwalt", m_pszProfileName);
     ScdPFMachine.SetUseRegistry(true, HKEY_LOCAL_MACHINE, "Kenwalt", m_pszProfileName);
     }
-  else
+  #else
     {
     char UName[4096];
     ULONG Len=sizeof(UName)-1;
@@ -612,8 +612,18 @@ BOOL CSysCADApp::InitIniFile()
     ScdPFUser.SetProfFilename(UFn);
     ScdPFMachine.SetProfFilename(MFn);
 
-    SetRegistryKey((LPCTSTR)NULL);
     }
+  #endif
+
+  const long Cnt = ScdPFMachine.RdLong("General", "StartCount", 0) + 1;
+  ScdPFMachine.WrLong("General", "StartCount", Cnt);
+  const long CheckCnt = ScdPFMachine.RdLong("General", "StartCount", -1);
+  if (CheckCnt!=Cnt)
+    {
+    LogError("SysCAD", LF_Exclamation, "Unable to write to file in folder '%s'\nCheck read-only attributes or user permissions!", BaseCfgFiles());
+    return FALSE;
+    }
+  //todo: perhaps test ability to create file in this folder
   return TRUE;
   }
 
@@ -635,6 +645,7 @@ BOOL CSysCADApp::InitInstRegistry()
   else
     {
     RegCloseKey(hKey);
+    //todo: Only try after testing if user has permision to write to registry
     if (RegisterReqdOCX("ssdw3b32.ocx")>0)
       return false;
     }
@@ -687,6 +698,7 @@ BOOL CSysCADApp::InitInstRegistry()
 
   if (ScdCOMDLLOK)
     {
+    //todo: Only try after testing if user has permision to write to registry
     gs_ScdCmdIF.Register(WMU_COMEVT);
     HRESULT hr=gs_ScdCmdIF.UpdateRegistry(m_hInstance, TRUE);//, OLESTR("AAA"), OLESTR("TTT"));
     if( FAILED(hr) )
@@ -943,11 +955,19 @@ BOOL CSysCADApp::InitInstFolder()
   OBCfg.FnMakeDataFolder(OldBCfgFolderName());
   SetBaseCfgFiles(BCfg());
 
-  if (!FileExists(BaseCfgFiles()))
+  Strng BC(BaseCfgFiles());
+  BC.FnClearEndBSlash();
+  if (!FileExists(BC()))
     {
     OBCfg.FnClearEndBSlash();
     if (FileExists(OBCfg()) && !MoveFile(OBCfg(), BCfg()))
       LogError("Project",0, "%s not renamed to %s",OBCfg(), BCfg());
+
+    if (!FileExists(BC()))
+      {//critical error
+      LogError("SysCAD", LF_Exclamation, "Folder '%s' missing!", BaseCfgFiles());
+      return FALSE;
+      }
     }
   SetCfgFiles();
   SetCfgHome(NULL);
@@ -1438,7 +1458,9 @@ BOOL CSysCADApp::InitInstance()
     #endif
   #endif
 
+  #if (USEREGISTRY)
   SetRegistryKey(_T("Kenwalt"));
+  #endif
 
   if (!InitInstRegistry())
     return false;
