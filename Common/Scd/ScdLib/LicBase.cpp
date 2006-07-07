@@ -1203,8 +1203,11 @@ BOOL CLicense::DoIssue(char* key)
     return FALSE;
     }
   char Buff[1024];
+  Strng Path = gs_License.GetAppPath();
+  Path.Upper();
+  unsigned int MB = (Path[0]=='C' || Path[0]=='D') ? MB_YESNO|MB_DEFBUTTON2 : MB_YESNO|MB_ICONSTOP|MB_DEFBUTTON2;
   sprintf(Buff, "Issue or update license at:\n\n%s", gs_License.GetAppPath());
-  if (AfxMessageBox(Buff, MB_YESNO|MB_ICONSTOP|MB_DEFBUTTON2)!=IDYES)
+  if (AfxMessageBox(Buff, MB)!=IDYES)
     return FALSE;
 
   CWaitCursor Wait;
