@@ -11113,6 +11113,10 @@ void CFlwSolver::UnDoGlobalLinks()
 
   SHOWPROGRESS(1, "UnDoGlobalLinks 3.5");
 
+  p=NULL;
+  while (GetObj_All(p))
+    p->m_FlowModeObj=NULL;
+
   //for (FlwNode * p=NULL; GetObj_All(p); )
   //  {
   //  //dbgpln("Disconnect %s", p->Tag());
