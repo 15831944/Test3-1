@@ -502,13 +502,13 @@ void CSKOGasSep::EvalProducts(CNodeEvalIndex & NEI)
       }
     else
       {
-      MN_Xfer::EvalProducts(JoinMask);
+      MN_Xfer::EvalProducts(NEI);
       return;
       }
     }
   else
     {
-    MN_Xfer::EvalProducts(JoinMask);
+    MN_Xfer::EvalProducts(NEI);
     //Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, NULL, NULL, NULL, NULL);
     }
   }
