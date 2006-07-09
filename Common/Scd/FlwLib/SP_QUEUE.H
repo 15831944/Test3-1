@@ -276,7 +276,7 @@ class DllImportExport SpQueue : public SpModelOwner
       };
 
     void           AddFeed()          { SetNFeeds(NFeeds()+1); m_Feed[NFeeds()-1].SetPosition(0.0); };
-    void           AddProd()          { SetNProds(NProds()+1); m_Prod[NProds()-1].SetPosition(Length()); };
+    void           AddProd()          { SetNProds(NProds()+1); m_Prod[NProds()-1].SetType(QIO_FixedEnd); m_Prod[NProds()-1].SetPosition(Length()); };
     void           DeleteFeed(int No) { m_Feed.RemoveAt(No); }
     void           DeleteProd(int No) { m_Prod.RemoveAt(No); }
 
