@@ -376,6 +376,17 @@ const double  CTimeValue::MinResolution = 1.0/Divisor;
 const __int64 CTimeValue::NANMask       = 0x800000000000000;
 CTimeValue TimeNAN(CTimeValue::NANMask);//dNAN);
 
+void CTimeValue::putSeconds(double T)
+  { 
+  T=T*Divisor+0.5*MinResolution;
+  if (T>_I64_MAX)
+    {
+    LogNote("TimeValue", 0, "Time > %6.3e seconds resetting to Half this", _I64_MAX*MinResolution);
+    T=_I64_MAX/2.0;
+    }
+  m_mSecs = __int64(T); 
+  };
+
 //---------------------------------------------------------------------------
 
 int CTimeValue::getTimemSeconds() { return int(mSeconds%Divisor); };

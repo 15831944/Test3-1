@@ -279,7 +279,7 @@ class DllImportExport CTimeValue
     __int64    getmSeconds() const      { return m_mSecs; };
     void       putmSeconds(__int64 T)   { m_mSecs = T; };
     double     getSeconds() const       { return m_mSecs / (double)Divisor; };
-    void       putSeconds(double T)     { m_mSecs = __int64(T*Divisor+0.5*MinResolution); };
+    void       putSeconds(double T);
     __int64    getRaw() const           { return m_mSecs; };
     void       putRaw(__int64 T)        { m_mSecs = T; };
     __int64    getSecondsI64() const    { return m_mSecs / Divisor; };
