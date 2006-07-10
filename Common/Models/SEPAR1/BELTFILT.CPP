@@ -186,23 +186,26 @@ void BeltFilt::washcon(CDMatrix& w, CDMatrix& c, double Cin, int j, long temp)
 
 //--------------------------------------------------------------------------
 
-void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq)
+void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq, double QmWashLiq)
   {
   SpConduit & Qs = *IOConduit(IOWithId_Self(ioidSo));
   SpConduit & Qf = *IOConduit(IOWithId_Self(ioidFt));
 
-  const int water = H2O.LiqPhInx(), max = SDB.Count();
-  const double Liq = QFd.QMass(som_Liq);
+  const int water = H2O.LiqPhInx();
+  const int max = SDB.Count();
+  //const double Liq = QFd.QMass(som_Liq);//WRONG!!! hss 10/7/06
+  const double LiqTtl = QFd.QMass(som_Liq); //sum of ALL liquid in
+  const double Liq = LiqTtl - QmWashLiq;
   const double c0 = 1.0;
-  CDMatrix w(max,temp+1),
-           c(max,temp);
+  CDMatrix w(max,temp+1);
+  CDMatrix c(max,temp);
   for (int i=0; i<max; i++)
     {
     if ((SDB[i].IsLiq()) && (i != water))
       {
-      const double mi = QFd.VMass[i];
+      const double mi = QFd.VMass[i]; //OK if wash stream is 100% H2O
       const double Cin = mi / Liq;
-      if (Cin > 1e-9)
+      if (Cin > 1.0e-9)
         {
         w[i][1] = 0.9;
         filt(w, d, i, temp);
@@ -284,30 +287,34 @@ void BeltFilt::EvalProducts(CNodeEvalIndex & NEI)
 	Qf.QAddM(QFd, som_Liq, FtLiq);
 
   const int iWw = IOWithId_Self(ioidWS);
+  const int water = H2O.LiqPhInx();
+  bool WaterError = false;
 
   WR = 0.0;
   if ((iWw >= 1) && (QmSIn > 1.0e-3) && (Stage > 0) && (SoLiq > 0.0))
     {
     SpConduit *pw = IOConduit(IOWithId_Self(ioidWS));
-    const double QmWIn = pw->QMass(som_Liq);
-
-		if (QmWIn > 1.0e-6)
+    const double QmWIn = pw->QMass(som_Liq); //total wash liq
+    const double QmWH2OIn = pw->VMass[water]; //total H2O in wash
+    WaterError = (fabs(QmWIn-QmWH2OIn)>1.0e-5); //expect pure water
+    //todo: test for solids in wash water?
+    
+    if (QmWIn > 1.0e-6)
 			{
 			WR = QmWIn / SoLiq;
 
 			const long temp = Stage + 1;
-			CDVector  d(temp),
-								f(temp);
-			f[0] = 1.0;
-			for (long i=1 ; i<temp ; i++)
+			CDVector d(temp);
+			CDVector f(temp);
+      f[0] = 1.0;
+			for (long i=1; i<temp; i++)
 				{
 				f[i] = WashLossCurve.Yx(WR * i);
 				d[i] = f[i-1] - f[i];
-				}
-			Conc(d, temp, SoLiq, FtLiq);
+        }
+			Conc(d, temp, SoLiq, FtLiq, QmWIn);
 
 			// Correct the percentage liquid in cake, if necessary.
-			const int water = H2O.LiqPhInx();
 			const double CakeLiq = Qs.QMass(som_Liq);
   		const double CorH2O = SoLiq - CakeLiq;
 			if (fabs(CorH2O)>1e-18)
@@ -330,8 +337,9 @@ void BeltFilt::EvalProducts(CNodeEvalIndex & NEI)
   ActCakeSolConc   = Qs.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
   ActFiltSolConc   = Qf.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
 
-	double MErr = fabs(1.0 - ActCakeSolids - RqdCakeMoist);
+	const double MErr = fabs(1.0 - ActCakeSolids - RqdCakeMoist);
 	SetCI(1, bTrackStatus && HasFlw && MErr > 1.0e-6);
+	SetCI(2, bTrackStatus && HasFlw && WaterError);
   }
 
 //--------------------------------------------------------------------------
@@ -359,7 +367,8 @@ flag BeltFilt::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case  1: pS="W\tCake Moisture Requirements not met."; return 1;
+    case  1: pS="W\tCake Moisture requirements not met."; return 1;
+    case  2: pS="W\tDo not expect solute in wash water."; return 1;
     default:
       return MdlNode::CIStrng(No, pS);
     }

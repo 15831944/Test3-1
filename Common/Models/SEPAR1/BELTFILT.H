@@ -52,7 +52,7 @@ class BeltFilt : public MdlNode
     DEFINE_CI(BeltFilt, MdlNode, 4);
   
   private:
-            void   Conc(CDVector& d, long temp, double CLiq, double FLiq);
+            void   Conc(CDVector& d, long temp, double CLiq, double FLiq, double QmWashLiq);
             void   filt(CDMatrix& w, CDVector& d, int j, long max);
             void   washcon(CDMatrix& w, CDMatrix& c, double Cin, int j, long temp);
   };
