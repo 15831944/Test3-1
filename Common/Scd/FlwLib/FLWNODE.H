@@ -1706,8 +1706,8 @@ inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, AAAAIOId
 //..
 inline bool IsAreaIOId(int Id)        { return InRange(AreaIOId0,   Id, CtrlIOId0   -1);  };
 
-const int IOId_2IOIn          = FlwIOId(500);
-const int IOId_2IOOut         = FlwIOId(501);
+const int IOId_2IOIn          = FlwIOId(0);
+const int IOId_2IOOut         = FlwIOId(1);
 const int IOId_2IOLeakI       = LeakIOId(500);
 const int IOId_2IOLeakO       = LeakIOId(501);
 
