@@ -181,7 +181,7 @@ namespace SysCAD.Interface
     {
       if (!graphicLinks.ContainsKey(guid))
       {
-        GraphicLink graphicLink = new GraphicLink(guid, tag);
+        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort);
         graphicLink.ClassID = classID;
         graphicLink.Origin = origin;
         graphicLink.Destination = destination;

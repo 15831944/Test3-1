@@ -120,8 +120,12 @@ namespace SysCAD.Editor
         AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
         if (stencil.Anchors != null)
         {
+          int anchorInt = 0;
           foreach (Anchor anchor in stencil.Anchors)
           {
+            graphicItem.anchorIntToTag.Add(anchorInt, anchor.tag);
+            graphicItem.anchorTagToInt.Add(anchor.tag, anchorInt);
+            anchorInt++;
             AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Green);
             anchorPoint.Tag = anchor;
             anchorPointCollection.Add(anchorPoint);
@@ -208,7 +212,19 @@ namespace SysCAD.Editor
       if (destination != null)
         arrow.Destination = destination.Model;
 
-      arrow.Text = graphicLink.Tag;
+
+
+      if ((origin.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort))
+        arrow.OrgnAnchor = (origin.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
+      else
+        arrow.OrgnAnchor = -1;
+
+      if ((destination.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort))
+        arrow.DestAnchor = (destination.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
+      else
+        arrow.DestAnchor = -1;
+
+
       arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Origin + "\nDst: " + graphicLink.Destination;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;

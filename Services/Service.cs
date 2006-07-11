@@ -187,6 +187,8 @@ namespace SysCAD.Service
 
       foreach (string fullpath in directoryList)
       {
+        Dictionary<String, Guid> guidToTag = new Dictionary<string, Guid>();
+        
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
         ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink, PortCheck);
@@ -205,14 +207,19 @@ namespace SysCAD.Service
               GraphicItem graphicItem = new GraphicItem(new Guid(itemGuidReader.GetString(0)), itemReader.GetString(0));
               graphicItem.Populate(filename, connection);
               graphic.graphicItems.Add(graphicItem.Guid, graphicItem);
+              guidToTag.Add(graphicItem.Tag, graphicItem.Guid);
             }
           }
           itemReader.Close();
 
-          OleDbDataReader linkReader = (new OleDbCommand("SELECT DISTINCT Tag, EqpGUID FROM ModelLinks", connection)).ExecuteReader(CommandBehavior.SingleResult);
+          OleDbDataReader linkReader = (new OleDbCommand("SELECT DISTINCT Tag, ClassID, EqpGUID, SrcTag, SrcPort, DstTag, DstPort FROM ModelLinks", connection)).ExecuteReader(CommandBehavior.SingleResult);
           while (linkReader.Read())
           {
-            GraphicLink graphicLink = new GraphicLink(new Guid(linkReader.GetString(1)), linkReader.GetString(0));
+            Guid SrcGuid, DstGuid;
+            guidToTag.TryGetValue(linkReader.GetString(3), out SrcGuid);
+            guidToTag.TryGetValue(linkReader.GetString(5), out DstGuid);
+
+            GraphicLink graphicLink = new GraphicLink(new Guid(linkReader.GetString(2)), linkReader.GetString(0), linkReader.GetString(1), SrcGuid, linkReader.GetString(4), DstGuid, linkReader.GetString(6));
             graphicLink.Populate(connection, graphic.graphicItems);
             graphic.graphicLinks.Add(graphicLink.Guid, graphicLink);
           }

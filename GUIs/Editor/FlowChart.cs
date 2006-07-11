@@ -608,7 +608,6 @@ namespace SysCAD.Editor
                     anchorPointPos.Y + 1.0F));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
-
               }
             }
           }
@@ -678,64 +677,122 @@ namespace SysCAD.Editor
     {
       Arrow arrow = e.Arrow;
 
-      //if (arrow != arrowBeingModified)
+      if (arrow != arrowBeingModified)
       {
-        MindFusion.FlowChartX.Node node = arrow.Destination;
-
-        if (node is Box)
         {
-          Box box = node as Box;
-
-          float dx = 0.5F;
-          float dy = 0.5F;
-
-          if (arrow.DestAnchor != -1)
+          MindFusion.FlowChartX.Node node = arrow.Destination;
+          if (node is Box)
           {
+            Box box = node as Box;
 
-            dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-            dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+            float dx = 0.5F;
+            float dy = 0.5F;
+
+            if (arrow.DestAnchor != -1)
+            {
+
+              dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+              dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+            }
+
+            PointF anchorPointPos = new PointF(
+              box.BoundingRect.Left + box.BoundingRect.Width * dx,
+              box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+            e.Graphics.DrawLines(pen, extensionPoints);
           }
+        }
 
-          PointF anchorPointPos = new PointF(
-            box.BoundingRect.Left + box.BoundingRect.Width * dx,
-            box.BoundingRect.Top + box.BoundingRect.Height * dy);
+        {
+          MindFusion.FlowChartX.Node node = arrow.Origin;
+          if (node is Box)
+          {
+            Box box = node as Box;
 
-          PointF[] extensionPoints =
-            new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+            float dx = 0.5F;
+            float dy = 0.5F;
 
-          System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+            if (arrow.OrgnAnchor != -1)
+            {
+              dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+              dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+            }
 
-          e.Graphics.DrawLines(pen, extensionPoints);
+            PointF anchorPointPos = new PointF(
+              box.BoundingRect.Left + box.BoundingRect.Width * dx,
+              box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+            e.Graphics.DrawLines(pen, extensionPoints);
+          }
         }
       }
-
-      //if (arrow != arrowBeingModified)
+      else // this is an arrowbeingmodified...
       {
-        MindFusion.FlowChartX.Node node = arrow.Origin;
-
-        if (node is Box)
         {
-          Box box = node as Box;
-
-          float dx = 0.5F;
-          float dy = 0.5F;
-
-          if (arrow.OrgnAnchor != -1)
+          MindFusion.FlowChartX.Node node = arrow.Destination;
+          if (node is Box)
           {
-            dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-            dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+            Box box = node as Box;
+
+            float dx = 0.5F;
+            float dy = 0.5F;
+
+            if (arrow.DestAnchor != -1)
+            {
+
+              dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+              dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+            }
+
+            PointF anchorPointPos = new PointF(
+              box.BoundingRect.Left + box.BoundingRect.Width * dx,
+              box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Green, 0.0F);
+
+            e.Graphics.DrawLines(pen, extensionPoints);
           }
+        }
 
-          PointF anchorPointPos = new PointF(
-            box.BoundingRect.Left + box.BoundingRect.Width * dx,
-            box.BoundingRect.Top + box.BoundingRect.Height * dy);
+        {
+          MindFusion.FlowChartX.Node node = arrow.Origin;
+          if (node is Box)
+          {
+            Box box = node as Box;
 
-          PointF[] extensionPoints =
-            new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+            float dx = 0.5F;
+            float dy = 0.5F;
 
-          System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+            if (arrow.OrgnAnchor != -1)
+            {
+              dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+              dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+            }
 
-          e.Graphics.DrawLines(pen, extensionPoints);
+            PointF anchorPointPos = new PointF(
+              box.BoundingRect.Left + box.BoundingRect.Width * dx,
+              box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Green, 0.0F);
+
+            e.Graphics.DrawLines(pen, extensionPoints);
+          }
         }
       }
     }

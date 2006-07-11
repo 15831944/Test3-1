@@ -24,6 +24,10 @@ namespace SysCAD.Interface
     private bool mirrorY = false;
     private System.Drawing.Color fillColor;
 
+    public Dictionary<String, int> anchorTagToInt = new Dictionary<string,int>();
+    public Dictionary<int, String> anchorIntToTag = new Dictionary<int,string>();
+
+
     [CategoryAttribute("Model"),
      DescriptionAttribute("Guid of the item."),
      ReadOnlyAttribute(true),

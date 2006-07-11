@@ -21,6 +21,11 @@ namespace SysCAD.Editor
     private bool visible;
     private bool selected;
 
+    public GraphicItem GraphicItem
+    {
+      get { return graphicItem; }
+    }
+
     public Guid Guid
     {
       get { return guid; }

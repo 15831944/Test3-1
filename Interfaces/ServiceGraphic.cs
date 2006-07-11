@@ -182,12 +182,7 @@ namespace SysCAD.Interface
     {
       if (!graphicItems.ContainsKey(guid))
       {
-        GraphicLink graphicLink = new GraphicLink(guid, tag);
-        graphicLink.ClassID = classID;
-        graphicLink.Origin = origin;
-        graphicLink.Destination = destination;
-        graphicLink.OriginPort = originPort;
-        graphicLink.DestinationPort = destinationPort;
+        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort);
 
         graphicLink.controlPoints = new List<PointF>();
         foreach (PointF controlPoint in controlPoints)

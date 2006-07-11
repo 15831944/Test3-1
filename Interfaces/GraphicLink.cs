@@ -88,10 +88,15 @@ namespace SysCAD.Interface
       this.tag = tag;
     }
 
-    public GraphicLink(Guid guid, String tag)
+    public GraphicLink(Guid guid, String tag, String classID, Guid srcGuid, String srcPort, Guid dstGuid, String dstPort)
     {
       this.guid = guid;
       this.tag = tag;
+      this.classID = classID;
+      this.origin = srcGuid;
+      this.originPort = srcPort;
+      this.destination = dstGuid;
+      this.destinationPort = dstPort;
     }
 
     public void Populate(OleDbConnection connection, Dictionary<Guid, GraphicItem> graphicItems)
