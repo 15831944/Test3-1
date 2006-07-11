@@ -115,6 +115,8 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
   m_bRemoveMe=false;
   m_bHoldCopy=false;
   m_iQualIndex=-1;
+
+  m_pSQB=NULL;
   };
 
 // --------------------------------------------------------------------------
@@ -8488,6 +8490,21 @@ double SpModelEx::totSf(PhMask Phase, double T_, double P_, CSysVector * pMA)
   };
 
 // ==========================================================================
+
+MSpQualityBase  * SpModel::GetMSpQualityBase4Cast(long i)
+  { 
+  //__debugbreak();
+  if (Quals[i].m_pQ)
+    return Quals[i].m_pQ->m_pSQB;
+  //CCall2MSpQuals*p=dynamic_cast<CCall2MSpQuals*>(Quals[i].m_pQ); 
+  //if (p)
+  //  {
+  //  return dynamic_cast<MSpQualityBase*>(p->GetMSpQualityBase4Cast(i)); 
+  //  }
+  return NULL;
+  };
+
+// ==========================================================================
 //
 //                              SpModelOwner
 //
@@ -9016,6 +9033,602 @@ void SpModelOwner::SanityCheck()
   }
 #endif
 
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#if 0
+
+//DEFINE_SPMODEL(CCall2MSpProps);
+IMPLEMENT_SPMODEL(CCall2MSpProps, "SMDKSpProps", "", TOC_ALL, "SMDKSpProps", "SMDKSpProps");
+IMPLEMENT_SPARES(CCall2MSpProps,100);
+IMPLEMENT_BUILDDATADEFNGLOBAL(CCall2MSpProps)
+//
+//IMPLEMENT_SPMODEL(CCall2MSpProps, "SpModelCOM", "", TOC_SYSTEM,
+//                "SpModelCOM",
+//                "Base COM Specie model");
+
+CCall2MSpProps::CCall2MSpProps(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
+SpModelEx(pClass_, Tag_, pAttach, eAttach)
+  {
+  m_pUserProps=NULL;
+
+  //m_dDummyProperty=123;
+  };
+
+CCall2MSpProps::~CCall2MSpProps()
+  {
+  delete m_pUserProps;
+  m_pUserProps=NULL; 
+
+  }
+
+//---------------------------------------------------------------------------
+
+flag CCall2MSpProps::BuildDataDefnGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataDefnBlk & DDB)
+  {
+  if (pClass && pClass->GlobalFnData1())
+    {
+    CCall2MSpProps * pSpProps=static_cast<CCall2MSpProps *>(pClass->GlobalFnData1());
+    MSpModelBase * pSpModelBase=static_cast<MSpModelBase*>(pClass->GlobalFnData2());
+
+    Strng ObjTbl;
+    ObjTbl.Set("%s_Glbl", pClass->ClassIdNoVersion());
+    if (DDB.BeginObject(pOwner, pClass->ClassIdNoVersion(), ObjTbl()))
+      {
+      DDB.Add_PropertyMap(pSpProps->PropertyMap(), MP_GlobalProp, true, xidSpUsrProps, pSpProps, pOwner);
+      }
+    DDB.EndObject();
+
+    //p->Propert
+    int xxx=0;
+    return true;
+    }
+  
+  //if (pClass->GlobalFnBuildDataDefn())
+  //  (*pClass->GlobalFnBuildDataDefn())(pClass, pOwner, DDB);
+  //DDB.Add_PropertyMap(NULL/*pClass->PropertyMap()*/, 0, true, xidSpUsrProps, pOwner, pOwner);
+  //DDB.Add_PropertyMap(NULL/*PropertyMap()*/, 0, true, xidSpUsrProps, pOwner, pOwner);
+  return false;
+  };
+
+flag CCall2MSpProps::DataXchgGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataChangeBlk & DCB)
+  {
+  if (pClass && pClass->GlobalFnData1())
+    {
+    CCall2MSpProps * pSpProps=static_cast<CCall2MSpProps *>(pClass->GlobalFnData1());
+    MSpModelBase * pSpModelBase=static_cast<MSpModelBase*>(pClass->GlobalFnData2());
+
+    int xxx=0;
+
+    return pSpProps->DataXchg(DCB);
+    }
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CCall2MSpProps::ValidateData(ValidateDataBlk & VDB)
+  {
+  //delete m_pUserProps;
+  //m_pUserProps=NULL; // new ....
+
+  //m_pUserProps=(MSpModelBase*)Class()->SubConstruct()->Construct();
+  //m_pUserProps->m_pSpMdlX=this;
+
+  flag OK=SpModelEx::ValidateData(VDB);
+  return OK && m_pUserProps->ValidateData();
+  };
+
+//---------------------------------------------------------------------------
+
+void CCall2MSpProps::SetSubClass(LPTSTR MdlName)
+  {
+  delete m_pUserProps;
+  m_pUserProps=NULL; // new ....
+
+  m_pUserProps=(MSpModelBase*)Class()->SubConstruct()->Construct(NULL);
+  m_pUserProps->Init(this);
+
+  if (Class()->GlobalFnData1()==NULL)
+    {
+    MSpModelBase * p=static_cast<MSpModelBase*>(Class()->SubConstruct()->Construct(NULL));
+    Class()->SetDataDefnGlobalFnData(this, static_cast<void*>(Class()->SubConstruct()->Construct(NULL)));
+    Class()->SetDataDefnGlobalFn(BuildDataDefnGlobal, DataXchgGlobal);
+    
+    int xxx=0;
+    }
+
+  SpModelEx::SetSubClass(MdlName);
+  };
+
+//---------------------------------------------------------------------------
+
+bool CCall2MSpProps::IsBaseClassOf(SpModel * pOther)
+  {
+  if (SpModel::iSpMdlMixStrategy==SPMMS_PreBld35)
+    return false;
+
+  CString ID;
+  return m_pUserProps->get_IsBaseClassOf(ID);
+  };
+
+//---------------------------------------------------------------------------
+
+SpModel * CCall2MSpProps::PreferredModel(SpModel * pOther)
+  {
+  return this;
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::Rho(PhMask Phase, double T_, double P_, CSysVector * pMA)
+  {
+  if (!m_pUserProps)
+    return SpModel::Rho(Phase, T_, P_, pMA);
+  return m_pUserProps->get_Density(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::SaturationP(double T, CSysVector * pMA)
+  {
+  if (!m_pUserProps)
+    return SpModel::SaturationP(T, pMA);
+  return m_pUserProps->get_SaturationP(T, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::SaturationT(double P, CSysVector * pMA)
+  {
+  if (!m_pUserProps)
+    return SpModel::SaturationT(P, pMA);
+  return m_pUserProps->get_SaturationT(P, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
+  {
+  if (!m_pUserProps)
+    return SpModel::msCp(Phase, T_, P_, pMA, pTotalM);
+  if (pTotalM)
+    *pTotalM=pMA ? pMA->Mass(Phase) : SpModel::Mass(Phase);
+  return m_pUserProps->get_msCp(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::msHm(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
+  {
+  if (!m_pUserProps)
+    return SpModel::msHf(Phase, T_, P_, pMA, pTotalM);
+  if (pTotalM)
+    *pTotalM=pMA ? pMA->Mass(Phase) : SpModel::Mass(Phase);
+  return m_pUserProps->get_msEnthalpy(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA)
+  {
+  if (!m_pUserProps)
+    return SpModel::DynamicViscosity(Phase, T_, P_, pMA);
+  return m_pUserProps->get_DynamicViscosity(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+double CCall2MSpProps::ThermalConductivity(PhMask Phase, double T_, double P_, CSysVector * pMA)
+  {
+  if (!m_pUserProps)
+    return SpModel::ThermalConductivity(Phase, T_, P_, pMA);
+  return m_pUserProps->get_ThermalConductivity(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+MIBayer * CCall2MSpProps::GetMIBayer()
+  {
+  if (!m_pUserProps)
+    return SpModel::GetMIBayer();
+  //return m_pUserProps->GetMIBayer(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  return dynamic_cast<MIBayer*>(m_pUserProps) ; 
+  };
+
+//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+
+#define WithLcl 0
+
+const long LclPropCount = WithLcl;
+
+long CCall2MSpProps::DefinedPropertyCount()
+  {
+  return LclPropCount + m_pUserProps->DefinedPropertyCount() + SpModelEx::DefinedPropertyCount();
+  }
+
+//--------------------------------------------------------------------------
+
+long CCall2MSpProps::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
+  {
+  long Inx=Index-SpModelEx::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch(Inx)
+      {
+      case  0: Info.SetStructName("MSpProps");
+               Info.Set( ePT_Double,    "DummyProp2",       "", DC_,           0,      0,  PIF_HardMin|PIF_Settable,    "A Desc"); return Inx;
+      }
+    #endif
+    return m_pUserProps->DefinedPropertyInfo(Inx-LclPropCount, Info);
+    }
+  else
+    return SpModelEx::DefinedPropertyInfo(Index, Info);
+  };
+
+//--------------------------------------------------------------------------
+
+DWORD CCall2MSpProps::GetPropertyVisibility(long Index)
+  {
+  long Inx=Index-SpModelEx::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch (Inx)
+      {
+      case   0: return ePVis_All;
+      };
+    #endif
+    return m_pUserProps->GetPropertyVisibility(Inx-LclPropCount);
+    }
+  else
+    return SpModelEx::GetPropertyVisibility(Index);
+  }
+
+void CCall2MSpProps::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, double T/*=NAN*/, double P/*=NAN*/, MPropertyValue & Value)
+  {
+  long Inx=Index-SpModelEx::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch (Inx)
+      {
+      case   0: Value=m_dDummyProperty;  return ;
+      };
+    #endif
+    if (0)
+      {}//m_pUserProps->GetPropertyValue(Inx-LclPropCount , Phase, T, P, Value);
+    else
+      m_pUserProps->GetPropertyValue(Inx-LclPropCount , Phase, T, P, Value);
+    }
+  else
+    SpModelEx::GetPropertyValue(Index, Phase, T, P, Value);
+  };
+
+//--------------------------------------------------------------------------
+
+void CCall2MSpProps::PutPropertyValue(long Index, MPropertyValue & Value)
+  {
+  long Inx=Index-SpModelEx::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch (Inx)
+      {
+      case  0: m_dDummyProperty=Value; return;
+      };
+    #endif
+    m_pUserProps->PutPropertyValue(Inx-LclPropCount, Value);
+    }
+  else
+    SpModelEx::PutPropertyValue(Index, Value);
+  };
+
+
+flag CCall2MSpProps::CIStrng(int No, pchar & pS)
+  {
+  int i=No-CBContext();
+  switch (No-CBContext())
+    {
+    case  1: pS="E\t???????";  return 1;
+    default:                                               
+      if (i>=1/*FirstUserCI*/ && i<FirstUserCI+MaxUserCI)
+        {
+        pS="E\tA GFDGDGFDFG";
+        return 1;
+        }
+      return SpModelEx::CIStrng(No, pS);
+    }
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+flag CCall2MSpQuals::DataXchg(DataChangeBlk & DCB)
+  {
+  if (DCB.lHandle>=xidSpUsrQuals && DCB.lHandle<xidSpUsrQualsLast)
+    {
+    long i=DCB.lHandle-xidSpUsrQuals;
+
+    CPropertyMap &Map=PropertyMap();
+    MPropertyInfo *I=Map[i];
+    if (I && (I->m_dwFlags&MP_NoAccess)==0)
+      {
+      switch (I->m_iType)
+        {
+        case ePT_Bool:
+          {
+          if (I->Settable() && DCB.rB)
+            {
+            m_WorkQualValue=*DCB.rB;
+            PutPropertyValue(i, m_WorkQualValue);
+            }
+          GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
+          DCB.B=long(m_WorkQualValue)!=0;
+          return 1;
+          }
+        case ePT_Long:
+          {
+          if (I->Settable() && DCB.rL)
+            {
+            m_WorkQualValue=*DCB.rL;
+            PutPropertyValue(i, m_WorkQualValue);
+            }
+          GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
+          DCB.L=m_WorkQualValue;
+          return 1;
+          }
+          //case ePT_ULong:
+          //  {
+          //  if (I->Settable() && DCB.rDW)
+          //    {
+          //    m_WorkQualValue=*DCB.rDW;
+          //    PutPropertyValue(i, m_WorkQualValue);
+          //    }
+          //  GetPropertyValue(i, som_ALL, Temp(), Press(), m_WorkQualValue);
+          //  DCB.DW=m_WorkQualValue;
+          //  return 1;
+          //  }
+        case ePT_Double:
+          {
+          if (I->Settable() && DCB.rD)
+            {
+            m_WorkQualValue=*DCB.rD;
+            PutPropertyValue(i, m_WorkQualValue);
+            }
+          GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
+          DCB.D=m_WorkQualValue;
+          return 1;
+          }
+        case ePT_String:
+          {
+          if (I->Settable() && DCB.rpC)
+            {
+            m_WorkQualValue=(LPCTSTR)*DCB.rpC;
+            PutPropertyValue(i, m_WorkQualValue);
+            }
+          GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
+          DCB.pC=m_WorkQualValue;
+          return 1;
+          }
+        }
+      }
+    }
+  return 0;
+  };
+
+flag CCall2MSpQuals::CIStrng(int No, pchar & pS)
+  {
+  switch (No-CBContext())
+    {
+    case  1: pS="E\t???????";  return 1;
+    default:                                               
+      return SpQuality::CIStrng(No, pS);
+    }
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+//IMPLEMENT_QUALITYPTR(CCall2MSpQuals, "SMDKSpQuals", "", TOC_ALL, "SMDKSpQuals", "SMDKSpQuals");
+IMPLEMENT_TAGOBJ(CCall2MSpQuals, "SMDKSpQuals", "SMDKSpQuals", "", "", "SMDKQ", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+                 "SMDKSpQuals",
+                 "SMDKSpQuals");
+
+IMPLEMENT_SPARES(CCall2MSpQuals,100);
+
+CCall2MSpQuals::CCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach)
+ : SpQuality(pClass_, Tag_, pAttach, eAttach)
+  {
+  m_pUserQual=NULL;
+
+  //m_dDummyProperty=123;
+  };
+
+CCall2MSpQuals::~CCall2MSpQuals()
+  {
+
+  }
+
+//---------------------------------------------------------------------------
+
+void CCall2MSpQuals::SetSubClass(LPTSTR MdlName)
+  {
+  delete m_pUserQual;
+  m_pUserQual=NULL; // new ....
+
+  m_pUserQual=(MSpQualityBase*)Class()->SubConstruct()->Construct(NULL);
+  m_pUserQual->m_pSpQual=this;
+
+  SpQuality::SetSubClass(MdlName);
+  };
+
+//---------------------------------------------------------------------------
+//
+//bool CCall2MSpQuals::IsBaseClassOf(SpModel * pOther)
+//  {
+//  if (SpModel::iSpQualMixStrategy==SPMMS_PreBld35)
+//    return false;
+//
+//  CString ID;
+//  return m_pUserProps->get_IsBaseClassOf(ID);
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//SpModel * CCall2MSpQuals::PreferredModel(SpModel * pOther)
+//  {
+//  return this;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//double CCall2MSpQuals::Rho(PhMask Phase, double T_, double P_, SpMArray * pMA)
+//  {
+//  if (!m_pUserProps)
+//    return SpModel::Rho(Phase, T_, P_, pMA);
+//  return m_pUserProps->get_Density(Phase, T_, P_);
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//double CCall2MSpQuals::SaturationP(double T, SpMArray * pMA)
+//  {
+//  if (!m_pUserProps)
+//    return SpModel::SaturationP(T, pMA);
+//  return m_pUserProps->get_SaturationP(T);
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//double CCall2MSpQuals::SaturationT(double P, SpMArray * pMA)
+//  {
+//  if (!m_pUserProps)
+//    return SpModel::SaturationT(P, pMA);
+//  return m_pUserProps->get_SaturationT(P);
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//double CCall2MSpQuals::msCp(PhMask Phase, double T_, double P_, SpMArray * pMA)
+//  {
+//  if (!m_pUserProps)
+//    return SpModel::msCp(Phase, T_, P_, pMA);
+//  return m_pUserProps->get_msCp(Phase, T_, P_);
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//double CCall2MSpQuals::msHm(PhMask Phase, double T_, double P_, SpMArray * pMA)
+//  {
+//  if (!m_pUserProps)
+//    return SpModel::msHf(Phase, T_, P_, pMA);
+//  return m_pUserProps->get_msEnthalpy(Phase, T_, P_);
+//  };
+
+//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+
+#define WithLcl 0
+
+const long LclQPropCount = WithLcl;
+
+long CCall2MSpQuals::DefinedPropertyCount()
+  {
+  //return m_pUserQual->DefinedPropertyCount();
+  return LclQPropCount + m_pUserQual->DefinedPropertyCount() + SpQuality::DefinedPropertyCount();
+  }
+
+//--------------------------------------------------------------------------
+
+long CCall2MSpQuals::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
+  {
+  long Inx=Index-SpQuality::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch(Inx)
+      {
+      case  0: Info.SetStructName("MSpQuals");
+               Info.Set( ePT_Double,    "DummyQual2",       "", DC_,           0,      0,  MP_HardMin|MP_Parameter, "A Desc"); return Inx;
+      }
+    #endif
+    return m_pUserQual->DefinedPropertyInfo(Inx-LclQPropCount, Info);
+    }
+  else
+    return SpQuality::DefinedPropertyInfo(Index, Info);
+  return -1;
+  };
+
+//--------------------------------------------------------------------------
+
+DWORD CCall2MSpQuals::GetPropertyVisibility(long Index)
+  {
+  long Inx=Index-SpQuality::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch (Inx)
+      {
+      case   0: return ePVis_All;
+      };
+    #endif
+    return m_pUserQual->GetPropertyVisibility(Inx-LclQPropCount);
+    }
+  else
+    return SpQuality::GetPropertyVisibility(Index);
+  };
+
+void CCall2MSpQuals::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, double T/*=NAN*/, double P/*=NAN*/, MPropertyValue & Value)
+  {
+  long Inx=Index-SpQuality::DefinedPropertyCount();
+  if (Inx>=0)
+    {
+    #if WithLcl
+    switch (Inx)
+      {
+      case   0: Value=m_dDummyProperty;  return ;
+      };
+    #endif
+    m_pUserQual->GetPropertyValue(Inx-LclQPropCount , Phase, T, P, Value);
+    }
+  else
+    SpQuality::GetPropertyValue(Index, Phase, T, P, Value);
+  };
+
+//--------------------------------------------------------------------------
+
+void CCall2MSpQuals::PutPropertyValue(long Index, MPropertyValue & Value)
+  {
+  return m_pUserQual->PutPropertyValue(Index, Value);
+  //long Inx=Index-SpQuality::DefinedPropertyCount();
+  //if (Inx>=0)
+  //  {
+  //  #if WithLcl
+  //  switch (Inx)
+  //    {
+  //    case  0: m_dDummyProperty=Value; return;
+  //    };
+  //  #endif
+  //  m_pUserProps->PutPropertyValue(Inx-LclPropCount, Value);
+  //  }
+  //else
+  //  SpQuality::PutPropertyValue(Index, Value);
+  };
+
+#endif
 //===========================================================================
 //
 //

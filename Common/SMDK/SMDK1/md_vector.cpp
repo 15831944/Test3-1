@@ -385,10 +385,11 @@ long MVector::Replace(DWORD PhMsk, double TRqd, double PRqd, double *pMRqd, long
 
 //---------------------------------------------------------------------------
 
-MSpModelBase * MVector::GetMSpModelBase4Cast()    { return SpMdl->GetMSpModelBase4Cast(); };
-MXSpModel * MVector::GetSpModel4Cast()            { return SpMdl;  };
-MXSpQuality * MVector::GetSpQuality4Cast(long i)  { MXSpQuality *p=SpMdl->GetSpQuality4Cast(i); return p; };
-long MVector::GetSpQualityCount4Cast()            { return SpMdl->GetSpQualityCount4Cast(); };
+MSpModelBase * MVector::GetMSpModelBase4Cast()            { return SpMdl->GetMSpModelBase4Cast(); };
+MXSpModel * MVector::GetSpModel4Cast()                    { return SpMdl;  };
+MSpQualityBase * MVector::GetMSpQualityBase4Cast(long i)  { return SpMdl->GetMSpQualityBase4Cast(i); };
+MXSpQuality * MVector::GetSpQuality4Cast(long i)          { return SpMdl->GetSpQuality4Cast(i); };
+long MVector::GetSpQualityCount4Cast()                    { return SpMdl->GetSpQualityCount4Cast(); };
 
 //---------------------------------------------------------------------------
 

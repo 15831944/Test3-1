@@ -184,6 +184,9 @@ template<class T> T * getIF(MVector *pVec, bool Throw=true)
     p=dynamic_cast<T*>(pVec->GetSpQuality4Cast(i));
     if (p)
       return p;
+    p=dynamic_cast<T*>(pVec->GetMSpQualityBase4Cast(i));
+    if (p)
+      return p;
     }
   if (Throw)
     throw MMdlException(0,"Interface not found");
@@ -368,10 +371,11 @@ class DllImportExport MVector
     //MQualities    Qualities;
 
     // ----------------------------- Access to SpecieModel/Quality Interfaces
-    MSpModelBase  * GetMSpModelBase4Cast();
-    MXSpModel     * GetSpModel4Cast();
-    MXSpQuality   * GetSpQuality4Cast(long i);
-    long            GetSpQualityCount4Cast();
+    MSpModelBase    * GetMSpModelBase4Cast();
+    MXSpModel       * GetSpModel4Cast();
+    MSpQualityBase  * GetMSpQualityBase4Cast(long i);
+    MXSpQuality     * GetSpQuality4Cast(long i);
+    long              GetSpQualityCount4Cast();
     //Particle SIze Distribution specials
     MIPSD       * CreatePSD();
     MIPSD       * getPSD(long Index=-1);

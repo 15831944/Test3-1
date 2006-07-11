@@ -137,6 +137,62 @@ class MInitialiseTest
     TagObjClass * m_pObjClass;
     CString       m_sName;
   };
+
+// ======================================================================
+//
+//
+//
+// ======================================================================
+
+class MArray;
+class MPropertyInfo; 
+class MPropertyValue; 
+class SpQuality;     
+class DllImportExport MSpQualityBase : public MSubConstructBase
+  {
+  friend class CCall2MSpQuals;
+  friend class MVector;
+  public:
+    MSpQualityBase() { m_pSpQual=NULL; };
+    virtual ~MSpQualityBase() {};
+
+    virtual void   ExchangeSpecies(MSpQualityBase * Other) =0;
+
+    virtual bool   EquilRqd4HEval() { return false; };
+    virtual void   Equilibrate() {};
+
+    virtual void   ZeroMass()=0;
+    virtual void   ZeroDeriv()=0;
+    virtual void   ScaleMass(long Phase, double Mult)=0;
+    virtual void   ScaleMass(CArray<int,int> &SpIds, double Mult)=0;
+
+    virtual void   SetMassF(MSpQualityBase * QualSet)=0;
+    virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)=0;
+    virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub)=0;
+
+    virtual void   Copy(MSpQualityBase * QualCopy)=0;
+    virtual void   AddDeriv(MSpQualityBase * Qual2, double Sgn_)=0;
+    virtual void   AddDiscrete(MSpQualityBase * Qual2, double Sgn_)=0;
+
+    virtual long    DefinedPropertyCount()                                          { return 0; };
+    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info)           { return -1; };
+
+    virtual DWORD   GetPropertyVisibility(long Index)                               { return ePVis_All; };
+    virtual void    GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
+    virtual void    PutPropertyValue(long Index, MPropertyValue & Value)            {};
+
+  private:
+    SpQuality     * m_pSpQual;
+
+  };
+
+// ======================================================================
+//
+//
+//
+// ======================================================================
+
+
 #undef DllImportExport
 
 #endif // !defined(MD_SHARE3_H)

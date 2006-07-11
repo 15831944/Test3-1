@@ -38,8 +38,8 @@ const DWORD LogFlag_FromBlackBox  = 0x00020000;
 
 const DWORD LogOption_COMCallsEntry    = 0x00000001;
 const DWORD LogOption_COMCallsExit     = 0x00000002;
-const DWORD LogOption_COMCalls         = 0x00000003;
-const DWORD LogOption_COMCallsInternal = 0x00000004;
+const DWORD LogOption_COMCalls         = 0x00000004;
+const DWORD LogOption_COMCallsInternal = 0x00000008;
 
 const int MsgBuffLen = 4096;
 

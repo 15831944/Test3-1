@@ -20,7 +20,10 @@
 static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
+#if 01
+
 #define DllImportExport /*Used by DEFINE_SPMODEL*/
+
 
 DEFINE_SPMODEL(CCall2MSpProps);
 
@@ -87,6 +90,8 @@ class CCall2MSpProps :  public SpModelEx
 
 
 #undef DllImportExport
+
+#endif
 
 class CSpPropsClassDef : public TagObjClass
     {
@@ -270,7 +275,7 @@ MSMFnRanges & MSpModelBase::getSMFnRanges()               { return *m_pSpMdlX->S
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-
+#if 01
 //DEFINE_SPMODEL(CCall2MSpProps);
 IMPLEMENT_SPMODEL(CCall2MSpProps, "SMDKSpProps", "", TOC_ALL, "SMDKSpProps", "SMDKSpProps");
 IMPLEMENT_SPARES(CCall2MSpProps,100);
@@ -576,17 +581,20 @@ flag CCall2MSpProps::CIStrng(int No, pchar & pS)
     }
   }
 
+#endif
+
 //===========================================================================
 //
 //
 //
 //===========================================================================
 
+#if 01
 #define DllImportExport
 
-DEFINE_TAGOBJ(CSQCall2MSpQuals);
+DEFINE_TAGOBJ(CCall2MSpQuals);
 class MSpQualityBase;
-class CSQCall2MSpQuals :   public SpQuality//ModelEx
+class CCall2MSpQuals :   public SpQuality//ModelEx
   {
  	public:
 
@@ -595,12 +603,12 @@ class CSQCall2MSpQuals :   public SpQuality//ModelEx
     //double          m_dDummyProperty;
 
 
-		CSQCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
-		virtual ~CSQCall2MSpQuals();
+		CCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
+		virtual ~CCall2MSpQuals();
 
     void SetSubClass(LPTSTR MdlName);
 
-    DEFINE_QUALITYPTR(CSQCall2MSpQuals, "SMDKQ")
+    DEFINE_QUALITYPTR(CCall2MSpQuals, "SMDKQ")
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB) {};
     //Does Nothing: 
@@ -692,8 +700,8 @@ class CSQCall2MSpQuals :   public SpQuality//ModelEx
 //    virtual void   Disable();
     virtual void   ExchangeSpecies(SpQuality* Other)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(Other));
-      m_pUserQual->ExchangeSpecies(dynamic_cast<CSQCall2MSpQuals*>(Other)->m_pUserQual);
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(Other));
+      m_pUserQual->ExchangeSpecies(dynamic_cast<CCall2MSpQuals*>(Other)->m_pUserQual);
       };
 
     virtual flag   EquilRqd4HEval()                     { return m_pUserQual->EquilRqd4HEval();       };
@@ -705,36 +713,36 @@ class CSQCall2MSpQuals :   public SpQuality//ModelEx
 
     virtual void   SetMassF(CSysVector & M1, SpQuality* pQual2)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(pQual2));
-      m_pUserQual->SetMassF(dynamic_cast<CSQCall2MSpQuals*>(pQual2)->m_pUserQual);
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
+      m_pUserQual->SetMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
       };
     virtual void   AddMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(pQual2));
-      m_pUserQual->AddMassF(dynamic_cast<CSQCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
+      m_pUserQual->AddMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
       };
     virtual void   SubMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(pQual2));
-      m_pUserQual->SubMassF(dynamic_cast<CSQCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
+      m_pUserQual->SubMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
       };
 
     virtual void   Copy(SpModel * pMdl2, SpQuality* pQual2)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(pQual2));
-      m_pUserQual->Copy(dynamic_cast<CSQCall2MSpQuals*>(pQual2)->m_pUserQual);
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
+      m_pUserQual->Copy(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
       };
     virtual void   AddDeriv(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(pQual2));
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       MVector v2(pQual2->pModel);
-      m_pUserQual->AddDeriv(dynamic_cast<CSQCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
+      m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
       };
     virtual void   AddDiscrete(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
       {
-      ASSERT(dynamic_cast<CSQCall2MSpQuals*>(pQual2));
+      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       MVector v2(pQual2->pModel);
-      m_pUserQual->AddDeriv(dynamic_cast<CSQCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
+      m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
       };
     virtual void   ODEOperate(CODEDataBlock & ODB)
       {
@@ -774,15 +782,19 @@ class CSQCall2MSpQuals :   public SpQuality//ModelEx
     virtual DWORD   GetPropertyVisibility(long Index);
     virtual void    GetPropertyValue(long Index, PhMask Phase, double T, double P, MPropertyValue & Value);
     virtual void    PutPropertyValue(long Index, MPropertyValue & Value);
+
+
+    virtual MSpQualityBase * GetMSpQualityBase4Cast() { return m_pUserQual; };
+
     MPropertyValue  m_WorkQualValue;
 
   private:
-    DEFINE_CI(CSQCall2MSpQuals, SpQuality, FirstUserCI+MaxUserCI);
-    DEFINE_CIVIRT(CSQCall2MSpQuals, SpQuality);
-  	DEFINE_SPARES(CSQCall2MSpQuals)
+    DEFINE_CI(CCall2MSpQuals, SpQuality, FirstUserCI+MaxUserCI);
+    DEFINE_CIVIRT(CCall2MSpQuals, SpQuality);
+  	DEFINE_SPARES(CCall2MSpQuals)
 	};
 
-flag CSQCall2MSpQuals::CIStrng(int No, pchar & pS)
+flag CCall2MSpQuals::CIStrng(int No, pchar & pS)
   {
   switch (No-CBContext())
     {
@@ -795,6 +807,7 @@ flag CSQCall2MSpQuals::CIStrng(int No, pchar & pS)
 //--------------------------------------------------------------------------
 
 #undef DllImportExport
+#endif
 
 class CSpQualsClassDef : public TagObjClass
     {
@@ -811,7 +824,7 @@ TaggedObject * CSpQualsClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSub
   { return TagObjClass::ConstructGrpDesc(pShortDesc, pSubClass, pTag, pAttach, eAttach); };
 TaggedObject * CSpQualsClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
   {
-  SpQuality * pn = new CSQCall2MSpQuals(this, pTag, pAttach, eAttach);
+  SpQuality * pn = new CCall2MSpQuals(this, pTag, pAttach, eAttach);
   //if (pSubClass)
   //  pn->SetSubClass(pSubClass);
   //else
@@ -859,13 +872,13 @@ MSpQualityDefBase::~MSpQualityDefBase()
 //
 //===========================================================================
 
-MSpQualityBase::MSpQualityBase()
-  {
-  m_pSpQual=NULL;
-  }
-MSpQualityBase::~MSpQualityBase()
-  {
-  }
+//MSpQualityBase::MSpQualityBase()
+//  {
+//  m_pSpQual=NULL;
+//  }
+//MSpQualityBase::~MSpQualityBase()
+//  {
+//  }
 
 //IScdSpVirtualProps
 //bool MSpQualityBase::get_IsBaseClassOf(LPCTSTR OtherProgID)
@@ -904,18 +917,20 @@ MSpQualityBase::~MSpQualityBase()
 //===========================================================================
 
 
+#if 01
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-//IMPLEMENT_QUALITYPTR(CSQCall2MSpQuals, "SMDKSpQuals", "", TOC_ALL, "SMDKSpQuals", "SMDKSpQuals");
-IMPLEMENT_TAGOBJ(CSQCall2MSpQuals, "SMDKSpQuals", "SMDKSpQuals", "", "", "SMDKQ", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+//IMPLEMENT_QUALITYPTR(CCall2MSpQuals, "SMDKSpQuals", "", TOC_ALL, "SMDKSpQuals", "SMDKSpQuals");
+IMPLEMENT_TAGOBJ(CCall2MSpQuals, "SMDKSpQuals", "SMDKSpQuals", "", "", "SMDKQ", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                  "SMDKSpQuals",
                  "SMDKSpQuals");
 
-IMPLEMENT_SPARES(CSQCall2MSpQuals,100);
+IMPLEMENT_SPARES(CCall2MSpQuals,100);
 
-CSQCall2MSpQuals::CSQCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach)
+CCall2MSpQuals::CCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach)
  : SpQuality(pClass_, Tag_, pAttach, eAttach)
   {
   m_pUserQual=NULL;
@@ -923,14 +938,14 @@ CSQCall2MSpQuals::CSQCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObje
   //m_dDummyProperty=123;
   };
 
-CSQCall2MSpQuals::~CSQCall2MSpQuals()
+CCall2MSpQuals::~CCall2MSpQuals()
   {
 
   }
 
 //---------------------------------------------------------------------------
 
-void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
+void CCall2MSpQuals::SetSubClass(LPTSTR MdlName)
   {
   delete m_pUserQual;
   m_pUserQual=NULL; // new ....
@@ -938,12 +953,14 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
   m_pUserQual=(MSpQualityBase*)Class()->SubConstruct()->Construct(NULL);
   m_pUserQual->m_pSpQual=this;
 
+  m_pSQB=m_pUserQual;
+
   SpQuality::SetSubClass(MdlName);
   };
 
 //---------------------------------------------------------------------------
 //
-//bool CSQCall2MSpQuals::IsBaseClassOf(SpModel * pOther)
+//bool CCall2MSpQuals::IsBaseClassOf(SpModel * pOther)
 //  {
 //  if (SpModel::iSpQualMixStrategy==SPMMS_PreBld35)
 //    return false;
@@ -954,14 +971,14 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
 //
 ////---------------------------------------------------------------------------
 //
-//SpModel * CSQCall2MSpQuals::PreferredModel(SpModel * pOther)
+//SpModel * CCall2MSpQuals::PreferredModel(SpModel * pOther)
 //  {
 //  return this;
 //  };
 //
 ////---------------------------------------------------------------------------
 //
-//double CSQCall2MSpQuals::Rho(PhMask Phase, double T_, double P_, SpMArray * pMA)
+//double CCall2MSpQuals::Rho(PhMask Phase, double T_, double P_, SpMArray * pMA)
 //  {
 //  if (!m_pUserProps)
 //    return SpModel::Rho(Phase, T_, P_, pMA);
@@ -970,7 +987,7 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
 //
 ////---------------------------------------------------------------------------
 //
-//double CSQCall2MSpQuals::SaturationP(double T, SpMArray * pMA)
+//double CCall2MSpQuals::SaturationP(double T, SpMArray * pMA)
 //  {
 //  if (!m_pUserProps)
 //    return SpModel::SaturationP(T, pMA);
@@ -979,7 +996,7 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
 //
 ////---------------------------------------------------------------------------
 //
-//double CSQCall2MSpQuals::SaturationT(double P, SpMArray * pMA)
+//double CCall2MSpQuals::SaturationT(double P, SpMArray * pMA)
 //  {
 //  if (!m_pUserProps)
 //    return SpModel::SaturationT(P, pMA);
@@ -988,7 +1005,7 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
 //
 ////---------------------------------------------------------------------------
 //
-//double CSQCall2MSpQuals::msCp(PhMask Phase, double T_, double P_, SpMArray * pMA)
+//double CCall2MSpQuals::msCp(PhMask Phase, double T_, double P_, SpMArray * pMA)
 //  {
 //  if (!m_pUserProps)
 //    return SpModel::msCp(Phase, T_, P_, pMA);
@@ -997,7 +1014,7 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
 //
 ////---------------------------------------------------------------------------
 //
-//double CSQCall2MSpQuals::msHm(PhMask Phase, double T_, double P_, SpMArray * pMA)
+//double CCall2MSpQuals::msHm(PhMask Phase, double T_, double P_, SpMArray * pMA)
 //  {
 //  if (!m_pUserProps)
 //    return SpModel::msHf(Phase, T_, P_, pMA);
@@ -1011,7 +1028,7 @@ void CSQCall2MSpQuals::SetSubClass(LPTSTR MdlName)
 
 const long LclQPropCount = WithLcl;
 
-long CSQCall2MSpQuals::DefinedPropertyCount()
+long CCall2MSpQuals::DefinedPropertyCount()
   {
   //return m_pUserQual->DefinedPropertyCount();
   return LclQPropCount + m_pUserQual->DefinedPropertyCount() + SpQuality::DefinedPropertyCount();
@@ -1019,7 +1036,7 @@ long CSQCall2MSpQuals::DefinedPropertyCount()
 
 //--------------------------------------------------------------------------
 
-long CSQCall2MSpQuals::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
+long CCall2MSpQuals::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
   {
   long Inx=Index-SpQuality::DefinedPropertyCount();
   if (Inx>=0)
@@ -1040,7 +1057,7 @@ long CSQCall2MSpQuals::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
 //--------------------------------------------------------------------------
 
-DWORD CSQCall2MSpQuals::GetPropertyVisibility(long Index)
+DWORD CCall2MSpQuals::GetPropertyVisibility(long Index)
   {
   long Inx=Index-SpQuality::DefinedPropertyCount();
   if (Inx>=0)
@@ -1057,7 +1074,7 @@ DWORD CSQCall2MSpQuals::GetPropertyVisibility(long Index)
     return SpQuality::GetPropertyVisibility(Index);
   };
 
-void CSQCall2MSpQuals::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, double T/*=NAN*/, double P/*=NAN*/, MPropertyValue & Value)
+void CCall2MSpQuals::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, double T/*=NAN*/, double P/*=NAN*/, MPropertyValue & Value)
   {
   long Inx=Index-SpQuality::DefinedPropertyCount();
   if (Inx>=0)
@@ -1076,7 +1093,7 @@ void CSQCall2MSpQuals::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, dou
 
 //--------------------------------------------------------------------------
 
-void CSQCall2MSpQuals::PutPropertyValue(long Index, MPropertyValue & Value)
+void CCall2MSpQuals::PutPropertyValue(long Index, MPropertyValue & Value)
   {
   return m_pUserQual->PutPropertyValue(Index, Value);
   //long Inx=Index-SpQuality::DefinedPropertyCount();
@@ -1093,6 +1110,7 @@ void CSQCall2MSpQuals::PutPropertyValue(long Index, MPropertyValue & Value)
   //else
   //  SpQuality::PutPropertyValue(Index, Value);
   };
+#endif
 
 //===========================================================================
 //

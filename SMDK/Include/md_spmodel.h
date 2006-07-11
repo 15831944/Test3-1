@@ -230,43 +230,44 @@ MSpQualityBase* Obj##SpQualDef::Construct(TaggedObject * pNd) { return new Obj(p
 //
 //---------------------------------------------------------------------------
 
-class DllImportExport MSpQualityBase : public MSubConstructBase
-  {
-  friend class CSQCall2MSpQuals;
-  friend class MVector;
-  public:
-    MSpQualityBase();
-    virtual ~MSpQualityBase();
+//class DllImportExport MSpQualityBase : public MSubConstructBase
+//  {
+//  friend class CCall2MSpQuals;
+//  friend class MVector;
+//  public:
+//    MSpQualityBase();
+//    virtual ~MSpQualityBase();
+//
+//    virtual void   ExchangeSpecies(MSpQualityBase * Other) =0;
+//
+//    virtual bool   EquilRqd4HEval() { return false; };
+//    virtual void   Equilibrate() {};
+//
+//    virtual void   ZeroMass()=0;
+//    virtual void   ZeroDeriv()=0;
+//    virtual void   ScaleMass(long Phase, double Mult)=0;
+//    virtual void   ScaleMass(CArray<int,int> &SpIds, double Mult)=0;
+//
+//    virtual void   SetMassF(MSpQualityBase * QualSet)=0;
+//    virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)=0;
+//    virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub)=0;
+//
+//    virtual void   Copy(MSpQualityBase * QualCopy)=0;
+//    virtual void   AddDeriv(MSpQualityBase * Qual2, double Sgn_)=0;
+//    virtual void   AddDiscrete(MSpQualityBase * Qual2, double Sgn_)=0;
+//
+//    virtual long    DefinedPropertyCount() { return 0; };
+//    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info) { return -1; };
+//
+//    virtual DWORD   GetPropertyVisibility(long Index) { return ePVis_All; };
+//    virtual void    GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
+//    virtual void    PutPropertyValue(long Index, MPropertyValue & Value) {};
+//
+//  private:
+//    SpQuality     * m_pSpQual;
+//
+//  };
 
-    virtual void   ExchangeSpecies(MSpQualityBase * Other) =0;
-
-    virtual bool   EquilRqd4HEval() { return false; };
-    virtual void   Equilibrate() {};
-
-    virtual void   ZeroMass()=0;
-    virtual void   ZeroDeriv()=0;
-    virtual void   ScaleMass(long Phase, double Mult)=0;
-    virtual void   ScaleMass(CArray<int,int> &SpIds, double Mult)=0;
-
-    virtual void   SetMassF(MSpQualityBase * QualSet)=0;
-    virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)=0;
-    virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub)=0;
-
-    virtual void   Copy(MSpQualityBase * QualCopy)=0;
-    virtual void   AddDeriv(MSpQualityBase * Qual2, double Sgn_)=0;
-    virtual void   AddDiscrete(MSpQualityBase * Qual2, double Sgn_)=0;
-
-    virtual long    DefinedPropertyCount() { return 0; };
-    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info) { return -1; };
-
-    virtual DWORD   GetPropertyVisibility(long Index) { return ePVis_All; };
-    virtual void    GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
-    virtual void    PutPropertyValue(long Index, MPropertyValue & Value) {};
-
-  private:
-    SpQuality     * m_pSpQual;
-
-  };
 
 #undef DllImportExport
 
