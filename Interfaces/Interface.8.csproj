@@ -58,33 +58,51 @@
   <ItemGroup>
     <Compile Include="Anchor.cs" />
     <Compile Include="Arc.cs" />
+    <Compile Include="BaseAccessItem.cs" />
+    <Compile Include="BaseAccessItemConverter.cs" />
     <Compile Include="BaseGraphic.cs" />
+    <Compile Include="BaseModel.cs" />
     <Compile Include="Bezier.cs" />
+    <Compile Include="BranchAccessItem.cs" />
+    <Compile Include="BranchAccessItemConverter.cs" />
+    <Compile Include="BranchAccessItemProperty.cs" />
+    <Compile Include="BranchAccessItemPropertyDescriptor.cs" />
     <Compile Include="ClientGraphic.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="GraphicStencil.cs" />
+    <Compile Include="FloatAccessItem.cs" />
     <Compile Include="GraphicItem.cs" />
+    <Compile Include="GraphicStencil.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Line.cs" />
     <Compile Include="GraphicLink.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="ModelItem.cs" />
+    <Compile Include="ModelItemProperty.cs" />
+    <Compile Include="ModelItemPropertyDescriptor.cs" />
+    <Compile Include="ModelLink.cs" />
     <Compile Include="ModelStencil.cs" />
     <Compile Include="ARectangleF.cs" />
     <Compile Include="ARectangleFConverter.cs" />
+    <Compile Include="OldGraphicStencil.cs" />
+    <Compile Include="PortStatus.cs" />
     <Compile Include="ServiceGraphic.cs" />
     <Compile Include="Stencil.cs" />
     <Compile Include="StencilConverter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FlowChart.NET, Version=4.1.0.16274, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Bin\FlowChart.NET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.8.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET.8</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

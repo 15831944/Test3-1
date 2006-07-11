@@ -17,7 +17,7 @@ namespace SysCAD.Interface
 
     private Model model;
 
-    private Stencil stencil;
+    private Shape shape;
     private RectangleF boundingRect;
     private float angle;
     private bool mirrorX = false;
@@ -53,7 +53,8 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Horizontal position of the center of the item.")]
+    Browsable(false),
+    DescriptionAttribute("Horizontal position of the center of the item.")]
     public float X
     {
       get { return boundingRect.X; }
@@ -61,7 +62,8 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Vertical position of the center of the item.")]
+   Browsable(false),
+    DescriptionAttribute("Vertical position of the center of the item.")]
     public float Y
     {
       get { return boundingRect.Y; }
@@ -69,7 +71,8 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Width of the item.")]
+   Browsable(false),
+    DescriptionAttribute("Width of the item.")]
     public float Width
     {
       get { return boundingRect.Width; }
@@ -77,7 +80,8 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Height of the item.")]
+   Browsable(false),
+    DescriptionAttribute("Height of the item.")]
     public float Height
     {
       get { return boundingRect.Height; }
@@ -103,13 +107,13 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Stencil name to be used for displaying the item."),
+     DescriptionAttribute("Shape name to be used for displaying the item."),
      Browsable(true),
-     DisplayName("Stencil")]
-    public Stencil Stencil
+     DisplayName("Shape")]
+    public Shape Shape
     {
-      get { return stencil; }
-      set { stencil = value; }
+      get { return shape; }
+      set { shape = value; }
     }
 
     [CategoryAttribute("Model"),
@@ -169,25 +173,25 @@ namespace SysCAD.Interface
         path = "/" + filename + "/" + itemReader.GetString(6) + "/";
 
         model = itemReader.GetString(0);
-        stencil = itemReader.GetString(0);
+        shape = itemReader.GetString(0);
 
         OleDbDataReader itemGuidReader = (new OleDbCommand("SELECT EqpGUID FROM ModelUnits WHERE Tag='" + tag + "'", connection)).ExecuteReader();
         if (itemGuidReader.Read())
           guid = new Guid(itemGuidReader.GetString(0));
 
         float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
-        if (stencil.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
-        if (stencil.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
-        if (stencil.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
-        if (stencil.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
-        if (stencil.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
-        if (stencil.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
-        if (stencil.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
-        if (stencil.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
-        if (stencil.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
-        if (stencil.Contains("Tank")) { sx = 0.6348186528F; sy = 0.777777778F; dy = -2.45F; }
-        if (stencil.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
-        if (stencil.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
+        if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
+        if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
+        if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
+        if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
+        if (shape.Contains("Tank")) { sx = 0.6348186528F; sy = 0.777777778F; dy = -2.45F; }
+        if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
+        if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
         boundingRect.Width = (float)itemReader.GetDouble(3) * 30.0F * sx;
         boundingRect.Height = (float)itemReader.GetDouble(4) * 30.0F * sy;
@@ -215,22 +219,22 @@ namespace SysCAD.Interface
     {
       path = "/" + filename + "/" + Page + "/";
       model = ClassID;
-      stencil = ClassID;
+      shape = ClassID;
       guid = new Guid(EqpGUID);
 
       float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
-      if (stencil.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
-      if (stencil.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
-      if (stencil.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
-      if (stencil.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
-      if (stencil.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
-      if (stencil.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
-      if (stencil.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
-      if (stencil.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
-      if (stencil.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
-      if (stencil.Contains("Tank")) { sx = 0.6348186528F; sy = 0.777777778F; dy = -2.45F; }
-      if (stencil.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
-      if (stencil.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
+      if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
+      if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
+      if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
+      if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
+      if (shape.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
+      if (shape.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
+      if (shape.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
+      if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
+      if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
+      if (shape.Contains("Tank")) { sx = 0.6348186528F; sy = 0.777777778F; dy = -2.45F; }
+      if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
+      if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
       boundingRect.Width = ScaleX * 30.0F * sx;
       boundingRect.Height = ScaleY * 30.0F * sy;

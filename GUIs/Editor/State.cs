@@ -7,133 +7,6 @@ using SysCAD.Interface;
 
 namespace SysCAD.Editor
 {
-  public class Link
-  {
-    private Guid guid;
-
-    private String tag;
-
-    private Arrow arrow;
-
-    public GraphicLink graphicLink;
-
-    private bool visible;
-
-    public Guid Guid
-    {
-      get { return guid; }
-    }
-
-    public String Tag
-    {
-      get { return tag; }
-    }
-
-    public Arrow Arrow
-    {
-      get { return arrow; }
-      set { arrow = value; }
-    }
-
-    public bool Visible
-    {
-      get { return visible; }
-      set { visible = value; }
-    }
-
-    public Link(Guid guid, String tag, GraphicLink graphicLink)
-    {
-      this.guid = guid;
-      this.tag = tag;
-      this.graphicLink = graphicLink;
-    }
-  }
-
-  public class Item
-  {
-    private Guid guid;
-    private String tag;
-    private Box model;
-    private Box graphic;
-    private Box text;
-    private PureComponents.TreeView.Node node;
-
-    private GraphicItem graphicItem;
-
-    private bool visible;
-    private bool selected;
-
-    public Guid Guid
-    {
-      get { return guid; }
-    }
-
-    public String Tag
-    {
-      get { return tag; }
-      set { tag = value; }
-    }
-
-    public Box Model
-    {
-      get { return model; }
-      set { model = value; }
-    }
-
-    public Box Graphic
-    {
-      get { return graphic; }
-      set { graphic = value; }
-    }
-
-    public Box Text
-    {
-      get { return text; }
-      set { text = value; }
-    }
-
-    public PureComponents.TreeView.Node Node
-    {
-      get { return node; }
-      set { node = value; }
-    }
-
-    public bool Visible
-    {
-      get { return visible; }
-      set { visible = value; }
-    }
-
-    public bool Selected
-    {
-      get { return selected; }
-      set { selected = value; }
-    }
-
-    public ArrowCollection IncomingArrows
-    {
-      get { return model.IncomingArrows; }
-    }
-
-    public ArrowCollection OutgoingArrows
-    {
-      get { return model.OutgoingArrows; }
-    }
-
-    public Item(Guid guid, String tag, Box model, Box graphic, Box text, bool visible, GraphicItem graphicItem)
-    {
-      this.guid = guid;
-      this.tag = tag;
-      this.model = model;
-      this.graphic = graphic;
-      this.text = text;
-      this.visible = visible;
-      this.graphicItem = graphicItem;
-    }
-  }
-
-  //---------------------------------------------------------
-
   public class State
   {
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
@@ -198,16 +71,30 @@ namespace SysCAD.Editor
       links.Add(guid, link);
     }
 
-    internal void Remove(Item item, FlowChart flowchart)
+    internal void Remove(FlowChart flowChart)
     {
-      if (item != null)
+      BoxCollection boxSelection = flowChart.Selection.Boxes.Clone();
+
+      foreach (Box box in boxSelection)
       {
-        if (item.Model != null)
-          flowchart.DeleteObject(item.Model);
-        if (item.Graphic != null)
-          flowchart.DeleteObject(item.Graphic);
-        if (item.Node != null)
-          item.Node.Remove();
+        Item item = box.Tag as Item;
+        if (item != null)
+        {
+          item.Remove(flowChart);
+          items.Remove(item.Guid);
+        }
+      }
+
+      ArrowCollection arrowSelection = flowChart.Selection.Arrows.Clone();
+
+      foreach (Arrow arrow in arrowSelection)
+      {
+        Link link = arrow.Tag as Link;
+        if (link != null)
+        {
+          link.Remove(flowChart);
+          links.Remove(link.Guid);
+        }
       }
     }
 
@@ -235,10 +122,9 @@ namespace SysCAD.Editor
         {
           foreach (Anchor anchor in stencil.Anchors)
           {
-            if (anchor.direction == AnchorDirection.In)
-              anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, (anchor.max > 0), false, MarkStyle.Circle, Color.Blue));
-            else
-              anchorPointCollection.Add(new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, false, (anchor.max > 0), MarkStyle.Circle, Color.Green));
+            AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Green);
+            anchorPoint.Tag = anchor;
+            anchorPointCollection.Add(anchorPoint);
           }
           modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
         }
@@ -255,7 +141,7 @@ namespace SysCAD.Editor
       graphicBox.Style = BoxStyle.Shape;
       {
         GraphicStencil stencil;
-        if (config.graphicStencils.TryGetValue(graphicItem.Stencil, out stencil))
+        if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           graphicBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
         else
           graphicBox.Shape = ShapeTemplate.FromId("Decision2");
@@ -265,6 +151,12 @@ namespace SysCAD.Editor
       graphicBox.Visible = ShowGraphics && isVisible;
 
 
+      if (graphicItem.FillColor.IsEmpty)
+        graphicItem.FillColor = graphicBox.FillColor;
+      else
+        graphicBox.FillColor = graphicItem.FillColor;
+
+
       textBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
       textBox.FillColor = Color.FromArgb(0, System.Drawing.Color.Black);
@@ -272,7 +164,9 @@ namespace SysCAD.Editor
       textBox.Visible = ShowTags && isVisible;
       textBox.Text = graphicItem.Tag;
 
+
       Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
+
 
       modelBox.Tag = item;
       graphicBox.Tag = item;
@@ -408,14 +302,6 @@ namespace SysCAD.Editor
       return false;
     }
 
-    internal void SetStencil(Guid guid, ShapeTemplate shapeTemplate)
-    {
-      Item item;
-      items.TryGetValue(guid, out item);
-      if (item != null)
-        item.Graphic.Shape = shapeTemplate;
-    }
-
     internal void SetAngle(Guid guid, float angle)
     {
       Item item;
@@ -489,7 +375,7 @@ namespace SysCAD.Editor
         if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
         {
           GraphicStencil stencil;
-          if (config.graphicStencils.TryGetValue(graphicItem.Stencil, out stencil))
+          if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           {
             item.Graphic.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
           }
@@ -503,18 +389,47 @@ namespace SysCAD.Editor
       items.TryGetValue(guid, out item);
       if (item != null)
       {
-        // Unimplemented...
+        GraphicItem graphicItem;
+        if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
+        {
+          GraphicStencil stencil;
+          if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          {
+            item.Graphic.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+          }
+        }
       }
     }
 
-    internal ModelStencil ModelStencil(string stencilName)
+    internal void SetTag(Guid guid, String tag)
+    {
+      Item item;
+      items.TryGetValue(guid, out item);
+      if (item != null)
+      {
+        item.Tag = tag;
+        item.Text.Text = tag;
+      }
+    }
+
+    internal void SetFillColor(Guid guid, Color fillColor)
+    {
+      Item item;
+      items.TryGetValue(guid, out item);
+      if (item != null)
+      {
+        item.Graphic.FillColor = fillColor;
+      }
+    }
+
+    internal ModelStencil ModelShape(string stencilName)
     {
       ModelStencil modelStencil;
       config.modelStencils.TryGetValue(stencilName, out modelStencil);
       return modelStencil;
     }
 
-    internal GraphicStencil GraphicStencil(string stencilName)
+    internal GraphicStencil GraphicShape(string stencilName)
     {
       GraphicStencil graphicStencil;
       config.graphicStencils.TryGetValue(stencilName, out graphicStencil);
@@ -629,6 +544,11 @@ namespace SysCAD.Editor
       return graphic.DeleteLink(out requestID, guid);
     }
 
+
+    internal PortStatus PortCheck(Guid itemGuid, Anchor anchor, Guid linkGuid)
+    {
+      return graphic.PortCheck(itemGuid, anchor, linkGuid);
+    }
 
 
     internal void ConnectGraphic(

@@ -8,19 +8,23 @@ namespace SysCAD.Interface
 {
   [Serializable]
   [ComVisible(true)]
-  [TypeConverter(typeof(StencilConverter))]
-  public class Stencil
+  [TypeConverter(typeof(ShapeConverter))]
+  public class Shape
   {
     String str;
 
-    public static implicit operator Stencil(String r)
+    public Shape(String r)
     {
-      Stencil stencil = new Stencil();
-      stencil.str = r;
-      return stencil;
+      str = r ;
     }
 
-    public static implicit operator String(Stencil r)
+    public static implicit operator Shape(String r)
+    {
+      Shape shape = new Shape(r);
+      return shape;
+    }
+
+    public static implicit operator String(Shape r)
     {
       return r.str;
     }
@@ -28,6 +32,11 @@ namespace SysCAD.Interface
     public bool Contains(String substr)
     {
       return str.Contains(substr);
+    }
+
+    public override string ToString()
+    {
+      return str;
     }
   }
 }

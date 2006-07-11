@@ -58,7 +58,6 @@ namespace SysCAD.Editor
       {
         if (graphic.Connect(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString()))
         {
-          graphic.Sync();
           openButton.Enabled = true;
         }
 

@@ -155,7 +155,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.21462, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.21889, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_8D2630D3022979763566309D02D99F25"
@@ -271,6 +271,17 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_5A38F6AE027C4F74B0463E744EBA1231"
+                    {
+                    "Name" = "8:Stencil Editor"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_970F69E8B707406C8E4A50C8D9294822"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }
@@ -288,14 +299,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Stencil Editor"
-        "ProductCode" = "8:{0A40E2F5-2C40-410F-95AE-959F268C5B77}"
-        "PackageCode" = "8:{50C76964-A78A-4227-B399-621C59FC5361}"
+        "ProductCode" = "8:{ED074414-DBB8-4ACF-A6EF-3E3DF6422D1B}"
+        "PackageCode" = "8:{5026BEBB-3369-4570-A7AA-907575C83710}"
         "UpgradeCode" = "8:{9D4431C2-D4F7-423A-A9CA-FFAC905BC3CF}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.1.2"
+        "ProductVersion" = "8:1.1.9"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -408,6 +419,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_2CBD42A58B93468CB6B875C2A4A9555C"
+            {
+            "Name" = "8:Stencil Editor"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
+            "Folder" = "8:_5A38F6AE027C4F74B0463E744EBA1231"
+            "WorkingFolder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {

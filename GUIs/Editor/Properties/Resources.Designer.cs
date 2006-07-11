@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SysCAD.Editor.Editor.Properties {
+namespace SysCAD.Editor.Properties {
     using System;
     
     

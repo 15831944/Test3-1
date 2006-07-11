@@ -15,19 +15,19 @@ namespace SysCAD.Interface
   /// </summary>
   [Serializable]
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
-  public class GraphicStencil
+  public class OldGraphicStencil
   {
     private string tag;
 
     public ArrayList elements;
     public ArrayList decorations;
-    public RectangleF textArea;
+    public ArrayList textAreas;
 
     public FillMode fillMode;
     public SizeF defaultSize;
     public String groupName;
 
-    public GraphicStencil()
+    public OldGraphicStencil()
     {
     }
 

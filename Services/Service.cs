@@ -21,13 +21,15 @@ namespace SysCAD.Service
 {
 	class Service
 	{
-    private static bool CreateItem(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private static ConfigData config;
+
+    private static bool CreateItem(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       graphic.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       return true;
     }
 
-    private static bool ModifyItem(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private static bool ModifyItem(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       graphic.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       return true;
@@ -58,6 +60,32 @@ namespace SysCAD.Service
     }
 
 
+    private static PortStatus PortCheck(ServiceGraphic graphic, Guid itemGuid, Anchor anchor, Guid linkGuid)
+    {
+      GraphicItem graphicItem;
+      if (graphic.graphicItems.TryGetValue(itemGuid, out graphicItem))
+      {
+        ModelStencil modelStencil;
+        Anchor foundAnchor = null;
+        if (config.modelStencils.TryGetValue(graphicItem.Model, out modelStencil))
+        {
+          foreach (Anchor a in modelStencil.anchors)
+          {
+            if (a.tag == anchor.tag)
+            {
+              foundAnchor = a;
+              break;
+            }
+          }
+        }
+
+        if (foundAnchor != null)
+          return PortStatus.Available;
+      }
+
+      return PortStatus.Unavailable;
+    }
+
 
     [STAThread]
     static void Main(string[] args) 
@@ -85,7 +113,7 @@ namespace SysCAD.Service
       //HttpChannel httpChannel = new HttpChannel(httpProps, null, null);
       //ChannelServices.RegisterChannel(httpChannel, false);
 
-      ConfigData config = new ConfigData();
+      config = new ConfigData();
 
       string args1;
       string args0;
@@ -122,7 +150,31 @@ namespace SysCAD.Service
       {
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(fullpath).BaseStream;
-        GraphicStencil graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+
+        GraphicStencil graphicStencil;
+        try
+        {
+          graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+        }
+        catch
+        {
+          stream.Close();
+          sf = new SoapFormatter();
+          stream = new StreamReader(fullpath).BaseStream;
+          graphicStencil = new GraphicStencil();
+
+          OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
+          graphicStencil.elements = oldGraphicStencil.elements;
+          graphicStencil.decorations = oldGraphicStencil.decorations;
+          graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
+          //graphicStencil.fillMode = oldGraphicStencil.fillMode;
+          graphicStencil.groupName = oldGraphicStencil.groupName;
+          graphicStencil.textArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+        }
+        stream.Close();
+
+        //GraphicStencil graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+
         graphicStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
         config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
         stream.Close();
@@ -137,7 +189,7 @@ namespace SysCAD.Service
       {
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink);
+        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink, PortCheck);
         graphic.name = filename;
 
         {
@@ -207,18 +259,18 @@ namespace SysCAD.Service
 
           foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
           {
-            GraphicItem sourceGraphicItem;
-            graphic.graphicItems.TryGetValue(graphicLink.Origin, out sourceGraphicItem);
+            GraphicItem originGraphicItem;
+            graphic.graphicItems.TryGetValue(graphicLink.Origin, out originGraphicItem);
 
             GraphicItem destinationGraphicItem;
             graphic.graphicItems.TryGetValue(graphicLink.Origin, out destinationGraphicItem);
 
-            if ((sourceGraphicItem != null) || (destinationGraphicItem != null))
+            if ((originGraphicItem != null) || (destinationGraphicItem != null))
             {
               List<PointF> controlPoints = new List<PointF>();
               foreach (PointF point in graphicLink.controlPoints)
               {
-                controlPoints.Add(new PointF(point.X + pageOffset[sourceGraphicItem.Path].X, point.Y + pageOffset[sourceGraphicItem.Path].Y));
+                controlPoints.Add(new PointF(point.X + pageOffset[originGraphicItem.Path].X, point.Y + pageOffset[originGraphicItem.Path].Y));
               }
               graphicLink.controlPoints = controlPoints;
             }

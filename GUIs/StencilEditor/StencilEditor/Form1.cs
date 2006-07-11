@@ -52,6 +52,13 @@ namespace StencilEditor
 
     public Form1()
     {
+      graphicStencil.elements = new System.Collections.ArrayList();
+      graphicStencil.decorations = new System.Collections.ArrayList();
+
+      modelStencil.elements = new System.Collections.ArrayList();
+      modelStencil.decorations = new System.Collections.ArrayList();
+      modelStencil.anchors = new System.Collections.ArrayList();
+
       InitializeComponent();
 
       flowChart1.Enabled = false;
@@ -80,18 +87,51 @@ namespace StencilEditor
 
     private void textBox_TextChanged(object sender, EventArgs e)
     {
-      toolStripStatusLabel1.Text = "";
-      toolStripStatusLabel1.BackColor = DefaultBackColor;
+      if ((graphicStencil != null) && (modelStencil != null))
+      {
+        toolStripStatusLabel1.Text = "";
+        toolStripStatusLabel1.BackColor = DefaultBackColor;
 
-      Parse(graphicStencil.elements, elementTextBox);
-      Parse(graphicStencil.decorations, decorationTextBox);
-      Parse(graphicStencil.textAreas, textAreaTextBox);
-      UpdateStencil(graphicStencil);
+        Parse(graphicStencil.elements, elementTextBox);
+        Parse(graphicStencil.decorations, decorationTextBox);
+        ParseTextArea(ref graphicStencil.textArea, textAreaTextBox);
+        UpdateStencil(graphicStencil);
 
-      Parse(modelStencil.elements, elementTextBox);
-      Parse(modelStencil.decorations, decorationTextBox);
-      ParseAnchor(modelStencil.anchors, anchorTextBox);
-      UpdateStencil(modelStencil);
+        Parse(modelStencil.elements, elementTextBox);
+        Parse(modelStencil.decorations, decorationTextBox);
+        ParseAnchor(modelStencil.anchors, anchorTextBox);
+        UpdateStencil(modelStencil);
+      }
+    }
+
+    private bool ParseTextArea(ref RectangleF rectangleF, TextBox textBox)
+    {
+      if (textBox.Text.Length > 0)
+      {
+        string[] atoms = textBox.Text.Split(charSplitArray, StringSplitOptions.RemoveEmptyEntries);
+
+        if (atoms.Length != 4)
+        {
+          toolStripStatusLabel1.Text = "Incorrect number of parameters: " + textBox.Text;
+          toolStripStatusLabel1.BackColor = Color.Yellow;
+          return false;
+        }
+
+        try
+        {
+          rectangleF.X = float.Parse(atoms[0]);
+          rectangleF.Y = float.Parse(atoms[1]);
+          rectangleF.Width = float.Parse(atoms[2]);
+          rectangleF.Height = float.Parse(atoms[3]);
+        }
+        catch
+        {
+          toolStripStatusLabel1.Text = "Error parsing parameters: " + textBox.Text;
+          toolStripStatusLabel1.BackColor = Color.Yellow;
+          return false;
+        }
+      }
+      return true;
     }
 
     private void ParseAnchor(ArrayList arrayList, TextBox textBox)
@@ -114,7 +154,7 @@ namespace StencilEditor
         }
       }
     }
-
+    
     private bool ParseAnchor(string atom, ArrayList arrayList)
     {
       atom = atom.Remove(0, 6);
@@ -131,23 +171,13 @@ namespace StencilEditor
       {
         string tag = atoms[0];
         AnchorType type = AnchorType.Process;
-        AnchorDirection direction;
-        if (atoms[1].ToLower().Equals("in"))
-          direction = AnchorDirection.In;
-        else if (atoms[1].ToLower().Equals("out"))
-          direction = AnchorDirection.Out;
-        else
-        {
-          toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
-          toolStripStatusLabel1.BackColor = Color.Yellow;
-          return false;
-        }
+
         float x = float.Parse(atoms[2]);
         float y = float.Parse(atoms[3]);
         uint min = uint.Parse(atoms[4]);
         uint max = uint.Parse(atoms[5]);
 
-        Anchor anchor = new Anchor(tag, type, direction, x, y, min, max);
+        Anchor anchor = new Anchor(tag, type, x, y, min, max);
 
         arrayList.Add(anchor);
       }
@@ -732,18 +762,6 @@ namespace StencilEditor
       try
       {
         string tag = atoms[0];
-        //AnchorType type = AnchorType.Process;
-        AnchorDirection direction;
-        if (atoms[1].ToLower().Equals("in"))
-          direction = AnchorDirection.In;
-        else if (atoms[1].ToLower().Equals("out"))
-          direction = AnchorDirection.Out;
-        else
-        {
-          toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
-          toolStripStatusLabel1.BackColor = Color.Yellow;
-          return false;
-        }
         float x = float.Parse(atoms[2]);
         float y = float.Parse(atoms[3]);
 
@@ -757,11 +775,6 @@ namespace StencilEditor
         uint max = uint.Parse(atoms[5]);
 
         tempText += tag + ", ";
-
-        if (direction == AnchorDirection.In)
-          tempText += "In, ";
-        if (direction == AnchorDirection.Out)
-          tempText += "Out, ";
 
         tempText += x.ToString() + ", " + y.ToString() + ", ";
         tempText += min.ToString() + ", " + max.ToString() + ", ";
@@ -786,17 +799,15 @@ namespace StencilEditor
       UpdateStencil(graphicStencil.elements, ref minX, ref minY, ref maxX, ref maxY);
       UpdateStencil(graphicStencil.decorations, ref minX, ref minY, ref maxX, ref maxY);
 
-      float textMinX = minX;
-      float textMaxX = maxX;
-      float textMinY = minY;
-      float textMaxY = maxY;
+      float textMinX = float.MaxValue;
+      float textMaxX = float.MinValue;
+      float textMinY = float.MaxValue;
+      float textMaxY = float.MinValue;
 
-      UpdateStencil(graphicStencil.textAreas, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
+      UpdateStencil(graphicStencil.textArea, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
 
       ScaleStencil(graphicStencil.elements, minX, minY, maxX, maxY);
       ScaleStencil(graphicStencil.decorations, minX, minY, maxX, maxY);
-
-      ScaleStencil(graphicStencil.textAreas, textMinX, textMinY, textMaxX, textMaxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
 
@@ -810,13 +821,20 @@ namespace StencilEditor
       RectangleF textRect = new RectangleF(textMinX * scale, textMinY * scale, (textMaxX - textMinX) * scale, (textMaxY - textMinY) * scale);
 
       textBox1.BoundingRect = textRect;
-      textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
+      //textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
       textBox1.ZTop();
       textBox1.FillColor = Color.FromArgb(100, Color.HotPink);
 
-      textRect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
-      flowChart1.DocExtents = textRect;
-      flowChart1.ZoomToRect(textRect);
+      float bothMinX = Math.Min(minX, textMinX);
+      float bothMaxX = Math.Max(maxX, textMaxX);
+      float bothMinY = Math.Min(minY, textMinY);
+      float bothMaxY = Math.Max(maxY, textMaxY);
+
+      RectangleF bothRect = new RectangleF(bothMinX * scale, bothMinY * scale, (bothMaxX - bothMinX) * scale, (bothMaxY - bothMinY) * scale);
+
+      bothRect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
+      flowChart1.DocExtents = bothRect;
+      flowChart1.ZoomToRect(bothRect);
     }
 
     private void UpdateStencil(ModelStencil modelStencil)
@@ -865,10 +883,7 @@ namespace StencilEditor
         anchorPointBoxes.Add(box);
         box.Style = BoxStyle.Ellipse;
         box.ZTop();
-        if (anchor.direction == AnchorDirection.In)
-          box.FillColor = Color.Red;
-        else
-          box.FillColor = Color.Green;
+        box.FillColor = Color.Red;
         box.FillColor = Color.FromArgb(100, box.FillColor);
       }
 
@@ -960,6 +975,18 @@ namespace StencilEditor
           if (anchor.position.Y > maxY) maxY = anchor.position.Y;
         }
       }
+
+      if (maxX == minX) maxX += 0.01F;
+      if (maxY == minY) maxY += 0.01F;
+    }
+
+    private void UpdateStencil(RectangleF rectangleF, ref float minX, ref float minY, ref float maxX, ref float maxY)
+    {
+      if (rectangleF.Left < minX) minX = rectangleF.Left;
+      if (rectangleF.Top  < minY) minY = rectangleF.Top;
+
+      if (rectangleF.Right  > maxX) maxX = rectangleF.Right;
+      if (rectangleF.Bottom > maxY) maxY = rectangleF.Bottom;
 
       if (maxX == minX) maxX += 0.01F;
       if (maxY == minY) maxY += 0.01F;
@@ -1086,7 +1113,6 @@ namespace StencilEditor
 
       graphicStencil.elements = new System.Collections.ArrayList();
       graphicStencil.decorations = new System.Collections.ArrayList();
-      graphicStencil.textAreas = new System.Collections.ArrayList();
 
       modelStencil.elements = new System.Collections.ArrayList();
       modelStencil.decorations = new System.Collections.ArrayList();
@@ -1102,8 +1128,9 @@ namespace StencilEditor
 
       textBox1 = flowChart1.CreateBox(-1.0F, -1.0F, 2.0F, 2.0F);
       textBox1.Locked = true;
-      textBox1.Style = MindFusion.FlowChartX.BoxStyle.Shape;
-      textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
+      //textBox1.Style = MindFusion.FlowChartX.BoxStyle.Shape;
+      //textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
+      textBox1.Shape = MindFusion.FlowChartX.ShapeTemplate.Decision;
 
       flowChart2.DocExtents = new RectangleF(-1.0F, -1.0F, 2.0F, 2.0F);
       flowChart2.ZoomToRect(new RectangleF(-1.0F, -1.0F, 2.0F, 2.0F));
@@ -1133,31 +1160,70 @@ namespace StencilEditor
         SoapFormatter sf = new SoapFormatter();
         Stream stream = new StreamReader(openFileDialog.FileName).BaseStream;
 
+        this.elementTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
+        this.decorationTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
+        this.textAreaTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
+        this.anchorTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
+
         if (filename.ToLower().EndsWith(".graphicstencil"))
-          graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+        {
+          try
+          {
+            graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+            toolStripComboBoxModelGroup.Text = "";
+
+          }
+          catch
+          {
+            stream.Close();
+            sf = new SoapFormatter();
+            stream = new StreamReader(openFileDialog.FileName).BaseStream;
+
+            OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
+            graphicStencil.elements = oldGraphicStencil.elements;
+            graphicStencil.decorations = oldGraphicStencil.decorations;
+            graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
+            //graphicStencil.fillMode = oldGraphicStencil.fillMode;
+            graphicStencil.groupName = oldGraphicStencil.groupName;
+            graphicStencil.textArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+          }
+          stream.Close();
+          
+          Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
+          Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+          Generate(graphicStencil.textArea, graphicStencil.defaultSize, textAreaTextBox);
+        }
         else if (filename.ToLower().EndsWith(".modelstencil"))
+        {
           modelStencil = (ModelStencil)sf.Deserialize(stream);
-        else return;
+          stream.Close();
 
-        stream.Close();
+          Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
+          Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+          Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
+          toolStripComboBoxModelGroup.Text = modelStencil.groupName;
 
-        Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
-        Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-        Generate(graphicStencil.textAreas, graphicStencil.defaultSize, textAreaTextBox);
-
-        Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
-        Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-        Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
+        }
+        else
+        {
+          stream.Close();
+          return;
+        }
 
         Parse(modelStencil.elements, elementTextBox);
         Parse(modelStencil.decorations, decorationTextBox);
-        Parse(modelStencil.anchors, decorationTextBox);
+        Parse(modelStencil.anchors, anchorTextBox);
         UpdateStencil(modelStencil);
 
         Parse(graphicStencil.elements, elementTextBox);
         Parse(graphicStencil.decorations, decorationTextBox);
-        Parse(graphicStencil.textAreas, textAreaTextBox);
+        ParseTextArea(ref graphicStencil.textArea, textAreaTextBox);
         UpdateStencil(graphicStencil);
+
+        this.elementTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+        this.decorationTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+        this.textAreaTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+        this.anchorTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
       }
     }
 
@@ -1216,6 +1282,14 @@ namespace StencilEditor
       textBox.Text = tempText;
     }
 
+    private void Generate(RectangleF rectangleF, SizeF defaultSize, TextBox textBox)
+    {
+      textBox.Text = rectangleF.X.ToString() + ", " +
+                     rectangleF.Y.ToString() + ", " +
+                     rectangleF.Width.ToString() + ", " +
+                     rectangleF.Height.ToString();
+    }
+
     private void GeneratePoly(bool first, Line line, SizeF defaultSize)
     {
       if ((first)
@@ -1260,12 +1334,6 @@ namespace StencilEditor
     {
       tempText += "MDrw_Anchor ";
       tempText += anchor.tag + ", ";
-
-      if (anchor.direction == AnchorDirection.In)
-        tempText += "In, ";
-      if (anchor.direction == AnchorDirection.Out)
-        tempText += "Out, ";
-
       tempText += anchor.position.X.ToString() + ", " + anchor.position.Y.ToString() + ", ";
       tempText += anchor.min.ToString() + ", " + anchor.max.ToString() + "\r\n";
     }
@@ -1289,15 +1357,20 @@ namespace StencilEditor
 
     private void saveToolStripMenuItem_Click(object sender, EventArgs e)
     {
-      SoapFormatter sf = new SoapFormatter();
-      Stream stream = new StreamWriter(filename).BaseStream;
+      if (filename.Length > 0)
+      {
+        SoapFormatter sf = new SoapFormatter();
+        Stream stream = new StreamWriter(filename).BaseStream;
 
-      if (filename.ToLower().EndsWith(".graphicstencil"))
-        sf.Serialize(stream, graphicStencil);
-      else if (filename.ToLower().EndsWith(".modelstencil"))
-        sf.Serialize(stream, modelStencil);
+        if (filename.ToLower().EndsWith(".graphicstencil"))
+          sf.Serialize(stream, graphicStencil);
+        else if (filename.ToLower().EndsWith(".modelstencil"))
+          sf.Serialize(stream, modelStencil);
 
-      stream.Close();
+        stream.Close();
+      }
+      else
+        saveAsToolStripMenuItem_Click(sender, e);
     }
 
     private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1363,6 +1436,34 @@ namespace StencilEditor
         elementTextBox.Undo();
       else if (tabControl1.SelectedTab == decorationTabPage)
         decorationTextBox.Undo();
+    }
+
+    private void copyAllToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      tempText = "";
+
+      tempText += "Fill Elements:\r\n";
+
+      tempText += elementTextBox.Text + "\r\n";
+
+      tempText += "Decoration:\r\n";
+      
+      tempText += decorationTextBox.Text + "\r\n";
+
+      tempText += "Text Area:\r\n";
+
+      tempText += textAreaTextBox.Text + "\r\n";
+
+      tempText += "Anchors:\r\n";
+
+      tempText += anchorTextBox.Text + "\r\n";
+
+      Clipboard.SetDataObject(tempText);
+    }
+
+    private void toolStripComboBoxModelGroup_Click(object sender, EventArgs e)
+    {
+      modelStencil.groupName = toolStripComboBoxModelGroup.Text;
     }
   }
 }

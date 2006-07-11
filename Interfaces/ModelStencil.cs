@@ -140,7 +140,7 @@ namespace SysCAD.Interface
         if (decoration is Arc)
         {
           Arc arc = decoration as Arc;
-          decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.x);
+          decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
         }
         if (decoration is Line)
         {

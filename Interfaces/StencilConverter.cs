@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace SysCAD.Interface
 {
-  public class StencilConverter : StringConverter
+  public class ShapeConverter : StringConverter
   {
-    public static List<string> stencilList = new List<string>();
+    public static List<Shape> stencilList = new List<Shape>();
 
     public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
     {
@@ -26,6 +27,22 @@ namespace SysCAD.Interface
            GetStandardValues(ITypeDescriptorContext context)
     {
       return new StandardValuesCollection(stencilList.ToArray());
+    }
+
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+      if (sourceType == typeof(String))
+        return true;
+
+      return base.CanConvertFrom(context, sourceType);
+    }
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+      if (value is String)
+        return new Shape(value as String);
+
+      return base.ConvertFrom(context, culture, value);
     }
   }
 }

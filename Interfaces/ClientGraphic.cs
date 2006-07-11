@@ -41,12 +41,12 @@ namespace SysCAD.Interface
 
 
 
-    public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       return serviceGraphic.ModifyItem(out requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
-    public bool CreateItem(out uint requestID, out Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public bool CreateItem(out uint requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       return serviceGraphic.CreateItem(out requestID, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
@@ -74,6 +74,11 @@ namespace SysCAD.Interface
     }
 
 
+    public PortStatus PortCheck(Guid itemGuid, Anchor anchor, Guid linkGuid)
+    {
+      return serviceGraphic.PortCheck(itemGuid, anchor, linkGuid);
+    }
+
 
     public bool Connect(string URL)
     {
@@ -90,6 +95,8 @@ namespace SysCAD.Interface
         serviceGraphic.LinkCreated += new ServiceGraphic.LinkCreatedHandler(serviceGraphic_LinkCreated);
         serviceGraphic.LinkModified += new ServiceGraphic.LinkModifiedHandler(serviceGraphic_LinkModified);
         serviceGraphic.LinkDeleted += new ServiceGraphic.LinkDeletedHandler(serviceGraphic_LinkDeleted);
+
+        Sync();
 
         connectionError = "";
         return true;
@@ -119,14 +126,14 @@ namespace SysCAD.Interface
 
 
 
-    public void serviceGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void serviceGraphic_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (!graphicItems.ContainsKey(guid))
       {
         GraphicItem graphicItem = new GraphicItem(guid, tag);
         graphicItem.Path = path;
         graphicItem.Model = model;
-        graphicItem.Stencil = stencil;
+        graphicItem.Shape = stencil;
         graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.FillColor = fillColor;
@@ -135,11 +142,11 @@ namespace SysCAD.Interface
 
         graphicItems.Add(guid, graphicItem);
 
-        OnItemModified(eventID, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemCreated(eventID, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 
-    public void serviceGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Stencil stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void serviceGraphic_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       GraphicItem graphicItem;
       if (graphicItems.TryGetValue(guid, out graphicItem))
@@ -147,7 +154,7 @@ namespace SysCAD.Interface
         graphicItem.Tag = tag;
         graphicItem.Path = path;
         graphicItem.Model = model;
-        graphicItem.Stencil = stencil;
+        graphicItem.Shape = stencil;
         graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.FillColor = fillColor;

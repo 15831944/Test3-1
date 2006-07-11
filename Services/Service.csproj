@@ -54,12 +54,16 @@
     <BaseApplicationManifest Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Interfaces\Interface.csproj">
-      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
-      <Name>Interface</Name>
-    </ProjectReference>
+    <Content Include="Logo32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Logo32.ico" />
+    <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.8.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET.8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Interfaces\Interface.8.csproj">
+      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
+      <Name>Interface.8</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

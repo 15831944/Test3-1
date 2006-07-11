@@ -43,7 +43,6 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowBaseSize = 2.5F;
       this.fcFlowChart.ArrowBrush = new MindFusion.FlowChartX.SolidBrush("#FF000000");
       this.fcFlowChart.ArrowCrossings = MindFusion.FlowChartX.ArrowCrossings.BreakOff;
-      this.fcFlowChart.ArrowCustomDraw = MindFusion.FlowChartX.CustomDraw.Additional;
       this.fcFlowChart.ArrowHandlesStyle = MindFusion.FlowChartX.HandlesStyle.SquareHandles2;
       this.fcFlowChart.ArrowHead = MindFusion.FlowChartX.ArrowHead.None;
       this.fcFlowChart.ArrowHeadSize = 2.5F;
@@ -53,7 +52,6 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowStyle = MindFusion.FlowChartX.ArrowStyle.Cascading;
       this.fcFlowChart.AutoSizeDoc = MindFusion.FlowChartX.AutoSize.AllDirections;
       this.fcFlowChart.Behavior = MindFusion.FlowChartX.BehaviorType.Modify;
-      this.fcFlowChart.BoxCustomDraw = MindFusion.FlowChartX.CustomDraw.Additional2;
       this.fcFlowChart.BoxHandlesStyle = MindFusion.FlowChartX.HandlesStyle.EasyMove;
       this.fcFlowChart.BoxStyle = MindFusion.FlowChartX.BoxStyle.Shape;
       this.fcFlowChart.DefaultControlType = typeof(System.Windows.Forms.Button);
