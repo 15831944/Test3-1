@@ -251,7 +251,7 @@ class CSysCADApp : public CWinApp
     BOOL InitInstDocTemplate();
     BOOL InitInstCmdLineOnly();
     BOOL InitInstFolder();
-    BOOL InitInstLicense1(bool &LicenseFailed);
+    BOOL InitInstLicense1(bool Embedded, bool &LicenseFailed);
     BOOL InitInstLicense2(bool LicenseFailed);
     BOOL InitInstVersion();
     BOOL InitInstBaseCfg(int & CnvsLoadedCnt, Strng &CnvsFilename);

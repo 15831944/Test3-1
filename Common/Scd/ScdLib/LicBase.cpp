@@ -244,6 +244,8 @@ dword CSysCADLicense::FixOptions(dword dwOpLevel)
     Opt.m_Opts.Level            = 1;
     Opt.m_Opts.Ver90            |= 1;
     Opt.m_Opts.Mode_DynamicFlow |= 1;
+    Opt.m_Opts.Mode_DynamicFull |= 1;
+    Opt.m_Opts.Func_COMProp     |= 1;
     Opt.m_Opts.Mode_Electrical  |= 1;
     //Opt.m_Opts.Only_SteadyState |= 1;
     Opt.m_Opts.Func_COM         |= 1;
@@ -1476,7 +1478,12 @@ void CLicense::Error(char * fmt, ...)
   va_start(argptr, fmt);
   vsprintf(Buff, fmt, argptr);
   va_end(argptr);
-  AfxMessageBox(Buff);
+  if (1 || m_bEmbedded)
+    {
+    LogError("License", 0, "%s", Buff);
+    }
+  else
+    AfxMessageBox(Buff);
   }
 
 //---------------------------------------------------------------------------

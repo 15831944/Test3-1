@@ -982,7 +982,7 @@ BOOL CSysCADApp::InitInstFolder()
 
 //---------------------------------------------------------------------------
 
-BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
+BOOL CSysCADApp::InitInstLicense1(bool Embedded, bool &LicenseFailed)
   {
 #if CK_LICENSINGON
   CDlgBusy::Open("\n\nChecking License");
@@ -994,6 +994,7 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
     else if (LicErr<0)
       AfxMessageBox("Error with License Service. Check the following:\n1) Licensing Service installed?\n2) User permissions\n3) Control panel services\n");
     }*/
+  gs_License.SetEmbedded(Embedded);
   if (m_CLH.bAltLicenseLoc)
     gs_License.SetAppPath(m_CLH.sLicenseLoc());
   else
@@ -1050,7 +1051,7 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
   if (LicenseFailed)
     {
     #if CK_ALLOWDEMOMODE
-    AfxMessageBox(gs_License.DidInitCrypkey() ? "License failed to initialise, SysCAD set to demo mode" : "License service ERROR!\n\nSysCAD set to demo mode");
+    gs_License.Error(gs_License.DidInitCrypkey() ? "License failed to initialise, SysCAD set to demo mode" : "License service ERROR!\n\nSysCAD set to demo mode");
     gs_License.SetDemoMode();
     LicenseFailed = 0;
     #else
@@ -1061,8 +1062,13 @@ BOOL CSysCADApp::InitInstLicense1(bool &LicenseFailed)
     }
   else
     {
-    if (gs_License.MultiUserFailure() && AfxMessageBox("Unable to obtain license, set SysCAD to demo mode?", MB_YESNO)!=IDYES)
-      return false;
+    if (gs_License.MultiUserFailure())
+      {
+      if (Embedded)
+        gs_License.Error("Unable to obtain license, set SysCAD to demo mode?");
+      else if (AfxMessageBox("Unable to obtain license, set SysCAD to demo mode?", MB_YESNO)!=IDYES)
+        return false;
+      }
     }
   #endif
 
@@ -1501,6 +1507,11 @@ BOOL CSysCADApp::InitInstance()
 #endif
 //  Dbg_Entry();
   gs_MsgLog.Entry();
+  //gs_MsgLog.SetOptions( LogOption_COMCallsEntry
+  //                      |LogOption_COMCallsExit 
+  //                      |LogOption_COMCalls
+  //                      //|LogOption_COMCallsInternal
+  //                      ); 
 
   //ScdPFUser.SetProfFilename((char*)m_pszProfileName);
   ////ensure these are present in INI file...
@@ -1662,8 +1673,10 @@ BOOL CSysCADApp::InitInstance()
   CDlgBusy::Startup();
   CDlgBusy::Open("\n\nStarting");
 
+  BuildInterfaceWindows();
+
   bool LicenseFailed=true;
-  if (!InitInstLicense1(LicenseFailed))
+  if (!InitInstLicense1(cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated, LicenseFailed))
     return false;
 
   if (!InitInstVersion())
@@ -1699,7 +1712,6 @@ BOOL CSysCADApp::InitInstance()
 
   MainWnd()->EO_Register(pExecName_MainWnd, EOWrite_Msg, 0, 0);
 
-  BuildInterfaceWindows();
 
   CPGMDbgMngr::Open();
 

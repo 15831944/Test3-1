@@ -92,6 +92,7 @@ class DllImportExport CLicense
     BOOL bCOMMineServeOn;
 
     BOOL m_bUseCOM;
+    BOOL m_bEmbedded;
 
   public:
     CLicense();
@@ -141,8 +142,9 @@ class DllImportExport CLicense
     inline int DaysLeft()           { return iDaysLeft; };
     inline void SetAppPath(char* p) { sAppPath = p; };
     inline char* GetAppPath()       { return (sAppPath.GetLength()==0 ? NULL : (char*)(const char*)sAppPath); };
-  protected:
+    inline void SetEmbedded(bool On) { m_bEmbedded=On; }
     void Error(char * fmt, ...);
+  protected:
     //UINT Challenge(ULONG companyNum, ULONG passNum, UINT random1, UINT random2);
     long Challenge32(long companyNum, long passNumDiv2, long random1, long random2);
     int UpdateCrypkeyINI(char* path);
