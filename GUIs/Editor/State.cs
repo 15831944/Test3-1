@@ -102,54 +102,50 @@ namespace SysCAD.Editor
     {
       flowchart.SuspendLayout();
 
-      Box modelBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
-      Box graphicBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
-      Box textBox = flowchart.CreateBox(0.0F, 0.0F, 10.0F, 10.0F);
+      ModelStencil modelStencil;
+      GraphicStencil graphicStencil;
 
-      modelBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      Box modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       modelBox.RotationAngle = graphicItem.Angle;
       modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       modelBox.Style = BoxStyle.Shape;
-      {
-        ModelStencil stencil;
-        if (config.modelStencils.TryGetValue(graphicItem.Model, out stencil))
-          modelBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
-        else
-          modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-        AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
-        if (stencil.Anchors != null)
+      if (config.modelStencils.TryGetValue(graphicItem.Model, out modelStencil))
+        modelBox.Shape = modelStencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+      else
+        modelBox.Shape = ShapeTemplate.FromId("Decision2");
+
+      AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
+      if (modelStencil.Anchors != null)
+      {
+        int anchorInt = 0;
+        foreach (Anchor anchor in modelStencil.Anchors)
         {
-          int anchorInt = 0;
-          foreach (Anchor anchor in stencil.Anchors)
-          {
-            graphicItem.anchorIntToTag.Add(anchorInt, anchor.tag);
-            graphicItem.anchorTagToInt.Add(anchor.tag, anchorInt);
-            anchorInt++;
-            AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Green);
-            anchorPoint.Tag = anchor;
-            anchorPointCollection.Add(anchorPoint);
-          }
-          modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
+          graphicItem.anchorIntToTag.Add(anchorInt, anchor.tag);
+          graphicItem.anchorTagToInt.Add(anchor.tag, anchorInt);
+          anchorInt++;
+          AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Green);
+          anchorPoint.Tag = anchor;
+          anchorPointCollection.Add(anchorPoint);
         }
+        modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
       }
 
       modelBox.FillColor = Color.FromArgb(150, System.Drawing.Color.BurlyWood);
       modelBox.FrameColor = Color.FromArgb(200, System.Drawing.Color.BurlyWood);
       modelBox.Visible = ShowModels && isVisible;
 
-      graphicBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      Box graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
       graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
       graphicBox.RotationAngle = graphicItem.Angle;
       graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       graphicBox.Style = BoxStyle.Shape;
-      {
-        GraphicStencil stencil;
-        if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
-          graphicBox.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
-        else
-          graphicBox.Shape = ShapeTemplate.FromId("Decision2");
-      }
+
+      if (config.graphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
+        graphicBox.Shape = graphicStencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+      else
+        graphicBox.Shape = ShapeTemplate.FromId("Decision2");
+
       graphicBox.EnabledHandles = Handles.None;
       graphicBox.HandlesStyle = HandlesStyle.Invisible;
       graphicBox.Visible = ShowGraphics && isVisible;
@@ -161,7 +157,14 @@ namespace SysCAD.Editor
         graphicBox.FillColor = graphicItem.FillColor;
 
 
-      textBox.BoundingRect = new RectangleF(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+      RectangleF textArea = graphicStencil.textArea;
+      RectangleF textBoxRect = new RectangleF(
+                                graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
+                                textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
+
+      Box textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
       textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
       textBox.FillColor = Color.FromArgb(0, System.Drawing.Color.Black);
       textBox.FrameColor = Color.FromArgb(0, System.Drawing.Color.Black);

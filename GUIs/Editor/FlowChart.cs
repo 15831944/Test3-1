@@ -242,7 +242,7 @@ namespace SysCAD.Editor
           {
             foreach (Anchor anchor in modelShape.Anchors)
             {
-              AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Green);
+              AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Red);
               anchorPoint.Tag = anchor;
               anchorPointCollection.Add(anchorPoint);
             }
@@ -559,7 +559,7 @@ namespace SysCAD.Editor
     {
       PointF mousePos = fcFlowChart.ClientToDoc(MousePosition);
 
-      if (arrowBeingModified != null)
+      //if (arrowBeingModified != null)
       {
         PointF originPos = arrowBeingModified.ControlPoints[0];
         Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
@@ -761,7 +761,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Green, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
@@ -789,7 +789,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Green, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
