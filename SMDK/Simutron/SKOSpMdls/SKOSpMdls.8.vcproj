@@ -774,67 +774,6 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 		</Filter>
-		<Filter
-			Name="Other (Non SCC)"
-			SourceControlFiles="false"
-			>
-			<File
-				RelativePath="..\..\Include\DebugLib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_base.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_defn.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_headers.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_impl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_method.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_PSD.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_share1.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_share2.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_share3.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_spmodel.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\md_vector.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\MsgLog.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Include\ScdMacros.h"
-				>
-			</File>
-		</Filter>
 	</Files>
 	<Globals>
 		<Global
