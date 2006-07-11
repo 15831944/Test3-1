@@ -14,7 +14,7 @@ namespace Enc
 {
   public partial class EncForm : Form
   {
-    byte[] buffer = new byte[16*1024]; // 16KB
+    byte[] buffer = new byte[64*1024]; // 64KB
 
     public EncForm()
     {
@@ -37,12 +37,12 @@ namespace Enc
         {
           FileStream origFileStream = new FileStream(openFileDialog.FileName, FileMode.Open);
 
-          progressBar.Maximum = 100; 
-          progressBar.Minimum = 0;
-          progressBar.Value = 0;
-          try { progressBar.Maximum = (int)origFileStream.Length; }
-          catch { progressBar.Maximum = 100;  progressBar.Style = ProgressBarStyle.Marquee; }
-          progressBar.Visible = true;
+          toolStripProgressBar.Maximum = 100;
+          toolStripProgressBar.Minimum = 0;
+          toolStripProgressBar.Value = 0;
+          try { toolStripProgressBar.Maximum = (int)origFileStream.Length; }
+          catch { toolStripProgressBar.Maximum = 100;  toolStripProgressBar.Style = ProgressBarStyle.Marquee; }
+          toolStripProgressBar.Visible = true;
 
           FileStream encoutFileStream = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
 
@@ -58,17 +58,17 @@ namespace Enc
           {
             gzipoutStream.Write(buffer, 0, count);
             count = origFileStream.Read(buffer, 0, buffer.Length);
-            if (progressBar.Maximum != 100)
-              progressBar.Value += count;
+            if (toolStripProgressBar.Maximum != 100)
+              toolStripProgressBar.Value += count;
             Application.DoEvents();
           }
 
           origFileStream.Close();
           gzipoutStream.Close();
           encoutFileStream.Close();
-          progressBar.Visible = false;
-          progressBar.Style = ProgressBarStyle.Continuous;
-          progressBar.Value = 0;
+          toolStripProgressBar.Visible = false;
+          toolStripProgressBar.Style = ProgressBarStyle.Continuous;
+          toolStripProgressBar.Value = 0;
         }
       }
     }
@@ -105,11 +105,11 @@ namespace Enc
 
           GZipStream gzipinStream = new GZipStream(encinFileStream, CompressionMode.Decompress);
 
-          progressBar.Minimum = 0;
-          progressBar.Value = 0;
-          try { progressBar.Maximum = (int)gzipinStream.Length; }
-          catch { progressBar.Maximum = 100; progressBar.Style = ProgressBarStyle.Marquee; }
-          progressBar.Visible = true;
+          toolStripProgressBar.Minimum = 0;
+          toolStripProgressBar.Value = 0;
+          try { toolStripProgressBar.Maximum = (int)gzipinStream.Length; }
+          catch { toolStripProgressBar.Maximum = 100; toolStripProgressBar.Style = ProgressBarStyle.Marquee; }
+          toolStripProgressBar.Visible = true;
 
           FileStream unencFileStream = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
 
@@ -118,17 +118,17 @@ namespace Enc
           {
             unencFileStream.Write(buffer, 0, count);
             count = gzipinStream.Read(buffer, 0, buffer.Length);
-            if (progressBar.Maximum != 100)
-              progressBar.Value += count;
+            if (toolStripProgressBar.Maximum != 100)
+              toolStripProgressBar.Value += count;
             Application.DoEvents();
           }
 
           gzipinStream.Close();
           encinFileStream.Close();
           unencFileStream.Close();
-          progressBar.Visible = false;
-          progressBar.Style = ProgressBarStyle.Continuous;
-          progressBar.Value = 0;
+          toolStripProgressBar.Visible = false;
+          toolStripProgressBar.Style = ProgressBarStyle.Continuous;
+          toolStripProgressBar.Value = 0;
         }
       }
     }

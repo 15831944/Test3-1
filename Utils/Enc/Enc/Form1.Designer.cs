@@ -35,9 +35,11 @@ namespace Enc
       this.labelPassword = new System.Windows.Forms.Label();
       this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-      this.progressBar = new System.Windows.Forms.ProgressBar();
+      this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+      this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
       this.tableLayoutPanel1.SuspendLayout();
       this.flowLayoutPanel1.SuspendLayout();
+      this.statusStrip1.SuspendLayout();
       this.SuspendLayout();
       // 
       // buttonEncrypt
@@ -63,7 +65,7 @@ namespace Enc
       // textBoxPassword
       // 
       this.textBoxPassword.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBoxPassword.Location = new System.Drawing.Point(3, 51);
+      this.textBoxPassword.Location = new System.Drawing.Point(13, 61);
       this.textBoxPassword.MaximumSize = new System.Drawing.Size(160, 32767);
       this.textBoxPassword.Name = "textBoxPassword";
       this.textBoxPassword.Size = new System.Drawing.Size(160, 20);
@@ -72,7 +74,7 @@ namespace Enc
       // labelPassword
       // 
       this.labelPassword.AutoSize = true;
-      this.labelPassword.Location = new System.Drawing.Point(3, 35);
+      this.labelPassword.Location = new System.Drawing.Point(13, 45);
       this.labelPassword.Name = "labelPassword";
       this.labelPassword.Size = new System.Drawing.Size(56, 13);
       this.labelPassword.TabIndex = 3;
@@ -84,20 +86,20 @@ namespace Enc
       this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       this.tableLayoutPanel1.ColumnCount = 1;
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.progressBar, 0, 3);
       this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 0);
       this.tableLayoutPanel1.Controls.Add(this.textBoxPassword, 0, 2);
       this.tableLayoutPanel1.Controls.Add(this.labelPassword, 0, 1);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
+      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+      this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(10);
       this.tableLayoutPanel1.RowCount = 4;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(276, 212);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(300, 236);
       this.tableLayoutPanel1.TabIndex = 4;
       // 
       // flowLayoutPanel1
@@ -106,23 +108,26 @@ namespace Enc
       this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       this.flowLayoutPanel1.Controls.Add(this.buttonEncrypt);
       this.flowLayoutPanel1.Controls.Add(this.buttonDecrypt);
-      this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
+      this.flowLayoutPanel1.Location = new System.Drawing.Point(13, 13);
       this.flowLayoutPanel1.Name = "flowLayoutPanel1";
       this.flowLayoutPanel1.Size = new System.Drawing.Size(162, 29);
       this.flowLayoutPanel1.TabIndex = 5;
       // 
-      // progressBar
+      // statusStrip1
       // 
-      this.progressBar.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.progressBar.Enabled = false;
-      this.progressBar.Location = new System.Drawing.Point(3, 77);
-      this.progressBar.MaximumSize = new System.Drawing.Size(160, 16);
-      this.progressBar.MinimumSize = new System.Drawing.Size(0, 16);
-      this.progressBar.Name = "progressBar";
-      this.progressBar.Size = new System.Drawing.Size(160, 16);
-      this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-      this.progressBar.TabIndex = 8;
-      this.progressBar.Visible = false;
+      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripProgressBar});
+      this.statusStrip1.Location = new System.Drawing.Point(0, 214);
+      this.statusStrip1.Name = "statusStrip1";
+      this.statusStrip1.Size = new System.Drawing.Size(300, 22);
+      this.statusStrip1.TabIndex = 5;
+      this.statusStrip1.Text = "statusStrip1";
+      // 
+      // toolStripProgressBar
+      // 
+      this.toolStripProgressBar.Name = "toolStripProgressBar";
+      this.toolStripProgressBar.Size = new System.Drawing.Size(100, 16);
+      this.toolStripProgressBar.Visible = false;
       // 
       // EncForm
       // 
@@ -131,14 +136,16 @@ namespace Enc
       this.AutoSize = true;
       this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       this.ClientSize = new System.Drawing.Size(300, 236);
+      this.Controls.Add(this.statusStrip1);
       this.Controls.Add(this.tableLayoutPanel1);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.Name = "EncForm";
-      this.Padding = new System.Windows.Forms.Padding(12);
       this.Text = "Enc";
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
       this.flowLayoutPanel1.ResumeLayout(false);
+      this.statusStrip1.ResumeLayout(false);
+      this.statusStrip1.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -152,7 +159,8 @@ namespace Enc
     private System.Windows.Forms.Label labelPassword;
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-    private System.Windows.Forms.ProgressBar progressBar;
+    private System.Windows.Forms.StatusStrip statusStrip1;
+    private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar;
   }
 }
 
