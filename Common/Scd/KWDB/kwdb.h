@@ -346,9 +346,14 @@ public:
     inline short  SizeofDBType(ADOX::DataTypeEnum iDBType);
     inline short  IsValidDBType(ADOX::DataTypeEnum iDBType);
 
+    inline BOOL ErrorOccured() { return m_bErrorOccured; };
+    inline void ClearErrorOccured() { m_bErrorOccured = FALSE; };
+
 protected:
     CString        m_strClassDBName;
     CString        m_strProjDBName;
+    
+    BOOL           m_bErrorOccured;
     
     BOOL           m_bWithSCDOptions;         // CNM
     BOOL           m_bFullTagWithOwner;       // CNM

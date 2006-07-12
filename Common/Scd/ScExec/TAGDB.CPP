@@ -249,6 +249,9 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
       return OK;
       }
 
+    BOOL ErrorOccured() { return KWDatabase::ErrorOccured(); };
+    void ClearErrorOccured() { KWDatabase::ClearErrorOccured(); };
+
     // KWDatabase overides
     void DoKWDisplayException(LPCTSTR strMsg);
 
@@ -298,6 +301,7 @@ CTagDBMDB::~CTagDBMDB()
 
 void CTagDBMDB::DoKWDisplayException(LPCTSTR strMsg)
   {
+  m_bErrorOccured = TRUE;
   LogError("TagDB", LF_Exclamation, "%s", strMsg);
   };
 
@@ -973,7 +977,11 @@ int CTagDBMDB::SaveObject(pchar pObjType, CXM_ObjectData *pObjData)
   CPkDataIter Iter;
   pObjData->FirstItem(Iter); // Rewind
   //m_lSequenceNo++;
-  return SaveObj(pObjType, "", pObjData->List, Iter, SDOTag); 
+  ClearErrorOccured();
+  int Ret = SaveObj(pObjType, "", pObjData->List, Iter, SDOTag);
+  if (ErrorOccured())
+    LogError("TagDB", LF_Exclamation, "Save error for object %s", SDOTag());
+  return Ret; 
   };
 
 //------------------------------------------------------------------------

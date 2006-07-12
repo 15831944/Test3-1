@@ -79,6 +79,7 @@ KWDatabase::KWDatabase()
   m_bObjsWithSeqNo=FALSE;
   m_bHoldLclTransactions=FALSE;
   m_bGlblTransactionBusy=FALSE;
+  m_bErrorOccured=FALSE;
 
   m_strObjects = _T("$Objects");
   m_strConnections = _T("$Connections");
