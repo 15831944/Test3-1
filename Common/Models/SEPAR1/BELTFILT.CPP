@@ -11,7 +11,7 @@
 #n#n#h<General Description>
 #nThis model is used to simulate a belt filter with counter current washing.
 The main requirements for using this model are : a feed containing solids and liquids, 
-a wash water stream, containing no liquid solvents, and data on filtration losses for 
+a wash water stream, containing no liquid solutes, and data on filtration losses for 
 a simple filtration wash.  If the unit does not require washing, the user does not 
 have to specify a wash loss curve or number of stages.  The user must still specify 
 solids moisture.
@@ -24,12 +24,12 @@ final filtrate and the washed cake.
 the wash losses of each washing stage. The wash loss should be specified as a fraction, 
 i.e. 0 to 1.
 #nFor example, the wash loss for stage one, f1, is found from the curve using :
-#nWash ratio (N) = Volume of wash water / Volume of solution left in cake
+#nWash ratio (N) = Mass of wash water / Mass of solution left in cake
 #nLosses on stage 2 (f2) are found from 2 * N, stage 3 from 3 * N, etc.
 
 #n#n#b<Assumptions>
 #n1. The wash water is solute free.
-#n2. Ideal displacement washing is assumed, i.e. volumetric liquid phase hold-up 
+#n2. Ideal displacement washing is assumed, i.e. mass liquid phase hold-up 
 in the cake is constant throughout the washing process.
 #n3. No solids are lost to the filtrate.
 
@@ -44,7 +44,7 @@ delimited file (CSV), or inputted directly into the model.  The wash losses must
 a fraction, i.e. from 0 to 1.
 
 #n#n#h<Additional information available from the model>
-#n#i<WashRatio:>The calculated wash ratio, N, on the Belt filter.   N = Volume of Wash Water / Volume of Liquid in Cake.
+#n#i<WashRatio:>The calculated wash ratio, N, on the Belt filter.   N = Mass of Wash Water / Mass of Liquid in Cake.
 #n#n#h<Other>
 Default model prefix:BT#n
 Short name:BeltFilt#n
@@ -157,31 +157,29 @@ void BeltFilt::ConfigureJoins()
 
 //--------------------------------------------------------------------------
 
-void BeltFilt::filt(CDMatrix& w, CDVector& d, int j, long max)
+//void BeltFilt::filt(CDMatrix& w, CDVector& d, int j, long max)
+void BeltFilt::filt(CDArray& w, CDVector& d, long max)
   {
   max = max + 1;
   double den = WR - d[1];
-  w[j][2] = (WR * w[j][1] - d[1]) / den;
+  w[2] = (WR * w[1] - d[1]) / den;
   for (int i=3; i<max; i++)
     {
-    w[j][i] = (WR - d[1] + d[2]) * w[j][i-1] - d[i-1];
+    w[i] = (WR - d[1] + d[2]) * w[i-1] - d[i-1];
     for (int k=3; k<i; k++)
-      w[j][i] = w[j][i] - (d[k-1] - d[k]) * w[j][i-k+1];
-    w[j][i] = w[j][i] / den;
+      w[i] = w[i] - (d[k-1] - d[k]) * w[i-k+1];
+    w[i] = w[i] / den;
     }
   }
 
 //--------------------------------------------------------------------------
 
-void BeltFilt::washcon(CDMatrix& w, CDMatrix& c, double Cin, int j, long temp)
+//void BeltFilt::washcon(CDMatrix& w, CDMatrix& c, double Cin, int j, long temp)
+void BeltFilt::washcon(CDArray& w, CDArray& c, long temp)
   {
-  c[j][1] = 1.0 - WR * (w[j][1] - w[j][2]);
+  c[1] = 1.0 - WR * (w[1] - w[2]);
   for (int i = 2; i<temp; i++)
-    c[j][i] = c[j][i-1] - WR * (w[j][i] - w[j][i+1]);
-  for (i = 1; i<temp; i++)
-    {
-    c[j][i] = c[j][i] * Cin;
-    }
+    c[i] = c[i-1] - WR * (w[i] - w[i+1]);
   }
 
 //--------------------------------------------------------------------------
@@ -197,8 +195,16 @@ void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq, double QmW
   const double LiqTtl = QFd.QMass(som_Liq); //sum of ALL liquid in
   const double Liq = LiqTtl - QmWashLiq;
   const double c0 = 1.0;
-  CDMatrix w(max,temp+1);
-  CDMatrix c(max,temp);
+	CDArray w(temp+1);
+	CDArray c(temp);
+	CDMatrix SolidConc(max,temp);
+	
+	w[1] = 0.9;
+  filt(w, d, temp);
+  w[1] = ((w[1] - w[temp])/GTZ(c0 - w[temp]));
+  filt(w, d, temp);
+  washcon(w, c, temp);
+
   for (int i=0; i<max; i++)
     {
     if ((SDB[i].IsLiq()) && (i != water))
@@ -207,12 +213,9 @@ void BeltFilt::Conc(CDVector& d, long temp, double CLiq, double FLiq, double QmW
       const double Cin = mi / Liq;
       if (Cin > 1.0e-9)
         {
-        w[i][1] = 0.9;
-        filt(w, d, i, temp);
-        w[i][1] = ((w[i][1] - w[i][temp])/GTZ(c0 - w[i][temp]));
-        filt(w, d, i, temp);
-        washcon(w, c, Cin, i, temp);
-        const double loss = Max(0.0, c[i][temp-1] * CLiq);
+				for (int j = 1; j<temp; j++)
+				  SolidConc[i][j] = c[j] * Cin;
+				const double loss = Max(0.0, SolidConc[i][temp-1] * CLiq);
         const double wash = QFd.VMass[i] - loss;
         Qs.SetVMass(i, QFd, loss);
         Qf.SetVMass(i, QFd, wash);
