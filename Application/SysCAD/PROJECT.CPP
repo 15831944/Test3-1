@@ -3497,7 +3497,7 @@ void Project::CheckLicense(BOOL StartingSolve)
   #if CK_LICENSINGON
   if (!gs_License.Blocked())
     {
-    if (StartingSolve && (gs_License.DemoMode() || gs_License.TrialMode()))
+    if (StartingSolve && !gs_License.ForMineServe() && (gs_License.DemoMode() || gs_License.TrialMode()))
       AfxMessageBox(gs_License.DemoMode() ? "SysCAD is unlicensed !\n\nCurrently using Demo mode." : "SysCAD is unlicensed !\n\nCurrently using Trial version.");
 
     //make occasional call to crypkey library/dll...

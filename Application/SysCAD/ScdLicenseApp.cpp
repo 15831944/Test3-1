@@ -145,7 +145,7 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
             for (int iOpt=0; iOpt<MaxLicOptions; iOpt++)
               {
               if (kOption==sOptions[iOpt])
-                dwOptions |= (1<<(iTkn-5));  
+                dwOptions |= (1<<(iTkn-6));  
               }            
             break;
             }

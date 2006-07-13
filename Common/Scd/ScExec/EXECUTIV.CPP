@@ -2228,7 +2228,10 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         if (ResetRunState(false, 0))
           PostCmd(0, EXM_STARTPAUSE);
         else
+          {
+          m_bSendStopEvent=true;
           PostCmd(0, EXM_STOPPED);
+          }
 
         //for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
         //  Objs_Reg[RInx]->EO_GotoRunStart();
@@ -2253,7 +2256,10 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         if (ResetRunState(false, lParam))
           PostCmd(0, EXM_START);
         else
+          {
+          m_bSendStopEvent=true;
           PostCmd(0, EXM_STOPPED);
+          }
         }
       break;
     case EXM_DOONESTEP:
@@ -2278,7 +2284,10 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           if (ResetRunState(false, lParam))
             PostCmd(0, (lParam&0x10000)/*HoldAdv*/ ? EXM_STEPNOADV : EXM_STEP);
           else
+            {
+            m_bSendStopEvent=true;
             PostCmd(0, EXM_STOPPED);
+            }
           }
         else
           LogNote("Executive", 0, "Filing operation busy");
@@ -3165,7 +3174,10 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         PostCmd(0, EXM_LASTREADDONE);
         }
       else
+        {
+        m_bSendStopEvent=true;
         PostCmd(0, EXM_STOPPED);
+        }
       break;
 
     case EXM_LASTREADDONE:

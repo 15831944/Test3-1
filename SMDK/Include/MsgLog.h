@@ -151,7 +151,7 @@ class DllImportExport CMessageLog //public CMsgLogArray
                             
     void              ComCallStart();
     void              ComCallEnd();
-    bool              GetComCallLevel();
+    long              GetComCallLevel();
     int               GetComCallLogLnCnt();
     LPCTSTR           GetComCallLogLn();
 

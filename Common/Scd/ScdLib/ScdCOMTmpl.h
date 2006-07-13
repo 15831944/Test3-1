@@ -67,7 +67,7 @@ class CScdCallEntryExit
       m_Data.m_hResult = S_OK;                                                                 
       m_Data.m_pCatchStr = NULL;                                                               
       m_Data.m_LastRetCode = 0;                                                                
-      if (gs_MsgLog.TestOption(LogOption_COMCallsEntry) && gs_MsgLog.GetComCallLevel()==0)                      
+      if (gs_MsgLog.TestOption(LogOption_COMCallsEntry))// && gs_MsgLog.GetComCallLevel()==0)                      
         LogNote("Com", 0, "CallEntry:%s", m_MyFnName);                                           
       };
     ~CScdCallEntryExit() 
@@ -87,11 +87,17 @@ class CScdCallEntryExit
           }                                                                                           
         else 
           {                                                                                           
-          if (gs_MsgLog.TestOption(LogOption_COMCallsExit) && gs_MsgLog.GetComCallLevel()==0)                          
-            LogNote("Com", 0, "CallExit(%08x):%s", m_Data.m_hResult,m_MyFnName);                                 
+          if (gs_MsgLog.TestOption(LogOption_COMCallsExit))// && gs_MsgLog.GetComCallLevel()==0)                          
+            LogNote("Com", 0, "CallErrorExit(%08x):%s", m_Data.m_hResult,m_MyFnName);                                 
           //Error(m_MyFnName, GUID_NULL/*CLSID_ScdTest*/, m_Data.m_hResult);                                       
           }                                                                                           
         }
+      else 
+        {                                                                                           
+        if (gs_MsgLog.TestOption(LogOption_COMCallsExit))// && gs_MsgLog.GetComCallLevel()==0)                          
+          LogNote("Com", 0, "CallExit(%08x):%s", m_Data.m_hResult,m_MyFnName);                                 
+        //Error(m_MyFnName, GUID_NULL/*CLSID_ScdTest*/, m_Data.m_hResult);                                       
+        }                                                                                           
       gs_MsgLog.ComCallEnd(); 
       };
     BOOL HResultOK() { return SUCCEEDED(m_Data.m_hResult); };
