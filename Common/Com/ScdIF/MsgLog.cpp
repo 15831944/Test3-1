@@ -7,6 +7,18 @@
 #define __MSGLOG_CPP
 #include "MsgLog.h"
 #include "DebugLib.h"
+//#include "dbgmngr.h"
+
+#ifndef DISTRIBUTION
+static int dbgLogCallsEntry      = 0;
+static int dbgLogCallsExit       = 0;
+static int dbgLogCalls           = 0;
+static int dbgLogCallsInternal   = 0;
+//static CDbgMngr dbgLogCallsEntry          ("MsgLog",   "CallsEntry");
+//static CDbgMngr dbgLogCallsExit           ("MsgLog",   "CallsExit");
+//static CDbgMngr dbgLogCalls               ("MsgLog",   "Calls");
+//static CDbgMngr dbgLogCallsInternal       ("MsgLog",   "CallsInternal");
+#endif
 
 //#ifdef _DEBUG
 //#undef THIS_FILE
@@ -140,7 +152,16 @@ void CMessageLog::SetOptions(DWORD Opt)
 
 BOOL CMessageLog::TestOption(DWORD Opt)
   {
+#ifndef DISTRIBUTION
+  DWORD DbgOpt=0;
+  if (dbgLogCallsEntry   /*()*/)   DbgOpt |= LogOption_COMCallsEntry   ;
+  if (dbgLogCallsExit    /*()*/)   DbgOpt |= LogOption_COMCallsExit    ;
+  if (dbgLogCalls        /*()*/)   DbgOpt |= LogOption_COMCalls        ;
+  if (dbgLogCallsInternal/*()*/)   DbgOpt |= LogOption_COMCallsInternal;
+  return (((DbgOpt|m_dwLogOptions)&Opt)!=0);
+#else
   return ((m_dwLogOptions&Opt)!=0);
+#endif
   };
 
 //===========================================================================
@@ -184,9 +205,9 @@ void CMessageLog::ComCallEnd()
   { 
   m_lComCallLevel--; 
   };
-bool CMessageLog::GetComCallLevel()
+long CMessageLog::GetComCallLevel()
   {
-  return m_lComCallLevel>0;
+  return m_lComCallLevel;
   };
 int  CMessageLog::GetComCallLogLnCnt() 
   { 
