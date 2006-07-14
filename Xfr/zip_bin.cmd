@@ -34,7 +34,7 @@ set fn=%foldr%\Bins116
 rem ========== SysCAD Standard Files ==========
 set fn2=%fn%_SysCAD.zip
 del %fn2%
-wzzip -a %fn2% ..\bin\syscad91.exe ..\bin\syscad.exe
+wzzip -a %fn2% ..\bin\syscad91.exe
 wzzip -a %fn2% ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\control1.dll
 wzzip -a %fn2% ..\bin\flwlib.dll ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll 
 wzzip -a %fn2% ..\bin\mdlbase.dll ..\bin\scdcom.dll ..\bin\scddesrvr.dll ..\bin\scdif.dll 
@@ -43,6 +43,8 @@ wzzip -a %fn2% ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopc
 wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll 
 wzzip -a %fn2% ..\bin\unzip32.dll ..\bin\xylib.dll ..\bin\zip32.dll
 wzzip -a %fn2% ..\bin\power1.dll 
+
+wzzip -a %fn2% ..\license\syscad.exe
 
 wzzip -a %fn2% ..\bin\regall.cmd
 wzzip -a %fn2% ..\bin\syscad91.tlb
