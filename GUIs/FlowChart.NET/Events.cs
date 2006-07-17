@@ -107,9 +107,19 @@ namespace MindFusion.FlowChartX
 
 	public class BoxConfirmArgs : EventArgs
 	{
-		public BoxConfirmArgs(Box b)
+		public BoxConfirmArgs(Box box)
 		{
-			box = b;
+			this.box = box;
+			this.point = new PointF(0, 0);
+			this.handle = -1;
+			confirm = true;
+		}
+
+		public BoxConfirmArgs(Box box, PointF point, int handle)
+		{
+			this.box = box;
+			this.point = point;
+			this.handle = handle;
 			confirm = true;
 		}
 
@@ -118,13 +128,30 @@ namespace MindFusion.FlowChartX
 			get { return box; }
 		}
 
+		public PointF Point
+		{
+			get { return point; }
+		}
+
+		public int SelectionHandle
+		{
+			get { return handle; }
+		}
+
 		public bool Confirm
 		{
 			get { return confirm; }
 			set { confirm = value; }
 		}
 
+		public RectangleF OldBounds
+		{
+			get { return box.rcSaved; }
+		}
+
 		private Box box;
+		private PointF point;
+		private int handle;
 		private bool confirm;
 	}
 
@@ -132,7 +159,17 @@ namespace MindFusion.FlowChartX
 	{
 		public ControlHostConfirmArgs(ControlHost host)
 		{
-			controlHost = host;
+			this.controlHost = host;
+			this.point = new PointF(0, 0);
+			this.handle = -1;
+			confirm = true;
+		}
+
+		public ControlHostConfirmArgs(ControlHost host, PointF point, int handle)
+		{
+			this.controlHost = host;
+			this.point = point;
+			this.handle = handle;
 			confirm = true;
 		}
 
@@ -141,13 +178,30 @@ namespace MindFusion.FlowChartX
 			get { return controlHost; }
 		}
 
+		public PointF Point
+		{
+			get { return point; }
+		}
+
+		public int SelectionHandle
+		{
+			get { return handle; }
+		}
+
 		public bool Confirm
 		{
 			get { return confirm; }
 			set { confirm = value; }
 		}
 
+		public RectangleF OldBounds
+		{
+			get { return controlHost.rcSaved; }
+		}
+
 		private ControlHost controlHost;
+		public PointF point;
+		public int handle;
 		private bool confirm;
 	}
 
@@ -159,7 +213,6 @@ namespace MindFusion.FlowChartX
 			this.host= host;
 			this.stream = stream;
 		}
-
 
 		public ControlHost ControlHost
 		{
@@ -200,16 +253,39 @@ namespace MindFusion.FlowChartX
 
 	public class TableConfirmArgs : EventArgs
 	{
-		public TableConfirmArgs(Table t)
+		public TableConfirmArgs(Table table)
 		{
-			table = t;
+			this.table = table;
+			this.point = new PointF(0, 0);
+			this.handle = -1;
 			confirm = true;
 			column = row = -1;
 		}
 
-		public TableConfirmArgs(Table t, int row, int column)
+		public TableConfirmArgs(Table table, PointF point, int handle)
 		{
-			this.table = t;
+			this.table = table;
+			this.point = point;
+			this.handle = handle;
+			confirm = true;
+			column = row = -1;
+		}
+
+		public TableConfirmArgs(Table table, int row, int column)
+		{
+			this.table = table;
+			this.point = new PointF(0, 0);
+			this.handle = -1;
+			this.confirm = true;
+			this.column = column;
+			this.row = row;
+		}
+
+		public TableConfirmArgs(Table table, int row, int column, PointF point, int handle)
+		{
+			this.table = table;
+			this.point = point;
+			this.handle = handle;
 			this.confirm = true;
 			this.column = column;
 			this.row = row;
@@ -218,6 +294,16 @@ namespace MindFusion.FlowChartX
 		public Table Table
 		{
 			get { return table; }
+		}
+
+		public PointF Point
+		{
+			get { return point; }
+		}
+
+		public int SelectionHandle
+		{
+			get { return handle; }
 		}
 
 		public bool Confirm
@@ -236,7 +322,14 @@ namespace MindFusion.FlowChartX
 			get { return row; }
 		}
 
+		public RectangleF OldBounds
+		{
+			get { return table.rcSaved; }
+		}
+
 		private Table table;
+		private PointF point;
+		private int handle;
 		private bool confirm;
 		private int column;
 		private int row;
@@ -244,15 +337,35 @@ namespace MindFusion.FlowChartX
 
 	public class ArrowConfirmArgs : EventArgs
 	{
-		public ArrowConfirmArgs(Arrow a)
+		public ArrowConfirmArgs(Arrow arrow)
 		{
-			arrow = a;
+			this.arrow = arrow;
+			this.point = new PointF(0, 0);
+			this.handle = -1;
+			confirm = true;
+		}
+
+		public ArrowConfirmArgs(Arrow arrow, PointF point, int handle)
+		{
+			this.arrow = arrow;
+			this.point = point;
+			this.handle = handle;
 			confirm = true;
 		}
 
 		public Arrow Arrow
 		{
 			get { return arrow; }
+		}
+
+		public PointF Point
+		{
+			get { return point; }
+		}
+
+		public int SelectionHandle
+		{
+			get { return handle; }
 		}
 
 		public bool Confirm
@@ -262,6 +375,8 @@ namespace MindFusion.FlowChartX
 		}
 
 		private Arrow arrow;
+		private PointF point;
+		private int handle;
 		private bool confirm;
 	}
 
@@ -847,6 +962,24 @@ namespace MindFusion.FlowChartX
 	}
 
 	/// <summary>
+	/// Provides data for the StartModify event
+	/// </summary>
+	public class ItemEventArgs : EventArgs
+	{
+		public ItemEventArgs(ChartObject item)
+		{
+			this.item = item;
+		}
+
+		public ChartObject Item
+		{
+			get { return item; }
+		}
+
+		private ChartObject item;
+	}
+
+	/// <summary>
 	/// Provides data for the HitTestSelHandles event
 	/// </summary>
 	public class HitTestEventArgs : EventArgs
@@ -890,6 +1023,7 @@ namespace MindFusion.FlowChartX
 
 	// general event delegates
 	public delegate void NodeEventHandler(object sender, NodeEventArgs e);
+	public delegate void ItemEventHandler(object sender, ItemEventArgs e);
 	public delegate void ArrowEvent(object sender, ArrowEventArgs e);
 	public delegate void BoxEvent(object sender, BoxEventArgs e);
 	public delegate void ControlHostEvent(object sender, ControlHostEventArgs e);

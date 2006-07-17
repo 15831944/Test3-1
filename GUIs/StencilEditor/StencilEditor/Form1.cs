@@ -1111,6 +1111,8 @@ namespace StencilEditor
       decorationTextBox.Text = "";
       textAreaTextBox.Text = "";
 
+      Text = "*Untitled*";
+
       graphicStencil.elements = new System.Collections.ArrayList();
       graphicStencil.decorations = new System.Collections.ArrayList();
 
@@ -1155,59 +1157,78 @@ namespace StencilEditor
 
       if (openFileDialog.ShowDialog() == DialogResult.OK)
       {
-        filename = openFileDialog.FileName;
+        string baseName = openFileDialog.FileName;
+        baseName = baseName.Replace(".GraphicStencil", "");
+        baseName = baseName.Replace(".ModelStencil", "");
+        baseName = baseName.Replace(".graphicstencil", "");
+        baseName = baseName.Replace(".modelstencil", "");
 
-        SoapFormatter sf = new SoapFormatter();
-        Stream stream = new StreamReader(openFileDialog.FileName).BaseStream;
+        Text = baseName;
+
+        filename = baseName;
 
         this.elementTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
         this.decorationTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
         this.textAreaTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
         this.anchorTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
 
-        if (filename.ToLower().EndsWith(".graphicstencil"))
+        toolStripComboBoxModelGroup.Text = "";
+
         {
           try
           {
-            graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-            toolStripComboBoxModelGroup.Text = "";
+            SoapFormatter sf = new SoapFormatter();
+            Stream stream = new StreamReader(baseName + ".ModelStencil").BaseStream;
 
+            modelStencil = (ModelStencil)sf.Deserialize(stream);
+            stream.Close();
+
+            Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
+            Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+            Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
+            toolStripComboBoxModelGroup.Text = modelStencil.groupName;
           }
           catch
           {
-            stream.Close();
-            sf = new SoapFormatter();
-            stream = new StreamReader(openFileDialog.FileName).BaseStream;
-
-            OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
-            graphicStencil.elements = oldGraphicStencil.elements;
-            graphicStencil.decorations = oldGraphicStencil.decorations;
-            graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
-            //graphicStencil.fillMode = oldGraphicStencil.fillMode;
-            graphicStencil.groupName = oldGraphicStencil.groupName;
-            graphicStencil.textArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
           }
-          stream.Close();
-          
-          Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
-          Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-          Generate(graphicStencil.textArea, graphicStencil.defaultSize, textAreaTextBox);
         }
-        else if (filename.ToLower().EndsWith(".modelstencil"))
-        {
-          modelStencil = (ModelStencil)sf.Deserialize(stream);
-          stream.Close();
 
-          Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
-          Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-          Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
-          toolStripComboBoxModelGroup.Text = modelStencil.groupName;
-
-        }
-        else
         {
-          stream.Close();
-          return;
+          SoapFormatter sf;
+          Stream stream = null;
+
+          try
+          {
+            sf = new SoapFormatter();
+            stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
+
+            graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+            stream.Close();
+          }
+          catch
+          {
+            if (stream != null) stream.Close();
+            try
+            {
+              sf = new SoapFormatter();
+              stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
+
+              OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
+              graphicStencil.elements = oldGraphicStencil.elements;
+              graphicStencil.decorations = oldGraphicStencil.decorations;
+              graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
+              //graphicStencil.fillMode = oldGraphicStencil.fillMode;
+              graphicStencil.groupName = oldGraphicStencil.groupName;
+              graphicStencil.textArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+              Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
+              Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+              Generate(graphicStencil.textArea, graphicStencil.defaultSize, textAreaTextBox);
+            }
+            catch
+            {
+            }
+          }
+          if (stream != null) stream.Close();
         }
 
         Parse(modelStencil.elements, elementTextBox);

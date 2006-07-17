@@ -73,12 +73,12 @@ namespace MindFusion.FlowChartX
 
 		internal override Cursor getCannotDropCursor()
 		{
-			return fcParent.CurCannotCreate;
+			return null;
 		}
 
 		internal override Cursor getCanDropCursor()
 		{
-			return fcParent.CurPointer;
+			return null;
 		}
 
 		public override ItemType getType()

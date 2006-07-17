@@ -25,7 +25,7 @@ namespace MindFusion.FlowChartX.Commands
 				AddSubCmd(new ModifyItemCmd(arrow));
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			newRow = table.CurrScrollRow;
 
@@ -33,7 +33,7 @@ namespace MindFusion.FlowChartX.Commands
 				cmd.Execute(undoEnabled);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			table.setCurrScrollRow(oldRow);
 
@@ -43,7 +43,7 @@ namespace MindFusion.FlowChartX.Commands
 			cmdContext.Document.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			table.setCurrScrollRow(newRow);
 

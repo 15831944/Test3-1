@@ -28,7 +28,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.fcParent.UndoManager.executeCommand(this);
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			if (undoEnabled)
 				oldSelState = item.fcParent.Selection.saveState();
@@ -40,7 +40,7 @@ namespace MindFusion.FlowChartX.Commands
 				cmdContext.Document.routeAllArrows(item);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			for (int i = subCommands.Count - 1; i >= 0; i--)
 				subCommands[i].Undo();
@@ -52,7 +52,7 @@ namespace MindFusion.FlowChartX.Commands
 			cmdContext.Document.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			cmdContext.Document.addItem(item);
 

@@ -1,5 +1,14 @@
+// Copyright (c) 2003-2006, MindFusion Limited - Gibraltar.
+// This source code is provided to you as part of the FlowChart.NET control software
+// package you have purchased. Its purpose is to help you trace and/or fix
+// problems or customize the Control as needed for your application. To get permission
+// to use the sources in any other way, please contact us at info@mindfusion.org
+// Redistribution or any usage of the sources in a way not mentioned above is
+// illegal and shall be pursued and punished with all means provided by Copyright laws.
+
 using System;
 using System.IO;
+
 
 namespace MindFusion.FlowChartX
 {
@@ -15,6 +24,7 @@ namespace MindFusion.FlowChartX
 			minHeight = 0;
 			maxWidth = 0;
 			maxHeight = 0;
+			boolValues = 0;
 		}
 
 		public object Clone()
@@ -25,6 +35,7 @@ namespace MindFusion.FlowChartX
 			clone.minHeight = this.minHeight;
 			clone.maxWidth = this.maxWidth;
 			clone.maxHeight = this.maxHeight;
+			clone.boolValues = this.boolValues;
 			return clone;
 		}
 
@@ -58,15 +69,37 @@ namespace MindFusion.FlowChartX
 			set { maxHeight = value; }
 		}
 
-		internal static int Count { get { return 5; } }
+		public bool KeepInsideParent
+		{
+			get { return (boolValues & fKeepInsideParent) != 0; }
+			set
+			{
+				if (value)
+					boolValues |= fKeepInsideParent;
+				else
+					if (KeepInsideParent)
+						boolValues -= fKeepInsideParent;
+			}
+		}
 
-		private DirectionConstraint moveDirection;
-		private float minWidth;
-		private float minHeight;
-		private float maxWidth;
-		private float maxHeight;
+		public bool KeepRatio
+		{
+			get { return (boolValues & fKeepRatio) != 0; }
+			set
+			{
+				if (value)
+					boolValues |= fKeepRatio;
+				else
+					if (KeepRatio)
+						boolValues -= fKeepRatio;
+			}
+		}
 
-		// Implement IPersist
+		internal static int Count
+		{
+			get { return 5; }
+		}
+
 		public int getClassId()
 		{
 			return 43;
@@ -95,5 +128,15 @@ namespace MindFusion.FlowChartX
 		public void setReference(int refId, IPersists obj)
 		{
 		}
+
+		private DirectionConstraint moveDirection;
+		private float minWidth;
+		private float minHeight;
+		private float maxWidth;
+		private float maxHeight;
+		private ushort boolValues;
+
+		private const ushort fKeepInsideParent = 1;
+		private const ushort fKeepRatio = 2;
 	}
 }

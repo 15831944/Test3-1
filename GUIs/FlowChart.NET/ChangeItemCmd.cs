@@ -29,7 +29,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.fcParent.UndoManager.executeCommand(this);
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			foreach (Command cmd in subCommands)
 				cmd.Execute(undoEnabled);
@@ -37,7 +37,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.saveProperties(resultProps);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			for (int i = subCommands.Count - 1; i >= 0; i--)
 				subCommands[i].Undo();
@@ -46,7 +46,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.fcParent.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			item.restoreProperties(resultProps);
 			foreach (Command cmd in subCommands)

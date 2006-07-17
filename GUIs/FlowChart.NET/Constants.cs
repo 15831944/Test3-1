@@ -408,5 +408,6 @@ namespace MindFusion.FlowChartX
 		internal const int ARROW_CROSSINGS = 3;
 		internal const int KEY_WRAPPER = 1234;
 		internal const int ARROW_TEXT = 4;
+		internal const int OLD_BOUNDS = 5;
 	}
 }

@@ -21,8 +21,8 @@ namespace MindFusion.FlowChartX
 	[Serializable]
 	internal class DummyLink : Link
 	{
-		public DummyLink(Arrow arrow, bool incm, PointF point) :
-			base(arrow, incm)
+		public DummyLink(Arrow arrow, bool incoming, PointF point) :
+			base(arrow, incoming)
 		{
 			this.point = point;
 		}

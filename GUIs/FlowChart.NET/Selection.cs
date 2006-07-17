@@ -18,13 +18,6 @@ using MindFusion.FlowChartX.Visitors;
 
 namespace MindFusion.FlowChartX
 {
-	public enum SelectionStyle
-	{
-		SelectionHandles,
-		Rectangle,
-		SemiTransparent
-	}
-
 	/// <summary>
 	/// Represents a selection of diagram items.
 	/// </summary>

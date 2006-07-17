@@ -22,6 +22,7 @@ namespace MindFusion.FlowChartX.Behaviors
 		public Behavior(FlowChart flowChart)
 		{
 			this.fc = flowChart;
+			this.currentCursor = fc.CurModify;
 		}
 
 		public abstract InteractionState StartDraw(PointF point);
@@ -114,39 +115,39 @@ namespace MindFusion.FlowChartX.Behaviors
 			{
 				if (handle == 9)
 				{
-					fc.Cursor = fc.CurRotateShape;
-					return;
+					currentCursor = fc.CurRotateShape;
 				}
-
-				if (node != null && node.rotation() != 0)
+				else if (node != null && node.rotation() != 0)
 				{
 					float a = 0, r = 0;
 					float d = 360 / 16;
 					MindFusion.Geometry.Geometry2D.Convert.DekartToPolar(
 						node.getCenter(), pt, ref a, ref r);
 					a = (int)(360 - a) % 360;
-					if (a >= 1*d && a < 3*d) { fc.Cursor = fc.CurMainDgnlResize; return; }
-					if (a >= 3*d && a < 5*d) { fc.Cursor = fc.CurVertResize; return; }
-					if (a >= 5*d && a < 7*d) { fc.Cursor = fc.CurSecDgnlResize; return; }
-					if (a >= 7*d && a < 9*d) { fc.Cursor = fc.CurHorzResize; return; }
-					if (a >= 9*d && a < 11*d) { fc.Cursor = fc.CurMainDgnlResize; return; }
-					if (a >= 11*d && a < 13*d) { fc.Cursor = fc.CurVertResize; return; }
-					if (a >= 13*d && a < 15*d) { fc.Cursor = fc.CurSecDgnlResize; return; }
-					fc.Cursor = fc.CurHorzResize;
+					if (a >= 1*d && a < 3*d) currentCursor = fc.CurMainDgnlResize; else
+					if (a >= 3*d && a < 5*d) currentCursor = fc.CurVertResize; else
+					if (a >= 5*d && a < 7*d) currentCursor = fc.CurSecDgnlResize; else
+					if (a >= 7*d && a < 9*d) currentCursor = fc.CurHorzResize; else
+					if (a >= 9*d && a < 11*d) currentCursor = fc.CurMainDgnlResize; else
+					if (a >= 11*d && a < 13*d) currentCursor = fc.CurVertResize; else
+					if (a >= 13*d && a < 15*d) currentCursor = fc.CurSecDgnlResize; else
+					currentCursor = fc.CurHorzResize;
 				}
 				else
 				{
-					if (handle == 0 || handle == 2) fc.Cursor = fc.CurMainDgnlResize;
-					if (handle == 1 || handle == 3) fc.Cursor = fc.CurSecDgnlResize;
-					if (handle == 4 || handle == 6) fc.Cursor = fc.CurVertResize;
-					if (handle == 5 || handle == 7) fc.Cursor = fc.CurHorzResize;
+					if (handle == 0 || handle == 2) currentCursor = fc.CurMainDgnlResize;
+					if (handle == 1 || handle == 3) currentCursor = fc.CurSecDgnlResize;
+					if (handle == 4 || handle == 6) currentCursor = fc.CurVertResize;
+					if (handle == 5 || handle == 7) currentCursor = fc.CurHorzResize;
 				}
 				
 			}
 			else
 			{
-				fc.Cursor = fc.CurModify;
+				currentCursor = fc.CurModify;
 			}
+
+			fc.Cursor = currentCursor;
 		}
 
 		private Arrow shouldSplitArrow(PointF point, ref int segmentToSplit)
@@ -171,5 +172,17 @@ namespace MindFusion.FlowChartX.Behaviors
 
 			return null;
 		}
+
+		internal Cursor getCurrentCursor()
+		{
+			return currentCursor;
+		}
+
+		internal void setCurrentCursor(Cursor cursor)
+		{
+			currentCursor = cursor;
+		}
+
+		protected Cursor currentCursor;
 	}
 }

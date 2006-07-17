@@ -393,7 +393,8 @@ namespace MindFusion.FlowChartX
 			public object Clone()
 			{
 				PathData clone = new PathData(data.GetLength(0));
-				clone.data = (float[][])data.Clone();
+				for (int i = 0; i < data.GetLength(0); ++i)
+					clone.data[i] = (float[])data[i].Clone();
 				return clone;
 			}
 

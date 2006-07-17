@@ -537,22 +537,10 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		internal override Cursor getCannotDropCursor()
-		{
-			return fcParent.CurCannotCreate;
-		}
-
-		internal override Cursor getCanDropCursor()
-		{
-			return fcParent.CurPointer;
-		}
-
-
 		internal override Link createLink(Arrow arrow, PointF pt, bool incoming)
 		{
 			return new ControlHostLink(this, arrow, incoming);
 		}
-
 
 		public override ItemType getType()
 		{
@@ -599,6 +587,11 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		private void OnControlMouseUp(object sender, MouseEventArgs e)
 		{
+			// _control might be null if the control is deleted from
+			// another handler of the control's MouseUp event
+			if (_control == null)
+				return;
+
 			// Fire clicked event
 			Graphics g = fcParent.CreateGraphics();
 			fcParent.setTransforms(g);

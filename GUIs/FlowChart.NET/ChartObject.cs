@@ -34,7 +34,7 @@ namespace MindFusion.FlowChartX
 			constructed = false;
 			modifying = false;
 			locked = false;
-			groupAttached = null;
+			subordinateGroup = null;
 			masterGroup = null;
 			cycleProtect = false;
 			cycleDetected = false;
@@ -79,7 +79,7 @@ namespace MindFusion.FlowChartX
 			modifyDX = modifyDY = 0;
 
 			locked = prototype.locked;
-			groupAttached = null;
+			subordinateGroup = null;
 			masterGroup = null;
 			cycleProtect = false;
 			cycleDetected = false;
@@ -114,7 +114,7 @@ namespace MindFusion.FlowChartX
 			brush = prototype.brush;
 			brush.AddRef();
 
-			groupAttached = masterGroup = null;
+			subordinateGroup = masterGroup = null;
 
 			ignoreLayout = prototype.ignoreLayout;
 
@@ -147,9 +147,9 @@ namespace MindFusion.FlowChartX
 		internal virtual void onRemove()
 		{
 			// remove from all groups
-			if (groupAttached != null) groupAttached.notifyObjDeleted(this);
+			if (subordinateGroup != null) subordinateGroup.notifyObjDeleted(this);
 			if (masterGroup != null) masterGroup.notifyObjDeleted(this);
-			groupAttached = null;
+			subordinateGroup = null;
 			masterGroup = null;
 		}
 
@@ -364,21 +364,21 @@ namespace MindFusion.FlowChartX
 
 		internal bool setGroup(Group group)
 		{
-			if (groupAttached == group) return true;
-			if (group != null && groupAttached != null) return false;
+			if (subordinateGroup == group) return true;
+			if (group != null && subordinateGroup != null) return false;
 
-			groupAttached = group;
+			subordinateGroup = group;
 			return true;
 		}
 
 		internal bool hasAttachedGroup()
 		{
-			return groupAttached != null;
+			return subordinateGroup != null;
 		}
 
 		internal Group getAttachedGroup()
 		{
-			return groupAttached;
+			return subordinateGroup;
 		}
 
 
@@ -763,8 +763,8 @@ namespace MindFusion.FlowChartX
 			cycleProtect = true;
 
 			visitor.accept(this);
-			if (groupAttached != null)
-				groupAttached.visitHierarchy(visitor);
+			if (subordinateGroup != null)
+				subordinateGroup.visitHierarchy(visitor);
 
 			cycleProtect = false;
 		}
@@ -775,8 +775,8 @@ namespace MindFusion.FlowChartX
 			cycleProtect = true;
 
 			visitor.accept(this);
-			if (groupAttached != null)
-				groupAttached.visitAttachedItems(visitor);
+			if (subordinateGroup != null)
+				subordinateGroup.visitAttachedItems(visitor);
 
 			cycleProtect = false;
 		}
@@ -789,7 +789,7 @@ namespace MindFusion.FlowChartX
 		[Browsable(false)]
 		public Group SubordinateGroup
 		{
-			get { return groupAttached; }
+			get { return subordinateGroup; }
 		}
 
 		[Browsable(false)]
@@ -798,7 +798,7 @@ namespace MindFusion.FlowChartX
 			get { return masterGroup; }
 		}
 
-		protected internal Group groupAttached;
+		protected internal Group subordinateGroup;
 		protected internal Group masterGroup;
 
 		protected internal bool cycleProtect;
@@ -1072,7 +1072,7 @@ namespace MindFusion.FlowChartX
 			ctx.saveFont(Font);
 			writer.Write(toolTip);
 
-			ctx.saveReference(this, groupAttached, 100);
+			ctx.saveReference(this, subordinateGroup, 100);
 			ctx.saveReference(this, masterGroup, 101);
 
 			// new in file format 10
@@ -1137,7 +1137,7 @@ namespace MindFusion.FlowChartX
 			switch (refId)
 			{
 			case 100:
-				groupAttached = (Group)obj;
+				subordinateGroup = (Group)obj;
 				break;
 			case 101:
 				masterGroup = (Group)obj;

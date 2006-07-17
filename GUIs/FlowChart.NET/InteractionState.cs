@@ -1,5 +1,7 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
+
 using MindFusion.FlowChartX.Commands;
 
 
@@ -39,6 +41,11 @@ namespace MindFusion.FlowChartX
 			get { return selectionHandle; }
 		}
 
+		internal PointF CurrentPoint
+		{
+			get { return currentPoint; }
+		}
+
 		internal void setHandleIndex(int newIndex)
 		{
 			selectionHandle = newIndex;
@@ -59,11 +66,11 @@ namespace MindFusion.FlowChartX
 			get { return invalidRect; }
 		}
 
-		internal void start(PointF pt, FlowChart fc)
+		internal void start(PointF point, FlowChart fc)
 		{
 			cycleRoots.Clear();
 			affectedArrows.Clear();
-			startPoint = currentPoint = pt;
+			startPoint = currentPoint = point;
 
 			if (action == Action.Split)
 			{
@@ -74,18 +81,21 @@ namespace MindFusion.FlowChartX
 			if (action == Action.Create)
 			{
 				fc.raiseInitEvent(currentObject);
-				currentObject.startCreate(pt);
+				currentObject.startCreate(point);
 			}
 
 			if (action == Action.Modify)
-				currentObject.startModify(pt, selectionHandle, this);
+			{
+				fc.fireBeginModifyEvent(currentObject, point, selectionHandle);
+				currentObject.startModify(point, selectionHandle, this);
+			}
 
 			invalidRect = currentObject.getRepaintRect(action == Action.Modify);
 		}
 
-		internal bool update(PointF pt, FlowChart fc)
+		internal bool update(PointF point, FlowChart fc)
 		{
-			currentPoint = pt;
+			currentPoint = point;
 			bool redrawBack = false;
 			if (currentObject == null)
 				return false;
@@ -103,33 +113,11 @@ namespace MindFusion.FlowChartX
 
 			if (action != Action.Split)
 			{
-				// set the mouse pointer
-				ChartObject obj = fc.GetNodeAt(pt);
-				if (action == Action.Create)
-				{
-					if (currentObject.allowCreate(pt))
-						fc.Cursor = currentObject.getCanDropCursor();
-					else
-						fc.Cursor = currentObject.getCannotDropCursor();
-				}
-				else
-				{
-					if (currentObject.allowModify(pt))
-						fc.Cursor = currentObject.getCanDropCursor();
-					else
-						fc.Cursor = currentObject.getCannotDropCursor();
-				}
-
 				// update the object positions
 				if (action == Action.Create)
-				{
-					currentObject.updateCreate(pt);
-				}
+					currentObject.updateCreate(point);
 				else
-				{
-					currentObject.updateModify(pt, this);
-					fc.fireModifyingEvent(currentObject, pt, selectionHandle);
-				}
+					currentObject.updateModify(point, this);
 			}
 
 			RectangleF rcNew = currentObject.getRepaintRect(
@@ -139,7 +127,7 @@ namespace MindFusion.FlowChartX
 			return redrawBack;
 		}
 
-		internal void complete(PointF pt, FlowChart fc)
+		internal void complete(PointF point, FlowChart fc)
 		{
 			cycleRoots.Clear();
 			affectedArrows.Clear();
@@ -151,7 +139,7 @@ namespace MindFusion.FlowChartX
 
 			if (action == Action.Create)
 			{
-				currentObject.completeCreate(pt);
+				currentObject.completeCreate(point);
 
 				// someone might have deleted the item in itemCreated handler
 				if (itemDeleted)
@@ -189,7 +177,7 @@ namespace MindFusion.FlowChartX
 			}
 			else
 			{
-				currentObject.completeModify(pt, this);
+				currentObject.completeModify(point, this);
 				fc.UndoManager.onCompleteModify();
 				if (!itemDeleted)
 				{
@@ -230,18 +218,41 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		internal bool isAllowed(PointF pt, FlowChart fc)
+		internal bool isAllowed(PointF point)
 		{
 			if (action == Action.Create)
-				return currentObject.allowCreate(pt) && fc.confirmCreate(currentObject);
+				return currentObject.allowCreate(point);
 
 			if (action == Action.Modify)
-				return currentObject.allowModify(pt);
+				return currentObject.allowModify(point);
 
 			if (action == Action.Split)
 				return false;
 
 			return true;
+		}
+
+		internal void setCursor(PointF point, FlowChart fc)
+		{
+			if (action == Action.Create)
+			{
+				Cursor cursor = currentObject.allowCreate(point) ?
+					currentObject.getCanDropCursor() : currentObject.getCannotDropCursor();
+
+				if (cursor != null)
+					fc.Cursor = cursor;
+			}
+
+			if (action == Action.Modify)
+			{
+				Cursor cursor = currentObject.allowModify(point) ?
+					currentObject.getCanDropCursor() : currentObject.getCannotDropCursor();
+
+				if (cursor != null)
+					fc.Cursor = cursor;
+				else
+					fc.Cursor = fc.getCurrBehavior().getCurrentCursor();
+			}
 		}
 
 		internal bool isCompleting()

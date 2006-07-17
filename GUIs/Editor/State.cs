@@ -479,8 +479,9 @@ namespace SysCAD.Editor
 
     internal GraphicLink GraphicLink(Arrow arrow)
     {
-      GraphicLink graphicLink;
-      graphic.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
+      GraphicLink graphicLink = null;
+      if ((arrow != null) && (arrow.Tag != null))
+        graphic.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
       return graphicLink;
     }
 
@@ -564,9 +565,9 @@ namespace SysCAD.Editor
     }
 
 
-    internal PortStatus PortCheck(Guid itemGuid, Anchor anchor, Guid linkGuid)
+    internal PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
-      return graphic.PortCheck(itemGuid, anchor, linkGuid);
+      return graphic.PortCheck(itemGuid, anchor);
     }
 
 

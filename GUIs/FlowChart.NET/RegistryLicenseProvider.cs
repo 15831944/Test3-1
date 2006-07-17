@@ -23,6 +23,13 @@ namespace MindFusion.FlowChartX
 				RegistryKey licenseKey = Registry.LocalMachine.
 					OpenSubKey("Software\\MindFusion Limited\\ComponentLicenses");
 
+				if (licenseKey == null)
+				{
+					// the conrol might be installed on a 64-bit system
+					licenseKey = Registry.LocalMachine.
+						OpenSubKey("Software\\Wow6432Node\\MindFusion Limited\\ComponentLicenses");
+				}
+
                 if (licenseKey != null)
 				{
 					object keyVal = licenseKey.GetValue(type.FullName);

@@ -23,7 +23,7 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	public class PersistContext
 	{
-		int saveFileFormat = 27;
+		int saveFileFormat = 28;
 
 		internal PersistContext(Stream stream, IPersistObjFactory factory)
 		{
@@ -70,7 +70,7 @@ namespace MindFusion.FlowChartX
 			fileVersion = (int)reader.ReadInt32();
 			if (fileVersion > saveFileFormat)
 			{
-				// file version is newer than one we support
+				// the file version is newer than the one supported by the current FC.NET version
 				throw new System.IO.FileLoadException(
 					"Unsupported file version", "", null);
 			}

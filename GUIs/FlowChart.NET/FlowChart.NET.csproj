@@ -4,6 +4,12 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</ProjectGuid>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccProvider>
+    </SccProvider>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>NetIco.ico</ApplicationIcon>
@@ -23,17 +29,19 @@
     </StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
+    <SccAuxPath>
+    </SccAuxPath>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\bin\</OutputPath>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;_EFFECTS</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
@@ -50,7 +58,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\bin\</OutputPath>
+    <OutputPath>..\Output\Retail.1.1\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -142,6 +150,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="LayoutSystem.AnnealLayout.bmp" />
     <Compile Include="AccessAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -159,6 +168,9 @@
     </Compile>
     <Compile Include="AngleEdit.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AnnealLayout.cs">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Arrow.cs">
       <SubType>Code</SubType>
@@ -272,6 +284,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DummyNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Effects.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="EndModifyVisitor.cs">
@@ -523,7 +538,9 @@
     <Compile Include="XmlWriter.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ZOrderComparer.cs" />
+    <Compile Include="ZOrderComparer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <EmbeddedResource Include="AngleEdit.resx">
       <DependentUpon>AngleEdit.cs</DependentUpon>
     </EmbeddedResource>

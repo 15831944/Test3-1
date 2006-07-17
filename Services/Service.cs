@@ -60,7 +60,7 @@ namespace SysCAD.Service
     }
 
 
-    private static PortStatus PortCheck(ServiceGraphic graphic, Guid itemGuid, Anchor anchor, Guid linkGuid)
+    private static PortStatus PortCheck(ServiceGraphic graphic, Guid itemGuid, Anchor anchor)
     {
       GraphicItem graphicItem;
       if (graphic.graphicItems.TryGetValue(itemGuid, out graphicItem))

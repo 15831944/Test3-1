@@ -84,7 +84,8 @@ namespace MindFusion.FlowChartX
 				Node node = item as Node;
 				if (item.HyperLink != "")
 				{
-					html += TAB + TAB + "<AREA SHAPE=";
+					html += TAB + TAB;
+					string areaTag = "<AREA SHAPE=";
 
 					if (node != null)
 					{
@@ -96,14 +97,14 @@ namespace MindFusion.FlowChartX
 								case BoxStyle.Rectangle:
 								case BoxStyle.RoundedRectangle:
 									// SHAPE="RECT"
-									html += createRectArea(b.BoundingRect);
+									areaTag += createRectArea(b.BoundingRect);
 									break;
 								case BoxStyle.Shape:
 								case BoxStyle.Ellipse:
 								case BoxStyle.Delay:
 								case BoxStyle.Rhombus:
 									// SHAPE="POLY"
-									html += createPolyArea(b.getOutlinePoly());
+									areaTag += createPolyArea(b.getOutlinePoly());
 									break;
 							}
 						}
@@ -111,7 +112,7 @@ namespace MindFusion.FlowChartX
 						if (node is ControlHost)
 						{
 							// SHAPE="RECT"
-							html = html + createRectArea(node.BoundingRect);
+							areaTag = areaTag + createRectArea(node.BoundingRect);
 						}
 
 						if (node is Table)
@@ -123,19 +124,28 @@ namespace MindFusion.FlowChartX
 							if (areasForTableCells)
 								rect.Height = t.CaptionHeight;
 
-							html = html + createRectArea(rect);
+							areaTag = areaTag + createRectArea(rect);
 						}
 					}
 					else
 					{
-						html += createPolyArea(item.getOutlinePoly());
+						areaTag += createPolyArea(item.getOutlinePoly());
 					}
 
-					html += "\r\n";
+					areaTag += "\r\n";
 
-					html += TAB + TAB + TAB + "HREF=\"" + item.HyperLink + "\" ";
-					html += "TARGET=\"" + linkTarget + "\" ";
-					html += "ALT=\"" + item.ToolTip + "\">" + "\r\n";
+					areaTag += TAB + TAB + TAB + "HREF=\"" + item.HyperLink + "\" ";
+					areaTag += "TARGET=\"" + linkTarget + "\" ";
+					areaTag += "TITLE=\"" + item.ToolTip + "\">";
+
+					if (CreatingArea != null)
+					{
+						AreaEventArgs args = new AreaEventArgs(areaTag, item);
+						CreatingArea(this, args);
+						areaTag = args.AreaTag;
+					}
+
+					html += areaTag + "\r\n";
 				}
 
 				if (node != null)
@@ -205,13 +215,24 @@ namespace MindFusion.FlowChartX
 						if (cell.RowSpan != 1 || cell.ColumnSpan != 1)
 							cellRect = RectangleF.Intersect(cellRect, cellsRect);
 
+						html += TAB + TAB;
+
 						// generate rect AREA for the cell
-						html += TAB + TAB + "<AREA SHAPE=";
-						html += createRectArea(cellRect);
-						html += "\r\n";
-						html += TAB + TAB + TAB + "HREF=\"" + cell.HyperLink + "\" ";
-						html += "TARGET=\"" + linkTarget + "\" ";
-						html += "ALT=\"" + cell.ToolTip + "\">\r\n";
+						string areaTag = "<AREA SHAPE=";
+						areaTag += createRectArea(cellRect);
+						areaTag += "\r\n";
+						areaTag += TAB + TAB + TAB + "HREF=\"" + cell.HyperLink + "\" ";
+						areaTag += "TARGET=\"" + linkTarget + "\" ";
+						areaTag += "TITLE=\"" + cell.ToolTip + "\">";
+
+						if (CreatingArea != null)
+						{
+							AreaEventArgs args = new AreaEventArgs(areaTag, table, c, r);
+							CreatingArea(this, args);
+							areaTag = args.AreaTag;
+						}
+
+						html += areaTag + "\r\n";
 					}
 
 					cellRect.X = cellRect.Right;
@@ -348,6 +369,8 @@ namespace MindFusion.FlowChartX
 			return "\"RECT\" COORDS=" + strCoords;
 		}
 
+		public event AreaEventHandler CreatingArea;
+
 		private FlowChart flowChart;
 		private string linkTarget;
 		private bool areasForTableCells;
@@ -356,4 +379,51 @@ namespace MindFusion.FlowChartX
 		private string expandBtnHyperLink;
 		private const string TAB = "\t";
 	}
+
+	public class AreaEventArgs : EventArgs
+	{
+		public AreaEventArgs(string areaTag, ChartObject item, int column, int row)
+		{
+			this.areaTag = areaTag;
+			this.item = item;
+			this.column = column;
+			this.row = row;
+		}
+
+		public AreaEventArgs(string areaTag, ChartObject item)
+		{
+			this.areaTag = areaTag;
+			this.item = item;
+			this.column = -1;
+			this.row = -1;
+		}
+
+		public string AreaTag
+		{
+			get { return areaTag; }
+			set { areaTag = value; }
+		}
+
+		public ChartObject Item
+		{
+			get { return item; }
+		}
+
+		public int Column
+		{
+			get { return column; }
+		}
+
+		public int Row
+		{
+			get { return row; }
+		}
+
+		private string areaTag;
+		private ChartObject item;
+		private int column;
+		private int row;
+	}
+
+	public delegate void AreaEventHandler(object sender, AreaEventArgs e);
 }

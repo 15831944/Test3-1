@@ -30,8 +30,6 @@ namespace MindFusion.FlowChartX
 		{
 		}
 
-		internal override void onDelete() {}
-
 		internal override void freeResources()
 		{
 			base.freeResources();
@@ -89,14 +87,14 @@ namespace MindFusion.FlowChartX
 		internal override void saveEndRelative()
 		{
 			if (incoming)
-				ptRelative = box.getBoxPtPercent(arrow.getEndPt());
+				relativePosition = box.getBoxPtPercent(arrow.getEndPt());
 			else
-				ptRelative = box.getBoxPtPercent(arrow.getStartPt());
+				relativePosition = box.getBoxPtPercent(arrow.getStartPt());
 		}
 
 		internal override PointF getEndPoint()
 		{
-			return box.pointFromPercent(ptRelative);
+			return box.pointFromPercent(relativePosition);
 		}
 
 		internal override PointF getInitialPt()

@@ -21,12 +21,12 @@ namespace MindFusion.FlowChartX.Commands
 			this.attachment = attachment;
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			group.removeAttachment(attachment);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			group.addAttachment(attachment, true);
 

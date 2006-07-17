@@ -850,6 +850,7 @@ namespace MindFusion.FlowChartX
 			// move to the first page
 			PreviewArea.StartPage = 0;
 			PageRange.Text = (PreviewArea.StartPage + 1).ToString();
+			PreviewArea.InvalidatePreview();
 		}
 
 		/// <summary>

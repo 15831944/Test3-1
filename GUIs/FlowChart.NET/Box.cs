@@ -645,17 +645,18 @@ namespace MindFusion.FlowChartX
 					case BoxStyle.Shape:
 						if (rc.Width > 0  && rc.Height > 0)
 						{
-							/*
+#if _EFFECTS
 							if (shadow && this.shadow != null)
 							{
 								RectangleF b = this.BoundingRect;
-								g.DrawImage(this.shadow,
+								g.DrawImage(this.emboss, //this.shadow,
 									b.X + ShadowOffsetX - dispersion,
 									b.Y + ShadowOffsetY - dispersion,
 									b.Width + 2 * dispersion, b.Height + 2 * dispersion);
 							}
 							else
-							{*/
+							{
+#endif
 								GraphicsPath path = shapeTemplate.getPath(
 									shapeData, rotation());
 
@@ -669,7 +670,7 @@ namespace MindFusion.FlowChartX
 								g.FillPath(br, path);
 								if (!shadow) drawInterior(g);
 								g.DrawPath(p, path);
-								/*
+#if _EFFECTS
 								{
 									// Emboss
 									RectangleF b = this.BoundingRect;
@@ -678,7 +679,7 @@ namespace MindFusion.FlowChartX
 									g.DrawImage(this.emboss, b.X - 1.5f, b.Y - 1.5f, emboss.Width, emboss.Height);
 									g.Clip = oldClip;
 								}
-								*/
+#endif
 								path.Dispose();
 
 								// Draw decorations
@@ -689,7 +690,9 @@ namespace MindFusion.FlowChartX
 									g.DrawPath(p, path);
 									path.Dispose();
 								}
-							//}
+#if _EFFECTS
+							}
+#endif
 						}
 						break;
 					}
@@ -1661,8 +1664,8 @@ namespace MindFusion.FlowChartX
 				updPosArrows();
 				updateShapePoints();
 
-				if (groupAttached != null)
-					groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+				if (subordinateGroup != null)
+					subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 			}
 
 			fcParent.invalidate(getRepaintRect(true));
@@ -1956,8 +1959,8 @@ namespace MindFusion.FlowChartX
 			updPosArrows();
 			updateShapePoints();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			fcParent.invalidate(
 				RectangleF.Union(getRepaintRect(true), initialRepaint));
@@ -1997,19 +2000,6 @@ namespace MindFusion.FlowChartX
 		{
 			return ItemType.Box;
 		}
-
-		// ************ mouse pointers ************
-
-		internal override Cursor getCannotDropCursor()
-		{
-			return fcParent.CurCannotCreate;
-		}
-
-		internal override Cursor getCanDropCursor()
-		{
-			return fcParent.CurPointer;
-		}
-
 
 		// ************ box shape ************
 
@@ -2143,7 +2133,7 @@ namespace MindFusion.FlowChartX
 				else
 					shapeTemplate.updateData(rc, shapeData, shapeRotation);
 
-/*
+#if _EFFECTS
 				if (shadow != null)
 					shadow.Dispose();
 
@@ -2155,17 +2145,20 @@ namespace MindFusion.FlowChartX
 					emboss.Dispose();
 
 				emboss = MindFusion.Drawing.Effects.GenerateEmboss(path);
-				*/
+
+				//shadow.Save(@"d:\shadow.png", System.Drawing.Imaging.ImageFormat.Png);
+				//emboss.Save(@"d:\emboss.png", System.Drawing.Imaging.ImageFormat.Png);
+#endif
 			}
 
 			layoutText();
 		}
 
-		/*
+#if _EFFECTS
 		private Bitmap shadow = null;
 		private int dispersion = 2;
 		private Bitmap emboss = null;
-		*/
+#endif
 
 		internal override PointF getAnchor(PointF pt,
 			Arrow arrow, bool incm, ref int idx)
@@ -2423,4 +2416,3 @@ namespace MindFusion.FlowChartX
 		private bool rotateContents;
 	}
 }
-

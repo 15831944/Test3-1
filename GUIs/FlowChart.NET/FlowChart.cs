@@ -38,6 +38,8 @@ namespace MindFusion.FlowChartX
 	/// controller at the same time. In addition, it defines a set of properties
 	/// that define the initial values of the diagram elements attributes.
 	/// </summary>
+	[DefaultEvent("BoxCreated")]
+	[DefaultProperty("Behavior")]
 	[LicenseProvider(typeof(RegistryLicenseProvider))]
 	public class FlowChart : System.Windows.Forms.Control, IPersistObjFactory, IPersists
 	{
@@ -179,6 +181,7 @@ namespace MindFusion.FlowChartX
 			curMainDgnlResize = Cursors.SizeNWSE;
 			curSecDgnlResize = Cursors.SizeNESW;
 			curRotateShape = CustomCursors.Rotate;
+			panCursor = Cursors.NoMove2D;
 
 			tableRowsCount = 4;
 			tableColumnsCount = 2;
@@ -302,6 +305,7 @@ namespace MindFusion.FlowChartX
 
 			validityChecks = true;
 			_modifierKeyActions = new ModifierKeyActions();
+			middleButtonAction = MouseButtonAction.None;
 			forceCacheRedraw = false;
 
 			showHandlesOnDrag = true;
@@ -3337,6 +3341,7 @@ namespace MindFusion.FlowChartX
 
 			if (!Enabled) return;
 			if (focusLost) return;
+			if (panMode) return;
 
 			// get mouse position in document coordinates
 			Graphics g = this.CreateGraphics();
@@ -3382,14 +3387,19 @@ namespace MindFusion.FlowChartX
 			downPos[btn] = new Point(e.X, e.Y);
 			ptStartDragDev = new Point(e.X, e.Y);
 
-			// enter pan mode if ALT is pressed ...
-			panMode = (_modifierKeyActions.GetKeys(ModifierKeyAction.Pan) & ModifierKeys) != 0 && e.Button == MouseButtons.Left;
-			if (panMode)
+			if (interaction == null)
 			{
-				try { Capture = true; } 
-				catch (SecurityException) {};
-				panPoint = new PointF(ScrollX, ScrollY);
-				return;
+				// enter pan mode if a modifier key is pressed or a mouse button is mapped to panning
+				panMode = ((middleButtonAction == MouseButtonAction.Pan && e.Button == MouseButtons.Middle) ||
+					((_modifierKeyActions.GetKeys(ModifierKeyAction.Pan) & ModifierKeys) != 0 && e.Button == MouseButtons.Left));
+				if (panMode)
+				{
+					try { Capture = true; } 
+					catch (SecurityException) {};
+					panPoint = new PointF(ScrollX, ScrollY);
+					Cursor = panCursor;
+					return;
+				}
 			}
 			
 			// or start drawing - we care only for left-button clicks
@@ -3460,6 +3470,10 @@ namespace MindFusion.FlowChartX
 				if (Math.Abs(ptStartDragDev.X - e.X) > 2 || 
 					Math.Abs(ptStartDragDev.Y - e.Y) > 2)
 					mouseMoved = true;
+
+				// set the mouse pointer
+				if (mouseMoved)
+					interaction.setCursor(ptCurr, this);
 
 				// prepare for drawing
 				Bitmap tempBuffer = createBackBuffer(ClientRectangle, g);
@@ -3583,8 +3597,11 @@ namespace MindFusion.FlowChartX
 			// stop pan mode if it's active now
 			if (panMode)
 			{
-				panMode = buttonDown[0] = mouseMoved = false;
-				if (Capture) Capture = false;
+				panMode = mouseMoved = false;
+				buttonDown[btnNum(e.Button)] = false;
+				if (Capture)
+					Capture = false;
+				Cursor = curPointer;
 				return;
 			}
 
@@ -3605,8 +3622,7 @@ namespace MindFusion.FlowChartX
 				RectangleF rcInv = interaction.InvalidRect;
 
 				// should the operation be performed?
-				if (e.Button != MouseButtons.Left || !mouseMoved ||
-					!interaction.isAllowed(ptCurr, this))
+				if (e.Button != MouseButtons.Left || !mouseMoved || !interaction.isAllowed(ptCurr))
 				{
 					// cancel the operation
 					interaction.cancel(this);
@@ -4357,6 +4373,20 @@ namespace MindFusion.FlowChartX
 		}
 
 		[Category("Mouse cursors")]
+		[Description("Displayed while panning the view.")]
+		public Cursor PanCursor
+		{
+			get { return panCursor; }
+			set { panCursor = value; }
+		}
+		private Cursor panCursor;
+
+		private bool ShouldSerializePanCursor()
+		{
+			return panCursor != Cursors.NoMove2D;
+		}
+
+		[Category("Mouse cursors")]
 		[Description("Indicates that an object would be resized in both directions.")]
 		public Cursor CurMainDgnlResize
 		{
@@ -4384,6 +4414,17 @@ namespace MindFusion.FlowChartX
 			return curSecDgnlResize != Cursors.SizeNESW;
 		}
 
+		[Browsable(false)]
+		public Cursor CurrentCursor
+		{
+			get { return this.Cursor; }
+			set
+			{
+				this.Cursor = value;
+				this.getCurrBehavior().setCurrentCursor(value);
+			}
+		}
+
 		[Category("Behavior")]
 		[DefaultValue(0f)]
 		[Description("The maximum distance between adjacent control points of an arrow at which the respective segments can be merged.")]
@@ -4401,6 +4442,17 @@ namespace MindFusion.FlowChartX
 		}
 
 		private float mergeThreshold;
+
+		[Category("Behavior")]
+		[DefaultValue(typeof(MouseButtonAction), "None")]
+		[Description("Specifies the function of the middle mouse button.")]
+		public MouseButtonAction MiddleButtonAction
+		{
+			get { return middleButtonAction; }
+			set { middleButtonAction = value; }
+		}
+
+		private MouseButtonAction middleButtonAction;
 
 		#endregion
 
@@ -4905,7 +4957,7 @@ namespace MindFusion.FlowChartX
 						invalid = Utilities.unionRects(invalid, arrowRect);
 						undoManager.onRouteArrow(arrow);
 						arrow.doRoute();
-						invalid = Utilities.unionRects(invalid, arrow.getBoundingRect());
+						invalid = Utilities.unionRects(invalid, arrow.getRepaintRect(false));
 					}
 				}
 			}
@@ -7188,7 +7240,7 @@ namespace MindFusion.FlowChartX
 		private TableLinkStyle tableLinkStyle;
 
 		/// <summary>
-		/// Defines the orientation of the first segment of perpendicular arrows
+		/// Defines the orientation of the first segment of cascading arrows
 		/// </summary>
 		[Category("Behavior")]
 		[DefaultValue(typeof(Orientation), "Auto")]
@@ -8274,7 +8326,7 @@ namespace MindFusion.FlowChartX
 
 		[Category("Arrows")]
 		[Description("Raised while the user moves an arrow control point.")]
-		public event ArrowMouseEvent ArrowModifying;
+		public event ArrowConfirmation ArrowModifying;
 
 		[Category("Arrows")]
 		[Description("Raised when an arrow is activated.")]
@@ -8338,7 +8390,7 @@ namespace MindFusion.FlowChartX
 
 		[Category("Boxes")]
 		[Description("Raised while the user moves or resizes a box.")]
-		public event BoxMouseEvent BoxModifying;
+		public event BoxConfirmation BoxModifying;
 
 		[Category("Boxes")]
 		[Description("Raised when a box is activated.")]
@@ -8438,7 +8490,7 @@ namespace MindFusion.FlowChartX
 
 		[Category("Control Hosts")]
 		[Description("Raised while the user moves or resizes a control host.")]
-		public event ControlHostMouseEvent ControlHostModifying;
+		public event ControlHostConfirmation ControlHostModifying;
 
 		[Category("Control Hosts")]
 		[Description("Lets you save additional data for control hosts when serializing the diagram into a file.")]
@@ -8513,6 +8565,10 @@ namespace MindFusion.FlowChartX
 		public event NodeEventHandler TreeCollapsed;
 
 		[Category("Miscellaneous")]
+		[Description("Raised when a user starts modifying an item.")]
+		public event ItemEventHandler BeginModify;
+
+		[Category("Miscellaneous")]
 		[Description("Raised when a group is destroyed.")]
 		public event GroupEvent GroupDestroyed;
 
@@ -8578,7 +8634,7 @@ namespace MindFusion.FlowChartX
 
 		[Category("Tables")]
 		[Description("Raised while the user moves or resizes a table.")]
-		public event TableMouseEvent TableModifying;
+		public event TableConfirmation TableModifying;
 
 		[Category("Tables")]
 		[Description("Raised when a table is activated.")]
@@ -8858,41 +8914,42 @@ namespace MindFusion.FlowChartX
 			return res;
 		}
 
-		internal bool confirmCreate(ChartObject obj)
+		internal bool confirmCreate(ChartObject item)
 		{
-			bool res = true;
+			PointF point = AlignPointToGrid(interaction.CurrentPoint);
+			bool validated = true;
 
-			switch (obj.getType())
+			switch (item.getType())
 			{
 				case ItemType.Box:
 					if (BoxCreating != null)
 					{
-						BoxConfirmArgs args = new BoxConfirmArgs((Box)obj);
+						BoxConfirmArgs args = new BoxConfirmArgs((Box)item, point, -1);
 						BoxCreating(this, args);
-						res = args.Confirm;
+						validated = args.Confirm;
 					}
 					break;
 				case ItemType.ControlHost:
 					if (ControlHostCreating != null)
 					{
 						ControlHostConfirmArgs args =
-							new ControlHostConfirmArgs((ControlHost)obj);
+							new ControlHostConfirmArgs((ControlHost)item, point, -1);
 						ControlHostCreating(this, args);
-						res = args.Confirm;
+						validated = args.Confirm;
 					}
 					break;
 				case ItemType.Table:
 					if (TableCreating != null)
 					{
-						TableConfirmArgs args = new TableConfirmArgs((Table)obj);
+						TableConfirmArgs args = new TableConfirmArgs((Table)item, point, -1);
 						TableCreating(this, args);
-						res = args.Confirm;
+						validated = args.Confirm;
 					}
 					break;
 				case ItemType.Arrow:
 					if (ArrowCreating != null)
 					{
-						Arrow arrow = (Arrow)obj;
+						Arrow arrow = (Arrow)item;
 
 						PointF endPt = arrow.Points[arrow.Points.Count - 1];
 						int id = 0;
@@ -8901,17 +8958,16 @@ namespace MindFusion.FlowChartX
 						if (arrow.NewDest is Table)
 							row = ((Table)arrow.NewDest).rowFromPt(endPt);
 
-
 						AttachConfirmArgs args = new AttachConfirmArgs(
 							arrow, arrow.NewDest, false, id, row);
 						ArrowCreating(this, args);
 
-						res = args.Confirm;
+						validated = args.Confirm;
 					}
 					break;
 			}
 
-			return res;
+			return validated;
 		}
 
 		RectangleF lastModifiedRect;
@@ -8967,47 +9023,61 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		internal void fireModifyingEvent(ChartObject item,
-			PointF pt, int selHandle)
+		internal bool confirmModify(ChartObject item)
 		{
+			PointF point = AlignPointToGrid(interaction.CurrentPoint);
+			int selHandle = interaction.SelectionHandle;
+			bool validated = true;
+
 			switch (item.getType())
 			{
 				case ItemType.Box:
 					if (BoxModifying != null)
 					{
 						Box box = (Box)item;
-						BoxMouseArgs args = new BoxMouseArgs(
-							box, pt.X, pt.Y, selHandle);
+						BoxConfirmArgs args = new BoxConfirmArgs(box, point, selHandle);
 						BoxModifying(this, args);
+						validated = args.Confirm;
 					}
 					break;
 				case ItemType.ControlHost:
 					if (ControlHostModifying != null)
 					{
 						ControlHost host = (ControlHost)item;
-						ControlHostMouseArgs args = new ControlHostMouseArgs(
-							host, pt.X, pt.Y, selHandle);
+						ControlHostConfirmArgs args = new ControlHostConfirmArgs(host, point, selHandle);
 						ControlHostModifying(this, args);
+						validated = args.Confirm;
 					}
 					break;
 				case ItemType.Table:
 					if (TableModifying != null)
 					{
 						Table table = (Table)item;
-						TableMouseArgs args = new TableMouseArgs(
-							table, pt.X, pt.Y, selHandle);
+						TableConfirmArgs args = new TableConfirmArgs(table, point, selHandle);
 						TableModifying(this, args);
+						validated = args.Confirm;
 					}
 					break;
 				case ItemType.Arrow:
 					if (ArrowModifying != null)
 					{
 						Arrow arrow = (Arrow)item;
-						ArrowMouseArgs args = new ArrowMouseArgs(
-							arrow, pt.X, pt.Y, selHandle);
+						ArrowConfirmArgs args = new ArrowConfirmArgs(arrow, point, selHandle);
 						ArrowModifying(this, args);
+						validated = args.Confirm;
 					}
 					break;
+			}
+
+			return validated;
+		}
+
+		internal void fireBeginModifyEvent(ChartObject item, PointF pt, int selHandle)
+		{
+			if (BeginModify != null)
+			{
+				ItemEventArgs args = new ItemEventArgs(item);
+				BeginModify(this, args);
 			}
 		}
 
@@ -9479,6 +9549,38 @@ namespace MindFusion.FlowChartX
 		public void ExecuteCommand(Command cmd)
 		{
 			undoManager.executeCommand(cmd);
+		}
+
+		private bool isVertigoAssembly(Assembly assembly)
+		{
+			if (assembly.FullName.IndexOf("CodePlex.Vertigo.Controls") == -1)
+				return false;
+
+			byte[] vertigoKeyToken = new byte[] {
+				0x79, 0xfe, 0x4b, 0x0c, 0xb1, 0x27, 0x44, 0xb2 };
+			byte[] assemblyKeyToken = assembly.GetName().GetPublicKeyToken();
+
+			if (BitConverter.ToString(vertigoKeyToken) != 
+				BitConverter.ToString(assemblyKeyToken))
+				return false;
+
+			return true;
+		}
+
+		private bool loadedFromVertigoAssembly()
+		{
+			Assembly inheritingAssembly = this.GetType().Assembly;
+			if (isVertigoAssembly(inheritingAssembly))
+				return true;
+
+			if (Parent != null)
+			{
+				Assembly containingAssembly = Parent.GetType().Assembly;
+				if (isVertigoAssembly(containingAssembly))
+					return true;
+			}
+
+			return false;
 		}
 
 		#endregion

@@ -22,7 +22,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.saveState(initialState);
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			resultState = item.createState();
 			item.saveState(resultState);
@@ -30,7 +30,7 @@ namespace MindFusion.FlowChartX.Commands
 				subCmd.Execute(undoEnabled);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			for (int i = subCommands.Count - 1; i >= 0; i--)
 				subCommands[i].Undo();
@@ -39,7 +39,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.fcParent.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			item.restoreState(resultState);
 			foreach (Command subCmd in subCommands)

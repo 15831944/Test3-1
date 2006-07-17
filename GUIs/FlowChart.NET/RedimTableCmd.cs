@@ -26,7 +26,7 @@ namespace MindFusion.FlowChartX.Commands
 			table.saveStructure(initialStr);
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			resultStr = new TableStructure();
 			table.saveStructure(resultStr);
@@ -35,7 +35,7 @@ namespace MindFusion.FlowChartX.Commands
 					cmd.Execute(undoEnabled);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			table.restoreStructure(initialStr);
 			table.updateLinksIndices();
@@ -45,7 +45,7 @@ namespace MindFusion.FlowChartX.Commands
 			cmdContext.Document.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			foreach (Command cmd in subCommands)
 				if (cmd is RemoveItemCmd)

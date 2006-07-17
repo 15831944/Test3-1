@@ -42,13 +42,13 @@ namespace MindFusion.FlowChartX.Behaviors
 			bool autoh = false;
 
 			if (fc.Selection.HitTestHandle(pt, ref handle))
-				fc.Cursor = fc.CurModify;
+				fc.Cursor = currentCursor = fc.CurModify;
 			else
 			if ((fc.ActiveObject != null && fc.ActiveObject.HitTestHandle(pt, ref handle) && (active = true)) ||
 					(fc.getAutoHObj() != null && fc.getAutoHObj().HitTestHandle(pt, ref handle) && (autoh = true)))
 				setModfCursor(pt, handle, active, autoh);
 			else
-				fc.Cursor = fc.CurPointer;
+				fc.Cursor = currentCursor = fc.CurPointer;
 		}
 	}
 }

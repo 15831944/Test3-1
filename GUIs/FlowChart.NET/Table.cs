@@ -1948,7 +1948,7 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Makes the table the same size as its picture.
 		/// </summary>
-		public void FitSizeToPicture()
+		public void FitSizeToImage()
 		{
 			fcParent.invalidate(getRepaintRect(true));
 
@@ -1975,8 +1975,8 @@ namespace MindFusion.FlowChartX
 					new MethodCallVisitor(new VisitOperation(AV_UpdateOutgoing)),
 					new MethodCallVisitor(new VisitOperation(AV_UpdateIncoming)));
 
-				if (groupAttached != null)
-					groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+				if (subordinateGroup != null)
+					subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 			}
 
 			fcParent.invalidate(getRepaintRect(true));
@@ -2379,20 +2379,6 @@ namespace MindFusion.FlowChartX
 			layoutText();
 			layoutCellText();
 		}
-
-
-		// ************ mouse pointers ************
-
-		internal override Cursor getCannotDropCursor()
-		{
-			return fcParent.CurCannotCreate;
-		}
-
-		internal override Cursor getCanDropCursor()
-		{
-			return fcParent.CurPointer;
-		}
-
 
 		/// <summary>
 		/// The box Text is painted in this color

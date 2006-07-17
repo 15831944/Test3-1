@@ -74,9 +74,9 @@ namespace SysCAD.Interface
     }
 
 
-    public PortStatus PortCheck(Guid itemGuid, Anchor anchor, Guid linkGuid)
+    public PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
-      return serviceGraphic.PortCheck(itemGuid, anchor, linkGuid);
+      return serviceGraphic.PortCheck(itemGuid, anchor);
     }
 
 

@@ -22,9 +22,9 @@ namespace MindFusion.FlowChartX.Commands
 			this.title = title;
 		}
 
-		public abstract void Execute(bool undoEnabled);
-		public abstract void Undo();
-		public virtual void Redo() { Execute(true); }
+		protected internal abstract void Execute(bool undoEnabled);
+		protected internal abstract void Undo();
+		protected internal virtual void Redo() { Execute(true); }
 
 		internal void setContext(CommandContext cmdContext)
 		{

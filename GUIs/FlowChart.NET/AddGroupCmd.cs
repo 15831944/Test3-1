@@ -21,12 +21,12 @@ namespace MindFusion.FlowChartX.Commands
 			this.group = group;
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			cmdContext.Document.Groups.Add(group);
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			group.onDelete();
 			cmdContext.Document.Groups.Remove(group);
@@ -34,7 +34,7 @@ namespace MindFusion.FlowChartX.Commands
 			cmdContext.Document.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			group.setMainObject(item);
 			cmdContext.Document.Groups.Add(group);

@@ -9,6 +9,8 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Windows.Forms;
+
 using MindFusion.FlowChartX.Commands;
 using MindFusion.FlowChartX.Visitors;
 
@@ -65,7 +67,7 @@ namespace MindFusion.FlowChartX
 			rect = Utilities.normalizeRect(rc);
 			onRectUpdate();
 
-			if (groupAttached == null)
+			if (subordinateGroup == null)
 			{
 				visitArrows(
 					new MethodCallVisitor(new VisitOperation(AV_UpdPosOutgoing)),
@@ -75,14 +77,14 @@ namespace MindFusion.FlowChartX
 			{
 				modifyDX = rect.X - rcOld.X;
 				modifyDY = rect.Y - rcOld.Y;
-				groupAttached.beginModification(
+				subordinateGroup.beginModification(
 					new InteractionState(this, 8, Action.Modify));
 				visitArrows(
 					new MethodCallVisitor(new VisitOperation(AV_UpdPosOutgoing)),
 					new MethodCallVisitor(new VisitOperation(AV_UpdPosIncoming)),
 					getExcludedArrows());
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
-				groupAttached.endModification();
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
+				subordinateGroup.endModification();
 			}
 		}
 
@@ -201,9 +203,9 @@ namespace MindFusion.FlowChartX
 			}
 
 			// include the group objects rectangles in the update area
-			if (groupAttached != null && includeConnected)
+			if (subordinateGroup != null && includeConnected)
 			{
-				RectangleF rcGroup = groupAttached.getRepaintRect();
+				RectangleF rcGroup = subordinateGroup.getRepaintRect();
 				repaintRect = Utilities.unionRects(rcGroup, repaintRect);
 			}
 
@@ -212,11 +214,11 @@ namespace MindFusion.FlowChartX
 
 		private ArrowCollection getExcludedArrows()
 		{
-			if (groupAttached == null) return null;
-			if (groupAttached.ArrowsToMove == null) return null;
-			if (groupAttached.ArrowsToMove.Count == 0) return null;
+			if (subordinateGroup == null) return null;
+			if (subordinateGroup.ArrowsToMove == null) return null;
+			if (subordinateGroup.ArrowsToMove.Count == 0) return null;
 
-			return groupAttached.ArrowsToMove;
+			return subordinateGroup.ArrowsToMove;
 		}
 
 		internal override void startCreate(PointF org)
@@ -238,7 +240,7 @@ namespace MindFusion.FlowChartX
 		{
 			current = fcParent.AlignPointToGrid(current);
 
-			// don't allow creating the table if it's too small
+			// don't allow creating the node if it is too small
 			if (Math.Abs(ptOrg.X - current.X) < Constants.getMinObjSize(fcParent.MeasureUnit))
 				return false;
 			if (Math.Abs(ptOrg.Y - current.Y) < Constants.getMinObjSize(fcParent.MeasureUnit))
@@ -248,7 +250,7 @@ namespace MindFusion.FlowChartX
 			if (fcParent.rectRestrict(ref rc))
 				return false;
 
-			return true;
+			return fcParent.confirmCreate(this);
 		}
 
 		internal override void completeCreate(PointF end)
@@ -279,7 +281,8 @@ namespace MindFusion.FlowChartX
 				new MethodCallVisitor(new VisitOperationIntr(AV_StartModOutgoing), ist),
 				new MethodCallVisitor(new VisitOperationIntr(AV_StartModIncoming), ist));
 
-			if (groupAttached != null) groupAttached.beginModification(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.beginModification(ist);
 
 			cycleProtect = false;
 		}
@@ -300,8 +303,8 @@ namespace MindFusion.FlowChartX
 				new MethodCallVisitor(new VisitOperation(AV_UpdateIncoming)),
 				getExcludedArrows());
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(ist);
 
 			cycleProtect = false;
 		}
@@ -328,28 +331,31 @@ namespace MindFusion.FlowChartX
 					new MethodCallVisitor(new VisitOperation(AV_UpdateIncoming)));
 			}
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			cycleProtect = false;
 		}
 
 		internal override bool allowModify(PointF current)
 		{
-			if (notInteractive()) return false;
+			if (notInteractive())
+				return false;
 
 			RectangleF rc = modifyHandle != 9 ?
 				Utilities.normalizeRect(updateRect(rect, current)) :
 				getBoundingRect();
 
 			// don't allow too small boxes, it will be hard for the user to see them
-			if (Math.Abs(rc.Width) < Constants.getMinObjSize(fcParent.MeasureUnit)) return false;
-			if (Math.Abs(rc.Height) < Constants.getMinObjSize(fcParent.MeasureUnit)) return false;
+			if (Math.Abs(rc.Width) < Constants.getMinObjSize(fcParent.MeasureUnit))
+				return false;
+			if (Math.Abs(rc.Height) < Constants.getMinObjSize(fcParent.MeasureUnit))
+				return false;
 
 			if (fcParent.rectRestrict(ref rect))
 				return false;
 
-			return true;
+			return fcParent.confirmModify(this);
 		}
 
 		internal override void completeModify(PointF end, InteractionState ist)
@@ -367,10 +373,10 @@ namespace MindFusion.FlowChartX
 			visitArrows(
 				new MethodCallVisitor(new VisitOperation(AV_EndModOutgoing)),
 				new MethodCallVisitor(new VisitOperation(AV_EndModIncoming)));
-			if (groupAttached != null)
+			if (subordinateGroup != null)
 			{
-				groupAttached.updateObjects(ist);
-				groupAttached.endModification();
+				subordinateGroup.updateObjects(ist);
+				subordinateGroup.endModification();
 			}
 			modifying = false;
 
@@ -405,11 +411,31 @@ namespace MindFusion.FlowChartX
 
 				// if constrained to move only horizontally ...
 				if (constraints.MoveDirection == DirectionConstraint.Horizontal)
-					newPos.Y =rcSaved.Y;
+					newPos.Y = rcSaved.Y;
 
 				// if constrained to move only vertically ...
 				if (constraints.MoveDirection == DirectionConstraint.Vertical)
 					newPos.X = rcSaved.X;
+
+				// apply "stay inside parent" constraints
+				if (constraints.KeepInsideParent &&
+					masterGroup != null && masterGroup.MainObject is Node)
+				{
+					Node parent = masterGroup.MainObject as Node;
+					RectangleF bounds = parent.BoundingRect;
+
+					if (!bounds.Contains(Utilities.normalizeRect(newPos)))
+					{
+						if (newPos.Left < bounds.Left)
+							newPos.X = bounds.Left;
+						if (newPos.Top < bounds.Top)
+							newPos.Y = bounds.Top;
+						if (newPos.Right > bounds.Right)
+							newPos.X = bounds.Right - newPos.Width;
+						if (newPos.Bottom > bounds.Bottom)
+							newPos.Y = bounds.Bottom - newPos.Height;
+					}
+				}
 
 				return newPos;
 			}
@@ -449,35 +475,50 @@ namespace MindFusion.FlowChartX
 
 			// apply width constraints
 			if (constraints.MinWidth > 0 || constraints.MaxWidth > 0)
+			{
 				switch (modifyHandle)
 				{
-					case 0:	// top left
-					case 3:	// bottom left
-					case 7: // middle left
+				case 0:	// top left
+				case 3:	// bottom left
+				case 7: // middle left
 
-						// left side being moved
-						if (constraints.MinWidth > 0 && Math.Abs(rc.Width) < constraints.MinWidth)
-							rc = RectangleF.FromLTRB(rc.Right - Math.Abs(constraints.MinWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Top, rc.Right, rc.Bottom);
-						if (constraints.MaxWidth > 0 && Math.Abs(rc.Width) > constraints.MaxWidth)
-							rc = RectangleF.FromLTRB(rc.Right - Math.Abs(constraints.MaxWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Top, rc.Right, rc.Bottom);
-						break;
+					// left side being moved
+					if (constraints.MinWidth > 0 && Math.Abs(rc.Width) < constraints.MinWidth)
+						rc = RectangleF.FromLTRB(rc.Right - Math.Abs(constraints.MinWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Top, rc.Right, rc.Bottom);
+					if (constraints.MaxWidth > 0 && Math.Abs(rc.Width) > constraints.MaxWidth)
+						rc = RectangleF.FromLTRB(rc.Right - Math.Abs(constraints.MaxWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Top, rc.Right, rc.Bottom);
+					break;
 
-					case 1:	// top right
-					case 2:	// bottom right
-					case 5:	// middle right
+				case 1:	// top right
+				case 2:	// bottom right
+				case 5:	// middle right
 
-						// right side being moved
-						if (constraints.MinWidth > 0 && Math.Abs(rc.Width) < constraints.MinWidth)
-							rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Left + Math.Abs(constraints.MinWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Bottom);
-						if (constraints.MaxWidth > 0 && Math.Abs(rc.Width) > constraints.MaxWidth)
-							rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Left + Math.Abs(constraints.MaxWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Bottom);
-						break;
+					// right side being moved
+					if (constraints.MinWidth > 0 && Math.Abs(rc.Width) < constraints.MinWidth)
+						rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Left + Math.Abs(constraints.MinWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Bottom);
+					if (constraints.MaxWidth > 0 && Math.Abs(rc.Width) > constraints.MaxWidth)
+						rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Left + Math.Abs(constraints.MaxWidth) * (rc.Left > rc.Right ? -1 : 1), rc.Bottom);
+					break;
 				}
+			}
+
+			// apply ratio constraints
+			float ratio = 1;
+			if (constraints.KeepRatio)
+			{
+				if (rcSaved.Width > 0 && rcSaved.Height > 0)
+					ratio = rcSaved.Width / rcSaved.Height;
+				if (!(modifyHandle == 4 || modifyHandle == 6))
+					rc.Height = rc.Width / ratio;
+			}
 
 			// apply height constraints
-			if (constraints.MinHeight > 0 || constraints.MaxHeight > 0)
-				switch (modifyHandle)
-				{
+			if (!constraints.KeepRatio)
+			{
+				if (constraints.MinHeight > 0 || constraints.MaxHeight > 0)
+				{				
+					switch (modifyHandle)
+					{
 					case 0:	// top left
 					case 1:	// top right
 					case 4:	// top center
@@ -499,7 +540,73 @@ namespace MindFusion.FlowChartX
 						if (constraints.MaxHeight > 0 && Math.Abs(rc.Height) > constraints.MaxHeight)
 							rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Right, rc.Top + Math.Abs(constraints.MaxHeight) * (rc.Top > rc.Bottom ? -1 : 1));
 						break;
+					}
 				}
+			}
+			else
+			{
+				if (constraints.MinWidth > 0 || constraints.MaxWidth > 0)
+				{
+					float minHeight = constraints.MinWidth / ratio;
+					float maxHeight = constraints.MaxWidth / ratio;
+
+					switch (modifyHandle)
+					{
+					case 4:	// top center
+						if (minHeight > 0 && Math.Abs(rc.Height) < minHeight)
+							rc = RectangleF.FromLTRB(rc.Left, rc.Bottom - Math.Abs(minHeight) * (rc.Top > rc.Bottom ? -1 : 1), rc.Right, rc.Bottom);
+						if (maxHeight > 0 && Math.Abs(rc.Height) > maxHeight)
+							rc = RectangleF.FromLTRB(rc.Left, rc.Bottom - Math.Abs(maxHeight) * (rc.Top > rc.Bottom ? -1 : 1), rc.Right, rc.Bottom);
+						break;
+		
+					case 6:	// bottom center
+						if (minHeight > 0 && Math.Abs(rc.Height) < minHeight)
+							rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Right, rc.Top + Math.Abs(minHeight) * (rc.Top > rc.Bottom ? -1 : 1));
+						if (maxHeight > 0 && Math.Abs(rc.Height) > maxHeight)
+							rc = RectangleF.FromLTRB(rc.Left, rc.Top, rc.Right, rc.Top + Math.Abs(maxHeight) * (rc.Top > rc.Bottom ? -1 : 1));
+						break;
+					}
+				}
+			}
+
+			// apply ratio constraints
+			if (constraints.KeepRatio)
+			{
+				if (modifyHandle == 4 || modifyHandle == 6)
+					rc.Width = rc.Height * ratio;
+			}
+
+			// apply "stay inside parent" constraints
+			bool insideParentApplied = false;
+			if (constraints.KeepInsideParent &&
+				masterGroup != null && masterGroup.MainObject is Node)
+			{
+				Node parent = masterGroup.MainObject as Node;
+				RectangleF bounds = parent.BoundingRect;
+
+				if (!bounds.Contains(Utilities.normalizeRect(rc)))
+				{
+					rc = RectangleF.FromLTRB(
+						rc.Left < rc.Right ? Math.Max(bounds.Left, rc.Left) : Math.Min(bounds.Right, rc.Left),
+						rc.Top < rc.Bottom ? Math.Max(bounds.Top, rc.Top) : Math.Min(bounds.Bottom, rc.Top),
+						rc.Left < rc.Right ? Math.Min(bounds.Right, rc.Right) : Math.Max(bounds.Left, rc.Right),
+						rc.Top < rc.Bottom ? Math.Min(bounds.Bottom, rc.Bottom) : Math.Max(bounds.Top, rc.Bottom));
+					insideParentApplied = true;
+				}
+			}
+
+			// apply ratio constraints, again
+			if (constraints.KeepRatio && insideParentApplied)
+			{
+				float newRatio = 1;
+				if (rc.Width > 0 && rc.Height > 0)
+					newRatio = rc.Width / rc.Height;
+
+				if (newRatio < ratio)
+					rc.Height = rc.Width / ratio;
+				else if (newRatio > ratio)
+					rc.Width = rc.Height * ratio;					
+			}
 
 			if (rotation() != 0)
 			{
@@ -526,7 +633,7 @@ namespace MindFusion.FlowChartX
 			EndModifyVisitor emv = new EndModifyVisitor();
 			visitArrows(emv);
 
-			if (groupAttached != null) groupAttached.endModification();
+			if (subordinateGroup != null) subordinateGroup.endModification();
 
 			cycleProtect = false;
 		}
@@ -543,8 +650,8 @@ namespace MindFusion.FlowChartX
 
 			onRectUpdate();
 
-			if (groupAttached != null)
-				groupAttached.cancelModification(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.cancelModification(ist);
 
 			cycleProtect = false;
 		}
@@ -581,6 +688,19 @@ namespace MindFusion.FlowChartX
 		}
 
 		protected abstract void onRectUpdate();
+
+		internal override Cursor getCannotDropCursor()
+		{
+			return fcParent.CurCannotCreate;
+		}
+
+		internal override Cursor getCanDropCursor()
+		{
+			if (!constructed)
+				return fcParent.CurPointer;
+
+			return null;
+		}
 
 		internal virtual void getAllOutgoingArrows(ArrowCollection ac)
 		{
@@ -1008,8 +1128,8 @@ namespace MindFusion.FlowChartX
 
 			onRectUpdate();
 
-			if (groupAttached != null)
-				groupAttached.onRestoreState();
+			if (subordinateGroup != null)
+				subordinateGroup.onRestoreState();
 		}
 
 		internal override void saveProperties(ItemProperties props)
@@ -1347,7 +1467,7 @@ namespace MindFusion.FlowChartX
 		}
 
 		public void AttachTo(Node node,
-			int percentX1, int percentY1, int percentX2, int percentY2)
+			float percentX1, float percentY1, float percentX2, float percentY2)
 		{
 			// that returns the active composite if somebody has already created one
 			CompositeCmd composite = fcParent.UndoManager.StartComposite("_fcnet_");

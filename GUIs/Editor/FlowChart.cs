@@ -242,7 +242,7 @@ namespace SysCAD.Editor
           {
             foreach (Anchor anchor in modelShape.Anchors)
             {
-              AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Red);
+              AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Cross, Color.Green);
               anchorPoint.Tag = anchor;
               anchorPointCollection.Add(anchorPoint);
             }
@@ -411,8 +411,9 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_ArrowModifying(object sender, ArrowMouseArgs e)
+    private void fcFlowChart_ArrowModifying(object sender, ArrowConfirmArgs e)
     {
+      form1.Mode_Modify();
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
         arrowBeingModified = e.Arrow;
@@ -559,7 +560,7 @@ namespace SysCAD.Editor
     {
       PointF mousePos = fcFlowChart.ClientToDoc(MousePosition);
 
-      //if (arrowBeingModified != null)
+      if (arrowBeingModified != null)
       {
         PointF originPos = arrowBeingModified.ControlPoints[0];
         Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
@@ -590,7 +591,7 @@ namespace SysCAD.Editor
                   }
                 }
 
-                if (state.PortCheck((originBox.Tag as Item).Guid, originAnchorChosen, (arrowBeingModified.Tag as Link).Guid) == PortStatus.Available)
+                if (state.PortCheck((originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
                   float dx = originAnchorChosen.position.X / 100.0F;
                   float dy = originAnchorChosen.position.Y / 100.0F;
@@ -642,7 +643,7 @@ namespace SysCAD.Editor
                   }
                 }
 
-                if (state.PortCheck((destinationBox.Tag as Item).Guid, destinationAnchorChosen, (arrowBeingModified.Tag as Link).Guid) == PortStatus.Available)
+                if (state.PortCheck((destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   float dx = destinationAnchorChosen.position.X / 100.0F;
                   float dy = destinationAnchorChosen.position.Y / 100.0F;
@@ -685,26 +686,23 @@ namespace SysCAD.Editor
           {
             Box box = node as Box;
 
-            float dx = 0.5F;
-            float dy = 0.5F;
-
             if (arrow.DestAnchor != -1)
             {
 
-              dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-              dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+              float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+              float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+
+              PointF anchorPointPos = new PointF(
+                box.BoundingRect.Left + box.BoundingRect.Width * dx,
+                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+              PointF[] extensionPoints =
+                new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+              e.Graphics.DrawLines(pen, extensionPoints);
             }
-
-            PointF anchorPointPos = new PointF(
-              box.BoundingRect.Left + box.BoundingRect.Width * dx,
-              box.BoundingRect.Top + box.BoundingRect.Height * dy);
-
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
-            e.Graphics.DrawLines(pen, extensionPoints);
           }
         }
 
@@ -714,25 +712,22 @@ namespace SysCAD.Editor
           {
             Box box = node as Box;
 
-            float dx = 0.5F;
-            float dy = 0.5F;
-
             if (arrow.OrgnAnchor != -1)
             {
-              dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-              dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+              float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+              float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+
+              PointF anchorPointPos = new PointF(
+                box.BoundingRect.Left + box.BoundingRect.Width * dx,
+                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+              PointF[] extensionPoints =
+                new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+              e.Graphics.DrawLines(pen, extensionPoints);
             }
-
-            PointF anchorPointPos = new PointF(
-              box.BoundingRect.Left + box.BoundingRect.Width * dx,
-              box.BoundingRect.Top + box.BoundingRect.Height * dy);
-
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
-            e.Graphics.DrawLines(pen, extensionPoints);
           }
         }
       }
@@ -744,26 +739,24 @@ namespace SysCAD.Editor
           {
             Box box = node as Box;
 
-            float dx = 0.5F;
-            float dy = 0.5F;
 
             if (arrow.DestAnchor != -1)
             {
 
-              dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-              dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+              float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+              float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+
+              PointF anchorPointPos = new PointF(
+                box.BoundingRect.Left + box.BoundingRect.Width * dx,
+                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+              PointF[] extensionPoints =
+                new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
+
+              e.Graphics.DrawLines(pen, extensionPoints);
             }
-
-            PointF anchorPointPos = new PointF(
-              box.BoundingRect.Left + box.BoundingRect.Width * dx,
-              box.BoundingRect.Top + box.BoundingRect.Height * dy);
-
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
-
-            e.Graphics.DrawLines(pen, extensionPoints);
           }
         }
 
@@ -773,25 +766,23 @@ namespace SysCAD.Editor
           {
             Box box = node as Box;
 
-            float dx = 0.5F;
-            float dy = 0.5F;
 
             if (arrow.OrgnAnchor != -1)
             {
-              dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-              dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+              float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+              float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+
+              PointF anchorPointPos = new PointF(
+                box.BoundingRect.Left + box.BoundingRect.Width * dx,
+                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+
+              PointF[] extensionPoints =
+                new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
+
+              e.Graphics.DrawLines(pen, extensionPoints);
             }
-
-            PointF anchorPointPos = new PointF(
-              box.BoundingRect.Left + box.BoundingRect.Width * dx,
-              box.BoundingRect.Top + box.BoundingRect.Height * dy);
-
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
-
-            e.Graphics.DrawLines(pen, extensionPoints);
           }
         }
       }
@@ -838,7 +829,7 @@ namespace SysCAD.Editor
       form1.propertyGrid1.ContextMenu = propertyGridMenu;
     }
 
-    private void fcFlowChart_BoxModifying(object sender, BoxMouseArgs e)
+    private void fcFlowChart_BoxModifying(object sender, BoxConfirmArgs e)
     {
       Box graphicBox = (e.Box.Tag as Item).Graphic;
       //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
@@ -957,10 +948,18 @@ namespace SysCAD.Editor
       GraphicLink newGraphicLink = new GraphicLink(newLinkTag);
 
       if (destinationBox != null)
+      {
         newGraphicLink.Destination = (destinationBox.Tag as Item).Guid;
+        if (e.Arrow.DestAnchor != -1)
+          newGraphicLink.DestinationPort = "";
+      }
 
       if (originBox != null)
+      {
         newGraphicLink.Origin = (originBox.Tag as Item).Guid;
+        if (e.Arrow.OrgnAnchor != -1)
+          newGraphicLink.OriginPort = "";
+      }
 
       newGraphicLink.controlPoints = new List<PointF>();
       foreach (PointF point in e.Arrow.ControlPoints)
@@ -973,6 +972,14 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_MouseDown(object sender, MouseEventArgs e)
     {
+    }
+
+    private void fcFlowChart_ArrowCreating(object sender, AttachConfirmArgs e)
+    {
+      arrowBeingModified = e.Arrow;
+      arrowBeingModified.CustomDraw = CustomDraw.Additional;
+      arrowBeingModified.ZTop();
+      fcFlowChart.RecreateCacheImage();
     }
   }
 }

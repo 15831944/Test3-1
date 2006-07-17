@@ -22,10 +22,15 @@ namespace MindFusion.FlowChartX.LayoutSystem
 	public interface ILayout
 	{
 		bool Arrange(FlowChart chart);
+
+		LayoutNode LayoutNode { get; set; }
+		LayoutLink LayoutLink { get; set; }
 	}
 
 
 	public delegate void LayoutProgress(int current, int total);
+	public delegate void LayoutNode(Node node, RectangleF oldBounds);
+	public delegate void LayoutLink(Arrow link);
 
 
 	#region Tree Layout adoption classes
@@ -208,6 +213,13 @@ namespace MindFusion.FlowChartX.LayoutSystem
 				info.XGap = this.XGap;
 				info.YGap = this.YGap;
 
+				if (_layoutNode != null)
+				{
+					// remember the old positions
+					foreach (FCNode node in subgraph.Nodes)
+						node.Node.setData(Constants.OLD_BOUNDS, node.Node.BoundingRect);
+				}
+
 				// Arrange the subgraph
 				switch (_type)
 				{
@@ -247,6 +259,14 @@ namespace MindFusion.FlowChartX.LayoutSystem
 					xOffset += graphBounds.Width + this.XGap;
 				}
 
+				if (_layoutNode != null)
+				{
+					// raise the LayoutNode event for each node
+					foreach (FCNode node in subgraph.Nodes)
+						_layoutNode(node.Node, (RectangleF)node.Node.getData(Constants.OLD_BOUNDS));
+					chart.clearRuntimeData(Constants.OLD_BOUNDS);
+				}
+
 				// Update the arrows in this particular subgraph
 				ArrayList visitedLinks = new ArrayList();
 				ArrayList nodes = new ArrayList();
@@ -279,6 +299,9 @@ namespace MindFusion.FlowChartX.LayoutSystem
 									UpdateArrow(link.Arrow, false);
 									nodes.Add(link.Destination);
 								}
+
+								if (_layoutLink != null)
+									_layoutLink(link.Arrow);
 							}
 						}
 					}
@@ -866,6 +889,24 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			set { _progress = value; }
 		}
 
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutNode LayoutNode
+		{
+			get { return _layoutNode; }
+			set { _layoutNode = value; }
+		}
+
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutLink LayoutLink
+		{
+			get { return _layoutLink; }
+			set { _layoutLink = value; }
+		}
+
+		private LayoutNode _layoutNode = null;
+		private LayoutLink _layoutLink = null;
 	
 		private ArrowAnchor _inc = ArrowAnchor.NoAnchor;
 		private ArrowAnchor _outg = ArrowAnchor.NoAnchor;
@@ -885,6 +926,252 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		private float _yGap = 5;
 		private float _stretch = 1;
 
+		private LayoutProgress _progress = null;
+	}
+	#endregion
+
+	#region Anneal Layout adoption classes
+	[ComVisible(true)]
+	public class AnnealLayout : Component, ILayout
+	{
+		public AnnealLayout()
+		{
+			_distance = 10000;
+			_temperature = 40f;
+			_temperatureScale = 0.75f;
+			_iterationsPerStage = 30;
+			_stages = 10;
+			_fineTuningMoveValue = 0.4f;
+
+			_anchoring = Anchoring.Ignore;
+			_keepGroupLayout = false;
+		}
+
+
+		public virtual bool Arrange(FlowChart chart)
+		{
+			chart.UndoManager.onStartLayout("Anneal layout");
+
+			// Build the graph
+			FCGraph graph = new FCGraph(chart, _keepGroupLayout);
+
+			// Find the root adapter
+			Layout.INode rootNode = null;
+			if (_root != null)
+			{
+				foreach (FCNode node in graph.Nodes)
+				{
+					if (node.Node == _root)
+					{
+						rootNode = node;
+						break;
+					}
+				}
+			}
+
+			// Split graph to subgraphs
+			Layout.IGraph[] subgraphs = Layout.GraphSplitter.Split(
+				graph, new FCGraphBuilder(chart, false));
+
+			// Create the layouter
+			Layout.AnnealLayout layout = new Layout.AnnealLayout();
+
+			Layout.LayoutProgress progress = null;
+			if (_progress != null)
+				progress = new Layout.LayoutProgress(this.OnLayoutProgress);
+
+			Layout.AnnealLayoutInfo info = new Layout.AnnealLayoutInfo();
+			info.FineTuningMoveValue = this.FineTuningMoveValue;
+			info.IterationsPerStage = this.IterationsPerStage;
+			info.Lam1 = this.Distance;
+			info.Stages = this.Stages;
+			info.Temperature = this.Temperature;
+			info.TemperatureScale = this.TemperatureScale;
+
+			float xOffset = 0;
+			foreach (FCGraph subgraph in subgraphs)
+			{
+				// If a root node is specified and the subgraph
+				// does not contain that node, do not arrange
+				// the subgraph
+				if (rootNode != null)
+				{
+					if (!subgraph.Nodes.Contains(rootNode))
+						continue;
+				}
+
+				layout.Arrange(subgraph, info, progress);
+
+				// Translate the whole subgraph
+				RectangleF graphBounds = subgraph.GetBounds(false);
+				float xToMove = xOffset - graphBounds.X;
+				float yToMove = -graphBounds.Y;
+
+				foreach (FCNode node in subgraph.Nodes)
+				{
+					RectangleF nodeBounds = node.Bounds;
+					RectangleF oldBounds = node.Node.BoundingRect;
+					nodeBounds.X += xToMove;
+					nodeBounds.Y += yToMove;
+					node.Bounds = nodeBounds;
+					if (_layoutNode != null)
+						_layoutNode(node.Node, oldBounds);
+				}
+
+				xOffset += graphBounds.Width;
+
+				// Update arrows
+				foreach (FCLink link in subgraph.Links)
+				{
+					Arrow arrow = link.Arrow;
+
+					if (arrow.IgnoreLayout)
+						continue;
+
+					// If the arrow being arranged is dynamic,
+					// ignore the anchoring flag?
+					if (arrow.Dynamic)
+						arrow.updatePosFromOrgAndDest(false);
+					arrow.arrangePoints(_anchoring);
+
+					if (_layoutLink != null)
+						_layoutLink(arrow);
+				}
+			}
+
+			chart.Invalidate();
+			chart.UndoManager.onEndLayout();
+
+			return true;
+		}
+
+		private void OnLayoutProgress(int current, int total)
+		{
+			_progress(current, total);
+		}
+
+
+		/// <summary>
+		/// Get or set the object, which will be used
+		/// as root for the layouting.
+		/// </summary>
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public Node Root
+		{
+			get { return _root; }
+			set { _root = value; }
+		}
+
+		[Category("Settings")]
+		[Description("A flag specifying whether the node disposition " +
+			 "within groups is kept intact.")]
+		[DefaultValue(false)]
+		public bool KeepGroupLayout
+		{
+			get { return _keepGroupLayout; }
+			set { _keepGroupLayout = value; }
+		}
+
+		[Category("Settings")]
+		[Description("Specifies how to align arrows to the anchor points of nodes.")]
+		[DefaultValue(typeof(Anchoring), "Ignore")]
+		public Anchoring Anchoring
+		{
+			get { return _anchoring; }
+			set { _anchoring = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(10000f)]
+		public float Distance
+		{
+			get { return _distance; }
+			set { _distance = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(40f)]
+		public float Temperature
+		{
+			get { return _temperature; }
+			set { _temperature = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(0.75f)]
+		public float TemperatureScale
+		{
+			get { return _temperatureScale; }
+			set { _temperatureScale = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(30)]
+		public int IterationsPerStage
+		{
+			get { return _iterationsPerStage; }
+			set { _iterationsPerStage = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(10)]
+		public int Stages
+		{
+			get { return _stages; }
+			set { _stages = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(0.4f)]
+		public float FineTuningMoveValue
+		{
+			get { return _fineTuningMoveValue; }
+			set { _fineTuningMoveValue = value; }
+		}
+
+		/// <summary>
+		/// Progress callback delegate.
+		/// </summary>
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutProgress Progress
+		{
+			get { return _progress; }
+			set { _progress = value; }
+		}
+
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutNode LayoutNode
+		{
+			get { return _layoutNode; }
+			set { _layoutNode = value; }
+		}
+
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutLink LayoutLink
+		{
+			get { return _layoutLink; }
+			set { _layoutLink = value; }
+		}
+
+		private LayoutNode _layoutNode = null;
+		private LayoutLink _layoutLink = null;
+
+		private Node _root = null;
+		//private bool _keepRootPosition = false;
+		private bool _keepGroupLayout;
+		private Anchoring _anchoring;
+
+		private float _distance;
+		private float _temperature;
+		private float _temperatureScale;
+		private int _iterationsPerStage;
+		private int _stages;
+		private float _fineTuningMoveValue;
+	
 		private LayoutProgress _progress = null;
 	}
 	#endregion
@@ -990,9 +1277,12 @@ namespace MindFusion.FlowChartX.LayoutSystem
 				foreach (FCNode node in subgraph.Nodes)
 				{
 					RectangleF nodeBounds = node.Bounds;
+					RectangleF oldBounds = node.Node.BoundingRect;
 					nodeBounds.X += xToMove;
 					nodeBounds.Y += yToMove;
 					node.Bounds = nodeBounds;
+					if (_layoutNode != null)
+						_layoutNode(node.Node, oldBounds);
 				}
 
 				xOffset += graphBounds.Width + this.NodeDistance;
@@ -1010,6 +1300,9 @@ namespace MindFusion.FlowChartX.LayoutSystem
 					if (arrow.Dynamic)
 						arrow.updatePosFromOrgAndDest(false);
 					arrow.arrangePoints(_anchoring);
+
+					if (_layoutLink != null)
+						_layoutLink(arrow);
 				}
 			}
 
@@ -1136,6 +1429,24 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			set { _root = value; }
 		}
 
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutNode LayoutNode
+		{
+			get { return _layoutNode; }
+			set { _layoutNode = value; }
+		}
+
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutLink LayoutLink
+		{
+			get { return _layoutLink; }
+			set { _layoutLink = value; }
+		}
+
+		private LayoutNode _layoutNode = null;
+		private LayoutLink _layoutLink = null;
 
 		private double _stretch = 85;
 		private bool _keepGroupLayout;
@@ -1311,9 +1622,12 @@ namespace MindFusion.FlowChartX.LayoutSystem
 				foreach (FCNode node in subgraph.Nodes)
 				{
 					RectangleF nodeBounds = node.Bounds;
+					RectangleF oldBounds = node.Node.BoundingRect;
 					nodeBounds.X += xToMove;
 					nodeBounds.Y += yToMove;
 					node.Bounds = nodeBounds;
+					if (_layoutNode != null)
+						_layoutNode(node.Node, oldBounds);
 				}
 
 				// Update arrows' inner points; the end points
@@ -1393,6 +1707,9 @@ namespace MindFusion.FlowChartX.LayoutSystem
 					}
 
 					arrow.UpdateFromPoints();
+
+					if (_layoutLink != null)
+						_layoutLink(arrow);
 				}
 			}
 
@@ -1529,8 +1846,28 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		{
 			get { return _root; }
 			set { _root = value; }
+	
 		}
 
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutNode LayoutNode
+		{
+			get { return _layoutNode; }
+			set { _layoutNode = value; }
+		}
+
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutLink LayoutLink
+		{
+			get { return _layoutLink; }
+			set { _layoutLink = value; }
+		}
+
+
+		private LayoutNode _layoutNode = null;
+		private LayoutLink _layoutLink = null;
 
 		private bool _keepGroupLayout;
 		private Anchoring _anchoring;
@@ -1654,9 +1991,12 @@ namespace MindFusion.FlowChartX.LayoutSystem
 				foreach (FCNode node in subgraph.Nodes)
 				{
 					RectangleF nodeBounds = node.Bounds;
+					RectangleF oldBounds = node.Node.BoundingRect;
 					nodeBounds.X += xToMove;
 					nodeBounds.Y += yToMove;
 					node.Bounds = nodeBounds;
+					if (_layoutNode != null)
+						_layoutNode(node.Node, oldBounds);
 				}
 
 				xOffset += graphBounds.Width + info.GridSize;
@@ -1668,6 +2008,8 @@ namespace MindFusion.FlowChartX.LayoutSystem
 						continue;
 
 					link.Arrow.arrangePoints(_anchoring);
+					if (_layoutLink != null)
+						_layoutLink(link.Arrow);
 				}
 			}
 
@@ -1795,6 +2137,25 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			set { _root = value; }
 		}
 
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutNode LayoutNode
+		{
+			get { return _layoutNode; }
+			set { _layoutNode = value; }
+		}
+
+		[Browsable(false)]
+		[DefaultValue(null)]
+		public LayoutLink LayoutLink
+		{
+			get { return _layoutLink; }
+			set { _layoutLink = value; }
+		}
+
+
+		private LayoutNode _layoutNode = null;
+		private LayoutLink _layoutLink = null;
 
 		private bool _keepGroupLayout;
 		private Node _startNode;

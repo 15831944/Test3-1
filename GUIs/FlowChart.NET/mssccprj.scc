@@ -1,7 +1,7 @@
 SCC = This is a Source Code Control file
 
 [FlowChart.NET.csproj]
-SCC_Aux_Path = "C:\development\SourceSafe"
+SCC_Aux_Path = "C:\development\Visual SourceSafe"
 SCC_Project_Name = "$/FlowChart.NET", KOAAAAAA
 
 [FlowChart.NET.sln]

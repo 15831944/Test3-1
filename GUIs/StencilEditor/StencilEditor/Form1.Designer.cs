@@ -62,6 +62,12 @@ namespace StencilEditor
       this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
       this.toolStripSeparator17 = new System.Windows.Forms.ToolStripSeparator();
       this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripSeparator18 = new System.Windows.Forms.ToolStripSeparator();
+      this.toolStripSeparator19 = new System.Windows.Forms.ToolStripSeparator();
+      this.toolStripSeparator20 = new System.Windows.Forms.ToolStripSeparator();
+      this.toolStripSeparator21 = new System.Windows.Forms.ToolStripSeparator();
+      this.toolStripLabelModelGroup = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripComboBoxModelGroup = new System.Windows.Forms.ToolStripComboBox();
       this.menuStrip1 = new System.Windows.Forms.MenuStrip();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -96,12 +102,6 @@ namespace StencilEditor
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
       this.flowChart1 = new MindFusion.FlowChartX.FlowChart();
       this.flowChart2 = new MindFusion.FlowChartX.FlowChart();
-      this.toolStripSeparator18 = new System.Windows.Forms.ToolStripSeparator();
-      this.toolStripSeparator19 = new System.Windows.Forms.ToolStripSeparator();
-      this.toolStripSeparator20 = new System.Windows.Forms.ToolStripSeparator();
-      this.toolStripSeparator21 = new System.Windows.Forms.ToolStripSeparator();
-      this.toolStripComboBoxModelGroup = new System.Windows.Forms.ToolStripComboBox();
-      this.toolStripLabelModelGroup = new System.Windows.Forms.ToolStripLabel();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
       this.splitContainer1.SuspendLayout();
@@ -459,6 +459,56 @@ namespace StencilEditor
       this.toolStripLabel4.Size = new System.Drawing.Size(19, 22);
       this.toolStripLabel4.Text = "dy";
       // 
+      // toolStripSeparator18
+      // 
+      this.toolStripSeparator18.Name = "toolStripSeparator18";
+      this.toolStripSeparator18.Size = new System.Drawing.Size(6, 25);
+      // 
+      // toolStripSeparator19
+      // 
+      this.toolStripSeparator19.Name = "toolStripSeparator19";
+      this.toolStripSeparator19.Size = new System.Drawing.Size(6, 25);
+      // 
+      // toolStripSeparator20
+      // 
+      this.toolStripSeparator20.Name = "toolStripSeparator20";
+      this.toolStripSeparator20.Size = new System.Drawing.Size(6, 25);
+      // 
+      // toolStripSeparator21
+      // 
+      this.toolStripSeparator21.Name = "toolStripSeparator21";
+      this.toolStripSeparator21.Size = new System.Drawing.Size(6, 25);
+      // 
+      // toolStripLabelModelGroup
+      // 
+      this.toolStripLabelModelGroup.Name = "toolStripLabelModelGroup";
+      this.toolStripLabelModelGroup.Size = new System.Drawing.Size(74, 22);
+      this.toolStripLabelModelGroup.Text = "Model Group: ";
+      // 
+      // toolStripComboBoxModelGroup
+      // 
+      this.toolStripComboBoxModelGroup.Items.AddRange(new object[] {
+            "Control",
+            "Conveyor",
+            "Electrical",
+            "Extras",
+            "Feed",
+            "Filter",
+            "HeatExchange",
+            "HeatTransfer",
+            "MixerSplitter",
+            "Piping",
+            "Pump",
+            "SizeAlteration",
+            "SizeSeparation",
+            "Tank",
+            "Transmitter",
+            "Valve",
+            "WasherDecanter"});
+      this.toolStripComboBoxModelGroup.Name = "toolStripComboBoxModelGroup";
+      this.toolStripComboBoxModelGroup.Size = new System.Drawing.Size(121, 25);
+      this.toolStripComboBoxModelGroup.Click += new System.EventHandler(this.toolStripComboBoxModelGroup_Click);
+      // 
       // menuStrip1
       // 
       this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -741,6 +791,7 @@ namespace StencilEditor
       // 
       // flowChart1
       // 
+      this.flowChart1.CurrentCursor = System.Windows.Forms.Cursors.Default;
       this.flowChart1.DefaultControlType = typeof(System.Windows.Forms.Button);
       this.flowChart1.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("flowChart1.DocExtents")));
       this.flowChart1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -754,6 +805,7 @@ namespace StencilEditor
       // 
       // flowChart2
       // 
+      this.flowChart2.CurrentCursor = System.Windows.Forms.Cursors.Default;
       this.flowChart2.DefaultControlType = typeof(System.Windows.Forms.Button);
       this.flowChart2.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("flowChart2.DocExtents")));
       this.flowChart2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -765,56 +817,6 @@ namespace StencilEditor
       this.flowChart2.TabIndex = 0;
       this.flowChart2.Resize += new System.EventHandler(this.textBox_TextChanged);
       // 
-      // toolStripSeparator18
-      // 
-      this.toolStripSeparator18.Name = "toolStripSeparator18";
-      this.toolStripSeparator18.Size = new System.Drawing.Size(6, 25);
-      // 
-      // toolStripSeparator19
-      // 
-      this.toolStripSeparator19.Name = "toolStripSeparator19";
-      this.toolStripSeparator19.Size = new System.Drawing.Size(6, 25);
-      // 
-      // toolStripSeparator20
-      // 
-      this.toolStripSeparator20.Name = "toolStripSeparator20";
-      this.toolStripSeparator20.Size = new System.Drawing.Size(6, 25);
-      // 
-      // toolStripSeparator21
-      // 
-      this.toolStripSeparator21.Name = "toolStripSeparator21";
-      this.toolStripSeparator21.Size = new System.Drawing.Size(6, 25);
-      // 
-      // toolStripComboBoxModelGroup
-      // 
-      this.toolStripComboBoxModelGroup.Items.AddRange(new object[] {
-            "Control",
-            "Conveyor",
-            "Electrical",
-            "Extras",
-            "Feed",
-            "Filter",
-            "HeatExchange",
-            "HeatTransfer",
-            "MixerSplitter",
-            "Piping",
-            "Pump",
-            "SizeAlteration",
-            "SizeSeparation",
-            "Tank",
-            "Transmitter",
-            "Valve",
-            "WasherDecanter"});
-      this.toolStripComboBoxModelGroup.Name = "toolStripComboBoxModelGroup";
-      this.toolStripComboBoxModelGroup.Size = new System.Drawing.Size(121, 25);
-      this.toolStripComboBoxModelGroup.Click += new System.EventHandler(this.toolStripComboBoxModelGroup_Click);
-      // 
-      // toolStripLabelModelGroup
-      // 
-      this.toolStripLabelModelGroup.Name = "toolStripLabelModelGroup";
-      this.toolStripLabelModelGroup.Size = new System.Drawing.Size(74, 22);
-      this.toolStripLabelModelGroup.Text = "Model Group: ";
-      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -824,7 +826,6 @@ namespace StencilEditor
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.MainMenuStrip = this.menuStrip1;
       this.Name = "Form1";
-      this.Text = "Form1";
       this.splitContainer1.Panel1.ResumeLayout(false);
       this.splitContainer1.Panel1.PerformLayout();
       this.splitContainer1.Panel2.ResumeLayout(false);

@@ -1739,7 +1739,7 @@ namespace MindFusion.FlowChartX.Xml
 				int ai;
 				int adata;
 				Node node;
-				int al, at, ar, ab;
+				float al, at, ar, ab;
 				AttachTo atype;
 				for(ai = 0; ai < acount; ai++)
 				{
@@ -1760,10 +1760,10 @@ namespace MindFusion.FlowChartX.Xml
 
 					// Read percents
 					reader.Read();
-					al = XmlConvert.ToInt32(reader.GetAttribute("Left"));
-					at = XmlConvert.ToInt32(reader.GetAttribute("Top"));
-					ar = XmlConvert.ToInt32(reader.GetAttribute("Right"));
-					ab = XmlConvert.ToInt32(reader.GetAttribute("Bottom"));
+					al = XmlConvert.ToSingle(reader.GetAttribute("Left"));
+					at = XmlConvert.ToSingle(reader.GetAttribute("Top"));
+					ar = XmlConvert.ToSingle(reader.GetAttribute("Right"));
+					ab = XmlConvert.ToSingle(reader.GetAttribute("Bottom"));
 
 					// Read type
 					reader.Read();

@@ -1716,7 +1716,7 @@ namespace MindFusion.FlowChartX.Xml
 						throw new Exception("Unexpected group attachee index");
 					id = (int)sl.GetKey(oi);
 					writer.WriteElementString("Object", XmlConvert.FromInt32(id));
-					WriteRectangleElement(writer, "Percents", at.percents);
+					WriteRectangleFElement(writer, "Percents", at.percents);
 					writer.WriteElementString("Type",
 						at.type.ToString());
 

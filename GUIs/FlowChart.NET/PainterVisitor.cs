@@ -23,11 +23,6 @@ namespace MindFusion.FlowChartX.Visitors
 			this.shadows = shadows;
 		}
 
-		internal void setDrawMethod(bool shadows)
-		{
-			this.shadows = shadows;
-		}
-
 		internal override void accept(ChartObject obj)
 		{
 			obj.Draw(g, shadows);

@@ -22,13 +22,13 @@ namespace MindFusion.FlowChartX.Commands
 			intlExpanded = item.isExpanded();
 		}
 
-		public override void Execute(bool undoEnabled)
+		protected internal override void Execute(bool undoEnabled)
 		{
 			rsltVisible = item.Visible;
 			rsltExpanded = item.isExpanded();
 		}
 
-		public override void Undo()
+		protected internal override void Undo()
 		{
 			item.Visible = intlVisible;
 			item.setExpanded(intlExpanded);
@@ -36,7 +36,7 @@ namespace MindFusion.FlowChartX.Commands
 			cmdContext.Document.fireActionUndone(this);
 		}
 
-		public override void Redo()
+		protected internal override void Redo()
 		{
 			item.Visible = rsltVisible;
 			item.setExpanded(rsltExpanded);

@@ -21,7 +21,7 @@ namespace MindFusion.FlowChartX
 		internal Attachment()
 		{
 			node = null;
-			percents = new Rectangle(0, 0, 0, 0);
+			percents = new RectangleF(0, 0, 0, 0);
 			attData = 0;
 			type = AttachTo.ArrowPoint;
 		}
@@ -39,7 +39,7 @@ namespace MindFusion.FlowChartX
 		internal Node node;
 		internal AttachTo type;
 		internal int attData;
-		internal Rectangle percents;
+		internal RectangleF percents;
 
 		public virtual int getClassId()
 		{
@@ -51,6 +51,8 @@ namespace MindFusion.FlowChartX
 			ctx.saveReference(this, node, 1);
 			writer.Write((int)type);
 			writer.Write(attData);
+
+			// in format revision 28 'percents' changed from Rectangle to RectangleF
 			ctx.saveRect(percents);
 		}
 
@@ -59,7 +61,17 @@ namespace MindFusion.FlowChartX
 			ctx.loadReference(this);
 			type = (AttachTo)reader.ReadInt32();
 			attData = reader.ReadInt32();
-			percents = ctx.loadRect();
+
+			// in format revision 28 'percents' changed from Rectangle to RectangleF
+			if (ctx.FileVersion < 28)
+			{
+				Rectangle r = ctx.loadRect();
+				percents = RectangleF.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
+			}
+			else
+			{
+				percents = ctx.loadRectF();
+			}
 		}
 
 		public virtual void setReference(int refId, IPersists obj)
@@ -241,7 +253,7 @@ namespace MindFusion.FlowChartX
 		/// <param name="right"></param>
 		/// <param name="bottom"></param>
 		public bool AttachProportional(Node node,
-			int left, int top, int right, int bottom)
+			float left, float top, float right, float bottom)
 		{
 			if (!objAttachable(node)) return false;
 			if (mainObj.getType() == ItemType.Arrow) return false;
@@ -249,7 +261,7 @@ namespace MindFusion.FlowChartX
 			Attachment a = new Attachment();
 			a.node = node;
 			a.type = AttachTo.Proportional;
-			a.percents = Rectangle.FromLTRB(
+			a.percents = RectangleF.FromLTRB(
 				left, top, right, bottom);
 
 			new GroupAttachCmd(this, a).Execute();

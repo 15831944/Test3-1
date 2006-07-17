@@ -18,8 +18,8 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	internal class TableLink : Link
 	{
-		public TableLink(Table table, Arrow arrow, bool incm, int row)
-			: base(arrow, incm)
+		public TableLink(Table table, Arrow arrow, bool incoming, int row)
+			: base(arrow, incoming)
 		{
 			this.table = table;
 			this.row = row;
@@ -28,8 +28,6 @@ namespace MindFusion.FlowChartX
 		internal TableLink()
 		{
 		}
-
-		internal override void onDelete() {}
 
 		internal override void freeResources()
 		{
@@ -141,15 +139,15 @@ namespace MindFusion.FlowChartX
 				pt = arrow.getStartPt();
 
 			if (row != -1)
-				ptRelative = Utilities.getRectPtPercent(pt, table.getRowRect(row));
+				relativePosition = Utilities.getRectPtPercent(pt, table.getRowRect(row));
 			else
-				ptRelative = Utilities.getRectPtPercent(pt, table.getBoundingRect());
+				relativePosition = Utilities.getRectPtPercent(pt, table.getBoundingRect());
 		}
 
 		internal override PointF getEndPoint()
 		{
 			RectangleF rc = table.getRowRect(row);
-			PointF ptp = ptRelative;
+			PointF ptp = relativePosition;
 
 			if (row != -1)
 				rc = table.getRowRect(row);
@@ -225,9 +223,9 @@ namespace MindFusion.FlowChartX
 			if (ctx.FileVersion < 6)
 			{
 				// fix the mess from old versions
-				if (ptRelative.X == -1) ptRelative.X = 0;
-				if (ptRelative.X == 1) ptRelative.X = 100;
-				ptRelative.Y = 50;
+				if (relativePosition.X == -1) relativePosition.X = 0;
+				if (relativePosition.X == 1) relativePosition.X = 100;
+				relativePosition.Y = 50;
 			}
 		}
 
@@ -246,10 +244,10 @@ namespace MindFusion.FlowChartX
 
 			if (anchor == ArrowAnchor.LeftCenter ||
 				anchor == ArrowAnchor.TopCenter)
-				ptRelative.X = 0;
+				relativePosition.X = 0;
 			else
-				ptRelative.X = 100;
-			ptRelative.Y = 50;
+				relativePosition.X = 100;
+			relativePosition.Y = 50;
 
 			return getEndPoint();
 		}

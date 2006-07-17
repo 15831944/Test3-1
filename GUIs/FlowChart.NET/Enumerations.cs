@@ -300,6 +300,12 @@ namespace MindFusion.FlowChartX
 		OverrideBehavior
 	}
 
+	public enum MouseButtonAction
+	{
+		None,
+		Pan
+	}
+
 	public enum Orientation
 	{
 		Auto,
@@ -326,6 +332,13 @@ namespace MindFusion.FlowChartX
 		NoRestriction = 0,
 		Intersection,
 		InsideOnly
+	}
+
+	public enum SelectionStyle
+	{
+		SelectionHandles,
+		Rectangle,
+		SemiTransparent
 	}
 
 	public enum ShadowsStyle

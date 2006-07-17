@@ -203,6 +203,7 @@ namespace MindFusion.FlowChartX
 
 			customDraw = parent.ArrowCustomDraw;
 			savedSegments = null;
+			drawCrossings = true;
 		}
 
 		public Arrow(FlowChart parent, Node src, Node dest) : this(parent)
@@ -346,12 +347,18 @@ namespace MindFusion.FlowChartX
 		internal override void freeResources()
 		{
 			base.freeResources();
+			
+			if (orgnLink != null)
+			{
+				orgnLink.freeResources();
+				orgnLink = null;
+			}
 
-			// delete the link objects
-			if (orgnLink != null) orgnLink.onDelete();
-			if (destLink != null) destLink.onDelete();
-			orgnLink = null;
-			destLink = null;
+			if (destLink != null)
+			{
+				destLink.freeResources();
+				destLink = null;
+			}
 		}
 
 		#endregion
@@ -690,10 +697,13 @@ namespace MindFusion.FlowChartX
 			if (node == null)
 			{
 				objNewDest = fcParent.Dummy;
-				return fcParent.AllowUnconnectedArrows;
+				return fcParent.AllowUnconnectedArrows && fcParent.confirmCreate(this);
 			}
-			if (node.notInteractive()) return false;
-			if (!node.canHaveArrows(false)) return false;
+
+			if (node.notInteractive())
+				return false;
+			if (!node.canHaveArrows(false))
+				return false;
 
 			objNewDest = node;
 
@@ -711,7 +721,7 @@ namespace MindFusion.FlowChartX
 
 			fcParent.setAutoAnchors(node);
 
-			return true;
+			return fcParent.confirmCreate(this);
 		}
 
 		private Node objNewDest = null;
@@ -731,9 +741,13 @@ namespace MindFusion.FlowChartX
 				Node node = fcParent.GetNodeAt(current);
 				objNewDest = node;
 
-				if (node == null) return fcParent.AllowUnconnectedArrows;
-				if (node.notInteractive()) return false;
-				if (!node.canHaveArrows(modifyHandle == 0)) return false;
+				if (node == null)
+					return fcParent.AllowUnconnectedArrows && fcParent.confirmModify(this);
+
+				if (node.notInteractive())
+					return false;
+				if (!node.canHaveArrows(modifyHandle == 0))
+					return false;
 
 				bool changingOrg = modifyHandle == 0;
 				if (!fcParent.requestAttach(this, changingOrg, node))
@@ -791,7 +805,7 @@ namespace MindFusion.FlowChartX
 			if (fcParent.rectRestrict(ref rc))
 				return false;
 
-			return true;
+			return fcParent.confirmModify(this);
 		}
 
 		internal void startModifyOrg(InteractionState ist)
@@ -804,7 +818,8 @@ namespace MindFusion.FlowChartX
 			// save the state of segments so it can be restored from cancelModify
 			savedSegments = saveSegments();
 
-			if (groupAttached != null) groupAttached.beginModification(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.beginModification(ist);
 
 			cycleProtect = false;
 		}
@@ -819,7 +834,8 @@ namespace MindFusion.FlowChartX
 			// save the state of segments so it can be restored from cancelModify
 			savedSegments = saveSegments();
 
-			if (groupAttached != null) groupAttached.beginModification(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.beginModification(ist);
 
 			cycleProtect = false;
 		}
@@ -836,7 +852,8 @@ namespace MindFusion.FlowChartX
 			// save the state of segments so it can be restored from cancelModify
 			savedSegments = saveSegments();
 
-			if (groupAttached != null) groupAttached.beginModification(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.beginModification(ist);
 
 			cycleProtect = false;
 		}
@@ -873,7 +890,7 @@ namespace MindFusion.FlowChartX
 				}
 			}
 
-			// in case of asPerpendicular arrow, when a point is moved the two
+			// in case of a cascading arrow, when a point is moved the two
 			// points adjacent to it are moved too, so the lines connecting them
 			// maintain their horizontal / vertical orientation
 			if (style == ArrowStyle.Cascading)
@@ -994,31 +1011,39 @@ namespace MindFusion.FlowChartX
 						}
 					}
 
-					// align the adjacent control points so the segments
-					// keep their horizontal or vertical orientation
-					if ((cascadeStartHorizontal && h%2 != 0) || (!cascadeStartHorizontal && !(h%2 !=0 )))
-					{
-						if (ip == 0)
-							points[h] = new PointF(points[h].X, points[ip].Y);
-						if (ix == points.Count-1)
-							points[h] = new PointF(points[ix].X, points[h].Y);
-						if (ip >= 0 && ip < points.Count)
-							points[ip] = new PointF(points[ip].X, points[h].Y);
-						if (ix >= 0 && ix < points.Count)
-							points[ix] = new PointF(points[h].X, points[ix].Y);
-					}
-					else
-					{
-						if (ip == 0)
-							points[h] = new PointF(points[ip].X, points[h].Y);
-						if (ix == points.Count-1)
-							points[h] = new PointF(points[h].X, points[ix].Y);
-						if (ip >= 0 && ip < points.Count)
-							points[ip] = new PointF(points[h].X, points[ip].Y);
-						if (ix >= 0 && ix < points.Count)
-							points[ix] = new PointF(points[ix].X, points[h].Y);
-					}
+					alignCascadingSegments(h);
 				}
+			}
+		}
+
+		private void alignCascadingSegments(int h)
+		{
+			// align the adjacent control points so the segments
+			// keep their horizontal or vertical orientation
+			int ip = h - 1;
+			int ix = h + 1;
+
+			if ((cascadeStartHorizontal && h%2 != 0) || (!cascadeStartHorizontal && !(h%2 !=0 )))
+			{
+				if (ip == 0)
+					points[h] = new PointF(points[h].X, points[ip].Y);
+				if (ix == points.Count-1)
+					points[h] = new PointF(points[ix].X, points[h].Y);
+				if (ip >= 0 && ip < points.Count)
+					points[ip] = new PointF(points[ip].X, points[h].Y);
+				if (ix >= 0 && ix < points.Count)
+					points[ix] = new PointF(points[h].X, points[ix].Y);
+			}
+			else
+			{
+				if (ip == 0)
+					points[h] = new PointF(points[ip].X, points[h].Y);
+				if (ix == points.Count-1)
+					points[h] = new PointF(points[h].X, points[ix].Y);
+				if (ip >= 0 && ip < points.Count)
+					points[ip] = new PointF(points[h].X, points[ip].Y);
+				if (ix >= 0 && ix < points.Count)
+					points[ix] = new PointF(points[ix].X, points[h].Y);
 			}
 		}
 
@@ -1056,8 +1081,8 @@ namespace MindFusion.FlowChartX
 			resetCrossings();
 			updateText();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(ist);
 
 			cycleProtect = false;
 		}
@@ -1074,7 +1099,7 @@ namespace MindFusion.FlowChartX
 			resetCrossings();
 			updateText();
 
-			if (groupAttached != null) groupAttached.endModification();
+			if (subordinateGroup != null) subordinateGroup.endModification();
 
 			cycleProtect = false;
 		}
@@ -1127,7 +1152,6 @@ namespace MindFusion.FlowChartX
 				if (objNode != null && orgnLink.linkChanges(objNode, pt))
 				{
 					orgnLink.removeArrowFromObj();
-					orgnLink.onDelete();
 					orgnLink = null;
 					orgnLink = objNode.createLink(this, pt, false);
 					orgnLink.addArrowToObj();
@@ -1148,7 +1172,6 @@ namespace MindFusion.FlowChartX
 				if (objNode != null && destLink.linkChanges(objNode, pt))
 				{
 					destLink.removeArrowFromObj();
-					destLink.onDelete();
 					destLink = null;
 					destLink = objNode.createLink(this, pt, true);
 					destLink.addArrowToObj();
@@ -1181,8 +1204,8 @@ namespace MindFusion.FlowChartX
 					{
 						points.RemoveAt(modifyHandle);
 						segmentCount--;
-						if (groupAttached != null)
-							groupAttached.onArrowSplit(false, modifyHandle, 1);
+						if (subordinateGroup != null)
+							subordinateGroup.onArrowSplit(false, modifyHandle, 1);
 					}
 				}
 
@@ -1202,9 +1225,10 @@ namespace MindFusion.FlowChartX
 						points.RemoveAt(toDel);
 						points.RemoveAt(toDel);
 						segmentCount -= 2;
+						alignCascadingSegments(toDel);
 						updateEndPtsPrp();
-						if (groupAttached != null)
-							groupAttached.onArrowSplit(false, toDel, 2);
+						if (subordinateGroup != null)
+							subordinateGroup.onArrowSplit(false, toDel, 2);
 					}
 				}
 			}
@@ -1213,8 +1237,8 @@ namespace MindFusion.FlowChartX
 				style == ArrowStyle.Cascading && segmentCount == 2))
 			{
 				setReflexive();
-				if (groupAttached != null)
-					groupAttached.endModification();
+				if (subordinateGroup != null)
+					subordinateGroup.endModification();
 				cycleProtect = false;
 				objNewDest = null;
 				return;
@@ -1224,8 +1248,8 @@ namespace MindFusion.FlowChartX
 				doRoute();
 
 			updateArrowHeads();
-			if (groupAttached != null)
-				groupAttached.endModification();
+			if (subordinateGroup != null)
+				subordinateGroup.endModification();
 			resetCrossings();
 			updateText();
 
@@ -1249,8 +1273,8 @@ namespace MindFusion.FlowChartX
 			resetCrossings();
 			updateText();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			cycleProtect = false;
 		}
@@ -1271,7 +1295,8 @@ namespace MindFusion.FlowChartX
 
 			updateArrowHeads();
 
-			if (groupAttached != null) groupAttached.cancelModification(ist);
+			if (subordinateGroup != null)
+				subordinateGroup.cancelModification(ist);
 			resetCrossings();
 			updateText();
 
@@ -1320,7 +1345,7 @@ namespace MindFusion.FlowChartX
 				{
 					float mm = Constants.getMillimeter(fcParent.MeasureUnit);
 					float pathThresh = mm / 3;
-					if (fcParent.ArrowCrossings ==
+					if (!drawCrossings || fcParent.ArrowCrossings ==
 						MindFusion.FlowChartX.ArrowCrossings.Straight)
 					{
 						if (fcParent.RoundedArrows)
@@ -2090,6 +2115,22 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
+		public bool DrawCrossings
+		{
+			get { return drawCrossings; }
+			set
+			{
+				if (drawCrossings != value)
+				{
+					drawCrossings = value;
+					fcParent.setDirty();
+					fcParent.invalidate(getRepaintRect(false));
+				}
+			}
+		}
+
+		private bool drawCrossings;
+
 		#endregion
 
 		#region structural
@@ -2121,7 +2162,6 @@ namespace MindFusion.FlowChartX
 			{
 				if (orgnLink != null)
 				{
-					orgnLink.onDelete();
 					orgnLink.removeArrowFromObj();
 				}
 				orgnLink = value.createLink(this, value.getCenter(), false);
@@ -2178,7 +2218,6 @@ namespace MindFusion.FlowChartX
 				if (destLink != null)
 				{
 					destLink.removeArrowFromObj();
-					destLink.onDelete();
 				}
 				destLink = value.createLink(this, value.getCenter(), true);
 				destLink.addArrowToObj();
@@ -2236,7 +2275,6 @@ namespace MindFusion.FlowChartX
 				{
 					Table tbl = (Table)Origin;
 					orgnLink.removeArrowFromObj();
-					orgnLink.onDelete();
 					orgnLink = tbl.createLink(this, false, value);
 
 					// place the end points of the arrow at their respective object edge
@@ -2283,7 +2321,6 @@ namespace MindFusion.FlowChartX
 				{
 					Table tbl = (Table)Destination;
 					destLink.removeArrowFromObj();
-					destLink.onDelete();
 					destLink = tbl.createLink(this, true, value);
 
 					// place the end points of the arrow at their respective object edge
@@ -2439,8 +2476,8 @@ namespace MindFusion.FlowChartX
 			orgnLink.saveEndRelative();
 			destLink.saveEndRelative();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			resetCrossings();
 			updateText();
@@ -2520,8 +2557,8 @@ namespace MindFusion.FlowChartX
 			points = new PointCollection(ctrlPoints);
 			segmentCount = segments;
 
-			if (groupAttached != null)
-				groupAttached.onSegmentsChanged();
+			if (subordinateGroup != null)
+				subordinateGroup.onSegmentsChanged();
 		}
 
 		internal bool isReflexive()
@@ -2549,8 +2586,8 @@ namespace MindFusion.FlowChartX
 			resetCrossings();
 			updateText();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 		}
 
 		#endregion
@@ -3236,8 +3273,8 @@ namespace MindFusion.FlowChartX
 				Utilities.addToRect(ref rect, ShadowOffsetX, ShadowOffsetY);
 
 			// include the group objects rectangles
-			if (groupAttached != null && includeConnected)
-				rect = Utilities.unionRects(rect, groupAttached.getRepaintRect());
+			if (subordinateGroup != null && includeConnected)
+				rect = Utilities.unionRects(rect, subordinateGroup.getRepaintRect());
 
 			return rect;
 		}
@@ -3741,10 +3778,10 @@ namespace MindFusion.FlowChartX
 
 			updateArrowHeads();
 
-			if (groupAttached != null)
+			if (subordinateGroup != null)
 			{
-				groupAttached.onSegmentsChanged();
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+				subordinateGroup.onSegmentsChanged();
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 			}
 
 			resetCrossings();
@@ -4175,14 +4212,12 @@ namespace MindFusion.FlowChartX
 			orgnLink.saveEndRelative();
 			destLink.saveEndRelative();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 		}
 
 		internal void setOrgAndDest(Link orgLink, Link trgLink)
 		{
-			if (orgnLink != null) orgnLink.onDelete();
-			if (destLink != null) destLink.onDelete();
 			orgnLink = orgLink;
 			destLink = trgLink;
 
@@ -4252,8 +4287,8 @@ namespace MindFusion.FlowChartX
 				points.Insert(ptPos, pt);
 				segmentCount++;
 
-				if (groupAttached != null)
-					groupAttached.onArrowSplit(true, ptPos, 1);
+				if (subordinateGroup != null)
+					subordinateGroup.onArrowSplit(true, ptPos, 1);
 
 				return ptPos;
 			case ArrowStyle.Cascading:
@@ -4269,8 +4304,8 @@ namespace MindFusion.FlowChartX
 				points.Insert(ptPos, pt);
 				segmentCount += 2;
 
-				if (groupAttached != null)
-					groupAttached.onArrowSplit(true, segment + 1, 2);
+				if (subordinateGroup != null)
+					subordinateGroup.onArrowSplit(true, segment + 1, 2);
 
 				return ptPos;
 			}
@@ -4743,8 +4778,8 @@ namespace MindFusion.FlowChartX
 			// compute the arrow points
 			updateArrowHeads();
 
-			if (groupAttached != null)
-				groupAttached.updateObjects(new InteractionState(this, -1, Action.Modify));
+			if (subordinateGroup != null)
+				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			resetCrossings();
 			updateText();
@@ -4775,8 +4810,8 @@ namespace MindFusion.FlowChartX
 			astate.destLink = destLink;
 			astate.destAnchor = destAnchor;
 
-			astate.orgnPoint = orgnLink.PtRelative;
-			astate.destPoint = destLink.PtRelative;
+			astate.orgnPoint = orgnLink.RelativePosition;
+			astate.destPoint = destLink.RelativePosition;
 		}
 
 		internal override void restoreState(ItemState state)
@@ -4808,11 +4843,11 @@ namespace MindFusion.FlowChartX
 
 			UpdateFromPoints();
 
-			if (groupAttached != null)
-				groupAttached.onRestoreState();
+			if (subordinateGroup != null)
+				subordinateGroup.onRestoreState();
 
-			orgnLink.PtRelative = astate.orgnPoint;
-			destLink.PtRelative = astate.destPoint;
+			orgnLink.RelativePosition = astate.orgnPoint;
+			destLink.RelativePosition = astate.destPoint;
 
 			resetCrossings();
 			updateText();
@@ -5133,7 +5168,8 @@ namespace MindFusion.FlowChartX
 						PointF p1 = rintr[i];
 						PointF p2 = rintr[i + 1];
 
-						if (closer.Compare(p1, p2) > -Constants.getMillimeter(fcParent.MeasureUnit) / 5)
+						if (closer.Compare(p1, p2) > 0 ||
+							Utilities.Distance(p1, p2) < Constants.getMillimeter(fcParent.MeasureUnit) / 2)
 						{
 							// Remove these points
 							rintr.RemoveAt(i);

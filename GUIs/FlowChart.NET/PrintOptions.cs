@@ -91,7 +91,7 @@ namespace MindFusion.FlowChartX
 
 		[DefaultValue(false)]
 		[Description("Enables or disables printing the anchor points of nodes.")]
-		internal bool EnableAnchors
+		public bool EnableAnchors
 		{
 			get { return enableAnchors; }
 			set { enableAnchors = value; }

@@ -28,7 +28,7 @@ namespace SysCAD.Interface
     public delegate bool ModifyLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate bool DeleteLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
 
-    public delegate PortStatus PortCheckDelegate(ServiceGraphic graphic, Guid itemGuid, Anchor anchor, Guid linkGuid);
+    public delegate PortStatus PortCheckDelegate(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
 
     private CreateItemDelegate createItemDelegate;
     private ModifyItemDelegate modifyItemDelegate;
@@ -117,10 +117,10 @@ namespace SysCAD.Interface
     }
 
     
-    public PortStatus PortCheck(Guid itemGuid, Anchor anchor, Guid linkGuid)
+    public PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
       if (graphicItems.ContainsKey(itemGuid))
-        return portCheckDelegate(this, itemGuid, anchor, linkGuid);
+        return portCheckDelegate(this, itemGuid, anchor);
       else
         return PortStatus.Unavailable;
     }

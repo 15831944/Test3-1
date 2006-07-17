@@ -14,43 +14,51 @@ using System.IO;
 namespace MindFusion.FlowChartX
 {
 	/// <summary>
-	/// 
+	/// This class represent a connection between an edge and a node in a graph. It decouples
+	/// the Arrow class from the Node class, allowing edges to connect different types of nodes
+	/// without knowing anything of their implementation details. Each Arrow objects contains
+	/// two Link instances describing the connections at both ends of the arrow.
 	/// </summary>
 	internal abstract class Link : IPersists
 	{
-		public Link(Arrow arrow, bool incm)
+		#region initialization and clean up
+
+		/// <summary>
+		/// Initializes a new instance of the Link class.
+		/// </summary>
+		/// <param name="arrow">The arrow whose connection to a node is managed by this Link.</param>
+		/// <param name="incoming">Specifies which end of the arrow is represented by this Link.</param>
+		public Link(Arrow arrow, bool incoming)
 		{
 			this.arrow = arrow;
-			this.incoming = incm;
-			ptRelative = new PointF(0, 0);
+			this.incoming = incoming;
+			this.relativePosition = new PointF(0, 0);
 		}
 
+		/// <summary>
+		/// Used internally by the control to implement serialization.
+		/// </summary>
 		internal Link()
 		{
 		}
 
-		internal void setArrow(Arrow arrow)
-		{
-			this.arrow = arrow;
-		}
-
-		internal virtual void onDelete() {}
-
+		/// <summary>
+		/// Called when the Arrow instance is completely removed from the diagram and
+		/// there aren't any commands in the undo/redo history referring to that arrow.
+		/// </summary>
 		internal virtual void freeResources()
 		{
 			arrow = null;
 		}
 
-		internal PointF PtRelative
+		#endregion
+
+		internal PointF RelativePosition
 		{
-			get { return ptRelative; }
-			set { ptRelative = value; }
+			get { return relativePosition; }
+			set { relativePosition = value; }
 		}
 
-		protected Arrow arrow;
-		protected PointF ptRelative;
-		protected bool incoming;
-		
 		internal abstract bool sameNode(Link otherLink);
 		internal abstract bool linkChanges(ChartObject obj, PointF pt);
 		internal abstract Node getNode();
@@ -87,8 +95,8 @@ namespace MindFusion.FlowChartX
 			writer.Write(incoming);
 
 			// in format revision 22 these become float:
-			writer.Write(ptRelative.X);
-			writer.Write(ptRelative.Y);
+			writer.Write(relativePosition.X);
+			writer.Write(relativePosition.Y);
 		}
 
 		public virtual void loadFrom(BinaryReader reader, PersistContext ctx)
@@ -102,7 +110,7 @@ namespace MindFusion.FlowChartX
 				float y = (float)reader.ReadDouble();
 				int rx = reader.ReadInt32();
 				int ry = reader.ReadInt32();
-				ptRelative = new PointF(rx, ry);
+				relativePosition = new PointF(rx, ry);
 			}
 
 			incoming = reader.ReadBoolean();
@@ -112,7 +120,7 @@ namespace MindFusion.FlowChartX
 				// in format revision 22 these become float:
 				float rx = reader.ReadSingle();
 				float ry = reader.ReadSingle();
-				ptRelative = new PointF(rx, ry);
+				relativePosition = new PointF(rx, ry);
 			}
 		}
 
@@ -167,5 +175,9 @@ namespace MindFusion.FlowChartX
 
 			return false;
 		}
+
+		protected Arrow arrow;
+		protected bool incoming;
+		protected PointF relativePosition;
 	}
 }
