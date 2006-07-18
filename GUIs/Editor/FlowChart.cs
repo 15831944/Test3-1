@@ -233,7 +233,7 @@ namespace SysCAD.Editor
         {
           ModelStencil modelShape = state.ModelShape(model);
           if (modelShape != null)
-            item.Model.Shape = modelShape.ShapeTemplate(mirrorX, mirrorY);
+            item.Model.Shape = state.GetShapeTemplate(modelShape, mirrorX, mirrorY);
           else
             item.Model.Shape = ShapeTemplate.FromId("Decision2");
 
@@ -258,7 +258,7 @@ namespace SysCAD.Editor
         {
           GraphicStencil graphicShape = state.GraphicShape(shape);
           if (graphicShape != null)
-            item.Graphic.Shape = graphicShape.ShapeTemplate(mirrorX, mirrorY);
+            item.Graphic.Shape = state.GetShapeTemplate(graphicShape, mirrorX, mirrorY);
           else
             item.Graphic.Shape = ShapeTemplate.FromId("Decision2");
         }

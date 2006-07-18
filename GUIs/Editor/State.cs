@@ -111,7 +111,7 @@ namespace SysCAD.Editor
       modelBox.Style = BoxStyle.Shape;
 
       if (config.modelStencils.TryGetValue(graphicItem.Model, out modelStencil))
-        modelBox.Shape = modelStencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+        modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
       else
         modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
@@ -142,7 +142,7 @@ namespace SysCAD.Editor
       graphicBox.Style = BoxStyle.Shape;
 
       if (config.graphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
-        graphicBox.Shape = graphicStencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+        graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
       else
         graphicBox.Shape = ShapeTemplate.FromId("Decision2");
 
@@ -196,7 +196,7 @@ namespace SysCAD.Editor
     }
 
 
-    
+
     internal void CreateLink(GraphicLink graphicLink, bool isVisible, FlowChart flowchart)
     {
       Arrow arrow = flowchart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
@@ -402,7 +402,7 @@ namespace SysCAD.Editor
           GraphicStencil stencil;
           if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           {
-            item.Graphic.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+            item.Graphic.Shape = GetShapeTemplate(stencil, graphicItem.MirrorX, graphicItem.MirrorY);
           }
         }
       }
@@ -420,7 +420,7 @@ namespace SysCAD.Editor
           GraphicStencil stencil;
           if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           {
-            item.Graphic.Shape = stencil.ShapeTemplate(graphicItem.MirrorX, graphicItem.MirrorY);
+            item.Graphic.Shape = GetShapeTemplate(stencil, graphicItem.MirrorX, graphicItem.MirrorY);
           }
         }
       }
@@ -618,5 +618,454 @@ namespace SysCAD.Editor
     {
       tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
     }
+
+    public ShapeTemplate GetShapeTemplate(ModelStencil stencil, bool mirrorX, bool mirrorY)
+    {
+      int i;
+
+      ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+      i = 0;
+      foreach (Element element in stencil.elements)
+      {
+        if (element is Arc)
+        {
+          Arc arc = element as Arc;
+          elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+        }
+        if (element is Line)
+        {
+          Line line = element as Line;
+          float x1, y1, x2, y2;
+
+          if (mirrorX)
+            x1 = 100.0F - line.x1;
+          else
+            x1 = line.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - line.y1;
+          else
+            y1 = line.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - line.x2;
+          else
+            x2 = line.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - line.y2;
+          else
+            y2 = line.y2;
+
+          elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+        }
+        if (element is Bezier)
+        {
+          Bezier bezier = element as Bezier;
+          float x1, y1, x2, y2, x3, y3, x4, y4;
+
+          if (mirrorX)
+            x1 = 100.0F - bezier.x1;
+          else
+            x1 = bezier.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - bezier.y1;
+          else
+            y1 = bezier.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - bezier.x2;
+          else
+            x2 = bezier.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - bezier.y2;
+          else
+            y2 = bezier.y2;
+
+          if (mirrorX)
+            x3 = 100.0F - bezier.x3;
+          else
+            x3 = bezier.x3;
+
+          if (mirrorY)
+            y3 = 100.0F - bezier.y3;
+          else
+            y3 = bezier.y3;
+
+          if (mirrorX)
+            x4 = 100.0F - bezier.x4;
+          else
+            x4 = bezier.x4;
+
+          if (mirrorY)
+            y4 = 100.0F - bezier.y4;
+          else
+            y4 = bezier.y4;
+
+          elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+        }
+        i++;
+      }
+
+      ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+      i = 0;
+      foreach (Element decoration in stencil.decorations)
+      {
+        if (decoration is Arc)
+        {
+          Arc arc = decoration as Arc;
+          decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+        }
+        if (decoration is Line)
+        {
+          Line line = decoration as Line;
+          float x1, y1, x2, y2;
+
+          if (mirrorX)
+            x1 = 100.0F - line.x1;
+          else
+            x1 = line.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - line.y1;
+          else
+            y1 = line.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - line.x2;
+          else
+            x2 = line.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - line.y2;
+          else
+            y2 = line.y2;
+
+          decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+        }
+        if (decoration is Bezier)
+        {
+          Bezier bezier = decoration as Bezier;
+          float x1, y1, x2, y2, x3, y3, x4, y4;
+
+          if (mirrorX)
+            x1 = 100.0F - bezier.x1;
+          else
+            x1 = bezier.x1;
+
+          if (mirrorY)
+            y1 = 100.0F - bezier.y1;
+          else
+            y1 = bezier.y1;
+
+          if (mirrorX)
+            x2 = 100.0F - bezier.x2;
+          else
+            x2 = bezier.x2;
+
+          if (mirrorY)
+            y2 = 100.0F - bezier.y2;
+          else
+            y2 = bezier.y2;
+
+          if (mirrorX)
+            x3 = 100.0F - bezier.x3;
+          else
+            x3 = bezier.x3;
+
+          if (mirrorY)
+            y3 = 100.0F - bezier.y3;
+          else
+            y3 = bezier.y3;
+
+          if (mirrorX)
+            x4 = 100.0F - bezier.x4;
+          else
+            x4 = bezier.x4;
+
+          if (mirrorY)
+            y4 = 100.0F - bezier.y4;
+          else
+            y4 = bezier.y4;
+
+          decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+        }
+        i++;
+      }
+
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+    }
+
+
+    public ShapeTemplate GetShapeTemplate(OldGraphicStencil stencil, bool mirrorX, bool mirrorY)
+    {
+      ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+      {
+        int i = 0;
+        foreach (Element element in stencil.elements)
+        {
+          if (element is Arc)
+          {
+            elementTemplate[i] = new ArcTemplate(
+              (element as Arc).x,
+              (element as Arc).y,
+              (element as Arc).w,
+              (element as Arc).h,
+              (element as Arc).a,
+              (element as Arc).s);
+          }
+          if (element is Line)
+          {
+            Line line = element as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+          }
+          if (element is Bezier)
+          {
+            Bezier bezier = element as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+          }
+          i++;
+        }
+      }
+
+      ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+      {
+        int i = 0;
+        foreach (Element decoration in stencil.decorations)
+        {
+          if (decoration is Arc)
+          {
+            decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
+              (decoration as Arc).y,
+              (decoration as Arc).w,
+              (decoration as Arc).h,
+              (decoration as Arc).a,
+              (decoration as Arc).s);
+          }
+          if (decoration is Line)
+          {
+            decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
+              (decoration as Line).y1,
+              (decoration as Line).x2,
+              (decoration as Line).y2);
+          }
+          if (decoration is Bezier)
+          {
+            decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
+              (decoration as Bezier).y1,
+              (decoration as Bezier).x2,
+              (decoration as Bezier).y2,
+              (decoration as Bezier).x3,
+              (decoration as Bezier).y3,
+              (decoration as Bezier).x4,
+              (decoration as Bezier).y4);
+          }
+          i++;
+        }
+      }
+
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+    }
+
+    public ShapeTemplate GetShapeTemplate(GraphicStencil stencil, bool mirrorX, bool mirrorY)
+    {
+      ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+      {
+        int i = 0;
+        foreach (Element element in stencil.elements)
+        {
+          if (element is Arc)
+          {
+            elementTemplate[i] = new ArcTemplate(
+              (element as Arc).x,
+              (element as Arc).y,
+              (element as Arc).w,
+              (element as Arc).h,
+              (element as Arc).a,
+              (element as Arc).s);
+          }
+          if (element is Line)
+          {
+            Line line = element as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+          }
+          if (element is Bezier)
+          {
+            Bezier bezier = element as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+          }
+          i++;
+        }
+      }
+
+      ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+      {
+        int i = 0;
+        foreach (Element decoration in stencil.decorations)
+        {
+          if (decoration is Arc)
+          {
+            decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
+              (decoration as Arc).y,
+              (decoration as Arc).w,
+              (decoration as Arc).h,
+              (decoration as Arc).a,
+              (decoration as Arc).s);
+          }
+          if (decoration is Line)
+          {
+            decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
+              (decoration as Line).y1,
+              (decoration as Line).x2,
+              (decoration as Line).y2);
+          }
+          if (decoration is Bezier)
+          {
+            decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
+              (decoration as Bezier).y1,
+              (decoration as Bezier).x2,
+              (decoration as Bezier).y2,
+              (decoration as Bezier).x3,
+              (decoration as Bezier).y3,
+              (decoration as Bezier).x4,
+              (decoration as Bezier).y4);
+          }
+          i++;
+        }
+      }
+
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+    }
+
   }
 }
