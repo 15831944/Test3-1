@@ -975,6 +975,7 @@ Global
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Debug - Full.ActiveCfg = Debug|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Debug - Full.Build.0 = Debug|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release.ActiveCfg = Release|Win32
+		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release.Build.0 = Release|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release - Full.ActiveCfg = Release|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release - Full.Build.0 = Release|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg.ActiveCfg = Release_Dbg|Win32

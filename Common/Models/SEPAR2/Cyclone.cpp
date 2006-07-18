@@ -601,10 +601,10 @@ class CMPlitt : public CycloneMeth
         case SE_Lynch:
           {
           double A=Exps(m_Alpha*Size/m_d50);
-          if (m_OldCalcs)
-            YP=(A-1.0)/(A+Exps(m_Alpha)+2.0);
-          else
-            YP=(A-1.0)/(A+Exps(m_Alpha)-2.0); //kga 19/03/06: should be -2 !!!
+          //if (m_OldCalcs)
+          //  YP=(A-1.0)/(A+Exps(m_Alpha)+2.0); //THIS WAS WRONG, ALWAYS USE correct equation
+          //else
+            YP=(A-1.0)/(A+Exps(m_Alpha)-2.0); //kga 19/03/06: should be -2 NOT +2 !!!
           break;
           }
         default:
