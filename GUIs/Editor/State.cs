@@ -168,6 +168,12 @@ namespace SysCAD.Editor
       textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
       textBox.FillColor = Color.FromArgb(0, System.Drawing.Color.Black);
       textBox.FrameColor = Color.FromArgb(0, System.Drawing.Color.Black);
+      textBox.Style = BoxStyle.Shape;
+      textBox.Shape = ShapeTemplate.FromId("Rectangle");
+      textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
+        Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
+        Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
+        Handles.Move;
       textBox.Visible = ShowTags && isVisible;
       textBox.Text = graphicItem.Tag;
 
