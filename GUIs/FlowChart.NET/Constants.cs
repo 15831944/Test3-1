@@ -114,20 +114,21 @@ namespace MindFusion.FlowChartX
 
 		internal static float getMinObjSize(GraphicsUnit currUnit)
 		{
+            //pkh// Added the ' / 10.0F' to enable smaller items to be manipulated.
 			switch (currUnit)
 			{
 			case GraphicsUnit.Millimeter:
-				return 2;
+				return 2 / 10.0F;
 			case GraphicsUnit.Inch:
-				return 1.0f/6;
+                return 1.0f / 6 / 10.0F;
 			case GraphicsUnit.Point:
-				return 72.0f/6;
+                return 72.0f / 6 / 10.0F;
 			case GraphicsUnit.Pixel:
-				return 6;
+                return 6 / 10.0F;
 			case GraphicsUnit.Document:
-				return 300.0f/6;
+                return 300.0f / 6 / 10.0F;
 			case GraphicsUnit.Display:
-				return 75.0f/6;
+                return 75.0f / 6 / 10.0F;
 			}
 
 			return 2;
