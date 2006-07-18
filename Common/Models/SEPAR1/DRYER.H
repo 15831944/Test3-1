@@ -32,6 +32,7 @@ class Dryer : public MN_Surge
     double         FiltSol, CakeLiq;
     double         m_EnergyRqd;
     double         dWaterEvaporated;
+    flag           fOn;
 
     Dryer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~Dryer (){};

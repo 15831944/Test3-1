@@ -84,6 +84,7 @@ Dryer::Dryer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   AttachIOAreas(DryerIOAreaList);
   Contents.SetClosed(False);
 
+  fOn           = True;
   RqdFiltSolids = 0.00001;
   RqdCakeMoist  = 0.02;
   FiltSol       = 0.001;
@@ -110,24 +111,25 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Vol_Accum",  "QvAcc",           DC_Qv,   "L/s",    &m_QvAcc,       this, 0);
   DDB.Visibility();
   
-  DDB.Text    (" ");
+  DDB.Text    ("");
+  DDB.Text    ("Requirements");
+  DDB.CheckBox("On",         "",                DC_,     "",       &fOn,           this, isParm);
   DDB.Double  ("",           "ReqdTemp",        DC_T,    "C",      &TReqd,         this, isParm);
   DDB.Double  ("",           "RqdSolidsLoss",   DC_Frac, "%",      &RqdFiltSolids, this, isParm);
   DDB.Double  ("",           "RqdCakeMoist",    DC_Frac, "%",      &RqdCakeMoist,  this, isParm);
-  DDB.Text    (" ");
-  DDB.Double  ("",           "CakeMoist",       DC_Frac, "%",      &CakeMoist,     this, 0);
-  DDB.Double  ("",           "WaterEvaporated", DC_Qm,   "kg/s",   &dWaterEvaporated, this, 0);
-  DDB.Double  ("",           "EnergyRqd",       DC_Pwr,  "kW",     &m_EnergyRqd,   this, 0);
-
-  DDB.Text    (" ");
   RB.Add_OnOff(DDB);
+  DDB.Text    ("");
+  DDB.Text    ("Results");
+  DDB.Double  ("",           "CakeMoist",       DC_Frac, "%",      &CakeMoist,     this, isResult);
+  DDB.Double  ("",           "WaterEvaporated", DC_Qm,   "kg/s",   &dWaterEvaporated, this, isResult);
+  DDB.Double  ("",           "EnergyRqd",       DC_Pwr,  "kW",     &m_EnergyRqd,   this, isResult);
 
-  DDB.Text    (" ");
+  DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
   RB.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (SolveBufferedMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -140,20 +142,20 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
 
 void Dryer::EvalJoinPressures(long JoinMask)
   {
-  switch (NetMethod())
+  if (NoFlwIOs()>0)
     {
-    case NM_Probal:
+    if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
       {
       for (int j=0; j<NoProcessJoins(); j++)
         {
         double P = PBPress();//AtmosPress(IODatum_Term(j));
         SetPBJoinPressure(j, P, true, true);
         }
-      break;
       }
-    case NM_Dynamic:
+    else
+      {
       MN_Surge::EvalJoinPressures(JoinMask);
-      break;
+      }
     }
   }
  
@@ -170,6 +172,7 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
   switch (SolveMethod())
     {
     case SM_Direct:
+    case SM_Inline:
       {
       const int iCl = IOWithId_Self(ioidLiq);
       const int iCs = IOWithId_Self(ioidSol);
@@ -179,53 +182,72 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
       double MSol, MLiq, MSol2Filt, MLiq2Cake, MLiq2Filt; 
       SigmaQInPMin(Sd(), som_ALL, Id_2_Mask(ioidFd));
 
-      RB.EvalProducts(Sd());
-		  
-      VLE.SetHfInAtZero(Sd());
+      flag HasFlwIn = (Sd().QMass()>UsableMass);
+      if (fOn && HasFlwIn)
+        {
+        RB.EvalProducts(Sd());
+  		  
+        VLE.SetHfInAtZero(Sd());
 
-      MSol = Sd().QMass(som_Sol);
-      MLiq = Sd().QMass(som_Liq);
+        MSol = Sd().QMass(som_Sol);
+        MLiq = Sd().QMass(som_Liq);
 
-			if ((MLiq > 1e-9) && (MSol > 1e-9))
-				{
-				RqdFiltSolids = Range(0.0, RqdFiltSolids, 0.2);
-				RqdCakeMoist  = Range(0.001, RqdCakeMoist, 0.99);
+			  if ((MLiq > 1e-9) && (MSol > 1e-9))
+				  {
+				  RqdFiltSolids = Range(0.0, RqdFiltSolids, 0.2);
+				  RqdCakeMoist  = Range(0.001, RqdCakeMoist, 0.99);
 
-				MSol2Filt = MSol * RqdFiltSolids;
-				MLiq2Cake = (RqdCakeMoist * MSol)/GTZ(1.0 - RqdCakeMoist);
-				//MLiq2Cake = (RqdCakeMoist * (MSol - MSol2Filt))/GTZ(1.0 - RqdCakeMoist);
-				MLiq2Filt = MLiq - MLiq2Cake;
+				  MSol2Filt = MSol * RqdFiltSolids;
+				  MLiq2Cake = (RqdCakeMoist * MSol)/GTZ(1.0 - RqdCakeMoist);
+				  //MLiq2Cake = (RqdCakeMoist * (MSol - MSol2Filt))/GTZ(1.0 - RqdCakeMoist);
+				  MLiq2Filt = MLiq - MLiq2Cake;
 
-				Cs.QSetM(Sd(), som_Liq, MLiq2Cake, IOP_Self(iCs));
-				Cl.QSetM(Sd(), som_Sol, MSol2Filt, IOP_Self(iCl));
+				  Cs.QSetM(Sd(), som_Liq, MLiq2Cake, IOP_Self(iCs));
+				  Cl.QSetM(Sd(), som_Sol, MSol2Filt, IOP_Self(iCl));
 
-				/*Calculate water in cake, then evaporate the excess water, 
-				  leaving behind the liquid impurities in the remaining liquid.*/
-				const int water    = Water();
-				const int watervap = Steam();
-				double MassWater, PercWater, WaterInCake, Water2Filt;
-				MassWater   = Sd().VMass[water];
-				PercWater   = MassWater/MLiq;
-				//PercWater   = (MassWater-MLiq2Filt)/MLiq2Cake;
-				WaterInCake = PercWater * MLiq2Cake;
-				Water2Filt  = MassWater - WaterInCake;
-        if (Water2Filt<0.0)
-          {
-          Water2Filt = 0.0;
-  				Cs.SetVMass(water, Sd(), MassWater);
-          //SetCI();
+				  /*Calculate water in cake, then evaporate the excess water, 
+				    leaving behind the liquid impurities in the remaining liquid.*/
+				  const int water    = Water();
+				  const int watervap = Steam();
+				  double MassWater, PercWater, WaterInCake, Water2Filt;
+				  MassWater   = Sd().VMass[water];
+				  PercWater   = MassWater/MLiq;
+				  //PercWater   = (MassWater-MLiq2Filt)/MLiq2Cake;
+				  WaterInCake = PercWater * MLiq2Cake;
+				  Water2Filt  = MassWater - WaterInCake;
+          if (Water2Filt<0.0)
+            {
+            Water2Filt = 0.0;
+  				  Cs.SetVMass(water, Sd(), MassWater);
+            //SetCI();
+            }
+				  Cl.SetVMass(watervap, Sd(), Water2Filt);
+          dWaterEvaporated = Water2Filt;
+				  for (int i=0; i < SDB.Count(); i++)
+					  if ((SDB[i].IsLiq()) && (i != water))
+						  {
+						  Cl.SetVMass(i, Sd(), 0.0);
+						  Cs.SetVMass(i, Sd(), Sd().VMass[i]);
+						  }
+
+				  Cs.QAddM(Sd(), som_Sol, MSol - MSol2Filt);
+				  Cl.QAddM(Sd(), som_Gas, Sd().QMass(som_Gas)); //put any extra vapours to moisture evap vent
           }
-				Cl.SetVMass(watervap, Sd(), Water2Filt);
-        dWaterEvaporated = Water2Filt;
-				for (int i=0; i < SDB.Count(); i++)
-					if ((SDB[i].IsLiq()) && (i != water))
-						{
-						Cl.SetVMass(i, Sd(), 0.0);
-						Cs.SetVMass(i, Sd(), Sd().VMass[i]);
-						}
+			  else
+				  {
+          dWaterEvaporated = 0.0;
+				  Cs.QCopy(Sd());
+				  Cl.QZero();
+				  }
 
-				Cs.QAddM(Sd(), som_Sol, MSol - MSol2Filt);
-				Cl.QAddM(Sd(), som_Gas, Sd().QMass(som_Gas)); //put any extra vapours to moisture evap vent
+        Cs.SetTemp(TReqd);
+        Cl.SetTemp(TReqd);
+
+        VLE.AddHfOutAtZero(Cl);
+        VLE.AddHfOutAtZero(Cs);
+
+        Cs.SanityCheck();
+        Cl.SanityCheck();
         }
 			else
 				{
@@ -234,27 +256,14 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
 				Cl.QZero();
 				}
 
-      Cs.SetTemp(TReqd);
-      Cl.SetTemp(TReqd);
-
-      VLE.AddHfOutAtZero(Cl);
-      VLE.AddHfOutAtZero(Cs);
-
       //TODO Calculate energy required to evap water at required temp
       m_EnergyRqd = Cs.totHf()+Cl.totHf()-Sd().totHf();
 
-      //results...
-      Cs.SanityCheck();
-      Cl.SanityCheck();
-
       
-      //CakeMoist = ???
-      //const double Ttl = Cs.QMass(som_ALL);
-      //CakeMoist = (Ttl > 1e-9) ? Cs.VMass[Water]))/Ttl : 0.0;
+      CakeMoist = Cs.QMass(som_Liq)/GTZ(Cs.QMass(som_ALL));
 
       break;
       }
-    case SM_Inline:
     case SM_Buffered:
       {
       Contents.ZeroDeriv();
