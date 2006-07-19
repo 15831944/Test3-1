@@ -295,35 +295,21 @@ namespace SysCAD.Editor
       // TBD
     }
 
-
-
-    private void fcFlowChart_ArrowAttaching(object sender, AttachConfirmArgs e)
-    {
-      if (e.ChangingOrigin) // Origin is trying to be being changed.
-      {
-        if (e.Origin==null)
-          e.Confirm = false; // Trying to be disconnected, ignore.
-        else
-          e.Confirm = true; // Being attached to another node, OK.
-      }
-      else // Destination is trying to be being changed.
-      {
-        if (e.Destination==null)
-          e.Confirm = false; // Trying to be disconnected, ignore.
-        else
-          e.Confirm = true; // Being attached to another node, OK.
-      }
-    }
-
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
       arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModified = null;
       originAnchorChosen = null;
       destinationAnchorChosen = null;
+
+      List<PointF> controlPoints = new List<PointF>();
+
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-        PointCollection controlPoints = e.Arrow.ControlPoints.Clone();
+        foreach (PointF point in e.Arrow.ControlPoints.Clone())
+        {
+          controlPoints.Add(point);
+        }
 
         if (e.Arrow.Origin is Box)
         {
@@ -372,7 +358,7 @@ namespace SysCAD.Editor
             (e.Arrow.Tag as Link).graphicLink.Destination = destinationItem.Guid;
             e.Arrow.Destination = destinationItem.Model;
             e.Arrow.DestAnchor = -1;
-            for (int i=0; i<destinationBox.AnchorPattern.Points.Count; i++)
+            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
             {
               if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
               {
@@ -409,6 +395,30 @@ namespace SysCAD.Editor
         }
         e.Arrow.UpdateFromPoints();
       }
+
+      {
+        GraphicLink graphicLink = (e.Arrow.Tag as Link).graphicLink as GraphicLink;
+
+        Item originItem = e.Arrow.Origin.Tag as Item;
+        Item destinationItem = e.Arrow.Destination.Tag as Item;
+
+        GraphicItem originGraphicItem = originItem.GraphicItem;
+        GraphicItem destinationGraphicItem = destinationItem.GraphicItem;
+
+        uint requestID;
+        if (!state.ModifyGraphicLink(out requestID,
+          graphicLink.Guid,
+          graphicLink.Tag,
+          graphicLink.ClassID,
+          originItem.Guid,
+          destinationItem.Guid,
+          originGraphicItem.anchorIntToTag[e.Arrow.OrgnAnchor],
+          destinationGraphicItem.anchorIntToTag[e.Arrow.DestAnchor],
+          controlPoints))
+        { // failure, revert back to previous.
+          // do something here...
+        }
+      }
     }
 
     private void fcFlowChart_ArrowModifying(object sender, ArrowConfirmArgs e)
@@ -419,6 +429,46 @@ namespace SysCAD.Editor
         arrowBeingModified = e.Arrow;
         arrowBeingModified.CustomDraw = CustomDraw.Additional;
         arrowBeingModified.ZTop();
+
+        PointF originPos = arrowBeingModified.ControlPoints[0];
+        Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+
+        if (originBox != null)
+        {
+          originBox = (originBox.Tag as Item).Model;
+          if (originBox != null)
+          {
+            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
+            {
+              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+              {
+                (e.Arrow.Tag as Link).graphicLink.Origin = (originBox.Tag as Item).Guid;
+                e.Arrow.Origin = originBox;
+                e.Arrow.OrgnAnchor = i;
+              }
+            }
+          }
+        }
+
+
+        PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
+        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
+        if (destinationBox != null)
+        {
+          destinationBox = (destinationBox.Tag as Item).Model;
+          if (destinationBox != null)
+          {
+            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
+            {
+              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+              {
+                (e.Arrow.Tag as Link).graphicLink.Destination = (destinationBox.Tag as Item).Guid;
+                e.Arrow.Destination = destinationBox;
+                e.Arrow.DestAnchor = i;
+              }
+            }
+          }
+        }
       }
 
       fcFlowChart.RecreateCacheImage();
@@ -558,8 +608,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
     {
-      PointF mousePos = fcFlowChart.ClientToDoc(MousePosition);
-
       if (arrowBeingModified != null)
       {
         PointF originPos = arrowBeingModified.ControlPoints[0];
@@ -571,7 +619,7 @@ namespace SysCAD.Editor
           {
             if (originBox.AnchorPattern != null)
             {
-              if (originAnchorChosen == null)
+              //if (originAnchorChosen == null)
               {
                 float closest = float.MaxValue;
 
@@ -603,10 +651,10 @@ namespace SysCAD.Editor
                     new PointF[] { anchorPointPos, anchorPointPos };
                   System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, 5.0F);
                   e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
-                    anchorPointPos.X - 1.0F,
-                    anchorPointPos.Y - 1.0F,
-                    anchorPointPos.X + 1.0F,
-                    anchorPointPos.Y + 1.0F));
+                    anchorPointPos.X - 2.0F,
+                    anchorPointPos.Y - 2.0F,
+                    anchorPointPos.X + 2.0F,
+                    anchorPointPos.Y + 2.0F));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
               }
@@ -623,7 +671,7 @@ namespace SysCAD.Editor
           {
             if (destinationBox.AnchorPattern != null)
             {
-              if (destinationAnchorChosen == null)
+              //if (destinationAnchorChosen == null)
               {
                 float closest = float.MaxValue;
 
@@ -655,10 +703,10 @@ namespace SysCAD.Editor
                     new PointF[] { anchorPointPos, anchorPointPos };
                   System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, 5.0F);
                   e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
-                    anchorPointPos.X - 1.0F,
-                    anchorPointPos.Y - 1.0F,
-                    anchorPointPos.X + 1.0F,
-                    anchorPointPos.Y + 1.0F));
+                    anchorPointPos.X - 2.0F,
+                    anchorPointPos.Y - 2.0F,
+                    anchorPointPos.X + 2.0F,
+                    anchorPointPos.Y + 2.0F));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
 
@@ -792,15 +840,7 @@ namespace SysCAD.Editor
     {
       GraphicItem graphicItem = state.GraphicItem((e.Box.Tag as Item).Guid);
       Box modelBox = (e.Box.Tag as Item).Model;
-      //Box textBox = (e.Box.Tag as Item).Text;
 
-      //int x1 = (int)((textBox.BoundingRect.Left - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width*100.0);
-      //int y1 = (int)((textBox.BoundingRect.Top - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
-      //int x2 = (int)((textBox.BoundingRect.Right - modelBox.BoundingRect.Left) / modelBox.BoundingRect.Width * 100.0);
-      //int y2 = (int)((textBox.BoundingRect.Bottom - modelBox.BoundingRect.Top) / modelBox.BoundingRect.Height * 100.0);
-      //textBox.AttachTo(modelBox, x1, y1, x2, y2);
-
-      // calculate new boundingbox...
       uint requestID;
       if (!state.ModifyGraphicItem(out requestID,
         graphicItem.Guid,
@@ -923,6 +963,36 @@ namespace SysCAD.Editor
     private void RouteArrow(object sender, EventArgs e)
     {
       hoverArrow.Route();
+
+      {
+        List<PointF> controlPoints = new List<PointF>();
+        foreach (PointF point in hoverArrow.ControlPoints.Clone())
+        {
+          controlPoints.Add(point);
+        }
+
+        GraphicLink graphicLink = (hoverArrow.Tag as Link).graphicLink as GraphicLink;
+
+        Item originItem = hoverArrow.Origin.Tag as Item;
+        Item destinationItem = hoverArrow.Destination.Tag as Item;
+
+        GraphicItem originGraphicItem = originItem.GraphicItem;
+        GraphicItem destinationGraphicItem = destinationItem.GraphicItem;
+
+        uint requestID;
+        if (!state.ModifyGraphicLink(out requestID,
+          graphicLink.Guid,
+          graphicLink.Tag,
+          graphicLink.ClassID,
+          originItem.Guid,
+          destinationItem.Guid,
+          originGraphicItem.anchorIntToTag[hoverArrow.OrgnAnchor],
+          destinationGraphicItem.anchorIntToTag[hoverArrow.DestAnchor],
+          controlPoints))
+        { // failure, revert back to previous.
+          // do something here...
+        }
+      }
     }
 
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)
