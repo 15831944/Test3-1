@@ -56,14 +56,15 @@ const int EIOId_Supply  = ElecIOId(0);
 
 XID xidBeltLength       = ModelXID(1000);
 XID xidBeltSpeed        = ModelXID(1001);
-XID xidTotSpilt         = ModelXID(1002);
-XID xidNWtMtrs          = ModelXID(1003);
-XID xidNSections        = ModelXID(1004);
-XID xidTotalMass        = ModelXID(1005);
-XID xidAvgLoading       = ModelXID(1006);
-XID xidShowProf         = ModelXID(1007);
-XID xidProfPts          = ModelXID(1008);
-XID xidProfDispType     = ModelXID(1009);
+XID xidBeltStopped      = ModelXID(1002);
+XID xidTotSpilt         = ModelXID(1003);
+XID xidNWtMtrs          = ModelXID(1004);
+XID xidNSections        = ModelXID(1005);
+XID xidTotalMass        = ModelXID(1006);
+XID xidAvgLoading       = ModelXID(1007);
+XID xidShowProf         = ModelXID(1008);
+XID xidProfPts          = ModelXID(1009);
+XID xidProfDispType     = ModelXID(1010);
 XID xidFeedType0        = ModelXID(1100);
 XID xidFeedIndex0       = ModelXID(1200);
 XID xidFeedPos0         = ModelXID(1300);
@@ -284,6 +285,7 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnElevation(DDB);
   DDB.Text("");
   DDB.Double  ("BeltSpeed",    "",                DC_Ldt,  "m/s",   xidBeltSpeed,       this, isResult);
+  DDB.CheckBox("BeltStopped",  "",                DC_,     "",      xidBeltStopped,     this, isResult);
   DDB.Visibility();
   DDB.Double  ("Length",       "L",               DC_L,    "m",     xidBeltLength,      this, isParm);
   DDB.Visibility(SM_DynBoth|HM_All);
@@ -567,6 +569,9 @@ flag BeltCnv2::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidBeltSpeed:
       DCB.D=m_MaxVelocity*Range(-1.0, m_BeltSB.Speed(this), 1.0);
+      return 1;
+    case xidBeltStopped:
+      DCB.B=(fabs(Range(-1.0, m_BeltSB.Speed(this), 1.0))<1.0e-5);
       return 1;
     case xidTotSpilt:
       if (DCB.rD)
