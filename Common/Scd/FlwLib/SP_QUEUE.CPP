@@ -530,20 +530,74 @@ SpQIO::~SpQIO()
     m_pCond->Destroy();
   };
 
-void SpQIO::SetIOMoving(bool On, double Spd, double MinPosn, double MaxPosn)
-  {
-  m_bIOMoving=On;
-  m_dIOSpd=Spd;
-  m_dPosMin=MinPosn;
-  m_dPosMax=MaxPosn;
-  }
+//void SpQIO::SetIOMoving(bool On, double Spd, double MinPosn, double MaxPosn)
+//  {
+//  m_bIOMoving=On;
+//  m_dIOSpd=Spd;
+//  m_dPosMin=MinPosn;
+//  m_dPosMax=MaxPosn;
+//  if (1)
+//    dbgpln("SpQIO::SetIOMoving[%i] %s Spd:%6.2f MinPos:%6.2f MaxPos:%6.2f", 
+//           Index(), On?"On ":"Off", Spd, MinPosn, MaxPosn);
+//  }
+
 void SpQIO::SetUseBinSizes(bool On)//, double BinWide, double SpillMargin)
   {
   m_bUseBinSizes=On;
   };
 
-void SpQIO::SetPosition(double Position) { if (m_dPosition!=Position) {m_pQ->m_bPosChg=1; m_dPosition=Position;}; };
-void SpQIO::SetSpill(char * SpillTag)    { Spill.SetTarget(SpillTag); };
+void SpQIO::SetIOMoving(bool On, double PosActual, double PosReqd, double Spd, double TimeSlice, double MinPosn, double MaxPosn) 
+  { 
+
+  if (On)
+    {
+    if (m_dPosition!=PosActual) 
+      {
+      m_pQ->m_bPosChg=1;
+      m_dPosition=PosActual;
+      }; 
+    if (PosReqd>PosActual)
+      Spd=Min(Spd, (PosReqd-PosActual)/TimeSlice);
+    else if (PosReqd<PosActual)
+      Spd=Max(Spd, (PosReqd-PosActual)/TimeSlice);
+    else
+      Spd=0.0;
+    }
+
+  m_bIOMoving=On;
+  m_dIOSpd=Spd;
+  m_dPosMin=MinPosn;
+  m_dPosMax=MaxPosn;
+
+  if (1)
+    {
+    dbglock();
+    dbgp("SpQIO::SetIOMoving[%i] Pos:%6.2f %s", Index(), m_dPosition, On?"Moving":"      ");
+    if (On)
+      dbgp(" Spd:%6.2f RqdPos:%6.2f MinPos:%6.2f MaxPos:%6.2f", Spd, PosReqd, MinPosn, MaxPosn);
+    dbgpln("");
+    dbgunlock();
+    }
+  };
+
+void SpQIO::SetPosition(double PosActual) 
+  { 
+  if (m_dPosition!=PosActual) 
+    {
+    m_pQ->m_bPosChg=1;
+    m_dPosition=PosActual;
+    }; 
+
+  if (1)
+    {
+    dbgpln("SpQIO::SetPosition[%i] Pos:%6.2f", Index(), m_dPosition);
+    }
+  };
+
+void SpQIO::SetSpill(char * SpillTag)
+  {
+  Spill.SetTarget(SpillTag);
+  };
 
 // ===========================================================================
 //
@@ -1095,6 +1149,7 @@ void SpQueue::EstProd(int ProdNo)//, int Feed0, int FeedN)
   double GateS=-m_dLength;
   double GateE=2*m_dLength;
 
+  double AppIOSpd=0;
   if (m_TripperOn)
     {
     Pa=m_dTripPosition;
@@ -1110,7 +1165,7 @@ void SpQueue::EstProd(int ProdNo)//, int Feed0, int FeedN)
     }
   else if (P.m_bIOMoving)
     {
-    double AppIOSpd=(Range(P.m_dPosMin, P.m_dPosition+m_dTimeSlice*P.m_dIOSpd, P.m_dPosMax)-P.m_dPosition)/GTZ(m_dTimeSlice);
+    AppIOSpd=(Range(P.m_dPosMin, P.m_dPosition+m_dTimeSlice*P.m_dIOSpd, P.m_dPosMax)-P.m_dPosition)/GTZ(m_dTimeSlice);
     Pa=P.m_dPosition-m_dTimeSlice*(m_dSpeed-AppIOSpd);
     Pb=P.m_dPosition;
     Bs=Min(Pa, Pb);
@@ -1129,8 +1184,15 @@ void SpQueue::EstProd(int ProdNo)//, int Feed0, int FeedN)
 
   #if dbgSpQueue
   if (dbgUnLoad() && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
-    dbgpln("SpQ:UnLoad[%2i]  [S/E%6.2f->%6.2f]   QmEst:%8.4f   QmAct:%8.4f  T:%6.2f  M:%8.4f %s",
-    ProdNo, P.m_dBeltStart, P.m_dBeltEnd, Range(-999.9999, P.m_dQmEst, 999.9999), P.m_dQmAct, K2C(pProd->Temp()), pProd->QMass(som_ALL), FullObjTag());
+    {
+    dbgpln("SpQ:UnLoad[%i]  [S/E%6.2f->%6.2f]   QmEst:%8.4f   QmAct:%8.4f  T:%6.2f  M:%8.4f %s",
+           ProdNo, P.m_dBeltStart, P.m_dBeltEnd, Range(-999.9999, P.m_dQmEst, 999.9999), P.m_dQmAct, K2C(pProd->Temp()), pProd->QMass(som_ALL), FullObjTag());
+    if (!m_TripperOn && P.m_bIOMoving)
+      {
+      dbgpln("                Pos:%6.2f  IOSpd:%6.2f  PosMin:%6.2f  PosMax:%6.2f", P.m_dPosition, P.m_dIOSpd, P.m_dPosMin, P.m_dPosMax);
+      dbgpln("                Tm: %6.2f  BlSpd:%6.2f  AppIOSpd:%6.2f", m_dTimeSlice, m_dSpeed, AppIOSpd);
+      }
+    }
   #endif
 
   if (P.m_dBeltStart>=P.m_dBeltEnd)

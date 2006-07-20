@@ -1068,8 +1068,7 @@ void BeltCnv2::StartStep()
             if (Fd.Index()>=0 && Fd.Index()<m_FeedDrives.GetSize())
               {
               CBeltFdPrDrive &FDrv=*m_FeedDrives[Fd.Index()];
-              Fd.SetIOMoving(true, FDrv.Speed(this), FDrv.m_dPosnMin, FDrv.m_dPosnMax);
-              Fd.SetPosition(FDrv.m_dPosnActual);
+              Fd.SetIOMoving(true, FDrv.m_dPosnActual, FDrv.m_dPosnReqd, FDrv.Speed(this), ICGetTimeInc(), FDrv.m_dPosnMin, FDrv.m_dPosnMax);
               }
             else
               CI4=true;
@@ -1088,8 +1087,7 @@ void BeltCnv2::StartStep()
             if (Pr.Index()>=0 && Pr.Index()<m_ProdDrives.GetSize())
               {
               CBeltFdPrDrive &PDrv=*m_ProdDrives[Pr.Index()];
-              Pr.SetIOMoving(true, PDrv.Speed(this), PDrv.m_dPosnMin, PDrv.m_dPosnMax);
-              Pr.SetPosition(PDrv.m_dPosnActual);
+              Pr.SetIOMoving(true, PDrv.m_dPosnActual, PDrv.m_dPosnReqd, PDrv.Speed(this), ICGetTimeInc(), PDrv.m_dPosnMin, PDrv.m_dPosnMax);
               Pr.SetUseBinSizes(false);
               }
             else

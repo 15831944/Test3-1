@@ -168,7 +168,8 @@ class DllImportExport SpQIO
     void            SetSpill(char * SpillTag);     //{ SpillTarget()->SetTag(SpillTag); };
     void            SetRemoval(double Removal)    { m_dRemoval=Range(0.0, Removal, 1.0); };
 
-    void            SetIOMoving(bool On, double Spd=0, double MinPosn=0, double MaxPosn=0);
+    //void            SetIOMoving(bool On, double Spd=0, double PosnAct=0, double PosnRqd=0, double MinPosn=0, double MaxPosn=0);
+    void            SetIOMoving(bool On, double PosActual=0.0, double PosReqd=0.0, double Spd=0.0, double TimeSlice=1.0, double MinPosn=0.0, double MaxPosn=0.0); 
     void            SetUseBinSizes(bool On);
 
     CDirectFlwIO  & getSpill()                    { return *m_pSpill; };
