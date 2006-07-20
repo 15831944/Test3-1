@@ -530,17 +530,6 @@ SpQIO::~SpQIO()
     m_pCond->Destroy();
   };
 
-//void SpQIO::SetIOMoving(bool On, double Spd, double MinPosn, double MaxPosn)
-//  {
-//  m_bIOMoving=On;
-//  m_dIOSpd=Spd;
-//  m_dPosMin=MinPosn;
-//  m_dPosMax=MaxPosn;
-//  if (1)
-//    dbgpln("SpQIO::SetIOMoving[%i] %s Spd:%6.2f MinPos:%6.2f MaxPos:%6.2f", 
-//           Index(), On?"On ":"Off", Spd, MinPosn, MaxPosn);
-//  }
-
 void SpQIO::SetUseBinSizes(bool On)//, double BinWide, double SpillMargin)
   {
   m_bUseBinSizes=On;
@@ -569,7 +558,8 @@ void SpQIO::SetIOMoving(bool On, double PosActual, double PosReqd, double Spd, d
   m_dPosMin=MinPosn;
   m_dPosMax=MaxPosn;
 
-  if (1)
+  #if dbgSpQueue
+  if (dbgUnLoad())// && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
     {
     dbglock();
     dbgp("SpQIO::SetIOMoving[%i] Pos:%6.2f %s", Index(), m_dPosition, On?"Moving":"      ");
@@ -578,6 +568,7 @@ void SpQIO::SetIOMoving(bool On, double PosActual, double PosReqd, double Spd, d
     dbgpln("");
     dbgunlock();
     }
+  #endif
   };
 
 void SpQIO::SetPosition(double PosActual) 
@@ -588,10 +579,10 @@ void SpQIO::SetPosition(double PosActual)
     m_dPosition=PosActual;
     }; 
 
-  if (1)
-    {
+  #if dbgSpQueue
+  if (dbgUnLoad())// && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
     dbgpln("SpQIO::SetPosition[%i] Pos:%6.2f", Index(), m_dPosition);
-    }
+  #endif
   };
 
 void SpQIO::SetSpill(char * SpillTag)
