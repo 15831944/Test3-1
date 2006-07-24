@@ -71,8 +71,6 @@ namespace SysCAD.Editor
       this.fcFlowChart.Name = "fcFlowChart";
       this.fcFlowChart.PrintOptions.EnableShadows = false;
       this.fcFlowChart.RestrObjsToDoc = MindFusion.FlowChartX.RestrictToDoc.NoRestriction;
-      this.fcFlowChart.RoutingOptions.Anchoring = MindFusion.FlowChartX.Anchoring.Keep;
-      this.fcFlowChart.RoutingOptions.TriggerRerouting = MindFusion.FlowChartX.RerouteArrows.WhileCreating;
       this.fcFlowChart.SelHandleSize = 1.5F;
       this.fcFlowChart.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
       this.fcFlowChart.ShowDisabledHandles = false;

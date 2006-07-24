@@ -302,130 +302,99 @@ namespace SysCAD.Editor
       originAnchorChosen = null;
       destinationAnchorChosen = null;
 
-      List<PointF> controlPoints = new List<PointF>();
+      GraphicLink graphicLink = (e.Arrow.Tag as Link).graphicLink as GraphicLink;
 
-      if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
+      if (oldOriginBox != null)
       {
-        foreach (PointF point in e.Arrow.ControlPoints.Clone())
-        {
-          controlPoints.Add(point);
-        }
-
-        if (e.Arrow.Origin is Box)
-        {
-          Item originItem = (e.Arrow.Origin.Tag as Item);
-          if (originItem != null)
-          {
-            Box originBox = originItem.Model;
-            (e.Arrow.Tag as Link).graphicLink.Origin = originItem.Guid;
-            e.Arrow.Origin = originBox;
-            e.Arrow.OrgnAnchor = -1;
-            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
-            {
-              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
-              {
-                e.Arrow.OrgnAnchor = i;
-              }
-            }
-          }
-        }
-        else
-        {
-          Guid originGuid = (e.Arrow.Tag as Link).graphicLink.Origin;
-          Item originItem = state.Item(originGuid);
-
-          if (originItem != null)
-          {
-            Box originBox = originItem.Model;
-            e.Arrow.Origin = originBox;
-            e.Arrow.OrgnAnchor = -1;
-            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
-            {
-              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
-              {
-                e.Arrow.OrgnAnchor = i;
-              }
-            }
-          }
-        }
-
-        if (e.Arrow.Destination is Box)
-        {
-          Item destinationItem = (e.Arrow.Destination.Tag as Item);
-          if (destinationItem != null)
-          {
-            Box destinationBox = destinationItem.Model;
-            (e.Arrow.Tag as Link).graphicLink.Destination = destinationItem.Guid;
-            e.Arrow.Destination = destinationItem.Model;
-            e.Arrow.DestAnchor = -1;
-            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
-            {
-              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
-              {
-                e.Arrow.DestAnchor = i;
-              }
-            }
-          }
-
-        }
-        else
-        {
-          Guid destinationGuid = (e.Arrow.Tag as Link).graphicLink.Destination;
-          Item destinationItem = state.Item(destinationGuid);
-
-          if (destinationItem != null)
-          {
-            Box destinationBox = destinationItem.Model;
-            e.Arrow.Destination = destinationBox;
-            e.Arrow.DestAnchor = -1;
-            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
-            {
-              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
-              {
-                e.Arrow.DestAnchor = i;
-              }
-            }
-          }
-        }
-
-        e.Arrow.ControlPoints.Clear();
-        foreach (PointF point in controlPoints)
-        {
-          e.Arrow.ControlPoints.Add(point);
-        }
-        e.Arrow.UpdateFromPoints();
+        (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
+        e.Arrow.Origin = oldOriginBox;
+        e.Arrow.OrgnAnchor = oldOriginAnchor;
       }
 
+      if (oldDestinationBox != null)
       {
-        GraphicLink graphicLink = (e.Arrow.Tag as Link).graphicLink as GraphicLink;
-
-        Item originItem = e.Arrow.Origin.Tag as Item;
-        Item destinationItem = e.Arrow.Destination.Tag as Item;
-
-        GraphicItem originGraphicItem = originItem.GraphicItem;
-        GraphicItem destinationGraphicItem = destinationItem.GraphicItem;
-
-        uint requestID;
-        if (!state.ModifyGraphicLink(out requestID,
-          graphicLink.Guid,
-          graphicLink.Tag,
-          graphicLink.ClassID,
-          originItem.Guid,
-          destinationItem.Guid,
-          originGraphicItem.anchorIntToTag[e.Arrow.OrgnAnchor],
-          destinationGraphicItem.anchorIntToTag[e.Arrow.DestAnchor],
-          controlPoints))
-        { // failure, revert back to previous.
-          // do something here...
-        }
+        (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
+        e.Arrow.Destination = oldDestinationBox;
+        e.Arrow.DestAnchor = oldDestinationAnchor;
       }
+
+      e.Arrow.SegmentCount = (short)(oldControlPoints.Count - 1);
+      int i = 0;
+      foreach (PointF point in oldControlPoints)
+        e.Arrow.ControlPoints[i++] = point;
+      e.Arrow.UpdateFromPoints();
+
+      Item originItem = e.Arrow.Origin.Tag as Item;
+      Item destinationItem = e.Arrow.Destination.Tag as Item;
+
+      GraphicItem originGraphicItem = null;
+      GraphicItem destinationGraphicItem = null;
+      Guid originGuid = Guid.Empty;
+      Guid destinationGuid = Guid.Empty;
+
+      if (originItem != null)
+      {
+        originGraphicItem = originItem.GraphicItem;
+        originGuid = originItem.Guid;
+      }
+
+      if (destinationItem != null)
+      {
+        destinationGraphicItem = destinationItem.GraphicItem;
+        destinationGuid = destinationItem.Guid;
+      }
+      
+      string originAnchor = null;
+      string destinationAnchor = null;
+      if (originGraphicItem != null)
+        originGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.OrgnAnchor, out originAnchor);
+      if (destinationGraphicItem != null)
+        destinationGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.DestAnchor, out destinationAnchor);
+
+      uint requestID;
+      if (!state.ModifyGraphicLink(out requestID,
+        graphicLink.Guid,
+        graphicLink.Tag,
+        graphicLink.ClassID,
+        originGuid,
+        destinationGuid,
+        originAnchor,
+        destinationAnchor,
+        oldControlPoints))
+      { // failure, revert back to previous.
+        // do something here...
+      }
+
+      oldOriginGuid = Guid.Empty;
+      oldOriginBox = null;
+      oldOriginAnchor = -1;
+
+      oldDestinationGuid = Guid.Empty;
+      oldDestinationBox = null;
+      oldDestinationAnchor = -1;
     }
+
+    Guid oldOriginGuid = Guid.Empty;
+    Box oldOriginBox = null;
+    int oldOriginAnchor = -1;
+
+    Guid oldDestinationGuid = Guid.Empty;
+    Box oldDestinationBox = null;
+    int oldDestinationAnchor = -1;
+
+    List<PointF> oldControlPoints = new List<PointF>();
 
     private void fcFlowChart_ArrowModifying(object sender, ArrowConfirmArgs e)
     {
       form1.Mode_Modify();
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
+        oldControlPoints.Clear();
+        foreach (PointF point in e.Arrow.ControlPoints.Clone())
+        {
+          oldControlPoints.Add(point);
+        }
+
         arrowBeingModified = e.Arrow;
         arrowBeingModified.CustomDraw = CustomDraw.Additional;
         arrowBeingModified.ZTop();
@@ -435,6 +404,10 @@ namespace SysCAD.Editor
 
         if (originBox != null)
         {
+          oldOriginGuid = (e.Arrow.Tag as Link).graphicLink.Origin;
+          oldOriginBox = e.Arrow.Origin as Box;
+          oldOriginAnchor = e.Arrow.OrgnAnchor;
+
           originBox = (originBox.Tag as Item).Model;
           if (originBox != null)
           {
@@ -444,17 +417,29 @@ namespace SysCAD.Editor
               {
                 (e.Arrow.Tag as Link).graphicLink.Origin = (originBox.Tag as Item).Guid;
                 e.Arrow.Origin = originBox;
+                e.Arrow.Origin.Tag = originBox.Tag;
                 e.Arrow.OrgnAnchor = i;
               }
             }
           }
         }
+        else if (oldOriginBox != null)
+        {
+          (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
+          e.Arrow.Origin = oldOriginBox;
+          e.Arrow.OrgnAnchor = oldOriginAnchor;
+        }
 
 
         PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
         Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
+
         if (destinationBox != null)
         {
+          oldDestinationGuid = (e.Arrow.Tag as Link).graphicLink.Destination;
+          oldDestinationBox = e.Arrow.Destination as Box;
+          oldDestinationAnchor = e.Arrow.DestAnchor;
+
           destinationBox = (destinationBox.Tag as Item).Model;
           if (destinationBox != null)
           {
@@ -464,10 +449,17 @@ namespace SysCAD.Editor
               {
                 (e.Arrow.Tag as Link).graphicLink.Destination = (destinationBox.Tag as Item).Guid;
                 e.Arrow.Destination = destinationBox;
+                e.Arrow.Destination.Tag = destinationBox.Tag;
                 e.Arrow.DestAnchor = i;
               }
             }
           }
+        }
+        else if (oldDestinationBox != null)
+        {
+          (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
+          e.Arrow.Destination = oldDestinationBox;
+          e.Arrow.DestAnchor = oldDestinationAnchor;
         }
       }
 
@@ -504,14 +496,14 @@ namespace SysCAD.Editor
         hoverArrow.CustomDraw = CustomDraw.Additional;
         hoverArrow.ZTop();
 
-        if (hoverArrow.Destination != null)
+        if (hoverArrow.Destination is Box)
         {
           Item hoverItem = hoverArrow.Destination.Tag as Item;
           hoverItem.Text.ZIndex = hoverArrow.ZIndex - 1;
           hoverItem.Model.ZIndex = hoverArrow.ZIndex - 2;
         }
 
-        if (hoverArrow.Origin != null)
+        if (hoverArrow.Origin is Box)
         {
           Item hoverItem = hoverArrow.Origin.Tag as Item;
           hoverItem.Text.ZIndex = hoverArrow.ZIndex - 1;
@@ -555,14 +547,14 @@ namespace SysCAD.Editor
         {
           oldHoverArrow.CustomDraw = CustomDraw.None;
 
-          if (oldHoverArrow.Destination != null)
+          if (oldHoverArrow.Destination is Box)
           {
             Item oldHoverItem = oldHoverArrow.Destination.Tag as Item;
             oldHoverItem.Text.ZIndex = oldHoverArrow.ZIndex - 1;
             oldHoverItem.Model.ZIndex = oldHoverArrow.ZIndex - 2;
           }
 
-          if (oldHoverArrow.Origin != null)
+          if (oldHoverArrow.Origin is Box)
           {
             Item oldHoverItem = oldHoverArrow.Origin.Tag as Item;
             oldHoverItem.Text.ZIndex = oldHoverArrow.ZIndex - 1;
