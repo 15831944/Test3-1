@@ -21,14 +21,16 @@
 
 XID xidRCTSrcHf       = RctXID(100);
 XID xidRCTSrcHs       = RctXID(101);
-XID xidRCTSnkHf       = RctXID(102);
-XID xidRCTSnkHs       = RctXID(103);
-XID xidRCTHXAmbTemp   = RctXID(104);
-XID xidRCTHXTFrac     = RctXID(105);
-XID xidRCTHXTargetT   = RctXID(106);
-XID xidRCTHXPwr       = RctXID(107);
-XID xidRCTHXRqdFinalT = RctXID(108);
-XID xidRCTHXElectEff  = RctXID(109);
+XID xidRCTSrcReaction = RctXID(102);
+XID xidRCTSnkHf       = RctXID(105);
+XID xidRCTSnkHs       = RctXID(106);
+XID xidRCTSnkReaction = RctXID(107);
+XID xidRCTHXAmbTemp   = RctXID(110);
+XID xidRCTHXTFrac     = RctXID(111);
+XID xidRCTHXTargetT   = RctXID(112);
+XID xidRCTHXPwr       = RctXID(113);
+XID xidRCTHXRqdFinalT = RctXID(114);
+XID xidRCTHXElectEff  = RctXID(115);
 
 //===========================================================================
 //
@@ -135,6 +137,7 @@ class DllImportExport CR_Src : public CReaction
     double         AddMoles;
 
     CString        m_AsString;
+    Strng          m_DispEqnStr;
   };
 
 //===========================================================================
@@ -245,6 +248,7 @@ class DllImportExport CR_Snk : public CReaction
   public:
     double         AddMoles;
     CString        m_AsString;
+    Strng          m_DispEqnStr;
 
     CR_SnkTermArray & Spcs;
   };

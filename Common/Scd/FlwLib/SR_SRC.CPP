@@ -65,6 +65,7 @@ void CR_Src::BuildDataDefn(DataDefnBlk & DDB)
       Es+="...";
       }
     DDB.Text(Es());
+    DDB.String("Reaction", "", DC_, "", xidRCTSrcReaction, this, isResult|InitHidden|noFileAtAll);
 
     for (k = 0; k < NSpcs(); k++)
       {
@@ -87,6 +88,17 @@ flag CR_Src::DataXchg(DataChangeBlk & DCB)
   int i;
   switch (DCB.lHandle)
     {
+    case xidRCTSrcReaction:
+      {
+      m_DispEqnStr = "Source:";
+      for (int k = 0; k < NSpcs(); k++)
+        {
+        if (k>0) m_DispEqnStr+=", ";
+        m_DispEqnStr+=Spcs[k].SpcName();
+        }
+      DCB.pC = m_DispEqnStr();
+      return 1;
+      }
     case xidRCTSrcHf:
       DCB.D=0.0;
       for (i = 0; i < NSpcs(); i++) 
@@ -419,9 +431,8 @@ void CR_Snk::BuildDataDefn(DataDefnBlk & DDB)
       Es+="...";
       }
     DDB.Text(Es());
+    DDB.String("Reaction", "", DC_, "", xidRCTSnkReaction, this, isResult|InitHidden|noFileAtAll);
 
-    //if (PrjFileVerNo()<22)
-    //  {
     for (k = 0; k < NSpcs(); k++)
       {
       Strng Spc(Spcs[k].SpcName());
@@ -429,16 +440,7 @@ void CR_Snk::BuildDataDefn(DataDefnBlk & DDB)
         Spc+=".Excs";
       DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Excess, this, isResult|0);
       }
-    //  }
-    //else
-    //  {
-    //  if (DDB.BeginObject(this, "Excs", "SR_Qm", NULL, DDB_NoPage))
-    //    {
-    //    for (k = 0; k < NSpcs(); k++)
-    //      DDB.Double(Spcs[k].SpcName(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Excess, this, isResult|0);
-    //    }
-    //  DDB.EndObject();
-    //  }
+
     DDB.Double("totEnthalpy", "HsGain",     DC_Pwr,     "kJ/s",     xidRCTSnkHs, this, isResult|0);
     DDB.Double("",            "HfGain",     DC_Pwr,     "kJ/s",     xidRCTSnkHf, this, isResult|0);
     }
@@ -452,6 +454,17 @@ flag CR_Snk::DataXchg(DataChangeBlk & DCB)
   int i;
   switch (DCB.lHandle)
     {
+    case xidRCTSnkReaction:
+      {
+      m_DispEqnStr = "Sink:";
+      for (int k = 0; k < NSpcs(); k++)
+        {
+        if (k>0) m_DispEqnStr+=", ";
+        m_DispEqnStr+=Spcs[k].SpcName();
+        }
+      DCB.pC = m_DispEqnStr();
+      return 1;
+      }
     case xidRCTSnkHf:
       //DCB.D=totDHf(RB.TempKFeed);
       DCB.D=0.0;
