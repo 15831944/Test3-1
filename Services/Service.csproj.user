@@ -2,6 +2,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartWorkingDirectory>
     </StartWorkingDirectory>
-    <StartArguments>"C:\Documents and Settings\Paul\My Documents\SysCAD\BaseFiles\Sample Projects" "C:\Documents and Settings\Paul\My Documents\SysCAD\BaseFiles\Stencils"</StartArguments>
+    <StartArguments>"C:\Documents and Settings\pkh\My Documents\SysCAD\BaseFiles\Sample Projects" "C:\Documents and Settings\pkh\My Documents\SysCAD\BaseFiles\Stencils"</StartArguments>
   </PropertyGroup>
 </Project>

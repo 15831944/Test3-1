@@ -12,7 +12,7 @@
     <ManifestCertificateThumbprint>FB39BDEFBB40E2CC108C8244A624398A351DD8BA</ManifestCertificateThumbprint>
     <ManifestKeyFile>StencilEditor_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -88,16 +88,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Interfaces\Interface.8.csproj">
-      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
-      <Name>Interface.8</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\FlowChart.NET\FlowChart.NET.8.csproj">
-      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
-      <Name>FlowChart.NET.8</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
       <ProductName>.NET Framework 2.0</ProductName>
@@ -106,6 +96,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Logo32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Interfaces\Interface.csproj">
+      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
+      <Name>Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FlowChart.NET\FlowChart.NET.csproj">
+      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
+      <Name>FlowChart.NET</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

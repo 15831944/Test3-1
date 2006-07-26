@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,10 +26,26 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Marshal|AnyCPU' ">
+    <OutputPath>bin\Release Marshal\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|AnyCPU' ">
+    <OutputPath>bin\Distribution\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -42,9 +58,10 @@
   <ItemGroup>
     <Compile Include="Anchor.cs" />
     <Compile Include="Arc.cs" />
+    <Compile Include="BaseAccessItem.cs" />
+    <Compile Include="BaseAccessItemConverter.cs" />
     <Compile Include="BaseGraphic.cs" />
     <Compile Include="BaseModel.cs" />
-    <Compile Include="BaseAccessItem.cs" />
     <Compile Include="Bezier.cs" />
     <Compile Include="BranchAccessItem.cs" />
     <Compile Include="BranchAccessItemConverter.cs" />
@@ -53,10 +70,11 @@
     <Compile Include="ClientGraphic.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="BaseAccessItemConverter.cs" />
-    <Compile Include="GraphicStencil.cs" />
-    <Compile Include="GraphicItem.cs" />
     <Compile Include="FloatAccessItem.cs" />
+    <Compile Include="GraphicItem.cs" />
+    <Compile Include="GraphicStencil.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Line.cs" />
     <Compile Include="GraphicLink.cs" />
     <Compile Include="Model.cs" />
@@ -67,6 +85,8 @@
     <Compile Include="ModelStencil.cs" />
     <Compile Include="ARectangleF.cs" />
     <Compile Include="ARectangleFConverter.cs" />
+    <Compile Include="OldGraphicStencil.cs" />
+    <Compile Include="PortStatus.cs" />
     <Compile Include="ServiceGraphic.cs" />
     <Compile Include="Stencil.cs" />
     <Compile Include="StencilConverter.cs" />
@@ -78,11 +98,5 @@
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.8.csproj">
-      <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
-      <Name>FlowChart.NET.8</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

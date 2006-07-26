@@ -112,7 +112,7 @@ namespace StencilEditor
 
         if (atoms.Length != 4)
         {
-          toolStripStatusLabel1.Text = "Incorrect number of parameters: " + textBox.Text;
+          toolStripStatusLabel1.Text = "Incorrect number of parameters (x, y, w, h): " + textBox.Text;
           toolStripStatusLabel1.BackColor = Color.Yellow;
           return false;
         }
@@ -126,7 +126,7 @@ namespace StencilEditor
         }
         catch
         {
-          toolStripStatusLabel1.Text = "Error parsing parameters: " + textBox.Text;
+          toolStripStatusLabel1.Text = "Error parsing parameters (x, y, w, h): " + textBox.Text;
           toolStripStatusLabel1.BackColor = Color.Yellow;
           return false;
         }
@@ -160,9 +160,9 @@ namespace StencilEditor
       atom = atom.Remove(0, 6);
       string[] atoms = atom.Split(charSplitArray, StringSplitOptions.RemoveEmptyEntries);
 
-      if (atoms.Length != 6)
+      if (atoms.Length != 3)
       {
-        toolStripStatusLabel1.Text = "Incorrect number of parameters: " + atom;
+        toolStripStatusLabel1.Text = "Incorrect number of parameters (tag, x, y): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -172,18 +172,16 @@ namespace StencilEditor
         string tag = atoms[0];
         AnchorType type = AnchorType.Process;
 
-        float x = float.Parse(atoms[2]);
-        float y = float.Parse(atoms[3]);
-        uint min = uint.Parse(atoms[4]);
-        uint max = uint.Parse(atoms[5]);
+        float x = float.Parse(atoms[1]);
+        float y = float.Parse(atoms[2]);
 
-        Anchor anchor = new Anchor(tag, type, x, y, min, max);
+        Anchor anchor = new Anchor(tag, type, x, y);
 
         arrayList.Add(anchor);
       }
       catch
       {
-        toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
+        toolStripStatusLabel1.Text = "Error parsing parameters (tag, x, y): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -239,7 +237,7 @@ namespace StencilEditor
 
       if ((IsOdd(atoms.Length)) || (atoms.Length < 4))
       {
-        toolStripStatusLabel1.Text = "Incorrect number of parameters: " + atom;
+        toolStripStatusLabel1.Text = "Incorrect number of parameters (x1, y1, x2, y2, ...., xn, yn): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -265,7 +263,7 @@ namespace StencilEditor
       }
       catch
       {
-        toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
+        toolStripStatusLabel1.Text = "Error parsing parameters (x1, y1, x2, y2, ...., xn, yn): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -280,7 +278,7 @@ namespace StencilEditor
 
       if (atoms.Length != 3)
       {
-        toolStripStatusLabel1.Text = "Incorrect number of parameters: " + atom;
+        toolStripStatusLabel1.Text = "Incorrect number of parameters (x, y, r): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -297,7 +295,7 @@ namespace StencilEditor
       }
       catch
       {
-        toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
+        toolStripStatusLabel1.Text = "Error parsing parameters (x, y, r): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -312,7 +310,7 @@ namespace StencilEditor
 
       if (atoms.Length != 6)
       {
-        toolStripStatusLabel1.Text = "Incorrect number of parameters: " + atom;
+        toolStripStatusLabel1.Text = "Incorrect number of parameters (x, y, w, h, a, s): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -334,7 +332,7 @@ namespace StencilEditor
       }
       catch
       {
-        toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
+        toolStripStatusLabel1.Text = "Error parsing parameters (x, y, w, h, a, s): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -349,7 +347,7 @@ namespace StencilEditor
 
       if (atoms.Length != 6)
       {
-        toolStripStatusLabel1.Text = "Incorrect number of parameters: " + atom;
+        toolStripStatusLabel1.Text = "Incorrect number of parameters (x1, y1, x2, y2, x3, y3): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -395,7 +393,7 @@ namespace StencilEditor
       }
       catch
       {
-        toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
+        toolStripStatusLabel1.Text = "Error parsing parameters (x1, y1, x2, y2, x3, y3): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -408,9 +406,9 @@ namespace StencilEditor
       atom = atom.Remove(0, 6);
       string[] atoms = atom.Split(charSplitArray, StringSplitOptions.RemoveEmptyEntries);
 
-      if (atoms.Length != 8)
+       if (atoms.Length != 8)
       {
-        toolStripStatusLabel1.Text = "Incorrect number of parameters: " + atom;
+        toolStripStatusLabel1.Text = "Incorrect number of parameters (x1, y1, x2, y2, x3, y3, x4, y4): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -432,7 +430,7 @@ namespace StencilEditor
       }
       catch
       {
-        toolStripStatusLabel1.Text = "Error parsing parameters: " + atom;
+        toolStripStatusLabel1.Text = "Error parsing parameters (x1, y1, x2, y2, x3, y3, x4, y4): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
         return false;
       }
@@ -816,7 +814,144 @@ namespace StencilEditor
       graphicStencil.defaultSize = new SizeF((maxX - minX), (maxY - minY));
 
       box1.BoundingRect = rect;
-      box1.Shape = graphicStencil.ShapeTemplate(false, false);
+      
+
+      {
+        GraphicStencil stencil = graphicStencil;
+        bool mirrorX = false;
+        bool mirrorY = false;
+
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        {
+          int i = 0;
+          foreach (Element element in stencil.elements)
+          {
+            if (element is Arc)
+            {
+              elementTemplate[i] = new ArcTemplate(
+                (element as Arc).x,
+                (element as Arc).y,
+                (element as Arc).w,
+                (element as Arc).h,
+                (element as Arc).a,
+                (element as Arc).s);
+            }
+            if (element is Line)
+            {
+              Line line = element as Line;
+              float x1, y1, x2, y2;
+
+              if (mirrorX)
+                x1 = 100.0F - line.x1;
+              else
+                x1 = line.x1;
+
+              if (mirrorY)
+                y1 = 100.0F - line.y1;
+              else
+                y1 = line.y1;
+
+              if (mirrorX)
+                x2 = 100.0F - line.x2;
+              else
+                x2 = line.x2;
+
+              if (mirrorY)
+                y2 = 100.0F - line.y2;
+              else
+                y2 = line.y2;
+
+              elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+            }
+            if (element is Bezier)
+            {
+              Bezier bezier = element as Bezier;
+              float x1, y1, x2, y2, x3, y3, x4, y4;
+
+              if (mirrorX)
+                x1 = 100.0F - bezier.x1;
+              else
+                x1 = bezier.x1;
+
+              if (mirrorY)
+                y1 = 100.0F - bezier.y1;
+              else
+                y1 = bezier.y1;
+
+              if (mirrorX)
+                x2 = 100.0F - bezier.x2;
+              else
+                x2 = bezier.x2;
+
+              if (mirrorY)
+                y2 = 100.0F - bezier.y2;
+              else
+                y2 = bezier.y2;
+
+              if (mirrorX)
+                x3 = 100.0F - bezier.x3;
+              else
+                x3 = bezier.x3;
+
+              if (mirrorY)
+                y3 = 100.0F - bezier.y3;
+              else
+                y3 = bezier.y3;
+
+              if (mirrorX)
+                x4 = 100.0F - bezier.x4;
+              else
+                x4 = bezier.x4;
+
+              if (mirrorY)
+                y4 = 100.0F - bezier.y4;
+              else
+                y4 = bezier.y4;
+
+              elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+            }
+            i++;
+          }
+        }
+
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        {
+          int i = 0;
+          foreach (Element decoration in stencil.decorations)
+          {
+            if (decoration is Arc)
+            {
+              decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
+                (decoration as Arc).y,
+                (decoration as Arc).w,
+                (decoration as Arc).h,
+                (decoration as Arc).a,
+                (decoration as Arc).s);
+            }
+            if (decoration is Line)
+            {
+              decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
+                (decoration as Line).y1,
+                (decoration as Line).x2,
+                (decoration as Line).y2);
+            }
+            if (decoration is Bezier)
+            {
+              decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
+                (decoration as Bezier).y1,
+                (decoration as Bezier).x2,
+                (decoration as Bezier).y2,
+                (decoration as Bezier).x3,
+                (decoration as Bezier).y3,
+                (decoration as Bezier).x4,
+                (decoration as Bezier).y4);
+            }
+            i++;
+          }
+        }
+
+        box1.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+      }
 
       RectangleF textRect = new RectangleF(textMinX * scale, textMinY * scale, (textMaxX - textMinX) * scale, (textMaxY - textMinY) * scale);
 
@@ -864,7 +999,188 @@ namespace StencilEditor
       RectangleF rect = new RectangleF(minX * scale, minY * scale, (maxX - minX) * scale, (maxY - minY) * scale);
 
       box2.BoundingRect = rect;
-      box2.Shape = modelStencil.ShapeTemplate(false, false);
+      {
+        int i;
+
+        ModelStencil stencil = modelStencil;
+        bool mirrorX = false;
+        bool mirrorY = false;
+
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        i = 0;
+        foreach (Element element in stencil.elements)
+        {
+          if (element is Arc)
+          {
+            Arc arc = element as Arc;
+            elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+          }
+          if (element is Line)
+          {
+            Line line = element as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+          }
+          if (element is Bezier)
+          {
+            Bezier bezier = element as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+          }
+          i++;
+        }
+
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        i = 0;
+        foreach (Element decoration in stencil.decorations)
+        {
+          if (decoration is Arc)
+          {
+            Arc arc = decoration as Arc;
+            decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+          }
+          if (decoration is Line)
+          {
+            Line line = decoration as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+          }
+          if (decoration is Bezier)
+          {
+            Bezier bezier = decoration as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+          }
+          i++;
+        }
+
+        box2.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+      }
+
 
       RectangleF anchorRect = new RectangleF(anchorMinX * scale, anchorMinY * scale, (anchorMaxX - anchorMinX) * scale, (anchorMaxY - anchorMinY) * scale);
 
@@ -1126,7 +1442,144 @@ namespace StencilEditor
       box1 = flowChart1.CreateBox(-1.0F, -1.0F, 2.0F, 2.0F);
       box1.Locked = true;
       box1.Style = MindFusion.FlowChartX.BoxStyle.Shape;
-      box1.Shape = graphicStencil.ShapeTemplate(false, false);
+
+      {
+        GraphicStencil stencil = graphicStencil;
+        bool mirrorX = false;
+        bool mirrorY = false;
+
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        {
+          int i = 0;
+          foreach (Element element in stencil.elements)
+          {
+            if (element is Arc)
+            {
+              elementTemplate[i] = new ArcTemplate(
+                (element as Arc).x,
+                (element as Arc).y,
+                (element as Arc).w,
+                (element as Arc).h,
+                (element as Arc).a,
+                (element as Arc).s);
+            }
+            if (element is Line)
+            {
+              Line line = element as Line;
+              float x1, y1, x2, y2;
+
+              if (mirrorX)
+                x1 = 100.0F - line.x1;
+              else
+                x1 = line.x1;
+
+              if (mirrorY)
+                y1 = 100.0F - line.y1;
+              else
+                y1 = line.y1;
+
+              if (mirrorX)
+                x2 = 100.0F - line.x2;
+              else
+                x2 = line.x2;
+
+              if (mirrorY)
+                y2 = 100.0F - line.y2;
+              else
+                y2 = line.y2;
+
+              elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+            }
+            if (element is Bezier)
+            {
+              Bezier bezier = element as Bezier;
+              float x1, y1, x2, y2, x3, y3, x4, y4;
+
+              if (mirrorX)
+                x1 = 100.0F - bezier.x1;
+              else
+                x1 = bezier.x1;
+
+              if (mirrorY)
+                y1 = 100.0F - bezier.y1;
+              else
+                y1 = bezier.y1;
+
+              if (mirrorX)
+                x2 = 100.0F - bezier.x2;
+              else
+                x2 = bezier.x2;
+
+              if (mirrorY)
+                y2 = 100.0F - bezier.y2;
+              else
+                y2 = bezier.y2;
+
+              if (mirrorX)
+                x3 = 100.0F - bezier.x3;
+              else
+                x3 = bezier.x3;
+
+              if (mirrorY)
+                y3 = 100.0F - bezier.y3;
+              else
+                y3 = bezier.y3;
+
+              if (mirrorX)
+                x4 = 100.0F - bezier.x4;
+              else
+                x4 = bezier.x4;
+
+              if (mirrorY)
+                y4 = 100.0F - bezier.y4;
+              else
+                y4 = bezier.y4;
+
+              elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+            }
+            i++;
+          }
+        }
+
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        {
+          int i = 0;
+          foreach (Element decoration in stencil.decorations)
+          {
+            if (decoration is Arc)
+            {
+              decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
+                (decoration as Arc).y,
+                (decoration as Arc).w,
+                (decoration as Arc).h,
+                (decoration as Arc).a,
+                (decoration as Arc).s);
+            }
+            if (decoration is Line)
+            {
+              decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
+                (decoration as Line).y1,
+                (decoration as Line).x2,
+                (decoration as Line).y2);
+            }
+            if (decoration is Bezier)
+            {
+              decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
+                (decoration as Bezier).y1,
+                (decoration as Bezier).x2,
+                (decoration as Bezier).y2,
+                (decoration as Bezier).x3,
+                (decoration as Bezier).y3,
+                (decoration as Bezier).x4,
+                (decoration as Bezier).y4);
+            }
+            i++;
+          }
+        }
+
+        box1.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+      }
+
 
       textBox1 = flowChart1.CreateBox(-1.0F, -1.0F, 2.0F, 2.0F);
       textBox1.Locked = true;
@@ -1140,7 +1593,187 @@ namespace StencilEditor
       box2 = flowChart2.CreateBox(-1.0F, -1.0F, 2.0F, 2.0F);
       box2.Locked = true;
       box2.Style = MindFusion.FlowChartX.BoxStyle.Shape;
-      box2.Shape = modelStencil.ShapeTemplate(false, false);
+      {
+        int i;
+
+        ModelStencil stencil = modelStencil;
+        bool mirrorX = false;
+        bool mirrorY = false;
+
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        i = 0;
+        foreach (Element element in stencil.elements)
+        {
+          if (element is Arc)
+          {
+            Arc arc = element as Arc;
+            elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+          }
+          if (element is Line)
+          {
+            Line line = element as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+          }
+          if (element is Bezier)
+          {
+            Bezier bezier = element as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+          }
+          i++;
+        }
+
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        i = 0;
+        foreach (Element decoration in stencil.decorations)
+        {
+          if (decoration is Arc)
+          {
+            Arc arc = decoration as Arc;
+            decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+          }
+          if (decoration is Line)
+          {
+            Line line = decoration as Line;
+            float x1, y1, x2, y2;
+
+            if (mirrorX)
+              x1 = 100.0F - line.x1;
+            else
+              x1 = line.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - line.y1;
+            else
+              y1 = line.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - line.x2;
+            else
+              x2 = line.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - line.y2;
+            else
+              y2 = line.y2;
+
+            decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+          }
+          if (decoration is Bezier)
+          {
+            Bezier bezier = decoration as Bezier;
+            float x1, y1, x2, y2, x3, y3, x4, y4;
+
+            if (mirrorX)
+              x1 = 100.0F - bezier.x1;
+            else
+              x1 = bezier.x1;
+
+            if (mirrorY)
+              y1 = 100.0F - bezier.y1;
+            else
+              y1 = bezier.y1;
+
+            if (mirrorX)
+              x2 = 100.0F - bezier.x2;
+            else
+              x2 = bezier.x2;
+
+            if (mirrorY)
+              y2 = 100.0F - bezier.y2;
+            else
+              y2 = bezier.y2;
+
+            if (mirrorX)
+              x3 = 100.0F - bezier.x3;
+            else
+              x3 = bezier.x3;
+
+            if (mirrorY)
+              y3 = 100.0F - bezier.y3;
+            else
+              y3 = bezier.y3;
+
+            if (mirrorX)
+              x4 = 100.0F - bezier.x4;
+            else
+              x4 = bezier.x4;
+
+            if (mirrorY)
+              y4 = 100.0F - bezier.y4;
+            else
+              y4 = bezier.y4;
+
+            decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+          }
+          i++;
+        }
+
+        box2.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+      }
     }
 
     private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1174,24 +1807,9 @@ namespace StencilEditor
 
         toolStripComboBoxModelGroup.Text = "";
 
-        {
-          try
-          {
-            SoapFormatter sf = new SoapFormatter();
-            Stream stream = new StreamReader(baseName + ".ModelStencil").BaseStream;
-
-            modelStencil = (ModelStencil)sf.Deserialize(stream);
-            stream.Close();
-
-            Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
-            Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-            Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
-            toolStripComboBoxModelGroup.Text = modelStencil.groupName;
-          }
-          catch
-          {
-          }
-        }
+        elementTextBox.Text = "";
+        decorationTextBox.Text = "";
+        textAreaTextBox.Text = "";
 
         {
           SoapFormatter sf;
@@ -1204,6 +1822,10 @@ namespace StencilEditor
 
             graphicStencil = (GraphicStencil)sf.Deserialize(stream);
             stream.Close();
+
+            Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
+            Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+            Generate(graphicStencil.textArea, graphicStencil.defaultSize, textAreaTextBox);
           }
           catch
           {
@@ -1231,9 +1853,31 @@ namespace StencilEditor
           if (stream != null) stream.Close();
         }
 
+        {
+          try
+          {
+            SoapFormatter sf = new SoapFormatter();
+            Stream stream = new StreamReader(baseName + ".ModelStencil").BaseStream;
+
+            modelStencil = (ModelStencil)sf.Deserialize(stream);
+            stream.Close();
+
+            if (elementTextBox.Text == "")
+              Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
+            if (decorationTextBox.Text == "")
+              Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
+            Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
+            toolStripComboBoxModelGroup.Text = modelStencil.groupName;
+          }
+          catch
+          {
+          }
+        }
+
+
         Parse(modelStencil.elements, elementTextBox);
         Parse(modelStencil.decorations, decorationTextBox);
-        Parse(modelStencil.anchors, anchorTextBox);
+        ParseAnchor(modelStencil.anchors, anchorTextBox);
         UpdateStencil(modelStencil);
 
         Parse(graphicStencil.elements, elementTextBox);
@@ -1355,8 +1999,7 @@ namespace StencilEditor
     {
       tempText += "MDrw_Anchor ";
       tempText += anchor.tag + ", ";
-      tempText += anchor.position.X.ToString() + ", " + anchor.position.Y.ToString() + ", ";
-      tempText += anchor.min.ToString() + ", " + anchor.max.ToString() + "\r\n";
+      tempText += (anchor.position.X / 100.0F * defaultSize.Width).ToString() + ", " + (anchor.position.Y / 100.0F * defaultSize.Height).ToString() + "\r\n";
     }
 
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1380,15 +2023,18 @@ namespace StencilEditor
     {
       if (filename.Length > 0)
       {
-        SoapFormatter sf = new SoapFormatter();
-        Stream stream = new StreamWriter(filename).BaseStream;
-
-        if (filename.ToLower().EndsWith(".graphicstencil"))
+        {
+          SoapFormatter sf = new SoapFormatter();
+          Stream stream = new StreamWriter(filename+".GraphicStencil").BaseStream;
           sf.Serialize(stream, graphicStencil);
-        else if (filename.ToLower().EndsWith(".modelstencil"))
+          stream.Close();
+        }
+        {
+          SoapFormatter sf = new SoapFormatter();
+          Stream stream = new StreamWriter(filename+".ModelStencil").BaseStream;
           sf.Serialize(stream, modelStencil);
-
-        stream.Close();
+          stream.Close();
+        }
       }
       else
         saveAsToolStripMenuItem_Click(sender, e);

@@ -57,9 +57,9 @@
     <Content Include="Logo32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Interfaces\Interface.8.csproj">
+    <ProjectReference Include="..\Interfaces\Interface.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
-      <Name>Interface.8</Name>
+      <Name>Interface</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

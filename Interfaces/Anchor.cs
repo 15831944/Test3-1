@@ -21,29 +21,29 @@ namespace SysCAD.Interface
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public object direction;
 
-    public uint min = 0;
-    public uint max = 0;
+    //public uint min = 0;
+    //public uint max = 0;
 
     public Anchor()
     {
     }
 
-    public Anchor(string tag, AnchorType type, PointF position, uint min, uint max)
+    public Anchor(string tag, AnchorType type, PointF position)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;
       this.position = position;
-      this.min = min;
-      this.max = max;
+      //this.min = min;
+      //this.max = max;
     }
 
-    public Anchor(string tag, AnchorType type, float X, float Y, uint min, uint max)
+    public Anchor(string tag, AnchorType type, float X, float Y)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;
       this.position = new PointF(X, Y);
-      this.min = min;
-      this.max = max;
+      //this.min = min;
+      //this.max = max;
     }
   }
 }

@@ -310,12 +310,24 @@ namespace SysCAD.Editor
         e.Arrow.Origin = oldOriginBox;
         e.Arrow.OrgnAnchor = oldOriginAnchor;
       }
+      else if (newOriginBox != null)
+      {
+        (e.Arrow.Tag as Link).graphicLink.Origin = newOriginGuid;
+        e.Arrow.Origin = newOriginBox;
+        e.Arrow.OrgnAnchor = newOriginAnchor;
+      }
 
       if (oldDestinationBox != null)
       {
         (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
         e.Arrow.Destination = oldDestinationBox;
         e.Arrow.DestAnchor = oldDestinationAnchor;
+      }
+      if (newDestinationBox != null)
+      {
+        (e.Arrow.Tag as Link).graphicLink.Destination = newDestinationGuid;
+        e.Arrow.Destination = newDestinationBox;
+        e.Arrow.DestAnchor = newDestinationAnchor;
       }
 
       e.Arrow.SegmentCount = (short)(oldControlPoints.Count - 1);
@@ -372,6 +384,14 @@ namespace SysCAD.Editor
       oldDestinationGuid = Guid.Empty;
       oldDestinationBox = null;
       oldDestinationAnchor = -1;
+
+      newOriginGuid = Guid.Empty;
+      newOriginBox = null;
+      newOriginAnchor = -1;
+
+      newDestinationGuid = Guid.Empty;
+      newDestinationBox = null;
+      newDestinationAnchor = -1;
     }
 
     Guid oldOriginGuid = Guid.Empty;
@@ -381,6 +401,14 @@ namespace SysCAD.Editor
     Guid oldDestinationGuid = Guid.Empty;
     Box oldDestinationBox = null;
     int oldDestinationAnchor = -1;
+
+    Guid newOriginGuid = Guid.Empty;
+    Box newOriginBox = null;
+    int newOriginAnchor = -1;
+
+    Guid newDestinationGuid = Guid.Empty;
+    Box newDestinationBox = null;
+    int newDestinationAnchor = -1;
 
     List<PointF> oldControlPoints = new List<PointF>();
 
@@ -399,15 +427,19 @@ namespace SysCAD.Editor
         arrowBeingModified.CustomDraw = CustomDraw.Additional;
         arrowBeingModified.ZTop();
 
+        oldOriginGuid = (e.Arrow.Tag as Link).graphicLink.Origin;
+        oldOriginBox = e.Arrow.Origin as Box;
+        oldOriginAnchor = e.Arrow.OrgnAnchor;
+
+        oldDestinationGuid = (e.Arrow.Tag as Link).graphicLink.Destination;
+        oldDestinationBox = e.Arrow.Destination as Box;
+        oldDestinationAnchor = e.Arrow.DestAnchor;
+
         PointF originPos = arrowBeingModified.ControlPoints[0];
         Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
 
-        if (originBox != null)
+        if ((originBox != null)&&(!(arrowBeingModified.Origin is Box)))
         {
-          oldOriginGuid = (e.Arrow.Tag as Link).graphicLink.Origin;
-          oldOriginBox = e.Arrow.Origin as Box;
-          oldOriginAnchor = e.Arrow.OrgnAnchor;
-
           originBox = (originBox.Tag as Item).Model;
           if (originBox != null)
           {
@@ -415,31 +447,26 @@ namespace SysCAD.Editor
             {
               if (originBox.AnchorPattern.Points[i].AllowOutgoing)
               {
-                (e.Arrow.Tag as Link).graphicLink.Origin = (originBox.Tag as Item).Guid;
-                e.Arrow.Origin = originBox;
-                e.Arrow.Origin.Tag = originBox.Tag;
-                e.Arrow.OrgnAnchor = i;
+                newOriginGuid = (originBox.Tag as Item).Guid;
+                newOriginBox = originBox;
+                newOriginAnchor = i;
               }
             }
           }
         }
-        else if (oldOriginBox != null)
-        {
-          (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
-          e.Arrow.Origin = oldOriginBox;
-          e.Arrow.OrgnAnchor = oldOriginAnchor;
-        }
+        //else if (oldOriginBox != null)
+        //{
+        //  (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
+        //  e.Arrow.Origin = oldOriginBox;
+        //  e.Arrow.OrgnAnchor = oldOriginAnchor;
+        //}
 
 
         PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
         Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
 
-        if (destinationBox != null)
+        if ((destinationBox != null)&&(!(arrowBeingModified.Destination is Box)))
         {
-          oldDestinationGuid = (e.Arrow.Tag as Link).graphicLink.Destination;
-          oldDestinationBox = e.Arrow.Destination as Box;
-          oldDestinationAnchor = e.Arrow.DestAnchor;
-
           destinationBox = (destinationBox.Tag as Item).Model;
           if (destinationBox != null)
           {
@@ -447,20 +474,19 @@ namespace SysCAD.Editor
             {
               if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
               {
-                (e.Arrow.Tag as Link).graphicLink.Destination = (destinationBox.Tag as Item).Guid;
-                e.Arrow.Destination = destinationBox;
-                e.Arrow.Destination.Tag = destinationBox.Tag;
-                e.Arrow.DestAnchor = i;
+                newDestinationGuid = (destinationBox.Tag as Item).Guid;
+                newDestinationBox = destinationBox;
+                newDestinationAnchor = i;
               }
             }
           }
         }
-        else if (oldDestinationBox != null)
-        {
-          (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
-          e.Arrow.Destination = oldDestinationBox;
-          e.Arrow.DestAnchor = oldDestinationAnchor;
-        }
+        //else if (oldDestinationBox != null)
+        //{
+        //  (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
+        //  e.Arrow.Destination = oldDestinationBox;
+        //  e.Arrow.DestAnchor = oldDestinationAnchor;
+        //}
       }
 
       fcFlowChart.RecreateCacheImage();
@@ -774,37 +800,45 @@ namespace SysCAD.Editor
       else // this is an arrowbeingmodified...
       {
         {
-          MindFusion.FlowChartX.Node node = arrow.Destination;
-          if (node is Box)
+          if (newDestinationAnchor != -1)
           {
-            Box box = node as Box;
+            float dx = newDestinationBox.AnchorPattern.Points[newDestinationAnchor].X / 100.0F;
+            float dy = newDestinationBox.AnchorPattern.Points[newDestinationAnchor].Y / 100.0F;
 
+            PointF anchorPointPos = new PointF(
+              newDestinationBox.BoundingRect.Left + newDestinationBox.BoundingRect.Width * dx,
+              newDestinationBox.BoundingRect.Top + newDestinationBox.BoundingRect.Height * dy);
 
-            if (arrow.DestAnchor != -1)
-            {
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-              float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-              float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
 
-              PointF anchorPointPos = new PointF(
-                box.BoundingRect.Left + box.BoundingRect.Width * dx,
-                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+            e.Graphics.DrawLines(pen, extensionPoints);
+          }
+          else if (oldDestinationAnchor != -1)
+          {
+            float dx = oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].X / 100.0F;
+            float dy = oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].Y / 100.0F;
 
-              PointF[] extensionPoints =
-                new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+            PointF anchorPointPos = new PointF(
+              oldDestinationBox.BoundingRect.Left + oldDestinationBox.BoundingRect.Width * dx,
+              oldDestinationBox.BoundingRect.Top + oldDestinationBox.BoundingRect.Height * dy);
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-              e.Graphics.DrawLines(pen, extensionPoints);
-            }
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+            e.Graphics.DrawLines(pen, extensionPoints);
           }
         }
 
         {
-          MindFusion.FlowChartX.Node node = arrow.Origin;
-          if (node is Box)
+          MindFusion.FlowChartX.Node newNode = newOriginBox;
+          if (newNode is Box)
           {
-            Box box = node as Box;
+            Box box = newNode as Box;
 
 
             if (arrow.OrgnAnchor != -1)
@@ -946,6 +980,8 @@ namespace SysCAD.Editor
         {
           ContextMenu arrowMenu = new ContextMenu();
           arrowMenu.MenuItems.Add("Route arrow", new EventHandler(RouteArrow));
+          arrowMenu.MenuItems.Add("Disconnect Origin", new EventHandler(DisconnectOrigin));
+          arrowMenu.MenuItems.Add("Disconnect Destination", new EventHandler(DisconnectDestination));
           arrowMenu.Show(fcFlowChart, me.Location);
           form1.Mode_Modify();
         }
@@ -985,6 +1021,30 @@ namespace SysCAD.Editor
           // do something here...
         }
       }
+    }
+
+    private void DisconnectOrigin(object sender, EventArgs e)
+    {
+      hoverArrow.OrgnAnchor = -1;
+      hoverArrow.Origin = new DummyNode(fcFlowChart);
+
+      hoverArrow.SegmentCount = (short)((hoverArrow.Tag as Link).graphicLink.controlPoints.Count - 1);
+      int i = 0;
+      foreach (PointF point in (hoverArrow.Tag as Link).graphicLink.controlPoints)
+        hoverArrow.ControlPoints[i++] = point;
+      hoverArrow.UpdateFromPoints();
+    }
+
+    private void DisconnectDestination(object sender, EventArgs e)
+    {
+      hoverArrow.DestAnchor = -1;
+      hoverArrow.Destination = new DummyNode(fcFlowChart);
+
+      hoverArrow.SegmentCount = (short)((hoverArrow.Tag as Link).graphicLink.controlPoints.Count - 1);
+      int i = 0;
+      foreach (PointF point in (hoverArrow.Tag as Link).graphicLink.controlPoints)
+        hoverArrow.ControlPoints[i++] = point;
+      hoverArrow.UpdateFromPoints();
     }
 
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)

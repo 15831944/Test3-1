@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StencilEditor", "StencilEditor\StencilEditor.csproj", "{95726403-BFAA-470E-846D-306FDC6103AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowChart.NET.8", "..\FlowChart.NET\FlowChart.NET.8.csproj", "{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface.8", "..\..\Interfaces\Interface.8.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
-EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{377549B9-FDB2-4327-829C-99D530E17FFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "..\..\Interfaces\Interface.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowChart.NET", "..\FlowChart.NET\FlowChart.NET.csproj", "{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,16 +28,13 @@ Global
 		{95726403-BFAA-470E-846D-306FDC6103AF}.Standard|Any CPU.Build.0 = Release|Any CPU
 		{95726403-BFAA-470E-846D-306FDC6103AF}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95726403-BFAA-470E-846D-306FDC6103AF}.Trial Release|Any CPU.Build.0 = Release|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Any CPU.Build.0 = Release_Dbg|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Standard|Any CPU.ActiveCfg = Standard|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Standard|Any CPU.Build.0 = Standard|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Trial Release|Any CPU.ActiveCfg = Trial Release|Any CPU
-		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Trial Release|Any CPU.Build.0 = Trial Release|Any CPU
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Debug|Any CPU.ActiveCfg = Debug
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Debug|Any CPU.Build.0 = Debug
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Release_Dbg|Any CPU.ActiveCfg = Release
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Release|Any CPU.ActiveCfg = Release
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Release|Any CPU.Build.0 = Release
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Standard|Any CPU.ActiveCfg = Release
+		{377549B9-FDB2-4327-829C-99D530E17FFB}.Trial Release|Any CPU.ActiveCfg = Release
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,13 +45,16 @@ Global
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.Build.0 = Release|Any CPU
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.Build.0 = Release|Any CPU
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Debug|Any CPU.ActiveCfg = Debug
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Debug|Any CPU.Build.0 = Debug
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Release_Dbg|Any CPU.ActiveCfg = Release
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Release|Any CPU.ActiveCfg = Release
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Release|Any CPU.Build.0 = Release
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Standard|Any CPU.ActiveCfg = Release
-		{377549B9-FDB2-4327-829C-99D530E17FFB}.Trial Release|Any CPU.ActiveCfg = Release
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Any CPU.Build.0 = Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Standard|Any CPU.ActiveCfg = Standard|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Standard|Any CPU.Build.0 = Standard|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Trial Release|Any CPU.ActiveCfg = Trial Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Trial Release|Any CPU.Build.0 = Trial Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

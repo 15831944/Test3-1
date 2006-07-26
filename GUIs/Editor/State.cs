@@ -245,7 +245,6 @@ namespace SysCAD.Editor
         foreach (PointF point in graphicLink.controlPoints)
           arrow.ControlPoints[i++] = point;
         arrow.UpdateFromPoints();
-        PointCollection a = arrow.ControlPoints;
       }
 
       Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
