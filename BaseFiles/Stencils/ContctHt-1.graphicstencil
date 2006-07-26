@@ -12,20 +12,20 @@
 </textArea>
 <fillMode>Alternate</fillMode>
 <defaultSize>
-<width>5.00000048</width>
-<height>10</height>
+<width>5</width>
+<height>9.5</height>
 </defaultSize>
 <groupName id="ref-6">HeatTransfer</groupName>
 </a1:GraphicStencil>
 <a3:ArrayList id="ref-4" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-7"/>
 <_size>4</_size>
-<_version>873</_version>
+<_version>1437</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-5" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
 <_size>2</_size>
-<_version>755</_version>
+<_version>1184</_version>
 </a3:ArrayList>
 <SOAP-ENC:Array id="ref-7" SOAP-ENC:arrayType="xsd:anyType[8]">
 <item href="#ref-9"/>
@@ -37,45 +37,49 @@
 <item href="#ref-13"/>
 <item href="#ref-14"/>
 </SOAP-ENC:Array>
-<a1:Arc id="ref-9" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x>-22.4999981</x>
-<y>0</y>
-<w>144.999985</w>
-<h>72.5</h>
-<a>226.3972</a>
-<s>87.20563</s>
-</a1:Arc>
+<a1:Bezier id="ref-9" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>0</x1>
+<y1>7.894737</y1>
+<x2>0</x2>
+<y2>-2.631579</y2>
+<x3>100</x3>
+<y3>-2.631579</y3>
+<x4>100</x4>
+<y4>7.894737</y4>
+</a1:Bezier>
 <a1:Line id="ref-10" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>99.99999</x1>
-<y1>10</y1>
-<x2>99.99999</x2>
-<y2>90</y2>
+<x1>100</x1>
+<y1>7.894737</y1>
+<x2>100</x2>
+<y2>92.10526</y2>
 </a1:Line>
-<a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x>-22.4999981</x>
-<y>27.5</y>
-<w>144.999985</w>
-<h>72.5</h>
-<a>46.39719</a>
-<s>87.20563</s>
-</a1:Arc>
+<a1:Bezier id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>100</x1>
+<y1>92.10526</y1>
+<x2>100</x2>
+<y2>102.631577</y2>
+<x3>0</x3>
+<y3>102.631577</y3>
+<x4>0</x4>
+<y4>92.10526</y4>
+</a1:Bezier>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>0</x1>
-<y1>90</y1>
+<y1>92.10526</y1>
 <x2>0</x2>
-<y2>10</y2>
+<y2>7.894737</y2>
 </a1:Line>
 <a1:Line id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>0</x1>
-<y1>10</y1>
-<x2>99.99999</x2>
-<y2>10</y2>
+<y1>7.894737</y1>
+<x2>100</x2>
+<y2>7.894737</y2>
 </a1:Line>
 <a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>0</x1>
-<y1>90</y1>
-<x2>99.99999</x2>
-<y2>90</y2>
+<y1>92.10526</y1>
+<x2>100</x2>
+<y2>92.10526</y2>
 </a1:Line>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

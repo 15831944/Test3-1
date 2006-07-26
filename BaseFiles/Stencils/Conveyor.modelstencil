@@ -1,30 +1,29 @@
 <SOAP-ENV:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:clr="http://schemas.microsoft.com/soap/encoding/clr/1.0" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 <SOAP-ENV:Body>
 <a1:ModelStencil id="ref-1" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<elements href="#ref-4"/>
-<decorations href="#ref-5"/>
-<anchors href="#ref-6"/>
+<tag id="ref-4"></tag>
+<elements href="#ref-5"/>
+<decorations href="#ref-6"/>
+<anchors href="#ref-7"/>
 <fillMode>Alternate</fillMode>
-<groupName id="ref-7">Conveyor</groupName>
-<tag id="ref-8"></tag>
+<groupName id="ref-8">Conveyor</groupName>
 </a1:ModelStencil>
-<a2:ArrayList id="ref-4" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-5" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-9"/>
 <_size>8</_size>
-<_version>8</_version>
-</a2:ArrayList>
-<a2:ArrayList id="ref-5" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
-<_items href="#ref-10"/>
-<_size>0</_size>
-<_version>0</_version>
+<_version>1191</_version>
 </a2:ArrayList>
 <a2:ArrayList id="ref-6" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-10"/>
 <_size>0</_size>
-<_version>0</_version>
+<_version>139</_version>
+</a2:ArrayList>
+<a2:ArrayList id="ref-7" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<_items href="#ref-11"/>
+<_size>2</_size>
+<_version>154</_version>
 </a2:ArrayList>
 <SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[8]">
-<item href="#ref-11"/>
 <item href="#ref-12"/>
 <item href="#ref-13"/>
 <item href="#ref-14"/>
@@ -32,56 +31,79 @@
 <item href="#ref-16"/>
 <item href="#ref-17"/>
 <item href="#ref-18"/>
+<item href="#ref-19"/>
 </SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
-<a1:Line id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>1.00000191</x1>
-<y1>1.000001</y1>
-<x2>101</x2>
-<y2>1.000001</y2>
-</a1:Line>
+<SOAP-ENC:Array id="ref-11" SOAP-ENC:arrayType="xsd:anyType[4]">
+<item href="#ref-20"/>
+<item href="#ref-21"/>
+</SOAP-ENC:Array>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>101</x1>
-<y1>1.000001</y1>
-<x2>101</x2>
-<y2>101</y2>
+<x1>0</x1>
+<y1>0</y1>
+<x2>100</x2>
+<y2>0</y2>
 </a1:Line>
 <a1:Line id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>101</x1>
-<y1>101</y1>
-<x2>95</x2>
-<y2>101</y2>
+<x1>100</x1>
+<y1>0</y1>
+<x2>100</x2>
+<y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>95</x1>
-<y1>101</y1>
-<x2>95</x2>
-<y2>95</y2>
+<x1>100</x1>
+<y1>100</y1>
+<x2>90</x2>
+<y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>95</x1>
-<y1>95</y1>
-<x2>9</x2>
-<y2>95</y2>
+<x1>90</x1>
+<y1>100</y1>
+<x2>90</x2>
+<y2>50</y2>
 </a1:Line>
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>9</x1>
-<y1>95</y1>
-<x2>9</x2>
-<y2>101</y2>
+<x1>90</x1>
+<y1>50</y1>
+<x2>10</x2>
+<y2>50</y2>
 </a1:Line>
 <a1:Line id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>9</x1>
-<y1>101</y1>
-<x2>1.00000143</x2>
-<y2>101</y2>
+<x1>10</x1>
+<y1>50</y1>
+<x2>10</x2>
+<y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>1.00000143</x1>
-<y1>101</y1>
-<x2>1.00000143</x2>
-<y2>1.00000143</y2>
+<x1>10</x1>
+<y1>100</y1>
+<x2>0</x2>
+<y2>100</y2>
 </a1:Line>
+<a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>0</x1>
+<y1>100</y1>
+<x2>0</x2>
+<y2>0</y2>
+</a1:Line>
+<a1:Anchor id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-22">Feed</tag>
+<type>Process</type>
+<position>
+<x>50</x>
+<y>0</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
+<a1:Anchor id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-23">Prod</tag>
+<type>Process</type>
+<position>
+<x>50</x>
+<y>0</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
