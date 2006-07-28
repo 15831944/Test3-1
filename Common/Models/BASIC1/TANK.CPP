@@ -7,7 +7,185 @@
 #include "sc_defs.h"
 #define  __TANK_CPP
 #include "tank.h"
-//#include "optoff.h"
+#include "optoff.h"
+
+CVolumeShapeLookup::CVolumeShapeLookup()
+  {
+  bActive = false;
+  bCheckRqd = true;
+  iCount = 0;
+  ALvl = 0.0;
+  AHeight = 0.0;
+  //TestVol = 10.0;
+  }
+
+void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
+  {
+  if (bActive)
+    {
+    if (DDB.BeginObject(pTagObj, "LL", "LookupLevel", NULL, DDB_RqdPage))
+      {
+      DDB.Long("Count", "", DC_, "", xidLvl_Count, pTagObj, isParmStopped);
+      DDB.Button("SortAndCheck", "", DC_, "", xidLvl_Sort, pTagObj, isParm);
+      //DDB.Double("TestVol", "", DC_Vol, "m^3", &TestVol, pTagObj, isParm);
+      DDB.Double("ALvl", "", DC_Frac, "%", &ALvl, pTagObj, isResult);
+      DDB.Double("AHeight", "", DC_L, "mm", &AHeight, pTagObj, isResult);
+      DDB.Text("Volume Lookup...");
+      Strng Tg;
+      for (int i=0; i<iCount; i++)
+        {
+        Tg.Set("Vol.[%d]", i);
+        DDB.Double(Tg(), "", DC_Vol, "m^3", xidLvl_FirstVol+i, pTagObj, isParm);
+        }
+      DDB.Text("Height Lookup...");
+      for (int i=0; i<iCount; i++)
+        {
+        Tg.Set("Height.[%d]", i);
+        DDB.Double(Tg(), "", DC_L, "mm", xidLvl_FirstHeight+i, pTagObj, isParm);
+        }
+      }
+    DDB.EndObject();
+    }
+  }
+
+flag CVolumeShapeLookup::DataXchg(TaggedObject* pTagObj, DataChangeBlk & DCB)
+  {
+  if (DCB.lHandle==xidLvl_Lookup)
+    {
+    if (DCB.rB && (*DCB.rB!=0))
+      bActive=(*DCB.rB!=0);
+    DCB.B=bActive;
+    return 1;
+    }
+
+  if (!bActive)
+    return 0;
+
+  switch (DCB.lHandle)
+    {
+    case xidLvl_Count:
+      if (DCB.rL)
+        {
+        if (*DCB.rL!=iCount)
+          {
+          pTagObj->StructureChanged(pTagObj);
+          SetCount(Range(0L, *DCB.rL, MaxLvlLookupCnt));
+          }
+        }
+      DCB.L = iCount;
+      return 1;
+    case xidLvl_Sort:
+      if (DCB.rB && (*DCB.rB!=0))
+        SortAndValidate();
+      DCB.B=0;
+      return 1;
+    default:
+      if (DCB.lHandle>=xidLvl_FirstHeight && DCB.lHandle<xidLvl_FirstHeight+MaxLvlLookupCnt)
+        {
+        const int index = DCB.lHandle-xidLvl_FirstHeight;
+        if (DCB.rD)
+          {
+          m_Heights[index] = Max(0.0, *DCB.rD);
+          bCheckRqd = true;
+          }
+        DCB.D = m_Heights[index];
+        return 1;
+        }
+      if (DCB.lHandle>=xidLvl_FirstVol && DCB.lHandle<xidLvl_FirstVol+MaxLvlLookupCnt)
+        {
+        const int index = DCB.lHandle-xidLvl_FirstVol;
+        if (DCB.rD)
+          {
+          m_Volumes[index] = Max(0.0, *DCB.rD);
+          bCheckRqd = true;
+          }
+        DCB.D = m_Volumes[index];
+        return 1;
+        }
+    }
+  return 0;
+  }
+
+void CVolumeShapeLookup::SetCount(long NewCount)
+  {
+  NewCount = Range(0L, NewCount, MaxLvlLookupCnt);
+  long PrevCnt = iCount;
+  m_Heights.SetSize(NewCount);
+  m_Volumes.SetSize(NewCount);
+  if (PrevCnt>0 && NewCount>PrevCnt)
+    {
+    const double hd = (PrevCnt==1 ? m_Heights[0] : m_Heights[PrevCnt-1]-m_Heights[PrevCnt-2]);
+    const double vd = (PrevCnt==1 ? m_Volumes[0] : m_Volumes[PrevCnt-1]-m_Volumes[PrevCnt-2]);
+    for (int i=PrevCnt; i<NewCount; i++)
+      {
+      m_Heights[i] = m_Heights[i-1] + hd;
+      m_Volumes[i] = m_Volumes[i-1] + vd;
+      }
+    }
+  bCheckRqd = true;
+  iCount = NewCount;
+  }
+
+void CVolumeShapeLookup::SortAndValidate()
+  {
+  for (int i=1; i<iCount; i++)
+    {
+    for (long j=i; j>=1 && (m_Heights[j]<m_Heights[j-1]); j--)
+      {
+      double temp = m_Heights[j-1];
+      m_Heights[j-1] = m_Heights[j];
+      m_Heights[j] = temp;
+      temp = m_Volumes[j-1];
+      m_Volumes[j-1] = m_Volumes[j];
+      m_Volumes[j] = temp;
+      }
+    }
+  if (m_Heights[0]<1.0e-6)
+    m_Heights[0] = 0.001;
+  if (m_Volumes[0]<1.0e-6)
+    m_Volumes[0] = 0.001;
+  for (int i=1; i<iCount; i++)
+    {
+    if (m_Heights[i]<=m_Heights[i-1])
+      m_Heights[i] = m_Heights[i-1]+0.001; //force increasing heights
+    if (m_Volumes[i]<=m_Volumes[i-1])
+      m_Volumes[i] = m_Volumes[i-1]+0.001; //force increasing volumes
+    }
+  bCheckRqd = false;
+  }
+
+void CVolumeShapeLookup::Calculate(double Volume)
+  {
+  if (iCount==0)
+    {
+    AHeight = 0.0;
+    ALvl = 0.0;
+    return;
+    }
+
+  if (bCheckRqd)
+    SortAndValidate();
+  int i=0;
+  while (i<iCount && Volume>m_Volumes[i])
+    {
+    i++;
+    }
+  if (i==iCount)
+    {
+    AHeight = m_Heights[iCount-1];//full
+    }
+  else if (i==0)
+    {
+    const double f = Volume/m_Volumes[i];
+    AHeight = m_Heights[i]*f;
+    }
+  else
+    {
+    const double f = (Volume-m_Volumes[i-1])/(m_Volumes[i]-m_Volumes[i-1]);
+    AHeight = m_Heights[i-1] + (m_Heights[i]-m_Heights[i-1])*f;
+    }
+  ALvl = AHeight/m_Heights[iCount-1];
+  }
 
 //==========================================================================
 /*#D:#T:CTank(1)
@@ -225,6 +403,12 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     VLE.BuildDataDefn(DDB);
   if (SolveDirectMethod())
     GSM.BuildDataDefn(DDB);
+  if (SolveDynamicMethod())
+    {
+    DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
+    if (LvlLookup.Active())
+      LvlLookup.BuildDataDefn(this, DDB);
+    }
 
   if (SolveBufferedMethod())
     m_EqThermals.BuildDataDefn(DDB, "Body", NULL, DDB_RqdPage);
@@ -278,6 +462,8 @@ flag CTank::DataXchg(DataChangeBlk & DCB)
   if (HX.DataXchg(DCB))
     return 1;
   if (!SolveInlineMethod() && m_EqThermals.DataXchg(DCB))
+    return 1;  
+  if (SolveDynamicMethod() && LvlLookup.DataXchg(this, DCB))
     return 1;  
 
   return 0;
@@ -350,6 +536,12 @@ void CTank::EvalProducts(CNodeEvalIndex & NEI)
       //  }
       
       }
+    }
+
+  if (SolveDynamicMethod() && LvlLookup.Active())
+    {
+    const double Vol = Contents.Volume();
+    LvlLookup.Calculate(Vol);
     }
   }
 

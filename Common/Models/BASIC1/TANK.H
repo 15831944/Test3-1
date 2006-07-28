@@ -21,6 +21,36 @@
   #define DllImportExport
 #endif
 
+const long MaxLvlLookupCnt = 16;
+XID xidLvl_Lookup         = MdlBsXID(20001);
+XID xidLvl_Count          = MdlBsXID(20002);
+XID xidLvl_Sort           = MdlBsXID(20003);
+XID xidLvl_FirstHeight    = MdlBsXID(20010);
+XID xidLvl_FirstVol       = xidLvl_FirstHeight+MaxLvlLookupCnt;
+
+class DllImportExport CVolumeShapeLookup
+  {
+  public:
+    CVolumeShapeLookup();
+    void BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB);
+    flag DataXchg(TaggedObject* pTagObj, DataChangeBlk & DCB);
+
+    void SetCount(long NewCount);
+    void SortAndValidate();
+    long Count() { return iCount; };
+    bool Active() { return bActive; };
+    void Calculate(double Volume);
+
+  public:
+    bool bActive;
+    bool bCheckRqd;
+    long iCount;
+    double ALvl;
+    double AHeight;
+    CArray<double, double> m_Heights;
+    CArray<double, double> m_Volumes;
+  };
+
 //=========================================================================== 
 DEFINE_TAGOBJ(CTank);
 
@@ -39,6 +69,7 @@ class DllImportExport CTank : public MN_Surge
     virtual void   EvalDerivs(CNodeEvalIndex & NEI);
 
   private:
+    CVolumeShapeLookup LvlLookup;
   };
 
 //=========================================================================== 
