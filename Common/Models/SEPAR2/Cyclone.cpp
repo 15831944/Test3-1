@@ -487,8 +487,8 @@ class CMPlitt : public CycloneMeth
     void   BuildDataDefn1(DataDefnBlk & DDB, dword Flags)
       {
       DDB.Text("Results");
-      DDB.Double("",    "RefTemp",      DC_T,       "C",     &gs_StdTemp, m_pCyc, Flags|isResult|noFileAtAll|InitHidden);
-      DDB.Double("",    "RefPress",     DC_P,       "kPa",   &gs_StdPress, m_pCyc, Flags|isResult|noFileAtAll|InitHidden);
+      //DDB.Double("",    "RefTemp",      DC_T,       "C",     &gs_StdTemp, m_pCyc, Flags|isResult|noFileAtAll|InitHidden);
+      //DDB.Double("",    "RefPress",     DC_P,       "kPa",   &gs_StdPress, m_pCyc, Flags|isResult|noFileAtAll|InitHidden);
       DDB.Double("",    "QvPerCyclone", DC_Qv,      "m^3/s", &m_Qvc,   m_pCyc, Flags|isResult);
       DDB.Double("",    "VolFrac",      DC_Frac,    "%",     &m_Phi,   m_pCyc, Flags|isResult|InitHidden);
       DDB.Double("",    "d50",          DC_L,       "um",    &m_d50,   m_pCyc, Flags|isResult);
@@ -544,16 +544,19 @@ class CMPlitt : public CycloneMeth
       const double RefPress = (m_OldCalcs ? gs_StdPress : FeedPress); // Reference pressure
       m_Phi = Fd.VolFrac(som_Sol, RefTemp, RefPress);  //kga 28/07/06: Changed to feed stream temperature & Pressure
 
-      const double Qv = GTZ(QmTtl)/GTZ(Fd.Rho())*1000.0*60.0;     // l/min
-      m_Qvc = Qv/Max(m_pCyc->dCycNo, 0.001);
+      double Qv = GTZ(QmTtl)/GTZ(Fd.Rho());
+      m_pCyc->dCycNo = Max(m_pCyc->dCycNo, 0.001);
+      m_Qvc = Qv/m_pCyc->dCycNo;
+      Qv = Qv*1000.0*60.0;     // convert to l/min
+      const double Qvc = Qv/m_pCyc->dCycNo;  // l/min
       double RhoS=0.001*Fd.Rho(som_Sol);     // g/cc
       double RhoL=0.001*Fd.Rho(som_Liq);     // g/cc
       double d50N=50.5*Pow(m_Dc, 0.46)*Pow(m_Di, 0.6)*Pow(m_Do, 1.21)*Exps(0.063*m_Phi*100.0);
       double d50D;
       if (m_OldCalcs)
-        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(m_Qvc, 0.46)*Pow((RhoS-RhoL), 0.5);
+        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.46)*Pow((RhoS-RhoL), 0.5);
       else
-        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(m_Qvc, 0.45)*Pow((RhoS-RhoL), 0.5); //kga 19/03/06: changed Qvc power to 0.45 from 0.46
+        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.45)*Pow((RhoS-RhoL), 0.5); //kga 19/03/06: changed Qvc power to 0.45 from 0.46
       m_d50=m_Factor1_d50*1.0e-6*d50N/GTZ(d50D);
 
       m_DP=DP(Fd.QMass(), Fd);
@@ -567,7 +570,7 @@ class CMPlitt : public CycloneMeth
       if (m_OldCalcs)
         m_m=m_Factor2_Sharp*1.94*Exps(-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Qv, 0.15);
       else
-        m_m=m_Factor2_Sharp*1.94*Exps((-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/m_Qvc, 0.15)); //kga 19/03/06: Brackets for exp part was WRONG!!!; Also should have used Qvc!!!
+        m_m=m_Factor2_Sharp*1.94*Exps((-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Qvc, 0.15)); //kga 19/03/06: Brackets for exp part was WRONG!!!; Also should have used Qvc!!!
 
       m_Alpha=1.54*m_m-0.47;
       //m_Rf=m_Rv; // Initial Guess
@@ -579,13 +582,13 @@ class CMPlitt : public CycloneMeth
 
     double DP(double Qm, SpConduit & Fd)
       {
-      const double Qv  = Qm/Fd.Rho()*1000.0*60.0;
-      const double Qvc = Qv/Max(m_pCyc->dCycNo, 0.001);
+      const double Qv  = Qm/Fd.Rho()*1000.0*60.0; // l/min
+      const double Qvc = Qv/m_pCyc->dCycNo; // l/min
       const double RefTemp = (m_OldCalcs ? gs_StdTemp : Fd.Temp());
       const double RefPress = (m_OldCalcs ? gs_StdPress : Fd.Press());
       const double Phi = Fd.VolFrac(som_Sol, RefTemp, RefPress);
 
-      const double N = 1.88*Pow(m_Qvc, 1.78)*Exps(0.0055*m_Phi*100.0);
+      const double N = 1.88*Pow(Qvc, 1.78)*Exps(0.0055*Phi*100.0);
       const double D = Pow(m_Dc, 0.37)*Pow(m_Di, 0.94)*Pow(m_h, 0.28)*Pow(Sqr(m_Du)+Sqr(m_Do), 0.87);
       return m_Factor3_DP*N/GTZ(D);
       };
@@ -594,7 +597,7 @@ class CMPlitt : public CycloneMeth
 
     double OSizeFrac(double Size, double UFLiq, double OFLiq, int Pass)
       {
-      double Y, YP;
+      double YP;
       switch (iSharpEqn)
         {
         case SE_RosinRammler:
@@ -604,11 +607,8 @@ class CMPlitt : public CycloneMeth
           }
         case SE_Lynch:
           {
-          double A=Exps(m_Alpha*Size/m_d50);
-          //if (m_OldCalcs)
-          //  YP=(A-1.0)/(A+Exps(m_Alpha)+2.0); //THIS WAS WRONG, ALWAYS USE correct equation
-          //else
-            YP=(A-1.0)/(A+Exps(m_Alpha)-2.0); //kga 19/03/06: should be -2 NOT +2 !!!
+          const double A=Exps(m_Alpha*Size/m_d50);
+          YP = (A-1.0)/(A+Exps(m_Alpha)-2.0);
           break;
           }
         default:
@@ -617,7 +617,7 @@ class CMPlitt : public CycloneMeth
           break;
           }
         }
-      Y=YP+m_Rf*(1.0-YP);
+      const double Y = YP + m_Rf*(1.0-YP);
       return Y;
       }
 
