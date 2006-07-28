@@ -443,7 +443,7 @@ class CMPlitt : public CycloneMeth
       m_SIDu=0.707 * 0.0254;
       m_SIDi=1.09  * 0.0254;
       m_SIh= 17.0  * 0.0254;
-      m_OldCalcs = true;
+      m_OldCalcs = (PrjFileVerNo()<=82 ? true : 0);
 
       m_S = 0.0;
       m_H = 0.0;
@@ -536,14 +536,16 @@ class CMPlitt : public CycloneMeth
 
     bool UseGeomMean() { return (!m_OldCalcs && iSharpEqn==SE_Lynch); };
 
-    void   Init(double Q, SpConduit & Fd)
+    void   Init(double QmTtl, SpConduit & Fd)
       {
-      const double RefTemp = gs_StdTemp; // Reference temperature
-      const double RefPress = gs_StdPress; // Reference pressure
-      m_Phi=Fd.VolFrac(som_Sol, RefTemp, RefPress);
+      const double FeedTemp = Fd.Temp();
+      const double FeedPress = Fd.Press();
+      const double RefTemp = (m_OldCalcs ? gs_StdTemp : FeedTemp); // Reference temperature
+      const double RefPress = (m_OldCalcs ? gs_StdPress : FeedPress); // Reference pressure
+      m_Phi = Fd.VolFrac(som_Sol, RefTemp, RefPress);  //kga 28/07/06: Changed to feed stream temperature & Pressure
 
-      Q=GTZ(Q)/GTZ(Fd.Rho())*1000.0*60.0;     // l/min
-      m_Qvc = Q/Max(m_pCyc->dCycNo, 0.001);
+      const double Qv = GTZ(QmTtl)/GTZ(Fd.Rho())*1000.0*60.0;     // l/min
+      m_Qvc = Qv/Max(m_pCyc->dCycNo, 0.001);
       double RhoS=0.001*Fd.Rho(som_Sol);     // g/cc
       double RhoL=0.001*Fd.Rho(som_Liq);     // g/cc
       double d50N=50.5*Pow(m_Dc, 0.46)*Pow(m_Di, 0.6)*Pow(m_Do, 1.21)*Exps(0.063*m_Phi*100.0);
@@ -563,9 +565,9 @@ class CMPlitt : public CycloneMeth
 
       m_Rv=m_S/(m_S+1);
       if (m_OldCalcs)
-        m_m=m_Factor2_Sharp*1.94*Exps(-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Q, 0.15);
+        m_m=m_Factor2_Sharp*1.94*Exps(-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Qv, 0.15);
       else
-        m_m=m_Factor2_Sharp*1.94*Exps((-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/Q, 0.15)); //kga 19/03/06: Brackets for exp part was WRONG!!!
+        m_m=m_Factor2_Sharp*1.94*Exps((-1.58*m_Rv)*Pow(Sqr(m_Dc)*m_h/m_Qvc, 0.15)); //kga 19/03/06: Brackets for exp part was WRONG!!!; Also should have used Qvc!!!
 
       m_Alpha=1.54*m_m-0.47;
       //m_Rf=m_Rv; // Initial Guess
@@ -577,12 +579,14 @@ class CMPlitt : public CycloneMeth
 
     double DP(double Qm, SpConduit & Fd)
       {
-      double Qv  = Qm/Fd.Rho()*1000.0*60.0;
-      double Qvc = Qv/Max(m_pCyc->dCycNo, 0.001);
-      double Phi = Fd.VolFrac(som_Sol, Std_T, Std_P);
+      const double Qv  = Qm/Fd.Rho()*1000.0*60.0;
+      const double Qvc = Qv/Max(m_pCyc->dCycNo, 0.001);
+      const double RefTemp = (m_OldCalcs ? gs_StdTemp : Fd.Temp());
+      const double RefPress = (m_OldCalcs ? gs_StdPress : Fd.Press());
+      const double Phi = Fd.VolFrac(som_Sol, RefTemp, RefPress);
 
-      double N = 1.88*Pow(Qvc, 1.78)*Exps(0.0055*Phi*100.0);
-      double D = Pow(m_Dc, 0.37)*Pow(m_Di, 0.94)*Pow(m_h, 0.28)*Pow(Sqr(m_Du)+Sqr(m_Do), 0.87);
+      const double N = 1.88*Pow(m_Qvc, 1.78)*Exps(0.0055*m_Phi*100.0);
+      const double D = Pow(m_Dc, 0.37)*Pow(m_Di, 0.94)*Pow(m_h, 0.28)*Pow(Sqr(m_Du)+Sqr(m_Do), 0.87);
       return m_Factor3_DP*N/GTZ(D);
       };
 
