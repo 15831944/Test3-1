@@ -20,10 +20,7 @@ class QualChange : public MBaseMethod
 
   protected:
     bool          bOnLine;
-    double        dRqdDuty;
-    double        dActualDuty;
-    double        dFeedT;
-    double        dProdT;
+    long          PSDCount;        
   };
 
 //---------------------------------------------------------------------------

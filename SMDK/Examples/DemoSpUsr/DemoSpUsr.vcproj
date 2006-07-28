@@ -402,6 +402,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ExampleQualChange.cpp">
+			</File>
+			<File
 				RelativePath="StdAfx.cpp">
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
@@ -457,6 +460,9 @@
 			</File>
 			<File
 				RelativePath="DemoSpUsr.h">
+			</File>
+			<File
+				RelativePath=".\ExampleQualChange.h">
 			</File>
 			<File
 				RelativePath="StdAfx.h">

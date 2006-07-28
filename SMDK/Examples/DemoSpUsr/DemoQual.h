@@ -21,6 +21,10 @@ class CDemoQual : public MSpQualityBase
     void           GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value);
     void           PutPropertyValue(long Index, MPropertyValue & Value);
 
+    long           m_SpCount;
+    long           m_PSDCount;
+    long           m_DSDCount;
+
     double         m_dSG;
     double         m_dSetProp;
 

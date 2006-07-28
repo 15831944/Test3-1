@@ -47,10 +47,6 @@ QualChange::QualChange(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMetho
   {
   //default values...
   bOnLine = true;
-  dRqdDuty = 10.0;
-  dActualDuty = 0.0;
-  dFeedT = StdT;
-  dProdT = StdT;
   }
 
 //---------------------------------------------------------------------------
@@ -67,12 +63,12 @@ void QualChange::BuildDataFields()
   DD.Text("");
   DD.Text("Requirements...");
   DD.CheckBox("On", "",  &bOnLine, MF_PARAM_STOPPED|MF_SET_ON_CHANGE);
-  DD.Double("DutyRqd", "", &dRqdDuty, MF_PARAMETER, MC_Pwr("kW"));
+  //DD.Double("DutyRqd", "", &dRqdDuty, MF_PARAMETER, MC_Pwr("kW"));
   DD.Text("");
   DD.Text("Results...");
-  DD.Double("Duty", "", &dActualDuty, MF_RESULT, MC_Pwr("kW"));
-  DD.Double("FeedT", "", &dFeedT, MF_RESULT|MF_NO_FILING, MC_T("C"));
-  DD.Double("ProdT", "", &dProdT, MF_RESULT|MF_NO_FILING, MC_T("C"));
+  //DD.Double("Duty", "", &dActualDuty, MF_RESULT, MC_Pwr("kW"));
+  //DD.Double("FeedT", "", &dFeedT, MF_RESULT|MF_NO_FILING, MC_T("C"));
+  DD.Long("PSD_Count", "", &PSDCount, MF_RESULT|MF_NO_FILING);
   }
 
 //---------------------------------------------------------------------------
@@ -93,55 +89,18 @@ void QualChange::EvalProducts()
       //MIPSD & PSD = QI.IF<MIPSD>(false);
       //if ( IsNothing(PSD)==false )
 
-      CDemoQual & xQual =  QI.IF<CDemoQual>(false);
+      CDemoQual & xQual =  QO.IF<CDemoQual>(false);
+
       if ( IsNothing(xQual)==false )
         {
-        Log.Message(MMsg_Note, "IT WORKS!!!");
-        }
-
-
-      //THIS LINE FAILS???
-      CDemoQual & Qual =  QO.IF<CDemoQual>(false);
-      if ( IsNothing(Qual)==false )
-        {
-        Log.Message(MMsg_Note, "IT WORKS!!!");
-        }
-
-CDemoQual * pQ = NULL;
-long n=QO.GetSpQualityCount4Cast();               
-for (int i=0; i<n; i++)                        
-  {   
-  MXSpQuality * p = QO.GetSpQuality4Cast(i);
-  if (p)
-    {
-    pQ = dynamic_cast<CDemoQual*>(p); //THIS FAILS, but debug view of p indicates this is required class!!!
-    if (pQ)                                       
-      {
-      Log.Message(MMsg_Note, "Found CDemoQual !!!");
-      }
-    //pQ = dynamic_cast<CDemoQual*>(p->m_pUserQual);
-    }
-  }                                
-
-      //if ( IsNothing(Qual)==false )
-      if ( pQ )
-        {
-        double d = pQ->m_dSG;
-        Log.Message(MMsg_Note, "Qual SG:%f", d);
+        PSDCount = xQual.m_dSetProp;
+        Log.Message(MMsg_Note, "Qual Data:%f", PSDCount);
         //CDemoQual & QualO =  QO.IF<CDemoQual>(false);
-        pQ->m_dSG = d+1.0;
+        xQual.m_dSetProp = PSDCount+1.0;
         }
 
-      const double h0 = QO.totHf(); //get enthalpy
-      QO.Set_totHf(h0+dRqdDuty); //set new enthalpy
-      dActualDuty = dRqdDuty;
       }
-    else
-      dActualDuty = 0.0;
 
-    //get display values...
-    dFeedT = QI.T;
-    dProdT = QO.T;
     }
   catch (MMdlException &e)
     {
@@ -168,7 +127,7 @@ void QualChange::ClosureInfo(MClosureInfo & CI)
   {
   if (CI.DoFlows())
     {
-    CI.AddPowerIn(0, dActualDuty); //ensure heat balance
+    //CI.AddPowerIn(0, dActualDuty); //ensure heat balance
     }
   }
 

@@ -3024,7 +3024,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
                   {
                   Strng ErrMsg;
                   ErrMsg.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Capacity Ignored.  Extra Spilt", QmIn, IOQOutEst);
-                  SetCI(8, "%s", ErrMsg());
+                  SetCI(8, ErrMsg());
                   }
                 else
                   ClrCI(8);

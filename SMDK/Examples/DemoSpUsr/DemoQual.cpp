@@ -20,8 +20,12 @@ CDemoQual::CDemoQual(TaggedObject * pNd)
   {
   MInitialise(); // this must be called to initialise the SMDK library if neccessary
 
-  m_dSG=0;
-  m_dSetProp=2;
+  m_SpCount = 0;
+  m_PSDCount = 0;
+  m_DSDCount = 0;
+
+  m_dSG=0.0;
+  m_dSetProp=2.0;
   }
 
 //---------------------------------------------------------------------------
@@ -116,6 +120,11 @@ void CDemoQual::SetMassF(MSpQualityBase * QualSet)
   CDemoQual * pQ2=dynamic_cast<CDemoQual*>(QualSet);
   m_dSG=pQ2->m_dSG;
   m_dSetProp=pQ2->m_dSetProp;
+
+  m_SpCount  = pQ2->m_SpCount ;
+  m_PSDCount = pQ2->m_PSDCount;
+  m_DSDCount = pQ2->m_DSDCount;
+
   };
 void CDemoQual::AddMassF(MSpQualityBase * QualAdd, MArray & MAdd) 
   {
@@ -129,6 +138,10 @@ void CDemoQual::AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)
   
   m_dSG       = Frac1*m_dSG + Frac2*pQualAdd->m_dSG;
   m_dSetProp  = Frac1*m_dSetProp + Frac2*pQualAdd->m_dSetProp;
+
+  //m_SpCount  = pQ2->m_SpCount ;
+  //m_PSDCount = pQ2->m_PSDCount;
+  //m_DSDCount = pQ2->m_DSDCount;
   };
 void CDemoQual::SubMassF(MSpQualityBase * QualSub, MArray & M2) 
   {
@@ -138,7 +151,11 @@ void CDemoQual::Copy(MSpQualityBase * QualCopy)
   CDemoQual * pQ2=dynamic_cast<CDemoQual*>(QualCopy);
   m_dSG=pQ2->m_dSG;
   m_dSetProp=pQ2->m_dSetProp;
+  m_SpCount  = pQ2->m_SpCount ;
+  m_PSDCount = pQ2->m_PSDCount;
+  m_DSDCount = pQ2->m_DSDCount;
   };
+
 void CDemoQual::AddDeriv(MSpQualityBase * pQual2, double Sgn_) 
   {
   };
