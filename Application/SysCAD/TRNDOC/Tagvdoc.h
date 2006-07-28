@@ -500,7 +500,7 @@ class CTagVwDoc : public DocRoot, public CExecObj, CNodeXRefMngr
     void             Free() { LeaveCriticalSection(&LockSection); };
 
     static void      CreateScaleMenu(CMenu &Menu, pCTagVwSlot pSlot);
-    static void      CreateFitMenu(CMenu &Menu, flag ForAll);
+    static void      CreateFitMenu(CMenu &Menu, flag ForAll, flag WithAutoOnOff);
     flag             ProcessScaleMenu(int RetCd, pCTagVwSlot pSlot, double Val);
     
     void             HiLiteTrend(int Slt2HiLite);

@@ -3721,26 +3721,37 @@ void CTagVwDoc::CreateScaleMenu(CMenu &Menu, CTagVwSlot* pSlot)
   MoveMenu.AppendMenu(MF_STRING, IDM_TRNDSCL_POS7, "20%");
   MoveMenu.AppendMenu(MF_STRING, IDM_TRNDSCL_POS8, "10%");
 
-  if (pSlot)
+  /*if (pSlot)
     {
     Menu.AppendMenu(MF_STRING, IDM_TRNDSCL_TAG, pSlot->sTag());
-    //Menu.EnableMenuItem(IDM_TRNDSCL_TAG, MF_BYCOMMAND|MF_DISABLED);
     Menu.AppendMenu(MF_SEPARATOR);
-    }
+    }*/
 
   CMenu FitMenu;
   FitMenu.CreatePopupMenu();
-  CreateFitMenu(FitMenu, false);
+  CreateFitMenu(FitMenu, false, false);
 
   //Menu.AppendMenu(MF_STRING, IDM_TRNDSCL_FIT, "&Fit");
   Menu.AppendMenu(MF_POPUP, (unsigned int)FitMenu.m_hMenu, "&Fit");
   Menu.AppendMenu(MF_POPUP, (unsigned int)ScaleMenu.m_hMenu, "&Scale");
   Menu.AppendMenu(MF_POPUP, (unsigned int)MoveMenu.m_hMenu, "&Position");
+#if WITHAUTOSCALE 
+  Menu.AppendMenu(MF_SEPARATOR);
+  Menu.AppendMenu(MF_STRING, IDM_TRNDSCL_FITAUTOON , "Auto On");
+  Menu.AppendMenu(MF_STRING, IDM_TRNDSCL_FITAUTOOFF, "Auto Off");
+  if (pSlot)
+    {
+    if (pSlot->bAutoScaleOn)
+      Menu.CheckMenuItem(IDM_TRNDSCL_FITAUTOON, MF_BYCOMMAND|MF_CHECKED);
+    else
+      Menu.CheckMenuItem(IDM_TRNDSCL_FITAUTOOFF, MF_BYCOMMAND|MF_CHECKED);
+    }
+#endif
   }
 
 //---------------------------------------------------------------------------
 
-void CTagVwDoc::CreateFitMenu(CMenu &Menu, flag ForAll)
+void CTagVwDoc::CreateFitMenu(CMenu &Menu, flag ForAll, flag WithAutoOnOff)
   {
 //  Menu.CreatePopupMenu();
   Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITMIN     : IDM_TRNDSCL_FITMIN    , "Range 100%");
@@ -3753,8 +3764,12 @@ void CTagVwDoc::CreateFitMenu(CMenu &Menu, flag ForAll)
   Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITZ50     : IDM_TRNDSCL_FITZ50    , "Range  50% + Zero");
   Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITDEFAULT : IDM_TRNDSCL_FITDEFAULT, "Default");
 #if WITHAUTOSCALE 
-  Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITAUTOON  : IDM_TRNDSCL_FITAUTOON , "Auto On");
-  Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITAUTOOFF : IDM_TRNDSCL_FITAUTOOFF, "Auto Off");
+  if (WithAutoOnOff)
+    {
+    Menu.AppendMenu(MF_SEPARATOR);
+    Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITAUTOON  : IDM_TRNDSCL_FITAUTOON , "Auto On");
+    Menu.AppendMenu(MF_STRING, ForAll ? IDM_TRNDSCLALL_FITAUTOOFF : IDM_TRNDSCL_FITAUTOOFF, "Auto Off");
+    }
 #endif
   }
 
@@ -3860,6 +3875,14 @@ flag CTagVwDoc::ProcessScaleMenu(int RetCd, CTagVwSlot* pSlot, double Val)
       else if (RetCd==IDM_TRNDSCL_FITAUTOOFF || RetCd==IDM_TRNDSCLALL_FITAUTOOFF)
         {
         pSlot->bAutoScaleOn=false;
+        OK=true;
+        //DoScl=true;
+        }
+      else if (RetCd==IDM_TRNDSCL_FITAUTOON || RetCd==IDM_TRNDSCLALL_FITAUTOON)
+        {
+        pSlot->bAutoScaleOn=true;
+        if (pSlot->bScaleApplied==TAS_Off)
+          pSlot->bScaleApplied=TAS_FitZ10;
         OK=true;
         //DoScl=true;
         }

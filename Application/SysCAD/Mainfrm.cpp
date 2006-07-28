@@ -1325,7 +1325,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
     {
     CMenu FitMenu;
     FitMenu.CreatePopupMenu();
-    CTagVwDoc::CreateFitMenu(FitMenu, true);
+    CTagVwDoc::CreateFitMenu(FitMenu, true, true);
 
     int TopLevel = 0;
     flag Found = False;

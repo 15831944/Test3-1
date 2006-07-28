@@ -1129,8 +1129,9 @@ void CTagVwTrend::OnRButtonDown(UINT nFlags, CPoint point)
         Val = YMn+((YMx-YMn)*ClsTrnd.XY.y)/TrendYMax;
 
 
+        Menu.AppendMenu(MF_STRING, IDM_TRNDSCL_TAG, pSlot->sTag());
+        Menu.AppendMenu(MF_SEPARATOR);
         pDoc->CreateScaleMenu(Menu, pSlot);
-        //pDoc->CreateScaleMenu(Menu);
         Menu.AppendMenu(MF_SEPARATOR);
         }
       }

@@ -15,6 +15,7 @@
 #include "selctwnd.h"
 #include "scd_wm.h"
 #include "syscad.h"
+//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1106,7 +1107,7 @@ flag CTagVwText::DoOnRButtonUp(UINT nFlags, CPoint point)
 
       CMenu FitMenu;
       FitMenu.CreatePopupMenu();
-      CTagVwDoc::CreateFitMenu(FitMenu, true);
+      CTagVwDoc::CreateFitMenu(FitMenu, true, true);
       Menu.AppendMenu(MF_POPUP, (UINT)FitMenu.m_hMenu, "&Fit all trends");
 
       //      ?      Menu.AppendMenu(MF_STRING, IDM_TRND_FITALL, "&Fit all trends");
@@ -1226,7 +1227,7 @@ flag CTagVwText::DoOnRButtonUp(UINT nFlags, CPoint point)
         }
       if ((pMenuSlt || !OneSlot) && !IsHCtrlFld && EI.FieldId!=TV_LDescFldId)
         {
-        Doc()->CreateScaleMenu(SclMenu, NULL);
+        Doc()->CreateScaleMenu(SclMenu, OneSlot ? pMenuSlt : NULL);
         Menu.AppendMenu(MF_POPUP, (UINT)SclMenu.m_hMenu, OneSlot ? "&Scale Trend" : "&Scale Trends");
         }
       OtherMenu.CreatePopupMenu();
@@ -1240,7 +1241,7 @@ flag CTagVwText::DoOnRButtonUp(UINT nFlags, CPoint point)
 
       CMenu FitMenu;
       FitMenu.CreatePopupMenu();
-      CTagVwDoc::CreateFitMenu(FitMenu, true);
+      CTagVwDoc::CreateFitMenu(FitMenu, true, true);
       OtherMenu.AppendMenu(MF_POPUP, (UINT)FitMenu.m_hMenu, "&Fit all trends");
 
       //OtherMenu.AppendMenu(MF_STRING, IDM_TRND_FITALL, "&Fit all trends");
@@ -1272,7 +1273,7 @@ flag CTagVwText::DoOnRButtonUp(UINT nFlags, CPoint point)
       Menu.AppendMenu(MF_STRING, ID_EDIT_COPY, "Copy");
       Menu.AppendMenu(MF_STRING, ID_EDIT_PASTE, "Paste");
 
-      if (!IsFunct)
+      if (!IsFunct && pMenuSlt)
         {
 #if WITHXREFUPDATES
         CXRefInfoArray Refs;
@@ -2878,7 +2879,7 @@ flag CTagVwTextC::DoOnRButtonUp(UINT nFlags, CPoint point)
 
         CMenu FitMenu;
         FitMenu.CreatePopupMenu();
-        CTagVwDoc::CreateFitMenu(FitMenu, true);
+        CTagVwDoc::CreateFitMenu(FitMenu, true, true);
         Menu.AppendMenu(MF_POPUP, (UINT)FitMenu.m_hMenu, "&Fit all trends");
 
         m_iMenuSlot=iSltNo;
