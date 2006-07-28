@@ -17,7 +17,7 @@ const byte ioidBlowDown = 2;
 static IOAreaRec BoilerIOAreaList[] =
   {{"",   "FeedLiquor", ioidFeedLiq,  LIO_In0 ,    nc_MLnk, 1, 10,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.1},
   {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
-  {"",    "BlowDown",   ioidBlowDown, LIO_Out ,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
+  {"",    "BlowDown",   ioidBlowDown, LIO_Out ,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
   {NULL}}; //This lists the areas of the model where links can be attached.
 
 
@@ -189,6 +189,7 @@ void Boiler::ConfigureJoins()
   {
   for (int i=0; i<NoProcessIOs(); i++)
     SetIO_Join(i, IOId_Self(i)==ioidBlowDown ? 1 : 0);
+    //SetIO_Join(i, 0);
   }
 
 //--------------------------------------------------------------------------
@@ -406,15 +407,18 @@ void Boiler::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI0=m_Closure[0];
-    CClosureInfo &CI1=m_Closure[1];
     CI0.m_PowerIn+=dHeat1+dHeat2;
     CI0.m_HfGainAtZero=VLE.HfGainAtZero();
     CI0.m_MassLoss+=dBlowDownQm;
-    CI1.m_MassGain+=dBlowDownQm;
     CI0.m_HfLoss+=dBlowDownHf;
-    CI1.m_HfGain+=dBlowDownHf;
     CI0.m_HsLoss+=dBlowDownHs;
-    CI1.m_HsGain+=dBlowDownHs;
+    if (m_Closure.GetCount()>1)
+      {
+      CClosureInfo &CI1=m_Closure[1];
+      CI1.m_MassGain+=dBlowDownQm;
+      CI1.m_HfGain+=dBlowDownHf;
+      CI1.m_HsGain+=dBlowDownHs;
+      }
     }
   }
 
