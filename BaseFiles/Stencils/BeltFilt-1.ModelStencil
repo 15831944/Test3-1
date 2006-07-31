@@ -10,63 +10,89 @@
 </a1:ModelStencil>
 <a3:ArrayList id="ref-4" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
-<_size>3</_size>
-<_version>939</_version>
+<_size>5</_size>
+<_version>2433</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-5" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-9"/>
 <_size>2</_size>
-<_version>707</_version>
+<_version>1416</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-6" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-10"/>
 <_size>0</_size>
-<_version>300</_version>
+<_version>607</_version>
 </a3:ArrayList>
 <SOAP-ENC:Array id="ref-8" SOAP-ENC:arrayType="xsd:anyType[8]">
 <item href="#ref-11"/>
 <item href="#ref-12"/>
 <item href="#ref-13"/>
-</SOAP-ENC:Array>
-<SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[4]">
 <item href="#ref-14"/>
 <item href="#ref-15"/>
+</SOAP-ENC:Array>
+<SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[4]">
+<item href="#ref-16"/>
+<item href="#ref-17"/>
 </SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
 <a1:Line id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>1</x1>
+<x1>3</x1>
 <y1>0</y1>
-<x2>99</x2>
+<x2>97</x2>
 <y2>0</y2>
 </a1:Line>
-<a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>100</x1>
-<y1>25</y1>
+<a1:Bezier id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>97</x1>
+<y1>0</y1>
+<x2>101.000008</x2>
+<y2>0</y2>
+<x3>101.000008</x3>
+<y3>25</y3>
+<x4>97</x4>
+<y4>30.0000019</y4>
+</a1:Bezier>
+<a1:Line id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>97</x1>
+<y1>30.0000019</y1>
 <x2>50</x2>
 <y2>100</y2>
 </a1:Line>
-<a1:Line id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>50</x1>
 <y1>100</y1>
-<x2>0</x2>
-<y2>27.5</y2>
+<x2>3</x2>
+<y2>30.0000019</y2>
 </a1:Line>
-<a1:Arc id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x>0</x>
-<y>0</y>
-<w>6</w>
-<h>30.0000019</h>
-<a>0</a>
-<s>360</s>
-</a1:Arc>
-<a1:Arc id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x>94</x>
-<y>0</y>
-<w>6</w>
-<h>30.0000019</h>
-<a>0</a>
-<s>360</s>
-</a1:Arc>
+<a1:Bezier id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>3</x1>
+<y1>30.0000019</y1>
+<x2>-1</x2>
+<y2>25</y2>
+<x3>-1</x3>
+<y3>0</y3>
+<x4>3</x4>
+<y4>0</y4>
+</a1:Bezier>
+<a1:Bezier id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>97</x1>
+<y1>0</y1>
+<x2>92</x2>
+<y2>0</y2>
+<x3>92</x3>
+<y3>30.0000019</y3>
+<x4>97</x4>
+<y4>30.0000019</y4>
+</a1:Bezier>
+<a1:Bezier id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<x1>3</x1>
+<y1>30.0000019</y1>
+<x2>8</x2>
+<y2>30.0000019</y2>
+<x3>8</x3>
+<y3>0</y3>
+<x4>3</x4>
+<y4>0</y4>
+</a1:Bezier>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
