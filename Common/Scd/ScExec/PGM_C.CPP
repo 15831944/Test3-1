@@ -189,8 +189,8 @@ double CPID2::ExecIns()
   double Ks = (Valid(m_KScale) ? m_KScale : GTZ(m_OutMx-m_OutMn)/GTZ(m_InMx-m_InMn));
   //double Aux_Val = Range((double)m_InMn, 0.0/*SrcAux*/, (double)m_InMx) ;
   double Input, SetPoint;
-  const bool TrackMinMaxMeas = (m_TrackMinMaxMeas || gs_Exec.GlblProbalMode());
-  const bool TrackMinMaxOut = (m_TrackMinMaxOut || gs_Exec.GlblProbalMode());
+  const bool TrackMinMaxMeas = (m_TrackMinMaxMeas || DefNetProbalMode());
+  const bool TrackMinMaxOut = (m_TrackMinMaxOut || DefNetProbalMode());
   if (Finite(m_Meas))
     {
     SetCI(1, TrackMinMaxMeas && (m_Meas<m_InMn));
@@ -217,7 +217,7 @@ double CPID2::ExecIns()
     SetPoint = 0.5*(m_InMn+m_InMx);
     }
 
-  if (!gs_Exec.GlblProbalMode())
+  if (!DefNetProbalMode())
     {//disable SptTrk in ProBal for now!!!
     if (!m_AutoMan && m_SptTrk)
       SetPoint=Input;
@@ -704,7 +704,7 @@ double CPID3::ExecIns()
 
   m_dwExecCount=CtrlSequencer::ExecCount();
 
-  if (!gs_Exec.GlblProbalMode())
+  if (!DefNetProbalMode())
     {//disable SptTrk in ProBal for now!!!
     if (!m_AutoMan && m_SptTrk)
       m_Spt=m_Meas;
@@ -717,8 +717,8 @@ double CPID3::ExecIns()
   flag RangeChgd=(Valid(m_PrvRange) ? m_PrvRange!=OutRng : true);
   m_PrvRange=OutRng;
 
-  const bool TrackMinMaxMeas = (m_TrackMinMaxMeas || gs_Exec.GlblProbalMode());
-  const bool TrackMinMaxOut = (m_TrackMinMaxOut || gs_Exec.GlblProbalMode());
+  const bool TrackMinMaxMeas = (m_TrackMinMaxMeas || DefNetProbalMode());
+  const bool TrackMinMaxOut = (m_TrackMinMaxOut || DefNetProbalMode());
   if (Valid(MeasScaled))
     {
     SetCI(1, TrackMinMaxMeas && (MeasScaled<0.0));
@@ -765,7 +765,7 @@ double CPID3::ExecIns()
   flag UseDc = (m_Dc>1.0e-6);
 
   double IcUse=Max(m_Ic, 0.5*m_Period);
-  if (!gs_Exec.GlblProbalMode() && fabs(m_Ic)<1.0e-9)
+  if (!DefNetProbalMode() && fabs(m_Ic)<1.0e-9)
     m_Ic = IcUse; //do we only want to remember this adjustment if m_Ic was zero???
   double GainP=m_Gn*(1.0+m_Period/(2.0*IcUse));
   double Beta=(2.0*IcUse-m_Period)/(2.0*IcUse+m_Period);
@@ -1220,7 +1220,7 @@ double CPID4::ExecIns()
 
   m_dwExecCount=CtrlSequencer::ExecCount();
 
-  if (!gs_Exec.GlblProbalMode())
+  if (!DefNetProbalMode())
     {//disable SptTrk in ProBal for now!!!
     if (!m_AutoMan && m_SptTrk)
       m_Spt=m_Meas;
@@ -1237,8 +1237,8 @@ double CPID4::ExecIns()
   flag RangeChgd=(Valid(m_PrvRange) ? m_PrvRange!=OutRng : true);
   m_PrvRange=OutRng;
 
-  const bool TrackMinMaxMeas = (m_TrackMinMaxMeas || gs_Exec.GlblProbalMode());
-  const bool TrackMinMaxOut = (m_TrackMinMaxOut || gs_Exec.GlblProbalMode());
+  const bool TrackMinMaxMeas = (m_TrackMinMaxMeas || DefNetProbalMode());
+  const bool TrackMinMaxOut = (m_TrackMinMaxOut || DefNetProbalMode());
   if (Valid(MeasScaled))
     {
     SetCI(1, TrackMinMaxMeas && (MeasScaled<0.0));

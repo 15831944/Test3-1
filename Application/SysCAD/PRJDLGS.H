@@ -10,14 +10,17 @@
 
 //===========================================================================
 
-class CPrjSheet : public CPropertySheet
+class CProjectSettingsDlg : public CPropertySheet
   {
-  DECLARE_DYNAMIC(CPrjSheet)
+  DECLARE_DYNAMIC(CProjectSettingsDlg)
   public:
-    CPrjSheet(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
-    CPrjSheet(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
-    virtual ~CPrjSheet();
+    //CProjectSettingsDlg(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
+    CProjectSettingsDlg(bool AsModal, CProject *Prj, CProjectSettings *Set, LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
+    virtual ~CProjectSettingsDlg();
 
+    bool               m_bAsModal;
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
     CPropertyPage* pGeneralPage;
     CPropertyPage* pCommsPage;
     CPropertyPage* pHistoryPage;
@@ -25,14 +28,14 @@ class CPrjSheet : public CPropertySheet
     CPropertyPage* pNetworkPage;
 #endif
 
-    //{{AFX_VIRTUAL(CPrjSheet)
+    //{{AFX_VIRTUAL(CProjectSettingsDlg)
     public:
     virtual BOOL OnInitDialog();
     //}}AFX_VIRTUAL
 
   protected:
     void StoreCurPageNo();
-    //{{AFX_MSG(CPrjSheet)
+    //{{AFX_MSG(CProjectSettingsDlg)
     afx_msg void OnOK();
     afx_msg void OnCancel();
     afx_msg void OnClose();

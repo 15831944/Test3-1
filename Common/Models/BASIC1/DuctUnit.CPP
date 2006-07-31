@@ -107,7 +107,7 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, noFile|noSnap);
   
   //DDB.Text    ("");
-  //DDB.Visibility(SM_Direct|HM_All|SSMODE);
+  //DDB.Visibility(NM_Probal|SM_All|HM_All|SSMODE);
   //DDB.Double  ("FlashSplit",   "",      DC_Frac, "%",      &FlashSplit,    this, 0);
   //DDB.Double  ("SS_Lvl",       "",      DC_Frac, "%",      &SS_Lvl,        this, isParm);
   DDB.Visibility();
@@ -126,14 +126,14 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   DDB.Double  ("RqdTOut",      "", DC_T,    "C",      &dRqdTOut,     this, isParm|SetOnChange|NAN_OK);
   DDB.Double  ("RqddT",        "", DC_dT,   "C",      &dRqddT,       this, isParm|SetOnChange|NAN_OK);
-  DDB.Visibility(SM_DynBoth|HM_All, Valid(dRqddT));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, Valid(dRqddT));
   DDB.Double  ("RqdTOutMin",   "", DC_T,    "C",      &dRqdTOutMin,  this, isParm);
   DDB.Double  ("RqdTOutMax",   "", DC_T,    "C",      &dRqdTOutMax,  this, isParm);
-  DDB.Visibility(SM_DynBoth|HM_All, Valid(dRqddT)||Valid(dRqdTOut));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, Valid(dRqddT)||Valid(dRqdTOut));
   DDB.Double  ("TInLowest",    "", DC_T,    "C",      &dTInLowest,   this, isParm);
   DDB.Double  ("TInHighest",   "", DC_T,    "C",      &dTInHighest,  this, isParm);
 
-  DDB.Visibility(SM_DynBoth|HM_All, !Valid(dRqddT)&&!Valid(dRqdTOut));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, !Valid(dRqddT)&&!Valid(dRqdTOut));
   DDB.Double  ("AmbientTemp",   "", DC_T,    "C",       &dAmbientTemp,  this, isParm);
   DDB.Double  ("HeatLoss",      "", DC_HCapF,"kJ/dC/s", &dHeatXferCoeff,  this, isParm);
   DDB.Double  ("StructMass",    "", DC_M,    "kg",      &dStructMass,   this, isParm);
@@ -164,7 +164,7 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   
   GSM.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -230,9 +230,10 @@ void DuctUnit::StartStep()
 
 void DuctUnit::EvalProducts(CNodeEvalIndex & NEI)
   {
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Direct:
+    case NM_Probal:
+    case NM_Dynamic:
     default:
       //SetProdMakeup(PMU_IOId|PMU_Passing, ioid_Condens, Contents, som_SL);
       MN_Surge::EvalProducts(NEI);

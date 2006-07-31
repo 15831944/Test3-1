@@ -184,15 +184,15 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBox("On",                      "",                DC_,     "",       &fOn,                this, isParm);
 	  DDB.Byte    ("",                        "ScanEffSpecie",   DC_,     "",       &iScanEffSpecie,     this, isParm, SDB.DDBLiqSpList());
     DDB.Byte    ("Wash_Eff_Method",         "EffMethod",       DC_,      "",      &iEffMethod,         this, isParm, DDB0);
-    DDB.Visibility(SHM_All, iEffMethod==MEM_Mixing);
+    DDB.Visibility(NSHM_All, iEffMethod==MEM_Mixing);
     DDB.Double  ("Mixing_Efficiency",       "MixingEff",       DC_Frac, "%",      &MixEff,             this, isParm);
-    DDB.Visibility(SHM_All, iEffMethod==MEM_Scandrett);
+    DDB.Visibility(NSHM_All, iEffMethod==MEM_Scandrett);
     DDB.Double  ("Rqd_Scandrett_Wash_Eff",  "RqdScandrettEff", DC_Frac, "%",      &ScandrettEff,       this, isParm);
     DDB.Visibility();
     DDB.Bool    ("UnderFlow_Method",        "Method",          DC_,      "",      &SA,                 this, isParm, DDB1);
-    DDB.Visibility(SHM_All, SA);
+    DDB.Visibility(NSHM_All, SA);
     DDB.Double  ("Rqd_U/F_SolidsConc@25",   "RqdUFSolConc25",  DC_Conc, "g/L",    &RqdUFSolidsConc25,  this, isParm);
-    DDB.Visibility(SHM_All, !SA);
+    DDB.Visibility(NSHM_All, !SA);
     DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &RqdUFSolids,        this, isParm);
     DDB.Visibility();
     DDB.Text    ("Results");
@@ -219,7 +219,7 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

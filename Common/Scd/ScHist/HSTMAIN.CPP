@@ -111,7 +111,7 @@ void CHistorian::Initialise()
   bShowQueryInfo = 1;
   m_bWasPaused=false;
   m_StopGap=CTimeValue::MinResolution*0.1;
-  m_MidTimeFactor=99.0/100.0;// CNM59.0/60.0;
+  m_MidTimeFactor=99.0/100.0;// CNM 59.0/60.0;
   }
 
 //---------------------------------------------------------------------------
@@ -1754,7 +1754,7 @@ DWORD CHistorian::EO_Message(CXMsgLst &XM, CXM_Route &Route)
           if ((Slots[i]->Data.bRecordIt!=0) != (RecordingOn!=0))
             {
             SlotCfgInfo SCI;
-            Slots[i]->GetCfgInfo(SCI);
+            Slots[i]->GetCfg(SCI);
             SCI.mRecordIt = RecordingOn;
             Lock();
             long SlotNo = CfgSlot(&SCI);
@@ -2602,28 +2602,135 @@ flag CHistorian::SlotInfoDlg(char* pTag, byte iDlgNo)
 //===========================================================================
 #if ForSysCAD
 
+CHistSettings::CHistSettings()
+  {
+  sHistorianName      = "Hist_Cfg";
+  sHstScenName        = "Hist";
+  sHstDataDir         = PrjFilesAlias();
+  sHstCatDir          = PrjFilesAlias();
+  lHstEvFileSize      = 640;
+  lHstSlotNoEstimate  = 1000;
+  iHstFilesMin        = 3;
+  iHstFilesMax        = 3;
+  lHstForceCnt        = 600;
+  dHstRecordATol      = 0.0001;
+  dHstRecordRTol      = 0.0001;
+  dHstStopGap         = 0.001;
+  dHstMidTimeFactor   = 99.0/100;//CNM 59.0/60.0;
+  bHstUseTol          = 1;
+  bHstShowQueryInfo   = 1;
+  bHstFixedDataExtn   = 1;
+  
+  m_OnRqd             = 0;
+  };
+
+//---------------------------------------------------------------------------
+
+CHistSettings::CHistSettings(const CHistSettings & Sets)
+  {
+  *this=Sets;
+  };
+
+//---------------------------------------------------------------------------
+
+CHistSettings & CHistSettings::operator=(const CHistSettings & Sets)
+  {
+  sHistorianName      = Sets.sHistorianName;
+  sHstScenName        = Sets.sHstScenName;
+  sHstDataDir         = Sets.sHstDataDir;
+  sHstCatDir          = Sets.sHstCatDir;
+  lHstEvFileSize      = Sets.lHstEvFileSize;
+  lHstSlotNoEstimate  = Sets.lHstSlotNoEstimate;
+  iHstFilesMin        = Sets.iHstFilesMin;
+  iHstFilesMax        = Sets.iHstFilesMax;
+  lHstForceCnt        = Sets.lHstForceCnt;
+  dHstRecordATol      = Sets.dHstRecordATol;
+  dHstRecordRTol      = Sets.dHstRecordRTol;
+  dHstStopGap         = Sets.dHstStopGap;
+  dHstMidTimeFactor   = Sets.dHstMidTimeFactor;
+  bHstUseTol          = Sets.bHstUseTol;
+  bHstShowQueryInfo   = Sets.bHstShowQueryInfo;
+  bHstFixedDataExtn   = Sets.bHstFixedDataExtn;
+  m_OnRqd             = Sets.m_OnRqd;
+  return *this;
+  };
+
+//---------------------------------------------------------------------------
+
+void CHistSettings::ReadSettings(CProfINIFile & PF)
+  {
+  sHistorianName      = PF.RdStr("Historian", "Name", sHistorianName());
+  sHstScenName        = PF.RdStr("Historian", "ScenarioName", sHstScenName());
+  sHstDataDir         = PF.RdStr("Historian", "DataDirectory", PrjFilesAlias());
+  sHstCatDir          = PF.RdStr("Historian", "CatDirectory", PrjFilesAlias());
+  lHstEvFileSize      = PF.RdLong("Historian", "FileSize", lHstEvFileSize);
+  lHstSlotNoEstimate  = PF.RdLong("Historian", "SlotNoEstimate", lHstSlotNoEstimate);
+  m_OnRqd             = PF.RdLong("Historian", "On", 1) != 0;
+  iHstFilesMin        = PF.RdInt("Historian", "FilesMin", iHstFilesMin);
+  iHstFilesMax        = Max((UINT)PF.RdInt("Historian", "FilesMax", iHstFilesMax), iHstFilesMin);
+  lHstForceCnt        = PF.RdLong("Historian", "ForceCount", lHstForceCnt);
+  bHstShowQueryInfo   = PF.RdLong("Historian", "ShowQueryInfo", bHstShowQueryInfo) != 0;
+  bHstFixedDataExtn   = PF.RdLong("Historian", "FixedDataExtn", 0) != 0;
+  bHstUseTol          = PF.RdLong("Historian", "UseRecordingTolerance", bHstUseTol) != 0;
+  dHstRecordATol      = PF.RdDouble("Historian", "RecordingAbsTolerance", dHstRecordATol);
+  dHstRecordRTol      = PF.RdDouble("Historian", "RecordingRelTolerance", dHstRecordRTol);
+  dHstStopGap         = PF.RdDouble("Historian", "StopGap", dHstStopGap);
+  dHstMidTimeFactor   = PF.RdDouble("Historian", "MidTimeFactor", dHstMidTimeFactor);
+
+
+  //HstMngr.SetHstOn(PF.RdLong("Historian", "On", 1) != 0);
+  }
+
+//---------------------------------------------------------------------------
+
+void CHistSettings::WriteSettings(CProfINIFile & PF)
+  {
+  PF.WrStr("Historian", "Name", sHistorianName());
+  PF.WrStr("Historian", "ScenarioName", sHstScenName());
+  PF.WrStr("Historian", "DataDirectory", sHstDataDir());
+  PF.WrStr("Historian", "CatDirectory", sHstCatDir());
+  PF.WrLong("Historian", "FileSize", lHstEvFileSize);
+  PF.WrLong("Historian", "SlotNoEstimate", lHstSlotNoEstimate);
+  //PF.WrLong("Historian", "RealTime", gs_Exec.RealTime());
+  PF.WrLong("Historian", "On", m_OnRqd);
+  PF.WrInt("Historian", "FilesMin", iHstFilesMin);
+  PF.WrInt("Historian", "FilesMax", iHstFilesMax);
+  PF.WrLong("Historian", "ForceCount", lHstForceCnt);
+  //PF.WrDouble("Historian", "TimeMax", gs_Exec.dTimeMax());
+  PF.WrLong("Historian", "ShowQueryInfo", bHstShowQueryInfo);
+  PF.WrLong("Historian", "FixedDataExtn", bHstFixedDataExtn);
+  PF.WrLong("Historian", "UseRecordingTolerance", bHstUseTol);
+  PF.WrDouble("Historian", "RecordingAbsTolerance", dHstRecordATol);
+  PF.WrDouble("Historian", "RecordingRelTolerance", dHstRecordRTol);
+  PF.WrDouble("Historian", "StopGap", dHstStopGap);
+  PF.WrDouble("Historian", "MidTimeFactor", dHstMidTimeFactor);
+
+  }
+
+//---------------------------------------------------------------------------
+
+void CHistSettings::PutSettings(CHistSettings & Sets)
+  {
+  *((CHistSettings*)this)=Sets;
+  HstMngr.SetHstOn(Sets.m_OnRqd);
+  }
+
+//---------------------------------------------------------------------------
+
+void CHistSettings::GetSettings(CHistSettings & Sets)
+  {
+  Sets=*((CHistSettings*)this);
+  Sets.m_OnRqd = HstMngr.HstOn();
+  }
+
+//===========================================================================
+
 CHistorianMngr::CHistorianMngr()
   {
   pExecObj = NULL;
   bHstOn = 0;
   bHstOpen = 0;
 
-  sHistorianName="Hist_Cfg";
-  sHstScenName="Hist";
-  sHstDataDir=PrjFilesAlias();
-  sHstCatDir=PrjFilesAlias();
-  lHstEvFileSize=640;
-  lHstSlotNoEstimate=1000;
-  iHstFilesMin=3;
-  iHstFilesMax=3;
-  lHstForceCnt=600;
-  dHstRecordATol=0.0001;
-  dHstRecordRTol=0.0001;
-  dHstStopGap=0.001;
-  dHstMidTimeFactor=59.0/60.0;
-  bHstUseTol=1;
-  bHstShowQueryInfo=1;
-  bHstFixedDataExtn=1;
   lLicMaxHistSizeAllowed = 640;
   lLicMaxHistFilesAllowed = 3;
   }
@@ -2643,54 +2750,6 @@ void CHistorianMngr::DestroyTheHistEO()
   ASSERT(pHistory);
   delete pHistory;
   pHistory = NULL;
-  }
-
-//---------------------------------------------------------------------------
-
-void CHistorianMngr::LoadSettings(CProfINIFile & PF)
-  {
-  sHistorianName = PF.RdStr("Historian", "Name", sHistorianName());
-  sHstScenName = PF.RdStr("Historian", "ScenarioName", sHstScenName());
-  sHstDataDir = PF.RdStr("Historian", "DataDirectory", PrjFilesAlias());
-  sHstCatDir = PF.RdStr("Historian", "CatDirectory", PrjFilesAlias());
-  lHstEvFileSize = PF.RdLong("Historian", "FileSize", lHstEvFileSize);
-  lHstSlotNoEstimate = PF.RdLong("Historian", "SlotNoEstimate", lHstSlotNoEstimate);
-  HstMngr.SetHstOn(PF.RdLong("Historian", "On", 1) != 0);
-  iHstFilesMin = PF.RdInt("Historian", "FilesMin", iHstFilesMin);
-  iHstFilesMax = Max((UINT)PF.RdInt("Historian", "FilesMax", iHstFilesMax), iHstFilesMin);
-  lHstForceCnt = PF.RdLong("Historian", "ForceCount", lHstForceCnt);
-  bHstShowQueryInfo = (PF.RdLong("Historian", "ShowQueryInfo", bHstShowQueryInfo) != 0);
-  bHstFixedDataExtn= (PF.RdLong("Historian", "FixedDataExtn", 0) != 0);
-  bHstUseTol = (PF.RdLong("Historian", "UseRecordingTolerance", bHstUseTol) != 0);
-  dHstRecordATol = PF.RdDouble("Historian", "RecordingAbsTolerance", dHstRecordATol);
-  dHstRecordRTol = PF.RdDouble("Historian", "RecordingRelTolerance", dHstRecordRTol);
-  dHstStopGap = PF.RdDouble("Historian", "StopGap", dHstStopGap);
-  dHstMidTimeFactor = PF.RdDouble("Historian", "MidTimeFactor", dHstMidTimeFactor);
-  }
-
-//---------------------------------------------------------------------------
-
-void CHistorianMngr::SaveSettings(CProfINIFile & PF)
-  {
-  PF.WrStr("Historian", "Name", sHistorianName());
-  PF.WrStr("Historian", "ScenarioName", sHstScenName());
-  PF.WrStr("Historian", "DataDirectory", sHstDataDir());
-  PF.WrStr("Historian", "CatDirectory", sHstCatDir());
-  PF.WrLong("Historian", "FileSize", lHstEvFileSize);
-  PF.WrLong("Historian", "SlotNoEstimate", lHstSlotNoEstimate);
-  //PF.WrLong("Historian", "RealTime", gs_Exec.RealTime());
-  PF.WrLong("Historian", "On", HstMngr.HstOn());
-  PF.WrInt("Historian", "FilesMin", iHstFilesMin);
-  PF.WrInt("Historian", "FilesMax", iHstFilesMax);
-  PF.WrLong("Historian", "ForceCount", lHstForceCnt);
-  //PF.WrDouble("Historian", "TimeMax", gs_Exec.dTimeMax());
-  PF.WrLong("Historian", "ShowQueryInfo", bHstShowQueryInfo);
-  PF.WrLong("Historian", "FixedDataExtn", bHstFixedDataExtn);
-  PF.WrLong("Historian", "UseRecordingTolerance", bHstUseTol);
-  PF.WrDouble("Historian", "RecordingAbsTolerance", dHstRecordATol);
-  PF.WrDouble("Historian", "RecordingRelTolerance", dHstRecordRTol);
-  PF.WrDouble("Historian", "StopGap", dHstStopGap);
-  PF.WrDouble("Historian", "MidTimeFactor", dHstMidTimeFactor);
   }
 
 //---------------------------------------------------------------------------
@@ -2741,7 +2800,7 @@ bool CHistorianMngr::DoCfgHistorian()
       }
     }
 
-  if (TaggedObject::GlblProbalMode())
+  if (DefNetProbalMode())
     {
     dHstStopGap = 0.001;
     }

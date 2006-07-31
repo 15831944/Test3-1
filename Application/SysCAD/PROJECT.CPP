@@ -44,7 +44,6 @@
 //#include "visgrffrm.h"
 //#include "autodoc.h"
 //#include "autofrm.h"
-#include "liccount.h"
 #include "copyblk.h"
 #include "wndslct.h"
 #include "explorescd.h"
@@ -60,10 +59,11 @@
 #include "neutralmdl.h"
 #include "neutraldlgs.h"
 #include "findtagsdlg.h"
+#include "mdlcfg.h"
 
 extern "C"
   {
-  #include "grldefs.h"
+#include "grldefs.h"
   }
 
 //#include "optoff.h"
@@ -82,107 +82,108 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //
 //===========================================================================
 
-//const int PrjFileVer = 3; //change for version control when reading .Spj file
-//const int PrjFileVer = 4; //window layout now stored in layout.ini, not xxx.Spj; changed 14/5/96
-//const int PrjFileVer = 5; //CNM Relative Filenames fixed - allows project name change in FileManager etc.; changed 23/8/96
-//const int PrjFileVer = 6; //KGA reorganised toolbars including toolbar saves 10/10/96
-//const int PrjFileVer = 7; //KGA added buttons and reorganised toolbar IDs 18/10/96
-//const int PrjFileVer = 8; //KGA changed method for saving toolbars (not name dependent) 25/10/96
-//const int PrjFileVer = 9; //KGA changed toolbar IDs used for saving toolbars 28/10/96
-//const int PrjFileVer = 10; //CNM Added SolverStart Button
-//const int PrjFileVer = 11; //CNM Rearrangement of toolbars
-//const int PrjFileVer = 12; //KGA Rearrangement of how document names are stored in spj AND Z-Order now in layout.ini 20/2/97 (SysCAD 7.1 Rev 5.2)
-//const int PrjFileVer = 13; //KGA Added list of files used by project to spj 4/3/97 (SysCAD 7.1 Rev 5.4)
-//const int PrjFileVer = 14; //CNM Added the Concept of invalid numeric tags (SysCAD 7.1 Rev 7.0)
-//const int PrjFileVer = 15; //KGA Extened/changed 'Bad Numeric Tag' functionality 29/10/97 (SysCAD 7.1 Rev 8.13)
-//const int PrjFileVer = 16; //CNM Tweaked Load to Change FlwSolve Tag to PlantModel 20/07/98 (SysCAD 7.2 Rev 2.7)
-//const int PrjFileVer = 17; //CNM Rearranged Directory Structure 01/08/98 (SysCAD 7.2 Rev 2.?)
-//const int PrjFileVer = 18; //CNM Rearranged Objects Flowsolver 04/11/98 (SysCAD 7.2 Rev 3.6)
-//const int PrjFileVer = 19; //CNM Rearranged Specie Quality Vars 07/05/99 (SysCAD Bld 11)
-//const int PrjFileVer = 20; //CNM Allow PID2/PID3 Selection
-//const int PrjFileVer = 21; //CNM Default Database = MDB
-//const int PrjFileVer = 22; //CNM Change ReactionBlkBuildDataDefn 11/99
-//const int PrjFileVer = 23; //CNM Change SizeDistColumnNames 12/99
-//const int PrjFileVer = 24; //CNM Fix FB_Eqn & FB_Data 02/2000
-//const int PrjFileVer = 25; //CNM Tweak the way toolbar positions are saved/recovered
-//const int PrjFileVer = 26; //CNM Extention to control User Functions for water
-//const int PrjFileVer = 27; //CNM Added Orig Project VerNo
-//const int PrjFileVer = 28; //CNM Added Filing Changes/Fixes --
-//const int PrjFileVer = 29; //CNM Added Filing Changes/Fixes -- Oops 28 Sent to KGA too early
-//const int PrjFileVer = 30; //KGA Rearrangement of toolbars
-//const int PrjFileVer = 31; //CNM $ changes : Project name, path, etc
-//const int PrjFileVer = 32; //CNM PB Pressure mods
-//const int PrjFileVer = 33; //CNM Run/Idle Mode and PB Pressure mods in FlashTank
-//const int PrjFileVer = 34; //CNM Viscosity Upgrade - Flw drops now use calcd viscosity
-//const int PrjFileVer = 35; //CNM FB tagging changed
-//const int PrjFileVer = 36; //CNM FB tagging changed .. and again
-//const int PrjFileVer = 37; //CNM Fix for probelm in cfg file (specie annotation)
-//const int PrjFileVer = 38; //CNM Entrainment / Link Data Storage
-//const int PrjFileVer = 39; //CNM Fix for "Null FlwEqn"
-//const int PrjFileVer = 40; //CNM Fix for FlwEqn Storage
-//const int PrjFileVer = 41; //CNM Change to H2O Eqn
-//const int PrjFileVer = 42; //CNM Fix For PressDropKFact
-//const int PrjFileVer = 43; //CNM Extention for ActiveHold in TagObj
-//const int PrjFileVer = 44; //CNM Changes to SpShape
-//const int PrjFileVer = 45; //CNM Restructure SpConduit / SpContainer / SpImage .... (Build57)
-//const int PrjFileVer = 46; //CNM HeatX1 Restructure ....
-//const int PrjFileVer = 47; //CNM Pipe/HX Join VolFlwFX Init/Restructure ... (Build58)
-//const int PrjFileVer = 48; //KGA 18/9/01 Tag changes in Filters...
-//const int PrjFileVer = 49; //KGA 20/9/01 Tag changes in Washers...
-//const int PrjFileVer = 50; //KGA  2/2/02 Rearrangement of toolbars
-//const int PrjFileVer = 51; //KGA 11/3/02 Removed option to load specie data from default.mdb
-//const int PrjFileVer = 52; //CNM 12/3/02 BuildDataDefn options changed from 32 to 64 bits.
-//const int PrjFileVer = 53; //CNM 26/3/02 Tolerance changes.
-//const int PrjFileVer = 54; //CNM 23/4/02 Time management.
-//const int PrjFileVer = 55; //CNM 23/5/02 More Time management.
-//const int PrjFileVer = 56; //CNM  4/6/02 Tweaks to RhoH Finder and other flownets stuff (Build71)
-//const int PrjFileVer = 57; //CNM  6/6/02 ProBal Press control improvements
-//const int PrjFileVer = 58; //CNM 14/6/02 Tweaks to MinLevel -> LowestIO
-//const int PrjFileVer = 59; //CNM 20/6/02 Tweaks to VolFlwFX
-//const int PrjFileVer = 60; //CNM 19/8/02 Tweaks to EvalOrder
-//const int PrjFileVer = 61; //CNM 19/8/02 Flow Properties Fwd/Rev with options
-//const int PrjFileVer = 62; //CNM 05/02/03 Tweaks to PowerSupplies | Ver8.2 26/5/03: IdealGas Flags; New NormPress Value
-//const int PrjFileVer = 63; //CNM 03/03/03 Tweaks to PowerSupplies
-//const int PrjFileVer = 64; //CNM 09/04/03 PowerDistribution
-//const int PrjFileVer = 65; //CNM 23/05/03 IdealGas Flags
-//const int PrjFileVer = 66; //CNM 04/06/03 AlcanSpModel Tweaks;
-//const int PrjFileVer = 67; //CNM 10/09/03 ADO Tweaks;
-//const int PrjFileVer = 68; //CNM 10/09/03 More ADO Tweaks - force a SaveAs;
-//const int PrjFileVer = 69; //CNM 10/09/03 NdFlngs etc tag change - force a SaveAs;
-//const int PrjFileVer = 70; //CNM 1/03/04 CfgFile path changes;
-//const int PrjFileVer = 71; //CNM 16/03/04 Environment Changes;
-//const int PrjFileVer = 72; //CNM 11/05/04 Fixes for new DynModes;
-//const int PrjFileVer = 73; //CNM 11/05/04 Fixes for new Heat & DynModes;
-//const int PrjFileVer = 74; //CNM 06/07/04 Final Fixes for SysVector Tags chages etc;
-//const int PrjFileVer = 75; //CNM 06/08/04 Change the way SpAttributes are stored
-//const int PrjFileVer = 76; //CNM 09/10/2004 Change the way SpAttributes are stored
-//const int PrjFileVer = 77; //CNM 22/11/2004 Change the Way Symbols are stored
-//const int PrjFileVer = 78; //CNM 11/01/2005 Change Tear Init Option Names
-//const int PrjFileVer = 79; //KGA 02/06/2005 AlcanSpModel Tweaks for organics/oxalate
-//const int PrjFileVer = 79; //CNM 15/03/2005 Vars Selection in SpModel & Frac defaults in Reactions
+//const int LatestPrjFileVer = 3; //change for version control when reading .Spj file
+//const int LatestPrjFileVer = 4; //window layout now stored in layout.ini, not xxx.Spj; changed 14/5/96
+//const int LatestPrjFileVer = 5; //CNM Relative Filenames fixed - allows project name change in FileManager etc.; changed 23/8/96
+//const int LatestPrjFileVer = 6; //KGA reorganised toolbars including toolbar saves 10/10/96
+//const int LatestPrjFileVer = 7; //KGA added buttons and reorganised toolbar IDs 18/10/96
+//const int LatestPrjFileVer = 8; //KGA changed method for saving toolbars (not name dependent) 25/10/96
+//const int LatestPrjFileVer = 9; //KGA changed toolbar IDs used for saving toolbars 28/10/96
+//const int LatestPrjFileVer = 10; //CNM Added SolverStart Button
+//const int LatestPrjFileVer = 11; //CNM Rearrangement of toolbars
+//const int LatestPrjFileVer = 12; //KGA Rearrangement of how document names are stored in spj AND Z-Order now in layout.ini 20/2/97 (SysCAD 7.1 Rev 5.2)
+//const int LatestPrjFileVer = 13; //KGA Added list of files used by project to spj 4/3/97 (SysCAD 7.1 Rev 5.4)
+//const int LatestPrjFileVer = 14; //CNM Added the Concept of invalid numeric tags (SysCAD 7.1 Rev 7.0)
+//const int LatestPrjFileVer = 15; //KGA Extened/changed 'Bad Numeric Tag' functionality 29/10/97 (SysCAD 7.1 Rev 8.13)
+//const int LatestPrjFileVer = 16; //CNM Tweaked Load to Change FlwSolve Tag to PlantModel 20/07/98 (SysCAD 7.2 Rev 2.7)
+//const int LatestPrjFileVer = 17; //CNM Rearranged Directory Structure 01/08/98 (SysCAD 7.2 Rev 2.?)
+//const int LatestPrjFileVer = 18; //CNM Rearranged Objects Flowsolver 04/11/98 (SysCAD 7.2 Rev 3.6)
+//const int LatestPrjFileVer = 19; //CNM Rearranged Specie Quality Vars 07/05/99 (SysCAD Bld 11)
+//const int LatestPrjFileVer = 20; //CNM Allow PID2/PID3 Selection
+//const int LatestPrjFileVer = 21; //CNM Default Database = MDB
+//const int LatestPrjFileVer = 22; //CNM Change ReactionBlkBuildDataDefn 11/99
+//const int LatestPrjFileVer = 23; //CNM Change SizeDistColumnNames 12/99
+//const int LatestPrjFileVer = 24; //CNM Fix FB_Eqn & FB_Data 02/2000
+//const int LatestPrjFileVer = 25; //CNM Tweak the way toolbar positions are saved/recovered
+//const int LatestPrjFileVer = 26; //CNM Extention to control User Functions for water
+//const int LatestPrjFileVer = 27; //CNM Added Orig Project VerNo
+//const int LatestPrjFileVer = 28; //CNM Added Filing Changes/Fixes --
+//const int LatestPrjFileVer = 29; //CNM Added Filing Changes/Fixes -- Oops 28 Sent to KGA too early
+//const int LatestPrjFileVer = 30; //KGA Rearrangement of toolbars
+//const int LatestPrjFileVer = 31; //CNM $ changes : Project name, path, etc
+//const int LatestPrjFileVer = 32; //CNM PB Pressure mods
+//const int LatestPrjFileVer = 33; //CNM Run/Idle Mode and PB Pressure mods in FlashTank
+//const int LatestPrjFileVer = 34; //CNM Viscosity Upgrade - Flw drops now use calcd viscosity
+//const int LatestPrjFileVer = 35; //CNM FB tagging changed
+//const int LatestPrjFileVer = 36; //CNM FB tagging changed .. and again
+//const int LatestPrjFileVer = 37; //CNM Fix for probelm in cfg file (specie annotation)
+//const int LatestPrjFileVer = 38; //CNM Entrainment / Link Data Storage
+//const int LatestPrjFileVer = 39; //CNM Fix for "Null FlwEqn"
+//const int LatestPrjFileVer = 40; //CNM Fix for FlwEqn Storage
+//const int LatestPrjFileVer = 41; //CNM Change to H2O Eqn
+//const int LatestPrjFileVer = 42; //CNM Fix For PressDropKFact
+//const int LatestPrjFileVer = 43; //CNM Extention for ActiveHold in TagObj
+//const int LatestPrjFileVer = 44; //CNM Changes to SpShape
+//const int LatestPrjFileVer = 45; //CNM Restructure SpConduit / SpContainer / SpImage .... (Build57)
+//const int LatestPrjFileVer = 46; //CNM HeatX1 Restructure ....
+//const int LatestPrjFileVer = 47; //CNM Pipe/HX Join VolFlwFX Init/Restructure ... (Build58)
+//const int LatestPrjFileVer = 48; //KGA 18/9/01 Tag changes in Filters...
+//const int LatestPrjFileVer = 49; //KGA 20/9/01 Tag changes in Washers...
+//const int LatestPrjFileVer = 50; //KGA  2/2/02 Rearrangement of toolbars
+//const int LatestPrjFileVer = 51; //KGA 11/3/02 Removed option to load specie data from default.mdb
+//const int LatestPrjFileVer = 52; //CNM 12/3/02 BuildDataDefn options changed from 32 to 64 bits.
+//const int LatestPrjFileVer = 53; //CNM 26/3/02 Tolerance changes.
+//const int LatestPrjFileVer = 54; //CNM 23/4/02 Time management.
+//const int LatestPrjFileVer = 55; //CNM 23/5/02 More Time management.
+//const int LatestPrjFileVer = 56; //CNM  4/6/02 Tweaks to RhoH Finder and other flownets stuff (Build71)
+//const int LatestPrjFileVer = 57; //CNM  6/6/02 ProBal Press control improvements
+//const int LatestPrjFileVer = 58; //CNM 14/6/02 Tweaks to MinLevel -> LowestIO
+//const int LatestPrjFileVer = 59; //CNM 20/6/02 Tweaks to VolFlwFX
+//const int LatestPrjFileVer = 60; //CNM 19/8/02 Tweaks to EvalOrder
+//const int LatestPrjFileVer = 61; //CNM 19/8/02 Flow Properties Fwd/Rev with options
+//const int LatestPrjFileVer = 62; //CNM 05/02/03 Tweaks to PowerSupplies | Ver8.2 26/5/03: IdealGas Flags; New NormPress Value
+//const int LatestPrjFileVer = 63; //CNM 03/03/03 Tweaks to PowerSupplies
+//const int LatestPrjFileVer = 64; //CNM 09/04/03 PowerDistribution
+//const int LatestPrjFileVer = 65; //CNM 23/05/03 IdealGas Flags
+//const int LatestPrjFileVer = 66; //CNM 04/06/03 AlcanSpModel Tweaks;
+//const int LatestPrjFileVer = 67; //CNM 10/09/03 ADO Tweaks;
+//const int LatestPrjFileVer = 68; //CNM 10/09/03 More ADO Tweaks - force a SaveAs;
+//const int LatestPrjFileVer = 69; //CNM 10/09/03 NdFlngs etc tag change - force a SaveAs;
+//const int LatestPrjFileVer = 70; //CNM 1/03/04 CfgFile path changes;
+//const int LatestPrjFileVer = 71; //CNM 16/03/04 Environment Changes;
+//const int LatestPrjFileVer = 72; //CNM 11/05/04 Fixes for new DynModes;
+//const int LatestPrjFileVer = 73; //CNM 11/05/04 Fixes for new Heat & DynModes;
+//const int LatestPrjFileVer = 74; //CNM 06/07/04 Final Fixes for SysVector Tags chages etc;
+//const int LatestPrjFileVer = 75; //CNM 06/08/04 Change the way SpAttributes are stored
+//const int LatestPrjFileVer = 76; //CNM 09/10/2004 Change the way SpAttributes are stored
+//const int LatestPrjFileVer = 77; //CNM 22/11/2004 Change the Way Symbols are stored
+//const int LatestPrjFileVer = 78; //CNM 11/01/2005 Change Tear Init Option Names
+//const int LatestPrjFileVer = 79; //KGA 02/06/2005 AlcanSpModel Tweaks for organics/oxalate
+//const int LatestPrjFileVer = 79; //CNM 15/03/2005 Vars Selection in SpModel & Frac defaults in Reactions
 
-////const int PrjFileVer = 81; //KGA 16/06/2005 Further changes to Vars Selection in SpModel
-////const int PrjFileVer = 82; //KGA 14/07/2005 Shell&Tube condensing duty limit change
-//const int PrjFileVer = 83; //CNM 18/08/2005 FlowMode changes
+////const int LatestPrjFileVer = 81; //KGA 16/06/2005 Further changes to Vars Selection in SpModel
+////const int LatestPrjFileVer = 82; //KGA 14/07/2005 Shell&Tube condensing duty limit change
+//const int LatestPrjFileVer = 83; //CNM 18/08/2005 FlowMode changes
 
-//const int PrjFileVer = 81; //KGA 16/06/2005 Further changes to Vars Selection in SpModel
-//const int PrjFileVer = 82; //KGA 14/07/2005 Shell&Tube condensing duty limit change
+//const int LatestPrjFileVer = 81; //KGA 16/06/2005 Further changes to Vars Selection in SpModel
+//const int LatestPrjFileVer = 82; //KGA 14/07/2005 Shell&Tube condensing duty limit change
 
-//const int PrjFileVer = 80; //CNM 12/04/2005 Changes for Leaks etc
-//const int PrjFileVer = 81; //KGA 16/06/2005 Further changes to Vars Selection in SpModel
-//const int PrjFileVer = 82; //KGA 14/07/2005 Shell&Tube condensing duty limit change
-//const int PrjFileVer = 83; //CNM 18/08/2005 FlowMode changes
+//const int LatestPrjFileVer = 80; //CNM 12/04/2005 Changes for Leaks etc
+//const int LatestPrjFileVer = 81; //KGA 16/06/2005 Further changes to Vars Selection in SpModel
+//const int LatestPrjFileVer = 82; //KGA 14/07/2005 Shell&Tube condensing duty limit change
+//const int LatestPrjFileVer = 83; //CNM 18/08/2005 FlowMode changes
 // Spares
-//const int PrjFileVer = 90; //CNM 06/10/2005 Changes for Leaks etc REWORK due to divergent paths
-//const int PrjFileVer = 91; //CNM 02/10/2005 Fix 4Port Valve to have name convention save as valve
-//const int PrjFileVer = 92; //CNM 31/10/2005 Remove "Output" from PID
-//const int PrjFileVer = 93; //CNM 15/11/2005 Fix 4PortValve
-//const int PrjFileVer = 94; //CNM 11/11/2005 FlowMode fixes
-//const int PrjFileVer = 95; //CNM 19/01/2006 remove table FB_Eqn from Database
-//const int PrjFileVer = 96; //CNM 19/01/2006 Changed 'Location' to 'PlantArea'
-//const int PrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
-//const int PrjFileVer = 98; //CNM 15/05/2006 Change in 'Time' Management
-const int PrjFileVer = 99; //CNM 15/06/2006 Enabled Evaluator Block
+//const int LatestPrjFileVer = 90; //CNM 06/10/2005 Changes for Leaks etc REWORK due to divergent paths
+//const int LatestPrjFileVer = 91; //CNM 02/10/2005 Fix 4Port Valve to have name convention save as valve
+//const int LatestPrjFileVer = 92; //CNM 31/10/2005 Remove "Output" from PID
+//const int LatestPrjFileVer = 93; //CNM 15/11/2005 Fix 4PortValve
+//const int LatestPrjFileVer = 94; //CNM 11/11/2005 FlowMode fixes
+//const int LatestPrjFileVer = 95; //CNM 19/01/2006 remove table FB_Eqn from Database
+//const int LatestPrjFileVer = 96; //CNM 19/01/2006 Changed 'Location' to 'PlantArea'
+//const int LatestPrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
+//const int LatestPrjFileVer = 98; //CNM 15/05/2006 Change in 'Time' Management
+//const int LatestPrjFileVer = 99; //CNM 15/06/2006 Enabled Evaluator Block
+const int LatestPrjFileVer = 100; //CNM  4/07/2006 New Flow Modes
 
 
 //===========================================================================
@@ -214,7 +215,6 @@ static void dbgDumpFilesAliases()
     dbgpln("%-20.20s : %s", "CfgFile"              ,CfgFile()        ? CfgFile()        : "");
     dbgpln("%-20.20s : %s", "CfgFiles"             ,CfgFiles()       ? CfgFiles()       : "");
     dbgpln("%-20.20s : %s", "CfgName"              ,CfgName()        ? CfgName()        : "");
-    dbgpln("%-20.20s : %s", "CfgHome"              ,CfgHome()        ? CfgHome()        : "");
     dbgpln("%-20.20s : %s", "PrjFile"              ,PrjFile()        ? PrjFile()        : "");
     dbgpln("%-20.20s : %s", "PrjFiles"             ,PrjFiles()       ? PrjFiles()       : "");
     dbgpln("%-20.20s : %s", "PrjRmtCpyFiles"       ,PrjRmtCpyFiles() ? PrjRmtCpyFiles() : "");
@@ -318,14 +318,14 @@ void CWindowLists::BuildLists()
             ASSERT(w->IsKindOf(RUNTIME_CLASS(CGrfFrameWnd)));
             GrfWnds.Add(w);
             }
-          #if WITHVISIODOC
+#if WITHVISIODOC
           else if (pDoc->IsKindOf(RUNTIME_CLASS(CVisGrfDoc)))
             {
             w = w->GetParent();
             ASSERT(w->IsKindOf(RUNTIME_CLASS(CVisGrfFrame)));
             GrfWnds.Add(w);
             }
-          #endif
+#endif
           else if (pDoc->IsKindOf(RUNTIME_CLASS(CTagVwDoc)))
             {
             w = w->GetParent();
@@ -338,13 +338,13 @@ void CWindowLists::BuildLists()
             ASSERT(w->IsKindOf(RUNTIME_CLASS(CPrjFrameWnd)));
             pPrjWnd = w;
             }
-          #if WITHAUTOMATION
+#if WITHAUTOMATION
           else if (pDoc->IsKindOf(RUNTIME_CLASS(CAutoDoc)))
             {
             ASSERT(w->IsKindOf(RUNTIME_CLASS(CAutoFrame)));
             pAutWnd = w;
             }
-          #endif
+#endif
           }
         else
           {
@@ -430,14 +430,14 @@ int CWindowLists::Find(byte Type, char* pTitle)
     for (int i=0; i<Wnds.GetSize(); i++)
       {
       if ((Wnds[i].iType==0) &&
-           _strnicmp(pTitle, (const char*)(Wnds[i].m_sName), 9)==0)
+        _strnicmp(pTitle, (const char*)(Wnds[i].m_sName), 9)==0)
         return i;
       }
     }
   for (int i=0; i<Wnds.GetSize(); i++)
     {
     if ((Wnds[i].iType==Type || Type==255) &&
-         _stricmp(pTitle, (const char*)(Wnds[i].m_sName))==0)
+      _stricmp(pTitle, (const char*)(Wnds[i].m_sName))==0)
       return i;
     }
   return -1;
@@ -496,13 +496,13 @@ CFrameWnd* CWindowLists::GetCurrentTopWindow()
   /*OLD CODE...
   CWnd* pWnd = MainWnd()->GetFocus();
   if (pWnd==NULL)
-    return NULL;
+  return NULL;
   if (!pWnd->IsKindOf(RUNTIME_CLASS(CFrameWnd)))
-    pWnd = pWnd->GetParent();
+  pWnd = pWnd->GetParent();
   if (pWnd && !pWnd->IsKindOf(RUNTIME_CLASS(CFrameWnd)))
-    pWnd = pWnd->GetParent();
+  pWnd = pWnd->GetParent();
   if (pWnd && pWnd->IsKindOf(RUNTIME_CLASS(CFrameWnd)))
-    return (CFrameWnd*)pWnd;
+  return (CFrameWnd*)pWnd;
   return NULL;*/
   }
 
@@ -555,7 +555,7 @@ int CWindowLists::GetTrendWndCount()
           DocCnt++;
           }
         }
-    return DocCnt;
+      return DocCnt;
     }
   return 0;
   }
@@ -577,7 +577,7 @@ int CWindowLists::GetGrfWndCount()
           DocCnt++;
           }
         }
-    return DocCnt;
+      return DocCnt;
     }
   return 0;
   }
@@ -928,8 +928,8 @@ static char* SwingFileNameToDest(Strng & Fn, Strng & OrigPrj, Strng & DestPrj)
   int Lf=Fn.Length();
   // is the path the same to here
   if ((Lo>0) && (Lf>=Lo) &&
-      (Fn.XStrNICmp(OrigPrj(), Lo)==0))// &&
-      //(Fn[Lo]=='\\'))
+    (Fn.XStrNICmp(OrigPrj(), Lo)==0))// &&
+    //(Fn[Lo]=='\\'))
     {
     //Strng T1(DestPrj);
     Strng T2(Fn.Right(Lf-Lo));
@@ -1124,18 +1124,933 @@ void CDDESrvrHelper::CloseOptions()
 //
 //===========================================================================
 
-Project * gs_pPrj=NULL;
-bool Project::fOpenAltCfg=false;
-PrjLoadTypes Project::m_LoadTypeRqst=PLT_Null;
+static char * FnPathRelContract(char * Fn)
+  {
+  static Strng Tmp;
+  Tmp=Fn;
+  Tmp.FnMakePrjFileRelative();
+  Tmp.FnContract();
+  return Tmp();
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+CProjectSettings::CProjectSettings()
+  {
+  ClearSettings();
+  };
+CProjectSettings::~CProjectSettings()
+  {
+  };
 
 //---------------------------------------------------------------------------
 
-bool Project::m_SysCADInited=false;
-
-Project::Project()
+void CProjectSettings::ClearSettings()
   {
+  dbgpln("--------------------- CProjectSettings::Clear");
 
-  SetNewPrjFileVerNo(PrjFileVer);
+
+
+  //bForceSaveAsNV=false;
+  //bDoingSaveAs = false;
+  //bDoingSaveAsNV = false;
+  //bDoingSaveAsWithName = false;
+  //bDoingLoad = false;
+  //pPrjDoc=NULL;
+  ////  sPrjFile="";
+  //bCmdSuccess=0;
+#if WITHDRVMAN
+  bDrvOpen=0;
+  bDrvOn=0;
+  bDrvLclTagSrvrOK=1;
+  bDrvReadAll=0;
+#endif
+  //bArcOpen=0;
+  m_bArcOn=0;
+  m_bArcOpenDBOnRun=0;
+  //bIOMOpen=0;
+  m_bIOMOn=0;
+
+  m_bDDEOn=0;
+  //pDDESrvr=NULL;
+  m_bOPCOn=0;
+  m_bOPCResetReg=0;
+  m_iOPCServerNo=0;
+  //;pOPCSrvr=NULL;
+  m_bGrfDeferLoad=0;
+  m_bGrfAutoLoad=0;
+  m_bGrfUpdateAnnot=1;
+  m_bGrfAnimationOn=1;
+  m_bGrfPromptForZoom=1;
+  m_bGrfMoveCursor=1; // CNM
+  m_bGrfRegExpOn=0;
+  m_bReadOnlyPrj=0;
+  //bHstOK=0;
+  //bCommsOpen=0;
+  m_bAccAutoSaveOn=0;
+  m_bAccUpdateOnRun=1;
+  m_bAccHistoryInfoVis=0;
+
+  m_sDefGrpLib      = "$BaseCfgFiles\\GroupLibrary.MDB";
+  m_sGrfFrameName   = "Extents-A3";
+  m_sGrfFrameFilter = "Frames:";
+
+  m_sDrvManagerName="Scd_Drvr.mdb";
+  m_sArcManagerName="ScdArch.sac";
+  m_sIOMarshalName="*.scm";
+  m_sIOMarshalNode="";
+#if WITHDRVMAN
+  bDrvIgnoresOn=0;
+  bDrvForcesOn=0;
+  bDrvNoiseOn=1;
+  bDrvStartFBKCheck=FBKCheckNever;
+#endif
+  m_lStatsRefreshCnt=5L;
+  //HstMngr.SetHstOn(true);
+  m_ReportInfo.iHSearchLen = 10;
+  m_ReportInfo.iVSearchLen = 100;
+  m_ReportInfo.sNan = "*";
+  m_ReportInfo.sBlank = "";
+  m_ReportInfo.sIgnoreChars = "=";
+  m_bRptExcelLock=1;
+  m_bRptExcelCellName=1;
+  m_bRptExcelMakeActive=1;
+  m_bRptExcelSysCADActive=1;
+  m_bRptExcelUpdateLinks=1;
+  m_bRptExcelSaveOnComplete=1;
+  m_bRptSyscadTags=1;
+  m_bShowStatusColours=1;
+  m_dwMdlStatusOptions = 0;
+  //iOverlayStatusPen=PS_DASH;
+  //bTimeChanged=0;
+  //bHstChanged=0;
+  //bDrvChanged=0;
+  //bArcChanged=0;
+  //bDocChanged=0;
+  //bLoadBusy=0;
+  m_bConfigBusy=0;
+
+  m_bDefaultRecordIt=1;
+  m_bFlashTrend=1; // CNM - most people who see this seem to like it !!!
+  m_bShowNewTrndLineDlg=0;
+  //bChangedGrfMenu=0;
+  //bChangedRuntimeMenu=0;
+  //bDoGrfAutoAccess=0;
+  //bBusyAnalysing=0;
+#if WITHSCRCYCLES
+  bSystemScreenSave=1;
+  bSyscadScreenSave=0;
+  if (Cycles)
+    delete []Cycles;
+  if (CycleWnds)
+    delete []CycleWnds;
+  CycleWnds = NULL;
+  if (CyclePos)
+    delete []CyclePos;
+  CyclePos = NULL;
+  if (pCycleDescWnd)
+    delete pCycleDescWnd;
+  pCycleDescWnd = NULL;
+  pOnlyWnd = NULL;
+  iScrCycles = 1;
+  Cycles = new CScreenSaverInfo[iScrCycles];
+  Cycles[0].iWaitTime = 10;
+  iCycleNo=-1;
+#endif
+#if WITHNETSERVER
+  bNetOpen=0;
+#endif
+  m_eSSAction = SSA_Prompt;//SSA_AutoInc;
+  m_sSSName = "SnapShot";
+  m_sSSPrefix = "Snap_";
+  m_iSSNumber = 0;
+  m_bSSDoZip = 0;
+  m_bToolTips=1;
+  m_bFlyBys=1;
+
+  //_asm int 3; // these must be fixed
+  m_NetMode=NM_Probal;
+
+  m_PBNodeMode=SM_Direct;              
+  m_PBLinkMode=SM_Direct;
+  m_PBHeatMode=HM_Full;
+  m_PBFlowMode=LFM_Xfer;
+
+  m_DynNodeMode=SM_Buffered;              
+  m_DynLinkMode=SM_Direct;
+  m_DynHeatMode=HM_Full;
+  m_DynFlowMode=LFM_Full;
+
+  m_MaxNodeMode=SM_Buffered;
+  m_MaxLinkMode=SM_Direct;
+  m_MaxHeatMode=HM_Full;
+  m_MaxFlowMode=LFM_Full;
+
+  m_Solver.m_fStateWnd=true;
+  m_Solver.m_fStatePinned=false;
+  m_Solver.m_fStateErrors=false;
+  m_Solver.m_iStateX=-10000;
+  m_Solver.m_iStateY=-10000;
+
+  m_bRunOptEmptyAll=0;
+  m_bRunOptEmptySpills=0;
+  m_bRunOptZeroFlows=0;    
+  m_bRunOptInitialiseAll=0;
+  m_bRunOptResetStats=0;   
+  m_bRunOptOnceOnly=0;    
+
+  m_GrfBehaviour=WB_None;
+  m_TrndBehaviour=WB_None;
+
+  //#if WITHNETSERVER
+  //  pCS_Mngr->SetServer(false);
+  //  pCS_Mngr->SetClientConnect(false, "", false);
+  //#endif
+  //  MdlLibs.UnLoadFlwDLLs();
+  m_fNewTrend=true;
+  m_fNewGraph=true;
+  //CMdlValueSet::Clear();
+  //CRptTagLists::ShutDown();
+
+  //XSetDBFormat(ScdPFUser.RdInt("General", "PrjsDBFormat", DBConnect_JET2000));
+
+  m_bRemoveRevs=true;
+  m_bCopyDBFiles=true;
+
+  //m_Save.m_bRqstNew=0;
+  //m_Save.m_bIsNewPrj=0;
+
+  //InitColours();
+
+  //SetPrjFileVerNo(LatestPrjFileVer);
+  //SetNewPrjFileVerNo(LatestPrjFileVer);
+  //SetOrigPrjFileVerNo(LatestPrjFileVer);
+  //SetPrjFileVerNoAsLoaded(LatestPrjFileVer);
+  //m_PrjFileVerNoAsLoaded=LatestPrjFileVer;
+
+  //if (CfgFile())
+  //  {
+  //  CProfINIFile PF(CfgFile());
+  //  TaggedObject::NumericTagsBad = (PF.RdLong("General", "NumericTagsBad", TaggedObject::NumericTagsBad) != 0);
+  //  TaggedObject::NumericStartingTagsBad = (PF.RdLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad) != 0);
+  //  TaggedObject::NumericTagsBad = TaggedObject::NumericTagsBad || TaggedObject::NumericStartingTagsBad;
+  //  }
+  //else
+  //  {
+  //  TaggedObject::NumericTagsBad = true;
+  //  TaggedObject::NumericStartingTagsBad = true;
+  //  }
+
+  //m_RmtCpyFolder="";
+  //m_LastSnapLoadFn="";
+  //gs_Exec.SetRealTime(0);
+  //gs_Exec.SetRealTimeMult(1);
+  //gs_Exec.StepSizeMax=1.0;
+  //gs_Exec.SetTheTime(0.0, "PrjClear");
+  //gs_Exec.SetScnType(ScnTyp_Manual, false);
+  //gs_Exec.ScnTermAction=ScnTA_Edit;
+  //gs_Exec.ScnStopTime=3600.0;
+  //gs_Exec.ScnDuration=3600.0;
+  //gs_Exec.StepCountMax=1;
+
+  m_TheTime                   = CTimeValue(0.0);
+  m_StepSizeMax               = 1.0;
+  m_ScnStopTime               = 3600.0;
+  m_ScnDuration               = 3600.0;
+
+  m_RealTime                  =  0;
+  m_RealTimeMult              = 1.0;
+  m_SyncWithClock             = 0;
+  m_ScnType                   = ScnTyp_Manual;
+  m_ScnTermAction             = ScnTA_Edit;
+  m_StepCountMax              = 1;
+
+  m_DisplayTagsOnly          = false;
+  m_HideZeros                = false;
+  m_ShowGroups               = false;
+
+  m_NumericTagsBad           = true;
+  m_NumericStartingTagsBad   = true;
+  m_NonNumericTagChr         = '#';
+
+  m_GTBStartTime             = CTimeValue(0.0);
+  m_GTBEndTime               = CTimeValue(3600.0);
+  m_GTBTrackingTime          = 1;
+
+  m_SpModelFixupStrategy     = FUS_Largest;
+
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
+  {
+  dbgpln("--------------------- CProjectSettings::Read  %s", PF.Filename());
+
+#if WithRmtFile
+  flag RmtOK=true;
+  if (UsingPrjLclFiles())
+    RmtOK=SetupRmtCopies();
+#endif
+
+  Strng sModelCfg = PF.RdStr("General", "ModelLibrary", "");
+  sModelCfg = PF.RdStr("General", "ModelConfiguration", sModelCfg());
+  sModelCfg = PF.RdStr("General", "CfgFile", sModelCfg());
+  sModelCfg.FnExpand();
+
+  SwingCfgFileIfReqd(sModelCfg);
+
+  CProfINIFile PrjCfg(sModelCfg());
+
+  PrjFileVerNo=PF.RdInt("General", "PrjFileVersion", PrjFileVerNo);
+
+  if (PrjFileVerNo>=100)
+    {
+    m_NetMode     = GetDefNetMode (PF.RdStr("Modes", "NetMode",           PrjCfg.RdStr("Modes", "Default_NetMode", "ProBal")));
+
+    m_PBNodeMode  = GetDefNodeMode(PF.RdStr("Modes", "Probal_NodeMode",   PrjCfg.RdStr("Modes", "Probal_NodeMode",  "Direct")));
+    m_PBLinkMode  = GetDefLinkMode(PF.RdStr("Modes", "Probal_LinkMode",   PrjCfg.RdStr("Modes", "Probal_LinkMode",  "Direct")));            
+    m_PBFlowMode  = GetDefFlowMode(PF.RdStr("Modes", "Probal_FlowMode",   PrjCfg.RdStr("Modes", "Probal_FlowMode",  "Simple")));
+    m_PBHeatMode  = GetDefHeatMode(PF.RdStr("Modes", "Probal_HeatMode",   PrjCfg.RdStr("Modes", "Probal_HeatMode",  "Rigorous")));
+
+    m_DynNodeMode = GetDefNodeMode(PF.RdStr("Modes", "Dynamic_NodeMode",  PrjCfg.RdStr("Modes", "Dynamic_NodeMode", "Buffered")));
+    m_DynLinkMode = GetDefLinkMode(PF.RdStr("Modes", "Dynamic_LinkMode",  PrjCfg.RdStr("Modes", "Dynamic_LinkMode", "Direct")));            
+    m_DynFlowMode = GetDefFlowMode(PF.RdStr("Modes", "Dynamic_FlowMode",  PrjCfg.RdStr("Modes", "Dynamic_FlowMode", "Simple")));
+    m_DynHeatMode = GetDefHeatMode(PF.RdStr("Modes", "Dynamic_HeatMode",  PrjCfg.RdStr("Modes", "Dynamic_HeatMode", "Rigorous")));
+
+    m_MaxNodeMode = GetMaxNodeMode(PF.RdStr("Modes", "Maximum_NodeMode",  PrjCfg.RdStr("Modes", "Maximum_NodeMode", "Buffered")));
+    m_MaxLinkMode = GetMaxNodeMode(PF.RdStr("Modes", "Maximum_LinkMode",  PrjCfg.RdStr("Modes", "Maximum_LinkMode", "Direct")));
+    m_MaxFlowMode = GetMaxFlowMode(PF.RdStr("Modes", "Maximum_FlowMode",  PrjCfg.RdStr("Modes", "Maximum_FlowMode", "Full")));                        
+    m_MaxHeatMode = GetMaxHeatMode(PF.RdStr("Modes", "Maximum_HeatMode",  PrjCfg.RdStr("Modes", "Maximum_HeatMode", "Rigorous")));                    
+                                                                                                              
+    }                                                                                                         
+  else if (PrjFileVerNo>=73)
+    {
+
+    long NetMd=0, FlwMd=0;
+    Strng sRMd=PF.RdStr("General", "RunMode",    "");
+    if (sRMd.XStrNICmp("Probal", 6)==0)
+      {
+      NetMd=NM_Probal;
+      FlwMd=LFM_Xfer;
+      }
+    else if (sRMd.XStrNICmp("Dynamic-Transfer", 16)==0)
+      {
+      NetMd=NM_Dynamic;
+      FlwMd=LFM_Xfer;
+      }
+    else if (sRMd.XStrNICmp("Dynamic-Flow", 12)==0)
+      {
+      NetMd=NM_Dynamic;
+      FlwMd=LFM_Simple;
+      }
+    else if (sRMd.XStrNICmp("Dynamic-Full", 12)==0)
+      {
+      NetMd=NM_Dynamic;
+      FlwMd=LFM_Full;
+      }
+    else
+      {
+      ASSERT_ALWAYS(FALSE, "Bad RunMode in Old flowsheet");
+      }
+
+    long HtMd=0;
+    Strng sHMd=PF.RdStr("General", "HeatMode",   "");
+    if (sHMd.XStrICmp("Rigorous")==0)
+      HtMd=HM_Full;
+    else if (sHMd.XStrICmp("Simple")==0)
+      HtMd=HM_Reduced;
+    else if (sHMd.XStrICmp("None")==0)
+      HtMd=HM_None;
+    else 
+      ASSERT_ALWAYS(FALSE, "Bad HeatMode in Old flowsheet");
+
+    m_NetMode=NetMd;
+    
+    m_PBNodeMode=SM_Direct;
+    m_PBLinkMode=SM_Direct;
+    m_PBFlowMode=FlwMd;
+    m_PBHeatMode=HtMd;
+
+    m_DynNodeMode=SM_Buffered;
+    m_DynLinkMode=SM_Direct;
+    m_DynFlowMode=FlwMd;
+    m_DynHeatMode=HtMd;
+
+    m_MaxNodeMode=GetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_NodeMode", "Buffered"));
+    m_MaxLinkMode=GetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_LinkMode", "Direct"));;
+    m_MaxFlowMode=GetMaxFlowMode(PrjCfg.RdStr("Modes", "Maximum_FlowMode", "Full"));
+    m_MaxHeatMode=GetMaxHeatMode(PrjCfg.RdStr("Modes", "Maximum_HeatMode", "Rigorous"));
+    }
+  else
+    {
+    INCOMPLETECODEMSG("TODO - Fix Solve Mode Recovery for PrjFileVerNo < 73");
+    //bool PB = (PF.RdInt("General", "ProBalMode", true)!=0);
+    //gs_Exec.SetGlblRunModes(HM_Full, HM_All);
+    //if (PB)
+    //  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
+    //else
+    //  {//NOT probal
+    //  int FlowMd=PF.RdInt("General", "DynamicFlowMode", (PrjFileVerNo()>=72));
+    //  gs_Exec.SetGlblRunModes(FlowMd ? SM_Inline : SM_Buffered, SM_All);
+    //  }
+    }
+
+  m_lStatsRefreshCnt      =   Max(1L, PF.RdLong("General", "StatsRefreshCount", m_lStatsRefreshCnt));
+
+  m_bRunOptEmptyAll       =   PF.RdLong("RunStartup", "EmptyAll",     m_bRunOptEmptyAll     ?1:0)!= 0;
+  m_bRunOptEmptySpills    =   PF.RdLong("RunStartup", "EmptySpills",  m_bRunOptEmptySpills  ?1:0)!= 0;
+  m_bRunOptZeroFlows      =   PF.RdLong("RunStartup", "ZeroFlows",    m_bRunOptZeroFlows    ?1:0)!= 0;    
+  m_bRunOptInitialiseAll  =   PF.RdLong("RunStartup", "InitialiseAll",m_bRunOptInitialiseAll?1:0)!= 0;
+  m_bRunOptResetStats     =   PF.RdLong("RunStartup", "ResetStats",   m_bRunOptResetStats   ?1:0)!= 0;   
+  m_bRunOptOnceOnly       =   PF.RdLong("RunStartup", "OnceOnly",     m_bRunOptOnceOnly    ?1:0)!= 0;    
+
+  if (PrjFileVerNo >= 98)
+    {
+    m_TheTime             =  CTimeValue(PF.RdInt64("General", "ExecTime", m_TheTime.Raw));
+    m_StepSizeMax         =  CTimeValue(PF.RdInt64("General", "StepSizeMax", m_StepSizeMax.Raw));
+    m_ScnStopTime         =  CTimeValue(PF.RdInt64("General", "ScnStopTime", m_ScnStopTime.Raw));
+    m_ScnDuration         =  CTimeValue(PF.RdInt64("General", "ScnDuration", m_ScnDuration.Raw));
+    }
+  else
+    {
+    m_TheTime             =  CTimeValue(PF.RdDouble("General", "ExecTime", m_TheTime.Seconds));
+    m_StepSizeMax         =  CTimeValue(PF.RdDouble("General", "StepSizeMax", m_StepSizeMax.Seconds));
+    m_ScnStopTime         =  CTimeValue(PF.RdInt64("General", "ScnStopTime", m_ScnStopTime.Raw));
+    m_ScnDuration         =  CTimeValue(PF.RdInt64("General", "ScnDuration", m_ScnDuration.Raw));
+    //gs_Exec.SetTimeUntilStop(CTimeValue(PF.RdDouble("General", "TimeUntilStop", gs_Exec.TimeUntilStop.Seconds)));
+    }
+
+  m_RealTime              =  PF.RdLong("General", "RealTime", m_RealTime) != 0;
+  m_RealTimeMult          =  PF.RdDouble("General", "RealTimeMult", m_RealTimeMult);
+  m_SyncWithClock         =  PF.RdLong("General", "SyncWithClock", m_SyncWithClock) != 0;
+  m_ScnType               =  (eScnTypes)PF.RdInt("General", "TermType", (int)m_ScnType);
+  m_ScnTermAction         =  (eScnTermActions)PF.RdInt("General", "TermAction", (int)m_ScnTermAction);
+  m_StepCountMax          =  PF.RdLong("General", "MaxRunIters", m_StepCountMax);
+
+  m_sDefGrpLib            =   PF.RdStr("General", "DefaultLibrary", m_sDefGrpLib());
+  m_sGrfFrameName         =   PF.RdStr("General", "GraphicsFrame", m_sGrfFrameName());
+  m_sGrfFrameFilter       =   PF.RdStr("General", "GraphicsFilter", m_sGrfFrameFilter());
+
+  m_GrfBehaviour          =   PF.RdLong("General",  "GrfBehaviour",  PrjFileVerNo>= 96?WB_Together:WB_None);
+  m_TrndBehaviour         =   PF.RdLong("General", "TrndBehaviour", PrjFileVerNo>= 96?WB_Together:WB_None);
+
+  m_bGrfDeferLoad         =   (PF.RdLong("General", "GrfDeferLoad", m_bGrfDeferLoad) !=  0);
+  m_bGrfAutoLoad          =   (PF.RdLong("General", "GrfAutoLoad", m_bGrfAutoLoad) !=  0);
+  m_bGrfUpdateAnnot       =   (PF.RdLong("General", "GrfUpdateAnnotation", m_bGrfUpdateAnnot) !=  0);
+  m_bGrfAnimationOn       =   (PF.RdLong("General", "GrfAnimationOn", m_bGrfAnimationOn) !=  0);
+  m_bGrfPromptForZoom     =   (PF.RdLong("General", "GrfPromptForZoom", m_bGrfPromptForZoom) !=  0);
+  m_bGrfMoveCursor        =   (PF.RdLong("General", "GrfMoveCursor", m_bGrfMoveCursor) !=  0);
+  m_bGrfRegExpOn          =   (PF.RdLong("General", "GrfRegExpOn", m_bGrfRegExpOn) !=  0);
+  m_bReadOnlyPrj          =   (PF.RdLong("General", "ReadOnly", m_bReadOnlyPrj) !=  0);
+
+  m_DisplayTagsOnly       = PF.RdLong("General", "DisplayTagsOnly", m_DisplayTagsOnly) != 0;
+  m_HideZeros             = PF.RdLong("General", "HideZeros", m_HideZeros) != 0;
+  m_ShowGroups            = PF.RdLong("General", "ShowGroups", m_ShowGroups) != 0;
+  m_NumericTagsBad        = PF.RdLong("General", "NumericTagsBad", m_NumericTagsBad) != 0;
+  m_NumericStartingTagsBad = PF.RdLong("General", "NumericStartingTagsBad", m_NumericStartingTagsBad) != 0;
+  m_NonNumericTagChr      = (char)PF.RdLong("General", "NonNumericTagChr", m_NonNumericTagChr);
+  if (!TaggedObject::CheckNonNumericTagChr(m_NonNumericTagChr))
+    m_NonNumericTagChr = '#';
+  m_NumericTagsBad = m_NumericTagsBad || m_NumericStartingTagsBad;
+
+  m_bRemoveRevs        =(PF.RdLong("Database", "RemovePreviousRevisions", m_bRemoveRevs)!=0);
+  m_bCopyDBFiles=(PF.RdLong("Database", "CopyDBFiles", m_bCopyDBFiles)!=0);
+
+  if (PrjFileVerNo>=98)
+    {
+    m_GTBStartTime.Raw = PF.RdInt64("Trend", "GlobalStartTime", m_GTBStartTime.Raw);
+    m_GTBEndTime.Raw   = m_GTBStartTime.Raw + PF.RdInt64("Trend", "GlobalDuration", m_GTBEndTime.Raw-m_GTBStartTime.Raw);
+    }
+  else
+    {
+    m_GTBStartTime = CTimeValue(PF.RdDouble("Trend", "GlobalStartTime", m_GTBStartTime.Seconds));
+    m_GTBEndTime = CTimeValue(m_GTBStartTime.Seconds + PF.RdDouble("Trend", "GlobalDuration", m_GTBEndTime.Seconds-m_GTBStartTime.Seconds));
+    }
+  m_GTBTrackingTime = PF.RdInt("Trend", "GlobalTrackingTime", m_GTBTrackingTime)!=0;
+
+  m_Solver.m_fStateWnd=PF.RdInt("Solver", "StatusWnd", m_Solver.m_fStateWnd);
+  m_Solver.m_fStatePinned=PF.RdInt("Solver", "StatusPinned", m_Solver.m_fStatePinned);
+  m_Solver.m_fStateErrors=PF.RdInt("Solver", "StatusErrors", m_Solver.m_fStateErrors);
+  m_Solver.m_iStateX=PF.RdInt("Solver", "StatusX", m_Solver.m_iStateX);
+  m_Solver.m_iStateY=PF.RdInt("Solver", "StatusY", m_Solver.m_iStateY);
+
+  m_Hst.ReadSettings(PF);
+
+#if WITHNETSERVER
+  OpenNetManager();
+  s = PF.RdStr("NetWorkManager", "ClientServer", "");
+  pCS_Mngr->SetServer(PF.RdLong("NetWorkManager", "ServerEnabled", pCS_Mngr->ServerEnabled()) !=0);
+  gs_Exec.SetCoupling((ExecCoupling)PF.RdLong("NetWorkManager", "Coupling",(long)gs_Exec.Coupling()));
+  pCS_Mngr->SetClientConnect(PF.RdLong("NetWorkManager", "ClientConnect", pCS_Mngr->ClientConnected()) != 0,
+    s() ? s() : "", gs_Exec.Coupling()==XC_Sync);
+#endif
+
+  m_bDefaultRecordIt = (PF.RdLong("General", "DefaultRecordIt", m_bDefaultRecordIt) != 0);
+  m_bFlashTrend = (PF.RdLong("General", "FlashTrend", m_bFlashTrend) != 0);
+  m_bShowNewTrndLineDlg = (PF.RdLong("General", "ShowNewTrndLineDlg", m_bShowNewTrndLineDlg) != 0);
+  m_bToolTips = (PF.RdLong("General", "ToolBarTips", m_bToolTips) != 0);
+  m_bFlyBys = (PF.RdLong("General", "ToolBarFlyBys", m_bFlyBys) != 0);
+
+#if WITHSCRCYCLES
+  int i;
+  //get screen saver info...
+  bSystemScreenSave = (PF.RdLong("ScreenSaver", "SystemOn", bSystemScreenSave) != 0);
+  bSyscadScreenSave = (PF.RdLong("ScreenSaver", "SysCADOn", bSyscadScreenSave) != 0);
+  iScrCycles = PF.RdInt("ScreenSaver", "NoOfCycles", iScrCycles);
+  if (Cycles)
+    delete []Cycles;
+  Cycles = new CScreenSaverInfo[iScrCycles];
+  for (i=0; i<iScrCycles; i++)
+    {
+    char Section[256];
+    char Item[256];
+    sprintf(Section, "Cycle%i", i);
+    Cycles[i].iWaitTime = (WORD)PF.RdLong(Section, "WaitTime", 10);
+    s = PF.RdStr(Section, "Description", Section);
+    Cycles[i].sDescription = s();
+    int WndCnt = PF.RdInt(Section, "WindowCount", 0);
+    Cycles[i].Windows.SetSize(WndCnt);
+    for (int j=0; j<WndCnt; j++)
+      {
+      sprintf(Item, "WindowTitle%i", j);
+      s = PF.RdStr(Section, Item, "Command");
+      Cycles[i].Windows.SetAt(j, s());
+      }
+    }
+#endif
+
+#if WITHDRVMAN
+  //get driver info...
+  sDrvManagerName = PF.RdStr("DrvManager", "Name", sDrvManagerName());
+  if (sDrvManagerName.Find('.')<0)
+    sDrvManagerName += ".SCF";
+  sDrvManagerName.FnContract();
+
+  bDrvOn = (PF.RdLong("DrvManager", "On", bDrvOn) != 0);
+  bDrvLclTagSrvrOK= (PF.RdLong("DrvManager", "LclTagSrvrOK", bDrvLclTagSrvrOK) != 0);
+  bDrvReadAll = (PF.RdLong("DrvManager", "ReadAll", bDrvReadAll) != 0);
+  bDrvIgnoresOn = (PF.RdLong("DrvManager", "IgnoresOn", bDrvIgnoresOn) != 0);
+  bDrvForcesOn = (PF.RdLong("DrvManager", "ForcesOn", bDrvForcesOn) != 0);
+  bDrvNoiseOn = (PF.RdLong("DrvManager", "NoiseOn", bDrvNoiseOn) != 0);
+  bDrvStartFBKCheck = (byte)PF.RdLong("DrvManager", "StartFBKCheck ", FBKCheckNever);
+#endif
+
+  m_sArcManagerName = PF.RdStr("ArcManager", "Name", m_sArcManagerName());
+  m_bArcOn = (PF.RdLong("ArcManager", "On", m_bArcOn) != 0);
+  m_bArcOpenDBOnRun = (PF.RdLong("ArcManager", "OpenDBOnRun", m_bArcOpenDBOnRun) != 0);
+  m_sArcManagerName.FnContract();
+
+  m_sIOMarshalName = PF.RdStr("IOMarshal", "Name", m_sIOMarshalName());
+  m_sIOMarshalName.FnCheckExtension(".scm");
+  m_sIOMarshalName.FnContract();
+  m_bIOMOn = (PF.RdLong("IOMarshal", "On", m_bIOMOn) != 0);
+  m_sIOMarshalNode = PF.RdStr("IOMarshal", "Node", m_sIOMarshalNode());
+
+  //get report info...
+  m_ReportInfo.iHSearchLen = Range(1, PF.RdInt("Reports", "HSearchLen", m_ReportInfo.iHSearchLen), (int)MaxCSVCols);
+  m_ReportInfo.iVSearchLen = Range(1, PF.RdInt("Reports", "VSearchLen", m_ReportInfo.iVSearchLen), 2048);
+  m_ReportInfo.sNan = PF.RdStr("Reports", "Nan", m_ReportInfo.sNan());
+  m_ReportInfo.sBlank = PF.RdStr("Reports", "Blank", m_ReportInfo.sBlank());
+  m_ReportInfo.sIgnoreChars = PF.RdStr("Reports", "IgnoreChars", m_ReportInfo.sIgnoreChars());
+  m_bRptExcelLock = (PF.RdLong("Reports", "ExcelLock", m_bRptExcelLock) != 0);
+  m_bRptExcelCellName = (PF.RdLong("Reports", "ExcelUseCellName", m_bRptExcelCellName) != 0);
+  m_bRptExcelMakeActive = (PF.RdLong("Reports", "ExcelAlmaysMakeActive", m_bRptExcelMakeActive) != 0);
+  m_bRptExcelSysCADActive = (PF.RdLong("Reports", "ExcelReturnSysCADtoActive", m_bRptExcelSysCADActive) != 0);
+  m_bRptExcelUpdateLinks = (PF.RdLong("Reports", "ExcelUpdateLinks", m_bRptExcelUpdateLinks) != 0);
+  m_bRptExcelSaveOnComplete = (PF.RdLong("Reports", "ExcelSaveOnComplete", m_bRptExcelSaveOnComplete) != 0);
+  m_bRptSyscadTags = (PF.RdLong("Reports", "SyscadTags", m_bRptSyscadTags) != 0);
+  m_bAccAutoSaveOn = (PF.RdLong("Access", "AutoSaveOn", m_bAccAutoSaveOn) != 0);
+  m_bAccUpdateOnRun = (PF.RdLong("Access", "UpdateOnRun", m_bAccUpdateOnRun) != 0);
+  m_bAccHistoryInfoVis = (PF.RdLong("Access", "HistoryInfoVis", m_bAccHistoryInfoVis) != 0);
+
+  //LoadColours(PF);
+
+  m_bDDEOn = (PF.RdLong("DDEManager", "On", m_bDDEOn) != 0);
+  //OpenDDEManager();
+
+  m_bOPCOn = (PF.RdLong("OPCManager", "On", m_bOPCOn) != 0);
+  m_bOPCResetReg = (PF.RdLong("OPCManager", "ResetRegistry", m_bOPCResetReg) != 0);
+  m_iOPCServerNo = PF.RdLong("OPCManager", "ServerNumber", m_iOPCServerNo);
+
+  m_SpModelFixupStrategy = PF.RdLong("SpModel", "FixupStrategy", m_SpModelFixupStrategy);
+
+  return true;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
+  {
+  dbgpln("--------------------- CProjectSettings::Write %s", PF.Filename());
+
+  Strng s;
+  //if (bDoingSaveAs && !AllGrfLoaded())
+  //  {//Copy all DXF files...
+  //  s = m_sPrevPrjFiles;
+  //  s += "*.dxf";
+  //  WIN32_FIND_DATA fd;
+  //  HANDLE H = FindFirstFile(s(), &fd);
+  //  flag AllDone = (H==INVALID_HANDLE_VALUE);
+  //  while (!AllDone)
+  //    {
+  //    s = m_sPrevPrjFiles;
+  //    s += fd.cFileName;
+  //    Copy_File(s(), PrjFiles());
+  //    AllDone = !FindNextFile(H, &fd);
+  //    }
+  //  FindClose(H);
+  //  }
+
+  //Strng sPrjBac(PrjFile());
+  //sPrjBac = sPrjBac.Left(sPrjBac.Length()-3);
+  //sPrjBac += "bac";
+  //CopyFile(PrjFile(), sPrjBac(), false); //backup spj
+
+  char DT[64],TM[64];
+#if _MSC_VER>=1400
+  _strdate_s(DT, sizeof(DT));
+  _strtime_s(TM, sizeof(TM));
+#else
+  _strdate(DT);
+  _strtime(TM);
+#endif
+  //DeleteFile(PrjFile()); //delete old spj file
+
+  char UserBuff[512];
+  char CompBuff[512];
+  DWORD Sz = sizeof(UserBuff);
+  if (!GetUserName(UserBuff, &Sz))
+    strcpy(UserBuff, "?????");
+  Sz = sizeof(CompBuff);
+  if (GetComputerName(CompBuff, &Sz))
+    strcpy(CompBuff, "?????");
+
+  PF.WrInt("General", "PrjFileVersion", LatestPrjFileVer);
+  PF.WrInt("General", "PrjFileVersionOriginal", OrigPrjFileVerNo());
+  PF.WrStr("LastSaveInfo", "SysCADVersion", FullVersion());
+
+  if (FullSave)
+    {
+    PF.WrStr("General", "PrjName", PrjName());
+    PF.WrStr("General", "PrjFiles", PrjFiles());
+
+    PF.WrStr("General", "CfgFile", FnPathRelContract(CfgFile()));
+    PF.WrInt("General", "LocalPrjFiles", UsingPrjLclFiles());
+    }
+
+  s="-";
+  if (strlen(SCD_PATCHNOTE)>0)
+    {
+    if (strlen(SCD_PATCHDATE)>0)
+      s.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
+    else
+      s.Set("%s", SCD_PATCHNOTE);
+    }
+  PF.WrStr("LastUpdateInfo", "SysCAD_Update", s());
+  PF.WrStr("LastUpdateInfo", "LastUpdateDate", DT);
+  PF.WrStr("LastUpdateInfo", "LastUpdateTime", TM);
+  PF.WrStr("LastUpdateInfo", "WinNT", IsWinNT ? "y" : "n");
+  PF.WrStr("LastUpdateInfo", "UserName", UserBuff);
+  PF.WrStr("LastUpdateInfo", "ComputerName", CompBuff);
+
+
+  PF.WrInt64("General", "ExecTime",               m_TheTime.Raw);
+  PF.WrInt64("General", "StepSizeMax",            m_StepSizeMax.Raw);
+  PF.WrLong("General", "RealTime",                m_RealTime != 0);
+  PF.WrDouble("General", "RealTimeMult",          m_RealTimeMult);
+  PF.WrLong("General", "SyncWithClock",           m_SyncWithClock != 0);
+
+  PF.WrInt("General", "TermType",                 (int)m_ScnType);
+  PF.WrInt("General", "TermAction",               (int)m_ScnTermAction);
+  PF.WrInt64("General", "ScnStopTime",            m_ScnStopTime.Raw);
+  PF.WrInt64("General", "ScnDuration",            m_ScnDuration.Raw);
+  PF.WrLong("General", "MaxRunIters",             m_StepCountMax);
+  PF.WrLong("General", "ToolBarTips",             m_bToolTips);
+  PF.WrLong("General", "ToolBarFlyBys",           m_bFlyBys);
+  PF.WrLong("General", "DefaultRecordIt",         m_bDefaultRecordIt);
+  PF.WrLong("General", "FlashTrend",              m_bFlashTrend);
+  PF.WrLong("General", "ShowNewTrndLineDlg",      m_bShowNewTrndLineDlg);
+  PF.WrLong("General", "StatsRefreshCount",       Max(1L, m_lStatsRefreshCnt));
+  //PF.WrInt("General", "ProBalMode", GetProBalMode());
+  //PF.WrInt("General", "DynamicFlowMode", GetDynModeFlow());
+  //PF.WrStr("General", "SolveMode", gs_Exec.GlblRunModesString());
+
+  PF.WrStr("Modes", "NetMode",                 GetNetModeStr(m_NetMode));
+
+  PF.WrStr("Modes", "Probal_NodeMode",         GetNodeModeStr(m_PBNodeMode));
+  PF.WrStr("Modes", "Probal_LinkMode",         GetLinkModeStr(m_PBLinkMode));
+  PF.WrStr("Modes", "Probal_HeatMode",         GetHeatModeStr(m_PBHeatMode));
+  PF.WrStr("Modes", "Probal_FlowMode",         GetFlowModeStr(m_PBFlowMode));
+
+  PF.WrStr("Modes", "Dynamic_NodeMode",        GetNodeModeStr(m_DynNodeMode));
+  PF.WrStr("Modes", "Dynamic_LinkMode",        GetLinkModeStr(m_DynLinkMode));
+  PF.WrStr("Modes", "Dynamic_HeatMode",        GetHeatModeStr(m_DynHeatMode));
+  PF.WrStr("Modes", "Dynamic_FlowMode",        GetFlowModeStr(m_DynFlowMode));
+
+  PF.WrStr("Modes", "Maximum_NodeMode",        GetNodeModeStr(m_MaxNodeMode));
+  PF.WrStr("Modes", "Maximum_LinkMode",        GetLinkModeStr(m_MaxLinkMode));
+  PF.WrStr("Modes", "Maximum_HeatMode",        GetHeatModeStr(m_MaxHeatMode));
+  PF.WrStr("Modes", "Maximum_FlowMode",        GetFlowModeStr(m_MaxFlowMode));
+
+
+  PF.WrStr("General", "DefaultLibrary",           m_sDefGrpLib());
+  PF.WrStr("General", "GraphicsFrame",            m_sGrfFrameName());
+  PF.WrStr("General", "GraphicsFilter",           m_sGrfFrameFilter());
+  PF.WrLong("General", "GrfDeferLoad",            m_bGrfDeferLoad);
+  PF.WrLong("General", "GrfAutoLoad",             m_bGrfAutoLoad);
+  PF.WrLong("General", "GrfUpdateAnnotation",     m_bGrfUpdateAnnot);
+  PF.WrLong("General", "GrfAnimationOn",          m_bGrfAnimationOn);
+  PF.WrLong("General", "GrfPromptForZoom",        m_bGrfPromptForZoom);
+  PF.WrLong("General", "GrfRegExpOn",             m_bGrfRegExpOn);
+  PF.WrLong("General", "ReadOnly",                m_bReadOnlyPrj);
+  PF.WrLong("General", "DisplayTagsOnly",         m_DisplayTagsOnly);
+  PF.WrLong("General", "HideZeros",               m_HideZeros);
+  PF.WrLong("General", "ShowGroups",              m_ShowGroups);
+  PF.WrLong("General", "NumericTagsBad",          m_NumericTagsBad);
+  PF.WrLong("General", "NumericStartingTagsBad",  m_NumericStartingTagsBad);
+  PF.WrLong("General", "NonNumericTagChr",        m_NonNumericTagChr);
+
+  PF.WrLong("General", "GrfBehaviour",            m_GrfBehaviour);
+  PF.WrLong("General", "TrndBehaviour",           m_TrndBehaviour);
+
+  PF.WrLong("RunStartup", "EmptyAll",             m_bRunOptEmptyAll     ?1:0);
+  PF.WrLong("RunStartup", "EmptySpills",          m_bRunOptEmptySpills  ?1:0);
+  PF.WrLong("RunStartup", "ZeroFlows",            m_bRunOptZeroFlows    ?1:0);    
+  PF.WrLong("RunStartup", "InitialiseAll",        m_bRunOptInitialiseAll?1:0);
+  PF.WrLong("RunStartup", "ResetStats",           m_bRunOptResetStats   ?1:0);   
+  PF.WrLong("RunStartup", "OnceOnly",             m_bRunOptOnceOnly    ?1:0);    
+
+  PF.WrLong("Database", "RemovePreviousRevisions", m_bRemoveRevs);
+  PF.WrLong("Database", "CopyDBFiles",            m_bCopyDBFiles);
+
+  PF.WrInt("Solver", "StatusWnd",                 m_Solver.m_fStateWnd);
+  PF.WrInt("Solver", "StatusPinned",              m_Solver.m_fStatePinned);
+  PF.WrInt("Solver", "StatusErrors",              m_Solver.m_fStateErrors);
+  PF.WrInt("Solver", "StatusX",                   m_Solver.m_iStateX);
+  PF.WrInt("Solver", "StatusY",                   m_Solver.m_iStateY);
+
+  PF.WrLong("SpModel", "FixupStrategy",           m_SpModelFixupStrategy );
+
+  if (PrjFileVerNo()>=98)
+    {
+    PF.WrInt64("Trend", "GlobalStartTime",        m_GTBStartTime.Raw);
+    PF.WrInt64("Trend", "GlobalDuration",         m_GTBEndTime.Raw-m_GTBStartTime.Raw);
+    }
+  else
+    {
+    __debugbreak();
+    //PF.WrDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime);
+    //PF.WrDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration());
+    }
+  PF.WrInt("Trend", "GlobalTrackingTime",         m_GTBTrackingTime);
+
+
+  //HstMngr.GetOnRqd();
+  HstMngr.WriteSettings(PF);
+
+#if WITHDRVMAN
+  PF.WrStr("DrvManager", "Name", sDrvManagerName());
+  PF.WrLong("DrvManager", "On", bDrvOn);
+  PF.WrLong("DrvManager", "LclTagSrvrOK", bDrvLclTagSrvrOK);
+  PF.WrLong("DrvManager", "ReadAll", bDrvReadAll);
+  PF.WrLong("DrvManager", "IgnoresOn", bDrvIgnoresOn);
+  PF.WrLong("DrvManager", "ForcesOn", bDrvForcesOn);
+  PF.WrLong("DrvManager", "NoiseOn", bDrvNoiseOn);
+  PF.WrLong("DrvManager", "StartFBKCheck ", bDrvStartFBKCheck );
+#endif
+
+  PF.WrStr("ArcManager", "Name", m_sArcManagerName());
+  PF.WrLong("ArcManager", "On", m_bArcOn);
+  PF.WrLong("ArcManager", "OpenDBOnRun", m_bArcOpenDBOnRun);
+
+  PF.WrLong("DDEManager", "On", m_bDDEOn);
+
+  PF.WrLong("OPCManager", "On", m_bOPCOn);
+  PF.WrLong("OPCManager", "ResetRegistry", m_bOPCResetReg);
+  PF.WrLong("OPCManager", "ServerNumber", m_iOPCServerNo);
+  SaveMainOPCOptions(PF);
+  //DisableMainOPCSrvr();
+  //if (pOPCSrvr && pOPCSrvr->OPCSrvrMngr())
+  //  pOPCSrvr->OPCSrvrMngr()->LoadOrSaveOptions(PF, false);
+
+  PF.WrLong("IOMarshal", "On", m_bIOMOn);
+  PF.WrStr("IOMarshal", "Name", m_sIOMarshalName());
+  PF.WrStr("IOMarshal", "Node", m_sIOMarshalNode());
+
+  PF.WrInt("Reports", "HSearchLen", m_ReportInfo.iHSearchLen);
+  PF.WrInt("Reports", "VSearchLen", m_ReportInfo.iVSearchLen);
+  PF.WrStr("Reports", "Nan", m_ReportInfo.sNan());
+  PF.WrStr("Reports", "Blank", m_ReportInfo.sBlank());
+  PF.WrStr("Reports", "IgnoreChars", m_ReportInfo.sIgnoreChars());
+  PF.WrLong("Reports", "ExcelLock", m_bRptExcelLock);
+  PF.WrLong("Reports", "ExcelUseCellName", m_bRptExcelCellName);
+  PF.WrLong("Reports", "ExcelAlmaysMakeActive", m_bRptExcelMakeActive);
+  PF.WrLong("Reports", "ExcelReturnSysCADtoActive", m_bRptExcelSysCADActive);
+  PF.WrLong("Reports", "ExcelUpdateLinks", m_bRptExcelUpdateLinks);
+  PF.WrLong("Reports", "ExcelSaveOnComplete", m_bRptExcelSaveOnComplete);
+  PF.WrLong("Reports", "SyscadTags", m_bRptSyscadTags);
+  PF.WrLong("Access", "AutoSaveOn", m_bAccAutoSaveOn);
+  PF.WrLong("Access", "UpdateOnRun", m_bAccUpdateOnRun);
+  PF.WrLong("Access", "HistoryInfoVis", m_bAccHistoryInfoVis);
+
+#if WITHNETSERVER
+  PF.WrLong("NetWorkManager", "ServerEnabled", pCS_Mngr->ServerEnabled());
+  PF.WrLong("NetWorkManager", "ClientConnect", pCS_Mngr->ClientConnected());
+  PF.WrStr("NetWorkManager", "ClientServer", pCS_Mngr->ClientServer());
+  PF.WrLong("NetWorkManager", "Coupling",(long)gs_Exec.Coupling());
+#endif
+
+  int i;
+#if WITHSCRCYCLES
+  PF.WrLong("ScreenSaver", "SystemOn", bSystemScreenSave);
+  PF.WrLong("ScreenSaver", "SysCADOn", bSyscadScreenSave);
+  PF.WrInt("ScreenSaver", "NoOfCycles", iScrCycles);
+  for (i=0; i<iScrCycles; i++)
+    {
+    char Section[256];
+    char Item[256];
+    sprintf(Section, "Cycle%i", i);
+    PF.WrLong(Section, "WaitTime", Cycles[i].iWaitTime);
+    PF.WrStr(Section, "Description", (char*)(const char*)(Cycles[i].sDescription));
+    PF.WrInt(Section, "WindowCount", Cycles[i].Windows.GetSize());
+    for (int j=0; j<Cycles[i].Windows.GetSize(); j++)
+      {
+      sprintf(Item, "WindowTitle%i", j);
+      PF.WrStr(Section, Item, (char*)(const char*)(Cycles[i].Windows.GetAt(j)));
+      }
+    }
+#endif
+
+  for (i=0; i<16; i++)
+    {
+    if (gs_CustomColours[i])
+      {
+      char Item[32];
+      sprintf(Item, "Colour%d", i);
+      PF.WrLong("CustomColours", Item, gs_CustomColours[i]);
+      }
+    }
+
+  ////save documents...
+  //for (int j=iGraphTemplate; j<=iControlTemplate; j++)
+  //  if (ScdApp()->TemplateExists(j))
+  //    {
+  //    Strng DocTypeName=DocumentTmplNames[j];
+  //    CDocTemplate & Templ = ScdApp()->Template(j);
+  //    POSITION Pos = Templ.GetFirstDocPosition();
+  //    int DocCount = 0;
+  //    PF.WrInt(DocumentSectNames[j], "DocumentCount", DocCount); // Initialise
+  //    while (Pos)
+  //      {
+  //      CDocument* pDoc = Templ.GetNextDoc(Pos);
+
+  //      CString dn = pDoc->GetPathName();
+  //      i = dn.ReverseFind('\\');
+  //      if (m_Save.m_bIsNewPrj && i>=0)
+  //        {
+  //        CString d;
+  //        d = PrjFiles();
+  //        d += dn.Right(dn.GetLength()-i-1);
+  //        dn = d;
+  //        }
+
+  //      s = dn;
+  //      //s.FnCompactPath(50);
+  //      s.FnNameExt();
+  //      CDlgBusy::SetLine(3, s());
+  //      if (pDoc->IsKindOf(RUNTIME_CLASS(DocRoot)))
+  //        {
+  //        ((DocRoot*)pDoc)->OnActivate(true);  // direct cmds to this document
+  //        ((DocRoot*)pDoc)->SaveDocument((LPCTSTR)dn);
+  //        }
+  //      else if (pDoc->IsKindOf(RUNTIME_CLASS(OleDocRoot)))
+  //        {
+  //        if (dn.GetLength()==0)
+  //          dn=((OleDocRoot*)pDoc)->m_strReqdPathName;
+  //        pDoc->DoSave((LPCTSTR)dn, TRUE);
+  //        }
+
+  //      dn = pDoc->GetPathName();
+  //      if (dn.GetLength()>0)
+  //        {
+  //        char Entry[256];
+  //        sprintf(Entry, "Doc%i", DocCount++);
+  //        PF.WrStr(DocumentSectNames[j], Entry, FnContract(s, (LPTSTR)(LPCTSTR)dn));
+  //        }
+  //      }
+  //    PF.WrInt(DocumentSectNames[j], "DocumentCount", DocCount);
+  //    }
+
+  //gs_AccessWnds.SaveNdHist(-1);
+
+  ////save list of all files referenced/used by project...
+  //CDlgBusy::SetLine(3, "Copying 'Remote' files");
+
+  //int NCopied = CopyOtherFiles(PFL, PF);
+
+  //CDlgBusy::SetLine(3, CompactPrj());
+  //if (NCopied>0)
+  //  //LogNote("SysCAD", 0, "%i Files Copied to %s", NCopied, BackupFilesFolderName());
+  //  LogNote("SysCAD", 0, "%i Files Copied", NCopied);
+
+  //SaveColours(PF);
+
+  //DWORD Opts=0;
+  //if (!m_Save.m_bRqstNew)
+  //  {
+  //  if (m_bRemoveRevs)
+  //    Opts |= DBO_RemovePrevRevs;
+  //  //if (m_bCopyDBFiles && (PrjFileVerNoAsLoaded()==PrjFileVerNo()))
+  //  //  Opts |= DBO_CopyOldDBFiles;
+  //  }
+
+  //gs_pPrj->DoSaveDB(XDBFormat(), Opts, PrjFiles(), (bDoingSaveAs||bDoingSaveAsNV ? m_sPrevPrjFiles() : NULL));
+
+  //SaveWindowLayout();
+
+  CProfINIFile PFI(PrjIniFile());
+  PFI.WrLong("SnapShot", "Action", m_eSSAction);
+  PFI.WrStr("SnapShot", "Name", m_sSSName());
+  PFI.WrStr("SnapShot", "Prefix", m_sSSPrefix());
+  PFI.WrLong("SnapShot", "Number", m_iSSNumber);
+  PFI.WrLong("SnapShot", "DoZip", m_bSSDoZip);
+
+
+  //if (CfgFile())
+  //  ScdPFUser.WrStr("General", "LastCfgFile", CfgFile());
+
+  return true;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProjectSettings::EditSettings(LPCTSTR Title, CProject *pPrj)
+  {
+  CProjectSettingsDlg Dlg(true, pPrj, this, Title, MainWnd(), 0); // WhichPage>=0 ? WhichPage : PF.RdInt("General", "PrjOptionsPageNo", 0));
+  return Dlg.DoModal()==IDOK;
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+CProject * gs_pPrj=NULL;
+bool CProject::sm_fOpenAltCfg=false;
+PrjLoadTypes CProject::sm_LoadTypeRqst=PLT_Null;
+bool CProject::sm_SysCADInited=false;
+
+//---------------------------------------------------------------------------
+
+CProject::CProject()
+  {
+  SetNewPrjFileVerNo(LatestPrjFileVer);
 
 #if WITHSCRCYCLES
   Cycles = NULL;
@@ -1144,11 +2059,11 @@ Project::Project()
   pCycleDescWnd = NULL;
 #endif
 
-  pFlwLib = NULL;
+  m_pFlwLib = NULL;
   Clear();
 
   EO_Register(pExecName_Project, EOExec_None, 0, 0);
-  SetPrjFileVerNoAsLoaded(PrjFileVer);
+  SetPrjFileVerNoAsLoaded(LatestPrjFileVer);
 
   m_bWithVersion = WithVersionDefault;
   m_bRemoveOld   = RemoveOldDefault;
@@ -1160,7 +2075,7 @@ Project::Project()
 
 //---------------------------------------------------------------------------
 
-Project::~Project()
+CProject::~CProject()
   {
   //delete pFlwLib;
 
@@ -1181,83 +2096,89 @@ Project::~Project()
 
 //---------------------------------------------------------------------------
 
-void Project::Clear()
+void CProject::Clear()
   {
+  ClearSettings();
+
   bForceSaveAsNV=false;
   bDoingSaveAs = false;
   bDoingSaveAsNV = false;
   bDoingSaveAsWithName = false;
   bDoingLoad = false;
   pPrjDoc=NULL;
-//  sPrjFile="";
+  //  sPrjFile="";
   bCmdSuccess=0;
+#if WITHDRVMAN
   bDrvOpen=0;
   bDrvOn=0;
   bDrvLclTagSrvrOK=1;
   bDrvReadAll=0;
+#endif
   bArcOpen=0;
-  bArcOn=0;
-  bArcOpenDBOnRun=0;
+  //m_bArcOn=0;
+  //m_bArcOpenDBOnRun=0;
   bIOMOpen=0;
-  bIOMOn=0;
+  //m_bIOMOn=0;
 
-  bDDEOn=0;
+  //m_bDDEOn=0;
   pDDESrvr=NULL;
-  m_bOPCOn=0;
-  m_bOPCResetReg=0;
-  m_iOPCServerNo=0;
+  //m_bOPCOn=0;
+  //m_bOPCResetReg=0;
+  //m_iOPCServerNo=0;
   //;pOPCSrvr=NULL;
-  bGrfDeferLoad=0;
-  bGrfAutoLoad=0;
-  bGrfUpdateAnnot=1;
-  bGrfAnimationOn=1;
-  bGrfPromptForZoom=1;
-  bGrfMoveCursor=1; // CNM
-  bGrfRegExpOn=0;
-  bReadOnlyPrj=0;
+  //m_bGrfDeferLoad=0;
+  //m_bGrfAutoLoad=0;
+  //m_bGrfUpdateAnnot=1;
+  //m_bGrfAnimationOn=1;
+  //m_bGrfPromptForZoom=1;
+  //m_bGrfMoveCursor=1; // CNM
+  //m_bGrfRegExpOn=0;
+  //m_bReadOnlyPrj=0;
   bHstOK=0;
   bCommsOpen=0;
-  bAccAutoSaveOn=0;
-  bAccUpdateOnRun=1;
-  bAccHistoryInfoVis=0;
-  gs_Exec.SetRealTime(0);
-  gs_Exec.SetRealTimeMult(1);
-  gs_Exec.StepSizeMax=1.0;
-  gs_Exec.SetTheTime(0.0, "PrjClear");
-  gs_Exec.SetScnType(ScnTyp_Manual, false);
-  gs_Exec.ScnTermAction=ScnTA_Edit;
-  gs_Exec.ScnStopTime=3600.0;
-  gs_Exec.ScnDuration=3600.0;
-  gs_Exec.StepCountMax=1;
+  //m_bAccAutoSaveOn=0;
+  //m_bAccUpdateOnRun=1;
+  //m_bAccHistoryInfoVis=0;
+  //gs_Exec.SetRealTime(0);
+  //gs_Exec.SetRealTimeMult(1);
+  //gs_Exec.StepSizeMax=1.0;
+  //gs_Exec.SetTheTime(0.0, "PrjClear");
+  //gs_Exec.SetScnType(ScnTyp_Manual, false);
+  //gs_Exec.ScnTermAction=ScnTA_Edit;
+  //gs_Exec.ScnStopTime=3600.0;
+  //gs_Exec.ScnDuration=3600.0;
+  //gs_Exec.StepCountMax=1;
 
-  m_sDefGrpLib      = "$BaseCfgFiles\\GroupLibrary.MDB";
-  m_sGrfFrameName   = "Extents-A3";
-  m_sGrfFrameFilter = "Frames:";
+  //m_sDefGrpLib      = "$BaseCfgFiles\\GroupLibrary.MDB";
+  //m_sGrfFrameName   = "Extents-A3";
+  //m_sGrfFrameFilter = "Frames:";
 
-  sDrvManagerName="Scd_Drvr.mdb";
-  sArcManagerName="ScdArch.sac";
-  sIOMarshalName="*.scm";
-  sIOMarshalNode="";
+  //m_sDrvManagerName="Scd_Drvr.mdb";
+  //m_sArcManagerName="ScdArch.sac";
+  //m_sIOMarshalName="*.scm";
+  //m_sIOMarshalNode="";
+#if WITHDRVMAN
   bDrvIgnoresOn=0;
   bDrvForcesOn=0;
   bDrvNoiseOn=1;
   bDrvStartFBKCheck=FBKCheckNever;
-  lStatsRefreshCnt=5L;
+#endif
+  //m_lStatsRefreshCnt=5L;
   HstMngr.SetHstOn(true);
-  ReportInfo.iHSearchLen = 10;
-  ReportInfo.iVSearchLen = 100;
-  ReportInfo.sNan = "*";
-  ReportInfo.sBlank = "";
-  ReportInfo.sIgnoreChars = "=";
-  bRptExcelLock=1;
-  bRptExcelCellName=1;
-  bRptExcelMakeActive=1;
-  bRptExcelSysCADActive=1;
-  bRptExcelUpdateLinks=1;
-  bRptExcelSaveOnComplete=1;
-  bRptSyscadTags=1;
-  bShowStatusColours=1;
-  m_dwMdlStatusOptions = 0;
+  //m_ReportInfo.iHSearchLen = 10;
+  //m_ReportInfo.iVSearchLen = 100;
+  //m_ReportInfo.sNan = "*";
+  //m_ReportInfo.sBlank = "";
+  //m_ReportInfo.sIgnoreChars = "=";
+  //m_bRptExcelLock=1;
+  //m_bRptExcelCellName=1;
+  //m_bRptExcelMakeActive=1;
+  //m_bRptExcelSysCADActive=1;
+  //m_bRptExcelUpdateLinks=1;
+  //m_bRptExcelSaveOnComplete=1;
+  //m_bRptSyscadTags=1;
+  //m_bShowStatusColours=1;
+  //m_dwMdlStatusOptions = 0;
   //iOverlayStatusPen=PS_DASH;
   bTimeChanged=0;
   bHstChanged=0;
@@ -1265,10 +2186,10 @@ void Project::Clear()
   bArcChanged=0;
   bDocChanged=0;
   bLoadBusy=0;
-  bConfigBusy=0;
-  bDefaultRecordIt=1;
-  bFlashTrend=1; // CNM - most people who see this seem to like it !!!
-  bShowNewTrndLineDlg=0;
+  //bConfigBusy=0;
+  //m_bDefaultRecordIt=1;
+  //m_bFlashTrend=1; // CNM - most people who see this seem to like it !!!
+  //m_bShowNewTrndLineDlg=0;
   bChangedGrfMenu=0;
   bChangedRuntimeMenu=0;
   bDoGrfAutoAccess=0;
@@ -1296,55 +2217,66 @@ void Project::Clear()
 #if WITHNETSERVER
   bNetOpen=0;
 #endif
-  eSSAction = SSA_Prompt;//SSA_AutoInc;
-  sSSName = "SnapShot";
-  sSSPrefix = "Snap_";
-  iSSNumber = 0;
-  bSSDoZip = 0;
-  bToolTips=1;
-  bFlyBys=1;
-  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
-  Solver.fStateWnd=true;
-  Solver.fStatePinned=false;
-  Solver.fStateErrors=false;
-  Solver.iStateX=-10000;
-  Solver.iStateY=-10000;
+  //m_eSSAction = SSA_Prompt;//SSA_AutoInc;
+  //m_sSSName = "SnapShot";
+  //m_sSSPrefix = "Snap_";
+  //m_iSSNumber = 0;
+  //m_bSSDoZip = 0;
+  //m_bToolTips=1;
+  //m_bFlyBys=1;
+  //gs_Exec.SetDefNetMode(NM_Probal);
+  //gs_Exec.SetDefNodeMode(SM_Direct);
+  //gs_Exec.SetDefLinkMode(SM_Direct);
+  //gs_Exec.SetDefFlowMode(LFM_Full);
 
-  m_bRunOptEmptyAll=0;
-  m_bRunOptEmptySpills=0;
-  m_bRunOptZeroFlows=0;    
-  m_bRunOptInitialiseAll=0;
-  m_bRunOptResetStats=0;   
-  m_bRunOptOnceOnly=0;    
+  //gs_Exec.SetMaxNodeMode(SM_Buffered);
+  //gs_Exec.SetMaxLinkMode(SM_Direct);
+  //gs_Exec.SetMaxHeatMode(HM_Full);
+  //gs_Exec.SetMaxFlowMode(LFM_Full);
 
-  m_GrfBehaviour=WB_None;
-  m_TrndBehaviour=WB_None;
+  m_Solver.m_fStateWnd=true;
+  m_Solver.m_fStatePinned=false;
+  m_Solver.m_fStateErrors=false;
+  m_Solver.m_iStateX=-10000;
+  m_Solver.m_iStateY=-10000;
+
+  //m_bRunOptEmptyAll=0;
+  //m_bRunOptEmptySpills=0;
+  //m_bRunOptZeroFlows=0;    
+  //m_bRunOptInitialiseAll=0;
+  //m_bRunOptResetStats=0;   
+  //m_bRunOptOnceOnly=0;    
+
+  //m_GrfBehaviour=WB_None;
+  //m_TrndBehaviour=WB_None;
 
 #if WITHNETSERVER
   pCS_Mngr->SetServer(false);
   pCS_Mngr->SetClientConnect(false, "", false);
 #endif
   MdlLibs.UnLoadFlwDLLs();
-  fNewTrend=true;
-  fNewGraph=true;
+  //m_fNewTrend=true;
+  //m_fNewGraph=true;
   //CMdlValueSet::Clear();
   CRptTagLists::ShutDown();
 
   XSetDBFormat(ScdPFUser.RdInt("General", "PrjsDBFormat", DBConnect_JET2000));
 
-  m_bRemoveRevs=true;
-  m_bCopyDBFiles=true;
+  //m_bRemoveRevs=true;
+  //m_bCopyDBFiles=true;
+  m_bWithVersion = false;
+  m_bRemoveOld = false;
 
   m_Save.m_bRqstNew=0;
   m_Save.m_bIsNewPrj=0;
 
   InitColours();
 
-  SetPrjFileVerNo(PrjFileVer);
-  SetNewPrjFileVerNo(PrjFileVer);
-  SetOrigPrjFileVerNo(PrjFileVer);
-  SetPrjFileVerNoAsLoaded(PrjFileVer);
-  //m_PrjFileVerNoAsLoaded=PrjFileVer;
+  SetPrjFileVerNo(LatestPrjFileVer);
+  SetNewPrjFileVerNo(LatestPrjFileVer);
+  SetOrigPrjFileVerNo(LatestPrjFileVer);
+  SetPrjFileVerNoAsLoaded(LatestPrjFileVer);
+  //m_PrjFileVerNoAsLoaded=LatestPrjFileVer;
 
   if (CfgFile())
     {
@@ -1361,12 +2293,17 @@ void Project::Clear()
 
   m_RmtCpyFolder="";
   m_LastSnapLoadFn="";
+
+  m_DlgCopyHist=false;
+  for (int i=0; i<sizeof(m_DlgCopy[0])/sizeof(m_DlgCopy); i++)
+    m_DlgCopy[i]=false;
+
   //m_RmtCpyLock.Close();
   }
 
 //---------------------------------------------------------------------------
 
-void Project::SetTagMonitor()
+void CProject::SetTagMonitor()
   {
 #if WITHTAGMONITOR    
   CProfINIFile Cfg(CfgFile());
@@ -1374,9 +2311,9 @@ void Project::SetTagMonitor()
   if (CFieldMonitor::m_On)
     {
     if (AfxMessageBox("Do you want to run with the TagMonitor Set\n"
-                      "\n"
-                      "This Option can slow SysCAD down at runtime",
-                      MB_YESNO|MB_ICONEXCLAMATION)==IDNO)
+      "\n"
+      "This Option can slow SysCAD down at runtime",
+      MB_YESNO|MB_ICONEXCLAMATION)==IDNO)
       {
       CFieldMonitor::m_On=false;
       }
@@ -1388,7 +2325,7 @@ void Project::SetTagMonitor()
 
 //---------------------------------------------------------------------------
 
-void Project::SetShowEditStatus(bool On)
+void CProject::SetShowEditStatus(bool On)
   {
   if (On)
     m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
@@ -1398,14 +2335,14 @@ void Project::SetShowEditStatus(bool On)
     gs_pTheSFELib->FE_LoadAllModelStatus();
   }
 
-bool Project::ShowEditStatus()
+bool CProject::ShowEditStatus()
   {
   return (m_dwMdlStatusOptions & MSO_ShowRunInEdit)==0;
   }
 
 //---------------------------------------------------------------------------
 
-void Project::InitColours()
+void CProject::InitColours()
   {
   for (int i=GR_FIRSTUSERCOLOR; i<=GR_LASTUSERCOLOR; i++)
     grl_set_win_color(i, GRREF_NEARWHITE);
@@ -1442,9 +2379,9 @@ void Project::InitColours()
 
 //---------------------------------------------------------------------------
 
-void Project::SaveColours(CProfINIFile & PF)
+void CProject::SaveColours(CProfINIFile & PF)
   {
-  PF.WrLong("StatusColours", "GrfShowStatusColours", bShowStatusColours);
+  PF.WrLong("StatusColours", "GrfShowStatusColours", m_bShowStatusColours);
   PF.WrLong("StatusColours", "Options",              m_dwMdlStatusOptions);
   //PF.WrLong("StatusColours", "GrfOverlayStatusPen",  iOverlayStatusPen);
   for (int i=GR_FIRSTUSERCOLOR; i<=GR_LASTUSERCOLOR; i++)
@@ -1484,9 +2421,9 @@ void Project::SaveColours(CProfINIFile & PF)
 
 //---------------------------------------------------------------------------
 
-void Project::LoadColours(CProfINIFile & PF)
+void CProject::LoadColours(CProfINIFile & PF)
   {
-  bShowStatusColours = (PF.RdLong("StatusColours", "GrfShowStatusColours", bShowStatusColours) != 0);
+  m_bShowStatusColours = (PF.RdLong("StatusColours", "GrfShowStatusColours", m_bShowStatusColours) != 0);
   m_dwMdlStatusOptions = PF.RdLong("StatusColours", "Options", OrigPrjFileVerNo()<94?MSO_ShowRunInEdit: m_dwMdlStatusOptions);
   //iOverlayStatusPen = (byte)PF.RdLong("StatusColours", "GrfOverlayStatusPen", iOverlayStatusPen);
   if (PrjFileVerNo()>=94)
@@ -1559,7 +2496,7 @@ void Project::LoadColours(CProfINIFile & PF)
 
 //---------------------------------------------------------------------------
 
-flag Project::Initialise(char * pPrjName)
+flag CProject::Initialise(char * pPrjName)
   {
   Clear();
   if (pPrjName)
@@ -1578,7 +2515,7 @@ flag Project::Initialise(char * pPrjName)
 
 //---------------------------------------------------------------------------
 
-int Project::ShutDown()
+int CProject::ShutDown()
   {
   bDocChanged = true; //force project save
   return DoClose(true, true);
@@ -1586,32 +2523,32 @@ int Project::ShutDown()
 
 //---------------------------------------------------------------------------
 
-//void Project::SetSolveMode(long Md)
+//void CProject::SetSolveMode(long Md)
 //  {
 //  //fProBalMode=PB;
 //  gs_Exec.SetSolveMode(Md);//PB ? SM_Direct : SM_DynCurrent);
 //  }
 
-//flag Project::GetProBalMode()
+//flag CProject::GetProBalMode()
 //  {
-//  return (gs_Exec.GlblProbalMode());
+//  return (gs_Exec.DefNetProbalMode());
 //  }
 
 //---------------------------------------------------------------------------
 
-//void Project::SetDynModeFlow(flag DFlow)
+//void CProject::SetDynModeFlow(flag DFlow)
 //  {
 //  gs_Exec.SetDynMode(DFlow ? DYNFLOWMODE : DYNFULLMODE);
 //  }
 //
-//flag Project::GetDynModeFlow()
+//flag CProject::GetDynModeFlow()
 //  {
 //  return (gs_Exec.GetSolveMode()==DYNMODE && gs_Exec.GetDynMode()==DYNFLOWMODE);
 //  }
 
 ////---------------------------------------------------------------------------
 //
-//flag Project::CheckForDuplicateClassIds()
+//flag CProject::CheckForDuplicateClassIds()
 //  {
 //  flag OK=true;
 //
@@ -1632,7 +2569,7 @@ int Project::ShutDown()
 //
 //---------------------------------------------------------------------------
 
-void Project::GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int &SplitCount)
+void CProject::GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int &SplitCount)
   {
   if (w->IsKindOf(RUNTIME_CLASS(CSplitterWnd)))
     {
@@ -1655,18 +2592,18 @@ void Project::GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int &SplitC
         PF.WrInt(Sect, Buff, cyMin);
         }
 
-    if (sw->GetColumnCount()>1)
-      for (int c=0; c<sw->GetColumnCount(); c++)
-        {
-        int cxCur, cxMin;
-        sw->GetColumnInfo(c, cxCur, cxMin );
-        sprintf(Buff, "Column%d", c);
-        PF.WrInt(Sect, Buff, c);
-        sprintf(Buff, "CurWidth%d", c);
-        PF.WrInt(Sect, Buff, cxCur);
-        sprintf(Buff, "MinWidth%d", c);
-        PF.WrInt(Sect, Buff, cxMin);
-        }
+      if (sw->GetColumnCount()>1)
+        for (int c=0; c<sw->GetColumnCount(); c++)
+          {
+          int cxCur, cxMin;
+          sw->GetColumnInfo(c, cxCur, cxMin );
+          sprintf(Buff, "Column%d", c);
+          PF.WrInt(Sect, Buff, c);
+          sprintf(Buff, "CurWidth%d", c);
+          PF.WrInt(Sect, Buff, cxCur);
+          sprintf(Buff, "MinWidth%d", c);
+          PF.WrInt(Sect, Buff, cxMin);
+          }
     }
 
   CWnd* w1 = w->GetTopWindow();
@@ -1683,7 +2620,7 @@ void Project::GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int &SplitC
 
 //---------------------------------------------------------------------------
 
-void Project::SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMain)//, CProfINIFile & PF)
+void CProject::SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMain)//, CProfINIFile & PF)
   {
   CProfINIFile PF;
   if (TheMain)
@@ -1703,15 +2640,15 @@ void Project::SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMa
     }
 
   ASSERT(pWnd->IsKindOf(RUNTIME_CLASS(CFrameWnd)) ||
-         pWnd->IsKindOf(RUNTIME_CLASS(CSplitterWnd)) ||
-         pWnd->IsKindOf(RUNTIME_CLASS(CDialog)));
+    pWnd->IsKindOf(RUNTIME_CLASS(CSplitterWnd)) ||
+    pWnd->IsKindOf(RUNTIME_CLASS(CDialog)));
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
   if (pWnd->GetWindowPlacement(&wp))
     {
     char Section[256], ReducedName[1024], *pChar;
     sprintf(Section, "Window%d", iNo);
-//    strcpy(ReducedName, (char*)(const char*)(WL.Wnds[i].sName));
+    //    strcpy(ReducedName, (char*)(const char*)(WL.Wnds[i].sName));
     strcpy(ReducedName, pWindowName);
     if ((pChar=strchr(ReducedName, ':'))!=NULL)
       *pChar=0;
@@ -1734,7 +2671,7 @@ void Project::SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMa
 
 //---------------------------------------------------------------------------
 
-void Project::SaveWindowLayout()
+void CProject::SaveWindowLayout()
   {
   CWaitMsgCursor Wait("Saving layout of windows and toolbars");
   CProfINIFile PF(PrjFiles(), LayoutFileName);
@@ -1765,27 +2702,27 @@ void Project::SaveWindowLayout()
       PF.WrStr("Z_Order", Entry, (char*)(const char*)(WL.Wnds[i].m_sName));
       ZCount++;
       }
-  PF.WrInt("General", "ZOrderCount", ZCount);
+    PF.WrInt("General", "ZOrderCount", ZCount);
 
-  //save toolbar states and positions...
-  if (pGrfTB)
-    {
-    pGrfTBMngr->RemoveToolbar((char*)pGrfTB->GetTitle());
-    pGrfTB = NULL;
-    }
-  pGrfTBMngr->RemoveAllToolbars();
-  /*const char * OldIni=ScdApp()->m_pszProfileName;
-  ScdApp()->m_pszProfileName = PrjFile();
-  CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
-  pM->SaveBarState("ToolBars");
-  ScdApp()->m_pszProfileName = OldIni;*/
+    //save toolbar states and positions...
+    if (pGrfTB)
+      {
+      pGrfTBMngr->RemoveToolbar((char*)pGrfTB->GetTitle());
+      pGrfTB = NULL;
+      }
+    pGrfTBMngr->RemoveAllToolbars();
+    /*const char * OldIni=ScdApp()->m_pszProfileName;
+    ScdApp()->m_pszProfileName = PrjFile();
+    CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+    pM->SaveBarState("ToolBars");
+    ScdApp()->m_pszProfileName = OldIni;*/
 
-  pMainTBMngr->SaveState(PF.sFilename());
+    pMainTBMngr->SaveState(PF.sFilename());
   }
 
 //---------------------------------------------------------------------------
 
-void Project::PutSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount)
+void CProject::PutSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount)
   {
   if (w->IsKindOf(RUNTIME_CLASS(CSplitterWnd)))
     {
@@ -1807,18 +2744,18 @@ void Project::PutSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitC
         sw->SetRowInfo(r1, cyCur, cyMin);
         }
 
-    if (sw->GetColumnCount()>1)
-      for (int c=0; c<sw->GetColumnCount(); c++)
-        {
-        sprintf(Buff, "Column%d", c);
-        int c1 = PF.RdInt(Sect, Buff, 0);
-        sprintf(Buff, "CurWidth%d", c);
-        int cxCur = PF.RdInt(Sect, Buff, 0);
-        sprintf(Buff, "MinWidth%d", c);
-        int cxMin = PF.RdInt(Sect, Buff, 0);
-        sw->SetColumnInfo(c1, cxCur, cxMin);
-        }
-    sw->RecalcLayout();
+      if (sw->GetColumnCount()>1)
+        for (int c=0; c<sw->GetColumnCount(); c++)
+          {
+          sprintf(Buff, "Column%d", c);
+          int c1 = PF.RdInt(Sect, Buff, 0);
+          sprintf(Buff, "CurWidth%d", c);
+          int cxCur = PF.RdInt(Sect, Buff, 0);
+          sprintf(Buff, "MinWidth%d", c);
+          int cxMin = PF.RdInt(Sect, Buff, 0);
+          sw->SetColumnInfo(c1, cxCur, cxMin);
+          }
+        sw->RecalcLayout();
     }
 
   CWnd*w1=w->GetTopWindow();
@@ -1835,7 +2772,7 @@ void Project::PutSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitC
 
 //---------------------------------------------------------------------------
 
-flag Project::PutFrameInfo(CProfINIFile& PF, CWnd* w, pchar Section, Strng& s, CWnd** WndList, int& WndListLen)
+flag CProject::PutFrameInfo(CProfINIFile& PF, CWnd* w, pchar Section, Strng& s, CWnd** WndList, int& WndListLen)
   {
   if (w->IsKindOf(RUNTIME_CLASS(CFrameWnd)))
     {
@@ -1912,7 +2849,7 @@ flag Project::PutFrameInfo(CProfINIFile& PF, CWnd* w, pchar Section, Strng& s, C
 
 //---------------------------------------------------------------------------
 
-void Project::RestoreMainWindow()
+void CProject::RestoreMainWindow()
   {
   RestoreOneWindow(CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
 
@@ -1925,31 +2862,17 @@ void Project::RestoreMainWindow()
 
   //restore toolbars...
   CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
-  if (PrjFileVerNo()<34)
+  //if (PrjFileVerNo()<34)
+  if (PrjFileVerNo()<100) //CNM
     {
     pM->DefaultToolBar(-1, TRUE);
-    /*const char * OldIni=ScdApp()->m_pszProfileName;
-    ScdApp()->m_pszProfileName = PrjFile();
-    pM->LoadBarState("ToolBars");
-    ScdApp()->m_pszProfileName = OldIni;*/
     }
   else
     {
-    /*const char* OldIni = ScdApp()->m_pszProfileName;
-    ScdApp()->m_pszProfileName = PrjFile();
-    pM->LoadBarState("NTB");
-    ScdApp()->m_pszProfileName = OldIni;*/
-
-    // Command IDs Changed which break this restore - accept defaults
-    if (PrjFileVerNo()>=50)
-      {
-      Strng s = PrjFiles();
-      s += LayoutFileName;
-      pMainTBMngr->LoadState(s());
-      pMainTBMngr->LoadState(s()); //call twice to ensure positions are correct
-      }
-    else
-      pM->DefaultToolBar(-1, TRUE); // force defaults
+    Strng s = PrjFiles();
+    s += LayoutFileName;
+    pMainTBMngr->LoadState(s());
+    pMainTBMngr->LoadState(s()); //call twice to ensure positions are correct
     }
   pM->UpdateToolBars();
 
@@ -1965,7 +2888,7 @@ void Project::RestoreMainWindow()
 
 //---------------------------------------------------------------------------
 
-void Project::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, flag FullRestore)
+void CProject::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, flag FullRestore)
   {
 
   CProfINIFile PF;
@@ -1986,7 +2909,7 @@ void Project::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, fl
     PF.SetProfFilename(Fn());
     }
 
-   int WndCount = PF.RdInt("General", "WindowCount", 0);
+  int WndCount = PF.RdInt("General", "WindowCount", 0);
   for (int i=0; i<WndCount; i++)
     {
     char Section[256];
@@ -2068,7 +2991,7 @@ void Project::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, fl
 
 //---------------------------------------------------------------------------
 
-void Project::RestoreWindowZOrder()
+void CProject::RestoreWindowZOrder()
   {//restore window Z-Order...
   CProfINIFile PF(PrjFiles(), LayoutFileName);
   int ZCount = PF.RdInt("General", "ZOrderCount", 0);
@@ -2096,55 +3019,71 @@ void Project::RestoreWindowZOrder()
   }
 
 //---------------------------------------------------------------------------
-////typedef long (*fn_LoadDBCallBack)(long When, pvoid pData);
-//long FnLoadDBCallBack(long When, pvoid pData)
-//  {
-//  Project * gs_pPrj=(Project*)pData;
-//  return gs_pPrj->LoadDBCallBack(When);
-//  };
-//
-//
-//long Project::LoadDBCallBack(long When)
-//  {
-//  switch (When)
-//    {
-//    case 1: // Tags Created
-//      break;
-//    case 2: // Conns Made
-//      break;
-//    case 3: // Tags Loaded
-//      OpenDrvManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
-//      OpenArcManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
-//      break;
-//    case 4: // OtherData Loaded
-//      break;
-//    }
-//  return 0;
-//  }
 
-//---------------------------------------------------------------------------
-
-flag Project::DoLoadDB(char* pPrjFiles, char* pOldPrjName)
+flag CProject::DoLoadDB(char* pPrjFiles, char* pOldPrjName)
   {
+  bool Failed=true;
   gs_AccessWnds.CloseAccessData(-1, false, false, true);
   gs_AccessWnds.CloseWnd(-1);
 
-  int Fmt=gs_Exec.LoadDBase(1, DBConnect_Find, DBO_ForRead, pPrjFiles);
+  CLoadDBInfo LDBI(DBConnect_Find, DBO_ForRead, pPrjFiles);
+  
+  if (!gs_Exec.LoadDBase(eLdDB_Open, LDBI)) 
+    goto Failed;
+  if (!gs_Exec.LoadDBase(eLdDB_Create, LDBI))
+    goto Failed;
+  
+  if (gs_License.IllegalNodeCount(eLic_MsgBox)>0)
+    {
+    LDBI.m_Failed=true;
+    goto Failed;
+    }
+
+  if (gs_License.NodeCountExceeded(0, eLic_MsgBox))
+    {
+    LDBI.m_Failed=true;
+    goto Failed;
+    }
+
+  if (!gs_Exec.LoadDBase(eLdDB_Connect, LDBI))
+    goto Failed;
+  if (!gs_Exec.LoadDBase(eLdDB_Load, LDBI))
+    goto Failed;
+
+#if WITHDRVMAN
   OpenDrvManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
+#endif
   OpenArcManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
   OpenIOMarshal(); //???
-  gs_Exec.LoadDBase(2, DBConnect_Find, DBO_ForRead, pPrjFiles);
-  //if (Fmt & DBO_Fmts)
-  //  {
-    //m_DBFormat=Fmt & DBO_Fmts;
-    XSetDBFormat(Fmt);
-  //  }
-  return true;
+
+  if (!gs_Exec.LoadDBase(eLdDB_LoadOther, LDBI))
+    goto Failed;
+
+  Failed=false;
+
+Failed:
+  gs_Exec.LoadDBase(eLdDB_Close, LDBI); //Close
+  XSetDBFormat(LDBI.m_DBFmt);
+
+
+//#if WITHDRVMAN
+//  OpenDrvManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
+//#endif
+//  OpenArcManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
+//  OpenIOMarshal(); //???
+//  gs_Exec.LoadDBase(2, DBConnect_Find, DBO_ForRead, pPrjFiles);
+//  //if (Fmt & DBO_Fmts)
+//  //  {
+//  //m_DBFormat=Fmt & DBO_Fmts;
+//  XSetDBFormat(Fmt);
+//  }
+
+  return !Failed;
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::DoSaveDB(int SaveDBFmt, int SaveOpts, char* pPrjFiles, char* pOldPrjFiles)
+flag CProject::DoSaveDB(int SaveDBFmt, int SaveOpts, char* pPrjFiles, char* pOldPrjFiles)
   {
   gs_AccessWnds.CloseAccessData(-1, true, false, false);
   gs_AccessWnds.CloseWnd(-1);
@@ -2153,16 +3092,16 @@ flag Project::DoSaveDB(int SaveDBFmt, int SaveOpts, char* pPrjFiles, char* pOldP
   //if (Fmt & DBO_Fmts)
   //  {
   //  //m_DBFormat=Fmt & DBO_Fmts;
-    XSetDBFormat(Fmt);
+  XSetDBFormat(Fmt);
   //  };
   return true;
   }
 
 //---------------------------------------------------------------------------
 
-int Project::FixSnapshot(pchar FixFn)
+int CProject::FixSnapshot(pchar FixFn)
   {
-//  return 0;
+  //  return 0;
 
   int N=0;
   if (!FileExists(FixFn))
@@ -2235,26 +3174,26 @@ Done:
   }
 //---------------------------------------------------------------------------
 
-flag Project::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
+flag CProject::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
   {
   CWaitMsgCursor Wait(DoSnapShot ? "Loading SnapShot" : "Loading Scenario");
   Strng Fn;//, Ext;
   Fn = pName;
   if (DoSnapShot && Fn.Length()==0)
-    Fn = sSSName;
+    Fn = m_sSSName;
   if (Fn.Length()==0)
     return false;
-  #if WITHZIP
+#if WITHZIP
   Strng Ext;
   Ext.FnExt(Fn());
   bool IsZip = (Ext.Len() && _stricmp(Ext(), ".zip")==0);
-  #else
+#else
   bool IsZip = false;
-  #endif
+#endif
   if (!IsZip)
     Fn.FnCheckExtension(DoSnapShot ? "snp" : "scn");
   Fn.FnSearchExpand();
-  #if WITHZIP
+#if WITHZIP
   if (IsZip)
     {
     int ret = CZipFile::UnZipOne(Fn());
@@ -2262,7 +3201,7 @@ flag Project::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
       LogError("UnZipFile", LF_Exclamation, "Unable to unzip file '%s'", Fn());
     Fn = Fn.FnDrivePathName();
     }
-  #endif
+#endif
   pName = Fn();
 
   gs_AccessWnds.CloseAccessData(-1, false, false, true);
@@ -2293,22 +3232,22 @@ flag Project::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
       FixSnapshot(Fx());
     }
 
-  #if WITHZIP
+#if WITHZIP
   if (IsZip)
     DeleteFile(Fn());
-  #endif
+#endif
   return true;
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArray *ObjList)
+flag CProject::DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArray *ObjList)
   {
   CWaitMsgCursor Wait(DoSnapShot ? "Saving SnapShot" : "Saving Scenario");
   Strng Fn, Ext;
   Fn = pName;
   if (DoSnapShot && Fn.Length()==0)
-    Fn = sSSName;
+    Fn = m_sSSName;
   if (Fn.Length()==0)
     return false;
   Ext.FnExt(Fn());
@@ -2323,21 +3262,21 @@ flag Project::DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArray
   gs_AccessWnds.CloseWnd(-1);
 
   int n = (DoSnapShot ? gs_Exec.SaveSnapShot(PrjFiles(), pName, ObjList) : gs_Exec.SaveScenario(PrjFiles(), pName, ObjList));
-  #if WITHZIP
-  if (bSSDoZip)
+#if WITHZIP
+  if (m_bSSDoZip)
     {
     int ret = CZipFile::ZipOne(pName, true);
     if (ret!=0)
       LogError("ZipFile", LF_Exclamation, "Unable to create zip file from '%s'", pName);
     }
-  #endif
+#endif
   if (DoSnapShot)
     {
     CProfINIFile PF(PrjIniFile());
-    PF.WrLong("SnapShot", "Action", eSSAction);
-    PF.WrStr("SnapShot", "Name", sSSName());
-    PF.WrStr("SnapShot", "Prefix", sSSPrefix());
-    PF.WrLong("SnapShot", "Number", iSSNumber);
+    PF.WrLong("SnapShot", "Action", m_eSSAction);
+    PF.WrStr("SnapShot", "Name", m_sSSName());
+    PF.WrStr("SnapShot", "Prefix", m_sSSPrefix());
+    PF.WrLong("SnapShot", "Number", m_iSSNumber);
     }
   gs_pCmd->Print("%i Objects Saved for %s\n", n, DoSnapShot ? "SnapShot" : "Scenario");
   return true;
@@ -2345,11 +3284,11 @@ flag Project::DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArray
 
 //---------------------------------------------------------------------------
 
-void Project::OnFileSavesnapshot()
+void CProject::OnFileSavesnapshot()
   {
   flag SaveSS = true;
   Strng s;
-  switch (eSSAction)
+  switch (m_eSSAction)
     {
     case SSA_Prompt:
       {
@@ -2362,9 +3301,9 @@ void Project::OnFileSavesnapshot()
       if (Dlg.DoModal()==IDOK)
         {
         s=Dlg.GetPathName();
-        #if WITHZIP
+#if WITHZIP
         bool Exists;
-        if (bSSDoZip)
+        if (m_bSSDoZip)
           {
           Strng s1(s());
           s1 += ".zip";
@@ -2372,9 +3311,9 @@ void Project::OnFileSavesnapshot()
           }
         else
           Exists = (FileExists(s()) && (m_LastSnapLoadFn.XStrICmp(s)!=0));
-        #else
+#else
         bool Exists = (FileExists(s()) && (m_LastSnapLoadFn.XStrICmp(s)!=0));
-        #endif
+#endif
         if (Exists)
           {
           Strng Msg;
@@ -2389,12 +3328,12 @@ void Project::OnFileSavesnapshot()
       }
     case SSA_AutoInc:
       {
-      s.Set("%s%03d", sSSPrefix(), iSSNumber);
-      iSSNumber++;
+      s.Set("%s%03d", m_sSSPrefix(), m_iSSNumber);
+      m_iSSNumber++;
       break;
       }
     case SSA_ReUse:
-      s = sSSName;
+      s = m_sSSName;
       break;
     }
   if (SaveSS)
@@ -2406,19 +3345,19 @@ void Project::OnFileSavesnapshot()
 
 //---------------------------------------------------------------------------
 
-void Project::OnFileLoadsnapshot()
+void CProject::OnFileLoadsnapshot()
   {
   Strng s;
-  #if WITHZIP
+#if WITHZIP
   CSCDFileDialog Dlg(true, NULL, "*.snp;*.snp.zip", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "SnapShots (*.snp)|*.snp;*.snp.zip|All Files (*.*)|*.*||");
-  #else
+#else
   CSCDFileDialog Dlg(true, NULL, "*.snp", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "SnapShots (*.snp)|*.snp|All Files (*.*)|*.*||");
-  #endif
+#endif
   Dlg.m_ofn.lpstrInitialDir = PrjFiles();
   Dlg.m_ofn.lpstrTitle = "Open SnapShot";
 
-//    Dlg.m_ofn.lpfnHook = (LPOFNHOOKPROC)OFNHookProcSPJ;
-//    Dlg.m_ofn.Flags |= OFN_EXPLORER|OFN_ENABLEHOOK ;
+  //    Dlg.m_ofn.lpfnHook = (LPOFNHOOKPROC)OFNHookProcSPJ;
+  //    Dlg.m_ofn.Flags |= OFN_EXPLORER|OFN_ENABLEHOOK ;
 
   if (Dlg.DoModal()==IDOK)
     {
@@ -2429,7 +3368,7 @@ void Project::OnFileLoadsnapshot()
 
 //---------------------------------------------------------------------------
 
-void Project::OnFileSavescenario()
+void CProject::OnFileSavescenario()
   {
   CSCDFileDialog Dlg(false, NULL, "*.scn", /*OFN_OVERWRITEPROMPT | */OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Scenarios (*.scn)|*.scn||)");
   Dlg.m_ofn.lpstrInitialDir = PrjFiles();
@@ -2452,14 +3391,14 @@ void Project::OnFileSavescenario()
 
 //---------------------------------------------------------------------------
 
-void Project::OnFileLoadscenario()
+void CProject::OnFileLoadscenario()
   {
   Strng s;
-  #if WITHZIP
+#if WITHZIP
   CSCDFileDialog Dlg(true, NULL, "*.scn;*.scn.zip", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Scenarios (*.scn)|*.scn;*.scn.zip|All Files (*.*)|*.*||");
-  #else
+#else
   CSCDFileDialog Dlg(true, NULL, "*.scn", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Scenarios (*.scn) | *.scn |All Files (*.*)|*.*||");
-  #endif
+#endif
   Dlg.m_ofn.lpstrInitialDir = PrjFiles();
   Dlg.m_ofn.lpstrTitle = "Open Scenario";
   if (Dlg.DoModal()==IDOK)
@@ -2471,19 +3410,20 @@ void Project::OnFileLoadscenario()
 
 //---------------------------------------------------------------------------
 
-flag Project::OnConfigure()
+flag CProject::OnChangeCurrentSettings(LPCTSTR Title, int WhichPage)
   {
   if (gs_Exec.TestRunning())
     return false;
 
-  if (!bConfigBusy) // will be cleared by closing dialog
+  if (!m_bConfigBusy) // will be cleared by closing dialog
     {
     if (MainWnd()->m_pPrjSheet)
       MainWnd()->m_pPrjSheet->BringWindowToTop();
     else
       {
       CProfINIFile PF(PrjIniFile());
-      MainWnd()->m_pPrjSheet = new CPrjSheet("Project", MainWnd(), PF.RdInt("General", "PrjOptionsPageNo", 0));
+      MainWnd()->m_pPrjSheet = new CProjectSettingsDlg(false, this, this, Title, MainWnd(), 
+        WhichPage>=0 ? WhichPage : PF.RdInt("General", "PrjOptionsPageNo", 0));
       }
     }
 
@@ -2492,7 +3432,7 @@ flag Project::OnConfigure()
 
 //---------------------------------------------------------------------------
 
-flag Project::OnLoadAltCfg()
+flag CProject::OnLoadAltCfg()
   {
   if (gs_Exec.TestRunning())
     return false;
@@ -2501,9 +3441,9 @@ flag Project::OnLoadAltCfg()
 
 //---------------------------------------------------------------------------
 
-void Project::OpenHistorian()
+void CProject::OpenHistorian()
   {
-  dbgpln("Project::OpenHistorian");
+  dbgpln("--------------------- CProject::OpenHistorian");
   bHstOK=0;
   HstMngr.SetHstOpen(0);//make sure is correct
   HstMngr.SetExecObj(this);//make sure is correct
@@ -2518,26 +3458,26 @@ void Project::OpenHistorian()
 
 //---------------------------------------------------------------------------
 
-void Project::DeleteHistorian()
+void CProject::DeleteHistorian()
   {
-  dbgpln("Project::DeleteHistorian");
+  dbgpln("--------------------- CProject::DeleteHistorian");
   if (HstMngr.DoDeleteHistorian())
     CTagVwDoc::RebuildAll(); //force all trends to reconnect etc
   }
 
 //---------------------------------------------------------------------------
 
-void Project::RestartHistorian()
+void CProject::RestartHistorian()
   {
-  dbgpln("Project::RestartHistorian");
+  dbgpln("--------------------- CProject::RestartHistorian");
   HstMngr.DoRestart();
   }
 
 //---------------------------------------------------------------------------
 
-void Project::CloseHistorian(BOOL ForExit/*=FALSE*/)
+void CProject::CloseHistorian(BOOL ForExit/*=FALSE*/)
   {
-  dbgpln("Project::CloseHistorian");
+  dbgpln("--------------------- CProject::CloseHistorian");
   if (HstMngr.HstOpen())
     {
     if (ForExit)
@@ -2555,28 +3495,29 @@ void Project::CloseHistorian(BOOL ForExit/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-flag Project::IsHistorianOpen()
+flag CProject::IsHistorianOpen()
   {
   return HstMngr.IsOpen();
   }
 
 //---------------------------------------------------------------------------
 
-void Project::OpenDrvManager()
+#if WITHDRVMAN
+void CProject::OpenDrvManager()
   {
   bDrvOpen=0;
-  if (bDrvOn && sDrvManagerName.Length()>0)
+  if (m_bDrvOn && m_sDrvManagerName.Length()>0)
     {
     if (gs_License.AllowDrivers())
       {
       CWaitMsgCursor Wait("Opening driver manager");
       bDrvOpen=1;
       Strng Name, DrvDir, FileExt;
-      Name.FnSearchExpand(sDrvManagerName(), AF_All|AF_BackupFiles);
+      Name.FnSearchExpand(m_sDrvManagerName(), AF_All|AF_BackupFiles);
       DrvDir.FnDrivePath(Name());
       FileExt.FnNameExt(Name());
 
-      gs_pDrvMan->Configure(DrvDir(), FileExt(), (byte)bDrvIgnoresOn, (byte)bDrvForcesOn, (byte)bDrvReadAll, (byte)bDrvNoiseOn, bDrvStartFBKCheck);
+      gs_pDrvMan->Configure(DrvDir(), FileExt(), (byte)m_bDrvIgnoresOn, (byte)bDrvForcesOn, (byte)bDrvReadAll, (byte)bDrvNoiseOn, bDrvStartFBKCheck);
       if (gs_pDrvMan->Open()!=0)
         {
         LogError("Driver", LF_Exclamation, "Error Opening Driver Manager");
@@ -2594,7 +3535,7 @@ void Project::OpenDrvManager()
 
 //---------------------------------------------------------------------------
 
-void Project::CloseDrvManager(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
+void CProject::CloseDrvManager(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
   {
   if (bDrvOpen)
     {
@@ -2606,7 +3547,7 @@ void Project::CloseDrvManager(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-flag Project::ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName)
+flag CProject::ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName)
   {
   if (bDrvOn)
     {
@@ -2649,24 +3590,25 @@ flag Project::ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName)
     }
   return false;
   }
+#endif
 
 //---------------------------------------------------------------------------
 
-void Project::OpenArcManager()
+void CProject::OpenArcManager()
   {
   bArcOpen=0;
-  if (bArcOn && sArcManagerName.Length()>0)
+  if (m_bArcOn && m_sArcManagerName.Length()>0)
     {
     if (1)//gs_License.AllowDrivers())
       {
       CWaitMsgCursor Wait("Opening Archive manager");
       bArcOpen=1;
       Strng Name;
-      Name.FnSearchExpand(sArcManagerName(), AF_All|AF_BackupFiles);
+      Name.FnSearchExpand(m_sArcManagerName(), AF_All|AF_BackupFiles);
       //ArcDir.FnDrivePath(Name());
       //FileExt.FnNameExt(Name());
 
-      gs_pArcMan->Configure(Name(), bArcOpenDBOnRun);
+      gs_pArcMan->Configure(Name(), m_bArcOpenDBOnRun!=0);
       if (gs_pArcMan->Open()!=0)
         {
         LogError("Driver", LF_Exclamation, "Error Opening Archive Manager");
@@ -2684,7 +3626,7 @@ void Project::OpenArcManager()
 
 //---------------------------------------------------------------------------
 
-void Project::CloseArcManager(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
+void CProject::CloseArcManager(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
   {
   if (bArcOpen)
     {
@@ -2696,9 +3638,9 @@ void Project::CloseArcManager(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-flag Project::ReloadArcManager(BOOL WithOptions, char * NewArcManagerName)
+flag CProject::ReloadArcManager(BOOL WithOptions, char * NewArcManagerName)
   {
-  if (bArcOn)
+  if (m_bArcOn)
     {
     CWaitCursor Wait;
 
@@ -2720,7 +3662,7 @@ flag Project::ReloadArcManager(BOOL WithOptions, char * NewArcManagerName)
     ASSERT(_CrtCheckMemory());
     CloseArcManager();
     if (NewArcManagerName)
-      sArcManagerName=NewArcManagerName;
+      m_sArcManagerName=NewArcManagerName;
     ASSERT(_CrtCheckMemory());
     OpenArcManager();
     ASSERT(_CrtCheckMemory());
@@ -2740,17 +3682,17 @@ flag Project::ReloadArcManager(BOOL WithOptions, char * NewArcManagerName)
 
 //---------------------------------------------------------------------------
 
-void Project::OpenIOMarshal()
+void CProject::OpenIOMarshal()
   {
   bIOMOpen=0;
-  if (bIOMOn && sIOMarshalName.Length()>0)
+  if (m_bIOMOn && m_sIOMarshalName.Length()>0)
     {
     if (gs_License.AllowDrivers())
       {
       CWaitMsgCursor Wait("Opening IOMarshal");
       bIOMOpen=1;
 
-      gs_pIOMarshal->Configure(sIOMarshalName(), sIOMarshalNode());//, (byte)bDrvIgnoresOn, (byte)bDrvForcesOn, (byte)bDrvReadAll, (byte)bDrvNoiseOn, bDrvStartFBKCheck);
+      gs_pIOMarshal->Configure(m_sIOMarshalName(), m_sIOMarshalNode());//, (byte)bDrvIgnoresOn, (byte)bDrvForcesOn, (byte)bDrvReadAll, (byte)bDrvNoiseOn, bDrvStartFBKCheck);
       if (gs_pIOMarshal->Open()!=0)
         {
         LogError("Driver", LF_Exclamation, "Error Opening IOMarshal");
@@ -2759,7 +3701,7 @@ void Project::OpenIOMarshal()
       }
     else
       {
-      LogError("Driver", 0, "Drivers not enable by current licensing options");
+      LogError("Driver", 0, "Drivers not enabled by current licensing options");
       }
     }
 
@@ -2768,7 +3710,7 @@ void Project::OpenIOMarshal()
 
 //---------------------------------------------------------------------------
 
-void Project::CloseIOMarshal(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
+void CProject::CloseIOMarshal(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
   {
   if (bIOMOpen)
     {
@@ -2781,9 +3723,9 @@ void Project::CloseIOMarshal(BOOL ForExit/*=FALSE*/, BOOL ForProject/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-flag Project::ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName, char * NewIOMarshalNode)
+flag CProject::ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName, char * NewIOMarshalNode)
   {
-  if (bIOMOn)
+  if (m_bIOMOn)
     {
     CWaitCursor Wait;
     if (WithOptions)
@@ -2805,9 +3747,9 @@ flag Project::ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName, char * 
     CloseArcManager();
 
     if (NewIOMarshalName)
-      sIOMarshalName=NewIOMarshalName;
+      m_sIOMarshalName=NewIOMarshalName;
     if (NewIOMarshalNode)
-      sIOMarshalNode=NewIOMarshalNode;
+      m_sIOMarshalNode=NewIOMarshalNode;
     ASSERT(_CrtCheckMemory());
     OpenIOMarshal();
     ASSERT(_CrtCheckMemory());
@@ -2828,7 +3770,7 @@ flag Project::ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName, char * 
 
 //---------------------------------------------------------------------------
 #if WITHNETSERVER
-void Project::OpenNetManager()
+void CProject::OpenNetManager()
   {
   CWaitCursor Wait;
   CDlgBusy::Open("\n\nOpening Network Manager");
@@ -2840,7 +3782,7 @@ void Project::OpenNetManager()
 
 //---------------------------------------------------------------------------
 
-void Project::CloseNetManager(BOOL ForExit/*=FALSE*/)
+void CProject::CloseNetManager(BOOL ForExit/*=FALSE*/)
   {
   if (bNetOpen)
     {
@@ -2861,9 +3803,9 @@ void Project::CloseNetManager(BOOL ForExit/*=FALSE*/)
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
-void Project::OpenDDEManager()
+void CProject::OpenDDEManager()
   {
-  if (bDDEOn)
+  if (m_bDDEOn)
     {
     //if (gs_License.AllowDDEServer())
       {
@@ -2874,16 +3816,16 @@ void Project::OpenDDEManager()
 
         }
       }
-    //else
-    //  {
-    //  LogError("DDE Server", 0, "Not enable by current licensing options");
-    //  }
+      //else
+      //  {
+      //  LogError("DDE Server", 0, "Not enable by current licensing options");
+      //  }
     }
   }
 
 //---------------------------------------------------------------------------
 
-void Project::CloseDDEManager(BOOL ForExit/*=FALSE*/)
+void CProject::CloseDDEManager(BOOL ForExit/*=FALSE*/)
   {
   if (pDDESrvr)
     {
@@ -2895,7 +3837,7 @@ void Project::CloseDDEManager(BOOL ForExit/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-//void Project::OpenOPCManager()
+//void CProject::OpenOPCManager()
 //  {
 //  if (bOPCOn)
 //    {
@@ -2926,7 +3868,7 @@ void Project::CloseDDEManager(BOOL ForExit/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-//void Project::CloseOPCManager(BOOL ForExit/*=FALSE*/)
+//void CProject::CloseOPCManager(BOOL ForExit/*=FALSE*/)
 //  {
 //  if (pOPCSrvr)
 //    {
@@ -2940,7 +3882,7 @@ void Project::CloseDDEManager(BOOL ForExit/*=FALSE*/)
 //---------------------------------------------------------------------------
 #define USENEWFINDTAG 0
 
-BOOL Project::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoErrDlg/*=FALSE*/, BOOL FindNext/*=FALSE*/)
+BOOL CProject::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoErrDlg/*=FALSE*/, BOOL FindNext/*=FALSE*/)
   {//if pTag is specified assume search is in graphics
   char * pGrfPg=(char*)strchr(pTag, '\t');
   if (pGrfPg)
@@ -2987,7 +3929,7 @@ BOOL Project::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoE
       sFindTag = pTag;
     }
 
-  gs_pPrj->bDoGrfAutoAccess = DoAutoAccess;
+  bDoGrfAutoAccess = DoAutoAccess!=0;
   BOOL Found = 0;
   char Buff[256];
   sprintf(Buff, "Searching for tag '%s'", sFindTag());
@@ -3021,8 +3963,8 @@ BOOL Project::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoE
             else if (!pGrfPg || _stricmp(pGrfDoc->GetTitle(), pGrfPg)==0)
               {
               pGrfDoc->OnActivate(true);  // direct cmds to this document
-      //        Cmd.Set("mark entity goto %s \r", sFindTag());
-              gs_pPrj->bDoGrfAutoAccess = DoAutoAccess;
+              //        Cmd.Set("mark entity goto %s \r", sFindTag());
+              bDoGrfAutoAccess = DoAutoAccess!=0;
               Cmd.Set("find entity goto %s \r", sFindTag());
               Found = (gs_pCmd->ProcessAStr(Cmd())==1);
               }
@@ -3067,7 +4009,7 @@ Done:
       {
       POSITION PrevDocPos = TrndPos.DocPos;
       pTrndDoc = (CTagVwDoc*)(ScdApp()->TrendTemplate().GetNextDoc(TrndPos.DocPos));
-      gs_pPrj->bDoGrfAutoAccess = DoAutoAccess;
+      bDoGrfAutoAccess = DoAutoAccess!=0;
       Found = pTrndDoc->FindTag(TrndPos);
       if (Found)
         {
@@ -3094,7 +4036,7 @@ Done:
 
 //---------------------------------------------------------------------------
 
-BOOL Project::AllGrfLoaded()
+BOOL CProject::AllGrfLoaded()
   {
   //for (int iTemp=iTrendTemplate; iTemp<iControlTemplate; iTemp++)
   POSITION Pos = ScdApp()->GraphTemplate().GetFirstDocPosition();
@@ -3117,25 +4059,25 @@ typedef byte GridType[MaxTileWnds][5];
 
 GridType Grid =
   { {1, 1, 0, 0, 0},
-    {2, 1, 1, 0, 0},
-    {2, 2, 1, 0, 0},
-    {2, 2, 2, 0, 0},
-    {3, 2, 2, 1, 0},
-    {3, 2, 2, 2, 0},
-    {3, 3, 2, 2, 0},
-    {3, 3, 3, 2, 0},
-    {3, 3, 3, 3, 0},
-    {4, 3, 3, 2, 2},
-    {4, 3, 3, 3, 2},
-    {4, 3, 3, 3, 3},
-    {4, 4, 3, 3, 3},
-    {4, 4, 4, 3, 3},
-    {4, 4, 4, 4, 3},
-    {4, 4, 4, 4, 4} };
+  {2, 1, 1, 0, 0},
+  {2, 2, 1, 0, 0},
+  {2, 2, 2, 0, 0},
+  {3, 2, 2, 1, 0},
+  {3, 2, 2, 2, 0},
+  {3, 3, 2, 2, 0},
+  {3, 3, 3, 2, 0},
+  {3, 3, 3, 3, 0},
+  {4, 3, 3, 2, 2},
+  {4, 3, 3, 3, 2},
+  {4, 3, 3, 3, 3},
+  {4, 4, 3, 3, 3},
+  {4, 4, 4, 3, 3},
+  {4, 4, 4, 4, 3},
+  {4, 4, 4, 4, 4} };
 
 //---------------------------------------------------------------------------
 
-void Project::StoreWndList(CWnd* w, flag DoIt)
+void CProject::StoreWndList(CWnd* w, flag DoIt)
   {
   if (iCycleWndCnt>=MaxStoreWnds)
     return;
@@ -3165,7 +4107,7 @@ void Project::StoreWndList(CWnd* w, flag DoIt)
 
 //---------------------------------------------------------------------------
 
-void Project::StartScreenSave()
+void CProject::StartScreenSave()
   {
   if (iCycleNo>=0)
     EndScreenSave();
@@ -3190,10 +4132,10 @@ void Project::StartScreenSave()
   BarOn[0] = ((w->m_wndStatusBar.GetStyle() & WS_VISIBLE) != 0);
   w->ShowControlBar(&(w->m_wndStatusBar), FALSE, FALSE);
   /*for (int i=0; i<MaxToolBars; i++)
-    {
-    BarOn[i+1] = ((w->ToolBars[i].Bar.GetStyle() & WS_VISIBLE) != 0);
-    w->ShowControlBar(&(w->ToolBars[i].Bar), FALSE, FALSE);
-    }
+  {
+  BarOn[i+1] = ((w->ToolBars[i].Bar.GetStyle() & WS_VISIBLE) != 0);
+  w->ShowControlBar(&(w->ToolBars[i].Bar), FALSE, FALSE);
+  }
   w->UpdateToolBars();*/
   StoreWndList(MainWnd(), false);
   if (pCycleDescWnd)
@@ -3208,7 +4150,7 @@ void Project::StartScreenSave()
 
 //---------------------------------------------------------------------------
 
-void Project::RotateCycle(CWnd* w, CWnd** Wnds, int& WndCnt)
+void CProject::RotateCycle(CWnd* w, CWnd** Wnds, int& WndCnt)
   {
   if (w->IsKindOf(RUNTIME_CLASS(CFrameWnd)))
     {
@@ -3235,7 +4177,7 @@ void Project::RotateCycle(CWnd* w, CWnd** Wnds, int& WndCnt)
 
 //---------------------------------------------------------------------------
 
-void Project::RotateScreenSave()
+void CProject::RotateScreenSave()
   {
   if (iScrCycles<1)
     {
@@ -3367,7 +4309,7 @@ void Project::RotateScreenSave()
 
 //---------------------------------------------------------------------------
 
-void Project::EndScreenSave()
+void CProject::EndScreenSave()
   {
   if (CycleWnds==NULL)
     {
@@ -3400,7 +4342,7 @@ void Project::EndScreenSave()
 
 //---------------------------------------------------------------------------
 
-void Project::RestoreWnds()
+void CProject::RestoreWnds()
   {
   CMainFrame* w = MainWnd();
   WINDOWPLACEMENT wp;
@@ -3430,20 +4372,20 @@ void Project::RestoreWnds()
   //reset toolbars...
   w->ShowControlBar(&(w->m_wndStatusBar), BarOn[0], FALSE);
   /*for (i=0; i<MaxToolBars; i++)
-    w->ShowControlBar(&(w->ToolBars[i].Bar), BarOn[i+1], FALSE);
+  w->ShowControlBar(&(w->ToolBars[i].Bar), BarOn[i+1], FALSE);
   w->UpdateToolBars();*/
   }
 #endif //end WITHSCRCYCLES
 //---------------------------------------------------------------------------
 
-void Project::BrowseTags()
+void CProject::BrowseTags()
   {
   HstMngr.BrowseTags();
   }
 
 //---------------------------------------------------------------------------
 
-void Project::HistorianQuery()
+void CProject::HistorianQuery()
   {
   if (1)
     {
@@ -3492,9 +4434,9 @@ void CheckLicenseDate()
   }
 #endif
 
-void Project::CheckLicense(BOOL StartingSolve)
+void CProject::CheckLicense(BOOL StartingSolve)
   {
-  #if CK_LICENSINGON
+#if CK_LICENSINGON
   if (!gs_License.Blocked())
     {
     if (StartingSolve && !gs_License.ForMineServe() && (gs_License.DemoMode() || gs_License.TrialMode()))
@@ -3511,30 +4453,57 @@ void Project::CheckLicense(BOOL StartingSolve)
     if (GetTickCount() - PrevCheck>600000) //if conditions haven't been checked for 600 seconds, check...
       CheckLicenseConditions();
     }
-  #else
+#else
   CheckLicenseDate();
-  #endif
+#endif
   }
+
 
 //---------------------------------------------------------------------------
 
-void Project::CheckLicenseConditions()
+//int CProject::CheckNoOfIllegalUnits()
+//  {
+//#if CK_LICENSINGON
+//  PrevCheck = GetTickCount();
+//  if (!gs_License.Blocked())
+//    {
+//    //if (iUnitsAllowed!=CK_InfiniteUnits && m_pFlwLib)
+//    //  {
+//    //  gs_LicenseCnt.CalcUnits();
+//    //  if (gs_LicenseCnt.NoOfUnits()>iUnitsAllowed)
+//    //    Block = 1;
+//    //  }
+//    if (m_pFlwLib)
+//      {
+//      gs_LicenseCnt.CalcLicUnits();
+//      return gs_LicenseCnt.NoOfIllegalUnits();
+//      }
+//    }
+//#endif
+//  return 0;
+//  }
+
+//---------------------------------------------------------------------------
+
+void CProject::CheckLicenseConditions()
   {
-  #if CK_LICENSINGON
+#if CK_LICENSINGON
   PrevCheck = GetTickCount();
   if (!gs_License.Blocked())
     {
     flag Block = 0;
-    if (!gs_License.AllowDrivers() && bIOMOn)
+    if (!gs_License.AllowDrivers() && m_bIOMOn)
       {
       LogWarning("SysCAD", 0, "License does not allow drivers");
       Block = 1;
       }
-    if (!gs_License.AllowDrivers() && bDrvOn)
+#if WITHDRVMAN
+    if (!gs_License.AllowDrivers() && m_bDrvOn)
       {
       LogWarning("SysCAD", 0, "License does not allow drivers");
       Block = 1;
       }
+#endif
     //if (!gs_License.AllowOPCServer() && bOPCOn)
     //  {
     //  LogWarning("SysCAD", 0, "License does not allow OPC Server");
@@ -3542,10 +4511,10 @@ void Project::CheckLicenseConditions()
     //  CloseOPCManager();
     //  }
     /*if (!gs_License.AllowFullHist() && HstMngr.LicenseExceeded(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed()))
-      {
-      LogWarning("SysCAD", 0, "Historian data files exceed limit allowed by license");
-      Block = 1;
-      }*/
+    {
+    LogWarning("SysCAD", 0, "Historian data files exceed limit allowed by license");
+    Block = 1;
+    }*/
     if (gs_License.TrendWindowsAllowed()!=CK_InfiniteTrends && CWindowLists::GetTrendWndCount()>gs_License.TrendWindowsAllowed())
       {
       LogWarning("SysCAD", 0, "Maximum number of trend windows allowed exceeds limit of %d allowed by license", gs_License.TrendWindowsAllowed());
@@ -3556,33 +4525,38 @@ void Project::CheckLicenseConditions()
       LogWarning("SysCAD", 0, "Maximum number of graphics windows allowed exceeds limit of %d allowed by license", gs_License.GraphicWindowsAllowed());
       Block = 1;
       }
-    const int iUnitsAllowed = (gs_Exec.GlblProbalMode() ? gs_License.ProbalUnitsAllowed() : gs_License.DynUnitsAllowed());
-    if (iUnitsAllowed!=CK_InfiniteUnits && gs_pPrj->pFlwLib)
-      {
-      gs_LicenseCnt.CalcUnits();
-      if (gs_LicenseCnt.NoOfUnits()>iUnitsAllowed)
-        Block = 1;
-      }
-    if (gs_pPrj->pFlwLib)
-      {
-      gs_LicenseCnt.CalcLicUnits();
-      if (gs_LicenseCnt.NoOfIllegalUnits()>0)
-        Block = 1;
-      }
 
-    if (Block)
+
+    dbgpln("Check COunts ??????");
+    //const int iUnitsAllowed = gs_License.MaxNodesAllowed();
+    //if (iUnitsAllowed!=CK_InfiniteUnits && m_pFlwLib)
+    //  {
+    //  gs_LicenseCnt.CalcUnits();
+    //  if (gs_LicenseCnt.NoOfUnits()>iUnitsAllowed)
+    //    Block = 1;
+    //  }
+    //if (m_pFlwLib)
+    //  {
+    //  gs_LicenseCnt.CalcLicUnits();
+    //  if (gs_LicenseCnt.NoOfIllegalUnits()>0)
+    //    Block = 1;
+    //  }
+
+    if (Block && ! gs_License.Blocked())
       {
-      LogError("SysCAD", LF_Exclamation, "Current project exceeds license limits (see messages)\n\nThe majority of SysCAD commands and functions have been disabled.\n\nPlease exit SysCAD. (Save project if required)");
+      LogError("SysCAD", LF_Exclamation, "Current project exceeds license limits (see messages)\n\n"
+                                         "The majority of SysCAD commands and functions have been disabled.\n\n"
+                                         "Please exit SysCAD. (Save project if required)");
       gs_License.SetBlocked();
       AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
       }
     }
-  #endif
+#endif
   }
 
 //---------------------------------------------------------------------------
 
-int Project::PrepareMerge(CMergeProjectsInfo& MPI)
+int CProject::PrepareMerge(CMergeProjectsInfo& MPI)
   {
   CDlgBusy::Open("\nPreparing project merge");
   CDlgBusy::SetLine(3, "Build current project file lists");
@@ -3599,45 +4573,45 @@ int Project::PrepareMerge(CMergeProjectsInfo& MPI)
         MPI.MasterTrends[i++] = (const char*)(pTrndDoc->GetTitle());
         }
       }
-  //build master graphics document lists...
-  MPI.MasterGraphics.SetSize(CWindowLists::GetGrfWndCount());
-  i = 0;
-  POSITION Pos = ScdApp()->GraphTemplate().GetFirstDocPosition();
-  while (Pos)
-    {
-    CGrfDoc* pGrfDoc = (CGrfDoc*)(ScdApp()->GraphTemplate().GetNextDoc(Pos));
-    MPI.MasterGraphics[i++] = (const char*)(pGrfDoc->GetTitle());
-    }
-  //build master referenced files list...
-  MPI.MasterRefFiles.SetSize(0);
-  MPI.MasterRefModels.SetSize(0);
-  int RefCnt = 0;
-  CPrjFilesLists PFL;
-  PFL.BuildLists();
-  for (i=0; i<PFL.GetSize(); i++)
-    {
-    for (int j=0; j<PFL.pExecFiles[i]->Files.GetSize(); j++)
+    //build master graphics document lists...
+    MPI.MasterGraphics.SetSize(CWindowLists::GetGrfWndCount());
+    i = 0;
+    POSITION Pos = ScdApp()->GraphTemplate().GetFirstDocPosition();
+    while (Pos)
       {
-      CExecObjFileInfo &FI = PFL.pExecFiles[i]->Files[j];
-      if ((FI.dwFlags & EFF_Grp_Referenced) && (FI.dwFlags & EFF_OtherValid))
+      CGrfDoc* pGrfDoc = (CGrfDoc*)(ScdApp()->GraphTemplate().GetNextDoc(Pos));
+      MPI.MasterGraphics[i++] = (const char*)(pGrfDoc->GetTitle());
+      }
+    //build master referenced files list...
+    MPI.MasterRefFiles.SetSize(0);
+    MPI.MasterRefModels.SetSize(0);
+    int RefCnt = 0;
+    CPrjFilesLists PFL;
+    PFL.BuildLists();
+    for (i=0; i<PFL.GetSize(); i++)
+      {
+      for (int j=0; j<PFL.pExecFiles[i]->Files.GetSize(); j++)
         {
-        MPI.MasterRefFiles.Add(FI.sFilename());
-        MPI.MasterRefModels.Add(FI.sOther());
+        CExecObjFileInfo &FI = PFL.pExecFiles[i]->Files[j];
+        if ((FI.dwFlags & EFF_Grp_Referenced) && (FI.dwFlags & EFF_OtherValid))
+          {
+          MPI.MasterRefFiles.Add(FI.sFilename());
+          MPI.MasterRefModels.Add(FI.sOther());
+          }
         }
       }
-    }
 
-  //perform final checks, prepare merge tag lists, reports etc...
-  int err = gs_Exec.PrepareMerge(MPI);
-  CDlgBusy::Close();
-  if (err!=0)
-    LogError("Merge", 0, MPI.sError());
-  return err;
+    //perform final checks, prepare merge tag lists, reports etc...
+    int err = gs_Exec.PrepareMerge(MPI);
+    CDlgBusy::Close();
+    if (err!=0)
+      LogError("Merge", 0, MPI.sError());
+    return err;
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::Merge()
+flag CProject::Merge()
   {
   gs_AccessWnds.CloseAccessData(-1, false, false, true);
   gs_AccessWnds.CloseWnd(-1);
@@ -3647,7 +4621,7 @@ flag Project::Merge()
 
 //---------------------------------------------------------------------------
 
-flag Project::ImportFlwsheet()
+flag CProject::ImportFlwsheet()
   {
   Strng TmpContractStr;
   //initialize the MergeProject Helper class...
@@ -3707,7 +4681,7 @@ flag Project::ImportFlwsheet()
     PF.WrStr("MergeProject", "CurrentSuffix", MPI.sMasterSuffix());
     PF.WrStr("MergeProject", "ImportSuffix", MPI.sSlaveSuffix());
     CMergeReportDlg RepDlg(&MPI);
-    #if CK_LICENSINGON
+#if CK_LICENSINGON
     if (gs_License.TrendWindowsAllowed()!=CK_InfiniteTrends && MPI.MasterTrends.GetSize()+MPI.SlaveTrends.GetSize()>gs_License.TrendWindowsAllowed())
       {
       LogWarning("SysCAD", 0, "Maximum number of trend windows allowed will exceed limit of %d allowed by license", gs_License.TrendWindowsAllowed());
@@ -3718,7 +4692,7 @@ flag Project::ImportFlwsheet()
       LogWarning("SysCAD", 0, "Maximum number of graphics windows allowed will exceed limit of %d allowed by license", gs_License.GraphicWindowsAllowed());
       RepDlg.bMergeAllowed = 0;
       }
-    const int iUnitsAllowed = (gs_Exec.GlblProbalMode() ? gs_License.ProbalUnitsAllowed() : gs_License.DynUnitsAllowed());
+    const int iUnitsAllowed = gs_License.MaxNodesAllowed();
     if (iUnitsAllowed!=CK_InfiniteUnits && MPI.iMasterTagCnt+MPI.iSlaveTagCnt>iUnitsAllowed)
       {
       LogWarning("SysCAD", 0, "Maximum number of units allowed will exceed limit of %d allowed by license", iUnitsAllowed);
@@ -3729,7 +4703,7 @@ flag Project::ImportFlwsheet()
       LogError("SysCAD", LF_Exclamation, "License limits will not allow a project merge. (see messages)");
       RepDlg.sMessage = "License limits will not allow a project merge.";
       }
-    #endif
+#endif
     if (MPI.iProblemRefFiles>0 && (MPI.bIgnoreProbRefFiles==0 || MPI.iRefFilesExistsCnt>0))
       {
       RepDlg.bMergeAllowed = 0;
@@ -3804,9 +4778,13 @@ flag Project::ImportFlwsheet()
       //OpenHistorian();
       CloseIOMarshal();
       CloseArcManager();
+#if WITHDRVMAN
       CloseDrvManager();
+#endif
 
+#if WITHDRVMAN
       OpenDrvManager();
+#endif
       OpenArcManager();
       OpenIOMarshal();
       CDlgBusy::SetLine(3, "Connecting trends");
@@ -3835,7 +4813,7 @@ flag Project::ImportFlwsheet()
 
 //---------------------------------------------------------------------------
 
-flag Project::FileImport()
+flag CProject::FileImport()
   {
   CSelectImport Dlg;
   if (Dlg.DoModal()==IDOK)
@@ -3869,7 +4847,7 @@ flag Project::FileImport()
   }
 //---------------------------------------------------------------------------
 
-flag Project::FileExport()
+flag CProject::FileExport()
   {
   CSelectExport Dlg;
   if (Dlg.DoModal()==IDOK)
@@ -3898,20 +4876,20 @@ flag Project::FileExport()
           }
         return false;
         }
-      //case 1:
-      //  return 0;//ExportFlwsheet();
-      //case 2:
-      //  {
-      //  CElectricalImport E;
-      //  return E.Import();
-      //  }
+        //case 1:
+        //  return 0;//ExportFlwsheet();
+        //case 2:
+        //  {
+        //  CElectricalImport E;
+        //  return E.Import();
+        //  }
       }
     }
   return false;
   }
 //---------------------------------------------------------------------------
 
-void Project::LoadHelpFileList()
+void CProject::LoadHelpFileList()
   {
   flag OK = false;
 
@@ -3925,7 +4903,7 @@ void Project::LoadHelpFileList()
 
   if (Tkns.Open())
     {
-    MdlHelpFileList.SetSize(0);
+    m_MdlHelpFileList.SetSize(0);
 
     Strng Tkn = Tkns.NextToken();
     while (!Tkns.AtEOF())
@@ -3935,7 +4913,7 @@ void Project::LoadHelpFileList()
       if (Tkn.XStrICmp(":")==0)
         Tkn = Tkns.NextToken();
 
-//      DoBreak();
+      //      DoBreak();
       if (What.XStrICmp("ModelHelpFiles")==0)
         {
         HelpListSpecd = true;
@@ -3957,7 +4935,7 @@ void Project::LoadHelpFileList()
             //Strng HelpPath;
             //HelpPath.Set("%sBIN\\%s", RootDirectory(), Name());
             // Does This Help file Exist
-            MdlHelpFileList.Add(Name());
+            m_MdlHelpFileList.Add(Name());
             Tkn = Tkns.NextToken();
             }
           if (Tkn.XStrICmp(",")==0)
@@ -3968,21 +4946,21 @@ void Project::LoadHelpFileList()
     Tkns.Close();
     }
   if (!HelpListSpecd)
-    MdlHelpFileList.Add("Models.hlp");
+    m_MdlHelpFileList.Add("Models.hlp");
   else
     {
     if (!KwMdlHelpSpecd)
-      MdlHelpFileList.Add("Models.hlp");
+      m_MdlHelpFileList.Add("Models.hlp");
     }
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::ModelHelp(char* pMdlTxt/*=NULL*/, int HelpIndex/*=0*/)
+flag CProject::ModelHelp(char* pMdlTxt/*=NULL*/, int HelpIndex/*=0*/)
   {
-  ASSERT(HelpIndex<MdlHelpFileList.GetSize());
+  ASSERT(HelpIndex<m_MdlHelpFileList.GetSize());
   Strng Result;
-  FindDLLOrHlp((char*)(const char*)(MdlHelpFileList[HelpIndex]), DllFilesPath(), Result);
+  FindDLLOrHlp((char*)(const char*)(m_MdlHelpFileList[HelpIndex]), DllFilesPath(), Result);
 
   flag b;
   if (pMdlTxt==NULL || strlen(pMdlTxt)==0)
@@ -3995,19 +4973,19 @@ flag Project::ModelHelp(char* pMdlTxt/*=NULL*/, int HelpIndex/*=0*/)
 //---------------------------------------------------------------------------
 // ExecObj Overridables
 
-void Project::EO_OnAppActivate(BOOL bActive)
+void CProject::EO_OnAppActivate(BOOL bActive)
   {
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
+flag CProject::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
   {
-  #if WithRmtFile
+#if WithRmtFile
   const int MaxCnt = 7;
-  #else
+#else
   const int MaxCnt = 6;
-  #endif
+#endif
   switch (Rqst.RQ_Type)
     {
     case RQ_Files:
@@ -4030,10 +5008,10 @@ flag Project::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
           Info.sData += CCopyBlock::CopyBlkFileName;// defined in copyblk.cpp
         else if (Info.Count()==5)
           Info.sData += RmtBackupZipFileName;
-        #if WithRmtFile
+#if WithRmtFile
         else if (Info.Count()==6)
           Info.sData += RmtFileName;
-        #endif
+#endif
         Info.sData.FnContract();
         return true;
         }
@@ -4044,7 +5022,7 @@ flag Project::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_GotoRunStart(CXM_TimeControl &CB)
+flag CProject::EO_GotoRunStart(CXM_TimeControl &CB)
   {
   //bool ScrollTrendsToEnd = TimeChanged;
   //if (gs_Exec.RestartHstOnStart)
@@ -4054,10 +5032,10 @@ flag Project::EO_GotoRunStart(CXM_TimeControl &CB)
   //  gs_pPrj->RestartHistorian();
   //  gs_pPrj->OpenHistorian();
   //  //ScrollTrendsToEnd = true;
-  //  //if (gs_Exec.GlblProbalMode())
+  //  //if (gs_Exec.DefNetProbalMode())
   //  //  gs_Exec.SetTime(0.0); //reset time to "zero"
   //  }
-  ////if (gs_Exec.ResetTimeOnStart && !gs_Exec.GlblProbalMode() && !gs_Exec.SyncWithClock())
+  ////if (gs_Exec.ResetTimeOnStart && !gs_Exec.DefNetProbalMode() && !gs_Exec.SyncWithClock())
   ////  {
   ////  gs_Exec.SetTime(gs_Exec.TimeAtStart, gs_Exec.RestartHstOnStart!=eOOO_Off);
   ////  ScrollTrendsToEnd = true;
@@ -4093,7 +5071,7 @@ flag Project::EO_GotoRunStart(CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
+flag CProject::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
   {
   bool ScrollTrendsToEnd = TimeChanged;
   if (CB.m_ScnState==Scn_Start && gs_Exec.RestartHstOnStart)
@@ -4103,10 +5081,10 @@ flag Project::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
     gs_pPrj->RestartHistorian();
     gs_pPrj->OpenHistorian();
     //ScrollTrendsToEnd = true;
-    //if (gs_Exec.GlblProbalMode())
+    //if (gs_Exec.DefNetProbalMode())
     //  gs_Exec.SetTime(0.0); //reset time to "zero"
     }
-  //if (gs_Exec.ResetTimeOnStart && !gs_Exec.GlblProbalMode() && !gs_Exec.SyncWithClock())
+  //if (gs_Exec.ResetTimeOnStart && !gs_Exec.DefNetProbalMode() && !gs_Exec.SyncWithClock())
   //  {
   //  gs_Exec.SetTime(gs_Exec.TimeAtStart, gs_Exec.RestartHstOnStart!=eOOO_Off);
   //  ScrollTrendsToEnd = true;
@@ -4142,7 +5120,7 @@ flag Project::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_PreStart(CXM_TimeControl &CB)
+flag CProject::EO_PreStart(CXM_TimeControl &CB)
   {
   if (m_bRunOptEmptySpills)
     {
@@ -4188,7 +5166,7 @@ flag Project::EO_PreStart(CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_Starting(flag fBeginStarting)
+flag CProject::EO_Starting(flag fBeginStarting)
   {
   CMainFrame* pWnd=(CMainFrame*)AfxGetApp()->GetMainWnd();//MainWnd();
   if (pWnd->m_pPrjSheet)
@@ -4198,7 +5176,7 @@ flag Project::EO_Starting(flag fBeginStarting)
 
 //---------------------------------------------------------------------------
 
-flag Project::EO_Stopping(flag fBeginStopping)
+flag CProject::EO_Stopping(flag fBeginStopping)
   {
   if (!fBeginStopping)
     {
@@ -4260,7 +5238,7 @@ int CScreenSaverInfo::FindWindow(CString& s)
 //
 //===========================================================================
 
-flag Project::DoNew(flag InConstructor)
+flag CProject::DoNew(flag InConstructor)
   {
   Clear();
   SetUsingPrjLclFiles(false);
@@ -4291,9 +5269,9 @@ static char *DocumentTmplNames[]=
 
 //===========================================================================
 
-flag Project::SetupRmtCopies()
+flag CProject::SetupRmtCopies()
   {
-  #if WithRmtFile
+#if WithRmtFile
   flag RmtOK=true;
   Strng Fn, FnL, E;
   for (int i=0; i<100; i++)
@@ -4318,7 +5296,7 @@ flag Project::SetupRmtCopies()
         RmtOK=false;
         }
       }
-      break;
+    break;
     }
 
   if (RmtOK)
@@ -4348,27 +5326,15 @@ flag Project::SetupRmtCopies()
       }
     }
   return RmtOK;
-  #else
+#else
   return True;
-  #endif
+#endif
   }
 
 //===========================================================================
 
-flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadType)
+char* CProject::ChkPrjFileName(char *pPrjPath)
   {
-  Strng TmpContractStr;
-  Strng NewModelCfg=pNewModelCfg;
-
-  SetUsingPrjLclFiles(PrjLoadType==PLT_Local);
-  //m_LoadFromBackupRqd=false;
-
-  FnSetTestLocalFiles(true);
-  FnLocalFilesDifferentClear();
-  pFlwLib = NULL;
-  CWaitMsgCursor Wait("Opening project");
-  bCmdSuccess = true;
-  bDoingLoad = 1;
   char Fn[512];
   Fn[0] = 0;
   if ((pPrjPath==NULL) || strstr(pPrjPath, "*") || strlen(pPrjPath)==0)
@@ -4376,9 +5342,9 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
     DWORD dwFlags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE;
     char InitDir[512];
 
-    CString s = ScdPFUser.RdStr("General", "RecentModelCfg", "");
-    if (s.GetLength()==0)
-      s = ScdPFUser.RdStr("General", "RecentModelLib", "");
+    CString s = ScdPFUser.RdStr("General", "LastCfgFile", "");
+    //if (s.GetLength()==0)
+    //  s = ScdPFUser.RdStr("General", "RecentModelLib", "");
     if (s.GetLength()>0)
       strcat(InitDir, (const char*)s);
     CSCDFileDialog Dlg(true, NULL, "*.spj", dwFlags, "SysCAD project (*.spj)|*.spj||");
@@ -4390,13 +5356,423 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
       pPrjPath = Fn;
       }
     }
+  return pPrjPath;
+  }
 
-  BOOL DoCheckTags=FALSE;
-  flag OK=false;
-  if (pPrjPath)
+//===========================================================================
+
+flag CProject::SetPrjCfgFile(CProfINIFile & PF, Strng &NewModelCfg, CModelInfo & Info)
+  {
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // Config File
+  Strng sOldModelCfg = PF.RdStr("General", "ModelLibrary", "");
+  sOldModelCfg = PF.RdStr("General", "ModelConfiguration", sOldModelCfg());
+  sOldModelCfg = PF.RdStr("General", "CfgFile", sOldModelCfg());
+  sOldModelCfg.FnExpand();
+
+  SwingCfgFileIfReqd(sOldModelCfg);
+
+  if (!NewModelCfg() && !sOldModelCfg())
     {
-    //Strng PrjName, E;
-    //PrjName.FnName(pPrjPath);
+    //#pragma chCHECKIT("if sOldModelCfg does not exist the query OpenBackup")
+
+    Strng InitDir(ScdPFUser.RdStr("Folders", "CfgSearchPath", StartupDirectory()));
+
+    CSCDFileDialog Dlg(true, NULL, "*.CFG",
+      OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE,
+      "Missing Configuration (*.CFG)|*.CFG||", ::AfxGetMainWnd());
+    Dlg.m_ofn.lpstrInitialDir = InitDir();
+    Dlg.m_ofn.lpstrTitle = "Browse for Configurations";
+    if (Dlg.DoModal()==IDOK)
+      {
+      sOldModelCfg=Dlg.GetPathName();
+      Strng Path;
+      Path.FnDrivePath(sOldModelCfg());
+      ScdPFUser.WrStr("Folders", "CfgSearchPath", Path());
+      }
+    else
+      return false;
+    }
+
+  Strng sOldModelCfgMem(sOldModelCfg);
+  Strng sNewCfg(sOldModelCfg);
+  sNewCfg.FnCheckExtension(".Cfg");
+  byte Where=0;
+  flag AbortLoad=false;
+
+  if (NewModelCfg())
+    {
+    FnSetTestLocalFiles(true);
+    sNewCfg=NewModelCfg();
+    }
+  else
+    {
+    // Check to see whether we need to swing CfgFile Source
+
+    // OldCfg    :   D:\A\B\C\4.cfg
+    // OldPrj    :   D:\A\B\x.spf
+    // NewPrj    :   C:\X\Y\Z\x.spf
+    // lStartEql =   ......^         = 7
+    // lEndEql              ^....    = 6
+
+    // NewCfg    :   C:\X\Y\Z\C\4.cfg
+
+    Strng PFiles(PrjFiles());
+    if (0) // for Testing
+      {
+      sOldModelCfg = "D:\\A\\B\\C\\4.cfg";
+      m_OldPrjFiles  = "D:\\A\\B\\x.spf";
+      PFiles       = "C:\\X\\Y\\Z\\x.spf";
+      }
+
+    // Find start part of OldProject and OldCfg which are equal
+    int iOPrjLen=m_OldPrjFiles.Length();
+    int iOCfgLen=sOldModelCfg.Length();
+    int iNPrjLen=PFiles.Length();
+    int lStartEql=-1;
+    int i0=Min(iOCfgLen, iOPrjLen);
+    for (int i=0; i<i0; i++)
+      {
+      if (sOldModelCfg[i]!=m_OldPrjFiles[i])
+        break;
+      if (sOldModelCfg[i]=='\\')
+        lStartEql=i+1;
+      }
+    if (lStartEql>0)
+      {
+      // Find end part of OldProject and NewProject which are equal
+      int lEndEql=-1;
+      int i0=iOPrjLen-1;
+      int i1=iNPrjLen-1;
+      for ( ; i0>=0 && i1>=0; i0--, i1--)
+        {
+        if (m_OldPrjFiles[i0]!=PFiles[i1])
+          break;
+        if (m_OldPrjFiles[i0]=='\\')
+          lEndEql=iOPrjLen-i0-1;
+        }
+
+      // Overlap ?
+      if (lStartEql+lEndEql>=iOPrjLen)
+        {
+        lEndEql=iOPrjLen-lStartEql;
+
+        Strng SwungModelCfg, CfgRemainder;//, PrjRemainder, NPrjRemainder;
+        int lCfgRemainder=iOCfgLen-lStartEql;
+        CfgRemainder=sOldModelCfg.Right(lCfgRemainder);
+
+        SwungModelCfg=PFiles.Left(PFiles.Length()-lEndEql);
+        SwungModelCfg+=CfgRemainder();
+        if (FileExists(SwungModelCfg()))
+          sNewCfg=SwungModelCfg;
+        }
+      }
+
+    Strng Tmp;
+    Tmp.FnDrivePath(sNewCfg());
+    if (Tmp.Length()==0)
+      {
+      Tmp=sNewCfg();
+      sNewCfg=PrjFiles();
+      sNewCfg.FnClearEndBSlash();
+      sNewCfg.FnDrivePath();
+      sNewCfg+=Tmp();
+      }
+
+    // Check Old copy
+    if (PrjFileVerNo()>=29)
+      {
+      Strng DLcl=sNewCfg();
+      DLcl.FnExpand();
+      DLcl.FnMakePrjFileRelative();
+      DLcl.FnContract();
+      DLcl.FnMakePathInLocal();
+      Strng SymNewCfg=sNewCfg;
+      SymNewCfg.FnContract();
+      AbortLoad=!FnLocalCompareFiles(SymNewCfg(), sNewCfg(), DLcl());
+      }
+    else
+      {
+      Strng FnLcl, DLcl;
+      FnLcl.FnNameExt(sNewCfg());
+      DLcl=PrjRmtCpyFiles();
+      DLcl+=FnLcl;
+      AbortLoad=FnSearchDlg(sNewCfg, DLcl, NULL, FnLcl())<0;
+      }
+    }
+
+
+  //Info.Saved.m_sCfgFiles=PF.RdStr("General", "CfgFiles", "");
+
+  CModelInfoUpgrade InfoU;
+  flag FmtOK=true;
+  flag OK = !AbortLoad && (sNewCfg()!=NULL);
+  if (OK)
+    {
+    FmtOK=OK=(InfoU.CheckCfgFileFormat(sNewCfg(), true)>=0);
+    if (!FmtOK)
+      LogError("Project", 0, "Not Loaded : Old cfg format");
+    }
+  byte CfgRetCode = (OK ? Info.GetCfgInfo(sNewCfg(), true, true) : 99);
+  if (CfgRetCode<2)
+    OK=false;
+  if (!AbortLoad && FmtOK && !OK)
+    OK=Info.GetSetName(PrjFile(), false, PrjFileVerNo(), gs_License.LicCatagories());
+  if (CfgRetCode==2)
+    OK=false;
+
+  if (OK)
+    {
+    SetCfgFile(Info.m_sCfgFile());
+    SetCfgFiles(Info.m_sCfgFiles());
+
+    CheckCfgFilesName();
+    OK=InfoU.CheckDBFileFormat(CfgFiles());
+    if (OK)
+      Info.EnsureCfgIsInList();
+
+    int Ret=TestCfgFiles();
+    if (Ret&0x1)
+      LogWarning("Project", 0, "Folder '%s' missing", BaseCfgFiles());
+    if (Ret&0x2)
+      LogWarning("Project", 0, "Folder '%s' missing", CfgFiles());
+
+    Strng Test1(CfgFiles());
+    Test1+="_SysCAD.mdb";
+    Strng Test2(CfgFiles());
+    Test2+=CfgDBFileName();
+
+    if (FileExists(Test1()) && !FileExists(Test2()))
+      if (!MoveFile(Test1(), Test2()))
+        LogError("Project", 0, "%s not renamed to %s", Test1(), Test2());
+    }
+
+  return OK;
+  }
+
+//===========================================================================
+
+flag CProject::CheckPrjCfgFile(CProfINIFile & PF, bool & Do_NotOpenMsg)
+  {
+  flag OK=true;
+  CProfINIFile PrjCfg(CfgFile());
+  if (stricmp(PrjCfg.RdStr("Modes", "Default_NetMode", "Nothing"), "Nothing")==0)
+    {
+    Strng S;
+    S.Set("%s\n\n"
+          "Is an Old Project Configuration File.\n"
+          "Continue to Automatically update this file and Review the Settings ?\n", CfgFile());
+    if (AfxMessageBox(S(), MB_ICONQUESTION|MB_YESNO)==IDYES)
+      {
+
+      Strng sRMd=PF.RdStr("Modes", "Initial_SolveMode",    "");
+      bool IsProbal=sRMd.XStrNICmp("Probal", 6)==0;
+
+      PrjCfg.WrStr("Modes", "Default_NetMode",        IsProbal?"ProBal":"Dynamic");
+      
+      PrjCfg.WrInt("Modes", "Probal_Allowed",      1);
+      PrjCfg.WrStr("Modes", "Probal_NodeMode",     "Direct");
+      PrjCfg.WrStr("Modes", "Probal_LinkMode",     "Direct");
+      PrjCfg.WrStr("Modes", "Probal_FlowMode",     "Transfer");
+      PrjCfg.WrStr("Modes", "Probal_HeatMode",     "Rigorous");
+
+      PrjCfg.WrInt("Modes", "Dynamic_Allowed",     1);
+      PrjCfg.WrStr("Modes", "Dynamic_NodeMode",    "Buffered");
+      PrjCfg.WrStr("Modes", "Dynamic_LinkMode",    "Direct");
+      PrjCfg.WrStr("Modes", "Dynamic_FlowMode",    "Simple");
+      PrjCfg.WrStr("Modes", "Dynamic_HeatMode",    "Rigorous");
+
+      PrjCfg.WrStr("Modes", "Maximum_NodeMode",    "Buffered");
+      PrjCfg.WrStr("Modes", "Maximum_LinkMode",    "Direct");
+      PrjCfg.WrStr("Modes", "Maximum_FlowMode",    "Full");
+      PrjCfg.WrStr("Modes", "Maximum_HeatMode",    "Rigorous");
+
+
+      //LogWarning(CfgFile(), LF_Exclamation, "Project Configuration file has been automatically upgraded for new Solution Modes");
+
+      CMdlCfgSheet CfgEdit(gs_License.LicCatagories(), CfgFile(), "", AfxGetMainWnd(), 0);
+      OK = (CfgEdit.pCfgPage!=NULL);
+      if (OK)
+        OK = (CfgEdit.DoModal()==IDOK);
+      }
+    else
+      {
+      OK=false;
+      Do_NotOpenMsg=false;
+      }
+    //LogError("Project", LF_Exclamation, "Project Configuration file Must be Edited to Configure Solution Modes");
+    //OK=false;
+    }
+  return OK;
+  }
+
+//===========================================================================
+
+void WriteProjectSet()
+  {
+  Strng PrjSet(PrjFiles());
+  PrjSet.FnClearEndBSlash();
+  PrjSet.FnDrivePath();
+  PrjSet.FnCheckEndBSlash();
+  ScdPFUser.WrStr("ProjectSets", "MostRecent", PrjSet());
+  ScdPFUser.WrStr("ProjectSets", CfgFile(), PrjSet());
+
+  }
+
+//===========================================================================
+
+CString ReadProjectSet()
+  {
+  Strng PrjSet(CfgFiles());
+  PrjSet.FnClearEndBSlash();
+  PrjSet.FnDrivePath();
+  PrjSet.FnCheckEndBSlash();
+  return CString(ScdPFUser.RdStr("ProjectSets", CfgFile(), PrjSet()));
+  }
+
+//===========================================================================
+
+void CProject::PutSettings()
+  {
+  dbgpln("--------------------- CProject::PutSettings");
+
+
+  gs_Exec.SetDefNetMode    (m_NetMode );
+
+  if (m_NetMode==NM_Probal)
+    {
+    SetDefNodeMode(m_PBNodeMode);
+    SetDefLinkMode(m_PBLinkMode);
+    SetDefFlowMode(m_PBFlowMode);
+    SetDefHeatMode(m_PBHeatMode);
+    }
+  else
+    {
+    SetDefNodeMode(m_DynNodeMode);
+    SetDefLinkMode(m_DynLinkMode);
+    SetDefFlowMode(m_DynFlowMode);
+    SetDefHeatMode(m_DynHeatMode);
+    }
+
+  SetMaxNodeMode(m_MaxNodeMode);
+  SetMaxLinkMode(m_MaxLinkMode);
+  SetMaxFlowMode(m_MaxFlowMode);
+  SetMaxHeatMode(m_MaxHeatMode);
+
+  gs_Exec.SetTheTime(m_TheTime, "PutSettings");
+  gs_Exec.StepSizeMax    = m_StepSizeMax;
+  gs_Exec.ScnStopTime    = m_ScnStopTime;
+  gs_Exec.ScnDuration    = m_ScnDuration;
+
+  gs_Exec.SetRealTime(m_RealTime != 0);
+  gs_Exec.SetRealTimeMult(m_RealTimeMult);
+  gs_Exec.SetSyncWithClock(m_SyncWithClock!= 0);
+  gs_Exec.SetScnType((eScnTypes)m_ScnType, false);
+  gs_Exec.ScnTermAction  = (eScnTermActions)m_ScnTermAction;
+  gs_Exec.StepCountMax   = m_StepCountMax;
+
+  SetDisplayTagsOnly(m_DisplayTagsOnly != 0);
+  SetHideZeros(m_HideZeros != 0);
+  SVI.SetShowGroups(m_ShowGroups != 0);
+  TaggedObject::NumericTagsBad = m_NumericTagsBad;
+  TaggedObject::NumericStartingTagsBad = m_NumericStartingTagsBad != 0;
+  TaggedObject::NonNumericTagChr = m_NonNumericTagChr;
+
+
+  CTagVwDoc::GTB.StartTime    = m_GTBStartTime;
+  CTagVwDoc::GTB.EndTime      = m_GTBEndTime;
+  CTagVwDoc::GTB.TrackingTime = m_GTBTrackingTime;
+
+  m_pFlwLib->FE_SetSpModelFixupStrategy(m_SpModelFixupStrategy);
+
+  HstMngr.SetOnAsRqd();
+  }
+
+
+//===========================================================================
+
+void CProject::GetSettings()
+  {
+  dbgpln("--------------------- CProject::GetSettings");
+
+  m_NetMode    = DefNetMode();
+
+  if (m_NetMode==NM_Probal)
+    {
+    m_PBNodeMode   = DefNodeSolveMode();
+    m_PBLinkMode   = DefLinkSolveMode();
+    m_PBFlowMode   = DefFlowMode();
+    m_PBHeatMode   = DefHeatMode();
+    }
+  else
+    {
+    m_DynNodeMode  = DefNodeSolveMode();
+    m_DynLinkMode  = DefLinkSolveMode();
+    m_DynFlowMode  = DefFlowMode();
+    m_DynHeatMode  = DefHeatMode();
+    }
+
+  m_MaxNodeMode   = MaxNodeMode();
+  m_MaxLinkMode   = MaxLinkMode();
+  m_MaxFlowMode   = MaxFlowMode();
+  m_MaxHeatMode   = MaxHeatMode();
+
+  m_TheTime       = gs_Exec.TheTime;
+  m_StepSizeMax   = gs_Exec.StepSizeMax;
+  m_ScnStopTime   = gs_Exec.ScnStopTime; 
+  m_ScnDuration   = gs_Exec.ScnDuration; 
+
+  m_RealTime      = gs_Exec.RealTime();
+  m_RealTimeMult  = gs_Exec.RealTimeMult();
+  m_SyncWithClock = gs_Exec.SyncWithClock();
+  m_ScnType       = gs_Exec.ScnType;
+  m_ScnTermAction = gs_Exec.ScnTermAction;
+  m_StepCountMax  = gs_Exec.StepCountMax;
+
+  m_DisplayTagsOnly         = GetDisplayTagsOnly();
+  m_HideZeros               = GetHideZeros();
+  m_ShowGroups              = SVI.GetShowGroups();
+  m_NumericTagsBad          = TaggedObject::NumericTagsBad ;
+  m_NumericStartingTagsBad  = TaggedObject::NumericStartingTagsBad;
+  m_NonNumericTagChr        = TaggedObject::NonNumericTagChr;
+
+  CTagVwDoc::GTB.StartTime    = m_GTBStartTime;
+  CTagVwDoc::GTB.EndTime      = m_GTBEndTime;
+  CTagVwDoc::GTB.TrackingTime = m_GTBTrackingTime;
+
+  m_SpModelFixupStrategy      = m_pFlwLib->FE_SpModelFixupStrategy();
+
+  HstMngr.GetOnRqd();
+  }
+
+//===========================================================================
+
+flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadType)
+  {
+  dbgpln("--------------------- CProject::DoOpen");
+
+  bool Do_NotOpenMsg=true;
+  if (1)
+    {
+    Strng TmpContractStr;
+    Strng NewModelCfg=pNewModelCfg;
+
+    SetUsingPrjLclFiles(PrjLoadType==PLT_Local);
+    //m_LoadFromBackupRqd=false;
+
+    FnSetTestLocalFiles(true);
+    FnLocalFilesDifferentClear();
+    m_pFlwLib = NULL;
+    CWaitMsgCursor Wait("Opening project");
+    bCmdSuccess = true;
+    bDoingLoad = 1;
+
+    pPrjPath = ChkPrjFileName(pPrjPath);
+    if (!pPrjPath)
+      goto DoneFailed;
+
+    BOOL DoCheckTags=FALSE;
+    //flag OK=false;
 
     // Test Position of SPJ File
     Strng Td, SPrjFiles, SPrjFile, E;
@@ -4405,62 +5781,11 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
     flag OldStyle=(Att!=0xFFFFFFFF && ((Att&FILE_ATTRIBUTE_DIRECTORY)!=0));
     Td+="\\TagReg.CSV";
     OldStyle=OldStyle && FileExists(Td());
-    flag DoTheOpen=true;
+
     if (OldStyle)
       {
-      if (AfxMessageBox("Upgrade Project to 7.2.3(or Later) format",
-                        MB_YESNO|MB_DEFBUTTON2|MB_ICONQUESTION)==IDNO)
-        {
-        DoTheOpen=false;
-        }
-      else
-        {
-
-        SPrjFile=pPrjPath;
-        SPrjFiles.FnDrivePathName(pPrjPath);
-
-        Strng T, NewPrjFile;
-        NewPrjFile.FnDrivePathName(SPrjFile());
-        NewPrjFile.FnCheckEndBSlash();
-        T.FnNameExt(SPrjFile());
-        NewPrjFile+=T();
-        if (MoveFile(SPrjFile(), NewPrjFile()))
-          {
-          SPrjFile=NewPrjFile;
-
-          Strng NewPrjFiles(SPrjFiles);
-          NewPrjFiles.FnCheckExtension("spf");
-          //NewPrjFilesName.FnNameExt(NewPrjFiles());
-          if (MoveFile(SPrjFiles(), NewPrjFiles()))
-            {
-            SPrjFiles=NewPrjFiles;
-            SPrjFile=NewPrjFiles;
-            SPrjFile.FnCheckEndBSlash();
-#if PrjSPJ
-            SPrjFile+="Project.spj";
-#elif DollarSPJ
-            SPrjFile+="$.spj";
-#else
-#if UScoreSPJ
-            SPrjFile+="_";
-#endif
-            SPrjFile+=T();
-#endif
-            }
-          else
-            {
-            E.GetSystemErrorStr(GetLastError());
-            LogError("SysCAD", LF_Exclamation,
-              "Project folder not renamed :\n%s\n%s", SPrjFiles(), E());
-            }
-          }
-        else
-          {
-          E.GetSystemErrorStr(GetLastError());
-          LogError("SysCAD", LF_Exclamation,
-            "Project file not moved :\n%s\n%s", SPrjFile(), E());
-          }
-        }
+      LogError(pPrjPath, 0, "Invalid Project Format");
+      goto DoneFailed;
       }
     else
       {
@@ -4471,712 +5796,311 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
     CStopWatch SW;
     CString sSWTmp;
     SW.Start();
-    CDlgBusy::Open("\nOpening Project");
     Wait.UpdateMsg("Opening project %s", SPrjFile());//FnContract(TmpContractStr, PrjName()));
-    if (DoTheOpen)
+
+    bChangedGrfMenu=0;
+    bChangedRuntimeMenu=0;
+
+    // Modify PrjFileName if Neccessary
+    Strng T;
+    T.FnNameExt(SPrjFile());
+    if (T.XStrICmp("Project.spj")!=0)
       {
-      bChangedGrfMenu=0;
-      bChangedRuntimeMenu=0;
+      LogError(pPrjPath, 0, "Invalid Project File Name");
+      goto DoneFailed;
+      }
 
-      // Modify PrjFileName if Neccessary
-      Strng T;
-      T.FnNameExt(SPrjFile());
-      //if (SPrjFile.XStrCmp("$")!=0)
-#if PrjSPJ
-      if (T.XStrICmp("Project.spj")!=0)
-        {
-        T.FnDrivePath(SPrjFile());
-        T+="Project.spj";
-        if (!MoveFile(SPrjFile(), T()))
-          {
-          LogError("Project",0, "%s not renamed to %s", SPrjFile(), T());
-          DoTheOpen=false;
-          }
-        else
-          SPrjFile=T();
-        }
-#elif DollerSPJ
-      if (T.XStrICmp("$.spj")!=0)
-        {
-        T.FnDrivePath(SPrjFile());
-        T+="$.spj";
-        if (!MoveFile(SPrjFile(), T()))
-          {
-          LogError("Project",0, "%s not renamed to %s", SPrjFile(), T());
-          DoTheOpen=false;
-          }
-        else
-          SPrjFile=T();
-        }
-#endif
-      // SetPrjFile(SPrjFile());
-      SetPrjFiles(SPrjFiles(), SPrjFile());
-      CDlgBusy::SetLine(3, PrjName());
-      // SetPrjFilename(pPrjPath);
-      bLoadBusy=1;
-      //AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+    SetPrjFiles(SPrjFiles(), SPrjFile());
+    bLoadBusy=1;
 
-      dbgDumpFilesAliases();
+    dbgDumpFilesAliases();
 
-      //Try rename layout file;
-      Strng OldLayout(PrjFiles());
-      OldLayout+="layout.ini";
-
-      if (FileExists(OldLayout()))
-        {
-        Strng NewLayout(PrjFiles());
-        NewLayout+=LayoutFileName;
-        rename(OldLayout(), NewLayout());
-        }
+    //Try rename layout file;
+    Strng OldLayout(PrjFiles());
+    OldLayout+="layout.ini";
+    if (FileExists(OldLayout()))
+      {
+      Strng NewLayout(PrjFiles());
+      NewLayout+=LayoutFileName;
+      rename(OldLayout(), NewLayout());
       }
 
     ASSERT(_CrtCheckMemory());
 
-    char Buff[1024];
     FILE* f = NULL;
-    if (DoTheOpen)
+    if (GetFileAttributes(PrjFile()) & FILE_ATTRIBUTE_READONLY)
       {
-      OK = true;
-      WIN32_FIND_DATA fd;
-      HANDLE H = FindFirstFile(PrjFile(), &fd);
-      if (H!=INVALID_HANDLE_VALUE)
-        {//project exists
-        FindClose(H);
-        if (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-          {
-          sprintf(Buff,"WARNING: Project file is read-only!\n\nThe read-only file attribute should NOT be set for all the files in a project!\n\n%s\n\n  Continue with project load?", PrjFile());
-          if (AfxMessageBox(Buff, MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)!=IDYES)
-            OK = false;
-          }
-        }
-      if (OK)
+      char Buff[1024];
+      sprintf(Buff,"WARNING: Project file is read-only!\n\n"
+        "The read-only file attribute should NOT"
+        "be set for any files in a project!\n\n"
+        "%s\n\n"
+        "Continue with project load?", PrjFile());
+      if (AfxMessageBox(Buff, MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)!=IDYES)
         {
-        f = fopen(PrjFile(), "rt");
-        if (f==NULL)
-          OK = false;
+        Do_NotOpenMsg =  false;
+        goto DoneFailed;
         }
       }
-    if (f!=NULL)
-      {//project exists
-      dbgMemoryState("Project Load Start");
-      fread(Buff, 1, sizeof(Buff), f);
-      Buff[sizeof(Buff)-1] = 0;
-      fclose(f);
-      OK = true;
-      if (strstr(Buff, "Syscad Project File"))
-        {
-        AfxMessageBox("Old style project incompatible!");
-        DoNew(false);
-        OK = false;
-        }
-      if (OK)
-        {
-        Strng s;
+    f = fopen(PrjFile(), "rt");
+    if (f==NULL)
+      {
+      char Buff[1024];
+      sprintf(Buff,"WARNING: Project file cannot be read!\n\n"
+        "%s\n\n", PrjFile());
+      AfxMessageBox(Buff, MB_ICONEXCLAMATION|MB_OK);
+      goto DoneFailed;
+      }
 
-        AfxGetMainWnd()->UpdateWindow();
-        CProfINIFile PF(SPrjFile());
+    //project exists
 
-        gs_CnvsMngr.Recover();
+    char Buff[1024];
+    dbgMemoryState("Project Load Start");
+    fread(Buff, 1, sizeof(Buff), f);
+    Buff[sizeof(Buff)-1] = 0;
+    fclose(f);
+    if (strstr(Buff, "Syscad Project File"))
+      {
+      AfxMessageBox("Old style project incompatible!");
+      DoNew(false);
+      goto DoneFailed;
+      }
 
-        SetOrigPrjFileVerNo(PF.RdInt("General", "PrjFileVersionOriginal", -1));
-        SetPrjFileVerNo(PF.RdInt("General", "PrjFileVersion", 0));
+    // Project Paths etc
+    //{
+    //Strng s;
+    AfxGetMainWnd()->UpdateWindow();
 
-        if (PrjFileVerNo()>=73)
-          {
-          gs_Exec.SetGlblRunModesString(PF.RdStr("General", "RunMode", ""), SM_All);
-          gs_Exec.SetGlblRunModesString(PF.RdStr("General", "HeatMode", ""), HM_All);
-          }
-        else
-          {
-          bool PB = (PF.RdInt("General", "ProBalMode", true)!=0);
-          gs_Exec.SetGlblRunModes(HM_Full, HM_All);
-          if (PB)
-            gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
-          else
-            {//NOT probal
-            int FlowMd=PF.RdInt("General", "DynamicFlowMode", (PrjFileVerNo()>=72));
-            gs_Exec.SetGlblRunModes(FlowMd ? SM_Inline : SM_Buffered, SM_All);
-            }
-          }
+    CProfINIFile PF(SPrjFile());
 
-        OldPrjName = PF.RdStr("General", "PrjName", "");
-        OldPrjFiles = PF.RdStr("General", "PrjFiles", "");
+    gs_CnvsMngr.Recover();
 
-        if (0)//this needs to go back some-where...
-          {//THIS NEEDS MORE WORK !!!!!!!!!!!!!!
-          Strng Tmp=PrjFile();
-          Tmp=Tmp.FnDrivePath();
-          if (Tmp.XStrICmp(OldPrjFiles)!=0)
-            {
-            Strng Tmpp;
-            Tmpp.Set("Project has moved from:\n\n%s\n\nSelect alternate Cfg file ?", OldPrjFiles());
-            if (AfxMessageBox(Tmpp(), MB_ICONQUESTION|MB_YESNO)==IDYES)
-              {
-              CModelInfo Info;
-              if (Info.GetSetName(pPrjPath, false, PrjFileVerNo(), gs_License.LicCatagories()))
-                NewModelCfg=Info.m_sCfgFile();
-              }
-            }
-          }
+    CModelInfo Info;
+    if (!SetPrjCfgFile(PF, NewModelCfg, Info))
+      goto DoneFailed;
 
-        if (OldPrjFiles.GetLength()==0) // for older versions
-          {
-          OldPrjFiles = PF.RdStr("General", "PrjRootDirectory", "");
-          OldPrjFiles.FnCheckEndBSlash();
-          OldPrjFiles += OldPrjName;
-          }
+    dbgDumpFilesAliases();
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        int PLFStatePrv=PF.RdInt("General", "LocalPrjFiles", false);
-        if (PLFStatePrv && !UsingPrjLclFiles())
-          {
-          //case PLF_None: break;
-          //case PLF_Opening: //break;
-          //case PLF_Using: PLFState= PLF_Using; break;
-          LogWarning("Project", LF_Exclamation, "This was saved as a Local project");
-          SetUsingPrjLclFiles(true);
-          }
+    if (!CheckPrjCfgFile(PF, Do_NotOpenMsg))
+      goto DoneFailed;
 
-        #if WithRmtFile
-        flag RmtOK=true;
-        if (UsingPrjLclFiles())
-          RmtOK=SetupRmtCopies();
-        #endif
+    SetOrigPrjFileVerNo(PF.RdInt("General", "PrjFileVersionOriginal", -1));
+    SetPrjFileVerNo(PF.RdInt("General", "PrjFileVersion", 0));
 
-        lStatsRefreshCnt = Max(1L, PF.RdLong("General", "StatsRefreshCount", lStatsRefreshCnt));
 
-        m_bRunOptEmptyAll     = PF.RdLong("RunStartup", "EmptyAll",     m_bRunOptEmptyAll     ?1:0)!=0;
-        m_bRunOptEmptySpills  = PF.RdLong("RunStartup", "EmptySpills",  m_bRunOptEmptySpills  ?1:0)!=0;
-        m_bRunOptZeroFlows    = PF.RdLong("RunStartup", "ZeroFlows",    m_bRunOptZeroFlows    ?1:0)!=0;    
-        m_bRunOptInitialiseAll= PF.RdLong("RunStartup", "InitialiseAll",m_bRunOptInitialiseAll?1:0)!=0;
-        m_bRunOptResetStats   = PF.RdLong("RunStartup", "ResetStats",   m_bRunOptResetStats   ?1:0)!=0;   
-        m_bRunOptOnceOnly     = PF.RdLong("RunStartup", "OnceOnly",     m_bRunOptOnceOnly    ?1:0)!=0;    
+    m_OldPrjName = PF.RdStr("General", "PrjName", "");
+    m_OldPrjFiles = PF.RdStr("General", "PrjFiles", "");
 
-        if (PrjFileVerNo()>=98)
-          {
-          gs_Exec.SetTheTime(CTimeValue(PF.RdInt64("General", "ExecTime", gs_Exec.TheTime.Raw)), "PrjLoad");
-          gs_Exec.StepSizeMax=CTimeValue(PF.RdInt64("General", "StepSizeMax", gs_Exec.StepSizeMax.Raw));
-          gs_Exec.ScnStopTime=CTimeValue(PF.RdInt64("General", "ScnStopTime", gs_Exec.ScnStopTime.Raw));
-          gs_Exec.ScnDuration=CTimeValue(PF.RdInt64("General", "ScnDuration", gs_Exec.ScnDuration.Raw));
-          }
-        else
-          {
-          gs_Exec.SetTheTime(CTimeValue(PF.RdDouble("General", "ExecTime", gs_Exec.TheTime.Seconds)), "PrjLoad");
-          gs_Exec.StepSizeMax=CTimeValue(PF.RdDouble("General", "StepSizeMax", gs_Exec.StepSizeMax.Seconds));
-          gs_Exec.ScnStopTime=CTimeValue(PF.RdInt64("General", "ScnStopTime", gs_Exec.ScnStopTime.Raw));
-          gs_Exec.ScnDuration=CTimeValue(PF.RdInt64("General", "ScnDuration", gs_Exec.ScnDuration.Raw));
-          //gs_Exec.SetTimeUntilStop(CTimeValue(PF.RdDouble("General", "TimeUntilStop", gs_Exec.TimeUntilStop.Seconds)));
-          }
-        gs_Exec.SetRealTime(PF.RdLong("General", "RealTime", gs_Exec.RealTime()) != 0);
-        gs_Exec.SetRealTimeMult(PF.RdDouble("General", "RealTimeMult", gs_Exec.RealTimeMult()));
-        gs_Exec.SetSyncWithClock(PF.RdLong("General", "SyncWithClock", gs_Exec.SyncWithClock()) != 0);
-        gs_Exec.SetScnType((eScnTypes)PF.RdInt("General", "TermType", (int)gs_Exec.ScnType), false);
-        gs_Exec.ScnTermAction=(eScnTermActions)PF.RdInt("General", "TermAction", (int)gs_Exec.ScnTermAction);
-        gs_Exec.StepCountMax=PF.RdLong("General", "MaxRunIters", gs_Exec.StepCountMax);
+    if (m_OldPrjFiles.GetLength()==0) // for older versions
+      {
+      m_OldPrjFiles = PF.RdStr("General", "PrjRootDirectory", "");
+      m_OldPrjFiles.FnCheckEndBSlash();
+      m_OldPrjFiles += m_OldPrjName;
+      }
 
-        m_sDefGrpLib = PF.RdStr("General", "DefaultLibrary", m_sDefGrpLib());
-        m_sGrfFrameName = PF.RdStr("General", "GraphicsFrame", m_sGrfFrameName());
-        m_sGrfFrameFilter = PF.RdStr("General", "GraphicsFilter", m_sGrfFrameFilter());
+    int PLFStatePrv=PF.RdInt("General", "LocalPrjFiles", false);
+    if (PLFStatePrv && !UsingPrjLclFiles())
+      {
+      //case PLF_None: break;
+      //case PLF_Opening: //break;
+      //case PLF_Using: PLFState= PLF_Using; break;
+      LogWarning("Project", LF_Exclamation, "This was saved as a Local project");
+      SetUsingPrjLclFiles(true);
+      }
 
-        m_GrfBehaviour = PF.RdLong("General",  "GrfBehaviour",  PrjFileVerNo()>=96?WB_Together:WB_None);
-        m_TrndBehaviour = PF.RdLong("General", "TrndBehaviour", PrjFileVerNo()>=96?WB_Together:WB_None);
-
-        bGrfDeferLoad = (PF.RdLong("General", "GrfDeferLoad", bGrfDeferLoad) != 0);
-        bGrfAutoLoad = (PF.RdLong("General", "GrfAutoLoad", bGrfAutoLoad) != 0);
-        bGrfUpdateAnnot = (PF.RdLong("General", "GrfUpdateAnnotation", bGrfUpdateAnnot) != 0);
-        bGrfAnimationOn = (PF.RdLong("General", "GrfAnimationOn", bGrfAnimationOn) != 0);
-        bGrfPromptForZoom = (PF.RdLong("General", "GrfPromptForZoom", bGrfPromptForZoom) != 0);
-        bGrfMoveCursor= (PF.RdLong("General", "GrfMoveCursor", bGrfMoveCursor) != 0);
-        bGrfRegExpOn= (PF.RdLong("General", "GrfRegExpOn", bGrfRegExpOn) != 0);
-        bReadOnlyPrj = (PF.RdLong("General", "ReadOnly", bReadOnlyPrj) != 0);
-        SetDisplayTagsOnly(PF.RdLong("General", "DisplayTagsOnly", GetDisplayTagsOnly()) != 0);
-        SetHideZeros(PF.RdLong("General", "HideZeros", GetHideZeros()) != 0);
-        SVI.SetShowGroups(PF.RdLong("General", "ShowGroups", SVI.GetShowGroups()) != 0);
-        TaggedObject::NumericTagsBad = (PF.RdLong("General", "NumericTagsBad", TaggedObject::NumericTagsBad) != 0);
-        TaggedObject::NumericStartingTagsBad = (PF.RdLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad) != 0);
-        TaggedObject::NonNumericTagChr = (char)PF.RdLong("General", "NonNumericTagChr", TaggedObject::NonNumericTagChr);
-        if (PrjFileVerNo()==14)
-          TaggedObject::NumericStartingTagsBad = TaggedObject::NumericTagsBad;
-        if (PrjFileVerNo()<15)
-          DoCheckTags = TRUE;
-        if (!TaggedObject::CheckNonNumericTagChr(TaggedObject::NonNumericTagChr))
-          TaggedObject::NonNumericTagChr = '#';
-        TaggedObject::NumericTagsBad = TaggedObject::NumericTagsBad || TaggedObject::NumericStartingTagsBad;
-
-        m_bRemoveRevs=(PF.RdLong("Database", "RemovePreviousRevisions", m_bRemoveRevs)!=0);
-        m_bCopyDBFiles=(PF.RdLong("Database", "CopyDBFiles", m_bCopyDBFiles)!=0);
-
-        if (PrjFileVerNo()>=98)
-          {
-          CTagVwDoc::GTB.StartTime.Raw = PF.RdInt64("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime.Raw);
-          CTagVwDoc::GTB.EndTime.Raw = CTagVwDoc::GTB.StartTime.Raw + PF.RdInt64("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration().Raw);
-          }
-        else
-          {
-          CTagVwDoc::GTB.StartTime = CTimeValue(PF.RdDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime.Seconds));
-          CTagVwDoc::GTB.EndTime = CTimeValue(CTagVwDoc::GTB.StartTime.Seconds + PF.RdDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration().Seconds));
-          }
-        CTagVwDoc::GTB.TrackingTime = (PF.RdInt("Trend", "GlobalTrackingTime", CTagVwDoc::GTB.TrackingTime)!=0);
-
-        Solver.fStateWnd=PF.RdInt("Solver", "StatusWnd", Solver.fStateWnd);
-        Solver.fStatePinned=PF.RdInt("Solver", "StatusPinned", Solver.fStatePinned);
-        Solver.fStateErrors=PF.RdInt("Solver", "StatusErrors", Solver.fStateErrors);
-        Solver.iStateX=PF.RdInt("Solver", "StatusX", Solver.iStateX);
-        Solver.iStateY=PF.RdInt("Solver", "StatusY", Solver.iStateY);
-
-        if (PrjFileVerNo()<54)
-          {
-          gs_Exec.SetRealTime(PF.RdLong("Historian", "RealTime", gs_Exec.RealTime()) != 0);
-          gs_Exec.StepSizeMax=CTimeValue(PF.RdDouble("Historian", "TimeMax", gs_Exec.StepSizeMax.Seconds));
-          }
-        /*kga 15/8/01 removed because does not recover correctly for real time
-        if (gs_Exec.RealTime())
-          {
-          long OldScan=PF.RdLong("Historian", "ScanTime", 1);
-          gs_Exec.SetTimeIncMax(OldScan*0.001);
-          }
-*/
-
-        Strng sOldModelCfg = PF.RdStr("General", "ModelLibrary", "");
-        sOldModelCfg = PF.RdStr("General", "ModelConfiguration", sOldModelCfg());
-        sOldModelCfg = PF.RdStr("General", "CfgFile", sOldModelCfg());
-        sOldModelCfg.FnExpand();
-
-        if (!NewModelCfg() && !sOldModelCfg())
-          {
-
-#pragma chCHECKIT("if sOldModelCfg does not exist the query OpenBackup")
-
-          Strng InitDir(ScdPFUser.RdStr("Folders", "CfgSearchPath", StartupDirectory()));
-
-          CSCDFileDialog Dlg(true, NULL, "*.CFG",
-            OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE,
-            "Missing Configuration (*.CFG)|*.CFG||", ::AfxGetMainWnd());
-          Dlg.m_ofn.lpstrInitialDir = InitDir();
-          Dlg.m_ofn.lpstrTitle = "Browse for Configurations";
-          if (Dlg.DoModal()==IDOK)
-            {
-            sOldModelCfg=Dlg.GetPathName();
-            Strng Path;
-            Path.FnDrivePath(sOldModelCfg());
-            ScdPFUser.WrStr("Folders", "CfgSearchPath", Path());
-            }
-          else
-            OK=false;
-          }
-
-        Strng sOldModelCfgMem(sOldModelCfg);
-        Strng sNewCfg(sOldModelCfg);
-        sNewCfg.FnCheckExtension(".Cfg");
-        byte Where=0;
-        flag AbortLoad=false;
-
-        if (OK)
-          {
-          if (NewModelCfg())
-            {
-            FnSetTestLocalFiles(true);
-            sNewCfg=NewModelCfg();
-            }
-          else
-            {
-            // Check to see whether we need to swing CfgFile Source
-
-            // OldCfg    :   D:\A\B\C\4.cfg
-            // OldPrj    :   D:\A\B\x.spf
-            // NewPrj    :   C:\X\Y\Z\x.spf
-            // lStartEql =   ......^         = 7
-            // lEndEql              ^....    = 6
-
-            // NewCfg    :   C:\X\Y\Z\C\4.cfg
-
-            Strng PFiles(PrjFiles());
-            if (0) // for Testing
-              {
-              sOldModelCfg = "D:\\A\\B\\C\\4.cfg";
-              OldPrjFiles  = "D:\\A\\B\\x.spf";
-              PFiles       = "C:\\X\\Y\\Z\\x.spf";
-              }
-
-            // Find start part of OldProject and OldCfg which are equal
-            int iOPrjLen=OldPrjFiles.Length();
-            int iOCfgLen=sOldModelCfg.Length();
-            int iNPrjLen=PFiles.Length();
-            int lStartEql=-1;
-            int i0=Min(iOCfgLen, iOPrjLen);
-            for (int i=0; i<i0; i++)
-              {
-              if (sOldModelCfg[i]!=OldPrjFiles[i])
-                break;
-              if (sOldModelCfg[i]=='\\')
-                lStartEql=i+1;
-              }
-            if (lStartEql>0)
-              {
-              // Find end part of OldProject and NewProject which are equal
-              int lEndEql=-1;
-              int i0=iOPrjLen-1;
-              int i1=iNPrjLen-1;
-              for ( ; i0>=0 && i1>=0; i0--, i1--)
-                {
-                if (OldPrjFiles[i0]!=PFiles[i1])
-                  break;
-                if (OldPrjFiles[i0]=='\\')
-                  lEndEql=iOPrjLen-i0-1;
-                }
-
-              // Overlap ?
-              if (lStartEql+lEndEql>=iOPrjLen)
-                {
-                lEndEql=iOPrjLen-lStartEql;
-
-                Strng SwungModelCfg, CfgRemainder;//, PrjRemainder, NPrjRemainder;
-                int lCfgRemainder=iOCfgLen-lStartEql;
-                CfgRemainder=sOldModelCfg.Right(lCfgRemainder);
-
-                SwungModelCfg=PFiles.Left(PFiles.Length()-lEndEql);
-                SwungModelCfg+=CfgRemainder();
-                if (FileExists(SwungModelCfg()))
-                  sNewCfg=SwungModelCfg;
-                }
-              }
-
-            Strng Tmp;
-            Tmp.FnDrivePath(sNewCfg());
-            if (Tmp.Length()==0)
-              {
-              Tmp=sNewCfg();
-              sNewCfg=PrjFiles();
-              sNewCfg.FnClearEndBSlash();
-              sNewCfg.FnDrivePath();
-              sNewCfg+=Tmp();
-              }
-
-            // Check Old copy
-            if (PrjFileVerNo()>=29)
-              {
-              Strng DLcl=sNewCfg();
-              DLcl.FnExpand();
-              DLcl.FnMakePrjFileRelative();
-              DLcl.FnContract();
-              DLcl.FnMakePathInLocal();
-              Strng SymNewCfg=sNewCfg;
-              SymNewCfg.FnContract();
-              AbortLoad=!FnLocalCompareFiles(SymNewCfg(), sNewCfg(), DLcl());
-              }
-            else
-              {
-              Strng FnLcl, DLcl;
-              FnLcl.FnNameExt(sNewCfg());
-              DLcl=PrjRmtCpyFiles();
-              DLcl+=FnLcl;
-              AbortLoad=FnSearchDlg(sNewCfg, DLcl, NULL, FnLcl())<0;
-              }
-            }
-          }
-
-        CModelInfo Info;
-        Info.Saved.m_sCfgFiles=PF.RdStr("General", "CfgFiles", "");
-        Info.Saved.m_sCfgHome=PF.RdStr("General", "CfgHome", "");
-        CModelInfoUpgrade InfoU;
-        flag FmtOK=true;
-        OK = !AbortLoad && (sNewCfg()!=NULL);
-        if (OK)
-          {
-          FmtOK=OK=(InfoU.CheckCfgFileFormat(sNewCfg(), true)>=0);
-          if (!FmtOK)
-            LogError("Project", 0, "Not Loaded : Old cfg format");
-          }
-        byte CfgRetCode = (OK ? Info.GetCfgInfo(sNewCfg(), true, true) : 99);
-        if (CfgRetCode<2)
-          OK=false;
-        if (!AbortLoad && FmtOK && !OK)
-          OK=Info.GetSetName(PrjFile(), false, PrjFileVerNo(), gs_License.LicCatagories());
-        if (CfgRetCode==2)
-          OK=false;
-
-        if (OK)
-          {
-          SetCfgFile(Info.m_sCfgFile());
-          SetCfgHome(Info.m_sCfgHome());
-          SetCfgFiles(Info.m_sCfgFiles());
-
-          CheckCfgFilesName();
-          OK=InfoU.CheckDBFileFormat(CfgFiles());
-          if (OK)
-            Info.EnsureCfgIsInList();
-
-          int Ret=TestCfgFiles();
-          if (Ret&0x1)
-            LogWarning("Project", 0, "Folder '%s' missing", BaseCfgFiles());
-          if (Ret&0x2)
-            LogWarning("Project", 0, "Folder '%s' missing", CfgFiles());
-
-          Strng Test1(CfgFiles());
-          Test1+="_SysCAD.mdb";
-          Strng Test2(CfgFiles());
-          Test2+=CfgDBFileName();
-
-          if (FileExists(Test1()) && !FileExists(Test2()))
-            if (!MoveFile(Test1(), Test2()))
-              LogError("Project", 0, "%s not renamed to %s", Test1(), Test2());
-          }
-        dbgDumpFilesAliases();
-
-        RestoreMainWindow();
-        #if WithRmtFile
-        if (OK && RmtOK)
-        #else
-        if (OK)
-        #endif
-          {
-          Strng FlwLibTag, EO_LocationTag;
-          FlwLibTag=PlantModelTag;
-          EO_LocationTag=PlantModelTag;
-          if (PrjFileVerNo()<16)
-            {
-            //CTagDBase::sOldFlwLibTag.Set("%s", sOldModelCfgMem());
-            CTagDBase::sOldFlwLibLocation.Set("%s.DLL", sOldModelCfgMem());
-            }
-          else
-            {
-            //CTagDBase::sOldFlwLibTag="";
-            CTagDBase::sOldFlwLibLocation="";
-            }
-
-          pFlwLib=NULL;
-          OK = MdlLibs.LoadFlwDLLs(Info.m_sDLLList, FlwLibTag(), EO_LocationTag(), &m_FlwLib);
-          if (OK)
-            pFlwLib=&m_FlwLib;
-
-//LogNote("Project", 0, "DLLs time %s", SW.MinSecDesc(sSWTmp));
-
-          if (OK)
-            {
-            SetTagMonitor();
-
-            //AfxGetMainWnd()->UpdateWindow();
-            LoadHelpFileList();
-
-            CRptTagLists::StartUp();
-
-#if WITHNETSERVER
-            OpenNetManager();
-            s = PF.RdStr("NetWorkManager", "ClientServer", "");
-            pCS_Mngr->SetServer(PF.RdLong("NetWorkManager", "ServerEnabled", pCS_Mngr->ServerEnabled()) !=0);
-            gs_Exec.SetCoupling((ExecCoupling)PF.RdLong("NetWorkManager", "Coupling",(long)gs_Exec.Coupling()));
-            pCS_Mngr->SetClientConnect(PF.RdLong("NetWorkManager", "ClientConnect", pCS_Mngr->ClientConnected()) != 0,
-                                       s() ? s() : "", gs_Exec.Coupling()==XC_Sync);
+#if WithRmtFile
+    flag RmtOK=true;
+    if (UsingPrjLclFiles())
+      RmtOK=SetupRmtCopies();
 #endif
 
-            bDefaultRecordIt = (PF.RdLong("General", "DefaultRecordIt", bDefaultRecordIt) != 0);
-            bFlashTrend = (PF.RdLong("General", "FlashTrend", bFlashTrend) != 0);
-            bShowNewTrndLineDlg = (PF.RdLong("General", "ShowNewTrndLineDlg", bShowNewTrndLineDlg) != 0);
-            bToolTips = (PF.RdLong("General", "ToolBarTips", bToolTips) != 0);
-            bFlyBys = (PF.RdLong("General", "ToolBarFlyBys", bFlyBys) != 0);
+    ReadSettings(PF, PrjFileVerNo());
 
-            int i;
-            #if WITHSCRCYCLES
-            //get screen saver info...
-            bSystemScreenSave = (PF.RdLong("ScreenSaver", "SystemOn", bSystemScreenSave) != 0);
-            bSyscadScreenSave = (PF.RdLong("ScreenSaver", "SysCADOn", bSyscadScreenSave) != 0);
-            iScrCycles = PF.RdInt("ScreenSaver", "NoOfCycles", iScrCycles);
-            if (Cycles)
-              delete []Cycles;
-            Cycles = new CScreenSaverInfo[iScrCycles];
-            for (i=0; i<iScrCycles; i++)
+    bool IsOldProject=(PrjFileVerNo() < 100);
+    if (IsOldProject)
+      {
+      Strng S;
+      S.Set("%s\n\n"
+            "Is an old Project and needs an Upgrade.\n"
+            "Continue and Review Project Settings ?", PrjFiles());
+      if (AfxMessageBox(S(), MB_ICONQUESTION|MB_YESNO)!=IDYES)
+        {
+        Do_NotOpenMsg =  false;
+        goto DoneFailed;
+        }
+      else if (!EditSettings("Project Settings Review", NULL))
+        {
+        Do_NotOpenMsg =  false;
+        goto DoneFailed;
+        }
+      }
+
+    CDlgBusy::Open("\nOpening Project");
+    CDlgBusy::SetLine(3, PrjName());
+
+    RestoreMainWindow();
+#if WithRmtFile
+    //if (OK && RmtOK)
+    if (RmtOK)
+#else
+    //if (OK)
+    if (1)
+#endif
+      {
+      Strng FlwLibTag, EO_LocationTag;
+      FlwLibTag=PlantModelTag;
+      EO_LocationTag=PlantModelTag;
+
+      m_pFlwLib=NULL;
+      if (!MdlLibs.LoadFlwDLLs(Info.m_sDLLList, FlwLibTag(), EO_LocationTag(), &m_FlwLib))
+        goto DoneFailed;
+
+      m_pFlwLib=&m_FlwLib;
+
+      //if (IsOldProject)
+      PutSettings();
+
+      SetTagMonitor();
+
+      //AfxGetMainWnd()->UpdateWindow();
+      LoadHelpFileList();
+
+      CRptTagLists::StartUp();
+
+#if WITHNETSERVER
+      OpenNetManager();
+      s = PF.RdStr("NetWorkManager", "ClientServer", "");
+      pCS_Mngr->SetServer(PF.RdLong("NetWorkManager", "ServerEnabled", pCS_Mngr->ServerEnabled()) !=0);
+      gs_Exec.SetCoupling((ExecCoupling)PF.RdLong("NetWorkManager", "Coupling",(long)gs_Exec.Coupling()));
+      pCS_Mngr->SetClientConnect(PF.RdLong("NetWorkManager", "ClientConnect", pCS_Mngr->ClientConnected()) != 0,
+        s() ? s() : "", gs_Exec.Coupling()==XC_Sync);
+#endif
+
+#if WITHSCRCYCLES
+      int i;
+      //get screen saver info...
+      bSystemScreenSave = (PF.RdLong("ScreenSaver", "SystemOn", bSystemScreenSave) != 0);
+      bSyscadScreenSave = (PF.RdLong("ScreenSaver", "SysCADOn", bSyscadScreenSave) != 0);
+      iScrCycles = PF.RdInt("ScreenSaver", "NoOfCycles", iScrCycles);
+      if (Cycles)
+        delete []Cycles;
+      Cycles = new CScreenSaverInfo[iScrCycles];
+      for (i=0; i<iScrCycles; i++)
+        {
+        char Section[256];
+        char Item[256];
+        sprintf(Section, "Cycle%i", i);
+        Cycles[i].iWaitTime = (WORD)PF.RdLong(Section, "WaitTime", 10);
+        s = PF.RdStr(Section, "Description", Section);
+        Cycles[i].sDescription = s();
+        int WndCnt = PF.RdInt(Section, "WindowCount", 0);
+        Cycles[i].Windows.SetSize(WndCnt);
+        for (int j=0; j<WndCnt; j++)
+          {
+          sprintf(Item, "WindowTitle%i", j);
+          s = PF.RdStr(Section, Item, "Command");
+          Cycles[i].Windows.SetAt(j, s());
+          }
+        }
+#endif
+
+      for (int i=0; i<16; i++)
+        {
+        char Item[32];
+        sprintf(Item, "Colour%d", i);
+        gs_CustomColours[i] = PF.RdLong("CustomColours", Item, gs_CustomColours[i]);
+        }
+
+      HstMngr.SetOnAsRqd();
+      HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
+
+      OpenHistorian();
+      dbgMemoryState("Historian");
+
+#if WITHDRVMAN
+      //get driver info...
+      sDrvManagerName = PF.RdStr("DrvManager", "Name", sDrvManagerName());
+      if (sDrvManagerName.Find('.')<0)
+        sDrvManagerName += ".SCF";
+      sDrvManagerName.FnContract();
+
+      bDrvOn = (PF.RdLong("DrvManager", "On", bDrvOn) != 0);
+      bDrvLclTagSrvrOK= (PF.RdLong("DrvManager", "LclTagSrvrOK", bDrvLclTagSrvrOK) != 0);
+      bDrvReadAll = (PF.RdLong("DrvManager", "ReadAll", bDrvReadAll) != 0);
+      bDrvIgnoresOn = (PF.RdLong("DrvManager", "IgnoresOn", bDrvIgnoresOn) != 0);
+      bDrvForcesOn = (PF.RdLong("DrvManager", "ForcesOn", bDrvForcesOn) != 0);
+      bDrvNoiseOn = (PF.RdLong("DrvManager", "NoiseOn", bDrvNoiseOn) != 0);
+      bDrvStartFBKCheck = (byte)PF.RdLong("DrvManager", "StartFBKCheck ", FBKCheckNever);
+#endif
+
+      LoadColours(PF);
+
+      OpenDDEManager();
+
+      LoadMainOPCOptions(PF);
+      if (!DoLoadDB(PrjFiles(), m_OldPrjName()))
+        goto DoneFailed;
+      else
+        {
+
+        ASSERT(_CrtCheckMemory());
+
+        dbgMemoryState("LoadDatabase");
+
+        // Moved to Callback
+        //OpenDrvManager(); //must be loaded after models (tag data base)
+        //dbgMemoryState("DriveMan");
+
+        //load documents...
+        CDlgBusy::Open("\nOpening Documents");
+        for (int j=iGraphTemplate; j<=iControlTemplate; j++)
+          {
+          if (ScdApp()->TemplateExists(j))
+            {
+            //Strng Section = (j==0 ? "GraphicsDocuments" : "TrendDocuments");
+            //Strng DocTypeName = (j==0 ? "Graphics" : "Trend");
+            Strng DocTypeName=DocumentTmplNames[j];
+
+            CDocTemplate & Templ = ScdApp()->Template(j);
+            const int DocCount = PF.RdInt(DocumentSectNames[j], "DocumentCount", 0);
+            char Entry[256];
+            for (i=0; i<DocCount; i++)
               {
-              char Section[256];
-              char Item[256];
-              sprintf(Section, "Cycle%i", i);
-              Cycles[i].iWaitTime = (WORD)PF.RdLong(Section, "WaitTime", 10);
-              s = PF.RdStr(Section, "Description", Section);
-              Cycles[i].sDescription = s();
-              int WndCnt = PF.RdInt(Section, "WindowCount", 0);
-              Cycles[i].Windows.SetSize(WndCnt);
-              for (int j=0; j<WndCnt; j++)
+              Strng sDoc;
+              sprintf(Entry, "Doc%i", i);
+              sDoc = PF.RdStr(DocumentSectNames[j], Entry, "");
+              sDoc.FnExpand();
+
+              WIN32_FIND_DATA fd;
+              HANDLE fh = FindFirstFile(sDoc(), &fd);
+              if (fh!=INVALID_HANDLE_VALUE)
                 {
-                sprintf(Item, "WindowTitle%i", j);
-                s = PF.RdStr(Section, Item, "Command");
-                Cycles[i].Windows.SetAt(j, s());
+                FindClose(fh);
+                CDlgBusy::SetLine(1, "Opening %s Document %d of %d:\n\n%s", DocTypeName(), i+1, DocCount, TmpContractStr.FnNameExt(sDoc()));
+                //ScdApp()->OpenDocumentFile(sDoc());
+                Templ.OpenDocumentFile(sDoc());
+                dbgMemoryState(sDoc());
+                XFlushAppMsgQ();
+                //AfxGetMainWnd()->UpdateWindow();
                 }
+              else
+                LogError("Project", LF_Exclamation, "%s document %s not found", DocTypeName(), sDoc());
               }
-            #endif
-
-            for (i=0; i<16; i++)
-              {
-              char Item[32];
-              sprintf(Item, "Colour%d", i);
-              CustomColours[i] = PF.RdLong("CustomColours", Item, CustomColours[i]);
-              }
-
-            if (0)
-              {
-              CDlgBusy::Open("\n\nOpening Communications");
-              CDlgBusy::Close();
-              bCommsOpen=1;
-              }
-
-            HstMngr.LoadSettings(PF);
-            HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
-
-            OpenHistorian();
-            dbgMemoryState("Historian");
-
-//LogNote("Project", 0, "Hist time %s", SW.MinSecDesc(sSWTmp));
-
-            //get driver info...
-            sDrvManagerName = PF.RdStr("DrvManager", "Name", sDrvManagerName());
-            if (sDrvManagerName.Find('.')<0)
-              sDrvManagerName += ".SCF";
-            sDrvManagerName.FnContract();
-
-            bDrvOn = (PF.RdLong("DrvManager", "On", bDrvOn) != 0);
-            bDrvLclTagSrvrOK= (PF.RdLong("DrvManager", "LclTagSrvrOK", bDrvLclTagSrvrOK) != 0);
-            bDrvReadAll = (PF.RdLong("DrvManager", "ReadAll", bDrvReadAll) != 0);
-            bDrvIgnoresOn = (PF.RdLong("DrvManager", "IgnoresOn", bDrvIgnoresOn) != 0);
-            bDrvForcesOn = (PF.RdLong("DrvManager", "ForcesOn", bDrvForcesOn) != 0);
-            bDrvNoiseOn = (PF.RdLong("DrvManager", "NoiseOn", bDrvNoiseOn) != 0);
-            bDrvStartFBKCheck = (byte)PF.RdLong("DrvManager", "StartFBKCheck ", FBKCheckNever);
-
-            sArcManagerName = PF.RdStr("ArcManager", "Name", sArcManagerName());
-            bArcOn = (PF.RdLong("ArcManager", "On", bArcOn) != 0);
-            bArcOpenDBOnRun = (PF.RdLong("ArcManager", "OpenDBOnRun", bArcOpenDBOnRun) != 0);
-            sArcManagerName.FnContract();
-
-            sIOMarshalName = PF.RdStr("IOMarshal", "Name", sIOMarshalName());
-            sIOMarshalName.FnCheckExtension(".scm");
-            sIOMarshalName.FnContract();
-            bIOMOn = (PF.RdLong("IOMarshal", "On", bIOMOn) != 0);
-            sIOMarshalNode = PF.RdStr("IOMarshal", "Node", sIOMarshalNode());
-
-            //get report info...
-            ReportInfo.iHSearchLen = Range(1, PF.RdInt("Reports", "HSearchLen", ReportInfo.iHSearchLen), (int)MaxCSVCols);
-            ReportInfo.iVSearchLen = Range(1, PF.RdInt("Reports", "VSearchLen", ReportInfo.iVSearchLen), 2048);
-            ReportInfo.sNan = PF.RdStr("Reports", "Nan", ReportInfo.sNan());
-            ReportInfo.sBlank = PF.RdStr("Reports", "Blank", ReportInfo.sBlank());
-            ReportInfo.sIgnoreChars = PF.RdStr("Reports", "IgnoreChars", ReportInfo.sIgnoreChars());
-            bRptExcelLock = (PF.RdLong("Reports", "ExcelLock", bRptExcelLock) != 0);
-            bRptExcelCellName = (PF.RdLong("Reports", "ExcelUseCellName", bRptExcelCellName) != 0);
-            bRptExcelMakeActive = (PF.RdLong("Reports", "ExcelAlmaysMakeActive", bRptExcelMakeActive) != 0);
-            bRptExcelSysCADActive = (PF.RdLong("Reports", "ExcelReturnSysCADtoActive", bRptExcelSysCADActive) != 0);
-            bRptExcelUpdateLinks = (PF.RdLong("Reports", "ExcelUpdateLinks", bRptExcelUpdateLinks) != 0);
-            bRptExcelSaveOnComplete = (PF.RdLong("Reports", "ExcelSaveOnComplete", bRptExcelSaveOnComplete) != 0);
-            bRptSyscadTags = (PF.RdLong("Reports", "SyscadTags", bRptSyscadTags) != 0);
-            bAccAutoSaveOn = (PF.RdLong("Access", "AutoSaveOn", bAccAutoSaveOn) != 0);
-            bAccUpdateOnRun = (PF.RdLong("Access", "UpdateOnRun", bAccUpdateOnRun) != 0);
-            bAccHistoryInfoVis = (PF.RdLong("Access", "HistoryInfoVis", bAccHistoryInfoVis) != 0);
-
-            LoadColours(PF);
-
-            bDDEOn = (PF.RdLong("DDEManager", "On", bDDEOn) != 0);
-            OpenDDEManager();
-
-            m_bOPCOn = (PF.RdLong("OPCManager", "On", m_bOPCOn) != 0);
-            m_bOPCResetReg = (PF.RdLong("OPCManager", "ResetRegistry", m_bOPCResetReg) != 0);
-            m_iOPCServerNo = PF.RdLong("OPCManager", "ServerNumber", m_iOPCServerNo);
-
-            LoadMainOPCOptions(PF);
-            //if (pOPCSrvr && pOPCSrvr->OPCSrvrMngr())
-            //  pOPCSrvr->OPCSrvrMngr()->LoadOrSaveOptions(PF, true);
-
-            gs_pPrj->DoLoadDB(PrjFiles(), OldPrjName());
-
-            ASSERT(_CrtCheckMemory());
-
-            dbgMemoryState("LoadDatabase");
-
-            // Moved to Callback
-            //OpenDrvManager(); //must be loaded after models (tag data base)
-            //dbgMemoryState("DriveMan");
-
-            //load documents...
-            CDlgBusy::Open("\nOpening Documents");
-            if (PrjFileVerNo()<12)
-              {
-              const int DocCount = PF.RdInt("General", "DocumentCount", 0);
-              char Section[256];
-              for (i=0; i<DocCount; i++)
-                {
-                Strng sDoc;
-                sprintf(Section, "Doc%i", i);
-                sDoc = PF.RdStr(Section, "Name", "");
-                sDoc.FnExpand();
-
-                WIN32_FIND_DATA fd;
-                HANDLE fh = FindFirstFile(sDoc(), &fd);
-                if (fh!=INVALID_HANDLE_VALUE)
-                  {
-                  FindClose(fh);
-                  CDlgBusy::SetLine(1, "Opening Document %d of %d:\n\n%s", i+1, DocCount, TmpContractStr.FnNameExt(sDoc()));
-                  ScdApp()->OpenDocumentFile(sDoc());
-                  dbgMemoryState(sDoc());
-                  //AfxGetMainWnd()->UpdateWindow();
-                  XFlushAppMsgQ();
-                  }
-                else
-                  LogError("Project", LF_Exclamation, "Document %s not found", sDoc());
-                }
-              }
-            else
-              {
-              for (int j=iGraphTemplate; j<=iControlTemplate; j++)
-                if (ScdApp()->TemplateExists(j))
-                  {
-                  //Strng Section = (j==0 ? "GraphicsDocuments" : "TrendDocuments");
-                  //Strng DocTypeName = (j==0 ? "Graphics" : "Trend");
-                  Strng DocTypeName=DocumentTmplNames[j];
-
-                  CDocTemplate & Templ = ScdApp()->Template(j);
-                  const int DocCount = PF.RdInt(DocumentSectNames[j], "DocumentCount", 0);
-                  char Entry[256];
-                  for (i=0; i<DocCount; i++)
-                    {
-                    Strng sDoc;
-                    sprintf(Entry, "Doc%i", i);
-                    sDoc = PF.RdStr(DocumentSectNames[j], Entry, "");
-                    sDoc.FnExpand();
-
-                    WIN32_FIND_DATA fd;
-                    HANDLE fh = FindFirstFile(sDoc(), &fd);
-                    if (fh!=INVALID_HANDLE_VALUE)
-                      {
-                      FindClose(fh);
-                      CDlgBusy::SetLine(1, "Opening %s Document %d of %d:\n\n%s", DocTypeName(), i+1, DocCount, TmpContractStr.FnNameExt(sDoc()));
-                      //ScdApp()->OpenDocumentFile(sDoc());
-                      Templ.OpenDocumentFile(sDoc());
-                      dbgMemoryState(sDoc());
-                      XFlushAppMsgQ();
-                      //AfxGetMainWnd()->UpdateWindow();
-                      }
-                    else
-                      LogError("Project", LF_Exclamation, "%s document %s not found", DocTypeName(), sDoc());
-                    }
-                  }
-              }
-            gs_AccessWnds.LoadNdHist(-1);
-
-            ASSERT(_CrtCheckMemory());
-
-            if (PrjFileVerNo()<30)
-              bRptExcelMakeActive = 1; //change this option
-            CDlgBusy::Close();
-//LogNote("Project", 0, "Docs time %s", SW.MinSecDesc(sSWTmp));
-
-            EnableMainOPCSrvr(m_bOPCOn);
-
             }
           }
-        //else
-        //  {
-        //  m_RmtCpyFolder="";
-        //  }
 
-        //CNM Skip This
-        //// Overide any other setting for Time which may have been set
-        //gs_Exec.SetTime(gs_Exec.QueryCurrentTime());
+        gs_AccessWnds.LoadNdHist(-1);
 
-        if (gs_pPrj->pFlwLib)
-          gs_pPrj->pFlwLib->FE_SetSpModelFixupStrategy(PF.RdLong("SpModel", "FixupStrategy", FUS_Largest));
+        ASSERT(_CrtCheckMemory());
+
+        if (PrjFileVerNo()<30)
+          m_bRptExcelMakeActive = 1; //change this option
+
+        EnableMainOPCSrvr(m_bOPCOn!=0);
+
+        if (gs_pPrj->m_pFlwLib)
+          gs_pPrj->m_pFlwLib->FE_SetSpModelFixupStrategy(PF.RdLong("SpModel", "FixupStrategy", FUS_Largest));
 
 #if USESCDEXPLORER
         if (CExploreScd::UseSelectWndList())
@@ -5197,163 +6121,171 @@ flag Project::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTyp
             CWndSlctWnd::CloseIt();
           }
 #endif
-        }
-      }
-    else
-      OK = false;
 
-    if (!OK)
-      {
-      CloseRmtCpy();
+        // Data from Ini File
 
-      if (PrjFiles())
-        {
-        char buff[256];
-        sprintf(buff, "Project %s not Opened", PrjFiles());
-        AfxMessageBox(buff, MB_ICONEXCLAMATION|IDOK);
-        }
-      DoNew(false);
-      bLoadBusy=0;
+        CProfINIFile PIni(PrjIniFile());
+        m_eSSAction = (SnapShotActions)PIni.RdLong("SnapShot", "Action", m_eSSAction);
+        m_sSSName = PIni.RdStr("SnapShot", "Name", m_sSSName());
+        m_sSSPrefix = PIni.RdStr("SnapShot", "Prefix", m_sSSPrefix());
+        m_iSSNumber = (UINT)PIni.RdLong("SnapShot", "Number", m_iSSNumber);
+        m_bSSDoZip = (PIni.RdLong("SnapShot", "DoZip", m_bSSDoZip) != 0);
 
-      SetPrjFileVerNoAsLoaded(PrjFileVer);
-      SetPrjFileVerNo(PrjFileVer);
-      }
-    else
-      {
-      CProfINIFile PF(PrjIniFile());
-      eSSAction = (SnapShotActions)PF.RdLong("SnapShot", "Action", eSSAction);
-      sSSName = PF.RdStr("SnapShot", "Name", sSSName());
-      sSSPrefix = PF.RdStr("SnapShot", "Prefix", sSSPrefix());
-      iSSNumber = (UINT)PF.RdLong("SnapShot", "Number", iSSNumber);
-      bSSDoZip = (PF.RdLong("SnapShot", "DoZip", bSSDoZip) != 0);
+        if (CfgFile())
+          ScdPFUser.WrStr("General", "LastCfgFile", CfgFile());
+        bLoadBusy=0;
 
-      if (CfgFile())
-        ScdPFUser.WrStr("General", "RecentModelCfg", CfgFile());
-      bLoadBusy=0;
+        ASSERT(_CrtCheckMemory());
 
-      ASSERT(_CrtCheckMemory());
-
-      //load is finished, get trends to reconnect and fetch trend lines etc...
-      CDlgBusy::Open("\nConnecting trends");
-      for (int iTemp=iTrendTemplate; iTemp<=iControlTemplate; iTemp++)
-        if (ScdApp()->TemplateExists(iTemp))
+        //load is finished, get trends to reconnect and fetch trend lines etc...
+        CDlgBusy::Open("\nConnecting trends");
+        for (int iTemp=iTrendTemplate; iTemp<=iControlTemplate; iTemp++)
           {
-          POSITION Pos = ScdApp()->Template(iTemp).GetFirstDocPosition();
-          while (Pos)
+          if (ScdApp()->TemplateExists(iTemp))
             {
-            CTagVwDoc* pTrndDoc = (CTagVwDoc*)(ScdApp()->Template(iTemp).GetNextDoc(Pos));
-            CDlgBusy::SetLine(3, FnContract(TmpContractStr, (char*)(const char*)(pTrndDoc->GetTitle())));
-            pTrndDoc->OnActivate(true);  // force reconnect etc
-            AfxGetMainWnd()->UpdateWindow();
-            XFlushAppMsgQ();
+            POSITION Pos = ScdApp()->Template(iTemp).GetFirstDocPosition();
+            while (Pos)
+              {
+              CTagVwDoc* pTrndDoc = (CTagVwDoc*)(ScdApp()->Template(iTemp).GetNextDoc(Pos));
+              CDlgBusy::SetLine(3, FnContract(TmpContractStr, (char*)(const char*)(pTrndDoc->GetTitle())));
+              pTrndDoc->OnActivate(true);  // force reconnect etc
+              AfxGetMainWnd()->UpdateWindow();
+              XFlushAppMsgQ();
+              }
             }
           }
-      //AfxGetMainWnd()->UpdateWindow();
-      CDlgBusy::Close();
+        //AfxGetMainWnd()->UpdateWindow();
+        CDlgBusy::Close();
 
-      ASSERT(_CrtCheckMemory());
+        ASSERT(_CrtCheckMemory());
 
-      SW.Stop();
-      if (OK)
-        {
+        SW.Stop();
+
         LogNote("Project", 0, "Load time %s", SW.MinSecDesc(sSWTmp));
-        if (bReadOnlyPrj)
+        if (m_bReadOnlyPrj)
           LogNote("Project", 0, "Marked as read-only");
         ::AfxTrace(_T("Project loaded: '%s'\n"), _T(PrjName()));
+
+
+        CheckLicenseConditions();
+        CDlgBusy::Close();
+        MainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_PRJLOADED); //notify main window that project load is complete
+        MainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE/*, (LPARAM)pMsgFrame*/); //get main window thread to top AND make message window active top window
+        CMsgWindow::Show(false);
+
+        CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+        pM->SetToolBarSolveMode();
+
+
+        bDoingLoad = 0;
+        bCmdSuccess = true;
+
+        if (DoCheckTags)
+          {
+          int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericTagsBad, TaggedObject::NumericStartingTagsBad);
+          if (TagsChngd<0)
+            {
+            TaggedObject::NumericTagsBad = 0;
+            TaggedObject::NumericStartingTagsBad = 0;
+            }
+          else if (TagsChngd>0)
+            {
+            CWaitCursor Wait;
+            CloseIOMarshal();
+            CloseArcManager();
+#if WITHDRVMAN
+            CloseDrvManager();
+            OpenDrvManager();
+#endif
+            OpenArcManager();
+            OpenIOMarshal();
+            CTagVwDoc::RebuildAll();
+            }
+          }
+
+        ASSERT(_CrtCheckMemory());
+
+        FnSetTestLocalFiles(false);
+        long N=FnLocalFilesDifferentCount();
+        Strng_List &L=FnLocalFilesDifferentList();
+        if (N>0)
+          {
+          Strng *p;
+          for (p=L.First(); p; p=p->Next())
+            {
+            Strng S="?";
+            if (p->Index()&LCF_RmtChanged)
+              S="File original changed";
+            if (p->Index()&LCF_LclChanged)
+              S="File local copy changed";
+            if (p->Index()&LCF_RmtMissing)
+              S="File original missing";
+            if (p->Index()&LCF_LclMissing)
+              S="File local copy missing";
+            LogNote("Project", 0, "%s : %s", S(), p->Str());
+            }
+          LogWarning("Project", LF_Exclamation, N==1 ? "%i File changed or missing":"%i Files changed or missing", N);
+          FnLocalFilesDifferentClear();
+          }
+
+        WriteProjectSet();
+
+        // Old version now loaded - Remember Old Version
+        SetPrjFileVerNoAsLoaded(PrjFileVerNo());
+        // Set version to latest
+        SetPrjFileVerNo(LatestPrjFileVer);
         }
-      else
-        ((CMainFrame*)AfxGetMainWnd())->UpdateMainToolBar();
       }
 
-    CheckLicenseConditions();
-    CDlgBusy::Close();
-    MainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_PRJLOADED); //notify main window that project load is complete
-    MainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE/*, (LPARAM)pMsgFrame*/); //get main window thread to top AND make message window active top window
-    CMsgWindow::Show(false);
-
-    CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
-    pM->SetToolBarSolveMode();
-    }
-
-  bDoingLoad = 0;
-  bCmdSuccess = OK;
-
-  if (OK)
-    {
-    if (DoCheckTags)
-      {
-      int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericTagsBad, TaggedObject::NumericStartingTagsBad);
-      if (TagsChngd<0)
-        {
-        TaggedObject::NumericTagsBad = 0;
-        TaggedObject::NumericStartingTagsBad = 0;
-        }
-      else if (TagsChngd>0)
-        {
-        CWaitCursor Wait;
-        CloseIOMarshal();
-        CloseArcManager();
-        CloseDrvManager();
-        OpenDrvManager();
-        OpenArcManager();
-        OpenIOMarshal();
-        CTagVwDoc::RebuildAll();
-        }
-      }
-
-    ASSERT(_CrtCheckMemory());
-
-    FnSetTestLocalFiles(false);
-    long N=FnLocalFilesDifferentCount();
-    Strng_List &L=FnLocalFilesDifferentList();
-    if (N>0)
-      {
-      Strng *p;
-      for (p=L.First(); p; p=p->Next())
-        {
-        Strng S="?";
-        if (p->Index()&LCF_RmtChanged)
-          S="File original changed";
-        if (p->Index()&LCF_LclChanged)
-          S="File local copy changed";
-        if (p->Index()&LCF_RmtMissing)
-          S="File original missing";
-        if (p->Index()&LCF_LclMissing)
-          S="File local copy missing";
-        LogNote("Project", 0, "%s : %s", S(), p->Str());
-        }
-      LogWarning("Project", LF_Exclamation, N==1 ? "%i File changed or missing":"%i Files changed or missing", N);
-      FnLocalFilesDifferentClear();
-      }
-
-    if (CfgHome())
-      ScdPFUser.WrStr("General", "RecentBaseProjectDir", CfgHome());
-
-    // Old version now loaded - Remember Old Version
-    SetPrjFileVerNoAsLoaded(PrjFileVerNo());
-    // Set version to latest
-    SetPrjFileVerNo(PrjFileVer);
-    }
 
 #if CREATENETSERVER
-  if (01 && OK)
-    {
-    m_pCLRSrvr = new CNETServer;
-    m_pCLRSrvr->Startup();
-    }
-  else
-    m_pCLRSrvr = NULL;
+    if (01 && OK)
+      {
+      m_pCLRSrvr = new CNETServer;
+      m_pCLRSrvr->Startup();
+      }
+    else
+      m_pCLRSrvr = NULL;
 #endif
 
-  if (OK)
     gs_ProjectOpenFlag++;
-  return OK;
+
+
+    CDlgBusy::Close();
+    }
+
+  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  return true;
+
+DoneFailed:
+
+  CloseRmtCpy();
+
+  if (Do_NotOpenMsg && PrjFiles())
+    {
+    char buff[256];
+    sprintf(buff, "Project %s not Opened", PrjFiles());
+    AfxMessageBox(buff, MB_ICONEXCLAMATION|MB_OK);
+    }
+
+  DoNew(false);
+  bLoadBusy=0;
+
+  SetPrjFileVerNoAsLoaded(LatestPrjFileVer);
+  SetPrjFileVerNo(LatestPrjFileVer);
+
+  if (CDlgBusy::IsOpen())
+    CDlgBusy::Close();
+
+  ((CMainFrame*)AfxGetMainWnd())->UpdateMainToolBar();
+
+  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  return false;
   }
 
 //---------------------------------------------------------------------------
-#define UseDirectories 0
 
-flag Project::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL WithVersion, BOOL RemoveOld)
+flag CProject::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL WithVersion, BOOL RemoveOld)
   {
   m_Save.m_bRqstNew=IsNew;
 
@@ -5366,12 +6298,12 @@ flag Project::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL 
 
   //if (PrjFileVerNoAsLoaded()<PrjFileVerNo())
   if ((PrjFileVerNoAsLoaded()<17 && PrjFileVerNo()>=17) ||
-      (PrjFileVerNoAsLoaded()<45 && PrjFileVerNo()>=45) ||
-      (PrjFileVerNoAsLoaded()<63 && PrjFileVerNo()>=63) ||
-      (PrjFileVerNoAsLoaded()<68 && PrjFileVerNo()>=68) ||
-      (PrjFileVerNoAsLoaded()<69 && PrjFileVerNo()>=69) ||
-      (PrjFileVerNoAsLoaded()<73 && PrjFileVerNo()>=73) ||
-      (PrjFileVerNoAsLoaded()<76 && PrjFileVerNo()>=76) /* TOElementTagDigitCnt() Changed*/) 
+    (PrjFileVerNoAsLoaded()<45 && PrjFileVerNo()>=45) ||
+    (PrjFileVerNoAsLoaded()<63 && PrjFileVerNo()>=63) ||
+    (PrjFileVerNoAsLoaded()<68 && PrjFileVerNo()>=68) ||
+    (PrjFileVerNoAsLoaded()<69 && PrjFileVerNo()>=69) ||
+    (PrjFileVerNoAsLoaded()<73 && PrjFileVerNo()>=73) ||
+    (PrjFileVerNoAsLoaded()<76 && PrjFileVerNo()>=76) /* TOElementTagDigitCnt() Changed*/) 
     if (!bDoingSaveAs && !bDoingSaveAsNV)
       {
       LogWarning("Project", LF_Exclamation, "File format change:\n\nSaveAs or Save Version required");
@@ -5379,446 +6311,395 @@ flag Project::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL 
       return BadSave();
       }
 
-  if (pPrjPath!=NULL || PrjFile()==NULL || (bDoingSaveAs && !bDoingSaveAsNV))
-    {
-    #if UseDirectories
-    Strng DlgPrjHome("DlgPrjHome-");
-    DlgPrjHome+=CfgName();
-    Strng HDir(ScdPFUser.RdStr("Directories", DlgPrjHome(), ""));
-    if (HDir.GetLength()==0)
-      if (CfgHome()!=NULL)
-        HDir=CfgHome();
-      else
-        HDir=TemporaryFiles();
-    HDir.FnClearEndBSlash();
-    #else
-    Strng HDir(CfgHome());
-    /*//rather than check for cfgfiles in path, perhaps test if specie mdb is in this folder...?
-    const int HDirLen = HDir.Len();
-    if (HDirLen>9 && _strnicmp(&HDir[HDirLen-9], "CfgFiles", 7)==0)
-      HDir=HDir.Left(HDirLen-9);*/
-    #endif
+    if (pPrjPath!=NULL || PrjFile()==NULL || (bDoingSaveAs && !bDoingSaveAsNV))
+      {
+      Strng HDir(ReadProjectSet());
 
-    if (pPrjPath==NULL || strstr(pPrjPath, "*")!=0 ||
+      if (pPrjPath==NULL || strstr(pPrjPath, "*")!=0 ||
         strlen(pPrjPath)==0 || (PrjFile()==NULL && !IsNew) || bDoingSaveAs)
-      {//new project or save as...
-      DWORD dwFlags = /*OFN_OVERWRITEPROMPT |*/ OFN_CREATEPROMPT |
-                      OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE;
+        {//new project or save as...
+        DWORD dwFlags = /*OFN_OVERWRITEPROMPT |*/ OFN_CREATEPROMPT |
+          OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE;
 
-      Strng NewPrjFolder;
-      Strng DlgFileName("*.spj");
+        Strng NewPrjFolder;
+        Strng DlgFileName("*.spj");
 
-      for (;;)
-        {
-        CSCDFileDialog Dlg(false, "spj", DlgFileName(), dwFlags);//, "SysCAD project (*.spj)|*.spj||");
-        Dlg.m_ofn.lpstrInitialDir = HDir();
-        Dlg.m_ofn.lpstrTitle = IsNew ? "Create as" : "Save as";
-        Dlg.m_DoingPrjOpen=true;
-        if (Dlg.DoModal()==IDOK)
+        for (;;)
           {
-          NewPrjFolder = Dlg.GetPathName();
-          DlgFileName.FnNameExt(NewPrjFolder());
-          }
-        else
-          {
-          bCmdSuccess = false;
-          return BadSave();
-          }
-
-        // Test Location
-        Strng TstFoldPrv, TstPrj, TstPrjPrv, TstExtPrv, TstTmp(Dlg.GetPathName());
-        TstPrj.FnName(TstTmp());
-        TstPrj.FnCheckExtension("spf");
-        TstFoldPrv.FnDrivePath(TstTmp());
-        TstFoldPrv.FnClearEndBSlash();
-        TstPrjPrv.FnNameExt(TstFoldPrv());
-        TstExtPrv.FnExt(TstFoldPrv());
-        flag InAnother=true;
-        if (TstExtPrv.XStrICmp(".spf")!=0)
-          InAnother=false;
-        else
-          {
-          Strng TstNamePrv;
-          TstNamePrv.FnName(TstFoldPrv());
-          TstNamePrv.FnCheckExtension("spj");
-          Strng Tst(TstFoldPrv);
-          Tst.FnCheckEndBSlash();
-          Tst+=TstNamePrv();
-          if (!FileExists(Tst()))
-            InAnother=false;
-          }
-        if (InAnother)
-          {
-          Strng S;
-          S.Set("Set Project %s within %s", TstPrj(), TstPrjPrv());
-          if (AfxMessageBox(S(), MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)==IDYES)
-            break;
-          }
-        else
-          break;
-        }
-
-      // NewPrjFolder Extension will be "spj"
-      // Change to spf
-      NewPrjFolder.FnDrivePathName();
-      NewPrjFolder.FnCheckExtension("spf");
-      Strng Name;
-      Name.FnName(NewPrjFolder());
-      NewPrjFile=NewPrjFolder;
-      NewPrjFile.FnCheckEndBSlash();
-#if PrjSPJ
-      NewPrjFile+="Project";
-#elif DollarSPJ
-      NewPrjFile+="$";
-#else
-#if UScoreSPJ
-      NewPrjFile+="_";
-#endif
-      NewPrjFile+=Name;
-#endif
-      NewPrjFile.FnCheckExtension("spj");
-
-      #if UseDirectories
-      Strng PHome;//(NewPrjFile);
-      PHome.FnDrivePath(NewPrjFolder());
-      ScdPFUser.WrStr("Directories", DlgPrjHome(), PHome());
-      #endif
-      }
-    else
-      {
-      NewPrjFile = pPrjPath;
-
-      // Check that path exists
-      if (NewPrjFile.XStrPBrk(":\\")==0)
-        {
-        Strng N;
-        N.FnName(pPrjPath);
-        NewPrjFile=HDir;
-        NewPrjFile+=N;
-        NewPrjFile.FnCheckExtension("spf");
-        NewPrjFile.FnCheckEndBSlash();
-#if PrjSPJ
-        NewPrjFile+="Project";
-#elif DollarSPJ
-        NewPrjFile+="$";
-#else
-#if UScoreSPJ
-        NewPrjFile+="_";
-#endif
-        NewPrjFile+=N;
-#endif
-        NewPrjFile.FnCheckExtension("spj");
-        NewPrjFile.FnCheckEndBSlash();
-        }
-      }
-    }
-
-  Strng Folder;
-  Strng Name;
-  Strng ThisVers;
-  Strng CommentStr;
-  Strng NamePt1;
-  Strng NamePt2;
-  int ThisNo=-1;
-  int NewNo=0;
-  int NewWithAdornment=1;
-  if (bDoingSaveAs || bDoingSaveAsNV || IsNew && NewWithAdornment)
-    {
-//    NewPrjFile
-    Folder.FnDrivePath(NewPrjFile());
-    Folder.FnClearEndBSlash();
-    Folder.FnCheckExtension("spf");
-    Name.FnName(Folder());
-
-    int NumLen=0;
-
-    char *pVersionStart=Name.XStrRChr(VersionChar);
-    if (pVersionStart && Name.GetLength()>0)
-      {
-      //pVersionStart+=1;
-      ThisVers=pVersionStart+1;
-      NumLen=ThisVers.Length();
-      if (NumLen>=2 && NumLen<=4)
-        {
-        flag IsNum=true;
-        for (int i=0; i<NumLen; i++)
-          if (!isdigit(ThisVers[i]))
-            IsNum=false;
-        if (IsNum)
-          {
-          ThisNo=SafeAtoL(ThisVers(),0);
-          NewNo=((IsNew && !bDoingSaveAsNV) ? ThisNo : ThisNo+1);
-          Name.SetLength(pVersionStart-Name());
-          }
-        }
-      }
-
-    NamePt1=Name;
-    NamePt2="";
-
-    char * pCommentEnd=NamePt1.XStrRChr(ComEndChar);
-    if (pCommentEnd)
-      {
-      int iCommentEnd=pCommentEnd-NamePt1();
-      NamePt2=NamePt1.Right(NamePt1.Length()-iCommentEnd-1);
-      NamePt1.SetLength(iCommentEnd+1);
-      char*pCommentStart=NamePt1.XStrRChr(ComStartChar);
-      if (pCommentStart && (pCommentStart-NamePt1())>0)
-        {
-        CommentStr=pCommentStart+1;// Skip (
-        CommentStr.SetLength(CommentStr.GetLength()-1);// Strip )
-        NamePt1.SetLength(pCommentStart-NamePt1()); // Before (
-        }
-      }
-    else // Check for SubVersion
-      {
-      char * pFirstVersStart=NamePt1.XStrChr(VersionChar);
-      if (pFirstVersStart)
-        {
-        NamePt2=pFirstVersStart;
-        NamePt1.SetLength(pFirstVersStart-NamePt1());
-        }
-      }
-    }
-
-  if (bDoingSaveAs || bDoingSaveAsNV || IsNew)
-    {
-    CPrjSaveAsDlg  Dlg(sOldPrjFiles(), IsNew);
-    Dlg.m_CopyHist = true;
-    Dlg.m_VerStr=CommentStr() ? CommentStr() : "";
-    int DefMDBF = ScdPFUser.RdInt("General", "DefaultAccessFormat", 0);
-    Dlg.m_DbFmt=XDBFormat();//==DBO_CSV ? 2 : DefMDBF==0 ? 0 : 1);
-
-    Dlg.m_RemovePrevRevs=m_bRemoveRevs;
-    Dlg.m_CopyDBFromOld=m_bCopyDBFiles;
-
-    Dlg.m_DBOn=true;
-    Dlg.m_CopyDBOn=false;//ALWAYS default to false!!! (PrjFileVerNoAsLoaded()==PrjFileVerNo());
-    Dlg.m_CopyOn=(bDoingSaveAs || bDoingSaveAsNV);
-
-    if (Dlg.m_CopyOn)
-      {
-      pPFL->CheckUnknown();
-      for (int i=0; i<6; i++)
-        Dlg.m_CopyCnt[i] = pPFL->OtherFiles[i].GetSize();
-      }
-    if (IsNew || Dlg.DoModal()==IDOK)
-      {
-      if (CommentStr.XStrICmp((LPCTSTR)Dlg.m_VerStr)!=0)
-        NewNo=1;
-      CommentStr=Dlg.m_VerStr;
-      CommentStr.LRTrim();
-      memmove(m_DlgCopy, Dlg.m_Copy, sizeof(m_DlgCopy));
-      m_DlgCopyHist=Dlg.m_CopyHist;
-      XSetDBFormat(Dlg.m_DbFmt);//==0 ? DBO_MDB97 : Dlg.m_DbFmt==1 ? DBO_MDB2000 : DBO_CSV);
-      m_bRemoveRevs=Dlg.m_RemovePrevRevs;
-      if (Dlg.m_CopyDBOn)
-        m_bCopyDBFiles=Dlg.m_CopyDBFromOld;
-      }
-    else
-      {
-      bCmdSuccess = false;
-      return BadSave();
-      }
-    }
-
-  if (bDoingSaveAs || bDoingSaveAsNV || IsNew && NewWithAdornment)
-    {
-    Strng BaseFolder, NewName, CommStr;
-    BaseFolder.FnDrivePath(Folder());
-
-    if (CommentStr())
-      CommStr.Set("%c%s%c", ComStartChar, CommentStr(), ComEndChar);
-    else
-      CommStr="";
-
-    BOOL ForceName=!WithVersion;
-    BOOL RemoveIt=RemoveOld;
-    Name=NamePt1;
-    Name+=CommStr;
-    Name+=NamePt2;
-    Strng Vers0;
-    if (ThisNo>=0)
-      Vers0.Set("%c%02i", VersionChar, ThisNo);
-    if (bDoingSaveAsNV || IsNew && NewWithAdornment)
-      {
-      Strng NewVers;
-      NewVers.Set("%c%02i", VersionChar, NewNo);
-
-      NewName=Name;
-      if (ForceName)
-        {
-        NewPrjFile=BaseFolder;
-        NewPrjFile+=NewName;
-        NewPrjFile.FnCheckExtension("spf");
-        if (FileExists(NewPrjFile()))
-          {
-          if (!RmtCmdBusy() && !RemoveIt)
+          CSCDFileDialog Dlg(false, "spj", DlgFileName(), dwFlags);//, "SysCAD project (*.spj)|*.spj||");
+          Dlg.m_ofn.lpstrInitialDir = HDir();
+          Dlg.m_ofn.lpstrTitle = IsNew ? "Create as" : "Save as";
+          Dlg.m_DoingPrjOpen=true;
+          if (Dlg.DoModal()==IDOK)
             {
-            Strng T;
-            T.Set("Project '%s' currently exists\n\nRemove It", NewPrjFile());
-            if (AfxMessageBox(T(), MB_YESNO|MB_ICONQUESTION)==IDYES)
-              RemoveIt=true;
-            else
-              {
-              bCmdSuccess = false;
-              return BadSave();
-              }
-            }
-
-          if (RemoveIt)
-            {
-            if (!ClearFolder(NewPrjFile(), true))
-              {
-              LogError("Project", 0, "Project '%s' not removed", NewPrjFile());
-              bCmdSuccess = false;
-              return BadSave();
-              }
+            NewPrjFolder = Dlg.GetPathName();
+            DlgFileName.FnNameExt(NewPrjFolder());
             }
           else
             {
-            LogError("Project", 0, "Project '%s' currently exists", NewPrjFile());
             bCmdSuccess = false;
             return BadSave();
             }
+
+          // Test Location
+          Strng TstFoldPrv, TstPrj, TstPrjPrv, TstExtPrv, TstTmp(Dlg.GetPathName());
+          TstPrj.FnName(TstTmp());
+          TstPrj.FnCheckExtension("spf");
+          TstFoldPrv.FnDrivePath(TstTmp());
+          TstFoldPrv.FnClearEndBSlash();
+          TstPrjPrv.FnNameExt(TstFoldPrv());
+          TstExtPrv.FnExt(TstFoldPrv());
+          flag InAnother=true;
+          if (TstExtPrv.XStrICmp(".spf")!=0)
+            InAnother=false;
+          else
+            {
+            Strng TstNamePrv;
+            TstNamePrv.FnName(TstFoldPrv());
+            TstNamePrv.FnCheckExtension("spj");
+            Strng Tst(TstFoldPrv);
+            Tst.FnCheckEndBSlash();
+            Tst+=TstNamePrv();
+            if (!FileExists(Tst()))
+              InAnother=false;
+            }
+          if (InAnother)
+            {
+            Strng S;
+            S.Set("Set Project %s within %s", TstPrj(), TstPrjPrv());
+            if (AfxMessageBox(S(), MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)==IDYES)
+              break;
+            }
+          else
+            break;
           }
+
+        // NewPrjFolder Extension will be "spj"
+        // Change to spf
+        NewPrjFolder.FnDrivePathName();
+        NewPrjFolder.FnCheckExtension("spf");
+        Strng Name;
+        Name.FnName(NewPrjFolder());
+        NewPrjFile=NewPrjFolder;
+        NewPrjFile.FnCheckEndBSlash();
+        NewPrjFile+="Project";
+        NewPrjFile.FnCheckExtension("spj");
+
         }
       else
         {
-        NewName+=NewVers;
-        // Check does not exist
-        for (int Pass=0;;Pass++)
+        NewPrjFile = pPrjPath;
+
+        // Check that path exists
+        if (NewPrjFile.XStrPBrk(":\\")==0)
+          {
+          Strng N;
+          N.FnName(pPrjPath);
+          NewPrjFile=HDir;
+          NewPrjFile+=N;
+          NewPrjFile.FnCheckExtension("spf");
+          NewPrjFile.FnCheckEndBSlash();
+          NewPrjFile+="Project";
+          NewPrjFile.FnCheckExtension("spj");
+          NewPrjFile.FnCheckEndBSlash();
+          }
+        }
+      }
+
+    Strng Folder;
+    Strng Name;
+    Strng ThisVers;
+    Strng CommentStr;
+    Strng NamePt1;
+    Strng NamePt2;
+    int ThisNo=-1;
+    int NewNo=0;
+    int NewWithAdornment=1;
+    if (bDoingSaveAs || bDoingSaveAsNV || IsNew && NewWithAdornment)
+      {
+      //    NewPrjFile
+      Folder.FnDrivePath(NewPrjFile());
+      Folder.FnClearEndBSlash();
+      Folder.FnCheckExtension("spf");
+      Name.FnName(Folder());
+
+      int NumLen=0;
+
+      char *pVersionStart=Name.XStrRChr(VersionChar);
+      if (pVersionStart && Name.GetLength()>0)
+        {
+        //pVersionStart+=1;
+        ThisVers=pVersionStart+1;
+        NumLen=ThisVers.Length();
+        if (NumLen>=2 && NumLen<=4)
+          {
+          flag IsNum=true;
+          for (int i=0; i<NumLen; i++)
+            if (!isdigit(ThisVers[i]))
+              IsNum=false;
+          if (IsNum)
+            {
+            ThisNo=SafeAtoL(ThisVers(),0);
+            NewNo=((IsNew && !bDoingSaveAsNV) ? ThisNo : ThisNo+1);
+            Name.SetLength(pVersionStart-Name());
+            }
+          }
+        }
+
+      NamePt1=Name;
+      NamePt2="";
+
+      char * pCommentEnd=NamePt1.XStrRChr(ComEndChar);
+      if (pCommentEnd)
+        {
+        int iCommentEnd=pCommentEnd-NamePt1();
+        NamePt2=NamePt1.Right(NamePt1.Length()-iCommentEnd-1);
+        NamePt1.SetLength(iCommentEnd+1);
+        char*pCommentStart=NamePt1.XStrRChr(ComStartChar);
+        if (pCommentStart && (pCommentStart-NamePt1())>0)
+          {
+          CommentStr=pCommentStart+1;// Skip (
+          CommentStr.SetLength(CommentStr.GetLength()-1);// Strip )
+          NamePt1.SetLength(pCommentStart-NamePt1()); // Before (
+          }
+        }
+      else // Check for SubVersion
+        {
+        char * pFirstVersStart=NamePt1.XStrChr(VersionChar);
+        if (pFirstVersStart)
+          {
+          NamePt2=pFirstVersStart;
+          NamePt1.SetLength(pFirstVersStart-NamePt1());
+          }
+        }
+      }
+
+    if (bDoingSaveAs || bDoingSaveAsNV || IsNew)
+      {
+      CPrjSaveAsDlg  Dlg(m_sPrevPrjFiles(), IsNew);
+      Dlg.m_CopyHist = true;
+      Dlg.m_VerStr=CommentStr() ? CommentStr() : "";
+      int DefMDBF = ScdPFUser.RdInt("General", "DefaultAccessFormat", 0);
+      Dlg.m_DbFmt=XDBFormat();//==DBO_CSV ? 2 : DefMDBF==0 ? 0 : 1);
+
+      Dlg.m_RemovePrevRevs=m_bRemoveRevs;
+      Dlg.m_CopyDBFromOld=m_bCopyDBFiles;
+
+      Dlg.m_DBOn=true;
+      Dlg.m_CopyDBOn=false;//ALWAYS default to false!!! (PrjFileVerNoAsLoaded()==PrjFileVerNo());
+      Dlg.m_CopyOn=(bDoingSaveAs || bDoingSaveAsNV);
+
+      if (Dlg.m_CopyOn)
+        {
+        pPFL->CheckUnknown();
+        for (int i=0; i<6; i++)
+          Dlg.m_CopyCnt[i] = pPFL->OtherFiles[i].GetSize();
+        }
+      if (IsNew || Dlg.DoModal()==IDOK)
+        {
+        if (CommentStr.XStrICmp((LPCTSTR)Dlg.m_VerStr)!=0)
+          NewNo=1;
+        CommentStr=Dlg.m_VerStr;
+        CommentStr.LRTrim();
+        memmove(m_DlgCopy, Dlg.m_Copy, sizeof(m_DlgCopy));
+        m_DlgCopyHist=Dlg.m_CopyHist;
+        XSetDBFormat(Dlg.m_DbFmt);//==0 ? DBO_MDB97 : Dlg.m_DbFmt==1 ? DBO_MDB2000 : DBO_CSV);
+        m_bRemoveRevs=Dlg.m_RemovePrevRevs;
+        if (Dlg.m_CopyDBOn)
+          m_bCopyDBFiles=Dlg.m_CopyDBFromOld;
+        }
+      else
+        {
+        bCmdSuccess = false;
+        return BadSave();
+        }
+      }
+
+    if (bDoingSaveAs || bDoingSaveAsNV || IsNew && NewWithAdornment)
+      {
+      Strng BaseFolder, NewName, CommStr;
+      BaseFolder.FnDrivePath(Folder());
+
+      if (CommentStr())
+        CommStr.Set("%c%s%c", ComStartChar, CommentStr(), ComEndChar);
+      else
+        CommStr="";
+
+      BOOL ForceName=!WithVersion;
+      BOOL RemoveIt=RemoveOld;
+      Name=NamePt1;
+      Name+=CommStr;
+      Name+=NamePt2;
+      Strng Vers0;
+      if (ThisNo>=0)
+        Vers0.Set("%c%02i", VersionChar, ThisNo);
+      if (bDoingSaveAsNV || IsNew && NewWithAdornment)
+        {
+        Strng NewVers;
+        NewVers.Set("%c%02i", VersionChar, NewNo);
+
+        NewName=Name;
+        if (ForceName)
           {
           NewPrjFile=BaseFolder;
           NewPrjFile+=NewName;
           NewPrjFile.FnCheckExtension("spf");
-          if (!FileExists(NewPrjFile()))
-            break;
-          if (1)
+          if (FileExists(NewPrjFile()))
             {
-            // Bump version # up and try again
-            NewNo++;
-            NewVers.Set("%c%02i", VersionChar, NewNo);
-            NewName=Name;
-            NewName+=NewVers;
-            }
-          else
-            {
-            // Append another version #
-            NewVers=VersionChar;
-            NewVers+="00";
-            if (Pass==0)
+            if (!RmtCmdBusy() && !RemoveIt)
               {
-              NewName=Name;
-              NewName+=Vers0;
+              Strng T;
+              T.Set("Project '%s' currently exists\n\nRemove It", NewPrjFile());
+              if (AfxMessageBox(T(), MB_YESNO|MB_ICONQUESTION)==IDYES)
+                RemoveIt=true;
+              else
+                {
+                bCmdSuccess = false;
+                return BadSave();
+                }
+              }
+
+            if (RemoveIt)
+              {
+              if (!ClearFolder(NewPrjFile(), true))
+                {
+                LogError("Project", 0, "Project '%s' not removed", NewPrjFile());
+                bCmdSuccess = false;
+                return BadSave();
+                }
+              }
+            else
+              {
+              LogError("Project", 0, "Project '%s' currently exists", NewPrjFile());
+              bCmdSuccess = false;
+              return BadSave();
+              }
             }
-            NewName+=NewVers;
+          }
+        else
+          {
+          NewName+=NewVers;
+          // Check does not exist
+          for (int Pass=0;;Pass++)
+            {
+            NewPrjFile=BaseFolder;
+            NewPrjFile+=NewName;
+            NewPrjFile.FnCheckExtension("spf");
+            if (!FileExists(NewPrjFile()))
+              break;
+            if (1)
+              {
+              // Bump version # up and try again
+              NewNo++;
+              NewVers.Set("%c%02i", VersionChar, NewNo);
+              NewName=Name;
+              NewName+=NewVers;
+              }
+            else
+              {
+              // Append another version #
+              NewVers=VersionChar;
+              NewVers+="00";
+              if (Pass==0)
+                {
+                NewName=Name;
+                NewName+=Vers0;
+                }
+              NewName+=NewVers;
+              }
             }
           }
         }
-      }
-    else
-      {
-      NewName=Name;
-      NewName+=Vers0;
-      NewPrjFile=BaseFolder;
-      NewPrjFile+=NewName;
-      NewPrjFile.FnCheckExtension("spf");
-      }
-
-    NewPrjFile.FnCheckEndBSlash();
-#if PrjSPJ
-    NewPrjFile+="Project";
-#elif DollarSPJ
-    NewPrjFile+="$";
-#else
-#if UScoreSPJ
-    NewPrjFile+="_";
-#endif
-    NewPrjFile+=NewName;
-#endif
-    NewPrjFile.FnCheckExtension("spj");
-    }
-  else if (!IsNew)
-    XSetDBFormat(DBConnect_Find);
-
-//  bReadOnlyPrj = 0;
-
-  //sPrjFile=NewPrjFile;
-
-  Strng NewPrjFolder;
-  NewPrjFolder.FnDrivePath(NewPrjFile());
-  NewPrjFolder.FnClearEndBSlash();
-  NewPrjFolder.FnCheckExtension("spf");
-  Strng NewPrjFolderName(NewPrjFolder);
-  NewPrjFolder.FnCheckEndBSlash();
-
-  //flag NewPrj = (PrjFile()==NULL || (_stricmp(PrjFile(), NewPrjFile())!=0));
-  m_Save.m_bIsNewPrj = (PrjFile()==NULL || (_stricmp(PrjFile(), NewPrjFile())!=0));
-  Strng OrigPrjFiles=PrjFiles();
-  Strng OrigPrjFile=PrjFile();
-
-  flag DoCreateErrMsg=true;
-  if (bDoingSaveAs && FileExists(NewPrjFolderName()))
-    {
-    if (NewPrjFolder.XStrICmp(PrjFiles())==0)
-      {
-      LogError("Project", 0, "Project '%s' currently open - Use Save", NewPrjFolder());
-      bCmdSuccess = false;
-      return BadSave();
-      }
-    Strng T;
-    T.Set("Overwrite '%s*.*'?\n\nNote: All original contents will be lost!", NewPrjFolder());
-    if (AfxMessageBox(T(), MB_YESNO|MB_ICONQUESTION)==IDNO)
-      {
-      bCmdSuccess = false;
-      return BadSave();
-      }
-    else
-      {
-      //SetPrjFiles();//NewPrjFolder(), NewPrjFile());
-      //SetPrjFiles(OrigPrjFiles(), OrigPrjFile());
-      SetPrjRmtCpyFiles(NULL);
-      DoCreateErrMsg = ClearFolder(NewPrjFolderName(), true);
-      if (!DoCreateErrMsg)
-        LogNote("SysCAD", 0, "Deleted contents and folder '%s'", NewPrjFolderName());
-      }
-    }
-
-  if (m_Save.m_bIsNewPrj || !FileExists(NewPrjFolderName()))
-    {
-    if (!CreateDirectory(NewPrjFolderName(), NULL))
-      if (DoCreateErrMsg)
+      else
         {
-        Strng E;
-        E.GetSystemErrorStr(GetLastError());
-        LogError("SysCAD", LF_Exclamation,
-            "Project folder not created :\n%s\n%s", NewPrjFolderName(), E());
-        SetPrjFiles(OrigPrjFiles(), OrigPrjFile());
+        NewName=Name;
+        NewName+=Vers0;
+        NewPrjFile=BaseFolder;
+        NewPrjFile+=NewName;
+        NewPrjFile.FnCheckExtension("spf");
+        }
+
+      NewPrjFile.FnCheckEndBSlash();
+      NewPrjFile+="Project";
+      NewPrjFile.FnCheckExtension("spj");
+      }
+    else if (!IsNew)
+      XSetDBFormat(DBConnect_Find);
+
+    //  bReadOnlyPrj = 0;
+
+    //sPrjFile=NewPrjFile;
+
+    Strng NewPrjFolder;
+    NewPrjFolder.FnDrivePath(NewPrjFile());
+    NewPrjFolder.FnClearEndBSlash();
+    NewPrjFolder.FnCheckExtension("spf");
+    Strng NewPrjFolderName(NewPrjFolder);
+    NewPrjFolder.FnCheckEndBSlash();
+
+    //flag NewPrj = (PrjFile()==NULL || (_stricmp(PrjFile(), NewPrjFile())!=0));
+    m_Save.m_bIsNewPrj = (PrjFile()==NULL || (_stricmp(PrjFile(), NewPrjFile())!=0));
+    Strng OrigPrjFiles=PrjFiles();
+    Strng OrigPrjFile=PrjFile();
+
+    flag DoCreateErrMsg=true;
+    if (bDoingSaveAs && FileExists(NewPrjFolderName()))
+      {
+      if (NewPrjFolder.XStrICmp(PrjFiles())==0)
+        {
+        LogError("Project", 0, "Project '%s' currently open - Use Save", NewPrjFolder());
+        bCmdSuccess = false;
         return BadSave();
         }
-    SetPrjFiles(NewPrjFolder(), NewPrjFile());
-    HstMngr.sHstDataDir = PrjFilesAlias();
-    HstMngr.sHstCatDir = PrjFilesAlias();
-    }
+      Strng T;
+      T.Set("Overwrite '%s*.*'?\n\nNote: All original contents will be lost!", NewPrjFolder());
+      if (AfxMessageBox(T(), MB_YESNO|MB_ICONQUESTION)==IDNO)
+        {
+        bCmdSuccess = false;
+        return BadSave();
+        }
+      else
+        {
+        //SetPrjFiles();//NewPrjFolder(), NewPrjFile());
+        //SetPrjFiles(OrigPrjFiles(), OrigPrjFile());
+        SetPrjRmtCpyFiles(NULL);
+        DoCreateErrMsg = ClearFolder(NewPrjFolderName(), true);
+        if (!DoCreateErrMsg)
+          LogNote("SysCAD", 0, "Deleted contents and folder '%s'", NewPrjFolderName());
+        }
+      }
 
-  if (!IsNew)
-    {
-    Strng NewCfgFile  = CfgFile();
-    Strng NewCfgFiles = CfgFiles();
-    Strng NewCfgHome  = CfgHome();
+    if (m_Save.m_bIsNewPrj || !FileExists(NewPrjFolderName()))
+      {
+      if (!CreateDirectory(NewPrjFolderName(), NULL))
+        if (DoCreateErrMsg)
+          {
+          Strng E;
+          E.GetSystemErrorStr(GetLastError());
+          LogError("SysCAD", LF_Exclamation,
+            "Project folder not created :\n%s\n%s", NewPrjFolderName(), E());
+          SetPrjFiles(OrigPrjFiles(), OrigPrjFile());
+          return BadSave();
+          }
+        SetPrjFiles(NewPrjFolder(), NewPrjFile());
+        HstMngr.sHstDataDir = PrjFilesAlias();
+        HstMngr.sHstCatDir = PrjFilesAlias();
+      }
 
-    SwingFileNameToDest(NewCfgFile, OrigPrjFiles, NewPrjFolder);
-    SwingFileNameToDest(NewCfgFiles, OrigPrjFiles, NewPrjFolder);
-    SwingFileNameToDest(NewCfgHome, OrigPrjFiles, NewPrjFolder);
+    if (!IsNew)
+      {
+      Strng NewCfgFile  = CfgFile();
+      Strng NewCfgFiles = CfgFiles();
 
-    SetCfgFile(NewCfgFile());
-    SetCfgFiles(NewCfgFiles());
-    SetCfgHome(NewCfgHome());
+      SwingFileNameToDest(NewCfgFile, OrigPrjFiles, NewPrjFolder);
+      SwingFileNameToDest(NewCfgFiles, OrigPrjFiles, NewPrjFolder);
 
-    }
-//  dbgDumpFilesAliases();
-  return GoodSave();
+      SetCfgFile(NewCfgFile());
+      SetCfgFiles(NewCfgFiles());
+
+      }
+    //  dbgDumpFilesAliases();
+    return GoodSave();
   }
 
 // --------------------------------------------------------------------------
@@ -5831,7 +6712,7 @@ static void ClearRepeatedBackupFolder(Strng & DstFull)
   Strng Tmp;
   Tmp.Set("\\%s\\%s\\", BackupFilesFolderName(), BackupFilesFolderName());
   if (DLen>9 && Tmp.XStrICmp(&DstFull[DLen-9])==0)
-  //if (Where==AF_BackupFiles)
+    //if (Where==AF_BackupFiles)
     {
     // Remove Extra $LC
     DstFull.FnClearEndBSlash();
@@ -5946,7 +6827,7 @@ void CSFPInfo::SwingFilePath(flag DoingSaveAs, LPCTSTR Fn)
 
 // --------------------------------------------------------------------------
 
-flag Project::CopyOtherFile(CSFPInfo & SFI)
+flag CProject::CopyOtherFile(CSFPInfo & SFI)
   {
   DBGLN(">>>");
   dbgpln("%s %s  %s",SFI.SrcExists?"Exists ":"Missing", SFI.CopyReqd?"Copy":"   ", SFI.SrcFull());
@@ -5959,7 +6840,7 @@ flag Project::CopyOtherFile(CSFPInfo & SFI)
     if (!FileExists(DstFold()) && !FnCreatePath(DstFold(), E))
       {
       LogError("SysCAD", LF_Exclamation,
-               "Folder not created :\n%s\n%s",DstFold(),E());
+        "Folder not created :\n%s\n%s",DstFold(),E());
       DBGLN("<<<");
       return false;// continue;
       }
@@ -5984,13 +6865,13 @@ flag Project::CopyOtherFile(CSFPInfo & SFI)
 
       /* do not set the readonly attribute
       if (!AttsOK)
-        {
-        OrigFileAtts=::GetFileAttributes(DstFull());
-        AttsOK=OrigFileAtts!=0xFFFFFFFF;
-        OrigFileAtts |= FILE_ATTRIBUTE_READONLY;
-        }
+      {
+      OrigFileAtts=::GetFileAttributes(DstFull());
+      AttsOK=OrigFileAtts!=0xFFFFFFFF;
+      OrigFileAtts |= FILE_ATTRIBUTE_READONLY;
+      }
       if (AttsOK)
-        ::SetFileAttributes(DstFull(), OrigFileAtts);
+      ::SetFileAttributes(DstFull(), OrigFileAtts);
       */
       LogNote("SysCAD", 0, "Local Copy:%s",SFI.SrcFull());
       DBGLN("<<<");
@@ -6001,12 +6882,12 @@ flag Project::CopyOtherFile(CSFPInfo & SFI)
       // Restore Readonly
       /* do not set the readonly attribute
       if (AttsOK)
-        ::SetFileAttributes(DstFull(), OrigFileAtts);
+      ::SetFileAttributes(DstFull(), OrigFileAtts);
       */
       Strng E;
       E.GetSystemErrorStr(GetLastError());
       LogError("SysCAD", LF_Exclamation,
-                 "File not copied :\n%s\n%s",SFI.SrcFull(),E());
+        "File not copied :\n%s\n%s",SFI.SrcFull(),E());
       }
     }
   DBGLN("<<<");
@@ -6015,7 +6896,7 @@ flag Project::CopyOtherFile(CSFPInfo & SFI)
 
 // --------------------------------------------------------------------------
 
-int Project::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
+int CProject::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
   {
   int RefCnt=0;
   int i,j;
@@ -6080,7 +6961,7 @@ int Project::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
       }
     }
 
-  #if WithRmtFile
+#if WithRmtFile
   //create compound storage file for remote files...
   ii=0;
   Strng LcFn=PrjFiles();
@@ -6090,8 +6971,8 @@ int Project::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
   AfxA2WHelper(WFn, LcFn(), LcFn.Length()+1);
   IStoragePtr spStorage;
   HRESULT hr=::StgCreateDocfile(WFn,
-          STGM_DIRECT | STGM_READWRITE | STGM_CREATE | STGM_SHARE_EXCLUSIVE,
-          0, &spStorage);
+    STGM_DIRECT | STGM_READWRITE | STGM_CREATE | STGM_SHARE_EXCLUSIVE,
+    0, &spStorage);
 
   if (S_OK==hr)
     {
@@ -6105,7 +6986,7 @@ int Project::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
           if (fi.PrjScope)
             {
             /*if (CopyOtherFile(fi))
-              NCopied++;*/
+            NCopied++;*/
             }
           else
             {
@@ -6213,9 +7094,9 @@ int Project::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
     }
   else
     LogError("SysCAD", 0, "Storage %s not created", LcFn());
-  #endif
+#endif
 
-  #if WITHZIP
+#if WITHZIP
   //create zip backup for remote files...
   ii=0;
   Strng ZpFn(PrjFiles());
@@ -6275,7 +7156,7 @@ int Project::CopyOtherFiles(CPrjFilesLists &PFL, CProfINIFile &PF)
   int ret = zf.ZipIt();
   if (ret!=0)
     LogWarning("SysCAD", 0, "Unable to create zip file '%s'", ZpFn());
-  #endif
+#endif
 
   return NCopied;
   }
@@ -6368,8 +7249,8 @@ static void DoRdStorage(WCHAR * WFn, IStoragePtr & spRtStorage, LPCTSTR Path)
               }
             }
             break;
-          //STGTY_LOCKBYTES
-          //STGTY_PROPERTY
+            //STGTY_LOCKBYTES
+            //STGTY_PROPERTY
           }
         CoTaskMemFree(stg.pwcsName);
         }
@@ -6386,7 +7267,7 @@ static void DoRdStorage(WCHAR * WFn, IStoragePtr & spRtStorage, LPCTSTR Path)
 
 // --------------------------------------------------------------------------
 
-void Project::ExpandStg(LPCTSTR StgFn, LPCTSTR Fn)
+void CProject::ExpandStg(LPCTSTR StgFn, LPCTSTR Fn)
   {
   WCHAR WFn[MAX_PATH];
   AfxA2WHelper(WFn, StgFn, strlen(StgFn)+1);
@@ -6397,19 +7278,10 @@ void Project::ExpandStg(LPCTSTR StgFn, LPCTSTR Fn)
 
 // --------------------------------------------------------------------------
 
-static char * FnPathRelContract(char * Fn)
+flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   {
-  static Strng Tmp;
-  Tmp=Fn;
-  Tmp.FnMakePrjFileRelative();
-  Tmp.FnContract();
-  return Tmp();
-  }
+  dbgpln("--------------------- CProject::DoSave");
 
-// --------------------------------------------------------------------------
-
-flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
-  {
   // Build these lists before 'SetPrjFiles' changes the meaning of Aliases
   //  SetUsePreviousPrjAlias(bDoingSaveAs);
   CPrjFilesLists PFL;
@@ -6424,7 +7296,7 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   dbgDumpFilesAliases();
   //Strng CfgF(CfgFile());
 
-  bReadOnlyPrj = 0;
+  m_bReadOnlyPrj = 0;
 
   //  sPrjFile = NewPrjFile();
   // NBNBNB if Busy is Open this call gets confused
@@ -6444,14 +7316,14 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   Strng s;
   if (bDoingSaveAs && !AllGrfLoaded())
     {//Copy all DXF files...
-    s = sOldPrjFiles;
+    s = m_sPrevPrjFiles;
     s += "*.dxf";
     WIN32_FIND_DATA fd;
     HANDLE H = FindFirstFile(s(), &fd);
     flag AllDone = (H==INVALID_HANDLE_VALUE);
     while (!AllDone)
       {
-      s = sOldPrjFiles;
+      s = m_sPrevPrjFiles;
       s += fd.cFileName;
       Copy_File(s(), PrjFiles());
       AllDone = !FindNextFile(H, &fd);
@@ -6467,194 +7339,37 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   char DT[64],TM[64];
   _strdate(DT);
   _strtime(TM);
-  DeleteFile(PrjFile()); //delete old spj file
-  CProfINIFile PF(PrjFile());
-  PF.WrInt("General", "PrjFileVersion", PrjFileVer);
-  PF.WrInt("General", "PrjFileVersionOriginal", OrigPrjFileVerNo());
-  PF.WrStr("LastSaveInfo", "SysCADVersion", FullVersion());
-  s="-";
-  if (strlen(SCD_PATCHNOTE)>0)
-    {
-    if (strlen(SCD_PATCHDATE)>0)
-      s.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
-    else
-      s.Set("%s", SCD_PATCHNOTE);
-    }
-  PF.WrStr("LastSaveInfo", "SysCAD_Update", s());
-  PF.WrStr("LastSaveInfo", "LastSaveDate", DT);
-  PF.WrStr("LastSaveInfo", "LastSaveTime", TM);
-  PF.WrStr("LastSaveInfo", "WinNT", IsWinNT ? "y" : "n");
-  char Buff[512];
-  DWORD Sz = sizeof(Buff);
-  if (GetUserName(Buff, &Sz))
-    PF.WrStr("LastSaveInfo", "UserName", Buff);
-  Sz = sizeof(Buff);
-  if (GetComputerName(Buff, &Sz))
-    PF.WrStr("LastSaveInfo", "ComputerName", Buff);
 
-  SetPrjFileVerNo(PrjFileVer);
+  DeleteFile(PrjFile()); //delete old spj file
+
+  CProfINIFile PF(PrjFile());
+
+  GetSettings();
+
   PF.WrStr("General", "PrjName", PrjName());
   PF.WrStr("General", "PrjFiles", PrjFiles());
 
   PF.WrStr("General", "CfgFile", FnPathRelContract(CfgFile()));
-  PF.WrStr("General", "CfgFiles", FnPathRelContract(CfgFiles()));
-  PF.WrStr("General", "CfgHome", FnPathRelContract(CfgHome()));
-  //PF.WrInt("General", "BackupUsage", 0);
   PF.WrInt("General", "LocalPrjFiles", UsingPrjLclFiles());
 
-  PF.WrInt64("General", "ExecTime", gs_Exec.TheTime.Raw);
-  PF.WrInt64("General", "StepSizeMax", gs_Exec.StepSizeMax.Raw);
-  PF.WrLong("General", "RealTime", gs_Exec.RealTime() != 0);
-  PF.WrDouble("General", "RealTimeMult", gs_Exec.RealTimeMult());
-  PF.WrLong("General", "SyncWithClock", gs_Exec.SyncWithClock() != 0);
+  WriteSettings(PF, true);
 
-  PF.WrInt("General", "TermType", (int)gs_Exec.ScnType);
-  PF.WrInt("General", "TermAction", (int)gs_Exec.ScnTermAction);
-  PF.WrInt64("General", "ScnStopTime", gs_Exec.ScnStopTime.Raw);
-  PF.WrInt64("General", "ScnDuration", gs_Exec.ScnDuration.Raw);
-  PF.WrLong("General", "MaxRunIters", gs_Exec.StepCountMax);
-  PF.WrLong("General", "ToolBarTips", bToolTips);
-  PF.WrLong("General", "ToolBarFlyBys", bFlyBys);
-  PF.WrLong("General", "DefaultRecordIt", bDefaultRecordIt);
-  PF.WrLong("General", "FlashTrend", bFlashTrend);
-  PF.WrLong("General", "ShowNewTrndLineDlg", bShowNewTrndLineDlg);
-  PF.WrLong("General", "StatsRefreshCount", Max(1L, lStatsRefreshCnt));
-  //PF.WrInt("General", "ProBalMode", GetProBalMode());
-  //PF.WrInt("General", "DynamicFlowMode", GetDynModeFlow());
-  //PF.WrStr("General", "SolveMode", gs_Exec.GlblRunModesString());
-  PF.WrStr("General", "RunMode", gs_Exec.GlblRunModesString(SM_All));
-  PF.WrStr("General", "HeatMode", gs_Exec.GlblRunModesString(HM_All));
-  PF.WrStr("General", "DefaultLibrary", m_sDefGrpLib());
-  PF.WrStr("General", "GraphicsFrame", m_sGrfFrameName());
-  PF.WrStr("General", "GraphicsFilter", m_sGrfFrameFilter());
-  PF.WrLong("General", "GrfDeferLoad", bGrfDeferLoad);
-  PF.WrLong("General", "GrfAutoLoad", bGrfAutoLoad);
-  PF.WrLong("General", "GrfUpdateAnnotation", bGrfUpdateAnnot);
-  PF.WrLong("General", "GrfAnimationOn", bGrfAnimationOn);
-  PF.WrLong("General", "GrfPromptForZoom", bGrfPromptForZoom);
-  PF.WrLong("General", "GrfRegExpOn", bGrfRegExpOn);
-  PF.WrLong("General", "ReadOnly", bReadOnlyPrj);
-  PF.WrLong("General", "DisplayTagsOnly", GetDisplayTagsOnly());
-  PF.WrLong("General", "HideZeros", GetHideZeros());
-  PF.WrLong("General", "ShowGroups", SVI.GetShowGroups());
-  PF.WrLong("General", "NumericTagsBad", TaggedObject::NumericTagsBad);
-  PF.WrLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad);
-  PF.WrLong("General", "NonNumericTagChr", TaggedObject::NonNumericTagChr);
+  HstMngr.GetOnRqd();
+  HstMngr.WriteSettings(PF);
 
-  PF.WrLong("General", "GrfBehaviour",  m_GrfBehaviour);
-  PF.WrLong("General", "TrndBehaviour", m_TrndBehaviour);
-
-  PF.WrLong("RunStartup", "EmptyAll",     m_bRunOptEmptyAll     ?1:0);
-  PF.WrLong("RunStartup", "EmptySpills",  m_bRunOptEmptySpills  ?1:0);
-  PF.WrLong("RunStartup", "ZeroFlows",    m_bRunOptZeroFlows    ?1:0);    
-  PF.WrLong("RunStartup", "InitialiseAll",m_bRunOptInitialiseAll?1:0);
-  PF.WrLong("RunStartup", "ResetStats",   m_bRunOptResetStats   ?1:0);   
-  PF.WrLong("RunStartup", "OnceOnly",     m_bRunOptOnceOnly    ?1:0);    
-
-  PF.WrLong("Database", "RemovePreviousRevisions", m_bRemoveRevs);
-  PF.WrLong("Database", "CopyDBFiles", m_bCopyDBFiles);
-
-  PF.WrInt("Solver", "StatusWnd", Solver.fStateWnd);
-  PF.WrInt("Solver", "StatusPinned", Solver.fStatePinned);
-  PF.WrInt("Solver", "StatusErrors", Solver.fStateErrors);
-  PF.WrInt("Solver", "StatusX", Solver.iStateX);
-  PF.WrInt("Solver", "StatusY", Solver.iStateY);
-
-  PF.WrLong("SpModel", "FixupStrategy", gs_pPrj->pFlwLib->FE_SpModelFixupStrategy());
-
-  if (PrjFileVerNo()>=98)
-    {
-    PF.WrInt64("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime.Raw);
-    PF.WrInt64("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration().Raw);
-    }
-  else
-    {
-    __debugbreak();
-    //PF.WrDouble("Trend", "GlobalStartTime", CTagVwDoc::GTB.StartTime);
-    //PF.WrDouble("Trend", "GlobalDuration", CTagVwDoc::GTB.Duration());
-    }
-  PF.WrInt("Trend", "GlobalTrackingTime", CTagVwDoc::GTB.TrackingTime);
-
-  HstMngr.SaveSettings(PF);
-
-  PF.WrStr("DrvManager", "Name", sDrvManagerName());
-  PF.WrLong("DrvManager", "On", bDrvOn);
-  PF.WrLong("DrvManager", "LclTagSrvrOK", bDrvLclTagSrvrOK);
-  PF.WrLong("DrvManager", "ReadAll", bDrvReadAll);
-  PF.WrLong("DrvManager", "IgnoresOn", bDrvIgnoresOn);
-  PF.WrLong("DrvManager", "ForcesOn", bDrvForcesOn);
-  PF.WrLong("DrvManager", "NoiseOn", bDrvNoiseOn);
-  PF.WrLong("DrvManager", "StartFBKCheck ", bDrvStartFBKCheck );
-
-  PF.WrStr("ArcManager", "Name", sArcManagerName());
-  PF.WrLong("ArcManager", "On", bArcOn);
-  PF.WrLong("ArcManager", "OpenDBOnRun", bArcOpenDBOnRun);
-
-  PF.WrLong("DDEManager", "On", bDDEOn);
-
-  PF.WrLong("OPCManager", "On", m_bOPCOn);
-  PF.WrLong("OPCManager", "ResetRegistry", m_bOPCResetReg);
-  PF.WrLong("OPCManager", "ServerNumber", m_iOPCServerNo);
   SaveMainOPCOptions(PF);
+
   DisableMainOPCSrvr();
-  //if (pOPCSrvr && pOPCSrvr->OPCSrvrMngr())
-  //  pOPCSrvr->OPCSrvrMngr()->LoadOrSaveOptions(PF, false);
 
-  PF.WrLong("IOMarshal", "On", bIOMOn);
-  PF.WrStr("IOMarshal", "Name", sIOMarshalName());
-  PF.WrStr("IOMarshal", "Node", sIOMarshalNode());
-
-  PF.WrInt("Reports", "HSearchLen", ReportInfo.iHSearchLen);
-  PF.WrInt("Reports", "VSearchLen", ReportInfo.iVSearchLen);
-  PF.WrStr("Reports", "Nan", ReportInfo.sNan());
-  PF.WrStr("Reports", "Blank", ReportInfo.sBlank());
-  PF.WrStr("Reports", "IgnoreChars", ReportInfo.sIgnoreChars());
-  PF.WrLong("Reports", "ExcelLock", bRptExcelLock);
-  PF.WrLong("Reports", "ExcelUseCellName", bRptExcelCellName);
-  PF.WrLong("Reports", "ExcelAlmaysMakeActive", bRptExcelMakeActive);
-  PF.WrLong("Reports", "ExcelReturnSysCADtoActive", bRptExcelSysCADActive);
-  PF.WrLong("Reports", "ExcelUpdateLinks", bRptExcelUpdateLinks);
-  PF.WrLong("Reports", "ExcelSaveOnComplete", bRptExcelSaveOnComplete);
-  PF.WrLong("Reports", "SyscadTags", bRptSyscadTags);
-  PF.WrLong("Access", "AutoSaveOn", bAccAutoSaveOn);
-  PF.WrLong("Access", "UpdateOnRun", bAccUpdateOnRun);
-  PF.WrLong("Access", "HistoryInfoVis", bAccHistoryInfoVis);
-
-#if WITHNETSERVER
-  PF.WrLong("NetWorkManager", "ServerEnabled", pCS_Mngr->ServerEnabled());
-  PF.WrLong("NetWorkManager", "ClientConnect", pCS_Mngr->ClientConnected());
-  PF.WrStr("NetWorkManager", "ClientServer", pCS_Mngr->ClientServer());
-  PF.WrLong("NetWorkManager", "Coupling",(long)gs_Exec.Coupling());
-#endif
-
-  int i;
-  #if WITHSCRCYCLES
-  PF.WrLong("ScreenSaver", "SystemOn", bSystemScreenSave);
-  PF.WrLong("ScreenSaver", "SysCADOn", bSyscadScreenSave);
-  PF.WrInt("ScreenSaver", "NoOfCycles", iScrCycles);
-  for (i=0; i<iScrCycles; i++)
+  for (int i=0; i<16; i++)
     {
-    char Section[256];
-    char Item[256];
-    sprintf(Section, "Cycle%i", i);
-    PF.WrLong(Section, "WaitTime", Cycles[i].iWaitTime);
-    PF.WrStr(Section, "Description", (char*)(const char*)(Cycles[i].sDescription));
-    PF.WrInt(Section, "WindowCount", Cycles[i].Windows.GetSize());
-    for (int j=0; j<Cycles[i].Windows.GetSize(); j++)
-      {
-      sprintf(Item, "WindowTitle%i", j);
-      PF.WrStr(Section, Item, (char*)(const char*)(Cycles[i].Windows.GetAt(j)));
-      }
-    }
-  #endif
-
-  for (i=0; i<16; i++)
-    if (CustomColours[i])
+    if (gs_CustomColours[i])
       {
       char Item[32];
       sprintf(Item, "Colour%d", i);
-      PF.WrLong("CustomColours", Item, CustomColours[i]);
+      PF.WrLong("CustomColours", Item, gs_CustomColours[i]);
       }
+    }
 
   //save documents...
   for (int j=iGraphTemplate; j<=iControlTemplate; j++)
@@ -6706,67 +7421,67 @@ flag Project::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
       PF.WrInt(DocumentSectNames[j], "DocumentCount", DocCount);
       }
 
-  gs_AccessWnds.SaveNdHist(-1);
+    gs_AccessWnds.SaveNdHist(-1);
 
-  //save list of all files referenced/used by project...
-  CDlgBusy::SetLine(3, "Copying 'Remote' files");
+    //save list of all files referenced/used by project...
+    CDlgBusy::SetLine(3, "Copying 'Remote' files");
 
-  int NCopied = CopyOtherFiles(PFL, PF);
+    int NCopied = CopyOtherFiles(PFL, PF);
 
-  CDlgBusy::SetLine(3, CompactPrj());
-  if (NCopied>0)
-    //LogNote("SysCAD", 0, "%i Files Copied to %s", NCopied, BackupFilesFolderName());
-    LogNote("SysCAD", 0, "%i Files Copied", NCopied);
+    CDlgBusy::SetLine(3, CompactPrj());
+    if (NCopied>0)
+      //LogNote("SysCAD", 0, "%i Files Copied to %s", NCopied, BackupFilesFolderName());
+      LogNote("SysCAD", 0, "%i Files Copied", NCopied);
 
-  SaveColours(PF);
+    SaveColours(PF);
 
-  DWORD Opts=0;
-  if (!m_Save.m_bRqstNew)
-    {
-    if (m_bRemoveRevs)
-      Opts |= DBO_RemovePrevRevs;
-    //if (m_bCopyDBFiles && (PrjFileVerNoAsLoaded()==PrjFileVerNo()))
-    //  Opts |= DBO_CopyOldDBFiles;
-    }
+    DWORD Opts=0;
+    if (!m_Save.m_bRqstNew)
+      {
+      if (m_bRemoveRevs)
+        Opts |= DBO_RemovePrevRevs;
+      //if (m_bCopyDBFiles && (PrjFileVerNoAsLoaded()==PrjFileVerNo()))
+      //  Opts |= DBO_CopyOldDBFiles;
+      }
 
-  gs_pPrj->DoSaveDB(XDBFormat(), Opts, PrjFiles(), (bDoingSaveAs||bDoingSaveAsNV ? sOldPrjFiles() : NULL));
+    gs_pPrj->DoSaveDB(XDBFormat(), Opts, PrjFiles(), (bDoingSaveAs||bDoingSaveAsNV ? m_sPrevPrjFiles() : NULL));
 
-  CDlgBusy::SetLine(3, "Saving Window Layout");
-  SaveWindowLayout();
-  CDlgBusy::SetLine(3, CompactPrj());
+    CDlgBusy::SetLine(3, "Saving Window Layout");
+    SaveWindowLayout();
+    CDlgBusy::SetLine(3, CompactPrj());
 
-  CProfINIFile PFI(PrjIniFile());
-  PFI.WrLong("SnapShot", "Action", eSSAction);
-  PFI.WrStr("SnapShot", "Name", sSSName());
-  PFI.WrStr("SnapShot", "Prefix", sSSPrefix());
-  PFI.WrLong("SnapShot", "Number", iSSNumber);
-  PFI.WrLong("SnapShot", "DoZip", bSSDoZip);
+    CProfINIFile PFI(PrjIniFile());
+    PFI.WrLong("SnapShot", "Action", m_eSSAction);
+    PFI.WrStr("SnapShot", "Name", m_sSSName());
+    PFI.WrStr("SnapShot", "Prefix", m_sSSPrefix());
+    PFI.WrLong("SnapShot", "Number", m_iSSNumber);
+    PFI.WrLong("SnapShot", "DoZip", m_bSSDoZip);
 
-  DeleteFile(sPrjBac()); //saved all; delete backup
+    DeleteFile(sPrjBac()); //saved all; delete backup
 
-  if (CfgFile())
-    ScdPFUser.WrStr("General", "RecentModelCfg", CfgFile());
-  if (CfgHome())
-    ScdPFUser.WrStr("General", "RecentBaseProjectDir", CfgHome());
+    if (CfgFile())
+      ScdPFUser.WrStr("General", "LastCfgFile", CfgFile());
 
-  SW.Stop();
-  long SaveMin = (long)floor(SW.Secs()/60.0);
-  Strng DtTm;
-  LogNote("Project", 0, "Saved at %s (save time %d:%02d)", CurDateTime(DtTm), SaveMin, (long)floor(SW.Secs()-(60.0*(double)SaveMin)));
-  CDlgBusy::Close();
-  bCmdSuccess = true;
+    WriteProjectSet();
 
-  // After the save is equivalent to just saved
-  SetPrjFileVerNoAsLoaded(PrjFileVerNo());
+    SW.Stop();
+    long SaveMin = (long)floor(SW.Secs()/60.0);
+    Strng DtTm;
+    LogNote("Project", 0, "Saved at %s (save time %d:%02d)", CurDateTime(DtTm), SaveMin, (long)floor(SW.Secs()-(60.0*(double)SaveMin)));
+    CDlgBusy::Close();
+    bCmdSuccess = true;
 
-  bDoingSaveAs = false;
-  bDoingSaveAsNV = false;
-  return GoodSave();
+    // After the save is equivalent to just saved
+    SetPrjFileVerNoAsLoaded(PrjFileVerNo());
+
+    bDoingSaveAs = false;
+    bDoingSaveAsNV = false;
+    return GoodSave();
   }
 
 //---------------------------------------------------------------------------
 
-void Project::CloseRmtCpy()
+void CProject::CloseRmtCpy()
   {
   if (m_RmtCpyFolder())
     {
@@ -6786,7 +7501,7 @@ void Project::CloseRmtCpy()
 
 //---------------------------------------------------------------------------
 
-flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
+flag CProject::DoClose(flag ForExit, flag AllowCancel/*=true*/)
   {
   if (gs_Exec.TestRunning())
     return false;
@@ -6807,9 +7522,9 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
   //CRptTagLists::Hide();
   CRptTagLists::ShutDown();
 
-  #ifdef _DEBUG
+#ifdef _DEBUG
   ForExit = 0; //in full debug mode, close everything nicely to test for memory leaks etc
-  #endif
+#endif
   //enum DoWhats { DO_SaveExit, DoSaveNoExit, DoNoExit, DoExit}
   flag ExitRqd=true;
   flag SaveRqd=false;
@@ -6825,7 +7540,7 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
         {
         char Buff[512];
         UINT nType;
-        if (gs_pPrj->bReadOnlyPrj && AllowCancel)
+        if (gs_pPrj->m_bReadOnlyPrj && AllowCancel)
           {
           nType = MB_OKCANCEL;
           sprintf(Buff, "Close Project %s ?\n\nIf changes were made, press Cancel and use 'Project Save As' before closing.", PrjFile());
@@ -6904,24 +7619,26 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
     pPrjDoc = NULL; // CNM
 
     MdlLibs.UnLoadFlwDLLs();
-    pFlwLib=NULL;
+    m_pFlwLib=NULL;
 
     ((CMainFrame*)AfxGetMainWnd())->UpdateMainToolBar();
 
 
-//    dbgpln("Check Integrators");
-//    for (Integrator *p=Integrator::First; p; p=p->Next)
-//      {
-//      dbgpln("BAD INTEGRATOR %s", p->Tag);
-//      }
-//    dbgpln("======================");
+    //    dbgpln("Check Integrators");
+    //    for (Integrator *p=Integrator::First; p; p=p->Next)
+    //      {
+    //      dbgpln("BAD INTEGRATOR %s", p->Tag);
+    //      }
+    //    dbgpln("======================");
 
     }
 
   CloseHistorian(ForExit);
   CloseIOMarshal(ForExit, TRUE);
   CloseArcManager(ForExit, TRUE);
+#if WITHDRVMAN 
   CloseDrvManager(ForExit, TRUE);
+#endif
   CloseDDEManager(ForExit);
   //CloseOPCManager(ForExit);
   DisableMainOPCSrvr();
@@ -6942,7 +7659,7 @@ flag Project::DoClose(flag ForExit, flag AllowCancel/*=true*/)
 
 //---------------------------------------------------------------------------
 
-flag Project::CloseForFailedOpen()
+flag CProject::CloseForFailedOpen()
   {
   //UnLoadFlwDLLs();
   SetPrjFiles();
@@ -6958,7 +7675,7 @@ flag Project::CloseForFailedOpen()
 //
 //===========================================================================
 
-flag Project::OnNew()
+flag CProject::OnNew()
   {
   LogSeparator("New",0);
   CModelInfo Info;
@@ -6974,6 +7691,8 @@ flag Project::OnNew()
   m_sNewPrjCfg="";
   m_sNewPrjPath="";
 
+  TaggedObject::SetRevert2DefaultRqd(false);
+
   bCmdSuccess = DoClose(false, true);//, false);
   if (bCmdSuccess)
     {
@@ -6981,17 +7700,16 @@ flag Project::OnNew()
 
     SetPrjFileFormat(1);
 
-    Strng sModelCfg = ScdPFUser.RdStr("General", "RecentModelCfg", "");
-    if (sModelCfg.Length()==0)
-      sModelCfg = ScdPFUser.RdStr("General", "RecentModelLib", "");
-    if (!Info.GetSetName("", true, PrjFileVer, gs_License.LicCatagories(), pRqdPrjCfg))
+    Strng sModelCfg = ScdPFUser.RdStr("General", "LastCfgFile", "");
+    //if (sModelCfg.Length()==0)
+    //  sModelCfg = ScdPFUser.RdStr("General", "RecentModelLib", "");
+    if (!Info.GetSetName("", true, LatestPrjFileVer, gs_License.LicCatagories(), pRqdPrjCfg))
       return (bCmdSuccess = false);
 
-    fNewTrend = Info.fNewTrend;
-    fNewGraph = Info.fNewGraph;
+    m_fNewTrend = Info.fNewTrend!=0;
+    m_fNewGraph = Info.fNewGraph!=0;
 
     SetCfgFile(Info.m_sCfgFile());
-    SetCfgHome(Info.m_sCfgHome());
     SetCfgFiles(Info.m_sCfgFiles());
 
     CheckCfgFilesName();
@@ -7016,49 +7734,100 @@ flag Project::OnNew()
     {
 
     SetPrjFiles();
-    ScdPFUser.WrStr("General", "RecentModelCfg", CfgFile());
+    ScdPFUser.WrStr("General", "LastCfgFile", CfgFile());
     // This will setup all the paths etc.
-//    bCmdSuccess = DoSave(NULL, /*NULL,*/ true);
+    //    bCmdSuccess = DoSave(NULL, /*NULL,*/ true);
     bCmdSuccess = DoPrjPaths((LPTSTR)(LPCTSTR)pRqdPrjPath, true, NULL, WithVersion, RemoveOld);
 
-    if (bCmdSuccess)
+    // Initialise Mode
+    CProfINIFile PrjCfg(CfgFile());
+
+    gs_Exec.SetDefNetMode(PrjCfg.RdStr("Modes", "Default_NetMode",  "ProBal"));
+
+    //int PBOk=PrjCfg.RdInt("General", "ProbalAllowed",  1);
+    //int DynOk=PrjCfg.RdInt("General", "DynamicAllowed",  0);
+
+    //if (PBOk && DynOk)
+    //  {
+    //  CNetModeSelectDlg Dlg(gs_Exec.DefNetMode()==NM_Probal);
+    //  if (Dlg.DoModal()==IDOK)
+    //    {
+    //    gs_Exec.SetDefNetMode(Dlg.m_Probal ? NM_Probal:NM_Dynamic);
+    //    }
+    //  else
+    //    bCmdSuccess=false;
+    //  }
+    //CProjectSettings Sets;
+    CProfINIFile PrjSets(PrjFile());
+
+    PrjSets.WrStr("General", "CfgFile", CfgFile());
+
+    ReadSettings(PrjSets, 10000); // Get Defaults from CfgFile
+    if (EditSettings("New Project Settings", NULL))
       {
+      //WriteSettings(PrjSets, true);
+      //PutSettings();
+
       Info.m_sDLLList.Upper();
       Strng FlwLibTag, EO_LocationTag;
 
       FlwLibTag=PlantModelTag;
       EO_LocationTag=PlantModelTag;
 
-      pFlwLib=NULL;
+      m_pFlwLib=NULL;
       bCmdSuccess = MdlLibs.LoadFlwDLLs(Info.m_sDLLList, FlwLibTag(), EO_LocationTag(), &m_FlwLib);
       if (bCmdSuccess)
         {
+        m_pFlwLib=&m_FlwLib;
+
+        PutSettings();
+
         SetTagMonitor();
-        pFlwLib=&m_FlwLib;
         LoadHelpFileList();
-      //if (!bCmdSuccess)
-      //  UnLoadFlwDLLs();
+        //if (!bCmdSuccess)
+        //  UnLoadFlwDLLs();
 
         CRptTagLists::StartUp();
 
         OpenHistorian();
+#if WITHDRVMAN
         OpenDrvManager();
+#endif
         OpenArcManager();
         OpenIOMarshal();
         MainWnd()->DefaultToolBar(-1, TRUE);
 
-        // Initialise Mode
-        CProfINIFile PCfg(CfgFile());
-        Strng MdStr=TaggedObject::GlblMode2String(SM_Direct, SM_Direct);
-        MdStr=PCfg.RdStr("General", "Initial_SolveMode", MdStr());
-        gs_Exec.SetGlblRunModesString((LPCSTR)MdStr(), SM_All);
-        if (TaggedObject::GlblSolveMode()==0)
-          gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
-        MdStr=TaggedObject::GlblMode2String(HM_Full, HM_All);
-        MdStr=PCfg.RdStr("General", "Initial_HeatMode", MdStr());
-        gs_Exec.SetGlblRunModesString((LPCSTR)MdStr(), HM_All);
-        if (TaggedObject::GlblHeatMode()==0)
-          gs_Exec.SetGlblRunModes(HM_Full, HM_All);
+        //if (DefNetMode()==NM_Probal)
+        //  {
+        //  SetDefNodeMode(PrjCfg.RdStr("Modes", "Probal_NodeMode", "Direct"));
+        //  SetDefLinkMode(PrjCfg.RdStr("Modes", "Probal_LinkMode", "Direct"));
+        //  SetDefFlowMode(PrjCfg.RdStr("Modes", "Probal_FlowMode", "Transfer"));
+        //  SetDefHeatMode(PrjCfg.RdStr("Modes", "Probal_HeatMode", "Rigorous"));
+        //  }
+        //else
+        //  {
+        //  SetDefNodeMode(PrjCfg.RdStr("Modes", "Dynamic_NodeMode", "Direct"));
+        //  SetDefLinkMode(PrjCfg.RdStr("Modes", "Dynamic_LinkMode", "Direct"));
+        //  SetDefFlowMode(PrjCfg.RdStr("Modes", "Dynamic_FlowMode", "Simple"));
+        //  SetDefHeatMode(PrjCfg.RdStr("Modes", "Dynamic_HeatMode", "Rigorous"));
+        //  }
+
+        //SetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_NodeMode", "Buffered"));
+        //SetMaxLinkMode(PrjCfg.RdStr("Modes", "Maximum_LinkMode", "Direct"));
+        //SetMaxFlowMode(PrjCfg.RdStr("Modes", "Maximum_FlowMode", "Full"));
+        //SetMaxHeatMode(PrjCfg.RdStr("Modes", "Maximum_HeatMode", "Rigorous"));
+
+        //Strng MdStr=TaggedObject::GlblMode2String(SM_Direct, SM_Direct);
+        //MdStr=PrjCfg.RdStr("Modes", "Initial_SolveMode", MdStr());
+        //if (TaggedObject::GlblSolveMode()==0)
+        //  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
+        //MdStr=TaggedObject::GlblMode2String(HM_Full, HM_All);
+        //MdStr=PrjCfg.RdStr("Modes", "Initial_HeatMode", MdStr());
+        //gs_Exec.SetGlblRunModesString((LPCSTR)MdStr(), HM_All);
+        //if (TaggedObject::GlblHeatMode()==0)
+        //  gs_Exec.SetGlblRunModes(HM_Full, HM_All);
+
+
         //MdStr.LRTrim();
         //bool PB = (MdStr.XStrICmp("Probal")==0);
         //SetProBalMode(PB);
@@ -7066,24 +7835,30 @@ flag Project::OnNew()
         //  {//NOT probal
         //  SetDynModeFlow(MdStr.XStrICmp("DynamicFlow")==0);
         //  }
-        
+
         // This will do actual save
-//        bCmdSuccess = DoSave();
+        //        bCmdSuccess = DoSave();
         }
       }
+    else
+      {
+      bCmdSuccess = false;
+      }
     }
+
   return bCmdSuccess;
   }
 
 //---------------------------------------------------------------------------
 
-flag Project::OnOpen(pchar pPrjPath)
+flag CProject::OnOpen(pchar pPrjPath)
   {
   LogSeparator("Open",0);
   bCmdSuccess=true;
 
+  TaggedObject::SetRevert2DefaultRqd(false);
+
   //Try rename if possible
-  #if PrjSPJ
   Strng NewPrjPath;
   if (pPrjPath)
     {
@@ -7114,7 +7889,6 @@ flag Project::OnOpen(pchar pPrjPath)
         }
       }
     }
-  #endif
 
   Strng NewModelCfg;
   if (1)
@@ -7143,33 +7917,35 @@ flag Project::OnOpen(pchar pPrjPath)
         break;
       }
 
-    if (fOpenAltCfg)
+    if (sm_fOpenAltCfg)
       LoadFromLocalPrv = false;
 
-    if ((m_LoadTypeRqst==PLT_Null) && Found)
-      m_LoadTypeRqst = LoadFromLocalPrv ? PLT_Local : PLT_Normal;
+    if ((sm_LoadTypeRqst==PLT_Null) && Found)
+      sm_LoadTypeRqst = LoadFromLocalPrv ? PLT_Local : PLT_Normal;
 
     Strng T;
-    T.Set("%s,%s", pPrjPath, m_LoadTypeRqst==PLT_Local ? "L":"N");
+    T.Set("%s,%s", pPrjPath, sm_LoadTypeRqst==PLT_Local ? "L":"N");
     ScdPFUser.WrStr("PreviousOpens", "Opn000", T());
     int k=1;
-    for (i=0; i<50 && k<50; i++)
+    for (int i=0; i<50 && k<50; i++)
+      {
       if (i!=j && S[i].Length()>0)
         {
         Strng Entry;
         Entry.Set("Opn%03i",k++);
         ScdPFUser.WrStr("PreviousOpens", Entry(), S[i]());
         }
+      }
     }
 
-  if (fOpenAltCfg)
+  if (sm_fOpenAltCfg)
     {
     CModelInfo Info;
     if (Info.GetSetName(pPrjPath, false, PrjFileVerNo(), gs_License.LicCatagories()))
       {
       NewModelCfg=Info.m_sCfgFile();
-      fNewTrend = Info.fNewTrend;
-      fNewGraph = Info.fNewGraph;
+      m_fNewTrend = Info.fNewTrend!=0;
+      m_fNewGraph = Info.fNewGraph!=0;
       }
     else
       bCmdSuccess=false;
@@ -7180,7 +7956,7 @@ flag Project::OnOpen(pchar pPrjPath)
     bCmdSuccess = DoClose(false, true);//, false);
     if (bCmdSuccess)
       {
-      bCmdSuccess = DoOpen(pPrjPath, NewModelCfg(), m_LoadTypeRqst);
+      bCmdSuccess = DoOpen(pPrjPath, NewModelCfg(), sm_LoadTypeRqst);
       if (bCmdSuccess && !RmtCmdBusy())
         {
         ScdPFUser.WrStr("General", "RecentProject", PrjFile());
@@ -7194,19 +7970,19 @@ flag Project::OnOpen(pchar pPrjPath)
 
 //---------------------------------------------------------------------------
 
-flag Project::OnClose()
+flag CProject::OnClose()
   {
   LogSeparator("Close",0);
   bCmdSuccess = DoClose(false, true);
   if (bCmdSuccess)
     {
     SetPrjFileFormat(1);
-//    if (!RmtCmdBusy())
-//      {
-//      ScdPFUser.WrStr("General", "RecentProject", PrjFile());
-//      ScdApp()->AddToRecentFileList(PrjFile());
-//      ScdApp()->StdProfileChanged();
-//      }
+    //    if (!RmtCmdBusy())
+    //      {
+    //      ScdPFUser.WrStr("General", "RecentProject", PrjFile());
+    //      ScdApp()->AddToRecentFileList(PrjFile());
+    //      ScdApp()->StdProfileChanged();
+    //      }
     CMsgWindow::ClearAll();
     bCmdSuccess = DoNew(false);
     }
@@ -7216,7 +7992,7 @@ flag Project::OnClose()
 
 //---------------------------------------------------------------------------
 
-flag Project::OnSave(pchar pPrjPath)
+flag CProject::OnSave(pchar pPrjPath)
   {
   LogSeparator("Save",0);
   if (gs_pPrj->bForceSaveAsNV)
@@ -7233,7 +8009,7 @@ flag Project::OnSave(pchar pPrjPath)
     }
   else
     {
-    if (gs_pPrj->bReadOnlyPrj)
+    if (gs_pPrj->m_bReadOnlyPrj)
       {
       LogWarning("SysCAD", 0|LF_Exclamation, "Project marked as read-only, use Project Save As option.");
       bCmdSuccess = false;
@@ -7257,21 +8033,21 @@ flag Project::OnSave(pchar pPrjPath)
 
 //---------------------------------------------------------------------------
 
-flag Project::OnProjectSaveas(pchar pPrjPath)
+flag CProject::OnProjectSaveas(pchar pPrjPath)
   {
-//  ASSERT_ALWAYS(sPrjFile.XStrICmp(PrjFile())==0)
+  //  ASSERT_ALWAYS(sPrjFile.XStrICmp(PrjFile())==0)
 
   Strng OldHstDataDir;
-  sOldPrjFile   = PrjFile();
-  sOldPrjFiles  = PrjFiles();
+  m_sPrevPrjFile   = PrjFile();
+  m_sPrevPrjFiles  = PrjFiles();
   OldHstDataDir = HstMngr.sHstDataDir();
   OldHstDataDir.FnExpand(); // Expand before project changes
 
-//  bDoingSaveAs = true;
+  //  bDoingSaveAs = true;
   MainWnd()->ClosingProject(false);
 
-//  CPrjSaveAsDlg Dlg(sOldPrjFiles());
-//  Dlg.m_CopyHist = true;
+  //  CPrjSaveAsDlg Dlg(m_sPrevPrjFiles());
+  //  Dlg.m_CopyHist = true;
 
   bCmdSuccess = DoSave(true, pPrjPath, false);
   if (bCmdSuccess)
@@ -7279,25 +8055,27 @@ flag Project::OnProjectSaveas(pchar pPrjPath)
     CloseHistorian();
     CloseIOMarshal();
     CloseArcManager();
+#if WITHDRVMAN
     CloseDrvManager();
+#endif
     Strng s;
-    //Strng PrevRoot = sOldPrjFiles;
+    //Strng PrevRoot = m_sPrevPrjFiles;
     //PrevRoot = PrevRoot.Left(PrevRoot.Length() - 4);
     //PrevRoot += '\\';
-    //CPrjSaveAsDlg Dlg(sOldPrjFiles());
+    //CPrjSaveAsDlg Dlg(m_sPrevPrjFiles());
     //Dlg.m_CopyHist = true;
     //Dlg.DoModal();
     CWaitCursor Wait;
     //spj/ini stuff...
     WIN32_FIND_DATA fd;
     HANDLE H;
-    s = sOldPrjFiles;
+    s = m_sPrevPrjFiles;
     s += "*.ini"; // s += "scd_prj.ini";
     H = FindFirstFile(s(), &fd);
     flag AllDone = (H==INVALID_HANDLE_VALUE);
     while (!AllDone)
       {
-      s = sOldPrjFiles;
+      s = m_sPrevPrjFiles;
       s += fd.cFileName;
       Copy_File(s(), PrjFiles());
       AllDone = !FindNextFile(H, &fd);
@@ -7308,11 +8086,11 @@ flag Project::OnProjectSaveas(pchar pPrjPath)
     DstHstDir.FnExpand();
     DstHstDir.FnClearEndBSlash();
 
-    s = sOldPrjFiles;
+    s = m_sPrevPrjFiles;
     s += HstMngr.sHistorianName();
     s += ".hed";
     Copy_File(s(), PrjFiles());
-    s = sOldPrjFiles;
+    s = m_sPrevPrjFiles;
     s += HstMngr.sHistorianName();
     s += ".cat";
     Copy_File(s(), PrjFiles());
@@ -7339,14 +8117,14 @@ flag Project::OnProjectSaveas(pchar pPrjPath)
         for (int j=0; j<2; j++)
           if (j==0 || strlen(CPrjFilesLists::OtherExtsEx(i)))
             {
-            s = sOldPrjFiles;
+            s = m_sPrevPrjFiles;
             s += '*';
             s += (j==0 ? CPrjFilesLists::OtherExts(i) : CPrjFilesLists::OtherExtsEx(i));
             H = FindFirstFile(s(), &fd);
             flag AllDone = (H==INVALID_HANDLE_VALUE);
             while (!AllDone)
               {
-              s = sOldPrjFiles;
+              s = m_sPrevPrjFiles;
               s += fd.cFileName;
               Copy_File(s(), PrjFiles());
               AllDone = !FindNextFile(H, &fd);
@@ -7356,7 +8134,9 @@ flag Project::OnProjectSaveas(pchar pPrjPath)
         }
       }
     OpenHistorian();
+#if WITHDRVMAN
     OpenDrvManager();
+#endif
     OpenArcManager();
     OpenIOMarshal();
     if (bCmdSuccess && !RmtCmdBusy())
@@ -7376,14 +8156,14 @@ flag Project::OnProjectSaveas(pchar pPrjPath)
 
     if (bCmdSuccess)
       SaveWindowLayout(); //layout.ini overwritten, save again!
-  //  bDoingSaveAs = false;
-    sOldPrjFile = "";
-    sOldPrjFiles = "";
+    //  bDoingSaveAs = false;
+    m_sPrevPrjFile = "";
+    m_sPrevPrjFiles = "";
     MainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0);
     MainWnd()->PostMessage(WMU_CMD, SUB_CMD_PRJWNDUPDATE, 0);
     }
-//  else
-//    Clear();
+  //  else
+  //    Clear();
 
   //set document title and update project window...
   return bCmdSuccess;
@@ -7391,7 +8171,7 @@ flag Project::OnProjectSaveas(pchar pPrjPath)
 
 //---------------------------------------------------------------------------
 
-int Project::ClearSelectedNodes()
+int CProject::ClearSelectedNodes()
   {
   POSITION PosT = ScdApp()->GetFirstDocTemplatePosition();
   while (PosT)
@@ -7407,11 +8187,11 @@ int Project::ClearSelectedNodes()
         }
       /*
       else if (pDoc->IsKindOf(RUNTIME_CLASS(CTagVwDoc)))
-        {
-        }
+      {
+      }
       else if (pDoc->IsKindOf(RUNTIME_CLASS(CPrjDoc)))
-        {
-        }
+      {
+      }
       */
       }
     }
@@ -7420,7 +8200,7 @@ int Project::ClearSelectedNodes()
 
 //---------------------------------------------------------------------------
 
-int Project::BuildSelectedNodeList(Strng_List & List)
+int CProject::BuildSelectedNodeList(Strng_List & List)
   {
   POSITION PosT = ScdApp()->GetFirstDocTemplatePosition();
   while (PosT)
@@ -7436,11 +8216,11 @@ int Project::BuildSelectedNodeList(Strng_List & List)
         }
       /*
       else if (pDoc->IsKindOf(RUNTIME_CLASS(CTagVwDoc)))
-        {
-        }
+      {
+      }
       else if (pDoc->IsKindOf(RUNTIME_CLASS(CPrjDoc)))
-        {
-        }
+      {
+      }
       */
       }
     }
@@ -7453,147 +8233,147 @@ int Project::BuildSelectedNodeList(Strng_List & List)
 //
 //===========================================================================
 
-flag Project::ModelsAttached() { return FlwLib()!= NULL; };
+flag CProject::ModelsAttached() { return FlwLib()!= NULL; };
 
 //---------------------------------------------------------------------------
 
-pNodeGrfInfo Project::GetNodeDrawings()
+pNodeGrfInfo CProject::GetNodeDrawings()
   {
   return FlwLib()!=NULL ? FlwLib()->NodeDrawings()/*SFENodeGrfInfo*/ : NULL;
   }
 
 //---------------------------------------------------------------------------
 
-pchar Project::RequestModelDLLPath()
+pchar CProject::RequestModelDLLPath()
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelDLLPath() : NULL;
   };
 
 //---------------------------------------------------------------------------
 
-pchar Project::RequestModelDLLTag()
+pchar CProject::RequestModelDLLTag()
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelDLLTag() : NULL;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info)
+flag CProject::RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelInfoByGroupIndex(pGroup, iIndex, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info)
+flag CProject::RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelInfoByClassId(pClass, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelClassId(pchar pTag, Strng & ClassId)
+flag CProject::RequestModelClassId(pchar pTag, Strng & ClassId)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelClassId(pTag, ClassId) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
+flag CProject::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelConnInfo(pTag, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
+flag CProject::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOInfoByClassId(pClass, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+flag CProject::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOInfoByIndex(pTag, iIndex, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
+flag CProject::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOInfoById(pTag, iId, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag Project::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
+flag CProject::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOConn(pTag, iNo, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-int Project::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+int CProject::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelStatus(Criteria, Status) : 0;
   };
 
 //---------------------------------------------------------------------------
 
-int Project::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
+int CProject::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelStatusChgCnt(Criteria, MaxTest) : 0;
   };
 
 //---------------------------------------------------------------------------
 
-int Project::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) 
+int CProject::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) 
   { 
   return FlwLib()!=NULL ? FlwLib()->RequestTagRefInfo(Tag, Refs) : 0;
   };
 
 //---------------------------------------------------------------------------
 
-//int Project::RequestXRefInfoChg() 
+//int CProject::RequestXRefInfoChg() 
 //  { 
 //  return FlwLib()!=NULL ? FlwLib()->RequestXRefInfoChg() : 0;
 //  };
 
-int Project::GetRctInfo(CRctBlkInformation & RctInfo)
+int CProject::GetRctInfo(CRctBlkInformation & RctInfo)
   {
   return FlwLib()!=NULL ? FlwLib()->FE_GetRctInfo(RctInfo) : 0;
   }
 
-int Project::SetRctInfo(LPCTSTR NodeTag)
+int CProject::SetRctInfo(LPCTSTR NodeTag)
   {
   return FlwLib()!=NULL ? FlwLib()->FE_SetRctInfo(NodeTag) : 0;
   }
 
 //---------------------------------------------------------------------------
 
-int Project::GetNodeWiring(CNodeWiring &NodeWiring)
+int CProject::GetNodeWiring(CNodeWiring &NodeWiring)
   {
   return FlwLib()!=NULL ? FlwLib()->FE_GetNodeWiring(NodeWiring) : -1;
   };
 
 //---------------------------------------------------------------------------
 
-int Project::GetLinkWiring(CLinkWiring &LinkWiring)
+int CProject::GetLinkWiring(CLinkWiring &LinkWiring)
   {
   return FlwLib()!=NULL ? FlwLib()->FE_GetLinkWiring(LinkWiring) : -1;
   };
 
 //---------------------------------------------------------------------------
 
-int Project::SetLinkWiring(CLinkWiring &LinkWiring)
+int CProject::SetLinkWiring(CLinkWiring &LinkWiring)
   {
   return FlwLib()!=NULL ? FlwLib()->FE_SetLinkWiring(LinkWiring) : -1;
   };
-    
+
 //---------------------------------------------------------------------------
 
-flag Project::FlwModelExists(pchar pTag)
+flag CProject::FlwModelExists(pchar pTag)
   {
   if (FlwLib()!=NULL)
     if (!FlwLib()->FE_TestModelTagUnique(pTag))
@@ -7603,7 +8383,7 @@ flag Project::FlwModelExists(pchar pTag)
 
 //---------------------------------------------------------------------------
 
-flag Project::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs)
+flag CProject::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs)
   {
   //int HiNum=0;
   int HiNum=1;
@@ -7620,7 +8400,7 @@ flag Project::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHd
     {
     for (size_t i=0; i<strlen(pHdr); i++)
       if (isalpha(pHdr[i]))
-      //if (isupper(pHdr[i]))
+        //if (isupper(pHdr[i]))
         Hdr+=pHdr[i];
     if (Hdr.Length()==0)
       Hdr=pHdr;
@@ -7699,7 +8479,7 @@ flag Project::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHd
 
 //---------------------------------------------------------------------------
 
-int Project::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag)
+int CProject::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag)
   {
   if (!FlwLib())
     return False;
@@ -7708,7 +8488,7 @@ int Project::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag)
 
 //---------------------------------------------------------------------------
 
-int Project::DeleteNodeModel(pchar Tag)
+int CProject::DeleteNodeModel(pchar Tag)
   {
   VERIFY(FALSE); //OLD CODE 12/97
   if (!FlwLib())
@@ -7718,7 +8498,7 @@ int Project::DeleteNodeModel(pchar Tag)
 
 //---------------------------------------------------------------------------
 
-int Project::AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
+int CProject::AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
   {
   if (!FlwLib())
     return False;
@@ -7730,7 +8510,7 @@ int Project::AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, p
 
 //---------------------------------------------------------------------------
 
-int Project::AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
+int CProject::AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
   {
   if (!FlwLib())
     return False;
@@ -7742,7 +8522,7 @@ int Project::AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
 
 //---------------------------------------------------------------------------
 
-int Project::DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
+int CProject::DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
   {
   if (!FlwLib())
     return False;
@@ -7754,7 +8534,7 @@ int Project::DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn)
 
 //---------------------------------------------------------------------------
 
-int Project::AddConnect(pchar Src, pchar Dst)
+int CProject::AddConnect(pchar Src, pchar Dst)
   {
   if (!FlwLib())
     return False;
@@ -7763,7 +8543,7 @@ int Project::AddConnect(pchar Src, pchar Dst)
 
 //---------------------------------------------------------------------------
 
-int Project::DisConnect(pchar Src, pchar Dst)
+int CProject::DisConnect(pchar Src, pchar Dst)
   {
   if (!FlwLib())
     return False;
@@ -7772,7 +8552,7 @@ int Project::DisConnect(pchar Src, pchar Dst)
 
 //---------------------------------------------------------------------------
 
-DWORD Project::get_RecordTag(LPCSTR Tag)
+DWORD CProject::get_RecordTag(LPCSTR Tag)
   {
   DWORD RetCode = 0;
   //Note:for driver tags, the recording option must be set in the driver slot configuration file
@@ -7792,7 +8572,7 @@ DWORD Project::get_RecordTag(LPCSTR Tag)
 
 //---------------------------------------------------------------------------
 
-flag Project::put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode)
+flag CProject::put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode)
   {
   RetCode = 0;
   bool bRecorded=0;
@@ -7838,11 +8618,11 @@ flag Project::put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode)
           DataUnion Val;
           Val.Set(*(pItem->Value()));
           CXM_KeepHistory *xb=new CXM_KeepHistory (&Val, 0, cType, WrkTag(), 
-                                                  pItem->CnvIndex(),
-                                                  pItem->CnvTxt(),
-                                                  pItem->Description(), 
-                                                  0.0, 0.0, 0, 0.0, 0.0, 0.0, 0.0,
-                                                  0, 0, 0, 0, True, False);
+            pItem->CnvIndex(),
+            pItem->CnvTxt(),
+            pItem->Description(), 
+            0.0, 0.0, 0, 0.0, 0.0, 0.0, 0.0,
+            0, 0, 0, 0, True, False);
           XM.PackMsg(xb);
           RetCode = XSendMessage(XM, HRoute);
           if (RetCode)
@@ -7856,7 +8636,7 @@ flag Project::put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode)
     }
   return false;
   }
-     
+
 //===========================================================================
 //
 //

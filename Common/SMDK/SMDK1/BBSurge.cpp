@@ -83,7 +83,7 @@ void CBBSurge::BuildDataDefn(DataDefnBlk & DDB)
   {
 
   DDB.BeginStruct(this);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|noFile|noSnap);
@@ -100,7 +100,7 @@ void CBBSurge::BuildDataDefn(DataDefnBlk & DDB)
       BuildDataDefnShowIOs(DDB);
     if (MethodImpl.m_dwMethOptions & MO_ShowIOOpts)
       BuildDataDefnIOOpts(DDB);
-    if (SolveDynamicMethod() && (MethodImpl.m_dwMethOptions & MO_ShowContents))
+    if (NetDynamicMethod() && (MethodImpl.m_dwMethOptions & MO_ShowContents))
       DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DoBuildDataDefn(DDB);
     }
@@ -149,7 +149,7 @@ void CBBSurge::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-Z_States CBBSurge::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void CBBSurge::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   CSetDatumsData SDD[10+1]=
     {
@@ -167,7 +167,7 @@ Z_States CBBSurge::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src
       {0}
     };
   DoSetDatums(SDD, 10);
-  return SetDatums_Node(Pass, SDD, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, SDD);
   };
 
 //--------------------------------------------------------------------------

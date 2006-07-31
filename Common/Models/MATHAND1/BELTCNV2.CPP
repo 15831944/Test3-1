@@ -281,21 +281,21 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
 
   //DDB.Page   ("Parms");
   DDB.Text    ("");
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text("");
   DDB.Double  ("BeltSpeed",    "",                DC_Ldt,  "m/s",   xidBeltSpeed,       this, isResult);
   DDB.CheckBox("BeltStopped",  "",                DC_,     "",      xidBeltStopped,     this, isResult);
   DDB.Visibility();
   DDB.Double  ("Length",       "L",               DC_L,    "m",     xidBeltLength,      this, isParm);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Double  ("MaxSpeed",     "",                DC_Ldt,  "m/s",   &m_MaxVelocity,     this, isParm);
   DDB.Double  ("MaxLoading",   "MaxSpillLoad",    DC_MpL,  "kg/m",  &m_MaxSpillLoading, this, isParm);
   DDB.Double  ("MinLoading",   "",                DC_MpL,  "kg/m",  &m_MinLoading,      this, isParm|InitHidden);
   DDB.Long    ("MaxTurndown",  "",                DC_,     "",      &m_MaxTurnDown,     this, isParm|InitHidden);
   
  
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Double  ("",             "MaxStallLoad",    DC_M,    "kg",    &m_MaxStallLoading, this, isParm);
   DDB.CheckBox("",             "StartIfStalled",  DC_,     "",      &m_fStartIfStalled, this, isParm);
   DDB.Byte    ("",             "WasRunning",      DC_,     "",      &m_fWasRunning,     this, isResult|InitHidden);
@@ -313,16 +313,16 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   DDB.Long    ("NoWtMtrs",     "",                DC_,     "",      xidNWtMtrs,         this, isParm);
   DDB.CheckBox("ShowProfile",  "",                DC_,     "",      xidShowProf,        this, isParm|SetOnChange);
-  DDB.Visibility(SM_DynBoth|HM_All, m_fShowProfile);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_fShowProfile);
   DDB.Long    ("ProfDispType", "",                DC_,     "",      xidProfDispType,    this, isParm, DDB1);
-  //DDB.Visibility(SM_DynBoth|HM_All, m_fShowProfile && m_ProfDispType==QPT_FixedPts);
+  //DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_fShowProfile && m_ProfDispType==QPT_FixedPts);
   //DDB.Long    ("ProfilePts",   "",                DC_,     "",      xidProfPts,         this, isParm);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Long    ("NSections",    "",                DC_,     "",      xidNSections,       this, isResult);
  if (DDB.BeginStruct(this, "MinSect", 0, DDB_NoPage))
     {
     DDB.Double  ("Length",     "",                DC_Frac, "%",     &m_Q.m_dMinFracSectLen,  this, isParm);
-    DDB.Visibility(SM_DynBoth|HM_All, m_Q.m_dMinFracSectLen>0);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_Q.m_dMinFracSectLen>0);
     DDB.Double  ("LoadTol",    "",                DC_Frac, "%",     &m_Q.m_dLoadTol,  this, isParm);
     DDB.Double  ("TempTol",    "",                DC_Frac, "%",     &m_Q.m_dTempTol,  this, isParm);
     DDB.Double  ("MFracTol",   "",                DC_Frac, "%",     &m_Q.m_dMFracTol,  this, isParm);
@@ -373,9 +373,9 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
         if (Typ!=QIO_Fixed)
           DDB.Long     ("DriveNo",  "",  DC_,   "",       xidFeedIndex0+i,    this, isParmStopped);
         DDB.Double     ("Pos",      "",  DC_L , "m",      xidFeedPos0+i,      this, Typ!=QIO_Moving?isParm:0);
-        DDB.Visibility(SM_DynBoth|HM_All);
+        DDB.Visibility(NM_Dynamic|SM_All|HM_All);
         DDB.CheckBoxBtn("Limited",  "",  DC_,   "",       xidFeedLimited0+i,  this, isParm);
-        DDB.Visibility(SM_DynBoth|HM_All, m_Q.FeedLimited(i));
+        DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_Q.FeedLimited(i));
         DDB.Double     ("Capacity", "",  DC_Frac, "%",    xidFeedCapFrac0+i,  this, isParm);
         DDB.Visibility();
         DDB.Double     ("Qm",       "",  DC_Qm , "kg/s",  xidFeedQm0+i,       this, isResult);
@@ -504,7 +504,7 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   if (m_fShowProfile)
     DDB.Object(&m_Q.Profile(), this);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {
@@ -1044,10 +1044,9 @@ void BeltCnv2::StartStep()
   m_Q.SetMinLoading(m_MinLoading);
   m_AccCalc.Start(0, m_Q);
 
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       {
       if (m_TripperOn)
         {

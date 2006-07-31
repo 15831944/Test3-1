@@ -211,13 +211,13 @@ void CGenStats::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   DDB.CheckBoxBtn("On",           "",         DC_, "", &bOn,           this, isParmStopped, DDBYesNo);
   DDB.CheckBoxBtn("ShowCnv",      "",         DC_, "", &bWithCnvComment,this, isParmStopped, DDBYesNo);
-  DDB.Visibility(SHM_All, iCount>0);
+  DDB.Visibility(NSHM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnStart", "",         DC_, "", &bResetOnStart, this, isParm, DDBYesNo);
-  DDB.Visibility(SM_Direct|HM_All, iCount>0);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnInit",  "",         DC_, "", &bResetOnInit,  this, isParm, DDBYesNo);
-  DDB.Visibility(SHM_All, iCount>0);
+  DDB.Visibility(NSHM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnEmpty", "",         DC_, "", &bResetOnEmpty, this, isParm, DDBYesNo);
-  DDB.Visibility(SM_DynBoth|HM_All, iCount>0);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnPreSet","",         DC_, "", &bResetOnPreSet,this, isParm, DDBYesNo);
   DDB.Visibility();
   DDB.Long("Number_of_Stats", "No_of_Stats",  DC_, "", idmCount,       this, isParmStopped/*|AffectsStruct*/);
@@ -255,7 +255,7 @@ void CGenStats::BuildDataDefn(DataDefnBlk & DDB)
       DDB.String("StatTag",          "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+2, this, isParmStopped|isTag);
       DDB.Button("Reset_Stats",      "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+3, this, isParm);
       DDB.Double("Time",             "Tm",        DC_Time, "s",     &(p->dTtlTime),   this, isResult);
-      //DDB.Visibility(SHM_All, (p->iType & FSWhatQm));
+      //DDB.Visibility(NSHM_All, (p->iType & FSWhatQm));
       DDB.Double("Meas",             "",          DC_,     "",      &(p->dMeas),      this, isResult|InitHidden|noFileAtAll);
       if (CnvTxt.Len())
         DDB.TagComment(CnvTxt());

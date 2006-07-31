@@ -180,7 +180,7 @@ void CVLEBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, D
   if (pTag_==NULL)
     pTag_="VLE";
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, fEnabled);
+  DDB.Visibility(NSHM_All, fEnabled);
 
   //if (DDB.BeginObject(pNd, pTag_, "VLEBlk", pTagComment, PageIs))
   if (DDB.BeginObject(pNd, pTag_, "VLE_Cfg", pTagComment, PageIs))

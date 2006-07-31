@@ -5756,7 +5756,7 @@ const CSV_ViewInfo gs_ViewInfo[] =
     {"NormVol",       "NVl",    xidSpNVol,          SPMDC_NVol,  false, SVV_NameS, VAMsk_SpNVol     },
     {"NormVolFlow",   "NQVl",   xidSpNVol,          SPMDC_NQv,   false, SVV_NameS, VAMsk_SpNVol     },
     {"NormVolFrac",   "NVlF",   xidSpNVolFrac,      SPMDC_Frac,   true, SVV_NameS, VAMsk_SpNVol     },
-    {"SpecieConc",    "Cnc",    xidSpConc,          SPMDC_Conc,   true, SVV_NameS, VAMsk_SpConc     },
+    {"SpecieConc",    "Cnc",    xidSpConc,          SPMDC_Conc,  false, SVV_NameS, VAMsk_SpConc     },
     {"Elemnts",       "El",     xidSpElem,          SPMDC_M,     false, SVV_NameE, VAMsk_SpElem     },
     {"ElemntFlow",    "QEl",    xidSpElem,          SPMDC_Qm,    false, SVV_NameE, VAMsk_SpElem     },
     {"ElemntFrac",    "ElF",    xidSpElemFrac,      SPMDC_Frac,   true, SVV_NameE, VAMsk_SpElem     },
@@ -8104,7 +8104,7 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
         p->m_ViewBasisRules[SVVB_Phase].m_iSpVwMaskIndex  =  SpVwPhMaskIndex_Phase0+p->m_iPhInx;
         p->m_ViewBasisRules[SVVB_Occ].m_bEditable         = (CntSpcsOcc[p->m_iOccInx]>1);
         p->m_ViewBasisRules[SVVB_Phase].m_bEditable       = (CntSpcsPh[p->m_iPhInx]>1);
-        if (0)
+        if (1)
           {
           dbgpln("Spc   %3i %s %3i %3i %-5s %-5s %s ----------------------------------------------------",
             iCfg, "   ", p->m_iOccInx, p->m_iPhInx,

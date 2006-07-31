@@ -1784,8 +1784,6 @@ ReTry:
 //
 //========================================================================
 
-Strng CTagDBase::sOldFlwLibLocation;
-
 CTagDBase::CTagDBase()
   {
   pDB=NULL;

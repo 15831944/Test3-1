@@ -218,53 +218,53 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double("TankVol",	       "V",    DC_Vol,  "m^3",   &TankVol         , this,	isParm);
   DDB.Byte  ("Method",         "",     DC_,     "",      &fMode           , this, isParm|SetOnChange, DDB0);
 
-  DDB.Visibility(SHM_All, fMode==YM_Yield1);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield1);
 	DDB.Double("",               "E/R",  DC_T,    "K",     &ER_1            , this,	isParm);
 	DDB.Double("",	             "K",    DC_,     "",      &K_1             , this,	isParm);
   //DDB.Text  ("Occluded Soda Values");
 	DDB.Double("",               "Ksoda",DC_,     "",      &Ksoda_1         , this,	isParm);
 
-  DDB.Visibility(SHM_All, fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield3);
     //DDB.Text("Alumina Precipitation Values");
   //DDB.Double("LossFac",        "",     DC_Frac, "%",     &LossFac         , this,	isParm);
   DDB.Double("AgglomFac",	     "",     DC_,     "",      &AggParm         , this,	isParm);
   DDB.Double("FeedShapeFactor","",     DC_,     "",      &FeedShapeFact   , this,	isParm);
   DDB.Double("ProdShapeFactor","",     DC_,     "",      &ProdShapeFact   , this,	isParm);
-  DDB.Visibility(SHM_All, fMode==YM_Yield2 || fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield2 || fMode==YM_Yield3);
   DDB.Byte  ("GrowthMethod",   "",     DC_,     "",      &iGrowthRateMethod,this, isParm|SetOnChange, DDB1);
-  DDB.Visibility(SHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iGrowthRateMethod==GRM_White);
+  DDB.Visibility(NSHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iGrowthRateMethod==GRM_White);
   DDB.Double("ER_White",       "",     DC_T,    "K",     &ER_White        , this,	isParm);
   DDB.Double("K_White",	       "",     DC_,     "",      &K_White         , this,	isParm);
   DDB.Double("gF_White",    	 "",     DC_,     "",      &gF_White        , this,	isParm);
-  DDB.Visibility(SHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iGrowthRateMethod==GRM_Cresswell);
+  DDB.Visibility(NSHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iGrowthRateMethod==GRM_Cresswell);
   DDB.Double("ER_Cresswell",   "",     DC_T,    "K",     &ER_Cresswell    , this,	isParm);
   DDB.Double("Tref",           "",     DC_T,    "K",     &Tref            , this,	isParm|InitHidden);
   DDB.Double("K_Cresswell",	   "",     DC_,     "",      &K_Cresswell     , this,	isParm);
   DDB.Double("gF_Cresswell",	 "",     DC_,     "",      &gF_Cresswell    , this,	isParm);
-  DDB.Visibility(SHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iGrowthRateMethod==GRM_WhiteBateman);
+  DDB.Visibility(NSHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iGrowthRateMethod==GRM_WhiteBateman);
   DDB.Double("ER_WhiteBateman","",       DC_T,    "K",     &ER_WhBateman    , this,	isParm);
   DDB.Double("K_WhiteBateman", "",       DC_,     "",      &K_WhBateman     , this,	isParm);
   DDB.Double("gF_WhiteBateman","",       DC_,     "",      &gF_WhBateman    , this,	isParm);
-  DDB.Visibility(SHM_All, fMode==YM_Yield2 || fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield2 || fMode==YM_Yield3);
   DDB.Byte  ("SodaPrecipMethod","",      DC_,     "",      &iSodaPrecipMethod,this, isParm|SetOnChange, DDB2);
-  DDB.Visibility(SHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iSodaPrecipMethod==SPM_Sang);
+  DDB.Visibility(NSHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iSodaPrecipMethod==SPM_Sang);
   DDB.Double("Ksoda_Sang",     "",       DC_,     "",      &KSoda_Sang      , this,	isParm);
-  DDB.Visibility(SHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iSodaPrecipMethod==SPM_Ohkawa);
+  DDB.Visibility(NSHM_All, (fMode==YM_Yield2 || fMode==YM_Yield3) && iSodaPrecipMethod==SPM_Ohkawa);
   DDB.Double("Ksoda_Ohkawa",   "",       DC_,     "",      &KSoda_Ohkawa    , this,	isParm);
-  DDB.Visibility(SHM_All, fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield3);
   DDB.Double("OxApproach",     "",       DC_Conc, "g/L",   &Approach        , this, isParm);
   DDB.Visibility();
   DDB.Byte  ("ReactionHeatMethod","",    DC_,     "",      &iRctHeatMethod, this, isParm|SetOnChange, DDB4);
-  DDB.Visibility(SHM_All, iRctHeatMethod==RHM_Override1);
+  DDB.Visibility(NSHM_All, iRctHeatMethod==RHM_Override1);
   DDB.Double("HOR_a",          "",       DC_,     "",      &dHOR_a        , this, isParm);
   DDB.Double("HOR_b",          "",       DC_,     "",      &dHOR_b        , this, isParm);
   DDB.Visibility();
   DDB.Byte  ("ThermalLossMethod","",     DC_,     "",      &iThermalLossMethod,this, isParm|SetOnChange, DDB3);
-  DDB.Visibility(SHM_All, iThermalLossMethod==THL_TempDrop);
+  DDB.Visibility(NSHM_All, iThermalLossMethod==THL_TempDrop);
 	DDB.Double("Temp_Drop",      "",       DC_dT,   "C",     &TempDropRqd   , this, isParm);
-  DDB.Visibility(SHM_All, iThermalLossMethod==THL_FixedHeatFlow);
+  DDB.Visibility(NSHM_All, iThermalLossMethod==THL_FixedHeatFlow);
   DDB.Double("ThermalLossRqd", "",       DC_Pwr,  "kW",    &ThermalLossRqd, this, isParm);
-  DDB.Visibility(SHM_All, iThermalLossMethod==THL_HeatFlowFrac);
+  DDB.Visibility(NSHM_All, iThermalLossMethod==THL_HeatFlowFrac);
   DDB.Double("ThermalLossFrac","",       DC_Frac, "%",     &ThermalLossFrac,this, isParm);
   DDB.Visibility();
 
@@ -277,12 +277,12 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text  ("Results");
   DDB.Visibility();
   DDB.Double("ASat",           "",       DC_Conc, "g/L",   &dASat         , this, isResult);
-  DDB.Visibility(SHM_All, fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield3);
   DDB.Double("ShapeRatio",     "",       DC_,     "",      &dShapeRatio   , this,	isResult|InitHidden|noFile);
-  DDB.Visibility(SHM_All, fMode==YM_Yield1 || fMode==YM_Yield2 || fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield1 || fMode==YM_Yield2 || fMode==YM_Yield3);
   DDB.Double("GrowthRateFactor", "kG",   DC_Ldt,  "m/s",   &dGrowthRateFactor   , this,	isResult);
   DDB.Double("GrowthRate",     "",       DC_,     "",      &dGrowthRate   , this,	isResult);
-  DDB.Visibility(SHM_All, fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield3);
   DDB.Double("SodaFactor",     "",       DC_,     "",      &dSodaFac      , this,	isResult);
   DDB.Visibility();
 	DDB.Double("ACin",           "",       DC_,     "",      &dACin         , this, isResult/*|noFile*/);
@@ -307,7 +307,7 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.Double("ActMdl@0",       "",       DC_Pwr,  "kW",    &m_MdlHOR0     , this, isResult|InitHidden);
   DDB.Double("ThermalLoss",    "",       DC_Pwr,  "kW",    &dThermalLoss  , this, isResult);
   DDB.Double("ThermalTempDrop","",       DC_dT,   "C",     &dThermTempDrop, this, isResult);
-  DDB.Visibility(SHM_All, fMode==YM_Yield1 || fMode==YM_Yield2 || fMode==YM_Yield3);
+  DDB.Visibility(NSHM_All, fMode==YM_Yield1 || fMode==YM_Yield2 || fMode==YM_Yield3);
 	DDB.Double("PartDiamIn",     "Di",     DC_L,    "um",    &dDiamin       , this, isResult/*|noFile*/);
 	DDB.Double("PartDiamOut",    "Do",     DC_L,    "um",    &dDiamout      , this, isResult/*|noFile*/);
   DDB.Double("SeedSurfAreaLIn","SALi",   DC_SurfAreaL, "m^2/L", &dSALin   , this, isResult/*|noFile*/|InitHidden);
@@ -316,7 +316,7 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
 	DDB.Double("Vol_FlowIn",     "Qvi",    DC_Qv,   "L/s",   &dQvin         , this, isResult/*|noFile*/);
 	DDB.Double("Vol_FlowOut",    "Qvo",    DC_Qv,   "L/s",   &dQvout        , this, isResult/*|noFile*/);
   DDB.Double("AOutEst",          "",     DC_,     "",      &m_AOutEst     , this, isParmConstruct|InitHidden);
-  /*DDB.Visibility(SHM_All, fMode==YM_Yield1 || fMode==YM_Yield2 || fMode==YM_Yield3);
+  /*DDB.Visibility(NSHM_All, fMode==YM_Yield1 || fMode==YM_Yield2 || fMode==YM_Yield3);
   DDB.Double      ("BoundSoda",        "",DC_Frac,   "%",      &BoundSoda       , this, 0);
   DDB.Double      ("ACeq",             "",DC_,       "",       &ACeq            , this, 0);*/
 
@@ -325,7 +325,7 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

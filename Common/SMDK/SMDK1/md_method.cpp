@@ -397,7 +397,7 @@ bool MBaseMethod::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 bool MBaseMethod::ConfigureJoins()
   {
   m_pNd->Init_NoJoins(m_nJoins);
-  if (1) // default for all modes //m_pNd->SolveDirectMethod() || m_pNd->SolveInlineMethod())
+  if (1) // default for all modes //m_pNd->NetProbalMethod() || m_pNd->SolveInlineMethod())
     {
     MInOutDefStruct *pDefs = m_pIODefs;
     for (int i=0; i<m_pNd->NoProcessIOs(); i++)
@@ -604,7 +604,7 @@ void MDataDefn::Show(bool ViewVisible, bool FileVisible, bool SnapVisible)
   {
   if (m_pDDB->SearchingAtLevel())
     {
-    m_pDDB->Visibility(SHM_All, ViewVisible, FileVisible, SnapVisible, SnapVisible);
+    m_pDDB->Visibility(NSHM_All, ViewVisible, FileVisible, SnapVisible, SnapVisible);
     }
   }
 

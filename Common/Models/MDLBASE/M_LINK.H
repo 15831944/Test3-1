@@ -359,7 +359,7 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
     virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
     virtual flag   PreStartCheck();
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag   Set_Sizes();
 
     virtual double LnkFlowDefined()
@@ -425,7 +425,8 @@ class DllImportExport MN_Lnk : public MdlNode
     CMultiFlwBlk   m_MFB;
     bool           m_bWithOP;
 
-    double         dZ_Rqd;
+    double         m_RiseRqd;
+    double         m_DatumChg;
 
     byte           m_iLF_Direction;
     byte           m_iBlockSeq; //sequence of RB,EHX,VLE,etc

@@ -136,7 +136,7 @@ void PriReform::BuildDataDefn(DataDefnBlk & DDB)
 
   EHX.Add_OnOff(DDB, False);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Visibility();
 
@@ -267,7 +267,7 @@ flag PriReform::InitialiseSolution()
 static const IDMask HBMsk=Id_2_Mask(ioidAir)|Id_2_Mask(ioidFuel)|Id_2_Mask(ioidExhaust)|Id_2_Mask(ioidFalseAir);
 static const IDMask GasMsk=Id_2_Mask(ioidGasIn)|Id_2_Mask(ioidGasOut);
 
-Z_States PriReform::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void PriReform::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   CSetDatumsData SDD[]=
     {
@@ -275,7 +275,7 @@ Z_States PriReform::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Sr
       {GasMsk, NULL},
       {0}
     };
-  return SetDatums_Node(Pass, SDD, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, SDD);
   };
 
 //--------------------------------------------------------------------------
@@ -602,7 +602,7 @@ void PriReform::ApplyDerivs(double dTime, flag DoDbg)
 
 void PriReform::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  ASSERT(SolveDynamicMethod());
+  ASSERT(NetDynamicMethod());
 
   flag Ignition=0;
   for (int d=0; d<7 && !Ignition; d++)

@@ -19,7 +19,6 @@
   #include "pgm_e.h"
 #endif
 
-
 #ifdef __DRV_BASE_CPP
   #define DllImportExport DllExport
 #elif !defined(SCEXEC)
@@ -27,6 +26,10 @@
 #else
   #define DllImportExport
 #endif
+
+extern DllImportExport const char* OPC_DLL_Name;
+
+#if WITHDRVMAN
 
 #define WITHDRVDEBUG 1
 
@@ -40,7 +43,6 @@ _FWDDEF(CDriverManagerBase);
 
 typedef CDriver* (*fn_AddDrv)(char*);
 
-extern DllImportExport const char* OPC_DLL_Name;
 
 //---------------- DRIVER INPUT SPAN
 _FWDDEF(DrvSpan)
@@ -776,6 +778,9 @@ inline void CDrvSlot::InsertDelayItem(CDelayItem * pDelay)
   {
   pDrv->InsertDelayItem(pDelay);
   }
+
+
+#endif
 
 #undef DllImportExport 
 

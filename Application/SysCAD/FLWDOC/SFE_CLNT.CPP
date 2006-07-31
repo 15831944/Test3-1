@@ -533,8 +533,8 @@ int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
   };
 int  SFEFlwLib::EO_CanClose(Strng_List & Problems)
   { IENTER(EO_CanClose_Yes)  pSfe->EO_CanClose(Problems); ILEAVE };
-void SFEFlwLib::EO_SetSolveMode(long RunMds, long RunMdsMsk)
-  { VENTER pSfe->EO_SetSolveMode(RunMds, RunMdsMsk); VLEAVE};
+void SFEFlwLib::EO_SetSolveMode()
+  { VENTER pSfe->EO_SetSolveMode(); VLEAVE};
 flag SFEFlwLib::EO_Starting(flag fBeginStarting)
   { FENTER(false) pSfe->EO_Starting(fBeginStarting);  FLEAVE};
 flag SFEFlwLib::EO_SetTime(CTimeValue TimeRqd, bool Rewind)

@@ -500,9 +500,9 @@ int CSfeSrvr::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)
   return SfeFS->EO_GetSolutionError(EQCtrl, RptLine);
   };
 
-void CSfeSrvr::EO_SetSolveMode(long RunMds, long RunMdsMsk) 
+void CSfeSrvr::EO_SetSolveMode() 
   {
-  SfeFS->EO_SetSolveMode(RunMds, RunMdsMsk);
+  SfeFS->EO_SetSolveMode();
   };
 
 flag CSfeSrvr::EO_Starting(flag fBeginStarting)

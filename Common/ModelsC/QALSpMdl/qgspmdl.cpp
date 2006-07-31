@@ -89,7 +89,7 @@ void QSMBauxite::BuildDataDefn_Vars(DataDefnBlk & DDB)
   {
   DDB.CheckBoxBtn("DefineSolids", "",  DC_,       "",       &fDoCalc,        this,  isParm);
   DDEF_Flags Old = DDB.GetVisibility();
-  DDB.Visibility(SHM_All, fDoCalc);                                                         
+  DDB.Visibility(NSHM_All, fDoCalc);                                                         
   DDB.Double  ("",   "Moisture",  DC_Frac, "%", &dA_Moisture  ,    this, isParm);
   DDB.Double  ("",   "TCA",       DC_Frac, "%", &dA_TCA       ,    this, isParm);
   DDB.Double  ("",   "TAA",       DC_Frac, "%", &dA_TAA       ,    this, isParm);

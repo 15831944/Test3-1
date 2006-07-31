@@ -57,9 +57,9 @@ void HeaterSizeCalcs::BuildDataDefn(DataDefnBlk & DDB, pTaggedObject This)
   DDB.Text    ("Heater Sizing Calculation...");
   DDB.Double  ("ModelDuty",       "",     DC_Pwr,   "kW",    &dModelDuty,     This, isResult);
   DDB.Byte    ("SizeCalcMethod",  "",     DC_,      "",      xidH_SzCalcMethod, This, isParm|SetOnChange, DDB2);
-  DDB.Visibility(SHM_All, DesDutyMethod());
+  DDB.Visibility(NSHM_All, DesDutyMethod());
   DDB.Double  ("DesignDuty",      "",     DC_Pwr,   "kW",    xidH_DesDuty,    This, isParm);
-  DDB.Visibility(SHM_All, iSizCalcMethod!=HSCM_None);
+  DDB.Visibility(NSHM_All, iSizCalcMethod!=HSCM_None);
   DDB.Text    ("");
   DDB.Double  ("Duty",            "",     DC_Pwr,   "kW",    xidH_Duty,       This, isResult);
   DDB.Double  ("HTC",             "",     DC_HTC,   "kW/m^2.K",xidH_HTC,      This, (HTCMethod() ? isResult : isParm));
@@ -249,11 +249,11 @@ void SimpleHeater::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text    ("Requirements");
   DDB.CheckBox("On",              "",     DC_,      "",      &bOnLine,        this, isParm|SetOnChange);
   DDB.Byte    ("DutyMethod",      "",     DC_,      "",      xidH_DutyMethod, this, isParm|SetOnChange, DDB1);
-  DDB.Visibility(SHM_All, iDutyMethod==HDM_Duty);
+  DDB.Visibility(NSHM_All, iDutyMethod==HDM_Duty);
   DDB.Double  ("",             "DutyRqd", DC_Pwr,   "kW",    xidDutyRqd,      this, isParm);
-  DDB.Visibility(SHM_All, iDutyMethod==HDM_FixedT);
+  DDB.Visibility(NSHM_All, iDutyMethod==HDM_FixedT);
   DDB.Double  ("OutletTempRqd",   "TRqd", DC_T,     "C",     xidToutRqd,      this, isParm|NAN_OK);
-  DDB.Visibility(SHM_All, iDutyMethod==HDM_DutyTag);
+  DDB.Visibility(NSHM_All, iDutyMethod==HDM_DutyTag);
   DDB.String  ("DutyTag",         "",     DC_,      "",      xidH_DutyTag,    this, isParmStopped|isTag); //must be in kW !
   DDB.TagComment("kW");
   DDB.Double  ("DutyFactor",      "",     DC_,      "",      &dDutyFactor,    this, isParm);

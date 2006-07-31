@@ -302,7 +302,8 @@ static double Drw_Tank[] = { DD_Poly, -10,10, -10,-10, 10,-10, 10,10,
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(CTank, "Tank", "1", Drw_Tank, "Tank", "TNK", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+IMPLEMENT_MODELUNIT(CTank, "Tank", "1", Drw_Tank, "Tank", "TNK", 
+                    TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                     "Process:Unit:Tank(1)",   
                     "General Purpose Mixed Tank") 
 
@@ -332,7 +333,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   Contents.SetSQFlags(SQF_Editable, true);//why does setting this flag above in constructor not work?
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 
   if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
     {
@@ -354,12 +355,12 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
 
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Basic);
   if (DDB.BeginStruct(this, "CyclicStorage"))
     {
     DDB.CheckBox("On",              "",  DC_,     "",      &m_CyclicStorage.m_bOn,          this, isParm|SetOnChange);
-    DDB.Visibility(SM_Direct|HM_All, m_CyclicStorage.m_bOn);    
+    DDB.Visibility(NM_Probal|SM_All|HM_All, m_CyclicStorage.m_bOn);    
     DDB.CheckBox("CycleIt",         "",  DC_,     "",      xidPBSurgeCycleIt,               this, isParm|SetOnChange);
     DDB.Double  ("CycleTime",       "",  DC_Time, "s",     &m_CyclicStorage.m_dCycleTime,   this, isParm);
     DDB.Double  ("Retained",        "",  DC_Frac, "%",     &m_CyclicStorage.m_dFracRetained, this, isParm);
@@ -368,21 +369,21 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     }
   DDB.EndStruct();
 
-  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   GSM.Add_OnOff(DDB);
-  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   //TODO RESTORE : VLE in ProBal mode!
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     EHX.Add_OnOff(DDB);
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     VLE.Add_OnOff(DDB);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
-  DDB.Visibility(SM_DynBoth|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
   DDB.Visibility();
@@ -397,11 +398,11 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
   RB.BuildDataDefn(DDB);
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     EHX.BuildDataDefn(DDB);
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     VLE.BuildDataDefn(DDB);
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     GSM.BuildDataDefn(DDB);
   if (SolveDynamicMethod())
     {
@@ -413,30 +414,30 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveBufferedMethod())
     m_EqThermals.BuildDataDefn(DDB, "Body", NULL, DDB_RqdPage);
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     QFeed(); // Ensure that exist so that they recover
     if (QFeed.Exists())
       {
-      DDB.Visibility(SM_Direct|HM_All, bShowQFeed);
+      DDB.Visibility(NM_Probal|SM_All|HM_All, bShowQFeed);
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
       }
     QProd(); // Ensure that exist so that they recover
     if (QProd.Exists())
       {
-      DDB.Visibility(SM_Direct|HM_All, bShowQProd);
+      DDB.Visibility(NM_Probal|SM_All|HM_All, bShowQProd);
       DDB.Object(&QProd, this, NULL, NULL, DDB_RqdPage);
       }
     DDB.Visibility();
     }
 
-  if (SolveDynamicMethod() || SolveDirectMethod() && m_CyclicStorage.m_bOn)
+  if (NetDynamicMethod() || NetProbalMethod() && m_CyclicStorage.m_bOn)
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
-  if (SolveDynamicMethod() && Contents.GetPreset().DoImg() || 
-      SolveDirectMethod() && m_CyclicStorage.m_bOn)
+  if (NetDynamicMethod() && Contents.GetPreset().DoImg() || 
+      NetProbalMethod() && m_CyclicStorage.m_bOn)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {

@@ -1067,7 +1067,7 @@ class DllImportExport CSfeSrvrBase
     virtual int          FE_GetNodeConfiguration(BOOL AllParms, BOOL AllState, LPCTSTR NdTag, CNodeConfigList & List) { return 0; };
     virtual int          FE_GetNodeBalanceInfo(CNodeBalanceInfo & Balance, CNodeAuditInfo & Audit) { return 0; };
 
-    virtual flag         RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestModelInfoRec & Info, bool IgnoreSelFn=false);
+    virtual flag         RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestModelInfoRec & Info);
 
     virtual flag         RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
     virtual flag         RequestModelClassId(pchar pTag, Strng & ClassId) { return 0; };
@@ -1119,7 +1119,7 @@ class DllImportExport CSfeSrvrBase
     virtual int          EO_DeleteTag(pchar pDelTag) { return 0; };
     virtual int          EO_CanClose(Strng_List & Problems) { return 0; };
 
-    virtual void         EO_SetSolveMode(long RunMds, long RunMdsMsk) { };
+    virtual void         EO_SetSolveMode() { };
     virtual flag         EO_Starting(flag fBeginStarting) { return 0; };
     virtual flag         EO_SetTime(CTimeValue TimeRqd, bool Rewind) { return true;};
     virtual flag         EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) { return 0; };
@@ -1301,7 +1301,6 @@ class DllImportExport CModelInfo
     Strng m_sName;
     Strng m_sDesc;
     Strng m_sCfgFiles;
-    Strng m_sCfgHome;
     //Strng m_sCfgFolder;
     Strng m_sDLLList;
     flag  fNewTrend;
@@ -1310,7 +1309,6 @@ class DllImportExport CModelInfo
     struct CModelInfoSaved
       {
       Strng m_sCfgFiles;
-      Strng m_sCfgHome;
       } Saved;
 
     CModelInfo()
@@ -1320,12 +1318,13 @@ class DllImportExport CModelInfo
 
     static int  CfgInfoFmt(char * FileName);
     byte        GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge);
-    //byte        GetCfgInfoOld(char * FileName, flag Whinge);
     flag        GetSetName(char * PrjFile, flag ForNew, int OldPrjFileVer, DWORD LicCategory, LPCTSTR RqdCfgFile=NULL);
-    void        FixCfgHome();
+
     flag        EditCfgFile(char *FileName, DWORD LicCategory);
     flag        EnsureCfgIsInList();
-    static void MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char* pCfgHome, char * Desc);
+    static void MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char * Desc);
+  protected:
+    bool        GetCfgFileLocation(CProfINIFile & Cfg);
   };
 
 class DllImportExport CModelInfoUpgrade

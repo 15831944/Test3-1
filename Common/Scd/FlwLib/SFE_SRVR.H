@@ -149,7 +149,7 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     int          EO_DeleteTag(pchar pDelTag);
     int          EO_CanClose(Strng_List & Problems);
 
-    void         EO_SetSolveMode(long RunMds, long RunMdsMsk);
+    void         EO_SetSolveMode();
     flag         EO_Starting(flag fBeginStarting);
     flag         EO_SetTime(CTimeValue TimeRqd, bool Rewind);
     flag         EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);

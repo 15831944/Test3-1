@@ -157,7 +157,7 @@ MixerSettler::MixerSettler(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   Mixer.SetStateAction(IE_Integrate);
   Settler.SetStateAction(IE_Integrate);
 
-  SetAllowedSolveModes(SM_Direct|SM_Inline/*|SM_Buffered*/);//"Transfer", "Inline", "Buffered");
+  SetAllowedModes(true, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);//"Transfer", "Inline", "Buffered");
 
   MixOFLev    = 0.85;
   MxResT      = 1.0;
@@ -261,7 +261,7 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
     {0}};
   DDB.Byte    ("ExtractionMethod", "Method",      DC_,     "",       &iMethod,    this, isParm|SetOnChange, DDB3);
   
-  DDB.Visibility(SHM_All, iMethod==SVM_Isotherms);
+  DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms);
 	DDB.Text    ("");
 	static DDBValueLst DDB0[]={
 		{(int)True,  "Extraction"},
@@ -271,19 +271,19 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
 
 	DDB.Double  ("Stage_Eff",     "StageEff",   DC_Frac,  "%",   &SEff,       this, isParm);
 	DDB.Byte    ("Ext_Metal",     "Solute?",    DC_,      "",    &iSol,       this, isParm, SDB.DDBLiqSpList());
-  DDB.Visibility(SHM_All, iMethod==SVM_Isotherms && Extraction);
+  DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms && Extraction);
   DDB.Double  ("",              "MinOrgConc", DC_Conc, "g/L",  &MinOrgConc, this, isResult);
-  DDB.Visibility(SHM_All, iMethod==SVM_Isotherms && !Extraction);
+  DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms && !Extraction);
   DDB.Double  ("",              "MinAqsConc", DC_Conc, "g/L",  &MinAqsConc, this, isResult);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, iMethod==SVM_Isotherms);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, iMethod==SVM_Isotherms);
 #ifndef _RELEASE
   DDB.Double  ("",              "IntersectPt1", DC_Conc, "g/L",  &IntersectPt1, this, isResult|InitHidden);
   DDB.Double  ("",              "IntersectPt2", DC_Conc, "g/L",  &IntersectPt2, this, isResult|InitHidden);
 #endif
   DDB.Double  ("",              "ReactExtent", DC_Frac, "%",     &dReactExt,  this, isResult);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && Extraction));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && Extraction));
   DDB.Double  ("",              "MaxLoadedConc", DC_Conc, "g/L", &MaxLoadedConc, this, isResult);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && !Extraction));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, iMethod==SVM_Reactions || (iMethod==SVM_Isotherms && !Extraction));
   DDB.Double  ("",              "MaxStripConc", DC_Conc, "g/L",  &MaxStripConc, this, isResult);
   DDB.Visibility();
 
@@ -340,7 +340,7 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
 
-  DDB.Visibility(SHM_All, iMethod==SVM_Isotherms);
+  DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms);
   DDB.Object(&PriIsotherm, this, NULL, NULL, DDB_RqdPage); //(pTaggedObject)
   //if ((SecMetal.Str() != NULL)&&(SecMetal.Find("None")<0))
   //  DDB.Object(&SecIsotherm, this, NULL, NULL, DDB_RqdPage); //(pTaggedObject)
@@ -413,7 +413,7 @@ flag MixerSettler::InitialiseSolution()
 static const IDMask MMsk=Id_2_Mask(ioidAqIn)|Id_2_Mask(ioidOrgIn);
 static const IDMask SMsk=Id_2_Mask(ioidAqOut)|Id_2_Mask(ioidOrgOut)|Id_2_Mask(ioidOverflow);
 
-Z_States MixerSettler::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MixerSettler::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   CSetDatumsData SDD[]=
     {
@@ -421,7 +421,7 @@ Z_States MixerSettler::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State
       {SMsk, &Settler},
       {0}
     };
-  return SetDatums_Node(Pass, SDD, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, SDD);
   };
  
 //--------------------------------------------------------------------------

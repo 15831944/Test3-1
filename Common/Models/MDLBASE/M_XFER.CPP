@@ -35,7 +35,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_AccIn=NULL;
   m_AccOut=NULL;
   m_AccCalc=NULL;
-  SetAllowedSolveModes(SM_Direct|SM_Inline);
+  SetAllowedModes(false, NM_All|SM_Direct|SM_Inline|HM_All);
   //SetInlineIntegral(true);
   };
 
@@ -197,9 +197,9 @@ flag MN_Xfer::InitialiseSolution()
 
 //--------------------------------------------------------------------------
 
-Z_States MN_Xfer::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MN_Xfer::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  return SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------
@@ -415,7 +415,7 @@ and rate of change of the contents resulting from the flow, of material, out of 
 of the surge unit.*/
 //void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
 //  {
-//  ASSERT(SolveDynamicMethod());
+//  ASSERT(NetDynamicMethod());
 //  if (!InlineIntegral())
 //    {
 //    dword IOMsk=First64IOIds;
@@ -613,7 +613,7 @@ void MN_Xfer::EvalIntegral(CNodeEvalIndex & NEI)
 
 void MN_Xfer::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  //ASSERT(SolveDynamicMethod());
+  //ASSERT(NetDynamicMethod());
 
   //if (RB())
   //  {

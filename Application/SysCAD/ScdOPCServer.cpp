@@ -47,7 +47,7 @@ STDMETHODIMP CScdOPCServer::put_On(VARIANT_BOOL newVal)
     {
     DisableMainOPCSrvr();
     gs_pPrj->m_bOPCOn = (newVal!=0);
-    EnableMainOPCSrvr(gs_pPrj->m_bOPCOn);
+    EnableMainOPCSrvr(gs_pPrj->m_bOPCOn!=0);
     }
   SCD_COMEXIT
   }

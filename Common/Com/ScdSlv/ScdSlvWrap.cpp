@@ -61,7 +61,6 @@ bool CScdSlvWrap::InitialiseCfg(BSTR CfgFileName)
   SetPrjFileFormat(1);
 
   SetCfgFiles();
-  SetCfgHome(NULL);
  // SetPrjFiles();
   
   if (GetModuleFileName(GetModuleHandle("ScdSlv.dll"), PDir, sizeof(PDir))>0)
@@ -131,7 +130,6 @@ bool CScdSlvWrap::InitialiseCfg(BSTR CfgFileName)
   if (OK)
     {
     SetCfgFile(Info.m_sCfgFile());
-    SetCfgHome(Info.m_sCfgHome());
     SetCfgFiles(Info.m_sCfgFiles());
 
     //CheckCfgFilesName();
@@ -142,7 +140,6 @@ bool CScdSlvWrap::InitialiseCfg(BSTR CfgFileName)
     Strng FlwLibTag, EO_LocationTag;
     FlwLibTag=PlantModelTag;
     EO_LocationTag=PlantModelTag;
-    CTagDBase::sOldFlwLibLocation="";
 
     //pFlwLib=NULL;
     if (MdlLibs.LoadFlwDLLs(Info.m_sDLLList, FlwLibTag(), EO_LocationTag(), &m_FlwLib))

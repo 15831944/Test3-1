@@ -85,7 +85,7 @@ int Model400Helper::SetNumComps(int NewSize)
 void Model400Helper::BuildDataDefn(DataDefnBlk & DDB, pTaggedObject This, flag Vis)
   {
   DDEF_Flags Old = DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Vis);
+  DDB.Visibility(NSHM_All, Vis);
   DDB.Text(" ");
   DDB.Double("K_1",     "",   DC_,     "",       &K1,   This, isParm);
   DDB.Double("K_2",     "",   DC_,     "",       &K2,   This, isParm);
@@ -575,7 +575,7 @@ void RTCrusher::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text("");
   DDB.Double("Density",        "Rho",       DC_Rho,   "kg/m^3", xidRho,      this, isResult|0);
-	DDB.Visibility(SM_DynBoth|HM_All);
+	DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   CB.Add_StandardDataDefn(DDB, (iCrushModel==CM_General));
   DDB.Visibility();

@@ -98,10 +98,10 @@ void ScheduleTask::BuildDataDefn(DataDefnBlk & DDB, TaggedObject* pObj)
   DDB.Button("Browse_ssc",       "",    DC_,     "", idmScrBrowseBtn, pObj, isParm);
   DDB.Button("Execute_Now",      "",    DC_,     "", idmScrExecBtn,   pObj, isParm);
   DDB.Byte  ("SchedType",        "",    DC_,     "", &iScrSchedType,  pObj, isParm, DDBSchedType);
-  DDB.Visibility(SHM_All, iScrSchedType==STT_Count);
+  DDB.Visibility(NSHM_All, iScrSchedType==STT_Count);
   DDB.Long  ("ExecCnt",          "",    DC_,     "", &iScrExecCnt,    pObj, isParm);
   DDB.Long  ("IterCnt",          "",    DC_,     "", &iScrIterCnt,    pObj, isParm);
-  DDB.Visibility(SHM_All, iScrSchedType==STT_Time);
+  DDB.Visibility(NSHM_All, iScrSchedType==STT_Time);
   DDB.Double("ExecTime",         "",    DC_Time, "s", &dScrExecTime,  pObj, isParm);
   DDB.Double("SimTime",          "",    DC_Time, "s", &dScrIterTime,  pObj, isParm);
   DDB.Visibility();
@@ -127,10 +127,10 @@ void ScheduleTask::BuildDataDefn(DataDefnBlk & DDB, TaggedObject* pObj)
   DDB.Button("Browse_xls",       "",    DC_,     "", idmMcrBrowseBtn, pObj, isParm);
   DDB.Button("Execute_Now",      "",    DC_,     "", idmMcrExecBtn,   pObj, isParm);
   DDB.Byte  ("SchedType",        "",    DC_,     "", &iMcrSchedType,  pObj, isParm, DDBSchedType);
-  DDB.Visibility(SHM_All, iMcrSchedType==STT_Count);
+  DDB.Visibility(NSHM_All, iMcrSchedType==STT_Count);
   DDB.Long  ("ExecCnt",          "",    DC_,     "", &iMcrExecCnt,    pObj, isParm);
   DDB.Long  ("IterCnt",          "",    DC_,     "", &iMcrIterCnt,    pObj, isParm);
-  DDB.Visibility(SHM_All, iMcrSchedType==STT_Time);
+  DDB.Visibility(NSHM_All, iMcrSchedType==STT_Time);
   DDB.Double("ExecTime",         "",    DC_Time, "s", &dMcrExecTime,  pObj, isParm);
   DDB.Double("SimTime",          "",    DC_Time, "s", &dMcrIterTime,  pObj, isParm);
   DDB.Visibility();
@@ -159,10 +159,10 @@ void ScheduleTask::BuildDataDefn(DataDefnBlk & DDB, TaggedObject* pObj)
   DDB.Button("Browse_mdb",       "",    DC_,     "", idmRepBrowseBtn, pObj, isParm);
   DDB.Button("Execute_Now",      "",    DC_,     "", idmRepExecBtn,   pObj, isParm);
   DDB.Byte  ("SchedType",        "",    DC_,     "", &iRepSchedType,  pObj, isParm, DDBSchedType);
-  DDB.Visibility(SHM_All, iRepSchedType==STT_Count);
+  DDB.Visibility(NSHM_All, iRepSchedType==STT_Count);
   DDB.Long  ("ExecCnt",          "",    DC_,     "", &iRepExecCnt,    pObj, isParm);
   DDB.Long  ("IterCnt",          "",    DC_,     "", &iRepIterCnt,    pObj, isParm);
-  DDB.Visibility(SHM_All, iRepSchedType==STT_Time);
+  DDB.Visibility(NSHM_All, iRepSchedType==STT_Time);
   DDB.Double("ExecTime",         "",    DC_Time, "s", &dRepExecTime,  pObj, isParm);
   DDB.Double("SimTime",          "",    DC_Time, "s", &dRepIterTime,  pObj, isParm);
   DDB.Visibility();

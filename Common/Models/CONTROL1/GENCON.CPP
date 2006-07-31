@@ -754,7 +754,7 @@ void GControl::DoEvalCtrl()
   if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {
     SetCI(1, bReloadReqd);
-//    if (bIterationOne && SolveDirectMethod())
+//    if (bIterationOne && NetProbalMethod())
 //      PgmMngr.InitPBConvergence();
     CGExecContext ECtx(this);
     ECtx.dIC_Time = ICGetTime();

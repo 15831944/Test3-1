@@ -25,6 +25,7 @@
 #endif
 
 #include "NETServer.h"
+#include "hstmain.h"
 
 //#include ".\opcsrvrwrapper.h"
 
@@ -35,12 +36,6 @@
 //#else
   #define DllImportExport
 //#endif
-
-//=========================================================================
-
-#define PrjSPJ            01
-#define DollarSPJ         0
-#define UScoreSPJ         0
 
 //=========================================================================
 
@@ -386,7 +381,6 @@ class CDDESrvrHelper
 
 //===========================================================================
 
-
 enum SnapShotActions {SSA_Prompt, SSA_AutoInc, SSA_ReUse};
 enum PrjLoadTypes    {PLT_Null, PLT_Normal, PLT_Local};
 
@@ -400,74 +394,77 @@ const int WB_SizeTogether   = 0x02;
 const int WB_Together       = WB_MoveTogether|WB_SizeTogether;
 const int WB_Coincident     = 0x04;
 
-_FWDDEF(Project)
-class DllImportExport Project : public CExecObj
+class CProject; // forward 
+//_FWDDEF(CProject)
+class DllImportExport CProjectSettings
   {
   public:
-    static bool   fOpenAltCfg;
-    static bool   m_SysCADInited;
+
+    CProjectSettings();
+    ~CProjectSettings();
+
+    void          ClearSettings();
+
+    flag          ReadSettings(CProfINIFile & PF, int PrjFileVerNo);
+    flag          WriteSettings(CProfINIFile & PF, bool FullSave);
+
+    flag          EditSettings(LPCTSTR Title, CProject * pPrj);
 
   public:
-    flag          bHstOK:1,
-                  bCommsOpen:1,
-                  bTimeChanged:1,
-                  bHstChanged:1,
-                  bDocChanged:1,
-                  bDrvOpen:1,
-                  bDrvOn:1,
-                  bDrvLclTagSrvrOK:1,
-                  bDrvReadAll:1,
-                  bDrvChanged:1,
-                  bDrvIgnoresOn:1,
-                  bDrvForcesOn:1,
-                  bDrvNoiseOn:1,
-                  bNetOpen:1,
-                  bNetChanged:1,
-                  bDDEOn:1,               //SysCAD DDE Server on
-                  m_bOPCOn:1,             //SysCAD OPC Server on
-                  m_bOPCResetReg:1,       //Reset SysCAD OPC Register settings next time OPC started
-                  bGrfDeferLoad:1,        //should the loading of the graphics dxf files be delayed
-                  bGrfAutoLoad:1,         //if drawing not loaded, load it without prompt when window is accessed
-                  bGrfUpdateAnnot:1,      //after a run/solve update all annotation blocks
-                  bGrfAnimationOn:1,      //update grafics animation while running/solving
-                  bGrfUpdateAnimat:1,     //after a run/solve update all animation (fills and bars)
-                  bGrfPromptForZoom:1,    //pan graphics when finding tag
-                  bGrfMoveCursor:1,       //move cursor when finding tag
-                  bGrfRegExpOn:1,         // Test Using Regular Expression 
-                  bForceSaveAsNV:1,       //set to True to force the next save to be save as New Version
-                  bDoingLoad:1,           //set to True if currently loading
-                  bDoingSaveAs:1,         //set to True if the current save is a project save as
-                  bDoingSaveAsWithName:1, //set to True if the current saveas must use name specd
-                  bDoingSaveAsNV:1,       //set to True if the current save is a project save as New Version
-                  bRptExcelLock:1,        //OLE report option
-                  bRptExcelCellName:1,    //OLE report option
-                  bRptExcelMakeActive:1,  //OLE report option
-                  bRptExcelSysCADActive:1,//OLE report option
-                  bRptExcelUpdateLinks:1, //OLE report option
-                  bRptExcelSaveOnComplete:1,//OLE report option
-                  bRptSyscadTags:1,       //OLE report option
-                  bShowStatusColours:1,   // Set if Status Colours to be shown
-                  bReadOnlyPrj:1,         //can the project be saved on itself
-                  bChangedGrfMenu:1,      //has the graphics menu been altered
-                  bChangedRuntimeMenu:1,  //has the menu been altered for run-time license
-                  bDoGrfAutoAccess:1,     //temp flag used when finding tag in graphics
-                  bBusyAnalysing:1,       //Indicates an analysis is busy
-                  bAccAutoSaveOn:1,       //Indicates Access Window autosave state
-                  bAccUpdateOnRun:1,      //Indicates Access Window to update on run transitions
-                  bAccHistoryInfoVis:1,   //Indicates historian recorded tags are shown in Access Window
-                  bSSDoZip:1,             //Autozip snapshots/scenarios
-                  bArcOn:1,               //Archiver On
-                  bArcOpen:1,
-                  bArcChanged:1,
-                  bArcOpenDBOnRun:1,     // Delay open Arc DB until run
-                  bIOMOpen:1,
-                  bIOMOn:1,
-                  //bIOMLclTagSrvrOK:1,
-                  //bIOMReadAll:1,
-                  //bIOMIgnoresOn:1,
-                  //bIOMForcesOn:1,
-                  //bIOMNoiseOn:1,    
-                  bIOMChanged:1,
+
+    long          m_NetMode;
+
+    long          m_PBNodeMode;
+    long          m_PBLinkMode;
+    long          m_PBHeatMode;
+    long          m_PBFlowMode;
+
+    long          m_DynNodeMode;
+    long          m_DynLinkMode;
+    long          m_DynHeatMode;
+    long          m_DynFlowMode;
+
+    long          m_MaxNodeMode;
+    long          m_MaxLinkMode;
+    long          m_MaxHeatMode;
+    long          m_MaxFlowMode;
+
+#if WITHDRVMAN
+    flag          m_bDrvOn,
+                  m_bDrvLclTagSrvrOK,
+                  m_bDrvReadAll,
+                  //bDrvChanged,
+                  m_bDrvIgnoresOn,
+                  m_bDrvForcesOn,
+                  m_bDrvNoiseOn;
+#endif
+    flag          m_bDDEOn,               //SysCAD DDE Server on
+                  m_bOPCOn,             //SysCAD OPC Server on
+                  m_bOPCResetReg,       //Reset SysCAD OPC Register settings next time OPC started
+                  m_bGrfDeferLoad,        //should the loading of the graphics dxf files be delayed
+                  m_bGrfAutoLoad,         //if drawing not loaded, load it without prompt when window is accessed
+                  m_bGrfUpdateAnnot,      //after a run/solve update all annotation blocks
+                  m_bGrfAnimationOn,      //update grafics animation while running/solving
+                  m_bGrfUpdateAnimat,     //after a run/solve update all animation (fills and bars)
+                  m_bGrfPromptForZoom,    //pan graphics when finding tag
+                  m_bGrfMoveCursor,       //move cursor when finding tag
+                  m_bGrfRegExpOn,         // Test Using Regular Expression 
+                  m_bRptExcelLock,        //OLE report option
+                  m_bRptExcelCellName,    //OLE report option
+                  m_bRptExcelMakeActive,  //OLE report option
+                  m_bRptExcelSysCADActive,//OLE report option
+                  m_bRptExcelUpdateLinks, //OLE report option
+                  m_bRptExcelSaveOnComplete,//OLE report option
+                  m_bRptSyscadTags,       //OLE report option
+                  m_bShowStatusColours,   // Set if Status Colours to be shown
+                  m_bReadOnlyPrj,         //can the project be saved on itself
+                  m_bAccAutoSaveOn,       //Indicates Access Window autosave state
+                  m_bAccUpdateOnRun,      //Indicates Access Window to update on run transitions
+                  m_bAccHistoryInfoVis,   //Indicates historian recorded tags are shown in Access Window
+                  m_bSSDoZip,             //Autozip snapshots/scenarios
+                  m_bArcOn,               //Archiver On
+                  m_bArcOpenDBOnRun,     // Delay open Arc DB until run
+                  m_bIOMOn,
                   m_bRunOptEmptyAll,           // RunStartupOptions
                   m_bRunOptZeroFlows,    
                   m_bRunOptInitialiseAll,
@@ -478,27 +475,21 @@ class DllImportExport Project : public CExecObj
     int           m_GrfBehaviour,
                   m_TrndBehaviour;
 
+#if WITHDRVMAN
     byte          bDrvStartFBKCheck;
-
-//    byte          iOverlayStatusPen;    // 
+#endif
 
     Strng          m_sDefGrpLib;
     Strng          m_sGrfFrameName;
     Strng          m_sGrfFrameFilter;
     
-    Strng          sOldPrjFile;        //previously used project file, for project save as
-    Strng          sOldPrjFiles;       //previously used project files, for project save as
-    //Strng          sLabel;
-// Move to GPFuncs   Strng          sModelCfg;          //Default model library used by this project
-    static PrjLoadTypes m_LoadTypeRqst; // Used to remeber what type of load is reqd
-    SnapShotActions eSSAction;         //HowTo Handle a SnapShot save 
-    Strng          sSSName;            //Current Name of SnapShot
-    Strng          sSSPrefix;          //5 letter SnapShot prefix for AutoInc 
-    UINT           iSSNumber;          //SnapShot number for AutoInc 
-    flag           bCmdSuccess;        //was last new,open,save,close command successful
-// Move to GPFuncs   Strng          sPrjFile;           //filename of project file
-    CDocument*     pPrjDoc;            //pointer to one-and-only-one project document
-    CDdeReportInfo ReportInfo;         //DDE report options
+    SnapShotActions m_eSSAction;         //HowTo Handle a SnapShot save 
+    Strng          m_sSSName;            //Current Name of SnapShot
+    Strng          m_sSSPrefix;          //5 letter SnapShot prefix for AutoInc 
+    UINT           m_iSSNumber;          //SnapShot number for AutoInc 
+    
+    CDdeReportInfo m_ReportInfo;         //DDE report options
+
 #if WITHSCRCYCLES
     int            iScrCycles;         //number of screen cycles in SysCAD screen saver
     CScreenSaverInfo* Cycles;          //Screen saver cycle information
@@ -514,39 +505,119 @@ class DllImportExport Project : public CExecObj
     flag           bSystemScreenSave,  //True if system screen save must be activated
                    bSyscadScreenSave;  //True if SysCAD screen save must be activated
 #endif
-    flag           bToolTips,          //True if tool tips must be shown
-                   bFlyBys,            //True if flybys must be shown
-                   bDefaultRecordIt,   //True if tags added to trend window must be recorded
-                   bFlashTrend,        //True if trend must flash when cursor over trend line
-                   bShowNewTrndLineDlg,//True if tag trending options dialog must be shown for a new trended tag
-                   bLoadBusy,          //Flag Set to indicate that a Project Load is in Progress
-                   bConfigBusy;        //Flag set to indicate project config window open
+    flag           m_bToolTips,          //True if tool tips must be shown
+                   m_bFlyBys,            //True if flybys must be shown
+                   m_bDefaultRecordIt,   //True if tags added to trend window must be recorded
+                   m_bFlashTrend,        //True if trend must flash when cursor over trend line
+                   m_bShowNewTrndLineDlg;//True if tag trending options dialog must be shown for a new trended tag
+                   
+    //flag           bLoadBusy,          //Flag Set to indicate that a Project Load is in Progress
+    flag           m_bConfigBusy;        //Flag set to indicate project config window open
 
-    Strng          sIOMarshalName;     //IOMarshal name
-    Strng          sIOMarshalNode;     //IOMarshal Node - IP Address 
-    Strng          sDrvManagerName;    //driver manager name
-    Strng          sArcManagerName;    //Archive manager name
-    long           lStatsRefreshCnt;   //number of iterations after which stats must be refreshed
-    CStringArray   MdlHelpFileList;    //list of model help files, the first in list is used for context sensitive help
+    Strng          m_sIOMarshalName;     //IOMarshal name
+    Strng          m_sIOMarshalNode;     //IOMarshal Node - IP Address 
+    Strng          m_sDrvManagerName;    //driver manager name
+    Strng          m_sArcManagerName;    //Archive manager name
+    long           m_lStatsRefreshCnt;   //number of iterations after which stats must be refreshed
 
-    Strng          m_LastSnapLoadFn;       // To Test for Prompted Filename when saving
-    
-    struct  SolverStuff                // Solver Stuff   
+    CHistSettings  m_Hst;
+
+    struct  tSolverSettings 
       {
-      flag         fStateWnd;        // Status display window is required
-      flag         fStatePinned;     // Status window Pinned
-      flag         fStateErrors;     // Status window shows errors
-      int          iStateX;          // Status window X Pos
-      int          iStateY;          // Status window Y Pos
-      }            Solver;
+      flag         m_fStateWnd;        // Status display window is required
+      flag         m_fStatePinned;     // Status window Pinned
+      flag         m_fStateErrors;     // Status window shows errors
+      int          m_iStateX;          // Status window X Pos
+      int          m_iStateY;          // Status window Y Pos
+      }            m_Solver;
 
-    flag           fNewTrend, fNewGraph; // New Project Options
+    flag           m_fNewTrend, 
+                   m_fNewGraph;      // New Project Options
 
-    Strng          OldPrjName;         // Name when last loaded
-    Strng          OldPrjFiles;        // Path when last loaded
-    //int            m_DBFormat;
     flag           m_bRemoveRevs;
     flag           m_bCopyDBFiles;
+
+    int            m_iOPCServerNo;       // CNM should maybe go
+
+    dword          m_dwMdlStatusOptions;
+
+    CTimeValue       m_TheTime;
+    CTimeValue       m_StepSizeMax;
+    CTimeValue       m_ScnStopTime;
+    CTimeValue       m_ScnDuration;
+
+    long             m_RealTime;
+    double           m_RealTimeMult;
+    long             m_SyncWithClock;
+    eScnTypes        m_ScnType;
+    eScnTermActions  m_ScnTermAction;
+    long             m_StepCountMax;
+
+    flag             m_DisplayTagsOnly,
+                     m_HideZeros,
+                     m_ShowGroups;
+    
+    flag             m_NumericTagsBad,
+                     m_NumericStartingTagsBad;
+
+    char             m_NonNumericTagChr;
+
+    CTimeValue       m_GTBStartTime;
+    CTimeValue       m_GTBEndTime;
+    flag             m_GTBTrackingTime;
+
+    long             m_SpModelFixupStrategy;
+
+  };
+
+//===========================================================================
+
+//_FWDDEF(CProject)
+class DllImportExport CProject : public CExecObj, public CProjectSettings
+  {
+  public:
+    static bool   sm_fOpenAltCfg;
+    static bool   sm_SysCADInited;
+
+  public:
+    flag          bHstOK,
+                  bCommsOpen,
+                  bTimeChanged,
+                  bHstChanged,
+                  bDocChanged,
+                  bDrvOpen,
+                  bDrvChanged,
+                  bNetOpen,
+                  bNetChanged,
+                  bForceSaveAsNV,       //set to True to force the next save to be save as New Version
+                  bDoingLoad,           //set to True if currently loading
+                  bDoingSaveAs,         //set to True if the current save is a project save as
+                  bDoingSaveAsWithName, //set to True if the current saveas must use name specd
+                  bDoingSaveAsNV,       //set to True if the current save is a project save as New Version
+                  bChangedGrfMenu,      //has the graphics menu been altered
+                  bChangedRuntimeMenu,  //has the menu been altered for run-time license
+                  bDoGrfAutoAccess,     //temp flag used when finding tag in graphics
+                  bBusyAnalysing,       //Indicates an analysis is busy
+                  bArcOpen,
+                  bArcChanged,
+                  bIOMOpen,
+                  bIOMChanged;
+    
+    Strng          m_sPrevPrjFile;        //previously used project file, for project save as
+    Strng          m_sPrevPrjFiles;       //previously used project files, for project save as
+
+    static PrjLoadTypes sm_LoadTypeRqst; // Used to remeber what type of load is reqd
+    flag           bCmdSuccess;        //was last new,open,save,close command successful
+
+    CDocument*     pPrjDoc;            //pointer to one-and-only-one project document
+    flag           bLoadBusy;           //Flag Set to indicate that a Project Load is in Progress
+
+    CStringArray   m_MdlHelpFileList;    //list of model help files, the first in list is used for context sensitive help
+
+    Strng          m_LastSnapLoadFn;       // To Test for Prompted Filename when saving
+
+    Strng          m_OldPrjName;        // Name when last loaded
+    Strng          m_OldPrjFiles;       // Path when last loaded
 
     Strng          m_RmtCpyFolder;
     CFile          m_RmtCpyLock;
@@ -560,10 +631,7 @@ class DllImportExport Project : public CExecObj
     BOOL           m_DlgCopyHist;
     BOOL           m_DlgCopy[6];
 
-    CDDESrvrHelper*pDDESrvr;           //
-
-    //COPCSrvrHelper*pOPCSrvr;           //
-    int            m_iOPCServerNo;       // CNM should maybe go
+    CDDESrvrHelper*pDDESrvr;           
 
     CString        m_sNewPrjCfg;
     CString        m_sNewPrjPath;
@@ -573,13 +641,11 @@ class DllImportExport Project : public CExecObj
     bool           ShowEditStatus();
     void           SetShowEditStatus(bool On);
 
-    dword          m_dwMdlStatusOptions;
-
   protected:
     FindTrendTagHelper TrndPos;
 
   public:
-    SFEFlwLib      m_FlwLib, *pFlwLib;
+    SFEFlwLib      m_FlwLib, *m_pFlwLib;
     SFEMdlLibArray MdlLibs;
 
 #if CREATENETSERVER
@@ -587,8 +653,8 @@ class DllImportExport Project : public CExecObj
 #endif
   public:
 
-    Project();
-    ~Project();
+    CProject();
+    ~CProject();
     void           Clear();
     void           SetTagMonitor();
     void           InitColours();
@@ -596,17 +662,18 @@ class DllImportExport Project : public CExecObj
     void           SaveColours(CProfINIFile & PF);
     flag           Initialise(char * pPrjName);
     int            ShutDown();
-    //flag           LoadFlwDLLs(Strng &DLLList, pchar FlwLibTag, pchar EO_LocationTag);
-    //flag           UnLoadFlwDLLs(flag DoTerminate=True);
-    //void           SetSolveMode(long Md);
-    //flag           GetrobalMode();
-    //void           SetDynModeFlow(flag DFlow);
-    //flag           GetDynModeFlow();
 
-    //flag           CheckForDuplicateClassIds();
     flag           DoNew(flag InConstructor);
     flag           SetupRmtCopies();
+
+    char*          ChkPrjFileName(char *pPrjPath);
+    flag           SetPrjCfgFile(CProfINIFile & PF, Strng &NewModelCfg, CModelInfo & Info);
+    flag           CheckPrjCfgFile(CProfINIFile & PF, bool & Do_NotOpenMsg);
+    void           PutSettings();
+    void           GetSettings();
+
     flag           DoOpen(pchar pPrjPath, pchar NewModelCfg, PrjLoadTypes PrjLoadType);
+    
     flag           DoClose(flag ForExit, flag AllowCancel);
     flag           CloseForFailedOpen();
     flag           DoPrjPaths(pchar pPrjPath, flag IsNew, 
@@ -647,7 +714,7 @@ class DllImportExport Project : public CExecObj
     flag           OnClose();
     flag           OnSave(pchar pPrjPath);
     flag           OnProjectSaveas(pchar pPrjPath = NULL);
-    flag           OnConfigure();
+    flag           OnChangeCurrentSettings(LPCTSTR Title, int WhichPage=-1);
     flag           OnLoadAltCfg();
 
     void           OpenHistorian();
@@ -658,9 +725,11 @@ class DllImportExport Project : public CExecObj
     DWORD          get_RecordTag(LPCSTR Tag);
     flag           put_RecordTag(LPCSTR Tag, flag RecordingOn, DWORD & RetCode);
 
+#if WITHDRVMAN
     void           OpenDrvManager();
     void           CloseDrvManager(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
     flag           ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName=NULL);
+#endif
 
     void           OpenArcManager();
     void           CloseArcManager(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
@@ -685,6 +754,7 @@ class DllImportExport Project : public CExecObj
     void           HistorianQuery();
     void           CheckLicense(BOOL StartingSolve);
     void           CheckLicenseConditions();
+    //int            CheckNoOfIllegalUnits();
     flag           Merge();
     flag           ImportFlwsheet();
     flag           FileImport();
@@ -699,7 +769,7 @@ class DllImportExport Project : public CExecObj
     inline flag    LoadBusy() { return bLoadBusy; }; // Flag Set to indicate when a Project Load is in Progress
 //    inline void    SetEngine(char* pEngineName) { sModelCfg = pEngineName; }; //assumes only one model library is used
 
-    SFEFlwLib     *FlwLib() { return pFlwLib; };
+    SFEFlwLib     *FlwLib() { return m_pFlwLib; };
 
     int           ClearSelectedNodes();
     int           BuildSelectedNodeList(Strng_List & List);
@@ -764,7 +834,7 @@ class DllImportExport Project : public CExecObj
 
   };
 
-extern DllImportExport Project * gs_pPrj;
+extern DllImportExport CProject * gs_pPrj;
 
 #undef DllImportExport 
 

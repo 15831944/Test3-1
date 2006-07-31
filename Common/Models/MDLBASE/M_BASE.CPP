@@ -102,13 +102,13 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
     {
     DDB.CheckBox("On",           "",  DC_,     "",       &m_bOn,            pNd, isParm);
     DDB.Byte    ("",   "Type",        DC_ ,    "",       &m_iType,          pNd, isParm|SetOnChange, DDBType);
-    DDB.Visibility(SM_DynBoth|HM_All, m_iType==SC_Level);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_iType==SC_Level);
     DDB.Double  ("",   "SPT.Level",   DC_Frac, "%",      &m_dLevelSPT,      pNd, isParm);
-    DDB.Visibility(SM_DynBoth|HM_All, m_iType==SC_Mass);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_iType==SC_Mass);
     DDB.Double  ("",   "SPT.Mass",    DC_M,    "kg",     &m_dMassSPT,       pNd, isParm);
-    DDB.Visibility(SM_DynBoth|HM_All, m_iType==SC_Volume);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_iType==SC_Volume);
     DDB.Double  ("",   "SPT.Volume",  DC_Vol,  "m^3",    &m_dVolumeSPT,     pNd, isParm);
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     //if (iStreamIndex>=0)
     DDB.Short   ("",   "Stream",      DC_ ,       "",         &m_iStreamIndex,   pNd, isParmStopped, DDBSt());
 #if WITHSURGECTRLDOUBLE 
@@ -303,7 +303,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   #ifndef _RELEASE
   flag dbg=0;//fDoDbgBrk;
   #endif
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     Press=GetPBInputPressure(JoinId, pPC);
     //dbgpln("PBPress     = %14.3f  %14.3f", Press,pPC->TRqd());
@@ -503,7 +503,7 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
   Xfer_EvalProductsIn_(S1.iJoinId, S1.dPress, S1.pQo, Sd1, S1.pPBP);
   Xfer_EvalProductsIn_(S2.iJoinId, S2.dPress, S2.pQo, Sd2, S2.pPBP);
 
-  flag HX_PreReact = (pHX && SolveDirectMethod() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
+  flag HX_PreReact = (pHX && NetProbalMethod() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
   if (HX_PreReact)
     {
     pHX->SetPrimary(NULL, *Sd1, S1.dPress);
@@ -2093,8 +2093,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
   switch (DCB.lHandle)
     {
     case xidInlineIntegralOn: // Only for PrjFileVersion < 94
+      //dbgpln("TODO - Run Modes to be fixed");
       if (DCB.rB)
-        SetRunModes((*DCB.rB!=0) ? SM_Inline:SM_Buffered, SM_All);// InlineIntegral(*DCB.rB!=0);
+        SetSolveMethod((*DCB.rB!=0) ? SM_Inline:SM_Buffered);// InlineIntegral(*DCB.rB!=0);
       DCB.B=SolveInlineMethod();
       return true;
     case xidRho:
@@ -3072,264 +3073,210 @@ long MdlNode::CheckDataRanges(bool CheckIO)
 
 inline double DeltaZ(MdlNode * pNd, int IONo, CSetDatumsData * Data)
   {
-  IDMask IOMsk=pNd->IOIdMask_Self(IONo);
-  static CSetDatumsData DataIfNull[]=
+  if (1)
     {
-      {First64IOIds, NULL},
-      {0}
-    };
-  CSetDatumsData * pData=Data ? Data:DataIfNull;
-  while (pData->m_IOIdMask && ((pData->m_IOIdMask&IOMsk)==0))
-    pData++;
-  if (pData->m_IOIdMask)
-    {
-    double D=pData->m_dShpBaseFromDatum;
-    if (pData->m_pCn)
+    IDMask IOMsk=pNd->IOIdMask_Self(IONo);
+    static CSetDatumsData DataIfNull[]=
       {
-      SpContainer &Cn=*pData->m_pCn;
-      pNd->SetIORelFracHgt_Flng(IONo, Max(Cn.LowestIOPt(), pNd->IORelFracHgt_Flng(IONo)));
-      D += pNd->IOAbsFracHgt_Flng(IONo, *(pData->m_pCn)) * Cn.ShapeHeight() - Cn.ShapeDatumPt();
-      }
-    else
+        {First64IOIds, NULL},
+        {0}
+      };
+    CSetDatumsData * pData=Data ? Data:DataIfNull;
+    while (pData->m_IOIdMask && ((pData->m_IOIdMask&IOMsk)==0))
+      pData++;
+    if (pData->m_IOIdMask)
       {
-      pNd->SetIORelFracHgt_Flng(IONo, Max(pData->m_dLowestIOPt, pNd->IORelFracHgt_Flng(IONo)));
-      D += pNd->IOAbsFracHgt_Flng(IONo, pData->m_dShpHeight, pData->m_dShpDatumPt) * pData->m_dShpHeight - pData->m_dShpDatumPt;
+      double D=pData->m_dShpBaseFromDatum;
+      if (pData->m_pCn)
+        {
+        SpContainer &Cn=*pData->m_pCn;
+        pNd->SetIORelFracHgt_Flng(IONo, Max(Cn.LowestIOPt(), pNd->IORelFracHgt_Flng(IONo)));
+        D += pNd->IOAbsFracHgt_Flng(IONo, *(pData->m_pCn)) * Cn.ShapeHeight() - Cn.ShapeDatumPt();
+        }
+      else
+        {
+        pNd->SetIORelFracHgt_Flng(IONo, Max(pData->m_dLowestIOPt, pNd->IORelFracHgt_Flng(IONo)));
+        D += pNd->IOAbsFracHgt_Flng(IONo, pData->m_dShpHeight, pData->m_dShpDatumPt) * pData->m_dShpHeight - pData->m_dShpDatumPt;
+        }
+      return D;
       }
-    return D;
     }
   return 0;
   }
 
 //==========================================================================
-#if dbgModels
-class CKwikIndent
-  {
-  public:
-    CKwikIndent()
-      {
-      if (dbgSetZsValue() || dbgSetZsTrace())
-        dbgindent(2); 
-      }
-    ~CKwikIndent()
-      {
-      if (dbgSetZsValue() || dbgSetZsTrace())
-        dbgindent(-2); 
-      }
-  };
-
-#define KWIKINDENT CKwikIndent KwikIndent;
-#else
-#define KWIKINDENT
-#endif
 
 LPCTSTR Z_StateStr(Z_States State)
   {
   switch (State)
     {
-    case Z_Unknown:           return "Z_Unknown      ";
-    case Z_Guessed:           return "Z_Guessed      ";
-    case Z_Known:             return "Z_Known        ";
-    case Z_OverSpecified:     return "Z_OverSpecified";    
+    case Z_Unknown:           return "Unknown      ";
+    case Z_Guessed:           return "Guessed      ";
+    case Z_Known:             return "Known        ";
+    case Z_OverSpecified:     return "OverSpecified";    
     }
   return "???";
   }
 
-LPCTSTR IndentMatch()
+void MdlNode::SetDatums_Node(int Pass, CFlwNodeIndexList & List, int IOIn, CSetDatumsData * Data)
   {
-  static CString S;
-  S.Format("%*.*s", 40-dbgindentcnt(), 40-dbgindentcnt(), "");
-  return S;
-  }
 
-Z_States MdlNode::SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, double Zi, Z_States Z_State_Src /*,double &Z_Ret, Z_States &Z_State_Ret*/)
-  {
-  //static CSetDatumsData DataIfNull[1]={{-1,0,0}};
-  //CSetDatumsData * pData=Data ? Data:DataIfNull;
-  //while (pData->m_IOId>=0 && pData->m_IOId!=IOId_Self(IOIn))
-  //  pData++;
-
-  KWIKINDENT
-
-  if (!Done && !Busy)
+  switch (Pass)
     {
-    switch (Pass)
+    case 0:
       {
-      case 0:
+      for (int i = 0; (i < NoProcLnkIOs()); i++)
+        IOFlange(i)->m_DeltaZ = DeltaZ(this, i, Data);
+
+      if (Valid(m_DatumRqd))
         {
-        if (Valid(m_dDatumRqd))
-          {
-          Z_State=Z_Known;
-          m_dDatum = m_dDatumRqd;
-          }
-        else
-          {
-          Z_State=Z_Unknown;
-          m_dDatum = 0.0;
-          }
+        m_ZState = Z_Known;
+        m_Datum  = m_DatumRqd;
+
         #if dbgModels
         if (dbgSetZsValue())
-          dbgpln("-       %s    %-15s      %8.2f %s ", IndentMatch(), Z_StateStr(Z_State), m_dDatum, FullObjTag());
+          dbgpln("Known      %-13s %8.2f %64s%s ", Z_StateStr(m_ZState), m_Datum, "", FullObjTag());
         #endif
         for (int i = 0; (i < NoProcLnkIOs()); i++)
           {
-          IOFlange(i)->m_dDatum = m_dDatum + DeltaZ(this, i, Data);
+          IOFlange(i)->m_Datum = m_Datum + IOFlange(i)->m_DeltaZ;
+          List.AddTail(CFlwNodeIndex(Nd_Rmt(i), IOIONo_Rmt(i)));
           #if dbgModels
           if (dbgSetZsValue())
-            dbgpln(">> FA   %s    %-15s      %8.2f %s > %s", IndentMatch(), "", IOFlange(i)->m_dDatum, FullObjTag(), Nd_Rmt(i)->FullObjTag());
+            dbgpln("           %-13s %11s%8.2f %+8.2f %44s--> %s", "","", IOFlange(i)->m_Datum, IOFlange(i)->m_DeltaZ, "",Nd_Rmt(i)->FullObjTag());
           #endif
           }
-        return Z_State;
         }
-      case 1:
-        {
-        switch (Z_State)
-          {
-          case Z_Unknown :
-            if (Z_State_Src>=Z_Known)
-              {
-              IOFlange(IOIn)->m_dDatum = Zi;
-              m_dDatum= Zi - DeltaZ(this, IOIn, Data);
-              Z_State=Z_State_Src;
-              }
-            else
-              return Z_State;
-            break;
-          case Z_Guessed:
-            ASSERT(0);
-            break;
-          case Z_Known:
-            if (Z_State_Src>=Z_Known)
-              {
-              FlwNode::SetCI(12);
-              return Z_State;
-              }
-            break;
-          case Z_OverSpecified:
-            ASSERT(0);
-            break;
-          }
-        break;
-        }
-      case 2:
-        {
-        switch (Z_State)
-          {
-          case Z_Unknown :
-            if (Z_State_Src>=Z_Guessed)
-              {
-              IOFlange(IOIn)->m_dDatum = Zi;
-              m_dDatum = Zi - DeltaZ(this, IOIn, Data);
-              Z_State=Z_State_Src;
-              }
-            else
-              {
-              m_dDatum=0.0;
-              Z_State=Z_Guessed;
-              }
-            break;
-          case Z_Guessed:
-            if (Z_State_Src>=Z_Known)
-              {
-              IOFlange(IOIn)->m_dDatum = Zi;
-              m_dDatum = Zi - DeltaZ(this, IOIn, Data);
-              Z_State=Z_State_Src;
-              }
-            break;
-          case Z_Known:
-            break;
-          case Z_OverSpecified:
-            dbgpln("SET Datum's : SHOULD NEVER GET HERE !");
-            break;
-          }
-        break;
-        }
+      return;
       }
-
-    Busy = 1;
-
-    #if dbgModels
-    if (dbgSetZsTrace())
-       dbgpln(">> Nd   %s    %-15s      %8.2f %s", IndentMatch(), Z_StateStr(Z_State_Src), Zi, FullObjTag());
-    #endif
-
-    CFlange *pC;
-    for (int i = 0; (i < NoProcLnkIOs()); i++)
+    case 1:
       {
-      pC = IOFlange(i);
-      if (i != IOIn)
+      if (m_ZState == Z_Unknown)
         {
-        pC->m_dDatum = m_dDatum + DeltaZ(this, i, Data);
-        Nd_Rmt(i)->SetDatums(Pass, IOIONo_Rmt(i), pC->m_dDatum, Z_State);
+        if (Valid(m_DatumRqd))
+          LogError(Tag(), 0, "Unexpected Datum Requirement");
+        m_ZState = Z_Known;
+        m_Datum  = 0;
+
         #if dbgModels
         if (dbgSetZsValue())
-          dbgpln(">> FB   %s    %-15s      %8.2f %s > %s", IndentMatch(), "", pC->m_dDatum, FullObjTag(), Nd_Rmt(i)->FullObjTag());
+          dbgpln("Default    %-13s %8.2f %64s%s ", Z_StateStr(m_ZState), m_Datum, "", FullObjTag());
         #endif
+        for (int i = 0; (i < NoProcLnkIOs()); i++)
+          {
+          IOFlange(i)->m_Datum = m_Datum + IOFlange(i)->m_DeltaZ;
+          List.AddTail(CFlwNodeIndex(Nd_Rmt(i), IOIONo_Rmt(i)));
+          #if dbgModels
+          if (dbgSetZsValue())
+            dbgpln("           %-13s %11s%8.2f %+8.2f %44s--> %s", "","", IOFlange(i)->m_Datum, IOFlange(i)->m_DeltaZ, "",Nd_Rmt(i)->FullObjTag());
+          #endif
+          }
         }
+      return;
       }
-
-    Busy = 0;
-    #if dbgModels
-    if (dbgSetZsTrace())
-      dbgpln("<< Nd ");
-    #endif
+    case 2:
+      {
+      m_ZState=Z_Known;
+      m_Datum = IOFlange(IOIn)->m_Datum - IOFlange(IOIn)->m_DeltaZ;
+      
+      #if dbgModels
+      if (dbgSetZsValue())
+        dbgpln("Node       %-13s %8.2f %64s%s ", Z_StateStr(m_ZState), m_Datum, "", FullObjTag());
+      #endif
+      for (int i = 0; (i < NoProcLnkIOs()); i++)
+        {
+        if (i!=IOIn)
+          {
+          IOFlange(i)->m_Datum = m_Datum + IOFlange(i)->m_DeltaZ;
+          List.AddTail(CFlwNodeIndex(Nd_Rmt(i), IOIONo_Rmt(i)));
+          #if dbgModels
+          if (dbgSetZsValue())
+            dbgpln("           %-13s %11s%8.2f %+8.2f %44s--> %s", "","", IOFlange(i)->m_Datum, IOFlange(i)->m_DeltaZ, "",Nd_Rmt(i)->FullObjTag());
+          #endif
+          }
+        }
+      return;
+      }
     }
-  return Z_State;
+
+  return;
   };
 
 //--------------------------------------------------------------------------
 
-Z_States MdlNode::SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z_States Z_State_Src /*double &Z_Ret, Z_States &Z_State_Ret*/)
+void MdlNode::SetDatums_Link(int Pass, CFlwNodeIndexList & List, int IOIn, double RiseRqd, double DatumChg)
   {
-  KWIKINDENT
-
-  if (!Done && !Busy && (NoProcLnkIOs() == 2))
+  if (m_ZState != Z_Known && (NoProcLnkIOs() == 2))
     {
-    int IOOut = (IOIn+1)%2;
-    double Zo;
     switch (Pass)
       {
       case 0:
-        return Z_Unknown;
       case 1:
-        if (Valid(dZ_Rqd))
-          Zo = Zi + dZ_Rqd * Direction(IOIn, IOOut);
-        else
-          return Z_Unknown;
-        break;
+        return;
       case 2:
-        Zo = Zi;
+        {
+        int IOOut = (IOIn+1)%2;
+        double ZiF = IOFlange(IOIn)->m_Datum;
+        double Zi, Zo, ZoF;
+        if (Valid(RiseRqd))
+          {
+          Zi = ZiF;
+          Zo = Zi + RiseRqd* Direction(IOIn, IOOut);
+          ZoF = Zo;
+          }
+        else if (Valid(DatumChg))
+          {
+          Zi  = ZiF - IOFlange(IOIn)->m_DeltaZ;
+          Zo  = Zi + DatumChg * Direction(IOIn, IOOut);
+          ZoF = Zo + IOFlange(IOOut)->m_DeltaZ;
+          }
+        else
+          {
+          Zi  = ZiF - IOFlange(IOIn)->m_DeltaZ;
+          Zo  = Zi;
+          ZoF = Zo + IOFlange(IOOut)->m_DeltaZ;
+          }
+
+#if dbgModels
+        if (dbgSetZsTrace())
+          {
+          CString X;
+          if (Valid(RiseRqd))
+            X.Format("%+4.1fRs", RiseRqd);
+          else if (Valid(DatumChg))
+            X.Format("%+4.1fDc", DatumChg);
+          else
+            X.Format("   *  ");
+          dbgpln("Link       %-13s %30s%8.2f %8.2f %s %8.2f %8.2f %s -> %s", "", "", ZiF, Zi, X, Zo, ZoF, FullObjTag(), Nd_Rmt(IOOut)->FullObjTag());
+          }
+#endif
+
+        FlwNode *pRmt=Nd_Rmt(IOOut);
+        if (pRmt)
+          {
+          if (pRmt->m_ZState!=Z_Known)
+            {
+            IOFlange(IOOut)->m_Datum = ZoF;
+            List.AddTail(CFlwNodeIndex(pRmt, IOIONo_Rmt(IOOut)));
+            }
+          }
+        else
+          LogNote(Tag(), 0, "Bad Remote Ptr duing Set_Zs");
+
+        m_ZState = Z_Known;
         break;
+        }
       }
-
-    #if dbgModels
-    if (dbgSetZsTrace())
-      {
-      CString X;
-      X.Format(Valid(dZ_Rqd)?"%+4.1f":"   *", dZ_Rqd);
-      dbgpln("-> Link %s    %-15s %s %8.2f %s", IndentMatch(), Z_StateStr(Z_State_Src), X, Zi, FullObjTag());
-      }
-    #endif
-
-    Busy = 1;
-    Z_States Z_State_Ret=Nd_Rmt(IOOut) ? Nd_Rmt(IOOut)->SetDatums(Pass, IOIONo_Rmt(IOOut), Zo, Z_State_Src) : Z_Unknown;
-    Done = 1;
-    Busy = 0;
-
-    #if dbgModels
-    if (dbgSetZsTrace())
-      dbgpln("<- Link %s    %-15s               %s", IndentMatch(), Z_StateStr(Z_State_Ret),FullObjTag());
-    #endif
-
-    return Z_State_Src;
+    return;
     }
-  return Z_Unknown;
+  return;
   };
 
 //--------------------------------------------------------------------------
 
-Z_States MdlNode::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MdlNode::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------
@@ -3716,7 +3663,7 @@ DDBValueLst DDBExitRules[]={
 
 void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
   {
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     int N=0;
     for (int i=0; i<NoFlwIOs(); i++)
@@ -3879,7 +3826,7 @@ void MdlNode::BuildCommonEndDefnB481(DataDefnBlk &DDB)
 
 void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   {
-  //  if (CollectChgStats() && SolveDirectMethod() && (ChgStats.GetSize()>0))
+  //  if (CollectChgStats() && NetProbalMethod() && (ChgStats.GetSize()>0))
   //    ChngTrcBuildDataDefn(DDB);
 
   Strng Sym, Tag;

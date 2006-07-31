@@ -12,7 +12,6 @@
 //---------------------------------------------------------------------------
 
 #if CK_LICENSINGON
-#define CK_USE6134        1
 
 //days...
 const int CK_WarnDays = 21;            //no of days to give clear warning before license expires

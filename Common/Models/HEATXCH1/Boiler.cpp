@@ -84,7 +84,7 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Visibility();
   DDB.Text    ("");
@@ -95,9 +95,9 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("DrumP",     "",  DC_P,    "kPag",  &dDrumPress, this, isParm);
   DDB.Double  ("BlowDown",  "",  DC_Frac, "%",     &dBlowDownFrac, this, isParm);
   DDB.Double  ("Efficiency","",  DC_Frac, "%",     &dEffFrac,   this, isParm);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
-  //DDB.Visibility(SM_Direct|HM_All, !bVentConnected);
+  //DDB.Visibility(NM_Probal|SM_All|HM_All, !bVentConnected);
   //DDB.CheckBox("VentExcessVapour",  "",  DC_,     "",      &bRemoveExcessVapour,this, isParm|SetOnChange);
   DDB.Visibility();
   //DDB.CheckBox("TrackSteamFd",      "",  DC_,     "",      &bTrackSteamStatus,  this, isParm|SetOnChange);
@@ -118,7 +118,7 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("SatT",      "",  DC_T,    "C",     &dSatTOut,   this, isResult|noFile|noSnap);
   DDB.Double  ("DegSuperHeat","",DC_dT,   "C",     xid_DegSuperHeat,this, isResult|noFile|noSnap);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
   DDB.Text    ("");
@@ -131,14 +131,14 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   //RB.BuildDataDefn(DDB);
   //EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && SolveDirectMethod())
+  if (bShowQFeed && NetProbalMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

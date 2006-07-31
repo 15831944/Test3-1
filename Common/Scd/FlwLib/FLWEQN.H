@@ -146,9 +146,9 @@ class CClosureInfo;
 //
 //============================================================================
 
-extern DllImportExport LPCTSTR FlwEqnTaskStr(eScdFlwEqnTasks Task);
-extern DllImportExport LPCTSTR FBModeStr(long Mode);
-extern DllImportExport LPCTSTR FlowModeStr(long Mode);
+extern DllImportExport LPCTSTR dbgFlwEqnTaskStr(eScdFlwEqnTasks Task);
+extern DllImportExport LPCTSTR dbgFBModeStr(long Mode);
+extern DllImportExport LPCTSTR dbgFlowModeStr(long Mode);
 
 //============================================================================
 //

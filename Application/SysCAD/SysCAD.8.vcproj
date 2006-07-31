@@ -543,11 +543,11 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\interface.dll"
-			AssemblyName="Interface, Version=0.0.0.0, processorArchitecture=MSIL"
+			AssemblyName=""
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\flowchart.net.dll"
-			AssemblyName="FlowChart.NET, Version=4.1.0.17886, processorArchitecture=MSIL"
+			AssemblyName=""
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"
@@ -709,10 +709,6 @@
 			</File>
 			<File
 				RelativePath=".\ImpExpSelect.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LicCount.cpp"
 				>
 			</File>
 			<File
@@ -1361,10 +1357,6 @@
 			</File>
 			<File
 				RelativePath=".\ImpExpSelect.h"
-				>
-			</File>
-			<File
-				RelativePath=".\LicCount.h"
 				>
 			</File>
 			<File

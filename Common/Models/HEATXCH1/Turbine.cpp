@@ -99,7 +99,7 @@ void CTurbine::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Efficiency",      "",    DC_Frac, "%",     &dEfficiency,       this, isParm);
   DDB.Double  ("MechEfficiency",  "",    DC_Frac, "%",     &dMechEff,          this, isParm);
   DDB.CheckBox("TrackSteamFd",    "",    DC_,     "",      &bTrackSteamStatus, this, isParm);
-  DDB.Visibility(SHM_All, bTrackSteamStatus);
+  DDB.Visibility(NSHM_All, bTrackSteamStatus);
   DDB.Double  ("TrackSteamFrac",  "",    DC_Frac, "%",     &dSteamTestFrac,    this, isParm);
   DDB.Visibility();
   //RB.Add_OnOff(DDB, False);
@@ -143,7 +143,7 @@ void CTurbine::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.Text    ("");
   //  }
 
-  //DDB.Visibility(SM_DynBoth|HM_All);
+  //DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   //AddMdlClosed(DDB);
   //AddMdlNetworked(DDB);
   //DDB.Text    ("");
@@ -379,7 +379,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
     return;
     }
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     MN_Surge::EvalProducts(NEI); //todo implement dynamic version.....
     return;

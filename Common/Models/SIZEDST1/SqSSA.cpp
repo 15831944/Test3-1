@@ -120,7 +120,7 @@ void CSzSSA::BuildDataDefn(DataDefnBlk & DDB)
   if (DDB.BeginStruct(this, "SSA", 0))
     {
     DDB.Byte    ("",              "Method",     DC_,          "",       &m_iMethod,            this, 0/*isParm*/, DDBMeth);
-    DDB.Visibility(SHM_All ,m_iMethod==SSA_Independent);
+    DDB.Visibility(NSHM_All ,m_iMethod==SSA_Independent);
     if (!DDB.ForFileSnpScn())
       DDB.CheckBoxBtn("SetData",  "",           DC_,          "",       xidSSAAllowSet,        this, isParm);
     DDB.Long    ("",              "Solids",     DC_,          "",       &m_iSolids,            this, (m_bHasPSD || !DataSettable()) ? 0 : isParm, SDB.DDBSolSpListDash());

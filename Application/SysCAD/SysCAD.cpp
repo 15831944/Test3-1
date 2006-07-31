@@ -65,6 +65,8 @@
 #include ".\syscad.h"
 #include ".\opcsrvrwrapper.h"
 #include "scdver.h"
+//#include "prjsettingsdlg.h"
+#include "slvcfg.h"
 
 #define SECURITY_WIN32
 #include "security.h"
@@ -201,6 +203,8 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_HELP, OnHelp)
   ON_COMMAND(ID_CONTEXT_HELP, OnContextHelp)
   ON_COMMAND(ID_DEFAULT_HELP, OnHelpIndex)
+  ON_COMMAND(ID_PROJECT_EDIT_SETTINGS, OnProjectEditSettings)
+  ON_UPDATE_COMMAND_UI(ID_PROJECT_EDIT_SETTINGS, OnUpdateProjectEditSettings)
 
 //  ON_COMMAND(ID_APP_EXIT, OnAppExit)
 END_MESSAGE_MAP()
@@ -611,7 +615,6 @@ BOOL CSysCADApp::InitIniFile()
     MFn.Format("%sSysCAD.Machine.ini", BaseCfgFiles());
     ScdPFUser.SetProfFilename(UFn);
     ScdPFMachine.SetProfFilename(MFn);
-
     }
   #endif
 
@@ -970,7 +973,6 @@ BOOL CSysCADApp::InitInstFolder()
       }
     }
   SetCfgFiles();
-  SetCfgHome(NULL);
   SetPrjFiles();
 
   BCfg+="TagDescData.mdb";
@@ -1089,13 +1091,13 @@ BOOL CSysCADApp::InitInstLicense2(bool LicenseFailed)
     {
     Strng LicDesc, LicUserVer;
     LicUserVer = (gs_License.MultiUsers()>0) ? "Multi-User Network License" : "Stand Alone License";
-    if (!gs_License.AllowVer90())
-      {
-      LogError("License", LF_Exclamation, "A SysCAD 9.0 License has NOT been issued!");
-      LicDesc = "None";
-      gs_License.SetDemoMode();
-      }
-    else
+    //if (!gs_License.AllowVer90())
+    //  {
+    //  LogError("License", LF_Exclamation, "A SysCAD 9.0 License has NOT been issued!");
+    //  LicDesc = "None";
+    //  gs_License.SetDemoMode();
+    //  }
+    //else
       {//check that a license exists for at least one mode...
       if (gs_License.AllowProBal() && gs_License.AllowDynamicFull())
         LicDesc = "ProBal & Dynamic(Full)";
@@ -1595,7 +1597,7 @@ BOOL CSysCADApp::InitInstance()
 //<VISIO>    return FALSE;
 
   m_pMainWnd = pMainFrame;
-  Project::RestoreOneWindow(CWindowLists::MainWndTitle, pMainFrame, true, false);
+  CProject::RestoreOneWindow(CWindowLists::MainWndTitle, pMainFrame, true, false);
   m_pMainWnd->ShowWindow(m_nCmdShow);
   m_pMainWnd->RedrawWindow();
   CStatusBarMsg BarMsg("Starting SysCAD");
@@ -1667,7 +1669,7 @@ BOOL CSysCADApp::InitInstance()
   ScdCtrls_Entry();
   GPWFuncs_Entry();
 
-//  Project::RestoreOneWindow(CWindowLists::MainWndTitle, m_pMainWnd, true, false);
+//  CProject::RestoreOneWindow(CWindowLists::MainWndTitle, m_pMainWnd, true, false);
 
   CMsgWindow::StartUp();
   CDlgBusy::Startup();
@@ -1702,13 +1704,15 @@ BOOL CSysCADApp::InitInstance()
   gs_pXRep = new CRepExec();
   //pTagDB = new TagDBase;
   gs_pIOMarshal = new CIOMarshal;
+#if WITHDRVMAN
   gs_pDrvMan = new CDriverManager;
+#endif
   gs_pArcMan = new CArchiveManager;
 #if WITHNETSERVER
   pCS_Mngr = new CCS_Manager;
 #endif
   HstMngr.CreateTheHistEO();
-  gs_pPrj  = new Project;
+  gs_pPrj  = new CProject;
 
   MainWnd()->EO_Register(pExecName_MainWnd, EOWrite_Msg, 0, 0);
 
@@ -1869,7 +1873,9 @@ int CSysCADApp::ExitInstance()
     delete pCS_Mngr;
 #endif
     delete gs_pArcMan;
+#if WITHDRVMAN
     delete gs_pDrvMan;
+#endif
     delete gs_pIOMarshal;
     delete gs_pXRep;
     delete gs_pXCmd;
@@ -1983,7 +1989,7 @@ int CSysCADApp::ShutDown()
   {
   if (gs_pPrj->ShutDown())
     {
-    Project::SaveOneWindow(0, CWindowLists::MainWndTitle, m_pMainWnd, true);
+    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, m_pMainWnd, true);
     CTrndInfo::ShutDown();
     //CRptTagLists::ShutDown();
     CMsgWindow::ShutDown();
@@ -2262,7 +2268,7 @@ BOOL CSysCADApp::OnIdle(LONG lCount)
       else
         {
         bResult=false;
-        Project::m_SysCADInited=true;
+        CProject::sm_SysCADInited=true;
         }
       }
       break;
@@ -2591,7 +2597,7 @@ void CSysCADApp::OnProjectSaveall()
   {
   if (EnableNotBusy() && EnableNotAnalysing())
     {
-    if (gs_pPrj->bReadOnlyPrj)
+    if (gs_pPrj->m_bReadOnlyPrj)
       LogWarning("SysCAD", LF_Exclamation, "Project marked as read-only, use Project Save As option.");
     else
       gs_pPrj->pPrjDoc->OnSaveDocument(PrjFile());
@@ -2656,9 +2662,9 @@ void CSysCADApp::OnProjectOpen()
     return; // open cancelled
     }
 
-  Project::m_LoadTypeRqst=PLT_Normal;
+  CProject::sm_LoadTypeRqst=PLT_Normal;
   AfxGetApp()->OpenDocumentFile(newName);
-  Project::m_LoadTypeRqst=PLT_Null;
+  CProject::sm_LoadTypeRqst=PLT_Null;
   }
 
 void CSysCADApp::OnUpdateProjectOpen(CCmdUI* pCmdUI)
@@ -2685,9 +2691,9 @@ void CSysCADApp::OnProjectOpenLocal()
         return; // open cancelled
         }
 
-      Project::m_LoadTypeRqst=PLT_Local;
+      CProject::sm_LoadTypeRqst=PLT_Local;
       AfxGetApp()->OpenDocumentFile(newName);
-      Project::m_LoadTypeRqst=PLT_Null;
+      CProject::sm_LoadTypeRqst=PLT_Null;
       }
     //#endif
     }
@@ -2722,6 +2728,38 @@ void CSysCADApp::OnProjectNew()
 void CSysCADApp::OnUpdateProjectNew(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable((EnableNoPrj() || (EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped())) && EnableNotFiling() && !gs_License.Blocked());
+  }
+
+//---------------------------------------------------------------------------
+
+void CSysCADApp::OnProjectEditSettings()
+  {
+  if (!EnablePrjOK() && gs_License.AllowFullLic())
+    {
+    CWaitCursor Wait;
+    // prompt the user (with all document templates)
+    CString PrjFile;
+    if (!DoPromptFileName(PrjFile, AFX_IDS_OPENFILE,
+      OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, true, NULL, (gs_pPrj && gs_pPrj->pPrjDoc)))
+      return; // Edit cancelled
+
+    CProjectSettings Sets;
+    CProfINIFile PF(PrjFile);
+    Sets.ReadSettings(PF, 10000);
+    if (Sets.EditSettings("Edit Project Settings", NULL))
+      Sets.WriteSettings(PF, false);
+
+
+    //CPrjSettingsSheet Dlg(PrjFile, "Project Settings", MainWnd(), CPrjSettingsSheet::iCurrentPage);
+    //if ((Dlg.DoModal()==IDOK))
+    //  {
+    //  }
+    }
+  }
+
+void CSysCADApp::OnUpdateProjectEditSettings(CCmdUI* pCmdUI)
+  {
+  pCmdUI->Enable(!EnablePrjOK() && gs_License.AllowFullLic());
   }
 
 //---------------------------------------------------------------------------
@@ -2930,15 +2968,20 @@ BOOL CSysCADApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlag
 
   if (pTemplate_==pTemplate[iProjectTemplate])
     {
-    Strng s = ScdPFUser.RdStr("General", "RecentBaseProjectDir", "?");
+    Strng s = ScdPFUser.RdStr("ProjectSets", "MostRecent", "?");
     s.FnClearEndBSlash();
     if (s!="?" && FileExists(s()))
       strInitialDir = s();
     else
       {
       strInitialDir = ProgFiles();
-      if (_stricmp(strInitialDir.Right(4), "bin\\")==0)
-        strInitialDir = strInitialDir.Left(strInitialDir.GetLength()-4);
+      if (strInitialDir[1]==':')
+        {
+        strInitialDir=strInitialDir.Left(2);
+        strInitialDir+="\\SysCAD Projects\\";
+        }
+      //if (_stricmp(strInitialDir.Right(4), "bin\\")==0)
+      //  strInitialDir = strInitialDir.Left(strInitialDir.GetLength()-4);
       }
     strTitle += " Project";
     }
@@ -3084,15 +3127,7 @@ BOOL CSysCADApp::OnOpenRecentFile(UINT nID)
 //  if (T.XStrICmp(".spf")==0)
       {
       Fn.FnCheckEndBSlash();
-  #if PrjSPJ
       Fn+="Project.spj";
-  #elif DollarSPJ
-      Fn+="$.spj";
-  #else
-      T.FnName(Fn());
-      Fn+=T;
-      Fn+=".spj";
-  #endif
       }
   FindClose(H);
 
@@ -3324,19 +3359,11 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
           if (sAutoLoadPrj.Len()==0)
             {
             sAutoLoadPrj = s();
-#if PrjSPJ
             if (FnNX.XStrICmp("Project.spj")!=0)
-#else
-            if (FnNX.Find("$.spj")!=0)
-#endif
               {
               if (!sAutoLoadPrj.CmpLastChar('\\'))
                 sAutoLoadPrj += '\\';
-#if PrjSPJ
               sAutoLoadPrj += "Project.spj";
-#else
-              sAutoLoadPrj += "$.spj";
-#endif
               }
             }
           else

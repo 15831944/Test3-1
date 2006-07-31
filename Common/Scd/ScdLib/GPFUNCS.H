@@ -108,14 +108,14 @@ DllImportExport void SetMGOptions(int On);
 
 const byte AF_PrjFiles        = 0x01;
 const byte AF_CfgFiles        = 0x02;
-const byte AF_CfgHome         = 0x04;
+//const byte AF_CfgHome         = 0x04;
 const byte AF_BaseCfgFiles    = 0x08;
 const byte AF_ProgFiles       = 0x10;
 const byte AF_BackupFiles     = 0x20;
 const byte AF_RmtCpyFiles     = 0x40;
 
 const byte AF_Elsewhere       = 0x80;
-const byte AF_All             = (AF_PrjFiles|AF_CfgFiles|AF_CfgHome|AF_Elsewhere);
+const byte AF_All             = (AF_PrjFiles|AF_CfgFiles|AF_Elsewhere);
 
 const byte AF_First           = AF_PrjFiles;
 const byte AF_Last            = AF_ProgFiles;
@@ -1093,9 +1093,10 @@ DllImportExport char*  CfgName();
 DllImportExport char*  CfgNameAlias();
 DllImportExport bool   RenameCfgDBFile(LPTSTR SDBCfg);
 
-DllImportExport char*  SetCfgHome(char* PD);
-DllImportExport char*  CfgHome();
-DllImportExport char*  CfgHomeAlias();
+//DllImportExport char*  SetCfgHome(char* PD);
+//DllImportExport char*  CfgHome();
+//DllImportExport char*  CfgHomeAlias();
+//DllImportExport char*  ProjectSetFolder();
 
 DllImportExport char*  SetPrjFiles(char* PD=NULL, char* PF=NULL);
 DllImportExport char*  PrjFile();
@@ -1115,17 +1116,20 @@ DllImportExport char*  GrfFontFiles();
 DllImportExport char*  BaseGrfSymbolFiles();
 DllImportExport char*  BaseGrfFontFiles();
 
-DllImportExport flag   FileExists(char * FileName, WIN32_FIND_DATA & fd);
-DllImportExport flag   FileExists(char * FileName);
-DllImportExport flag   CnmVersion();
+DllImportExport BOOL   FileExists(char * FileName, WIN32_FIND_DATA & fd);
+DllImportExport BOOL   FileExists(char * FileName);
+DllImportExport BOOL   CnmVersion();
 
 DllImportExport int    SelectFile(Strng & FilePath, char* Name1, char* Name2, char* Name3);
 
-DllImportExport flag   Copy_File(char* pFN, char* pDestDir);
-DllImportExport BOOL   Move_FileEx(LPCTSTR lpExistingFileName, LPCTSTR lpNewFileName, DWORD dwFlags);
-DllImportExport flag   ClearFolder(LPCTSTR DirName, bool DeleteIt);
+DllImportExport BOOL   Copy_File(char* pFN, char* pDestDir);
+DllImportExport BOOL   Move_FileEx(LPCTSTR lpExistingFileName, LPCTSTR lpNewFileName, DWORD dwFlags, LPTSTR pMsgBuff=NULL, DWORD MsgBuffLen=0);
+DllImportExport BOOL   ClearFolder(LPCTSTR DirName, bool DeleteIt);
+DllImportExport BOOL   MoveCfgFile(Strng & From, LPTSTR To);
+DllImportExport void   SwingCfgFileIfReqd(Strng & Fn);
 
-DllImportExport flag   FindDLLOrHlp(char * pFn, char * DllPath, Strng & Result);
+
+DllImportExport BOOL   FindDLLOrHlp(char * pFn, char * DllPath, Strng & Result);
 
 DllImportExport BOOL   CopyTextToClipboard(CWnd* pOwnerWnd, LPCTSTR buff);
 DllImportExport BOOL   AddTextToClipboard(CWnd* pOwnerWnd, LPCTSTR buff, LPCTSTR Separator=NULL);

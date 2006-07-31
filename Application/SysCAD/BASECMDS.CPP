@@ -89,7 +89,7 @@ void BaseCmdBlk::BuildVNT()
   //SETCIS(ID_PROJECT_CLOSE       , "CLOSE PROJECT\r");
   //SETCIS(ID_PROJECT_SAVE        , "SAVE PROJECT \r");
   //SETCIS(ID_PROJECT_SAVEAS      , "SAVE PROJECT *\r");
-  //SETCIS(ID_PROJECT_CONFIGURE   , "CONFIGURE PROJECT\r");
+  //SETCIS(ID_PROJECT_SETTINGS   , "CONFIGURE PROJECT\r");
   SETCIS(ID_SNAPSHOT_SAVE       , "SAVE SNAPSHOT\r");
   SETCIS(ID_SNAPSHOT_LOAD       , "LOAD SNAPSHOT\r");
   //SETCIS(ID_EXEC_Optimise       , "Optimse Syscad\r");
@@ -222,7 +222,7 @@ void BaseCmdBlk::DoSavePrj()
 void BaseCmdBlk::DoCfgPrj()
   {
   if (When==EX_EXEC)
-    gs_pPrj->OnConfigure();
+    gs_pPrj->OnChangeCurrentSettings("Project Settings");
   };
 
 //---------------------------------------------------------------------------

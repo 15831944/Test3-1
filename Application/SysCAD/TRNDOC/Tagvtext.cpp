@@ -1113,7 +1113,7 @@ flag CTagVwText::DoOnRButtonUp(UINT nFlags, CPoint point)
       //      ?      Menu.AppendMenu(MF_STRING, IDM_TRND_FITALL, "&Fit all trends");
       if (CTagVwDoc::TimeBaseGlobal())
         Menu.CheckMenuItem(IDM_TRND_GLOBALTIMEBASE, MF_BYCOMMAND|MF_CHECKED);
-      if (gs_pPrj->bFlashTrend)
+      if (gs_pPrj->m_bFlashTrend)
         Menu.CheckMenuItem(IDM_TRND_FLASHIND, MF_BYCOMMAND|MF_CHECKED);
       }
     else
@@ -1248,7 +1248,7 @@ flag CTagVwText::DoOnRButtonUp(UINT nFlags, CPoint point)
 
       if (CTagVwDoc::TimeBaseGlobal())
         OtherMenu.CheckMenuItem(IDM_TRND_GLOBALTIMEBASE, MF_BYCOMMAND|MF_CHECKED);
-      if (gs_pPrj->bFlashTrend)
+      if (gs_pPrj->m_bFlashTrend)
         OtherMenu.CheckMenuItem(IDM_TRND_FLASHIND, MF_BYCOMMAND|MF_CHECKED);
       Menu.AppendMenu(MF_POPUP, (UINT)OtherMenu.m_hMenu, "&Other");
 
@@ -1520,7 +1520,7 @@ void CTagVwText::OnMenu(UINT id)
     case IDM_TRND_COLOR:
       {
       CColorDialog ColDlg(pMenuSlt->lPen.lopnColor, CC_RGBINIT | CC_SHOWHELP, this);
-      ColDlg.m_cc.lpCustColors = CustomColours;
+      ColDlg.m_cc.lpCustColors = gs_CustomColours;
       if (ColDlg.DoModal()==IDOK)
         {
         pMenuSlt->lPen.lopnColor = ColDlg.GetColor();
@@ -1550,7 +1550,7 @@ void CTagVwText::OnMenu(UINT id)
       }
     case IDM_TRND_FLASHIND:
       {
-      gs_pPrj->bFlashTrend=!gs_pPrj->bFlashTrend;
+      gs_pPrj->m_bFlashTrend=!gs_pPrj->m_bFlashTrend;
       break;
       }
     //case IDM_TRND_FITALL:

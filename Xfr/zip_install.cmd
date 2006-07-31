@@ -21,7 +21,7 @@ goto continue
 :blankname
 echo ..
 echo NBNB Usage should be: zip_install VerName [size]
-echo Usage example: zip_install bin116
+echo Usage example: zip_install bin120
 echo ---- Ctrl-C to cancel ----
 echo Any key to continue and place zip files in install folder
 echo ..
@@ -129,7 +129,7 @@ goto done
 :use
 echo Usage: zip_install VerName [size]
 echo example1: zip_install bin115
-echo example2: zip_install bin116u3 1024
+echo example2: zip_install bin120u3 1024
 
 goto done
 

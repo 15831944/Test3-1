@@ -1561,13 +1561,13 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
             };
 
           DDB.Byte  ("What",     "", DC_,           "",             &m_AutoVLE.m_iSet,    this, isParm|SetOnChange, DDBHSet);
-          DDB.Visibility(SHM_All, m_AutoVLE.m_iSet==AVLESet_SpecH);
+          DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_SpecH);
           DDB.Double("Specific", "", DC_Humidity ,  "kg(l)/kg(v)",  &m_AutoVLE.m_dSpecH,  this, isParm);
-          DDB.Visibility(SHM_All, m_AutoVLE.m_iSet==AVLESet_RelH);
+          DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_RelH);
           DDB.Double("Relative", "", DC_Frac, "%",                  &m_AutoVLE.m_dRelH,   this, isParm);
-          DDB.Visibility(SHM_All, m_AutoVLE.m_iSet==AVLESet_DewPt);
+          DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_DewPt);
           DDB.Double("DewPoint", "", DC_T,    "C",                  &m_AutoVLE.m_dDewPt,  this, isParm);
-          DDB.Visibility(SHM_All);
+          DDB.Visibility(NSHM_All);
           }
         DDB.EndStruct();
         }
@@ -4101,7 +4101,7 @@ void SpModel::BuildDataDefn_QualsSlct(DataDefnBlk & DDB, flag AsParms)
   Strng SDesc;
   for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
     {
-    if (pQ->Selectable() && pQ->LicOK())
+    if (pQ->Selectable() && pQ->LicenseOK())
       {
       int QNo=pQ->GroupIdNo();
       SDesc=pQ->ShortDesc();
@@ -4746,6 +4746,7 @@ long SpModel::CheckDataRanges()
      double Mt=GTZ(Mass());
      Strng S;
      Strng S1;
+     int NBad=0;
      flag AsWarn=false;
      for (int s=0; s<SDB.Count(); s++)
        {
@@ -4766,15 +4767,22 @@ long SpModel::CheckDataRanges()
            NBadRanges++;
            if (withspcs)
              {
-             if (S.Length()>0)
-               S+=",";
-             if (0)
+             const int MaxBad=5;
+             if (NBad<MaxBad)
                {
-               S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
-               S+=S1();
+               if (S.Length()>0)
+                 S+=",";
+               if (0)
+                 {
+                 S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
+                 S+=S1();
+                 }
+               else
+                 S+=D.SymOrTag();
                }
-             else
-               S+=D.SymOrTag();
+             else if (NBad==MaxBad)
+               S+=" ...";
+             NBad++;
              }
            }
          }
@@ -7923,7 +7931,7 @@ void SpModel::DoTestMassNotNeg()
   for (int s=0; s<SVSpcCount(); s++)
     if (m_M[s]<0)
       {
-      LogError(FullObjTag(), 0, "Negative Specie %s", SDB[s].SymOrTag());
+      LogError(FullObjTag(), 0, "Negative Specie %10.3g %s", m_M[s], SDB[s].SymOrTag());
       m_M.VValue[s]=0;
       }
   };

@@ -150,12 +150,12 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
     {0}};
   DDB.Text    ("Requirements");
   DDB.Byte    ("Filtrate_Method",         "Method",          DC_,     "",       &iRqdFiltMethod,     this, isParm|AffectsStruct, DDB0);
-  DDB.Visibility(SHM_All, (iRqdFiltMethod == FSM_SolToFiltFrac));
+  DDB.Visibility(NSHM_All, (iRqdFiltMethod == FSM_SolToFiltFrac));
   if (PrjFileVerNo()<48)
     DDB.Double  ("",                        "RqdFiltSolids",   DC_Frac, "%",      &RqdSolidsToFiltrate,this, isParm);
   else
     DDB.Double  ("Rqd_Solids_To_Filtrate",  "RqdSolToFilt",    DC_Frac, "%",      &RqdSolidsToFiltrate,this, isParm);//SolidLoss
-  DDB.Visibility(SHM_All, (iRqdFiltMethod == FSM_FiltSolConc));
+  DDB.Visibility(NSHM_All, (iRqdFiltMethod == FSM_FiltSolConc));
   DDB.Double  ("Rqd_FiltrateSolidsConc25","RqdFiltSolConc25",DC_Conc, "g/L",    &RqdFiltSolConc,     this, isParm);
   DDB.Visibility();
   DDB.Double  ("Solids_To_FiltrateUsed",  "SolToFiltUsed",   DC_Frac, "%",      &SolidsToFiltUsed,   this, isResult|InitHidden);//|noView);
@@ -187,7 +187,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",   "SpecCakeResistance",  DC_SpCakeRes, "m/kg",     &SpCakeRes,        this, isParm);
   DDB.Double  ("",   "Area",                DC_Area,      "m^2",      &FiltArea,         this, isParm);
 
-  if (SolveMethod()==SM_Buffered)//SolveDynamicMethod())
+  if (SolveBufferedMethod())//NetDynamicMethod())
     DDB.Object(&Cake, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();
 
@@ -551,7 +551,7 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
 
   double washSF = 0.0;
 
-  if (SolveMethod()==SM_Buffered)//SolveDynamicMethod())
+  if (SolveBufferedMethod())
     {
     SolidsToFiltUsed = RqdSolidsToFiltrate;
     iRqdFiltMethod = FSM_SolToFiltFrac;
@@ -712,7 +712,7 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
   SetCI(1, bTrackStatus && HasFlw && (WashErr > 1.0e-6));
   SetCI(2, bTrackStatus && HasFlw && (washSF > 0.01));
   //SetCI(3, bTrackStatus && (solwash > 1.0e-6));
-  if (SolveMethod()==SM_Buffered)//SolveDynamicMethod())
+  if (SolveBufferedMethod())
     {
     ClrCI(4);
     ClrCI(5);

@@ -141,7 +141,6 @@
 #define IDC_SPDEFAULTS                  14181
 #define IDC_CFGFILES                    14182
 #define IDC_CFGHOME                     14183
-#define IDC_ATMOSPRESS                  14184
 #define IDC_FLASHCOMP                   14185
 #define IDC_SATPCOMP                    14186
 #define IDC_DEFSPMODEL                  14187
@@ -157,10 +156,7 @@
 #define IDD_PRJSAVEASDLG1               14193
 #define IDC_DLL_SORT_GROUP              14194
 #define IDD_PP_MDLCFG_OPT               14194
-#define IDC_DEFRUNMODE                  14194
 #define IDC_DLL_SORT_DLL                14195
-#define IDC_DEFRUNMODE2                 14195
-#define IDC_DEFHEATMODE                 14195
 #define IDC_CFG_NEW                     14196
 #define IDC_CFG_COPY                    14197
 #define IDC_NEWCFGNAME                  14198
@@ -195,21 +191,34 @@
 #define IDC_REMOVEDLL                   14221
 #define IDC_SHOWSPECIES                 14222
 #define IDC_DBFMTCOMBO                  14223
-#define IDC_SUMMARY1                    14224
-#define IDC_INFILESFOLDER               14225
 #define IDC_SUMMARY2                    14226
 #define IDC_STATIC_NOTEDITABLE          14226
 #define IDC_SUMMARY3                    14227
 #define IDC_FORCEEQLNAME                14228
+#define IDC_DEFNETMODE                  14230
+#define IDC_DYNNODEMODE                 14231
+#define IDC_DYNLINKMODE                 14232
+#define IDC_DYNFLOWMODE                 14233
+#define IDC_DYNHEATMODE                 14234
+#define IDC_MAXNODEMODE                 14235
+#define IDC_MAXLINKMODE                 14236
+#define IDC_MAXFLOWMODE                 14237
+#define IDC_MAXHEATMODE                 14238
+#define IDC_PBNODEMODE                  14239
+#define IDC_PBLINKMODE                  14240
+#define IDC_PBFLOWMODE                  14241
+#define IDC_PBHEATMODE                  14242
+#define IDC_PROBALALLOWED               14250
+#define IDC_DYNAMICALLOWED              14251
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        15000
 #define _APS_NEXT_COMMAND_VALUE         15000
-#define _APS_NEXT_CONTROL_VALUE         15000
+#define _APS_NEXT_CONTROL_VALUE         14252
 #define _APS_NEXT_SYMED_VALUE           15000
 #endif
 #endif

@@ -75,9 +75,9 @@ BOOL CPrjDoc::OnNewDocument()
     T += T2;
     SetTitle(T());
     
-    if (gs_pPrj->fNewTrend)
+    if (gs_pPrj->m_fNewTrend)
       ScdApp()->TrendTemplate().OpenDocumentFile(NULL); 
-    if (gs_pPrj->fNewGraph)
+    if (gs_pPrj->m_fNewGraph)
       ScdApp()->GraphTemplate().OpenDocumentFile(NULL); 
     
     //gs_pPrj->OnClose();

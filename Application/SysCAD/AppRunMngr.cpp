@@ -117,7 +117,7 @@ void CAppRunManager::SetProbalMode(bool Done)
   {
   if (!Done)
     gs_pPrj->CheckLicense(TRUE);
-  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
+  gs_Exec.SetDefNetMode(NM_Probal);
   if (Done)
     SolveTool.Open();
   }

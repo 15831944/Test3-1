@@ -79,7 +79,7 @@ Thickener::Thickener(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
-  SetAllowedSolveModes(SM_Direct|/*SM_Inline|*/SM_Buffered);//"Transfer", "Inline", "Buffered");
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
 
   iRqdOFMethod  = OFM_OFSolFrac;
   IntOFSolidsUsed = dNAN;
@@ -108,7 +108,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
   DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &BedHgt,             this, isResult|0);
@@ -122,16 +122,16 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
     {OFM_OFSolFrac, "OverFlowSolidsFraction"},
     {OFM_OFSolConc, "OverFlowSolidsConcentration"},
     {0}};
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
 	DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &RqdUFSolids,        this, isParm);
   DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &iRqdOFMethod,       this, isParm|AffectsStruct, DDB0);
-  DDB.Visibility(SM_Direct|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
+  DDB.Visibility(NM_Probal|SM_All|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
   DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &RqdOFSolids,        this, isParm);
-  DDB.Visibility(SM_Direct|HM_All, (iRqdOFMethod == OFM_OFSolConc));
+  DDB.Visibility(NM_Probal|SM_All|HM_All, (iRqdOFMethod == OFM_OFSolConc));
   DDB.Double  ("Rqd_OverFlowSolidsConc25","RqdOFSolConc25",  DC_Conc, "g/L",    &RqdOFSolConc,       this, isParm);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &IntOFSolidsUsed,    this, isParmConstruct|isResult|InitHidden);//|noView);
   DDB.Visibility();
   DDB.Text    ("Results");
@@ -142,12 +142,12 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("UnderFlow_SolidsRecovery","UFSolRec",        DC_Frac, "%",      &ActUFSolRec,        this, isParmConstruct|isResult);
 
 	DDB.Text    ("");
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",               "",                DC_,     "",       &bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility();
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -158,20 +158,20 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && SolveDirectMethod())
+  if (bShowQFeed && NetProbalMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 	DDB.Object(&UFSolidsFn, this, NULL, NULL, DDB_RqdPage);
   DDB.Object(&OFSolidsFn, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();

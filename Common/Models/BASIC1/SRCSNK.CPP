@@ -200,28 +200,28 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
 
   DDB.Text   ("Mode of Operation");
-  DDB.Visibility(SM_DynBoth|HM_All|SM_Direct);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All|SM_Direct);
   DDB.Byte   ("",             "Qm_Mode", DC_, "", &QmRqdMode,  this, (fCrossConnected?0:isParm)|SetOnChange, DDB0);
   DDB.Byte   ("",             "Mode",    DC_, "", xidSSMode,   this, (fCrossConnected?0:isParm) | SetOnChange | AffectsStruct, DDBSrcSnk);
 
-  DDB.Visibility(SM_DynBoth|HM_All, (SSMode & SSM_Sink));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, (SSMode & SSM_Sink));
   DDB.Byte  ("", "RevFeed", DC_, "", &iRevFlw,   this, (fCrossConnected?0:isParm), DDBQmRev);
 
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   //DDB.Add_OnOff("MakeUpMode", &bMakeUpMode, True, this);
   DDB.CheckBoxBtn("MakeUpMode", "", DC_, "", &bMakeUpMode, this, (fCrossConnected?0:isParm), DDBOnBlank);
 
   //flag ParmOK=true;
   //DDB.Visibility(SM_All|HM_All);
-  //if (((SSMode & SSM_ConstQm)!=0)|| SolveDirectMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)))
+  //if (((SSMode & SSM_ConstQm)!=0)|| NetProbalMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)))
   //  DDB.Double ("MassFlow_Rqd", "Qm_Rqd", DC_Qm , "kg/s", xidQmRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   //if ((SSMode & SSM_ConstQv)!=0)
   //  DDB.Double ("VolFlow_Rqd",  "Qv_Rqd", DC_Qv , "L/s",  xidQvRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   //if ((SSMode & SSM_ConstNQv)!=0)
   //  DDB.Double ("NVolFlow_Rqd",  "NQv_Rqd", DC_NQv , "NL/s",  xidNQvRqd,  this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
 
-  DDB.Visibility(SHM_All, ((SSMode & SSM_ConstQm)!=0)||
-                            SolveDirectMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
+  DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstQm)!=0)||
+                            NetProbalMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
   flag ParmOK=true;
   if (0 && (SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))) // taken out by CNM
     {
@@ -239,34 +239,34 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     }
   
   DDB.Double ("MassFlow_Rqd", "Qm_Rqd", DC_Qm , "kg/s", xidQmRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
-  DDB.Visibility(SHM_All, ((SSMode & SSM_ConstQv)!=0));
+  DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstQv)!=0));
   DDB.Double ("VolFlow_Rqd",  "Qv_Rqd", DC_Qv , "L/s",  xidQvRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
-  DDB.Visibility(SHM_All, ((SSMode & SSM_ConstNQv)!=0));
+  DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstNQv)!=0));
   DDB.Double ("NVolFlow_Rqd",  "NQv_Rqd", DC_NQv , "NL/s",  xidNQvRqd,  this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
 
-  DDB.Visibility(SM_DynBoth|HM_All, ((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))!=0));
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, ((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))!=0));
   DDB.Double("Q_Std_Dev",     "",    DC_Frac,  "%",     &dQ_Std_Dev,    this, (fCrossConnected?0:isParm)|InitHidden);
   DDB.Double("Q_Tau",         "",    DC_Time,  "s",     &dQ_Tau,        this, (fCrossConnected?0:isParm)|InitHidden);
   DDB.Visibility();
   DDB.Text  (SSMode & SSM_Sink ? "Sink Conditions" : "Feed Conditions");
   DDB.Byte  ("VLEquilibrium",  "",             DC_, "", xidSSVLEOnOff,  this, (fCrossConnected?0:isParm)|SetOnChange, DDBVLEO);
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
   int PIsParm=(iVLEOpt!=VLEO_SatLiq && iVLEOpt!=VLEO_SatVap)&&!fCrossConnected;
   int TIsParm=(iVLEOpt!=VLEO_SatLiqP && iVLEOpt!=VLEO_SatVapP)&&!fCrossConnected;
   DDB.Double("P_Rqd",         "",    DC_P   , "kPag",   xidPRqd,        this, (PIsParm?isParm:0)|NAN_OK);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Double("P_Std_Dev",     "",    DC_Frac,  "%",     &dP_Std_Dev,    this, (PIsParm?isParm:0)|InitHidden);
   DDB.Double("P_Tau",         "",    DC_Time,  "s",     &dP_Tau,        this, (PIsParm?isParm:0)|InitHidden);
   DDB.Double("Head",          "",    DC_L,     "m",     &dHead,         this, (fCrossConnected?0:isParm));
 
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
   //DDB.Text  ("Temperature");
   DDB.Double("T_Rqd",         "",    DC_T   , "C",      xidTRqd,        this, (TIsParm?isParm:0)|NAN_OK);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Double("T_Std_Dev",     "",    DC_Frac,  "%",     &dT_Std_Dev,    this, (TIsParm?isParm:0)|InitHidden);
   DDB.Double("T_Tau",         "",    DC_Time,  "s",     &dT_Tau,        this, (TIsParm?isParm:0)|InitHidden);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text  ("Batch Feed");
   DDB.Double("Batch",         "",    DC_M   , "kg",     &BatchAvail,    this, (fCrossConnected?0:isParm)|NAN_OK);
   
@@ -275,7 +275,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   
   //VLE.Add_OnOff(DDB);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   
   DDB.Visibility();
@@ -321,7 +321,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
         DDB.CheckBox(sm_CFQualsNm[iQ].Str(), "", DC_, "", &m_CFQualsOn[iQ], this, isParm); 
       }
 
-    DDB.Visibility(SHM_All, (SSMode&SSM_ConstP)==0);
+    DDB.Visibility(NSHM_All, (SSMode&SSM_ConstP)==0);
     DDB.Float ("CF.Ratio",   "", DC_, "", &m_fCFRatio,   this, isParm);
     DDB.Visibility();
     DDB.String("CF.Source",  "", DC_, "", xidCFTag,      this, isParm|isTag);
@@ -330,25 +330,25 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     }
   //DDB.EndStruct();
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   P_RegB.BuildDataDefn(DDB, this, "Rate", 1);
   T_RegB.BuildDataDefn(DDB, this, "Temp", 2);
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
 
   m_VLE.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
-  DDB.Visibility(SHM_All, False);
+  DDB.Visibility(NSHM_All, False);
   DDB.Double("POut",         "",    DC_P   , "kPag",   &dP_Out,  this, isResult|0);
   DDB.Double("QOut",         "",    DC_Qm  , "kg/s",   &dQ_Out,  this, isResult|0);
   DDB.Double("TOut",         "",    DC_T   , "C",      &dT_Out,  this, isResult|0);
 
-  DDB.Visibility(SHM_All, (SSMode & SSM_Source) || (iRevFlw==SSQmRev_Image));
+  DDB.Visibility(NSHM_All, (SSMode & SSM_Source) || (iRevFlw==SSQmRev_Image));
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();
   DDB.Object(&Flows, this, NULL, NULL, DDB_RqdPage);
 
   DDB.Text("");
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     if (m_Src.Enabled || m_Snk.Enabled)
       {

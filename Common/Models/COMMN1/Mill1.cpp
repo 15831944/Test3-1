@@ -70,6 +70,8 @@ const int EIOId_Supply = ElecIOId(0);
 static IOAreaRec MillIOAreaList[] =
   {{"Mill Feed",       "Feed"      , ioidFeed, LIO_In0 ,  nc_MLnk, 1, 20, /*dwIOIsBuffer|*/IOGRP(1), 0.0F},
    {"Mill Discharge",  "Product"   , ioidProd, LIO_Out0,  nc_MLnk, 1,  1, IOSetXfer|IOGRP(1), 0.0F},
+    SPILL2AREA("Spills",  IOId_Spill2Area),
+    VENT2AREA("Vents",    IOId_Vent2Area),
    {"ElecSupply",    "ElecIn",     EIOId_Supply, LIO_In,   nc_ELnk, 0,50},
    {NULL}};
            
@@ -137,7 +139,7 @@ void Mill1::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnElevation(DDB);
   CB.Add_StandardDataDefn(DDB, true);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text("");
   DDB.Double("DischOnSpeed",   "",          DC_Frac,  "%",     &DischOnSpeed, this, isParm);
   MSB.BuildDataDefn(DDB, this, "Speed", 1);
@@ -152,7 +154,7 @@ void Mill1::BuildDataDefn(DataDefnBlk & DDB)
   CB.Add_ObjectDataDefn(DDB, true);
   RB.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -242,7 +244,7 @@ void Mill1::EvalSteadyState()
 void Mill1::EvalProducts(CNodeEvalIndex & NEI)
   {
   Eff = Range(0.0, Eff, 1.0);
-  flag On = (bOnLine && (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed));
+  flag On = (bOnLine && (NetProbalMethod() || MSB.Speed(this)>DischOnSpeed));
   const int ioProd = IOWithId_Self(ioidProd);
 
   for (int i=0; i<NoFlwIOs(); i++)

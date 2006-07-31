@@ -40,19 +40,22 @@ class CGenPage : public CCustomPropertyPage
     CGenPage();
     ~CGenPage();
 
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
+
     flag    m_bTimeChanged:1,
             m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
     enum { IDD = IDD_PRJGENDLG };
-    CString m_CurrentTimeHMS;
-    CString m_TimeText;
-    BOOL m_NumTagsOK;
-    BOOL m_NumStartingOK;
-    CString m_NumChar;
+    CString     m_CurrentTimeHMS;
+    CString     m_TimeText;
+    BOOL        m_NumTagsOK;
+    BOOL        m_NumStartingOK;
+    CString     m_NumChar;
     //int m_SolveMd;
-    BOOL	m_SyncWithClock;
+    BOOL	      m_SyncWithClock;
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CGenPage)
@@ -64,40 +67,79 @@ class CGenPage : public CCustomPropertyPage
     //{{AFX_MSG(CGenPage)
     virtual void OnOK();
     virtual BOOL OnInitDialog();
+
+    void           DoSyncChange();
+    void           SetLibraryOptions();
+    void           SetFrameOptions();
+    void           LoadCBs(bool DoSwap);
+
+  public:
+    long           m_NetMode;
+    
+    long           m_PBNodeMode;
+    long           m_PBLinkMode;
+    long           m_PBHeatMode;
+    long           m_PBFlowMode;
+
+    long           m_DynNodeMode;
+    long           m_DynLinkMode;
+    long           m_DynHeatMode;
+    long           m_DynFlowMode;
+
+    long           m_PBMaxNodeMode;
+    long           m_PBMaxLinkMode;
+    long           m_PBMaxHeatMode;
+    long           m_PBMaxFlowMode;
+
+    long           m_DynMaxNodeMode;
+    long           m_DynMaxLinkMode;
+    long           m_DynMaxHeatMode;
+    long           m_DynMaxFlowMode;
+
+    long           m_NodeMode;
+    long           m_LinkMode;
+    long           m_HeatMode;
+    long           m_FlowMode;
+
+    long           m_MaxNodeMode;
+    long           m_MaxLinkMode;
+    long           m_MaxHeatMode;
+    long           m_MaxFlowMode;
+
+
+    DDBValueLstMem m_NetModes;
+    DDBValueLstMem m_NodeModes;
+    DDBValueLstMem m_LinkModes;
+    DDBValueLstMem m_HeatModes;
+    DDBValueLstMem m_FlowModes;
+
+    CComboBox      m_NetModeCB;
+    CComboBox      m_NodeModeCB;
+    CComboBox      m_LinkModeCB;
+    CComboBox      m_HeatModeCB;
+    CComboBox      m_FlowModeCB;
+    CEdit          m_Library;
+    CComboBox      m_PageFrame;
+
+    Strng          m_sDefGrpLib;
+    Strng          m_sGrfFrameName;
+    Strng          m_sGrfFrameFilter;
+    CEdit          m_Filter;
+  public:
+    afx_msg void OnBnClickedLibrarybtn();
+    afx_msg void OnEnChangeLibrary();
+    afx_msg void OnEnChangeGrpfilter();
+    afx_msg void OnCbnSelchangePrjnetmodecombo();
     afx_msg void OnTimeChanged();
     afx_msg void OnDTimeChanged();
     afx_msg void OnKillfocusPrjCurrenttime();
-    //afx_msg void OnPrjProbalOrDynamic();
     afx_msg void OnNumTagsChanged();
     afx_msg void OnNumStTagsChanged();
     afx_msg void OnSynchronise();
-    //}}AFX_MSG
     afx_msg void OnUpdateDynamic(CCmdUI* pCmdUi);
     afx_msg void OnUpdateCurrentTime(CCmdUI* pCmdUi);
+
     DECLARE_MESSAGE_MAP()
-
-    void DoSyncChange();
-    void SetLibraryOptions();
-    void SetFrameOptions();
-    //void SetGraphicsOptions();
-    //void GetGraphicsOptions();
-  public:
-    long m_RunMode;
-    long m_HeatMode;
-    DDBValueLstMem m_RunModes;
-    DDBValueLstMem m_HeatModes;
-    CComboBox m_RunModeCB;
-    CComboBox m_HeatModeCB;
-    CEdit m_Library;
-    afx_msg void OnBnClickedLibrarybtn();
-    CComboBox m_PageFrame;
-    afx_msg void OnEnChangeLibrary();
-
-    Strng m_sDefGrpLib;
-    Strng m_sGrfFrameName;
-    Strng m_sGrfFrameFilter;
-    CEdit m_Filter;
-    afx_msg void OnEnChangeGrpfilter();
   };
 
 //===========================================================================
@@ -109,6 +151,9 @@ class CCommsPage : public CCustomPropertyPage
     CCommsPage();
     ~CCommsPage();
 
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
+
     flag bDrvChanged:1,
          bArcChanged:1,
          bIOMChanged:1,
@@ -117,10 +162,12 @@ class CCommsPage : public CCustomPropertyPage
 
     //{{AFX_DATA(CCommsPage)
 	enum { IDD = IDD_PRJCOMMSDLG };
+#if WITHDRVMAN
     BOOL  m_DrvOn;
     BOOL  m_DrvLclTagSrvrOK;
     CString m_DrvName;
     BOOL  m_DrvReadAll;
+#endif
     BOOL  m_OPCOn;
     BOOL	m_OPCServerNo;
     BOOL  m_OPCResetReg;
@@ -140,10 +187,12 @@ class CCommsPage : public CCustomPropertyPage
     //{{AFX_MSG(CCommsPage)
     virtual void OnOK();
     virtual BOOL OnInitDialog();
+#if WITHDRVMAN
     afx_msg void OnDriverOn();
     afx_msg void OnDriverChanged();
     afx_msg void OnDriverReload();
     afx_msg void OnDriverBrowse();
+#endif
     afx_msg void OnOPCReload();
     afx_msg void OnOpcChanged();
     afx_msg void OnDdeChanged();
@@ -157,8 +206,10 @@ class CCommsPage : public CCustomPropertyPage
 	  afx_msg void OnIOMChanged();
   	afx_msg void OnCommsapply();
 	//}}AFX_MSG
+#if WITHDRVMAN
     afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
     afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
+#endif
     afx_msg void OnUpdateReLoadArc(CCmdUI* pCmdUi);
     afx_msg void OnUpdateArchiveOn(CCmdUI* pCmdUi);
     afx_msg void OnUpdateIOMOn(CCmdUI* pCmdUi);
@@ -175,6 +226,9 @@ class CHistPage : public CCustomPropertyPage
     CHistPage();
     ~CHistPage();
 
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
+
     flag bHstChanged;
 
     //{{AFX_DATA(CHistPage)
@@ -188,7 +242,7 @@ class CHistPage : public CCustomPropertyPage
     UINT m_FilesMax;
     long m_SlotNoEst;
     long m_ForceCnt;
-    long m_HstSize;
+    long m_FileSize;
     BOOL m_PermHist;
     BOOL m_UseTol;
     double m_ATol;
@@ -222,6 +276,8 @@ class CHistPage : public CCustomPropertyPage
     afx_msg void OnBnClickedPrjhstusetol();
     double m_StopGap;
     double m_MidTimeFactor;
+  public:
+    afx_msg void OnEnChangeMidtimefactor();
   };
 
 //===========================================================================
@@ -270,41 +326,60 @@ class CNetPage : public CCustomPropertyPage
 
 //===========================================================================
 
-IMPLEMENT_DYNAMIC(CPrjSheet, CPropertySheet)
+IMPLEMENT_DYNAMIC(CProjectSettingsDlg, CPropertySheet)
 
-CPrjSheet::CPrjSheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
-  : CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
-  {
-  ASSERT(FALSE); //DO NOT EXPECT TO GET HERE !!!
-  }
+//CProjectSettingsDlg::CProjectSettingsDlg(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
+//  : CPropertySheet(nIDCaption, pParentWnd, iSelectPage),
+//  m_Sets(NULL)
+//  {
+//  ASSERT(FALSE); //DO NOT EXPECT TO GET HERE !!!
+//  }
 
 //---------------------------------------------------------------------------
 
-CPrjSheet::CPrjSheet(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
-  : CPropertySheet(pszCaption, pParentWnd, iSelectPage)
+CProjectSettingsDlg::CProjectSettingsDlg(bool AsModal,  CProject * Prj, CProjectSettings * Set, LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
+  : CPropertySheet(pszCaption, pParentWnd, iSelectPage),
+  m_pPrj(Prj),
+  m_pSet(Set)
   {
-  gs_pPrj->bConfigBusy = 1;
+  m_pSet->m_bConfigBusy = 1;
+  m_bAsModal = AsModal;
+    
   pGeneralPage = new CGenPage;
+  ((CGenPage*)pGeneralPage)->m_pSet=m_pSet;
+  ((CGenPage*)pGeneralPage)->m_pPrj=m_pPrj;
   AddPage(pGeneralPage);
+
   pCommsPage = new CCommsPage;
+  ((CCommsPage*)pCommsPage)->m_pSet=m_pSet;
+  ((CCommsPage*)pCommsPage)->m_pPrj=m_pPrj;
   AddPage(pCommsPage);
+
   pHistoryPage = new CHistPage;
+  ((CHistPage*)pHistoryPage)->m_pSet=m_pSet;
+  ((CHistPage*)pHistoryPage)->m_pPrj=m_pPrj;
   AddPage(pHistoryPage);
 #if WITHNETSERVER
   pNetworkPage = new CNetPage;
   AddPage(pNetworkPage);
 #endif
-  if (!Create(pParentWnd, WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION, WS_EX_DLGMODALFRAME/* | WS_EX_SMCAPTION*/))
+  if (!m_bAsModal)
     {
-    TRACE("Failed to create Project PropertySheet\n");
+    if (!Create(pParentWnd, WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION, WS_EX_DLGMODALFRAME/* | WS_EX_SMCAPTION*/))
+      {
+      TRACE("Failed to create Project PropertySheet\n");
+      }
     }
+
+  if (m_pPrj)
+    m_pPrj->GetSettings();
   }
 
 //---------------------------------------------------------------------------
 
-CPrjSheet::~CPrjSheet()
+CProjectSettingsDlg::~CProjectSettingsDlg()
   {
-  gs_pPrj->bConfigBusy = 0;
+  m_pSet->m_bConfigBusy = 0;
   MainWnd()->m_pPrjSheet = NULL; //set global pointer to property sheet to null
   delete pGeneralPage;
   delete pCommsPage;
@@ -318,8 +393,8 @@ CPrjSheet::~CPrjSheet()
 
 //---------------------------------------------------------------------------
 
-BEGIN_MESSAGE_MAP(CPrjSheet, CPropertySheet)
-  //{{AFX_MSG_MAP(CPrjSheet)
+BEGIN_MESSAGE_MAP(CProjectSettingsDlg, CPropertySheet)
+  //{{AFX_MSG_MAP(CProjectSettingsDlg)
   ON_WM_NCDESTROY()
   ON_WM_CLOSE()
   ON_COMMAND(IDOK,OnOK)
@@ -329,7 +404,7 @@ END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
 
-BOOL CPrjSheet::OnInitDialog()
+BOOL CProjectSettingsDlg::OnInitDialog()
   {
   ASSERT(m_bModeless); //this code only needed when creating modeless property sheet!
 
@@ -344,7 +419,7 @@ BOOL CPrjSheet::OnInitDialog()
 
 //---------------------------------------------------------------------------
 
-void CPrjSheet::StoreCurPageNo()
+void CProjectSettingsDlg::StoreCurPageNo()
   {
   CPropertyPage* pPage = GetActivePage();
   if (pPage)
@@ -360,7 +435,7 @@ void CPrjSheet::StoreCurPageNo()
 
 //---------------------------------------------------------------------------
 // overridden to ensure that a modeless property sheet behaves as a modal
-void CPrjSheet::OnOK()
+void CProjectSettingsDlg::OnOK()
   {
   ASSERT_VALID(this);
   StoreCurPageNo();
@@ -371,12 +446,18 @@ void CPrjSheet::OnOK()
     //GetActivePage()->OnOK();
     EndDialog(IDOK);
     MainWnd()->SetToolBarSolveMode();
+    gs_AccessWnds.CloseAccessData(-1, False, False, True);
+    gs_AccessWnds.CloseWnd(-1);
     }
+
+  if (m_pPrj)
+    m_pPrj->PutSettings();
+  
   }
 
 //---------------------------------------------------------------------------
 // overridden to ensure that a modeless property sheet behaves as a modal
-void CPrjSheet::OnCancel()
+void CProjectSettingsDlg::OnCancel()
   {
   ASSERT_VALID(this);
   StoreCurPageNo();
@@ -388,7 +469,7 @@ void CPrjSheet::OnCancel()
 
 //---------------------------------------------------------------------------
 // overridden to ensure that a modeless property sheet behaves as a modal
-void CPrjSheet::OnClose()
+void CProjectSettingsDlg::OnClose()
   {
   ASSERT_VALID(this);
   OnCancel();
@@ -396,10 +477,11 @@ void CPrjSheet::OnClose()
 
 //---------------------------------------------------------------------------
 
-void CPrjSheet::OnNcDestroy()
+void CProjectSettingsDlg::OnNcDestroy()
   {
   CPropertySheet::OnNcDestroy();
-  delete this;
+  if (!m_bAsModal)
+    delete this;
   }
 
 //---------------------------------------------------------------------------
@@ -422,7 +504,7 @@ CHistPage::CHistPage() : CCustomPropertyPage(CHistPage::IDD)
   m_FilesMax = 0;
   m_SlotNoEst = 0;
   m_ForceCnt = 0;
-  m_HstSize = 0;
+  m_FileSize = 0;
   m_PermHist = FALSE;
   m_UseTol = FALSE;
   m_ATol = 0.0;
@@ -452,7 +534,7 @@ void CHistPage::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_PRJHSTFILESMAX, m_FilesMax);
   DDX_Text(pDX, IDC_PRJHSTSLOTNOEST, m_SlotNoEst);
   DDX_Text(pDX, IDC_PRJHSTFORCECNT, m_ForceCnt);
-  DDX_Text(pDX, IDC_PRJHSTSIZE, m_HstSize);
+  DDX_Text(pDX, IDC_PRJHSTSIZE, m_FileSize);
   DDX_Check(pDX, IDC_PERMHIST, m_PermHist);
   DDX_Check(pDX, IDC_PRJHSTUSETOL, m_UseTol);
   DDX_Text(pDX, IDC_PRJHSTATOL, m_ATol);
@@ -480,66 +562,68 @@ void CHistPage::DoDataExchange(CDataExchange* pDX)
 void CHistPage::LoadInfo()
   {
   Strng s;
-  m_HstName      = HstMngr.sHistorianName();
-  m_ScenName     = HstMngr.sHstScenName();
+  m_HstName      = m_pSet->m_Hst.sHistorianName();
+  m_ScenName     = m_pSet->m_Hst.sHstScenName();
   if (SymbolicPaths())
-    s.FnContract(HstMngr.sHstDataDir());
+    s.FnContract(m_pSet->m_Hst.sHstDataDir());
   else
-    s.FnExpand(HstMngr.sHstDataDir());
+    s.FnExpand(m_pSet->m_Hst.sHstDataDir());
   m_DataDir      = s();
   if (SymbolicPaths())
-    s.FnContract(HstMngr.sHstCatDir());
+    s.FnContract(m_pSet->m_Hst.sHstCatDir());
   else
-    s.FnExpand(HstMngr.sHstCatDir());
+    s.FnExpand(m_pSet->m_Hst.sHstCatDir());
   m_CatDir       = s();
-  m_HstOn        = HstMngr.HstOn();
-  m_FilesMin     = HstMngr.iHstFilesMin;
-  m_FilesMax     = Max((UINT)0, HstMngr.iHstFilesMax - HstMngr.iHstFilesMin);
+  m_HstOn        = m_pSet->m_Hst.m_OnRqd;
+  m_FilesMin     = m_pSet->m_Hst.iHstFilesMin;
+  m_FilesMax     = Max((UINT)0, m_pSet->m_Hst.iHstFilesMax - m_pSet->m_Hst.iHstFilesMin);
   m_PermHist     = (m_FilesMax>0);
-  m_ForceCnt     = HstMngr.lHstForceCnt;
-  m_HstSize      = HstMngr.lHstEvFileSize;
-  m_SlotNoEst    = HstMngr.lHstSlotNoEstimate;
-  m_UseTol       = HstMngr.bHstUseTol;
-  m_ATol         = HstMngr.dHstRecordATol;
-  m_RTol         = HstMngr.dHstRecordRTol;
-  //m_StopGap      = HstMngr.dHstStopGap;
-  m_MidTimeFactor= HstMngr.dHstMidTimeFactor;
+  m_ForceCnt     = m_pSet->m_Hst.lHstForceCnt;
+  m_FileSize     = m_pSet->m_Hst.lHstEvFileSize;
+  m_SlotNoEst    = m_pSet->m_Hst.lHstSlotNoEstimate;
+  m_UseTol       = m_pSet->m_Hst.bHstUseTol;
+  m_ATol         = m_pSet->m_Hst.dHstRecordATol;
+  m_RTol         = m_pSet->m_Hst.dHstRecordRTol;
+  //m_StopGap      = m_pSet->m_Hst.dHstStopGap;
+  m_MidTimeFactor= m_pSet->m_Hst.dHstMidTimeFactor;
   }
 
 //---------------------------------------------------------------------------
 
 void CHistPage::SaveInfo()
   {
-  HstMngr.sHistorianName = m_HstName.GetBuffer(0);
-  HstMngr.SetHstOn(m_HstOn);
-  HstMngr.lHstEvFileSize = Max(64L, (((m_HstSize-1)/64L)+1)*64L);
-  HstMngr.lHstSlotNoEstimate = Max(100L, m_SlotNoEst);
-  HstMngr.sHstCatDir.FnContract((char*)(const char*)m_CatDir);
-  HstMngr.sHstDataDir.FnContract((char*)(const char*)m_DataDir);
-  HstMngr.sHstScenName = m_ScenName;
-  HstMngr.iHstFilesMin = Max(m_FilesMin, (UINT)2);
-  HstMngr.iHstFilesMax = m_FilesMin + m_FilesMax;
-  HstMngr.lHstForceCnt = Max(m_ForceCnt, 100L);
+  m_pSet->m_Hst.sHistorianName = m_HstName.GetBuffer(0);
+  //m_pSet->m_Hst.SetHstOn(m_HstOn);
+  m_pSet->m_Hst.lHstEvFileSize = Max(64L, (((m_FileSize-1)/64L)+1)*64L);
+  m_pSet->m_Hst.lHstSlotNoEstimate = Max(100L, m_SlotNoEst);
+  m_pSet->m_Hst.sHstCatDir.FnContract((char*)(const char*)m_CatDir);
+  m_pSet->m_Hst.sHstDataDir.FnContract((char*)(const char*)m_DataDir);
+  m_pSet->m_Hst.sHstScenName = m_ScenName;
+  m_pSet->m_Hst.iHstFilesMin = Max(m_FilesMin, (UINT)2);
+  m_pSet->m_Hst.iHstFilesMax = m_FilesMin + m_FilesMax;
+  m_pSet->m_Hst.lHstForceCnt = Max(m_ForceCnt, 100L);
   //if (!gs_License.AllowFullHist())
   //  gs_pPrj->iHstFilesMin = gs_pPrj->iHstFilesMax;
-  if (HstMngr.iHstFilesMin>gs_License.MaxHistFilesAllowed() || HstMngr.iHstFilesMax>gs_License.MaxHistFilesAllowed() || HstMngr.lHstEvFileSize>gs_License.MaxHistSizeAllowed())
+  if (m_pSet->m_Hst.iHstFilesMin >gs_License.MaxHistFilesAllowed() || 
+      m_pSet->m_Hst.iHstFilesMax>gs_License.MaxHistFilesAllowed() || 
+      m_pSet->m_Hst.lHstEvFileSize>gs_License.MaxHistSizeAllowed())
     {
     LogError("History", LF_Exclamation, "Historian file size reduced to that allowed by the license");
-    HstMngr.iHstFilesMax = Min(HstMngr.iHstFilesMax, gs_License.MaxHistFilesAllowed());
-    HstMngr.iHstFilesMin = Min(HstMngr.iHstFilesMin, HstMngr.iHstFilesMax);
-    HstMngr.lHstEvFileSize = Min(HstMngr.lHstEvFileSize, gs_License.MaxHistSizeAllowed());
+    m_pSet->m_Hst.iHstFilesMax = Min(m_pSet->m_Hst.iHstFilesMax, gs_License.MaxHistFilesAllowed());
+    m_pSet->m_Hst.iHstFilesMin = Min(m_pSet->m_Hst.iHstFilesMin, m_pSet->m_Hst.iHstFilesMax);
+    m_pSet->m_Hst.lHstEvFileSize = Min(m_pSet->m_Hst.lHstEvFileSize, gs_License.MaxHistSizeAllowed());
     }
-  if (_stricmp(HstMngr.sHistorianName(), HstMngr.sHstScenName())==0)
+  if (_stricmp(m_pSet->m_Hst.sHistorianName(), m_pSet->m_Hst.sHstScenName())==0)
     {
     LogError("History", LF_Exclamation, "Historian name and scenario name must NOT be the same");
-    //HstMngr.sHstScenName += "_0";
-    //m_ScenName = HstMngr.sHstScenName();
+    //m_pSet->m_Hst.sHstScenName += "_0";
+    //m_ScenName = m_pSet->m_Hst.sHstScenName();
     }
-  HstMngr.bHstUseTol = m_UseTol;
-  HstMngr.dHstRecordATol = Min(fabs(m_ATol), 0.1);
-  HstMngr.dHstRecordRTol = Min(fabs(m_RTol), 0.1);
-  HstMngr.dHstStopGap= Range(0.0, fabs(m_StopGap), 1000.0);
-  HstMngr.dHstMidTimeFactor= Range(0.001, fabs(m_MidTimeFactor), 0.999);
+  m_pSet->m_Hst.bHstUseTol = m_UseTol;
+  m_pSet->m_Hst.dHstRecordATol = Min(fabs(m_ATol), 0.1);
+  m_pSet->m_Hst.dHstRecordRTol = Min(fabs(m_RTol), 0.1);
+  //m_pSet->m_Hst.dHstStopGap= Range(0.0, fabs(m_StopGap), 1000.0);
+  m_pSet->m_Hst.dHstMidTimeFactor = Range(0.001, fabs(m_MidTimeFactor), 0.999);
   }
 
 //---------------------------------------------------------------------------
@@ -602,6 +686,7 @@ BEGIN_MESSAGE_MAP(CHistPage, CCustomPropertyPage)
   ON_UPDATE_COMMAND_UI(IDC_RESTART, OnUpdateRestart)
   ON_BN_CLICKED(IDC_PRJHSTUSETOL, OnBnClickedPrjhstusetol)
   ON_EN_CHANGE(IDC_STOPGAP, OnChangeHist)
+  ON_EN_CHANGE(IDC_MIDTIMEFACTOR, &CHistPage::OnEnChangeMidtimefactor)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -650,7 +735,7 @@ void CHistPage::OnKillfocusPrjhstfilesmax()
 void CHistPage::OnKillfocusPrjhstsize()
   {
   UpdateData(true);
-  m_HstSize = Max(64L, (((m_HstSize-1)/64L)+1)*64L);
+  m_FileSize = Max(64L, (((m_FileSize-1)/64L)+1)*64L);
   UpdateData(false);
   }
 
@@ -781,55 +866,70 @@ BEGIN_MESSAGE_MAP(CGenPage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_LIBRARYBTN, OnBnClickedLibrarybtn)
   ON_EN_CHANGE(IDC_LIBRARY, OnEnChangeLibrary)
   ON_EN_CHANGE(IDC_GRPFILTER, OnEnChangeGrpfilter)
+  ON_CBN_SELCHANGE(IDC_PRJNETMODECOMBO, &CGenPage::OnCbnSelchangePrjnetmodecombo)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
 
 BOOL CGenPage::OnInitDialog()
   {
-  m_RunMode=TaggedObject::GlblSolveMode();
-  m_HeatMode=TaggedObject::GlblHeatMode();
-  m_SyncWithClock = gs_Exec.SyncWithClock()!=0;
+  //Strng sModelCfg = PF.RdStr("General", "ModelLibrary", "");
+  //sModelCfg = PF.RdStr("General", "ModelConfiguration", sOldModelCfg());
+  //sModelCfg = PF.RdStr("General", "CfgFile", sOldModelCfg());
+  //sModelCfg.FnExpand();
 
-  m_CurrentTimeHMS = gs_Exec.TheTime.Format(TD_TimeDate);
-  m_CurrentTimeAtInit = gs_Exec.TheTime;
-  LPCTSTR Tm=gs_Exec.TheTime.Format(TD_Time);
-  SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : Tm);
+  //CProfINIFile Cfg(sModelCfg());
 
-  m_NumTagsOK = !TaggedObject::NumericTagsBad;
-  m_NumStartingOK = !TaggedObject::NumericStartingTagsBad;
-  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
-  m_NumChar = TaggedObject::NonNumericTagChr;
+  //long MaxNodeMode;
+  //long MaxLinkMode;
+  //long MaxHeatMode;
+  //long MaxFlowMode;
+
 
   CCustomPropertyPage::OnInitDialog();
+
+  m_NetMode   = m_pSet->m_NetMode;
+
+  m_PBNodeMode    = m_pSet->m_PBNodeMode;
+  m_PBLinkMode    = m_pSet->m_PBLinkMode;
+  m_PBHeatMode    = m_pSet->m_PBHeatMode;
+  m_PBFlowMode    = m_pSet->m_PBFlowMode;
+  m_PBMaxNodeMode = SM_Direct;
+  m_PBMaxLinkMode = SM_Direct;
+  m_PBMaxHeatMode = m_pSet->m_MaxHeatMode;
+  m_PBMaxFlowMode = LFM_Xfer;
+
+  m_DynNodeMode    = m_pSet->m_DynNodeMode;
+  m_DynLinkMode    = m_pSet->m_DynLinkMode;
+  m_DynHeatMode    = m_pSet->m_DynHeatMode;
+  m_DynFlowMode    = m_pSet->m_DynFlowMode;
+  m_DynMaxNodeMode = m_pSet->m_MaxNodeMode;
+  m_DynMaxLinkMode = m_pSet->m_MaxLinkMode;
+  m_DynMaxHeatMode = m_pSet->m_MaxHeatMode;
+  m_DynMaxFlowMode = m_pSet->m_MaxFlowMode;
+
   UpdateDialogControls(this, FALSE);
 
-  TaggedObject::GetGlblModeValueLst(m_RunModes, TaggedObject::GetPermissableGlblRunModes(SM_All));
-  TaggedObject::GetGlblModeValueLst(m_HeatModes, TaggedObject::GetPermissableGlblRunModes(HM_All));
+  LoadCBs(false);
 
-  int ir=-1;
-  int ih=-1;
+  m_SyncWithClock = m_pSet->m_SyncWithClock!=0;
 
-  for (int i=0; i<m_RunModes.Length(); i++)
-    {
-    m_RunModeCB.AddString(m_RunModes.Item(i)->m_pStr);
-    if (m_RunModes.Item(i)->m_lVal==m_RunMode)
-      ir=i;
-    }
-  for (int i=0; i<m_HeatModes.Length(); i++)
-    {
-    m_HeatModeCB.AddString(m_HeatModes.Item(i)->m_pStr);
-    if (m_HeatModes.Item(i)->m_lVal==m_HeatMode)
-      ih=i;
-    }
+  m_CurrentTimeHMS = m_pSet->m_TheTime.Format(TD_TimeDate);
+  m_CurrentTimeAtInit = m_pSet->m_TheTime;
+  LPCTSTR Tm=m_pSet->m_TheTime.Format(TD_Time);
+  
+  SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
 
-  m_RunModeCB.SetCurSel(ir);
-  m_HeatModeCB.SetCurSel(ih);
+
+  m_NumTagsOK = !m_pSet->m_NumericTagsBad;
+  m_NumStartingOK = !m_pSet->m_NumericStartingTagsBad;
+  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+  m_NumChar = m_pSet->m_NonNumericTagChr;
 
 #if WITHGRFDOCFRAME
-  m_sDefGrpLib=gs_pPrj->m_sDefGrpLib;
-  m_sGrfFrameName=gs_pPrj->m_sGrfFrameName;
-  m_sGrfFrameFilter=gs_pPrj->m_sGrfFrameFilter;
+  m_sDefGrpLib=m_pSet->m_sDefGrpLib;
+  m_sGrfFrameName=m_pSet->m_sGrfFrameName;
+  m_sGrfFrameFilter=m_pSet->m_sGrfFrameFilter;
 
   m_sDefGrpLib.FnContract();
   m_Filter.SetWindowText(m_sGrfFrameFilter());
@@ -842,6 +942,114 @@ BOOL CGenPage::OnInitDialog()
 
   return TRUE;
   }
+
+//---------------------------------------------------------------------------
+
+void CGenPage::LoadCBs(bool DoSwap)
+  {
+  if (m_NetMode==NM_Probal)
+    {
+    if (DoSwap)
+      {
+      m_DynNodeMode     = m_NodeMode;
+      m_DynLinkMode     = m_LinkMode;
+      m_DynHeatMode     = m_HeatMode;
+      m_DynFlowMode     = m_FlowMode;
+      m_DynMaxNodeMode  = m_MaxNodeMode;
+      m_DynMaxLinkMode  = m_MaxLinkMode;
+      m_DynMaxHeatMode  = m_MaxHeatMode;
+      m_DynMaxFlowMode  = m_MaxFlowMode;
+      }
+    m_NodeMode        = m_PBNodeMode;
+    m_LinkMode        = m_PBLinkMode;
+    m_HeatMode        = m_PBHeatMode;
+    m_FlowMode        = m_PBFlowMode;
+    m_MaxNodeMode     = m_PBMaxNodeMode;
+    m_MaxLinkMode     = m_PBMaxLinkMode;
+    m_MaxHeatMode     = m_PBMaxHeatMode;
+    m_MaxFlowMode     = m_PBMaxFlowMode;
+    }
+  else
+    {
+    if (DoSwap)
+      {
+      m_PBNodeMode      = m_NodeMode;
+      m_PBLinkMode      = m_LinkMode;
+      m_PBHeatMode      = m_HeatMode;
+      m_PBFlowMode      = m_FlowMode;
+      m_PBMaxNodeMode   = m_MaxNodeMode;
+      m_PBMaxLinkMode   = m_MaxLinkMode;
+      m_PBMaxHeatMode   = m_MaxHeatMode;
+      m_PBMaxFlowMode   = m_MaxFlowMode;
+      }
+    m_NodeMode        = m_DynNodeMode;
+    m_LinkMode        = m_DynLinkMode;
+    m_HeatMode        = m_DynHeatMode;
+    m_FlowMode        = m_DynFlowMode;
+    m_MaxNodeMode     = m_DynMaxNodeMode;
+    m_MaxLinkMode     = m_DynMaxLinkMode;
+    m_MaxHeatMode     = m_DynMaxHeatMode;
+    m_MaxFlowMode     = m_DynMaxFlowMode;
+    }
+
+  GetGlblModeValueLst(m_NetModes,  GetPermissableModes(NM_All, NULL), 0, false);
+  GetGlblModeValueLst(m_NodeModes, GetPermissableModes(MaxModes2Mask(m_MaxNodeMode), NULL), 0, false);
+  GetGlblModeValueLst(m_LinkModes, GetPermissableModes(MaxModes2Mask(m_MaxLinkMode), NULL), 0, false);
+  GetGlblModeValueLst(m_HeatModes, GetPermissableModes(MaxModes2Mask(m_MaxHeatMode), NULL), 0, false);
+  GetGlblModeValueLst(m_FlowModes, GetPermissableModes(MaxModes2Mask(m_MaxFlowMode), NULL), 0, false);
+
+  m_NetModeCB.ResetContent();
+  m_NodeModeCB.ResetContent();
+  m_LinkModeCB.ResetContent();
+  m_HeatModeCB.ResetContent();
+  m_FlowModeCB.ResetContent();
+
+  int iCurSel=-1;
+  for (int iMd=0; iMd<m_NetModes.Length(); iMd++)
+    {
+    m_NetModeCB.AddString(m_NetModes.Item(iMd)->m_pStr);
+    if (m_NetModes.Item(iMd)->m_lVal==m_NetMode)
+      iCurSel=iMd;
+    }
+  m_NetModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+  m_NetModeCB.EnableWindow(m_pPrj==NULL);
+
+  iCurSel = -1;
+  for (int iMd=0; iMd<m_NodeModes.Length(); iMd++)
+    {
+    m_NodeModeCB.AddString(m_NodeModes.Item(iMd)->m_pStr);
+    if (m_NodeModes.Item(iMd)->m_lVal==m_NodeMode)
+      iCurSel=iMd;
+    }
+  m_NodeModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+
+  iCurSel = -1;
+  for (int iMd=0; iMd<m_LinkModes.Length(); iMd++)
+    {
+    m_LinkModeCB.AddString(m_LinkModes.Item(iMd)->m_pStr);
+    if (m_LinkModes.Item(iMd)->m_lVal==m_LinkMode)
+      iCurSel=iMd;
+    }
+  m_LinkModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+
+  iCurSel = -1;
+  for (int iMd=0; iMd<m_HeatModes.Length(); iMd++)
+    {
+    m_HeatModeCB.AddString(m_HeatModes.Item(iMd)->m_pStr);
+    if (m_HeatModes.Item(iMd)->m_lVal==m_HeatMode)
+      iCurSel=iMd;
+    }
+  m_HeatModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+
+  iCurSel = -1;
+  for (int iMd=0; iMd<m_FlowModes.Length(); iMd++)
+    {
+    m_FlowModeCB.AddString(m_FlowModes.Item(iMd)->m_pStr);
+    if (m_FlowModes.Item(iMd)->m_lVal==m_FlowMode)
+      iCurSel=iMd;
+    }
+  m_FlowModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+  };
 
 //---------------------------------------------------------------------------
 
@@ -859,8 +1067,11 @@ void CGenPage::DoDataExchange(CDataExchange* pDX)
   //}}AFX_DATA_MAP
 
   GetDlgItem(IDC_PRJCURRENTTIME)->EnableWindow(!m_SyncWithClock);
-  DDX_Control(pDX, IDC_PRJSOLVEMODECOMBO, m_RunModeCB);
+  DDX_Control(pDX, IDC_PRJNETMODECOMBO, m_NetModeCB);
+  DDX_Control(pDX, IDC_PRJNODEMODECOMBO, m_NodeModeCB);
+  DDX_Control(pDX, IDC_PRJLINKMODECOMBO, m_LinkModeCB);
   DDX_Control(pDX, IDC_PRJHEATMODECOMBO, m_HeatModeCB);
+  DDX_Control(pDX, IDC_PRJFLOWMODECOMBO, m_FlowModeCB);
   DDX_Control(pDX, IDC_LIBRARY, m_Library);
   DDX_Control(pDX, IDC_PAGEFRAME, m_PageFrame);
   DDX_Control(pDX, IDC_GRPFILTER, m_Filter);
@@ -945,28 +1156,48 @@ void CGenPage::OnOK()
     {
     UpdateData(true);
     //GetGraphicsOptions();
+ 
+    long RqdNetM=m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : -1;
+    long RqdNodeM=m_NodeModeCB.GetCurSel()>=0 ? m_NodeModes.Item(m_NodeModeCB.GetCurSel())->m_lVal : -1;
+    long RqdLinkM=m_LinkModeCB.GetCurSel()>=0 ? m_LinkModes.Item(m_LinkModeCB.GetCurSel())->m_lVal : -1;
+    long RqdHeatM=m_HeatModeCB.GetCurSel()>=0 ? m_HeatModes.Item(m_HeatModeCB.GetCurSel())->m_lVal : -1;
+    long RqdFlowM=m_FlowModeCB.GetCurSel()>=0 ? m_FlowModes.Item(m_FlowModeCB.GetCurSel())->m_lVal : -1;
 
-
-    long RqdRM=m_RunModeCB.GetCurSel()>=0 ? m_RunModes.Item(m_RunModeCB.GetCurSel())->m_lVal : -1;
-    long RqdHM=m_HeatModeCB.GetCurSel()>=0 ? m_HeatModes.Item(m_HeatModeCB.GetCurSel())->m_lVal : -1;
-
-    if (RqdRM!=m_RunMode || RqdHM!=m_HeatMode)
+    if (1)
+        //RqdNetM!=m_NetMode || 
+        //RqdNodeM!=m_NodeMode || 
+        //RqdLinkM!=m_LinkMode || 
+        //RqdHeatM!=m_HeatMode || 
+        //RqdFlowM!=m_FlowMode)
       {
 
-      gs_Exec.SetGlblRunModes(RqdRM|RqdHM, SHM_All);
-
-      if (!CnmVersion())
+      m_pSet->m_NetMode=RqdNetM;
+      if (RqdNetM==NM_Probal)
         {
-        //Force a PrjSaveAs conditional on there being units in flowsheet;
-        CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-        CModelStatusArray Status;
-        gs_pPrj->RequestModelStatus(Criteria, Status);
-        if (Status.GetCount()>1)
-          {
-          gs_pPrj->bForceSaveAsNV=true;
-          AfxMessageBox("Solve Mode has been changed:\nProject will be saved as a new version", MB_OK);
-          }
+        m_pSet->m_PBNodeMode=RqdNodeM;
+        m_pSet->m_PBLinkMode=RqdLinkM;
+        m_pSet->m_PBHeatMode=RqdHeatM;
+        m_pSet->m_PBFlowMode=RqdFlowM;
         }
+      else
+        {
+        m_pSet->m_DynNodeMode=RqdNodeM;
+        m_pSet->m_DynLinkMode=RqdLinkM;
+        m_pSet->m_DynHeatMode=RqdHeatM;
+        m_pSet->m_DynFlowMode=RqdFlowM;
+        }
+      //if ((RqdNetM!=m_NetMode) && !CnmVersion())
+      //  {
+      //  //Force a PrjSaveAs conditional on there being units in flowsheet;
+      //  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
+      //  CModelStatusArray Status;
+      //  gs_pPrj->RequestModelStatus(Criteria, Status);
+      //  if (Status.GetCount()>1)
+      //    {
+      //    gs_pPrj->bForceSaveAsNV=true;
+      //    AfxMessageBox("Solve Mode has been changed:\nProject will be saved as a new version", MB_OK);
+      //    }
+      //  }
 
       m_bTimeChanged=1;
       m_SyncWithClock=0;
@@ -978,11 +1209,12 @@ void CGenPage::OnOK()
       LogWarning("Project", 0, "Invalid non-numeric character (%s) specified, changed to '#'.", (const char*)m_NumChar);
       m_NumChar = "#";
       }
-    TaggedObject::NonNumericTagChr = m_NumChar[0];
+    m_pSet->m_NonNumericTagChr = m_NumChar[0];
 
     if (m_bTimeChanged || m_bTagNamingChanged)
       {
-      gs_pPrj->bTimeChanged = m_bTimeChanged;
+      if (m_pPrj)
+        m_pPrj->bTimeChanged = m_bTimeChanged;
       CTimeValue RqdTime;
       flag OK1 = RqdTime.Parse(m_CurrentTimeHMS);
       if (RqdTime<m_CurrentTimeAtInit && RqdTime>=m_CurrentTimeAtInit-CTimeValue(0.002)) // rounding errors in (2 msecs)
@@ -990,7 +1222,8 @@ void CGenPage::OnOK()
       if (OK1)
         {
         flag ScrollTrendsToEnd = false;
-        if (HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
+       
+        if (m_pPrj && HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
           {
           switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
             {
@@ -1008,36 +1241,39 @@ void CGenPage::OnOK()
 
         if (m_bTimeChanged)
           {
-          gs_Exec.SetTheTime(RqdTime, "GenPage");
-          gs_Exec.SetSyncWithClock(m_SyncWithClock);
+          m_pSet->m_TheTime=RqdTime;
+          m_pSet->m_SyncWithClock=m_SyncWithClock;
           if (m_SyncWithClock)
             {
-            gs_Exec.SetRealTime(true);
-            gs_Exec.SetRealTimeMult(1.0);
+            m_pSet->m_RealTime=true;
+            m_pSet->m_RealTimeMult=1.0;
             }
           ScrollTrendsToEnd = true;
           }
 
-        if (m_bTagNamingChanged)
+        if (m_pPrj && m_bTagNamingChanged)
           {
+          _asm int 3;
           int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
           if (TagsChngd<0)
             {
-            TaggedObject::NumericTagsBad = 0;
-            TaggedObject::NumericStartingTagsBad = 0;
+            m_pSet->m_NumericTagsBad = 0;
+            m_pSet->m_NumericStartingTagsBad = 0;
             }
           else
             {
-            TaggedObject::NumericTagsBad = !m_NumTagsOK;
-            TaggedObject::NumericStartingTagsBad = !m_NumStartingOK;
+            m_pSet->m_NumericTagsBad = !m_NumTagsOK;
+            m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
             if (TagsChngd>0)
               {
               CWaitCursor Wait;
-              gs_pPrj->CloseIOMarshal();
-              gs_pPrj->CloseArcManager();
-              gs_pPrj->CloseDrvManager();
-              gs_pPrj->OpenDrvManager();
-              gs_pPrj->OpenArcManager();
+              m_pPrj->CloseIOMarshal();
+              m_pPrj->CloseArcManager();
+#if WITHDRVMAN
+              m_pPrj->CloseDrvManager();
+              m_pPrj->OpenDrvManager();
+#endif 
+              m_pPrj->OpenArcManager();
               CTagVwDoc::RebuildAll();
               }
             }
@@ -1092,7 +1328,19 @@ void CGenPage::OnKillfocusPrjCurrenttime()
 
 void CGenPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
   {
-  pCmdUi->Enable(!gs_Exec.GlblProbalMode() && !m_SyncWithClock);
+  pCmdUi->Enable(!DefNetProbalMode() && !m_SyncWithClock);
+  }
+
+//---------------------------------------------------------------------------
+
+void CGenPage::OnCbnSelchangePrjnetmodecombo()
+  {
+  UpdateData(true);
+
+  m_NetMode = m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : 0;
+  LoadCBs(true);
+
+  UpdateData(false);
   }
 
 //---------------------------------------------------------------------------
@@ -1112,7 +1360,7 @@ void CGenPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
 //      }
 //    long HMd=HM_Full;
 //
-//    gs_Exec.SetGlblRunModes(SMd|HMd, SHM_All);
+//    gs_Exec.SetGlblRunModes(SMd|HMd, NSHM_All);
 //
 //    m_bTimeChanged=1;
 //    m_SyncWithClock=0;
@@ -1124,7 +1372,7 @@ void CGenPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
 
 void CGenPage::OnUpdateDynamic(CCmdUI* pCmdUi)
   {
-  pCmdUi->Enable(gs_Exec.GlblDynamicMode());
+  pCmdUi->Enable(DefNetDynamicMode());
   }
 
 //---------------------------------------------------------------------------
@@ -1167,14 +1415,14 @@ void CGenPage::DoSyncChange()
     _time64(&t); //this Initialisation must occur
     CTimeValue tv((double)t);
     m_CurrentTimeHMS = tv.Format(TD_TimeDate);
-    SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : tv.Format(TD_Time));
+    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : tv.Format(TD_Time));
     }
   else
     {
     LPCTSTR Tm=m_CurrentTimeAtInit.Format(TD_TimeDate);
     m_CurrentTimeHMS = Tm;
     Tm=m_CurrentTimeAtInit.Format(TD_Time);
-    SetDlgItemText(IDC_DATETIME_TXT, m_RunMode==0 ? "" : Tm);
+    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
     }
   }
 
@@ -1213,10 +1461,12 @@ CCommsPage::CCommsPage() : CCustomPropertyPage(CCommsPage::IDD)
   bOPCChanged = 0;
   bDDEChanged = 0;
   //{{AFX_DATA_INIT(CCommsPage)
+#if WITHDRVMAN
   m_DrvOn = FALSE;
   m_DrvLclTagSrvrOK= TRUE;
   m_DrvName = _T("");
   m_DrvReadAll = FALSE;
+#endif
   m_OPCOn = FALSE;
 	m_OPCServerNo = FALSE;
   m_OPCResetReg = FALSE;
@@ -1242,10 +1492,12 @@ void CCommsPage::DoDataExchange(CDataExchange* pDX)
   {
   CCustomPropertyPage::DoDataExchange(pDX);
   //{{AFX_DATA_MAP(CCommsPage)
+#if WITHDRVMAN
   DDX_Check(pDX, IDC_PRJDRVON, m_DrvOn);
   DDX_Check(pDX, IDC_PRJDRVLOCALTAGSRVR, m_DrvLclTagSrvrOK);
   DDX_Text(pDX, IDD_PRJDRVNAME, m_DrvName);
   DDX_Check(pDX, IDC_PRJDRVREADALL, m_DrvReadAll);
+#endif
   DDX_Check(pDX, IDC_PRJOPCON, m_OPCOn);
 	DDX_Check(pDX, IDC_PRJOPCSECONDSERVER, m_OPCServerNo);
   DDX_Check(pDX, IDC_PRJOPCRESETREG, m_OPCResetReg);
@@ -1263,11 +1515,13 @@ void CCommsPage::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CCommsPage, CCustomPropertyPage)
   //{{AFX_MSG_MAP(CCommsPage)
+#if WITHDRVMAN
   ON_BN_CLICKED(IDC_PRJDRVON, OnDriverOn)
   ON_EN_CHANGE(IDD_PRJDRVNAME, OnDriverChanged)
   ON_BN_CLICKED(IDC_PRJRELOADDRV, OnDriverReload)
   ON_BN_CLICKED(IDC_DRVBROWSE, OnDriverBrowse)
-	ON_BN_CLICKED(IDC_PRJOPCRELOAD, OnOPCReload)
+#endif
+  ON_BN_CLICKED(IDC_PRJOPCRELOAD, OnOPCReload)
   ON_BN_CLICKED(IDC_PRJOPCON, OnOpcChanged)
   ON_BN_CLICKED(IDC_PRJDDEON, OnDdeChanged)
   ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
@@ -1279,16 +1533,20 @@ BEGIN_MESSAGE_MAP(CCommsPage, CCustomPropertyPage)
 	ON_BN_CLICKED(IDC_PRJIOMON, OnPrjIOMOn)
 	ON_EN_CHANGE(IDD_PRJIOMNAME, OnIOMChanged)
 	ON_BN_CLICKED(IDC_COMMSAPPLY, OnCommsapply)
+#if WITHDRVMAN
   ON_BN_CLICKED(IDC_PRJDRVLOCALTAGSRVR, OnDriverOn)
   ON_BN_CLICKED(IDC_PRJDRVREADALL, OnDriverChanged)
+#endif
   ON_BN_CLICKED(IDC_PRJOPCSECONDSERVER, OnOpcChanged)
   ON_BN_CLICKED(IDC_PRJOPCRESETREG, OnOpcChanged)
 	ON_EN_CHANGE(IDD_PRJIOMNODE, OnIOMChanged)
 	//}}AFX_MSG_MAP
+#if WITHDRVMAN
   ON_UPDATE_COMMAND_UI(IDC_PRJRELOADDRV, OnUpdateReLoadDrv)
   ON_UPDATE_COMMAND_UI(IDC_PRJDRVREADALL, OnUpdateDriverOn)
   ON_UPDATE_COMMAND_UI(IDD_PRJDRVNAME, OnUpdateDriverOn)
   ON_UPDATE_COMMAND_UI(IDC_DRVBROWSE, OnUpdateDriverOn)
+#endif
   ON_UPDATE_COMMAND_UI(IDC_PRJRELOADARC, OnUpdateReLoadArc)
   ON_UPDATE_COMMAND_UI(IDD_PRJARCNAME, OnUpdateArchiveOn)
   ON_UPDATE_COMMAND_UI(IDC_ARCBROWSE, OnUpdateArchiveOn)
@@ -1302,8 +1560,9 @@ BOOL CCommsPage::OnInitDialog()
   {
   Strng Fn;
 
-  m_DrvName    = gs_pPrj->sDrvManagerName();
-  m_DrvOn      = gs_pPrj->bDrvOn;
+#if WITHDRVMAN
+  m_DrvName    = gs_pPrj->m_sDrvManagerName();
+  m_DrvOn      = gs_pPrj->m_bDrvOn;
   m_DrvLclTagSrvrOK= gs_pPrj->bDrvLclTagSrvrOK;
   m_DrvReadAll = gs_pPrj->bDrvReadAll;
   if (SymbolicPaths())
@@ -1311,29 +1570,30 @@ BOOL CCommsPage::OnInitDialog()
   else
     Fn.FnExpand(gs_pPrj->sDrvManagerName());
   m_DrvName=Fn();
+#endif
 
-  m_ArcName        = gs_pPrj->sArcManagerName();
-  m_ArcOn          = gs_pPrj->bArcOn;
-  m_ArcOpenDBOnRun = gs_pPrj->bArcOpenDBOnRun;
+  m_ArcName        = m_pSet->m_sArcManagerName();
+  m_ArcOn          = m_pSet->m_bArcOn;
+  m_ArcOpenDBOnRun = m_pSet->m_bArcOpenDBOnRun;
   if (SymbolicPaths())
-    Fn.FnContract(gs_pPrj->sArcManagerName());
+    Fn.FnContract(m_pSet->m_sArcManagerName());
   else
-    Fn.FnExpand(gs_pPrj->sArcManagerName());
+    Fn.FnExpand(m_pSet->m_sArcManagerName());
   m_ArcName=Fn();
 
-  m_OPCOn = gs_pPrj->m_bOPCOn;
-  m_OPCServerNo = (gs_pPrj->m_iOPCServerNo!=0);
-  m_OPCResetReg = gs_pPrj->m_bOPCResetReg;
+  m_OPCOn           = m_pSet->m_bOPCOn;
+  m_OPCServerNo     = (m_pSet->m_iOPCServerNo!=0);
+  m_OPCResetReg     = m_pSet->m_bOPCResetReg;
 
-  m_DDEOn      = gs_pPrj->bDDEOn;
+  m_DDEOn           = m_pSet->m_bDDEOn;
 
-  m_IOMName        = gs_pPrj->sIOMarshalName();
-  m_IOMNode        = gs_pPrj->sIOMarshalNode();
-  m_IOMOn          = gs_pPrj->bIOMOn;
+  m_IOMName         = m_pSet->m_sIOMarshalName();
+  m_IOMNode         = m_pSet->m_sIOMarshalNode();
+  m_IOMOn           = m_pSet->m_bIOMOn;
   if (SymbolicPaths())
-    Fn.FnContract(gs_pPrj->sIOMarshalName());
+    Fn.FnContract(m_pSet->m_sIOMarshalName());
   else
-    Fn.FnExpand(gs_pPrj->sIOMarshalName());
+    Fn.FnExpand(m_pSet->m_sIOMarshalName());
   m_IOMName=Fn();
 
   CCustomPropertyPage::OnInitDialog();
@@ -1349,9 +1609,12 @@ void CCommsPage::OnOK()
     {
     UpdateData(true);
 
-    Strng Fn=m_DrvName;
+    Strng Fn;
+#if WITHDRVMAN
+    Fn=m_DrvName;
     Fn.FnContract();
     m_DrvName=Fn();
+#endif
 
     Fn=m_ArcName;
     Fn.FnContract();
@@ -1361,6 +1624,7 @@ void CCommsPage::OnOK()
     Fn.FnContract();
     m_IOMName=Fn();
 
+#if WITHDRVMAN
     if (bDrvChanged || bArcChanged || bIOMChanged || bOPCChanged || bDDEChanged)
       {
       gs_pPrj->bDrvChanged = bDrvChanged;
@@ -1374,46 +1638,66 @@ void CCommsPage::OnOK()
         gs_pPrj->OpenDrvManager();
         CTagVwDoc::RebuildAll();
         }
+#else
+    if (bArcChanged || bIOMChanged || bOPCChanged || bDDEChanged)
+      {
+#endif
 
-      gs_pPrj->bArcChanged = bArcChanged;
       if (bArcChanged)
         {
-        gs_pPrj->CloseArcManager();
-        gs_pPrj->sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-        gs_pPrj->bArcOn          = m_ArcOn;
-        gs_pPrj->bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-        gs_pPrj->OpenArcManager();
-        CTagVwDoc::RebuildAll();
+        if (m_pPrj)
+          {
+          m_pPrj->bArcChanged = true;
+          m_pPrj->CloseArcManager();
+          }
+        m_pSet->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+        m_pSet->m_bArcOn          = m_ArcOn;
+        m_pSet->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+        if (m_pPrj)
+          {
+          m_pPrj->OpenArcManager();
+          CTagVwDoc::RebuildAll();
+          }
         }
 
-      gs_pPrj->bIOMChanged = bIOMChanged;
       if (bIOMChanged)
         {
-        gs_pPrj->CloseIOMarshal();
-        gs_pPrj->sIOMarshalName.FnContract((LPSTR)(LPCSTR)m_IOMName);
-        gs_pPrj->sIOMarshalNode=(LPSTR)(LPCSTR)m_IOMNode;
-        gs_pPrj->bIOMOn          = m_IOMOn;
-        //gs_pPrj->bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-        gs_pPrj->OpenIOMarshal();
-        CTagVwDoc::RebuildAll();
+        if (m_pPrj)
+          {
+          m_pPrj->bIOMChanged = true;
+          m_pPrj->CloseIOMarshal();
+          }
+        m_pSet->m_sIOMarshalName.FnContract((LPSTR)(LPCSTR)m_IOMName);
+        m_pSet->m_sIOMarshalNode=(LPSTR)(LPCSTR)m_IOMNode;
+        m_pSet->m_bIOMOn          = m_IOMOn;
+        //m_pSet->bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+        if (m_pPrj)
+          {
+          m_pPrj->OpenIOMarshal();
+          CTagVwDoc::RebuildAll();
+          }
         }
 
       if (bOPCChanged)
         {
-        DisableMainOPCSrvr();
-        //gs_pPrj->CloseOPCManager();
-        gs_pPrj->m_bOPCOn = m_OPCOn;
-        gs_pPrj->m_iOPCServerNo = m_OPCServerNo;
-        gs_pPrj->m_bOPCResetReg = m_OPCResetReg;
-        //gs_pPrj->OpenOPCManager();
-        EnableMainOPCSrvr(gs_pPrj->m_bOPCOn);
+        if (m_pPrj)
+          DisableMainOPCSrvr();
+        //m_pSet->CloseOPCManager();
+        m_pSet->m_bOPCOn = m_OPCOn;
+        m_pSet->m_iOPCServerNo = m_OPCServerNo;
+        m_pSet->m_bOPCResetReg = m_OPCResetReg;
+        //m_pSet->OpenOPCManager();
+        if (m_pPrj)
+          EnableMainOPCSrvr(m_pSet->m_bOPCOn!=0);
         }
 
       if (bDDEChanged)
         {
-        gs_pPrj->CloseDDEManager();
-        gs_pPrj->bDDEOn = m_DDEOn;
-        gs_pPrj->OpenDDEManager();
+        if (m_pPrj)
+          m_pPrj->CloseDDEManager();
+        m_pSet->m_bDDEOn = m_DDEOn;
+        if (m_pPrj)
+          m_pPrj->OpenDDEManager();
         }
       }
     }
@@ -1421,6 +1705,7 @@ void CCommsPage::OnOK()
 
 //---------------------------------------------------------------------------
 
+#if WITHDRVMAN
 void CCommsPage::OnDriverOn()
   {
   UpdateData(true);
@@ -1511,7 +1796,7 @@ void CCommsPage::OnDriverBrowse()
     }
   UpdateData(FALSE);
   }
-
+#endif
 //---------------------------------------------------------------------------
 
 void CCommsPage::OnArchiveBrowse()
@@ -1544,7 +1829,7 @@ void CCommsPage::OnArchiveBrowse()
     bArcChanged=1;
     if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
       {
-      gs_pPrj->sArcManagerName = m_ArcName;
+      gs_pPrj->m_sArcManagerName = m_ArcName;
       bArcChanged = 0;
       UpdateDialogControls(this, FALSE);
       }
@@ -1584,9 +1869,9 @@ void CCommsPage::OnArchiveReload()
   if (1)// bArcChanged)
     {
     gs_pPrj->CloseArcManager();
-    gs_pPrj->sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-    gs_pPrj->bArcOn          = m_ArcOn;
-    gs_pPrj->bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+    gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+    gs_pPrj->m_bArcOn          = m_ArcOn;
+    gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
     gs_pPrj->OpenArcManager();
     CTagVwDoc::RebuildAll();
     bArcChanged = 0;
@@ -1693,8 +1978,8 @@ void CCommsPage::OnIOMBrowse()
     bIOMChanged=1;
     if (gs_pPrj->ReloadIOMarshal(FALSE, Fn(), NULL))
       {
-      gs_pPrj->sIOMarshalName = m_IOMName;
-      gs_pPrj->sIOMarshalNode = m_IOMNode;
+      gs_pPrj->m_sIOMarshalName = m_IOMName;
+      gs_pPrj->m_sIOMarshalNode = m_IOMNode;
       bIOMChanged = 0;
       UpdateDialogControls(this, FALSE);
       }
@@ -2747,4 +3032,15 @@ void CHistPage::OnBnClickedPrjhstusetol()
   {
   }
 
+
+
+void CHistPage::OnEnChangeMidtimefactor()
+  {
+  // TODO:  If this is a RICHEDIT control, the control will not
+  // send this notification unless you override the CCustomPropertyPage::OnInitDialog()
+  // function and call CRichEditCtrl().SetEventMask()
+  // with the ENM_CHANGE flag ORed into the mask.
+
+  // TODO:  Add your control notification handler code here
+  }
 

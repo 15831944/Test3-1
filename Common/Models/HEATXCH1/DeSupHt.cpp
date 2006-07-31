@@ -76,7 +76,7 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Visibility();
   
@@ -88,13 +88,13 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
     {TS_AppSatT, "Approach SatT"},
     {0}};
   DDB.Byte    ("TempSpec",  "",  DC_,     "",      &iTempSpec,  this, isParm|AffectsStruct|SetOnChange, DDB0);
-  DDB.Visibility(SHM_All, (iTempSpec == TS_FinalT));
+  DDB.Visibility(NSHM_All, (iTempSpec == TS_FinalT));
   DDB.Double  ("FinalTRqd", "",  DC_T,    "C",     &dFinalTRqd, this, isParm);
-  DDB.Visibility(SHM_All, (iTempSpec == TS_TDrop));
+  DDB.Visibility(NSHM_All, (iTempSpec == TS_TDrop));
   DDB.Double  ("TDropRqd",  "",  DC_dT,   "C",     &dTDropRqd,  this, isParm);
-  DDB.Visibility(SHM_All, (iTempSpec == TS_AppSatT));
+  DDB.Visibility(NSHM_All, (iTempSpec == TS_AppSatT));
   DDB.Double  ("ApproachSatT","",  DC_dT,   "C",     &dAppTRqd,  this, isParm);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility();
   DDB.CheckBox("TrackH2OFd",        "",  DC_,     "",      &bTrackH2OFeed,      this, isParm);
@@ -111,7 +111,7 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("SatT",      "",  DC_T,    "C",     &dSatTOut,   this, isResult|noFile|noSnap);
   DDB.Double  ("DegSuperHeat","",DC_dT,   "C",     xid_DegSuperHeat,this, isResult|noFile|noSnap);
   
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
 
@@ -122,14 +122,14 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   //RB.BuildDataDefn(DDB);
   //EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && SolveDirectMethod())
+  if (bShowQFeed && NetProbalMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

@@ -518,10 +518,10 @@ void PC_SmplCrvBst::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn("MassParms","",  DC_,   "",       &m_bQmOp,  this, isParm);//|SetOnChange);
   DDB.Double ("", "BstMx",      DC_DP,    "kPa",    &m_dBstMx, this,  isParm);
   DDB.Double ("", "BstOp",      DC_DP,    "kPa",    &m_dBstOp, this,  isParm);
-  DDB.Visibility(SHM_All, !m_bQmOp);
+  DDB.Visibility(NSHM_All, !m_bQmOp);
   DDB.Double ("", "QvOp",       DC_Qv,    "L/s",    &m_dQvOp,  this,  isParm);
   DDB.Double ("", "QvMx",       DC_Qv,    "L/s",    &m_dQvMx,  this,  isParm);
-  DDB.Visibility(SHM_All, m_bQmOp);
+  DDB.Visibility(NSHM_All, m_bQmOp);
   DDB.Double ("", "QmOp",       DC_Qm,    "kg/s",   &m_dQmOp,  this,  isParm);
   DDB.Double ("", "QmMx",       DC_Qm,    "kg/s",   &m_dQmMx,  this,  isParm);
   DDB.Visibility();
@@ -692,10 +692,10 @@ void PC_SmplCrvHead::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn("MassParms","",  DC_,   "",       &m_bQmOp,   this, isParm);//|SetOnChange);
   DDB.Double ("", "HeadMx",     DC_L,     "m",      &m_dHeadMx, this  ,isParm);
   DDB.Double ("", "HeadOp",     DC_L,     "m",      &m_dHeadOp, this  ,isParm);
-  DDB.Visibility(SHM_All, !m_bQmOp);
+  DDB.Visibility(NSHM_All, !m_bQmOp);
   DDB.Double ("", "QvOp",       DC_Qv,    "L/s",    &m_dQvOp,  this  ,isParm);
   DDB.Double ("", "QvMx",       DC_Qv,    "L/s",    &m_dQvMx,  this  ,isParm);
-  DDB.Visibility(SHM_All, m_bQmOp);
+  DDB.Visibility(NSHM_All, m_bQmOp);
   DDB.Double ("", "QmOp",       DC_Qm,    "kg/s",   &m_dQmOp,  this  ,isParm);
   DDB.Double ("", "QmMx",       DC_Qm,    "kg/s",   &m_dQmMx,  this  ,isParm);
   DDB.Visibility();

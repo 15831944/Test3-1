@@ -80,7 +80,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   fActiveHoldOK_Dyn=true;
   m_fActiveHoldIfSS=true;
 
-  SetAllowedSolveModes(SM_Direct|SM_Inline|SM_Buffered);//"Transfer", "Inline", "Buffered");
+  SetAllowedModes(true, NM_All|SM_Direct|SM_Inline|SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
 
   Contents.SetSpillEtc(&m_Spill, &m_Vent);
   };
@@ -198,13 +198,6 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void MN_Surge::SetRunModes(long Md, long MdMsk)
-  {
-  MdlNode::SetRunModes(Md, MdMsk);
-  };
-
-//--------------------------------------------------------------------------
-
 long MN_Surge::CheckDataRanges(bool CheckIO)
   {
   return MdlNode::CheckDataRanges(CheckIO)+Contents.CheckDataRanges();
@@ -270,14 +263,14 @@ flag MN_Surge::InitialiseSolution()
 
 //--------------------------------------------------------------------------
 
-Z_States MN_Surge::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MN_Surge::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   CSetDatumsData SDD[]=
     {
       {First64IOIds, &Contents},
       {0}
     };
-  return SetDatums_Node(Pass, SDD, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, SDD);
   };
 
 //--------------------------------------------------------------------------
@@ -528,7 +521,7 @@ void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
   {
   if (fDoDbgBrk)
     { int xxx=0; }
-  ASSERT(SolveDynamicMethod());
+  ASSERT(NetDynamicMethod());
   if (SolveBufferedMethod())
     {
     dword IOMsk=First64IOIds;
@@ -885,7 +878,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
 
 void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
   {
-  ASSERT(SolveDynamicMethod());
+  ASSERT(NetDynamicMethod());
 
   if (RB())
     {

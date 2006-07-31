@@ -245,7 +245,7 @@ void QPrecipD::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double      ("ThermalLoss",      "",DC_Pwr,    "kW",     &dThermalLoss    , this, 0);
   DDB.Double      ("ReactionHeat",     "",DC_Pwr,    "kW",     &dReactionHeat   , this, 0);
   DDB.Byte        ("SplitMethod",      "",DC_,       "",       &iSecSplitMethod , this, isParm|SetOnChange, DDBSecSplitMethod);
-  DDB.Visibility(SHM_All, iSecSplitMethod!=SSM_None);
+  DDB.Visibility(NSHM_All, iSecSplitMethod!=SSM_None);
   if (iSecSplitMethod==SSM_Frac)
     DDB.Double      ("RqdSideFrac",      "",DC_Frac,   "%",      &SplitRqd        , this, isParm);
   else if (iSecSplitMethod==SSM_Qm)
@@ -287,10 +287,10 @@ void QPrecipD::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Byte("Type",  "",  DC_ , "",  &Fn[i].iType,    this, isParm|SetOnChange, DDBPrcpFuns);
     // Constant
-    DDB.Visibility(SHM_All, Fn[i].iType==PF_ConstG || Fn[i].iType==PF_ConstD);
+    DDB.Visibility(NSHM_All, Fn[i].iType==PF_ConstG || Fn[i].iType==PF_ConstD);
     DDB.Double ("C",  "",  DC_Frac , "%",  &Fn[i].C,    this, isParm);
     // Linear
-    DDB.Visibility(SHM_All, Fn[i].iType==PF_LinearG || Fn[i].iType==PF_LinearD);
+    DDB.Visibility(NSHM_All, Fn[i].iType==PF_LinearG || Fn[i].iType==PF_LinearD);
     DDB.Double ("A",  "",  DC_FracGL , "%/g/L",  &Fn[i].A,    this, isParm);
     DDB.Double ("B",  "",  DC_Frac ,   "%",      &Fn[i].B,    this, isParm);
     

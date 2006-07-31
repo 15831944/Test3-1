@@ -3,6 +3,7 @@
 //===========================================================================
 
 #include "stdafx.h"
+#include "syscadlicver.h"
 #include "license.h"
 
 #if CK_LICENSINGON

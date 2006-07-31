@@ -191,7 +191,7 @@ class CGExecContext
     flag    OnLoaded;
     flag    OnEmpty;
     flag    OnPreset;
-    long    m_RunMode;
+    long    m_NetMode;
     long    m_HeatMode;
     flag    HoldNearXRefXfer;
     //returned...
@@ -201,8 +201,8 @@ class CGExecContext
     CGExecContext(CNodeXRefMngr* ERH)
       {
       pXRM = ERH;
-      m_RunMode = gs_Exec.GlblSolveMode();
-      m_HeatMode = gs_Exec.GlblHeatMode();
+      m_NetMode = DefNetMode();
+      m_HeatMode = DefHeatMode();
       dIC_Time = CTimeValue(0.0);
       dIC_dTime = CTimeValue(0.0);
       StartLabel = NULL;

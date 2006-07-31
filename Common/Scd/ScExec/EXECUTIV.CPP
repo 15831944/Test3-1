@@ -1076,7 +1076,7 @@ flag CExecObj::XReadASyncData(CXMsgLst &XM, flag ReadAll, long &Index)
             PutData(*LclBlk, LclBlk->Rmt.pTag()->m_pDataItem, false);
           if (LclBlk->Changed())
             {
-            INCOMPLETECODE1("Test This Code");
+            INCOMPLETECODEMSG("Test This Code");
             if (XM.PackMsg(new CXM_ObjectData(Index, 0, LclBlk->m_pDataItem)))
               LclBlk->ClearChanged();
             else
@@ -1916,6 +1916,7 @@ void CExecutive::DoTimer()
 
 void CExecutive::UpdateDisplays(flag ForceUpd, flag ColoursChgd)
   {
+  //dbgpln("CExecutive::UpdateDisplays");
   //return ;
 
   if (AfxGetMainWnd())
@@ -1973,22 +1974,6 @@ void CExecutive::DumpMsgHistory()
 
 flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
   {
-  if (GlblProbalMode() && !gs_License.AllowProBal())
-    {
-    LogNote("Executive", 0, "Probal Mode not Licensed");
-    return FALSE;
-    }
-  else if (GlblDynFlowMode() && !gs_License.AllowDynamicFlow())
-    {
-    LogNote("Executive", 0, "Flow Dynamic Mode not Licensed");
-    return FALSE;
-    }
-  else if (GlblDynFullMode() && !gs_License.AllowDynamicFull())
-    {
-    LogNote("Executive", 0, "Full Dynamic Mode not Licensed");
-    return FALSE;
-    }
-
 
   //wState|=EXF_Busy;
   if (fDoingPB)
@@ -2002,32 +1987,48 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     return false;
     }
 
-  int SSA= (lParam>>16)&0xffff;
+  //int SSA= (lParam>>16)&0xffff;
   //RqdRunMode RRM=(RqdRunMode )(lParam&0xffff);
 
-  flag SS=TaggedObject::SteadyReqdFlag();
-  switch (SSA)
-    {
-    case -1:  SS=false; break;
-    case 1:   SS=true;  break;
-    case 0:             break;
-    }
-  TaggedObject::SetSteadyReqdFlag(SS);
+  //flag SS=TaggedObject::SteadyReqdFlag();
+  //switch (SSA)
+  //  {
+  //  case -1:  SS=false; break;
+  //  case 1:   SS=true;  break;
+  //  case 0:             break;
+  //  }
+  //TaggedObject::SetSteadyReqdFlag(SS);
 
   switch ((RqdRunMode)lParam)
     {
     case RRM_PBMd :
-      SetGlblRunModes(SM_Direct, SM_All);
+      dbgpln("TODO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+      //SetDefNetMode(NM_Probal);
+      //SetDefNodeMode(SM_Direct);
+      //SetDefLinkMode(SM_Direct);
+      //SetDefFlowMode(LFM_Xfer);
       break;
     case RRM_DynMd :
-      SetGlblRunModes(SM_DynCurrent, SM_All);
+      dbgpln("TODO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+      //SetGlblRunModes(SM_DynCurrent, SM_All);
+      //SetDefNetMode(NM_Probal);
+      //SetDefNodeMode(SM_Direct);
+      //SetDefLinkMode(SM_Direct);
       break;
-    case RRM_DynMdFlow :
-      SetGlblRunModes(SM_Inline, SM_All);
-      break;
-    case RRM_DynMdFull :
-      SetGlblRunModes(SM_Buffered, SM_All);
-      break;
+    //case RRM_DynMdFlow :
+    //  //SetGlblRunModes(SM_Inline, SM_All);
+    //  SetDefNetMode(NM_Probal);
+    //  SetDefNodeMode(SM_Inline);
+    //  SetDefLinkMode(SM_Direct);
+    //  SetDefFlowMode(LFM_Xfer);
+    //  break;
+    //case RRM_DynMdFull :
+    //  //SetGlblRunModes(SM_Buffered, SM_All);
+    //  SetDefNetMode(NM_Probal);
+    //  SetDefNodeMode(SM_Buffered);
+    //  SetDefLinkMode(SM_Direct);
+    //  SetDefFlowMode(LFM_Simple);
+    //  break;
     case RRM_Current:
       break;
     }
@@ -2059,10 +2060,10 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
       //gs_pPrj->RestartHistorian();
       //gs_pPrj->OpenHistorian();
       //ScrollTrendsToEnd = true;
-      if (GlblProbalMode())
-        SetTheTime(0.0, "Probal"); //reset time to "zero"
+      if (DefNetProbalMode())
+        SetTheTime(0.0, "ProBal"); //reset time to "zero"
       }
-    if (m_ResetTimeOnStart && !GlblProbalMode() && !SyncWithClock())
+    if (m_ResetTimeOnStart && !DefNetProbalMode() && !SyncWithClock())
       {
       SetTheTime(TimeAtStart, "RestartHstOnStart", m_RestartHstOnStart!=0);
       //ScrollTrendsToEnd = true;
@@ -2758,9 +2759,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         if (dbgLongIdleLoop())
           ::WaitForSingleObject(m_hStopSleep, SleepWaitTime*100); // 10 secs
         else
-          ::WaitForSingleObject(m_hStopSleep, SleepWaitTime);
+          ::WaitForSingleObject(m_hStopSleep, Max(SleepWaitTime, long(gs_License.NodeCount()/20)));
         #else
-        ::WaitForSingleObject(m_hStopSleep, SleepWaitTime);
+        ::WaitForSingleObject(m_hStopSleep, Max(SleepWaitTime, long(gs_License.NodeCount()/20)));
         #endif
         }
       else
@@ -3130,7 +3131,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       bStopReqd=false;
       bStepReqd=false;
-      TaggedObject::SetSteadyReqdFlag(false);
+      //TaggedObject::SetSteadyReqdFlag(false);
 
       //bHoldAdv =false;
 
@@ -4094,72 +4095,84 @@ ExecCoupling CExecutive::SetCoupling(ExecCoupling XC)
 
 //---------------------------------------------------------------------------
 
-long CExecutive::GlblRunModes()
-  {
-  return TaggedObject::GlblRunModes();
-  };
+//long CExecutive::GlblRunModes()
+//  {
+//  return TaggedObject::GlblRunModes();
+//  };
 
 //---------------------------------------------------------------------------
 
-void CExecutive::SetGlblRunModes(long RunMds, long RunMdsMsk)
+//void CExecutive::SetGlblRunModes(long RunMds, long RunMdsMsk)
+//  {
+//  if ((GlblRunModes()&&SM_All)!=0 && (RunMds==SM_DynCurrent) && (RunMdsMsk==SM_All))
+//    RunMds=GlblRunModes() & SM_All;
+//
+//  if (RunMdsMsk&SM_All)
+//    {
+//    if (RunMds&SM_Direct)
+//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Direct,   "Multiple Solve Modes"); }
+//    if (RunMds&SM_Inline)
+//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Inline,   "Multiple Solve Modes"); }
+//    if (RunMds&SM_Buffered)
+//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Buffered, "Multiple Solve Modes"); }
+//    }
+//  if (RunMdsMsk&HM_All)
+//    {
+//    if (RunMds&HM_None)
+//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_None,     "Multiple Heat Modes"); }
+//    if (RunMds&HM_Reduced)
+//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Reduced,   "Multiple Heat Modes"); }
+//    if (RunMds&HM_Full)
+//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Full,     "Multiple Heat Modes"); }
+//    }
+//
+//  if (wState&EXF_Busy)
+//    return;
+//
+//  if ((TaggedObject::GlblRunModes()&RunMdsMsk)==(RunMds&RunMdsMsk))
+//    return;
+//
+//  TaggedObject::SetGlblRunModes(RunMds, RunMdsMsk);
+//
+//  if (RunMdsMsk&SM_All)
+//    {
+//    if ((RunMds&SM_All)==SM_Direct)
+//      SwapToProBal();
+//    else
+//      ReturnFromProBal();
+//    }
+//  //CNM
+//
+//  for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+//    Objs_Reg[OInx]->EO_SetSolveMode(RunMds, RunMdsMsk);
+//  };
+//
+//---------------------------------------------------------------------------
+
+void CExecutive::SetDefNetMode(long Mode)
   {
-  if ((GlblRunModes()&&SM_All)!=0 && (RunMds==SM_DynCurrent) && (RunMdsMsk==SM_All))
-    RunMds=GlblRunModes() & SM_All;
-
-  if (RunMdsMsk&SM_All)
-    {
-    if (RunMds&SM_Direct)
-      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Direct,   "Multiple Solve Modes"); }
-    if (RunMds&SM_Inline)
-      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Inline,   "Multiple Solve Modes"); }
-    if (RunMds&SM_Buffered)
-      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Buffered, "Multiple Solve Modes"); }
-    }
-  if (RunMdsMsk&HM_All)
-    {
-    if (RunMds&HM_None)
-      { ASSERT_ALWAYS((RunMds&HM_All) == HM_None,     "Multiple Heat Modes"); }
-    if (RunMds&HM_Simple)
-      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Simple,   "Multiple Heat Modes"); }
-    if (RunMds&HM_Full)
-      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Full,     "Multiple Heat Modes"); }
-    }
-
+  dbgpln("SetDefNetMode %s", GlblMode2LPTSTR(Mode, NM_All, eGM_Name));
   if (wState&EXF_Busy)
     return;
 
-  if ((TaggedObject::GlblRunModes()&RunMdsMsk)==(RunMds&RunMdsMsk))
+  if (DefNetMode()==(Mode&NM_All))
     return;
 
-  TaggedObject::SetGlblRunModes(RunMds, RunMdsMsk);
+  ::SetDefNetMode(Mode);  
 
-  if (RunMdsMsk&SM_All)
-    {
-    if ((RunMds&SM_All)==SM_Direct)
-      SwapToProBal();
-    else
-      ReturnFromProBal();
-    }
-  //CNM
+  if (DefNetMode()==NM_Dynamic)
+    ReturnFromProBal();
+  else
+    SwapToProBal();
 
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-    Objs_Reg[OInx]->EO_SetSolveMode(RunMds, RunMdsMsk);
+    Objs_Reg[OInx]->EO_SetSolveMode();
   };
 
-//---------------------------------------------------------------------------
-
-Strng CExecutive::GlblRunModesString(long MdMsk)
-  {
-  return TaggedObject::GlblMode2String(TaggedObject::GlblRunModes(), MdMsk);
-  };
-
-//---------------------------------------------------------------------------
-
-void CExecutive::SetGlblRunModesString(LPCSTR RunMds, long RunMdsMsk)
-  {
-  if (RunMds)
-    SetGlblRunModes(TaggedObject::String2GlblMode(RunMds), RunMdsMsk);
-  };
+void CExecutive::SetDefNetMode(LPCTSTR RunMds)  
+  { 
+  SetDefNetMode(String2GlblMode(RunMds, NM_All)); 
+  }
 
 //---------------------------------------------------------------------------
 //
@@ -5312,10 +5325,13 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
 
     CloseHandle(H);
 
+
     TagDB.Flush(true);
 
     for (OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
       Objs_Reg[OInx]->EO_SaveComplete(FCB);
+
+    TaggedObject::SetRevert2DefaultRqd(false);
 
     }
   else
@@ -5337,88 +5353,87 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
 
 //---------------------------------------------------------------------------
 
-int CExecutive::LoadDBase(int Pass, long DBFmt, DWORD DBOpts, char * pRoot)
+int CExecutive::LoadDBase(eLoadDBPasses Pass, CLoadDBInfo & LDBI)
   {
   LockExec();
-  CDlgBusy::Open("", true);
   int Ret;
   switch (Pass)
     {
-    case 1:
-      Ret=DoLoadDBase1(DBFmt, DBOpts, pRoot);
-      break;
-    case 2:
-      Ret=DoLoadDBase2(DBFmt, DBOpts, pRoot);
-      break;
+    case eLdDB_Open:      Ret=DoLoadDBaseOpen(LDBI);      break;
+    case eLdDB_Create:    Ret=DoLoadDBaseCreate(LDBI);    break;
+    case eLdDB_Connect:   Ret=DoLoadDBaseConnect(LDBI);   break;
+    case eLdDB_Load:      Ret=DoLoadDBaseLoad(LDBI);      break;
+    case eLdDB_LoadOther: Ret=DoLoadDBaseLoadOther(LDBI); break;
+    case eLdDB_Close:     Ret=DoLoadDBaseClose(LDBI);     break;
     }
-  CDlgBusy::Close();
   UnlockExec();
-  return Ret;
+  return true;
   }
 
 //---------------------------------------------------------------------------
 
-int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
+int CExecutive::DoLoadDBaseOpen(CLoadDBInfo & LDBI)
   {
   STARTPROGRESS;
 
-  m_LDB.m_LoadTime.Start();
+  LDBI.m_LoadTime.Start();
 
-  m_LDB.m_RtFolder=pRoot;
-  m_LDB.m_RtFolder.FnClearEndBSlash();
-  m_LDB.m_RtFolder.FnCompactPath(50);
+  LDBI.m_AllLoaded  = false;
+  LDBI.m_Failed     = false;
+  LDBI.m_Cancelled  = false;
 
-  CDlgBusy::SetLine(1, "Loading : %s", m_LDB.m_RtFolder());
+  CDlgBusy::Open("", true);
+  CDlgBusy::SetLine(1, "Loading : %s", LDBI.m_RtFolder());
   CDlgBusy::SetLine(3, "Open database...");
   CStopWatch OpenSW;
   OpenSW.Start();
 
-  CTagDBase TagDB;
-  int LdDBFmt=TagDB.Open(DBFmt, DBOpts, pRoot, NULL, NULL);
-  if (LdDBFmt<0)
+  LDBI.m_DBFmt=LDBI.m_TagDB.Open(LDBI.m_DBFmt, LDBI.m_DBOpts, LDBI.m_pRoot, NULL, NULL);
+  if (LDBI.m_DBFmt<0)
     {
     LogError("Load DataBase", LF_Exclamation, "Cannot Open Database");
-    TagDB.Close();
-    //CDlgBusy::Close();
-    return LdDBFmt;
+    LDBI.m_TagDB.Close();
+    LDBI.m_Failed=true;
+    return false;
     }
   OpenSW.Stop();
   dbgpln("LoadDB Open time: %8.3g", OpenSW.Secs());
 
-  FilingControlBlock FCB(pRoot, DefaultCfgLabel, TOF_DBase);
-
-  //CArray <flag, flag> LoadIt;
-  m_LDB.m_LoadIt.SetSize(Objs_Reg.GetSize());
+  LDBI.m_LoadIt.SetSize(Objs_Reg.GetSize());
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-    m_LDB.m_LoadIt[OInx]=Objs_Reg[OInx]->EO_BeginLoad(FCB);
+    LDBI.m_LoadIt[OInx]=Objs_Reg[OInx]->EO_BeginLoad(LDBI.m_FCB);
 
-  LockExec();
   SetHoldValidateData(true, false, true);
 
-  TagDB.FindRevisionNo(DBRev_MostRecent);
-  TagDB.StartLoadSequence("Node");
+  LDBI.m_TagDB.FindRevisionNo(DBRev_MostRecent);
+  LDBI.m_TagDB.StartLoadSequence("Node");
 
-  CXMsgLst XM;
-  CStopWatch Elapsed, LOSW, TLOSW;
-  m_LDB.m_AllLoaded=true;
-  m_LDB.m_Cancelled=false;
+  return !LDBI.m_Failed;
+  }
+
+//---------------------------------------------------------------------------
+
+int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
+  {
+  STARTPROGRESS;
+  
   int n=0;
-  m_LDB.m_nObjs=0;
-  for (OInx=0; !m_LDB.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
+  LDBI.m_nObjs=0;
+  for (int OInx=0; !LDBI.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
     {
     CExecObj * r=Objs_Reg[OInx];
-    if (m_LDB.m_LoadIt[OInx])//r->EO_BeginLoad(FCB))
+    if (LDBI.m_LoadIt[OInx])
       {
-      FCB.SetCreateObj(true);
+      LDBI.m_FCB.SetCreateObj(true);
+
+      CXMsgLst XM;
+      CStopWatch Elapsed, LOSW, TLOSW;
 
       Elapsed.Start();
       TLOSW.Start();
       LOSW.Start();
-      //OD.Clear();
-      //OD.List.Clear();
-      //OD.SetSize();
       CXM_ObjectData OD(0);
-      while (!m_LDB.m_Cancelled && TagDB.LoadObject(&OD, true)>=0)
+      while (!LDBI.m_Cancelled && LDBI.m_TagDB.LoadObject(&OD, true)>=0)
         {
         SHOWPROGRESS(1, "Load")
 
@@ -5432,15 +5447,15 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
           CDlgBusy::SetLine(3, "Creating Object :%i" ,n);
           XFlushAppMsgQ();
           }
-        m_LDB.m_Cancelled=CDlgBusy::IsCancelled();
+        LDBI.m_Cancelled=CDlgBusy::IsCancelled();
         #if dbgExecutive
         if (dbgDBMsgs())
           XM.dbgDump((flag)dbgFullDBMsgs(), r->sName(), "Create");
         #endif
 
-        if (!r->EO_LoadDefinedData(FCB, XM))
-          m_LDB.m_AllLoaded=false;
-        m_LDB.m_nObjs++;
+        if (!r->EO_LoadDefinedData(LDBI.m_FCB, XM))
+          LDBI.m_Failed=true;
+        LDBI.m_nObjs++;
         #if dbgStats
         //if ((n%10)==0)
           dbgpln("Create TmElapsed %i, %10.5f/Obj",n,Elapsed.Secs()/Max(1,n));
@@ -5453,37 +5468,38 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
       CDlgBusy::SetLine(3,"Creating Object :%i",n);
 
       dbgpln("EO_LoadDB %-15s Create    %8.3g = %8.5g/Obj [LO:%8.3f]",
-             r->sName(),Elapsed.Secs(),Elapsed.Secs()/Max(1L,m_LDB.m_nObjs), LOSW.Secs());
+             r->sName(),Elapsed.Secs(),Elapsed.Secs()/Max(1L,LDBI.m_nObjs), LOSW.Secs());
       Elapsed.ReStart();
 
-      FCB.SetCreateObj(false);
+      LDBI.m_FCB.SetCreateObj(false);
       }
     }
 
-  if (m_LDB.m_AllLoaded)
-    {
-//    if (pCallBack)
-//      (*pCallBack)(1, pCallData);
-//    // In case Objs_Reg got bigger - drvmanager etc.
-//    if (Objs_Reg.GetSize()>LoadIt.GetSize())
-//      {
-//      int i=LoadIt.GetSize();
-//      LoadIt.SetSize(Objs_Reg.GetSize());
-//      for ( ; i<Objs_Reg.GetSize(); i++)
-//        LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(FCB);
-//      }
+  return !LDBI.m_Failed;
+  }
 
-    TagDB.StartLoadSequence("Conn");
-    for (OInx=0; !m_LDB.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
+//---------------------------------------------------------------------------
+
+int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
+  {
+  STARTPROGRESS;
+
+  if (!LDBI.m_Failed)
+    {
+    LDBI.m_TagDB.StartLoadSequence("Conn");
+    for (int OInx=0; !LDBI.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
       {
       CExecObj *r=Objs_Reg[OInx];
-      if (m_LDB.m_LoadIt[OInx])//r->EO_BeginLoad(FCB))
+      if (LDBI.m_LoadIt[OInx])//r->EO_BeginLoad(FCB))
         {
-        n=0;
+        CXMsgLst XM;
+        CStopWatch Elapsed, LOSW, TLOSW;
+
+        int n=0;
         TLOSW.ReStart();
         LOSW.ReStart();
         CXM_ObjectData OD(0);
-        while (!m_LDB.m_Cancelled && TagDB.LoadObject(&OD, false)>=0)
+        while (!LDBI.m_Cancelled && LDBI.m_TagDB.LoadObject(&OD, false)>=0)
           {
           SHOWPROGRESS(1, "LoadConn")
           LOSW.Stop();
@@ -5497,14 +5513,14 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
               CDlgBusy::SetLine(3,"Creating Connection :%i",n);
               XFlushAppMsgQ();
               }
-            m_LDB.m_Cancelled=CDlgBusy::IsCancelled();
+            LDBI.m_Cancelled=CDlgBusy::IsCancelled();
             #if dbgExecutive
             if (dbgDBMsgs())
               XM.dbgDump((flag)dbgFullDBMsgs(), r->sName(), "Connect");
             #endif
 
-            if (!r->EO_LoadConn(FCB, XM))
-              m_LDB.m_AllLoaded=false;
+            if (!r->EO_LoadConn(LDBI.m_FCB, XM))
+              LDBI.m_Failed=false;
             SHOWPROGRESS(1, "CreateConn")
             }
           LOSW.Start();
@@ -5518,31 +5534,30 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
         }
       }
     }
-  if (m_LDB.m_AllLoaded)
-    {
-//    if (pCallBack)
-//      (*pCallBack)(2, pCallData);
-//    // In case Objs_Reg got bigger - drvmanager etc.
-//    if (Objs_Reg.GetSize()>LoadIt.GetSize())
-//      {
-//      int i=LoadIt.GetSize();
-//      LoadIt.SetSize(Objs_Reg.GetSize());
-//      for ( ; i<Objs_Reg.GetSize(); i++)
-//        LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(FCB);
-//      }
+  return !LDBI.m_Failed;
+  }
 
-    TagDB.StartLoadSequence("Node");
-    for (OInx=0; !m_LDB.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
+//---------------------------------------------------------------------------
+
+int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
+  {
+  STARTPROGRESS;
+  if (!LDBI.m_Failed)
+    {
+    LDBI.m_TagDB.StartLoadSequence("Node");
+    for (int OInx=0; !LDBI.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
       {
       CExecObj *r=Objs_Reg[OInx];
-      if (m_LDB.m_LoadIt[OInx])//r->EO_BeginLoad(FCB))
+      if (LDBI.m_LoadIt[OInx])//r->EO_BeginLoad(FCB))
         {
-        n=0;
+        CXMsgLst XM;
+        CStopWatch Elapsed, LOSW, TLOSW;
+
+        int n=0;
         TLOSW.ReStart();
-//           TLOSW.Stop();
         LOSW.ReStart();
         CXM_ObjectData OD(0);
-        while (!m_LDB.m_Cancelled && TagDB.LoadObject(&OD, false)>=0)
+        while (!LDBI.m_Cancelled && LDBI.m_TagDB.LoadObject(&OD, false)>=0)
           {
           SHOWPROGRESS(1, "LoadData")
           LOSW.Stop();
@@ -5553,11 +5568,11 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
             n++;
             if ((n%Min(n,10))==0)
               {
-              CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, m_LDB.m_nObjs);
+              CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
               XFlushAppMsgQ();
               }
-//else CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, m_LDB.m_nObjs);
-            m_LDB.m_Cancelled=CDlgBusy::IsCancelled();
+//else CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+            LDBI.m_Cancelled=CDlgBusy::IsCancelled();
             #if dbgExecutive
             if (dbgDBMsgs())
               XM.dbgDump((flag)dbgFullDBMsgs(), r->sName(), "Load");
@@ -5567,7 +5582,7 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
             SWxxx.Start();
             #endif
             TLOSW.Start();
-            r->EO_LoadDefinedData(FCB, XM);
+            r->EO_LoadDefinedData(LDBI.m_FCB, XM);
             TLOSW.Stop();
             #if dbgStats
             //if ((n%10)==0)
@@ -5580,49 +5595,44 @@ int CExecutive::DoLoadDBase1(long DBFmt, DWORD DBOpts, char * pRoot)
         TLOSW.Stop();
         LOSW.Stop();
         //TLOSW.Stop();
-        CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, m_LDB.m_nObjs);
+        CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
 
         dbgpln("EO_LoadDB %-15s Load      %8.3g = %8.5g/Obj [LO:%8.3f][TLO:%8.3f]",r->sName(), Elapsed.Secs(), Elapsed.Secs()/Max(1,n), LOSW.Secs(), TLOSW.Secs());
         }
       }
     }
-  TagDB.Close();
-  UnlockExec();
-  m_LDB.m_LoadTime.Stop();
-  return LdDBFmt;
+  LDBI.m_TagDB.Close();
+
+  return !LDBI.m_Failed;
   }
 
 //---------------------------------------------------------------------------
 
-int CExecutive::DoLoadDBase2(long DBFmt, DWORD DBOpts, char * pRoot)
+int CExecutive::DoLoadDBaseLoadOther(CLoadDBInfo & LDBI)
   {
-  CStopWatch LoadTime;
-  LoadTime.Start();
+  STARTPROGRESS;
 
-  LockExec();
+  //CStopWatch LoadTime;
+ // LoadTime.Start();
 
-  //Strng RtFolder(pRoot);
-  //RtFolder.FnClearEndBSlash();
-  //RtFolder.FnCompactPath(50);
-  FilingControlBlock FCB(pRoot, DefaultCfgLabel, TOF_DBase);
 
-  CDlgBusy::SetLine(1, "Loading : %s", m_LDB.m_RtFolder());
-  if (m_LDB.m_AllLoaded && !m_LDB.m_Cancelled)
+  CDlgBusy::SetLine(1, "Loading : %s", LDBI.m_RtFolder());
+  if (!LDBI.m_Failed && !LDBI.m_Cancelled)
     {
 //    if (pCallBack)
 //      (*pCallBack)(3, pCallData);
 
     // In case Objs_Reg got bigger - drvmanager etc.
-    if (Objs_Reg.GetSize()>m_LDB.m_LoadIt.GetSize())
+    if (Objs_Reg.GetSize()>LDBI.m_LoadIt.GetSize())
       {
-      int i=m_LDB.m_LoadIt.GetSize();
-      m_LDB.m_LoadIt.SetSize(Objs_Reg.GetSize());
+      int i=LDBI.m_LoadIt.GetSize();
+      LDBI.m_LoadIt.SetSize(Objs_Reg.GetSize());
       for ( ; i<Objs_Reg.GetSize(); i++)
-        m_LDB.m_LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(FCB);
+        LDBI.m_LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(LDBI.m_FCB);
       }
 
     Strng Fn;
-    Fn.Set("%sOther.dat", pRoot);
+    Fn.Set("%sOther.dat", LDBI.m_pRoot);
 
     CDlgBusy::SetLine(3, "Loading Other Data");
 
@@ -5639,7 +5649,7 @@ int CExecutive::DoLoadDBase2(long DBFmt, DWORD DBOpts, char * pRoot)
         //CDlgBusy::Close();
         return 0;
         }
-      FCB.SetPrjFileVerNo(VRRead.PrjFileVerNo());
+      LDBI.m_FCB.SetPrjFileVerNo(VRRead.PrjFileVerNo());
 
       for (;;)
         {
@@ -5662,12 +5672,6 @@ int CExecutive::DoLoadDBase2(long DBFmt, DWORD DBOpts, char * pRoot)
         ASSERT(nBytesRead==DH.ObjTagLength());
 
         DataHeadChgd DHC(DH);
-  //      Strng XName(DH.XName());
-
-        if (PrjFileVerNo()<16 && DHC.XName.XStrICmp(CTagDBase::sOldFlwLibLocation)==0)
-          {
-          DHC.ChgXName(PlantModelTag);
-          }
 
         #if dbgExecutive
         if (dbgOtherData())
@@ -5678,26 +5682,26 @@ int CExecutive::DoLoadDBase2(long DBFmt, DWORD DBOpts, char * pRoot)
           if (_stricmp(Objs_Reg[OInx]->Name(), DHC.XName())==0)
             break;
 
-        if (Objs_Reg.GetSize()>m_LDB.m_LoadIt.GetSize())
+        if (Objs_Reg.GetSize()>LDBI.m_LoadIt.GetSize())
           {
-          int i=m_LDB.m_LoadIt.GetSize();
-          m_LDB.m_LoadIt.SetSize(Objs_Reg.GetSize());
+          int i=LDBI.m_LoadIt.GetSize();
+          LDBI.m_LoadIt.SetSize(Objs_Reg.GetSize());
           for ( ; i<Objs_Reg.GetSize(); i++)
-            m_LDB.m_LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(FCB);
+            LDBI.m_LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(LDBI.m_FCB);
           }
 
-        if (OInx<Objs_Reg.GetSize() && m_LDB.m_LoadIt[OInx])
+        if (OInx<Objs_Reg.GetSize() && LDBI.m_LoadIt[OInx])
           {
-          FCB.SetObjTag(DHC.ObjTag());
+          LDBI.m_FCB.SetObjTag(DHC.ObjTag());
           switch (DH.eType)
             {
             case SS_DefinedData:
               //Skip (if it occurs which it should not)
               break;
             case SS_OtherData:
-              FCB.InitialiseForRead(H, CurPos+DH.HeaderLength(), CurPos+DH.RecordLength());
+              LDBI.m_FCB.InitialiseForRead(H, CurPos+DH.HeaderLength(), CurPos+DH.RecordLength());
               SetFilePointer(H, CurPos+DH.HeaderLength(), NULL, FILE_BEGIN);
-              Objs_Reg[OInx]->EO_LoadOtherData(FCB);
+              Objs_Reg[OInx]->EO_LoadOtherData(LDBI.m_FCB);
               break;
             default:
               VERIFY(0);
@@ -5721,26 +5725,40 @@ int CExecutive::DoLoadDBase2(long DBFmt, DWORD DBOpts, char * pRoot)
 //        LoadIt[i]=Objs_Reg[i]->EO_BeginLoad(FCB);
 //      }
     }
+  //LoadTime.Stop();
 
+  return !LDBI.m_Failed;
+  }
+
+//---------------------------------------------------------------------------
+
+int CExecutive::DoLoadDBaseClose(CLoadDBInfo & LDBI)
+  {
+  STARTPROGRESS;
+  
   SetHoldValidateData(false, false, true);
 
-  UnlockExec();
-
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-    if (OInx<m_LDB.m_LoadIt.GetSize() && m_LDB.m_LoadIt[OInx])
-      Objs_Reg[OInx]->EO_EndLoad(FCB);
-
+    if (OInx<LDBI.m_LoadIt.GetSize() && LDBI.m_LoadIt[OInx])
+      Objs_Reg[OInx]->EO_EndLoad(LDBI.m_FCB);
 
   for (OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
-    Objs_Reg[OInx]->EO_LoadComplete(FCB);
+    Objs_Reg[OInx]->EO_LoadComplete(LDBI.m_FCB);
 
-  //TagDB.Close();
-  //bLoadingProject=0;
-  LoadTime.Stop();
-  double LoadSecs = m_LDB.m_LoadTime.Secs() + LoadTime.Secs();
-  const long LoadMin = (long)floor(LoadSecs/60.0);
-  LogNote("DataBase", 0, "%i Objects Loaded (%d:%02d)", m_LDB.m_nObjs, LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
-  return 0;//LdDBFmt;
+  LDBI.m_AllLoaded = !LDBI.m_Failed;
+
+  LDBI.m_LoadTime.Stop();
+
+  double LoadSecs = LDBI.m_LoadTime.Secs();
+  if (LDBI.m_AllLoaded)
+    {
+    long LoadMin = (long)floor(LoadSecs/60.0);
+    LogNote("DataBase", 0, "%i Objects Loaded (%d:%02d)", LDBI.m_nObjs, LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
+    }
+
+  CDlgBusy::Close();
+
+  return LDBI.m_AllLoaded;
   }
 
 //---------------------------------------------------------------------------
@@ -7298,6 +7316,7 @@ int CExecutive::CheckMerge(CMergeProjectsInfo& MPI)
     }
   MPI.sSlaveModelCfg = PF.RdStr("General", "ModelConfiguration", "");
   MPI.sSlaveModelCfg = PF.RdStr("General", "CfgFile", MPI.sSlaveModelCfg()); // Incase newer version
+  SwingCfgFileIfReqd(MPI.sSlaveModelCfg);
   //if (MPI.sSlaveModelCfg.Len()==0 || _stricmp(MPI.sMasterModelCfg(), MPI.sSlaveModelCfg())!=0)
   //  {
   Strng Fn1(MPI.sSlaveModelCfg), Fn2(MPI.sMasterModelCfg());
@@ -7781,9 +7800,18 @@ int CExecutive::DoMergeA(CMergeProjectsInfo& MPI)
 
   //load the slave project models...
   CDlgBusy::SetLine(3, "Importing models");
-  LoadDBase(1, DBConnect_Find, 0, MPI.sSlavePrjDir()); // Dont load Other Data
-  //load other stuff, drivers, etc???
-  LoadDBase(2, DBConnect_Find, 0, MPI.sSlavePrjDir()); // Now load Other Data
+
+  CLoadDBInfo LDBI(DBConnect_Find, 0, MPI.sSlavePrjDir());
+  LoadDBase(eLdDB_Open, LDBI); 
+  LoadDBase(eLdDB_Create, LDBI); 
+  LoadDBase(eLdDB_Connect, LDBI); 
+  LoadDBase(eLdDB_Load, LDBI); 
+  LoadDBase(eLdDB_LoadOther, LDBI); 
+  LoadDBase(eLdDB_Close , LDBI); 
+
+  //LoadDBase(1, DBConnect_Find, 0, MPI.sSlavePrjDir()); // Dont load Other Data
+  ////load other stuff, drivers, etc???
+  //LoadDBase(2, DBConnect_Find, 0, MPI.sSlavePrjDir()); // Now load Other Data
   return 0;
   }
 

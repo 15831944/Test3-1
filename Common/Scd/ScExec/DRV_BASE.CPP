@@ -12,6 +12,10 @@
 
 //#include "optoff.h"
 
+const char* OPC_DLL_Name = "scOPCsrv.dll";
+
+#if WITHDRVMAN
+
 #define dbgDriverMan     1
 
 #if dbgDriverMan
@@ -19,7 +23,6 @@ static CDbgMngr dbgRandomNumbers ("DriverManager", "RandomNumbers");
 static CDbgMngr dbgFeedBack      ("DriverManager", "FeedBack");
 #endif
 
-const char* OPC_DLL_Name = "scOPCsrv.dll";
 
 #if WITHDRVDEBUG 
 double CDriver::TimeFromStart()
@@ -968,3 +971,5 @@ CDriverManagerBase::CDriverManagerBase()
   }
 
 //===========================================================================
+
+#endif

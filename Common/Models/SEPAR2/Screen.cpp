@@ -117,7 +117,7 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  //DDB.Visibility(SM_Direct|HM_All|SSMODE);
+  //DDB.Visibility(NM_Probal|SM_All|HM_All|SSMODE);
   DDB.Text("");
   static DDBValueLst DDB2[]={
     {(int)True,  "Screen"},
@@ -126,13 +126,13 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Bool    ("Mode",            "",            DC_,     "",       &fMode,        this, isParm|SetOnChange, DDB2);
   DDB.Text(" ");
 
-  DDB.Visibility(SHM_All, !fMode);
+  DDB.Visibility(NSHM_All, !fMode);
   DDB.Double  ("",                "OSSolids",    DC_Frac, "%",      &OSSplit,       this, isParm);
   DDB.Visibility();
   DDB.Double  ("OSMoisture",      "OSMoist",     DC_Frac, "%",      &m_OSMoist,     this, isParm);
-  DDB.Visibility(SHM_All, fMode);
+  DDB.Visibility(NSHM_All, fMode);
   DDB.CheckBox("RateCorrection",  "",            DC_,     "",       &bKneeCorr,     this, isParm|SetOnChange);
-  DDB.Visibility(SHM_All, bKneeCorr && fMode);
+  DDB.Visibility(NSHM_All, bKneeCorr && fMode);
   DDB.Double  ("",                "OSMoist.Op",  DC_Frac, "%",      &m_OSMoistOp,   this, isResult);
   DDB.Double  ("",                "OSMoist.Knee",DC_Qm,   "kg/s",   &m_OSMoistKnee, this, isParm|NAN_OK);
   DDB.Double  ("",                "OSMoist.@Cap",DC_Frac, "%",      &m_OSMoistAtCap,this, isParm);
@@ -142,7 +142,7 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",                "ScreenFeed",  DC_Qm,   "kg/s",   &DeckFeed,      this, isResult|0);
   DDB.CheckBox("TrackStatus",      "",           DC_,     "",       &bTrackStatus,  this, isParm);
 
-  DDB.Visibility(SHM_All, fMode);
+  DDB.Visibility(NSHM_All, fMode);
   DDB.Text(" ");
   static DDBValueLst DDB1[]={
     {SBM_Karra,     "Karra"},
@@ -156,7 +156,7 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
     {0}};
   DDB.Byte    ("SizingMethod",    "Method",      DC_,     "",       xidMethod,      this, isParm|SetOnChange, DDB1);
 
-  DDB.Visibility(SHM_All, iMethod==SBM_Karra && fMode);
+  DDB.Visibility(NSHM_All, iMethod==SBM_Karra && fMode);
   DDB.Text(" ");
   static DDBValueLst DDB4[]={
     {KM_Area,     "ScreenArea"},
@@ -164,38 +164,38 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
     {0}};
   DDB.Byte    ("d50_Method",      "",            DC_,     "",       &iKM,           this, isParm|SetOnChange, DDB4);
 
-  DDB.Visibility(SHM_All, iMethod==SBM_Karra && iKM==KM_Area && fMode);
+  DDB.Visibility(NSHM_All, iMethod==SBM_Karra && iKM==KM_Area && fMode);
   DDB.Double  ("DDScreenArea",    "SArea",       DC_Area, "m^2",    &SArea,         this, isParm);
   DDB.Double  ("TotalScreenArea", "TotalArea",   DC_Area, "m^2",    &Area,          this, isResult|0);
   DDB.Double  ("ThruFall_Aper",   "CutAper",     DC_L,    "um",     &hmm,           this, isParm);
   DDB.Bool    ("Wet_Dry",         "Wet?",        DC_,     "",       &wet,           this, isParm, DDBYesNo);
   //DDB.Double  ("Eff_Wash",        "WashEff",     DC_Frac, "%",      &EWash,         this, isParm);
 
-  DDB.Visibility(SHM_All, ((iMethod==SBM_Karra && iKM==KM_d50) || (iMethod==SBM_Whiten) || (iMethod==SBM_WhitenBetaStar)) && fMode);
+  DDB.Visibility(NSHM_All, ((iMethod==SBM_Karra && iKM==KM_d50) || (iMethod==SBM_Whiten) || (iMethod==SBM_WhitenBetaStar)) && fMode);
   DDB.Double  ("Cut_Size",     "d50",            DC_L,    "mm",     &m_CutSize,       this, isParm);
-  DDB.Visibility(SHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && bKneeCorr && fMode);
+  DDB.Visibility(NSHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && bKneeCorr && fMode);
   DDB.Double  ("",             "d50.Knee",       DC_Qm,   "kg/s",   &m_CutSizeKnee,   this, isParm|NAN_OK);
   DDB.Double  ("",             "d50.@Cap",       DC_L,    "mm",     &m_CutSizeAtCap,  this, isParm);
-  DDB.Visibility(SHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
+  DDB.Visibility(NSHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
   DDB.Double  ("",             "Alpha",          DC_,     "",       &m_Alpha,         this, isParm);
-  DDB.Visibility(SHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && bKneeCorr && fMode);
+  DDB.Visibility(NSHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && bKneeCorr && fMode);
   DDB.Double  ("",             "Alpha.Op",       DC_,     "",       &m_AlphaOp,   this, isResult);
   DDB.Double  ("",             "Alpha.Knee",     DC_Qm,   "kg/s",   &m_AlphaKnee, this, isParm|NAN_OK);
   DDB.Double  ("",             "Alpha.@Cap",     DC_,     "",       &m_AlphaAtCap,this, isParm);
-  DDB.Visibility(SHM_All, iMethod==SBM_WhitenBetaStar && fMode);
+  DDB.Visibility(NSHM_All, iMethod==SBM_WhitenBetaStar && fMode);
   DDB.Double  ("",             "Beta",           DC_,     "",       xidWhitenBeta,  this, isParm);
   DDB.Double  ("",             "Beta*",          DC_,     "",       &BetaStar,      this, isResult);
-  DDB.Visibility(SHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
+  DDB.Visibility(NSHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
   DDB.Double  ("",             "Rf",             DC_,     "",       xidWhitenRf,    this, isParm);
-  DDB.Visibility(SHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && bKneeCorr && fMode);
+  DDB.Visibility(NSHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && bKneeCorr && fMode);
   DDB.Double  ("",             "Rf.Op",          DC_,     "",       &m_RfOp,   this, isResult);
   DDB.Double  ("",             "Rf.Knee",        DC_Qm,   "kg/s",   &m_RfKnee, this, isParm|NAN_OK);
   DDB.Double  ("",             "Rf.@Cap",        DC_,     "",       &m_RfAtCap,this, isParm);
-  DDB.Visibility(SHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
+  DDB.Visibility(NSHM_All, (iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
   DDB.Double  ("",             "C",              DC_,     "",       xidWhitenC,     this, isParm|noFile|noSnap);
   DDB.TagComment("=1-Rf");
 
-  DDB.Visibility(SHM_All, iMethod==SBM_Karra && fMode);
+  DDB.Visibility(NSHM_All, iMethod==SBM_Karra && fMode);
   static DDBValueLst DDB3[]={
     {FM_None,     "None"},
     {FM_LiqFines, "Fines_in_Moist" },
@@ -204,12 +204,12 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text(" ");
   DDB.Byte    ("",                 "FinesMethod",  DC_,     "",       &iFineMeth,    this, isParm|SetOnChange, DDB3);
 
-  DDB.Visibility(SHM_All, iMethod==SBM_Karra && iFineMeth==FM_FineEff && fMode);
+  DDB.Visibility(NSHM_All, iMethod==SBM_Karra && iFineMeth==FM_FineEff && fMode);
   DDB.Double  ("Fine%toCoarse",    "MinFine",      DC_Frac, "%",      &MinFine,      this, isParm);
 
   DDB.Visibility();
   DDB.Text("");
-  DDB.Visibility(SHM_All, fMode);
+  DDB.Visibility(NSHM_All, fMode);
   DDB.Double  ("Calculated_d50",    "Calc_d50",    DC_L,    "um",     &m_d50Op,      this, isResult|0);
   DDB.Double  ("Intersection",      "IntersectPt", DC_L,    "um",     &ICut,         this, isResult|0);
   DDB.Visibility();
@@ -223,12 +223,12 @@ void ScreenBlk::BuildDataDefn(DataDefnBlk & DDB)
 
   if ((iMethod==SBM_PartCrv_Individ || iMethod==SBM_PartCrv_Overall) && fMode)
     {
-    DDB.Visibility(SHM_All, (iMethod==SBM_PartCrv_Individ || iMethod==SBM_PartCrv_Overall) && fMode);
+    DDB.Visibility(NSHM_All, (iMethod==SBM_PartCrv_Individ || iMethod==SBM_PartCrv_Overall) && fMode);
     DDB.Object(&PartCrv, this, NULL, NULL, DDB_RqdPage);
     }
   else if ((iMethod==SBM_Karra || iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode)
     {
-    DDB.Visibility(SHM_All, (iMethod==SBM_Karra || iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
+    DDB.Visibility(NSHM_All, (iMethod==SBM_Karra || iMethod==SBM_Whiten || iMethod==SBM_WhitenBetaStar) && fMode);
     DDB.Object(&PartCrv2, this, NULL, NULL, DDB_RqdPage);
     }
 
@@ -1666,7 +1666,7 @@ void Screen::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   DDB.Double  ("NumberOfScreens",  "NumScreen",  DC_,  "",    &NumS,         this, isParm);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text    ("");
   static DDBValueLst DDB0[]={
     {0,  "Open"},

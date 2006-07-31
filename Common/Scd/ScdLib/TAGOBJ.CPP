@@ -27,6 +27,10 @@
 
 #define dbgTagObjAttach        0
 
+#define dbgAllowedModes        0
+#define dbgSetModes            0
+#define dbgGetModes            0
+
 #define dbgTagObj 1
 #if dbgTagObj
 static CDbgMngr dbgViewSysDefn("FlwNode",  "ViewSysDefn");
@@ -212,85 +216,11 @@ const pchar DollarReservedTags [] =
   };
 const int DollarReservedTagsCnt = sizeof(DollarReservedTags)/sizeof(DollarReservedTags[0]);
 
-//========================================================================
 
-//MInitialiseTest::MInitialiseTest(TagObjClass *C)
-//  {
-//  m_pObjClass=C;
-//  };
-//MInitialiseTest::MInitialiseTest(LPCSTR Name)
-//  {
-//  m_pObjClass=NULL;
-//  m_sName=Name;
-//  };
-//MInitialiseTest::~MInitialiseTest()
-//  {
-//  m_pObjClass=NULL;
-//  };
-
-//void CTagObjSelectFn::Attach()
-//  {
-//  if (m_pObjClass)
-//    m_pObjClass->AddSelectFn(this);
-//  };
-//void CTagObjSelectFn::Detach()
-//  {
-//  if (m_pObjClass)
-//    m_pObjClass->RemoveSelectFn(this);
-//  };
-
-//void TagObjClass::UpdateSelectConditions()
-//  {
-//  for (TagObjClass* p=pFirstClass; p; p=p->pNxtClass)
-//    {
-//    p->m_SelectConditionsOK=true;
-//    POSITION Pos=p->m_SelectableFns.GetHeadPosition();
-//    while (Pos)
-//      {
-//      CTagObjSelectFn *Fn=p->m_SelectableFns.GetNext(Pos);
-//      if (!Fn->Selectable())
-//        p->m_SelectConditionsOK=false;
-//      }
-//    }
-//  };
-
-flag TagObjClass::Selectable(bool IgnoreConditions)
+flag TagObjClass::Selectable()
   {
-  //if (IgnoreFn || !m_bSelectable)
-  //  return m_bSelectable;
-
-  //long N=0;
-  //m_SelectConditionsOK=true;
-  //POSITION Pos=m_SelectableFns.GetHeadPosition();
-  //while (Pos)
-  //  {
-  //  N=++;
-  //  CTagObjSelectFn *p=m_SelectableFns.GetNext(Pos);
-  //  if (!p->Selectable())
-  //    m_SelectConditionsOK=false;
-  //  }
-  //return m_SelectConditionsOK;
-  return m_bSelectable && (IgnoreConditions || m_SelectConditionsOK);
+  return m_bSelectable;
   };
-//void TagObjClass::AddSelectFn(CTagObjSelectFn * SelectableFn)
-//  {
-//  m_SelectableFns.AddHead(SelectableFn);
-//  };
-//void TagObjClass::RemoveSelectFn(CTagObjSelectFn * SelectableFn)
-//  {
-//  POSITION Pos=m_SelectableFns.GetHeadPosition();
-//  while (Pos)
-//    {
-//    POSITION RqdPos=Pos;
-//    CTagObjSelectFn *p=m_SelectableFns.GetNext(Pos);
-//    if (p==SelectableFn)
-//      {
-//      m_SelectableFns.RemoveAt(RqdPos);
-//      break;
-//      }
-//    }
-//  int xxx=0;
-//  };
 
 //========================================================================
 
@@ -415,12 +345,12 @@ dbgpln("%-25s %-25s %-25s %-25s %-25s %-25s ", pClassName_, pGroup_, pClassId_, 
 
   sDrwGroup=pDrwGroup_;
   sDefaultTag=pDefTag_;
-  bLicOK=1;
+  m_bLicenseOK=1;
+  m_bLicErrNoted=0;
+  m_bCreateIfNotLicensed=false;
   m_bSelectable=(dwSelectMask_!=0);
   dwSelectMask=dwSelectMask_;
   fDuplicateExists=False;
-  //m_pSelectableFn=NULL;
-  m_SelectConditionsOK=true;
 
   sMdlLibName="Unknown";
   m_pSubConstruct=NULL;
@@ -534,7 +464,7 @@ void TagObjClass::DumpAll()
     //ASSERT(strlen(p->ClassId())<=8); // nbnb for FileNames for DataBases
     dbgpln("TagObjClass @%08x [%4i]%-18s - %-16s [%3i] %-16s (%s%s%s%s) %-10s %s", p,
       p->iId, p->sClassName(), p->sClassId(), p->iGrpId, p->sGroup(),
-      p->Selectable() ? "s" : "-", p->bLicOK ? "l" : "-",
+      p->Selectable() ? "s" : "-", p->m_bLicenseOK? "l" : "-",
       p->CatIsDynamic() ? "d" : "-", p->CatIsProBal() ? "p" : "-",
       p->sMdlLibName(), p->sDefaultTag());
     p=p->pNxtClass;
@@ -616,7 +546,7 @@ TagObjClass* TagObjClass::FindGroupId(pchar GroupId_)
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindClassIndexed(pchar GroupId_, int iIndex, bool IgnoreSelFn)
+TagObjClass* TagObjClass::FindClassIndexed(pchar GroupId_, int iIndex)
   {
   iIndex++;
   StartupLock.Lock();
@@ -625,9 +555,9 @@ TagObjClass* TagObjClass::FindClassIndexed(pchar GroupId_, int iIndex, bool Igno
     {
 //dbgpln("%s %2i, %s %s", GroupId_, p->Selectable(), p->ClassId(), p->SubClassId());
 
-    if (!p->Selectable(IgnoreSelFn) && _stricmp(GroupId_, "Hidden")==0)
+    if (!p->Selectable() && _stricmp(GroupId_, "Hidden")==0)
       iIndex--;
-    else if (p->Selectable(IgnoreSelFn) && strcmpi(p->sGroup(), GroupId_)==0)
+    else if (p->Selectable() && strcmpi(p->sGroup(), GroupId_)==0)
       iIndex--;
     if (iIndex==0)
       break;
@@ -699,12 +629,20 @@ TaggedObject *TagObjClass::Construct(pchar pGroup_, pchar pClassId_, pchar pSubC
 
   if (pC)
     {
-    if (strlen(pGroup_)>0 && _stricmp(pGroup_, pC->sGroup())!=0)
+    if (pC->LicenseOK() || pC->m_bCreateIfNotLicensed)
       {
-      dbgpln("Bad Class %s (groups don't match): %s <> %s", pClassId_, pGroup_, pC->sGroup());
-      return NULL;
+      if (strlen(pGroup_)>0 && _stricmp(pGroup_, pC->sGroup())!=0)
+        {
+        dbgpln("Bad Class %s (groups don't match): %s <> %s", pClassId_, pGroup_, pC->sGroup());
+        return NULL;
+        }
+      pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
       }
-    pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
+    else
+      {
+      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), eLic_Msg);
+      pC->SetLicErrNoted(true);
+      }
     }
   #if dbgConstructObj
   dbgpln("Construct:%s %s", pClassId_, pRqdTag);
@@ -725,12 +663,20 @@ TaggedObject *TagObjClass::ConstructGrp(pchar pClassId_, pchar pSubClassId, pcha
 
   if (pC)
     {
-    if (pC->m_bIsCOMClass)
+    if(pC->LicenseOK() || pC->m_bCreateIfNotLicensed)
       {
-      pO=CCOMObjManagerRoot::gs_Manager->Construct(pC/*->m_sProgID()*/, pRqdTag, pAttach, eAttach);
+      if (pC->m_bIsCOMClass)
+        {
+        pO=CCOMObjManagerRoot::gs_Manager->Construct(pC/*->m_sProgID()*/, pRqdTag, pAttach, eAttach);
+        }
+      else
+        pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
       }
     else
-      pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
+      {
+      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), eLic_Msg);
+      pC->SetLicErrNoted(true);
+      }
     }
   #if dbgConstructObj
   dbgpln("Construct:%s %s", pClassId_, pRqdTag);
@@ -746,7 +692,18 @@ TaggedObject *TagObjClass::ConstructGrpDesc(pchar pShortDesc_, pchar pSubClassId
   TaggedObject *pO=NULL;
 
   if (pC)
-    pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
+    {
+    if(pC->LicenseOK() || pC->m_bCreateIfNotLicensed)
+      {
+      pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
+      }
+    else
+      {
+      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), eLic_Msg);
+      pC->SetLicErrNoted(true);
+      }
+    }
+
   #if dbgConstructObj
   dbgpln("Construct:%s %s", pShortDesc_, pRqdTag);
   #endif
@@ -812,7 +769,7 @@ void TagObjClass::GetClassValueLst(char * GroupName, DDBValueLstMem & DDB0, char
     TagObjClass* pC=FindClassIndexed(GroupName, i);
     if (pC)
       {
-      if (pC->dwSelectMask & SelectMask)
+      if (pC->dwSelectMask & SelectMask && pC->LicenseOK())
         DDB0.Add(pC->ClassId());
       }
     else
@@ -833,7 +790,7 @@ void TagObjClass::GetSDescValueLst(char * GroupName, DDBValueLstMem & DDB0, char
     TagObjClass* pC=FindClassIndexed(GroupName, i);
     if (pC)
       {
-      if (pC->dwSelectMask & SelectMask)
+      if (pC->dwSelectMask & SelectMask && pC->LicenseOK())
         {
         pC->GetShortDesc(S);
         if (!Value0 || S.XStrICmp(Value0)!=0)
@@ -1265,7 +1222,7 @@ FilingControlBlock::FilingControlBlock(char * Root, char * Label, TOFilingTypes 
   bCreateObj=0;
   bSaveAs=0;
   bFarCopy=0;
-  sOldPrjFiles="";
+  xm_sOldPrjFiles="";
   hFile=NULL;
   dwStartPos=dwCurrentPos=dwEndPos=0;
   m_PrjFileVerNo=::PrjFileVerNo();
@@ -1293,14 +1250,14 @@ void FilingControlBlock::InitialiseForWrite(HANDLE File, DWORD StartPos)
 void FilingControlBlock::SetSaveAs(char* pOldPrjFiles)
   {
   bSaveAs = 1;
-  sOldPrjFiles = pOldPrjFiles;
-//  sOldPrjFiles = sOldPrjFiles.Left(sOldPrjFiles.Length() - 4);
-//  sOldPrjFiles += '\\';
+  xm_sOldPrjFiles = pOldPrjFiles;
+//  m_sPrevPrjFiles = m_sPrevPrjFiles.Left(m_sPrevPrjFiles.Length() - 4);
+//  m_sPrevPrjFiles += '\\';
   bFarCopy = 1;
 //DoBreak();
 //#pragma chFIXIT(??????)
 ///*
-//  if (_strnicmp(PrjPrevDirectory(), sOldPrjFiles(), strlen(PrjPrevDirectory()))==0)
+//  if (_strnicmp(PrjPrevDirectory(), m_sPrevPrjFiles(), strlen(PrjPrevDirectory()))==0)
 //    bFarCopy = 0;
 //*/
   }
@@ -1367,7 +1324,28 @@ Strng   TaggedObject::sBadFieldNameChars("");
 Strng   TaggedObject::sRepFieldNameChars(" ");
 
 dword   TaggedObject::dwGlblDataVerNo=0;
-long    TaggedObject::gs_RunMds=0;
+
+long    TaggedObject::gs_DefNetMode=0;
+long    TaggedObject::gs_DefNodeMode=0;
+long    TaggedObject::gs_DefLinkMode=0;
+long    TaggedObject::gs_DefHeatMode=0;
+long    TaggedObject::gs_DefFlowMode=0;
+
+long    TaggedObject::gs_MaxLinkMode=0;
+long    TaggedObject::gs_MaxNodeMode=0;
+long    TaggedObject::gs_MaxHeatMode=0;
+long    TaggedObject::gs_MaxFlowMode=0;
+
+long    TaggedObject::gs_AllowedLinkMode=0;
+long    TaggedObject::gs_AllowedNodeMode=0;
+long    TaggedObject::gs_AllowedHeatMode=0;
+long    TaggedObject::gs_AllowedFlowMode=0;
+
+long    TaggedObject::gs_AllowedNodeModes=NM_All|LFM_All; // Just allow these licensing will fix
+long    TaggedObject::gs_AllowedLinkModes=NM_All|LFM_All; // Just allow these licensing will fix
+
+bool    TaggedObject::gs_Revert2DefaultRqd=false;
+
 flag    TaggedObject::fRunning=0;
 flag    TaggedObject::fBuildingAccess=0;
 flag    TaggedObject::bGlblResultsValid=false;
@@ -1392,10 +1370,13 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   dbgpln("Construct %8x %s %s",this,pClass_->ClassId(), Tag_);
   #endif
 
+  m_bNodeSolveMode=true;
+  m_AllowedModes=0;
+  m_FallBackModes=0;
   m_lRunMds=0;
   m_pRunMds=&m_lRunMds;
 
-  m_FlowModeReqd=0;
+  m_FlowModeRqd=0;
   m_FlowModePass=0;
   m_FlowModeObj=NULL;
 
@@ -1472,167 +1453,607 @@ void TaggedObject::SetUserMethod(long UserMethod)
   StructureChanged(this);
   };
 
-void TaggedObject::SetFlowModeReqd(long FlowMode)
+void SetDefNetMode(long Mode)         
+  { 
+  TaggedObject::gs_DefNetMode  = (Mode & NM_All);  
+  if ((TaggedObject::gs_DefNetMode & NM_All) == NM_All)
+    __debugbreak();
+  if (dbgSetModes) 
+    dbgpln(">>~~SetDefNetMode  %08x", TaggedObject::gs_DefNetMode); 
+  };
+                                                                                                       
+void SetDefNodeMode(long Mode)        
+  { 
+  TaggedObject::gs_DefNodeMode = (Mode & SM_All);  
+  if ((TaggedObject::gs_DefNodeMode & SM_All) == SM_All)
+    __debugbreak();
+  if (dbgSetModes)  
+    dbgpln(">>~~SetDefNodeMode %08x", TaggedObject::gs_DefNodeMode); 
+  };
+void SetDefLinkMode(long Mode)        
+  { 
+  TaggedObject::gs_DefLinkMode = (Mode & SM_All);  
+  if ((TaggedObject::gs_DefLinkMode & SM_All) == SM_All)
+    __debugbreak();
+  if (dbgSetModes)  
+    dbgpln(">>~~SetDefLinkMode %08x", TaggedObject::gs_DefLinkMode); 
+  };
+void SetDefHeatMode(long Mode)        
+  { 
+  TaggedObject::gs_DefHeatMode = (Mode & HM_All);  
+  if ((TaggedObject::gs_DefHeatMode & HM_All) == HM_All)
+    __debugbreak();
+  if (dbgSetModes) 
+    dbgpln(">>~~SetDefHeatMode %08x", TaggedObject::gs_DefHeatMode); 
+  };
+void SetDefFlowMode(long Mode)        
+  { 
+  TaggedObject::gs_DefFlowMode = (Mode & LFM_All); 
+  if ((TaggedObject::gs_DefFlowMode & LFM_All) == LFM_All)
+    __debugbreak();
+  if (dbgSetModes)  
+    dbgpln(">>~~SetDefFlowMode %08x", TaggedObject::gs_DefFlowMode);  
+  };
+
+static long Max2Mask(long MaxMode, long Mask)
   {
-  m_FlowModeReqd=FlowMode;
+  long Ret=0; 
+  while (MaxMode & Mask) 
+    { 
+    Ret |= MaxMode & Mask; 
+    MaxMode = MaxMode >> 1;
+    }
+  return Ret;
   }
 
-void TaggedObject::SetFlowMode(long FlowMode, TaggedObject * pRuleObj)
+static long Modes2Max(long Modes, long Mask)
   {
-  m_lRunMds = (m_lRunMds & ~LFM_All) | (FlowMode & LFM_All & ~LFM_Propagate);
-  m_FlowModeObj=pRuleObj;
-  StructureChanged(this);
-  };
-void TaggedObject::SetRunModes(long SolveMethod, long RunMdsMsk)
+  long Ret=1; 
+  Modes &= Mask;
+
+  for (;;) 
+    { 
+    Modes = Modes >> 1;
+    if (!Modes)
+      return Ret;
+    Ret = Ret << 1;
+    }
+  return 0;
+  }
+
+long MaxModes2Mask(long MaxMode)
   {
-  m_lRunMds = (m_lRunMds & ~RunMdsMsk) | (SolveMethod & RunMdsMsk);
-  StructureChanged(this);
+  return Max2Mask(MaxMode, NM_All) | Max2Mask(MaxMode, SM_All) | Max2Mask(MaxMode, HM_All) | Max2Mask(MaxMode, LFM_All); 
+  }
+
+void SetMaxNodeMode(long Mode)
+  { 
+  long Allowed=Max2Mask(Mode, SM_All);
+
+  TaggedObject::gs_MaxNodeMode      = Mode&SM_All; 
+  TaggedObject::gs_AllowedNodeMode  = Allowed; 
+  TaggedObject::gs_AllowedNodeModes = (TaggedObject::gs_AllowedNodeModes & ~SM_All) | Allowed; 
+  if (dbgSetModes) 
+    dbgpln(">>~~SetMaxNodeMode %08x %08x %08x", TaggedObject::gs_MaxNodeMode, TaggedObject::gs_AllowedNodeMode, TaggedObject::gs_AllowedNodeModes);
   };
 
-long TaggedObject::RunModes()
+void SetMaxLinkMode(long Mode)
   {
-  if (GlblProbalMode())
-    return SM_Direct|GlblHeatMode();
-  return ((*m_pRunMds & SHM_All) ? *m_pRunMds : GlblRunModes()) & SHM_All;
+  long Allowed=Max2Mask(Mode, SM_All);
+
+  TaggedObject::gs_MaxLinkMode      = Mode&SM_All; 
+  TaggedObject::gs_AllowedLinkMode  = Allowed; 
+  TaggedObject::gs_AllowedLinkModes = (TaggedObject::gs_AllowedLinkModes & ~SM_All) | Allowed; 
+  if (dbgSetModes) 
+    dbgpln(">>~~SetMaxLinkMode %08x %08x %08x", TaggedObject::gs_MaxLinkMode, TaggedObject::gs_AllowedLinkMode, TaggedObject::gs_AllowedLinkModes);
+  };
+void SetMaxHeatMode(long Mode)
+  {
+  long Allowed=Max2Mask(Mode, HM_All);
+
+  TaggedObject::gs_MaxHeatMode      = Mode&HM_All;
+  TaggedObject::gs_AllowedHeatMode  = Allowed; 
+  TaggedObject::gs_AllowedNodeModes = (TaggedObject::gs_AllowedNodeModes & ~HM_All) | Allowed; 
+  TaggedObject::gs_AllowedLinkModes = (TaggedObject::gs_AllowedLinkModes & ~HM_All) | Allowed; 
+  if (dbgSetModes) 
+    dbgpln(">>~~SetMaxHeatMode %08x %08x", TaggedObject::gs_MaxHeatMode, TaggedObject::gs_AllowedHeatMode);
+  };
+void SetMaxFlowMode(long Mode)
+  {
+  long Allowed=Max2Mask(Mode, LFM_All);
+
+  TaggedObject::gs_MaxFlowMode      = Mode&LFM_All;
+  TaggedObject::gs_AllowedFlowMode  = Allowed; 
+  TaggedObject::gs_AllowedNodeModes = (TaggedObject::gs_AllowedNodeModes & ~LFM_All) | Allowed; 
+  TaggedObject::gs_AllowedLinkModes = (TaggedObject::gs_AllowedLinkModes & ~LFM_All) | Allowed; 
+  if (dbgSetModes) 
+    dbgpln(">>~~SetMaxFlowMode %08x %08x", TaggedObject::gs_MaxFlowMode, TaggedObject::gs_AllowedFlowMode);
+  };
+
+long AllowedNodeModes() { return TaggedObject::gs_AllowedNodeModes & SM_All; };
+long AllowedLinkModes() { return TaggedObject::gs_AllowedLinkModes & SM_All; };
+//long AllowedHeatModes() { return TaggedObject::gs_AllowedHeatMode & HM_All;  };
+//long AllowedFlowModes() { return TaggedObject::gs_AllowedFlowMode & LFM_All; };
+
+long MaxNodeMode() { return TaggedObject::gs_MaxNodeMode & SM_All; };
+long MaxLinkMode() { return TaggedObject::gs_MaxLinkMode & SM_All; };
+long MaxHeatMode() { return TaggedObject::gs_MaxHeatMode & HM_All;  };
+long MaxFlowMode() { return TaggedObject::gs_MaxFlowMode & LFM_All; };
+
+void TaggedObject::SetNetMethod(long Mode)
+  {
+  *m_pRunMds = (*m_pRunMds & ~NM_All) | Mode; 
+  if (dbgSetModes) 
+    dbgpln(">>~~NetMode     %08x", (*m_pRunMds & ~NM_All));
+  };
+void TaggedObject::SetNetMethod(LPCTSTR Mode)
+  {
+  SetNetMethod(String2GlblMode(Mode, NM_All)); };
+void TaggedObject::SetSolveMethod(long Mode)
+  {
+  *m_pRunMds = (*m_pRunMds & ~SM_All) | (SM_All & Mode & m_AllowedModes);
+  if (dbgSetModes) 
+    dbgpln(">>~~SolveMethod %08x", (*m_pRunMds & ~SM_All));
+  };
+void TaggedObject::SetSolveMethod(LPCTSTR Mode)
+  {
+  SetSolveMethod(String2GlblMode(Mode, SM_All));
+  };                     
+void TaggedObject::SetHeatMethod(long Mode)
+  {
+  *m_pRunMds = (*m_pRunMds & ~HM_All) | (HM_All & Mode & m_AllowedModes);
+  if (dbgSetModes) 
+    dbgpln(">>~~HeatMethod  %08x", (*m_pRunMds & ~HM_All));
+  };
+void TaggedObject::SetHeatMethod(LPCTSTR Mode)
+  {
+  SetHeatMethod(String2GlblMode(Mode, HM_All));
+  };
+
+void TaggedObject::SetFlowModeLcl(long Mode)
+  {         
+  if (Mode&LFM_Propagate)
+    {
+    _asm int 3;
+    //SetxFlowModeReqd(Mode);
+    }
+  else
+    {
+    *m_pRunMds = (*m_pRunMds & ~LFM_All) | (LFM_All & Mode & m_AllowedModes); // Will goto Default if not allowed
+    if(dbgSetModes)
+      dbgpln(">>~~FlowMethod %08x", (*m_pRunMds & ~LFM_All)); 
+    }
+  };
+long TaggedObject::AllModes(long MdMsk)
+  {
+  return (NetMethod()|SolveMethod()|HeatMethod()) & MdMsk;
   };
 
 long TaggedObject::NetMethod() // this needs to be worked on to allow probal and dyn flwsheets to be mixed.
   {
-  if (GlblProbalMode())
-    return NM_Probal;
-  return NM_Dynamic;
+  long X;
+  if (*m_pRunMds & NM_All)
+    X=*m_pRunMds & NM_All;
+  else
+    X=DefNetMode();
+  //if ((X & m_AllowedModes)==0 && (m_AllowedModes!=0))
+  //  __debugbreak();
+  //X = m_FallBackModes & NM_All;
+  if (dbgGetModes) 
+    dbgpln("NetMethod   = %-20s %-20s %s", GlblMode2LPTSTR(X, NM_All, eGM_Name), GlblMode2LPTSTR(X&m_AllowedModes, NM_All, eGM_Name), Tag());
+  return X;
+  };
+
+LPTSTR TaggedObject::NetMethodStr()
+  {
+  if (*m_pRunMds & NM_All)
+    return GlblMode2LPTSTR(*m_pRunMds, NM_All, eGM_Name);
+  return GlblMode2LPTSTR(DefNetMode(), NM_All, eGM_Default);
   };
 
 long TaggedObject::SolveMethod()
   {
-  if (GlblProbalMode())
-    return SM_Direct;
-  return ((*m_pRunMds & SM_All) ? *m_pRunMds : GlblRunModes()) & SM_All;
+  long X;
+  if (NetMethod()==NM_Probal)
+    {
+    X=SM_Direct;
+    }
+  else
+    {
+    if (*m_pRunMds & SM_All)
+      X=*m_pRunMds & SM_All;
+    else if (m_bNodeSolveMode)
+      X=DefNodeSolveMode();
+    else
+      X=DefLinkSolveMode();
+    if ((X & m_AllowedModes)==0 && (m_AllowedModes &SM_All)!=0)
+      X = m_FallBackModes & SM_All;
+    }
+
+  if (dbgGetModes) 
+    dbgpln("SolveMethod = %-20s %-20s %s", GlblMode2LPTSTR(X, SM_All, eGM_Name), GlblMode2LPTSTR(X&m_AllowedModes, SM_All, eGM_Name), Tag());
+  return X;
+
+  };
+
+LPTSTR TaggedObject::SolveMethodStr()
+  {
+  if (NetMethod()==NM_Probal)
+    return GlblMode2LPTSTR(SM_Direct, SM_All, eGM_Name);
+  if (*m_pRunMds & SM_All)
+    return GlblMode2LPTSTR(*m_pRunMds, SM_All, eGM_Name);
+  long X;
+  if (m_bNodeSolveMode)
+    X=DefNodeSolveMode();
+  else
+    X=DefLinkSolveMode();
+  if ((X & m_AllowedModes)==0 && (m_AllowedModes &SM_All)!=0)
+    {
+    X = m_FallBackModes & SM_All;
+    return GlblMode2LPTSTR(X, SM_All, eGM_FallBack);
+    }
+  return GlblMode2LPTSTR(X, SM_All, eGM_Default);
   };
 
 long TaggedObject::HeatMethod()
   {
-  return ((*m_pRunMds & HM_All) ? *m_pRunMds : GlblRunModes()) & HM_All;
+  long X;
+  if (*m_pRunMds & HM_All)
+    X=*m_pRunMds & HM_All;
+  else
+    X=DefHeatMode();
+  if ((X & m_AllowedModes)==0 && (m_AllowedModes&HM_All)!=0)
+    X = m_FallBackModes & HM_All;
+
+  if (dbgGetModes) 
+    dbgpln("HeatMethod  = %-20s %-20s %s", GlblMode2LPTSTR(X, SM_All, eGM_Name), GlblMode2LPTSTR(X&m_AllowedModes, SM_All, eGM_Name), Tag());
+  return X;
   };
 
-void TaggedObject::SetGlblRunModes(long RunModes, long RunMdsMsk)
+LPTSTR TaggedObject::HeatMethodStr()
   {
-  if (RunModes & RunMdsMsk & SM_All)
-    gs_RunMds = (gs_RunMds & ~SM_All) | (RunModes & SM_All);
-  if (RunModes & RunMdsMsk & HM_All)
-    gs_RunMds = (gs_RunMds & ~HM_All) | (RunModes & HM_All);
+  if (*m_pRunMds & HM_All)
+    return GlblMode2LPTSTR(*m_pRunMds, HM_All, eGM_Name);
+  long X=DefHeatMode();
+  if ((X & m_AllowedModes)==0 && (m_AllowedModes&HM_All)!=0)
+    {
+    X = m_FallBackModes & HM_All;
+    return GlblMode2LPTSTR(X, HM_All, eGM_FallBack);
+    }
+  return GlblMode2LPTSTR(X, HM_All, eGM_Default);
   };
 
-const struct tGlblMdName { long Md; LPSTR Nm; bool Hidden; } GlblModeNames[] =
+void TaggedObject::SetFlowModeLcl(LPCTSTR Mode)
   {
-    {SM_Direct,    "ProBal"           , false},
-    {SM_Inline,   "Dynamic-Transfer" , true},
-    {SM_Inline,   "Dynamic-Flow"     , false},
-    {SM_Buffered,   "Dynamic-Full"     , false},
-    //{SM_Inline,    "Inline"           },
-    {HM_None,      "None"             , false},
-    {HM_Simple,    "Simple"           , false},
-    {HM_Full,      "Rigorous"         , false},
+  SetFlowModeLcl(String2GlblMode(Mode, LFM_All)); 
+  };
+
+//void TaggedObject::SetxFlowModeReqd(long FlowMode)
+//  {
+//  m_FlowModeRqd=FlowMode;
+//  }
+
+void TaggedObject::SetFlowModeRqd(long FlowMode, long FlowFlags, TaggedObject * pRuleObj)
+  {
+  m_FlowModeRqd = (FlowMode ? (FlowMode & LFM_All) | FlowFlags : 0);
+  //*m_pRunMds = (*m_pRunMds & ~LFM_All) | (FlowMode & LFM_All & ~LFM_Propagate);
+  m_FlowModeObj=pRuleObj;
+  StructureChanged(this);
+  if (dbgSetModes) 
+    dbgpln("SetFlowModeRqd %08x", (m_FlowModeRqd & LFM_AllPg)); 
+  };
+
+void TaggedObject::SetFlowModeRqd(LPCTSTR FlowMode, long FlowFlags, TaggedObject * pRuleObj)
+  {
+  SetFlowModeRqd(String2GlblMode(FlowMode, LFM_All), FlowFlags, pRuleObj); 
+  };
+
+
+long TaggedObject::FlowModeRqd()
+  {
+  return m_FlowModeRqd;
+  };
+
+LPTSTR TaggedObject::FlowModeRqdStr()
+  {
+  if (m_FlowModeRqd)
+    return GlblMode2LPTSTR(m_FlowModeRqd, LFM_All, 
+      (m_FlowModeRqd & LFM_Propagate) ? eGM_Propagate : (m_FlowModeRqd & LFM_Propagated) ? eGM_Propagated:eGM_Name);
+  return "";
+  };
+
+long TaggedObject::FlowMode()               
+  { 
+  //return m_lRunMds & LFM_All; 
+  if (*m_pRunMds & LFM_All)
+    return (*m_pRunMds & LFM_All);
+  if (m_FlowModeRqd & LFM_All)
+    return (m_FlowModeRqd & LFM_All);
+  return DefFlowMode();
+  };
+
+long TaggedObject::FlowModePg()               
+  { 
+  //return m_lRunMds & LFM_All; 
+  if (*m_pRunMds & LFM_AllPg)
+    return (*m_pRunMds & LFM_AllPg);
+  if (m_FlowModeRqd & LFM_AllPg)
+    return (m_FlowModeRqd & LFM_AllPg);
+  return DefFlowMode();
+  };
+
+//LPTSTR TaggedObject::FlowModeStrRecover()             
+//  { 
+//  if (*m_pRunMds & LFM_Recovered)
+//    {
+//    if ((*m_pRunMds & LFM_All) == DefFlowMode())
+//      return GlblMode2LPTSTR(DefFlowMode(), LFM_All, eGM_Default);
+//    }
+//  return FlowModeStr();
+//  };
+
+void TaggedObject::Revert2Default()
+  {
+  if (gs_Revert2DefaultRqd)
+    {
+    if ((*m_pRunMds & LFM_All) == DefFlowMode())
+      *m_pRunMds &= ~LFM_All;
+    }
+  };
+
+LPTSTR TaggedObject::FlowModeStr()             
+  { 
+  if (gs_Revert2DefaultRqd)
+    {
+    if ((*m_pRunMds & LFM_All) == DefFlowMode())
+      return GlblMode2LPTSTR(DefFlowMode(), LFM_All, eGM_Default);
+    }
+  if (*m_pRunMds & LFM_All)
+    return GlblMode2LPTSTR(*m_pRunMds, LFM_All, eGM_Name);
+  if (m_FlowModeRqd & LFM_All)
+    return GlblMode2LPTSTR(m_FlowModeRqd, LFM_All, eGM_Remote/*eGM_Propagate*/);
+  return GlblMode2LPTSTR(DefFlowMode(), LFM_All, eGM_Default);
+  };
+
+TaggedObject *  TaggedObject::FlowModeObj()    { return m_FlowModeObj; };
+
+struct tOldGlblMdName { long Md; LPTSTR Nm[3]; bool Hidden; };
+static const tOldGlblMdName OldGlblModeNames[] =
+  { //              String               Default
+    {SM_Direct,    {"ProBal"           , "<ProBal>"           , "" }, false},
+    {SM_Inline,    {"Dynamic-Transfer" , "<Dynamic-Transfer>" , "" }, true},
+    {SM_Inline,    {"Dynamic-Flow"     , "<Dynamic-Flow>"     , "" }, false},
+    {SM_Buffered,  {"Dynamic-Full"     , "<Dynamic-Full>"     , "" }, false},
+    {HM_None,      {"None"             , "<None>"             , "" }, false},
+    {HM_Reduced,   {"Simple"           , "<Simple>"           , "" }, false},
+    {HM_Full,      {"Rigorous"         , "<Rigorous>"         , "" }, false},
     {0}
   };
 
-Strng TaggedObject::GlblMode2String(long Md, long MdMsk)
+
+struct tGlblMdName { long Md; LPTSTR m_Nm[6]; long MdPropagate, MdPropagated; };
+static tGlblMdName ls_GlblModeNames[] =
+  {
+    {NM_Probal,    {"ProBal"     , "<ProBal>"    , "?1?"          , "?1?"          , "?2?"         , "ProBal*"    }},
+    {NM_Dynamic,   {"Dynamic"    , "<Dynamic>"   , "?1?"          , "?1?"          , "?2?"         , "Dynamic*"   }},
+    {SM_Direct,    {"Direct"     , "<Direct>"    , "?1?"          , "?1?"          , "?2?"         , "Direct*"    }},
+    {SM_Inline,    {"Inline"     , "<Inline>"    , "?1?"          , "?1?"          , "?2?"         , "Inline*"    }},
+    {SM_Buffered,  {"Buffered"   , "<Buffered>"  , "?1?"          , "?1?"          , "?2?"         , "Buffered*"  }},
+    {HM_None,      {"None"       , "<None>"      , "?1?"          , "?1?"          , "?2?"         , "None*"      }},
+    {HM_Reduced,   {"Reduced"    , "<Reduced>"   , "?1?"          , "?1?"          , "?2?"         , "Reduced*"   }},
+    {HM_Full,      {"Rigorous"   , "<Rigorous>"  , "?1?"          , "?1?"          , "?2?"         , "Rigorous*"  }},
+    {LFM_Xfer,     {"Transfer"   , "<Transfer>"  , "[Transfer]"   , "Transfer-->"  , "-->Transfer" , "Transfer*"  }},
+    {LFM_Simple,   {"Simple"     , "<Simple>"    , "[Simple]"     , "Simple-->"    , "-->Simple"   , "Simple*"    }},
+    {LFM_Linear,   {"Linear"     , "<Linear>"    , "[Linear]"     , "Linear-->"    , "-->Linear"   , "Linear*"    }},
+    {LFM_Full,     {"Full"       , "<Full>"      , "[Full]"       , "Full-->"      , "-->Full"     , "Full*"      }},
+    {0}
+  };
+
+static class CGlblMode2NameMap : public CMap<long, long, const tGlblMdName*, const tGlblMdName*> 
+  {
+  public:
+    CGlblMode2NameMap()
+      {
+      InitHashTable(37);
+      for (int i=0; ls_GlblModeNames[i].Md; i++)
+        {
+        tGlblMdName & X=ls_GlblModeNames[i];
+        X.MdPropagate=X.Md|LFM_Propagate;
+        X.MdPropagated=X.Md|LFM_Propagated;
+        SetAt(X.Md, &X);
+        SetAt(X.MdPropagate, &X);
+        SetAt(X.MdPropagated, &X);
+        }
+      }
+
+  } ls_GlblMode2NameMap;
+
+static class CGlblNamesModeMap : public CMap<LPTSTR, LPTSTR, long, long> 
+  {
+  public:
+    CGlblNamesModeMap()
+      {
+      InitHashTable(37);
+      for (int i=0; ls_GlblModeNames[i].Md; i++)
+        {
+        const tGlblMdName & X=ls_GlblModeNames[i];
+        SetAt(X.m_Nm[eGM_Name], X.Md);
+        SetAt(X.m_Nm[eGM_Propagate], X.MdPropagate);
+        SetAt(X.m_Nm[eGM_Propagated], X.MdPropagated);
+        }
+      }
+
+  } ls_GlblNamesModeMap;
+
+Strng GlblMode2String(long Md, long MdMsk)
   {
   Strng MdStr;
-  for (int i=0; GlblModeNames[i].Md; i++)
+  for (int i=0; ls_GlblModeNames[i].Md; i++)
     {
-    //ASSERT_ALWAYS(GlblModeNames[i].Md==m, "Bad Mode Order");
-    if (GlblModeNames[i].Md & Md & MdMsk)
+    //ASSERT_ALWAYS(ls_GlblModeNames[i].Md==m, "Bad Mode Order");
+    if (ls_GlblModeNames[i].Md & Md & MdMsk)
       {
-      if ((MdStr.Length()>0) && !GlblModeNames[i].Hidden)
+      if ((MdStr.Length()>0))// && !ls_GlblModeNames[i].Hidden)
         MdStr+="-";
-      MdStr+=GlblModeNames[i].Nm;
+      MdStr+=ls_GlblModeNames[i].m_Nm[eGM_Name];
       }
     }
   return MdStr;
   };
 
-long  TaggedObject::String2GlblMode(LPCSTR MdStr)
+LPTSTR GlblMode2LPTSTR(long Md, long MdMsk, eGlblModeWhich Which)
   {
-  Strng MS(MdStr);
-  MS.Lower();
-  long Md=0;
-  for (int i=0; GlblModeNames[i].Md; i++)
-    {
-    //ASSERT_ALWAYS(GlblModeNames[i].Md==m, "Bad Mode Order");
-    Strng S(GlblModeNames[i].Nm);
-    S.Lower();
-    if (strstr(MS(), S()))
-      Md|=GlblModeNames[i].Md;
-    }
-  return Md;
+  const tGlblMdName* p;
+  if (ls_GlblMode2NameMap.Lookup(Md & MdMsk, p))
+    return p->m_Nm[Which];
+
+  //for (int i=0; ls_GlblModeNames[i].Md; i++)
+  //  {
+  //  if (ls_GlblModeNames[i].Md & Md & MdMsk)
+  //    return ls_GlblModeNames[i].Nm[Which];//:ls_GlblModeNames[i].Nm;
+  //  }
+  return "";
+  };
+
+long  String2GlblMode(LPCTSTR MdStr, long MdMsk)
+  {
+  //const tGlblMdName* p;
+  long Md;
+  if (ls_GlblNamesModeMap.Lookup((LPTSTR)MdStr, Md))//p))
+    return Md;
+    //return p->Md;
+
+  //for (int i=0; ls_GlblModeNames[i].Md; i++)
+  //  {
+  //  if ((MdMsk&ls_GlblModeNames[i].Md)==0)
+  //    continue;
+  //  //ASSERT_ALWAYS(ls_GlblModeNames[i].Md==m, "Bad Mode Order");
+  //  //Strng S(ls_GlblModeNames[i].Nm[0]);
+  //  //S.Lower();
+  //  //if (strstr(MS(), S()))
+  //  if (stricmp(MdStr, ls_GlblModeNames[i].Nm[0])==0)
+  //    return ls_GlblModeNames[i].Md;
+  //  if (stricmp(MdStr, ls_GlblModeNames[i].Nm[1])==0) // Default
+  //    return 0;
+  //  }
+  return 0;
   };
 
 
-void TaggedObject::GetGlblModeValueLst(DDBValueLstMem & Lst, long MdMask)
+void GetGlblModeValueLst(DDBValueLstMem & Lst, long MdMask, long DefMd, bool PropMds)
   {
   Lst.Empty();
-  for (int i=0; GlblModeNames[i].Md; i++)
+  if (DefMd)
     {
-    //ASSERT_ALWAYS(GlblModeNames[i].Md==m, "Bad Mode Order");
-    if ((GlblModeNames[i].Md & MdMask) && !GlblModeNames[i].Hidden)
-      Lst.Add(GlblModeNames[i].Md, GlblModeNames[i].Nm);
+    for (int i=0; ls_GlblModeNames[i].Md; i++)
+      {
+      if ((ls_GlblModeNames[i].Md & DefMd))// && !ls_GlblModeNames[i].Hidden)
+        {
+        Lst.Add(0, ls_GlblModeNames[i].m_Nm[eGM_Default], MDD_Default);
+        Lst.Add(0, "------------");
+        break;
+        }
+      }
     }
+
+  for (int i=0; ls_GlblModeNames[i].Md; i++)
+    {
+    if ((ls_GlblModeNames[i].Md & MdMask))// && !ls_GlblModeNames[i].Hidden)
+      Lst.Add(ls_GlblModeNames[i].Md, ls_GlblModeNames[i].m_Nm[eGM_Name]);
+    }
+
+  if (PropMds)
+    {
+    Lst.Add(0, "------------");
+    for (int i=0; ls_GlblModeNames[i].Md; i++)
+      {
+      if ((ls_GlblModeNames[i].Md & MdMask))// && !ls_GlblModeNames[i].Hidden)
+        Lst.Add(ls_GlblModeNames[i].Md|LFM_Propagate, ls_GlblModeNames[i].m_Nm[eGM_Remote], MDD_NoSelect);
+      }
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void TaggedObject::SetAllowedModes(bool NodeSolve, long AllowedModes)//LPCTSTR PBModeNm, LPCTSTR XferModeNm, LPCTSTR FullModeNm)
+  {
+  m_bNodeSolveMode=NodeSolve;
+  m_AllowedModes=AllowedModes;
+
+  long LicModes=0;
+  if (gs_License.ProBalOK())
+    LicModes|=NM_Probal ;
+  if (gs_License.DynamicOK())
+    LicModes|=NM_Dynamic;
+  if (gs_License.DemoMode())
+    LicModes|=NM_Probal|NM_Dynamic;
+
+  LicModes |= SM_All;
+  LicModes |= HM_All;
+
+  if (gs_License.ProBalOK())
+    LicModes|=LFM_Xfer;
+  if (gs_License.DynamicOK())
+    LicModes|=LFM_Xfer|LFM_Simple;
+  if (gs_License.AllowDynamicFull())
+    LicModes|=LFM_Linear|LFM_Full;
+  if (gs_License.DemoMode())
+    LicModes|=LFM_Xfer|LFM_Simple|LFM_Linear|LFM_Full;
+
+  m_AllowedModes &= LicModes; 
+  if (m_bNodeSolveMode)
+    m_AllowedModes &= gs_AllowedNodeModes;
+  else
+    m_AllowedModes &= gs_AllowedLinkModes;
+
+  m_FallBackModes=0;
+  m_FallBackModes|=Modes2Max(AllowedModes&LicModes, SM_All);
+  m_FallBackModes|=Modes2Max(AllowedModes&LicModes, HM_All);
+
+  if (/*((m_AllowedModes & NM_All)==0) ||*/
+      ((m_AllowedModes & SM_All)==0) ||
+      ((m_AllowedModes & HM_All)==0)/* ||
+      ((m_AllowedModes & LFM_All)==0)*/)
+    {
+    __debugbreak();
+    }
+
+
+  if (dbgAllowedModes)
+    dbgpln("AllowedMds  %08x %-20s %s", m_AllowedModes, ClassId(), Tag());
   };
 
 // -------------------------------------------------------------------------
 
-long TaggedObject::GetPermissableRunModes(long MdMask)
+void TaggedObject::ValidateModes()
   {
-  long Ret=0;
-  // Do Licensing Here .................................
-  if (MdMask & SM_All) // Any RUn Mode
+  // Can ths be improved ?????
+
+  };
+
+// -------------------------------------------------------------------------
+
+long GetPermissableModes(long MdMask, TaggedObject * pObject)
+  {
+  long Ret = (pObject?pObject->m_AllowedModes & MdMask : MdMask);  
+
+  if (MdMask & LFM_All) // Any Flow Mode
     {
-    if (GlblSolveMode() & SM_Direct)
+    long FlwModes;
+    if (pObject)
       {
-      if (1 /*License.ProbalOK*/)
-        Ret|=SM_Direct;
+      if (pObject->NetProbalMethod())
+        FlwModes=LFM_Xfer;
+      else
+        FlwModes=LFM_All;
       }
     else
-      {
-      Ret|=SM_Direct|SM_Inline;
-      if (1 /*License.DynFullOK*/)
-        Ret|=SM_Buffered;
-      }
+      FlwModes=LFM_All;
+    Ret=(Ret & ~LFM_All) | (Ret & LFM_All & FlwModes);
     }
-  if (MdMask & HM_All) // Any Heat Mode
-    {
-    // Licensing
-    Ret|=HM_All;
-    }
-  return Ret;
-  };
-
-// -------------------------------------------------------------------------
-
-long TaggedObject::GetPermissableGlblRunModes(long MdMask)
-  {
-  long Ret=0;
-  // Do Licensing Here .................................
-  if (MdMask & SM_All) // Any RUn Mode
-    {
-    if (1 /*License.ProbalOK*/)
-      Ret|=SM_Direct;
-
-    if (1 /*License.DynFullOK*/)
-      Ret|=SM_DynBoth;
-    if (1 /*License.DynXferOK*/)
-      Ret|=SM_Inline;
-    }
-  if (MdMask & HM_All) // Any Heat Mode
-    {
-    if (1 /*License.FullHtOK*/)
-      Ret|=HM_Full;
-    if (1 /*License.SimpleHtOK*/)
-      Ret|=HM_Simple;
-    Ret|=HM_None;
-    }
-  return Ret;
+  if (pObject)
+    return Ret & MdMask & pObject->m_AllowedModes;
+  return Ret & MdMask;
   };
 
 // -------------------------------------------------------------------------
@@ -1641,9 +2062,9 @@ flag TaggedObject::GetActive()             { return m_fActive; };
 void TaggedObject::SetActive(flag Active)  { m_fActive=Active; };
 
 flag TaggedObject::GetActiveHold()
-  { return (m_fActiveHold || fActiveHold_Auto || (m_fActiveHoldIfSS && false/*gs_License.OnlySteadyState()*/)) && GetActiveHoldOK();};
+  { return (m_fActiveHold || fActiveHold_Auto || (m_fActiveHoldIfSS && gs_License.OnlySteadyState())) && GetActiveHoldOK();};
 flag TaggedObject::GetActiveHoldIsAuto()   { return GetActiveHold() && !m_fActiveHold; };
-flag TaggedObject::GetActiveHoldOK()       { return SolveDynamicMethod() ? fActiveHoldOK_Dyn:fActiveHoldOK_PB;};
+flag TaggedObject::GetActiveHoldOK()       { return NetDynamicMethod() ? fActiveHoldOK_Dyn:fActiveHoldOK_PB;};
 void TaggedObject::SetActiveHold(flag Hold) { m_fActiveHold = Hold && GetActiveHoldOK(); };
 void TaggedObject::SetActiveHoldAuto(flag Hold) { fActiveHold_Auto = Hold && GetActiveHoldOK(); };
 
@@ -1977,6 +2398,7 @@ flag TaggedObject::DataXchg(DataChangeBlk & DCB)
 
 flag TaggedObject::ValidateData(ValidateDataBlk & VDB)
   {
+  ValidateModes();
   // return True if no data error
   return True;
   };
@@ -2498,7 +2920,10 @@ PkDataUnion * DDBDataInfo::FixGenericData(PkDataUnion &LclDataValue, PkDataUnion
       char*pStr=DataValue.GetString();
       for ( ; pValueList->m_pStr; pValueList++)
         {
-        if (_stricmp(pStr, pValueList->m_pStr)==0)
+        if (pValueList->m_dwFlags & MDD_NoSelect)
+          {
+          }
+        else if (_stricmp(pStr, pValueList->m_pStr)==0)
           {
           LclDataValue.SetTypeLong(iType, pValueList->m_lVal);
           Done=1;
@@ -4707,8 +5132,8 @@ DDEF_Flags DataDefnBlk::Visibility(DDEF_Flags ModeFlags, flag ViewVisible, flag 
   {
   DDEF_Flags & dwDefaultFlags=Nest[lCallLevel].dwDefaultFlags;
   DDEF_Flags old=dwDefaultFlags;
-  dwDefaultFlags &= ~(SHM_All|DDEF_NOVIEW|DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO);
-  dwDefaultFlags |= ModeFlags & SHM_All;
+  dwDefaultFlags &= ~(NSHM_All|DDEF_NOVIEW|DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO);
+  dwDefaultFlags |= ModeFlags & NSHM_All;
   if (!ViewVisible)
     dwDefaultFlags |= DDEF_NOVIEW;
   if (!FileVisible)
@@ -4744,7 +5169,7 @@ DDEF_Flags DataDefnBlk::CurrentFlags()
   if (((dwOptions & iFlags & SM_Inline)!=0) ||
       ((dwOptions & iFlags & SM_Buffered)!=0) ||
       ((dwOptions & iFlags & SM_Direct)!=0) ||
-      ((iFlags & SHM_All)==0)) // Default
+      ((iFlags & NSHM_All)==0)) // Default
     iFlags |= MODEVISIBLE;
 
   return iFlags;
@@ -5812,9 +6237,10 @@ ReTry:
       m_pTagFound=sTag();//[ObjTagLen];
       if (FndShortcut)
         {
-        DDEF_Flags Opts=dwOptions|pAccObj->RunModes();
+        long AllModes=pAccObj->AllModes();
+        DDEF_Flags Opts=dwOptions|AllModes;
         Opts=Opts &~(noView|noFileAtAll); // Full Visibility;
-        Ok=pAccObj->FndDefinedData(m_pTagFound, Opts|dwOptions|pAccObj->RunModes(), &Shortcut);
+        Ok=pAccObj->FndDefinedData(m_pTagFound, Opts|dwOptions|AllModes, &Shortcut);
         }
       else
         Ok=1;
@@ -5848,7 +6274,7 @@ flag TagAccessBlk::GetDefinedData(CPkDataList &DataObj, TABOptions Opts)
     {
     CStopWatch SW(true);
     //CPkDataItem* pPItem=NULL;
-    pAccObj->GetDefinedData(m_pTagFound, DataObj, Opts|dwOptions|pAccObj->RunModes(), /*pPItem,*/ &Shortcut);
+    pAccObj->GetDefinedData(m_pTagFound, DataObj, Opts|dwOptions|pAccObj->AllModes(), /*pPItem,*/ &Shortcut);
     if (bAllowChangeTest && DataObj.GetCount()>0)
       {
       bChanged=0;

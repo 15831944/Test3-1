@@ -50,7 +50,7 @@ class DllImportExport CIsoPRV : public MdlNode
     //void              FixModeStrs(int IONo);
     virtual void      PostConnect(int IONo);
     virtual void      PreDisConnect(int IONo);
-    virtual Z_States  SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void      SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag      Set_Sizes();
     virtual void      SetState(eScdMdlStateActs RqdState);
     virtual bool      PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);

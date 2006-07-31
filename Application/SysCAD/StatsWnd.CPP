@@ -916,7 +916,7 @@ void CStatsWnd::GetStatsInfo()
   {
   if (gs_pPrj==NULL)
     return;
-  if (gs_pPrj->pFlwLib==NULL)
+  if (gs_pPrj->m_pFlwLib==NULL)
     return;
   
   CloseInfo();
@@ -929,7 +929,7 @@ void CStatsWnd::GetStatsInfo()
   m_InxWd=5;
   m_ChgWd=11;
 
-  long iRet=gs_pPrj->pFlwLib->FE_GetEvalStats(m_Info);
+  long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalStats(m_Info);
 
   m_lTgWide=10;
   m_lClsWide=10;

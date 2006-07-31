@@ -278,11 +278,11 @@ class DllImportExport MdlNode : public FlwNode
     void           MakeUpLinkTransferReqd();
 
     // Physical Layout (Datums Pipelength) Calculations & Checks.
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag   Set_Sizes();
 //    virtual Z_States SetDatums_Node(int Pass, double ShpHgt, int IOIn, double Zi, Z_States Z_State_Src);
-    virtual Z_States SetDatums_Node(int Pass, CSetDatumsData * Data, int IOIn, double Zi, Z_States Z_State_Src);
-    virtual Z_States SetDatums_Link(int Pass, double dZ_Rqd, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums_Node(int Pass, CFlwNodeIndexList & List, int IOIn, CSetDatumsData * Data);
+    virtual void   SetDatums_Link(int Pass, CFlwNodeIndexList & List, int IOIn, double RiseRqd, double DatumChg);
     virtual void   SortSurgeIO(SortSurgeIOData * Data);
 
     //  Helper Functions
@@ -500,23 +500,29 @@ class DllImportExport MdlNode : public FlwNode
 
 #define IMPLEMENT_MODELUNIT(ClassName, Name, Version, Draw, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
   IMPLEMENT_TAGOBJ(ClassName, FlwUnitGrp, Name, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc); \
-  NodeDrawEntry DrwDef_##ClassName(Name, Version, DrwGroup, Draw);
+  NodeDrawEntry DrwDef_##ClassName(Name, Version, DrwGroup, Draw);                                \
+  CClassLicenseOptions ClsLic_##ClassName(ClassName##Class, true);
 
 #define IMPLEMENT_MODELUNITHIDDEN(ClassName, Name, Version, Draw, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
   IMPLEMENT_TAGOBJSLCT(ClassName, FlwUnitGrp, Name, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0x00000000); \
-  NodeDrawEntry DrwDef_##ClassName(Name, Version, DrwGroup, Draw);
+  NodeDrawEntry DrwDef_##ClassName(Name, Version, DrwGroup, Draw);                                \
+  CClassLicenseOptions ClsLic_##ClassName(ClassName##Class, true);
 
 #define IMPLEMENT_MODELLINK(ClassName, Name, Version, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJ(ClassName, FlwLinkGrp, Name, Version, "Pipe", DefTag, Cat, ShortDesc, Desc)
+  IMPLEMENT_TAGOBJ(ClassName, FlwLinkGrp, Name, Version, "Pipe", DefTag, Cat, ShortDesc, Desc) \
+  CClassLicenseOptions ClsLic_##ClassName(ClassName##Class, true);
 
 #define IMPLEMENT_CONTROLLINK(ClassName, Name, Version, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJ(ClassName, CtrlLinkGrp, Name, Version, "Control", DefTag, Cat, ShortDesc, Desc)
+  IMPLEMENT_TAGOBJ(ClassName, CtrlLinkGrp, Name, Version, "Control", DefTag, Cat, ShortDesc, Desc) \
+  CClassLicenseOptions ClsLic_##ClassName(ClassName##Class, true);
 
 #define IMPLEMENT_ELECLINK(ClassName, Name, Version, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJ(ClassName, ElecLinkGrp, Name, Version, "Electrical", DefTag, Cat, ShortDesc, Desc)
+  IMPLEMENT_TAGOBJ(ClassName, ElecLinkGrp, Name, Version, "Electrical", DefTag, Cat, ShortDesc, Desc) \
+  CClassLicenseOptions ClsLic_##ClassName(ClassName##Class, true);
 
 #define IMPLEMENT_AIRLINK(ClassName, Name, Version, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJ(ClassName, AirLinkGrp, Name, Version, "Air", DefTag, Cat, ShortDesc, Desc)
+  IMPLEMENT_TAGOBJ(ClassName, AirLinkGrp, Name, Version, "Air", DefTag, Cat, ShortDesc, Desc) \
+  CClassLicenseOptions ClsLic_##ClassName(ClassName##Class, true);
 
 //#define IMPLEMENT_INODE(ClassName, Name, Version, DefTag, Cat, ShortDesc, Desc) \
 //  IMPLEMENT_TAGOBJ(ClassName, "INode", Name, Version, "INode", DefTag, Cat, ShortDesc, Desc)

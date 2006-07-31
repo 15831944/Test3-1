@@ -96,7 +96,7 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("DisplayT",    "", DC_T, "C",    &m_dDisplayT,  this, isParm);
     DDB.Double("DisplayP",    "", DC_P, "kPa",  &m_dDisplayP,  this, isParm);
     
-    DDB.Visibility(SHM_All, TRUE, FALSE, FALSE, FALSE);
+    DDB.Visibility(NSHM_All, TRUE, FALSE, FALSE, FALSE);
     for (int i=0; i<SDB.Count(); i++) 
       {
       if (DDB.BeginStruct(this, SDB[i].SymOrTag(), NULL, DDB_NoPage))
@@ -131,7 +131,7 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
       CSpeciePropDataBase* pEP    = SDB.ExtraProps();
       const int MaxProps         = pEP->PropCount();
       SpeciePropCfgHelper* pPCfg = pEP->GetPropCfg();
-      DDB.Visibility(SHM_All, TRUE, FALSE, FALSE, FALSE);
+      DDB.Visibility(NSHM_All, TRUE, FALSE, FALSE, FALSE);
       if (DDB.BeginStruct(this, "EP", NULL, DDB_NoPage))
         {
         for (int iSp=0; iSp<SDB.Count(); iSp++) 
@@ -3354,8 +3354,8 @@ void TolObjectEdt::Build()
     dword Flags=CToleranceBlock::s_Array[i]->GetFlags();
     if (((Flags&TBF_Sys)!=0) &&
         ((Flags&TBF_Hide)==0) &&
-        (((Flags&TBF_PB)!=0) && TaggedObject::GlblProbalMode() || 
-         ((Flags&TBF_Dyn)!=0) && TaggedObject::GlblDynamicMode()))
+        (((Flags&TBF_PB)!=0) && DefNetProbalMode() || 
+         ((Flags&TBF_Dyn)!=0) && DefNetDynamicMode()))
       m_Blks.SetAtGrow(j++, CToleranceBlock::s_Array[i]);
     }
   m_Blks.SetAtGrow(j++, NULL);
@@ -3364,8 +3364,8 @@ void TolObjectEdt::Build()
     dword Flags=CToleranceBlock::s_Array[i]->GetFlags();
     if (((Flags&TBF_Sys)==0) &&
         ((Flags&TBF_Hide)==0) &&
-        (((Flags&TBF_PB)!=0) && TaggedObject::GlblProbalMode() || 
-         ((Flags&TBF_Dyn)!=0) && TaggedObject::GlblDynamicMode()))
+        (((Flags&TBF_PB)!=0) && DefNetProbalMode() || 
+         ((Flags&TBF_Dyn)!=0) && DefNetDynamicMode()))
       m_Blks.SetAtGrow(j++, CToleranceBlock::s_Array[i]);
     }
 

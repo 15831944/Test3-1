@@ -66,8 +66,8 @@ class DllImportExport CMdlRunManager //: CBaseRunManager
     void DoStep(CDoOneStepInfo Info);
 
     void SetProbalMode();
-    void SetDynFlowMode();
-    void SetDynFullMode();
+    //void SetDynFlowMode();
+    //void SetDynFullMode();
     void SetDynamicMode();
     //void SetDynFlowOrFull(bool DFlow);
     void DoEO_Starting();

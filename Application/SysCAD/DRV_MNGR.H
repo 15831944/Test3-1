@@ -15,6 +15,8 @@
 
 //------------------------------------------------------------------------
 
+#if WITHDRVMAN
+
 _FWDDEF(CConnSubsItem)
 class CConnSubsItem
   {
@@ -235,6 +237,8 @@ class CDriverManager : public CExecObj, public CDriverManagerBase, public CNodeX
 //-------------------------------------------------------------------------
 
 extern CDriverManager* gs_pDrvMan; //pointer to one and only driver manager EO
+
+#endif
 
 //-------------------------------------------------------------------------
 

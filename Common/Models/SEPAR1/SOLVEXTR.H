@@ -108,7 +108,7 @@ class MixerSettler : public MdlNode
 	  virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual flag   InitialiseSolution();
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual void   SetDatumsDone();
     virtual flag   Set_Sizes();
     virtual void   ConfigureJoins();

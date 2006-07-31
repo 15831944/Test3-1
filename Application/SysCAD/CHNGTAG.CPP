@@ -322,9 +322,9 @@ BOOL CFindTagDlg::OnInitDialog()
   if (m_Tag2Combo.GetCount()>0)
     m_Tag2Combo.SetCurSel(0);
   m_AutoAccess = CFindTagDlg::bPrevAutoAccess;
-  m_ZoomPrompt = gs_pPrj->bGrfPromptForZoom;
-  m_MoveCursor = gs_pPrj->bGrfMoveCursor;
-  m_RegExpOn = gs_pPrj->bGrfRegExpOn;
+  m_ZoomPrompt = gs_pPrj->m_bGrfPromptForZoom;
+  m_MoveCursor = gs_pPrj->m_bGrfMoveCursor;
+  m_RegExpOn = gs_pPrj->m_bGrfRegExpOn;
   //GetDlgItem(IDC_GRFAUTOACCESS)->EnableWindow(FALSE); //TEMP
 
   UpdateData(FALSE);
@@ -356,9 +356,9 @@ void CFindTagDlg::OnOK()
 {
   // TODO: Add extra validation here
   UpdateData(TRUE);
-  gs_pPrj->bGrfPromptForZoom = m_ZoomPrompt;
-  gs_pPrj->bGrfMoveCursor = m_MoveCursor;
-  gs_pPrj->bGrfRegExpOn = m_RegExpOn;
+  gs_pPrj->m_bGrfPromptForZoom = m_ZoomPrompt;
+  gs_pPrj->m_bGrfMoveCursor = m_MoveCursor;
+  gs_pPrj->m_bGrfRegExpOn = m_RegExpOn;
   gs_pPrj->bDoGrfAutoAccess = m_AutoAccess;
 
   CDialog::OnOK();
@@ -369,9 +369,9 @@ void CFindTagDlg::OnFind()
   {
   UpdateData(TRUE);
   bPrevAutoAccess = m_AutoAccess;
-  gs_pPrj->bGrfPromptForZoom = m_ZoomPrompt;
-  gs_pPrj->bGrfMoveCursor = m_MoveCursor;
-  gs_pPrj->bGrfRegExpOn = m_RegExpOn;
+  gs_pPrj->m_bGrfPromptForZoom = m_ZoomPrompt;
+  gs_pPrj->m_bGrfMoveCursor = m_MoveCursor;
+  gs_pPrj->m_bGrfRegExpOn = m_RegExpOn;
   gs_pPrj->bDoGrfAutoAccess = m_AutoAccess;
   BOOL bChanged = 0;
   CString sCurSel;

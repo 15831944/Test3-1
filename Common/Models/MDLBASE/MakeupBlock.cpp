@@ -136,7 +136,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
   if (pTag==NULL)
     pTag="Xx";
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, m_fEnabled);
+  DDB.Visibility(NSHM_All, m_fEnabled);
   if (Enabled())//pHL)
     {
     DDB.Text("");
@@ -583,39 +583,39 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Text(" ");
   DDB.Text("SetPoint");
   DDB.Long       ("", "Type",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrl);
-  DDB.Visibility(SHM_All, m_eType==Type_MassFlow);
+  DDB.Visibility(NSHM_All, m_eType==Type_MassFlow);
   DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MoleFlow);
+  DDB.Visibility(NSHM_All, m_eType==Type_MoleFlow);
   DDB.Double("", "QMlRqd",   DC_QKgMl, "kmol/s", &m_QMlRqd,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_VolumeFlow);
+  DDB.Visibility(NSHM_All, m_eType==Type_VolumeFlow);
   DDB.Double("", "QvRqd",    DC_Qv, "m^3/s", &m_QvRqd,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_NVolumeFlow);
+  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeFlow);
   DDB.Double("", "NQvRqd",    DC_NQv, "Nm^3/s", &m_NQvRqd,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MassRatio);
+  DDB.Visibility(NSHM_All, m_eType==Type_MassRatio);
   DDB.Double("", "QmRatio",    DC_Frac, "%", &m_QmRatio,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MoleRatio);
+  DDB.Visibility(NSHM_All, m_eType==Type_MoleRatio);
   DDB.Double("", "QMlRatio",    DC_Frac, "%", &m_QMlRatio,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_VolumeRatio);
+  DDB.Visibility(NSHM_All, m_eType==Type_VolumeRatio);
   DDB.Double("", "QvRatio",    DC_Frac, "%", &m_QvRatio,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_NVolumeRatio);
+  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeRatio);
   DDB.Double("", "NQvRatio",    DC_Frac, "%", &m_NQvRatio,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MassMult);
+  DDB.Visibility(NSHM_All, m_eType==Type_MassMult);
   DDB.Double("", "QmMult",    DC_Frac, "%", &m_QmMult,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MoleMult);
+  DDB.Visibility(NSHM_All, m_eType==Type_MoleMult);
   DDB.Double("", "QMlMult",    DC_Frac, "%", &m_QMlMult,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_VolumeMult);
+  DDB.Visibility(NSHM_All, m_eType==Type_VolumeMult);
   DDB.Double("", "QvMult",    DC_Frac, "%", &m_QvMult,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_NVolumeMult);
+  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeMult);
   DDB.Double("", "NQvMult",    DC_Frac, "%", &m_NQvMult,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MassFrac);
+  DDB.Visibility(NSHM_All, m_eType==Type_MassFrac);
   DDB.Double("", "MassFrac",    DC_Frac, "%", &m_MassFrac,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_MoleFrac);
+  DDB.Visibility(NSHM_All, m_eType==Type_MoleFrac);
   DDB.Double("", "MoleFrac",    DC_Frac, "%", &m_MoleFrac,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_VolumeFrac);
+  DDB.Visibility(NSHM_All, m_eType==Type_VolumeFrac);
   DDB.Double("", "VolumeFrac",    DC_Frac, "%", &m_VolFrac,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_NVolumeFrac);
+  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeFrac);
   DDB.Double("", "NVolumeFrac",    DC_Frac, "%", &m_NVolFrac,  this, isParm);
-  DDB.Visibility(SHM_All, m_eType==Type_Conc);
+  DDB.Visibility(NSHM_All, m_eType==Type_Conc);
   DDB.Double("", "Concentration",  DC_Conc, "g/L", &m_Conc,  this, isParm);
 
   DDB.Visibility();
@@ -728,11 +728,11 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       {0}
     };
 
-  if (!GlblSkipHeat())
+  if (!HeatSkipMethod())
     {
     DDB.Text(" ");
     DDB.Long  ("Temp.Final",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/, DDBTemp);
-    DDB.Visibility(SHM_All, m_eRqdTemp==Temp_Const);
+    DDB.Visibility(NSHM_All, m_eRqdTemp==Temp_Const);
     DDB.Double("Temp.Reqd",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
     DDB.Visibility();
     }
@@ -753,7 +753,7 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
     case Type_Conc        : CnvUsed=DC_Conc; CnvTxt="g/L"; break;
     default               : CnvUsed=DC_Frac; CnvTxt="%"; break;
     }
-  DDB.Visibility(SHM_All, m_eType==Type_MassFlow || 
+  DDB.Visibility(NSHM_All, m_eType==Type_MassFlow || 
                           m_eType==Type_MoleFlow || 
                           m_eType==Type_VolumeFlow || 
                           m_eType==Type_NVolumeFlow || 
@@ -770,7 +770,7 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("Qm.Feed",            "", DC_Qm,   "kg/s",    &m_dQmFeed,     this, isResult);
   DDB.Double ("Qm.Makeup",          "", DC_Qm,   "kg/s",    &m_dQmMakeup,   this, isResult);
   DDB.Double ("Qm.Prod",            "", DC_Qm,   "kg/s",    &m_dQmProd,     this, isResult);
-  if (!GlblSkipHeat())
+  if (!HeatSkipMethod())
     {
     DDB.Text(" ");
     DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
@@ -1232,62 +1232,62 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     if (!CIsOn[5] && !CIsOn[6])
       {
 
-    SpConduit &QSrc=SrcIO.Cd;
+      SpConduit &QSrc=SrcIO.Cd;
 
-    // Copy to Src if Self
-    if (m_eSource==Src_Self)
-      QSrc.QSetF(QPrd, som_ALL, 1.0);
+      // Copy to Src if Self
+      if (m_eSource==Src_Self)
+        QSrc.QSetF(QPrd, som_ALL, 1.0);
 
-    double TReqd;
-    switch (m_eRqdTemp)
-      {
-      case Temp_Inlet:
-        TReqd=QPrd.Temp();
-        break;
-      case Temp_Source:
-        TReqd=QSrc.Temp();
-        break;
-      case Temp_Std:
-        TReqd=StdT;
-        break;
-      case Temp_Mixture:
-        TReqd=StdT; //??????
-        break;
-      default:
-        TReqd=QPrd.Temp();
-      }
+      double TReqd;
+      switch (m_eRqdTemp)
+        {
+        case Temp_Inlet:
+          TReqd=QPrd.Temp();
+          break;
+        case Temp_Source:
+          TReqd=QSrc.Temp();
+          break;
+        case Temp_Std:
+          TReqd=StdT;
+          break;
+        case Temp_Mixture:
+          TReqd=StdT; //??????
+          break;
+        default:
+          TReqd=QPrd.Temp();
+        }
 
-    CMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
-    //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
-    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
-    switch (iRet)
-      {
-      case RF_OK:         
-        m_dQmMakeup = MkUpFnd.Result();
-        break;
-      case RF_LoLimit:    
-      case RF_EstimateLoLimit:    
-        m_dQmMakeup = MkUpFnd.Result();
+      CMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
+      //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
+      int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
+      switch (iRet)
+        {
+        case RF_OK:         
+          m_dQmMakeup = MkUpFnd.Result();
+          break;
+        case RF_LoLimit:    
+        case RF_EstimateLoLimit:    
+          m_dQmMakeup = MkUpFnd.Result();
           CIsOn[2]=true;
-        break;
-      case RF_HiLimit:    
-      case RF_EstimateHiLimit:    
-        m_dQmMakeup = MkUpFnd.Result();   
+          break;
+        case RF_HiLimit:    
+        case RF_EstimateHiLimit:    
+          m_dQmMakeup = MkUpFnd.Result();   
           CIsOn[3]=true;
-        break;
-      case RF_Independant:
-        MkUpFnd.Function(0);   
-        m_dQmMakeup = MkUpFnd.Result();   
+          break;
+        case RF_Independant:
+          MkUpFnd.Function(0);   
+          m_dQmMakeup = MkUpFnd.Result();   
           CIsOn[4]=true;
-        break;
+          break;
 
-      default: 
+        default: 
           CIsOn[1]=true;
           SetCI(1, "E\tConverge Error [%i]", iRet);
-        break;
-      }
+          break;
+        }
 
-    QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+      QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
 
       if (SrcIO.Enabled)
         SrcIO.Sum.Set(QSrc);

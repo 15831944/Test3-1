@@ -286,7 +286,7 @@ class DllImportExport CMultiFlwBlk : public TaggedObject
     virtual flag    ValidateData(ValidateDataBlk & VDB);
 
     virtual void    SetPhysicalData();
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src, double & dZ_Rqd);
+    virtual void    SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn, double &RiseRqd, double &DatumChg);
     virtual void    EvalJoinPressures(flag DoXfer, flag AppRhoH);
   };
 

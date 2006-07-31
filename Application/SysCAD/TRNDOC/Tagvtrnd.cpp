@@ -1166,7 +1166,7 @@ void CTagVwTrend::OnRButtonDown(UINT nFlags, CPoint point)
     if (pColour)
       {
       CColorDialog ColDlg(*pColour, CC_RGBINIT | CC_SHOWHELP, this);
-      ColDlg.m_cc.lpCustColors = CustomColours;
+      ColDlg.m_cc.lpCustColors = gs_CustomColours;
       if (ColDlg.DoModal()==IDOK)
         {
         *pColour = ColDlg.GetColor();

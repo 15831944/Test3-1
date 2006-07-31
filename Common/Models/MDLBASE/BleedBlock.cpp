@@ -133,7 +133,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
   if (pTag==NULL)
     pTag="Xx";
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, m_fEnabled);
+  DDB.Visibility(NSHM_All, m_fEnabled);
   if (Enabled())//pHL)
     {
     DDB.Text("");

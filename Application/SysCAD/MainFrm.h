@@ -38,7 +38,7 @@ typedef DWORD DOTNETHTASK;
 typedef HTASK DOTNETHTASK;
 #endif
 _FWDDEF(CGenSheet)
-_FWDDEF(CPrjSheet)
+_FWDDEF(CProjectSettingsDlg)
 _FWDDEF(CReportsDlg)
 _FWDDEF(CScriptsDlg)
 _FWDDEF(CCompareResultsDlg)
@@ -51,7 +51,7 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
   DECLARE_DYNAMIC(CMainFrame)
   public:
     CGenSheet*      m_pGenSheet;      //pointer to modeless general property sheet, NULL if not open
-    CPrjSheet*      m_pPrjSheet;      //pointer to modeless project property sheet, NULL if not open
+    CProjectSettingsDlg* m_pPrjSheet;      //pointer to modeless project property sheet, NULL if not open
     CReportsDlg*    m_pReportsDlg;    //pointer to modeless reports dialog box, NULL if not open
     CScriptsDlg*    m_pCmdScriptsDlg; //pointer to modeless command scripts dialog box, NULL if not open
     CCompareResultsDlg* m_pCompareResDlg; //pointer to modeless compare results dialog box, NULL if not open
@@ -130,7 +130,9 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnProjectOptions();
     afx_msg void OnOptionsBrowsetags();
     afx_msg void OnOptionsHistorianQuery();
+#if WITHDRVMAN
     afx_msg void OnOptionsDriver();
+#endif
     afx_msg void OnOptionsArchive();
     afx_msg void OnFileSavesnapshot();
     afx_msg void OnFileLoadsnapshot();
@@ -159,13 +161,15 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnUpdateFileSavelayout(CCmdUI* pCmdUI);
     afx_msg void OnUpdateOptionsBrowsetags(CCmdUI* pCmdUI);
     afx_msg void OnUpdateOptionsHistorianQuery(CCmdUI* pCmdUI);
+#if WITHDRVMAN
     afx_msg void OnUpdateOptionsDriver(CCmdUI* pCmdUI);
+#endif
     afx_msg void OnUpdateOptionsArchive(CCmdUI* pCmdUI);
     afx_msg void OnUpdateOptionsReports(CCmdUI* pCmdUI);
     afx_msg void OnUpdateProjectSaveas(CCmdUI* pCmdUI);
     afx_msg void OnUpdateProjectSaveasNV(CCmdUI* pCmdUI);
-    afx_msg void OnProjectConfigure();
-    afx_msg void OnUpdateProjectConfigure(CCmdUI* pCmdUI);
+    afx_msg void OnProjectSettings();
+    afx_msg void OnUpdateProjectSettings(CCmdUI* pCmdUI);
     afx_msg void OnUpdateFindTag(CCmdUI* pCmdUI);
     afx_msg void OnUpdateFindNext(CCmdUI* pCmdUI);
     afx_msg void OnUpdateProjectOptions(CCmdUI* pCmdUI);
@@ -266,8 +270,10 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnUpdateActionsRunPB(CCmdUI* pCmdUI);
     afx_msg void OnActionsRunDyn();
     afx_msg void OnUpdateActionsRunDyn(CCmdUI* pCmdUI);
+#if WITHDRVMAN
     afx_msg void OnReloadDriver();
     afx_msg void OnUpdateReloadDriver(CCmdUI* pCmdUI);
+#endif
 #if USESCDEXPLORER
     afx_msg void OnExplorer();
     afx_msg void OnUpdateExplorer(CCmdUI* pCmdUI);
@@ -314,7 +320,9 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg LRESULT OnAddToRptTagLists(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnUpdateMsgMenuBtn(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnFlushMsgQ(WPARAM wParam, LPARAM lParam);
+#if WITHDRVMAN
     afx_msg LRESULT OnReloadDriver(WPARAM wParam, LPARAM lParam);
+#endif
     afx_msg LRESULT OnCOMCmd(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnCOMApp(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnCOMSlv(WPARAM wParam, LPARAM lParam);

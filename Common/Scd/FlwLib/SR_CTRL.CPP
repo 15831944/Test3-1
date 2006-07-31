@@ -353,7 +353,7 @@ void CEC_EquilTXPoly::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Text  ("EquilTXPoly");
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
@@ -576,7 +576,7 @@ void CEC_Ratio::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Text  ("Ratio");
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
   DDB.Byte  ("ExtentType",        "",                       DC_,     "",    &m_bExtentType,   &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
@@ -743,7 +743,7 @@ void CEC_FracExt::SetUp()
   flag OK=m_Spc.SetUp(RB, Eq);
   //if (RB.m_RctBase->Nd())
     {
-    if (m_bDoRate && TaggedObject::GlblProbalMode())
+    if (m_bDoRate && DefNetProbalMode())
       {
       CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction with 'Rate' not allowed in ProBal");
       }
@@ -751,7 +751,7 @@ void CEC_FracExt::SetUp()
       {
       CReactionBlock::Error(&RB, 'B', -1, "'Rate' only allowed in surge unit");
       }
-    else if (!m_bDoRate && !TaggedObject::GlblProbalMode() && RB.m_RctBase->IsSurgeType())
+    else if (!m_bDoRate && !DefNetProbalMode() && RB.m_RctBase->IsSurgeType())
       {
       CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction requires 'Rate' term");
       }
@@ -821,7 +821,7 @@ void CEC_FracExt::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
@@ -964,7 +964,7 @@ double CEC_FracExt::ExtentActual(double ProdMoles)
         EA=ExtentReqd();
       }
     }
-  if (1)
+  if (0)
     {
     dbgp("Extent   :Actual: Prod:%14.8g Act:%14.8f Rqd:%14.8f|", ProdMoles, EA, ExtentReqd());
     //for (int i=0; i<SVSpcCount();i++)
@@ -1058,7 +1058,7 @@ void CEC_FinalConc::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
@@ -1254,7 +1254,7 @@ void CEC_MSFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
@@ -1395,7 +1395,7 @@ void CEC_MLFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Eq.RB.ExtentType()==RBXT_Individual);
+  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 

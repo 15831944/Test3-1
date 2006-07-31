@@ -359,7 +359,7 @@ class DllImportExport CCustomListCtrl : public CListCtrl
 
 //===========================================================================
 
-extern DllImportExport COLORREF CustomColours[16];
+extern DllImportExport COLORREF gs_CustomColours[16];
 
 //===========================================================================
 

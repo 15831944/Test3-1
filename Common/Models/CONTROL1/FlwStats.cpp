@@ -270,13 +270,13 @@ void CFlowStats::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this, "CFlowStats", NULL, DDB_NoPage);
   DDB.Text("");
   DDB.CheckBoxBtn("On",           "",         DC_, "", &bOn,           this, isParmStopped, DDBYesNo);
-  DDB.Visibility(SHM_All, iCount>0);
+  DDB.Visibility(NSHM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnStart", "",         DC_, "", &bResetOnStart, this, isParm, DDBYesNo);
-  DDB.Visibility(SM_Direct|HM_All, iCount>0);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnInit",  "",         DC_, "", &bResetOnInit,  this, isParm, DDBYesNo);
-  DDB.Visibility(SHM_All, iCount>0);
+  DDB.Visibility(NSHM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnEmpty", "",         DC_, "", &bResetOnEmpty, this, isParm, DDBYesNo);
-  DDB.Visibility(SM_DynBoth|HM_All, iCount>0);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, iCount>0);
   DDB.CheckBoxBtn("ResetOnPreSet","",         DC_, "", &bResetOnPreSet,this, isParm, DDBYesNo);
   DDB.Visibility();
   DDB.Long("Number_of_Stats", "No_of_Stats",  DC_, "", idmCount,       this, isParmStopped/*|AffectsStruct*/);
@@ -318,7 +318,7 @@ void CFlowStats::BuildDataDefn(DataDefnBlk & DDB)
       DDB.String("QmTag",            "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+2, this, isParmStopped|isTag);
       DDB.Button("Reset_Stats",      "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+3, this, isParm);
       DDB.Double("Time",             "Tm",        DC_Time, "s",     &(p->dTtlTime),   this, isResult);
-      //DDB.Visibility(SHM_All, (p->iType & FSWhatQm));
+      //DDB.Visibility(NSHM_All, (p->iType & FSWhatQm));
       DDB.Double("Mass_Flow",        "Qm",        DC_Qm,   "kg/s",  &(p->dMeasQm),    this, isResult|InitHidden|noFileAtAll);
       DDB.Double("TotalMass",        "Mt",        DC_M,    "kg",    &(p->dTotalMass), this, isResult);
       DDB.Double("MassFlow_Average", "QmAve",     DC_Qm,   "kg/s",  idmCfgTags+(i*NoOfCfgTags)+5, this, isResult|noFileAtAll);

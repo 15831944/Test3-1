@@ -324,7 +324,7 @@ void QCoolingTower::EvalProducts(CNodeEvalIndex & NEI)
 void QCoolingTower::ConvergeStates(CConvergeStateBlk &CSB)
   {
   MN_Surge::ConvergeStates(CSB);
-  ASSERT(SolveDynamicMethod());
+  ASSERT(NetDynamicMethod());
   double Duty=0.0;
   }
 

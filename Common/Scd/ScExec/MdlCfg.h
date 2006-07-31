@@ -18,6 +18,14 @@
 #include "sc_defs.h"
 #include "sfe_base.h"
 
+#ifdef __MDLCFG_CPP
+  #define DllImportExport DllExport
+#elif !defined(SCEXEC)
+  #define DllImportExport DllImport
+#else
+  #define DllImportExport
+#endif
+
 //===========================================================================
 
 //===========================================================================
@@ -222,7 +230,7 @@ class SpCfgSpecies : public BaseSpCfgSpecies
 //---------------------------------------------------------------------------
 
 _FWDDEF(CMdlCfgSheet)
-class CMdlCfgSheet : public CPropertySheet
+class DllImportExport CMdlCfgSheet : public CPropertySheet
   {
   DECLARE_DYNAMIC(CMdlCfgSheet)
   public:
@@ -258,7 +266,7 @@ class CMdlCfgSheet : public CPropertySheet
     DECLARE_MESSAGE_MAP()
 
   public:
-    Strng         m_CfgFiles;
+    //Strng         m_CfgFiles;
     Strng         m_CfgFile;
     Strng         m_CfgFileTmp;
     Strng         m_DefaultDesc;
@@ -277,7 +285,7 @@ class CMdlCfgSheet : public CPropertySheet
 
     void    SetCfgFile(char *CfgFile) { m_CfgFile=CfgFile; };
     char *  GetCfgFile() { return m_CfgFile(); };
-    char *  GetCfgFiles() { return m_CfgFiles(); };
+    //char *  GetCfgFiles() { return m_CfgFiles(); };
 
     int     GetLoadableDLLs(char * Path);
     BOOL    DoLoad(int i);
@@ -332,13 +340,22 @@ class CMdlCfgCfg : public CMdlCfgBase
     CMdlCfgCfg(CMdlCfgSheet * Sheet);
     //{{AFX_DATA(CMdlCfgCfg)
     enum { IDD = IDD_PP_MDLCFG_CFG };
-    CComboBox	m_DefRunMode;
-    CComboBox	m_DefHeatMode;
+    CComboBox	m_DefNetMode;
+    CComboBox	m_PBNodeMode;
+    CComboBox	m_PBFlowMode;
+    CComboBox	m_PBHeatMode;
+    CComboBox	m_DynNodeMode;
+    CComboBox	m_DynFlowMode;
+    CComboBox	m_DynHeatMode;
+    CComboBox	m_MaxNodeMode;
+    CComboBox	m_MaxFlowMode;
+    CComboBox	m_MaxHeatMode;
     CComboBox	m_FlashComp;
     CComboBox	m_DefSpMdl;
+    BOOL m_bPBAllowed;
+    BOOL m_bDynAllowed;
 	  //CString	m_AtmosPress;
 	  CString	m_CfgFiles;
-	  CString	m_CfgHome;
 	  CString	m_Desc;
 	  double	m_MaxPress;
 	  double	m_MaxTemp;
@@ -351,6 +368,7 @@ class CMdlCfgCfg : public CMdlCfgBase
 	  //}}AFX_DATA
 	  //{{AFX_VIRTUAL(CMdlCfgCfg)
 	  public:
+
 	  virtual void OnOK();
 	  virtual BOOL OnSetActive();
 	  virtual BOOL OnKillActive();
@@ -361,8 +379,16 @@ class CMdlCfgCfg : public CMdlCfgBase
     CArray <int, int> m_DefSpMdlIndex;
 	  //{{AFX_MSG(CMdlCfgCfg)
 	  virtual BOOL OnInitDialog();
+    afx_msg void OnSelchangeNetMode();
+    afx_msg void OnSelchangeMaxNodeMode();
+    afx_msg void OnSelchangeMaxFlowMode();
+    afx_msg void OnSelchangeMaxHeatMode();
+    afx_msg void OnProbalAllowed();
+    afx_msg void OnDynamicAllowed();
 	  //}}AFX_MSG
 	  DECLARE_MESSAGE_MAP()
+
+    void CheckModes();
   };
 
 //===========================================================================
@@ -493,7 +519,7 @@ class CMdlCfgSpcs : public CMdlCfgBase
     void SaveSpList();
     void ChangeSpDefDB();
     char * GetCfgFile() { return pSheet->m_CfgFile(); };
-    char * GetCfgFiles() { return pSheet->m_CfgFiles(); };
+    //char * GetCfgFiles() { return pSheet->m_CfgFiles(); };
     void EnableEditButtons();
     void UpdateWhat(UINT Type, LPCTSTR Comp, int Index);
     void UpdateTTols(LPCTSTR Comp, LPCTSTR LoTol, LPCTSTR HiTol, LPCTSTR Ideal, int Index);
@@ -503,6 +529,7 @@ class CMdlCfgSpcs : public CMdlCfgBase
 
 //---------------------------------------------------------------------------
 
+#undef DllImportExport 
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

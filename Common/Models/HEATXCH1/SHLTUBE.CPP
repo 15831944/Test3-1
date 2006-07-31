@@ -181,7 +181,7 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBox("On",          "", DC_,     "",         &m_fOn,            this, isParm|SetOnChange);
   DDB.Double("HTC",           "", DC_HTC,  "kW/m^2.K", &m_dHTC,           this, isParm);
   DDB.Double("Area",          "", DC_Area, "m^2",      &m_dArea,          this, isParm);
-  DDB.Visibility(SHM_All, m_iRqdOpMode!=STHX_FullyCondensing);
+  DDB.Visibility(NSHM_All, m_iRqdOpMode!=STHX_FullyCondensing);
   DDB.Double("ApproachDT",    "", DC_dT,   "C",        &m_dApproachDT,    this, isParm);
 
   DDB.Visibility(SM_Buffered|HM_All, m_bLvlEffOn);
@@ -205,12 +205,12 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
 
   m_FTC.BuildDataDefn(DDB);
 
-  DDB.Visibility(SHM_All, m_iRqdOpMode==STHX_FullyCondensing);
+  DDB.Visibility(NSHM_All, m_iRqdOpMode==STHX_FullyCondensing);
   DDB.CheckBox("IgnoreAreaLimit", "", DC_, "",    &m_bExtraCond,     this, isParm);
   DDB.Double("NonCondVentFrac", "", DC_Frac, "%",      &m_dNonCondVentFrac,this, isParm);
   DDB.Visibility();
   DDB.Double("QmVentRqd",     "", DC_Qm,   "kg/s",     &m_QmVentRqd,      this, isParm);//steam vent required
-  DDB.Visibility(SHM_All, m_iRqdOpMode==STHX_FullyCondensing);
+  DDB.Visibility(NSHM_All, m_iRqdOpMode==STHX_FullyCondensing);
   DDB.Double("QmSteamCond",   "", DC_Qm,   "kg/s",     &m_dQmSteamCond,   this, isResult);
   DDB.Visibility();
   DDB.Text("");
@@ -1152,14 +1152,14 @@ void ShellTube::StartSolution()
 
 //--------------------------------------------------------------------------
 
-Z_States ShellTube::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void ShellTube::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   CSetDatumsData SDD[]=
     {
       {First64IOIds, &Shell},
       {0}
     };
-  return SetDatums_Node(Pass, SDD, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, SDD);
   };
 
 //--------------------------------------------------------------------------
@@ -1580,7 +1580,7 @@ void ShellTube::EvalDerivs(CNodeEvalIndex & NEI)
 void ShellTube::ConvergeStates(CConvergeStateBlk &CSB)
   {
   MdlNode::ConvergeStates(CSB);
-  ASSERT(SolveDynamicMethod());
+  ASSERT(NetDynamicMethod());
 
   pHXST->VLE.QVFlash(Shell, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 

@@ -795,7 +795,7 @@ bool CNeutralMdlImportExport::DoExportValidate(eScdNDBOptions Opts, CString &Err
     {
     CNodeList List;
 
-    long iRet=gs_pPrj->pFlwLib->FE_GetNodeList(List);
+    long iRet=gs_pPrj->m_pFlwLib->FE_GetNodeList(List);
   
     ASSERT(m_pOldTags);
     POSITION Pos=List.GetHeadPosition();
@@ -834,7 +834,7 @@ bool CNeutralMdlImportExport::DoImportValidate(eScdNDBOptions Opts, CString &Err
     {
     CNodeList List;
 
-    long iRet=gs_pPrj->pFlwLib->FE_GetNodeList(List);
+    long iRet=gs_pPrj->m_pFlwLib->FE_GetNodeList(List);
   
     ASSERT(m_pNewTags);
     POSITION Pos=List.GetHeadPosition();
@@ -876,7 +876,7 @@ bool CNeutralMdlImportExport::DoExport(eScdNDBOptions Opts, LPCTSTR pDatabaseNam
         {
         CNodeList List;
 
-        long iRet=gs_pPrj->pFlwLib->FE_GetNodeList(List);
+        long iRet=gs_pPrj->m_pFlwLib->FE_GetNodeList(List);
 
         ASSERT(m_pOldTags);
         POSITION Pos=List.GetHeadPosition();
@@ -892,7 +892,7 @@ bool CNeutralMdlImportExport::DoExport(eScdNDBOptions Opts, LPCTSTR pDatabaseNam
             WriteLink(m_sGroup, I);
 
             CLinkWiring LW(I.m_sTag);
-            int nWires=gs_pPrj->pFlwLib->FE_GetLinkWiring(LW);
+            int nWires=gs_pPrj->m_pFlwLib->FE_GetLinkWiring(LW);
             if (nWires>0)
               WriteWires(m_sGroup, LW);
             }
@@ -902,7 +902,7 @@ bool CNeutralMdlImportExport::DoExport(eScdNDBOptions Opts, LPCTSTR pDatabaseNam
             {
             long SeqNo=0;
             CNodeConfigList CfgList;
-            long iRet=gs_pPrj->pFlwLib->FE_GetNodeConfiguration((Opts & eNDB_Parameters)!=0, (Opts & eNDB_State)!=0, I.m_sTag, CfgList);
+            long iRet=gs_pPrj->m_pFlwLib->FE_GetNodeConfiguration((Opts & eNDB_Parameters)!=0, (Opts & eNDB_State)!=0, I.m_sTag, CfgList);
             POSITION CfgPos=CfgList.GetHeadPosition();
             while (CfgPos)
               {
@@ -1033,12 +1033,12 @@ bool CNeutralMdlImportExport::ImportUnits(LPCTSTR Which)
       CString Tg=AdjustTag(m_pUn->m_sTag);
       //dbgpln("  Insert Unit %s", Tg);
       
-      long iRet=gs_pPrj->pFlwLib->FE_DoInsert(m_pUn->m_sClassID, m_pUn->m_sSubClassID, m_pUn->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)Tg, NULL, NULL);
+      long iRet=gs_pPrj->m_pFlwLib->FE_DoInsert(m_pUn->m_sClassID, m_pUn->m_sSubClassID, m_pUn->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)Tg, NULL, NULL);
       if (iRet!=0)
         LogError("ModelNDB", 0/*LF_Exclamation*/, "Unit Insert %s Failed %s", Tg, NErr_String(iRet));
       else
         {
-        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)Tg, m_pUn->m_sEqpDesc, m_pUn->m_sEqpMemo, m_pUn->m_sEqpIdStr, m_pUn->m_sEqpLocation, m_pUn->m_sPlantArea, m_pUn->m_sEqpGUID);
+        iRet=gs_pPrj->m_pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)Tg, m_pUn->m_sEqpDesc, m_pUn->m_sEqpMemo, m_pUn->m_sEqpIdStr, m_pUn->m_sEqpLocation, m_pUn->m_sPlantArea, m_pUn->m_sEqpGUID);
         if (iRet!=0)
           LogError("ModelNDB", 0/*LF_Exclamation*/, "Unit SetCommon %s Failed %s", Tg, NErr_String(iRet));
         }
@@ -1096,12 +1096,12 @@ bool CNeutralMdlImportExport::ImportLinks(LPCTSTR Which)
       Dst+=m_pLk->m_sDstIO;
 
       //FlwNode *pNd;
-      long iRet=gs_pPrj->pFlwLib->FE_DoInsert(m_pLk->m_sClassID, m_pLk->m_sSubClassID, m_pLk->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)LTg, (LPTSTR)(LPCTSTR)Src, (LPTSTR)(LPCTSTR)Dst);
+      long iRet=gs_pPrj->m_pFlwLib->FE_DoInsert(m_pLk->m_sClassID, m_pLk->m_sSubClassID, m_pLk->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)LTg, (LPTSTR)(LPCTSTR)Src, (LPTSTR)(LPCTSTR)Dst);
       if (iRet!=0)
         LogError("ModelNDB", 0/*LF_Exclamation*/, "Link Insert %s Failed %s", m_pUn->m_sTag, NErr_String(iRet));
       else
         {
-        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sPlantArea, m_pLk->m_sEqpGUID);
+        iRet=gs_pPrj->m_pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sPlantArea, m_pLk->m_sEqpGUID);
         if (iRet!=0)
           LogError("ModelNDB", 0/*LF_Exclamation*/, "Link SetCommon %s Failed %s", LTg, NErr_String(iRet));
         ASSERT(m_pLk);
@@ -1113,7 +1113,7 @@ bool CNeutralMdlImportExport::ImportLinks(LPCTSTR Which)
           LW.m_SrcTS=m_pLk->m_sSrcTS;
           LW.m_DstTS=m_pLk->m_sDstTS;
 
-          if (gs_pPrj->pFlwLib->FE_SetLinkWiring(LW)<0)
+          if (gs_pPrj->m_pFlwLib->FE_SetLinkWiring(LW)<0)
             LogError("ModelNDB", 0/*LF_Exclamation*/, "Link AutoWire \n%s:%s -> %s", LW.m_LinkTag, LW.m_SrcTS, LW.m_DstTS);
           }
         }
@@ -1200,7 +1200,7 @@ bool CNeutralMdlImportExport::ImportWires(LPCTSTR Which)
         NewCable=(PrevCable!=m_pWr->m_sCableTag);
         }
       if (NewCable)
-        int nWires=gs_pPrj->pFlwLib->FE_SetLinkWiring(LW);
+        int nWires=gs_pPrj->m_pFlwLib->FE_SetLinkWiring(LW);
       }
     }
   catch(_com_error & e)
@@ -1549,12 +1549,12 @@ bool CNeutralMdlImportExport::EnumerateLinkTags(CStringArray &Tags, LPCTSTR Whic
       Dst+=m_pLk->m_sDstIO;
 
       //FlwNode *pNd;
-      long iRet=gs_pPrj->pFlwLib->FE_DoInsert(m_pLk->m_sClassID, m_pLk->m_sSubClassID, m_pLk->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)LTg, (LPTSTR)(LPCTSTR)Src, (LPTSTR)(LPCTSTR)Dst);
+      long iRet=gs_pPrj->m_pFlwLib->FE_DoInsert(m_pLk->m_sClassID, m_pLk->m_sSubClassID, m_pLk->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)LTg, (LPTSTR)(LPCTSTR)Src, (LPTSTR)(LPCTSTR)Dst);
       if (iRet!=0)
         LogError("ModelNDB", 0/*LF_Exclamation*/, "Link Insert %s Failed %s", m_pUn->m_sTag, NErr_String(iRet));
       else
         {
-        iRet=gs_pPrj->pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sPlantArea, m_pLk->m_sEqpGUID);
+        iRet=gs_pPrj->m_pFlwLib->FE_SetCommon((LPTSTR)(LPCTSTR)LTg, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sPlantArea, m_pLk->m_sEqpGUID);
         if (iRet!=0)
           LogError("ModelNDB", 0/*LF_Exclamation*/, "Link SetCommon %s Failed %s", LTg, NErr_String(iRet));
         ASSERT(m_pLk);
@@ -1566,7 +1566,7 @@ bool CNeutralMdlImportExport::EnumerateLinkTags(CStringArray &Tags, LPCTSTR Whic
           LW.m_SrcTS=m_pLk->m_sSrcTS;
           LW.m_DstTS=m_pLk->m_sDstTS;
 
-          if (gs_pPrj->pFlwLib->FE_SetLinkWiring(LW)<0)
+          if (gs_pPrj->m_pFlwLib->FE_SetLinkWiring(LW)<0)
             LogError("ModelNDB", 0/*LF_Exclamation*/, "Link AutoWire \n%s:%s -> %s", LW.m_LinkTag, LW.m_SrcTS, LW.m_DstTS);
           }
         }

@@ -12,6 +12,7 @@
 #include "scd_wm.h"
 #include "msgwnd.h"
 
+#if WITHDRVMAN
 //===========================================================================
 
 extern CDriverSheet* pDrvSheet = NULL;
@@ -801,3 +802,5 @@ void CDriverPage::OnDrvslotsRefreshConns()
   }
 
 //---------------------------------------------------------------------------
+
+#endif

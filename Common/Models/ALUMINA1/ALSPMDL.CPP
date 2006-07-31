@@ -376,7 +376,7 @@ void SMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Text("Bayer");
     DDB.CheckBoxBtn("DefineLiquor", "",   DC_,      "",        &fDoCalc,         this,  isParm|SetOnChange);
     DDB.Byte    ("DefnLiqMethod",   "",   DC_,      "",        &sm_iRqdCalcMethod, this, isParm|SetOnChange, DDB1); //global constant
-    DDB.Visibility(SHM_All, fDoCalc);                                                         
+    DDB.Visibility(NSHM_All, fDoCalc);                                                         
     DDB.Double  ("Rqd_A/C",         "",   DC_,      "",        &dRqd_AtoC,       this,  isParm);
     DDB.Double  ("Rqd_C/S",         "",   DC_,      "",        &dRqd_CtoS,       this,  isParm);
     DDB.Double  ("Rqd_C",           "",   DC_Conc,  "g/L",     &dRqd_C,          this,  isParm);

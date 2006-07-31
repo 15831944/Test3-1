@@ -456,7 +456,7 @@ void CEHX_Loss2Ambient::BuildDataDefn(DataDefnBlk& DDB)
   {
   if (DDB.BeginStruct(this, "EHX", NULL, DDB_NoPage))
     {
-    DDB.Visibility(SM_Direct|HM_All);
+    DDB.Visibility(NM_Probal|SM_All|HM_All);
     DDB.Double("Diam",                "", DC_L,     "mm",      &dPipeD,      this, isParm);
     DDB.Double("Length",              "", DC_L,     "m",       &dPipeL,      this, isParm);
     DDB.Visibility();                               
@@ -504,7 +504,7 @@ void CEHX_Loss2Ambient::EvalProducts(SpConduit &Qf, double FinalTEst)
     dHeatFlow=Qf.totHf();
     dAmbT=(Valid(dAmbTOvr) ? dAmbTOvr : AmbientTemp());
 
-    if (SolveDirectMethod())
+    if (NetProbalMethod())
       {
       dPipeD = Max(dPipeD, 0.001);
       dPipeL = Max(dPipeL, 0.001);
@@ -570,7 +570,7 @@ void CEHX_Loss2Ambient::EvalProductsPipe(SpConduit & Qf, double Len, double Diam
   dHeatFlow=Qf.totHf();
   dAmbT=(Valid(dAmbTOvr) ? dAmbTOvr : AmbientTemp());
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     dPipeD = Max(dPipeD, 0.001);
     dPipeL = Max(dPipeL, 0.001);
@@ -878,7 +878,7 @@ void CEnvironHXBase::BuildDataDefn(DataDefnBlk& DDB, pchar pTag_, pchar pTagComm
   if (pTag_==NULL)
     pTag_="EHX";
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, fEnabled);
+  DDB.Visibility(NSHM_All, fEnabled);
 
   if (Enabled())//pHL)
     {
@@ -1023,26 +1023,26 @@ void CHXSide::BuildDataDefn(char*Tag, DataDefnBlk & DDB, TaggedObject* pTagObj, 
       {0}};
     DDB.Bool("Mode",    "", DC_,     "",    &iMode, pTagObj, isParmConstruct, DDB0);
 
-    DDB.Visibility(SHM_All, Conduit);
+    DDB.Visibility(NSHM_All, Conduit);
     DDB.Double ("",               "Qm",     DC_Qm,    "kg/s",    &Qm      , pTagObj, Connected ? isParmConstruct : isParm);
   //  DDB.Double ("",               "QmVent", DC_Qm,    "kg/s",    &QmVent  , pTagObj, Connected ? isParmConstruct : isParm);
     DDB.Visibility();
     DDB.Double ("",               "Cp",     DC_CpMs,    "kJ/kg.C", &Cp      , pTagObj, Connected ? isParmConstruct : isParm);
-    DDB.Visibility(SHM_All, Conduit||!Conduit);
+    DDB.Visibility(NSHM_All, Conduit||!Conduit);
     DDB.Double ("",               "Ti",     DC_T,     "C",       &Ti      , pTagObj, Connected ? isParmConstruct : isParm);
-    DDB.Visibility(SHM_All, Conduit);
+    DDB.Visibility(NSHM_All, Conduit);
     DDB.Double ("",               "To",     DC_T,     "C",       &To      , pTagObj, isParmConstruct);
     DDB.Double ("",               "Pi",     DC_P,     "kPag",    &Pi      , pTagObj, isParmConstruct);
     DDB.Double ("",               "Po",     DC_P,     "kPag",    &Po      , pTagObj, isParmConstruct);
-    DDB.Visibility(SHM_All, !Conduit);
+    DDB.Visibility(NSHM_All, !Conduit);
     DDB.Double ("",               "T",      DC_T,     "C",       &To      , pTagObj, Connected ? isParmConstruct : isParm);
     DDB.Double ("",               "P",      DC_P,     "kPag",    &Po      , pTagObj, Connected ? isParmConstruct : isParm);
-    DDB.Visibility(SHM_All, Conduit);
+    DDB.Visibility(NSHM_All, Conduit);
     DDB.Double ("",               "dT",     DC_dT,    "C",       xidHXSd_dT , pTagObj, isParmConstruct);
 
-    DDB.Visibility(SHM_All, iMode!=QPF_Sensible);
+    DDB.Visibility(NSHM_All, iMode!=QPF_Sensible);
 
-    DDB.Visibility(SHM_All, true);//Conduit);
+    DDB.Visibility(NSHM_All, true);//Conduit);
     DDB.Double("SatT",            "",       DC_T,     "C",       &SatT,   pTagObj, isParmConstruct);
     DDB.Double("SatP",            "",       DC_P,     "kPag",    &SatP,   pTagObj, isParmConstruct);
     DDB.Double("Duty",            "",       DC_Pwr,   "kW",      &Duty,   pTagObj, isParmConstruct);
@@ -1437,20 +1437,20 @@ void CHXBlock::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Byte("Mode",    "", DC_,     "",    &m_iSolveMode, this, isParm|AffectsStruct, DDBEffect);
   DDB.Text(" ");
 
-  DDB.Visibility(SHM_All, m_iSolveMode==HXM_Effectiveness);
+  DDB.Visibility(NSHM_All, m_iSolveMode==HXM_Effectiveness);
   DDB.Bool   ("Config(P/S)", "",       DC_,     "",  &m_iConfig, this, isParm, DDBFlwTypes);
   DDB.Double ("",            "Effect", DC_Frac, "%", &m_dEffect, this, 0);
   DDB.Text(" ");
 
   DDB.Visibility();
   DDB.CheckBox("On",          "",       DC_,     "",          &m_fOn,         this, isParm|SetOnChange);
-  DDB.Visibility(SM_Direct|HM_All); //should this HX sequencing option be enabled for dynamic?
+  DDB.Visibility(NM_Probal|SM_All|HM_All); //should this HX sequencing option be enabled for dynamic?
   DDB.CheckBox("PreReact",    "",       DC_,     "",          &m_fPreReact,   this, isParm|SetOnChange);
   DDB.Visibility();
   DDB.Double("HTC",           "",       DC_HTC,  "kW/m^2.K",  &m_dHTC,        this, isParm);
   DDB.Double("Area",          "",       DC_Area, "m^2",       &m_dArea,       this, isParm);
 
-  DDB.Visibility(SM_DynBoth|HM_All, m_bLvlEffOn);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_bLvlEffOn);
   DDB.Byte("CrossSection",    "",       DC_,     "",          &m_iXSect,      this, isParm|AffectsStruct, DDBXSect);
   DDB.Double ("MaxEffLvl",    "",       DC_Frac, "%",         &m_dMxEffLvl,   this, isParm);
   DDB.Double ("MinEffLvl",    "",       DC_Frac, "%",         &m_dMnEffLvl,   this, isParm);
@@ -1526,7 +1526,7 @@ flag CHXBlock::ValidateData(ValidateDataBlk & VDB)
 double CHXBlock::EffArea()
   {
   double Eff;
-  if (m_bLvlEffOn && SolveBufferedMethod())//SolveDynamicMethod())
+  if (m_bLvlEffOn && SolveBufferedMethod())//NetDynamicMethod())
     {
     double LvlDiff=m_dMnEffLvl-m_dMxEffLvl;
     double EffDiff=m_dMxEff-m_dMnEff;
@@ -2072,7 +2072,7 @@ void CHXBase::BuildDataDefn(DataDefnBlk& DDB, pchar pTag_, pchar pTagComment, DD
   if (pTag_==NULL)
     pTag_="HX";
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, fEnabled);
+  DDB.Visibility(NSHM_All, fEnabled);
 
   DDB.BeginObject(pNd, pTag_, "HeatXBlk", NULL, PageIs);
 //  DDBValueLstMem DDB0;

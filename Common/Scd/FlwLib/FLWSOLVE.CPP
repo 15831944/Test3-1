@@ -288,7 +288,6 @@ XID xidBaseCfgFiles                   = FlwXID(2074);
 XID xidCfgName                        = FlwXID(2075);
 XID xidCfgFile                        = FlwXID(2076);
 XID xidCfgFiles                       = FlwXID(2077);
-XID xidCfgHome                        = FlwXID(2078);
 XID xidPrjName                        = FlwXID(2079);
 XID xidPrjFile                        = FlwXID(2080);
 XID xidPrjFiles                       = FlwXID(2081);
@@ -1688,15 +1687,15 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
       dword md2=p->Nd_Rmt(i)->SolveMethod();
       flag MdOk=0;
 
-      if (p->GlblProbalMode())
+      if (p->NetProbalMethod())
         {
         if (md1 & md2 & SM_Direct)
-        MdOk=1;
+          MdOk=1;
         }
       else
         {
         if ((md1 & SM_DynBoth|SM_Direct) && (md2 & SM_DynBoth|SM_Direct))
-        MdOk=1;
+          MdOk=1;
         }
       //if (md1 & md2 & SM_Direct)
       //  MdOk=1;
@@ -3735,7 +3734,8 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           if (p->IOEvalSeq_Out(0) || p->IOEvalSeq_Out(1))
             p->m_Clusters[0].m_nFlwIOsOut++;
 
-          dbgpln("XXX %-5s %-5s %-5s %i %i %s", Fwd?"Fwd":"",Zero0?"Zero0":"",Zero1?"Zero1":"",p->m_Clusters[0].m_nFlwIOsIn, p->m_Clusters[0].m_nFlwIOsOut, p->Tag());
+          if (0)
+            dbgpln("XXX %-5s %-5s %-5s %i %i %s", Fwd?"Fwd":"",Zero0?"Zero0":"",Zero1?"Zero1":"",p->m_Clusters[0].m_nFlwIOsIn, p->m_Clusters[0].m_nFlwIOsOut, p->Tag());
 
           for (int i=p->NoProcLnkIOs(); i<p->NoFlwIOs(); i++)
             {
@@ -4302,7 +4302,7 @@ void FlwSlvBlk::InitClosure()
   SpModel *pRefMdl=NULL;
   for (FlwNode * p=All.First(); (p); p=All.Next())
     {
-    if (!TaggedObject::GlblProbalMode())
+    if (!p->NetProbalMethod())
       {
       p->GetClosureInfo(false, true);
       for (int j=0; j<p->NoProcessJoins(); j++)
@@ -4455,7 +4455,7 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
       double CnQmOut = 0;
       double CnHtIn = 0;
       double CnHtOut = 0;
-      if (!NJ.Nd.SolveDirectMethod())
+      if (!NJ.Nd.NetProbalMethod())
         {
         NJ.Nd.GetClosureInfo(false, true);
 
@@ -6266,13 +6266,13 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
           {0},
         };
       DDB.Long("Type",              "", DC_,          "",       xidScnType,         &FlwSlvNd, isParmStopped|SetOnChange, DDBTypes);
-      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_Duration);
+      DDB.Visibility(NSHM_All, gs_Exec.ScnType==ScnTyp_Duration);
       DDB.String("DurationRqd.Fmt", "", DC_dTimeStr,  "DyTm0.", xidRunDurationF,    &FlwSlvNd, isParmStopped);
       DDB.Double("DurationRqd",     "", DC_Time,      "s",      xidRunDurationD,    &FlwSlvNd, isParmStopped);
-      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_StopTime);
+      DDB.Visibility(NSHM_All, gs_Exec.ScnType==ScnTyp_StopTime);
       DDB.String("StopTimeRqd.Fmt", "", DC_TimeStr,   "DyTm0.", xidRunStopTimeF,    &FlwSlvNd, isParmStopped);
       DDB.Double("StopTimeRqd",     "", DC_Time,      "s",      xidRunStopTimeD,    &FlwSlvNd, isParmStopped|InitHidden);
-      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_Steps);
+      DDB.Visibility(NSHM_All, gs_Exec.ScnType==ScnTyp_Steps);
       DDB.Long  ("StepCountRqd",    "", DC_,          "",       xidStepCountMax,   &FlwSlvNd, isParmStopped);
       DDB.Visibility();
 
@@ -6285,7 +6285,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double("ScnTime",         "", DC_Time,      "s",      xidScnTimeD,        &FlwSlvNd,  InitHidden|NAN_OK);
       DDB.String("ScnTimeEnd.Fmt",  "", DC_dTimeStr,  "DyTm0.", xidScnTimeMaxF,     &FlwSlvNd,  InitHidden);
       DDB.Double("ScnTimeEnd",      "", DC_Time,      "s",      xidScnTimeMaxD,     &FlwSlvNd,  InitHidden|NAN_OK);
-      DDB.Visibility(SHM_All, false, true, true, true);
+      DDB.Visibility(NSHM_All, false, true, true, true);
       DDB.Long  ("Type.Last",       "", DC_,          "",       xidScnTypeLast,     &FlwSlvNd, isParmStopped, DDBTypes);
       DDB.Visibility();
 
@@ -6293,9 +6293,9 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       static DDBValueLst DDBIfComplete[] =  { {Sbr_Block,    "Ignore"},   {Sbr_ReStart,  "ReStart"}, {}};
       DDB.Text("");
       DDB.Text  ("Start Action");
-      DDB.Visibility(SHM_All, gs_Exec.ScnType==ScnTyp_Manual);
+      DDB.Visibility(NSHM_All, gs_Exec.ScnType==ScnTyp_Manual);
       DDB.Byte("IfManualScn",    "",  DC_, "",  xidManualScnRestart,     &FlwSlvNd, isParmStopped|SetOnChange, DDBIfBusy);
-      DDB.Visibility(SHM_All, gs_Exec.ScnType!=ScnTyp_Manual);
+      DDB.Visibility(NSHM_All, gs_Exec.ScnType!=ScnTyp_Manual);
       DDB.Byte("IfScnBusy",      "",  DC_, "",  xidReStartIfScnBusy,     &FlwSlvNd, isParmStopped|SetOnChange, DDBIfBusy);
       DDB.Byte("IfScnComplete",  "",  DC_, "",  xidReStartIfScnComplete, &FlwSlvNd, isParmStopped|SetOnChange, DDBIfComplete);
       DDB.Visibility();
@@ -6307,7 +6307,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double("Elapsed.Time",          "", DC_Time, "s",   xidClock,         &FlwSlvNd, 0|noFileAtAll);
       DDB.Double("Elapsed.EstToGo",       "", DC_Time, "s",   xidClockToGo,     &FlwSlvNd, 0|noFileAtAll);
       DDB.Double("Elapsed.EstTotal",      "", DC_Time, "s",   xidClockTotal,    &FlwSlvNd, 0|noFileAtAll);
-      DDB.Long  ("Elapsed.Steps",         "", DC_Time, "s",   xidElapsedSteps,  &FlwSlvNd, isParmConstruct);
+      DDB.Long  ("Elapsed.Steps",         "", DC_,     "",    xidElapsedSteps,  &FlwSlvNd, isParmConstruct);
 
       DDB.Text  ("");
       //DDB.Text  ("At Scenario Start");
@@ -7730,10 +7730,10 @@ void FlwSlvDyn::ODEDerivs()
 
   CFlwNodeIter Ctrl(m_PwrCtrlNds);
   for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
-    if (p->SolveDynamicMethod())
+    if (p->NetDynamicMethod())
       p->EvalDerivs(CNodeEvalIndex(p,-1,-1,false));
   //for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
-  //  if (p->SolveDynamicMethod())
+  //  if (p->NetDynamicMethod())
   //    p->PostEvalDerivs();
 
   if (FlwNets.ProblemOK())
@@ -7932,7 +7932,7 @@ void FlwSlvDyn::ODEDerivs()
         CNodeEvalIndexIter AllOrder(m_AllTOSequence);
         CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
         for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
-          if (NJ.Nd.SolveDynamicMethod())
+          if (NJ.Nd.NetDynamicMethod())
             {
             XT.StartLoop(NJ.m_pNd);
             XT.LockDone();//(p, eFITEvalDerivs, FSW_EvalDerivs);
@@ -7948,7 +7948,7 @@ void FlwSlvDyn::ODEDerivs()
       //  CNodeEvalIndexIter AllOrder(m_AllTOSequence);
       //  CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
       //  for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
-      //    if (NJ.Nd.SolveDynamicMethod())
+      //    if (NJ.Nd.NetDynamicMethod())
       //      NJ.Nd.PostEvalDerivs();
       //  }
       if (TearLoop>=MaxTearLoop && MaxTearLoop>0)
@@ -8049,7 +8049,7 @@ void FlwSlvDyn::ODEOperate(CODEDataBlock & ODB)
     CFlwNodeIter All(m_AllNds);
     CThreadTimer  XT(eFITODEOperate, FSW_ODEOperate);
     for (FlwNode * p=All.First(); (p); p=All.Next())
-      if (p->SolveDynamicMethod())
+      if (p->NetDynamicMethod())
         {
         XT.StartLoop(p);
         XT.LockDone();//(p, eFITODEOperate, FSW_ODEOperate);
@@ -8927,7 +8927,7 @@ flag FlwSlvDyn::CheckStopRequired(CXM_TimeControl &CB, bool Starting, bool ShowM
   //  return true;
   //  }
   //else
-  if (SteadyReqdFlag() || (CB.m_ScnType==RTT_SteadyState))
+  if (/*SteadyReqdFlag() ||*/ (CB.m_ScnType==RTT_SteadyState))
     {
     if (m_SSSteady>=m_SSStopCount)
       {
@@ -9533,19 +9533,8 @@ flag CFlwSolver::Init()
   m_PrjSDBName+=CfgDBFileName();
   m_PrjCnvsDBName=m_PrjSDBName; //cnvs DB same as specie DB
 
-  #ifndef _RELEASE
-  CProfINIFile PF(PrjFile());
-  CString _CfgDBFileName=CfgDBFileName();
-  CString _PrjFile=PrjFile();
-  CString _CfgFile=PF.RdStr("General", "CfgFile", "x");
-  CString _CfgFiles=PF.RdStr("General", "CfgFiles", "x");
-  CString _CfgHome=PF.RdStr("General", "CfgHome", "x");
-  CString _xx=CfgFiles();
-  _xx+=CfgDBFileName();
-  #endif
-
-  m_PrjCnvsDBName.FnExpand();
   m_PrjSDBName.FnExpand();
+  m_PrjCnvsDBName.FnExpand();
 
   //load...
   int CnvsLoadedCnt = 0;
@@ -9986,7 +9975,6 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.String("CfgName          ",    "", DC_, "", xidCfgName           ,  this, noFile|noScenario|noSnap);
     DDB.String("CfgFile          ",    "", DC_, "", xidCfgFile           ,  this, noFile|noScenario|noSnap);
     DDB.String("CfgFiles         ",    "", DC_, "", xidCfgFiles          ,  this, noFile|noScenario|noSnap);
-    DDB.String("CfgHome          ",    "", DC_, "", xidCfgHome           ,  this, noFile|noScenario|noSnap);
     DDB.String("PrjName          ",    "", DC_, "", xidPrjName           ,  this, noFile|noScenario|noSnap);
     DDB.String("PrjFile          ",    "", DC_, "", xidPrjFile           ,  this, noFile|noScenario|noSnap);
     DDB.String("PrjFiles         ",    "", DC_, "", xidPrjFiles          ,  this, noFile|noScenario|noSnap);
@@ -10030,7 +10018,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DElement::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
 #endif
     DDB.CheckBoxBtn("IncludeSpcCnvs",   "", DC_,     "",  xidIncludeSpcCnvs,                  this, isParmStopped);
-    DDB.Visibility(SM_All|HM_Simple|HM_Full);
+    DDB.Visibility(SM_All|HM_Reduced|HM_Full);
     DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
     DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
 
@@ -10098,11 +10086,11 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Page("Statistics", DDB_RqdPage);
     if (DDB.BeginStruct(this, "Stats", NULL, DDB_NoPage))
       {
-      DDB.Visibility(SM_DynBoth|HM_All);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All);
       DDB.Long  ("Steps",           "", DC_,       "", xidXSWSteps,        this, isResult|noFileAtAll);
       DDB.Visibility();
       DDB.Long  ("Iterations",      "", DC_,       "", xidSolveIters,      this, isResult|noFileAtAll);
-      DDB.Visibility(SM_DynBoth|HM_All);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All);
       DDB.Long  ("BadIterations",   "", DC_,       "", xidSolveItersBad,   this, isResult|noFile|noSnap);
       DDB.Double("SimulationTime",  "", DC_Time,  "s", xidXSWSimSecs,      this, InitHidden|isResult|noFile|noSnap);
       DDB.String("SimulationTimeDesc", "", DC_,    "", xidXSWSimSecsDesc,  this, isResult|noFileAtAll);
@@ -10142,13 +10130,13 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double("Memory.AvailVirtual",  "", DC_Bytes, "Mb", xidSMAvailVirtual,  this, isResult|InitHidden|noFileAtAll|DDEF_NOCOMPARE);
 
       DDB.Text  ("");
-      DDB.Visibility(SM_Direct|HM_All);
+      DDB.Visibility(NM_Probal|SM_All|HM_All);
       DDB.Long("Unknowns",        "", DC_,      "",  xidSolveUnknowns,  this, isResult|noFile|noSnap);
       DDB.Long("BadError",        "", DC_,      "",  xidSolveBadError,  this, isResult|noFile|noSnap);
       DDB.Long("BadLimit",        "", DC_,      "",  xidSolveBadLimit,  this, isResult|noFile|noSnap);
       DDB.Double("WorstErr",      "", DC_Frac,  "",  xidSolveWorstErr,  this, isResult|noFile|noSnap);
 
-      DDB.Visibility(SM_DynBoth|HM_All);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All);
       DDB.Long("Nets",            "", DC_,      "",  xidSolveNets,      this, isResult|noFile|noSnap);
       DDB.Long("SubNets",         "", DC_,      "",  xidSolveSubNets,   this, isResult|noFile|noSnap);
       DDB.Long("Nodes",           "", DC_,      "",  xidSolveNodes,     this, isResult|noFile|noSnap);
@@ -10269,7 +10257,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
       }
     DDB.EndStruct();
 
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     }
   DDB.EndStruct();
 
@@ -10559,7 +10547,6 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidCfgName         : DCB.pC=::CfgName()          ; return 1;
     case xidCfgFile         : DCB.pC=::CfgFile()          ; return 1;
     case xidCfgFiles        : DCB.pC=::CfgFiles()         ; return 1;
-    case xidCfgHome         : DCB.pC=::CfgHome()          ; return 1;
     case xidPrjName         : DCB.pC=::PrjName()          ; return 1;
     case xidPrjFile         : DCB.pC=::PrjFile()          ; return 1;
     case xidPrjFiles        : DCB.pC=::PrjFiles()         ; return 1;
@@ -10632,7 +10619,7 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidSolveBadError   : DCB.L=NetProbalMethod() ? PBEqnCB().NBadError() : 0; return 1;
     case xidSolveBadLimit   : DCB.L=NetProbalMethod() ? PBEqnCB().NBadLimit() : 0; return 1;
     case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? PBEqnCB().TheWorstErr() : 0.0; return 1;
-    //case xidSolveWorstErr   : DCB.D=SolveDirectMethod() ? Max(PBEqnCB().WorstOtherErr(), PBEqnCB().WorstErr()) : 0.0; return 1;//(PBEqnCB().Converged() ? PBEqnCB().WorstOtherErr() : PBEqnCB().WorstErr()) : 0.0; return 1;
+    //case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? Max(PBEqnCB().WorstOtherErr(), PBEqnCB().WorstErr()) : 0.0; return 1;//(PBEqnCB().Converged() ? PBEqnCB().WorstOtherErr() : PBEqnCB().WorstErr()) : 0.0; return 1;
 
     case xidSolveNets       : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumNets():       0; return 1;
     case xidSolveSubNets    : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumSubNets(-1):  0; return 1;
@@ -10641,12 +10628,12 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidSolveLoneLnks   : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumLoneLnks(-1): 0; return 1;
     case xidSolveNetLnks    : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumNetLnks(-1):  0; return 1;
 
-    //case xidConvergeTm      : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCnvState.TimeFrac() : 0;  return 1;
-    //case xidFlwSolveTm      : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpNetSolve.TimeFrac() : 0;  return 1;
-    //case xidFlwWashTm       : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpFlwSolve.TimeFrac() : 0;  return 1;
-    //case xidDiscreteTm      : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swDiscrete.TimeFrac() : 0;  return 1;
-    //case xidCtrlStrategyTm  : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlStrategy.TimeFrac() : 0;  return 1;
-    //case xidCtrlActionsTm   : DCB.D=SolveDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlActions.TimeFrac() : 0;  return 1;
+    //case xidConvergeTm      : DCB.D=NetDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCnvState.TimeFrac() : 0;  return 1;
+    //case xidFlwSolveTm      : DCB.D=NetDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpNetSolve.TimeFrac() : 0;  return 1;
+    //case xidFlwWashTm       : DCB.D=NetDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swImpFlwSolve.TimeFrac() : 0;  return 1;
+    //case xidDiscreteTm      : DCB.D=NetDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swDiscrete.TimeFrac() : 0;  return 1;
+    //case xidCtrlStrategyTm  : DCB.D=NetDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlStrategy.TimeFrac() : 0;  return 1;
+    //case xidCtrlActionsTm   : DCB.D=NetDynamicMethod() && (XSW().TotalSecs()>1e-6) ? Dyn.m_swCtrlActions.TimeFrac() : 0;  return 1;
 
     case xidGenVerStr       : DCB.pC=FullVersion(); return 1;
     case xidGenUpdateVerStr : DCB.pC=FullVersionAndUpdate(); return 1;
@@ -10847,40 +10834,56 @@ int CFlwSolver::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)
 void CFlwSolver::Set_All_Zs()
   {
 
-  //for (int Pass=0; Pass<=0 /* 2 CNM Dont Get Clever yet just do Z_Rqd && CFlange Z's*/;Pass++)
-  // Pass
-  // 0 - Initialise All CTNode Datums - ignore links
-  // 1 - Adjust CTNode Datums - based on defined link rize/drops
-  // 2 - Adjust CTNode Datums - based on assumed link rize/drops of 0.0;
+  for (FlwNode * p=NULL; GetObj_All(p); )
+    p->m_ZState=Z_Unknown;
 
-  for (int Pass=0; Pass<=2; Pass++)
+  CFlwNodeIndexList List;
+  // Find Known Nodes
+  for (FlwNode * p=NULL; GetObj_All(p); )
     {
-    #if (dbgFlwSolve)
-    if (dbgSetZsValue() || dbgSetZsTrace())
-      dbgpln("Z_Changed================ %i ================", Pass);
-    #endif
-    FlwNode * p=NULL;
-    while (GetObj_All(p))
-      if (p->GetActive())
-        p->Busy=p->Done=p->Break=0;
-
-    p=NULL;
-    while (GetObj_All(p))
-      if (p->GetActive() && !p->Done)
-        p->SetDatums(Pass, -1, p->m_dDatum, Z_Unknown);//, Z_Ret, Z_Is_Ret);
-
-    p=NULL;
-    while (GetObj_All(p))
-      if (p->GetActive())
-        p->SetDatumsDone();
+    if (p->GetActive())
+      p->SetDatums(0, List, -1);
     }
 
-  FlwNode * p=NULL;
-  while (GetObj_All(p))
+  // Process from here
+  while (!List.IsEmpty())
+    {
+    CFlwNodeIndex X=List.RemoveHead();
+    X.m_pNd->SetDatums(2, List, X.m_IOIn);
+    }
+
+  // Find Remaining UnKnown Nodes
+  for (FlwNode * p=NULL; GetObj_All(p); )
+    {
     if (p->GetActive())
+      p->SetDatums(1, List, -1);
+    }
+
+  // Process from here
+  while (!List.IsEmpty())
+    {
+    CFlwNodeIndex X=List.RemoveHead();
+    X.m_pNd->SetDatums(2, List, X.m_IOIn);
+    }
+
+  for (FlwNode * p=NULL; GetObj_All(p); )
+    {
+    if (p->GetActive())
+      p->SetDatumsDone();
+    }
+
+  p=NULL;
+  while (GetObj_All(p))
+    {
+    if (p->GetActive())
+      {
       for (int i=0; i<p->NoFlwIOs(); i++)
+        {
         if (p->IOFlange(i) && !Valid(p->IODatum_Flng(i)))
           dbgpln("Invalid CFlange Datum %s > %s", p->Tag(), p->Nd_Rmt(i)->Tag());
+        }
+      }
+    }
   }
 
 // --------------------------------------------------------------------------
@@ -10959,13 +10962,22 @@ DeleteIt:
 
     p=NULL;
     while (GetObj_All(p))
+      {
       if (p->GetActive())
         {
+        if (p->NetMethod()==0)
+          LogWarning(Tag(), 0, "No Allowed NetMethod %s", ClassId());
+        if (p->SolveMethod()==0)
+          LogWarning(Tag(), 0, "No Allowed SolveMethod %s", ClassId());
+        if (p->HeatMethod()==0)
+          LogWarning(Tag(), 0, "No Allowed HeatMethod %s", ClassId());
+    
         //p->SetFlowMode(p->FlowMode()); // update FlowMode requirements
         //double t0=SW.Secs();
         p->GlobalConnect();
         //dbgpln("  GlobalConnect %10.1fus %-20s %s", (SW.Secs()-t0)*1e6, p->ClassId(), p->FullObjTag());
         }
+      }
 
     SHOWPROGRESS(1, "DoGlobalLinks 2");
 
@@ -10974,7 +10986,7 @@ DeleteIt:
       if (p->GetActive())
         p->PostGlobalConnect();
 
-    if (gs_Exec.GlblProbalMode())
+    if (DefNetProbalMode())
       PB.BuildMacroMdls();
 
     SHOWPROGRESS(1, "DoGlobalLinks 3");
@@ -11007,26 +11019,36 @@ DeleteIt:
       // Propagate FlowModes
       p=NULL;
       while (GetObj_All(p))
-        p->m_FlowModePass=0;
-
-      p=NULL;
-      while (GetObj_All(p))
         {
-        if (p->m_FlowModePass==0)
+        if ((p->m_FlowModeRqd & LFM_Propagate)==0)
+          p->m_FlowModeRqd=0;
+        p->m_FlowModePass=0;
+        }
+      p=NULL;
+      //dbgpln("RESTORE PropagateNetInfo !!!!!!!!!!!");
+      if (01)
+        {
+        while (GetObj_All(p))
           {
-          if (p->m_FlowModeReqd >= 0)
+          if (p->m_FlowModePass==0)
             {
-            CPropagateNetInfoCtrl Ctrl(eScdGetFlowMode, 0);
-            p->PropagateNetInfo(Ctrl, -1);
+            if (p->m_FlowModeRqd != 0)
+              {
+              CPropagateNetInfoCtrl Ctrl(eScdGetFlowMode, 0);
+              p->PropagateNetInfo(Ctrl, -1);
+              if (Ctrl.m_ReqdMethod!=0)
+                {
 
-            Ctrl.m_Task=eScdSetFlowMode;
-            Ctrl.m_Pass++;
+                Ctrl.m_Task=eScdSetFlowMode;
+                Ctrl.m_Pass++;
 
-            p->PropagateNetInfo(Ctrl, -1);
-            }
-          else
-            {
-            p->SetFlowMode(p->FlowMode(), p->m_FlowModeObj); // update FlowMode requirements down to FB's etc
+                p->PropagateNetInfo(Ctrl, -1);
+                }
+              }
+            else
+              {
+              //p->SetxFlowMode(p->FlowMode(), p->m_FlowModeObj); // update FlowMode requirements down to FB's etc
+              }
             }
           }
         }
@@ -11115,7 +11137,11 @@ void CFlwSolver::UnDoGlobalLinks()
 
   p=NULL;
   while (GetObj_All(p))
+    {
+    if ((p->m_FlowModeRqd & LFM_Propagate)==0)
+      p->m_FlowModeRqd=0;
     p->m_FlowModeObj=NULL;
+    }
 
   //for (FlwNode * p=NULL; GetObj_All(p); )
   //  {
@@ -11244,10 +11270,11 @@ int CFlwSolver::FE_DoInsertRoot(char * RootName)
 int CFlwSolver::FE_DoDelete(char * Tag)
   {
   UnDoGlobalLinks();
+
+
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
     {
-    dbgpln("DELETE %s %s ",Tag,p->FullObjTag());
     p->DisConnectAll();
     delete p;
     return 0;
@@ -12490,7 +12517,7 @@ int CFlwSolver::EO_CanClose(Strng_List & Problems)
 
 //--------------------------------------------------------------------------
 
-void CFlwSolver::EO_SetSolveMode(long RunMds, long RunMdsMsk)
+void CFlwSolver::EO_SetSolveMode()
   {
   UnDoGlobalLinks();
 
@@ -12630,7 +12657,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
 
   SHOWPROGRESS(1, "EO_GotoRunEnd 1");
 
-  if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
+  if (!CDB.H2OPropertiesSelectedBlk().Class()->LicenseOK())
     {
     OK=0;
     LogError("Solver", 0, "H2O Properties model '%s' not enabled by licensing", CDB.H2OPropertiesSelectedBlk().Class()->ShortDesc());
@@ -12821,7 +12848,7 @@ flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
 
   SHOWPROGRESS(1, "EO_Start 1");
 
-  if (!CDB.H2OPropertiesSelectedBlk().Class()->LicOK())
+  if (!CDB.H2OPropertiesSelectedBlk().Class()->LicenseOK())
     {
     OK=0;
     LogError("Solver", 0, "H2O Properties model '%s' not enabled by licensing", CDB.H2OPropertiesSelectedBlk().Class()->ShortDesc());
@@ -13593,9 +13620,9 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
   TABOptions Opts;
   switch (FCB.Type())
     {
-    case TOF_DBase:    Opts = SHM_All|TABOpt_ForFile|TABOpt_AllInfo; break;
-    case TOF_SnapShot: Opts = SHM_All|TABOpt_ForSnapShot; break;
-    case TOF_Scenario: Opts = SHM_All|TABOpt_ForScenario; break;
+    case TOF_DBase:    Opts = NSHM_All|TABOpt_ForFile|TABOpt_AllInfo; break;
+    case TOF_SnapShot: Opts = NSHM_All|TABOpt_ForSnapShot; break;
+    case TOF_Scenario: Opts = NSHM_All|TABOpt_ForScenario; break;
     }
 
   typedef enum {
@@ -13874,6 +13901,12 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
 
 flag CFlwSolver::EO_EndSave(FilingControlBlock &FCB)
   {
+  if (TaggedObject::Revert2DefaultRqd())
+    {
+    FlwNode* p=NULL;
+    while (GetObj_All(p))
+      p->Revert2Default();
+    }
   TryDoGlobalLinks();
 //  dbgpln("GetDataFromObj:%g",xx);
   TRACE0("CFlwSolver - Save END\n");

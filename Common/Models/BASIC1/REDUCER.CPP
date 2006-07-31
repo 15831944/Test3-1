@@ -60,14 +60,14 @@ void Reducer::BuildDataDefn(DataDefnBlk &DDB)
     {BRPM_Atmos, "Atmos"},
     {0}};
   DDB.BeginStruct(this);
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     DDB.Text    ("");
     DDB.Text    ("Requirements");
     DDB.Byte    ("PressMethod",     "",     DC_,      "",      xidPressMethod,  this, isParm|SetOnChange, DDB1);
-    DDB.Visibility(SHM_All, iPressMethod==BRPM_Drop);
+    DDB.Visibility(NSHM_All, iPressMethod==BRPM_Drop);
     DDB.Double  ("PressDropRqd",    "PDrop", DC_DP,   "kPa",   xidPDropRqd,     this, isParm);
-    DDB.Visibility(SHM_All, iPressMethod==BRPM_Fixed);
+    DDB.Visibility(NSHM_All, iPressMethod==BRPM_Fixed);
     DDB.Double  ("OutletPressRqd",  "PRqd", DC_P,     "kPag",  xidPoutRqd,      this, isParm|NAN_OK);
     DDB.Visibility();
     m_VLE.Add_OnOff(DDB);
@@ -126,7 +126,7 @@ void Reducer::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     m_VLE.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
     }

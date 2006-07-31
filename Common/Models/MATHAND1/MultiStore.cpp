@@ -535,7 +535,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   DDB.Short   ("NoStores",    "",     DC_,  "",     xidStoreCount,          this, isParmStopped|SetOnChange);
   DDB.CheckBox("Reactions",   "",     DC_,  "",     xidStoreRBOn,           this, isParm|SetOnChange);
-  DDEF_Flags Vis=DDB.Visibility(SHM_All, m_bRBsOn);
+  DDEF_Flags Vis=DDB.Visibility(NSHM_All, m_bRBsOn);
   DDB.String  ("Rct.CommonRctFile", "", DC_, "",    xidStoreCommonRct,       this, isParm|SetOnChange);
   DDB.Button  ("Rct.CommonBrowse",  "", DC_, "",    xidStoreCommonRctBrwse, this, isParm);
   DDB.SetVisibility(Vis);
@@ -607,7 +607,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
           if (DDB.BeginElement(this, LTg()))
             {
             DDB.Byte    ("SplitMethod", "",            DC_,     "",      xidIOSplitMethod+i, this, isParmStopped|SetOnChange, (Pass==0 ? DDBIOFeedMeth : DDBIOProdMeth));
-            DDB.Visibility(SHM_All, SplM==SM_Store);
+            DDB.Visibility(NSHM_All, SplM==SM_Store);
             DDB.Short   ("TargetStore", "",            DC_,     "",      xidIOTargetStore+i, this, isParm);
             DDB.Visibility();
             DDB.Double  ("MassFlowEst", "QmEst",       DC_Qm,  "kg/s",   xidIOQmEst+i,  this, isResult);
@@ -701,7 +701,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
                 if (DDB.BeginElement(this, LTg()))
                   {
                   DDB.Byte    ("Method", "",            DC_,     "",      xidIOSplitMethod+i, this, isParmStopped|SetOnChange, DDBStoreProdMeth);
-                  //DDB.Visibility(SHM_All, SplM==SM_Store);
+                  //DDB.Visibility(NSHM_All, SplM==SM_Store);
                   //DDB.Short   ("TargetStore", "",            DC_,     "",      xidIOTargetStore+i, this, isParm);
                   //DDB.Visibility();
                   //DDB.Double  ("MassFlowEst", "QmEst",       DC_Qm,  "kg/s",   xidIOQmEst+i,  this, isResult);
@@ -791,7 +791,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
   //  }
   //DDB.EndArray();
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     if (m_Src.Enabled || m_Snk.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
       {

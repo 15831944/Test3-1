@@ -361,9 +361,28 @@ class MFPPException : public MSysException
     void ClearFPP()
       {
       _clearfp();
-      DWORD CW=_controlfp(0,0);
+#if _MSC_VER >=1400
+      unsigned int CW;
+      errno_t err;
+      err=_controlfp_s(&CW, 0,0); // Must Fix
+      if (err)
+        {
+        int xxx=0;
+        //LogNote("FltPoint", 0, "Error %08x Getting FP Status", err);
+        }
+      _fpreset();
+      err=_controlfp_s(&CW, CW, _MCW_EM);
+      if (err)
+        {
+        int xxx=0;
+        //LogNote("FltPoint", 0, "Error %08x Setting FP Status", err);
+        }
+#else
+      DWORD CW;
+      CW=_controlfp(0,0);
       _fpreset();
       _controlfp(CW, _MCW_EM);
+#endif
       };
   };
 #endif
@@ -419,13 +438,13 @@ DllImportExport void DoAssert1(char * pMsg);
 #endif
 
 #define INCOMPLETECODE()     { char Buff[2000]; sprintf(Buff, "INCOMPLETECODE\n\n%s[%i]", __FILE__, __LINE__); DoAssert1(Buff); DoBreak() ; }
-#define INCOMPLETECODE1(Msg) { char Buff[2000]; sprintf(Buff, "%s\n\n%s[%i]", Msg, __FILE__, __LINE__); DoAssert1(Buff); DoBreak() ; }
+#define INCOMPLETECODEMSG(Msg) { char Buff[2000]; sprintf(Buff, "%s\n\n%s[%i]", Msg, __FILE__, __LINE__); DoAssert1(Buff); __debugbreak() ; }
 
 // ========================================================================
 // ========================================================================
 
-#define SCD_BUILDNO      119                   /* Build number*/
-#define SCD_BUILDDATE    "28 July 2006"        /* Build release date*/
+#define SCD_BUILDNO      120                  /* Build number*/
+#define SCD_BUILDDATE    "31 July 2006"        /* Build release date*/
 #define SCD_VERINFO_V0   9                     /* Major Version */
 #define SCD_VERINFO_V1   1                     /* Minor Version */
 #define SCD_VERINFO_V2   4                     /* Incompatible Version, ie check these numbers match in DLLs*/

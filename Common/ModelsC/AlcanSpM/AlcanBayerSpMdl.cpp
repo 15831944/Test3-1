@@ -543,7 +543,7 @@ void ASMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Double  ("Morphology",      "",   DC_,      "",        &sm_Morphology,   this,  isParm); //global constant
     DDB.Double  ("Nucleation",      "",   DC_,      "",        &sm_Nucleation,   this,  isParm); //global constant
     DDB.Double  ("Na2OFactor",      "",   DC_,      "",        &sm_Na2OFactor,   this,  isParm); //global constant
-    DDB.Visibility(SHM_All, sm_iASatMethod==ASM_May2003 || sm_iASatMethod==ASM_Hyprod);                          
+    DDB.Visibility(NSHM_All, sm_iASatMethod==ASM_May2003 || sm_iASatMethod==ASM_Hyprod);                          
     DDB.Double  ("CarbonFactor",    "",   DC_,      "",        &sm_CarbonFactor, this,  isParm); //global constant
     DDB.Visibility();                                                                               
 
@@ -551,7 +551,7 @@ void ASMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.CheckBoxBtn("DefineLiquor", "",   DC_,      "",        &fDoCalc,         this,  isParm);
     if (PrjFileVerNo()<79)
       DDB.Byte    ("DefnLiqMethod",   "",   DC_,      "",        &sm_iRqdCalcMethod, this,  isParm|SetOnChange, DDB1); //global constant
-    DDB.Visibility(SHM_All, fDoCalc);                          
+    DDB.Visibility(NSHM_All, fDoCalc);                          
     DDB.Double  ("Rqd_A/C",         "",   DC_,      "",        &dRqd_AtoC,       this,  isParm);
     DDB.Double  ("Rqd_C/S",         "",   DC_,      "",        &dRqd_CtoS,       this,  isParm);
     DDB.Double  ("Rqd_C",           "",   DC_Conc,  "g/L",     &dRqd_C,          this,  isParm);

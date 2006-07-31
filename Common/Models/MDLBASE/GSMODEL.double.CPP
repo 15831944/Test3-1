@@ -178,7 +178,7 @@ void GSIOAlpha::BuildDataDefn(DataDefnBlk & DDB, rGSModel Mdl, flag Visible, int
   Strng DefLbl;
   Strng StrVal;
 
-  DDB.Visibility(SHM_All, Visible, Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
 
   BuildDataDefnOrdPri(DDB, Mdl);
 
@@ -202,24 +202,24 @@ void GSIOAlpha::BuildDataDefn(DataDefnBlk & DDB, rGSModel Mdl, flag Visible, int
     { int xxx=0; }
   DDB.Byte   ("",             "QmMode",   DC_,    "",     &iQmMode,         &Mdl, isParmStopped | AffectsStruct | SetOnChange, DDB0);
 
-  DDB.Visibility(SHM_All, Visible && ((QmMode(Mdl)==GSA_QmMassFlow)), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && ((QmMode(Mdl)==GSA_QmMassFlow)), Visible, Visible, Visible);
   DDB.Double("",     "Qm",          DC_Qm,      "kg/s",   &Qm,              &Mdl,
     ((QmMode(Mdl)==GSA_QmMassFlow) && !LastOne ? isParm : 0));
   DDB.Double("",     "QmErr",          DC_Qm,      "kg/s",   &QmErr,              &Mdl, isResult|0);
 
-  DDB.Visibility(SHM_All, Visible && ((QmMode(Mdl)==GSA_QmVolumeFlow)), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && ((QmMode(Mdl)==GSA_QmVolumeFlow)), Visible, Visible, Visible);
   DDB.Double("",     "Qv",          DC_Qv,      "L/s",   &Qv,              &Mdl,
     ((QmMode(Mdl)==GSA_QmVolumeFlow) && !LastOne ? isParm : 0));
   DDB.Double("",     "QvErr",          DC_Qv,      "L/s",   &QvErr,              &Mdl, isResult|0);
 
-  DDB.Visibility(SHM_All, Visible && (QmMode(Mdl)==GSA_QmPercSplit), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && (QmMode(Mdl)==GSA_QmPercSplit), Visible, Visible, Visible);
   DDB.Double ("",     "Split",       DC_Frac,    "%",      &m_FracSplit,       &Mdl,
     ((QmMode(Mdl)==GSA_QmPercSplit) && !LastOne ? isParm : 0));
 
-  DDB.Visibility(SHM_All, Visible && (QmMode(Mdl)==GSA_QmDemand), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && (QmMode(Mdl)==GSA_QmDemand), Visible, Visible, Visible);
   DDB.Double("",     "Demand",      DC_Frac,    "%",      &DmndSplit,        &Mdl, isResult|0);
 
-  DDB.Visibility(SHM_All, Visible, Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
   switch (Mdl.iMkMode)
     {
     case GSA_MkMixture   : DefLbl= "(Mixture)";     break;
@@ -240,15 +240,15 @@ void GSIOAlpha::BuildDataDefn(DataDefnBlk & DDB, rGSModel Mdl, flag Visible, int
     {0}};
   DDB.Byte   ("",             "MkMode",   DC_,    "",     &iMkMode,         &Mdl, isParmStopped|AffectsStruct | SetOnChange, DDB1);
 
-  DDB.Visibility(SHM_All, Visible && (MkMode(Mdl)==GSA_MkLSRatio), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkLSRatio), Visible, Visible, Visible);
   DDB.Double("",     "LSRatio",     DC_Frac,    "%",      &LSRatio,         &Mdl, isParm);
-  DDB.Visibility(SHM_All, Visible && (MkMode(Mdl)==GSA_MkDensity), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkDensity), Visible, Visible, Visible);
   DDB.Double("",     "Density",     DC_Rho,    "kg/m^3",  &Density,         &Mdl, isParm);
-  DDB.Visibility(SHM_All, Visible && (MkMode(Mdl)==GSA_MkPhaseComp), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkPhaseComp), Visible, Visible, Visible);
   DDB.Double("",     "SolidsFrac",  DC_Frac,    "%",      &SFrac,           &Mdl, isParm);
   DDB.Double("",     "LiquidFrac",  DC_Frac,    "%",      &LFrac,           &Mdl, isParm);
   DDB.Double("",     "VapourFrac",  DC_Frac,    "%",      &VFrac,           &Mdl, isParm);
-  DDB.Visibility(SHM_All, Visible && (MkMode(Mdl)==GSA_MkSpecieFrac), Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkSpecieFrac), Visible, Visible, Visible);
   if (PrjFileVerNo()<22)
     {
     DDB.Double("",     "SolidsSplt",  DC_Frac,    "%",      &m_SSplt,           &Mdl, isParm);
@@ -284,7 +284,7 @@ void GSIOAlpha::BuildDataDefn(DataDefnBlk & DDB, rGSModel Mdl, flag Visible, int
       }
     DDB.EndObject();
     }
-  DDB.Visibility(SHM_All, Visible, Visible, Visible, Visible);
+  DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
 
   DDB.Text("");
   };
@@ -2664,7 +2664,7 @@ void GSModelBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
 void GSModelBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, DDBPages PageIs, dword UserInfo)
   {
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, fEnabled);
+  DDB.Visibility(NSHM_All, fEnabled);
 
   if (pGSM)
     DDB.Object(pGSM, pNd, NULL, NULL, DDB_RqdPage);//

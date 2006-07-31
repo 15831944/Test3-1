@@ -160,7 +160,7 @@ class DllImportExport FilingControlBlock
     DWORD          dwStartPos;
     DWORD          dwCurrentPos;
     DWORD          dwEndPos;
-    Strng          sOldPrjFiles;
+    Strng          xm_sOldPrjFiles;
     long           m_PrjFileVerNo;
     byte           bSaveAs:1,
                    bFarCopy:1,
@@ -498,6 +498,7 @@ class DllImportExport TagObjClass
   friend class DataDefnBlk;
   friend class MUnitDefBase;
   friend class DDBDataInfo;
+  friend class CClassLicenseOptions;
 
   public:
     TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_);
@@ -511,7 +512,7 @@ class DllImportExport TagObjClass
     static TagObjClass* FindClassName(pchar ClassName_);
     static TagObjClass* FindClassId(pchar ClassId_, flag fWithVersion=True, LPCTSTR SubClass=NULL);
     static TagObjClass* FindGroupId(pchar GroupId_);
-    static TagObjClass* FindClassIndexed(pchar GroupId_, int iIndex, bool IgnoreSelFn=false);
+    static TagObjClass* FindClassIndexed(pchar GroupId_, int iIndex);
     TagObjClass*   FindGrpClassId(pchar ClassId_);
     void           GetShortDesc(Strng &S);
     TagObjClass*   FindGrpShortDesc(pchar ShortDescd_);
@@ -565,8 +566,9 @@ class DllImportExport TagObjClass
     flag           CatIsProBal()                               { return ((dwCategory & TOC_PROBAL)==TOC_PROBAL); };
     flag           CatMdlTest(dword dwCat)                     { return ((TOC_MDL_MASK & dwCategory & dwCat)==(TOC_MDL_MASK & dwCategory)); }; //all mdl test criteria met
     flag           CatModeTest(dword dwCat)                    { return ((TOC_SOLVE_MASK & dwCategory & dwCat)!=0); };
-    flag           TestLicOK(dword dwCat)                      { bLicOK=(CatMdlTest(dwCat)/* && CatModeTest(dwCat)*/); return bLicOK; };
-    flag           LicOK()                                     { return bLicOK; };
+    flag           TestLicenseOK(dword dwCat, flag LicErrNotedOn)    { m_bLicenseOK=(CatMdlTest(dwCat)/* && CatModeTest(dwCat)*/); m_bLicErrNoted=LicErrNotedOn; return m_bLicenseOK; };
+    flag           LicenseOK()                                 { return m_bLicenseOK; };
+    void           SetLicErrNoted(flag On)                     { m_bLicErrNoted=On; };
 
     short          NIdNos()                                    { return iNIds; };
     short          IdNo()                                      { return iId; };
@@ -576,11 +578,8 @@ class DllImportExport TagObjClass
     pchar          DefaultTag()                                { return sDefaultTag(); };
     pchar          TagComment()                                { return sTagComment(); };
 
-    flag           Selectable(bool IgnoreConditions=false);
+    flag           Selectable();
     void           SetSelectable(flag Select)                  { m_bSelectable=Select; };
-    //void           AddSelectFn(CTagObjSelectFn * SelectableFn);
-    //void           RemoveSelectFn(CTagObjSelectFn * SelectableFn);
-    //static void    UpdateSelectConditions();
 
     flag           Flagged()                                   { return bFlagged; };
     void           SetFlagged(flag Flagged)                    { bFlagged=Flagged; };
@@ -635,16 +634,16 @@ class DllImportExport TagObjClass
     TagObjClass*   pFirstClassInGrp;
     TagObjClass*   pNxtClassInGrp;
 
-    flag           m_bSelectable:1,
-                   bFlagged:1, //temp flag
-                   bLicOK:1,
-                   fDuplicateExists:1;
+    flag           m_bSelectable,
+                   m_bLicenseOK,
+                   m_bLicErrNoted,
+                   m_bCreateIfNotLicensed,
+                   bFlagged, //temp flag
+                   fDuplicateExists;
+
     DWORD          nInstances;
     DWORD          nInstancesMax;
     DWORD          dwSelectMask;
-
-    bool           m_SelectConditionsOK;
-    //CList<CTagObjSelectFn*, CTagObjSelectFn*> m_SelectableFns;
 
     const type_info * m_pTypeId;
 
@@ -666,6 +665,23 @@ inline Strng GetClassIdNoVersion(LPCTSTR pClass)
   ClassNV.SetLength(pVer ? (pVer-pClass): strlen(pClass));
   return ClassNV;
   }
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
+class CClassLicenseOptions 
+  {
+  public:
+    CClassLicenseOptions (TagObjClass & TOClass, flag CreateIfNoLicensed)
+      {
+      TOClass.m_bCreateIfNotLicensed=CreateIfNoLicensed;
+      };
+
+  public:
+  };
 
 // ==========================================================================
 //
@@ -978,51 +994,53 @@ class DllImportExport TaggedObject : public ConditionBlk
 
     void            ClearDDBLists();
 
-    static void     SetGlblRunModes(long RunModes, long RunMdsMsk);
-    static long     GetPermissableRunModes(long MdMask);
-    static long     GetPermissableGlblRunModes(long MdMask);
-    static Strng    GlblMode2String(long Md, long MdMsk);
-    static long     String2GlblMode(LPCSTR MdStr);
-    static void     GetGlblModeValueLst(DDBValueLstMem & Lst, long MdMask);
+    void            SetAllowedModes(bool NodeSolve, long AllowedModes);
+    void            ValidateModes();
 
-    static long     GlblRunModes()          { return gs_RunMds; };
-    static long     GlblSolveMode()         { return GlblRunModes() & SM_All; };
-    static long     GlblHeatMode()          { return GlblRunModes() & HM_All; };
-    static flag     GlblProbalMode()        { return (gs_RunMds & SM_All) == SM_Direct; };
-    static flag     GlblDynFlowMode()       { return (gs_RunMds & SM_All) == SM_Inline; }
-    static flag     GlblDynFullMode()       { return (gs_RunMds & SM_All) == SM_Buffered; }
-    static flag     GlblDynamicMode()       { return (gs_RunMds & (SM_Inline|SM_Buffered))!=0; }
-    static flag     GlblSkipHeat()          { return (gs_RunMds & HM_All)==HM_None; };
-    static flag     GlblSimpleHeat()        { return (gs_RunMds & HM_All)==HM_Simple; };
-    static flag     GlblFullHeat()          { return (gs_RunMds & HM_All)==HM_Full; };
+    long            AllModes(long MdMsk=-1); // All Modes
 
-    virtual void    SetRunModes(long Md, long MdMsk);
-    long            RunModes();
-
-    long            NetMethod(); // this needs to be worked on to allow probal and dyn flwsheets to be mixed.
+    void            SetNetMethod(long Mode);
+    void            SetNetMethod(LPCTSTR Mode);
+    long            NetMethod();   
+    LPTSTR          NetMethodStr();
     flag            NetProbalMethod()       { return NetMethod() == NM_Probal; };
     flag            NetDynamicMethod()      { return NetMethod() == NM_Dynamic; };
-    
-    static void     SetSteadyReqdFlag(flag On) { if (On) gs_RunMds |= NM_DynamicSS; else gs_RunMds &= ~NM_DynamicSS; }
-    static flag     SteadyReqdFlag()        { return (gs_RunMds & NM_DynamicSS)!=0; };
 
+    void            SetSolveMethod(long Mode);
+    void            SetSolveMethod(LPCTSTR Mode);
     long            SolveMethod();
+    LPTSTR          SolveMethodStr();
     flag            SolveDirectMethod()     { return SolveMethod() == SM_Direct; };
     flag            SolveInlineMethod()     { return SolveMethod() == SM_Inline; };
     flag            SolveBufferedMethod()   { return SolveMethod() == SM_Buffered; };
     flag            SolveDynamicMethod()    { return (SolveMethod() & (SM_Inline|SM_Buffered))!=0; };
 
+    void            SetHeatMethod(long Mode);
+    void            SetHeatMethod(LPCTSTR Mode);
     long            HeatMethod();
+    LPTSTR          HeatMethodStr();
     flag            HeatSkipMethod()        { return (HeatMethod() & HM_All)==HM_None; };
-    flag            HeatSimpleMethod()      { return (HeatMethod() & HM_All)==HM_Simple; };
+    flag            HeatSimpleMethod()      { return (HeatMethod() & HM_All)==HM_Reduced; };
     flag            HeatFullMethod()        { return (HeatMethod() & HM_All)==HM_Full; };
-    //flag            SkipFullHeatMode()    { return (HeatMethod() & HM_All)==0; };
+    long            FlowModeRqd();
+    LPTSTR          FlowModeRqdStr();
+    void            SetFlowModeRqd(long FlowMode, long FlowFlags, TaggedObject * pRuleObj);
+    void            SetFlowModeRqd(LPCTSTR FlowMode, long FlowFlags, TaggedObject * pRuleObj);
 
-    void            SetFlowModeReqd(long U);
-    long            FlowModeReqd()          { return m_FlowModeReqd; };
-    void            SetFlowMode(long FlowMode, TaggedObject * pRuleObj);
-    long            FlowMode()              { return m_lRunMds & LFM_All; };
-    TaggedObject *  FlowModeObj()           { return m_FlowModeObj; };
+    static void     SetRevert2DefaultRqd(bool On) { gs_Revert2DefaultRqd=On; };
+    static bool     Revert2DefaultRqd() { return gs_Revert2DefaultRqd; };
+    void            Revert2Default();
+    void            SetFlowModeLcl(long Mode);
+    void            SetFlowModeLcl(LPCTSTR Mode);
+    long            FlowMode();
+    long            FlowModePg();
+    LPTSTR          FlowModeStr();
+    TaggedObject *  FlowModeObj();
+
+    flag            TransferFlowMode()      { return (FlowMode() & LFM_All)==LFM_Xfer; };
+    flag            SimpleFlowMode()        { return (FlowMode() & LFM_All)==LFM_Simple; };
+    flag            LinearFlowMode()        { return (FlowMode() & LFM_All)==LFM_Linear; };
+    flag            FullFlowMode()          { return (FlowMode() & LFM_All)==LFM_Full; };
 
     void            SetUserMethod(long U);
     long            UserMethod()            { return m_lRunMds & UM_All; };
@@ -1073,18 +1091,40 @@ class DllImportExport TaggedObject : public ConditionBlk
 
     static flag     fRunning;
     static flag     fBuildingAccess;
-    static long     gs_RunMds;
+
+public:
+    static long     gs_DefNetMode;
+    static long     gs_DefLinkMode;
+    static long     gs_DefNodeMode;
+    static long     gs_DefHeatMode;
+    static long     gs_DefFlowMode;
+
+    static long     gs_MaxLinkMode;
+    static long     gs_MaxNodeMode;
+    static long     gs_MaxHeatMode;
+    static long     gs_MaxFlowMode;
+
+    static long     gs_AllowedLinkMode;
+    static long     gs_AllowedNodeMode;
+    static long     gs_AllowedHeatMode;
+    static long     gs_AllowedFlowMode;
+
+    static long     gs_AllowedNodeModes;
+    static long     gs_AllowedLinkModes;
+
+    static bool     gs_Revert2DefaultRqd;
+
+    bool            m_bNodeSolveMode;
+    long            m_AllowedModes;
+    long            m_FallBackModes;
     long            m_lRunMds;
     long          * m_pRunMds;
 
-    //static long     gs_lFlowMd;
-    //long            m_lFlowMd;
-    //TaggedObject  * m_pFlowModeObj;
-  public:
-    long            m_FlowModeReqd;
+    long            m_FlowModeRqd;
     TaggedObject  * m_FlowModeObj;
     int             m_FlowModePass;
 
+protected:
     flag            m_fActive;
     flag            m_fActiveHold;
     flag            m_fActiveHoldIfSS;
@@ -1519,7 +1559,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           PopUserInfo();
     void           Object(TaggedObject * Obj, TaggedObject * This, pchar Tag=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
     char *         BlockTag() { return Nest[lCallLevel-1].pTag; }
-    DDEF_Flags     Visibility(DDEF_Flags ModeFlags=SHM_All, flag ViewVisible=TRUE, flag FileVisible=TRUE, flag SnapVisible=TRUE, flag ScenVisible=TRUE);
+    DDEF_Flags     Visibility(DDEF_Flags ModeFlags=NSHM_All, flag ViewVisible=TRUE, flag FileVisible=TRUE, flag SnapVisible=TRUE, flag ScenVisible=TRUE);
     DDEF_Flags     GetVisibility();
     DDEF_Flags     SetVisibility(DDEF_Flags VisFlags);
 
@@ -1686,7 +1726,87 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
       }
   };
 
+// ==========================================================================
 
+enum eGlblModeWhich {eGM_Name, eGM_Default, eGM_Remote, eGM_Propagate, eGM_Propagated, eGM_FallBack };
+
+extern DllImportExport long     GetPermissableModes(long MdMask, TaggedObject * pObject);
+extern DllImportExport Strng    GlblMode2String(long Md, long MdMsk);
+extern DllImportExport LPTSTR   GlblMode2LPTSTR(long Md, long MdMsk, eGlblModeWhich Which);
+extern DllImportExport long     String2GlblMode(LPCTSTR MdStr, long MdMsk);
+extern DllImportExport void     GetGlblModeValueLst(DDBValueLstMem & Lst, long MdMask, long DefMd, bool PropMds);
+
+    //static long     GlblRunModes()          { return gs_RunMds; };
+extern DllImportExport void     SetDefNetMode(long Mode);
+inline                 long     DefNetMode()            { return TaggedObject::gs_DefNetMode & NM_All; };
+inline                 LPTSTR   DefNetModeStr()         { return GlblMode2LPTSTR(DefNetMode(), NM_All, eGM_Name); };
+inline                 flag     DefNetProbalMode()      { return (TaggedObject::gs_DefNetMode & NM_All) == NM_Probal; };
+inline                 flag     DefNetDynamicMode()     { return (TaggedObject::gs_DefNetMode & NM_All) == NM_Dynamic; }
+
+extern DllImportExport void     SetDefNodeMode(long Mode);
+inline                 long     DefNodeSolveMode()      { return TaggedObject::gs_DefNodeMode & SM_All; };
+inline                 LPTSTR   DefNodeSolveModeStr()   { return GlblMode2LPTSTR(DefNodeSolveMode(), SM_All, eGM_Name); };
+extern DllImportExport void     SetDefLinkMode(long Mode);
+inline                 long     DefLinkSolveMode()      { return TaggedObject::gs_DefLinkMode & SM_All; };
+inline                 LPTSTR   DefLinkSolveModeStr()   { return GlblMode2LPTSTR(DefLinkSolveMode(), SM_All, eGM_Name); };
+
+extern DllImportExport void     SetDefHeatMode(long Mode);
+inline                 long     DefHeatMode()           { return TaggedObject::gs_DefHeatMode & HM_All; };
+inline                 LPTSTR   DefHeatModeStr()        { return GlblMode2LPTSTR(DefHeatMode(), HM_All, eGM_Name); };
+inline                 flag     DefSkipHeat()           { return (TaggedObject::gs_DefHeatMode & HM_All)==HM_None; };
+inline                 flag     DefReducedHeat()        { return (TaggedObject::gs_DefHeatMode & HM_All)==HM_Reduced; };
+inline                 flag     DefFullHeat()           { return (TaggedObject::gs_DefHeatMode & HM_All)==HM_Full; };
+
+extern DllImportExport void     SetDefFlowMode(long Mode);
+inline                 long     DefFlowMode()           { return TaggedObject::gs_DefFlowMode & LFM_All; };
+inline                 LPTSTR   DefFlowModeStr()        { return GlblMode2LPTSTR(DefFlowMode(), LFM_All, eGM_Name); };
+ 
+extern DllImportExport void     SetMaxNodeMode(long Mode);
+extern DllImportExport void     SetMaxLinkMode(long Mode);
+extern DllImportExport void     SetMaxHeatMode(long Mode);
+extern DllImportExport void     SetMaxFlowMode(long Mode);
+
+extern DllImportExport long     MaxModes2Mask(long MaxMode);
+
+extern DllImportExport long     MaxNodeMode();
+extern DllImportExport long     MaxLinkMode();
+extern DllImportExport long     MaxHeatMode();
+extern DllImportExport long     MaxFlowMode();
+
+extern DllImportExport long     AllowedNodeModes();
+extern DllImportExport long     AllowedLinkModes();
+//extern DllImportExport long     AllowedHeatModes();
+//extern DllImportExport long     AllowedFlowModes();
+
+inline                 void     SetDefNetMode(LPCTSTR RunMds)  { SetDefNetMode(String2GlblMode(RunMds, NM_All)); }
+inline                 void     SetDefLinkMode(LPCTSTR RunMds) { SetDefLinkMode(String2GlblMode(RunMds, SM_All)); }
+inline                 void     SetDefNodeMode(LPCTSTR RunMds) { SetDefNodeMode(String2GlblMode(RunMds, SM_All)); }
+inline                 void     SetDefHeatMode(LPCTSTR RunMds) { SetDefHeatMode(String2GlblMode(RunMds, HM_All)); }
+inline                 void     SetDefFlowMode(LPCTSTR RunMds) { SetDefFlowMode(String2GlblMode(RunMds, LFM_All)); }
+
+//void CExecutive::SetMaxNetMode(LPCTSTR RunMds)  { SetMaxNetMode(TaggedObject::String2GlblMode(RunMds, NM_All)); }
+inline                 void     SetMaxLinkMode(LPCTSTR RunMds) { SetMaxLinkMode(String2GlblMode(RunMds, SM_All)); }
+inline                 void     SetMaxNodeMode(LPCTSTR RunMds) { SetMaxNodeMode(String2GlblMode(RunMds, SM_All)); }
+inline                 void     SetMaxHeatMode(LPCTSTR RunMds) { SetMaxHeatMode(String2GlblMode(RunMds, HM_All)); }
+inline                 void     SetMaxFlowMode(LPCTSTR RunMds) { SetMaxFlowMode(String2GlblMode(RunMds, LFM_All)); }
+
+inline                 long     GetDefNetMode(LPCTSTR RunMds)  { return String2GlblMode(RunMds, NM_All); }
+inline                 long     GetDefLinkMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, SM_All); }
+inline                 long     GetDefNodeMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, SM_All); }
+inline                 long     GetDefHeatMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, HM_All); }
+inline                 long     GetDefFlowMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, LFM_All); }
+
+//void CExecutive::SetMaxNetMode(LPCTSTR RunMds)  { SetMaxNetMode(TaggedObject::String2GlblMode(RunMds, NM_All)); }
+inline                 long     GetMaxLinkMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, SM_All); }
+inline                 long     GetMaxNodeMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, SM_All); }
+inline                 long     GetMaxHeatMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, HM_All); }
+inline                 long     GetMaxFlowMode(LPCTSTR RunMds) { return String2GlblMode(RunMds, LFM_All); }
+
+inline                 LPCTSTR  GetNetModeStr (long RunMds) { return GlblMode2LPTSTR(RunMds, NM_All, eGM_Name); }
+inline                 LPCTSTR  GetLinkModeStr(long RunMds) { return GlblMode2LPTSTR(RunMds, SM_All, eGM_Name); }
+inline                 LPCTSTR  GetNodeModeStr(long RunMds) { return GlblMode2LPTSTR(RunMds, SM_All, eGM_Name); }
+inline                 LPCTSTR  GetHeatModeStr(long RunMds) { return GlblMode2LPTSTR(RunMds, HM_All, eGM_Name); }
+inline                 LPCTSTR  GetFlowModeStr(long RunMds) { return GlblMode2LPTSTR(RunMds, LFM_All, eGM_Name); }
 
 // ==========================================================================
 

@@ -47,7 +47,6 @@ class DllImportExport MN_Surge : public MdlNode
             void   AddMdlNetworked(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual void   SetRunModes(long Md, long MdMsk);
     virtual long   CheckDataRanges(bool CheckIO);
 
     virtual CFlange * GetFlange(int IOId);
@@ -55,7 +54,7 @@ class DllImportExport MN_Surge : public MdlNode
     virtual void   PreDisConnect(int IONo);
 
     virtual flag   InitialiseSolution();
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual void   SetDatumsDone();
     virtual flag   Set_Sizes();
     virtual void   SetState(eScdMdlStateActs RqdState);

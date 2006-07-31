@@ -124,11 +124,11 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
   DDB.Double ("Density",      "Rho",  DC_Rho,  "kg/m^3", xidRho,        this, isResult|noFile|noSnap);
   DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
 
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
   DDB.Text  ("");
   DDB.Double("P_Rqd",         "",    DC_P   , "kPag",   xidEnvPRqd,     this, isParm|NAN_OK);
 
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
   DDB.Double("T_Rqd",         "",    DC_T   , "C",      xidEnvTRqd,     this, isParm|NAN_OK);
 
   BuildDataDefnElevation(DDB);
@@ -442,7 +442,7 @@ flag MN_Area::PreStartCheck()
   {
   flag Ok=true;
   if (m_Content.Model())
-    Ok=m_Content.Model()->Class()->LicOK();
+    Ok=m_Content.Model()->Class()->LicenseOK();
   if (!Ok)
     LogError(FullObjTag(), 0, "Specie model '%s' not enabled by licensing", m_Content.Model()->Class()->ShortDesc());
   return MdlNode::PreStartCheck();
@@ -501,9 +501,9 @@ void MN_Area::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-Z_States MN_Area::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MN_Area::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return Z_Unknown;//SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  //SetDatums_Node(Pass, List, NULL, IOIn, Zi, Z_State_Src);
   };
 
 //--------------------------------------------------------------------------

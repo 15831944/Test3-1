@@ -1586,7 +1586,7 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect
     int            m_Attachments;
     bool           m_bMustDelete;
 
-    double         m_dDatum, m_dDatumRqd;
+    double         m_Datum, m_DeltaZ;
     flag           //fFlngSetUp,
                    fIsBufferPos,
                    fIsBuffered,
@@ -1706,8 +1706,9 @@ inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, AAAAIOId
 //..
 inline bool IsAreaIOId(int Id)        { return InRange(AreaIOId0,   Id, CtrlIOId0   -1);  };
 
-const int IOId_2IOIn          = FlwIOId(0);
+const int IOId_2IOIn          = FlwIOId(0); // These two Ids must stay 0 and 1. They are hardwired in a number of models
 const int IOId_2IOOut         = FlwIOId(1);
+
 const int IOId_2IOLeakI       = LeakIOId(500);
 const int IOId_2IOLeakO       = LeakIOId(501);
 
@@ -3271,6 +3272,26 @@ class CIOAreaLcl
   };
 #endif
 
+class CFlwNodeIndex
+  {
+  public:
+    CFlwNodeIndex()
+      {
+      m_pNd  = NULL;
+      m_IOIn = -1;
+      };
+    CFlwNodeIndex(FlwNode * pNd, int IOIn)
+      {
+      m_pNd  = pNd;
+      m_IOIn = IOIn;
+      };
+  public:
+    FlwNode * m_pNd;
+    int       m_IOIn;
+  };
+
+class CFlwNodeIndexList : public CList <CFlwNodeIndex, CFlwNodeIndex&> {};
+
 class DllImportExport FlwNode : public CTNode
   {
   DEFINE_MEMSTATS(FlwNode)
@@ -3305,8 +3326,6 @@ class DllImportExport FlwNode : public CTNode
     void           AddPwrUser(CPwrUser*pPwr);
     void           RemovePwrUser(CPwrUser*pPwr);
 
-    void           SetAllowedSolveModes(long AllowedModes);//LPCTSTR PBModeNm, LPCTSTR XferModeNm, LPCTSTR FullModeNm);
-    void           SetAllowedFlowModes(bool All=false);
     bool           PipeFlowMode()       { return FlowMode()==LFM_Full; };
     bool           LinearFlowMode()     { return FlowMode()==LFM_Linear; };
     bool           SimpleFlowMode()     { return FlowMode()==LFM_Simple; };
@@ -3739,7 +3758,7 @@ class DllImportExport FlwNode : public CTNode
     double         IOP_MaxSet_Flng(int i)             { return IOPB_Flng(i).PMaxLim; };
     double         IOP_MaxSet_Rmt(int i)              { return IOPB_Rmt(i).PMaxLim; };
 
-    double         IODatum_Flng(int i)                { return IOFlange(i)->m_dDatum; };
+    double         IODatum_Flng(int i)                { return IOFlange(i)->m_Datum; };
     double         IODatum_Term(int i);
     double         IODatum_Calc(int i)                { ASSERT(0); return 0.0; };
 
@@ -3810,7 +3829,7 @@ class DllImportExport FlwNode : public CTNode
     int            IO_Dirn(int i)                      { double q=IOQmEst_In(i); return (FlwZero(q) ? FD_Zero : (q>0.0 ? FD_In : FD_Out)); };
     int            IOSign(int i)                       { return IO_Dirn(i); };
     //int            TwoIOInIndex(bool Reverse=false)    { return SolveBufferedMethod() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
-    int            TwoIOInIndex(bool Reverse=false)    { return SolveDynamicMethod() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
+    int            TwoIOInIndex(bool Reverse=false)    { return NetDynamicMethod() ? (!IO_Out(0) ? 0 : 1) : (!Reverse ? 0 : 1); }
     bool           IOEvalSeq_In(int i)                 { return m_IOs[i].fEvalSeqIn!=0; };
     bool           IOEvalSeq_Out(int i)                { return m_IOs[i].fEvalSeqOut!=0; };
     void           SetIOEvalSeq_In(int i, bool On)     { m_IOs[i].fEvalSeqIn=On; };
@@ -3888,8 +3907,6 @@ class DllImportExport FlwNode : public CTNode
 
     void           Set_ProdFrac(int JoinNo, int i, double Frac);
 
-    //byte           FBBFlowOptions(bool ForceXfer) { bool IsXfer=(!SolveDirectMethod() && (ForceXfer || SolveInlineMethod())); return IsXfer ? FBMode_QmXfer : FBMode_QmReqd; };
-
     virtual long   NodeFlwTask(NodeFlwTasks Task);
 
     FlwNode*       CreateFlwNode(char * Class, char * SubClass, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
@@ -3912,7 +3929,7 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   IsValidAuditNode()   { return false; };
 
     virtual void   StartSolution() { };
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_In) { return Z_Guessed; };//true; };
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn) { };
     virtual flag   Set_Sizes() { return true; };
     virtual void   SetDatumsDone();// { };
 
@@ -4225,8 +4242,8 @@ class DllImportExport FlwNode : public CTNode
     pflag          pSubNetTopoChg;
     int            NetNo;
 
-    double         m_dDatum, m_dDatumRqd;
-    Z_States       Z_State;
+    double         m_Datum, m_DatumRqd;
+    Z_States       m_ZState;
 
 #if WITHSPECSHEETS
     Strng          sSpecSheet;
@@ -4277,11 +4294,6 @@ class DllImportExport FlwNode : public CTNode
 
     CArray<CPwrUser*, CPwrUser*> m_PwrUsers;
 
-    //DDBValueLstMem m_DDBSolveModes;
-    long           m_AllowedSolveModes;
-    DDBValueLstMem m_DDBFlowModes;
-    DDBValueLstMem m_DDBUserMethods;
-
     CMap<CString, LPCTSTR, SpConduit*, SpConduit*> WrkConduits;
     CMap<CString, LPCTSTR, SpContainer*, SpContainer*> WrkContainers;
 
@@ -4320,23 +4332,26 @@ class StkSpContainer
 //---------------------------------------------------------------------------
 
 XID xidSysCADSolutionOld          = FlwXID(1);
-XID xidSolveMode                  = FlwXID(2);
-XID xidHeatMode                   = FlwXID(3);
-XID xidFlowMode                   = FlwXID(4);
-XID xidFlowModeSet                = FlwXID(5);
-XID xidUserMethod                 = FlwXID(6);
-XID xidActiveMode                 = FlwXID(7);
-XID xidHoldMode                   = FlwXID(8);
-XID xidSolveState                 = FlwXID(9);
-XID xidSysCADActive               = FlwXID(10);
-XID xidSpecSheet                  = FlwXID(11);
-XID xidEvalOrder                  = FlwXID(12);
-XID xidCondition                  = FlwXID(13);
-XID xidSetState                   = FlwXID(14);
-XID xidNdNJoins                   = FlwXID(15);
-XID xidNdNIOs                     = FlwXID(16);
-XID xidMarked                     = FlwXID(17);
-XID xidFlwNdRqdArea               = FlwXID(18);
+XID xidNetMethod                  = FlwXID(2);
+XID xidSolveMethod                = FlwXID(3);
+XID xidHeatMethod                 = FlwXID(4);
+XID xidFlowMode                   = FlwXID(5);
+//XID xidFlowModeRecover            = FlwXID(6);
+XID xidFlowModeRqd                = FlwXID(7);
+XID xidFlowModeSet                = FlwXID(8);
+XID xidUserMethod                 = FlwXID(9);
+XID xidActiveMode                 = FlwXID(10);
+XID xidHoldMode                   = FlwXID(11);
+XID xidSolveState                 = FlwXID(12);
+XID xidSysCADActive               = FlwXID(13);
+XID xidSpecSheet                  = FlwXID(14);
+XID xidEvalOrder                  = FlwXID(15);
+XID xidCondition                  = FlwXID(16);
+XID xidSetState                   = FlwXID(17);
+XID xidNdNJoins                   = FlwXID(18);
+XID xidNdNIOs                     = FlwXID(19);
+XID xidMarked                     = FlwXID(20);
+XID xidFlwNdRqdArea               = FlwXID(21);
 
 XID xidSrcIOTag                   = FlwXID(40);
 XID xidDstIOTag                   = FlwXID(41);
@@ -4412,7 +4427,7 @@ class DllImportExport NodeDrawEntry
 //===========================================================================
 
 inline FlwNode*       CJoinRec::Nd()                     { return pNd; };
-inline double         CJoinRec::Datum()                  { return pNd->m_dDatum; };
+inline double         CJoinRec::Datum()                  { return pNd->m_Datum; };
 inline flag           CJoinRec::InFixedNet()             { return fInFixedNet; };
 inline flag           CJoinRec::InXferNet()              { return fInXferNet; };
 inline flag           CJoinRec::IsXferLnk()              { ASSERT(m_nConns==2); return IOFB(0,0)->IsXfer()||IOFB(1,0)->IsXfer(); };

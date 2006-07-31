@@ -19,6 +19,7 @@
 //#ifndef __ScdCOM_h__
 //  #include "..\..\ScdCOM\scdcom.h"
 //#endif
+#include "tagdb.h"
 
 #ifdef __EXECUTIV_CPP
   #define DllImportExport DllExport
@@ -536,7 +537,7 @@ class DllImportExport CExecObj
     //virtual int    EO_TermSolution(EqnSlvCtrlBlk & EQCtrl)              { return -1; };
     virtual int    EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine) { return -1; };
 
-    virtual void   EO_SetSolveMode(long RunMds, long RunMdsMsk)                        { };
+    virtual void   EO_SetSolveMode()                        { };
     virtual flag   EO_GotoRunStart(CXM_TimeControl &CB)                 { return True;};
     virtual flag   EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged) { return True;};
     virtual flag   EO_PreStart(CXM_TimeControl &CB)                      { return True;};
@@ -957,6 +958,7 @@ class DllImportExport CExecSequence
   };
 
 //===========================================================================
+
 typedef union
   {
   long lParam;
@@ -966,17 +968,43 @@ typedef union
     };
   } CDoOneStepInfo;
 
-struct CLDBStuff
+class CLoadDBInfo
   {
-  CStopWatch    m_LoadTime;
-  Strng        m_RtFolder;
-  flag         m_AllLoaded;
-  flag         m_Cancelled;
-  long         m_nObjs;
-  CArray <flag, flag> m_LoadIt;
+  public:
+    CLoadDBInfo(long DBFmt, DWORD DBOpts, LPTSTR pRoot) :
+      m_FCB(pRoot, DefaultCfgLabel, TOF_DBase)
+      {
+      m_pRoot      = pRoot;
+      m_RtFolder   = pRoot;
+      m_RtFolder.FnClearEndBSlash();
+      m_RtFolder.FnCompactPath(50);
+
+      m_DBFmt     = DBFmt;
+      m_DBOpts    = DBOpts;
+      m_AllLoaded = false;
+      m_Cancelled = false;
+      m_Failed    = false;
+      m_nObjs     = 0;
+      };
+
+  public:
+    LPTSTR                m_pRoot;
+    long                  m_DBFmt;
+    DWORD                 m_DBOpts;
+
+    CTagDBase             m_TagDB;
+    FilingControlBlock    m_FCB;
+
+    CStopWatch            m_LoadTime;
+    Strng                 m_RtFolder;
+    flag                  m_AllLoaded;
+    flag                  m_Cancelled;
+    flag                  m_Failed;
+    long                  m_nObjs;
+    CArray <flag, flag>   m_LoadIt;
   };
 
-//enum eOnOffOnce {eOOO_Off, eOOO_On, eOOO_Once};
+enum eLoadDBPasses {eLdDB_Open, eLdDB_Create, eLdDB_Connect, eLdDB_Load, eLdDB_LoadOther, eLdDB_Close };
 
 class DllImportExport CExecutive : public ConditionBlk  
   {
@@ -988,7 +1016,7 @@ class DllImportExport CExecutive : public ConditionBlk
 
   public:
 
-    enum RqdRunMode { RRM_Current, RRM_PBMd, RRM_DynMd, RRM_DynMdFlow, RRM_DynMdFull };
+    enum RqdRunMode { RRM_Current, RRM_PBMd, RRM_DynMd/*, RRM_DynMdFlow, RRM_DynMdFull*/ };
     enum UpdateOps  { UO_Reset, UO_Start, UO_StartDone, UO_Step, UO_Stop, UO_StopAgain  };
 
   public:
@@ -1025,21 +1053,8 @@ class DllImportExport CExecutive : public ConditionBlk
     ExecCoupling   Coupling();
     ExecCoupling   SetCoupling(ExecCoupling XC);
 
-    long           GlblRunModes();
-    Strng          GlblRunModesString(long MdMsk);
-    void           SetGlblRunModes(long RunMds, long RunMdsMsk);
-    void           SetGlblRunModesString(LPCSTR RunMds, long RunMdsMsk);
-
-    static long    GlblSolveMode()         { return TaggedObject::GlblSolveMode();      };
-    static long    GlblHeatMode()          { return TaggedObject::GlblHeatMode();     };
-
-    static flag    GlblProbalMode()        { return TaggedObject::GlblProbalMode();   };
-    static flag    GlblDynFlowMode()       { return TaggedObject::GlblDynFlowMode();  };
-    static flag    GlblDynFullMode()       { return TaggedObject::GlblDynFullMode();  };
-    static flag    GlblDynamicMode()       { return TaggedObject::GlblDynamicMode();  };
-    static flag    GlblSkipHeat()          { return TaggedObject::GlblSkipHeat();     };
-    static flag    GlblSimpleHeat()        { return TaggedObject::GlblSimpleHeat();   };
-    static flag    GlblFullHeat()          { return TaggedObject::GlblFullHeat();     };
+    void           SetDefNetMode(long Mode);
+    void           SetDefNetMode(LPCTSTR Mode);
 
     flag           Stopped();
     flag           Starting();
@@ -1064,7 +1079,6 @@ class DllImportExport CExecutive : public ConditionBlk
     DWORD          LoopCount();
 
     flag           ResetRunState(bool Reset, LPARAM lParam);
-
 
     LPTSTR         getHstTaglistFolder()                      { return m_sHstTaglistFolder(); };
     void           putHstTaglistFolder(LPTSTR Str)            { m_sHstTaglistFolder=Str; };
@@ -1202,7 +1216,7 @@ class DllImportExport CExecutive : public ConditionBlk
     void           UnlockExec(){ LeaveCriticalSection(&csExecLock); };
 
     int            SaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPrjFiles);
-    int            LoadDBase(int Pass, long DBFmt, DWORD DBOpts, char * pRoot);
+    int            LoadDBase(eLoadDBPasses Pass, CLoadDBInfo & LDBI);
     int            SaveSnapShot(char * pRoot, char * pSnapShotName, CExecObjArray *ObjList=NULL);
     int            LoadSnapShot(char * pRoot, char * pSnapShotName);
     int            SaveScenario(char * pRoot, char * pScenarioName, CExecObjArray *ObjList=NULL);
@@ -1241,8 +1255,12 @@ class DllImportExport CExecutive : public ConditionBlk
     void           UpdateDataLists();
 
     int            DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPrjFiles);
-    int            DoLoadDBase1(long DBFmt, DWORD DBOpts, char* pRoot);
-    int            DoLoadDBase2(long DBFmt, DWORD DBOpts, char* pRoot);
+    int            DoLoadDBaseOpen(CLoadDBInfo & LDBI);
+    int            DoLoadDBaseCreate(CLoadDBInfo & LDBI);
+    int            DoLoadDBaseConnect(CLoadDBInfo & LDBI);
+    int            DoLoadDBaseLoad(CLoadDBInfo & LDBI);
+    int            DoLoadDBaseLoadOther(CLoadDBInfo & LDBI);
+    int            DoLoadDBaseClose(CLoadDBInfo & LDBI);
     int            DoSaveSnapShotScenario(flag DoSnapShot, char* pRoot, char* pSnapShotName, CExecObjArray *ObjList=NULL);
     int            DoLoadSnapShotScenario(flag DoSnapShot, char* pRoot, char* pSnapShotName);
     int            CompareData(CCompareInfo& Info, CCompareWorkSpace &WS, char* pTag, CXMsgLst& XM1, CXMsgLst& XM2);
@@ -1366,7 +1384,7 @@ class DllImportExport CExecutive : public ConditionBlk
 
     int            m_DBFormat;
 
-    CLDBStuff      m_LDB;
+    //CLDBStuff      m_LDB;
 
     Strng          m_sHstTaglistFolder;
     Strng          m_sHstTaglistFilename;

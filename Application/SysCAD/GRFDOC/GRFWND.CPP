@@ -360,7 +360,7 @@ flag CGrfWnd::EO_Start(CXM_TimeControl &CB)
 
 void CGrfWnd::EO_QuerySubsReqd(CXMsgLst &XM)
   {
-  if (gs_pPrj->bGrfAnimationOn)
+  if (gs_pPrj->m_bGrfAnimationOn)
     {
     CXM_ReadIndexedData * pMsg = (CXM_ReadIndexedData *)XM.MsgPtr(XM_ReadIndexedData);
     flag ReadAll = pMsg->ReadAll;
@@ -464,7 +464,7 @@ LRESULT CGrfWnd::OnDoWriteSubs(WPARAM wParam, LPARAM lParam)
 
 flag CGrfWnd::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   {
-  if (gs_pPrj->bGrfAnimationOn)
+  if (gs_pPrj->m_bGrfAnimationOn)
     {
     CSingleLock Lock(&m_XDataLock, true);
 
@@ -502,12 +502,12 @@ flag CGrfWnd::EO_Stopping(flag fBeginStopping)
   {
   if (!fBeginStopping)
     {
-    if (gs_pPrj->bGrfUpdateAnnot)
+    if (gs_pPrj->m_bGrfUpdateAnnot)
       {
       //PostMessage(WM_COMMAND, ID_GRF_RefreshAnnotation, 0); Unfortunatly, this doesn't work!
       PostMessage(WMU_DOGRFCMD, ID_GRF_RefreshAnnotation, 0);
       }
-    if (!gs_pPrj->bGrfAnimationOn)
+    if (!gs_pPrj->m_bGrfAnimationOn)
       {//update all dynamic fills/bars
       //todo
       }
@@ -554,6 +554,8 @@ LRESULT CGrfWnd::OnDoDspUpdate(WPARAM wParam, LPARAM lParam)
 
 void CGrfWnd::EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB)
   {
+  //dbgpln("CGrfWnd::EO_DisplayUpdate");
+
   if (gs_pTheSFELib)
     {
 #if (!NewGrfUpdate)
@@ -646,7 +648,7 @@ void CGrfWnd::OnLButtonUp(UINT nFlags, CPoint point)
       if (GCB.bGrfLoadDefered)
         {
         flag LoadIt=1;
-        if (!gs_pPrj->bGrfAutoLoad)
+        if (!gs_pPrj->m_bGrfAutoLoad)
           {
           Strng S;
           S.Set("Load : %s", GCB.DrawingFile.GetBuffer(0));
@@ -746,7 +748,7 @@ void CGrfWnd::OnRButtonUp(UINT nFlags, CPoint point)
       if (GCB.bGrfLoadDefered)
         {
         flag LoadIt=1;
-        if (!gs_pPrj->bGrfAutoLoad)
+        if (!gs_pPrj->m_bGrfAutoLoad)
           {
           Strng S;
           S.Set("Load : %s", GCB.DrawingFile.GetBuffer(0));

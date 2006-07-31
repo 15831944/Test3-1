@@ -544,6 +544,11 @@ LPCTSTR CTimeValue::Format(DWORD Options) const
 
   S="?";
   __time64_t tt=(__time64_t)SecondsI64;
+
+
+  int Value;
+  errno_t xxx= _get_errno(&Value);
+
   tm* DateTime=_gmtime64(&tt);
   if (DateTime)
     {

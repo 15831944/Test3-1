@@ -145,7 +145,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
   DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
@@ -177,19 +177,19 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("Requirements");
   DDB.Byte    ("RqdCalcMode", "", DC_,    "",      &iRqdCalcMode, this, isParm|AffectsStruct, DDB0);
   DDB.Byte    ("TempSpec",  "",  DC_,     "",      &iTempSpec,  this, isParm|AffectsStruct, DDB1);
-  DDB.Visibility(SHM_All, (iTempSpec == QST_FinalT));
+  DDB.Visibility(NSHM_All, (iTempSpec == QST_FinalT));
   DDB.Double  ("FinalTRqd", "",  DC_T,    "C",     &dFinalTRqd, this, isParm);
-  DDB.Visibility(SHM_All, (iTempSpec == QST_FinalP));
+  DDB.Visibility(NSHM_All, (iTempSpec == QST_FinalP));
   DDB.Double  ("FinalPRqd", "",  DC_P,    "kPag",  &dFinalPRqd, this, isParm);
-  DDB.Visibility(SHM_All, (iTempSpec == QST_TRise));
+  DDB.Visibility(NSHM_All, (iTempSpec == QST_TRise));
   DDB.Double  ("TRiseRqd",  "",  DC_dT,   "C",     &dTRiseRqd,  this, isParm);
   DDB.Visibility();
   DDB.Double  ("SteamVentRqd", "", DC_Qm, "kg/s",  &dVentRqd,   this, isParm);
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
-  DDB.Visibility(SM_Direct|HM_All, !bVentConnected);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, !bVentConnected);
   DDB.CheckBox("VentExcessVapour",  "",  DC_,     "",      &bRemoveExcessVapour,this, isParm|SetOnChange);
   DDB.Visibility();
   DDB.CheckBox("TrackSteamFd",      "",  DC_,     "",      &bTrackSteamStatus,  this, isParm|SetOnChange);
@@ -200,7 +200,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("FinalP",    "",  DC_P,    "kPag",  &dFinalP,    this, isResult|NAN_OK);
   DDB.Double  ("FinalT",    "",  DC_T,    "C",     &dFinalT,    this, isResult|NAN_OK);
   DDB.Double  ("SatP",      "",  DC_P,    "kPag",  &dSatPOut,   this, isResult|noFile|noSnap|InitHidden);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("VapQmOut",  "",  DC_Qm,   "kg/s",  &dQmVapVent, this, isResult|noFile|noSnap|InitHidden);
   DDB.Byte    ("CalcMode",  "",  DC_,     "",      &iCalcMode,  this, isResult/*|InitHidden*/, DDB2);
   DDB.Visibility();
@@ -225,7 +225,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.Text    ("");
   //  }
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
   DDB.Visibility();
@@ -237,14 +237,14 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && SolveDirectMethod())
+  if (bShowQFeed && NetProbalMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

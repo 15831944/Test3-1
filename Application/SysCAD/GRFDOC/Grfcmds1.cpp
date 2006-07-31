@@ -20,7 +20,6 @@
 #include "chngtag.h"
 #include "mdlvalue.h"
 #include "tagobj.h"
-#include "liccount.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1065,8 +1064,8 @@ int CNF_Contents::Build(GrfCmdBlk & GCB, pDXF_Drawing pDrw, Attr_Settings &Tag_A
         int err = gs_pPrj->AddNodeConnect("Pipe-1", T(), SrcTag(), SrcIO(), DstTag(), DstIO());
         if (err)
           LogError("Import", LF_DoAfxMsgBox|LF_Exclamation, "Connection not Made:\n%s\n%s.%s->%s.%s", T(), SrcTag(), SrcIO(), DstTag(), DstIO());
-        else
-          gs_LicenseCnt.CalcUnits();
+        //else
+        //  gs_LicenseCnt.xCalcUnits();
         }
       SrcTag="";
       DstTag="";
@@ -1406,7 +1405,8 @@ void GrfCmdBlk::ImportPDS(pchar Fn, flag DoMerge)
   NFC.Parse(Fn);
   if (NFC.Options())
     {
-    gs_Exec.SetGlblRunModes(SM_Buffered|HM_Full, SHM_All);
+    INCOMPLETECODE()
+    //gs_Exec.SetGlblRunModes(SM_Buffered|HM_Full, NSHM_All);
 
     NFC.Sequence();
 

@@ -27,7 +27,6 @@
 #include "slvtool.h"
 #include "mdlrunmngr.h"
 #include "licbase.h"
-#include "liccount.h"
 #if CK_LICENSINGON
 #include "dlgbusy.h"
 #endif
@@ -79,7 +78,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_COMMAND(ID_PROJECT_OPTIONS, OnProjectOptions)
   ON_COMMAND(ID_OPTIONS_BROWSETAGS, OnOptionsBrowsetags)
   ON_COMMAND(ID_OPTIONS_HISTORIANQUERY, OnOptionsHistorianQuery)
+#if WITHDRVMAN
   ON_COMMAND(ID_OPTIONS_DRIVER, OnOptionsDriver)
+#endif
   ON_COMMAND(ID_OPTIONS_ARCHIVE, OnOptionsArchive)
   ON_COMMAND(ID_FILE_SAVESNAPSHOT, OnFileSavesnapshot)
   ON_COMMAND(ID_FILE_LOADSNAPSHOT, OnFileLoadsnapshot)
@@ -114,13 +115,15 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_FILE_SAVELAYOUT, OnUpdateFileSavelayout)
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_BROWSETAGS, OnUpdateOptionsBrowsetags)
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_HISTORIANQUERY, OnUpdateOptionsHistorianQuery)
+#if WITHDRVMAN
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_DRIVER, OnUpdateOptionsDriver)
+#endif
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_ARCHIVE, OnUpdateOptionsArchive)
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_REPORTS, OnUpdateOptionsReports)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_SAVEAS, OnUpdateProjectSaveas)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_SAVEASNV, OnUpdateProjectSaveasNV)
-  ON_COMMAND(ID_PROJECT_CONFIGURE, OnProjectConfigure)
-  ON_UPDATE_COMMAND_UI(ID_PROJECT_CONFIGURE, OnUpdateProjectConfigure)
+  ON_COMMAND(ID_PROJECT_SETTINGS, OnProjectSettings)
+  ON_UPDATE_COMMAND_UI(ID_PROJECT_SETTINGS, OnUpdateProjectSettings)
   ON_UPDATE_COMMAND_UI(ID_FIND_TAG, OnUpdateFindTag)
   ON_UPDATE_COMMAND_UI(ID_FIND_NEXT, OnUpdateFindNext)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_OPTIONS, OnUpdateProjectOptions)
@@ -201,8 +204,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_WM_MOVE()
   ON_COMMAND(ID_PROJECT_COMPARE_DATA, OnProjectCompareData)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_COMPARE_DATA, OnUpdateProjectCompareData)
+#if WITHDRVMAN
   ON_COMMAND(ID_RELOADDRIVER, OnReloadDriver)
   ON_UPDATE_COMMAND_UI(ID_RELOADDRIVER, OnUpdateReloadDriver)
+#endif
   ON_COMMAND(ID_ACTIONS_PROBALSETUP, OnActionsProbalSetup)
   ON_UPDATE_COMMAND_UI(ID_ACTIONS_PROBALSETUP, OnUpdateActionsProbalSetup)
   ON_COMMAND(ID_ACTIONS_DYNAMICSETUP, OnActionsDynamicSetup)
@@ -269,7 +274,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_MESSAGE(WMU_UPDATEMSGMENUBTN, OnUpdateMsgMenuBtn)
   ON_MESSAGE(WMU_FLUSHMSGQ, OnFlushMsgQ)
   ON_MESSAGE(WMU_EXECUPDATEDISPLAY, OnExecUpdateDisplay)
+#if WITHDRVMAN
   ON_MESSAGE(WMU_RELOADDRIVER, OnReloadDriver)
+#endif
   ON_MESSAGE(WMU_GRFTAGGROUPS, OnGrfTagGroups)
   ON_MESSAGE(WMU_NODEAUDIT, OnNodeAudit)
   ON_MESSAGE(WMU_EDITRCTDLG, OnEditRctDlg)
@@ -318,12 +325,14 @@ inline flag EnableBusy() { return EnablePrjOK() && XBusy(); }; //starting, runni
 inline flag EnableNotBusy() { return EnablePrjOK() && !XBusy(); };
 inline flag EnableAnalysing() { return EnablePrjOK() && gs_pPrj->bBusyAnalysing; };
 inline flag EnableNotAnalysing() { return EnablePrjOK() && !gs_pPrj->bBusyAnalysing; };
+#if WITHDRVMAN
 inline flag EnableDriverOK() { return EnablePrjOK() && gs_pPrj->bDrvOn; };
+#endif
 inline flag EnableDDEServerOK() { return EnablePrjOK() && gs_pPrj->pDDESrvr; };
 inline flag EnableOPCServerOK() { return EnablePrjOK() && gs_pMainOPCSrvr; };//gs_pPrj->pOPCSrvr; };
-inline flag EnableArchiverOK() { return EnablePrjOK() && gs_pPrj->bArcOn; };
+inline flag EnableArchiverOK() { return EnablePrjOK() && gs_pPrj->m_bArcOn; };
 inline flag EnableHistorianOK() { return EnablePrjOK() && gs_pPrj->bHstOK; };
-inline flag EnableIOMarshalOK() { return EnablePrjOK() && gs_pPrj->bIOMOn; };
+inline flag EnableIOMarshalOK() { return EnablePrjOK() && gs_pPrj->m_bIOMOn; };
 inline flag EnableNotStopped() { return gs_pCmd && !gs_pCmd->IsDlgBusy(); };
 
 //---------------------------------------------------------------------------
@@ -571,7 +580,7 @@ flag CMainFrame::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
       }
     }
 
-  if (gs_Exec.GlblDynamicMode())
+  if (DefNetDynamicMode())
     {
     char Buff[256];
     strcpy(Buff, "S:");
@@ -634,17 +643,24 @@ void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
   if ((GetStyle() & FWS_ADDTOTITLE) == 0)
     return;     // leave it alone!
 
+  Strng Txt;
+
+  if (gs_License.Blocked())
+    Txt="LICENSE EXCEEDED ";
+  else if (gs_License.DemoMode())
+    Txt="DEMO MODE ";
+
   if (PrjName())
     {
-    Strng Txt(PrjName());
+    Txt+=PrjName();
     if (UsingPrjLclFiles())
       Txt+="(Lcl)";
-    if (gs_Exec.GlblProbalMode())
+    if (DefNetProbalMode())
       Txt+= " - ProBal ";
-    else if (gs_Exec.GlblDynFlowMode())
-      Txt+= " - Dynamic Flow";
+    else if (DefNetDynamicMode())
+      Txt+= " - Dynamic";
     else
-      Txt+= " - Dynamic Full";
+      Txt+= " - ?????";
 #if _MSC_VER >=1400
       Txt+= " [VS2005]";
 #endif
@@ -652,7 +668,6 @@ void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
     }
   else
     {
-    Strng Txt;
 #if _MSC_VER >=1400
     Txt+= " [VS2005]";
 #endif
@@ -726,8 +741,8 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     if (BringToForeground)
       SetForegroundWindow();
     UpdateWindow();
-    if (gs_pPrj)
-      gs_pPrj->CheckLicenseConditions();
+    //if (gs_pPrj)
+    //  gs_pPrj->CheckLicenseConditions();
     }
   if (wParam==SUB_UPDMAIN_UPDATE || wParam==1 || wParam==SUB_UPDMAIN_BACKGROUND)
     {//repaint main MDI frame background...
@@ -739,14 +754,16 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     AfxGetMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_LoadProject, 0); //let script cmd mngr know cmd is complete
   if (wParam==SUB_UPDMAIN_PRJLOADED && gs_pPrj)
     {
-    if (gs_Exec.GlblDynFullMode() && !gs_License.AllowDynamicFull())
-      {
-      LogError("License", 0, "Dynamic(Full) mode not enabled by licensing, changing to Dynamic(Flow) mode!");
-      gs_Exec.SetGlblRunModes(SM_Inline, SM_All);
-      }
+    dbgpln("TODO - FIx Modes");
+
+    //if (gs_Exec.GlblDynFullMode() && !gs_License.AllowDynamicFull())
+    //  {
+    //  LogError("License", 0, "Dynamic(Full) mode not enabled by licensing, changing to Dynamic(Flow) mode!");
+    //  gs_Exec.SetGlblRunModes(SM_Inline, SM_All);
+    //  }
     }
-  if (wParam==SUB_UPDMAIN_PRJLOADED)
-    gs_LicenseCnt.CountUnits(); //ensure count of
+  //if (wParam==SUB_UPDMAIN_PRJLOADED)
+  //  gs_LicenseCnt.CountUnits(); //ensure count of
   if (wParam==SUB_UPDMAIN_PRJLOADED)
     {
     CWindowLists::DetermineActiveGraphics();
@@ -1152,7 +1169,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
   CMDIFrameWnd::OnInitMenu(pMenu);
   if (gs_pPrj && !gs_pPrj->bChangedGrfMenu)
     {
-    ASSERT(gs_pPrj->MdlHelpFileList.GetSize()<IDM_MDLHELPLAST-IDM_MDLHELPFIRST);
+    ASSERT(gs_pPrj->m_MdlHelpFileList.GetSize()<IDM_MDLHELPLAST-IDM_MDLHELPFIRST);
     pMenu = GetMenu();
     if (pMenu)
       {
@@ -1174,20 +1191,20 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
               {
               gs_pPrj->bChangedGrfMenu = 1;
               Found = True;
-              if (gs_pPrj->MdlHelpFileList.GetSize()<2)
+              if (gs_pPrj->m_MdlHelpFileList.GetSize()<2)
                 {
                 pSub->ModifyMenu(j, MF_BYPOSITION|MF_STRING, ID_HELP_UserDocs, "&Models");
                 }
               else
                 {
                 CString MdlHlp;
-                MdlHlp = gs_pPrj->MdlHelpFileList[0].Left(gs_pPrj->MdlHelpFileList[0].GetLength()-4);
+                MdlHlp = gs_pPrj->m_MdlHelpFileList[0].Left(gs_pPrj->m_MdlHelpFileList[0].GetLength()-4);
                 char Buff[256];
                 sprintf(Buff, "&Models  (%s)", (const char*)MdlHlp);
                 pSub->ModifyMenu(j, MF_BYPOSITION|MF_STRING, ID_HELP_UserDocs, Buff);
-                for (k=1; k<gs_pPrj->MdlHelpFileList.GetSize(); k++)
+                for (k=1; k<gs_pPrj->m_MdlHelpFileList.GetSize(); k++)
                   {
-                  MdlHlp = gs_pPrj->MdlHelpFileList[k].Left(gs_pPrj->MdlHelpFileList[k].GetLength()-4);
+                  MdlHlp = gs_pPrj->m_MdlHelpFileList[k].Left(gs_pPrj->m_MdlHelpFileList[k].GetLength()-4);
                   sprintf(Buff, "Models  (%s)", (const char*)MdlHlp);
                   pSub->InsertMenu(j+k, MF_BYPOSITION|MF_STRING, IDM_MDLHELPFIRST+k, Buff);
                   }
@@ -1488,13 +1505,13 @@ void CMainFrame::OnUpdateProjectOptions(CCmdUI* pCmdUI)
 
 //---------------------------------------------------------------------------
 
-void CMainFrame::OnProjectConfigure()
+void CMainFrame::OnProjectSettings()
   {
   if (gs_pPrj && !gs_License.Blocked())
-    gs_pPrj->OnConfigure();
+    gs_pPrj->OnChangeCurrentSettings("Project Settings");
   }
 
-void CMainFrame::OnUpdateProjectConfigure(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateProjectSettings(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped() && !gs_License.Blocked());
   }
@@ -1576,9 +1593,9 @@ void CMainFrame::OnProjectLoadaltcfg()
   {
   if (gs_pPrj && !gs_License.Blocked())
     {
-    Project::fOpenAltCfg=true;
+    CProject::sm_fOpenAltCfg=true;
     ScdApp()->DoOnFileOpen();
-    Project::fOpenAltCfg=false;
+    CProject::sm_fOpenAltCfg=false;
     }
 //    gs_pPrj->OnLoadAltCfg();
   }
@@ -1683,7 +1700,7 @@ void CMainFrame::OnProjectResetStats()
 
 void CMainFrame::OnUpdateProjectResetStats(CCmdUI* pCmdUI)
   {
-  pCmdUI->Enable(!gs_License.Blocked() && !gs_Exec.GlblProbalMode() /*&& EnableNotBusy()*/ && EnableNotAnalysing() && EnableNotStopped());
+  pCmdUI->Enable(!gs_License.Blocked() && !DefNetProbalMode() /*&& EnableNotBusy()*/ && EnableNotAnalysing() && EnableNotStopped());
   }
 
 //---------------------------------------------------------------------------
@@ -1786,7 +1803,7 @@ void CMainFrame::OnUpdateOptionsHistorianQuery(CCmdUI* pCmdUI)
   }
 
 //---------------------------------------------------------------------------
-
+#if WITHDRVMAN
 void CMainFrame::OnOptionsDriver()
   {
   if (gs_pDrvMan && gs_License.AllowDrivers())
@@ -1797,7 +1814,6 @@ void CMainFrame::OnUpdateOptionsDriver(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(gs_License.AllowDrivers() && EnableDriverOK() && EnableNotStopped() && !gs_License.Blocked());
   }
-
 //---------------------------------------------------------------------------
 
 void CMainFrame::OnReloadDriver()
@@ -1814,6 +1830,7 @@ void CMainFrame::OnUpdateReloadDriver(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableDriverOK() && !gs_License.Blocked());
   }
+#endif
 
 //---------------------------------------------------------------------------
 
@@ -2425,8 +2442,10 @@ void CMainFrame::UpdateStatusBar()
     m_wndStatusBar.SetPaneInfo(StatusBarCmdIndicator, nID, nStyle & (~SBPS_DISABLED) | SBPS_NOBORDERS, 0);
   else
     m_wndStatusBar.SetPaneInfo(StatusBarCmdIndicator, nID, nStyle | SBPS_DISABLED & (~SBPS_NOBORDERS), 3*7);*/
+#if WITHDRVMAN
   if (gs_pPrj->bDrvOn)
     StatusBarDriverIndicator = nIndicators++;
+#endif
   if (gs_pXCmd && gs_pXCmd->CmdCount()>0)
     StatusBarCmdIndicator = nIndicators++;
   if (m_wndStatusBar.SetIndicators(indicators, nIndicators+1))
@@ -2532,7 +2551,8 @@ static UINT BASED_CODE ToolbarIds[] =
   ID_GRF_InsertGroup,
   ID_GRF_CreateGroup,
   ID_VIEW_EXPLORER,
-  ID_ACTIONS_RUN_STEADY
+  ID_ACTIONS_RUN_STEADY,
+  ID_PROJECT_EDIT_SETTINGS,
   };
 
 static UINT BASED_CODE GrfSymbsIds[] =
@@ -2570,6 +2590,7 @@ static UINT BASED_CODE SysCADToolBarIds[] = //no project loaded
   ID_FILE_NEW,
   ID_FILE_OPEN,
   ID_PROJECT_LOADALTCFG,
+  ID_PROJECT_EDIT_SETTINGS,
     ID_SEPARATOR,
   ID_PROJECT_OPTIONS,
   ID_PROJECT_EDIT_CFG,
@@ -2863,8 +2884,8 @@ void CMainFrame::UpdateToolBars()
   for (int i=0; i<TBCount; i++)
     {
     DWORD dwBarStyle = MainTBMngr[i]->GetBarStyle();
-    dwBarStyle = (gs_pPrj->bToolTips ? (dwBarStyle | CBRS_TOOLTIPS) : (dwBarStyle & (~CBRS_TOOLTIPS)));
-    dwBarStyle = (gs_pPrj->bFlyBys ? (dwBarStyle | CBRS_FLYBY) : (dwBarStyle & (~CBRS_FLYBY)));
+    dwBarStyle = (gs_pPrj->m_bToolTips ? (dwBarStyle | CBRS_TOOLTIPS) : (dwBarStyle & (~CBRS_TOOLTIPS)));
+    dwBarStyle = (gs_pPrj->m_bFlyBys ? (dwBarStyle | CBRS_FLYBY) : (dwBarStyle & (~CBRS_FLYBY)));
     MainTBMngr[i]->SetBarStyle(dwBarStyle);
     }
   m_wndStatusBar.Invalidate();
@@ -2907,7 +2928,7 @@ void CMainFrame::DefaultToolBar(int index, BOOL ShowNow)
 void CMainFrame::SetToolBarSolveMode()
   {
   const int TBCount = (sizeof(MainToolBars)/sizeof(CDynToolBarInfo));
-  const int IsDynMode=gs_Exec.GlblDynamicMode();
+  const int IsDynMode=DefNetDynamicMode();
   UINT ID1a=ID_ACTIONS_RUN_TGL;
   UINT ID2a=IsDynMode ? ID_ACTIONS_RUNPB_TGL : ID_ACTIONS_RUNDYN_TGL;
   UINT IDRa=IsDynMode ? ID_ACTIONS_RUNDYN_TGL : ID_ACTIONS_RUNPB_TGL;
@@ -2972,11 +2993,11 @@ void CMyMDIClient::OnPaint()
       {
       CFont Font;
       //Font.CreatePointFont(gs_License.Blocked() ? 280 : 360, "Arial");
-      Font.CreatePointFont(gs_License.Blocked() ? 260 : 120, "Arial");
+      Font.CreatePointFont(gs_License.Blocked() ? 200 : 120, "Arial");
       pOldFont=dc.SelectObject(&Font);
       if (gs_License.Blocked())
         {
-        for (int i=0; i<5; i++)
+        for (int i=1; i<5; i++)
           dc.TextOut(16, 16+(i*160), "License conditions exceeded, restart SysCAD.", 44);
         }
       else if (gs_License.DemoMode())
@@ -2984,39 +3005,34 @@ void CMyMDIClient::OnPaint()
         const char* DemoMsg[2] = { "Using SysCAD in Demo Mode", "Using Demo Mode, Licensing service Error!" };
         const int DemoMsgLen[2] = { 25, 41 };
         const int MsgIndex = (gs_License.DidInitCrypkey() ? 0 : 1);
-        for (int i=0; i<4; i++)
+        for (int i=1; i<4; i++)
           {
           dc.TextOut(16, 16+(i*195), DemoMsg[MsgIndex], DemoMsgLen[MsgIndex]);
           dc.TextOut(655, 16+(i*195), DemoMsg[MsgIndex], DemoMsgLen[MsgIndex]);
           }
         }
-
-      /*CBitmap BM;
-      BM.LoadBitmap(IDB_DEMOMODE);
-      //CSize Size = BM.GetBitmapDimension();
-      //CBitmap* pOld = dc.SelectObject(&BM);
-      CBrush Brush;
-      Brush.CreatePatternBrush(&BM);
-      CBrush* pOld = dc.SelectObject(&Brush);
-      CRect Rect(0, 0, 352, 48);
-      //GetClientRect(&Rect);
-      dc.FillRect(&Rect, &Brush);*/
       }
-    #endif
+    #endif             
     if (gs_pPrj && gs_pPrj->LoadBusy())
       {
       CFont Font;
       Font.CreatePointFont(100, "Arial");
       pOldFont=dc.SelectObject(&Font);
       Strng s;
-      s="Busy loading project : '";
-      s+=PrjFile();
-      s+="'";
-      dc.TextOut(16, 10, s(), s.Len());
-      s="Using configuration file : '";
-      s+=CfgFile();
-      s+="'";
-      dc.TextOut(16, 32, s(), s.Len());
+      if (PrjFile() && strlen(PrjFile())>0)
+        {
+        s="Busy loading project : '";
+        s+=PrjFile();
+        s+="'";
+        dc.TextOut(16, 10, s(), s.Len());
+        }              
+      if (CfgFile() && strlen(CfgFile())>0)
+        {
+        s="Using configuration file : '";
+        s+=CfgFile();
+        s+="'";
+        dc.TextOut(16, 32, s(), s.Len());
+        }
       }
 
     if (pOldFont)
@@ -3521,8 +3537,8 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
   {
   CMDIFrameWnd::OnSize(nType, cx, cy);
 
-  if (Project::m_SysCADInited)
-    Project::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
+  if (CProject::sm_SysCADInited)
+    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
 
   }
 
@@ -3532,8 +3548,8 @@ void CMainFrame::OnMove(int x, int y)
   {
   CMDIFrameWnd::OnMove(x, y);
 
-  if (Project::m_SysCADInited)
-    Project::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
+  if (CProject::sm_SysCADInited)
+    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
   }
 
 //---------------------------------------------------------------------------
@@ -3544,12 +3560,12 @@ LRESULT CMainFrame::OnFlushMsgQ(WPARAM wParam, LPARAM lParam)
   }
 
 //---------------------------------------------------------------------------
-
+#if WITHDRVMAN
 LRESULT CMainFrame::OnReloadDriver(WPARAM wParam, LPARAM lParam)
   {
   return gs_pPrj->ReloadDrvManager(TRUE);
   }
-
+#endif
 //---------------------------------------------------------------------------
 
 LRESULT CMainFrame::OnCOMCmd(WPARAM wParam, LPARAM lParam)
@@ -3569,7 +3585,7 @@ LRESULT CMainFrame::OnCOMApp(WPARAM wParam, LPARAM lParam)
 
 LRESULT CMainFrame::OnCOMSlv(WPARAM wParam, LPARAM lParam)
   {
-  INCOMPLETECODE1("Should not get here");
+  INCOMPLETECODEMSG("Should not get here");
   CScdCOCmdBlk * pCmdBlk = (CScdCOCmdBlk *)lParam;
   return CmdExec().DoCOMCmd(2, wParam, pCmdBlk, pCmdBlk->m_lData);
   }
@@ -3592,7 +3608,7 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
   CXM_TimeControl & CB=*(CXM_TimeControl*)lParam;
   if (gs_Exec.Busy())
     {
-    const int IsDynMode=gs_Exec.GlblDynamicMode();
+    const int IsDynMode=DefNetDynamicMode();
     const double Progress = IsDynMode ? gs_Exec.DynProgress : -1.0;
     CString Buff2;
     if (IsDynMode)
@@ -3675,6 +3691,7 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
   CMdlValueShow::UpdateAll();
   gs_AccessWnds.DoDeferredAccess(-1);
 
+#if WITHDRVMAN
   if (gs_pPrj->bDrvOn)
     {
     char Buff5[32];
@@ -3694,6 +3711,7 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
     if (StatusBarDriverIndicator>=0)
       pStatusBar->UpdateIndicator(StatusBarDriverIndicator, Buff5, true);
     }
+#endif
 
   return 0;
   }
@@ -3790,7 +3808,7 @@ void CMainFrame::OnActionsProbalSetup()
     dbgpln("------ACT------> OnActionsProbalsetup");
 #endif
 
-  if (gs_Exec.Initialised() && (gs_License.AllowProBal() || gs_License.AllowProBalLite()) && !gs_LicenseCnt.ProBalCntExceeded())
+  if (gs_Exec.Initialised() && gs_License.ProBalOK())
     {
     CMsgWindow::SetMsgsIncludeFlag(false);
     CSolverCfgSheet SolverCfg("ProBal Solver", this, CSolverCfgSheet::iCurrentPage);
@@ -3806,7 +3824,7 @@ void CMainFrame::OnActionsProbalSetup()
 
 void CMainFrame::OnUpdateActionsProbalSetup(CCmdUI* pCmdUI)
   {
-  pCmdUI->Enable(XDoingPB() && (gs_License.AllowProBal() || gs_License.AllowProBalLite()) && !gs_LicenseCnt.ProBalCntExceeded() && EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped());
+  pCmdUI->Enable(XDoingPB() && (gs_License.AllowProBal() || gs_License.AllowProBalLite()) && EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped());
   }
 
 //---------------------------------------------------------------------------
@@ -3817,7 +3835,7 @@ void CMainFrame::OnActionsDynamicSetup()
   if (dbgActions())
     dbgpln("------ACT------> OnActionsDynamicsetup");
 #endif
-  if ((gs_License.AllowDynamicFlow() || gs_License.AllowDynamicFull() || gs_License.AllowDynamicLite()) && !gs_LicenseCnt.DynamicCntExceeded() && EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped())
+  if (gs_License.DynamicOK() && EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped())
     {
     CMsgWindow::SetMsgsIncludeFlag(false);
     CSolverCfgSheet SolverCfg("Dynamic", NULL, CSolverCfgSheet::iCurrentPage);
@@ -3833,14 +3851,14 @@ void CMainFrame::OnActionsDynamicSetup()
 
 void CMainFrame::OnUpdateActionsDynamicSetup(CCmdUI* pCmdUI)
   {
-  pCmdUI->Enable(!XDoingPB() && (gs_License.AllowDynamicFlow() || gs_License.AllowDynamicFull() || gs_License.AllowDynamicLite()) && !gs_LicenseCnt.DynamicCntExceeded() && EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped());
+  pCmdUI->Enable(!XDoingPB() && gs_License.DynamicOK() && EnableNotBusy() && EnableNotAnalysing() && EnableNotStopped());
   }
 
 //---------------------------------------------------------------------------
 
 void CMainFrame::OnActionsSetup()
   {
-  int IsDynMode=gs_Exec.GlblDynamicMode();
+  int IsDynMode=DefNetDynamicMode();
   if (IsDynMode)
     OnActionsDynamicSetup();
   else

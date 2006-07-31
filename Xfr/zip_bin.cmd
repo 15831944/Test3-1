@@ -28,7 +28,7 @@ echo .
 @echo on
 set foldr=ScdBins
 md %foldr%
-set fn=%foldr%\Bins116
+set fn=%foldr%\Bins120
 
 :continue 
 rem ========== SysCAD Standard Files ==========
@@ -144,8 +144,8 @@ goto done
 
 :use
 echo Usage: zip_bin VersionName
-echo example1: zip_bin bin116
-echo example2: zip_bin bin116u3
+echo example1: zip_bin bin120
+echo example2: zip_bin bin120u3
 
 goto done
 

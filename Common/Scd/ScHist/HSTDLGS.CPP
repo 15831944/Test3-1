@@ -95,7 +95,7 @@ BOOL CHstSlotDlg::OnInitDialog()
 void CHstSlotDlg::Init()
   {
   SlotCfgInfo SCI;
-  pSlot->GetCfgInfo(SCI);
+  pSlot->GetCfg(SCI);
   m_Tag = SCI.mTag;
   m_Desc = SCI.mDesc;
   m_Eng = SCI.mEng;
@@ -195,7 +195,7 @@ void CHstSlotDlg::OnOK()
   if (bChanged)
     {
     SlotCfgInfo SCI;
-    pSlot->GetCfgInfo(SCI);
+    pSlot->GetCfg(SCI);
     SCI.mRecordIt = m_RecordIt;
     SCI.mUseFilter = (m_FilterAlg>0);
     if (SCI.mUseFilter)
@@ -378,7 +378,7 @@ void CHstSlotInfoDlg::OnSelchangeTag()
       {
       pCSlot pSlot = pHistory->Slots[SlotIndex];
       SlotCfgInfo SCI;
-      pSlot->GetCfgInfo(SCI);
+      pSlot->GetCfg(SCI);
       m_Desc = SCI.mDesc;
       m_Eng = SCI.mEng;
       m_Type = tt_TypeString(SCI.mTyp);

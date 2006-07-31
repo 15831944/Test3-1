@@ -441,28 +441,23 @@ void CMultiFlwBlk::SetPhysicalData()
 
 //--------------------------------------------------------------------------
 
-Z_States CMultiFlwBlk::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src, double & dZ_Rqd)
+void CMultiFlwBlk::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn, double &RiseRqd, double &DatumChg)
   {
   Z_States xxx=true;
 
   MdlNode * pNd = dynamic_cast<MdlNode*>(pAttachedTo);
-  Z_States Ret=Z_Unknown;
   if (pNd)
     {
-    dZ_Rqd=0.0;
+    DatumChg=0.0;
     for (int j=0; j<pNd->NIOFBs(0); j++)
-      dZ_Rqd+=pNd->IOFB(0, j)->Rise();
+      DatumChg+=pNd->IOFB(0, j)->Rise();
     for (j=0; j<pNd->NIOFBs(1); j++)
-      dZ_Rqd+=-pNd->IOFB(1, j)->Rise();
+      DatumChg+=-pNd->IOFB(1, j)->Rise();
 
-    Ret=pNd->SetDatums_Link(Pass, dZ_Rqd, IOIn, Zi, Z_State_Src);
+    pNd->SetDatums_Link(Pass, List, IOIn, RiseRqd, DatumChg);
 
-    if (Ret==Z_Known)
-      {
-      pNd->SetDatumsDone();
-      }
     }
-  return Ret;
+  return;
   }
 
 //--------------------------------------------------------------------------

@@ -70,7 +70,7 @@ CrushBlk::~CrushBlk()
 void CrushBlk::Add_StandardDataDefn(DataDefnBlk & DDB, flag Vis)
   {
   DDEF_Flags Old = DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Vis);
+  DDB.Visibility(NSHM_All, Vis);
   DDB.Text("");
   DDB.CheckBox("TrackStatus", "", DC_, "", &bTrackStatus, this, isParm);
   static DDBValueLst DDB0[]={
@@ -82,16 +82,16 @@ void CrushBlk::Add_StandardDataDefn(DataDefnBlk & DDB, flag Vis)
     //{(int)CM_JK, "JK" },
     {0}};
   DDB.Byte    ("Method",       "", DC_, "", xidMethod,      this, isParmStopped/*|DDEF_SETONCHANGE*/, DDB0);
-  DDB.Visibility(SHM_All, Vis && (iMethod==CM_PartCrv_Overall || iMethod==CM_PartCrv_Individ));
+  DDB.Visibility(NSHM_All, Vis && (iMethod==CM_PartCrv_Overall || iMethod==CM_PartCrv_Individ));
   DDB.CheckBox("ForcePartCrv", "", DC_, "", &bForcePartCrv, this, isParm, DDBYesNo);
-  DDB.Visibility(SHM_All, Vis && (iMethod==CM_TestData_Overall || iMethod==CM_TestData_Individ));
+  DDB.Visibility(NSHM_All, Vis && (iMethod==CM_TestData_Overall || iMethod==CM_TestData_Individ));
   DDB.CheckBox("EnterExtents", "", DC_, "", xidEnterExtents, this, isParmStopped, DDBYesNo);
-  DDB.Visibility(SHM_All, Vis && (iMethod==CM_JK));
+  DDB.Visibility(NSHM_All, Vis && (iMethod==CM_JK));
   DDB.Double("",          "K1",         DC_L,    "mm",   &dK1,     this,  isParm);
   DDB.Double("",          "K2",         DC_L,    "mm",   &dK2,     this,  isParm);
   DDB.Double("",          "K3",         DC_,     "",     &dK3,     this,  isParm);
   DDB.Double("",          "t10",        DC_,     "",     &dt10,    this,  isParm);
-  //DDB.Visibility(SHM_All, Vis);
+  //DDB.Visibility(NSHM_All, Vis);
   DDB.SetVisibility(Old);
   }
 
@@ -100,7 +100,7 @@ void CrushBlk::Add_StandardDataDefn(DataDefnBlk & DDB, flag Vis)
 void CrushBlk::Add_ObjectDataDefn(DataDefnBlk & DDB, flag Vis)
   {
   DDEF_Flags Old = DDB.GetVisibility();
-  DDB.Visibility(SHM_All, Vis);
+  DDB.Visibility(NSHM_All, Vis);
   switch (iMethod)
     {
     case CM_PartCrv_Overall:
@@ -525,7 +525,7 @@ void Crush1::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnElevation(DDB);
   CB.Add_StandardDataDefn(DDB, true);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text("");
   DDB.Double("DischOnSpeed",   "",          DC_Frac,  "%",     &DischOnSpeed, this, isParm);
   MSB.BuildDataDefn(DDB, this, "Speed", 1);
@@ -570,9 +570,9 @@ flag Crush1::ValidateData(ValidateDataBlk & VDB)
 
 //-------------------------------------------------------------------------- 
 
-Z_States Crush1::Set_Zs(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void Crush1::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   }
  
 //-------------------------------------------------------------------------- 
@@ -612,7 +612,7 @@ flag Crush1::InitialiseSolution()
 
 void Crush1::EvalProducts(CNodeEvalIndex & NEI)
   {
-  flag On = (bOnLine && (SolveDirectMethod() || MSB.Speed(this)>DischOnSpeed));
+  flag On = (bOnLine && (NetProbalMethod() || MSB.Speed(this)>DischOnSpeed));
   const int ioProd = IOWithId_Self(ioidProd);
   if (ioProd>=0 && On)
     {

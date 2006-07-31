@@ -303,7 +303,7 @@ void CTrndDlg::OnUpdateBtn(CCmdUI* pCmdUi)
 
 void CTrndDlg::OnUpdateFlags(CCmdUI* pCmdUi)
   {
-  pCmdUi->Enable(gs_Exec.GlblDynamicMode());
+  pCmdUi->Enable(DefNetDynamicMode());
 //flag Project::GetProBalMode()
   }
 

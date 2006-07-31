@@ -44,8 +44,8 @@ CSolveState::CSolveState(CSolveTool * SolveTool, CWnd* pParent /*=NULL*/)
   int dx=((mwr.right-mwr.left)-(WinRect.right-WinRect.left-WndRightShift))/2-WinRect.left;
   int dy=((mwr.bottom-mwr.top)-(WinRect.bottom-WinRect.top))/2-WinRect.top;
   //int dx=0, dy=0;
-  int x=gs_pPrj->Solver.iStateX;
-  int y=gs_pPrj->Solver.iStateY;
+  int x=gs_pPrj->m_Solver.m_iStateX;
+  int y=gs_pPrj->m_Solver.m_iStateY;
   if (x>-10000)
     {
     int xw=WinRect.right-WinRect.left;
@@ -87,7 +87,7 @@ CSolveState::CSolveState(CSolveTool * SolveTool, CWnd* pParent /*=NULL*/)
   //WndRightShift*=-1;
   ToggleWindowWidth(False); // Always make it Narrow
 
-  if (gs_pPrj->Solver.fStateErrors) // Expand if neccessary
+  if (gs_pPrj->m_Solver.m_fStateErrors) // Expand if neccessary
     ToggleWindowWidth(False);
 
   //ShowWindow(SW_SHOW);  
@@ -113,9 +113,9 @@ void CSolveState::ToggleWindowWidth(flag RePaint)
   MoveWindow(&WinRect, RePaint);
 
   SetDlgItemText(IDB_SLV_ADV, WndRightShift < 0 ? "Errors >>" : "<< Basic");
-  gs_pPrj->Solver.fStateErrors=Sign(WndRightShift)>0;
-  gs_pPrj->Solver.iStateX=WinRect.left;
-  gs_pPrj->Solver.iStateY=WinRect.top;
+  gs_pPrj->m_Solver.m_fStateErrors=Sign(WndRightShift)>0;
+  gs_pPrj->m_Solver.m_iStateX=WinRect.left;
+  gs_pPrj->m_Solver.m_iStateY=WinRect.top;
   iExtraInfoStyle = (WndRightShift<0 ? 0 : 1);
   PBEqnCB().SetCollectWorst(iExtraInfoStyle);
   }
@@ -136,8 +136,8 @@ void CSolveState::DoDataExchange(CDataExchange* pDX)
     }
   else
     {
-    ((CButton*)GetDlgItem(IDC_SLV_PINNED))->SetCheck(gs_pPrj->Solver.fStatePinned);
-    ((CButton*)GetDlgItem(IDC_SLV_PINNED))->SetBitmap(gs_pPrj->Solver.fStatePinned ? (HBITMAP)PinnedDownBitmap : (HBITMAP)PinnedUpBitmap);
+    ((CButton*)GetDlgItem(IDC_SLV_PINNED))->SetCheck(gs_pPrj->m_Solver.m_fStatePinned);
+    ((CButton*)GetDlgItem(IDC_SLV_PINNED))->SetBitmap(gs_pPrj->m_Solver.m_fStatePinned ? (HBITMAP)PinnedDownBitmap : (HBITMAP)PinnedUpBitmap);
     
     char Buff[80];
     CString sBuff;
@@ -295,7 +295,7 @@ LRESULT CSolveState::OnUpdateDataByMsg(WPARAM wParam, LPARAM lParam)
       break;
     case 1:
     case 3:
-      if (wParam==3 || !gs_pPrj->Solver.fStatePinned)
+      if (wParam==3 || !gs_pPrj->m_Solver.m_fStatePinned)
         {
         ShowWindow(SW_HIDE);
         AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE, 0); //get main window thread to top
@@ -407,8 +407,8 @@ void CSolveState::OnSlvAdv()
 
 void CSolveState::OnSlvPinned() 
   {
-  gs_pPrj->Solver.fStatePinned=!gs_pPrj->Solver.fStatePinned;
-  ((CButton*)GetDlgItem(IDC_SLV_PINNED))->SetBitmap(gs_pPrj->Solver.fStatePinned ? (HBITMAP)PinnedDownBitmap : (HBITMAP)PinnedUpBitmap);
+  gs_pPrj->m_Solver.m_fStatePinned=!gs_pPrj->m_Solver.m_fStatePinned;
+  ((CButton*)GetDlgItem(IDC_SLV_PINNED))->SetBitmap(gs_pPrj->m_Solver.m_fStatePinned ? (HBITMAP)PinnedDownBitmap : (HBITMAP)PinnedUpBitmap);
   }
 
 //---------------------------------------------------------------------------

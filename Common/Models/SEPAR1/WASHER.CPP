@@ -126,7 +126,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
   DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &BedHgt,             this, isResult|0);
@@ -156,27 +156,27 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
       {0}
     };
 
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Byte    ("Bypass_Option",           "BypassOpt",       DC_,     "",       &iRqdBypassMethod,   this, isParm|AffectsStruct, DDB1);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
   DDB.Double  ("Mixing_Efficiency",       "MixingEff",       DC_Frac, "%",      &MixEff,             this, isParm);
   DDB.CheckBox("Mixing_Eff_LiquidsOnly",  "MixEffLiqOnly",   DC_,     "",       &bMixEffLiqOnly,     this, isParm);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &RqdUFSolids,        this, isParm);
   DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &iRqdOFMethod,       this, isParm|AffectsStruct, iRqdBypassMethod == IBM_Underflow ? DDB0b : DDB0a);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
   DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &RqdOFSolids,        this, isParm);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdOFMethod == OFM_OFSolConc));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdOFMethod == OFM_OFSolConc));
   DDB.Double  ("Rqd_OverFlowSolidsConc25","RqdOFSolConc25",  DC_Conc, "g/L",    &RqdOFSolConc,       this, isParm);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod != IBM_Underflow));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdBypassMethod != IBM_Underflow));
   DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &IntOFSolidsUsed,    this, isResult|InitHidden);//|noView);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod == IBM_Underflow));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdBypassMethod == IBM_Underflow));
   DDB.Double  ("Internal_UF_SolidsUsed",  "IntUFSolidsUsed", DC_Frac, "%",      &IntUFSolidsUsed,    this, isResult|InitHidden);//|noView);
   DDB.Visibility();
   DDB.Text    ("Results");
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
   DDB.Double  ("Bypass_Flowrate",         "BypassQm",        DC_Qm,   "kg/s",   &BypassQm,           this, isResult);
   DDB.Visibility();
 	DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &UFSolids,           this, isResult);
@@ -189,7 +189,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -199,7 +199,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
 	BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -207,7 +207,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 	DDB.Object(&UFSolidsFn, this, NULL, NULL, DDB_RqdPage);
   DDB.Object(&OFSolidsFn, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();

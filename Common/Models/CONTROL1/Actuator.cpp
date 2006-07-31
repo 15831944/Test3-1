@@ -571,14 +571,14 @@ void CActuator::BuildDataDefn(DataDefnBlk & DDB)
         DDB.TagComment(CnvTxt());
 
 //      DDB.Byte  ("Transform",          "",            DC_,          "",   &T->m_Xform.m_iType,  this, isParm|SetOnChange, DDBXForms);
-//      DDB.Visibility(SHM_All, T->m_Xform.m_iType);
+//      DDB.Visibility(NSHM_All, T->m_Xform.m_iType);
 //      DDB.Float ("Xf.Factor",          "",            DC_,          "",   &T->m_Xform.m_dFactor,      this, isParm);
 //      DDB.Float ("Xf.Bias",            "",            DC_,          "",   &T->m_Xform.m_dBias,        this, isParm);
 //
 //      DDB.Visibility();
 //
 //      DDB.Byte  ("Filter",             "",            DC_,          "",   &T->m_Flt.m_iType,   this, isParm|SetOnChange, DDBFilters);
-//      DDB.Visibility(SHM_All, T->m_Flt.m_iType == Flt_FirstOrder);
+//      DDB.Visibility(NSHM_All, T->m_Flt.m_iType == Flt_FirstOrder);
 //      DDB.Float ("Flt.TimeConst",      "Flt.Tau",     DC_Time,      "s",  &T->m_Flt.m_dTau,    this, isParm);
 //      DDB.Double("Flt.PrevValue",      "",            DC_,          "",   &T->m_Flt.m_dPrevValue, this, InitHidden);
 //      DDB.Visibility();
@@ -604,7 +604,7 @@ void CActuator::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Bool      ("",               "Hi",          DC_,          "",   &T->m_bHi,         this, isResult);
 
 //      DDB.Byte      ("RawTransform",   "",            DC_,          "",   &T->m_RawXform.m_iType,  this, isParm|SetOnChange, DDBRawXLates);
-//      DDB.Visibility(SHM_All, T->m_RawXform.m_iType>=XL_AtoD);
+//      DDB.Visibility(NSHM_All, T->m_RawXform.m_iType>=XL_AtoD);
 //      DDB.Float     ("Raw.MinValue",   "",            DC_,          "",   &T->m_RawXform.m_dMinValue,    this, isParm);
 //      DDB.Float     ("Raw.MaxValue",   "",            DC_,          "",   &T->m_RawXform.m_dMaxValue,    this, isParm);
 //      DDB.Visibility();

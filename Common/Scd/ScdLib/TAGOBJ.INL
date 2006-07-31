@@ -46,8 +46,8 @@ INLINE UINT DataDefnBlk::HashValue(char* Key)
 
 INLINE flag DataDefnBlk::GetReqdFlags()//DDEF_Flags iFlags) 
   {
-  ASSERT((SHM_All & dwOptions)!=0);
-  if ((SHM_All & iFlags & dwOptions)==0)
+  ASSERT((NSHM_All & dwOptions)!=0);
+  if ((NSHM_All & iFlags & dwOptions)==0)
     return False;
   dword TABOpt_Msk = TABOpt_ForFile | TABOpt_ForView | TABOpt_ForSnapShot | TABOpt_ForScenario ;
   if ((TABOpt_Msk & iFlags)!=0)

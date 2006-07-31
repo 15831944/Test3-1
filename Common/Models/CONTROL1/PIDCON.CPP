@@ -629,10 +629,10 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
       DDB.CheckBoxBtn("On",          "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+5, this, isParmStopped, DDBYesNo);
       DDB.CheckBoxBtn("Auto",        "",           DC_, "", &(p->AutoMan()), this, isParm/*|InitHidden*/, DDBYesNo);
       DDEF_Flags Old=DDB.GetVisibility();
-      //DDB.Visibility(SM_Direct|HM_All);
-      DDB.Visibility(SM_DynBoth|HM_All);
+      //DDB.Visibility(NM_Probal|SM_All|HM_All);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All);
       DDB.CheckBoxBtn("SetPointTrack", "SptTrk",   DC_, "", &(p->SptTrk()), this, isParm|InitHidden, DDBYesNo);
-      DDB.Visibility(SM_DynBoth|HM_All);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All);
       DDB.CheckBoxBtn("TrackMinMaxMeas", "",       DC_, "", &(p->TrackMinMaxMeas()), this, isParm|InitHidden, DDBYesNo);
       DDB.CheckBoxBtn("TrackMinMaxOut", "",        DC_, "", &(p->TrackMinMaxOut()), this, isParm|InitHidden, DDBYesNo);
       DDB.SetVisibility(Old);
@@ -671,7 +671,7 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
       //DDB.Double("TuneOut",          "",     DC_, "", &(p->TuneOut()), this, isParm|InitHidden|NAN_OK);
 
       Old=DDB.GetVisibility();
-      DDB.Visibility(SM_Direct|HM_All);
+      DDB.Visibility(NM_Probal|SM_All|HM_All);
       DDB.Double("Tolerance_Abs",    "AbsTol",     DC_Frac, "%", &(p->EPSAbs()), this, isParm|NAN_OK);
       DDB.Double("Tolerance_Rel",    "RelTol",     DC_Frac, "%", &(p->EPSRel()), this, isParm|NAN_OK);
       DDB.SetVisibility(Old);

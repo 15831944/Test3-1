@@ -119,7 +119,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
@@ -148,9 +148,9 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text    ("Requirements");
     DDB.CheckBox("On",                      "",                DC_,     "",       &fOn,                this, isParm);
     DDB.Byte    ("Filtrate_Method",         "Method",          DC_,     "",       &iRqdFiltMethod,     this, isParm|AffectsStruct, DDB0);
-    DDB.Visibility(SHM_All, (iRqdFiltMethod == FSM_FiltSolFrac));
+    DDB.Visibility(NSHM_All, (iRqdFiltMethod == FSM_FiltSolFrac));
     DDB.Double  ("Rqd_Filtrate_Solids",     "RqdFiltSolids",   DC_Frac, "%",      &RqdFiltSolids,      this, isParm);
-    DDB.Visibility(SHM_All, (iRqdFiltMethod == FSM_FiltSolConc));
+    DDB.Visibility(NSHM_All, (iRqdFiltMethod == FSM_FiltSolConc));
     DDB.Double  ("Rqd_FiltrateSolidsConc25","RqdFiltSolConc25",DC_Conc, "g/L",    &RqdFiltSolConc,     this, isParm);
     DDB.Visibility();
     DDB.Double  ("Filtrate_Solids_Used",    "FiltSolidsUsed",  DC_Frac, "%",      &FiltSolidsUsed,     this, isResult|InitHidden);//|noView);
@@ -170,7 +170,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   //RB.Add_OnOff(DDB);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -179,7 +179,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
 
   //RB.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

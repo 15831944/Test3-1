@@ -2123,10 +2123,10 @@ void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 
             CString S;
             S.Format("%s\t%s", Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName);
-            bool GMC=gs_pPrj->bGrfMoveCursor;
-            gs_pPrj->bGrfMoveCursor=false;
+            bool GMC=gs_pPrj->m_bGrfMoveCursor!=0;
+            gs_pPrj->m_bGrfMoveCursor=false;
             gs_pPrj->FindTag(S);
-            gs_pPrj->bGrfMoveCursor=GMC;
+            gs_pPrj->m_bGrfMoveCursor=GMC;
             }
           }
         break;

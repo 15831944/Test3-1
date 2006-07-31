@@ -177,19 +177,19 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
-  if (!SolveDirectMethod() && PrjFileVerNo()<73)
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+  if (!NetProbalMethod() && PrjFileVerNo()<73)
     {
     DDB.Text   ("");
     static DDBValueLst DDB0a[]={
       {LFM_Xfer,    "Transfer"},
       {LFM_Full,    "Pipe"},
-      {LFM_SrcSnk,  "SrcSnk", MDD_Hidden},
+      //{LFM_SrcSnk,  "SrcSnk", MDD_Hidden},
       {0}};
     static DDBValueLst DDB0b[]={
       {LFM_Xfer,    "Transfer"},
       {LFM_Full,    "Pipe", MDD_Hidden},
-      {LFM_SrcSnk,  "SrcSnk", MDD_Hidden},
+      //{LFM_SrcSnk,  "SrcSnk", MDD_Hidden},
       {0}};
     if (SolveInlineMethod())
       DDB.Long ("LnkMode",       "",     DC_,     "",      xidLnkMode, this, 0/*isParmStopped|SetOnChange*/, DDB0b);
@@ -197,13 +197,13 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       DDB.Long ("LnkMode",       "",     DC_,     "",      xidLnkMode, this, isParmStopped|SetOnChange, DDB0a);
     }
 
-  const flag IsXfer=(!SolveDirectMethod() && (((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlowMode()));
+  const flag IsXfer=(!NetProbalMethod() && (((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlowMode()));
   const flag IsPipe=!IsXfer;
   const flag IsSrcSnk=!IsXfer && GetActiveHold();
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
-    DDB.Visibility(SM_Direct|HM_All);
+    DDB.Visibility(NM_Probal|SM_All|HM_All);
     DDB.Text   ("");
     DDB.Double ("Qm_MakeUp",       "",  DC_Qm,   "kg/s",   &dMkUpRqd,        this, isParm|NAN_OK);
     }
@@ -215,16 +215,16 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
     if (!m_UseNewCapVars && OrigPrjFileVerNo()<94)
       {
-      DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
       DDB.Double ("",               "Qm_Rqd",       DC_Qm,   "kg/s",  xidOldQmReqd,           this, isParm|NAN_OK, DDBNAN_NotSpecd);
-      DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
       DDB.Double ("Qm_RqdCapacity", "Qm_Capacity",  DC_Qm,   "kg/s",  xidOldQmRqdCapacity,    this, isParm|NAN_OK, DDBNAN_NotSpecd);
       DDB.Double ("Qm_MinCapacity", "Qm_MinCap",    DC_Qm,   "kg/s",  xidOldQmMinCapacity,    this, isParm);
       DDB.Double ("Qm_MaxCapacity", "Qm_MaxCap",    DC_Qm,   "kg/s",  xidOldQmMaxCapacity,    this, isParm|NAN_OK, DDBNAN_NotSpecd);
       }
     else if (!IsPipe || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
       {
-      DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && IsXfer);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && IsXfer);
       m_FEP.BuildDataDefn(/*FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|*/FBDDOpt_WithQmSpec, DDB, this, "Flw", 3, DDB_NoPage);
       }
 
@@ -240,8 +240,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text   ("Flow Conditions");
   DDB.Double("",              "QmPrvPB",  DC_Qm,   "kg/s",   xidFEQmPrvPB,     this, isResult|noView|NAN_OK);
 
-  DDB.Text("FIX!");
-  //TODO Restore this : DDB.Visibility(SM_DynBoth|HM_All);
+  //DDB.Text("FIX!");
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 
   DDB.String("",              "QmEst.Type",DC_,   "",     xidQmEstType,     this, isResult);
   DDB.String("",              "QmEst.Src", DC_,   "",     xidQmEstSrc,      this, isResult|isTag);
@@ -268,8 +268,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Double ("Density",      "Rho",  DC_Rho,  "kg/m^3", xidRho,        this, isResult|noFile|noSnap);
   DDB.Double ("NDensity",     "NRho", DC_Rho,  "kg/m^3", xidNRho,       this, isResult|noFile|noSnap);
 
-  DDB.Visibility(SM_DynBoth|HM_All, !IsXfer);
-  if (SolveDynamicMethod())
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer);
+  if (NetDynamicMethod())
     DDB.Double("Velocity",      "Vel",       DC_Ldt,  "m/s",    xidVelocity,   this, isResult|noFile|noSnap);
 
 
@@ -280,7 +280,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   if (1)//IsPipe && m_FEP.FlwRqd().PressOn())
     {
-    DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile());
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile());
     //DDB.Text   ("Pressure Audit", Marker|MarkerClosed);
     //DDB.Double ("Boost_Head",   "dPb",      DC_DP,   "kPa",   xidFEDPb,      this, isResult|isParmConstruct);
     //DDB.Double ("",             "dPbX",     DC_DP,   "kPa",   xidFEDPbX,     this, isResult|InitHidden|isParmConstruct);
@@ -315,7 +315,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
       DDB.Double ("Flange_DP_Out","DPoR",   DC_DP,  "kPa",   xidDPOutRmt,    this, isResult|noFile|noSnap);
 
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Double ("Ave_Mass_Flow","QmAv",     DC_Qm,  "kg/s",  xidIO_QmAvail, this, isResult|0|InitHidden);
     DDB.Double ("",             "QmSp",     DC_Qm,  "kg/s",  xidIO_QmSpace, this, isResult|0|InitHidden);
 
@@ -343,17 +343,17 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
     DDB.Double ("", "totHz@ToR", DC_Pwr, "kJ/s",  xidtotHzOutRmt,  this, isResult|noFile|noSnap);
 
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
   Strng Page;
   Page.Set("%s..", Tag());
-  DDB.Page(Page(), SolveDirectMethod() ? DDB_OptPage : DDB_RqdPage);
+  DDB.Page(Page(), NetProbalMethod() ? DDB_OptPage : DDB_RqdPage);
 
   cioOn.BuildDataDefn(this, "Flow", DDB);
-  DDB.Visibility(SM_DynBoth|HM_All);  //hss 14/2/98
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);  //hss 14/2/98
   if (SolveBufferedMethod())// PipeFlowMode())
     {
     DDB.Text("Flow Options");
-    DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
     static DDBValueLst DDBPhasesR[]=
       {
         {FPh_Liquid,   "Liquids"   },
@@ -459,12 +459,12 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 #endif
   
   
-  if (!SolveDirectMethod())
+  if (!NetProbalMethod())
     {
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.CheckBoxBtn("CollectStats",  "",  DC_, "",  xidSI_On,   this, isParmStopped);//|SetOnChange);
     //TODO: Check: is iLF_Direction only used in dynamic!?!
-    DDB.Visibility(SM_DynBoth|HM_All);//SM_Direct|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);//SM_Direct|HM_All);
     DDB.Text("Flow Configuration");
     static DDBValueLst DDB1[]={
       {LFD_Default, "Default"},
@@ -550,7 +550,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDBTearState);
 
   bool TearVis=(NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear);
-  DDB.Visibility(SHM_All, TearVis);
+  DDB.Visibility(NSHM_All, TearVis);
 
   if (PrjFileVerNo()>=78)
     {
@@ -561,10 +561,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       static DDBValueLst DDBStart[] = {{0, "Start"}, {1, "Busy"}, {0}};
       DDB.Button      ("Start",   "",   DC_,    "",       xidTearInitActivate, this, isParm|SetOnChange);//, DDBStart);
       bool HoldCntVis=true;
-      DDB.Visibility(SHM_All, TearVis && HoldCntVis);
+      DDB.Visibility(NSHM_All, TearVis && HoldCntVis);
       DDB.Byte        ("Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParmStopped);
       DDB.Byte        ("Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
-      DDB.Visibility(SHM_All, TearVis);
+      DDB.Visibility(NSHM_All, TearVis);
 
       DDB.Byte        ("State",    "",   DC_,    "",       xidTearInitActive,   this, 0, DDBInitState);
 
@@ -584,12 +584,12 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
           DDBInitQmModeX.Add(SPI_QModeNQv,  "NVolume");
         }
 
-      DDB.Visibility(SHM_All, TearVis);
+      DDB.Visibility(NSHM_All, TearVis);
       DDB.Double      ("T_Rqd",         "",   DC_T,   "C",      xidTearTRqd,         this, isParm       |NAN_OK, DDBNAN_NotSpecd);
       DDB.Double      ("P_Rqd",         "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm       |NAN_OK, DDBNAN_NotSpecd);
       DDB.Byte        ("Estimate.Usage","",   DC_,    "",       xidTearInitEstUsage, this, isParmStopped|SetOnChange, DDBInitEstUsage);
       DDB.Byte        ("Flow.Mode",     "",   DC_,    "",       xidTearQmMode,       this, isParmStopped|SetOnChange, DDBInitQmModeX());
-      DDB.Visibility(SHM_All, TearVis && (Md!=SPI_QModeNone));
+      DDB.Visibility(NSHM_All, TearVis && (Md!=SPI_QModeNone));
       DDB.Double      ("Qm_Rqd",        "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, (Md==SPI_QModeQm?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
       DDB.Double      ("Qv_Rqd",        "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, (Md==SPI_QModeQv?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
       DDB.Double      ("NQv_Rqd",       "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, (Md==SPI_QModeNQv?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
@@ -611,15 +611,15 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double      ("T_Rqd",         "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
     }
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.CheckBoxBtn ("AdjQmToEstQm",  "",   DC_,    "",       &m_bAdjustToEstFlow,  this, isParm|SetOnChange);
   DDB.SetVisibility(B4TearVis);
 
   DDB.EndStruct();
 
-  if (IsPipe)//SolveDynamicMethod() && IsSrcSnk)
+  if (IsPipe)//NetDynamicMethod() && IsSrcSnk)
     {
-    DDB.Visibility(SM_DynBoth|HM_All, SolveDynamicMethod() && IsSrcSnk);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, NetDynamicMethod() && IsSrcSnk);
     DDB.BeginStruct(this, "SrcSnk", NULL, DDB_NoPage, -1, 0);//MarkerClosed);
     DDB.Double("P_Rqd",     "", DC_P,     "kPag", &SrcSnk.dPress,     this, isParm);
     DDB.Double("T_Rqd",     "", DC_T,     "C",    &SrcSnk.dTemp,      this, isParm);
@@ -643,61 +643,61 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     {LDP_Const_P,       "Const_Src_P"},
     //{LDP_BRC_DP,        "BRC_DP"},  ////Bernoulli Rouse Corrected
     {0}};
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Byte  ("Press_Mode",	  "",	DC_,	"",	   &iDP_Mode,	  this,	isParm|AffectsStruct|SetOnChange, DDB2);
 
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Const_P);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Const_P);
   DDB.Double("Lnk_P_Src",	  "",	DC_P,	"kPag",	 &LnkP_S,	    this,	isParm);
 
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Fixed_Drop || iDP_Mode==LDP_Fixed_Boost);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Fixed_Drop || iDP_Mode==LDP_Fixed_Boost);
   DDB.Double("Fxd_dP",	  "",	DC_DP,	"kPa",	 &FxddP,	    this,	isParm);
 
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
   DDB.Double("Diam",      "",	DC_L, 	"mm", 	 &PipeD,		  this,	isParm);
   DDB.Double("ScaleBuildup", "", DC_L, "mm",   &PipeScale,  this,	isParm);
   DDB.Double("PipeDeltaZ", "", DC_L, "m",      &PipeDeltaZ, this,	isParm);
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Darcy_DP);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP);
   static DDBValueLst DDB1P[]={
     {(int)True,  "Calc_K"},
     {(int)False, "Define_K" },
     {0}};
   DDB.Bool  ("K_Method",  "", DC_,    "",      &iCalc_K,    this, isParm|SetOnChange, DDB1P);
-  DDB.Visibility(SM_Direct|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
   if (SolveDirectMethod())
     DDB.Double("Length",    "L", DC_L, 	"m",   &PipeL,		  this,	isParm);
   DDB.Double("FittingsLength", "FitL", DC_L, "m", &FitPipeL, this,	isParm);
-  DDB.Visibility(SM_Direct|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K));
+  DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K));
   static DDBValueLst DDB2P[]={
     {(int)True,  "Calc_f"},
     {(int)False, "Define_f" },
     {0}};
   DDB.Bool  ("f_Method",  "", DC_,    "",      &iCalc_FFac, this, isParm, DDB2P);
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Darcy_DP && iCalc_K && iCalc_FFac);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP && iCalc_K && iCalc_FFac);
   DDB.Double("Viscosity", "",	DC_Visc,"cP",    &Visc,	  	  this,	isParm);
   DDB.Double("Pipe_Rough","",	DC_L,   "mm",    &Rough,  	  this,	isParm);
   DDB.Double("ReynoldsNo", "Re", DC_, "",      &Re,         this, isResult);
-  DDB.Visibility(SM_Direct|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
   DDB.Double("FricFac",  "",	DC_,    "",      &FricFac,    this,	(iCalc_FFac && iDP_Mode!=LDP_BRC_DP) ? isResult : isParm);
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Darcy_DP);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP);
   DDB.Double("K_Value",   "",	DC_,  	"",   	 &K,    		  this,	iCalc_K ? isResult : isParm);
   DDB.Double("K_MinorLosses", "",	DC_, "",   	 &KMinorLoss, this,	isParm);
-  DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
-  if (!SolveDynamicMethod())
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
+  if (!NetDynamicMethod())
     DDB.Double("Velocity", "Vel", DC_Ldt, "m/s", &Vel,      this, isResult);
 
-  //DDB.Visibility(SM_Direct|HM_All, iDP_Mode==LDP_Linear_DP || iDP_Mode==LDP_SquareLaw_DP);
+  //DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Linear_DP || iDP_Mode==LDP_SquareLaw_DP);
   //DDB.Double("S_MassFlw",	"",	DC_Qm,	"kg/s",	 &SQmCap,	  this,	isParm);
   //DDB.Double("S_dP",	    "",	DC_DP,	"kPa",	 &SQmdP,		this,	isParm);
   //DDB.Double("V_MassFlw",	"",	DC_Qm,	"kg/s",	 &VQmCap,	  this,	isParm);
   //DDB.Double("V_dP",	    "",	DC_DP,	"kPa",	 &VQmdP,		this,	isParm);
 
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double("Pdrop",	    "",	DC_DP,	"kPa",	 &PB_dp,		  this,	isResult);
 #endif
 
   if (IsXfer)
     {
-    DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (IsXfer || dbgfile()));
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (IsXfer || dbgfile()));
     //if (m_iXferCapOption==XCO_Spill)
     //  {
     //  if (DDB.BeginObject(this, "Spill", "SpContDirect", NULL, DDB_NoPage, -1))//, MarkerOpen))
@@ -713,21 +713,30 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DWORD LSOpts=PrjFileVerNo()<38 ? 0 : noFile|noSnap;
-  DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile());
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile());
   DDB.Text   ("Rise/Length", Marker);
-  DDB.Double ("Rise",         "dZ",      DC_L, "m",     xidFEDZ,        this, isResult|0|isParmConstruct);
-  if (SolveDynamicMethod())
-    DDB.Double ("Length",       "L",       DC_L, "m",     xidFELength,    this, isResult|0|isParmConstruct);
+  if (NetDynamicMethod())
+    DDB.Double ("Length",       "L",     DC_L, "m",     xidFELength,    this, isResult|0|isParmConstruct);
   DDB.Double ("SrcH",         "SrcHgt",  DC_L, "m",     xidSrcHgt,      this, isResult|noFile|noSnap);
   DDB.Double ("DstH",         "DstHgt",  DC_L, "m",     xidDstHgt,      this, isResult|noFile|noSnap);
-  DDB.Double ("",             "dZ_Rqd",  DC_L, "m",     &dZ_Rqd,        this, isParmStopped|NAN_OK);
+  if (PrjFileVerNo()>=100)
+    DDB.Double ("Rise",         "",      DC_L, "m",     xidFEDZ,        this, isResult|0|isParmConstruct);
+  else
+    DDB.Double ("Rise",         "dZ",    DC_L, "m",     xidFEDZ,        this, isResult|0|isParmConstruct);
+  if (PrjFileVerNo()<100 && DDB.ForFileSnpScn())
+    DDB.Double ("",             "dZ_Rqd",  DC_L, "m",   &m_RiseRqd,     this, isParmStopped|NAN_OK);
+  else
+    {
+    DDB.Double ("RiseRqd",    "",        DC_L, "m",     &m_RiseRqd,     this, isParmStopped|NAN_OK);
+    DDB.Double ("DatumDiff",  "",        DC_L, "m",     &m_DatumChg,    this, isParmStopped|NAN_OK);
+    }
 
   DDB.Visibility();
   DDB.Text   ("Connections", Marker);
   DDB.String ("Link_Source",      "SrcIO",   DC_,  "",     xidSrcIOTag,    this, isTag|noFile|noSnap);
   DDB.String ("Link_Destination", "DstIO",   DC_,  "",     xidDstIOTag,    this, isTag|noFile|noSnap);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 
   dword Flgs0=NoFlwIOs()>=1 ? IODesc_Self(0)->m_dwFlags : 0;
   dword Flgs1=NoFlwIOs()>=2 ? IODesc_Self(1)->m_dwFlags : 0;
@@ -737,11 +746,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Double ("DstAperture",  "",        DC_Frac, "%",     xidDstAperture,  this, (Flgs1&IOShwFracHgt&&SolveInlineMethod_Rmt(1)?noView:0)|LSOpts);
 
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.CheckBox   ("FwdOnly","",         DC_, "",  &m_fFwdOnly,   this, isParm|SetOnChange);
   if (IsPipe)
     {
-    DDB.Visibility(SM_DynBoth|HM_All, m_fFwdOnly);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_fFwdOnly);
     DDB.Double ("UDFOpenP",       "",     DC_P, "kPa", xidUDFOpenP   ,this, isParm);
     DDB.Long   ("UDFActionCount", "",     DC_,  "",    xidUDFActCnt  ,this, 0|InitHidden);
     static DDBValueLst DDBUDF[]={
@@ -749,18 +758,18 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       {1,   "Closed"},
       {0}};
     DDB.Bool   ("UDFState",       "",     DC_,  "",    xidUDFState   ,this, 0, DDBUDF);
-    DDB.Visibility(SHM_All);
+    DDB.Visibility(NSHM_All);
     }
-  if (pStats && SolveDynamicMethod())
+  if (pStats && NetDynamicMethod())
     {
     pStats->BuildDataDefn(DDB, this);
     }
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
 
 //  DDB.CheckBox("MultiFlwBlk",   "",        DC_,  "",      &MFB.fOn,  this, isParm|SetOnChange);
 // ------------
   //if (IsPipe)
-  if (IsPipe && !SolveDirectMethod()) //kga 23/11/04 do we need all these tags in ProBal???
+  if (IsPipe && !NetProbalMethod()) //kga 23/11/04 do we need all these tags in ProBal???
     {
     if (m_MFB.On())
       {
@@ -768,11 +777,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       }
     else if (PrjFileVerNo()<22)// if (!MFB.fOn)
       {
-      DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile()); //kga// hss 14/2/98
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga// hss 14/2/98
       DDB.Page("Eqn", DDB_OptPage);
       m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, this, NULL, 3);
 
-      DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
       if (NoFlwIOs()>0 && IOPipeEntry_Rmt(0))
         IOFB_Rmt(0,0)->BuildDataDefn(FBDDOpt_WithAll, DDB, this, "SrcEqn", 1);
       if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
@@ -780,7 +789,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       }
     else
       {
-      DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile());
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile());
       DDB.Page("Eqns", DDB_OptPage);
 
       if (PrjFileVerNo()<24)
@@ -791,7 +800,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
           m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, this, NULL, 3);
           }
         DDB.EndObject();
-        DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
+        DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
         if ((NoFlwIOs()>0) && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
           {
           if (DDB.BeginObject(this, "Src", "FB_Data", NULL, DDB_NoPage, 1, MarkerClosed))
@@ -813,10 +822,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
         }
       else
         {
-        DDB.Visibility(SM_DynBoth|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
+        //DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
+        DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
         int Do0=(NoFlwIOs()>0) && Nd_Rmt(0);
         int Do1=(NoFlwIOs()>1) && Nd_Rmt(1);
-        DDBPages Pg=SolveDirectMethod() ? DDB_OptPage : DDB_RqdPage;
+        DDBPages Pg=NetProbalMethod() ? DDB_OptPage : DDB_RqdPage;
         if (!DDB.ForFileSnpScn())
           {
           if (Do0 && IOPipeEntry_Rmt(0))
@@ -848,7 +858,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   m_VLE.BuildDataDefn(DDB);
 #endif
 
-  DDB.Visibility(SM_DynBoth|HM_All, (SolveDynamicMethod() && IsSrcSnk) || DDB.ForFileSnpScn());
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, (NetDynamicMethod() && IsSrcSnk) || DDB.ForFileSnpScn());
   if (IsPipe)
     {
     if (SrcSnk.pImage)
@@ -881,7 +891,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       ((IOFlange(0)->RqdTearType()>=TT_ManualTear) || (IOFlange(0)->TearImageExists())))
     {
     SpImage &Img=*IOFlange(0)->TearImage();
-    DDB.Visibility(SHM_All, IOFlange(0)->RqdTearType()>=TT_ManualTear && 
+    DDB.Visibility(NSHM_All, IOFlange(0)->RqdTearType()>=TT_ManualTear && 
                             IOFlange(0)->TearInitEstUsage()>TIEU_None);
     static const BDDSpecies_Blk sbImageM[]= { {SVV_AsMassFlow,    SVV_AsMassFrac,  true,  true, VAMsk_SpMass },
                                               {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true, VAMsk_SpMass }, };
@@ -921,10 +931,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     {
     if (IOConduitIn(0))
       {
-      DDB.Visibility(SHM_All);
+      DDB.Visibility(NSHM_All);
       IOConduitIn(0)->Tag("QiI");
       DDB.Object(IOConduitIn(0), this, "QiI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
-      DDB.Visibility(SHM_All);
+      DDB.Visibility(NSHM_All);
       }
     IOConduit(0)->Tag("Qi");
     DDB.Object(IOConduit(0), this, "Qi", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
@@ -955,10 +965,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Object(IOConduit(1), this, "Qo", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
     if (IOConduitIn(1))
       {
-      DDB.Visibility(SHM_All);
+      DDB.Visibility(NSHM_All);
       IOConduitIn(1)->Tag("QoI");
       DDB.Object(IOConduitIn(1), this, "QoI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
-      DDB.Visibility(SHM_All);
+      DDB.Visibility(NSHM_All);
       }
     }
 
@@ -966,7 +976,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithAutoComp|FEOF_WithPVConst);
 
-  if (SolveDynamicMethod() && m_Spill.Enabled)
+  if (NetDynamicMethod() && m_Spill.Enabled)
     {
     DDB.Page("AreaIO", DDB_RqdPage);
     m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300, DFIO_ShowQm);
@@ -977,7 +987,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 #endif
     }
 
-  if (DDB.ForFileSnpScn() && GlblDynamicMode())
+  if (DDB.ForFileSnpScn() && NetDynamicMethod())
     {
     if (!m_pLastFlw)
       m_pLastFlw=new SpConduit("LastFlw", this, TOA_Embedded);

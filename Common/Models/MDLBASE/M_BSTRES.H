@@ -45,7 +45,7 @@ class DllImportExport MN_BstRes : public MdlNode
     virtual void   ResetData(flag Complete);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag   Set_Sizes();
 
     virtual CFlwEqnPtr * GetSystemDefnFlwEqn(int i, Strng *Tg)

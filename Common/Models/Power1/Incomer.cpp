@@ -343,7 +343,7 @@ void CIncomer::GlobalConnect()
       SetIOAutoConnect(iConnectedIO, true);
       pOther->SetIOAutoConnect(pOther->iConnectedIO, true);
       }
-    m_dDatum = pOther->m_dDatum;
+    m_Datum = pOther->m_Datum;
 
     fConnectInitiator=true;
 

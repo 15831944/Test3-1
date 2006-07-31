@@ -62,12 +62,12 @@ DWORD COleExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
           default: ASSERT(FALSE); //what Excel OLE option is this ???
           }
         pReportMngr->m_pComCmd=p->ComCmdBlk();
-        ((COleExcelBaseAuto*)pReportMngr)->SetOptions((byte)gs_pPrj->bRptExcelLock, 
-                                                      (byte)gs_pPrj->bRptExcelCellName, 
-                                                      (byte)gs_pPrj->bRptExcelMakeActive, 
-                                                      (byte)gs_pPrj->bRptExcelSysCADActive, 
-                                                      (byte)gs_pPrj->bRptExcelUpdateLinks, 
-                                                      (byte)gs_pPrj->bRptExcelSaveOnComplete);
+        ((COleExcelBaseAuto*)pReportMngr)->SetOptions((byte)gs_pPrj->m_bRptExcelLock, 
+                                                      (byte)gs_pPrj->m_bRptExcelCellName, 
+                                                      (byte)gs_pPrj->m_bRptExcelMakeActive, 
+                                                      (byte)gs_pPrj->m_bRptExcelSysCADActive, 
+                                                      (byte)gs_pPrj->m_bRptExcelUpdateLinks, 
+                                                      (byte)gs_pPrj->m_bRptExcelSaveOnComplete);
         pOleThread->AddQueueItem(pReportMngr);
         PostThreadMessage(dwThreadId, wm_SyscadOleCommand, MAKEWPARAM(OLE_DOAUTOITEM, (WORD)0), (LPARAM)pReportMngr);
         break;

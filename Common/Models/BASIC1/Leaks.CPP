@@ -482,7 +482,7 @@ void CPipeLeak::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text   ("");
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Double  ("PressureEst",  "PEst",  DC_P,    "kPag",   xidPEstMean,    this, isResult|0);
   BuildDataDefnElevation(DDB);
 

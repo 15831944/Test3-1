@@ -21,7 +21,7 @@ goto continue
 :blankname
 echo ..
 echo NBNB Usage should be: zip_smdk VerName [size]
-echo Usage example: zip_smdk bin116
+echo Usage example: zip_smdk bin120
 echo ---- Ctrl-C to cancel ----
 echo Any key to continue and place files in SMDK folder
 echo ..
@@ -29,7 +29,7 @@ rem pause
 @echo on
 set foldr=SMDK
 md %foldr%
-set fn=xfr\%foldr%\SMDK_116
+set fn=xfr\%foldr%\SMDK_120
 
 :continue 
 

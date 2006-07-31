@@ -24,7 +24,7 @@
 #endif
 
 #define dbgBuildSDB    (0 || WITHDEBUG)
-#define dbgSysVec      (0 || WITHDEBUG)
+#define dbgSysVec      (0 /*|| WITHDEBUG*/)
 
 #define WITHSPVECTORTIMERS (WITHTIMERS)
 #if WITHSPVECTORTIMERS

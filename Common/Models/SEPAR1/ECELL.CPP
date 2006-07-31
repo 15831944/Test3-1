@@ -94,7 +94,7 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Density",       "Rho",      DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
   DDB.Double  ("Level",         "Lvl",      DC_Frac, "%",      xidLevel,       this, isResult|0);
@@ -121,13 +121,13 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 	//if (Contents.SpillExists())
   //  DDB.Object(&Contents.OverFlow, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();

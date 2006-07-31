@@ -124,7 +124,7 @@ void CGrfHelper::MdlStatusColor(dword Status, int &Color, int &OvrColor, int &Ov
   {
   OvrColor=-1;
   OvrStyle=-1;
-  if (Color==-1 && gs_pPrj->bShowStatusColours)
+  if (Color==-1 && gs_pPrj->m_bShowStatusColours)
     {
     if (Status!=0xFFFFFFFF)
       {
@@ -167,7 +167,7 @@ void CGrfHelper::MdlStatusColor(dword Status, int &Color, int &OvrColor, int &Ov
         else Color=GR_MDLSTATUS_CLEAR;
         }
 
-      if (!gs_pPrj->bShowStatusColours && OvrColor>=0)
+      if (!gs_pPrj->m_bShowStatusColours && OvrColor>=0)
         {
         Color=OvrColor;
         OvrColor=-1;
@@ -5293,7 +5293,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
 #endif
 
   int Ocolor=-1;
-  if (color==-1 && gs_pPrj->bShowStatusColours )
+  if (color==-1 && gs_pPrj->m_bShowStatusColours )
     if (GrfHelper.iShowMdlStatusUnKnown)
       Ocolor=GR_MDLSTATUS_UNKNOWN;
 
@@ -5663,7 +5663,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
     CEntInView* l = (CEntInView*)(item->pKenwalta);
     int ovrcolor=-1;
     int ovrstyle=-1;
-    if (color==-1 && gs_pPrj->bShowStatusColours)
+    if (color==-1 && gs_pPrj->m_bShowStatusColours)
       {
       pchar entitytag = l->Tag();
       if (entitytag && gs_pTheSFELib)
@@ -5726,7 +5726,7 @@ void DXF_Drawing::Draw(C3_CURVE c, pViewport vp, C3_BOX box, int color, int Lvl,
 #endif
 
   int Ocolor=-1;
-  if (color==-1 && gs_pPrj->bShowStatusColours )
+  if (color==-1 && gs_pPrj->m_bShowStatusColours )
     if (GrfHelper.iShowMdlStatusUnKnown)
       Ocolor=GR_MDLSTATUS_UNKNOWN;
 

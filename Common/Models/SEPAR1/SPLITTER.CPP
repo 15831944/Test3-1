@@ -126,7 +126,7 @@ void Splitter::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   static DDBValueLst DDB1[]={
     {(int)SPM_Specie, "Specie"},
@@ -163,16 +163,16 @@ void Splitter::BuildDataDefn(DataDefnBlk & DDB)
   else
     {
     DDB.Byte    ("Split_Method",            "Method",          DC_,     "" ,      &iSplitMethod,       this, isParm|SetOnChange, DDB1);
-    DDB.Visibility(SHM_All, (iSplitMethod == SPM_Specie));
+    DDB.Visibility(NSHM_All, (iSplitMethod == SPM_Specie));
     DDB.Short   ("",                        "Specie1",         DC_    , "" ,      &iSep1,              this, isParm, SDB.DDBSpListDash());
     DDB.Short   ("",                        "Specie2",         DC_    , "" ,      &iSep2,              this, isParm, SDB.DDBSpListDash());
     DDB.Short   ("",                        "Specie3",         DC_    , "" ,      &iSep3,              this, isParm, SDB.DDBSpListDash());
     DDB.Double  ("OverSizeSplit",           "OS_Split",        DC_Frac, "%",      &OverS,              this, isParm);
-    DDB.Visibility(SHM_All, (iSplitMethod == SPM_FeedSolLiq || iSplitMethod == SPM_OSSolLiq));
+    DDB.Visibility(NSHM_All, (iSplitMethod == SPM_FeedSolLiq || iSplitMethod == SPM_OSSolLiq));
     DDB.Double  ("Rqd_Solids_To_OverSize",  "RqdSolToOS",      DC_Frac, "%",      &RqdSolidsToOS,      this, isParm);
-    DDB.Visibility(SHM_All, (iSplitMethod == SPM_FeedSolLiq));
+    DDB.Visibility(NSHM_All, (iSplitMethod == SPM_FeedSolLiq));
     DDB.Double  ("Rqd_Liquid_To_OverSize",  "RqdLiqToOS",      DC_Frac, "%",      &RqdLiqToOS,         this, isParm);
-    DDB.Visibility(SHM_All, (iSplitMethod == SPM_OSSolLiq));
+    DDB.Visibility(NSHM_All, (iSplitMethod == SPM_OSSolLiq));
     DDB.Double  ("Rqd_OverSize_Solids",     "RqdOSSolids",     DC_Frac, "%",      &RqdOSSolids,        this, isParm);
     DDB.Visibility();
     DDB.Text    ("Results");
@@ -184,7 +184,7 @@ void Splitter::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("UnderSize_SolidsConc@25", "USSolConc25",     DC_Conc, "g/L",    &ActUSSolidsConc25,  this, isResult|InitHidden);
     }
 
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
 	DDB.Text    ("");
   //DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
@@ -192,9 +192,9 @@ void Splitter::BuildDataDefn(DataDefnBlk & DDB)
 	DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  /*//if (SolveDirectMethod())
+  /*//if (NetProbalMethod())
   //  DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage, -1, bShowQFeed ? 0 : noView);
-  if (bShowQFeed && SolveDirectMethod())
+  if (bShowQFeed && NetProbalMethod())
     DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage, -1);*/
 
   DDB.EndStruct();

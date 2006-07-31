@@ -98,7 +98,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
     virtual void   PreDisConnect(int IONo);
 
 //    virtual pFlwBlk FBlk(int i=0) { return i==0 ? &FB : NULL; };
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag   Set_Sizes();
     virtual void   StartSolution();
     virtual void   StartStep();

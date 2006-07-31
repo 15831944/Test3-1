@@ -145,7 +145,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
@@ -155,7 +155,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     //DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -192,7 +192,7 @@ void Classifier::EvalJoinPressures(long JoinMask)
 
 void Classifier::EvalProducts(CNodeEvalIndex & NEI)
   {
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     MN_Surge::EvalProducts(NEI);
     return;

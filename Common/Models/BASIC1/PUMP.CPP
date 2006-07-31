@@ -126,14 +126,14 @@ void Pump_GP::BuildDataDefn(DataDefnBlk & DDB)
     {BRPM_Fixed, "Fixed"},
     {0}};
   DDB.BeginStruct(this);
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     DDB.Text    ("");
     DDB.Text    ("Requirements");
     DDB.Byte    ("PressMethod",     "",     DC_,      "",      xidPressMethod,  this, isParm|SetOnChange, DDB1);
-    DDB.Visibility(SHM_All, iPressMethod==BRPM_Boost);
+    DDB.Visibility(NSHM_All, iPressMethod==BRPM_Boost);
     DDB.Double  ("PressBoostRqd",   "PBoost", DC_DP,  "kPa",   xidPBoostRqd,    this, isParm);
-    DDB.Visibility(SHM_All, iPressMethod==BRPM_Fixed);
+    DDB.Visibility(NSHM_All, iPressMethod==BRPM_Fixed);
     DDB.Double  ("OutletPressRqd",  "PRqd", DC_P,     "kPag",  xidPoutRqd,      this, isParm|NAN_OK);
     DDB.Visibility();
     m_VLE.Add_OnOff(DDB);
@@ -199,7 +199,7 @@ void Pump_GP::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     m_VLE.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
     }
@@ -223,7 +223,7 @@ void Pump_GP::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithPVConst);
 
-  if (SolveDynamicMethod() && (m_LeakI.Enabled || m_LeakO.Enabled))
+  if (NetDynamicMethod() && (m_LeakI.Enabled || m_LeakO.Enabled))
     {
     DDB.Page("AreaIO", DDB_RqdPage);
     m_LeakI.BuildDataDefn(DDB, NULL, DDB_NoPage, 101, DFIO_ShowQm);
@@ -445,7 +445,7 @@ void Pump_GP::EvalPowerRequired()
 dword Pump_GP::ModelStatus()
   {
   dword Status=MN_BstRes::ModelStatus();
-  if (!gs_Exec.Stopped() && SolveDynamicMethod())
+  if (!gs_Exec.Stopped() && NetDynamicMethod())
     {
     Status |= ((m_PSB.On() && fabs(m_PSB.Speed(this, &m_FRB))>0.0) ? FNS_On : FNS_Off);
     }

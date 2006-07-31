@@ -116,7 +116,7 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
   DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
@@ -126,7 +126,7 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, isResult|0);
   AddMdlNetworked(DDB);
 
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   static DDBValueLst DDB0[]={
     {CTM_Simple, "Simple"},
     {CTM_Merkel, "Merkel"},
@@ -147,15 +147,15 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Byte    ("Method",               "", DC_,     "",      &iMethod,        this, isParm|SetOnChange, DDB0);
   DDB.Text    ("");
   DDB.Text    ("Characteristics");
-  DDB.Visibility(SM_Direct|HM_All, iMethod==CTM_Merkel);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Merkel);
   DDB.Byte    ("CalcType",             "", DC_,     "",      &iMerkelCalcType,this, isParm|SetOnChange, DDB1);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("AirWetBulbT",          "", DC_T,    "C",     &dAirWetBulbT,   this, isParm);
   DDB.Double  ("ApproachTemp","ApproachT", DC_dT,   "C",     &dApproachT,     this, (iMethod==CTM_Merkel && iMerkelCalcType==MCT_TOut) ? isResult : isParm);
-  DDB.Visibility(SM_Direct|HM_All, iMethod==CTM_Merkel);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Merkel);
   DDB.Double  ("LG_Ratio",             "", DC_,     "",      &dLGRatio,       this, isParm);
   DDB.Double  ("KaVL",                 "", DC_,     "",      &dKaVL,          this, (iMethod==CTM_Merkel && iMerkelCalcType==MCT_TOut) ? isParm : isResult);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("FeedQm",               "", DC_Qm,   "kg/s",  &dQmIn,          this, isResult);
   DDB.Double  ("TempFeed",             "", DC_T,    "C",     &dTempKFeed,     this, isResult);
   DDB.Double  ("TempDrop",        "TDrop", DC_dT,   "C",     &dTempDrop,      this, isResult);
@@ -166,21 +166,21 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   DDB.Text    ("Water Loss/Makeup");
   DDB.Byte    ("LossMethod",           "", DC_,     "",      &iLossMethod,    this, isParm|SetOnChange, DDB2);
-  DDB.Visibility(SM_Direct|HM_All, iLossMethod==WLM_DriftBlowdown);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_DriftBlowdown);
   DDB.Double  ("DriftLoss",            "", DC_Frac, "%",     &dDriftLossFrac, this, isParm);
   DDB.Long    ("Cycles",               "", DC_,     "",      &iCycles,        this, isParm);
-  DDB.Visibility(SM_Direct|HM_All, iLossMethod==WLM_Frac);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_Frac);
   DDB.Double  ("RqdLossFrac",          "", DC_Frac, "%",     &dRqdLossFrac,   this, isParm);
-  DDB.Visibility(SM_Direct|HM_All, iLossMethod==WLM_Qm);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_Qm);
   DDB.Double  ("RqdLossQm",            "", DC_Qm,   "kg/s",  &dRqdLossQm,     this, isParm);
-  DDB.Visibility(SM_Direct|HM_All, iMethod==CTM_Merkel);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Merkel);
   DDB.Double  ("EvapFactor",           "", DC_,     "",      &dEvapFactor,    this, isParm);
-  DDB.Visibility(SM_Direct|HM_All, iMethod==CTM_Simple);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Simple);
   DDB.Double  ("MaxEvapFrac",          "", DC_Frac, "%",     &dMaxEvapFrac,   this, isParm);
-  DDB.Visibility(SM_Direct|HM_All, iLossMethod==WLM_DriftBlowdown);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_DriftBlowdown);
   DDB.Double  ("DriftLossQm",          "", DC_Qm,   "kg/s",  &dDriftLossQm,   this, isResult);
   DDB.Double  ("BlowdownLossQm",       "", DC_Qm,   "kg/s",  &dBlowdownLossQm,this, isResult);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("LossQm",               "", DC_Qm,   "kg/s",  &dLossQm,        this, isResult);
   DDB.Double  ("EvapLossQm",           "", DC_Qm,   "kg/s",  &dEvapLossQm,    this, isResult);
   DDB.Double  ("TotalLossQm",          "", DC_Qm,   "kg/s",  &dTotalLossQm,   this, isResult|InitHidden);
@@ -191,7 +191,7 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text    ("");
     DDB.Text    ("Air-Water Mixture Estimates");
     }
-  DDB.Visibility(SM_Direct|HM_All, iMethod==CTM_Merkel);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Merkel);
   DDB.Double  ("AirEnthOut",           "", DC_HMs,  "kJ/kg", &dAirEnthOut,    this, isResult);
   DDB.Double  ("HeatAvailable",        "", DC_Pwr,  "kW",    &dDuty,          this, isResult);
   DDB.Double  ("AirQm",                "", DC_Qm,   "kg/s",  &dAirQmIn,       this, isResult);
@@ -203,7 +203,7 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("AirWaterMixCpEst",     "", DC_CpMs, "kJ/kg.C",&dAirMixCp,     this, isResult);
   DDB.Double  ("AirWaterMixTEst",      "", DC_T,    "C",     &dAirMixT,       this, isResult);
   
-  //DDB.Visibility(SM_Direct|HM_All);
+  //DDB.Visibility(NM_Probal|SM_All|HM_All);
   //RB.Add_OnOff(DDB, False);
   //EHX.Add_OnOff(DDB, False);
   
@@ -218,7 +218,7 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   //EHX.BuildDataDefn(DDB);
   //VLE.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

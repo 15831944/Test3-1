@@ -150,7 +150,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text    ("");
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
@@ -163,7 +163,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   DDB.Text    ("Requirements");
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   dword VFlags1=(m_FTC.Active() ? noView : 0);
 	DDB.Double("Rqd_Flash_Press",   "",  DC_P,    "kPag",  &Rqd_Flash_Press,  this, isParm|NAN_OK|VFlags1);
   dword VFlags2=(m_FTC.Active() ? 0 : noView); 
@@ -176,7 +176,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
 
   DDB.Text    ("Results");
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.Double  ("Cond_Press",       "",  DC_P,    "kPag",  &dFlashP, this, isResult|0);
   DDB.Double  ("Cond_Temp",        "",  DC_T,    "C",     &dFlashT, this, isResult|0);
   m_FTC.BuildDataDefn(DDB);
@@ -191,14 +191,14 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.String("FlashTrainEqp",     "",  DC_,     "",      m_FTC.MMList(),        this, isResult|MultiLineStr|noFile|noSnap|VFlags);
   //  }
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   AddMdlNetworked(DDB);
   DDB.Visibility();
 
   BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
   
-  //if (SolveDirectMethod())
+  //if (NetProbalMethod())
   //  DDB.Object(&QFd, this, NULL, NULL, DDB_RqdPage);
 
   RB.BuildDataDefn(DDB);

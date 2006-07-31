@@ -380,7 +380,7 @@ void QSMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Byte  ("ASatMethod",        "",  DC_,       "",       &sm_iASatMethod, this,  isParm, DDBASatEqn);
 
     DDB.CheckBoxBtn("DefineLiquor", "",  DC_,       "",       &fDoCalc,        this,  isParm);
-    DDB.Visibility(SHM_All, fDoCalc);                                                         
+    DDB.Visibility(NSHM_All, fDoCalc);                                                         
     DDB.Double  ("Rqd_A/C",         "",  DC_,       "",       &dRqd_AtoC,      this,  isParm);
     DDB.Double  ("Rqd_C/S",         "",  DC_,       "",       &dRqd_CtoS,      this,  isParm);
     DDB.Double  ("Rqd_C",           "",  DC_Conc,   "g/L",    &dRqd_C,         this,  isParm);

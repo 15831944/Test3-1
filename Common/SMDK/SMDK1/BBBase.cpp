@@ -109,12 +109,12 @@ flag CBBBase::DoPreStartCheck()
   {
   if (m_pMethod)
     {
-    /*if (!(MethodImpl.m_dwMethOptions & MO_Probal) && !m_pNd->SolveDynamicMethod())
+    /*if (!(MethodImpl.m_dwMethOptions & MO_Probal) && !m_pNd->NetDynamicMethod())
       {
       LogError(m_pNd->FullObjTag(), 0, "PreStart error : Method not supported in ProBal mode.");
       return false;
       }
-    if (!(MethodImpl.m_dwMethOptions & MO_Dynamic) && m_pNd->SolveDynamicMethod())
+    if (!(MethodImpl.m_dwMethOptions & MO_Dynamic) && m_pNd->NetDynamicMethod())
       {
       LogError(m_pNd->FullObjTag(), 0, "PreStart error : Method not supported in Dynamic mode.");
       return false;

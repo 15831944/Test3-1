@@ -33,7 +33,7 @@ CPipeTerm::CPipeTerm (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
   m_VPB("VL_Basic", this, NULL),
   m_FRB("Reg", FBRShow_All, FBReg_Pi|FBReg_Qm|FBReg_Qv|FBReg_QvStep, FBReg_Off)
   {
-  SetAllowedSolveModes(SM_Direct/*|SM_Inline|SM_Buffered*/);// "Transfer", "Inline", NULL);
+  SetAllowedModes(false, NM_All|SM_Direct/*|SM_Inline|SM_Buffered*/|HM_All|LFM_Simple|LFM_Linear||LFM_Full);// "Transfer", "Inline", NULL);
   //SetAllowedFlowModes();
 
   AttachClassInfo(nc_MSrcSnk,NULL);
@@ -76,7 +76,7 @@ void CPipeTerm::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Double ("PressureIn",   "PIn",      DC_P,    "kPag",   xidPIn,        this, isResult|noFile|noSnap);
   DDB.Double ("PressureOut",  "POut",     DC_P,    "kPag",   xidPOut,       this, isResult|noFile|noSnap);
 
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
   flag ParmOK=true;
   
   DDB.Visibility();
@@ -88,10 +88,10 @@ void CPipeTerm::BuildDataDefn(DataDefnBlk &DDB)
   
   DDB.Text  ("");
   m_FRB.BuildDataDefn(DDB, this, true);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text  ("");
   m_VPB.BuildDataDefn(DDB, this, "Posn", 1);
-  DDB.Visibility(SHM_All);
+  DDB.Visibility(NSHM_All);
 
   if (NoFlwIOs()>0 && !DDB.ForFileSnpScn())
     IOFB(0,0)->BuildDataDefn(FBDDOpt_WithAll, DDB, this, "CtrlEqn", 2);
@@ -321,9 +321,9 @@ long CPipeTerm::NodeFlwTask(NodeFlwTasks Task)
 
 //--------------------------------------------------------------------------
 
-Z_States CPipeTerm::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void CPipeTerm::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------
@@ -447,11 +447,10 @@ void CPipeTerm::EvalProducts(CNodeEvalIndex & NEI)
   {
 
   int i, nOut=0, nIn=0;
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
-    case SM_Direct:
+    case NM_Probal:
+    case NM_Dynamic:
       for (i=0;i<NoFlwIOs(); i++)
         if (IO_Out(i) || IO_Zero(i))
           {

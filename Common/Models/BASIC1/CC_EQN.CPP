@@ -296,9 +296,9 @@ void CC_FixQv::BuildDataDefn(DataDefnBlk & DDB)
     {0}};
 
   DDB.Byte("",    "Damping",        DC_,      "",        &m_WhatDamping,   this  ,isParm, DDBDamping);
-  DDB.Visibility(SHM_All, m_WhatDamping==eGlblDamping);
+  DDB.Visibility(NSHM_All, m_WhatDamping==eGlblDamping);
   DDB.Double ("", "Glbl.Damping",   DC_Frac,  "%",       &sm_Damping,      this  ,isParm);
-  DDB.Visibility(SHM_All, m_WhatDamping==eLclDamping);
+  DDB.Visibility(NSHM_All, m_WhatDamping==eLclDamping);
   DDB.Double ("", "Lcl.Damping",    DC_Frac,  "%",       &m_Damping,       this  ,isParm);
   DDB.Visibility();
   DDB.Double ("", "Pressure",       DC_P,     "kPa",     &m_Press,         this  ,isResult);

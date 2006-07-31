@@ -100,7 +100,7 @@ class CSlot
     flag Save(CFile & F, long SlotNo);
     flag Load(CFile & F, long SlotNo);
     void Cfg(pSlotCfgInfo pSCI, flag NewSlot);
-    void GetCfgInfo(SlotCfgInfo& SCI);
+    void GetCfg(SlotCfgInfo& SCI);
     void Changed(flag Force = false);
     void SaveEvent();
     void FixTyp();

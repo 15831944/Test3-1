@@ -44,7 +44,7 @@ class CMDefine : public CycloneMeth
       //DDB.Text("");
       DDB.Double("Cut_Size",         "CutSize",      DC_L,    "um",     &m_CutSize,      m_pCyc, Flags|isParm);
       DDB.Double("UnderFlowSolids",  "UFSolids",     DC_Frac, "%",      &m_UFSolidsFrac, m_pCyc, Flags|isParm);
-      DDB.Visibility(SM_DynBoth|HM_All);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All);
       DDB.Double("",                 "PrssDrop",     DC_DP,   "kPa",    &m_dP,           m_pCyc, Flags|isParm);
       DDB.Double("",                 "PrssDropQ",    DC_Qm,   "kg/s",   &m_Q,            m_pCyc, Flags|isParm);
       DDB.Visibility();
@@ -816,7 +816,7 @@ void Cyclone::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.BeginStruct(this);
   DDB.Text    ("Requirements");
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Visibility();
 

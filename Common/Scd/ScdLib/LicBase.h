@@ -26,48 +26,48 @@
 //---------------------------------------------------------------------------
 
 //days...
-const int CK_WarnDays = 21;            //no of days to give clear warning before license expires
-const int CK_UrgentWarnDays = 7;       //no of days to give urgent warning (dialog) before license expires
+const int CK_WarnDays           = 21;    //no of days to give clear warning before license expires
+const int CK_UrgentWarnDays     = 7;     //no of days to give urgent warning (dialog) before license expires
 //no of units...
-const int CK_Demo_ProbalUnits = 40;    //no of units (nodes+links) allowed in demo mode
-const int CK_Demo_DynUnits = 16;       //no of units (nodes+links) allowed in demo mode
-const int CK_Lite_ProbalUnits = 100;   //no of units allowed for "probal testing" with Full Dynamic license
-const int CK_Lite_DynUnits = 40;       //no of units allowed for "dynamic testing" with Full ProBal license
-const int CK_Trial_ProbalUnits = 400;  //no of units allowed while trial license has been issued
-const int CK_Trial_DynUnits = 160;     //no of units allowed while trial license has been issued
+const int CK_Demo_ProbalUnits   = 25;    //no of units (nodes, not links) allowed in demo mode
+const int CK_Demo_DynUnits      = 10;    //no of units (nodes, not links) allowed in demo mode
+const int CK_Lite_ProbalUnits   = 50;    //no of units allowed for "probal testing" with Full Dynamic license
+const int CK_Lite_DynUnits      = 20;    //no of units allowed for "dynamic testing" with Full ProBal license
+const int CK_Trial_ProbalUnits  = 200;   //no of units allowed while trial license has been issued
+const int CK_Trial_DynUnits     = 50;    //no of units allowed while trial license has been issued
 //historian...
-const long CK_DemoHistSize = 640;      //max historian data file size (multiple of 64kb) in demo mode
-const long CK_TrialHistSize = 2048;    //max historian data file size (multiple of 64kb) for trial license
-const long CK_NormalHistSize = 2048;   //max historian data file size (multiple of 64kb) for normal license
-const UINT CK_DemoHistFiles = 3;       //no of historian data files allowed in demo mode (min = 2)
-const UINT CK_TrialHistFiles = 3;      //no of historian data files allowed for trial license (min = 2)
-const UINT CK_NormalHistFiles = 6;     //no of historian data files allowed for normal license (min = 2)
+const long CK_DemoHistSize      = 640;   //max historian data file size (multiple of 64kb) in demo mode
+const long CK_TrialHistSize     = 2048;  //max historian data file size (multiple of 64kb) for trial license
+const long CK_NormalHistSize    = 2048;  //max historian data file size (multiple of 64kb) for normal license
+const UINT CK_DemoHistFiles     = 3;     //no of historian data files allowed in demo mode (min            = 2)
+const UINT CK_TrialHistFiles    = 3;     //no of historian data files allowed for trial license (min            = 2)
+const UINT CK_NormalHistFiles   = 6;     //no of historian data files allowed for normal license (min            = 2)
 //trend windows...
-const int CK_DemoTrends = 6;           //max no of trend windows allowed in demo mode
-const int CK_TrialTrends = 10;         //max no of trend windows allowed for trial license
+const int CK_DemoTrends         = 6;     //max no of trend windows allowed in demo mode
+const int CK_TrialTrends        = 10;    //max no of trend windows allowed for trial license
 //graphics windows...
-const int CK_DemoGrfs = 3;             //max no of graphics windows allowed in demo mode
-const int CK_TrialGrfs = 8;            //max no of graphics windows allowed for trial license
+const int CK_DemoGrfs           = 3;     //max no of graphics windows allowed in demo mode
+const int CK_TrialGrfs          = 8;     //max no of graphics windows allowed for trial license
 //levels...
-const byte CK_TrialLevel = 0;          //level
-const byte CK_NormalLevel = 1;         //level
-const byte CK_Unused2Level = 2;        //level
-const byte CK_Unused3Level = 3;        //level
+const byte CK_TrialLevel        = 0;     //level
+const byte CK_NormalLevel       = 1;     //level
+const byte CK_Unused2Level      = 2;     //level
+const byte CK_Unused3Level      = 3;     //level
 
 extern DllImportExport const char* LicINISection;
 
 #if CK_ALLOWDEMOMODE
-const int CK_NoOfTrialDays = 12;       //Number of days trial license lasts for
+const int CK_NoOfTrialDays      = 12;       //Number of days trial license lasts for
 #else
-const int CK_NoOfTrialDays = 45;       //Number of days trial license lasts for
+const int CK_NoOfTrialDays      = 45;       //Number of days trial license lasts for
 #endif
 
-const int CK_InfiniteDays = 99999;        //constant representing no time license limit
-const int CK_InfiniteUnits = 999999;      //constant representing no units limit
-const int CK_InfiniteHistSize = 999999999;//constant representing no maximum historian file size
-const UINT CK_InfiniteHistFiles = 99999;  //constant representing no maximum number of historian files
-const int CK_InfiniteTrends = 99999;      //constant representing no maximum number of trend windows
-const int CK_InfiniteGrfs = 99999;        //constant representing no maximum number of graphics windows
+const int CK_InfiniteDays       = 99999;      //constant representing no time license limit
+const int CK_InfiniteUnits      = 999999;     //constant representing no units limit
+const int CK_InfiniteHistSize   = 999999999;  //constant representing no maximum historian file size
+const UINT CK_InfiniteHistFiles = 99999;      //constant representing no maximum number of historian files
+const int CK_InfiniteTrends     = 99999;      //constant representing no maximum number of trend windows
+const int CK_InfiniteGrfs       = 99999;      //constant representing no maximum number of graphics windows
 
 //===========================================================================
 //=== Generic Code...
@@ -77,8 +77,8 @@ class DllImportExport CLicense
   {
 //#if CK_LICENSINGON
   protected:
-    CString sLastPath;       //path used for transfers
-    CString sAppPath;        //optional path and name of app for license location
+    CString m_sLastPath;     //path used for transfers
+    CString m_sAppPath;      //optional path and name of app for license location
     DWORD dwOpLevel;         //current value of 32bit security options
     int iDaysLeft;           //number of days left for license (CK_InfiniteDays = infinite)
     BYTE bDidInitCrypkey:1,  //true if CrypKey was initialized properly
@@ -98,6 +98,7 @@ class DllImportExport CLicense
     CLicense();
     virtual ~CLicense();
     BOOL Init(char* path = NULL);
+    static BOOL CheckLicenseVersionOK(LPCTSTR SysCADEXEPath);
     BOOL Check(BOOL Prompt = FALSE);
     BOOL QuickCheck(UCHAR CheckLevel = 0); //0,1 or 2
     void Exit();
@@ -140,8 +141,8 @@ class DllImportExport CLicense
     inline void SetBlocked(BOOL Block=TRUE) { bBlocked = Block; };
     inline BOOL Blocked()           { return bBlocked; };
     inline int DaysLeft()           { return iDaysLeft; };
-    inline void SetAppPath(char* p) { sAppPath = p; };
-    inline char* GetAppPath()       { return (sAppPath.GetLength()==0 ? NULL : (char*)(const char*)sAppPath); };
+    inline void SetAppPath(char* p);
+    inline char* GetAppPath()       { return (m_sAppPath.GetLength()==0 ? NULL : (char*)(const char*)m_sAppPath); };
     inline void SetEmbedded(bool On) { m_bEmbedded=On; }
     void Error(char * fmt, ...);
   protected:
@@ -165,103 +166,71 @@ class DllImportExport CLicense
 
 typedef struct
   {
-/*  DWORD Level            : 2,  //allows 4 levels
-        Spare0           : 1,  // 3
-        Spare1           : 1,  // 4
-        Spare2           : 1,  // 5
-        Spare3           : 1,  // 6
-        Spare4           : 1,  // 7
-        Spare5           : 1,  // 8
-        Spare6           : 1,  // 9
-        Spare7           : 1,  //10
-        Spare8           : 1,  //11
-        COMInterface     : 1,  //12 allow access to VB COM interface
-        RTTSMdls         : 1,  //13 allow Rio Tinto Technical Services owned models
-        IritronMdls      : 1,  //14 allow Iritron owned models
-        AlcanMdls        : 1,  //15 allow Alcan owned models
-        OPCServer        : 1,  //16 allow OPC Server funcionality
-        QALMdlsExtra     : 1,  //17 allow additional QAL owned models
-        QALMdls          : 1,  //18 allow standard QAL owned models
-        KaiserMdls       : 1,  //19 allow Kaiser owned models
-        UserMdls         : 1,  //20 allow custom user/client models
-        AluminaMdls      : 1,  //21 allow Kenwalt alumina models
-        SizeDistMdls     : 1,  //22 allow Kenwalt size-distribution/communition models
-        Dynamic          : 1,  //23 allow dynamic solver mode for Version 8.0 & 8.1
-        Probal           : 1,  //24 allow probal solver mode for Version 8.0 & 8.1
-        Analyse          : 1,  //25 allow Design modules / Analyse solver mode
-        FullHistorian    : 1,  //26 allow full historian
-        Drivers          : 1,  //27 allow drivers including OPC client
-        Dynamic82        : 1,  //28 allow dynamic solver mode for Version 8.2
-        Probal82         : 1,  //29 allow probal solver mode for Version 8.2
-        FullLic          : 1,  //30 allow full license (if false then run-time)
-        BlackBoxMdls     : 1,  //31 allow Kenwalt BlackBox models  (was probal solver mode for Version 7.x)
-        HeatBalMdls      : 1;  //32 allow Kenwalt HeatEx models  (was dynamic solver mode for Version 7.x)
-  } CK_SysCADSecurityOpts;*/
   DWORD Level            : 2,  //allows 4 levels
-        Ver82            : 1,  // 3 allow SysCAD 8.2
-        Ver90            : 1,  // 4 allow SysCAD 9.0
-        Spare_Ver91      : 1,  // 5
-        Spare_Ver92      : 1,  // 6
-        Mode_ProBal      : 1,  // 7 allow ProBal mode
-        Mode_DynamicFlow : 1,  // 8 allow Dynamic flow based/mathand mode
-        Mode_DynamicFull : 1,  // 9 allow detailed Dynamic pressure based mode
-        Mode_Electrical  : 1,  //10 allow Electrical design & simulation mode
-        Spare1           : 1,
-        //Only_SteadyState : 1,  //11 if set then integrators and similar are put into Hold mode
-        Func_FullEdit    : 1,  //12 allow full license (if false then run-time)
-        Func_COM         : 1,  //13 allow access to full VB COM interface
-        Func_COMProp     : 1,  //14 allow COM interface to object properties
-        Func_Drivers     : 1,  //15 allow drivers including OPC client 
-        Func_OPCServer   : 1,  //16 allow OPC Server funcionality
-        Mdls_Electrical  : 1,  //17 allow Kenwalt Electrical & Power models
-        Mdls_SMDKRuntime : 1,  //18 allow SMDK runtime (BlackBox) models
-        Mdls_HeatExtra   : 1,  //19 allow Kenwalt HeatEx PowerPlant models
-        Mdls_HeatBal     : 1,  //20 allow Kenwalt HeatEx models
-        Mdls_Alumina     : 1,  //21 allow Kenwalt alumina models
-        Mdls_SizeDist    : 1,  //22 allow Kenwalt size-distribution/communition models
-        Old_Dynamic      : 1,  //23 unused (was dynamic solver mode for Version 8.0 & 8.1)
-        Old_Probal       : 1,  //24 unused (was probal solver mode for Version 8.0 & 8.1)
-        Client_MineServe : 1,  //25 GMSI MineServe Mdls
-        Client_Alcan     : 1,  //26 allow Alcan owned models
-        Client_RTTS      : 1,  //27 allow Rio Tinto Technical Services owned models
-        Old_Dynamic82    : 1,  //28 keep 0 (was dynamic solver mode for Version 8.2)
-        Old_Probal82     : 1,  //29 keep 0 (was probal solver mode for Version 8.2)
-        Client_QALExtra  : 1,  //30 allow additional QAL owned models
-        Client_QAL       : 1,  //31 allow standard QAL owned models
-        Client_Other     : 1;  //32 allow custom user/client models
+        Client_Other     : 1,  // Option30 = Custom user/client models                |
+        Client_QAL       : 1,  // Option29 = QAL Standard                             |
+        Client_RTTS      : 1,  // Option28 = RTTS models                              |
+        Client_Alcan     : 1,  // Option27 = Alcan models                             |
+        Client_MineServe : 1,  // Option26 = Gijima MineServe                         |
+        Spare_22         : 1,  // Option25                                            |
+        Spare_23         : 1,  // Option24                                            |
+        Spare_25         : 1,  // Option23                                            |
+        Spare_26         : 1,  // Option22                                            |
+        Spare_27         : 1,  // Option21                                            |
+        Mdls_SMDKRuntime : 1,  // Option20 = SMDK Runtime (BlackBox) models           |       
+        Mdls_Electrical  : 1,  // Option19 = KW Electrical                            |       
+        Mdls_Alumina     : 1,  // Option18 = KW Alumina                               |       
+        Mdls_SizeDist    : 1,  // Option17 = KW Size-distribution/communition models  |       
+        Mdls_HeatExtra   : 1,  // Option16 = KW HeatEx PowerPlant models              |       
+        Mdls_HeatBal     : 1,  // Option15 = KW HeatEx models!                        |       
+        Func_Spare2      : 1,  // Option14 =                                          |
+        Func_Spare1      : 1,  // Option13 =                                          |
+        Func_OPCServer   : 1,  // Option12 = OPC Server                               |     
+        Func_Drivers     : 1,  // Option11 = Drivers + OPC client                     |     
+        Func_COMProp     : 1,  // Option10 = COM Properties                           |
+        Func_COM         : 1,  // Option9  = Full VB COM interface                    |     
+        Func_Academic    : 1,  // Option8  = Academic License                         |
+        Func_FullEdit    : 1,  // Option7  = Full license!                            |
+        Mode_Spare       : 1,  // Option6                                             |
+        Only_SteadyState : 1,  // Option5  = Steady State Only / No Integration       |  if set then integrators and similar are put into Hold mode
+        Mode_Electrical  : 1,  // Option4  = Electrical                               |
+        Mode_DynamicFull : 1,  // Option3  = Dynamic Full                             |
+        Mode_DynamicFlow : 1,  // Option2  = Dynamic Flow                             |
+        Mode_ProBal      : 1;  // Option1  = ProBal mode!                             |
   } CK_SysCADSecurityOpts;
-/*  DWORD Level            : 2,  //allows 4 levels
-        Mode_ProBal      : 1,  // 3 allow ProBal mode
-        Mode_DynamicFlow : 1,  // 4 allow Dynamic flow based/mathand mode
-        Mode_DynamicFull : 1,  // 5 allow detailed Dynamic pressure based mode
-        Mode_Electrical  : 1,  // 6 allow Electrical design & simulation mode
-        Only_SteadyState : 1,  // 7 if set then integrators and similar are put into Hold mode
-        Spare_8          : 1,  // 8
-        Func_FullEdit    : 1,  // 9 allow full license (if false then run-time)
-        Func_COM         : 1,  //10 allow access to full VB COM interface
-        Func_COMProp     : 1,  //11 allow COM interface to object properties (not implemented)
-        Func_Drivers     : 1,  //12 allow drivers including OPC client 
-        Func_OPCServer   : 1,  //13 allow OPC Server funcionality
-        Spare_14         : 1,  //14
-        Spare_15         : 1,  //15
-        Mdls_HeatBal     : 1,  //16 allow Kenwalt HeatEx models
-        Mdls_HeatExtra   : 1,  //17 allow Kenwalt HeatEx PowerPlant models
-        Mdls_SizeDist    : 1,  //18 allow Kenwalt size-distribution/communition models
-        Mdls_Alumina     : 1,  //19 allow Kenwalt alumina models
-        Mdls_Electrical  : 1,  //20 allow Kenwalt Electrical & Power models
-        Mdls_SMDKRuntime : 1,  //21 allow SMDK runtime (BlackBox) models
-        Spare_22         : 1,  //22
-        Spare_23         : 1,  //23
-        Academic         : 1,  //24
-        Spare_25         : 1,  //25
-        Spare_26         : 1,  //26
-        Spare_27         : 1,  //27
-        Client_MineServe : 1,  //28 GMSI MineServe Mdls
-        Client_Alcan     : 1,  //29 allow Alcan owned models
-        Client_RTTS      : 1,  //30 allow Rio Tinto Technical Services owned models
-        Client_QAL       : 1,  //31 allow standard QAL owned models
-        Client_Other     : 1;  //32 allow custom user/client models
+/*  DWORD Level          : 2,  //allows 4 levels
+        Mode_ProBal      : 1,  // allow ProBal mode
+        Mode_DynamicFlow : 1,  // allow Dynamic flow based/mathand mode
+        Mode_DynamicFull : 1,  // allow detailed Dynamic pressure based mode
+        Mode_Electrical  : 1,  // allow Electrical design & simulation mode
+        Only_SteadyState : 1,  // if set then integrators and similar are put into Hold mode
+        Spare_8          : 1,  //
+        Func_FullEdit    : 1,  // allow full license (if false then run-time)
+        Func_COM         : 1,  // allow access to full VB COM interface
+        Func_COMProp     : 1,  // allow COM interface to object properties (not implemented)
+        Func_Drivers     : 1,  // allow drivers including OPC client 
+        Func_OPCServer   : 1,  // allow OPC Server funcionality
+        Spare_14         : 1,  //
+        Spare_15         : 1,  //
+        Mdls_HeatBal     : 1,  // allow Kenwalt HeatEx models
+        Mdls_HeatExtra   : 1,  // allow Kenwalt HeatEx PowerPlant models
+        Mdls_SizeDist    : 1,  // allow Kenwalt size-distribution/communition models
+        Mdls_Alumina     : 1,  // allow Kenwalt alumina models
+        Mdls_Electrical  : 1,  // allow Kenwalt Electrical & Power models
+        Mdls_SMDKRuntime : 1,  // allow SMDK runtime (BlackBox) models
+        Spare_22         : 1,  //
+        Spare_23         : 1,  //
+        Academic         : 1,  //
+        Spare_25         : 1,  //
+        Spare_26         : 1,  //
+        Spare_27         : 1,  //
+        Client_MineServe : 1,  // GMSI MineServe Mdls
+        Client_Alcan     : 1,  // allow Alcan owned models
+        Client_RTTS      : 1,  // allow Rio Tinto Technical Services owned models
+        Client_QAL       : 1,  // allow standard QAL owned models
+        Client_Other     : 1;  // allow custom user/client models
   } CK_SysCADSecurityOpts;*/
+
 
 typedef struct
   {
@@ -274,13 +243,9 @@ typedef struct
 
 //#endif
 
+enum eLicOptions { eLic_None, eLic_Msg, eLic_MsgBox };
 class DllImportExport CSysCADLicense : public CLicense
   {
-  protected:
-    BYTE bProbalLiteMode,
-         bDynLiteMode;
-    CK_SysCADSecurity* pSecOpt;
-
   public:
     CSysCADLicense();
     virtual ~CSysCADLicense();
@@ -291,22 +256,30 @@ class DllImportExport CSysCADLicense : public CLicense
     virtual dword FixOptions(dword dwOpLevel);
     virtual void CheckForLiteModes();
 
-    int ProbalUnitsAllowed();
-    int DynUnitsAllowed();
-    long MaxHistSizeAllowed();
-    UINT MaxHistFilesAllowed();
-    int TrendWindowsAllowed();
-    int GraphicWindowsAllowed();
-    DWORD LicCatagories();
+    void      BumpNodeCount(int Count, LPTSTR Tag);
+    int       NodeCount();
+    BOOL      NodeCountExceeded(int Extra=0, eLicOptions Opts=eLic_None);
+    void      BumpIllegalNodeCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
+    int       IllegalNodeCount(eLicOptions Opt=eLic_None);
+    void      BumpIllegalModelCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
+    int       IllegalModelCount(eLicOptions Opt=eLic_None);
+
+    int       MaxNodesAllowed(BOOL ForDynamic);
+    int       MaxNodesAllowed();                                 
+    long      MaxHistSizeAllowed();
+    UINT      MaxHistFilesAllowed();
+    int       TrendWindowsAllowed();
+    int       GraphicWindowsAllowed();
+    DWORD     LicCatagories();
 
     inline void SetAsRunTime();
     inline BOOL IsRunTime();
-    inline BOOL AllowVer90();
+    //inline BOOL AllowVer90();
     inline BOOL AllowMdlsRTTS();
     inline BOOL ForMineServe();
     inline void SetForMineServe(bool On);
     inline BOOL AllowMdlsAlcan();
-    inline BOOL AllowMdlsQALExtra();
+    //inline BOOL AllowMdlsQALExtra();
     inline BOOL AllowMdlsQAL();
     inline BOOL AllowMdlsUser();
     inline BOOL AllowMdlsSMDKRuntime();
@@ -320,7 +293,8 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL AllowDynamicFull();
     inline BOOL AllowProBalLite();
     inline BOOL AllowDynamicLite();
-    //inline BOOL OnlySteadyState();
+    inline BOOL OnlySteadyState();
+    inline BOOL IsAcademic();
     inline BOOL AllowFullLic();
     inline BOOL AllowFullLicFlag();
     inline BOOL AllowDrivers();
@@ -328,6 +302,16 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL AllowCOMInterface();
     inline BOOL AllowCOMProps();
     inline UCHAR Level();
+
+
+
+    BOOL       ProbalLiteMode() { return m_bProbalLiteMode; };
+    BOOL       DynLiteMode()    { return m_bDynLiteMode;    };
+
+    BOOL       AllowDynamic();
+    BOOL       ProBalOK();
+    BOOL       DynamicOK();
+
 
 #if CK_SCDCOMLIC
     inline BOOL AllowCOMMdl()     ;//{ return AllowCOMProps() || ForMineServe(); };
@@ -338,6 +322,16 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL AllowCOMSlv()     ;//{ return 1; };
     inline BOOL AllowCOMApp()     ;//{ return 1; };
 #endif
+
+  protected:
+    CK_SysCADSecurity* pSecOpt;
+
+    BOOL        m_bProbalLiteMode,
+                m_bDynLiteMode;
+
+    int         m_NodeCount;
+    int         m_IllegalNodeCount;
+    int         m_IllegalModelCount;
 
   };
 

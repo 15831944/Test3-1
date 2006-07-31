@@ -43,7 +43,9 @@ class COPCHoldPage : public CPropertyPage
   	~COPCHoldPage();
 
     flag bDidInit;
+#if WITHDRVMAN
     CDrvSlot *pCurSlot;
+#endif
     COPCDriver *pDrv;
 	  //{{AFX_DATA(COPCHoldPage)
 	  enum { IDD = IDD_OPCHOLDPAGE };

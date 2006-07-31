@@ -281,14 +281,14 @@ static DDBValueLst DDBGM[] =
 void OE_InlineFilter::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Byte   ("Mode",         "",           DC_,      "",         &m_iGrowthMode,   this, isParm|SetOnChange, DDBGM);
-  DDB.Visibility(SM_DynBoth|HM_All, SolveBufferedMethod() && (m_iGrowthMode==GM_PerTime));         
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, SolveBufferedMethod() && (m_iGrowthMode==GM_PerTime));         
   DDB.Double ("DPRate",       "",           DC_PpS,   "kPa/s",    &m_dGrowthRate,   this, isParm);
-  DDB.Visibility(SM_DynBoth|HM_All, SolveBufferedMethod() && (m_iGrowthMode==GM_PerMass));         
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, SolveBufferedMethod() && (m_iGrowthMode==GM_PerMass));         
   DDB.Double ("DPMassRate",   "",           DC_PpM,   "kPa/kg",   &m_dGrowthMRate,  this, isParm);
-  DDB.Visibility(SM_DynBoth|HM_All, SolveBufferedMethod() && (m_iGrowthMode==GM_PerVolume));       
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All, SolveBufferedMethod() && (m_iGrowthMode==GM_PerVolume));       
   DDB.Double ("DPVolumeRate", "",           DC_PpVol, "kPa/m^3",  &m_dGrowthVRate,  this, isParm);
                                                                                    
-  DDB.Visibility(SM_DynBoth|HM_All);                                                         
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);                                                         
   DDB.CheckBoxBtn("Clean",    "",           DC_,      "",         xidClean,         this, isParm);
                                                                                          
   DDB.Double ("",          "DPOp",          DC_DP,    "kPa",      xidDPOp,          this, isParm);

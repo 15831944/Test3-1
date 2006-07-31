@@ -240,16 +240,67 @@ class DllImportExport CHistorian
 //-------------------------------------------------------------------------
 
 #if ForSysCAD
-class DllImportExport CHistorianMngr
+
+class DllImportExport CHistSettings
+  {
+  public:
+    CHistSettings();
+    CHistSettings(const CHistSettings & Sets);
+
+    CHistSettings & operator=(const CHistSettings & Sets);
+
+    void     ReadSettings(CProfINIFile & PF);
+    void     WriteSettings(CProfINIFile & PF);
+    void     PutSettings(CHistSettings & Sets);
+    void     GetSettings(CHistSettings & Sets);
+
+  public:
+    Strng          sHistorianName;     //historian name
+    Strng          sHstDataDir;        //directory for historian event block data files
+    Strng          sHstCatDir;         //directory where catalog items may be found
+    Strng          sHstScenName;       //current scenario name
+    long           lHstEvFileSize;     //file size of historian event blocks (kbytes)
+    long           lHstSlotNoEstimate; //estimate of number of slots to be recorded by the historian
+    UINT           iHstFilesMin;       //min no of historian files to keep
+    UINT           iHstFilesMax;       //max no of historian files to keep, after which files are deleted
+    long           lHstForceCnt;       //no iterations after which an unchanged value will be stored
+    double         dHstRecordATol;     //Abs tolerance to decide to record data
+    double         dHstRecordRTol;     //Relative tolerance to decide to record data
+    double         dHstStopGap;        //Gap left in historian during stop start
+    double         dHstMidTimeFactor;  //factor of timestep to use for time when recording previous unchanged value
+    flag           bHstShowQueryInfo:1,    //True if little query info window must be displayed
+                   bHstFixedDataExtn:1,    //
+                   bHstUseTol:1;           //true if using tolerance test before deciding to save value to historian
+    
+    flag           m_OnRqd;            // On/Off State in Settings
+  //Strng        m_sHstName;     
+  //Strng        m_sScenName;    
+  //Strng        m_sDataDir;     
+  //Strng        m_sCatDir;      
+  //flag         m_HstOn;        
+  //UINT         m_FilesMin;     
+  //UINT         m_FilesMax;     
+  //flag         m_PermHist;     
+  //long         m_ForceCnt;     
+  //long         m_FileSize;     
+  //long         m_SlotNoEst;    
+  //flag         m_UseTol;       
+  //flag         m_ShowQueryInfo;
+  //flag         m_FixedDataExtn;
+  //double       m_ATol;       
+  //double       m_RTol;      
+  ////double       m_StopGap;
+  //double       m_MidTimeFactor;
+  };
+
+class DllImportExport CHistorianMngr : public CHistSettings
   {
   public:
     CHistorianMngr();
 
     void CreateTheHistEO();
     void DestroyTheHistEO();
-
-    void LoadSettings(CProfINIFile & PF);
-    void SaveSettings(CProfINIFile & PF);
+                      
     void SetLicensingOptions(long LicMaxHistSizeAllowed, UINT LicMaxHistFilesAllowed);
     bool DoCfgHistorian();
     bool DoOpenHistorian(bool ShowBusyDlg=false);
@@ -275,23 +326,9 @@ class DllImportExport CHistorianMngr
     flag HstOpen() { return bHstOpen; };
     void SetHstOpen(flag Open) { bHstOpen=Open; };
 
+    void SetOnAsRqd() { SetHstOn(m_OnRqd); }
+    void GetOnRqd()   { m_OnRqd=HstOn(); }
   public:
-    Strng          sHistorianName;     //historian name
-    Strng          sHstDataDir;        //directory for historian event block data files
-    Strng          sHstCatDir;         //directory where catalog items may be found
-    Strng          sHstScenName;       //current scenario name
-    long           lHstEvFileSize;     //file size of historian event blocks (kbytes)
-    long           lHstSlotNoEstimate; //estimate of number of slots to be recorded by the historian
-    UINT           iHstFilesMin;       //min no of historian files to keep
-    UINT           iHstFilesMax;       //max no of historian files to keep, after which files are deleted
-    long           lHstForceCnt;       //no iterations after which an unchanged value will be stored
-    double         dHstRecordATol;     //Abs tolerance to decide to record data
-    double         dHstRecordRTol;     //Relative tolerance to decide to record data
-    double         dHstStopGap;        //Gap left in historian during stop start
-    double         dHstMidTimeFactor;  //factor of timestep to use for time when recording previous unchanged value
-    flag           bHstShowQueryInfo:1,    //True if little query info window must be displayed
-                   bHstFixedDataExtn:1,    //
-                   bHstUseTol:1;           //true if using tolerance test before deciding to save value to historian
 
   protected:
     CExecObj*     pExecObj;

@@ -5151,7 +5151,7 @@ int GCInsMngr::Execute(CGExecContext &ECtx, LPCTSTR TriggerName, CNodeElectrics 
     m_pOnLoadedVar->set(ECtx.OnLoaded);
     m_pOnEmptyVar->set(ECtx.OnEmpty);
     m_pOnPresetVar->set(ECtx.OnPreset);
-    m_pRunMode->set(ECtx.m_RunMode);
+    m_pRunMode->set(ECtx.m_NetMode);
     m_pHeatMode->set(ECtx.m_HeatMode);
     m_pModelTagVar->set(m_pXRM->GetOwnerTag());
     m_pStopVar->set((flag)0);

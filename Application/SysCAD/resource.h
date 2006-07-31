@@ -843,14 +843,13 @@
 #define IDC_TB2                         24532
 #define IDM_ACC_PASTEBLK_3              24533
 #define IDC_TB3                         24533
-#define IDC_DYNAMIC                     24533
 #define IDM_ACC_PASTEBLK_4              24534
 #define IDC_TB4                         24534
-#define IDC_PROBAL                      24534
 #define IDC_FILLALL                     24534
 #define IDC_POS                         24534
 #define IDM_ACC_PASTEBLK_5              24535
 #define IDC_TB5                         24535
+#define IDC_PROBAL2                     24535
 #define IDM_ACC_PASTEBLK_6              24536
 #define IDC_TB6                         24536
 #define IDC_POINTSCNT                   24536
@@ -1468,12 +1467,15 @@
 #define IDC_STATICY2                    25660
 #define IDC_STOPGAP2                    25661
 #define IDC_MIDTIMEFACTOR               25661
-#define IDC_PRJSOLVEMODECOMBO           25662
-#define IDC_PRJHEATMODECOMBO            25663
+#define IDC_PRJNETMODECOMBO             25662
+#define IDC_PRJNODEMODECOMBO            25663
 #define IDC_SEPARATEDBS                 25663
+#define IDC_PRJLINKMODECOMBO            25664
 #define IDC_GRFDATABASE                 25664
+#define IDC_PRJHEATMODECOMBO            25665
 #define IDIMPORT                        25665
 #define IDC_IMPORTMODELS                25665
+#define IDC_PRJFLOWMODECOMBO            25666
 #define IDC_WITHCONFIG                  25666
 #define IDC_IMPORTGRAPHICS              25666
 #define IDC_TAGFIXRULES                 25667
@@ -1708,7 +1710,7 @@
 #define ID_SNAPSHOT_LOAD                30178
 #define ID_SNAPSHOT_SAVE                30179
 #define ID_PROJECT_CLOSE                30180
-#define ID_PROJECT_CONFIGURE            30181
+#define ID_PROJECT_SETTINGS             30181
 #define ID_PROJECT_EDIT_CFG             30182
 #define ID_PROJECT_EDIT_DEFSDB          30183
 #define ID_PROJECT_EDIT_SDB             30184
@@ -1945,14 +1947,15 @@
 #define ID_BUTTON30512                  30512
 #define ID_VIEW_EXPLORER                30513
 #define ID_ACTIONS_RUN_STEADY           30514
+#define ID_PROJECT_EDIT_SETTINGS        30515
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        25594
-#define _APS_NEXT_COMMAND_VALUE         30515
+#define _APS_NEXT_RESOURCE_VALUE        25597
+#define _APS_NEXT_COMMAND_VALUE         30516
 #define _APS_NEXT_CONTROL_VALUE         25748
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif

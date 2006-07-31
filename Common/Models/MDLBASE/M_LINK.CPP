@@ -657,23 +657,24 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 #endif
   {
   AttachClassInfo(nc_MLnk,NULL);
-  dZ_Rqd=dNAN;
+  m_RiseRqd=dNAN;
+  m_DatumChg=dNAN;
 
   m_iBlockSeq = (PrjFileVerNo()<79 ? BS_EHX_RB_VLE : BS_RB_EHX_VLE); //sequence of RB,EHX,VLE,etc
   m_iLF_Direction = LFD_Default;
 
-  SetAllowedSolveModes(SM_Direct/*|SM_Inline*/);//"Transfer", "Inline", NULL);
-  SetAllowedFlowModes(true);
+  SetAllowedModes(false, NM_All|SM_Direct/*|SM_Inline*/|HM_All|LFM_All);//"Transfer", "Inline", NULL);
+  //SetAllowedFlowModes(true);
   
-  if (GlblDynFlowMode())
-    {
-    if (OrigPrjFileVerNo()<=82)
-      SetFlowModeReqd(LFM_Xfer);
-    else
-      SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
-    }
-  else
-    SetFlowModeReqd(LFM_Full);
+  //if (GlblDynFlowMode())
+  //  {
+  //  if (OrigPrjFileVerNo()<=82)
+  //    SetFlowModeReqd(LFM_Xfer);
+  //  else
+  //    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+  //  }
+  //else
+  //  SetFlowModeReqd(LFM_Full);
 
   //m_iLnkFlwModeRqd = LFM_CompleteDP;//(SolveInlineMethod() ? LFM_Xfer : LFM_CompleteDP);
 #if WITHPBDPSTUFF
@@ -968,24 +969,25 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         {
         //if (SolveInlineMethod())
         //  *DCB.rB = LFM_Xfer; //FORCE into Xfer mode
-        if (*DCB.rL==0)
-          {
-          if (GlblDynFullMode())
-            *DCB.rL=LFM_Full;
-          else if (GlblDynFlowMode())
-            *DCB.rL=LFM_Simple;
-          }
+        //if (*DCB.rL==0)
+        //  {
+        //  if (GlblDynFullMode())
+        //    *DCB.rL=LFM_Full;
+        //  else if (GlblDynFlowMode())
+        //    *DCB.rL=LFM_Simple;
+        //  }
         if (FlowMode()!=*DCB.rL)
           {
           StructureChanged(this);
           SetState(MSA_ZeroFlows);
           }
-        SetFlowModeReqd(*DCB.rL);
-        if (FlowMode()==LFM_SrcSnk)
-          {
-          SetFlowModeReqd(LFM_Full);
-          SetActiveHold(true);
-          }
+        //SetxFlowModeReqd(*DCB.rL);
+        SetFlowModeLcl(*DCB.rL);
+        //if (FlowMode()==LFM_SrcSnk)
+        //  {
+        //  SetxFlowModeReqd(LFM_Full);
+        //  SetActiveHold(true);
+        //  }
         }
       DCB.L=FlowMode();
       return 1;
@@ -1664,24 +1666,25 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
 
   flag OK=MdlNode::ValidateData(VDB);
 
-  if (FlowModeReqd()==0)
-    {
-    if (GlblDynFlowMode())
-      {
-      if (PrjFileVerNo()<94)
-        SetFlowModeReqd(LFM_Xfer);
-      else
-        SetFlowModeReqd(LFM_Simple);
-      }
-    else
-      SetFlowModeReqd(LFM_Full);
-    }
+  //if (FlowModeReqd()==0)
+  //  {
+  //  if (GlblDynFlowMode())
+  //    {
+  //    if (PrjFileVerNo()<94)
+  //      SetFlowModeReqd(LFM_Xfer);
+  //    else
+  //      SetFlowModeReqd(LFM_Simple);
+  //    }
+  //  else
+  //    SetFlowModeReqd(LFM_Full);
+  //  }
 
   if (!m_FTB.ValidateData(VDB))
     OK=false;
 
   if (NoProcLnkIOs()>=2 && (IOISSETXFER(IODesc_Rmt(0)->m_dwFlags) || IOISSETXFER(IODesc_Rmt(1)->m_dwFlags)))
-    SetFlowModeReqd(LFM_Xfer);
+    //SetxFlowModeReqd(LFM_Xfer);
+    SetFlowModeLcl(LFM_Xfer);
 
 #if WITHPBDPSTUFF
   //ValidateRange(VDB, "V_MassFlw", 1.0e-10, VQmCap, dNAN, &OK);
@@ -1931,7 +1934,8 @@ void MN_Lnk::PostConnect(int IONo)
     MdlNode::PostConnect(IONo);
 
     if (IOISSETXFER(IODesc_Rmt(IONo)->m_dwFlags))
-      SetFlowModeReqd(LFM_Xfer);
+      SetFlowModeLcl(LFM_Xfer);
+      //SetxFlowModeReqd(LFM_Xfer);
 
     IOConduit(IONo)->AttachMeToObj(this, TOA_Embedded);
 
@@ -1988,7 +1992,7 @@ flag MN_Lnk::PreStartCheck()
     }
 
   //if (IOFlange(0) && IOConduit(0)->Model())
-  Ok=IOConduit(0)->Model()->Class()->LicOK();
+  Ok=IOConduit(0)->Model()->Class()->LicenseOK();
   if (!Ok)
     {
     LogError(FullObjTag(), 0, "Specie model '%s' not enabled by licensing", IOConduit(0)->Model()->Class()->ShortDesc());
@@ -1998,13 +2002,12 @@ flag MN_Lnk::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-Z_States MN_Lnk::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MN_Lnk::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   if (m_MFB.On())
-    return m_MFB.SetDatums(Pass, IOIn, Zi, Z_State_Src, dZ_Rqd);
+    m_MFB.SetDatums(Pass, List, IOIn, m_RiseRqd, m_DatumChg);
   else
-    return SetDatums_Link(Pass, dZ_Rqd, IOIn, Zi, Z_State_Src);
-
+    SetDatums_Link(Pass, List, IOIn, m_RiseRqd, m_DatumChg);
   };
 
 //--------------------------------------------------------------------------
@@ -2784,7 +2787,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
     { int xxx=0; }
 
   const flag DoXfer=XferFlowMode();
-  if (SolveDynamicMethod() && !DoXfer && (m_PFI.Method==VFFX_Plugflow))
+  if (NetDynamicMethod() && !DoXfer && (m_PFI.Method==VFFX_Plugflow))
     {
     if (GetActiveHold())
       {
@@ -2834,7 +2837,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         SrcSnk.pSpDiff->SetMass(s, DiffFrac(F0.Qm(s), F1.Qm(s)));
 #endif
       }
-    //else if (SolveDirectMethod() && !IsUsableMass(FIQm))
+    //else if (NetProbalMethod() && !IsUsableMass(FIQm))
     //{//do NOTHING!!!, set output=input, ignore m_RB, ehx, etc???
     //if (IOFlange(0)->IsTear())//if (IOFlange(0)->IsSystemTear())
     //  {
@@ -2972,7 +2975,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
             Fi.QAdjustQmTo(som_ALL, IOQInEst);
           Fi.SetPress(PIn);
           }
-        if (IOFlange(iIn)->IsTear() &&  GlblDynamicMode() && (Fi.QMass()<=TraceMass) && (IOQInEst>TraceMass) && m_pLastFlw)
+        if (IOFlange(iIn)->IsTear() &&  NetDynamicMethod() && (Fi.QMass()<=TraceMass) && (IOQInEst>TraceMass) && m_pLastFlw)
           {
       //dbgpln("EvalProducts H  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
           // Put Something into the flow (ie the last conetent)
@@ -3045,7 +3048,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         else
           {
       //dbgpln("EvalProducts L  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-          if (0 && GlblDynamicMode())
+          if (0 && NetDynamicMethod())
             Fo.QSetM(Fi, som_ALL, IOQOutEst, PIn);
           else
             Fo.QSetF(Fi, som_ALL, 1.0, PIn);
@@ -3151,7 +3154,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       Fo.SetDataSign(IOSign(0));
       //dbgpln("EvalProducts T  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
-      if (GlblDynamicMode() && (Fi.QMass()>TraceMass))
+      if (NetDynamicMethod() && (Fi.QMass()>TraceMass))
         {
         if (!m_pLastFlw)
           m_pLastFlw=new SpConduit("LastFlw", this, TOA_Embedded);
@@ -3291,7 +3294,7 @@ void MN_Lnk::EvalDiscrete()
 
   bool VelBAD=false;
   bool QmBAD=false;
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     ////if (SpillExists())
     //  {

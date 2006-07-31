@@ -667,7 +667,7 @@ flag CTagVwSlot::SetTrending(int TrendNo, pCTagVwDoc pDoc)
           }
         else if (gs_pPrj->bDefaultRecordIt)
         #endif
-        if (gs_pPrj->bDefaultRecordIt)
+        if (gs_pPrj->m_bDefaultRecordIt)
           {
           CXMsgLst XM;
           DataUnion Val;
@@ -3924,7 +3924,7 @@ flag CTagVwDoc::ProcessScaleMenu(int RetCd, CTagVwSlot* pSlot, double Val)
 
 void CTagVwDoc::HiLiteTrend(int Slt2HiLite)
   {
-  if (!gs_pPrj->bFlashTrend)
+  if (!gs_pPrj->m_bFlashTrend)
     return;
 
   if (Slt2HiLite==iSltHiLite)
@@ -3950,7 +3950,7 @@ void CTagVwDoc::HiLiteTrend(int Slt2HiLite)
 
 void CTagVwDoc::BlinkTrend()
   {
-  if (!gs_pPrj->bFlashTrend)
+  if (!gs_pPrj->m_bFlashTrend)
     return;
 
   if (iSltHiLite<0 || iSltHiLite>=NoSlots())
@@ -4047,7 +4047,7 @@ void CTagVwDoc::EvaluateFunctions()
   #if ALLOWFUNCS
   if (FnMngrPresent())
     {
-    //if (bAboutToStart && SolveDirectMethod())
+    //if (bAboutToStart && NetProbalMethod())
     //  PgmMngr.InitPBConvergence();
     //FnMngr().Execute(this, 0.0/*ICGetTime()*/, 0.0/*IC.GetTimeInc()*/, DoXStop, NULL, NULL, 0/*bAboutToStart*/, gs_Exec.GetSolveMode(), 0);
 

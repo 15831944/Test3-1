@@ -82,17 +82,17 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text   ("");
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Double  ("PressureEst",  "PEst",  DC_P,    "kPag",   xidPEstMean,    this, isResult|0);
   DDB.Text   ("");
   BuildDataDefnElevation(DDB);
   
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Text   ("");
   m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Basic);
   DDB.Visibility();
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Text("");
     DDB.CheckBoxBtn("NetworkIsolator",  "",  DC_, "", xidNetworkIsolator,   this, isParm|SetOnChange);
@@ -131,7 +131,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
     }
-  else //if (1)//SolveDirectMethod())
+  else //if (1)//NetProbalMethod())
     {
     DDB.Text("");
 #if (WITHBLOCKEVALUATOR)
@@ -144,7 +144,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     m_QFeed(); // ensure exists
     if (m_QFeed.Exists())
       {
-      DDB.Visibility(SHM_All, m_bShowQFeed);
+      DDB.Visibility(NSHM_All, m_bShowQFeed);
       DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
       DDB.Visibility();
       }

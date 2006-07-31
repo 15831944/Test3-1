@@ -60,7 +60,7 @@ m_Snk(eDIO_Snk, this, false, true, "Snk")
   Contents.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
   Flows.SetModelSelectable(false);
 
-  SetAllowedSolveModes(SM_Direct|SM_Inline/*|SM_Buffered*/);// "Transfer", "Inline", NULL);
+  SetAllowedModes(false, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);// "Transfer", "Inline", NULL);
 
   //  Contents.SetSQCreateOK(true);
   //  //Contents.SetSQRemoveOK(true);
@@ -78,13 +78,13 @@ m_Snk(eDIO_Snk, this, false, true, "Snk")
     {
     sm_nCFQuals=0;
     for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
-      if (pQ->Selectable() && pQ->LicOK())
+      if (pQ->Selectable() && pQ->LicenseOK())
         sm_nCFQuals++;
 
     sm_CFQualsNm.SetSize(sm_nCFQuals);
     int i=0;
     for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
-      if (pQ->Selectable() && pQ->LicOK())
+      if (pQ->Selectable() && pQ->LicenseOK())
         {
         sm_CFQualsNm[i]="CF.What.";
         sm_CFQualsNm[i]+=pQ->ClassId();
@@ -329,7 +329,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
   EvalState();
 
-  if (1)//fGlblConnectsInPlace)
+  if (fGlblConnectsInPlace)
     {
 
     SpModel & CMdl=*Contents.Model();
@@ -424,7 +424,7 @@ flag MN_SrcSnk::PreStartCheck()
   {
   flag Ok=true;
   if (Contents.Model())
-    Ok=Contents.Model()->Class()->LicOK();
+    Ok=Contents.Model()->Class()->LicenseOK();
   if (!Ok)
     LogError(FullObjTag(), 0, "Specie model '%s' not enabled by licensing", Contents.Model()->Class()->ShortDesc());
   return MdlNode::PreStartCheck();
@@ -640,7 +640,7 @@ void MN_SrcSnk::GlobalConnect()
       SetIOAutoConnect(m_iConnectedIO, true);
       pOther->SetIOAutoConnect(pOther->m_iConnectedIO, true);
       }
-    m_dDatum = pOther->m_dDatum;
+    m_Datum = pOther->m_Datum;
 
     fConnectInitiator=true;
 
@@ -733,9 +733,9 @@ void MN_SrcSnk::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-Z_States MN_SrcSnk::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MN_SrcSnk::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------
@@ -972,10 +972,9 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
     Contents.SetTempPress(TRequired(), PRequired());
 
   int i, nOut=0, nIn=0;
-  switch (SolveMethod())
+  switch (NetMethod())
     {
-    case SM_Inline:
-    case SM_Buffered:
+    case NM_Dynamic:
       {
       for (i=0;i<NoProcLnkIOs(); i++)
         {
@@ -1098,7 +1097,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
 
       break;
       }
-    case SM_Direct:
+    case NM_Probal:
       {
       for (i=0;i<NoProcLnkIOs(); i++)
         {

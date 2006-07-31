@@ -187,9 +187,9 @@ flag Crusher::ValidateData(ValidateDataBlk & VDB)
 
 //-------------------------------------------------------------------------- 
 
-Z_States Crusher::Set_Zs(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void Crusher::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
  
 //-------------------------------------------------------------------------- 
@@ -233,7 +233,7 @@ flag Crusher::InitialiseSolution()
 
 void Crusher::EvalProducts(CNodeEvalIndex & NEI)
   {
-  flag On=(SolveDirectMethod() || MSB.Speed(this)>0.9);
+  flag On=(NetProbalMethod() || MSB.Speed(this)>0.9);
 
   int ioProd=IOWithId_Self(ioidProd);
   if (ioProd>=0 && On)

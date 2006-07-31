@@ -226,7 +226,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
  
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Text    ("");
   BuildDataDefnElevation(DDB);
   DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
@@ -240,7 +240,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Bool    ("On_Line",      "",      DC_,     "",       &fOnLine,       this, isParmStopped, DDBYesNo);
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   #if WITHOTHERVAPSPLIT
   DDB.Double ("OtherVapSplitToLiq", "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
   #endif
@@ -251,7 +251,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   TagObjClass::GetSDescValueLst(SpModel::GroupName, DDB0);
   DDB.String("VapSpModel",     "",        DC_,    "",      &sVapSpModel,  this, isParm, DDB0());
 
-  DDB.Visibility(SM_Direct|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   #if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
@@ -290,12 +290,12 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
     EHX.BuildDataDefn(DDB);
   VLE.BuildDataDefn(DDB);
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     QFeed(); // Ensure that exist so that they recover
     if (QFeed.Exists())
       {
-      DDB.Visibility(SM_Direct|HM_All, bShowQFeed);
+      DDB.Visibility(NM_Probal|SM_All|HM_All, bShowQFeed);
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
       }
     DDB.Visibility();
@@ -498,7 +498,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 #if dbgModels
         double MemTl, MemPl, MemHl, MemMl;
         double MemTv, MemPv, MemHv, MemMv;
-        if (SolveDirectMethod() && dbgDumpChanges())
+        if (NetProbalMethod() && dbgDumpChanges())
           {
           MemTl=Ql.Temp();
           MemPl=Ql.Press();
@@ -632,7 +632,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         VLE.AddHfOutAtZero(Qv);
 
 #if dbgModels
-        if (SolveDirectMethod() && dbgDumpChanges())
+        if (NetProbalMethod() && dbgDumpChanges())
           {
           dbgpln("--- %s",FullObjTag());
 

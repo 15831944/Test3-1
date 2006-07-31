@@ -787,25 +787,31 @@ library ScdIF
   ]
 typedef enum eScdMode
   { 
-  eScdSolve_Direct          = 0x00000001,
-  eScdSolve_Inline          = 0x00000002,
-  eScdSolve_Buffered        = 0x00000004,
-  // SM_Inline              = 0x00000008;                  
+  // Octet 1
+  eScdNet_Probal            = 0x00000001,                                  
+  eScdNet_Dynamic           = 0x00000002,
+  //eScdNet_DynamicSS         = 0x00000004,
+
+  // Octet 2
+  eScdSolve_Direct          = 0x00000010,
+  eScdSolve_Inline          = 0x00000020,
+  eScdSolve_Buffered        = 0x00000040,
+  // SM_Inline              = 0x00000080;                  
                                                            
-  eScdHeat_None             = 0x00000010,                  
-  eScdHeat_Simple           = 0x00000020,                  
-  eScdHeat_Full             = 0x00000040,                  
-                                                           
-  eScdNet_Probal            = 0x00000100,                                  
-  eScdNet_Dynamic           = 0x00000200,
-  eScdNet_DynamicSS         = 0x00000400,
-  
+  // Octet 3
+  eScdHeat_None             = 0x00000100,                  
+  eScdHeat_Simple           = 0x00000200,                  
+  eScdHeat_Full             = 0x00000400,                  
+ 
+  // Octet 4&5
   eScdFlow_Xfer             = 0x00001000,
   eScdFlow_Simple           = 0x00002000,
   eScdFlow_Linear           = 0x00004000,
   eScdFlow_Full             = 0x00008000,
-  eScdFlow_SrcSnk           = 0x00010000,           // temporary reinstated - to go CNM
-  eScdFlow_Propagate        = 0x00080000,           
+  //eScdFlow_SrcSnk           = 0x00010000,           // temporary reinstated - to go CNM
+  eScdFlow_Propagate        = 0x00040000,           
+  eScdFlow_Propagated       = 0x00080000,           
+  //eScdFlow_Recovered        = 0x00080000,           
 
   eScdUser_Method_1         = 0x00100000,
   eScdUser_Method_2         = 0x00200000,

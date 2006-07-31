@@ -134,9 +134,9 @@ void BeltFilt::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("FiltrateSolidsConc@25",   "FiltSolConc25",   DC_Conc, "g/L",    &ActFiltSolConc,     this, isResult|InitHidden);//|noFile|noSnap);
 
   BuildDataDefnElevation(DDB);
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     DDB.Text    ("");
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
   DDB.Text    ("");

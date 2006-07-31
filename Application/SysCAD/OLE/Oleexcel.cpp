@@ -3380,7 +3380,7 @@ void COleInfoReportMngr::ReportTagLists0(OWorksheet* pSheet)
           Range.SetValue(pTagList->ModelName());
           RequestModelIOConnRec ConnInfo;
           int jj = 0;
-          while (gs_pPrj->pFlwLib->RequestModelIOConn(pTagList->GetTagAt(k), jj++, ConnInfo))
+          while (gs_pPrj->m_pFlwLib->RequestModelIOConn(pTagList->GetTagAt(k), jj++, ConnInfo))
             {
             if (jj<3)
               {
@@ -3421,8 +3421,8 @@ void COleInfoReportMngr::ReportTagLists0(OWorksheet* pSheet)
     SetCellText("Source", iLine, ColRef+2, pSheet, 0, false, true);
     SetCellText("Destination", iLine, ColRef+3, pSheet, 0, false, true);
     iLine++;
-    long iRet=gs_pPrj->pFlwLib->FE_GetEvalOrder(0, 1, 1, TV_AbsChg, Info);
-    //long iRet=gs_pPrj->pFlwLib->FE_GetEvalOrder(0, 1, Info);
+    long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalOrder(0, 1, 1, TV_AbsChg, Info);
+    //long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalOrder(0, 1, Info);
     for (t=0; t<Info.GetSize(); t++)
       {
       CEvalOrderItem &I=Info[t];
@@ -3435,7 +3435,7 @@ void COleInfoReportMngr::ReportTagLists0(OWorksheet* pSheet)
         Range.SetValue(I.m_sTag());
         RequestModelIOConnRec ConnInfo;
         int jj = 0;
-        while (gs_pPrj->pFlwLib->RequestModelIOConn(I.m_sTag(), jj++, ConnInfo))
+        while (gs_pPrj->m_pFlwLib->RequestModelIOConn(I.m_sTag(), jj++, ConnInfo))
           {
           if (jj<3)
             {
@@ -3613,8 +3613,8 @@ void COleInfoReportMngr::ReportTagLists0(OWorksheet* pSheet)
     SetCellText("Conn", iLine, ColRef+1, pSheet, 0, false, true);
     SetCellText("ClassID", iLine, ColRef+2, pSheet, 0, false, true);
     iLine++;
-    long iRet=gs_pPrj->pFlwLib->FE_GetEvalOrder(0, 1, 1, TV_AbsChg, Info);
-    //long iRet=gs_pPrj->pFlwLib->FE_GetEvalOrder(0, 1, Info);
+    long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalOrder(0, 1, 1, TV_AbsChg, Info);
+    //long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalOrder(0, 1, Info);
     for (t=0; t<Info.GetSize(); t++)
       {
       CEvalOrderItem &I=Info[t];
@@ -3822,7 +3822,7 @@ void COleInfoReportMngr::ReportTagLists1(OWorksheet* pSheet)
 
 void COleInfoReportMngr::ReportTagLists(int Pg)
   {
-  if (gs_pPrj==NULL || gs_pPrj->pFlwLib==NULL)
+  if (gs_pPrj==NULL || gs_pPrj->m_pFlwLib==NULL)
     return;
   if (Pg==0)
     ReportTagLists0(pGISheet[0]);

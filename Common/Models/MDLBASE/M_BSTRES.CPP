@@ -48,18 +48,18 @@ void MN_BstRes::FinaliseConstruction()
 
   Init_NLinks(1);
 
-  SetAllowedSolveModes(SM_Direct/*|SM_Inline|SM_Buffered*/);// "Transfer", "Inline", NULL);
-  SetAllowedFlowModes();
+  SetAllowedModes(false, NM_All|SM_Direct/*|SM_Inline|SM_Buffered*/|HM_All|LFM_All);// "Transfer", "Inline", NULL);
+  //SetAllowedFlowModes();
 
-  if (GlblDynFlowMode())
-    {
-    if (OrigPrjFileVerNo()<=82)
-      SetFlowModeReqd(LFM_Xfer);
-    else
-      SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
-    }
-  else
-    SetFlowModeReqd(LFM_Full);
+  //if (GlblDynFlowMode())
+  //  {
+  //  if (OrigPrjFileVerNo()<=82)
+  //    SetFlowModeReqd(LFM_Xfer);
+  //  else
+  //    SetFlowModeReqd(LFM_Simple);// LFM_Xfer);
+  //  }
+  //else
+  //  SetFlowModeReqd(LFM_Full);
   // Must do this here because m_FEP.Group() only gets set in derived class constructor
   m_Links[0].FB.AssignFlwEqnGroup(m_FEP.Group(), m_FEP.Group().Default(), this);
   m_Links[0].FB.SetParentFlwEqn(&m_FEP);
@@ -173,9 +173,9 @@ flag MN_BstRes::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-Z_States MN_BstRes::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void MN_BstRes::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------
@@ -366,7 +366,7 @@ void MN_BstRes::EvalProducts(CNodeEvalIndex & NEI)
     dDuty = 0.0;
     Fo.QCopy(Fi);
     IOFB(0,0)->SetQm(Sign(IOFB(0,0)->GetQm())*Fo.QMass(som_ALL));
-    if (SolveDirectMethod())
+    if (NetProbalMethod())
       {
       dPout = Fo.Press();
       dTout = Fo.Temp();
@@ -380,7 +380,7 @@ void MN_BstRes::EvalProducts(CNodeEvalIndex & NEI)
     return;
     }
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     {
     const int In  = TwoIOInIndex();
     const int Out = OtherEnd(In);

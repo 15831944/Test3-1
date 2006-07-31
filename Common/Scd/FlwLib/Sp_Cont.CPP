@@ -1073,9 +1073,9 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
       DDB.SetDisplayOnly(DO);
       }
     DDB.Text   (" ");
-    DDB.Visibility(WhichModes, !gs_Environment.HasGas() || TaggedObject::GlblDynFlowMode());
+    DDB.Visibility(WhichModes, !gs_Environment.HasGas() || DefNetDynamicMode());
     DDB.CheckBoxBtn("UseRhoH",        "",    DC_, "",           xidCnUseRhoH,      this, isParm);
-    if (dwDisplay & SPDF_ShapeClosed)
+    if (Closed() && dwDisplay & SPDF_ShapeClosed)
       DDB.Double("TopPressure",       "",    DC_P, "kPag",      xidCnTopPRqd,      this, isParm|NAN_OK, DDBNAN_AtmosP);
     DDB.Visibility(WhichModes, gs_Environment.HasGas());
     if (dwDisplay & SPDF_ShapeClosed)
@@ -1142,7 +1142,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
     pModel->BuildDataDefn_Vars(DDB);
     pModel->BuildDataDefn_UsrProps(DDB, MP_UserProp, true);
     DDB.Text   (" ");
-    //DDB.Visibility(SM_DynBoth|HM_All);  // hss 8/6/99
+    //DDB.Visibility(NM_Dynamic|SM_All|HM_All);  // hss 8/6/99
 
     BuildDataDefn_Species(DDB, sbContainer, sizeof(sbContainer));
 
@@ -1275,7 +1275,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
         if (DDB.BeginStruct(this, "DynStats", "", DDB_NoPage,-1,MarkerClosed))
           {
           DDB.CheckBoxBtn("CollectStats",  "",  DC_, "",  xidCnStatsOn,   this, isParmStopped);//|SetOnChange);
-          if (pStats && SolveDynamicMethod())
+          if (pStats && NetDynamicMethod())
             {
             pStats->BuildDataDefn(DDB, this);
             }
@@ -1698,7 +1698,7 @@ void SpContainer::SetClosed(byte RqdClosed, byte AdjustContents)
     pModel->SetClosed(RqdClosed);
 
   if (AdjustContents && !Closed())
-    SetPress(Std_P);
+    SetPress(AtmosPress());
   };
 
 //---------------------------------------------------------------------------
@@ -2400,13 +2400,13 @@ void CCnMixSet::BuildDataDefn(DataDefnBlk & DDB)
             {
             DDEF_Flags Flags=DDB.GetVisibility();
 
-            DDB.Visibility(SM_DynBoth|HM_All, (m_bDisplay&PD_LvlOfFrac)!=0);
+            DDB.Visibility(NM_Dynamic|SM_All|HM_All, (m_bDisplay&PD_LvlOfFrac)!=0);
             DDB.Text("Interface");
             DDB.Double("MonitorPnt",        "", DC_Frac, "%", &m_dLtFracPoint[i],     m_pCn, isParm);
             DDB.Double("MonitorLvl",        "", DC_Frac, "%", xidCnMSLtFracLvlPt+i,   m_pCn, isResult);
             DDB.Double("IfPtOfInflection",  "", DC_Frac, "%", &m_dIFLevel[i],         m_pCn, 0|InitHidden);
 
-            DDB.Visibility(SM_DynBoth|HM_All, (m_bDisplay&(PD_HgtPrf|PD_FracPrf))!=0);
+            DDB.Visibility(NM_Dynamic|SM_All|HM_All, (m_bDisplay&(PD_HgtPrf|PD_FracPrf))!=0);
             if (m_bDisplay&PD_HgtPrf && !DDB.ForFileSnpScn())
               {
               DDB.Text("HgtProfile");

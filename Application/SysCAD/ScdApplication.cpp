@@ -123,7 +123,7 @@ HRESULT CScdApplication::FinalConstruct()
 
   DWORD iDelay=20; 
   // Loops for gs_ServerWait Seconds
-  for (DWORD iLoop=0; !Project::m_SysCADInited; iLoop+=iDelay)
+  for (DWORD iLoop=0; !CProject::sm_SysCADInited; iLoop+=iDelay)
     {
     if (gs_ServerWait>0 && iLoop>=gs_ServerWait)
       return E_FAIL; // Timeout and hence fail

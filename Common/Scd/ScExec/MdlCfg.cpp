@@ -28,6 +28,7 @@
 #include "..\..\utils\devlic\scribble.h"
 #include "scdcatids.h"
 #include "scdctrls.h"
+#include "licbase.h"
 //#include "optoff.h"
 
 #pragma comment(lib, "rpcrt4.lib")
@@ -69,89 +70,89 @@ static struct {char * Name; char *Text; int Branch; } Groups[]=
 static char * Branches[]=
   {
   "Units/Links",  
-    "Specie Models", 
-    "Specie Qualities",
-    "Pipe Equations", 
-    "PipeFitting Eqns",   
-    "PipeEntryExit Eqns", 
-    "TeeEntry Eqns",      
-    "Pump Eqns",          
-    "Valve Eqns",         
-    "ChkValve Eqns",      
-    "Orifice Eqns",       
-    "GasPump Eqns",       
-    "SizeChange Eqns",    
-    "Leak2Area Eqns",     
+  "Specie Models", 
+  "Specie Qualities",
+  "Pipe Equations", 
+  "PipeFitting Eqns",   
+  "PipeEntryExit Eqns", 
+  "TeeEntry Eqns",      
+  "Pump Eqns",          
+  "Valve Eqns",         
+  "ChkValve Eqns",      
+  "Orifice Eqns",       
+  "GasPump Eqns",       
+  "SizeChange Eqns",    
+  "Leak2Area Eqns",     
     {NULL}
   };
 
 static char * Grps[]=
   {
   "General",  
-    "Energy Transfer", 
-    "Mass Separation",
-    "Size Distribution", 
-    "Mass Transfer", 
-    "Alumina", 
-    "Power Distribution",
-    "Unknown", 
+  "Energy Transfer", 
+  "Mass Separation",
+  "Size Distribution", 
+  "Mass Transfer", 
+  "Alumina", 
+  "Power Distribution",
+  "Unknown", 
     {NULL}
   };
 
 static DWORD GrpMsks[]=
   {
   TOC_GRP_GENERAL,  
-    TOC_GRP_ENERGY, 
-    TOC_GRP_SEPAR,
-    TOC_GRP_SIZEDST, 
-    TOC_GRP_TRANSFER, 
-    TOC_GRP_ALUMINA, 
-    TOC_GRP_POWERDIST, 
-    0 //not specified
+  TOC_GRP_ENERGY, 
+  TOC_GRP_SEPAR,
+  TOC_GRP_SIZEDST, 
+  TOC_GRP_TRANSFER, 
+  TOC_GRP_ALUMINA, 
+  TOC_GRP_POWERDIST, 
+  0 //not specified
   };
 
 static char *Exclude[]=
   {
   "msvcrt.dll", 
-    "mfc42.dll",
-    //"crp9516d.dll",
-    //"cryp95d.dll",
-    "crp9516e.dll",
-    "cryp95e.dll",
-    "hdk3anim.dll",
-    "hdk3ctnt.dll",
-    //  "scdopcsrv.dll",
-    "scdlib.dll",
-    "scexec.dll",
-    "xylib.dll",
-    "scdcom.dll",
-    //"sc_clsv.dll",
-    //"sc_rpc.dll",
-    "schist.dll",
-    "scddesrvr.dll",
-    "kwdb.dll",
-    "zip32.dll",
-    "unzip32.dll",
+  "mfc42.dll",
+  //"crp9516d.dll",
+  //"cryp95d.dll",
+  "crp9516e.dll",
+  "cryp95e.dll",
+  "hdk3anim.dll",
+  "hdk3ctnt.dll",
+  //  "scdopcsrv.dll",
+  "scdlib.dll",
+  "scexec.dll",
+  "xylib.dll",
+  "scdcom.dll",
+  //"sc_clsv.dll",
+  //"sc_rpc.dll",
+  "schist.dll",
+  "scddesrvr.dll",
+  "kwdb.dll",
+  "zip32.dll",
+  "unzip32.dll",
 
-    //OPC
-    //"opc.dll",
-    "scdopcsrv.dll",
-    "scopcsrv.dll",
+  //OPC
+  //"opc.dll",
+  "scdopcsrv.dll",
+  "scopcsrv.dll",
 
-    // COM Stuff
-    "scdslv.dll",
-    "scdif.dll",
-    "scdmdl.dll",
-    "scdcom.dll",
-    //"scdulb.dll",
+  // COM Stuff
+  "scdslv.dll",
+  "scdif.dll",
+  "scdmdl.dll",
+  "scdcom.dll",
+  //"scdulb.dll",
 
-    // SMDK
-    "smdk1.dll",
+  // SMDK
+  "smdk1.dll",
 
-    // Utils
-    "scdvb.dll",
+  // Utils
+  "scdvb.dll",
 
-    NULL
+  NULL
   };
 
 
@@ -164,36 +165,47 @@ long SetType(long x) { return x; }
 long SetOcc(long x) { return (x<<8 & 0xff00); }
 long SetIndex(long x) { return (x<<16 & 0xffff0000); }
 
-struct CfgItem { DWORD IdCtrl; byte CtrlType; char * Name; flag IsDbl; double DblDef; char * StrDef; char * Comment; flag Invert; };
+struct CfgItem { DWORD IdCtrl; byte CtrlType; char * Name; char * SctName; flag IsDbl; double DblDef; char * StrDef; char * Comment; flag Invert; };
 static CfgItem CfgItemsC[]=
   {
-    {IDC_CFGDESC    , 0, "Description",            false,             0, "", NULL},
-    {IDC_CFGFILES   , 0, "CfgFiles",               false,             0, "", NULL},
-    {IDC_CFGHOME    , 0, "CfgHome",                false,             0, "", NULL},     
-    {IDC_DEFRUNMODE , 1, "Initial_SolveMode",      false,             0, "ProBal", NULL},
-    {IDC_DEFHEATMODE, 1, "Initial_HeatMode",       false,             0, "Rigorous", NULL},
-    {IDC_STDTEMP    , 0, "Std_Temp",                true,         Std_T, "", "C"},
-    {IDC_STDPRESS   , 0, "Std_Press",               true,         Std_P, "", "kPa"},
-    {IDC_NORMTEMP   , 0, "Norm_Temp",               true,        Norm_T, "", "C"},
-    {IDC_NORMPRESS  , 0, "Norm_Press",              true,        Norm_P, "", "kPa"},
-    {IDC_MINTEMP    , 0, "Minimum_Temp",            true,    C_2_K(0.0), "", "C" },
-    {IDC_MAXTEMP    , 0, "Maximum_Temp",            true, C_2_K(1000.0), "", "C" },
-    {IDC_MINPRESS   , 0, "Minimum_Press",           true,          50.0, "", "kPa"},
-    {IDC_MAXPRESS   , 0, "Maximum_Press",           true,       16500.0, "", "kPa"},
-    //{IDC_ATMOSPRESS , 0, "Atmospheric_Press",      false,             0, "101.287, -11.836e-3, 0.47931-6", NULL},
-    {IDC_FLASHCOMP  , 1, "Flash_Component",        false,             0, "H2O", NULL},
-#if WithSIMPLESPMDL 
-    {IDC_DEFSPMDL   , 1, "Default_SpModel",        false,             0, BaseSpModelName, NULL},
-#else
-    {IDC_DEFSPMDL   , 1, "Default_SpModel",        false,             0, MassWtMnSpModelName, NULL},
+    {IDC_CFGDESC,         0, "Description",        "General", false,             0, "",         NULL},
+    {IDC_DEFNETMODE,      1, "Default_NetMode",    "Modes",   false,             0, "ProBal",   NULL},
+    {IDC_PROBALALLOWED,   2, "Probal_Allowed",     "Modes",   false,             1, "",         NULL},
+    {IDC_PBNODEMODE,      1, "Probal_NodeMode",    "Modes",   false,             0, "Direct",   NULL},
+    {IDC_PBLINKMODE,      1, "Probal_LinkMode",    "Modes",   false,             0, "Direct",   NULL},
+    {IDC_PBFLOWMODE,      1, "Probal_FlowMode",    "Modes",   false,             0, "Transfer", NULL},
+    {IDC_PBHEATMODE,      1, "Probal_HeatMode",    "Modes",   false,             0, "Rigorous", NULL},
+    {IDC_DYNAMICALLOWED,  2, "Dynamic_Allowed",    "Modes",   false,             1, "",         NULL},
+    {IDC_DYNNODEMODE,     1, "Dynamic_NodeMode",   "Modes",   false,             0, "Buffered", NULL},
+    {IDC_DYNLINKMODE,     1, "Dynamic_LinkMode",   "Modes",   false,             0, "Direct",   NULL},
+    {IDC_DYNFLOWMODE,     1, "Dynamic_FlowMode",   "Modes",   false,             0, "Simple",   NULL},
+    {IDC_DYNHEATMODE,     1, "Dynamic_HeatMode",   "Modes",   false,             0, "Rigorous", NULL},
+
+    {IDC_MAXNODEMODE,     1, "Maximum_NodeMode",   "Modes",   false,             0, "Buffered", NULL},
+    {IDC_MAXLINKMODE,     1, "Maximum_LinkMode",   "Modes",   false,             0, "Direct",   NULL},
+    {IDC_MAXFLOWMODE,     1, "Maximum_FlowMode",   "Modes",   false,             0, "Full",     NULL},
+    {IDC_MAXHEATMODE,     1, "Maximum_HeatMode",   "Modes",   false,             0, "Rigorous", NULL},
+
+    {IDC_STDTEMP,     0, "Std_Temp",               "General",  true,         Std_T, "", "C"},
+    {IDC_STDPRESS,    0, "Std_Press",              "General",  true,         Std_P, "", "kPa"},
+    {IDC_NORMTEMP,    0, "Norm_Temp",              "General",  true,        Norm_T, "", "C"},
+    {IDC_NORMPRESS,   0, "Norm_Press",             "General",  true,        Norm_P, "", "kPa"},
+    {IDC_MINTEMP,     0, "Minimum_Temp",           "General",  true,    C_2_K(0.0), "", "C" },
+    {IDC_MAXTEMP,     0, "Maximum_Temp",           "General",  true, C_2_K(1000.0), "", "C" },
+    {IDC_MINPRESS,    0, "Minimum_Press",          "General",  true,          50.0, "", "kPa"},
+    {IDC_MAXPRESS,    0, "Maximum_Press",          "General",  true,       16500.0, "", "kPa"},
+    //{IDC_ATMOSPRESS,  0, "Atmospheric_Press",    Ggeneral",   false,             0, "101.287, -11.836e-3, 0.47931-6", NULL},
+    {IDC_FLASHCOMP,   1, "Flash_Component",       "General",  false,             0, "H2O", NULL},
+#if WithSIMPLESPMDL                             
+    {IDC_DEFSPMDL,    1, "Default_SpModel",       "General",  false,             0, BaseSpModelName, NULL},
+#else                                   
+    {IDC_DEFSPMDL,    1, "Default_SpModel",       "General",  false,             0, MassWtMnSpModelName, NULL},
 #endif
     {0, NULL},
   };
 static CfgItem CfgItemsO[]=
   {
   //    {IDC_CFGDESC    , 0, "Description",            false,             0, "", NULL},
-  //    {IDC_CFGFILES   , 0, "CfgFiles",               false,             0, "", NULL},
-  //    {IDC_CFGHOME    , 0, "CfgHome",                false,             0, "", NULL},     
   //    {IDC_STDTEMP    , 0, "Std_Temp",                true,         Std_T, "", "C"},
   //    {IDC_STDPRESS   , 0, "Std_Press",               true,         Std_P, "", "kPa"},
   //    {IDC_NORMTEMP   , 0, "Norm_Temp",               true,        Norm_T, "", "C"},
@@ -205,12 +217,12 @@ static CfgItem CfgItemsO[]=
   //    //{IDC_ATMOSPRESS , 0, "Atmospheric_Press",      false,             0, "101.287, -11.836e-3, 0.47931-6", NULL},
   //    {IDC_FLASHCOMP  , 1, "Flash_Component",        false,             0, "H2O", NULL},
   //    {IDC_DEFSPMDL   , 1, "Default_SpModel",        false,             0, "Mass Wt Mean", NULL},
-    {IDC_STDFNS4H2O    , 2, "UseStdFns4H2O",           false,             1, "", NULL},
+    {IDC_STDFNS4H2O    , 2, "UseStdFns4H2O",           "General", false,             1, "", NULL},
 #if WITHDEFAULTSPDB
-    {IDC_CONFIGDB      , 2, "SearchDefaultSpecieDB",   false,             0, "", NULL},
+    {IDC_CONFIGDB      , 2, "SearchDefaultSpecieDB",   "General", false,             0, "", NULL},
 #endif
-    {IDC_TAGSNUMSTART  , 2, "NumericStartingTagsBad",  false,             1, "", NULL, true},
-    {IDC_TAGSNUMERIC   , 2, "NumericTagsBad",          false,             1, "", NULL, true},
+    {IDC_TAGSNUMSTART  , 2, "NumericStartingTagsBad",  "General", false,             1, "", NULL, true},
+    {IDC_TAGSNUMERIC   , 2, "NumericTagsBad",          "General", false,             1, "", NULL, true},
     {0, NULL},
   };
 
@@ -899,7 +911,6 @@ CMdlCfgSheet::CMdlCfgSheet(DWORD LicCategory, char *CfgFile, LPCTSTR pszCaption,
       LogError("EditCfg", 0, "Cannot copy to File %s", m_CfgFileTmp());
   Cfg.SetProfFilename(m_CfgFileTmp());
 
-  m_CfgFiles = Cfg.RdStr("General", "CfgFiles", "???");
   pSfeBase = NULL;
   pCfgPage = NULL;
   pOptPage = NULL;
@@ -1127,11 +1138,13 @@ BOOL CMdlCfgSheet::DoLoad(int i)
     if (LoadErr)
       {
       //perhaps a driver dll...
+#if WITHDRVMAN
       if ((fn_AddDrv)GetProcAddress(DLLs[i].hInst, "AddDrv")!=NULL)
         {
         DLLs[i].Type=DT_Other;//DT_Driver;
         }
       else
+#endif
         {
         DLLs[i].Type=DT_Other;
         LogError("TestLoad", 0, "%s not loaded", pDLLName);
@@ -1288,7 +1301,7 @@ int CMdlCfgSheet::LoadDLLs()
       for (int j=0; Groups[j].Name; j++)
         {
         dbgpln("------ %s", Groups[j].Name);
-        for (int iNo=0; pSfeBase->RequestModelInfoByGroupIndex(Groups[j].Name, iNo, Info.Rec, true); iNo++)
+        for (int iNo=0; pSfeBase->RequestModelInfoByGroupIndex(Groups[j].Name, iNo, Info.Rec); iNo++)
           {
           Info.Rec.MdlLibName.FnCheckExtension(".dll");
           Info.iGroup=j;
@@ -1300,7 +1313,7 @@ int CMdlCfgSheet::LoadDLLs()
             Info.iGrp++;
 
 
-          dbgpln("%i %s %s", Info.fLicMdlBlocked, Info.fLicModeBlocked, Info.Rec.ShortDesc());
+          dbgpln("%-8s %-8s %s", Info.fLicMdlBlocked?"MdlBlk":"", Info.fLicModeBlocked?"ModeBlk":"", Info.Rec.ShortDesc());
           for (i=0; i<DLLs.GetSize(); i++)
             if (DLLs[i].Name.XStrICmp(Info.Rec.MdlLibName())==0)
               {
@@ -1482,7 +1495,9 @@ BOOL CMdlCfgSheet::OnInitDialog()
   Strng S;
   long CfgPrjFileVer=Cfg.RdInt("General", "PrjFileVersion", -1);
 
-  S=Cfg.RdStr("General", CfgItemsC[iCF].Name, CfgItemsC[iCF].StrDef);
+  //INCOMPLETECODEMSG("CfgItemsC");
+
+  S=Cfg.RdStr(CfgItemsC[iCF].SctName, CfgItemsC[iCF].Name, CfgItemsC[iCF].StrDef);
   S.Trim();
   if (S.Len()>0)
     {
@@ -1502,10 +1517,10 @@ BOOL CMdlCfgSheet::OnInitDialog()
     }
   else
     {// Standard folder
-    SDBCfg=GetCfgFiles();   
+    //SDBCfg=GetCfgFiles();   
     SDBCfg.FnDrivePath(GetCfgFile());
     //INCOMPLETECODE1("CfgFolderName")
-    SDBCfg.FnMakeDataFolder("CfgFiles");
+    SDBCfg.FnMakeDataFolder(DefCfgFolderName());
     }
   SDBCfg+=CfgDBFileName();
   RenameCfgDBFile(SDBCfg());
@@ -1573,7 +1588,6 @@ void CMdlCfgSheet::OnOK()
     Cfg.WrStr("LastSaveInfo", "LastSaveDate", DT);
     Cfg.WrStr("LastSaveInfo", "LastSaveTime", TM);
     Cfg.WrStr("LastSaveInfo", "CfgFile", m_CfgFile());
-    Cfg.WrStr("LastSaveInfo", "CfgFiles", m_CfgFiles());
     Cfg.WrStr("LastSaveInfo", "WinNT", IsWinNT ? "y" : "n");
     char Buff[512];
     DWORD Sz = sizeof(Buff);
@@ -1643,7 +1657,6 @@ CMdlCfgCfg::CMdlCfgCfg(CMdlCfgSheet * Sheet)
   //{{AFX_DATA_INIT(CMdlCfgCfg)
   //m_AtmosPress = _T("");
   m_CfgFiles = _T("");
-  m_CfgHome = _T("");
   m_Desc = _T("");
   m_MaxPress = 0.0;
   m_MaxTemp = 0.0;
@@ -1653,6 +1666,9 @@ CMdlCfgCfg::CMdlCfgCfg(CMdlCfgSheet * Sheet)
   m_NormTemp = 0.0;
   m_StdPress = 0.0;
   m_StdTemp = 0.0;
+  m_bPBAllowed=true;
+  m_bDynAllowed=true;
+
   //}}AFX_DATA_INIT
   }
 
@@ -1662,12 +1678,19 @@ void CMdlCfgCfg::DoDataExchange(CDataExchange* pDX)
   {
   CMdlCfgBase::DoDataExchange(pDX);
   //{{AFX_DATA_MAP(CMdlCfgCfg)
-  DDX_Control(pDX, IDC_DEFRUNMODE, m_DefRunMode);
-  DDX_Control(pDX, IDC_DEFHEATMODE, m_DefHeatMode);
+  DDX_Control(pDX, IDC_DEFNETMODE, m_DefNetMode);
+  DDX_Control(pDX, IDC_PBNODEMODE, m_PBNodeMode);
+  DDX_Control(pDX, IDC_PBFLOWMODE, m_PBFlowMode);
+  DDX_Control(pDX, IDC_PBHEATMODE, m_PBHeatMode);
+  DDX_Control(pDX, IDC_DYNNODEMODE, m_DynNodeMode);
+  DDX_Control(pDX, IDC_DYNFLOWMODE, m_DynFlowMode);
+  DDX_Control(pDX, IDC_DYNHEATMODE, m_DynHeatMode);
+  DDX_Control(pDX, IDC_MAXNODEMODE, m_MaxNodeMode);
+  DDX_Control(pDX, IDC_MAXFLOWMODE, m_MaxFlowMode);
+  DDX_Control(pDX, IDC_MAXHEATMODE, m_MaxHeatMode);
   DDX_Control(pDX, IDC_FLASHCOMP, m_FlashComp);
   DDX_Control(pDX, IDC_DEFSPMDL, m_DefSpMdl);
-  DDX_Text(pDX, IDC_CFGFILES, m_CfgFiles);
-  DDX_Text(pDX, IDC_CFGHOME, m_CfgHome);
+  //DDX_Text(pDX, IDC_CFGFILES, m_CfgFiles);
   DDX_Text(pDX, IDC_CFGDESC, m_Desc);
   DDX_Text(pDX, IDC_MAXPRESS, m_MaxPress);
   DDV_MinMaxDouble(pDX, m_MaxPress, 50., 90000.);
@@ -1685,11 +1708,19 @@ void CMdlCfgCfg::DoDataExchange(CDataExchange* pDX)
   DDV_MinMaxDouble(pDX, m_StdPress, 50., 200.);
   DDX_Text(pDX, IDC_STDTEMP, m_StdTemp);
   DDV_MinMaxDouble(pDX, m_StdTemp, -10., 100.);
+  DDX_Check(pDX, IDC_PROBALALLOWED, m_bPBAllowed);
+  DDX_Check(pDX, IDC_DYNAMICALLOWED, m_bDynAllowed);
   //}}AFX_DATA_MAP
   }
 
 BEGIN_MESSAGE_MAP(CMdlCfgCfg, CMdlCfgBase)
   //{{AFX_MSG_MAP(CMdlCfgCfg)
+  ON_CBN_SELCHANGE(IDC_DEFNETMODE, OnSelchangeNetMode)
+  ON_CBN_SELCHANGE(IDC_MAXNODEMODE, OnSelchangeMaxNodeMode)
+  ON_CBN_SELCHANGE(IDC_MAXFLOWMODE, OnSelchangeMaxFlowMode)
+  ON_CBN_SELCHANGE(IDC_MAXHEATMODE, OnSelchangeMaxHeatMode)
+  ON_BN_CLICKED(IDC_PROBALALLOWED, OnProbalAllowed)
+  ON_BN_CLICKED(IDC_DYNAMICALLOWED, OnDynamicAllowed)
   //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1715,38 +1746,90 @@ BOOL CMdlCfgCfg::OnInitDialog()
       }
     }
 
-  Strng MdStr=TaggedObject::GlblMode2String(SM_Direct, SM_Direct);
-  m_DefRunMode.AddString(MdStr());
-  MdStr=TaggedObject::GlblMode2String(SM_Inline, SM_Inline);
-  m_DefRunMode.AddString(MdStr());
-  MdStr=TaggedObject::GlblMode2String(SM_Buffered, SM_Buffered);
-  m_DefRunMode.AddString(MdStr());
+  if (gs_License.ProBalOK())
+    m_DefNetMode.AddString(GlblMode2LPTSTR(NM_Probal, NM_All, eGM_Name));
+  if (gs_License.DynamicOK())
+    m_DefNetMode.AddString(GlblMode2LPTSTR(NM_Dynamic, NM_All, eGM_Name));
 
-  MdStr=TaggedObject::GlblMode2String(HM_None, HM_None);
-  m_DefHeatMode.AddString(MdStr());
-  MdStr=TaggedObject::GlblMode2String(HM_Simple, HM_Simple);
-  m_DefHeatMode.AddString(MdStr());
-  MdStr=TaggedObject::GlblMode2String(HM_Full, HM_Full);
-  m_DefHeatMode.AddString(MdStr());
+  m_PBNodeMode.AddString(GlblMode2LPTSTR(SM_Direct, SM_All, eGM_Name));
+  m_DynNodeMode.AddString(GlblMode2LPTSTR(SM_Direct, SM_All, eGM_Name));
+  if (gs_License.DynamicOK())
+    {
+    m_DynNodeMode.AddString(GlblMode2LPTSTR(SM_Inline, SM_All, eGM_Name));
+    m_DynNodeMode.AddString(GlblMode2LPTSTR(SM_Buffered, SM_All, eGM_Name));
+    }
+
+  m_PBFlowMode.AddString(GlblMode2LPTSTR(LFM_Xfer, LFM_All, eGM_Name));
+  m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Xfer, LFM_All, eGM_Name));
+  if (gs_License.DynamicOK())
+    {
+    m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Simple, LFM_All, eGM_Name));
+    m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Linear, LFM_All, eGM_Name));
+    }
+  if (gs_License.AllowDynamicFull())
+    {
+    m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Full, LFM_All, eGM_Name));
+    }
+
+  m_PBHeatMode.AddString(GlblMode2LPTSTR(HM_None, HM_All, eGM_Name));
+  m_PBHeatMode.AddString(GlblMode2LPTSTR(HM_Reduced, HM_All, eGM_Name));
+  m_PBHeatMode.AddString(GlblMode2LPTSTR(HM_Full, HM_All, eGM_Name));
+
+  m_DynHeatMode.AddString(GlblMode2LPTSTR(HM_None, HM_All, eGM_Name));
+  m_DynHeatMode.AddString(GlblMode2LPTSTR(HM_Reduced, HM_All, eGM_Name));
+  m_DynHeatMode.AddString(GlblMode2LPTSTR(HM_Full, HM_All, eGM_Name));
+
+  char Buff[256], *pStr=Buff;
+  for (int i=0; i<m_DynNodeMode.GetCount(); i++)
+    {
+    m_DynNodeMode.GetLBText(i, pStr);
+    m_MaxNodeMode.AddString(pStr);
+    }
+
+  for (int i=0; i<m_DynFlowMode.GetCount(); i++)
+    {
+    m_DynFlowMode.GetLBText(i, pStr);
+    m_MaxFlowMode.AddString(pStr);
+    }
+  for (int i=0; i<m_DynHeatMode.GetCount(); i++)
+    {
+    m_DynHeatMode.GetLBText(i, pStr);
+    m_MaxHeatMode.AddString(pStr);
+    }
 
   Strng Data,S;
-  int iFC, iDM, iRM, iHM;
+  int iFC, iDM, iNetMd;
+  int iPNodeMd, iPFlowMd, iPHeatMd;
+  int iDNodeMd, iDFlowMd, iDHeatMd;
+  int iNodeMx,  iFlowMx,  iHeatMx;
+
   for (int i=0; CfgItemsC[i].Name; i++)
     {
     DWORD Id=CfgItemsC[i].IdCtrl;
     switch (Id)
       {
       case 0: break;
-      case IDC_FLASHCOMP: iFC=i; break;
-      case IDC_DEFSPMDL: iDM=i; break;
-      case IDC_DEFRUNMODE: iRM=i; break;
-      case IDC_DEFHEATMODE: iHM=i; break;
+      case IDC_FLASHCOMP:   iFC=i;      break;
+      case IDC_DEFSPMDL:    iDM=i;      break;
+      case IDC_DEFNETMODE:  iNetMd=i;   break;
+      case IDC_DYNNODEMODE: iDNodeMd=i; break;
+      case IDC_DYNLINKMODE:             break;
+      case IDC_DYNFLOWMODE: iDFlowMd=i; break;
+      case IDC_DYNHEATMODE: iDHeatMd=i; break;
+      case IDC_PBNODEMODE:  iPNodeMd=i; break;
+      case IDC_PBLINKMODE:              break;
+      case IDC_PBFLOWMODE:  iPFlowMd=i; break;
+      case IDC_PBHEATMODE:  iPHeatMd=i; break;
+      case IDC_MAXNODEMODE: iNodeMx=i;  break;
+      case IDC_MAXLINKMODE:             break;
+      case IDC_MAXFLOWMODE: iFlowMx=i;  break;
+      case IDC_MAXHEATMODE: iHeatMx=i;  break;
       default:
         {
         CEdit* pEdit=CfgItemsC[i].CtrlType==0 ? (CEdit*)GetDlgItem(Id) : NULL;
         if (CfgItemsC[i].IsDbl)
           {
-          double D=Cfg.RdDouble("General", CfgItemsC[i].Name, CfgItemsC[i].DblDef);
+          double D=Cfg.RdDouble(CfgItemsC[i].SctName, CfgItemsC[i].Name, CfgItemsC[i].DblDef);
           if (Id==IDC_STDTEMP || Id==IDC_NORMTEMP || Id==IDC_MINTEMP || Id==IDC_MAXTEMP)
             D=K_2_C(D);
           Data.Set("%.3f", D);
@@ -1754,14 +1837,14 @@ BOOL CMdlCfgCfg::OnInitDialog()
           }
         else if (CfgItemsC[i].CtrlType==2)
           {
-          BOOL b = (Cfg.RdInt("General", CfgItemsC[i].Name, (int)CfgItemsC[i].DblDef)!=0);
+          BOOL b = (Cfg.RdInt(CfgItemsC[i].SctName, CfgItemsC[i].Name, (int)CfgItemsC[i].DblDef)!=0);
           if (CfgItemsC[i].Invert)
             b=!b;
           ((CButton*)GetDlgItem(Id))->SetCheck(b ? 1 : 0);
           }
         else
           {
-          S=Cfg.RdStr("General", CfgItemsC[i].Name, CfgItemsC[i].StrDef);
+          S=Cfg.RdStr(CfgItemsC[i].SctName, CfgItemsC[i].Name, CfgItemsC[i].StrDef);
           S.Trim();
           if (S.Length()==0)
             S=CfgItemsC[i].StrDef;
@@ -1772,7 +1855,7 @@ BOOL CMdlCfgCfg::OnInitDialog()
     }
 
   int iSel;
-  S=Cfg.RdStr("General", CfgItemsC[iFC].Name, CfgItemsC[iFC].StrDef);
+  S=Cfg.RdStr(CfgItemsC[iFC].SctName, CfgItemsC[iFC].Name, CfgItemsC[iFC].StrDef);
   S.Trim();
   if (S.Length()==0)
     S=NoneString;
@@ -1780,7 +1863,7 @@ BOOL CMdlCfgCfg::OnInitDialog()
   if (iSel<0)
     ((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->SelectString(-1, NoneString);
 
-  S=Cfg.RdStr("General", CfgItemsC[iDM].Name, CfgItemsC[iDM].StrDef);
+  S=Cfg.RdStr(CfgItemsC[iDM].SctName, CfgItemsC[iDM].Name, CfgItemsC[iDM].StrDef);
   if (S.Length()==0)
 #if WithSIMPLESPMDL 
     S=BaseSpModelName;
@@ -1799,26 +1882,208 @@ BOOL CMdlCfgCfg::OnInitDialog()
     }
   iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->SetCurSel(i);
 
-  S=Cfg.RdStr("General", CfgItemsC[iRM].Name, CfgItemsC[iRM].StrDef);
-  S.Trim();
-  if (S.Length()==0)
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFRUNMODE))->SetCurSel(0);
-  else
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFRUNMODE))->SelectString(-1, S());
-  if (iSel<0)
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFRUNMODE))->SetCurSel(0);
 
-  S=Cfg.RdStr("General", CfgItemsC[iHM].Name, CfgItemsC[iHM].StrDef);
+  S=Cfg.RdStr(CfgItemsC[iNetMd].SctName, CfgItemsC[iNetMd].Name, CfgItemsC[iNetMd].StrDef);
   S.Trim();
   if (S.Length()==0)
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFHEATMODE))->SetCurSel(2);
+    iSel=m_DefNetMode.SetCurSel(0);
   else
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFHEATMODE))->SelectString(-1, S());
+    iSel=m_DefNetMode.SelectString(-1, S());
   if (iSel<0)
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFHEATMODE))->SetCurSel(2);
-  
+    iSel=m_DefNetMode.SetCurSel(0);
+
+
+  S=Cfg.RdStr(CfgItemsC[iDNodeMd].SctName, CfgItemsC[iDNodeMd].Name, CfgItemsC[iDNodeMd].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_DynNodeMode.SetCurSel(2);
+  else
+    iSel=m_DynNodeMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_DynNodeMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iDFlowMd].SctName, CfgItemsC[iDFlowMd].Name, CfgItemsC[iDFlowMd].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_DynFlowMode.SetCurSel(2);
+  else
+    iSel=m_DynFlowMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_DynFlowMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iDHeatMd].SctName, CfgItemsC[iDHeatMd].Name, CfgItemsC[iDHeatMd].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_DynHeatMode.SetCurSel(2);
+  else
+    iSel=m_DynHeatMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_DynHeatMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iPNodeMd].SctName, CfgItemsC[iPNodeMd].Name, CfgItemsC[iPNodeMd].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_PBNodeMode.SetCurSel(2);
+  else
+    iSel=m_PBNodeMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_PBNodeMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iPFlowMd].SctName, CfgItemsC[iPFlowMd].Name, CfgItemsC[iPFlowMd].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_PBFlowMode.SetCurSel(2);
+  else
+    iSel=m_PBFlowMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_PBFlowMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iPHeatMd].SctName, CfgItemsC[iPHeatMd].Name, CfgItemsC[iPHeatMd].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_PBHeatMode.SetCurSel(2);
+  else
+    iSel=m_PBHeatMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_PBHeatMode.SetCurSel(2);
+
+
+  S=Cfg.RdStr(CfgItemsC[iNodeMx].SctName, CfgItemsC[iNodeMx].Name, CfgItemsC[iNodeMx].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_MaxNodeMode.SetCurSel(2);
+  else
+    iSel=m_MaxNodeMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_MaxNodeMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iFlowMx].SctName, CfgItemsC[iFlowMx].Name, CfgItemsC[iFlowMx].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_MaxFlowMode.SetCurSel(2);
+  else
+    iSel=m_MaxFlowMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_MaxFlowMode.SetCurSel(2);
+
+  S=Cfg.RdStr(CfgItemsC[iHeatMx].SctName, CfgItemsC[iHeatMx].Name, CfgItemsC[iHeatMx].StrDef);
+  S.Trim();
+  if (S.Length()==0)
+    iSel=m_MaxHeatMode.SetCurSel(2);
+  else
+    iSel=m_MaxHeatMode.SelectString(-1, S());
+  if (iSel<0)
+    iSel=m_MaxHeatMode.SetCurSel(2);
+
+  CheckModes();
+
   bInited=true;
   return TRUE;
+  }
+
+void CMdlCfgCfg::CheckModes()
+  {
+  //if (!m_bDynAllowed)
+  //  m_bPBAllowed=true;
+  //if (!m_bPBAllowed)
+  //  m_bDynAllowed=true;
+
+  int iNetMode = m_DefNetMode.GetCurSel();
+  //bool IsDyn = iNetMode>0;
+
+  int iPBNodeMode = m_PBNodeMode.GetCurSel();
+  int iPBFlowMode = m_PBFlowMode.GetCurSel();
+  int iPBHeatMode = m_PBHeatMode.GetCurSel();
+
+  int iDynNodeMode = m_DynNodeMode.GetCurSel();
+  int iDynFlowMode = m_DynFlowMode.GetCurSel();
+  int iDynHeatMode = m_DynHeatMode.GetCurSel();
+
+  int iMaxNodeMode = m_MaxNodeMode.GetCurSel();
+  int iMaxFlowMode = m_MaxFlowMode.GetCurSel();
+  int iMaxHeatMode = m_MaxHeatMode.GetCurSel();
+
+  m_PBHeatMode.ResetContent();
+  m_DynNodeMode.ResetContent();
+  m_DynFlowMode.ResetContent();
+  m_DynHeatMode.ResetContent();
+
+  m_MaxNodeMode.ResetContent();
+  m_MaxFlowMode.ResetContent();
+  m_MaxHeatMode.ResetContent();
+
+  m_DynNodeMode.AddString(GlblMode2LPTSTR(SM_Direct, SM_All, eGM_Name));
+  if (gs_License.DynamicOK())
+    {
+    m_DynNodeMode.AddString(GlblMode2LPTSTR(SM_Inline, SM_All, eGM_Name));
+    m_DynNodeMode.AddString(GlblMode2LPTSTR(SM_Buffered, SM_All, eGM_Name));
+    }
+
+  m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Xfer, LFM_All, eGM_Name));
+  if (gs_License.DynamicOK())
+    {
+    m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Simple, LFM_All, eGM_Name));
+    m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Linear, LFM_All, eGM_Name));
+    }
+  if (gs_License.AllowDynamicFull())
+    {
+    m_DynFlowMode.AddString(GlblMode2LPTSTR(LFM_Full, LFM_All, eGM_Name));
+    }
+
+  m_DynHeatMode.AddString(GlblMode2LPTSTR(HM_None, HM_All, eGM_Name));
+  m_DynHeatMode.AddString(GlblMode2LPTSTR(HM_Reduced, HM_All, eGM_Name));
+  m_DynHeatMode.AddString(GlblMode2LPTSTR(HM_Full, HM_All, eGM_Name));
+
+  m_PBHeatMode.AddString(GlblMode2LPTSTR(HM_None, HM_All, eGM_Name));
+  m_PBHeatMode.AddString(GlblMode2LPTSTR(HM_Reduced, HM_All, eGM_Name));
+  m_PBHeatMode.AddString(GlblMode2LPTSTR(HM_Full, HM_All, eGM_Name));
+
+  char Buff[256], *pStr=Buff;
+  for (int i=0; i<m_DynNodeMode.GetCount(); i++)
+    {
+    m_DynNodeMode.GetLBText(i, pStr);
+    m_MaxNodeMode.AddString(pStr);
+    }
+
+  for (int i=0; i<m_DynFlowMode.GetCount(); i++)
+    {
+    m_DynFlowMode.GetLBText(i, pStr);
+    m_MaxFlowMode.AddString(pStr);
+    }
+  for (int i=0; i<m_DynHeatMode.GetCount(); i++)
+    {
+    m_DynHeatMode.GetLBText(i, pStr);
+    m_MaxHeatMode.AddString(pStr);
+    }
+
+  while (m_PBNodeMode.DeleteString(iMaxNodeMode+1)!=LB_ERR) {};
+  while (m_PBFlowMode.DeleteString(iMaxFlowMode+1)!=LB_ERR) {};
+  while (m_PBHeatMode.DeleteString(iMaxHeatMode+1)!=LB_ERR) {};
+
+  m_PBNodeMode.SetCurSel(Min(iPBNodeMode, m_PBNodeMode.GetCount()-1));
+  m_PBFlowMode.SetCurSel(Min(iPBFlowMode, m_PBFlowMode.GetCount()-1));
+  m_PBHeatMode.SetCurSel(Min(iPBHeatMode, m_PBHeatMode.GetCount()-1));
+
+  while (m_DynNodeMode.DeleteString(iMaxNodeMode+1)!=LB_ERR) {};
+  while (m_DynFlowMode.DeleteString(iMaxFlowMode+1)!=LB_ERR) {};
+  while (m_DynHeatMode.DeleteString(iMaxHeatMode+1)!=LB_ERR) {};
+
+  m_DynNodeMode.SetCurSel(Min(iDynNodeMode, m_DynNodeMode.GetCount()-1));
+  m_DynFlowMode.SetCurSel(Min(iDynFlowMode, m_DynFlowMode.GetCount()-1));
+  m_DynHeatMode.SetCurSel(Min(iDynHeatMode, m_DynHeatMode.GetCount()-1));
+
+  m_MaxNodeMode.SetCurSel(iMaxNodeMode);
+  m_MaxFlowMode.SetCurSel(iMaxFlowMode);
+  m_MaxHeatMode.SetCurSel(iMaxHeatMode);
+
+  m_PBNodeMode.EnableWindow(0 && m_bPBAllowed);
+  m_PBFlowMode.EnableWindow(0 && m_bPBAllowed);
+  m_PBHeatMode.EnableWindow(m_bPBAllowed);
+
+  m_DynNodeMode.EnableWindow(m_bDynAllowed);
+  m_DynFlowMode.EnableWindow(m_bDynAllowed);
+  m_DynHeatMode.EnableWindow(m_bDynAllowed);
+  
   }
 
 //---------------------------------------------------------------------------
@@ -1846,17 +2111,31 @@ BOOL CMdlCfgCfg::OnKillActive()
     {
     CString CS;
     Strng Data,S;
-    int iFC, iDM, iRM, iHM;
+    int Md, iFC, iDM, iNetMd;
+    int iPNodeMd, iPFlowMd, iPHeatMd;
+    int iDNodeMd, iDFlowMd, iDHeatMd;
+    int iNodeMx,  iFlowMx,  iHeatMx;
     for (int i=0; CfgItemsC[i].Name; i++)
       {
       DWORD Id=CfgItemsC[i].IdCtrl;
       switch (Id)
         {
         case 0: break;
-        case IDC_FLASHCOMP: iFC=i; break;
-        case IDC_DEFSPMDL: iDM=i; break;
-        case IDC_DEFRUNMODE: iRM=i; break;
-        case IDC_DEFHEATMODE: iHM=i; break;
+        case IDC_FLASHCOMP:   iFC=i;      break;
+        case IDC_DEFSPMDL:    iDM=i;      break;
+        case IDC_DEFNETMODE:  iNetMd=i;   break;
+        case IDC_PBNODEMODE:  iPNodeMd=i; break;
+        case IDC_PBLINKMODE:              break;
+        case IDC_PBFLOWMODE:  iPFlowMd=i; break;
+        case IDC_PBHEATMODE:  iPHeatMd=i; break;
+        case IDC_DYNNODEMODE: iDNodeMd=i; break;
+        case IDC_DYNLINKMODE:             break;
+        case IDC_DYNFLOWMODE: iDFlowMd=i; break;
+        case IDC_DYNHEATMODE: iDHeatMd=i; break;
+        case IDC_MAXNODEMODE: iNodeMx=i;  break;
+        case IDC_MAXLINKMODE:             break;
+        case IDC_MAXFLOWMODE: iFlowMx=i;  break;
+        case IDC_MAXHEATMODE: iHeatMx=i;  break;
         default:
           {
           CWnd* pWnd=(CWnd*)GetDlgItem(Id);
@@ -1866,22 +2145,22 @@ BOOL CMdlCfgCfg::OnKillActive()
             double D=SafeAtoF((const char*)CS);//Cfg.RdDouble("General", CfgItemsC[i].Name, CfgItemsC[i].DblDef);
             if (Id==IDC_STDTEMP || Id==IDC_NORMTEMP || Id==IDC_MINTEMP || Id==IDC_MAXTEMP)
               D=C_2_K(D);
-            Cfg.WrDouble("General", CfgItemsC[i].Name, D);
+            Cfg.WrDouble(CfgItemsC[i].SctName, CfgItemsC[i].Name, D);
             }
           else if (CfgItemsC[i].CtrlType==2)
             {
             BOOL b = ((CButton*)GetDlgItem(Id))->GetCheck()!=0 ? 1 : 0;
             if (CfgItemsC[i].Invert)
               b=!b;
-            Cfg.WrInt("General", CfgItemsC[i].Name, b);
+            Cfg.WrInt(CfgItemsC[i].SctName, CfgItemsC[i].Name, b);
             }
           else
             {
             if (CS==NoneString)
               CS="";
-            if ((Id==IDC_CFGFILES || Id==IDC_CFGHOME) && CS.GetLength()>0 && CS[CS.GetLength()-1]=='\\')
+            if ((/*Id==IDC_CFGFILES ||*/ Id==IDC_CFGHOME) && CS.GetLength()>0 && CS[CS.GetLength()-1]=='\\')
               CS.Left(CS.GetLength()-1);
-            Cfg.WrStr("General", CfgItemsC[i].Name, NONNULL((const char*)CS));
+            Cfg.WrStr(CfgItemsC[i].SctName, CfgItemsC[i].Name, NONNULL((const char*)CS));
             }
           }     
         }
@@ -1892,24 +2171,89 @@ BOOL CMdlCfgCfg::OnKillActive()
       ((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->GetLBText(iSel, CS);
     else
       CS=NoneString;
-    Cfg.WrStr("General", CfgItemsC[iFC].Name, NONNULL((const char*)CS));
+    Cfg.WrStr(CfgItemsC[iFC].SctName, CfgItemsC[iFC].Name, NONNULL((const char*)CS));
 
     iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->GetCurSel();
     S=(iSel>=0 ? SpModels[m_DefSpMdlIndex[iSel]].Name() : NoneString);
-    Cfg.WrStr("General", CfgItemsC[iDM].Name, NONNULL(S()));
+    Cfg.WrStr(CfgItemsC[iDM].SctName, CfgItemsC[iDM].Name, NONNULL(S()));
 
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFRUNMODE))->GetCurSel();
-    long Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
-    S=TaggedObject::GlblMode2String(Md, SM_All);
-    Cfg.WrStr("General", CfgItemsC[iRM].Name, NONNULL(S()));
+    iSel=m_DefNetMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? NM_Probal : NM_Dynamic);
+    S=GlblMode2LPTSTR(Md, NM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iNetMd].SctName, CfgItemsC[iNetMd].Name, NONNULL(S()));
 
-    iSel=((CComboBox*)GetDlgItem(IDC_DEFHEATMODE))->GetCurSel();
-    Md=((iSel==2 || iSel==CB_ERR) ? HM_Full : (iSel==1 ? HM_Simple : HM_None));
-    S=TaggedObject::GlblMode2String(Md, HM_All);
-    Cfg.WrStr("General", CfgItemsC[iHM].Name, NONNULL(S()));
+    iSel=m_PBNodeMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
+    S=GlblMode2LPTSTR(Md, SM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iPNodeMd].SctName, CfgItemsC[iPNodeMd].Name, NONNULL(S()));
+
+    iSel=m_PBFlowMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? LFM_Xfer : (iSel==1 ? LFM_Simple : (iSel==2 ? LFM_Linear : LFM_Full)));
+    S=GlblMode2LPTSTR(Md, LFM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iPFlowMd].SctName, CfgItemsC[iPFlowMd].Name, NONNULL(S()));
+
+    iSel=m_PBHeatMode.GetCurSel();
+    Md=((iSel==2 || iSel==CB_ERR) ? HM_Full : (iSel==1 ? HM_Reduced : HM_None));
+    S=GlblMode2LPTSTR(Md, HM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iPHeatMd].SctName, CfgItemsC[iPHeatMd].Name, NONNULL(S()));
+
+    iSel=m_DynNodeMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
+    S=GlblMode2LPTSTR(Md, SM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iDNodeMd].SctName, CfgItemsC[iDNodeMd].Name, NONNULL(S()));
+
+    iSel=m_DynFlowMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? LFM_Xfer : (iSel==1 ? LFM_Simple : (iSel==2 ? LFM_Linear : LFM_Full)));
+    S=GlblMode2LPTSTR(Md, LFM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iDFlowMd].SctName, CfgItemsC[iDFlowMd].Name, NONNULL(S()));
+
+    iSel=m_DynHeatMode.GetCurSel();
+    Md=((iSel==2 || iSel==CB_ERR) ? HM_Full : (iSel==1 ? HM_Reduced : HM_None));
+    S=GlblMode2LPTSTR(Md, HM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iDHeatMd].SctName, CfgItemsC[iDHeatMd].Name, NONNULL(S()));
+
+    iSel=m_MaxNodeMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
+    S=GlblMode2LPTSTR(Md, SM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iNodeMx].SctName, CfgItemsC[iNodeMx].Name, NONNULL(S()));
+
+    iSel=m_MaxFlowMode.GetCurSel();
+    Md=((iSel==0 || iSel==CB_ERR) ? LFM_Xfer : (iSel==1 ? LFM_Simple : (iSel==2 ? LFM_Linear : LFM_Full)));
+    S=GlblMode2LPTSTR(Md, LFM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iFlowMx].SctName, CfgItemsC[iFlowMx].Name, NONNULL(S()));
+
+    iSel=m_MaxHeatMode.GetCurSel();
+    Md=((iSel==2 || iSel==CB_ERR) ? HM_Full : (iSel==1 ? HM_Reduced : HM_None));
+    S=GlblMode2LPTSTR(Md, HM_All, eGM_Name);
+    Cfg.WrStr(CfgItemsC[iHeatMx].SctName, CfgItemsC[iHeatMx].Name, NONNULL(S()));
     }  
   return OK;
   }
+
+//---------------------------------------------------------------------------
+
+void CMdlCfgCfg::OnSelchangeNetMode()     { CheckModes(); };
+void CMdlCfgCfg::OnSelchangeMaxNodeMode() { CheckModes(); };
+void CMdlCfgCfg::OnSelchangeMaxFlowMode() { CheckModes(); };
+void CMdlCfgCfg::OnSelchangeMaxHeatMode() { CheckModes(); };
+
+void CMdlCfgCfg::OnProbalAllowed() 
+  {
+  UpdateData(true);
+  if (!m_bDynAllowed && !m_bPBAllowed)
+    m_bDynAllowed=true;
+  CheckModes();
+  UpdateData(false);
+  }
+void CMdlCfgCfg::OnDynamicAllowed() 
+  {
+  UpdateData(true);
+  if (!m_bDynAllowed && !m_bPBAllowed)
+    m_bPBAllowed=true;
+  CheckModes();
+  UpdateData(false);
+  }
+
 
 //===========================================================================
 //
@@ -1966,7 +2310,7 @@ BOOL CMdlCfgOpt::OnInitDialog()
         CEdit* pEdit=CfgItemsO[i].CtrlType==0 ? (CEdit*)GetDlgItem(Id) : NULL;
         if (CfgItemsO[i].IsDbl)
           {
-          double D=Cfg.RdDouble("General", CfgItemsO[i].Name, CfgItemsO[i].DblDef);
+          double D=Cfg.RdDouble(CfgItemsO[i].SctName, CfgItemsO[i].Name, CfgItemsO[i].DblDef);
           if (Id==IDC_STDTEMP || Id==IDC_NORMTEMP || Id==IDC_MINTEMP || Id==IDC_MAXTEMP)
             D=K_2_C(D);
           Data.Set("%.2f", D);
@@ -1974,14 +2318,14 @@ BOOL CMdlCfgOpt::OnInitDialog()
           }
         else if (CfgItemsO[i].CtrlType==2)
           {
-          BOOL b = (Cfg.RdInt("General", CfgItemsO[i].Name, (int)CfgItemsO[i].DblDef)!=0);
+          BOOL b = (Cfg.RdInt(CfgItemsO[i].SctName, CfgItemsO[i].Name, (int)CfgItemsO[i].DblDef)!=0);
           if (CfgItemsO[i].Invert)
             b=!b;
           ((CButton*)GetDlgItem(Id))->SetCheck(b ? 1 : 0);
           }
         else
           {
-          S=Cfg.RdStr("General", CfgItemsO[i].Name, CfgItemsO[i].StrDef);
+          S=Cfg.RdStr(CfgItemsO[i].SctName, CfgItemsO[i].Name, CfgItemsO[i].StrDef);
           S.Trim();
           if (S.Length()==0)
             S=CfgItemsO[i].StrDef;
@@ -2070,22 +2414,22 @@ BOOL CMdlCfgOpt::OnKillActive()
             double D=SafeAtoF((const char*)CS);//Cfg.RdDouble("General", CfgItemsO[i].Name, CfgItemsO[i].DblDef);
             if (Id==IDC_STDTEMP || Id==IDC_NORMTEMP || Id==IDC_MINTEMP || Id==IDC_MAXTEMP)
               D=C_2_K(D);
-            Cfg.WrDouble("General", CfgItemsO[i].Name, D);
+            Cfg.WrDouble(CfgItemsO[i].SctName, CfgItemsO[i].Name, D);
             }
           else if (CfgItemsO[i].CtrlType==2)
             {
             BOOL b = ((CButton*)GetDlgItem(Id))->GetCheck()!=0 ? 1 : 0;
             if (CfgItemsO[i].Invert)
               b=!b;
-            Cfg.WrInt("General", CfgItemsO[i].Name, b);
+            Cfg.WrInt(CfgItemsO[i].SctName, CfgItemsO[i].Name, b);
             }
           else
             {
             if (CS==NoneString)
               CS="";
-            if ((Id==IDC_CFGFILES || Id==IDC_CFGHOME) && CS.GetLength()>0 && CS[CS.GetLength()-1]=='\\')
+            if ((/*Id==IDC_CFGFILES ||*/ Id==IDC_CFGHOME) && CS.GetLength()>0 && CS[CS.GetLength()-1]=='\\')
               CS.Left(CS.GetLength()-1);
-            Cfg.WrStr("General", CfgItemsO[i].Name, NONNULL((const char*)CS));
+            Cfg.WrStr(CfgItemsO[i].SctName, CfgItemsO[i].Name, NONNULL((const char*)CS));
             }
           }     
         }

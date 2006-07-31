@@ -936,13 +936,13 @@ flag AccNodeWnd::LoadAccessData()
     CXM_Route HRoute, ARoute;
     flag GotHistorian=false;
     flag GotArchive=false;
-    if (gs_pPrj && gs_pPrj->bAccHistoryInfoVis)
+    if (gs_pPrj && gs_pPrj->m_bAccHistoryInfoVis)
       {
       GotHistorian=XFindObject(pExecName_Historian, HRoute);
       GotArchive=XFindObject(pExecName_ArcMngr, ARoute);
       }
-    flag HistInfoVis=(GotHistorian && gs_pPrj && gs_pPrj->bAccHistoryInfoVis);
-    flag ArcInfoVis=(GotArchive && gs_pPrj && gs_pPrj->bAccHistoryInfoVis);
+    flag HistInfoVis=(GotHistorian && gs_pPrj && gs_pPrj->m_bAccHistoryInfoVis);
+    flag ArcInfoVis=(GotArchive && gs_pPrj && gs_pPrj->m_bAccHistoryInfoVis);
 
     int nTagItems=0;
     CVarTagArray TagItems;
@@ -1107,7 +1107,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
           if (f.fIsEdtObj)
             {
             ObjEdit[f.iObjNo]->GetDataStart();
-            ObjInst[f.iObjNo]->GetDefinedData(f.sSymOrTag()/*NdTag()*/, ObjData.List, TABOpt_AllInfo|TABOpt_ForView|SHM_All/*|TABOpt_CnvInfo*/, /*pPItem,*/ NULL);
+            ObjInst[f.iObjNo]->GetDefinedData(f.sSymOrTag()/*NdTag()*/, ObjData.List, TABOpt_AllInfo|TABOpt_ForView|NSHM_All/*|TABOpt_CnvInfo*/, /*pPItem,*/ NULL);
             ObjEdit[f.iObjNo]->GetDataDone();
             DoWrite=1;
             }
@@ -3126,7 +3126,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           {//check for changes and save when "refresh" button/option selected...
           if (EI.FieldId==Id_GetBtn && AnyFldsOrDataChanged())
             {
-            if (gs_pPrj && gs_pPrj->bAccAutoSaveOn)
+            if (gs_pPrj && gs_pPrj->m_bAccAutoSaveOn)
               DoSaveIt = true;
             else
               {
@@ -3218,11 +3218,11 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         Menu.AppendMenu(MF_STRING, IDM_ACC_COPYBLK_0,     "Data &Transfer ...");
         Menu.AppendMenu(MF_STRING, IDM_ACC_QUICKVIEW,     "&Quick View ...");
         Menu.AppendMenu(MF_SEPARATOR);
-        Menu.AppendMenu(MF_STRING|(gs_Exec.GlblProbalMode()?0:MF_GRAYED), IDM_ACC_PBINITNODE,  "&Initialise");
+        Menu.AppendMenu(MF_STRING|(DefNetProbalMode()?0:MF_GRAYED), IDM_ACC_PBINITNODE,  "&Initialise");
         Menu.AppendMenu(MF_STRING, IDM_ACC_EMPTYNODE,     "&Empty");
         Menu.AppendMenu(MF_STRING, IDM_ACC_ZEROFLOWSNODE, "&Zero Flows");
-        Menu.AppendMenu(MF_STRING|(gs_Exec.GlblDynamicMode()?0:MF_GRAYED), IDM_ACC_PRESETNODE, "P&reset");
-        Menu.AppendMenu(MF_STRING/*|(TaggedObject::SolveDynamicMethod()?0:MF_GRAYED)*/, IDM_ACC_RESETSTATSNODE, "Reset &Stats");
+        Menu.AppendMenu(MF_STRING|(DefNetDynamicMode()?0:MF_GRAYED), IDM_ACC_PRESETNODE, "P&reset");
+        Menu.AppendMenu(MF_STRING/*|(TaggedObject::NetDynamicMethod()?0:MF_GRAYED)*/, IDM_ACC_RESETSTATSNODE, "Reset &Stats");
         //Menu.AppendMenu(MF_STRING, IDM_ACC_PASTEBLK_0,  "Paste &Block ...");
         
         //Menu.AppendMenu(MF_POPUP, (unsigned int)CopyMenu.m_hMenu, "&Copy Block");
@@ -3236,11 +3236,11 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           Menu.CheckMenuItem(IDM_ACC_HIDEIFZERO, MF_BYCOMMAND|MF_CHECKED);
         if (SVI.GetShowGroups())
           Menu.CheckMenuItem(IDM_ACC_SHOWGROUPS, MF_BYCOMMAND|MF_CHECKED);
-        if (gs_pPrj && gs_pPrj->bAccAutoSaveOn)
+        if (gs_pPrj && gs_pPrj->m_bAccAutoSaveOn)
           Menu.CheckMenuItem(IDM_ACC_AUTOSAVE, MF_BYCOMMAND|MF_CHECKED);
-        if (gs_pPrj && gs_pPrj->bAccUpdateOnRun)
+        if (gs_pPrj && gs_pPrj->m_bAccUpdateOnRun)
           Menu.CheckMenuItem(IDM_ACC_UPDATEONRUN, MF_BYCOMMAND|MF_CHECKED);
-        if (gs_pPrj && gs_pPrj->bAccHistoryInfoVis)
+        if (gs_pPrj && gs_pPrj->m_bAccHistoryInfoVis)
           Menu.CheckMenuItem(IDM_ACC_HISTORYINFO, MF_BYCOMMAND|MF_CHECKED);
         
         //Menu.AppendMenu(MF_STRING, IDM_ACC_FINDTAG, s());
@@ -3507,7 +3507,7 @@ flag AccNodeWnd::CloseAccess()
   int Ret=IDNO;
   if (AnyFldsOrDataChanged())
     {
-    if (gs_pPrj && gs_pPrj->bAccAutoSaveOn)
+    if (gs_pPrj && gs_pPrj->m_bAccAutoSaveOn)
       {
       Ret=IDYES;
       }
@@ -4019,12 +4019,12 @@ void AccNodeWnd::OnAccOptions(UINT Id)
       break;
     case IDM_ACC_AUTOSAVE:
       if (gs_pPrj)
-        gs_pPrj->bAccAutoSaveOn=!gs_pPrj->bAccAutoSaveOn;
+        gs_pPrj->m_bAccAutoSaveOn=!gs_pPrj->m_bAccAutoSaveOn;
       //DoRebuild();
       break;
     case IDM_ACC_UPDATEONRUN:
       if (gs_pPrj)
-        gs_pPrj->bAccUpdateOnRun=!gs_pPrj->bAccUpdateOnRun;
+        gs_pPrj->m_bAccUpdateOnRun=!gs_pPrj->m_bAccUpdateOnRun;
       //DoRebuild();
       break;
     case IDM_ACC_CHANGETAG:
@@ -4080,7 +4080,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
       break;
     case IDM_ACC_HISTORYINFO:
       if (gs_pPrj)
-        gs_pPrj->bAccHistoryInfoVis=!gs_pPrj->bAccHistoryInfoVis;
+        gs_pPrj->m_bAccHistoryInfoVis=!gs_pPrj->m_bAccHistoryInfoVis;
       if (CloseAccessData(false, false, false))
         {
         ClearFlds(false);
@@ -5018,7 +5018,7 @@ flag AccNodeWnd::EO_Stop(CXM_TimeControl &CB)
 
 flag AccNodeWnd::EO_Starting(flag fBeginStarting)
   {
-  if (!fBeginStarting && !FxdEdtView::Changed() && gs_pPrj->bAccUpdateOnRun)
+  if (!fBeginStarting && !FxdEdtView::Changed() && gs_pPrj->m_bAccUpdateOnRun)
     {
     SendOrPostMessage(this, !gs_TheRunMngr.AutomationBusy(), WMU_ACCREFRESHCANCEL);
     COrdWindow::Refresh();
@@ -5031,7 +5031,7 @@ flag AccNodeWnd::EO_Starting(flag fBeginStarting)
 
 flag AccNodeWnd::EO_Stopping(flag fBeginStopping)
   {
-  if (!fBeginStopping && !FxdEdtView::Changed() && gs_pPrj->bAccUpdateOnRun)
+  if (!fBeginStopping && !FxdEdtView::Changed() && gs_pPrj->m_bAccUpdateOnRun)
     {
     SendOrPostMessage(this, !gs_TheRunMngr.AutomationBusy(), WMU_ACCREFRESHCANCEL);
     COrdWindow::Refresh();
@@ -5053,7 +5053,7 @@ void AccNodeWnd::EO_GlblResultValidity(flag IsValid, flag IsAlwaysValid)
 
 flag AccNodeWnd::EO_BeginPause(CXM_TimeControl &CB)
   {
-  if (!FxdEdtView::Changed() && gs_pPrj->bAccUpdateOnRun)
+  if (!FxdEdtView::Changed() && gs_pPrj->m_bAccUpdateOnRun)
     {
     SendMessage(WMU_ACCREFRESHCANCEL);
     COrdWindow::Refresh();

@@ -77,19 +77,19 @@ LPWSTR CScdCmdIF::pwszGetClassDesc()
 
 HRESULT CScdCmdIF::get_UpNAbout(VARIANT_BOOL * pVal)
   {
-  * pVal=Project::m_SysCADInited;
+  * pVal=Project::sm_SysCADInited;
 	return S_OK;//theApp.m_UpNAbout;
   }
 
 HRESULT CScdCmdIF::WaitUpNAbout(double TimeOut)
   {
   // Time out in Seconds
-  while (!Project::m_SysCADInited && (TimeOut>0))
+  while (!Project::sm_SysCADInited && (TimeOut>0))
     {
     ::Sleep(1000);
     TimeOut-=0.100;
     }
-  if (Project::m_SysCADInited)
+  if (Project::sm_SysCADInited)
     return S_OK;
   else
     return gs_ScdCmdIF.ReportError("WaitUpNAbout Timeout", 4);

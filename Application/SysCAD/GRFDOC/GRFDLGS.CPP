@@ -182,7 +182,7 @@ COLORREF CCreateFillDlg::FillColour()
 void CCreateFillDlg::OnBnClickedFillcolourbtn()
   {
   CColorDialog ColDlg(FillColour(), CC_RGBINIT | CC_SHOWHELP, this);
-  ColDlg.m_cc.lpCustColors = CustomColours;
+  ColDlg.m_cc.lpCustColors = gs_CustomColours;
   if (ColDlg.DoModal()==IDOK)
     {
     SetFillColour(ColDlg.GetColor());
@@ -488,7 +488,7 @@ COLORREF CCreateBarDlg::FillColour()
 void CCreateBarDlg::OnBnClickedFillcolourbtn()
   {
   CColorDialog ColDlg(FillColour(), CC_RGBINIT | CC_SHOWHELP, this);
-  ColDlg.m_cc.lpCustColors = CustomColours;
+  ColDlg.m_cc.lpCustColors = gs_CustomColours;
   if (ColDlg.DoModal()==IDOK)
     {
     SetFillColour(ColDlg.GetColor());
@@ -730,7 +730,7 @@ COLORREF CUpdateBarDlg::FillColour()
 void CUpdateBarDlg::OnBnClickedFillcolourbtn()
   {
   CColorDialog ColDlg(FillColour(), CC_RGBINIT | CC_SHOWHELP, this);
-  ColDlg.m_cc.lpCustColors = CustomColours;
+  ColDlg.m_cc.lpCustColors = gs_CustomColours;
   if (ColDlg.DoModal()==IDOK)
     {
     int i = m_BarList.GetCurSel();

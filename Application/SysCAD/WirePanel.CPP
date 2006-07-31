@@ -1201,7 +1201,7 @@ void CWirePanel::GetConnectInfo()
   {
   if (gs_pPrj==NULL)
     return;
-  if (gs_pPrj->pFlwLib==NULL)
+  if (gs_pPrj->m_pFlwLib==NULL)
     return;
 
   ClearConnectInfo();

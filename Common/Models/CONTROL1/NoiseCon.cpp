@@ -268,7 +268,7 @@ void CNoiseCon::BuildDataDefn(DataDefnBlk & DDB)
         if (CnvTxt.Len())
           DDB.TagComment(CnvTxt());
         }
-      DDB.Visibility(SHM_All, NT==NT_Gaus1 || NT==NT_Flat1 || NT==NT_Weibull1);
+      DDB.Visibility(NSHM_All, NT==NT_Gaus1 || NT==NT_Flat1 || NT==NT_Weibull1);
       if (NT==NT_Weibull1)
         DDB.Double("b",                "",          DC_,     "",      &(p->Noise.m_dStdDev),  this, isParm);
       else

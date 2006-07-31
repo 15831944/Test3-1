@@ -142,12 +142,12 @@ XID xidVDiam          = MdlBsXID(17004);
 
 void VE_Crane::BuildDataDefn(DataDefnBlk & DDB)
   {
-  //if (SolveDirectMethod())
+  //if (NetProbalMethod())
   //  {
   //  }
   //else if (SolveInlineMethod())
   //  {
-  //  //DDB.Visibility(SM_DynBoth|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
+  //  //DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
   //  DDB.Double ("Qm_RqdCapacity", "Qm_Capacity",  DC_Qm,   "kg/s",  &m_RqdQmCap,     this, isParm|NAN_OK, DDBNAN_NotSpecd);
   //  DDB.Double ("Qm_MinCapacity", "Qm_MinCap",    DC_Qm,   "kg/s",  &m_MinQmCap,     this, isParm);
   //  DDB.Double ("Qm_MaxCapacity", "Qm_MaxCap",    DC_Qm,   "kg/s",  xidQmMaxCapacity, this, isParm|NAN_OK, DDBNAN_NotSpecd);
@@ -612,7 +612,7 @@ void VE_CvKm::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Bool   ("",     "Cv_Eqn",   DC_     , "",     &fUSCvForm   ,this  ,isParm, DDB1);
   DDB.Double ("",     "Cv",    DC_     , "",     &Cv       ,this  ,isParm);
   DDB.Double (""  ,   "Km",    DC_     , "",     &Km       ,this  ,isParm);
-  DDB.Visibility(SHM_All, !fUSCvForm);
+  DDB.Visibility(NSHM_All, !fUSCvForm);
   DDB.Double (""  ,   "Area",  DC_     , "",     &Area     ,this  ,isParm);
   DDB.Visibility();
 
@@ -1017,7 +1017,7 @@ void VE_VarCv::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Bool   ("",     "Cv_Eqn",   DC_     , "",     &fUSCvForm   ,this  ,isParm, DDB1);
 
   DDB.Double (""  ,   "Km",    DC_     , "",     &Km       ,this  ,isParm);
-  DDB.Visibility(SHM_All, !fUSCvForm);
+  DDB.Visibility(NSHM_All, !fUSCvForm);
   DDB.Double (""  ,   "Area",  DC_     , "",     &Area     ,this  ,isParm);
   DDB.Visibility();
   DDB.Double (""  ,   "Cv",    DC_     , "",     &Cv       ,this  ,0);

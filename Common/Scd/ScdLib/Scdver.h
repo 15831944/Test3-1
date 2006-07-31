@@ -66,6 +66,8 @@
 #define WITHVISIODOC          0
 #define WITHIMPORTPDS         0
 #define WITHANALYSE           0
+#define WITHDRVMAN            0
+
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++ Used for changing SysCAD version numbers.           ++

@@ -156,7 +156,7 @@ void FFEvap::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.Text    ("");
   //  }
 
-  //DDB.Visibility(SM_DynBoth|HM_All);
+  //DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   //AddMdlClosed(DDB);
   //AddMdlNetworked(DDB);
   //DDB.Text    ("");
@@ -175,7 +175,7 @@ void FFEvap::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   DDB.Text    ("Tube Side (Liquor)");
   DDB.CheckBox("AllowEvap", "", DC_,     "",         &bAllowEvap,     this, isParm|SetOnChange);
-  DDB.Visibility(SM_Direct|HM_All, bAllowEvap);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, bAllowEvap);
   DDB.Double  ("TRiseRqd",  "", DC_dT,   "C",        &dTRiseRqd,      this, isParm);
   DDB.Double  ("MinPressOut", "MinPout", DC_P, "kPag", &dTubeMinPout, this, isParm);
   DDB.Visibility();
@@ -185,7 +185,7 @@ void FFEvap::BuildDataDefn(DataDefnBlk & DDB)
   //EHX.BuildDataDefn(DDB);
   DDB.Double  ("HeatLoss",  "", DC_Pwr,  "kW",       &dShellHeatLoss, this, isParm);
   DDB.Double  ("VapQmOut",  "", DC_Qm,   "kg/s",     &dQmVapVent,     this, isResult|InitHidden);
-  DDB.Visibility(SM_Direct|HM_All, !bShellVentConnected);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, !bShellVentConnected);
   DDB.CheckBox("VentExcessShellVap", "", DC_, "",    &bRemoveExcessVapour,this, isParm);
   DDB.Visibility();
   DDB.CheckBox("TrackSteamFd",       "", DC_, "",    &bTrackSteamStatus,  this, isParm);

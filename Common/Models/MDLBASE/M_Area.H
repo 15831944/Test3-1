@@ -253,7 +253,7 @@ class DllImportExport MN_Area : public MdlNode
     virtual void   PreDisConnect(int IONo);
     virtual flag   IsValidAuditNode()   { return true; };
 
-    virtual Z_States SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     //virtual flag   Set_Sizes();
     virtual void   StartSolution();
     virtual void   StartStep();

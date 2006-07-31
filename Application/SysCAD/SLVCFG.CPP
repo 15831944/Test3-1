@@ -949,7 +949,7 @@ CSolveOptnPage::CSolveOptnPage() : CCustomPropertyPage(CSolveOptnPage::IDD)
   {
 	//{{AFX_DATA_INIT(CSolveOptnPage)
 	m_Initialise=0;
-	m_StatePinned=gs_pPrj->Solver.fStatePinned;
+	m_StatePinned=gs_pPrj->m_Solver.m_fStatePinned;
 	m_IdleWhenDone=PBEqnCB().Cfg.fIdleWhenDone;
 	m_ResetHist = gs_Exec.RestartHstOnStart;
 	//}}AFX_DATA_INIT
@@ -1014,7 +1014,7 @@ void CSolveOptnPage::OnOK()
 
     gs_Exec.RestartHstOnStart=(m_ResetHist!=0);// ? eOOO_On:eOOO_Off);
     //gs_pPrj->Solver.fStateWnd=m_StateWnd;
-    gs_pPrj->Solver.fStatePinned=m_StatePinned;
+    gs_pPrj->m_Solver.m_fStatePinned=m_StatePinned;
     PBEqnCB().Cfg.fIdleWhenDone=m_IdleWhenDone;
     SetModified(FALSE);
     }

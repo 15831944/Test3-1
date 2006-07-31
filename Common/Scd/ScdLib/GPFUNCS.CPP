@@ -3537,7 +3537,6 @@ static flag  _UsePrevPrjAlias = false;
 static Strng _CfgName               ;
 static Strng _CfgFile               ;
 static Strng _CfgFiles              ;
-static Strng _CfgHome               ;
 static Strng _PrjName               ;
 static Strng _PrjFile               ;
 static Strng _PrjFiles              ;
@@ -3547,7 +3546,6 @@ static Strng _PrjIniFile            ;
 static Strng _PrevCfgName;
 static Strng _PrevCfgFile;
 static Strng _PrevCfgFiles;
-static Strng _PrevCfgHome;
 static Strng _PrevPrjName;
 static Strng _PrevPrjFile;
 static Strng _PrevPrjFiles;
@@ -4272,23 +4270,6 @@ bool RenameCfgDBFile(LPTSTR SDBCfg)
 
 //---------------------------------------------------------------------------
 
-char*  SetCfgHome(char* PD)
-  {
-  _PrevCfgHome=_CfgHome;
-  if (PD==NULL)
-    {
-    _CfgHome="";
-    return "";
-    }
-  _CfgHome=PD;
-  _CfgHome.FnCheckEndBSlash();
-  return _CfgHome();
-  };
-char*  CfgHome() { return _UsePrevCfgAlias ? _PrevCfgHome() : _CfgHome(); };
-char*  CfgHomeAlias() { return "$CfgHome\\"; };
-
-//---------------------------------------------------------------------------
-
 char*  SetPrjFiles(char* PD, char* PF)
   {
   _PrevPrjName            = _PrjName;
@@ -4345,7 +4326,6 @@ char * AF_FilesMasked(byte m)
     {
     case AF_PrjFiles:        return PrjFiles      ();
     case AF_CfgFiles:        return CfgFiles      ();
-    case AF_CfgHome:         return CfgHome       ();
     case AF_BaseCfgFiles:    return BaseCfgFiles  ();
     case AF_ProgFiles:       return ProgFiles     ();
     case AF_RmtCpyFiles:     return PrjRmtCpyFiles();
@@ -4361,7 +4341,6 @@ char * AF_FilesIndexed(int i)
     {
     case AF_PrjFiles:        return PrjFiles      ();
     case AF_CfgFiles:        return CfgFiles      ();
-    case AF_CfgHome:         return CfgHome       ();
     case AF_BaseCfgFiles:    return BaseCfgFiles  ();
     case AF_ProgFiles:       return ProgFiles     ();
     case AF_RmtCpyFiles:     return PrjRmtCpyFiles();
@@ -4377,7 +4356,6 @@ char * AF_AliasIndexed(int i)
     {
     case AF_PrjFiles:        return PrjFilesAlias      ();
     case AF_CfgFiles:        return CfgFilesAlias      ();
-    case AF_CfgHome:         return CfgHomeAlias       ();
     case AF_BaseCfgFiles:    return BaseCfgFilesAlias  ();
     case AF_ProgFiles:       return ProgFilesAlias     ();
     case AF_Elsewhere:       return "Elsewhere";
@@ -4487,7 +4465,6 @@ char* FnContract(Strng & Fn, char *pFn, flag Complete)
         //{AF_BackupFiles,    PrjBackupFiles(),     ""},//PrjBackupFilesAlias() },
         {AF_PrjFiles,       PrjFiles(),           PrjFilesAlias()       },
         //{AF_CfgFiles,       CfgFiles(),           CfgFilesAlias()       },
-        //{AF_CfgHome,        CfgHome() ,           CfgHomeAlias()        },
         //{AF_BaseCfgFiles,   BaseCfgFiles(),       BaseCfgFilesAlias()   },
         //{AF_ProgFiles,      ProgFiles(),          ProgFilesAlias()      },
         {0}
@@ -4578,7 +4555,6 @@ char* FnExpand(Strng & Fn, char * pFn)
         {AF_RmtCpyFiles,    PrjRmtCpyFilesAlias(),  PrjRmtCpyFiles()    },
         {AF_PrjFiles,       PrjFilesAliasOld(),     PrjFiles()          },
         {AF_CfgFiles,       CfgFilesAlias(),        CfgFiles()          },
-        {AF_CfgHome,        CfgHomeAlias(),         CfgHome()           },
         {AF_BaseCfgFiles,   BaseCfgFilesAlias(),    BaseCfgFiles()      },
         {AF_ProgFiles,      ProgFilesAlias(),       ProgFiles()         },
         {0}
@@ -5250,7 +5226,7 @@ int SelectFile(Strng &FilePath, char* Name1, char* Name2, char* Name3)
 
 //---------------------------------------------------------------------------
 
-flag FileExists(char * FileName, WIN32_FIND_DATA & fd)
+BOOL FileExists(char * FileName, WIN32_FIND_DATA & fd)
   {
   HANDLE H;
   if ((H=FindFirstFile(FileName, &fd))!=INVALID_HANDLE_VALUE)
@@ -5263,7 +5239,7 @@ flag FileExists(char * FileName, WIN32_FIND_DATA & fd)
 
 //---------------------------------------------------------------------------
 
-flag FileExists(char * FileName)
+BOOL FileExists(char * FileName)
   {
   WIN32_FIND_DATA fd;
   return FileExists(FileName, fd);
@@ -5271,7 +5247,7 @@ flag FileExists(char * FileName)
 
 //---------------------------------------------------------------------------
 
-flag CnmVersion()
+BOOL CnmVersion()
   {
 #if ALLOWCNMVERSION       
   Strng CnmVersionFile(TemporaryFiles());
@@ -5284,7 +5260,7 @@ flag CnmVersion()
 
 //---------------------------------------------------------------------------
 
-flag Copy_File(char* pFN, char* pDestDir)
+BOOL Copy_File(char* pFN, char* pDestDir)
   {
   Strng s(pDestDir), s1;
   s.FnCheckEndBSlash();
@@ -5295,10 +5271,21 @@ flag Copy_File(char* pFN, char* pDestDir)
 
 //---------------------------------------------------------------------------
 
-BOOL Move_FileEx(LPCTSTR lpExistingFileName, LPCTSTR lpNewFileName, DWORD dwFlags)
+BOOL Move_FileEx(LPCTSTR lpExistingFileName, LPCTSTR lpNewFileName, DWORD dwFlags, LPTSTR pMsgBuff, DWORD MsgBuffLen)
   {
   if (IsWinNT)
-    return ::MoveFileEx(lpExistingFileName, lpNewFileName, dwFlags);
+    {
+    BOOL Ret=::MoveFileEx(lpExistingFileName, lpNewFileName, dwFlags);
+    if (pMsgBuff)
+      {
+      FormatMessage( FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM, 
+                     NULL, 
+                     GetLastError(), 
+                     MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), 
+                     pMsgBuff, MsgBuffLen, NULL ); 
+      }
+    return Ret;
+    }
   BOOL bFailIfExists = (dwFlags & MOVEFILE_REPLACE_EXISTING) ? false : true;
   BOOL Ok = CopyFile(lpExistingFileName, lpNewFileName, (dwFlags & MOVEFILE_REPLACE_EXISTING) ? false : true);
   if (Ok)
@@ -5308,7 +5295,48 @@ BOOL Move_FileEx(LPCTSTR lpExistingFileName, LPCTSTR lpNewFileName, DWORD dwFlag
 
 //---------------------------------------------------------------------------
 
-flag ClearFolder(LPCTSTR DirName, bool DeleteIt)
+BOOL MoveCfgFile(Strng & From, LPTSTR To)
+  {
+  TCHAR ErrBuff[256];
+  if (!Move_FileEx(From(), To, MOVEFILE_COPY_ALLOWED/*|MOVEFILE_REPLACE_EXISTING*/|MOVEFILE_WRITE_THROUGH, ErrBuff, sizeof(ErrBuff))) 
+    {
+    Strng Msg;
+    Msg.Set("Move Configuration File Failed:\n\n%s", ErrBuff);
+    AfxMessageBox(Msg(), MB_ICONEXCLAMATION|MB_OK);
+    return false;
+    }
+
+  // Create a Moved Statement
+  From+=".Moved";
+  CProfINIFile MovedPF(From());
+  MovedPF.WrStr("MovedTo", "Folder", To);
+
+  From=To;
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
+void SwingCfgFileIfReqd(Strng & Fn)
+  {
+  if (!FileExists(Fn()))
+    {
+    // Has it Moved?
+    Strng sCfgFile(Fn);
+    sCfgFile+=".Moved";
+    CProfINIFile MovedPF(sCfgFile());
+    sCfgFile=MovedPF.RdStr("MovedTo", "Folder", "??????");
+    if (sCfgFile.Len()>0 && sCfgFile.XStrICmp("??????")!=0)
+      {
+      LogNote("SysCAD", 0, "Configuration file %s has been moved to %s", Fn(), sCfgFile()); 
+      Fn=sCfgFile; // Swing it
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+BOOL ClearFolder(LPCTSTR DirName, bool DeleteIt)
   {
   Strng D(DirName), T;
   D.FnCheckEndBSlash();
@@ -5443,7 +5471,7 @@ BOOL AddTextToClipboard(CWnd* pOwnerWnd, LPCTSTR buff, LPCTSTR Separator/*=NULL*
 
 //---------------------------------------------------------------------------
 
-flag FindDLLOrHlp(char * pFn, char * DllPath, Strng & Result)
+BOOL FindDLLOrHlp(char * pFn, char * DllPath, Strng & Result)
   {
   Strng T;//, P;
   T.FnDrivePath(ProgFiles());

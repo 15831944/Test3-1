@@ -90,8 +90,7 @@ class DllImportExport CTagDBase
   public:
     CTagDBRt      *pDB;
     long          m_nObjectsSaved;
-    static Strng   sOldFlwLibLocation;
-    DWORD          m_OpenOpts; 
+    DWORD         m_OpenOpts; 
 
   public:
     CTagDBase();

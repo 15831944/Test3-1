@@ -1013,7 +1013,7 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     DDB.Visibility();
     DDB.String("RunState",          "",    DC_,     "",      xidRCTRunState,  this, MultiLineStr|noFileAtAll);
     DDB.CheckBoxBtn("StdRefModel",  "",    DC_,     "",      &m_UseStdRefModel, this, isParm);
-    DDB.Visibility(SHM_All, sm_AllVars!=0);
+    DDB.Visibility(NSHM_All, sm_AllVars!=0);
     //DDB.Double("RefTemp",           "",    DC_T,    "C",     &m_RefTempK,     this, isParm);
     DDB.Double("UsrDefT",           "",    DC_T,    "C",     &m_UsrDefT,      this, isParm);
     DDB.Double("UsrDefP",           "",    DC_P,    "kPa",   &m_UsrDefP,      this, isParm);
@@ -1093,7 +1093,7 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     for (int i = 0; i< NSeq(); i++)
       DDB.Object(Seq[i], this, NULL/*Nm()*/, NULL, DDB_OptPage);
 
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     Strng Sym, Tag;
     DDB.Page(".RTs");
 //    if (PrjFileVerNo()<22)
@@ -1663,7 +1663,7 @@ flag CReactionBlock::Load(pchar pRCTName, flag KeepState)
   // Save the current values
   CXM_ObjectData CurrentData(0);
   if (KeepState)
-    GetDefinedData(Tag(), CurrentData.List, SHM_All|TABOpt_ForFile|TABOpt_AllInfo, NULL);
+    GetDefinedData(Tag(), CurrentData.List, NSHM_All|TABOpt_ForFile|TABOpt_AllInfo, NULL);
 
   MyTagsHaveChanged();
 
@@ -2781,7 +2781,7 @@ void CReactionBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
 void CReactionBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, DDBPages PageIs, dword UserInfo)
   {
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, fEnabled);
+  DDB.Visibility(NSHM_All, fEnabled);
 
   if (0 || PrjFileVerNo() < 22)
     {

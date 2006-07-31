@@ -730,8 +730,8 @@ BOOL CToolbarPage::OnInitDialog()
       }
     }
 
-  m_ToolTips = gs_pPrj->bToolTips;
-  m_FlyBys = gs_pPrj->bFlyBys;
+  m_ToolTips = gs_pPrj->m_bToolTips;
+  m_FlyBys = gs_pPrj->m_bFlyBys;
 
   CCustomPropertyPage::OnInitDialog();
 
@@ -757,8 +757,8 @@ void CToolbarPage::OnOK()
         w->ShowControlBar(pTB, m_TBs[i], FALSE);
         }
 
-      gs_pPrj->bToolTips = m_ToolTips;
-      gs_pPrj->bFlyBys = m_FlyBys;
+      gs_pPrj->m_bToolTips = m_ToolTips;
+      gs_pPrj->m_bFlyBys = m_FlyBys;
 
       w->UpdateToolBars();
       }
@@ -990,9 +990,9 @@ END_MESSAGE_MAP()
 
 BOOL CTrendsPage::OnInitDialog() 
   {
-  m_DefRecordIt = gs_pPrj->bDefaultRecordIt;
+  m_DefRecordIt = gs_pPrj->m_bDefaultRecordIt;
   m_Global = CTagVwDoc::TimeBaseGlobal();
-  m_Flash = gs_pPrj->bFlashTrend;
+  m_Flash = gs_pPrj->m_bFlashTrend;
 
 
   CCustomPropertyPage::OnInitDialog();
@@ -1021,10 +1021,10 @@ void CTrendsPage::OnOK()
   if (bDidInit)
     {
     UpdateData(True);
-    gs_pPrj->bDefaultRecordIt = m_DefRecordIt;
+    gs_pPrj->m_bDefaultRecordIt = m_DefRecordIt;
     if (CTagVwDoc::TimeBaseGlobal()!=m_Global)
       CTagVwDoc::DoSetTimeGlobal(m_Global);
-    gs_pPrj->bFlashTrend=m_Flash;
+    gs_pPrj->m_bFlashTrend=m_Flash;
     }
   }
 
@@ -1100,10 +1100,10 @@ BOOL COtherPage::OnInitDialog()
   {
   CCustomPropertyPage::OnInitDialog();
 
-  m_GrfDeferLoad   = gs_pPrj->bGrfDeferLoad;
-  m_GrfAutoLoad    = gs_pPrj->bGrfAutoLoad;
-  m_GrfUpdateAnnot = gs_pPrj->bGrfUpdateAnnot;
-  m_GrfAnimationOn = gs_pPrj->bGrfAnimationOn;
+  m_GrfDeferLoad   = gs_pPrj->m_bGrfDeferLoad;
+  m_GrfAutoLoad    = gs_pPrj->m_bGrfAutoLoad;
+  m_GrfUpdateAnnot = gs_pPrj->m_bGrfUpdateAnnot;
+  m_GrfAnimationOn = gs_pPrj->m_bGrfAnimationOn;
   bAllGrfLoaded    = gs_pPrj->AllGrfLoaded();
   m_RemovePrevRev  = gs_pPrj->m_bRemoveRevs;
 
@@ -1135,10 +1135,10 @@ void COtherPage::OnOK()
     UpdateData(True);
     if (bGrfChanged)
       {
-      gs_pPrj->bGrfDeferLoad = m_GrfDeferLoad;
-      gs_pPrj->bGrfAutoLoad = m_GrfAutoLoad;
-      gs_pPrj->bGrfUpdateAnnot = m_GrfUpdateAnnot;
-      gs_pPrj->bGrfAnimationOn = m_GrfAnimationOn;
+      gs_pPrj->m_bGrfDeferLoad = m_GrfDeferLoad;
+      gs_pPrj->m_bGrfAutoLoad = m_GrfAutoLoad;
+      gs_pPrj->m_bGrfUpdateAnnot = m_GrfUpdateAnnot;
+      gs_pPrj->m_bGrfAnimationOn = m_GrfAnimationOn;
       gs_pPrj->m_GrfBehaviour   = gs_WBCBValues[m_GrfBehaviourCB.GetCurSel()].m_Val; 
       gs_pPrj->m_TrndBehaviour  = gs_WBCBValues[m_TrndBehaviourCB.GetCurSel()].m_Val;
       }
@@ -1364,7 +1364,7 @@ IMPLEMENT_DYNCREATE(CColourPage, CCustomPropertyPage)
 CColourPage::CColourPage() : CCustomPropertyPage(CColourPage::IDD)
   {
   //{{AFX_DATA_INIT(CColourPage)
-	m_StatusOn = gs_pPrj->bShowStatusColours;
+	m_StatusOn = gs_pPrj->m_bShowStatusColours;
   m_ShowEditStatus = gs_pPrj->ShowEditStatus();
 	//}}AFX_DATA_INIT
   }       
@@ -1465,7 +1465,7 @@ void CColourPage::OnOK()
   if (bDidInit)
     {
     UpdateData(True);
-    gs_pPrj->bShowStatusColours = m_StatusOn;
+    gs_pPrj->m_bShowStatusColours = m_StatusOn;
     gs_pPrj->SetShowEditStatus(m_ShowEditStatus!=0);
 
     GrfHelper.iShowMdlStatusInActive  = m_PenStyle[ 16].GetCurSel();
@@ -1511,7 +1511,7 @@ void CColourPage::OnGrcolStatus(UINT nID)
   {
   const int N=nID - IDC_GRCOLSTATUS0;
   CColorDialog ColDlg(grl_get_win_color(GR_FIRSTSTATUSCOLOR+N), CC_RGBINIT | CC_SHOWHELP, this);
-  ColDlg.m_cc.lpCustColors = CustomColours;
+  ColDlg.m_cc.lpCustColors = gs_CustomColours;
   if (ColDlg.DoModal()==IDOK)
     {
     grl_set_win_color(GR_FIRSTSTATUSCOLOR+N, ColDlg.GetColor());
@@ -1524,7 +1524,7 @@ void CColourPage::OnGrcolStatus(UINT nID)
 void CColourPage::OnGrcolhighlite() 
   {
 	CColorDialog ColDlg(grl_get_win_color(GR_HIGHLIGHT), CC_RGBINIT | CC_SHOWHELP, this);
-  ColDlg.m_cc.lpCustColors = CustomColours;
+  ColDlg.m_cc.lpCustColors = gs_CustomColours;
   if (ColDlg.DoModal()==IDOK)
     {
     grl_set_win_color(GR_HIGHLIGHT, ColDlg.GetColor());
@@ -1538,7 +1538,7 @@ void CColourPage::OnGrcolhighlite()
 void CColourPage::OnGrcolother() 
   {
   CColorDialog ColDlg(grl_get_win_color(GR_OTHERGRAPHICS), CC_RGBINIT | CC_SHOWHELP, this);
-  ColDlg.m_cc.lpCustColors = CustomColours;
+  ColDlg.m_cc.lpCustColors = gs_CustomColours;
   if (ColDlg.DoModal()==IDOK)
     {
     grl_set_win_color(GR_OTHERGRAPHICS, ColDlg.GetColor());
@@ -1697,11 +1697,11 @@ END_MESSAGE_MAP()
 
 BOOL CSnapShotPage::OnInitDialog() 
   {
-  m_Prompt = gs_pPrj->eSSAction;
-  m_FixedName = gs_pPrj->sSSName();
-  m_Prefix = gs_pPrj->sSSPrefix();
-  m_Number = gs_pPrj->iSSNumber;
-  m_DoZip = gs_pPrj->bSSDoZip;
+  m_Prompt = gs_pPrj->m_eSSAction;
+  m_FixedName = gs_pPrj->m_sSSName();
+  m_Prefix = gs_pPrj->m_sSSPrefix();
+  m_Number = gs_pPrj->m_iSSNumber;
+  m_DoZip = gs_pPrj->m_bSSDoZip;
   CCustomPropertyPage::OnInitDialog();
   return TRUE;  // return TRUE unless you set the focus to a control
                 // EXCEPTION: OCX Property Pages should return FALSE
@@ -1714,11 +1714,11 @@ void CSnapShotPage::OnOK()
   if (bDidInit)
     {
     UpdateData(True);
-    gs_pPrj->eSSAction = (SnapShotActions)m_Prompt;
-    gs_pPrj->sSSName = (const char*)m_FixedName;
-    gs_pPrj->sSSPrefix = (const char*)m_Prefix;
-    gs_pPrj->iSSNumber = m_Number;
-    gs_pPrj->bSSDoZip = m_DoZip;
+    gs_pPrj->m_eSSAction = (SnapShotActions)m_Prompt;
+    gs_pPrj->m_sSSName = (const char*)m_FixedName;
+    gs_pPrj->m_sSSPrefix = (const char*)m_Prefix;
+    gs_pPrj->m_iSSNumber = m_Number;
+    gs_pPrj->m_bSSDoZip = m_DoZip;
     }
   }
 
@@ -2969,20 +2969,20 @@ void CReportsDlg::OnRemove()
 void CReportsDlg::OnOptions()
   {
   CReportOptionsDlg Dlg(this);
-  Dlg.m_ExcelLock = gs_pPrj->bRptExcelLock;
-  Dlg.m_ExcelUseCellName = gs_pPrj->bRptExcelCellName;
-  Dlg.m_ExcelMakeActive = gs_pPrj->bRptExcelMakeActive;
-  Dlg.m_ExcelSysCADActive = gs_pPrj->bRptExcelSysCADActive;
-  Dlg.m_ExcelUpdateLinks = gs_pPrj->bRptExcelUpdateLinks;
-  Dlg.m_ExcelSaveOnComplete = gs_pPrj->bRptExcelSaveOnComplete;
+  Dlg.m_ExcelLock = gs_pPrj->m_bRptExcelLock;
+  Dlg.m_ExcelUseCellName = gs_pPrj->m_bRptExcelCellName;
+  Dlg.m_ExcelMakeActive = gs_pPrj->m_bRptExcelMakeActive;
+  Dlg.m_ExcelSysCADActive = gs_pPrj->m_bRptExcelSysCADActive;
+  Dlg.m_ExcelUpdateLinks = gs_pPrj->m_bRptExcelUpdateLinks;
+  Dlg.m_ExcelSaveOnComplete = gs_pPrj->m_bRptExcelSaveOnComplete;
   if (Dlg.DoModal()==IDOK)
     {
-    gs_pPrj->bRptExcelLock = Dlg.m_ExcelLock;
-    gs_pPrj->bRptExcelCellName = Dlg.m_ExcelUseCellName;
-    gs_pPrj->bRptExcelMakeActive = Dlg.m_ExcelMakeActive;
-    gs_pPrj->bRptExcelSysCADActive = Dlg.m_ExcelSysCADActive;
-    gs_pPrj->bRptExcelUpdateLinks = Dlg.m_ExcelUpdateLinks;
-    gs_pPrj->bRptExcelSaveOnComplete = Dlg.m_ExcelSaveOnComplete;
+    gs_pPrj->m_bRptExcelLock = Dlg.m_ExcelLock;
+    gs_pPrj->m_bRptExcelCellName = Dlg.m_ExcelUseCellName;
+    gs_pPrj->m_bRptExcelMakeActive = Dlg.m_ExcelMakeActive;
+    gs_pPrj->m_bRptExcelSysCADActive = Dlg.m_ExcelSysCADActive;
+    gs_pPrj->m_bRptExcelUpdateLinks = Dlg.m_ExcelUpdateLinks;
+    gs_pPrj->m_bRptExcelSaveOnComplete = Dlg.m_ExcelSaveOnComplete;
     }
   }
 

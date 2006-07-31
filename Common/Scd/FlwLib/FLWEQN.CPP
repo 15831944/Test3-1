@@ -39,7 +39,7 @@ double MaxFracHgt[2]  = { 1.0,              1.0};// {0.98, 1.0};
 //
 //==========================================================================
 
-LPCTSTR FlwEqnTaskStr(eScdFlwEqnTasks Task)
+LPCTSTR dbgFlwEqnTaskStr(eScdFlwEqnTasks Task)
   {
   switch (Task)
     {
@@ -50,7 +50,7 @@ LPCTSTR FlwEqnTaskStr(eScdFlwEqnTasks Task)
     }
   };
 
-LPCTSTR FBModeStr(long Mode)
+LPCTSTR dbgFBModeStr(long Mode)
   {
   switch (Mode)//&~FBMode)
     {
@@ -62,20 +62,24 @@ LPCTSTR FBModeStr(long Mode)
     }
   };
 
-LPCTSTR FlowModeStr(long Mode)
+LPCTSTR dbgFlowModeStr(long Mode)
   {
   switch (Mode)///&~LFM_Propagate)
     {
-    case 0:                         return "           ";
-    case LFM_Full:                  return "LFM_Full   ";
-    case LFM_Xfer:                  return "LFM_Xfer   ";
-    case LFM_Linear:                return "LFM_Linear ";
-    case LFM_Simple:                return "LFM_Simple ";
-    case LFM_Full|LFM_Propagate:    return "LFM_Full*  ";
-    case LFM_Xfer|LFM_Propagate:    return "LFM_Xfer*  ";
-    case LFM_Linear|LFM_Propagate:  return "LFM_Linear*";
-    case LFM_Simple|LFM_Propagate:  return "LFM_Simple*";
-    default:                        return "LFM???     ";
+    case 0:                         return "             ";
+    case LFM_Full:                  return "LFM_Full     ";
+    case LFM_Xfer:                  return "LFM_Xfer     ";
+    case LFM_Linear:                return "LFM_Linear   ";
+    case LFM_Simple:                return "LFM_Simple   ";
+    case LFM_Full|LFM_Propagate:    return "LFM_Full-->  ";
+    case LFM_Xfer|LFM_Propagate:    return "LFM_Xfer-->  ";
+    case LFM_Linear|LFM_Propagate:  return "LFM_Linear-->";
+    case LFM_Simple|LFM_Propagate:  return "LFM_Simple-->";
+    case LFM_Full|LFM_Propagated:   return "-->LFM_Full  ";
+    case LFM_Xfer|LFM_Propagated:   return "-->LFM_Xfer  ";
+    case LFM_Linear|LFM_Propagated: return "-->LFM_Linear";
+    case LFM_Simple|LFM_Propagated: return "-->LFM_Simple";
+    default:                        return "LFM???       ";
     }
   };
 //==========================================================================
@@ -1008,6 +1012,8 @@ long CFlwEqnPtr::FlowMode()//bool MustHaveSrc)
 
 void CFlwEqnPtr::SetFlowMode(long Md)
   { 
+  if (m_FMSrc)
+    return m_FMSrc->SetFlowModeLcl(Md);
   m_FlowMode=Md; 
   };
 
@@ -2196,7 +2202,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
       }
     #if (dbgFlwEqns)
     if (dbgFlwEqnModes())
-      dbgpln("Eval %s %s %s", FlwEqnTaskStr(Task), FBModeStr(FlowMode()), pNd?pNd->FullObjTag():"");
+      dbgpln("Eval %s %s %s", dbgFlwEqnTaskStr(Task), dbgFBModeStr(FlowMode()), pNd?pNd->FullObjTag():"");
     #endif
     }
 
@@ -2634,9 +2640,9 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
         { TR_TFinal ,   "TFinal"},
       };
     DDB.Byte   ("TOut.Spec",         "",  DC_,    "",  &m_TRiseSpec,    m_pNd, isParm|SetOnChange, DDBTRiseSpec);
-    DDB.Visibility(SHM_All, m_TRiseSpec==TR_TChange);
+    DDB.Visibility(NSHM_All, m_TRiseSpec==TR_TChange);
     DDB.Double ("TOut.Rise",          "",  DC_dT,  "C", &m_TRiseRqd,     m_pNd, isParm);
-    DDB.Visibility(SHM_All, m_TRiseSpec==TR_TFinal);
+    DDB.Visibility(NSHM_All, m_TRiseSpec==TR_TFinal);
     DDB.Double ("TOut.Final",         "",  DC_T,   "C", &m_TFinalRqd,    m_pNd, isParm);
     DDB.Visibility();
     DDB.Text("");

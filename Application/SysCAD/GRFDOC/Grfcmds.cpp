@@ -23,7 +23,6 @@
 #include "ordwnd.h"
 #include "statswnd.h"
 #include "tknpars.h"
-#include "liccount.h"
 #include "sfe_base.h"
 #include "elnkwiring.h"
 #include "wirepanel.h"
@@ -33,7 +32,7 @@
 #include "neutralmdl.h"
 #include "bulktagchange.h"
 //#include "optoff.h"
-
+                        
 #ifdef _DEBUG
 #undef THIS_FILE
 static char BASED_CODE THIS_FILE[] = __FILE__;
@@ -665,7 +664,7 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
       case ID_GRF_SaveSymbols:
       case ID_GRF_CreateGroup:
       case ID_GRF_InsertGroup:
-        En = (gs_License.AllowFullLic() && !gs_LicenseCnt.Blocked());
+        En = (gs_License.AllowFullLic() /*&& !gs_LicenseCnt.xBlocked()*/);
         break;
       case ID_GRF_SaveDrawing:
       case ID_GRF_TagAnnot:
@@ -1194,8 +1193,8 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
     Menu.AppendMenu(MF_STRING, 105,  "Data Transfer ...");
     Menu.AppendMenu(MF_STRING, 101,  "Empty");
     Menu.AppendMenu(MF_STRING, 102,  "Zero Flows");
-    Menu.AppendMenu(MF_STRING|(TaggedObject::GlblDynamicMode()?0:MF_GRAYED), 103,  "Preset");
-    Menu.AppendMenu(MF_STRING/*|(TaggedObject::SolveDynamicMethod()?0:MF_GRAYED)*/, 119,  "Reset Stats");
+    Menu.AppendMenu(MF_STRING|(DefNetDynamicMode()?0:MF_GRAYED), 103,  "Preset");
+    Menu.AppendMenu(MF_STRING/*|(TaggedObject::NetDynamicMethod()?0:MF_GRAYED)*/, 119,  "Reset Stats");
     Menu.AppendMenu(MF_STRING|(DoWire?0:MF_GRAYED), 130,  "Wiring");
     AuditMenu.CreatePopupMenu();
     Menu.AppendMenu(MF_POPUP, (UINT)AuditMenu.m_hMenu, "Mass && Energy Audit");
@@ -1369,7 +1368,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
             break;
             }
           case MAT_Switch:
-            INCOMPLETECODE1("Should not get here");
+            INCOMPLETECODEMSG("Should not get here");
             break;
           }
         }
@@ -1429,16 +1428,16 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
     Tmp.Set(NearTag ? "Zero Flows '%s'" : "Zero All Flows", pTag);
     Menu.AppendMenu(MF_STRING, 102,  Tmp());
     Tmp.Set(NearTag ? "Preset '%s'" : "Preset All", pTag);
-    Menu.AppendMenu(MF_STRING|(TaggedObject::GlblDynamicMode() ? 0 : MF_GRAYED), 103,  Tmp());
+    Menu.AppendMenu(MF_STRING|(DefNetDynamicMode() ? 0 : MF_GRAYED), 103,  Tmp());
     Tmp.Set(NearTag ? "Reset Stats '%s'" : "Reset All Stats", pTag);
-    Menu.AppendMenu(MF_STRING/*|(TaggedObject::SolveDynamicMethod() ? 0 : MF_GRAYED)*/, 119,  Tmp());
+    Menu.AppendMenu(MF_STRING/*|(TaggedObject::NetDynamicMethod() ? 0 : MF_GRAYED)*/, 119,  Tmp());
     //Menu.AppendMenu(MF_STRING|(DoWire?0:MF_GRAYED), 130,  "Wiring");
     Menu.AppendMenu(MF_SEPARATOR, -1);
     }
 
   Menu.AppendMenu(MF_STRING, 105,  "Plant Model");
   Menu.AppendMenu(MF_STRING, 125,  "Plant Area");
-  if (TaggedObject::GlblProbalMode())
+  if (DefNetProbalMode())
     Menu.AppendMenu(MF_STRING, 106,  "ProBal Configuration");
   else
     Menu.AppendMenu(MF_STRING, 107,  "Dynamic Configuration");
@@ -2000,10 +1999,12 @@ void GrfCmdBlk::DoInsert()
               break;
             };
 
-            //if (!AllOK)
-            //  LogError(CB->ATag(), =0 "Model not found");
-            //}
-          
+          if (gs_License.NodeCountExceeded(1, eLic_MsgBox))
+            {
+            LogWarning("License", LF_DoAfxMsgBox|LF_Exclamation, "Maximum number of units (%d) exceeded", gs_License.MaxNodesAllowed());
+            AllOK=false;
+            }
+
           if (AllOK)
             {
             if (ChkTag)
@@ -2089,8 +2090,6 @@ void GrfCmdBlk::DoInsert()
     case EX_RESULTS :
       DumpErrors();
     case EX_ALLUNDONE :
-      if (bFlag3)
-        gs_LicenseCnt.CalcUnits();
       pGWnd->SetCursor();
       if (pMdlDlg)
         {
@@ -2201,9 +2200,6 @@ void GrfCmdBlk::DoChangeUnit()
               else
                 LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "%d models were not deleted.", DeletesFailedCnt);
               }
-            if (MdlDeletes)
-              gs_LicenseCnt.CalcUnits();
-
 
             ASymbol = pMdlDlg->m_SymbolName();
             TagBase = pMdlDlg->m_BaseTag;
@@ -2583,8 +2579,6 @@ void GrfCmdBlk::DoChangeUnit()
     case EX_RESULTS :
       DumpErrors();
     case EX_ALLUNDONE :
-      if (bFlag3)
-        gs_LicenseCnt.CalcUnits();
       pGWnd->SetCursor();
       if (pMdlDlg)
         {
@@ -3341,7 +3335,6 @@ bool GrfCmdBlk::DoInsertLink(CConnectBlk* CB)
   else
     {
     DoInsertLinkGrf(CB);
-    gs_LicenseCnt.CalcUnits();
     }
   pDsp->Close();
   return OK;
@@ -3992,7 +3985,6 @@ void GrfCmdBlk::DoConnect()
       if (CB)
         delete CB;
       gs_pCmd->SetDataBlk(NULL);
-      gs_LicenseCnt.CalcUnits();
       pGWnd->SetCursor();
       if (pLnkDlg)
         {
@@ -6042,7 +6034,7 @@ void GrfCmdBlk::PanAndSetCursor()
   CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
   DXF_ENTITY e = pEnt->EntityPtr();
 
-  if (gs_pPrj->bGrfPromptForZoom)
+  if (gs_pPrj->m_bGrfPromptForZoom)
     {
 
     C3_BOX_S Bounds;
@@ -6099,7 +6091,7 @@ void GrfCmdBlk::PanAndSetCursor()
     pWnd->Invalidate(True);
     }
 
-  if (gs_pPrj->bGrfMoveCursor)
+  if (gs_pPrj->m_bGrfMoveCursor)
     {
     Pt_3f world;
     world.X=DXF_INSERT_PT(e)[0];//xc;
@@ -6253,7 +6245,7 @@ void GrfCmdBlk::DoSelect()
       pGWnd->Dsp.Close();
       pGWnd->bDonePaint = 1;
       }
-    if (gs_pPrj->bGrfRegExpOn)
+    if (gs_pPrj->m_bGrfRegExpOn)
       {
       IRegExpPtr *pre= new IRegExpPtr("VBScript.RegExp");
       pDrw->SelectInsertsOnAttrCombo(NULL, a999, b999, pre);
@@ -6269,7 +6261,7 @@ void GrfCmdBlk::DoSelect()
       ActivateGWnd();
       Strng ss;
       CString DocTitle = pGWnd->GetDocument()->GetTitle();
-      if (gs_pPrj && (gs_pPrj->bGrfPromptForZoom || gs_pPrj->bGrfMoveCursor))
+      if (gs_pPrj && (gs_pPrj->m_bGrfPromptForZoom || gs_pPrj->m_bGrfMoveCursor))
         {
         PanAndSetCursor();
         }
@@ -6369,7 +6361,7 @@ void GrfCmdBlk::DoFind()
       pGWnd->Dsp.Close();
       pGWnd->bDonePaint = 1;
       }
-    IRegExpPtr *pRE=(gs_pPrj->bGrfRegExpOn) ? new IRegExpPtr("VBScript.RegExp") : NULL;
+    IRegExpPtr *pRE=(gs_pPrj->m_bGrfRegExpOn) ? new IRegExpPtr("VBScript.RegExp") : NULL;
     pDrw->SelectInsertsOnAttrCombo(NULL, a999, b999, pRE);
     //pDrw->SelectInsertsOnAttrCombo(NULL, a999, b999);
     if ((pDsp->Vp1)->FirstSelectedEntity())
@@ -6377,7 +6369,7 @@ void GrfCmdBlk::DoFind()
       gs_pCmd->SetRetCode(1);
       gs_pCmd->Print("Goto '%s' succeeded\n", b999[0]);
       ActivateGWnd();
-      if (gs_pPrj && (gs_pPrj->bGrfPromptForZoom || gs_pPrj->bGrfMoveCursor))
+      if (gs_pPrj && (gs_pPrj->m_bGrfPromptForZoom || gs_pPrj->m_bGrfMoveCursor))
         {
         PanAndSetCursor();
         }
@@ -6974,8 +6966,6 @@ void GrfCmdBlk::DoExplode()
     case EX_RESULTS :
       DumpErrors();
     case EX_ALLUNDONE :
-      if (bFlag3)
-        gs_LicenseCnt.CalcUnits();
       pDsp->Vp1->ClearAllEntity();
       RemoveToolbar();
       gs_pCmd->FreeDblClk();
@@ -7554,8 +7544,6 @@ void GrfCmdBlk::DoDelete()
         else
           LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "%d models were not deleted.", DeletesFailedCnt);
         }
-      if (MdlDeletes)
-        gs_LicenseCnt.CalcUnits();
       pDsp->Vp1->ClearAllEntity();
       break;
       }
@@ -7914,8 +7902,6 @@ void GrfCmdBlk::DoInsertGroup()
     case EX_RESULTS :
       DumpErrors();
     case EX_ALLUNDONE :
-      if (bFlag3)
-        gs_LicenseCnt.CalcUnits();
       pGWnd->SetCursor();
       if (pGroupDlg)
         {
@@ -10869,9 +10855,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
 int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag)
   {
   int err = -1;
-  if (gs_LicenseCnt.Blocked())
-    LogWarning("License", LF_DoAfxMsgBox|LF_Exclamation, "Maximum number of units (%d) exceeded", TaggedObject::GlblProbalMode() ? gs_License.ProbalUnitsAllowed() : gs_License.DynUnitsAllowed());
-  else
+  if (!gs_License.NodeCountExceeded(1, eLic_MsgBox))
     {
     if (strlen(Tag)>SCDPartTagLen-2)
       {
@@ -10884,8 +10868,6 @@ int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag)
       err = gs_pPrj->AddNodeModel(ModelTyp, SubClass, Tag);
       if (err)
         LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Model not inserted[%i]\n%s:%s", err, ModelTyp, Tag);
-      else
-        gs_LicenseCnt.CalcUnits();
       }
     }
   return err;
@@ -10996,8 +10978,6 @@ DXF_ENTITY GrfCmdBlk::AddLink(pchar Typ, pchar Tag,
   //       You have been warned!!!
   //===========================================================================
       }
-    else
-      gs_LicenseCnt.CalcUnits();
     }
   return newinsert;
   }
@@ -11016,10 +10996,7 @@ int GrfCmdBlk::AddLinkModel(char* Typ, char* Tag, char* SrcTag, char* SrcOut, ch
       LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Connection not Made:\n%s:%s\n%s.%s->%s.%s", Typ, Tag, SrcTag, SrcOut, DstTag, DstIn);
       }
     else
-      {
       OK = True;
-      gs_LicenseCnt.CalcUnits();
-      }
     }
   return OK;
   }
@@ -11123,7 +11100,7 @@ BOOL GrfCmdBlk::DoReadDocument(const char * pszPathName, FILE * pFile)
   if (p) * p = 0;
   strcat(TmpFn, ".DXF");
   DrawingFile=TmpFn;
-  if (gs_pPrj->bGrfDeferLoad && gs_pPrj->bDoingLoad)
+  if (gs_pPrj->m_bGrfDeferLoad && gs_pPrj->bDoingLoad)
     bGrfLoadDefered=1;
   else
     {
@@ -11164,7 +11141,7 @@ void GrfCmdBlk::Do3DImport()
     {
     Strng ClassId;
     CEvalOrderArray Info;
-    long iRet=gs_pPrj->pFlwLib->FE_GetEvalOrder(0, 1, 1, TV_AbsChg, Info);
+    long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalOrder(0, 1, 1, TV_AbsChg, Info);
     for (int t=0; t<Info.GetSize(); t++)
       {
       CEvalOrderItem &I=Info[t];

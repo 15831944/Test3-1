@@ -158,7 +158,7 @@ void CHXBlock1::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("HTC",           "", DC_HTC,  "kW/m^2.K", &m_dHTC,           this, isParm);
     DDB.Double("Area",          "", DC_Area, "m^2",      &m_dArea,          this, isParm);
 
-    DDB.Visibility(SM_DynBoth|HM_All, m_bLvlEffOn);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_bLvlEffOn);
     DDB.Byte("CrossSection",    "", DC_,     "",          &m_iXSect,        this, isParm|AffectsStruct, DDBXSect);
     DDB.Double ("MaxEffLvl",    "", DC_Frac, "%",         &m_dMxEffLvl,     this, isParm);
     DDB.Double ("MinEffLvl",    "", DC_Frac, "%",         &m_dMnEffLvl,     this, isParm);
@@ -171,14 +171,14 @@ void CHXBlock1::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Visibility();
     DDB.Double("U*A",           "", DC_UA,   "kW/K",     xidHXEffUA,        this, isResult);
     DDB.Double("LMTD",          "", DC_dT,   "C",        &m_dLMTD,          this, isResult);
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Double("TheoryDuty",    "", DC_Pwr,  "kW",       &m_dTheoryDuty,    this, isResult);
     DDB.Visibility();
     DDB.Double("Duty",          "", DC_Pwr,  "kW",       &m_dDuty,          this, isResult);
     DDB.Double("LMTDFact",      "", DC_Frac, "%",        &m_dLMTDFactor,    this, (m_iSolveMode==HXM_LMTD) ? isParm : isResult|0);
     DDB.Text("");
 
-    DDB.Visibility(SM_DynBoth|HM_All);
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     if (DDB.BeginStruct(this, "Structure", NULL, DDB_NoPage))
       {
       #if UseSteelStructure
@@ -187,7 +187,7 @@ void CHXBlock1::BuildDataDefn(DataDefnBlk & DDB)
       m_Structure.m_Mass = 0.0; //force to zero!
       DDB.Double("Mass",          "", DC_M,    "kg",       &m_Structure.m_Mass, this, 0);
       #endif
-      DDB.Visibility(SM_DynBoth|HM_All, m_Structure.m_Mass>1.0e-6);
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_Structure.m_Mass>1.0e-6);
       DDB.Double("Cp",            "", DC_CpMs,   "kJ/kg.C",  &m_Structure.m_Cp, this, isParm);
       DDB.Double("TempH",         "", DC_T,    "C",        &m_Structure.m_Th, this, isParm);
       DDB.Double("TempC",         "", DC_T,    "C",        &m_Structure.m_Tc, this, isParm);
@@ -1453,7 +1453,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
       CHXBlock::ClrCI(4);
 
     m_fPriIsHot = (m_Pri.Ti>m_Sec.Ti);
-    //if (SolveDirectMethod())
+    //if (NetProbalMethod())
     //  m_fPriIsHot = false;// CNM Hard Wired
     m_Pri.Sgn=(m_fPriIsHot ? -1 : 1);
     m_Sec.Sgn=-m_Pri.Sgn;
@@ -1659,7 +1659,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
   //m_Sec.fConnected=0;
   m_QmVent=m_pVent ? m_pVent->QMass() : 0.0;
   CHXBlock::SetCI(7, NetProbalMethod() && m_pVent && Valid(m_QmVentRqd) && (m_QmVent-m_QmVentRqd)<1.0e-9);
-  //CHXBlock::SetCI(7, SolveDirectMethod() && m_pVent && Valid(m_QmVentRqd) && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
+  //CHXBlock::SetCI(7, NetProbalMethod() && m_pVent && Valid(m_QmVentRqd) && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
   }
 
 //===========================================================================
@@ -1927,7 +1927,7 @@ void HeatXchg1::BuildDataDefn(DataDefnBlk & DDB)
 
   EHX.Add_OnOff(DDB);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   //DDB.CheckBoxBtn("Networked", "", DC_     , "",    &m_fDamped,     this, isParmStopped , DDBYesNo);
   DDB.Visibility();
@@ -2020,7 +2020,7 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
           if (!m_pPriSg)
             {
             m_pPriSg=new SpContainer(PrjFileVerNo()>= 46 ? PSrgTags[m_iPriSgMd] : "PriSg", this, TOA_Embedded);
-            if (!(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+            if (!(NetDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
               m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
             m_pPriSgPS=new CSpContPreset;//VLE(&m_HX.m_VLE);
             m_pPriSg->SetPreset(m_pPriSgPS, NULL);
@@ -2055,7 +2055,7 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
           if (!m_pSecSg)
             {
             m_pSecSg=new SpContainer(PrjFileVerNo()>= 46 ? SSrgTags[m_iSecSgMd] : "SecSg", this, TOA_Embedded);
-            if (!(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+            if (!(NetDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
               m_pSecVent=new SpConduit("SecVent", this, TOA_Embedded);
             m_pSecSgPS=new CSpContPreset;//VLE(&m_HX.m_VLE);
             m_pSecSg->SetPreset(m_pSecSgPS, NULL);
@@ -2099,7 +2099,7 @@ flag HeatXchg1::ValidateData(ValidateDataBlk & VDB)
   m_HX.m_bLvlEffOn=(m_iPriSgMd==HXSM_Shell || m_iSecSgMd==HXSM_Shell);
 
   SetContProps(m_iPriSgMd, m_pPriSg, PriIOMask);
-  if (m_iPriSgMd!=HXSM_NoSurge && !(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+  if (m_iPriSgMd!=HXSM_NoSurge && !(NetDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
     {
     if (!m_pPriVent)
       m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
@@ -2112,7 +2112,7 @@ flag HeatXchg1::ValidateData(ValidateDataBlk & VDB)
 
   SetContProps(m_iSecSgMd, m_pSecSg, SecIOMask);
 
-  if (m_iSecSgMd!=HXSM_NoSurge && !(SolveDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+  if (m_iSecSgMd!=HXSM_NoSurge && !(NetDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
     {
     if (!m_pSecVent)
       m_pSecVent=new SpConduit("SecVent", this, TOA_Embedded);
@@ -2211,7 +2211,7 @@ void HeatXchg1::StartSolution()
 static const IDMask PriMask=Id_2_Mask(ioidPIn)|Id_2_Mask(ioidPOut)|Id_2_Mask(ioidPVent);
 static const IDMask SecMask=Id_2_Mask(ioidSIn)|Id_2_Mask(ioidSOut)|Id_2_Mask(ioidSVent);
 
-Z_States HeatXchg1::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void HeatXchg1::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
   CSetDatumsData SDD[]=
     {
@@ -2220,7 +2220,7 @@ Z_States HeatXchg1::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Sr
       {0}
     };
 
-  return SetDatums_Node(Pass, SDD, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, SDD);
   };
 
 //--------------------------------------------------------------------------
@@ -2859,7 +2859,7 @@ void HeatXchg1::EvalIntegral(CNodeEvalIndex & NEI)
   int PriIsShell = (m_iPriSgMd==HXSM_Shell);
   int SecIsShell = (m_iSecSgMd==HXSM_Shell);
 
-  if (SolveDynamicMethod() &&
+  if (NetDynamicMethod() &&
       (PriIsShell || SecIsShell) &&
       (m_HX.m_iRqdOpMode==HX1_FullyCondensing))
     {
@@ -3003,7 +3003,7 @@ void HeatXchg1::ODEOperate(CODEDataBlock & ODB)
 void HeatXchg1::ConvergeStates(CConvergeStateBlk &CSB)
   {
   MdlNode::ConvergeStates(CSB);
-  ASSERT(SolveDynamicMethod());
+  ASSERT(NetDynamicMethod());
 
   if (m_HX.m_iRqdOpMode==HX1_FullyCondensing && !IntegralDone())
     {

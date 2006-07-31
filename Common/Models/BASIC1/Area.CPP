@@ -90,11 +90,11 @@ void CArea::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.Double ("Density",      "Rho",  DC_Rho,  "kg/m^3", xidRho,        this, isResult|noFile|noSnap);
   //DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
 
-  //DDB.Visibility(SHM_All);
+  //DDB.Visibility(NSHM_All);
   //DDB.Text  ("");
   //DDB.Double("P_Rqd",         "",    DC_P   , "kPag",   xidEnvPRqd,     this, isParm|NAN_OK);
 
-  //DDB.Visibility(SHM_All);
+  //DDB.Visibility(NSHM_All);
   //DDB.Double("T_Rqd",         "",    DC_T   , "C",      xidEnvTRqd,     this, isParm|NAN_OK);
 
   //BuildDataDefnElevation(DDB);

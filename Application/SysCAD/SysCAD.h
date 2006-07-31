@@ -176,6 +176,8 @@ class CSysCADApp : public CWinApp
     afx_msg void OnUpdateAppExit(CCmdUI* pCmdUI);
     afx_msg void OnProjectNew();
     afx_msg void OnUpdateProjectNew(CCmdUI* pCmdUI);
+    afx_msg void OnProjectEditSettings();
+    afx_msg void OnUpdateProjectEditSettings(CCmdUI* pCmdUI);
     //}}AFX_MSG
     afx_msg void OnLicense(UINT nID);
     afx_msg void OnUpdateLicense(CCmdUI* pCmdUI);

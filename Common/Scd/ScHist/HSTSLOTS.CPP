@@ -554,7 +554,7 @@ void CSlot::Cfg(pSlotCfgInfo pSCI, flag NewSlot)
 
 //---------------------------------------------------------------------------
 
-void CSlot::GetCfgInfo(SlotCfgInfo& SCI)
+void CSlot::GetCfg(SlotCfgInfo& SCI)
   {
   SCI.mTag = Data.sTag;
   SCI.mTyp = Data.VarTyp;

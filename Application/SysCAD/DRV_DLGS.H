@@ -5,6 +5,8 @@
 #ifndef  __DRV_DLGS_H
 #define  __DRV_DLGS_H
 
+#if WITHDRVMAN
+
 //------------------------------------------------------------------------
 
 _FWDDEF(CDriverSheet)
@@ -140,6 +142,7 @@ class CSlotsPage : public CPropertyPage
 extern CDriverSheet* pDrvSheet;   //pointer to driver tabbed dialog options box
 
 //------------------------------------------------------------------------
+#endif
 
 #endif
 

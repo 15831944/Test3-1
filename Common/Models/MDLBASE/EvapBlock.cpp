@@ -309,7 +309,7 @@ void CEvapBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, D
   if (pTag==NULL)
     pTag="Eval";
   DDEF_Flags Old=DDB.GetVisibility();
-  DDB.Visibility(SHM_All, m_fEnabled);
+  DDB.Visibility(NSHM_All, m_fEnabled);
 
   if (Enabled())//pHL)
     {

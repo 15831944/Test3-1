@@ -87,7 +87,7 @@ void Ejector::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("PProduct",        "P3",    DC_P,    "kPa",   &dP3,      this, isResult|0);
   DDB.Text("");
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text("");
   DDB.Double  ("MotiveNozzle",    "",      DC_L,    "mm", &daNzDiam,      this, isParm|SM_DynBoth);

@@ -187,7 +187,7 @@ void C4PortValve ::BuildDataDefn(DataDefnBlk & DDB)
 
   //DDB.Text   ("");
   //DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
-  //DDB.Visibility(SM_DynBoth|HM_All);
+  //DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   //DDB.Double  ("PressureEst",  "PEst",  DC_P,    "kPag",   xidPEstMean,    this, isResult|0);
   //DDB.Text   ("");
   BuildDataDefnElevation(DDB);
@@ -219,7 +219,7 @@ void C4PortValve ::BuildDataDefn(DataDefnBlk & DDB)
     {
     DDB.BeginStruct(this, "State");
     DDB.CheckBoxBtn("Enable", "", DC_,    "",   xidStateEnable,            this, isParm|SM_DynBoth);
-    DDB.Visibility(SHM_All, m_State.m_iMethod==Meth_OnOff);
+    DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_OnOff);
     DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
     DDB.Long  ("Off.Mode",    "", DC_,    "",   xidStateOffMode,           this, isParm|SM_DynBoth|SetOnChange, ModeList);
     DDB.Long  ("On.Mode",     "", DC_,    "",   xidStateOnMode,            this, isParm|SM_DynBoth|SetOnChange, ModeList);
@@ -239,17 +239,17 @@ void C4PortValve ::BuildDataDefn(DataDefnBlk & DDB)
     PosnMeth.Add(Meth_Profile, "Profile");
   DDB.Byte("Method", "", DC_,    "",   xidStateMethod,                   this, isParm|SM_DynBoth|SetOnChange, PosnMeth());
 
-  DDB.Visibility(SHM_All, m_State.m_iMethod==Meth_None);
+  DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_None);
   DDB.Long  ("Mode.Rqd",    "", DC_,    "",   xidValveModeRqd,           this, (m_State.m_iMethod==Meth_None?isParm:0)|SM_DynBoth|SetOnChange, ModeList);
   DDB.Long  ("Mode.Act",    "", DC_,    "",   xidValveModeAct,           this, SM_DynBoth, ModeList);
-  DDB.Visibility(SHM_All, m_State.m_iMethod!=Meth_None);
+  DDB.Visibility(NSHM_All, m_State.m_iMethod!=Meth_None);
   DDB.Double("Actual",      "", DC_Frac,  "%", xidStateActualPosn,       this, SM_DynBoth);
   DDB.Double("Reqd",        "", DC_Frac,  "%", xidStateReqdPosn,         this, isParm|SM_DynBoth|NAN_OK);
-  DDB.Visibility(SHM_All, m_State.m_iMethod==Meth_OnOff);
+  DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_OnOff);
   DDB.Long  ("Off.Mode",    "", DC_,    "",   xidStateOffMode,           this, isParm|SM_DynBoth|SetOnChange, ModeList);
   DDB.Long  ("On.Mode",     "", DC_,    "",   xidStateOnMode,            this, isParm|SM_DynBoth|SetOnChange, ModeList);
   DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
-  DDB.Visibility(SHM_All, m_State.m_iMethod==Meth_Profile);
+  DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_Profile);
 
   DDB.Long  ("Profile",     "", DC_,    "",   xidStateProfile,           this, isParm|SM_DynBoth|SetOnChange, ProfileList);
 
@@ -833,7 +833,7 @@ void C4PortValve::SetVlvMode(long Md, bool Immediate, double RqdPosn)
   bool UseRqdPosn=(RqdPosn!=-1.2345);
   if (Valid(RqdPosn) && UseRqdPosn)
     RqdPosn=Range(0.0, RqdPosn, 1.0);
-  if (i!=m_iVlvModeRqd || RqdPosn!=m_State.m_ReqdPosn)
+  if (i!=m_iVlvModeRqd || !Valid(m_State.m_ReqdPosn) || RqdPosn!=m_State.m_ReqdPosn)
     {
     m_iVlvModeRqd=i;
     //m_State.m_ReqdPosn=RqdPosn;
@@ -1133,9 +1133,9 @@ void C4PortValve ::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-Z_States C4PortValve ::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void C4PortValve ::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------

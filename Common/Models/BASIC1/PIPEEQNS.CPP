@@ -144,7 +144,7 @@ flag FE_Darcy::ValidateData(ValidateDataBlk & VDB)
 //  if (!PhDOK())
 //    return true;
 
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     return true;
 
   SetDiam(ValidateRange(VDB, "Diameter", 0.001, Diam()));
@@ -489,7 +489,7 @@ void FE_DPperQV::BuildDataDefn(DataDefnBlk & DDB)
 
 flag FE_DPperQV::ValidateData(ValidateDataBlk & VDB)
   {
-  if (SolveDirectMethod())
+  if (NetProbalMethod())
     return true;
 
   SetDiam(ValidateRange(VDB, "Diameter", 0.001, Diam()));

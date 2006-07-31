@@ -1026,7 +1026,7 @@ void COrdWnd::GetOrderInfo()
   {
   if (gs_pPrj==NULL)
     return;
-  if (gs_pPrj->pFlwLib==NULL)
+  if (gs_pPrj->m_pFlwLib==NULL)
     return;
   
   CloseInfo();
@@ -1057,7 +1057,7 @@ void COrdWnd::GetOrderInfo()
   //  case CS_MaxAbs: TV=TV_AbsChg;  NValueIds=(DoProc ? 1 : 1);  break;
   //  }
 
-  long iRet=gs_pPrj->pFlwLib->FE_GetEvalOrder(m_ShowProc.GetCheck()==0, 
+  long iRet=gs_pPrj->m_pFlwLib->FE_GetEvalOrder(m_ShowProc.GetCheck()==0, 
                                               m_FullDescI.GetCheck()!=0, 
                                               m_FullDescO.GetCheck()!=0, 
                                               m_eOTV, m_Info);

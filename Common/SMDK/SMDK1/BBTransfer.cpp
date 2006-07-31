@@ -78,7 +78,7 @@ void CBBTransfer::SetSubClass(pchar MdlName)
 void CBBTransfer::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
 
   DDB.Visibility();

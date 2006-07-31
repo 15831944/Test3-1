@@ -688,11 +688,11 @@ CSfeSrvrBase::~CSfeSrvrBase()
 
 //--------------------------------------------------------------------------
 
-flag CSfeSrvrBase::RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestModelInfoRec &Info, bool IgnoreSelFn)
+flag CSfeSrvrBase::RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestModelInfoRec &Info)
   {
   Info.Class="";
   Info.Desc="";
-  pTagObjClass p = TagObjClass::FindClassIndexed(pGroup, iNo, IgnoreSelFn);
+  pTagObjClass p = TagObjClass::FindClassIndexed(pGroup, iNo);
   if (p)
     {
     Info.Class=p->ClassId();
@@ -1098,6 +1098,390 @@ flag IsDLLOK(char *CfgName, char * DLL, char * DllPath, Strng & FullName, flag C
   }
 
 //===========================================================================
+//
+//
+//
+//===========================================================================
+
+class CNewCfgDlg : public CDialog
+  {
+  public:
+	  CNewCfgDlg(char* pCfgFile, CWnd* pParent = NULL);
+    //{{AFX_DATA(CNewCfgDlg)
+    enum { IDD = IDD_CFG_NEWDLG };
+    //}}AFX_DATA
+	  //{{AFX_VIRTUAL(CNewCfgDlg)
+	  protected:
+	  virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    virtual void OnOK();
+	  //}}AFX_VIRTUAL
+    Strng SrcCfgFile;
+  protected:
+    bool m_bOK;
+    bool bNewCfg;
+	  //{{AFX_MSG(CNewCfgDlg)
+    virtual BOOL OnInitDialog();
+    afx_msg void OnBrowse();
+    afx_msg void OnKillfocusCfg();
+    afx_msg void OnChangeName();
+    afx_msg void OnChangeFolder();
+    //}}AFX_MSG
+    afx_msg void OnUpdateOK(CCmdUI* pCmdUi);
+	  DECLARE_MESSAGE_MAP()
+  public:
+    afx_msg void OnStnClickedCfgCopyname();
+    afx_msg void OnEnChangeCfgName();
+    afx_msg void OnBnClickedInfilesfolder();
+    afx_msg void OnEnChangeCfgFilesfolder();
+    afx_msg void OnBnClickedForceeqlname();
+    BOOL m_bPrjEqlName;
+    CString m_sCfgName;
+    CString m_sCfgFolderName;
+    CString m_sRootFolder;
+    CString m_PrjSetName;
+    CString m_sSummary1;
+    CString m_sSummary2;
+    CString m_sSummary3;
+
+    CString m_sCfgFile;
+    CString m_sCfgFiles;
+    CString m_sDescription;
+
+    void ConstructPaths(bool Ld, bool Sv, bool StripHome=true);
+
+    afx_msg void OnEnKillfocusCfgPrjset();
+    afx_msg void OnEnKillfocusCfgFilesfolder();
+    afx_msg void OnEnChangeCfgPrjset();
+  };
+
+//---------------------------------------------------------------------------
+
+CNewCfgDlg::CNewCfgDlg(char* pCfgFile, CWnd* pParent /*=NULL*/)
+	: CDialog(CNewCfgDlg::IDD, pParent)
+  , m_sCfgName(_T("<ConfigName>"))
+  , m_sCfgFolderName(_T(DefCfgFolderName()))
+  , m_sSummary1(_T("???????"))
+  , m_sSummary2(_T("???????"))
+  , m_sSummary3(_T("???????"))
+  , m_PrjSetName(_T("<ProjectSet>"))
+  , m_sDescription(_T("<Description of Configuration>"))
+  , m_bPrjEqlName(false)
+  {
+
+  Strng BCfg(ProgFiles());
+  BCfg.FnClearEndBSlash();
+  //BCfg.FnDrivePath(BCfg());
+  //BCfg.FnClearEndBSlash();
+  BCfg.FnDrive();
+  BCfg.Upper();
+  BCfg+="\\SysCAD Projects";
+  
+  m_sRootFolder=ScdPFUser.RdStr("Folders", "NewCfgDlgRoot", BCfg());//StartupDirectory();
+
+  SrcCfgFile = pCfgFile;
+  bNewCfg = (pCfgFile==NULL || strlen(pCfgFile)==0) ? 1 : 0;
+  //{{AFX_DATA_INIT(CNewCfgDlg)
+	//}}AFX_DATA_INIT
+  Strng Test,TestCfg;
+  if (bNewCfg)
+    {
+    TestCfg = "NewCfg";
+    Test = StartupDirectory();
+    Test += TestCfg;
+    int i=1;
+    while (FileExists(Test()))
+      {
+      TestCfg.Set("NewCfg%i", i);
+      Test.Set("%sNewCfg%i", StartupDirectory(), i);
+      Test = StartupDirectory();
+      Test += TestCfg;
+      i++;
+      }
+	  //m_NewName = TestCfg();
+    }
+  else
+    {
+    Strng SrcCfgName,SrcCfgPath;
+    SrcCfgName.FnName(SrcCfgFile());
+    SrcCfgPath.FnDrivePath(SrcCfgFile());
+    SrcCfgPath.FnCheckEndBSlash();
+    TestCfg = "Copy of ";
+    TestCfg += SrcCfgName();
+    Test = SrcCfgPath();
+    Test += TestCfg;
+    Test += ".cfg";
+    int i=1;
+    while (FileExists(Test()))
+      {
+      TestCfg.Set("Copy%i of %s", i, SrcCfgName());
+      Test = SrcCfgPath();
+      Test += TestCfg;
+      Test += ".cfg";
+      i++;
+      }
+	  //m_NewName = TestCfg();
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::DoDataExchange(CDataExchange* pDX)
+  {
+  CDialog::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CNewCfgDlg)
+  //}}AFX_DATA_MAP
+  DDX_Text(pDX, IDC_CFG_NAME, m_sCfgName);
+  DDX_Text(pDX, IDC_CFG_FILESFOLDER, m_sCfgFolderName);
+  DDX_Text(pDX, IDC_CFG_ROOT, m_sRootFolder);
+  DDX_Text(pDX, IDC_SUMMARY2, m_sSummary2);
+  DDX_Text(pDX, IDC_SUMMARY3, m_sSummary3);
+  DDX_Text(pDX, IDC_CFG_PRJSET, m_PrjSetName);
+  DDX_Check(pDX, IDC_FORCEEQLNAME, m_bPrjEqlName);
+  DDX_Text(pDX, IDC_CFG_DESCRIP, m_sDescription);
+  }
+
+//---------------------------------------------------------------------------
+
+BEGIN_MESSAGE_MAP(CNewCfgDlg, CDialog)
+  //{{AFX_MSG_MAP(CNewCfgDlg)
+	ON_BN_CLICKED(IDC_CFG_BROWSE, OnBrowse)
+	ON_EN_KILLFOCUS(IDC_CFG_ROOT, OnKillfocusCfg)
+	ON_EN_KILLFOCUS(IDC_CFG_NAME, OnKillfocusCfg)
+	ON_EN_CHANGE(IDC_CFG_ROOT, OnChangeFolder)
+	ON_EN_CHANGE(IDC_CFG_NAME, OnChangeName)
+  ON_UPDATE_COMMAND_UI(IDOK, OnUpdateOK)
+  ON_UPDATE_COMMAND_UI(IDC_CFG_BROWSE, OnUpdateOK)
+  ON_STN_CLICKED(IDC_CFG_COPYNAME, OnStnClickedCfgCopyname)
+  ON_EN_CHANGE(IDC_CFG_NAME, OnEnChangeCfgName)
+  ON_EN_CHANGE(IDC_CFG_FILESFOLDER, OnEnChangeCfgFilesfolder)
+  ON_BN_CLICKED(IDC_FORCEEQLNAME, OnBnClickedForceeqlname)
+  ON_EN_KILLFOCUS(IDC_CFG_PRJSET, OnEnKillfocusCfgPrjset)
+  ON_EN_KILLFOCUS(IDC_CFG_FILESFOLDER, OnEnKillfocusCfgFilesfolder)
+  ON_EN_CHANGE(IDC_CFG_PRJSET, OnEnChangeCfgPrjset)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+//---------------------------------------------------------------------------
+
+BOOL CNewCfgDlg::OnInitDialog() 
+  {
+  CDialog::OnInitDialog();
+  Strng s;
+  if (bNewCfg)
+    s = "Create new configuration";
+  else
+    s.Set("Create copy of %s", SrcCfgFile());
+  SetDlgItemText(IDC_CFG_COPYNAME, s());
+  ConstructPaths(false, true);
+  UpdateDialogControls(this, FALSE);
+  return TRUE;
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::ConstructPaths(bool Ld, bool Sv, bool StripHome)
+  {
+  if (Ld)
+    UpdateData(TRUE);
+
+  m_sCfgName.TrimRight('\\');
+  m_sCfgFolderName.TrimRight('\\');
+  if (StripHome)
+    m_sRootFolder.TrimRight('\\');
+
+  if (m_bPrjEqlName)
+    m_PrjSetName=m_sCfgName;
+
+  m_sCfgFile.Format("%s\\%s\\%s\\%s.cfg", m_sRootFolder, m_PrjSetName, m_sCfgFolderName, m_sCfgName);
+
+  m_sCfgFiles.Format("%s\\%s\\%s", m_sRootFolder, m_PrjSetName, m_sCfgFolderName);
+
+  m_sSummary1="?????";
+  m_sSummary2=m_sCfgFile;
+  m_sSummary3=m_sCfgFiles;
+
+  GetDlgItem(IDC_CFG_PRJSET)->EnableWindow(!m_bPrjEqlName);
+    
+  m_bOK=m_sCfgName.GetLength()>0 && m_sCfgFolderName.GetLength()>0;
+
+  if (m_sRootFolder.GetLength()==0 || m_sRootFolder.FindOneOf("/*\"<>|")>=0)
+    m_bOK=false;
+  if (m_PrjSetName.GetLength()==0 || m_PrjSetName.FindOneOf("\\/:*?\"<>|")>=0)
+    m_bOK=false;
+  if (m_sCfgFolderName.GetLength()==0 || m_sCfgFolderName.FindOneOf("\\/:*?\"<>|")>=0)
+    m_bOK=false;
+  if (m_sCfgName.GetLength()==0 || m_sCfgName.FindOneOf("\\/:*?\"<>|")>=0)
+    m_bOK=false;
+  //if (m_sDescription.FindOneOf("\\/:*?\"<>|")>=0)
+  //  m_bOK=false;
+
+  if (Sv)
+    {
+    UpdateData(FALSE);
+    UpdateDialogControls(this, FALSE);
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::OnBrowse() 
+  {
+  UpdateData(TRUE);
+  const char* pFName = NULL;
+  CString FName;
+  Strng Tmp, FPath;
+
+  FPath = ScdPFUser.RdStr("Folders", "CfgSearchPath", m_sRootFolder);//*/StartupDirectory());
+  if (m_sRootFolder.GetLength()>0)
+    {
+    char Drv[_MAX_DRIVE];
+    char Dir[_MAX_DIR];
+    char Name[_MAX_FNAME];
+    char Ext[_MAX_EXT];
+    _splitpath((const char*)m_sRootFolder, Drv, Dir, Name, Ext);
+    FPath = Drv;
+    FPath += Dir;
+    FName = Name;
+    FName += Ext;
+    pFName = (const char*)FName;
+    }
+  BOOL Ok = TRUE;
+  Tmp = FPath();
+  Tmp.FnClearEndBSlash();
+  if (!FileExists(Tmp()))
+    {
+    Strng Msg;
+    Msg.Set("Create folder:\n%s", Tmp());
+    Ok = (AfxMessageBox(Msg(), MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)==IDYES);
+    if (Ok)
+      {
+      Strng E;
+      Ok = FnCreatePath(Tmp(), E);
+      if (!Ok)
+        LogWarning("SysCAD", 0, "Folder not created :\n%s\n%s", Tmp(), E());
+      }
+    }
+  
+  if (Ok)
+    {
+    USES_CONVERSION;
+    char Buff[MAX_PATH];
+    LPITEMIDLIST pidlSelected = NULL;
+    BROWSEINFO bi = {0};
+    LPMALLOC pMalloc = NULL;
+    LPITEMIDLIST pidlRoot=NULL;//SHSimpleIDListFromPath(A2CW("D:\\"/*FPath()*/));
+
+    SHGetMalloc(&pMalloc);
+
+    bi.hwndOwner = m_hWnd;
+    bi.pidlRoot = pidlRoot;
+    bi.pszDisplayName = Buff;
+    bi.lpszTitle = "Root Folder";
+    bi.ulFlags = BIF_DONTGOBELOWDOMAIN|BIF_EDITBOX|BIF_NEWDIALOGSTYLE;
+    bi.lpfn = NULL;
+    bi.lParam = 0;
+
+    pidlSelected = SHBrowseForFolder(&bi);
+
+    BOOL PathOK=pidlSelected  && SHGetPathFromIDList(pidlSelected, Buff);
+
+    if(pidlRoot)
+      pMalloc->Free(pidlRoot);
+    if(pidlSelected)
+      pMalloc->Free(pidlSelected);
+
+    pMalloc->Release();
+
+
+    if (PathOK)
+      m_sRootFolder = Buff;
+    }
+  ConstructPaths(false, true, true);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::OnKillfocusCfg() 
+  {
+  ConstructPaths(true, true);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::OnChangeName() 
+  {
+  ConstructPaths(true, true);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::OnChangeFolder() 
+  {
+  ConstructPaths(true, true, false);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewCfgDlg::OnUpdateOK(CCmdUI* pCmdUi)
+  {
+  pCmdUi->Enable(m_bOK);
+  }
+
+void CNewCfgDlg::OnStnClickedCfgCopyname()
+  {
+  // TODO: Add your control notification handler code here
+  }
+
+void CNewCfgDlg::OnEnChangeCfgName()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnBnClickedInfilesfolder()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnEnChangeCfgFilesfolder()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnBnClickedForceeqlname()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnEnKillfocusCfgPrjset()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnEnKillfocusCfgFilesfolder()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnEnChangeCfgPrjset()
+  {
+  ConstructPaths(true, true);
+  }
+
+void CNewCfgDlg::OnOK()
+  {
+  UpdateData(true);
+
+  ScdPFUser.WrStr("Folders", "NewCfgDlgRoot", m_sRootFolder);//StartupDirectory();
+
+  CDialog::OnOK();
+  };
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 CNewPrjDlg::CNewPrjDlg(char * PrjFile, BOOL ForNewPrj, BOOL ForEdit, DWORD LicCategory, CWnd* pParent /*=NULL*/)
   : CDialog(CNewPrjDlg::IDD, pParent)
@@ -1253,8 +1637,8 @@ BOOL CNewPrjDlg::OnInitDialog()
   m_MdlListC.SetColumnWidth(0, Col0Len);
   m_MdlListC.SetColumnWidth(1, Col1Len);
 
-//  CString ModelCfg = ScdPFUser.RdStr("NewPrjDlg", "RecentModelCfg", "");
-  Strng ModelCfg = ScdPFUser.RdStr("NewPrjDlg", "RecentModelCfg", "");
+//  CString ModelCfg = ScdPFUser.RdStr("NewPrjDlg", "LastCfgFile", "");
+  Strng ModelCfg = ScdPFUser.RdStr("NewPrjDlg", "LastCfgFile", "");
   if (ModelCfg.Length()==0)
     SelectItem(0);
   else
@@ -1405,7 +1789,7 @@ void CNewPrjDlg::OnOK()
       break;
     }
 
-  ScdPFUser.WrStr("NewPrjDlg", "RecentModelCfg", m_iModelCfg >=0 ? (const char*)m_FileArray[m_iModelCfg] : "");
+  ScdPFUser.WrStr("NewPrjDlg", "LastCfgFile", m_iModelCfg >=0 ? (const char*)m_FileArray[m_iModelCfg] : "");
   
   ScdPFUser.WrInt("NewPrjDlg", "Column0", m_MdlListC.GetColumnWidth(0));
   ScdPFUser.WrInt("NewPrjDlg", "Column1", m_MdlListC.GetColumnWidth(1));
@@ -1689,6 +2073,213 @@ void CNewPrjDlg::OnEditCfg()
         }
       }
     }
+  UpdateDialogControls(this, FALSE);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewPrjDlg::DoNewCfg(char* pSrcCfgFile)
+  {
+  CNewCfgDlg Dlg(pSrcCfgFile, this);
+  if (Dlg.DoModal()==IDOK)
+    {
+    Strng Msg;
+    Strng NewCfgFile=((char*)(const char*)Dlg.m_sCfgFile);
+    Strng NewCfgFiles=((char*)(const char*)Dlg.m_sCfgFiles);
+    Strng Desc=((char*)(const char*)Dlg.m_sDescription);
+    BOOL Ok = (NewCfgFile.Len()>0);
+    if (Ok)
+      {
+      NewCfgFile.FnCheckExtension("cfg");
+      NewCfgFile.FnSearchExpand();
+      if (FileExists(NewCfgFile()))
+        {
+        Msg.Set("Model configuration file allready exists!  Overwrite?\n\n%s", NewCfgFile());
+        Ok = (AfxMessageBox(Msg(), MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)==IDYES);
+        if (Ok)
+          DeleteFile(NewCfgFile());
+        }
+      }
+    if (Ok)
+      {
+      Strng DstFold;
+      DstFold.FnDrivePath(NewCfgFile());
+      DstFold.FnClearEndBSlash();
+      if (!FileExists(DstFold()))
+        {//create destination folder...
+        Strng E;
+        if (FnCreatePath(DstFold(), E))
+          LogNote("SysCAD", 0, "New folder created :\n%s", DstFold());
+        else
+          LogError("SysCAD", LF_Exclamation,
+                 "Folder not created :\n%s\n%s", DstFold(), E());
+        }
+
+      // Make Relative Names
+      Strng NewCfgFilePath(NewCfgFile);
+      NewCfgFilePath.FnDrivePath();
+      NewCfgFilePath.FnCheckEndBSlash();
+
+      Strng NewCfgFilesRel(NewCfgFiles);
+      NewCfgFilesRel.FnCheckEndBSlash();
+      NewCfgFilesRel.FnMakeFileRelative(NewCfgFilePath(), false);
+      FnContractPath(NewCfgFilesRel, NULL, NewCfgFilePath(), "$CfgFilePath\\", false);
+
+
+      if (pSrcCfgFile)
+        {//copy from existing cfg file...
+        if (FileExists(pSrcCfgFile))
+          {
+          ::CopyFile(pSrcCfgFile, NewCfgFile(), true);
+          CProfINIFile pf(NewCfgFile());
+          Strng NewDesc(pSrcCfgFile);
+          NewDesc.FnName();
+          NewDesc += " projects";
+          Msg = pf.RdStr("General", "Description", NewDesc());
+          NewDesc = "Copy of ";
+          NewDesc += Msg;
+          pf.SetProfFilename(NewCfgFile());
+          pf.WrStr("General", "Description", NewDesc());
+          pf.WrLong("General", "PrjFileVersion", PrjFileVerNo());
+          }
+        else
+          {
+          Msg.Set("Model configuration source file does not exist!\n\n%s", pSrcCfgFile);
+          AfxMessageBox(Msg(), MB_ICONSTOP);
+          Ok = false;
+          }
+        }
+      else
+        {
+        CProfINIFile pf(NewCfgFile());
+        pf.WrStr("General", "Description", "xxx");
+        if (!FileExists(NewCfgFile()))
+          {
+          Msg.Set("Unable to create model configuration file!\n\n%s", NewCfgFile());
+          AfxMessageBox(Msg(), MB_ICONSTOP);
+          Ok = false;
+          }
+        else
+          {
+          CModelInfo::MakeDefaultNewCfgFile(NewCfgFile(), NewCfgFilesRel(), Desc());
+          }
+        }   
+
+      if (!FileExists(NewCfgFiles()))
+        {
+        Strng E;
+        if (FnCreatePath(NewCfgFiles(), E))
+          LogNote("SysCAD", 0, "New folder created :\n%s", NewCfgFiles());
+        else
+          LogError("SysCAD", LF_Exclamation,
+                 "Folder not created :\n%s\n%s", NewCfgFiles(), E());
+        }
+
+      Strng DstCfgDB = NewCfgFiles();
+      DstCfgDB += "\\";
+      DstCfgDB += CfgDBFileName();
+      RenameCfgDBFile(DstCfgDB());
+      if (!FileExists(DstCfgDB()))
+        {//create (or copy) mdb database...
+        bool DoCreateMDB = true;
+        if (pSrcCfgFile)
+          {//try copy original specie mdb database
+          CProfINIFile OldCfg(pSrcCfgFile);
+          Strng OldCfgFiles = OldCfg.RdStr("General", "CfgFiles", "");
+          long OldCfgFilePrjFileVerNo=OldCfg.RdLong("General", "PrjFileVersion", -1);
+
+          if (OldCfgFiles())
+            {
+            Strng OldCfgFullPath;
+            OldCfgFullPath.FnDrivePath(pSrcCfgFile);
+            ::FnExpandPath(OldCfgFiles, NULL, OldCfgFullPath(), "$CfgFilePath\\");
+            }
+          else
+            {
+            OldCfgFiles.FnDrivePath(pSrcCfgFile);
+            OldCfgFiles.FnCheckEndBSlash();
+            OldCfgFiles+=DefCfgFolderName();
+            OldCfgFiles+="\\";
+            }
+
+          Strng SrcCfgDB;
+          SrcCfgDB = OldCfgFiles;
+          SrcCfgDB += CfgDBFileName();
+          RenameCfgDBFile(SrcCfgDB());
+          if (FileExists(SrcCfgDB()))
+            {
+            DoCreateMDB = false;
+            ::CopyFile(SrcCfgDB(), DstCfgDB(), true);
+            LogNote("SysCAD", 0, "Copy database from:\n%s", SrcCfgDB());
+            }
+          }
+        if (DoCreateMDB)
+          {
+          if (CSCDDatabase::DoSDBCreate(DstCfgDB()))
+            LogNote("SysCAD", 0, "Created database :\n%s", DstCfgDB());
+          else
+            LogError("SysCAD", LF_Exclamation, "Database not created :\n%s", DstCfgDB());
+          }
+        }
+      }
+    if (Ok)
+      {
+      if (TryAddUpdateCfg(NewCfgFile())>=0)
+        {
+        Strng DstFold,E;
+        if (!FileExists(NewCfgFiles()) && !FnCreatePath(NewCfgFiles(), E))
+          {
+          LogError("SysCAD", LF_Exclamation,"Folder not created :\n%s\n%s", NewCfgFiles(), E());
+          }
+        }
+
+      UpdateData(FALSE);
+
+      Strng Path;
+      for (int i=0; i<m_FileArray.GetSize(); i++)
+        {
+        if (NewCfgFile==m_FileArray[i])
+          {
+          LV_FINDINFO FindInfo;
+          FindInfo.flags=LVFI_PARAM;
+          FindInfo.lParam=i;
+          int Pos=m_MdlListC.FindItem(&FindInfo, -1);
+          SelectItem(Pos);
+          break;
+          }
+        }
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewPrjDlg::OnNewCfg() 
+  {
+  DoNewCfg(NULL);
+  UpdateDialogControls(this, FALSE);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNewPrjDlg::OnCopyCfg() 
+  {
+  int iCfg = m_MdlListC.GetNextItem(-1, LVNI_SELECTED);
+  Strng FileName;
+  if (iCfg!=LB_ERR)
+    {
+    CString File, Cfg;
+    Cfg = m_MdlListC.GetItemText(iCfg, 0);
+    File = m_MdlListC.GetItemText(iCfg, 1);
+    int jCfg = FindOrigIndex(Cfg, File);
+  
+    if (jCfg>=0 && m_ExistsArray[jCfg])
+      {
+      FileName = m_FileArray[jCfg];
+      }
+    }
+
+  DoNewCfg(FileName());
   UpdateDialogControls(this, FALSE);
   }
 
@@ -2169,479 +2760,93 @@ static void UpgradeDistribution(CProfINIFile &Cfg, Strng & CurTkn, CTokenFile &T
 
   }
 
-//---------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
-//flag CModelInfoUpgrade::UpgradeCfgFile(char * FileName, CUpGrdCompletion & UGC)
-//  {
-//  flag OK=true;
-//
-//  switch (CModelInfo::CfgInfoFmt(FileName))
-//    {
-//    case 0: break;
-//    case 1: return true;
-//    default: return false;
-//    }
-//
-//  Strng IniFileName(FileName);
-//  IniFileName+=".tmp";
-// 
-//  CProfINIFile Cfg(IniFileName());
-//  UGC.Add(UGC_Fail, UGC_Delete, IniFileName());   
-//
-//  // Reserve Space for main headers
-//  Cfg.WrStr("General",    "Description",  "");
-//  Cfg.WrStr("ModelDLLs",  "M0000",        "");
-//  Cfg.WrStr("HelpDLLs",   "H0000",        "");
-//  Cfg.WrStr("Species",    "S0000",        "");
-//  Cfg.WrStr("Selectable", "S0000",        "");
-//
-//  //Cfg.WrInt("SizeDistributions", "Distribution_Graphics", 1);
-//  //Cfg.WrInt("SizeDistributions", "Partition_Graphics", 1);
-//  //Cfg.WrInt("SizeDistributions", "Intervals_Ascending", 0);
-//
-//  Strng _Description(" ");
-//  Strng _CfgFiles(" ");
-//  Strng _CfgHome(" ");
-//  int _SearchDefaultSpecieDB=false;
-//#if WITH_H2O_FNS_ALWAYS
-//  int _UseStdFns4H2O=true;
-//#else
-//  int _UseStdFns4H2O=(OrigPrjFileVerNo()<27 ? 0 : 1);
-//#endif
-//#if WithMG
-//  if (MGOptions())
-//    _UseStdFns4H2O=false;
-//#endif
-//
-//  double _Std_Temp=Std_T;
-//  double _Std_Press=Std_P;
-//  double _Norm_Temp=Norm_T;
-//  double _Norm_Press=Norm_P;
-//  double _Minimum_Temp=C_2_K(0.0);
-//  double _Maximum_Temp=C_2_K(1000.0);
-//  double _Minimum_Press=50.0;
-//  double _Maximum_Press=350.0;
-//  Strng _Atmospheric_Press=" ";
-//  Strng _Flash_Component=" ";
-//  //Strng _SaturationP_Component=" ";
-//  Strng _Default_SpModel=" "; // "Mass WT Mean"
-//
-//  Strng_List _MdlDLLs;
-//  Strng_List _HelpDLLs;
-//  Strng_List _Species;
-//  //Strng_List _Species;
-//  Strng_List _Selectable;
-//  int SerNo=0;
-//  int DistNo=0;
-//
-//  CTokenFile Tkns(AF_All, FileName);
-//  Tkns.SetSeperators(": =,;{}\t\v\f");
-//  Tkns.SetWhiteSpace(" \t\v\f");
-//  Tkns.SetIgnoreComments(True);
-//  if (Tkns.Open())
-//    {
-//    Strng CurTkn=Tkns.NextToken();
-//    while (OK && !Tkns.AtEOF())
-//      {
-//      Strng What(CurTkn());
-//      CurTkn=Tkns.NextToken();
-//      if (CurTkn.XStrICmp(":")==0)
-//        CurTkn=Tkns.NextToken();
-//
-//      if (What.XStrICmp("Description")==0)
-//        {// Skip
-//        _Description=CurTkn();
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("CfgFiles")==0)
-//        {// Skip
-//        _CfgFiles=CurTkn();
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("CfgHome")==0)
-//        {// Skip
-//        _CfgHome=CurTkn();
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("ModelDLLs")==0)
-//        {
-//        //DllListSpecd=True;
-//        while (!Tkns.AtEOF())
-//          {
-//          if (CurTkn.XStrICmp("End")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            break;
-//            }
-//          else
-//            {
-//            Strng Name(CurTkn());
-//            Name.FnCheckExtension("dll");
-//            _MdlDLLs.Append(Name());
-//            CurTkn=Tkns.NextToken();
-//            }
-//          if (CurTkn.XStrICmp(",")==0)
-//            CurTkn=Tkns.NextToken();
-//          }
-//        }
-//      else if (What.XStrICmp("ModelHelpFiles")==0)
-//        {
-//        //DllListSpecd=True;
-//        while (!Tkns.AtEOF())
-//          {
-//          if (CurTkn.XStrICmp("End")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            break;
-//            }
-//          else
-//            {
-//            Strng Name(CurTkn());
-//            Name.FnCheckExtension("DLL");
-//            _HelpDLLs.Append(Name());
-//            CurTkn=Tkns.NextToken();
-//            }
-//          if (CurTkn.XStrICmp(",")==0)
-//            CurTkn=Tkns.NextToken();
-//          }
-//        }
-//      else if (What.XStrICmp("SearchDefaultSpecieDB")==0)
-//        {
-//        if (CurTkn.XStrICmp("=")==0)
-//          {
-//          CurTkn=Tkns.NextToken(); // Get On/Off
-//          _SearchDefaultSpecieDB=atol(CurTkn());
-//          CurTkn=Tkns.NextToken(); // Get Next
-//          }
-//        //else
-//        //  SearchDefSpecieDB=1;
-//        }
-//      else if (What.XStrICmp("Std_Temp")==0)
-//        {
-//        _Std_Temp=(SafeAtoF(CurTkn())+ZeroCinK);
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Std_Press")==0)
-//        {
-//        _Std_Press=(SafeAtoF(CurTkn()));
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Norm_Temp")==0)
-//        {
-//        _Norm_Temp=(SafeAtoF(CurTkn())+ZeroCinK);
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Norm_Press")==0)
-//        {
-//        _Norm_Press=(SafeAtoF(CurTkn()));
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Minimum_Temp")==0)
-//        {
-//        _Minimum_Temp=SafeAtoF(CurTkn())+ZeroCinK;
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Maximum_Temp")==0)
-//        {
-//        _Maximum_Temp=SafeAtoF(CurTkn())+ZeroCinK;
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Minimum_Press")==0)
-//        {
-//        _Minimum_Press=Max(50.0, SafeAtoF(CurTkn()));//+101.325;
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Maximum_Press")==0)
-//        {
-//        _Maximum_Press=Max(2*Std_P, SafeAtoF(CurTkn()));//+101.325;
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Atmospheric_Press")==0)
-//        {
-//        double C0=SafeAtoF(CurTkn());//+101.325;
-//        CurTkn=Tkns.NextToken();
-//        if (CurTkn.XStrICmp(",")==0)
-//          CurTkn=Tkns.NextToken();
-//        double C1=SafeAtoF(CurTkn());
-//        CurTkn=Tkns.NextToken();
-//        if (CurTkn.XStrICmp(",")==0)
-//          CurTkn=Tkns.NextToken();
-//        double C2=SafeAtoF(CurTkn());
-//        SetAtmosPress(C0, C1, C2);
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Flash_Component")==0)
-//        {
-//        _Flash_Component=CurTkn;
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Default_SpModel")==0)
-//        {
-//        _Default_SpModel=CurTkn();
-//        CurTkn=Tkns.NextToken();
-//        CheckSpMdlName(CurTkn);
-////        if (SpModelClass.FindClassId(CurTkn()))
-////          {
-////          SpModelOwner::DefaultModel=CurTkn;
-////          CurTkn=Tkns.NextToken();
-////          }
-////        else
-////          LogError("Sfe_Server", LF_Exclamation, "Unknown Specie Model %s", CurTkn());
-//        }
-//      else if (What.XStrICmp("Species")==0)
-//        {
-//        int SpNo=0;
-//        while (!Tkns.AtEOF())
-//          {
-//          if (CurTkn.XStrICmp("End")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            break;
-//            }
-//          else if (CurTkn.XStrICmp("Species")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            if (CurTkn.XStrICmp(":")==0)
-//              CurTkn=Tkns.NextToken(); // SkipEnd
-//            break;
-//            }
-//          else if (CurTkn.XStrICmp("Text")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            if (CurTkn.XStrICmp(":")==0)
-//              CurTkn=Tkns.NextToken(); // SkipEnd
-//            Strng S;
-//            S.Set("%i,",spl_Text);
-//            S+=CurTkn();
-//            _Species.Append(S());
-//            CurTkn=Tkns.NextToken();
-//            }
-//          else if (CurTkn.XStrICmp("Page")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            if (CurTkn.XStrICmp(":")==0)
-//              CurTkn=Tkns.NextToken(); // SkipEnd
-//            Strng S;
-//            S.Set("%i,",spl_Page);
-//            S+=CurTkn();
-//            _Species.Append(S());
-//            }
-//          else
-//            {
-//            Strng S;
-//            S.Set("%i,",spl_SpecieId);
-//            S+=CurTkn();
-//            _Species.Append(S());
-//            CurTkn=Tkns.NextToken();
-//            SpNo++;
-//            }
-//          if (CurTkn.XStrICmp(",")==0)
-//            CurTkn=Tkns.NextToken();
-//
-//          }
-//        }
-//      else if (What.XStrICmp("Selectable")==0)
-//        {
-//        while (!Tkns.AtEOF())
-//          {
-//          if (CurTkn.XStrICmp("End")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            break;
-//            }
-//          else if (CurTkn.XStrICmp("Selectable")==0)
-//            {
-//            CurTkn=Tkns.NextToken();
-//            if (CurTkn.XStrICmp(":")==0)
-//              CurTkn=Tkns.NextToken(); // Skip End
-//            break;
-//            }
-//          else
-//            {
-//            Strng Nm(CurTkn);
-//            CurTkn=Tkns.NextToken(); // Get =
-//            if (CurTkn.XStrICmp("=")==0)
-//              {
-//              CurTkn=Tkns.NextToken(); // Get On/Off
-//              flag On=atoi(CurTkn());
-//              CurTkn=Tkns.NextToken(); // Get Next
-//              Strng S(On ? "1," : "0,");
-//              S+=Nm();
-//              _Selectable.Append(S());
-//              CurTkn=Tkns.NextToken();
-//              }
-//
-//            if (CurTkn.XStrICmp(",")==0)
-//              CurTkn=Tkns.NextToken();
-//            }
-//          }
-//        }
-//      else if (What.XStrICmp("Solubility")==0)
-//        {
-//        /*
-//        Solubility:
-//          KCl in H2O  = Linear(2.54, -593.42),
-//          NaCl in H2O = Linear(-0.38, 415.82)
-//        becomes
-//          [Solubility]
-//          S0001=Kcl,H2O,Linear(2.54, -593.42)
-//          S0002=NaCl,H2O,Linear(-0.38, 415.82)
-//        */
-//        
-//        if (CurTkn.XStrICmp(":")==0)
-//          CurTkn=Tkns.NextToken();
-//        //
-//        for (int iSol=0;;iSol++)
-//          {
-//          // Specie Names allowed to have () in them
-//          Strng SpSolute(CurTkn);
-//          //Strng SpSoluteA(CurTkn);
-//          Strng SpSolvent(NextActualToken("in", CurTkn, Tkns));
-//
-//          Strng OldSeps(Tkns.GetSeperators());
-//          Strng NewSeps(OldSeps);
-//          NewSeps+="()";
-//          Tkns.SetSeperators(NewSeps()); 
-//          Strng FnName(NextActualToken("=", CurTkn, Tkns));
-//          //Prms[nParms++]=FnName();
-//          CSArray Params;
-//          Params.AddStrng(FnName());
-//  
-//          NextActualToken("(", CurTkn, Tkns);
-//          if (CurTkn!=")")
-//            {
-//            Params.AddStrng(CurTkn());
-//            CheckEqnParam(CurTkn, Tkns, Params[Params.GetUpperBound()]);
-//            while (ListContinues(CurTkn, Tkns))
-//              {
-//              Params.AddStrng(CurTkn());
-//              CheckEqnParam(CurTkn, Tkns, Params[Params.GetUpperBound()]);
-//              }
-//            }
-////          Strng Tmp,S;
-//          Strng S;
-//
-//          WRCFG4(Cfg, "Solubility", "S", iSol, "Solute", SpSolute());
-//          WRCFG4(Cfg, "Solubility", "S", iSol, "Solvent", SpSolvent());
-//
-//
-////          Tmp.Set("S%04i", iSol++);
-////          S.Set("%s,%s,%s(",SpSolute(),SpSolvent(),FnName());
-//          S=FnName();
-//          for (int i=1; i<Params.GetSize(); i++)
-//            {
-////            if (i>1)
-//            S+=",";
-//            S+=Params[i];
-//            }
-////          S+=")";
-////          Cfg.WrStr("Solubility", Tmp(), S());
-//          WRCFG4(Cfg, "Solubility", "S", iSol, "Function", S());
-//
-//          Tkns.SetSeperators(OldSeps()); 
-//          if (!ListContinues(CurTkn, Tkns))
-//            break;
-//          }
-//        }
-//      else if (What.XStrICmp("Size_Series")==0)
-//        UpgradeSeries(Cfg, CurTkn, Tkns, SerNo++);
-//      else if (What.XStrICmp("Tyler_Series")==0)
-//        UpgradeTyler(Cfg, CurTkn, Tkns, SerNo++);
-//      else if (What.XStrICmp("Distribution_Graphics")==0)
-//        {
-//        NextActualToken("=", CurTkn, Tkns);
-//        //Cfg.WrInt("SizeDistributions", "Distribution_Graphics", SafeAtoL(CurTkn()) ? 1:0); not used
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Partition_Graphics")==0)
-//        {
-//        NextActualToken("=", CurTkn, Tkns);
-//        //Cfg.WrInt("SizeDistributions", "Partition_Graphics", SafeAtoL(CurTkn()) ? 1:0); not used
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Intervals_Ascending")==0)
-//        {
-//        NextActualToken("=", CurTkn, Tkns);
-//        //Cfg.WrInt("SizeDistributions", "Intervals_Ascending", SafeAtoL(CurTkn()) ? 1:0); not used
-//        CurTkn=Tkns.NextToken();
-//        }
-//      else if (What.XStrICmp("Size_Distribution")==0)
-//        UpgradeDistribution(Cfg, CurTkn, Tkns, DistNo++);
-//      else
-//        {
-//        LogError("SysCAD", LF_Exclamation, "Unable to convert %s", What());
-//        OK=false;
-//        }
-//      }
-//    Tkns.Close();
-//    }
-//
-//#define NONNULL(a) (a==NULL ? "" : a)
-//
-//  Cfg.WrStr("General", "Description", NONNULL(_Description()));
-//  Cfg.WrStr("General", "CfgFiles", NONNULL(_CfgFiles()));
-//  Cfg.WrStr("General", "CfgHome", NONNULL(_CfgHome()));
-//  Cfg.WrInt("General", "SearchDefaultSpecieDB", _SearchDefaultSpecieDB);
-//  Cfg.WrInt("General", "UseStdFns4H2O", _UseStdFns4H2O);
-//  Cfg.WrInt("General", "PrjFileVersion", PrjFileVerNo());
-//
-//  Cfg.WrDouble("General", "Std_Temp", _Std_Temp);
-//  Cfg.WrDouble("General", "Std_Press", _Std_Press);
-//  Cfg.WrDouble("General", "Norm_Temp", _Norm_Temp);
-//  Cfg.WrDouble("General", "Norm_Press", _Norm_Press);
-//  Cfg.WrDouble("General", "Minimum_Temp", _Minimum_Temp);
-//  Cfg.WrDouble("General", "Maximum_Temp", _Maximum_Temp);
-//  Cfg.WrDouble("General", "Minimum_Press", _Minimum_Press);
-//  Cfg.WrDouble("General", "Maximum_Press", _Maximum_Press);
-//  Cfg.WrStr("General", "Atmospheric_Press", NONNULL(_Atmospheric_Press()));
-//  Cfg.WrStr("General", "Flash_Component", NONNULL(_Flash_Component()));
-////  Cfg.WrStr("General", "SaturationP_Component", NONNULL(_SaturationP_Component()));
-//  Cfg.WrStr("General", "Default_SpModel", NONNULL(_Default_SpModel()));
-//  //for (int i=0; i<_Species.Length()
-//  Strng Tmp, *pS;
-//  pS=_Species.First();
-//  int i=0;
-//  while (pS)
-//    {
-//    Tmp.Set("S%04i", i++);
-//    Cfg.WrStr("Species", Tmp(), pS->Str());
-//    pS=pS->Next();
-//    }
-//  pS=_MdlDLLs.First();
-//  i=0;
-//  while (pS)
-//    {
-//    Tmp.Set("M%04i", i++);
-//    Cfg.WrStr("ModelDLLs", Tmp(), pS->Str());
-//    pS=pS->Next();
-//    }
-//  pS=_HelpDLLs.First();
-//  i=0;
-//  while (pS)
-//    {
-//    Tmp.Set("H%04i", i++);
-//    Cfg.WrStr("HelpDLLs", Tmp(), pS->Str());
-//    pS=pS->Next();
-//    }
-//  //Strng Tmp, *pS;
-//  pS=_Selectable.First();
-//  i=0;
-//  while (pS)
-//    {
-//    Tmp.Set("S%04i", i++);
-//    Cfg.WrStr("Selectable", Tmp(), pS->Str());
-//    pS=pS->Next();
-//    }
-//
-//  if (OK)
-//    {
-//    UGC.Add(UGC_Success, UGC_MoveOld, FileName);
-//    UGC.Add(UGC_Success, UGC_Move, IniFileName(), FileName); 
-//    }
-//     
-//  return OK;
-//  }
-//
+bool CModelInfo::GetCfgFileLocation(CProfINIFile & Cfg)
+  {
+  Strng CfgPath, CfgDrive, CfgFullPath, CfgName;
+  CfgPath.FnDir(m_sCfgFile());
+  CfgDrive.FnDrive(m_sCfgFile());
+  CfgFullPath.FnDrivePath(m_sCfgFile());
+  CfgName.FnNameExt(m_sCfgFile());
+
+  m_sCfgFiles=CfgFullPath;
+  m_sCfgFiles.FnCheckEndBSlash();
+
+  // Test For SysCAD.MDB This must now exist alongside CfgFile
+  Strng ScdMDB, NewCfg;
+  ScdMDB.Set("%s%s", m_sCfgFiles(), CfgDBFileName());
+  if (!FileExists(ScdMDB()))
+    {
+    Strng Msg;
+    ScdMDB.Set("%s%s\\%s", m_sCfgFiles(), DefCfgFolderName(), CfgDBFileName());
+    if (FileExists(ScdMDB()))
+      {
+      NewCfg.FnDrivePath(ScdMDB());
+      NewCfg.FnCheckEndBSlash();
+      NewCfg+=CfgName();
+      Msg.Set("Configuration File & Specie DB File must be in the same Folder:\n\n"
+        "Specie DB File found in folder below Configuration File:\n\n%s\n%s\n\n"
+        "Move the Configuration file ?", m_sCfgFile(), ScdMDB());
+      }
+    else
+      {
+      Msg.Set("Configuration File & Specie DB File must be in the same Folder:\n\n"
+        "Configuration File found in folder:\n\n%s\n\n"
+        "Browse for SpecieDB File ?", m_sCfgFile());
+      if (AfxMessageBox(Msg(), MB_ICONEXCLAMATION|MB_YESNO)==IDNO)
+        return false;
+      // Browse ???
+
+      Strng InitDir(m_sCfgFiles());
+     
+      CSCDFileDialog Dlg(true, NULL, "SysCAD.MDB", 
+        OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, 
+        "SysCAD Specie Databases(*.mdb)|*.mdb||", AfxGetMainWnd());
+      Dlg.m_ofn.lpstrInitialDir = InitDir();
+      Dlg.m_ofn.lpstrTitle = "Browse for Specie Database";
+      if (Dlg.DoModal()==IDOK)
+        {
+        ScdMDB=Dlg.GetPathName();
+        //ScdMDB.Set("%s%s\\%s", m_sCfgFiles(), DefCfgFolderName(), CfgDBFileName());
+        if (FileExists(ScdMDB()))
+          {
+          NewCfg.FnDrivePath(ScdMDB());
+          NewCfg.FnCheckEndBSlash();
+          NewCfg+=CfgName();
+          Msg.Set("Configuration File & Specie DB File must be in the same Folder:\n\n"
+            "Specie DB File found in folder:\n\n%s\n%s\n\n"
+            "Move the Configuration file ?", m_sCfgFile(), ScdMDB());
+          }
+        else
+          return false;
+        }
+      else
+        return false;
+      }
+
+    if (AfxMessageBox(Msg(), MB_ICONEXCLAMATION|MB_YESNO)==IDNO)
+      return false;
+ 
+    if (!MoveCfgFile(m_sCfgFile, NewCfg()))
+      return false;
+
+    m_sName.FnName(m_sCfgFile());
+
+    Cfg.SetProfFilename(m_sCfgFile());
+
+    CfgPath.FnDir(m_sCfgFile());
+    CfgDrive.FnDrive(m_sCfgFile());
+    CfgFullPath.FnDrivePath(m_sCfgFile());
+    CfgName.FnNameExt(m_sCfgFile());
+    }
+
+  m_sCfgFiles=CfgFullPath;
+  m_sCfgFiles.FnCheckEndBSlash();
+
+  return true;  
+  }
+
 //---------------------------------------------------------------------------
 // return 0 - file missing
 //        1 - file format bad 
@@ -2652,9 +2857,6 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
   {
   if (!FileExists(FileName))
     return 0;
-
-  //if (PrjFileFormat()==0)//if (IsCfgInfoOld(FileName))
-  //  return GetCfgInfoOld(FileName, Whinge);
 
   switch (CfgInfoFmt(FileName))
     {
@@ -2676,107 +2878,24 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
   m_sDesc="";
   m_sDLLList="";
   m_sCfgFiles="";
-  m_sCfgHome="";
 
   CSArray DLLs;
 
-  Strng Fn = FileName;
+  //Strng Fn = FileName;
   
-  Strng FnFull;
+  m_sCfgFile.FnSearchExpand(FileName, AF_All|AF_BackupFiles);//, &Where);
 
-  //byte Where;
-  FnFull.FnSearchExpand(Fn(), AF_All|AF_BackupFiles);//, &Where);
-  Fn.FnContract();
-
-  CProfINIFile Cfg(FnFull());
+  CProfINIFile Cfg(m_sCfgFile());
 
   flag DLLListOK=false;
   flag DllListSpecd=false;
 
-  Strng CfgPath, CfgDrive, CfgFullPath, CfgName;
-  CfgPath.FnDir(FileName);
-  CfgDrive.FnDrive(FileName);
-  CfgFullPath.FnDrivePath(FileName);
-  CfgName.FnNameExt(FileName);
 
   m_sDesc=Cfg.RdStr("General", "Description", "");
-  m_sCfgFiles=Cfg.RdStr("General", "CfgFiles", "");
   long CfgFilePrjFileVerNo=Cfg.RdLong("General", "PrjFileVersion", -1);
 
-  if (m_sCfgFiles())
-    {
-    if (CfgFilePrjFileVerNo>=70)
-      {
-      ::FnExpandPath(m_sCfgFiles, NULL, CfgFullPath(), "$CfgFilePath\\");
-      }
-    else
-      {
-      Strng T;
-      Strng Path, Drive;
-      Path.FnDir(m_sCfgFiles());
-      if (Path==".\\")
-        Path=CfgPath();
-      Drive.FnDrive(m_sCfgFiles());
-      m_sCfgFiles.FnNameExt();
-      T=(Drive() ? Drive() : CfgDrive());
-      T+=(Path() ? Path() : CfgPath());
-      if (m_sCfgFiles())
-        T+=m_sCfgFiles();
-      m_sCfgFiles=T;
-      m_sCfgFiles.FnCheckEndBSlash();
-      }
-    }
-  else
-    {
-    m_sCfgFiles=CfgFullPath;
-    m_sCfgFiles.FnCheckEndBSlash();
-    //rather than check for cfgfiles in path, perhaps test if specie mdb is in this folder...?
-    if (m_sCfgFiles.FindI("CfgFiles")<0)
-      m_sCfgFiles+="CfgFiles\\";
-    }
-
-  m_sCfgHome=Cfg.RdStr("General", "CfgHome", "");
-  if (m_sCfgHome())
-    {
-    if (CfgFilePrjFileVerNo>=70)
-      {
-      ::FnExpandPath(m_sCfgHome, NULL, CfgFullPath(), "$CfgFilePath\\");
-      }
-    else
-      {
-      Strng T;
-      Strng Path, Drive;
-      Path.FnDir(m_sCfgHome());
-      if (Path==".\\")
-        Path=CfgPath();
-      Drive.FnDrive(m_sCfgHome());
-      m_sCfgHome.FnNameExt();
-      T=(Drive() ? Drive() : CfgDrive());
-      T+=(Path() ? Path() : CfgPath());
-      if (m_sCfgHome())
-        T+=m_sCfgHome();
-      m_sCfgHome=T;
-      m_sCfgHome.FnCheckEndBSlash();
-      }
-    }
-  else
-    {
-    m_sCfgHome=CfgFullPath;
-    m_sCfgHome.FnCheckEndBSlash();
-    };
-
-  if (_stricmp(m_sCfgFiles(), m_sCfgHome())==0)
-    {//change the CfgHome to one folder back...
-    m_sCfgHome[m_sCfgHome.Len()-1]=' ';
-    const int j = m_sCfgHome.ReverseFind('\\');
-    if (j>=0)
-      {
-      m_sCfgHome = m_sCfgHome.Left(j);
-      m_sCfgHome.FnCheckEndBSlash();
-      }
-    else
-      m_sCfgHome[m_sCfgHome.Len()-1] = '\\';
-    }
+  if (!GetCfgFileLocation(Cfg))
+    return 0;
 
   //get list of model DLLs...
   Strng DllName;
@@ -2831,8 +2950,6 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
       break;
     }*/
 
-  FixCfgHome();
-
   if (DLLs.GetSize())
     {
     DLLListOK=True;
@@ -2861,157 +2978,6 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
   
   return DLLListOK ? 3 : 2;
   }
-
-//---------------------------------------------------------------------------
-
-//byte CModelInfo::GetCfgInfoOld(char * FileName, flag Whinge)//, flag WhingeLoudly)
-//  {
-//  if (!FileExists(FileName))
-//    return 0;
-//
-//  switch (CfgInfoFmt(FileName))
-//    {
-//    case 1:
-//      {
-//      LogError("SysCAD", 0, "Bad config file format '%s'", FileName);
-//      return 1;
-//      }
-//    case 0: 
-//      break;
-//    default:
-//      return 1;
-//    }
-//
-//  m_sCfgFile=FileName;
-//  m_sName.FnName(FileName);
-//
-//  flag OK=false;
-//  m_sDesc="";
-//  m_sDLLList="";
-//  m_sCfgFiles="";
-//  m_sCfgFolder=CfgFolderName();
-//
-//  CSArray DLLs;
-//
-//  CTokenFile Tkns(AF_All|AF_BackupFiles, FileName);
-//  Tkns.SetSeperators(": =,;\t\v\f");
-//  Tkns.SetWhiteSpace(" \t\v\f");
-//  Tkns.SetIgnoreComments(True);
-//  flag DLLListOK=false;
-//  flag DllListSpecd=false;
-//
-//  Strng CfgPath, CfgDrive, CfgFullPath, CfgName;
-//  CfgPath.FnDir(FileName);
-//  CfgDrive.FnDrive(FileName);
-//  CfgFullPath.FnDrivePath(FileName);
-//  CfgName.FnNameExt(FileName);
-//
-//  if (Tkns.Open())
-//    {
-//    Strng Tkn=Tkns.NextToken();
-//    while (!Tkns.AtEOF())
-//      {
-//      Strng What(Tkn());
-//      Tkn=Tkns.NextToken();
-//      if (Tkn.XStrICmp(":")==0)
-//        Tkn=Tkns.NextToken();
-//
-//      if (What.XStrICmp("Description")==0)
-//        m_sDesc=Tkn();
-//      else if (What.XStrICmp("CfgFiles")==0)
-//        {
-//        m_sCfgFiles=Tkn();
-//        if (m_sCfgFiles())
-//          {
-//          Strng T;
-//          Strng Path, Drive;
-//          Path.FnDir(m_sCfgFiles());
-//          if (Path==".\\")
-//            Path=CfgPath();
-//          Drive.FnDrive(m_sCfgFiles());
-//          m_sCfgFiles.FnNameExt();
-//          T=(Drive() ? Drive() : CfgDrive());
-//          T+=(Path() ? Path() : CfgPath());
-//          T+=m_sCfgFiles();
-//          m_sCfgFiles=T;
-//          m_sCfgFiles.FnCheckEndBSlash();
-//          }
-//        }
-//      else if (What.XStrICmp("CfgHome")==0)
-//        {
-//        m_sCfgHome=Tkn();
-//        if (m_sCfgHome())
-//          {
-//          Strng T;
-//          Strng Path, Drive;
-//          Path.FnDir(m_sCfgHome());
-//          if (Path==".\\")
-//            Path=CfgPath();
-//          Drive.FnDrive(m_sCfgHome());
-//          m_sCfgHome.FnNameExt();
-//          T=(Drive() ? Drive() : CfgDrive());
-//          T+=(Path() ? Path() : CfgPath());
-//          T+=m_sCfgHome();
-//          m_sCfgHome=T;
-//          m_sCfgHome.FnCheckEndBSlash();
-//          }
-//        }
-//      else if (What.XStrICmp("ModelDLLs")==0)
-//        {
-//        DllListSpecd=True;
-//        while (!Tkns.AtEOF())
-//          {
-//          if (Tkn.XStrICmp("End")==0)
-//            {
-//            Tkn=Tkns.NextToken();
-//            break;
-//            }
-//          else
-//            {
-//            Strng Name(Tkn());
-//            Name.FnCheckExtension("DLL");
-//            DLLs.Add(Name);
-//            Tkn=Tkns.NextToken();
-//            }
-//          if (Tkn.XStrICmp(",")==0)
-//            Tkn=Tkns.NextToken();
-//          }
-//        }
-//      }
-//    Tkns.Close();
-//    
-//    }
-//
-//  FixCfgHome();
-//
-//  if (DLLs.GetSize())
-//    {
-//    DLLListOK=True;
-//    // Do these DLL's Exist
-//    for (int i=0; i<DLLs.GetSize(); i++)
-//      {
-//      Strng FullName;
-//      if (IsDLLOK(CfgName(), DLLs[i](),"", FullName, true, false, Whinge))
-//        {
-//        if (m_sDLLList.Length()>0)
-//          m_sDLLList+=",";
-//        m_sDLLList+=FullName();
-//        }
-//      else
-//        DLLListOK=false;
-//      }
-//    }
-//  else
-//    DLLListOK=false;
-//
-//  if (!DLLListOK && Whinge)
-//    if (DllListSpecd)
-//      LogError(CfgName(), LF_Exclamation, "Invalid Model DLL List");
-//    else
-//      LogError(CfgName(), LF_Exclamation, "No Model DLL List Specified");
-//    
-//  return DLLListOK ? 3 : 2;
-//  }
 
 //---------------------------------------------------------------------------
 
@@ -3055,7 +3021,7 @@ flag CModelInfoUpgrade::CheckDBFileFormat(char *FilesPath)
 
   if (SCDFileFormat()==1)
     {
-    CDlgBusy::Open("");
+    CDlgBusy::Open(" ");
     CDlgBusy::SetLine(2,"Upgrading CFG File");
 
     CUpGrdCompletion UGC(m_OldFilePath());
@@ -3125,61 +3091,11 @@ flag CModelInfo::GetSetName(char * PrjFile, flag ForNew, int OldPrjFileVer, DWOR
     if (!GetCfgInfo((LPTSTR)RqdCfgFile, true, true))
       return false;
     }
-//  DoBreak();
-  FixCfgHome();
-  
+
   fNewTrend = fNewTrendRqd;
   fNewGraph = fNewGraphRqd;
   return True;
   }
-
-//---------------------------------------------------------------------------
-
-void CModelInfo::FixCfgHome()
-  {
-/***
-  if ((PrjFileVerNo()>=29) && UsingPrjLclFiles())
-    {
-    if (Saved.CfgHome())
-      {
-      Home=Saved.CfgHome;
-      Home.FnExpand();
-      }
-    if (Saved.CfgFiles())
-      {
-      Files=Saved.CfgFiles;
-      Files.FnExpand();
-      }
-    }
-  else
-    {
-    if (Home.GetLength()==0)
-      Home.FnDrivePath(File());
-    if (Files.GetLength()==0)
-      {
-      Files=Home();
-INCOMPLETECODE("CfgFolderName ???")
-      Files.FnMakeDataFolder(CfgFolderName());
-
-      //Rename if neccessary
-      Strng Cfg, OCfg;
-      Cfg=Home;
-INCOMPLETECODE("CfgFolderName ???")
-      Cfg.FnMakeDataFolder(CfgFolderName());
-      Cfg.FnClearEndBSlash();
-      OCfg=Home;
-      OCfg.FnMakeDataFolder(OldCfgFolderName());
-      OCfg.FnClearEndBSlash();
-
-      if (!FileExists(Cfg()))
-        {
-        if (FileExists(OCfg()) && !MoveFile(OCfg(), Cfg()))
-          LogError("Project",0, "%s not renamed to %s",OCfg(), Cfg());
-        }
-      }
-    }
-**/
-  };
 
 //---------------------------------------------------------------------------
 
@@ -3227,17 +3143,13 @@ flag CModelInfo::EnsureCfgIsInList()
 
 //---------------------------------------------------------------------------
 
-void CModelInfo::MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char* pCfgHome, char * Desc)
+void CModelInfo::MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char * Desc)
   {
   CProfINIFile Cfg(pCfgFile);
   Strng CfgFiles(pCfgFiles);
-  Strng CfgHome(pCfgHome);
   Cfg.WrStr("General", "Description", Desc);
   Cfg.WrInt("General", "PrjFileVersion", PrjFileVerNo());
-  Cfg.WrStr("General", "CfgFiles", CfgFiles());
-  Cfg.WrStr("General", "CfgHome", CfgHome());
   Cfg.WrInt("General", "TagMonitor", 0);
-  //Cfg.WrStr("General", "DllPath", "");
   Cfg.WrInt("General", "UseStdFns4H2O", 1);
 
   Cfg.WrDouble("General", "Std_Temp", Std_T);
@@ -3416,8 +3328,10 @@ void InitClassLicenses(dword dwLic)
   TagObjClass* pTOC = TagObjClass::FirstClass();
   while (pTOC)
     {
-    pTOC->TestLicOK(dwLic);
-    //dbgpln("OK:%d %s", pTOC->LicOK(), pTOC->ClassName());
+    pTOC->TestLicenseOK(dwLic, false);
+
+
+    dbgpln("Class: %-10s %-10s %s", pTOC->LicenseOK()?"Licensed":"  ", pTOC->Selectable()?"Selectable":"", pTOC->ClassName());
     pTOC = pTOC->NextClass();
     }
   }
@@ -3481,7 +3395,7 @@ flag SFEMdlLibArray::LoadFlwDLLs(Strng &DLLList, pchar FlwLibTag, pchar EO_Locat
 
   if (!OK)
     UnLoadFlwDLLs(false);
-
+ 
   CDlgBusy::SetLine(1, "\nInitialising Flow Engine\n");
   if (pTheFlwLib && OK)
     {
@@ -3603,634 +3517,6 @@ void CTagRefInfoItem::Copy(const CTagRef & X, bool Reverse)
     {
     }
   };
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-class CNewCfgDlg : public CDialog
-  {
-  public:
-	  CNewCfgDlg(char* pCfgFile, CWnd* pParent = NULL);
-    //{{AFX_DATA(CNewCfgDlg)
-    enum { IDD = IDD_CFG_NEWDLG };
-    //}}AFX_DATA
-	  //{{AFX_VIRTUAL(CNewCfgDlg)
-	  protected:
-	  virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	  //}}AFX_VIRTUAL
-    Strng SrcCfgFile;
-  protected:
-    bool m_bOK;
-    bool bNewCfg;
-	  //{{AFX_MSG(CNewCfgDlg)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnBrowse();
-    afx_msg void OnKillfocusCfg();
-    afx_msg void OnChangeName();
-    afx_msg void OnChangeFolder();
-    //}}AFX_MSG
-    afx_msg void OnUpdateOK(CCmdUI* pCmdUi);
-	  DECLARE_MESSAGE_MAP()
-  public:
-    afx_msg void OnStnClickedCfgCopyname();
-    afx_msg void OnEnChangeCfgName();
-    afx_msg void OnBnClickedInfilesfolder();
-    afx_msg void OnEnChangeCfgFilesfolder();
-    afx_msg void OnBnClickedForceeqlname();
-    BOOL m_bInFolder;
-    BOOL m_bPrjEqlName;
-    CString m_sCfgName;
-    CString m_sCfgFolderName;
-    CString m_sRootFolder;
-    CString m_PrjSetName;
-    CString m_sSummary1;
-    CString m_sSummary2;
-    CString m_sSummary3;
-
-    CString m_sHomeFolder;
-    CString m_sCfgFile;
-    CString m_sCfgFiles;
-    CString m_sDescription;
-
-    void ConstructPaths(bool Ld, bool Sv, bool StripHome=true);
-
-    afx_msg void OnEnKillfocusCfgPrjset();
-    afx_msg void OnEnKillfocusCfgFilesfolder();
-    afx_msg void OnEnChangeCfgPrjset();
-  };
-
-//---------------------------------------------------------------------------
-
-CNewCfgDlg::CNewCfgDlg(char* pCfgFile, CWnd* pParent /*=NULL*/)
-	: CDialog(CNewCfgDlg::IDD, pParent)
-  , m_bInFolder(true)
-  , m_sCfgName(_T("Cfg1"))
-  , m_sCfgFolderName(_T("CfgFiles"))
-  , m_sSummary1(_T("???????"))
-  , m_sSummary2(_T("???????"))
-  , m_sSummary3(_T("???????"))
-  , m_PrjSetName(_T("Client"))
-  , m_sDescription(_T("Description of Configuration"))
-  , m_bPrjEqlName(false)
-  {
-
-  Strng BCfg(ProgFiles());
-  BCfg.FnClearEndBSlash();
-  BCfg.FnDrivePath(BCfg());
-  BCfg.FnClearEndBSlash();
-
-  m_sRootFolder=BCfg();//StartupDirectory();
-
-  SrcCfgFile = pCfgFile;
-  bNewCfg = (pCfgFile==NULL || strlen(pCfgFile)==0) ? 1 : 0;
-  //{{AFX_DATA_INIT(CNewCfgDlg)
-	//}}AFX_DATA_INIT
-  Strng Test,TestCfg;
-  if (bNewCfg)
-    {
-    TestCfg = "NewCfg";
-    Test = StartupDirectory();
-    Test += TestCfg;
-    int i=1;
-    while (FileExists(Test()))
-      {
-      TestCfg.Set("NewCfg%i", i);
-      Test.Set("%sNewCfg%i", StartupDirectory(), i);
-      Test = StartupDirectory();
-      Test += TestCfg;
-      i++;
-      }
-	  //m_NewName = TestCfg();
-   // m_sHomeFolder = Test();
-   // m_sHomeFolder += '\\';
-   // m_sHomeFolder += m_NewName;
-   // m_sHomeFolder += ".cfg";
-    }
-  else
-    {
-    Strng SrcCfgName,SrcCfgPath;
-    SrcCfgName.FnName(SrcCfgFile());
-    SrcCfgPath.FnDrivePath(SrcCfgFile());
-    SrcCfgPath.FnCheckEndBSlash();
-    TestCfg = "Copy of ";
-    TestCfg += SrcCfgName();
-    Test = SrcCfgPath();
-    Test += TestCfg;
-    Test += ".cfg";
-    int i=1;
-    while (FileExists(Test()))
-      {
-      TestCfg.Set("Copy%i of %s", i, SrcCfgName());
-      Test = SrcCfgPath();
-      Test += TestCfg;
-      Test += ".cfg";
-      i++;
-      }
-	  //m_NewName = TestCfg();
-   // m_sHomeFolder = Test();
-    }
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::DoDataExchange(CDataExchange* pDX)
-  {
-  CDialog::DoDataExchange(pDX);
-  //{{AFX_DATA_MAP(CNewCfgDlg)
-  //}}AFX_DATA_MAP
-  DDX_Check(pDX, IDC_INFILESFOLDER, m_bInFolder);
-  DDX_Text(pDX, IDC_CFG_NAME, m_sCfgName);
-  DDX_Text(pDX, IDC_CFG_FILESFOLDER, m_sCfgFolderName);
-  DDX_Text(pDX, IDC_CFG_ROOT, m_sRootFolder);
-  DDX_Text(pDX, IDC_SUMMARY1, m_sSummary1);
-  DDX_Text(pDX, IDC_SUMMARY2, m_sSummary2);
-  DDX_Text(pDX, IDC_SUMMARY3, m_sSummary3);
-  DDX_Text(pDX, IDC_CFG_PRJSET, m_PrjSetName);
-  DDX_Check(pDX, IDC_FORCEEQLNAME, m_bPrjEqlName);
-  DDX_Text(pDX, IDC_CFG_DESCRIP, m_sDescription);
-  }
-
-//---------------------------------------------------------------------------
-
-BEGIN_MESSAGE_MAP(CNewCfgDlg, CDialog)
-  //{{AFX_MSG_MAP(CNewCfgDlg)
-	ON_BN_CLICKED(IDC_CFG_BROWSE, OnBrowse)
-	ON_EN_KILLFOCUS(IDC_CFG_ROOT, OnKillfocusCfg)
-	ON_EN_KILLFOCUS(IDC_CFG_NAME, OnKillfocusCfg)
-	ON_EN_CHANGE(IDC_CFG_ROOT, OnChangeFolder)
-	ON_EN_CHANGE(IDC_CFG_NAME, OnChangeName)
-  ON_UPDATE_COMMAND_UI(IDOK, OnUpdateOK)
-  ON_UPDATE_COMMAND_UI(IDC_CFG_BROWSE, OnUpdateOK)
-  ON_STN_CLICKED(IDC_CFG_COPYNAME, OnStnClickedCfgCopyname)
-  ON_EN_CHANGE(IDC_CFG_NAME, OnEnChangeCfgName)
-  ON_BN_CLICKED(IDC_INFILESFOLDER, OnBnClickedInfilesfolder)
-  ON_EN_CHANGE(IDC_CFG_FILESFOLDER, OnEnChangeCfgFilesfolder)
-  ON_BN_CLICKED(IDC_FORCEEQLNAME, OnBnClickedForceeqlname)
-  ON_EN_KILLFOCUS(IDC_CFG_PRJSET, OnEnKillfocusCfgPrjset)
-  ON_EN_KILLFOCUS(IDC_CFG_FILESFOLDER, OnEnKillfocusCfgFilesfolder)
-  ON_EN_CHANGE(IDC_CFG_PRJSET, OnEnChangeCfgPrjset)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-//---------------------------------------------------------------------------
-
-BOOL CNewCfgDlg::OnInitDialog() 
-  {
-  CDialog::OnInitDialog();
-  Strng s;
-  if (bNewCfg)
-    s = "Create new configuration";
-  else
-    s.Set("Create copy of %s", SrcCfgFile());
-  SetDlgItemText(IDC_CFG_COPYNAME, s());
-  ConstructPaths(false, true);
-  UpdateDialogControls(this, FALSE);
-  return TRUE;
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::ConstructPaths(bool Ld, bool Sv, bool StripHome)
-  {
-  if (Ld)
-    UpdateData(TRUE);
-
-  m_sCfgName.TrimRight('\\');
-  m_sCfgFolderName.TrimRight('\\');
-  if (StripHome)
-    m_sRootFolder.TrimRight('\\');
-
-  if (m_bPrjEqlName)
-    m_PrjSetName=m_sCfgName;
-
-  if (m_bInFolder)
-    m_sCfgFile.Format("%s\\%s\\%s\\%s.cfg", m_sRootFolder, m_PrjSetName, m_sCfgFolderName, m_sCfgName);
-  else
-    m_sCfgFile.Format("%s\\%s\\%s.cfg", m_sRootFolder, m_PrjSetName, m_sCfgName);
-
-  m_sCfgFiles.Format("%s\\%s\\%s", m_sRootFolder, m_PrjSetName, m_sCfgFolderName);
-  m_sHomeFolder.Format("%s\\%s", m_sRootFolder, m_PrjSetName);
-
-  m_sSummary1=m_sHomeFolder;
-  m_sSummary2=m_sCfgFile;
-  m_sSummary3=m_sCfgFiles;
-
-  GetDlgItem(IDC_CFG_PRJSET)->EnableWindow(!m_bPrjEqlName);
-    
-  m_bOK=m_sCfgName.GetLength()>0 && m_sCfgFolderName.GetLength()>0;
-
-  if (Sv)
-    {
-    UpdateData(FALSE);
-    UpdateDialogControls(this, FALSE);
-    }
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::OnBrowse() 
-  {
-  UpdateData(TRUE);
-  const char* pFName = NULL;
-  CString FName;
-  Strng Tmp, FPath;
-
-  FPath = ScdPFUser.RdStr("Folders", "CfgSearchPath", m_sRootFolder);//*/StartupDirectory());
-  if (m_sRootFolder.GetLength()>0)
-    {
-    char Drv[_MAX_DRIVE];
-    char Dir[_MAX_DIR];
-    char Name[_MAX_FNAME];
-    char Ext[_MAX_EXT];
-    _splitpath((const char*)m_sRootFolder, Drv, Dir, Name, Ext);
-    FPath = Drv;
-    FPath += Dir;
-    FName = Name;
-    FName += Ext;
-    pFName = (const char*)FName;
-    }
-  BOOL Ok = TRUE;
-  Tmp = FPath();
-  Tmp.FnClearEndBSlash();
-  if (!FileExists(Tmp()))
-    {
-    Strng Msg;
-    Msg.Set("Create folder:\n%s", Tmp());
-    Ok = (AfxMessageBox(Msg(), MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)==IDYES);
-    if (Ok)
-      {
-      Strng E;
-      Ok = FnCreatePath(Tmp(), E);
-      if (!Ok)
-        LogWarning("SysCAD", 0, "Folder not created :\n%s\n%s", Tmp(), E());
-      }
-    }
-  
-  if (Ok)
-    {
-    USES_CONVERSION;
-    char Buff[MAX_PATH];
-    LPITEMIDLIST pidlSelected = NULL;
-    BROWSEINFO bi = {0};
-    LPMALLOC pMalloc = NULL;
-    LPITEMIDLIST pidlRoot=NULL;//SHSimpleIDListFromPath(A2CW("D:\\"/*FPath()*/));
-
-    SHGetMalloc(&pMalloc);
-
-    bi.hwndOwner = m_hWnd;
-    bi.pidlRoot = pidlRoot;
-    bi.pszDisplayName = Buff;
-    bi.lpszTitle = "Root Folder";
-    bi.ulFlags = BIF_DONTGOBELOWDOMAIN|BIF_EDITBOX|BIF_NEWDIALOGSTYLE;
-    bi.lpfn = NULL;
-    bi.lParam = 0;
-
-    pidlSelected = SHBrowseForFolder(&bi);
-
-    BOOL PathOK=pidlSelected  && SHGetPathFromIDList(pidlSelected, Buff);
-
-    if(pidlRoot)
-      pMalloc->Free(pidlRoot);
-    if(pidlSelected)
-      pMalloc->Free(pidlSelected);
-
-    pMalloc->Release();
-
-
-    //CSCDFileDialog Dlg(TRUE, NULL, pFName, 0  , 
-    //  "Folders(*.*)|*.*||", this);
-    //Dlg.m_ofn.lpstrInitialDir = FPath();
-    //Dlg.m_ofn.lpstrTitle = "Browse";
-    //if (Dlg.DoModal()==IDOK && Dlg.GetPathName() && strlen(Dlg.GetPathName())>0)
-    //  {
-    if (PathOK)
-      {
-      //m_sRootFolder = Dlg.GetPathName();
-      m_sRootFolder = Buff;
-      //Strng Tmp((char*)(const char*)m_sRootFolder);  
-      //Tmp.FnCheckExtension("cfg");
-      //m_sRootFolder=Tmp();
-      //Tmp.FnName();
-      //m_sCfgName=Tmp();
-      //UpdateData(FALSE);
-      }
-    }
-  ConstructPaths(false, true, true);
-  //UpdateDialogControls(this, FALSE);
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewPrjDlg::DoNewCfg(char* pSrcCfgFile)
-  {
-  CNewCfgDlg Dlg(pSrcCfgFile, this);
-  if (Dlg.DoModal()==IDOK)
-    {
-    Strng Msg;
-    Strng NewCfgFile=((char*)(const char*)Dlg.m_sCfgFile);
-    Strng NewCfgFiles=((char*)(const char*)Dlg.m_sCfgFiles);
-    Strng NewHome=((char*)(const char*)Dlg.m_sHomeFolder);
-    Strng Desc=((char*)(const char*)Dlg.m_sDescription);
-    BOOL Ok = (NewCfgFile.Len()>0);
-    if (Ok)
-      {
-      NewCfgFile.FnCheckExtension("cfg");
-      NewCfgFile.FnSearchExpand();
-      if (FileExists(NewCfgFile()))
-        {
-        Msg.Set("Model configuration file allready exists!  Overwrite?\n\n%s", NewCfgFile());
-        Ok = (AfxMessageBox(Msg(), MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2)==IDYES);
-        if (Ok)
-          DeleteFile(NewCfgFile());
-        }
-      }
-    if (Ok)
-      {
-      Strng DstFold;
-      DstFold.FnDrivePath(NewCfgFile());
-      DstFold.FnClearEndBSlash();
-      if (!FileExists(DstFold()))
-        {//create destination folder...
-        Strng E;
-        if (FnCreatePath(DstFold(), E))
-          LogNote("SysCAD", 0, "New folder created :\n%s", DstFold());
-        else
-          LogError("SysCAD", LF_Exclamation,
-                 "Folder not created :\n%s\n%s", DstFold(), E());
-        }
-
-      // Make Relative Names
-      Strng NewCfgFilePath(NewCfgFile);
-      NewCfgFilePath.FnDrivePath();
-      NewCfgFilePath.FnCheckEndBSlash();
-
-      Strng NewCfgFilesRel(NewCfgFiles);
-      NewCfgFilesRel.FnCheckEndBSlash();
-      NewCfgFilesRel.FnMakeFileRelative(NewCfgFilePath(), false);
-      FnContractPath(NewCfgFilesRel, NULL, NewCfgFilePath(), "$CfgFilePath\\", false);
-
-      Strng NewHomeRel(NewHome);
-      NewHomeRel.FnCheckEndBSlash();
-      NewHomeRel.FnMakeFileRelative(NewCfgFilePath(), false);
-      FnContractPath(NewHomeRel, NULL, NewCfgFilePath(), "$CfgFilePath\\", false);
-
-      if (pSrcCfgFile)
-        {//copy from existing cfg file...
-        if (FileExists(pSrcCfgFile))
-          {
-          ::CopyFile(pSrcCfgFile, NewCfgFile(), true);
-          CProfINIFile pf(NewCfgFile());
-          Strng NewDesc(pSrcCfgFile);
-          NewDesc.FnName();
-          NewDesc += " projects";
-          Msg = pf.RdStr("General", "Description", NewDesc());
-          NewDesc = "Copy of ";
-          NewDesc += Msg;
-          pf.SetProfFilename(NewCfgFile());
-          pf.WrStr("General", "Description", NewDesc());
-          pf.WrStr("General", "CfgFiles", NewCfgFilesRel());
-          pf.WrStr("General", "CfgHome", NewHomeRel());
-          pf.WrLong("General", "PrjFileVersion", PrjFileVerNo());
-          //pf.WrStr("General", "DllPath", "");
-          }
-        else
-          {
-          Msg.Set("Model configuration source file does not exist!\n\n%s", pSrcCfgFile);
-          AfxMessageBox(Msg(), MB_ICONSTOP);
-          Ok = false;
-          }
-        }
-      else
-        {
-        CProfINIFile pf(NewCfgFile());
-        pf.WrStr("General", "Description", "xxx");
-        if (!FileExists(NewCfgFile()))
-          {
-          Msg.Set("Unable to create model configuration file!\n\n%s", NewCfgFile());
-          AfxMessageBox(Msg(), MB_ICONSTOP);
-          Ok = false;
-          }
-        else
-          {
-          CModelInfo::MakeDefaultNewCfgFile(NewCfgFile(), NewCfgFilesRel(), NewHomeRel(), Desc());
-          }
-        }   
-
-      if (!FileExists(NewCfgFiles()))
-        {
-        Strng E;
-        if (FnCreatePath(NewCfgFiles(), E))
-          LogNote("SysCAD", 0, "New folder created :\n%s", NewCfgFiles());
-        else
-          LogError("SysCAD", LF_Exclamation,
-                 "Folder not created :\n%s\n%s", NewCfgFiles(), E());
-        }
-      
-      Strng DstCfgDB = NewCfgFiles();
-      DstCfgDB += "\\";
-      DstCfgDB += CfgDBFileName();
-      RenameCfgDBFile(DstCfgDB());
-      if (!FileExists(DstCfgDB()))
-        {//create (or copy) mdb database...
-        bool DoCreateMDB = true;
-        if (pSrcCfgFile)
-          {//try copy original specie mdb database
-          CProfINIFile OldCfg(pSrcCfgFile);
-          Strng OldCfgFiles = OldCfg.RdStr("General", "CfgFiles", "");
-          long OldCfgFilePrjFileVerNo=OldCfg.RdLong("General", "PrjFileVersion", -1);
-
-          if (OldCfgFiles())
-            {
-            if (OldCfgFilePrjFileVerNo>=70)
-              {
-              Strng OldCfgFullPath;
-              OldCfgFullPath.FnDrivePath(pSrcCfgFile);
-              ::FnExpandPath(OldCfgFiles, NULL, OldCfgFullPath(), "$CfgFilePath\\");
-              }
-            else
-              {
-              Strng OldCfgPath, OldCfgDrive, OldCfgFullPath, OldCfgName;
-              OldCfgPath.FnDir(pSrcCfgFile);
-              OldCfgDrive.FnDrive(pSrcCfgFile);
-              OldCfgFullPath.FnDrivePath(pSrcCfgFile);
-              OldCfgName.FnNameExt(pSrcCfgFile);
-
-              Strng T;
-              Strng Path, Drive;
-
-              Path.FnDir(OldCfgFiles());
-
-              if (Path==".\\")
-                Path=OldCfgPath();
-              Drive.FnDrive(OldCfgFiles());
-              OldCfgFiles.FnNameExt();
-              T=(Drive() ? Drive() : OldCfgDrive());
-              T+=(Path() ? Path() : OldCfgPath());
-              if (OldCfgFiles())
-                T+=OldCfgFiles();
-              OldCfgFiles=T;
-              OldCfgFiles.FnCheckEndBSlash();
-              }
-            }
-          else
-            {
-            OldCfgFiles.FnDrivePath(pSrcCfgFile);
-            OldCfgFiles.FnCheckEndBSlash();
-            OldCfgFiles+="CfgFiles\\";
-            }
-
-          Strng SrcCfgDB;
-          SrcCfgDB = OldCfgFiles;
-          SrcCfgDB += CfgDBFileName();
-          RenameCfgDBFile(SrcCfgDB());
-          if (FileExists(SrcCfgDB()))
-            {
-            DoCreateMDB = false;
-            ::CopyFile(SrcCfgDB(), DstCfgDB(), true);
-            LogNote("SysCAD", 0, "Copy database from:\n%s", SrcCfgDB());
-            }
-          }
-        if (DoCreateMDB)
-          {
-          if (CSCDDatabase::DoSDBCreate(DstCfgDB()))
-            LogNote("SysCAD", 0, "Created database :\n%s", DstCfgDB());
-          else
-            LogError("SysCAD", LF_Exclamation, "Database not created :\n%s", DstCfgDB());
-          }
-        }
-      }
-    if (Ok)
-      {
-      if (TryAddUpdateCfg(NewCfgFile())>=0)
-        {
-        Strng DstFold,E;
-        if (!FileExists(NewCfgFiles()) && !FnCreatePath(NewCfgFiles(), E))
-          {
-          LogError("SysCAD", LF_Exclamation,
-                   "Folder not created :\n%s\n%s", NewCfgFiles(), E());
-          }
-        }
-
-      UpdateData(FALSE);
-
-      Strng Path;
-      for (int i=0; i<m_FileArray.GetSize(); i++)
-        {
-        if (NewCfgFile==m_FileArray[i])
-          {
-          LV_FINDINFO FindInfo;
-          FindInfo.flags=LVFI_PARAM;
-          FindInfo.lParam=i;
-          int Pos=m_MdlListC.FindItem(&FindInfo, -1);
-          SelectItem(Pos);
-          break;
-          }
-        }
-      }
-    }
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewPrjDlg::OnNewCfg() 
-  {
-  DoNewCfg(NULL);
-  UpdateDialogControls(this, FALSE);
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewPrjDlg::OnCopyCfg() 
-  {
-  int iCfg = m_MdlListC.GetNextItem(-1, LVNI_SELECTED);
-  Strng FileName;
-  if (iCfg!=LB_ERR)
-    {
-    CString File, Cfg;
-    Cfg = m_MdlListC.GetItemText(iCfg, 0);
-    File = m_MdlListC.GetItemText(iCfg, 1);
-    int jCfg = FindOrigIndex(Cfg, File);
-  
-    if (jCfg>=0 && m_ExistsArray[jCfg])
-      {
-      FileName = m_FileArray[jCfg];
-      }
-    }
-
-  DoNewCfg(FileName());
-  UpdateDialogControls(this, FALSE);
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::OnKillfocusCfg() 
-  {
-  ConstructPaths(true, true);
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::OnChangeName() 
-  {
-  ConstructPaths(true, true);
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::OnChangeFolder() 
-  {
-  ConstructPaths(true, true, false);
-  }
-
-//---------------------------------------------------------------------------
-
-void CNewCfgDlg::OnUpdateOK(CCmdUI* pCmdUi)
-  {
-  pCmdUi->Enable(m_bOK);
-  }
-
-void CNewCfgDlg::OnStnClickedCfgCopyname()
-  {
-  // TODO: Add your control notification handler code here
-  }
-
-void CNewCfgDlg::OnEnChangeCfgName()
-  {
-  ConstructPaths(true, true);
-  }
-
-void CNewCfgDlg::OnBnClickedInfilesfolder()
-  {
-  ConstructPaths(true, true);
-  }
-
-void CNewCfgDlg::OnEnChangeCfgFilesfolder()
-  {
-  ConstructPaths(true, true);
-  }
-
-void CNewCfgDlg::OnBnClickedForceeqlname()
-  {
-  ConstructPaths(true, true);
-  }
-
-void CNewCfgDlg::OnEnKillfocusCfgPrjset()
-  {
-  ConstructPaths(true, true);
-  }
-
-void CNewCfgDlg::OnEnKillfocusCfgFilesfolder()
-  {
-  ConstructPaths(true, true);
-  }
-
-void CNewCfgDlg::OnEnChangeCfgPrjset()
-  {
-  ConstructPaths(true, true);
-  }
 
 //===========================================================================
 //

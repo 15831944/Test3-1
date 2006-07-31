@@ -119,7 +119,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    (" ");
 
@@ -144,14 +144,14 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Filtrate_Solids",         "FiltSolids",      DC_Frac, "%",      &ActFiltSolids,      this, isResult);//|noFile|noSnap);
   DDB.Double  ("FiltrateSolidsConc@25",   "FiltSolConc25",   DC_Conc, "g/L",    &ActFiltSolConc,     this, isResult);//|noFile|noSnap);
   DDB.Double  ("FiltrateSolidsConc@T",    "FiltSolConc@T",   DC_Conc, "g/L",    &ActFiltSolConcT,    this, isResult);//|noFile|noSnap|InitHidden);
-  DDB.Visibility(SM_Direct|HM_All);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   //DDB.Byte    ("",                        "ScanEffSpecie",   DC_,     "",       &iScanEffSpecie,     this, isParm, SDB.DDBLiqSpList());
   //DDB.Double  ("Scandrett_Wash_Eff",      "ScandrettEff",    DC_Frac, "%",      &ActScandrettEff,    this, isResult);//|noFile|noSnap);
   DDB.Byte    ("",                        "WashComp",        DC_,     "",       &iWashEffSpecie,     this, isParm, SDB.DDBLiqSpList());
   DDB.Double  ("",                        "CompWashEff1",    DC_Frac, "%",      &dSpWashEff,         this, isResult);//|noFile|noSnap);
   DDB.Double  ("",                        "CompWashEff2",    DC_Frac, "%",      &dSpWashEff2,        this, isResult);//|noFile|noSnap);
 
-  DDB.Visibility(SM_DynBoth|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Bool    ("",           "CakeDisch?",    DC_     , "",      &Disch,         this, isParm, DDBYesNo);
   DDB.Visibility();
 
@@ -165,7 +165,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

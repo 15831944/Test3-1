@@ -165,8 +165,8 @@ void QPrecipMain2::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("AgglomRate",        "Agg",      DC_,     "",       &PSD.m_DerivsPars.m_Agg,     this, isResult);//|noFile|noSnap|noScenario); //agglomeration rate
   DDB.Double  ("SodaInclusion",     "SodaR",    DC_,     "",       &PSD.m_DerivsPars.m_SodaR,   this, isResult);//|noFile|noSnap|noScenario); //Soda Inclusion
   DDB.Double  ("",                  "SodaC",    DC_Frac, "%",      &PSD.m_DerivsPars.m_SodaC,   this, isResult);//|noFile|noSnap|noScenario); //Soda Inclusion
-  //DDB.Visibility(SHM_All, PSD.m_Corr.m_GrowCorr==eGrowCorrQAL2001a);
-  DDB.Visibility(SHM_All, PSD.m_Corr.m_GrowCorr==eGrowCorrQAL2001);
+  //DDB.Visibility(NSHM_All, PSD.m_Corr.m_GrowCorr==eGrowCorrQAL2001a);
+  DDB.Visibility(NSHM_All, PSD.m_Corr.m_GrowCorr==eGrowCorrQAL2001);
   DDB.Double  ("Sol",               "",         DC_Conc,  "g/L",       &PSD.m_DerivsPars.m_SolConc, this, isResult);
   DDB.Double  ("SSA",               "",         DC_SurfAreaM, "m^2/g", &PSD.m_DerivsPars.m_SSA, this, isResult);
 
@@ -177,7 +177,7 @@ void QPrecipMain2::BuildDataDefn(DataDefnBlk & DDB)
   
   DDB.Page("Fd", DDB_RqdPage);
   DDB.CheckBoxBtn("InputOverride",    "", DC_,     "",      &PSD.m_bUseFdConcOvr,               this, isParm, DDBYesNo);
-  //DDB.Visibility(SHM_All, PSD.m_bUseFdConcOvr);
+  //DDB.Visibility(NSHM_All, PSD.m_bUseFdConcOvr);
   if (PSD.m_bUseFdConcOvr || !DDB.ForView())
     {
     if (DDB.BeginStruct(this, "InputOvr"))
@@ -230,7 +230,7 @@ void QPrecipMain2::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Page("Cn", DDB_RqdPage);
   DDB.CheckBoxBtn("ContentOverride",    "", DC_,  "",  &PSD.m_bUseCnConcOvr,       this, isParm, DDBYesNo);
-  //DDB.Visibility(SHM_All, PSD.m_bUseCnConcOvr);
+  //DDB.Visibility(NSHM_All, PSD.m_bUseCnConcOvr);
   if (PSD.m_bUseCnConcOvr || !DDB.ForView())
     {
     if (DDB.BeginStruct(this, "ContOvr"))

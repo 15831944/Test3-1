@@ -200,9 +200,9 @@ void CIsoPRV ::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-Z_States CIsoPRV ::SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src)
+void CIsoPRV ::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
   {
-  return SetDatums_Node(Pass, NULL, IOIn, Zi, Z_State_Src);
+  SetDatums_Node(Pass, List, IOIn, NULL);
   };
 
 //--------------------------------------------------------------------------

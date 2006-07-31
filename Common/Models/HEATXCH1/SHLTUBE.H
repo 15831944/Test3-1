@@ -129,7 +129,7 @@ class DllImportExport ShellTube : public MdlNode
     flag           ValidateData(ValidateDataBlk & VDB);
 
     flag           InitialiseSolution();
-    Z_States       SetDatums(int Pass, int IOIn, double Zi, Z_States Z_State_Src);
+    void           SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     void           SetDatumsDone();
     flag           Set_Sizes();
     void           SetState(eScdMdlStateActs RqdState);
