@@ -512,22 +512,21 @@ bool MaterialMerge::ValidateDataFields()
 
 void MaterialMerge::EvalProducts()
 {
+  MStream QI; //initialise local empty copy of a stream
+  FlwIOs.AddMixtureIn_Id(QI, idFeed); //sum of all feed streams
+  const long index = FlwIOs.First[idProd];
+  MStream & QO = FlwIOs[index].Stream; //get reference to the actual output stream
+
+  QO = QI; //set output = input (copies all qualities, etc)
+  const bool HasFeed = (QO.Mass()>UsableMass);
+
+  if (m_sMaterialType == -1 || !HasFeed)
+  {
+    return;
+  }
+
   try
   {
-    MStream QI; //initialise local empty copy of a stream
-    FlwIOs.AddMixtureIn_Id(QI, idFeed); //sum of all feed streams
-    const long index = FlwIOs.First[idProd];
-    MStream & QO = FlwIOs[index].Stream; //get reference to the actual output stream
-
-    QO = QI; //set output = input (copies all qualities, etc)
-
-    if (m_sMaterialType == -1)
-    {
-      return;
-    }
-
-    //-------
-
     if ((map != NULL)&&(mapText != NULL))
     {
       for (int i=0; i<allCount; i++)
