@@ -48,9 +48,12 @@ MBaseMethod(pUnitDef, pNd)
 {
   //default values...
   m_sMaterialType = -1;
-  allCount = 0;
+  allCount = gs_MVDefn.Count();
   destCount = 0;
   phaseCount = 0;
+
+  phases.clear();
+  phasestmp.clear();
 
   destIndex = NULL;
   destText = NULL;
@@ -65,8 +68,6 @@ MBaseMethod(pUnitDef, pNd)
   totals = NULL;
 
   targetTypeDropDown = NULL;
-
-  //resetMappingVariables();
 }
 
 //---------------------------------------------------------------------------
@@ -126,8 +127,6 @@ void MaterialMerge::BuildDataFields()
 {
   if (targetTypeDropDown == NULL)
   {
-    allCount = gs_MVDefn.Count();
-
     for (int i=0; i<allCount; i++)
     {
       std::string symbol = gs_MVDefn[i].Symbol();
@@ -360,7 +359,7 @@ bool MaterialMerge::ExchangeDataFields()
 
     enableB = new bool[phaseCount];
     for (int i = 0; i < phaseCount; i++)
-      enableB[i] = false;
+      enableB[i] = true;
 
     totals = new double[allCount];
     for (int i = 0; i < allCount; i++)
@@ -522,7 +521,7 @@ void MaterialMerge::EvalProducts()
 
     QO = QI; //set output = input (copies all qualities, etc)
 
-    if (m_sMaterialType != -1)
+    if (m_sMaterialType == -1)
     {
       return;
     }
