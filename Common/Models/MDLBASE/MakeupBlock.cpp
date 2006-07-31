@@ -1017,6 +1017,11 @@ flag CXBlk_Makeup::ValidateData(ValidateDataBlk & VDB)
   {
   switch (m_eSelect)
     {
+    case Slct_All:
+      {
+      m_Phases=som_ALL;
+      break;
+      }
     case Slct_Specie:
       {
       break;
@@ -1035,18 +1040,19 @@ flag CXBlk_Makeup::ValidateData(ValidateDataBlk & VDB)
       break;
       }
     default:
-      if (m_Phases==som_ALL)
-        {
-        switch (m_eType)
-          {                         
-          case Type_MassFrac:
-          case Type_VolumeFrac:
-          case Type_NVolumeFrac:
-            LogError(Tag(), 0, "Fraction Type Invalid");
-            break;
-          }
-        }
       break;
+    }
+
+  if (m_Phases==som_ALL)
+    {
+    switch (m_eType)
+      {                         
+      case Type_MassFrac:
+      case Type_VolumeFrac:
+      case Type_NVolumeFrac:
+        LogError(Tag(), 0, "Fraction Type Invalid");
+        break;
+      }
     }
 
   return CMakeupBlock::ValidateData(VDB); 
@@ -1217,6 +1223,15 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dMeas = GetMeasVal(QIn(), QPrd);
     const double HzIn = QPrd.totHz();
 
+    bool CIsOn[7]={false,false,false,false,false,false,false};
+    if (m_eSelect>=Slct_Specie)
+      CIsOn[6]=(m_Species.GetCount()==0);
+    else 
+      CIsOn[5]=(m_Phases==0);
+
+    if (!CIsOn[5] && !CIsOn[6])
+      {
+
     SpConduit &QSrc=SrcIO.Cd;
 
     // Copy to Src if Self
@@ -1249,45 +1264,42 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       {
       case RF_OK:         
         m_dQmMakeup = MkUpFnd.Result();
-        ClrCI(1);
-        ClrCI(2);
-        ClrCI(3);
-        ClrCI(4);
         break;
       case RF_LoLimit:    
       case RF_EstimateLoLimit:    
         m_dQmMakeup = MkUpFnd.Result();
-        SetCI(1);
-        ClrCI(2);
-        ClrCI(3);
-        ClrCI(4);
+          CIsOn[2]=true;
         break;
       case RF_HiLimit:    
       case RF_EstimateHiLimit:    
         m_dQmMakeup = MkUpFnd.Result();   
-        ClrCI(1);
-        SetCI(2);
-        ClrCI(3);
-        ClrCI(4);
+          CIsOn[3]=true;
         break;
       case RF_Independant:
         MkUpFnd.Function(0);   
         m_dQmMakeup = MkUpFnd.Result();   
-        ClrCI(1);
-        ClrCI(2);
-        ClrCI(3);
-        SetCI(4);
+          CIsOn[4]=true;
         break;
 
       default: 
-        ClrCI(1);
-        ClrCI(2);
-        SetCI(3, "E\tConverge Error [%i]", iRet);
-        ClrCI(4);
+          CIsOn[1]=true;
+          SetCI(1, "E\tConverge Error [%i]", iRet);
         break;
       }
 
     QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+
+      if (SrcIO.Enabled)
+        SrcIO.Sum.Set(QSrc);
+      else
+        SrcIO.Sum.ZeroFlows();
+      }
+
+    if (!CIsOn[1])
+      ClrCI(1);
+
+    for (int i=2; i<=6; i++)
+      SetCI(i, CIsOn[i]);
 
     m_dSetPoint   = GetSetPoint();
     m_dResult     = GetMeasVal(QIn(), QPrd);
@@ -1296,10 +1308,6 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dTempKProd  = QPrd.Temp();
     m_dHeatFlow   = QPrd.totHz() - HzIn;
 
-    if (SrcIO.Enabled)
-      SrcIO.Sum.Set(QSrc);
-    else
-      SrcIO.Sum.ZeroFlows();
     }
   else
     {
@@ -1335,10 +1343,12 @@ flag CXBlk_Makeup::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case  1: pS="E\tRequirement not Achieved - Low Limit"; return 1;
-    case  2: pS="E\tRequirement not Achieved - High Limit"; return 1;
-    case  3: pS="E\tConverge Error"; return 1;
+    case  1: pS="E\tConverge Error"; return 1;
+    case  2: pS="E\tRequirement not Achieved - Low Limit"; return 1;
+    case  3: pS="E\tRequirement not Achieved - High Limit"; return 1;
     case  4: pS="E\tMakeup has No Effect"; return 1;
+    case  5: pS="E\tNo Phase Selected for Measurement"; return 1;
+    case  6: pS="E\tNo Species Selected for Measurement"; return 1;
     default:
       return CXBlk_Makeup::CIStrng(No, pS);
     }
