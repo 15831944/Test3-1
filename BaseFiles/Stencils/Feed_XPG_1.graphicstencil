@@ -8,7 +8,7 @@
 <x>0</x>
 <y>5.5</y>
 <width>10</width>
-<height>5</height>
+<height>3</height>
 </textArea>
 <fillMode>Alternate</fillMode>
 <defaultSize>
@@ -20,12 +20,12 @@
 <a3:ArrayList id="ref-4" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-7"/>
 <_size>6</_size>
-<_version>153</_version>
+<_version>608</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-5" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
 <_size>0</_size>
-<_version>21</_version>
+<_version>86</_version>
 </a3:ArrayList>
 <SOAP-ENC:Array id="ref-7" SOAP-ENC:arrayType="xsd:anyType[8]">
 <item href="#ref-9"/>
