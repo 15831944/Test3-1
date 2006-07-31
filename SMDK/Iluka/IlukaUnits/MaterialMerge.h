@@ -27,7 +27,8 @@ class MaterialMerge : public MBaseMethod
   std::string **mapText;
 
   bool *makeObject;
-  bool *enable;
+  bool *enableA;
+  bool *enableB;
 
   double *totals;
 
@@ -44,6 +45,8 @@ class MaterialMerge : public MBaseMethod
     virtual void BuildDataFields();
     virtual bool ExchangeDataFields();
     virtual bool ValidateDataFields();
+
+    void resetMappingVariables();
 
   public:
     virtual void EvalProducts();

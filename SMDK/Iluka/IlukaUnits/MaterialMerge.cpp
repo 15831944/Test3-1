@@ -47,7 +47,7 @@ MaterialMerge::MaterialMerge(MUnitDefBase * pUnitDef, TaggedObject * pNd) :
 MBaseMethod(pUnitDef, pNd)
 {
   //default values...
-  m_sMaterialType = 0;
+  m_sMaterialType = -1;
   allCount = 0;
   destCount = 0;
   phaseCount = 0;
@@ -59,11 +59,14 @@ MBaseMethod(pUnitDef, pNd)
   mapText = NULL;
 
   makeObject = NULL;
-  enable = NULL;
+  enableA = NULL;
+  enableB = NULL;
 
   totals = NULL;
 
   targetTypeDropDown = NULL;
+
+  //resetMappingVariables();
 }
 
 //---------------------------------------------------------------------------
@@ -95,8 +98,11 @@ MaterialMerge::~MaterialMerge()
   if (makeObject != NULL)
     delete[] makeObject;
 
-  if (enable != NULL)
-    delete[] enable;
+  if (enableA != NULL)
+    delete[] enableA;
+
+  if (enableB != NULL)
+    delete[] enableB;
 
   if (totals != NULL)
     delete[] totals;
@@ -164,7 +170,7 @@ void MaterialMerge::BuildDataFields()
     targetTypeDropDown = new MDDValueLst[phaseCount+2];
 
     targetTypeDropDown[0].m_dwFlags = 0;
-    targetTypeDropDown[0].m_lVal = 0;
+    targetTypeDropDown[0].m_lVal = -1;
     targetTypeDropDown[0].m_pStr = (LPTSTR)"Off";
 
     targetTypeDropDown[phaseCount+1].m_dwFlags = 0;
@@ -174,7 +180,7 @@ void MaterialMerge::BuildDataFields()
     for (int dd = 0; dd < phaseCount; dd++)
     {
       targetTypeDropDown[dd+1].m_dwFlags = 0;
-      targetTypeDropDown[dd+1].m_lVal = dd+1;
+      targetTypeDropDown[dd+1].m_lVal = dd;
       char *c = new char[phases[dd].length()+1];
       const LPCSTR s = strcpy(c, phases[dd].c_str());
       targetTypeDropDown[dd+1].m_pStr = (LPTSTR)s;          
@@ -189,33 +195,50 @@ void MaterialMerge::BuildDataFields()
   DD.Long("TargetType", "", idDX_MaterialType, MF_PARAM_STOPPED | MF_SET_ON_CHANGE, targetTypeDropDown);
 
   DD.Text("");
-  DD.ObjectBegin("Mapping Enable", "MappingEnable");
-  if (m_sMaterialType != 0)
+  DD.ObjectBegin("Mapping Enable A", "MappingEnableA");
+  if (m_sMaterialType != -1)
   {
     if ((map != NULL)&&(mapText != NULL))
       for (int i=0; i<allCount; i++)
       {
         if (makeObject[i])
         {
-          DD.CheckBox(gs_MVDefn[i].Symbol(), "", &enable[i], MF_PARAMETER); 
+          DD.CheckBox(gs_MVDefn[i].Symbol(), "", &enableA[i], MF_PARAMETER); 
         }
       }
   }
   DD.ObjectEnd();
 
+  DD.Text("");
+  DD.ObjectBegin("Mapping Enable B", "MappingEnableB");
+  if (m_sMaterialType != -1)
+  {
+    if ((map != NULL)&&(mapText != NULL))
+      for (int i=0; i<phaseCount; i++)
+      {
+        if (i != m_sMaterialType)
+        {
+          DD.CheckBox(phases[i].c_str(), "", &enableB[i], MF_PARAMETER); 
+        }
+      }
+  }
+  DD.ObjectEnd();
+
+
   DD.Page("Mappings");
 
   DD.Text("");
 
-  if (m_sMaterialType != 0)
+  if (m_sMaterialType != -1)
   {
     if ((map != NULL)&&(mapText != NULL))
+    {
       for (int i=0; i<allCount; i++)
       {
         if (makeObject[i])
         {
           DD.ObjectBegin("Mapping", gs_MVDefn[i].Symbol());
-          if (enable[i])
+          if (enableA[i])
           {
             for (int j=0; j<destCount; j++)
             {
@@ -225,6 +248,7 @@ void MaterialMerge::BuildDataFields()
           DD.ObjectEnd();
         }
       }
+    }
   }
 }
 
@@ -239,127 +263,8 @@ bool MaterialMerge::ExchangeDataFields()
     {
       m_sMaterialType=DX.Long;
 
-      if (m_sMaterialType != 0)
-      {
-        // Deallocate old mapping and associated.
-        if (destIndex != NULL)
-          delete[] destIndex;
-
-        if (destText != NULL)
-          delete[] destText;
-
-        if (map != NULL)
-        {
-          for (int i=0; i<allCount; i++)
-            if (map[i] != NULL)
-              delete[] map[i];
-          delete[] map;
-        }
-
-        if (mapText != NULL)
-        {
-          for (int i=0; i<allCount; i++)
-            if (mapText[i] != NULL)
-              delete[] mapText[i];
-          delete[] mapText;
-        }
-
-        if (makeObject != NULL)
-          delete[] makeObject;
-
-        if (enable != NULL)
-          delete[] enable;
-
-        if (totals != NULL)
-          delete[] totals;
-
-        // Allocate new mapping & associated.
-        destCount = 0;
-        for (int i = 0; i < allCount; i++)
-          if (std::string(gs_MVDefn[i].Symbol()).find(("("+phases[m_sMaterialType-1]+")").c_str()) != std::string::npos)
-            destCount++;
-
-        destIndex = new int[destCount];
-        destText = new std::string[destCount];
-
-        {
-          int dI = 0;
-          for (int i = 0; i < allCount; i++)
-            if (std::string(gs_MVDefn[i].Symbol()).find(("("+phases[m_sMaterialType-1]+")").c_str()) != std::string::npos)
-            { 
-              destIndex[dI] = i;
-              destText[dI] = gs_MVDefn[i].Symbol();
-              dI++;
-            }
-        }
-
-        map = new double*[allCount];
-        mapText = new std::string*[allCount];
-
-        for (int i = 0; i < allCount; i++)
-        {
-          map[i] = new double[destCount];
-          mapText[i] = new std::string[destCount];
-
-          for (int j = 0; j < destCount; j++)
-          {
-            map[i][j] = 0.0;
-            mapText[i][j] = "";
-          }
-        }
-
-        makeObject = new bool[allCount];
-        for (int i = 0; i < allCount; i++)
-          makeObject[i] = false;
-
-        enable = new bool[allCount];
-        for (int i = 0; i < allCount; i++)
-          enable[i] = false;
-
-        totals = new double[allCount];
-        for (int i = 0; i < allCount; i++)
-          totals[i] = 0.0;
-
-
-        // Fill mapping & associated.
-        int dI = 0;
-        for (int i=0; i<allCount; i++)
-        {
-          std::string symbol = gs_MVDefn[i].Symbol();
-
-          if (gs_MVDefn[i].IsGas()) // is a gas, map to other -- will be handled specially in eval.
-          {
-            map[i][destCount-1] = 1.0;
-          }
-
-          else if (symbol.find(("("+phases[m_sMaterialType-1]+")").c_str()) != std::string::npos) // Is (IL1), null-mapping.
-          {
-            map[i][dI] = 1.0;
-            dI++;
-          }
-
-          else // something else...
-          {
-            bool exactMatch = false;
-            std::string assay = symbol.substr(0, symbol.find("("));
-            for (int j=0; j<destCount; j++)
-            {
-              if (destText[j] == std::string(assay + ("("+phases[m_sMaterialType-1]+")").c_str())) // Exact assay match, set up mapping.
-              {
-                map[i][j] = 1.0;
-                exactMatch = true;
-              }
-            }
-            if (!exactMatch) // No exact match, jam into last entry (usually 'Other')...
-            {
-              map[i][destCount-1] = 1.0;
-              makeObject[i] = true;
-              for (int j=0; j<destCount; j++)
-                mapText[i][j] = destText[j];
-            }
-          }
-        }
-      }
+      if (m_sMaterialType != -1)
+        resetMappingVariables();
     }
 
     DX.Long=m_sMaterialType;
@@ -368,6 +273,139 @@ bool MaterialMerge::ExchangeDataFields()
   }
   return false;
 }
+
+
+
+
+
+  void MaterialMerge::resetMappingVariables()
+  {
+    // Deallocate old mapping and associated.
+    if (destIndex != NULL)
+      delete[] destIndex;
+
+    if (destText != NULL)
+      delete[] destText;
+
+    if (map != NULL)
+    {
+      for (int i=0; i<allCount; i++)
+        if (map[i] != NULL)
+          delete[] map[i];
+      delete[] map;
+    }
+
+    if (mapText != NULL)
+    {
+      for (int i=0; i<allCount; i++)
+        if (mapText[i] != NULL)
+          delete[] mapText[i];
+      delete[] mapText;
+    }
+
+    if (makeObject != NULL)
+      delete[] makeObject;
+
+    if (enableA != NULL)
+      delete[] enableA;
+
+    if (enableB != NULL)
+      delete[] enableB;
+
+    if (totals != NULL)
+      delete[] totals;
+
+    // Allocate new mapping & associated.
+    destCount = 0;
+    for (int i = 0; i < allCount; i++)
+      if (std::string(gs_MVDefn[i].Symbol()).find(("("+phases[m_sMaterialType]+")").c_str()) != std::string::npos)
+        destCount++;
+
+    destIndex = new int[destCount];
+    destText = new std::string[destCount];
+
+    {
+      int dI = 0;
+      for (int i = 0; i < allCount; i++)
+        if (std::string(gs_MVDefn[i].Symbol()).find(("("+phases[m_sMaterialType]+")").c_str()) != std::string::npos)
+        { 
+          destIndex[dI] = i;
+          destText[dI] = gs_MVDefn[i].Symbol();
+          dI++;
+        }
+    }
+
+    map = new double*[allCount];
+    mapText = new std::string*[allCount];
+
+    for (int i = 0; i < allCount; i++)
+    {
+      map[i] = new double[destCount];
+      mapText[i] = new std::string[destCount];
+
+      for (int j = 0; j < destCount; j++)
+      {
+        map[i][j] = 0.0;
+        mapText[i][j] = "";
+      }
+    }
+
+    makeObject = new bool[allCount];
+    for (int i = 0; i < allCount; i++)
+      makeObject[i] = false;
+
+    enableA = new bool[allCount];
+    for (int i = 0; i < allCount; i++)
+      enableA[i] = false;
+
+    enableB = new bool[phaseCount];
+    for (int i = 0; i < phaseCount; i++)
+      enableB[i] = false;
+
+    totals = new double[allCount];
+    for (int i = 0; i < allCount; i++)
+      totals[i] = 0.0;
+
+
+    // Fill mapping & associated.
+    int dI = 0;
+    for (int i=0; i<allCount; i++)
+    {
+      std::string symbol = gs_MVDefn[i].Symbol();
+
+      if (gs_MVDefn[i].IsGas()) // is a gas, map to other -- will be handled specially in eval.
+      {
+        map[i][destCount-1] = 1.0;
+      }
+
+      else if (symbol.find(("("+phases[m_sMaterialType]+")").c_str()) != std::string::npos) // Is (IL1), null-mapping.
+      {
+        map[i][dI] = 1.0;
+        dI++;
+      }
+
+      else // something else...
+      {
+        bool exactMatch = false;
+        std::string assay = symbol.substr(0, symbol.find("("));
+        for (int j=0; j<destCount; j++)
+        {
+          if (destText[j] == std::string(assay + ("("+phases[m_sMaterialType]+")").c_str())) // Exact assay match, set up mapping.
+          {
+            map[i][j] = 1.0;
+            exactMatch = true;
+          }
+        }
+        if (!exactMatch) // No exact match, jam into last entry (usually 'Other')...
+        {
+          map[i][destCount-1] = 1.0;
+          makeObject[i] = true;
+          for (int j=0; j<destCount; j++)
+            mapText[i][j] = destText[j];
+        }
+      }
+    }
+  }
 
 //---------------------------------------------------------------------------
 /*
@@ -431,7 +469,7 @@ SR1_Ru_Zr.Ru_Zr_To_IL1("S30P031")
 
 bool MaterialMerge::ValidateDataFields()
 {//ensure parameters are within expected ranges
-  if (m_sMaterialType != 0)
+  if (m_sMaterialType != -1)
   {
     for (int i=0; i<allCount; i++)
     {
@@ -484,21 +522,60 @@ void MaterialMerge::EvalProducts()
 
     QO = QI; //set output = input (copies all qualities, etc)
 
+    if (m_sMaterialType != -1)
+    {
+      return;
+    }
+
+    //-------
+
     if ((map != NULL)&&(mapText != NULL))
     {
       for (int i=0; i<allCount; i++)
       {
-        if ((enable[i])&&(!gs_MVDefn[i].IsGas())) // isn't a gas, clear.
+        if ((enableA[i])&&(!gs_MVDefn[i].IsGas())) // isn't a gas, clear.
           QO.M[i] = 0.0;
       }
 
       for (int i=0; i<allCount; i++)
       {
-        if ((enable[i])&&(!gs_MVDefn[i].IsGas())) // isn't a gas
+        if ((enableA[i])&&(!gs_MVDefn[i].IsGas())) // isn't a gas
         {
           for (int j=0; j<destCount; j++)
             if (map[i][j]>0.0)
               QO.M[destIndex[j]] += QI.M[i]*map[i][j];
+        }
+      }
+    }
+
+    for (int i=0; i<phaseCount; i++)
+    {
+      if ((i != m_sMaterialType)&&(enableB[i]))
+      {
+        std::string fromStr = phases[m_sMaterialType];
+        std::string toStr = phases[i];
+
+        for (int i=0; i<allCount; i++)
+        {
+          std::string fromSymbol = gs_MVDefn[i].Symbol();
+          std::string fromPhase = fromSymbol.substr(fromSymbol.find("(")+1, fromSymbol.length()-fromSymbol.find("(")-2); // leave off the brackets.
+          std::string fromName = fromSymbol.substr(0, fromSymbol.find("(")); // leave off the brackets.
+
+          if (fromPhase == fromStr)
+          {
+            for (int j=0; j<allCount; j++)
+            {
+              std::string toSymbol = gs_MVDefn[j].Symbol();
+              std::string toPhase = toSymbol.substr(toSymbol.find("(")+1, toSymbol.length()-toSymbol.find("(")-2); // leave off the brackets.
+              std::string toName = toSymbol.substr(0, toSymbol.find("(")); // leave off the brackets.
+
+              if ((toPhase == toStr) && (fromName == toName))
+              {
+                QO.M[i] += QI.M[j];
+                QO.M[j] = 0.0;
+              }
+            }
+          }
         }
       }
     }
