@@ -209,6 +209,8 @@ class SpCfgItem
     int HasVP;
     int Occ;
     int Index;
+    double m_Ts, m_Te;
+    double m_Lo, m_Hi;
   };
 typedef CArray <SpCfgItem, SpCfgItem&> BaseSpCfgSpecies;
 
@@ -279,8 +281,10 @@ class DllImportExport CMdlCfgSheet : public CPropertySheet
     //Strng_List    Species;
     CSArray       m_FlashSpecies;
     CSArray       m_DllRqdSpecies;
-    Strng         SDBDef;
-    Strng         SDBCfg;
+#if WITHDEFAULTSPDB
+    Strng         m_SDBDef;
+#endif
+    Strng         m_SDBCfg;
     SpMdlArray    SpModels;
 
     void    SetCfgFile(char *CfgFile) { m_CfgFile=CfgFile; };
@@ -313,16 +317,20 @@ class CMdlCfgBase : public CPropertyPage
     CSArray       & m_DllRqdSpecies;
     SpMdlArray    & SpModels;
     CDllInfoArray & DLLs;
-    Strng         & SDBDef;
-    Strng         & SDBCfg;
+#if WITHDEFAULTSPDB
+    Strng         & m_SDBDef;
+#endif
+    Strng         & m_SDBCfg;
   };
 
 inline CMdlCfgBase::CMdlCfgBase(UINT IDD, CMdlCfgSheet * Sheet):
   CPropertyPage(IDD),
   Cfg(Sheet->Cfg),
   m_Species(Sheet->m_Species),
-  SDBDef(Sheet->SDBDef),
-  SDBCfg(Sheet->SDBCfg),
+#if WITHDEFAULTSPDB
+  m_SDBDef(Sheet->m_SDBDef),
+#endif
+  m_SDBCfg(Sheet->m_SDBCfg),
   m_FlashSpecies(Sheet->m_FlashSpecies),
   m_DllRqdSpecies(Sheet->m_DllRqdSpecies),
   SpModels(Sheet->SpModels),
@@ -459,12 +467,21 @@ class CMdlCfgSpcs : public CMdlCfgBase
     CComboBox	m_Filter;
     CStatic	m_What;
     CButton	m_Defaults;
-    CStatic	m_SpDefDB;
-    CStatic	m_SpCfgDB;
     CCustomListCtrl	m_SpDBList;
     CCustomListCtrl	m_SpCfgList;
-    double	m_LoTol;
-    double	m_HiTol;
+    CString m_LoTol;
+    CString m_HiTol;
+    CString m_LoDef;
+    CString m_HiDef;
+    CString m_LoAllow;
+    CString m_HiAllow;
+
+    //double	m_LoTol;
+    //double	m_HiTol;
+    //double	m_LoDef;
+    //double	m_HiDef;
+    //double	m_LoAllow;
+    //double	m_HiAllow;
     BOOL	m_bUseIdeal;
     //}}AFX_DATA
 
@@ -521,8 +538,8 @@ class CMdlCfgSpcs : public CMdlCfgBase
     char * GetCfgFile() { return pSheet->m_CfgFile(); };
     //char * GetCfgFiles() { return pSheet->m_CfgFiles(); };
     void EnableEditButtons();
-    void UpdateWhat(UINT Type, LPCTSTR Comp, int Index);
-    void UpdateTTols(LPCTSTR Comp, LPCTSTR LoTol, LPCTSTR HiTol, LPCTSTR Ideal, int Index);
+    void UpdateWhat(UINT Type, LPCTSTR Comp, int SpcIndex);
+    void UpdateTTols(int ListIndex, int SpcIndex);
     int FndFirstItem(int BOT_Phase);
     int FndLastItem(int BOT_Phase=-1);
   };

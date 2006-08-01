@@ -7185,17 +7185,6 @@ static void DoRdStorage(WCHAR * WFn, IStoragePtr & spRtStorage, LPCTSTR Path)
         AfxW2AHelper(Name, stg.pwcsName, wcslen(stg.pwcsName)+1);
         Strng P=Path;
         P.FnCheckEndBSlash();
-        if (PrjFileVerNo()<31)
-          {
-          if (_stricmp(Name, OldCfgFolderName())==0)
-            strcpy(Name, DefCfgFolderName());
-          else if (_stricmp(Name, OldCfgDBFileName())==0)
-            strcpy(Name, CfgDBFileName());
-          else if (_stricmp(Name, OldBCfgFolderName())==0)
-            strcpy(Name, BCfgFolderName());
-          else if (_stricmp(Name, OldBCfgDBFileName())==0)
-            strcpy(Name, BCfgDBFileName());
-          }
         P+=Name;
 
         switch (stg.type)

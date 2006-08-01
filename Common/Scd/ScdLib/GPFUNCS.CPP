@@ -3512,14 +3512,14 @@ static char *_BackupFilesFolder     = "$Lc";
 static char *_FlwSymFolder          = "Symbols";//"FlwSym"; changed in Build113
 static char *_FontsFolder           = "Fonts";
 
-static char *_OldCfgDataFolder      = "$CfgFiles";
+//static char *_OldCfgDataFolder      = "$CfgFiles";
 static char *_DefCfgDataFolder      = "CfgFiles";
-static char *_OldCfgDBFile          = "$SysCAD.MDB";
+//static char *_OldCfgDBFile          = "$SysCAD.MDB";
 static char *_CfgDBFile             = "SysCAD.MDB";
 
 static char *_OldBCfgDataFolder     = "$CfgFiles";
 static char *_BCfgDataFolder        = "BaseFiles";
-static char *_OldBCfgDBFile         = "$SysCAD.MDB";
+//static char *_OldBCfgDBFile         = "$SysCAD.MDB";
 static char *_BCfgDBFile            = "Default.MDB";
 
 static Strng _TxtEditor             = "notepad.exe";
@@ -3584,12 +3584,12 @@ char *FontsFolderName()           { return _FontsFolder; };
 
 char *OldBCfgFolderName()         { return _OldBCfgDataFolder; };
 char *BCfgFolderName()            { return _BCfgDataFolder; };
-char *OldBCfgDBFileName()         { return _OldBCfgDBFile; };
+//char *OldBCfgDBFileName()         { return _OldBCfgDBFile; };
 char *BCfgDBFileName()            { return _BCfgDBFile; };
 
-char *OldCfgFolderName()          { return _OldCfgDataFolder; };
+//char *OldCfgFolderName()          { return _OldCfgDataFolder; };
 char *DefCfgFolderName()          { return _DefCfgDataFolder; };
-char *OldCfgDBFileName()          { return _OldCfgDBFile; };
+//char *OldCfgDBFileName()          { return _OldCfgDBFile; };
 char *CfgDBFileName()             { return _CfgDBFile; };
 
 //---------------------------------------------------------------------------
@@ -4245,28 +4245,6 @@ char*  CfgFiles() { return _UsePrevCfgAlias ? _PrevCfgFiles() : _CfgFiles(); };
 char*  CfgFilesAlias() { return "$CfgFiles\\"; };
 char*  CfgName()  { return _UsePrevCfgAlias ? _PrevCfgName() : _CfgName(); };
 char*  CfgNameAlias() { return "$CfgName"; };
-
-//---------------------------------------------------------------------------
-
-bool RenameCfgDBFile(LPTSTR SDBCfg)
-  {
-  if (FileExists(SDBCfg))
-    return false;
-
-  Strng P;
-  P.FnDrivePath(SDBCfg);
-
-  Strng Fo(P), Fn(P);
-  Fo+=OldCfgDBFileName();
-  Fn+=CfgDBFileName();
-
-  if (FileExists(Fo()) && !FileExists(Fn()))
-    if (MoveFile(Fo(), Fn()))
-      return true;
-    else
-      LogError("Project",0, "%s not renamed to %s",Fo(), Fn());
-  return false;
-  };
 
 //---------------------------------------------------------------------------
 

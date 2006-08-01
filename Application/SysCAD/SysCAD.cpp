@@ -949,35 +949,27 @@ BOOL CSysCADApp::InitInstFolder()
   if (Err3)
     LogError("SysCAD", LF_Exclamation, "Cannot Create %s", LFiles());
 
-  Strng BCfg(ProgFiles()), OBCfg;
+  Strng BCfg(ProgFiles());
   BCfg.FnClearEndBSlash();
   BCfg.FnDrivePath(BCfg());
   BCfg.FnClearEndBSlash();
-  OBCfg=BCfg;
   BCfg.FnMakeDataFolder(BCfgFolderName());
-  OBCfg.FnMakeDataFolder(OldBCfgFolderName());
   SetBaseCfgFiles(BCfg());
 
   Strng BC(BaseCfgFiles());
   BC.FnClearEndBSlash();
-  if (!FileExists(BC()))
-    {
-    OBCfg.FnClearEndBSlash();
-    if (FileExists(OBCfg()) && !MoveFile(OBCfg(), BCfg()))
-      LogError("Project",0, "%s not renamed to %s",OBCfg(), BCfg());
 
-    if (!FileExists(BC()))
-      {//critical error
-      LogError("SysCAD", LF_Exclamation, "Folder '%s' missing!", BaseCfgFiles());
-      return FALSE;
-      }
+  if (!FileExists(BC()))
+    {//critical error
+    LogError("SysCAD", LF_Exclamation, "Folder '%s' missing!", BaseCfgFiles());
+    return FALSE;
     }
+
   SetCfgFiles();
   SetPrjFiles();
 
   BCfg+="TagDescData.mdb";
   gs_AccessWnds.InitHelp(BCfg());
-//  SetDllFilesPath("");
 
   return TRUE;
   }

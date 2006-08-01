@@ -120,11 +120,11 @@ CK_OptionDetails CK_OptionNames[] =
   { 16, "Models: Size distribution", true },
   { 17, "Models: Alumina", true },
   { 18, "Models: Electrical", true },
-  { 29, "Models: Custom User", false },
-  { 25, "Client: Gijima MineServe", false },
-  { 28, "Client: QAL", false },
-  { 27, "Client: RioTinto", false },
-  { 26, "Client: Alcan", false },
+  { 23, "Client: Alcan", false },
+  { 24, "Client: Gijima MineServe", false },
+  { 25, "Client: QAL", false },
+  { 26, "Client: RioTinto", false },
+  { 27, "Models: Custom User", false },
   { -1},
 };
 
@@ -173,36 +173,36 @@ int GetAuthorization(dword * dwOpLevel, int dec)
 
   Opt.m_Opts.Level            = /* 1; */        PF.RdInt("Options", "Level            ",    1  );
 
-  Opt.m_Opts.Client_Other       = PF.RdInt("Options", "Client_Other      ",    1  );
-  Opt.m_Opts.Client_QAL         = PF.RdInt("Options", "Client_QAL        ",    1  );
-  Opt.m_Opts.Client_RTTS        = PF.RdInt("Options", "Client_RTTS       ",    1  );
-  Opt.m_Opts.Client_Alcan       = PF.RdInt("Options", "Client_Alcan      ",    1  );
-  Opt.m_Opts.Client_MineServe   = PF.RdInt("Options", "Client_MineServe  ",    1  );
-  Opt.m_Opts.Spare_22           = PF.RdInt("Options", "Spare_22          ",    1  );
-  Opt.m_Opts.Spare_23           = PF.RdInt("Options", "Spare_23          ",    1  );
-  Opt.m_Opts.Spare_25           = PF.RdInt("Options", "Spare_25          ",    1  );
-  Opt.m_Opts.Spare_26           = PF.RdInt("Options", "Spare_26          ",    1  );
-  Opt.m_Opts.Spare_27           = PF.RdInt("Options", "Spare_27          ",    0  );
-  Opt.m_Opts.Mdls_SMDKRuntime   = PF.RdInt("Options", "Mdls_SMDKRuntime  ",    0  );
-  Opt.m_Opts.Mdls_Electrical    = PF.RdInt("Options", "Mdls_Electrical   ",    0  );
-  Opt.m_Opts.Mdls_Alumina       = PF.RdInt("Options", "Mdls_Alumina      ",    1  );
-  Opt.m_Opts.Mdls_SizeDist      = PF.RdInt("Options", "Mdls_SizeDist     ",    1  );
-  Opt.m_Opts.Mdls_HeatExtra     = PF.RdInt("Options", "Mdls_HeatExtra    ",    1  );
-  Opt.m_Opts.Mdls_HeatBal       = PF.RdInt("Options", "Mdls_HeatBal      ",    1  );
-  Opt.m_Opts.Func_Spare2        = PF.RdInt("Options", "Func_Spare2       ",    1  );
-  Opt.m_Opts.Func_Spare1        = PF.RdInt("Options", "Func_Spare1       ",    1  );
-  Opt.m_Opts.Func_OPCServer     = PF.RdInt("Options", "Func_OPCServer    ",    0  );
-  Opt.m_Opts.Func_Drivers       = PF.RdInt("Options", "Func_Drivers      ",    0  );
-  Opt.m_Opts.Func_COMProp       = PF.RdInt("Options", "Func_COMProp      ",    0  );
-  Opt.m_Opts.Func_COM           = PF.RdInt("Options", "Func_COM          ",    0  );
-  Opt.m_Opts.Func_Academic      = PF.RdInt("Options", "Func_Academic     ",    0  );
-  Opt.m_Opts.Func_FullEdit      = PF.RdInt("Options", "Func_FullEdit     ",    0  );
-  Opt.m_Opts.Mode_Spare         = PF.RdInt("Options", "Mode_Spare        ",    0  );
-  Opt.m_Opts.Only_SteadyState   = PF.RdInt("Options", "Only_SteadyState  ",    0  );
-  Opt.m_Opts.Mode_Electrical    = PF.RdInt("Options", "Mode_Electrical   ",    0  );
-  Opt.m_Opts.Mode_DynamicFull   = PF.RdInt("Options", "Mode_DynamicFull  ",    0  );
-  Opt.m_Opts.Mode_DynamicFlow   = PF.RdInt("Options", "Mode_DynamicFlow  ",    0  );
-  Opt.m_Opts.Mode_ProBal        = PF.RdInt("Options", "Mode_ProBal       ",    0  );
+  Opt.m_Opts.Reserved82         = PF.RdInt("Options", "Reserved82       ",    1  );
+  Opt.m_Opts.Reserved90         = PF.RdInt("Options", "Reserved90       ",    1  );
+  Opt.m_Opts.Spare_28           = PF.RdInt("Options", "Spare_28         ",    1  );
+  Opt.m_Opts.Client_Other       = PF.RdInt("Options", "Client_Other     ",    1  );
+  Opt.m_Opts.Client_QAL         = PF.RdInt("Options", "Client_QAL       ",    1  );
+  Opt.m_Opts.Client_RTTS        = PF.RdInt("Options", "Client_RTTS      ",    1  );
+  Opt.m_Opts.Client_Alcan       = PF.RdInt("Options", "Client_Alcan     ",    1  );
+  Opt.m_Opts.Client_MineServe   = PF.RdInt("Options", "Client_MineServe ",    1  );
+  Opt.m_Opts.Spare_22           = PF.RdInt("Options", "Spare_22         ",    1  );
+  Opt.m_Opts.Spare_21           = PF.RdInt("Options", "Spare_21         ",    0  );
+  Opt.m_Opts.Mdls_SMDKRuntime   = PF.RdInt("Options", "Mdls_SMDKRuntime ",    0  );
+  Opt.m_Opts.Mdls_Electrical    = PF.RdInt("Options", "Mdls_Electrical  ",    0  );
+  Opt.m_Opts.Mdls_Alumina       = PF.RdInt("Options", "Mdls_Alumina     ",    1  );
+  Opt.m_Opts.Mdls_SizeDist      = PF.RdInt("Options", "Mdls_SizeDist    ",    1  );
+  Opt.m_Opts.Mdls_HeatExtra     = PF.RdInt("Options", "Mdls_HeatExtra   ",    1  );
+  Opt.m_Opts.Mdls_HeatBal       = PF.RdInt("Options", "Mdls_HeatBal     ",    1  );
+  Opt.m_Opts.Func_Spare2        = PF.RdInt("Options", "Func_Spare2      ",    1  );
+  Opt.m_Opts.Func_Spare1        = PF.RdInt("Options", "Func_Spare1      ",    1  );
+  Opt.m_Opts.Func_OPCServer     = PF.RdInt("Options", "Func_OPCServer   ",    0  );
+  Opt.m_Opts.Func_Drivers       = PF.RdInt("Options", "Func_Drivers     ",    0  );
+  Opt.m_Opts.Func_COMProp       = PF.RdInt("Options", "Func_COMProp     ",    0  );
+  Opt.m_Opts.Func_COM           = PF.RdInt("Options", "Func_COM         ",    0  );
+  Opt.m_Opts.Func_Academic      = PF.RdInt("Options", "Func_Academic    ",    0  );
+  Opt.m_Opts.Func_FullEdit      = PF.RdInt("Options", "Func_FullEdit    ",    0  );
+  Opt.m_Opts.Mode_Spare         = PF.RdInt("Options", "Mode_Spare       ",    0  );
+  Opt.m_Opts.Only_SteadyState   = PF.RdInt("Options", "Only_SteadyState ",    0  );
+  Opt.m_Opts.Mode_Electrical    = PF.RdInt("Options", "Mode_Electrical  ",    0  );
+  Opt.m_Opts.Mode_DynamicFull   = PF.RdInt("Options", "Mode_DynamicFull ",    0  );
+  Opt.m_Opts.Mode_DynamicFlow   = PF.RdInt("Options", "Mode_DynamicFlow ",    0  );
+  Opt.m_Opts.Mode_ProBal        = PF.RdInt("Options", "Mode_ProBal      ",    0  );
 
 
 

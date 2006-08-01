@@ -186,8 +186,12 @@
 #define IDC_HITOL                       14215
 #define IDC_USEIDEAL                    14216
 #define IDC_TEMPEXLOSTATIC              14217
+#define IDC_LODEF                       14217
 #define IDC_TEMPEXHISTATIC              14218
+#define IDC_LOALLOW                     14218
+#define IDC_HIDEF                       14219
 #define IDC_BROWSEDLL                   14220
+#define IDC_HIALLOW                     14220
 #define IDC_REMOVEDLL                   14221
 #define IDC_SHOWSPECIES                 14222
 #define IDC_DBFMTCOMBO                  14223

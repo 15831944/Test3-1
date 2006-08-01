@@ -1000,14 +1000,10 @@ DllImportExport char*  BackupFilesFolderName();
 DllImportExport char*  FlwSymFolderName();
 DllImportExport char*  FontsFolderName();
 
-DllImportExport char*  OldBCfgFolderName();
 DllImportExport char*  BCfgFolderName();
-DllImportExport char*  OldBCfgDBFileName();
 DllImportExport char*  BCfgDBFileName();
 
-DllImportExport char*  OldCfgFolderName();
 DllImportExport char*  DefCfgFolderName();
-DllImportExport char*  OldCfgDBFileName();
 DllImportExport char*  CfgDBFileName();
 
 DllImportExport flag   FnCreateTime(LPCTSTR pFn, FILETIME &Ft);
@@ -1091,12 +1087,6 @@ DllImportExport char*  CfgFiles();
 DllImportExport char*  CfgFilesAlias();
 DllImportExport char*  CfgName();
 DllImportExport char*  CfgNameAlias();
-DllImportExport bool   RenameCfgDBFile(LPTSTR SDBCfg);
-
-//DllImportExport char*  SetCfgHome(char* PD);
-//DllImportExport char*  CfgHome();
-//DllImportExport char*  CfgHomeAlias();
-//DllImportExport char*  ProjectSetFolder();
 
 DllImportExport char*  SetPrjFiles(char* PD=NULL, char* PF=NULL);
 DllImportExport char*  PrjFile();

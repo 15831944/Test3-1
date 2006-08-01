@@ -1406,7 +1406,7 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
   CFileStatus State;
   if (CFile::GetStatus(Filename, State))
     {
-    char* SpColNames[] = { "Name", "Compound", "Phase", "Occurence", "Vp", NULL };
+    char* SpColNames[] = { "Name", "Compound", "Phase", "Occurence", "Vp", "Ts", "Te", NULL };
     CDBHelper DB(Filename, "Species");
     if (DB.Open(DBConnect_Default, SpColNames[0], DBH_HasHeadings|DBH_ReadOnly|DBH_ForwardOnly|DBH_TrimStrings))
 
@@ -1424,6 +1424,8 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
           Strng PhaseName(Values[2]);
           Strng OccName(Values[3]);
           Strng VPFunc(Values[4]);
+          Strng Ts(Values[5]);
+          Strng Te(Values[6]);
           S.Set("%s(%s)", Compound(), PhaseName());
           //byte Occ=0;
           FriendOcc="";
@@ -1438,6 +1440,10 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
             case 'g': FriendOcc="l"; X.Occ = BOT_Gas; break;
             }
           X.HasVP=(VPFunc.Length());
+          X.m_Ts=SafeAtoF(Ts(), 0);
+          X.m_Te=SafeAtoF(Te(), -1);
+          X.m_Lo=25;
+          X.m_Hi=25;
           //S.SetIndex(OccVal /*| (HasVP ? VPMask : 0) | (SrcMask&Src)*/);
           for (int f=0; f<m_Species.GetSize(); f++)
             if (m_Species[f].Comp.XStrCmp(S)==0)
@@ -1488,58 +1494,23 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
 
 BOOL CMdlCfgSheet::OnInitDialog()
   {
-  SDBDef=BaseCfgFiles();
-  SDBDef+=BCfgDBFileName();
-
-  const int iCF = 1; //cfg files
-  Strng S;
-  long CfgPrjFileVer=Cfg.RdInt("General", "PrjFileVersion", -1);
 
   //INCOMPLETECODEMSG("CfgItemsC");
+  m_SDBCfg.FnDrivePath(GetCfgFile());
+  m_SDBCfg+=CfgDBFileName();
 
-  S=Cfg.RdStr(CfgItemsC[iCF].SctName, CfgItemsC[iCF].Name, CfgItemsC[iCF].StrDef);
-  S.Trim();
-  if (S.Len()>0)
-    {
-    if (CfgPrjFileVer>=70)
-      {
-      Strng CfgFullPath(Cfg.Filename());
-      CfgFullPath.FnDrivePath();
-      CfgFullPath.FnCheckEndBSlash();
-      ::FnExpandPath(SDBCfg, S(), CfgFullPath(), "$CfgFilePath\\");
-      }
-    else
-      {
-      SDBCfg.FnDrivePath(S());
-      SDBCfg.FnCheckEndBSlash();
-      }
-
-    }
+  if (FileExists(m_SDBCfg()))
+    GetSpecieNames(m_SDBCfg(), 1);
   else
-    {// Standard folder
-    //SDBCfg=GetCfgFiles();   
-    SDBCfg.FnDrivePath(GetCfgFile());
-    //INCOMPLETECODE1("CfgFolderName")
-    SDBCfg.FnMakeDataFolder(DefCfgFolderName());
-    }
-  SDBCfg+=CfgDBFileName();
-  RenameCfgDBFile(SDBCfg());
-  if (!FileExists(SDBCfg()))
-    {// try Backup folder
-    SDBCfg.FnDrivePath(GetCfgFile());
-    SDBCfg+=CfgFilesAlias();
-    SDBCfg+=CfgDBFileName();
-    RenameCfgDBFile(SDBCfg());
-    }
-
-  if (FileExists(SDBCfg()))
-    GetSpecieNames(SDBCfg(), 1);
-  else
-    SDBCfg="";
+    m_SDBCfg="";
+#if WITHDEFAULTSPDB
+  SDBDef=BaseCfgFiles();
+  SDBDef+=BCfgDBFileName();
   if (FileExists(SDBDef()))
     GetSpecieNames(SDBDef(), 0);
   else
     SDBDef="";
+#endif
 
   if (pSfeBase)
     {
@@ -2737,8 +2708,12 @@ CMdlCfgSpcs::CMdlCfgSpcs(CMdlCfgSheet * Sheet)
 : CMdlCfgBase(CMdlCfgSpcs::IDD, Sheet)
   {
   //{{AFX_DATA_INIT(CMdlCfgSpcs)
-  m_LoTol = 0.0;
-  m_HiTol = 0.0;
+  //m_LoTol = 0.0;
+  //m_HiTol = 0.0;
+  //m_LoDef = 0.0;
+  //m_HiDef = 0.0;
+  //m_LoAllow = 0.0;
+  //m_HiAllow = 0.0;
   m_bUseIdeal = FALSE;
   //}}AFX_DATA_INIT
   iSpDefaults=0;
@@ -2753,14 +2728,16 @@ void CMdlCfgSpcs::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_FILTER, m_Filter);
   DDX_Control(pDX, IDC_SPCFGWHAT, m_What);
   DDX_Control(pDX, IDC_SPDEFAULTS, m_Defaults);
-  DDX_Control(pDX, IDC_SPDEFDB, m_SpDefDB);
-  DDX_Control(pDX, IDC_SPCFGDB, m_SpCfgDB);
   DDX_Control(pDX, IDC_SPDBLIST, m_SpDBList);
   DDX_Control(pDX, IDC_SPCFGLIST, m_SpCfgList);
   DDX_Text(pDX, IDC_LOTOL, m_LoTol);
-  DDV_MinMaxDouble(pDX, m_LoTol, 0., 2000.);
+  //DDV_MinMaxDouble(pDX, m_LoTol, 0., 2000.);
   DDX_Text(pDX, IDC_HITOL, m_HiTol);
-  DDV_MinMaxDouble(pDX, m_HiTol, 0., 2000.);
+  //DDV_MinMaxDouble(pDX, m_HiTol, 0., 2000.);
+  DDX_Text(pDX, IDC_LODEF, m_LoDef);
+  DDX_Text(pDX, IDC_HIDEF, m_HiDef);
+  DDX_Text(pDX, IDC_LOALLOW, m_LoAllow);
+  DDX_Text(pDX, IDC_HIALLOW, m_HiAllow);
   DDX_Check(pDX, IDC_USEIDEAL, m_bUseIdeal);
   //}}AFX_DATA_MAP
   }
@@ -2919,8 +2896,10 @@ BOOL CMdlCfgSpcs::OnInitDialog()
   //  m_SpDBList.InsertColumn(2, "Name",     LVCFMT_LEFT, 100);
   m_SpCfgList.InsertColumn(0, "Specie",  LVCFMT_LEFT, 150);
   m_SpCfgList.InsertColumn(1, "Ideal",   LVCFMT_RIGHT, 38);
-  m_SpCfgList.InsertColumn(2, "Lo",      LVCFMT_RIGHT, 33);
-  m_SpCfgList.InsertColumn(3, "Hi",      LVCFMT_RIGHT, 33);
+  m_SpCfgList.InsertColumn(2, "LoTol",   LVCFMT_RIGHT, 0);
+  m_SpCfgList.InsertColumn(3, "HiTol",   LVCFMT_RIGHT, 0);
+  m_SpCfgList.InsertColumn(4, "LoTemp",  LVCFMT_RIGHT, 55);
+  m_SpCfgList.InsertColumn(5, "HiTemp",  LVCFMT_RIGHT, 55);
 
   CBitmap BM;                                           
   VERIFY(BM.LoadBitmap(IDB_SPLISTIMGS));
@@ -3079,6 +3058,7 @@ void CMdlCfgSpcs::ChangeSpDefDB()
         Strng LoTol(nToks>2 ? C[2]:"0");
         Strng HiTol(nToks>3 ? C[3]:"0");
         Strng Ideal(nToks>4 ? C[4]:m_lCfgFilePrjFileVerNo>=65?"1":"0");
+
         Ideal=(Ideal.GetLength()>0 && Ideal[0]=='1')?"Yes":"";
         int iDstPos=m_SpCfgList.FindItem(&FI, -1);
         if (iDstPos<0 || Type==spl_Text || Type==spl_Page)
@@ -3106,12 +3086,25 @@ void CMdlCfgSpcs::ChangeSpDefDB()
               break;
             }
           m_SpCfgList.InsertItem(Cnt, Spc(), iImgNo);
-          m_SpCfgList.SetItemData(Cnt, Type|Data);
+          m_SpCfgList.SetItemData(Cnt, SetType(Type)|Data);
           if (Type==spl_SpecieId)
             {
+            Strng LoTmp("???");
+            Strng HiTmp("???");
+            int iSpc=m_Species.FindBySpecieName(Spc());
+            if (iSpc>=0 && m_Species[iSpc].m_Ts<m_Species[iSpc].m_Te)    
+              {
+              double TLo= K2C(m_Species[iSpc].m_Ts)-SafeAtoF(LoTol, 0);
+              LoTmp.Set("%.2f", TLo);
+              double THi= K2C(m_Species[iSpc].m_Te)+SafeAtoF(HiTol, 0);
+              HiTmp.Set("%.2f", THi);
+              }
+
             m_SpCfgList.SetItem(Cnt, 1, LVIF_TEXT, Ideal(),0,0,0,0);
             m_SpCfgList.SetItem(Cnt, 2, LVIF_TEXT, LoTol(),0,0,0,0);
             m_SpCfgList.SetItem(Cnt, 3, LVIF_TEXT, HiTol(),0,0,0,0);
+            m_SpCfgList.SetItem(Cnt, 4, LVIF_TEXT, LoTmp(),0,0,0,0);
+            m_SpCfgList.SetItem(Cnt, 5, LVIF_TEXT, HiTmp(),0,0,0,0);
             }
           Cnt++;                
           }
@@ -3133,7 +3126,7 @@ void CMdlCfgSpcs::ChangeSpDefDB()
       long Type=0;
       int iImgNo=8;
       m_SpCfgList.InsertItem(Cnt, m_DllRqdSpecies[i](), iImgNo);
-      m_SpCfgList.SetItemData(Cnt, Type|Data);
+      m_SpCfgList.SetItemData(Cnt, SetType(Type)|Data);
       Cnt++;
       }
     }
@@ -3148,8 +3141,8 @@ void CMdlCfgSpcs::ChangeSpDefDB()
   if (bExcludeDefSpDB)
     s += "   (Excluded!)";
   m_SpDefDB.SetWindowText(s());
-#else
-  m_SpCfgDB.SetWindowText(SDBCfg());
+
+  m_SpCfgDB.SetWindowText(m_SDBCfg());
   m_SpDefDB.SetWindowText("");
 #endif
 
@@ -3244,6 +3237,20 @@ void CMdlCfgSpcs::OnSpadd()
       m_SpCfgList.SetItem(n, 1, LVIF_TEXT, m_lCfgFilePrjFileVerNo>=65?"Y":"", 0,0,0,0);
       m_SpCfgList.SetItem(n, 2, LVIF_TEXT, "25", 0,0,0,0);
       m_SpCfgList.SetItem(n, 3, LVIF_TEXT, "25", 0,0,0,0);
+
+      Strng LoTmp("???");
+      Strng HiTmp("???");
+      int iSpc=m_Species.FindBySpecieName((LPTSTR)(LPCTSTR)S);
+      if (iSpc>=0 && m_Species[iSpc].m_Ts<m_Species[iSpc].m_Te)    
+        {
+        double TLo= K2C(m_Species[iSpc].m_Ts)-25;
+        LoTmp.Set("%.2f", TLo);
+        double THi= K2C(m_Species[iSpc].m_Te)+25;
+        HiTmp.Set("%.2f", THi);
+        }
+
+      m_SpCfgList.SetItem(n, 4, LVIF_TEXT, LoTmp(), 0,0,0,0);
+      m_SpCfgList.SetItem(n, 5, LVIF_TEXT, HiTmp(), 0,0,0,0);
       OneDone=true;
       }
     }
@@ -3313,42 +3320,34 @@ void CMdlCfgSpcs::OnSpmoveup()
     iMove++;
     }
 
-  char Buff0[256], Buff1[256], Buff2[256];
+  char Buff[6][256];
   iDst=Max(0, iDst-1);
   int iFirst=iDst;
   m_SpCfgList.LockWindowUpdate();
   for (int j=0; j<iMove; j++, iDst++)
     {
-    LVITEM LVI0, LVI1, LVI2;
-    LVI0.mask=LVIF_TEXT|LVIF_IMAGE|LVIF_STATE|LVIF_PARAM;
-    LVI0.iItem=aMove[j];
-    LVI0.iSubItem=0;
-    LVI0.stateMask=0xFFFFFFFF;
-    LVI0.pszText=Buff0;
-    LVI0.cchTextMax=sizeof(Buff0);
+    LVITEM LVI[6];
+    for (int k=0; k<6; k++)
+      {
+      LVI[k].mask=LVIF_TEXT|(k==0 ? LVIF_IMAGE|LVIF_STATE|LVIF_PARAM : 0);
+      LVI[k].iItem=aMove[j];
+      LVI[k].iSubItem=k;
+      LVI[k].stateMask=0xFFFFFFFF;
+      LVI[k].pszText=Buff[k];
+      LVI[k].cchTextMax=sizeof(Buff[k]);
+      m_SpCfgList.GetItem(&LVI[k]);
+      }
 
-    LVI1.mask=LVIF_TEXT;
-    LVI1.iItem=aMove[j];
-    LVI1.iSubItem=1;
-    LVI1.pszText=Buff1;
-    LVI1.cchTextMax=sizeof(Buff1);
-
-    LVI2.mask=LVIF_TEXT;
-    LVI2.iItem=aMove[j];
-    LVI2.iSubItem=2;
-    LVI2.pszText=Buff2;
-    LVI2.cchTextMax=sizeof(Buff2);
-
-    m_SpCfgList.GetItem(&LVI0);
-    m_SpCfgList.GetItem(&LVI1);
-    m_SpCfgList.GetItem(&LVI2);
     m_SpCfgList.DeleteItem(aMove[j]);
-    LVI0.iItem=iDst;
-    int i=m_SpCfgList.InsertItem(&LVI0);
-    LVI1.iItem=i;
-    m_SpCfgList.SetItem(&LVI1);
-    LVI2.iItem=i;
-    m_SpCfgList.SetItem(&LVI2);
+
+    LVI[0].iItem=iDst;
+    int i=m_SpCfgList.InsertItem(&LVI[0]);
+    for (int k=1; k<6; k++)
+      {
+      LVI[k].iItem=i;
+      m_SpCfgList.SetItem(&LVI[k]);
+      }
+    UpdateTTols(i, GetIndex(LVI[0].lParam));
     }
 
   m_SpCfgList.EnsureVisible(iFirst, false);
@@ -3371,45 +3370,38 @@ void CMdlCfgSpcs::OnSpmovedn()
     iMove++;
     }
 
-  char Buff0[256], Buff1[256], Buff2[256];
+  char Buff[6][256];
   m_SpCfgList.LockWindowUpdate();
   iDst=Min(m_SpCfgList.GetItemCount()-1, iDst+1);
   int iFirst=iDst;
   for (int j=iMove-1; j>=0; j--, iDst--)
     {
-    LVITEM LVI0, LVI1, LVI2;
-    LVI0.mask=LVIF_TEXT|LVIF_IMAGE|LVIF_STATE|LVIF_PARAM;
-    LVI0.iItem=aMove[j];
-    LVI0.iSubItem=0;
-    LVI0.stateMask=0xFFFFFFFF;
-    LVI0.pszText=Buff0;
-    LVI0.cchTextMax=sizeof(Buff0);
+    LVITEM LVI[6];
+    for (int k=0; k<6; k++)
+      {
+      LVI[k].mask=LVIF_TEXT|(k==0 ? LVIF_IMAGE|LVIF_STATE|LVIF_PARAM : 0);
+      LVI[k].iItem=aMove[j];
+      LVI[k].iSubItem=k;
+      LVI[k].stateMask=0xFFFFFFFF;
+      LVI[k].pszText=Buff[k];
+      LVI[k].cchTextMax=sizeof(Buff[k]);
+      m_SpCfgList.GetItem(&LVI[k]);
+      }
 
-    LVI1.mask=LVIF_TEXT;
-    LVI1.iItem=aMove[j];
-    LVI1.iSubItem=1;
-    LVI1.pszText=Buff1;
-    LVI1.cchTextMax=sizeof(Buff1);
-
-    LVI2.mask=LVIF_TEXT;
-    LVI2.iItem=aMove[j];
-    LVI2.iSubItem=2;
-    LVI2.pszText=Buff2;
-    LVI2.cchTextMax=sizeof(Buff2);
-
-    m_SpCfgList.GetItem(&LVI0);
-    m_SpCfgList.GetItem(&LVI1);
-    m_SpCfgList.GetItem(&LVI2);
     m_SpCfgList.DeleteItem(aMove[j]);
-    LVI0.iItem=iDst;
-    int i=m_SpCfgList.InsertItem(&LVI0);
-    LVI1.iItem=i;
-    m_SpCfgList.SetItem(&LVI1);
-    LVI2.iItem=i;
-    m_SpCfgList.SetItem(&LVI2);
+
+    LVI[0].iItem=iDst;
+    int i=m_SpCfgList.InsertItem(&LVI[0]);
+    for (int k=1; k<6; k++)
+      {
+      LVI[k].iItem=i;
+      m_SpCfgList.SetItem(&LVI[k]);
+      }
     }
 
+
   m_SpCfgList.EnsureVisible(iFirst, false);
+  //UpdateTTols(iFirst, 
   m_SpCfgList.UnlockWindowUpdate();
   }
 
@@ -3522,16 +3514,33 @@ void CMdlCfgSpcs::EnableEditButtons()
   GetDlgItem(IDC_SPMOVEUP)->EnableWindow(iFirst>0);
   GetDlgItem(IDC_SPMOVEDN)->EnableWindow(iSel<m_SpCfgList.GetItemCount()-1 && iSel>=0);
 
-  UINT Show=(iSel>=0 && GetType(m_SpCfgList.GetItemData(iSel))==spl_SpecieId) ? SW_SHOW:SW_HIDE;
+  UINT On=(iSel>=0 && 
+           m_SpCfgList.GetSelectedCount()==1 &&
+           GetType(m_SpCfgList.GetItemData(iSel))==spl_SpecieId) ? 1:0;
   GetDlgItem(IDC_USEIDEAL)->EnableWindow(TRUE);
-  GetDlgItem(IDC_USEIDEAL)->ShowWindow(Show);
-  if (Show==SW_SHOW)
-    GetDlgItem(IDC_USEIDEAL)->EnableWindow(GetOcc(m_SpCfgList.GetItemData(iSel))==BOT_Gas);
+  GetDlgItem(IDC_USEIDEAL)->EnableWindow(On && GetOcc(m_SpCfgList.GetItemData(iSel))==BOT_Gas);
 
-  GetDlgItem(IDC_LOTOL)->ShowWindow(Show);
-  GetDlgItem(IDC_HITOL)->ShowWindow(Show);
-  GetDlgItem(IDC_TEMPEXLOSTATIC)->ShowWindow(Show);
-  GetDlgItem(IDC_TEMPEXHISTATIC)->ShowWindow(Show);
+  GetDlgItem(IDC_LOTOL)->EnableWindow(On);
+  GetDlgItem(IDC_HITOL)->EnableWindow(On);
+  GetDlgItem(IDC_LODEF)->EnableWindow(On);
+  GetDlgItem(IDC_HIDEF)->EnableWindow(On);
+  GetDlgItem(IDC_LOALLOW)->EnableWindow(On);
+  GetDlgItem(IDC_HIALLOW)->EnableWindow(On);
+
+  //UINT Show=(iSel>=0 && GetType(m_SpCfgList.GetItemData(iSel))==spl_SpecieId) ? SW_SHOW:SW_HIDE;
+  //GetDlgItem(IDC_USEIDEAL)->EnableWindow(TRUE);
+  //GetDlgItem(IDC_USEIDEAL)->ShowWindow(Show);
+  //if (Show==SW_SHOW)
+  //  GetDlgItem(IDC_USEIDEAL)->EnableWindow(GetOcc(m_SpCfgList.GetItemData(iSel))==BOT_Gas);
+
+  //GetDlgItem(IDC_LOTOL)->ShowWindow(Show);
+  //GetDlgItem(IDC_HITOL)->ShowWindow(Show);
+  //GetDlgItem(IDC_LODEF)->ShowWindow(Show);
+  //GetDlgItem(IDC_HIDEF)->ShowWindow(Show);
+  //GetDlgItem(IDC_LOALLOW)->ShowWindow(Show);
+  //GetDlgItem(IDC_HIALLOW)->ShowWindow(Show);
+  //GetDlgItem(IDC_TEMPEXLOSTATIC)->ShowWindow(Show);
+  //GetDlgItem(IDC_TEMPEXHISTATIC)->ShowWindow(Show);
   }
 
 //---------------------------------------------------------------------------
@@ -3562,11 +3571,39 @@ void CMdlCfgSpcs::UpdateWhat(UINT Type, LPCTSTR Comp, int Index)
 
 //---------------------------------------------------------------------------
 
-void CMdlCfgSpcs::UpdateTTols(LPCTSTR Comp, LPCTSTR LoTol, LPCTSTR HiTol, LPCTSTR Ideal, int Index)
+void CMdlCfgSpcs::UpdateTTols(int ListIndex, int SpcIndex)
   {
-  m_LoTol=SafeAtoF(LoTol);
-  m_HiTol=SafeAtoF(HiTol);
-  m_bUseIdeal=Ideal[0]=='Y';
+
+  CString Spc=m_SpCfgList.GetItemText(ListIndex,0);
+
+  if (SpcIndex>=0 && m_SpCfgList.GetSelectedCount()==1)
+    {
+    m_LoTol.Format("%.2f", SafeAtoF(m_SpCfgList.GetItemText(ListIndex,2)));
+    m_HiTol.Format("%.2f", SafeAtoF(m_SpCfgList.GetItemText(ListIndex,3)));
+    m_LoAllow.Format("%.2f", SafeAtoF(m_SpCfgList.GetItemText(ListIndex,4)));
+    m_HiAllow.Format("%.2f", SafeAtoF(m_SpCfgList.GetItemText(ListIndex,5)));
+
+    double LoDef;
+    LoDef=SafeAtoF(m_LoAllow)+SafeAtoF(m_LoTol);
+    m_LoDef.Format("%.2f", LoDef);
+
+    double HiDef;
+    HiDef=SafeAtoF(m_HiAllow)-SafeAtoF(m_HiTol);
+    m_HiDef.Format("%.2f", HiDef);
+
+    CString Ideal=m_SpCfgList.GetItemText(ListIndex,1);
+    m_bUseIdeal=Ideal[0]=='Y';
+    }
+  else
+    {
+    m_LoTol="";
+    m_HiTol="";
+    m_LoAllow="";
+    m_HiAllow="";
+    m_LoDef="";
+    m_HiDef="";
+    m_bUseIdeal=false;
+    }
   UpdateData(FALSE);
   }
 
@@ -3579,10 +3616,24 @@ void CMdlCfgSpcs::OnChangeHitol()
   if (pos)
     {
     iSel=m_SpCfgList.GetNextSelectedItem(pos);
+
+    double All=SafeAtoF(m_HiAllow);
+    double Tol=SafeAtoF(m_HiTol);
+    double Def=All-Tol;
+
     UpdateData(TRUE);
-    CString S;
-    S.Format("%4.0f", m_HiTol);
-    m_SpCfgList.SetItem(iSel, 3, LVIF_TEXT, S, 0, 0, 0, 0);
+
+    double NewTol=SafeAtoF(m_HiTol);
+    double NewTolChk=Range(0.0, NewTol, Min(200.0, Def-K2C(1.0)));
+    All=Def+NewTolChk;
+    if (NewTol!=NewTolChk)
+      m_LoTol.Format("%.2f", NewTol);
+    m_LoAllow.Format("%.2f", All);
+
+    m_SpCfgList.SetItem(iSel, 3, LVIF_TEXT, m_HiTol, 0, 0, 0, 0);
+    m_SpCfgList.SetItem(iSel, 5, LVIF_TEXT, m_HiAllow, 0, 0, 0, 0);
+
+    UpdateData(FALSE);
     }
   }
 
@@ -3593,10 +3644,24 @@ void CMdlCfgSpcs::OnChangeLotol()
   if (pos)
     {
     iSel=m_SpCfgList.GetNextSelectedItem(pos);
+
+    double All=SafeAtoF(m_LoAllow);
+    double Tol=SafeAtoF(m_LoTol);
+    double Def=All+Tol;
+
     UpdateData(TRUE);
-    CString S;
-    S.Format("%4.0f", m_LoTol);
-    m_SpCfgList.SetItem(iSel, 2, LVIF_TEXT, S, 0, 0, 0, 0);
+
+    double NewTol=SafeAtoF(m_LoTol);
+    double NewTolChk=Range(0.0, NewTol, Min(200.0, Def-K2C(1.0)));
+    All=Def-NewTolChk;
+    if (NewTol!=NewTolChk)
+      m_LoTol.Format("%.2f", NewTol);
+    m_LoAllow.Format("%.2f", All);
+
+    m_SpCfgList.SetItem(iSel, 2, LVIF_TEXT, m_LoTol, 0, 0, 0, 0);
+    m_SpCfgList.SetItem(iSel, 4, LVIF_TEXT, m_LoAllow, 0, 0, 0, 0);
+
+    UpdateData(FALSE);
     }
   }
 
@@ -3672,23 +3737,20 @@ void CMdlCfgSpcs::OnKeydownSpcfglist(NMHDR* pNMHDR, LRESULT* pResult)
     if (GetType(m_SpCfgList.GetItemData(i))==spl_SpecieId)
       {
       CString Spc=m_SpCfgList.GetItemText(i,0);
-      CString Ideal=m_SpCfgList.GetItemText(i,1);
-      CString Lo=m_SpCfgList.GetItemText(i,2);
-      CString Hi=m_SpCfgList.GetItemText(i,3);
       int Index=GetIndex(m_SpCfgList.GetItemData(i));
       UpdateWhat(spl_SpecieId, Spc, Index);
-      UpdateTTols(Spc, Lo, Hi, Ideal, Index);
+      UpdateTTols(i, Index);
       }
     else
       {
       UpdateWhat(GetType(m_SpCfgList.GetItemData(i)), "", -1);
-      UpdateTTols("", "25", "25",  DefaultIdealStr(m_lCfgFilePrjFileVerNo), -1);
+      UpdateTTols(-1, -1);
       }
     }
   else
     {
     m_What.SetWindowText("");
-    UpdateTTols("", "25", "25", DefaultIdealStr(m_lCfgFilePrjFileVerNo), -1);
+    UpdateTTols(-1, -1);
     }
   EnableEditButtons();
 
@@ -3714,23 +3776,20 @@ void CMdlCfgSpcs::OnItemchangedSpcfglist(NMHDR* pNMHDR, LRESULT* pResult)
     if (GetType(m_SpCfgList.GetItemData(i))==spl_SpecieId)
       {
       CString Spc=m_SpCfgList.GetItemText(i,0);
-      CString Ideal=m_SpCfgList.GetItemText(i,1);
-      CString Lo=m_SpCfgList.GetItemText(i,2);
-      CString Hi=m_SpCfgList.GetItemText(i,3);
       int Index=GetIndex(m_SpCfgList.GetItemData(i));
       UpdateWhat(spl_SpecieId, Spc, Index);
-      UpdateTTols(Spc, Lo, Hi, Ideal, Index);
+      UpdateTTols(i, Index);
       }
     else
       {
       UpdateWhat(GetType(m_SpCfgList.GetItemData(i)), "", -1);
-      UpdateTTols("", "25", "25",  DefaultIdealStr(m_lCfgFilePrjFileVerNo), -1);
+      UpdateTTols(-1, -1);
       }
     }
   else
     {
     m_What.SetWindowText("");
-    UpdateTTols("", "25", "25", DefaultIdealStr(m_lCfgFilePrjFileVerNo), -1);
+    UpdateTTols(-1, -1);
     }
   EnableEditButtons();
   *pResult = 0;
@@ -3747,23 +3806,20 @@ void CMdlCfgSpcs::OnClickSpcfglist(NMHDR* pNMHDR, LRESULT* pResult)
     if (GetType(m_SpCfgList.GetItemData(i))==spl_SpecieId)
       {
       CString Spc=m_SpCfgList.GetItemText(i,0);
-      CString Ideal=m_SpCfgList.GetItemText(i,1);
-      CString Lo=m_SpCfgList.GetItemText(i,2);
-      CString Hi=m_SpCfgList.GetItemText(i,3);
       int Index=GetIndex(m_SpCfgList.GetItemData(i));
       UpdateWhat(spl_SpecieId, Spc, Index);
-      UpdateTTols(Spc, Lo, Hi, Ideal, Index);
+      UpdateTTols(i, Index);
       }
     else
       {
       UpdateWhat(GetType(m_SpCfgList.GetItemData(i)), "", -1);
-      UpdateTTols("", "25", "25", DefaultIdealStr(m_lCfgFilePrjFileVerNo), -1);
+      UpdateTTols(-1, -1);
       }
     }
   else
     {
     m_What.SetWindowText("");
-    UpdateTTols("", "25", "25", DefaultIdealStr(m_lCfgFilePrjFileVerNo), -1);
+    UpdateTTols(-1, -1);
     }
   EnableEditButtons();
   *pResult = 0;

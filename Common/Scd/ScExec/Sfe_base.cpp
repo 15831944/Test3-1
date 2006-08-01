@@ -2178,7 +2178,6 @@ void CNewPrjDlg::DoNewCfg(char* pSrcCfgFile)
       Strng DstCfgDB = NewCfgFiles();
       DstCfgDB += "\\";
       DstCfgDB += CfgDBFileName();
-      RenameCfgDBFile(DstCfgDB());
       if (!FileExists(DstCfgDB()))
         {//create (or copy) mdb database...
         bool DoCreateMDB = true;
@@ -2205,7 +2204,6 @@ void CNewPrjDlg::DoNewCfg(char* pSrcCfgFile)
           Strng SrcCfgDB;
           SrcCfgDB = OldCfgFiles;
           SrcCfgDB += CfgDBFileName();
-          RenameCfgDBFile(SrcCfgDB());
           if (FileExists(SrcCfgDB()))
             {
             DoCreateMDB = false;
@@ -3045,7 +3043,6 @@ flag CModelInfoUpgrade::CheckDBFileFormat(char *FilesPath)
     C=SDBCfg;
     C1=SDBCfg;
     M+=CfgDBFileName();
-    RenameCfgDBFile(M());
     C+="SpecieDB.csv";
     C1+="ScdCnvs.csv";
     flag MDBOK=FileExists(M());

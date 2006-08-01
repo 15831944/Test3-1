@@ -167,16 +167,16 @@ class DllImportExport CLicense
 typedef struct
   {
   DWORD Level            : 2,  //allows 4 levels
-        Client_Other     : 1,  // Option30 = Custom user/client models                |
-        Client_QAL       : 1,  // Option29 = QAL Standard                             |
-        Client_RTTS      : 1,  // Option28 = RTTS models                              |
-        Client_Alcan     : 1,  // Option27 = Alcan models                             |
-        Client_MineServe : 1,  // Option26 = Gijima MineServe                         |
-        Spare_22         : 1,  // Option25                                            |
-        Spare_23         : 1,  // Option24                                            |
-        Spare_25         : 1,  // Option23                                            |
-        Spare_26         : 1,  // Option22                                            |
-        Spare_27         : 1,  // Option21                                            |
+        Reserved82       : 1,  // Option30 = Reserved Version 8.2                     |
+        Reserved90       : 1,  // Option29 = Reserved Version 9.0                     |
+        Spare_28         : 1,  // Option28                                            |
+        Client_Other     : 1,  // Option27 = Custom user/client models                |
+        Client_RTTS      : 1,  // Option26 = RTTS models                              |
+        Client_QAL       : 1,  // Option25 = QAL Standard                             |
+        Client_MineServe : 1,  // Option24 = Gijima MineServe                         |
+        Client_Alcan     : 1,  // Option23 = Alcan models                             |
+        Spare_22         : 1,  // Option22                                            |
+        Spare_21         : 1,  // Option21                                            |
         Mdls_SMDKRuntime : 1,  // Option20 = SMDK Runtime (BlackBox) models           |       
         Mdls_Electrical  : 1,  // Option19 = KW Electrical                            |       
         Mdls_Alumina     : 1,  // Option18 = KW Alumina                               |       
