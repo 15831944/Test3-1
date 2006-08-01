@@ -303,6 +303,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SysCAD91Lic", "Utils\syscad
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TS", "SMDK\RTTS\TS\TS.vcproj", "{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TS_ModelLib", "SMDK\RTTS\TS_ModelLib\TS_ModelLib.vcproj", "{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -1238,6 +1246,46 @@ Global
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Debug.ActiveCfg = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Debug.Build.0 = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Debug - Full.ActiveCfg = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Debug - Full.Build.0 = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Distribution.ActiveCfg = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Distribution.Build.0 = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release.ActiveCfg = Release|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release.Build.0 = Release|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release - Full.ActiveCfg = Release|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release - Full.Build.0 = Release|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg.Build.0 = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg Full.Build.0 = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg Marshal.Build.0 = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}.SMDK_Debug.Build.0 = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Debug.ActiveCfg = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Debug.Build.0 = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Debug - Full.ActiveCfg = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Debug - Full.Build.0 = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Distribution.ActiveCfg = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Distribution.Build.0 = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release.ActiveCfg = Release|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release.Build.0 = Release|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release - Full.ActiveCfg = Release|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release - Full.Build.0 = Release|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg.Build.0 = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg Full.Build.0 = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg Marshal.Build.0 = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}.SMDK_Debug.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		Common\BldCopyCOMDll-H.Cmd = Common\BldCopyCOMDll-H.Cmd

@@ -410,9 +410,6 @@
 				RelativePath=".\ImpExpSelect.cpp">
 			</File>
 			<File
-				RelativePath=".\LicCount.cpp">
-			</File>
-			<File
 				RelativePath=".\MainFrm.cpp">
 			</File>
 			<File
