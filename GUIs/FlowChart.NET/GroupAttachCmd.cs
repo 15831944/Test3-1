@@ -40,7 +40,7 @@ namespace MindFusion.FlowChartX.Commands
 
 		public void Execute()
 		{
-			group.fcParent.UndoManager.executeCommand(this);
+			group.flowChart.UndoManager.executeCommand(this);
 
 			cmdContext.Document.fireActionRedone(this);
 		}

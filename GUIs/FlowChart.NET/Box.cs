@@ -33,8 +33,8 @@ namespace MindFusion.FlowChartX
 
 		public Box(FlowChart parent) : base(parent)
 		{
-			pen = (Pen)fcParent.BoxPen.Clone();
-			brush = fcParent.BoxBrush;
+			pen = (Pen)flowChart.BoxPen.Clone();
+			brush = flowChart.BoxBrush;
 			brush.AddRef();
 
 			style = parent.BoxStyle;
@@ -52,22 +52,22 @@ namespace MindFusion.FlowChartX
 
 			customDraw = parent.BoxCustomDraw;
 
-			shapeRotation = fcParent.ShapeOrientation;
+			shapeRotation = flowChart.ShapeOrientation;
 			rotationAngle = 0;
 			rotateContents = false;
 			shapeTemplate = null;
 			if (style == BoxStyle.Shape)
-				Shape = fcParent.DefaultShape;
+				Shape = flowChart.DefaultShape;
 
-			setExpandable(fcParent.BoxesExpandable);
+			setExpandable(flowChart.BoxesExpandable);
 			setExpanded(true);
 
 			picturePos = ImageAlign.Fit;
 
-			selStyle = fcParent.BoxHandlesStyle;
+			selStyle = flowChart.BoxHandlesStyle;
 
-			useTextLayout = fcParent.PolyTextLayout;
-			useStyledText = fcParent.EnableStyledText;
+			useTextLayout = flowChart.PolyTextLayout;
+			useStyledText = flowChart.EnableStyledText;
 			txOptions = new Text.LayoutOptions();
 			txLayout = new Text.Layout();
 			updateText();
@@ -120,7 +120,7 @@ namespace MindFusion.FlowChartX
 
 			// Listen for changes in FlowChart' unit of measure
 			parentUnitChanged = new EventHandler(OnParentUnitChanged);
-			fcParent.MeasureUnitChanged += parentUnitChanged;
+			flowChart.MeasureUnitChanged += parentUnitChanged;
 		}
 
 		#endregion
@@ -137,13 +137,13 @@ namespace MindFusion.FlowChartX
 
 			if (parentUnitChanged != null)
 			{
-				fcParent.MeasureUnitChanged -= parentUnitChanged;
+				flowChart.MeasureUnitChanged -= parentUnitChanged;
 				parentUnitChanged = null;
 			}
 
 			// fire a BoxDeleted event
 			if (constructed)
-				fcParent.fireBoxDeleted(this);
+				flowChart.fireBoxDeleted(this);
 		}
 
 		internal override void freeResources()
@@ -212,8 +212,8 @@ namespace MindFusion.FlowChartX
 				RectangleF rc = getBoundingRect();
 				PointF pivot = getCenter();
 				PointF point = new PointF(pivot.X,
-					rc.Top - 6 * Constants.getMillimeter(fcParent.MeasureUnit) -
-					2.8F * fcParent.SelHandleSize / 4);
+					rc.Top - 6 * Constants.getMillimeter(flowChart.MeasureUnit) -
+					2.8F * flowChart.SelHandleSize / 4);
 				if (rotation() != 0)
 					point = Utilities.rotatePointAt(point, pivot, rotation());
 
@@ -455,7 +455,7 @@ namespace MindFusion.FlowChartX
 								else
 								{
 									ShapeTemplate stvalue = ShapeTemplate.FromId(shpId);
-									ShapeTemplate newVal = fcParent.DefaultShape;
+									ShapeTemplate newVal = flowChart.DefaultShape;
 									if (stvalue != null)
 										newVal = stvalue;
 									if (newVal.Id == "")
@@ -538,7 +538,7 @@ namespace MindFusion.FlowChartX
 		public override void Draw(Graphics g, bool shadow)
 		{
 			if (invisible) return;
-			if (fcParent.NowPrinting && !Printable) return;
+			if (flowChart.NowPrinting && !Printable) return;
 
 			System.Drawing.Brush br = null;
 			System.Drawing.Pen p = null;
@@ -552,7 +552,7 @@ namespace MindFusion.FlowChartX
 			}
 			else
 			{
-				if (fcParent.RenderOptions.EnableInterior)
+				if (flowChart.RenderOptions.EnableInterior)
 					br = this.Brush.CreateGDIBrush(getRotatedBounds());
 				else
 					br = new System.Drawing.SolidBrush(Color.FromArgb(0, 255, 255, 255));
@@ -570,7 +570,7 @@ namespace MindFusion.FlowChartX
 				if (customDraw == CustomDraw.Full)
 				{
 					// call the custom draw function
-					fcParent.drawBox(g, this, shadow, rc);
+					flowChart.drawBox(g, this, shadow, rc);
 				}
 				else if (customDraw == CustomDraw.ShadowOnly && shadow)
 				{
@@ -583,7 +583,7 @@ namespace MindFusion.FlowChartX
 					if (newClipReg != null)
 						g.SetClip(newClipReg, CombineMode.Intersect);
 
-					fcParent.drawBox(g, this, true, rc);
+					flowChart.drawBox(g, this, true, rc);
 
 					g.SetClip(oldClipReg, CombineMode.Replace);
 					if (newClipReg != null) newClipReg.Dispose();
@@ -603,17 +603,20 @@ namespace MindFusion.FlowChartX
 						g.DrawEllipse(p, rc);
 						break;
 					case BoxStyle.RoundedRectangle:
-						GraphicsPath gp = Utilities.getRoundRect(
-							rc.X, rc.Y, rc.Width, rc.Height, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
-						g.FillPath(br, gp);
-						if (!shadow) drawInterior(g);
-						g.DrawPath(p, gp);
-						gp.Dispose();
+						if (rc.Width > 0 && rc.Height > 0)
+						{
+							GraphicsPath gp = Utilities.getRoundRect(
+								rc.X, rc.Y, rc.Width, rc.Height, Constants.getRoundRectArc(flowChart.MeasureUnit, flowChart.RoundRectFactor));
+							g.FillPath(br, gp);
+							if (!shadow) drawInterior(g);
+							g.DrawPath(p, gp);
+							gp.Dispose();
+						}
 						break;
 					case BoxStyle.Delay:
 						if (rc.Width > 0 && rc.Height > 0)
 						{
-							gp = Utilities.getDelaySymbol(rc);
+							GraphicsPath gp = Utilities.getDelaySymbol(rc);
 							g.FillPath(br, gp);
 							if (!shadow) drawInterior(g);
 							g.DrawPath(p, gp);
@@ -706,12 +709,12 @@ namespace MindFusion.FlowChartX
 
 			// additional2 custom draw type
 			if (customDraw == CustomDraw.Additional2)
-				fcParent.drawBox(g, this, shadow, rc);
+				flowChart.drawBox(g, this, shadow, rc);
 
 			if (!shadow)
 			{
 				drawManipulators(g, false);
-				if (fcParent.RenderOptions.EnableAnchors)
+				if (flowChart.RenderOptions.EnableAnchors)
 					drawAnchors(g);
 			}
 
@@ -731,7 +734,7 @@ namespace MindFusion.FlowChartX
 				if (newClipReg != null)
 					g.SetClip(newClipReg, CombineMode.Intersect);
 
-				if (image != null && fcParent.RenderOptions.EnableImages)
+				if (image != null && flowChart.RenderOptions.EnableImages)
 				{
 					float angle = 0;
 					if (rotateContents)
@@ -746,14 +749,14 @@ namespace MindFusion.FlowChartX
 
 				// additional custom draw type
 				if (customDraw == CustomDraw.Additional)
-					fcParent.drawBox(g, this, false, rct);
+					flowChart.drawBox(g, this, false, rct);
 					
 				g.SetClip(oldClipReg, CombineMode.Replace);
 			}
 
 			// DrawString crashes with a too small PageScale
 			if (g.PageScale > 0.01 && text.Length > 0 &&
-				fcParent.RenderOptions.EnableText)
+				flowChart.RenderOptions.EnableText)
 			{
 				System.Drawing.Brush brText =
 					new System.Drawing.SolidBrush(textColor);
@@ -812,14 +815,14 @@ namespace MindFusion.FlowChartX
 				Handles mask = style == BoxStyle.Shape ?
 					enabledHandles : enabledHandles & ~Handles.Rotate;
 				RectangleF rc = Utilities.normalizeRect(rect);
-				Utilities.drawSelHandles(g, color, fcParent.DisabledMnpColor,
-					rc, rotation(), mask, fcParent.ShowDisabledHandles,
-					selStyle, fcParent.SelHandleSize);
+				Utilities.drawSelHandles(g, color, flowChart.DisabledMnpColor,
+					rc, rotation(), mask, flowChart.ShowDisabledHandles,
+					selStyle, flowChart.SelHandleSize);
 			}
 			else
 			{
 				// let applications custom draw the selection handles
-				fcParent.fireDrawSelHandles(g, this);
+				flowChart.fireDrawSelHandles(g, this);
 			}
 		}
 
@@ -832,8 +835,8 @@ namespace MindFusion.FlowChartX
 				if (value != selStyle)
 				{
 					selStyle = value;
-					fcParent.invalidate(getRepaintRect(false));
-					fcParent.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -934,8 +937,8 @@ namespace MindFusion.FlowChartX
 
 					GraphicsPath path = shapeTemplate.getPath(
 						shapeData, rotation());
-					Graphics g = fcParent.CreateGraphics();
-					fcParent.setTransforms(g);
+					Graphics g = flowChart.CreateGraphics();
+					flowChart.setTransforms(g);
 					bool res = path.IsVisible(pt, g);
 					g.Dispose();
 					path.Dispose();
@@ -960,12 +963,12 @@ namespace MindFusion.FlowChartX
 
 				return Utilities.pointInHandle(pt,
 					ref handle, rc, rotation(), mask, 0, selStyle,
-					fcParent.SelHandleSize, fcParent.MeasureUnit);
+					flowChart.SelHandleSize, flowChart.MeasureUnit);
 			}
 			else
 			{
 				// let the application do hit testing
-				return fcParent.hitTestSelHandles(this, pt, ref handle);
+				return flowChart.hitTestSelHandles(this, pt, ref handle);
 			}
 		}
 
@@ -975,7 +978,7 @@ namespace MindFusion.FlowChartX
 
 			RectangleF rc = Utilities.normalizeRect(rect);
 			if (Utilities.pointInHandle(pt, ref handle, rc, rotation(),
-				Handles.All, 0, selStyle, fcParent.SelHandleSize, fcParent.MeasureUnit))
+				Handles.All, 0, selStyle, flowChart.SelHandleSize, flowChart.MeasureUnit))
 				return handle;
 
 			return -1;
@@ -1149,7 +1152,7 @@ namespace MindFusion.FlowChartX
 				}
 				break;
 			case BoxStyle.RoundedRectangle:
-				rgn = Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(fcParent.MeasureUnit, fcParent.RoundRectFactor));
+				rgn = Utilities.createRoundRectRgn(rc, Constants.getRoundRectArc(flowChart.MeasureUnit, flowChart.RoundRectFactor));
 				break;
 			case BoxStyle.Rhombus:
 				{
@@ -1197,13 +1200,13 @@ namespace MindFusion.FlowChartX
 			{
 				if (style != value)
 				{
-					fcParent.invalidate(getRepaintRect(true));
+					flowChart.invalidate(getRepaintRect(true));
 
 					setStyle(value);
 					updateArrowsIntsc();
 
-					fcParent.invalidate(getRepaintRect(true));
-					fcParent.setDirty();
+					flowChart.invalidate(getRepaintRect(true));
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -1220,8 +1223,8 @@ namespace MindFusion.FlowChartX
 			set
 			{
 				image = value;
-				fcParent.setDirty();
-				fcParent.invalidate(getRepaintRect(false));
+				flowChart.setDirty();
+				flowChart.invalidate(getRepaintRect(false));
 			}
 		}
 
@@ -1239,8 +1242,8 @@ namespace MindFusion.FlowChartX
 				if (picturePos != value)
 				{
 					picturePos = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1259,8 +1262,8 @@ namespace MindFusion.FlowChartX
 				if (transparent != value)
 				{
 					transparent = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1344,8 +1347,8 @@ namespace MindFusion.FlowChartX
 
 					updateText();
 					layoutText();
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1372,8 +1375,8 @@ namespace MindFusion.FlowChartX
 				if (!textColor.Equals(value))
 				{
 					textColor = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1391,8 +1394,8 @@ namespace MindFusion.FlowChartX
 				textFormat = new StringFormat(value);
 
 				layoutText();
-				fcParent.setDirty();
-				fcParent.invalidate(getRepaintRect(false));
+				flowChart.setDirty();
+				flowChart.invalidate(getRepaintRect(false));
 			}
 		}
 
@@ -1419,8 +1422,8 @@ namespace MindFusion.FlowChartX
 
 					updateText();
 					layoutText();
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1436,8 +1439,8 @@ namespace MindFusion.FlowChartX
 
 					updateText();
 					layoutText();
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1460,8 +1463,8 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		private void updateText()
 		{
-			Graphics graphics = fcParent.CreateGraphics();
-			fcParent.setTransforms(graphics);
+			Graphics graphics = flowChart.CreateGraphics();
+			flowChart.setTransforms(graphics);
 
 			if (useStyledText)
 			{
@@ -1557,6 +1560,9 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		private PointF[] docToLocal(PointF[] points)
 		{
+			if (points == null)
+				return null;
+
 			PointF[] result = (PointF[])points.Clone();
 			RectangleF nrect = Utilities.normalizeRect(this.rect);
 
@@ -1615,7 +1621,7 @@ namespace MindFusion.FlowChartX
 			style = newStyle;
 
 			if (style == BoxStyle.Shape && shapeTemplate == null)
-				Shape = fcParent.DefaultShape;
+				Shape = flowChart.DefaultShape;
 
 			updateShapePoints();
 
@@ -1633,7 +1639,7 @@ namespace MindFusion.FlowChartX
 		/// </summary>
 		public void FitSizeToImage()
 		{
-			fcParent.invalidate(getRepaintRect(true));
+			flowChart.invalidate(getRepaintRect(true));
 
 			Image image = getImage();
 			if (image != null)
@@ -1641,8 +1647,8 @@ namespace MindFusion.FlowChartX
 				int w = image.Width;
 				int h = image.Height;
 
-				Graphics g = fcParent.CreateGraphics();
-				fcParent.setTransforms(g);
+				Graphics g = flowChart.CreateGraphics();
+				flowChart.setTransforms(g);
 				RectangleF sizeDev = RectangleF.FromLTRB(0, 0,
 					(float)w / image.HorizontalResolution * g.DpiX * g.PageScale,
 					(float)h / image.VerticalResolution * g.DpiY * g.PageScale);
@@ -1668,8 +1674,8 @@ namespace MindFusion.FlowChartX
 					subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 			}
 
-			fcParent.invalidate(getRepaintRect(true));
-			fcParent.setDirty();
+			flowChart.invalidate(getRepaintRect(true));
+			flowChart.setDirty();
 		}
 
 		/// <summary>
@@ -1680,7 +1686,7 @@ namespace MindFusion.FlowChartX
 			if (text.Length == 0)
 				return false;
 
-			float mm = Constants.getMillimeter(fcParent.MeasureUnit);
+			float mm = Constants.getMillimeter(flowChart.MeasureUnit);
 			RectangleF initial = rect;
 			RectangleF initialRepaint = getRepaintRect(true);
 
@@ -1688,7 +1694,7 @@ namespace MindFusion.FlowChartX
 			if (fit == FitSize.KeepWidth)
 			{
 				// check whether the box is wide enough to fit at least one letter
-				SizeF size = fcParent.MeasureString("W",
+				SizeF size = flowChart.MeasureString("W",
 					Font, int.MaxValue, textFormat);
 				if (size.Width + mm > rect.Width)
 					return false;
@@ -1696,7 +1702,7 @@ namespace MindFusion.FlowChartX
 				if (canLayoutText() && useTextLayout)
 				{
 					// using FlowChart.NET polygonal text layout
-					float stepy = Constants.getFitTextStep(fcParent.MeasureUnit);
+					float stepy = Constants.getFitTextStep(flowChart.MeasureUnit);
 					RectangleF rc = initial;
 
 					// change height until the text fits
@@ -1739,7 +1745,7 @@ namespace MindFusion.FlowChartX
 				else
 				{
 					// using standard .NET text layout
-					size = fcParent.MeasureString(text,
+					size = flowChart.MeasureString(text,
 						Font, (int)rect.Width, textFormat);
 					rect.Height = size.Height;
 				}
@@ -1748,12 +1754,12 @@ namespace MindFusion.FlowChartX
 			if (fit == FitSize.KeepHeight)
 			{
 				// check whether the box is big enough to fit at least one line
-				SizeF size = fcParent.MeasureString(text,
+				SizeF size = flowChart.MeasureString(text,
 					Font, int.MaxValue, textFormat);
 				if (size.Height + mm > rect.Height)
 					return false;
 
-				float stepx = Constants.getFitTextStep(fcParent.MeasureUnit);
+				float stepx = Constants.getFitTextStep(flowChart.MeasureUnit);
 				RectangleF rc = rect;
 
 				if (canLayoutText() && useTextLayout)
@@ -1796,7 +1802,7 @@ namespace MindFusion.FlowChartX
 				{
 					// change width until the text fits
 					float cx = 0;
-					size = fcParent.MeasureString(text,
+					size = flowChart.MeasureString(text,
 						Font, (int)rect.Width, textFormat);
 					if (size.Height < rect.Height)
 					{
@@ -1807,7 +1813,7 @@ namespace MindFusion.FlowChartX
 							rc.Inflate(cx, 0);
 
 							setRect(rc);
-							size = fcParent.MeasureString(text,
+							size = flowChart.MeasureString(text,
 								Font, (int)rect.Width, textFormat);
 						}
 						while (size.Height < rect.Height);
@@ -1819,7 +1825,7 @@ namespace MindFusion.FlowChartX
 					}
 					else
 					{
-						size = fcParent.MeasureString(text,
+						size = flowChart.MeasureString(text,
 							Font, (int)rect.Width, textFormat);
 						while (size.Height > rect.Height)
 						{
@@ -1828,7 +1834,7 @@ namespace MindFusion.FlowChartX
 							rc.Inflate(cx, 0);
 
 							setRect(rc);
-							size = fcParent.MeasureString(text,
+							size = flowChart.MeasureString(text,
 								Font, (int)rect.Width, textFormat);
 
 							if (rect.Width > mm * 1000)
@@ -1843,8 +1849,8 @@ namespace MindFusion.FlowChartX
 				if (rect.Width == 0 || rect.Height == 0)
 					return false;
 
-				float stepx = Constants.getFitTextStep(fcParent.MeasureUnit);
-				float stepy = Constants.getFitTextStep(fcParent.MeasureUnit);
+				float stepx = Constants.getFitTextStep(flowChart.MeasureUnit);
+				float stepy = Constants.getFitTextStep(flowChart.MeasureUnit);
 				RectangleF rc = initial;
 
 				float hvratio = rc.Width / rc.Height;
@@ -1910,7 +1916,7 @@ namespace MindFusion.FlowChartX
 					float cx = 0;
 					float cy = 0;
 
-					SizeF size = fcParent.MeasureString(text,
+					SizeF size = flowChart.MeasureString(text,
 						Font, (int)rect.Width, textFormat);
 					if (size.Height < rect.Height)
 					{
@@ -1922,7 +1928,7 @@ namespace MindFusion.FlowChartX
 							rc.Inflate(cx, cy);
 
 							setRect(rc);
-							size = fcParent.MeasureString(text,
+							size = flowChart.MeasureString(text,
 								Font, (int)rect.Width, textFormat);
 						}
 						while (size.Height < rect.Height);
@@ -1935,7 +1941,7 @@ namespace MindFusion.FlowChartX
 					}
 					else
 					{
-						size = fcParent.MeasureString(text,
+						size = flowChart.MeasureString(text,
 							Font, (int)rect.Width, textFormat);
 						while (size.Height > rect.Height)
 						{
@@ -1945,7 +1951,7 @@ namespace MindFusion.FlowChartX
 							rc.Inflate(cx, cy);
 
 							setRect(rc);
-							size = fcParent.MeasureString(text,
+							size = flowChart.MeasureString(text,
 								Font, (int)rect.Width, textFormat);
 
 							if (rect.Width > mm * 1000)
@@ -1962,9 +1968,9 @@ namespace MindFusion.FlowChartX
 			if (subordinateGroup != null)
 				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
-			fcParent.invalidate(
+			flowChart.invalidate(
 				RectangleF.Union(getRepaintRect(true), initialRepaint));
-			fcParent.setDirty();
+			flowChart.setDirty();
 
 			return true;
 		}
@@ -1986,8 +1992,8 @@ namespace MindFusion.FlowChartX
 				if (customDraw != value)
 				{
 					customDraw = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2010,7 +2016,7 @@ namespace MindFusion.FlowChartX
 			get { return shapeTemplate; }
 			set
 			{
-				ShapeTemplate newVal = fcParent.DefaultShape;
+				ShapeTemplate newVal = flowChart.DefaultShape;
 
 				if (value != null)
 					newVal = value;
@@ -2027,8 +2033,8 @@ namespace MindFusion.FlowChartX
 				updateShapePoints();
 				updateArrowsIntsc();
 
-				fcParent.invalidate(getRepaintRect(false));
-				fcParent.setDirty();
+				flowChart.invalidate(getRepaintRect(false));
+				flowChart.setDirty();
 			}
 		}
 
@@ -2045,7 +2051,7 @@ namespace MindFusion.FlowChartX
 				if (shapeTemplate != null)
 				{
 					updateShapePoints();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2061,8 +2067,8 @@ namespace MindFusion.FlowChartX
 			{
 				if (rotationAngle != value)
 				{
-					fcParent.UndoManager.onStartPlacementChange(this);
-					fcParent.invalidate(getRepaintRect(true));
+					flowChart.UndoManager.onStartPlacementChange(this);
+					flowChart.invalidate(getRepaintRect(true));
 
 					rotationAngle = value;
 					updateShapePoints();
@@ -2070,10 +2076,10 @@ namespace MindFusion.FlowChartX
 						new MethodCallVisitor(new VisitOperation(AV_UpdPosOutgoing)),
 						new MethodCallVisitor(new VisitOperation(AV_UpdPosIncoming)));
 					
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(true));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(true));
 
-					fcParent.UndoManager.onEndPlacementChange();
+					flowChart.UndoManager.onEndPlacementChange();
 				}
 			}
 		}
@@ -2102,8 +2108,8 @@ namespace MindFusion.FlowChartX
 
 				layoutText();
 
-				fcParent.invalidate(getRepaintRect(false));
-				fcParent.setDirty();
+				flowChart.invalidate(getRepaintRect(false));
+				flowChart.setDirty();
 			}
 		}
 
@@ -2146,8 +2152,8 @@ namespace MindFusion.FlowChartX
 
 				emboss = MindFusion.Drawing.Effects.GenerateEmboss(path);
 
-				//shadow.Save(@"d:\shadow.png", System.Drawing.Imaging.ImageFormat.Png);
-				//emboss.Save(@"d:\emboss.png", System.Drawing.Imaging.ImageFormat.Png);
+				shadow.Save(@"d:\shadow.png", System.Drawing.Imaging.ImageFormat.Png);
+				emboss.Save(@"d:\emboss.png", System.Drawing.Imaging.ImageFormat.Png);
 #endif
 			}
 
@@ -2254,12 +2260,12 @@ namespace MindFusion.FlowChartX
 
 		public void BeginInplaceEdit()
 		{
-			fcParent.startInplaceEdit(new NodeInplaceEditable(this), getEditRect());
+			flowChart.startInplaceEdit(new NodeInplaceEditable(this), getEditRect());
 		}
 
 		public void EndInplaceEdit(bool accept)
 		{
-			fcParent.endInplaceEdit(accept);
+			flowChart.endInplaceEdit(accept);
 		}
 
 		internal override bool canModify(int handle)
@@ -2346,9 +2352,10 @@ namespace MindFusion.FlowChartX
 			{
 				GraphicsPath path = shapeTemplate.getPath(shapeData, rotation());
 				path.Flatten();
-				PointList shapePoints = new PointList(path.PathPoints);
+				PointList shapePoints = path.PointCount > 2 ?
+					new PointList(path.PathPoints) : null;
 				path.Dispose();
-				if (shapePoints[0] == shapePoints[shapePoints.Count-1])
+				if (shapePoints != null && shapePoints[0] == shapePoints[shapePoints.Count-1])
 					shapePoints.RemoveAt(shapePoints.Count-1);
 				return shapePoints;
 			}

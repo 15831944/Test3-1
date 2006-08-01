@@ -40,7 +40,9 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	[DefaultEvent("BoxCreated")]
 	[DefaultProperty("Behavior")]
+#if !VERTIGO
 	[LicenseProvider(typeof(RegistryLicenseProvider))]
+#endif
 	public class FlowChart : System.Windows.Forms.Control, IPersistObjFactory, IPersists
 	{
 		#region initialization
@@ -310,6 +312,8 @@ namespace MindFusion.FlowChartX
 
 			showHandlesOnDrag = true;
 			mergeThreshold = 0;
+
+			expandButtonAction = ExpandButtonAction.ExpandTreeBranch;
 		}
 
 		~FlowChart()
@@ -320,7 +324,201 @@ namespace MindFusion.FlowChartX
 
 		#endregion
 
-		#region diagram structure and contents
+		#region diagram contents and structure
+
+		/// <summary>
+		/// Gets a collection of all items in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		public ChartObjectCollection Objects
+		{
+			get { return zOrder; }
+		}
+
+		/// <summary>
+		/// Gets a collection of all boxes in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		public BoxCollection Boxes
+		{
+			get { return boxes; }
+		}
+
+		/// <summary>
+		/// Gets a collection of all tables in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		public TableCollection Tables
+		{
+			get { return tables; }
+		}
+
+		/// <summary>
+		/// Gets a collection of all control hosts in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		public ControlHostCollection ControlHosts
+		{
+			get { return controlHosts; }
+		}
+
+		/// <summary>
+		/// Gets a collection of all arrows in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		public ArrowCollection Arrows
+		{
+			get { return arrows; }
+		}
+
+		/// <summary>
+		/// Gets a collection of all groups in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		public GroupCollection Groups
+		{
+			get { return groups; }
+		}
+
+		/// <summary>
+		/// Gets a reference to a Selection object that represents
+		/// the selection of items in this flowchart.
+		/// </summary>
+		[Browsable(false)]
+		[Description("Selection settings.")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		[TypeConverter(typeof(ExpandableObjectConverter))]
+		public Selection Selection
+		{
+			get { return selection; }
+		}
+
+		/// <summary>
+		/// Gets or sets the active item - a selected item drawn with white handles
+		/// around it. Usually that is the last item added to the selection.
+		/// </summary>
+		[Browsable(false)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public ChartObject ActiveObject
+		{
+			get
+			{
+				return activeObject;
+			}
+			set
+			{
+				if (activeObject == value)
+					return;
+
+				RectangleF rcUpdate = RectangleF.Empty;
+				if (activeObject != null)
+					rcUpdate = activeObject.getRepaintRect(false);
+
+				activeObject = value;
+
+				if (activeObject != null)
+					rcUpdate = Utilities.unionNonEmptyRects(rcUpdate,
+						activeObject.getRepaintRect(false));
+
+				if (activeObject != null)
+				{
+					if (activeObject.getType() == ItemType.ControlHost)
+					{
+						// Bring the contained control to front
+						ControlHost host = (ControlHost)activeObject;
+						if (host.Control != null)
+							bringContainedControlToFront(host.Control);
+					}
+				}
+
+				invalidate(rcUpdate);
+			}
+		}
+
+		/// <summary>
+		/// Adds the specified item to the flowchart.
+		/// </summary>
+		/// <param name="item">A new item that should be added to the flowchart.</param>
+		public void Add(ChartObject item)
+		{
+			Add(item, false);
+		}
+
+		/// <summary>
+		/// Adds the specified item to the flowchart.
+		/// </summary>
+		/// <param name="item">A new item that should be added to the flowchart.</param>
+		/// <param name="select">Specifies whether the item should be selected
+		/// after adding it to the flowchart.</param>
+		public void Add(ChartObject item, bool select)
+		{
+			// validity checks can be disabled to save processing time, but beware,
+			// evil things can happen if the item collections are left in invalild state
+			if (validityChecks)
+			{
+				// do not allow adding an item more than once
+				if (zOrder.Contains(item))
+					return;
+
+				if (item.getType() == ItemType.Arrow)
+				{
+					Arrow arrow = item as Arrow;
+
+					// links origin and destination nodes must be in the same diagram
+					if (!zOrder.Contains(arrow.Origin) &&
+						(arrow.Origin == null || !(arrow.Origin is DummyNode)))
+						return;
+					if (!zOrder.Contains(arrow.Destination) &&
+						(arrow.Destination == null || !(arrow.Destination is DummyNode)))
+						return;
+				}
+			}
+
+			if (item.getType() == ItemType.ControlHost)
+			{
+				// add the hosted control to the flowchart
+				ControlHost host = item as ControlHost;
+				if (host.Control != null)
+				{
+					this.Controls.Add(host.Control);
+					bringContainedControlToFront(host.Control);
+				}
+			}
+
+			item.setParent(this);
+			item.setConstructed();
+
+			// add to the diagram
+			AddItemCmd cmd = new AddItemCmd(item);
+			cmd.Execute();
+
+			RectangleF rc = item.getRepaintRect(false);
+			if (select)
+			{
+				selection.Change(item);
+				rc = Utilities.unionNonEmptyRects(rc,
+					selection.getRepaintRect(true));
+			}
+
+			if (undoManager.UndoEnabled)
+				cmd.saveSelState();
+
+			// repaint the diagram area covered by the new item
+			invalidate(rc);
+			setDirty();
+		}
+
+		/// <summary>
+		/// Adds the specified group to the flowchart.
+		/// </summary>
+		/// <param name="group">A new Group object that should be added to the flowchart.</param>
+		public void Add(Group group)
+		{
+			group.flowChart = this;
+			AddGroupCmd cmd = new AddGroupCmd(group.MainObject, group);
+			undoManager.executeCommand(cmd);
+			setDirty();
+		}
 
 		/// <summary>
 		/// Creates a new table at the specified location.
@@ -674,8 +872,6 @@ namespace MindFusion.FlowChartX
 			updateZOrder(0);
 		}
 
-		private ChartObjectCollection zOrder;
-
 		/// <summary>
 		/// Creates a new hierarchical group.
 		/// </summary>
@@ -768,37 +964,6 @@ namespace MindFusion.FlowChartX
 				return true;
 
 			return false;
-		}
-
-		// fires a RequestDrop event to check if drop operation can be
-		// completed at the specified position
-		internal bool canDropHere(ChartObject obj, PointF pt)
-		{
-			// in auto-accept mode -> always accept
-			/*			if (dragDropMode == drAutoAccept) return true;
-
-						CChartObject* pointedObj = NULL;
-
-						switch (obj->GetType())
-						{
-							case IT_BOX:
-								pointedObj = ObjectFromPoint(pt, false, obj, false);
-								if (pointedObj == NULL) return true;
-								return RequestDrop(pointedObj, dtBox);
-								break;
-							case IT_TABLE:
-								pointedObj = ObjectFromPoint(pt, false, obj, false);
-								if (pointedObj == NULL) return true;
-								return RequestDrop(pointedObj, dtTable);
-								break;
-							case IT_SELECTION:
-								pointedObj = ObjectFromPoint(pt, false, NULL, true);
-								if (pointedObj == NULL) return true;
-								return RequestDrop(pointedObj, dtSelection);
-								break;
-						}
-			*/
-			return true;
 		}
 
 		internal void getIntersectingObjects(RectangleF rect,
@@ -923,25 +1088,59 @@ namespace MindFusion.FlowChartX
 		/// <summary>
 		/// Returns the top-most node that lies at the specified position.
 		/// </summary>
-		/// <param name="pt">A PointF specifying a diagram point in logical coordinates.</param>
+		/// <param name="point">A PointF specifying a diagram point in logical coordinates.</param>
 		/// <returns>A Node instance if a node lies at the specified location, otherwise null.</returns>
-		public Node GetNodeAt(PointF pt)
+		public Node GetNodeAt(PointF point)
 		{
-			Node obj = null;
+			Node node = null;
 			
 			// search for object containing the point
 			for (int i = zOrder.Count - 1; i >= 0; i--)
 			{
-				ChartObject objTest = zOrder[i];
-				if (objTest is Node
-					&& objTest.containsPoint(pt) && !objTest.notInteractive())
+				ChartObject item = zOrder[i];
+				if (item is Node
+					&& item.containsPoint(point) && !item.notInteractive())
 				{
-					obj = (Node)objTest;
+					node = item as Node;
 					break;
 				}
 			}
 			
-			return obj;
+			return node;
+		}
+
+		/// <summary>
+		/// Returns the top-most node lying at the specified location.
+		/// </summary>
+		/// <param name="point">Specifies a location in the diagram where to look for nodes.</param>
+		/// <param name="excludeLocked">Specifies whether locked nodes should be excluded from the search.</param>
+		/// <param name="excludeSelected">Specifies whether selected nodes should be excluded from the search.</param>
+		/// <returns>A Node object found at the specified point.</returns>
+		public Node GetNodeAt(PointF point,
+			bool excludeLocked, bool excludeSelected)
+		{
+			Node node = null;
+
+			// search for object containing the point
+			for (int i = zOrder.Count - 1; i >= 0; i--)
+			{
+				ChartObject item = zOrder[i];
+
+				if (!(item is Node))
+					continue;
+				if (item.Locked && excludeLocked)
+					continue;
+				if (item.Selected && excludeSelected)
+					continue;
+
+				if (item.containsPoint(point))
+				{
+					node = item as Node;
+					break;
+				}
+			}
+			
+			return node;
 		}
 
 		/// <summary>
@@ -1150,43 +1349,6 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		/// <summary>
-		/// Returns the top-most node lying at the specified location.
-		/// </summary>
-		/// <param name="pt">Specifies a location in the diagram where to look for nodes.</param>
-		/// <param name="excludeLocked">Specifies whether locked nodes should be excluded from the search.</param>
-		/// <param name="excludeSelected">Specifies whether selected nodes should be excluded from the search.</param>
-		/// <returns>A Node object found at the specified point.</returns>
-		public Node GetNodeAt(PointF pt,
-			bool excludeLocked, bool excludeSelected)
-		{
-			Node obj = null;
-
-			// search for object containing the point
-			for (int i = zOrder.Count - 1; i >= 0; i--)
-			{
-				ChartObject curr = zOrder[i];
-
-				if (!(curr is Node)) continue;
-				if (curr.Locked && excludeLocked) continue;
-				if (curr.Selected && excludeSelected) continue;
-
-				if (curr.containsPoint(pt)) { obj = curr as Node; break; }
-			}
-			
-			return obj;
-		}
-
-		[Browsable(false)]
-		[Description("Selection settings.")]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		[TypeConverter(typeof(ExpandableObjectConverter))]
-		public Selection Selection
-		{
-			get { return selection; }
-			set { selection.Style = ((Selection)value).Style; }
-		}
-
 		private void bringContainedControlToFront(Control control)
 		{
 			control.BringToFront();
@@ -1202,124 +1364,6 @@ namespace MindFusion.FlowChartX
 		{
 			foreach (ChartObject item in zOrder)
 				item.freeData(key);
-		}
-
-		private BoxCollection boxes;
-		private ControlHostCollection controlHosts;
-		private TableCollection tables;
-		private ArrowCollection arrows;
-
-		private Selection selection;
-		private GroupCollection groups;
-
-		/// <summary>
-		/// Collection of the arrows in the current document
-		/// </summary>
-		[Browsable(false)]
-		public ArrowCollection Arrows
-		{
-			get
-			{
-				return arrows;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the boxes in the current document
-		/// </summary>
-		[Browsable(false)]
-		public BoxCollection Boxes
-		{
-			get
-			{
-				return boxes;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the control hosts in the current document
-		/// </summary>
-		[Browsable(false)]
-		public ControlHostCollection ControlHosts
-		{
-			get
-			{
-				return controlHosts;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the tables in the current document
-		/// </summary>
-		[Browsable(false)]
-		public TableCollection Tables
-		{
-			get
-			{
-				return tables;
-			}
-		}
-
-		/// <summary>
-		/// Collection of the groups in the current document
-		/// </summary>
-		[Browsable(false)]
-		public GroupCollection Groups
-		{
-			get
-			{
-				return groups;
-			}
-		}
-
-		/// <summary>
-		/// Collection of all objects in the current document
-		/// </summary>
-		[Browsable(false)]
-		public ChartObjectCollection Objects
-		{
-			get { return zOrder; }
-		}
-
-		/// <summary>
-		/// Reference to the active object if any
-		/// </summary>
-		[Browsable(false)]
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public ChartObject ActiveObject
-		{
-			get
-			{
-				return activeObject;
-			}
-			set
-			{
-				if (activeObject == value)
-					return;
-
-				RectangleF rcUpdate = RectangleF.Empty;
-				if (activeObject != null)
-					rcUpdate = activeObject.getRepaintRect(false);
-
-				activeObject = value;
-
-				if (activeObject != null)
-					rcUpdate = Utilities.unionNonEmptyRects(rcUpdate,
-						activeObject.getRepaintRect(false));
-
-				if (activeObject != null)
-				{
-					if (activeObject.getType() == ItemType.ControlHost)
-					{
-						// Bring the contained control to front
-						ControlHost host = (ControlHost)activeObject;
-						if (host.Control != null)
-							bringContainedControlToFront(host.Control);
-					}
-				}
-
-				invalidate(rcUpdate);
-			}
 		}
 
 		private ChartObject activeObject;
@@ -1341,77 +1385,13 @@ namespace MindFusion.FlowChartX
 			return zOrder[i];
 		}
 
-		public void Add(ChartObject obj)
-		{
-			Add(obj, false);
-		}
-
-		public void Add(ChartObject item, bool select)
-		{
-			// validity checks can be disabled to save processing time, but beware,
-			// evil things can happen if the item collections are left in invalild state
-			if (validityChecks)
-			{
-				// do not allow adding an item more than once
-				if (zOrder.Contains(item))
-					return;
-
-				if (item.getType() == ItemType.Arrow)
-				{
-					Arrow arrow = item as Arrow;
-
-					// links origin and destination nodes must be in the same diagram
-					if (!zOrder.Contains(arrow.Origin) &&
-						(arrow.Origin == null || !(arrow.Origin is DummyNode)))
-						return;
-					if (!zOrder.Contains(arrow.Destination) &&
-						(arrow.Destination == null || !(arrow.Destination is DummyNode)))
-						return;
-				}
-			}
-
-			if (item.getType() == ItemType.ControlHost)
-			{
-				// add the hosted control to the flowchart
-				ControlHost host = item as ControlHost;
-				if (host.Control != null)
-				{
-					this.Controls.Add(host.Control);
-					bringContainedControlToFront(host.Control);
-				}
-			}
-
-			item.setParent(this);
-			item.setConstructed();
-
-			// add to the diagram
-			AddItemCmd cmd = new AddItemCmd(item);
-			cmd.Execute();
-
-			RectangleF rc = item.getRepaintRect(false);
-			if (select)
-			{
-				selection.Change(item);
-				rc = Utilities.unionNonEmptyRects(rc,
-					selection.getRepaintRect(true));
-			}
-
-			if (undoManager.UndoEnabled)
-				cmd.saveSelState();
-
-			// repaint the diagram area covered by the new item
-			invalidate(rc);
-			setDirty();
-		}
-
-		public void Add(Group group)
-		{
-			group.fcParent = this;
-			AddGroupCmd cmd = new AddGroupCmd(group.MainObject, group);
-			undoManager.executeCommand(cmd);
-			setDirty();
-		}
-
+		/// <summary>
+		/// If enabled, validity checks are performed each time an item is added to the diagram.
+		/// That involves enumerating the item collections and can slow up the process considerably
+		/// for large diagrams. Disable this property to skip the checks, however be sure that you
+		/// don't add an item twice to the diagram and that links are created only between items in
+		/// the same diagram.
+		/// </summary>
 		[Category("Behavior")]
 		[DefaultValue(true)]
 		[Description("If enabled, validity checks are performed each time an item is added to the diagram. That involves enumerating the item collections and can slow up the process considerably for large diagrams. Disable this property to skip the checks, however be sure that you don't add an item twice to the diagram and that links are created only between items in the same diagram.")]
@@ -1424,8 +1404,13 @@ namespace MindFusion.FlowChartX
 		private bool validityChecks;
 
 		/// <summary>
-		/// Creates a new box
+		/// Creates a new Box instance and adds it to the flowchart.
 		/// </summary>
+		/// <param name="x">Horizontal position of the box.</param>
+		/// <param name="y">Vertical position of the box.</param>
+		/// <param name="width">Width of the box.</param>
+		/// <param name="height">Height of the box.</param>
+		/// <returns>A reference to the new box.</returns>
 		public Box CreateBox(float x, float y, float width, float height)
 		{
 			// create the box object and store it in the collection
@@ -1438,8 +1423,13 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Creates new control host node.
+		/// Creates a new ControlHost instance and adds it to the flowchart.
 		/// </summary>
+		/// <param name="x">Horizontal position of the ControlHost.</param>
+		/// <param name="y">Vertical position of the ControlHost.</param>
+		/// <param name="width">Width of the ControlHost.</param>
+		/// <param name="height">Height of the ControlHost.</param>
+		/// <returns>A reference to the new ControlHost.</returns>
 		public ControlHost CreateControlHost(float x, float y, float width, float height)
 		{
 			ControlHost newHost = new ControlHost(this);
@@ -1452,9 +1442,11 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Create a new arrow
+		/// Creates a new Arrow instance and adds it to the flowchart.
 		/// </summary>
-		/// 
+		/// <param name="srcNode">Specifies the arrow origin.</param>
+		/// <param name="dstNode">Specifies the arrow destination.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Node srcNode, Node dstNode)
 		{
 			if (srcNode == null || dstNode == null) return null;
@@ -1470,6 +1462,14 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="srcBox">Specifies the origin box.</param>
+		/// <param name="srcAnchor">Specifies the origin anchor point.</param>
+		/// <param name="dstBox">Specifies the destination box.</param>
+		/// <param name="dstAnchor">Specifies the destination anchor point.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Box srcBox, int srcAnchor, Box dstBox, int dstAnchor)
 		{
 			if (srcBox == null || dstBox == null) return null;
@@ -1489,11 +1489,25 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="src">Specifies the origin table.</param>
+		/// <param name="dest">Specifies the destination table.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Table src, Table dest)
 		{
 			return CreateArrow(src, -1, dest, -1);
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="src">Specifies the origin table.</param>
+		/// <param name="srcRow">Specifies the origin row.</param>
+		/// <param name="dest">Specifies the destination table.</param>
+		/// <param name="destRow">Specifies the destination row.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Table src, int srcRow, Table dest, int destRow)
 		{
 			if (src == null || dest == null) return null;
@@ -1515,6 +1529,13 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="srcNode">Specifies the origin node.</param>
+		/// <param name="destTable">Specifies the destination table.</param>
+		/// <param name="destRow">Specifies the destination row.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Node srcNode, Table destTable, int destRow)
 		{
 			if (srcNode == null || destTable == null) return null;
@@ -1534,6 +1555,13 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="srcTable">Specifies the origin table.</param>
+		/// <param name="srcRow">Specifies the origin row.</param>
+		/// <param name="dstNode">Specifies the destination node.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Table srcTable, int srcRow, Node dstNode)
 		{
 			if (srcTable == null || dstNode == null) return null;
@@ -1553,6 +1581,12 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="src">Specifies the origin node.</param>
+		/// <param name="dest">Specifies the destination point.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(Node src, PointF dest)
 		{
 			if (src == null) return null;
@@ -1563,6 +1597,12 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="src">Specifies the origin point.</param>
+		/// <param name="dest">Specifies the destination node.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(PointF src, Node dest)
 		{
 			if (dest == null) return null;
@@ -1573,6 +1613,12 @@ namespace MindFusion.FlowChartX
 			return newArrow;
 		}
 
+		/// <summary>
+		/// Creates a new Arrow instance and adds it to the flowchart.
+		/// </summary>
+		/// <param name="src">Specifies the origin point.</param>
+		/// <param name="dest">Specifies the destination point.</param>
+		/// <returns>A reference to the new arrow.</returns>
 		public Arrow CreateArrow(PointF src, PointF dest)
 		{
 			// create the arrow instance and add it to the chart
@@ -1582,8 +1628,10 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Finds the box with the given tag
+		/// Finds the box that has the specified tag value.
 		/// </summary>
+		/// <param name="tag">The looked for tag value.</param>
+		/// <returns>A box whose Tag equals to the specified value.</returns>
 		public Box FindBox(object tag)
 		{
 			Box foundBox = null;
@@ -1602,8 +1650,10 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Searches for the control host with the specified tag.
+		/// Finds the ControlHost that has the specified tag value.
 		/// </summary>
+		/// <param name="tag">The looked for tag value.</param>
+		/// <returns>A ControlHost whose Tag equals to the specified value.</returns>
 		public ControlHost FindControlHost(object tag)
 		{
 			ControlHost foundHost = null;
@@ -1622,8 +1672,10 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Finds the table with the given tag
+		/// Finds the table that has the specified tag value.
 		/// </summary>
+		/// <param name="tag">The looked for tag value.</param>
+		/// <returns>A table whose Tag equals to the specified value.</returns>
 		public Table FindTable(object tag)
 		{
 			Table foundTable = null;
@@ -1642,8 +1694,10 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Finds the arrow with the given tag
+		/// Finds the arrow that has the specified tag value.
 		/// </summary>
+		/// <param name="tag">The looked for tag value.</param>
+		/// <returns>An arrow whose Tag equals to the specified value.</returns>
 		public Arrow FindArrow(object tag)
 		{
 			Arrow foundArrow = null;
@@ -1662,8 +1716,10 @@ namespace MindFusion.FlowChartX
 		}
 
 		/// <summary>
-		/// Finds the group with the given tag
+		/// Finds the group that has the specified tag value.
 		/// </summary>
+		/// <param name="tag">The looked for tag value.</param>
+		/// <returns>A group whose Tag equals to the specified value.</returns>
 		public Group FindGroup(object tag)
 		{
 			Group foundGroup = null;
@@ -3585,6 +3641,12 @@ namespace MindFusion.FlowChartX
 
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
+#if VERTIGO
+			if (!DesignMode && !loadedFromVertigoAssembly())
+				throw new Exception("This FlowChart.NET version can be used only " +
+					"with the CodePlex Vertigo project.");
+#endif
+
 			base.OnMouseUp(e);
 
 			// stop autoscrolling
@@ -3847,7 +3909,15 @@ namespace MindFusion.FlowChartX
 
 		internal void endInplaceEdit(bool accept)
 		{
-			if (!nowEditing) return;
+			if (!nowEditing)
+				return;
+
+			// raise the LeaveInplaceEditMode event
+			if (LeaveInplaceEditMode != null)
+			{
+				LeaveInplaceEditMode(this,
+					new InplaceEditArgs(inplaceObject, inplaceTextBox));
+			}
 
 			// get texts while the text box still exists
 			string oldText = inplaceObject.getTextToEdit();
@@ -5007,6 +5077,17 @@ namespace MindFusion.FlowChartX
 		}
 
 		private bool dontRouteForAwhile;
+
+		[Category("Behavior")]
+		[DefaultValue(typeof(ExpandButtonAction), "ExpandTreeBranch")]
+		[Description("Specifies the behavior of the +/- buttons displayed beside expandable nodes.")]
+		public ExpandButtonAction ExpandButtonAction
+		{
+			get { return expandButtonAction; }
+			set { expandButtonAction = value; }
+		}
+
+		private ExpandButtonAction expandButtonAction;
 
 		#endregion
 
@@ -6755,6 +6836,10 @@ namespace MindFusion.FlowChartX
 				}
 			}
 
+			Hashtable arrowPoints = null;
+			if (dx != 0 || dy != 0)
+				arrowPoints = new Hashtable();
+
 			foreach (ChartObject item in data.items)
 			{
 				if (item is Arrow)
@@ -6763,6 +6848,9 @@ namespace MindFusion.FlowChartX
 
 					doc.Add(arrow);
 					doc.Selection.AddObject(arrow);
+
+					if (arrowPoints != null)
+						arrowPoints.Add(arrow, arrow.ControlPoints.Clone());
 				}
 			}
 
@@ -6770,42 +6858,50 @@ namespace MindFusion.FlowChartX
 			foreach (Group group in data.groups)
 				doc.Add(group);
 
-			// offset to the right and down
-			foreach(ChartObject item in data.items)
+			if (dx != 0 || dy != 0)
 			{
-				ModifyItemCmd mc = (cmd == null) ? null : new ModifyItemCmd(item);
-
-				if (item is Node && item.MasterGroup == null)
+				// offset nodes
+				foreach (ChartObject item in data.items)
 				{
-					Node node = item as Node;
-					RectangleF rect = node.BoundingRect;
-					rect.Offset(dx, dy);
-					node.BoundingRect = rect;
-				}
-				if (item is Arrow)
-				{
-					Arrow arrow = item as Arrow;
-					for (int i = 0; i < arrow.ControlPoints.Count; ++i)
+					if (item is Node && item.MasterGroup == null)
 					{
-						// the first point might be already offset if connected to a node
-						if (i == 0 && !(arrow.Origin is DummyNode))
-							continue;
+						ModifyItemCmd mc = (cmd == null) ? null : new ModifyItemCmd(item);
 
-						// the last point might be already offset if connected to a node
-						if (i == arrow.ControlPoints.Count - 1 && !(arrow.Destination is DummyNode))
-							continue;
+						Node node = item as Node;
+						RectangleF rect = node.BoundingRect;
+						rect.Offset(dx, dy);
+						node.BoundingRect = rect;
 
-						// offset the point
-						PointF pt = arrow.ControlPoints[i];
-						arrow.ControlPoints[i] = new PointF(pt.X + dx, pt.Y + dy);
+						if (mc != null)
+						{
+							mc.Execute(true);
+							cmd.AddSubCmd(mc);
+						}
 					}
-					arrow.UpdateFromPoints();
 				}
 
-				if (mc != null)
+				// offset arrows
+				foreach (ChartObject item in data.items)
 				{
-					mc.Execute(true);
-					cmd.AddSubCmd(mc);
+					if (item is Arrow)
+					{
+						ModifyItemCmd mc = (cmd == null) ? null : new ModifyItemCmd(item);
+
+						Arrow arrow = item as Arrow;
+						arrow.Points = arrowPoints[arrow] as PointCollection;
+						for (int i = 0; i < arrow.ControlPoints.Count; ++i)
+						{
+							PointF pt = arrow.ControlPoints[i];
+							arrow.ControlPoints[i] = new PointF(pt.X + dx, pt.Y + dy);
+						}
+						arrow.UpdateFromPoints();
+
+						if (mc != null)
+						{
+							mc.Execute(true);
+							cmd.AddSubCmd(mc);
+						}
+					}
 				}
 			}
 
@@ -8541,6 +8637,10 @@ namespace MindFusion.FlowChartX
 		public event InplaceEditEvent EnterInplaceEditMode;
 
 		[Category("In-place Edit")]
+		[Description("Raised when leaving in-place edit mode.")]
+		public event InplaceEditEvent LeaveInplaceEditMode;
+
+		[Category("In-place Edit")]
 		[Description("Raised when the caption of a table is edited in-place by a user.")]
 		public event TableCaptionEditedEvent TableCaptionEdited;
 
@@ -8563,6 +8663,10 @@ namespace MindFusion.FlowChartX
 		[Category("Miscellaneous")]
 		[Description("Raised when a tree branch collapses after a user clicks the '-' button displayed by an expandable node.")]
 		public event NodeEventHandler TreeCollapsed;
+
+		[Category("Miscellaneous")]
+		[Description("Raised when ExpandButtonAction is set to RaiseEvents and a user clicks the the +/- button.")]
+		public event NodeEventHandler ExpandButtonClicked;
 
 		[Category("Miscellaneous")]
 		[Description("Raised when a user starts modifying an item.")]
@@ -8970,18 +9074,8 @@ namespace MindFusion.FlowChartX
 			return validated;
 		}
 
-		RectangleF lastModifiedRect;
-
 		internal void fireObjModified(ChartObject obj, PointF pt, int mnpHandle)
 		{
-			fireObjModified(obj, pt, mnpHandle, true);
-		}
-
-		internal void fireObjModified(ChartObject obj, PointF pt, int mnpHandle, bool saveRepaintRect)
-		{
-			if (saveRepaintRect)
-				lastModifiedRect = obj.getRepaintRect(true);
-
 			switch (obj.getType())
 			{
 				case ItemType.Box:
@@ -9269,6 +9363,12 @@ namespace MindFusion.FlowChartX
 				ArrowCreated(this, new ArrowEventArgs((Arrow)obj));
 		}
 
+		internal void raiseExpandBtnClicked(Node node)
+		{
+			if (ExpandButtonClicked != null)
+				ExpandButtonClicked(this, new NodeEventArgs(node));
+		}
+
 		internal void fireTreeExpanded(Node root)
 		{
 			if (TreeExpanded != null)
@@ -9551,6 +9651,7 @@ namespace MindFusion.FlowChartX
 			undoManager.executeCommand(cmd);
 		}
 
+#if VERTIGO
 		private bool isVertigoAssembly(Assembly assembly)
 		{
 			if (assembly.FullName.IndexOf("CodePlex.Vertigo.Controls") == -1)
@@ -9582,6 +9683,19 @@ namespace MindFusion.FlowChartX
 
 			return false;
 		}
+#endif
+		#endregion
+
+		#region fields
+
+		private ChartObjectCollection zOrder;
+		private BoxCollection boxes;
+		private TableCollection tables;
+		private ControlHostCollection controlHosts;
+		private ArrowCollection arrows;
+		private GroupCollection groups;
+
+		private Selection selection;
 
 		#endregion
 	}

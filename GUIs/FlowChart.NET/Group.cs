@@ -87,7 +87,7 @@ namespace MindFusion.FlowChartX
 	{
 		public Group(FlowChart parent)
 		{
-			fcParent = parent;
+			flowChart = parent;
 			mainObj = null;
 			cycleProtect = false;
 			attachments = new ArrayList();
@@ -104,7 +104,7 @@ namespace MindFusion.FlowChartX
 
 		public Group(Group prototype)
 		{
-			fcParent = prototype.fcParent;
+			flowChart = prototype.flowChart;
 			mainObj = prototype.mainObj;
 			cycleProtect = false;
 			attachments = (ArrayList)prototype.attachments.Clone();
@@ -321,7 +321,7 @@ namespace MindFusion.FlowChartX
 					}
 					mainObj.Visible = visible;
 
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -374,7 +374,7 @@ namespace MindFusion.FlowChartX
 				if (tag == null || !tag.Equals(value))
 				{
 					tag = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -426,7 +426,7 @@ namespace MindFusion.FlowChartX
 			if(cycleProtect) return;
 			cycleProtect = true;
 
-			if (!fcParent.DisabledGroups)
+			if (!flowChart.DisabledGroups)
 			{
 				foreach (Arrow arrow in arrowsToMove)
 					arrow.translatePoints(
@@ -534,7 +534,7 @@ namespace MindFusion.FlowChartX
 				}
 			}
 
-			if (fcParent.DisabledGroups)
+			if (flowChart.DisabledGroups)
 				ptCurr = ptPrev;
 			att.node.modifyTranslate(
 				ptCurr.X - ptPrev.X, ptCurr.Y - ptPrev.Y, true);
@@ -599,7 +599,7 @@ namespace MindFusion.FlowChartX
 				}
 			}
 
-			if (fcParent.DisabledGroups)
+			if (flowChart.DisabledGroups)
 				ptCurr = ptPrev;
 			att.node.modifyTranslate(
 				ptCurr.X - ptPrev.X, ptCurr.Y - ptPrev.Y, true);
@@ -623,7 +623,7 @@ namespace MindFusion.FlowChartX
 				rc.Left + w * perc.Right / 100,
 				rc.Top + h * perc.Bottom / 100);
 
-			if (!fcParent.DisabledGroups)
+			if (!flowChart.DisabledGroups)
 				att.node.setRect(rcNew);
 		}
 
@@ -640,7 +640,7 @@ namespace MindFusion.FlowChartX
 			PointF ptPrev = prevPoints[point];
 			PointF ptCurr = ((Arrow)mainObj).Points[point];
 
-			if(fcParent.DisabledGroups)
+			if(flowChart.DisabledGroups)
 				ptCurr = ptPrev;
 			att.node.modifyTranslate(
 				ptCurr.X - ptPrev.X, ptCurr.Y - ptPrev.Y, true);
@@ -678,7 +678,7 @@ namespace MindFusion.FlowChartX
 				((Arrow)mainObj).Points[n1],
 				((Arrow)mainObj).Points[n2]);
 
-			if (fcParent.DisabledGroups)
+			if (flowChart.DisabledGroups)
 				ptCurr = ptPrev;
 			att.node.modifyTranslate(
 				ptCurr.X - ptPrev.X, ptCurr.Y - ptPrev.Y, true);
@@ -707,7 +707,7 @@ namespace MindFusion.FlowChartX
 			PointF ptCurr = Utilities.midPoint(
 				((Arrow)mainObj).Points[n1],
 				((Arrow)mainObj).Points[n2]);
-			if (!fcParent.DisabledGroups)
+			if (!flowChart.DisabledGroups)
 			{
 				float dx = ptCurr.X - att.node.getCenter().X;
 				float dy = ptCurr.Y - att.node.getCenter().Y;
@@ -866,7 +866,7 @@ namespace MindFusion.FlowChartX
 
 		internal void destroySelf(bool redo)
 		{
-			fcParent.fireGroupDestroyed(this);
+			flowChart.fireGroupDestroyed(this);
 
 			// let the master object know that it no longer has a subordinate group
 			if (mainObj != null)
@@ -893,14 +893,14 @@ namespace MindFusion.FlowChartX
 				if (delItems != null)
 				{
 					foreach (ChartObject item in delItems)
-						fcParent.deleteItem(item);
+						flowChart.deleteItem(item);
 					delItems.Clear();
 					delItems = null;
 				}
 			}
 
 			// remove from flowchart's list of groups
-			fcParent.deleteGroup(this);
+			flowChart.deleteGroup(this);
 		}
 
 		internal void visitHierarchy(CollectionVisitor visitor)
@@ -1026,7 +1026,7 @@ namespace MindFusion.FlowChartX
 
 		private ArrayList attachments;
 
-		internal FlowChart fcParent;
+		internal FlowChart flowChart;
 		private bool cycleProtect;
 
 		private PointCollection prevPoints;

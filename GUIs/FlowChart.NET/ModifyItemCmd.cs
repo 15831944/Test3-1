@@ -36,7 +36,7 @@ namespace MindFusion.FlowChartX.Commands
 				subCommands[i].Undo();
 			item.restoreState(initialState);
 
-			item.fcParent.fireActionUndone(this);
+			item.flowChart.fireActionUndone(this);
 		}
 
 		protected internal override void Redo()
@@ -45,7 +45,7 @@ namespace MindFusion.FlowChartX.Commands
 			foreach (Command subCmd in subCommands)
 				subCmd.Redo();
 
-			item.fcParent.fireActionRedone(this);
+			item.flowChart.fireActionRedone(this);
 		}
 
 		public ChartObject Item

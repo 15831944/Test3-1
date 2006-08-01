@@ -660,7 +660,8 @@ namespace MindFusion.FlowChartX
 
 			path.Flatten();
 
-			PointF[] result = (PointF[])path.PathPoints.Clone();
+			PointF[] result = path.PointCount > 2 ?
+				(PointF[])path.PathPoints.Clone() : null;
 			path.Dispose();
 
 			return result;

@@ -238,23 +238,32 @@ namespace MindFusion.FlowChartX
 		public static GraphicsPath getRoundRect(
 			float x, float y, float width, float height, float r)
 		{
-			float rx = r;
-			float ry = r;
-			if (2 * rx > width) rx = width / 2;
-			if (2 * ry > height) ry = height / 2;
+			try
+			{
+				float rx = r;
+				float ry = r;
+				if (2 * rx > width) rx = width / 2;
+				if (2 * ry > height) ry = height / 2;
 
-			GraphicsPath gp = new GraphicsPath();
-			gp.AddLine(x + rx, y, x + width - rx, y);
-            if (rx>0 && ry>0) gp.AddArc(x + width - rx, y, rx, ry, 270, 90);
-			gp.AddLine(x + width, y + ry, x + width, y + height - ry);
-			if (rx>0 && ry>0) gp.AddArc(x + width - rx, y + height - ry, rx, ry, 0, 90);
-			gp.AddLine(x + width - rx, y + height, x + rx, y + height);
-			if (rx>0 && ry>0) gp.AddArc(x, y + height - ry, rx, ry, 90, 90);
-			gp.AddLine(x, y + height - ry, x, y + ry);
-			if (rx>0 && ry>0) gp.AddArc(x, y, rx, ry, 180, 90);
-			gp.CloseFigure();
+				GraphicsPath gp = new GraphicsPath();
+				gp.AddLine(x + rx, y, x + width - rx, y);
+				if (rx>0 && ry>0) gp.AddArc(x + width - rx, y, rx, ry, 270, 90);
+				gp.AddLine(x + width, y + ry, x + width, y + height - ry);
+				if (rx>0 && ry>0) gp.AddArc(x + width - rx, y + height - ry, rx, ry, 0, 90);
+				gp.AddLine(x + width - rx, y + height, x + rx, y + height);
+				if (rx>0 && ry>0) gp.AddArc(x, y + height - ry, rx, ry, 90, 90);
+				gp.AddLine(x, y + height - ry, x, y + ry);
+				if (rx>0 && ry>0) gp.AddArc(x, y, rx, ry, 180, 90);
+				gp.CloseFigure();
 
-			return gp;
+				return gp;
+			}
+			catch (Exception)
+			{
+				GraphicsPath gp = new GraphicsPath();
+				gp.AddRectangle(new RectangleF(x, y, width, height));
+				return gp;
+			}
 		}
 
 		public static void drawRect(Graphics g, System.Drawing.Pen p,
@@ -734,10 +743,10 @@ namespace MindFusion.FlowChartX
 					{
 						if (st == HandlesStyle.EasyMove)
 						{
-							//pkh//g.FillEllipse(brush,
-							//pkh//	point.X - size, point.Y - size, 2*size, 2*size);
-							//pkh//g.DrawEllipse(pen,
-							//pkh//	point.X - size, point.Y - size, 2*size, 2*size);
+							g.FillEllipse(brush,
+								point.X - size, point.Y - size, 2*size, 2*size);
+							g.DrawEllipse(pen,
+								point.X - size, point.Y - size, 2*size, 2*size);
 						}
 						if (st == HandlesStyle.SquareHandles)
 						{
@@ -1392,8 +1401,8 @@ namespace MindFusion.FlowChartX
 				pts[9].X = pts[4].X;
 				pts[9].Y = pts[4].Y - 6*Constants.getMillimeter(measureUnit);
 
-				//pkh//if (st == HandlesStyle.EasyMove && (Distance(pts[8], pt) < 1.5 * handleSize))
-				//pkh//	return false;
+				if (st == HandlesStyle.EasyMove && (Distance(pts[8], pt) < 1.5 * handleSize))
+					return false;
 
 				for (int i = 0; i < 10; ++i)
 				{

@@ -26,7 +26,7 @@ namespace MindFusion.FlowChartX.Xml
 	/// <summary>
 	/// Extends the XmlConvert class.
 	/// </summary>
-	public class XmlConvert : System.Xml.XmlConvert
+	public class XmlConvert
 	{
 		static XmlConvert()
 		{
@@ -50,7 +50,24 @@ namespace MindFusion.FlowChartX.Xml
 
 		private static CultureInfo _english = new CultureInfo("en-US");
 
-		public static new float ToSingle(string s)
+		public static bool ToBoolean(string s)
+		{
+			try
+			{
+				return bool.Parse(s);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		public static string FromBoolean(bool val)
+		{
+			return val.ToString();
+		}
+
+		public static float ToSingle(string s)
 		{
 			try
 			{
@@ -74,7 +91,7 @@ namespace MindFusion.FlowChartX.Xml
 			return val.ToString(_english);
 		}
 
-		public static new double ToDouble(string s)
+		public static double ToDouble(string s)
 		{
 			try
 			{
@@ -98,7 +115,7 @@ namespace MindFusion.FlowChartX.Xml
 			return val.ToString(_english);
 		}
 
-		public static new Int16 ToInt16(string s)
+		public static Int16 ToInt16(string s)
 		{
 			try
 			{
@@ -115,7 +132,7 @@ namespace MindFusion.FlowChartX.Xml
 			return val.ToString(_english);
 		}
 
-		public static new Int32 ToInt32(string s)
+		public static Int32 ToInt32(string s)
 		{
 			try
 			{
@@ -132,7 +149,7 @@ namespace MindFusion.FlowChartX.Xml
 			return val.ToString(_english);
 		}
 
-		public static new Int64 ToInt64(string s)
+		public static Int64 ToInt64(string s)
 		{
 			try
 			{
@@ -635,6 +652,7 @@ namespace MindFusion.FlowChartX.Xml
 				"BoundingRect",
 				"CustomDraw",
 				"DestAnchor",
+				"DrawCrossings",
 				"Dynamic",
 				"FillColor",
 				"Font",
@@ -1024,6 +1042,18 @@ namespace MindFusion.FlowChartX.Xml
 			writer.WriteAttributeString("Type", "4");
 			writer.WriteElementString("Value",
 				XmlConvert.FromSingle(node.Constraints.MaxHeight));
+			writer.WriteEndElement();
+
+			writer.WriteStartElement("Constraint");
+			writer.WriteAttributeString("Type", "5");
+			writer.WriteElementString("Value",
+				XmlConvert.FromBoolean(node.Constraints.KeepInsideParent));
+			writer.WriteEndElement();
+
+			writer.WriteStartElement("Constraint");
+			writer.WriteAttributeString("Type", "6");
+			writer.WriteElementString("Value",
+				XmlConvert.FromBoolean(node.Constraints.KeepRatio));
 			writer.WriteEndElement();
 
 			writer.WriteEndElement();

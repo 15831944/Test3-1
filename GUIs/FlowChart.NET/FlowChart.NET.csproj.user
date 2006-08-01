@@ -26,7 +26,7 @@
     </StartArguments>
     <StartPage>
     </StartPage>
-    <StartProgram>D:\Projects\FlowChart.NET\Samples\C#\FCDemo\Files\FCDemo.NET.exe</StartProgram>
+    <StartProgram>D:\Projects\FlowChart.NET\Samples\C#\Ternary\bin\Debug\Ternary.exe</StartProgram>
     <StartURL>
     </StartURL>
     <StartWorkingDirectory>D:\Projects\FlowChart.NET\Samples\C#\FCDemo\Files\</StartWorkingDirectory>
@@ -45,7 +45,7 @@
     </StartArguments>
     <StartPage>
     </StartPage>
-    <StartProgram>D:\Projects\FlowChart.NET\Samples\C#\FCDemo\Files\FCDemo.NET.exe</StartProgram>
+    <StartProgram>D:\Projects\_Miscellaneous\WindowsApplication9\bin\Debug\WindowsApplication9.exe</StartProgram>
     <StartURL>
     </StartURL>
     <StartWorkingDirectory>D:\Projects\FlowChart.NET\Samples\C#\FCDemo\Files\</StartWorkingDirectory>
@@ -88,6 +88,25 @@
     </StartURL>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
+    <StartWithIE>false</StartWithIE>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Vertigo|AnyCPU' ">
+    <EnableASPDebugging>false</EnableASPDebugging>
+    <EnableASPXDebugging>false</EnableASPXDebugging>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <EnableSQLServerDebugging>false</EnableSQLServerDebugging>
+    <RemoteDebugEnabled>false</RemoteDebugEnabled>
+    <RemoteDebugMachine>
+    </RemoteDebugMachine>
+    <StartAction>Program</StartAction>
+    <StartArguments>
+    </StartArguments>
+    <StartPage>
+    </StartPage>
+    <StartProgram>D:\Projects\_Miscellaneous\WindowsApplication9\bin\Debug\WindowsApplication9.exe</StartProgram>
+    <StartURL>
+    </StartURL>
+    <StartWorkingDirectory>D:\Projects\FlowChart.NET\Samples\C#\FCDemo\Files\</StartWorkingDirectory>
     <StartWithIE>false</StartWithIE>
   </PropertyGroup>
 </Project>

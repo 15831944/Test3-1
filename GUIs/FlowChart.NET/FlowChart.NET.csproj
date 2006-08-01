@@ -4,12 +4,6 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</ProjectGuid>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccProvider>
-    </SccProvider>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>NetIco.ico</ApplicationIcon>
@@ -29,8 +23,6 @@
     </StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <SccAuxPath>
-    </SccAuxPath>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
   </PropertyGroup>
@@ -41,7 +33,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
@@ -126,6 +118,29 @@
     <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Vertigo|AnyCPU' ">
+    <OutputPath>..\Output\Vertigo\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;VERTIGO</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
       <Name>System</Name>
@@ -150,7 +165,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LayoutSystem.AnnealLayout.bmp" />
     <Compile Include="AccessAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -421,9 +435,6 @@
     <Compile Include="Path.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PDFBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="PenEdit.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -582,6 +593,7 @@
     <EmbeddedResource Include="StringFormatEdit.resx">
       <DependentUpon>StringFormatEdit.cs</DependentUpon>
     </EmbeddedResource>
+    <Content Include="LayoutSystem.AnnealLayout.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

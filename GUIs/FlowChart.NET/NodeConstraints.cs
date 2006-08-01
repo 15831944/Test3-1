@@ -39,6 +39,19 @@ namespace MindFusion.FlowChartX
 			return clone;
 		}
 
+		internal bool isNodeConstrained()
+		{
+			if (moveDirection != DirectionConstraint.None ||
+				minWidth != 0 ||
+				minHeight != 0 ||
+				maxWidth != 0 ||
+				maxHeight != 0 ||
+				boolValues != 0)
+				return true;
+
+			return false;
+		}
+
 		public DirectionConstraint MoveDirection
 		{
 			get { return moveDirection; }
@@ -97,7 +110,7 @@ namespace MindFusion.FlowChartX
 
 		internal static int Count
 		{
-			get { return 5; }
+			get { return 7; }
 		}
 
 		public int getClassId()
@@ -113,6 +126,9 @@ namespace MindFusion.FlowChartX
 			writer.Write(minHeight);
 			writer.Write(maxWidth);
 			writer.Write(maxHeight);
+
+			// new in file format 29
+			writer.Write(boolValues);
 		}
 
 		public void loadFrom(BinaryReader reader, PersistContext ctx)
@@ -123,6 +139,12 @@ namespace MindFusion.FlowChartX
 			minHeight = reader.ReadSingle();
 			maxWidth = reader.ReadSingle();
 			maxHeight = reader.ReadSingle();
+
+			if (ctx.FileVersion > 28)
+			{
+				// new in file format 29
+				boolValues = reader.ReadUInt16();
+			}
 		}
 
 		public void setReference(int refId, IPersists obj)

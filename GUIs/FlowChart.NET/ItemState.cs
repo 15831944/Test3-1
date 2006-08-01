@@ -22,11 +22,6 @@ namespace MindFusion.FlowChartX
 			this.item = item;
 		}
 
-		internal virtual void restore()
-		{
-			item.restoreState(this);
-		}
-
 		protected ChartObject item;
 		internal PointF ptOrg;
 		internal PointF ptEnd;

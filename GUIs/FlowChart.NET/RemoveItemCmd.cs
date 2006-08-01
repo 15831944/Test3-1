@@ -25,19 +25,19 @@ namespace MindFusion.FlowChartX.Commands
 
 		public void Execute()
 		{
-			item.fcParent.UndoManager.executeCommand(this);
+			item.flowChart.UndoManager.executeCommand(this);
 		}
 
 		protected internal override void Execute(bool undoEnabled)
 		{
 			if (undoEnabled)
-				oldSelState = item.fcParent.Selection.saveState();
+				oldSelState = item.flowChart.Selection.saveState();
 
 			zIndex = item.ZIndex;
 			cmdContext.Document.removeItem(item);
 
 			if (undoEnabled)
-				newSelState = item.fcParent.Selection.saveState();
+				newSelState = item.flowChart.Selection.saveState();
 		}
 
 		protected internal override void Undo()
@@ -49,7 +49,7 @@ namespace MindFusion.FlowChartX.Commands
 			item.ZIndex = zIndex;
 
 			if (oldSelState != null)
-				item.fcParent.Selection.restoreState(oldSelState);
+				item.flowChart.Selection.restoreState(oldSelState);
 
 			cmdContext.Document.fireActionUndone(this);
 		}
@@ -61,7 +61,7 @@ namespace MindFusion.FlowChartX.Commands
 			cmdContext.Document.removeItem(item);
 
 			if (newSelState != null)
-				item.fcParent.Selection.restoreState(newSelState);
+				item.flowChart.Selection.restoreState(newSelState);
 
 			cmdContext.Document.fireActionRedone(this);
 		}

@@ -21,12 +21,12 @@ namespace MindFusion.FlowChartX.Commands
 			initialProps = item.createProperties();
 			item.saveProperties(initialProps);
 
-			item.fcParent.UndoManager.onChangeItem(item, this);
+			item.flowChart.UndoManager.onChangeItem(item, this);
 		}
 
 		public void Execute()
 		{
-			item.fcParent.UndoManager.executeCommand(this);
+			item.flowChart.UndoManager.executeCommand(this);
 		}
 
 		protected internal override void Execute(bool undoEnabled)
@@ -43,7 +43,7 @@ namespace MindFusion.FlowChartX.Commands
 				subCommands[i].Undo();
 			item.restoreProperties(initialProps);
 
-			item.fcParent.fireActionUndone(this);
+			item.flowChart.fireActionUndone(this);
 		}
 
 		protected internal override void Redo()
@@ -52,7 +52,7 @@ namespace MindFusion.FlowChartX.Commands
 			foreach (Command cmd in subCommands)
 				cmd.Redo();
 
-			item.fcParent.fireActionRedone(this);
+			item.flowChart.fireActionRedone(this);
 		}
 
 		public ChartObject Item

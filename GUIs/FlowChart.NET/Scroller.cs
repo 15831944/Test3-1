@@ -20,7 +20,7 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	internal sealed class Scroller : MindFusion.FlowChartX.Manipulator
 	{
-		public Scroller(ChartObject obj) : base(obj)
+		public Scroller(ChartObject item) : base(item)
 		{
 		}
 
@@ -31,17 +31,17 @@ namespace MindFusion.FlowChartX
 
 		internal override void draw(Graphics g)
 		{
-			Table table = (Table)obj;
+			Table table = (Table)item;
 
 			// do not paint the scroller if the table is too small
 			RectangleF tableRect = table.getBoundingRect();
-			float minSize = Constants.getMinObjSize(table.fcParent.MeasureUnit);
+			float minSize = Constants.getMinObjSize(table.flowChart.MeasureUnit);
 			if (tableRect.Width < minSize || tableRect.Height < minSize ||
 				tableRect.Height < table.CaptionHeight)
 				return;
 
 			// determine the scroller rectangle coordinates
-			float scrollerWth = Constants.getScrollerWdt(table.fcParent.MeasureUnit);
+			float scrollerWth = Constants.getScrollerWdt(table.flowChart.MeasureUnit);
 			RectangleF scrollerRect = tableRect;
 			scrollerRect.Height = table.CaptionHeight;
 			scrollerRect.X = scrollerRect.Right - scrollerWth;
@@ -75,7 +75,7 @@ namespace MindFusion.FlowChartX
 
 			// paint up arrow
 			GraphicsPath arrow = new GraphicsPath();
-			float pixel = 2 * Constants.getPixel(table.fcParent.MeasureUnit);
+			float pixel = 2 * Constants.getPixel(table.flowChart.MeasureUnit);
 			arrow.AddLines(new PointF[] {
 				new PointF(scrollerRect.X + scrollerRect.Width / 2,
 					scrollerRect.Y + pixel),
@@ -115,20 +115,20 @@ namespace MindFusion.FlowChartX
 
 		internal override bool hitTest(PointF point)
 		{
-			RectangleF rc = obj.getBoundingRect();
-			Table tbl = (Table)obj;
+			RectangleF rc = item.getBoundingRect();
+			Table tbl = (Table)item;
 			float h = tbl.CaptionHeight;
 
 			// up-arrow
 			if (point.Y > rc.Top && point.Y < rc.Top + h/2 && 
 				point.X > rc.Right - Constants.getScrollerWdt(
-				obj.fcParent.MeasureUnit) && point.X < rc.Right)
+				item.flowChart.MeasureUnit) && point.X < rc.Right)
 			{
 				if (tbl.canScrollUp())
 				{
 					ScrollTableCmd cmd = new ScrollTableCmd(tbl);
 					tbl.scrollUp();
-					tbl.fcParent.UndoManager.executeCommand(cmd);
+					tbl.flowChart.UndoManager.executeCommand(cmd);
 				}
 				return true;
 			}
@@ -136,13 +136,13 @@ namespace MindFusion.FlowChartX
 			// down-arrow
 			if (point.Y >= rc.Top + h/2 && point.Y < rc.Top + h && 
 				point.X > rc.Right - Constants.getScrollerWdt(
-				obj.fcParent.MeasureUnit) && point.X < rc.Right)
+				item.flowChart.MeasureUnit) && point.X < rc.Right)
 			{
 				if (tbl.canScrollDown())
 				{
 					ScrollTableCmd cmd = new ScrollTableCmd(tbl);
 					tbl.scrollDown();
-					tbl.fcParent.UndoManager.executeCommand(cmd);
+					tbl.flowChart.UndoManager.executeCommand(cmd);
 				}
 				return true;
 			}
@@ -152,12 +152,12 @@ namespace MindFusion.FlowChartX
 
 		internal override bool ptInManipulator(PointF pt)
 		{
-			RectangleF rcTable = obj.getBoundingRect();
-			Table tbl = (Table)obj;
+			RectangleF rcTable = item.getBoundingRect();
+			Table tbl = (Table)item;
 
 			RectangleF rcScr = new RectangleF(
-				rcTable.Right - Constants.getScrollerWdt(obj.fcParent.MeasureUnit), rcTable.Top,
-				Constants.getScrollerWdt(obj.fcParent.MeasureUnit), tbl.CaptionHeight);
+				rcTable.Right - Constants.getScrollerWdt(item.flowChart.MeasureUnit), rcTable.Top,
+				Constants.getScrollerWdt(item.flowChart.MeasureUnit), tbl.CaptionHeight);
 
 			if (Utilities.pointInRect(pt, rcScr))
 				return true;

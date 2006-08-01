@@ -285,22 +285,30 @@ namespace MindFusion.FlowChartX
 					}
 
 					// Check which objects are collected
-					foreach (ChartObject obj in doc.Objects)
+					foreach (ChartObject item in doc.Objects)
 					{
-						if (!(obj is Node))
+						Node node = item as Node;
+						if (node == null)
 							continue;
 
-						if (!obj.Visible)
+						if (!node.Visible)
 							continue;
 
-						if (obj.Locked)
+						if (node.Locked)
+							continue;
+
+						if (_orientation == Orientation.Horizontal &&
+							node.Constraints.MoveDirection == DirectionConstraint.Vertical)
+							continue;
+
+						if (_orientation == Orientation.Vertical &&
+							node.Constraints.MoveDirection == DirectionConstraint.Horizontal)
 							continue;
 
 						// If there are selected objects, align only them
-						if (doc.Selection.Objects.Count > 0 && !obj.Selected)
+						if (doc.Selection.Objects.Count > 0 && !node.Selected)
 							continue;
 
-						Node node = obj as Node;
 						RectangleF bounds = node.BoundingRect;
 
 						if (_orientation == Orientation.Horizontal)
@@ -381,6 +389,26 @@ namespace MindFusion.FlowChartX
 							{
 								// Bottom-side align
 								bounds.Y = ptDoc.Y - bounds.Height;
+							}
+						}
+
+						// apply "stay inside parent" constraints
+						if (node.Constraints.KeepInsideParent &&
+							node.MasterGroup != null && node.MasterGroup.MainObject is Node)
+						{
+							Node parent = node.MasterGroup.MainObject as Node;
+							RectangleF parentBounds = parent.BoundingRect;
+
+							if (!parentBounds.Contains(Utilities.normalizeRect(bounds)))
+							{
+								if (bounds.Left < parentBounds.Left)
+									bounds.X = parentBounds.Left;
+								if (bounds.Top < parentBounds.Top)
+									bounds.Y = parentBounds.Top;
+								if (bounds.Right > parentBounds.Right)
+									bounds.X = parentBounds.Right - bounds.Width;
+								if (bounds.Bottom > parentBounds.Bottom)
+									bounds.Y = parentBounds.Bottom - bounds.Height;
 							}
 						}
 

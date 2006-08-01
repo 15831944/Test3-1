@@ -142,9 +142,9 @@ namespace MindFusion.FlowChartX
 
 		public Arrow(FlowChart parent) : base(parent)
 		{
-			pen = (Pen)fcParent.ArrowPen.Clone();
+			pen = (Pen)flowChart.ArrowPen.Clone();
 			headPen = (Pen)pen.Clone();
-			brush = fcParent.ArrowBrush;
+			brush = flowChart.ArrowBrush;
 			brush.AddRef();
 
 			penColor = parent.ArrowColor;
@@ -175,31 +175,31 @@ namespace MindFusion.FlowChartX
 
 			headSize = 5;
 
-			arrowHead = fcParent.ArrowHead;
-			arrowBase = fcParent.ArrowBase;
-			arrowInterm = fcParent.IntermArrowHead;
+			arrowHead = flowChart.ArrowHead;
+			arrowBase = flowChart.ArrowBase;
+			arrowInterm = flowChart.IntermArrowHead;
 
-			ahHead = new ArrowHeadShape(fcParent.ArrowHeadSize);
-			ahBase = new ArrowHeadShape(fcParent.ArrowBaseSize);
-			ahInterm = new ArrowHeadShape(fcParent.ArrowIntermSize);
+			ahHead = new ArrowHeadShape(flowChart.ArrowHeadSize);
+			ahBase = new ArrowHeadShape(flowChart.ArrowBaseSize);
+			ahInterm = new ArrowHeadShape(flowChart.ArrowIntermSize);
 
 			headTemplates[(int)arrowHead].initArrowHead(ahHead);
 			headTemplates[(int)arrowBase].initArrowHead(ahBase);
 			headTemplates[(int)arrowInterm].initArrowHead(ahInterm);
 
-			headSize = fcParent.ArrowHeadSize;
-			baseSize = fcParent.ArrowBaseSize;
-			intermSize = fcParent.ArrowIntermSize;
+			headSize = flowChart.ArrowHeadSize;
+			baseSize = flowChart.ArrowBaseSize;
+			intermSize = flowChart.ArrowIntermSize;
 
 			textSize = new SizeF(0, 0);
 
-			allowMoveStart = fcParent.ArrowEndsMovable;
-			allowMoveEnd = fcParent.ArrowEndsMovable;
+			allowMoveStart = flowChart.ArrowEndsMovable;
+			allowMoveEnd = flowChart.ArrowEndsMovable;
 
 			orgnAnchor = -1;
 			destAnchor = -1;
 
-			autoRoute = fcParent.RouteArrows;
+			autoRoute = flowChart.RouteArrows;
 
 			customDraw = parent.ArrowCustomDraw;
 			savedSegments = null;
@@ -322,7 +322,7 @@ namespace MindFusion.FlowChartX
 
 			// Listen for changes in FlowChart' unit of measure
 			parentUnitChanged = new EventHandler(OnParentUnitChanged);
-			fcParent.MeasureUnitChanged += parentUnitChanged;
+			flowChart.MeasureUnitChanged += parentUnitChanged;
 		}
 
 		#endregion
@@ -335,13 +335,13 @@ namespace MindFusion.FlowChartX
 
 			if (parentUnitChanged != null)
 			{
-				fcParent.MeasureUnitChanged -= parentUnitChanged;
+				flowChart.MeasureUnitChanged -= parentUnitChanged;
 				parentUnitChanged = null;
 			}
 
 			// fire an ArrowDeleted event
 			if (constructed)
-				fcParent.fireArrowDeleted(this);
+				flowChart.fireArrowDeleted(this);
 		}
 
 		internal override void freeResources()
@@ -421,6 +421,9 @@ namespace MindFusion.FlowChartX
 
 			// new in file format 26
 			writer.Write(hyperLink);
+
+			// new in file format 29
+			writer.Write(drawCrossings);
 		}
 
 		public override void loadFrom(BinaryReader reader, PersistContext ctx)
@@ -506,6 +509,12 @@ namespace MindFusion.FlowChartX
 									{
 										// new in file format 26
 										hyperLink = reader.ReadString();
+
+										if (ctx.FileVersion > 28)
+										{
+											// new in file format 29
+											drawCrossings = reader.ReadBoolean();
+										}
 									}
 								}
 							}
@@ -573,11 +582,11 @@ namespace MindFusion.FlowChartX
 			base.updateCreate(current);
 
 			if (autoRoute &&
-				(fcParent.RoutingOptions.TriggerRerouting & RerouteArrows.WhileCreating) != 0)
+				(flowChart.RoutingOptions.TriggerRerouting & RerouteArrows.WhileCreating) != 0)
 			{
 				Link target = routeGetTarget(current);
 				points[points.Count-1] = current;
-				if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
+				if (flowChart.RoutingOptions.Anchoring == Anchoring.Ignore)
 				{
 					setEndPoints(orgnLink, target, current);
 					if (!target.sameNode(orgnLink))
@@ -607,12 +616,12 @@ namespace MindFusion.FlowChartX
 		internal override void completeCreate(PointF end)
 		{
 			bool routedWhileCreating = autoRoute &&
-				(fcParent.RoutingOptions.TriggerRerouting & RerouteArrows.WhileCreating) != 0;
+				(flowChart.RoutingOptions.TriggerRerouting & RerouteArrows.WhileCreating) != 0;
 
 			// get the object under mouse cursor
-			Node obj = fcParent.getCurrBehavior().GetTargetNode(end);
+			Node obj = flowChart.getCurrBehavior().GetTargetNode(end);
 			if (obj == null)
-				obj = fcParent.Dummy;
+				obj = flowChart.Dummy;
 
 			if (routedWhileCreating)
 			{
@@ -693,11 +702,11 @@ namespace MindFusion.FlowChartX
 
 			// don't allow creation if the arrow doesn't point a object
 			if (ptOrg == current) return false;
-			Node node = fcParent.getCurrBehavior().GetTargetNode(current);
+			Node node = flowChart.getCurrBehavior().GetTargetNode(current);
 			if (node == null)
 			{
-				objNewDest = fcParent.Dummy;
-				return fcParent.AllowUnconnectedArrows && fcParent.confirmCreate(this);
+				objNewDest = flowChart.Dummy;
+				return flowChart.AllowUnconnectedArrows && flowChart.confirmCreate(this);
 			}
 
 			if (node.notInteractive())
@@ -708,20 +717,20 @@ namespace MindFusion.FlowChartX
 			objNewDest = node;
 
 			// check for reflexive links
-			if (!fcParent.AllowRefLinks && node == orgnLink.getNode())
+			if (!flowChart.AllowRefLinks && node == orgnLink.getNode())
 				return false;
 
 			// check for repeated links
-			if (!fcParent.AllowLinksRepeat && orgnLink.getNode().alreadyLinked(node))
+			if (!flowChart.AllowLinksRepeat && orgnLink.getNode().alreadyLinked(node))
 				return false;
 
 			RectangleF rc = getBoundingRect();
-			if (fcParent.rectRestrict(ref rc))
+			if (flowChart.rectRestrict(ref rc))
 				return false;
 
-			fcParent.setAutoAnchors(node);
+			flowChart.setAutoAnchors(node);
 
-			return fcParent.confirmCreate(this);
+			return flowChart.confirmCreate(this);
 		}
 
 		private Node objNewDest = null;
@@ -730,7 +739,7 @@ namespace MindFusion.FlowChartX
 		internal override bool allowModify(PointF current)
 		{
 			if (!snapToNodeBorder)
-				current = fcParent.AlignPointToGrid(current);
+				current = flowChart.AlignPointToGrid(current);
 
 			if (modifyHandle == 0 && current.Equals(points[points.Count-1]))
 				return false;
@@ -738,11 +747,11 @@ namespace MindFusion.FlowChartX
 				return false;
 			if (modifyHandle == 0 || modifyHandle == points.Count-1)
 			{
-				Node node = fcParent.GetNodeAt(current);
+				Node node = flowChart.GetNodeAt(current);
 				objNewDest = node;
 
 				if (node == null)
-					return fcParent.AllowUnconnectedArrows && fcParent.confirmModify(this);
+					return flowChart.AllowUnconnectedArrows && flowChart.confirmModify(this);
 
 				if (node.notInteractive())
 					return false;
@@ -750,11 +759,11 @@ namespace MindFusion.FlowChartX
 					return false;
 
 				bool changingOrg = modifyHandle == 0;
-				if (!fcParent.requestAttach(this, changingOrg, node))
+				if (!flowChart.requestAttach(this, changingOrg, node))
 					return false;
 
 				// check for reflexive links
-				if (!fcParent.AllowRefLinks)
+				if (!flowChart.AllowRefLinks)
 				{
 					if (modifyHandle == 0 && node == destLink.getNode())
 						return false;
@@ -765,7 +774,7 @@ namespace MindFusion.FlowChartX
 				// check for repeated links
 				bool linkedObjChanges =	node !=
 					(changingOrg ? orgnLink.getNode() : destLink.getNode());
-				if (!fcParent.AllowLinksRepeat && linkedObjChanges)
+				if (!flowChart.AllowLinksRepeat && linkedObjChanges)
 				{
 					if (modifyHandle == 0 && node.alreadyLinked(destLink.getNode()))
 						return false;
@@ -774,7 +783,7 @@ namespace MindFusion.FlowChartX
 						return false;
 				}
 
-				fcParent.setAutoAnchors(node);
+				flowChart.setAutoAnchors(node);
 			}
 			else 
 				if (style == ArrowStyle.Cascading &&
@@ -802,10 +811,10 @@ namespace MindFusion.FlowChartX
 			}
 
 			RectangleF rc = getBoundingRect();
-			if (fcParent.rectRestrict(ref rc))
+			if (flowChart.rectRestrict(ref rc))
 				return false;
 
-			return fcParent.confirmModify(this);
+			return flowChart.confirmModify(this);
 		}
 
 		internal void startModifyOrg(InteractionState ist)
@@ -949,7 +958,7 @@ namespace MindFusion.FlowChartX
 
 						if (transpose)
 						{
-							if (fcParent.AllowSplitArrows)
+							if (flowChart.AllowSplitArrows)
 							{
 								if (ist.splitToChangeOrient)
 								{
@@ -1057,7 +1066,7 @@ namespace MindFusion.FlowChartX
 				(modifyHandle == 0 || modifyHandle == points.Count - 1))
 				current = objNewDest.getNearestOutlinePt(current);
 			else
-				current = fcParent.AlignPointToGrid(current);
+				current = flowChart.AlignPointToGrid(current);
 
 			float dx = current.X - points[modifyHandle].X;
 			float dy = current.Y - points[modifyHandle].Y;
@@ -1095,7 +1104,7 @@ namespace MindFusion.FlowChartX
 
 			base.completeModify();
 
-			if (autoRoute && fcParent.rerouteArrow(this)) doRoute();
+			if (autoRoute && flowChart.rerouteArrow(this)) doRoute();
 			resetCrossings();
 			updateText();
 
@@ -1112,13 +1121,13 @@ namespace MindFusion.FlowChartX
 			cycleProtect = true;
 
 			if (!(snapToNodeBorder && objNewDest != null))
-				end = fcParent.AlignPointToGrid(end);
+				end = flowChart.AlignPointToGrid(end);
 
 			// snap to anchor point 
 			Node objNode = null;
 			if (modifyHandle == 0 || modifyHandle == points.Count-1)
 			{
-				objNode = fcParent.GetNodeAt(end);
+				objNode = flowChart.GetNodeAt(end);
 
 				// align to node border if that's enabled
 				if (snapToNodeBorder && objNode != null)
@@ -1127,7 +1136,7 @@ namespace MindFusion.FlowChartX
 				// align to anchor point
 				int idx = -1;
 				if (objNode != null &&
-					fcParent.SnapToAnchor == SnapToAnchor.OnCreateOrModify)
+					flowChart.SnapToAnchor == SnapToAnchor.OnCreateOrModify)
 					end = objNode.getAnchor(end, this, modifyHandle != 0, ref idx);
 					
 				if (modifyHandle == 0) orgnAnchor = idx; else destAnchor = idx;
@@ -1146,9 +1155,9 @@ namespace MindFusion.FlowChartX
 			{
 				PointF pt = points[0];
 				if (objNode == null)
-					objNode = fcParent.GetNodeAt(pt);
+					objNode = flowChart.GetNodeAt(pt);
 				if (objNode == null)
-					objNode = fcParent.Dummy;
+					objNode = flowChart.Dummy;
 				if (objNode != null && orgnLink.linkChanges(objNode, pt))
 				{
 					orgnLink.removeArrowFromObj();
@@ -1166,9 +1175,9 @@ namespace MindFusion.FlowChartX
 			{
 				PointF pt = points[points.Count-1];
 				if (objNode == null)
-					objNode = fcParent.GetNodeAt(pt);
+					objNode = flowChart.GetNodeAt(pt);
 				if (objNode == null)
-					objNode = fcParent.Dummy;
+					objNode = flowChart.Dummy;
 				if (objNode != null && destLink.linkChanges(objNode, pt))
 				{
 					destLink.removeArrowFromObj();
@@ -1188,7 +1197,7 @@ namespace MindFusion.FlowChartX
 				PointF ptNext = points[modifyHandle + 1];
 
 				// for polylines: if the angle between them is ~180
-				if (style == ArrowStyle.Polyline && fcParent.AllowSplitArrows)
+				if (style == ArrowStyle.Polyline && flowChart.AllowSplitArrows)
 				{
 					PointCollection pts = new PointCollection(2);
 					pts.SetAt(0, ptPrev);
@@ -1211,13 +1220,13 @@ namespace MindFusion.FlowChartX
 
 				// combine segments of cascading arrows if two adjacent control points overlap
 				if (style == ArrowStyle.Cascading && segmentCount > 3 &&
-					fcParent.AllowSplitArrows)
+					flowChart.AllowSplitArrows)
 				{
 					int toDel = -1;
 
-					if (modifyHandle > 1 && fcParent.mergePoints(ptPrev, ptCurr))
+					if (modifyHandle > 1 && flowChart.mergePoints(ptPrev, ptCurr))
 						toDel = modifyHandle - 1;
-					if (modifyHandle < points.Count - 2 && fcParent.mergePoints(ptNext, ptCurr))
+					if (modifyHandle < points.Count - 2 && flowChart.mergePoints(ptNext, ptCurr))
 						toDel = modifyHandle;
 
 					if (toDel != -1)
@@ -1244,7 +1253,7 @@ namespace MindFusion.FlowChartX
 				return;
 			}
 
-			if (shouldRoute && autoRoute && fcParent.rerouteArrow(this))
+			if (shouldRoute && autoRoute && flowChart.rerouteArrow(this))
 				doRoute();
 
 			updateArrowHeads();
@@ -1253,7 +1262,7 @@ namespace MindFusion.FlowChartX
 			resetCrossings();
 			updateText();
 
-			fcParent.fireObjModified(this, end, modifyHandle);
+			flowChart.fireObjModified(this, end, modifyHandle);
 			cycleProtect = false;
 			objNewDest = null;
 		}
@@ -1332,7 +1341,7 @@ namespace MindFusion.FlowChartX
 				(customDraw == CustomDraw.ShadowOnly && shadow)))
 			{
 				// call the custom draw function
-				fcParent.drawArrow(g, this, shadow, pts);
+				flowChart.drawArrow(g, this, shadow, pts);
 			}
 			else
 			{
@@ -1343,15 +1352,15 @@ namespace MindFusion.FlowChartX
 				}
 				else
 				{
-					float mm = Constants.getMillimeter(fcParent.MeasureUnit);
+					float mm = Constants.getMillimeter(flowChart.MeasureUnit);
 					float pathThresh = mm / 3;
-					if (!drawCrossings || fcParent.ArrowCrossings ==
+					if (!drawCrossings || flowChart.ArrowCrossings ==
 						MindFusion.FlowChartX.ArrowCrossings.Straight)
 					{
-						if (fcParent.RoundedArrows)
+						if (flowChart.RoundedArrows)
 						{
 							DrawRoundedPolyline(g, p, pts.getArray(),
-								fcParent.RoundedArrowsRadius, true, pathThresh, null);
+								flowChart.RoundedArrowsRadius, true, pathThresh, null);
 						}
 						else
 						{
@@ -1360,7 +1369,7 @@ namespace MindFusion.FlowChartX
 					}
 					else
 					{
-						float crad = fcParent.CrossingRadius;
+						float crad = flowChart.CrossingRadius;
 
 						ArrowCrossings crossings = getCrossings();
 						object startPoint = null;
@@ -1389,7 +1398,7 @@ namespace MindFusion.FlowChartX
 									{
 										// The subsegment between two crossings or
 										// between a crossing and a segment end-point
-										if (fcParent.RoundedArrows)
+										if (flowChart.RoundedArrows)
 										{
 											// Check if this is the last subsegment
 											// in this segment. If that is the case,
@@ -1435,7 +1444,7 @@ namespace MindFusion.FlowChartX
 												};
 
 													startPoint = DrawRoundedPolyline(g, p, triPoints,
-														fcParent.RoundedArrowsRadius, false, pathThresh, gpath);
+														flowChart.RoundedArrowsRadius, false, pathThresh, gpath);
 												}
 											}
 											else
@@ -1456,7 +1465,7 @@ namespace MindFusion.FlowChartX
 									}
 									else
 									{
-										if (fcParent.ArrowCrossings ==
+										if (flowChart.ArrowCrossings ==
 											MindFusion.FlowChartX.ArrowCrossings.Arcs)
 										{
 											float rad = Utilities.Distance(pt1, pt2) / 2;
@@ -1589,7 +1598,7 @@ namespace MindFusion.FlowChartX
 
 				// additional custom draw type
 				if (custom && customDraw == CustomDraw.Additional)
-					fcParent.drawArrow(g, this, false, pts);
+					flowChart.drawArrow(g, this, false, pts);
 			}
 		}
 
@@ -1810,7 +1819,7 @@ namespace MindFusion.FlowChartX
 		public override void Draw(Graphics g, bool shadow)
 		{
 			if (invisible) return;
-			if (fcParent.NowPrinting && !Printable) return;
+			if (flowChart.NowPrinting && !Printable) return;
 
 			System.Drawing.Pen p = null;
 			System.Drawing.Brush b = null;
@@ -1837,7 +1846,7 @@ namespace MindFusion.FlowChartX
 			if (!shadow && customDraw != CustomDraw.Full)
 			{
 				// draw arrow's text
-				if (text.Length > 0 && fcParent.RenderOptions.EnableText)
+				if (text.Length > 0 && flowChart.RenderOptions.EnableText)
 					drawText(g);
 			}
 
@@ -1998,11 +2007,11 @@ namespace MindFusion.FlowChartX
 				cf.Alignment = StringAlignment.Center;
 				cf.LineAlignment = StringAlignment.Center;
 				SizeF size = g.MeasureString(text, Font);
-				size.Width += Constants.getMillimeter(fcParent.MeasureUnit);
-				size.Height += Constants.getMillimeter(fcParent.MeasureUnit);
+				size.Width += Constants.getMillimeter(flowChart.MeasureUnit);
+				size.Height += Constants.getMillimeter(flowChart.MeasureUnit);
 
 				// fill using the background brush
-				System.Drawing.Brush brush = fcParent.BackBrush.CreateGDIBrush(rect);
+				System.Drawing.Brush brush = flowChart.BackBrush.CreateGDIBrush(rect);
 				g.FillRectangle(brush, center.X - size.Width / 2,
 					center.Y - size.Height /2, size.Width, size.Height);
 				brush.Dispose();
@@ -2045,7 +2054,7 @@ namespace MindFusion.FlowChartX
 			if (selStyle == HandlesStyle.Custom)
 			{
 				// let applications custom draw the selection handles
-				fcParent.fireDrawSelHandles(g, this);
+				flowChart.fireDrawSelHandles(g, this);
 				return;
 			}
 
@@ -2080,10 +2089,10 @@ namespace MindFusion.FlowChartX
 			for (int i = 0; i < points.Count; ++i)
 			{
 				RectangleF rc = RectangleF.FromLTRB(
-					points[i].X - fcParent.SelHandleSize/2,
-					points[i].Y - fcParent.SelHandleSize/2,
-					points[i].X + fcParent.SelHandleSize/2,
-					points[i].Y + fcParent.SelHandleSize/2);
+					points[i].X - flowChart.SelHandleSize/2,
+					points[i].Y - flowChart.SelHandleSize/2,
+					points[i].X + flowChart.SelHandleSize/2,
+					points[i].Y + flowChart.SelHandleSize/2);
 
 				if (i%3 > 0 || style != ArrowStyle.Bezier)
 				{
@@ -2123,8 +2132,8 @@ namespace MindFusion.FlowChartX
 				if (drawCrossings != value)
 				{
 					drawCrossings = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2296,7 +2305,7 @@ namespace MindFusion.FlowChartX
 
 					doRoute();
 					UpdateFromPoints();
-					fcParent.Invalidate();
+					flowChart.Invalidate();
 
 					return;
 				}
@@ -2341,7 +2350,7 @@ namespace MindFusion.FlowChartX
 
 					doRoute();
 					UpdateFromPoints();
-					fcParent.Invalidate();
+					flowChart.Invalidate();
 
 					return;
 				}
@@ -2369,7 +2378,7 @@ namespace MindFusion.FlowChartX
 			{
 				if (value != orgnAnchor)
 				{
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 					orgnAnchor = -1;
 
 					PointF anchorPos = new PointF(0, 0);
@@ -2380,7 +2389,7 @@ namespace MindFusion.FlowChartX
 						UpdateFromPoints();
 					}
 
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 				}
 			}
 		}
@@ -2392,7 +2401,7 @@ namespace MindFusion.FlowChartX
 			{
 				if (value != destAnchor)
 				{
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 					destAnchor = -1;
 
 					PointF anchorPos = new PointF(0, 0);
@@ -2403,7 +2412,7 @@ namespace MindFusion.FlowChartX
 						UpdateFromPoints();
 					}
 
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 				}
 			}
 		}
@@ -2430,14 +2439,14 @@ namespace MindFusion.FlowChartX
 					if (reflexive && value < 3 &&
 						style != ArrowStyle.Bezier) return;
 
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 					setSegments(value);
 					arrangePoints(Anchoring.Keep);
 					resetCrossings();
 					updateText();
 
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2461,6 +2470,7 @@ namespace MindFusion.FlowChartX
 		internal PointCollection Points
 		{
 			get { return points; }
+			set { points = value; }
 		}
 
 		public PointCollection ControlPoints
@@ -2468,7 +2478,7 @@ namespace MindFusion.FlowChartX
 			get { return points; }
 		}
 
-		private void onShapeChanged()
+		private void onShapeChanged(bool updateGroups)
 		{
 			//compute the arrow points
 			updateArrowHeads();
@@ -2476,7 +2486,7 @@ namespace MindFusion.FlowChartX
 			orgnLink.saveEndRelative();
 			destLink.saveEndRelative();
 
-			if (subordinateGroup != null)
+			if (updateGroups && subordinateGroup != null)
 				subordinateGroup.updateObjects(new InteractionState(this, -1, Action.Modify));
 
 			resetCrossings();
@@ -2485,8 +2495,13 @@ namespace MindFusion.FlowChartX
 
 		public void UpdateFromPoints()
 		{
-			onShapeChanged();
-			fcParent.invalidate(getRepaintRect(false));
+			updateFromPoints(true);
+		}
+
+		public void updateFromPoints(bool updateGroups)
+		{
+			onShapeChanged(updateGroups);
+			flowChart.invalidate(getRepaintRect(false));
 
 			if (style == ArrowStyle.Cascading)
 			{
@@ -2523,12 +2538,12 @@ namespace MindFusion.FlowChartX
 			points[0] = points[3] = pt;
 
 			points[1] = new PointF(
-				pt.X - Constants.getReflWth2(fcParent.MeasureUnit),
-				pt.Y - Constants.getReflHth(fcParent.MeasureUnit));
+				pt.X - Constants.getReflWth2(flowChart.MeasureUnit),
+				pt.Y - Constants.getReflHth(flowChart.MeasureUnit));
 
 			points[2] = new PointF(
-				pt.X + Constants.getReflWth2(fcParent.MeasureUnit),
-				pt.Y - Constants.getReflHth(fcParent.MeasureUnit));
+				pt.X + Constants.getReflWth2(flowChart.MeasureUnit),
+				pt.Y - Constants.getReflHth(flowChart.MeasureUnit));
 
 			updateArrowHeads();
 			resetCrossings();
@@ -2598,7 +2613,7 @@ namespace MindFusion.FlowChartX
 		{
 			if (!invisible) return;
 
-			fcParent.UndoManager.onExpandItem(this);
+			flowChart.UndoManager.onExpandItem(this);
 
 			invisible = false;
 			if (isReflexive()) return;
@@ -2617,10 +2632,10 @@ namespace MindFusion.FlowChartX
 		{
 			if (invisible) return;
 
-			fcParent.UndoManager.onExpandItem(this);
+			flowChart.UndoManager.onExpandItem(this);
 
 			invisible = true;
-			fcParent.Selection.RemoveObject(this);
+			flowChart.Selection.RemoveObject(this);
 			if (isReflexive()) return;
 
 			if (incm)
@@ -2647,7 +2662,7 @@ namespace MindFusion.FlowChartX
 				if (dynamic != value)
 				{
 					dynamic = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -2665,7 +2680,7 @@ namespace MindFusion.FlowChartX
 				if(retainForm != value)
 				{
 					retainForm = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -2686,12 +2701,12 @@ namespace MindFusion.FlowChartX
 				if (cascadeOrientation != value)
 				{
 					cascadeOrientation = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 					if (style == ArrowStyle.Cascading)
 					{
-						fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+						flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 						arrangePoints(Anchoring.Keep);
-						fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+						flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 					}
 				}
 			}
@@ -2744,7 +2759,7 @@ namespace MindFusion.FlowChartX
 				if (allowMoveStart != value)
 				{
 					allowMoveStart = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -2757,7 +2772,7 @@ namespace MindFusion.FlowChartX
 				if (allowMoveEnd != value)
 				{
 					allowMoveEnd = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -2773,12 +2788,12 @@ namespace MindFusion.FlowChartX
 
 		internal override Cursor getCannotDropCursor()
 		{
-			return fcParent.CurArrowCannotCreate;
+			return flowChart.CurArrowCannotCreate;
 		}
 
 		internal override Cursor getCanDropCursor()
 		{
-			return fcParent.CurArrowEnd;
+			return flowChart.CurArrowEnd;
 		}
 
 		/// <summary>
@@ -2797,8 +2812,8 @@ namespace MindFusion.FlowChartX
 					if (this.isReflexive() && this.segmentCount < 3 &&
 						value != ArrowStyle.Bezier) return;
 
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 
 					style = value;
 
@@ -2812,7 +2827,7 @@ namespace MindFusion.FlowChartX
 					resetCrossings();
 					updateText();
 
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2842,8 +2857,8 @@ namespace MindFusion.FlowChartX
 					penColor = value;
 					pen.Color = penColor;
 
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2860,8 +2875,8 @@ namespace MindFusion.FlowChartX
 			{
 				headPen = value;
 
-				fcParent.setDirty();
-				fcParent.invalidate(getRepaintRect(false));
+				flowChart.setDirty();
+				flowChart.invalidate(getRepaintRect(false));
 			}
 		}
 
@@ -2934,11 +2949,11 @@ namespace MindFusion.FlowChartX
 						text = value;
 
 					updateText();
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 
-				if (fcParent.IsTrialVersion && ZIndex > 50)
+				if (flowChart.IsTrialVersion && ZIndex > 50)
 					text = "FlowChart.NET\nDemo Version";
 			}
 		}
@@ -2969,8 +2984,8 @@ namespace MindFusion.FlowChartX
 					textStyle = value;
 
 					updateText();
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2991,8 +3006,8 @@ namespace MindFusion.FlowChartX
 				if (!textColor.Equals(value))
 				{
 					textColor = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3015,8 +3030,8 @@ namespace MindFusion.FlowChartX
 					arrowHead = value;
 					headTemplates[(int)arrowHead].initArrowHead(ahHead);
 					headTemplates[(int)arrowHead].recalcArrowHead(ahHead, points[points.Count-2], points[points.Count-1]);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3034,8 +3049,8 @@ namespace MindFusion.FlowChartX
 					arrowBase = value;
 					headTemplates[(int)arrowBase].initArrowHead(ahBase);
 					headTemplates[(int)arrowBase].recalcArrowHead(ahBase, points[1], points[0]);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3052,8 +3067,8 @@ namespace MindFusion.FlowChartX
 				{
 					arrowInterm = value;
 					headTemplates[(int)arrowInterm].initArrowHead(ahInterm);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3075,8 +3090,8 @@ namespace MindFusion.FlowChartX
 					headSize = value;
 					ahHead.setSize(headSize);
 					headTemplates[(int)arrowHead].recalcArrowHead(ahHead, points[points.Count-2], points[points.Count-1]);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3094,8 +3109,8 @@ namespace MindFusion.FlowChartX
 					baseSize = value;
 					ahBase.setSize(baseSize);
 					headTemplates[(int)arrowBase].recalcArrowHead(ahBase, points[1], points[0]);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3112,8 +3127,8 @@ namespace MindFusion.FlowChartX
 				{
 					intermSize = value;
 					ahInterm.setSize(intermSize);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3140,8 +3155,8 @@ namespace MindFusion.FlowChartX
 		{
 			RectangleF rc = getBoundingRect();
 
-			float inflate = Constants.getLineHitTest(fcParent.MeasureUnit) / 2;
-			float maxDist = Constants.getLineHitTest(fcParent.MeasureUnit) * 2 / 3;
+			float inflate = Constants.getLineHitTest(flowChart.MeasureUnit) / 2;
+			float maxDist = Constants.getLineHitTest(flowChart.MeasureUnit) * 2 / 3;
 
 			rc.Inflate(inflate,inflate);
 			if (!Utilities.pointInRect(pt, rc)) return false; 
@@ -3166,8 +3181,8 @@ namespace MindFusion.FlowChartX
 			for (int i = 0; i < points.Count; ++i)
 			{
 				PointF apt = points[i];
-				if (Math.Abs(apt.X - pt.X) <= fcParent.SelHandleSize/2 &&
-					Math.Abs(apt.Y - pt.Y) <= fcParent.SelHandleSize/2)
+				if (Math.Abs(apt.X - pt.X) <= flowChart.SelHandleSize/2 &&
+					Math.Abs(apt.Y - pt.Y) <= flowChart.SelHandleSize/2)
 				{
 					if (i == 0 && !allowMoveStart) continue;
 					if (i == points.Count-1 && !allowMoveEnd) continue;
@@ -3184,8 +3199,8 @@ namespace MindFusion.FlowChartX
 			for (int i = 0; i < points.Count; ++i)
 			{
 				PointF apt = points[i];
-				if (Math.Abs(apt.X - pt.X) <= fcParent.SelHandleSize/2 &&
-					Math.Abs(apt.Y - pt.Y) <= fcParent.SelHandleSize/2)
+				if (Math.Abs(apt.X - pt.X) <= flowChart.SelHandleSize/2 &&
+					Math.Abs(apt.Y - pt.Y) <= flowChart.SelHandleSize/2)
 					return i;
 			}
 
@@ -3223,7 +3238,7 @@ namespace MindFusion.FlowChartX
 			if (style == ArrowStyle.Cascading)
 				updateEndPtsPrp();
 
-			onShapeChanged();
+			onShapeChanged(true);
 		}
 
 		internal override RectangleF getBoundingRect()
@@ -3304,11 +3319,11 @@ namespace MindFusion.FlowChartX
 			{
 				if (autoRoute != value)
 				{
-					fcParent.invalidate(getRepaintRect(hasAttachedGroup()));
+					flowChart.invalidate(getRepaintRect(hasAttachedGroup()));
 					autoRoute = value;
-					if (autoRoute && fcParent.rerouteArrow(this)) doRoute();
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					if (autoRoute && flowChart.rerouteArrow(this)) doRoute();
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -3326,10 +3341,10 @@ namespace MindFusion.FlowChartX
 
 		public void ReassignAnchorPoints()
 		{
-			fcParent.invalidate(getRepaintRect(false));
+			flowChart.invalidate(getRepaintRect(false));
 			putEndPointsAtNodeBorders(autoRoute);
-			onShapeChanged();
-			fcParent.invalidate(getRepaintRect(false));
+			onShapeChanged(true);
+			flowChart.invalidate(getRepaintRect(false));
 		}
 
 		internal void doRoute()
@@ -3353,12 +3368,12 @@ namespace MindFusion.FlowChartX
 			if (!force)
 				if (!autoRoute) return;
 
-			if (fcParent.DontRouteForAwhile)
+			if (flowChart.DontRouteForAwhile)
 				return;
 
 			int i;
 
-			float gridSize = fcParent.RoutingOptions.GridSize;
+			float gridSize = flowChart.RoutingOptions.GridSize;
 
 			PointF startPoint = points[0];
 			PointF endPoint = points[points.Count - 1];
@@ -3390,16 +3405,16 @@ namespace MindFusion.FlowChartX
 			int gridCols = (int)(bounds.Width / gridSize);
 			int gridRows = (int)(bounds.Height / gridSize);
 
-			RoutingGrid routingGrid = fcParent.RoutingGrid;
+			RoutingGrid routingGrid = flowChart.RoutingGrid;
 			routingGrid.allocate(gridCols, gridRows, bounds, this);
 			byte[,] grid = routingGrid.getCostGrid();
 			PathNode[,] gridClosed = routingGrid.getClosedGrid();
 			PathNode[,] gridOpen = routingGrid.getOpenGrid();
 
 			bool hurry = (gridCols * gridRows > 90000) &&
-				fcParent.RoutingOptions.DontOptimizeLongRoutes;
+				flowChart.RoutingOptions.DontOptimizeLongRoutes;
 			RouteHeuristics calcRouteHeuristics = hurry ?
-				RoutingOptions.DistSquare : fcParent.RoutingOptions.RouteHeuristics;
+				RoutingOptions.DistSquare : flowChart.RoutingOptions.RouteHeuristics;
 
 			routeFixEndRegions(grid, ref ptStart, oNearest, ref ptEnd, dNearest, gridCols, gridRows);
 			grid[ptStart.X, ptStart.Y] = 0;
@@ -3418,8 +3433,8 @@ namespace MindFusion.FlowChartX
 			gridOpen[temp.X, temp.Y] = temp;
 
 			// setup A* cost function
-			int adjcCost = fcParent.RoutingOptions.LengthCost;
-			int turnCost = fcParent.RoutingOptions.TurnCost;
+			int adjcCost = flowChart.RoutingOptions.LengthCost;
+			int turnCost = flowChart.RoutingOptions.TurnCost;
 
 			PathNode best = null;
 			bool found = false;
@@ -3692,7 +3707,7 @@ namespace MindFusion.FlowChartX
 						ptf1 = points[i];
 						ptf2 = points[i + 2];
 
-						ChartObject obj = fcParent.objectIntersectedBy(ptf1, ptf2,
+						ChartObject obj = flowChart.objectIntersectedBy(ptf1, ptf2,
 							orgnLink.getNode(), destLink.getNode());
 						if(obj == null)
 							points.RemoveAt(i + 1);
@@ -3787,15 +3802,15 @@ namespace MindFusion.FlowChartX
 			resetCrossings();
 			updateText();
 
-			fcParent.fireArrowRoutedEvent(this);
+			flowChart.fireArrowRoutedEvent(this);
 		}
 
 		private void routeGetEndPoints(ref PointF startPoint, ref PointF endPoint,
 			ref int oNearest, ref int dNearest, Link orgnLink, Link destLink, bool nowCreating)
 		{
-			if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
+			if (flowChart.RoutingOptions.Anchoring == Anchoring.Ignore)
 			{
-				float gridSize = fcParent.RoutingOptions.GridSize;
+				float gridSize = flowChart.RoutingOptions.GridSize;
 
 				// find the intersection of the nodes outlines with the four rays
 				// that go outwards from the start/end points
@@ -3812,11 +3827,11 @@ namespace MindFusion.FlowChartX
 				// get the intersection point nearest to the origin and destination centers.
 		
 				int oLen = opts.Length;
-				if (fcParent.RoutingOptions.StartOrientation == Orientation.Horizontal)
+				if (flowChart.RoutingOptions.StartOrientation == Orientation.Horizontal)
 				{
 					oNearest = 2;
 				}
-				else if (fcParent.RoutingOptions.StartOrientation == Orientation.Vertical)
+				else if (flowChart.RoutingOptions.StartOrientation == Orientation.Vertical)
 				{
 					oLen = 2;
 				}
@@ -3829,11 +3844,11 @@ namespace MindFusion.FlowChartX
 				}
 
 				int dLen = dpts.Length;
-				if (fcParent.RoutingOptions.EndOrientation == Orientation.Horizontal)
+				if (flowChart.RoutingOptions.EndOrientation == Orientation.Horizontal)
 				{
 					dNearest = 2;
 				}
-				else if (fcParent.RoutingOptions.EndOrientation == Orientation.Vertical)
+				else if (flowChart.RoutingOptions.EndOrientation == Orientation.Vertical)
 				{
 					dLen = 2;
 				}
@@ -3861,7 +3876,7 @@ namespace MindFusion.FlowChartX
 				dNearest = -1;
 
 				if (nowCreating ||
-					fcParent.RoutingOptions.Anchoring == Anchoring.Reassign)
+					flowChart.RoutingOptions.Anchoring == Anchoring.Reassign)
 				{
 					putEndPointsAtNodeBorders(true, orgnLink, destLink);
 					startPoint = points[0];
@@ -3873,7 +3888,7 @@ namespace MindFusion.FlowChartX
 		private void routeFixEndRegions(byte[,] grid,
 			ref Point ptStart, int oNearest, ref Point ptEnd, int dNearest, int gridCols, int gridRows)
 		{
-			if (fcParent.RoutingOptions.Anchoring == Anchoring.Ignore)
+			if (flowChart.RoutingOptions.Anchoring == Anchoring.Ignore)
 			{
 				int dx = Math.Abs(ptStart.X - ptEnd.X);
 				int dy = Math.Abs(ptStart.Y - ptEnd.Y);
@@ -4007,7 +4022,7 @@ namespace MindFusion.FlowChartX
 			}
 			else
 			{
-				byte cost = fcParent.RoutingOptions.NodeVicinityCost;
+				byte cost = flowChart.RoutingOptions.NodeVicinityCost;
 				for (int i = -1; i <= 1; ++i)
 				{
 					for (int j = -1; j <= 1; ++j)
@@ -4034,9 +4049,9 @@ namespace MindFusion.FlowChartX
 			if (destLink != null)
 				return destLink;
 
-			Node target = fcParent.getCurrBehavior().GetTargetNode(point);
+			Node target = flowChart.getCurrBehavior().GetTargetNode(point);
 			if (target == null)
-				target = fcParent.Dummy;
+				target = flowChart.Dummy;
 
 			return target.createLink(this, point, true);
 		}
@@ -4077,12 +4092,12 @@ namespace MindFusion.FlowChartX
 					for (int i = 0; i < points.Count / 2 - 1; ++i)
 					{
 						points[1+i] = new PointF(
-							ptOrg.X - Constants.getReflWth2(fcParent.MeasureUnit),
-							ptOrg.Y - Constants.getReflHth(fcParent.MeasureUnit));
+							ptOrg.X - Constants.getReflWth2(flowChart.MeasureUnit),
+							ptOrg.Y - Constants.getReflHth(flowChart.MeasureUnit));
 
 						points[points.Count - 2 - i] = new PointF(
-							ptOrg.X + Constants.getReflWth2(fcParent.MeasureUnit),
-							ptOrg.Y - Constants.getReflHth(fcParent.MeasureUnit));
+							ptOrg.X + Constants.getReflWth2(flowChart.MeasureUnit),
+							ptOrg.Y - Constants.getReflHth(flowChart.MeasureUnit));
 					}
 					updateArrowHeads();
 				}
@@ -4275,7 +4290,7 @@ namespace MindFusion.FlowChartX
 
 		internal int splitSegment(int segment, PointF pt)
 		{
-			fcParent.UndoManager.onModifyItem(this);
+			flowChart.UndoManager.onModifyItem(this);
 
 			int ptPos = 0;
 			PointF pt1, pt2;
@@ -4578,7 +4593,7 @@ namespace MindFusion.FlowChartX
 		private void chooseRouteOutlinePoints(Link orgnLink, Link destLink,
 			ref PointF ptOrg, ref PointF ptDest)
 		{
-			RoutingOptions rop = fcParent.RoutingOptions;
+			RoutingOptions rop = flowChart.RoutingOptions;
 			Node origin = orgnLink.getNode();
 			Node destination = destLink.getNode();
 			bool reflexive = orgnLink.sameNode(destLink);
@@ -4841,7 +4856,7 @@ namespace MindFusion.FlowChartX
 			}
 			destAnchor = astate.destAnchor;
 
-			UpdateFromPoints();
+			updateFromPoints(false);
 
 			if (subordinateGroup != null)
 				subordinateGroup.onRestoreState();
@@ -4883,6 +4898,7 @@ namespace MindFusion.FlowChartX
 			aprops.customDraw = customDraw;
 			aprops.snapToNodeBorder = snapToNodeBorder;
 			aprops.selStyle = selStyle;
+			aprops.drawCrossings = drawCrossings;
 
 			aprops.headPen = (MindFusion.FlowChartX.Pen)headPen.Clone();
 		}
@@ -4910,6 +4926,7 @@ namespace MindFusion.FlowChartX
 			customDraw = aprops.customDraw;
 			snapToNodeBorder = aprops.snapToNodeBorder;
 			selStyle = aprops.selStyle;
+			drawCrossings = aprops.drawCrossings;
 
 			headPen = (MindFusion.FlowChartX.Pen)aprops.headPen.Clone();
 
@@ -5012,7 +5029,7 @@ namespace MindFusion.FlowChartX
 
 		internal void resetCrossings()
 		{
-			if (fcParent.ArrowCrossings ==
+			if (flowChart.ArrowCrossings ==
 				MindFusion.FlowChartX.ArrowCrossings.Straight) return;
 			RectangleF rcArrow = getBoundingRect();
 
@@ -5021,14 +5038,14 @@ namespace MindFusion.FlowChartX
 			// z index where this arrow is or will be placed
 			int z = ZIndex;
 			if (!constructed)
-				z = fcParent.Objects.Count;
+				z = flowChart.Objects.Count;
 
 			ArrowCollection arrows;
-			if (fcParent.ArrowCrossings ==
+			if (flowChart.ArrowCrossings ==
 				MindFusion.FlowChartX.ArrowCrossings.Arcs)
-				arrows = fcParent.getArrowsFromZ(false, z);
+				arrows = flowChart.getArrowsFromZ(false, z);
 			else
-				arrows = fcParent.getArrowsFromZ(true, z);
+				arrows = flowChart.getArrowsFromZ(true, z);
 
 			for (int i = 0; i < arrows.Count; ++i)
 			{
@@ -5038,7 +5055,7 @@ namespace MindFusion.FlowChartX
 					arrow.freeData(Constants.ARROW_CROSSINGS);
 			}
 
-			if (modifying) fcParent.redrawNonModifiedItems();
+			if (modifying) flowChart.redrawNonModifiedItems();
 		}
 
 		private class CloserDistance : IComparer
@@ -5075,7 +5092,7 @@ namespace MindFusion.FlowChartX
 
 		private ArrowCrossings getCrossings()
 		{
-			float crad = fcParent.CrossingRadius;
+			float crad = flowChart.CrossingRadius;
 			RectangleF rcArrow = getBoundingRect();
 			PointCollection intersections = new PointCollection(0);
 
@@ -5088,15 +5105,15 @@ namespace MindFusion.FlowChartX
 				// z index where this arrow is or will be placed
 				int z = ZIndex;
 				if (!constructed)
-					z = fcParent.Objects.Count;
+					z = flowChart.Objects.Count;
 
 				// get the arrows which should be checked for intersections
 				ArrowCollection arrows;
-				if (fcParent.ArrowCrossings ==
+				if (flowChart.ArrowCrossings ==
 					MindFusion.FlowChartX.ArrowCrossings.Arcs)
-					arrows = fcParent.getArrowsFromZ(true, z);
+					arrows = flowChart.getArrowsFromZ(true, z);
 				else
-					arrows = fcParent.getArrowsFromZ(false, z);
+					arrows = flowChart.getArrowsFromZ(false, z);
 
 				// check each segment
 				for (int sgt = 0; sgt < segmentCount; ++sgt)
@@ -5169,7 +5186,7 @@ namespace MindFusion.FlowChartX
 						PointF p2 = rintr[i + 1];
 
 						if (closer.Compare(p1, p2) > 0 ||
-							Utilities.Distance(p1, p2) < Constants.getMillimeter(fcParent.MeasureUnit) / 2)
+							Utilities.Distance(p1, p2) < Constants.getMillimeter(flowChart.MeasureUnit) / 2)
 						{
 							// Remove these points
 							rintr.RemoveAt(i);
@@ -5270,8 +5287,8 @@ namespace MindFusion.FlowChartX
 					}
 				}
 
-				Graphics graphics = fcParent.CreateGraphics();
-				fcParent.setTransforms(graphics);
+				Graphics graphics = flowChart.CreateGraphics();
+				flowChart.setTransforms(graphics);
 
 				float textHeight = Font.GetHeight(graphics);
 
@@ -5538,8 +5555,8 @@ namespace MindFusion.FlowChartX
 				if (customDraw != value)
 				{
 					customDraw = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -5560,7 +5577,7 @@ namespace MindFusion.FlowChartX
 				if (snapToNodeBorder != value)
 				{
 					snapToNodeBorder = value;
-					fcParent.setDirty();
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -5574,8 +5591,8 @@ namespace MindFusion.FlowChartX
 				if (value != selStyle)
 				{
 					selStyle = value;
-					fcParent.invalidate(getRepaintRect(false));
-					fcParent.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -5599,7 +5616,7 @@ namespace MindFusion.FlowChartX
 			}
 
 			System.Drawing.Pen widenPen = new System.Drawing.Pen(Color.Black,
-				2 * Constants.getMillimeter(fcParent.MeasureUnit));
+				2 * Constants.getMillimeter(flowChart.MeasureUnit));
 			arrowPath.Widen(widenPen);
 			arrowPath.Flatten();
 			poly.AddRange(arrowPath.PathPoints);

@@ -42,5 +42,6 @@ namespace MindFusion.FlowChartX
 		internal CustomDraw customDraw;
 		internal bool snapToNodeBorder;
 		internal HandlesStyle selStyle;
+		internal bool drawCrossings;
 	}
 }

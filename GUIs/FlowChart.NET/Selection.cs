@@ -67,7 +67,7 @@ namespace MindFusion.FlowChartX
 
 			ptLastTopLeft.X = rect.Left;
 			ptLastTopLeft.Y = rect.Top;
-			ptLastTopLeft = fcParent.AlignPointToGrid(ptLastTopLeft);
+			ptLastTopLeft = flowChart.AlignPointToGrid(ptLastTopLeft);
 
 			if (handle == 8 && selectedItems.Count > 0)
 			{
@@ -87,12 +87,12 @@ namespace MindFusion.FlowChartX
 		{
 			base.updateModify(current, ist);
 
-			PointF pt1 = fcParent.InteractionStartPoint;
+			PointF pt1 = flowChart.InteractionStartPoint;
 			PointF pt2 = current;
 			PointF ptTLA = new PointF(rcSaved.Left, rcSaved.Top);
 			ptTLA.X += pt2.X - pt1.X;
 			ptTLA.Y += pt2.Y - pt1.Y;
-			ptTLA = fcParent.AlignPointToGrid(ptTLA);
+			ptTLA = flowChart.AlignPointToGrid(ptTLA);
 	
 			base.modifyDX = ptTLA.X - ptLastTopLeft.X;
 			base.modifyDY = ptTLA.Y - ptLastTopLeft.Y;
@@ -134,7 +134,7 @@ namespace MindFusion.FlowChartX
 
 				// beware of arrow routing; obj.completeModify invokations
 				// might route many arrows repetitively
-				fcParent.DontRouteForAwhile = true;
+				flowChart.DontRouteForAwhile = true;
 
 				// call EndModify method of all selected objects
 				foreach (ChartObject obj in selectedItems)
@@ -142,11 +142,11 @@ namespace MindFusion.FlowChartX
 						obj.completeModify();
 
 				// now that would route an arrow only once
-				fcParent.DontRouteForAwhile = false;
-				fcParent.routeAllArrows(this);
+				flowChart.DontRouteForAwhile = false;
+				flowChart.routeAllArrows(this);
 
 				// fire SelectionMoved event, for that was exactly what happened
-				fcParent.fireSelectionMoved();
+				flowChart.fireSelectionMoved();
 			}
 		}
 
@@ -171,7 +171,7 @@ namespace MindFusion.FlowChartX
 			clear();
 
 			ChartObjectCollection newSel = new ChartObjectCollection();
-			fcParent.getIntersectingObjects(rect,
+			flowChart.getIntersectingObjects(rect,
 				newSel, allowMultiSel, includeItemsIfIntersect);
 			foreach (ChartObject obj in newSel)
 				addObjToSelection(obj);
@@ -179,42 +179,39 @@ namespace MindFusion.FlowChartX
 
 			if (selectedItems.Count == 0)
 			{
-				if (fcParent.ActiveObject != null)
-					fcParent.fireDeactivationEvent();
-				fcParent.ActiveObject = null;
+				if (flowChart.ActiveObject != null)
+					flowChart.fireDeactivationEvent();
+				flowChart.ActiveObject = null;
 			}
-			else if (fcParent.ActiveObject == null ||
-				!fcParent.ActiveObject.Selected)
+			else if (flowChart.ActiveObject == null ||
+				!flowChart.ActiveObject.Selected)
 			{
-				if (fcParent.ActiveObject != null)
-					fcParent.fireDeactivationEvent();
-				fcParent.ActiveObject = selectedItems[0];
-				fcParent.fireActivationEvent();
+				if (flowChart.ActiveObject != null)
+					flowChart.fireDeactivationEvent();
+				flowChart.ActiveObject = selectedItems[0];
+				flowChart.fireActivationEvent();
 			}
 
-			fcParent.fireSelectionChanged();
+			flowChart.fireSelectionChanged();
 
 			recalcRect();
 		}
 
 		internal override bool allowModify(PointF current)
 		{
-			current = fcParent.AlignPointToGrid(current);
+			current = flowChart.AlignPointToGrid(current);
 
 			if (modifyHandle == 8)
 			{
-				if (!fcParent.canDropHere(this, current))
-					return false;
-
 				bool allow = true;
-				RestrictToDoc restr = fcParent.RestrObjsToDoc;
+				RestrictToDoc restr = flowChart.RestrObjsToDoc;
 
 				if (restr != RestrictToDoc.NoRestriction)
 				{
 					foreach (ChartObject obj in selectedItems)
 					{
 						RectangleF rc = obj.getBoundingRect();
-						allow = allow && !fcParent.rectRestrict(ref rc);
+						allow = allow && !flowChart.rectRestrict(ref rc);
 					}
 				}
 
@@ -242,7 +239,7 @@ namespace MindFusion.FlowChartX
 			if (shadow) return;
 			if (constructed && selectedItems.Count < 2)
 			{
-				fcParent.drawActiveSelHandles(g);
+				flowChart.drawActiveSelHandles(g);
 				return;
 			}
 
@@ -283,18 +280,18 @@ namespace MindFusion.FlowChartX
 			}
 
 			bool drawHandles = true;
-			if (!fcParent.ShowHandlesOnDrag)
+			if (!flowChart.ShowHandlesOnDrag)
 			{
-				if (fcParent.IsModifying)
+				if (flowChart.IsModifying)
 					drawHandles = false;
 			}
 
 			if (drawHandles)
 			{
 				foreach (ChartObject obj in selectedItems)
-					obj.drawSelHandles(g, fcParent.SelMnpColor);
+					obj.drawSelHandles(g, flowChart.SelMnpColor);
 
-				fcParent.drawActiveSelHandles(g);
+				flowChart.drawActiveSelHandles(g);
 			}
 		}
 
@@ -317,7 +314,7 @@ namespace MindFusion.FlowChartX
 				if (!fillColor.Equals(value))
 				{
 					fillColor = value;
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -342,7 +339,7 @@ namespace MindFusion.FlowChartX
 				if (!frameColor.Equals(value))
 				{
 					frameColor = value;	
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -356,7 +353,7 @@ namespace MindFusion.FlowChartX
 
 		internal override bool containsPoint(PointF pt)
 		{
-			ChartObject obj = fcParent.GetObjectAt(pt, true);
+			ChartObject obj = flowChart.GetObjectAt(pt, true);
 			return obj != null && obj.Selected;
 		}
 
@@ -364,8 +361,8 @@ namespace MindFusion.FlowChartX
 		{
 			if (selectedItems.Count <= 1) return false;
 
-			if (fcParent.ActiveObject != null &&
-				fcParent.ActiveObject.HitTestHandle(pt, ref handle))
+			if (flowChart.ActiveObject != null &&
+				flowChart.ActiveObject.HitTestHandle(pt, ref handle))
 			{
 				handle = 8;
 				return true;
@@ -373,7 +370,7 @@ namespace MindFusion.FlowChartX
 
 			if (style == SelectionStyle.SelectionHandles)
 			{
-				ChartObject obj = fcParent.GetObjectAt(pt, true);
+				ChartObject obj = flowChart.GetObjectAt(pt, true);
 				if (obj != null)
 				{
 					handle = 8;
@@ -404,13 +401,13 @@ namespace MindFusion.FlowChartX
 				result = inv.getInvalidRect();
 			}
 
-			result.Inflate(fcParent.SelHandleSize, fcParent.SelHandleSize);
+			result.Inflate(flowChart.SelHandleSize, flowChart.SelHandleSize);
 
 			if (selectedBoxes.Count > 0)
 			{
 				// some boxes might be rotated and their rotation handles
 				// be quite outside the selection rectangle
-				float infl = 6 * Constants.getMillimeter(fcParent.MeasureUnit);
+				float infl = 6 * Constants.getMillimeter(flowChart.MeasureUnit);
 				result.Inflate(infl, infl);
 			}
 
@@ -422,12 +419,12 @@ namespace MindFusion.FlowChartX
 
 		internal override Cursor getCannotDropCursor()
 		{
-			return fcParent.CurCannotCreate;
+			return flowChart.CurCannotCreate;
 		}
 
 		internal override Cursor getCanDropCursor()
 		{
-			return fcParent.CurPointer;
+			return flowChart.CurPointer;
 		}
 
 		public int GetSize()
@@ -438,7 +435,7 @@ namespace MindFusion.FlowChartX
 		internal override bool allowCreate(PointF current)
 		{
 			// create selection object only if there's more than one selected object
-			int objCount = fcParent.getIntrsObjsCnt(rect, includeItemsIfIntersect);
+			int objCount = flowChart.getIntrsObjsCnt(rect, includeItemsIfIntersect);
 			return (objCount > 0);
 		}
 
@@ -452,20 +449,20 @@ namespace MindFusion.FlowChartX
 			// remove the object if it's already selected
 			if (ObjectInSelection(obj))
 			{
-				bool activeObjChanged = obj == fcParent.ActiveObject;
+				bool activeObjChanged = obj == flowChart.ActiveObject;
 				removeObject(obj);
 				if (activeObjChanged && selectedItems.Count > 0)
 				{
-					if (fcParent.ActiveObject != null)
-						fcParent.fireDeactivationEvent();
-					fcParent.ActiveObject = selectedItems[0];
-					fcParent.fireActivationEvent();
+					if (flowChart.ActiveObject != null)
+						flowChart.fireDeactivationEvent();
+					flowChart.ActiveObject = selectedItems[0];
+					flowChart.fireActivationEvent();
 				}
 				if (activeObjChanged && selectedItems.Count == 0)
 				{
-					if (fcParent.ActiveObject != null)
-						fcParent.fireDeactivationEvent();
-					fcParent.ActiveObject = null;
+					if (flowChart.ActiveObject != null)
+						flowChart.fireDeactivationEvent();
+					flowChart.ActiveObject = null;
 				}
 
 				recalcRect();
@@ -475,13 +472,13 @@ namespace MindFusion.FlowChartX
 			{
 				if (!allowMultiSel) clear();
 				addObjToSelection(obj);
-				if (fcParent.ActiveObject != null)
-					fcParent.fireDeactivationEvent();
-				fcParent.ActiveObject = obj;
-				fcParent.fireActivationEvent();
+				if (flowChart.ActiveObject != null)
+					flowChart.fireDeactivationEvent();
+				flowChart.ActiveObject = obj;
+				flowChart.fireActivationEvent();
 			}
 
-			fcParent.fireSelectionChanged();
+			flowChart.fireSelectionChanged();
 		}
 
 		internal void addObjToSelection(ChartObject obj)
@@ -516,21 +513,21 @@ namespace MindFusion.FlowChartX
 
 			if (obj == null || obj.notInteractive())
 			{
-				if (fcParent.ActiveObject != null)
-					fcParent.fireDeactivationEvent();
-				fcParent.ActiveObject = null;
+				if (flowChart.ActiveObject != null)
+					flowChart.fireDeactivationEvent();
+				flowChart.ActiveObject = null;
 			}
 			else
 			{
 				// change the selection
 				addObjToSelection(obj);
-				if (fcParent.ActiveObject != null)
-					fcParent.fireDeactivationEvent();
-				fcParent.ActiveObject = obj;
-				fcParent.fireActivationEvent();
+				if (flowChart.ActiveObject != null)
+					flowChart.fireDeactivationEvent();
+				flowChart.ActiveObject = obj;
+				flowChart.fireActivationEvent();
 			}
 
-			fcParent.fireSelectionChanged();
+			flowChart.fireSelectionChanged();
 
 			recalcRect();
 		}
@@ -540,30 +537,30 @@ namespace MindFusion.FlowChartX
 			if (obj == null) return;
 
 			addObjToSelection(obj);
-			if (fcParent.ActiveObject != null)
-				fcParent.fireDeactivationEvent();
-			fcParent.ActiveObject = obj;
-			fcParent.fireActivationEvent();
-			fcParent.invalidate(getRepaintRect(false));
+			if (flowChart.ActiveObject != null)
+				flowChart.fireDeactivationEvent();
+			flowChart.ActiveObject = obj;
+			flowChart.fireActivationEvent();
+			flowChart.invalidate(getRepaintRect(false));
 
-			fcParent.fireSelectionChanged();
+			flowChart.fireSelectionChanged();
 		}
 
 		public bool RemoveObject(ChartObject obj)
 		{
 			RectangleF invArea = getRepaintRect(false);
 			if (!removeObject(obj)) return false;
-			if (!fcParent.ActiveObject.Selected)
+			if (!flowChart.ActiveObject.Selected)
 			{
-				if (fcParent.ActiveObject != null)
-					fcParent.fireDeactivationEvent();
-				fcParent.ActiveObject = selectedItems.Count > 0 ? selectedItems[0] : null;
-				if (fcParent.ActiveObject != null)
-					fcParent.fireActivationEvent();
+				if (flowChart.ActiveObject != null)
+					flowChart.fireDeactivationEvent();
+				flowChart.ActiveObject = selectedItems.Count > 0 ? selectedItems[0] : null;
+				if (flowChart.ActiveObject != null)
+					flowChart.fireActivationEvent();
 			}
-			fcParent.invalidate(invArea);
+			flowChart.invalidate(invArea);
 
-			fcParent.fireSelectionChanged();
+			flowChart.fireSelectionChanged();
 
 			return true;
 		}
@@ -622,13 +619,13 @@ namespace MindFusion.FlowChartX
 		{
 			int oldSelCount = selectedItems.Count;
 
-			fcParent.invalidate(getRepaintRect(false));
+			flowChart.invalidate(getRepaintRect(false));
 			clear();
 			recalcRect();
-			fcParent.ActiveObject = null;
+			flowChart.ActiveObject = null;
 
 			if (oldSelCount > 0)
-				fcParent.fireSelectionChanged();
+				flowChart.fireSelectionChanged();
 		}
 
 		internal override void visitHierarchy(CollectionVisitor visitor)
@@ -791,8 +788,8 @@ namespace MindFusion.FlowChartX
 				if (style != value)
 				{
 					style = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -898,7 +895,7 @@ namespace MindFusion.FlowChartX
 			state.SelectedTables = Tables.Clone();
 			state.SelectedArrows = Arrows.Clone();
 			state.SelectedHosts = ControlHosts.Clone();
-			state.ActiveItem = fcParent.ActiveObject;
+			state.ActiveItem = flowChart.ActiveObject;
 
 			return state;
 		}
@@ -914,7 +911,7 @@ namespace MindFusion.FlowChartX
 			selectedTables = state.SelectedTables.Clone();
 			selectedArrows = state.SelectedArrows.Clone();
 			selectedHosts = state.SelectedHosts.Clone();
-			fcParent.ActiveObject = state.ActiveItem;
+			flowChart.ActiveObject = state.ActiveItem;
 
 			foreach (ChartObject obj in selectedItems)
 				obj.setSelected(true);

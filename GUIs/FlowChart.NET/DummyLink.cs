@@ -37,7 +37,7 @@ namespace MindFusion.FlowChartX
 			return true;
 		}
 
-		internal override Node getNode() { return arrow.fcParent.Dummy; }
+		internal override Node getNode() { return arrow.flowChart.Dummy; }
 
 		internal override PointF getIntersection(PointF pt1, PointF pt2)
 		{

@@ -18,14 +18,14 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	internal abstract class Manipulator
 	{
-		internal Manipulator(ChartObject obj)
+		internal Manipulator(ChartObject item)
 		{
-			this.obj = obj;
+			this.item = item;
 		}
 
 		internal virtual void onDelete()
 		{
-			obj = null;
+			item = null;
 		}
 
 		internal abstract void draw(Graphics g);
@@ -36,7 +36,7 @@ namespace MindFusion.FlowChartX
 
 		internal abstract bool supportClipping();
 
-		protected ChartObject obj;
+		protected ChartObject item;
 
 	}
 }

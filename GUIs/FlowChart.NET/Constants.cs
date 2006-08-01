@@ -114,21 +114,20 @@ namespace MindFusion.FlowChartX
 
 		internal static float getMinObjSize(GraphicsUnit currUnit)
 		{
-            //pkh// Added the ' / 2.0F' to enable smaller items to be manipulated.
 			switch (currUnit)
 			{
 			case GraphicsUnit.Millimeter:
-				return 2 / 2.0F;
+				return 2;
 			case GraphicsUnit.Inch:
-                return 1.0f / 6 / 2.0F;
+				return 1.0f/6;
 			case GraphicsUnit.Point:
-                return 72.0f / 6 / 2.0F;
+				return 72.0f/6;
 			case GraphicsUnit.Pixel:
-                return 6 / 2.0F;
+				return 6;
 			case GraphicsUnit.Document:
-                return 300.0f / 6 / 2.0F;
+				return 300.0f/6;
 			case GraphicsUnit.Display:
-                return 75.0f / 6 / 2.0F;
+				return 75.0f/6;
 			}
 
 			return 2;
@@ -403,8 +402,7 @@ namespace MindFusion.FlowChartX
 		internal static int NoAnchorPattern = -12345;
 		internal static float getMarkSize(GraphicsUnit currUnit)
 		{
-      //pkh// Added the ' * 2.0F' to counter the effect of the reduction in minimum object size.
-      return getMinObjSize(currUnit) * 2.0F;
+			return getMinObjSize(currUnit);
 		}
 
 		internal const int ARROW_CROSSINGS = 3;

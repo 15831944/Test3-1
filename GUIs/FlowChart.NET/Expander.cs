@@ -20,7 +20,7 @@ namespace MindFusion.FlowChartX
 	/// </summary>
 	internal sealed class Expander : MindFusion.FlowChartX.Manipulator
 	{
-		internal Expander(ChartObject obj) : base(obj)
+		internal Expander(ChartObject item) : base(item)
 		{
 			if (imgExpanded == null || imgCollapsed == null)
 			{
@@ -38,13 +38,13 @@ namespace MindFusion.FlowChartX
 
 		internal override void draw(Graphics g)
 		{
-			RectangleF rcNode = obj.getRotatedBounds();
-			Rectangle rcDev = Utilities.docToDevice(g, iconRect(rcNode));
+			RectangleF rcNode = item.getRotatedBounds();
+			Rectangle rcDev = Utilities.docToDevice(g, getIconRect(rcNode));
 
 			if (rcDev.Width < 6 || rcDev.Height < 6) return;
 GraphicsState state = g.Save();
-obj.fcParent.unsetTransforms(g);
-			if ((obj as Node).Expanded)
+item.flowChart.unsetTransforms(g);
+			if ((item as Node).Expanded)
 				g.DrawIcon(imgExpanded, rcDev.X, rcDev.Y);
 			else
 				g.DrawIcon(imgCollapsed, rcDev.X, rcDev.Y);
@@ -53,9 +53,9 @@ g.Restore(state);
 
 		internal override void addToRepaintRect(ref RectangleF rect)
 		{
-			float exp = Constants.getExpandIconSize(obj.fcParent.MeasureUnit) * 4 / 3;
+			float exp = Constants.getExpandIconSize(item.flowChart.MeasureUnit) * 4 / 3;
 
-			switch (obj.fcParent.ExpandButtonPosition)
+			switch (item.flowChart.ExpandButtonPosition)
 			{
 				case ExpandButtonPosition.OuterUpperRight:
 				case ExpandButtonPosition.OuterRight:
@@ -80,10 +80,10 @@ g.Restore(state);
 
 		private PointF iconPos(RectangleF nodeRect)
 		{
-			float exp = Constants.getExpandIconSize(obj.fcParent.MeasureUnit);
+			float exp = Constants.getExpandIconSize(item.flowChart.MeasureUnit);
 			PointF ipos = PointF.Empty;
 
-			switch (obj.fcParent.ExpandButtonPosition)
+			switch (item.flowChart.ExpandButtonPosition)
 			{
 				case ExpandButtonPosition.OuterRight:
 					ipos.X = nodeRect.Right + exp / 3;
@@ -122,10 +122,10 @@ g.Restore(state);
 			return ipos;
 		}
 
-		private RectangleF iconRect(RectangleF nodeRect)
+		private RectangleF getIconRect(RectangleF nodeRect)
 		{
 			return new RectangleF(iconPos(nodeRect),
-				new SizeF(Constants.getExpandIconSize(obj.fcParent.MeasureUnit), Constants.getExpandIconSize(obj.fcParent.MeasureUnit)));
+				new SizeF(Constants.getExpandIconSize(item.flowChart.MeasureUnit), Constants.getExpandIconSize(item.flowChart.MeasureUnit)));
 		}
 
 		/// <summary>
@@ -136,29 +136,39 @@ g.Restore(state);
 		/// <returns>true if the expand/collapse button has been clicked.</returns>
 		internal override bool hitTest(PointF point)
 		{
-			RectangleF rcNode = obj.getRotatedBounds();
+			RectangleF bounds = item.getRotatedBounds();
+			RectangleF iconRect = getIconRect(bounds);
 
-			RectangleF rcExp = iconRect(rcNode);
-
-			if (Utilities.pointInRect(point, rcExp))
+			if (Utilities.pointInRect(point, iconRect))
 			{
-				obj.fcParent.UndoManager.onStartExpand();
+				FlowChart fc = item.flowChart;
+				Node node = item as Node;
 
-				Node node = obj as Node;
-				if (node.Expanded)
+				if (fc.ExpandButtonAction == ExpandButtonAction.ExpandTreeBranch)
 				{
-					// collapse the tree branch groiwng from this node
-					node.collapse();
-					node.fcParent.fireTreeCollapsed(node);
-				}
-				else
-				{
-					// expand the tree branch groiwng from this node
-					node.expand();
-					node.fcParent.fireTreeExpanded(node);
+					fc.UndoManager.onStartExpand();
+
+					if (node.Expanded)
+					{
+						// collapse the tree branch groiwng from this node
+						node.collapse();
+						fc.fireTreeCollapsed(node);
+					}
+					else
+					{
+						// expand the tree branch groiwng from this node
+						node.expand();
+						fc.fireTreeExpanded(node);
+					}
+
+					fc.UndoManager.onEndExpand();
 				}
 
-				node.fcParent.UndoManager.onEndExpand();
+				if (fc.ExpandButtonAction == ExpandButtonAction.RaiseEvents)
+				{
+					node.SetExpandedFlag(!node.isExpanded());
+					fc.raiseExpandBtnClicked(node);
+				}
 
 				return true;
 			}
@@ -176,8 +186,8 @@ g.Restore(state);
 
 		internal RectangleF getBounds()
 		{
-			RectangleF rcNode = obj.getRotatedBounds();
-			return iconRect(rcNode);
+			RectangleF rcNode = item.getRotatedBounds();
+			return getIconRect(rcNode);
 		}
 
 		internal override bool supportClipping()

@@ -333,6 +333,10 @@ namespace MindFusion.LayoutSystem
 			_graph = new Graph(graph);
 
 			RectangleF rcDoc = CalcContentRect(_graph);
+			float minNodeX = rcDoc.Left - (50f * _info.NodeDistance);
+			float minNodeY = rcDoc.Top - (50f * _info.NodeDistance);
+			float maxNodeX = rcDoc.Right + (50f * _info.NodeDistance);
+			float maxNodeY = rcDoc.Bottom + (50f * _info.NodeDistance);
 
 			// Initialize
 			foreach (GraphNode node in _graph.Nodes)
@@ -507,6 +511,15 @@ namespace MindFusion.LayoutSystem
 					PointF xyd = node.Center;
 					xyd.X += (float)vd.DX;
 					xyd.Y += (float)vd.DY;
+
+					if (layoutInfo.EnableClusters &&
+						(((xyd.X < minNodeX) || (xyd.Y < minNodeY)) || ((xyd.X > maxNodeX) || (xyd.Y > maxNodeY))))
+					{
+						xyd = node.Center;
+						vd.DX /= 4;
+						vd.DY /= 4;
+					}
+
 					node.Center = xyd;
 				}
 

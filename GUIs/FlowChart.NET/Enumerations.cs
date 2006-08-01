@@ -175,6 +175,12 @@ namespace MindFusion.FlowChartX
 		Vertical
 	}
 
+	public enum ExpandButtonAction
+	{
+		ExpandTreeBranch,
+		RaiseEvents
+	}
+
 	public enum ExpandButtonPosition
 	{
 		OuterRight,

@@ -111,8 +111,8 @@ namespace MindFusion.FlowChartX
 			{
 				// when the host is added to the flowchart,
 				// add the contained control to the flowchart children list
-				if (!fcParent.Controls.Contains(_control))
-					fcParent.Controls.Add(_control);
+				if (!flowChart.Controls.Contains(_control))
+					flowChart.Controls.Add(_control);
 
 				// Listen to mouse clicks over the control
 				_control.MouseDown += (mouseDownHandler = new MouseEventHandler(OnControlMouseDown));
@@ -132,8 +132,8 @@ namespace MindFusion.FlowChartX
 			// Remove control from flowchart
 			if (_control != null)
 			{
-				if (!fcParent.Controls.Contains(_control))
-					fcParent.Controls.Add(_control);
+				if (!flowChart.Controls.Contains(_control))
+					flowChart.Controls.Add(_control);
 
 				if (mouseDownHandler == null)
 				{
@@ -155,12 +155,12 @@ namespace MindFusion.FlowChartX
 
 			// Remove control from flowchart
 			if (_control != null)
-				if (fcParent.Controls.Contains(_control))
-					fcParent.Controls.Remove(_control);
+				if (flowChart.Controls.Contains(_control))
+					flowChart.Controls.Remove(_control);
 
 			// Fire a ControlHostDeleted event
 			if (constructed)
-				fcParent.fireControlHostDeleted(this);
+				flowChart.fireControlHostDeleted(this);
 		}
 
 		// called when the ControlHost is completely removed, i.e. when it
@@ -237,7 +237,7 @@ namespace MindFusion.FlowChartX
 				}
 				writer.Write(false);
 
-				fcParent.fireControlHostSerializing(this, writer);
+				flowChart.fireControlHostSerializing(this, writer);
 			}
 			else
 			{
@@ -292,7 +292,7 @@ namespace MindFusion.FlowChartX
 					}
 				}
 
-				fcParent.fireControlHostDeserializing(this, reader);
+				flowChart.fireControlHostDeserializing(this, reader);
 			}
 			else
 			{
@@ -342,12 +342,12 @@ namespace MindFusion.FlowChartX
 
 				return Utilities.pointInHandle(pt,
 					ref handle, rc, 0, enabledHandles & ~Handles.Rotate, 0,
-					selStyle, fcParent.SelHandleSize, fcParent.MeasureUnit);
+					selStyle, flowChart.SelHandleSize, flowChart.MeasureUnit);
 			}
 			else
 			{
 				// let the application do hit testing
-				return fcParent.hitTestSelHandles(this, pt, ref handle);
+				return flowChart.hitTestSelHandles(this, pt, ref handle);
 			}
 		}
 
@@ -357,7 +357,7 @@ namespace MindFusion.FlowChartX
 
 			RectangleF rc = Utilities.normalizeRect(rect);
 			if (Utilities.pointInHandle(pt, ref handle, rc, 0, Handles.All,
-				0, selStyle, fcParent.SelHandleSize, fcParent.MeasureUnit))
+				0, selStyle, flowChart.SelHandleSize, flowChart.MeasureUnit))
 				return handle;
 
 			return -1;
@@ -406,10 +406,10 @@ namespace MindFusion.FlowChartX
 			if (_control != null)
 			{
 				RectangleF rc = Utilities.normalizeRect(rect);
-				rc.Inflate(-Constants.getMillimeter(fcParent.MeasureUnit), -Constants.getMillimeter(fcParent.MeasureUnit));
+				rc.Inflate(-Constants.getMillimeter(flowChart.MeasureUnit), -Constants.getMillimeter(flowChart.MeasureUnit));
 
-				Point ptLeftTop = fcParent.DocToClient(new PointF(rc.Left, rc.Top));
-				Point ptRightBottom = fcParent.DocToClient(new PointF(rc.Right, rc.Bottom));
+				Point ptLeftTop = flowChart.DocToClient(new PointF(rc.Left, rc.Top));
+				Point ptRightBottom = flowChart.DocToClient(new PointF(rc.Right, rc.Bottom));
 
 				_control.Location = new Point(ptLeftTop.X + 1, ptLeftTop.Y + 1);
 				_control.Size = new Size(
@@ -438,7 +438,7 @@ namespace MindFusion.FlowChartX
 		{
 			if (!Visible)
 				return;
-			if (fcParent.NowPrinting && !Printable) return;
+			if (flowChart.NowPrinting && !Printable) return;
 
 			if (shadow)
 			{
@@ -446,8 +446,8 @@ namespace MindFusion.FlowChartX
 				System.Drawing.Brush br = new System.Drawing.SolidBrush(ShadowColor);
 				RectangleF rc = Utilities.normalizeRect(rect);
 				rc.Inflate(
-					-Constants.getMillimeter(fcParent.MeasureUnit),
-					-Constants.getMillimeter(fcParent.MeasureUnit));
+					-Constants.getMillimeter(flowChart.MeasureUnit),
+					-Constants.getMillimeter(flowChart.MeasureUnit));
 				rc.Offset(ShadowOffsetX, ShadowOffsetY);
 				g.FillRectangle(br, rc);
 				br.Dispose();
@@ -458,9 +458,9 @@ namespace MindFusion.FlowChartX
 				if (_control == null)
 				{
 					System.Drawing.Brush brush =
-						new System.Drawing.SolidBrush(fcParent.BoxFillColor);
+						new System.Drawing.SolidBrush(flowChart.BoxFillColor);
 					System.Drawing.Pen pen = 
-						new System.Drawing.Pen(fcParent.BoxFrameColor, 0);
+						new System.Drawing.Pen(flowChart.BoxFrameColor, 0);
 
 					RectangleF rcf = Utilities.normalizeRect(rect);
 					StringFormat textFormat = new StringFormat();
@@ -478,15 +478,15 @@ namespace MindFusion.FlowChartX
 				// this is used for printing, print preview and in Overview control.
 				// in these cases it is not always possible to make a request
 				// to the hosted control to paint itself in our own Graphics instance
-				if (fcParent.RenderOptions.PaintControls)
+				if (flowChart.RenderOptions.PaintControls)
 				{
 					RectangleF rc = Utilities.normalizeRect(rect);
 					rc.Inflate(
-						-Constants.getMillimeter(fcParent.MeasureUnit),
-						-Constants.getMillimeter(fcParent.MeasureUnit));
+						-Constants.getMillimeter(flowChart.MeasureUnit),
+						-Constants.getMillimeter(flowChart.MeasureUnit));
 
 					// let applications handle painting
-					bool painted = fcParent.paintControlHost(g, this, rc);
+					bool painted = flowChart.paintControlHost(g, this, rc);
 
 					if (!painted)
 					{
@@ -502,7 +502,7 @@ namespace MindFusion.FlowChartX
 				}
 
 				drawManipulators(g, false);
-				if (fcParent.RenderOptions.EnableAnchors) drawAnchors(g);
+				if (flowChart.RenderOptions.EnableAnchors) drawAnchors(g);
 			}
 		}
 
@@ -511,14 +511,14 @@ namespace MindFusion.FlowChartX
 			if (selStyle != HandlesStyle.Custom)
 			{
 				RectangleF rc = Utilities.normalizeRect(rect);
-				Utilities.drawSelHandles(g, color, fcParent.DisabledMnpColor,
-					rc, 0, enabledHandles & ~Handles.Rotate, fcParent.ShowDisabledHandles,
-					selStyle, fcParent.SelHandleSize);
+				Utilities.drawSelHandles(g, color, flowChart.DisabledMnpColor,
+					rc, 0, enabledHandles & ~Handles.Rotate, flowChart.ShowDisabledHandles,
+					selStyle, flowChart.SelHandleSize);
 			}
 			else
 			{
 				// let applications custom draw the selection handles
-				fcParent.fireDrawSelHandles(g, this);
+				flowChart.fireDrawSelHandles(g, this);
 			}
 		}
 
@@ -531,8 +531,8 @@ namespace MindFusion.FlowChartX
 				if (value != selStyle)
 				{
 					selStyle = value;
-					fcParent.invalidate(getRepaintRect(false));
-					fcParent.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
 				}
 			}
 		}
@@ -561,7 +561,7 @@ namespace MindFusion.FlowChartX
 				{
 					// Remove the previous control (if any)
 					if (_control != null)
-						fcParent.Controls.Remove(_control);
+						flowChart.Controls.Remove(_control);
 
 					setControl(value);
 					updateControlPosition();
@@ -593,23 +593,23 @@ namespace MindFusion.FlowChartX
 				return;
 
 			// Fire clicked event
-			Graphics g = fcParent.CreateGraphics();
-			fcParent.setTransforms(g);
+			Graphics g = flowChart.CreateGraphics();
+			flowChart.setTransforms(g);
 			PointF point = Utilities.deviceToDoc(g,
 				e.X + _control.Location.X, e.Y + _control.Location.Y);
 			g.Dispose();
-			fcParent.fireClickedEvent(this, point, e.Button);
+			flowChart.fireClickedEvent(this, point, e.Button);
 
 			if (ctrlMouseAction == HostMouseAction.SelectHost &&
-				fcParent.confirmSelect(this))
+				flowChart.confirmSelect(this))
 			{
-				if ((fcParent.ModifierKeyActions.GetKeys(ModifierKeyAction.Select) &
+				if ((flowChart.ModifierKeyActions.GetKeys(ModifierKeyAction.Select) &
 					Control.ModifierKeys) != 0)
-					fcParent.Selection.Toggle(this);
+					flowChart.Selection.Toggle(this);
 				else
-					fcParent.Selection.Change(this);
+					flowChart.Selection.Change(this);
 
-				fcParent.Invalidate();
+				flowChart.Invalidate();
 			}
 		}
 
@@ -621,7 +621,7 @@ namespace MindFusion.FlowChartX
 			{
 				MouseEventArgs newArgs = new MouseEventArgs(e.Button, e.Clicks,
 					e.X + _control.Location.X, e.Y + _control.Location.Y, e.Delta);
-				fcParent.RaiseMouseDown(newArgs);
+				flowChart.RaiseMouseDown(newArgs);
 			}
 		}
 
@@ -672,7 +672,7 @@ namespace MindFusion.FlowChartX
 			if (mi != null)
 			{
 				// create bitmap compatible with the flowchart's resolution
-				Graphics graphics = fcParent.CreateGraphics();
+				Graphics graphics = flowChart.CreateGraphics();
 				Bitmap bmp = new Bitmap(
 					_control.ClientRectangle.Width,
 					_control.ClientRectangle.Height,

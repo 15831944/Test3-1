@@ -936,15 +936,25 @@ namespace MindFusion.FlowChartX.LayoutSystem
 	{
 		public AnnealLayout()
 		{
-			_distance = 10000;
+			distributionFactor = 40000;
+			boundaryFactor = 3000;
+			arrowLengthFactor = 0.25;
+			crossingArrowsCost = 100000;
+			nodeArrowDistFactor = 20000;
+
 			_temperature = 40f;
 			_temperatureScale = 0.75f;
-			_iterationsPerStage = 30;
-			_stages = 10;
-			_fineTuningMoveValue = 0.4f;
+			_iterationsPerStage = 50;
+			_stages = 15;
 
 			_anchoring = Anchoring.Ignore;
 			_keepGroupLayout = false;
+
+			layoutArea = RectangleF.Empty;
+			widthHeightRatio = 1;
+			randomize = true;
+
+			_splitGraph = false;
 		}
 
 
@@ -970,9 +980,17 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			}
 
 			// Split graph to subgraphs
-			Layout.IGraph[] subgraphs = Layout.GraphSplitter.Split(
-				graph, new FCGraphBuilder(chart, false));
-
+			Layout.IGraph[] subgraphs = null;
+			if (_splitGraph)
+			{
+				subgraphs = Layout.GraphSplitter.Split(
+					graph, new FCGraphBuilder(chart, false));
+			}
+			else
+			{
+				subgraphs = new Layout.IGraph[] { graph };
+			}
+			
 			// Create the layouter
 			Layout.AnnealLayout layout = new Layout.AnnealLayout();
 
@@ -981,12 +999,21 @@ namespace MindFusion.FlowChartX.LayoutSystem
 				progress = new Layout.LayoutProgress(this.OnLayoutProgress);
 
 			Layout.AnnealLayoutInfo info = new Layout.AnnealLayoutInfo();
-			info.FineTuningMoveValue = this.FineTuningMoveValue;
+
+			info.DistributionFactor = this.DistributionFactor;
+			info.BoundaryFactor = this.BoundaryFactor;
+			info.EdgeLengthFactor = this.ArrowLengthFactor;
+			info.CrossingEdgesCost = this.CrossingArrowsCost;
+			info.NodeEdgeDistFactor = this.NodeArrowDistFactor;
+
 			info.IterationsPerStage = this.IterationsPerStage;
-			info.Lam1 = this.Distance;
 			info.Stages = this.Stages;
-			info.Temperature = this.Temperature;
+			info.Temperature = this.InitialTemperature;
 			info.TemperatureScale = this.TemperatureScale;
+
+			info.LayoutArea = this.LayoutArea;
+			info.WidthHeightRatio = this.WidthHeightRatio;
+			info.Randomize = this.Randomize;
 
 			float xOffset = 0;
 			foreach (FCGraph subgraph in subgraphs)
@@ -1083,16 +1110,48 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		}
 
 		[Category("Settings")]
-		[DefaultValue(10000f)]
-		public float Distance
+		[DefaultValue(40000)]
+		public double DistributionFactor
 		{
-			get { return _distance; }
-			set { _distance = value; }
+			get { return distributionFactor; }
+			set { distributionFactor = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(3000)]
+		public double BoundaryFactor
+		{
+			get { return boundaryFactor; }
+			set { boundaryFactor = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(0.25)]
+		public double ArrowLengthFactor
+		{
+			get { return arrowLengthFactor; }
+			set { arrowLengthFactor = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(100000)]
+		public double CrossingArrowsCost
+		{
+			get { return crossingArrowsCost; }
+			set { crossingArrowsCost = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(20000)]
+		public double NodeArrowDistFactor
+		{
+			get { return nodeArrowDistFactor; }
+			set { nodeArrowDistFactor = value; }
 		}
 
 		[Category("Settings")]
 		[DefaultValue(40f)]
-		public float Temperature
+		public double InitialTemperature
 		{
 			get { return _temperature; }
 			set { _temperature = value; }
@@ -1100,14 +1159,14 @@ namespace MindFusion.FlowChartX.LayoutSystem
 
 		[Category("Settings")]
 		[DefaultValue(0.75f)]
-		public float TemperatureScale
+		public double TemperatureScale
 		{
 			get { return _temperatureScale; }
 			set { _temperatureScale = value; }
 		}
 
 		[Category("Settings")]
-		[DefaultValue(30)]
+		[DefaultValue(50)]
 		public int IterationsPerStage
 		{
 			get { return _iterationsPerStage; }
@@ -1115,19 +1174,11 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		}
 
 		[Category("Settings")]
-		[DefaultValue(10)]
+		[DefaultValue(15)]
 		public int Stages
 		{
 			get { return _stages; }
 			set { _stages = value; }
-		}
-
-		[Category("Settings")]
-		[DefaultValue(0.4f)]
-		public float FineTuningMoveValue
-		{
-			get { return _fineTuningMoveValue; }
-			set { _fineTuningMoveValue = value; }
 		}
 
 		/// <summary>
@@ -1157,6 +1208,39 @@ namespace MindFusion.FlowChartX.LayoutSystem
 			set { _layoutLink = value; }
 		}
 
+		[Browsable(false)]
+		public RectangleF LayoutArea
+		{
+			get { return layoutArea; }
+			set { layoutArea = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(1f)]
+		public float WidthHeightRatio
+		{
+			get { return widthHeightRatio; }
+			set { widthHeightRatio = value; }
+		}
+
+		[Category("Settings")]
+		[DefaultValue(true)]
+		public bool Randomize
+		{
+			get { return randomize; }
+			set { randomize = value; }
+		}
+
+		[Category("Settings")]
+		[Description("Specifies whether to split the graph to its interconnected " +
+			 "subgraphs and arrange the subgraphs independently.")]
+		[DefaultValue(false)]
+		public bool SplitGraph
+		{
+			get { return _splitGraph; }
+			set { _splitGraph = value; }
+		}
+
 		private LayoutNode _layoutNode = null;
 		private LayoutLink _layoutLink = null;
 
@@ -1165,12 +1249,22 @@ namespace MindFusion.FlowChartX.LayoutSystem
 		private bool _keepGroupLayout;
 		private Anchoring _anchoring;
 
-		private float _distance;
-		private float _temperature;
-		private float _temperatureScale;
+		private double distributionFactor;
+		private double boundaryFactor;
+		private double arrowLengthFactor;
+		private double crossingArrowsCost;
+		private double nodeArrowDistFactor;
+
+		private double _temperature;
+		private double _temperatureScale;
 		private int _iterationsPerStage;
 		private int _stages;
-		private float _fineTuningMoveValue;
+
+		private RectangleF layoutArea;
+		private float widthHeightRatio;
+		private bool randomize;
+
+		private bool _splitGraph;
 	
 		private LayoutProgress _progress = null;
 	}

@@ -56,7 +56,7 @@ namespace MindFusion.FlowChartX
 
 			if (raiseModfEvent)
 			{
-				fcParent.fireObjModified(
+				flowChart.fireObjModified(
 					this, Utilities.getCenter(BoundingRect), 8);
 			}
 		}
@@ -106,14 +106,14 @@ namespace MindFusion.FlowChartX
 				if (value.Width == 0) return;
 				if (value.Height == 0) return;
 
-				fcParent.UndoManager.onStartPlacementChange(this);
+				flowChart.UndoManager.onStartPlacementChange(this);
 
-				fcParent.invalidate(getRepaintRect(true));
+				flowChart.invalidate(getRepaintRect(true));
 				setRect(value);
-				fcParent.setDirty();
-				fcParent.invalidate(getRepaintRect(true));
+				flowChart.setDirty();
+				flowChart.invalidate(getRepaintRect(true));
 
-				fcParent.UndoManager.onEndPlacementChange();
+				flowChart.UndoManager.onEndPlacementChange();
 			}
 		}
 
@@ -179,11 +179,11 @@ namespace MindFusion.FlowChartX
 			addIntrRepaintRect(ref repaintRect);
 
 			// include anchor points
-			float markSize = Constants.getMarkSize(fcParent.MeasureUnit);
-			if (fcParent.RenderOptions.EnableAnchors && anchorPattern != null &&
-				markSize > fcParent.SelHandleSize)
+			float markSize = Constants.getMarkSize(flowChart.MeasureUnit);
+			if (flowChart.RenderOptions.EnableAnchors && anchorPattern != null &&
+				markSize > flowChart.SelHandleSize)
 			{
-				float markInfl = markSize - fcParent.SelHandleSize;
+				float markInfl = markSize - flowChart.SelHandleSize;
 				repaintRect.Inflate(markInfl, markInfl);
 			}
 
@@ -223,14 +223,18 @@ namespace MindFusion.FlowChartX
 
 		internal override void startCreate(PointF org)
 		{
-			org = fcParent.AlignPointToGrid(org);
+			org = flowChart.AlignPointToGrid(org);
 			base.startCreate(org);
+			rcSaved = rect;
 		}
 
 		internal override void updateCreate(PointF current)
 		{
-			current = fcParent.AlignPointToGrid(current);
+			current = flowChart.AlignPointToGrid(current);
 			base.updateCreate(current);
+
+			if (constraints.isNodeConstrained())
+				rect = updateRect(rcSaved, current, 2);
 
 			// call node-class specific code
 			onRectUpdate();
@@ -238,25 +242,28 @@ namespace MindFusion.FlowChartX
 
 		internal override bool allowCreate(PointF current)
 		{
-			current = fcParent.AlignPointToGrid(current);
+			current = flowChart.AlignPointToGrid(current);
 
-			// don't allow creating the node if it is too small
-			if (Math.Abs(ptOrg.X - current.X) < Constants.getMinObjSize(fcParent.MeasureUnit))
-				return false;
-			if (Math.Abs(ptOrg.Y - current.Y) < Constants.getMinObjSize(fcParent.MeasureUnit))
-				return false;
+			RectangleF rect = constraints.isNodeConstrained() ?
+				updateRect(rcSaved, current, 2) :
+				RectangleF.FromLTRB(ptOrg.X, ptOrg.Y, current.X, current.Y);
 
-			RectangleF rc = RectangleF.FromLTRB(ptOrg.X, ptOrg.Y, current.X, current.Y);
-			if (fcParent.rectRestrict(ref rc))
+			if (!allowRect(rect))
 				return false;
 
-			return fcParent.confirmCreate(this);
+			return flowChart.confirmCreate(this);
 		}
 
 		internal override void completeCreate(PointF end)
 		{
-			end = fcParent.AlignPointToGrid(end);
+			end = flowChart.AlignPointToGrid(end);
 			base.completeCreate(end);
+
+			if (constraints.isNodeConstrained())
+			{
+				rect = updateRect(rect, end, 2);
+				rect = Utilities.normalizeRect(rect);
+			}
 
 			// call node-class specific code
 			onRectUpdate();
@@ -294,7 +301,7 @@ namespace MindFusion.FlowChartX
 
 			base.updateModify(current, ist);
 			if (modifyHandle != 9)
-				rect = updateRect(rect, current);
+				rect = updateRect(rect, current, modifyHandle);
 
 			onRectUpdate();
 
@@ -322,6 +329,27 @@ namespace MindFusion.FlowChartX
 
 			base.modifyTranslate(x, y, arrows);
 			rect.Offset(modifyDX, modifyDY);
+
+			// apply "stay inside parent" constraints
+			if (constraints.KeepInsideParent &&
+				masterGroup != null && masterGroup.MainObject is Node)
+			{
+				Node parent = masterGroup.MainObject as Node;
+				RectangleF bounds = parent.BoundingRect;
+
+				if (!bounds.Contains(Utilities.normalizeRect(rect)))
+				{
+					if (rect.Left < bounds.Left)
+						rect.X = bounds.Left;
+					if (rect.Top < bounds.Top)
+						rect.Y = bounds.Top;
+					if (rect.Right > bounds.Right)
+						rect.X = bounds.Right - rect.Width;
+					if (rect.Bottom > bounds.Bottom)
+						rect.Y = bounds.Bottom - rect.Height;
+				}
+			}
+
 			onRectUpdate();
 
 			if (arrows)
@@ -343,19 +371,27 @@ namespace MindFusion.FlowChartX
 				return false;
 
 			RectangleF rc = modifyHandle != 9 ?
-				Utilities.normalizeRect(updateRect(rect, current)) :
+				Utilities.normalizeRect(updateRect(rect, current, modifyHandle)) :
 				getBoundingRect();
 
+			if (!allowRect(rc))
+				return false;
+
+			return flowChart.confirmModify(this);
+		}
+
+		private bool allowRect(RectangleF rect)
+		{
 			// don't allow too small boxes, it will be hard for the user to see them
-			if (Math.Abs(rc.Width) < Constants.getMinObjSize(fcParent.MeasureUnit))
+			if (Math.Abs(rect.Width) < Constants.getMinObjSize(flowChart.MeasureUnit))
 				return false;
-			if (Math.Abs(rc.Height) < Constants.getMinObjSize(fcParent.MeasureUnit))
-				return false;
-
-			if (fcParent.rectRestrict(ref rect))
+			if (Math.Abs(rect.Height) < Constants.getMinObjSize(flowChart.MeasureUnit))
 				return false;
 
-			return fcParent.confirmModify(this);
+			if (flowChart.rectRestrict(ref rect))
+				return false;
+
+			return true;
 		}
 
 		internal override void completeModify(PointF end, InteractionState ist)
@@ -365,7 +401,7 @@ namespace MindFusion.FlowChartX
 
 			base.completeModify(end, ist);
 			if (modifyHandle != 9)
-				rect = updateRect(rect, end);
+				rect = updateRect(rect, end, modifyHandle);
 			rect = Utilities.normalizeRect(rect);
 			onRectUpdate();
 
@@ -380,9 +416,9 @@ namespace MindFusion.FlowChartX
 			}
 			modifying = false;
 
-			fcParent.routeAllArrows(this);
+			flowChart.routeAllArrows(this);
 
-			fcParent.fireObjModified(this, end, modifyHandle);
+			flowChart.fireObjModified(this, end, modifyHandle);
 			cycleProtect = false;
 		}
 
@@ -391,19 +427,19 @@ namespace MindFusion.FlowChartX
 			return RectangleF.FromLTRB(x1, y1, x2, y2);
 		}
 
-		RectangleF updateRect(RectangleF rc, PointF pt)
+		RectangleF updateRect(RectangleF rc, PointF point, int modifyHandle)
 		{
 			// if a user is currently moving the node ...
 			if (modifyHandle == 8)
 			{
 				rc = rcSaved;
-				PointF startPt = fcParent.InteractionStartPoint;
-				rc.Offset(pt.X - startPt.X, pt.Y - startPt.Y);
+				PointF startPt = flowChart.InteractionStartPoint;
+				rc.Offset(point.X - startPt.X, point.Y - startPt.Y);
 				float w = rc.Width;
 				float h = rc.Height;
 
 				PointF ptTopLeft = new PointF(rc.X, rc.Y);
-				ptTopLeft = fcParent.AlignPointToGrid(ptTopLeft);
+				ptTopLeft = flowChart.AlignPointToGrid(ptTopLeft);
 
 				RectangleF newPos = RectangleF.FromLTRB(
 					ptTopLeft.X, ptTopLeft.Y,
@@ -444,32 +480,32 @@ namespace MindFusion.FlowChartX
 
 			// the node is being resized
 			if (rotation() == 0)
-				pt = fcParent.AlignPointToGrid(pt);
+				point = flowChart.AlignPointToGrid(point);
 			switch (modifyHandle)
 			{
 				case 0:
-					rc = makeRect(pt.X, pt.Y, rc.Right, rc.Bottom);
+					rc = makeRect(point.X, point.Y, rc.Right, rc.Bottom);
 					break;
 				case 1:
-					rc = makeRect(rc.Left, pt.Y, pt.X, rc.Bottom);
+					rc = makeRect(rc.Left, point.Y, point.X, rc.Bottom);
 					break;
 				case 2:
-					rc = makeRect(rc.Left, rc.Top, pt.X, pt.Y);
+					rc = makeRect(rc.Left, rc.Top, point.X, point.Y);
 					break;
 				case 3:
-					rc = makeRect(pt.X, rc.Top, rc.Right, pt.Y);
+					rc = makeRect(point.X, rc.Top, rc.Right, point.Y);
 					break;
 				case 4:
-					rc = makeRect(rc.Left, pt.Y, rc.Right, rc.Bottom);
+					rc = makeRect(rc.Left, point.Y, rc.Right, rc.Bottom);
 					break;
 				case 5:
-					rc = makeRect(rc.Left, rc.Top, pt.X, rc.Bottom);
+					rc = makeRect(rc.Left, rc.Top, point.X, rc.Bottom);
 					break;
 				case 6:
-					rc = makeRect(rc.Left, rc.Top, rc.Right, pt.Y);
+					rc = makeRect(rc.Left, rc.Top, rc.Right, point.Y);
 					break;
 				case 7:
-					rc = makeRect(pt.X, rc.Top, rc.Right, rc.Bottom);
+					rc = makeRect(point.X, rc.Top, rc.Right, rc.Bottom);
 					break;
 			}
 
@@ -586,11 +622,25 @@ namespace MindFusion.FlowChartX
 
 				if (!bounds.Contains(Utilities.normalizeRect(rc)))
 				{
+					bool revx = rc.Width < 0;
+					bool revy = rc.Height < 0;
+					rc = Utilities.normalizeRect(rc);
 					rc = RectangleF.FromLTRB(
-						rc.Left < rc.Right ? Math.Max(bounds.Left, rc.Left) : Math.Min(bounds.Right, rc.Left),
-						rc.Top < rc.Bottom ? Math.Max(bounds.Top, rc.Top) : Math.Min(bounds.Bottom, rc.Top),
-						rc.Left < rc.Right ? Math.Min(bounds.Right, rc.Right) : Math.Max(bounds.Left, rc.Right),
-						rc.Top < rc.Bottom ? Math.Min(bounds.Bottom, rc.Bottom) : Math.Max(bounds.Top, rc.Bottom));
+						Math.Min(Math.Max(bounds.Left, rc.Left), bounds.Right),
+						Math.Min(Math.Max(bounds.Top, rc.Top), bounds.Bottom),
+						Math.Max(Math.Min(bounds.Right, rc.Right), bounds.Left),
+						Math.Max(Math.Min(bounds.Bottom, rc.Bottom), bounds.Top));
+					rc = Utilities.normalizeRect(rc);
+					if (revx)
+					{
+						rc.X = rc.Right;
+						rc.Width = -rc.Width;
+					}
+					if (revy)
+					{
+						rc.Y = rc.Bottom;
+						rc.Height = -rc.Height;
+					}
 					insideParentApplied = true;
 				}
 			}
@@ -599,13 +649,15 @@ namespace MindFusion.FlowChartX
 			if (constraints.KeepRatio && insideParentApplied)
 			{
 				float newRatio = 1;
-				if (rc.Width > 0 && rc.Height > 0)
+				if (rc.Width != 0 && rc.Height != 0)
+				{
 					newRatio = rc.Width / rc.Height;
 
-				if (newRatio < ratio)
-					rc.Height = rc.Width / ratio;
-				else if (newRatio > ratio)
-					rc.Width = rc.Height * ratio;					
+					if (Math.Abs(newRatio) < ratio)
+						rc.Height = rc.Width / ratio;
+					else if (Math.Abs(newRatio) > ratio)
+						rc.Width = rc.Height * ratio;
+				}
 			}
 
 			if (rotation() != 0)
@@ -663,7 +715,7 @@ namespace MindFusion.FlowChartX
 			if (!outgoing && !AllowIncomingArrows)
 				return false;
 
-			if (fcParent.AllowUnanchoredArrows)
+			if (flowChart.AllowUnanchoredArrows)
 				return true;
 
 			if (anchorPattern == null) return false;
@@ -691,13 +743,13 @@ namespace MindFusion.FlowChartX
 
 		internal override Cursor getCannotDropCursor()
 		{
-			return fcParent.CurCannotCreate;
+			return flowChart.CurCannotCreate;
 		}
 
 		internal override Cursor getCanDropCursor()
 		{
 			if (!constructed)
-				return fcParent.CurPointer;
+				return flowChart.CurPointer;
 
 			return null;
 		}
@@ -786,7 +838,7 @@ namespace MindFusion.FlowChartX
 
 		protected void AV_UpdPosOutgoing(ChartObject obj)
 		{
-			fcParent.UndoManager.onPlacementChange(obj);
+			flowChart.UndoManager.onPlacementChange(obj);
 
 			Arrow arrow = (Arrow)obj;
 			arrow.updatePosFromOrgAndDest(false);
@@ -797,7 +849,7 @@ namespace MindFusion.FlowChartX
 			Arrow arrow = (Arrow)obj;
 			if (!arrow.isReflexive())
 			{
-				fcParent.UndoManager.onPlacementChange(obj);
+				flowChart.UndoManager.onPlacementChange(obj);
 				arrow.updatePosFromOrgAndDest(false);
 			}
 		}
@@ -879,7 +931,7 @@ namespace MindFusion.FlowChartX
 			getAllOutgoingArrows(toDelete);
 
 			foreach (Arrow arrow in toDelete)
-				fcParent.deleteItem(arrow);
+				flowChart.deleteItem(arrow);
 		}
 
 		internal virtual void removeIncomingArrow(Arrow arrow)
@@ -993,7 +1045,7 @@ namespace MindFusion.FlowChartX
 				AnchorPoint ap = anchorPattern.Points[i];
 				if (incoming && !ap.AllowIncoming) continue;
 				if (!incoming && !ap.AllowOutgoing) continue;
-				if (!fcParent.validateAnchor(arrow, !incoming, this, i)) continue;
+				if (!flowChart.validateAnchor(arrow, !incoming, this, i)) continue;
 
 				PointF pos = ap.getPos(nodeRect);
 				float dx = pos.X - pt.X;
@@ -1023,7 +1075,7 @@ namespace MindFusion.FlowChartX
 				if (ap.MarkStyle == MarkStyle.Custom)
 					args = new MarkDrawArgs(g, new PointF(0, 0), this, anchorPattern, i);
 				ap.draw(g, getBoundingRect(), rotation(),
-					args, Constants.getMarkSize(fcParent.MeasureUnit));
+					args, Constants.getMarkSize(flowChart.MeasureUnit));
 			}
 		}
 
@@ -1075,8 +1127,8 @@ namespace MindFusion.FlowChartX
 				if (enabledHandles != value)
 				{
 					enabledHandles = value;
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1171,10 +1223,10 @@ namespace MindFusion.FlowChartX
 		{
 			if (!expanded)
 			{
-				fcParent.UndoManager.onExpandItem(this);
+				flowChart.UndoManager.onExpandItem(this);
 
 				expanded = true;
-				if (fcParent.ExpandOnIncoming)
+				if (flowChart.ExpandOnIncoming)
 				{
 					for (int i = 0; i < IncomingArrows.Count; ++i)
 						IncomingArrows[i].expand(true);
@@ -1185,22 +1237,22 @@ namespace MindFusion.FlowChartX
 						OutgoingArrows[i].expand(false);
 				}
 
-				fcParent.Invalidate();
+				flowChart.Invalidate();
 			}
 
 			// propagate the expansion through the attached items
 			if (SubordinateGroup != null)
-				SubordinateGroup.expand(fcParent.ExpandOnIncoming);
+				SubordinateGroup.expand(flowChart.ExpandOnIncoming);
 		}
 
 		internal virtual void collapse()
 		{
 			if (expanded)
 			{
-				fcParent.UndoManager.onExpandItem(this);
+				flowChart.UndoManager.onExpandItem(this);
 
 				expanded = false;
-				if (fcParent.ExpandOnIncoming)
+				if (flowChart.ExpandOnIncoming)
 				{
 					for (int i = 0; i < IncomingArrows.Count; ++i)
 						IncomingArrows[i].collapse(true);
@@ -1211,22 +1263,22 @@ namespace MindFusion.FlowChartX
 						OutgoingArrows[i].collapse(false);
 				}
 
-				fcParent.Invalidate();
+				flowChart.Invalidate();
 			}
 
 			// propagate the collapse through the attached items
 			if (SubordinateGroup != null)
-				SubordinateGroup.collapse(fcParent.ExpandOnIncoming);
+				SubordinateGroup.collapse(flowChart.ExpandOnIncoming);
 		}
 
 		internal override void expand(bool incm)
 		{
 			if (!invisible) return;
 
-			fcParent.UndoManager.onExpandItem(this);
+			flowChart.UndoManager.onExpandItem(this);
 
 			Visible = true;
-			if (fcParent.RecursiveExpand)
+			if (flowChart.RecursiveExpand)
 			{
 				expand();
 			}
@@ -1242,10 +1294,10 @@ namespace MindFusion.FlowChartX
 		{
 			if (invisible) return;
 
-			fcParent.UndoManager.onExpandItem(this);
+			flowChart.UndoManager.onExpandItem(this);
 
 			Visible = false;
-			fcParent.Selection.RemoveObject(this);
+			flowChart.Selection.RemoveObject(this);
 			collapse();
 		}
 
@@ -1255,7 +1307,7 @@ namespace MindFusion.FlowChartX
 		public void SetExpandedFlag(bool expanded)
 		{
 			setExpanded(expanded);
-			fcParent.invalidate(getRepaintRect(false));
+			flowChart.invalidate(getRepaintRect(false));
 		}
 
 		internal protected void setExpandable(bool exp)
@@ -1290,8 +1342,8 @@ namespace MindFusion.FlowChartX
 				if (expandable != value)
 				{
 					setExpandable(value);
-					fcParent.setDirty();
-					fcParent.invalidate(getRepaintRect(false));
+					flowChart.setDirty();
+					flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -1303,17 +1355,17 @@ namespace MindFusion.FlowChartX
 			{
 				if (expanded != value)
 				{
-					fcParent.UndoManager.onStartExpand();
+					flowChart.UndoManager.onStartExpand();
 
 					if (value)
 						expand();
 					else
 						collapse();
 
-					fcParent.UndoManager.onEndExpand();
+					flowChart.UndoManager.onEndExpand();
 
-					fcParent.setDirty();
-					fcParent.Invalidate();
+					flowChart.setDirty();
+					flowChart.Invalidate();
 				}
 			}
 		}
@@ -1324,7 +1376,7 @@ namespace MindFusion.FlowChartX
 			set
 			{
 				obstacle = value;
-				fcParent.setDirty();
+				flowChart.setDirty();
 			}
 		}
 
@@ -1395,7 +1447,7 @@ namespace MindFusion.FlowChartX
 			AttachToArrow attType, int index)
 		{
 			// that returns the active composite if somebody has already created one
-			CompositeCmd composite = fcParent.UndoManager.StartComposite("_fcnet_");
+			CompositeCmd composite = flowChart.UndoManager.StartComposite("_fcnet_");
 
 			Detach();
 			Group masterGroup = getSubordinateGroup(arrow);
@@ -1425,7 +1477,7 @@ namespace MindFusion.FlowChartX
 			AttachToNode attType)
 		{
 			// that returns the active composite if somebody has already created one
-			CompositeCmd composite = fcParent.UndoManager.StartComposite("_fcnet_");
+			CompositeCmd composite = flowChart.UndoManager.StartComposite("_fcnet_");
 
 			Detach();
 			Group masterGroup = getSubordinateGroup(node);
@@ -1470,7 +1522,7 @@ namespace MindFusion.FlowChartX
 			float percentX1, float percentY1, float percentX2, float percentY2)
 		{
 			// that returns the active composite if somebody has already created one
-			CompositeCmd composite = fcParent.UndoManager.StartComposite("_fcnet_");
+			CompositeCmd composite = flowChart.UndoManager.StartComposite("_fcnet_");
 
 			Detach();
 			Group masterGroup = getSubordinateGroup(node);
@@ -1495,7 +1547,7 @@ namespace MindFusion.FlowChartX
 		private Group getSubordinateGroup(ChartObject item)
 		{
 			if (item.SubordinateGroup == null)
-				fcParent.CreateGroup(item);
+				flowChart.CreateGroup(item);
 			return item.SubordinateGroup;
 		}
 
@@ -1505,7 +1557,7 @@ namespace MindFusion.FlowChartX
 		{
 			if (anchorPattern != null)
 			{
-				float hitDist = 1.5f * Constants.getMarkSize(fcParent.MeasureUnit);
+				float hitDist = 1.5f * Constants.getMarkSize(flowChart.MeasureUnit);
 				RectangleF nodeRect = getBoundingRect();
 				for (int i = 0; i < anchorPattern.Points.Count; i++)
 				{

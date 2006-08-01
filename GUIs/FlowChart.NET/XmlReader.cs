@@ -437,7 +437,9 @@ namespace MindFusion.FlowChartX.Xml
 				"MinWidth",
 				"MinHeight",
 				"MaxWidth",
-				"MaxHeight"
+				"MaxHeight",
+				"KeepInsideParent",
+				"KeepRatio"
 			};
 
 		private void ReadNodeConstraints(
@@ -460,10 +462,14 @@ namespace MindFusion.FlowChartX.Xml
 
 				// Read value
 				reader.Read();
+
+				// Set the value
 				if (pd.PropertyType.Equals(typeof(DirectionConstraint)))
 					pd.SetValue(c, XmlConvert.ToEnum(pd.PropertyType, reader.Value), null);
 				else if (pd.PropertyType.Equals(typeof(Single)))
 					pd.SetValue(c, XmlConvert.ToSingle(reader.Value), null);
+				else if (pd.PropertyType.Equals(typeof(Boolean)))
+					pd.SetValue(c, XmlConvert.ToBoolean(reader.Value), null);
 
 				// Read </value>
 				reader.Read();
