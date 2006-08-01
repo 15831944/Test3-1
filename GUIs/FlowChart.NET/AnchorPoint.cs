@@ -163,7 +163,25 @@ namespace MindFusion.FlowChartX
 		{
 		}
 
-		internal void draw(Graphics g, RectangleF nodeRect, float angle,
+    public PointF AnchorToDoc(RectangleF nodeRect, float angle)
+    {
+      float cX = nodeRect.X + nodeRect.Width * x / 100;
+      float cY = nodeRect.Y + nodeRect.Height * y / 100;
+
+      PointF point = new PointF(cX, cY);
+
+      if (angle != 0)
+      {
+        point = Utilities.rotatePointAt(point,
+          Utilities.getCenter(nodeRect), angle);
+        cX = point.X;
+        cY = point.Y;
+      }
+
+      return point;
+    }
+    
+    internal void draw(Graphics g, RectangleF nodeRect, float angle,
 			MarkDrawArgs customDrawArgs, float markSize)
 		{
 			float cX = nodeRect.X + nodeRect.Width * x / 100;

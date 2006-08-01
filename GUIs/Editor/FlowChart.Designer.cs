@@ -48,8 +48,10 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowHeadSize = 2.5F;
       this.fcFlowChart.ArrowIntermSize = 1.5F;
       this.fcFlowChart.ArrowSegments = ((short)(2));
+      this.fcFlowChart.ArrowsRetainForm = true;
       this.fcFlowChart.ArrowsSnapToBorders = true;
       this.fcFlowChart.ArrowStyle = MindFusion.FlowChartX.ArrowStyle.Cascading;
+      this.fcFlowChart.ArrowTextStyle = MindFusion.FlowChartX.ArrowTextStyle.OverLongestSegment;
       this.fcFlowChart.AutoSizeDoc = MindFusion.FlowChartX.AutoSize.AllDirections;
       this.fcFlowChart.Behavior = MindFusion.FlowChartX.BehaviorType.Modify;
       this.fcFlowChart.BoxHandlesStyle = MindFusion.FlowChartX.HandlesStyle.EasyMove;

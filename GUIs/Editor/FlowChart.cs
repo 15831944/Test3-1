@@ -11,6 +11,7 @@ using SysCAD.Interface;
 using PureComponents.TreeView;
 using System.Windows.Forms;
 using ActiproSoftware.UIStudio.Bar;
+using MindFusion.FlowChartX.LayoutSystem;
 
 namespace SysCAD.Editor
 {
@@ -37,6 +38,9 @@ namespace SysCAD.Editor
       this.form1 = form1;
 
       InitializeComponent();
+
+
+      this.fcFlowChart.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseWheel);
 
       fcFlowChart.DocExtents = new RectangleF(0.0F, 0.0F, 297.0F, 210.0F);
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
@@ -435,22 +439,35 @@ namespace SysCAD.Editor
         oldDestinationBox = e.Arrow.Destination as Box;
         oldDestinationAnchor = e.Arrow.DestAnchor;
 
-        PointF originPos = arrowBeingModified.ControlPoints[0];
-        Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
-
-        if ((originBox != null)&&(!(arrowBeingModified.Origin is Box)))
+        if (e.SelectionHandle == 0)
         {
-          originBox = (originBox.Tag as Item).Model;
-          if (originBox != null)
+          PointF originPos = arrowBeingModified.ControlPoints[0];
+          Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+
+          if ((e.SelectionHandle == 0) && (originBox != null) && (!(arrowBeingModified.Origin is Box)))
           {
-            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
+            originBox = (originBox.Tag as Item).Model;
+            if (originBox != null)
             {
-              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+              int closestI = 0;
+              float closestDistance = float.MaxValue;
+
+              for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
               {
-                newOriginGuid = (originBox.Tag as Item).Guid;
-                newOriginBox = originBox;
-                newOriginAnchor = i;
+                if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+                {
+                  float thisDistance = Distance(originPos, originBox.AnchorPattern.Points[i].X, originBox.AnchorPattern.Points[i].Y);
+                  if (thisDistance < closestDistance)
+                  {
+                    closestDistance = thisDistance;
+                    closestI = i;
+                  }
+                }
               }
+
+              newOriginGuid = (originBox.Tag as Item).Guid;
+              newOriginBox = originBox;
+              newOriginAnchor = closestI;
             }
           }
         }
@@ -461,23 +478,39 @@ namespace SysCAD.Editor
         //  e.Arrow.OrgnAnchor = oldOriginAnchor;
         //}
 
-
-        PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
-        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
-
-        if ((destinationBox != null)&&(!(arrowBeingModified.Destination is Box)))
+        if (e.SelectionHandle == arrowBeingModified.ControlPoints.Count - 1)
         {
-          destinationBox = (destinationBox.Tag as Item).Model;
-          if (destinationBox != null)
+          PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
+          Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
+
+          if ((destinationBox != null) && (!(arrowBeingModified.Destination is Box)))
           {
-            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
+            destinationBox = (destinationBox.Tag as Item).Model;
+            if (destinationBox != null)
             {
-              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+              int closestI = 0;
+              float closestDistance = float.MaxValue;
+
+              for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
               {
-                newDestinationGuid = (destinationBox.Tag as Item).Guid;
-                newDestinationBox = destinationBox;
-                newDestinationAnchor = i;
+                if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+                {
+                  AnchorPoint anchorPoint = destinationBox.AnchorPattern.Points[i];
+                  RectangleF nodeRect = destinationBox.BoundingRect;
+                  float angle = destinationBox.RotationAngle;
+                  PointF anchorPos = anchorPoint.AnchorToDoc(nodeRect, angle);
+                  float thisDistance = Distance(destinationPos, anchorPos);
+                  if (thisDistance < closestDistance)
+                  {
+                    closestDistance = thisDistance;
+                    closestI = i;
+                  }
+                }
               }
+
+              newDestinationGuid = (destinationBox.Tag as Item).Guid;
+              newDestinationBox = destinationBox;
+              newDestinationAnchor = closestI;
             }
           }
         }
@@ -624,6 +657,15 @@ namespace SysCAD.Editor
       oldHoverBox = hoverBox;
     }
 
+    void fcFlowChart_MouseWheel(object sender, MouseEventArgs args)
+    {
+      FlowChart fcSender = sender as FlowChart;
+
+      float newScrollY = fcSender.ScrollY- args.Delta / 5;
+      if (newScrollY > fcSender.DocExtents.Top)
+        fcSender.ScrollY = newScrollY;
+    }
+    
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
     {
       if (arrowBeingModified != null)
@@ -735,9 +777,35 @@ namespace SysCAD.Editor
       }
     }
 
+    private float Distance(PointF a, float bX, float bY)
+    {
+      return Distance(a, new PointF(bX, bY));
+    }
+
     private float Distance(PointF a, PointF b)
     {
       return (float)Math.Sqrt(((a.X - b.X) * (a.X - b.X)) + ((a.Y - b.Y) * (a.Y - b.Y)));
+    }
+
+    internal static float wrongWrongWrongWrongGetMinObjSize(GraphicsUnit currUnit)
+    {
+      switch (currUnit)
+      {
+        case GraphicsUnit.Millimeter:
+          return 2;
+        case GraphicsUnit.Inch:
+          return 1.0f / 6;
+        case GraphicsUnit.Point:
+          return 72.0f / 6;
+        case GraphicsUnit.Pixel:
+          return 6;
+        case GraphicsUnit.Document:
+          return 300.0f / 6;
+        case GraphicsUnit.Display:
+          return 75.0f / 6;
+      }
+
+      return 2;
     }
 
     private void fcFlowChart_DrawArrow(object sender, ArrowDrawArgs e)
@@ -748,52 +816,61 @@ namespace SysCAD.Editor
       {
         {
           MindFusion.FlowChartX.Node node = arrow.Destination;
-          if (node is Box)
+          if ((node is Box) && (arrow.DestAnchor != -1))
           {
             Box box = node as Box;
 
-            if (arrow.DestAnchor != -1)
-            {
+            float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+            float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
 
-              float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-              float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+            PointF anchorPointPos = new PointF(
+              box.BoundingRect.Left + box.BoundingRect.Width * dx,
+              box.BoundingRect.Top + box.BoundingRect.Height * dy);
 
-              PointF anchorPointPos = new PointF(
-                box.BoundingRect.Left + box.BoundingRect.Width * dx,
-                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-              PointF[] extensionPoints =
-                new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
-              e.Graphics.DrawLines(pen, extensionPoints);
-            }
+            e.Graphics.DrawLines(pen, extensionPoints);
+          }
+          else
+          {
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Red, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+            PointF p = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
+            RectangleF r = new RectangleF(p, SizeF.Empty);
+            r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+            e.Graphics.DrawEllipse(pen, r);
           }
         }
 
         {
           MindFusion.FlowChartX.Node node = arrow.Origin;
-          if (node is Box)
+          if ((node is Box) && (arrow.OrgnAnchor != -1))
           {
             Box box = node as Box;
 
-            if (arrow.OrgnAnchor != -1)
-            {
-              float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-              float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+            float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+            float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
 
-              PointF anchorPointPos = new PointF(
-                box.BoundingRect.Left + box.BoundingRect.Width * dx,
-                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+            PointF anchorPointPos = new PointF(
+              box.BoundingRect.Left + box.BoundingRect.Width * dx,
+              box.BoundingRect.Top + box.BoundingRect.Height * dy);
 
-              PointF[] extensionPoints =
-                new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
 
-              e.Graphics.DrawLines(pen, extensionPoints);
-            }
+            e.Graphics.DrawLines(pen, extensionPoints);
+          }
+          else
+          {
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Red, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+            PointF p = arrow.ControlPoints[0];
+            RectangleF r = new RectangleF(p, SizeF.Empty);
+            r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+            e.Graphics.DrawEllipse(pen, r);
           }
         }
       }
@@ -969,23 +1046,30 @@ namespace SysCAD.Editor
 
       if (me.Button == MouseButtons.Right)
       {
+        ContextMenu theMenu = new ContextMenu();
         if (hoverBox != null)
         {
-          ContextMenu boxMenu = new ContextMenu();
-          boxMenu.MenuItems.Add("Unfinished");
-          boxMenu.Show(fcFlowChart, me.Location);
+          theMenu.MenuItems.Add("Unfinished");
           form1.Mode_Modify();
         }
         else if (hoverArrow != null)
         {
-          ContextMenu arrowMenu = new ContextMenu();
-          arrowMenu.MenuItems.Add("Route arrow", new EventHandler(RouteArrow));
-          arrowMenu.MenuItems.Add("Disconnect Origin", new EventHandler(DisconnectOrigin));
-          arrowMenu.MenuItems.Add("Disconnect Destination", new EventHandler(DisconnectDestination));
-          arrowMenu.Show(fcFlowChart, me.Location);
+          theMenu.MenuItems.Add("Route Arrow", new EventHandler(RouteArrow));
+          theMenu.MenuItems.Add("Disconnect Origin", new EventHandler(DisconnectOrigin));
+          theMenu.MenuItems.Add("Disconnect Destination", new EventHandler(DisconnectDestination));
           form1.Mode_Modify();
         }
+
+        theMenu.MenuItems.Add("Layout Flowchart", new EventHandler(LayoutFlowchart));
+
+        theMenu.Show(fcFlowChart, me.Location);
       }
+    }
+
+    private void LayoutFlowchart(object sender, EventArgs e)
+    {
+      AnnealLayout layout = new AnnealLayout();
+      layout.Arrange(fcFlowChart);
     }
 
     private void RouteArrow(object sender, EventArgs e)
