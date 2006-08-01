@@ -117,17 +117,17 @@ namespace MindFusion.FlowChartX
 			switch (currUnit)
 			{
 			case GraphicsUnit.Millimeter:
-				return 2;
+        return 2 / 2.0F;
 			case GraphicsUnit.Inch:
-				return 1.0f/6;
+        return 1.0f / 6 / 2.0F;
 			case GraphicsUnit.Point:
-				return 72.0f/6;
+        return 72.0f / 6 / 2.0F;
 			case GraphicsUnit.Pixel:
-				return 6;
+        return 6 / 2.0F;
 			case GraphicsUnit.Document:
-				return 300.0f/6;
+        return 300.0f / 6 / 2.0F;
 			case GraphicsUnit.Display:
-				return 75.0f/6;
+        return 75.0f / 6 / 2.0F;
 			}
 
 			return 2;
@@ -402,7 +402,7 @@ namespace MindFusion.FlowChartX
 		internal static int NoAnchorPattern = -12345;
 		internal static float getMarkSize(GraphicsUnit currUnit)
 		{
-			return getMinObjSize(currUnit);
+      return getMinObjSize(currUnit) * 2.0F;
 		}
 
 		internal const int ARROW_CROSSINGS = 3;

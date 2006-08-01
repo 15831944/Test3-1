@@ -743,10 +743,10 @@ namespace MindFusion.FlowChartX
 					{
 						if (st == HandlesStyle.EasyMove)
 						{
-							g.FillEllipse(brush,
-								point.X - size, point.Y - size, 2*size, 2*size);
-							g.DrawEllipse(pen,
-								point.X - size, point.Y - size, 2*size, 2*size);
+							//g.FillEllipse(brush,
+							//	point.X - size, point.Y - size, 2*size, 2*size);
+							//g.DrawEllipse(pen,
+							//	point.X - size, point.Y - size, 2*size, 2*size);
 						}
 						if (st == HandlesStyle.SquareHandles)
 						{
@@ -1401,8 +1401,8 @@ namespace MindFusion.FlowChartX
 				pts[9].X = pts[4].X;
 				pts[9].Y = pts[4].Y - 6*Constants.getMillimeter(measureUnit);
 
-				if (st == HandlesStyle.EasyMove && (Distance(pts[8], pt) < 1.5 * handleSize))
-					return false;
+				//if (st == HandlesStyle.EasyMove && (Distance(pts[8], pt) < 1.5 * handleSize))
+				//	return false;
 
 				for (int i = 0; i < 10; ++i)
 				{
