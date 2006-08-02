@@ -500,7 +500,7 @@ flag MN_SrcSnk::SetModelAction(Strng & Tag, MdlAction & Act)
         //SUB_TAGACTION_FIND
         char* pTxt = new char[sConnectedTag.Len()+1];
         strcpy(pTxt, sConnectedTag());
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);
         }
       break;
     }

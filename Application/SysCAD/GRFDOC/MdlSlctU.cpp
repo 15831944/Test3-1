@@ -697,7 +697,7 @@ void CInsertUnitDlg::OnMdldoc()
 //
 //void CInsertUnitDlg::OnMdlhelp() 
 //  {
-//  AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_HELP_SYSCAD, 0);
+//  ScdMainWnd()->PostMessage(WM_COMMAND, ID_HELP_SYSCAD, 0);
 //  }
 //
 //---------------------------------------------------------------------------

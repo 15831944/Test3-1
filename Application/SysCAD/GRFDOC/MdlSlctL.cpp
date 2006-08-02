@@ -547,7 +547,7 @@ void CInsertLinkDlg::OnMdldoc()
   pMdlCB->GetWindowText(buff, sizeof(buff));
   if (m_pMdl && gs_pPrj)
     gs_pPrj->ModelHelp(buff);
-  //AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_HELP_SYSCAD, 0);
+  //ScdMainWnd()->PostMessage(WM_COMMAND, ID_HELP_SYSCAD, 0);
   }
 
 //---------------------------------------------------------------------------

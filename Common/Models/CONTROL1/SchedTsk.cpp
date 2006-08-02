@@ -455,7 +455,7 @@ void ScheduleTask::ExecScr()
     char* pTxt = new char[Fn.Len()+1];
     strcpy(pTxt, Fn());
     //AfxGetMainWnd()->SendMessage(WMU_CMD, SUB_CMD_RUNSCRIPT, (LPARAM)pTxt);
-    AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_RUNSCRIPT, (LPARAM)pTxt);
+    ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_RUNSCRIPT, (LPARAM)pTxt);
     }
   else
     sScrStatus = "Specified file not found!";
@@ -474,7 +474,7 @@ void ScheduleTask::ExecMcr()
     sMcrStatus = "Ok";
     CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, Fn(), sMcrName(), iMcrType);
     //AfxGetMainWnd()->SendMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
-    AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+    ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
     }
   else
     sMcrStatus = "Specified file not found!";
@@ -543,7 +543,7 @@ void ScheduleTask::ExecRep()
         pXB->xAddTag(RepTags[i]());
       }
     //AfxGetMainWnd()->SendMessage(WMU_REPORT, SUB_REPACTION_GENERATE, (LPARAM)pXB);
-    AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_GENERATE, (LPARAM)pXB);
+    ScdMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_GENERATE, (LPARAM)pXB);
     }
   else
     sRepStatus = "Specified file not found!";

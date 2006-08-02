@@ -161,7 +161,7 @@ UINT CScdCOCmdBase::PostComCmd(long Cmd, long Data)
   {
   InitCOCmdStuff(Cmd);
   CScdCOCmdBlk * p=new CScdCOCmdBlk(Cmd, Data);
-  //while (!::AfxGetMainWnd()->PostMessage(m_MsgID, Cmd, (long)p))
+  //while (!::ScdMainWnd()->PostMessage(m_MsgID, Cmd, (long)p))
   while (!::PostMessage(s_hWnd4Msgs, m_MsgID, Cmd, (long)p))
     {
     Sleep(10);
@@ -175,7 +175,7 @@ UINT CScdCOCmdBase::PostComCmd(long Cmd, long *EvIds, long nEvts, long Data)
   {
   InitCOCmdStuff(EvIds, nEvts);
   CScdCOCmdBlk * p=new CScdCOCmdBlk(Cmd, Data);
-  //while (!::AfxGetMainWnd()->PostMessage(m_MsgID, Cmd, (long)p))
+  //while (!::ScdMainWnd()->PostMessage(m_MsgID, Cmd, (long)p))
   while (!::PostMessage(s_hWnd4Msgs, m_MsgID, Cmd, (long)p))
     {
     Sleep(10);
@@ -230,7 +230,7 @@ void CScdCOCmdBase::RemoveWaitingEventBlk(CScdCOCmdBase *pEvtBlk)
       {
       UINT is=i;
       UINT ie=i+1;
-      while (gs_WaitingEvtBlks[ie].m_pEvtBlk==pEvtBlk && ie<gs_lWaitingEvtBlkCount)
+      while (ie<gs_lWaitingEvtBlkCount && gs_WaitingEvtBlks[ie].m_pEvtBlk==pEvtBlk)
         ie++;
       for (int k=0; ie+k<gs_lWaitingEvtBlkCount; k++)
         gs_WaitingEvtBlks[is+k]=gs_WaitingEvtBlks[ie+k];

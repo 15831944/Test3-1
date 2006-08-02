@@ -820,15 +820,15 @@ bool CGrfTagGroups::IsActive(int index)
 
 void CGrfTagGroups::Rebuild(bool Force/*=false*/)
   {
-  AfxGetMainWnd()->PostMessage(WMU_GRFTAGGROUPS, SUB_GTG_BUILD, (LPARAM)Force);
+  ScdMainWnd()->PostMessage(WMU_GRFTAGGROUPS, SUB_GTG_BUILD, (LPARAM)Force);
   }
 
 void CGrfTagGroups::SetActive(int index, bool Active)
   {
   if (Active)
-    AfxGetMainWnd()->PostMessage(WMU_GRFTAGGROUPS, SUB_GTG_ACTIVATE, (LPARAM)index);
+    ScdMainWnd()->PostMessage(WMU_GRFTAGGROUPS, SUB_GTG_ACTIVATE, (LPARAM)index);
   else
-    AfxGetMainWnd()->PostMessage(WMU_GRFTAGGROUPS, SUB_GTG_DEACTIVATE, (LPARAM)index);
+    ScdMainWnd()->PostMessage(WMU_GRFTAGGROUPS, SUB_GTG_DEACTIVATE, (LPARAM)index);
   }
 
 //===========================================================================

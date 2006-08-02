@@ -1421,7 +1421,7 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
         strcpy(pTag, Nd()->FullObjTag());
         char* pFileName = new char[strlen(sRCTName())+1];
         strcpy(pFileName, sRCTName());
-        AfxGetMainWnd()->PostMessage(WMU_EDITRCTDLG, (WPARAM)pTag, (LPARAM)pFileName);
+        ScdMainWnd()->PostMessage(WMU_EDITRCTDLG, (WPARAM)pTag, (LPARAM)pFileName);
 
         //int RetCode = DCB.DoEditBtn(hEditProcess, dwEditProcessId, "", FileName(), "rct", &FullFilename, true);
         //if (RetCode==-1)
@@ -1617,7 +1617,7 @@ void CReactionBlock::OnAppActivate(BOOL bActive)
           Load(sRCTName(), true);
           char* pTag = new char[strlen(BaseTag())+1];
           strcpy(pTag, BaseTag());
-          AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
           }
         ValidateDataBlk VDB;
         ValidateData(VDB);

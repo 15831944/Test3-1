@@ -685,13 +685,13 @@ BOOL CDynToolBar::PreTranslateMessage(MSG* pMsg)
                     pCBox->SetCurSel(0);
                     }
                   }
-                AfxGetMainWnd()->PostMessage(WM_COMMAND, BtnIDs[IDIndex]);
+                ScdMainWnd()->PostMessage(WM_COMMAND, BtnIDs[IDIndex]);
                 }
               }
             }
           else if (bUseEscape && pMsg->wParam==VK_ESCAPE)
             {
-            AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Esc);
+            ScdMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Esc);
             }
           break;
         }//end switch
@@ -703,11 +703,11 @@ BOOL CDynToolBar::PreTranslateMessage(MSG* pMsg)
         case WM_KEYDOWN:
           if (pMsg->wParam==VK_RETURN)
             {
-            AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Done);
+            ScdMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Done);
             }
           else if (bUseEscape && pMsg->wParam==VK_ESCAPE)
             {
-            AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Esc);
+            ScdMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Esc);
             }
           break;
         }//end switch
@@ -725,7 +725,7 @@ LRESULT CDynToolBar::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
     {
     BOOL bVis = IsWindowVisible();
     if (bWasVisible && !bVis)
-      AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Esc);
+      ScdMainWnd()->PostMessage(WM_COMMAND, ID_GRF_Esc);
     bWasVisible = (bVis!=0);
     }
   return CControlBar::OnIdleUpdateCmdUI(wParam, lParam);

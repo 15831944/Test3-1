@@ -1276,7 +1276,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
         Options|=SUB_NA_CLS_COMPACT;
       if (RetCd%2==1)
         Options|=SUB_NA_CLS_SUMMARY;
-      AfxGetMainWnd()->PostMessage(WMU_NODEAUDIT, Options, (LPARAM)pTxt);
+      ScdMainWnd()->PostMessage(WMU_NODEAUDIT, Options, (LPARAM)pTxt);
       break;
       }
     case 140:
@@ -1301,7 +1301,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
         case 144:  Options = SUB_NA_ADT_HEATTOTAL ; break;
         }
 
-      AfxGetMainWnd()->PostMessage(WMU_NODEAUDIT, Options, (LPARAM)pTxt);
+      ScdMainWnd()->PostMessage(WMU_NODEAUDIT, Options, (LPARAM)pTxt);
       break;
       }
 
@@ -1514,7 +1514,7 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
 #if WITHCTRLOBJ
     case 111:
       pTag=NULL;
-      AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_VIEW_CONTROLS);
+      ScdMainWnd()->PostMessage(WM_COMMAND, ID_VIEW_CONTROLS);
       break;
 #endif
 #if WITHORDEROBJ
@@ -1726,7 +1726,7 @@ void GrfCmdBlk::DoObjectAccess()
           strcpy(pTxt, Tg());
           strcat(pTxt, "\t"); 
           strcat(pTxt, pGrfDoc->GetTitle()); // current graphics page
-          AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);
           };
         }
       break;
@@ -6273,7 +6273,7 @@ void GrfCmdBlk::DoSelect()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
         }
       }
     else
@@ -6284,7 +6284,7 @@ void GrfCmdBlk::DoSelect()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
         }
       }
     gs_pPrj->bDoGrfAutoAccess = 0;
@@ -6382,7 +6382,7 @@ void GrfCmdBlk::DoFind()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
         }
       }
     else
@@ -6393,7 +6393,7 @@ void GrfCmdBlk::DoFind()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
         }
       }
     gs_pPrj->bDoGrfAutoAccess = 0;
@@ -7300,7 +7300,7 @@ void GrfCmdBlk::DoHelpUnit()
             {
             char* pTxt = new char[strlen(pTag)+1];
             strcpy(pTxt, pTag);
-            AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_MDLHELP, (LPARAM)pTxt);
+            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_MDLHELP, (LPARAM)pTxt);
 
             /*if (pMdl)
               {

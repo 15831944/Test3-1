@@ -33,7 +33,7 @@ CPipeTerm::CPipeTerm (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, 
   m_VPB("VL_Basic", this, NULL),
   m_FRB("Reg", FBRShow_All, FBReg_Pi|FBReg_Qm|FBReg_Qv|FBReg_QvStep, FBReg_Off)
   {
-  SetAllowedModes(false, NM_All|SM_Direct/*|SM_Inline|SM_Buffered*/|HM_All|LFM_Simple|LFM_Linear||LFM_Full);// "Transfer", "Inline", NULL);
+  SetAllowedModes(false, NM_All|SM_Direct/*|SM_Inline|SM_Buffered*/|HM_All|LFM_Simple|LFM_Linear|LFM_Full);// "Transfer", "Inline", NULL);
   //SetAllowedFlowModes();
 
   AttachClassInfo(nc_MSrcSnk,NULL);

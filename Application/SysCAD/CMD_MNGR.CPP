@@ -259,7 +259,7 @@ LPCTSTR CmdNames(DWORD Cmd)
 
 static inline void LclPostMessage(UINT Msg, WPARAM w, LPARAM l=0)
   {
-  while (!::AfxGetMainWnd()->PostMessage(Msg, w, l))
+  while (!::ScdMainWnd()->PostMessage(Msg, w, l))
     {
 #if dbgScdCmdIF
 if (1 || dbgDoComCmd())
@@ -402,7 +402,7 @@ class CCmdDirect : public CCmdBase
 
     CCmdDirect(WORD ID, WORD DoneID, WPARAM CmdID, DWORD flgs) : CCmdBase(ID, DoneID) { CommandID = CmdID; flags |= flgs; };
     virtual ~CCmdDirect(){};
-    virtual int ExecCmd(CCmdExec* pXCmd) { AfxGetMainWnd()->PostMessage(WM_COMMAND, CommandID, 0); return 0; };
+    virtual int ExecCmd(CCmdExec* pXCmd) { ScdMainWnd()->PostMessage(WM_COMMAND, CommandID, 0); return 0; };
   };
 
 //---------------------------------------------------------------------------
@@ -455,12 +455,12 @@ int CCmdLoadProject::ExecCmd(CCmdExec* pXCmd)
   if (pDoc)
     {
     if (pDoc==pPrevPrjDoc) //project was allready open
-      AfxGetMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_LoadProject, 0); //let script cmd mngr know cmd is complete
+      ScdMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_LoadProject, 0); //let script cmd mngr know cmd is complete
     return 0;
     }
   else
     {
-    LogError("Script Cmds", 0, "Unable to open %s", sPrjName());
+    LogError("Command", 0, "Unable to open %s", sPrjName());
     return 1;
     }
   return 0;
@@ -502,7 +502,7 @@ int CCmdCloseProject::ExecCmd(CCmdExec* pXCmd)
         }
       break;
     }
-  LogError("Script Cmds", 0, "Cannot close project");
+  LogError("Command", 0, "Cannot close project");
   return 1;
   }
 
@@ -663,12 +663,12 @@ int CCmdSetTag::ExecCmd(CCmdExec* pXCmd)
       if (UseCnv && Cnvs[pItem->CnvIndex()]->Find(WrkCnvTxt())==NULL)
         {
         UseCnv = 0;
-        LogWarning("Script Cmds", 0, "Script command SetTag: Valid conversion expected for tag %s", WrkTag());
+        LogWarning("Command", 0, "SetTag: Valid conversion expected for tag %s", WrkTag());
         }
       }
     else
       {
-      LogWarning("Script Cmds", 0, "Script command SetTag: Valid tag expected (%s)", WrkTag());
+      LogWarning("Command", 0, "SetTag: Valid tag expected (%s)", WrkTag());
       return 1;
       }
 
@@ -679,7 +679,7 @@ int CCmdSetTag::ExecCmd(CCmdExec* pXCmd)
       DU.SetTypeDouble(pItem->Type(), dValue);
     CXM_ObjectData ObjData(0, 0, WrkTag(), 0, DU);
     if (pXCmd->XWriteTaggedItem(ObjData, Route)!=TOData_OK)
-      LogWarning("Script Cmds", 0, "Script command SetTag: Write failed for %s", WrkTag());
+      LogWarning("Command", 0, "SetTag: Write failed for %s", WrkTag());
     else
       if (UseCnv)
         gs_Exec.m_Seq.NoteManSet(CExecSequence::VSS_Script, WrkTag(), dValue, WrkCnvTxt());
@@ -688,7 +688,7 @@ int CCmdSetTag::ExecCmd(CCmdExec* pXCmd)
     }
   else
     {
-    LogWarning("Script Cmds", 0, "Script command SetTag: Valid tag expected (%s)", WrkTag());
+    LogWarning("Command", 0, "SetTag: Valid tag expected (%s)", WrkTag());
     return 1;
     }
   return 0;
@@ -927,7 +927,7 @@ class CCmdExit : public CCmdBase
 
 int CCmdExit::ExecCmd(CCmdExec* pXCmd)
   {
-  AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_APP_EXIT, 0);
+  ScdMainWnd()->PostMessage(WM_COMMAND, ID_APP_EXIT, 0);
   return 0;
   }
 
@@ -1149,8 +1149,8 @@ int CCmdExec::AddCmds(char* pFileName)
           XStrTrim(Line, " \t\n\r");
           if (strlen(Line)>0 && Line[0]!=';' && AddCmd(Line)>0)
             {
-            LogWarning("Script Cmds", 0, "Error on line %d for script file '%s'", LineNo, pFileName);
-            LogWarning("Script Cmds", 0, "Check command or parameters for '%s'", (const char*)s);
+            LogWarning("Command", 0, "Error on line %d for script file '%s'", LineNo, pFileName);
+            LogWarning("Command", 0, "Check command or parameters for '%s'", (const char*)s);
             Err = 1;
             }
           }
@@ -1162,19 +1162,19 @@ int CCmdExec::AddCmds(char* pFileName)
       }
     else
       {
-      LogError("Script Cmds", LF_Exclamation, "Cannot open script command file '%s'", pFileName);
+      LogError("Command", LF_Exclamation, "Cannot open script command file '%s'", pFileName);
       return 1;
       }
     }
   CATCH (CFileException, e)
     {
-    LogError("Script Cmds", LF_Exclamation, "File error %d reading script command file '%s'", e->m_cause, pFileName);
+    LogError("Command", LF_Exclamation, "File error %d reading script command file '%s'", e->m_cause, pFileName);
     return 2;
     }
   END_CATCH
   if (Err)
     {
-    LogError("Script Cmds", LF_Exclamation, "Errors encountered while interpreting script file '%s'", pFileName);
+    LogError("Command", LF_Exclamation, "Errors encountered while interpreting script file '%s'", pFileName);
     DelCmds();
     return 3;
     }
@@ -1199,7 +1199,7 @@ void CCmdExec::DelCmds()
 void CCmdExec::AbortScripts()
   {
   DelCmds();
-  LogNote("Script Cmds", 0, "Command script terminated by user");
+  LogNote("Command", 0, "Command script terminated by user");
   }
 
 //---------------------------------------------------------------------------
@@ -1227,7 +1227,7 @@ int CCmdExec::ExecCmds()
   int err = 0;
   if ((gs_pPrj==NULL || gs_pPrj->pPrjDoc==NULL) && (pCmd->flags & CmdPrjLoaded))
     {
-    LogError("Script Cmds", LF_Exclamation, "Command script terminated, %s cannot be exucuted when a project is not loaded", pCmd->Desc(Buff));
+    LogError("Command", LF_Exclamation, "Command script terminated, %s cannot be exucuted when a project is not loaded", pCmd->Desc(Buff));
     DelCmds();
     }
   else if ((pCmd->flags & CmdFlagStopped) && gs_TheRunMngr.Running())
@@ -1235,7 +1235,7 @@ int CCmdExec::ExecCmds()
     //pStatusBar->SetMsg("Wait (%d) for %s", iCmdAttempts, pFirstCmd->Desc(Buff));
     if (iCmdAttempts>5)
       {
-      LogError("Script Cmds", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is running", pCmd->Desc(Buff));
+      LogError("Command", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is running", pCmd->Desc(Buff));
       DelCmds();
       }
     else
@@ -1246,7 +1246,7 @@ int CCmdExec::ExecCmds()
     //pStatusBar->SetMsg("Wait (%d) for %s", iCmdAttempts, pFirstCmd->Desc(Buff));
     if (iCmdAttempts>5)
       {
-      LogError("Script Cmds", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped", pCmd->Desc(Buff));
+      LogError("Command", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped", pCmd->Desc(Buff));
       DelCmds();
       }
     else
@@ -1257,7 +1257,7 @@ int CCmdExec::ExecCmds()
     //pStatusBar->SetMsg("Wait (%d) for %s", iCmdAttempts, pFirstCmd->Desc(Buff));
     if (iCmdAttempts>5)
       {
-      LogError("Script Cmds", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped or idling", pCmd->Desc(Buff));
+      LogError("Command", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped or idling", pCmd->Desc(Buff));
       DelCmds();
       }
     else
@@ -1268,7 +1268,7 @@ int CCmdExec::ExecCmds()
     //pStatusBar->SetMsg("Wait (%d) for %s", iCmdAttempts, pFirstCmd->Desc(Buff));
     if (iCmdAttempts>5)
       {
-      LogError("Script Cmds", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped or running", pCmd->Desc(Buff));
+      LogError("Command", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped or running", pCmd->Desc(Buff));
       DelCmds();
       }
     else
@@ -1279,7 +1279,7 @@ int CCmdExec::ExecCmds()
     //pStatusBar->SetMsg("Wait (%d) for %s", iCmdAttempts, pFirstCmd->Desc(Buff));
     if (iCmdAttempts>5)
       {
-      LogError("Script Cmds", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped or idling", pCmd->Desc(Buff));
+      LogError("Command", LF_Exclamation, "Command script terminated, command %s cannot be exucuted while SysCAD is stopped or idling", pCmd->Desc(Buff));
       DelCmds();
       }
     else
@@ -1320,7 +1320,7 @@ int CCmdExec::ExecCmds()
 //      pInfoWnd->SetInfo(Cmds.GetCount(), pCmd->Desc(Buff), "");
 
     pStatusBar->SetMsg("Execute script command %s", Buff);
-    LogNote("Script Cmds", 0, "Execute %s", Buff);
+    LogNote("Command", 0, "Execute %s", Buff);
     dbgpln("#### Execute Script command %s ####", Buff);
     DoNotExecNext = ((pCmd->flags & CmdFlagDoNotExecNext)!=0);
     bDoNotPrompt = ((pCmd->flags & CmdFlagDoNotPrompt)!=0);
@@ -1345,7 +1345,7 @@ int CCmdExec::ExecCmds()
       if (DoNotExecNext)
         wCmdWaiting = pCmd->CmdDoneID; //CNM CmdID;
       if (err>0)
-        LogError("Script Cmds", LF_Exclamation, "Command script terminated due to a critical error for %s", pCmd->Desc(Buff));
+        LogError("Command", LF_Exclamation, "Command script terminated due to a critical error for %s", pCmd->Desc(Buff));
 
       if (!Cmds.IsEmpty())
         Cmds.RemoveHead();
@@ -1373,7 +1373,7 @@ int CCmdExec::ExecCmds()
   if (Cmds.GetCount())//pFirstCmd)
     {
     if (!DoNotExecNext)
-      AfxGetMainWnd()->PostMessage(WMU_CMDNEXT, 0, 0); //post message to execute next command immediatly
+      ScdMainWnd()->PostMessage(WMU_CMDNEXT, 0, 0); //post message to execute next command immediatly
     }
   else
     {
@@ -1395,7 +1395,7 @@ int CCmdExec::CmdComplete(WORD CmdID)
     wCmdWaiting = 0;
     bDoNotPrompt = 0;
     //dbgpln("CmdComplete <Done>");
-    AfxGetMainWnd()->PostMessage(WMU_CMDNEXT, ComCmd_ExecNextCmd, 0); //post message to execute next command
+    ScdMainWnd()->PostMessage(WMU_CMDNEXT, ComCmd_ExecNextCmd, 0); //post message to execute next command
     return 0;
     }
   return -1;
@@ -1490,7 +1490,7 @@ flag CCmdExec::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
     if (pCmd->ExecNow(this))
       {
       pCmd->flags &= (~CmdFlagExecuteWait);
-      AfxGetMainWnd()->PostMessage(WMU_CMDNEXT, ComCmd_ExecNextCmd, 0);
+      ScdMainWnd()->PostMessage(WMU_CMDNEXT, ComCmd_ExecNextCmd, 0);
       }
     }
   return False;
@@ -1514,13 +1514,13 @@ flag CCmdExec::EO_Stopping(flag fBeginStopping)
     if (pCmd->flags & CmdFlagExecuteWait)
       {
       char Buff[1024];
-      LogError("Script Cmds", LF_Exclamation, "Command script terminated, %s cannot be exucuted when a project has just been stopped/solved.", pCmd->Desc(Buff));
+      LogError("Command", LF_Exclamation, "Command script terminated, %s cannot be exucuted when a project has just been stopped/solved.", pCmd->Desc(Buff));
       DelCmds();
       }
     if (pCmd && pCmd->ExecNow(this))
       {
       pCmd->flags &= (~CmdFlagStopWait);
-      AfxGetMainWnd()->PostMessage(WMU_CMDNEXT, ComCmd_ExecNextCmd, 0);
+      ScdMainWnd()->PostMessage(WMU_CMDNEXT, ComCmd_ExecNextCmd, 0);
       }
     }
   return True;
@@ -1724,7 +1724,7 @@ if (dbgDoComCmd())
           }
         }
 
-      LogError("Script Cmds", 0, "Cannot close project");
+      LogError("Command", 0, "Cannot close project");
       break;
       }
     case ComCmd_SetTag :
@@ -1753,7 +1753,7 @@ if (dbgDoComCmd())
           }
         else
           {
-          //LogWarning("Script Cmds", 0, "Script command SetTag: Valid tag expected (%s)", WrkTag());
+          //LogWarning("Command", 0, "SetTag: Valid tag expected (%s)", WrkTag());
           //return 1;
           }
 
@@ -1847,7 +1847,7 @@ if (dbgDoComCmd())
         }
       else
         {
-        LogWarning("Script Cmds", 0, "Script command SetTag: Valid tag expected (%s)", WrkTag());
+        LogWarning("Command", 0, "SetTag: Valid tag expected (%s)", WrkTag());
         lRet=1;
         }
 
@@ -1880,7 +1880,7 @@ if (dbgDoComCmd())
           }
         else
           {
-          //LogWarning("Script Cmds", 0, "Script command GetTag: Valid tag expected (%s)", WrkTag());
+          //LogWarning("Command", 0, "GetTag: Valid tag expected (%s)", WrkTag());
           //return 1;
           }
 
@@ -1912,7 +1912,7 @@ if (dbgDoComCmd())
         }
       else
         {
-        LogWarning("Script Cmds", 0, "Script command GetTag: Valid tag expected (%s)", WrkTag());
+        LogWarning("Command", 0, "GetTag: Valid tag expected (%s)", WrkTag());
         lRet=ComCmdRet_InvalidTag;
         }
 
@@ -2039,7 +2039,7 @@ if (dbgDoComCmd())
     case ComCmd_Report_GetValues:
       {
 //      CXM_OleExcelReport* pXB = new CXM_OleExcelReport(sRepFilename(), sRepName(), SUB_REPORT_GETVALUES);
-//      AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+//      ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
 
 //SUB_REPORT_GETVALUES
 //SUB_REPORT_TREND

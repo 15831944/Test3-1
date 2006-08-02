@@ -356,7 +356,7 @@ flag CRepTrend::ProcessMsg(CXM_QueryString* p)
   {
   if (strlen(p->cValue)==6 && _stricmp(p->cValue, "TheEnd")==0)
     {
-    AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_END, (LPARAM)this);
+    ScdMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_END, (LPARAM)this);
     }
   else if (strlen(p->cValue)>6 && _strnicmp(p->cValue, "TheTags", 7)==0)
     {
@@ -411,7 +411,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRow* p)
       DatVals[offset + j + 1] = p->dValue[j];
     iRecCnt++;
     if (iRecCnt==iMaxRecCnt)
-      //AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_PROCESS, (LPARAM)this);
+      //ScdMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_PROCESS, (LPARAM)this);
       AfxGetMainWnd()->SendMessage(WMU_REPORT, SUB_REPACTION_PROCESS, (LPARAM)this);
     }
   }
@@ -473,7 +473,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRowEx* p)
       }
     iRecCnt++;
     if (iRecCnt==iMaxRecCnt)
-      //AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_PROCESS, (LPARAM)this);
+      //ScdMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_PROCESS, (LPARAM)this);
       AfxGetMainWnd()->SendMessage(WMU_REPORT, SUB_REPACTION_PROCESS, (LPARAM)this);
     }
   }
@@ -505,7 +505,7 @@ void CRepExec::Start1(void* p)
   {
   CRepTrend* pRep = (CRepTrend*)p;
   pRep->Start1();
-  //AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_START, (LPARAM)pRep);
+  //ScdMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_START, (LPARAM)pRep);
   }
 
 //---------------------------------------------------------------------------
@@ -545,7 +545,7 @@ DWORD CRepExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
         CXM_RepTrendDB* p = XM.RepTrendDB();
         CRepTrend* pRep = new CRepTrend(this);
         pRep->Start0(p);
-        AfxGetMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_START, (LPARAM)pRep);
+        ScdMainWnd()->PostMessage(WMU_REPORT, SUB_REPACTION_START, (LPARAM)pRep);
         break;
         }
       case XM_QueryRow:

@@ -707,7 +707,7 @@ void CElecBlk::OnAppActivate(BOOL bActive)
         LoadPGM(sPGMName(), bWithDBG);
         char* pTag = new char[strlen(Tag())+1];
         strcpy(pTag, Tag());
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
         }
       ValidateDataBlk VDB;
       ValidateData(VDB);

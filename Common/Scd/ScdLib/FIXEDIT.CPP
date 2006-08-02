@@ -1425,7 +1425,7 @@ flag FxdEdtBook::DoAccRptTagLists(TagInfoBlk & WrkIB)
   TagInfoBlk * IB = new TagInfoBlk(WrkIB.ObjClassId(), tt_NULL, "", WrkIB.RefTag(), 
                                    WrkIB.CnvOK() ? &WrkIB.Cnv() : NULL, 
                                    WrkIB.FmtOK() ? &WrkIB.Fmt() : NULL);
-  AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+  ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
   return true;
   //return false;
   };

@@ -152,7 +152,7 @@ CArchiveSheet::~CArchiveSheet()
   {
   pArcSheet = NULL; //set global pointer to property sheet to null
   //dialog just closed, ensure main SysCAD window becomes active ...
-  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE, 0);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE, 0);
   }
 
 //---------------------------------------------------------------------------

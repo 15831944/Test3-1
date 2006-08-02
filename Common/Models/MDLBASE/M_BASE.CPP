@@ -2842,7 +2842,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         {
         char* pTag = new char[strlen(FullObjTag())+1];
         strcpy(pTag, FullObjTag());
-        AfxGetMainWnd()->PostMessage(WMU_NODEAUDIT, SUB_NA_CLS_SUMMARY | ((DCB.lHandle==xidIO_CopyClsCompact) ? SUB_NA_CLS_COMPACT : 0), (LPARAM)pTag);
+        ScdMainWnd()->PostMessage(WMU_NODEAUDIT, SUB_NA_CLS_SUMMARY | ((DCB.lHandle==xidIO_CopyClsCompact) ? SUB_NA_CLS_COMPACT : 0), (LPARAM)pTag);
         }
       DCB.B=0;
       return 1;

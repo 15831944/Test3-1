@@ -1490,7 +1490,7 @@ void CColourPage::OnOK()
     GrfHelper.iShowMdlStatusSimpleLnk = m_PenStyle[ 19].GetCurSel();
     GrfHelper.iShowMdlStatusLinearLnk = m_PenStyle[ 20].GetCurSel();
     GrfHelper.iShowMdlStatusFullLnk   = m_PenStyle[ 21].GetCurSel();
-    //AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0); //after stopping ensure active/top window has commands enabled
+    //ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0); //after stopping ensure active/top window has commands enabled
     }
   }
 
@@ -3505,7 +3505,7 @@ void CScriptsDlg::OnExecScript()
 
     //char* pTxt = new char[TmpFN.Len()+1];
     //strcpy(pTxt, TmpFN());
-    //AfxGetMainWnd()->PostMessage(WMU_RUNSCRIPT, (WPARAM)0, (LPARAM)pTxt);
+    //ScdMainWnd()->PostMessage(WMU_RUNSCRIPT, (WPARAM)0, (LPARAM)pTxt);
     if (gs_pXCmd->AddCmds(TmpFN())<1)
       {
       OnOK();

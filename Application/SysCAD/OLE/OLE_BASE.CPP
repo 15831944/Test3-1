@@ -166,7 +166,7 @@ void COleBaseAuto::ActivateSysCAD()
   {
   if (bActivateSysCAD)
     {
-    AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATEAPP, 0); //get main window thread to top AND activate SysCAD
+    ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATEAPP, 0); //get main window thread to top AND activate SysCAD
     }
   }
 

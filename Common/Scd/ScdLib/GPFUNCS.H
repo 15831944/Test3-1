@@ -1421,6 +1421,17 @@ class DllImportExport CScdCmdParms
 //
 //
 //
+// ========================================================================
+// AfxGetMainWnd() replacement
+
+DllImportExport void SetScdMainWnd(CWnd * p);
+DllImportExport CWnd * ScdMainWnd();
+
+
+//===========================================================================
+//
+//
+//
 //===========================================================================
 
 // Lock to be used on Startup & shutdown

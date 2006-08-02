@@ -1920,7 +1920,7 @@ void CExecutive::UpdateDisplays(flag ForceUpd, flag ColoursChgd)
   //return ;
 
   if (AfxGetMainWnd())
-    AfxGetMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, 0, (long)&TimeCB());
+    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, 0, (long)&TimeCB());
 
   XFlushAppMsgQ();
 //static AppDoIdleFn    pAppDoIdleFn=NULL;
@@ -2196,7 +2196,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         SetStopSleep();
         }
       else
-        AfxGetMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Stop, 0);
+        ScdMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Stop, 0);
       break;
     case EXM_GOTOIDLE:
       if (Stopping())
@@ -2216,7 +2216,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           if (dbgExecSeqTm())
             dbgpln("Post Idle B        ---- [@%12.4f]",gs_TimeSW.Time());
           #endif
-          AfxGetMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Idle, 0);
+          ScdMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Idle, 0);
           }
         SetStopSleep();
         }
@@ -2744,7 +2744,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
                 dbgpln("Post Idle A        ---- [@%12.4f]",gs_TimeSW.Time());
               #endif
               m_bSendIdleEvent=false;
-              AfxGetMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Idle, 0); //let script cmd mngr know cmd is complete
+              ScdMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Idle, 0); //let script cmd mngr know cmd is complete
               }
             }
           else
@@ -2979,7 +2979,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           ComSt=ComState_StepProbal;
         else
           ComSt=ComState_StepDynamic;
-        AfxGetMainWnd()->PostMessage(WMU_CMDSTATE, ComSt, 0);
+        ScdMainWnd()->PostMessage(WMU_CMDSTATE, ComSt, 0);
         }
 
       gs_swExecute.Stop();
@@ -3216,11 +3216,11 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       UpdateDisplays();
 
-      AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0); //after stopping ensure active/top window has commands enabled
+      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0); //after stopping ensure active/top window has commands enabled
       if (m_bSendStopEvent)
         {
         m_bSendStopEvent=false;
-        AfxGetMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Stop, 0); //let script cmd mngr know cmd is complete
+        ScdMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Stop, 0); //let script cmd mngr know cmd is complete
         }
 
       //m_TimeStopped=TimeCB().m_Time;
@@ -3479,7 +3479,7 @@ flag CExecutive::QueryStartExec()
       }
     LogError("SysCAD", LF_Exclamation, buff);*/
     wState|=EXF_StartError;
-    AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)0);
+    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)0);
     LogError("SysCAD", LF_Exclamation, "Startup Failure!  (see preceding messages)");
     return false;
     }
@@ -5943,7 +5943,7 @@ int CExecutive::DoSaveSnapShotScenario(flag DoSnapShot, char * pRoot, char * pSS
   Fn=Fn.FnNameExt(FnD());
   LogNote(DoSnapShot ? "Snapshot" : "Scenario", 0, "%i Objects Saved to %s (%d:%02d)", nObjs, Fn(), SaveMin, (long)floor(SaveTime.Secs()-(60.0*(double)SaveMin)));
 
-  AfxGetMainWnd()->PostMessage(WMU_CMDDONE, DoSnapShot ? ComCmd_SaveSnapshot : ComCmd_SaveScenario, 0); //let script cmd mngr know cmd is complete
+  ScdMainWnd()->PostMessage(WMU_CMDDONE, DoSnapShot ? ComCmd_SaveSnapshot : ComCmd_SaveScenario, 0); //let script cmd mngr know cmd is complete
 
   return nObjs;
   }
@@ -6006,7 +6006,7 @@ int CExecutive::DoLoadSnapShotScenario(flag DoSnapShot, char * pRoot, char * pSS
       {
       LogError("Loading", LF_Exclamation, "Bad %s File", DoSnapShot ? "Snapshot" : "Scenario");
       CloseHandle(H);
-      AfxGetMainWnd()->PostMessage(WMU_CMDDONE, DoSnapShot ? ComCmd_LoadSnapshot : ComCmd_LoadScenario, 0); //let script cmd mngr know cmd is complete
+      ScdMainWnd()->PostMessage(WMU_CMDDONE, DoSnapShot ? ComCmd_LoadSnapshot : ComCmd_LoadScenario, 0); //let script cmd mngr know cmd is complete
       return 0;
       }
 
@@ -6144,7 +6144,7 @@ int CExecutive::DoLoadSnapShotScenario(flag DoSnapShot, char * pRoot, char * pSS
   Fn=Fn.FnNameExt(FnD());
   LogNote(DoSnapShot ? "Snapshot" : "Scenario", 0, "%i Objects Loaded from %s (%d:%02d)", nObjs, Fn(), LoadMin, (long)floor(LoadTime.Secs()+0.49-(60.0*(double)LoadMin)));
 
-  AfxGetMainWnd()->PostMessage(WMU_CMDDONE, DoSnapShot ? ComCmd_LoadSnapshot : ComCmd_LoadScenario, 0); //let script cmd mngr know cmd is complete
+  ScdMainWnd()->PostMessage(WMU_CMDDONE, DoSnapShot ? ComCmd_LoadSnapshot : ComCmd_LoadScenario, 0); //let script cmd mngr know cmd is complete
 
 
   return nObjs;
@@ -6444,7 +6444,7 @@ class CCompareScenarioHelper
     WORD wCmdID;
   public:
     CCompareScenarioHelper(WORD CmdID) { wCmdID = CmdID; };
-    ~CCompareScenarioHelper() { AfxGetMainWnd()->PostMessage(WMU_CMDDONE, wCmdID, 0); }; //let script cmd mngr know cmd is complete
+    ~CCompareScenarioHelper() { ScdMainWnd()->PostMessage(WMU_CMDDONE, wCmdID, 0); }; //let script cmd mngr know cmd is complete
   };
 
 int CExecutive::CompareScenarios(CCompareInfo& Info)
@@ -8145,7 +8145,7 @@ void CExecSequence::PlayTheList(long Up2SeqNo)
             }
           else
             {
-            //LogWarning("Script Cmds", 0, "Script command SetTag: Valid tag expected (%s)", WrkTag());
+            //LogWarning("Commands", 0, "SetTag: Valid tag expected (%s)", WrkTag());
             //return 1;
             }
 

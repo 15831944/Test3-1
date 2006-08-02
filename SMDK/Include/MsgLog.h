@@ -219,6 +219,8 @@ DllImportExport int LogCondClear(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...)
 
 DllImportExport LPCSTR GetHResultString(CString &Str, HRESULT hr);
 
+// ========================================================================
+
 
 #undef DllImportExport
 

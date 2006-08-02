@@ -224,7 +224,7 @@ static void ClearListAll(CCustomListCtrl& Ctrl, CMsgList & List, flag PostMsg)
   Shared.m_MsgListCnt=-1;
 
   if (PostMsg)
-    AfxGetMainWnd()->PostMessage(WMU_UPDATEMSGMENUBTN, 0, 0);
+    ScdMainWnd()->PostMessage(WMU_UPDATEMSGMENUBTN, 0, 0);
   
   Shared.m_pMsgWnd->UpdateWindowText();
   Ctrl.UnlockWindowUpdate();
@@ -247,7 +247,7 @@ static void ClearList(CCustomListCtrl& Ctrl, CMsgList & List, flag PostMsg)
   Shared.m_MsgListCnt=-1;
 
   if (PostMsg)
-    AfxGetMainWnd()->PostMessage(WMU_UPDATEMSGMENUBTN, 0, 0);
+    ScdMainWnd()->PostMessage(WMU_UPDATEMSGMENUBTN, 0, 0);
 
   Shared.m_pMsgWnd->UpdateWindowText();
   Ctrl.UnlockWindowUpdate();
@@ -784,7 +784,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
   //MsgCtrl.UnlockWindowUpdate();
   //CndCtrl.UnlockWindowUpdate();
 
-  AfxGetMainWnd()->PostMessage(WMU_UPDATEMSGMENUBTN, 0, 0);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMSGMENUBTN, 0, 0);
 
   UpdateWindowText();
 

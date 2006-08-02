@@ -7020,6 +7020,27 @@ bool MakeVersionOK(LPCTSTR FileName, LPCTSTR MakeName, WORD V0, WORD V1, WORD V2
 //
 //
 //
+// ========================================================================
+// AfxGetMainWnd() replacement
+
+static CWnd * s_pMainWnd = NULL;
+
+void SetScdMainWnd(CWnd * p)
+  {
+  s_pMainWnd=p;
+  };
+
+CWnd * ScdMainWnd()
+  {
+  if (s_pMainWnd)
+    return s_pMainWnd;
+  return AfxGetMainWnd();
+  };
+
+//==========================================================================
+//
+//
+//
 //==========================================================================
 
 #pragma warning (disable : 4073) // initializers put in library initialization area

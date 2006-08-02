@@ -5036,7 +5036,7 @@ flag SQSzDist1Edt::DoRButtonUp(UINT nFlags, CPoint point)
 
 //      rAccNdData d=f();
 //      RptTagListsBlk * QB = new QuickViewBlk(ObjClassId(), d.sRefTag(), &d.Cnv, &d.Fmt);
-//      AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(QB));
+//      ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(QB));
 
           Menu.AppendMenu(MF_SEPARATOR);
           Menu.AppendMenu(MF_STRING, pView->iCmdCopyTag, "Copy Full &Tag");
@@ -5140,7 +5140,7 @@ flag SQSzDist1Edt::DoAccRptTagLists()
   //TagInfoBlk * IB = new TagInfoBlk(WrkIB.ObjClassId(), WrkIB.RefTag(), 
   //                                 WrkIB.CnvOK() ? &WrkIB.Cnv() : NULL, 
   //                                 WrkIB.FmtOK() ? &WrkIB.Fmt() : NULL);
-  //AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+  //ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
   //
   //return true;
   };
@@ -6910,7 +6910,7 @@ flag SzPartCrv1Edt::DoAccRptTagLists()
   //TagInfoBlk * IB = new TagInfoBlk(WrkIB.ObjClassId(), WrkIB.RefTag(), 
   //                                 WrkIB.CnvOK() ? &WrkIB.Cnv() : NULL, 
   //                                 WrkIB.FmtOK() ? &WrkIB.Fmt() : NULL);
-  //AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+  //ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
   //
   //return true;
   };
@@ -7857,7 +7857,7 @@ flag SzSelBrk1Edt::DoAccRptTagLists()
   //TagInfoBlk * IB = new TagInfoBlk(WrkIB.ObjClassId(), WrkIB.RefTag(), 
   //                                 WrkIB.CnvOK() ? &WrkIB.Cnv() : NULL, 
   //                                 WrkIB.FmtOK() ? &WrkIB.Fmt() : NULL);
-  //AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+  //ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
   //
   //return true;
   };

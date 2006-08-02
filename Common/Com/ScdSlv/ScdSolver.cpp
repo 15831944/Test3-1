@@ -314,8 +314,7 @@ STDMETHODIMP CScdSolver::get_RunMode(eScdMode *pVal)
   {
   dllSCD_COMENTRYGET(long, pVal)
     {
-    INCOMPLETECODEMSG("TODO - Run Modes to be fixed")
-    *pVal=(eScdMode)0;//gs_Exec.GlblRunModes();
+    *pVal=(eScdMode)( DefNetMode() | DefNodeSolveMode() | DefHeatMode() | DefFlowMode() );
     }
   SCD_COMEXIT
   };
@@ -324,8 +323,10 @@ STDMETHODIMP CScdSolver::put_RunMode(eScdMode newVal)
   {
   dllSCD_COMENTRY(long)
     {
-    INCOMPLETECODEMSG("TODO - Run Modes to be fixed")
-    //gs_Exec.SetGlblRunModes(newVal, NSHM_All);
+    if (newVal&NM_All)    SetDefNetMode(newVal);
+    if (newVal&SM_All)    SetDefNodeMode(newVal);        
+    if (newVal&HM_All)    SetDefHeatMode(newVal);
+    if (newVal&LFM_All)   SetDefFlowMode(newVal);
     }
   SCD_COMEXIT
   };

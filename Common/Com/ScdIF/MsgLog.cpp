@@ -806,3 +806,5 @@ LPCSTR GetHResultString(CString &Str, HRESULT hr)
     Str="";
   return Str;
   }
+
+// ========================================================================

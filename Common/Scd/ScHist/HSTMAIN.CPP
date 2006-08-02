@@ -2320,7 +2320,7 @@ flag CHistorian::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
     lScanNo -= MaxScanNo;
     }
 
-  //COMBUG - AfxGetMainWnd()->PostMessage(WMU_HSTUPDATESTATS, 0, ++dwStatsCnt);
+  //COMBUG - ScdMainWnd()->PostMessage(WMU_HSTUPDATESTATS, 0, ++dwStatsCnt);
   return False;
   }
 

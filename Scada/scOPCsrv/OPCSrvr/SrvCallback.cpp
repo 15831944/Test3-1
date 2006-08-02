@@ -487,7 +487,7 @@ void CScdOPCCallBack::ConnectNotify(bool Connecting)
   dwLastScan = GetTickCount();
   StatsCntReset();
   if (CScdOPCManager::sm_pTheMngr->bShowStatsOnConnect)
-    //    AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_OPCSRVRSTATS, (LPARAM)0);
+    //    ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_OPCSRVRSTATS, (LPARAM)0);
     ::PostMessage(CScdCOCmdBase::s_hWnd4Msgs, WMU_CMD, SUB_CMD_OPCSRVRSTATS, (LPARAM)0);
   else
     CScdOPCManager::sm_pTheMngr->UpdateStatusWnd((WPARAM)SUB_UPDATE_REDRAW);

@@ -4548,7 +4548,7 @@ void CProject::CheckLicenseConditions()
                                          "The majority of SysCAD commands and functions have been disabled.\n\n"
                                          "Please exit SysCAD. (Save project if required)");
       gs_License.SetBlocked();
-      AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
       }
     }
 #endif
@@ -6254,7 +6254,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
     CDlgBusy::Close();
     }
 
-  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   return true;
 
 DoneFailed:
@@ -6279,7 +6279,7 @@ DoneFailed:
 
   ((CMainFrame*)AfxGetMainWnd())->UpdateMainToolBar();
 
-  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   return false;
   }
 
@@ -7752,7 +7752,7 @@ flag CProject::OnNew()
     PrjSets.WrStr("General", "CfgFile", CfgFile());
 
     ReadSettings(PrjSets, 10000); // Get Defaults from CfgFile
-    if (EditSettings("New Project Settings", NULL))
+    if (RmtCmdBusy() || EditSettings("New Project Settings", NULL))
       {
       //WriteSettings(PrjSets, true);
       //PutSettings();
@@ -7975,7 +7975,7 @@ flag CProject::OnClose()
     CMsgWindow::ClearAll();
     bCmdSuccess = DoNew(false);
     }
-  AfxGetMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_CloseProject, 0); //let script cmd mngr know cmd is complete
+  ScdMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_CloseProject, 0); //let script cmd mngr know cmd is complete
   return bCmdSuccess;
   }
 
@@ -8016,7 +8016,7 @@ flag CProject::OnSave(pchar pPrjPath)
       }
     }
   CWindowLists::ActivateTopWindowCmds();
-  AfxGetMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_SaveProject, 0); //let script cmd mngr know cmd is complete
+  ScdMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_SaveProject, 0); //let script cmd mngr know cmd is complete
   return bCmdSuccess;
   }
 

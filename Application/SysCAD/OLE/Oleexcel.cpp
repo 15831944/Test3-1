@@ -569,7 +569,7 @@ class CAutomationHelper
     WORD wCmdID;
   public:
     CAutomationHelper(WORD CmdID) { wCmdID = CmdID; };
-    ~CAutomationHelper() { AfxGetMainWnd()->PostMessage(WMU_CMDDONE, wCmdID, 0); }; //let script cmd mngr know cmd is complete
+    ~CAutomationHelper() { ScdMainWnd()->PostMessage(WMU_CMDDONE, wCmdID, 0); }; //let script cmd mngr know cmd is complete
   };
 
 //===========================================================================

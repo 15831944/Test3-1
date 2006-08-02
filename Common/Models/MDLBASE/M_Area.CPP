@@ -386,7 +386,7 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
         {
         char* pTag = new char[strlen(FullObjTag())+1];
         strcpy(pTag, FullObjTag());
-        AfxGetMainWnd()->PostMessage(WMU_NODEAUDIT, Options, (LPARAM)pTag);
+        ScdMainWnd()->PostMessage(WMU_NODEAUDIT, Options, (LPARAM)pTag);
         }
       DCB.B=0;
       return 1;

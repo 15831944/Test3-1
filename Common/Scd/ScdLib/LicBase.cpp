@@ -208,10 +208,11 @@ int GetAuthorization(dword * dwOpLevel, int dec)
 
   *dwOpLevel=Opt.m_OpLevel; 
 
-  return 0; 
+  return (Opt.m_Opts.Mode_DynamicFull || Opt.m_Opts.Mode_DynamicFlow || Opt.m_Opts.Mode_ProBal) ? 0 : -777;
   };
+
 int CrypkeyVersion()                              { return 11; };
-LPTSTR MyExplainErr(int Func, int err)              { return "Explanation"; };
+LPTSTR MyExplainErr(int Func, int err)            { return "Explanation"; };
 #else
 LPTSTR MyExplainErr(int Func, int err)              
   { 
@@ -250,7 +251,7 @@ dword CSysCADLicense::FixOptions(dword dwOpLevel)
   CK_SysCADSecurity Opt;
   Opt.m_OpLevel = dwOpLevel; 
 
-  if (bCOMMineServeOn || FORCEMINESERVE)
+  if (m_State.m_bCOMMineServeOn || FORCEMINESERVE)
     {
     //Opt.m_OpLevel = 0;
     Opt.m_Opts.Client_MineServe = 1;
@@ -259,14 +260,14 @@ dword CSysCADLicense::FixOptions(dword dwOpLevel)
 
   if (Opt.m_Opts.Client_MineServe)
     {
-    if (bTrialMode)
+    if (m_State.m_bTrialMode)
       Opt.m_OpLevel |= GetTrialOptions();
-    if (bDemoMode)
+    if (m_State.m_bDemoMode)
       Opt.m_OpLevel |= GetDemoOptions();
 
-    bLicensed  = 1;
-    bTrialMode = 0;
-    bDemoMode  = 0;
+    m_State.m_bLicensed  = 1;
+    m_State.m_bTrialMode = 0;
+    m_State.m_bDemoMode  = 0;
 
     Opt.m_Opts.Level            = 1;
     //Opt.m_Opts.xVer90            |= 1;
@@ -677,18 +678,20 @@ void CTransferDlg::OnOK()
                      
 CLicense::CLicense()
   {
-  bDidInitCrypkey = 0;
-  bMultiUserFailure = 0;
-  bLicensed = 0;
-  bDemoMode = 0;
-  bTrialMode = 0;
-  bTrialFailed = 0;
-  bCOMMineServeOn = 0;
+  m_bDidInitCrypkey = 0;
   m_sLastPath = "A:\\";
   m_sAppPath = "";
-  dwOpLevel = 0;
-  iDaysLeft = 0;
+  m_iDaysLeft = 0;
   m_bUseCOM= 0;
+  m_iStackLvl=0;
+
+  m_State.m_bMultiUserFailure = 0;
+  m_State.m_bLicensed = 0;
+  m_State.m_bDemoMode = 0;
+  m_State.m_bTrialMode = 0;
+  m_State.m_bTrialFailed = 0;
+  m_State.m_bCOMMineServeOn = 0;
+  m_State.m_dwOpLevel = 0;
   }
 
 //---------------------------------------------------------------------------
@@ -754,6 +757,26 @@ inline void CLicense::SetAppPath(char* p)
 
 //---------------------------------------------------------------------------
 
+void CLicense::PushState()
+  {
+  dbgpln("CLicense::PushState() %i", m_iStackLvl);
+  ASSERT_ALWAYS(m_iStackLvl<sizeof(m_StateStack)/sizeof(m_StateStack[0]), "CLicense::PushState() Stack Overflow")
+  m_StateStack[m_iStackLvl++]=m_State;
+  if (ScdMainWnd())
+    ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  }
+
+void CLicense::PopState()
+  {
+  ASSERT_ALWAYS(m_iStackLvl>0, "CLicense::PopState() Stack Underflow")
+  m_State=m_StateStack[--m_iStackLvl];
+  if (ScdMainWnd())
+    ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  }
+
+
+//---------------------------------------------------------------------------
+
 BOOL CLicense::Init(char* path /*=NULL*/)
   {
 #if dbgTimeLicensing
@@ -761,7 +784,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
 #endif
   CWaitCursor Wait;
 #if !BYPASSLICENSING
-  if (bDidInitCrypkey)
+  if (m_bDidInitCrypkey)
     {
     if (m_bUseCOM)
       {
@@ -772,8 +795,8 @@ BOOL CLicense::Init(char* path /*=NULL*/)
       EndCrypkey();
     }
 #endif
-  bDidInitCrypkey = 0;
-  bMultiUserFailure = 0;
+  m_bDidInitCrypkey = 0;
+  m_State.m_bMultiUserFailure = 0;
   OSVERSIONINFO VI;
   VI.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   BOOL IsWIN32 = (GetVersionEx(&VI) && (VI.dwPlatformId==VER_PLATFORM_WIN32_NT));
@@ -815,7 +838,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   if (m_bUseCOM)
     {                 
 #if CK_USE6134
-    s_ptr.CreateInstance ("CrypKey.SDK6");
+    s_ptr.CreateInstance ("CrypKey.SDKServer");
 #else
     s_ptr.CreateInstance ("CrypKey.SDK");
 #endif
@@ -916,7 +939,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     return FALSE;
     }
 #endif
-  bDidInitCrypkey = 1;
+  m_bDidInitCrypkey = 1;
   return TRUE;
   }
 
@@ -929,7 +952,7 @@ void CLicense::Exit()
 #endif
 
 #if !BYPASSLICENSING
-  if (bDidInitCrypkey)
+  if (m_bDidInitCrypkey)
     {
     if (m_bUseCOM)
       {
@@ -940,7 +963,7 @@ void CLicense::Exit()
       EndCrypkey();
     }
 #endif
-  bDidInitCrypkey = 0;
+  m_bDidInitCrypkey = 0;
   }
 
 //---------------------------------------------------------------------------
@@ -952,20 +975,20 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 #endif
   ASSERT(bDidInitCrypkey);
   CWaitCursor Wait;
-  bLicensed = 0;
-  bMultiUserFailure = 0;
-  dwOpLevel = 0;
-  iDaysLeft = 0;
+  m_State.m_bLicensed = 0;
+  m_State.m_bMultiUserFailure = 0;
+  m_State.m_dwOpLevel = 0;
+  m_iDaysLeft = 0;
 
 //#if CK_LICENSINGON
 
   int err;
   if (m_bUseCOM)
-    err = s_ptr->GetAuthorization((long*)&dwOpLevel, 0); //check authorization, use up 0 runs
+    err = s_ptr->GetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
   else
-    err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
+    err = GetAuthorization(&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
 
-  dbgpln("CrypKey GetAuth A:%08x", dwOpLevel);
+  dbgpln("CrypKey GetAuth A:%08x", m_State.m_dwOpLevel);
 
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL
@@ -991,12 +1014,12 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       return FALSE;
       }
 #endif
-    bLicensed = 1;
+    m_State.m_bLicensed = 1;
     DWORD dw = (DWORD)pow(2.0, CK_NumDefinedLevels) - 1;
-    bTrialMode = ((dwOpLevel & dw)==CK_TrialLevel);
-    iDaysLeft = (Get1RestInfo(1)==0) ? CK_InfiniteDays : Get1RestInfo(2) - Get1RestInfo(3);
-    bDemoMode = 0;
-    ScdPFMachine.WrInt(LicINISection, "InDemoMode", bDemoMode);
+    m_State.m_bTrialMode = ((m_State.m_dwOpLevel & dw)==CK_TrialLevel);
+    m_iDaysLeft = (Get1RestInfo(1)==0) ? CK_InfiniteDays : Get1RestInfo(2) - Get1RestInfo(3);
+    m_State.m_bDemoMode = 0;
+    ScdPFMachine.WrInt(LicINISection, "InDemoMode", m_State.m_bDemoMode);
     CheckForLiteModes();
 
 #if BYPASSLICENSING
@@ -1005,7 +1028,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       Strng Fn(ProgFiles());
       Fn+="License.Temp.ini";
       CProfINIFile PF(Fn());
-      bDemoMode=PF.RdInt("Options", "Demo",    0  );
+      m_State.m_bDemoMode=PF.RdInt("Options", "Demo",    0  );
       }
 #endif
 
@@ -1013,10 +1036,10 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     }
   else
     {
-    dwOpLevel = 0;
+    m_State.m_dwOpLevel = 0;
     if (err>0)
       {
-      bMultiUserFailure = 1;
+      m_State.m_bMultiUserFailure = 1;
       char Buff[2048];
       NetworkUsersInfo(Buff);
       //Error("More than %d users already using this license.\n\nNeed to wait for %d user%s to quit!\n\n%s", GetNumMultiUsers(), err, (err>1 ? "s" : ""), Buff);
@@ -1026,7 +1049,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       Error("Get Authorization failed!\nReturned %d : %s", err, MyExplainErr(EXP_AUTH_ERR, err));
     }
   CheckForLiteModes();
-  dwOpLevel=FixOptions(dwOpLevel);
+  m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
 
 //#else
 //
@@ -1051,29 +1074,29 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
 #endif
 
   ASSERT(bDidInitCrypkey);
-  if (bBlocked)
+  if (m_State.m_bBlocked)
     return FALSE;
   if (CheckLevel==0)
     {
-    if (!bDemoMode && !bLicensed)
+    if (!m_State.m_bDemoMode && !m_State.m_bLicensed)
       {
       SetBlocked();
       Error("Security Failure.  License blocked\n\nThe majority of SysCAD commands and functions have been disabled.\n\nPlease exit SysCAD. (Save project if required)");
-      AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
       return FALSE;
       }
     return TRUE;
     }
 
-  if (bDemoMode)
+  if (m_State.m_bDemoMode)
     return TRUE;
 
   CWaitCursor Wait;
-  bLicensed = 0;
-  dwOpLevel = 0;
-  int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
+  m_State.m_bLicensed = 0;
+  m_State.m_dwOpLevel = 0;
+  int err = GetAuthorization(&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
   int OtherErr = 0;
-  dbgpln("CrypKey GetAuth B:%08x", dwOpLevel);
+  dbgpln("CrypKey GetAuth B:%08x", m_State.m_dwOpLevel);
 
 #if !BYPASSLICENSING
   if (err==0 && CheckLevel>1)
@@ -1110,11 +1133,11 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
 #endif
 
   if (err==0 && OtherErr==0)
-    bLicensed = 1;
+    m_State.m_bLicensed = 1;
   else
     {
     char Buff[1024];
-    dwOpLevel = 0;
+    m_State.m_dwOpLevel = 0;
     SetBlocked();
     if (OtherErr==0)
       sprintf(Buff, "Security Failure.  License blocked\n\nReturned %d : %s", err, MyExplainErr(EXP_AUTH_ERR, err));
@@ -1122,10 +1145,10 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
       sprintf(Buff, "Security Failure.  License blocked (%d)", OtherErr);
     strcat(Buff, "\n\nThe majority of SysCAD commands and functions have been disabled.\n\nPlease exit SysCAD. (Save project if required)");
     Error(Buff);
-    AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+    ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
     return FALSE;
     }
-  dwOpLevel=FixOptions(dwOpLevel);
+  m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
 
   //#else
 //  bLicensed = 1;
@@ -1176,7 +1199,7 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
   if (ret)
     {
     Error("Issue Trial License failed!\nReturned %d : %s", ret, MyExplainErr(EXP_RTT_ERR, ret));
-    bTrialFailed = 1;
+    m_State.m_bTrialFailed = 1;
     return FALSE;
     }
 #endif
@@ -1234,12 +1257,12 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
             else
               EndCrypkey();
 #endif
-            bDidInitCrypkey = 0;
+            m_bDidInitCrypkey = 0;
             if (!Init())
               Error("Change location\nFailed to re-initialize license!");
             else if (!Check(TRUE)) //re-check options etc
               Error("Change location\nFailed to re-initialize license!");
-            AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+            ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
             return 2; //new location failed
             }
           else
@@ -1256,7 +1279,7 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
       else
         RetCode = 5; //location changed, no Init and check
       ScdPFMachine.WrStr(LicINISection, "LicenseLocation", (const char*)m_sAppPath);
-      AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
       }
     else
       RetCode = 3; //unchanged
@@ -1269,7 +1292,7 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
 
 void CLicense::SetUseCOM(BOOL On)
   {
-  if (!bDidInitCrypkey)
+  if (!m_bDidInitCrypkey)
     {
     m_bUseCOM=false;
     if (On)
@@ -1431,7 +1454,7 @@ BOOL CLicense::DoTransferIn()
 #if !BYPASSLICENSING
   char Buff[256];
   Buff[0] = 0;
-  if (bLicensed)
+  if (m_State.m_bLicensed)
     sprintf(Buff, "Number of Copies allowed from this site : %d", GetNumCopies());
   CTransferDlg Dlg("Transfer In", "Enter path find transfer files:", Buff);
   Dlg.m_sPath = m_sLastPath;
@@ -1509,7 +1532,7 @@ BOOL CLicense::DoDirectTransfer()
       }
     else
       EndCrypkey();
-    bDidInitCrypkey = 0;
+    m_bDidInitCrypkey = 0;
     if (!Init())
       {
       Error("Direct Transfer\nFailed to re-initialize license!");
@@ -1583,9 +1606,9 @@ BOOL CLicense::Kill(CString& ConfirmCode)
 
 void CLicense::SetDemoMode()
   {
-  if (!bDemoMode)
+  if (!m_State.m_bDemoMode)
     {
-    bDemoMode = 1;
+    m_State.m_bDemoMode = 1;
     /*CWinApp* pApp = AfxGetApp();
     if (pApp)
       {
@@ -1594,7 +1617,7 @@ void CLicense::SetDemoMode()
       ScdPFMachine.RdInt(LicINISection, "InDemoMode", bDemoMode);
       }*/
     }
-  dwOpLevel = FixOptions(GetDemoOptions());
+  m_State.m_dwOpLevel = FixOptions(GetDemoOptions());
   }
 
 //---------------------------------------------------------------------------
@@ -2158,8 +2181,8 @@ CSysCADLicense::CSysCADLicense()
   {
   m_bDynLiteMode = 0;
   m_bProbalLiteMode = 0;
-  bCOMMineServeOn = 0;
-  pSecOpt = (CK_SysCADSecurity*)&dwOpLevel;
+  m_State.m_bCOMMineServeOn = 0;
+  m_pSecOpt = (CK_SysCADSecurity*)&m_State.m_dwOpLevel;
 
   m_NodeCount = 0;
   m_IllegalNodeCount = 0;
@@ -2262,7 +2285,7 @@ void CSysCADLicense::CheckForLiteModes()
   {
   m_bDynLiteMode = 0;
   m_bProbalLiteMode = 0;
-  if (bDidInitCrypkey && !Blocked() && !DemoMode())
+  if (m_bDidInitCrypkey && !Blocked() && !DemoMode())
     {
     if (AllowProBal() && !AllowDynamicFlow() && !AllowDynamicFull())
       {
@@ -2291,7 +2314,7 @@ void CSysCADLicense::Info()
 //    return CK_Demo_ProbalUnits;
 //  if (m_bProbalLiteMode)
 //    return CK_Lite_ProbalUnits;
-//  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+//  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
 //    return CK_Trial_ProbalUnits;
 //  return CK_InfiniteUnits; 
 //  }
@@ -2304,7 +2327,7 @@ void CSysCADLicense::Info()
 //    return CK_Demo_DynUnits;
 //  if (m_bDynLiteMode)
 //    return CK_Lite_DynUnits;
-//  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+//  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
 //    return CK_Trial_DynUnits;
 //  return CK_InfiniteUnits; 
 //  }
@@ -2321,7 +2344,7 @@ void CSysCADLicense::BumpNodeCount(int Count, LPTSTR Tag)
 
 int CSysCADLicense::MaxNodesAllowed(BOOL ForDynamic)
   {
-  if (bDemoMode)
+  if (m_State.m_bDemoMode)
     return ForDynamic ? CK_Demo_DynUnits : CK_Demo_ProbalUnits;
 
   if (ForDynamic && m_bDynLiteMode)
@@ -2330,7 +2353,7 @@ int CSysCADLicense::MaxNodesAllowed(BOOL ForDynamic)
   if (!ForDynamic && m_bProbalLiteMode)
     return CK_Lite_ProbalUnits;
 
-  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
     return ForDynamic ? CK_Trial_DynUnits :CK_Trial_ProbalUnits;
   return CK_InfiniteUnits; 
   }
@@ -2401,11 +2424,11 @@ void CSysCADLicense::BumpIllegalModelCount(int Count, LPTSTR ClassId, eLicOption
 
 long CSysCADLicense::MaxHistSizeAllowed()
   {
-  if (bDemoMode)
+  if (m_State.m_bDemoMode)
     return CK_DemoHistSize;
   //if (AllowFullHist())
   //  return CK_InfiniteHistSize; 
-  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialHistSize;
   return CK_InfiniteHistSize;
   //return CK_NormalHistSize;
@@ -2415,11 +2438,11 @@ long CSysCADLicense::MaxHistSizeAllowed()
 
 UINT CSysCADLicense::MaxHistFilesAllowed()
   {
-  if (bDemoMode)
+  if (m_State.m_bDemoMode)
     return CK_DemoHistFiles;
   //if (AllowFullHist())
   //  return CK_InfiniteHistFiles; 
-  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialHistFiles;
   return CK_InfiniteHistFiles;
   //return CK_NormalHistFiles;
@@ -2429,9 +2452,9 @@ UINT CSysCADLicense::MaxHistFilesAllowed()
 
 int CSysCADLicense::TrendWindowsAllowed() 
   { 
-  if (bDemoMode)
+  if (m_State.m_bDemoMode)
     return CK_DemoTrends;
-  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialTrends;
   return CK_InfiniteTrends; 
   }
@@ -2440,9 +2463,9 @@ int CSysCADLicense::TrendWindowsAllowed()
 
 int CSysCADLicense::GraphicWindowsAllowed() 
   {
-  if (bDemoMode)
+  if (m_State.m_bDemoMode)
     return CK_DemoGrfs;
-  if (pSecOpt->m_Opts.Level==CK_TrialLevel)
+  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
     return CK_TrialGrfs;
   return CK_InfiniteGrfs;
   }
@@ -2491,45 +2514,43 @@ DWORD CSysCADLicense::LicCatagories()
 
 void CSysCADLicense::SetForMineServe(bool On)  
   { 
-  bCOMMineServeOn=On; 
+  m_State.m_bCOMMineServeOn=On; 
   Check();
-
-  //CScdCOCmdBase::s_hWnd4Msgs=NULL;
-
-  //AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  if (ScdMainWnd())
+    ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   };               
 
 //---------------------------------------------------------------------------
 
-void CSysCADLicense::SetAsRunTime()            { pSecOpt->m_Opts.Func_FullEdit = 0; };
-BOOL CSysCADLicense::IsRunTime()               { return !pSecOpt->m_Opts.Func_FullEdit; };
-//BOOL CSysCADLicense::AllowVer90()              { return pSecOpt->m_Opts.Ver90 && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsRTTS()           { return pSecOpt->m_Opts.Client_RTTS && !bBlocked; };
-BOOL CSysCADLicense::ForMineServe()            { return pSecOpt->m_Opts.Client_MineServe && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsAlcan()          { return pSecOpt->m_Opts.Client_Alcan && !bBlocked; };
-//BOOL CSysCADLicense::AllowMdlsQALExtra()       { return pSecOpt->m_Opts.Client_QALExtra && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsQAL()            { return pSecOpt->m_Opts.Client_QAL && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsUser()           { return pSecOpt->m_Opts.Client_Other && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsSMDKRuntime()    { return pSecOpt->m_Opts.Mdls_SMDKRuntime && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsHeatExtra()      { return pSecOpt->m_Opts.Mdls_HeatExtra && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsHeatBal()        { return pSecOpt->m_Opts.Mdls_HeatBal && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsAlumina()        { return pSecOpt->m_Opts.Mdls_Alumina && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsSizeDist()       { return pSecOpt->m_Opts.Mdls_SizeDist && !bBlocked; };
-BOOL CSysCADLicense::AllowMdlsElec()           { return pSecOpt->m_Opts.Mdls_Electrical && !bBlocked; };
-BOOL CSysCADLicense::AllowProBal()             { return pSecOpt->m_Opts.Mode_ProBal && !bBlocked; };
-BOOL CSysCADLicense::AllowDynamicFlow()        { return pSecOpt->m_Opts.Mode_DynamicFlow && !bBlocked; };
-BOOL CSysCADLicense::AllowDynamicFull()        { return pSecOpt->m_Opts.Mode_DynamicFull && !bBlocked; };
-BOOL CSysCADLicense::AllowProBalLite()         { return m_bProbalLiteMode && !bBlocked; };
-BOOL CSysCADLicense::AllowDynamicLite()        { return m_bDynLiteMode && !bBlocked; };
-BOOL CSysCADLicense::OnlySteadyState()         { return pSecOpt->m_Opts.Only_SteadyState; }
-BOOL CSysCADLicense::IsAcademic()              { return pSecOpt->m_Opts.Func_Academic; }
-BOOL CSysCADLicense::AllowFullLic()            { return pSecOpt->m_Opts.Func_FullEdit && !bBlocked; };
-BOOL CSysCADLicense::AllowFullLicFlag()        { return pSecOpt->m_Opts.Func_FullEdit; };
-BOOL CSysCADLicense::AllowDrivers()            { return pSecOpt->m_Opts.Func_Drivers && !bBlocked; };
-BOOL CSysCADLicense::AllowOPCServer()          { return pSecOpt->m_Opts.Func_OPCServer && !bBlocked; };
-BOOL CSysCADLicense::AllowCOMInterface()       { return pSecOpt->m_Opts.Func_COM && !bBlocked; };
-BOOL CSysCADLicense::AllowCOMProps()           { return pSecOpt->m_Opts.Func_COMProp && !bBlocked; };
-UCHAR CSysCADLicense::Level()                  { return (UCHAR)(pSecOpt->m_Opts.Level); };
+void CSysCADLicense::SetAsRunTime()            { m_pSecOpt->m_Opts.Func_FullEdit = 0; };
+BOOL CSysCADLicense::IsRunTime()               { return !m_pSecOpt->m_Opts.Func_FullEdit; };
+//BOOL CSysCADLicense::AllowVer90()              { return m_pSecOpt->m_Opts.Ver90 && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsRTTS()           { return m_pSecOpt->m_Opts.Client_RTTS && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::ForMineServe()            { return m_pSecOpt->m_Opts.Client_MineServe && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsAlcan()          { return m_pSecOpt->m_Opts.Client_Alcan && !m_State.m_bBlocked; };
+//BOOL CSysCADLicense::AllowMdlsQALExtra()       { return m_pSecOpt->m_Opts.Client_QALExtra && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsQAL()            { return m_pSecOpt->m_Opts.Client_QAL && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsUser()           { return m_pSecOpt->m_Opts.Client_Other && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsSMDKRuntime()    { return m_pSecOpt->m_Opts.Mdls_SMDKRuntime && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsHeatExtra()      { return m_pSecOpt->m_Opts.Mdls_HeatExtra && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsHeatBal()        { return m_pSecOpt->m_Opts.Mdls_HeatBal && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsAlumina()        { return m_pSecOpt->m_Opts.Mdls_Alumina && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsSizeDist()       { return m_pSecOpt->m_Opts.Mdls_SizeDist && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsElec()           { return m_pSecOpt->m_Opts.Mdls_Electrical && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowProBal()             { return m_pSecOpt->m_Opts.Mode_ProBal && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowDynamicFlow()        { return m_pSecOpt->m_Opts.Mode_DynamicFlow && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowDynamicFull()        { return m_pSecOpt->m_Opts.Mode_DynamicFull && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowProBalLite()         { return m_bProbalLiteMode && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowDynamicLite()        { return m_bDynLiteMode && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::OnlySteadyState()         { return m_pSecOpt->m_Opts.Only_SteadyState; }
+BOOL CSysCADLicense::IsAcademic()              { return m_pSecOpt->m_Opts.Func_Academic; }
+BOOL CSysCADLicense::AllowFullLic()            { return m_pSecOpt->m_Opts.Func_FullEdit && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowFullLicFlag()        { return m_pSecOpt->m_Opts.Func_FullEdit; };
+BOOL CSysCADLicense::AllowDrivers()            { return m_pSecOpt->m_Opts.Func_Drivers && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowOPCServer()          { return m_pSecOpt->m_Opts.Func_OPCServer && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowCOMInterface()       { return m_pSecOpt->m_Opts.Func_COM && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowCOMProps()           { return m_pSecOpt->m_Opts.Func_COMProp && !m_State.m_bBlocked; };
+UCHAR CSysCADLicense::Level()                  { return (UCHAR)(m_pSecOpt->m_Opts.Level); };
 
 
 BOOL CSysCADLicense::AllowDynamic()            { return AllowDynamicFlow() || AllowDynamicFull() ; };

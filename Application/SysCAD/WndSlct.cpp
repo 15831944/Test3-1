@@ -305,7 +305,7 @@ void CSelectWindowDlg::PostNcDestroy()
 void CSelectWindowDlg::OnNewwindow() 
   {
   iPrevList = -1;
-  AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_FILE_NEW);
+  ScdMainWnd()->PostMessage(WM_COMMAND, ID_FILE_NEW);
   EndDialog(IDCANCEL);
   }
 

@@ -1788,7 +1788,7 @@ int CBulkTagChange::SetATag(LPCTSTR OldTag, LPCTSTR NewTag)
       //  {
       //  char* pTxt = new char[NewTag.Len()+1];
       //  strcpy(pTxt, NewTag);
-      //  AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+      //  ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
       //  }
 
       break;

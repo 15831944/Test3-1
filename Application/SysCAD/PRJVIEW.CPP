@@ -597,7 +597,7 @@ void CPrjForm::OnMenu(UINT id)
       else
         {
         CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, sCurrentSeln(), "", SUB_REPORT_OPEN);
-        AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+        ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
         }
       break;
       }
@@ -1010,7 +1010,7 @@ void CPrjForm::OnDblclkFileTree(NMHDR* pNMHDR, LRESULT* pResult)
         else
           {
           CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, ffn(), "", SUB_REPORT_OPEN);
-          AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+          ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
           }
         break;
         }

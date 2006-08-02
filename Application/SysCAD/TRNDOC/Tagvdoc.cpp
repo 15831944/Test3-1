@@ -3793,7 +3793,7 @@ flag CTagVwDoc::ProcessScaleMenu(int RetCd, CTagVwSlot* pSlot, double Val)
         AccTg = AccTg.Left(DotPos);
       char* pTxt = new char[AccTg.Len()+1];
       strcpy(pTxt, AccTg());
-      AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+      ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
       break;
       }
     default:

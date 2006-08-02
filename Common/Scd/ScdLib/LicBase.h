@@ -77,19 +77,23 @@ class DllImportExport CLicense
   {
 //#if CK_LICENSINGON
   protected:
-    CString m_sLastPath;     //path used for transfers
-    CString m_sAppPath;      //optional path and name of app for license location
-    DWORD dwOpLevel;         //current value of 32bit security options
-    int iDaysLeft;           //number of days left for license (CK_InfiniteDays = infinite)
-    BYTE bDidInitCrypkey:1,  //true if CrypKey was initialized properly
-         bMultiUserFailure:1,//true if GetAuth failed due to too many users
-         bLicensed:1,        //true if the application is currently licensed
-         bDemoMode:1,        //true if in DemoMode ie unlicensed
-         bTrialMode:1,       //true if current license is operating in trial mode
-         bTrialFailed:1,     //true if attempt to issue trial license has been made AND failed
-         bBlocked:1;         //set true if license condition failed and all functionality must be blocked
+    CString m_sLastPath;        //path used for transfers
+    CString m_sAppPath;         //optional path and name of app for license location
+    int     m_iDaysLeft;        //number of days left for license (CK_InfiniteDays = infinite)
+    BOOL    m_bDidInitCrypkey;  //true if CrypKey was initialized properly
 
-    BOOL bCOMMineServeOn;
+    struct
+      {
+      DWORD m_dwOpLevel;        //current value of 32bit security options
+      BOOL  m_bMultiUserFailure,//true if GetAuth failed due to too many users
+            m_bLicensed,        //true if the application is currently licensed
+            m_bDemoMode,        //true if in DemoMode ie unlicensed
+            m_bTrialMode,       //true if current license is operating in trial mode
+            m_bTrialFailed,     //true if attempt to issue trial license has been made AND failed
+            m_bBlocked,         //set true if license condition failed and all functionality must be blocked
+            m_bCOMMineServeOn;
+      } m_State, m_StateStack[1000];
+    int  m_iStackLvl;
 
     BOOL m_bUseCOM;
     BOOL m_bEmbedded;
@@ -130,17 +134,20 @@ class DllImportExport CLicense
     virtual dword FixOptions(dword dwOpLevel) { return dwOpLevel; };
     virtual void CheckForLiteModes() {};
 
-    inline BOOL DidInitCrypkey()    { return bDidInitCrypkey; };
+    void PushState();
+    void PopState();
+
+    inline BOOL DidInitCrypkey()    { return m_bDidInitCrypkey; };
     inline BOOL UsingSecurity()     { return 1; };
-    inline DWORD OpLevel()          { return dwOpLevel; };
-    inline BOOL Licensed()          { return bLicensed; };
-    inline BOOL MultiUserFailure()  { return bMultiUserFailure; };
-    inline BOOL DemoMode()          { return bDemoMode; };
-    inline BOOL TrialMode()         { return bTrialMode; };
-    inline BOOL TrialFailed()       { return bTrialFailed; };
-    inline void SetBlocked(BOOL Block=TRUE) { bBlocked = Block; };
-    inline BOOL Blocked()           { return bBlocked; };
-    inline int DaysLeft()           { return iDaysLeft; };
+    inline DWORD OpLevel()          { return m_State.m_dwOpLevel; };
+    inline BOOL Licensed()          { return m_State.m_bLicensed; };
+    inline BOOL MultiUserFailure()  { return m_State.m_bMultiUserFailure; };
+    inline BOOL DemoMode()          { return m_State.m_bDemoMode; };
+    inline BOOL TrialMode()         { return m_State.m_bTrialMode; };
+    inline BOOL TrialFailed()       { return m_State.m_bTrialFailed; };
+    inline void SetBlocked(BOOL Block=TRUE) { m_State.m_bBlocked = Block; };
+    inline BOOL Blocked()           { return m_State.m_bBlocked && m_iStackLvl==0; };
+    inline int DaysLeft()           { return m_iDaysLeft; };
     inline void SetAppPath(char* p);
     inline char* GetAppPath()       { return (m_sAppPath.GetLength()==0 ? NULL : (char*)(const char*)m_sAppPath); };
     inline void SetEmbedded(bool On) { m_bEmbedded=On; }
@@ -198,39 +205,6 @@ typedef struct
         Mode_DynamicFlow : 1,  // Option2  = Dynamic Flow                             |
         Mode_ProBal      : 1;  // Option1  = ProBal mode!                             |
   } CK_SysCADSecurityOpts;
-/*  DWORD Level          : 2,  //allows 4 levels
-        Mode_ProBal      : 1,  // allow ProBal mode
-        Mode_DynamicFlow : 1,  // allow Dynamic flow based/mathand mode
-        Mode_DynamicFull : 1,  // allow detailed Dynamic pressure based mode
-        Mode_Electrical  : 1,  // allow Electrical design & simulation mode
-        Only_SteadyState : 1,  // if set then integrators and similar are put into Hold mode
-        Spare_8          : 1,  //
-        Func_FullEdit    : 1,  // allow full license (if false then run-time)
-        Func_COM         : 1,  // allow access to full VB COM interface
-        Func_COMProp     : 1,  // allow COM interface to object properties (not implemented)
-        Func_Drivers     : 1,  // allow drivers including OPC client 
-        Func_OPCServer   : 1,  // allow OPC Server funcionality
-        Spare_14         : 1,  //
-        Spare_15         : 1,  //
-        Mdls_HeatBal     : 1,  // allow Kenwalt HeatEx models
-        Mdls_HeatExtra   : 1,  // allow Kenwalt HeatEx PowerPlant models
-        Mdls_SizeDist    : 1,  // allow Kenwalt size-distribution/communition models
-        Mdls_Alumina     : 1,  // allow Kenwalt alumina models
-        Mdls_Electrical  : 1,  // allow Kenwalt Electrical & Power models
-        Mdls_SMDKRuntime : 1,  // allow SMDK runtime (BlackBox) models
-        Spare_22         : 1,  //
-        Spare_23         : 1,  //
-        Academic         : 1,  //
-        Spare_25         : 1,  //
-        Spare_26         : 1,  //
-        Spare_27         : 1,  //
-        Client_MineServe : 1,  // GMSI MineServe Mdls
-        Client_Alcan     : 1,  // allow Alcan owned models
-        Client_RTTS      : 1,  // allow Rio Tinto Technical Services owned models
-        Client_QAL       : 1,  // allow standard QAL owned models
-        Client_Other     : 1;  // allow custom user/client models
-  } CK_SysCADSecurityOpts;*/
-
 
 typedef struct
   {
@@ -324,7 +298,7 @@ class DllImportExport CSysCADLicense : public CLicense
 #endif
 
   protected:
-    CK_SysCADSecurity* pSecOpt;
+    CK_SysCADSecurity* m_pSecOpt;
 
     BOOL        m_bProbalLiteMode,
                 m_bDynLiteMode;

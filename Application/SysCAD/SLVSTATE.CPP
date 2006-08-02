@@ -298,7 +298,7 @@ LRESULT CSolveState::OnUpdateDataByMsg(WPARAM wParam, LPARAM lParam)
       if (wParam==3 || !gs_pPrj->m_Solver.m_fStatePinned)
         {
         ShowWindow(SW_HIDE);
-        AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE, 0); //get main window thread to top
+        ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_UPDATE, 0); //get main window thread to top
         }
       break;
     case 2:

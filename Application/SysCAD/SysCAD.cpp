@@ -1129,7 +1129,7 @@ BOOL CSysCADApp::InitInstLicense2(bool LicenseFailed)
   if (gs_License.IsRunTime())
     ((CMainFrame*)theApp.m_pMainWnd)->UpdateMainToolBar();
     //((CMainFrame*)SysCAD.m_pMainWnd)->UpdateMainToolBar();
-  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   #endif
 
   return TRUE;
@@ -1562,6 +1562,7 @@ BOOL CSysCADApp::InitInstance()
   if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
     return false;
 
+  SetScdMainWnd(pMainFrame);
 
   // Check to see if launched as OLE server
   if (cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated)
@@ -2254,7 +2255,7 @@ BOOL CSysCADApp::OnIdle(LONG lCount)
         }
       else if (m_DoOPCServerStartup)
         {
-        AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_STARTED, (LPARAM)0);
+        ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_STARTED, (LPARAM)0);
         m_DoOPCServerStartup = false;
         }
       else
@@ -2855,7 +2856,7 @@ void CSysCADApp::OnLicense(UINT nID)
       InitClassLicenses(gs_License.LicCatagories());
     }
   gs_License.QuickCheck(0);
-  AfxGetMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   #endif
   }
 

@@ -345,7 +345,7 @@ BOOL COleThread::PreTranslateMessage(MSG* pMsg)
         COleInfoMsg* pMsg = new COleInfoMsg(iQueueCnt);
         pOleInfoWnd->SendMessage(WMU_OLEINFOUPDATE, 0, (LPARAM)pMsg);
         if (iQueueCnt==0 && !bQuitNow)
-          AfxGetMainWnd()->PostMessage(WMU_OLEINFOUPDATE, 0, 0); //send message after LAST report
+          ScdMainWnd()->PostMessage(WMU_OLEINFOUPDATE, 0, 0); //send message after LAST report
         break;
         }
       case OLE_QUIT:

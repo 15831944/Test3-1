@@ -289,7 +289,7 @@ void CDoc::DoAddNewDevice(ODevice *pNewCurrent, BOOL UpdateByMessage)
      if (UpdateByMessage)
        {
        theApp.m_pMainWnd/*AfxGetMainWnd()*/->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
-       //AfxGetMainWnd()->PostMessage(WM_ADDDEVICE, 0, (LPARAM)pCurrent);
+       //ScdMainWnd()->PostMessage(WM_ADDDEVICE, 0, (LPARAM)pCurrent);
        }
      else
        {
@@ -318,7 +318,7 @@ void CDoc::DoAddNewDevice(ODevice *pNewCurrent, BOOL UpdateByMessage)
   if (UpdateByMessage)
     {
     theApp.m_pMainWnd/*AfxGetMainWnd()*/->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
-    //AfxGetMainWnd()->PostMessage(WM_ADDDEVICE, 0, (LPARAM) pCurrent);
+    //ScdMainWnd()->PostMessage(WM_ADDDEVICE, 0, (LPARAM) pCurrent);
     }
   else
     {
@@ -792,8 +792,8 @@ SearchDone:
       InsertInOrder( pTag, pCurrent->tags );
 
       theApp.m_pMainWnd->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
-      //AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
-      //AfxGetMainWnd()->PostMessage(WM_UPDATETAGS, 0, 0);
+      //ScdMainWnd()->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
+      //ScdMainWnd()->PostMessage(WM_UPDATETAGS, 0, 0);
 
       pRetTag = pTag;
       }
@@ -823,7 +823,7 @@ void CDoc::OnUpdateall()
 
 //void CDoc::OnUpdateallRqst() 
 //  {
-//  AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
+//  ScdMainWnd()->PostMessage(WM_COMMAND, ID_UPDATEALLRQST, 0);
 ////  UpdateAllViews(NULL, UPDATE_ALL, NULL);
 ////  SetModifiedFlag();
 //  }

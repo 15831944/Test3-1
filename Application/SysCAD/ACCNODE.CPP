@@ -2950,7 +2950,7 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
 
         char* pTxt = new char[Str.Len()+1];
         strcpy(pTxt, Str());
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
         break;
         }
       default: 
@@ -3098,7 +3098,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             {
             char* pTxt=new char[Tags[iIO].Length()+1];
             strcpy(pTxt, Tags[iIO]());
-            AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
             DidPost = true;
             }
           }
@@ -3112,7 +3112,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           m_pMyFrm->SetWindowText("Access ...");
           char* pTxt = new char[NdHistList[1].Len()+1];
           strcpy(pTxt, NdHistList[1]());
-          AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
           }
         break;
       case Id_SetBtn:
@@ -3283,7 +3283,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             pTxt = new char[d.sTagOnly.Len()+1];
             strcpy(pTxt, d.sTagOnly());
             }
-          AfxGetMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
           }
         else if (d.iFlags & DDEF_TAGPARM)
           {
@@ -3322,7 +3322,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
               char* pTxt = NULL;
               pTxt = new char[sLastSelected[0].GetLength()+1];
               strcpy(pTxt, (LPSTR)(LPCSTR)sLastSelected[0]);
-              AfxGetMainWnd()->PostMessage(WMU_TAGACTION, TryAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+              ScdMainWnd()->PostMessage(WMU_TAGACTION, TryAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
               }
             }
           }
@@ -3949,55 +3949,55 @@ void AccNodeWnd::OnAccView(UINT Id)
           case IDM_ACC_VIEW0:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
             break;
             }
           case IDM_ACC_ARCHIVE0:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ADDTOARCHIVE, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ADDTOARCHIVE, (long)(IB));
             break;
             }
           case IDM_ACC_CUSTOM0:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ON:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYON, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_OFF:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYOFF, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYOFF, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLON:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYON, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLOFF:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYOFF, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYOFF, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLMDLON:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYON, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLMDLOFF:
             {
             TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-            AfxGetMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYOFF, (long)(IB));
+            ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYOFF, (long)(IB));
             break;
             }
           }
@@ -4094,7 +4094,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
     case IDM_ACC_QUICKVIEW:
       {
       TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), tt_NULL, NdTag(), "", NULL, NULL);
-      AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 1, (long)(IB));
+      ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 1, (long)(IB));
       }
       break;
     case IDM_ACC_COPYBLK_0:
@@ -4249,7 +4249,7 @@ void AccNodeWnd::OnAccMenu(UINT id)
           }
         char* pTxt = new char[sLastSelected[Index].GetLength()+1];
         strcpy(pTxt, sLastSelected[Index]);
-        AfxGetMainWnd()->PostMessage(WMU_TAGACTION, wp, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, wp, (LPARAM)pTxt);
         }
       break;
     case IDM_ACC_SELECTTAG_0:
@@ -4870,7 +4870,7 @@ flag AccNodeWnd::DoKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
                 case VK_F6:
                   {
                   TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
-                  AfxGetMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
+                  ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
                   break;
                   }
                 case VK_F5:

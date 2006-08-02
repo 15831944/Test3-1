@@ -130,6 +130,7 @@ HRESULT CScdApplication::FinalConstruct()
     Sleep(iDelay);
     }
 
+  gs_License.PushState();
   FC_ROF(m_pSolver.CoCreateInstance(CLSID_ScdSolver));
   FC_ROF(m_pOptions.CoCreateInstance(CLSID_ScdOptions));
   FC_ROF(m_pProject.CoCreateInstance(CLSID_ScdProject));
@@ -148,6 +149,7 @@ void CScdApplication::FinalRelease()
   m_pProject.Release();
   m_pOptions.Release();
   m_pSolver.Release();
+  gs_License.PopState();
   }
 
 
@@ -213,7 +215,7 @@ STDMETHODIMP CScdApplication::CreateProject(BSTR bsCfgFolder, BSTR bsPrjFolder, 
 
     SCD_LclStr(CfgFolder, bsCfgFolder);
     SCD_LclStr(PrjFolder, bsPrjFolder);
-
+    
     CScdCmdParms *pP = new CScdCmdParms;
 
     pP->m_sParms[0]=CfgFolder;

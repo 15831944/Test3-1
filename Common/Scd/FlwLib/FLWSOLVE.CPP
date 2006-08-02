@@ -10523,19 +10523,19 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidExecStart:
       if (DCB.rB && (*DCB.rB!=0))
         gs_TheRunMngr.GotoRunMode(CExecutive::RRM_Current, -1);
-        //AfxGetMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_START, (LPARAM)0);
+        //ScdMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_START, (LPARAM)0);
       DCB.B=0;
       return 1;
     case xidExecIdle:
       if (DCB.rB && (*DCB.rB!=0))
         gs_TheRunMngr.GotoIdleMode();
-        //AfxGetMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_IDLE, (LPARAM)0);
+        //ScdMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_IDLE, (LPARAM)0);
       DCB.B=0;
       return 1;
     case xidExecStop:
       if (DCB.rB && (*DCB.rB!=0))
         gs_TheRunMngr.GotoEditMode();
-        //AfxGetMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_STOP, (LPARAM)0);
+        //ScdMainWnd()->PostMessage(WMU_EXECACTION, SUB_EXECACTION_STOP, (LPARAM)0);
       DCB.B=0;
       return 1;
 
