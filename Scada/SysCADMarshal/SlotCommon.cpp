@@ -34,6 +34,8 @@ LPCSTR SrcDstString(eConnSrcDst e)
     case eCSD_Simulator:  return "Simulator";
     //case eCSD_Connect:    return "Connect";
     case eCSD_CdBlk:      return "CdBlk";
+    case eCSD_SlotConn:   return "SlotConn";
+    case eCSD_Default:    return "Default";
     default:              return "??";
     }
 
@@ -535,6 +537,8 @@ void ReportError(LPCSTR Tag, HRESULT hr, LPCSTR Fmt, ...)
 
   static long ErrorNumber = 0;
   CErrorItem  *pErr = new CErrorItem(Tag ? Tag : "", ++ErrorNumber, Ts, Buff);
+
+  dbgpln("ERROR:%5i %-25s %s", pErr->m_lNo, pErr->m_sTag, pErr->m_sError);
 
   //dbgpln("----------------->>> %s  <<<----------------------------------------------------",Buff);
   theApp.PostThreadMessage(WMU_ADDERROR, 0, (LPARAM) pErr);

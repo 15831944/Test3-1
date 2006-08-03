@@ -452,19 +452,18 @@ void CSlotConnect::CorrectConnects(CLongArray & NewNos)
 
 void CSlotConnect::Dump(LPCSTR Hd)
   {
-  dbgpln("%sConn %s %s %s %10s %4i %10s %4i Cd:%4i %08x %08x %s", 
-    Hd,
-    m_bValid?"OK":"  ", 
-    m_bIsGet?"Get":"   ", 
-    m_bIsSet?"Set":"   ", 
-    SrcDstString(m_eSrc),
-    m_lSrcIndex,
-    SrcDstString(m_eDst),
-    m_lDstIndex,
-    m_lCdBlk,
-    m_pCdBlk,
-    m_pCdBlkVar,
-    m_sTag);
+  dbgp("%sConn %s %s %s %10s %4i %10s ",//%4i Cd:%4i %08x %08x %s", 
+    Hd, m_bValid?"OK":"  ", m_bIsGet?"Get":"   ", m_bIsSet?"Set":"   ", SrcDstString(m_eSrc), m_lSrcIndex, SrcDstString(m_eDst));
+
+  if (m_eDst==eCSD_CdBlk)
+    dbgpln("Cd:%4i %08x %08x %s", m_lCdBlk, m_pCdBlk, m_pCdBlkVar, m_sTag);
+  else
+    dbgpln("%4i%22s%s", m_lDstIndex, "", m_sTag);
+
+  for (int i=0; i<m_Delay.m_OnRise.GetCount(); i++)
+    dbgpln("       Rise Delay  %8.2f @ %5i msecs", m_Delay.m_OnRise[i].m_Value.dblVal, m_Delay.m_OnRise[i].m_dwTime);
+  for (int i=0; i<m_Delay.m_OnFall.GetCount(); i++)
+    dbgpln("       Fall Delay  %8.2f @ %5i msecs", m_Delay.m_OnFall[i].m_Value.dblVal, m_Delay.m_OnFall[i].m_dwTime);
   }
 
 // -----------------------------------------------------------------------
@@ -526,14 +525,17 @@ void CSlotConnect::ApplyRangeSlot2Link(CSlot & S, COleVariant &V)
 
 // -----------------------------------------------------------------------
 
-void CSlotConnect::Process(eConnSrcDst eSrc, long SrcI, CFullValue & SrcValue)
+void CSlotConnect::Process(eConnSrcDst eSrc, long SrcI, eConnSrcDst eDst, long SrcDstI, CFullValue & SrcValue, int Direction)
   {
   // Always Executed as a SET - Hence the use of the ReflectedGets
 
   if (!m_bValid)
     return;
 
-  switch (m_eDst)
+  if (eDst==eCSD_Default)
+    eDst = m_eDst;
+
+  switch (eDst)
     {
     case eCSD_Slot:
       {
@@ -546,9 +548,16 @@ void CSlotConnect::Process(eConnSrcDst eSrc, long SrcI, CFullValue & SrcValue)
       }
     case eCSD_CdBlk:
       {
-      //if (1)
-      //  break;
-
+      if (m_Delay.Configured())
+        {
+        CFullValue V=SrcValue;
+        gs_SlotMngr.AppendChange(eSrc, SrcI, eCSD_SlotConn, SrcDstI, -1, V, &m_Delay);
+        break;
+        }
+      // FALL THROUGH
+      }
+    case eCSD_SlotConn:
+      {
       CFullValue V=SrcValue;
       ProcessOps(V);
       if (m_bCdBlkVarFlt)
@@ -565,7 +574,6 @@ void CSlotConnect::Process(eConnSrcDst eSrc, long SrcI, CFullValue & SrcValue)
       CGExecContext ECtx(NULL);
       m_pCdBlk->m_Code.Execute(ECtx);
 
-      // Update Destination Tags
       // Update Destination Tags
       for (int i=0; i<m_pCdBlk->m_ReflectedGets.GetSize(); i++)
         {
@@ -588,12 +596,16 @@ void CSlotConnect::Process(eConnSrcDst eSrc, long SrcI, CFullValue & SrcValue)
       break;
       }
     case eCSD_Link:
+      {
       CFullValue V=SrcValue;
       if (m_eSrc==eCSD_Slot)
         ApplyRangeSlot2Link(*Slots[m_lSrcIndex], V);
       ProcessOps(V);
-      gs_SlotMngr.AppendChange(eSrc, m_lSrcIndex, m_eDst, m_lDstIndex, -1, V, &m_Delay);
+      gs_SlotMngr.AppendChange(eSrc, m_lSrcIndex, eDst, m_lDstIndex, -1, V, &m_Delay);
       break;
+      }
+    default:
+      ReportError("CSlotConnect::Process", 0, "Invalid Destination %s ", SrcDstString(eDst));
     }
   }
 

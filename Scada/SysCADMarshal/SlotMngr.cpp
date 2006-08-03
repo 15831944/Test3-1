@@ -1137,13 +1137,16 @@ void CSlotMngr::AddDelayedChange(CChangeItem * pNew, DWORD Timer)
     if (dbgTimers || dbgChanges)
       {
       CString S, S1;
-      dbgpln("AddDelayedChg[     %10i] %13s %20s to %-9s[%4i] %-10s %15s",
-        pNew->m_dwDelayTimer,
-        "", "", SrcDstString(pNew->m_eDst), pNew->m_lDstInx,
+      dbgp("AddDelayedChg[     %10i] %13s %20s to %-9s",
+        pNew->m_dwDelayTimer, "", "", SrcDstString(pNew->m_eDst));
+      if (pNew->m_eDst==eCSD_SlotConn)
+        dbgp(" [%4i][%i]", GetSlotIndex(pNew->m_lDstInx), GetConnIndex(pNew->m_lDstInx));
+      else
+        dbgp(" [%4i]   ", pNew->m_lDstInx);
+      dbgpln(" %-10s %15s",
         TypeToString(pNew->Type()), VariantToString(pNew->m_vValue, S, false));
-      //, TimeStampToString(pNew->m_ftTimeStamp, S1, true, NULL));
-
       }
+
     if (Timer==0)
       { // No Delay
       m_ChangeList.AddTail(pNew);
@@ -1187,12 +1190,16 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
     if (Src==eCSD_Manual)
       dbgpln("--------------------------------------------------------------------------");
     CString S, S1;
-    dbgpln("AppendChange %24s %6i from %-9s[%4i] to %-9s[%4i] %-10s %15s @%s", 
-      "", CChangeItem::sm_dwNumber,  SrcDstString(Src), SrcI, SrcDstString(Dst), DstI,
+    dbgp("AppendChange %24s %6i from %-9s[%4i] to %-9s", 
+      "", CChangeItem::sm_dwNumber,  SrcDstString(Src), SrcI, SrcDstString(Dst));
+    if (Dst==eCSD_SlotConn)
+      dbgp(" [%4i][%i]", GetSlotIndex(DstI), GetConnIndex(DstI));
+    else
+      dbgp(" [%4i]   ", DstI);
+    dbgpln(" %-10s %15s @%s", 
       TypeToString(FullValue.Type()), VariantToString(FullValue, S, false),
       TimeStampToString(FullValue.m_ftTimeStamp, S1, true, NULL));
     }
-
 
   if (!m_bDoingFullCfg)
     {
@@ -1293,12 +1300,23 @@ bool CSlotMngr::ApplyChange(CChangeItem * pChg, bool IsDelay)
   if (dbgChanges)
     {
     CString S, S1;
-    dbgpln("Apply Change %24s        from %-9s[%4i] to %-9s[%4i] %-10s %15s @%s %6i", 
-      "", SrcDstString(pChg->m_eSrc), pChg->m_lSrcInx, SrcDstString(pChg->m_eDst), pChg->m_lDstInx,
+    //dbgpln("Apply Change %24s        from %-9s[%4i] to %-9s[%4i] %-10s %15s @%s %6i", 
+    //  "", SrcDstString(pChg->m_eSrc), pChg->m_lSrcInx, SrcDstString(pChg->m_eDst), pChg->m_lDstInx,
+    //  TypeToString(pChg->Type()), VariantToString(pChg->m_vValue, S, false),
+    //  TimeStampToString(pChg->m_ftTimeStamp, S1, true, NULL),
+    //  pChg->m_dwDelayTimer
+    //  );
+
+    dbgp("Apply Change %24s        from %-9s[%4i] to %-9s", 
+      "", SrcDstString(pChg->m_eSrc), pChg->m_lSrcInx, SrcDstString(pChg->m_eDst));
+    if (pChg->m_eDst==eCSD_SlotConn)
+      dbgp(" [%4i][%i]", GetSlotIndex(pChg->m_lDstInx), GetConnIndex(pChg->m_lDstInx));
+    else
+      dbgp(" [%4i]   ", pChg->m_lDstInx);
+    dbgpln(" %-10s %15s @%s", 
       TypeToString(pChg->Type()), VariantToString(pChg->m_vValue, S, false),
-      TimeStampToString(pChg->m_ftTimeStamp, S1, true, NULL),
-      pChg->m_dwDelayTimer
-      );
+      TimeStampToString(pChg->m_ftTimeStamp, S1, true, NULL));
+
     }
 
   LPCSTR Msg= IsDelay ? "FlushDelayChgQueue":"FlushChangeQueue";
@@ -1356,8 +1374,19 @@ bool CSlotMngr::ApplyChange(CChangeItem * pChg, bool IsDelay)
       else
         ReportError(Msg, 0, "Change %i has Bad Slot Index %i <0 or >%i ", pChg->m_dwNumber, I, m_Slots.GetSize()-1);
       break;
+    case eCSD_SlotConn:
+      I=GetSlotIndex(pChg->m_lDstInx);
+      if (I>=0 && I<m_Slots.GetSize())
+        {
+        int C=GetConnIndex(pChg->m_lDstInx);
+        CSlot &S=*m_Slots[I];
+        S.m_SetConnects[C]->Process(pChg->m_eSrc, pChg->m_lSrcInx, eCSD_SlotConn, pChg->m_lDstInx, (*pChg), 0);
+        }
+      else
+        ReportError(Msg, 0, "Change %i has Bad Slot Index %i <0 or >%i ", pChg->m_dwNumber, I, m_Slots.GetSize()-1);
+      break;
     default:
-      ReportError(Msg, 0, "Invalid Destination %i ", pChg->m_eDst);
+      ReportError(Msg, 0, "Invalid Destination %s ", SrcDstString(pChg->m_eDst));
     }
   bool RetOK=(pChg!=NULL);
   delete pChg;

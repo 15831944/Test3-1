@@ -407,11 +407,17 @@ enum eConnSrcDst
     eCSD_Simulator, 
     //eCSD_Connect, 
     eCSD_CdBlk, 
+    eCSD_SlotConn, 
     eCSD_Manual,
     eCSD_File,
+    eCSD_Default,
   };
 
 extern LPCSTR SrcDstString(eConnSrcDst e);
+
+inline long MakeSlotConnIndex(long SlotIndex, long ConnIndex) { return (SlotIndex & 0x00ffffff) | (ConnIndex << 24) & 0x7f000000; }
+inline long GetSlotIndex(long Index) { return (Index & 0x00ffffff); }
+inline long GetConnIndex(long Index) { return (Index & 0x7f000000) >> 24; }
 
 class CChangeItem : public CFullValue
   {

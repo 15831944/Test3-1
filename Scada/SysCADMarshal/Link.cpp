@@ -221,7 +221,7 @@ long CLink::ProcessConnects()
   {
   long n=0;
   for (int c=0; c<m_ReflectedGets.GetSize(); c++)
-    m_ReflectedGets[c]->Process(eCSD_Link, m_lLink, *this);
+    m_ReflectedGets[c]->Process(eCSD_Link, m_lLink, eCSD_Default, -1, *this, 0);
   return n;
   };
 

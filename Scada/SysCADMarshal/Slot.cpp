@@ -1296,9 +1296,9 @@ bool CSlot::ParseConnects(LPCSTR S)
         ff[i++]=&Conns[Pos+1];
         }
       }
-    while (i>0)
+    int n=i;
+    for (i=0; i<n; i++)
       {
-      i--;
       char * pOp=strstr(ff[i], "):");
       if (pOp)
         {
@@ -1537,7 +1537,7 @@ bool CSlot::SetValue(CChangeItem * pRqst)
     gs_SlotMngr.m_Devices[m_lDevice]->AppendWriteRqst(m_lSlot, m_hServer, FV);
     }
 
-  ProcessConnects();
+  ProcessConnects(m_iLastChgDirn);
 
   SendDisplayValue();
   return true;
@@ -1685,13 +1685,13 @@ void CSlot::CorrectConnects(CLongArray & NewNos)
 
 // -----------------------------------------------------------------------
 
-long CSlot::ProcessConnects()
+long CSlot::ProcessConnects(int Direction)
   {
   long n=0;
   for (int c=0; c<m_SetConnects.GetSize(); c++)
-    m_SetConnects[c]->Process(eCSD_Slot, m_lSlot, FullValue());
+    m_SetConnects[c]->Process(eCSD_Slot, m_lSlot, eCSD_Default, MakeSlotConnIndex(m_lSlot, c), FullValue(), Direction);
   for (c=0; c<m_ReflectedGets.GetSize(); c++)
-    m_ReflectedGets[c]->Process(eCSD_Slot, m_lSlot, FullValue());
+    m_ReflectedGets[c]->Process(eCSD_Slot, m_lSlot, eCSD_Default, -1, FullValue(), 0);
   return n;
   };
 

@@ -222,7 +222,7 @@ class CSlot : public CSlotCfg
     void        InitialiseConnects();
     void        ConnectConnects();
     void        CorrectConnects(CLongArray & NewNos);
-    long        ProcessConnects();
+    long        ProcessConnects(int Direction);
     void        SendDisplayValue();
     void        SendStateValue();
     bool        WriteCurrentValue2Device();

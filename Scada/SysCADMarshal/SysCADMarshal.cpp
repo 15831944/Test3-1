@@ -519,7 +519,7 @@ LONG CSysCADMarshalModule::Unlock(void)
 	  AfxOleSetUserCtrl(TRUE);    // avoid re-entry
 
 	  // shut down the application
-    ScdMainWnd()->PostMessage(WM_COMMAND, ID_APP_EXIT, 0);
+    AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_APP_EXIT, 0);
     AfxGetApp()->PostThreadMessage(WM_QUIT, 0, 0);
     }
 Done:

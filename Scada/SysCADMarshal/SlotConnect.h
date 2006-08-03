@@ -449,7 +449,7 @@ class CSlotConnect
     void          CorrectConnects(CLongArray & OldNos);
     void          ApplyRangeLink2Slot(CSlot & S, COleVariant &V);
     void          ApplyRangeSlot2Link(CSlot & S, COleVariant &V);
-    void          Process(eConnSrcDst eSrc, long SrcI, CFullValue & SrcValue);
+    void          Process(eConnSrcDst eSrc, long SrcI, eConnSrcDst eDst, long SrcDstI, CFullValue & SrcValue, int Direction);
     //void          GetValue(COleVariant &V);
     void          ProcessOps(VARIANT &);
     void          Dump(LPCSTR Hd);
