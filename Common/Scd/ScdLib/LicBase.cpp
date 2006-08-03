@@ -25,15 +25,26 @@
 
 #define CK_USE6134        01    
                        
-#import "CrypKeyCOM.dll" no_namespace named_guids
+#define USESERVERVERSION  1
+
+#if USESERVERVERSION 
+#import "..\..\..\License\CrypKeyCOMServer.exe" no_namespace named_guids
+static ICrypKeySDKServerPtr s_ptr;
+#else
+#import "..\..\..\License\CrypKeyCOM.dll" no_namespace named_guids
 static ICrypKeySDKPtr s_ptr;
+#endif
 
 #if CK_USE6134 
 #include "crypkey.6134.h"
 #else
 #include "crypkey.57.h"
 #endif
-                
+
+#undef ReadyToTry 
+#undef ReadyToTryDays 
+#undef ReadyToTryRuns 
+
 #endif
 
 #include "winsvc.h"
@@ -161,7 +172,7 @@ int GetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, int
   return 0;
   };
 int GetOption(int No, int Index)                  { return 1; };
-int GetAuthorization(dword * dwOpLevel, int dec)  
+int GetAuthorization(DWORD * dwOpLevel, int dec)  
   { 
   CK_SysCADSecurity Opt;
 
@@ -212,17 +223,235 @@ int GetAuthorization(dword * dwOpLevel, int dec)
   };
 
 int CrypkeyVersion()                              { return 11; };
-LPTSTR MyExplainErr(int Func, int err)            { return "Explanation"; };
+LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
 #else
+
+#endif
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+int MyGetOption(int No, int Index)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->GetOption(No, Index);
+  return GetOption(No, Index);
+  }
+
+int MyGetAuthorization(long * dwOpLevel, int dec)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->GetAuthorization(dwOpLevel, dec);
+  return GetAuthorization((DWORD*)dwOpLevel, dec);
+  }
+
+ULONG MyCKChallenge32(ULONG random1, ULONG random2)
+  { 
+  if (gs_License.UseCOM())
+    return s_ptr->CKChallenge32(random1, random2);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return CKChallenge32(random1, random2);
+#endif
+  };
+
 LPTSTR MyExplainErr(int Func, int err)              
   { 
   if (gs_License.UseCOM())
     return s_ptr->ExplainErr(CKExplainEnum(Func), err);
   return ExplainErr(Func, err);
-//return "Explanation";
   };
 
+int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, int * num_used)
+  { 
+  if (gs_License.UseCOM())
+    return s_ptr->GetRestrictionInfo((long*)authopt, (long*)start_date, (long*)num_allowed, (long*)num_used);
+  return GetRestrictionInfo(authopt, start_date, num_allowed, num_used);  
+  };
+
+int MyGet1RestInfo(int X)
+  { 
+  if (gs_License.UseCOM())
+    return s_ptr->Get1RestInfo(CKWhichEnum(X));
+  return Get1RestInfo(X);  
+  };
+
+int MyGetNumMultiUsers()
+  { 
+  if (gs_License.UseCOM())
+    return s_ptr->GetNumMultiUsers();
+  return GetNumMultiUsers();  
+  };
+
+ULONG MyGetLevel(int NoLevels)  
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->GetLevel(NoLevels);
+  return GetLevel(NoLevels);
+  }
+
+ULONG MyGetNumCopies()  
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->GetNumCopies();
+  return GetNumCopies();
+  }
+
+int MyCrypKeyVersion()  
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->CrypKeyVersion();
+  return CrypkeyVersion();
+  }
+                  
+int MyGetSiteCode(char far *site_code)
+  {
+  if (gs_License.UseCOM())
+    {
+    _bstr_t SiteCode;
+    int err=s_ptr->GetSiteCode(&SiteCode.GetBSTR());
+    strcpy(site_code, (LPCTSTR)SiteCode);
+    return err;
+    }
+#if BYPASSLICENSING
+  return 0;
+#else
+  return GetSiteCode(site_code);
 #endif
+  };
+char * MyGetSiteCode2(void)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->GetSiteCode2();
+#if BYPASSLICENSING
+  return NULL;
+#else
+  return GetSiteCode2();
+#endif
+  };
+int MyInitCrypkey(char far *filepath, char far *masterkey, char far *userkey, int allow_floppy, unsigned network_max_checktime)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->InitCrypKey(filepath, masterkey, userkey, allow_floppy, network_max_checktime);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return InitCrypkey(filepath, masterkey, userkey, allow_floppy, network_max_checktime);
+#endif
+  };
+int MyEndCrypkey()
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->EndCrypKey();
+#if BYPASSLICENSING
+#else
+  EndCrypkey();
+#endif
+  return 0;
+  };
+int MyReadyToTry(unsigned long authlevel, int numDays)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->ReadyToTry(authlevel, numDays);
+#if BYPASSLICENSING
+  return 1;
+#else
+  return readyToTry(authlevel, numDays);
+#endif
+  };
+int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copies)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->ReadyToTryDays(authlevel, numDays, version, copies);
+#if BYPASSLICENSING
+  return 100;
+#else
+  return readyToTryDays(authlevel, numDays, version, copies);
+#endif
+  };
+int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copies)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->ReadyToTryRuns(authlevel, numRuns, version, copies);
+#if BYPASSLICENSING
+  return 100;
+#else
+  return readyToTryRuns(authlevel, numRuns, version, copies);
+#endif
+  };
+int MyRegisterTransfer(char far *target)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->RegisterTransfer(target);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return RegisterTransfer(target);
+#endif
+  };
+int MySaveSiteKey(char far *sitekey)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->SaveSiteKey(sitekey);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return SaveSiteKey(sitekey);
+#endif
+  };
+int MyDirectTransfer(char far *target)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->DirectTransfer(target);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return DirectTransfer(target);
+#endif
+  };
+
+void MySetNetHandle(unsigned short net_handle)
+  {
+  if (gs_License.UseCOM())
+    s_ptr->SetNetHandle(net_handle);
+#if BYPASSLICENSING
+  return ;
+#else
+  else
+    SetNetHandle(net_handle);
+#endif
+  };
+int MyTransferIn(char far *target)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->TransferIn(target);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return TransferIn(target);
+#endif
+  };
+int MyTransferOut(char far *target)
+  {
+  if (gs_License.UseCOM())
+    return s_ptr->TransferOut(target);
+#if BYPASSLICENSING
+  return 0;
+#else
+  return TransferOut(target);
+#endif
+  };
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 #define dbgTimeLicensing 1
 
@@ -786,13 +1015,9 @@ BOOL CLicense::Init(char* path /*=NULL*/)
 #if !BYPASSLICENSING
   if (m_bDidInitCrypkey)
     {
+    MyEndCrypkey();
     if (m_bUseCOM)
-      {
-      s_ptr->EndCrypKey();
       s_ptr.Release();
-      }
-    else
-      EndCrypkey();
     }
 #endif
   m_bDidInitCrypkey = 0;
@@ -842,10 +1067,8 @@ BOOL CLicense::Init(char* path /*=NULL*/)
 #else
     s_ptr.CreateInstance ("CrypKey.SDK");
 #endif
-    err = s_ptr->InitCrypKey(_bstr_t(ShortPath), _bstr_t(CK_MASTER_KEY), _bstr_t(CK_USER_KEY), FALSE, CK_NetworkChecktime);
     }
-  else
-    err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+  err = MyInitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
 
   if (err==-209)
     {
@@ -863,10 +1086,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
       {//do this on Windows NT and Windows 2000...
       if (UpdateCrypkeyINI(LongPath))
         {//try again...
-        if (m_bUseCOM)
-          err = s_ptr->InitCrypKey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
-        else
-          err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+        err = MyInitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
         if (err)
           {
           Error("Initialization Failure %d after Update INI\n%s for %s", err, MyExplainErr(EXP_INIT_ERR, err), LongPath);
@@ -888,11 +1108,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
       }
     return FALSE;
     }
-  int Ver;
-  if (m_bUseCOM)
-    Ver = s_ptr->CrypKeyVersion();
-  else
-    Ver = CrypkeyVersion();
+  int Ver=MyCrypKeyVersion();
   if (Ver==41 || Ver==42)
     {//version 4.1 and 4.2 are old and not supported...
     Error("Old Crypkey version (%d) not supported", Ver);
@@ -954,13 +1170,9 @@ void CLicense::Exit()
 #if !BYPASSLICENSING
   if (m_bDidInitCrypkey)
     {
+    MyEndCrypkey();
     if (m_bUseCOM)
-      {
-      s_ptr->EndCrypKey();
       s_ptr.Release();
-      }
-    else
-      EndCrypkey();
     }
 #endif
   m_bDidInitCrypkey = 0;
@@ -982,11 +1194,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 
 //#if CK_LICENSINGON
 
-  int err;
-  if (m_bUseCOM)
-    err = s_ptr->GetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
-  else
-    err = GetAuthorization(&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
+  int err= MyGetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
 
   dbgpln("CrypKey GetAuth A:%08x", m_State.m_dwOpLevel);
 
@@ -1004,10 +1212,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
     ULONG result2;
 
-    if (m_bUseCOM)
-      result2 = s_ptr->CKChallenge32(random1, random2);
-    else
-      result2 = CKChallenge32(random1, random2);
+    result2 = MyCKChallenge32(random1, random2);
     if (result1 != result2)
       {
       Error("Security Failure.  Challenge function failed");
@@ -1017,7 +1222,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     m_State.m_bLicensed = 1;
     DWORD dw = (DWORD)pow(2.0, CK_NumDefinedLevels) - 1;
     m_State.m_bTrialMode = ((m_State.m_dwOpLevel & dw)==CK_TrialLevel);
-    m_iDaysLeft = (Get1RestInfo(1)==0) ? CK_InfiniteDays : Get1RestInfo(2) - Get1RestInfo(3);
+    m_iDaysLeft = (MyGet1RestInfo(1)==0) ? CK_InfiniteDays : MyGet1RestInfo(2) - MyGet1RestInfo(3);
     m_State.m_bDemoMode = 0;
     ScdPFMachine.WrInt(LicINISection, "InDemoMode", m_State.m_bDemoMode);
     CheckForLiteModes();
@@ -1042,8 +1247,8 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       m_State.m_bMultiUserFailure = 1;
       char Buff[2048];
       NetworkUsersInfo(Buff);
-      //Error("More than %d users already using this license.\n\nNeed to wait for %d user%s to quit!\n\n%s", GetNumMultiUsers(), err, (err>1 ? "s" : ""), Buff);
-      Error("More than %d users already using this license!\n\n%s", GetNumMultiUsers(), Buff);
+      //Error("More than %d users already using this license.\n\nNeed to wait for %d user%s to quit!\n\n%s", MyGetNumMultiUsers(), err, (err>1 ? "s" : ""), Buff);
+      Error("More than %d users already using this license!\n\n%s", MyGetNumMultiUsers(), Buff);
       }
     if (Prompt && err!=AUTH_NOT_PRESENT && err<0)
       Error("Get Authorization failed!\nReturned %d : %s", err, MyExplainErr(EXP_AUTH_ERR, err));
@@ -1094,7 +1299,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   CWaitCursor Wait;
   m_State.m_bLicensed = 0;
   m_State.m_dwOpLevel = 0;
-  int err = GetAuthorization(&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
+  int err = MyGetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
   int OtherErr = 0;
   dbgpln("CrypKey GetAuth B:%08x", m_State.m_dwOpLevel);
 
@@ -1106,10 +1311,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     ULONG random2 = random1+rand();
     ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
     ULONG result2;
-    if (m_bUseCOM)
-      result2 = s_ptr->CKChallenge32(random1, random2);
-    else
-      result2 = CKChallenge32(random1, random2);
+    result2 = MyCKChallenge32(random1, random2);
 
     if (result1 != result2)
       {
@@ -1161,14 +1363,14 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
 
 int CLicense::Copies()
   {
-  return GetNumCopies();
+  return MyGetNumCopies();
   }
 
 //---------------------------------------------------------------------------
 
 int CLicense::MultiUsers()
   {
-  return GetNumMultiUsers();
+  return MyGetNumMultiUsers();
   }
 
 //---------------------------------------------------------------------------
@@ -1195,7 +1397,7 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
     }
   CWaitCursor Wait;
   DWORD OpLevel = FixOptions(GetTrialOptions());
-  int ret = readyToTryDays(OpLevel, NoOfDays, CK_TrialVerNo, 1);
+  int ret = MyReadyToTryDays(OpLevel, NoOfDays, CK_TrialVerNo, 1);
   if (ret)
     {
     Error("Issue Trial License failed!\nReturned %d : %s", ret, MyExplainErr(EXP_RTT_ERR, ret));
@@ -1249,13 +1451,9 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
             Wait.Restore();
             m_sAppPath = PrevAppPath;
 #if !BYPASSLICENSING
+            MyEndCrypkey();
             if (m_bUseCOM)
-              {
-              s_ptr->EndCrypKey();
               s_ptr.Release();
-              }
-            else
-              EndCrypkey();
 #endif
             m_bDidInitCrypkey = 0;
             if (!Init())
@@ -1312,19 +1510,9 @@ BOOL CLicense::IssueLicense()
   {
   CAuthLicenseDlg Dlg;
 #if !BYPASSLICENSING
-  int err;
-  if (m_bUseCOM)
-    {
-    _bstr_t SiteCode;
-    err=s_ptr->GetSiteCode(&SiteCode.GetBSTR());
-    Dlg.m_SiteCode = (LPCTSTR)SiteCode;
-    }
-  else
-    {
-    char SiteCode[64];
-    err=GetSiteCode(SiteCode);
-    Dlg.m_SiteCode = SiteCode;
-    }
+  char SiteCode[64];
+  int err=MyGetSiteCode(SiteCode);
+  Dlg.m_SiteCode = SiteCode;
   if (err) //let the user authorize
     {
     Error("Get site code failed!\nReturned %d : %s", err, MyExplainErr(EXP_GET_SITECODE_ERR, err));
@@ -1365,11 +1553,7 @@ BOOL CLicense::DoIssue(char* key)
 
   CWaitCursor Wait;
 #if !BYPASSLICENSING
-  int err;
-  if (m_bUseCOM)
-    err = s_ptr->SaveSiteKey(key);
-  else
-    err = SaveSiteKey(key);
+  int err=MySaveSiteKey(key);
   switch (err)
     {
     case AUTH_OK: // Valid Key
@@ -1401,11 +1585,7 @@ BOOL CLicense::DoRegisterTransfer()
     {
     CWaitCursor Wait;
     m_sLastPath = Dlg.m_sPath;
-    int err;
-    if (m_bUseCOM)
-      err = s_ptr->RegisterTransfer((char*)(const char*)m_sLastPath);
-    else
-      err = RegisterTransfer((char*)(const char*)m_sLastPath);
+    int err=MyRegisterTransfer((char*)(const char*)m_sLastPath);
     if (err==0)
       return TRUE;
     Error("Register Transfer failed!\n%d : %s", err, MyExplainErr(EXP_REG_ERR, err));
@@ -1422,18 +1602,14 @@ BOOL CLicense::DoTransferOut()
   {
 #if !BYPASSLICENSING
   char Buff[256];
-  sprintf(Buff, "Number of Copies allowed from this site : %d", GetNumCopies());
+  sprintf(Buff, "Number of Copies allowed from this site : %d", MyGetNumCopies());
   CTransferDlg Dlg("Transfer Out", "Enter path find registration file:", Buff);
   Dlg.m_sPath = m_sLastPath;
   if (Dlg.DoModal()==IDOK)
     {
     CWaitCursor Wait;
     m_sLastPath = Dlg.m_sPath;
-    int err;
-    if (m_bUseCOM)
-      err = s_ptr->TransferOut((char*)(const char*)m_sLastPath);
-    else
-      err = TransferOut((char*)(const char*)m_sLastPath);
+    int err=MyTransferOut((char*)(const char*)m_sLastPath);
     if (err==0)
       {
       Check(); //re-check options etc
@@ -1455,18 +1631,14 @@ BOOL CLicense::DoTransferIn()
   char Buff[256];
   Buff[0] = 0;
   if (m_State.m_bLicensed)
-    sprintf(Buff, "Number of Copies allowed from this site : %d", GetNumCopies());
+    sprintf(Buff, "Number of Copies allowed from this site : %d", MyGetNumCopies());
   CTransferDlg Dlg("Transfer In", "Enter path find transfer files:", Buff);
   Dlg.m_sPath = m_sLastPath;
   if (Dlg.DoModal()==IDOK)
     {
     CWaitCursor Wait;
     m_sLastPath = Dlg.m_sPath;
-    int err;
-    if (m_bUseCOM)
-      err = s_ptr->TransferIn((char*)(const char*)m_sLastPath);
-    else
-      err = TransferIn((char*)(const char*)m_sLastPath);
+    int err=MyTransferIn((char*)(const char*)m_sLastPath);
     if (err==0)
       {
       Check(); //re-check options etc
@@ -1488,7 +1660,7 @@ BOOL CLicense::DoDirectTransfer()
   char Buff[512];
   sprintf(Buff, "Enter the path of the copy of %s to transfer license to:", CK_AppName);
   char Buff1[256];
-  sprintf(Buff1, "Number of Copies allowed from this site : %d", GetNumCopies());
+  sprintf(Buff1, "Number of Copies allowed from this site : %d", MyGetNumCopies());
   CTransferDlg Dlg("Direct Transfer", Buff, Buff1, TRUE);
   char LongPath[_MAX_PATH];
   char Drv[_MAX_DRIVE];
@@ -1525,13 +1697,10 @@ BOOL CLicense::DoDirectTransfer()
       }
 
     //reinstall license back to us
+    MyEndCrypkey();
     if (m_bUseCOM)
-      {
-      s_ptr->EndCrypKey();
       s_ptr.Release();
-      }
-    else
-      EndCrypkey();
+    
     m_bDidInitCrypkey = 0;
     if (!Init())
       {
@@ -1545,11 +1714,7 @@ BOOL CLicense::DoDirectTransfer()
       }
     if (!DoTrans)
       return FALSE;
-    int err;
-    if (m_bUseCOM)
-      err = s_ptr->DirectTransfer((char*)(const char*)Dlg.m_sPath);
-    else
-      err = DirectTransfer((char*)(const char*)Dlg.m_sPath);
+    int err=MyDirectTransfer((char*)(const char*)Dlg.m_sPath);
     if (err==0)
       {
       Check(); //re-check options etc
@@ -1892,8 +2057,50 @@ BOOL CLicense::NetworkUsersInfo()
   int err;
   if (m_bUseCOM)
     {
-    _asm int 3;
-    //err = s_ptr->FloatingLicenseTakeSnapshot((sizeof(fls), &Cnt, &fls[0]);
+
+    ICrypKeySDKFloatRecordServerPtr ptrFloat;
+    ptrFloat.CreateInstance ("CrypKey.SDKFloatRecordServer");
+    //printf ("\nptrFloat:%x\n", ptrFloat);
+
+    // check FloatingLicenseSnapshot  (0.03)
+    long nEntries;
+    err= s_ptr->FloatingLicenseTakeSnapshot (&nEntries);
+    Cnt=nEntries;
+    //printf ("\nReturn from FloatingLicenseTakeSnapshot: %d  (%d)\n", nError, nEntries);
+
+    for (int i=0; i<nEntries;i++)
+      {
+      //CComBSTR cbName = "Test";
+
+
+    //ptrFloat->put_strComputerName (cbName);
+      err = s_ptr->FloatingLicenseGetRecord (i, (ICrypKeySDKFloatRecordServer *) ptrFloat);
+      //cbError.Empty ();
+      //cbError.AppendBSTR (ptr->GetLastError ());
+    //strError = cbError;
+    //printf ("\nReturn from FloatingLicenseGetRecord: (%d) %s\n", nError, (LPCTSTR) strError);
+
+      if (ptrFloat != NULL)
+        {
+        ptrFloat->get_nId((long*)&fls[i].id);
+        ptrFloat->get_nUpdate((long*)&fls[i].update);
+        long sw;
+        ptrFloat->get_nStatus(&sw);
+        fls[i].status=(short)sw;
+        
+        // ?? ptrFloat->get_nTimestamp((long*)&fls[i].starttime);
+        fls[i].starttime=0;
+
+        _bstr_t bsUser;
+        ptrFloat->get_strUserName (&bsUser.GetBSTR());
+        strcpy(fls[i].userName, (LPCTSTR)bsUser);
+
+        _bstr_t bsComp;
+        ptrFloat->get_strComputerName (&bsComp.GetBSTR());
+        strcpy(fls[i].computerName, (LPCTSTR)bsComp);
+        }
+      }
+
     }
   else
     err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
@@ -1923,7 +2130,9 @@ BOOL CLicense::NetworkUsersInfo(char* Buff)
   if (m_bUseCOM)
     {
     _asm int 3;
-    //err = s_ptr->FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
+    //err = s_ptr->FloatingLicenseTakeSnapshot((sizeof(fls), &Cnt, &fls[0]);
+    //// Also GetRecord
+    //err = s_ptr->FloatingLicenseGetRecord(sizeof(fls), &Cnt, &fls[0]);
     }
   else
     err = FloatingLicenseSnapshot(sizeof(fls), &Cnt, &fls[0]);
@@ -1965,28 +2174,28 @@ void CLicense::Info()
   //char* authTypes[] = {"NONE", "TIME(DAYS)", "RUNS"};
   char Buff[4096];
   strcpy(Buff,"License information:\n\n");
-  sprintf(Buff, "%s  Number of Copies allowed from this site : %d\n", Buff, GetNumCopies());
-  //sprintf(Buff, "%s  Number of Network Users allowed from this site : %d\n", Buff, GetNumMultiUsers());
+  sprintf(Buff, "%s  Number of Copies allowed from this site : %d\n", Buff, MyGetNumCopies());
+  //sprintf(Buff, "%s  Number of Network Users allowed from this site : %d\n", Buff, MyGetNumMultiUsers());
   //sprintf(Buff, "%s  Site Code : %s\n", Buff, GetSiteCode2());
 
 //NBNB TODO CHECK THIS LEVEL !!!!
 
-  sprintf(Buff, "%s  Level : %d\n", Buff, GetLevel(CK_NumDefinedLevels));
+  sprintf(Buff, "%s  Level : %d\n", Buff, MyGetLevel(CK_NumDefinedLevels));
   /*sprintf(Buff, "%s  Level : (1) %d\n", Buff, get_level(1));
   sprintf(Buff, "%s  Level : (2) %d\n", Buff, get_level(2));
   sprintf(Buff, "%s  Level : (3) %d\n", Buff, get_level(3));
   sprintf(Buff, "%s  Level : (4) %d\n", Buff, get_level(4));
   sprintf(Buff, "%s  Level : (5) %d\n", Buff, get_level(5));*/
 
-  if (Get1RestInfo(1)==0)
+  if (MyGet1RestInfo(1)==0)
     strcat(Buff, "  Time Restrictions : None\n");
   else
-    sprintf(Buff, "%s  Time Restrictions : No of days allowed:%d  No of days used:%d\n", Buff, Get1RestInfo(2), Get1RestInfo(3));
+    sprintf(Buff, "%s  Time Restrictions : No of days allowed:%d  No of days used:%d\n", Buff, MyGet1RestInfo(2), MyGet1RestInfo(3));
   int authopt = 0;
   int num_allowed = 0;
   int num_used = 0;
   ULONG start_date = 0;
-  int ret = GetRestrictionInfo(&authopt, &start_date, &num_allowed, &num_used);
+  int ret = MyGetRestrictionInfo(&authopt, &start_date, &num_allowed, &num_used);
   if (ret==0)
     {
     sprintf(Buff, "%s  Date license last updated : %s\n", Buff, SGTime(start_date));
@@ -1998,10 +2207,10 @@ void CLicense::Info()
     {
     if ((i-1)%8==0)
       strcat(Buff, " ");
-    strcat(Buff, GetOption(32, i) ? "1" : "0");
+    strcat(Buff, MyGetOption(32, i) ? "1" : "0");
     }
-  DWORD d;
-  int err = GetAuthorization(&d, 0);
+  long d;
+  int err = MyGetAuthorization(&d, 0);
   dbgpln("CrypKey GetAuth C:%08x", d);
   d=FixOptions(d);
   if (err==0)
@@ -2071,15 +2280,15 @@ BOOL CLicenseInfoDlg::OnInitDialog()
   int num_allowed = 0;
   int num_used = 0;
   ULONG start_date = 0;
-  int ret = GetRestrictionInfo(&authopt, &start_date, &num_allowed, &num_used);
+  int ret = MyGetRestrictionInfo(&authopt, &start_date, &num_allowed, &num_used);
   if (ret==0)
     sprintf(Buff, "Date and time license last updated : %s", gs_License.SGTime(start_date));
   else
     sprintf(Buff, "Date and time license last updated : Unknown");
   SetDlgItemText(IDC_CK_TXT_DATE, Buff);
-  sprintf(Buff, "Number of Copies allowed from this site : %d", gs_License.DemoMode() ? 0 : GetNumCopies());
+  sprintf(Buff, "Number of Copies allowed from this site : %d", gs_License.DemoMode() ? 0 : MyGetNumCopies());
   SetDlgItemText(IDC_CK_TXT_COPIES, Buff);
-  sprintf(Buff, "Number of multi-users that the site has been granted : %d", gs_License.DemoMode() ? 0 : GetNumMultiUsers());
+  sprintf(Buff, "Number of multi-users that the site has been granted : %d", gs_License.DemoMode() ? 0 : MyGetNumMultiUsers());
   SetDlgItemText(IDC_CK_TXT_USERS, Buff);
   //sprintf(Buff, "Number of current network users : %d", GetCurrentNetUsers());
   //SetDlgItemText(IDC_CK_TXT_CURRENTUSERS, Buff);
@@ -2087,10 +2296,10 @@ BOOL CLicenseInfoDlg::OnInitDialog()
     sprintf(Buff, "Time Restrictions : None (using SysCAD Demo Mode)");
   else
     {
-    if (Get1RestInfo(1)==0)
+    if (MyGet1RestInfo(1)==0)
       sprintf(Buff, "Time Restrictions : None");
     else
-      sprintf(Buff, "Time Restrictions : No of days allowed:%d  No of days used:%d", Get1RestInfo(2), Get1RestInfo(3));
+      sprintf(Buff, "Time Restrictions : No of days allowed:%d  No of days used:%d", MyGet1RestInfo(2), MyGet1RestInfo(3));
     }
   SetDlgItemText(IDC_CK_TXT_TIME, Buff);
   int iLast=0;
@@ -2134,11 +2343,11 @@ BOOL CLicenseInfoDlg::OnInitDialog()
     sprintf(Buff, "%s level", CK_LevelNames[gs_License.Level()]);
   SetDlgItemText(IDC_CK_TXT_LEVEL, Buff);
   CString LicUserVer;
-  LicUserVer = (gs_License.DemoMode() || GetNumMultiUsers()==0) ? "Stand Alone License" : "Multi-User Network License";
+  LicUserVer = (gs_License.DemoMode() || MyGetNumMultiUsers()==0) ? "Stand Alone License" : "Multi-User Network License";
   SetDlgItemText(IDC_CK_TXT_STANDALONE, (const char*)LicUserVer);
   sprintf(Buff, "Location: %s", gs_License.GetAppPath());
   SetDlgItemText(IDC_CK_TXT_LOCATION, Buff);
-  int Ver = CrypkeyVersion();
+  int Ver = MyCrypKeyVersion();
   if (Ver>0)
     sprintf(Buff, "Using CrypKey Version : %d.%d", (int)floor(Ver/10.0), (int)(Ver - (floor(Ver/10.0)*10.0)));
   else
