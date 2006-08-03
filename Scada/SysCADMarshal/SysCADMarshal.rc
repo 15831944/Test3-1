@@ -212,7 +212,8 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription", "SysCADMarshal MFC Application"
+            VALUE "CompanyName", "KWA Kenwalt Australia"    
+            VALUE "FileDescription", "SysCADMarshal IO Marshalling Utility"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SysCADMarshal"
             VALUE "LegalCopyright", "Copyright (C) 2003"

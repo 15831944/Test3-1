@@ -69,7 +69,8 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription", "ScdSlv Module"
+            VALUE "CompanyName", "KWA Kenwalt Australia"
+            VALUE "FileDescription", "SysCAD Solver Module"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "ScdSlv"
             VALUE "LegalCopyright", "Copyright 2002"

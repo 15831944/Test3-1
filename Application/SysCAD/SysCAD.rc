@@ -43,8 +43,8 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName", "Kenwalt"
-            VALUE "FileDescription", "SysCAD"
+            VALUE "CompanyName", "KWA Kenwalt Australia"
+            VALUE "FileDescription", "SysCAD Process Simulator"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SysCAD"
             VALUE "LegalCopyright", "Copyright © 2000"
