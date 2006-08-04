@@ -1422,10 +1422,10 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
     m_DynFlowMode = GetDefFlowMode(PF.RdStr("Modes", "Dynamic_FlowMode",  PrjCfg.RdStr("Modes", "Dynamic_FlowMode", "Simple")));
     m_DynHeatMode = GetDefHeatMode(PF.RdStr("Modes", "Dynamic_HeatMode",  PrjCfg.RdStr("Modes", "Dynamic_HeatMode", "Rigorous")));
 
-    m_MaxNodeMode = GetMaxNodeMode(PF.RdStr("Modes", "Maximum_NodeMode",  PrjCfg.RdStr("Modes", "Maximum_NodeMode", "Buffered")));
-    m_MaxLinkMode = GetMaxNodeMode(PF.RdStr("Modes", "Maximum_LinkMode",  PrjCfg.RdStr("Modes", "Maximum_LinkMode", "Direct")));
-    m_MaxFlowMode = GetMaxFlowMode(PF.RdStr("Modes", "Maximum_FlowMode",  PrjCfg.RdStr("Modes", "Maximum_FlowMode", "Full")));                        
-    m_MaxHeatMode = GetMaxHeatMode(PF.RdStr("Modes", "Maximum_HeatMode",  PrjCfg.RdStr("Modes", "Maximum_HeatMode", "Rigorous")));                    
+    m_MaxNodeMode = GetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_NodeMode", "Buffered"));
+    m_MaxLinkMode = GetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_LinkMode", "Direct"));
+    m_MaxFlowMode = GetMaxFlowMode(PrjCfg.RdStr("Modes", "Maximum_FlowMode", "Full"));                        
+    m_MaxHeatMode = GetMaxHeatMode(PrjCfg.RdStr("Modes", "Maximum_HeatMode", "Rigorous"));                    
                                                                                                               
     }                                                                                                         
   else if (PrjFileVerNo>=73)
@@ -1791,12 +1791,6 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
   PF.WrStr("Modes", "Dynamic_LinkMode",        GetLinkModeStr(m_DynLinkMode));
   PF.WrStr("Modes", "Dynamic_HeatMode",        GetHeatModeStr(m_DynHeatMode));
   PF.WrStr("Modes", "Dynamic_FlowMode",        GetFlowModeStr(m_DynFlowMode));
-
-  PF.WrStr("Modes", "Maximum_NodeMode",        GetNodeModeStr(m_MaxNodeMode));
-  PF.WrStr("Modes", "Maximum_LinkMode",        GetLinkModeStr(m_MaxLinkMode));
-  PF.WrStr("Modes", "Maximum_HeatMode",        GetHeatModeStr(m_MaxHeatMode));
-  PF.WrStr("Modes", "Maximum_FlowMode",        GetFlowModeStr(m_MaxFlowMode));
-
 
   PF.WrStr("General", "DefaultLibrary",           m_sDefGrpLib());
   PF.WrStr("General", "GraphicsFrame",            m_sGrfFrameName());
@@ -5586,7 +5580,6 @@ flag CProject::CheckPrjCfgFile(CProfINIFile & PF, bool & Do_NotOpenMsg)
       PrjCfg.WrStr("Modes", "Maximum_LinkMode",    "Direct");
       PrjCfg.WrStr("Modes", "Maximum_FlowMode",    "Full");
       PrjCfg.WrStr("Modes", "Maximum_HeatMode",    "Rigorous");
-
 
       //LogWarning(CfgFile(), LF_Exclamation, "Project Configuration file has been automatically upgraded for new Solution Modes");
 
