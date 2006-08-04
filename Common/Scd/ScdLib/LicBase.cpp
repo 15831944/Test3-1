@@ -1185,7 +1185,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 #if dbgTimeLicensing
   CStackTimer TM("Check");
 #endif
-  ASSERT(bDidInitCrypkey);
+  ASSERT(m_bDidInitCrypkey);
   CWaitCursor Wait;
   m_State.m_bLicensed = 0;
   m_State.m_bMultiUserFailure = 0;
@@ -1278,7 +1278,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   CStackTimer TM("QuickCheck");
 #endif
 
-  ASSERT(bDidInitCrypkey);
+  ASSERT(m_bDidInitCrypkey);
   if (m_State.m_bBlocked)
     return FALSE;
   if (CheckLevel==0)
