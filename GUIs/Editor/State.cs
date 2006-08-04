@@ -234,7 +234,9 @@ namespace SysCAD.Editor
         arrow.DestAnchor = -1;
 
 
-      arrow.ToolTip = graphicLink.Tag + "\n\nSrc: " + graphicLink.Origin + "\nDst: " + graphicLink.Destination;
+      arrow.ToolTip = "Tag:" + graphicLink.Tag + 
+        "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
+        "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 

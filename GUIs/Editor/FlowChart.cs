@@ -577,7 +577,7 @@ namespace SysCAD.Editor
       {
         Item hoverItem = hoverBox.Tag as Item;
         hoverItem.Graphic.Visible = hoverItem.Visible;
-        //hoverItem.Graphic.ZTop();
+        hoverItem.Graphic.ZTop();
         hoverItem.Model.Visible = hoverItem.Visible;
         hoverItem.Model.CustomDraw = CustomDraw.Additional;
         hoverItem.Model.ZIndex = hoverItem.Graphic.ZIndex + 1;
@@ -836,7 +836,11 @@ namespace SysCAD.Editor
           }
           else
           {
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Red, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+            Color errorColor = new Color();
+            if (node is Box) errorColor = Color.Yellow;
+            else errorColor = Color.Red;
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
             PointF p = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
             RectangleF r = new RectangleF(p, SizeF.Empty);
             r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
@@ -866,7 +870,11 @@ namespace SysCAD.Editor
           }
           else
           {
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Red, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+            Color errorColor = new Color();
+            if (node is Box) errorColor = Color.Yellow;
+            else errorColor = Color.Red;
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
             PointF p = arrow.ControlPoints[0];
             RectangleF r = new RectangleF(p, SizeF.Empty);
             r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
@@ -1060,7 +1068,7 @@ namespace SysCAD.Editor
           form1.Mode_Modify();
         }
 
-        theMenu.MenuItems.Add("Layout Flowchart", new EventHandler(LayoutFlowchart));
+        theMenu.MenuItems.Add("Layout Flowchart (!!Broken in an interesting way in latest release!!)", new EventHandler(LayoutFlowchart));
 
         theMenu.Show(fcFlowChart, me.Location);
       }
@@ -1110,7 +1118,7 @@ namespace SysCAD.Editor
     private void DisconnectOrigin(object sender, EventArgs e)
     {
       hoverArrow.OrgnAnchor = -1;
-      hoverArrow.Origin = new DummyNode(fcFlowChart);
+      hoverArrow.Origin = fcFlowChart.Dummy;
 
       hoverArrow.SegmentCount = (short)((hoverArrow.Tag as Link).graphicLink.controlPoints.Count - 1);
       int i = 0;
@@ -1122,7 +1130,7 @@ namespace SysCAD.Editor
     private void DisconnectDestination(object sender, EventArgs e)
     {
       hoverArrow.DestAnchor = -1;
-      hoverArrow.Destination = new DummyNode(fcFlowChart);
+      hoverArrow.Destination = fcFlowChart.Dummy;
 
       hoverArrow.SegmentCount = (short)((hoverArrow.Tag as Link).graphicLink.controlPoints.Count - 1);
       int i = 0;

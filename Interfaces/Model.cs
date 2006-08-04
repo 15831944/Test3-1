@@ -20,5 +20,10 @@ namespace SysCAD.Interface
     {
       return r.str;
     }
+
+    public override string ToString()
+    {
+      return str;
+    }
   }
 }

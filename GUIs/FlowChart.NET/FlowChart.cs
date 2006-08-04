@@ -274,7 +274,7 @@ namespace MindFusion.FlowChartX
 			defaultControlType = typeof(System.Windows.Forms.Button);
 			hostedCtrlMouseAction = HostMouseAction.SelectHost;
 
-			Dummy = new DummyNode(this);
+			dummy = new DummyNode(this);
 			allowUnconnectedArrows = false;
 			allowUnanchoredArrows = true;
 
@@ -9620,7 +9620,13 @@ namespace MindFusion.FlowChartX
 
 		private bool disabledGroups = false;
 
-		internal DummyNode Dummy;
+		internal DummyNode dummy;
+
+    [Browsable(false)]
+    public DummyNode Dummy
+    {
+      get { return dummy; }
+    }
 
 		[Browsable(false)]
 		public ScriptHelper ScriptHelper
