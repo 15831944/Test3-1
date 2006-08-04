@@ -1228,7 +1228,7 @@ void MdlNode::EvalProductsInit_Source(EvalProductsInitTasks Task, int IoNo, doub
   {
   switch (Task)
     {
-    case EPI_SurgeEval:
+    case EPI_SourceEval:
       {
       if (IO_Out(IoNo))
         {
@@ -1253,7 +1253,7 @@ void MdlNode::EvalProductsInit_SurgeLevel(EvalProductsInitTasks Task, SpContaine
   {
   switch (Task)
     {
-    case EPI_SurgeEval:
+    case EPI_SourceEval:
       {
       double L=Contents.Level();
       double M0=Contents.Mass(som_SL);
@@ -1287,7 +1287,7 @@ void MdlNode::EvalProductsInit_Node(EvalProductsInitTasks Task, IDMask IOIds)
   {
   switch (Task)
     {
-    case EPI_SurgeEval:
+    case EPI_SourceEval:
       break;
     case EPI_FwdEval:
       {

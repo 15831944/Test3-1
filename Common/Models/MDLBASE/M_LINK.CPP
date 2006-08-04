@@ -1912,7 +1912,7 @@ CFlange * MN_Lnk::GetFlange(int IOId)
   {
   switch (IOId)
     {
-    case IOId_Spill2Area: return &m_Spill.xFlange;
+    case IOId_Spill2Area: return &m_Spill.Flange;
     default:
       {
 #if (WITHBLOCKEVALUATOR)

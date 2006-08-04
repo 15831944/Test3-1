@@ -659,43 +659,54 @@ void MN_Area::DoEvalProducts(flag Validating, double dTime)
 void MN_Area::EvalProductsInit(EvalProductsInitTasks Task)
   {
   //DoEvalProducts(false, ICGetTimeInc());
-  for (int i=0;i<NoFlwIOs(); i++)
-    {
-    if (!IO_In(i))
-      EvalProductsInit_Source(Task, i, IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas));
-    }
 
   if (Valid(m_Content.TRqd()))
     m_Content.SetTemp(TRequired());
 
 
-  switch (SolveMethod())
+  switch (Task)
     {
-    case SM_Inline:
-    case SM_Buffered:
+    case EPI_SourceEval:
       {
       for (int i=0;i<NoFlwIOs(); i++)
         {
-        switch (IOId_Self(i))
-          {
-          case IOId_AreaLeakO:
-          case IOId_AreaMakeupO:
-            {
-            double Qo = IOQm_Out(i);
-            SpConduit &Q = *IOConduit(i);
-            if (Qo>=0.0)
-              {
-              Q.QSetM(m_Content, som_ALL, Qo, IOP_Flng(i));
-              Q.SetTempPress(TRequired(), IOP_Flng(i));
-              }
-            break;
-            }
-          }
+        if (!IO_In(i))
+          EvalProductsInit_Source(Task, i, IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas));
         }
+    //  break;
+    //  }
+    //case EPI_FwdEval:
+    //  {
+      //switch (SolveMethod())
+      //  {
+      //  case SM_Inline:
+      //  case SM_Buffered:
+      //    {
+          for (int i=0;i<NoFlwIOs(); i++)
+            {
+            switch (IOId_Self(i))
+              {
+              case IOId_AreaLeakO:
+              case IOId_AreaMakeupO:
+                {
+                double Qoe = IOQmEst_Out(i);
+                double Qo = IOQm_Out(i);
+                SpConduit &Q = *IOConduit(i);
+                if (Qoe>=0.0)
+                  {
+                  Q.QSetM(m_Content, som_ALL, Qoe, IOP_Flng(i));
+                  Q.SetTempPress(TRequired(), IOP_Flng(i));
+                  }
+                break;
+                }
+              }
+            }
+        //  break;
+        //  }
+        //}
       break;
       }
     }
-
   }
 
 //--------------------------------------------------------------------------

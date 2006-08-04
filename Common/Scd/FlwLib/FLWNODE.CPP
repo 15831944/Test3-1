@@ -6121,11 +6121,26 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
         }
       else if (m_dwType & nc_Audit)
         {
-        for (int i=0; i<NoEnabledDirectIOs(); i++)
+        }
+
+      for (int d=0; d<NoEnabledDirectIOs(); d++) 
+        {
+        CDirectFlwIO &D=*m_EnabledDirectIOs[d];
+        if (D.HasConduit)
           {
-          if (m_EnabledDirectIOs[i]->HasConduit)
+          switch (D.LclDIOId())
             {
-            // TODO
+            case IOId_Makeup2Area:
+              SetIOQmEst_In(D.m_iMyConnectedIO, PBQmEst);
+              break;
+            case IOId_Spill2Area:
+            case IOId_Vent2Area:
+            case IOId_Bleed2Area:
+              SetIOQmEst_Out(D.m_iMyConnectedIO, PBQmEst);
+              break;
+            case IOId_LeakI2Area:
+            case IOId_LeakO2Area:
+              break;
             }
           }
         }
@@ -9649,7 +9664,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
 
 CDirectFlwIO::~CDirectFlwIO()
   {
-  delete xm_pFlng;
+  delete m_pFlng;
   if (m_bDeleteSum)
     m_pSum;
   ManageNdDirectIOs(false);
@@ -9717,7 +9732,7 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   m_iLclIOId        = -1;
   m_Total           = 0;
 
-  xm_pFlng           = NULL;
+  m_pFlng           = NULL;
   m_pSum            = NULL;
   m_bDeleteSum      = false;
 
@@ -9802,19 +9817,19 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
   m_iLclIOId        = LclIOId;
   m_Total           = 0;
 
-  //if (xm_pFlng)
-  //  delete xm_pFlng;
+  //if (m_pFlng)
+  //  delete m_pFlng;
   //if (m_bDeleteSum && m_pSum)
   //  delete m_pSum;
-  if (HasConduit && (xm_pFlng == NULL))
+  if (HasConduit && (m_pFlng == NULL))
     {
-    xm_pFlng         = new CFlange;
-    m_pSum          = &xm_pFlng->m_Sum;
+    m_pFlng         = new CFlange;
+    m_pSum          = &m_pFlng->m_Sum;
     m_bDeleteSum    = false;
     }
   else
     {
-    xm_pFlng         = NULL;
+    m_pFlng         = NULL;
     m_pSum          = new CAreaSum;
     m_bDeleteSum    = true;
     }

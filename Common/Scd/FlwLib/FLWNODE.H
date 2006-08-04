@@ -522,7 +522,7 @@ class DllImportExport CDirectFlwIO
 
     flag          getHasConduit()           { return m_eType <= eDIO_Bleed; };
     SpConduit   & getConduit();//              { return *m_pFlng->Conduit(false); };
-    CFlange     & getFlange()               { return *xm_pFlng; };
+    CFlange     & getFlange()               { return *m_pFlng; };
 
     _declspec(property(get=getEnabled))                     flag          Enabled;
     _declspec(property(get=getSysEnable,put=putSysEnable))  flag          SysEnable;
@@ -539,7 +539,7 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getNdSignImplied))               int           NdSignImplied;
 
     _declspec(property(get=getHasConduit))                  flag          HasConduit;
-    _declspec(property(get=getFlange))                      CFlange     & xFlange;
+    _declspec(property(get=getFlange))                      CFlange     & Flange;
     _declspec(property(get=getConduit))                     SpConduit   & Cd;
 
   protected:
@@ -567,7 +567,7 @@ class DllImportExport CDirectFlwIO
     double        m_Total;
     int           m_NdSignImp;
 
-    CFlange     * xm_pFlng;
+    CFlange     * m_pFlng;
     CAreaSum    * m_pSum;
     bool          m_bDeleteSum;
 
@@ -3107,7 +3107,7 @@ enum NodeFlwTasks
 enum EvalProductsInitTasks
   {
     EPI_Null,
-    EPI_SurgeEval,
+    EPI_SourceEval,
     EPI_FwdEval,
     EPI_RevEval
   };
@@ -4589,7 +4589,7 @@ inline FlwNode * CMSIO::Nd_Rmt() { return m_pNd->Nd_Rmt(m_iIONo); };
 //
 //===========================================================================
 
-inline SpConduit & CDirectFlwIO::getConduit()       { return *xm_pFlng->Conduit(false); };
+inline SpConduit & CDirectFlwIO::getConduit()       { return *m_pFlng->Conduit(false); };
 
 inline FlwNode & CNodeEvalIndex::getNd()            { return *m_pNd; };
 inline CJoinCluster & CNodeEvalIndex::getCluster()  { return m_pNd->m_Clusters[m_iCluster]; };

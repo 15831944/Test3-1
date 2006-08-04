@@ -5502,6 +5502,13 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 
   //ASSERT(_CrtCheckMemory());
 
+  for (CNodeEvalIndex NJ=ProcOrder.First(); ProcOrder.ItemValid(); NJ=ProcOrder.Next())
+    {
+    NDSTARTSW(NJ.m_pNd, FSW_EvalProductsInit);
+    NJ.Nd.EvalProductsInit(EPI_SourceEval);
+    NDSTOPSW(NJ.m_pNd, FSW_EvalProductsInit);
+    }
+
   // Evaluate Products At Nodes in Forward Order
   if (FSTC.NThreads())
     SolveTOSequenceThrd(eFITPBEvalProducts, TOSL_Proc);
@@ -7823,7 +7830,7 @@ void FlwSlvDyn::ODEDerivs()
         for (CNodeEvalIndex NJ=ProcOrder.First(); ProcOrder.ItemValid(); NJ=ProcOrder.Next())
           {
           NDSTARTSW(NJ.m_pNd, FSW_EvalProductsInit);
-          NJ.Nd.EvalProductsInit(EPI_SurgeEval);
+          NJ.Nd.EvalProductsInit(EPI_SourceEval);
           NDSTOPSW(NJ.m_pNd, FSW_EvalProductsInit);
           }
         for (NJ=ProcOrder.First(); ProcOrder.ItemValid(); NJ=ProcOrder.Next())
