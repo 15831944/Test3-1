@@ -1766,9 +1766,10 @@ BOOL CSysCADApp::InitInstance()
     else
       PatchStr.Set("%s", SCD_PATCHNOTE);
     }
+  if (PatchStr.Len()>0)
+    LogNote("Version", 0, "%s %s   %s", FullVersion(), BuildDate(), PatchStr());
   else
-    PatchStr = "";
-  LogNote("Version", 0, "%s %s   %s", FullVersion(), BuildDate(), PatchStr());
+    LogNote("Version", 0, "%s %s", FullVersion(), BuildDate());
 
   if (!InitInstLicense2(LicenseFailed))
     return false;

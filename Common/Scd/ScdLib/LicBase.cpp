@@ -115,27 +115,27 @@ struct CK_OptionDetails
 
 CK_OptionDetails CK_OptionNames[] =
 {
-  {  0, "ProBal Mode", true },
-  {  1, "Dynamic Mode (Flow)", true },
-  {  2, "Dynamic Mode (Full)", true },
-  {  3, "Electrical Mode", false },
+  {  0, "Solver Mode: ProBal", true },
+  {  1, "Solver Mode: Dynamic Transfer (Flow)", true },
+  {  2, "Solver Mode: Dynamic Full", true },
+  {  3, "Solver Mode: Electrical", false },
   {  6, "Full License (No=runtime only)", true },
-  {  7, "Academic License", true },
+  {  7, "Academic License", false },
   {  8, "Application COM Interface", true },
   {  9, "COM Specie Properties", false },//true },
-  { 10, "Drivers / Marshal", true },
+  { 10, "Marshal (OPC Client)", true },
   { 11, "OPC Server", true },
-  { 19, "SMDK Runtime", true },
   { 14, "Models: Heat Exchange", true },
   { 15, "Models: Heat Exchange Extra", true },
-  { 16, "Models: Size distribution", true },
+  { 16, "Models: Size Distribution", true },
   { 17, "Models: Alumina", true },
-  { 18, "Models: Electrical", true },
-  { 23, "Client: Alcan", false },
-  { 24, "Client: Gijima MineServe", false },
-  { 25, "Client: QAL", false },
-  { 26, "Client: RioTinto", false },
-  { 27, "Models: Custom User", false },
+  { 18, "Models: Electrical", false },
+  { 19, "Models: SMDK Runtime", true },
+  { 22, "Client: Alcan", false },
+  { 23, "Client: Gijima MineServe", false },
+  { 24, "Client: QAL", false },
+  { 25, "Client: RioTinto", false },
+  { 26, "Client: Custom Models", false },
   { -1},
 };
 
@@ -1067,6 +1067,11 @@ BOOL CLicense::Init(char* path /*=NULL*/)
 #else
     s_ptr.CreateInstance ("CrypKey.SDK");
 #endif
+    if (s_ptr==NULL)
+      {
+      Error("Check if 'CrypKeyCOMServer' is running correctly?");
+      return FALSE;
+      }
     }
   err = MyInitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
 
