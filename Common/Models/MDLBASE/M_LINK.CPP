@@ -647,8 +647,8 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_FEP(NULL, FBOpt_HasSimpleRes, 0.1),
   m_FTB(this, &m_FEP),
   m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
-  m_Src(eDIO_Src, this, false, true, "Src"),
-  m_Snk(eDIO_Snk, this, false, true, "Snk")
+  m_Src(eDIO_Src, this, false, true, "Source"),
+  m_Snk(eDIO_Snk, this, false, true, "Sink")
 #if WITHLINKBLEED 
   , m_Bleed(eDIO_Bleed, this, false, true, "Bleed")
 #endif

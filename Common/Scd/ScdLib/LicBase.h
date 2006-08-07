@@ -145,8 +145,8 @@ class DllImportExport CLicense
     inline BOOL DemoMode()          { return m_State.m_bDemoMode; };
     inline BOOL TrialMode()         { return m_State.m_bTrialMode; };
     inline BOOL TrialFailed()       { return m_State.m_bTrialFailed; };
-    inline void SetBlocked(BOOL Block=TRUE) { m_State.m_bBlocked = Block; };
-    inline BOOL Blocked()           { return m_State.m_bBlocked && m_iStackLvl==0; };
+    inline void SetBlocked(BOOL Block=TRUE);
+    inline BOOL Blocked();
     inline int DaysLeft()           { return m_iDaysLeft; };
     inline void SetAppPath(char* p);
     inline char* GetAppPath()       { return (m_sAppPath.GetLength()==0 ? NULL : (char*)(const char*)m_sAppPath); };
@@ -252,6 +252,7 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL AllowMdlsRTTS();
     inline BOOL ForMineServe();
     inline void SetForMineServe(bool On);
+    inline void SetForMineServeMsg(WPARAM wParam, LPARAM lParam);
     inline BOOL AllowMdlsAlcan();
     //inline BOOL AllowMdlsQALExtra();
     inline BOOL AllowMdlsQAL();

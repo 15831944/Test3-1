@@ -78,8 +78,6 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
           m_AccIn=new CDirectFlwIO(eDIO_Accum, this, false, true, "Accumulation");
           m_AccOut=new CDirectFlwIO(eDIO_Deplete, this, false, true, "Depletion");
           m_AccCalc=new CDirectAccCalc(this, *m_AccIn, *m_AccOut);
-
-          //Joins.SetSize(2);
           }
         else
           {

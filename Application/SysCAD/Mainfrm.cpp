@@ -283,6 +283,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 
   //ON_MESSAGE(WMU_EXECACTION, OnExecAction)
   ON_MESSAGE(WMU_EXCEPTION, OnException)
+  ON_MESSAGE(WMU_SETLICENSE, OnSetLicense)
 
   // Global help commands
   ON_COMMAND(ID_HELP_FINDER, CMDIFrameWnd::OnHelpFinder)
@@ -4133,3 +4134,12 @@ LRESULT CMainFrame::OnException(WPARAM wParam, LPARAM lParam)
   }
 
 //===========================================================================
+
+LRESULT CMainFrame::OnSetLicense(WPARAM wParam, LPARAM lParam)
+  {
+  gs_License.SetForMineServeMsg(wParam, lParam);
+  return 0;
+  }
+
+//===========================================================================
+

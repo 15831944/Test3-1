@@ -9678,10 +9678,10 @@ static LPCTSTR eTypeStr(eDirectIO eType)
     {
     case eDIO_Spill:       return "Spill";
     case eDIO_Vent:        return "Vent";
-    case eDIO_Src:         return "Src";
+    case eDIO_Src:         return "Source";
     case eDIO_Makeup:      return "Makeup";
     case eDIO_Deplete:     return "Deplete";
-    case eDIO_Snk:         return "Snk";
+    case eDIO_Snk:         return "Sink";
     case eDIO_Bleed:       return "Bleed";
     case eDIO_Accum:       return "Accum";
     default:               return "???";

@@ -1737,32 +1737,32 @@ void CNeutralImportExport::SetImportTagFixups(long FixupRule, LPCTSTR String1, L
   };
 bool CNeutralImportExport::DoExportValidate(eScdNDBOptions Opts, CString &ErrMsg)
   {
-  bool Gok=m_GrfDB.DoExportValidate(Opts, ScdApp()->GraphTemplate(), ErrMsg);
-  bool Mok=Gok && m_MdlDB.DoExportValidate(Opts, ErrMsg);
+  bool Gok = m_GrfDB.DoExportValidate(Opts, ScdApp()->GraphTemplate(), ErrMsg);
+  bool Mok = Gok && m_MdlDB.DoExportValidate(Opts, ErrMsg);
   return Gok&&Mok;
   }
 bool CNeutralImportExport::DoImportValidate(eScdNDBOptions Opts, CString &ErrMsg)
   {
-  bool Gok=m_GrfDB.DoImportValidate(Opts, ScdApp()->GraphTemplate(), ErrMsg);
-  bool Mok=Gok && m_MdlDB.DoImportValidate(Opts, ErrMsg);
+  bool Gok = m_GrfDB.DoImportValidate(Opts, ScdApp()->GraphTemplate(), ErrMsg);
+  bool Mok = Gok && m_MdlDB.DoImportValidate(Opts, ErrMsg);
   return Gok&&Mok;
   }
 bool CNeutralImportExport::DoExport(eScdNDBOptions Opts, LPCTSTR pGrfDatabase, LPCTSTR pMdlDatabase)
   {
-  bool Gok=m_GrfDB.DoExport(Opts, ScdApp()->GraphTemplate(), pGrfDatabase);
-  bool Mok=m_MdlDB.DoExport(Opts, pMdlDatabase);
+  bool Gok = m_GrfDB.DoExport(Opts, ScdApp()->GraphTemplate(), pGrfDatabase);
+  bool Mok = Gok && m_MdlDB.DoExport(Opts, pMdlDatabase);
   return Gok&&Mok;
   };
 bool CNeutralImportExport::DoImportDB(eScdNDBOptions Opts, LPCTSTR pGrfDatabase, LPCTSTR pMdlDatabase)
   {
-  bool Gok=m_GrfDB.DoImportDB(Opts, ScdApp()->GraphTemplate(), pGrfDatabase);
-  bool Mok=m_MdlDB.DoImportDB(Opts, pMdlDatabase);
+  bool Gok = m_GrfDB.DoImportDB(Opts, ScdApp()->GraphTemplate(), pGrfDatabase);
+  bool Mok = Gok && m_MdlDB.DoImportDB(Opts, pMdlDatabase);
   return Gok&&Mok;
   };
 bool CNeutralImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc* pDoc, LPCTSTR pGrfDatabase, LPCTSTR pMdlDatabase)
   {
-  bool Gok=m_GrfDB.DoImportGroup(Opts, pDoc, pGrfDatabase);
-  bool Mok=m_MdlDB.DoImportGroup(Opts, pMdlDatabase);
+  bool Gok = m_GrfDB.DoImportGroup(Opts, pDoc, pGrfDatabase);
+  bool Mok = Gok && m_MdlDB.DoImportGroup(Opts, pMdlDatabase);
   return Gok&&Mok;
   };
 long CNeutralImportExport::GetGroups(CNeutralGrpDescList &List, LPCTSTR pDatabaseName)

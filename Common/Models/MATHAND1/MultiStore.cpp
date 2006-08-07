@@ -466,8 +466,8 @@ void CMultiStoreIO::ValidateSplit()
 
 CMultiStorage::CMultiStorage(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MdlNode(pClass_, TagIn, pAttach, eAttach),
-  m_Src(eDIO_Src, this, false, true, "Src"),
-  m_Snk(eDIO_Snk, this, false, true, "Snk"),
+  m_Src(eDIO_Src, this, false, true, "Source"),
+  m_Snk(eDIO_Snk, this, false, true, "Sink"),
   m_AccIn(eDIO_Accum, this, false, true, "Accumulation"),
   m_AccOut(eDIO_Deplete, this, false, true, "Depletion"),
   m_AccCalc(this, m_AccIn, m_AccOut)

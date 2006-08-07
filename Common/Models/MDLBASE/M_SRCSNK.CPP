@@ -21,8 +21,8 @@ Flows("Flows", this, TOA_Embedded),
 P_RegB("RL_Basic", this, NULL),
 T_RegB("RL_Basic", this, NULL),
 m_VLE(this, VLEF_TPFlash),
-m_Src(eDIO_Src, this, false, true, "Src"), 
-m_Snk(eDIO_Snk, this, false, true, "Snk")
+m_Src(eDIO_Src, this, false, true, "Source"), 
+m_Snk(eDIO_Snk, this, false, true, "Sink")
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
   //Initialise();

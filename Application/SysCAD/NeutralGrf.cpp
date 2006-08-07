@@ -318,7 +318,8 @@ m_Origin(0,0,0), m_Scale(1,1,1)
 
 CNeutralGrfImportExport::~CNeutralGrfImportExport()
   {
-  ASSERT_RDB(m_pIn==NULL && m_pUn==NULL && m_pLk==NULL && m_pLl==NULL && m_pSy==NULL && m_pGr==NULL && m_pGI==NULL, "Should close file!");
+  ASSERT_RDB(m_pIn==NULL && m_pUn==NULL && m_pLk==NULL && m_pLl==NULL && m_pSy==NULL && m_pGr==NULL && m_pGI==NULL, 
+    "Incomplete Import Export !");
   }
 
 //---------------------------------------------------------------------------
@@ -1295,6 +1296,11 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
         GrfDocs[i] = pGDoc;
         if (pGDoc)
           pGDoc->GCB.DeleteDrawing();
+        else
+          {
+          Close();
+          return false;
+          }
         }
 
 
@@ -1535,6 +1541,7 @@ bool CNeutralGrfImportExport::DoImportDB(eScdNDBOptions Opts, CDocTemplate & Tem
 
       Close();
       return true;
+
       }
     return false;
     }

@@ -13240,6 +13240,8 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
 
 flag CFlwSolver::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
+  dbgpln("CFlwSolver::EO_Execute");
+
   CStopWatchLap SWLapOverall(gs_swTotalExecTicks);
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_Execute 1");

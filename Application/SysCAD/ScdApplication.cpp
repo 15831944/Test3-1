@@ -130,7 +130,6 @@ HRESULT CScdApplication::FinalConstruct()
     Sleep(iDelay);
     }
 
-  gs_License.PushState();
   FC_ROF(m_pSolver.CoCreateInstance(CLSID_ScdSolver));
   FC_ROF(m_pOptions.CoCreateInstance(CLSID_ScdOptions));
   FC_ROF(m_pProject.CoCreateInstance(CLSID_ScdProject));
@@ -139,17 +138,18 @@ HRESULT CScdApplication::FinalConstruct()
   AddChildEvents(m_pProject.p);
   AddChildEvents(m_pOptions.p);
   AddChildEvents(m_pLicense.p);
+  gs_License.PushState();
   return S_OK; //CoCreateFreeThreadedMarshaler(GetControllingUnknown(), &m_pUnkMarshaler.p);
   }
 
 void CScdApplication::FinalRelease()
   {
+  gs_License.PopState();
   ////m_pUnkMarshaler.Release();
   m_pLicense.Release();
   m_pProject.Release();
   m_pOptions.Release();
   m_pSolver.Release();
-  gs_License.PopState();
   }
 
 

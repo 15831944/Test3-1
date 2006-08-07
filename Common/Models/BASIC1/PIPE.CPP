@@ -775,76 +775,33 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       {
       DDB.Object(&m_MFB, this, "MFB", NULL, DDB_OptPage);
       }
-    else if (PrjFileVerNo()<22)// if (!MFB.fOn)
-      {
-      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga// hss 14/2/98
-      DDB.Page("Eqn", DDB_OptPage);
-      m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, this, NULL, 3);
-
-      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
-      if (NoFlwIOs()>0 && IOPipeEntry_Rmt(0))
-        IOFB_Rmt(0,0)->BuildDataDefn(FBDDOpt_WithAll, DDB, this, "SrcEqn", 1);
-      if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
-        IOFB_Rmt(1,0)->BuildDataDefn(FBDDOpt_WithAll, DDB, this, "DstEqn", 2);
-      }
     else
       {
       DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile());
       DDB.Page("Eqns", DDB_OptPage);
 
-      if (PrjFileVerNo()<24)
-        { // This is s stuffup data & eqns are confused
-        if (DDB.BeginObject(this, "Eqn", "FB_Data", NULL, DDB_NoPage, 3, MarkerClosed))
+      //DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
+      int Do0=(NoFlwIOs()>0) && Nd_Rmt(0);
+      int Do1=(NoFlwIOs()>1) && Nd_Rmt(1);
+      DDBPages Pg=NetProbalMethod() ? DDB_OptPage : DDB_RqdPage;
+      if (!DDB.ForFileSnpScn())
+        {
+        if (Do0 && IOPipeEntry_Rmt(0))
           {
-          DDB.SuppressNextBlock();
-          m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, this, NULL, 3);
-          }
-        DDB.EndObject();
-        DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
-        if ((NoFlwIOs()>0) && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
-          {
-          if (DDB.BeginObject(this, "Src", "FB_Data", NULL, DDB_NoPage, 1, MarkerClosed))
-            {
-            DDB.SuppressNextBlock();
-            IOFB_Rmt(0,0)->BuildDataDefn(FBDDOpt_WithAll, DDB, this, "Eqn", 1);
-            }
-          DDB.EndObject();
-          }
-        if ((NoFlwIOs()>1) && IOPipeEntry_Rmt(1))
-          {
-          if (DDB.BeginObject(this, "Dst", "FB_Data", NULL, DDB_NoPage, 2, MarkerClosed))
-            {
-            DDB.SuppressNextBlock();
-            IOFB_Rmt(1,0)->BuildDataDefn(FBDDOpt_WithAll, DDB, this, "Eqn", 2);
-            }
-          DDB.EndObject();
+          IOFB_Rmt(0,0)->BuildDataDefn(FBDDOpt_WithEqn/*All*/, DDB, this, "Src", 1, Pg);
+          Pg=DDB_NoPage;
           }
         }
-      else
+      //if (!DDB.ForFileSnpScn() || PrjFileVerNo()<40)
+      //m_FEP.BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|(!IsXfer ? FBDDOpt_WithQmSpec:0), DDB, this, "Eqn", 3, Pg);
+      m_FEP.BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|FBDDOpt_WithQmSpec, DDB, this, "Eqn", 3, Pg);
+      if (m_bWithOP && NIOFBs(0)==2)
+        IOFB(0,1)->BuildDataDefn(FBDDOpt_WithEqn, DDB, this, "OP", 4, DDB_NoPage);
+      if (!DDB.ForFileSnpScn())
         {
-        //DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
-        DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile()); //kga//hss 14/2/98
-        int Do0=(NoFlwIOs()>0) && Nd_Rmt(0);
-        int Do1=(NoFlwIOs()>1) && Nd_Rmt(1);
-        DDBPages Pg=NetProbalMethod() ? DDB_OptPage : DDB_RqdPage;
-        if (!DDB.ForFileSnpScn())
-          {
-          if (Do0 && IOPipeEntry_Rmt(0))
-            {
-            IOFB_Rmt(0,0)->BuildDataDefn(FBDDOpt_WithEqn/*All*/, DDB, this, "Src", 1, Pg);
-            Pg=DDB_NoPage;
-            }
-          }
-        //if (!DDB.ForFileSnpScn() || PrjFileVerNo()<40)
-        //m_FEP.BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|(!IsXfer ? FBDDOpt_WithQmSpec:0), DDB, this, "Eqn", 3, Pg);
-        m_FEP.BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|FBDDOpt_WithQmSpec, DDB, this, "Eqn", 3, Pg);
-        if (m_bWithOP && NIOFBs(0)==2)
-          IOFB(0,1)->BuildDataDefn(FBDDOpt_WithEqn, DDB, this, "OP", 4, DDB_NoPage);
-        if (!DDB.ForFileSnpScn())
-          {
-          if (Do1 && IOPipeEntry_Rmt(1))
-            IOFB_Rmt(1,0)->BuildDataDefn(FBDDOpt_WithEqn, DDB, this, "Dst", 2, DDB_NoPage);
-          }
+        if (Do1 && IOPipeEntry_Rmt(1))
+          IOFB_Rmt(1,0)->BuildDataDefn(FBDDOpt_WithEqn, DDB, this, "Dst", 2, DDB_NoPage);
         }
       }
     }

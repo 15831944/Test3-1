@@ -606,7 +606,10 @@ CDocument* CWindowLists::GetGrfWndByName(char* pTitle)
     if (!FileExists(Fn()))
       {
       pDoc = (CDocument*)(ScdApp()->Template(iGraphTemplate).OpenDocumentFile(NULL));
-      pDoc->SetPathName(Fn());
+      if (pDoc)
+        pDoc->SetPathName(Fn());
+      else
+        LogError("Project", 0, "Document Not Opened: %s", Fn());
       }
     else
       pDoc = (CDocument*)(ScdApp()->Template(iGraphTemplate).OpenDocumentFile(Fn()));

@@ -3,6 +3,7 @@
 #include "SysCAD_i.h"
 #include "ScdLicenseApp.h"
 #include "licbase.h"
+#include "scd_wm.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CScdLicenseApp
@@ -209,7 +210,9 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
           {
           *ErrorReturn=0;
           if (dwOptions & 0x00000001)
+            {
             gs_License.SetForMineServe(true);
+            }
           if (dwOptions & 0x00000002)
             {};
           if (dwOptions & 0x00000004)

@@ -989,20 +989,43 @@ inline void CLicense::SetAppPath(char* p)
 void CLicense::PushState()
   {
   dbgpln("CLicense::PushState() %i", m_iStackLvl);
-  ASSERT_ALWAYS(m_iStackLvl<sizeof(m_StateStack)/sizeof(m_StateStack[0]), "CLicense::PushState() Stack Overflow")
-  m_StateStack[m_iStackLvl++]=m_State;
+  m_iStackLvl++;
+  int MaxStk=sizeof(m_StateStack)/sizeof(m_StateStack[0]);
+  if (m_iStackLvl>=MaxStk)
+    {
+    m_iStackLvl = MaxStk-1;
+    LogError("License", 0, "CLicense::PushState() Stack Overflow");
+    }
+  m_StateStack[m_iStackLvl]=m_State;
   if (ScdMainWnd())
     ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   }
 
 void CLicense::PopState()
   {
-  ASSERT_ALWAYS(m_iStackLvl>0, "CLicense::PopState() Stack Underflow")
-  m_State=m_StateStack[--m_iStackLvl];
+  m_iStackLvl--;
+  if (m_iStackLvl<0)
+    {
+    m_iStackLvl=0;
+    LogError("License", 0, "CLicense::PopState() Stack Underflow");
+    }
+  m_State=m_StateStack[m_iStackLvl];
   if (ScdMainWnd())
     ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   }
 
+//---------------------------------------------------------------------------
+
+void CLicense::SetBlocked(BOOL Block)
+  {
+  dbgpln("CLicense::SetBlocked %s", Block?"ON":"Off");
+  m_State.m_bBlocked = Block;
+  };
+
+BOOL CLicense::Blocked()
+  {
+  return m_State.m_bBlocked && !m_State.m_bCOMMineServeOn; //m_iStackLvl==0; 
+  };
 
 //---------------------------------------------------------------------------
 
@@ -1288,7 +1311,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     return FALSE;
   if (CheckLevel==0)
     {
-    if (!m_State.m_bDemoMode && !m_State.m_bLicensed)
+    if (!m_State.m_bDemoMode && !m_State.m_bLicensed && !m_State.m_bCOMMineServeOn)
       {
       SetBlocked();
       Error("Security Failure.  License blocked\n\nThe majority of SysCAD commands and functions have been disabled.\n\nPlease exit SysCAD. (Save project if required)");
@@ -1340,7 +1363,9 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
 #endif
 
   if (err==0 && OtherErr==0)
+    {
     m_State.m_bLicensed = 1;
+    }
   else
     {
     char Buff[1024];
@@ -2728,8 +2753,31 @@ DWORD CSysCADLicense::LicCatagories()
 
 void CSysCADLicense::SetForMineServe(bool On)  
   { 
-  m_State.m_bCOMMineServeOn=On; 
+  if (m_bUseCOM)
+    {
+    bool Done=true;
+    ScdMainWnd()->PostMessage(WMU_SETLICENSE, 0x0100|(On?1:0), (LPARAM)&Done); 
+    while (!Done)
+      Sleep(50);
+    }
+  else
+    {
+    m_State.m_bCOMMineServeOn = On; 
+    m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
+    Check();
+    if (ScdMainWnd())
+      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+    }
+  };               
+
+//---------------------------------------------------------------------------
+
+void CSysCADLicense::SetForMineServeMsg(WPARAM wParam, LPARAM lParam)  
+  { 
+  m_State.m_bCOMMineServeOn = (wParam&01)!=0; 
+  m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
   Check();
+  *((bool*)lParam)=true;
   if (ScdMainWnd())
     ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   };               
