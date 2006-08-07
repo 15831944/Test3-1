@@ -39,6 +39,7 @@ rem ========== SMDK Units ==========
 set fn2=%fn%_Units.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
@@ -52,6 +53,7 @@ rem ========== SMDK Props ==========
 set fn2=%fn%_Props.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
@@ -65,6 +67,7 @@ rem ========== SMDK Alumina Props ==========
 set fn2=%fn%_AlProps.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
@@ -80,6 +83,7 @@ rem ========== SMDK Full ==========
 set fn2=%fn%_Full.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
@@ -97,6 +101,7 @@ rem ========== SMDK Alcan ==========
 set fn2=%fn%_Alcan.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
@@ -119,6 +124,7 @@ rem ========== SMDK Simutron ==========
 set fn2=%fn%_Simutron.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
@@ -138,6 +144,7 @@ rem ========== SMDK Kenwalt ==========
 set fn2=%fn%_Kenwalt.zip
 del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
