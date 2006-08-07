@@ -30,12 +30,12 @@ namespace SysCAD.Editor
     /// </summary>
     private void InitializeComponent()
     {
-      PureComponents.TreeView.ContextMenuStrings contextMenuStrings1 = new PureComponents.TreeView.ContextMenuStrings();
-      PureComponents.TreeView.TreeViewStyle treeViewStyle1 = new PureComponents.TreeView.TreeViewStyle();
-      PureComponents.TreeView.NodeStyle nodeStyle1 = new PureComponents.TreeView.NodeStyle();
-      PureComponents.TreeView.CheckBoxStyle checkBoxStyle1 = new PureComponents.TreeView.CheckBoxStyle();
-      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle1 = new PureComponents.TreeView.ExpandBoxStyle();
-      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle1 = new PureComponents.TreeView.NodeTooltipStyle();
+      PureComponents.TreeView.ContextMenuStrings contextMenuStrings2 = new PureComponents.TreeView.ContextMenuStrings();
+      PureComponents.TreeView.TreeViewStyle treeViewStyle2 = new PureComponents.TreeView.TreeViewStyle();
+      PureComponents.TreeView.NodeStyle nodeStyle2 = new PureComponents.TreeView.NodeStyle();
+      PureComponents.TreeView.CheckBoxStyle checkBoxStyle2 = new PureComponents.TreeView.CheckBoxStyle();
+      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle2 = new PureComponents.TreeView.ExpandBoxStyle();
+      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle2 = new PureComponents.TreeView.NodeTooltipStyle();
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editUndoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Undo", "&Undo", -1);
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editRedoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Redo", "&Redo", -1);
@@ -211,6 +211,8 @@ namespace SysCAD.Editor
       this.toolWindowContainer4 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.toolWindow1 = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.propertyGrid2 = new System.Windows.Forms.PropertyGrid();
+      this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+      this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
       ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
       this.twOverview.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.tvNavigation)).BeginInit();
@@ -221,6 +223,7 @@ namespace SysCAD.Editor
       this.dockContainerContainer1.SuspendLayout();
       this.twGraphicProperties.SuspendLayout();
       this.toolWindow1.SuspendLayout();
+      this.statusStrip1.SuspendLayout();
       this.SuspendLayout();
       // 
       // dockManager1
@@ -260,7 +263,7 @@ namespace SysCAD.Editor
       // 
       this.tvNavigation.AllowAdding = false;
       this.tvNavigation.AllowDeleting = false;
-      this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
+      this.tvNavigation.ContextMenuStrings = contextMenuStrings2;
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tvNavigation.ExpandOnDblClick = false;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);
@@ -270,13 +273,13 @@ namespace SysCAD.Editor
       this.tvNavigation.PathSeparator = "/";
       this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
       this.tvNavigation.Size = new System.Drawing.Size(128, 354);
-      nodeStyle1.CheckBoxStyle = checkBoxStyle1;
-      nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
-      nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeTooltipStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeStyle1.TooltipStyle = nodeTooltipStyle1;
-      treeViewStyle1.NodeStyle = nodeStyle1;
-      this.tvNavigation.Style = treeViewStyle1;
+      nodeStyle2.CheckBoxStyle = checkBoxStyle2;
+      nodeStyle2.ExpandBoxStyle = expandBoxStyle2;
+      nodeStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeTooltipStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeStyle2.TooltipStyle = nodeTooltipStyle2;
+      treeViewStyle2.NodeStyle = nodeStyle2;
+      this.tvNavigation.Style = treeViewStyle2;
       this.tvNavigation.TabIndex = 1;
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
       this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
@@ -774,11 +777,28 @@ namespace SysCAD.Editor
       this.propertyGrid2.Size = new System.Drawing.Size(149, 467);
       this.propertyGrid2.TabIndex = 0;
       // 
+      // statusStrip1
+      // 
+      this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+      this.statusStrip1.Location = new System.Drawing.Point(132, 568);
+      this.statusStrip1.Name = "statusStrip1";
+      this.statusStrip1.Size = new System.Drawing.Size(678, 22);
+      this.statusStrip1.TabIndex = 14;
+      this.statusStrip1.Text = "statusStrip1";
+      // 
+      // toolStripStatusLabel1
+      // 
+      this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+      this.toolStripStatusLabel1.Size = new System.Drawing.Size(109, 17);
+      this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(963, 590);
+      this.Controls.Add(this.statusStrip1);
       this.Controls.Add(this.toolWindowContainer4);
       this.Controls.Add(this.dockContainerContainer1);
       this.Controls.Add(this.barDockArea3);
@@ -801,7 +821,10 @@ namespace SysCAD.Editor
       this.dockContainerContainer1.ResumeLayout(false);
       this.twGraphicProperties.ResumeLayout(false);
       this.toolWindow1.ResumeLayout(false);
+      this.statusStrip1.ResumeLayout(false);
+      this.statusStrip1.PerformLayout();
       this.ResumeLayout(false);
+      this.PerformLayout();
 
     }
 
@@ -825,6 +848,8 @@ namespace SysCAD.Editor
     public System.Windows.Forms.PropertyGrid propertyGrid1;
     private ActiproSoftware.UIStudio.Dock.ToolWindow toolWindow1;
     private PropertyGrid propertyGrid2;
+    private StatusStrip statusStrip1;
+    public ToolStripStatusLabel toolStripStatusLabel1;
   }
 }
 

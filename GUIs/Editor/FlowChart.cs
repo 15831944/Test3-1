@@ -23,6 +23,7 @@ namespace SysCAD.Editor
     public string currentStencil;
 
     public Arrow arrowBeingModified = null;
+    public int arrowBeingModifiedSelectionHandle = -1;
 
     private int tempBoxKey = 0;
     private int tempArrowKey = 0;
@@ -302,6 +303,7 @@ namespace SysCAD.Editor
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
       arrowBeingModified.CustomDraw = CustomDraw.None;
+      arrowBeingModifiedSelectionHandle = -1;
       arrowBeingModified = null;
       originAnchorChosen = null;
       destinationAnchorChosen = null;
@@ -327,7 +329,7 @@ namespace SysCAD.Editor
         e.Arrow.Destination = oldDestinationBox;
         e.Arrow.DestAnchor = oldDestinationAnchor;
       }
-      if (newDestinationBox != null)
+      else if (newDestinationBox != null)
       {
         (e.Arrow.Tag as Link).graphicLink.Destination = newDestinationGuid;
         e.Arrow.Destination = newDestinationBox;
@@ -427,6 +429,7 @@ namespace SysCAD.Editor
           oldControlPoints.Add(point);
         }
 
+        arrowBeingModifiedSelectionHandle = e.SelectionHandle;
         arrowBeingModified = e.Arrow;
         arrowBeingModified.CustomDraw = CustomDraw.Additional;
         arrowBeingModified.ZTop();
@@ -439,7 +442,7 @@ namespace SysCAD.Editor
         oldDestinationBox = e.Arrow.Destination as Box;
         oldDestinationAnchor = e.Arrow.DestAnchor;
 
-        if (e.SelectionHandle == 0)
+        if (arrowBeingModifiedSelectionHandle == 0)
         {
           PointF originPos = arrowBeingModified.ControlPoints[0];
           Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
@@ -468,6 +471,7 @@ namespace SysCAD.Editor
               newOriginGuid = (originBox.Tag as Item).Guid;
               newOriginBox = originBox;
               newOriginAnchor = closestI;
+              form1.toolStripStatusLabel1.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
             }
           }
         }
@@ -511,6 +515,7 @@ namespace SysCAD.Editor
               newDestinationGuid = (destinationBox.Tag as Item).Guid;
               newDestinationBox = destinationBox;
               newDestinationAnchor = closestI;
+              form1.toolStripStatusLabel1.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
             }
           }
         }
@@ -659,11 +664,79 @@ namespace SysCAD.Editor
 
     void fcFlowChart_MouseWheel(object sender, MouseEventArgs args)
     {
-      FlowChart fcSender = sender as FlowChart;
+      if (arrowBeingModified != null)
+      {
+        if (newDestinationAnchor != -1)
+        {
 
-      float newScrollY = fcSender.ScrollY- args.Delta / 5;
-      if (newScrollY > fcSender.DocExtents.Top)
-        fcSender.ScrollY = newScrollY;
+          if (arrowBeingModifiedSelectionHandle == 0)
+          {
+            if (args.Delta > 0)
+              newOriginAnchor++;
+            else
+              newOriginAnchor--;
+
+            if (newOriginAnchor >= newOriginBox.AnchorPattern.Points.Count)
+              newOriginAnchor = 0;
+            if (newOriginAnchor < 0)
+              newOriginAnchor = newOriginBox.AnchorPattern.Points.Count - 1;
+
+            form1.toolStripStatusLabel1.Text = 
+              (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
+          }
+          if (arrowBeingModifiedSelectionHandle > 0)
+          {
+            if (args.Delta > 0)
+              newDestinationAnchor++;
+            else
+              newDestinationAnchor--;
+
+            if (newDestinationAnchor >= newDestinationBox.AnchorPattern.Points.Count)
+              newDestinationAnchor = 0;
+            if (newDestinationAnchor < 0)
+              newDestinationAnchor = newDestinationBox.AnchorPattern.Points.Count - 1;
+
+            form1.toolStripStatusLabel1.Text = 
+              (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+          }
+          refreshConnectedObjects(arrowBeingModified);
+        }
+      }
+      else
+      {
+        FlowChart fcSender = sender as FlowChart;
+
+        float newScrollY = fcSender.ScrollY - args.Delta / 5;
+        if (newScrollY > fcSender.DocExtents.Top)
+          fcSender.ScrollY = newScrollY;
+      }
+    }
+
+    private void refreshConnectedObjects(Arrow arrowBeingModified)
+    {
+      fcFlowChart.Invalidate();
+      if (arrowBeingModified != null)
+      {
+        //Box origin = arrowBeingModified.Origin as Box;
+        //Box desination = arrowBeingModified.Destination as Box;
+
+        //if (origin != null)
+        //  fcFlowChart.Invalidate(fcFlowChart.DocToClient(origin.BoundingRect));
+        //if (desination != null)
+        //  fcFlowChart.Invalidate(fcFlowChart.DocToClient(desination.BoundingRect));
+
+        //if (newOriginBox != null)
+        //  fcFlowChart.Invalidate(fcFlowChart.DocToClient(newOriginBox.BoundingRect));
+        //if (newDestinationBox != null)
+        //  fcFlowChart.Invalidate(fcFlowChart.DocToClient(newDestinationBox.BoundingRect));
+
+        //if (oldOriginBox != null)
+        //  fcFlowChart.Invalidate(fcFlowChart.DocToClient(oldOriginBox.BoundingRect));
+        //if (oldDestinationBox != null)
+        //  fcFlowChart.Invalidate(fcFlowChart.DocToClient(oldDestinationBox.BoundingRect));
+
+        //fcFlowChart.Invalidate(fcFlowChart.DocToClient(arrowBeingModified.BoundingRect));
+      }
     }
     
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
@@ -920,28 +993,37 @@ namespace SysCAD.Editor
         }
 
         {
-          MindFusion.FlowChartX.Node newNode = newOriginBox;
-          if (newNode is Box)
+          if (newOriginAnchor != -1)
           {
-            Box box = newNode as Box;
+            float dx = newOriginBox.AnchorPattern.Points[newOriginAnchor].X / 100.0F;
+            float dy = newOriginBox.AnchorPattern.Points[newOriginAnchor].Y / 100.0F;
 
+            PointF anchorPointPos = new PointF(
+              newOriginBox.BoundingRect.Left + newOriginBox.BoundingRect.Width * dx,
+              newOriginBox.BoundingRect.Top + newOriginBox.BoundingRect.Height * dy);
 
-            if (arrow.OrgnAnchor != -1)
-            {
-              float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-              float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
-              PointF anchorPointPos = new PointF(
-                box.BoundingRect.Left + box.BoundingRect.Width * dx,
-                box.BoundingRect.Top + box.BoundingRect.Height * dy);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
 
-              PointF[] extensionPoints =
-                new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+            e.Graphics.DrawLines(pen, extensionPoints);
+          }
+          else if (oldOriginAnchor != -1)
+          {
+            float dx = oldOriginBox.AnchorPattern.Points[oldOriginAnchor].X / 100.0F;
+            float dy = oldOriginBox.AnchorPattern.Points[oldOriginAnchor].Y / 100.0F;
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
+            PointF anchorPointPos = new PointF(
+              oldOriginBox.BoundingRect.Left + oldOriginBox.BoundingRect.Width * dx,
+              oldOriginBox.BoundingRect.Top + oldOriginBox.BoundingRect.Height * dy);
 
-              e.Graphics.DrawLines(pen, extensionPoints);
-            }
+            PointF[] extensionPoints =
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+
+            e.Graphics.DrawLines(pen, extensionPoints);
           }
         }
       }
