@@ -608,9 +608,9 @@ flag CSfeSrvr::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   return b;
   };
 
-flag CSfeSrvr::EO_StepDone()     
+flag CSfeSrvr::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)     
   {
-  flag b=SfeFS->EO_StepDone(); 
+  flag b=SfeFS->EO_StepDone(CB, StepExecuted); 
   
   #if dbgSFE_Srvr && HEAP_SPARES
   if (dbgMemStats())

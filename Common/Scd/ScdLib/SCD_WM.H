@@ -141,17 +141,18 @@
 #define SUB_CMD_GENERATEOLEREPORT     2
 #define SUB_CMD_CMDLINE               3
 #define SUB_CMD_ADDTOARCHIVE          4
-#define SUB_CMD_ARCHIVEEXEC           5
-#define SUB_CMD_ARCHIVESTART          6
-#define SUB_CMD_ARCHIVESTOP           7
-#define SUB_CMD_OPCSRVRSTATS          8
-#define SUB_CMD_PRJWNDUPDATE          9 
-#define SUB_CMD_HISTORYON             10
-#define SUB_CMD_HISTORYOFF            11
-#define SUB_CMD_ALLHISTORYON          12
-#define SUB_CMD_ALLHISTORYOFF         13
-#define SUB_CMD_ALLMDLHISTORYON       14
-#define SUB_CMD_ALLMDLHISTORYOFF      15
+#define SUB_CMD_ARCHIVEEXECUTE        5
+#define SUB_CMD_ARCHIVESTEPDONE       6
+#define SUB_CMD_ARCHIVESTART          7
+#define SUB_CMD_ARCHIVESTOP           8
+#define SUB_CMD_OPCSRVRSTATS          9 
+#define SUB_CMD_PRJWNDUPDATE          10
+#define SUB_CMD_HISTORYON             11
+#define SUB_CMD_HISTORYOFF            12
+#define SUB_CMD_ALLHISTORYON          13
+#define SUB_CMD_ALLHISTORYOFF         14
+#define SUB_CMD_ALLMDLHISTORYON       15
+#define SUB_CMD_ALLMDLHISTORYOFF      16
 
 //WPARAM sub-messages used by WMU_UPDATEMAINWND...
 #define SUB_UPDMAIN_UPDATE            1 //update main window and bring window specified by lParam (if any) to top

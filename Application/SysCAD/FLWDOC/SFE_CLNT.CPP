@@ -572,10 +572,10 @@ flag SFEFlwLib::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   //  LoadAllXRefStatus();
   FLEAVE
   };
-flag SFEFlwLib::EO_StepDone()
+flag SFEFlwLib::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
   { 
   FENTER(false) 
-  pSfe->EO_StepDone();
+  pSfe->EO_StepDone(CB, StepExecuted);
   FLEAVE
   };
 flag SFEFlwLib::EO_QueryStop(CXM_TimeControl &CB, bool Starting)

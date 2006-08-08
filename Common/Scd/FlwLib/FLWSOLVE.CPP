@@ -12623,7 +12623,7 @@ static int HpEvalPosn(void * p, void * q)
 
 flag CFlwSolver::EO_GotoRunStart(CXM_TimeControl &CB)
   {
-  dbgpln("CFlwSolver::EO_GotoRunStart");
+  //dbgpln("CFlwSolver::EO_GotoRunStart");
   
   TryDoGlobalLinks();
   
@@ -12640,7 +12640,8 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
   return 1;
 #endif
 
-  dbgpln("CFlwSolver::EO_GotoRunEnd");
+  //dbgpln("CFlwSolver::EO_GotoRunEnd");
+
   // Set the Time - regardless
   ODE().SetTime(CB.m_TheTime.Seconds);
   //ODE().ClSetItersTotal(0);
@@ -12816,7 +12817,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
 
 flag CFlwSolver::EO_PreStart(CXM_TimeControl &CB)
   {
-  dbgpln("CFlwSolver::EO_PreStart");
+  //dbgpln("CFlwSolver::EO_PreStart");
   return true;
   }
 
@@ -12824,7 +12825,8 @@ flag CFlwSolver::EO_PreStart(CXM_TimeControl &CB)
 
 flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
   {
-  dbgpln("CFlwSolver::EO_Start");
+  //dbgpln("CFlwSolver::EO_Start");
+
 #if !RESTORE_EO_Start
   return 1;
 #endif
@@ -13240,7 +13242,7 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
 
 flag CFlwSolver::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
-  dbgpln("CFlwSolver::EO_Execute");
+  //dbgpln("CFlwSolver::EO_Execute");
 
   CStopWatchLap SWLapOverall(gs_swTotalExecTicks);
   STARTPROGRESS;
@@ -13430,7 +13432,7 @@ Done:
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_StepDone()
+flag CFlwSolver::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
   {
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_StepDone");

@@ -2369,6 +2369,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       bRegistrationListtoChange=true;
       bListRebuildReqd=false;
       bListUpdateReqd=false;
+      m_bStepExecuted=false;
 
       TimeCB().m_bHoldAdv = bHoldAdv;
       //TimeCB().m_nStepCount = 0;
@@ -2657,8 +2658,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       //XSW.Write.ReStart();
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
         {
-        Objs_Exec[EInx]->EO_StepDone();
+        Objs_Exec[EInx]->EO_StepDone(TimeCB(), m_bStepExecuted);
         }
+      m_bStepExecuted=false;
       PostCmd(0, EXM_DOTEST);
       break;
 
@@ -2913,6 +2915,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
     case EXM_EXECALLDONE:
       gs_swFlwSolve.Stop();
+      m_bStepExecuted=true;
 
       //TimeCB().m_nStepCount++;
       //UpdateState(false, false);

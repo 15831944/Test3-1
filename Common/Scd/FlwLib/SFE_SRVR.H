@@ -164,7 +164,7 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     DWORD        EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
     int          EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route);
     flag         EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
-    flag         EO_StepDone();
+    flag         EO_StepDone(CXM_TimeControl &CB, flag StepExecuted);
     flag         EO_BeginPause(CXM_TimeControl &CB);
     flag         EO_EndPause(CXM_TimeControl &CB);
     flag         EO_QueryStop(CXM_TimeControl &CB, bool Starting);

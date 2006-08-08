@@ -1082,76 +1082,70 @@ class DllImportExport CSfeSrvrBase
     virtual int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) { return 0; };
     //virtual int          RequestXRefInfoChg() { return 0; };
 
-    virtual int          FE_GetRctInfo(CRctBlkInformation & RctInfo) { return 0; };
-    virtual int          FE_SetRctInfo(LPCTSTR NodeTag)    { return 0; };
+    virtual int          FE_GetRctInfo(CRctBlkInformation & RctInfo)                           { return 0; };
+    virtual int          FE_SetRctInfo(LPCTSTR NodeTag)                                        { return 0; };
 
-    virtual int          FE_GetNodeWiring(CNodeWiring &NodeWiring) { return -1; };
-    virtual int          FE_GetLinkWiring(CLinkWiring &LinkWiring) { return -1; };  // -1 implies not a cable
-    virtual int          FE_SetLinkWiring(CLinkWiring &LinkWiring) { return -1; };
+    virtual int          FE_GetNodeWiring(CNodeWiring &NodeWiring)                             { return -1; };
+    virtual int          FE_GetLinkWiring(CLinkWiring &LinkWiring)                             { return -1; };  // -1 implies not a cable
+    virtual int          FE_SetLinkWiring(CLinkWiring &LinkWiring)                             { return -1; };
 
-    virtual long         FE_GetTopologyCount() { return 0; };
-    virtual long         FE_GetNodes(DWORD What, CFlwNodeArray & Nodes) { return 0; };
-    virtual FlwNode     *FE_FindNode(LPCTSTR Tag) { return NULL; };
+    virtual long         FE_GetTopologyCount()                                                 { return 0; };
+    virtual long         FE_GetNodes(DWORD What, CFlwNodeArray & Nodes)                        { return 0; };
+    virtual FlwNode     *FE_FindNode(LPCTSTR Tag)                                              { return NULL; };
 
-    //virtual void         FE_ElecComponentsChanged() { };
-    virtual void         FE_UnDoGlobalLinks()                       { };
-    virtual long         FE_SpModelFixupStrategy()                  { return 0; }
-    virtual void         FE_SetSpModelFixupStrategy(long Strategy)  { }
+    virtual void         FE_UnDoGlobalLinks()                                                  { };
+    virtual long         FE_SpModelFixupStrategy()                                             { return 0; }
+    virtual void         FE_SetSpModelFixupStrategy(long Strategy)                             { }
 
+    virtual flag         FE_TestModelTagUnique(pchar pTag)                                     { return 0; };
 
-    virtual flag         FE_TestModelTagUnique(pchar pTag)           { return 0; };
+    virtual void         EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)      { };
+    virtual flag         EO_GetModelAction(Strng & Tag, MdlActionArray & Acts)                 { return 0; };
+    virtual flag         EO_SetModelAction(Strng & Tag, MdlAction & Act)                       { return 0; };
 
-    virtual void         EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) { };
-    virtual flag         EO_GetModelAction(Strng & Tag, MdlActionArray & Acts) { return 0; };
-    virtual flag         EO_SetModelAction(Strng & Tag, MdlAction & Act) { return 0; };
+    virtual int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)          { return 0; };
 
-    //virtual flag         EO_SolutionReqd() { return 0; };
-    //virtual int          EO_InitSolution(EqnSlvCtrlBlk & EQCtrl) { return 0; };
-    //virtual int          EO_StepSolution(EqnSlvCtrlBlk & EQCtrl) { return 0; };
-    //virtual int          EO_TermSolution(EqnSlvCtrlBlk & EQCtrl) { return 0; };
-    virtual int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine) { return 0; };
+    virtual void         EO_OnAppActivate(BOOL bActive)                                        { };
+    virtual flag         EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)     { return 0; };
+    virtual int          EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)                       { return 0; };
+    virtual int          EO_ChangeTag(pchar pOldTag, pchar pNewTag)                            { return 0; };
+    virtual int          EO_QueryDeleteTag(pchar pDelTag)                                      { return 0; };
+    virtual int          EO_DeleteTag(pchar pDelTag)                                           { return 0; };
+    virtual int          EO_CanClose(Strng_List & Problems)                                    { return 0; };
 
-    virtual void         EO_OnAppActivate(BOOL bActive) { };
-    virtual flag         EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info) { return 0; };
-    virtual int          EO_QueryChangeTag(pchar pOldTag, pchar pNewTag) { return 0; };
-    virtual int          EO_ChangeTag(pchar pOldTag, pchar pNewTag) { return 0; };
-    virtual int          EO_QueryDeleteTag(pchar pDelTag) { return 0; };
-    virtual int          EO_DeleteTag(pchar pDelTag) { return 0; };
-    virtual int          EO_CanClose(Strng_List & Problems) { return 0; };
-
-    virtual void         EO_SetSolveMode() { };
-    virtual flag         EO_Starting(flag fBeginStarting) { return 0; };
-    virtual flag         EO_SetTime(CTimeValue TimeRqd, bool Rewind) { return true;};
-    virtual flag         EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd) { return 0; };
-    virtual flag         EO_GotoRunStart(CXM_TimeControl &CB)                        { return 0; }
-    virtual flag         EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)        { return 0; }
-    virtual flag         EO_PreStart(CXM_TimeControl &CB)                             { return 1; }
-    virtual flag         EO_Start(CXM_TimeControl &CB)                                { return 0; };
-    virtual void         EO_QuerySubsReqd(CXMsgLst &XM)                               { };
-    virtual void         EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)             { };
-    virtual flag         EO_ReadSubsData(CXMsgLst &XM)                                { return 0; };
-    virtual flag         EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock) { return 0; };
-    virtual DWORD        EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route) { return 0; };
-    virtual int          EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route) { return 0; };
-    virtual flag         EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) { return 0; };
-    virtual flag         EO_StepDone() { return 0; };
-    virtual flag         EO_QueryStop(CXM_TimeControl &CB, bool Starting) { return 0; };
-    virtual flag         EO_Stop(CXM_TimeControl &CB) { return 0; };
-    virtual flag         EO_Stopping(flag BeginStopping) { return 0; };
-    virtual flag         EO_BeginPause(CXM_TimeControl &CB) { return 0; };
-    virtual flag         EO_EndPause(CXM_TimeControl &CB) { return 0; };
-    virtual flag         EO_BeginSave(FilingControlBlock &FCB) { return 0; };
+    virtual void         EO_SetSolveMode()                                                     { };
+    virtual flag         EO_Starting(flag fBeginStarting)                                      { return 0; };
+    virtual flag         EO_SetTime(CTimeValue TimeRqd, bool Rewind)                           { return true;};
+    virtual flag         EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)  { return 0; };
+    virtual flag         EO_GotoRunStart(CXM_TimeControl &CB)                                  { return 0; }
+    virtual flag         EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)                  { return 0; }
+    virtual flag         EO_PreStart(CXM_TimeControl &CB)                                      { return 1; }
+    virtual flag         EO_Start(CXM_TimeControl &CB)                                         { return 0; };
+    virtual void         EO_QuerySubsReqd(CXMsgLst &XM)                                        { };
+    virtual void         EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)                      { };
+    virtual flag         EO_ReadSubsData(CXMsgLst &XM)                                         { return 0; };
+    virtual flag         EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)       { return 0; };
+    virtual DWORD        EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route)  { return 0; };
+    virtual int          EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)         { return 0; };
+    virtual flag         EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)                 { return 0; };
+    virtual flag         EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)                   { return 0; };
+    virtual flag         EO_QueryStop(CXM_TimeControl &CB, bool Starting)                      { return 0; };
+    virtual flag         EO_Stop(CXM_TimeControl &CB)                                          { return 0; };
+    virtual flag         EO_Stopping(flag BeginStopping)                                       { return 0; };
+    virtual flag         EO_BeginPause(CXM_TimeControl &CB)                                    { return 0; };
+    virtual flag         EO_EndPause(CXM_TimeControl &CB)                                      { return 0; };
+    virtual flag         EO_BeginSave(FilingControlBlock &FCB)                                 { return 0; };
     virtual flag         EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM) { return 0; };
-    virtual flag         EO_SaveOtherData(FilingControlBlock &FCB) { return 0; };
-    virtual flag         EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM) { return 0; };
-    virtual flag         EO_EndSave(FilingControlBlock &FCB) { return 0; };
-    virtual flag         EO_BeginLoad(FilingControlBlock &FCB) { return 0; };
-    virtual flag         EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM) { return 0; };
-    virtual flag         EO_LoadOtherData(FilingControlBlock &FCB) { return 0; };
-    virtual flag         EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM) { return 0; };
-    virtual flag         EO_EndLoad(FilingControlBlock &FCB) { return 0; };
-    virtual void         EO_BeginBulkChange() {};
-    virtual void         EO_EndBulkChange() {};
+    virtual flag         EO_SaveOtherData(FilingControlBlock &FCB)                             { return 0; };
+    virtual flag         EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)                    { return 0; };
+    virtual flag         EO_EndSave(FilingControlBlock &FCB)                                   { return 0; };
+    virtual flag         EO_BeginLoad(FilingControlBlock &FCB)                                 { return 0; };
+    virtual flag         EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)             { return 0; };
+    virtual flag         EO_LoadOtherData(FilingControlBlock &FCB)                             { return 0; };
+    virtual flag         EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)                    { return 0; };
+    virtual flag         EO_EndLoad(FilingControlBlock &FCB)                                   { return 0; };
+    virtual void         EO_BeginBulkChange()                                                  {};
+    virtual void         EO_EndBulkChange()                                                    {};
 
   };
 

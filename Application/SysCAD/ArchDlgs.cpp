@@ -110,11 +110,12 @@ void CAddToArchive::OnAdd()
     int nItem = m_TableList.GetNextSelectedItem(pos);
     Table=m_TableList.GetItemText(nItem ,0);   
 
-    if (m_bCount)   m_pAM->AppendField(m_sTag, Table, ADBFn_Count,     tt_Long, 0, "", "");
-    if (m_bAverage) m_pAM->AppendField(m_sTag, Table, ADBFn_PeriodAvg, m_iType, m_iCnv, m_sCnvTxt(), "");
-    if (m_bCurrent) m_pAM->AppendField(m_sTag, Table, ADBFn_Instant,   m_iType, m_iCnv, m_sCnvTxt(), "");
-    if (m_bMaximum) m_pAM->AppendField(m_sTag, Table, ADBFn_Maximum,   m_iType, m_iCnv, m_sCnvTxt(), "");
-    if (m_bMinimum) m_pAM->AppendField(m_sTag, Table, ADBFn_Minimum,   m_iType, m_iCnv, m_sCnvTxt(), "");
+    _asm int 3; // Fix Meas Type
+    if (m_bCount)   m_pAM->AppendField(m_sTag, Table, NULL, ADBFn_Count,     ADBMeas_MidPt, ADBFirst_Use, tt_Long, 0, "", "");
+    if (m_bAverage) m_pAM->AppendField(m_sTag, Table, NULL, ADBFn_PeriodAvg, ADBMeas_MidPt, ADBFirst_Use, m_iType, m_iCnv, m_sCnvTxt(), "");
+    if (m_bCurrent) m_pAM->AppendField(m_sTag, Table, NULL, ADBFn_Instant,   ADBMeas_MidPt, ADBFirst_Use, m_iType, m_iCnv, m_sCnvTxt(), "");
+    if (m_bMaximum) m_pAM->AppendField(m_sTag, Table, NULL, ADBFn_Maximum,   ADBMeas_MidPt, ADBFirst_Use, m_iType, m_iCnv, m_sCnvTxt(), "");
+    if (m_bMinimum) m_pAM->AppendField(m_sTag, Table, NULL, ADBFn_Minimum,   ADBMeas_MidPt, ADBFirst_Use, m_iType, m_iCnv, m_sCnvTxt(), "");
 
     }
   }

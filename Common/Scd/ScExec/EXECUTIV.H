@@ -561,13 +561,13 @@ class DllImportExport CExecObj
     virtual void   EO_EndBulkChange()                                    { ;};
 
     //virtual flag   EO_UpdateOutputs()                                   {return True;};
-    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) {return False;};
-    virtual flag   EO_StepDone()                                         { return False; };
+    virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet) { return False;};
+    virtual flag   EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)   { return False; };
     virtual flag   EO_Stopping(flag fBeginStopping)                      { return True;};
-    virtual flag   EO_QueryStop(CXM_TimeControl &CB, bool Starting){ return False;};
-    virtual flag   EO_Stop(CXM_TimeControl &CB)                    { return True;};
-    virtual flag   EO_BeginPause(CXM_TimeControl &CB)              { return True;};
-    virtual flag   EO_EndPause(CXM_TimeControl &CB)                { return True;};
+    virtual flag   EO_QueryStop(CXM_TimeControl &CB, bool Starting)      { return False;};
+    virtual flag   EO_Stop(CXM_TimeControl &CB)                          { return True;};
+    virtual flag   EO_BeginPause(CXM_TimeControl &CB)                    { return True;};
+    virtual flag   EO_EndPause(CXM_TimeControl &CB)                      { return True;};
     virtual void   EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB) { };
 
     virtual flag   EO_BeginSave(FilingControlBlock &FCB)                 { return False;};
@@ -1334,6 +1334,7 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           m_bSendStopEvent;
     flag           m_ReadWriteAllReqd;
     UINT           m_GotoCmdOnceStopped;
+    flag           m_bStepExecuted;
 
     flag           bSelfConnect;
     HANDLE         hPauseEvent;

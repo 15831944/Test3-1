@@ -1105,18 +1105,12 @@ char* CXM_RepTrendDB::NextTag(char* pPrevTag)
   };
 
 //===========================================================================
+                                          
+LPCTSTR ADBFuncTags[]   = {  "",  "CUR",      "MIN",          "MAX",  "AVG",  "RUNAVG",  "CNT",  NULL, };
+LPCTSTR ADBMeasTags[]   = {  "",  "StartPt",  "MidPt",        "EndPt", NULL, };
+LPCTSTR ADBFirstTags[]  = {  "",  "UseFirst", "IgnoreFirst",  NULL, };
+LPCTSTR ADBTbFmtTags[]  = {  "",  "DB",       "CSV",          "TXT", NULL, };
 
-LPCTSTR ADBFuncTags[] =
-  {
-  "",
-  "CUR",
-  "MIN",
-  "MAX",
-  "AVG",
-  "RUNAVG",
-  "CNT",
-  NULL,
-  };
 
 CXM_ArchiveExists::CXM_ArchiveExists(char * Tag)
   {
@@ -1190,7 +1184,7 @@ CXM_ArcShowTagInfo::CXM_ArcShowTagInfo(char * Tag, WORD ArcOptMask)
 
 CXM_KeepArchive::CXM_KeepArchive(DataUnion* pVal, long DataIndex,
                    char tt_Type, char * Tag, CCnvIndex CnvNo, char * CnvTxt,
-                   char * Table, byte Fn, char * Desciption)
+                   char * Table, char * FldName, byte Fn, byte Meas, byte First, char * Desciption)
   {
   if (Tag==NULL)
     Tag= "";
@@ -1205,7 +1199,9 @@ CXM_KeepArchive::CXM_KeepArchive(DataUnion* pVal, long DataIndex,
   lDataIndex=DataIndex;
   cType=tt_Type;
   iCnv=CnvNo;
-  iFn=Fn;
+  m_iFn=Fn;
+  m_iMeas=Meas;
+  m_iFirst=First;
 
   char * p=cBuff;
   strcpy(p, Tag);
@@ -1215,7 +1211,9 @@ CXM_KeepArchive::CXM_KeepArchive(DataUnion* pVal, long DataIndex,
   strcpy(&cBuff[iTablePos], Table);
   iDescPos=iTablePos+strlen(Table)+1;
   strcpy(&cBuff[iDescPos], Desciption);
-  iCharLen=iDescPos+strlen(Desciption)+1;
+  iFldNamePos=iDescPos+strlen(Desciption)+1;
+  strcpy(&cBuff[iFldNamePos], FldName);
+  iCharLen=iFldNamePos+strlen(FldName)+1;
 
   // CXM_Header
   Id=XM_KeepArchive;
@@ -1226,6 +1224,7 @@ LPCTSTR CXM_KeepArchive::TableName() { return &cBuff[iTablePos]; };
 LPCTSTR CXM_KeepArchive::Tag()       { return &cBuff[0]; };
 LPCTSTR CXM_KeepArchive::CnvTxt()    { return &cBuff[iCnvPos]; };
 LPCTSTR CXM_KeepArchive::Description() { return &cBuff[iDescPos]; };
+LPCTSTR CXM_KeepArchive::FldName()   { return &cBuff[iFldNamePos]; };
 
 //===========================================================================
 

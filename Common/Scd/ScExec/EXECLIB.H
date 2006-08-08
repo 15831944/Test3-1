@@ -866,7 +866,24 @@ const byte ADBFn_PeriodAvg  = 4;
 const byte ADBFn_RunningAvg = 5;
 const byte ADBFn_Count      = 6;
 
-extern DllImportExport LPCTSTR ADBFuncTags[];//ADBFn_Last];
+const byte ADBMeas_Null     = 0;
+const byte ADBMeas_StartPt  = 1;
+const byte ADBMeas_MidPt    = 2;
+const byte ADBMeas_EndPt    = 3;
+
+const byte ADBFirst_Null    = 0;
+const byte ADBFirst_Use     = 1;
+const byte ADBFirst_Ignore  = 2;
+
+const byte ADBTbFmt_Null    = 0;
+const byte ADBTbFmt_DB      = 1;
+const byte ADBTbFmt_CSV     = 2;
+const byte ADBTbFmt_TXT     = 3;
+
+extern DllImportExport LPCTSTR ADBFuncTags[];
+extern DllImportExport LPCTSTR ADBMeasTags[];
+extern DllImportExport LPCTSTR ADBFirstTags[];
+extern DllImportExport LPCTSTR ADBTbFmtTags[];
 
 class DllImportExport CXM_KeepArchive : public CXM_Header
   {
@@ -876,17 +893,21 @@ class DllImportExport CXM_KeepArchive : public CXM_Header
     CCnvIndex      iCnv;
     int            iCharLen;
     DataUnion      Val;
-    byte           iFn;
+    byte           m_iFn;
+    byte           m_iMeas;
+    byte           m_iFirst;
     short          iCnvPos;
     short          iTablePos;
     short          iDescPos;
+    short          iFldNamePos;
     char           cBuff[MaxCXMsgLstSize-sizeof(CXM_Header)-120 /*Space for data members*/]; // Must Be Last;
 
     CXM_KeepArchive(DataUnion* pVal, long DataIndex,
       char tt_Type, char * Tag, CCnvIndex CnvNo, char * CnvTxt,
-      char * Table, byte Fn, char * Description);
+      char * Table, char * FldName, byte Fn, byte Meas, byte First, char * Description);
     LPCTSTR        TableName();
     LPCTSTR        Tag();
+    LPCTSTR        FldName();
     LPCTSTR        CnvTxt();
     LPCTSTR        Description();
 

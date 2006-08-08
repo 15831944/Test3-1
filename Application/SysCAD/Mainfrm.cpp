@@ -922,9 +922,16 @@ LRESULT CMainFrame::OnCmd(WPARAM wParam, LPARAM lParam)
       break;
       }
 
-    case SUB_CMD_ARCHIVEEXEC:
+    case SUB_CMD_ARCHIVEEXECUTE:
       {
       gs_pArcMan->Execute(TimeCB());
+      //gs_pArcMan->SetEvent();
+      break;
+      }
+
+    case SUB_CMD_ARCHIVESTEPDONE:
+      {
+      gs_pArcMan->StepDone(TimeCB());
       gs_pArcMan->SetEvent();
       break;
       }
