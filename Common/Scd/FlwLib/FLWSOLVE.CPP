@@ -6573,7 +6573,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("SS.Iteration",    "", DC_,      "",   &m_SSIters,             &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.Long  ("SS.Steady",       "", DC_,      "",   &m_SSSteady,            &FlwSlvNd, isResult);//, DDBOnOff);
     DDB.Double("SS.MaxChange",    "", DC_Frac,  "%",  &m_SSMaxChange,         &FlwSlvNd, isResult);//, DDBOnOff);
-    DDB.String("SS.MaxChangeTag", "", DC_,      "",   &m_SSMaxTag,            &FlwSlvNd, isResult);//, DDBOnOff);
+    DDB.String("SS.MaxChangeTag", "", DC_,      "",   &m_SSMaxTag,            &FlwSlvNd, isResult|isTag);//, DDBOnOff);
 
     DDB.Text  ("Tolerances");
     m_SSPressTol.GetAbsDD().BuildDataDefn(DDB,  "SS.P.Abs",   "", DC_P,     "kPa",    xidSSPTolAbs,   &FlwSlvNd, "Def", "Ovr");
