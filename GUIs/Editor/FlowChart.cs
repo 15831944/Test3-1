@@ -235,25 +235,13 @@ namespace SysCAD.Editor
         item.Model.BoundingRect = boundingRect;
         item.Model.RotationAngle = angle;
 
-        {
-          ModelStencil modelShape = state.ModelShape(model);
-          if (modelShape != null)
-            item.Model.Shape = state.GetShapeTemplate(modelShape, mirrorX, mirrorY);
-          else
-            item.Model.Shape = ShapeTemplate.FromId("Decision2");
+        ModelStencil modelShape = state.ModelShape(model);
+        if (modelShape != null)
+          item.Model.Shape = state.GetShapeTemplate(modelShape, mirrorX, mirrorY);
+        else
+          item.Model.Shape = ShapeTemplate.FromId("Decision2");
 
-          AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
-          if (modelShape.Anchors != null)
-          {
-            foreach (Anchor anchor in modelShape.Anchors)
-            {
-              AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Cross, Color.Green);
-              anchorPoint.Tag = anchor;
-              anchorPointCollection.Add(anchorPoint);
-            }
-            item.Model.AnchorPattern = new AnchorPattern(anchorPointCollection);
-          }
-        }
+        item.Model.AnchorPattern = state.GetAnchorPattern(modelShape, item.GraphicItem);
 
         item.Graphic.BoundingRect = boundingRect;
         item.Graphic.RotationAngle = angle;
@@ -582,7 +570,7 @@ namespace SysCAD.Editor
       {
         Item hoverItem = hoverBox.Tag as Item;
         hoverItem.Graphic.Visible = hoverItem.Visible;
-        hoverItem.Graphic.ZTop();
+        //hoverItem.Graphic.ZTop();
         hoverItem.Model.Visible = hoverItem.Visible;
         hoverItem.Model.CustomDraw = CustomDraw.Additional;
         hoverItem.Model.ZIndex = hoverItem.Graphic.ZIndex + 1;
@@ -666,9 +654,8 @@ namespace SysCAD.Editor
     {
       if (arrowBeingModified != null)
       {
-        if (newDestinationAnchor != -1)
+        if (newOriginAnchor != -1)
         {
-
           if (arrowBeingModifiedSelectionHandle == 0)
           {
             if (args.Delta > 0)
@@ -684,6 +671,9 @@ namespace SysCAD.Editor
             form1.toolStripStatusLabel1.Text = 
               (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
           }
+        }
+        if (newDestinationAnchor != -1)
+        {
           if (arrowBeingModifiedSelectionHandle > 0)
           {
             if (args.Delta > 0)

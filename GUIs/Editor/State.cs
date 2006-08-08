@@ -115,21 +115,7 @@ namespace SysCAD.Editor
       else
         modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-      AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
-      if (modelStencil.Anchors != null)
-      {
-        int anchorInt = 0;
-        foreach (Anchor anchor in modelStencil.Anchors)
-        {
-          graphicItem.anchorIntToTag.Add(anchorInt, anchor.tag);
-          graphicItem.anchorTagToInt.Add(anchor.tag, anchorInt);
-          anchorInt++;
-          AnchorPoint anchorPoint = new AnchorPoint((short)anchor.position.X, (short)anchor.position.Y, true, true, MarkStyle.Circle, Color.Green);
-          anchorPoint.Tag = anchor;
-          anchorPointCollection.Add(anchorPoint);
-        }
-        modelBox.AnchorPattern = new AnchorPattern(anchorPointCollection);
-      }
+      modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
 
       modelBox.FillColor = Color.FromArgb(150, System.Drawing.Color.BurlyWood);
       modelBox.FrameColor = Color.FromArgb(200, System.Drawing.Color.BurlyWood);
@@ -187,6 +173,31 @@ namespace SysCAD.Editor
 
       items.Add(item.Guid, item);
       flowchart.ResumeLayout();
+    }
+
+    public AnchorPattern GetAnchorPattern(ModelStencil modelStencil, GraphicItem graphicItem)
+    {
+      AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
+      if (modelStencil.Anchors != null)
+      {
+        graphicItem.anchorIntToTag.Clear();
+        graphicItem.anchorTagToInt.Clear();
+        int anchorInt = 0;
+        foreach (Anchor anchor in modelStencil.Anchors)
+        {
+          graphicItem.anchorIntToTag.Add(anchorInt, anchor.tag);
+          graphicItem.anchorTagToInt.Add(anchor.tag, anchorInt);
+          anchorInt++;
+          float x = anchor.position.X;
+          if (graphicItem.MirrorX) x = 100.0F - x;
+          float y = anchor.position.Y;
+          if (graphicItem.MirrorY) y = 100.0F - y;
+          AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, MarkStyle.Circle, Color.Green);
+          anchorPoint.Tag = anchor;
+          anchorPointCollection.Add(anchorPoint);
+        }
+      }
+      return new AnchorPattern(anchorPointCollection);
     }
 
     internal bool DeleteItem(Guid guid)
