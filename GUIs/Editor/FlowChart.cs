@@ -12,6 +12,7 @@ using PureComponents.TreeView;
 using System.Windows.Forms;
 using ActiproSoftware.UIStudio.Bar;
 using MindFusion.FlowChartX.LayoutSystem;
+using System.Drawing.Drawing2D;
 
 namespace SysCAD.Editor
 {
@@ -883,12 +884,16 @@ namespace SysCAD.Editor
           {
             Box box = node as Box;
 
-            float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-            float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+            PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect, 
+              box.AnchorPattern.Points[arrow.DestAnchor].X, 
+              box.AnchorPattern.Points[arrow.DestAnchor].Y, 
+              box.RotationAngle);
+            //float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
+            //float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
 
-            PointF anchorPointPos = new PointF(
-              box.BoundingRect.Left + box.BoundingRect.Width * dx,
-              box.BoundingRect.Top + box.BoundingRect.Height * dy);
+            //PointF anchorPointPos = new PointF(
+            //  box.BoundingRect.Left + box.BoundingRect.Width * dx,
+            //  box.BoundingRect.Top + box.BoundingRect.Height * dy);
 
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
@@ -917,12 +922,16 @@ namespace SysCAD.Editor
           {
             Box box = node as Box;
 
-            float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-            float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+            PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
+              box.AnchorPattern.Points[arrow.OrgnAnchor].X,
+              box.AnchorPattern.Points[arrow.OrgnAnchor].Y,
+              box.RotationAngle);
+            //float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
+            //float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
 
-            PointF anchorPointPos = new PointF(
-              box.BoundingRect.Left + box.BoundingRect.Width * dx,
-              box.BoundingRect.Top + box.BoundingRect.Height * dy);
+            //PointF anchorPointPos = new PointF(
+            //  box.BoundingRect.Left + box.BoundingRect.Width * dx,
+            //  box.BoundingRect.Top + box.BoundingRect.Height * dy);
 
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos };
@@ -1017,6 +1026,33 @@ namespace SysCAD.Editor
           }
         }
       }
+    }
+
+    internal static PointF rotatePointAt(PointF point, PointF pivot, float angle)
+    {
+      PointF[] points = new PointF[] { point };
+      Matrix rotation = new Matrix();
+      rotation.RotateAt(angle, pivot);
+      rotation.TransformPoints(points);
+      rotation.Dispose();
+      return points[0];
+    }
+
+    internal static PointF getCenter(RectangleF rect)
+    {
+      return new PointF(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+    }
+
+    private PointF GetRelativeAnchorPosition(RectangleF nodeRect, float x, float y, float angle)
+    {
+      PointF point = new PointF(nodeRect.X + nodeRect.Width * x / 100, nodeRect.Y + nodeRect.Height * y / 100);
+
+      if (angle != 0)
+      {
+        point = rotatePointAt(point,
+          getCenter(nodeRect), angle);
+      }
+      return point; 
     }
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
