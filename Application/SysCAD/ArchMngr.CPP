@@ -418,6 +418,9 @@ CArchiveDBTable::CArchiveDBTable(CArchiveManager *pADB) : m_rAM(*pADB)
   m_iFormat       = ADBTbFmt_Null;
   //m_pDef=NULL;
   //m_pRst=NULL;
+  m_hFile         = NULL;
+  m_nSigDigits    = 20;
+
   };
 
 //---------------------------------------------------------------------------
@@ -520,7 +523,12 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
 #endif
 
     if (m_rAM.m_bDBOK)
-      AddDBRecord(CB);
+      {
+      if (m_iFormat==ADBTbFmt_DB)
+        AddDBRecord(CB);
+      else
+        AddTxtRecord(CB);
+      }
     else
       LogWarning(ArcName,0,"Record not written : %s %s %s", CB.m_TheTime.Format(TD_Time), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
 
@@ -535,52 +543,93 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
 
 bool CArchiveDBTable::CreateDBTable()
   {
-  ADOX::_TablePtr pTbl;
-  try
+  switch (m_iFormat)
     {
-    //    m_Def
-    try
+    case ADBTbFmt_DB:
       {
-      pTbl=m_rAM.m_pCat->Tables->GetItem((LPCTSTR)m_sName);
-      }
-    catch (_com_error & e)
-      {
-      if (SCODE_CODE(e.Error())!=ADODB::adErrItemNotFound)
-        //if (e->m_pErrorInfo->m_lErrorCode!=3265)
+      ADOX::_TablePtr pTbl;
+      try
         {
-        m_rAM.DisplayException(e, LF_Exclamation);
-        return true;
-        }
-      else
-        {
+        //    m_Def
         try
           {
-          pTbl=ADOX::_TablePtr(__uuidof(ADOX::Table));
-          pTbl->Name=(LPCTSTR)m_sName;
-          pTbl->ParentCatalog = m_rAM.m_pCat;
-          CreateDBFields(pTbl);
-          m_rAM.m_pCat->Tables->Append((IDispatch*)pTbl);
-          m_rAM.m_nTablesOpn++;
-
-          //m_pDef->Create(m_sName);
-          //if (CreateDBFields())
-          //  m_pDef->Append();
-          //m_rAM.m_nTablesOpn++;
+          pTbl=m_rAM.m_pCat->Tables->GetItem((LPCTSTR)m_sName);
           }
         catch (_com_error & e)
           {
-          m_rAM.DisplayException(e, LF_Exclamation, "Create Table", (LPCTSTR)m_sName);
+          if (SCODE_CODE(e.Error())!=ADODB::adErrItemNotFound)
+            //if (e->m_pErrorInfo->m_lErrorCode!=3265)
+            {
+            m_rAM.DisplayException(e, LF_Exclamation);
+            return true;
+            }
+          else
+            {
+            try
+              {
+              pTbl=ADOX::_TablePtr(__uuidof(ADOX::Table));
+              pTbl->Name=(LPCTSTR)m_sName;
+              pTbl->ParentCatalog = m_rAM.m_pCat;
+              CreateDBFields(pTbl);
+              m_rAM.m_pCat->Tables->Append((IDispatch*)pTbl);
+              m_rAM.m_nTablesOpn++;
+
+              //m_pDef->Create(m_sName);
+              //if (CreateDBFields())
+              //  m_pDef->Append();
+              //m_rAM.m_nTablesOpn++;
+              }
+            catch (_com_error & e)
+              {
+              m_rAM.DisplayException(e, LF_Exclamation, "Create Table", (LPCTSTR)m_sName);
+              return false;
+              }
+            }
+          }
+
+        }
+      catch (_com_error & e)
+        {
+        m_rAM.DisplayException(e, LF_Exclamation, "Create Table", (LPCTSTR)m_sName);
+        //delete m_pDef;
+        return false;
+        }
+      break;
+      }
+    case ADBTbFmt_CSV:
+    case ADBTbFmt_TXT:
+      {
+      if (m_sPath.GetLength()<2)
+        m_sFileName=PrjFiles();
+      else if (m_sPath[0]=='\\' || m_sPath[1]==':')
+        m_sFileName=m_sPath;
+      else
+        {
+        m_sFileName=PrjFiles();
+        m_sFileName+=m_sPath;
+        }
+      m_sFileName.FnCheckEndBSlash();
+      Strng Err;
+      if (FnCreatePath(m_sFileName(), Err))
+        {
+        m_sFileName+=m_sName;
+        m_sFileName.FnCheckExtension(m_iFormat==ADBTbFmt_CSV?"CSV":"TXT");
+
+        if (fopen_s(&m_hFile, m_sFileName(), "a")!=0)
+          {
+          LogError(ArcName, 0, "Tablefile '%s' not opened", m_sFileName());
           return false;
           }
-        }
-      }
 
-    }
-  catch (_com_error & e)
-    {
-    m_rAM.DisplayException(e, LF_Exclamation, "Create Table", (LPCTSTR)m_sName);
-    //delete m_pDef;
-    return false;
+        CreateTxtFields();
+        }
+      else
+        {
+        LogError(ArcName, 0, "Table Path '%s' not created", m_sFileName());
+        return false;
+        }
+      break;
+      }
     }
 
   return true;
@@ -600,6 +649,26 @@ bool CArchiveDBTable::CreateDBFields(ADOX::_TablePtr & pTbl)
     CArchiveDBField &It=*m_Fields[f];
     CreateDBField(pTbl, false, It.m_sFldTag, It.m_dbType, It.m_dbAttr);
     }
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
+bool CArchiveDBTable::CreateTxtFields()
+  {
+  if (m_hFile)
+    {
+    char Separ = (m_iFormat==ADBTbFmt_CSV)?',':'\t';
+    fprintf(m_hFile, "%s", "RecNo");
+    fprintf(m_hFile, "%c%s", Separ, "Time");
+    fprintf(m_hFile, "%c%s", Separ, "TimeFromStart");
+    for (int f=0; f<m_Fields.GetSize(); f++)  
+      {
+      CArchiveDBField &It=*m_Fields[f];
+      fprintf(m_hFile, "%c%s", Separ, It.m_sFldTag);
+      }
+    fprintf(m_hFile, "\r");
+    }
 
   return true;
   }
@@ -608,7 +677,6 @@ bool CArchiveDBTable::CreateDBFields(ADOX::_TablePtr & pTbl)
 
 bool CArchiveDBTable::CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc)
   {
-
   ADOX::_ColumnPtr pCol;
   try
     {
@@ -654,7 +722,6 @@ bool CArchiveDBTable::CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR
         }
       }
     }
-
   return true;
   }
 
@@ -718,24 +785,74 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
+bool CArchiveDBTable::AddTxtRecord(CXM_TimeControl &CB)
+  {
+  if (m_hFile==NULL)
+    return false;
+
+  CTimeValue TFS;
+  TFS=(CB.m_TheTime-m_rAM.m_TimeAtStart);
+  char Separ = (m_iFormat==ADBTbFmt_CSV)?',':'\t';
+  fprintf(m_hFile, "%i", -1);
+  fprintf(m_hFile, "%c%s", Separ, CB.m_TheTime.Format(TD_DateTime|TD_DateLeft));
+  fprintf(m_hFile, "%c%s", Separ, TFS.Format(TD_Time));
+
+
+  m_nSigDigits=Range(2,(int)m_nSigDigits,20);
+  for (long fd=0; fd<m_Fields.GetSize(); fd++)
+    fprintf(m_hFile, "%c%.*e", Separ, m_nSigDigits-1, m_Fields[fd]->m_dCalculatedValue);
+  
+  fprintf(m_hFile, "\r");
+  fflush(m_hFile);
+
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
 bool CArchiveDBTable::CloseDBTable()
   {
-  try
+  switch (m_iFormat)
     {
-    if (m_pRst)
-      m_pRst->Close();
-    m_pRst.Release();
+    case ADBTbFmt_DB:
+      {
+      try
+        {
+        if (m_pRst)
+          m_pRst->Close();
+        m_pRst.Release();
 
-    //if (m_pDef)
-    //  m_pDef->Close();
-    //delete m_pDef;
-    //m_pDef=NULL;
+        //if (m_pDef)
+        //  m_pDef->Close();
+        //delete m_pDef;
+        //m_pDef=NULL;
+        }
+      catch (_com_error & e)
+        {
+        m_rAM.DisplayException(e, LF_Exclamation, "Closing Table ", (LPCTSTR)m_sName);
+        return false;
+        }
+      break;
+      }
+    case ADBTbFmt_CSV:
+    case ADBTbFmt_TXT:
+      {
+      if (m_hFile)
+        {
+        if (fclose(m_hFile))
+          {
+          m_hFile=NULL;
+          }
+        else
+          {
+          LogError(ArcName, 0, "Table File '%s' not Closed", m_sName);
+          return false;
+          }
+        }
+      break;
+      }
     }
-  catch (_com_error & e)
-    {
-    m_rAM.DisplayException(e, LF_Exclamation, "Closing Table ", (LPCTSTR)m_sName);
-    return false;
-    }
+
   return true;
   }
 
@@ -936,9 +1053,12 @@ bool CArchiveManager::ReadCfg()
 
     // NBNBNB No Checking
     CTimeValue P,O;
-    pTb->m_sName=TbName;
-    pTb->m_sCfgSection=TbSect;
-    pTb->m_iFormat=iTbFmt;
+    pTb->m_sName        = TbName;
+    pTb->m_sCfgSection  = TbSect;
+    pTb->m_iFormat      = iTbFmt;
+
+    pTb->m_sPath        = PF.RdStr(TbSect, "Path", "");
+    pTb->m_nSigDigits   = PF.RdInt(TbSect, "SigDigits", pTb->m_nSigDigits);
 
     //TbFmt=PF.RdStr(TbSect, "Name", "");
 

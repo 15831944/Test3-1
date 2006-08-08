@@ -144,10 +144,12 @@ class CArchiveDBTable
     bool             StepDone(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
     bool             CreateDBTable();
     bool             CreateDBFields(ADOX::_TablePtr & pTbl);
+    bool             CreateTxtFields();
     bool             CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc=false);
     bool             CreateDBRecordset();
     bool             CloseDBTable();
     bool             AddDBRecord(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
+    bool             AddTxtRecord(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
 
     long             TriggerCount() { return m_Triggers.GetSize(); };
     long             FieldCount() { return m_Fields.GetSize(); };
@@ -155,6 +157,8 @@ class CArchiveDBTable
     CArchiveDBField  &GetField(long Index) { return *m_Fields[Index]; };
 
   public:
+    CArchiveManager  &m_rAM;
+
     CString         m_sName;
     CString         m_sCfgSection; // Starts @ 1
     long            m_lPeriod;
@@ -168,11 +172,12 @@ class CArchiveDBTable
 
     byte            m_iFormat;
 
-    CArchiveManager  &m_rAM;
     ADODB::_RecordsetPtr m_pRst;
-    ADOX::_TablePtr m_pDefs;
 
-    HANDLE          m_hFile;
+    CString         m_sPath;
+    Strng           m_sFileName;
+    FILE          * m_hFile;
+    byte            m_nSigDigits;
 
   };
 
