@@ -23,7 +23,8 @@
 // Force search of Version.Lib for Version control Functions
 #pragma comment(lib, "version.lib")
 
-#define CK_USE6134        01    
+#define CK_USE6134        0
+#define CK_USE6525        01
                        
 #define USESERVERVERSION  1
 
@@ -35,7 +36,9 @@ static ICrypKeySDKServerPtr s_ptr;
 static ICrypKeySDKPtr s_ptr;
 #endif
 
-#if CK_USE6134 
+#if CK_USE6525
+#include "crypkey.6525.h"
+#elif CK_USE6134 
 #include "crypkey.6134.h"
 #else
 #include "crypkey.57.h"
@@ -52,7 +55,7 @@ static ICrypKeySDKPtr s_ptr;
 //===========================================================================
 //=== Generic Code...
 
-#if CK_USE6134 
+#if (CK_USE6134 || CK_USE6525) 
 const char* LicINISection = "License61";
 #else
 const char* LicINISection = "License";
@@ -70,7 +73,16 @@ char* CK_AppName = "SysCAD";
 
 #if !BYPASSLICENSING
 //for syscad.exe                
-#if CK_USE6134 
+#if CK_USE6525
+
+#define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
+#define CK_MASTER_KEY "b4135aa5ec82997f53c5efcd0567ae710af3de57c4a72a798183\
+b5ea90b391591a6c2f8863b89b2b7be27bd2553e3e2557d2bec1daad173a09bf256da1e7d92\
+b9bb0377dbc5e431d7fbb95ba17d8806560be6355949e144dc84cd8e72f2732c8aa3048874f\
+75de558a920b0454c75c047574aa890d2423bef09575995f30d05"
+
+
+#elif CK_USE6134 
 
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "7d1c2e0f6da99db43c7c95c71ce87456daabb10b8766eb79b8e9cea\
@@ -89,7 +101,9 @@ b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
 #define CK_PASSNUM    482693111
 
 //NBNB Ensure correct version of CRP32D60.lib is used!
-#if CK_USE6134 
+#if CK_USE6525
+#pragma comment(lib, "CRP32D60.6525.lib")            
+#elif CK_USE6134 
 #pragma comment(lib, "CRP32D60.6134.lib")            
 #else
 #pragma comment(lib, "CRP32D60.57.lib")
@@ -934,7 +948,7 @@ CLicense::~CLicense()
 
 BOOL CLicense::CheckLicenseVersionOK(LPCTSTR SysCADEXEPath)
   {
-#if CK_USE6134
+#if (CK_USE6134 || CK_USE6525)
   const int ReqdSysCADEXEVersion = 2;
 #else
   const int ReqdSysCADEXEVersion = 1;
@@ -1085,7 +1099,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   int err = -1;
   if (m_bUseCOM)
     {                 
-#if CK_USE6134
+#if (CK_USE6134 || CK_USE6525)
     s_ptr.CreateInstance ("CrypKey.SDKServer");
 #else
     s_ptr.CreateInstance ("CrypKey.SDK");

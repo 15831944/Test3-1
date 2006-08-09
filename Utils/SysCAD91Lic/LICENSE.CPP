@@ -8,7 +8,9 @@
 
 #if CK_LICENSINGON
 #include "resource.h"
-#if CK_USE6134 
+#if CK_USE6525
+#include "crypkey.6525.h"
+#elif CK_USE6134 
 #include "crypkey.6134.h"
 #else
 #include "crypkey.57.h"
@@ -30,7 +32,15 @@ char* CK_AppName = "SysCAD";
 #define CK_PASSNUM    984534120  //you can use them in your tests if you need to
 */
 
-#if CK_USE6134 
+#if CK_USE6525
+
+#define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
+#define CK_MASTER_KEY "b4135aa5ec82997f53c5efcd0567ae710af3de57c4a72a798183\
+b5ea90b391591a6c2f8863b89b2b7be27bd2553e3e2557d2bec1daad173a09bf256da1e7d92\
+b9bb0377dbc5e431d7fbb95ba17d8806560be6355949e144dc84cd8e72f2732c8aa3048874f\
+75de558a920b0454c75c047574aa890d2423bef09575995f30d05"
+
+#elif CK_USE6134 
 
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "7d1c2e0f6da99db43c7c95c71ce87456daabb10b8766eb79b8e9cea\
@@ -55,7 +65,9 @@ const int CK_TrialVerNo = 1;          //Trial license version number
 const int CK_NumDefinedLevels = 2; //number of bits to be used for level
 const int CK_NumDefinedOpts = 30;
 
-#if CK_USE6134 
+#if CK_USE6525
+#pragma comment(lib, "CRP32M60.6525.lib")            
+#elif CK_USE6134 
 #pragma comment(lib, "CRP32M60.6134.lib")            
 #else
 #pragma comment(lib, "CRP32M60.57.lib")

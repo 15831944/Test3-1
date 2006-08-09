@@ -1,9 +1,10 @@
 #ifndef  __KWAVER_H
 #define  __KWAVER_H
 
-#define CK_USE6134       1
+#define CK_USE6134       0
+#define CK_USE6525       01
 
-#if CK_USE6134
+#if (CK_USE6134 || CK_USE6525)
 #define KWA_VERINFO_V0   2         /* Major Version */
 #define KWA_VERINFO_V1   0        /* Minor Version */
 #define KWA_VERINFO_V2   0         
