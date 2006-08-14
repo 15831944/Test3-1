@@ -960,5 +960,11 @@ namespace SysCAD.Editor
         oNode.Select();
       }
     }
+
+    private void tvNavigation_AfterNodePositionChange(PureComponents.TreeView.Node oNode)
+    {
+      tvNavigation.ClearSelectedNodes();
+      wasSelectedNodes.Clear();
+    }
   }
 }

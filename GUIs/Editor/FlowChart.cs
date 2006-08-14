@@ -291,6 +291,8 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
+      form1.toolStripStatusLabel1.Text = "";
+
       arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;
       arrowBeingModified = null;
@@ -412,109 +414,120 @@ namespace SysCAD.Editor
       form1.Mode_Modify();
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-        oldControlPoints.Clear();
-        foreach (PointF point in e.Arrow.ControlPoints.Clone())
-        {
-          oldControlPoints.Add(point);
-        }
-
-        arrowBeingModifiedSelectionHandle = e.SelectionHandle;
-        arrowBeingModified = e.Arrow;
-        arrowBeingModified.CustomDraw = CustomDraw.Additional;
-        arrowBeingModified.ZTop();
-
-        oldOriginGuid = (e.Arrow.Tag as Link).graphicLink.Origin;
-        oldOriginBox = e.Arrow.Origin as Box;
-        oldOriginAnchor = e.Arrow.OrgnAnchor;
-
-        oldDestinationGuid = (e.Arrow.Tag as Link).graphicLink.Destination;
-        oldDestinationBox = e.Arrow.Destination as Box;
-        oldDestinationAnchor = e.Arrow.DestAnchor;
-
-        if (arrowBeingModifiedSelectionHandle == 0)
-        {
-          PointF originPos = arrowBeingModified.ControlPoints[0];
-          Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
-
-          if ((e.SelectionHandle == 0) && (originBox != null) && (!(arrowBeingModified.Origin is Box)))
-          {
-            originBox = (originBox.Tag as Item).Model;
-            if (originBox != null)
-            {
-              int closestI = 0;
-              float closestDistance = float.MaxValue;
-
-              for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
-              {
-                if (originBox.AnchorPattern.Points[i].AllowOutgoing)
-                {
-                  float thisDistance = Distance(originPos, originBox.AnchorPattern.Points[i].X, originBox.AnchorPattern.Points[i].Y);
-                  if (thisDistance < closestDistance)
-                  {
-                    closestDistance = thisDistance;
-                    closestI = i;
-                  }
-                }
-              }
-
-              newOriginGuid = (originBox.Tag as Item).Guid;
-              newOriginBox = originBox;
-              newOriginAnchor = closestI;
-              form1.toolStripStatusLabel1.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
-            }
-          }
-        }
-        //else if (oldOriginBox != null)
-        //{
-        //  (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
-        //  e.Arrow.Origin = oldOriginBox;
-        //  e.Arrow.OrgnAnchor = oldOriginAnchor;
-        //}
-
-        if (e.SelectionHandle == arrowBeingModified.ControlPoints.Count - 1)
-        {
-          PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
-          Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
-
-          if ((destinationBox != null) && (!(arrowBeingModified.Destination is Box)))
-          {
-            destinationBox = (destinationBox.Tag as Item).Model;
-            if (destinationBox != null)
-            {
-              int closestI = 0;
-              float closestDistance = float.MaxValue;
-
-              for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
-              {
-                if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
-                {
-                  AnchorPoint anchorPoint = destinationBox.AnchorPattern.Points[i];
-                  RectangleF nodeRect = destinationBox.BoundingRect;
-                  float angle = destinationBox.RotationAngle;
-                  PointF anchorPos = anchorPoint.AnchorToDoc(nodeRect, angle);
-                  float thisDistance = Distance(destinationPos, anchorPos);
-                  if (thisDistance < closestDistance)
-                  {
-                    closestDistance = thisDistance;
-                    closestI = i;
-                  }
-                }
-              }
-
-              newDestinationGuid = (destinationBox.Tag as Item).Guid;
-              newDestinationBox = destinationBox;
-              newDestinationAnchor = closestI;
-              form1.toolStripStatusLabel1.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
-            }
-          }
-        }
-        //else if (oldDestinationBox != null)
-        //{
-        //  (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
-        //  e.Arrow.Destination = oldDestinationBox;
-        //  e.Arrow.DestAnchor = oldDestinationAnchor;
-        //}
+        DoModifyingStuff(e.Arrow, e.SelectionHandle);
       }
+    }
+
+    private void DoModifyingStuff(Arrow arrow, int selectionHandle)
+    {
+      oldControlPoints.Clear();
+      foreach (PointF point in arrow.ControlPoints.Clone())
+      {
+        oldControlPoints.Add(point);
+      }
+
+      arrowBeingModifiedSelectionHandle = selectionHandle;
+      arrowBeingModified = arrow;
+      arrowBeingModified.CustomDraw = CustomDraw.Additional;
+      arrowBeingModified.ZTop();
+
+      if (arrow.Tag != null)
+        oldOriginGuid = (arrow.Tag as Link).graphicLink.Origin;
+      else
+        oldOriginGuid = Guid.Empty;
+      oldOriginBox = arrow.Origin as Box;
+      oldOriginAnchor = arrow.OrgnAnchor;
+
+      if (arrow.Tag != null)
+        oldDestinationGuid = (arrow.Tag as Link).graphicLink.Destination;
+      else
+        oldDestinationGuid = Guid.Empty;
+      oldDestinationBox = arrow.Destination as Box;
+      oldDestinationAnchor = arrow.DestAnchor;
+
+      if (arrowBeingModifiedSelectionHandle == 0)
+      {
+        PointF originPos = arrowBeingModified.ControlPoints[0];
+        Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+
+        if ((selectionHandle == 0) && (originBox != null) && (!(arrowBeingModified.Origin is Box)))
+        {
+          originBox = (originBox.Tag as Item).Model;
+          if (originBox != null)
+          {
+            int closestI = 0;
+            float closestDistance = float.MaxValue;
+
+            for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
+            {
+              if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+              {
+                float thisDistance = Distance(originPos, originBox.AnchorPattern.Points[i].X, originBox.AnchorPattern.Points[i].Y);
+                if (thisDistance < closestDistance)
+                {
+                  closestDistance = thisDistance;
+                  closestI = i;
+                }
+              }
+            }
+
+            newOriginGuid = (originBox.Tag as Item).Guid;
+            newOriginBox = originBox;
+            newOriginAnchor = closestI;
+            form1.toolStripStatusLabel1.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
+          }
+        }
+      }
+      //else if (oldOriginBox != null)
+      //{
+      //  (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
+      //  e.Arrow.Origin = oldOriginBox;
+      //  e.Arrow.OrgnAnchor = oldOriginAnchor;
+      //}
+
+      if (selectionHandle == arrowBeingModified.ControlPoints.Count - 1)
+      {
+        PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
+        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
+
+        if ((destinationBox != null) && (!(arrowBeingModified.Destination is Box)))
+        {
+          destinationBox = (destinationBox.Tag as Item).Model;
+          if (destinationBox != null)
+          {
+            int closestI = 0;
+            float closestDistance = float.MaxValue;
+
+            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
+            {
+              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+              {
+                AnchorPoint anchorPoint = destinationBox.AnchorPattern.Points[i];
+                RectangleF nodeRect = destinationBox.BoundingRect;
+                float angle = destinationBox.RotationAngle;
+                PointF anchorPos = anchorPoint.AnchorToDoc(nodeRect, angle);
+                float thisDistance = Distance(destinationPos, anchorPos);
+                if (thisDistance < closestDistance)
+                {
+                  closestDistance = thisDistance;
+                  closestI = i;
+                }
+              }
+            }
+
+            newDestinationGuid = (destinationBox.Tag as Item).Guid;
+            newDestinationBox = destinationBox;
+            newDestinationAnchor = closestI;
+            form1.toolStripStatusLabel1.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+          }
+        }
+      }
+      //else if (oldDestinationBox != null)
+      //{
+      //  (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
+      //  e.Arrow.Destination = oldDestinationBox;
+      //  e.Arrow.DestAnchor = oldDestinationAnchor;
+      //}
 
       fcFlowChart.RecreateCacheImage();
     }
@@ -1269,18 +1282,22 @@ namespace SysCAD.Editor
       Box originBox = e.Arrow.Origin as Box;
       GraphicLink newGraphicLink = new GraphicLink(newLinkTag);
 
-      if (destinationBox != null)
+      if (newDestinationBox != null)
       {
-        newGraphicLink.Destination = (destinationBox.Tag as Item).Guid;
-        if (e.Arrow.DestAnchor != -1)
+        newGraphicLink.Destination = (newDestinationBox.Tag as Item).Guid;
+        if (newDestinationAnchor == -1)
           newGraphicLink.DestinationPort = "";
+        else
+          newGraphicLink.DestinationPort = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
       }
 
-      if (originBox != null)
+      if (oldOriginBox != null)
       {
-        newGraphicLink.Origin = (originBox.Tag as Item).Guid;
-        if (e.Arrow.OrgnAnchor != -1)
+        newGraphicLink.Origin = (oldOriginBox.Tag as Item).Guid;
+        if (oldOriginAnchor == -1)
           newGraphicLink.OriginPort = "";
+        else
+          newGraphicLink.OriginPort = (oldOriginBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
       }
 
       newGraphicLink.controlPoints = new List<PointF>();
@@ -1288,6 +1305,8 @@ namespace SysCAD.Editor
       {
         newGraphicLink.controlPoints.Add(point);
       }
+
+      fcFlowChart.DeleteObject(e.Arrow);
 
       state.CreateLink(newGraphicLink, true, fcFlowChart);
     }
@@ -1298,10 +1317,11 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowCreating(object sender, AttachConfirmArgs e)
     {
-      arrowBeingModified = e.Arrow;
-      arrowBeingModified.CustomDraw = CustomDraw.Additional;
-      arrowBeingModified.ZTop();
-      fcFlowChart.RecreateCacheImage();
+      DoModifyingStuff(e.Arrow, e.Arrow.ControlPoints.Count - 1);
+      //arrowBeingModified = e.Arrow;
+      //arrowBeingModified.CustomDraw = CustomDraw.Additional;
+      //arrowBeingModified.ZTop();
+      //fcFlowChart.RecreateCacheImage();
     }
   }
 }

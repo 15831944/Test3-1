@@ -281,6 +281,7 @@ namespace SysCAD.Editor
       treeViewStyle1.NodeStyle = nodeStyle1;
       this.tvNavigation.Style = treeViewStyle1;
       this.tvNavigation.TabIndex = 1;
+      this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
       this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
       this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
       // 
@@ -314,7 +315,8 @@ namespace SysCAD.Editor
       editCopyBarButtonCommand.Enabled = false;
       editCopyBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editCopyBarButtonCommand.Image")));
       editCopyBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131139, false)});
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131139, false),
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 196694)});
       editPasteBarButtonCommand.Enabled = false;
       editPasteBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editPasteBarButtonCommand.Image")));
       editPasteBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
@@ -791,7 +793,7 @@ namespace SysCAD.Editor
       // 
       this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
       this.toolStripStatusLabel1.Size = new System.Drawing.Size(109, 17);
-      this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+      this.toolStripStatusLabel1.Text = "";
       // 
       // Form1
       // 
