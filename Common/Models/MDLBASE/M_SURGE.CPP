@@ -854,7 +854,10 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
     {
     Contents.ApplyDerivs(ICGetTimeInc(), true);
 
-    VLE.QVFlash(Contents, 0.0, VLEF_Null);
+    CConvergeStateBlk CSB(eStateAdvance, ICGetTimeInc());
+    ConvergeStates(CSB);
+
+    //VLE.QVFlash(Contents, 0.0, VLEF_Null);
     }
 
   #if dbgMSurge
