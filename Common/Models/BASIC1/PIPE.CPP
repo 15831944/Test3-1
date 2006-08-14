@@ -716,19 +716,19 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile());
   DDB.Text   ("Rise/Length", Marker);
   if (NetDynamicMethod())
-    DDB.Double ("Length",       "L",     DC_L, "m",     xidFELength,    this, isResult|0|isParmConstruct);
-  DDB.Double ("SrcH",         "SrcHgt",  DC_L, "m",     xidSrcHgt,      this, isResult|noFile|noSnap);
-  DDB.Double ("DstH",         "DstHgt",  DC_L, "m",     xidDstHgt,      this, isResult|noFile|noSnap);
+    DDB.Double ("PipeLength",   "",       DC_L, "m",  xidFELength,    this, isResult|0|isParmConstruct);
+  DDB.Double ("SrcH",           "SrcHgt", DC_L, "m",  xidSrcHgt,      this, isResult|noFile|noSnap);
+  DDB.Double ("DstH",           "DstHgt", DC_L, "m",  xidDstHgt,      this, isResult|noFile|noSnap);
   if (PrjFileVerNo()>=100)
-    DDB.Double ("Rise",         "",      DC_L, "m",     xidFEDZ,        this, isResult|0|isParmConstruct);
+    DDB.Double ("Rise",         "",       DC_L, "m",  xidFEDZ,        this, isResult|0|isParmConstruct);
   else
-    DDB.Double ("Rise",         "dZ",    DC_L, "m",     xidFEDZ,        this, isResult|0|isParmConstruct);
+    DDB.Double ("Rise",         "dZ",     DC_L, "m",  xidFEDZ,        this, isResult|0|isParmConstruct);
   if (PrjFileVerNo()<100 && DDB.ForFileSnpScn())
-    DDB.Double ("",             "dZ_Rqd",  DC_L, "m",   &m_RiseRqd,     this, isParmStopped|NAN_OK);
+    DDB.Double ("",             "dZ_Rqd", DC_L, "m",  &m_RiseRqd,     this, isParmStopped|NAN_OK);
   else
     {
-    DDB.Double ("RiseRqd",    "",        DC_L, "m",     &m_RiseRqd,     this, isParmStopped|NAN_OK);
-    DDB.Double ("DatumDiff",  "",        DC_L, "m",     &m_DatumChg,    this, isParmStopped|NAN_OK);
+    DDB.Double ("RiseRqd",      "",       DC_L, "m",  &m_RiseRqd,     this, isParmStopped|NAN_OK);
+    DDB.Double ("DatumDiff",    "",       DC_L, "m",  &m_DatumChg,    this, isParmStopped|NAN_OK);
     }
 
   DDB.Visibility();
