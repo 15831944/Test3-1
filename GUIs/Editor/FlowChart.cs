@@ -529,6 +529,24 @@ namespace SysCAD.Editor
       //  e.Arrow.DestAnchor = oldDestinationAnchor;
       //}
 
+      if (newOriginBox == newDestinationBox) // refliexive, disconnect modifying end.
+      {
+        if (selectionHandle == 0)
+        {
+          newOriginGuid = Guid.Empty;
+          newOriginBox = null;
+          newOriginAnchor = -1;
+          form1.toolStripStatusLabel1.Text = "";
+        }
+
+        if (selectionHandle == arrowBeingModified.ControlPoints.Count - 1)
+        {
+          newDestinationGuid = Guid.Empty;
+          newDestinationBox = null;
+          newDestinationAnchor = -1;
+          form1.toolStripStatusLabel1.Text = "";
+        }
+      }
       fcFlowChart.RecreateCacheImage();
     }
 
@@ -1317,6 +1335,33 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowCreating(object sender, AttachConfirmArgs e)
     {
+      PointF originPos = e.Arrow.ControlPoints[0];
+      Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+
+      originBox = (originBox.Tag as Item).Model;
+      if (originBox != null)
+      {
+        int closestI = 0;
+        float closestDistance = float.MaxValue;
+
+        for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
+        {
+          if (originBox.AnchorPattern.Points[i].AllowOutgoing)
+          {
+            float thisDistance = Distance(originPos, originBox.AnchorPattern.Points[i].X, originBox.AnchorPattern.Points[i].Y);
+            if (thisDistance < closestDistance)
+            {
+              closestDistance = thisDistance;
+              closestI = i;
+            }
+          }
+        }
+
+        newOriginGuid = (originBox.Tag as Item).Guid;
+        newOriginBox = originBox;
+        newOriginAnchor = closestI;
+      }
+
       DoModifyingStuff(e.Arrow, e.Arrow.ControlPoints.Count - 1);
       //arrowBeingModified = e.Arrow;
       //arrowBeingModified.CustomDraw = CustomDraw.Additional;
