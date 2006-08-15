@@ -462,7 +462,11 @@ namespace SysCAD.Editor
             {
               if (originBox.AnchorPattern.Points[i].AllowOutgoing)
               {
-                float thisDistance = Distance(originPos, originBox.AnchorPattern.Points[i].X, originBox.AnchorPattern.Points[i].Y);
+                PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+                  originBox.AnchorPattern.Points[i].X,
+                  originBox.AnchorPattern.Points[i].Y,
+                  originBox.RotationAngle);
+                float thisDistance = Distance(originPos, anchorPointPos);
                 if (thisDistance < closestDistance)
                 {
                   closestDistance = thisDistance;
@@ -502,11 +506,11 @@ namespace SysCAD.Editor
             {
               if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
               {
-                AnchorPoint anchorPoint = destinationBox.AnchorPattern.Points[i];
-                RectangleF nodeRect = destinationBox.BoundingRect;
-                float angle = destinationBox.RotationAngle;
-                PointF anchorPos = anchorPoint.AnchorToDoc(nodeRect, angle);
-                float thisDistance = Distance(destinationPos, anchorPos);
+                PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
+                  destinationBox.AnchorPattern.Points[i].X,
+                  destinationBox.AnchorPattern.Points[i].Y,
+                  destinationBox.RotationAngle);
+                float thisDistance = Distance(destinationPos, anchorPointPos);
                 if (thisDistance < closestDistance)
                 {
                   closestDistance = thisDistance;
@@ -780,11 +784,10 @@ namespace SysCAD.Editor
 
                 foreach (AnchorPoint anchorPoint in originBox.AnchorPattern.Points)
                 {
-                  float dx = anchorPoint.X / 100.0F;
-                  float dy = anchorPoint.Y / 100.0F;
-                  PointF anchorPointPos = new PointF(
-                  originBox.BoundingRect.Left + originBox.BoundingRect.Width * dx,
-                  originBox.BoundingRect.Top + originBox.BoundingRect.Height * dy);
+                  PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+                    anchorPoint.X,
+                    anchorPoint.Y,
+                    originBox.RotationAngle);
 
                   float distance = Distance(anchorPointPos, originPos);
                   if (distance < closest)
@@ -796,11 +799,10 @@ namespace SysCAD.Editor
 
                 if (state.PortCheck((originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
-                  float dx = originAnchorChosen.position.X / 100.0F;
-                  float dy = originAnchorChosen.position.Y / 100.0F;
-                  PointF anchorPointPos = new PointF(
-                  originBox.BoundingRect.Left + originBox.BoundingRect.Width * dx,
-                  originBox.BoundingRect.Top + originBox.BoundingRect.Height * dy);
+                  PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+                    originAnchorChosen.position.X,
+                    originAnchorChosen.position.Y,
+                    originBox.RotationAngle);
 
                   PointF[] extensionPoints =
                     new PointF[] { anchorPointPos, anchorPointPos };
@@ -832,12 +834,11 @@ namespace SysCAD.Editor
 
                 foreach (AnchorPoint anchorPoint in destinationBox.AnchorPattern.Points)
                 {
-                  float dx = anchorPoint.X / 100.0F;
-                  float dy = anchorPoint.Y / 100.0F;
-                  PointF anchorPointPos = new PointF(
-                  destinationBox.BoundingRect.Left + destinationBox.BoundingRect.Width * dx,
-                  destinationBox.BoundingRect.Top + destinationBox.BoundingRect.Height * dy);
-
+                  PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
+                    anchorPoint.X,
+                    anchorPoint.Y,
+                    destinationBox.RotationAngle);
+                  
                   float distance = Distance(anchorPointPos, destinationPos);
                   if (distance < closest)
                   {
@@ -848,11 +849,10 @@ namespace SysCAD.Editor
 
                 if (state.PortCheck((destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
-                  float dx = destinationAnchorChosen.position.X / 100.0F;
-                  float dy = destinationAnchorChosen.position.Y / 100.0F;
-                  PointF anchorPointPos = new PointF(
-                  destinationBox.BoundingRect.Left + destinationBox.BoundingRect.Width * dx,
-                  destinationBox.BoundingRect.Top + destinationBox.BoundingRect.Height * dy);
+                  PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
+                    destinationAnchorChosen.position.X,
+                    destinationAnchorChosen.position.Y,
+                    destinationBox.RotationAngle);
 
                   PointF[] extensionPoints =
                     new PointF[] { anchorPointPos, anchorPointPos };
@@ -870,11 +870,6 @@ namespace SysCAD.Editor
           }
         }
       }
-    }
-
-    private float Distance(PointF a, float bX, float bY)
-    {
-      return Distance(a, new PointF(bX, bY));
     }
 
     private float Distance(PointF a, PointF b)
@@ -909,79 +904,70 @@ namespace SysCAD.Editor
 
       if (arrow != arrowBeingModified)
       {
+        if (arrowBeingModified == null)
         {
-          MindFusion.FlowChartX.Node node = arrow.Destination;
-          if ((node is Box) && (arrow.DestAnchor != -1))
           {
-            Box box = node as Box;
+            MindFusion.FlowChartX.Node node = arrow.Destination;
+            if ((node is Box) && (arrow.DestAnchor != -1))
+            {
+              Box box = node as Box;
 
-            PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect, 
-              box.AnchorPattern.Points[arrow.DestAnchor].X, 
-              box.AnchorPattern.Points[arrow.DestAnchor].Y, 
-              box.RotationAngle);
-            //float dx = box.AnchorPattern.Points[arrow.DestAnchor].X / 100.0F;
-            //float dy = box.AnchorPattern.Points[arrow.DestAnchor].Y / 100.0F;
+              PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
+                box.AnchorPattern.Points[arrow.DestAnchor].X,
+                box.AnchorPattern.Points[arrow.DestAnchor].Y,
+                box.RotationAngle);
 
-            //PointF anchorPointPos = new PointF(
-            //  box.BoundingRect.Left + box.BoundingRect.Width * dx,
-            //  box.BoundingRect.Top + box.BoundingRect.Height * dy);
+              PointF[] extensionPoints =
+                new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+              e.Graphics.DrawLines(pen, extensionPoints);
+            }
+            else
+            {
+              Color errorColor = new Color();
+              if (node is Box) errorColor = Color.Yellow;
+              else errorColor = Color.Red;
 
-            e.Graphics.DrawLines(pen, extensionPoints);
+              System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              PointF p = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
+              RectangleF r = new RectangleF(p, SizeF.Empty);
+              r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              e.Graphics.DrawEllipse(pen, r);
+            }
           }
-          else
+
           {
-            Color errorColor = new Color();
-            if (node is Box) errorColor = Color.Yellow;
-            else errorColor = Color.Red;
+            MindFusion.FlowChartX.Node node = arrow.Origin;
+            if ((node is Box) && (arrow.OrgnAnchor != -1))
+            {
+              Box box = node as Box;
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
-            PointF p = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
-            RectangleF r = new RectangleF(p, SizeF.Empty);
-            r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
-            e.Graphics.DrawEllipse(pen, r);
-          }
-        }
+              PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
+                box.AnchorPattern.Points[arrow.OrgnAnchor].X,
+                box.AnchorPattern.Points[arrow.OrgnAnchor].Y,
+                box.RotationAngle);
 
-        {
-          MindFusion.FlowChartX.Node node = arrow.Origin;
-          if ((node is Box) && (arrow.OrgnAnchor != -1))
-          {
-            Box box = node as Box;
+              PointF[] extensionPoints =
+                new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
-            PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
-              box.AnchorPattern.Points[arrow.OrgnAnchor].X,
-              box.AnchorPattern.Points[arrow.OrgnAnchor].Y,
-              box.RotationAngle);
-            //float dx = box.AnchorPattern.Points[arrow.OrgnAnchor].X / 100.0F;
-            //float dy = box.AnchorPattern.Points[arrow.OrgnAnchor].Y / 100.0F;
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
 
-            //PointF anchorPointPos = new PointF(
-            //  box.BoundingRect.Left + box.BoundingRect.Width * dx,
-            //  box.BoundingRect.Top + box.BoundingRect.Height * dy);
+              e.Graphics.DrawLines(pen, extensionPoints);
+            }
+            else
+            {
+              Color errorColor = new Color();
+              if (node is Box) errorColor = Color.Yellow;
+              else errorColor = Color.Red;
 
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
-            e.Graphics.DrawLines(pen, extensionPoints);
-          }
-          else
-          {
-            Color errorColor = new Color();
-            if (node is Box) errorColor = Color.Yellow;
-            else errorColor = Color.Red;
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
-            PointF p = arrow.ControlPoints[0];
-            RectangleF r = new RectangleF(p, SizeF.Empty);
-            r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
-            e.Graphics.DrawEllipse(pen, r);
+              System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              PointF p = arrow.ControlPoints[0];
+              RectangleF r = new RectangleF(p, SizeF.Empty);
+              r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              e.Graphics.DrawEllipse(pen, r);
+            }
           }
         }
       }
@@ -990,12 +976,10 @@ namespace SysCAD.Editor
         {
           if (newDestinationAnchor != -1)
           {
-            float dx = newDestinationBox.AnchorPattern.Points[newDestinationAnchor].X / 100.0F;
-            float dy = newDestinationBox.AnchorPattern.Points[newDestinationAnchor].Y / 100.0F;
-
-            PointF anchorPointPos = new PointF(
-              newDestinationBox.BoundingRect.Left + newDestinationBox.BoundingRect.Width * dx,
-              newDestinationBox.BoundingRect.Top + newDestinationBox.BoundingRect.Height * dy);
+            PointF anchorPointPos = GetRelativeAnchorPosition(newDestinationBox.BoundingRect,
+              newDestinationBox.AnchorPattern.Points[newDestinationAnchor].X,
+              newDestinationBox.AnchorPattern.Points[newDestinationAnchor].Y,
+              newDestinationBox.RotationAngle);
 
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
@@ -1006,12 +990,10 @@ namespace SysCAD.Editor
           }
           else if (oldDestinationAnchor != -1)
           {
-            float dx = oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].X / 100.0F;
-            float dy = oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].Y / 100.0F;
-
-            PointF anchorPointPos = new PointF(
-              oldDestinationBox.BoundingRect.Left + oldDestinationBox.BoundingRect.Width * dx,
-              oldDestinationBox.BoundingRect.Top + oldDestinationBox.BoundingRect.Height * dy);
+            PointF anchorPointPos = GetRelativeAnchorPosition(oldDestinationBox.BoundingRect,
+              oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].X,
+              oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].Y,
+              oldDestinationBox.RotationAngle);
 
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
@@ -1025,12 +1007,10 @@ namespace SysCAD.Editor
         {
           if (newOriginAnchor != -1)
           {
-            float dx = newOriginBox.AnchorPattern.Points[newOriginAnchor].X / 100.0F;
-            float dy = newOriginBox.AnchorPattern.Points[newOriginAnchor].Y / 100.0F;
-
-            PointF anchorPointPos = new PointF(
-              newOriginBox.BoundingRect.Left + newOriginBox.BoundingRect.Width * dx,
-              newOriginBox.BoundingRect.Top + newOriginBox.BoundingRect.Height * dy);
+            PointF anchorPointPos = GetRelativeAnchorPosition(newOriginBox.BoundingRect,
+              newOriginBox.AnchorPattern.Points[newOriginAnchor].X,
+              newOriginBox.AnchorPattern.Points[newOriginAnchor].Y,
+              newOriginBox.RotationAngle);
 
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos };
@@ -1041,12 +1021,10 @@ namespace SysCAD.Editor
           }
           else if (oldOriginAnchor != -1)
           {
-            float dx = oldOriginBox.AnchorPattern.Points[oldOriginAnchor].X / 100.0F;
-            float dy = oldOriginBox.AnchorPattern.Points[oldOriginAnchor].Y / 100.0F;
-
-            PointF anchorPointPos = new PointF(
-              oldOriginBox.BoundingRect.Left + oldOriginBox.BoundingRect.Width * dx,
-              oldOriginBox.BoundingRect.Top + oldOriginBox.BoundingRect.Height * dy);
+            PointF anchorPointPos = GetRelativeAnchorPosition(oldOriginBox.BoundingRect,
+              oldOriginBox.AnchorPattern.Points[oldOriginAnchor].X,
+              oldOriginBox.AnchorPattern.Points[oldOriginAnchor].Y,
+              oldOriginBox.RotationAngle);
 
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos };
@@ -1326,6 +1304,14 @@ namespace SysCAD.Editor
 
       fcFlowChart.DeleteObject(e.Arrow);
 
+      form1.toolStripStatusLabel1.Text = "";
+
+      arrowBeingModified.CustomDraw = CustomDraw.None;
+      arrowBeingModifiedSelectionHandle = -1;
+      arrowBeingModified = null;
+      originAnchorChosen = null;
+      destinationAnchorChosen = null;
+
       state.CreateLink(newGraphicLink, true, fcFlowChart);
     }
 
@@ -1348,7 +1334,13 @@ namespace SysCAD.Editor
         {
           if (originBox.AnchorPattern.Points[i].AllowOutgoing)
           {
-            float thisDistance = Distance(originPos, originBox.AnchorPattern.Points[i].X, originBox.AnchorPattern.Points[i].Y);
+            PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+              originBox.AnchorPattern.Points[i].X,
+              originBox.AnchorPattern.Points[i].Y,
+              originBox.RotationAngle);
+
+            float thisDistance = Distance(originPos, anchorPointPos);
+
             if (thisDistance < closestDistance)
             {
               closestDistance = thisDistance;
@@ -1359,6 +1351,8 @@ namespace SysCAD.Editor
 
         newOriginGuid = (originBox.Tag as Item).Guid;
         newOriginBox = originBox;
+        
+        
         newOriginAnchor = closestI;
       }
 
