@@ -41,13 +41,26 @@ const DWORD LogOption_COMCallsExit     = 0x00000002;
 const DWORD LogOption_COMCalls         = 0x00000004;
 const DWORD LogOption_COMCallsInternal = 0x00000008;
 
-const int MsgBuffLen = 4096;
+//const int MsgBuffLen = 4096;
 
 const UINT  LF_Exclamation = MB_ICONEXCLAMATION;
 const UINT  LF_Hand        = MB_ICONHAND;
 const UINT  LF_DoAfxMsgBox = MB_NOFOCUS;
 const UINT  LF_NoSkip      = MB_DEFAULT_DESKTOP_ONLY;
 
+const DWORD LogItem_Cmd          = 0x00000001;
+const DWORD LogItem_Type         = 0x00000002;
+const DWORD LogItem_Where        = 0x00000004;
+const DWORD LogItem_IDNo         = 0x00000008;
+const DWORD LogItem_IterNo       = 0x00000010;
+const DWORD LogItem_CallNo       = 0x00000020;
+const DWORD LogItem_SeqNo        = 0x00000040;
+const DWORD LogItem_HResult      = 0x00000080;
+const DWORD LogItem_Msg          = 0x00000100;
+const DWORD LogItem_Time         = 0x00000200;
+const DWORD LogItem_ElapsedTime  = 0x00000400;
+const DWORD LogItem_Tag          = 0x00000800;
+                                          
 // ========================================================================
 
 class DllImportExport  CMsgLogItem
@@ -60,16 +73,23 @@ class DllImportExport  CMsgLogItem
     long    m_lSeqNo;
     HRESULT m_hr;
     UINT    m_MsgBoxFlags;
-    long    m_iDescStart;
-    char    m_Str[MsgBuffLen];
+    //long    m_iDescStart;
+    //char    m_Str[MsgBuffLen];
+    CString m_Source;
+    CString m_Desc;
 
     CMsgLogItem();
     ~CMsgLogItem();
 
-    LPCTSTR Source() { return m_Str; };
-    LPCTSTR Description() { return &m_Str[m_iDescStart]; };
-    void AddSource(LPCTSTR S) { strcpy(m_Str, S); m_iDescStart=strlen(m_Str); };
-    void AddDescription(LPCTSTR S) { m_iDescStart = strlen(m_Str)+1; strcpy(&m_Str[m_iDescStart], S); };
+    LPCTSTR Source()                { return m_Source; };
+    LPCTSTR Description()           { return m_Desc; };
+    void AddSource(LPCTSTR S)       { m_Source=S; };
+    void AddDescription(LPCTSTR S)  { m_Desc = S; };
+
+    //LPCTSTR Source() { return m_Str; };
+    //LPCTSTR Description() { return &m_Str[m_iDescStart]; };
+    //void AddSource(LPCTSTR S) { strcpy(m_Str, S); m_iDescStart=strlen(m_Str); };
+    //void AddDescription(LPCTSTR S) { m_iDescStart = strlen(m_Str)+1; strcpy(&m_Str[m_iDescStart], S); };
   };
 
 // ========================================================================
@@ -90,40 +110,11 @@ class DllImportExport  CMessageLogQ
 #endif
   }; 
 
+//typedef void (*MessageLogHookFn)(DWORD Flags, LPCTSTR Where, LPCTSTR Msg, long SeqNo);
+
 class DllImportExport CMessageLog //public CMsgLogArray 
   {
   public:
-    long              m_lIDNo;
-    long              m_lMsgIteration;
-
-    HRESULT           m_hr;
-
-    bool              m_bMessageBoxSkip;
-    bool              m_bMessageBoxEmbedded;
-
-    CRITICAL_SECTION  m_errSect;
-    HWND              m_hMsgWnd;
-    DWORD             m_dwLogMsgID;
-    DWORD             m_dwCommonMsgFlags;
-    //CMsgLogArray    * m_pRmtLogMsgs;
-                  
-    CMessageLogQ      m_WndQ, m_ComQ;
-
-    long              m_lComCallNo;
-    CString           m_sComCallLogLn;
-    long              m_lComCallLevel;
-    long              m_lComCallLnCnt;
-                      
-    long              m_lLogDeferred;
-    bool              m_bLogAppStarted;  
-
-    DWORD             m_dwLogOptions;
-
-    FILE             *m_hLogFile;
-    CString           m_sLogFile;
-
-    long              m_lComIFCnt;
-  
     CMessageLog();
     ~CMessageLog();
 
@@ -187,6 +178,43 @@ class DllImportExport CMessageLog //public CMsgLogArray
 
     void              Lock();
     void              Unlock();
+
+    //void              SetHook(MessageLogHookFn Hook);
+
+  public:
+    long              m_lIDNo;
+    long              m_lMsgIteration;
+
+    HRESULT           m_hr;
+
+    bool              m_bMessageBoxSkip;
+    bool              m_bMessageBoxEmbedded;
+
+    CRITICAL_SECTION  m_errSect;
+    HWND              m_hMsgWnd;
+    DWORD             m_dwLogMsgID;
+    DWORD             m_dwCommonMsgFlags;
+    //CMsgLogArray    * m_pRmtLogMsgs;
+                  
+    CMessageLogQ      m_WndQ, m_ComQ;
+
+    long              m_lComCallNo;
+    CString           m_sComCallLogLn;
+    long              m_lComCallLevel;
+    long              m_lComCallLnCnt;
+                      
+    long              m_lLogDeferred;
+    bool              m_bLogAppStarted;  
+
+    DWORD             m_dwLogOptions;
+
+    FILE             *m_hLogFile;
+    CString           m_sLogFile;
+
+    long              m_lComIFCnt;
+
+    //MessageLogHookFn  m_MessageLogHook;
+
   };
 
 extern DllImportExport CMessageLog gs_MsgLog;

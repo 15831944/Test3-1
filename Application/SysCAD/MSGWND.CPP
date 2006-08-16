@@ -17,6 +17,7 @@
 #include "scdctrls.h"
 #include "executiv.h"
 #include "cmd_mngr.h"
+#include "archmngr.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -542,6 +543,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
   {
   int MustSelect=0;
   flag bShowIt=0;
+  flag bLogIt=0;
   byte mBeep=0;
 
   if (!m_bInited)
@@ -585,24 +587,28 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
         mBeep |= 2;
         pWhat= "Fatal";
         bShowIt=1;
+        bLogIt=1;
         break;
       case LogFlag_Stop: 
         iImg=2+iOff;
         mBeep |= 2;
         pWhat= "Stop";
         bShowIt=1;
+        bLogIt=1;
         break;
       case LogFlag_Error: 
         iImg=2+iOff;
         mBeep |= 2;
         pWhat= "Err";
         bShowIt=1;
+        bLogIt=1;
         break;
       case LogFlag_Warning: 
         iImg=1+iOff;
         mBeep |= 1;
         pWhat="Wrn";
         bShowIt=1;
+        bLogIt=1;
         break;
       case LogFlag_CondClear:
         if (Msg.m_lSeqNo!=0)
@@ -636,6 +642,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
       case LogFlag_Note:
         iImg  = 0+iOff;
         pWhat = "";
+        bLogIt=1;
         break;
       case LogFlag_Separator:
         iImg  = 6;
@@ -714,6 +721,10 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
           }
         }
       }
+
+    if (bLogIt)
+      gs_pArcMan->LogAMessage(Msg);
+
     }
 
   //// Clear Current Selections

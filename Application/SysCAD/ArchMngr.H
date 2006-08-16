@@ -76,6 +76,9 @@ class CArchiveDBField
     void ClearChanged() { m_bChanged=false; };
     bool Changed() { return m_bChanged; };
 
+    ADOX::DataTypeEnum dbType();
+    ADOX::ColumnAttributesEnum dbAttr();
+
   public:
     CArchiveManager  &m_rAM;
                                   // By Example
@@ -89,13 +92,15 @@ class CArchiveDBField
     //long            m_lInputIndex;
     long            m_lTableIndex;
     byte            m_iType;
+    long            m_iSize;
     CCnvIndex       m_iCnv;             //conversion index
     Strng           m_sCnvTxt;          //engineering units
     CString         m_sDescription;   
                     
-    ADOX::DataTypeEnum m_dbType;
-    ADOX::ColumnAttributesEnum m_dbAttr;
+    //ADOX::DataTypeEnum m_dbType;
+    //ADOX::ColumnAttributesEnum m_dbAttr;
                     
+    bool            m_bSystem;
     bool            m_bResetReqd;
     //bool            m_bWasReset;
     bool            m_bChanged;
@@ -110,15 +115,17 @@ class CArchiveTrigger
     CArchiveTrigger(CArchiveManager *pAM);
     ~CArchiveTrigger();
 
-    bool Parse(LPCTSTR Cfg);
-    bool TestTrigger();
+    bool Parse(LPCTSTR Table, int No, LPCTSTR Cfg);
+    bool TestTrigger(bool DoTriggerNote);
 
   public:
     CArchiveManager  &m_rAM;
 
+    CString         m_sName;
     CArcAddress     m_Src;
                     
     bool            m_bInitReqd;
+    bool            m_bRewindReqd;
     bool            m_bRise;
     bool            m_bFall;
     bool            m_bAny;
@@ -137,19 +144,28 @@ class CArchiveDBTable
   {
   public:
     CArchiveDBTable(CArchiveManager *pAM);
+    CArchiveDBTable(CArchiveManager *pAM,
+                    LPCTSTR TbName,
+                    byte    iTbFmt,
+                    LPCTSTR sPath,
+                    byte iSigDigits);
+
     ~CArchiveDBTable();
     bool             AddPeriod(long Period, long Offset);
     bool             AddTrigger(LPCTSTR Cfg);
-    bool             Execute(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
-    bool             StepDone(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
+    bool             Execute(CXM_TimeControl &CB);
+    bool             StepDone(CXM_TimeControl &CB);
     bool             CreateDBTable();
+    bool             ReOpenTxtTable(bool Rewind);
     bool             CreateDBFields(ADOX::_TablePtr & pTbl);
     bool             CreateTxtFields();
-    bool             CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc=false);
+    bool             CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, int Size, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc=false);
     bool             CreateDBRecordset();
     bool             CloseDBTable();
-    bool             AddDBRecord(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
-    bool             AddTxtRecord(CXM_TimeControl &CB);//, CArchiveManager & ArcMan);
+    bool             AddDBRecord(CXM_TimeControl &CB);
+    bool             AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg);
+    bool             AddEventRecord(CXM_TimeControl &CB, LPCTSTR Tag, LPCTSTR Msg);
+    bool             DeleteDBRecords();
 
     long             TriggerCount() { return m_Triggers.GetSize(); };
     long             FieldCount() { return m_Fields.GetSize(); };
@@ -164,8 +180,11 @@ class CArchiveDBTable
     long            m_lPeriod;
     long            m_lOffset;
     bool            m_bInitReqd;
+    bool            m_bRewindReqd;
+    bool            m_bClearOnRewind;
     CTimeValue      m_dNextSaveTime;
     bool            m_bPeriodOn;
+
                     
     CATriggerArray  m_Triggers;
     CADBFieldArray  m_Fields;
@@ -178,6 +197,7 @@ class CArchiveDBTable
     Strng           m_sFileName;
     FILE          * m_hFile;
     byte            m_nSigDigits;
+    long            m_nTxtRecNo;
 
   };
 
@@ -198,12 +218,17 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     CArchiveManager();
     ~CArchiveManager();
 
+    void            AddReqdTables();
     bool            ReadCfg();
+    bool            CheckCfg();
     bool            CompleteOpen();
                     
     long            AddField(LPCTSTR Table, LPCTSTR CfgString);
-    long            AddField(LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
-    long            AppendField(LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
+    long            AddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgString);
+    long            AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
+    long            AppendField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
+    //bool            ConnectField(int Index);
+    //bool            DisConnectField(int Index);
     long            AddInput(LPCTSTR Tag);
     long            FindInputIndex(LPCTSTR Tag);
     long            FindFieldIndex(LPCTSTR Tag);
@@ -242,19 +267,27 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            SendStop();
     void            SetEvent() { ::SetEvent(m_evDone); };
                     
-    bool            ReWound()    { return m_bRewound; };
+    bool            Rewind()    { return m_bRewind; };
 
     void            Initialise();
     int             Configure(LPCTSTR CfgFile, bool OpenDBOnRun);
     void            Options(char* pGotoTag = NULL);
     void            CloseOptions();
-    int             Open();
+    int             Open(bool FirstClear);
+    bool            ConnectAll();
+    bool            DisConnectAll();
     bool            Close(BOOL SaveState = TRUE);
                     
     void            SaveTags(FilingControlBlock &FCB, BOOL SaveAll);
     void            LoadTags(FilingControlBlock &FCB);
 
     void            AddFieldDlg(TagInfoBlk &IB);
+
+    void            LogAMessage(CMsgLogItem &Itm);
+    void            LogAnEvent(LPCTSTR Tag, LPCTSTR Msg);
+
+    CArchiveDBTable & MessageLog() { return *m_pMessageLog; };
+    CArchiveDBTable & EventLog()   { return *m_pEventLog; };
 
   private :
    
@@ -289,11 +322,13 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     virtual flag    EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
 
   protected:
-    bool            m_bIsOpen,
+    bool            m_bOn,
                     m_bDBOK,
                     m_bRegistered,
                     m_bOpenDBOnRun,
                     m_bDoneLocalLoadSave;
+
+    DWORD           m_dwOptions;
 
     CString         m_sCfgFile;
     CString         m_sDataFile;
@@ -301,6 +336,11 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     CADBFieldArray  m_Fields;
     CADBFieldMap    m_FieldMap;
     CAInputArray    m_Inputs;
+
+    CArchiveDBTable *m_pMessageLog; 
+    CArchiveDBTable *m_pEventLog; 
+    int             m_iBusyLoggingMsg;
+    int             m_iBusyLoggingEvent;
 
     ADODB::_ConnectionPtr m_pCnn;
     ADOX::_CatalogPtr     m_pCat;
@@ -324,7 +364,9 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
 
     CString         m_sSeparator;
 
-    bool            m_bRewound;
+    bool            m_bFirstClear;
+    bool            m_bRewind;
+    bool            m_TimeAtStartValid;
     CTimeValue      m_TimeAtStart;
   };
 
@@ -333,7 +375,7 @@ inline CArchiveDBTable & CArchiveManager::GetTable(long ItemIndex) { return *m_T
 inline CArchiveInput & CArchiveManager::GetInput(long ItemIndex) { return *m_Inputs[ItemIndex]; };
 inline CArchiveDBField & CArchiveManager::GetField(long ItemIndex) { return *m_Fields[ItemIndex]; };
 inline bool CArchiveManager::GetCalcValue(long Index, CPkDataList &List, /*CPkDataItem * &pPItem,*/ bool Complete)
- { return m_Fields[Index]->GetValue(List, /*pPItem,*/ Complete); };
+ { return !m_Fields[Index]->m_bSystem && m_Fields[Index]->GetValue(List, /*pPItem,*/ Complete); };
 
 //-------------------------------------------------------------------------
 

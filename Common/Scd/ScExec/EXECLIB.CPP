@@ -1106,11 +1106,11 @@ char* CXM_RepTrendDB::NextTag(char* pPrevTag)
 
 //===========================================================================
                                           
-LPCTSTR ADBFuncTags[]   = {  "",  "CUR",      "MIN",          "MAX",  "AVG",  "RUNAVG",  "CNT",  NULL, };
-LPCTSTR ADBMeasTags[]   = {  "",  "StartPt",  "MidPt",        "EndPt", NULL, };
+LPCTSTR ADBFuncTags[]   = {  "",  "Current",  "Minimum",      "Maximum",  "Average",   "RunningAvg",  "Count",  "System", NULL, };
+LPCTSTR ADBFuncSyms[]   = {  "",  "CUR",      "MIN",          "MAX",      "AVG",       "RUNAVG",      "CNT",  "System", NULL, };
+LPCTSTR ADBMeasTags[]   = {  "",  "StartPt",  "MidPt",        "EndPt", "Injected", NULL, };
 LPCTSTR ADBFirstTags[]  = {  "",  "UseFirst", "IgnoreFirst",  NULL, };
 LPCTSTR ADBTbFmtTags[]  = {  "",  "DB",       "CSV",          "TXT", NULL, };
-
 
 CXM_ArchiveExists::CXM_ArchiveExists(char * Tag)
   {

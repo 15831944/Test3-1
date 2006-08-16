@@ -108,7 +108,7 @@ class CScdCallEntryExit
       m_Data.m_LastRetCode = -1;                                                           
       m_Data.m_hResult = (HRESULT)RetCode;
 
-      char S[MsgBuffLen];                                                                        
+      char S[4096];//MsgBuffLen];                                                                        
       sprintf(S, "Error %08x",m_Data.m_hResult);
       ComLogError(m_MyFnName, 0, S);                                                                  
       return AtlReportError(m_clsid, S, GUID_NULL, m_Data.m_hResult );        
@@ -119,7 +119,7 @@ class CScdCallEntryExit
         return S_OK;
       m_Data.m_LastRetCode = -1;                                                           
       m_Data.m_hResult = (HRESULT)RetCode;
-      char S[MsgBuffLen];                                                                        
+      char S[4096];//[MsgBuffLen];                                                                        
       va_list argptr;                                                                            
       va_start(argptr,fmt);                                                                      
       vsprintf(S, fmt, argptr);                                                                  
@@ -141,7 +141,7 @@ class CScdCallEntryExit
         m_Data.m_LastRetCode = -1;                                                           
         m_Data.m_hResult = (HRESULT)RetCode;
         }
-      char S[MsgBuffLen];                                                                        
+      char S[4096];//[MsgBuffLen];                                                                        
       va_list argptr;                                                                            
       va_start(argptr,fmt);                                                                      
       vsprintf(S, fmt, argptr);                                                                  

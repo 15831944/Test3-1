@@ -2901,7 +2901,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           }
       m_Seq.IncSequenceNo();
       gs_MsgLog.IncMsgIteration();
-      gs_EventLog.IncIteration();
+      //gs_EventLog.IncIteration();
 
       PostCmd(0, EXM_EXECDONE);
 
@@ -3520,8 +3520,8 @@ int CExecutive::CanClose(Strng_List & Problems)
   int Ret=Busy() ? EO_CanClose_No : EO_CanClose_Yes;
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
     Ret=Max(Ret, Objs_Reg[RInx]->EO_CanClose(Problems));
-  if (Ret==EO_CanClose_Yes)
-    gs_EventLog.CloseFile();
+  //if (Ret==EO_CanClose_Yes)
+  //  gs_EventLog.CloseFile();
   return Ret;
   }
 
@@ -4602,8 +4602,8 @@ void CExecutive::DoAppActivate()
       a->EO_OnAppActivate(false);
     a->UnlockXO();
     }
-  if (bDoAppActivate&2)
-    gs_EventLog.FlushFile();
+  //if (bDoAppActivate&2)
+  //  gs_EventLog.FlushFile();
   bDoAppActivate=0;
   #if dbgExecutive
   if (dbgExecSeq())
@@ -8373,97 +8373,109 @@ void CExecSequence::NoteManSet(long Source, LPCTSTR Tag, LPCTSTR Value, LPCTSTR 
 
 CEventLog::CEventLog()
   {
-  bUseEventLog = 0;
-  bStartRqd = 1;
-  bDeleteOldRqd = 0;
-  pEventLogFile = NULL;
-  lIteration = 0;
-  dStartTime = 0.0;
+  //bUseEventLog = 0;
+  //bStartRqd = 1;
+  //bDeleteOldRqd = 0;
+  //pEventLogFile = NULL;
+  //lIteration = 0;
+  //dStartTime = 0.0;
+  m_EventLogHook = NULL;
   }
 
 //---------------------------------------------------------------------------
 
 CEventLog::~CEventLog()
   {
-  CloseFile();
+  //CloseFile();
   }
 
 //---------------------------------------------------------------------------
 
-void CEventLog::SetUseLog(bool UseLog)
+//void CEventLog::SetUseLog(bool UseLog)
+//  {
+//  bUseEventLog = (UseLog ? 1 : 0);
+//  if (!bUseEventLog && pEventLogFile)
+//    CloseFile();
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CEventLog::StartFile(bool DeleteOld)
+//  {
+//  if (pEventLogFile)
+//    CloseFile();
+//  bStartRqd = 1;
+//  bDeleteOldRqd = (DeleteOld ? 1 : 0);
+//  lIteration = 0;
+//  dStartTime = gs_Exec.TheTime.Seconds;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CEventLog::CloseFile()
+//  {
+//  if (pEventLogFile)
+//    {
+//    fclose(pEventLogFile);
+//    pEventLogFile = NULL;
+//    }
+//  bStartRqd = 1;
+//  bDeleteOldRqd = 0;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CEventLog::FlushFile()
+//  {
+//  if (pEventLogFile)
+//    {
+//    fflush(pEventLogFile);
+//    }
+//  }
+//
+//---------------------------------------------------------------------------
+
+void CEventLog::SetHook(EventLogHookFn Hook)
   {
-  bUseEventLog = (UseLog ? 1 : 0);
-  if (!bUseEventLog && pEventLogFile)
-    CloseFile();
+  m_EventLogHook=Hook;
   }
 
 //---------------------------------------------------------------------------
 
-void CEventLog::StartFile(bool DeleteOld)
+void CEventLog::LogEvent(LPCTSTR Tag, LPCTSTR Msg)
   {
-  if (pEventLogFile)
-    CloseFile();
-  bStartRqd = 1;
-  bDeleteOldRqd = (DeleteOld ? 1 : 0);
-  lIteration = 0;
-  dStartTime = gs_Exec.TheTime.Seconds;
-  }
-
-//---------------------------------------------------------------------------
-
-void CEventLog::CloseFile()
-  {
-  if (pEventLogFile)
+  if (m_EventLogHook)
     {
-    fclose(pEventLogFile);
-    pEventLogFile = NULL;
+    (m_EventLogHook)(Tag, Msg);
     }
-  bStartRqd = 1;
-  bDeleteOldRqd = 0;
-  }
+  //if (bUseEventLog)
+  //  {
+  //  if (bStartRqd)
+  //    {
+  //    Strng Filename(PrjFiles());
+  //    Filename += "EventLog.csv";
+  //    pEventLogFile = fopen(Filename(), bDeleteOldRqd ? "wt" : "wt+");
+  //    if (pEventLogFile && bDeleteOldRqd)
+  //      {
+  //      char Buff[256];
+  //      sprintf(Buff, "Iteration,DateTime,Seconds,EventMessage\n");
+  //      fwrite(Buff, sizeof(char), strlen(Buff), pEventLogFile);
+  //      }
+  //    bStartRqd = 0;
+  //    }
 
-//---------------------------------------------------------------------------
-
-void CEventLog::FlushFile()
-  {
-  if (pEventLogFile)
-    {
-    fflush(pEventLogFile);
-    }
-  }
-
-//---------------------------------------------------------------------------
-
-void CEventLog::LogEvent(char* pMsg)
-  {
-  if (bUseEventLog)
-    {
-    if (bStartRqd)
-      {
-      Strng Filename(PrjFiles());
-      Filename += "EventLog.csv";
-      pEventLogFile = fopen(Filename(), bDeleteOldRqd ? "wt" : "wt+");
-      if (pEventLogFile && bDeleteOldRqd)
-        {
-        char Buff[256];
-        sprintf(Buff, "Iteration,DateTime,Seconds,EventMessage\n");
-        fwrite(Buff, sizeof(char), strlen(Buff), pEventLogFile);
-        }
-      bStartRqd = 0;
-      }
-
-    if (pEventLogFile)
-      {
-      //char DateBuff[128];
-      char Buff[256];
-      sprintf(Buff, "%d,%s,%g,\"", lIteration, gs_Exec.TheTime.Format(TD_DateTime), gs_Exec.TheTime-dStartTime);
-      fwrite(Buff, sizeof(char), strlen(Buff), pEventLogFile);
-      if (pMsg)
-        fwrite(pMsg, sizeof(char), strlen(pMsg), pEventLogFile);
-      sprintf(Buff, "\"\n");
-      fwrite(Buff, 1, 2, pEventLogFile);
-      }
-    }
+  //  if (pEventLogFile)
+  //    {
+  //    //char DateBuff[128];
+  //    char Buff[256];
+  //    sprintf(Buff, "%d,%s,%g,\"", lIteration, gs_Exec.TheTime.Format(TD_DateTime), gs_Exec.TheTime-dStartTime);
+  //    fwrite(Buff, sizeof(char), strlen(Buff), pEventLogFile);
+  //    if (pMsg)
+  //      fwrite(pMsg, sizeof(char), strlen(pMsg), pEventLogFile);
+  //    sprintf(Buff, "\"\n");
+  //    fwrite(Buff, 1, 2, pEventLogFile);
+  //    }
+  //  }
   }
 
 //===========================================================================

@@ -10,6 +10,7 @@
 #include "errorlog.h"
 #include "optimize.h"
 #include "executiv.h"
+#include "ndtree.h"
 
 #include "pgm_i.h"
 
@@ -1324,10 +1325,10 @@ END_CODE(LogEvent)
 void GCLogEventIns::Exec(rGCInsMngr IB)
   {
   char* p = (IB.m_StrStack[IB.m_iStrPos--])();
-  if (gs_EventLog.UsingLog())
-    gs_EventLog.LogEvent(p ? p : "");
-  //else
-    //error : EventLog not on!!!
+
+  CTNode *pNd=dynamic_cast<CTNode*>(IB.m_pXRM);
+  gs_EventLog.LogEvent((pNd ? pNd->FullObjTag():""), (p ? p : ""));
+
   Advance(IB);
   }
 

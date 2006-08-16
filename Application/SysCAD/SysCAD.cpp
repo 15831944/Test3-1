@@ -1599,7 +1599,7 @@ BOOL CSysCADApp::InitInstance()
 
   Strng LFn(TemporaryFiles());
   LFn.FnCheckEndBSlash();
-  LFn+="SCD_Log.csv";
+  LFn+="Scd_Log.csv";
   gs_MsgLog.LogFileOpen(LFn());
 
   //parse command line...
@@ -2510,7 +2510,7 @@ void CSysCADApp::OnHelpModels()
 
 void CSysCADApp::OnFileOpen()
   {
-  CIncDecFlag IDF(gs_FileOpenFlag);
+  CAutoIncDec AID(gs_FileOpenFlag);
 
   if (!gs_License.Blocked())
     OnFileOpenX();
@@ -2526,7 +2526,7 @@ void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
 
 void CSysCADApp::OnFileNew()
   {
-  CIncDecFlag IDF(gs_FileNewFlag);
+  CAutoIncDec AID(gs_FileNewFlag);
 
   if (!gs_License.Blocked())
     {

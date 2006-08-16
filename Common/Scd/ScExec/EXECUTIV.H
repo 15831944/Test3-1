@@ -1500,28 +1500,20 @@ extern DllImportExport void XDoAppIdle();
 
 //=========================================================================
 
+typedef void (*EventLogHookFn)(LPCTSTR Tag, LPCTSTR Msg);
+
 class DllImportExport CEventLog
   {
   friend class FlwSlvDyn;
   public:
     CEventLog();
     ~CEventLog();
-    bool UsingLog() { return bUseEventLog; };
-    void SetUseLog(bool UseLog);
-    void StartFile(bool DeleteOld);
-    void CloseFile();
-    void FlushFile();
-    void LogEvent(char* pMsg);
-    void SetIteration(long Iteration) { lIteration=Iteration; };
-    long GetIteration() { return lIteration; };
-    void IncIteration() { lIteration++; };
+    void SetHook(EventLogHookFn Hook);
+    void LogEvent(LPCTSTR Tag, LPCTSTR Msg);
   private:
-    unsigned int  bUseEventLog:1,
-                  bStartRqd:1,
-                  bDeleteOldRqd:1;
-    FILE* pEventLogFile;
-    long lIteration;
-    double dStartTime;
+      
+    EventLogHookFn m_EventLogHook;
+
   };
 
 extern DllImportExport CEventLog gs_EventLog;

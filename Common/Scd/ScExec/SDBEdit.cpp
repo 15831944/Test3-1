@@ -4234,7 +4234,7 @@ void CSDBTest::OnSpDotest()
       LPCTSTR pTyp=CMessageLog::MsgTypeString(iTyp);
       if (pTyp)
         {
-        S.Set("%s\t%i\t%s", pTyp, Itm.m_lIterNo, Itm.m_Str);
+        S.Set("%s\t%i\t%s %s", pTyp, Itm.m_lIterNo, Itm.Source(), Itm.Description());
         m_MsgGrid.AddItem(S(), COleVariant(nMsgs++));
         }
       }

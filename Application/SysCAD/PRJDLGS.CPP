@@ -1273,7 +1273,7 @@ void CGenPage::OnOK()
               m_pPrj->CloseDrvManager();
               m_pPrj->OpenDrvManager();
 #endif 
-              m_pPrj->OpenArcManager();
+              m_pPrj->OpenArcManager(false);
               CTagVwDoc::RebuildAll();
               }
             }
@@ -1655,7 +1655,7 @@ void CCommsPage::OnOK()
         m_pSet->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
         if (m_pPrj)
           {
-          m_pPrj->OpenArcManager();
+          m_pPrj->OpenArcManager(false);
           CTagVwDoc::RebuildAll();
           }
         }
@@ -1872,7 +1872,7 @@ void CCommsPage::OnArchiveReload()
     gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
     gs_pPrj->m_bArcOn          = m_ArcOn;
     gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-    gs_pPrj->OpenArcManager();
+    gs_pPrj->OpenArcManager(false);
     CTagVwDoc::RebuildAll();
     bArcChanged = 0;
     UpdateDialogControls(this, FALSE);

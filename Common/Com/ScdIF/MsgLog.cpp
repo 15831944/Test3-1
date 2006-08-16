@@ -29,15 +29,15 @@ static int dbgLogCallsInternal   = 0;
 //static long nCMsgLogItemCnt=0;
 CMsgLogItem::CMsgLogItem()
   {
-  m_dwFlags      = 0;
-  m_lIterNo      = 0;
-  m_lIDNo      = 0;
-  m_lCallNo      = 0;
+  m_dwFlags     = 0;
+  m_lIterNo     = 0;
+  m_lIDNo       = 0;
+  m_lCallNo     = 0;
   m_lSeqNo      = 0;
-  m_hr      = 0;
-  m_MsgBoxFlags      = 0;
-  m_iDescStart      = 0;
-  m_Str[0]      = 0;
+  m_hr          = 0;
+  m_MsgBoxFlags = 0;
+  //m_iDescStart      = 0;
+  //m_Str[0]      = 0;
   //dbgpln("CMsgLogItem %i", ++nCMsgLogItemCnt);
   };
 CMsgLogItem::~CMsgLogItem()
@@ -80,6 +80,7 @@ CMessageLog::CMessageLog()
 
   m_lComIFCnt=0;
 
+  //m_MessageLogHook=NULL;
   }
 
 //===========================================================================
@@ -300,6 +301,7 @@ void CMessageLog::LogFileClose()
                                                                                    
 int CMessageLog::LogLn(HWND hWndOwn, DWORD Flags, LPCTSTR Where, UINT BoxFlags, LPCTSTR Msg, long SeqNo, HRESULT hr)
   {
+  const int MsgBuffLen=4096;
   char FileStr[MsgBuffLen];
   char DbgStr[MsgBuffLen];
   //char AfxStr[MsgBuffLen];
@@ -374,7 +376,7 @@ int CMessageLog::LogLn(HWND hWndOwn, DWORD Flags, LPCTSTR Where, UINT BoxFlags, 
     else  
       sprintf(DbgLine, "Log:---");
   
-    Itm.m_Str[sizeof(Itm.m_Str)-1]=0;
+    //Itm.m_Str[sizeof(Itm.m_Str)-1]=0;
 
     for (int q=0; q<(m_lComIFCnt>0 ? 2:1); q++)
       {
@@ -400,11 +402,13 @@ int CMessageLog::LogLn(HWND hWndOwn, DWORD Flags, LPCTSTR Where, UINT BoxFlags, 
     if (m_lComCallLevel)
       {
       m_lComCallLnCnt++;
-      m_sComCallLogLn = Itm.m_Str;
+      m_sComCallLogLn = Itm.Source();
+      m_sComCallLogLn += " ";
+      m_sComCallLogLn += Itm.Description();
       }
     LeaveCriticalSection(&m_errSect);
     }
-  
+
   if (dbgtestfileopen())
     dbgpln("%s", DbgLine);
 
@@ -546,7 +550,7 @@ BOOL CMessageLog::GetComQMsg(DWORD N, CMsgLogItem & Msg)
 
 int CMessageLog::LogSeparator(LPCTSTR Where, UINT BoxFlags)
   {
-  char S[MsgBuffLen]; 
+  char S[4096]; 
   char *pSep="------------------------------------------------";
   int L=strlen(Where);
   int N=50;
@@ -593,6 +597,11 @@ void CMessageLog::DecrementComIFCnt()
   InterlockedDecrement(&m_lComIFCnt);
   };
 
+//void CMessageLog::SetHook(MessageLogHookFn Hook)
+//  {
+//  m_MessageLogHook = Hook;
+//  };
+
 //===================================================================
 //
 //
@@ -616,7 +625,7 @@ int LogLn(DWORD Flags, LPCTSTR Where, UINT BoxFlags, LPCTSTR Msg, long SeqNo, HR
 //===================================================================
 
 #define DOVARARGS(fmt)      \
-  char S[MsgBuffLen];       \
+  char S[4096];       \
   va_list argptr;           \
   va_start(argptr,fmt);     \
   vsprintf(S, fmt, argptr); \
@@ -671,12 +680,6 @@ int LogLn(DWORD Flags, LPCTSTR Where, UINT BoxFlags, LPCTSTR Msg, long SeqNo, HR
 
 int LogSeparator(LPCTSTR Where, UINT BoxFlags)  { return gs_MsgLog.LogSeparator(Where, BoxFlags);   }
 
-#define DOVARARGS(fmt)      \
-  char S[MsgBuffLen];       \
-  va_list argptr;           \
-  va_start(argptr,fmt);     \
-  vsprintf(S, fmt, argptr); \
-  va_end(argptr);
 
 int LogFatal(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...)
   {

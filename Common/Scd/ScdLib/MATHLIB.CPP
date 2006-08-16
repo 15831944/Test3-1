@@ -639,6 +639,8 @@ Return:
 
 bool CTimeValue::Parse(/*byte Options,*/ LPCTSTR Str)
   {
+  if (Str==NULL) 
+    Str="";
   if (strchr(Str, '*'))
     {
     *this=TimeNAN;

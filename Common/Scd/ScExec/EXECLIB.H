@@ -858,29 +858,32 @@ class DllImportExport CXM_ArcShowTagInfo : public CXM_Header
 
 //-------------------------------------------------------------------------
 
-const byte ADBFn_Null       = 0;
-const byte ADBFn_Instant    = 1;
-const byte ADBFn_Minimum    = 2;
-const byte ADBFn_Maximum    = 3;
-const byte ADBFn_PeriodAvg  = 4;
-const byte ADBFn_RunningAvg = 5;
-const byte ADBFn_Count      = 6;
+const byte ADBFn_Null         = 0;
+const byte ADBFn_Instant      = 1;
+const byte ADBFn_Minimum      = 2;
+const byte ADBFn_Maximum      = 3;
+const byte ADBFn_PeriodAvg    = 4;
+const byte ADBFn_RunningAvg   = 5;
+const byte ADBFn_Count        = 6;
+const byte ADBFn_System       = 7;
 
-const byte ADBMeas_Null     = 0;
-const byte ADBMeas_StartPt  = 1;
-const byte ADBMeas_MidPt    = 2;
-const byte ADBMeas_EndPt    = 3;
+const byte ADBMeas_Null       = 0;
+const byte ADBMeas_StartPt    = 1;
+const byte ADBMeas_MidPt      = 2;
+const byte ADBMeas_EndPt      = 3;
+const byte ADBMeas_Injected   = 4;
 
-const byte ADBFirst_Null    = 0;
-const byte ADBFirst_Use     = 1;
-const byte ADBFirst_Ignore  = 2;
+const byte ADBFirst_Null      = 0;
+const byte ADBFirst_Use       = 1;
+const byte ADBFirst_Ignore    = 2;
 
-const byte ADBTbFmt_Null    = 0;
-const byte ADBTbFmt_DB      = 1;
-const byte ADBTbFmt_CSV     = 2;
-const byte ADBTbFmt_TXT     = 3;
+const byte ADBTbFmt_Null      = 0;
+const byte ADBTbFmt_DB        = 1;
+const byte ADBTbFmt_CSV       = 2;
+const byte ADBTbFmt_TXT       = 3;
 
 extern DllImportExport LPCTSTR ADBFuncTags[];
+extern DllImportExport LPCTSTR ADBFuncSyms[];
 extern DllImportExport LPCTSTR ADBMeasTags[];
 extern DllImportExport LPCTSTR ADBFirstTags[];
 extern DllImportExport LPCTSTR ADBTbFmtTags[];

@@ -1128,7 +1128,7 @@ DllImportExport char*  GetSystemErrorStr(Strng &S, DWORD E);
 
 DllImportExport void   StripSingleQuoteComment(char * Buff);
 DllImportExport int    ParseTokenList(char* Buff, char* C[], char* WhiteSpace=" \t", int MaxColumns=MaxCSVCols, char Separator=0, bool Test4Braces=0);
-DllImportExport int    ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote);
+DllImportExport int    ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL);
 DllImportExport int    ParseCSVFunction(char* Buff, CSVColArray &C, int& Quote);
 DllImportExport int    ParseTokens(char* Buff, CSVColArray &C, char Token);
 DllImportExport int    ParseTabTokens(char* Buff, CSVColArray &C);
@@ -1371,6 +1371,21 @@ inline char* Strng::FnMakePathInLocal()           { return ::FnMakePathInLocal(*
 inline void  Strng::FnCompactPath(long MaxLen)    { ::FnCompactPath(MaxLen, *this);};
 
 inline void  Strng::GetSystemErrorStr(DWORD E)    { ::GetSystemErrorStr(*this, E); };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class CAutoIncDec
+  {
+  public:
+    CAutoIncDec(int & Flag) : m_Flag(Flag) { m_Flag++; };
+    ~CAutoIncDec()                         { m_Flag--; };
+  protected:
+    int & m_Flag;
+  };
 
 //===========================================================================
 //

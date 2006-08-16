@@ -5753,7 +5753,7 @@ void StripSingleQuoteComment(char * Buff)
 
 //===========================================================================
 
-int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote)
+int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars)
   {
   C[0]=&Buff[0];
   for (int j=1,i=0; j<MaxCSVCols; j++)
@@ -5771,7 +5771,7 @@ int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote)
     else if (Buff[i]=='\'')
       Quote = (Quote == 0) ? 2 : (Quote == 2) ? 0 : Quote;
     else if (Quote==0)
-      if (Buff[i]==',' || Buff[i]=='\t')
+      if (Buff[i]==',' || Buff[i]=='\t' || (MoreSepars && strchr(MoreSepars, Buff[i])!=NULL))
         {
         j++;
         ASSERT(j<MaxCSVCols); //too many tokens

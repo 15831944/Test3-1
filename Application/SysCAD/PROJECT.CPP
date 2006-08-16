@@ -1173,8 +1173,8 @@ void CProjectSettings::ClearSettings()
   bDrvReadAll=0;
 #endif
   //bArcOpen=0;
-  m_bArcOn=0;
-  m_bArcOpenDBOnRun=0;
+  m_bArcOn=true;
+  m_bArcOpenDBOnRun=1;
   //bIOMOpen=0;
   m_bIOMOn=0;
 
@@ -1203,7 +1203,7 @@ void CProjectSettings::ClearSettings()
   m_sGrfFrameFilter = "Frames:";
 
   m_sDrvManagerName="Scd_Drvr.mdb";
-  m_sArcManagerName="ScdArch.sac";
+  m_sArcManagerName="$Prj\\Archive.Ini"/*"ScdArch.sac"*/;
   m_sIOMarshalName="*.scm";
   m_sIOMarshalNode="";
 #if WITHDRVMAN
@@ -3050,7 +3050,7 @@ flag CProject::DoLoadDB(char* pPrjFiles, char* pOldPrjName)
 #if WITHDRVMAN
   OpenDrvManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
 #endif
-  OpenArcManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
+  ConnectArcManager(); //must be loaded after models (tag data base) BUT before 'Other.Dat'
   OpenIOMarshal(); //???
 
   if (!gs_Exec.LoadDBase(eLdDB_LoadOther, LDBI))
@@ -3564,7 +3564,7 @@ flag CProject::ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName)
 
     DoSaveSnapShotScenario(true, TmpSnap, &Drv);
 
-    CloseArcManager();
+    DisconnectArcManager();
     ASSERT(_CrtCheckMemory());
     CloseDrvManager();
 
@@ -3573,7 +3573,7 @@ flag CProject::ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName)
     ASSERT(_CrtCheckMemory());
     OpenDrvManager();
     ASSERT(_CrtCheckMemory());
-    OpenArcManager();
+    ConnectArcManager();
     CTagVwDoc::RebuildAll();
 
     DoLoadSnapShotScenario(true, TmpSnap);
@@ -3591,7 +3591,7 @@ flag CProject::ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName)
 
 //---------------------------------------------------------------------------
 
-void CProject::OpenArcManager()
+void CProject::OpenArcManager(bool FirstOpen)
   {
   bArcOpen=0;
   if (m_bArcOn && m_sArcManagerName.Length()>0)
@@ -3601,12 +3601,13 @@ void CProject::OpenArcManager()
       CWaitMsgCursor Wait("Opening Archive manager");
       bArcOpen=1;
       Strng Name;
-      Name.FnSearchExpand(m_sArcManagerName(), AF_All|AF_BackupFiles);
+      //Name.FnSearchExpand(m_sArcManagerName(), AF_All|AF_BackupFiles);
+      Name.FnExpand(m_sArcManagerName());
       //ArcDir.FnDrivePath(Name());
       //FileExt.FnNameExt(Name());
 
       gs_pArcMan->Configure(Name(), m_bArcOpenDBOnRun!=0);
-      if (gs_pArcMan->Open()!=0)
+      if (gs_pArcMan->Open(FirstOpen)!=0)
         {
         LogError("Driver", LF_Exclamation, "Error Opening Archive Manager");
         bArcOpen=0;
@@ -3619,6 +3620,20 @@ void CProject::OpenArcManager()
     }
 
   MainWnd()->UpdateStatusBar();
+  }
+
+//---------------------------------------------------------------------------
+
+void CProject::ConnectArcManager()
+  {
+  gs_pArcMan->ConnectAll();
+  }
+
+//---------------------------------------------------------------------------
+
+void CProject::DisConnectArcManager()
+  {
+  gs_pArcMan->DisConnectAll();
   }
 
 //---------------------------------------------------------------------------
@@ -3657,11 +3672,13 @@ flag CProject::ReloadArcManager(BOOL WithOptions, char * NewArcManagerName)
     DoSaveSnapShotScenario(true, TmpSnap, &Arc);
 
     ASSERT(_CrtCheckMemory());
+    DisConnectArcManager();
     CloseArcManager();
     if (NewArcManagerName)
       m_sArcManagerName=NewArcManagerName;
     ASSERT(_CrtCheckMemory());
-    OpenArcManager();
+    OpenArcManager(false);
+    ConnectArcManager();
     ASSERT(_CrtCheckMemory());
     CTagVwDoc::RebuildAll();
 
@@ -3741,7 +3758,7 @@ flag CProject::ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName, char *
     //DoSaveSnapShotScenario(true, TmpSnap, &IOM);
 
     CloseIOMarshal();
-    CloseArcManager();
+    DisConnectArcManager();
 
     if (NewIOMarshalName)
       m_sIOMarshalName=NewIOMarshalName;
@@ -3750,7 +3767,7 @@ flag CProject::ReloadIOMarshal(BOOL WithOptions, char * NewIOMarshalName, char *
     ASSERT(_CrtCheckMemory());
     OpenIOMarshal();
     ASSERT(_CrtCheckMemory());
-    OpenArcManager();
+    ConnectArcManager();
     CTagVwDoc::RebuildAll();
 
     //DoLoadSnapShotScenario(true, TmpSnap);
@@ -4774,7 +4791,7 @@ flag CProject::ImportFlwsheet()
       //CloseHistorian();
       //OpenHistorian();
       CloseIOMarshal();
-      CloseArcManager();
+      DisConnectArcManager();
 #if WITHDRVMAN
       CloseDrvManager();
 #endif
@@ -4782,7 +4799,7 @@ flag CProject::ImportFlwsheet()
 #if WITHDRVMAN
       OpenDrvManager();
 #endif
-      OpenArcManager();
+      ConnectArcManager();
       OpenIOMarshal();
       CDlgBusy::SetLine(3, "Connecting trends");
       CTagVwDoc::RebuildAll();
@@ -6011,8 +6028,11 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
       HstMngr.SetOnAsRqd();
       HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
 
+      OpenArcManager(true);
+
       OpenHistorian();
       dbgMemoryState("Historian");
+
 
 #if WITHDRVMAN
       //get driver info...
@@ -6188,12 +6208,12 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
             {
             CWaitCursor Wait;
             CloseIOMarshal();
-            CloseArcManager();
+            DisConnectArcManager();
 #if WITHDRVMAN
             CloseDrvManager();
             OpenDrvManager();
 #endif
-            OpenArcManager();
+            ConnectArcManager();
             OpenIOMarshal();
             CTagVwDoc::RebuildAll();
             }
@@ -7778,7 +7798,7 @@ flag CProject::OnNew()
 #if WITHDRVMAN
         OpenDrvManager();
 #endif
-        OpenArcManager();
+        OpenArcManager(true);
         OpenIOMarshal();
         MainWnd()->DefaultToolBar(-1, TRUE);
 
@@ -8122,7 +8142,7 @@ flag CProject::OnProjectSaveas(pchar pPrjPath)
 #if WITHDRVMAN
     OpenDrvManager();
 #endif
-    OpenArcManager();
+    OpenArcManager(false);
     OpenIOMarshal();
     if (bCmdSuccess && !RmtCmdBusy())
       {

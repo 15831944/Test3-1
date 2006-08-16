@@ -53,15 +53,6 @@
 
 //=========================================================================
 
-class CIncDecFlag 
-  {
-  public:
-    CIncDecFlag(int & Flag) : m_Flag(Flag) { m_Flag++; };
-    ~CIncDecFlag()                         { m_Flag--; };
-  protected:
-    int & m_Flag;
-  };
-
 extern DllImportExport int gs_FileNewFlag;
 extern DllImportExport int gs_FileOpenFlag;
 extern DllImportExport int gs_BlockSizeAdjustment;
@@ -731,7 +722,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     flag           ReloadDrvManager(BOOL WithOptions, char * NewDrvManagerName=NULL);
 #endif
 
-    void           OpenArcManager();
+    void           OpenArcManager(bool FirstOpen);
+    void           ConnectArcManager();
+    void           DisConnectArcManager();
     void           CloseArcManager(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
     flag           ReloadArcManager(BOOL WithOptions, char * NewArcManagerName=NULL);
 

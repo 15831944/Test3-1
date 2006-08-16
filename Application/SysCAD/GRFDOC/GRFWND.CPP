@@ -1050,7 +1050,7 @@ void CGrfFrameWnd::OnSize(UINT nType, int cx, int cy)
 
   if (gs_pPrj->m_GrfBehaviour && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
     {
-    CIncDecFlag IDF(gs_BlockSizeAdjustment);
+    CAutoIncDec AID(gs_BlockSizeAdjustment);
     CWindowLists WL;
     if (WL.BuildSingleList()<0)
       return;
@@ -1104,7 +1104,7 @@ void CGrfFrameWnd::OnMove(int x, int y)
 
   if ((gs_pPrj->m_GrfBehaviour || gs_FileNewFlag) && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
     {
-    CIncDecFlag IDF(gs_BlockSizeAdjustment);
+    CAutoIncDec AID(gs_BlockSizeAdjustment);
     CWindowLists WL;
     if (WL.BuildSingleList()<0)
       return;

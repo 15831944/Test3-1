@@ -196,7 +196,7 @@ void CTagVwSplit::OnSize(UINT nType, int cx, int cy)
 
   if (m_CreateDone && gs_pPrj->m_TrndBehaviour && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
     {
-    CIncDecFlag IDF(gs_BlockSizeAdjustment);
+    CAutoIncDec AID(gs_BlockSizeAdjustment);
     CWindowLists WL;
     if (WL.BuildSingleList()<0)
       return;
@@ -250,7 +250,7 @@ void CTagVwSplit::OnMove(int x, int y)
 
   if (m_CreateDone && (gs_pPrj->m_TrndBehaviour || gs_FileNewFlag) && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
     {
-    CIncDecFlag IDF(gs_BlockSizeAdjustment);
+    CAutoIncDec AID(gs_BlockSizeAdjustment);
     CWindowLists WL;
     if (WL.BuildSingleList()<0)
       return;

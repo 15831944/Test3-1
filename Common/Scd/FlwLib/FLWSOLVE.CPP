@@ -414,7 +414,7 @@ XID xidAtStartRestartPGM              = FlwXID(5105);
 XID xidAtStartRestartPrf              = FlwXID(5106);
 XID xidAtStartTimeF                   = FlwXID(5107);
 XID xidAtStartTimeD                   = FlwXID(5108);
-XID xidEventLogOn                     = FlwXID(5109);
+//XID xidEventLogOn                     = FlwXID(5109);
 XID xidAtStartAllZeroFlows            = FlwXID(5110);        
 XID xidAtStartAllEmpty                = FlwXID(5111);            
 XID xidAtStartAllPreSet               = FlwXID(5112);           
@@ -6583,15 +6583,15 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Page  ("Options", DDB_RqdPage);
 
-    if (DDB.BeginStruct(&FlwSlvNd, "EventLog", NULL, DDB_NoPage))
-      {
-      //DDB.Double("StopTime",          "", DC_Time,   "s",  &StopTime,               &FlwSlvNd, isParm|NAN_OK );
-      DDB.Text  ("");
-      DDB.CheckBoxBtn("On",   "", DC_,       "",   xidEventLogOn,           &FlwSlvNd, isParm, DDBOnOff);
-      DDB.Long  ("Iteration", "", DC_,       "",   &gs_EventLog.lIteration, &FlwSlvNd, isResult|InitHidden);
-      DDB.Double("StartTime", "", DC_Time,   "s",  &gs_EventLog.dStartTime, &FlwSlvNd, isResult|noView);
-      }
-    DDB.EndStruct();
+    //if (DDB.BeginStruct(&FlwSlvNd, "EventLog", NULL, DDB_NoPage))
+    //  {
+    //  //DDB.Double("StopTime",          "", DC_Time,   "s",  &StopTime,               &FlwSlvNd, isParm|NAN_OK );
+    //  DDB.Text  ("");
+    //  DDB.CheckBoxBtn("On",   "", DC_,       "",   xidEventLogOn,           &FlwSlvNd, isParm, DDBOnOff);
+    //  DDB.Long  ("Iteration", "", DC_,       "",   &gs_EventLog.lIteration, &FlwSlvNd, isResult|InitHidden);
+    //  DDB.Double("StartTime", "", DC_Time,   "s",  &gs_EventLog.dStartTime, &FlwSlvNd, isResult|noView);
+    //  }
+    //DDB.EndStruct();
 
     DDB.Text  ("");
     if (DDB.BeginStruct(&FlwSlvNd, "HistorianTagList", NULL, DDB_NoPage))
@@ -6971,11 +6971,11 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       else
         DCB.B=0;
       return 1;
-    case xidEventLogOn:
-      if (DCB.rB)
-        gs_EventLog.SetUseLog(*DCB.rB ? 1 : 0);
-      DCB.B=gs_EventLog.UsingLog();
-      return 1;
+    //case xidEventLogOn:
+    //  if (DCB.rB)
+    //    gs_EventLog.SetUseLog(*DCB.rB ? 1 : 0);
+    //  DCB.B=gs_EventLog.UsingLog();
+    //  return 1;
     case xidHistTagFolder:
       {
       Strng Path(gs_Exec.HstTaglistFolder);
@@ -10781,7 +10781,7 @@ void CFlwSolver::SetState(eScdMdlStateActs RqdState)
     case MSA_DynStatsRunInit:
       //__debugbreak(); // to restore
       //Dyn.DynStats.ResetStats();
-      gs_EventLog.StartFile(true);
+      //gs_EventLog.StartFile(true);
       if (1)
         {
         if (Valid(m_RandomSeed))
@@ -13537,7 +13537,7 @@ flag CFlwSolver::EO_Stop(CXM_TimeControl &CB)
   gs_MsgLog.SetDefer(false);
   gs_MsgLog.FlushWndQ();
 
-  gs_EventLog.CloseFile();
+  //gs_EventLog.CloseFile();
 
   SHOWPROGRESS(1, "EO_Stop");
   return Ret;
