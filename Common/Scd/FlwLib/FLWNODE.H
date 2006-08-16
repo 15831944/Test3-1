@@ -3708,9 +3708,21 @@ class DllImportExport FlwNode : public CTNode
     double         IOP_RhoH_Self(int i);
     double         IOP_RhoH_Rmt(int i);
 
-    void           Set_IOP_Self(int i, double p)      { IOPB_Self(i).P=p; };
-    void           Set_IOP_Flng(int i, double p)      { IOPB_Flng(i).P=p; };
-    void           Set_IOP_Rmt(int i, double p)       { IOPB_Rmt(i).P=p; };
+    void           Set_IOP_Self(int i, double p)
+      { 
+      //dbgpln("Set_IOP_Self %12.2f %12.2f %s[%i]>%s", IOPB_Self(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag()); 
+      IOPB_Self(i).P=p; 
+      };
+    void           Set_IOP_Flng(int i, double p)
+      {
+      //dbgpln("Set_IOP_Flng %12.2f %12.2f %s[%i]>%s", IOPB_Flng(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag()); 
+      IOPB_Flng(i).P=p; 
+      };
+    void           Set_IOP_Rmt(int i, double p)
+      {
+      //dbgpln("Set_IOP_Rmt  %12.2f %12.2f %s[%i]>%s", IOPB_Rmt(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag()); 
+      IOPB_Rmt(i).P=p; 
+      };
 
 #if DoPressTestAndRange
     double         IOP_Self(int i)                    { return PressTest_(IOPB_Self(i).P); };

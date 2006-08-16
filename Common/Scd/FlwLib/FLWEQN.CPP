@@ -1681,7 +1681,7 @@ void CFlwBlkBase::StepFlowInfo()
   m_MeasDone=false;
 
   m_dPb=0.0;
-  m_dPbX=0.0;
+  //m_dPbX=0.0; must keep this for reference
   m_dPbdQ=0.0;
   m_dPa=0.0;
   m_dPadQ=0.0;
@@ -2043,12 +2043,18 @@ double CFlwBlkBase::StaticHead(CSpPropInfo *pProps)
       {
       CSpPropInfo *p=Properties(pProps);
     //  double X=/*Fill();//*/(1-pProps.dVVolFrac);//.??Fill();//(1.0-dFill);
-      const double X=(p->NettLVolFrac());
+      double X=(p->NettLVolFrac());
       // This Equation is really only for Air
-      const double dRise=Rise();
-      const double dMeanT=MeanTemp(pProps);
-      double RhoHV=Sign(dRise)*(1.0-X)*MeanPress()*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
+      double dRise=Rise();
+      double dMeanT=MeanTemp(pProps);
+      double MeanP=0.5*(FlngPress()+NodePress());
+
+      double RhoHV=Sign(dRise)*(1.0-X)*MeanP/*ress()*/*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
       double RhoHL=m_fApplyStaticHead ? dRise*X*9.81*p->m_dRhoL/1000.0 : 0.0;
+
+      dbgpln("StaticHead %10.4f %10.4f @%10.4f = %10.4f", FlngPress(), NodePress(), MeanPress(), -(RhoHV+RhoHL));
+
+
       return -(RhoHV+RhoHL);
       }
     default:
