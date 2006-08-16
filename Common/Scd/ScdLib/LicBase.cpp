@@ -250,22 +250,28 @@ LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
 
 int MyGetOption(int No, int Index)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetOption(No, Index);
+#endif
   return GetOption(No, Index);
   }
 
 int MyGetAuthorization(long * dwOpLevel, int dec)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetAuthorization(dwOpLevel, dec);
+#endif
   return GetAuthorization((DWORD*)dwOpLevel, dec);
   }
 
 ULONG MyCKChallenge32(ULONG random1, ULONG random2)
   { 
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->CKChallenge32(random1, random2);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -275,55 +281,70 @@ ULONG MyCKChallenge32(ULONG random1, ULONG random2)
 
 LPTSTR MyExplainErr(int Func, int err)              
   { 
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ExplainErr(CKExplainEnum(Func), err);
+#endif
   return ExplainErr(Func, err);
   };
 
 int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, int * num_used)
   { 
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetRestrictionInfo((long*)authopt, (long*)start_date, (long*)num_allowed, (long*)num_used);
+#endif
   return GetRestrictionInfo(authopt, start_date, num_allowed, num_used);  
   };
 
 int MyGet1RestInfo(int X)
   { 
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->Get1RestInfo(CKWhichEnum(X));
+#endif
   return Get1RestInfo(X);  
   };
 
 int MyGetNumMultiUsers()
   { 
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetNumMultiUsers();
+#endif
   return GetNumMultiUsers();  
   };
 
 ULONG MyGetLevel(int NoLevels)  
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetLevel(NoLevels);
+#endif
   return GetLevel(NoLevels);
   }
 
 ULONG MyGetNumCopies()  
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetNumCopies();
+#endif
   return GetNumCopies();
   }
 
 int MyCrypKeyVersion()  
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->CrypKeyVersion();
+#endif
   return CrypkeyVersion();
   }
                   
 int MyGetSiteCode(char far *site_code)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     {
     _bstr_t SiteCode;
@@ -331,6 +352,7 @@ int MyGetSiteCode(char far *site_code)
     strcpy(site_code, (LPCTSTR)SiteCode);
     return err;
     }
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -339,8 +361,10 @@ int MyGetSiteCode(char far *site_code)
   };
 char * MyGetSiteCode2(void)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetSiteCode2();
+#endif
 #if BYPASSLICENSING
   return NULL;
 #else
@@ -349,8 +373,10 @@ char * MyGetSiteCode2(void)
   };
 int MyInitCrypkey(char far *filepath, char far *masterkey, char far *userkey, int allow_floppy, unsigned network_max_checktime)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->InitCrypKey(filepath, masterkey, userkey, allow_floppy, network_max_checktime);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -359,8 +385,10 @@ int MyInitCrypkey(char far *filepath, char far *masterkey, char far *userkey, in
   };
 int MyEndCrypkey()
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->EndCrypKey();
+#endif
 #if BYPASSLICENSING
 #else
   EndCrypkey();
@@ -369,8 +397,10 @@ int MyEndCrypkey()
   };
 int MyReadyToTry(unsigned long authlevel, int numDays)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ReadyToTry(authlevel, numDays);
+#endif
 #if BYPASSLICENSING
   return 1;
 #else
@@ -379,8 +409,10 @@ int MyReadyToTry(unsigned long authlevel, int numDays)
   };
 int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copies)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ReadyToTryDays(authlevel, numDays, version, copies);
+#endif
 #if BYPASSLICENSING
   return 100;
 #else
@@ -389,8 +421,10 @@ int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copi
   };
 int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copies)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ReadyToTryRuns(authlevel, numRuns, version, copies);
+#endif
 #if BYPASSLICENSING
   return 100;
 #else
@@ -399,8 +433,10 @@ int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copi
   };
 int MyRegisterTransfer(char far *target)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->RegisterTransfer(target);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -409,8 +445,10 @@ int MyRegisterTransfer(char far *target)
   };
 int MySaveSiteKey(char far *sitekey)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->SaveSiteKey(sitekey);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -419,8 +457,10 @@ int MySaveSiteKey(char far *sitekey)
   };
 int MyDirectTransfer(char far *target)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->DirectTransfer(target);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -430,8 +470,10 @@ int MyDirectTransfer(char far *target)
 
 void MySetNetHandle(unsigned short net_handle)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     s_ptr->SetNetHandle(net_handle);
+#endif
 #if BYPASSLICENSING
   return ;
 #else
@@ -441,8 +483,10 @@ void MySetNetHandle(unsigned short net_handle)
   };
 int MyTransferIn(char far *target)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->TransferIn(target);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
@@ -451,8 +495,10 @@ int MyTransferIn(char far *target)
   };
 int MyTransferOut(char far *target)
   {
+#if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->TransferOut(target);
+#endif
 #if BYPASSLICENSING
   return 0;
 #else
