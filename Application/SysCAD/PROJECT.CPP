@@ -1203,7 +1203,21 @@ void CProjectSettings::ClearSettings()
   m_sGrfFrameFilter = "Frames:";
 
   m_sDrvManagerName="Scd_Drvr.mdb";
-  m_sArcManagerName="$Prj\\Archive.Ini"/*"ScdArch.sac"*/;
+  
+  m_sArcManagerName="$Prj\\Archive.sac";
+  //m_dwArcManagerOptions = //LogItem_Cmd |
+  //                        LogItem_Type |
+  //                        LogItem_Source |
+  //                        //LogItem_IDNo |
+  //                        LogItem_IterNo |
+  //                        //LogItem_CallNo |
+  //                        //LogItem_SeqNo |
+  //                        //LogItem_HResult |
+  //                        LogItem_Msg |
+  //                        //LogItem_Time |
+  //                        LogItem_ElapsedTime |
+  //                        LogItem_Tag;
+
   m_sIOMarshalName="*.scm";
   m_sIOMarshalNode="";
 #if WITHDRVMAN

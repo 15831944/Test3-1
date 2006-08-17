@@ -143,7 +143,8 @@ class CATriggerArray : public CArray <CArchiveTrigger*, CArchiveTrigger*> {};
 class CArchiveDBTable
   {
   public:
-    CArchiveDBTable(CArchiveManager *pAM);
+    CArchiveDBTable(CArchiveManager *pAM,
+                    LPCTSTR TbName);
     CArchiveDBTable(CArchiveManager *pAM,
                     LPCTSTR TbName,
                     byte    iTbFmt,
@@ -162,6 +163,8 @@ class CArchiveDBTable
     bool             CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, int Size, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc=false);
     bool             CreateDBRecordset();
     bool             CloseDBTable();
+    void             AddTimeFieldsDB(CXM_TimeControl &CB);
+    void             AddTimeFieldsTxt(CXM_TimeControl &CB, char Separ);
     bool             AddDBRecord(CXM_TimeControl &CB);
     bool             AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg);
     bool             AddEventRecord(CXM_TimeControl &CB, LPCTSTR Tag, LPCTSTR Msg);
@@ -218,7 +221,10 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     CArchiveManager();
     ~CArchiveManager();
 
+    void            AddTimeFields(LPCTSTR Table);
     void            AddReqdTables();
+    static DWORD    ReadOptions(LPCTSTR FileName); 
+    static void     WriteOptions(LPCTSTR FileName, DWORD Opts); 
     bool            ReadCfg();
     bool            CheckCfg();
     bool            CompleteOpen();

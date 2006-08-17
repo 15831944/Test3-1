@@ -6598,7 +6598,7 @@ int iSCDFileFormat = 0;     // 0 = use CSV and original spj format
                             // 1 = use MDB and INI file spj format
 
 flag iUsingPrjLclFiles = false;
-flag iSymbolicPaths = 0;
+flag iSymbolicPaths = 1;
 
 void SetPrjFileVerNo(int PrjFileVerNo)          { iPrjFileVerNo = PrjFileVerNo; }
 int PrjFileVerNo()                              { return iPrjFileVerNo; }

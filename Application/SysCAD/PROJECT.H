@@ -496,22 +496,24 @@ class DllImportExport CProjectSettings
     flag           bSystemScreenSave,  //True if system screen save must be activated
                    bSyscadScreenSave;  //True if SysCAD screen save must be activated
 #endif
-    flag           m_bToolTips,          //True if tool tips must be shown
-                   m_bFlyBys,            //True if flybys must be shown
-                   m_bDefaultRecordIt,   //True if tags added to trend window must be recorded
-                   m_bFlashTrend,        //True if trend must flash when cursor over trend line
-                   m_bShowNewTrndLineDlg;//True if tag trending options dialog must be shown for a new trended tag
+    flag             m_bToolTips,          //True if tool tips must be shown
+                     m_bFlyBys,            //True if flybys must be shown
+                     m_bDefaultRecordIt,   //True if tags added to trend window must be recorded
+                     m_bFlashTrend,        //True if trend must flash when cursor over trend line
+                     m_bShowNewTrndLineDlg;//True if tag trending options dialog must be shown for a new trended tag
                    
-    //flag           bLoadBusy,          //Flag Set to indicate that a Project Load is in Progress
-    flag           m_bConfigBusy;        //Flag set to indicate project config window open
+    //flag             bLoadBusy,          //Flag Set to indicate that a Project Load is in Progress
+    flag             m_bConfigBusy;        //Flag set to indicate project config window open
+                   
+    Strng            m_sIOMarshalName;     //IOMarshal name
+    Strng            m_sIOMarshalNode;     //IOMarshal Node - IP Address 
+    Strng            m_sDrvManagerName;    //driver manager name
+    Strng            m_sArcManagerName;    //Archive manager name
+    long             m_lStatsRefreshCnt;   //number of iterations after which stats must be refreshed
 
-    Strng          m_sIOMarshalName;     //IOMarshal name
-    Strng          m_sIOMarshalNode;     //IOMarshal Node - IP Address 
-    Strng          m_sDrvManagerName;    //driver manager name
-    Strng          m_sArcManagerName;    //Archive manager name
-    long           m_lStatsRefreshCnt;   //number of iterations after which stats must be refreshed
+    //DWORD            m_dwArcManagerOptions;    //Archive manager name
 
-    CHistSettings  m_Hst;
+    CHistSettings    m_Hst;
 
     struct  tSolverSettings 
       {
@@ -522,15 +524,15 @@ class DllImportExport CProjectSettings
       int          m_iStateY;          // Status window Y Pos
       }            m_Solver;
 
-    flag           m_fNewTrend, 
-                   m_fNewGraph;      // New Project Options
-
-    flag           m_bRemoveRevs;
-    flag           m_bCopyDBFiles;
-
-    int            m_iOPCServerNo;       // CNM should maybe go
-
-    dword          m_dwMdlStatusOptions;
+    flag             m_fNewTrend, 
+                     m_fNewGraph;      // New Project Options
+                   
+    flag             m_bRemoveRevs;
+    flag             m_bCopyDBFiles;
+                   
+    int              m_iOPCServerNo;       // CNM should maybe go
+                   
+    dword            m_dwMdlStatusOptions;
 
     CTimeValue       m_TheTime;
     CTimeValue       m_StepSizeMax;

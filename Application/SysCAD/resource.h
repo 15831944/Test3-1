@@ -296,6 +296,7 @@
 #define IDC_PRJDDEON                    24023
 #define IDC_SRVENABLE                   24024
 #define IDC_PRJARCON                    24024
+#define IDC_PRJDDEON2                   24024
 #define IDC_PRJHSTCATDIR                24025
 #define IDC_PRJARCOPENONRUN             24025
 #define IDC_PRJHSTSCENNAME              24026
@@ -587,7 +588,7 @@
 #define IDC_DB2000                      24165
 #define IDC_SHOWCTRL                    24165
 #define IDC_RADIO4                      24166
-#define IDD_PRJGENDLG                   24166
+#define IDD_PRJMODESDLG                 24166
 #define IDC_CLEAR                       24166
 #define IDC_FILTERNC                    24166
 #define IDD_PRJNETWORKDLG               24167
@@ -603,6 +604,7 @@
 #define IDD_QUERYDLG                    24170
 #define IDC_RADIO8                      24170
 #define IDD_TRNDINFO                    24172
+#define IDD_PRJGRFTAGSDLG               24173
 #define IDD_GENSTATS                    24174
 #define IDD_GENTRENDS                   24175
 #define IDC_TB_STATUSBAR                24176
@@ -1434,7 +1436,8 @@
 #define IDC_IOSLIDE                     25621
 #define IDC_CHGCNTSTATIC                25622
 #define IDC_DESCSTATIC                  25623
-#define IDC_COMMSAPPLY                  25626
+#define IDC_COMMSAPPLY                  25625
+#define IDC_ARCHIVEAPPLY                25626
 #define IDC_UNITSSTATIC                 25627
 #define IDC_IMPORTWHAT                  25629
 #define IDC_SRCTERMS                    25631
@@ -1569,6 +1572,19 @@
 #define IDC_STATICCHANGES3              25746
 #define IDC_STATICCLIP                  25747
 #define IDC_STATICCHANGES5              25748
+#define IDC_ARCML_SOURCE                25748
+#define IDC_ARCML_COMMAND               25749
+#define IDC_ARCML_TYPE                  25750
+#define IDC_ARCML_IDNO                  25751
+#define IDC_ARCML_ITERNO                25752
+#define IDC_ARCML_CALLNO                25753
+#define IDC_ARCML_SEQNO                 25754
+#define IDC_ARCML_SEQNO2                25755
+#define IDC_ARCML_TAG                   25755
+#define IDC_ARCML_MESSAGE               25756
+#define IDC_ARCML_TIME                  25757
+#define IDC_ARCML_ELAPSEDHMS            25758
+#define IDC_ARCML_ELAPSEDDBL            25759
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -1896,6 +1912,7 @@
 #define IDD_ARC_TABLES_PAGE             30428
 #define IDD_ARC_INPUT_PAGE              30429
 #define IDC_DBCOPYFROMOLD               30430
+#define IDD_PRJARCHIVEDLG               30430
 #define IDC_DBREMOVEPREVREVS            30431
 #define IDD_STATSWND                    30432
 #define IDD_WIREPANEL_INFO              30433
@@ -1956,7 +1973,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25597
 #define _APS_NEXT_COMMAND_VALUE         30516
-#define _APS_NEXT_CONTROL_VALUE         25748
+#define _APS_NEXT_CONTROL_VALUE         25760
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif

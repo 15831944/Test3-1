@@ -266,18 +266,18 @@ void CHelpInfoMngr::Init()
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MDLSCL_Y           , "Adjusts the vertical scaling of the unit, a value greater than one increases the scaling and vice verse"   , "");
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MODEL_DESC         , "A brief description of the selected model"   , "");
   //General page for configure project dialog...
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJPROBAL           , "This mode determines the mass and energy balance of the model"                                 , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJDYNAMIC          , "This mode models the behaviour of the unit operations and their connectivity"                                 , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJREALTIME         , "Uses the computer clock as the timebase for the project"                                 , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJCURRENTTIME      , ""  , "");//will soon be changed
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJDTIMEMAX         , ""  , "");//will soon be changed
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJNUMERICSTARTOK   , "Allow tags to begin with a numeric character (0..9)"                      , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJNUMERICOK        , "Allow tags that only contain numeric characters (0..9)"                   , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJNUMERICCHAR      , "Character to be inserted at begining of tag if tag is invalid"                   , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJDRVON            , "Switch SysCAD communication driver(s) on or off"                                 , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJDRVREADALL       , "Read all the slots when the driver file is reloaded"           , ""); //????                      
-  AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJRELOADDRV        , "Reloads the driver slot-configuration file"                                 , "");
-  AddHelpInfo(IDD_PRJGENDLG       , IDD_PRJDRVNAME          , "Specifies the name of the driver slot-configuration file"                                 , "");
+  //AddHelpInfo(IDD_PRJGENDLG      , IDC_PRJPROBAL           , "This mode determines the mass and energy balance of the model"                                 , "");
+  //AddHelpInfo(IDD_PRJGENDLG      , IDC_PRJDYNAMIC          , "This mode models the behaviour of the unit operations and their connectivity"                                 , "");
+  AddHelpInfo(IDD_PRJMODESDLG     , IDC_PRJREALTIME         , "Uses the computer clock as the timebase for the project"                                 , "");
+  AddHelpInfo(IDD_PRJMODESDLG     , IDC_PRJCURRENTTIME      , ""  , "");//will soon be changed
+  AddHelpInfo(IDD_PRJMODESDLG     , IDC_PRJDTIMEMAX         , ""  , "");//will soon be changed
+  AddHelpInfo(IDD_PRJGRFTAGSDLG   , IDC_PRJNUMERICSTARTOK   , "Allow tags to begin with a numeric character (0..9)"                      , "");
+  AddHelpInfo(IDD_PRJGRFTAGSDLG   , IDC_PRJNUMERICOK        , "Allow tags that only contain numeric characters (0..9)"                   , "");
+  AddHelpInfo(IDD_PRJGRFTAGSDLG   , IDC_PRJNUMERICCHAR      , "Character to be inserted at begining of tag if tag is invalid"                   , "");
+  //AddHelpInfo(IDD_PRJGRFTAGSDLG   , IDC_PRJDRVON            , "Switch SysCAD communication driver(s) on or off"                                 , "");
+  //AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJDRVREADALL       , "Read all the slots when the driver file is reloaded"           , ""); //????                      
+  //AddHelpInfo(IDD_PRJGENDLG       , IDC_PRJRELOADDRV        , "Reloads the driver slot-configuration file"                                 , "");
+  //AddHelpInfo(IDD_PRJGENDLG       , IDD_PRJDRVNAME          , "Specifies the name of the driver slot-configuration file"                                 , "");
   //Historian page for configure project dialog...
   AddHelpInfo(IDD_PRJHISTDLG      , IDC_PRJHSTNAME          , "The name of the historian-managing files (maximum 8 characters)"    , "");//is the 8 char restrictn still applic                             
   AddHelpInfo(IDD_PRJHISTDLG      , IDC_PRJHSTSIZE          , "The size of the historian files (a multiple of 64K)"                                 , "");

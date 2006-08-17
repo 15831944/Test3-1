@@ -18,12 +18,14 @@ class CProjectSettingsDlg : public CPropertySheet
     CProjectSettingsDlg(bool AsModal, CProject *Prj, CProjectSettings *Set, LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
     virtual ~CProjectSettingsDlg();
 
-    bool               m_bAsModal;
-    CProject         * m_pPrj;
-    CProjectSettings * m_pSet;
-    CPropertyPage* pGeneralPage;
-    CPropertyPage* pCommsPage;
-    CPropertyPage* pHistoryPage;
+    bool                m_bAsModal;
+    CProject          * m_pPrj;
+    CProjectSettings  * m_pSet;
+    CPropertyPage     * m_pModesPage;
+    CPropertyPage     * m_pGrfTagsPage;
+    CPropertyPage     * m_pCommsPage;
+    CPropertyPage     * m_pArchivePage;
+    CPropertyPage     * m_pHistoryPage;
 #if WITHNETSERVER
     CPropertyPage* pNetworkPage;
 #endif

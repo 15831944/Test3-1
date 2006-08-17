@@ -25,6 +25,7 @@
 #include "neutralmdl.h"
 #include "neutraldlgs.h"
 #include "afxwin.h"
+#include "archmngr.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -33,29 +34,29 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 //===========================================================================
 
-class CGenPage : public CCustomPropertyPage
+class CModesPage : public CCustomPropertyPage
   {
-  DECLARE_DYNCREATE(CGenPage)
+  DECLARE_DYNCREATE(CModesPage )
   public:
-    CGenPage();
-    ~CGenPage();
+    CModesPage();
+    ~CModesPage();
 
     CProject         * m_pPrj;
     CProjectSettings * m_pSet;
 
-    flag    m_bTimeChanged:1,
-            m_bTagNamingChanged:1;
+    flag    m_bTimeChanged:1;
+            //m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
-    enum { IDD = IDD_PRJGENDLG };
+    enum { IDD = IDD_PRJMODESDLG };
     CString     m_CurrentTimeHMS;
     CString     m_TimeText;
-    BOOL        m_NumTagsOK;
-    BOOL        m_NumStartingOK;
-    CString     m_NumChar;
+    //BOOL        m_NumTagsOK;
+    //BOOL        m_NumStartingOK;
+    //CString     m_NumChar;
     //int m_SolveMd;
-    BOOL	      m_SyncWithClock;
+    BOOL        m_SyncWithClock;
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CGenPage)
@@ -69,8 +70,8 @@ class CGenPage : public CCustomPropertyPage
     virtual BOOL OnInitDialog();
 
     void           DoSyncChange();
-    void           SetLibraryOptions();
-    void           SetFrameOptions();
+    //void           SetLibraryOptions();
+    //void           SetFrameOptions();
     void           LoadCBs(bool DoSwap);
 
   public:
@@ -118,6 +119,117 @@ class CGenPage : public CCustomPropertyPage
     CComboBox      m_LinkModeCB;
     CComboBox      m_HeatModeCB;
     CComboBox      m_FlowModeCB;
+    //CEdit          m_Library;
+    //CComboBox      m_PageFrame;
+
+    //Strng          m_sDefGrpLib;
+    //Strng          m_sGrfFrameName;
+    //Strng          m_sGrfFrameFilter;
+    //CEdit          m_Filter;
+  public:
+    //afx_msg void OnBnClickedLibrarybtn();
+    //afx_msg void OnEnChangeLibrary();
+    //afx_msg void OnEnChangeGrpfilter();
+    afx_msg void OnCbnSelchangePrjnetmodecombo();
+    afx_msg void OnTimeChanged();
+    afx_msg void OnDTimeChanged();
+    afx_msg void OnKillfocusPrjCurrenttime();
+    //afx_msg void OnNumTagsChanged();
+    //afx_msg void OnNumStTagsChanged();
+    afx_msg void OnSynchronise();
+    afx_msg void OnUpdateDynamic(CCmdUI* pCmdUi);
+    afx_msg void OnUpdateCurrentTime(CCmdUI* pCmdUi);
+
+    DECLARE_MESSAGE_MAP()
+  };
+
+//===========================================================================
+
+class CGrfTagsPage : public CCustomPropertyPage
+  {
+  DECLARE_DYNCREATE(CGrfTagsPage)
+  public:
+    CGrfTagsPage();
+    ~CGrfTagsPage();
+
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
+
+    flag    //m_bTimeChanged:1,
+            m_bTagNamingChanged:1;
+    CTimeValue m_CurrentTimeAtInit;
+
+    //{{AFX_DATA(CGenPage)
+    enum { IDD = IDD_PRJGRFTAGSDLG };
+    //CString     m_CurrentTimeHMS;
+    //CString     m_TimeText;
+    BOOL        m_NumTagsOK;
+    BOOL        m_NumStartingOK;
+    CString     m_NumChar;
+    //int m_SolveMd;
+    //BOOL       m_SyncWithClock;
+    //}}AFX_DATA
+
+    //{{AFX_VIRTUAL(CGenPage)
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    //}}AFX_VIRTUAL
+
+  protected:
+    //{{AFX_MSG(CGenPage)
+    virtual void OnOK();
+    virtual BOOL OnInitDialog();
+
+    //void           DoSyncChange();
+    void           SetLibraryOptions();
+    void           SetFrameOptions();
+    //void           LoadCBs(bool DoSwap);
+
+  public:
+    //long           m_NetMode;
+    //
+    //long           m_PBNodeMode;
+    //long           m_PBLinkMode;
+    //long           m_PBHeatMode;
+    //long           m_PBFlowMode;
+
+    //long           m_DynNodeMode;
+    //long           m_DynLinkMode;
+    //long           m_DynHeatMode;
+    //long           m_DynFlowMode;
+
+    //long           m_PBMaxNodeMode;
+    //long           m_PBMaxLinkMode;
+    //long           m_PBMaxHeatMode;
+    //long           m_PBMaxFlowMode;
+
+    //long           m_DynMaxNodeMode;
+    //long           m_DynMaxLinkMode;
+    //long           m_DynMaxHeatMode;
+    //long           m_DynMaxFlowMode;
+
+    //long           m_NodeMode;
+    //long           m_LinkMode;
+    //long           m_HeatMode;
+    //long           m_FlowMode;
+
+    //long           m_MaxNodeMode;
+    //long           m_MaxLinkMode;
+    //long           m_MaxHeatMode;
+    //long           m_MaxFlowMode;
+
+
+    //DDBValueLstMem m_NetModes;
+    //DDBValueLstMem m_NodeModes;
+    //DDBValueLstMem m_LinkModes;
+    //DDBValueLstMem m_HeatModes;
+    //DDBValueLstMem m_FlowModes;
+
+    //CComboBox      m_NetModeCB;
+    //CComboBox      m_NodeModeCB;
+    //CComboBox      m_LinkModeCB;
+    //CComboBox      m_HeatModeCB;
+    //CComboBox      m_FlowModeCB;
     CEdit          m_Library;
     CComboBox      m_PageFrame;
 
@@ -129,15 +241,15 @@ class CGenPage : public CCustomPropertyPage
     afx_msg void OnBnClickedLibrarybtn();
     afx_msg void OnEnChangeLibrary();
     afx_msg void OnEnChangeGrpfilter();
-    afx_msg void OnCbnSelchangePrjnetmodecombo();
-    afx_msg void OnTimeChanged();
-    afx_msg void OnDTimeChanged();
-    afx_msg void OnKillfocusPrjCurrenttime();
+    //afx_msg void OnCbnSelchangePrjnetmodecombo();
+    //afx_msg void OnTimeChanged();
+    //afx_msg void OnDTimeChanged();
+    //afx_msg void OnKillfocusPrjCurrenttime();
     afx_msg void OnNumTagsChanged();
     afx_msg void OnNumStTagsChanged();
-    afx_msg void OnSynchronise();
-    afx_msg void OnUpdateDynamic(CCmdUI* pCmdUi);
-    afx_msg void OnUpdateCurrentTime(CCmdUI* pCmdUi);
+    //afx_msg void OnSynchronise();
+    //afx_msg void OnUpdateDynamic(CCmdUI* pCmdUi);
+    //afx_msg void OnUpdateCurrentTime(CCmdUI* pCmdUi);
 
     DECLARE_MESSAGE_MAP()
   };
@@ -161,7 +273,7 @@ class CCommsPage : public CCustomPropertyPage
          bDDEChanged:1;
 
     //{{AFX_DATA(CCommsPage)
-	enum { IDD = IDD_PRJCOMMSDLG };
+  enum { IDD = IDD_PRJCOMMSDLG };
 #if WITHDRVMAN
     BOOL  m_DrvOn;
     BOOL  m_DrvLclTagSrvrOK;
@@ -169,16 +281,16 @@ class CCommsPage : public CCustomPropertyPage
     BOOL  m_DrvReadAll;
 #endif
     BOOL  m_OPCOn;
-    BOOL	m_OPCServerNo;
+    BOOL  m_OPCServerNo;
     BOOL  m_OPCResetReg;
     BOOL  m_DDEOn;
-    BOOL  m_ArcOn;
-    CString m_ArcName;
-    BOOL  m_ArcOpenDBOnRun;
-  	BOOL	m_IOMOn;
-	  CString	m_IOMName;
-	CString	m_IOMNode;
-	//}}AFX_DATA
+    //BOOL  m_ArcOn;
+    //CString m_ArcName;
+    //BOOL  m_ArcOpenDBOnRun;
+    BOOL  m_IOMOn;
+    CString m_IOMName;
+    CString m_IOMNode;
+  //}}AFX_DATA
     //{{AFX_VIRTUAL(CCommsPage)
     protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -196,26 +308,134 @@ class CCommsPage : public CCustomPropertyPage
     afx_msg void OnOPCReload();
     afx_msg void OnOpcChanged();
     afx_msg void OnDdeChanged();
+    //afx_msg void OnArchiveBrowse();
+    //afx_msg void OnArchiveOn();
+    //afx_msg void OnArchiveReload();
+    //afx_msg void OnArchiveChanged();
+    //afx_msg void OnPrjarcopenonrun();
+    afx_msg void OnIOMBrowse();
+    afx_msg void OnPrjIOMOn();
+    afx_msg void OnIOMChanged();
+    afx_msg void OnCommsApply();
+  //}}AFX_MSG
+#if WITHDRVMAN
+    afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
+    afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
+#endif
+    //afx_msg void OnUpdateReLoadArc(CCmdUI* pCmdUi);
+    //afx_msg void OnUpdateArchiveOn(CCmdUI* pCmdUi);
+    afx_msg void OnUpdateIOMOn(CCmdUI* pCmdUi);
+    afx_msg void OnUpdateReLoadOPC(CCmdUI* pCmdUi);
+    DECLARE_MESSAGE_MAP()
+  };
+
+//===========================================================================
+
+class CArchivePage : public CCustomPropertyPage
+  {
+  DECLARE_DYNCREATE(CArchivePage)
+  public:
+    CArchivePage();
+    ~CArchivePage();
+
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
+
+    flag //bDrvChanged:1,
+         bArcChanged:1;
+         //bIOMChanged:1,
+         //bOPCChanged:1,
+         //bDDEChanged:1;
+
+    //{{AFX_DATA(CArchivePage)
+  enum { IDD = IDD_PRJARCHIVEDLG };
+#if WITHDRVMAN
+    //BOOL  m_DrvOn;
+    //BOOL  m_DrvLclTagSrvrOK;
+    //CString m_DrvName;
+    //BOOL  m_DrvReadAll;
+#endif
+    //BOOL  m_OPCOn;
+    //BOOL  m_OPCServerNo;
+    //BOOL  m_OPCResetReg;
+    //BOOL  m_DDEOn;
+    //BOOL  m_ArcOn;
+    CString m_ArcName;
+    //BOOL  m_ArcOpenDBOnRun;
+    //BOOL  m_IOMOn;
+    //CString  m_IOMName;
+    //CString  m_IOMNode;
+  //}}AFX_DATA
+    //{{AFX_VIRTUAL(CArchivePage)
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    //}}AFX_VIRTUAL
+  protected:
+    //{{AFX_MSG(CArchivePage)
+    virtual void OnOK();
+    virtual BOOL OnInitDialog();
+
+    void    GetOptions(LPCTSTR FileName);
+    void    SetOptions(LPCTSTR FileName);
+
+#if WITHDRVMAN
+    //afx_msg void OnDriverOn();
+    //afx_msg void OnDriverChanged();
+    //afx_msg void OnDriverReload();
+    //afx_msg void OnDriverBrowse();
+#endif
+    //afx_msg void OnOPCReload();
+    //afx_msg void OnOpcChanged();
+    //afx_msg void OnDdeChanged();
     afx_msg void OnArchiveBrowse();
     afx_msg void OnArchiveOn();
     afx_msg void OnArchiveReload();
     afx_msg void OnArchiveChanged();
     afx_msg void OnPrjarcopenonrun();
-	  afx_msg void OnIOMBrowse();
-	  afx_msg void OnPrjIOMOn();
-	  afx_msg void OnIOMChanged();
-  	afx_msg void OnCommsapply();
-	//}}AFX_MSG
+    //afx_msg void OnIOMBrowse();
+    //afx_msg void OnPrjIOMOn();
+    //afx_msg void OnIOMChanged();
+    afx_msg void OnArchiveApply();
+  //}}AFX_MSG
 #if WITHDRVMAN
-    afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
-    afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
+    //afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
+    //afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
 #endif
     afx_msg void OnUpdateReLoadArc(CCmdUI* pCmdUi);
     afx_msg void OnUpdateArchiveOn(CCmdUI* pCmdUi);
-    afx_msg void OnUpdateIOMOn(CCmdUI* pCmdUi);
-    afx_msg void OnUpdateReLoadOPC(CCmdUI* pCmdUi);
+    //afx_msg void OnUpdateIOMOn(CCmdUI* pCmdUi);
+    //afx_msg void OnUpdateReLoadOPC(CCmdUI* pCmdUi);
     DECLARE_MESSAGE_MAP()
-  };
+  public:
+
+    CButton m_MLTime;
+    CButton m_MLElapsedHMS;
+    CComboBox m_MLElapsedDbl;
+    CButton m_MLCommand;
+    CButton m_MLType;
+    CButton m_MLTag;
+    CButton m_MLSource;
+    CButton m_MLIDNo;
+    CButton m_MLIterNo;
+    CButton m_MLCallNo;
+    CButton m_MLSeqNo;
+    CButton m_MLMessage;
+
+    afx_msg void OnBnClickedArcMLTime();
+    afx_msg void OnBnClickedArcMLElapsedHMS();
+    //afx_msg void OnBnClickedArcMLElapsedDbl();
+    afx_msg void OnBnClickedArcMLCommand();
+    afx_msg void OnBnClickedArcMLType();
+    afx_msg void OnBnClickedArcMLTag();
+    afx_msg void OnBnClickedArcMLSource();
+    afx_msg void OnBnClickedArcMLIDNo();
+    afx_msg void OnBnClickedArcMLIterNo();
+    afx_msg void OnBnClickedArcMLCallNo();
+    afx_msg void OnBnClickedArcMLSeqNo();
+    afx_msg void OnBnClickedArcMLMessage();
+public:
+  afx_msg void OnCbnSelchangeArcmlElapseddbl();
+};
 
 //===========================================================================
 
@@ -273,11 +493,10 @@ class CHistPage : public CCustomPropertyPage
     afx_msg void OnUpdateRestart(CCmdUI* pCmdUi);
     DECLARE_MESSAGE_MAP()
   public:
-    afx_msg void OnBnClickedPrjhstusetol();
     double m_StopGap;
     double m_MidTimeFactor;
-  public:
-    afx_msg void OnEnChangeMidtimefactor();
+
+
   };
 
 //===========================================================================
@@ -345,20 +564,31 @@ CProjectSettingsDlg::CProjectSettingsDlg(bool AsModal,  CProject * Prj, CProject
   m_pSet->m_bConfigBusy = 1;
   m_bAsModal = AsModal;
     
-  pGeneralPage = new CGenPage;
-  ((CGenPage*)pGeneralPage)->m_pSet=m_pSet;
-  ((CGenPage*)pGeneralPage)->m_pPrj=m_pPrj;
-  AddPage(pGeneralPage);
+  m_pModesPage = new CModesPage;
+  ((CModesPage*)m_pModesPage)->m_pSet=m_pSet;
+  ((CModesPage*)m_pModesPage)->m_pPrj=m_pPrj;
+  AddPage(m_pModesPage);
 
-  pCommsPage = new CCommsPage;
-  ((CCommsPage*)pCommsPage)->m_pSet=m_pSet;
-  ((CCommsPage*)pCommsPage)->m_pPrj=m_pPrj;
-  AddPage(pCommsPage);
+  m_pGrfTagsPage = new CGrfTagsPage;
+  ((CGrfTagsPage*)m_pGrfTagsPage)->m_pSet=m_pSet;
+  ((CGrfTagsPage*)m_pGrfTagsPage)->m_pPrj=m_pPrj;
+  AddPage(m_pGrfTagsPage);
 
-  pHistoryPage = new CHistPage;
-  ((CHistPage*)pHistoryPage)->m_pSet=m_pSet;
-  ((CHistPage*)pHistoryPage)->m_pPrj=m_pPrj;
-  AddPage(pHistoryPage);
+  m_pArchivePage = new CArchivePage;
+  ((CArchivePage*)m_pArchivePage)->m_pSet=m_pSet;
+  ((CArchivePage*)m_pArchivePage)->m_pPrj=m_pPrj;
+  AddPage(m_pArchivePage);
+
+  m_pHistoryPage = new CHistPage;
+  ((CHistPage*)m_pHistoryPage)->m_pSet=m_pSet;
+  ((CHistPage*)m_pHistoryPage)->m_pPrj=m_pPrj;
+  AddPage(m_pHistoryPage);
+
+  m_pCommsPage = new CCommsPage;
+  ((CCommsPage*)m_pCommsPage)->m_pSet=m_pSet;
+  ((CCommsPage*)m_pCommsPage)->m_pPrj=m_pPrj;
+  AddPage(m_pCommsPage);
+
 #if WITHNETSERVER
   pNetworkPage = new CNetPage;
   AddPage(pNetworkPage);
@@ -381,9 +611,11 @@ CProjectSettingsDlg::~CProjectSettingsDlg()
   {
   m_pSet->m_bConfigBusy = 0;
   MainWnd()->m_pPrjSheet = NULL; //set global pointer to property sheet to null
-  delete pGeneralPage;
-  delete pCommsPage;
-  delete pHistoryPage;
+  delete m_pModesPage;
+  delete m_pGrfTagsPage;
+  delete m_pHistoryPage;
+  delete m_pArchivePage;
+  delete m_pCommsPage;
 #if WITHNETSERVER
   delete pNetworkPage;
 #endif
@@ -684,9 +916,7 @@ BEGIN_MESSAGE_MAP(CHistPage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_DELETE, OnDelete)
   //}}AFX_MSG_MAP
   ON_UPDATE_COMMAND_UI(IDC_RESTART, OnUpdateRestart)
-  ON_BN_CLICKED(IDC_PRJHSTUSETOL, OnBnClickedPrjhstusetol)
   ON_EN_CHANGE(IDC_STOPGAP, OnChangeHist)
-  ON_EN_CHANGE(IDC_MIDTIMEFACTOR, &CHistPage::OnEnChangeMidtimefactor)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -825,53 +1055,53 @@ void CHistPage::OnDelete()
 
 //===========================================================================
 
-IMPLEMENT_DYNCREATE(CGenPage, CCustomPropertyPage)
+IMPLEMENT_DYNCREATE(CModesPage, CCustomPropertyPage)
 
-CGenPage::CGenPage() : CCustomPropertyPage(CGenPage::IDD)
+CModesPage::CModesPage() : CCustomPropertyPage(CModesPage::IDD)
   {
   m_bTimeChanged = 0;
-  m_bTagNamingChanged = 0;
-  //{{AFX_DATA_INIT(CGenPage)
+  //m_bTagNamingChanged = 0;
+  //{{AFX_DATA_INIT(CModesPage)
   m_CurrentTimeHMS = _T("");
   m_TimeText = _T("Time");
-  m_NumTagsOK = !FALSE;
-  m_NumStartingOK = !FALSE;
-  m_NumChar = _T("");
+  //m_NumTagsOK = !FALSE;
+  //m_NumStartingOK = !FALSE;
+  //m_NumChar = _T("");
   //m_SolveMd = 0;
-	m_SyncWithClock = FALSE;
-	//}}AFX_DATA_INIT
+  m_SyncWithClock = FALSE;
+  //}}AFX_DATA_INIT
   }
 
 //---------------------------------------------------------------------------
 
-CGenPage::~CGenPage()
+CModesPage::~CModesPage()
   {
   }
 
 //---------------------------------------------------------------------------
 
-BEGIN_MESSAGE_MAP(CGenPage, CCustomPropertyPage)
-  //{{AFX_MSG_MAP(CGenPage)
+BEGIN_MESSAGE_MAP(CModesPage, CCustomPropertyPage)
+  //{{AFX_MSG_MAP(CModesPage)
   ON_EN_CHANGE(IDC_PRJCURRENTTIME, OnTimeChanged)
   ON_EN_KILLFOCUS(IDC_PRJCURRENTTIME, OnKillfocusPrjCurrenttime)
   //ON_BN_CLICKED(IDC_PRJPROBAL, OnPrjProbalOrDynamic)
   //ON_BN_CLICKED(IDC_PRJDYNAMICFLOW, OnPrjProbalOrDynamic)
   //ON_BN_CLICKED(IDC_PRJDYNAMICFULL, OnPrjProbalOrDynamic)
-  ON_BN_CLICKED(IDC_PRJNUMERICOK, OnNumTagsChanged)
-  ON_BN_CLICKED(IDC_PRJNUMERICSTARTOK, OnNumStTagsChanged)
+  //ON_BN_CLICKED(IDC_PRJNUMERICOK, OnNumTagsChanged)
+  //ON_BN_CLICKED(IDC_PRJNUMERICSTARTOK, OnNumStTagsChanged)
   ON_BN_CLICKED(IDC_SYNCHRONISE, OnSynchronise)
   //}}AFX_MSG_MAP
   ON_UPDATE_COMMAND_UI(IDC_PRJCURRENTTIME, OnUpdateCurrentTime)
   ON_UPDATE_COMMAND_UI(IDC_SYNCHRONISE, OnUpdateDynamic)
-  ON_BN_CLICKED(IDC_LIBRARYBTN, OnBnClickedLibrarybtn)
-  ON_EN_CHANGE(IDC_LIBRARY, OnEnChangeLibrary)
-  ON_EN_CHANGE(IDC_GRPFILTER, OnEnChangeGrpfilter)
-  ON_CBN_SELCHANGE(IDC_PRJNETMODECOMBO, &CGenPage::OnCbnSelchangePrjnetmodecombo)
+  //ON_BN_CLICKED(IDC_LIBRARYBTN, OnBnClickedLibrarybtn)
+  //ON_EN_CHANGE(IDC_LIBRARY, OnEnChangeLibrary)
+  //ON_EN_CHANGE(IDC_GRPFILTER, OnEnChangeGrpfilter)
+  ON_CBN_SELCHANGE(IDC_PRJNETMODECOMBO, &CModesPage::OnCbnSelchangePrjnetmodecombo)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
 
-BOOL CGenPage::OnInitDialog()
+BOOL CModesPage::OnInitDialog()
   {
   //Strng sModelCfg = PF.RdStr("General", "ModelLibrary", "");
   //sModelCfg = PF.RdStr("General", "ModelConfiguration", sOldModelCfg());
@@ -921,23 +1151,23 @@ BOOL CGenPage::OnInitDialog()
   SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
 
 
-  m_NumTagsOK = !m_pSet->m_NumericTagsBad;
-  m_NumStartingOK = !m_pSet->m_NumericStartingTagsBad;
-  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
-  m_NumChar = m_pSet->m_NonNumericTagChr;
+  //m_NumTagsOK = !m_pSet->m_NumericTagsBad;
+  //m_NumStartingOK = !m_pSet->m_NumericStartingTagsBad;
+  //m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+  //m_NumChar = m_pSet->m_NonNumericTagChr;
 
 #if WITHGRFDOCFRAME
-  m_sDefGrpLib=m_pSet->m_sDefGrpLib;
-  m_sGrfFrameName=m_pSet->m_sGrfFrameName;
-  m_sGrfFrameFilter=m_pSet->m_sGrfFrameFilter;
-
-  m_sDefGrpLib.FnContract();
-  m_Filter.SetWindowText(m_sGrfFrameFilter());
-  m_Library.SetWindowText(m_sDefGrpLib()); // this will invoke the SetLibraryOptions
+  //m_sDefGrpLib=m_pSet->m_sDefGrpLib;
+  //m_sGrfFrameName=m_pSet->m_sGrfFrameName;
+  //m_sGrfFrameFilter=m_pSet->m_sGrfFrameFilter;
+  //
+  //m_sDefGrpLib.FnContract();
+  //m_Filter.SetWindowText(m_sGrfFrameFilter());
+  //m_Library.SetWindowText(m_sDefGrpLib()); // this will invoke the SetLibraryOptions
 #else
-  m_Filter.EnableWindow(FALSE);
-  m_Library.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
-  m_PageFrame.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
+  //m_Filter.EnableWindow(FALSE);
+  //m_Library.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
+  //m_PageFrame.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
 #endif
 
   return TRUE;
@@ -945,7 +1175,7 @@ BOOL CGenPage::OnInitDialog()
 
 //---------------------------------------------------------------------------
 
-void CGenPage::LoadCBs(bool DoSwap)
+void CModesPage::LoadCBs(bool DoSwap)
   {
   if (m_NetMode==NM_Probal)
     {
@@ -1053,15 +1283,15 @@ void CGenPage::LoadCBs(bool DoSwap)
 
 //---------------------------------------------------------------------------
 
-void CGenPage::DoDataExchange(CDataExchange* pDX)
+void CModesPage::DoDataExchange(CDataExchange* pDX)
   {
   CCustomPropertyPage::DoDataExchange(pDX);
-  //{{AFX_DATA_MAP(CGenPage)
+  //{{AFX_DATA_MAP(CModesPage)
   DDX_Text(pDX, IDC_PRJCURRENTTIME, m_CurrentTimeHMS);
   DDX_Text(pDX, IDC_TIMETEXT, m_TimeText);
-  DDX_Check(pDX, IDC_PRJNUMERICOK, m_NumTagsOK);
-  DDX_Check(pDX, IDC_PRJNUMERICSTARTOK, m_NumStartingOK);
-  DDX_Text(pDX, IDC_PRJNUMERICCHAR, m_NumChar);
+  //DDX_Check(pDX, IDC_PRJNUMERICOK, m_NumTagsOK);
+  //DDX_Check(pDX, IDC_PRJNUMERICSTARTOK, m_NumStartingOK);
+  //DDX_Text(pDX, IDC_PRJNUMERICCHAR, m_NumChar);
   //DDX_Radio(pDX, IDC_PRJPROBAL, m_SolveMd);
   DDX_Check(pDX, IDC_SYNCHRONISE, m_SyncWithClock);
   //}}AFX_DATA_MAP
@@ -1072,14 +1302,14 @@ void CGenPage::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_PRJLINKMODECOMBO, m_LinkModeCB);
   DDX_Control(pDX, IDC_PRJHEATMODECOMBO, m_HeatModeCB);
   DDX_Control(pDX, IDC_PRJFLOWMODECOMBO, m_FlowModeCB);
-  DDX_Control(pDX, IDC_LIBRARY, m_Library);
-  DDX_Control(pDX, IDC_PAGEFRAME, m_PageFrame);
-  DDX_Control(pDX, IDC_GRPFILTER, m_Filter);
+  //DDX_Control(pDX, IDC_LIBRARY, m_Library);
+  //DDX_Control(pDX, IDC_PAGEFRAME, m_PageFrame);
+  //DDX_Control(pDX, IDC_GRPFILTER, m_Filter);
   }
 
 //---------------------------------------------------------------------------
 
-//void CGenPage::GetGraphicsOptions()
+//void CModesPage::GetGraphicsOptions()
 //  {
 //  CString S;
 //  m_Library.GetWindowText(S);
@@ -1092,65 +1322,65 @@ void CGenPage::DoDataExchange(CDataExchange* pDX)
 
 //---------------------------------------------------------------------------
 
-void CGenPage::SetLibraryOptions()
-  {
-  CString S;
-  m_Library.GetWindowText(S);
-  Strng Fn(S);
-  Fn.FnExpand();
-  flag LibOK=FileExists(Fn());
-  if (LibOK)
-    m_sDefGrpLib.FnContract(Fn());
-
-  m_PageFrame.ResetContent();
-  m_PageFrame.AddString("Extents-A1");
-  m_PageFrame.AddString("Extents-A2");
-  m_PageFrame.AddString("Extents-A3");
-  m_PageFrame.AddString("Extents-A4");
-  m_PageFrame.AddString("Extents-A5");
-  m_PageFrame.AddString("None");
-  m_PageFrame.AddString("----------");
-
-  if (LibOK)
-    {
-    Strng Fn(m_sDefGrpLib);
-    Fn.FnExpand();
-    CNeutralImportExport NImport;
-    CNeutralGrpDescList List;
-    //NImport.SetImportFilter(m_sGrfFrameFilter());
-    if (NImport.GetGroups(List, Fn())>0)
-      {
-      POSITION Pos=List.GetHeadPosition();
-      while (Pos)
-        {
-        CNeutralGrpDescItem &I=List.GetNext(Pos);
-        if (_strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
-          m_PageFrame.AddString(I.m_sGroup);
-        }
-      int xxx=0;
-      }
-    }
-
-  int i=m_PageFrame.SelectString(0, m_sGrfFrameName());
-  if (i<0)
-    m_PageFrame.SetCurSel(2);
-  }
-
-//---------------------------------------------------------------------------
-//
-//void CGenPage::SetFrameOptions()
+//void CModesPage::SetLibraryOptions()
 //  {
 //  CString S;
 //  m_Library.GetWindowText(S);
-//  gs_pPrj->m_sDefGrpLib=S;
-//  gs_pPrj->m_sDefGrpLib.FnContract();
-//  //m_Library.SetWindowText(gs_pPrj->m_sDefGrpLib());
-//  //m_PageFrame.SetWindowText(gs_pPrj->m_sGrfFrameName());
+//  Strng Fn(S);
+//  Fn.FnExpand();
+//  flag LibOK=FileExists(Fn());
+//  if (LibOK)
+//    m_sDefGrpLib.FnContract(Fn());
+//
+//  m_PageFrame.ResetContent();
+//  m_PageFrame.AddString("Extents-A1");
+//  m_PageFrame.AddString("Extents-A2");
+//  m_PageFrame.AddString("Extents-A3");
+//  m_PageFrame.AddString("Extents-A4");
+//  m_PageFrame.AddString("Extents-A5");
+//  m_PageFrame.AddString("None");
+//  m_PageFrame.AddString("----------");
+//
+//  if (LibOK)
+//    {
+//    Strng Fn(m_sDefGrpLib);
+//    Fn.FnExpand();
+//    CNeutralImportExport NImport;
+//    CNeutralGrpDescList List;
+//    //NImport.SetImportFilter(m_sGrfFrameFilter());
+//    if (NImport.GetGroups(List, Fn())>0)
+//      {
+//      POSITION Pos=List.GetHeadPosition();
+//      while (Pos)
+//        {
+//        CNeutralGrpDescItem &I=List.GetNext(Pos);
+//        if (_strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
+//          m_PageFrame.AddString(I.m_sGroup);
+//        }
+//      int xxx=0;
+//      }
+//    }
+//
+//  int i=m_PageFrame.SelectString(0, m_sGrfFrameName());
+//  if (i<0)
+//    m_PageFrame.SetCurSel(2);
 //  }
+//
+////---------------------------------------------------------------------------
+////
+////void CModesPage::SetFrameOptions()
+////  {
+////  CString S;
+////  m_Library.GetWindowText(S);
+////  gs_pPrj->m_sDefGrpLib=S;
+////  gs_pPrj->m_sDefGrpLib.FnContract();
+////  //m_Library.SetWindowText(gs_pPrj->m_sDefGrpLib());
+////  //m_PageFrame.SetWindowText(gs_pPrj->m_sGrfFrameName());
+////  }
 
 //---------------------------------------------------------------------------
 
-void CGenPage::OnOK()
+void CModesPage::OnOK()
   {
   if (bDidInit)
     {
@@ -1204,14 +1434,14 @@ void CGenPage::OnOK()
       DoSyncChange();
       }
 
-    if (m_NumChar.GetLength()==0 || !TaggedObject::CheckNonNumericTagChr(m_NumChar[0]))
-      {
-      LogWarning("Project", 0, "Invalid non-numeric character (%s) specified, changed to '#'.", (const char*)m_NumChar);
-      m_NumChar = "#";
-      }
-    m_pSet->m_NonNumericTagChr = m_NumChar[0];
+    //if (m_NumChar.GetLength()==0 || !TaggedObject::CheckNonNumericTagChr(m_NumChar[0]))
+    //  {
+    //  LogWarning("Project", 0, "Invalid non-numeric character (%s) specified, changed to '#'.", (const char*)m_NumChar);
+    //  m_NumChar = "#";
+    //  }
+    //m_pSet->m_NonNumericTagChr = m_NumChar[0];
 
-    if (m_bTimeChanged || m_bTagNamingChanged)
+    if (m_bTimeChanged /*|| m_bTagNamingChanged*/)
       {
       if (m_pPrj)
         m_pPrj->bTimeChanged = m_bTimeChanged;
@@ -1251,6 +1481,632 @@ void CGenPage::OnOK()
           ScrollTrendsToEnd = true;
           }
 
+//        if (m_pPrj && m_bTagNamingChanged)
+//          {
+//          _asm int 3;
+//          int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
+//          if (TagsChngd<0)
+//            {
+//            m_pSet->m_NumericTagsBad = 0;
+//            m_pSet->m_NumericStartingTagsBad = 0;
+//            }
+//          else
+//            {
+//            m_pSet->m_NumericTagsBad = !m_NumTagsOK;
+//            m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
+//            if (TagsChngd>0)
+//              {
+//              CWaitCursor Wait;
+//              m_pPrj->CloseIOMarshal();
+//              m_pPrj->CloseArcManager();
+//#if WITHDRVMAN
+//              m_pPrj->CloseDrvManager();
+//              m_pPrj->OpenDrvManager();
+//#endif 
+//              m_pPrj->OpenArcManager(false);
+//              CTagVwDoc::RebuildAll();
+//              }
+//            }
+//          }
+        if (ScrollTrendsToEnd)
+          CTagVwDoc::AdjustTimebaseToEndAll();
+        }
+      else
+        AfxMessageBox("Invalid CurrentTime");
+      }
+
+    //CString S;
+    //m_Library.GetWindowText(S);
+    //m_sDefGrpLib=S;
+    //m_Filter.GetWindowText(S);
+    //m_sGrfFrameFilter=S;
+    //m_PageFrame.GetWindowText(S);
+    //m_sGrfFrameName=S;
+
+    //gs_pPrj->m_sDefGrpLib=m_sDefGrpLib;
+    //gs_pPrj->m_sGrfFrameName=m_sGrfFrameName;
+    //gs_pPrj->m_sGrfFrameFilter=m_sGrfFrameFilter;
+
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void CModesPage::OnTimeChanged()
+  {
+  m_bTimeChanged = 1;
+  }
+
+//---------------------------------------------------------------------------
+
+void CModesPage::OnKillfocusPrjCurrenttime()
+  {
+  UpdateData(true);
+  CTimeValue t;
+  if (t.Parse(m_CurrentTimeHMS))
+    {
+    if (t>=0.0)
+      {
+      LPCTSTR Tm=t.Format(TD_TimeDate);
+      m_CurrentTimeHMS = Tm;
+      Tm=t.Format(TD_Time);
+      SetDlgItemText(IDC_DATETIME_TXT, Tm);
+      UpdateData(false);
+      }
+    }
+  }
+
+void CModesPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
+  {
+  pCmdUi->Enable(!DefNetProbalMode() && !m_SyncWithClock);
+  }
+
+//---------------------------------------------------------------------------
+
+void CModesPage::OnCbnSelchangePrjnetmodecombo()
+  {
+  UpdateData(true);
+
+  m_NetMode = m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : 0;
+  LoadCBs(true);
+
+  UpdateData(false);
+  }
+
+//---------------------------------------------------------------------------
+
+//void CModesPage::OnPrjProbalOrDynamic()
+//  {
+//  int Prev=m_SolveMd;
+//  UpdateData(true);
+//  if (m_SolveMd!=Prev)
+//    {
+//    long SMd=0;
+//    switch (m_SolveMd)
+//      {
+//      case 0: SMd=SM_Direct; break;
+//      case 1: SMd=SM_Inline; break;
+//      case 2: SMd=SM_Buffered; break;
+//      }
+//    long HMd=HM_Full;
+//
+//    gs_Exec.SetGlblRunModes(SMd|HMd, NSHM_All);
+//
+//    m_bTimeChanged=1;
+//    m_SyncWithClock=0;
+//    DoSyncChange();
+//    UpdateData(false);
+//    UpdateDialogControls(this, FALSE);
+//    }
+//  }
+
+void CModesPage::OnUpdateDynamic(CCmdUI* pCmdUi)
+  {
+  pCmdUi->Enable(DefNetDynamicMode());
+  }
+
+//---------------------------------------------------------------------------
+
+//void CModesPage::OnNumTagsChanged()
+//  {
+//  UpdateData(true);
+//  m_bTagNamingChanged = 1;
+//  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+//  UpdateData(false);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CModesPage::OnNumStTagsChanged()
+//  {
+//  UpdateData(true);
+//  m_bTagNamingChanged = 1;
+////  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+//  m_NumTagsOK = m_NumTagsOK && m_NumStartingOK;
+//  UpdateData(false);
+//  }
+
+//---------------------------------------------------------------------------
+
+void CModesPage::OnSynchronise()
+  {
+  UpdateData(true);
+  DoSyncChange();
+  UpdateData(false);
+  UpdateDialogControls(this, FALSE);
+  }
+
+void CModesPage::DoSyncChange()
+  {
+  m_bTimeChanged = 1;
+  if (m_SyncWithClock)
+    {
+    __time64_t t;
+    _time64(&t); //this Initialisation must occur
+    CTimeValue tv((double)t);
+    m_CurrentTimeHMS = tv.Format(TD_TimeDate);
+    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : tv.Format(TD_Time));
+    }
+  else
+    {
+    LPCTSTR Tm=m_CurrentTimeAtInit.Format(TD_TimeDate);
+    m_CurrentTimeHMS = Tm;
+    Tm=m_CurrentTimeAtInit.Format(TD_Time);
+    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
+    }
+  }
+
+//void CModesPage::OnBnClickedLibrarybtn()
+//  {
+//  INCOMPLETECODE()
+//  //GetGraphicsOptions();
+//  //SetGraphicsOptions();
+//  }
+//
+//void CModesPage::OnEnChangeLibrary()
+//  {
+//  SetLibraryOptions();
+//  //GetGraphicsOptions();
+// // SetGraphicsOptions();
+//  }
+//
+//
+//void CModesPage::OnEnChangeGrpfilter()
+//  {
+//  CString S;
+//  m_Filter.GetWindowText(S);
+//  m_sGrfFrameFilter=S;
+//  SetLibraryOptions();
+//  }
+
+//===========================================================================
+
+IMPLEMENT_DYNCREATE(CGrfTagsPage, CCustomPropertyPage)
+
+CGrfTagsPage::CGrfTagsPage() : CCustomPropertyPage(CGrfTagsPage::IDD)
+  {
+  //m_bTimeChanged = 0;
+  m_bTagNamingChanged = 0;
+  //{{AFX_DATA_INIT(CGrfTagsPage)
+  //m_CurrentTimeHMS = _T("");
+  //m_TimeText = _T("Time");
+  m_NumTagsOK = !FALSE;
+  m_NumStartingOK = !FALSE;
+  m_NumChar = _T("");
+  //m_SolveMd = 0;
+  //m_SyncWithClock = FALSE;
+  //}}AFX_DATA_INIT
+  }
+
+//---------------------------------------------------------------------------
+
+CGrfTagsPage::~CGrfTagsPage()
+  {
+  }
+
+//---------------------------------------------------------------------------
+
+BEGIN_MESSAGE_MAP(CGrfTagsPage, CCustomPropertyPage)
+  //{{AFX_MSG_MAP(CGrfTagsPage)
+  //ON_EN_CHANGE(IDC_PRJCURRENTTIME, OnTimeChanged)
+  //ON_EN_KILLFOCUS(IDC_PRJCURRENTTIME, OnKillfocusPrjCurrenttime)
+  ////ON_BN_CLICKED(IDC_PRJPROBAL, OnPrjProbalOrDynamic)
+  ////ON_BN_CLICKED(IDC_PRJDYNAMICFLOW, OnPrjProbalOrDynamic)
+  ////ON_BN_CLICKED(IDC_PRJDYNAMICFULL, OnPrjProbalOrDynamic)
+  ON_BN_CLICKED(IDC_PRJNUMERICOK, OnNumTagsChanged)
+  ON_BN_CLICKED(IDC_PRJNUMERICSTARTOK, OnNumStTagsChanged)
+  //ON_BN_CLICKED(IDC_SYNCHRONISE, OnSynchronise)
+  //}}AFX_MSG_MAP
+  //ON_UPDATE_COMMAND_UI(IDC_PRJCURRENTTIME, OnUpdateCurrentTime)
+  //ON_UPDATE_COMMAND_UI(IDC_SYNCHRONISE, OnUpdateDynamic)
+  ON_BN_CLICKED(IDC_LIBRARYBTN, OnBnClickedLibrarybtn)
+  ON_EN_CHANGE(IDC_LIBRARY, OnEnChangeLibrary)
+  ON_EN_CHANGE(IDC_GRPFILTER, OnEnChangeGrpfilter)
+  //ON_CBN_SELCHANGE(IDC_PRJNETMODECOMBO, &CGrfTagsPage::OnCbnSelchangePrjnetmodecombo)
+END_MESSAGE_MAP()
+
+//---------------------------------------------------------------------------
+
+BOOL CGrfTagsPage::OnInitDialog()
+  {
+  //Strng sModelCfg = PF.RdStr("General", "ModelLibrary", "");
+  //sModelCfg = PF.RdStr("General", "ModelConfiguration", sOldModelCfg());
+  //sModelCfg = PF.RdStr("General", "CfgFile", sOldModelCfg());
+  //sModelCfg.FnExpand();
+
+  //CProfINIFile Cfg(sModelCfg());
+
+  //long MaxNodeMode;
+  //long MaxLinkMode;
+  //long MaxHeatMode;
+  //long MaxFlowMode;
+
+
+  CCustomPropertyPage::OnInitDialog();
+
+  //m_NetMode   = m_pSet->m_NetMode;
+
+  //m_PBNodeMode    = m_pSet->m_PBNodeMode;
+  //m_PBLinkMode    = m_pSet->m_PBLinkMode;
+  //m_PBHeatMode    = m_pSet->m_PBHeatMode;
+  //m_PBFlowMode    = m_pSet->m_PBFlowMode;
+  //m_PBMaxNodeMode = SM_Direct;
+  //m_PBMaxLinkMode = SM_Direct;
+  //m_PBMaxHeatMode = m_pSet->m_MaxHeatMode;
+  //m_PBMaxFlowMode = LFM_Xfer;
+
+  //m_DynNodeMode    = m_pSet->m_DynNodeMode;
+  //m_DynLinkMode    = m_pSet->m_DynLinkMode;
+  //m_DynHeatMode    = m_pSet->m_DynHeatMode;
+  //m_DynFlowMode    = m_pSet->m_DynFlowMode;
+  //m_DynMaxNodeMode = m_pSet->m_MaxNodeMode;
+  //m_DynMaxLinkMode = m_pSet->m_MaxLinkMode;
+  //m_DynMaxHeatMode = m_pSet->m_MaxHeatMode;
+  //m_DynMaxFlowMode = m_pSet->m_MaxFlowMode;
+
+  UpdateDialogControls(this, FALSE);
+
+  //LoadCBs(false);
+
+  //m_SyncWithClock = m_pSet->m_SyncWithClock!=0;
+
+  //m_CurrentTimeHMS = m_pSet->m_TheTime.Format(TD_TimeDate);
+  //m_CurrentTimeAtInit = m_pSet->m_TheTime;
+  //LPCTSTR Tm=m_pSet->m_TheTime.Format(TD_Time);
+  //
+  //SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
+
+
+  m_NumTagsOK = !m_pSet->m_NumericTagsBad;
+  m_NumStartingOK = !m_pSet->m_NumericStartingTagsBad;
+  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+  m_NumChar = m_pSet->m_NonNumericTagChr;
+
+#if WITHGRFDOCFRAME
+  m_sDefGrpLib=m_pSet->m_sDefGrpLib;
+  m_sGrfFrameName=m_pSet->m_sGrfFrameName;
+  m_sGrfFrameFilter=m_pSet->m_sGrfFrameFilter;
+
+  m_sDefGrpLib.FnContract();
+  m_Filter.SetWindowText(m_sGrfFrameFilter());
+  m_Library.SetWindowText(m_sDefGrpLib()); // this will invoke the SetLibraryOptions
+#else
+  m_Filter.EnableWindow(FALSE);
+  m_Library.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
+  m_PageFrame.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
+#endif
+
+  return TRUE;
+  }
+
+//---------------------------------------------------------------------------
+
+//void CGrfTagsPage::LoadCBs(bool DoSwap)
+//  {
+//  if (m_NetMode==NM_Probal)
+//    {
+//    if (DoSwap)
+//      {
+//      m_DynNodeMode     = m_NodeMode;
+//      m_DynLinkMode     = m_LinkMode;
+//      m_DynHeatMode     = m_HeatMode;
+//      m_DynFlowMode     = m_FlowMode;
+//      m_DynMaxNodeMode  = m_MaxNodeMode;
+//      m_DynMaxLinkMode  = m_MaxLinkMode;
+//      m_DynMaxHeatMode  = m_MaxHeatMode;
+//      m_DynMaxFlowMode  = m_MaxFlowMode;
+//      }
+//    m_NodeMode        = m_PBNodeMode;
+//    m_LinkMode        = m_PBLinkMode;
+//    m_HeatMode        = m_PBHeatMode;
+//    m_FlowMode        = m_PBFlowMode;
+//    m_MaxNodeMode     = m_PBMaxNodeMode;
+//    m_MaxLinkMode     = m_PBMaxLinkMode;
+//    m_MaxHeatMode     = m_PBMaxHeatMode;
+//    m_MaxFlowMode     = m_PBMaxFlowMode;
+//    }
+//  else
+//    {
+//    if (DoSwap)
+//      {
+//      m_PBNodeMode      = m_NodeMode;
+//      m_PBLinkMode      = m_LinkMode;
+//      m_PBHeatMode      = m_HeatMode;
+//      m_PBFlowMode      = m_FlowMode;
+//      m_PBMaxNodeMode   = m_MaxNodeMode;
+//      m_PBMaxLinkMode   = m_MaxLinkMode;
+//      m_PBMaxHeatMode   = m_MaxHeatMode;
+//      m_PBMaxFlowMode   = m_MaxFlowMode;
+//      }
+//    m_NodeMode        = m_DynNodeMode;
+//    m_LinkMode        = m_DynLinkMode;
+//    m_HeatMode        = m_DynHeatMode;
+//    m_FlowMode        = m_DynFlowMode;
+//    m_MaxNodeMode     = m_DynMaxNodeMode;
+//    m_MaxLinkMode     = m_DynMaxLinkMode;
+//    m_MaxHeatMode     = m_DynMaxHeatMode;
+//    m_MaxFlowMode     = m_DynMaxFlowMode;
+//    }
+//
+//  GetGlblModeValueLst(m_NetModes,  GetPermissableModes(NM_All, NULL), 0, false);
+//  GetGlblModeValueLst(m_NodeModes, GetPermissableModes(MaxModes2Mask(m_MaxNodeMode), NULL), 0, false);
+//  GetGlblModeValueLst(m_LinkModes, GetPermissableModes(MaxModes2Mask(m_MaxLinkMode), NULL), 0, false);
+//  GetGlblModeValueLst(m_HeatModes, GetPermissableModes(MaxModes2Mask(m_MaxHeatMode), NULL), 0, false);
+//  GetGlblModeValueLst(m_FlowModes, GetPermissableModes(MaxModes2Mask(m_MaxFlowMode), NULL), 0, false);
+//
+//  m_NetModeCB.ResetContent();
+//  m_NodeModeCB.ResetContent();
+//  m_LinkModeCB.ResetContent();
+//  m_HeatModeCB.ResetContent();
+//  m_FlowModeCB.ResetContent();
+//
+//  int iCurSel=-1;
+//  for (int iMd=0; iMd<m_NetModes.Length(); iMd++)
+//    {
+//    m_NetModeCB.AddString(m_NetModes.Item(iMd)->m_pStr);
+//    if (m_NetModes.Item(iMd)->m_lVal==m_NetMode)
+//      iCurSel=iMd;
+//    }
+//  m_NetModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+//  m_NetModeCB.EnableWindow(m_pPrj==NULL);
+//
+//  iCurSel = -1;
+//  for (int iMd=0; iMd<m_NodeModes.Length(); iMd++)
+//    {
+//    m_NodeModeCB.AddString(m_NodeModes.Item(iMd)->m_pStr);
+//    if (m_NodeModes.Item(iMd)->m_lVal==m_NodeMode)
+//      iCurSel=iMd;
+//    }
+//  m_NodeModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+//
+//  iCurSel = -1;
+//  for (int iMd=0; iMd<m_LinkModes.Length(); iMd++)
+//    {
+//    m_LinkModeCB.AddString(m_LinkModes.Item(iMd)->m_pStr);
+//    if (m_LinkModes.Item(iMd)->m_lVal==m_LinkMode)
+//      iCurSel=iMd;
+//    }
+//  m_LinkModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+//
+//  iCurSel = -1;
+//  for (int iMd=0; iMd<m_HeatModes.Length(); iMd++)
+//    {
+//    m_HeatModeCB.AddString(m_HeatModes.Item(iMd)->m_pStr);
+//    if (m_HeatModes.Item(iMd)->m_lVal==m_HeatMode)
+//      iCurSel=iMd;
+//    }
+//  m_HeatModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+//
+//  iCurSel = -1;
+//  for (int iMd=0; iMd<m_FlowModes.Length(); iMd++)
+//    {
+//    m_FlowModeCB.AddString(m_FlowModes.Item(iMd)->m_pStr);
+//    if (m_FlowModes.Item(iMd)->m_lVal==m_FlowMode)
+//      iCurSel=iMd;
+//    }
+//  m_FlowModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
+//  };
+//
+//---------------------------------------------------------------------------
+
+void CGrfTagsPage::DoDataExchange(CDataExchange* pDX)
+  {
+  CCustomPropertyPage::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CGrfTagsPage)
+  //DDX_Text(pDX, IDC_PRJCURRENTTIME, m_CurrentTimeHMS);
+  //DDX_Text(pDX, IDC_TIMETEXT, m_TimeText);
+  DDX_Check(pDX, IDC_PRJNUMERICOK, m_NumTagsOK);
+  DDX_Check(pDX, IDC_PRJNUMERICSTARTOK, m_NumStartingOK);
+  DDX_Text(pDX, IDC_PRJNUMERICCHAR, m_NumChar);
+  //DDX_Radio(pDX, IDC_PRJPROBAL, m_SolveMd);
+  //DDX_Check(pDX, IDC_SYNCHRONISE, m_SyncWithClock);
+  //}}AFX_DATA_MAP
+
+  //GetDlgItem(IDC_PRJCURRENTTIME)->EnableWindow(!m_SyncWithClock);
+  //DDX_Control(pDX, IDC_PRJNETMODECOMBO, m_NetModeCB);
+  //DDX_Control(pDX, IDC_PRJNODEMODECOMBO, m_NodeModeCB);
+  //DDX_Control(pDX, IDC_PRJLINKMODECOMBO, m_LinkModeCB);
+  //DDX_Control(pDX, IDC_PRJHEATMODECOMBO, m_HeatModeCB);
+  //DDX_Control(pDX, IDC_PRJFLOWMODECOMBO, m_FlowModeCB);
+  DDX_Control(pDX, IDC_LIBRARY, m_Library);
+  DDX_Control(pDX, IDC_PAGEFRAME, m_PageFrame);
+  DDX_Control(pDX, IDC_GRPFILTER, m_Filter);
+  }
+
+//---------------------------------------------------------------------------
+
+//void CGrfTagsPage::GetGraphicsOptions()
+//  {
+//  CString S;
+//  m_Library.GetWindowText(S);
+//  gs_pPrj->m_sDefGrpLib=S;
+//  gs_pPrj->m_sDefGrpLib.FnContract();
+//
+//  m_PageFrame.GetWindowText(S);
+//  gs_pPrj->m_sGrfFrameName=S;
+//  }
+
+//---------------------------------------------------------------------------
+
+void CGrfTagsPage::SetLibraryOptions()
+  {
+  CString S;
+  m_Library.GetWindowText(S);
+  Strng Fn(S);
+  Fn.FnExpand();
+  flag LibOK=FileExists(Fn());
+  if (LibOK)
+    m_sDefGrpLib.FnContract(Fn());
+
+  m_PageFrame.ResetContent();
+  m_PageFrame.AddString("Extents-A1");
+  m_PageFrame.AddString("Extents-A2");
+  m_PageFrame.AddString("Extents-A3");
+  m_PageFrame.AddString("Extents-A4");
+  m_PageFrame.AddString("Extents-A5");
+  m_PageFrame.AddString("None");
+  m_PageFrame.AddString("----------");
+
+  if (LibOK)
+    {
+    Strng Fn(m_sDefGrpLib);
+    Fn.FnExpand();
+    CNeutralImportExport NImport;
+    CNeutralGrpDescList List;
+    //NImport.SetImportFilter(m_sGrfFrameFilter());
+    if (NImport.GetGroups(List, Fn())>0)
+      {
+      POSITION Pos=List.GetHeadPosition();
+      while (Pos)
+        {
+        CNeutralGrpDescItem &I=List.GetNext(Pos);
+        if (_strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
+          m_PageFrame.AddString(I.m_sGroup);
+        }
+      int xxx=0;
+      }
+    }
+
+  int i=m_PageFrame.SelectString(0, m_sGrfFrameName());
+  if (i<0)
+    m_PageFrame.SetCurSel(2);
+  }
+
+//---------------------------------------------------------------------------
+//
+//void CGrfTagsPage::SetFrameOptions()
+//  {
+//  CString S;
+//  m_Library.GetWindowText(S);
+//  gs_pPrj->m_sDefGrpLib=S;
+//  gs_pPrj->m_sDefGrpLib.FnContract();
+//  //m_Library.SetWindowText(gs_pPrj->m_sDefGrpLib());
+//  //m_PageFrame.SetWindowText(gs_pPrj->m_sGrfFrameName());
+//  }
+
+//---------------------------------------------------------------------------
+
+void CGrfTagsPage::OnOK()
+  {
+  if (bDidInit)
+    {
+    UpdateData(true);
+    //GetGraphicsOptions();
+ 
+    //long RqdNetM=m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : -1;
+    //long RqdNodeM=m_NodeModeCB.GetCurSel()>=0 ? m_NodeModes.Item(m_NodeModeCB.GetCurSel())->m_lVal : -1;
+    //long RqdLinkM=m_LinkModeCB.GetCurSel()>=0 ? m_LinkModes.Item(m_LinkModeCB.GetCurSel())->m_lVal : -1;
+    //long RqdHeatM=m_HeatModeCB.GetCurSel()>=0 ? m_HeatModes.Item(m_HeatModeCB.GetCurSel())->m_lVal : -1;
+    //long RqdFlowM=m_FlowModeCB.GetCurSel()>=0 ? m_FlowModes.Item(m_FlowModeCB.GetCurSel())->m_lVal : -1;
+
+    //if (1)
+    //    //RqdNetM!=m_NetMode || 
+    //    //RqdNodeM!=m_NodeMode || 
+    //    //RqdLinkM!=m_LinkMode || 
+    //    //RqdHeatM!=m_HeatMode || 
+    //    //RqdFlowM!=m_FlowMode)
+    //  {
+
+    //  m_pSet->m_NetMode=RqdNetM;
+    //  if (RqdNetM==NM_Probal)
+    //    {
+    //    m_pSet->m_PBNodeMode=RqdNodeM;
+    //    m_pSet->m_PBLinkMode=RqdLinkM;
+    //    m_pSet->m_PBHeatMode=RqdHeatM;
+    //    m_pSet->m_PBFlowMode=RqdFlowM;
+    //    }
+    //  else
+    //    {
+    //    m_pSet->m_DynNodeMode=RqdNodeM;
+    //    m_pSet->m_DynLinkMode=RqdLinkM;
+    //    m_pSet->m_DynHeatMode=RqdHeatM;
+    //    m_pSet->m_DynFlowMode=RqdFlowM;
+    //    }
+    //  //if ((RqdNetM!=m_NetMode) && !CnmVersion())
+    //  //  {
+    //  //  //Force a PrjSaveAs conditional on there being units in flowsheet;
+    //  //  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
+    //  //  CModelStatusArray Status;
+    //  //  gs_pPrj->RequestModelStatus(Criteria, Status);
+    //  //  if (Status.GetCount()>1)
+    //  //    {
+    //  //    gs_pPrj->bForceSaveAsNV=true;
+    //  //    AfxMessageBox("Solve Mode has been changed:\nProject will be saved as a new version", MB_OK);
+    //  //    }
+    //  //  }
+
+    //  m_bTimeChanged=1;
+    //  m_SyncWithClock=0;
+    //  DoSyncChange();
+    //  }
+
+    if (m_NumChar.GetLength()==0 || !TaggedObject::CheckNonNumericTagChr(m_NumChar[0]))
+      {
+      LogWarning("Project", 0, "Invalid non-numeric character (%s) specified, changed to '#'.", (const char*)m_NumChar);
+      m_NumChar = "#";
+      }
+    m_pSet->m_NonNumericTagChr = m_NumChar[0];
+
+    if (/*m_bTimeChanged ||*/ m_bTagNamingChanged)
+      {
+      //if (m_pPrj)
+      //  m_pPrj->bTimeChanged = m_bTimeChanged;
+      //CTimeValue RqdTime;
+      //flag OK1 = RqdTime.Parse(m_CurrentTimeHMS);
+      //if (RqdTime<m_CurrentTimeAtInit && RqdTime>=m_CurrentTimeAtInit-CTimeValue(0.002)) // rounding errors in (2 msecs)
+      //  RqdTime=m_CurrentTimeAtInit;
+      //if (1)//OK1)
+      //  {
+//        flag ScrollTrendsToEnd = false;
+//       
+//        if (m_pPrj && HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
+//          {
+//          switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
+//            {
+//            case IDOK:
+////gs_pPrj->CloseHistorian();
+////gs_pPrj->RestartHistorian();
+////gs_pPrj->OpenHistorian();
+//              ScrollTrendsToEnd = true;
+//              break;
+//            case IDCANCEL:
+//              m_bTimeChanged=false;
+//              break;
+//            }
+//          }
+//
+//        if (m_bTimeChanged)
+//          {
+//          m_pSet->m_TheTime=RqdTime;
+//          m_pSet->m_SyncWithClock=m_SyncWithClock;
+//          if (m_SyncWithClock)
+//            {
+//            m_pSet->m_RealTime=true;
+//            m_pSet->m_RealTimeMult=1.0;
+//            }
+//          ScrollTrendsToEnd = true;
+//          }
+
         if (m_pPrj && m_bTagNamingChanged)
           {
           _asm int 3;
@@ -1278,11 +2134,11 @@ void CGenPage::OnOK()
               }
             }
           }
-        if (ScrollTrendsToEnd)
-          CTagVwDoc::AdjustTimebaseToEndAll();
-        }
-      else
-        AfxMessageBox("Invalid CurrentTime");
+        //if (ScrollTrendsToEnd)
+        //  CTagVwDoc::AdjustTimebaseToEndAll();
+      //  }
+      //else
+      //  AfxMessageBox("Invalid CurrentTime");
       }
 
     CString S;
@@ -1302,50 +2158,50 @@ void CGenPage::OnOK()
 
 //---------------------------------------------------------------------------
 
-void CGenPage::OnTimeChanged()
-  {
-  m_bTimeChanged = 1;
-  }
-
+//void CGrfTagsPage::OnTimeChanged()
+//  {
+//  m_bTimeChanged = 1;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CGrfTagsPage::OnKillfocusPrjCurrenttime()
+//  {
+//  UpdateData(true);
+//  CTimeValue t;
+//  if (t.Parse(m_CurrentTimeHMS))
+//    {
+//    if (t>=0.0)
+//      {
+//      LPCTSTR Tm=t.Format(TD_TimeDate);
+//      m_CurrentTimeHMS = Tm;
+//      Tm=t.Format(TD_Time);
+//      SetDlgItemText(IDC_DATETIME_TXT, Tm);
+//      UpdateData(false);
+//      }
+//    }
+//  }
+//
+//void CGrfTagsPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
+//  {
+//  pCmdUi->Enable(!DefNetProbalMode() && !m_SyncWithClock);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CGrfTagsPage::OnCbnSelchangePrjnetmodecombo()
+//  {
+//  UpdateData(true);
+//
+//  m_NetMode = m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : 0;
+//  LoadCBs(true);
+//
+//  UpdateData(false);
+//  }
+//
 //---------------------------------------------------------------------------
 
-void CGenPage::OnKillfocusPrjCurrenttime()
-  {
-  UpdateData(true);
-  CTimeValue t;
-  if (t.Parse(m_CurrentTimeHMS))
-    {
-    if (t>=0.0)
-      {
-      LPCTSTR Tm=t.Format(TD_TimeDate);
-      m_CurrentTimeHMS = Tm;
-      Tm=t.Format(TD_Time);
-      SetDlgItemText(IDC_DATETIME_TXT, Tm);
-      UpdateData(false);
-      }
-    }
-  }
-
-void CGenPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
-  {
-  pCmdUi->Enable(!DefNetProbalMode() && !m_SyncWithClock);
-  }
-
-//---------------------------------------------------------------------------
-
-void CGenPage::OnCbnSelchangePrjnetmodecombo()
-  {
-  UpdateData(true);
-
-  m_NetMode = m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : 0;
-  LoadCBs(true);
-
-  UpdateData(false);
-  }
-
-//---------------------------------------------------------------------------
-
-//void CGenPage::OnPrjProbalOrDynamic()
+//void CGrfTagsPage::OnPrjProbalOrDynamic()
 //  {
 //  int Prev=m_SolveMd;
 //  UpdateData(true);
@@ -1370,14 +2226,14 @@ void CGenPage::OnCbnSelchangePrjnetmodecombo()
 //    }
 //  }
 
-void CGenPage::OnUpdateDynamic(CCmdUI* pCmdUi)
-  {
-  pCmdUi->Enable(DefNetDynamicMode());
-  }
+//void CGrfTagsPage::OnUpdateDynamic(CCmdUI* pCmdUi)
+//  {
+//  pCmdUi->Enable(DefNetDynamicMode());
+//  }
 
 //---------------------------------------------------------------------------
 
-void CGenPage::OnNumTagsChanged()
+void CGrfTagsPage::OnNumTagsChanged()
   {
   UpdateData(true);
   m_bTagNamingChanged = 1;
@@ -1387,7 +2243,7 @@ void CGenPage::OnNumTagsChanged()
 
 //---------------------------------------------------------------------------
 
-void CGenPage::OnNumStTagsChanged()
+void CGrfTagsPage::OnNumStTagsChanged()
   {
   UpdateData(true);
   m_bTagNamingChanged = 1;
@@ -1398,42 +2254,42 @@ void CGenPage::OnNumStTagsChanged()
 
 //---------------------------------------------------------------------------
 
-void CGenPage::OnSynchronise()
-  {
-  UpdateData(true);
-  DoSyncChange();
-  UpdateData(false);
-  UpdateDialogControls(this, FALSE);
-  }
+//void CGrfTagsPage::OnSynchronise()               
+//  {
+//  UpdateData(true);
+//  DoSyncChange();
+//  UpdateData(false);
+//  UpdateDialogControls(this, FALSE);
+//  }
+//
+//void CGrfTagsPage::DoSyncChange()
+//  {
+//  m_bTimeChanged = 1;
+//  if (m_SyncWithClock)
+//    {
+//    __time64_t t;
+//    _time64(&t); //this Initialisation must occur
+//    CTimeValue tv((double)t);
+//    m_CurrentTimeHMS = tv.Format(TD_TimeDate);
+//    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : tv.Format(TD_Time));
+//    }
+//  else
+//    {
+//    LPCTSTR Tm=m_CurrentTimeAtInit.Format(TD_TimeDate);
+//    m_CurrentTimeHMS = Tm;
+//    Tm=m_CurrentTimeAtInit.Format(TD_Time);
+//    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
+//    }
+//  }
 
-void CGenPage::DoSyncChange()
-  {
-  m_bTimeChanged = 1;
-  if (m_SyncWithClock)
-    {
-    __time64_t t;
-    _time64(&t); //this Initialisation must occur
-    CTimeValue tv((double)t);
-    m_CurrentTimeHMS = tv.Format(TD_TimeDate);
-    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : tv.Format(TD_Time));
-    }
-  else
-    {
-    LPCTSTR Tm=m_CurrentTimeAtInit.Format(TD_TimeDate);
-    m_CurrentTimeHMS = Tm;
-    Tm=m_CurrentTimeAtInit.Format(TD_Time);
-    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
-    }
-  }
-
-void CGenPage::OnBnClickedLibrarybtn()
+void CGrfTagsPage::OnBnClickedLibrarybtn()
   {
   INCOMPLETECODE()
   //GetGraphicsOptions();
   //SetGraphicsOptions();
   }
 
-void CGenPage::OnEnChangeLibrary()
+void CGrfTagsPage::OnEnChangeLibrary()
   {
   SetLibraryOptions();
   //GetGraphicsOptions();
@@ -1441,7 +2297,7 @@ void CGenPage::OnEnChangeLibrary()
   }
 
 
-void CGenPage::OnEnChangeGrpfilter()
+void CGrfTagsPage::OnEnChangeGrpfilter()
   {
   CString S;
   m_Filter.GetWindowText(S);
@@ -1468,16 +2324,16 @@ CCommsPage::CCommsPage() : CCustomPropertyPage(CCommsPage::IDD)
   m_DrvReadAll = FALSE;
 #endif
   m_OPCOn = FALSE;
-	m_OPCServerNo = FALSE;
+  m_OPCServerNo = FALSE;
   m_OPCResetReg = FALSE;
   m_DDEOn = FALSE;
-  m_ArcOn = FALSE;
-  m_ArcName = _T("");
-  m_ArcOpenDBOnRun = FALSE;
-	m_IOMOn = FALSE;
-	m_IOMName = _T("");
-	m_IOMNode = _T("");
-	//}}AFX_DATA_INIT
+  //m_ArcOn = FALSE;
+  //m_ArcName = _T("");
+  //m_ArcOpenDBOnRun = FALSE;
+  m_IOMOn = FALSE;
+  m_IOMName = _T("");
+  m_IOMNode = _T("");
+  //}}AFX_DATA_INIT
   }
 
 //---------------------------------------------------------------------------
@@ -1499,16 +2355,16 @@ void CCommsPage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_PRJDRVREADALL, m_DrvReadAll);
 #endif
   DDX_Check(pDX, IDC_PRJOPCON, m_OPCOn);
-	DDX_Check(pDX, IDC_PRJOPCSECONDSERVER, m_OPCServerNo);
+  DDX_Check(pDX, IDC_PRJOPCSECONDSERVER, m_OPCServerNo);
   DDX_Check(pDX, IDC_PRJOPCRESETREG, m_OPCResetReg);
   DDX_Check(pDX, IDC_PRJDDEON, m_DDEOn);
-  DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
-  DDX_Text(pDX, IDD_PRJARCNAME, m_ArcName);
-  DDX_Check(pDX, IDC_PRJARCOPENONRUN, m_ArcOpenDBOnRun);
-	DDX_Check(pDX, IDC_PRJIOMON, m_IOMOn);
-	DDX_Text(pDX, IDD_PRJIOMNAME, m_IOMName);
-	DDX_Text(pDX, IDD_PRJIOMNODE, m_IOMNode);
-	//}}AFX_DATA_MAP
+  //DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
+  //DDX_Text(pDX, IDD_PRJARCNAME, m_ArcName);
+  //DDX_Check(pDX, IDC_PRJARCOPENONRUN, m_ArcOpenDBOnRun);
+  DDX_Check(pDX, IDC_PRJIOMON, m_IOMOn);
+  DDX_Text(pDX, IDD_PRJIOMNAME, m_IOMName);
+  DDX_Text(pDX, IDD_PRJIOMNODE, m_IOMNode);
+  //}}AFX_DATA_MAP
   }
 
 //---------------------------------------------------------------------------
@@ -1524,32 +2380,32 @@ BEGIN_MESSAGE_MAP(CCommsPage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_PRJOPCRELOAD, OnOPCReload)
   ON_BN_CLICKED(IDC_PRJOPCON, OnOpcChanged)
   ON_BN_CLICKED(IDC_PRJDDEON, OnDdeChanged)
-  ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
-  ON_BN_CLICKED(IDC_PRJARCON, OnArchiveOn)
-  ON_BN_CLICKED(IDC_PRJRELOADARC, OnArchiveReload)
-  ON_EN_CHANGE(IDD_PRJARCNAME, OnArchiveChanged)
-  ON_BN_CLICKED(IDC_PRJARCOPENONRUN, OnPrjarcopenonrun)
-	ON_BN_CLICKED(IDC_IOMBROWSE, OnIOMBrowse)
-	ON_BN_CLICKED(IDC_PRJIOMON, OnPrjIOMOn)
-	ON_EN_CHANGE(IDD_PRJIOMNAME, OnIOMChanged)
-	ON_BN_CLICKED(IDC_COMMSAPPLY, OnCommsapply)
+//  ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
+//  ON_BN_CLICKED(IDC_PRJARCON, OnArchiveOn)
+//  ON_BN_CLICKED(IDC_PRJRELOADARC, OnArchiveReload)
+//  ON_EN_CHANGE(IDD_PRJARCNAME, OnArchiveChanged)
+//  ON_BN_CLICKED(IDC_PRJARCOPENONRUN, OnPrjarcopenonrun)
+  ON_BN_CLICKED(IDC_IOMBROWSE, OnIOMBrowse)
+  ON_BN_CLICKED(IDC_PRJIOMON, OnPrjIOMOn)
+  ON_EN_CHANGE(IDD_PRJIOMNAME, OnIOMChanged)
+  ON_BN_CLICKED(IDC_COMMSAPPLY, OnCommsApply)
 #if WITHDRVMAN
   ON_BN_CLICKED(IDC_PRJDRVLOCALTAGSRVR, OnDriverOn)
   ON_BN_CLICKED(IDC_PRJDRVREADALL, OnDriverChanged)
 #endif
   ON_BN_CLICKED(IDC_PRJOPCSECONDSERVER, OnOpcChanged)
   ON_BN_CLICKED(IDC_PRJOPCRESETREG, OnOpcChanged)
-	ON_EN_CHANGE(IDD_PRJIOMNODE, OnIOMChanged)
-	//}}AFX_MSG_MAP
+  ON_EN_CHANGE(IDD_PRJIOMNODE, OnIOMChanged)
+  //}}AFX_MSG_MAP
 #if WITHDRVMAN
   ON_UPDATE_COMMAND_UI(IDC_PRJRELOADDRV, OnUpdateReLoadDrv)
   ON_UPDATE_COMMAND_UI(IDC_PRJDRVREADALL, OnUpdateDriverOn)
   ON_UPDATE_COMMAND_UI(IDD_PRJDRVNAME, OnUpdateDriverOn)
   ON_UPDATE_COMMAND_UI(IDC_DRVBROWSE, OnUpdateDriverOn)
 #endif
-  ON_UPDATE_COMMAND_UI(IDC_PRJRELOADARC, OnUpdateReLoadArc)
-  ON_UPDATE_COMMAND_UI(IDD_PRJARCNAME, OnUpdateArchiveOn)
-  ON_UPDATE_COMMAND_UI(IDC_ARCBROWSE, OnUpdateArchiveOn)
+  //ON_UPDATE_COMMAND_UI(IDC_PRJRELOADARC, OnUpdateReLoadArc)
+  //ON_UPDATE_COMMAND_UI(IDD_PRJARCNAME, OnUpdateArchiveOn)
+  //ON_UPDATE_COMMAND_UI(IDC_ARCBROWSE, OnUpdateArchiveOn)
   ON_UPDATE_COMMAND_UI(IDD_PRJIOMNAME, OnUpdateIOMOn)
   ON_UPDATE_COMMAND_UI(IDC_IOMBROWSE, OnUpdateIOMOn)
 END_MESSAGE_MAP()
@@ -1572,14 +2428,14 @@ BOOL CCommsPage::OnInitDialog()
   m_DrvName=Fn();
 #endif
 
-  m_ArcName        = m_pSet->m_sArcManagerName();
-  m_ArcOn          = m_pSet->m_bArcOn;
-  m_ArcOpenDBOnRun = m_pSet->m_bArcOpenDBOnRun;
-  if (SymbolicPaths())
-    Fn.FnContract(m_pSet->m_sArcManagerName());
-  else
-    Fn.FnExpand(m_pSet->m_sArcManagerName());
-  m_ArcName=Fn();
+  //m_ArcName        = m_pSet->m_sArcManagerName();
+  //m_ArcOn          = m_pSet->m_bArcOn;
+  //m_ArcOpenDBOnRun = m_pSet->m_bArcOpenDBOnRun;
+  //if (SymbolicPaths())
+  //  Fn.FnContract(m_pSet->m_sArcManagerName());
+  //else
+  //  Fn.FnExpand(m_pSet->m_sArcManagerName());
+  //m_ArcName=Fn();
 
   m_OPCOn           = m_pSet->m_bOPCOn;
   m_OPCServerNo     = (m_pSet->m_iOPCServerNo!=0);
@@ -1616,9 +2472,9 @@ void CCommsPage::OnOK()
     m_DrvName=Fn();
 #endif
 
-    Fn=m_ArcName;
-    Fn.FnContract();
-    m_ArcName=Fn();
+    //Fn=m_ArcName;
+    //Fn.FnContract();
+    //m_ArcName=Fn();
 
     Fn=m_IOMName;
     Fn.FnContract();
@@ -1639,26 +2495,26 @@ void CCommsPage::OnOK()
         CTagVwDoc::RebuildAll();
         }
 #else
-    if (bArcChanged || bIOMChanged || bOPCChanged || bDDEChanged)
+    if (/*bArcChanged ||*/ bIOMChanged || bOPCChanged || bDDEChanged)
       {
 #endif
 
-      if (bArcChanged)
-        {
-        if (m_pPrj)
-          {
-          m_pPrj->bArcChanged = true;
-          m_pPrj->CloseArcManager();
-          }
-        m_pSet->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-        m_pSet->m_bArcOn          = m_ArcOn;
-        m_pSet->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-        if (m_pPrj)
-          {
-          m_pPrj->OpenArcManager(false);
-          CTagVwDoc::RebuildAll();
-          }
-        }
+      //if (bArcChanged)
+      //  {
+      //  if (m_pPrj)
+      //    {
+      //    m_pPrj->bArcChanged = true;
+      //    m_pPrj->CloseArcManager();
+      //    }
+      //  m_pSet->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+      //  m_pSet->m_bArcOn          = m_ArcOn;
+      //  m_pSet->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+      //  if (m_pPrj)
+      //    {
+      //    m_pPrj->OpenArcManager(false);
+      //    CTagVwDoc::RebuildAll();
+      //    }
+      //  }
 
       if (bIOMChanged)
         {
@@ -1799,120 +2655,120 @@ void CCommsPage::OnDriverBrowse()
 #endif
 //---------------------------------------------------------------------------
 
-void CCommsPage::OnArchiveBrowse()
-  {
-  UpdateData(true);
-  Strng FName,FPath;
-
-  if (m_ArcName.GetLength()>0)
-    {
-    FPath.FnDrivePath((char*)(const char*)m_ArcName);
-    FName.FnNameExt((char*)(const char*)m_ArcName);
-    }
-  else
-    {
-    FName = "*.sac";
-    FPath = "..\\";//PrjPrevDirectory();
-    }
-
-  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
-    "SysCAD Archive Configuration (*.sac)|*.sac||", this);
-  Dlg.m_ofn.lpstrInitialDir = FPath();
-  Dlg.m_ofn.lpstrTitle = "Browse";
-  if (Dlg.DoModal()==IDOK)
-    {
-    m_ArcName=Dlg.GetPathName();
-    Strng Fn(m_ArcName);
-    Fn.FnContract();
-    m_ArcName=Fn();
-    Fn.FnExpand();
-    bArcChanged=1;
-    if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
-      {
-      gs_pPrj->m_sArcManagerName = m_ArcName;
-      bArcChanged = 0;
-      UpdateDialogControls(this, FALSE);
-      }
-    }
-  UpdateData(FALSE);
-  }
-
-//---------------------------------------------------------------------------
-
-void CCommsPage::OnArchiveOn()
-  {
-  UpdateData(true);
-  bArcChanged = 1;
-  UpdateDialogControls(this, FALSE);
-  }
-
-//---------------------------------------------------------------------------
-
-void CCommsPage::OnArchiveReload()
-  {
-  UpdateData(true);
-  Strng Fn(m_ArcName);
-  if (SymbolicPaths())
-    {
-    Fn.FnContract();
-    m_ArcName=Fn();
-    Fn.FnExpand();
-    }
-  else
-    {
-    Fn.FnExpand();
-    m_ArcName=Fn();
-    }
-  UpdateData(false);
-
-  gs_pPrj->bArcChanged = bArcChanged;
-  if (1)// bArcChanged)
-    {
-    gs_pPrj->CloseArcManager();
-    gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-    gs_pPrj->m_bArcOn          = m_ArcOn;
-    gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-    gs_pPrj->OpenArcManager(false);
-    CTagVwDoc::RebuildAll();
-    bArcChanged = 0;
-    UpdateDialogControls(this, FALSE);
-    }
-  //if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
-  //  {
-  //  gs_pPrj->sArcManagerName = m_ArcName;
-  //  bArcChanged = 0;
-  //  UpdateDialogControls(this, FALSE);
-  //  }
-  }
-
-void CCommsPage::OnUpdateReLoadArc(CCmdUI* pCmdUi)
-  {
-  pCmdUi->Enable(m_ArcOn);
-  }
-
-//---------------------------------------------------------------------------
-
-void CCommsPage::OnArchiveChanged()
-  {
-  bArcChanged=1;
-  }
-
-//---------------------------------------------------------------------------
-
-void CCommsPage::OnPrjarcopenonrun()
-  {
-  UpdateData(true);
-  bArcChanged = 1;
-  UpdateDialogControls(this, FALSE);
-  }
-
-//---------------------------------------------------------------------------
-
-void CCommsPage::OnUpdateArchiveOn(CCmdUI* pCmdUi)
-  {
-  pCmdUi->Enable(m_ArcOn);
-  }
-
+//void CCommsPage::OnArchiveBrowse()
+//  {
+//  UpdateData(true);
+//  Strng FName,FPath;
+//
+//  if (m_ArcName.GetLength()>0)
+//    {
+//    FPath.FnDrivePath((char*)(const char*)m_ArcName);
+//    FName.FnNameExt((char*)(const char*)m_ArcName);
+//    }
+//  else
+//    {
+//    FName = "*.sac";
+//    FPath = "..\\";//PrjPrevDirectory();
+//    }
+//
+//  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
+//    "SysCAD Archive Configuration (*.sac)|*.sac||", this);
+//  Dlg.m_ofn.lpstrInitialDir = FPath();
+//  Dlg.m_ofn.lpstrTitle = "Browse";
+//  if (Dlg.DoModal()==IDOK)
+//    {
+//    m_ArcName=Dlg.GetPathName();
+//    Strng Fn(m_ArcName);
+//    Fn.FnContract();
+//    m_ArcName=Fn();
+//    Fn.FnExpand();
+//    bArcChanged=1;
+//    if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
+//      {
+//      gs_pPrj->m_sArcManagerName = m_ArcName;
+//      bArcChanged = 0;
+//      UpdateDialogControls(this, FALSE);
+//      }
+//    }
+//  UpdateData(FALSE);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CCommsPage::OnArchiveOn()
+//  {
+//  UpdateData(true);
+//  bArcChanged = 1;
+//  UpdateDialogControls(this, FALSE);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CCommsPage::OnArchiveReload()
+//  {
+//  UpdateData(true);
+//  Strng Fn(m_ArcName);
+//  if (SymbolicPaths())
+//    {
+//    Fn.FnContract();
+//    m_ArcName=Fn();
+//    Fn.FnExpand();
+//    }
+//  else
+//    {
+//    Fn.FnExpand();
+//    m_ArcName=Fn();
+//    }
+//  UpdateData(false);
+//
+//  gs_pPrj->bArcChanged = bArcChanged;
+//  if (1)// bArcChanged)
+//    {
+//    gs_pPrj->CloseArcManager();
+//    gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+//    gs_pPrj->m_bArcOn          = m_ArcOn;
+//    gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+//    gs_pPrj->OpenArcManager(false);
+//    CTagVwDoc::RebuildAll();
+//    bArcChanged = 0;
+//    UpdateDialogControls(this, FALSE);
+//    }
+//  //if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
+//  //  {
+//  //  gs_pPrj->sArcManagerName = m_ArcName;
+//  //  bArcChanged = 0;
+//  //  UpdateDialogControls(this, FALSE);
+//  //  }
+//  }
+//
+//void CCommsPage::OnUpdateReLoadArc(CCmdUI* pCmdUi)
+//  {
+//  pCmdUi->Enable(m_ArcOn);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CCommsPage::OnArchiveChanged()
+//  {
+//  bArcChanged=1;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CCommsPage::OnPrjarcopenonrun()
+//  {
+//  UpdateData(true);
+//  bArcChanged = 1;
+//  UpdateDialogControls(this, FALSE);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CCommsPage::OnUpdateArchiveOn(CCmdUI* pCmdUi)
+//  {
+//  pCmdUi->Enable(m_ArcOn);
+//  }
+//
 //---------------------------------------------------------------------------
 
 void CCommsPage::OnOPCReload()
@@ -2012,16 +2868,637 @@ void CCommsPage::OnUpdateIOMOn(CCmdUI* pCmdUi)
 
 //---------------------------------------------------------------------------
 
-void CCommsPage::OnCommsapply()
+void CCommsPage::OnCommsApply()
   {
-  if (bDrvChanged || bArcChanged || bIOMChanged || bOPCChanged || bDDEChanged)
-  	OnOK();
+  if (bDrvChanged || /*bArcChanged ||*/ bIOMChanged || bOPCChanged || bDDEChanged)
+    OnOK();
   bDrvChanged=0;
-  bArcChanged=0;
+  //bArcChanged=0;
   bIOMChanged=0;
   bOPCChanged=0;
   bDDEChanged=0;
   }
+
+//===========================================================================
+
+IMPLEMENT_DYNCREATE(CArchivePage, CCustomPropertyPage)
+
+CArchivePage::CArchivePage() : CCustomPropertyPage(CArchivePage::IDD)
+  {
+  //bDrvChanged = 0;
+  bArcChanged = 0;
+  //bIOMChanged = 0;
+  //bOPCChanged = 0;
+  //bDDEChanged = 0;
+  //{{AFX_DATA_INIT(CArchivePage)
+#if WITHDRVMAN
+  //m_DrvOn = FALSE;
+  //m_DrvLclTagSrvrOK= TRUE;
+  //m_DrvName = _T("");
+  //m_DrvReadAll = FALSE;
+#endif
+  //m_OPCOn = FALSE;
+  //m_OPCServerNo = FALSE;
+  //m_OPCResetReg = FALSE;
+  //m_DDEOn = FALSE;
+  //m_ArcOn = FALSE;
+  m_ArcName = _T("");
+  //m_ArcOpenDBOnRun = FALSE;
+  //m_IOMOn = FALSE;
+  //m_IOMName = _T("");
+  //m_IOMNode = _T("");
+  //}}AFX_DATA_INIT
+  }
+
+//---------------------------------------------------------------------------
+
+CArchivePage::~CArchivePage()
+  {
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::DoDataExchange(CDataExchange* pDX)
+  {
+  CCustomPropertyPage::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CArchivePage)
+#if WITHDRVMAN
+  //DDX_Check(pDX, IDC_PRJDRVON, m_DrvOn);
+  //DDX_Check(pDX, IDC_PRJDRVLOCALTAGSRVR, m_DrvLclTagSrvrOK);
+  //DDX_Text(pDX, IDD_PRJDRVNAME, m_DrvName);
+  //DDX_Check(pDX, IDC_PRJDRVREADALL, m_DrvReadAll);
+#endif
+  //DDX_Check(pDX, IDC_PRJOPCON, m_OPCOn);
+  //DDX_Check(pDX, IDC_PRJOPCSECONDSERVER, m_OPCServerNo);
+  //DDX_Check(pDX, IDC_PRJOPCRESETREG, m_OPCResetReg);
+  //DDX_Check(pDX, IDC_PRJDDEON, m_DDEOn);
+  //DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
+  DDX_Text(pDX, IDD_PRJARCNAME, m_ArcName);
+  //DDX_Check(pDX, IDC_PRJARCOPENONRUN, m_ArcOpenDBOnRun);
+  //DDX_Check(pDX, IDC_PRJIOMON, m_IOMOn);
+  //DDX_Text(pDX, IDD_PRJIOMNAME, m_IOMName);
+  //DDX_Text(pDX, IDD_PRJIOMNODE, m_IOMNode);
+  //}}AFX_DATA_MAP
+  DDX_Control(pDX, IDC_ARCML_TIME, m_MLTime);
+  DDX_Control(pDX, IDC_ARCML_ELAPSEDHMS, m_MLElapsedHMS);
+  DDX_Control(pDX, IDC_ARCML_ELAPSEDDBL, m_MLElapsedDbl);
+  DDX_Control(pDX, IDC_ARCML_COMMAND, m_MLCommand);
+  DDX_Control(pDX, IDC_ARCML_TYPE, m_MLType);
+  DDX_Control(pDX, IDC_ARCML_TAG, m_MLTag);
+  DDX_Control(pDX, IDC_ARCML_SOURCE, m_MLSource);
+  DDX_Control(pDX, IDC_ARCML_IDNO, m_MLIDNo);
+  DDX_Control(pDX, IDC_ARCML_ITERNO, m_MLIterNo);
+  DDX_Control(pDX, IDC_ARCML_CALLNO, m_MLCallNo);
+  DDX_Control(pDX, IDC_ARCML_SEQNO, m_MLSeqNo);
+  DDX_Control(pDX, IDC_ARCML_MESSAGE, m_MLMessage);
+  }
+
+//---------------------------------------------------------------------------
+
+BEGIN_MESSAGE_MAP(CArchivePage, CCustomPropertyPage)
+  //{{AFX_MSG_MAP(CArchivePage)
+#if WITHDRVMAN
+  //ON_BN_CLICKED(IDC_PRJDRVON, OnDriverOn)
+  //ON_EN_CHANGE(IDD_PRJDRVNAME, OnDriverChanged)
+  //ON_BN_CLICKED(IDC_PRJRELOADDRV, OnDriverReload)
+  //ON_BN_CLICKED(IDC_DRVBROWSE, OnDriverBrowse)
+#endif
+  //ON_BN_CLICKED(IDC_PRJOPCRELOAD, OnOPCReload)
+  //ON_BN_CLICKED(IDC_PRJOPCON, OnOpcChanged)
+  //ON_BN_CLICKED(IDC_PRJDDEON, OnDdeChanged)
+  ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
+  ON_BN_CLICKED(IDC_PRJARCON, OnArchiveOn)
+  ON_BN_CLICKED(IDC_PRJRELOADARC, OnArchiveReload)
+  ON_EN_CHANGE(IDD_PRJARCNAME, OnArchiveChanged)
+  ON_BN_CLICKED(IDC_PRJARCOPENONRUN, OnPrjarcopenonrun)
+  //ON_BN_CLICKED(IDC_IOMBROWSE, OnIOMBrowse)
+  //ON_BN_CLICKED(IDC_PRJIOMON, OnPrjIOMOn)
+  //ON_EN_CHANGE(IDD_PRJIOMNAME, OnIOMChanged)
+  ON_BN_CLICKED(IDC_ARCHIVEAPPLY, OnArchiveApply)
+#if WITHDRVMAN
+  //ON_BN_CLICKED(IDC_PRJDRVLOCALTAGSRVR, OnDriverOn)
+  //ON_BN_CLICKED(IDC_PRJDRVREADALL, OnDriverChanged)
+#endif
+  //ON_BN_CLICKED(IDC_PRJOPCSECONDSERVER, OnOpcChanged)
+  //ON_BN_CLICKED(IDC_PRJOPCRESETREG, OnOpcChanged)
+  //ON_EN_CHANGE(IDD_PRJIOMNODE, OnIOMChanged)
+  //}}AFX_MSG_MAP
+#if WITHDRVMAN
+  //ON_UPDATE_COMMAND_UI(IDC_PRJRELOADDRV, OnUpdateReLoadDrv)
+  //ON_UPDATE_COMMAND_UI(IDC_PRJDRVREADALL, OnUpdateDriverOn)
+  //ON_UPDATE_COMMAND_UI(IDD_PRJDRVNAME, OnUpdateDriverOn)
+  //ON_UPDATE_COMMAND_UI(IDC_DRVBROWSE, OnUpdateDriverOn)
+#endif
+  ON_UPDATE_COMMAND_UI(IDC_PRJRELOADARC, OnUpdateReLoadArc)
+  ON_UPDATE_COMMAND_UI(IDD_PRJARCNAME, OnUpdateArchiveOn)
+  ON_UPDATE_COMMAND_UI(IDC_ARCBROWSE, OnUpdateArchiveOn)
+  //ON_UPDATE_COMMAND_UI(IDD_PRJIOMNAME, OnUpdateIOMOn)
+  //ON_UPDATE_COMMAND_UI(IDC_IOMBROWSE, OnUpdateIOMOn)
+
+  ON_BN_CLICKED(IDC_ARCML_TIME, &CArchivePage::OnBnClickedArcMLTime)
+  ON_BN_CLICKED(IDC_ARCML_ELAPSEDHMS, &CArchivePage::OnBnClickedArcMLElapsedHMS)
+  //ON_BN_CLICKED(IDC_ARCML_ELAPSEDDBL, &CArchivePage::OnBnClickedArcMLElapsedDbl)
+  ON_BN_CLICKED(IDC_ARCML_COMMAND, &CArchivePage::OnBnClickedArcMLCommand)
+  ON_BN_CLICKED(IDC_ARCML_TYPE, &CArchivePage::OnBnClickedArcMLType)
+  ON_BN_CLICKED(IDC_ARCML_TAG, &CArchivePage::OnBnClickedArcMLTag)
+  ON_BN_CLICKED(IDC_ARCML_SOURCE, &CArchivePage::OnBnClickedArcMLSource)
+  ON_BN_CLICKED(IDC_ARCML_IDNO, &CArchivePage::OnBnClickedArcMLIDNo)
+  ON_BN_CLICKED(IDC_ARCML_ITERNO, &CArchivePage::OnBnClickedArcMLIterNo)
+  ON_BN_CLICKED(IDC_ARCML_CALLNO, &CArchivePage::OnBnClickedArcMLCallNo)
+  ON_BN_CLICKED(IDC_ARCML_SEQNO, &CArchivePage::OnBnClickedArcMLSeqNo)
+  ON_BN_CLICKED(IDC_ARCML_MESSAGE, &CArchivePage::OnBnClickedArcMLMessage)
+
+  //ON_BN_CLICKED(IDC_ARCML_SOURCE, &CArchivePage::OnBnClickedArcmlSource)
+  //ON_BN_CLICKED(IDC_ARCML_COMMAND, &CArchivePage::OnBnClickedArcmlCmd)
+  //ON_BN_CLICKED(IDC_ARCML_TYPE, &CArchivePage::OnBnClickedArcmlType)
+  //ON_BN_CLICKED(IDC_ARCML_IDNO, &CArchivePage::OnBnClickedArcmlIdno)
+  //ON_BN_CLICKED(IDC_ARCML_ITERNO, &CArchivePage::OnBnClickedArcmlIter)
+  //ON_BN_CLICKED(IDC_ARCML_CALLNO, &CArchivePage::OnBnClickedArcmlCall)
+  //ON_BN_CLICKED(IDC_ARCML_SEQNO, &CArchivePage::OnBnClickedArcmlSeqno)
+  //ON_BN_CLICKED(IDC_ARCML_MESSAGE, &CArchivePage::OnBnClickedArcmlMsg)
+  ON_CBN_SELCHANGE(IDC_ARCML_ELAPSEDDBL, &CArchivePage::OnCbnSelchangeArcmlElapseddbl)
+END_MESSAGE_MAP()
+
+//---------------------------------------------------------------------------
+
+BOOL CArchivePage::OnInitDialog()
+  {
+  Strng Fn;
+
+#if WITHDRVMAN
+  m_DrvName    = gs_pPrj->m_sDrvManagerName();
+  m_DrvOn      = gs_pPrj->m_bDrvOn;
+  m_DrvLclTagSrvrOK= gs_pPrj->bDrvLclTagSrvrOK;
+  m_DrvReadAll = gs_pPrj->bDrvReadAll;
+  if (SymbolicPaths())
+    Fn.FnContract(gs_pPrj->sDrvManagerName());
+  else
+    Fn.FnExpand(gs_pPrj->sDrvManagerName());
+  m_DrvName=Fn();
+#endif
+
+  m_ArcName        = m_pSet->m_sArcManagerName();
+  //m_ArcOn          = m_pSet->m_bArcOn;
+  //m_ArcOpenDBOnRun = m_pSet->m_bArcOpenDBOnRun;
+  if (SymbolicPaths())
+    Fn.FnContract(m_pSet->m_sArcManagerName());
+  else
+    Fn.FnExpand(m_pSet->m_sArcManagerName());
+  m_ArcName=Fn();
+
+  //m_OPCOn           = m_pSet->m_bOPCOn;
+  //m_OPCServerNo     = (m_pSet->m_iOPCServerNo!=0);
+  //m_OPCResetReg     = m_pSet->m_bOPCResetReg;
+
+  //m_DDEOn           = m_pSet->m_bDDEOn;
+
+  //m_IOMName         = m_pSet->m_sIOMarshalName();
+  //m_IOMNode         = m_pSet->m_sIOMarshalNode();
+  //m_IOMOn           = m_pSet->m_bIOMOn;
+  //if (SymbolicPaths())
+  //  Fn.FnContract(m_pSet->m_sIOMarshalName());
+  //else
+  //  Fn.FnExpand(m_pSet->m_sIOMarshalName());
+  //m_IOMName=Fn();
+
+
+  CCustomPropertyPage::OnInitDialog();
+
+  m_MLElapsedDbl.AddString("Off");
+  m_MLElapsedDbl.AddString("Days");
+  m_MLElapsedDbl.AddString("Hours");
+  m_MLElapsedDbl.AddString("Minutes");
+  m_MLElapsedDbl.AddString("Seconds");
+
+  GetOptions(Fn());
+
+  UpdateDialogControls(this, FALSE);
+  return TRUE;
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::GetOptions(LPCTSTR FileName)
+  {
+  DWORD Opts = CArchiveManager::ReadOptions(FileName);
+
+  m_MLTime       .SetCheck((Opts & LogItem_Time      )  !=0 ? 1:0);
+  m_MLElapsedHMS .SetCheck((Opts & LogItem_ElapsedHMS)  !=0 ? 1:0);
+  //m_MLElapsedDbl .SetCheck((Opts & LogItem_ElapsedDbl)  !=0 ? 1:0);
+  if (Opts & LogItem_ElapsedDays)
+    m_MLElapsedDbl.SetCurSel(1);
+  else if (Opts & LogItem_ElapsedHrs)
+    m_MLElapsedDbl.SetCurSel(2);
+  else if (Opts & LogItem_ElapsedMins)
+    m_MLElapsedDbl.SetCurSel(3);
+  else if (Opts & LogItem_ElapsedSecs)
+    m_MLElapsedDbl.SetCurSel(4);
+  else
+    m_MLElapsedDbl.SetCurSel(0);
+  m_MLCommand    .SetCheck((Opts & LogItem_Command   )  !=0 ? 1:0);
+  m_MLType       .SetCheck((Opts & LogItem_Type      )  !=0 ? 1:0);
+  m_MLTag        .SetCheck((Opts & LogItem_Tag       )  !=0 ? 1:0);
+  m_MLSource     .SetCheck((Opts & LogItem_Source    )  !=0 ? 1:0);
+  m_MLIDNo       .SetCheck((Opts & LogItem_IDNo      )  !=0 ? 1:0);
+  m_MLIterNo     .SetCheck((Opts & LogItem_IterNo    )  !=0 ? 1:0);
+  m_MLCallNo     .SetCheck((Opts & LogItem_CallNo    )  !=0 ? 1:0);
+  m_MLSeqNo      .SetCheck((Opts & LogItem_SeqNo     )  !=0 ? 1:0);
+  m_MLMessage    .SetCheck((Opts & LogItem_Message   )  !=0 ? 1:0);
+  };
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::SetOptions(LPCTSTR FileName)
+  {
+  DWORD Opts=0;
+
+  if (m_MLTime       .GetCheck()!=0) Opts |= LogItem_Time      ;
+  if (m_MLElapsedHMS .GetCheck()!=0) Opts |= LogItem_ElapsedHMS;
+  
+  if (m_MLElapsedDbl.GetCurSel()==1) Opts |= LogItem_ElapsedDays;
+  if (m_MLElapsedDbl.GetCurSel()==2) Opts |= LogItem_ElapsedHrs;
+  if (m_MLElapsedDbl.GetCurSel()==3) Opts |= LogItem_ElapsedMins;
+  if (m_MLElapsedDbl.GetCurSel()==4) Opts |= LogItem_ElapsedSecs;
+
+  if (m_MLCommand    .GetCheck()!=0) Opts |= LogItem_Command   ;
+  if (m_MLType       .GetCheck()!=0) Opts |= LogItem_Type      ;
+  if (m_MLTag        .GetCheck()!=0) Opts |= LogItem_Tag       ;
+  if (m_MLSource     .GetCheck()!=0) Opts |= LogItem_Source    ;
+  if (m_MLIDNo       .GetCheck()!=0) Opts |= LogItem_IDNo      ;
+  if (m_MLIterNo     .GetCheck()!=0) Opts |= LogItem_IterNo    ;
+  if (m_MLCallNo     .GetCheck()!=0) Opts |= LogItem_CallNo    ;
+  if (m_MLSeqNo      .GetCheck()!=0) Opts |= LogItem_SeqNo     ;
+  if (m_MLMessage    .GetCheck()!=0) Opts |= LogItem_Message   ;
+
+  CArchiveManager::WriteOptions(FileName, Opts);
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnOK()
+  {
+  if (bDidInit)
+    {
+    UpdateData(true);
+
+    Strng Fn;
+
+    Fn=m_ArcName;
+    Fn.FnContract();
+    m_ArcName=Fn();
+
+    if (bArcChanged)
+      {
+      if (m_pPrj)
+        {
+        m_pPrj->bArcChanged = true;
+        m_pPrj->CloseArcManager();
+        }
+      m_pSet->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+
+      SetOptions(m_pSet->m_sArcManagerName());
+      if (m_pPrj)
+        {
+        m_pPrj->OpenArcManager(false);
+        m_pPrj->ConnectArcManager();
+        CTagVwDoc::RebuildAll();
+        }
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+#if WITHDRVMAN
+//void CArchivePage::OnDriverOn()
+//  {
+//  UpdateData(true);
+//  bDrvChanged = 1;
+//  UpdateDialogControls(this, FALSE);
+//  }
+//
+//void CArchivePage::OnUpdateDriverOn(CCmdUI* pCmdUi)
+//  {
+//  pCmdUi->Enable(m_DrvOn);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnDriverChanged()
+//  {
+//  bDrvChanged = 1;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnDriverReload()
+//  {
+//  UpdateData(true);
+//  Strng Fn(m_DrvName);
+//  if (SymbolicPaths())
+//    {
+//    Fn.FnContract();
+//    m_DrvName=Fn();
+//    Fn.FnExpand();
+//    }
+//  else
+//    {
+//    Fn.FnExpand();
+//    m_DrvName=Fn();
+//    }
+//  UpdateData(false);
+//  gs_pPrj->bDrvLclTagSrvrOK = m_DrvLclTagSrvrOK;
+//  if (gs_pPrj->ReloadDrvManager(FALSE, Fn()))
+//    {
+//    gs_pPrj->sDrvManagerName = m_DrvName;
+//    bDrvChanged = 0;
+//    UpdateDialogControls(this, FALSE);
+//    }
+//  }
+//
+//void CArchivePage::OnUpdateReLoadDrv(CCmdUI* pCmdUi)
+//  {//can only reload if the driver was on
+//  pCmdUi->Enable(gs_pPrj->bDrvOn);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnDriverBrowse()
+//  {
+//  UpdateData(true);
+//  Strng FName,FPath;
+//
+//  if (m_DrvName.GetLength()>0)
+//    {
+//    FPath.FnDrivePath((char*)(const char*)m_DrvName);
+//    FName.FnNameExt((char*)(const char*)m_DrvName);
+//    }
+//  else
+//    {
+//    FName = "*.mdb;*.xls;*.csv";
+//    FPath = "..\\";//PrjPrevDirectory();
+//    }
+//
+//  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
+//                      "SysCAD IO List (*.mdb;*.xls;*.csv)|*.mdb;*.xls;*.csv||", this);
+//  Dlg.m_ofn.lpstrInitialDir = FPath();
+//  Dlg.m_ofn.lpstrTitle = "Browse";
+//  if (Dlg.DoModal()==IDOK)
+//    {
+//    m_DrvName=Dlg.GetPathName();
+//    Strng Fn(m_DrvName);
+//    Fn.FnContract();
+//    m_DrvName=Fn();
+//    Fn.FnExpand();
+//    bDrvChanged=1;
+//    if (gs_pPrj->ReloadDrvManager(FALSE, Fn()))
+//      {
+//      gs_pPrj->sDrvManagerName = m_DrvName;
+//      bDrvChanged = 0;
+//      UpdateDialogControls(this, FALSE);
+//      }
+//    }
+//  UpdateData(FALSE);
+//  }
+#endif
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnArchiveBrowse()
+  {
+  UpdateData(true);
+  Strng FName,FPath;
+
+  if (m_ArcName.GetLength()>0)
+    {
+    FPath.FnDrivePath((char*)(const char*)m_ArcName);
+    FName.FnNameExt((char*)(const char*)m_ArcName);
+    }
+  else
+    {
+    FName = "*.sac";
+    FPath = "..\\";//PrjPrevDirectory();
+    }
+
+  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
+    "SysCAD Archive Configuration (*.sac)|*.sac||", this);
+  Dlg.m_ofn.lpstrInitialDir = FPath();
+  Dlg.m_ofn.lpstrTitle = "Browse";
+  if (Dlg.DoModal()==IDOK)
+    {
+    m_ArcName=Dlg.GetPathName();
+    Strng Fn(m_ArcName);
+    Fn.FnContract();
+    m_ArcName=Fn();
+    Fn.FnExpand();
+    bArcChanged=1;
+    if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
+      {
+      gs_pPrj->m_sArcManagerName = m_ArcName;
+      bArcChanged = 0;
+      UpdateDialogControls(this, FALSE);
+      }
+    }
+  UpdateData(FALSE);
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnArchiveOn()
+  {
+  UpdateData(true);
+  bArcChanged = 1;
+  UpdateDialogControls(this, FALSE);
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnArchiveReload()
+  {
+  UpdateData(true);
+  Strng Fn(m_ArcName);
+  if (SymbolicPaths())
+    {
+    Fn.FnContract();
+    m_ArcName=Fn();
+    Fn.FnExpand();
+    }
+  else
+    {
+    Fn.FnExpand();
+    m_ArcName=Fn();
+    }
+  UpdateData(false);
+
+  gs_pPrj->bArcChanged = bArcChanged;
+  if (1)// bArcChanged)
+    {
+    gs_pPrj->CloseArcManager();
+    gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+    //gs_pPrj->m_bArcOn          = m_ArcOn;
+    //gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+    gs_pPrj->OpenArcManager(false);
+    CTagVwDoc::RebuildAll();
+    bArcChanged = 0;
+    UpdateDialogControls(this, FALSE);
+    }
+  //if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
+  //  {
+  //  gs_pPrj->sArcManagerName = m_ArcName;
+  //  bArcChanged = 0;
+  //  UpdateDialogControls(this, FALSE);
+  //  }
+  }
+
+void CArchivePage::OnUpdateReLoadArc(CCmdUI* pCmdUi)
+  {
+  pCmdUi->Enable(true);//m_ArcOn);
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnArchiveChanged()
+  {
+  bArcChanged=1;
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnPrjarcopenonrun()
+  {
+  UpdateData(true);
+  bArcChanged = 1;
+  UpdateDialogControls(this, FALSE);
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnUpdateArchiveOn(CCmdUI* pCmdUi)
+  {
+  pCmdUi->Enable(true);//m_ArcOn);
+  }
+
+//---------------------------------------------------------------------------
+
+//void CArchivePage::OnOPCReload()
+//  {
+//  //UpdateData(true);
+//  //gs_pPrj->ReloadOPCServer();
+////  gs_pPrj->CloseOPCManager();
+//  //gs_pPrj->bOPCOn = m_OPCOn;
+//  //gs_pPrj->iOPCServerNo = m_OPCServerNo;
+//  //gs_pPrj->bOPCResetReg = m_OPCResetReg;
+//  //bOPCChanged = 0;
+////  gs_pPrj->OpenOPCManager();
+//  }
+//
+//void CArchivePage::OnUpdateReLoadOPC(CCmdUI* pCmdUi)
+//  {//can only reload if the driver was on
+//  pCmdUi->Enable(false);//gs_pPrj->bOPCOn);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnOpcChanged()
+//  {
+//  bOPCChanged = 1;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnDdeChanged()
+//  {
+//  bDDEChanged = 1;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnIOMBrowse()
+//  {
+//  UpdateData(true);
+//  Strng FName,FPath;
+//
+//  if (m_IOMName.GetLength()>0)
+//    {
+//    FPath.FnDrivePath((char*)(const char*)m_IOMName);
+//    FName.FnNameExt((char*)(const char*)m_IOMName);
+//    }
+//  else
+//    {
+//    FName = "*.scm";
+//    FPath = "..\\";
+//    }
+//
+//  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
+//                     "SysCAD IOMarshal(*.scm)|*.scm||", this);
+//  Dlg.m_ofn.lpstrInitialDir = FPath();
+//  Dlg.m_ofn.lpstrTitle = "Browse";
+//  if (Dlg.DoModal()==IDOK)
+//    {
+//    m_IOMName=Dlg.GetPathName();
+//    Strng Fn(m_IOMName);
+//    Fn.FnContract();
+//    m_IOMName=Fn();
+//    Fn.FnExpand();
+//    bIOMChanged=1;
+//    if (gs_pPrj->ReloadIOMarshal(FALSE, Fn(), NULL))
+//      {
+//      gs_pPrj->m_sIOMarshalName = m_IOMName;
+//      gs_pPrj->m_sIOMarshalNode = m_IOMNode;
+//      bIOMChanged = 0;
+//      UpdateDialogControls(this, FALSE);
+//      }
+//    }
+//  UpdateData(FALSE);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnPrjIOMOn()
+//  {
+//  UpdateData(true);
+//  bIOMChanged = 1;
+//  UpdateDialogControls(this, FALSE);
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnIOMChanged()
+//  {
+//  bIOMChanged = 1;
+//  }
+//
+////---------------------------------------------------------------------------
+//
+//void CArchivePage::OnUpdateIOMOn(CCmdUI* pCmdUi)
+//  {
+//  pCmdUi->Enable(m_IOMOn);
+//  }
+//
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnArchiveApply()
+  {
+  if (/*bDrvChanged ||*/ bArcChanged /*|| bIOMChanged || bOPCChanged || bDDEChanged*/)
+    OnOK();
+  //bDrvChanged=0;
+  bArcChanged=0;
+  //bIOMChanged=0;
+  //bOPCChanged=0;
+  //bDDEChanged=0;
+  }
+
+void CArchivePage::OnBnClickedArcMLTime()         {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLElapsedHMS()   {  bArcChanged=1;  }
+void CArchivePage::OnCbnSelchangeArcmlElapseddbl(){  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLCommand()      {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLType()         {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLTag()          {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLSource()       {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLIDNo()         {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLIterNo()       {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLCallNo()       {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLSeqNo()        {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLMessage()      {  bArcChanged=1;  }
 
 //===========================================================================
 
@@ -3027,20 +4504,6 @@ void CMergeReportDlg::OnSelchangeReportTab(NMHDR* pNMHDR, LRESULT* pResult)
   *pResult = 0;
   }
 
+//--------------------------------------------------------------------------
 
-void CHistPage::OnBnClickedPrjhstusetol()
-  {
-  }
-
-
-
-void CHistPage::OnEnChangeMidtimefactor()
-  {
-  // TODO:  If this is a RICHEDIT control, the control will not
-  // send this notification unless you override the CCustomPropertyPage::OnInitDialog()
-  // function and call CRichEditCtrl().SetEventMask()
-  // with the ENM_CHANGE flag ORed into the mask.
-
-  // TODO:  Add your control notification handler code here
-  }
 
