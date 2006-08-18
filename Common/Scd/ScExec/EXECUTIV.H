@@ -1235,6 +1235,8 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           GetModelAction(Strng & Tag, MdlActionArray & Acts);
     flag           SetModelAction(Strng & Tag, MdlAction & Act);
 
+    flag           SteadyStateRqd() { return m_SteadyStateRqd; };
+
     void           ConfigureArchive()    { DoConfigureArchive(); };
     void           ConfigureHistorian()  { DoConfigureHistorian(); };
     bool           KeepHistoryFile(char* pFilename);
@@ -1335,6 +1337,7 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           m_ReadWriteAllReqd;
     UINT           m_GotoCmdOnceStopped;
     flag           m_bStepExecuted;
+    flag           m_SteadyStateRqd;
 
     flag           bSelfConnect;
     HANDLE         hPauseEvent;

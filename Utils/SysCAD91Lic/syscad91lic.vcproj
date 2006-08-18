@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="SysCAD91Lic"
-	ProjectGUID="{19EB7266-EDF8-455b-8E82-54E0AF7C94BB}"
+	ProjectGUID="{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform

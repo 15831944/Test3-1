@@ -1121,7 +1121,7 @@ void CRunCfgPage::DoDataExchange(CDataExchange* pDX)
   if (!pDX->m_bSaveAndValidate)
     {
     ((CButton*)GetDlgItem(IDC_RUNFOREVER))->SetCheck(m_iRunTerm==ScnTyp_Manual);
-    ((CButton*)GetDlgItem(IDC_RUNSTEADY))->SetCheck(m_iRunTerm==RTT_SteadyState);
+    ((CButton*)GetDlgItem(IDC_RUNSTEADY))->SetCheck(m_iRunTerm==ScnType_SteadyState);
     ((CButton*)GetDlgItem(IDC_RUNFOR))->SetCheck(m_iRunTerm==ScnTyp_Duration);
     ((CButton*)GetDlgItem(IDC_RUNUNTIL))->SetCheck(m_iRunTerm==ScnTyp_StopTime);
     ((CButton*)GetDlgItem(IDC_RUNFORITERS))->SetCheck(m_iRunTerm==ScnTyp_Steps);
@@ -1246,7 +1246,7 @@ void CRunCfgPage::FixTimes(byte FixWhat)
       m_ForTime = _T("");
       m_UntilTime = _T("Stopped");
       break;
-    case RTT_SteadyState:
+    case ScnType_SteadyState:
       m_ForTime = _T("");
       m_UntilTime = _T("Until Steady");
       break;
@@ -1299,7 +1299,7 @@ void CRunCfgPage::OnRunforever()
 
 void CRunCfgPage::OnRunsteady()
   {
-  m_iRunTerm=RTT_SteadyState;
+  m_iRunTerm=ScnType_SteadyState;
   FixTimes(FixFor|FixUntil|FixUpdate);
   SetModified(TRUE);
   }

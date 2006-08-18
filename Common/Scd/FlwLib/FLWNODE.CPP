@@ -7433,7 +7433,7 @@ bool FlwNode::SteadyStateTest(eScdSSTests ssTest, CToleranceBlock & PTol, CToler
     FlwBlk & FB=*IOFB(i, 0);
     if (!QmTol.ConvergedVV(FB.m_QmStdyState, FB.m_Qm))
       {
-      //dbgpln("SST P %12.4f %12.4f %12.4f %s", FB.m_QmStdyState, FB.m_Qm, QmTol.GetNormalError(), FullTag());
+      dbgpln("SST Qm %12.4f %12.4f %12.4f %s", FB.m_QmStdyState, FB.m_Qm, QmTol.GetNormalError(), FullTag());
       OK=false;
       }
     MaxErr=Max(MaxErr, QmTol.GetNormalError());
@@ -7443,7 +7443,7 @@ bool FlwNode::SteadyStateTest(eScdSSTests ssTest, CToleranceBlock & PTol, CToler
       CPressBlk & PB=IOPB_Flng(i);
       if (!PTol.ConvergedVV(PB.PStdyState, PB.P))
         {
-        //dbgpln("SST P %12.4f %12.4f %12.4f %s", PB.PStdyState, PB.P, PTol.GetNormalError(), FullTag());
+        dbgpln("SST P  %12.4f %12.4f %12.4f %s", PB.PStdyState, PB.P, PTol.GetNormalError(), FullTag());
         OK=false;
         }
       MaxErr=Max(MaxErr, PTol.GetNormalError());

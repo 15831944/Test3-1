@@ -1393,6 +1393,8 @@ CExecutive::CExecutive() :
   m_lWaitCompleteCount           = 0;
   m_lWaitCompleteTime            = 0;
 
+  m_SteadyStateRqd               = false;  
+
   eFileWhat                      = EF_Null;
 
   lLastTickCount                 = 0;
@@ -1987,7 +1989,8 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     return false;
     }
 
-  //int SSA= (lParam>>16)&0xffff;
+  m_SteadyStateRqd = (((lParam>>16)&0xffff) == 1);
+
   //RqdRunMode RRM=(RqdRunMode )(lParam&0xffff);
 
   //flag SS=TaggedObject::SteadyReqdFlag();
@@ -2294,12 +2297,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           LogNote("Executive", 0, "Filing operation busy");
         }
       break;
-    case EXM_START:
     case EXM_STARTPAUSE:
-      //m_TimeStarted=TimeCB().m_Time; // CNM I would guess that these need to be set also in STARTPAUSE
-      //m_TimeStopped=TimeNAN;
-      //m_ClockStart=0;
-      //__debugbreak();
+      m_SteadyStateRqd = false;
+    case EXM_START:
       #if dbgExecutive
       gs_TimeSW.ReStart();
       #endif
@@ -2310,17 +2310,6 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         gs_TimeSW.ReStart();
       #endif
       gs_swExecute.Start();
-      //m_ThisCmdMd=Md;
-      //switch (Md)
-      //  {
-      //  case EXM_MD_Current:
-      //    m_ThisCmdMd=
-      //    break;
-      //  case EXM_MD_PB:
-      //    break;
-      //  case EXM_MD_DYN:
-      //    break;
-      //  }
 
       ClrCI(1);
 
@@ -2348,18 +2337,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           Objs_Reg[RInx]->EO_PreStart(TimeCB());
         }
 
-      ////XSW.StepBegin();
-      //XSW.m_swStart.ReStart();
-
       wState&=(~EXF_StartError);
       wState|=EXF_Busy;
       
-      //moved to ResetRunState
-      //if (fDoingPB)
-      //  wState|=EXF_SolvingPB;
-      //else
-      //  wState&=(~EXF_SolvingPB);
-
       bWorkDone=false;
       bTimerExpired=false;
       bPauseReqd=(Cmd==EXM_STARTPAUSE);
@@ -2370,6 +2350,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       bListRebuildReqd=false;
       bListUpdateReqd=false;
       m_bStepExecuted=false;
+      //m_SteadyStateRqd=false;
 
       TimeCB().m_bHoldAdv = bHoldAdv;
       //TimeCB().m_nStepCount = 0;
@@ -2623,7 +2604,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
     ////  FlwNode::ExecObj()->XStop();
     ////  StopRequested=true;
     ////  }
-    ////else if (SteadyReqdFlag() || (CB.m_ScnType==RTT_SteadyState))
+    ////else if (SteadyReqdFlag() || (CB.m_ScnType==ScnType_SteadyState))
     ////  {
     ////  if (m_SSSteady>=m_SSStopCount)
     ////    {
@@ -4295,7 +4276,7 @@ void CExecutive::SetStopTimeEtc(bool ForceIt)
       {
       case ScnTyp_Manual:
       case ScnTyp_Steps:
-      case RTT_SteadyState:
+      case ScnType_SteadyState:
         TimeToStop=TimeNAN;
         ScnTimeMax=TimeNAN;
         break;

@@ -91,6 +91,7 @@ static CDbgMngr dbgTraverseDPdQ             ("FlwNets", "Traverse.DPdQ");
 static CDbgMngr dbgTraverseDPz              ("FlwNets", "Traverse.DPz");
 static CDbgMngr dbgTraverseDbgBrk           ("FlwNets", "Traverse.DbgBrk");
 static CDbgMngr dbgTraverseDbgBrkAllInSubNet("FlwNets", "Traverse.DbgBrkAllInSubNet");
+static CDbgMngr dbgTraverseDistError        ("FlwNets", "Traverse.DistError");
 static CDbgMngr dbgTraverseDeltas           ("FlwNets", "Traverse.Deltas");
 static CDbgMngr dbgTraverseFBNos            ("FlwNets", "Traverse.FBNos");
 static CDbgMngr dbgTraverseFxdOrder         ("FlwNets", "Traverse.FxdOrder");
@@ -1876,10 +1877,14 @@ void CGrpFlwBlk::DbgDumpPBlks(flag GoFwd, bool WithPress)
         dbgp("PB %-3s %s %s%s", 
           I->IsIO()?"IO":I->IsLnk()?"Lnk":"Jnt",
           I->m_iSgn>0?"+":I->m_iSgn<0?"-":".", I->AtStart(GoFwd)?"S":" ", I->AtEnd(GoFwd)?"E":" ");
-        dbgp(I->m_pFB ? " {fb[%4i]:":" {f     :",I->m_pFB ? I->FB.m_iNo:-1);
+        dbgp(I->m_pFB ? " {fb[%4i]:":" {f       :",I->m_pFB ? I->FB.m_iNo:-1);
         dbgp("PBs%4i>%-4i}", I->SrcPB(GoFwd).m_iNo, I->DstPB(GoFwd).m_iNo);
         if (WithPress)
+          {
           dbgp(" n:%10.4f  f:%10.4f", I->SrcPB(GoFwd).P, I->DstPB(GoFwd).P);
+          dbgp(" Estn:%10.4f  f:%10.4f", I->SrcPB(GoFwd).PEst, I->DstPB(GoFwd).PEst);
+          dbgp(" Mn=n:%10.4f  f:%10.4f", I->SrcPB(GoFwd).PMn, I->DstPB(GoFwd).PMn);
+          }
         dbgpln(" %s", I->Nd.Tag());
         dbgunlock();
         break;
@@ -1980,346 +1985,464 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
   TraverseDbgHeader(pNetProps);
 #endif
 
-  m_Sum_dP=0.0;
-  m_Sum_adPqdQ=0.0;
-  m_Sum_dPbdQ=0.0;
-  m_Sum_B=0.0;
-  m_Sum_ResT=0.0;
-  m_BstDamping=0.0;
+  double PrevError=0;
 
-  if (Src.IsIO())
-    m_Src_P  = Src.m_pNd->IOP_Est_Self(Src.m_iIONo);
-  else
-    m_Src_P = Src.m_pJoin->m_PB.PEst;
-
-  m_P_Here = m_Src_P;
-  m_P_HereLnk = m_P_Here;
-  m_P_HereSafe = Max(LowPressure, m_P_Here);
-  m_P_Lowest = m_P_Here;
-
-  if (Src.IsIO())
-    Src.m_pNd->Set_IOP_Self(Src.m_iIONo, m_P_HereSafe);
-
-  double PEst = m_Src_P;
-
-  //    pSrcFB->SetNodePress(m_Src_P);
-#if dbgFlwNets
-  if (DbgFlags & DBG_TraverseP)
-    {
-    if (DbgFlags & DBG_TraverseFBNos)
-      dbgp("         "); 
-    if (DbgFlags & DBG_TraversePBNos)
-      dbgp("pb[%4i]          ", Src.m_pJoin->m_PB.m_iNo); 
-    dbgp("Src Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
-    if (DbgFlags & DBG_Regulator)       
-      dbgp(" %2s %6s ", "", "");
-    dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,m_Src_P);
-
-    if (DbgFlags & DBG_TraversePFxd)
-      dbgp(" %*s", PWide,"");
-    if (0) // PLnk
-      dbgp("LnkPress         ");
-    dbgp("   %*s",PWide,"");
-    dbgp("%*s ", RWide, "");
-    if (DbgFlags&DBG_DPa)
-      dbgp(" %*s",PWide,"");
-
-    if (DbgFlags&(DBG_DPb|DBG_DPz))
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&(DBG_DPdQ))
-      dbgp(" %*s",PWide,"");
-    dbgp("[");
-    if (DbgFlags&DBG_DPb)
-      dbgp("%*s",PWide,"");
-    if (DbgFlags&DBG_DPb)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&DBG_DPz)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&DBG_DPz)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&DBG_DPz)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&(DBG_DPdQ))
-      {
-      dbgp(" %*s",PWide,"");
-      dbgp(" %*s",PWide,"");
-      }
-    dbgp("])");
-    if (DbgFlags&DBG_Props)
-      dbgp("%*s %*s %*s %*s %*s ", DWide, "", DWide, "", DWide, "", DWide, "", DWide, "");
-    if (m_fTwoPhase)//DoMultiPhase)
-      {
-      dbgp("%7s ", "");
-      dbgp("%7s ", "");
-      }
-
-    if (DbgFlags&DBG_Phys)
-      {
-      dbgp("%12s ", "");
-      dbgp("%8s ", "");
-      dbgp("%8s ", "");
-      dbgp("%10s ", "");
-      }
-    dbgpln(" %20s[%i]", Src.m_pNd->FullObjTag(), Src.m_pJoin->m_iJoinId);
-    }
+#if DISTERRORINTRAVERSE  
+  //for (int iii=10; iii>=0; iii--)
+  //  {
 #endif
 
-  ////TODO Improve Line convergence under variable press conditions
+    m_Sum_dP=0.0;
+    m_Sum_adPqdQ=0.0;
+    m_Sum_dPbdQ=0.0;
+    m_Sum_B=0.0;
+    m_Sum_ResT=0.0;
+    m_BstDamping=0.0;
 
-  int Fbs0=GoFwd ? 0 : m_FBSeq.GetUpperBound();
-  int FbsN=GoFwd ? m_FBSeq.GetCount() : -1;
-  int FbsI=GoFwd ? 1 : -1;
-  for (int i=Fbs0; i!=FbsN; i+=FbsI)
-    {
-    CGrpFlwIndex *I = m_FBSeq[i];
-    switch (I->m_eType)
-      {
-      case GFI_IO:
-        {
-        FlwBlk & FB=I->FB;
-        CPressBlk & SrcPB=I->SrcPB(GoFwd);
-        CPressBlk & DstPB=I->DstPB(GoFwd);
+    if (Src.IsIO())
+      m_Src_P  = Src.m_pNd->IOP_Est_Self(Src.m_iIONo);
+    else
+      m_Src_P = Src.m_pJoin->m_PB.PEst;
 
-        SrcPB.P=m_P_HereSafe;
-        SrcPB.PEst=m_P_HereLnk;
+    m_P_Here = m_Src_P;
+    m_P_HereLnk = m_P_Here;
+    m_P_HereSafe = Max(LowPressure, m_P_Here);
+    m_P_Lowest = m_P_Here;
 
-        FB.SetQm(I->m_iSgn*Qm);
+    if (Src.IsIO())
+      Src.m_pNd->Set_IOP_Self(Src.m_iIONo, m_P_HereSafe);
 
-        if (I->AtStart(GoFwd) && I->Nd.IO_Open_Self(I->m_iIONo) && !I->Nd.IO_Direct_Self(I->m_iIONo))
-          FB.EvalFlowX(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, "p0");
+    double PEst = m_Src_P;
 
-        NDSTARTSW(&I->Nd, FSW_EvalFlowEquations);
-        flag HasEqns=I->Nd.EvalFlowEquations(FET_CalcDP, pNetProps, I->m_iIONo, I->m_iFENo, -1);
-        NDSTOPSW(&I->Nd, FSW_EvalFlowEquations);
-        if (ForceEvalFlow || HasEqns)
-          FB.EvalFlow(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, DstPB.P, "p1");
-
-        if (I->AtEnd(GoFwd) && I->Nd.IO_Open_Self(I->m_iIONo) && !I->Nd.IO_Direct_Self(I->m_iIONo))
-          FB.EvalFlowX(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, "p2");
-
-        FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
-        if (!I->AtEnd(GoFwd))
-          {
-          DstPB.P=m_P_HereSafe;
-          DstPB.PEst=m_P_HereLnk;
-          PEst=m_P_HereLnk;
-          }
-        }
-      break;
-      case GFI_Lnk:
-        {
-        FlwBlk & FB=I->FB;
-        CPressBlk & SrcPB=I->SrcPB(GoFwd);
-        CPressBlk & DstPB=I->DstPB(GoFwd);
-
-        SrcPB.P=m_P_HereSafe;
-        SrcPB.PEst=m_P_HereLnk;
-
-        FB.SetQm(I->m_iSgn*Qm);
-
-        NDSTARTSW(&I->Nd, FSW_EvalFlowEquations);
-        flag HasEqns=I->Nd.EvalFlowEquations(FET_CalcDP, pNetProps, -1, 0, I->m_iLnkNo);
-        NDSTOPSW(&I->Nd, FSW_EvalFlowEquations);
-        if (ForceEvalFlow || HasEqns)
-          FB.EvalFlow(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, DstPB.P, "pl");
-
-        FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
-        if (!I->AtEnd(GoFwd))
-          {
-          DstPB.P=m_P_HereSafe;
-          DstPB.PEst=m_P_HereLnk;
-          PEst=m_P_HereLnk;
-          }
-        }
-      break;
-      case GFI_Join:
-        I->Join.m_PB.P=m_P_HereSafe;
-        I->Join.m_PB.PEst=m_P_Here;
+    //    pSrcFB->SetNodePress(m_Src_P);
 #if dbgFlwNets
-        if (DbgFlags & DBG_TraverseP)
-          {
-          if (DbgFlags & DBG_TraverseFBNos)
-            dbgp("         "); 
-          if (DbgFlags & DBG_TraversePBNos)
-            dbgp("pb[%4i]          ", I->Join.m_PB.m_iNo); 
-          dbgp("%s  %s        ", "      ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+    if (DbgFlags & DBG_TraverseP)
+      {
+      if (DbgFlags & DBG_TraverseFBNos)
+        dbgp("         "); 
+      if (DbgFlags & DBG_TraversePBNos)
+        dbgp("pb[%4i]          ", Src.m_pJoin->m_PB.m_iNo); 
+      dbgp("Src Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+      if (DbgFlags & DBG_Regulator)       
+        dbgp(" %2s %6s ", "", "");
+      dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,m_Src_P);
 
-          if (DbgFlags & DBG_Regulator)       
-            dbgp(" %2s %6s ", "", "");
-          dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,I->Join.m_PB.PEst);
+      if (DbgFlags & DBG_TraversePFxd)
+        dbgp(" %*s", PWide,"");
+      if (0) // PLnk
+        dbgp("LnkPress         ");
+      dbgp("   %*s",PWide,"");
+      dbgp("%*s ", RWide, "");
+      if (DbgFlags&DBG_DPa)
+        dbgp(" %*s",PWide,"");
 
-          if (DbgFlags & DBG_TraversePFxd)
-            dbgp(" %*s", PWide,"");
-          if (0) // PLnk
-            dbgp("LnkPress         ");
-          dbgp("   %*s",PWide,"");
-          dbgp("%*s ", RWide, "");
-          if (DbgFlags&DBG_DPa)
-            dbgp(" %*s",PWide,"");
+      if (DbgFlags&(DBG_DPb|DBG_DPz))
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&(DBG_DPdQ))
+        dbgp(" %*s",PWide,"");
+      dbgp("[");
+      if (DbgFlags&DBG_DPb)
+        dbgp("%*s",PWide,"");
+      if (DbgFlags&DBG_DPb)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&DBG_DPz)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&DBG_DPz)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&DBG_DPz)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&(DBG_DPdQ))
+        {
+        dbgp(" %*s",PWide,"");
+        dbgp(" %*s",PWide,"");
+        }
+      dbgp("])");
+      if (DbgFlags&DBG_Props)
+        dbgp("%*s %*s %*s %*s %*s ", DWide, "", DWide, "", DWide, "", DWide, "", DWide, "");
+      if (m_fTwoPhase)//DoMultiPhase)
+        {
+        dbgp("%7s ", "");
+        dbgp("%7s ", "");
+        }
 
-          if (DbgFlags&(DBG_DPb|DBG_DPz))
-            dbgp(" %*s",PWide,"");
-          if (DbgFlags&(DBG_DPdQ))
-            dbgp(" %*s",PWide,"");
-          dbgp("[");
-          if (DbgFlags&DBG_DPb)
-            dbgp("%*s",PWide,"");
-          if (DbgFlags&DBG_DPb)
-            dbgp(" %*s",PWide,"");
-          if (DbgFlags&DBG_DPz)
-            dbgp(" %*s",PWide,"");
-          if (DbgFlags&DBG_DPz)
-            dbgp(" %*s",PWide,"");
-          if (DbgFlags&DBG_DPz)
-            dbgp(" %*s",PWide,"");
-          if (DbgFlags&(DBG_DPdQ))
-            {
-            dbgp(" %*s",PWide,"");
-            dbgp(" %*s",PWide,"");
-            }
-          dbgp("])");
-          if (DbgFlags&DBG_Props)
-            dbgp("%*s %*s %*s %*s %*s ", DWide, "", DWide, "", DWide, "", DWide, "", DWide, "");
-          if (m_fTwoPhase)//DoMultiPhase)
-            {
-            dbgp("%7s ", "");
-            dbgp("%7s ", "");
-            }
-
-          if (DbgFlags&DBG_Phys)
-            {
-            dbgp("%12s ", "");
-            dbgp("%8s ", "");
-            dbgp("%8s ", "");
-            dbgp("%10s ", "");
-            }
-          dbgpln(" %20s[Jn %i]", I->Join.Nd()->Tag(), I->Join.m_iJoinId);
-          }
+      if (DbgFlags&DBG_Phys)
+        {
+        dbgp("%12s ", "");
+        dbgp("%8s ", "");
+        dbgp("%8s ", "");
+        dbgp("%10s ", "");
+        }
+      dbgpln(" %20s[%i]", Src.m_pNd->FullObjTag(), Src.m_pJoin->m_iJoinId);
+      }
 #endif
-        break;
+
+    ////TODO Improve Line convergence under variable press conditions
+#if DISTERRORINTRAVERSE  
+    double SumAbsDPEst=0;
+    int iWrkDP=0;
+#endif
+
+    int Fbs0=GoFwd ? 0 : m_FBSeq.GetUpperBound();
+    int FbsN=GoFwd ? m_FBSeq.GetCount() : -1;
+    int FbsI=GoFwd ? 1 : -1;
+    for (int i=Fbs0; i!=FbsN; i+=FbsI)
+      {
+      CGrpFlwIndex *I = m_FBSeq[i];
+      switch (I->m_eType)
+        {
+        case GFI_IO:
+          {
+          FlwBlk & FB=I->FB;
+          CPressBlk & SrcPB=I->SrcPB(GoFwd);
+          CPressBlk & DstPB=I->DstPB(GoFwd);
+
+          SrcPB.P=m_P_HereSafe;
+          SrcPB.PEst=m_P_HereLnk;
+
+          FB.SetQm(I->m_iSgn*Qm);
+
+          if (I->AtStart(GoFwd) && I->Nd.IO_Open_Self(I->m_iIONo) && !I->Nd.IO_Direct_Self(I->m_iIONo))
+            FB.EvalFlowX(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, "p0");
+
+          NDSTARTSW(&I->Nd, FSW_EvalFlowEquations);
+          flag HasEqns=I->Nd.EvalFlowEquations(FET_CalcDP, pNetProps, I->m_iIONo, I->m_iFENo, -1);
+          NDSTOPSW(&I->Nd, FSW_EvalFlowEquations);
+          if (ForceEvalFlow || HasEqns)
+            FB.EvalFlow(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, DstPB.P, "p1");
+
+          if (I->AtEnd(GoFwd) && I->Nd.IO_Open_Self(I->m_iIONo) && !I->Nd.IO_Direct_Self(I->m_iIONo))
+            FB.EvalFlowX(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, "p2");
+
+          FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+          if (!I->AtEnd(GoFwd))
+            {
+            DstPB.P=m_P_HereSafe;
+            DstPB.PEst=m_P_HereLnk;
+            PEst=m_P_HereLnk;
+            }
+#if DISTERRORINTRAVERSE  
+          double ADP = fabs(m_P_HereLnk-SrcPB.PEst);
+          SumAbsDPEst+=ADP;
+          m_WrkDP.SetAtGrow(iWrkDP++, ADP);
+#if dbgFlwNets
+          if (dbgTraverseDistError())
+            dbgpln("sb[%4i] dp[%4i] ----------       %12.4f %12.4f", SrcPB.m_iNo, DstPB.m_iNo, SrcPB.PEst, m_P_HereLnk);
+#endif
+#endif
+          }
+          break;
+        case GFI_Lnk:
+          {
+          FlwBlk & FB=I->FB;
+          CPressBlk & SrcPB=I->SrcPB(GoFwd);
+          CPressBlk & DstPB=I->DstPB(GoFwd);
+
+          SrcPB.P=m_P_HereSafe;
+          SrcPB.PEst=m_P_HereLnk;
+
+          FB.SetQm(I->m_iSgn*Qm);
+
+          NDSTARTSW(&I->Nd, FSW_EvalFlowEquations);
+          flag HasEqns=I->Nd.EvalFlowEquations(FET_CalcDP, pNetProps, -1, 0, I->m_iLnkNo);
+          NDSTOPSW(&I->Nd, FSW_EvalFlowEquations);
+          if (ForceEvalFlow || HasEqns)
+            FB.EvalFlow(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, DstPB.P, "pl");
+
+          FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+          if (!I->AtEnd(GoFwd))
+            {
+            DstPB.P=m_P_HereSafe;
+            DstPB.PEst=m_P_HereLnk;
+            PEst=m_P_HereLnk;
+            }
+#if DISTERRORINTRAVERSE  
+          double ADP = fabs(m_P_HereLnk-SrcPB.PEst);
+          SumAbsDPEst+=ADP;
+          m_WrkDP.SetAtGrow(iWrkDP++, ADP);
+#if dbgFlwNets
+          if (dbgTraverseDistError())
+            dbgpln("sb[%4i] dp[%4i] ----------       %12.4f %12.4f", SrcPB.m_iNo, DstPB.m_iNo, SrcPB.PEst, m_P_HereLnk);
+#endif
+#endif
+          }
+          break;
+        case GFI_Join:
+          I->Join.m_PB.P=m_P_HereSafe;
+          I->Join.m_PB.PEst=m_P_Here;
+#if dbgFlwNets
+          if (DbgFlags & DBG_TraverseP)
+            {
+            if (DbgFlags & DBG_TraverseFBNos)
+              dbgp("         "); 
+            if (DbgFlags & DBG_TraversePBNos)
+              dbgp("pb[%4i]          ", I->Join.m_PB.m_iNo); 
+            dbgp("%s  %s        ", "      ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+
+            if (DbgFlags & DBG_Regulator)       
+              dbgp(" %2s %6s ", "", "");
+            dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,I->Join.m_PB.PEst);
+
+            if (DbgFlags & DBG_TraversePFxd)
+              dbgp(" %*s", PWide,"");
+            if (0) // PLnk
+              dbgp("LnkPress         ");
+            dbgp("   %*s",PWide,"");
+            dbgp("%*s ", RWide, "");
+            if (DbgFlags&DBG_DPa)
+              dbgp(" %*s",PWide,"");
+
+            if (DbgFlags&(DBG_DPb|DBG_DPz))
+              dbgp(" %*s",PWide,"");
+            if (DbgFlags&(DBG_DPdQ))
+              dbgp(" %*s",PWide,"");
+            dbgp("[");
+            if (DbgFlags&DBG_DPb)
+              dbgp("%*s",PWide,"");
+            if (DbgFlags&DBG_DPb)
+              dbgp(" %*s",PWide,"");
+            if (DbgFlags&DBG_DPz)
+              dbgp(" %*s",PWide,"");
+            if (DbgFlags&DBG_DPz)
+              dbgp(" %*s",PWide,"");
+            if (DbgFlags&DBG_DPz)
+              dbgp(" %*s",PWide,"");
+            if (DbgFlags&(DBG_DPdQ))
+              {
+              dbgp(" %*s",PWide,"");
+              dbgp(" %*s",PWide,"");
+              }
+            dbgp("])");
+            if (DbgFlags&DBG_Props)
+              dbgp("%*s %*s %*s %*s %*s ", DWide, "", DWide, "", DWide, "", DWide, "", DWide, "");
+            if (m_fTwoPhase)//DoMultiPhase)
+              {
+              dbgp("%7s ", "");
+              dbgp("%7s ", "");
+              }
+
+            if (DbgFlags&DBG_Phys)
+              {
+              dbgp("%12s ", "");
+              dbgp("%8s ", "");
+              dbgp("%8s ", "");
+              dbgp("%10s ", "");
+              }
+            dbgpln(" %20s[Jn %i]", I->Join.Nd()->Tag(), I->Join.m_iJoinId);
+            }
+#endif
+          break;
+        };
       };
-    };
 
-  if (m_fTopologyChanged)
-    {
-    m_pNet->fTopologyChanged=true;
-    m_pSubNet->fTopologyChanged=true;
-    }
+    if (m_fTopologyChanged)
+      {
+      m_pNet->fTopologyChanged=true;
+      m_pSubNet->fTopologyChanged=true;
+      }
 
-  if (Dst.IsIO())
-    {
-    m_Dst_P = Dst.m_pNd->IOP_Est_Self(Dst.m_iIONo);
-    Dst.m_pNd->Set_IOP_Self(Dst.m_iIONo, Max(LowPressure, m_Dst_P));
-    }
-  else
-    m_Dst_P = Dst.m_pJoin->m_PB.PEst;
+    if (Dst.IsIO())
+      {
+      m_Dst_P = Dst.m_pNd->IOP_Est_Self(Dst.m_iIONo);
+      Dst.m_pNd->Set_IOP_Self(Dst.m_iIONo, Max(LowPressure, m_Dst_P));
+      }
+    else
+      m_Dst_P = Dst.m_pJoin->m_PB.PEst;
 
-  m_End_P = (GoFwd ? m_Dst_P : m_Src_P);
+    m_End_P = (GoFwd ? m_Dst_P : m_Src_P);
 
-  // --- End Of Link
-  m_P_Err     = (m_P_Here - m_Dst_P)*m_PassDirn;
-  m_P_Applied = (m_Src_P-m_Dst_P)*m_PassDirn;
-  m_P_Mean    = (m_Src_P+m_Dst_P)*0.5;
-  m_PressDir  = ((m_Src_P-m_Dst_P+m_Sum_B)*m_PassDirn >=0.0 ? 1 : -1);
+    // --- End Of Link
+    m_P_Err     = (m_P_Here - m_Dst_P)*m_PassDirn;
+    m_P_Applied = (m_Src_P-m_Dst_P)*m_PassDirn;
+    m_P_Mean    = (m_Src_P+m_Dst_P)*0.5;
+    m_PressDir  = ((m_Src_P-m_Dst_P+m_Sum_B)*m_PassDirn >=0.0 ? 1 : -1);
 
-  m_Sum_dP      *= m_PassDirn;
-  m_Sum_B       *= m_PassDirn;
-
+    m_Sum_dP      *= m_PassDirn;
+    m_Sum_B       *= m_PassDirn;
 
 #if dbgFlwNets
-  if (DbgFlags & DBG_TraverseP)
-    {
-    if (DbgFlags & DBG_TraverseFBNos)
-      dbgp("         "); 
-    if (DbgFlags & DBG_TraversePBNos)
-      dbgp("pb[%4i]          ", Dst.m_pJoin->m_PB.m_iNo); 
-    dbgp("Dst Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
-    if (DbgFlags & DBG_Regulator)
-      dbgp(" %2s %6s ", "", "");
-    //dbgp(" %*s %#*.*f Est:%#*.*f ", QWide,"",PWide,PPrec,m_Dst_P, PWide,PPrec,m_Dst_P);
-    dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,m_Dst_P);
-
-    if (DbgFlags & DBG_TraversePFxd)
-      dbgp(" %*s", PWide,"");
-    if (0) // PLnk
-      dbgp("LnkPress         ");
-    dbgp("   %*s",PWide,"");
-    dbgp("%*s ", RWide, "");
-    if (DbgFlags&DBG_DPa)
-      dbgp(" %*s",PWide,"");
-
-    if (DbgFlags&(DBG_DPb|DBG_DPz))
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&(DBG_DPdQ))
-      dbgp(" %*s",PWide,"");
-    dbgp("[");
-    if (DbgFlags&DBG_DPb)
-      dbgp("%*s",PWide,"");
-    if (DbgFlags&DBG_DPb)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&DBG_DPz)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&DBG_DPz)
-      dbgp(" %*s",PWide,"");
-    if (DbgFlags&DBG_DPz)
-      dbgp("%*s",PWide,"");
-    if (DbgFlags&(DBG_DPdQ))
+    if (DbgFlags & DBG_TraverseP)
       {
-      dbgp(" %*s",PWide,"");
-      dbgp(" %*s",PWide,"");
+      if (DbgFlags & DBG_TraverseFBNos)
+        dbgp("         "); 
+      if (DbgFlags & DBG_TraversePBNos)
+        dbgp("pb[%4i]          ", Dst.m_pJoin->m_PB.m_iNo); 
+      dbgp("Dst Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+      if (DbgFlags & DBG_Regulator)
+        dbgp(" %2s %6s ", "", "");
+      //dbgp(" %*s %#*.*f Est:%#*.*f ", QWide,"",PWide,PPrec,m_Dst_P, PWide,PPrec,m_Dst_P);
+      dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,m_Dst_P);
+
+      if (DbgFlags & DBG_TraversePFxd)
+        dbgp(" %*s", PWide,"");
+      if (0) // PLnk
+        dbgp("LnkPress         ");
+      dbgp("   %*s",PWide,"");
+      dbgp("%*s ", RWide, "");
+      if (DbgFlags&DBG_DPa)
+        dbgp(" %*s",PWide,"");
+
+      if (DbgFlags&(DBG_DPb|DBG_DPz))
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&(DBG_DPdQ))
+        dbgp(" %*s",PWide,"");
+      dbgp("[");
+      if (DbgFlags&DBG_DPb)
+        dbgp("%*s",PWide,"");
+      if (DbgFlags&DBG_DPb)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&DBG_DPz)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&DBG_DPz)
+        dbgp(" %*s",PWide,"");
+      if (DbgFlags&DBG_DPz)
+        dbgp("%*s",PWide,"");
+      if (DbgFlags&(DBG_DPdQ))
+        {
+        dbgp(" %*s",PWide,"");
+        dbgp(" %*s",PWide,"");
+        }
+      dbgp("])");
+      if (DbgFlags&DBG_Props)
+        dbgp("%*s %*s %*s %*s %*s ", DWide, "", DWide, "", DWide, "", DWide, "", DWide, "");
+      if (m_fTwoPhase)//DoMultiPhase)
+        {
+        dbgp("%7s ", "");
+        dbgp("%7s ", "");
+        }
+
+      if (DbgFlags&DBG_Phys)
+        {
+        dbgp("%12s ", "");
+        dbgp("%8s ", "");
+        dbgp("%8s ", "");
+        dbgp("%10s ", "");
+        }
+      dbgpln(" %20s[%i]", Dst.m_pNd->FullObjTag(), Dst.m_pJoin->m_iJoinId);
+
+      dbgp(fabs(m_P_Err)<0.01?"Diff: %#*.*g":"Diff:%#*.*f", PWide,PPrec,m_P_Err*m_PassDirn);
+      bool LnkCnvgd=m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
+      dbgpln(fabs(Qm)<0.01||fabs(Qm)>=1.0e5?" @%*.*g %s":" @%*.*f %s",QWide,QPrec,Qm, LnkCnvgd?"":"<<<<<<<<<<<<<<< Not Converged");
+
+      dbgpln("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+        m_fGFTolsOK         ? "GFTolsOK ":"",
+        m_fGFNetTolsOK      ? "GFNetTolsOK ":"",
+        m_fGFRegTolOK       ? "GFRegTolOK ":"",
+        m_fGFHoldRegCvg     ? "GFHoldRegCvg ":"",
+        m_fDerivsBad        ? "DerivsBad ":"",
+        m_fFunctOfPress     ? "FunctOfPress ":"",
+        m_fEvalFwdOnly      ? "EvalFwdOnly ":"",
+        m_fEvalRevOnly      ? "EvalRevOnly ":"",
+        m_fMomentumValid    ? "MomentumValid ":"",
+        m_fFixedXfer        ? "FixedXfer ":"",
+        m_fFixedExternal    ? "FixedExternal ":"",
+        m_fInXferNet        ? "InXferNet ":"",
+        m_fUnDefined        ? "UnDefined ":"",
+        m_fTopologyChanged  ? "TopologyChanged ":"",
+        m_fChoked           ? "Choked ":"",
+        m_fSelfLoop         ? "SelfLoop ":"",
+        m_fUDFShut          ? "UDFShut ":"",
+        m_fTraverseFwd      ? "TraverseFwd ":"",
+        m_fIsBad            ? "IsBad ":"",
+        m_fSrcIsEdge        ? "SrcIsEdge ":"",
+        m_fDstIsEdge        ? "DstIsEdge ":"");
+
+      dbgpln("QmRqd: %-4s %-4s %s", m_fFixed?"Fxd":"   ", m_fHasDegFree?"DegF":"    ", DbgFltString(m_QmRqd,QPrec,QPrec,QWide));
+      dbgpln("QmReg: %-4s %-4s %s", "", "", DbgFltString(m_QmReg,QPrec,QPrec,QWide));
+      dbgpln("XfCap: %-4s %-4s %s", m_fFixedXfer?"Xfr":"   ", "", DbgFltString(m_QmXfCap,QPrec,QPrec,QWide));
+
+      if (dbgTraversePBlks())                                           
+        DbgDumpPBlks(GoFwd, true);
       }
-    dbgp("])");
-    if (DbgFlags&DBG_Props)
-      dbgp("%*s %*s %*s %*s %*s ", DWide, "", DWide, "", DWide, "", DWide, "", DWide, "");
-    if (m_fTwoPhase)//DoMultiPhase)
+#endif
+
+    //break; // <<<<<<<<<<
+
+#if DISTERRORINTRAVERSE  
+
+    //if (fabs(PrevError-m_P_Err)<1e-6)
+    //  break;
+    //PrevError=m_P_Err;
+
+#if dbgFlwNets
+    if (dbgTraverseDistError())
+      dbgpln("============= %12.4f", SumAbsDPEst);
+#endif
+
+    SumAbsDPEst=GTZ(SumAbsDPEst);
+    iWrkDP=0;
+    double P_HereLnk=m_Src_P;
+    for (int i=Fbs0; i!=FbsN; i+=FbsI)
       {
-      dbgp("%7s ", "");
-      dbgp("%7s ", "");
-      }
+      CGrpFlwIndex *I = m_FBSeq[i];
+      switch (I->m_eType)
+        {
+        case GFI_IO:
+          {
+          FlwBlk & FB=I->FB;
+          CPressBlk & SrcPB=I->SrcPB(GoFwd);
+          CPressBlk & DstPB=I->DstPB(GoFwd);
 
-    if (DbgFlags&DBG_Phys)
-      {
-      dbgp("%12s ", "");
-      dbgp("%8s ", "");
-      dbgp("%8s ", "");
-      dbgp("%10s ", "");
-      }
-    dbgpln(" %20s[%i]", Dst.m_pNd->FullObjTag(), Dst.m_pJoin->m_iJoinId);
+          SrcPB.P    = P_HereLnk;
+          SrcPB.PEst = P_HereLnk;
+          SrcPB.PMn  = P_HereLnk;
+          P_HereLnk += FB.m_DPEstFxdQm*(GoFwd?1:-1);
 
-    dbgp(fabs(m_P_Err)<0.01?"Diff: %#*.*g":"Diff:%#*.*f", PWide,PPrec,m_P_Err*m_PassDirn);
-    bool LnkCnvgd=m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
-    dbgpln(fabs(Qm)<0.01||fabs(Qm)>=1.0e5?" @%*.*g %s":" @%*.*f %s",QWide,QPrec,Qm, LnkCnvgd?"":"<<<<<<<<<<<<<<< Not Converged");
+          if (!I->AtEnd(GoFwd))
+            {
+            //P_HereLnk +=  m_P_Err*m_WrkDP[iWrkDP++]/SumAbsDPEst;
+            DstPB.P    = P_HereLnk;
+            DstPB.PEst = P_HereLnk;
+            DstPB.PMn  = P_HereLnk;
+            //DstPB.PEst = SrcPB.PEst + m_P_Err*m_WrkDP[iWrkDP++]/SumAbsDPEst;
+            //DstPB.PMn = DstPB.PEst;
+            }
+          //SumAbsDPEst+=fabs(DstPB.PEst-SrcPB.PEst);
+#if dbgFlwNets
+          if (dbgTraverseDistError())
+            dbgpln("sb[%4i] dp[%4i] ++++++++++       %12.4f %12.4f", SrcPB.m_iNo, DstPB.m_iNo, SrcPB.PEst, DstPB.PEst);
+#endif
+          }
+          break;
+        case GFI_Lnk:
+          {
+          FlwBlk & FB=I->FB;
+          CPressBlk & SrcPB=I->SrcPB(GoFwd);
+          CPressBlk & DstPB=I->DstPB(GoFwd);
 
-    dbgpln("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-      m_fGFTolsOK         ? "GFTolsOK ":"",
-      m_fGFNetTolsOK      ? "GFNetTolsOK ":"",
-      m_fGFRegTolOK       ? "GFRegTolOK ":"",
-      m_fGFHoldRegCvg     ? "GFHoldRegCvg ":"",
-      m_fDerivsBad        ? "DerivsBad ":"",
-      m_fFunctOfPress     ? "FunctOfPress ":"",
-      m_fEvalFwdOnly      ? "EvalFwdOnly ":"",
-      m_fEvalRevOnly      ? "EvalRevOnly ":"",
-      m_fMomentumValid    ? "MomentumValid ":"",
-      m_fFixedXfer        ? "FixedXfer ":"",
-      m_fFixedExternal    ? "FixedExternal ":"",
-      m_fInXferNet        ? "InXferNet ":"",
-      m_fUnDefined        ? "UnDefined ":"",
-      m_fTopologyChanged  ? "TopologyChanged ":"",
-      m_fChoked           ? "Choked ":"",
-      m_fSelfLoop         ? "SelfLoop ":"",
-      m_fUDFShut          ? "UDFShut ":"",
-      m_fTraverseFwd      ? "TraverseFwd ":"",
-      m_fIsBad            ? "IsBad ":"",
-      m_fSrcIsEdge        ? "SrcIsEdge ":"",
-      m_fDstIsEdge        ? "DstIsEdge ":"");
+          SrcPB.P    = P_HereLnk;
+          SrcPB.PEst = P_HereLnk;
+          SrcPB.PMn  = P_HereLnk;
+          P_HereLnk += FB.m_DPEstFxdQm*(GoFwd?1:-1);
 
-    dbgpln("QmRqd: %-4s %-4s %s", m_fFixed?"Fxd":"   ", m_fHasDegFree?"DegF":"    ", DbgFltString(m_QmRqd,QPrec,QPrec,QWide));
-    dbgpln("QmReg: %-4s %-4s %s", "", "", DbgFltString(m_QmReg,QPrec,QPrec,QWide));
-    dbgpln("XfCap: %-4s %-4s %s", m_fFixedXfer?"Xfr":"   ", "", DbgFltString(m_QmXfCap,QPrec,QPrec,QWide));
+          if (!I->AtEnd(GoFwd))
+            {
+            //P_HereLnk +=  m_P_Err*m_WrkDP[iWrkDP++]/SumAbsDPEst;
+            DstPB.P    = P_HereLnk;
+            DstPB.PEst = P_HereLnk;
+            DstPB.PMn  = P_HereLnk;
+            //DstPB.PEst = SrcPB.PEst + m_P_Err*m_WrkDP[iWrkDP++]/SumAbsDPEst;
+            //DstPB.PMn = DstPB.PEst;
+            }
+          //SumAbsDPEst+=fabs(DstPB.PEst-SrcPB.PEst);
+#if dbgFlwNets
+          if (dbgTraverseDistError())
+            dbgpln("sb[%4i] dp[%4i] ++++++++++       %12.4f %12.4f", SrcPB.m_iNo, DstPB.m_iNo, SrcPB.PEst, DstPB.PEst);
+#endif
+          //dbgpln("+++++++++++++ %12.4f %12.4f", SrcPB.PEst, DstPB.PEst);
+          }
+          break;
+        case GFI_Join:
+          I->Join.m_PB.P    = P_HereLnk;
+          I->Join.m_PB.PEst = P_HereLnk;
+          I->Join.m_PB.PMn  = P_HereLnk;
+          break;
+        };
+      };
+  //  }
 
-    if (dbgTraversePBlks())                                           
-      DbgDumpPBlks(GoFwd, true);
-    }
+  //if (iii<0)
+  //  LogWarning("FlwNets", 0, "RedistError Loop not Converged");
+
 #endif
 
 

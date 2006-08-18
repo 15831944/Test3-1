@@ -260,7 +260,7 @@ flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
     { int xxx=0; }
   #endif
 
-  bool BadDerivs=false;
+  flag BadDerivs=false;
 
   double MnVel=0;
   m_dDP=0;
@@ -280,6 +280,7 @@ flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
 
     double rhoArea = m_dDensMeas * PI * Sqr(Diam/2.0);
     
+    FE.SetArea(PI * Sqr(Diam/2.0));
     FE.SetVelMeasRange(m_dDensMeas, PI * Sqr(Diam/2.0), m_dLoLimVel);
     
     double Qm1  = FE.QmMeas();
@@ -293,7 +294,8 @@ flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
     m_dVelSonicMeas=Sqrt(1.4*FlngP*1000/GTZ(FE.MeanRhoV(pProps, FlngP)));
 
 
-    //dbgpln("DAR %10.2e %10.2e %10.2e %10.2e %10.2e %10.2e", FE.m_Qm, Qm1, dQm, Qm2, Vel1, Vel2);
+    //if (DoDbgBrk())
+    //  dbgpln("DAR %10.2e %10.2e %10.2e %10.2e %10.2e %10.2e", FE.m_Qm, Qm1, dQm, Qm2, Vel1, Vel2);
 
     if (Vel1>(4*m_dVelSonicMeas)) // catch ridiculous flows
       {
@@ -306,7 +308,6 @@ flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
       }
     m_dVelMeas=Vel1;
 
-    flag BadDerivs=false;
     double dPq2,dPq1;
     if (FE.Linearised())
       {
@@ -344,6 +345,15 @@ flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
     MnVel+=FE.GetQm()/rhoArea;
     m_dDP+=dPq1;
     iProp++;
+
+    if (DoDbgBrk())
+      {
+      dbgpln("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f",
+             P1,Vf,Lf,RhoL,RhoV,m_dDensMeas,m_dViscMeas,rhoArea,Qm1,dQm,Qm2,Vel1,Vel2,dPq1,dPq2,(dPq2 - dPq1)/dQm);
+      //dbgpln("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f",
+      //       P1,Vf,Lf,RhoL,RhoV,m_dDensMeas,m_dViscMeas,rhoArea,Qm1,QlFrac,QvFrac,dQm,Qm2,Vel1,Vel2);
+      }
+
     if (!pProps || pProps->m_bLastSegment)
       break;
     pProps++;
@@ -351,12 +361,8 @@ flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
 
   FE.SetDerivsBad(BadDerivs);
   FE.SetVelocity(MnVel/iProp, m_dVelSonicMeas);
+  //FE.SetFunctOfPress();
 
-//  if (this->DoDbgBrk())
-//    {
-//    dbgpln("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f",
-//           P1,Vf,Lf,RhoL,RhoV,m_dDensMeas,m_dViscMeas,rhoArea,Qm1,QlFrac,QvFrac,dQm,Qm2,Vel1,Vel2);
-//    }
   return True;
   };
 
@@ -417,6 +423,8 @@ void FE_Linear::SetPhysData(double DZ)
   {
 //  CFBPhysData &D=PhDCfg();
   SetActLength(Max(fabs(DZ), RqdLength()));
+  SetRise(DZ);
+
 //  D.SetDiam(Diam);
   };
 
@@ -598,6 +606,8 @@ void FE_Hazen::SetPhysData(double DZ)
   {
   //CFBPhysData &D=PhDCfg();
   SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+  SetRise(DZ);
+
   //D.SetDiam(Diam);
   };
 
@@ -706,6 +716,8 @@ void FE_Chmbr::SetPhysData(double DZ)
   {
 //  CFBPhysData &D=PhDCfg();
   SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+  SetRise(DZ);
+
   //D.SetDiam(Diam);
   };
 
@@ -799,6 +811,7 @@ Model type:Pipe Flow Equation#n
 //  {
 //  //CFBPhysData &D=PhDCfg();
 //  SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+//  SetRise(DZ);
 //  //D.SetDiam(Diam);
 //  };
 //
@@ -908,6 +921,7 @@ Model type:Pipe Flow Equation#n
 //  {
 //  //CFBPhysData &D=PhDCfg();
 //  SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+//  SetRise(DZ);
 //  //D.SetDiam(Diam);
 ////  D.dLength=Max(Max(fabs(DZ), Len_Rqd), 0.1*Diam);
 ////  D.dXLength=Len_Fit;
@@ -1042,6 +1056,7 @@ void FE_MRDM::SetPhysData(double DZ)
   {
  // CFBPhysData &D=PhDCfg();
   SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+  SetRise(DZ);
   //D.SetDiam(Diam);
 //  D.dLength=Max(Max(fabs(DZ), Len_Rqd), 0.1*Diam);
 //  D.dXLength=Len_Fit;
@@ -1242,6 +1257,7 @@ Model type:Pipe Flow Equation#n
 //  {
 //  //CFBPhysData &D=PhDCfg();
 //  SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+//  SetRise(DZ);
 //  //D.SetDiam(Diam);
 ////  D.dLength=Max(Max(fabs(DZ), Len_Rqd), 0.1*Diam);
 ////  D.dXLength=Len_Fit;
@@ -1372,6 +1388,7 @@ void FE_CompAir::SetPhysData(double DZ)
   {
  // CFBPhysData &D=PhDCfg();
   SetActLength(Max(Max(fabs(DZ), RqdLength()), 0.1*Diam()));
+  SetRise(DZ);
   //D.SetDiam(Diam);
 //#if WithOEP
 //  if (OEPOptions())
@@ -1407,7 +1424,15 @@ flag FE_CompAir::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
 
   FE.SetDPq(-FE.QmSign()*Rf*Sqr(FE.QmMeas())*FE.TotLength()*1e-3/wRho,
             -FE.QmSign()*2.0*Rf*FE.QmMeas()*FE.TotLength()*1e-3/wRho);
+  FE.SetDPz(FE.StaticHead(pProps), 0);
 
+    //if (DoDbgBrk())
+    //  {
+    //  dbgpln("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f",
+    //         P1,Vf,Lf,RhoL,RhoV,m_dDensMeas,m_dViscMeas,rhoArea,Qm1,dQm,Qm2,Vel1,Vel2,dPq1,(dPq2 - dPq1)/dQm);
+    //  //dbgpln("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f",
+    //  //       P1,Vf,Lf,RhoL,RhoV,m_dDensMeas,m_dViscMeas,rhoArea,Qm1,QlFrac,QvFrac,dQm,Qm2,Vel1,Vel2);
+    //  }
   return True;
   };
 
@@ -1469,6 +1494,7 @@ void FE_MSBackFill::SetPhysData(double DZ)
   {
 //  CFBPhysData &D=PhDCfg();
   SetActLength(Max(fabs(DZ), RqdLength()));
+  SetRise(DZ);
 //  D.SetDiam(Diam);
   };
 

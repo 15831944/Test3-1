@@ -6269,7 +6269,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
           {ScnTyp_Duration,     "Duration"},
           {ScnTyp_StopTime,     "StopTime"},
           {ScnTyp_Steps,        "Steps"},
-          //{RTT_SteadyState,  "SteadyState"},
+          {ScnType_SteadyState,  "SteadyState"},
           {0},
         };
       DDB.Long("Type",              "", DC_,          "",       xidScnType,         &FlwSlvNd, isParmStopped|SetOnChange, DDBTypes);
@@ -8934,7 +8934,7 @@ flag FlwSlvDyn::CheckStopRequired(CXM_TimeControl &CB, bool Starting, bool ShowM
   //  return true;
   //  }
   //else
-  if (/*SteadyReqdFlag() ||*/ (CB.m_ScnType==RTT_SteadyState))
+  if (gs_Exec.SteadyStateRqd() || (CB.m_ScnType==ScnType_SteadyState))
     {
     if (m_SSSteady>=m_SSStopCount)
       {

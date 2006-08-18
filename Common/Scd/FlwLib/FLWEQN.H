@@ -177,7 +177,11 @@ class CPressBlk
       //dbgpln("pb[%4i] PEst=%10.2f", m_iNo, m_PEst);
       m_PEst=P;     
       };
-    void      putPMn(double P)        { m_PMn=P;      };
+    void      putPMn(double P)        
+      { 
+      //dbgpln("pb[%4i] PMn=%12.4f>%12.4f", m_iNo, m_PMn, P);
+      m_PMn=P;      
+      };
     void      putPGood(double P)      { m_PGood=P;    };
     void      putPMax(float P)        { m_PMax=P;     };
     void      putPMaxLim(float P)     { m_PMaxLim=P;  };

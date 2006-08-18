@@ -31,7 +31,7 @@
 //
 //============================================================================
 
-#define WithOLDMAXFXDPRESS 0
+#define DISTERRORINTRAVERSE  01
 
 extern DllImportExport const double MinFxdQmDiff;
 extern DllImportExport const double ArrayReAnalyseRatio;
@@ -398,6 +398,10 @@ class CGrpFlwBlk
     double         m_dVPrevQm, m_dLPrevQm;
     double         m_dVResMtx, m_dLResMtx;
 
+    #if DISTERRORINTRAVERSE
+    CArray<double, double> m_WrkDP;
+    #endif
+    
     #ifdef _DEBUG
     dword          m_dwIterNo;
     long           m_nTraverse;

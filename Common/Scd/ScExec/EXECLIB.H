@@ -609,7 +609,7 @@ class DllImportExport CXM_Execute : public CXM_Header
 
 //-------------------------------------------------------------------------
 
-enum eScnTypes       { ScnTyp_Manual, ScnTyp_Duration, ScnTyp_StopTime, ScnTyp_Steps, RTT_SteadyState};
+enum eScnTypes       { ScnTyp_Manual, ScnTyp_Duration, ScnTyp_StopTime, ScnTyp_Steps, ScnType_SteadyState};
 enum eScnTermActions { ScnTA_None, ScnTA_Edit, ScnTA_Idle };
 enum eScnState       { Scn_Off, Scn_Start, Scn_Busy, Scn_Complete, Scn_Ignore };
 enum eScnContRest    { Scr_Continue, Scr_ReStart };

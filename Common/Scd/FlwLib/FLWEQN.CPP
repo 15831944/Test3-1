@@ -1712,6 +1712,11 @@ void CFlwBlkBase::StepFlowInfo()
     FlngPB().PMn=A*FlngPB().P + (1.0-A)*FlngPB().PMn;
     NodePB().PMn=A*NodePB().P + (1.0-A)*NodePB().PMn;
     }
+  else if (0) // Damping
+    {
+    FlngPB().PMn = 0.8*FlngPB().PMn+0.2*FlngPB().PEst;
+    NodePB().PMn = 0.8*NodePB().PMn+0.2*NodePB().PEst;
+    }
   else
     {
     FlngPB().PMn=FlngPB().P;
@@ -2047,13 +2052,12 @@ double CFlwBlkBase::StaticHead(CSpPropInfo *pProps)
       // This Equation is really only for Air
       double dRise=Rise();
       double dMeanT=MeanTemp(pProps);
-      double MeanP=0.5*(FlngPress()+NodePress());
+      //double MeanP=0.5*(FlngPB().PMn+NodePB().PMn);
 
-      double RhoHV=Sign(dRise)*(1.0-X)*MeanP/*ress()*/*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
+      double RhoHV=Sign(dRise)*(1.0-X)*MeanPress(0)*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
       double RhoHL=m_fApplyStaticHead ? dRise*X*9.81*p->m_dRhoL/1000.0 : 0.0;
 
-      dbgpln("StaticHead %10.4f %10.4f @%10.4f = %10.4f", FlngPress(), NodePress(), MeanPress(), -(RhoHV+RhoHL));
-
+      //dbgpln("fb[%4i] nb[%4i]:StaticHead       %12.4f %12.4f @%12.4f = %12.4f",FlngPB().m_iNo, NodePB().m_iNo, FlngPB().PMn, NodePB().PMn, MeanPress(), -(RhoHV+RhoHL));
 
       return -(RhoHV+RhoHL);
       }
