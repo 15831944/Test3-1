@@ -55,7 +55,7 @@ static ICrypKeySDKPtr s_ptr;
 //===========================================================================
 //=== Generic Code...
 
-#if (CK_USE6134 || CK_USE6525) 
+#if (CK_USE6134 || CK_USE6525)
 const char* LicINISection = "License61";
 #else
 const char* LicINISection = "License";
@@ -1237,11 +1237,19 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     //Error("Old Crypkey version (%d)", Ver);
     //return FALSE;
     }
-  else if (Ver!=61) //Ver 6.1 : September 2003
+#if CK_USE6134 
+  else if (Ver!=61) //Ver 6.1 : May 2006
     {//expect version 6.1
     Error("Incorrect Crypkey version (%d)", Ver);
     return FALSE;
     }
+#elif CK_USE6525
+  else if (Ver!=65) //Ver 6.5 : August 2006
+    {//expect version 6.5
+    Error("Incorrect Crypkey version (%d)", Ver);
+    return FALSE;
+    }
+#endif
 #endif
   m_bDidInitCrypkey = 1;
   return TRUE;

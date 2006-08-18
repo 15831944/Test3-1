@@ -665,11 +665,19 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     //Error("Old Crypkey version (%d)", Ver);
     //return FALSE;
     }
+#if CK_USE6134 
   else if (Ver!=61) //Ver 6.1 : May 2006
     {//expect version 6.1
     Error("Incorrect Crypkey version (%d)", Ver);
     return FALSE;
     }
+#elif CK_USE6525
+  else if (Ver!=65) //Ver 6.5 : August 2006
+    {//expect version 6.5
+    Error("Incorrect Crypkey version (%d)", Ver);
+    return FALSE;
+    }
+#endif
   bDidInitCrypkey = 1;
   return TRUE;
   }
