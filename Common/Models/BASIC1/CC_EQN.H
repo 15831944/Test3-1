@@ -31,6 +31,15 @@ XID xidGamma   = MdlBsXID(15999);
 class CC_EvalProducts
   {
   public:
+    CC_EvalProducts (TaggedObject * pThis);
+    ~CC_EvalProducts ();
+    void        BuildDataDefn(TaggedObject * pThis, DataDefnBlk & DDB);
+    flag        DataXchg(TaggedObject * pThis, DataChangeBlk & DCB);
+    flag        ValidateData(TaggedObject * pThis, ValidateDataBlk & VDB);
+    void        EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
+    double      ShaftPower() { return m_ShaftPower; };
+
+  public:
     enum        { IsoThermal, Adiabatic, PolyTropic };
     byte        m_Oper;
     //DualDbl     m_PVConst;
@@ -39,14 +48,6 @@ class CC_EvalProducts
     double      m_ShaftPower;
     double      m_MechEff;
     //double      m_AdiabaticEff;
-
-    CC_EvalProducts (TaggedObject * pThis);
-    ~CC_EvalProducts ();
-    void        BuildDataDefn(TaggedObject * pThis, DataDefnBlk & DDB);
-    flag        DataXchg(TaggedObject * pThis, DataChangeBlk & DCB);
-    flag        ValidateData(TaggedObject * pThis, ValidateDataBlk & VDB);
-    void        EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
-    double      ShaftPower() { return m_ShaftPower; };
   };
 
 // ===========================================================================
@@ -55,8 +56,6 @@ DEFINE_TAGOBJ(CC_FixQm);
 class CC_FixQm : public CFlwEqn, public CC_EvalProducts
   {
   public:
-    double         m_Reqd_Qm;
-
     CC_FixQm(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
 
     virtual ~CC_FixQm();
@@ -67,6 +66,10 @@ class CC_FixQm : public CFlwEqn, public CC_EvalProducts
     virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
     virtual double ShaftPower() { return CC_EvalProducts::ShaftPower(); };
+
+  public:
+    double         m_Reqd_Qm;
+
   };
 
 // ===========================================================================
@@ -75,7 +78,19 @@ DEFINE_TAGOBJ(CC_FixQv);
 class DllImportExport CC_FixQv : public CFlwEqn, public CC_EvalProducts
   {
   public:
+    CC_FixQv(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
 
+    virtual ~CC_FixQv();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
+    virtual void   StepFlowInfo(CFlwBlkBase & FE);
+    virtual double ShaftPower() { return CC_EvalProducts::ShaftPower(); };
+
+  public:
     flag           m_bAtInlet;
     double         m_dReqd_Qv;
     double         m_dMaxPress;
@@ -92,17 +107,6 @@ class DllImportExport CC_FixQv : public CFlwEqn, public CC_EvalProducts
     static double  sm_Damping;
     double         m_Damping;
 
-    CC_FixQv(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
-
-    virtual ~CC_FixQv();
-    virtual void   BuildDataDefn(DataDefnBlk & DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
-    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
-    virtual void   StepFlowInfo(CFlwBlkBase & FE);
-    virtual double ShaftPower() { return CC_EvalProducts::ShaftPower(); };
   };
 
 // ===========================================================================
@@ -111,8 +115,6 @@ DEFINE_TAGOBJ(CC_FixBst);
 class CC_FixBst : public CFlwEqn, public CC_EvalProducts
   {
   public:
-    double         m_P_Boost;
-
     CC_FixBst(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
 
     virtual ~CC_FixBst();
@@ -123,6 +125,44 @@ class CC_FixBst : public CFlwEqn, public CC_EvalProducts
     virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
     virtual double ShaftPower() { return CC_EvalProducts::ShaftPower(); };
+
+  public:
+    double         m_P_Boost;
+  };
+
+// ===========================================================================
+
+DEFINE_TAGOBJ(CC_FixBstRes);
+class CC_FixBstRes : public CFlwEqn, public CC_EvalProducts
+  {
+  public:
+    CC_FixBstRes(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
+
+    virtual ~CC_FixBstRes();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
+    virtual double ShaftPower() { return CC_EvalProducts::ShaftPower(); };
+
+  public:
+    double         m_P_Boost;
+    double         m_P_Res_factor;
+    double         m_Inp_Imp;
+    double         m_In_Rho;
+    double         m_Dsn_VFlw;
+    double         m_Dsn_MFlw;
+    double         m_Dsn_PRatio;
+    double         m_Act_PRatio;
+    double         m_PIn;
+    double         m_POut;
+    double         m_P1;
+    double         m_F1;
+    double         m_P2;
+    double         m_F2;
+    double         m_FEst;
   };
 
 // ===========================================================================
@@ -131,8 +171,6 @@ DEFINE_TAGOBJ(CC_FixHd);
 class CC_FixHd : public CFlwEqn, public CC_EvalProducts
   {
   public:
-    double         m_P_Head;
-
     CC_FixHd(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
 
     virtual ~CC_FixHd();
@@ -143,6 +181,10 @@ class CC_FixHd : public CFlwEqn, public CC_EvalProducts
     virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
     virtual double ShaftPower() { return CC_EvalProducts::ShaftPower(); };
+
+  public:
+    double         m_P_Head;
+
   };
 
 // ===========================================================================
@@ -156,6 +198,22 @@ DEFINE_TAGOBJ(CC_DataBase);
 #endif
 class CC_DataBase : public CFlwEqn
   {
+  public:
+    CC_DataBase(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
+
+    virtual ~CC_DataBase();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual void   StepFlowInfo(CFlwBlkBase &FE);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
+    virtual double ShaftPower() { return dShaftPower; };
+
+  protected:
+    virtual double BstAt(double Qv, rSpConduit C);
+
   public:
     PC_DBase       PDB;
     double         dShaftPower, dEfficiency;
@@ -172,20 +230,6 @@ class CC_DataBase : public CFlwEqn
 
     DDBValueLstMem DDBPumpList;
 
-    CC_DataBase(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
-
-    virtual ~CC_DataBase();
-    virtual void   BuildDataDefn(DataDefnBlk & DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   StepFlowInfo(CFlwBlkBase &FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
-    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
-    virtual double ShaftPower() { return dShaftPower; };
-
-  protected:
-    virtual double BstAt(double Qv, rSpConduit C);
   };
 
 // ===========================================================================
@@ -205,6 +249,18 @@ class DllImportExport CC_DataBaseEdt : public PC_DataBaseEdt
 DEFINE_TAGOBJ(CC_FixQvAGA);
 class DllImportExport CC_FixQvAGA : public CFlwEqn
   {
+  public:
+    CC_FixQvAGA(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
+
+    virtual ~CC_FixQvAGA();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
+    virtual void   StepFlowInfo(CFlwBlkBase & FE);
+    virtual double ShaftPower() { return m_dShaftPower; };
+
   public:
     flag           m_bAtInlet;
     double         m_dReqd_Qv;
@@ -228,16 +284,6 @@ class DllImportExport CC_FixQvAGA : public CFlwEqn
     double         m_dMaxPSlew;
     double         m_dMaxNdPress;
 
-    CC_FixQvAGA(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
-
-    virtual ~CC_FixQvAGA();
-    virtual void   BuildDataDefn(DataDefnBlk & DDB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
-    virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
-    virtual void   StepFlowInfo(CFlwBlkBase & FE);
-    virtual double ShaftPower() { return m_dShaftPower; };
   };
 
 // ===========================================================================

@@ -425,7 +425,8 @@ CC_FixBst::~CC_FixBst()
 
 void CC_FixBst::BuildDataDefn(DataDefnBlk & DDB)
   {
-  DDB.Double ("", "Boost",       DC_DP,    "kPa", &m_P_Boost,     this  ,isParm);
+  DDB.Double ("", "Boost",        DC_DP,    "kPa",  &m_P_Boost,       this, isParm);
+
   CC_EvalProducts::BuildDataDefn(this, DDB);
   }
 
@@ -461,6 +462,166 @@ flag CC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBl
 void CC_FixBst::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB)
   {
   CC_EvalProducts::EvalProducts(FE, Pi, Po, FTB);
+  //SpConduit &C=FE.Cd();
+  //Pi=Max(1.0,Pi);
+  //Po=Max(1.0,Po);
+
+  //double Tin=C.Temp();
+  //double MoleWt=Max(1.0, C.MoleWt(som_ALL));
+  //double R=8314.0/MoleWt;
+
+  //// The following is from Perry (99) section 10-37
+  //double Qm=C.QMass();
+  //double Qv=C.QVolume();
+  //double X=Pow(Po/GTZ(Pi), (m_Gamma-1)/m_Gamma)-1.0;
+  //double AdiabaticHead=m_Gamma/(m_Gamma-1)*R*Tin*(X-1.0);                       // (10-64a)
+  //double AdiabaticPowerM=AdiabaticHead*C.QMass()/**9.806*//1e3;           // (10-65a) this 9.806 seems to be incorrect
+  //double AdiabaticPowerV=2.777778e-4*m_Gamma/(m_Gamma-1)*C.QVolume()*3600*Pi*X; // (10-66a)
+  //double ToutIdeal=Tin*(X+1);                                             // (10-77)
+  //double ToutActual=Tin*(X/m_dAdiabaticEff+1);
+  //double dHIdeal=C.totHf(som_ALL, ToutIdeal, Po)-C.totHf();
+  //double dHActual=C.totHf(som_ALL, ToutActual, Po)-C.totHf();
+  //FTB.AddExpPower(dHIdeal, Po);
+  //FTB.AddWorkPower(dHActual-dHIdeal, Po);
+
+  //m_dShaftPower=dHActual/m_MechEff;
+  }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+/*#D:#T:Fixed Boost for gas pump
+#X:#n#u<#l<#b<General Description>>>#PThis allows the user to set the required pressure boost
+of the pump.
+#P#u<#l<#b<Variables to be supplied by the user>>>#n
+#p#b<Boost :>#NThe required pressure boost of the pump, in kiloPascals.
+The default is 100 kPa
+#n
+#n#h<Other>#n
+Short name:CC_FixPB#n
+Model type:Gas Pump Flow Equation#n
+#G:Gas Pump Flow Equations
+*/
+
+IMPLEMENT_FLWEQN(CC_FixBstRes, GasPumpGroup.Name(), "CC_FixPBRes", "", TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+                 "Fixed Boost with Resistance",
+                 "Fixed Boost with Resistance Model for a Gas Pump");
+
+CC_FixBstRes::CC_FixBstRes(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach) :
+  CFlwEqn(pClass_, pTag, pAttach, eAttach),
+  CC_EvalProducts(pAttach)
+  {
+  m_P_Boost=100.0;
+  m_P_Res_factor=0.0;
+  m_Inp_Imp = 0.0;
+  m_In_Rho;
+  m_Dsn_VFlw = 100.0;
+  m_Dsn_MFlw;
+  m_Dsn_PRatio = 8.0;
+  m_Act_PRatio;
+  m_PIn;
+  m_POut;
+  m_P1;
+  m_F1;
+  m_P2;
+  m_F2;
+  m_FEst;
+  }
+
+//--------------------------------------------------------------------------
+
+CC_FixBstRes::~CC_FixBstRes()
+  {
+  }
+
+//--------------------------------------------------------------------------
+
+void CC_FixBstRes::BuildDataDefn(DataDefnBlk & DDB)
+  {
+  DDB.Double ("", "Boost",        DC_DP,    "kPa",  &m_P_Boost,       this, isParm);
+  DDB.Double ("", "Res_Factor",   DC_,      "",     &m_P_Res_factor,  this, isResult|0);
+  DDB.Double ("", "Net_Imp",      DC_,      "",     &m_Inp_Imp,       this, isResult|0);
+  DDB.Double ("", "Inlet_Rho",    DC_,      "",     &m_In_Rho,        this, isResult|0);
+  DDB.Double ("", "Dsn_VFlw",     DC_Qv,    "L/s",  &m_Dsn_VFlw,      this, isParm);
+  DDB.Double ("", "Dsn_MFlw",     DC_Qm,    "kg/s", &m_Dsn_MFlw,      this, isResult|0);
+  DDB.Double ("", "Dsn_PRatio",   DC_,      "",     &m_Dsn_PRatio,    this, isParm);
+  DDB.Double ("", "Act_PRatio",   DC_,      "",     &m_Act_PRatio,    this, isResult|0);
+  DDB.Double ("", "Inlet_P",      DC_DP,    "kPa",  &m_PIn,           this, isResult|0);
+  DDB.Double ("", "Outlet_P",     DC_DP,    "kPa",  &m_POut,          this, isResult|0);
+
+  DDB.Double ("", "Top_P",      DC_DP,      "kPa",  &m_P1,            this, isParm);
+  DDB.Double ("", "Top_Flw",    DC_Qv,      "L/s",  &m_F1,            this, isParm);
+
+  DDB.Double ("", "Bot_P",      DC_DP,      "kPa",  &m_P2,            this, isParm);
+  DDB.Double ("", "Bot_Flw",    DC_Qv,      "L/s",  &m_F2,            this, isParm);
+
+  DDB.Double ("", "Sys_Flw",    DC_Qv,      "L/s",  &m_FEst,            this, isResult|0);
+
+
+  CC_EvalProducts::BuildDataDefn(this, DDB);
+  }
+
+//--------------------------------------------------------------------------
+
+flag CC_FixBstRes::DataXchg(DataChangeBlk & DCB)
+  {
+  return CFlwEqn::DataXchg(DCB) && CC_EvalProducts::DataXchg(this, DCB);
+  };
+
+//--------------------------------------------------------------------------
+
+flag CC_FixBstRes::ValidateData(ValidateDataBlk & VDB)
+  {
+  return CC_EvalProducts::ValidateData(this, VDB);
+  }
+
+//--------------------------------------------------------------------------
+
+flag CC_FixBstRes::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+  {
+  Regulation=Range(0.0, Regulation, 2.0);
+
+  FE.SetQmMeasRange(FE.MeanRho(pProps), 0.01);
+  FE.SetQmFree();
+  FE.SetDPb(m_P_Boost*Regulation, 0.0);
+  FE.SetDPq(m_P_Res_factor*fabs(FE.QmMeas()), 0.0);
+
+
+//FE.SetDPq(Ka*Sqr(FE.QmMeas()), 2.0*Ka*FE.QmMeas())
+
+  return True;
+  }
+
+//--------------------------------------------------------------------------
+
+void CC_FixBstRes::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB)
+  {
+  CC_EvalProducts::EvalProducts(FE, Pi, Po, FTB);
+  SpConduit &C=FE.Cd();
+  double Qm = fabs(C.QMass());
+  m_FEst = m_F2 + (m_F1 - m_F2) * (Po - m_P2)/(m_P1 - m_P2);
+  m_Dsn_MFlw = m_FEst * C.Rho();
+
+  m_In_Rho = C.Rho();
+  if (Qm > 1e-6) 
+    m_Inp_Imp = Po / Qm;
+  else
+    m_Inp_Imp = dNAN;
+
+  m_P_Res_factor = 0.9 * m_P_Res_factor + 0.1 * (m_P_Boost - m_Inp_Imp * m_Dsn_MFlw) / m_Dsn_MFlw;
+
+  m_PIn = Pi;
+  m_POut = Po;
+  if (m_PIn > 1e-6)
+     m_Act_PRatio = m_POut / m_PIn;
+  else
+    m_Act_PRatio = dNAN;
+
+
+
+
   //SpConduit &C=FE.Cd();
   //Pi=Max(1.0,Pi);
   //Po=Max(1.0,Po);
@@ -1178,12 +1339,21 @@ if (Rqd_MassFlw < MinQm)
     {
     FE.SetQmReqd(0.0, true, (float)m_dMaxNdPress);
     }
-  FE.SetDPb(0.0, 0.0);
-  FE.SetDPq(0.0, 0.0);
+//test boost kcg
+
+ FE.SetQmFree();
+  FE.SetDPb(m_dMaxPress*Regulation, 0.0);
+  FE.SetDPq(m_dCrvDmp*fabs(FE.QmMeas()), 0.0);
+
+//
+//  FE.SetDPb(0.0, 0.0);
+//  FE.SetDPq(0.0, 0.0);
   return true;
   }
 
 //--------------------------------------------------------------------------
+
+
 
 void CC_FixQvAGA::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB)
   {
@@ -1194,13 +1364,16 @@ void CC_FixQvAGA::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwTherm
   double PSrgMax = m_dSrgRatio * Pi;
 
  // double SrgFlowFactor=0.5;
-
+  m_dSrgFlwF = C.QMass()/ GTZ(C.Rho())  / m_dReqd_Qv;
+//  CC_EvalProducts::EvalProducts(FE, Pi, Po, FTB);
 
   // kcg Linear for testing and initial will put real curves in at some stage
   // and a smooth anti surge control have avoid the negative gradient down surge line
   double DsnPower = Pi*m_dReqd_Qv*log(m_dOpRatio)/m_dEfficiency;
 //  double Rho= C.
   m_dStCnt = m_dStCnt + 1.0;
+
+/*
   if (m_dReqd_Qv> 0.001)
 
     {
@@ -1252,11 +1425,14 @@ void CC_FixQvAGA::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwTherm
     C.SetTemp(303.0);
 */
     }
+/*
   else
     {
     m_dShaftPower=0.0;
     }
-  }
+*/
+//  CC_EvalProducts::EvalProducts(FE, Pi, Po, FTB);
+//  }
 
 //--------------------------------------------------------------------------
 
