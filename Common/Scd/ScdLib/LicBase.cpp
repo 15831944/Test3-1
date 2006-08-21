@@ -1244,7 +1244,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     return FALSE;
     }
 #elif CK_USE6525
-  else if (Ver!=65) //Ver 6.5 : August 2006
+  else if (Ver!=65 && Ver!=65) //Ver 6.5 : August 2006 // CNM ???????
     {//expect version 6.5
     Error("Incorrect Crypkey version (%d)", Ver);
     return FALSE;
