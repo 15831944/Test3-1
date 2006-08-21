@@ -328,7 +328,13 @@ class CExploreScd : public CDialog
     CXTClassArray         m_Classes;
     CXTClassMap           m_ClassMap;
 
-    HTREEITEM InsertItem( LPCTSTR lpszItem, int nImage, LPARAM lParam, HTREEITEM hParent, HTREEITEM hInsertAfter=TVI_LAST);
+    HTREEITEM    InsertItem( LPCTSTR lpszItem, int nImage, LPARAM lParam, HTREEITEM hParent, HTREEITEM hInsertAfter=TVI_LAST);
+
+    static const int ODC_Left = 1;
+    static const int ODC_Right = 2;
+    static const int ODC_Select = 3;
+
+    void         OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where);
 
     DECLARE_MESSAGE_MAP()
   public:

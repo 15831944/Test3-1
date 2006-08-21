@@ -2074,16 +2074,12 @@ void CExploreScd::DeletePage(CXTPage * pPage)
 
 //--------------------------------------------------------------------------
 
-void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
+void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
   {
   LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 
   HTREEITEM hSel = m_Tree.GetSelectedItem();
-  if (m_ChangeBusy==0 && 
-    hSel && 
-    m_Tree.GetItemData(hSel)!=0 
-    // && pNMTreeView->action==TVC_BYMOUSE*/
-    )//>(DWORD)20)
+  if (m_ChangeBusy==0 &&  hSel && m_Tree.GetItemData(hSel)!=0 /* && pNMTreeView->action==TVC_BYMOUSE*/ )
     {
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
@@ -2111,7 +2107,6 @@ void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
       case TrID_Nd: // NOdes
         {
         CString Txt = m_Tree.GetItemText(hSel);
-        gs_AccessWnds.AccessNode(-1, Txt); 
         CXTTag *pTag;
         if (m_TagMap.Lookup(Txt, pTag))
           {
@@ -2129,6 +2124,7 @@ void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
             gs_pPrj->m_bGrfMoveCursor=GMC;
             }
           }
+        //gs_AccessWnds.AccessNode(-1, Txt); 
         break;
         }
       }
@@ -2138,9 +2134,15 @@ void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
   *pResult = 0;
   }
 
+
 void CExploreScd::OnNMClickTree(NMHDR *pNMHDR, LRESULT *pResult)
   {
-  *pResult = 0;
+  OnDoClicks(pNMHDR, pResult, 0);
+  }
+
+void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
+  {
+  OnDoClicks(pNMHDR, pResult, ODC_Select);
   }
 
 void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
