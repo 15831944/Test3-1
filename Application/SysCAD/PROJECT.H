@@ -391,7 +391,7 @@ class DllImportExport CProjectSettings
   {
   public:
 
-    CProjectSettings();
+    CProjectSettings(CHistSettings & Hst);
     ~CProjectSettings();
 
     void          ClearSettings();
@@ -513,7 +513,7 @@ class DllImportExport CProjectSettings
 
     //DWORD            m_dwArcManagerOptions;    //Archive manager name
 
-    CHistSettings    m_Hst;
+    CHistSettings    & m_Hst;
 
     struct  tSolverSettings 
       {

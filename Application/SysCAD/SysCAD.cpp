@@ -1704,7 +1704,7 @@ BOOL CSysCADApp::InitInstance()
 #if WITHNETSERVER
   pCS_Mngr = new CCS_Manager;
 #endif
-  HstMngr.CreateTheHistEO();
+  gs_HstMngr.CreateTheHistEO();
   gs_pPrj  = new CProject;
 
   MainWnd()->EO_Register(pExecName_MainWnd, EOWrite_Msg, 0, 0);
@@ -1862,7 +1862,7 @@ int CSysCADApp::ExitInstance()
     delete gs_pPrj;
     gs_pPrj = NULL;
     //delete pTagDB;
-    HstMngr.DestroyTheHistEO();
+    gs_HstMngr.DestroyTheHistEO();
 #if WITHNETSERVER
     delete pCS_Mngr;
 #endif
@@ -2737,7 +2737,8 @@ void CSysCADApp::OnProjectEditSettings()
       OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, true, NULL, (gs_pPrj && gs_pPrj->pPrjDoc)))
       return; // Edit cancelled
 
-    CProjectSettings Sets;
+    CHistSettings Hst;
+    CProjectSettings Sets(Hst);
     CProfINIFile PF(PrjFile);
     Sets.ReadSettings(PF, 10000);
     if (Sets.EditSettings("Edit Project Settings", NULL))

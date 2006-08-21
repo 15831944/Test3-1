@@ -825,7 +825,7 @@ void CHistPage::LoadInfo()
 void CHistPage::SaveInfo()
   {
   m_pSet->m_Hst.sHistorianName = m_HstName.GetBuffer(0);
-  //m_pSet->m_Hst.SetHstOn(m_HstOn);
+  m_pSet->m_Hst.m_OnRqd=m_HstOn;
   m_pSet->m_Hst.lHstEvFileSize = Max(64L, (((m_FileSize-1)/64L)+1)*64L);
   m_pSet->m_Hst.lHstSlotNoEstimate = Max(100L, m_SlotNoEst);
   m_pSet->m_Hst.sHstCatDir.FnContract((char*)(const char*)m_CatDir);
@@ -1453,7 +1453,7 @@ void CModesPage::OnOK()
         {
         flag ScrollTrendsToEnd = false;
        
-        if (m_pPrj && HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
+        if (m_pPrj && gs_HstMngr.HstOpen()/*HstOn()*/ && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
           {
           switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
             {
@@ -2079,7 +2079,7 @@ void CGrfTagsPage::OnOK()
       //  {
 //        flag ScrollTrendsToEnd = false;
 //       
-//        if (m_pPrj && HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
+//        if (m_pPrj && gs_HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
 //          {
 //          switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
 //            {

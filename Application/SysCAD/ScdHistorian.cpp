@@ -35,10 +35,10 @@ STDMETHODIMP CScdHistorian::Delete(void)
   {
   appSCD_COMENTRY(long)
     {
-    if (HstMngr.HstOpen())
-      HstMngr.DoClose();
-    HstMngr.DoDeleteHistorian();
-    HstMngr.DoOpenHistorian();
+    if (gs_HstMngr.HstOpen())
+      gs_HstMngr.DoClose();
+    gs_HstMngr.DoDeleteHistorian();
+    gs_HstMngr.DoOpenHistorian();
     }
   SCD_COMEXIT
   }
@@ -48,7 +48,7 @@ STDMETHODIMP CScdHistorian::RecordTags(BSTR bsTagFileName)
   appSCD_COMENTRY(long)
     {
     SCD_LclStr(TagFileName, bsTagFileName);
-    if (!HstMngr.KeepHistoryFile((LPSTR)TagFileName))
+    if (!gs_HstMngr.KeepHistoryFile((LPSTR)TagFileName))
       Scd.ReturnH(E_FAIL);
     }
   SCD_COMEXIT
@@ -58,10 +58,10 @@ STDMETHODIMP CScdHistorian::DeleteData(void)
   {
   appSCD_COMENTRY(long)
     {
-    if (HstMngr.HstOpen())
-      HstMngr.DoClose();
-    HstMngr.DoDeleteDataFiles();
-    HstMngr.DoOpenHistorian();
+    if (gs_HstMngr.HstOpen())
+      gs_HstMngr.DoClose();
+    gs_HstMngr.DoDeleteDataFiles();
+    gs_HstMngr.DoOpenHistorian();
     }
   SCD_COMEXIT
   }
@@ -87,7 +87,7 @@ STDMETHODIMP CScdHistorian::ExtractData(BSTR bsFileName, eScdTimeFormat Fmt, VAR
           if (SUCCEEDED(hr))
             {
             StartTm=T.dblVal;
-            HstMngr.QueryToFile((LPSTR)FileName, StartTm, Duration, Interval);
+            gs_HstMngr.QueryToFile((LPSTR)FileName, StartTm, Duration, Interval);
             }
           else
             Scd.ReturnH(hr);
@@ -100,7 +100,7 @@ STDMETHODIMP CScdHistorian::ExtractData(BSTR bsFileName, eScdTimeFormat Fmt, VAR
             {
             if (Date1900VarToSecs(T, &StartTm))
               {
-              HstMngr.QueryToFile((LPSTR)FileName, StartTm, Duration, Interval);
+              gs_HstMngr.QueryToFile((LPSTR)FileName, StartTm, Duration, Interval);
               }
             //else
             //  Scd.ReturnH(?hr);

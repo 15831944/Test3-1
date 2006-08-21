@@ -2678,7 +2678,7 @@ void CHistSettings::ReadSettings(CProfINIFile & PF)
   dHstMidTimeFactor   = PF.RdDouble("Historian", "MidTimeFactor", dHstMidTimeFactor);
 
 
-  //HstMngr.SetHstOn(PF.RdLong("Historian", "On", 1) != 0);
+  //gs_HstMngr.SetHstOn(PF.RdLong("Historian", "On", 1) != 0);
   }
 
 //---------------------------------------------------------------------------
@@ -2707,28 +2707,12 @@ void CHistSettings::WriteSettings(CProfINIFile & PF)
 
   }
 
-//---------------------------------------------------------------------------
-
-void CHistSettings::PutSettings(CHistSettings & Sets)
-  {
-  *((CHistSettings*)this)=Sets;
-  HstMngr.SetHstOn(Sets.m_OnRqd);
-  }
-
-//---------------------------------------------------------------------------
-
-void CHistSettings::GetSettings(CHistSettings & Sets)
-  {
-  Sets=*((CHistSettings*)this);
-  Sets.m_OnRqd = HstMngr.HstOn();
-  }
-
 //===========================================================================
 
 CHistorianMngr::CHistorianMngr()
   {
   pExecObj = NULL;
-  bHstOn = 0;
+  //bHstOn = 0;
   bHstOpen = 0;
 
   lLicMaxHistSizeAllowed = 640;
@@ -2864,7 +2848,7 @@ bool CHistorianMngr::DoOpenHistorian(bool ShowBusyDlg/*=false*/)
   switch (RetCode)
     {
     case 0:
-      //gs_Exec.SetTime(HstMngr.GetLastTime());// + 0.001);// CNM 10.0);
+      //gs_Exec.SetTime(gs_HstMngr.GetLastTime());// + 0.001);// CNM 10.0);
       return true;
       break;
     case HST_ERR_OPENHED:
@@ -2943,7 +2927,7 @@ bool CHistorianMngr::DoDeleteHistorian()
 
 void CHistorianMngr::DoFetchStats(char* Filename)
   {
-  if (bHstOn && pHistory)
+  if (bHstOpen && pHistory)
     pHistory->FetchStats(Filename);
   }
 
@@ -2951,7 +2935,7 @@ void CHistorianMngr::DoFetchStats(char* Filename)
 
 void CHistorianMngr::DoResetStats()
   {
-  if (bHstOn && pHistory)
+  if (bHstOpen && pHistory)
     pHistory->ResetStats();
   }
 
@@ -2959,7 +2943,7 @@ void CHistorianMngr::DoResetStats()
 
 bool CHistorianMngr::KeepHistoryFile(char* pFilename)
   {//add list of tags in specified file to list of tags to be recorded
-  if (bHstOn && pHistory && bHstOpen && pFilename)
+  if (bHstOpen && pHistory && bHstOpen && pFilename)
     {
     CXM_Route HRoute;
     if (pExecObj->XFindObject(pExecName_Historian, HRoute))
@@ -2979,7 +2963,7 @@ bool CHistorianMngr::KeepHistoryFile(char* pFilename)
 DWORD CHistorianMngr::HistoryExists(char* pTag)
   {
   DWORD RetCode = 0;
-  if (bHstOn && pHistory && bHstOpen && pTag)
+  if (bHstOpen && pHistory && bHstOpen && pTag)
     {
     CXM_Route HRoute;
     if (pExecObj->XFindObject(pExecName_Historian, HRoute))
@@ -2997,7 +2981,7 @@ DWORD CHistorianMngr::HistoryExists(char* pTag)
 
 void CHistorianMngr::BrowseTags()
   {
-  if (bHstOn && pHistory && bHstOpen)
+  if (bHstOpen && pHistory && bHstOpen)
     {
     CXM_Route HRoute;
     if (pExecObj->XFindObject(pExecName_Historian, HRoute))
@@ -3033,7 +3017,7 @@ void CHistorianMngr::QueryToFile(char* pFile, double StartTime, double Duration,
   Strng FilenameTags = pFile;
   FilenameTags += "_tags.csv";
   byte FileMode = 1;
-  if (bHstOn && pHistory && bHstOpen)
+  if (bHstOpen && pHistory && bHstOpen)
     {
     //CQueryDlg* pDlg = new CQueryDlg(pTrnd, this, ST, ET);
     CXM_Route HRoute;
@@ -3053,7 +3037,7 @@ void CHistorianMngr::QueryToFile(char* pFile, double StartTime, double Duration,
 bool CHistorianMngr::LicenseExceeded(long LicMaxHistSizeAllowed, UINT LicMaxHistFilesAllowed)
   {
   return (pHistory &&
-          bHstOn &&
+          //bHstOn &&
           bHstOpen &&
           (pHistory->iFilesMin!=pHistory->iFilesMax ||
            pHistory->iFilesMax>LicMaxHistFilesAllowed ||
@@ -3071,19 +3055,19 @@ double CHistorianMngr::GetLastTime()
 
 bool CHistorianMngr::IsOn()
   {
-  return (bHstOn && pHistory);
+  return (bHstOpen && pHistory);
   }
 
 //---------------------------------------------------------------------------
 
 bool CHistorianMngr::IsOpen()
   {
-  return (bHstOn && pHistory && bHstOpen);
+  return (bHstOpen && pHistory && bHstOpen);
   }
 
 //---------------------------------------------------------------------------
 
-CHistorianMngr HstMngr; //the global class for historian access
+CHistorianMngr gs_HstMngr; //the global class for historian access
 
 #endif
 //===========================================================================

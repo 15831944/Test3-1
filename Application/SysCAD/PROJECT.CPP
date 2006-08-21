@@ -1142,7 +1142,7 @@ static char * FnPathRelContract(char * Fn)
 //
 //===========================================================================
 
-CProjectSettings::CProjectSettings()
+CProjectSettings::CProjectSettings(CHistSettings & Hst) : m_Hst(Hst)
   {
   ClearSettings();
   };
@@ -1227,7 +1227,7 @@ void CProjectSettings::ClearSettings()
   bDrvStartFBKCheck=FBKCheckNever;
 #endif
   m_lStatsRefreshCnt=5L;
-  //HstMngr.SetHstOn(true);
+  m_Hst.m_OnRqd=true;
   m_ReportInfo.iHSearchLen = 10;
   m_ReportInfo.iVSearchLen = 100;
   m_ReportInfo.sNan = "*";
@@ -1861,8 +1861,8 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
   PF.WrInt("Trend", "GlobalTrackingTime",         m_GTBTrackingTime);
 
 
-  //HstMngr.GetOnRqd();
-  HstMngr.WriteSettings(PF);
+  //gs_HstMngr.GetOnRqd();
+  gs_HstMngr.WriteSettings(PF);
 
 #if WITHDRVMAN
   PF.WrStr("DrvManager", "Name", sDrvManagerName());
@@ -2059,7 +2059,7 @@ bool CProject::sm_SysCADInited=false;
 
 //---------------------------------------------------------------------------
 
-CProject::CProject()
+CProject::CProject() : CProjectSettings(gs_HstMngr)
   {
   SetNewPrjFileVerNo(LatestPrjFileVer);
 
@@ -2175,7 +2175,7 @@ void CProject::Clear()
   bDrvStartFBKCheck=FBKCheckNever;
 #endif
   //m_lStatsRefreshCnt=5L;
-  HstMngr.SetHstOn(true);
+  m_Hst.m_OnRqd=true; //  gs_HstMngr.SetHstOn(true);
   //m_ReportInfo.iHSearchLen = 10;
   //m_ReportInfo.iVSearchLen = 100;
   //m_ReportInfo.sNan = "*";
@@ -3456,13 +3456,13 @@ void CProject::OpenHistorian()
   {
   dbgpln("--------------------- CProject::OpenHistorian");
   bHstOK=0;
-  HstMngr.SetHstOpen(0);//make sure is correct
-  HstMngr.SetExecObj(this);//make sure is correct
-  HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
-  if (HstMngr.HstOn())
+  gs_HstMngr.SetHstOpen(0);//make sure is correct
+  gs_HstMngr.SetExecObj(this);//make sure is correct
+  gs_HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
+  if (m_Hst.m_OnRqd) // gs_HstMngr.HstOn())
     {
     CWaitMsgCursor Wait("Opening historian");
-    if (HstMngr.DoOpenHistorian(true))
+    if (gs_HstMngr.DoOpenHistorian(true))
       bHstOK=1;
     }
   }
@@ -3472,7 +3472,7 @@ void CProject::OpenHistorian()
 void CProject::DeleteHistorian()
   {
   dbgpln("--------------------- CProject::DeleteHistorian");
-  if (HstMngr.DoDeleteHistorian())
+  if (gs_HstMngr.DoDeleteHistorian())
     CTagVwDoc::RebuildAll(); //force all trends to reconnect etc
   }
 
@@ -3481,7 +3481,7 @@ void CProject::DeleteHistorian()
 void CProject::RestartHistorian()
   {
   dbgpln("--------------------- CProject::RestartHistorian");
-  HstMngr.DoRestart();
+  gs_HstMngr.DoRestart();
   }
 
 //---------------------------------------------------------------------------
@@ -3489,26 +3489,26 @@ void CProject::RestartHistorian()
 void CProject::CloseHistorian(BOOL ForExit/*=FALSE*/)
   {
   dbgpln("--------------------- CProject::CloseHistorian");
-  if (HstMngr.HstOpen())
+  if (gs_HstMngr.HstOpen())
     {
     if (ForExit)
-      HstMngr.DoClose();
+      gs_HstMngr.DoClose();
     else
       {
       CWaitMsgCursor Wait("Closing historian");
       CDlgBusy::Open("\n\nClosing Historian");
-      HstMngr.DoClose();
+      gs_HstMngr.DoClose();
       CDlgBusy::Close();
       }
     }
-  HstMngr.SetExecObj(NULL);
+  gs_HstMngr.SetExecObj(NULL);
   }
 
 //---------------------------------------------------------------------------
 
 flag CProject::IsHistorianOpen()
   {
-  return HstMngr.IsOpen();
+  return gs_HstMngr.IsOpen();
   }
 
 //---------------------------------------------------------------------------
@@ -4408,7 +4408,7 @@ void CProject::RestoreWnds()
 
 void CProject::BrowseTags()
   {
-  HstMngr.BrowseTags();
+  gs_HstMngr.BrowseTags();
   }
 
 //---------------------------------------------------------------------------
@@ -4426,7 +4426,7 @@ void CProject::HistorianQuery()
     double Duration = 24.0*60*Interval;
     double StartTime = EndTime - Duration;
     Strng Filename = "c:\\test_qry";
-    HstMngr.QueryToFile(Filename(), StartTime, Duration, Interval);
+    gs_HstMngr.QueryToFile(Filename(), StartTime, Duration, Interval);
     }
   }
 
@@ -4538,7 +4538,7 @@ void CProject::CheckLicenseConditions()
     //  //Block = 1; don't block, instead don't load
     //  CloseOPCManager();
     //  }
-    /*if (!gs_License.AllowFullHist() && HstMngr.LicenseExceeded(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed()))
+    /*if (!gs_License.AllowFullHist() && gs_HstMngr.LicenseExceeded(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed()))
     {
     LogWarning("SysCAD", 0, "Historian data files exceed limit allowed by license");
     Block = 1;
@@ -5712,7 +5712,7 @@ void CProject::PutSettings()
 
   m_pFlwLib->FE_SetSpModelFixupStrategy(m_SpModelFixupStrategy);
 
-  HstMngr.SetOnAsRqd();
+  //gs_HstMngr.SetOnAsRqd();
   }
 
 
@@ -5769,7 +5769,7 @@ void CProject::GetSettings()
 
   m_SpModelFixupStrategy      = m_pFlwLib->FE_SpModelFixupStrategy();
 
-  HstMngr.GetOnRqd();
+  //gs_HstMngr.GetOnRqd();
   }
 
 //===========================================================================
@@ -6039,8 +6039,8 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         gs_CustomColours[i] = PF.RdLong("CustomColours", Item, gs_CustomColours[i]);
         }
 
-      HstMngr.SetOnAsRqd();
-      HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
+      //gs_HstMngr.SetOnAsRqd();
+      gs_HstMngr.SetLicensingOptions(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed());
 
       OpenArcManager(true);
 
@@ -6712,8 +6712,8 @@ flag CProject::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL
           return BadSave();
           }
         SetPrjFiles(NewPrjFolder(), NewPrjFile());
-        HstMngr.sHstDataDir = PrjFilesAlias();
-        HstMngr.sHstCatDir = PrjFilesAlias();
+        gs_HstMngr.sHstDataDir = PrjFilesAlias();
+        gs_HstMngr.sHstCatDir = PrjFilesAlias();
       }
 
     if (!IsNew)
@@ -7371,10 +7371,11 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   PF.WrStr("General", "CfgFile", FnPathRelContract(CfgFile()));
   PF.WrInt("General", "LocalPrjFiles", UsingPrjLclFiles());
 
+  //gs_HstMngr.GetOnRqd();
+
   WriteSettings(PF, true);
 
-  HstMngr.GetOnRqd();
-  HstMngr.WriteSettings(PF);
+  //gs_HstMngr.WriteSettings(PF);
 
   SaveMainOPCOptions(PF);
 
@@ -8059,7 +8060,7 @@ flag CProject::OnProjectSaveas(pchar pPrjPath)
   Strng OldHstDataDir;
   m_sPrevPrjFile   = PrjFile();
   m_sPrevPrjFiles  = PrjFiles();
-  OldHstDataDir = HstMngr.sHstDataDir();
+  OldHstDataDir = gs_HstMngr.sHstDataDir();
   OldHstDataDir.FnExpand(); // Expand before project changes
 
   //  bDoingSaveAs = true;
@@ -8101,22 +8102,22 @@ flag CProject::OnProjectSaveas(pchar pPrjPath)
       }
     FindClose(H);
     //historian...
-    Strng DstHstDir(HstMngr.sHstDataDir);
+    Strng DstHstDir(gs_HstMngr.sHstDataDir);
     DstHstDir.FnExpand();
     DstHstDir.FnClearEndBSlash();
 
     s = m_sPrevPrjFiles;
-    s += HstMngr.sHistorianName();
+    s += gs_HstMngr.sHistorianName();
     s += ".hed";
     Copy_File(s(), PrjFiles());
     s = m_sPrevPrjFiles;
-    s += HstMngr.sHistorianName();
+    s += gs_HstMngr.sHistorianName();
     s += ".cat";
     Copy_File(s(), PrjFiles());
     if (m_DlgCopyHist)
       {//copy historian data...
       s = OldHstDataDir;
-      s += HstMngr.sHstScenName();
+      s += gs_HstMngr.sHstScenName();
       s += ".*";
       H = FindFirstFile(s(), &fd);
       flag AllDone = (H==INVALID_HANDLE_VALUE);

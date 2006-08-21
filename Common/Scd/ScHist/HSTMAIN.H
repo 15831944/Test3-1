@@ -251,8 +251,6 @@ class DllImportExport CHistSettings
 
     void     ReadSettings(CProfINIFile & PF);
     void     WriteSettings(CProfINIFile & PF);
-    void     PutSettings(CHistSettings & Sets);
-    void     GetSettings(CHistSettings & Sets);
 
   public:
     Strng          sHistorianName;     //historian name
@@ -273,24 +271,6 @@ class DllImportExport CHistSettings
                    bHstUseTol:1;           //true if using tolerance test before deciding to save value to historian
     
     flag           m_OnRqd;            // On/Off State in Settings
-  //Strng        m_sHstName;     
-  //Strng        m_sScenName;    
-  //Strng        m_sDataDir;     
-  //Strng        m_sCatDir;      
-  //flag         m_HstOn;        
-  //UINT         m_FilesMin;     
-  //UINT         m_FilesMax;     
-  //flag         m_PermHist;     
-  //long         m_ForceCnt;     
-  //long         m_FileSize;     
-  //long         m_SlotNoEst;    
-  //flag         m_UseTol;       
-  //flag         m_ShowQueryInfo;
-  //flag         m_FixedDataExtn;
-  //double       m_ATol;       
-  //double       m_RTol;      
-  ////double       m_StopGap;
-  //double       m_MidTimeFactor;
   };
 
 class DllImportExport CHistorianMngr : public CHistSettings
@@ -321,24 +301,20 @@ class DllImportExport CHistorianMngr : public CHistSettings
     bool IsOn();
     bool IsOpen();
     void SetExecObj(CExecObj* pXObj) { pExecObj=pXObj; };
-    flag HstOn() { return bHstOn; };
-    void SetHstOn(flag On) { bHstOn=On; };
     flag HstOpen() { return bHstOpen; };
     void SetHstOpen(flag Open) { bHstOpen=Open; };
 
-    void SetOnAsRqd() { SetHstOn(m_OnRqd); }
-    void GetOnRqd()   { m_OnRqd=HstOn(); }
   public:
 
   protected:
     CExecObj*     pExecObj;
-    byte          bHstOn:1,
-                  bHstOpen:1;
+    byte          //bHstOn,
+                  bHstOpen;
     long          lLicMaxHistSizeAllowed;
     UINT          lLicMaxHistFilesAllowed;
   };
 
-extern DllImportExport CHistorianMngr HstMngr; //the global class for historian access
+extern DllImportExport CHistorianMngr gs_HstMngr; //the global class for historian access
 
 #endif
 

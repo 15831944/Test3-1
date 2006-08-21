@@ -1633,21 +1633,21 @@ void CStatsPage::OnOK()
 
 void CStatsPage::OnHstfetch() 
   {
-  HstMngr.DoFetchStats((char*)(const char*)m_StatsFilename);
+  gs_HstMngr.DoFetchStats((char*)(const char*)m_StatsFilename);
   }
 
 //--------------------------------------------------------------------------
 
 void CStatsPage::OnHstreset() 
   {
-  HstMngr.DoResetStats();
+  gs_HstMngr.DoResetStats();
   }
 
 //---------------------------------------------------------------------------
 
 void CStatsPage::OnUpdateBtn(CCmdUI* pCmdUi)
   {
-  pCmdUi->Enable(gs_pPrj && HstMngr.IsOn());
+  pCmdUi->Enable(gs_pPrj && gs_HstMngr.IsOn());
   }
 
 //===========================================================================
