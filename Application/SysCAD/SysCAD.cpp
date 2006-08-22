@@ -2423,7 +2423,7 @@ void CSysCADApp::OnHelpSyscad()
   if (1)
     {
     Strng s(BaseCfgFiles());
-    s += "User Manual 9.0\\User Manual.htm";
+    s += "User Manual 9.1\\User Manual.htm";
     // Use shell to invoke Web browser on the HTML help file.
     int iRes = (int) ShellExecute(NULL, "open", s(), NULL, NULL, SW_SHOWNORMAL);
 
@@ -2446,7 +2446,7 @@ void CSysCADApp::OnHelpPgm()
   if (1)
     {
     Strng s(BaseCfgFiles());
-    s += "PGM Help 9.0\\PGMHelp.htm";
+    s += "PGM Help 9.1\\PGMHelp.htm";
     // Use shell to invoke Web browser on the HTML help file.
     int iRes = (int) ShellExecute(NULL, "open", s(), NULL, NULL, SW_SHOWNORMAL);
 
@@ -2491,7 +2491,7 @@ void CSysCADApp::OnHelpModels()
     {
     //Strng s = "http:\\\\www.syscad.net";
     Strng s(BaseCfgFiles());
-    s += "Models Help 9.0\\Models Help.htm";
+    s += "Models Help 9.1\\Models Help.htm";
     // Use shell to invoke Web browser on the HTML help file.
     int iRes = (int)ShellExecute(NULL, "open", s(), NULL, NULL, SW_SHOWNORMAL);
 

@@ -233,7 +233,7 @@ int gs_ProjectOpenFlag = 0;
 
 #define WithRmtFile 0
 
-char* CWindowLists::MainWndTitle = "SysCAD 9.0 © Kenwalt";
+char* CWindowLists::MainWndTitle = "SysCAD 9.1 © Kenwalt";
 //char* CWindowLists::AccessWndTitle = "AccessWnd";
 LPCTSTR CWindowLists::AccessWndTitle(long i) 
   {
