@@ -21,12 +21,13 @@
   #define DllImportExport
 #endif
 
-const long MaxLvlLookupCnt = 16;
+const long MaxLvlLookupCnt = 100;
 XID xidLvl_Lookup         = MdlBsXID(20001);
 XID xidLvl_Count          = MdlBsXID(20002);
 XID xidLvl_Sort           = MdlBsXID(20003);
 XID xidLvl_FirstHeight    = MdlBsXID(20010);
-XID xidLvl_FirstVol       = xidLvl_FirstHeight+MaxLvlLookupCnt;
+XID xidLvl_FirstArea      = xidLvl_FirstHeight+MaxLvlLookupCnt;
+XID xidLvl_FirstVol       = xidLvl_FirstArea+MaxLvlLookupCnt;
 
 class DllImportExport CVolumeShapeLookup
   {
@@ -47,7 +48,9 @@ class DllImportExport CVolumeShapeLookup
     long iCount;
     double ALvl;
     double AHeight;
+    double AArea;
     CArray<double, double> m_Heights;
+    CArray<double, double> m_Areas;
     CArray<double, double> m_Volumes;
   };
 

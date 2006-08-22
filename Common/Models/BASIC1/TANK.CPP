@@ -7,7 +7,7 @@
 #include "sc_defs.h"
 #define  __TANK_CPP
 #include "tank.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 CVolumeShapeLookup::CVolumeShapeLookup()
   {
@@ -16,6 +16,7 @@ CVolumeShapeLookup::CVolumeShapeLookup()
   iCount = 0;
   ALvl = 0.0;
   AHeight = 0.0;
+  AArea = 0.0;
   //TestVol = 10.0;
   }
 
@@ -30,6 +31,7 @@ void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
       //DDB.Double("TestVol", "", DC_Vol, "m^3", &TestVol, pTagObj, isParm);
       DDB.Double("ALvl", "", DC_Frac, "%", &ALvl, pTagObj, isResult);
       DDB.Double("AHeight", "", DC_L, "mm", &AHeight, pTagObj, isResult);
+      DDB.Double("AArea", "", DC_Area, "m^2", &AArea, pTagObj, isResult);
       DDB.Text("Volume Lookup...");
       Strng Tg;
       for (int i=0; i<iCount; i++)
@@ -42,6 +44,12 @@ void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
         {
         Tg.Set("Height.[%d]", i);
         DDB.Double(Tg(), "", DC_L, "mm", xidLvl_FirstHeight+i, pTagObj, isParm);
+        }
+      DDB.Text("Surface Area Lookup...");
+      for (int i=0; i<iCount; i++)
+        {
+        Tg.Set("Area.[%d]", i);
+        DDB.Double(Tg(), "", DC_Area, "m^2", xidLvl_FirstArea+i, pTagObj, isParm);
         }
       }
     DDB.EndObject();
@@ -102,6 +110,17 @@ flag CVolumeShapeLookup::DataXchg(TaggedObject* pTagObj, DataChangeBlk & DCB)
         DCB.D = m_Volumes[index];
         return 1;
         }
+      if (DCB.lHandle>=xidLvl_FirstArea && DCB.lHandle<xidLvl_FirstArea+MaxLvlLookupCnt)
+        {
+        const int index = DCB.lHandle-xidLvl_FirstArea;
+        if (DCB.rD)
+          {
+          m_Areas[index] = Max(0.0, *DCB.rD);
+          //bCheckRqd = true;
+          }
+        DCB.D = m_Areas[index];
+        return 1;
+        }
     }
   return 0;
   }
@@ -112,14 +131,17 @@ void CVolumeShapeLookup::SetCount(long NewCount)
   long PrevCnt = iCount;
   m_Heights.SetSize(NewCount);
   m_Volumes.SetSize(NewCount);
+  m_Areas.SetSize(NewCount);
   if (PrevCnt>0 && NewCount>PrevCnt)
     {
     const double hd = (PrevCnt==1 ? m_Heights[0] : m_Heights[PrevCnt-1]-m_Heights[PrevCnt-2]);
     const double vd = (PrevCnt==1 ? m_Volumes[0] : m_Volumes[PrevCnt-1]-m_Volumes[PrevCnt-2]);
+    const double ad = (PrevCnt==1 ? m_Areas[0] : m_Areas[PrevCnt-1]-m_Areas[PrevCnt-2]);
     for (int i=PrevCnt; i<NewCount; i++)
       {
       m_Heights[i] = m_Heights[i-1] + hd;
       m_Volumes[i] = m_Volumes[i-1] + vd;
+      m_Areas[i] = m_Areas[i-1] + ad;
       }
     }
   bCheckRqd = true;
@@ -138,6 +160,9 @@ void CVolumeShapeLookup::SortAndValidate()
       temp = m_Volumes[j-1];
       m_Volumes[j-1] = m_Volumes[j];
       m_Volumes[j] = temp;
+      temp = m_Areas[j-1];
+      m_Areas[j-1] = m_Areas[j];
+      m_Areas[j] = temp;
       }
     }
   if (m_Heights[0]<1.0e-6)
@@ -160,6 +185,7 @@ void CVolumeShapeLookup::Calculate(double Volume)
     {
     AHeight = 0.0;
     ALvl = 0.0;
+    AArea = 0.0;
     return;
     }
 
@@ -173,16 +199,19 @@ void CVolumeShapeLookup::Calculate(double Volume)
   if (i==iCount)
     {
     AHeight = m_Heights[iCount-1];//full
+    AArea = m_Areas[iCount-1];
     }
   else if (i==0)
     {
     const double f = Volume/m_Volumes[i];
     AHeight = m_Heights[i]*f;
+    AArea = m_Areas[i]*f;
     }
   else
     {
     const double f = (Volume-m_Volumes[i-1])/(m_Volumes[i]-m_Volumes[i-1]);
     AHeight = m_Heights[i-1] + (m_Heights[i]-m_Heights[i-1])*f;
+    AArea = m_Areas[i-1] + (m_Areas[i]-m_Areas[i-1])*f;
     }
   ALvl = AHeight/m_Heights[iCount-1];
   }
