@@ -236,7 +236,7 @@ int GetAuthorization(DWORD * dwOpLevel, int dec)
   return (Opt.m_Opts.Mode_DynamicFull || Opt.m_Opts.Mode_DynamicFlow || Opt.m_Opts.Mode_ProBal) ? 0 : -777;
   };
 
-int CrypkeyVersion()                              { return 11; };
+int CrypkeyVersion()                              { return 65; };
 LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
 #else
 
@@ -1244,7 +1244,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     return FALSE;
     }
 #elif CK_USE6525
-  else if (Ver!=61 && Ver!=65) //Ver 6.5 : August 2006 // CNM ???????
+  else if (Ver!=65) //Ver 6.5 : August 2006 
     {//expect version 6.5
     Error("Incorrect Crypkey version (%d)", Ver);
     return FALSE;
@@ -2227,7 +2227,45 @@ BOOL CLicense::NetworkUsersInfo(char* Buff)
   int err;
   if (m_bUseCOM)
     {
-    _asm int 3;
+    ICrypKeySDKFloatRecordServerPtr ptrFloat;
+    ptrFloat.CreateInstance ("CrypKey.SDKFloatRecordServer");
+
+    long nEntries;
+    err= s_ptr->FloatingLicenseTakeSnapshot (&nEntries);
+    Cnt=nEntries;
+
+    for (int i=0; i<nEntries;i++)
+      {
+      //CComBSTR cbName = "Test";
+
+
+    //ptrFloat->put_strComputerName (cbName);
+      err = s_ptr->FloatingLicenseGetRecord (i, (ICrypKeySDKFloatRecordServer *) ptrFloat);
+      //cbError.Empty ();
+      //cbError.AppendBSTR (ptr->GetLastError ());
+    //strError = cbError;
+    //printf ("\nReturn from FloatingLicenseGetRecord: (%d) %s\n", nError, (LPCTSTR) strError);
+
+      if (ptrFloat != NULL)
+        {
+        ptrFloat->get_nId((long*)&fls[i].id);
+        ptrFloat->get_nUpdate((long*)&fls[i].update);
+        long sw;
+        ptrFloat->get_nStatus(&sw);
+        fls[i].status=(short)sw;
+        
+        // ?? ptrFloat->get_nTimestamp((long*)&fls[i].starttime);
+        fls[i].starttime=0;
+
+        _bstr_t bsUser;
+        ptrFloat->get_strUserName (&bsUser.GetBSTR());
+        strcpy(fls[i].userName, (LPCTSTR)bsUser);
+
+        _bstr_t bsComp;
+        ptrFloat->get_strComputerName (&bsComp.GetBSTR());
+        strcpy(fls[i].computerName, (LPCTSTR)bsComp);
+        }
+      }
     //err = s_ptr->FloatingLicenseTakeSnapshot((sizeof(fls), &Cnt, &fls[0]);
     //// Also GetRecord
     //err = s_ptr->FloatingLicenseGetRecord(sizeof(fls), &Cnt, &fls[0]);
