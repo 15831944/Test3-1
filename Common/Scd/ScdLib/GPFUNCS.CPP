@@ -5225,6 +5225,59 @@ BOOL FileExists(char * FileName)
 
 //---------------------------------------------------------------------------
 
+//FILE_ATTRIBUTE_ARCHIVE The file or directory is an archive file or directory. 
+//Applications use this attribute to mark files for backup or removal.
+// 
+//FILE_ATTRIBUTE_COMPRESSED The file or directory is compressed. 
+//For a file, this means that all of the data in the file is compressed.
+//
+//For a directory, this means that compression is the default for newly created files and subdirectories.
+// 
+//FILE_ATTRIBUTE_DIRECTORY The handle identifies a directory. 
+//FILE_ATTRIBUTE_ENCRYPTED The file or directory is encrypted. 
+//For a file, this means that all data in the file is encrypted.
+//
+//For a directory, this means that encryption is the default for newly created files and subdirectories.
+// 
+//FILE_ATTRIBUTE_HIDDEN The file or directory is hidden. 
+//It is not included in an ordinary directory listing.
+// 
+//FILE_ATTRIBUTE_NORMAL The file or directory does not have another attributes set. 
+//This attribute is valid only if used alone.
+// 
+//FILE_ATTRIBUTE_OFFLINE The file data is not immediately available. 
+//This attribute indicates that the file data has been physically moved to offline storage.
+//
+//This attribute is used by Remote Storage, the hierarchical storage management software.
+//
+//Applications should not arbitrarily change this attribute.
+// 
+//FILE_ATTRIBUTE_READONLY The file or directory is read-only. 
+//Applications can read the file, but cannot write to it or delete it.
+//
+//For a directory, applications cannot delete it.
+// 
+//FILE_ATTRIBUTE_REPARSE_POINT The file or directory has an associated reparse point. 
+//FILE_ATTRIBUTE_SPARSE_FILE The file is a sparse file. 
+//FILE_ATTRIBUTE_SYSTEM The file or directory is part of the operating system, or is used exclusively by the operating system. 
+//FILE_ATTRIBUTE_TEMPORARY 
+
+BOOL FileAttributes(char * FileName, DWORD & Attributes)
+  {
+  WIN32_FIND_DATA fd;
+  HANDLE H;
+  if ((H=FindFirstFile(FileName, &fd))!=INVALID_HANDLE_VALUE)
+    {
+    Attributes=fd.dwFileAttributes;
+    FindClose(H);
+    return true;
+    }
+  return false;
+  };
+
+
+//---------------------------------------------------------------------------
+
 BOOL CnmVersion()
   {
 #if ALLOWCNMVERSION       

@@ -1108,6 +1108,7 @@ DllImportExport char*  BaseGrfFontFiles();
 
 DllImportExport BOOL   FileExists(char * FileName, WIN32_FIND_DATA & fd);
 DllImportExport BOOL   FileExists(char * FileName);
+DllImportExport BOOL   FileAttributes(char * FileName, DWORD & Attributes);
 DllImportExport BOOL   CnmVersion();
 
 DllImportExport int    SelectFile(Strng & FilePath, char* Name1, char* Name2, char* Name3);

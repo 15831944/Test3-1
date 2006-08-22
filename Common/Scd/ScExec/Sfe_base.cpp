@@ -2026,6 +2026,14 @@ void CNewPrjDlg::OnEditCfg()
     if (!m_ExistsArray[jCfg])
       return;
     Strng FileName(m_FileArray[jCfg]);
+
+    DWORD Att;
+    if (FileAttributes(FileName(), Att) && (Att & FILE_ATTRIBUTE_READONLY))
+      {
+      AfxMessageBox("Configuration file is READONLY\n\nEdit Cancelled", MB_ICONINFORMATION|MB_OK);
+      UpdateDialogControls(this, FALSE);
+      return;
+      }
     CModelInfoUpgrade InfoU;
     int Fmt = InfoU.CheckCfgFileFormat(FileName(), false);
     BOOL OldEdit = (Fmt==0);
