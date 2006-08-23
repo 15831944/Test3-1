@@ -302,7 +302,7 @@ void CTransformer::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag CTransformer::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CTransformer::GetModelAction(MdlActionArray & Acts)
   {
   //Acts.SetSize(0);
   //Acts.SetAtGrow(0, MdlAction(0, MAT_State, 0/*!PSB.On()*/, "On", 1));
@@ -311,7 +311,7 @@ flag CTransformer::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CTransformer::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CTransformer::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

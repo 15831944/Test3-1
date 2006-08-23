@@ -356,8 +356,8 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual void   PreDisConnect(int IONo);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges(bool CheckIO);
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
     virtual flag   PreStartCheck();
     virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag   Set_Sizes();

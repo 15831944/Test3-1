@@ -68,8 +68,8 @@ class CSocket : public FlwNode
     virtual void   ConnectElectrics();
     virtual void   EvalPowerRequired();
     
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CSocket, FlwNode, 4);

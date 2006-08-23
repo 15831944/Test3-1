@@ -317,64 +317,145 @@ typedef CArray <CExecObj*, CExecObj*> CExecObjArray;
 //
 //===========================================================================
 
-enum MdlActionTypes {MAT_NULL, MAT_State, MAT_Value, MAT_Follow, MAT_Config, MAT_Switch};
-struct MdlAction
+enum MdlActionTypes { MAT_NULL, MAT_State, MAT_Value, MAT_Follow, MAT_Config, MAT_Switch };
+class MdlAction
   {
-  int            iIndex;
-  MdlActionTypes iType;
-  flag           fEnabled;
-  char           cName[64];
-  union
-    {
-    int            iValue;
-    flag           fInvalidOK;
-    };
-  double         dValue;
-  double         dValueMin;
-  double         dValueMax;
-  double         dBumpless;
+  public:
 
-  MdlAction()
-    {
-    iIndex=0;
-    iType=MAT_NULL;
-    fEnabled=0;
-    strcpy(cName, "");
-    iValue=0;
-    dValue=0;
-    dValueMin=0;
-    dValueMax=0;
-    dBumpless=0;
-    }
-  MdlAction(int Index, MdlActionTypes Type, flag Enabled=0, LPCSTR Name="", int IntValue=0)
-    {
-    iIndex=Index;
-    iType=Type;
-    fEnabled=Enabled;
-    strcpy(cName, Name);
-    iValue=IntValue;
-    dValue=0;
-    dValueMin=0;
-    dValueMax=0;
-    dBumpless=0;
-    }
-  MdlAction(int Index, MdlActionTypes Type, flag Enabled, LPCSTR Name, bool InvalidOK,
-            double DblValue=0, double ValueMin=0, double ValueMax=0, double Bumpless=0)
-    {
-    iIndex=Index;
-    iType=Type;
-    fEnabled=Enabled;
-    strcpy(cName, Name);
-    fInvalidOK=InvalidOK;
-    dValue=DblValue;
-    dValueMin=ValueMin;
-    dValueMax=ValueMax;
-    dBumpless=Bumpless;
-    }
+    MdlAction()
+      {
+      iIndex=0;
+      iType=MAT_NULL;
+      fEnabled=0;
+      strcpy(cName, "");
+      iValue=0;
+      dValue=0;
+      dValueMin=0;
+      dValueMax=0;
+      dBumpless=0;
+      }
+    MdlAction(int Index, MdlActionTypes Type, flag Enabled=0, LPCSTR Name="", int IntValue=0)
+      {
+      iIndex=Index;
+      iType=Type;
+      fEnabled=Enabled;
+      strcpy(cName, Name);
+      iValue=IntValue;
+      dValue=0;
+      dValueMin=0;
+      dValueMax=0;
+      dBumpless=0;
+      }
+    MdlAction(int Index, MdlActionTypes Type, flag Enabled, LPCSTR Name, bool InvalidOK,
+      double DblValue=0, double ValueMin=0, double ValueMax=0, double Bumpless=0)
+      {
+      iIndex=Index;
+      iType=Type;
+      fEnabled=Enabled;
+      strcpy(cName, Name);
+      fInvalidOK=InvalidOK;
+      dValue=DblValue;
+      dValueMin=ValueMin;
+      dValueMax=ValueMax;
+      dBumpless=Bumpless;
+      }
+
+  public:
+    int            iIndex;
+    MdlActionTypes iType;
+    flag           fEnabled;
+    char           cName[64];
+    union
+      {
+      int            iValue;
+      flag           fInvalidOK;
+      };
+    double         dValue;
+    double         dValueMin;
+    double         dValueMax;
+    double         dBumpless;
+  };
+
+typedef CArray<MdlAction, MdlAction&> MdlActionArray;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+enum eMdlGraphicTypes { MGT_Simple };
+enum eMdlGraphicTasks { MGT_Create, MGT_Draw, MGT_MouseMove, MGT_LButtonDown, MGT_LButtonUp, MGT_RButtonDown, MGT_RButtonUp};
+
+class CMdlGraphicWnd
+  {
+  public:
+    CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CPaintDC * DC, CRect ClientRect, CRect TextSize) 
+      {
+      m_eTask       = Task;
+      m_pWnd        = Wnd;
+      m_pDC         = DC;
+      m_ClientRect  = ClientRect;
+      m_TextSize    = TextSize.BottomRight();
+      m_MousePt     = CPoint(-1,-1);
+      m_MouseFlags  = 0;
+      };
+    CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CPoint MousePt, UINT MouseFlags) 
+      {
+      m_eTask       = Task;
+      m_pWnd        = Wnd;
+      m_pDC         = NULL;
+      m_ClientRect  = CRect(0,0,-1,-1);
+      m_TextSize    = CPoint(-1,-1);
+      m_MousePt     = MousePt;
+      m_MouseFlags  = MouseFlags;
+      };
+
+  public:
+    eMdlGraphicTasks  m_eTask;
+    CWnd            * m_pWnd;
+    CPaintDC        * m_pDC;
+    CRect             m_ClientRect;
+    CPoint            m_TextSize;
+    CPoint            m_MousePt;
+    UINT              m_MouseFlags;
   };
 
 
-typedef CArray<MdlAction, MdlAction&> MdlActionArray;
+class CMdlGraphic
+  {
+  public:
+    CMdlGraphic()
+      {
+      m_iIndex    = 0;
+      m_iType     = MGT_Simple;
+      m_fEnabled  = 0;
+      strcpy(m_cName, "");
+      }
+    CMdlGraphic(int Index, eMdlGraphicTypes Type, flag Enabled = 0, LPCSTR Name = "", int IntValue = 0)
+      {
+      m_iIndex    = Index;
+      m_iType     = Type;
+      m_fEnabled  = Enabled;
+      strcpy(m_cName, Name);
+      }
+    CMdlGraphic(int Index, eMdlGraphicTypes Type, flag Enabled, LPCSTR Name, bool InvalidOK,
+      double DblValue = 0, double ValueMin = 0, double ValueMax = 0, double Bumpless = 0)
+      {
+      m_iIndex    = Index;
+      m_iType     = Type;
+      m_fEnabled  = Enabled;
+      strcpy(m_cName, Name);
+      }
+
+  public:
+    int               m_iIndex;
+    eMdlGraphicTypes  m_iType;
+    flag              m_fEnabled;
+    char              m_cName[64];
+  };
+
+typedef CArray<CMdlGraphic, CMdlGraphic&> MdlGraphicArray;
 
 //---------------------------------------------------------------------------
 
@@ -458,35 +539,6 @@ class DllImportExport CExecObj
   {
   friend class ObjTagIndex;
   friend class CExecutive;
-  private:
-    long           lId;
-    int            iObjExecIndex;
-    Strng          sName;
-
-    byte           bExec;
-
-    flag           bActive;
-    flag           bReadAllData;
-    flag           bMarkedForDelete;
-    flag           bSyncDataIO;
-    flag           bListUpdateReqd;
-    flag           bQueryAvailExecd;
-    flag           bAllowForceWriteOnStart;
-
-    CWinThread    *pObjThread;
-    CTimeValue     dEOTime;
-
-    int            nTags;
-    CXTagArray     aTags;   // a Kludge because CMap etc are not dll-interfaced
-    CXTagMap       mTags;
-    int            nHashSize;
-
-    flag           bServer, bClient, bSelfConnect;
-
-    CRITICAL_SECTION csObjLock;
-
-    void           SetEOTime(CTimeValue Time) { dEOTime=Time; };
-
   public:
     CExecObj();
     virtual ~CExecObj();
@@ -525,11 +577,14 @@ class DllImportExport CExecObj
     virtual int    EO_DeleteTag(pchar pDelTag)                          { return EODT_NOTFOUND; };
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
 
-    virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)             { return False; };
+    virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)           { return False; };
 
     virtual void   EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) {};
-    virtual flag   EO_GetModelAction(Strng & Tag, MdlActionArray & Acts) { return false; };
-    virtual flag   EO_SetModelAction(Strng & Tag, MdlAction & Acts) { return false; };
+    virtual flag   EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)            { return false; };
+    virtual flag   EO_SetModelAction(LPCTSTR Tag, MdlAction & Acts)                 { return false; };
+
+    virtual flag   EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grf)           { return false; };
+    virtual flag   EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)   { return false; };
 
     //virtual flag   EO_SolutionReqd()                                    { return False; };
     //virtual int    EO_InitSolution(EqnSlvCtrlBlk & EQCtrl)              { return -1; };
@@ -537,9 +592,9 @@ class DllImportExport CExecObj
     //virtual int    EO_TermSolution(EqnSlvCtrlBlk & EQCtrl)              { return -1; };
     virtual int    EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine) { return -1; };
 
-    virtual void   EO_SetSolveMode()                        { };
-    virtual flag   EO_GotoRunStart(CXM_TimeControl &CB)                 { return True;};
-    virtual flag   EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged) { return True;};
+    virtual void   EO_SetSolveMode()                                     { };
+    virtual flag   EO_GotoRunStart(CXM_TimeControl &CB)                  { return True;};
+    virtual flag   EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)  { return True;};
     virtual flag   EO_PreStart(CXM_TimeControl &CB)                      { return True;};
     virtual flag   EO_Starting(flag fBeginStarting)                      { return True;};
     virtual flag   EO_SetTime(CTimeValue TimeRqd, bool Rewind)           { return True;};
@@ -614,9 +669,9 @@ class DllImportExport CExecObj
 
     flag           XReadASyncDataItem(long Index, CXM_ObjectData &ObjData);
 
-    void           XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
-    flag           XGetModelAction(Strng & Tag, MdlActionArray & Acts);
-    flag           XSetModelAction(Strng & Tag, MdlAction & Acts);
+    //void           XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
+    //flag           XGetModelAction(Strng & Tag, MdlActionArray & Acts);
+    //flag           XSetModelAction(Strng & Tag, MdlAction & Acts);
 
     flag           Server() { return bServer; };
     void           SetServer(flag Server);
@@ -635,6 +690,36 @@ class DllImportExport CExecObj
     flag           PutData(CXTagBlk &b, CPkDataItem * pItem, flag ForceChg);
     flag           SearchForTag(pchar pTag, XIOAction Action, flag ClientEnd, rObjTagIndex OTI);
     flag           SearchForTag(pchar pExtTag, rObjTagIndex OTI);
+
+  private:
+    long           lId;
+    int            iObjExecIndex;
+    Strng          sName;
+
+    byte           bExec;
+
+    flag           bActive;
+    flag           bReadAllData;
+    flag           bMarkedForDelete;
+    flag           bSyncDataIO;
+    flag           bListUpdateReqd;
+    flag           bQueryAvailExecd;
+    flag           bAllowForceWriteOnStart;
+
+    CWinThread    *pObjThread;
+    CTimeValue     dEOTime;
+
+    int            nTags;
+    CXTagArray     aTags;   // a Kludge because CMap etc are not dll-interfaced
+    CXTagMap       mTags;
+    int            nHashSize;
+
+    flag           bServer, bClient, bSelfConnect;
+
+    CRITICAL_SECTION csObjLock;
+
+    void           SetEOTime(CTimeValue Time) { dEOTime=Time; };
+
   };
 
 //---------------------------------------------------------------------------
@@ -1232,8 +1317,11 @@ class DllImportExport CExecutive : public ConditionBlk
 
     void           DoSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
     void           SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
-    flag           GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    flag           SetModelAction(Strng & Tag, MdlAction & Act);
+    flag           GetModelAction(LPCTSTR Tag, MdlActionArray & Acts);
+    flag           SetModelAction(LPCTSTR Tag, MdlAction & Act);
+
+    flag           GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs);
+    flag           OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
     flag           SteadyStateRqd() { return m_SteadyStateRqd; };
 
@@ -1294,9 +1382,6 @@ class DllImportExport CExecutive : public ConditionBlk
     int            DBFormat() { return m_DBFormat; };
   public:
     CEOExecReturn  ThrdRet[MaxXObjects];
-//
-//    double         ThrdTime[MaxXObjects];
-//    double         ThrdTimeNxt[MaxXObjects];
 
     DEFINE_CI(CExecutive, ConditionBlk, 2);
     char *         CBTag() { return "Executive"; };
@@ -1312,13 +1397,15 @@ class DllImportExport CExecutive : public ConditionBlk
     long           Ids;
     long           NObjs_Reg;            // No of Registered Objects
 
-    CExecObjArray Objs_Reg;             // Registered Objects
-    CExecObjArray Objs_Exec;            // Objects in Execution Order
-    CExecObjArray Objs_Solve;           // Objects in Solve Order
-    CExecObjArray Objs_Search;          // Objects in Search Order
+    CExecObjArray  Objs_Reg;             // Registered Objects
+    CExecObjArray  Objs_Exec;            // Objects in Execution Order
+    CExecObjArray  Objs_Solve;           // Objects in Solve Order
+    CExecObjArray  Objs_Search;          // Objects in Search Order
 
-    CExecObjArray Objs_ToReg;           // Objects To register during next execution gap
-    CExecObjArray Objs_ToDeReg;         // Objects To Deregister during next execution gap
+    CExecObjArray  Objs_ToReg;           // Objects To register during next execution gap
+    CExecObjArray  Objs_ToDeReg;         // Objects To Deregister during next execution gap
+    
+    CExecObj     * m_pSolver;            // A Shortcut to the solver at runtime
 
     word           wState;
 
@@ -1494,7 +1581,7 @@ inline int  XDBFormat()           { return gs_Exec.DBFormat();     };
 inline CXStopWatches  & XSW(bool ForDisp=true) { return ForDisp ? gs_Exec.XSWDsp : gs_Exec.XSW; };
 
 inline void XUpdateDisplays(flag ForceUpd, flag ColoursChgd) { gs_Exec.UpdateDisplays(ForceUpd, ColoursChgd); };
-inline void XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) { gs_Exec.SetModelState(RqdState, RqdTags); };
+//inline void XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) { gs_Exec.SetModelState(RqdState, RqdTags); };
 
 //=========================================================================
 

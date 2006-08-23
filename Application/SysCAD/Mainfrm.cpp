@@ -3697,6 +3697,7 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
     }
 
   CMdlValueShow::UpdateAll();
+  CMdlGraphicShow::UpdateAll();
   gs_AccessWnds.DoDeferredAccess(-1);
 
 #if WITHDRVMAN

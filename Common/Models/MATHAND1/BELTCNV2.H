@@ -110,9 +110,12 @@ class BeltCnv2 : public MdlNode
 
     virtual dword  ModelStatus();
 
-    virtual flag GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag SetModelAction(Strng & Tag, MdlAction & Act);
-    
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
+
+    virtual flag   GetModelGraphic(MdlGraphicArray & Grfs);
+    virtual flag   OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
+
     // ConditionBlk Override
     DEFINE_CI(BeltCnv2, MdlNode, 4);
 
@@ -146,6 +149,10 @@ class BeltCnv2 : public MdlNode
     //Strng          m_SpillName;
     double         m_TotMassPrev;
     double         m_SpillMassPrev;
+
+    bool           m_LBtnDn;
+    bool           m_RBtnDn;
+    CPoint         m_MousePt;
 
   };
 

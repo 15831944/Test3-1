@@ -3961,8 +3961,11 @@ class DllImportExport FlwNode : public CTNode
     virtual CFlwRegBlk * GetFlwRegulator() { return NULL; };
 
     virtual void   SetState(eScdMdlStateActs RqdState);
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts) { return false; };
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act) { return false; };
+    virtual flag   GetModelAction(MdlActionArray & Acts) { return false; };
+    virtual flag   SetModelAction(MdlAction & Act) { return false; };
+
+    virtual flag   GetModelGraphic(MdlGraphicArray & Grfs) { return false; };
+    virtual flag   OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return false; };
 
     virtual void   PreConfigureJoins();
     virtual void   ConfigureJoins()                         {};

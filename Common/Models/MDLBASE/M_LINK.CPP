@@ -1804,7 +1804,7 @@ long MN_Lnk::CheckDataRanges(bool CheckIO)
 
 //--------------------------------------------------------------------------
 
-flag MN_Lnk::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag MN_Lnk::GetModelAction(MdlActionArray & Acts)
   {
   MdlAction M0(0, MAT_State, !cioOn.On(), "Open", 1);
   MdlAction M1(1, MAT_State, cioOn.On(),  "Close", 0);
@@ -1826,7 +1826,7 @@ flag MN_Lnk::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag MN_Lnk::SetModelAction(Strng & Tag, MdlAction & Act)
+flag MN_Lnk::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

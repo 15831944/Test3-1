@@ -230,6 +230,9 @@ BeltCnv2::BeltCnv2(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_FLPower=10.0;
   m_Power=0.0;
 
+  m_LBtnDn=false;
+  m_RBtnDn=false;
+  m_MousePt.x=-1;
   };
 
 // -------------------------------------------------------------------------
@@ -1332,7 +1335,7 @@ flag BeltCnv2::CIStrng(int No, pchar & pS)
 
 //--------------------------------------------------------------------------
 
-flag BeltCnv2::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag BeltCnv2::GetModelAction(MdlActionArray & Acts)
   {
   //MdlAction {MAT_NULL, MAT_State, MAT_Value};
   MdlAction M0(0, MAT_State, !m_BeltSB.On(), "Start", 1);
@@ -1351,7 +1354,7 @@ flag BeltCnv2::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag BeltCnv2::SetModelAction(Strng & Tag, MdlAction & Act)
+flag BeltCnv2::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {
@@ -1370,6 +1373,104 @@ flag BeltCnv2::SetModelAction(Strng & Tag, MdlAction & Act)
     }
   return true;
   }
+
+//--------------------------------------------------------------------------
+
+flag BeltCnv2::GetModelGraphic(MdlGraphicArray & Grfs)
+  {
+  CMdlGraphic G0(0, MGT_Simple, true, "Show Profile", 1);
+
+  Grfs.SetSize(0);
+  Grfs.SetAtGrow(0, G0);
+  return true; 
+  };
+
+//--------------------------------------------------------------------------
+
+flag BeltCnv2::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
+  {
+  const COLORREF White = COLORREF(RGB(255,255,255));
+  const COLORREF Black = COLORREF(RGB(0,0,0));
+  const COLORREF Cyan  = COLORREF(RGB(0,255,255));
+  const COLORREF Red   = COLORREF(RGB(255,0,0));
+  const COLORREF Green = COLORREF(RGB(0,255,0));
+
+  switch (Wnd.m_eTask)
+    {
+    case MGT_Create:
+      break;
+    case MGT_Draw:
+      {
+      double CursX=-1;
+      double CursLd=0;
+      if (/*m_LBtnDn &&*/ m_MousePt.x>=0 && m_MousePt.x<Wnd.m_ClientRect.right)
+        CursX=(double)m_MousePt.x/Wnd.m_ClientRect.right*m_Q.Length();
+
+      int y0 = Wnd.m_TextSize.y+1;
+      int xlast=0;
+      POSITION Pos=m_Q.m_Sections.GetHeadPosition();
+      while (Pos)
+        {
+        SpQSection & S = *m_Q.m_Sections.GetNext(Pos);
+        int x1 = (int)(S.Start()/m_Q.Length()*Wnd.m_ClientRect.right);
+        int x2 = (int)(S.End()/m_Q.Length()*Wnd.m_ClientRect.right);
+        int y1 = y0+(int)((1.0-S.Loading()/m_MaxSpillLoading)*(Wnd.m_ClientRect.bottom-y0));
+        int y2 = Wnd.m_ClientRect.bottom;
+        if (x1>xlast)
+          Wnd.m_pDC->FillSolidRect(CRect(xlast,0,x1,y2), Black);
+        Wnd.m_pDC->FillSolidRect(CRect(x1,0,x2,y1), Black);
+        Wnd.m_pDC->FillSolidRect(CRect(x1,y1,x2,y2), Cyan);
+        xlast=x2;
+
+        if (S.Start()<=CursX && CursX<=S.End())
+          CursLd=S.Loading();
+        }
+
+      for (int f=0; f<m_Q.m_Feed.GetCount(); f++)
+        {
+        SpQIO & Fd=m_Q.m_Feed[f];
+        if (Fd.Spill.Cd.QMass()>1e-6)
+          {
+          int x=(int)(Fd.Position()/m_Q.Length()*Wnd.m_ClientRect.right);
+          Wnd.m_pDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(255,0,0)));
+          }
+        }
+      
+      if (/*m_LBtnDn &&*/ m_MousePt.x>=0 && m_MousePt.x<Wnd.m_ClientRect.right)
+        {
+        int x=m_MousePt.x;
+        Wnd.m_pDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(0,255,0)));
+        Wnd.m_pDC->SetTextColor(Green);
+        CString S;
+        S.Format("%.1f kg/s", CursLd);
+        Wnd.m_pDC->TextOut(0,0,S);
+        }
+
+      break;
+      }
+    case MGT_MouseMove:
+      m_LBtnDn=(Wnd.m_MouseFlags & MK_LBUTTON);
+      if (m_LBtnDn)
+        {
+        m_MousePt=Wnd.m_MousePt;
+        Wnd.m_pWnd->RedrawWindow(0, 0, RDW_INVALIDATE|RDW_UPDATENOW);
+        }
+      break;
+    case MGT_LButtonDown:
+      m_LBtnDn=true;
+      break;
+    case MGT_LButtonUp:
+      m_LBtnDn=false;
+      break;
+    case MGT_RButtonDown:
+      m_RBtnDn=true;
+      break;
+    case MGT_RButtonUp:
+      m_RBtnDn=false;
+      break;
+    }
+  return true; 
+  };
 
 //==========================================================================
 //

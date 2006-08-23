@@ -104,7 +104,7 @@ void CAirLink::EvalDiscrete()
 
 //--------------------------------------------------------------------------
 
-flag CAirLink::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CAirLink::GetModelAction(MdlActionArray & Acts)
   {
   //MdlAction M0 = {0, MAT_State, 0/*!PSB.On()*/, "On", 1};
   //Acts.SetSize(0);
@@ -114,7 +114,7 @@ flag CAirLink::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CAirLink::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CAirLink::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

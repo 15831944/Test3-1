@@ -448,7 +448,7 @@ int MN_SrcSnk::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //--------------------------------------------------------------------------
 
-flag MN_SrcSnk::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag MN_SrcSnk::GetModelAction(MdlActionArray & Acts)
   {
   //MdlAction {MAT_NULL, MAT_State, MAT_Value};
 
@@ -479,7 +479,7 @@ flag MN_SrcSnk::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag MN_SrcSnk::SetModelAction(Strng & Tag, MdlAction & Act)
+flag MN_SrcSnk::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

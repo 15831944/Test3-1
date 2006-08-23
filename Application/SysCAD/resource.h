@@ -1014,7 +1014,7 @@
 #define IDB_VARVIEWNO5                  24589
 #define IDC_MYHANDVIEW                  24589
 #define IDC_SLVCHANGEALL                24590
-#define IDD_MDLVALUESET1                24590
+#define IDD_MDLGRAPHICSHW               24590
 #define IDB_VARVIEWNO6                  24590
 #define IDC_MYHANDTUNE                  24590
 #define IDC_SLVCHANGEDUP                24591

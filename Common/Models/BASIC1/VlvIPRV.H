@@ -32,8 +32,8 @@ class DllImportExport CIsoPRV : public MdlNode
     virtual void      BuildDataDefn(DataDefnBlk & DDB);
     virtual flag      DataXchg(DataChangeBlk & DCB);
     virtual flag      ValidateData(ValidateDataBlk & VDB);
-    virtual flag      GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag      SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag      GetModelAction(MdlActionArray & Acts);
+    virtual flag      SetModelAction(MdlAction & Act);
 
     //virtual CFlange * GetFlange(int IOId);
     //void              CreateConfigFile(LPCTSTR Fn);

@@ -1100,8 +1100,12 @@ class DllImportExport CSfeSrvrBase
     virtual flag         FE_TestModelTagUnique(pchar pTag)                                     { return 0; };
 
     virtual void         EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)      { };
-    virtual flag         EO_GetModelAction(Strng & Tag, MdlActionArray & Acts)                 { return 0; };
-    virtual flag         EO_SetModelAction(Strng & Tag, MdlAction & Act)                       { return 0; };
+    virtual flag         EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)                 { return 0; };
+    virtual flag         EO_SetModelAction(LPCTSTR Tag, MdlAction & Act)                       { return 0; };
+
+    virtual flag         EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs)               { return 0; };
+    virtual flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)          { return 0; };
+
 
     virtual int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)          { return 0; };
 

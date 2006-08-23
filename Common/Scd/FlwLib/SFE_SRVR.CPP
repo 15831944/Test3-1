@@ -449,14 +449,24 @@ void CSfeSrvr::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
   SfeFS->EO_SetModelState(RqdState, RqdTags); 
   };
 
-flag CSfeSrvr::EO_GetModelAction(Strng & Tag, MdlActionArray & Acts) 
+flag CSfeSrvr::EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts) 
   { 
   return SfeFS->EO_GetModelAction(Tag, Acts); 
   };
 
-flag CSfeSrvr::EO_SetModelAction(Strng & Tag, MdlAction & Act) 
+flag CSfeSrvr::EO_SetModelAction(LPCTSTR Tag, MdlAction & Act) 
   { 
   return SfeFS->EO_SetModelAction(Tag, Act); 
+  };
+
+flag CSfeSrvr::EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs) 
+  { 
+  return SfeFS->EO_GetModelGraphic(Tag, Grfs); 
+  };
+
+flag CSfeSrvr::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) 
+  { 
+  return SfeFS->EO_OperateModelGraphic(Tag, Wnd, Grf); 
   };
 
 void CSfeSrvr::EO_OnAppActivate(BOOL bActive)

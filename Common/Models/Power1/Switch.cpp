@@ -147,7 +147,7 @@ void CIsolator::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag CIsolator::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CIsolator::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_bOn, "On", 1));
@@ -158,7 +158,7 @@ flag CIsolator::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CIsolator::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CIsolator::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {
@@ -322,7 +322,7 @@ void CCctBreaker::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag CCctBreaker::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CCctBreaker::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_bOn, "On", 1));
@@ -333,7 +333,7 @@ flag CCctBreaker::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CCctBreaker::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CCctBreaker::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

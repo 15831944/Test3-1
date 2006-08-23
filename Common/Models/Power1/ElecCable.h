@@ -71,8 +71,8 @@ class CElecCable : public FlwNode
 
     virtual void   EvalDiscrete();
 
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CElecCable, FlwNode, 4);

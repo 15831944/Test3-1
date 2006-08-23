@@ -526,6 +526,10 @@
 			Filter="cpp;c;cxx;rc;def;idl;hpj"
 			>
 			<File
+				RelativePath=".\BadLicLocation.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CBSPLINE.CPP"
 				>
 			</File>
@@ -762,6 +766,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
+			<File
+				RelativePath=".\BadLicLocation.h"
+				>
+			</File>
 			<File
 				RelativePath=".\CbSpline.h"
 				>

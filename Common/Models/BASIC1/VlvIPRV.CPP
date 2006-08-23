@@ -132,7 +132,7 @@ flag CIsoPRV::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag CIsoPRV::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CIsoPRV::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   //switch (m_State.m_iMethod)
@@ -155,7 +155,7 @@ flag CIsoPRV::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CIsoPRV::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CIsoPRV::SetModelAction(MdlAction & Act)
   {
   //switch (m_State.m_iMethod)
   //  {

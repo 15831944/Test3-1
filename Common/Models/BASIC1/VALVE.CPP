@@ -284,7 +284,7 @@ flag Valve_GP::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag Valve_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag Valve_GP::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_VPB.On(), "Open", 1));
@@ -298,7 +298,7 @@ flag Valve_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag Valve_GP::SetModelAction(Strng & Tag, MdlAction & Act)
+flag Valve_GP::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {
@@ -655,7 +655,7 @@ flag Valve_NR::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag Valve_NR::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag Valve_NR::GetModelAction(MdlActionArray & Acts)
   {
   //MdlAction {MAT_NULL, MAT_State, MAT_Value};
   MdlAction M0(0, MAT_State, !fForceOpen, "Force Open", 1);
@@ -669,7 +669,7 @@ flag Valve_NR::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag Valve_NR::SetModelAction(Strng & Tag, MdlAction & Act)
+flag Valve_NR::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

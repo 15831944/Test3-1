@@ -132,8 +132,11 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         FE_TestModelTagUnique(pchar pTag);
     
     void         EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
-    flag         EO_GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    flag         EO_SetModelAction(Strng & Tag, MdlAction & Act);
+    flag         EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts);
+    flag         EO_SetModelAction(LPCTSTR Tag, MdlAction & Act);
+
+    flag         EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grf);
+    flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
     //flag         EO_SolutionReqd();
     //int          EO_InitSolution(EqnSlvCtrlBlk & EQCtrl);

@@ -302,7 +302,7 @@ void Pump_GP::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag Pump_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag Pump_GP::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_PSB.On(), "Start", 1));
@@ -316,7 +316,7 @@ flag Pump_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag Pump_GP::SetModelAction(Strng & Tag, MdlAction & Act)
+flag Pump_GP::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

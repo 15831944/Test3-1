@@ -47,8 +47,9 @@ class CRptTagsAddRqst
 const int MinShownLines = 0;//;2; // CNM 5;
 const int MaxSetPtrs    = 8;
 
-typedef CMdlValueSet *SetPtr;
-typedef CMdlValueShow *ShwPtr;
+typedef CMdlValueSet *ValueSetPtr;
+typedef CMdlValueShow *ValueShwPtr;
+typedef CMdlGraphicShow *GraphicShwPtr;
 typedef CRptTagsAddRqst *AddPtr;
 const char* BaseFileName = "Scd_RTL.ini";
 
@@ -66,10 +67,12 @@ class CRptTagListCommon
 
     int             m_iSequence;
     int             m_iClear;
-    CList <SetPtr, SetPtr> SetPtrs;
-    CList <ShwPtr, ShwPtr> ShwPtrs;
-    CList <AddPtr, AddPtr> AddPtrs;
-    CList <ShwPtr, ShwPtr> SpareShwPtrs;
+    CList <ValueSetPtr, ValueSetPtr> SetPtrs;
+    CList <ValueShwPtr, ValueShwPtr> ValueShwPtrs;
+    CList <GraphicShwPtr, GraphicShwPtr> GraphicShwPtrs;
+    CList <AddPtr, AddPtr> ValueAddPtrs;
+    CList <AddPtr, AddPtr> GraphicAddPtrs;
+    CList <ValueShwPtr, ValueShwPtr> SpareShwPtrs;
     CCriticalSection  MVCritSect;
   
     char *          m_pSectBuff;
@@ -211,10 +214,10 @@ dbgpln("<< %s %s", pItem, pData);
     }  
   VarTags.SetSize(nVarTags);
 
-  POSITION Pos=ShwPtrs.GetHeadPosition();
+  POSITION Pos=ValueShwPtrs.GetHeadPosition();
   while (Pos)
     {
-    ShwPtr P=ShwPtrs.GetNext(Pos);
+    ValueShwPtr P=ValueShwPtrs.GetNext(Pos);
     P->SetReloadTagsList();
     }
   LVCritSect.Unlock();
@@ -298,7 +301,7 @@ dbgpln(">> %s", S());
   };
 
 
-static CRptTagListCommon Com;
+static CRptTagListCommon gs_RTLCom;
 
 /////////////////////////////////////////////////////////////////////////////
 // Move to TagObj
@@ -371,7 +374,7 @@ void CMdlValueSet::OnOK()
 #endif
   else
     Action.dValue=dNAN;
-  gs_Exec.SetModelAction(sTag, Action);
+  gs_Exec.SetModelAction(sTag(), Action);
 	
 	CDialog::OnOK();
   DestroyWindow();
@@ -392,7 +395,7 @@ BOOL CMdlValueSet::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 #endif
   else
     Action.dValue=dNAN;
-  gs_Exec.SetModelAction(sTag, Action);
+  gs_Exec.SetModelAction(sTag(), Action);
 
   if (IsDlgButtonChecked(IDC_CHECK1))
     {
@@ -453,7 +456,7 @@ void CMdlValueSet::OnCheck1()
     GetDlgItem(IDC_SLIDER1)->EnableWindow(true);
 
     MdlActionArray CurrActs;
-    if (gs_Exec.GetModelAction(sTag, CurrActs))
+    if (gs_Exec.GetModelAction(sTag(), CurrActs))
       {
       if (Action.iIndex<CurrActs.GetSize())
         {
@@ -475,35 +478,35 @@ void CMdlValueSet::OnCheck1()
 
 BOOL CMdlValueSet::DestroyWindow() 
   {
-  Com.MVCritSect.Lock();
+  gs_RTLCom.MVCritSect.Lock();
   POSITION Pos;
-  Pos=Com.SetPtrs.Find(this);
+  Pos=gs_RTLCom.SetPtrs.Find(this);
   if (Pos)
-    Com.SetPtrs.RemoveAt(Pos);
-  Com.MVCritSect.Unlock();
+    gs_RTLCom.SetPtrs.RemoveAt(Pos);
+  gs_RTLCom.MVCritSect.Unlock();
 	return CDialog::DestroyWindow();
   }
 
 void CMdlValueSet::Add(char * pTag, MdlAction & Act, int X, int Y, CWnd* pParent)
   {
-  Com.MVCritSect.Lock();
-  SetPtr P;
+  gs_RTLCom.MVCritSect.Lock();
+  ValueSetPtr P;
   P=new CMdlValueSet(pTag, Act, X, Y, pParent);
-  Com.SetPtrs.AddHead(P);
-  Com.MVCritSect.Unlock();
+  gs_RTLCom.SetPtrs.AddHead(P);
+  gs_RTLCom.MVCritSect.Unlock();
   };
 
 void CMdlValueSet::Clear()
   {
-  Com.MVCritSect.Lock();
-  while (!Com.SetPtrs.IsEmpty())
+  gs_RTLCom.MVCritSect.Lock();
+  while (!gs_RTLCom.SetPtrs.IsEmpty())
     {
-    SetPtr P;
-    P=Com.SetPtrs.RemoveHead();
+    ValueSetPtr P;
+    P=gs_RTLCom.SetPtrs.RemoveHead();
     P->DestroyWindow();
     delete P;
     }
-  Com.MVCritSect.Unlock();
+  gs_RTLCom.MVCritSect.Unlock();
   }
 
 void CMdlValueSet::StartUp()
@@ -514,8 +517,11 @@ void CMdlValueSet::ShutDown()
   {
   };
 
-/////////////////////////////////////////////////////////////////////////////
+//===========================================================================
+//
 // CMdlValueShow dialog
+//
+//===========================================================================
 
 const long TWideInit=40;
 const long DWideInit=25;
@@ -594,12 +600,12 @@ END_MESSAGE_MAP()
 
 BOOL CMdlValueShow::DestroyWindow() 
   {
-  Com.MVCritSect.Lock();
+  gs_RTLCom.MVCritSect.Lock();
   POSITION Pos;
-  Pos=Com.ShwPtrs.Find(this);
+  Pos=gs_RTLCom.ValueShwPtrs.Find(this);
   if (Pos)
-    Com.ShwPtrs.RemoveAt(Pos);
-  Com.MVCritSect.Unlock();
+    gs_RTLCom.ValueShwPtrs.RemoveAt(Pos);
+  gs_RTLCom.MVCritSect.Unlock();
 	return CDialog::DestroyWindow();
   }
 
@@ -764,12 +770,12 @@ void CMdlValueShow::DoTheUpdate()
         m_bMustLoadTags=false;
         if (m_sObjClassId())
           {
-          Com.LoadVarTags(m_sObjClassId(), NULL, m_TagItems, nTagItems);
+          gs_RTLCom.LoadVarTags(m_sObjClassId(), NULL, m_TagItems, nTagItems);
           if (nTagItems==0)
             {
-            Com.m_InBaseCfg =true;      
-            Com.LoadVarTags(m_sObjClassId(), NULL, m_TagItems, nTagItems);
-            Com.m_InBaseCfg =false;      
+            gs_RTLCom.m_InBaseCfg =true;      
+            gs_RTLCom.LoadVarTags(m_sObjClassId(), NULL, m_TagItems, nTagItems);
+            gs_RTLCom.m_InBaseCfg =false;      
             }
           //CRptTagLists::Show(m_sObjClassId(), false);
           }
@@ -897,12 +903,12 @@ void CMdlValueShow::DoTheUpdate()
           if (iT)
             m_DataStr[iTag]+="\r";
           
-          if (sValue.Length()<Com.m_lMaxValueLen)
+          if (sValue.Length()<gs_RTLCom.m_lMaxValueLen)
             m_DataStr[iTag]+=sValue();
           else
             {
             Strng S=sValue();
-            S.SetLength(Com.m_lMaxValueLen-3);
+            S.SetLength(gs_RTLCom.m_lMaxValueLen-3);
             S+="...";
             m_DataStr[iTag]+=S();
             }
@@ -1515,9 +1521,9 @@ void CMdlValueShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, 
     Add->m_Append=Append;
     Add->m_pParent=pParent;
 
-    Com.MVCritSect.Lock();	
-    Com.AddPtrs.AddTail(Add);
-    Com.MVCritSect.Unlock();
+    gs_RTLCom.MVCritSect.Lock();	
+    gs_RTLCom.ValueAddPtrs.AddTail(Add);
+    gs_RTLCom.MVCritSect.Unlock();
     if (!gs_Exec.Busy())
       UpdateAll();
     }
@@ -1550,37 +1556,37 @@ void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWn
   else
     LogError((char*)pTag, 0, "ClassId not found");
 
-  Com.MVCritSect.Lock();	
+  gs_RTLCom.MVCritSect.Lock();	
   if (Append)
     {
-    POSITION Pos=Com.ShwPtrs.GetHeadPosition();
+    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
     while (Pos)
       {
-      ShwPtr P=Com.ShwPtrs.GetNext(Pos);
+      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
       if (P->AcceptNewTag(pTag, ObjClassId()))
         {
         P->DoTheUpdate();
-        Com.MVCritSect.Unlock();	
+        gs_RTLCom.MVCritSect.Unlock();	
         return;
         }
       }
     }
 
   //dbgpln("CMdlValueShow::Add - AddIt");
-  ShwPtr P=new CMdlValueShow(pTag, X, Y, Pinned, pParent);
-  P->m_iSequence=Com.m_iSequence;
-  Com.ShwPtrs.AddHead(P);
+  ValueShwPtr P=new CMdlValueShow(pTag, X, Y, Pinned, pParent);
+  P->m_iSequence=gs_RTLCom.m_iSequence;
+  gs_RTLCom.ValueShwPtrs.AddHead(P);
 //  P->AtStart(pTag, X, Y, Pinned);
   P->ShowWindow(SW_SHOWNOACTIVATE);
-  Com.MVCritSect.Unlock();	
+  gs_RTLCom.MVCritSect.Unlock();	
   };
 
 void CMdlValueShow::TryClear(bool All)
   {
-  Com.MVCritSect.Lock();	
+  gs_RTLCom.MVCritSect.Lock();	
   //dbgpln("CMdlValueShow::TryClear");
-  Com.m_iClear=All?2:1;
-  Com.MVCritSect.Unlock();
+  gs_RTLCom.m_iClear=All?2:1;
+  gs_RTLCom.MVCritSect.Unlock();
   if (!gs_Exec.Busy())
     UpdateAll();
   }
@@ -1588,27 +1594,27 @@ void CMdlValueShow::TryClear(bool All)
 bool CMdlValueShow::Clear(bool All)
   {
   bool Ret=true;
-  Com.MVCritSect.Lock();	
+  gs_RTLCom.MVCritSect.Lock();	
   //dbgpln("CMdlValueShow::Clear");
   if (All)
     {
-    while (!Com.ShwPtrs.IsEmpty())
+    while (!gs_RTLCom.ValueShwPtrs.IsEmpty())
       {
-      ShwPtr P=Com.ShwPtrs.GetHead();
+      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetHead();
       P->DestroyWindow();
       delete P;
       }
     }
   else
     {
-    POSITION Pos=Com.ShwPtrs.GetHeadPosition();
+    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
     while (Pos)
       {
       POSITION DelP=Pos;
-      ShwPtr P=Com.ShwPtrs.GetNext(Pos);
+      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
       if (!P->m_bPinned)
         {
-        if (P->m_iSequence==Com.m_iSequence)
+        if (P->m_iSequence==gs_RTLCom.m_iSequence)
           Ret=false;
         else
           {
@@ -1619,40 +1625,40 @@ bool CMdlValueShow::Clear(bool All)
         }
       }
     }
-  Com.MVCritSect.Unlock();
+  gs_RTLCom.MVCritSect.Unlock();
   return Ret;
   }
 
 void CMdlValueShow::UpdateAll()
   {
-  Com.MVCritSect.Lock();
+  gs_RTLCom.MVCritSect.Lock();
   //dbgpln("CMdlValueShow::UpdateAll");
 
-  while (!Com.AddPtrs.IsEmpty())
+  while (!gs_RTLCom.ValueAddPtrs.IsEmpty())
     {
-    AddPtr A=Com.AddPtrs.RemoveHead();
+    AddPtr A=gs_RTLCom.ValueAddPtrs.RemoveHead();
     Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
     //dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
     //    P->DoTheAddByMsg(A);
     delete A;
     }
 
-  POSITION Pos=Com.ShwPtrs.GetHeadPosition();
+  POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
   while (Pos)
     {
-    ShwPtr P=Com.ShwPtrs.GetNext(Pos);
+    ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
     P->DoTheUpdateByMsg();
     }
-  if (Com.m_iClear)
+  if (gs_RTLCom.m_iClear)
     {
-    //dbgpln("                             Clear >>>>>>> %s",Com.m_iClear==2?"All":"");
-    if (Clear(Com.m_iClear==2))
-      Com.m_iClear=0;
+    //dbgpln("                             Clear >>>>>>> %s",gs_RTLCom.m_iClear==2?"All":"");
+    if (Clear(gs_RTLCom.m_iClear==2))
+      gs_RTLCom.m_iClear=0;
     }
-  Com.m_iSequence++;
-  if (Com.m_iSequence>1000)
-    Com.m_iSequence=0;
-  Com.MVCritSect.Unlock();	
+  gs_RTLCom.m_iSequence++;
+  if (gs_RTLCom.m_iSequence>1000)
+    gs_RTLCom.m_iSequence=0;
+  gs_RTLCom.MVCritSect.Unlock();	
   }
 
 LRESULT CMdlValueShow::OnUpdateWnd(WPARAM wParam, LPARAM lParam)
@@ -1667,7 +1673,7 @@ void CMdlValueShow::DeleteItem(char * pObjClassId, int Index)
     return;
   Strng Sect, Item;
   Sect.Set("%s.View.Vars", pObjClassId);
-  CProfINIFile PF(Com.RTLFileName());
+  CProfINIFile PF(gs_RTLCom.RTLFileName());
   Item.Set("V%i",Index);
   PF.WrStr(Sect(), Item(), "");
   };
@@ -1683,7 +1689,7 @@ flag CMdlValueShow::FindItem(char * pObjClassId, int Index, CVarTagItem & TagIte
   StripClassIdVersion(ObjClassId);
   Strng Sect, Item;
   Sect.Set("%s.View.Vars", ObjClassId());
-  CProfINIFile PF(Com.RTLFileName());
+  CProfINIFile PF(gs_RTLCom.RTLFileName());
   Item.Set("V%i",Index);
   Strng Val(PF.RdStr(Sect(), Item(), ""));//, Val()));
 
@@ -1885,7 +1891,7 @@ void CMdlValueShow::OnRButtonUp(UINT nFlags, CPoint point)
 bool CMdlValueShow::AcceptNewTag(char * pTag, char * pObjClassId)
   {
   if (pObjClassId && (m_sObjClassId.XStrICmp(pObjClassId)==0))
-    if (m_nTags<MdlValueShowMaxTags && m_nTags<Com.m_lMaxTags)
+    if (m_nTags<MdlValueShowMaxTags && m_nTags<gs_RTLCom.m_lMaxTags)
       {
       m_sTag[m_nTags++]=pTag;
       // In case wnd is hidden
@@ -1902,6 +1908,1446 @@ void CMdlValueShow::OnNcPaint()
   CDialog::OnNcPaint();
   }
 
+//---------------------------------------------------------------------------
+
+void CMdlValueShow::OnClose() 
+  {
+  //_bMustDestroy=true;
+  CDialog::OnClose();
+  DestroyWindow();
+  delete this;
+  }
+
+//===========================================================================
+//
+// CMdlGraphicShow dialog
+//
+//===========================================================================
+
+//const long TWideInit=40;
+//const long DWideInit=25;
+//const long CWideInit=25;
+
+CMdlGraphicShow::CMdlGraphicShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, bool Pinned, CWnd* pParent /*=NULL*/)
+	: CDialog()//CMdlGraphicShow::IDD, pParent)
+  {
+  m_nTags=1;
+  m_sTag[0]=pTag;  
+  m_iX=X;
+  m_iY=Y;
+  m_bPinned=Pinned;
+  m_bMustLoadTags=true;
+  
+  //m_TWide=TWideInit;
+  //m_DWide=DWideInit;
+  //m_CWide=CWideInit;
+  //m_TotWide=10;
+  //m_TotDeep=10;
+  m_bAllowMove=true;
+  m_iSequence=-1;
+  
+  m_MousePt.x=-1;
+  m_MouseFlags=0;
+
+  //m_iChartItem=-1;
+  //for (int i=0; i<MdlValueShowMaxItems; i++)
+  //  {
+  //  m_ItemChartOn[i]=false;
+  //  m_ItemChartWithZero[i]=false;
+  //  }
+  //m_iTagSelected=0;
+  //m_ItemChartColourIndex=0;
+
+  //for (int i=0; i<MdlValueShowMaxStatusBlks; i++)
+  //  {
+  //  m_StateShw[i]=0;
+  //  for (int j=0; j<MdlValueShowMaxTags; j++)
+  //    {
+  //    m_StateCh[j][i]=0;
+  //    m_StateCol[j][i]=0;
+  //    }
+  //  }
+
+  //{{AFX_DATA_INIT(CMdlGraphicShow)
+		// NOTE: the ClassWizard will add member initialization here
+	//}}AFX_DATA_INIT
+  Create(CMdlGraphicShow::IDD, pParent);
+  SetWindowText(pTag);
+  }
+
+void CMdlGraphicShow::DoDataExchange(CDataExchange* pDX)
+  {
+	CDialog::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CMdlGraphicShow)
+		// NOTE: the ClassWizard will add DDX and DDV calls here
+	//}}AFX_DATA_MAP
+  }
+
+
+BEGIN_MESSAGE_MAP(CMdlGraphicShow, CDialog)
+	//{{AFX_MSG_MAP(CMdlGraphicShow)
+	ON_WM_PAINT()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_NCPAINT()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
+	ON_WM_CLOSE()
+  ON_WM_SIZE()
+  //ON_WM_MOVE()
+	//}}AFX_MSG_MAP
+  ON_MESSAGE(WMU_UPDATESHOWWND, OnUpdateWnd)
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CMdlGraphicShow message handlers
+
+BOOL CMdlGraphicShow::DestroyWindow() 
+  {
+  gs_RTLCom.MVCritSect.Lock();
+  POSITION Pos;
+  Pos=gs_RTLCom.GraphicShwPtrs.Find(this);
+  if (Pos)
+    gs_RTLCom.GraphicShwPtrs.RemoveAt(Pos);
+  gs_RTLCom.MVCritSect.Unlock();
+	return CDialog::DestroyWindow();
+  }
+
+BOOL CMdlGraphicShow::OnInitDialog() 
+  {
+	CDialog::OnInitDialog();
+  AtStart(m_sTag[0](), m_iX, m_iY, m_bPinned);
+  return TRUE;
+  }
+	
+void CMdlGraphicShow::AtStart(char * pTag, int X, int Y, bool Pinned)
+  {
+  SetWindowText(pTag);
+  m_nTags=1;
+  m_sTag[0]=pTag;  
+  m_iX=X;
+  m_iY=Y;
+  m_bPinned=Pinned;
+
+  //m_iChartItem=-1;
+  //for (int i=0; i<MdlValueShowMaxItems; i++)
+  //  {
+  //  m_ItemChartOn[i]=false;      
+  //  m_ItemChartWithZero[i]=false;
+  //  }
+  long Style=GetWindowLong(m_hWnd, GWL_STYLE);
+  if (Pinned)
+    Style|=/*WS_CAPTION|*/WS_SYSMENU;
+  else
+    Style=Style&~(/*WS_CAPTION|*/WS_SYSMENU);
+
+  SetWindowLong(m_hWnd, GWL_STYLE, Style);
+
+//  long ExStyle=GetWindowLong(m_hWnd, GWL_EXSTYLE);
+//  Style|=WS_EX_TOOLWINDOW;
+//  SetWindowLong(m_hWnd, GWL_EXSTYLE, ExStyle);
+
+  //m_TagStr="Collecting Data !";
+  //m_DataStr[0]=" ";
+  //m_CnvStr=" ";
+  //m_nLines=0;
+  RECT R;
+  GetWindowRect(&R);
+  MoveWindow(m_iX,m_iY, R.right-R.left, R.bottom-R.top);
+  BringWindowToTop();
+  
+  if (!gs_Exec.Busy() || gs_Exec.Waiting())
+    DoTheUpdate(); 
+  }
+
+//struct Defaults {char * Lbl; char * Tag; CCnvIndex CnvTyp; char * CnvTxt;};
+//static Defaults StdDefs[]= {    
+//  {"Qm",    "Qm",     DC_Qm,    "kg/s"},
+//  {"Qv",    "Qv",     DC_Qv,    "m^3/s"},
+//  {"T",     "T",      DC_T,     "C"},
+//  {"P",     "P",      DC_P,     "kPag"},
+//  {"Pi",    "Pi",     DC_P,     "kPag"},
+//  {"Po",    "Po",     DC_P,     "kPag"},
+//  {"Lvl",   "Lvl",    DC_Frac,  "%"},
+//  {"Rho",   "Rho",    DC_Rho,   "kg/m^3"},
+//  {"Value", "Value",  DC_Frac,  "%"},
+//  {NULL, NULL, DC_, ""}
+//  };
+
+/*#if WithQAL
+static Defaults QALDefs[]= {
+  {"Qm",                "Qm",               DC_Qm,    "t/h"},
+  {"Qv",                "Qv",               DC_Qv,    "kL/h"},
+  {"Po",                "Po",               DC_P,     "kPa"},
+  {"T",                 "T",                DC_T,     "C"},
+  {"Qo.CausticConc25",  "Qo.CausticConc25", DC_Conc,  "g/L"},
+  {"Qo.A/C",            "Qo.A/C",           DC_Frac,  ""},
+  {"Qo.SolidsConc25",   "Qo.SolidsConc25",  DC_Conc,  "g/L"},
+  {"Qo.BPE",            "Qo.BPE",           DC_dT,    "C"},
+  {NULL, NULL, DC_, ""}
+  };
+#endif*/
+
+
+//const dword VisStates = FNS_InActive|
+//                        FNS_Hold|
+//                        FNS_Error|
+//                        FNS_Warning|
+//                        FNS_Tear|
+//                        FNS_MacMdl|
+//                        FNS_On|
+//                        FNS_Off|
+//                        FNS_IsSrc|FNS_NettQmP|
+//                        FNS_IsSnk|FNS_NettQmN|
+//                        FNS_UFlw|FNS_LFlwP|FNS_LFlwN|
+//                        FNS_UNoFlw|FNS_LNoFlw|FNS_LnkXfer|
+//                        FNS_Marked;
+
+void CMdlGraphicShow::DoTheUpdateByMsg()
+  {
+  //dbgpln("CMdlGraphicShow::DoTheUpdateByMsg");
+  PostMessage(WMU_UPDATESHOWWND, 0, 0);
+  }
+
+//#define BLDSTATE(iTag, iState, Ch, Col)   \
+//  {                                       \
+//  m_StateShw[iState]=true;                \
+//  m_StateCh[iTag][iState]=Ch;             \
+//  m_StateCol[iTag][iState]=Col;           \
+//  }
+
+void CMdlGraphicShow::DoTheUpdate() 
+  {
+  //dbgpln("CMdlGraphicShow::DoTheUpdate");
+  if (m_nTags<1)
+    return;
+  SetWindowText(m_nTags>1 ? m_sObjClassId() : m_sTag[0]());
+
+  Invalidate(0); //  RedrawWindow(0,0,RDW_INVALIDATE|RDW_UPDATENOW);
+  //m_TagStr="";
+  //m_DataStr[0]="";
+  //m_CnvStr="";
+  //m_nLines=0;
+
+  //CXM_ObjectData ObjData;
+  //CXM_Route      Route;
+
+  //flag ItemUsed[MdlValueShowMaxItems];
+  //Strng ItemTag[MdlValueShowMaxItems];
+  //Strng ItemCnv[MdlValueShowMaxItems];
+  //for (int iT=0; iT<MdlValueShowMaxItems; iT++)
+  //  ItemUsed[iT]=0;
+
+  ////m_nStates=0;
+  //for (int i=0;i<MdlValueShowMaxStatusBlks; i++)
+  //  {
+  //  m_StateShw[i]=0;
+  //  for (int iTag=0; iTag<m_nTags; iTag++)
+  //    m_StateCh[iTag][i]='\0';
+  //  }
+  //for (int iTag=0; iTag<m_nTags; iTag++)
+  //  {
+  //  m_DataStr[iTag]="";
+  //  
+  //  Strng_List sStrList;
+
+  //  Strng T;
+  //  T.Set("%s.ClassId", m_sTag[iTag]);
+
+  //  CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
+
+  //  if (m_sTag[iTag].Length()==0)
+  //    continue;
+  //  
+  //  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+  //    {
+  //    m_sObjClassId="";
+  //    CPkDataItem * pItem=ObjData.FirstItem();
+  //    if (IsStrng(pItem->Type()))
+  //      {
+  //      m_sObjClassId = pItem->Value()->GetString("", "", 0, "");
+  //      StripClassIdVersion(m_sObjClassId);        
+  //      }
+
+  //    int nTagItems=0;
+  //    if (m_bMustLoadTags)
+  //      {
+  //      m_bMustLoadTags=false;
+  //      if (m_sObjClassId())
+  //        {
+  //        gs_RTLCom.LoadVarTags(m_sObjClassId(), NULL, m_TagItems, nTagItems);
+  //        if (nTagItems==0)
+  //          {
+  //          gs_RTLCom.m_InBaseCfg =true;      
+  //          gs_RTLCom.LoadVarTags(m_sObjClassId(), NULL, m_TagItems, nTagItems);
+  //          gs_RTLCom.m_InBaseCfg =false;      
+  //          }
+  //        //CRptTagLists::Show(m_sObjClassId(), false);
+  //        }
+
+  //      if (nTagItems==0)
+  //        {
+  //        Defaults *Defs = &StdDefs[0];
+  //        /*#if WithQAL
+  //        if (QALOptions())
+  //          Defs=&QALDefs[0];
+  //        #endif*/
+  //    
+  //        for (int iT=0; Defs[iT].Tag; iT++)
+  //          {
+  //          if (iT>=MdlValueShowMaxItems)
+  //            {
+  //            LogWarning("View", 0, "Too many show Items");
+  //            break;
+  //            }
+  //          m_TagItems.SetSize(Max(iT+1, m_TagItems.GetSize()),MdlValueShowMaxItems);
+  //          m_TagItems[iT].m_sLabel=Defs[iT].Lbl;
+  //          m_TagItems[iT].m_sTag=Defs[iT].Tag;
+  //          m_TagItems[iT].m_Fmt.Set("XX", 0, 2, 'f');
+  //          m_TagItems[iT].m_Cnv.Set(Defs[iT].CnvTyp, Defs[iT].CnvTxt);
+  //          }
+  //        }
+  //      else
+  //        {
+  //        if (nTagItems>=MdlValueShowMaxItems)
+  //          {
+  //          LogWarning("View", 0, "Too many show Items");
+  //          m_TagItems.SetSize(MdlValueShowMaxItems,MdlValueShowMaxItems);
+  //          }
+  //        }
+  //      }
+  //    nTagItems=m_TagItems.GetSize();
+
+  //    if (1)
+  //      {
+  //      T.Set("%s.Condition", m_sTag[iTag]());
+  //      CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
+  //      CXM_ObjectData ObjData;
+  //      CXM_Route      Route;
+  //      if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+  //        {
+  //        CPkDataItem * pItem=ObjData.FirstItem();
+  //        m_CondStr[iTag]="";
+  //        if (IsStrng(pItem->Type()))
+  //          m_CondStr[iTag]= pItem->Value()->GetString();
+  //        else
+  //          LogError("View", 0, "Tag '%s' not allowed.", T());
+  //        }
+  //      }
+
+  //    for (int iT=0; iT<nTagItems; iT++)
+  //      {
+  //      T.Set("%s.%s", m_sTag[iTag](), m_TagItems[iT].m_sTag());
+  //      CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
+  //      CXM_ObjectData ObjData;
+  //      CXM_Route      Route;
+
+  //      if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+  //        {
+  //        CPkDataItem * pItem=ObjData.FirstItem();
+  //        int cType=pItem->Type();
+  //        Strng &Lbl=m_TagItems[iT].m_sLabel;
+  //        Strng &Tag=m_TagItems[iT].m_sTag;
+  //        CnvAttribute &Cnv=m_TagItems[iT].m_Cnv;
+  //        FmtAttribute &Fmt=m_TagItems[iT].m_Fmt;
+
+  //        Cnv.SetIndex(pItem->CnvIndex());
+  //        if ((Cnv.TextLength()==0) || (Cnvs[Cnv.Index()]->Find(Cnv.Text())==NULL))
+  //          Cnv.SetText(pItem->CnvTxt());
+
+  //        Strng UseCnvTxt;//(Cnv.Text);
+  //        CDataCnv & C=*Cnvs[Cnv.Index()];
+  //        if (C.OverTxt())
+  //          UseCnvTxt=C.OverTxt();
+  //        else if (Cnv.TextLength()>0)
+  //          UseCnvTxt=Cnv.Text();
+  //        else
+  //          UseCnvTxt=" ";
+
+  //        if (!ItemUsed[iT])
+  //          {
+  //          ItemUsed[iT]=1;
+  //          ItemTag[iT]=Lbl();
+  //          ItemCnv[iT]=UseCnvTxt();
+  //          }
+
+  //        sStrList.Clear();
+  //        if (pItem->Contains(PDI_StrList))
+  //          pItem->GetStrList(sStrList);
+
+  //        Strng sValue("???");
+  //        if (IsNumData(cType))
+  //          {
+  //          if (IsFloatData(cType))
+  //            {
+  //            double dValue=pItem->Value()->GetDouble(Cnv.Index(), UseCnvTxt());
+  //            Fmt.FormatFloat(dValue, sValue);
+  //            }
+  //          else if (sStrList.Length()>0)
+  //            {
+  //            long i=pItem->Value()->GetLong(Cnv.Index(), UseCnvTxt());
+  //            pStrng p=sStrList.AtIndexVal(i);
+  //            if (p)
+  //              sValue.Set("%i-%s", i, p->Str());
+  //            else
+  //              sValue.Set("%i", i);
+  //            }
+  //          else
+  //            sValue = pItem->Value()->GetString("%i", "%g", Cnv.Index(), UseCnvTxt());
+  //          }
+  //        else if (IsData(cType))
+  //          {
+  //          sValue = pItem->Value()->GetString("%i", "%g", Cnv.Index(), UseCnvTxt());
+  //          }
+  //        else
+  //          LogError("View", 0, "Tag '%s' not allowed.", T());
+  //      
+  //        if (!sValue.Length())
+  //          sValue=" ";
+  //        
+  //        if (iT)
+  //          m_DataStr[iTag]+="\r";
+  //        
+  //        if (sValue.Length()<gs_RTLCom.m_lMaxValueLen)
+  //          m_DataStr[iTag]+=sValue();
+  //        else
+  //          {
+  //          Strng S=sValue();
+  //          S.SetLength(gs_RTLCom.m_lMaxValueLen-3);
+  //          S+="...";
+  //          m_DataStr[iTag]+=S();
+  //          }
+  //        #if dbgBuild     
+  //        dbgpln("%s = %s", T(),sValue());
+  //        #endif     
+  //        }
+  //      else
+  //        {
+  //        #if dbgBuild     
+  //        dbgpln("%s - MISSING", T());
+  //        #endif     
+  //        if (iT)
+  //          m_DataStr[iTag]+="\r";
+  //        }
+  //      }
+
+  //    if (gs_pTheSFELib && m_sTag[iTag]())
+  //      {
+  //      dword Status=gs_pTheSFELib->FE_GetModelStatus(m_sTag[iTag]());
+  //      if ((Status&VisStates)!=0)
+  //        {
+  //        int iState=0;
+  //        if (Status & FNS_InActive)
+  //          {
+  //          BLDSTATE(iTag, iState, 'i', GR_MDLSTATUS_INACTIVE)
+  //          iState++;
+  //          }
+  //        else
+  //          {
+  //          //if (Status & FNS_Marked)
+  //          //  BLDSTATE(iTag, iState, '*', GR_HIGHLIGHT) 
+  //          //iState++;
+
+  //          if (Status & FNS_Error)
+  //            BLDSTATE(iTag, iState, 'e', GR_MDLSTATUS_ERROR) 
+  //          iState++;
+
+  //          if (Status & FNS_Warning)
+  //            BLDSTATE(iTag, iState, 'w', GR_MDLSTATUS_WARNING)
+  //          iState++;
+
+  //          if (Status & FNS_Tear)
+  //            BLDSTATE(iTag, iState, 't', GR_MDLSTATUS_TEAR)
+  //
+  //          iState++;
+  //          if (Status & FNS_MacMdl)
+  //            BLDSTATE(iTag, iState, 'm', GR_MDLSTATUS_MACMDL)
+  //          iState++;
+
+  //          if (Status & FNS_On)
+  //            BLDSTATE(iTag, iState, '!', GR_MDLSTATUS_ON)
+  //          else if (Status & FNS_Off)
+  //            BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
+  //          iState++;
+
+  //          if (Status & (FNS_IsSrc|FNS_NettQmP))
+  //            {
+  //            if (Status & FNS_IsSrc)
+  //              BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_ISSRC)
+  //            else
+  //              BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
+  //            }
+  //          else if (Status & (FNS_IsSnk|FNS_NettQmN))
+  //            {
+  //            if (Status & FNS_IsSnk)
+  //              BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_ISSNK)
+  //            else
+  //              BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
+  //            }
+  //          iState++;
+
+  //          if (Status & (FNS_UFlw|FNS_LFlwP|FNS_LFlwN))
+  //            {
+  //            if (Status & FNS_UFlw)
+  //              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_UFLW)
+  //            else if (Status & FNS_LFlwP)
+  //              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
+  //            else
+  //              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
+  //            }
+  //          else if (Status & (FNS_UNoFlw|FNS_LNoFlw))
+  //            {
+  //            if (Status & FNS_UNoFlw)
+  //              BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_UNOFLW)
+  //            else
+  //              BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
+  //            }
+  //          iState++;
+
+  //          if (Status & FNS_Hold)
+  //            BLDSTATE(iTag, iState, 'h', GR_MDLSTATUS_INACTIVE)
+  //          iState++;
+  //          }
+  //        };
+  //      }
+  //    }
+  //  }
+  
+  //long nRemoved=0;
+  //for (iT=0; iT<MdlValueShowMaxItems; iT++)
+  //  if (!ItemUsed[iT])
+  //    {
+  //    // Remove Extra Blank Fields
+  //    for (int iTag=0; iTag<m_nTags; iTag++)
+  //      if (m_DataStr[iTag].Length()>0)
+  //        {
+  //        char Buff[4096];
+  //        strcpy(Buff, m_DataStr[iTag]());
+  //        char * p=Buff;
+  //        int i=0;
+  //        while (p && i++<iT-nRemoved)
+  //          {
+  //          if (p=strchr(p, '\r'))
+  //            p=p+1;
+  //          }
+  //        if (p  &&strlen(p))
+  //          {
+  //          memmove(p, p+1, strlen(p)+1);
+  //          // Done Restore
+  //          m_DataStr[iTag]=Buff;
+  //          }
+  //        }
+  //    nRemoved++;
+  //    }
+  //  else
+  //    {
+  //    if (m_nLines)
+  //      {
+  //      m_TagStr+="\r";
+  //      m_CnvStr+="\r";
+  //      }
+  //    m_TagStr+=ItemTag[iT]();
+  //    m_CnvStr+=ItemCnv[iT]();
+  //    m_nLines++;
+  //    }
+
+  //while (m_nLines<MinShownLines)
+  //  {
+  //  if (m_nLines)
+  //    {
+  //    m_TagStr+="\r";
+  //    m_CnvStr+="\r";              
+  //    for (int iTag=0; iTag<m_nTags; iTag++);
+  //      m_DataStr[iTag]+="\r";
+  //    }
+  //  m_TagStr+=" ";
+  //  m_CnvStr+=" ";
+  //  for (int iTag=0; iTag<m_nTags; iTag++);
+  //    m_DataStr[iTag]+=" ";
+  //  m_nLines++;
+  //  }
+
+  m_bAllowMove=true;
+
+  Invalidate();
+  }
+
+//static COLORREF Colours[]=
+//  {
+//  GR_LIGHTBLUE,
+//  GR_LIGHTGREEN,
+//  GR_LIGHTRED,
+//  GR_LIGHTYELLOW,
+//  GR_LIGHTMAGENTA,
+//  GR_LIGHTCYAN,
+//  GR_WHITE,
+//  GR_BLACK,
+//  GR_BLUE,
+//  GR_GREEN,
+//  GR_RED,
+//  GR_MAGENTA,
+//  GR_CYAN,
+//  };
+//static long nColours=sizeof(Colours)/sizeof(Colours[0]);
+
+void CMdlGraphicShow::OnPaint() 
+  {
+	CPaintDC dc(this); // device context for painting
+  CDCResChk ResChk(dc);
+	
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+
+  CFont * OldFont=dc.SelectObject(GetFont()); // Italic
+  int OldBkMode=dc.SetBkMode(TRANSPARENT);
+  CPen * OldPen=dc.GetCurrentPen();
+
+  GetClientRect(&ClientRct);
+  CRect RctX;
+  RctX.SetRect(0,0,1,1);
+
+  CRect RctT=RctX;
+  CRect RctC=RctX;
+  CRect RctCI=RctX;
+  CRect RctD[MdlValueShowMaxTags];
+  for (int iTag=0; iTag<m_nTags; iTag++)
+    RctD[iTag]=RctX;
+
+  dc.DrawText("X",  1,  RctX, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+
+  CMdlGraphicWnd MGW(MGT_Draw, this, &dc, &ClientRct, &RctX);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+
+  long NBlks=0;
+  //for (int i=0;i<MdlValueShowMaxStatusBlks; i++)
+  //  if(m_StateShw[i])
+  //    NBlks++;
+  //ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks")
+  
+  long BlkW=RctX.Width();
+  long BlkH=RctX.Height();
+  long BlkWTot=BlkW*NBlks;
+
+//  if (m_TagStr.Length())
+//    dc.DrawText(m_TagStr(),  m_TagStr.Length(),  RctT, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//  if (m_CnvStr.Length())
+//    dc.DrawText(m_CnvStr(),  m_CnvStr.Length(),  RctC, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//  for (iTag=0; iTag<m_nTags; iTag++)
+//    {
+//    if (m_DataStr[iTag].Length())
+//      dc.DrawText(m_DataStr[iTag](), m_DataStr[iTag].Length(), RctD[iTag], DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_RIGHT); 
+//    }
+//
+//  //flag DoCond=(m_CondStr.Length()>0);
+//
+////  dword StatusA[MdlValueShowMaxTags];
+////  for (iTag=0; iTag<m_nTags; iTag++)
+////    StatusA[iTag]=0;
+//
+//  flag DoStatus=true;
+//
+//  m_iTagSelected=Range(0L, m_iTagSelected, m_nTags);
+//
+//  int nStatus=1;
+//  int nConds=1;
+//  char * p=m_CondStr[m_iTagSelected]();
+//  if (p)
+//    {
+//    while ((p=strchr(p, '\n'))!=NULL)
+//      {
+//      p++;
+//      nConds++;
+//      }
+//    dc.DrawText(m_CondStr[m_iTagSelected](),  m_CondStr[m_iTagSelected].Length(),  RctCI, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//    }
+//
+//  long XW=RctX.right;
+//  long XW2=RctX.right/2;
+//
+//  m_TWide=Max(m_TWide, RctT.right+XW2);
+//  m_CWide=Max(m_CWide, RctC.right+XW2);
+//  m_DWide=Max(m_DWide, BlkWTot/*+3*XW*/);
+//  for (iTag=0; iTag<m_nTags; iTag++)
+//    m_DWide=Max(m_DWide, RctD[iTag].right/*+XW*/);
+//  m_TotWide=Max(m_TWide+XW+m_nTags*(m_DWide+XW)+m_CWide+XW2, (long)RctCI.Width());
+//  
+//
+//  flag DoChart=0;
+//  if (m_nTags>1)
+//    {
+//    DoChart=m_iChartItem>=0;
+//    for (int i=0; i<m_nLines; i++)
+//      DoChart = DoChart || m_ItemChartOn[i];
+//    }
+//
+//  long TagLine=(m_nTags>1)? 1:0;
+//  long LineHgt=RctX.Height();
+//  long CondDeep=nConds*LineHgt;
+//  long ChartRows=4;
+//  long ChartDeep= DoChart ? ChartRows*LineHgt : 0;
+//  long StatusDeep=1*LineHgt;
+//  long HeadDeep= TagLine*LineHgt;
+//    
+//  m_TotDeep=RctT.bottom+HeadDeep+CondDeep+StatusDeep+ChartDeep;
+//
+//  CRect DTRct;
+//  AfxGetMainWnd()->GetWindowRect(&DTRct);
+//  CRect WRct;
+//  GetWindowRect(&WRct);
+//  long ICx=GetSystemMetrics(SM_CXSMICON);
+//  long ICy=GetSystemMetrics(SM_CYSMICON);
+//  long ICyC=GetSystemMetrics(SM_CYSMCAPTION);
+//
+//  bool DoMove=false;
+//  if (m_bAllowMove)
+//    {
+//    if (m_TotWide>ClientRct.right || m_TotDeep>ClientRct.bottom || m_TotDeep<ClientRct.bottom)
+//      {
+//      WRct.right+=m_TotWide-ClientRct.right;
+//      WRct.bottom+=m_TotDeep-ClientRct.bottom;
+//      DoMove=true;
+//      }
+//
+//    int XErrL=Min(0L, WRct.right-(DTRct.left+m_TotWide));
+//    int XErrR=Max(0L, WRct.left-(DTRct.right-m_TotWide));
+//    int YErrT=Min(0L, WRct.top-DTRct.top);
+//    int YErrB=Max(0L, WRct.top/*+ICyC*/-(DTRct.bottom-(m_TotDeep+ICyC)));
+//    
+//    if (XErrL || XErrR || YErrT || YErrB)
+//      {
+//      WRct.OffsetRect(-(XErrL+XErrR), -(YErrT+YErrB));
+//      DoMove=true;
+//      }
+//    }
+//
+//  if (DoMove)
+//    {
+//    m_bAllowMove=false;
+//    Invalidate();
+//    MoveWindow(WRct);
+//    }
+//  else
+//    {
+//    CPen Pen1(BS_SOLID,1,RGB(0x80, 0x80, 0x80));
+//    CPen Pen2(BS_SOLID,2,RGB(0x80, 0x80, 0x80));
+//
+//    CPen*pPenMem=dc.SelectObject(&Pen1);
+//    int iItem=nStatus>0 ? -1:0;
+//    for (int i=TagLine+nConds; i<=m_nLines+TagLine+nConds+nStatus; i++)
+//      {
+//      int y=i*LineHgt+1;
+//      POINT Pts[2];
+//      Pts[0].x=0;
+//      Pts[0].y=y;
+//      Pts[1].x=ClientRct.right;
+//      Pts[1].y=y;
+//      dc.Polyline(Pts, 2);
+//
+//      if (iItem>=0)
+//        m_ItemClientRow[iItem]=y;
+//      iItem++;
+//      }
+//    if (iItem)
+//      m_ItemClientRow[iItem]=m_ItemClientRow[iItem-1]+LineHgt;
+//    int StatusStart=HeadDeep+1+CondDeep;
+//    int ItemStart=StatusStart+LineHgt;
+//    int ItemEnd=ItemStart+m_nLines*LineHgt;
+//
+//    if (m_nTags<2)
+//      {
+//      POINT Pts[2];
+//      Pts[0].x=m_TWide+XW2;
+//      Pts[0].y=StatusStart;
+//      Pts[1].x=Pts[0].x;
+//      Pts[1].y=ClientRct.bottom;
+//      dc.Polyline(Pts, 2);
+//      Pts[0].x+=m_DWide+XW;
+//      Pts[1].x=Pts[0].x;
+//      dc.Polyline(Pts, 2);
+//      }
+//    else
+//      {
+//      POINT Pts[5];
+//      Pts[0].x=m_TWide+XW2;
+//      Pts[0].y=StatusStart;
+//      Pts[1].x=Pts[0].x;
+//      Pts[1].y=ItemEnd;
+//      dc.Polyline(Pts, 2);
+//      Pts[0].x+=m_CWide+XW;
+//      Pts[1].x=Pts[0].x;
+//      Pts[1].y=ClientRct.bottom;
+//      dc.Polyline(Pts, 2);
+//      m_TagClientCol[0]=Pts[0].x;
+//      for (iTag=0; iTag<m_nTags; iTag++)
+//        {
+//        Pts[0].x+=m_DWide+XW;
+//        Pts[1].x=Pts[0].x;
+//        dc.Polyline(Pts, 2);
+//        m_TagClientCol[iTag+1]=Pts[0].x;
+//        }
+//      // Hilight Selected Tag
+//      if (1)
+//        {
+//        CPen*pPenMem=dc.SelectObject(&Pen2);
+//
+//        CRect SlctRct;
+//        SlctRct.top=StatusStart;
+//        SlctRct.bottom=ClientRct.bottom+1;
+//        SlctRct.left=m_TWide+XW2+m_CWide+XW+(m_iTagSelected)*(m_DWide+XW);
+//        SlctRct.right=SlctRct.left+(m_DWide+XW)+1;
+//
+//        Pts[0]=SlctRct.TopLeft();
+//        Pts[1]=SlctRct.TopLeft();
+//        Pts[2]=SlctRct.BottomRight();
+//        Pts[3]=SlctRct.BottomRight();
+//        Pts[4]=Pts[0];
+//      
+//        Pts[1].x=Pts[2].x;
+//        Pts[3].x=Pts[0].x;
+//        dc.Polyline(Pts, 5);
+//        dc.SelectObject(pPenMem);
+//        }
+//      }
+//    dc.SelectObject(pPenMem);
+//
+//    CRect Rct=ClientRct;
+//
+//    if (1)
+//      {
+//      Rct=ClientRct;
+//      Rct.top+=HeadDeep+1;
+//      Rct.bottom+=HeadDeep+1;
+//      dc.DrawText(m_CondStr[m_iTagSelected](), m_CondStr[m_iTagSelected].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//      }
+//
+//    if (m_nTags>1)
+//      {
+//      Strng sTag("Tag:");
+//      sTag+=m_sTag[m_iTagSelected];
+//
+//      Rct=ClientRct;
+//      dc.DrawText(sTag(), sTag.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//
+//      if (DoChart)
+//        {
+//        for (int iT=0; iT<m_nLines; iT++)
+//          {
+//          if (m_ItemChartOn[iT] || (iT==m_iChartItem))
+//            {
+//            Rct=ClientRct;
+//            Rct.OffsetRect(Rct.left+m_TWide, ItemStart+iT*LineHgt);
+//            Rct.right=Rct.left+(XW*2)/3;
+//            Rct.bottom=Rct.top+LineHgt;
+//
+//            byte ColInd=m_ItemChartOn[iT] ? m_ItemChartColour[iT] : 0;
+//            if (m_ItemChartWithZero[iT])
+//              {
+//              int x=Rct.Width()/2;
+//              int y=Rct.Height()/2;
+//              dc.FillSolidRect(Rct.left, Rct.top, x, y, grl_get_win_color(Colours[ColInd]));
+//              dc.FillSolidRect(Rct.left+x, Rct.top+y, Rct.Width()-x, Rct.Height()-y, grl_get_win_color(Colours[ColInd]));
+//              }
+//            else
+//              dc.FillSolidRect(Rct.left, Rct.top, Rct.Width(), Rct.Height(), grl_get_win_color(Colours[ColInd]));
+//            }
+//          }
+//        }
+//
+//      if (DoStatus)
+//        {
+//        Strng sStatus("Status");
+//        Rct=ClientRct;
+//        Rct.OffsetRect(0, StatusStart);
+//        Rct.right=Rct.left+m_TWide;
+//        dc.DrawText(sStatus(), sStatus.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//        }
+//
+//      Rct=ClientRct;
+//      Rct.OffsetRect(0, ItemStart);
+//      Rct.right=Rct.left+m_TWide;
+//      dc.DrawText(m_TagStr(), m_TagStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//      Rct.OffsetRect(m_TWide+XW, 0);
+//
+//      Rct.right=Rct.left+m_CWide;
+//      dc.DrawText(m_CnvStr(), m_CnvStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//      Rct.OffsetRect(m_CWide+XW, 0);
+//
+//      long iPos=0;
+//      for (iTag=0; iTag<m_nTags; iTag++)
+//        {
+//        Rct.right=Rct.left+m_DWide;
+//        dc.DrawText(m_DataStr[iTag](), m_DataStr[iTag].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_RIGHT); 
+//        Rct.OffsetRect(m_DWide+XW, 0);
+//        }
+//      }
+//    else
+//      {
+//      if (DoStatus)
+//        {
+//        Strng sStatus("Status");
+//        Rct=ClientRct;
+//        Rct.OffsetRect(0, StatusStart);
+//        Rct.right=Rct.left+m_TWide;
+//        dc.DrawText(sStatus(), sStatus.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//        }
+//      Rct=ClientRct;
+//      Rct.OffsetRect(0, ItemStart);
+//      Rct.right=Rct.left+m_TWide;
+//      dc.DrawText(m_TagStr(), m_TagStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//      Rct.OffsetRect(m_TWide+XW, 0);
+//
+//      Rct.right=Rct.left+m_DWide;
+//      dc.DrawText(m_DataStr[0](), m_DataStr[0].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_RIGHT); 
+//      Rct.OffsetRect(m_DWide+XW, 0);
+//
+//      Rct.right=Rct.left+m_CWide;
+//      dc.DrawText(m_CnvStr(), m_CnvStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+//      }
+//
+//    if (DoStatus)
+//      {
+//      for (iTag=0; iTag<m_nTags; iTag++)
+//        {
+//        long XOff=m_TWide+XW2+(iTag+1)*(m_DWide+XW)-BlkWTot;
+//        if (m_nTags>1)
+//          XOff+=m_CWide+XW;
+//
+//        Rct=ClientRct;
+//        Rct.OffsetRect(XOff+(NBlks-1)*BlkW, StatusStart+1);
+//        Rct.right=Rct.left+BlkW;
+//        Rct.bottom=Rct.top+BlkH;
+//        //dword Status=StatusA[iTag];
+//        long StateW=BlkW;
+//        long StateH=BlkH-1;
+//
+//        for (int i=MdlValueShowMaxStatusBlks-1; i>=0; i--)
+//          {
+//          if(m_StateShw[i] && m_StateCh[iTag][i])
+//            {
+//            dc.FillSolidRect(Rct.left,Rct.top,StateW,StateH, grl_get_win_color(m_StateCol[iTag][i]));
+//            dc.DrawText(&m_StateCh[iTag][i], 1, Rct, DT_VCENTER|DT_NOPREFIX|DT_CENTER); 
+//            Rct.OffsetRect(-StateW,0);
+//            }
+//          }
+//        }
+//      }
+//    if (DoChart)
+//      {
+//      int nCharts=0;
+//      for (int iT=0; iT<m_nLines; iT++)
+//        {
+//        if (m_ItemChartOn[iT] || (iT==m_iChartItem))
+//          nCharts++;
+//        }
+//      long BarGap=2;
+//      long BarWide=m_DWide/Max(nCharts,4)-BarGap;
+//      long iPos=0;
+//
+//      for (iT=0; iT<m_nLines; iT++)
+//        {
+//        if (m_ItemChartOn[iT] || (iT==m_iChartItem))
+//          {
+//          double Vals[MdlValueShowMaxTags];
+//          // Extract Vals
+//          double MaxV=-1.0e30;
+//          double MinV=+1.0e30;
+//          for (int iTag=0; iTag<m_nTags; iTag++)
+//            {
+//            char * p=m_DataStr[iTag]();
+//            int i=0;
+//            while (p && i++<iT)
+//              {
+//              if (p=strchr(p, '\r'))
+//                p=p+1;
+//              }
+//            Vals[iTag]=(p) ? SafeAtoF(p) : 0;
+//            MaxV=Max(MaxV, Vals[iTag]);
+//            MinV=Min(MinV, Vals[iTag]);
+//            }
+//          if (m_ItemChartWithZero[iT])
+//            {
+//            MaxV=Max(MaxV, 0.0);
+//            MinV=Min(MinV, 0.0);
+//            }
+//          Rct=ClientRct;
+//          Rct.OffsetRect(m_TWide+XW+m_CWide+XW+iPos*(BarWide+BarGap)-BarGap, ItemStart+2+m_nLines*LineHgt);
+//          Rct.right=Rct.left+BarWide;
+//          Rct.bottom=ClientRct.bottom;
+//          for (iTag=0; iTag<m_nTags; iTag++)
+//            {
+//            byte ColInd=m_ItemChartOn[iT] ? m_ItemChartColour[iT] : 0;
+//            if (0)
+//              {
+//              long Drop=long((Rct.Height()-1)*(MaxV-Vals[iTag])/GTZ(MaxV-MinV));
+//              dc.FillSolidRect(Rct.left,Rct.top+Drop,Rct.Width(), Rct.Height()-Drop, grl_get_win_color(Colours[ColInd]));
+//              }
+//            else
+//              {
+//              double R=GTZ(MaxV-MinV);
+//              long H=(Rct.Height()-2);
+//              long T,B;
+//              if (Vals[iTag]>0.0)
+//                {
+//                T=long(H*(Vals[iTag]-MinV)/R);
+//                B=long(H*(Max(0.0, MinV)-MinV)/R);
+//                }
+//              else
+//                {
+//                T=long(H*(Min(0.0, MaxV)-MinV)/R);
+//                B=long(H*(Vals[iTag]-MinV)/R);
+//                }
+//              T=1+H-T;
+//              B=1+H-B;
+//              dc.FillSolidRect(Rct.left,Rct.top+T,Rct.Width(), B-T, grl_get_win_color(Colours[ColInd]));
+//              }
+//            Rct.OffsetRect(m_DWide+XW, 0);
+//            }
+//          iPos++;
+//          }
+//        }
+//      }
+//    }
+
+  dc.SetBkMode(OldBkMode);
+  dc.SelectObject(OldFont);
+  dc.SelectObject(OldPen);
+
+	// Do not call CDialog::OnPaint() for painting messages
+  }
+
+void CMdlGraphicShow::OnSize(UINT nType, int cx, int cy)
+  {
+  Invalidate(0);
+  //RedrawWindow(0,0,RDW_INVALIDATE|RDW_UPDATENOW);
+  };
+
+//void CMdlGraphicShow::OnMouseMove(UINT Flags, CPoint Pt)
+//  {
+//  //m_MousePt=Pt;
+//  //m_MouseFlags=Flags;
+//
+//  CMdlGraphicWnd MGW(MGT_MouseMove, this, &Pt, Flags);
+//  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+//  };
+
+void CMdlGraphicShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
+  {
+  //dbgpln("CMdlGraphicShow::TryAdd");
+  if (1)//gs_Exec.Busy()) //thread problem ---
+    {
+    AddPtr Add = new CRptTagsAddRqst;
+
+    Add->m_Tag=pTag;
+    Add->m_X=X;
+    Add->m_Y=Y;
+    Add->m_Pinned=Pinned;
+    Add->m_Append=Append;
+    Add->m_pParent=pParent;
+
+    gs_RTLCom.MVCritSect.Lock();	
+    gs_RTLCom.GraphicAddPtrs.AddTail(Add);
+    gs_RTLCom.MVCritSect.Unlock();
+    if (!gs_Exec.Busy())
+      UpdateAll();
+    }
+  else
+    {
+    Add(pTag, X, Y, Pinned, Append, pParent);
+    }
+  }
+
+void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
+  {
+  Strng T, ObjClassId;
+  T.Set("%s.ClassId", pTag);
+
+  //dbgpln("CMdlGraphicShow::Add - Start");
+
+  CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
+  CXM_ObjectData ObjData;
+  CXM_Route      Route;
+
+  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+    {
+    CPkDataItem * pItem=ObjData.FirstItem();
+    if (IsStrng(pItem->Type()))
+      {
+      ObjClassId = pItem->Value()->GetString("", "", 0, "");
+      StripClassIdVersion(ObjClassId);
+      }
+    }
+  else
+    LogError((char*)pTag, 0, "ClassId not found");
+
+  gs_RTLCom.MVCritSect.Lock();	
+  if (Append)
+    {
+    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+    while (Pos)
+      {
+      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
+      if (P->AcceptNewTag(pTag, ObjClassId()))
+        {
+        P->DoTheUpdate();
+        gs_RTLCom.MVCritSect.Unlock();	
+        return;
+        }
+      }
+    }
+
+  //dbgpln("CMdlGraphicShow::Add - AddIt");
+  GraphicShwPtr P=new CMdlGraphicShow(pTag, X, Y, Pinned, pParent);
+  P->m_iSequence=gs_RTLCom.m_iSequence;
+  gs_RTLCom.GraphicShwPtrs.AddHead(P);
+//  P->AtStart(pTag, X, Y, Pinned);
+  P->ShowWindow(SW_SHOWNOACTIVATE);
+  gs_RTLCom.MVCritSect.Unlock();	
+  };
+
+void CMdlGraphicShow::TryClear(bool All)
+  {
+  gs_RTLCom.MVCritSect.Lock();	
+  //dbgpln("CMdlGraphicShow::TryClear");
+  gs_RTLCom.m_iClear=All?2:1;
+  gs_RTLCom.MVCritSect.Unlock();
+  if (!gs_Exec.Busy())
+    UpdateAll();
+  }
+
+bool CMdlGraphicShow::Clear(bool All)
+  {
+  bool Ret=true;
+  gs_RTLCom.MVCritSect.Lock();	
+  //dbgpln("CMdlGraphicShow::Clear");
+  if (All)
+    {
+    while (!gs_RTLCom.ValueShwPtrs.IsEmpty())
+      {
+      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetHead();
+      P->DestroyWindow();
+      delete P;
+      }
+    }
+  else
+    {
+    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+    while (Pos)
+      {
+      POSITION DelP=Pos;
+      GraphicShwPtr P=gs_RTLCom.GraphicShwPtrs.GetNext(Pos);
+      if (!P->m_bPinned)
+        {
+        if (P->m_iSequence==gs_RTLCom.m_iSequence)
+          Ret=false;
+        else
+          {
+          P->ShowWindow(SW_HIDE);
+          P->DestroyWindow();
+          delete P;
+          }
+        }
+      }
+    }
+  gs_RTLCom.MVCritSect.Unlock();
+  return Ret;
+  }
+
+void CMdlGraphicShow::UpdateAll()
+  {
+  gs_RTLCom.MVCritSect.Lock();
+  //dbgpln("CMdlGraphicShow::UpdateAll");
+
+  while (!gs_RTLCom.GraphicAddPtrs.IsEmpty())
+    {
+    AddPtr A=gs_RTLCom.GraphicAddPtrs.RemoveHead();
+    Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
+    //dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
+    //    P->DoTheAddByMsg(A);
+    delete A;
+    }
+
+  POSITION Pos=gs_RTLCom.GraphicShwPtrs.GetHeadPosition();
+  while (Pos)
+    {
+    GraphicShwPtr P=gs_RTLCom.GraphicShwPtrs.GetNext(Pos);
+    P->DoTheUpdateByMsg();
+    }
+  if (gs_RTLCom.m_iClear)
+    {
+    //dbgpln("                             Clear >>>>>>> %s",gs_RTLCom.m_iClear==2?"All":"");
+    if (Clear(gs_RTLCom.m_iClear==2))
+      gs_RTLCom.m_iClear=0;
+    }
+  gs_RTLCom.m_iSequence++;
+  if (gs_RTLCom.m_iSequence>1000)
+    gs_RTLCom.m_iSequence=0;
+  gs_RTLCom.MVCritSect.Unlock();	
+  }
+
+LRESULT CMdlGraphicShow::OnUpdateWnd(WPARAM wParam, LPARAM lParam)
+  {
+  DoTheUpdate();
+  return 0;
+  }
+
+void CMdlGraphicShow::DeleteItem(char * pObjClassId, int Index)
+  {
+  if (Index<0)
+    return;
+  Strng Sect, Item;
+  Sect.Set("%s.View.Vars", pObjClassId);
+  CProfINIFile PF(gs_RTLCom.RTLFileName());
+  Item.Set("V%i",Index);
+  PF.WrStr(Sect(), Item(), "");
+  };
+
+void CMdlGraphicShow::AddItem(TagInfoBlk & IB)
+  {
+  CRptTagLists::AddItem(IB);
+  }
+
+flag CMdlGraphicShow::FindItem(char * pObjClassId, int Index, CVarTagItem & TagItem)
+  {
+  Strng ObjClassId(pObjClassId);
+  StripClassIdVersion(ObjClassId);
+  Strng Sect, Item;
+  Sect.Set("%s.View.Vars", ObjClassId());
+  CProfINIFile PF(gs_RTLCom.RTLFileName());
+  Item.Set("V%i",Index);
+  Strng Val(PF.RdStr(Sect(), Item(), ""));//, Val()));
+
+  char * pData=Val();
+  if(pData)
+    {
+    char* pFld[10];
+    for (int nFlds=0; pData; nFlds++)
+      {
+      if (nFlds)
+        {
+        *pData=0; // Terminate Fld
+        pData++; // Point @ Data
+        }
+      pFld[nFlds]=pData;
+      pData=strchr(pData, ',');
+      }
+    for (int i=0; i<nFlds; i++)
+      XStrTrim(pFld[i]);
+
+    TagItem.m_Fmt.SetType('-');
+    
+    TagItem.m_sLabel=nFlds>0 && pFld[0] ? pFld[0] : "";
+    TagItem.m_sTag=nFlds>1 && pFld[1] ? pFld[1] : "";
+    TagItem.m_Cnv.SetIndex(nFlds>2 && pFld[2] ? pFld[2] : "");
+    TagItem.m_Cnv.SetText(nFlds>3 && pFld[3] ? pFld[3] : "");
+    TagItem.m_Fmt.ParseStr(nFlds>4 && pFld[4] ? pFld[4] : "");
+    
+    return True;
+    }
+  return False;
+  }
+
+void CMdlGraphicShow::StartUp()
+  {
+  };
+
+void CMdlGraphicShow::ShutDown()
+  {
+  };
+void CMdlGraphicShow::OnLButtonDblClk(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("CMdlGraphicShow::OnLButtonDblClk");
+	CDialog::OnLButtonDblClk(nFlags, point);
+	TryClear(true);
+  }
+
+void CMdlGraphicShow::OnMouseMove(UINT nFlags, CPoint point) 
+  {
+	CDialog::OnMouseMove(nFlags, point);
+
+  CMdlGraphicWnd MGW(MGT_MouseMove, this, point, nFlags);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+
+//  if ((nFlags & MK_LBUTTON) && (nFlags & (MK_SHIFT|MK_CONTROL)))
+//    {
+//    int i=m_iChartItem;
+//    if (point.y>=m_ItemClientRow[0])
+//      {
+//      i=0;
+//      while (i<m_nLines&& m_ItemClientRow[i+1]<point.y)
+//        i++;
+//      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
+//      DoTheUpdate();
+//      }
+//    else
+//      i=-1;
+//    if (i!=m_iChartItem)     
+//      {
+//      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
+//      DoTheUpdate();
+//      }
+//    }
+  }
+
+//static Strng m_sDragTag;
+CMdlGraphicShow * CMdlGraphicShow::m_pStartWnd=NULL;
+
+void CMdlGraphicShow::OnLButtonDown(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("CMdlGraphicShow::OnLButtonDown");
+	CDialog::OnLButtonDown(nFlags, point);
+  if (nFlags & (MK_SHIFT|MK_CONTROL))
+    {
+    //if (point.y>=m_ItemClientRow[0])
+    //  {
+    //  m_iChartItem=0;
+    //  while (m_iChartItem<m_nLines&& m_ItemClientRow[m_iChartItem+1]<point.y)
+    //    m_iChartItem++;
+    //  m_ItemChartWithZero[m_iChartItem]=((nFlags & MK_CONTROL)!=NULL);      
+    //  DoTheUpdate();
+    //  }
+    //else
+    //  m_iChartItem=-1;
+    }
+  else
+    {
+    m_pStartWnd=this;
+    }
+  }
+
+void CMdlGraphicShow::OnLButtonUp(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("CMdlGraphicShow::OnLButtonUp");
+	CDialog::OnLButtonUp(nFlags, point);
+  if (m_pStartWnd && m_pStartWnd!=this)
+    {
+    int n=0;
+    for (int i=0; i<m_pStartWnd->m_nTags; i++)
+      if (AcceptNewTag(m_pStartWnd->m_sTag[i](), m_pStartWnd->m_sObjClassId()))
+        n++;
+    if (n)
+      {
+      m_pStartWnd->DestroyWindow();
+      delete m_pStartWnd;
+      DoTheUpdate();
+      }
+    }
+  //else if (m_iChartItem>=0)
+  //  {
+  //  m_iChartItem=-1;
+  //  DoTheUpdate();
+  //  }
+  else
+    {
+    int i=0;
+    //while (i<m_nTags && m_TagClientCol[i+1]<point.x)
+    //  i++;
+    //if (i<m_nTags && i!=m_iTagSelected)
+    //  {
+    //  m_iTagSelected=i;
+    //  DoTheUpdate();
+    //  }
+    }
+  m_pStartWnd=NULL;
+  }
+
+void CMdlGraphicShow::OnRButtonDown(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("CMdlGraphicShow::OnRButtonDown");
+	CDialog::OnRButtonDown(nFlags, point);
+  }
+
+void CMdlGraphicShow::OnRButtonUp(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("CMdlGraphicShow::OnRButtonUp");
+	CDialog::OnRButtonUp(nFlags, point);
+
+  //if (point.y>=m_ItemClientRow[0] && m_nTags>1)
+  //  {
+  //  int i=0;
+  //  while (i<m_nLines&& m_ItemClientRow[i+1]<point.y)
+  //    i++;
+  //  if (i<m_nLines)
+  //    {
+  //    bool &WithZero=m_ItemChartWithZero[i];
+  //    bool &BarOn=m_ItemChartOn[i];
+  //    bool OldBarOn=BarOn;
+  //    
+  //    if (nFlags & (MK_SHIFT|MK_CONTROL))
+  //      {
+  //      BarOn=!BarOn;
+  //      WithZero=((nFlags & MK_CONTROL)!=NULL);
+  //      }
+  //    else
+  //      {
+  //      CRect WRect;
+  //      GetWindowRect(&WRect);
+  //      CPoint  RBPoint;
+  //      RBPoint.x = WRect.left+point.x;
+  //      RBPoint.y = WRect.top+point.y;
+
+  //      CMenu Menu;
+  //      Menu.CreatePopupMenu();
+
+  //      Menu.AppendMenu(MF_STRING, 100, "&Bars With Zero");
+  //      Menu.AppendMenu(MF_STRING, 101, "&Bars Zero Supressed");
+  //      Menu.AppendMenu(MF_STRING, 102, "&Bars Off");
+
+  //      int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, RBPoint.x, RBPoint.y, this);
+  //      Menu.DestroyMenu();                                           
+  //      switch (RetCd)
+  //        {
+  //        case 100: BarOn=true;   WithZero=true;   break;
+  //        case 101: BarOn=true;   WithZero=false;  break;
+  //        case 102: BarOn=false;  WithZero=false;  break;
+  //        }
+  //      }
+
+  //    if (BarOn != OldBarOn)
+  //      {
+  //      m_ItemChartColour[i]=byte(m_ItemChartColourIndex);
+  //      m_ItemChartColourIndex=(m_ItemChartColourIndex+1)%nColours;
+  //      m_ItemChartWithZero[i]=WithZero;
+  //      }
+  //    DoTheUpdate();
+  //    }
+  //  }
+  }
+
+//---------------------------------------------------------------------------
+
+bool CMdlGraphicShow::AcceptNewTag(char * pTag, char * pObjClassId)
+  {
+  if (pObjClassId && (m_sObjClassId.XStrICmp(pObjClassId)==0))
+    if (m_nTags<MdlValueShowMaxTags && m_nTags<gs_RTLCom.m_lMaxTags)
+      {
+      m_sTag[m_nTags++]=pTag;
+      // In case wnd is hidden
+      ShowWindow(SW_SHOWNOACTIVATE);
+      return true;
+      }
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+void CMdlGraphicShow::OnNcPaint() 
+  {
+  CDialog::OnNcPaint();
+  }
+
+
+//---------------------------------------------------------------------------
+
+void CMdlGraphicShow::OnClose() 
+  {
+  //_bMustDestroy=true;
+  CDialog::OnClose();
+  DestroyWindow();
+  delete this;
+  }
+
 /////////////////////////////////////////////////////////////////////////////
 // CRptTagLists dialog
 
@@ -1915,8 +3361,8 @@ CRptTagLists::CRptTagLists(CWnd* pParent /*=NULL*/)
 
 	//{{AFX_DATA_INIT(CRptTagLists)
 	m_UnitTagList = _T("");
-	m_MaxValueLen = Com.m_lMaxValueLen;
-	m_MaxTags = Com.m_lMaxTags;
+	m_MaxValueLen = gs_RTLCom.m_lMaxValueLen;
+	m_MaxTags = gs_RTLCom.m_lMaxTags;
 	//}}AFX_DATA_INIT
 
   
@@ -1996,14 +3442,14 @@ BOOL CRptTagLists::OnInitDialog()
   ASSERT(NQVColumns==4);
 
   CProfINIFile PF(PrjIniFile());
-  Com.m_InBaseCfg =false;
-  Com.m_InCfg =PF.RdInt("RptListsInCfg", Com.InCfgName(), Com.m_InCfg);
-  Com.m_lMaxValueLen=PF.RdInt("RptListsMaxValLen", "All", Com.m_lMaxValueLen);
-  Com.m_lMaxTags=PF.RdInt("RptListsMaxTags", "All", Com.m_lMaxTags);
+  gs_RTLCom.m_InBaseCfg =false;
+  gs_RTLCom.m_InCfg =PF.RdInt("RptListsInCfg", gs_RTLCom.InCfgName(), gs_RTLCom.m_InCfg);
+  gs_RTLCom.m_lMaxValueLen=PF.RdInt("RptListsMaxValLen", "All", gs_RTLCom.m_lMaxValueLen);
+  gs_RTLCom.m_lMaxTags=PF.RdInt("RptListsMaxTags", "All", gs_RTLCom.m_lMaxTags);
 
-  m_InCfgCtrl.SetCheck(Com.m_InCfg ? 1:0);
-  m_MaxValueLen=Com.m_lMaxValueLen;
-  m_MaxTags=Com.m_lMaxTags;
+  m_InCfgCtrl.SetCheck(gs_RTLCom.m_InCfg ? 1:0);
+  m_MaxValueLen=gs_RTLCom.m_lMaxValueLen;
+  m_MaxTags=gs_RTLCom.m_lMaxTags;
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -2015,21 +3461,21 @@ void CRptTagLists::StartUp()
   {
   CMdlValueShow::StartUp();
   CMdlValueSet::StartUp();
-  Com.m_pRTL = new CRptTagLists;
-  Com.m_pRTL->Hide();
+  gs_RTLCom.m_pRTL = new CRptTagLists;
+  gs_RTLCom.m_pRTL->Hide();
   }
 
 //---------------------------------------------------------------------------
 
 void CRptTagLists::ShutDown()
   {
-  if (Com.m_pRTL)
+  if (gs_RTLCom.m_pRTL)
     {
     CMdlValueShow::ShutDown();
     CMdlValueSet::ShutDown();
-    delete Com.m_pRTL;
+    delete gs_RTLCom.m_pRTL;
     }
-  Com.m_pRTL=NULL;
+  gs_RTLCom.m_pRTL=NULL;
   }
 
 //---------------------------------------------------------------------------
@@ -2138,18 +3584,18 @@ void CRptTagLists::DoShow(LPCSTR RqdClass, LPCSTR Layout, flag ForceShow)
       CString S;
       m_ModelType.GetLBText(CurSel, S);
     
-      Com.SetObjClassId(S);
+      gs_RTLCom.SetObjClassId(S);
 
       CProfINIFile PFI(PrjIniFile());
-      Com.m_InCfg =PFI.RdInt("RptListsInCfg", Com.InCfgName(), Com.m_InCfg);
-      Com.m_lMaxValueLen=PFI.RdInt("RptListsMaxValLen", "All", Com.m_lMaxValueLen);
-      Com.m_lMaxTags=PFI.RdInt("RptListsMaxTags", "All", Com.m_lMaxTags);
+      gs_RTLCom.m_InCfg =PFI.RdInt("RptListsInCfg", gs_RTLCom.InCfgName(), gs_RTLCom.m_InCfg);
+      gs_RTLCom.m_lMaxValueLen=PFI.RdInt("RptListsMaxValLen", "All", gs_RTLCom.m_lMaxValueLen);
+      gs_RTLCom.m_lMaxTags=PFI.RdInt("RptListsMaxTags", "All", gs_RTLCom.m_lMaxTags);
 
-      m_InCfgCtrl.SetCheck(Com.m_InCfg ? 1:0);
-      m_MaxValueLen=Com.m_lMaxValueLen;
-      m_MaxTags=Com.m_lMaxTags;
+      m_InCfgCtrl.SetCheck(gs_RTLCom.m_InCfg ? 1:0);
+      m_MaxValueLen=gs_RTLCom.m_lMaxValueLen;
+      m_MaxTags=gs_RTLCom.m_lMaxTags;
 
-      Com.LoadVarTags(S, Layout, m_VarTags, m_nVarTags);
+      gs_RTLCom.LoadVarTags(S, Layout, m_VarTags, m_nVarTags);
       LoadCtrls();
       }
 
@@ -2161,7 +3607,7 @@ void CRptTagLists::DoShow(LPCSTR RqdClass, LPCSTR Layout, flag ForceShow)
 
 void CRptTagLists::AddItem(TagInfoBlk & IB)
   {
-  Com.m_pRTL->AddItem(IB.ObjClassId(), IB.RefTag(), IB.Cnv(), IB.Fmt());
+  gs_RTLCom.m_pRTL->AddItem(IB.ObjClassId(), IB.RefTag(), IB.Cnv(), IB.Fmt());
   }
 
 //---------------------------------------------------------------------------
@@ -2235,7 +3681,7 @@ void CRptTagLists::AddItem(LPCSTR pObjClassId, LPCSTR pRefTag, CnvAttribute &Cnv
     TI.m_Cnv=Cnv;
     TI.m_Fmt=Fmt;
 
-    Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+    gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
     LoadCtrls();
     gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
     }
@@ -2252,26 +3698,26 @@ void CRptTagLists::DoHide()
 
 void CRptTagLists::Show(LPCSTR RqdClass, flag ForceShow)
   {
-  if (Com.m_pRTL)
-    Com.m_pRTL->DoShow(RqdClass, NULL, ForceShow);
+  if (gs_RTLCom.m_pRTL)
+    gs_RTLCom.m_pRTL->DoShow(RqdClass, NULL, ForceShow);
   };
 
 //---------------------------------------------------------------------------
 
 void CRptTagLists::Hide()
   {
-  if (Com.m_pRTL)
-    Com.m_pRTL->DoHide();
+  if (gs_RTLCom.m_pRTL)
+    gs_RTLCom.m_pRTL->DoHide();
   };
 
 void CRptTagLists::LoadVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray & VarTags, int &nVarTags)
   { 
-  Com.LoadVarTags(MdlType, Layout, VarTags, nVarTags);
+  gs_RTLCom.LoadVarTags(MdlType, Layout, VarTags, nVarTags);
   }
 
 void CRptTagLists::SaveVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray & VarTags, int &nVarTags, CIArray * SaveOrder)
   {
-  Com.SaveVarTags(MdlType, Layout, VarTags, nVarTags, SaveOrder);
+  gs_RTLCom.SaveVarTags(MdlType, Layout, VarTags, nVarTags, SaveOrder);
   }
 
 //---------------------------------------------------------------------------
@@ -2345,8 +3791,8 @@ void CRptTagLists::OnDelete()
     m_SaveOrder[i]=m_VarTagList.GetItemData(i);
     m_VarTagList.SetItemData(i, i); // renumber
     }
-  Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
-  Com.LoadVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+  gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
+  gs_RTLCom.LoadVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
 //  LoadCtrls();
   gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
   }
@@ -2398,7 +3844,7 @@ void CRptTagLists::OnMoveup()
   m_SaveOrder.SetSize(m_nVarTags);
   for (int i=0; i<m_nVarTags; i++)
     m_SaveOrder[i]=m_VarTagList.GetItemData(i);
-  Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
+  gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
   }
 
 //---------------------------------------------------------------------------
@@ -2448,7 +3894,7 @@ void CRptTagLists::OnMovedown()
   m_SaveOrder.SetSize(m_nVarTags);
   for (int i=0; i<m_nVarTags; i++)
     m_SaveOrder[i]=m_VarTagList.GetItemData(i);
-  Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
+  gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
   }
 
 //---------------------------------------------------------------------------
@@ -2458,20 +3904,10 @@ void CRptTagLists::OnOK()
 //  m_SaveOrder.SetSize(m_nVarTags);
 //  for (int i=0; i<m_nVarTags; i++)
 //    m_SaveOrder[i]=m_VarTagList.GetItemData(i);
-//  Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
+//  gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
   Hide();
 
   //	CDialog::OnOK();
-  }
-
-//---------------------------------------------------------------------------
-
-void CMdlValueShow::OnClose() 
-  {
-  //_bMustDestroy=true;
-  CDialog::OnClose();
-  DestroyWindow();
-  delete this;
   }
 
 //---------------------------------------------------------------------------
@@ -2490,19 +3926,19 @@ void CRptTagLists::OnSelchangeModeltype()
     {
     CString S;
     m_ModelType.GetLBText(i, S);
-    Com.SetObjClassId(S);
+    gs_RTLCom.SetObjClassId(S);
 
     CProfINIFile PFI(PrjIniFile());
 
-    Com.m_InCfg =PFI.RdInt("RptListsInCfg", Com.InCfgName(), Com.m_InCfg);
-    Com.m_lMaxValueLen=PFI.RdInt("RptListsMaxValLen", "All", Com.m_lMaxValueLen);
-    Com.m_lMaxTags=PFI.RdInt("RptListsMaxTags", "All", Com.m_lMaxTags);
+    gs_RTLCom.m_InCfg =PFI.RdInt("RptListsInCfg", gs_RTLCom.InCfgName(), gs_RTLCom.m_InCfg);
+    gs_RTLCom.m_lMaxValueLen=PFI.RdInt("RptListsMaxValLen", "All", gs_RTLCom.m_lMaxValueLen);
+    gs_RTLCom.m_lMaxTags=PFI.RdInt("RptListsMaxTags", "All", gs_RTLCom.m_lMaxTags);
 
-    m_InCfgCtrl.SetCheck(Com.m_InCfg ? 1:0);
-    m_MaxValueLen=Com.m_lMaxValueLen;
-    m_MaxTags=Com.m_lMaxTags;
+    m_InCfgCtrl.SetCheck(gs_RTLCom.m_InCfg ? 1:0);
+    m_MaxValueLen=gs_RTLCom.m_lMaxValueLen;
+    m_MaxTags=gs_RTLCom.m_lMaxTags;
 
-    Com.LoadVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+    gs_RTLCom.LoadVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
     LoadCtrls();
     }	
   }
@@ -2516,7 +3952,7 @@ void CRptTagLists::OnEndlabeleditVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
     {
     int i=pDispInfo->item.iItem;
     m_VarTags[i].m_sLabel=pDispInfo->item.pszText;
-    Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+    gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
     m_VarTagList.SetItemText(i,0,pDispInfo->item.pszText);
     }
 	
@@ -2554,12 +3990,12 @@ void CRptTagLists::OnDblclkVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
 void CRptTagLists::OnIncfg() 
   {
 	// TODO: Add your control notification handler code here
-  Com.m_InCfg=!Com.m_InCfg;
+  gs_RTLCom.m_InCfg=!gs_RTLCom.m_InCfg;
   CProfINIFile PFI(PrjIniFile());
-  m_InCfgCtrl.SetCheck(Com.m_InCfg ? 1:0);
-  PFI.WrInt("RptListsInCfg", Com.InCfgName(), Com.m_InCfg);
+  m_InCfgCtrl.SetCheck(gs_RTLCom.m_InCfg ? 1:0);
+  PFI.WrInt("RptListsInCfg", gs_RTLCom.InCfgName(), gs_RTLCom.m_InCfg);
 
-  Com.LoadVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+  gs_RTLCom.LoadVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
   LoadCtrls();
   gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
   }
@@ -2569,8 +4005,8 @@ void CRptTagLists::OnKillfocusMaxvaluelen()
   UpdateData(true);
   CProfINIFile PFI(PrjIniFile());
   m_MaxValueLen=Range(5L, m_MaxValueLen, 40L);
-  Com.m_lMaxValueLen=m_MaxValueLen;
-  PFI.WrInt("RptListsMaxValLen", "All", Com.m_lMaxValueLen);
+  gs_RTLCom.m_lMaxValueLen=m_MaxValueLen;
+  PFI.WrInt("RptListsMaxValLen", "All", gs_RTLCom.m_lMaxValueLen);
   UpdateData(false);
   }
 
@@ -2579,8 +4015,8 @@ void CRptTagLists::OnKillfocusMaxTags()
   UpdateData(true);
   CProfINIFile PFI(PrjIniFile());
   m_MaxTags=Range(1L, m_MaxTags, (long)MdlValueShowMaxTags);
-  Com.m_lMaxTags=m_MaxTags;
-  PFI.WrInt("RptListsMaxTags", "All", Com.m_lMaxTags);
+  gs_RTLCom.m_lMaxTags=m_MaxTags;
+  PFI.WrInt("RptListsMaxTags", "All", gs_RTLCom.m_lMaxTags);
   UpdateData(false);
   }
 
@@ -2634,7 +4070,7 @@ void CRptTagLists::OnRclickVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
         pC=pC->Next();
       if (pC)
         Cnv.SetText(pC->Txt());
-      Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+      gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
       m_VarTagList.SetItemText(j, 2, Cnv.Text());
       }
     else if (RetCd>=IDM_ACC_FMT1 && RetCd<=IDM_ACC_FMTN)
@@ -2645,7 +4081,7 @@ void CRptTagLists::OnRclickVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
     
       if (i<DefinedFmts.GetSize())
         Fmt=DefinedFmts[i];
-      Com.SaveVarTags(Com.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+      gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
       m_VarTagList.SetItemText(j, 3, Fmt.Name());
       }
     }

@@ -490,7 +490,7 @@ void CIncomer::EvalDiscrete()
 
 //--------------------------------------------------------------------------
 
-flag CIncomer::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CIncomer::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_bOn, "On", 1));
@@ -501,7 +501,7 @@ flag CIncomer::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CIncomer::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CIncomer::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

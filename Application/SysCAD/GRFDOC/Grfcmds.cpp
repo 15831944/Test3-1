@@ -1048,6 +1048,8 @@ flag GetAFileName(pchar Fn1In, pchar Sel1, pchar Fn1, int Fn1Len,
 
 inline SFEFlwLib * FE() { return gs_pPrj->FlwLib(); };
 
+//---------------------------------------------------------------------------
+
 void AddMenuItems(bool ConfigOnly , CMenu &Menu, MdlActionArray & Acts, CArray <CMenu*, CMenu*> & XMenus)
   {
   Strng XMenuName;
@@ -1089,6 +1091,47 @@ void AddMenuItems(bool ConfigOnly , CMenu &Menu, MdlActionArray & Acts, CArray <
 
 //---------------------------------------------------------------------------
 
+void AddMenuItems(bool ConfigOnly , CMenu &Menu, MdlGraphicArray & Grfs, CArray <CMenu*, CMenu*> & XMenus)
+  {
+  Strng XMenuName;
+  bool AddTheMenu=false;
+  for (int i=0; i<Grfs.GetSize(); i++)
+    {
+    CMdlGraphic & MG = Grfs[i];
+    //if (MG.m_iType==MGT_Switch)
+    //  continue;
+
+    //if (ConfigOnly == (MG.m_iType==MGT_Config))
+      if (strchr(MG.m_cName, '\t'))
+        {
+        char * pTab=strchr(MG.m_cName, '\t');
+        int Len=(pTab-MG.m_cName);
+        Strng ThisName=MG.m_cName;
+        ThisName.SetLength(Len);
+        Strng ThisItem=pTab+1;
+        CMenu *pPop;
+        if (XMenuName!=ThisName)
+          {
+          XMenuName=ThisName;
+          pPop=new CMenu;
+          pPop->CreatePopupMenu();
+          XMenus.Add(pPop);
+          Menu.AppendMenu(MF_POPUP, (UINT)pPop->m_hMenu, XMenuName());
+          }
+        else
+          pPop=XMenus[XMenus.GetUpperBound()];
+        pPop->AppendMenu(MF_STRING|(MG.m_fEnabled ? 0 : MF_GRAYED), 300+i,  ThisItem());
+        }
+      else
+        {
+        Menu.AppendMenu(MF_STRING|(MG.m_fEnabled ? 0 : MF_GRAYED), 300+i,  MG.m_cName);
+        XMenuName="";
+        }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
 char * GrfCmdBlk::DoToggleItem(char *pTag)
   {
   if (pTag==NULL)
@@ -1110,9 +1153,9 @@ char * GrfCmdBlk::DoToggleItem(char *pTag)
   MdlActionArray Acts;
   if (pTag)
     {
-    Strng Tag(pTag);
+    //Strng Tag(pTag);
 
-    if (gs_Exec.GetModelAction(Tag, Acts))
+    if (gs_Exec.GetModelAction(pTag, Acts))
       {
       for (int i=0; i<Acts.GetSize(); i++)
         {
@@ -1120,7 +1163,7 @@ char * GrfCmdBlk::DoToggleItem(char *pTag)
         if (MA.iType==MAT_Switch)
           {
           Strng Tag(pTag);
-          gs_Exec.SetModelAction(Tag, MA);
+          gs_Exec.SetModelAction(pTag, MA);
           pTag=NULL;
           break;
           }
@@ -1155,13 +1198,14 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
   CMenu AuditMenu;
   Menu.CreatePopupMenu();
   MdlActionArray Acts;
+  MdlGraphicArray Grfs;
   CArray <CMenu*, CMenu*> XMenus;
   Strng_List ActHolds;
   if (pTag)
     {
     Strng Itm;
-    Strng Tag(pTag), Tmp;
-    int nActs=0;
+    Strng Tmp;
+    int nActs, nGrfs;
 
     ActHolds.Append(pTag);
     FE()->FE_TagOperation(FETOp_GetHold, ActHolds);
@@ -1176,7 +1220,8 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
     Menu.AppendMenu(MF_STRING/*|MF_GRAYED*/, 132,  Tmp());
     Menu.AppendMenu(MF_SEPARATOR, -1);
 
-    if (gs_Exec.GetModelAction(Tag, Acts))
+    nActs=0;
+    if (gs_Exec.GetModelAction(pTag, Acts))
       {
       nActs=Acts.GetSize();
       AddMenuItems(false, Menu, Acts, XMenus);
@@ -1188,6 +1233,17 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
 
     if (1 || nActs>0)
       Menu.AppendMenu(MF_SEPARATOR, -1);
+
+    nGrfs=0;
+    if (gs_Exec.GetModelGraphic(pTag, Grfs))
+      {
+      nGrfs=Grfs.GetSize();
+      AddMenuItems(false, Menu, Grfs, XMenus);
+      }
+
+    if (1 || nGrfs>0)
+      Menu.AppendMenu(MF_SEPARATOR, -1);
+
     Menu.AppendMenu(MF_STRING, 180,  "Docu&ment ...");
     Menu.AppendMenu(MF_STRING, 104,  "Change Tag ...");
     Menu.AppendMenu(MF_STRING, 105,  "Data Transfer ...");
@@ -1212,6 +1268,11 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
       {
       Menu.AppendMenu(MF_SEPARATOR, -1);
       AddMenuItems(true, Menu, Acts, XMenus);
+      }
+    if (nGrfs>0)
+      {
+      Menu.AppendMenu(MF_SEPARATOR, -1);
+      AddMenuItems(true, Menu, Grfs, XMenus);
       }
     }
 
@@ -1347,7 +1408,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
 //MSWORD        ?
      break;
     default:
-      if (RetCd>=200)
+      if (RetCd>=200 && RetCd<300)
         {
         MdlAction & MA = Acts[RetCd-200];
         switch (MA.iType)
@@ -1357,12 +1418,12 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
           case MAT_Follow:
             {
             Strng Tag(pTag);
-            gs_Exec.SetModelAction(Tag, MA);
+            gs_Exec.SetModelAction(pTag, MA);
             pTag=NULL;
             break;
             }
           case MAT_Value:
-            {
+            {                        
             CMdlValueSet::Add(pTag, MA, ScreenPoint.x, ScreenPoint.y, pWnd);
             pTag=NULL;
             break;
@@ -1370,6 +1431,34 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
           case MAT_Switch:
             INCOMPLETECODEMSG("Should not get here");
             break;
+          }
+        }
+      else if (RetCd>=300)
+        {
+        CMdlGraphic & MG = Grfs[RetCd-300];
+        switch (MG.m_iType)
+          {
+          case MGT_Simple:
+            CMdlGraphicShow::Add(pTag, ScreenPoint.x, ScreenPoint.y, true, false, pWnd);
+            break;
+          //case MGT_State:
+          //case MGT_Config:
+          //case MGT_Follow:
+          //  {
+          //  Strng Tag(pTag);
+          //  //gs_Exec.SetModelAction(Tag, MA);
+          //  pTag=NULL;
+          //  break;
+          //  }
+          //case MGT_Value:
+          //  {
+          //  //CMdlValueSet::Add(pTag, MA, ScreenPoint.x, ScreenPoint.y, pWnd);
+          //  pTag=NULL;
+          //  break;
+          //  }
+          //case MGT_Switch:
+          //  INCOMPLETECODEMSG("Should not get here");
+          //  break;
           }
         }
     break;
@@ -1414,7 +1503,7 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
     Strng Tag(pTag);
     Itm.Set("Access '%s'", pTag);
     Menu.AppendMenu(MF_STRING, 100,  Itm());
-    if (gs_Exec.GetModelAction(Tag, Acts))
+    if (gs_Exec.GetModelAction(pTag, Acts))
       {
       Menu.AppendMenu(MF_SEPARATOR, -1);
       for (int i=0; i<Acts.GetSize(); i++)
@@ -1568,8 +1657,7 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
           {
           case MAT_State:
             {
-            Strng Tag(pTag);
-            gs_Exec.SetModelAction(Tag, MA);
+            gs_Exec.SetModelAction(pTag, MA);
             pTag=NULL;
             break;
             }
@@ -1703,18 +1791,17 @@ void GrfCmdBlk::DoObjectAccess()
         pTag=DoAccessMenu(pTag);
       if (pTag)
         {
-        Strng Tg(pTag);
         MdlActionArray Acts;
         int nActs=0;
         bool FollowDone=false;
-        if (gs_Exec.GetModelAction(Tg, Acts))
+        if (gs_Exec.GetModelAction(pTag, Acts))
           {
           nActs=Acts.GetSize();
           for (int i=0; i<nActs; i++)
             {
             if (Acts[i].iType==MAT_Follow)
               {
-              gs_Exec.SetModelAction(Tg, Acts[i]);
+              gs_Exec.SetModelAction(pTag, Acts[i]);
               FollowDone=true;
               }
             }
@@ -1722,8 +1809,8 @@ void GrfCmdBlk::DoObjectAccess()
         if (!FollowDone)
           {
           CGrfDoc * pGrfDoc = dynamic_cast<CGrfDoc*>(pDoc);
-          char* pTxt = new char[Tg.Len()+1+strlen(pGrfDoc->GetTitle())+1];
-          strcpy(pTxt, Tg());
+          char* pTxt = new char[strlen(pTag)+1+strlen(pGrfDoc->GetTitle())+1];
+          strcpy(pTxt, pTag);
           strcat(pTxt, "\t"); 
           strcat(pTxt, pGrfDoc->GetTitle()); // current graphics page
           ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);

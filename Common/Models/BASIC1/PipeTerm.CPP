@@ -240,7 +240,7 @@ flag CPipeTerm::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-flag CPipeTerm::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CPipeTerm::GetModelAction(MdlActionArray & Acts)
   {
   //MdlAction {MAT_NULL, MAT_State, MAT_Value};
   MdlAction M0(0, MAT_State, !m_VPB.On(), "Open", 1);
@@ -259,7 +259,7 @@ flag CPipeTerm::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CPipeTerm::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CPipeTerm::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {

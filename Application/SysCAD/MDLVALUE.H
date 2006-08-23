@@ -85,46 +85,6 @@ const int MdlValueShowMaxItems = 200;
 const int MdlValueShowMaxStatusBlks=10;
 class CMdlValueShow : public CDialog
 {
-protected:
-  long           m_nTags;
-  Strng          m_sObjClassId;
-  Strng          m_sTag[MdlValueShowMaxTags];
-  bool           m_bMustLoadTags;
-  CVarTagArray   m_TagItems;
-  int            m_iSequence;
-
-  int            m_iX, m_iY;
-  Strng          m_TagStr;
-  Strng          m_CnvStr;
-  Strng          m_DataStr[MdlValueShowMaxTags];
-  Strng          m_CondStr[MdlValueShowMaxTags];
-
-  bool           m_StateShw[MdlValueShowMaxStatusBlks];
-  char           m_StateCh[MdlValueShowMaxTags][MdlValueShowMaxStatusBlks];
-  long           m_StateCol[MdlValueShowMaxTags][MdlValueShowMaxStatusBlks];
-
-  int            m_nLines;
-  bool           m_bPinned; 
-
-  long           m_iChartItem;
-  bool           m_ItemChartOn[MdlValueShowMaxItems];
-  long           m_ItemChartColourIndex;
-  byte           m_ItemChartColour[MdlValueShowMaxItems];
-  bool           m_ItemChartWithZero[MdlValueShowMaxItems];
-  long           m_ItemClientRow[MdlValueShowMaxItems+1];
-  long           m_iTagSelected;
-  long           m_TagClientCol[MdlValueShowMaxTags+1];
-  
-  static Strng   m_sDragTag;
-  static CMdlValueShow * m_pStartWnd;
-
-  long           m_TWide;
-  long           m_DWide;
-  long           m_CWide;
-  long           m_TotWide;
-  long           m_TotDeep;
-
-  bool           m_bAllowMove;
 
   // Construction
 public:
@@ -186,7 +146,139 @@ public:
 //        Item.Set("V%i",AddIndex);
   static void StartUp();
   static void ShutDown();
+
+protected:
+  long           m_nTags;
+  Strng          m_sObjClassId;
+  Strng          m_sTag[MdlValueShowMaxTags];
+  bool           m_bMustLoadTags;
+  CVarTagArray   m_TagItems;
+  int            m_iSequence;
+
+  int            m_iX, m_iY;
+  Strng          m_TagStr;
+  Strng          m_CnvStr;
+  Strng          m_DataStr[MdlValueShowMaxTags];
+  Strng          m_CondStr[MdlValueShowMaxTags];
+
+  bool           m_StateShw[MdlValueShowMaxStatusBlks];
+  char           m_StateCh[MdlValueShowMaxTags][MdlValueShowMaxStatusBlks];
+  long           m_StateCol[MdlValueShowMaxTags][MdlValueShowMaxStatusBlks];
+
+  int            m_nLines;
+  bool           m_bPinned; 
+
+  long           m_iChartItem;
+  bool           m_ItemChartOn[MdlValueShowMaxItems];
+  long           m_ItemChartColourIndex;
+  byte           m_ItemChartColour[MdlValueShowMaxItems];
+  bool           m_ItemChartWithZero[MdlValueShowMaxItems];
+  long           m_ItemClientRow[MdlValueShowMaxItems+1];
+  long           m_iTagSelected;
+  long           m_TagClientCol[MdlValueShowMaxTags+1];
+  
+  static Strng   m_sDragTag;
+  static CMdlValueShow * m_pStartWnd;
+
+  long           m_TWide;
+  long           m_DWide;
+  long           m_CWide;
+  long           m_TotWide;
+  long           m_TotDeep;
+
+  bool           m_bAllowMove;
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// CMdlGraphicShow dialog
+
+const int MdlGraphicShowMaxTags  = 10;
+//const int MdlValueShowMaxItems = 200;
+//const int MdlValueShowMaxStatusBlks=10;
+class CMdlGraphicShow : public CDialog
+{
+
+  // Construction
+public:
+//	CMdlGraphicShow(CWnd* pParent = NULL);   // standard constructor
+  CMdlGraphicShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, bool Pinned, CWnd* pParent =NULL);
+
+  // Dialog Data
+	//{{AFX_DATA(CMdlGraphicShow)
+	enum { IDD = IDD_MDLGRAPHICSHW };
+		// NOTE: the ClassWizard will add data members here
+	//}}AFX_DATA
+
+
+// Overrides
+	// ClassWizard generated virtual function overrides
+	//{{AFX_VIRTUAL(CMdlGraphicShow)
+	public:
+	virtual BOOL DestroyWindow();
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	//}}AFX_VIRTUAL
+
+// Implementation
+protected:
+
+	// Generated message map functions
+	//{{AFX_MSG(CMdlGraphicShow)
+	virtual BOOL OnInitDialog();
+	afx_msg void OnPaint();
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnNcPaint();
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnClose();
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	//afx_msg void OnMove(int x, int y);
+	//}}AFX_MSG
+  afx_msg LRESULT OnUpdateWnd(WPARAM wParam, LPARAM lParam);
+
+	DECLARE_MESSAGE_MAP()
+
+public:
+  void            AtStart(char * pTag, int X, int Y, bool Pinned);
+  void            DoTheUpdate(); 
+  void            DoTheUpdateByMsg(); 
+  bool            AcceptNewTag(char * pTag, char * pObjClassId);
+  void            SetReloadTagsList() { m_bMustLoadTags=true; };
+  static void     Add(char *pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent =NULL);
+  static void     TryAdd(char *pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent =NULL);
+  static bool     Clear(bool All=true);
+  static void     TryClear(bool All=true);
+  static void     UpdateAll();
+  static void     DeleteItem(char * pObjClassId, int Index);
+  //static void     AddItem(char * pObjClassId, int Index, char * pRefTag, CnvAttribute &Cnv, FmtAttribute &Fmt);
+  static void     AddItem(TagInfoBlk & IB);//, int Index);
+  static flag     FindItem(char * pObjClassId, int Index, CVarTagItem & TagItem);
+  static void     StartUp();
+  static void     ShutDown();
+
+protected:
+  long            m_nTags;
+  Strng           m_sObjClassId;
+  Strng           m_sTag[MdlGraphicShowMaxTags];
+  CMdlGraphic     m_Graphics[MdlGraphicShowMaxTags];
+  bool            m_bMustLoadTags;
+  int             m_iSequence;
+
+  int             m_iX, m_iY;
+  bool            m_bPinned; 
+
+  CPoint          m_MousePt;
+  UINT            m_MouseFlags;
+
+  static Strng    m_sDragTag;
+  static CMdlGraphicShow * m_pStartWnd;
+
+  bool            m_bAllowMove;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CRptTagLists dialog
 
@@ -196,22 +288,6 @@ class CRptTagLists : public CDialog
 public:
 	CRptTagLists(CWnd* pParent = NULL);   // standard constructor
 	~CRptTagLists();
-
-// Dialog Data
-	//{{AFX_DATA(CRptTagLists)
-	enum { IDD = IDD_RPTTAGLISTS };
-	CButton	m_InCfgCtrl;
-	CListCtrl	m_VarTagList;
-	CComboBox	m_ModelType;
-	CString	m_UnitTagList;
-	long	m_MaxValueLen;
-	long	m_MaxTags;
-	//}}AFX_DATA
-
-  CVarTagArray  m_VarTags;
-  int           m_nVarTags;
-  CIArray       m_SaveOrder;
-  bool          m_ModelTypesLoaded;
 
   static void StartUp();
   static void ShutDown();
@@ -255,6 +331,23 @@ protected:
 	afx_msg void OnKillfocusMaxTags();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+public:
+// Dialog Data
+	//{{AFX_DATA(CRptTagLists)
+	enum { IDD = IDD_RPTTAGLISTS };
+	CButton	m_InCfgCtrl;
+	CListCtrl	m_VarTagList;
+	CComboBox	m_ModelType;
+	CString	m_UnitTagList;
+	long	m_MaxValueLen;
+	long	m_MaxTags;
+	//}}AFX_DATA
+
+  CVarTagArray  m_VarTags;
+  int           m_nVarTags;
+  CIArray       m_SaveOrder;
+  bool          m_ModelTypesLoaded;
 };
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Developer Studio will insert additional declarations immediately before the previous line.

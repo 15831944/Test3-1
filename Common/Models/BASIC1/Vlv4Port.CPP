@@ -1047,7 +1047,7 @@ flag C4PortValve::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag C4PortValve::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag C4PortValve::GetModelAction(MdlActionArray & Acts)
   {
   Acts.SetSize(0);
   switch (m_State.m_iMethod)
@@ -1070,7 +1070,7 @@ flag C4PortValve::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag C4PortValve::SetModelAction(Strng & Tag, MdlAction & Act)
+flag C4PortValve::SetModelAction(MdlAction & Act)
   {
   switch (m_State.m_iMethod)
     {

@@ -52,8 +52,8 @@ class CIsolator : public FlwNode
     virtual void   CollectElectrics(CNodeElectricsArray & TSCA);
     virtual void   ConnectElectrics();
 
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CIsolator, FlwNode, 4);
@@ -85,8 +85,8 @@ class CCctBreaker : public FlwNode
     virtual void   CollectElectrics(CNodeElectricsArray & TSCA);
     virtual void   ConnectElectrics();
 
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CCctBreaker, FlwNode, 4);

@@ -34,8 +34,8 @@ class DllImportExport Pump_GP : public MN_BstRes
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual flag   GetModelAction(Strng & Tag, MdlActionArray & Acts);
-    virtual flag   SetModelAction(Strng & Tag, MdlAction & Act);
+    virtual flag   GetModelAction(MdlActionArray & Acts);
+    virtual flag   SetModelAction(MdlAction & Act);
     virtual void   ConfigureJoins();
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 

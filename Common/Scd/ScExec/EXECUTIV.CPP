@@ -15,6 +15,7 @@
 #include "atlconv.h"
 #include "dbhelper.h"
 #include "licbase.h"
+#include "sfe_base.h"
 //#include "scdcomcmdsatlconv.h"
 //#include "optoff.h"
 
@@ -590,6 +591,9 @@ flag CExecObj::EO_Register(const char* pName_, byte bExec_, int RqdPriority, DWO
       SetThreadName(pObjThread->m_nThreadID, pName_);
       }
     }
+  
+  if (stricmp(sName(), PlantModelTag)==0)
+    gs_Exec.m_pSolver = this;
   return true;
   }
 
@@ -599,6 +603,9 @@ flag CExecObj::EO_DeRegister()
   {
   if (lId>=0)
     {
+    if (stricmp(sName(), PlantModelTag)==0)
+      gs_Exec.m_pSolver = NULL;
+
     #if dbgExecutive
     if (dbgExecReg())
       dbgpln("DeRegister:%s===============================",sName());
@@ -1446,6 +1453,8 @@ CExecutive::CExecutive() :
   m_DBFormat                     = DBConnect_JET2000;
 
   m_sHstTaglistFolder            =  PrjFiles();
+
+  m_pSolver                      = NULL;
   };
 
 //---------------------------------------------------------------------------
@@ -4670,8 +4679,16 @@ void CExecutive::SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
 
 //---------------------------------------------------------------------------
 
-flag CExecutive::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CExecutive::GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)
   {
+  if (m_pSolver)
+    {
+    m_pSolver->LockXO();
+    flag Ret=m_pSolver->EO_GetModelAction(Tag, Acts);
+    m_pSolver->UnlockXO();
+    return Ret;
+    }
+
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
     {
     CExecObj *a=Objs_Reg[OInx];
@@ -4688,13 +4705,73 @@ flag CExecutive::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //---------------------------------------------------------------------------
 
-flag CExecutive::SetModelAction(Strng & Tag, MdlAction & Act)
+flag CExecutive::SetModelAction(LPCTSTR Tag, MdlAction & Act)
   {
+  if (m_pSolver)
+    {
+    m_pSolver->LockXO();
+    flag Ret=m_pSolver->EO_SetModelAction(Tag, Act);
+    m_pSolver->UnlockXO();
+    return Ret;
+    }
+
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
     {
     CExecObj *a=Objs_Reg[OInx];
     a->LockXO();
     if (a->EO_SetModelAction(Tag, Act))
+      {
+      a->UnlockXO();
+      return true;
+      }
+    a->UnlockXO();
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+flag CExecutive::GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs)
+  {
+  if (m_pSolver)
+    {
+    m_pSolver->LockXO();
+    flag Ret=m_pSolver->EO_GetModelGraphic(Tag, Grfs);
+    m_pSolver->UnlockXO();
+    return Ret;
+    }
+
+  for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+    {
+    CExecObj *a=Objs_Reg[OInx];
+    a->LockXO();
+    if (a->EO_GetModelGraphic(Tag, Grfs))
+      {
+      a->UnlockXO();
+      return true;
+      }
+    a->UnlockXO();
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+flag CExecutive::OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
+  {
+  if (m_pSolver)
+    {
+    m_pSolver->LockXO();
+    flag Ret=m_pSolver->EO_OperateModelGraphic(Tag, Wnd, Grf);
+    m_pSolver->UnlockXO();
+    return Ret;
+    }
+
+  for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+    {
+    CExecObj *a=Objs_Reg[OInx];
+    a->LockXO();
+    if (a->EO_OperateModelGraphic(Tag, Wnd, Grf))
       {
       a->UnlockXO();
       return true;

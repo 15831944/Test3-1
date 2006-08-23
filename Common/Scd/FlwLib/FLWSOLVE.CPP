@@ -12407,23 +12407,45 @@ void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag CFlwSolver::EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)
   {
   int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(Tag(), false, ObjTagLen, 0));
+  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
   if (p)
-    return p->GetModelAction(Tag, Acts);
+    return p->GetModelAction(Acts);
   return false;
   };
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::EO_SetModelAction(Strng & Tag, MdlAction & Act)
+flag CFlwSolver::EO_SetModelAction(LPCTSTR Tag, MdlAction & Act)
   {
   int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(Tag(), false, ObjTagLen, 0));
+  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
   if (p)
-    return p->SetModelAction(Tag, Act);
+    return p->SetModelAction(Act);
+  return false;
+  };
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs)
+  {
+  int ObjTagLen=0;
+  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  if (p)
+    return p->GetModelGraphic(Grfs);
+  return false;
+  };
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
+  {
+  int ObjTagLen=0;
+  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  if (p)
+    return p->OperateModelGraphic(Wnd, Grf);
   return false;
   };
 

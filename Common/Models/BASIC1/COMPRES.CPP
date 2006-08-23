@@ -248,7 +248,7 @@ void GasPump_GP::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag GasPump_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
+flag GasPump_GP::GetModelAction(MdlActionArray & Acts)
   {
   //MdlAction {MAT_NULL, MAT_State, MAT_Value};
   MdlAction M0(0, MAT_State, !m_PSB.On(), "Start", 1);
@@ -267,7 +267,7 @@ flag GasPump_GP::GetModelAction(Strng & Tag, MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag GasPump_GP::SetModelAction(Strng & Tag, MdlAction & Act)
+flag GasPump_GP::SetModelAction(MdlAction & Act)
   {
   switch (Act.iIndex)
     {
