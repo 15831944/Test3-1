@@ -69,13 +69,76 @@ const UINT CK_InfiniteHistFiles = 99999;      //constant representing no maximum
 const int CK_InfiniteTrends     = 99999;      //constant representing no maximum number of trend windows
 const int CK_InfiniteGrfs       = 99999;      //constant representing no maximum number of graphics windows
 
+const int LicInit_OK    = 0;
+const int LicInit_GoDemo   = 1;
+const int LicInit_ChgLoc   = 2;
+const int LicInit_ExitReqd = 3;
+
 //===========================================================================
 //=== Generic Code...
-
 //generic base class for CrypKey Licensing
 class DllImportExport CLicense
   {
-//#if CK_LICENSINGON
+  public:
+    CLicense();
+    virtual ~CLicense();
+    int             Init(char* path = NULL);
+    int             CheckLicenseVersionOK(LPCTSTR SysCADEXEPath);
+    BOOL            Check(BOOL Prompt = FALSE);
+    BOOL            QuickCheck(UCHAR CheckLevel = 0); //0,1 or 2
+    void            Exit();
+    int             Copies();
+    int             MultiUsers();
+    BOOL            StartDialog();
+    BOOL            IssueTrial(int NoOfDays, BOOL Prompt);
+    bool            ChangeLocation();
+    void            SaveLocation();
+    int             SetLocation();
+    void            SetUseCOM(BOOL On=false);
+    BOOL            UseCOM() { return m_bUseCOM; };
+    BOOL            IssueLicense();
+    BOOL            DoIssue(char* key);
+    BOOL            DoRegisterTransfer();
+    BOOL            DoTransferOut();
+    BOOL            DoTransferIn();
+    BOOL            DoDirectTransfer();
+    BOOL            Kill(CString& ConfirmCode);
+    int             CheckService();
+    BOOL            ResetService(BOOL StopAndStart);
+    void            SetDemoMode();
+    BOOL            NetworkUsersInfo();
+    BOOL            NetworkUsersInfo(char* Buff);
+    char *          SGTime(ULONG ltime);
+    virtual char*   GetAppVersion() = 0;
+    virtual DWORD   GetDemoOptions() = 0;
+    virtual DWORD   GetTrialOptions() = 0;
+    virtual void    Info();
+
+    virtual dword   FixOptions(dword dwOpLevel) { return dwOpLevel; };
+    virtual void    CheckForLiteModes() {};
+
+    void            PushState();
+    void            PopState();
+
+    inline BOOL     DidInitCrypkey()    { return m_bDidInitCrypkey; };
+    inline BOOL     UsingSecurity()     { return 1; };
+    inline DWORD    OpLevel()          { return m_State.m_dwOpLevel; };
+    inline BOOL     Licensed()          { return m_State.m_bLicensed; };
+    inline BOOL     MultiUserFailure()  { return m_State.m_bMultiUserFailure; };
+    inline BOOL     DemoMode()          { return m_State.m_bDemoMode; };
+    inline BOOL     TrialMode()         { return m_State.m_bTrialMode; };
+    inline BOOL     TrialFailed()       { return m_State.m_bTrialFailed; };
+    inline void     SetBlocked(BOOL Block=TRUE);
+    inline BOOL     Blocked();
+    inline int      DaysLeft()           { return m_iDaysLeft; };
+    inline void     SetAppPath(char* p);
+    inline char*    GetAppPath()       { return (m_sAppPath.GetLength()==0 ? NULL : (char*)(const char*)m_sAppPath); };
+    inline void     SetEmbedded(bool On) { m_bEmbedded=On; }
+    void            Error(char * fmt, ...);
+  protected:
+    long            Challenge32(long companyNum, long passNumDiv2, long random1, long random2);
+    int             UpdateCrypkeyINI(char* path);
+
   protected:
     CString m_sLastPath;        //path used for transfers
     CString m_sAppPath;         //optional path and name of app for license location
@@ -98,70 +161,6 @@ class DllImportExport CLicense
     BOOL m_bUseCOM;
     BOOL m_bEmbedded;
 
-  public:
-    CLicense();
-    virtual ~CLicense();
-    BOOL Init(char* path = NULL);
-    static BOOL CheckLicenseVersionOK(LPCTSTR SysCADEXEPath);
-    BOOL Check(BOOL Prompt = FALSE);
-    BOOL QuickCheck(UCHAR CheckLevel = 0); //0,1 or 2
-    void Exit();
-    int Copies();
-    int MultiUsers();
-    BOOL StartDialog();
-    BOOL IssueTrial(int NoOfDays, BOOL Prompt);
-    int SetLocation(BOOL CheckAndInit = true);
-    void SetUseCOM(BOOL On=false);
-    BOOL UseCOM() { return m_bUseCOM; };
-    BOOL IssueLicense();
-    BOOL DoIssue(char* key);
-    BOOL DoRegisterTransfer();
-    BOOL DoTransferOut();
-    BOOL DoTransferIn();
-    BOOL DoDirectTransfer();
-    BOOL Kill(CString& ConfirmCode);
-    int CheckService();
-    BOOL ResetService(BOOL StopAndStart);
-    void SetDemoMode();
-    BOOL NetworkUsersInfo();
-    BOOL NetworkUsersInfo(char* Buff);
-    char* SGTime(ULONG ltime);
-    virtual char* GetAppVersion() = 0;
-    virtual DWORD GetDemoOptions() = 0;
-    virtual DWORD GetTrialOptions() = 0;
-    virtual void Info();
-
-    virtual dword FixOptions(dword dwOpLevel) { return dwOpLevel; };
-    virtual void CheckForLiteModes() {};
-
-    void PushState();
-    void PopState();
-
-    inline BOOL DidInitCrypkey()    { return m_bDidInitCrypkey; };
-    inline BOOL UsingSecurity()     { return 1; };
-    inline DWORD OpLevel()          { return m_State.m_dwOpLevel; };
-    inline BOOL Licensed()          { return m_State.m_bLicensed; };
-    inline BOOL MultiUserFailure()  { return m_State.m_bMultiUserFailure; };
-    inline BOOL DemoMode()          { return m_State.m_bDemoMode; };
-    inline BOOL TrialMode()         { return m_State.m_bTrialMode; };
-    inline BOOL TrialFailed()       { return m_State.m_bTrialFailed; };
-    inline void SetBlocked(BOOL Block=TRUE);
-    inline BOOL Blocked();
-    inline int DaysLeft()           { return m_iDaysLeft; };
-    inline void SetAppPath(char* p);
-    inline char* GetAppPath()       { return (m_sAppPath.GetLength()==0 ? NULL : (char*)(const char*)m_sAppPath); };
-    inline void SetEmbedded(bool On) { m_bEmbedded=On; }
-    void Error(char * fmt, ...);
-  protected:
-    //UINT Challenge(ULONG companyNum, ULONG passNum, UINT random1, UINT random2);
-    long Challenge32(long companyNum, long passNumDiv2, long random1, long random2);
-    int UpdateCrypkeyINI(char* path);
-//#else
-//  public:
-//    inline BOOL UsingSecurity() { return 0; };
-//    inline BOOL Blocked() { return 0; };
-//    void Exit() {};
-//#endif
   };
 
 //===========================================================================

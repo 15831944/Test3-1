@@ -1,7 +1,9 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by SCDLIB.RC
+// Microsoft Visual C++ generated include file.
+// Used by ScdLib.RC
 //
+#define ID_CHANGELOCATION               3
+#define ID_CONTINUEINDEMO               4
 #define IDB_BIGGERICON                  11000
 #define IDB_BIGICON                     11001
 #define IDB_BIGICON1                    11002
@@ -22,7 +24,6 @@
 #define IDC_FILE1                       11015
 #define IDC_FILE2                       11016
 #define IDC_FULLVERSION                 11017
-//#define IDC_LIST1                       11018
 #define IDC_LOGO                        11019
 #define IDC_NOTE                        11020
 #define IDC_PICT                        11021
@@ -85,14 +86,16 @@
 #define IDC_CK_TXT_STANDALONE           21097
 #define IDC_CK_TXT_DYNUNITS             21098
 #define IDC_CK_TXTLOCATION              21099
+#define IDD_BADLICVERSION               21100
+#define IDC_STATICCURLOC                21100
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        21100
+#define _APS_NEXT_RESOURCE_VALUE        21101
 #define _APS_NEXT_COMMAND_VALUE         21100
-#define _APS_NEXT_CONTROL_VALUE         21100
+#define _APS_NEXT_CONTROL_VALUE         21101
 #define _APS_NEXT_SYMED_VALUE           21100
 #endif
 #endif

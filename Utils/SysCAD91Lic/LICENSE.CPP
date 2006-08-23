@@ -865,6 +865,33 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
 
 //---------------------------------------------------------------------------
 
+bool CLicense::ChangeLocation()
+  {
+  int RetCode = 0;
+  int CurOption = (sAppPath.GetLength()==0 ? 0 : 1);
+  CLicenseLocationDlg Dlg;
+  Dlg.m_AppPath = sAppPath;
+  Dlg.m_LocationOpt = CurOption;
+  if (Dlg.DoModal()==IDOK)
+    {
+    if (CurOption!=Dlg.m_LocationOpt || (Dlg.m_LocationOpt==1 && _stricmp((const char*)sAppPath, (const char*)Dlg.m_AppPath)!=0))
+      {
+      CString PrevAppPath = sAppPath;
+      if (Dlg.m_LocationOpt==1)
+        sAppPath = Dlg.m_AppPath;
+      else
+        sAppPath = "";
+      CWinApp* pApp = AfxGetApp();
+      if (pApp)
+        pApp->WriteProfileString("License", "LicenseLocation", (const char*)sAppPath);
+      }
+    return true;
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
 int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
   {
   int RetCode = 0;
@@ -928,7 +955,6 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
     }
   return RetCode; //cancel
   }
-
 
 //---------------------------------------------------------------------------
 

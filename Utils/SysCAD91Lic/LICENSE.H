@@ -56,6 +56,7 @@ class CLicense
     int MultiUsers();
     BOOL StartDialog();
     BOOL IssueTrial(int NoOfDays, BOOL Prompt);
+    bool ChangeLocation();
     int SetLocation(BOOL CheckAndInit = true);
     BOOL IssueLicense();
     BOOL DoIssue(char* key);

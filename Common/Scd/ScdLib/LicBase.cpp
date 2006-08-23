@@ -16,6 +16,7 @@
 #include "scdctrls.h"
 //#include "msgwnd.h"
 #include "resource.h"
+#include "badliclocation.h"
 
 
 #if CK_LICENSINGON
@@ -310,7 +311,7 @@ int MyGetNumMultiUsers()
   { 
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
-    return s_ptr->GetNumMultiUsers();
+    return s_ptr ? s_ptr->GetNumMultiUsers() : 1;
 #endif
   return GetNumMultiUsers();  
   };
@@ -992,7 +993,7 @@ CLicense::~CLicense()
 
 //---------------------------------------------------------------------------
 
-BOOL CLicense::CheckLicenseVersionOK(LPCTSTR SysCADEXEPath)
+int CLicense::CheckLicenseVersionOK(LPCTSTR SysCADEXEPath)
   {
 #if (CK_USE6134 || CK_USE6525)
   const int ReqdSysCADEXEVersion = 2;
@@ -1027,14 +1028,26 @@ BOOL CLicense::CheckLicenseVersionOK(LPCTSTR SysCADEXEPath)
     }
 
   if (SysCADEXEVerOK)
-    return true;
+    return LicInit_OK;
 
-  if (AfxMessageBox("SysCAD License: Incorrect Version!\n\n"
-    "Continuing will destroy the current license\n\n"
-    "Continue ?", MB_ICONEXCLAMATION|MB_YESNO)==IDYES)
-    return true;
+  CBadLicLocation Dlg(m_sAppPath);
+  Dlg.DoModal();
 
-  return false;
+  return Dlg.m_Return;
+  //if (AfxMessageBox("SysCAD License: Incorrect Version!\n\n"
+  //  "Continuing will destroy the current license\n\n"
+  //  "Continue ?", MB_ICONEXCLAMATION|MB_YESNO)==IDYES)
+  //  return true;
+
+  //if (AfxMessageBox("SysCAD License: Incorrect Version!\n\n"
+  //  "Change Location ?", MB_ICONEXCLAMATION|MB_YESNO)==IDYES)
+  //  return LicInit_ChgLoc;
+
+  //if (AfxMessageBox("SysCAD License: Incorrect Version!\n\n"
+  //  "Change Location ?", MB_ICONEXCLAMATION|MB_YESNO)==IDYES)
+  //  return LicInit_ChgLoc;
+
+  return LicInit_ExitReqd;
   }
 
 //---------------------------------------------------------------------------
@@ -1089,8 +1102,9 @@ BOOL CLicense::Blocked()
 
 //---------------------------------------------------------------------------
 
-BOOL CLicense::Init(char* path /*=NULL*/)
+BOOL CLicense::Init(char* PathIn /*=NULL*/)
   {
+  int Ret=LicInit_OK;
 #if dbgTimeLicensing
   CStackTimer TM("Init");
 #endif
@@ -1102,7 +1116,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     if (m_bUseCOM)
       s_ptr.Release();
     }
-#endif
+//#endif
   m_bDidInitCrypkey = 0;
   m_State.m_bMultiUserFailure = 0;
   OSVERSIONINFO VI;
@@ -1114,18 +1128,21 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     return FALSE;
     }*/
 
-  if (path==NULL)
-    path = GetAppPath(); //another chance to get another path!
+  char * Path=PathIn;
+  bool SaveReqd=false;
+ReTry:
+  if (Path==NULL)
+    Path = GetAppPath(); //another chance to get another path!
   char LongPath[_MAX_PATH],ShortPath[_MAX_PATH];
-  if (path==NULL)
+  if (Path==NULL)
     {
-    ASSERT_RDB(path!=NULL, "Do not expect to get here!");
+    ASSERT_RDB(Path!=NULL, "Do not expect to get here!");
     if (GetModuleFileName(NULL, LongPath, sizeof(LongPath))<1)
-      return FALSE;
+      return LicInit_ExitReqd;
     }
   else
     {
-    strcpy(LongPath, path);
+    strcpy(LongPath, Path);
     if (strlen(LongPath)==0 || LongPath[strlen(LongPath)-1]!='\\')
       strcat(LongPath, "\\");
     strcat(LongPath, CK_KeyFile);
@@ -1133,15 +1150,35 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   if (!FileExists(LongPath))
     {
     Error("Specified license file (or folder) not found!\n\n%s\n\nCheck license location!", LongPath);
-    return FALSE;
+    return LicInit_ExitReqd;
     }
   if (GetShortPathName(LongPath, ShortPath, sizeof(ShortPath))<1)
-    return FALSE;
+    return LicInit_ExitReqd;
 
-  if (!CheckLicenseVersionOK(ShortPath))
-    return false;
+  Ret=CheckLicenseVersionOK(ShortPath);
+  switch (Ret)
+    {
+    case LicInit_OK:
+      if (SaveReqd)
+        SaveLocation();
+      break;
+    case LicInit_ExitReqd:
+      return Ret;
+    case LicInit_ChgLoc:
+      if (ChangeLocation())
+        {
+        SaveReqd=true;
+        Path=NULL;
+        goto ReTry; 
+        }
+      return LicInit_ExitReqd;      
+    case LicInit_GoDemo:
+      //m_bDidInitCrypkey = 1;
+      SetDemoMode();
+      return Ret;  
+    };
   
-#if !BYPASSLICENSING
+//#if !BYPASSLICENSING
   int err = -1;
   if (m_bUseCOM)
     {                 
@@ -1153,7 +1190,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
     if (s_ptr==NULL)
       {
       Error("Check if 'CrypKeyCOMServer' is running correctly?");
-      return FALSE;
+      return LicInit_ExitReqd;
       }
     }
   err = MyInitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
@@ -1161,7 +1198,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   if (err==-209)
     {
     Error("Missing license file CRP32001.NGN from application folder.");
-    return FALSE;
+    return LicInit_ExitReqd;
     }
 
 #if CK_SCDCOMLIC
@@ -1178,7 +1215,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
         if (err)
           {
           Error("Initialization Failure %d after Update INI\n%s for %s", err, MyExplainErr(EXP_INIT_ERR, err), LongPath);
-          return FALSE;
+          return LicInit_ExitReqd;
           }
         }
       }
@@ -1200,12 +1237,12 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   if (Ver==41 || Ver==42)
     {//version 4.1 and 4.2 are old and not supported...
     Error("Old Crypkey version (%d) not supported", Ver);
-    return FALSE;
+    return LicInit_ExitReqd;
     }
   else if (Ver==43)
     {//version 4.3 is old and not supported...
     Error("Old Crypkey version (%d) not supported", Ver);
-    return FALSE;
+    return LicInit_ExitReqd;
     }
   else if (Ver==50) //Ver 5.0 : Sept 1999
     {//version 5.0 is old but should work...
@@ -1247,12 +1284,12 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   else if (Ver!=65) //Ver 6.5 : August 2006 
     {//expect version 6.5
     Error("Incorrect Crypkey version (%d)", Ver);
-    return FALSE;
+    return LicInit_ExitReqd;
     }
 #endif
 #endif
   m_bDidInitCrypkey = 1;
-  return TRUE;
+  return Ret;
   }
 
 //---------------------------------------------------------------------------
@@ -1509,40 +1546,134 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
 
 //---------------------------------------------------------------------------
 
-int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
+bool CLicense::ChangeLocation()
   {
-  int RetCode = 0;
   CLicenseLocationDlg Dlg;
   Dlg.m_AppPath = m_sAppPath;
   if (Dlg.DoModal()==IDOK)
     {
-    if (_stricmp((const char*)m_sAppPath, (const char*)Dlg.m_AppPath)!=0)
-      {
-      CString PrevAppPath = m_sAppPath;
-      m_sAppPath = Dlg.m_AppPath;
-      if (CheckAndInit)
-        {
-        //check license on new location...
+    Strng Path=Dlg.m_AppPath;
+    Path.FnCheckEndBSlash();
+    m_sAppPath = Path();
+    return true;
+    }
+  return false;
+  }
 
-        if (!CheckLicenseVersionOK(m_sAppPath))
-          {
-          m_sAppPath = PrevAppPath;
-          return RetCode;
-          }
+//---------------------------------------------------------------------------
+
+void CLicense::SaveLocation()
+  {
+  ScdPFMachine.WrStr(LicINISection, "LicenseLocation", (const char*)m_sAppPath);
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+  }
+
+////---------------------------------------------------------------------------
+//
+//int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
+//  {
+//  int RetCode = 0;
+//  CLicenseLocationDlg Dlg;
+//  Dlg.m_AppPath = m_sAppPath;
+//  if (Dlg.DoModal()==IDOK)
+//    {
+//    if (1)//_stricmp((const char*)m_sAppPath, (const char*)Dlg.m_AppPath)!=0)
+//      {
+//      CString PrevAppPath = m_sAppPath;
+//      m_sAppPath = Dlg.m_AppPath;
+//      if (CheckAndInit)
+//        {
+//        //check license on new location...
+//
+//        if (CheckLicenseVersionOK(m_sAppPath)!=LicInit_OK)
+//          {
+//          m_sAppPath = PrevAppPath;
+//          return RetCode;
+//          }
+//
+//        CWaitCursor Wait;
+//        BOOL Failed = FALSE;
+//        if (!Init())
+//          Failed = TRUE;
+//        if (!Failed && !Check(TRUE)) //re-check options etc
+//          Failed = TRUE;
+//        if (Failed)
+//          {
+//          char Buff[1024];
+//          sprintf(Buff, "License Initialisation Failed:\n\n"
+//                        "Set license to new location anyway?\n\n"
+//                        "Old location : %s\n"
+//                        "New location : %s", 
+//            (const char*)PrevAppPath, (const char*)m_sAppPath);
+//          if (AfxMessageBox(Buff, MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2)!=IDYES)
+//            {
+//            Wait.Restore();
+//            m_sAppPath = PrevAppPath;
+//#if !BYPASSLICENSING
+//            MyEndCrypkey();
+//            if (m_bUseCOM)
+//              s_ptr.Release();
+//#endif
+//            m_bDidInitCrypkey = 0;
+//            if (!Init())
+//              Error("Change location\nFailed to re-initialize license!");
+//            else if (!Check(TRUE)) //re-check options etc
+//              Error("Change location\nFailed to re-initialize license!");
+//            ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+//            return 2; //new location failed
+//            }
+//          else
+//            {
+//            #if CK_ALLOWDEMOMODE
+//            gs_License.SetDemoMode();
+//            #endif
+//            RetCode = 4; //new location failed - but set it anyway
+//            }
+//          }
+//        else
+//          RetCode = 1; //new location OK
+//        }
+//      else
+//        RetCode = 5; //location changed, no Init and check
+//      ScdPFMachine.WrStr(LicINISection, "LicenseLocation", (const char*)m_sAppPath);
+//      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+//      }
+//    else
+//      RetCode = 3; //unchanged
+//    }
+//  return RetCode; //cancel
+//  }
+//
+//---------------------------------------------------------------------------
+
+int CLicense::SetLocation()
+  {
+  int RetCode = 0;
+  bool SaveReqd=false;
+  CString PrevAppPath = m_sAppPath;
+  if (ChangeLocation())
+    {
+
+ReTry:
+        //check license on new location...
+    int Ret=CheckLicenseVersionOK(m_sAppPath);
+    switch (Ret)
+      {
+      case LicInit_OK:
+        {
+        SaveLocation();
 
         CWaitCursor Wait;
-        BOOL Failed = FALSE;
-        if (!Init())
-          Failed = TRUE;
+        bool Failed = (Init()!=LicInit_OK);
         if (!Failed && !Check(TRUE)) //re-check options etc
           Failed = TRUE;
         if (Failed)
           {
-          char Buff[1024];
-          sprintf(Buff, "License Initialisation Failed:\n\n"
-                        "Set license to new location anyway?\n\n"
-                        "Old location : %s\n"
-                        "New location : %s", 
+          CString Buff;
+          Buff.Format("License Initialisation Failed:\n\n"
+                      "Set license to new location anyway?\n\n"
+                      "Old location : %s\n"
+                      "New location : %s", 
             (const char*)PrevAppPath, (const char*)m_sAppPath);
           if (AfxMessageBox(Buff, MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2)!=IDYES)
             {
@@ -1559,30 +1690,39 @@ int CLicense::SetLocation(BOOL CheckAndInit/*=true*/)
             else if (!Check(TRUE)) //re-check options etc
               Error("Change location\nFailed to re-initialize license!");
             ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+            m_sAppPath = PrevAppPath;
             return 2; //new location failed
             }
-          else
-            {
-            #if CK_ALLOWDEMOMODE
-            gs_License.SetDemoMode();
-            #endif
-            RetCode = 4; //new location failed - but set it anyway
-            }
+          #if CK_ALLOWDEMOMODE
+          gs_License.SetDemoMode();
+          #endif
+          m_sAppPath = PrevAppPath;
+          return 4; //new location failed - but set it anyway
           }
-        else
-          RetCode = 1; //new location OK
+        return 1;
         }
-      else
-        RetCode = 5; //location changed, no Init and check
-      ScdPFMachine.WrStr(LicINISection, "LicenseLocation", (const char*)m_sAppPath);
-      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
-      }
-    else
-      RetCode = 3; //unchanged
+      case LicInit_ExitReqd:
+        m_sAppPath = PrevAppPath;
+        SaveLocation();
+        return 3;
+      case LicInit_ChgLoc:
+        if (ChangeLocation())
+          {
+          goto ReTry; 
+          }
+        m_sAppPath = PrevAppPath;
+        SaveLocation();
+        return 3;      
+      case LicInit_GoDemo:
+        //m_sAppPath = PrevAppPath;
+        SaveLocation();
+        //m_bDidInitCrypkey = 1;
+        SetDemoMode();
+        return 6;  
+      };
     }
-  return RetCode; //cancel
+  return 3;
   }
-
 
 //---------------------------------------------------------------------------
 
