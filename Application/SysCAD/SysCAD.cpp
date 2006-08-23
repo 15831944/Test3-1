@@ -976,7 +976,7 @@ BOOL CSysCADApp::InitInstFolder()
 
 //---------------------------------------------------------------------------
 
-BOOL CSysCADApp::InitInstLicense1(bool Embedded, bool &LicenseFailed)
+int CSysCADApp::InitInstLicense1(bool Embedded)
   {
 #if CK_LICENSINGON
   CDlgBusy::Open("\n\nChecking License");
@@ -1026,55 +1026,57 @@ BOOL CSysCADApp::InitInstLicense1(bool Embedded, bool &LicenseFailed)
 
   gs_License.SetUseCOM(m_CLH.bDeveloper);
 
-  LicenseFailed = !gs_License.Init();
-  if (!LicenseFailed)
+  int LicenseRet=gs_License.Init();
+  if (LicenseRet==LicInit_OK)
     {
+    CWaitCursor Wait1; //old hour glass may be gone
+    CDlgBusy::Close();
     if (!gs_License.Check(true))
       {
       #if CK_ALLOWDEMOMODE
-      gs_License.SetDemoMode();
+      LicenseRet=LicInit_GoDemo;
+      //gs_License.SetDemoMode();
       #else
       LicenseFailed = !gs_License.StartDialog();
       if (!LicenseFailed)
         LicenseFailed = !gs_License.Check(); //check again!
       #endif
       }
+    else if (gs_License.MultiUserFailure())
+      {
+      if (Embedded)
+        gs_License.Error("Unable to obtain license, set SysCAD to demo mode?");
+      else if (AfxMessageBox("Unable to obtain license, set SysCAD to demo mode?", MB_YESNO)!=IDYES)
+        CDlgBusy::Close();
+      }
     }
-  CWaitCursor Wait1; //old hour glass may be gone
-  CDlgBusy::Close();
-  if (LicenseFailed)
+
+  if (LicenseRet==LicInit_GoDemo)
     {
+    CWaitCursor Wait1; //old hour glass may be gone
+    CDlgBusy::Close();
     #if CK_ALLOWDEMOMODE
     gs_License.Error(gs_License.DidInitCrypkey() ? "License failed to initialise, SysCAD set to demo mode" : "License service ERROR!\n\nSysCAD set to demo mode");
     gs_License.SetDemoMode();
-    LicenseFailed = 0;
     #else
     CDlgBusy::Close();
     //AfxMessageBox("Contact suppliers to License SysCAD");
     return false;
     #endif
     }
-  else
-    {
-    if (gs_License.MultiUserFailure())
-      {
-      if (Embedded)
-        gs_License.Error("Unable to obtain license, set SysCAD to demo mode?");
-      else if (AfxMessageBox("Unable to obtain license, set SysCAD to demo mode?", MB_YESNO)!=IDYES)
-        return false;
-      }
-    }
-  #endif
 
-  return TRUE;
+  return LicenseRet;
+#else
+  return LicInit_OK;
+#endif
   };
 
 //---------------------------------------------------------------------------
 
-BOOL CSysCADApp::InitInstLicense2(bool LicenseFailed)
+BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
   {
   #if CK_LICENSINGON
-  if (LicenseFailed)
+  if (LicenseRet==LicInit_ExitReqd)
     {
     CDlgBusy::Close();
     return false;
@@ -1670,8 +1672,8 @@ BOOL CSysCADApp::InitInstance()
 
   BuildInterfaceWindows();
 
-  bool LicenseFailed=true;
-  if (!InitInstLicense1(cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated, LicenseFailed))
+  int LicenseRet=InitInstLicense1(cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated);
+  if (LicenseRet==LicInit_ExitReqd)
     return false;
 
   if (!InitInstVersion())
@@ -1771,7 +1773,7 @@ BOOL CSysCADApp::InitInstance()
   else
     LogNote("Version", 0, "%s %s", FullVersion(), BuildDate());
 
-  if (!InitInstLicense2(LicenseFailed))
+  if (!InitInstLicense2(LicenseRet))
     return false;
 
   if (m_CLH.sAutoLoadPrj.Length()>0)
@@ -2307,7 +2309,8 @@ BOOL CSysCADApp::PreTranslateMessage(MSG* pMsg)
         }
       #endif
       //if (pExec)
-      gs_Exec.LowerPriority();
+      if (gs_Exec.Initialised())
+        gs_Exec.LowerPriority();
       }
     }
 
@@ -2814,6 +2817,8 @@ void CSysCADApp::OnLicense(UINT nID)
           LogWarning("SysCAD", 0, "License location change failed, set back to %s.", gs_License.GetAppPath());
         else if (err==4)
           LogWarning("SysCAD", 0, "License location change failed!  Location has been set to %s.", gs_License.GetAppPath());
+        else if (err==6)
+          LogWarning("SysCAD", 0, "License location change failed!  Now in Demo Mode. Location has been set to %s.", gs_License.GetAppPath());
         }
       break;
       }
@@ -3186,141 +3191,142 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
     BOOL IsOneCmd=false;
     while (p && !IsOneCmd)
       {
-      CString OptStr, Opt = p;
-      int l = Opt.GetLength(), OptWide=2;
-      if ((l>OptWide) && (Opt[2]==':'))
+      CString OptRgt, OptLft2 = p, Option = p;
+      int l = OptLft2.GetLength(), OptWide=2;
+      if ((l>OptWide) && (OptLft2[2]==':'))
         OptWide = 3;
-      OptStr = Opt.Right(l-OptWide);
-      Opt = Opt.Left(2);
-      if (OptStr.GetLength()>0 && OptStr[0]=='"' && (Opt=="/d" || Opt=="/l" || Opt=="/r"))
+      OptRgt = OptLft2.Right(l-OptWide);
+      OptLft2 = OptLft2.Left(2);
+      if (OptRgt.GetLength()>0 && OptRgt[0]=='"' && (OptLft2=="/d" || OptLft2=="/l" || OptLft2=="/r"))
         {//find closing "
-        OptStr = OptStr.Mid(1, 1024);
-        if (OptStr.GetLength()>0 && OptStr[OptStr.GetLength()-1]=='"')
-          OptStr = OptStr.Left(OptStr.GetLength()-1);
+        OptRgt = OptRgt.Mid(1, 1024);
+        if (OptRgt.GetLength()>0 && OptRgt[OptRgt.GetLength()-1]=='"')
+          OptRgt = OptRgt.Left(OptRgt.GetLength()-1);
         else
           {
-          OptStr += " ";
+          OptRgt += " ";
           p = strtok(NULL, "\"\n");
           if (p)
-            OptStr += p;
+            OptRgt += p;
           }
         }
+      Option=Option.MakeLower();
 
-      if (Opt=="-E" && OptStr=="mbedding")
+      if (Option=="-embedding")
         {
         bAutomation = true;
         }
-      else if (Opt=="/2" && OptStr=="000")
+      else if (Option=="/2000")
         {
         bUse2000 = 1;
         }
-      else if (Opt=="/9" && OptStr=="7")
+      else if (Option=="/97")
         {
         bUse97 = 1;
         }
-      else if (Opt=="/d" && OptStr=="emo")
+      else if (Option=="/demo")
         {
         bForceDemo = 1;
         }
-      else if (Opt=="/d" && OptStr=="ev")
+      else if (Option=="/dev")
         {
         bDeveloper = 1;
         }
-      else if (Opt=="/d")
+      else if (OptLft2=="/d")
         {
         bDebugOn = true;
-        if (OptStr.GetLength()==0)
+        if (OptRgt.GetLength()==0)
           {
 #if BLDDEPENDENTFILES
-          OptStr.Format("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILDNO);
+          OptRgt.Format("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILDNO);
 #else
-          OptStr = TemporaryFiles();
-          OptStr += "Scd_Dbg.Txt";
+          OptRgt = TemporaryFiles();
+          OptRgt += "Scd_Dbg.Txt";
 #endif
           }
-        else if (strpbrk(OptStr.GetBuffer(0), ":\\")==NULL)
+        else if (strpbrk(OptRgt.GetBuffer(0), ":\\")==NULL)
           {
-          CString T(OptStr);
-          OptStr = TemporaryFiles();
-          OptStr += T;
+          CString T(OptRgt);
+          OptRgt = TemporaryFiles();
+          OptRgt += T;
           }
-        sDebugFile = (const char*)OptStr;
+        sDebugFile = (const char*)OptRgt;
         }
-      else if (Opt=="/f")
+      else if (OptLft2=="/f")
         {
-        bForegroundWnd = (OptStr.GetLength() && (OptStr[0]=='Y'||OptStr[0]=='y'));
+        bForegroundWnd = (OptRgt.GetLength() && (OptRgt[0]=='Y'||OptRgt[0]=='y'));
         }
-      else if (Opt=="/g")
+      else if (OptLft2=="/g")
         {
-        if (OptStr.GetLength())
-          lGobbleMemUntil=atol((const char*)OptStr);
+        if (OptRgt.GetLength())
+          lGobbleMemUntil=atol((const char*)OptRgt);
         }
-      else if (Opt=="/l" && OptStr=="c")
+      else if (Option=="/lc")
         {
         bAllowLocalCopy = 1;
         }
-      else if (Opt=="/l")
+      else if (OptLft2=="/l")
         {
-        sLicenseLoc = OptStr;
+        sLicenseLoc = OptRgt;
         if (sLicenseLoc.Len()>0)
           bAltLicenseLoc = true;
         }
-      else if (Opt=="/m" && OptStr=="in")
+      else if (Option=="/min")
         {
         bMinimiseWnd = 1;
         }
-      else if (Opt=="/n")
+      else if (Option=="/n")
         {
         bForceNewCopy = true;
         }
-      else if (Opt=="/a")
+      else if (OptLft2=="/a")
         {
-        if (OptStr.GetLength())
-          dwAffinity = SafeAtoI((const char *)OptStr, 1);
+        if (OptRgt.GetLength())
+          dwAffinity = SafeAtoI((const char *)OptRgt, 1);
         else
           dwAffinity = 0x00000001;
         }
-      else if (Opt=="/r" && OptStr=="t")
+      else if (Option=="/rt")
         {
         bForceRuntime = 1;
         }
-      else if (Opt=="/r")
+      else if (Option=="/r")
         {
-        if (OptStr.GetLength()>0)
+        if (OptRgt.GetLength()>0)
           {
-          sAutoRunPrj = (const char*)OptStr;
+          sAutoRunPrj = (const char*)OptRgt;
           bAllowLoadPrevPrj = false;
           }
         else
           if (AfxGetMainWnd())
             LogWarning("SysCAD", 0, "No Autorun Project specified");
         }
-      else if (Opt=="/p")
+      else if (Option=="/p")
         {
         bLoadPrevPrj = true;
         }
-      else if (Opt=="/c")
+      else if (OptLft2=="/c")
         {
         IsOneCmd = true;
-        sScriptCmd=OptStr;
+        sScriptCmd=OptRgt;
         p=strtok(NULL, "\n");// Try to append any more
         if (p)
           sScriptCmd+=p;
         }
-      else if (Opt=="/?")
+      else if (Option=="/?")
         {
         printf("HELP\n");
         return false;
         }
-      else if (Opt=="/w")
+      else if (OptLft2=="/w")
         {
-        nAutoRunWait=atol(OptStr);
+        nAutoRunWait=atol(OptRgt);
         }
-      else if (Opt=="/x" && OptStr=="menu")
+      else if (Option=="/xmenu")
         {
         bAllowXMenus = 1;
         }
-      else
+      else if (OptLft2[0]!='/')
         {//assume filename...
         bAllowLoadPrevPrj = false;
         Strng s(p);
@@ -3365,6 +3371,10 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
             if (AfxGetMainWnd())
               LogWarning("SysCAD", 0, "Additional project file '%s' ignored", p);
           }
+        }
+      else
+        {
+        LogWarning("SysCAD", 0, "Unknown Option '%s' ignored", p);
         }
       p = strtok(NULL, " \n");
       }
