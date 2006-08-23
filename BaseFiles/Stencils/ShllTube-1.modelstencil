@@ -11,17 +11,17 @@
 <a3:ArrayList id="ref-4" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
 <_size>4</_size>
-<_version>54</_version>
+<_version>949</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-5" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-9"/>
 <_size>8</_size>
-<_version>98</_version>
+<_version>1709</_version>
 </a3:ArrayList>
 <a3:ArrayList id="ref-6" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-10"/>
-<_size>0</_size>
-<_version>10</_version>
+<_size>5</_size>
+<_version>732</_version>
 </a3:ArrayList>
 <SOAP-ENC:Array id="ref-8" SOAP-ENC:arrayType="xsd:anyType[4]">
 <item href="#ref-11"/>
@@ -39,7 +39,12 @@
 <item href="#ref-21"/>
 <item href="#ref-22"/>
 </SOAP-ENC:Array>
-<SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[0]">
+<SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[8]">
+<item href="#ref-23"/>
+<item href="#ref-24"/>
+<item href="#ref-25"/>
+<item href="#ref-26"/>
+<item href="#ref-27"/>
 </SOAP-ENC:Array>
 <a1:Line id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>10.4278069</x1>
@@ -49,7 +54,7 @@
 </a1:Line>
 <a1:Bezier id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>89.57219</x1>
-<y1>5.99999952</y1>
+<y1>6</y1>
 <x2>103.475937</x2>
 <y2>33.33334</y2>
 <x3>103.475937</x3>
@@ -71,7 +76,7 @@
 <x3>-3.4759357</x3>
 <y3>33.33334</y3>
 <x4>10.4278069</x4>
-<y4>5.99999952</y4>
+<y4>6</y4>
 </a1:Bezier>
 <a1:Line id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>16.84492</x1>
@@ -82,25 +87,25 @@
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>16.84492</x1>
 <y1>0</y1>
-<x2>23.2620316</x2>
+<x2>23.26203</x2>
 <y2>0</y2>
 </a1:Line>
 <a1:Line id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>23.2620316</x1>
+<x1>23.26203</x1>
 <y1>0</y1>
-<x2>23.2620316</x2>
+<x2>23.26203</x2>
 <y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>16.84492</x1>
 <y1>100</y1>
-<x2>23.2620316</x2>
+<x2>23.26203</x2>
 <y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
-<x1>83.15508</x1>
+<x1>83.15509</x1>
 <y1>0</y1>
-<x2>83.15508</x2>
+<x2>83.15509</x2>
 <y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
@@ -112,14 +117,59 @@
 <a1:Line id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>76.73797</x1>
 <y1>0</y1>
-<x2>83.15508</x2>
+<x2>83.15509</x2>
 <y2>0</y2>
 </a1:Line>
 <a1:Line id="ref-22" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
 <x1>76.73797</x1>
 <y1>100</y1>
-<x2>83.15508</x2>
+<x2>83.15509</x2>
 <y2>100</y2>
 </a1:Line>
+<a1:Anchor id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-28">Liquor_In</tag>
+<type>Process</type>
+<position>
+<x>10.6951866</x>
+<y>50</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
+<a1:Anchor id="ref-24" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-29">Liquor_Out</tag>
+<type>Process</type>
+<position>
+<x>90.90909</x>
+<y>50</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
+<a1:Anchor id="ref-25" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-30">Steam</tag>
+<type>Process</type>
+<position>
+<x>20.0534744</x>
+<y>50</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
+<a1:Anchor id="ref-26" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-31">Condensate</tag>
+<type>Process</type>
+<position>
+<x>79.94652</x>
+<y>50</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
+<a1:Anchor id="ref-27" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Interface/Interface%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull">
+<tag id="ref-32">Vent</tag>
+<type>Process</type>
+<position>
+<x>48.12834</x>
+<y>6</y>
+</position>
+<direction xsi:type="xsd:anyType" xsi:null="1"/>
+</a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
