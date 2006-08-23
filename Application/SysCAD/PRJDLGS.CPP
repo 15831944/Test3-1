@@ -3332,21 +3332,18 @@ void CArchivePage::OnArchiveReload()
   gs_pPrj->bArcChanged = bArcChanged;
   if (1)// bArcChanged)
     {
+    gs_pPrj->DisConnectArcManager();
     gs_pPrj->CloseArcManager();
     gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-    //gs_pPrj->m_bArcOn          = m_ArcOn;
-    //gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
+
+    SetOptions(m_pSet->m_sArcManagerName());
+
     gs_pPrj->OpenArcManager(false);
+    gs_pPrj->ConnectArcManager();
     CTagVwDoc::RebuildAll();
     bArcChanged = 0;
     UpdateDialogControls(this, FALSE);
     }
-  //if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
-  //  {
-  //  gs_pPrj->sArcManagerName = m_ArcName;
-  //  bArcChanged = 0;
-  //  UpdateDialogControls(this, FALSE);
-  //  }
   }
 
 void CArchivePage::OnUpdateReLoadArc(CCmdUI* pCmdUi)

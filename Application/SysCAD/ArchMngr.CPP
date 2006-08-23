@@ -588,7 +588,7 @@ CArchiveDBTable::CArchiveDBTable(CArchiveManager *pAM, LPCTSTR TbName) : m_rAM(*
   m_bPeriodOn     = false;
   m_iFormat       = ADBTbFmt_Null;
 
-  m_sName        = TbName;
+  m_sName         = TbName;
 
   m_hFile         = NULL;
   m_nSigDigits    = 20;
@@ -1116,6 +1116,13 @@ void CArchiveDBTable::AddTimeFieldsDB(CXM_TimeControl &CB)
 
 void CArchiveDBTable::AddTimeFieldsTxt(CXM_TimeControl &CB, char Separ)
   {
+  if (m_rAM.m_dwOptions & LogItem_Time)
+    {
+    CString S;
+    S=CB.m_TheTime.Format(TD_DateLeft|TD_Time|TD_TrimTime);
+    fprintf(m_hFile, "%c%s", Separ, S);
+    }
+
   CTimeValue ET=(m_rAM.m_TimeAtStartValid ? CB.m_TheTime.Seconds-m_rAM.m_TimeAtStart.Seconds : 0);
   if (m_rAM.m_dwOptions & LogItem_ElapsedHMS)
     {
@@ -1186,7 +1193,7 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       {
       if (!m_Fields[fd]->m_bSystem)
-        fprintf(m_hFile, "%c%.*e", Separ, m_nSigDigits-1, m_Fields[fd]->m_dCalculatedValue);
+        fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, m_Fields[fd]->m_dCalculatedValue);
       }
 
     fprintf(m_hFile, "\n");
@@ -1303,7 +1310,7 @@ bool CArchiveDBTable::AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg)
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       {
       if (!m_Fields[fd]->m_bSystem)
-        fprintf(m_hFile, "%c%.*e", Separ, m_nSigDigits-1, m_Fields[fd]->m_dCalculatedValue);
+        fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, m_Fields[fd]->m_dCalculatedValue);
       }
 
     fprintf(m_hFile, "\n");
@@ -1373,7 +1380,7 @@ bool CArchiveDBTable::AddEventRecord(CXM_TimeControl &CB, LPCTSTR Tag, LPCTSTR M
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       {
       if (!m_Fields[fd]->m_bSystem)
-        fprintf(m_hFile, "%c%.*e", Separ, m_nSigDigits-1, m_Fields[fd]->m_dCalculatedValue);
+        fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, m_Fields[fd]->m_dCalculatedValue);
       }
 
     fprintf(m_hFile, "\n");
@@ -2941,6 +2948,7 @@ flag CArchiveManager::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTi
 
 flag CArchiveManager::EO_Start(CXM_TimeControl &CB)
   {
+
   //  if (!bRecordHistDone)
   //    RecordSlots(); //ensure the historian knows what to record
   flag OK = 1;
