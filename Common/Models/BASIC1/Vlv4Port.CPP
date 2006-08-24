@@ -1047,7 +1047,7 @@ flag C4PortValve::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag C4PortValve::GetModelAction(MdlActionArray & Acts)
+flag C4PortValve::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
   switch (m_State.m_iMethod)
@@ -1056,13 +1056,13 @@ flag C4PortValve::GetModelAction(MdlActionArray & Acts)
       for (int i=0; i<m_ModeStrs.Length(); i++)
         {
         DDBValueLst * L=m_ModeStrs.Item(i);
-        Acts.SetAtGrow(i, MdlAction(i, MAT_State, m_iVlvModeAct!=L->m_lVal, L->m_pStr, false, L->m_lVal));
+        Acts.SetAtGrow(i, CMdlAction(i, MAT_State, m_iVlvModeAct!=L->m_lVal, L->m_pStr, false, L->m_lVal));
         }
       break;
     case Meth_OnOff:
-      Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_State.m_bOn, "On", 1));
-      Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_State.m_bOn, "Off", 0));
-      Acts.SetAtGrow(2, MdlAction(2, MAT_Switch));
+      Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_State.m_bOn, "On", 1));
+      Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_State.m_bOn, "Off", 0));
+      Acts.SetAtGrow(2, CMdlAction(2, MAT_Switch));
       break;
     }
   return True;
@@ -1070,7 +1070,7 @@ flag C4PortValve::GetModelAction(MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag C4PortValve::SetModelAction(MdlAction & Act)
+flag C4PortValve::SetModelAction(CMdlAction & Act)
   {
   switch (m_State.m_iMethod)
     {

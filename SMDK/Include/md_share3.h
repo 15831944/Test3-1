@@ -106,14 +106,14 @@ const long MDrw_End    = 0x80000004; //end: end of graphics symbol definition
 /*A drawing symbol is defined arround the origin 0,0.
 Examples:
 long Drw_SimpleHeater[] = { MDrw_Arc, 0,0, 5,
-                            MDrw_Poly, -5,0, -3,0, -3,-2, 3,2, 3,0, 5,0,
-                            MDrw_Poly, -5,1, -6,1, -6,0, -5,0, -5,1,
-                            MDrw_Poly, 5,-1, 6,-1, 6,0, 5,0, 5,-1,
-                            MDrw_End };
+MDrw_Poly, -5,0, -3,0, -3,-2, 3,2, 3,0, 5,0,
+MDrw_Poly, -5,1, -6,1, -6,0, -5,0, -5,1,
+MDrw_Poly, 5,-1, 6,-1, 6,0, 5,0, 5,-1,
+MDrw_End };
 long Drw_FlashTank[] = { MDrw_Poly, -5,10, -5,-5, 0,-10, 5,-5, 5,10,
-                         MDrw_Poly, -5,-2, 5,-2,
-                         MDrw_Arc3, -5,10, 0,13, 5,10,
-                         MDrw_End }; 
+MDrw_Poly, -5,-2, 5,-2,
+MDrw_Arc3, -5,10, 0,13, 5,10,
+MDrw_End }; 
 */
 // ======================================================================
 //

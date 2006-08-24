@@ -684,6 +684,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\SMDK\Include\md_share4.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Smdk\Include\md_spmodel.h"
 				>
 			</File>

@@ -13,16 +13,16 @@
 #include "accnode.h"
 #include "scd_wm.h"
 #ifndef __FE_CONST_H
-  #include "..\flwlib\fe_const.h"
+#include "..\flwlib\fe_const.h"
 #endif
 
 //#include "optoff.h"
 
 extern "C" 
   {
-//  #include "c2cdefs.h"
-//  #include "c2ddefs.h"
-  #include "grldefs.h"
+  //  #include "c2cdefs.h"
+  //  #include "c2ddefs.h"
+#include "grldefs.h"
   extern int get_line_error();
   }
 
@@ -56,10 +56,10 @@ const char* BaseFileName = "Scd_RTL.ini";
 class CRptTagListCommon
   {
   public:
-	  BOOL	          m_InBaseCfg;
-	  BOOL	          m_InCfg;
-	  long            m_lMaxValueLen;
-	  long            m_lMaxTags;
+    BOOL	          m_InBaseCfg;
+    BOOL	          m_InCfg;
+    long            m_lMaxValueLen;
+    long            m_lMaxTags;
     CRptTagLists *  m_pRTL;
     Strng           m_sRTLFileName;
     Strng           m_sInCfgName;
@@ -74,7 +74,7 @@ class CRptTagListCommon
     CList <AddPtr, AddPtr> GraphicAddPtrs;
     CList <ValueShwPtr, ValueShwPtr> SpareShwPtrs;
     CCriticalSection  MVCritSect;
-  
+
     char *          m_pSectBuff;
     dword           m_dwSectBuff;
     CCriticalSection  LVCritSect;
@@ -85,7 +85,7 @@ class CRptTagListCommon
       m_InBaseCfg=false;
       m_InCfg=true;
       m_lMaxValueLen=20;
-  	  m_lMaxTags=16;//MdlValueShowMaxTags;
+      m_lMaxTags=16;//MdlValueShowMaxTags;
       m_pRTL=NULL;
       m_pSectBuff=NULL;
       m_iClear=0;
@@ -122,7 +122,7 @@ class CRptTagListCommon
 
     void LoadVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray & VarTags, int &nVarTags);
     void SaveVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray & VarTags, int &nVarTags, CIArray * pSaveOrder = NULL);
-  
+
   };
 
 //---------------------------------------------------------------------------
@@ -167,7 +167,7 @@ void CRptTagListCommon::LoadVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
   Section.Set(Layout?"%s.View.Vars.%s":"%s.View.Vars", ObjClassId(), Layout);
 
 #if dbgLoadSave
-dbgpln("LVT %s %s", Section(), PF.Filename());
+  dbgpln("LVT %s %s", Section(), PF.Filename());
 #endif
 
   DWORD dw = PF.RdSection(Section(), m_pSectBuff, m_dwSectBuff);
@@ -191,7 +191,7 @@ dbgpln("LVT %s %s", Section(), PF.Filename());
       if (!pItem || *pItem!='V') // Skip UnitTags etc.
         continue;
 #if dbgLoadSave
-dbgpln("<< %s %s", pItem, pData);
+      dbgpln("<< %s %s", pItem, pData);
 #endif
       if (pData)
         {
@@ -255,7 +255,7 @@ void CRptTagListCommon::SaveVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
   Section.Set(Layout?"%s.View.Vars.%s":"%s.View.Vars", ObjClassId(), Layout);
 
 #if dbgLoadSave
-dbgpln("SVT %s %s", Section(), PF.Filename());
+  dbgpln("SVT %s %s", Section(), PF.Filename());
 #endif
 
   Strng S,F;
@@ -272,7 +272,7 @@ dbgpln("SVT %s %s", Section(), PF.Filename());
     S.Set("V%i=%s,%s,%s,%s,%s",i, TI.m_sLabel(), TI.m_sTag(), pFam ? pFam : "", pTxt, F());
 
 #if dbgLoadSave
-dbgpln(">> %s", S());
+    dbgpln(">> %s", S());
 #endif
 
     if (dwLen+S.Length()+2>m_dwSectBuff)
@@ -320,16 +320,16 @@ static CRptTagListCommon gs_RTLCom;
 //  m_Slider.SetRange(0,100);
 //}
 
-CMdlValueSet::CMdlValueSet(char * pTag, MdlAction &Act, int X, int Y, CWnd* pParent /*=NULL*/)
-	: CDialog(CMdlValueSet::IDD, pParent)
+CMdlValueSet::CMdlValueSet(char * pTag, CMdlAction &Act, int X, int Y, CWnd* pParent /*=NULL*/)
+: CDialog(CMdlValueSet::IDD, pParent)
   {
   Action=Act;
   sTag=pTag;
   iX=X;
   iY=Y;
-	//{{AFX_DATA_INIT(CMdlValueSet)
-	//}}AFX_DATA_INIT
-//  m_Slider.Create(0,100);
+  //{{AFX_DATA_INIT(CMdlValueSet)
+  //}}AFX_DATA_INIT
+  //  m_Slider.Create(0,100);
 
   Create(CMdlValueSet::IDD, pParent);
 #if Vert
@@ -343,21 +343,21 @@ CMdlValueSet::CMdlValueSet(char * pTag, MdlAction &Act, int X, int Y, CWnd* pPar
   SetWindowText(Name());
 #endif
   }
-  
+
 
 void CMdlValueSet::DoDataExchange(CDataExchange* pDX)
   {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMdlValueSet)
-	DDX_Control(pDX, IDC_SLIDER1, m_Slider);
-	//}}AFX_DATA_MAP
+  CDialog::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CMdlValueSet)
+  DDX_Control(pDX, IDC_SLIDER1, m_Slider);
+  //}}AFX_DATA_MAP
   }
 
 
 BEGIN_MESSAGE_MAP(CMdlValueSet, CDialog)
-	//{{AFX_MSG_MAP(CMdlValueSet)
-	ON_BN_CLICKED(IDC_CHECK1, OnCheck1)
-	//}}AFX_MSG_MAP
+  //{{AFX_MSG_MAP(CMdlValueSet)
+  ON_BN_CLICKED(IDC_CHECK1, OnCheck1)
+  //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -366,7 +366,7 @@ END_MESSAGE_MAP()
 
 void CMdlValueSet::OnOK() 
   {
-	if (IsDlgButtonChecked(IDC_CHECK1))
+  if (IsDlgButtonChecked(IDC_CHECK1))
 #if Vert
     Action.dValue=0.01*(100-m_Slider.GetPos())*(Action.dValueMax-Action.dValueMin)+Action.dValueMin;
 #else
@@ -375,8 +375,8 @@ void CMdlValueSet::OnOK()
   else
     Action.dValue=dNAN;
   gs_Exec.SetModelAction(sTag(), Action);
-	
-	CDialog::OnOK();
+
+  CDialog::OnOK();
   DestroyWindow();
   }
 
@@ -408,17 +408,17 @@ BOOL CMdlValueSet::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
     SetDlgItemText( IDC_SMV_VALUE, "*");
     }
 
-	return CDialog::OnNotify(wParam, lParam, pResult);
+  return CDialog::OnNotify(wParam, lParam, pResult);
   }
 
 BOOL CMdlValueSet::OnInitDialog() 
   {
-	CDialog::OnInitDialog();
+  CDialog::OnInitDialog();
   Strng Name(sTag);
   Name+=".";
   Name+=Action.cName;
-//  SetWindowText(Name());
-//  SetDlgItemText( IDC_SMV_TAG, Name());
+  //  SetWindowText(Name());
+  //  SetDlgItemText( IDC_SMV_TAG, Name());
 
   m_Slider.SetRange(0,100);
   m_Slider.SetTicFreq(10);
@@ -439,8 +439,8 @@ BOOL CMdlValueSet::OnInitDialog()
   RECT R;
   GetWindowRect(&R);
   MoveWindow(iX,iY, R.right-R.left, R.bottom-R.top);
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+  return TRUE;  // return TRUE unless you set the focus to a control
+  // EXCEPTION: OCX Property Pages should return FALSE
   }
 
 void CMdlValueSet::OnCheck1() 
@@ -455,7 +455,7 @@ void CMdlValueSet::OnCheck1()
     CheckDlgButton( IDC_CHECK1, 1);
     GetDlgItem(IDC_SLIDER1)->EnableWindow(true);
 
-    MdlActionArray CurrActs;
+    CMdlActionArray CurrActs;
     if (gs_Exec.GetModelAction(sTag(), CurrActs))
       {
       if (Action.iIndex<CurrActs.GetSize())
@@ -484,10 +484,10 @@ BOOL CMdlValueSet::DestroyWindow()
   if (Pos)
     gs_RTLCom.SetPtrs.RemoveAt(Pos);
   gs_RTLCom.MVCritSect.Unlock();
-	return CDialog::DestroyWindow();
+  return CDialog::DestroyWindow();
   }
 
-void CMdlValueSet::Add(char * pTag, MdlAction & Act, int X, int Y, CWnd* pParent)
+void CMdlValueSet::Add(char * pTag, CMdlAction & Act, int X, int Y, CWnd* pParent)
   {
   gs_RTLCom.MVCritSect.Lock();
   ValueSetPtr P;
@@ -527,8 +527,8 @@ const long TWideInit=40;
 const long DWideInit=25;
 const long CWideInit=25;
 
-CMdlValueShow::CMdlValueShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, bool Pinned, CWnd* pParent /*=NULL*/)
-	: CDialog()//CMdlValueShow::IDD, pParent)
+CMdlValueShow::CMdlValueShow(char * pTag, /*CMdlAction & Act,*/ int X, int Y, bool Pinned, CWnd* pParent /*=NULL*/)
+: CDialog()//CMdlValueShow::IDD, pParent)
   {
   m_nTags=1;
   m_sTag[0]=pTag;  
@@ -536,7 +536,7 @@ CMdlValueShow::CMdlValueShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, boo
   m_iY=Y;
   m_bPinned=Pinned;
   m_bMustLoadTags=true;
-  
+
   m_TWide=TWideInit;
   m_DWide=DWideInit;
   m_CWide=CWideInit;
@@ -544,7 +544,7 @@ CMdlValueShow::CMdlValueShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, boo
   m_TotDeep=10;
   m_bAllowMove=true;
   m_iSequence=-1;
-  
+
   m_iChartItem=-1;
   for (int i=0; i<MdlValueShowMaxItems; i++)
     {
@@ -565,33 +565,33 @@ CMdlValueShow::CMdlValueShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, boo
     }
 
   //{{AFX_DATA_INIT(CMdlValueShow)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
+  // NOTE: the ClassWizard will add member initialization here
+  //}}AFX_DATA_INIT
   Create(CMdlValueShow::IDD, pParent);
   SetWindowText(pTag);
   }
 
 void CMdlValueShow::DoDataExchange(CDataExchange* pDX)
   {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMdlValueShow)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
-	//}}AFX_DATA_MAP
+  CDialog::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CMdlValueShow)
+  // NOTE: the ClassWizard will add DDX and DDV calls here
+  //}}AFX_DATA_MAP
   }
 
 
 BEGIN_MESSAGE_MAP(CMdlValueShow, CDialog)
-	//{{AFX_MSG_MAP(CMdlValueShow)
-	ON_WM_PAINT()
-	ON_WM_LBUTTONDBLCLK()
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_NCPAINT()
-	ON_WM_RBUTTONDOWN()
-	ON_WM_RBUTTONUP()
-	ON_WM_CLOSE()
-	//}}AFX_MSG_MAP
+  //{{AFX_MSG_MAP(CMdlValueShow)
+  ON_WM_PAINT()
+  ON_WM_LBUTTONDBLCLK()
+  ON_WM_MOUSEMOVE()
+  ON_WM_LBUTTONDOWN()
+  ON_WM_LBUTTONUP()
+  ON_WM_NCPAINT()
+  ON_WM_RBUTTONDOWN()
+  ON_WM_RBUTTONUP()
+  ON_WM_CLOSE()
+  //}}AFX_MSG_MAP
   ON_MESSAGE(WMU_UPDATESHOWWND, OnUpdateWnd)
 END_MESSAGE_MAP()
 
@@ -606,16 +606,16 @@ BOOL CMdlValueShow::DestroyWindow()
   if (Pos)
     gs_RTLCom.ValueShwPtrs.RemoveAt(Pos);
   gs_RTLCom.MVCritSect.Unlock();
-	return CDialog::DestroyWindow();
+  return CDialog::DestroyWindow();
   }
 
 BOOL CMdlValueShow::OnInitDialog() 
   {
-	CDialog::OnInitDialog();
+  CDialog::OnInitDialog();
   AtStart(m_sTag[0](), m_iX, m_iY, m_bPinned);
   return TRUE;
   }
-	
+
 void CMdlValueShow::AtStart(char * pTag, int X, int Y, bool Pinned)
   {
   SetWindowText(pTag);
@@ -639,9 +639,9 @@ void CMdlValueShow::AtStart(char * pTag, int X, int Y, bool Pinned)
 
   SetWindowLong(m_hWnd, GWL_STYLE, Style);
 
-//  long ExStyle=GetWindowLong(m_hWnd, GWL_EXSTYLE);
-//  Style|=WS_EX_TOOLWINDOW;
-//  SetWindowLong(m_hWnd, GWL_EXSTYLE, ExStyle);
+  //  long ExStyle=GetWindowLong(m_hWnd, GWL_EXSTYLE);
+  //  Style|=WS_EX_TOOLWINDOW;
+  //  SetWindowLong(m_hWnd, GWL_EXSTYLE, ExStyle);
 
   m_TagStr="Collecting Data !";
   m_DataStr[0]=" ";
@@ -651,7 +651,7 @@ void CMdlValueShow::AtStart(char * pTag, int X, int Y, bool Pinned)
   GetWindowRect(&R);
   MoveWindow(m_iX,m_iY, R.right-R.left, R.bottom-R.top);
   BringWindowToTop();
-  
+
   if (!gs_Exec.Busy() || gs_Exec.Waiting())
     DoTheUpdate(); 
   }
@@ -672,32 +672,32 @@ static Defaults StdDefs[]= {
 
 /*#if WithQAL
 static Defaults QALDefs[]= {
-  {"Qm",                "Qm",               DC_Qm,    "t/h"},
-  {"Qv",                "Qv",               DC_Qv,    "kL/h"},
-  {"Po",                "Po",               DC_P,     "kPa"},
-  {"T",                 "T",                DC_T,     "C"},
-  {"Qo.CausticConc25",  "Qo.CausticConc25", DC_Conc,  "g/L"},
-  {"Qo.A/C",            "Qo.A/C",           DC_Frac,  ""},
-  {"Qo.SolidsConc25",   "Qo.SolidsConc25",  DC_Conc,  "g/L"},
-  {"Qo.BPE",            "Qo.BPE",           DC_dT,    "C"},
-  {NULL, NULL, DC_, ""}
-  };
+{"Qm",                "Qm",               DC_Qm,    "t/h"},
+{"Qv",                "Qv",               DC_Qv,    "kL/h"},
+{"Po",                "Po",               DC_P,     "kPa"},
+{"T",                 "T",                DC_T,     "C"},
+{"Qo.CausticConc25",  "Qo.CausticConc25", DC_Conc,  "g/L"},
+{"Qo.A/C",            "Qo.A/C",           DC_Frac,  ""},
+{"Qo.SolidsConc25",   "Qo.SolidsConc25",  DC_Conc,  "g/L"},
+{"Qo.BPE",            "Qo.BPE",           DC_dT,    "C"},
+{NULL, NULL, DC_, ""}
+};
 #endif*/
 
 
 const dword VisStates = FNS_InActive|
-                        FNS_Hold|
-                        FNS_Error|
-                        FNS_Warning|
-                        FNS_Tear|
-                        FNS_MacMdl|
-                        FNS_On|
-                        FNS_Off|
-                        FNS_IsSrc|FNS_NettQmP|
-                        FNS_IsSnk|FNS_NettQmN|
-                        FNS_UFlw|FNS_LFlwP|FNS_LFlwN|
-                        FNS_UNoFlw|FNS_LNoFlw|FNS_LnkXfer|
-                        FNS_Marked;
+FNS_Hold|
+FNS_Error|
+FNS_Warning|
+FNS_Tear|
+FNS_MacMdl|
+FNS_On|
+FNS_Off|
+FNS_IsSrc|FNS_NettQmP|
+FNS_IsSnk|FNS_NettQmN|
+FNS_UFlw|FNS_LFlwP|FNS_LFlwN|
+FNS_UNoFlw|FNS_LNoFlw|FNS_LnkXfer|
+FNS_Marked;
 
 void CMdlValueShow::DoTheUpdateByMsg()
   {
@@ -710,7 +710,7 @@ void CMdlValueShow::DoTheUpdateByMsg()
   m_StateShw[iState]=true;                \
   m_StateCh[iTag][iState]=Ch;             \
   m_StateCol[iTag][iState]=Col;           \
-  }
+    }
 
 void CMdlValueShow::DoTheUpdate() 
   {
@@ -743,7 +743,7 @@ void CMdlValueShow::DoTheUpdate()
   for (int iTag=0; iTag<m_nTags; iTag++)
     {
     m_DataStr[iTag]="";
-    
+
     Strng_List sStrList;
 
     Strng T;
@@ -753,7 +753,7 @@ void CMdlValueShow::DoTheUpdate()
 
     if (m_sTag[iTag].Length()==0)
       continue;
-    
+
     if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
       {
       m_sObjClassId="";
@@ -785,9 +785,9 @@ void CMdlValueShow::DoTheUpdate()
           Defaults *Defs = &StdDefs[0];
           /*#if WithQAL
           if (QALOptions())
-            Defs=&QALDefs[0];
+          Defs=&QALDefs[0];
           #endif*/
-      
+
           for (int iT=0; Defs[iT].Tag; iT++)
             {
             if (iT>=MdlValueShowMaxItems)
@@ -896,13 +896,13 @@ void CMdlValueShow::DoTheUpdate()
             }
           else
             LogError("View", 0, "Tag '%s' not allowed.", T());
-        
+
           if (!sValue.Length())
             sValue=" ";
-          
+
           if (iT)
             m_DataStr[iTag]+="\r";
-          
+
           if (sValue.Length()<gs_RTLCom.m_lMaxValueLen)
             m_DataStr[iTag]+=sValue();
           else
@@ -912,15 +912,15 @@ void CMdlValueShow::DoTheUpdate()
             S+="...";
             m_DataStr[iTag]+=S();
             }
-          #if dbgBuild     
+#if dbgBuild     
           dbgpln("%s = %s", T(),sValue());
-          #endif     
+#endif     
           }
         else
           {
-          #if dbgBuild     
+#if dbgBuild     
           dbgpln("%s - MISSING", T());
-          #endif     
+#endif     
           if (iT)
             m_DataStr[iTag]+="\r";
           }
@@ -935,7 +935,7 @@ void CMdlValueShow::DoTheUpdate()
           if (Status & FNS_InActive)
             {
             BLDSTATE(iTag, iState, 'i', GR_MDLSTATUS_INACTIVE)
-            iState++;
+              iState++;
             }
           else
             {
@@ -945,24 +945,24 @@ void CMdlValueShow::DoTheUpdate()
 
             if (Status & FNS_Error)
               BLDSTATE(iTag, iState, 'e', GR_MDLSTATUS_ERROR) 
-            iState++;
+              iState++;
 
             if (Status & FNS_Warning)
               BLDSTATE(iTag, iState, 'w', GR_MDLSTATUS_WARNING)
-            iState++;
+              iState++;
 
             if (Status & FNS_Tear)
               BLDSTATE(iTag, iState, 't', GR_MDLSTATUS_TEAR)
-  
-            iState++;
+
+              iState++;
             if (Status & FNS_MacMdl)
               BLDSTATE(iTag, iState, 'm', GR_MDLSTATUS_MACMDL)
-            iState++;
+              iState++;
 
             if (Status & FNS_On)
               BLDSTATE(iTag, iState, '!', GR_MDLSTATUS_ON)
             else if (Status & FNS_Off)
-              BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
+            BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
             iState++;
 
             if (Status & (FNS_IsSrc|FNS_NettQmP))
@@ -970,14 +970,14 @@ void CMdlValueShow::DoTheUpdate()
               if (Status & FNS_IsSrc)
                 BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_ISSRC)
               else
-                BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
+              BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
               }
             else if (Status & (FNS_IsSnk|FNS_NettQmN))
               {
               if (Status & FNS_IsSnk)
                 BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_ISSNK)
               else
-                BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
+              BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
               }
             iState++;
 
@@ -986,28 +986,28 @@ void CMdlValueShow::DoTheUpdate()
               if (Status & FNS_UFlw)
                 BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_UFLW)
               else if (Status & FNS_LFlwP)
-                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
+              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
               else
-                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
+              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
               }
             else if (Status & (FNS_UNoFlw|FNS_LNoFlw))
               {
               if (Status & FNS_UNoFlw)
                 BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_UNOFLW)
               else
-                BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
+              BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
               }
             iState++;
 
             if (Status & FNS_Hold)
               BLDSTATE(iTag, iState, 'h', GR_MDLSTATUS_INACTIVE)
-            iState++;
+              iState++;
             }
           };
         }
       }
     }
-  
+
   long nRemoved=0;
   for (iT=0; iT<MdlValueShowMaxItems; iT++)
     if (!ItemUsed[iT])
@@ -1032,7 +1032,7 @@ void CMdlValueShow::DoTheUpdate()
             m_DataStr[iTag]=Buff;
             }
           }
-      nRemoved++;
+        nRemoved++;
       }
     else
       {
@@ -1046,25 +1046,25 @@ void CMdlValueShow::DoTheUpdate()
       m_nLines++;
       }
 
-  while (m_nLines<MinShownLines)
-    {
-    if (m_nLines)
+    while (m_nLines<MinShownLines)
       {
-      m_TagStr+="\r";
-      m_CnvStr+="\r";              
-      for (int iTag=0; iTag<m_nTags; iTag++);
+      if (m_nLines)
+        {
+        m_TagStr+="\r";
+        m_CnvStr+="\r";              
+        for (int iTag=0; iTag<m_nTags; iTag++);
         m_DataStr[iTag]+="\r";
-      }
-    m_TagStr+=" ";
-    m_CnvStr+=" ";
-    for (int iTag=0; iTag<m_nTags; iTag++);
+        }
+      m_TagStr+=" ";
+      m_CnvStr+=" ";
+      for (int iTag=0; iTag<m_nTags; iTag++);
       m_DataStr[iTag]+=" ";
-    m_nLines++;
-    }
+      m_nLines++;
+      }
 
-  m_bAllowMove=true;
+    m_bAllowMove=true;
 
-  Invalidate();
+    Invalidate();
   }
 
 static COLORREF Colours[]=
@@ -1087,9 +1087,9 @@ static long nColours=sizeof(Colours)/sizeof(Colours[0]);
 
 void CMdlValueShow::OnPaint() 
   {
-	CPaintDC dc(this); // device context for painting
+  CPaintDC dc(this); // device context for painting
   CDCResChk ResChk(dc);
-	
+
   CRect ClientRct;
   GetClientRect(&ClientRct);
 
@@ -1115,8 +1115,8 @@ void CMdlValueShow::OnPaint()
     if(m_StateShw[i])
       NBlks++;
   ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks")
-  
-  long BlkW=RctX.Width();
+
+    long BlkW=RctX.Width();
   long BlkH=RctX.Height();
   long BlkWTot=BlkW*NBlks;
 
@@ -1132,9 +1132,9 @@ void CMdlValueShow::OnPaint()
 
   //flag DoCond=(m_CondStr.Length()>0);
 
-//  dword StatusA[MdlValueShowMaxTags];
-//  for (iTag=0; iTag<m_nTags; iTag++)
-//    StatusA[iTag]=0;
+  //  dword StatusA[MdlValueShowMaxTags];
+  //  for (iTag=0; iTag<m_nTags; iTag++)
+  //    StatusA[iTag]=0;
 
   flag DoStatus=true;
 
@@ -1162,7 +1162,7 @@ void CMdlValueShow::OnPaint()
   for (iTag=0; iTag<m_nTags; iTag++)
     m_DWide=Max(m_DWide, RctD[iTag].right/*+XW*/);
   m_TotWide=Max(m_TWide+XW+m_nTags*(m_DWide+XW)+m_CWide+XW2, (long)RctCI.Width());
-  
+
 
   flag DoChart=0;
   if (m_nTags>1)
@@ -1179,7 +1179,7 @@ void CMdlValueShow::OnPaint()
   long ChartDeep= DoChart ? ChartRows*LineHgt : 0;
   long StatusDeep=1*LineHgt;
   long HeadDeep= TagLine*LineHgt;
-    
+
   m_TotDeep=RctT.bottom+HeadDeep+CondDeep+StatusDeep+ChartDeep;
 
   CRect DTRct;
@@ -1204,7 +1204,7 @@ void CMdlValueShow::OnPaint()
     int XErrR=Max(0L, WRct.left-(DTRct.right-m_TotWide));
     int YErrT=Min(0L, WRct.top-DTRct.top);
     int YErrB=Max(0L, WRct.top/*+ICyC*/-(DTRct.bottom-(m_TotDeep+ICyC)));
-    
+
     if (XErrL || XErrR || YErrT || YErrB)
       {
       WRct.OffsetRect(-(XErrL+XErrR), -(YErrT+YErrB));
@@ -1293,7 +1293,7 @@ void CMdlValueShow::OnPaint()
         Pts[2]=SlctRct.BottomRight();
         Pts[3]=SlctRct.BottomRight();
         Pts[4]=Pts[0];
-      
+
         Pts[1].x=Pts[2].x;
         Pts[3].x=Pts[0].x;
         dc.Polyline(Pts, 5);
@@ -1504,7 +1504,7 @@ void CMdlValueShow::OnPaint()
   dc.SelectObject(OldFont);
   dc.SelectObject(OldPen);
 
-	// Do not call CDialog::OnPaint() for painting messages
+  // Do not call CDialog::OnPaint() for painting messages
   }
 
 void CMdlValueShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
@@ -1576,7 +1576,7 @@ void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWn
   ValueShwPtr P=new CMdlValueShow(pTag, X, Y, Pinned, pParent);
   P->m_iSequence=gs_RTLCom.m_iSequence;
   gs_RTLCom.ValueShwPtrs.AddHead(P);
-//  P->AtStart(pTag, X, Y, Pinned);
+  //  P->AtStart(pTag, X, Y, Pinned);
   P->ShowWindow(SW_SHOWNOACTIVATE);
   gs_RTLCom.MVCritSect.Unlock();	
   };
@@ -1711,13 +1711,13 @@ flag CMdlValueShow::FindItem(char * pObjClassId, int Index, CVarTagItem & TagIte
       XStrTrim(pFld[i]);
 
     TagItem.m_Fmt.SetType('-');
-    
+
     TagItem.m_sLabel=nFlds>0 && pFld[0] ? pFld[0] : "";
     TagItem.m_sTag=nFlds>1 && pFld[1] ? pFld[1] : "";
     TagItem.m_Cnv.SetIndex(nFlds>2 && pFld[2] ? pFld[2] : "");
     TagItem.m_Cnv.SetText(nFlds>3 && pFld[3] ? pFld[3] : "");
     TagItem.m_Fmt.ParseStr(nFlds>4 && pFld[4] ? pFld[4] : "");
-    
+
     return True;
     }
   return False;
@@ -1733,32 +1733,32 @@ void CMdlValueShow::ShutDown()
 void CMdlValueShow::OnLButtonDblClk(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlValueShow::OnLButtonDblClk");
-	CDialog::OnLButtonDblClk(nFlags, point);
-	TryClear(true);
+  CDialog::OnLButtonDblClk(nFlags, point);
+  TryClear(true);
   }
 
 void CMdlValueShow::OnMouseMove(UINT nFlags, CPoint point) 
   {
-	CDialog::OnMouseMove(nFlags, point);
-//  if ((nFlags & MK_LBUTTON) && (nFlags & (MK_SHIFT|MK_CONTROL)))
-//    {
-//    int i=m_iChartItem;
-//    if (point.y>=m_ItemClientRow[0])
-//      {
-//      i=0;
-//      while (i<m_nLines&& m_ItemClientRow[i+1]<point.y)
-//        i++;
-//      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
-//      DoTheUpdate();
-//      }
-//    else
-//      i=-1;
-//    if (i!=m_iChartItem)     
-//      {
-//      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
-//      DoTheUpdate();
-//      }
-//    }
+  CDialog::OnMouseMove(nFlags, point);
+  //  if ((nFlags & MK_LBUTTON) && (nFlags & (MK_SHIFT|MK_CONTROL)))
+  //    {
+  //    int i=m_iChartItem;
+  //    if (point.y>=m_ItemClientRow[0])
+  //      {
+  //      i=0;
+  //      while (i<m_nLines&& m_ItemClientRow[i+1]<point.y)
+  //        i++;
+  //      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
+  //      DoTheUpdate();
+  //      }
+  //    else
+  //      i=-1;
+  //    if (i!=m_iChartItem)     
+  //      {
+  //      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
+  //      DoTheUpdate();
+  //      }
+  //    }
   }
 
 //static Strng m_sDragTag;
@@ -1767,7 +1767,7 @@ CMdlValueShow * CMdlValueShow::m_pStartWnd=NULL;
 void CMdlValueShow::OnLButtonDown(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlValueShow::OnLButtonDown");
-	CDialog::OnLButtonDown(nFlags, point);
+  CDialog::OnLButtonDown(nFlags, point);
   if (nFlags & (MK_SHIFT|MK_CONTROL))
     {
     if (point.y>=m_ItemClientRow[0])
@@ -1790,7 +1790,7 @@ void CMdlValueShow::OnLButtonDown(UINT nFlags, CPoint point)
 void CMdlValueShow::OnLButtonUp(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlValueShow::OnLButtonUp");
-	CDialog::OnLButtonUp(nFlags, point);
+  CDialog::OnLButtonUp(nFlags, point);
   if (m_pStartWnd && m_pStartWnd!=this)
     {
     int n=0;
@@ -1826,13 +1826,13 @@ void CMdlValueShow::OnLButtonUp(UINT nFlags, CPoint point)
 void CMdlValueShow::OnRButtonDown(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlValueShow::OnRButtonDown");
-	CDialog::OnRButtonDown(nFlags, point);
+  CDialog::OnRButtonDown(nFlags, point);
   }
 
 void CMdlValueShow::OnRButtonUp(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlValueShow::OnRButtonUp");
-	CDialog::OnRButtonUp(nFlags, point);
+  CDialog::OnRButtonUp(nFlags, point);
 
   if (point.y>=m_ItemClientRow[0] && m_nTags>1)
     {
@@ -1844,7 +1844,7 @@ void CMdlValueShow::OnRButtonUp(UINT nFlags, CPoint point)
       bool &WithZero=m_ItemChartWithZero[i];
       bool &BarOn=m_ItemChartOn[i];
       bool OldBarOn=BarOn;
-      
+
       if (nFlags & (MK_SHIFT|MK_CONTROL))
         {
         BarOn=!BarOn;
@@ -1898,7 +1898,7 @@ bool CMdlValueShow::AcceptNewTag(char * pTag, char * pObjClassId)
       ShowWindow(SW_SHOWNOACTIVATE);
       return true;
       }
-  return false;
+    return false;
   };
 
 //---------------------------------------------------------------------------
@@ -1928,8 +1928,8 @@ void CMdlValueShow::OnClose()
 //const long DWideInit=25;
 //const long CWideInit=25;
 
-CMdlGraphicShow::CMdlGraphicShow(char * pTag, /*MdlAction & Act,*/ int X, int Y, bool Pinned, CWnd* pParent /*=NULL*/)
-	: CDialog()//CMdlGraphicShow::IDD, pParent)
+CMdlGraphicShow::CMdlGraphicShow(char * pTag, /*CMdlAction & Act,*/ int X, int Y, bool Pinned, CWnd* pParent /*=NULL*/)
+: CDialog()//CMdlGraphicShow::IDD, pParent)
   {
   m_nTags=1;
   m_sTag[0]=pTag;  
@@ -1937,7 +1937,7 @@ CMdlGraphicShow::CMdlGraphicShow(char * pTag, /*MdlAction & Act,*/ int X, int Y,
   m_iY=Y;
   m_bPinned=Pinned;
   m_bMustLoadTags=true;
-  
+
   //m_TWide=TWideInit;
   //m_DWide=DWideInit;
   //m_CWide=CWideInit;
@@ -1945,7 +1945,7 @@ CMdlGraphicShow::CMdlGraphicShow(char * pTag, /*MdlAction & Act,*/ int X, int Y,
   //m_TotDeep=10;
   m_bAllowMove=true;
   m_iSequence=-1;
-  
+
   m_MousePt.x=-1;
   m_MouseFlags=0;
 
@@ -1969,35 +1969,41 @@ CMdlGraphicShow::CMdlGraphicShow(char * pTag, /*MdlAction & Act,*/ int X, int Y,
   //  }
 
   //{{AFX_DATA_INIT(CMdlGraphicShow)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
+  // NOTE: the ClassWizard will add member initialization here
+  //}}AFX_DATA_INIT
   Create(CMdlGraphicShow::IDD, pParent);
   SetWindowText(pTag);
+
+  CRect ClientRct;
+  CPoint Point(-1,-1);
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_Create, this, ClientRct, Point, 0);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
   }
 
 void CMdlGraphicShow::DoDataExchange(CDataExchange* pDX)
   {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMdlGraphicShow)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
-	//}}AFX_DATA_MAP
+  CDialog::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CMdlGraphicShow)
+  // NOTE: the ClassWizard will add DDX and DDV calls here
+  //}}AFX_DATA_MAP
   }
 
 
 BEGIN_MESSAGE_MAP(CMdlGraphicShow, CDialog)
-	//{{AFX_MSG_MAP(CMdlGraphicShow)
-	ON_WM_PAINT()
-	ON_WM_LBUTTONDBLCLK()
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_NCPAINT()
-	ON_WM_RBUTTONDOWN()
-	ON_WM_RBUTTONUP()
-	ON_WM_CLOSE()
+  //{{AFX_MSG_MAP(CMdlGraphicShow)
+  ON_WM_PAINT()
+  ON_WM_LBUTTONDBLCLK()
+  ON_WM_MOUSEMOVE()
+  ON_WM_LBUTTONDOWN()
+  ON_WM_LBUTTONUP()
+  ON_WM_NCPAINT()
+  ON_WM_RBUTTONDOWN()
+  ON_WM_RBUTTONUP()
+  ON_WM_CLOSE()
   ON_WM_SIZE()
-  //ON_WM_MOVE()
-	//}}AFX_MSG_MAP
+  ON_WM_MOVE()
+  //}}AFX_MSG_MAP
   ON_MESSAGE(WMU_UPDATESHOWWND, OnUpdateWnd)
 END_MESSAGE_MAP()
 
@@ -2012,16 +2018,16 @@ BOOL CMdlGraphicShow::DestroyWindow()
   if (Pos)
     gs_RTLCom.GraphicShwPtrs.RemoveAt(Pos);
   gs_RTLCom.MVCritSect.Unlock();
-	return CDialog::DestroyWindow();
+  return CDialog::DestroyWindow();
   }
 
 BOOL CMdlGraphicShow::OnInitDialog() 
   {
-	CDialog::OnInitDialog();
+  CDialog::OnInitDialog();
   AtStart(m_sTag[0](), m_iX, m_iY, m_bPinned);
   return TRUE;
   }
-	
+
 void CMdlGraphicShow::AtStart(char * pTag, int X, int Y, bool Pinned)
   {
   SetWindowText(pTag);
@@ -2045,9 +2051,9 @@ void CMdlGraphicShow::AtStart(char * pTag, int X, int Y, bool Pinned)
 
   SetWindowLong(m_hWnd, GWL_STYLE, Style);
 
-//  long ExStyle=GetWindowLong(m_hWnd, GWL_EXSTYLE);
-//  Style|=WS_EX_TOOLWINDOW;
-//  SetWindowLong(m_hWnd, GWL_EXSTYLE, ExStyle);
+  //  long ExStyle=GetWindowLong(m_hWnd, GWL_EXSTYLE);
+  //  Style|=WS_EX_TOOLWINDOW;
+  //  SetWindowLong(m_hWnd, GWL_EXSTYLE, ExStyle);
 
   //m_TagStr="Collecting Data !";
   //m_DataStr[0]=" ";
@@ -2057,66 +2063,16 @@ void CMdlGraphicShow::AtStart(char * pTag, int X, int Y, bool Pinned)
   GetWindowRect(&R);
   MoveWindow(m_iX,m_iY, R.right-R.left, R.bottom-R.top);
   BringWindowToTop();
-  
+
   if (!gs_Exec.Busy() || gs_Exec.Waiting())
     DoTheUpdate(); 
   }
-
-//struct Defaults {char * Lbl; char * Tag; CCnvIndex CnvTyp; char * CnvTxt;};
-//static Defaults StdDefs[]= {    
-//  {"Qm",    "Qm",     DC_Qm,    "kg/s"},
-//  {"Qv",    "Qv",     DC_Qv,    "m^3/s"},
-//  {"T",     "T",      DC_T,     "C"},
-//  {"P",     "P",      DC_P,     "kPag"},
-//  {"Pi",    "Pi",     DC_P,     "kPag"},
-//  {"Po",    "Po",     DC_P,     "kPag"},
-//  {"Lvl",   "Lvl",    DC_Frac,  "%"},
-//  {"Rho",   "Rho",    DC_Rho,   "kg/m^3"},
-//  {"Value", "Value",  DC_Frac,  "%"},
-//  {NULL, NULL, DC_, ""}
-//  };
-
-/*#if WithQAL
-static Defaults QALDefs[]= {
-  {"Qm",                "Qm",               DC_Qm,    "t/h"},
-  {"Qv",                "Qv",               DC_Qv,    "kL/h"},
-  {"Po",                "Po",               DC_P,     "kPa"},
-  {"T",                 "T",                DC_T,     "C"},
-  {"Qo.CausticConc25",  "Qo.CausticConc25", DC_Conc,  "g/L"},
-  {"Qo.A/C",            "Qo.A/C",           DC_Frac,  ""},
-  {"Qo.SolidsConc25",   "Qo.SolidsConc25",  DC_Conc,  "g/L"},
-  {"Qo.BPE",            "Qo.BPE",           DC_dT,    "C"},
-  {NULL, NULL, DC_, ""}
-  };
-#endif*/
-
-
-//const dword VisStates = FNS_InActive|
-//                        FNS_Hold|
-//                        FNS_Error|
-//                        FNS_Warning|
-//                        FNS_Tear|
-//                        FNS_MacMdl|
-//                        FNS_On|
-//                        FNS_Off|
-//                        FNS_IsSrc|FNS_NettQmP|
-//                        FNS_IsSnk|FNS_NettQmN|
-//                        FNS_UFlw|FNS_LFlwP|FNS_LFlwN|
-//                        FNS_UNoFlw|FNS_LNoFlw|FNS_LnkXfer|
-//                        FNS_Marked;
 
 void CMdlGraphicShow::DoTheUpdateByMsg()
   {
   //dbgpln("CMdlGraphicShow::DoTheUpdateByMsg");
   PostMessage(WMU_UPDATESHOWWND, 0, 0);
   }
-
-//#define BLDSTATE(iTag, iState, Ch, Col)   \
-//  {                                       \
-//  m_StateShw[iState]=true;                \
-//  m_StateCh[iTag][iState]=Ch;             \
-//  m_StateCol[iTag][iState]=Col;           \
-//  }
 
 void CMdlGraphicShow::DoTheUpdate() 
   {
@@ -2414,7 +2370,7 @@ void CMdlGraphicShow::DoTheUpdate()
   //      }
   //    }
   //  }
-  
+
   //long nRemoved=0;
   //for (iT=0; iT<MdlValueShowMaxItems; iT++)
   //  if (!ItemUsed[iT])
@@ -2474,29 +2430,12 @@ void CMdlGraphicShow::DoTheUpdate()
   Invalidate();
   }
 
-//static COLORREF Colours[]=
-//  {
-//  GR_LIGHTBLUE,
-//  GR_LIGHTGREEN,
-//  GR_LIGHTRED,
-//  GR_LIGHTYELLOW,
-//  GR_LIGHTMAGENTA,
-//  GR_LIGHTCYAN,
-//  GR_WHITE,
-//  GR_BLACK,
-//  GR_BLUE,
-//  GR_GREEN,
-//  GR_RED,
-//  GR_MAGENTA,
-//  GR_CYAN,
-//  };
-//static long nColours=sizeof(Colours)/sizeof(Colours[0]);
 
 void CMdlGraphicShow::OnPaint() 
   {
-	CPaintDC dc(this); // device context for painting
+  CPaintDC dc(this); // device context for painting
   CDCResChk ResChk(dc);
-	
+
   CRect ClientRct;
   GetClientRect(&ClientRct);
 
@@ -2504,7 +2443,7 @@ void CMdlGraphicShow::OnPaint()
   int OldBkMode=dc.SetBkMode(TRANSPARENT);
   CPen * OldPen=dc.GetCurrentPen();
 
-  GetClientRect(&ClientRct);
+  //GetClientRect(&ClientRct);
   CRect RctX;
   RctX.SetRect(0,0,1,1);
 
@@ -2517,7 +2456,7 @@ void CMdlGraphicShow::OnPaint()
 
   dc.DrawText("X",  1,  RctX, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
 
-  CMdlGraphicWnd MGW(MGT_Draw, this, &dc, &ClientRct, &RctX);
+  CMdlGraphicWnd MGW(MGT_Draw, this, ClientRct, &dc, &RctX);
   gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
 
   long NBlks=0;
@@ -2525,412 +2464,415 @@ void CMdlGraphicShow::OnPaint()
   //  if(m_StateShw[i])
   //    NBlks++;
   //ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks")
-  
+
   long BlkW=RctX.Width();
   long BlkH=RctX.Height();
   long BlkWTot=BlkW*NBlks;
 
-//  if (m_TagStr.Length())
-//    dc.DrawText(m_TagStr(),  m_TagStr.Length(),  RctT, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//  if (m_CnvStr.Length())
-//    dc.DrawText(m_CnvStr(),  m_CnvStr.Length(),  RctC, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//  for (iTag=0; iTag<m_nTags; iTag++)
-//    {
-//    if (m_DataStr[iTag].Length())
-//      dc.DrawText(m_DataStr[iTag](), m_DataStr[iTag].Length(), RctD[iTag], DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_RIGHT); 
-//    }
-//
-//  //flag DoCond=(m_CondStr.Length()>0);
-//
-////  dword StatusA[MdlValueShowMaxTags];
-////  for (iTag=0; iTag<m_nTags; iTag++)
-////    StatusA[iTag]=0;
-//
-//  flag DoStatus=true;
-//
-//  m_iTagSelected=Range(0L, m_iTagSelected, m_nTags);
-//
-//  int nStatus=1;
-//  int nConds=1;
-//  char * p=m_CondStr[m_iTagSelected]();
-//  if (p)
-//    {
-//    while ((p=strchr(p, '\n'))!=NULL)
-//      {
-//      p++;
-//      nConds++;
-//      }
-//    dc.DrawText(m_CondStr[m_iTagSelected](),  m_CondStr[m_iTagSelected].Length(),  RctCI, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//    }
-//
-//  long XW=RctX.right;
-//  long XW2=RctX.right/2;
-//
-//  m_TWide=Max(m_TWide, RctT.right+XW2);
-//  m_CWide=Max(m_CWide, RctC.right+XW2);
-//  m_DWide=Max(m_DWide, BlkWTot/*+3*XW*/);
-//  for (iTag=0; iTag<m_nTags; iTag++)
-//    m_DWide=Max(m_DWide, RctD[iTag].right/*+XW*/);
-//  m_TotWide=Max(m_TWide+XW+m_nTags*(m_DWide+XW)+m_CWide+XW2, (long)RctCI.Width());
-//  
-//
-//  flag DoChart=0;
-//  if (m_nTags>1)
-//    {
-//    DoChart=m_iChartItem>=0;
-//    for (int i=0; i<m_nLines; i++)
-//      DoChart = DoChart || m_ItemChartOn[i];
-//    }
-//
-//  long TagLine=(m_nTags>1)? 1:0;
-//  long LineHgt=RctX.Height();
-//  long CondDeep=nConds*LineHgt;
-//  long ChartRows=4;
-//  long ChartDeep= DoChart ? ChartRows*LineHgt : 0;
-//  long StatusDeep=1*LineHgt;
-//  long HeadDeep= TagLine*LineHgt;
-//    
-//  m_TotDeep=RctT.bottom+HeadDeep+CondDeep+StatusDeep+ChartDeep;
-//
-//  CRect DTRct;
-//  AfxGetMainWnd()->GetWindowRect(&DTRct);
-//  CRect WRct;
-//  GetWindowRect(&WRct);
-//  long ICx=GetSystemMetrics(SM_CXSMICON);
-//  long ICy=GetSystemMetrics(SM_CYSMICON);
-//  long ICyC=GetSystemMetrics(SM_CYSMCAPTION);
-//
-//  bool DoMove=false;
-//  if (m_bAllowMove)
-//    {
-//    if (m_TotWide>ClientRct.right || m_TotDeep>ClientRct.bottom || m_TotDeep<ClientRct.bottom)
-//      {
-//      WRct.right+=m_TotWide-ClientRct.right;
-//      WRct.bottom+=m_TotDeep-ClientRct.bottom;
-//      DoMove=true;
-//      }
-//
-//    int XErrL=Min(0L, WRct.right-(DTRct.left+m_TotWide));
-//    int XErrR=Max(0L, WRct.left-(DTRct.right-m_TotWide));
-//    int YErrT=Min(0L, WRct.top-DTRct.top);
-//    int YErrB=Max(0L, WRct.top/*+ICyC*/-(DTRct.bottom-(m_TotDeep+ICyC)));
-//    
-//    if (XErrL || XErrR || YErrT || YErrB)
-//      {
-//      WRct.OffsetRect(-(XErrL+XErrR), -(YErrT+YErrB));
-//      DoMove=true;
-//      }
-//    }
-//
-//  if (DoMove)
-//    {
-//    m_bAllowMove=false;
-//    Invalidate();
-//    MoveWindow(WRct);
-//    }
-//  else
-//    {
-//    CPen Pen1(BS_SOLID,1,RGB(0x80, 0x80, 0x80));
-//    CPen Pen2(BS_SOLID,2,RGB(0x80, 0x80, 0x80));
-//
-//    CPen*pPenMem=dc.SelectObject(&Pen1);
-//    int iItem=nStatus>0 ? -1:0;
-//    for (int i=TagLine+nConds; i<=m_nLines+TagLine+nConds+nStatus; i++)
-//      {
-//      int y=i*LineHgt+1;
-//      POINT Pts[2];
-//      Pts[0].x=0;
-//      Pts[0].y=y;
-//      Pts[1].x=ClientRct.right;
-//      Pts[1].y=y;
-//      dc.Polyline(Pts, 2);
-//
-//      if (iItem>=0)
-//        m_ItemClientRow[iItem]=y;
-//      iItem++;
-//      }
-//    if (iItem)
-//      m_ItemClientRow[iItem]=m_ItemClientRow[iItem-1]+LineHgt;
-//    int StatusStart=HeadDeep+1+CondDeep;
-//    int ItemStart=StatusStart+LineHgt;
-//    int ItemEnd=ItemStart+m_nLines*LineHgt;
-//
-//    if (m_nTags<2)
-//      {
-//      POINT Pts[2];
-//      Pts[0].x=m_TWide+XW2;
-//      Pts[0].y=StatusStart;
-//      Pts[1].x=Pts[0].x;
-//      Pts[1].y=ClientRct.bottom;
-//      dc.Polyline(Pts, 2);
-//      Pts[0].x+=m_DWide+XW;
-//      Pts[1].x=Pts[0].x;
-//      dc.Polyline(Pts, 2);
-//      }
-//    else
-//      {
-//      POINT Pts[5];
-//      Pts[0].x=m_TWide+XW2;
-//      Pts[0].y=StatusStart;
-//      Pts[1].x=Pts[0].x;
-//      Pts[1].y=ItemEnd;
-//      dc.Polyline(Pts, 2);
-//      Pts[0].x+=m_CWide+XW;
-//      Pts[1].x=Pts[0].x;
-//      Pts[1].y=ClientRct.bottom;
-//      dc.Polyline(Pts, 2);
-//      m_TagClientCol[0]=Pts[0].x;
-//      for (iTag=0; iTag<m_nTags; iTag++)
-//        {
-//        Pts[0].x+=m_DWide+XW;
-//        Pts[1].x=Pts[0].x;
-//        dc.Polyline(Pts, 2);
-//        m_TagClientCol[iTag+1]=Pts[0].x;
-//        }
-//      // Hilight Selected Tag
-//      if (1)
-//        {
-//        CPen*pPenMem=dc.SelectObject(&Pen2);
-//
-//        CRect SlctRct;
-//        SlctRct.top=StatusStart;
-//        SlctRct.bottom=ClientRct.bottom+1;
-//        SlctRct.left=m_TWide+XW2+m_CWide+XW+(m_iTagSelected)*(m_DWide+XW);
-//        SlctRct.right=SlctRct.left+(m_DWide+XW)+1;
-//
-//        Pts[0]=SlctRct.TopLeft();
-//        Pts[1]=SlctRct.TopLeft();
-//        Pts[2]=SlctRct.BottomRight();
-//        Pts[3]=SlctRct.BottomRight();
-//        Pts[4]=Pts[0];
-//      
-//        Pts[1].x=Pts[2].x;
-//        Pts[3].x=Pts[0].x;
-//        dc.Polyline(Pts, 5);
-//        dc.SelectObject(pPenMem);
-//        }
-//      }
-//    dc.SelectObject(pPenMem);
-//
-//    CRect Rct=ClientRct;
-//
-//    if (1)
-//      {
-//      Rct=ClientRct;
-//      Rct.top+=HeadDeep+1;
-//      Rct.bottom+=HeadDeep+1;
-//      dc.DrawText(m_CondStr[m_iTagSelected](), m_CondStr[m_iTagSelected].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//      }
-//
-//    if (m_nTags>1)
-//      {
-//      Strng sTag("Tag:");
-//      sTag+=m_sTag[m_iTagSelected];
-//
-//      Rct=ClientRct;
-//      dc.DrawText(sTag(), sTag.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//
-//      if (DoChart)
-//        {
-//        for (int iT=0; iT<m_nLines; iT++)
-//          {
-//          if (m_ItemChartOn[iT] || (iT==m_iChartItem))
-//            {
-//            Rct=ClientRct;
-//            Rct.OffsetRect(Rct.left+m_TWide, ItemStart+iT*LineHgt);
-//            Rct.right=Rct.left+(XW*2)/3;
-//            Rct.bottom=Rct.top+LineHgt;
-//
-//            byte ColInd=m_ItemChartOn[iT] ? m_ItemChartColour[iT] : 0;
-//            if (m_ItemChartWithZero[iT])
-//              {
-//              int x=Rct.Width()/2;
-//              int y=Rct.Height()/2;
-//              dc.FillSolidRect(Rct.left, Rct.top, x, y, grl_get_win_color(Colours[ColInd]));
-//              dc.FillSolidRect(Rct.left+x, Rct.top+y, Rct.Width()-x, Rct.Height()-y, grl_get_win_color(Colours[ColInd]));
-//              }
-//            else
-//              dc.FillSolidRect(Rct.left, Rct.top, Rct.Width(), Rct.Height(), grl_get_win_color(Colours[ColInd]));
-//            }
-//          }
-//        }
-//
-//      if (DoStatus)
-//        {
-//        Strng sStatus("Status");
-//        Rct=ClientRct;
-//        Rct.OffsetRect(0, StatusStart);
-//        Rct.right=Rct.left+m_TWide;
-//        dc.DrawText(sStatus(), sStatus.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//        }
-//
-//      Rct=ClientRct;
-//      Rct.OffsetRect(0, ItemStart);
-//      Rct.right=Rct.left+m_TWide;
-//      dc.DrawText(m_TagStr(), m_TagStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//      Rct.OffsetRect(m_TWide+XW, 0);
-//
-//      Rct.right=Rct.left+m_CWide;
-//      dc.DrawText(m_CnvStr(), m_CnvStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//      Rct.OffsetRect(m_CWide+XW, 0);
-//
-//      long iPos=0;
-//      for (iTag=0; iTag<m_nTags; iTag++)
-//        {
-//        Rct.right=Rct.left+m_DWide;
-//        dc.DrawText(m_DataStr[iTag](), m_DataStr[iTag].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_RIGHT); 
-//        Rct.OffsetRect(m_DWide+XW, 0);
-//        }
-//      }
-//    else
-//      {
-//      if (DoStatus)
-//        {
-//        Strng sStatus("Status");
-//        Rct=ClientRct;
-//        Rct.OffsetRect(0, StatusStart);
-//        Rct.right=Rct.left+m_TWide;
-//        dc.DrawText(sStatus(), sStatus.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//        }
-//      Rct=ClientRct;
-//      Rct.OffsetRect(0, ItemStart);
-//      Rct.right=Rct.left+m_TWide;
-//      dc.DrawText(m_TagStr(), m_TagStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//      Rct.OffsetRect(m_TWide+XW, 0);
-//
-//      Rct.right=Rct.left+m_DWide;
-//      dc.DrawText(m_DataStr[0](), m_DataStr[0].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_RIGHT); 
-//      Rct.OffsetRect(m_DWide+XW, 0);
-//
-//      Rct.right=Rct.left+m_CWide;
-//      dc.DrawText(m_CnvStr(), m_CnvStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
-//      }
-//
-//    if (DoStatus)
-//      {
-//      for (iTag=0; iTag<m_nTags; iTag++)
-//        {
-//        long XOff=m_TWide+XW2+(iTag+1)*(m_DWide+XW)-BlkWTot;
-//        if (m_nTags>1)
-//          XOff+=m_CWide+XW;
-//
-//        Rct=ClientRct;
-//        Rct.OffsetRect(XOff+(NBlks-1)*BlkW, StatusStart+1);
-//        Rct.right=Rct.left+BlkW;
-//        Rct.bottom=Rct.top+BlkH;
-//        //dword Status=StatusA[iTag];
-//        long StateW=BlkW;
-//        long StateH=BlkH-1;
-//
-//        for (int i=MdlValueShowMaxStatusBlks-1; i>=0; i--)
-//          {
-//          if(m_StateShw[i] && m_StateCh[iTag][i])
-//            {
-//            dc.FillSolidRect(Rct.left,Rct.top,StateW,StateH, grl_get_win_color(m_StateCol[iTag][i]));
-//            dc.DrawText(&m_StateCh[iTag][i], 1, Rct, DT_VCENTER|DT_NOPREFIX|DT_CENTER); 
-//            Rct.OffsetRect(-StateW,0);
-//            }
-//          }
-//        }
-//      }
-//    if (DoChart)
-//      {
-//      int nCharts=0;
-//      for (int iT=0; iT<m_nLines; iT++)
-//        {
-//        if (m_ItemChartOn[iT] || (iT==m_iChartItem))
-//          nCharts++;
-//        }
-//      long BarGap=2;
-//      long BarWide=m_DWide/Max(nCharts,4)-BarGap;
-//      long iPos=0;
-//
-//      for (iT=0; iT<m_nLines; iT++)
-//        {
-//        if (m_ItemChartOn[iT] || (iT==m_iChartItem))
-//          {
-//          double Vals[MdlValueShowMaxTags];
-//          // Extract Vals
-//          double MaxV=-1.0e30;
-//          double MinV=+1.0e30;
-//          for (int iTag=0; iTag<m_nTags; iTag++)
-//            {
-//            char * p=m_DataStr[iTag]();
-//            int i=0;
-//            while (p && i++<iT)
-//              {
-//              if (p=strchr(p, '\r'))
-//                p=p+1;
-//              }
-//            Vals[iTag]=(p) ? SafeAtoF(p) : 0;
-//            MaxV=Max(MaxV, Vals[iTag]);
-//            MinV=Min(MinV, Vals[iTag]);
-//            }
-//          if (m_ItemChartWithZero[iT])
-//            {
-//            MaxV=Max(MaxV, 0.0);
-//            MinV=Min(MinV, 0.0);
-//            }
-//          Rct=ClientRct;
-//          Rct.OffsetRect(m_TWide+XW+m_CWide+XW+iPos*(BarWide+BarGap)-BarGap, ItemStart+2+m_nLines*LineHgt);
-//          Rct.right=Rct.left+BarWide;
-//          Rct.bottom=ClientRct.bottom;
-//          for (iTag=0; iTag<m_nTags; iTag++)
-//            {
-//            byte ColInd=m_ItemChartOn[iT] ? m_ItemChartColour[iT] : 0;
-//            if (0)
-//              {
-//              long Drop=long((Rct.Height()-1)*(MaxV-Vals[iTag])/GTZ(MaxV-MinV));
-//              dc.FillSolidRect(Rct.left,Rct.top+Drop,Rct.Width(), Rct.Height()-Drop, grl_get_win_color(Colours[ColInd]));
-//              }
-//            else
-//              {
-//              double R=GTZ(MaxV-MinV);
-//              long H=(Rct.Height()-2);
-//              long T,B;
-//              if (Vals[iTag]>0.0)
-//                {
-//                T=long(H*(Vals[iTag]-MinV)/R);
-//                B=long(H*(Max(0.0, MinV)-MinV)/R);
-//                }
-//              else
-//                {
-//                T=long(H*(Min(0.0, MaxV)-MinV)/R);
-//                B=long(H*(Vals[iTag]-MinV)/R);
-//                }
-//              T=1+H-T;
-//              B=1+H-B;
-//              dc.FillSolidRect(Rct.left,Rct.top+T,Rct.Width(), B-T, grl_get_win_color(Colours[ColInd]));
-//              }
-//            Rct.OffsetRect(m_DWide+XW, 0);
-//            }
-//          iPos++;
-//          }
-//        }
-//      }
-//    }
+  //  if (m_TagStr.Length())
+  //    dc.DrawText(m_TagStr(),  m_TagStr.Length(),  RctT, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //  if (m_CnvStr.Length())
+  //    dc.DrawText(m_CnvStr(),  m_CnvStr.Length(),  RctC, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //  for (iTag=0; iTag<m_nTags; iTag++)
+  //    {
+  //    if (m_DataStr[iTag].Length())
+  //      dc.DrawText(m_DataStr[iTag](), m_DataStr[iTag].Length(), RctD[iTag], DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_RIGHT); 
+  //    }
+  //
+  //  //flag DoCond=(m_CondStr.Length()>0);
+  //
+  ////  dword StatusA[MdlValueShowMaxTags];
+  ////  for (iTag=0; iTag<m_nTags; iTag++)
+  ////    StatusA[iTag]=0;
+  //
+  //  flag DoStatus=true;
+  //
+  //  m_iTagSelected=Range(0L, m_iTagSelected, m_nTags);
+  //
+  //  int nStatus=1;
+  //  int nConds=1;
+  //  char * p=m_CondStr[m_iTagSelected]();
+  //  if (p)
+  //    {
+  //    while ((p=strchr(p, '\n'))!=NULL)
+  //      {
+  //      p++;
+  //      nConds++;
+  //      }
+  //    dc.DrawText(m_CondStr[m_iTagSelected](),  m_CondStr[m_iTagSelected].Length(),  RctCI, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //    }
+  //
+  //  long XW=RctX.right;
+  //  long XW2=RctX.right/2;
+  //
+  //  m_TWide=Max(m_TWide, RctT.right+XW2);
+  //  m_CWide=Max(m_CWide, RctC.right+XW2);
+  //  m_DWide=Max(m_DWide, BlkWTot/*+3*XW*/);
+  //  for (iTag=0; iTag<m_nTags; iTag++)
+  //    m_DWide=Max(m_DWide, RctD[iTag].right/*+XW*/);
+  //  m_TotWide=Max(m_TWide+XW+m_nTags*(m_DWide+XW)+m_CWide+XW2, (long)RctCI.Width());
+  //  
+  //
+  //  flag DoChart=0;
+  //  if (m_nTags>1)
+  //    {
+  //    DoChart=m_iChartItem>=0;
+  //    for (int i=0; i<m_nLines; i++)
+  //      DoChart = DoChart || m_ItemChartOn[i];
+  //    }
+  //
+  //  long TagLine=(m_nTags>1)? 1:0;
+  //  long LineHgt=RctX.Height();
+  //  long CondDeep=nConds*LineHgt;
+  //  long ChartRows=4;
+  //  long ChartDeep= DoChart ? ChartRows*LineHgt : 0;
+  //  long StatusDeep=1*LineHgt;
+  //  long HeadDeep= TagLine*LineHgt;
+  //    
+  //  m_TotDeep=RctT.bottom+HeadDeep+CondDeep+StatusDeep+ChartDeep;
+  //
+  //  CRect DTRct;
+  //  AfxGetMainWnd()->GetWindowRect(&DTRct);
+  //  CRect WRct;
+  //  GetWindowRect(&WRct);
+  //  long ICx=GetSystemMetrics(SM_CXSMICON);
+  //  long ICy=GetSystemMetrics(SM_CYSMICON);
+  //  long ICyC=GetSystemMetrics(SM_CYSMCAPTION);
+  //
+  //  bool DoMove=false;
+  //  if (m_bAllowMove)
+  //    {
+  //    if (m_TotWide>ClientRct.right || m_TotDeep>ClientRct.bottom || m_TotDeep<ClientRct.bottom)
+  //      {
+  //      WRct.right+=m_TotWide-ClientRct.right;
+  //      WRct.bottom+=m_TotDeep-ClientRct.bottom;
+  //      DoMove=true;
+  //      }
+  //
+  //    int XErrL=Min(0L, WRct.right-(DTRct.left+m_TotWide));
+  //    int XErrR=Max(0L, WRct.left-(DTRct.right-m_TotWide));
+  //    int YErrT=Min(0L, WRct.top-DTRct.top);
+  //    int YErrB=Max(0L, WRct.top/*+ICyC*/-(DTRct.bottom-(m_TotDeep+ICyC)));
+  //    
+  //    if (XErrL || XErrR || YErrT || YErrB)
+  //      {
+  //      WRct.OffsetRect(-(XErrL+XErrR), -(YErrT+YErrB));
+  //      DoMove=true;
+  //      }
+  //    }
+  //
+  //  if (DoMove)
+  //    {
+  //    m_bAllowMove=false;
+  //    Invalidate();
+  //    MoveWindow(WRct);
+  //    }
+  //  else
+  //    {
+  //    CPen Pen1(BS_SOLID,1,RGB(0x80, 0x80, 0x80));
+  //    CPen Pen2(BS_SOLID,2,RGB(0x80, 0x80, 0x80));
+  //
+  //    CPen*pPenMem=dc.SelectObject(&Pen1);
+  //    int iItem=nStatus>0 ? -1:0;
+  //    for (int i=TagLine+nConds; i<=m_nLines+TagLine+nConds+nStatus; i++)
+  //      {
+  //      int y=i*LineHgt+1;
+  //      POINT Pts[2];
+  //      Pts[0].x=0;
+  //      Pts[0].y=y;
+  //      Pts[1].x=ClientRct.right;
+  //      Pts[1].y=y;
+  //      dc.Polyline(Pts, 2);
+  //
+  //      if (iItem>=0)
+  //        m_ItemClientRow[iItem]=y;
+  //      iItem++;
+  //      }
+  //    if (iItem)
+  //      m_ItemClientRow[iItem]=m_ItemClientRow[iItem-1]+LineHgt;
+  //    int StatusStart=HeadDeep+1+CondDeep;
+  //    int ItemStart=StatusStart+LineHgt;
+  //    int ItemEnd=ItemStart+m_nLines*LineHgt;
+  //
+  //    if (m_nTags<2)
+  //      {
+  //      POINT Pts[2];
+  //      Pts[0].x=m_TWide+XW2;
+  //      Pts[0].y=StatusStart;
+  //      Pts[1].x=Pts[0].x;
+  //      Pts[1].y=ClientRct.bottom;
+  //      dc.Polyline(Pts, 2);
+  //      Pts[0].x+=m_DWide+XW;
+  //      Pts[1].x=Pts[0].x;
+  //      dc.Polyline(Pts, 2);
+  //      }
+  //    else
+  //      {
+  //      POINT Pts[5];
+  //      Pts[0].x=m_TWide+XW2;
+  //      Pts[0].y=StatusStart;
+  //      Pts[1].x=Pts[0].x;
+  //      Pts[1].y=ItemEnd;
+  //      dc.Polyline(Pts, 2);
+  //      Pts[0].x+=m_CWide+XW;
+  //      Pts[1].x=Pts[0].x;
+  //      Pts[1].y=ClientRct.bottom;
+  //      dc.Polyline(Pts, 2);
+  //      m_TagClientCol[0]=Pts[0].x;
+  //      for (iTag=0; iTag<m_nTags; iTag++)
+  //        {
+  //        Pts[0].x+=m_DWide+XW;
+  //        Pts[1].x=Pts[0].x;
+  //        dc.Polyline(Pts, 2);
+  //        m_TagClientCol[iTag+1]=Pts[0].x;
+  //        }
+  //      // Hilight Selected Tag
+  //      if (1)
+  //        {
+  //        CPen*pPenMem=dc.SelectObject(&Pen2);
+  //
+  //        CRect SlctRct;
+  //        SlctRct.top=StatusStart;
+  //        SlctRct.bottom=ClientRct.bottom+1;
+  //        SlctRct.left=m_TWide+XW2+m_CWide+XW+(m_iTagSelected)*(m_DWide+XW);
+  //        SlctRct.right=SlctRct.left+(m_DWide+XW)+1;
+  //
+  //        Pts[0]=SlctRct.TopLeft();
+  //        Pts[1]=SlctRct.TopLeft();
+  //        Pts[2]=SlctRct.BottomRight();
+  //        Pts[3]=SlctRct.BottomRight();
+  //        Pts[4]=Pts[0];
+  //      
+  //        Pts[1].x=Pts[2].x;
+  //        Pts[3].x=Pts[0].x;
+  //        dc.Polyline(Pts, 5);
+  //        dc.SelectObject(pPenMem);
+  //        }
+  //      }
+  //    dc.SelectObject(pPenMem);
+  //
+  //    CRect Rct=ClientRct;
+  //
+  //    if (1)
+  //      {
+  //      Rct=ClientRct;
+  //      Rct.top+=HeadDeep+1;
+  //      Rct.bottom+=HeadDeep+1;
+  //      dc.DrawText(m_CondStr[m_iTagSelected](), m_CondStr[m_iTagSelected].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //      }
+  //
+  //    if (m_nTags>1)
+  //      {
+  //      Strng sTag("Tag:");
+  //      sTag+=m_sTag[m_iTagSelected];
+  //
+  //      Rct=ClientRct;
+  //      dc.DrawText(sTag(), sTag.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //
+  //      if (DoChart)
+  //        {
+  //        for (int iT=0; iT<m_nLines; iT++)
+  //          {
+  //          if (m_ItemChartOn[iT] || (iT==m_iChartItem))
+  //            {
+  //            Rct=ClientRct;
+  //            Rct.OffsetRect(Rct.left+m_TWide, ItemStart+iT*LineHgt);
+  //            Rct.right=Rct.left+(XW*2)/3;
+  //            Rct.bottom=Rct.top+LineHgt;
+  //
+  //            byte ColInd=m_ItemChartOn[iT] ? m_ItemChartColour[iT] : 0;
+  //            if (m_ItemChartWithZero[iT])
+  //              {
+  //              int x=Rct.Width()/2;
+  //              int y=Rct.Height()/2;
+  //              dc.FillSolidRect(Rct.left, Rct.top, x, y, grl_get_win_color(Colours[ColInd]));
+  //              dc.FillSolidRect(Rct.left+x, Rct.top+y, Rct.Width()-x, Rct.Height()-y, grl_get_win_color(Colours[ColInd]));
+  //              }
+  //            else
+  //              dc.FillSolidRect(Rct.left, Rct.top, Rct.Width(), Rct.Height(), grl_get_win_color(Colours[ColInd]));
+  //            }
+  //          }
+  //        }
+  //
+  //      if (DoStatus)
+  //        {
+  //        Strng sStatus("Status");
+  //        Rct=ClientRct;
+  //        Rct.OffsetRect(0, StatusStart);
+  //        Rct.right=Rct.left+m_TWide;
+  //        dc.DrawText(sStatus(), sStatus.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //        }
+  //
+  //      Rct=ClientRct;
+  //      Rct.OffsetRect(0, ItemStart);
+  //      Rct.right=Rct.left+m_TWide;
+  //      dc.DrawText(m_TagStr(), m_TagStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //      Rct.OffsetRect(m_TWide+XW, 0);
+  //
+  //      Rct.right=Rct.left+m_CWide;
+  //      dc.DrawText(m_CnvStr(), m_CnvStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //      Rct.OffsetRect(m_CWide+XW, 0);
+  //
+  //      long iPos=0;
+  //      for (iTag=0; iTag<m_nTags; iTag++)
+  //        {
+  //        Rct.right=Rct.left+m_DWide;
+  //        dc.DrawText(m_DataStr[iTag](), m_DataStr[iTag].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_RIGHT); 
+  //        Rct.OffsetRect(m_DWide+XW, 0);
+  //        }
+  //      }
+  //    else
+  //      {
+  //      if (DoStatus)
+  //        {
+  //        Strng sStatus("Status");
+  //        Rct=ClientRct;
+  //        Rct.OffsetRect(0, StatusStart);
+  //        Rct.right=Rct.left+m_TWide;
+  //        dc.DrawText(sStatus(), sStatus.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //        }
+  //      Rct=ClientRct;
+  //      Rct.OffsetRect(0, ItemStart);
+  //      Rct.right=Rct.left+m_TWide;
+  //      dc.DrawText(m_TagStr(), m_TagStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //      Rct.OffsetRect(m_TWide+XW, 0);
+  //
+  //      Rct.right=Rct.left+m_DWide;
+  //      dc.DrawText(m_DataStr[0](), m_DataStr[0].Length(), Rct, DT_TOP|DT_NOPREFIX|DT_RIGHT); 
+  //      Rct.OffsetRect(m_DWide+XW, 0);
+  //
+  //      Rct.right=Rct.left+m_CWide;
+  //      dc.DrawText(m_CnvStr(), m_CnvStr.Length(), Rct, DT_TOP|DT_NOPREFIX|DT_LEFT); 
+  //      }
+  //
+  //    if (DoStatus)
+  //      {
+  //      for (iTag=0; iTag<m_nTags; iTag++)
+  //        {
+  //        long XOff=m_TWide+XW2+(iTag+1)*(m_DWide+XW)-BlkWTot;
+  //        if (m_nTags>1)
+  //          XOff+=m_CWide+XW;
+  //
+  //        Rct=ClientRct;
+  //        Rct.OffsetRect(XOff+(NBlks-1)*BlkW, StatusStart+1);
+  //        Rct.right=Rct.left+BlkW;
+  //        Rct.bottom=Rct.top+BlkH;
+  //        //dword Status=StatusA[iTag];
+  //        long StateW=BlkW;
+  //        long StateH=BlkH-1;
+  //
+  //        for (int i=MdlValueShowMaxStatusBlks-1; i>=0; i--)
+  //          {
+  //          if(m_StateShw[i] && m_StateCh[iTag][i])
+  //            {
+  //            dc.FillSolidRect(Rct.left,Rct.top,StateW,StateH, grl_get_win_color(m_StateCol[iTag][i]));
+  //            dc.DrawText(&m_StateCh[iTag][i], 1, Rct, DT_VCENTER|DT_NOPREFIX|DT_CENTER); 
+  //            Rct.OffsetRect(-StateW,0);
+  //            }
+  //          }
+  //        }
+  //      }
+  //    if (DoChart)
+  //      {
+  //      int nCharts=0;
+  //      for (int iT=0; iT<m_nLines; iT++)
+  //        {
+  //        if (m_ItemChartOn[iT] || (iT==m_iChartItem))
+  //          nCharts++;
+  //        }
+  //      long BarGap=2;
+  //      long BarWide=m_DWide/Max(nCharts,4)-BarGap;
+  //      long iPos=0;
+  //
+  //      for (iT=0; iT<m_nLines; iT++)
+  //        {
+  //        if (m_ItemChartOn[iT] || (iT==m_iChartItem))
+  //          {
+  //          double Vals[MdlValueShowMaxTags];
+  //          // Extract Vals
+  //          double MaxV=-1.0e30;
+  //          double MinV=+1.0e30;
+  //          for (int iTag=0; iTag<m_nTags; iTag++)
+  //            {
+  //            char * p=m_DataStr[iTag]();
+  //            int i=0;
+  //            while (p && i++<iT)
+  //              {
+  //              if (p=strchr(p, '\r'))
+  //                p=p+1;
+  //              }
+  //            Vals[iTag]=(p) ? SafeAtoF(p) : 0;
+  //            MaxV=Max(MaxV, Vals[iTag]);
+  //            MinV=Min(MinV, Vals[iTag]);
+  //            }
+  //          if (m_ItemChartWithZero[iT])
+  //            {
+  //            MaxV=Max(MaxV, 0.0);
+  //            MinV=Min(MinV, 0.0);
+  //            }
+  //          Rct=ClientRct;
+  //          Rct.OffsetRect(m_TWide+XW+m_CWide+XW+iPos*(BarWide+BarGap)-BarGap, ItemStart+2+m_nLines*LineHgt);
+  //          Rct.right=Rct.left+BarWide;
+  //          Rct.bottom=ClientRct.bottom;
+  //          for (iTag=0; iTag<m_nTags; iTag++)
+  //            {
+  //            byte ColInd=m_ItemChartOn[iT] ? m_ItemChartColour[iT] : 0;
+  //            if (0)
+  //              {
+  //              long Drop=long((Rct.Height()-1)*(MaxV-Vals[iTag])/GTZ(MaxV-MinV));
+  //              dc.FillSolidRect(Rct.left,Rct.top+Drop,Rct.Width(), Rct.Height()-Drop, grl_get_win_color(Colours[ColInd]));
+  //              }
+  //            else
+  //              {
+  //              double R=GTZ(MaxV-MinV);
+  //              long H=(Rct.Height()-2);
+  //              long T,B;
+  //              if (Vals[iTag]>0.0)
+  //                {
+  //                T=long(H*(Vals[iTag]-MinV)/R);
+  //                B=long(H*(Max(0.0, MinV)-MinV)/R);
+  //                }
+  //              else
+  //                {
+  //                T=long(H*(Min(0.0, MaxV)-MinV)/R);
+  //                B=long(H*(Vals[iTag]-MinV)/R);
+  //                }
+  //              T=1+H-T;
+  //              B=1+H-B;
+  //              dc.FillSolidRect(Rct.left,Rct.top+T,Rct.Width(), B-T, grl_get_win_color(Colours[ColInd]));
+  //              }
+  //            Rct.OffsetRect(m_DWide+XW, 0);
+  //            }
+  //          iPos++;
+  //          }
+  //        }
+  //      }
+  //    }
 
   dc.SetBkMode(OldBkMode);
   dc.SelectObject(OldFont);
   dc.SelectObject(OldPen);
 
-	// Do not call CDialog::OnPaint() for painting messages
+  // Do not call CDialog::OnPaint() for painting messages
   }
 
 void CMdlGraphicShow::OnSize(UINT nType, int cx, int cy)
   {
-  Invalidate(0);
-  //RedrawWindow(0,0,RDW_INVALIDATE|RDW_UPDATENOW);
+  CPoint Point(-1,-1);
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_Size, this, ClientRct, Point, 0);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
   };
 
-//void CMdlGraphicShow::OnMouseMove(UINT Flags, CPoint Pt)
-//  {
-//  //m_MousePt=Pt;
-//  //m_MouseFlags=Flags;
-//
-//  CMdlGraphicWnd MGW(MGT_MouseMove, this, &Pt, Flags);
-//  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
-//  };
+void CMdlGraphicShow::OnMove(int x, int y)
+  {
+  CPoint Point(-1,-1);
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_Move, this, ClientRct, Point, 0);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+  };
 
 void CMdlGraphicShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
   {
@@ -3001,7 +2943,7 @@ void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, C
   GraphicShwPtr P=new CMdlGraphicShow(pTag, X, Y, Pinned, pParent);
   P->m_iSequence=gs_RTLCom.m_iSequence;
   gs_RTLCom.GraphicShwPtrs.AddHead(P);
-//  P->AtStart(pTag, X, Y, Pinned);
+  //  P->AtStart(pTag, X, Y, Pinned);
   P->ShowWindow(SW_SHOWNOACTIVATE);
   gs_RTLCom.MVCritSect.Unlock();	
   };
@@ -3136,13 +3078,13 @@ flag CMdlGraphicShow::FindItem(char * pObjClassId, int Index, CVarTagItem & TagI
       XStrTrim(pFld[i]);
 
     TagItem.m_Fmt.SetType('-');
-    
+
     TagItem.m_sLabel=nFlds>0 && pFld[0] ? pFld[0] : "";
     TagItem.m_sTag=nFlds>1 && pFld[1] ? pFld[1] : "";
     TagItem.m_Cnv.SetIndex(nFlds>2 && pFld[2] ? pFld[2] : "");
     TagItem.m_Cnv.SetText(nFlds>3 && pFld[3] ? pFld[3] : "");
     TagItem.m_Fmt.ParseStr(nFlds>4 && pFld[4] ? pFld[4] : "");
-    
+
     return True;
     }
   return False;
@@ -3158,36 +3100,38 @@ void CMdlGraphicShow::ShutDown()
 void CMdlGraphicShow::OnLButtonDblClk(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlGraphicShow::OnLButtonDblClk");
-	CDialog::OnLButtonDblClk(nFlags, point);
-	TryClear(true);
+  CDialog::OnLButtonDblClk(nFlags, point);
+  TryClear(true);
   }
 
 void CMdlGraphicShow::OnMouseMove(UINT nFlags, CPoint point) 
   {
-	CDialog::OnMouseMove(nFlags, point);
+  CDialog::OnMouseMove(nFlags, point);
 
-  CMdlGraphicWnd MGW(MGT_MouseMove, this, point, nFlags);
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_MouseMove, this, ClientRct, point, nFlags);
   gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
 
-//  if ((nFlags & MK_LBUTTON) && (nFlags & (MK_SHIFT|MK_CONTROL)))
-//    {
-//    int i=m_iChartItem;
-//    if (point.y>=m_ItemClientRow[0])
-//      {
-//      i=0;
-//      while (i<m_nLines&& m_ItemClientRow[i+1]<point.y)
-//        i++;
-//      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
-//      DoTheUpdate();
-//      }
-//    else
-//      i=-1;
-//    if (i!=m_iChartItem)     
-//      {
-//      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
-//      DoTheUpdate();
-//      }
-//    }
+  //  if ((nFlags & MK_LBUTTON) && (nFlags & (MK_SHIFT|MK_CONTROL)))
+  //    {
+  //    int i=m_iChartItem;
+  //    if (point.y>=m_ItemClientRow[0])
+  //      {
+  //      i=0;
+  //      while (i<m_nLines&& m_ItemClientRow[i+1]<point.y)
+  //        i++;
+  //      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
+  //      DoTheUpdate();
+  //      }
+  //    else
+  //      i=-1;
+  //    if (i!=m_iChartItem)     
+  //      {
+  //      m_iChartWithZero=((nFlags & MK_CONTROL)!=NULL);      
+  //      DoTheUpdate();
+  //      }
+  //    }
   }
 
 //static Strng m_sDragTag;
@@ -3195,8 +3139,16 @@ CMdlGraphicShow * CMdlGraphicShow::m_pStartWnd=NULL;
 
 void CMdlGraphicShow::OnLButtonDown(UINT nFlags, CPoint point) 
   {
+
+
   //dbgpln("CMdlGraphicShow::OnLButtonDown");
-	CDialog::OnLButtonDown(nFlags, point);
+  CDialog::OnLButtonDown(nFlags, point);
+
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_LButtonDown, this, ClientRct, point, nFlags);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+
   if (nFlags & (MK_SHIFT|MK_CONTROL))
     {
     //if (point.y>=m_ItemClientRow[0])
@@ -3219,7 +3171,13 @@ void CMdlGraphicShow::OnLButtonDown(UINT nFlags, CPoint point)
 void CMdlGraphicShow::OnLButtonUp(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlGraphicShow::OnLButtonUp");
-	CDialog::OnLButtonUp(nFlags, point);
+  CDialog::OnLButtonUp(nFlags, point);
+
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_LButtonUp, this, ClientRct, point, nFlags);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+
   if (m_pStartWnd && m_pStartWnd!=this)
     {
     int n=0;
@@ -3255,13 +3213,22 @@ void CMdlGraphicShow::OnLButtonUp(UINT nFlags, CPoint point)
 void CMdlGraphicShow::OnRButtonDown(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlGraphicShow::OnRButtonDown");
-	CDialog::OnRButtonDown(nFlags, point);
+  CDialog::OnRButtonDown(nFlags, point);
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_RButtonDown, this, ClientRct, point, nFlags);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
   }
 
 void CMdlGraphicShow::OnRButtonUp(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlGraphicShow::OnRButtonUp");
-	CDialog::OnRButtonUp(nFlags, point);
+  CDialog::OnRButtonUp(nFlags, point);
+
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+  CMdlGraphicWnd MGW(MGT_RButtonUp, this, ClientRct, point, nFlags);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
 
   //if (point.y>=m_ItemClientRow[0] && m_nTags>1)
   //  {
@@ -3327,7 +3294,7 @@ bool CMdlGraphicShow::AcceptNewTag(char * pTag, char * pObjClassId)
       ShowWindow(SW_SHOWNOACTIVATE);
       return true;
       }
-  return false;
+    return false;
   };
 
 //---------------------------------------------------------------------------
@@ -3353,19 +3320,19 @@ void CMdlGraphicShow::OnClose()
 
 
 CRptTagLists::CRptTagLists(CWnd* pParent /*=NULL*/)
-	: CDialog(CRptTagLists::IDD, pParent)
+: CDialog(CRptTagLists::IDD, pParent)
   {
   //m_pSectBuff=NULL;
   //m_dwSectBuff=0;
   m_nVarTags=0;
 
-	//{{AFX_DATA_INIT(CRptTagLists)
-	m_UnitTagList = _T("");
-	m_MaxValueLen = gs_RTLCom.m_lMaxValueLen;
-	m_MaxTags = gs_RTLCom.m_lMaxTags;
-	//}}AFX_DATA_INIT
+  //{{AFX_DATA_INIT(CRptTagLists)
+  m_UnitTagList = _T("");
+  m_MaxValueLen = gs_RTLCom.m_lMaxValueLen;
+  m_MaxTags = gs_RTLCom.m_lMaxTags;
+  //}}AFX_DATA_INIT
 
-  
+
   Create(CRptTagLists::IDD, pParent);
 
   CRect WinRect;
@@ -3390,33 +3357,33 @@ CRptTagLists::~CRptTagLists()
 
 void CRptTagLists::DoDataExchange(CDataExchange* pDX)
   {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CRptTagLists)
-	DDX_Control(pDX, IDC_INCFG, m_InCfgCtrl);
-	DDX_Control(pDX, IDC_VARTAGLIST, m_VarTagList);
-	DDX_Control(pDX, IDC_MODELTYPE, m_ModelType);
-	DDX_LBString(pDX, IDC_UNITTAGLIST, m_UnitTagList);
-	DDX_Text(pDX, IDC_MAXVALUELEN, m_MaxValueLen);
-	DDX_Text(pDX, IDC_MAXLISTTAGS, m_MaxTags);
-	//}}AFX_DATA_MAP
+  CDialog::DoDataExchange(pDX);
+  //{{AFX_DATA_MAP(CRptTagLists)
+  DDX_Control(pDX, IDC_INCFG, m_InCfgCtrl);
+  DDX_Control(pDX, IDC_VARTAGLIST, m_VarTagList);
+  DDX_Control(pDX, IDC_MODELTYPE, m_ModelType);
+  DDX_LBString(pDX, IDC_UNITTAGLIST, m_UnitTagList);
+  DDX_Text(pDX, IDC_MAXVALUELEN, m_MaxValueLen);
+  DDX_Text(pDX, IDC_MAXLISTTAGS, m_MaxTags);
+  //}}AFX_DATA_MAP
   }
 
 //---------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(CRptTagLists, CDialog)
-	//{{AFX_MSG_MAP(CRptTagLists)
-	ON_BN_CLICKED(IDC_ADD, OnAdd)
-	ON_BN_CLICKED(IDC_DELETE, OnDelete)
-	ON_BN_CLICKED(IDC_MOVEDOWN, OnMovedown)
-	ON_BN_CLICKED(IDC_MOVEUP, OnMoveup)
-	ON_BN_CLICKED(IDC_QREPORT, OnQreport)
-	ON_CBN_SELCHANGE(IDC_MODELTYPE, OnSelchangeModeltype)
-	ON_NOTIFY(LVN_ENDLABELEDIT, IDC_VARTAGLIST, OnEndlabeleditVartaglist)
-	ON_NOTIFY(NM_DBLCLK, IDC_VARTAGLIST, OnDblclkVartaglist)
-	ON_BN_CLICKED(IDC_INCFG, OnIncfg)
-	ON_NOTIFY(NM_RCLICK, IDC_VARTAGLIST, OnRclickVartaglist)
-	ON_EN_KILLFOCUS(IDC_MAXVALUELEN, OnKillfocusMaxvaluelen)
-	ON_EN_KILLFOCUS(IDC_MAXLISTTAGS, OnKillfocusMaxTags)
-	//}}AFX_MSG_MAP
+  //{{AFX_MSG_MAP(CRptTagLists)
+  ON_BN_CLICKED(IDC_ADD, OnAdd)
+  ON_BN_CLICKED(IDC_DELETE, OnDelete)
+  ON_BN_CLICKED(IDC_MOVEDOWN, OnMovedown)
+  ON_BN_CLICKED(IDC_MOVEUP, OnMoveup)
+  ON_BN_CLICKED(IDC_QREPORT, OnQreport)
+  ON_CBN_SELCHANGE(IDC_MODELTYPE, OnSelchangeModeltype)
+  ON_NOTIFY(LVN_ENDLABELEDIT, IDC_VARTAGLIST, OnEndlabeleditVartaglist)
+  ON_NOTIFY(NM_DBLCLK, IDC_VARTAGLIST, OnDblclkVartaglist)
+  ON_BN_CLICKED(IDC_INCFG, OnIncfg)
+  ON_NOTIFY(NM_RCLICK, IDC_VARTAGLIST, OnRclickVartaglist)
+  ON_EN_KILLFOCUS(IDC_MAXVALUELEN, OnKillfocusMaxvaluelen)
+  ON_EN_KILLFOCUS(IDC_MAXLISTTAGS, OnKillfocusMaxTags)
+  //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3426,12 +3393,12 @@ const int NQVColumns=4;
 
 BOOL CRptTagLists::OnInitDialog() 
   {
-	CDialog::OnInitDialog();
+  CDialog::OnInitDialog();
 
   m_ModelTypesLoaded=false;
-  
+
   //StripClassIdVersion(ObjClassId);
-//  VERIFY(m_VarTagList.SubclassMoveUpDownControls(this, IDC_VARTAGLIST, IDC_MOVEUP, IDC_MOVEDOWN));
+  //  VERIFY(m_VarTagList.SubclassMoveUpDownControls(this, IDC_VARTAGLIST, IDC_MOVEUP, IDC_MOVEDOWN));
   CRect Cr;
   m_VarTagList.GetClientRect(&Cr);
   m_VarTagList.InsertColumn(0, "Label", LVCFMT_LEFT, (Cr.Width()*4)/12);
@@ -3450,9 +3417,9 @@ BOOL CRptTagLists::OnInitDialog()
   m_InCfgCtrl.SetCheck(gs_RTLCom.m_InCfg ? 1:0);
   m_MaxValueLen=gs_RTLCom.m_lMaxValueLen;
   m_MaxTags=gs_RTLCom.m_lMaxTags;
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+
+  return TRUE;  // return TRUE unless you set the focus to a control
+  // EXCEPTION: OCX Property Pages should return FALSE
   }
 
 //---------------------------------------------------------------------------
@@ -3488,10 +3455,10 @@ void CRptTagLists::LoadModelType()
     {
     char *pG=pTOC->Group();
     if (_stricmp(pG, FlwUnitGrp)==0 || 
-        _stricmp(pG, FlwLinkGrp)==0 || 
-        _stricmp(pG, CtrlLinkGrp)==0 || 
-        _stricmp(pG, ElecLinkGrp)==0 || 
-        _stricmp(pG, AirLinkGrp)==0)
+      _stricmp(pG, FlwLinkGrp)==0 || 
+      _stricmp(pG, CtrlLinkGrp)==0 || 
+      _stricmp(pG, ElecLinkGrp)==0 || 
+      _stricmp(pG, AirLinkGrp)==0)
       {
       Strng CLSID(pTOC->ClassIdNoVersion());
       if (m_ModelType.FindString(-1, CLSID())==CB_ERR)
@@ -3541,13 +3508,13 @@ void CRptTagLists::LoadCtrls()
 
 void CRptTagLists::DoShow(LPCSTR RqdClass, LPCSTR Layout, flag ForceShow)
   {
-//  WINDOWPLACEMENT WP;
-//  WP.length=sizeof(WP);
-//  if (GetWindowPlacement(&WP))
-//    {
-//    if (WP.showCmd==SW_HIDE)
-//      return;
-//    }
+  //  WINDOWPLACEMENT WP;
+  //  WP.length=sizeof(WP);
+  //  if (GetWindowPlacement(&WP))
+  //    {
+  //    if (WP.showCmd==SW_HIDE)
+  //      return;
+  //    }
   if (!IsWindowVisible() && !ForceShow)
     return;
 
@@ -3583,7 +3550,7 @@ void CRptTagLists::DoShow(LPCSTR RqdClass, LPCSTR Layout, flag ForceShow)
       {
       CString S;
       m_ModelType.GetLBText(CurSel, S);
-    
+
       gs_RTLCom.SetObjClassId(S);
 
       CProfINIFile PFI(PrjIniFile());
@@ -3655,10 +3622,10 @@ void CRptTagLists::AddItem(LPCSTR pObjClassId, LPCSTR pRefTag, CnvAttribute &Cnv
     ObjClassId=pObjClassId;
 
   StripClassIdVersion(ObjClassId);
-  
+
   //Strng Sect, Item;
   //Sect.Set("%s.View.Vars", ObjClassId());
-  
+
   DoShow(ObjClassId(), NULL, true); // Will Load Data
 
   flag Found=false;
@@ -3672,19 +3639,19 @@ void CRptTagLists::AddItem(LPCSTR pObjClassId, LPCSTR pRefTag, CnvAttribute &Cnv
       break;
       }
 
-  if (!Found)
-    {
-    m_VarTags.SetSize(Max(m_nVarTags+1, m_VarTags.GetSize()));
-    CVarTagItem &TI=m_VarTags[m_nVarTags++];
-    TI.m_sLabel=TheTag();
-    TI.m_sTag=TheTag();
-    TI.m_Cnv=Cnv;
-    TI.m_Fmt=Fmt;
+    if (!Found)
+      {
+      m_VarTags.SetSize(Max(m_nVarTags+1, m_VarTags.GetSize()));
+      CVarTagItem &TI=m_VarTags[m_nVarTags++];
+      TI.m_sLabel=TheTag();
+      TI.m_sTag=TheTag();
+      TI.m_Cnv=Cnv;
+      TI.m_Fmt=Fmt;
 
-    gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
-    LoadCtrls();
-    gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
-    }
+      gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
+      LoadCtrls();
+      gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
+      }
   }
 
 //---------------------------------------------------------------------------
@@ -3724,42 +3691,42 @@ void CRptTagLists::SaveVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray & Var
 
 void CRptTagLists::OnAdd() 
   {
-/*
+  /*
   int OneDone=false;
   m_VarTagList.LockWindowUpdate();
   int j=Max(0, m_VarTagList.GetFirstSelectedItem());//+1);
   POSITION pos = m_SpDBList.GetFirstSelectedItemPosition();
   int iLastSel=-1;
   while (pos)
-    {
-    iLastSel=m_SpDBList.GetNextSelectedItem(pos);
-    CString S=m_SpDBList.GetItemText(iLastSel,0);
- 
-    int iPos=m_VarTagList.FindStringExact(-1, S);
-    if (iPos<0) // Not Found
-      {
-      int n=m_VarTagList.InsertItem(j++, S, 1);
-      m_VarTagList.SetItemData(n, SetType(spl_SpecieId)|m_SpDBList.GetItemData(iLastSel));
-      m_SpDBList.SetItemImage(iLastSel, 1);
-      OneDone=true;
-      }
-    }
-  
+  {
+  iLastSel=m_SpDBList.GetNextSelectedItem(pos);
+  CString S=m_SpDBList.GetItemText(iLastSel,0);
+
+  int iPos=m_VarTagList.FindStringExact(-1, S);
+  if (iPos<0) // Not Found
+  {
+  int n=m_VarTagList.InsertItem(j++, S, 1);
+  m_VarTagList.SetItemData(n, SetType(spl_SpecieId)|m_SpDBList.GetItemData(iLastSel));
+  m_SpDBList.SetItemImage(iLastSel, 1);
+  OneDone=true;
+  }
+  }
+
   if (OneDone)
-    {
-    m_VarTagList.SetItemState(-1, 0, LVIS_SELECTED);
-    m_VarTagList.SetItemState(j-1, LVIS_SELECTED, LVIS_SELECTED);
-    m_VarTagList.EnsureVisible(j-1, false);
-    m_VarTagList.UnlockWindowUpdate();
-    if (iLastSel)
-      {
-      m_SpDBList.SetItemState(-1, 0, LVIS_SELECTED);
-      m_SpDBList.SetItemState(iLastSel, LVIS_SELECTED, LVIS_SELECTED);
-      }
-    }
+  {
+  m_VarTagList.SetItemState(-1, 0, LVIS_SELECTED);
+  m_VarTagList.SetItemState(j-1, LVIS_SELECTED, LVIS_SELECTED);
+  m_VarTagList.EnsureVisible(j-1, false);
+  m_VarTagList.UnlockWindowUpdate();
+  if (iLastSel)
+  {
+  m_SpDBList.SetItemState(-1, 0, LVIS_SELECTED);
+  m_SpDBList.SetItemState(iLastSel, LVIS_SELECTED, LVIS_SELECTED);
+  }
+  }
   else
-    m_VarTagList.UnlockWindowUpdate();
-*/  
+  m_VarTagList.UnlockWindowUpdate();
+  */  
   gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
   }
 
@@ -3793,7 +3760,7 @@ void CRptTagLists::OnDelete()
     }
   gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
   gs_RTLCom.LoadVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
-//  LoadCtrls();
+  //  LoadCtrls();
   gs_AccessWnds.PostMessage(-1, WMU_ACCREFRESHCANCEL);
   }
 
@@ -3801,7 +3768,7 @@ void CRptTagLists::OnDelete()
 
 void CRptTagLists::OnMoveup() 
   {
-	int aMove[1000];
+  int aMove[1000];
   int iMove=0;
   int iDst=m_VarTagList.GetItemCount();
 
@@ -3812,7 +3779,7 @@ void CRptTagLists::OnMoveup()
     iDst=Min(iDst,aMove[iMove]);
     iMove++;
     }
-  
+
   iDst=Max(0, iDst-1);
   int iFirst=iDst;
   m_VarTagList.LockWindowUpdate();
@@ -3901,10 +3868,10 @@ void CRptTagLists::OnMovedown()
 
 void CRptTagLists::OnOK() 
   {
-//  m_SaveOrder.SetSize(m_nVarTags);
-//  for (int i=0; i<m_nVarTags; i++)
-//    m_SaveOrder[i]=m_VarTagList.GetItemData(i);
-//  gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
+  //  m_SaveOrder.SetSize(m_nVarTags);
+  //  for (int i=0; i<m_nVarTags; i++)
+  //    m_SaveOrder[i]=m_VarTagList.GetItemData(i);
+  //  gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags, &m_SaveOrder);
   Hide();
 
   //	CDialog::OnOK();
@@ -3947,7 +3914,7 @@ void CRptTagLists::OnSelchangeModeltype()
 
 void CRptTagLists::OnEndlabeleditVartaglist(NMHDR* pNMHDR, LRESULT* pResult) 
   {
-	LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;
+  LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;
   if (pDispInfo->item.pszText && strlen(pDispInfo->item.pszText)>0) // Edit Accepted
     {
     int i=pDispInfo->item.iItem;
@@ -3955,8 +3922,8 @@ void CRptTagLists::OnEndlabeleditVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
     gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
     m_VarTagList.SetItemText(i,0,pDispInfo->item.pszText);
     }
-	
-	*pResult = 0;
+
+  *pResult = 0;
   }
 
 //---------------------------------------------------------------------------
@@ -3989,7 +3956,7 @@ void CRptTagLists::OnDblclkVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CRptTagLists::OnIncfg() 
   {
-	// TODO: Add your control notification handler code here
+  // TODO: Add your control notification handler code here
   gs_RTLCom.m_InCfg=!gs_RTLCom.m_InCfg;
   CProfINIFile PFI(PrjIniFile());
   m_InCfgCtrl.SetCheck(gs_RTLCom.m_InCfg ? 1:0);
@@ -4043,7 +4010,7 @@ void CRptTagLists::OnRclickVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
 
     CnvAttribute &Cnv=m_VarTags[j].m_Cnv;
     FmtAttribute &Fmt=m_VarTags[j].m_Fmt;
-    
+
     FmtAttribute::SetCmdIndex(IDM_ACC_FMT1);
     CMenu FmtMenu;
     FmtMenu.CreatePopupMenu();
@@ -4053,11 +4020,11 @@ void CRptTagLists::OnRclickVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
     CMenu CnvMenu;
     CnvMenu.CreatePopupMenu();
     Cnv.AddToMenu(CnvMenu);
-  
+
     Menu.AppendMenu(MF_POPUP, (unsigned int)CnvMenu.m_hMenu, "&Conversions");
     Menu.AppendMenu(MF_POPUP, (unsigned int)FmtMenu.m_hMenu, "&Format");
     //Menu.AppendMenu(MF_STRING, ID_EDIT_COPY, "Edit");
-  
+
     CPoint ScreenPoint(pInfo->ptAction);
     m_VarTagList.ClientToScreen(&ScreenPoint);
     int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, ScreenPoint.x, ScreenPoint.y, this);
@@ -4078,14 +4045,14 @@ void CRptTagLists::OnRclickVartaglist(NMHDR* pNMHDR, LRESULT* pResult)
       for (long i=0; i<DefinedFmts.GetSize(); i++) 
         if (i==RetCd-IDM_ACC_FMT1) 
           break;
-    
+
       if (i<DefinedFmts.GetSize())
         Fmt=DefinedFmts[i];
       gs_RTLCom.SaveVarTags(gs_RTLCom.ObjClassId(), NULL, m_VarTags, m_nVarTags);
       m_VarTagList.SetItemText(j, 3, Fmt.Name());
       }
     }
-	*pResult = 0;
+  *pResult = 0;
   }
 
 //===========================================================================

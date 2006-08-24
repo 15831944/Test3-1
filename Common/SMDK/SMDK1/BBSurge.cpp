@@ -364,6 +364,28 @@ dword CBBSurge::ModelStatus()
 
 //--------------------------------------------------------------------------
 
+flag CBBSurge::GetModelAction(CMdlActionArray & Acts)
+  {
+  return DoGetModelAction(Acts);
+  };
+flag CBBSurge::SetModelAction(CMdlAction & Act)
+  {
+  return DoSetModelAction(Act);
+  };
+
+//--------------------------------------------------------------------------
+
+flag CBBSurge::GetModelGraphic(CMdlGraphicArray & Grfs)
+  {
+  return DoGetModelGraphic(Grfs);
+  };
+flag CBBSurge::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
+  {
+  return DoOperateModelGraphic(Wnd, Grf);
+  };
+
+//--------------------------------------------------------------------------
+
 void    CBBSurge::MacroMdlEvaluate(eScdMacroMdlEvals Eval)  { DoMacroMdlEvaluate(Eval);      };
 flag    CBBSurge::MacroMdlValidNd(int iIONo)                { return DoMacroMdlValidNd(iIONo); };
 void    CBBSurge::MacroMdlAddNd(int iIONo)                  { DoMacroMdlAddNd(iIONo);          };

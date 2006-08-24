@@ -32,8 +32,8 @@ class DllImportExport GasPump_GP : public MN_BstRes
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual void   ConfigureJoins();
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
 

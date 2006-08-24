@@ -488,12 +488,12 @@ int  SFEFlwLib::FE_SetLinkWiring(CLinkWiring &LinkWiring)
 
 void SFEFlwLib::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
    { VENTER pSfe->EO_SetModelState(RqdState, RqdTags); VLEAVE};
-flag SFEFlwLib::EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)
+flag SFEFlwLib::EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)
   { FENTER(false) pSfe->EO_GetModelAction(Tag, Acts); FLEAVE};
-flag SFEFlwLib::EO_SetModelAction(LPCTSTR Tag, MdlAction & Act)
+flag SFEFlwLib::EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act)
   { FENTER(false) pSfe->EO_SetModelAction(Tag, Act); FLEAVE};
 
-flag SFEFlwLib::EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs)
+flag SFEFlwLib::EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
   { FENTER(false) pSfe->EO_GetModelGraphic(Tag, Grfs); FLEAVE};
 flag SFEFlwLib::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
   { FENTER(false) pSfe->EO_OperateModelGraphic(Tag, Wnd, Grf); FLEAVE};

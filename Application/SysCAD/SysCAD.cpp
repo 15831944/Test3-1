@@ -70,7 +70,7 @@
 
 #define WITHMAC  1
 #if WITHMAC
-#include "nb30.h"
+#include <nb30.h>
 #pragma comment(lib, "netapi32.lib")
 
 typedef struct _ASTAT_

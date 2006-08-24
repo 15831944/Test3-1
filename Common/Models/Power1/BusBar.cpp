@@ -266,9 +266,9 @@ void CBusBar::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag CBusBar::GetModelAction(MdlActionArray & Acts)
+flag CBusBar::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction M0 = {0, MAT_State, 0/*!PSB.On()*/, "On", 1};
+  //CMdlAction M0 = {0, MAT_State, 0/*!PSB.On()*/, "On", 1};
   //Acts.SetSize(0);
   //Acts.SetAtGrow(0, M0);
   return true;
@@ -276,7 +276,7 @@ flag CBusBar::GetModelAction(MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CBusBar::SetModelAction(MdlAction & Act)
+flag CBusBar::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

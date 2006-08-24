@@ -16,10 +16,8 @@
 #ifndef __CTRLSEQ_H
   #include "ctrlseq.h"
 #endif
-//#ifndef __ScdCOM_h__
-//  #include "..\..\ScdCOM\scdcom.h"
-//#endif
 #include "tagdb.h"
+#include "..\..\..\smdk\include\md_share4.h"
 
 #ifdef __EXECUTIV_CPP
   #define DllImportExport DllExport
@@ -317,146 +315,6 @@ typedef CArray <CExecObj*, CExecObj*> CExecObjArray;
 //
 //===========================================================================
 
-enum MdlActionTypes { MAT_NULL, MAT_State, MAT_Value, MAT_Follow, MAT_Config, MAT_Switch };
-class MdlAction
-  {
-  public:
-
-    MdlAction()
-      {
-      iIndex=0;
-      iType=MAT_NULL;
-      fEnabled=0;
-      strcpy(cName, "");
-      iValue=0;
-      dValue=0;
-      dValueMin=0;
-      dValueMax=0;
-      dBumpless=0;
-      }
-    MdlAction(int Index, MdlActionTypes Type, flag Enabled=0, LPCSTR Name="", int IntValue=0)
-      {
-      iIndex=Index;
-      iType=Type;
-      fEnabled=Enabled;
-      strcpy(cName, Name);
-      iValue=IntValue;
-      dValue=0;
-      dValueMin=0;
-      dValueMax=0;
-      dBumpless=0;
-      }
-    MdlAction(int Index, MdlActionTypes Type, flag Enabled, LPCSTR Name, bool InvalidOK,
-      double DblValue=0, double ValueMin=0, double ValueMax=0, double Bumpless=0)
-      {
-      iIndex=Index;
-      iType=Type;
-      fEnabled=Enabled;
-      strcpy(cName, Name);
-      fInvalidOK=InvalidOK;
-      dValue=DblValue;
-      dValueMin=ValueMin;
-      dValueMax=ValueMax;
-      dBumpless=Bumpless;
-      }
-
-  public:
-    int            iIndex;
-    MdlActionTypes iType;
-    flag           fEnabled;
-    char           cName[64];
-    union
-      {
-      int            iValue;
-      flag           fInvalidOK;
-      };
-    double         dValue;
-    double         dValueMin;
-    double         dValueMax;
-    double         dBumpless;
-  };
-
-typedef CArray<MdlAction, MdlAction&> MdlActionArray;
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-enum eMdlGraphicTypes { MGT_Simple };
-enum eMdlGraphicTasks { MGT_Create, MGT_Draw, MGT_MouseMove, MGT_LButtonDown, MGT_LButtonUp, MGT_RButtonDown, MGT_RButtonUp};
-
-class CMdlGraphicWnd
-  {
-  public:
-    CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CPaintDC * DC, CRect ClientRect, CRect TextSize) 
-      {
-      m_eTask       = Task;
-      m_pWnd        = Wnd;
-      m_pDC         = DC;
-      m_ClientRect  = ClientRect;
-      m_TextSize    = TextSize.BottomRight();
-      m_MousePt     = CPoint(-1,-1);
-      m_MouseFlags  = 0;
-      };
-    CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CPoint MousePt, UINT MouseFlags) 
-      {
-      m_eTask       = Task;
-      m_pWnd        = Wnd;
-      m_pDC         = NULL;
-      m_ClientRect  = CRect(0,0,-1,-1);
-      m_TextSize    = CPoint(-1,-1);
-      m_MousePt     = MousePt;
-      m_MouseFlags  = MouseFlags;
-      };
-
-  public:
-    eMdlGraphicTasks  m_eTask;
-    CWnd            * m_pWnd;
-    CPaintDC        * m_pDC;
-    CRect             m_ClientRect;
-    CPoint            m_TextSize;
-    CPoint            m_MousePt;
-    UINT              m_MouseFlags;
-  };
-
-
-class CMdlGraphic
-  {
-  public:
-    CMdlGraphic()
-      {
-      m_iIndex    = 0;
-      m_iType     = MGT_Simple;
-      m_fEnabled  = 0;
-      strcpy(m_cName, "");
-      }
-    CMdlGraphic(int Index, eMdlGraphicTypes Type, flag Enabled = 0, LPCSTR Name = "", int IntValue = 0)
-      {
-      m_iIndex    = Index;
-      m_iType     = Type;
-      m_fEnabled  = Enabled;
-      strcpy(m_cName, Name);
-      }
-    CMdlGraphic(int Index, eMdlGraphicTypes Type, flag Enabled, LPCSTR Name, bool InvalidOK,
-      double DblValue = 0, double ValueMin = 0, double ValueMax = 0, double Bumpless = 0)
-      {
-      m_iIndex    = Index;
-      m_iType     = Type;
-      m_fEnabled  = Enabled;
-      strcpy(m_cName, Name);
-      }
-
-  public:
-    int               m_iIndex;
-    eMdlGraphicTypes  m_iType;
-    flag              m_fEnabled;
-    char              m_cName[64];
-  };
-
-typedef CArray<CMdlGraphic, CMdlGraphic&> MdlGraphicArray;
-
 //---------------------------------------------------------------------------
 
 DllImportExport CTimeValue GetCurrentTime_1970();
@@ -580,10 +438,10 @@ class DllImportExport CExecObj
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)           { return False; };
 
     virtual void   EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) {};
-    virtual flag   EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)            { return false; };
-    virtual flag   EO_SetModelAction(LPCTSTR Tag, MdlAction & Acts)                 { return false; };
+    virtual flag   EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)            { return false; };
+    virtual flag   EO_SetModelAction(LPCTSTR Tag, CMdlAction & Acts)                 { return false; };
 
-    virtual flag   EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grf)           { return false; };
+    virtual flag   EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf)           { return false; };
     virtual flag   EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)   { return false; };
 
     //virtual flag   EO_SolutionReqd()                                    { return False; };
@@ -670,8 +528,8 @@ class DllImportExport CExecObj
     flag           XReadASyncDataItem(long Index, CXM_ObjectData &ObjData);
 
     //void           XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
-    //flag           XGetModelAction(Strng & Tag, MdlActionArray & Acts);
-    //flag           XSetModelAction(Strng & Tag, MdlAction & Acts);
+    //flag           XGetModelAction(Strng & Tag, CMdlActionArray & Acts);
+    //flag           XSetModelAction(Strng & Tag, CMdlAction & Acts);
 
     flag           Server() { return bServer; };
     void           SetServer(flag Server);
@@ -1317,10 +1175,10 @@ class DllImportExport CExecutive : public ConditionBlk
 
     void           DoSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
     void           SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
-    flag           GetModelAction(LPCTSTR Tag, MdlActionArray & Acts);
-    flag           SetModelAction(LPCTSTR Tag, MdlAction & Act);
+    flag           GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts);
+    flag           SetModelAction(LPCTSTR Tag, CMdlAction & Act);
 
-    flag           GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs);
+    flag           GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs);
     flag           OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
     flag           SteadyStateRqd() { return m_SteadyStateRqd; };

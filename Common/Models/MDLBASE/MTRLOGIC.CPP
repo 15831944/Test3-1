@@ -172,7 +172,7 @@ flag PL_Basic::CopyFrom(CIO_Logic * pOther)
 
 flag PL_Basic::DoRunning()
   {
-  flag RunReqd=bRunning;
+  bool RunReqd=bRunning;
   if (!PwrOn() && !m_bAutoRestart)
     bOn=(bStartInv ? 1 : 0);
   if (bTripped)
@@ -276,11 +276,11 @@ void   PL_Basic::Stop()
     }
   };
 
-flag   PL_Basic::Running()              { return bRunning; };
-flag   PL_Basic::Forward()              { return true; };
-flag   PL_Basic::Reverse()              { return false; };
-void   PL_Basic::SetDirection(flag Fwd) { ; };
-flag   PL_Basic::Tripped()              { return bTripped; };
+bool   PL_Basic::Running()              { return bRunning; };
+bool   PL_Basic::Forward()              { return true; };
+bool   PL_Basic::Reverse()              { return false; };
+void   PL_Basic::SetDirection(bool Fwd) { ; };
+bool   PL_Basic::Tripped()              { return bTripped; };
 void   PL_Basic::SetTrip()              { bTripped=true; };
 void   PL_Basic::ResetTrip()            { bTripped=false; };
 
@@ -435,9 +435,9 @@ double PL_FwdRev::Speed(FlwNode* pFNode, CFlwRegBlk * pFRB)
 
 //---------------------------------------------------------------------------
 
-flag   PL_FwdRev::Forward()               { return bFwd; };
-flag   PL_FwdRev::Reverse()               { return !bFwd; };
-void   PL_FwdRev::SetDirection(flag Fwd)  { bFwd=Fwd; };
+bool   PL_FwdRev::Forward()               { return bFwd; };
+bool   PL_FwdRev::Reverse()               { return !bFwd; };
+void   PL_FwdRev::SetDirection(bool Fwd)  { bFwd=Fwd; };
 
 //===========================================================================
 //
@@ -771,9 +771,9 @@ double PL_SoftStSp::Speed(FlwNode* pFNode, CFlwRegBlk * pFRB)
 
 //---------------------------------------------------------------------------
 
-flag   PL_SoftStSp::Forward()               { return !bRunRev; };
-flag   PL_SoftStSp::Reverse()               { return bRunRev; };
-void   PL_SoftStSp::SetDirection(flag Fwd)  { bRunRev=!Fwd; };
+bool   PL_SoftStSp::Forward()               { return !bRunRev; };
+bool   PL_SoftStSp::Reverse()               { return bRunRev; };
+void   PL_SoftStSp::SetDirection(bool Fwd)  { bRunRev=!Fwd; };
 
 //===========================================================================
 //===========================================================================

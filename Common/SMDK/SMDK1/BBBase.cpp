@@ -385,6 +385,35 @@ void CBBBase::DoSetState(eScdMdlStateActs RqdState)
   Method.SetState(MStatesToSet(RqdState)); 
   }
 
+flag CBBBase::DoGetModelAction(CMdlActionArray & Acts)
+  {
+  if (!m_pMethod)
+    return false;
+  return Method.GetModelAction(Acts);
+  };
+
+flag CBBBase::DoSetModelAction(CMdlAction & Act)
+  {
+  if (!m_pMethod)
+    return false;
+  return Method.SetModelAction(Act);
+  };
+              
+flag CBBBase::DoGetModelGraphic(CMdlGraphicArray & Grfs)
+  {
+  if (!m_pMethod)
+    return false;
+  return Method.GetModelGraphic(Grfs);
+  };
+
+flag CBBBase::DoOperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
+  {
+  if (!m_pMethod)
+    return false;
+  return Method.OperateModelGraphic(Wnd, Grf);
+  };
+
+
 // Flash Train - MacroMdls
 void CBBBase::DoMacroMdlEvaluate(eScdMacroMdlEvals Eval)  
   {

@@ -66,11 +66,7 @@ class DllImportExport CPwrLoad
 
 class DllImportExport CPwrSupply
   {
-  protected:
-    bool    m_bOn;
-
   public:
-
     CPwrSupply()     { };
 
     virtual CPwrTypes Type() { return CPS_None; };
@@ -79,9 +75,11 @@ class DllImportExport CPwrSupply
     virtual void      SetOn(bool On)  { m_bOn=On; };
     virtual bool      Present()       { return false; };
     virtual bool      SetPower(CPwrLoad * pLoad)                                  { return true; };
-    //virtual bool      SetPower(CPwrUserSocket * pSocket)                          { return true; };
     virtual flag      DataXchg(DataChangeBlk & DCB, TaggedObject * pTagObj)       { return 0;};
     virtual flag      ValidateData(ValidateDataBlk & VDB, TaggedObject * pTagObj) { return true; };
+
+  protected:
+    bool    m_bOn;
   };
 
 // ===========================================================================
@@ -93,25 +91,20 @@ class DllImportExport CPwrSupply
 class DllImportExport CElecLoad : public CPwrLoad  
   {
   public:
-    double          m_dPhaseAngle; 
-
     CElecLoad();
     CPwrTypes       Type() { return CPS_Elec; };
     void            BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pTagObj, LPCSTR Tag, bool AsParm);
     flag            DataXchg(DataChangeBlk & DCB, TaggedObject * pTagObj) { return 0;};
     flag            ValidateData(ValidateDataBlk & VDB, TaggedObject * pTagObj) { return true; };
+
+  public:
+    double          m_dPhaseAngle; 
   };
 
 // ---------------------------------------------------------------------------
 
 class DllImportExport CElecSupply : public CPwrSupply
   {
-  public:
-    CETermStrip    *m_pTermStrip;
-
-    double          m_dPower;
-    double          m_dPhaseAngle;
-
   public:
     CElecSupply(CETermStrip * pTS=NULL)   
       { 
@@ -127,6 +120,12 @@ class DllImportExport CElecSupply : public CPwrSupply
     bool            Present();// { return m_bOn; };
     bool            SetPower(CPwrLoad * pLoad);
                     
+  public:
+    CETermStrip    *m_pTermStrip;
+
+    double          m_dPower;
+    double          m_dPhaseAngle;
+
   };
 
 // ===========================================================================
@@ -138,14 +137,15 @@ class DllImportExport CElecSupply : public CPwrSupply
 class DllImportExport CAirLoad : public CPwrLoad 
   {
   public:
-    double m_dShaftPower;
-
     CAirLoad();
 
     CPwrTypes       Type() { return CPS_Air; };
     void            BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pTagObj, LPCSTR Tag, bool AsParm);
     flag            DataXchg(DataChangeBlk & DCB, TaggedObject * pTagObj) { return 0;};
     flag            ValidateData(ValidateDataBlk & VDB, TaggedObject * pTagObj) { return true; };
+
+  public:
+    double m_dShaftPower;
   };
 
 // ---------------------------------------------------------------------------
@@ -153,8 +153,6 @@ class DllImportExport CAirLoad : public CPwrLoad
 class DllImportExport CAirSupply: public CPwrSupply
   {
   public:
-    double          m_dXXXX;
-
     CAirSupply();
 
     CPwrTypes       Type() { return CPS_Air; };
@@ -163,6 +161,10 @@ class DllImportExport CAirSupply: public CPwrSupply
     flag            ValidateData(ValidateDataBlk & VDB, TaggedObject * pTagObj) { return true; };
     bool            Present() { return false; };
     bool            SetPower(CPwrLoad * pLoad);
+
+  public:
+    double          m_dXXXX;
+
   };
 
 // ===========================================================================
@@ -182,21 +184,6 @@ class DllImportExport CPwrUser : public TaggedObject
   public:
     enum CPwrUserConns {CPU_None, CPU_ByName, CPU_Wired, CPU_Socket};
     
-  protected:
-    FlwNode         * m_pNd; 
-    Strng             m_sPwrSupply;
-    Strng             m_sRemoteSrc;
-    long              m_iInx;
-    double            m_dPowerDraw;
-    
-    CPwrUserConns     m_eConnectRqd;
-    CPwrUserConns     m_eConnectAct;
-    CPwrSupply      * m_pSupply;
-    CPwrLoad        * m_pLoad;
-    CETermStrip     * m_pTermStrip;
-
-    CPwrUserSocket  * m_pSocket;
-
   public:
     CPwrUser(TagObjClass *pClass_, char *TagIn, TaggedObject *pAttach, TagObjAttachment eAttach);
     CPwrUser(char *TagIn, TaggedObject *pAttach, TagObjAttachment eAttach);
@@ -227,6 +214,21 @@ class DllImportExport CPwrUser : public TaggedObject
     // Elec
     CETermStrip    *TermStrip();
 
+  protected:
+    FlwNode         * m_pNd; 
+    Strng             m_sPwrSupply;
+    Strng             m_sRemoteSrc;
+    long              m_iInx;
+    double            m_dPowerDraw;
+    
+    CPwrUserConns     m_eConnectRqd;
+    CPwrUserConns     m_eConnectAct;
+    CPwrSupply      * m_pSupply;
+    CPwrLoad        * m_pLoad;
+    CETermStrip     * m_pTermStrip;
+
+    CPwrUserSocket  * m_pSocket;
+
   };
 DEFINE_TAGOBJ(CPwrUser);
 
@@ -239,14 +241,6 @@ DEFINE_TAGOBJ(CPwrUser);
 class DllImportExport CPwrUserSocket : public TaggedObject 
   {
   public:
-
-    //flag            m_bOn; 
-
-    CPwrSupply    * m_pSupply;
-    CPwrLoad      * m_pLclLoad;
-    //CPwrLoad      * m_pRmtLoad;
-    CPwrUser      * m_pUser;
-
     CPwrUserSocket(char *TagIn, TaggedObject *pAttach, TagObjAttachment eAttach);//, CPwrLoad * pLd, CPwrSupply * pCd);
     CPwrUserSocket(TagObjClass *pClass_, char *TagIn, TaggedObject *pAttach, TagObjAttachment eAttach);
     
@@ -265,11 +259,16 @@ class DllImportExport CPwrUserSocket : public TaggedObject
     void            EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);
     void            EvalPowerRequired();
 
-    CPwrLoad      * Load() { return m_pUser ? m_pUser->m_pLoad : m_pLclLoad; };
+    CPwrLoad      * Load()          { return m_pUser ? m_pUser->m_pLoad : m_pLclLoad; };
     
-    flag            On()  { return Supply() ? Supply()->On() : false; };
-    void            SetOn(bool On) { if (Supply()) Supply()->SetOn(On); };
-    double          ShaftPower() { return Load()? Load()->ShaftPower() : 0.0; };
+    bool            On()            { return Supply() ? Supply()->On() : false; };
+    void            SetOn(bool On)  { if (Supply()) Supply()->SetOn(On); };
+    double          ShaftPower()    { return Load()? Load()->ShaftPower() : 0.0; };
+
+  public:
+    CPwrSupply    * m_pSupply;
+    CPwrLoad      * m_pLclLoad;
+    CPwrUser      * m_pUser;
 
   };
 DEFINE_TAGOBJ(CPwrUserSocket);
@@ -283,17 +282,16 @@ DEFINE_TAGOBJ(CPwrUserSocket);
 class DllImportExport CPwrSupplyItem
   {
   public:
-    Strng           m_Tag;
-//    flag           m_On;
-    //CPwrTypes      m_Type;
-    CPwrSupply     *m_pSupply;
-
     CPwrSupplyItem();
     CPwrSupplyItem & operator=(CPwrSupplyItem & I);
     CPwrTypes       Type();
     CPwrSupply     *Supply() { return m_pSupply; };
     bool            On() { return m_pSupply->On(); };
     void            SetOn(bool On) { m_pSupply->SetOn(On); };
+
+  public:
+    Strng           m_Tag;
+    CPwrSupply     *m_pSupply;
 
   };
 
@@ -305,11 +303,7 @@ class DllImportExport CPwrSupplyItem
 
 class DllImportExport CPwrSupplies
   {
-  protected:
-    CArray <CPwrSupplyItem, CPwrSupplyItem&> m_Supplies;
-    CMap <LPCTSTR, LPCTSTR, long, long > m_Map;
   public:
-
     CPwrSupplies();
 
     void            AddSupply(LPCTSTR Tag, CPwrTypes Type, double Voltage);//, eTSConfigurations Phases);
@@ -343,12 +337,11 @@ class DllImportExport CPwrSupplies
       return NULL;
       }
 
-    // user;
-    //long            BuildDataDefn(CPwrUser & User, DataDefnBlk & DDB, TaggedObject * pTagObj);
-    //LPCTSTR         State(CPwrUser & User);
-    //flag            On(CPwrUser & User);
-    //CPwrTypes       Type(CPwrUser & User);
     CPwrSupply    * Supply(CPwrUser & User);
+
+  protected:
+    CArray <CPwrSupplyItem, CPwrSupplyItem&> m_Supplies;
+    CMap <LPCTSTR, LPCTSTR, long, long > m_Map;
   };
 
 // ===========================================================================

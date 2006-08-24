@@ -30,8 +30,8 @@ static MInOutDefStruct s_IODefs[]=
 
 static double Drw_CPumpValve[] = 
   { 
-    MDrw_Poly, -5,10, -5,-10, 5,-10, 5,10,
-    MDrw_End 
+  MDrw_Poly, -5,10, -5,-10, 5,-10, 5,10,
+  MDrw_End 
   };
 
 //---------------------------------------------------------------------------
@@ -111,48 +111,48 @@ void CPumpValve::BuildDataFields()
     {PVM_Pump, "Pump"},
     {PVM_Valve, "Valve"},
     {0}};
-  static MDDValueLst DDB2[]={
-    {PVPM_None, "None"},
-    {PVPM_Boost, "Boost"},
-    {PVPM_Fixed, "Fixed"},
-    {0}};
-  static MDDValueLst DDB3[]={
-    {PVPM_None, "None"},
-    {PVPM_Drop, "Drop"},
-    {PVPM_Fixed, "Fixed"},
-    {PVPM_Atmos, "Atmos"},
-    {0}};
-  DD.Text    ("");
-  DD.Text    ("Requirements");
-  DD.Long    ("Model", "", xidModel, MF_PARAMETER|MF_SET_ON_CHANGE, DDB1);
-  DD.Long    ("PressMethod", "", &iPressMethod, MF_PARAMETER|MF_SET_ON_CHANGE, (iModel==PVM_Pump ? DDB2 : DDB3));
-  if (iModel==PVM_Pump)
-    {
-    DD.Show    (iPressMethod==PVPM_Boost);
-    DD.Double  ("PressBoostRqd", "PBoost", &dPressBoost_Rqd, MF_PARAMETER, MC_DP("kPa"));
-    }
-  else
-    {
-    DD.Show    (iPressMethod==PVPM_Drop);
-    DD.Double  ("PressDropRqd", "PDrop", xidPDropRqd, MF_PARAMETER, MC_DP("kPa"));
-    }
-  DD.Show    (iPressMethod==PVPM_Fixed);
-  DD.Double  ("OutletPressRqd", "PRqd", &dPout_Rqd, MF_PARAMETER|MF_NAN_OK, MC_P("kPag"));
-  DD.Show    ();
-  DD.Text    ("");
-  DD.Text    ("Results");
-  DD.Double  ("",                "Work", &dDuty,          MF_RESULT,                  MC_Pwr("kW"));
-  DD.Double  ("Mass_Flow",       "Qm",   xidQm,           MF_RESULT|MF_NO_FILING,     MC_Qm("kg/s"));
-  DD.Double  ("TemperatureIn",   "Ti",   &dTin,           MF_RESULT|MF_NO_FILING,     MC_T("C"));
-  DD.Double  ("TemperatureOut",  "To",   &dTout,          MF_RESULT|MF_NO_FILING,     MC_T("C"));
-  DD.Double  ("PressIn",         "Pi",   &dPin,           MF_RESULT,                  MC_P("kPag"));//isParmConstruct);
-  //DD.Double  ("Press_Change",    "dP",   xiddP,           MF_RESULT|MF_NO_FILING|MF_INIT_HIDDEN,   MC_DP("kPa"));
-  DD.Double  ("PressOut",        "Po",   &dPout,          MF_RESULT,                  MC_P("kPag"));//isParmConstruct);
-  //DD.Double  ("VapourFracIn",    "Vfi",  xidVapFracIn,    MF_RESULT|MF_NO_FILING|MF_INIT_HIDDEN, MC_Frac("%"));
-  //DD.Double  ("VapourFracOut",   "Vfo",  xidVapFracOut,   MF_RESULT|MF_NO_FILING|MF_INIT_HIDDEN, MC_Frac("%"));
-  //DD.Double  ("PrevPOut",        "",     &dPout,          MF_PARAMETER|MF_NO_VIEW,    MC_P("kPag"));
-  //DD.Double  ("PrevDuty",        "",     &dDuty,          MF_PARAMETER|MF_NO_VIEW,    MC_Pwr("kW"));
-  DD.Text("");
+    static MDDValueLst DDB2[]={
+      {PVPM_None, "None"},
+      {PVPM_Boost, "Boost"},
+      {PVPM_Fixed, "Fixed"},
+      {0}};
+      static MDDValueLst DDB3[]={
+        {PVPM_None, "None"},
+        {PVPM_Drop, "Drop"},
+        {PVPM_Fixed, "Fixed"},
+        {PVPM_Atmos, "Atmos"},
+        {0}};
+        DD.Text    ("");
+        DD.Text    ("Requirements");
+        DD.Long    ("Model", "", xidModel, MF_PARAMETER|MF_SET_ON_CHANGE, DDB1);
+        DD.Long    ("PressMethod", "", &iPressMethod, MF_PARAMETER|MF_SET_ON_CHANGE, (iModel==PVM_Pump ? DDB2 : DDB3));
+        if (iModel==PVM_Pump)
+          {
+          DD.Show    (iPressMethod==PVPM_Boost);
+          DD.Double  ("PressBoostRqd", "PBoost", &dPressBoost_Rqd, MF_PARAMETER, MC_DP("kPa"));
+          }
+        else
+          {
+          DD.Show    (iPressMethod==PVPM_Drop);
+          DD.Double  ("PressDropRqd", "PDrop", xidPDropRqd, MF_PARAMETER, MC_DP("kPa"));
+          }
+        DD.Show    (iPressMethod==PVPM_Fixed);
+        DD.Double  ("OutletPressRqd", "PRqd", &dPout_Rqd, MF_PARAMETER|MF_NAN_OK, MC_P("kPag"));
+        DD.Show    ();
+        DD.Text    ("");
+        DD.Text    ("Results");
+        DD.Double  ("",                "Work", &dDuty,          MF_RESULT,                  MC_Pwr("kW"));
+        DD.Double  ("Mass_Flow",       "Qm",   xidQm,           MF_RESULT|MF_NO_FILING,     MC_Qm("kg/s"));
+        DD.Double  ("TemperatureIn",   "Ti",   &dTin,           MF_RESULT|MF_NO_FILING,     MC_T("C"));
+        DD.Double  ("TemperatureOut",  "To",   &dTout,          MF_RESULT|MF_NO_FILING,     MC_T("C"));
+        DD.Double  ("PressIn",         "Pi",   &dPin,           MF_RESULT,                  MC_P("kPag"));//isParmConstruct);
+        //DD.Double  ("Press_Change",    "dP",   xiddP,           MF_RESULT|MF_NO_FILING|MF_INIT_HIDDEN,   MC_DP("kPa"));
+        DD.Double  ("PressOut",        "Po",   &dPout,          MF_RESULT,                  MC_P("kPag"));//isParmConstruct);
+        //DD.Double  ("VapourFracIn",    "Vfi",  xidVapFracIn,    MF_RESULT|MF_NO_FILING|MF_INIT_HIDDEN, MC_Frac("%"));
+        //DD.Double  ("VapourFracOut",   "Vfo",  xidVapFracOut,   MF_RESULT|MF_NO_FILING|MF_INIT_HIDDEN, MC_Frac("%"));
+        //DD.Double  ("PrevPOut",        "",     &dPout,          MF_PARAMETER|MF_NO_VIEW,    MC_P("kPag"));
+        //DD.Double  ("PrevDuty",        "",     &dDuty,          MF_PARAMETER|MF_NO_VIEW,    MC_Pwr("kW"));
+        DD.Text("");
   }
 
 bool CPumpValve::ExchangeDataFields()
@@ -164,13 +164,13 @@ bool CPumpValve::ExchangeDataFields()
         {
         iModel=DX.Long;
         if (iModel==PVM_Pump)
-         {
-         bIsentropic = 1;
-         }
+          {
+          bIsentropic = 1;
+          }
         else
-         {
-         bIsentropic = 0;
-         }
+          {
+          bIsentropic = 0;
+          }
         }
       DX.Long=iModel;
       return 1;
@@ -179,14 +179,14 @@ bool CPumpValve::ExchangeDataFields()
         dPressBoost_Rqd=(DX.Double*-1.0);
       DX.Double=(dPressBoost_Rqd*-1.0);
       return 1;
-    /*case xidPBoostRqd:
+      /*case xidPBoostRqd:
       if (DX.HasReqdValue)
-        dPressBoost_Rqd=DX.Double;
+      dPressBoost_Rqd=DX.Double;
       DX.Double=dPressBoost_Rqd;
       return 1;
-    case xidDuty:
+      case xidDuty:
       if (DX.HasReqdValue)
-        dDuty=DX.Double;
+      dDuty=DX.Double;
       DX.Double=dDuty;
       return 1;*/
     }
@@ -297,7 +297,7 @@ void CPumpValve::EvalProducts()
             break;
           }
         dDuty = Prod.totHf() - h0;
-const double s1 = Prod.totSf();
+        const double s1 = Prod.totSf();
         }
       else
         {

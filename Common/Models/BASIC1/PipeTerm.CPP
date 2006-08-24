@@ -240,12 +240,12 @@ flag CPipeTerm::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-flag CPipeTerm::GetModelAction(MdlActionArray & Acts)
+flag CPipeTerm::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction {MAT_NULL, MAT_State, MAT_Value};
-  MdlAction M0(0, MAT_State, !m_VPB.On(), "Open", 1);
-  MdlAction M1(1, MAT_State, m_VPB.On(),  "Close", 0);
-  MdlAction M2(2, MAT_Value, m_VPB.On(),  "Manual Posn (%)", true,
+  //CMdlAction {MAT_NULL, MAT_State, MAT_Value};
+  CMdlAction M0(0, MAT_State, !m_VPB.On(), "Open", 1);
+  CMdlAction M1(1, MAT_State, m_VPB.On(),  "Close", 0);
+  CMdlAction M2(2, MAT_Value, m_VPB.On(),  "Manual Posn (%)", true,
                   m_VPB.ManualPosition(this)*100, 0.0, 100.0,
                   m_VPB.ActualPosition(this, &m_FRB)*100);
 
@@ -253,21 +253,21 @@ flag CPipeTerm::GetModelAction(MdlActionArray & Acts)
   Acts.SetAtGrow(0, M0);
   Acts.SetAtGrow(1, M1);
   Acts.SetAtGrow(2, M2);
-  Acts.SetAtGrow(3, MdlAction(3, MAT_Switch));
+  Acts.SetAtGrow(3, CMdlAction(3, MAT_Switch));
   return True;
   };
 
 //--------------------------------------------------------------------------
 
-flag CPipeTerm::SetModelAction(MdlAction & Act)
+flag CPipeTerm::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {
     case 0:
-      m_VPB.SetOn(Act.iValue);
+      m_VPB.SetOn(Act.iValue!=0);
       break;
     case 1:
-      m_VPB.SetOn(Act.iValue);
+      m_VPB.SetOn(Act.iValue!=0);
       break;
     case 2:
       m_VPB.SetManualPosition(Act.dValue*0.01);

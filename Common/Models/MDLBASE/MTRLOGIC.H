@@ -39,24 +39,24 @@ class PL_Basic : public CIO_Logic
   {
   public:
     byte           iMode;
-    flag           bOn;
-    flag           bStart;
-    flag           bStop;
-    flag           bStartInv;
-    flag           bStopInv;
-    flag           bStarted;
-    flag           bRunning;
-    flag           bTripped;
-    flag           bRunMemory;
+    bool           bOn;
+    bool           bStart;
+    bool           bStop;
+    bool           bStartInv;
+    bool           bStopInv;
+    bool           bStarted;
+    bool           bRunning;
+    bool           bTripped;
+    bool           bRunMemory;
     double         m_dSpeedReg;
     double         m_dSpeed;
     double         m_dSpeedReqd;
     double         m_dManualSpeed;
-    flag           bLoSpeed;
-    flag           bHiSpeed;
+    bool           bLoSpeed;
+    bool           bHiSpeed;
     float          dLoSpeedLimit;
     float          dHiSpeedLimit;
-    flag           m_bAutoRestart;
+    bool           m_bAutoRestart;
     byte           iFailMode;
 
     PL_Basic(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
@@ -75,11 +75,11 @@ class PL_Basic : public CIO_Logic
 
     virtual void   Start();
     virtual void   Stop();
-    virtual flag   Running();
-    virtual flag   Forward();
-    virtual flag   Reverse();
-    virtual void   SetDirection(flag Fwd);
-    virtual flag   Tripped();
+    virtual bool   Running();
+    virtual bool   Forward();
+    virtual bool   Reverse();
+    virtual void   SetDirection(bool Fwd);
+    virtual bool   Tripped();
     virtual void   SetTrip();
     virtual void   ResetTrip();
 
@@ -102,7 +102,7 @@ class DllImportExport CIO_MtrSpdBlk : public CIO_Blk
       CIO_Blk("MtrSpd", Name, pAttach, pPwr){ };
     virtual ~CIO_MtrSpdBlk() {};
 
-    flag            On() { return ((PL_Basic*)pLogic)->bOn; };
+    bool            On() { return ((PL_Basic*)pLogic)->bOn!=0; };
     void            SetOn(int On) { ((PL_Basic*)pLogic)->bOn=On!=0; };
     void            SetManualSpeed(double P) { ((PL_Basic*)pLogic)->m_dManualSpeed=P; };
     void            SetSpeed(double P) { ((PL_Basic*)pLogic)->m_dSpeedReqd=P; }; 
@@ -110,15 +110,15 @@ class DllImportExport CIO_MtrSpdBlk : public CIO_Blk
     double          Speed(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL) { return ((PL_Basic*)pLogic)->Speed(pFNode, pFRB) ;};
     void            Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg) { ((PL_Basic*)pLogic)->Ctrl_ConnIDStr(i, ID, Tg); };
                     
-    void            Start()           {        ((PL_Basic*)pLogic)->Start(); };
-    void            Stop()            {        ((PL_Basic*)pLogic)->Stop(); };
-    flag            Running()         { return ((PL_Basic*)pLogic)->Running(); };
-    flag            Forward()         { return ((PL_Basic*)pLogic)->Forward(); };
-    flag            Reverse()         { return ((PL_Basic*)pLogic)->Reverse(); };
-    void            SetDirection(flag Fwd) {        ((PL_Basic*)pLogic)->SetDirection(Fwd); };
-    flag            Tripped()         { return ((PL_Basic*)pLogic)->Tripped(); };
-    void            SetTrip()         {        ((PL_Basic*)pLogic)->SetTrip(); };
-    void            ResetTrip()       {        ((PL_Basic*)pLogic)->ResetTrip(); };
+    void            Start()               {        ((PL_Basic*)pLogic)->Start(); };
+    void            Stop()                {        ((PL_Basic*)pLogic)->Stop(); };
+    bool            Running()             { return ((PL_Basic*)pLogic)->Running(); };
+    bool            Forward()             { return ((PL_Basic*)pLogic)->Forward(); };
+    bool            Reverse()             { return ((PL_Basic*)pLogic)->Reverse(); };
+    void            SetDirection(bool Fwd){        ((PL_Basic*)pLogic)->SetDirection(Fwd); };
+    bool            Tripped()             { return ((PL_Basic*)pLogic)->Tripped(); };
+    void            SetTrip()             {        ((PL_Basic*)pLogic)->SetTrip(); };
+    void            ResetTrip()           {        ((PL_Basic*)pLogic)->ResetTrip(); };
   };
 
 
@@ -132,8 +132,6 @@ DEFINE_TAGOBJ(PL_FwdRev)
 class PL_FwdRev : public PL_Basic
   {
   public:
-    flag           bFwd;
-
     PL_FwdRev(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~PL_FwdRev();
 
@@ -145,9 +143,12 @@ class PL_FwdRev : public PL_Basic
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
     virtual double Speed(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);
 
-    virtual flag   Forward();
-    virtual flag   Reverse();
-    virtual void   SetDirection(flag Fwd);
+    virtual bool   Forward();
+    virtual bool   Reverse();
+    virtual void   SetDirection(bool Fwd);
+  public:
+    bool           bFwd;
+
   };
 
 // ===========================================================================
@@ -160,11 +161,6 @@ DEFINE_TAGOBJ(PL_SoftStart)
 class PL_SoftStart : public PL_Basic
   {
   public:
-    double         dStartTime;
-    double         dMapLo;
-    double         dMapHi;
-    double         m_dMapSpeed;
-
     PL_SoftStart(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~PL_SoftStart();
 
@@ -174,6 +170,12 @@ class PL_SoftStart : public PL_Basic
     virtual void   EvalCtrlActions(FlwNode* pNd);
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
     virtual double Speed(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);
+
+  public:
+    double         dStartTime;
+    double         dMapLo;
+    double         dMapHi;
+    double         m_dMapSpeed;
   };
 
 // ===========================================================================
@@ -186,14 +188,6 @@ DEFINE_TAGOBJ(PL_SoftStSp)
 class PL_SoftStSp : public PL_Basic
   {
   public:
-    byte           iFwdRev;
-    flag           bRunRev;
-    double         dStartTime;
-    double         dStopTime;
-    double         dMapLo;
-    double         dMapHi;
-    double         m_dMapSpeed;
-
     PL_SoftStSp(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~PL_SoftStSp();
 
@@ -204,9 +198,18 @@ class PL_SoftStSp : public PL_Basic
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
     virtual double Speed(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);
 
-    virtual flag   Forward();
-    virtual flag   Reverse();
-    virtual void   SetDirection(flag Fwd);
+    virtual bool   Forward();
+    virtual bool   Reverse();
+    virtual void   SetDirection(bool Fwd);
+
+  public:
+    byte           iFwdRev;
+    bool           bRunRev;
+    double         dStartTime;
+    double         dStopTime;
+    double         dMapLo;
+    double         dMapHi;
+    double         m_dMapSpeed;
   };
 
 // ===========================================================================

@@ -147,18 +147,18 @@ void CIsolator::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag CIsolator::GetModelAction(MdlActionArray & Acts)
+flag CIsolator::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
-  Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_bOn, "On", 1));
-  Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_bOn, "Off", 0));
-  Acts.SetAtGrow(2, MdlAction(2, MAT_Switch));
+  Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_bOn, "On", 1));
+  Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_bOn, "Off", 0));
+  Acts.SetAtGrow(2, CMdlAction(2, MAT_Switch));
   return true;
   };
 
 //--------------------------------------------------------------------------
 
-flag CIsolator::SetModelAction(MdlAction & Act)
+flag CIsolator::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {
@@ -322,18 +322,18 @@ void CCctBreaker::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag CCctBreaker::GetModelAction(MdlActionArray & Acts)
+flag CCctBreaker::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
-  Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_bOn, "On", 1));
-  Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_bOn, "Off", 0));
-  Acts.SetAtGrow(2, MdlAction(2, MAT_Switch));
+  Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_bOn, "On", 1));
+  Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_bOn, "Off", 0));
+  Acts.SetAtGrow(2, CMdlAction(2, MAT_Switch));
   return true;
   };
 
 //--------------------------------------------------------------------------
 
-flag CCctBreaker::SetModelAction(MdlAction & Act)
+flag CCctBreaker::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

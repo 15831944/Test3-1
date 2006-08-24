@@ -226,14 +226,14 @@ void VL_Basic::SetActualPosition(double Posn)
 
 //---------------------------------------------------------------------------
 
-flag VL_Basic::On()
+bool VL_Basic::On()
   {
   return m_bOn && PwrOn();
   };
 
 //---------------------------------------------------------------------------
 
-void VL_Basic::SetOn(int On)
+void VL_Basic::SetOn(bool On)
   {
   m_bOn=On!=0;
   };
@@ -510,14 +510,14 @@ flag VL_StrokeOC::DataXchg(DataChangeBlk & DCB)
 
 //---------------------------------------------------------------------------
 
-flag VL_StrokeOC::On()
+bool VL_StrokeOC::On()
   {
   return m_bOn && PwrOn();
   };
 
 //---------------------------------------------------------------------------
 
-void VL_StrokeOC::SetOn(int On)
+void VL_StrokeOC::SetOn(bool On)
   {
   m_bOn=On!=0;
   };
@@ -526,7 +526,7 @@ void VL_StrokeOC::SetOn(int On)
 
 void VL_StrokeOC::EvalCtrlActions(FlwNode* pFNode)
   {
-  flag ActReqd=m_bActive;
+  bool ActReqd=m_bActive;
   switch (iMode)
     {
     case 0:

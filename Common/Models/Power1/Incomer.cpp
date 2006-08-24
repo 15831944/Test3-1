@@ -148,7 +148,7 @@ flag CIncomer::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidOn:
       if (DCB.rB)
-        m_bOn=*DCB.rB;
+        m_bOn=*DCB.rB!=0;
       DCB.B=m_bOn;
       return 1;
     }
@@ -490,18 +490,18 @@ void CIncomer::EvalDiscrete()
 
 //--------------------------------------------------------------------------
 
-flag CIncomer::GetModelAction(MdlActionArray & Acts)
+flag CIncomer::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
-  Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_bOn, "On", 1));
-  Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_bOn, "Off", 0));
-  Acts.SetAtGrow(2, MdlAction(2, MAT_Switch));
+  Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_bOn, "On", 1));
+  Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_bOn, "Off", 0));
+  Acts.SetAtGrow(2, CMdlAction(2, MAT_Switch));
   return true;
   };
 
 //--------------------------------------------------------------------------
 
-flag CIncomer::SetModelAction(MdlAction & Act)
+flag CIncomer::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

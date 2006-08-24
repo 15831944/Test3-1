@@ -279,6 +279,28 @@ dword CBBTransfer::ModelStatus()
 
 //--------------------------------------------------------------------------
 
+flag CBBTransfer::GetModelAction(CMdlActionArray & Acts)
+  {
+  return DoGetModelAction(Acts);
+  };
+flag CBBTransfer::SetModelAction(CMdlAction & Act)
+  {
+  return DoSetModelAction(Act);
+  };
+
+//--------------------------------------------------------------------------
+
+flag CBBTransfer::GetModelGraphic(CMdlGraphicArray & Grfs)
+  {
+  return DoGetModelGraphic(Grfs);
+  };
+flag CBBTransfer::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
+  {
+  return DoOperateModelGraphic(Wnd, Grf);
+  };
+
+//--------------------------------------------------------------------------
+
 void    CBBTransfer::MacroMdlEvaluate(eScdMacroMdlEvals Eval) { DoMacroMdlEvaluate(Eval);      };
 flag    CBBTransfer::MacroMdlValidNd(int iIONo)               { return DoMacroMdlValidNd(iIONo); };
 void    CBBTransfer::MacroMdlAddNd(int iIONo)                 { DoMacroMdlAddNd(iIONo);          };

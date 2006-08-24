@@ -52,8 +52,8 @@ class CAirLink : public FlwNode
     virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All);
     virtual void   EvalDiscrete();
 
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CAirLink, FlwNode, 4);

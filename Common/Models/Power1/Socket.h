@@ -33,30 +33,11 @@ DEFINE_TAGOBJ(CSocket);
 class CSocket : public FlwNode
   {
   public:
-    //flag           m_bOn; 
-    flag           m_bPresent;
-    CElecSupply    m_Supply;
-    Strng          m_sTargetTag;
-    //eTSConfigurations m_nType;
-    //double         m_dVolts;
-
-    CPwrUserSocket m_Socket;
-
-    CETermStrip    m_tsPwrIn;
-    CETermStrip    m_tsPwrOut;
-
-    double         m_dRqdPower;
-    double         m_dRqdPwrFct;
-
     CSocket(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CSocket();
     virtual void   ResetData(flag Complete);
+
   public:
-
-    //virtual char * EIO_ConnIDStr(int i) { if (NoElecIOs()<2) return FullObjTag(); return EIO_GetConnIDStr(OtherEnd(i)); };
-    //virtual char * AIO_ConnIDStr(int i) { if (NoAirIOs()<2) return FullObjTag(); return AIO_GetConnIDStr(OtherEnd(i)); };
-
-    //virtual void   PostConnect(int IONo);
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
@@ -68,11 +49,25 @@ class CSocket : public FlwNode
     virtual void   ConnectElectrics();
     virtual void   EvalPowerRequired();
     
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CSocket, FlwNode, 4);
+
+  public:
+    bool           m_bPresent;
+    CElecSupply    m_Supply;
+    Strng          m_sTargetTag;
+
+    CPwrUserSocket m_Socket;
+
+    CETermStrip    m_tsPwrIn;
+    CETermStrip    m_tsPwrOut;
+
+    double         m_dRqdPower;
+    double         m_dRqdPwrFct;
+
   };
   
 //===========================================================================

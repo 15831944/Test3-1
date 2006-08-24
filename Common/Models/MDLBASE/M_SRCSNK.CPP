@@ -448,23 +448,23 @@ int MN_SrcSnk::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //--------------------------------------------------------------------------
 
-flag MN_SrcSnk::GetModelAction(MdlActionArray & Acts)
+flag MN_SrcSnk::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction {MAT_NULL, MAT_State, MAT_Value};
+  //CMdlAction {MAT_NULL, MAT_State, MAT_Value};
 
-  MdlAction M0(0, MAT_Value, SSMode&SSM_ConstP && fabs(Contents.PRqd()-Std_P)>0.1,
+  CMdlAction M0(0, MAT_Value, SSMode&SSM_ConstP && fabs(Contents.PRqd()-Std_P)>0.1,
     "Pressure (kPa)", false,
     (Contents.PRqd()-Std_P)*P_RegB.Output(), 0.0, Contents.PRqd()-Std_P);
 
-  MdlAction M1(1, MAT_Value, SSMode&SSM_ConstQm && fabs(Contents.QmRqd())>1.0e-3,
+  CMdlAction M1(1, MAT_Value, SSMode&SSM_ConstQm && fabs(Contents.QmRqd())>1.0e-3,
     "Flow (kg/s)", false,
     (Contents.QmRqd())*P_RegB.Output(), 0.0, Contents.QmRqd());
 
-  MdlAction M2(2, MAT_Value, 1,
+  CMdlAction M2(2, MAT_Value, 1,
     "Temperature (%)", false,
     K_2_C(Contents.TRqd())*T_RegB.Output(), 0.0, K_2_C(Contents.TRqd()));
 
-  MdlAction M3(3, MAT_Follow, 1,
+  CMdlAction M3(3, MAT_Follow, 1,
     "Find Connected"/*sConnectedTag()*/, false,
     0.0, 0.0, 0.0);
 
@@ -479,7 +479,7 @@ flag MN_SrcSnk::GetModelAction(MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag MN_SrcSnk::SetModelAction(MdlAction & Act)
+flag MN_SrcSnk::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

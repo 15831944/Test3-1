@@ -248,12 +248,12 @@ void GasPump_GP::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag GasPump_GP::GetModelAction(MdlActionArray & Acts)
+flag GasPump_GP::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction {MAT_NULL, MAT_State, MAT_Value};
-  MdlAction M0(0, MAT_State, !m_PSB.On(), "Start", 1);
-  MdlAction M1(1, MAT_State, m_PSB.On(),  "Stop", 0);
-  MdlAction M2(2, MAT_Value, m_PSB.On(),  "Speed (%)", true,
+  //CMdlAction {MAT_NULL, MAT_State, MAT_Value};
+  CMdlAction M0(0, MAT_State, !m_PSB.On(), "Start", 1);
+  CMdlAction M1(1, MAT_State, m_PSB.On(),  "Stop", 0);
+  CMdlAction M2(2, MAT_Value, m_PSB.On(),  "Speed (%)", true,
                 m_PSB.ManualSpeed(this)*100, 0.0, 100.0,
                 m_PSB.Speed(this, &m_FRB)*100);
 
@@ -261,13 +261,13 @@ flag GasPump_GP::GetModelAction(MdlActionArray & Acts)
   Acts.SetAtGrow(0, M0);
   Acts.SetAtGrow(1, M1);
   Acts.SetAtGrow(2, M2);
-  Acts.SetAtGrow(3, MdlAction(3, MAT_Switch));
+  Acts.SetAtGrow(3, CMdlAction(3, MAT_Switch));
   return True;
   }
 
 //--------------------------------------------------------------------------
 
-flag GasPump_GP::SetModelAction(MdlAction & Act)
+flag GasPump_GP::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

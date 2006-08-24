@@ -199,18 +199,18 @@ void CSocket::EvalPowerRequired()
 
 //--------------------------------------------------------------------------
 
-flag CSocket::GetModelAction(MdlActionArray & Acts)
+flag CSocket::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
-  Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_Socket.On(), "On", 1));
-  Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_Socket.On(), "Off", 0));
-  Acts.SetAtGrow(2, MdlAction(2, MAT_Switch));
+  Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_Socket.On(), "On", 1));
+  Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_Socket.On(), "Off", 0));
+  Acts.SetAtGrow(2, CMdlAction(2, MAT_Switch));
   return true;
   };
 
 //--------------------------------------------------------------------------
 
-flag CSocket::SetModelAction(MdlAction & Act)
+flag CSocket::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

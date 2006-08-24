@@ -9,6 +9,7 @@
 #include "md_vector.h"
 #include "md_share2.h"
 #include "md_share3.h"
+#include "md_share4.h"
 
 #ifdef __MD_METHOD_CPP
   #define DllImportExport __declspec(dllexport)
@@ -776,6 +777,12 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     virtual void    ClosureInfo(MClosureInfo & CI) {};
 
     virtual void    SetState(MStatesToSet SS)     {}; // on demand to initialise the state
+
+    virtual bool    GetModelAction(CMdlActionArray & Acts)   { return false; };
+    virtual bool    SetModelAction(CMdlAction & Act)         { return false; };
+
+    virtual bool    GetModelGraphic(CMdlGraphicArray & Grfs) { return false; };
+    virtual bool    OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return false; };
 
   public:// MacroModels (eg Flash Train)
     virtual void    MacroMdlEvaluate(eScdMacroMdlEvals Eval)  {};

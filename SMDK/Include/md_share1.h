@@ -172,7 +172,7 @@ inline double Pow(double a, double b) { return (b == 0.0 ? 1.0 : (a == 0.0 ? 0.0
 const double PI           =   3.14159265358979;
 const double Gc           =   9.81;
 const double Gc_Kpa       =   (9.81 * 0.001);
- //Universal Gas Constant =   8.314472  +/- 0.000015 J /mol, K
+//Universal Gas Constant =   8.314472  +/- 0.000015 J /mol, K
 //see: http://nvl.nist.gov/pub/nistpubs/sp958-lide/339-343.pdf  http://physics.nist.gov/cuu/Constants/index.html  http://www.codata.org/
 const double R_c          =   (8.314472  /* kPa, m^3/kg-mole, K */);
 const double ZeroCinK     =   273.16; //This should be 273.15 NEEDS changing in a future version!
@@ -292,10 +292,6 @@ typedef short CCnvIndex;
 //SMDK Exception:
 class MMdlException
   {
-  protected:
-    long    m_lId;
-    CString m_Desc;
-
   public:
     MMdlException(long Id, LPCSTR Desc)
       {
@@ -308,6 +304,10 @@ class MMdlException
 
     __declspec(property(get=getDescription)) LPCSTR Description;
     __declspec(property(get=getId))          long   Id;
+
+  protected:
+    long    m_lId;
+    CString m_Desc;
   };
 
 //---------------------------------------------------------------------------
@@ -315,10 +315,6 @@ class MMdlException
 //System Exception:
 class MSysException
   {
-  private:
-    unsigned int m_nCode;
-    unsigned int m_nAdd;
-    char m_sName[128];
   public:
     //..MSysException() {}
     MSysException( unsigned int n,void * a, LPCTSTR d)
@@ -342,6 +338,10 @@ class MSysException
     __declspec(property(get=getDescription))   CString      Description;
     __declspec(property(get=getIsFPP))         bool         IsFPP;
 
+  private:
+    unsigned int m_nCode;
+    unsigned int m_nAdd;
+    char m_sName[128];
   };
 
 #if !_MANAGED
@@ -451,11 +451,11 @@ DllImportExport void DoAssert1(char * pMsg);
 #define SCD_VERINFO_V3   SCD_BUILDNO           /* Compatible Version - should change every time a version is issued*/
 
 #ifdef _DEBUG
-  #define _MAKENAME "Debug"
+#define _MAKENAME "Debug"
 #elif  _RELEASE
-  #define _MAKENAME "Release"
+#define _MAKENAME "Release"
 #else
-  #define _MAKENAME "Dbg_Release"
+#define _MAKENAME "Dbg_Release"
 #endif
 
 // ========================================================================

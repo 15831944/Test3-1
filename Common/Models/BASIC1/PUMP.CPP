@@ -302,21 +302,21 @@ void Pump_GP::ConnectElectrics()
 
 //--------------------------------------------------------------------------
 
-flag Pump_GP::GetModelAction(MdlActionArray & Acts)
+flag Pump_GP::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
-  Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_PSB.On(), "Start", 1));
-  Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_PSB.On(),  "Stop", 0));
-  Acts.SetAtGrow(2, MdlAction(2, MAT_Value, m_PSB.On(),  "Speed (%)", true,
+  Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_PSB.On(), "Start", 1));
+  Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_PSB.On(),  "Stop", 0));
+  Acts.SetAtGrow(2, CMdlAction(2, MAT_Value, m_PSB.On(),  "Speed (%)", true,
                                     m_PSB.ManualSpeed(this)*100, 0.0, 100.0,      
                                     m_PSB.Speed(this, &m_FRB)*100));                       
-  Acts.SetAtGrow(3, MdlAction(3, MAT_Switch));
+  Acts.SetAtGrow(3, CMdlAction(3, MAT_Switch));
   return True;
   }
 
 //--------------------------------------------------------------------------
 
-flag Pump_GP::SetModelAction(MdlAction & Act)
+flag Pump_GP::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

@@ -32,11 +32,6 @@ DEFINE_TAGOBJ(CIsolator);
 class CIsolator : public FlwNode
   {
   public:
-    flag           m_bOn;  
-    CETermStrip    m_tsPwrIn;
-    CETermStrip    m_tsPwrOut;
-    //CArray<CEComponent*,CEComponent*> m_Component;
-
     CIsolator(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CIsolator();
     virtual void   ResetData(flag Complete);
@@ -52,11 +47,17 @@ class CIsolator : public FlwNode
     virtual void   CollectElectrics(CNodeElectricsArray & TSCA);
     virtual void   ConnectElectrics();
 
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CIsolator, FlwNode, 4);
+
+  public:
+    bool           m_bOn;  
+    CETermStrip    m_tsPwrIn;
+    CETermStrip    m_tsPwrOut;
+
   };
   
 //===========================================================================
@@ -65,16 +66,11 @@ DEFINE_TAGOBJ(CCctBreaker);
 class CCctBreaker : public FlwNode
   {
   public:
-    flag           m_bOn;  
-    CETermStrip    m_tsPwrIn;
-    CETermStrip    m_tsPwrOut;
-    //CArray<CEComponent*,CEComponent*> m_Component;
-
     CCctBreaker(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CCctBreaker();
     virtual void   ResetData(flag Complete);
-  public:
 
+  public:
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg) { if (NoEIOs()<2) ID=Tg=FullObjTag(); else Ctrl_GetConnIDStr(OtherEnd(i), ID, Tg); };
 
     //virtual void   PostConnect(int IONo);
@@ -85,11 +81,16 @@ class CCctBreaker : public FlwNode
     virtual void   CollectElectrics(CNodeElectricsArray & TSCA);
     virtual void   ConnectElectrics();
 
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CCctBreaker, FlwNode, 4);
+
+  public:
+    bool           m_bOn;  
+    CETermStrip    m_tsPwrIn;
+    CETermStrip    m_tsPwrOut;
   };
   
 //===========================================================================

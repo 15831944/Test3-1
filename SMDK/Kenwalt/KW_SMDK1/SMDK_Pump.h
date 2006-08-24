@@ -14,13 +14,13 @@ class CPumpValve : public MBaseMethod
     CPumpValve(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual ~CPumpValve(void);
 
-    virtual void Init();
-    virtual void BuildDataFields();
-    virtual bool ExchangeDataFields();
-    virtual bool ValidateDataFields();
-    virtual void EvalProducts();
-    virtual bool EvalJoinPressures();
-    virtual void ClosureInfo(MClosureInfo & CI);
+    virtual void    Init();
+    virtual void    BuildDataFields();
+    virtual bool    ExchangeDataFields();
+    virtual bool    ValidateDataFields();
+    virtual void    EvalProducts();
+    virtual bool    EvalJoinPressures();
+    virtual void    ClosureInfo(MClosureInfo & CI);
 
   protected:
     // Params

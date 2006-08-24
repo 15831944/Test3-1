@@ -93,6 +93,12 @@ class DllImportExport CBBBase
 
     void      DoSetState(eScdMdlStateActs RqdState);
 
+    flag      DoGetModelAction(CMdlActionArray & Acts);
+    flag      DoSetModelAction(CMdlAction & Act);
+              
+    flag      DoGetModelGraphic(CMdlGraphicArray & Grfs);
+    flag      DoOperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
+
     void      DoMacroMdlEvaluate(eScdMacroMdlEvals Eval);
     flag      DoMacroMdlValidNd(int iIONo);  
     void      DoMacroMdlAddNd(int iIONo);    

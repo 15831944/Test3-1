@@ -450,9 +450,9 @@ flag MN_Area::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-flag MN_Area::GetModelAction(MdlActionArray & Acts)
+flag MN_Area::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction M0(0, MAT_Value, SSMode&SSM_ConstP && fabs(m_Content.PRqd()-Std_P)>0.1,
+  //CMdlAction M0(0, MAT_Value, SSMode&SSM_ConstP && fabs(m_Content.PRqd()-Std_P)>0.1,
   //                "Pressure (kPa)", false,
   //                (m_Content.PRqd()-Std_P)*P_RegB.Output(), 0.0, m_Content.PRqd()-Std_P);
 
@@ -467,7 +467,7 @@ flag MN_Area::GetModelAction(MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag MN_Area::SetModelAction(MdlAction & Act)
+flag MN_Area::SetModelAction(CMdlAction & Act)
   {
   //switch (Act.iIndex)
   //  {

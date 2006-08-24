@@ -558,10 +558,10 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     void           FE_SetSpModelFixupStrategy(long Strategy);
 
     void           EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags);
-    flag           EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts);
-    flag           EO_SetModelAction(LPCTSTR Tag, MdlAction & Act);
+    flag           EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts);
+    flag           EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act);
     
-    flag           EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grf);
+    flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
     // Executiv Overrides

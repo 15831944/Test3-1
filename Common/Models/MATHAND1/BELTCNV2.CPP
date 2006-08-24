@@ -1335,12 +1335,12 @@ flag BeltCnv2::CIStrng(int No, pchar & pS)
 
 //--------------------------------------------------------------------------
 
-flag BeltCnv2::GetModelAction(MdlActionArray & Acts)
+flag BeltCnv2::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction {MAT_NULL, MAT_State, MAT_Value};
-  MdlAction M0(0, MAT_State, !m_BeltSB.On(), "Start", 1);
-  MdlAction M1(1, MAT_State, m_BeltSB.On(),  "Stop", 0);
-  MdlAction M2(2, MAT_Value, m_BeltSB.On(),  "Speed (%)", true,
+  //CMdlAction {MAT_NULL, MAT_State, MAT_Value};
+  CMdlAction M0(0, MAT_State, !m_BeltSB.On(), "Start", 1);
+  CMdlAction M1(1, MAT_State, m_BeltSB.On(),  "Stop", 0);
+  CMdlAction M2(2, MAT_Value, m_BeltSB.On(),  "Speed (%)", true,
                   m_BeltSB.ManualSpeed(this)*100, 0.0, 100.0,
                   m_BeltSB.Speed(this)*100);
 
@@ -1348,13 +1348,13 @@ flag BeltCnv2::GetModelAction(MdlActionArray & Acts)
   Acts.SetAtGrow(0, M0);
   Acts.SetAtGrow(1, M1);
   Acts.SetAtGrow(2, M2);
-  Acts.SetAtGrow(3, MdlAction(3, MAT_Switch));
+  Acts.SetAtGrow(3, CMdlAction(3, MAT_Switch));
   return True;
   }
 
 //--------------------------------------------------------------------------
 
-flag BeltCnv2::SetModelAction(MdlAction & Act)
+flag BeltCnv2::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {
@@ -1376,7 +1376,7 @@ flag BeltCnv2::SetModelAction(MdlAction & Act)
 
 //--------------------------------------------------------------------------
 
-flag BeltCnv2::GetModelGraphic(MdlGraphicArray & Grfs)
+flag BeltCnv2::GetModelGraphic(CMdlGraphicArray & Grfs)
   {
   CMdlGraphic G0(0, MGT_Simple, true, "Show Profile", 1);
 
@@ -1442,7 +1442,7 @@ flag BeltCnv2::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
         Wnd.m_pDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(0,255,0)));
         Wnd.m_pDC->SetTextColor(Green);
         CString S;
-        S.Format("%.1f kg/s", CursLd);
+        S.Format("%.1f kg/m", CursLd);
         Wnd.m_pDC->TextOut(0,0,S);
         }
 

@@ -37,8 +37,8 @@ class DllImportExport Valve_GP : public MN_BstRes
     virtual void   BuildDataDefn(DataDefnBlk &DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
     virtual bool   IsXRefListActive();
@@ -61,15 +61,15 @@ DEFINE_TAGOBJ(Valve_NR)
 class DllImportExport Valve_NR : public MN_BstRes
   {
   public:
-    byte           fForceOpen;
+    bool           fForceOpen;
 
     Valve_NR(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~Valve_NR (){};
     virtual void   BuildDataDefn(DataDefnBlk &DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual void   ConfigureJoins();
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual dword  ModelStatus();

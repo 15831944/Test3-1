@@ -284,29 +284,29 @@ flag Valve_GP::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag Valve_GP::GetModelAction(MdlActionArray & Acts)
+flag Valve_GP::GetModelAction(CMdlActionArray & Acts)
   {
   Acts.SetSize(0);
-  Acts.SetAtGrow(0, MdlAction(0, MAT_State, !m_VPB.On(), "Open", 1));
-  Acts.SetAtGrow(1, MdlAction(1, MAT_State, m_VPB.On(),  "Close", 0));
-  Acts.SetAtGrow(2, MdlAction(2, MAT_Value, m_VPB.On(),  "Manual Posn (%)", true,
+  Acts.SetAtGrow(0, CMdlAction(0, MAT_State, !m_VPB.On(), "Open", 1));
+  Acts.SetAtGrow(1, CMdlAction(1, MAT_State, m_VPB.On(),  "Close", 0));
+  Acts.SetAtGrow(2, CMdlAction(2, MAT_Value, m_VPB.On(),  "Manual Posn (%)", true,
                                       m_VPB.ManualPosition(this)*100, 0.0, 100.0,     
                                       m_VPB.ActualPosition(this, &m_FRB)*100));                
-  Acts.SetAtGrow(3, MdlAction(3, MAT_Switch));
+  Acts.SetAtGrow(3, CMdlAction(3, MAT_Switch));
   return True;
   }
 
 //--------------------------------------------------------------------------
 
-flag Valve_GP::SetModelAction(MdlAction & Act)
+flag Valve_GP::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {
     case 0:
-      m_VPB.SetOn(Act.iValue);
+      m_VPB.SetOn(Act.iValue!=0);
       break;
     case 1:
-      m_VPB.SetOn(Act.iValue);
+      m_VPB.SetOn(Act.iValue!=0);
       break;
     case 2:
       m_VPB.SetManualPosition(Act.dValue*0.01);
@@ -655,11 +655,11 @@ flag Valve_NR::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag Valve_NR::GetModelAction(MdlActionArray & Acts)
+flag Valve_NR::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction {MAT_NULL, MAT_State, MAT_Value};
-  MdlAction M0(0, MAT_State, !fForceOpen, "Force Open", 1);
-  MdlAction M1(1, MAT_State, fForceOpen,  "Operate", 0);
+  //CMdlAction {MAT_NULL, MAT_State, MAT_Value};
+  CMdlAction M0(0, MAT_State, !fForceOpen, "Force Open", 1);
+  CMdlAction M1(1, MAT_State, fForceOpen,  "Operate", 0);
 
   Acts.SetSize(0);
   Acts.SetAtGrow(0, M0);
@@ -669,7 +669,7 @@ flag Valve_NR::GetModelAction(MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag Valve_NR::SetModelAction(MdlAction & Act)
+flag Valve_NR::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

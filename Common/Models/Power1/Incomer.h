@@ -32,32 +32,7 @@
 DEFINE_TAGOBJ(CIncomer);
 class CIncomer : public FlwNode
   {
-  protected:
-    Strng          sConnectTag;
-    Strng          sConnectedTag;
-    flag           fConnectionOn;
-    flag           fConnectInitiator;
-    flag           fCrossConnected;
-    flag           fGlblConnectsInPlace;
-    flag           m_bIAmOut;
-
-    CIncomer      *pConnectedTo;
-    int            iConnectedIO;
-
   public:
-    flag           m_bOn;
-    flag           m_bPresent;
-    //eTSConfigurations m_nType;
-    double         m_dVolts;
-    double         m_dXfrPower;
-    double         m_dXfrPwrFct;
-
-    //CElecSupply    m_Supply;
-    //pComponentCPwrUserSocket m_Socket;
-
-    CETermStrip    m_tsPwrIn;
-    CETermStrip    m_tsPwrOut;
-
     CIncomer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CIncomer();
     virtual void   ResetData(flag Complete);
@@ -82,11 +57,35 @@ class CIncomer : public FlwNode
     virtual void   ConnectElectrics();
     virtual void   EvalDiscrete();
     
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
     virtual dword  ModelStatus();
     
     DEFINE_CI(CIncomer, FlwNode, 4);
+
+  protected:
+    Strng          sConnectTag;
+    Strng          sConnectedTag;
+    bool           fConnectionOn;
+    bool           fConnectInitiator;
+    bool           fCrossConnected;
+    bool           fGlblConnectsInPlace;
+    bool           m_bIAmOut;
+
+    CIncomer      *pConnectedTo;
+    int            iConnectedIO;
+
+  public:
+    bool           m_bOn;
+    bool           m_bPresent;
+    //eTSConfigurations m_nType;
+    double         m_dVolts;
+    double         m_dXfrPower;
+    double         m_dXfrPwrFct;
+
+    CETermStrip    m_tsPwrIn;
+    CETermStrip    m_tsPwrOut;
+
   };
   
 //===========================================================================

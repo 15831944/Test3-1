@@ -117,8 +117,8 @@ class DllImportExport C4PortValve  : public MdlNode
     virtual void      BuildDataDefn(DataDefnBlk & DDB);
     virtual flag      DataXchg(DataChangeBlk & DCB);
     virtual flag      ValidateData(ValidateDataBlk & VDB);
-    virtual flag      GetModelAction(MdlActionArray & Acts);
-    virtual flag      SetModelAction(MdlAction & Act);
+    virtual flag      GetModelAction(CMdlActionArray & Acts);
+    virtual flag      SetModelAction(CMdlAction & Act);
 
     virtual CFlange * GetFlange(int IOId);
     void              CreateConfigFile(LPCTSTR Fn);

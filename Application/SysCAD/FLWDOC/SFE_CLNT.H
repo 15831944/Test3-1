@@ -158,10 +158,10 @@ class SFEFlwLib : public SFEMdlLib, CExecObj
     dword          GetNumStatusColourChgs() { LockStatus(); dword dw=m_nStatusColourChgs; FreeStatus(); return dw; };
         
     void           EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) ;
-    flag           EO_GetModelAction(LPCTSTR Tag, MdlActionArray & Acts);
-    flag           EO_SetModelAction(LPCTSTR Tag, MdlAction & Acts);
+    flag           EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts);
+    flag           EO_SetModelAction(LPCTSTR Tag, CMdlAction & Acts);
 
-    flag           EO_GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grf);
+    flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);

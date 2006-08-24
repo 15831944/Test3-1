@@ -1410,6 +1410,10 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
       { CheckBox(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
     void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
+      { CheckBox(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); };
+    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
+      { CheckBox(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
 
     void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);

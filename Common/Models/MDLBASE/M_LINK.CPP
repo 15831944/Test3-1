@@ -1804,14 +1804,14 @@ long MN_Lnk::CheckDataRanges(bool CheckIO)
 
 //--------------------------------------------------------------------------
 
-flag MN_Lnk::GetModelAction(MdlActionArray & Acts)
+flag MN_Lnk::GetModelAction(CMdlActionArray & Acts)
   {
-  MdlAction M0(0, MAT_State, !cioOn.On(), "Open", 1);
-  MdlAction M1(1, MAT_State, cioOn.On(),  "Close", 0);
-  MdlAction M2(2, MAT_Config, true,  "Flow Characteristics\tSet Properties", 0);
-  MdlAction M3(3, MAT_Config, true,  "Flow Characteristics\tClr Properties", 0);
-  MdlAction M4(4, MAT_Config, true,  "Flow Characteristics\tSet Linearisation", 0);
-  MdlAction M5(5, MAT_Config, true,  "Flow Characteristics\tClr Linearisation", 0);
+  CMdlAction M0(0, MAT_State, !cioOn.On(), "Open", 1);
+  CMdlAction M1(1, MAT_State, cioOn.On()!=0,  "Close", 0);
+  CMdlAction M2(2, MAT_Config, true,  "Flow Characteristics\tSet Properties", 0);
+  CMdlAction M3(3, MAT_Config, true,  "Flow Characteristics\tClr Properties", 0);
+  CMdlAction M4(4, MAT_Config, true,  "Flow Characteristics\tSet Linearisation", 0);
+  CMdlAction M5(5, MAT_Config, true,  "Flow Characteristics\tClr Linearisation", 0);
 
   Acts.SetSize(0);
   Acts.SetAtGrow(0, M0);
@@ -1820,13 +1820,13 @@ flag MN_Lnk::GetModelAction(MdlActionArray & Acts)
   Acts.SetAtGrow(3, M3);
   Acts.SetAtGrow(4, M4);
   Acts.SetAtGrow(5, M5);
-  Acts.SetAtGrow(6, MdlAction(6, MAT_Switch));
+  Acts.SetAtGrow(6, CMdlAction(6, MAT_Switch));
   return True;
   };
 
 //--------------------------------------------------------------------------
 
-flag MN_Lnk::SetModelAction(MdlAction & Act)
+flag MN_Lnk::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {

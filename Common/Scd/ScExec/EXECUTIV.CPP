@@ -4679,7 +4679,7 @@ void CExecutive::SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
 
 //---------------------------------------------------------------------------
 
-flag CExecutive::GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)
+flag CExecutive::GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)
   {
   if (m_pSolver)
     {
@@ -4705,7 +4705,7 @@ flag CExecutive::GetModelAction(LPCTSTR Tag, MdlActionArray & Acts)
 
 //---------------------------------------------------------------------------
 
-flag CExecutive::SetModelAction(LPCTSTR Tag, MdlAction & Act)
+flag CExecutive::SetModelAction(LPCTSTR Tag, CMdlAction & Act)
   {
   if (m_pSolver)
     {
@@ -4731,7 +4731,7 @@ flag CExecutive::SetModelAction(LPCTSTR Tag, MdlAction & Act)
 
 //---------------------------------------------------------------------------
 
-flag CExecutive::GetModelGraphic(LPCTSTR Tag, MdlGraphicArray & Grfs)
+flag CExecutive::GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
   {
   if (m_pSolver)
     {

@@ -34,17 +34,6 @@
 class VL_Base : public CIO_Logic
   {
   public:
-    flag           m_bOn;
-    double         dPosition;
-    double         dReqdPosition;
-    double         dManualPosition;
-    float          dMinOpening;
-    float          dMaxOpening;
-    float          dLeakOpening;
-    double         dPhysPosn;
-    flag           bReverseAction;
-    //Strng          m_sConnIDStr;
-
     VL_Base(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~VL_Base();
 
@@ -52,8 +41,8 @@ class VL_Base : public CIO_Logic
     virtual flag   DataXchg(DataChangeBlk & DCB)=0;
     virtual flag   CopyFrom(CIO_Logic * pOther);
  
-    virtual flag   On()=0;
-    virtual void   SetOn(int On)=0;                  
+    virtual bool   On()=0;
+    virtual void   SetOn(bool On)=0;                  
     virtual void   SetManualPosition(double P)     { dManualPosition=P; };    
     virtual void   SetReqdPosition(double P)       { dReqdPosition=P; };      
     virtual void   SetActualPosition(double Posn) { dPosition=Posn; };
@@ -61,6 +50,17 @@ class VL_Base : public CIO_Logic
     virtual double ReqdPosition(FlwNode* pFNode)   { return dReqdPosition; };  
     virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL)=0;   
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
+
+  public:
+    bool           m_bOn;
+    double         dPosition;
+    double         dReqdPosition;
+    double         dManualPosition;
+    float          dMinOpening;
+    float          dMaxOpening;
+    float          dLeakOpening;
+    double         dPhysPosn;
+    bool           bReverseAction;
   };
 
 // ===========================================================================
@@ -73,14 +73,6 @@ DEFINE_TAGOBJ(VL_Basic)
 class VL_Basic : public VL_Base
   {
   public:
-    flag           bNormClosed;
-    flag           bOpenCmd;
-    flag           bCloseCmd;
-    flag           bLatchCmds;
-    long           iLatchState;
-    flag           bOpened;
-    flag           bClosed;
-
     VL_Basic(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~VL_Basic();
 
@@ -92,13 +84,22 @@ class VL_Basic : public VL_Base
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
     virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);
     virtual void   SetActualPosition(double Posn);
-    virtual flag   On();
-    virtual void   SetOn(int On);
+    virtual bool   On();
+    virtual void   SetOn(bool On);
 
     virtual void   SetManualPosition(double P) { dManualPosition=P; };    
     virtual void   SetReqdPosition(double P)   { dReqdPosition=P; };      
     virtual double ManualPosition(FlwNode* pFNode) { return dManualPosition; };
     virtual double ReqdPosition(FlwNode* pFNode)   { return dReqdPosition; };  
+
+  public:
+    bool           bNormClosed;
+    bool           bOpenCmd;
+    bool           bCloseCmd;
+    bool           bLatchCmds;
+    long           iLatchState;
+    bool           bOpened;
+    bool           bClosed;
 
   };
 
@@ -117,8 +118,8 @@ class DllImportExport CIO_VlvPosBlk : public CIO_Blk
       CIO_Blk("VlvPos", Name, pAttach, pPwr){ };
     virtual ~CIO_VlvPosBlk() {};
 
-    flag           On() { return ((VL_Base*)pLogic)->On();};
-    void           SetOn(int On) { ((VL_Base*)pLogic)->SetOn(On); };
+    bool           On() { return ((VL_Base*)pLogic)->On();};
+    void           SetOn(bool On) { ((VL_Base*)pLogic)->SetOn(On); };
     void           SetManualPosition(double P) { ((VL_Base*)pLogic)->SetManualPosition(P); };
     void           SetReqdPosition(double P)   { ((VL_Base*)pLogic)->SetReqdPosition(P); };
     void           SetActualPosition(double P) { ((VL_Base*)pLogic)->SetActualPosition(P); };
@@ -158,26 +159,6 @@ DEFINE_TAGOBJ(VL_StrokeOC)
 class VL_StrokeOC : public VL_Base
   {
   public:
-    flag           m_bActive;
-    flag           bActMemory;
-    flag           bNormClosed;
-    flag           bOpenCmd;
-    flag           bCloseCmd;
-    flag           bLoLimit;
-    flag           bHiLimit;
-
-    byte           iMode;
-    flag           bOpenInv;
-    flag           bCloseInv;
-    double         dOpenTime;
-    double         dCloseTime;
-    double         dMapLo;
-    double         dMapHi;
-    double         dMapPosn;
-    float          dLoLimit;
-    float          dHiLimit;
-
-
     VL_StrokeOC(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~VL_StrokeOC();
 
@@ -187,9 +168,29 @@ class VL_StrokeOC : public VL_Base
     virtual void   EvalCtrlActions(FlwNode* pNd);
     virtual void   EvalCtrlStrategy(FlwNode* pNd) {};
 
-    virtual flag   On();
-    virtual void   SetOn(int On);                  
+    virtual bool   On();
+    virtual void   SetOn(bool On);                  
     virtual double ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB=NULL);   
+
+  public:
+    bool           m_bActive;
+    bool           bActMemory;
+    bool           bNormClosed;
+    bool           bOpenCmd;
+    bool           bCloseCmd;
+    bool           bLoLimit;
+    bool           bHiLimit;
+
+    byte           iMode;
+    bool           bOpenInv;
+    bool           bCloseInv;
+    double         dOpenTime;
+    double         dCloseTime;
+    double         dMapLo;
+    double         dMapHi;
+    double         dMapPosn;
+    float          dLoLimit;
+    float          dHiLimit;
   };
 
 // ===========================================================================

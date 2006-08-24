@@ -49,7 +49,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -115,6 +115,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -148,7 +150,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				RuntimeLibrary="3"
 				FloatingPointModel="1"
@@ -214,6 +216,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -247,7 +251,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
@@ -313,6 +317,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -349,7 +355,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -415,6 +421,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -451,7 +459,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -512,6 +520,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -597,6 +607,10 @@
 			</File>
 			<File
 				RelativePath=".\font.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\md_share4.cpp"
 				>
 			</File>
 			<File

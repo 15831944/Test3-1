@@ -242,8 +242,8 @@ class DllImportExport MN_Area : public MdlNode
     virtual long   CheckDataRanges(bool CheckIO);
     virtual flag   PreStartCheck();
 
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
 
     virtual long   NodeFlwTask(NodeFlwTasks Task);
 

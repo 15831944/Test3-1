@@ -110,10 +110,10 @@ class BeltCnv2 : public MdlNode
 
     virtual dword  ModelStatus();
 
-    virtual flag   GetModelAction(MdlActionArray & Acts);
-    virtual flag   SetModelAction(MdlAction & Act);
+    virtual flag   GetModelAction(CMdlActionArray & Acts);
+    virtual flag   SetModelAction(CMdlAction & Act);
 
-    virtual flag   GetModelGraphic(MdlGraphicArray & Grfs);
+    virtual flag   GetModelGraphic(CMdlGraphicArray & Grfs);
     virtual flag   OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
     // ConditionBlk Override

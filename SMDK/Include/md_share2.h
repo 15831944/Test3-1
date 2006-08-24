@@ -65,7 +65,7 @@ const long NSHM_All         = NM_All | SM_All | HM_All;
 
 const DDEF_Flags DDEF_NOCOMPARE           = 0x0000000000040000;// Maybe masked out ??
 const DDEF_Flags DDEF_NAN_OK              = 0x0000000000080000;
-                                                           
+
 const DDEF_Flags DDEF_NOFILE              = 0x0000000000100000;
 const DDEF_Flags DDEF_NOVIEW              = 0x0000000000200000;
 const DDEF_Flags DDEF_NOSNAPSHOT          = 0x0000000000400000;
@@ -427,15 +427,11 @@ class SpMArray;
 
 class DllImportExport MToleranceBlock
   {
-  protected:
-    CToleranceBlock * m_TolBlk;
-
   public:
-
     MToleranceBlock(DWORD Use, LPCTSTR Name, double Abs, double Rel, long MaxIters=100, 
-                    DWORD Flags=(TBF_UseMax|TBF_UseAbs|TBF_UseRel),
-                    CCnvIndex AbsIndex=MC_Frac, LPCTSTR AbsTxt="%");
-   
+      DWORD Flags=(TBF_UseMax|TBF_UseAbs|TBF_UseRel),
+      CCnvIndex AbsIndex=MC_Frac, LPCTSTR AbsTxt="%");
+
     virtual ~MToleranceBlock();
 
     void      SetMaxIters(double MaxIters);
@@ -451,11 +447,11 @@ class DllImportExport MToleranceBlock
     double    GetRel();          
     double    GetAbsMult();      
     double    GetRelMult();      
-                                
+
     double    GetNormalError();        
     double    GetRelativeError();        
     DWORD     GetFlags();        
-                                
+
     bool      UseMax();          
     bool      UseAbs();          
     bool      UseRel();          
@@ -464,12 +460,15 @@ class DllImportExport MToleranceBlock
     bool      UseAbsParent();    
     bool      UseRelParent();    
     bool      HasParent();       
-                                
+
     bool ConvergedDV(double D, double V);
     bool ConvergedVV(double V1, double V2);
 
     operator CToleranceBlock&() { return *m_TolBlk; }
-    
+
+  protected:
+    CToleranceBlock * m_TolBlk;
+
   };
 
 //---------------------------------------------------------------------------
@@ -497,6 +496,34 @@ const int RF_Independant        =10;
 // Root Finder Class
 class DllImportExport MRootFinderBase
   {
+  public:
+    MRootFinderBase(char *DescStr, CToleranceBlock & Tol);
+    virtual int     Start(double X1, double X2, double Fn1=dNAN, double Fn2=dNAN);
+    virtual double  Function(double x) = 0;
+    virtual int     Solve_Brent();
+    virtual int     SolveFromEst(double Est, double Sign, double dChgFrac=0.01, double dChgInit=dNAN);
+    virtual bool    Converged(double X1, double X2, double Fn1, double Fn2);
+
+    virtual LPCTSTR ObjTag()                                { return ""; };
+    virtual void    Limits(double X1, double X2)            { xmin=X1; xmax=X2; bLimits=1; };
+
+    void            SetTarget(double FunctionTarget)        { dTarget=FunctionTarget; };
+    void            SetEstimate(double Est, double EstSlp)  { dEst=Est; dEstSlp=EstSlp; bEstSet=1; };
+    double          EstimatedSlope()                        { return dEstSlp; };
+    double          Result()                                { return dResult; };
+    double          Target()                                { return dTarget; };
+    double          FuncValue()                             { return m_FnVal; };
+    double          FuncError()                             { return m_FnErr; };
+    int             Error()                                 { return iError; };
+    int             Iterations()                            { return iter; };
+    bool            Converging()                            { return iter>=0; };
+    bool            TestingLimits()                         { return iter==-1; };
+    bool            TestingEstimate()                       { return iter==-2; };
+    void            SetLimits(double Min, double Max)       { dMin=Min; dMax=Max; };
+
+    void            SetErrorHandling(bool LogErrors, bool * MRootFinderBusy);
+    static LPCTSTR  ResultString(int ErrorRet);
+
   protected:
     LPCTSTR        pDescStr;
     bool           bLogErrors;
@@ -516,36 +543,9 @@ class DllImportExport MRootFinderBase
     double         dEst, dEstSlp;
     int            iter;
     double         dMin, dMax;
-    
+
     CToleranceBlock & m_Tol;
 
-  public:
-    MRootFinderBase(char *DescStr, CToleranceBlock & Tol);
-    virtual int     Start(double X1, double X2, double Fn1=dNAN, double Fn2=dNAN);
-    virtual double  Function(double x) = 0;
-    virtual int     Solve_Brent();
-    virtual int     SolveFromEst(double Est, double Sign, double dChgFrac=0.01, double dChgInit=dNAN);
-    virtual bool    Converged(double X1, double X2, double Fn1, double Fn2);
-
-    virtual LPCTSTR ObjTag()                                { return ""; };
-    virtual void    Limits(double X1, double X2)            { xmin=X1; xmax=X2; bLimits=1; };
-  
-    void            SetTarget(double FunctionTarget)        { dTarget=FunctionTarget; };
-    void            SetEstimate(double Est, double EstSlp)  { dEst=Est; dEstSlp=EstSlp; bEstSet=1; };
-    double          EstimatedSlope()                        { return dEstSlp; };
-    double          Result()                                { return dResult; };
-    double          Target()                                { return dTarget; };
-    double          FuncValue()                             { return m_FnVal; };
-    double          FuncError()                             { return m_FnErr; };
-    int             Error()                                 { return iError; };
-    int             Iterations()                            { return iter; };
-    bool            Converging()                            { return iter>=0; };
-    bool            TestingLimits()                         { return iter==-1; };
-    bool            TestingEstimate()                       { return iter==-2; };
-    void            SetLimits(double Min, double Max)       { dMin=Min; dMax=Max; };
-
-    void            SetErrorHandling(bool LogErrors, bool * MRootFinderBusy);
-    static LPCTSTR  ResultString(int ErrorRet);
   };
 
 

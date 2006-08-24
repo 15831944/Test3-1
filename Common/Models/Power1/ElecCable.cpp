@@ -599,9 +599,9 @@ void CElecCable::EvalDiscrete()
 
 //--------------------------------------------------------------------------
 
-flag CElecCable::GetModelAction(MdlActionArray & Acts)
+flag CElecCable::GetModelAction(CMdlActionArray & Acts)
   {
-  //MdlAction M0 = {0, MAT_State, 0/*!PSB.On()*/, "On", 1};
+  //CMdlAction M0 = {0, MAT_State, 0/*!PSB.On()*/, "On", 1};
   //Acts.SetSize(0);
   //Acts.SetAtGrow(0, M0);
   return true;
@@ -609,7 +609,7 @@ flag CElecCable::GetModelAction(MdlActionArray & Acts)
 
 //--------------------------------------------------------------------------
 
-flag CElecCable::SetModelAction(MdlAction & Act)
+flag CElecCable::SetModelAction(CMdlAction & Act)
   {
   switch (Act.iIndex)
     {
