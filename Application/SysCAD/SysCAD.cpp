@@ -68,64 +68,9 @@
 //#include "prjsettingsdlg.h"
 #include "slvcfg.h"
 
-#define WITHMAC  1
-#if WITHMAC
-#include <nb30.h>
-#pragma comment(lib, "netapi32.lib")
+//===========================================================================
 
-typedef struct _ASTAT_
-  {
-  ADAPTER_STATUS adapt;
-  NAME_BUFFER    NameBuff[30];
-  } ASTAT, * PASTAT;
-
-
-CString GetMacAddress(CString sNetBiosName)
-  {
-  ASTAT Adapter;
-
-  NCB ncb;
-  UCHAR uRetCode;
-
-  memset(&ncb, 0, sizeof(ncb));
-  ncb.ncb_command = NCBRESET;
-  ncb.ncb_lana_num = 0;
-
-  uRetCode = Netbios(&ncb);
-
-  memset(&ncb, 0, sizeof(ncb));
-  ncb.ncb_command = NCBASTAT;
-  ncb.ncb_lana_num = 0;
-
-  sNetBiosName.MakeUpper();
-
-  FillMemory(ncb.ncb_callname, NCBNAMSZ - 1, 0x20);
-
-  strcpy((char *)ncb.ncb_callname, (LPCTSTR) sNetBiosName);
-
-  ncb.ncb_callname[sNetBiosName.GetLength()] = 0x20;
-  ncb.ncb_callname[NCBNAMSZ] = 0x0;
-
-  ncb.ncb_buffer = (unsigned char *) &Adapter;
-  ncb.ncb_length = sizeof(Adapter);
-
-  uRetCode = Netbios(&ncb);
-
-  CString sMacAddress;
-
-  if (uRetCode == 0)
-    {
-    sMacAddress.Format(_T("%02x.%02x.%02x.%02x.%02x.%02x"),
-      Adapter.adapt.adapter_address[0],
-      Adapter.adapt.adapter_address[1],
-      Adapter.adapt.adapter_address[2],
-      Adapter.adapt.adapter_address[3],
-      Adapter.adapt.adapter_address[4],
-      Adapter.adapt.adapter_address[5]);
-    }
-  return sMacAddress;
-  }
-#endif
+//===========================================================================
 
 #define SECURITY_WIN32
 #include "security.h"
@@ -165,7 +110,7 @@ extern DWORD gs_ServerWait; // Defined in ScdApplication.cpp
 
 class CFrm : public CMDIChildWnd
   {
-    DECLARE_DYNCREATE(CFrm)
+  DECLARE_DYNCREATE(CFrm)
   public:
     //{{AFX_VIRTUAL(CFrm)
     //}}AFX_VIRTUAL
@@ -265,7 +210,7 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_PROJECT_EDIT_SETTINGS, OnProjectEditSettings)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_EDIT_SETTINGS, OnUpdateProjectEditSettings)
 
-//  ON_COMMAND(ID_APP_EXIT, OnAppExit)
+  //  ON_COMMAND(ID_APP_EXIT, OnAppExit)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -291,7 +236,7 @@ CSysCADApp theApp;
 //TODO Get this correct
 
 static const CLSID clsid =
-{ 0x74e84c3e, 0x62e2, 0x4758, { 0xa4, 0x3, 0xb6, 0x2a, 0x1b, 0xb7, 0x9, 0x3b } };
+  { 0x74e84c3e, 0x62e2, 0x4758, { 0xa4, 0x3, 0xb6, 0x2a, 0x1b, 0xb7, 0x9, 0x3b } };
 
 /////////////////////////////////////////////////////////////////////////////
 // CSysCADApp initialization
@@ -304,18 +249,18 @@ class CAboutDlg : public CDialog
   public:
     CAboutDlg();
 
-  // Dialog Data
+    // Dialog Data
     //{{AFX_DATA(CAboutDlg)
     enum { IDD = IDD_ABOUTBOX };
     //}}AFX_DATA
 
     // ClassWizard generated virtual function overrides
     //{{AFX_VIRTUAL(CAboutDlg)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
 
-  // Implementation
+    // Implementation
   protected:
     //{{AFX_MSG(CAboutDlg)
     virtual BOOL OnInitDialog();
@@ -338,7 +283,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
   //{{AFX_MSG_MAP(CAboutDlg)
-    // No message handlers
+  // No message handlers
   //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -381,7 +326,7 @@ class CMyCommandLineInfo : public CCommandLineInfo
     virtual void ParseParam(const char* pszParam, BOOL bFlag, BOOL bLast)
       {
       if (_stricmp(pszParam, "RegServer")==0)
-         m_bRegServer=true;
+        m_bRegServer=true;
       else
         CCommandLineInfo::ParseParam(pszParam, bFlag, bLast);
       };
@@ -472,7 +417,7 @@ CleanupLibrary:
     AfxFreeLibrary(hLib);
 
 CleanupOle:
-//<VISIO>  OleUninitialize();
+  //<VISIO>  OleUninitialize();
 
   return iReturn;
   }
@@ -508,7 +453,7 @@ static BOOL ModuleVersionOK(tRqdVersionNos & RV)
           DWORD LS = (DWORD)MAKELONG(RV.LSL, RV.LSH);
 
           if ((pInfo->dwFileVersionMS>MS) ||
-              (pInfo->dwFileVersionMS==MS) && (pInfo->dwFileVersionLS>=LS))
+            (pInfo->dwFileVersionMS==MS) && (pInfo->dwFileVersionLS>=LS))
             {
             delete[] Buff;
             return true;
@@ -518,10 +463,10 @@ static BOOL ModuleVersionOK(tRqdVersionNos & RV)
             Strng Msg;
             if (RV.InstallMessage)
               Msg.Set("Incorrect version for module : %s\n(Version number should be >= %i.%i.%i.%i)\n\nAdministrator privileges required to install this file,\nSysCAD should be installed by a user local admin rights!\nRestart after install required?",/*\n\nRun setup utility for %s and restart computer.",*/
-                    RV.ModuleName, RV.MSH, RV.MSL, RV.LSH, RV.LSL);//, RV.ModuleName);
+              RV.ModuleName, RV.MSH, RV.MSL, RV.LSH, RV.LSL);//, RV.ModuleName);
             else
               Msg.Set("Incorrect version for module : %s\n\n\n(Version number should be >= %i.%i.%i.%i)\n\nPossible problem is that SysCAD was not installed by a user with local Administrator privileges.",
-                    RV.ModuleName, RV.MSH, RV.MSL, RV.LSH, RV.LSL);
+              RV.ModuleName, RV.MSH, RV.MSL, RV.LSH, RV.LSL);
             AfxMessageBox(Msg());
             return false;
             }
@@ -542,7 +487,7 @@ static BOOL ModuleVersionOK(tRqdVersionNos & RV)
 
 // {AA4335C0-C827-11d3-A3F9-00A0C9ED9512} : SysCAD
 static const GUID SysCADAppclsid =
-{ 0xaa4335c0, 0xc827, 0x11d3, { 0xa3, 0xf9, 0x0, 0xa0, 0xc9, 0xed, 0x95, 0x12 } };
+  { 0xaa4335c0, 0xc827, 0x11d3, { 0xa3, 0xf9, 0x0, 0xa0, 0xc9, 0xed, 0x95, 0x12 } };
 // {AA4335C1-C827-11d3-A3F9-00A0C9ED9512} : Automation Dispatch
 // {AA4335C2-C827-11d3-A3F9-00A0C9ED9512} : SysCAD.AutoDocument
 // {AA4335C3-C827-11d3-A3F9-00A0C9ED9512} : VisGrfDoc Dispatch
@@ -564,7 +509,7 @@ int handle_program_memory_depletion( size_t size )
     {
     free(SpaceBuffer);
     SpaceBuffer=0;
-//    return 1;
+    //    return 1;
     }
   AfxThrowMemoryException();
   return 0;
@@ -574,9 +519,9 @@ int handle_program_memory_depletion( size_t size )
 
 #ifdef   _DEBUG
 #define  SET_CRT_DEBUG_FIELD(a) \
-            _CrtSetDbgFlag((a) | _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG))
+  _CrtSetDbgFlag((a) | _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG))
 #define  CLEAR_CRT_DEBUG_FIELD(a) \
-            _CrtSetDbgFlag(~(a) & _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG))
+  _CrtSetDbgFlag(~(a) & _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG))
 #else
 #define  SET_CRT_DEBUG_FIELD(a)   ((void) 0)
 #define  CLEAR_CRT_DEBUG_FIELD(a) ((void) 0)
@@ -589,8 +534,8 @@ BOOL CSysCADApp::InitInstStartup()
   struct tRqdVersionNos ReqdVersions[] =
     {
 #ifdef _DEBUG
-      //{"msvcrtd.dll",  6,0,8337,0,  false},//sp3
-      //{"mfc42d.dll",   6,0,8267,0,  false},//sp3
+    //{"msvcrtd.dll",  6,0,8337,0,  false},//sp3
+    //{"mfc42d.dll",   6,0,8267,0,  false},//sp3
 #if !DotNet
       {"msvcrtd.dll",  6,0,8797,0,  false},//sp5
       {"mfc42d.dll",   6,0,8665,0,  false},//sp5
@@ -602,8 +547,8 @@ BOOL CSysCADApp::InitInstStartup()
       {"mfc71d.dll",   7,0,9466,0,  false},//.net
 #endif
 #else
-      //{"msvcrt.dll",   6,0,8337,0,  true },//sp3
-      //{"mfc42.dll",    6,0,8267,0,  false},//sp3
+    //{"msvcrt.dll",   6,0,8337,0,  true },//sp3
+    //{"mfc42.dll",    6,0,8267,0,  false},//sp3
 #if (!DotNet)
       {"msvcrt.dll",   6,0,8797,0,  true },//sp5
       {"mfc42.dll",    6,0,8665,0,  true},//sp5
@@ -654,39 +599,39 @@ BOOL CSysCADApp::InitIniFile()
 
   free((void*)m_pszProfileName);
   m_pszProfileName=_strdup(RegKey());
-  
-  #if (USEREGISTRY)
+
+#if (USEREGISTRY)
     {
     ScdPFUser.SetUseRegistry(true, HKEY_CURRENT_USER, "Kenwalt", m_pszProfileName);
     ScdPFMachine.SetUseRegistry(true, HKEY_LOCAL_MACHINE, "Kenwalt", m_pszProfileName);
     }
-  #else
+#else
     {
     char UName[4096];
     ULONG Len=sizeof(UName)-1;
     BOOL GotIt=GetUserNameEx(NameSamCompatible, &UName[0], &Len);
     ASSERT_ALWAYS(GotIt, "NameSamCompatible not available")
 
-    char * pName=strchr(UName, '\\');
+      char * pName=strchr(UName, '\\');
     ASSERT_ALWAYS(pName!=NULL, "Bad User Name ")
-    CString UFn, MFn;
+      CString UFn, MFn;
     UFn.Format("%sSysCAD.User.%s.ini", BaseCfgFiles(), pName+1);
     MFn.Format("%sSysCAD.Machine.ini", BaseCfgFiles());
     ScdPFUser.SetProfFilename(UFn);
     ScdPFMachine.SetProfFilename(MFn);
     }
-  #endif
+#endif
 
-  const long Cnt = ScdPFMachine.RdLong("General", "StartCount", 0) + 1;
-  ScdPFMachine.WrLong("General", "StartCount", Cnt);
-  const long CheckCnt = ScdPFMachine.RdLong("General", "StartCount", -1);
-  if (CheckCnt!=Cnt)
-    {
-    LogError("SysCAD", LF_Exclamation, "Unable to write to file in folder '%s'\nCheck read-only attributes or user permissions!", BaseCfgFiles());
-    return FALSE;
-    }
-  //todo: perhaps test ability to create file in this folder
-  return TRUE;
+    const long Cnt = ScdPFMachine.RdLong("General", "StartCount", 0) + 1;
+    ScdPFMachine.WrLong("General", "StartCount", Cnt);
+    const long CheckCnt = ScdPFMachine.RdLong("General", "StartCount", -1);
+    if (CheckCnt!=Cnt)
+      {
+      LogError("SysCAD", LF_Exclamation, "Unable to write to file in folder '%s'\nCheck read-only attributes or user permissions!", BaseCfgFiles());
+      return FALSE;
+      }
+    //todo: perhaps test ability to create file in this folder
+    return TRUE;
   }
 
 //---------------------------------------------------------------------------
@@ -699,10 +644,10 @@ BOOL CSysCADApp::InitInstRegistry()
     {//todo: check if registered properly and if it exists...
     /*xxx
     if (NotExists)
-      {
-      RegCloseKey(hKey);
-      RegisterReqdOCX("ssdw3b32.ocx");
-      }*/
+    {
+    RegCloseKey(hKey);
+    RegisterReqdOCX("ssdw3b32.ocx");
+    }*/
     }
   else
     {
@@ -713,7 +658,7 @@ BOOL CSysCADApp::InitInstRegistry()
     }
 
   //SysCADCMD Registration
-  #if WITHCOMCMD
+#if WITHCOMCMD
 
   // Call DllRegisterServer()
 
@@ -766,7 +711,7 @@ BOOL CSysCADApp::InitInstRegistry()
     if( FAILED(hr) )
       AfxMessageBox(_T("SysCADCmd RegisterServer Failed"));
     }
-  #endif
+#endif
 
   return TRUE;
   }
@@ -790,7 +735,7 @@ BOOL CSysCADApp::InitInstDocTemplate()
     RUNTIME_CLASS(CGrfFrameWnd),
     RUNTIME_CLASS(CGrfWnd));
 
-  #if WITHVISIODOC
+#if WITHVISIODOC
   // Visio Linking Document
   pTemplate[iVisioTemplate] = new CMultiDocTemplate(
     IDR_VISIOGRF,
@@ -798,15 +743,15 @@ BOOL CSysCADApp::InitInstDocTemplate()
     RUNTIME_CLASS(CVisGrfFrame), // custom MDI child frame
     RUNTIME_CLASS(CVisGrfView));
   VisioTemplate().SetContainerInfo(IDR_VISIOGRF_CNTR_IP);
-  #else
+#else
   pTemplate[iVisioTemplate] = NULL;
-  #endif
+#endif
 
   /*
   AddDocTemplate(new CMultiDocTemplate(IDR_INSVIEW,
-      RUNTIME_CLASS(InsDoc),
-      RUNTIME_CLASS(CMDIChildWnd),        // standard MDI child frame
-      RUNTIME_CLASS(CGrfWnd)));
+  RUNTIME_CLASS(InsDoc),
+  RUNTIME_CLASS(CMDIChildWnd),        // standard MDI child frame
+  RUNTIME_CLASS(CGrfWnd)));
   */
   pTemplate[iTrendTemplate]=new CMultiDocTemplate(
     IDR_TRENDVIEW,
@@ -820,14 +765,14 @@ BOOL CSysCADApp::InitInstDocTemplate()
     RUNTIME_CLASS(CTagVwSplitC),
     RUNTIME_CLASS(CTagVwTextC));
 
-  #if WITHAUTOMATION
+#if WITHAUTOMATION
   pTemplate[iAutomationTemplate]=new CMultiDocTemplate(IDR_SYSCADAUTOTYPE,
     RUNTIME_CLASS(CAutoDoc),
     RUNTIME_CLASS(CAutoFrame),
     RUNTIME_CLASS(CAutoView));
-  #else
+#else
   pTemplate[iAutomationTemplate] = NULL;
-  #endif
+#endif
 
   for (int i=0; i<getTemplateCount(); i++)
     if (pTemplate[i])
@@ -837,19 +782,19 @@ BOOL CSysCADApp::InitInstDocTemplate()
   //  The COleTemplateServer creates new documents on behalf
   //  of requesting OLE containers by using information
   //  specified in the document template.
-  #if WITHVISIODOC
+#if WITHVISIODOC
   m_VisioServer.ConnectTemplate(SysCADAppclsid, pTemplate[iVisioTemplate], FALSE);
-  #endif
+#endif
 
-  #if WITHAUTOMATION
+#if WITHAUTOMATION
   m_AutoServer.ConnectTemplate(SysCADAppclsid, pTemplate[iAutomationTemplate], FALSE);
-  #endif
+#endif
 
   // Register all OLE server factories as running.  This enables the
   //  OLE libraries to create objects from other applications.
   COleTemplateServer::RegisterAll();
-    // Note: MDI applications register all server objects without regard
-    //  to the /Embedding or /Automation on the command line.
+  // Note: MDI applications register all server objects without regard
+  //  to the /Embedding or /Automation on the command line.
 
   return TRUE;
   }
@@ -886,7 +831,7 @@ BOOL CSysCADApp::InitInstCmdLineOnly()
       m_CLH.Parse(m_lpCmdLine);
       if (!m_CLH.bForceNewCopy && !m_CLH.bAutomation)
         {
-//TODO Only some comand line options should be passed on! (eg scripts)
+        //TODO Only some comand line options should be passed on! (eg scripts)
         // Let's defer to it:
         if (m_CLH.bForegroundWnd)
           {
@@ -1040,13 +985,13 @@ int CSysCADApp::InitInstLicense1(bool Embedded)
 #if CK_LICENSINGON
   CDlgBusy::Open("\n\nChecking License");
   /*if (IsWinNT)
-    {
-    int LicErr = gs_License.CheckService();
-    if (LicErr==-3 || LicErr==-4)
-      AfxMessageBox("License Service probably not running (check control panel services)");
-    else if (LicErr<0)
-      AfxMessageBox("Error with License Service. Check the following:\n1) Licensing Service installed?\n2) User permissions\n3) Control panel services\n");
-    }*/
+  {
+  int LicErr = gs_License.CheckService();
+  if (LicErr==-3 || LicErr==-4)
+  AfxMessageBox("License Service probably not running (check control panel services)");
+  else if (LicErr<0)
+  AfxMessageBox("Error with License Service. Check the following:\n1) Licensing Service installed?\n2) User permissions\n3) Control panel services\n");
+  }*/
   gs_License.SetEmbedded(Embedded);
   if (m_CLH.bAltLicenseLoc)
     gs_License.SetAppPath(m_CLH.sLicenseLoc());
@@ -1085,45 +1030,60 @@ int CSysCADApp::InitInstLicense1(bool Embedded)
 
   gs_License.SetUseCOM(m_CLH.bDeveloper);
 
-  int LicenseRet=gs_License.Init();
-  if (LicenseRet==LicInit_OK)
+  int LicenseRet=gs_License.Init(NULL, ProgFiles());
+  switch (LicenseRet)
     {
-    CWaitCursor Wait1; //old hour glass may be gone
-    CDlgBusy::Close();
-    if (!gs_License.Check(true))
+    case LicInit_OK:
       {
-      #if CK_ALLOWDEMOMODE
+      CWaitCursor Wait1; //old hour glass may be gone
+      CDlgBusy::Close();
+      if (!gs_License.Check(true))
+        {
+#if CK_ALLOWDEMOMODE
+        LicenseRet=LicInit_GoDemo;
+        gs_License.SetDemoMode();
+#else
+        LicenseFailed = !gs_License.StartDialog();
+        if (!LicenseFailed)
+          LicenseFailed = !gs_License.Check(); //check again!
+#endif
+        }
+      else if (gs_License.MultiUserFailure())
+        {
+        if (Embedded)
+          gs_License.Error("Unable to obtain license, set SysCAD to demo mode?");
+        else if (AfxMessageBox("Unable to obtain license, set SysCAD to demo mode?", MB_YESNO)!=IDYES)
+          CDlgBusy::Close();
+        }
+      break;
+      }
+    case LicInit_ExitReqd:
+      {
+      if (AfxMessageBox("License failed to initialise, Set SysCAD to demo mode ?", MB_ICONQUESTION|MB_YESNO)==IDNO)
+        break;
       LicenseRet=LicInit_GoDemo;
-      //gs_License.SetDemoMode();
-      #else
-      LicenseFailed = !gs_License.StartDialog();
-      if (!LicenseFailed)
-        LicenseFailed = !gs_License.Check(); //check again!
-      #endif
       }
-    else if (gs_License.MultiUserFailure())
+    case LicInit_GoDemo:
       {
-      if (Embedded)
-        gs_License.Error("Unable to obtain license, set SysCAD to demo mode?");
-      else if (AfxMessageBox("Unable to obtain license, set SysCAD to demo mode?", MB_YESNO)!=IDYES)
-        CDlgBusy::Close();
+      CWaitCursor Wait1; //old hour glass may be gone
+      CDlgBusy::Close();
+#if CK_ALLOWDEMOMODE
+      gs_License.Error(gs_License.DidInitCrypkey() ? "License failed to initialise, SysCAD set to demo mode" : "License service ERROR!\n\nSysCAD set to demo mode");
+      gs_License.SetDemoMode();
+#else
+      CDlgBusy::Close();
+      ////AfxMessageBox("Contact suppliers to License SysCAD");
+      return false;
+#endif
+      break;//return false;
+      }
+    case LicInit_GoAcademic:
+      {
+      CWaitCursor Wait1; //old hour glass may be gone
+      CDlgBusy::Close();
+      break;//return false;
       }
     }
-
-  if (LicenseRet==LicInit_GoDemo)
-    {
-    CWaitCursor Wait1; //old hour glass may be gone
-    CDlgBusy::Close();
-    #if CK_ALLOWDEMOMODE
-    gs_License.Error(gs_License.DidInitCrypkey() ? "License failed to initialise, SysCAD set to demo mode" : "License service ERROR!\n\nSysCAD set to demo mode");
-    gs_License.SetDemoMode();
-    #else
-    CDlgBusy::Close();
-    //AfxMessageBox("Contact suppliers to License SysCAD");
-    return false;
-    #endif
-    }
-
   return LicenseRet;
 #else
   return LicInit_OK;
@@ -1134,7 +1094,8 @@ int CSysCADApp::InitInstLicense1(bool Embedded)
 
 BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
   {
-  #if CK_LICENSINGON
+#if CK_LICENSINGON
+  //gs_License.Check();
   if (LicenseRet==LicInit_ExitReqd)
     {
     CDlgBusy::Close();
@@ -1169,12 +1130,12 @@ BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
         gs_License.SetDemoMode();
         }
       }
-    if (gs_License.DaysLeft()<=CK_WarnDays)
-      LogWarning("License", gs_License.DaysLeft()<=CK_UrgentWarnDays ? 0|LF_Exclamation : 0, "License (%s) expires in %d days.   [ %s ]", LicDesc(), gs_License.DaysLeft(), LicUserVer());
-    else if (gs_License.DaysLeft()!=CK_InfiniteDays)
-      LogNote("License", 0, "License (%s) expires in %d days.   [ %s ]", LicDesc(), gs_License.DaysLeft(), LicUserVer());
-    else
-      LogNote("License", 0, "License (%s) OK.  [ %s ]", LicDesc(), LicUserVer());
+      if (gs_License.DaysLeft()<=CK_WarnDays)
+        LogWarning("License", gs_License.DaysLeft()<=CK_UrgentWarnDays ? 0|LF_Exclamation : 0, "License (%s) expires in %d days.   [ %s ]", LicDesc(), gs_License.DaysLeft(), LicUserVer());
+      else if (gs_License.DaysLeft()!=CK_InfiniteDays)
+        LogNote("License", 0, "License (%s) expires in %d days.   [ %s ]", LicDesc(), gs_License.DaysLeft(), LicUserVer());
+      else
+        LogNote("License", 0, "License (%s) OK.  [ %s ]", LicDesc(), LicUserVer());
     }
   if (m_CLH.bForceDemo)
     gs_License.SetDemoMode();
@@ -1189,9 +1150,9 @@ BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
     }
   if (gs_License.IsRunTime())
     ((CMainFrame*)theApp.m_pMainWnd)->UpdateMainToolBar();
-    //((CMainFrame*)SysCAD.m_pMainWnd)->UpdateMainToolBar();
+  //((CMainFrame*)SysCAD.m_pMainWnd)->UpdateMainToolBar();
   ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
-  #endif
+#endif
 
   return TRUE;
   };
@@ -1205,17 +1166,17 @@ BOOL CSysCADApp::InitInstVersion()
   /*Strng PreviousVersionStr;
   PreviousVersionStr = ScdPFUser.RdStr("General", "SysCADVersion", "XXX");
   if (CurrentVersionStr.XStrICmp(PreviousVersionStr)!=0)
-    {
-    Strng sTmp(ScdPFUser.RdStr("General", "TextEditor", ""));
-    if (sTmp()) // SysCAD Has Run Before on this box
-      {
-      sTmp.Set("Upgrade from previous Version of SysCAD %s to %s?", PreviousVersionStr(), CurrentVersionStr());
-      if (AfxMessageBox(sTmp(), MB_YESNO|MB_DEFBUTTON2|MB_ICONQUESTION)==IDNO)
-        {
-        return false;
-        }
-      }
-    }*/
+  {
+  Strng sTmp(ScdPFUser.RdStr("General", "TextEditor", ""));
+  if (sTmp()) // SysCAD Has Run Before on this box
+  {
+  sTmp.Set("Upgrade from previous Version of SysCAD %s to %s?", PreviousVersionStr(), CurrentVersionStr());
+  if (AfxMessageBox(sTmp(), MB_YESNO|MB_DEFBUTTON2|MB_ICONQUESTION)==IDNO)
+  {
+  return false;
+  }
+  }
+  }*/
   ScdPFMachine.WrStr("General", "SysCADVersion", CurrentVersionStr());
 
   return TRUE;
@@ -1261,11 +1222,11 @@ BOOL CSysCADApp::InitInstBaseCfg(int & CnvsLoadedCnt, Strng &CnvsFilename)
           }
         }
       }
-//    if (!FileExists(B()))
-//      {
-//      LogError("SysCAD", LF_Exclamation, "BaseCfg Not found");
-//      return false;
-//      }
+    //    if (!FileExists(B()))
+    //      {
+    //      LogError("SysCAD", LF_Exclamation, "BaseCfg Not found");
+    //      return false;
+    //      }
     }
   switch (TestBaseCfgFiles())
     {
@@ -1294,7 +1255,7 @@ BOOL CSysCADApp::InitInstBaseCfg(int & CnvsLoadedCnt, Strng &CnvsFilename)
 
 BOOL CSysCADApp::InitInstWinNT()
   {
-  #if WINNT_ONLY
+#if WINNT_ONLY
   //below is not supported on Win95/Win98...
   DWORD dwMinimumWorkingSetSize;
   DWORD dwMaximumWorkingSetSize;
@@ -1317,7 +1278,7 @@ BOOL CSysCADApp::InitInstWinNT()
       }
     }
   CloseHandle(PHND);
-  #endif
+#endif
 
   return TRUE;
   };
@@ -1326,14 +1287,14 @@ BOOL CSysCADApp::InitInstWinNT()
 
 #ifdef _DEBUG
 /* REPORT HOOK FUNCTION
-   --------------------
-   Again, report hook functions can serve a very wide variety of purposes.
-   This one logs error and assertion failure debug reports in the
-   log file, along with 'Damage' reports about overwritten memory.
+--------------------
+Again, report hook functions can serve a very wide variety of purposes.
+This one logs error and assertion failure debug reports in the
+log file, along with 'Damage' reports about overwritten memory.
 
-   By setting the retVal parameter to zero, we are instructing _CrtDbgReport
-   to return zero, which causes execution to continue. If we want the function
-   to start the debugger, we should have _CrtDbgReport return one.
+By setting the retVal parameter to zero, we are instructing _CrtDbgReport
+to return zero, which causes execution to continue. If we want the function
+to start the debugger, we should have _CrtDbgReport return one.
 */
 int MyReportHook(int nRptType, char *szMsg, int  *retVal)
   {
@@ -1341,129 +1302,129 @@ int MyReportHook(int nRptType, char *szMsg, int  *retVal)
 
   //if ( ( nRptType > 0 ) || ( strstr( szMsg, "DAMAGE" ) ) )
   for (int i=0; szMsg[i]>0; i++)
-//    if (szMsg[i]=='\n' || szMsg[i]=='\r')
+    //    if (szMsg[i]=='\n' || szMsg[i]=='\r')
     if (szMsg[i]=='\r')
       {
       szMsg[i]=' ';
       break;
       }
 
-  if (dbgtestfileopen())
-    {
-    if ( nRptType > 0 )
-      dbgp("%s: %s", RptTypes[nRptType], szMsg );
-    else
-      dbgp("%s", szMsg );
+    if (dbgtestfileopen())
+      {
+      if ( nRptType > 0 )
+        dbgp("%s: %s", RptTypes[nRptType], szMsg );
+      else
+        dbgp("%s", szMsg );
 
-    if (nRptType >= 2)
+      if (nRptType >= 2)
+        *retVal=1;
+      else
+        *retVal=0;
+      }
+    else
       *retVal=1;
-    else
-      *retVal=0;
-    }
-  else
-    *retVal=1;
 
-  return( true );         // Allow the report to be made as usual
+    return( true );         // Allow the report to be made as usual
   }
 
 
 #endif
 /*
 BOOL CSysCADApp::xInitInstance()
-  {
-  // Initialize OLE libraries
-  if (!AfxOleInit())
-    {
-    AfxMessageBox(IDP_OLE_INIT_FAILED);
-    return FALSE;
-    }
+{
+// Initialize OLE libraries
+if (!AfxOleInit())
+{
+AfxMessageBox(IDP_OLE_INIT_FAILED);
+return FALSE;
+}
 
-  if (!InitATL())
-    return FALSE;
+if (!InitATL())
+return FALSE;
 
-  AfxEnableControlContainer();
+AfxEnableControlContainer();
 
-  // Standard initialization
-  // If you are not using these features and wish to reduce the size
-  //  of your final executable, you should remove from the following
-  //  the specific initialization routines you do not need.
+// Standard initialization
+// If you are not using these features and wish to reduce the size
+//  of your final executable, you should remove from the following
+//  the specific initialization routines you do not need.
 
 #ifdef _AFXDLL
-  Enable3dControls();     // Call this when using MFC in a shared DLL
+Enable3dControls();     // Call this when using MFC in a shared DLL
 #else
-  Enable3dControlsStatic(); // Call this when linking to MFC statically
+Enable3dControlsStatic(); // Call this when linking to MFC statically
 #endif
 
-  // Change the registry key under which our settings are stored.
-  // TODO: You should modify this string to be something appropriate
-  // such as the name of your company or organization.
-  SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+// Change the registry key under which our settings are stored.
+// TODO: You should modify this string to be something appropriate
+// such as the name of your company or organization.
+SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-  LoadStdProfileSettings();  // Load standard INI file options (including MRU)
+LoadStdProfileSettings();  // Load standard INI file options (including MRU)
 
-  // Register the application's document templates.  Document templates
-  //  serve as the connection between documents, frame windows and views.
+// Register the application's document templates.  Document templates
+//  serve as the connection between documents, frame windows and views.
 
-  CMultiDocTemplate* pDocTemplate;
-  pDocTemplate = new CMultiDocTemplate(
-    IDR_SYSCADTYPE,
-    RUNTIME_CLASS(CSysCADDoc),
-    RUNTIME_CLASS(CChildFrame), // custom MDI child frame
-    RUNTIME_CLASS(CSysCADView));
-  AddDocTemplate(pDocTemplate);
+CMultiDocTemplate* pDocTemplate;
+pDocTemplate = new CMultiDocTemplate(
+IDR_SYSCADTYPE,
+RUNTIME_CLASS(CSysCADDoc),
+RUNTIME_CLASS(CChildFrame), // custom MDI child frame
+RUNTIME_CLASS(CSysCADView));
+AddDocTemplate(pDocTemplate);
 
-  // Connect the COleTemplateServer to the document template.
-  //  The COleTemplateServer creates new documents on behalf
-  //  of requesting OLE containers by using information
-  //  specified in the document template.
-  m_server.ConnectTemplate(clsid, pDocTemplate, FALSE);
+// Connect the COleTemplateServer to the document template.
+//  The COleTemplateServer creates new documents on behalf
+//  of requesting OLE containers by using information
+//  specified in the document template.
+m_server.ConnectTemplate(clsid, pDocTemplate, FALSE);
 
-  // Register all OLE server factories as running.  This enables the
-  //  OLE libraries to create objects from other applications.
-  COleTemplateServer::RegisterAll();
-  _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER,
-    REGCLS_MULTIPLEUSE);
+// Register all OLE server factories as running.  This enables the
+//  OLE libraries to create objects from other applications.
+COleTemplateServer::RegisterAll();
+_Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER,
+REGCLS_MULTIPLEUSE);
 
-    // Note: MDI applications register all server objects without regard
-    //  to the /Embedding or /Automation on the command line.
+// Note: MDI applications register all server objects without regard
+//  to the /Embedding or /Automation on the command line.
 
-  // create main MDI Frame window
-  CMainFrame* pMainFrame = new CMainFrame;
-  if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
-    return FALSE;
-  m_pMainWnd = pMainFrame;
+// create main MDI Frame window
+CMainFrame* pMainFrame = new CMainFrame;
+if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
+return FALSE;
+m_pMainWnd = pMainFrame;
 
-  // Parse command line for standard shell commands, DDE, file open
-  CCommandLineInfo cmdInfo;
-  ParseCommandLine(cmdInfo);
+// Parse command line for standard shell commands, DDE, file open
+CCommandLineInfo cmdInfo;
+ParseCommandLine(cmdInfo);
 
-    _Module.UpdateRegistryFromResource(IDR_SYSCAD, TRUE);
-  _Module.RegisterServer(TRUE);
+_Module.UpdateRegistryFromResource(IDR_SYSCAD, TRUE);
+_Module.RegisterServer(TRUE);
 
 
-  // Check to see if launched as OLE server
-  if (cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated)
-    {
-    // Application was run with /Embedding or /Automation.  Don't show the
-    //  main window in this case.
-    return TRUE;
-    }
+// Check to see if launched as OLE server
+if (cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated)
+{
+// Application was run with /Embedding or /Automation.  Don't show the
+//  main window in this case.
+return TRUE;
+}
 
-  // When a server application is launched stand-alone, it is a good idea
-  //  to update the system registry in case it has been damaged.
-  m_server.UpdateRegistry(OAT_DISPATCH_OBJECT);
-  COleObjectFactory::UpdateRegistryAll();
+// When a server application is launched stand-alone, it is a good idea
+//  to update the system registry in case it has been damaged.
+m_server.UpdateRegistry(OAT_DISPATCH_OBJECT);
+COleObjectFactory::UpdateRegistryAll();
 
-  // Dispatch commands specified on the command line
-  if (!ProcessShellCommand(cmdInfo))
-    return FALSE;
+// Dispatch commands specified on the command line
+if (!ProcessShellCommand(cmdInfo))
+return FALSE;
 
-  // The main window has been initialized, so show and update it.
-  pMainFrame->ShowWindow(m_nCmdShow);
-  pMainFrame->UpdateWindow();
+// The main window has been initialized, so show and update it.
+pMainFrame->ShowWindow(m_nCmdShow);
+pMainFrame->UpdateWindow();
 
-  return TRUE;
-  }
+return TRUE;
+}
 */
 
 //---------------------------------------------------------------------------
@@ -1478,23 +1439,23 @@ BOOL CSysCADApp::xInitInstance()
 BOOL CSysCADApp::InitInstance()
   {
 
-//========================================
-// Testing : put this in to break into a new debugger when running embedded
+  //========================================
+  // Testing : put this in to break into a new debugger when running embedded
 #if BREAKINTODEBUGGER
-    INCOMPLETECODE();
+  INCOMPLETECODE();
 #endif
-//========================================
+  //========================================
 
   if (!InitInstStartup())
     return false;
 
 #if SYSCAD10
-	INITCOMMONCONTROLSEX InitCtrls;
-	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
-	InitCtrls.dwICC = ICC_WIN95_CLASSES;
-	InitCommonControlsEx(&InitCtrls);
+  INITCOMMONCONTROLSEX InitCtrls;
+  InitCtrls.dwSize = sizeof(InitCtrls);
+  // Set this to include all the common control classes you want to use
+  // in your application.
+  InitCtrls.dwICC = ICC_WIN95_CLASSES;
+  InitCommonControlsEx(&InitCtrls);
 #endif
 
 #if !SYSCAD10
@@ -1511,17 +1472,17 @@ BOOL CSysCADApp::InitInstance()
   AfxEnableControlContainer();
   //_Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
 
-  #ifndef DotNet
-    #ifdef _AFXDLL
-    Enable3dControls();
-    #else
-    Enable3dControlsStatic()
-    #endif
-  #endif
+#ifndef DotNet
+#ifdef _AFXDLL
+  Enable3dControls();
+#else
+  Enable3dControlsStatic()
+#endif
+#endif
 
-  #if (USEREGISTRY)
-  SetRegistryKey(_T("Kenwalt"));
-  #endif
+#if (USEREGISTRY)
+    SetRegistryKey(_T("Kenwalt"));
+#endif
 
   if (!InitInstRegistry())
     return false;
@@ -1536,9 +1497,9 @@ BOOL CSysCADApp::InitInstance()
   int CW=FPP_EnableExceptions();
   //int CW=FPP_DisableExceptions();
 
-// REMOVED for .Net
-//  if (m_hPrevInstance!=NULL)
-//    return false;
+  // REMOVED for .Net
+  //  if (m_hPrevInstance!=NULL)
+  //    return false;
 
 #ifdef _DEBUG
   lDoFreeLibraries = true;
@@ -1560,7 +1521,7 @@ BOOL CSysCADApp::InitInstance()
 #if HEAP_SPARES
   Strng::StartUp();
 #endif
-//  Dbg_Entry();
+  //  Dbg_Entry();
   gs_MsgLog.Entry();
   //gs_MsgLog.SetOptions( LogOption_COMCallsEntry
   //                      |LogOption_COMCallsExit 
@@ -1637,18 +1598,18 @@ BOOL CSysCADApp::InitInstance()
 
   // When a server application is launched stand-alone, it is a good idea
   //  to update the system registry in case it has been damaged.
-  #if WITHVISIODOC
+#if WITHVISIODOC
   m_VisioServer.UpdateRegistry(OAT_DISPATCH_OBJECT);
-  #endif
-  #if WITHAUTOMATION
+#endif
+#if WITHAUTOMATION
   m_AutoServer.UpdateRegistry(OAT_DISPATCH_OBJECT);
-  #endif
+#endif
 
   COleObjectFactory::UpdateRegistryAll();
 
-//<VISIO>  // Dispatch commands specified on the command line
-//<VISIO>  if (!ProcessShellCommand(cmdInfo))
-//<VISIO>    return FALSE;
+  //<VISIO>  // Dispatch commands specified on the command line
+  //<VISIO>  if (!ProcessShellCommand(cmdInfo))
+  //<VISIO>    return FALSE;
 
   m_pMainWnd = pMainFrame;
   CProject::RestoreOneWindow(CWindowLists::MainWndTitle, pMainFrame, true, false);
@@ -1672,8 +1633,8 @@ BOOL CSysCADApp::InitInstance()
   m_DoExecCLHScript=false;
   m_DoAutoRunCLHWait=0;
 
-//NBNBNB
-//m_lpCmdLine=" /d";
+  //NBNBNB
+  //m_lpCmdLine=" /d";
 
 
   //if (m_lpCmdLine && m_lpCmdLine[0] != '\0')
@@ -1684,14 +1645,13 @@ BOOL CSysCADApp::InitInstance()
   if (m_CLH.bDebugOn)
     {
     flag IsOpen = dbgfileopen(m_CLH.sDebugFile());
-//    dbgtime(3);
+    //    dbgtime(3);
     ASSERT(IsOpen);
     dbgpln("SysCAD Init ===================================================");
     dbgpln("CmdLine:%s", m_CLH.sCmdLine());
     dbgpln("ThreadId %4x", GetCurrentThreadId());
-#if WITHMAC
-    dbgpln("MAC Address %s", GetMacAddress(CString("*")));
-#endif
+    dbgpln("MAC Address %s", GetMacAddressStr(CString("*")));
+    dbgpln("Disk Serial Number 0x%x", GetDiskSerialNumber(ProgFiles()));
 
     //DNanValueUnion DSignalNanValue1={0x7ffbffffffffffff};
     //DNanValueUnion DSignalNanValue2={0x7fffffffffffffff};
@@ -1726,7 +1686,7 @@ BOOL CSysCADApp::InitInstance()
   ScdCtrls_Entry();
   GPWFuncs_Entry();
 
-//  CProject::RestoreOneWindow(CWindowLists::MainWndTitle, m_pMainWnd, true, false);
+  //  CProject::RestoreOneWindow(CWindowLists::MainWndTitle, m_pMainWnd, true, false);
 
   CMsgWindow::StartUp();
   CDlgBusy::Startup();
@@ -1735,8 +1695,8 @@ BOOL CSysCADApp::InitInstance()
   BuildInterfaceWindows();
 
   int LicenseRet=InitInstLicense1(cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated);
-  if (LicenseRet==LicInit_ExitReqd)
-    return false;
+  //if (LicenseRet==LicInit_ExitReqd)
+  //  return false;
 
   if (!InitInstVersion())
     return false;
@@ -1848,7 +1808,7 @@ BOOL CSysCADApp::InitInstance()
   if (m_CLH.sAutoLoadSnp.Length()>0)
     m_DoAutoLoadCLHSnp=true;
 
-  #if WITHAUTOMATION
+#if WITHAUTOMATION
   if (m_CLH.bAutomation)
     {
     AutomationTemplate().CreateNewDocument();
@@ -1856,7 +1816,7 @@ BOOL CSysCADApp::InitInstance()
     //if (pDoc)
     //  return true;
     }
-  #endif
+#endif
 
   gs_pPrj->Initialise(NULL);
 
@@ -1879,22 +1839,22 @@ BOOL CSysCADApp::InitInstance()
     else
       MainWnd()->ShowWindow(SW_MINIMIZE);
     }
-                     
+
   return true;
   }
 
 
 /*
 int CSysCADApp::ExitInstance()
-  {
-  if (m_bATLInited)
-    {
-    _Module.RevokeClassObjects();
-    _Module.Term();
-    }
+{
+if (m_bATLInited)
+{
+_Module.RevokeClassObjects();
+_Module.Term();
+}
 
-  return CWinApp::ExitInstance();
-  }
+return CWinApp::ExitInstance();
+}
 */
 //---------------------------------------------------------------------------
 
@@ -1947,7 +1907,7 @@ int CSysCADApp::ExitInstance()
     //Cnvs_Exit();
 
     dbgpln("SysCAD Exit ===================================================");
-//    Dbg_Exit();
+    //    Dbg_Exit();
     gs_MsgLog.Exit();
 
     // Allow dump of memory leaks
@@ -1962,9 +1922,9 @@ int CSysCADApp::ExitInstance()
   if (0)
     SparesList::DumpUsage("SysCAD Done",true);
 #endif
-//#if (TESTMEMGOBBLE)
-//  DumpOurHeap();
-//#endif
+  //#if (TESTMEMGOBBLE)
+  //  DumpOurHeap();
+  //#endif
 
   CDbgMngr::ShutDown();
 #if HEAP_SPARES
@@ -2130,11 +2090,11 @@ void CSysCADApp::BuildInterfaceWindows()
       hIcon = ScdApp()->LoadIcon(IDI_ACCESS);
       ClassName = AfxRegisterWndClass(CS_DBLCLKS|CS_NOCLOSE, 0, 0, hIcon);
       if (pAccFrame->Create(ClassName.GetBuffer(0),
-                            "Access", WS_CHILD | WS_OVERLAPPED |
-                            WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
-                            WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-                            WS_MINIMIZE,
-                            Rect, NULL, &CC))
+        "Access", WS_CHILD | WS_OVERLAPPED |
+        WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
+        WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+        WS_MINIMIZE,
+        Rect, NULL, &CC))
         {
         pAccWnd = (pAccNodeWnd)pAccFrame->GetTopWindow();
         pAccFrame->ShowWindow(SW_MINIMIZE);
@@ -2157,10 +2117,10 @@ void CSysCADApp::BuildInterfaceWindows()
   hIcon = ScdApp()->LoadIcon(IDI_COMMAND);
   ClassName = AfxRegisterWndClass(CS_DBLCLKS|CS_NOCLOSE, 0, 0, hIcon);
   if (gs_pCmdFrame->Create(ClassName.GetBuffer(0),
-                        "Command", WS_CHILD | WS_OVERLAPPED |
-                        WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
-                        WS_MINIMIZEBOX | WS_MAXIMIZEBOX /*| WS_MINIMIZE*/,
-                        Rect, NULL, &CC))
+    "Command", WS_CHILD | WS_OVERLAPPED |
+    WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
+    WS_MINIMIZEBOX | WS_MAXIMIZEBOX /*| WS_MINIMIZE*/,
+    Rect, NULL, &CC))
     {
     gs_pCmd = (CommandWnd*)gs_pCmdFrame->GetTopWindow();
     gs_pCmdFrame->ShowWindow(SW_MINIMIZE);
@@ -2179,14 +2139,14 @@ BOOL CSysCADApp::OnIdle(LONG lCount)
       MS.dwLength=sizeof(MS);
       GlobalMemoryStatus(&MS);
       dbgpln(">>> %5i %8i %8i %8i %8i %8i %8i",
-             i,
-             MS.dwAvailVirtual/(1024*1024),
-             MS.dwTotalPhys/(1024*1024),
-             MS.dwAvailPhys/(1024*1024),
-             MS.dwTotalPageFile/(1024*1024),
-             MS.dwAvailPageFile/(1024*1024),
-             (MS.dwTotalVirtual-MS.dwAvailVirtual)/(1024*1024)
-             );
+        i,
+        MS.dwAvailVirtual/(1024*1024),
+        MS.dwTotalPhys/(1024*1024),
+        MS.dwAvailPhys/(1024*1024),
+        MS.dwTotalPageFile/(1024*1024),
+        MS.dwAvailPageFile/(1024*1024),
+        (MS.dwTotalVirtual-MS.dwAvailVirtual)/(1024*1024)
+        );
       if (MS.dwAvailPageFile<=(DWORD)m_CLH.lGobbleMemUntil*1024*1024)
         break;
       if (1)
@@ -2233,11 +2193,11 @@ BOOL CSysCADApp::OnIdle(LONG lCount)
       break;
 
     case 2:
-      #if USESCDEXPLORER
+#if USESCDEXPLORER
       CExploreScd::ChkRefreshIt();
-      #else
+#else
       CWndSlctWnd::ChkRefreshIt(); //is their a more effecient way to do this???
-      #endif
+#endif
       bResult = true;
       break;
 
@@ -2342,11 +2302,11 @@ BOOL CSysCADApp::PreTranslateMessage(MSG* pMsg)
   //return CWinApp::PreTranslateMessage(pMsg);
   BOOL bResult = CWinApp::PreTranslateMessage(pMsg);
 
-//#if USESCDEXPLORER
-//  CExploreScd::ChkRefreshIt();
-//#else
-//  CWndSlctWnd::ChkRefreshIt(); //is their a more effecient way to do this???
-//#endif
+  //#if USESCDEXPLORER
+  //  CExploreScd::ChkRefreshIt();
+  //#else
+  //  CWndSlctWnd::ChkRefreshIt(); //is their a more effecient way to do this???
+  //#endif
 
   switch (pMsg->message)
     {
@@ -2363,13 +2323,13 @@ BOOL CSysCADApp::PreTranslateMessage(MSG* pMsg)
     case WM_NCHITTEST:
     case WM_ACTIVATEAPP:
       {
-      #if WITHSCRCYCLES
+#if WITHSCRCYCLES
       if (gs_pPrj && gs_pPrj->iCycleNo>=0)
         {
         //m_pMainWnd->PostMessage(WMU_ENDCYCLES);
         m_pMainWnd->SendMessage(WMU_ENDCYCLES);
         }
-      #endif
+#endif
       //if (pExec)
       if (gs_Exec.Initialised())
         gs_Exec.LowerPriority();
@@ -2530,8 +2490,8 @@ void CSysCADApp::OnHelpPgm()
 
 void CSysCADApp::OnHelpModels()
   {
-/*HWND HtmlHelp(HWND    hwndCaller,LPCSTR  pszFile,
-              UINT    uCommand, DWORD   dwData) ;*/
+  /*HWND HtmlHelp(HWND    hwndCaller,LPCSTR  pszFile,
+  UINT    uCommand, DWORD   dwData) ;*/
   //DWORD dw = 0;
   //::HtmlHelp(m_pMainWnd->m_hWnd, "c:\\syscad90xxx\\Help Files\\User's Manual\\User Manual Revision 13 TOC.htm", HH_DISPLAY_TOC, dw);
 
@@ -2543,14 +2503,14 @@ void CSysCADApp::OnHelpModels()
   si.wShowWindow = SW_SHOWDEFAULT;
   PROCESS_INFORMATION pi;
   if (CreateProcess(NULL, "iexplore c:\\syscad90xxx\\Help Files\\User's Manual\\User Manual Revision 13 TOC.htm", NULL, NULL, FALSE, 0, NULL, "c:\\syscad90xxx\\Help Files\\User's Manual\\", &si, &pi))
-    {
-    //hProcess = pi.hProcess;
-    //dwProcessId = pi.dwProcessId;
+  {
+  //hProcess = pi.hProcess;
+  //dwProcessId = pi.dwProcessId;
 
-    //SYSTEMTIME ST;
-    //GetSystemTime(&ST);
-    //SystemTimeToFileTime(&ST, &EditTime);
-    }*/
+  //SYSTEMTIME ST;
+  //GetSystemTime(&ST);
+  //SystemTimeToFileTime(&ST, &EditTime);
+  }*/
 
   if (1)
     {
@@ -2579,7 +2539,7 @@ void CSysCADApp::OnFileOpen()
 
   if (!gs_License.Blocked())
     OnFileOpenX();
-    //CWinApp::OnFileOpen();
+  //CWinApp::OnFileOpen();
   }
 
 void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
@@ -2833,7 +2793,7 @@ void CSysCADApp::OnUpdateAppExit(CCmdUI* pCmdUI)
 
 void CSysCADApp::OnLicense(UINT nID)
   {
-  #if CK_LICENSINGON
+#if CK_LICENSINGON
   switch (nID)
     {
     case ID_CK_LIC_RESETSERVICE:
@@ -2849,9 +2809,9 @@ void CSysCADApp::OnLicense(UINT nID)
           {
           if (!gs_License.Check())
             {
-            #if CK_ALLOWDEMOMODE
+#if CK_ALLOWDEMOMODE
             gs_License.SetDemoMode();
-            #endif
+#endif
             }
           }
         gs_License.QuickCheck(1);
@@ -2926,19 +2886,19 @@ void CSysCADApp::OnLicense(UINT nID)
     }
   gs_License.QuickCheck(0);
   ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
-  #endif
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 void CSysCADApp::OnUpdateLicense(CCmdUI* pCmdUI)
   {
-  #if CK_LICENSINGON
-  flag NotActive = (!EnableActive() && !gs_License.Blocked());
+#if CK_LICENSINGON
+  flag NotActive = (!EnableActive() && !gs_License.Blocked() && !gs_License.AcademicMode());
   switch (pCmdUI->m_nID)
     {
     case ID_CK_LIC_RESETSERVICE:
-      pCmdUI->Enable(IsWinNT);
+      pCmdUI->Enable(IsWinNT && !gs_License.AcademicMode());
       break;
     case ID_CK_LIC_TRIAL:
       pCmdUI->Enable(!gs_License.Licensed() && NotActive && gs_License.DidInitCrypkey() && !gs_License.TrialFailed());
@@ -2965,9 +2925,9 @@ void CSysCADApp::OnUpdateLicense(CCmdUI* pCmdUI)
       pCmdUI->Enable(!gs_License.Licensed() && NotActive && gs_License.DidInitCrypkey());
       break;
     }
-  #else
+#else
   pCmdUI->Enable(false);
-  #endif
+#endif
   }
 
 //---------------------------------------------------------------------------
@@ -2979,9 +2939,9 @@ static void AppendFilterSuffix(CString& filter, OPENFILENAME& ofn, CDocTemplate*
 
   CString strFilterExt, strFilterName;
   if (pTemplate_->GetDocString(strFilterExt, CDocTemplate::filterExt) &&
-     !strFilterExt.IsEmpty() &&
-     pTemplate_->GetDocString(strFilterName, CDocTemplate::filterName) &&
-     !strFilterName.IsEmpty())
+    !strFilterExt.IsEmpty() &&
+    pTemplate_->GetDocString(strFilterName, CDocTemplate::filterName) &&
+    !strFilterName.IsEmpty())
     {
     // a file based document template - add to filter list
     ASSERT(strFilterExt[0] == '.');
@@ -3008,7 +2968,7 @@ BOOL CSysCADApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlag
   {
   CDocManager & DM=*m_pDocManager;
 
-//  CSimpleFileName DlgS(bOpenFileDialog);
+  //  CSimpleFileName DlgS(bOpenFileDialog);
   CSCDFileDialog     Dlg(bOpenFileDialog);
   Dlg.m_DoingPrjOpen=true;
 
@@ -3077,14 +3037,14 @@ BOOL CSysCADApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlag
             }
           }
 
-      strFilter += _T("All SysCAD Files(");
-      strFilter += strExtList;
-      strFilter += _T(")");
-      strFilter += (TCHAR)'\0';   // next string please
-      strFilter += strExtList;
-      strFilter += (TCHAR)'\0';   // last string
-      m_ofn.nMaxCustFilter++;
-      bFirst = false;
+        strFilter += _T("All SysCAD Files(");
+        strFilter += strExtList;
+        strFilter += _T(")");
+        strFilter += (TCHAR)'\0';   // next string please
+        strFilter += strExtList;
+        strFilter += (TCHAR)'\0';   // last string
+        m_ofn.nMaxCustFilter++;
+        bFirst = false;
       }
 
     // do for all doc template
@@ -3113,7 +3073,7 @@ BOOL CSysCADApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlag
   m_ofn.lpstrTitle = strTitle;
   m_ofn.lpstrFile = fileName.GetBuffer(_MAX_PATH);
   m_ofn.lpstrInitialDir = strInitialDir;
-//  BOOL bResult = dlgFile.DoModal() == IDOK ? true : false;
+  //  BOOL bResult = dlgFile.DoModal() == IDOK ? true : false;
   BOOL bResult= Dlg.DoModal() == IDOK ? true : false;
   fileName.ReleaseBuffer();
   return bResult;
@@ -3129,14 +3089,14 @@ void CSysCADApp::OnFileNewX()
 
 void CSysCADApp::OnFileOpenX()
   {
-    // prompt the user (with all document templates)
+  // prompt the user (with all document templates)
   CString newName;
   if (!DoPromptFileName(newName, AFX_IDS_OPENFILE,
     OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, true, NULL, (gs_pPrj && gs_pPrj->pPrjDoc)))
     return; // open cancelled
 
   AfxGetApp()->OpenDocumentFile(newName);
-    // if returns NULL, the user has already been alerted
+  // if returns NULL, the user has already been alerted
   }
 
 //---------------------------------------------------------------------------
@@ -3175,7 +3135,7 @@ BOOL CSysCADApp::OnOpenRecentFile(UINT nID)
   ASSERT((*m_pRecentFileList)[nIndex].GetLength() != 0);
 
   TRACE2("MRU: open file (%d) '%s'.\n", (nIndex) + 1,
-      (LPCTSTR)(*m_pRecentFileList)[nIndex]);
+    (LPCTSTR)(*m_pRecentFileList)[nIndex]);
 
   Strng Fn=(*m_pRecentFileList)[nIndex];
 
@@ -3184,19 +3144,19 @@ BOOL CSysCADApp::OnOpenRecentFile(UINT nID)
   HANDLE H = FindFirstFile(Fn(), &fd);
   if (H!=INVALID_HANDLE_VALUE)
     if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-//  Strng T;
-//  T.FnExt(Fn());
-//  if (T.XStrICmp(".spf")==0)
+      //  Strng T;
+      //  T.FnExt(Fn());
+      //  if (T.XStrICmp(".spf")==0)
       {
       Fn.FnCheckEndBSlash();
       Fn+="Project.spj";
       }
-  FindClose(H);
+    FindClose(H);
 
-  if (OpenDocumentFile(Fn()) == NULL)
-    m_pRecentFileList->Remove(nIndex);
+    if (OpenDocumentFile(Fn()) == NULL)
+      m_pRecentFileList->Remove(nIndex);
 
-  return true;
+    return true;
 
   }
 
@@ -3450,24 +3410,24 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
 CSysCADModule _Module;
 
 BEGIN_OBJECT_MAP(ObjectMap)
-OBJECT_ENTRY(CLSID_ScdApplication , CScdApplication)
-OBJECT_ENTRY(CLSID_ScdAppTag      , CScdAppTag     )
-OBJECT_ENTRY(CLSID_ScdAppTags     , CScdAppTags    )
-OBJECT_ENTRY(CLSID_ScdGraphic     , CScdGraphic    )
-OBJECT_ENTRY(CLSID_ScdGraphics    , CScdGraphics   )
-OBJECT_ENTRY(CLSID_ScdTrend       , CScdTrend      )
-OBJECT_ENTRY(CLSID_ScdTrends      , CScdTrends     )
-OBJECT_ENTRY(CLSID_ScdHistorian   , CScdHistorian  )
-OBJECT_ENTRY(CLSID_ScdLicenseApp  , CScdLicenseApp )
-OBJECT_ENTRY(CLSID_ScdOptions     , CScdOptions    )
-OBJECT_ENTRY(CLSID_ScdProject     , CScdProject    )
-OBJECT_ENTRY(CLSID_ScdReplay      , CScdReplay     )
-OBJECT_ENTRY(CLSID_ScdReport      , CScdReport     )
-OBJECT_ENTRY(CLSID_ScdReports     , CScdReports    )
-OBJECT_ENTRY(CLSID_ScdSnapshot    , CScdSnapshot   )
-OBJECT_ENTRY(CLSID_ScdOPCServer   , CScdOPCServer  )
-OBJECT_ENTRY(CLSID_ScdIOMarshal   , CScdIOMarshal  )
-OBJECT_ENTRY(CLSID_ScdDDEServer   , CScdDDEServer  )
+  OBJECT_ENTRY(CLSID_ScdApplication , CScdApplication)
+  OBJECT_ENTRY(CLSID_ScdAppTag      , CScdAppTag     )
+  OBJECT_ENTRY(CLSID_ScdAppTags     , CScdAppTags    )
+  OBJECT_ENTRY(CLSID_ScdGraphic     , CScdGraphic    )
+  OBJECT_ENTRY(CLSID_ScdGraphics    , CScdGraphics   )
+  OBJECT_ENTRY(CLSID_ScdTrend       , CScdTrend      )
+  OBJECT_ENTRY(CLSID_ScdTrends      , CScdTrends     )
+  OBJECT_ENTRY(CLSID_ScdHistorian   , CScdHistorian  )
+  OBJECT_ENTRY(CLSID_ScdLicenseApp  , CScdLicenseApp )
+  OBJECT_ENTRY(CLSID_ScdOptions     , CScdOptions    )
+  OBJECT_ENTRY(CLSID_ScdProject     , CScdProject    )
+  OBJECT_ENTRY(CLSID_ScdReplay      , CScdReplay     )
+  OBJECT_ENTRY(CLSID_ScdReport      , CScdReport     )
+  OBJECT_ENTRY(CLSID_ScdReports     , CScdReports    )
+  OBJECT_ENTRY(CLSID_ScdSnapshot    , CScdSnapshot   )
+  OBJECT_ENTRY(CLSID_ScdOPCServer   , CScdOPCServer  )
+  OBJECT_ENTRY(CLSID_ScdIOMarshal   , CScdIOMarshal  )
+  OBJECT_ENTRY(CLSID_ScdDDEServer   , CScdDDEServer  )
 END_OBJECT_MAP()
 
 const int NoAggObjectsInApp = 0;
@@ -3556,9 +3516,9 @@ class CScdAppComThread //: public CScdAppIF
 
 CScdAppComThread::CScdAppComThread()
   {
-      //m_hThreadProc=0;
-      //m_dwThreadId=0;
-      m_dwEvtMsgId=0;
+  //m_hThreadProc=0;
+  //m_dwThreadId=0;
+  m_dwEvtMsgId=0;
   };
 
 //--------------------------------------------------------------------------
@@ -3581,7 +3541,7 @@ void CScdAppComThread::RegisterAndStart(DWORD EvtMsgId)
   m_dwEvtMsgId = EvtMsgId;
   m_pThread= ::AfxBeginThread((AFX_THREADPROC)StaticThreadProc, (LPVOID)this, THREAD_PRIORITY_NORMAL, 100000, CREATE_SUSPENDED, NULL);//&m_dwThreadId);
   SetThreadName(m_pThread->m_nThreadID, "Application COM");
-// if ((pObjThread = AfxBeginThread(EO_ExecThread, (LPVOID)this, THREAD_PRIORITY_NORMAL, StackSize, CREATE_SUSPENDED))==NULL)
+  // if ((pObjThread = AfxBeginThread(EO_ExecThread, (LPVOID)this, THREAD_PRIORITY_NORMAL, StackSize, CREATE_SUSPENDED))==NULL)
 
 
   m_EventSender.Init(m_pThread->m_nThreadID, m_dwEvtMsgId);
@@ -3629,7 +3589,7 @@ void CScdAppComThread::DoThreadShutdownStuff()
   {
   TRACE0("CScdAppComThread : DoThreadShutdownStuff\n");
 
-//TODO COMPLETE --------------
+  //TODO COMPLETE --------------
 
   _Module.RevokeClassObjects();
   }
@@ -3674,9 +3634,9 @@ DWORD WINAPI CScdAppComThread::ThreadProc()
     }
   catch(...)
     {
-//  if (TestLogOption(LogOption_COMCallsInternal))
+    //  if (TestLogOption(LogOption_COMCallsInternal))
     LogError("Com", 0, "CScdAppComThread Exception Occurred");
-//  throw CScdComException (LclHR, Desc);
+    //  throw CScdComException (LclHR, Desc);
     return -1;
     }
   }
@@ -3689,8 +3649,8 @@ static CScdAppComThread *gs_ptheThread=NULL;
 
 void StartAppComThread(DWORD EvtMsgId)
   {
-//  _Module.Init(ObjectMap, AfxGetInstanceHandle());
-//  _Module.dwThreadID = GetCurrentThreadId();
+  //  _Module.Init(ObjectMap, AfxGetInstanceHandle());
+  //  _Module.dwThreadID = GetCurrentThreadId();
 
   gs_ptheThread = new CScdAppComThread;
   gs_ptheThread ->RegisterAndStart(EvtMsgId);

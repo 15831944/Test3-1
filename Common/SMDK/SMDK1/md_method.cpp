@@ -117,7 +117,7 @@ void MUnitDefBase::SetModelLicense(dword License)
   if (License & MLicense_PSD) DW = (DW | TOC_SIZEDIST);
   if (License & MLicense_Alumina) DW = (DW | TOC_ALUMINA);
   if (License & MLicense_Electrical) DW = (DW | TOC_POWERDIST);
-  if (License & MLicense_User) DW = (DW | TOC_USER);
+  if (License & MLicense_User) DW = (DW | TOC_CLIENT);
   if (License & MLicense_RTTS) DW = (DW | TOC_RTTS);
   if (License & MLicense_Alcan) DW = (DW | TOC_ALCAN);
   if (License & MLicense_QALExtra) DW = (DW | TOC_QALEXTRA);

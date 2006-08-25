@@ -5204,7 +5204,7 @@ int SelectFile(Strng &FilePath, char* Name1, char* Name2, char* Name3)
 
 //---------------------------------------------------------------------------
 
-BOOL FileExists(char * FileName, WIN32_FIND_DATA & fd)
+BOOL FileExists(LPCTSTR FileName, WIN32_FIND_DATA & fd)
   {
   HANDLE H;
   if ((H=FindFirstFile(FileName, &fd))!=INVALID_HANDLE_VALUE)
@@ -5217,7 +5217,7 @@ BOOL FileExists(char * FileName, WIN32_FIND_DATA & fd)
 
 //---------------------------------------------------------------------------
 
-BOOL FileExists(char * FileName)
+BOOL FileExists(LPCTSTR FileName)
   {
   WIN32_FIND_DATA fd;
   return FileExists(FileName, fd);
@@ -5262,7 +5262,7 @@ BOOL FileExists(char * FileName)
 //FILE_ATTRIBUTE_SYSTEM The file or directory is part of the operating system, or is used exclusively by the operating system. 
 //FILE_ATTRIBUTE_TEMPORARY 
 
-BOOL FileAttributes(char * FileName, DWORD & Attributes)
+BOOL FileAttributes(LPCTSTR FileName, DWORD & Attributes)
   {
   WIN32_FIND_DATA fd;
   HANDLE H;
@@ -5275,6 +5275,18 @@ BOOL FileAttributes(char * FileName, DWORD & Attributes)
   return false;
   };
 
+BOOL FileWriteTime(LPCTSTR FileName, FILETIME & FileTime)
+  {
+  WIN32_FIND_DATA fd;
+  HANDLE H;
+  if ((H=FindFirstFile(FileName, &fd))!=INVALID_HANDLE_VALUE)
+    {
+    FileTime=fd.ftLastWriteTime;
+    FindClose(H);
+    return true;
+    }
+  return false;
+  };
 
 //---------------------------------------------------------------------------
 
@@ -7068,6 +7080,105 @@ bool MakeVersionOK(LPCTSTR FileName, LPCTSTR MakeName, WORD V0, WORD V1, WORD V2
   return True;
   };
 
+//==========================================================================
+//
+//
+//
+// ========================================================================
+
+#include <nb30.h>
+#pragma comment(lib, "netapi32.lib")
+
+typedef struct _ASTAT_
+  {
+  ADAPTER_STATUS adapt;
+  NAME_BUFFER    NameBuff[30];
+  } ASTAT, * PASTAT;
+
+INT64 GetMacAddress(LPCTSTR sNetBiosNameIn)
+  {
+  CString sNetBiosName(sNetBiosNameIn);
+  ASTAT Adapter;
+
+  NCB ncb;
+  UCHAR uRetCode;
+
+  memset(&ncb, 0, sizeof(ncb));
+  ncb.ncb_command = NCBRESET;
+  ncb.ncb_lana_num = 0;
+
+  uRetCode = Netbios(&ncb);
+
+  memset(&ncb, 0, sizeof(ncb));
+  ncb.ncb_command = NCBASTAT;
+  ncb.ncb_lana_num = 0;
+
+  sNetBiosName.MakeUpper();
+
+  FillMemory(ncb.ncb_callname, NCBNAMSZ - 1, 0x20);
+
+  strcpy((char *)ncb.ncb_callname, (LPCTSTR) sNetBiosName);
+
+  ncb.ncb_callname[sNetBiosName.GetLength()] = 0x20;
+  ncb.ncb_callname[NCBNAMSZ] = 0x0;
+
+  ncb.ncb_buffer = (unsigned char *) &Adapter;
+  ncb.ncb_length = sizeof(Adapter);
+
+  uRetCode = Netbios(&ncb);
+
+  if (uRetCode == 0)
+    {
+    INT64 Mac=0;
+    for (int i=0; i<6; i++)
+      Mac = (Mac << 8) | Adapter.adapt.adapter_address[i];
+    return Mac;
+    }
+  return 0;
+  }
+
+CString GetMacAddressStr(LPCTSTR sNetBiosNameIn)
+  {
+  INT64 Mac=GetMacAddress(sNetBiosNameIn);
+
+  ASTAT Adapter;
+  memmove(Adapter.adapt.adapter_address, &Mac, 6);
+
+  for (int i=5; i>=0; i--)
+    {
+    Adapter.adapt.adapter_address[i] = (UCHAR)(Mac &0xff);
+    Mac = (Mac >> 8);
+    }
+
+  CString sMacAddress;
+  sMacAddress.Format(_T("%02x.%02x.%02x.%02x.%02x.%02x"),
+    Adapter.adapt.adapter_address[0],
+    Adapter.adapt.adapter_address[1],
+    Adapter.adapt.adapter_address[2],
+    Adapter.adapt.adapter_address[3],
+    Adapter.adapt.adapter_address[4],
+    Adapter.adapt.adapter_address[5]);
+  return sMacAddress;
+  }
+
+//===========================================================================
+
+DWORD GetDiskSerialNumber(LPCTSTR FileName)
+  {
+  Strng Fn(FileName);
+  Fn.FnDrive();
+  Fn.FnCheckEndBSlash();
+
+  char VolumeName[1024];
+  char FSNameBuff[1024];
+  DWORD dwVolSerialNo, dwMaxCompLen, dwFileSysFlags;
+  if (GetVolumeInformation(Fn(),
+    VolumeName, sizeof(VolumeName)-1,
+    &dwVolSerialNo, &dwMaxCompLen, &dwFileSysFlags,
+    FSNameBuff, sizeof(FSNameBuff)-1))
+    return dwVolSerialNo;
+  return 0;
+  }
 
 //==========================================================================
 //

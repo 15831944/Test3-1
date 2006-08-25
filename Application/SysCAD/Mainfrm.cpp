@@ -650,6 +650,8 @@ void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
     Txt="LICENSE EXCEEDED ";
   else if (gs_License.DemoMode())
     Txt="DEMO MODE ";
+  else if (gs_License.AcademicMode())
+    Txt="ACADEMIC MODE ";
 
   if (PrjName())
     {
@@ -2973,6 +2975,7 @@ IMPLEMENT_DYNAMIC(CMyMDIClient, CWnd)
 BEGIN_MESSAGE_MAP(CMyMDIClient, CWnd)
   //{{AFX_MSG_MAP(CMyMDIClient)
   ON_WM_PAINT()
+  ON_WM_SIZE()
   ON_WM_RBUTTONDOWN()
   //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -2984,7 +2987,7 @@ void CMyMDIClient::OnPaint()
   bool DoPaint = (gs_pPrj && gs_pPrj->LoadBusy());
   #if CK_LICENSINGON
   if (!DoPaint)
-    DoPaint = (gs_License.DemoMode() || gs_License.Blocked());
+    DoPaint = (gs_License.DemoMode() || gs_License.AcademicMode() || gs_License.Blocked());
   #endif
   if (DoPaint)
     {
@@ -2997,27 +3000,45 @@ void CMyMDIClient::OnPaint()
     CFont * pOldFont=NULL;
 
     #if CK_LICENSINGON
-    if (gs_License.DemoMode() || gs_License.Blocked())
+    if (gs_License.AcademicMode() || gs_License.DemoMode() || gs_License.Blocked())
       {
+      int NDown   = 5;
+      int NAcross = 3;
+
+      if (gs_License.Blocked())
+        NAcross = 1;
+
+      int Width   = Rect.Width();
+      int Height  = Rect.Height();
+      int DHeight = Height/(NDown+1);
+      int DWidth  = Width/(NAcross);
       CFont Font;
       //Font.CreatePointFont(gs_License.Blocked() ? 280 : 360, "Arial");
       Font.CreatePointFont(gs_License.Blocked() ? 200 : 120, "Arial");
       pOldFont=dc.SelectObject(&Font);
+
+      CString Msg;
       if (gs_License.Blocked())
         {
-        for (int i=1; i<5; i++)
-          dc.TextOut(16, 16+(i*160), "License conditions exceeded, restart SysCAD.", 44);
+        Msg="License conditions exceeded, restart SysCAD.";
+        }
+      else if (gs_License.AcademicMode())
+        {
+        Msg.Format("Academic License : %s", gs_License.AcademicName());
         }
       else if (gs_License.DemoMode())
         {
-        const char* DemoMsg[2] = { "Using SysCAD in Demo Mode", "Using Demo Mode, Licensing service Error!" };
-        const int DemoMsgLen[2] = { 25, 41 };
-        const int MsgIndex = (gs_License.DidInitCrypkey() ? 0 : 1);
-        for (int i=1; i<4; i++)
-          {
-          dc.TextOut(16, 16+(i*195), DemoMsg[MsgIndex], DemoMsgLen[MsgIndex]);
-          dc.TextOut(655, 16+(i*195), DemoMsg[MsgIndex], DemoMsgLen[MsgIndex]);
-          }
+        if (gs_License.DidInitCrypkey())
+          Msg="Using SysCAD in Demo Mode";
+        else
+          Msg="Using Demo License, Licensing service Error!";
+        }
+      CRect TxtRct;
+      dc.DrawText(Msg,  Msg.GetLength(),  TxtRct, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
+      for (int i=1; i<=NDown; i++)
+        {
+        for (int j=1; j<=NAcross; j++)
+          dc.TextOut(j*DWidth-DWidth/2-TxtRct.Width()/2, i*DHeight/*-DHeight/2*/-TxtRct.Height()/2, Msg, Msg.GetLength());
         }
       }
     #endif             
@@ -3054,6 +3075,13 @@ void CMyMDIClient::OnPaint()
 
   // Do not call CWnd::OnPaint() for painting messages
   }
+
+//---------------------------------------------------------------------------
+
+void CMyMDIClient::OnSize(UINT Type, int cx, int cy)
+  {
+  Invalidate();
+  };
 
 //---------------------------------------------------------------------------
 

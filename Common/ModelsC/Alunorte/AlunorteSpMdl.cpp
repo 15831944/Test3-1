@@ -22,7 +22,7 @@ static CDbgMngr dbgSpecies ("BASIC", "Species");
 //
 // ==========================================================================
 
-IMPLEMENT_SPMODEL(AlunorteBayer, "AlBayer", "", TOC_ALL|TOC_GRP_ALUMINA|TOC_USER|TOC_ALUMINA, "Alunorte Bayer", "Alunorte Bayer Properties Model");
+IMPLEMENT_SPMODEL(AlunorteBayer, "AlBayer", "", TOC_ALL|TOC_GRP_ALUMINA|TOC_CLIENT|TOC_ALUMINA, "Alunorte Bayer", "Alunorte Bayer Properties Model");
 IMPLEMENT_SPARES(AlunorteBayer, 100);
 
 static MInitialiseTest InitTest(&AlunorteBayerClass);

@@ -8,9 +8,8 @@
 //  License Options
 //===========================================================================
 
+#define ACADEMICLICENSE         01
 #define FORCEMINESERVE          0 
-
-
 
 #if (FORCEMINESERVE)
 // for debug only
@@ -26,7 +25,7 @@
 #elif  _RELEASE
 #define BYPASSLICENSING         0
 #else
-#define BYPASSLICENSING         01
+#define BYPASSLICENSING         0
 #endif
 #define ALLOWCNMVERSION         01
 

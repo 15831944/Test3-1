@@ -40,7 +40,7 @@ static double Drw_SecReformer[] = { DD_Scale, 1500,
 //--------------------------------------------------------------------------
 
 IMPLEMENT_MODELUNIT(SecReformer, "SecReformer", "1", Drw_SecReformer, "MixerSplitter", "SR", 
-                    TOC_DYNAMICFULL|TOC_USER, 
+                    TOC_DYNAMICFULL|TOC_CLIENT, 
                     "Secondary Reformer(1)",   
                     "Secondary Reformer") 
 

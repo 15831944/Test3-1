@@ -5,9 +5,9 @@
 
 #include "stdafx.h"
 #define __LICBASE_CPP
-#include "licbase.h"
 #include "scdver.h"
 #include "scdverlic.h"
+#include "licbase.h"                        
 
 //#if CK_LICENSINGON
 #include "sc_defs.h"
@@ -72,7 +72,7 @@ char* CK_AppName = "SysCAD";
 #define CK_PASSNUM    984534120  //you can use them in your tests if you need to
 */
 
-#if !BYPASSLICENSING
+#if !BYPASSLICENSING 
 //for syscad.exe                
 #if CK_USE6525
 
@@ -167,6 +167,258 @@ char* CK_LevelNames[4] =
 //
 //===========================================================================
 
+#if ACADEMICLICENSE 
+const int MaxMACs=2;
+const int MaxDsks=2;
+CTime s_FromDate( 2006,  8,  1, 0, 0, 0);
+CTime s_ToDate  ( 2006, 12, 31, 0, 0, 0);
+struct CLicData { char m_Name[100]; INT64 m_MACs[MaxMACs]; DWORD m_Dsks[MaxDsks]; };
+static CLicData s_LicData[] = 
+  {
+    {"" ,     { 0x000A5E55E061, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA8A8, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA764, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA8B7, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC7DE, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA62E9527, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC7E9, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1803, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFABF, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFACC, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61BE075, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFAD0, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA933, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA81C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFA45, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA80D, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA76D, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFAF9, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA763, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA7D0, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA62E9594, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA93D, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC814, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC810, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000B6AF42DE1, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C261AB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C261E2, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C53368, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C53289, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C25EAB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C5328A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C25F27, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C534DB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C5325E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C532EE, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C25EAA, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475C534DA, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000475F6201A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC806, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC801, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA62DD02C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000B6AF42E18, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA8CD, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC7C8, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA7EB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA62DC10C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA760, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA804, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA7BE, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA830, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFABA, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA924, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA814, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA765, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA61AA822, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA609D942, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC7F3, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFA58, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA62E950E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000EA62E94E8, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECF9C5, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC80A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED6F1B, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6ED76B0A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED6FB8, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EDEB35E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0013D44515AA, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0013D43F997A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0E1B, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234313C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430EB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430E7, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342F77, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234313B, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D28, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430DF, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343105, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0ECD, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342F63, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430E3, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D16, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343109, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342F59, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342E5E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D1C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343115, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343138, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D1E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1FCC, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1FEB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1FE5, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFA70, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFB03, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFA43, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFA57, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED5A78, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC7CB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFAC8, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC7DB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECFA51, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343111, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342E5A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342E6C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342E52, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343137, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342E83, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0EC5, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342F55, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015f2343120, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015f2343135, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015f234311D, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342E70, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343048, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234313D, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430E5, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430DD, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234313E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342F6B, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343103, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343113, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D1A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D22, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D34, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234307F, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D18, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D3A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343089, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343134, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2342F69, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D2A, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234310B, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343127, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D26, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F2343083, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430EF, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F23430F5, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234307D, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F234311C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0E70, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x0015F21B0D2E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED17FD, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC769, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1FE3, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC811, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1FE7, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECC766, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EECF9D3, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EC22, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55ED3E, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55ED49, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55ED50, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EB8F, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EE97, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EE42, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55ED48, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55ECD2, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55E97C, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EE99, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55AD41, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E518E36, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EE9F, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55E92F, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EAA1, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E518EAB, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55E3D7, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55B3C9, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E55EDE6, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000C6EED1FE1, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"" ,     { 0x000A5E4181C4, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
+    {"CNM" ,  { 0x0011430c0e22, 0x000000000000 }, {0xb015b4ac,           }, },
+    {"$END$"}
+  };
+
+BOOL CLicense::InitFromScdLicense()
+  {
+  FILE * h=fopen(m_sLicFile, "rt");
+  if (h)
+    {
+    char Buffer[64000];
+    int NRd=fread(Buffer, sizeof(char), sizeof(Buffer), h);
+    if (ferror(h)) 
+      goto ErrRet;
+
+    //???????????????????????????????????????????????????????????
+    // Read File and Unscramble
+    // ie Set s_LicData
+    //???????????????????????????????????????????????????????????
+
+    fclose(h);
+
+    CTime CurTime = CTime::GetCurrentTime();
+    if (CurTime<s_FromDate || CurTime>s_ToDate)
+      goto ErrRet;
+
+    FILETIME FileTime;
+    if (FileWriteTime(m_sLicFile, FileTime))
+      {
+      CTime FT(FileTime);
+      if (FT<s_FromDate || FT>s_ToDate)
+        goto ErrRet;
+      }
+    else
+      goto ErrRet;
+
+    m_sAcademicName =  "Curtin University";
+
+    // DoChecks
+    INT64 Mac=GetMacAddress("*");
+    DWORD Dsk=GetDiskSerialNumber(m_sProgFiles);
+    if (Mac==0)
+      goto ErrRet;
+    if (Dsk==0)
+      goto ErrRet;
+
+    for (int iPC=0; strcmp(s_LicData[iPC].m_Name, "$END$")!=0; iPC++)
+      {
+      for (int iMac=0; iMac<MaxMACs; iMac++)
+        {
+        if (s_LicData[iPC].m_MACs[iMac]==Mac)
+          {
+          for (int iDsk=0; iDsk<MaxDsks; iDsk++)
+            {
+            if (s_LicData[iPC].m_Dsks[iDsk]==Dsk)
+              return TRUE;
+            }
+          }
+        }
+      }
+    }
+
+ErrRet:
+  if (h)
+    fclose(h);
+  return FALSE;
+  }
+
+#endif /*ACADEMICLICENSE*/
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 #if BYPASSLICENSING
 int GetNumCopies()          { return 99; };
 int GetNumMultiUsers()      { return 99; };
@@ -231,7 +483,6 @@ int GetAuthorization(DWORD * dwOpLevel, int dec)
   Opt.m_Opts.Mode_ProBal        = PF.RdInt("Options", "Mode_ProBal      ",    0  );
 
 
-
   *dwOpLevel=Opt.m_OpLevel; 
 
   return (Opt.m_Opts.Mode_DynamicFull || Opt.m_Opts.Mode_DynamicFlow || Opt.m_Opts.Mode_ProBal) ? 0 : -777;
@@ -241,7 +492,7 @@ int CrypkeyVersion()                              { return 65; };
 LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
 #else
 
-#endif
+#endif /*BYPASSLICENSING*/
 
 //===========================================================================
 //
@@ -251,7 +502,14 @@ LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
 
 int MyGetOption(int No, int Index)
   {
-#if !BYPASSLICENSING
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    {
+    _asm int 3;
+    return -1;
+    }
+#endif
+#if !BYPASSLICENSING 
   if (gs_License.UseCOM())
     return s_ptr->GetOption(No, Index);
 #endif
@@ -260,6 +518,13 @@ int MyGetOption(int No, int Index)
 
 int MyGetAuthorization(long * dwOpLevel, int dec)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    {
+    _asm int 3;
+    return -1;
+    }
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetAuthorization(dwOpLevel, dec);
@@ -282,6 +547,13 @@ ULONG MyCKChallenge32(ULONG random1, ULONG random2)
 
 LPTSTR MyExplainErr(int Func, int err)              
   { 
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    {
+    _asm int 3;
+    return "??";
+    }
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ExplainErr(CKExplainEnum(Func), err);
@@ -291,6 +563,16 @@ LPTSTR MyExplainErr(int Func, int err)
 
 int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, int * num_used)
   { 
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    {
+    *authopt = 0;
+    *num_allowed = 1;
+    *num_used = 1;
+    *start_date = 0;
+    return -1;
+    }
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetRestrictionInfo((long*)authopt, (long*)start_date, (long*)num_allowed, (long*)num_used);
@@ -300,6 +582,12 @@ int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, i
 
 int MyGet1RestInfo(int X)
   { 
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    {
+    return 0;
+    }
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->Get1RestInfo(CKWhichEnum(X));
@@ -309,6 +597,10 @@ int MyGet1RestInfo(int X)
 
 int MyGetNumMultiUsers()
   { 
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 1;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr ? s_ptr->GetNumMultiUsers() : 1;
@@ -318,6 +610,10 @@ int MyGetNumMultiUsers()
 
 ULONG MyGetLevel(int NoLevels)  
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 1;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetLevel(NoLevels);
@@ -327,6 +623,10 @@ ULONG MyGetLevel(int NoLevels)
 
 ULONG MyGetNumCopies()  
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 1;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->GetNumCopies();
@@ -336,6 +636,10 @@ ULONG MyGetNumCopies()
 
 int MyCrypKeyVersion()  
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return -1;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->CrypKeyVersion();
@@ -378,6 +682,7 @@ int MyInitCrypkey(char far *filepath, char far *masterkey, char far *userkey, in
   if (gs_License.UseCOM())
     return s_ptr->InitCrypKey(filepath, masterkey, userkey, allow_floppy, network_max_checktime);
 #endif
+
 #if BYPASSLICENSING
   return 0;
 #else
@@ -398,6 +703,10 @@ int MyEndCrypkey()
   };
 int MyReadyToTry(unsigned long authlevel, int numDays)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 1;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ReadyToTry(authlevel, numDays);
@@ -410,6 +719,10 @@ int MyReadyToTry(unsigned long authlevel, int numDays)
   };
 int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copies)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 100;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ReadyToTryDays(authlevel, numDays, version, copies);
@@ -422,6 +735,10 @@ int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copi
   };
 int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copies)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 100;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->ReadyToTryRuns(authlevel, numRuns, version, copies);
@@ -434,6 +751,10 @@ int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copi
   };
 int MyRegisterTransfer(char far *target)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 0;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->RegisterTransfer(target);
@@ -446,6 +767,10 @@ int MyRegisterTransfer(char far *target)
   };
 int MySaveSiteKey(char far *sitekey)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 0;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->SaveSiteKey(sitekey);
@@ -458,6 +783,10 @@ int MySaveSiteKey(char far *sitekey)
   };
 int MyDirectTransfer(char far *target)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 0;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->DirectTransfer(target);
@@ -471,6 +800,10 @@ int MyDirectTransfer(char far *target)
 
 void MySetNetHandle(unsigned short net_handle)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return ;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     s_ptr->SetNetHandle(net_handle);
@@ -484,6 +817,10 @@ void MySetNetHandle(unsigned short net_handle)
   };
 int MyTransferIn(char far *target)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 0;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->TransferIn(target);
@@ -496,6 +833,10 @@ int MyTransferIn(char far *target)
   };
 int MyTransferOut(char far *target)
   {
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return 0;
+#endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
     return s_ptr->TransferOut(target);
@@ -514,7 +855,7 @@ int MyTransferOut(char far *target)
 //
 //===========================================================================
 
-#define dbgTimeLicensing 1
+#define dbgTimeLicensing 0
 
 #if dbgTimeLicensing
 class CStackTimer : public CStopWatch 
@@ -532,6 +873,12 @@ class CStackTimer : public CStopWatch
       }
 
     CString m_Name;
+  };
+#else
+class CStackTimer 
+  {
+  public:
+    CStackTimer(LPCTSTR Name) {};
   };
 #endif
 
@@ -977,6 +1324,7 @@ CLicense::CLicense()
 
   m_State.m_bMultiUserFailure = 0;
   m_State.m_bLicensed = 0;
+  m_State.m_bAcademicMode = 0;
   m_State.m_bDemoMode = 0;
   m_State.m_bTrialMode = 0;
   m_State.m_bTrialFailed = 0;
@@ -1102,14 +1450,33 @@ BOOL CLicense::Blocked()
 
 //---------------------------------------------------------------------------
 
-BOOL CLicense::Init(char* PathIn /*=NULL*/)
+BOOL CLicense::Init(char* PathIn /*=NULL*/, char* ProgFiles/*=NULL*/)
   {
   int Ret=LicInit_OK;
-#if dbgTimeLicensing
   CStackTimer TM("Init");
-#endif
   CWaitCursor Wait;
 #if !BYPASSLICENSING
+#if ACADEMICLICENSE 
+  if (ProgFiles)
+    {
+    m_sProgFiles=ProgFiles;
+    m_sLicFile=m_sProgFiles;
+    m_sLicFile+="..\\License\\SysCAD.License";
+    }
+
+  if (m_sLicFile.GetLength()>0 && FileExists((LPTSTR)(LPCTSTR)m_sLicFile))
+    {
+    if (InitFromScdLicense())
+      {
+      SetAcademicMode();
+      return LicInit_GoAcademic;
+      }
+    AfxMessageBox("License Error 2006 Please contact suppliers\n\nStarting SysCAD in Demo Mode!", MB_ICONEXCLAMATION|MB_OK);
+    SetDemoMode();
+    return LicInit_GoDemo;
+    }
+
+#endif /*ACADEMICLICENSE*/
   if (m_bDidInitCrypkey)
     {
     MyEndCrypkey();
@@ -1176,6 +1543,10 @@ ReTry:
       //m_bDidInitCrypkey = 1;
       SetDemoMode();
       return Ret;  
+    case LicInit_GoAcademic:
+      //m_bDidInitCrypkey = 1;
+      SetAcademicMode();
+      return Ret;  
     };
   
 //#if !BYPASSLICENSING
@@ -1194,6 +1565,7 @@ ReTry:
       }
     }
   err = MyInitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+  m_bDidInitCrypkey = 1;
 
   if (err==-209)
     {
@@ -1231,7 +1603,7 @@ ReTry:
       else
         Error("Initialization Failure %d\n%s for %s", err, MyExplainErr(EXP_INIT_ERR, err), LongPath);
       }
-    return FALSE;
+    return LicInit_ExitReqd;
     }
   int Ver=MyCrypKeyVersion();
   if (Ver==41 || Ver==42)
@@ -1296,9 +1668,7 @@ ReTry:
 
 void CLicense::Exit()
   {
-#if dbgTimeLicensing
   CStackTimer TM("Exit");
-#endif
 
 #if !BYPASSLICENSING
   if (m_bDidInitCrypkey)
@@ -1315,9 +1685,7 @@ void CLicense::Exit()
 
 BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   {
-#if dbgTimeLicensing
   CStackTimer TM("Check");
-#endif
   ASSERT(m_bDidInitCrypkey);
   CWaitCursor Wait;
   m_State.m_bLicensed = 0;
@@ -1340,16 +1708,19 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     //generate some random numbers - this can be done any way you like
     //random1 = time(NULL);
     //random2 = random1*time(NULL);
-    ULONG random1 = (time(NULL)<<2)*3;
-    ULONG random2 = random1*time(NULL)*rand();
-    ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
-    ULONG result2;
-
-    result2 = MyCKChallenge32(random1, random2);
-    if (result1 != result2)
+    if (!gs_License.AcademicMode())
       {
-      Error("Security Failure.  Challenge function failed");
-      return FALSE;
+      ULONG random1 = (time(NULL)<<2)*3;
+      ULONG random2 = random1*time(NULL)*rand();
+      ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
+      ULONG result2;
+
+      result2 = MyCKChallenge32(random1, random2);
+      if (result1 != result2)
+        {
+        Error("Security Failure.  Challenge function failed");
+        return FALSE;
+        }
       }
 #endif
     m_State.m_bLicensed = 1;
@@ -1407,8 +1778,10 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 
 BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   {
-#if dbgTimeLicensing
   CStackTimer TM("QuickCheck");
+#if ACADEMICLICENSE 
+  if (gs_License.AcademicMode())
+    return TRUE;
 #endif
 
   ASSERT(m_bDidInitCrypkey);
@@ -1437,7 +1810,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   dbgpln("CrypKey GetAuth B:%08x", m_State.m_dwOpLevel);
 
 #if !BYPASSLICENSING
-  if (err==0 && CheckLevel>1)
+  if (err==0 && CheckLevel>1 && !gs_License.AcademicMode())
     {
     //generate some random numbers - this can be done any way you like
     ULONG random1 = (time(NULL)<<1)+9;
@@ -1452,7 +1825,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
       OtherErr = 1;
       }
     }
-
+               
   if (err==AUTH_INIT_FAIL)
     {//this may occur on a Windows 95 PC due to a bug with crypkey ???; try again ...
     if (Init())
@@ -2025,6 +2398,24 @@ void CLicense::SetDemoMode()
 
 //---------------------------------------------------------------------------
 
+void CLicense::SetAcademicMode()
+  {
+  if (!m_State.m_bAcademicMode)
+    {
+    m_State.m_bAcademicMode = 1;
+    /*CWinApp* pApp = AfxGetApp();
+    if (pApp)
+      {
+      //if (ScdPFMachine.RdInt(LicINISection, "InDemoMode", 1)==0)
+      //  Error("%s no longer licensed. Now in demo mode.", CK_AppName);
+      ScdPFMachine.RdInt(LicINISection, "InDemoMode", bDemoMode);
+      }*/
+    }
+  m_State.m_dwOpLevel = FixOptions(GetAcademicOptions());
+  }
+
+//---------------------------------------------------------------------------
+
 void CLicense::Error(char * fmt, ...)
   {
   char Buff[2048];
@@ -2451,17 +2842,8 @@ void CLicense::Info()
   char Buff[4096];
   strcpy(Buff,"License information:\n\n");
   sprintf(Buff, "%s  Number of Copies allowed from this site : %d\n", Buff, MyGetNumCopies());
-  //sprintf(Buff, "%s  Number of Network Users allowed from this site : %d\n", Buff, MyGetNumMultiUsers());
-  //sprintf(Buff, "%s  Site Code : %s\n", Buff, GetSiteCode2());
-
-//NBNB TODO CHECK THIS LEVEL !!!!
 
   sprintf(Buff, "%s  Level : %d\n", Buff, MyGetLevel(CK_NumDefinedLevels));
-  /*sprintf(Buff, "%s  Level : (1) %d\n", Buff, get_level(1));
-  sprintf(Buff, "%s  Level : (2) %d\n", Buff, get_level(2));
-  sprintf(Buff, "%s  Level : (3) %d\n", Buff, get_level(3));
-  sprintf(Buff, "%s  Level : (4) %d\n", Buff, get_level(4));
-  sprintf(Buff, "%s  Level : (5) %d\n", Buff, get_level(5));*/
 
   if (MyGet1RestInfo(1)==0)
     strcat(Buff, "  Time Restrictions : None\n");
@@ -2475,8 +2857,6 @@ void CLicense::Info()
   if (ret==0)
     {
     sprintf(Buff, "%s  Date license last updated : %s\n", Buff, SGTime(start_date));
-    //sprintf(Buff, "%s  Restrictions: Type:%s\n              Start:%s\n", Buff, (authopt<0) ? "N/A" : authTypes[authopt], SGTime(start_date));
-    //sprintf(Buff, "%s              Number allowed:%d\n              Number used:%d\n", Buff, num_allowed, num_used);
     }
   strcat(Buff, "  Options :");
   for (int i=1; i<=32/*CK_NumDefinedOpts*/; i++)
@@ -2694,35 +3074,73 @@ char* CSysCADLicense::GetAppVersion()
 DWORD CSysCADLicense::GetDemoOptions()
   {
   CK_SysCADSecurity Opt;
-  Opt.m_OpLevel = 0; //clears all bits
-  Opt.m_Opts.Level = 0;
+  Opt.m_OpLevel                     = 0; //clears all bits
+  Opt.m_Opts.Level                  = 0;
   //version options...
-  //Opt.m_Opts.xVer82 = 0;
-  //Opt.m_Opts.xVer90 = 1;
+  //Opt.m_Opts.xVer82                 = 0;
+  //Opt.m_Opts.xVer90                 = 1;
   //standard options...
-  Opt.m_Opts.Mode_ProBal = 1;
-  Opt.m_Opts.Mode_DynamicFlow = 1;
-  Opt.m_Opts.Mode_DynamicFull = 1;
-  Opt.m_Opts.Mode_Electrical = 0;
-  //Opt.m_Opts.Only_SteadyState = 0;
-  Opt.m_Opts.Func_FullEdit = 1;
-  Opt.m_Opts.Func_COM = 0;
-  Opt.m_Opts.Func_COMProp = 0;
-  Opt.m_Opts.Func_Drivers = 0;
-  Opt.m_Opts.Func_OPCServer = 0;
+  Opt.m_Opts.Mode_ProBal            = 1;
+  Opt.m_Opts.Mode_DynamicFlow       = 1;
+  Opt.m_Opts.Mode_DynamicFull       = 1;
+  Opt.m_Opts.Mode_Electrical        = 0;
+  //Opt.m_Opts.Only_SteadyState     = 0;
+  Opt.m_Opts.Func_FullEdit          = 1;
+  Opt.m_Opts.Func_COM               = 0;
+  Opt.m_Opts.Func_COMProp           = 0;
+  Opt.m_Opts.Func_Drivers           = 0;
+  Opt.m_Opts.Func_OPCServer         = 0;
   //model add-ons...
-  Opt.m_Opts.Mdls_Electrical = 0;
-  Opt.m_Opts.Mdls_SMDKRuntime = 0;
-  Opt.m_Opts.Mdls_HeatExtra = 0;
-  Opt.m_Opts.Mdls_HeatBal = 1;
-  Opt.m_Opts.Mdls_Alumina = 0;
-  Opt.m_Opts.Mdls_SizeDist = 0;
+  Opt.m_Opts.Mdls_Electrical        = 0;
+  Opt.m_Opts.Mdls_SMDKRuntime       = 0;
+  Opt.m_Opts.Mdls_HeatExtra         = 0;
+  Opt.m_Opts.Mdls_HeatBal           = 1;
+  Opt.m_Opts.Mdls_Alumina           = 0;
+  Opt.m_Opts.Mdls_SizeDist          = 0;
   //other...
-  //Opt.m_Opts.xOld_Dynamic = 0;
-  //Opt.m_Opts.xOld_Probal = 0;
-  //Opt.m_Opts.xOld_Dynamic82 = 0;
-  //Opt.m_Opts.xOld_Probal82 = 0;
-  Opt.m_Opts.Client_Other = 0;
+  //Opt.m_Opts.xOld_Dynamic         = 0;
+  //Opt.m_Opts.xOld_Probal          = 0;
+  //Opt.m_Opts.xOld_Dynamic82       = 0;
+  //Opt.m_Opts.xOld_Probal82        = 0;
+  Opt.m_Opts.Client_Other           = 0;
+
+  return Opt.m_OpLevel;
+  }
+
+//---------------------------------------------------------------------------
+
+DWORD CSysCADLicense::GetAcademicOptions()
+  {
+  CK_SysCADSecurity Opt;
+  Opt.m_OpLevel                     = 0; //clears all bits
+  Opt.m_Opts.Level                  = 01;
+  //version options...
+  //Opt.m_Opts.xVer82                 = 0;
+  //Opt.m_Opts.xVer90                 = 1;
+  //standard options...
+  Opt.m_Opts.Mode_ProBal            = 1;
+  Opt.m_Opts.Mode_DynamicFlow       = 1;
+  Opt.m_Opts.Mode_DynamicFull       = 1;
+  Opt.m_Opts.Mode_Electrical        = 0;
+  //Opt.m_Opts.Only_SteadyState       = 0;
+  Opt.m_Opts.Func_FullEdit          = 1;
+  Opt.m_Opts.Func_COM               = 0;
+  Opt.m_Opts.Func_COMProp           = 0;
+  Opt.m_Opts.Func_Drivers           = 0;
+  Opt.m_Opts.Func_OPCServer         = 0;
+  //model add-ons...
+  Opt.m_Opts.Mdls_Electrical        = 0;
+  Opt.m_Opts.Mdls_SMDKRuntime       = 1;
+  Opt.m_Opts.Mdls_HeatExtra         = 0;
+  Opt.m_Opts.Mdls_HeatBal           = 1;
+  Opt.m_Opts.Mdls_Alumina           = 0;
+  Opt.m_Opts.Mdls_SizeDist          = 1;
+  //other...
+  //Opt.m_Opts.xOld_Dynamic           = 0;
+  //Opt.m_Opts.xOld_Probal            = 0;
+  //Opt.m_Opts.xOld_Dynamic82         = 0;
+  //Opt.m_Opts.xOld_Probal82          = 0;
+  Opt.m_Opts.Client_Other           = 1;
 
   return Opt.m_OpLevel;
   }
@@ -2732,35 +3150,35 @@ DWORD CSysCADLicense::GetDemoOptions()
 DWORD CSysCADLicense::GetTrialOptions()
   {
   CK_SysCADSecurity Opt;
-  Opt.m_OpLevel = 0; //clears all bits
-  Opt.m_Opts.Level = 0;
+  Opt.m_OpLevel                     = 0; //clears all bits
+  Opt.m_Opts.Level                  = 0;
   //version options...
-  //Opt.m_Opts.xVer82 = 0;
-  //Opt.m_Opts.xVer90 = 1;
+  //Opt.m_Opts.xVer82                 = 0;
+  //Opt.m_Opts.xVer90                 = 1;
   //standard options...
-  Opt.m_Opts.Mode_ProBal = 1;
-  Opt.m_Opts.Mode_DynamicFlow = 1;
-  Opt.m_Opts.Mode_DynamicFull = 1;
-  Opt.m_Opts.Mode_Electrical = 0;
-  //Opt.m_Opts.Only_SteadyState = 0;
-  Opt.m_Opts.Func_FullEdit = 1;
-  Opt.m_Opts.Func_COM = 1;
-  Opt.m_Opts.Func_COMProp = 1;
-  Opt.m_Opts.Func_Drivers = 1;
-  Opt.m_Opts.Func_OPCServer = 1;
+  Opt.m_Opts.Mode_ProBal            = 1;
+  Opt.m_Opts.Mode_DynamicFlow       = 1;
+  Opt.m_Opts.Mode_DynamicFull       = 1;
+  Opt.m_Opts.Mode_Electrical        = 0;
+  //Opt.m_Opts.Only_SteadyState       = 0;
+  Opt.m_Opts.Func_FullEdit          = 1;
+  Opt.m_Opts.Func_COM               = 1;
+  Opt.m_Opts.Func_COMProp           = 1;
+  Opt.m_Opts.Func_Drivers           = 1;
+  Opt.m_Opts.Func_OPCServer         = 1;
   //model add-ons...
-  Opt.m_Opts.Mdls_Electrical = 1;
-  Opt.m_Opts.Mdls_SMDKRuntime = 1;
-  Opt.m_Opts.Mdls_HeatExtra = 1;
-  Opt.m_Opts.Mdls_HeatBal = 1;
-  Opt.m_Opts.Mdls_Alumina = 1;
-  Opt.m_Opts.Mdls_SizeDist = 1;
+  Opt.m_Opts.Mdls_Electrical        = 1;
+  Opt.m_Opts.Mdls_SMDKRuntime       = 1;
+  Opt.m_Opts.Mdls_HeatExtra         = 1;
+  Opt.m_Opts.Mdls_HeatBal           = 1;
+  Opt.m_Opts.Mdls_Alumina           = 1;
+  Opt.m_Opts.Mdls_SizeDist          = 1;
   //other...
-  Opt.m_Opts.Client_Other = 0;
-  //Opt.m_Opts.xOld_Dynamic = 0;
-  //Opt.m_Opts.xOld_Probal = 0;
-  //Opt.m_Opts.xOld_Dynamic82 = 0;
-  //Opt.m_Opts.xOld_Probal82 = 0;
+  Opt.m_Opts.Client_Other           = 0;
+  //Opt.m_Opts.xOld_Dynamic           = 0;
+  //Opt.m_Opts.xOld_Probal            = 0;
+  //Opt.m_Opts.xOld_Dynamic82         = 0;
+  //Opt.m_Opts.xOld_Probal82          = 0;
   return Opt.m_OpLevel;
   }
 
@@ -2793,32 +3211,6 @@ void CSysCADLicense::Info()
 
 //---------------------------------------------------------------------------
 
-//int CSysCADLicense::xProbalUnitsAllowed()
-//  {
-//  if (bDemoMode)
-//    return CK_Demo_ProbalUnits;
-//  if (m_bProbalLiteMode)
-//    return CK_Lite_ProbalUnits;
-//  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
-//    return CK_Trial_ProbalUnits;
-//  return CK_InfiniteUnits; 
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//int CSysCADLicense::xDynUnitsAllowed()
-//  {
-//  if (bDemoMode)
-//    return CK_Demo_DynUnits;
-//  if (m_bDynLiteMode)
-//    return CK_Lite_DynUnits;
-//  if (m_pSecOpt->m_Opts.Level==CK_TrialLevel)
-//    return CK_Trial_DynUnits;
-//  return CK_InfiniteUnits; 
-//  }
-
-//---------------------------------------------------------------------------
-
 void CSysCADLicense::BumpNodeCount(int Count, LPTSTR Tag)
   { 
   m_NodeCount+=Count; 
@@ -2829,6 +3221,9 @@ void CSysCADLicense::BumpNodeCount(int Count, LPTSTR Tag)
 
 int CSysCADLicense::MaxNodesAllowed(BOOL ForDynamic)
   {
+  if (gs_License.AcademicMode())
+    return ForDynamic ? CK_Academic_DynUnits : CK_Academic_ProbalUnits;
+
   if (m_State.m_bDemoMode)
     return ForDynamic ? CK_Demo_DynUnits : CK_Demo_ProbalUnits;
 
@@ -2974,7 +3369,7 @@ DWORD CSysCADLicense::LicCatagories()
     dw |= TOC_POWERDIST;
 
   if (AllowMdlsUser())
-    dw |= TOC_USER;
+    dw |= TOC_CLIENT;
   if (AllowMdlsQAL())
     dw |= TOC_QAL;
   if (AllowMdlsQAL()) //  if (AllowMdlsQALExtra())

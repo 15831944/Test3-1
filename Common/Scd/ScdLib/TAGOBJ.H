@@ -385,8 +385,8 @@ class DllImportExport DDBShortcut : public DDBDataInfo
 //NBNB: Any changes to TOC flags need to be reflected in the SMDK M??? equivilant options!
 
 //solve mode options...
-const DWORD TOC_DYNAMICFLOW  = 0x00000001; //is dynamic model (flow)
-const DWORD TOC_PROBAL       = 0x00000002; //is probal model
+const DWORD TOC_PROBAL       = 0x00000001; //is probal model
+const DWORD TOC_DYNAMICFLOW  = 0x00000002; //is dynamic model (flow)
 const DWORD TOC_DYNAMICFULL  = 0x00000004; //is dynamic model (pressure)
 const DWORD TOC_ELECTRICAL   = 0x00000008; //is dynamic model (electrical)
 
@@ -400,7 +400,7 @@ const DWORD TOC_SIZEDIST     = 0x00000080; //Kenwalt size-distribution/communiti
 const DWORD TOC_ALUMINA      = 0x00000100; //Kenwalt alumina models
 const DWORD TOC_SMDKRUNTIME  = 0x00000200; //SMDK runtime BlackBox models
 const DWORD TOC_POWERDIST    = 0x00000400; //Power Distribution
-const DWORD TOC_USER         = 0x00000800; //custom/client models (eg Argyle, Cleveland, Simutron, etc)
+const DWORD TOC_CLIENT         = 0x00000800; //custom/client models (eg Argyle, Cleveland, Simutron, etc)
 const DWORD TOC_MDL_UNUSED4  = 0x00001000; //
 const DWORD TOC_MDL_UNUSED3  = 0x00002000; //
 const DWORD TOC_MDL_UNUSED2  = 0x00004000; //

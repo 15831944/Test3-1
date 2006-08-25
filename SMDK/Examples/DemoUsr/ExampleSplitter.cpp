@@ -29,7 +29,8 @@ void Splitter_UnitDef::GetOptions()
   SetDefaultTag("SP");
   SetDrawing("Tank", Drw_Splitter);
   SetTreeDescription("Demo:Splitter");
-  SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow);
+  SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
+  SetModelGroup(MGroup_General);
   };
 
 //---------------------------------------------------------------------------

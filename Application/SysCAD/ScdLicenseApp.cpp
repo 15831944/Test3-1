@@ -192,13 +192,15 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
       //Drive.FnDrive();
       //Drive+="\\";;
 
-      char VolumeName[1024];
-      char FSNameBuff[1024];
-      DWORD dwVolSerialNo, dwMaxCompLen, dwFileSysFlags;
-      BOOL GotIt=GetVolumeInformation(kDiskDrive, //Drive(),
-                                      VolumeName, sizeof(VolumeName)-1,
-                                      &dwVolSerialNo, &dwMaxCompLen, &dwFileSysFlags,
-                                      FSNameBuff, sizeof(FSNameBuff)-1);
+      //char VolumeName[1024];
+      //char FSNameBuff[1024];
+      //DWORD dwVolSerialNo, dwMaxCompLen, dwFileSysFlags;
+      //BOOL GotIt=GetVolumeInformation(kDiskDrive, //Drive(),
+      //                                VolumeName, sizeof(VolumeName)-1,
+      //                                &dwVolSerialNo, &dwMaxCompLen, &dwFileSysFlags,
+      //                                FSNameBuff, sizeof(FSNameBuff)-1);
+
+      DWORD dwVolSerialNo=GetDiskSerialNumber(kDiskDrive);
 
       CString m_sDisk; 
       m_sDisk.Format("%x", dwVolSerialNo);

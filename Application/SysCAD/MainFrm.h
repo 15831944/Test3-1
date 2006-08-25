@@ -25,6 +25,7 @@ class CMyMDIClient : public CWnd
     virtual ~CMyMDIClient();
   protected:
     //{{AFX_MSG(CMyMDIClient)
+    afx_msg void OnSize(UINT Type, int cx, int cy);
     afx_msg void OnPaint();
     afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
     //}}AFX_MSG

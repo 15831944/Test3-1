@@ -72,7 +72,7 @@ static double Drw_m_PriReform[] = {DD_Poly, -6,-12, -6,12, 6,12, 6,-12, -6,-12,
                             DD_End };
 
 IMPLEMENT_MODELUNIT(PriReform, "PriReformer", "1", Drw_m_PriReform, "MixerSplitter", "PR",
-                    TOC_DYNAMICFULL|TOC_USER,
+                    TOC_DYNAMICFULL|TOC_CLIENT,
                     "Primary Reformer(1)",
                     "Primary Reformer")
 

@@ -1105,10 +1105,11 @@ DllImportExport char*  GrfSymbolFiles();
 DllImportExport char*  GrfFontFiles();
 DllImportExport char*  BaseGrfSymbolFiles();
 DllImportExport char*  BaseGrfFontFiles();
-
-DllImportExport BOOL   FileExists(char * FileName, WIN32_FIND_DATA & fd);
-DllImportExport BOOL   FileExists(char * FileName);
-DllImportExport BOOL   FileAttributes(char * FileName, DWORD & Attributes);
+                                             
+DllImportExport BOOL   FileExists(LPCTSTR FileName, WIN32_FIND_DATA & fd);
+DllImportExport BOOL   FileExists(LPCTSTR FileName);
+DllImportExport BOOL   FileAttributes(LPCTSTR FileName, DWORD & Attributes);
+DllImportExport BOOL   FileWriteTime(LPCTSTR FileName, FILETIME & FileTime);
 DllImportExport BOOL   CnmVersion();
 
 DllImportExport int    SelectFile(Strng & FilePath, char* Name1, char* Name2, char* Name3);
@@ -1432,6 +1433,16 @@ class DllImportExport CScdCmdParms
     BOOL      m_bParms[3];
 
   };
+
+//===========================================================================
+//
+// Machine Info
+//
+// ========================================================================
+
+DllImportExport CString GetMacAddressStr(LPCTSTR sNetBiosName);
+DllImportExport INT64 GetMacAddress(LPCTSTR sNetBiosName);
+DllImportExport DWORD GetDiskSerialNumber(LPCTSTR FileName);
 
 //===========================================================================
 //
