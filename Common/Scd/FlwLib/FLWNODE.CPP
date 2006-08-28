@@ -2724,7 +2724,8 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     DDB.String      ("EvalOrder",    "", DC_, "", xidEvalOrder,  this, InitHidden);
     }
 
-  DDB.String      ("Condition",    "", DC_, "", xidCondition,  this, MultiLineStr|noFile|noSnap);
+  DDB.String      ("Condition",      "", DC_, "", xidNdCondition,       this, MultiLineStr|noFile|noSnap);
+  DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap);
 
   //DDB.CheckBoxBtn ("ShowPressNet", "", DC_, "", xidShwPrsNet,  this, isParm|noFileAtAll|InitHidden);
   //DDB.CheckBoxBtn ("ShowFlowNet",  "", DC_, "", xidShwFlwNet,  this, isParm|noFileAtAll|InitHidden);
@@ -3344,7 +3345,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       DCB.pC=m_sEvalOrder();
       return 1;
       }
-    case xidCondition:
+    case xidNdCondition:
       {
       sCndStrng="";
       Strng_List L;
@@ -3366,6 +3367,9 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       DCB.pC=sCndStrng();
       return 1;
       }
+    case xidNdConditionCount:
+      DCB.L=CountAllCIs(1000);
+      return 1;
     case xidMarked:
       if (DCB.rB)
         {
@@ -6126,7 +6130,7 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
       for (int d=0; d<NoEnabledDirectIOs(); d++) 
         {
         CDirectFlwIO &D=*m_EnabledDirectIOs[d];
-        if (D.HasConduit)
+        if (D.HasConduit && D.m_iMyConnectedIO>=0)
           {
           switch (D.LclDIOId())
             {
