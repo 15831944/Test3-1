@@ -95,7 +95,9 @@ BeltFilt::BeltFilt(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   ActCakeSolConc  = 0.0;
   ActFiltSolConc  = 0.0;
   bTrackStatus    = true;
+  #ifndef _RELEASE
   iTrackSpecie    = 0;
+  #endif
 	FiltrateFracinWashedCake = 0.1;
   SetNoOfStages(1);
   }

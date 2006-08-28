@@ -25,7 +25,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF,..\..\..\smdk\include"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -91,7 +91,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF,..\..\..\smdk\include"
 				PreprocessorDefinitions="_DEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -157,7 +157,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF,..\..\..\smdk\include"
 				PreprocessorDefinitions="NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -227,7 +227,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF"
+				AdditionalIncludeDirectories="..\scdlib,..\kwdb,..\..\scdcom,..\..\scdcom\callbackcustom,..\..\Com\ScdIF,..\..\..\smdk\include"
 				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -336,6 +336,9 @@
 			</File>
 			<File
 				RelativePath=".\font.cpp">
+			</File>
+			<File
+				RelativePath=".\md_share4.cpp">
 			</File>
 			<File
 				RelativePath=".\MdlCfg.cpp">
@@ -509,6 +512,9 @@
 			</File>
 			<File
 				RelativePath=".\font.h">
+			</File>
+			<File
+				RelativePath="..\..\..\Smdk\Include\md_share1.h">
 			</File>
 			<File
 				RelativePath=".\MdlCfg.h">

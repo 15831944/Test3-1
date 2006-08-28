@@ -401,6 +401,9 @@
 				RelativePath="..\..\..\Smdk\Include\md_share3.h">
 			</File>
 			<File
+				RelativePath="..\..\..\Smdk\Include\md_share4.h">
+			</File>
+			<File
 				RelativePath="..\..\..\Smdk\Include\md_spmodel.h">
 			</File>
 			<File
