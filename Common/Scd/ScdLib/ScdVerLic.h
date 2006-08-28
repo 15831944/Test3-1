@@ -8,7 +8,7 @@
 //  License Options
 //===========================================================================
 
-#define ACADEMICLICENSE         01
+#define ACADEMICLICENSE         0
 #define FORCEMINESERVE          0 
 
 #if (FORCEMINESERVE)
