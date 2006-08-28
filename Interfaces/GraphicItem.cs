@@ -260,5 +260,29 @@ namespace SysCAD.Interface
       angle = Rotation;
 
     }
+
+    public void Populate(String filename, String Page, String EqpGUID, String ClassID, RectangleF rectangle, float Rotation)
+    {
+      path = "/" + filename + "/" + Page + "/";
+      model = ClassID;
+      shape = ClassID;
+      guid = new Guid(EqpGUID);
+
+      boundingRect = rectangle;
+
+      if (boundingRect.Width < 0.0F)
+      {
+        mirrorX = true;
+        boundingRect.Width = -boundingRect.Width;
+      }
+
+      if (boundingRect.Height < 0.0F)
+      {
+        mirrorY = true;
+        boundingRect.Height = -boundingRect.Height;
+      }
+
+      angle = Rotation;
+    }
   }
 }

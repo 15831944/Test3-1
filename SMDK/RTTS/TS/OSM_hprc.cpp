@@ -434,7 +434,7 @@ int OSM_HPRC::calculate( )
         {
         OSM_Vector& x = bypass[comp]; // Aliases to component vector
         double tphBypassSum = 0.0;
-        for (i=0; i<bypass.nSize()-1; i++)
+        for (int i=0; i<bypass.nSize()-1; i++) //pkh
           {
           double xi = x[i] / (tphBypass - tphBypOversize);
           if (bypass.sieve()[i]<MaxBypassSize)

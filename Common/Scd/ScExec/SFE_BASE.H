@@ -930,6 +930,7 @@ class CRctBlkInformation
           m_sTag      = Other.m_sTag;
           m_sComment  = Other.m_sComment;
           m_sDefn     = Other.m_sDefn;
+		  return *this; //pkh
           }
 
       public:
@@ -959,6 +960,7 @@ class CRctBlkInformation
           m_Rcts.SetSize(Other.m_Rcts.GetSize());
           for (int i=0; i<Other.m_Rcts.GetSize(); i++)
             m_Rcts[i]=Other.m_Rcts[i];
+		  return *this; //pkh
           }
 
       public: 

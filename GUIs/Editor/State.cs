@@ -57,7 +57,7 @@ namespace SysCAD.Editor
       return link.Arrow;
     }
 
-    public Item item(Guid guid)
+    private Item item(Guid guid)
     {
       Item item;
       items.TryGetValue(guid, out item);
@@ -206,12 +206,40 @@ namespace SysCAD.Editor
       return items.Remove(guid);
     }
 
+    public void SetControlPoints(Arrow arrow, List<PointF> points)
+    {
+      arrow.SegmentCount = (short)(points.Count - 1);
+      int i = 0;
+      PointF keepPoint = PointF.Empty;
+      foreach (PointF point in points)
+      {
+        arrow.ControlPoints[i++] = point;
+        keepPoint = point;
+      }
 
+      while (i <= arrow.SegmentCount)
+      {
+        arrow.ControlPoints[i++] = keepPoint;
+      }
+      arrow.UpdateFromPoints();
+    }
 
     internal void CreateLink(GraphicLink graphicLink, bool isVisible, FlowChart flowchart)
     {
       Arrow arrow = flowchart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
 
+      switch (graphicLink.ClassID)
+      {
+        case "Pipe-1":
+          break;
+        case "CtrlLink":
+          arrow.PenColor = Color.Gray;
+          break;
+        default:
+          arrow.PenColor = Color.Red;
+          break;
+      }
+      
       Item origin = null;
       Item destination = null;
 
@@ -253,11 +281,7 @@ namespace SysCAD.Editor
 
       if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
       {
-        arrow.SegmentCount = (short)(graphicLink.controlPoints.Count - 1);
-        int i = 0;
-        foreach (PointF point in graphicLink.controlPoints)
-          arrow.ControlPoints[i++] = point;
-        arrow.UpdateFromPoints();
+        SetControlPoints(arrow, graphicLink.controlPoints);
       }
 
       Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
@@ -585,7 +609,10 @@ namespace SysCAD.Editor
 
     internal PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
-      return graphic.PortCheck(itemGuid, anchor);
+      if (anchor != null)
+        return graphic.PortCheck(itemGuid, anchor);
+      else
+        return PortStatus.Unavailable;
     }
 
 

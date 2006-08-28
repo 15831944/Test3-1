@@ -11,6 +11,9 @@
 #include "tagdb.h"
 #include "drv_mngr.h"
 #include "ArchMngr.h"
+
+#include "scdverlic.h"
+
 #if WITHNETSERVER
 #include "cs_mngr.h"
 #endif                     
@@ -3050,11 +3053,13 @@ flag CProject::DoLoadDB(char* pPrjFiles, char* pOldPrjName)
     goto Failed;
     }
 
+#if !BYPASSLICENSING //pkh
   if (gs_License.NodeCountExceeded(0, eLic_MsgBox))
     {
     LDBI.m_Failed=true;
     goto Failed;
     }
+#endif //pkh
 
   if (!gs_Exec.LoadDBase(eLdDB_Connect, LDBI))
     goto Failed;
@@ -6269,7 +6274,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
 
 #if CREATENETSERVER
-    if (01 && OK)
+    if (01)//pkh && OK)
       {
       m_pCLRSrvr = new CNETServer;
       m_pCLRSrvr->Startup();

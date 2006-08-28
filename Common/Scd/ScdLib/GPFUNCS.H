@@ -733,12 +733,12 @@ class DllImportExport Strng
     /*#F:#R:Returns the current value of the zero based index of the Strng*/
     int      Index() { return iIndex; };
 
-#if !_MANAGED
+//pkh#if !_MANAGED
     double   SafeAtoF(double Default=0.0) { return ::SafeAtoF(Buff, Default); };
     long     SafeAtoL(long Default=0) { return ::SafeAtoL(Buff, Default); };
     char*    MakeBinary(DWORD dw, int MinLen, int Grp = -1);
     char*    MakeAlpha(long dw, int MinLen = -1, int Base = 26);
-#endif
+//pkh#endif
 
   //protected:
     pchar    Buff;//stores the contents of the Strng.
@@ -1139,7 +1139,7 @@ DllImportExport DWORD FreeVirtualMemory();
 
 // -------------------------------------------------------------------------
 // SysCAD Wrapper class - used to ensure that the LOCALE remains "C"
-#if !_MANAGED
+//pkh#if !_MANAGED
 
 class DllImportExport CSCDFileDialog : public CFileDialog
   {
@@ -1155,7 +1155,7 @@ class DllImportExport CSCDFileDialog : public CFileDialog
     virtual BOOL OnFileNameOK( );
   };
 
-#endif
+//pkh#endif
 
 
 BOOL DllImportExport MyPostMessage(CWnd* pWnd, UINT message, WPARAM wParam = 0, LPARAM lParam = 0);

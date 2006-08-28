@@ -37,6 +37,9 @@ public:
     // Constructor
 	CComminution_Fixed();
 
+	//Destructor
+	~CComminution_Fixed(); //pkh
+
     // Data Entry Field Method
 	void BuildDataFields(MDataDefn &DB);
 

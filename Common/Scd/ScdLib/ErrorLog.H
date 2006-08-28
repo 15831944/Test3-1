@@ -26,7 +26,7 @@ DllImportExport const char * FindWinError(DWORD Code);
 
 //===========================================================================
 
-#if !_MANAGED
+//pkh#if !_MANAGED
 
 class ConditionArray  : public CArray < byte, byte &> {};
 class ConditionSeqNos : public CArray < DWORD, DWORD &> {};
@@ -205,7 +205,7 @@ public:
   char* ErrStr() { return m_pszMessage ? m_pszMessage : "";};
 };
 
-#endif
+//pkh#endif
 
 //===========================================================================
 //

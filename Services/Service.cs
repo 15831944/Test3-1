@@ -177,7 +177,6 @@ namespace SysCAD.Service
 
         graphicStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
         config.graphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
-        stream.Close();
         Console.WriteLine("Added graphicstencil {0} to ProjectList.", Path.GetFileNameWithoutExtension(fullpath));
       }
 

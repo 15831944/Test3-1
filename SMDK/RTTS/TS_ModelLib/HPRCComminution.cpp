@@ -192,7 +192,7 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 			//for (i=0; i<NumSizes; i++)	
 			//	pDataI[i] = PSDin.getMass(c,NumSizes-1-i);
 			double FdQmComp = 0.0;
-			for (i=0; i<NumSizes; i++)	
+			for (int i=0; i<NumSizes; i++)	 //pkh
 			{
 				pDataI[i+1] = PSDin.getMass(c,NumSizes-1-i);
 				FdQmComp += pDataI[i+1];
@@ -205,7 +205,7 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 			//if (FdQmComp>1.0e-9)
 			{
 				//convert to required format, t/h from largest to smallest sizes...
-				for (i=0; i<OSM_NumSizes; i++)
+				for (int i=0; i<OSM_NumSizes; i++) //pkh
 					feedData[i] = pDataI[i]/1000.0*3600.0;
 
 				//-- Setup the flowsheet stream material type ---------------------------
@@ -266,7 +266,7 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 				{
 					//convert product size data from t/h to fractions and from smallest to largest sizes...
 					double sum = 0.0;
-					for (i=0; i<OSM_NumSizes-1; i++)
+					for (int i=0; i<OSM_NumSizes-1; i++) //pkh
 					{
 						pDataO[i] = (hprc1.product()[0][i] * 1000.0 / 3600.0);
 						sum += pDataO[i];
@@ -275,7 +275,7 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 				}
 				else
 				{//pass thru
-					for (i=0; i<OSM_NumSizes; i++)
+					for (int i=0; i<OSM_NumSizes; i++) //pkh
 						pDataO[i] = pDataI[i];
 				}
 			}
@@ -285,7 +285,7 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 			//		pDataO[i] = pDataI[i];
 			//}
 
-			for (i=0; i<NumSizes; i++)	
+			for (int i=0; i<NumSizes; i++)	//pkh
 				//pDataRevO[i] = pDataO[NumSizes-1-i];
 				pDataRevO[i] = pDataO[OSM_NumSizes-1-i];
 			PSDout.ReplaceMassVector(pDataRevO,c);

@@ -20,16 +20,11 @@ class CNSGrfItem
   {
   public:
     CNSGrfItem();
-    CNSGrfItem(LPCTSTR Page, CGrfTagInfo & Info);
+    CNSGrfItem(LPCTSTR Page);
     ~CNSGrfItem();
 
   public:
     CString           m_Page;
-    float             m_InsertX;
-    float             m_InsertY;
-    float             m_ScaleX;
-    float             m_ScaleY;
-    float             m_Rotation;
   };
 
 class CNSGrfNode  : public CNSGrfItem
@@ -40,6 +35,13 @@ class CNSGrfNode  : public CNSGrfItem
     ~CNSGrfNode();
 
   public:
+
+	float			  m_Left;
+	float			  m_Top;
+	float			  m_Width;
+	float			  m_Height;
+
+    float             m_Rotation;
 
     CNSMdlNode      * m_pMdl;
   };
@@ -129,7 +131,7 @@ class CNSMdlLink  : public CNSGuidItem
     CString           m_SrcPort;
     CString           m_DstPort;
 
-    CNSGrfLink      * m_pGrf; 
+	CNSGrfLink      * m_pGrf; 
     //FlwNode * m_pNd;
   };
 

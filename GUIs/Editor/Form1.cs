@@ -590,8 +590,16 @@ namespace SysCAD.Editor
     {
       foreach (GraphicItem graphicItem in frmFlowChart.state.GraphicItems)
       {
-        PureComponents.TreeView.Node node = 
-          tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+        string path = graphicItem.Path;
+        string tag = graphicItem.Tag;
+        string pathTag = graphicItem.Path + graphicItem.Tag;
+
+        Guid guid = graphicItem.Guid;
+        string guidString = graphicItem.Guid.ToString();
+
+        PureComponents.TreeView.Node node =
+          //tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+          tvNavigation.AddNodeByPath(path + guidString, guidString);
       }
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)

@@ -86,10 +86,7 @@ namespace SysCAD.Editor
 
       foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
       {
-        if (graphicLink.ClassID == "Pipe-1")
-        {
           state.CreateLink(graphicLink, false, fcFlowChart);
-        }
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -102,6 +99,27 @@ namespace SysCAD.Editor
     internal void UnsetProject()
     {
 
+    }
+
+    internal static float getMinArrowheadSize(GraphicsUnit currUnit)
+    {
+      switch (currUnit)
+      {
+        case GraphicsUnit.Millimeter:
+          return 1;
+        case GraphicsUnit.Inch:
+          return 1.0f / 12;
+        case GraphicsUnit.Point:
+          return 72.0f / 12;
+        case GraphicsUnit.Pixel:
+          return 4;
+        case GraphicsUnit.Document:
+          return 300.0f / 12;
+        case GraphicsUnit.Display:
+          return 75.0f / 12;
+        default:
+          return 0.0F;
+      }
     }
 
     public void ZoomToVisible()
@@ -145,6 +163,16 @@ namespace SysCAD.Editor
       else
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
 
+      float size = (width + height) / 2.0F;
+      fcFlowChart.SelHandleSize = size * 0.005F;
+      fcFlowChart.ArrowHeadSize = size * 0.010F;
+      if (size * 0.001F > getMinArrowheadSize(fcFlowChart.MeasureUnit))
+        fcFlowChart.ArrowIntermSize = size * 0.001F;
+      else
+        fcFlowChart.ArrowIntermSize = getMinArrowheadSize(fcFlowChart.MeasureUnit);
+      fcFlowChart.ArrowBaseSize = size * 0.010F;
+      fcFlowChart.MergeThreshold = size * 0.005F;
+      
       fcFlowChart.Invalidate();
     }
 
@@ -273,14 +301,49 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_LinkModified(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      Link Link = state.Link(guid);
-      if (Link != null)
+      Link link = state.Link(guid);
+      if (link != null)
       {
-        //Link.Arrow.
-        //Link.Model.BoundingRect = boundingRect;
-        //Link.Graphic.BoundingRect = boundingRect;
-        //Link.Model.RotationAngle = angle;
-        //Link.Graphic.RotationAngle = angle;
+        GraphicLink graphicLink = link.graphicLink;
+        graphicLink.ClassID = classID;
+        graphicLink.Origin = origin;
+        graphicLink.Destination = destination;
+        graphicLink.OriginPort = originPort;
+        graphicLink.DestinationPort = destinationPort;
+        graphicLink.controlPoints = controlPoints;
+
+        Arrow arrow = link.Arrow;
+        Item originItem = null;
+        Item destinationItem = null;
+
+        if (graphicLink.Origin != null) originItem = state.Item(graphicLink.Origin);
+        if (graphicLink.Destination != null) destinationItem = state.Item(graphicLink.Destination);
+
+        if (origin != null)
+          arrow.Origin = originItem.Model;
+        if (destination != null)
+          arrow.Destination = destinationItem.Model;
+
+        if ((graphicLink.OriginPort != null) && ((originItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
+          arrow.OrgnAnchor = (originItem.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
+        else
+          arrow.OrgnAnchor = -1;
+
+        if ((graphicLink.DestinationPort != null) && ((destinationItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort)))
+          arrow.DestAnchor = (destinationItem.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
+        else
+          arrow.DestAnchor = -1;
+
+        arrow.ToolTip = "Tag:" + graphicLink.Tag +
+          "\nSrc: " + originItem.Tag + ":" + graphicLink.OriginPort +
+          "\nDst: " + destinationItem.Tag + ":" + graphicLink.DestinationPort;
+        arrow.ArrowHead = ArrowHead.Triangle;
+        arrow.Style = ArrowStyle.Cascading;
+
+        if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
+        {
+          state.SetControlPoints(arrow, graphicLink.controlPoints);
+        }
       }
     }
 
@@ -289,8 +352,49 @@ namespace SysCAD.Editor
       // TBD
     }
 
+    internal bool mergePoints(PointF point1, PointF point2)
+    {
+      return
+        Math.Abs(point1.X - point2.X) <= fcFlowChart.MergeThreshold &&
+        Math.Abs(point1.Y - point2.Y) <= fcFlowChart.MergeThreshold;
+    }
+
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
+      List<PointF> tempOldControlPoints = new List<PointF>(oldControlPoints);
+
+      {
+        int i = 2;
+        while ((oldControlPoints.Count > 3) && (i < oldControlPoints.Count - 1))
+        {
+          if (mergePoints(oldControlPoints[i - 1], oldControlPoints[i]))
+          {
+            oldControlPoints.RemoveAt(i - 1);
+            oldControlPoints.RemoveAt(i - 1);
+            i = 2;
+          }
+          else
+          {
+            i++;
+          }
+        }
+      }
+
+      if (mergePoints(oldControlPoints[0], oldControlPoints[1]))
+      {
+        oldControlPoints.RemoveAt(0);
+        if (e.Arrow.CascadeOrientation == MindFusion.FlowChartX.Orientation.Horizontal)
+          e.Arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+        else
+          e.Arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+      }
+
+      if (mergePoints(oldControlPoints[oldControlPoints.Count - 1], oldControlPoints[oldControlPoints.Count - 2]))
+      {
+        oldControlPoints.RemoveAt(oldControlPoints.Count - 1);
+      }
+
+
       form1.toolStripStatusLabel1.Text = "";
 
       arrowBeingModified.CustomDraw = CustomDraw.None;
@@ -327,11 +431,7 @@ namespace SysCAD.Editor
         e.Arrow.DestAnchor = newDestinationAnchor;
       }
 
-      e.Arrow.SegmentCount = (short)(oldControlPoints.Count - 1);
-      int i = 0;
-      foreach (PointF point in oldControlPoints)
-        e.Arrow.ControlPoints[i++] = point;
-      e.Arrow.UpdateFromPoints();
+      state.SetControlPoints(e.Arrow, oldControlPoints);
 
       Item originItem = e.Arrow.Origin.Tag as Item;
       Item destinationItem = e.Arrow.Destination.Tag as Item;
@@ -352,7 +452,7 @@ namespace SysCAD.Editor
         destinationGraphicItem = destinationItem.GraphicItem;
         destinationGuid = destinationItem.Guid;
       }
-      
+
       string originAnchor = null;
       string destinationAnchor = null;
       if (originGraphicItem != null)
@@ -526,12 +626,6 @@ namespace SysCAD.Editor
           }
         }
       }
-      //else if (oldDestinationBox != null)
-      //{
-      //  (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
-      //  e.Arrow.Destination = oldDestinationBox;
-      //  e.Arrow.DestAnchor = oldDestinationAnchor;
-      //}
 
       if (newOriginBox == newDestinationBox) // refliexive, disconnect modifying end.
       {
@@ -551,6 +645,7 @@ namespace SysCAD.Editor
           form1.toolStripStatusLabel1.Text = "";
         }
       }
+
       fcFlowChart.RecreateCacheImage();
     }
 
@@ -1208,6 +1303,11 @@ namespace SysCAD.Editor
           controlPoints.Add(point);
         }
 
+        if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold)
+          hoverArrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+        else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold)
+          hoverArrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+
         GraphicLink graphicLink = (hoverArrow.Tag as Link).graphicLink as GraphicLink;
 
         Item originItem = hoverArrow.Origin.Tag as Item;
@@ -1217,19 +1317,31 @@ namespace SysCAD.Editor
         GraphicItem destinationGraphicItem = destinationItem.GraphicItem;
 
         uint requestID;
+
+        string originPort = "";
+        string destinationPort = "";
+
+        if (hoverArrow.DestAnchor != -1)
+          originPort = originGraphicItem.anchorIntToTag[hoverArrow.OrgnAnchor];
+
+        if (hoverArrow.DestAnchor != -1)
+          destinationPort = destinationGraphicItem.anchorIntToTag[hoverArrow.DestAnchor];
+
         if (!state.ModifyGraphicLink(out requestID,
           graphicLink.Guid,
           graphicLink.Tag,
           graphicLink.ClassID,
           originItem.Guid,
           destinationItem.Guid,
-          originGraphicItem.anchorIntToTag[hoverArrow.OrgnAnchor],
-          destinationGraphicItem.anchorIntToTag[hoverArrow.DestAnchor],
+          originPort,
+          destinationPort,
           controlPoints))
         { // failure, revert back to previous.
           // do something here...
         }
       }
+
+      fcFlowChart.Invalidate();
     }
 
     private void DisconnectOrigin(object sender, EventArgs e)
@@ -1237,11 +1349,7 @@ namespace SysCAD.Editor
       hoverArrow.OrgnAnchor = -1;
       hoverArrow.Origin = fcFlowChart.Dummy;
 
-      hoverArrow.SegmentCount = (short)((hoverArrow.Tag as Link).graphicLink.controlPoints.Count - 1);
-      int i = 0;
-      foreach (PointF point in (hoverArrow.Tag as Link).graphicLink.controlPoints)
-        hoverArrow.ControlPoints[i++] = point;
-      hoverArrow.UpdateFromPoints();
+      state.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
     }
 
     private void DisconnectDestination(object sender, EventArgs e)
@@ -1249,11 +1357,7 @@ namespace SysCAD.Editor
       hoverArrow.DestAnchor = -1;
       hoverArrow.Destination = fcFlowChart.Dummy;
 
-      hoverArrow.SegmentCount = (short)((hoverArrow.Tag as Link).graphicLink.controlPoints.Count - 1);
-      int i = 0;
-      foreach (PointF point in (hoverArrow.Tag as Link).graphicLink.controlPoints)
-        hoverArrow.ControlPoints[i++] = point;
-      hoverArrow.UpdateFromPoints();
+      state.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
     }
 
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)

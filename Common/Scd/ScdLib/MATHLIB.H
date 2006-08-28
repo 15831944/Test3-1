@@ -25,7 +25,7 @@
 //
 //===========================================================================
 
-#if !_MANAGED
+//pkh#if !_MANAGED
 
 inline DWORD FPP_EnableExceptions()                               
   { 
@@ -48,7 +48,7 @@ inline DWORD FPP_RestoreExceptions(DWORD CW)
   _clearfp();                       // clear any outstanding exceptions
   return _controlfp(CW, _MCW_EM);	  // Restore fpControl
   };
-#endif
+//pkh#endif
 
 //extern double Normal (int size, double *vector);
 DllExport double Pow(double base, int exponent);

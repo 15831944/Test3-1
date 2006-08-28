@@ -17,21 +17,11 @@
 
 CNSGrfItem::CNSGrfItem() 
   {
-  m_InsertX   = 0;
-  m_InsertY   = 0;
-  m_ScaleX    = 1;
-  m_ScaleY    = 1;
-  m_Rotation  = 0;
   };
 
-CNSGrfItem::CNSGrfItem(LPCTSTR Page, CGrfTagInfo & Info)
+CNSGrfItem::CNSGrfItem(LPCTSTR Page)
   {
   m_Page      = Page;
-  m_InsertX   = (float)Info.m_Node.m_X;
-  m_InsertY   = (float)Info.m_Node.m_Y;
-  m_ScaleX    = (float)Info.m_Node.m_XScale;
-  m_ScaleY    = (float)Info.m_Node.m_YScale;
-  m_Rotation  = (float)Info.m_Node.m_Rotation;
   };
 
 CNSGrfItem::~CNSGrfItem()
@@ -43,12 +33,23 @@ CNSGrfItem::~CNSGrfItem()
 CNSGrfNode::CNSGrfNode() 
   {
   m_pMdl      = NULL;
+  m_Left = 0.0;
+  m_Top = 0.0;
+  m_Width = 0.0;
+  m_Height = 0.0;
+  m_Rotation  = 0;
   };
 
 CNSGrfNode::CNSGrfNode(LPCTSTR Page, CNSMdlNode * pMdl, CGrfTagInfo & Info) : \
-CNSGrfItem(Page, Info),
+CNSGrfItem(Page),
 m_pMdl(pMdl)
   {
+  m_Left = (float)Info.m_LoBnd.m_X;
+  m_Top = -(float)Info.m_HiBnd.m_Y;
+  m_Width = (float)Info.m_HiBnd.m_X - (float)Info.m_LoBnd.m_X;
+  m_Height = (float)Info.m_HiBnd.m_Y - (float)Info.m_LoBnd.m_Y;
+
+  m_Rotation  = (float)Info.m_Node.m_Rotation;
   };
 
 CNSGrfNode::~CNSGrfNode()
@@ -63,7 +64,7 @@ CNSGrfLink::CNSGrfLink()
   };
 
 CNSGrfLink::CNSGrfLink(LPCTSTR Page, CNSMdlLink * pMdl, CGrfTagInfo & Info, CLinePointsArray & LPA) : \
-CNSGrfItem(Page, Info),
+CNSGrfItem(Page),
 m_pMdl(pMdl)
   {
   //m_IsLink=true;
