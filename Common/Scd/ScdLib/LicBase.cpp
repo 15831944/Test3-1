@@ -1,8 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
 //===========================================================================
-
-
 #include "stdafx.h"
 #define __LICBASE_CPP
 #include "scdver.h"
@@ -17,6 +15,7 @@
 //#include "msgwnd.h"
 #include "resource.h"
 #include "badliclocation.h"
+//#include "optoff.h"
 
 
 #if CK_LICENSINGON
@@ -572,6 +571,14 @@ int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, i
     *start_date = 0;
     return -1;
     }
+  else
+    {
+    *authopt = 0;
+    *num_allowed = 0;
+    *num_used = 0;
+    *start_date = 0;
+    return -1;
+    }
 #endif
 #if !BYPASSLICENSING
   if (gs_License.UseCOM())
@@ -638,6 +645,8 @@ int MyCrypKeyVersion()
   {
 #if ACADEMICLICENSE 
   if (gs_License.AcademicMode())
+    return -1;
+  else
     return -1;
 #endif
 #if !BYPASSLICENSING
@@ -2048,7 +2057,8 @@ ReTry:
                       "Old location : %s\n"
                       "New location : %s", 
             (const char*)PrevAppPath, (const char*)m_sAppPath);
-          if (AfxMessageBox(Buff, MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2)!=IDYES)
+          if ( stricmp((const char*)PrevAppPath, (const char*)m_sAppPath)!=0 && 
+               AfxMessageBox(Buff, MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2)!=IDYES )
             {
             Wait.Restore();
             m_sAppPath = PrevAppPath;
@@ -2099,20 +2109,20 @@ ReTry:
 
 //---------------------------------------------------------------------------
 
-void CLicense::SetUseCOM(BOOL On)
+void CLicense::SetUseCOM(bool On)
   {
+  #if ACADEMICLICENSE
+  m_bUseCOM=false; //do not allow developer license with academic license
+  #else
   if (!m_bDidInitCrypkey)
     {
     m_bUseCOM=false;
     if (On)
       {
-      //CString Path = GetAppPath();
-      //????????
-
-
       m_bUseCOM=true;
       }
     }
+  #endif
   }
 
 //---------------------------------------------------------------------------

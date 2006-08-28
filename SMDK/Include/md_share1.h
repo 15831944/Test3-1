@@ -444,7 +444,7 @@ DllImportExport void DoAssert1(char * pMsg);
 // ========================================================================
 
 #define SCD_BUILDNO      120                  /* Build number*/
-#define SCD_BUILDDATE    "18 August 2006"        /* Build release date*/
+#define SCD_BUILDDATE    "22 August 2006"        /* Build release date*/
 #define SCD_VERINFO_V0   9                     /* Major Version */
 #define SCD_VERINFO_V1   1                     /* Minor Version */
 #define SCD_VERINFO_V2   4                     /* Incompatible Version, ie check these numbers match in DLLs*/

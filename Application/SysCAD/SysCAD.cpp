@@ -3246,6 +3246,10 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
         {
         bUse97 = 1;
         }
+      else if (Option=="/1997")
+        {
+        bUse97 = 1;
+        }
       else if (Option=="/demo")
         {
         bForceDemo = 1;

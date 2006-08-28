@@ -100,7 +100,7 @@ class DllImportExport CLicense
     bool            ChangeLocation();
     void            SaveLocation();
     int             SetLocation();
-    void            SetUseCOM(BOOL On=false);
+    void            SetUseCOM(bool On=false);
     BOOL            UseCOM() { return m_bUseCOM; };
     BOOL            IssueLicense();
     BOOL            DoIssue(char* key);
