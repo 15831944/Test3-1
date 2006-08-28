@@ -1031,7 +1031,7 @@ bool CNeutralMdlImportExport::ImportUnits(LPCTSTR Which)
       {
       m_pUn->Read();
       CString Tg=AdjustTag(m_pUn->m_sTag);
-      //dbgpln("  Insert Unit %s", Tg);
+      dbgpln("  Insert Unit %s", Tg);
       
       long iRet=gs_pPrj->m_pFlwLib->FE_DoInsert(m_pUn->m_sClassID, m_pUn->m_sSubClassID, m_pUn->m_sPrimaryCfg, (LPTSTR)(LPCTSTR)Tg, NULL, NULL);
       if (iRet!=0)
@@ -1085,7 +1085,7 @@ bool CNeutralMdlImportExport::ImportLinks(LPCTSTR Which)
     while (!rs->adEOF)
       {
       m_pLk->Read();
-      //dbgpln("  Insert Link %-30s %s %s %s %s", m_pLk->m_sTag, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sEqpGUID);
+      dbgpln("  Insert Link %-30s %s %s %s %s", m_pLk->m_sTag, m_pLk->m_sEqpDesc, m_pLk->m_sEqpMemo, m_pLk->m_sEqpIdStr, m_pLk->m_sEqpLocation, m_pLk->m_sEqpGUID);
       CString LTg=AdjustTag(m_pLk->m_sTag);
 
       CString Src(AdjustTag(m_pLk->m_sSrcTag));
@@ -1174,7 +1174,7 @@ bool CNeutralMdlImportExport::ImportWires(LPCTSTR Which)
     CLinkWiring LW;
     while (!rs->adEOF)
       {
-      //dbgpln("  Insert Wire %s", m_pWr->m_sCableTag);
+      dbgpln("  Insert Wire %s", m_pWr->m_sCableTag);
 
       if (NewCable)
         {
@@ -1273,8 +1273,11 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
         TaggedObject::SplitTagCnv(m_pCf->m_sFldTag, FldTg, Cnv);
         if (strlen(m_pCf->m_sCnvStr)>0)
           Cnv=m_pCf->m_sCnvStr;
+        CString NdTg=AdjustTag(m_pCf->m_sNdTag);
+
         Strng Tg;
-        Tg.Set(/*Cnv.GetLength()>0 ? "%s.%s (%s)":*/"%s.%s", (LPCTSTR)m_pCf->m_sNdTag, FldTg()/*, Cnv()*/);
+        Tg.Set("%s.%s", (LPCTSTR)NdTg, FldTg()/*, Cnv()*/);
+        //Tg.Set(/*Cnv.GetLength()>0 ? "%s.%s (%s)":*/"%s.%s", (LPCTSTR)m_pCf->m_sNdTag, FldTg()/*, Cnv()*/);
                                                    
         if (FldTg.XStrICmp("Regulator.Mode")==0)
           { int xxxx=0; }
@@ -1286,12 +1289,14 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
         CXM_ObjectTag  ObjTag(Tg(), TABOpt_ForView|TABOpt_AllInfoOnce); // Single Items 
         CXM_ObjectData RdData;
         bool Ok = (gs_Exec.XReadTaggedItem(NULL, ObjTag, RdData, Route)!=0);
+
+        if (1)
+          dbgpln("XRead %s Typ:%-7s Tg:%-25s Cnv:%-8s Fld:%-30s FulTg:%-30s Val:%-20s %s", Ok?"OK":"  ", m_pCf->m_sFldType, m_pCf->m_sNdTag, m_pCf->m_sCnvStr, m_pCf->m_sFldTag, Tg(), m_pCf->m_sValue, Cnv()?Cnv():"" );
+
         if (Ok)
           {
           CPkDataItem *pItem = RdData.FirstItem();
           int Type = pItem->Type();
-          if (1)
-            dbgpln("XRead %s %-7s %-25s %-8s %-30s %-20s %s", Ok?"OK":"  ", m_pCf->m_sFldType, m_pCf->m_sNdTag, m_pCf->m_sCnvStr, m_pCf->m_sFldTag, m_pCf->m_sValue, Cnv()?Cnv():"" );
 
           PkDataUnion DU;
           if (IsStrng(Type))
