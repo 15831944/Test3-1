@@ -1642,7 +1642,7 @@ BOOL CSysCADApp::InitInstance()
   if (!m_CLH.Parse(m_lpCmdLine))
     return false;
 
-  if (01)
+  if (0)
     {
     m_CLH.bDebugOn = true;
     m_CLH.sDebugFile.Set("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILDNO);

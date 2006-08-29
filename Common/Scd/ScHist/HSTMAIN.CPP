@@ -1845,7 +1845,7 @@ flag CHistorian::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
       if (!OK)
         return False;
       }
-    else
+    else if (TimeRqd < GetLastTime()-CTimeValue::MinResolution)
       {
       LogError("History", 0, "SetTime failure");
       return False;
