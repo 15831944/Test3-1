@@ -4437,154 +4437,16 @@ void CProject::HistorianQuery()
 
 //---------------------------------------------------------------------------
 
-#if CK_LICENSINGON
-const int CK_DoFullCheck = (int)((double)RAND_MAX * 0.05); //do complete full check 5% of time
-const int CK_DoCheck = (int)((double)RAND_MAX * 0.12); //do full check 12% of time
-static DWORD PrevCheck = GetTickCount();
-#else
-void CheckLicenseDate()
-  {
-  const int i = rand();
-  if (i<(int)((double)RAND_MAX * 0.30))
-    {//crude check if software is legal
-    SYSTEMTIME ST, ET;
-    GetSystemTime(&ST);
-    FILETIME FT;
-    if (FnCreateTime(ExeFile(), FT))
-      {
-      if (FileTimeToSystemTime(&FT, &ET))
-        {
-        long a = ST.wYear*365+ST.wMonth*30+ST.wDay;
-        long b = ET.wYear*365+ET.wMonth*30+ET.wDay;
-        if (a-b>202 || a-b<-33)
-          {
-          Sleep(5555);
-          _asm int 3;
-          }
-        }
-      }
-    }
-  }
-#endif
-
 void CProject::CheckLicense(BOOL StartingSolve)
   {
-#if CK_LICENSINGON
-  if (!gs_License.Blocked())
-    {
-    if (StartingSolve && !gs_License.ForMineServe() && (gs_License.DemoMode() || gs_License.TrialMode()))
-      AfxMessageBox(gs_License.DemoMode() ? "SysCAD is unlicensed !\n\nCurrently using Demo mode." : "SysCAD is unlicensed !\n\nCurrently using Trial version.");
-
-    //make occasional call to crypkey library/dll...
-    const int i = rand();
-    if (i<CK_DoFullCheck)
-      gs_License.QuickCheck(2);
-    else if (i<CK_DoCheck)
-      gs_License.QuickCheck(1);
-    else
-      gs_License.QuickCheck(0);
-    if (GetTickCount() - PrevCheck>600000) //if conditions haven't been checked for 600 seconds, check...
-      CheckLicenseConditions();
-    }
-#else
-  CheckLicenseDate();
-#endif
+  gs_License.CheckLicense(StartingSolve!=0, m_bIOMOn!=0, CWindowLists::GetTrendWndCount(), CWindowLists::GetGrfWndCount());
   }
-
-
-//---------------------------------------------------------------------------
-
-//int CProject::CheckNoOfIllegalUnits()
-//  {
-//#if CK_LICENSINGON
-//  PrevCheck = GetTickCount();
-//  if (!gs_License.Blocked())
-//    {
-//    //if (iUnitsAllowed!=CK_InfiniteUnits && m_pFlwLib)
-//    //  {
-//    //  gs_LicenseCnt.CalcUnits();
-//    //  if (gs_LicenseCnt.NoOfUnits()>iUnitsAllowed)
-//    //    Block = 1;
-//    //  }
-//    if (m_pFlwLib)
-//      {
-//      gs_LicenseCnt.CalcLicUnits();
-//      return gs_LicenseCnt.NoOfIllegalUnits();
-//      }
-//    }
-//#endif
-//  return 0;
-//  }
 
 //---------------------------------------------------------------------------
 
 void CProject::CheckLicenseConditions()
   {
-#if CK_LICENSINGON
-  PrevCheck = GetTickCount();
-  if (!gs_License.Blocked())
-    {
-    flag Block = 0;
-    if (!gs_License.AllowDrivers() && m_bIOMOn)
-      {
-      LogWarning("SysCAD", 0, "License does not allow drivers");
-      Block = 1;
-      }
-#if WITHDRVMAN
-    if (!gs_License.AllowDrivers() && m_bDrvOn)
-      {
-      LogWarning("SysCAD", 0, "License does not allow drivers");
-      Block = 1;
-      }
-#endif
-    //if (!gs_License.AllowOPCServer() && bOPCOn)
-    //  {
-    //  LogWarning("SysCAD", 0, "License does not allow OPC Server");
-    //  //Block = 1; don't block, instead don't load
-    //  CloseOPCManager();
-    //  }
-    /*if (!gs_License.AllowFullHist() && gs_HstMngr.LicenseExceeded(gs_License.MaxHistSizeAllowed(), gs_License.MaxHistFilesAllowed()))
-    {
-    LogWarning("SysCAD", 0, "Historian data files exceed limit allowed by license");
-    Block = 1;
-    }*/
-    if (gs_License.TrendWindowsAllowed()!=CK_InfiniteTrends && CWindowLists::GetTrendWndCount()>gs_License.TrendWindowsAllowed())
-      {
-      LogWarning("SysCAD", 0, "Maximum number of trend windows allowed exceeds limit of %d allowed by license", gs_License.TrendWindowsAllowed());
-      Block = 1;
-      }
-    if (gs_License.GraphicWindowsAllowed()!=CK_InfiniteGrfs && CWindowLists::GetGrfWndCount()>gs_License.GraphicWindowsAllowed())
-      {
-      LogWarning("SysCAD", 0, "Maximum number of graphics windows allowed exceeds limit of %d allowed by license", gs_License.GraphicWindowsAllowed());
-      Block = 1;
-      }
-
-
-    dbgpln("Check COunts ??????");
-    //const int iUnitsAllowed = gs_License.MaxNodesAllowed();
-    //if (iUnitsAllowed!=CK_InfiniteUnits && m_pFlwLib)
-    //  {
-    //  gs_LicenseCnt.CalcUnits();
-    //  if (gs_LicenseCnt.NoOfUnits()>iUnitsAllowed)
-    //    Block = 1;
-    //  }
-    //if (m_pFlwLib)
-    //  {
-    //  gs_LicenseCnt.CalcLicUnits();
-    //  if (gs_LicenseCnt.NoOfIllegalUnits()>0)
-    //    Block = 1;
-    //  }
-
-    if (Block && ! gs_License.Blocked())
-      {
-      LogError("SysCAD", LF_Exclamation, "Current project exceeds license limits (see messages)\n\n"
-                                         "The majority of SysCAD commands and functions have been disabled.\n\n"
-                                         "Please exit SysCAD. (Save project if required)");
-      gs_License.SetBlocked();
-      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
-      }
-    }
-#endif
+  gs_License.CheckLicenseConditions(m_bIOMOn!=0, CWindowLists::GetTrendWndCount(), CWindowLists::GetGrfWndCount());
   }
 
 //---------------------------------------------------------------------------

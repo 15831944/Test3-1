@@ -17,6 +17,10 @@
 #include "badliclocation.h"
 //#include "optoff.h"
 
+#define dbgLicenseState 0
+#define dbgLicenseTimer 0
+
+
 
 #if CK_LICENSINGON
 
@@ -864,9 +868,7 @@ int MyTransferOut(char far *target)
 //
 //===========================================================================
 
-#define dbgTimeLicensing 0
-
-#if dbgTimeLicensing
+#if dbgLicenseTimer
 class CStackTimer : public CStopWatch 
   {
   public:
@@ -891,6 +893,22 @@ class CStackTimer
   };
 #endif
 
+void CLicense::DumpState(LPCTSTR Where)
+  {
+  if (dbgLicenseState)
+    dbgpln("CLicense::%-15s %2i %08x MU:%1i Li:%1i Ac:%1i De:%1i Tr:%1i TrF:%1i Bl:%1i CO:%1i", 
+    Where,
+    m_iStackLvl, 
+    m_State.m_dwOpLevel,
+    m_State.m_bMultiUserFailure,
+    m_State.m_bLicensed,
+    m_State.m_bAcademicMode,
+    m_State.m_bDemoMode,
+    m_State.m_bTrialMode,
+    m_State.m_bTrialFailed,
+    m_State.m_bBlocked,
+    m_State.m_bCOMMineServeOn);
+  }
 
 dword CSysCADLicense::FixOptions(dword dwOpLevel) 
   { 
@@ -906,14 +924,15 @@ dword CSysCADLicense::FixOptions(dword dwOpLevel)
 
   if (Opt.m_Opts.Client_MineServe)
     {
+    m_State.m_bLicensed  = 1;
+    m_State.m_bTrialMode = 0;
+    m_State.m_bDemoMode  = 0;
+
     if (m_State.m_bTrialMode)
       Opt.m_OpLevel |= GetTrialOptions();
     if (m_State.m_bDemoMode)
       Opt.m_OpLevel |= GetDemoOptions();
 
-    m_State.m_bLicensed  = 1;
-    m_State.m_bTrialMode = 0;
-    m_State.m_bDemoMode  = 0;
 
     Opt.m_Opts.Level            = 1;
     //Opt.m_Opts.xVer90            |= 1;
@@ -1418,7 +1437,9 @@ inline void CLicense::SetAppPath(char* p)
 
 void CLicense::PushState()
   {
-  dbgpln("CLicense::PushState() %i", m_iStackLvl);
+  DumpState("PushState");
+
+  m_StateStack[m_iStackLvl]=m_State;
   m_iStackLvl++;
   int MaxStk=sizeof(m_StateStack)/sizeof(m_StateStack[0]);
   if (m_iStackLvl>=MaxStk)
@@ -1426,7 +1447,6 @@ void CLicense::PushState()
     m_iStackLvl = MaxStk-1;
     LogError("License", 0, "CLicense::PushState() Stack Overflow");
     }
-  m_StateStack[m_iStackLvl]=m_State;
   if (ScdMainWnd())
     ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   }
@@ -1440,6 +1460,7 @@ void CLicense::PopState()
     LogError("License", 0, "CLicense::PopState() Stack Underflow");
     }
   m_State=m_StateStack[m_iStackLvl];
+  DumpState("PopState");
   if (ScdMainWnd())
     ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   }
@@ -1448,13 +1469,14 @@ void CLicense::PopState()
 
 void CLicense::SetBlocked(BOOL Block)
   {
-  dbgpln("CLicense::SetBlocked %s", Block?"ON":"Off");
-  m_State.m_bBlocked = Block;
+  if (dbgLicenseState)
+    dbgpln("CLicense::SetBlocked %s", Block?"ON":"Off");
+  m_State.m_bBlocked = Block;  
   };
 
 BOOL CLicense::Blocked()
   {
-  return m_State.m_bBlocked && !m_State.m_bCOMMineServeOn; //m_iStackLvl==0; 
+  return m_State.m_bBlocked/* && !m_State.m_bCOMMineServeOn*/; //m_iStackLvl==0; 
   };
 
 //---------------------------------------------------------------------------
@@ -1705,8 +1727,11 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 //#if CK_LICENSINGON
 
   int err= MyGetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
+  m_State.m_dwOpLevel = FixOptions(m_State.m_dwOpLevel);
+  DumpState("Check:x");
 
-  dbgpln("CrypKey GetAuth A:%08x", m_State.m_dwOpLevel);
+  if (dbgLicenseState)
+    dbgpln("CrypKey GetAuth A:%08x", m_State.m_dwOpLevel);
 
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL
@@ -1739,6 +1764,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     m_State.m_bDemoMode = 0;
     ScdPFMachine.WrInt(LicINISection, "InDemoMode", m_State.m_bDemoMode);
     CheckForLiteModes();
+    m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
 
 #if BYPASSLICENSING
     if (1)
@@ -1750,11 +1776,12 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       }
 #endif
 
+    DumpState("Check:1");
     return TRUE;
     }
   else
     {
-    m_State.m_dwOpLevel = 0;
+    m_State.m_dwOpLevel = FixOptions(0);
     if (err>0)
       {
       m_State.m_bMultiUserFailure = 1;
@@ -1768,6 +1795,8 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
     }
   CheckForLiteModes();
   m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
+   
+  DumpState("Check:2");
 
 //#else
 //
@@ -1815,11 +1844,17 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   m_State.m_bLicensed = 0;
   m_State.m_dwOpLevel = 0;
   int err = MyGetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
-  int OtherErr = 0;
-  dbgpln("CrypKey GetAuth B:%08x", m_State.m_dwOpLevel);
+  m_State.m_dwOpLevel = FixOptions(m_State.m_dwOpLevel);
 
+  DumpState("QuickCheck");
+  
+  int OtherErr = 0;
+  if (dbgLicenseState)
+    dbgpln("CrypKey GetAuth B:%08x", m_State.m_dwOpLevel);
+
+  bool AltLic= gs_License.AcademicMode() || gs_License.m_State.m_bCOMMineServeOn;
 #if !BYPASSLICENSING
-  if (err==0 && CheckLevel>1 && !gs_License.AcademicMode())
+  if (err==0 && CheckLevel>1 && !AltLic)
     {
     //generate some random numbers - this can be done any way you like
     ULONG random1 = (time(NULL)<<1)+9;
@@ -1849,7 +1884,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     }
 #endif
 
-  if (err==0 && OtherErr==0)
+  if ((err==0 && OtherErr==0) || AltLic)
     {
     m_State.m_bLicensed = 1;
     }
@@ -1869,6 +1904,7 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     }
   m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
 
+  DumpState("QuickCheck");
   //#else
 //  bLicensed = 1;
 //  dwOpLevel = 0;
@@ -2404,6 +2440,7 @@ void CLicense::SetDemoMode()
       }*/
     }
   m_State.m_dwOpLevel = FixOptions(GetDemoOptions());
+  DumpState("SetDemoMode");
   }
 
 //---------------------------------------------------------------------------
@@ -2422,6 +2459,7 @@ void CLicense::SetAcademicMode()
       }*/
     }
   m_State.m_dwOpLevel = FixOptions(GetAcademicOptions());
+  DumpState("SetAcademicMode");
   }
 
 //---------------------------------------------------------------------------
@@ -2877,8 +2915,10 @@ void CLicense::Info()
     }
   long d;
   int err = MyGetAuthorization(&d, 0);
-  dbgpln("CrypKey GetAuth C:%08x", d);
+  if (dbgLicenseState)
+    dbgpln("CrypKey GetAuth C:%08x", d);
   d=FixOptions(d);
+
   if (err==0)
     sprintf(Buff, "%s (%04X %04X)\n", Buff, HIWORD(d), LOWORD(d));
   else
@@ -3063,6 +3103,10 @@ CSysCADLicense::CSysCADLicense()
   m_IllegalNodeCount = 0;
   m_IllegalModelCount = 0;
 
+  //m_bIOMOn = false;
+  //m_TrendWndCount = 0;
+  //m_GraphicWndCount = 0;
+  m_PrevCheckTicks = GetTickCount();
   }
 
 //---------------------------------------------------------------------------
@@ -3224,7 +3268,8 @@ void CSysCADLicense::Info()
 void CSysCADLicense::BumpNodeCount(int Count, LPTSTR Tag)
   { 
   m_NodeCount+=Count; 
-  dbgpln("%5i) %+2i %s", m_NodeCount, Count, Tag); 
+  if (dbgLicenseState)
+    dbgpln("%5i) %+2i %s", m_NodeCount, Count, Tag); 
   };
 
 //---------------------------------------------------------------------------
@@ -3415,6 +3460,7 @@ void CSysCADLicense::SetForMineServe(bool On)
     {
     m_State.m_bCOMMineServeOn = On; 
     m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
+    DumpState("SetForMineServe");
     Check();
     if (ScdMainWnd())
       ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
@@ -3427,6 +3473,7 @@ void CSysCADLicense::SetForMineServeMsg(WPARAM wParam, LPARAM lParam)
   { 
   m_State.m_bCOMMineServeOn = (wParam&01)!=0; 
   m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
+  DumpState("SetForMineServe");
   Check();
   *((bool*)lParam)=true;
   if (ScdMainWnd())
@@ -3479,6 +3526,143 @@ BOOL CSysCADLicense::AllowCOMMdl()     { return 1; };
 BOOL CSysCADLicense::AllowCOMSlv()     { return 1; };
 BOOL CSysCADLicense::AllowCOMApp()     { return 1; };
 #endif
+
+//---------------------------------------------------------------------------
+
+void CSysCADLicense::CheckLicenseDate()
+  {
+  const int i = rand();
+  if (i<(int)((double)RAND_MAX * 0.30))
+    {//crude check if software is legal
+    SYSTEMTIME ST, ET;
+    GetSystemTime(&ST);
+    FILETIME FT;
+    if (FnCreateTime(ExeFile(), FT))
+      {
+      if (FileTimeToSystemTime(&FT, &ET))
+        {
+        long a = ST.wYear*365+ST.wMonth*30+ST.wDay;
+        long b = ET.wYear*365+ET.wMonth*30+ET.wDay;
+        if (a-b>202 || a-b<-33)
+          {
+          Sleep(5555);
+          _asm int 3;
+          }
+        }
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+//#if CK_LICENSINGON
+const int CK_DoFullCheck = (int)((double)RAND_MAX * 0.05); //do complete full check 5% of time
+const int CK_DoCheck = (int)((double)RAND_MAX * 0.12); //do full check 12% of time
+//static DWORD PrevCheck = GetTickCount();
+//#endif
+
+void CSysCADLicense::CheckLicense(BOOL StartingSolve, bool IOMOn, int TrendWndCount, int GraphicWndCount)
+  {
+  WPARAM wParam= (StartingSolve?0x01:0) | (IOMOn?0x02:0);
+  LPARAM lParam= (TrendWndCount & 0xffff) | ((GraphicWndCount & 0xffff)<<16);
+
+  DumpState("CheckLicense");
+  ScdMainWnd()->PostMessage(WMU_CHKLICENSE, wParam, lParam);
+  }
+
+void CSysCADLicense::DoCheckLicense(WPARAM wParam, LPARAM lParam)
+  {
+  bool StartingSolve    = (wParam & 0x01)!=0;
+  bool IOMOn            = (wParam & 0x02)!=0;
+  int  TrendWndCount    = (lParam & 0xffff);
+  int  GraphicWndCount  = (lParam >> 16) & 0xffff;
+
+#if CK_LICENSINGON
+  if (!Blocked())
+    {
+    if (StartingSolve && !ForMineServe() && (DemoMode() || TrialMode()))
+      AfxMessageBox(DemoMode() ? "SysCAD is unlicensed !\n\nCurrently using Demo mode." : "SysCAD is unlicensed !\n\nCurrently using Trial version.");
+
+    //make occasional call to crypkey library/dll...
+    const int i = rand();
+    if (i<CK_DoFullCheck)
+      QuickCheck(2);
+    else if (i<CK_DoCheck)
+      QuickCheck(1);
+    else
+      QuickCheck(0);
+    if (GetTickCount() - m_PrevCheckTicks>600000) //if conditions haven't been checked for 600 seconds, check...
+      CheckLicenseConditions(IOMOn, TrendWndCount, GraphicWndCount);
+    DumpState("Project");
+    }
+#else
+  CheckLicenseDate();
+#endif
+  DumpState("DoCheckLicense");
+  }
+
+//---------------------------------------------------------------------------
+
+void CSysCADLicense::CheckLicenseConditions(bool IOMOn, int TrendWndCount, int GraphicWndCount)
+  {
+  DumpState("CheckLicenseConditions");
+
+#if CK_LICENSINGON
+  m_PrevCheckTicks = GetTickCount();
+  if (!Blocked())
+    {
+    flag Block = 0;
+    if (!AllowDrivers() && IOMOn)
+      {
+      LogWarning("SysCAD", 0, "License does not allow drivers");
+      Block = 1;
+      }
+#if WITHDRVMAN
+    if (!AllowDrivers() && m_bDrvOn)
+      {
+      LogWarning("SysCAD", 0, "License does not allow drivers");
+      Block = 1;
+      }
+#endif
+    //if (!AllowOPCServer() && bOPCOn)
+    //  {
+    //  LogWarning("SysCAD", 0, "License does not allow OPC Server");
+    //  //Block = 1; don't block, instead don't load
+    //  CloseOPCManager();
+    //  }
+    /*if (!AllowFullHist() && gs_HstMngr.LicenseExceeded(MaxHistSizeAllowed(), MaxHistFilesAllowed()))
+    {
+    LogWarning("SysCAD", 0, "Historian data files exceed limit allowed by license");
+    Block = 1;
+    }*/
+    if (TrendWindowsAllowed()!=CK_InfiniteTrends && TrendWndCount>TrendWindowsAllowed())
+      {
+      LogWarning("SysCAD", 0, "Maximum number of trend windows allowed exceeds limit of %d allowed by license", TrendWindowsAllowed());
+      Block = 1;
+      }
+    if (GraphicWindowsAllowed()!=CK_InfiniteGrfs && GraphicWndCount>GraphicWindowsAllowed())
+      {
+      LogWarning("SysCAD", 0, "Maximum number of graphics windows allowed exceeds limit of %d allowed by license", GraphicWindowsAllowed());
+      Block = 1;
+      }
+
+    if (NodeCountExceeded(0, eLic_None))
+      {         
+      LogWarning("SysCAD", 0, "Maximum number of Nodes exceeds limit of %d allowed by license", MaxNodesAllowed());
+      Block = 1;
+      }
+
+    if (Block && ! Blocked())
+      {
+      LogError("SysCAD", LF_Exclamation, "Current project exceeds license limits (see messages)\n\n"
+                                         "The majority of SysCAD commands and functions have been disabled.\n\n"
+                                         "Please exit SysCAD. (Save project if required)");
+      SetBlocked();
+      ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+      }
+    }
+#endif
+  }
 
 //===========================================================================
 

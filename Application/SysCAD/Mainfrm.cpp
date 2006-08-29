@@ -284,6 +284,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   //ON_MESSAGE(WMU_EXECACTION, OnExecAction)
   ON_MESSAGE(WMU_EXCEPTION, OnException)
   ON_MESSAGE(WMU_SETLICENSE, OnSetLicense)
+  ON_MESSAGE(WMU_CHKLICENSE, OnChkLicense)
 
   // Global help commands
   ON_COMMAND(ID_HELP_FINDER, CMDIFrameWnd::OnHelpFinder)
@@ -2986,8 +2987,9 @@ void CMyMDIClient::OnPaint()
   {
   bool DoPaint = (gs_pPrj && gs_pPrj->LoadBusy());
   #if CK_LICENSINGON
+  bool TextBackground = (gs_License.DemoMode() || gs_License.AcademicMode() || gs_License.ForMineServe() || gs_License.Blocked());
   if (!DoPaint)
-    DoPaint = (gs_License.DemoMode() || gs_License.AcademicMode() || gs_License.Blocked());
+    DoPaint = TextBackground;
   #endif
   if (DoPaint)
     {
@@ -3000,7 +3002,7 @@ void CMyMDIClient::OnPaint()
     CFont * pOldFont=NULL;
 
     #if CK_LICENSINGON
-    if (gs_License.AcademicMode() || gs_License.DemoMode() || gs_License.Blocked())
+    if (TextBackground)
       {
       int NDown   = 5;
       int NAcross = 3;
@@ -3025,6 +3027,10 @@ void CMyMDIClient::OnPaint()
       else if (gs_License.AcademicMode())
         {
         Msg.Format("Academic License : %s", gs_License.AcademicName());
+        }
+      else if (gs_License.ForMineServe())
+        {
+        Msg.Format("mineSERV License");
         }
       else if (gs_License.DemoMode())
         {
@@ -4174,6 +4180,32 @@ LRESULT CMainFrame::OnException(WPARAM wParam, LPARAM lParam)
 LRESULT CMainFrame::OnSetLicense(WPARAM wParam, LPARAM lParam)
   {
   gs_License.SetForMineServeMsg(wParam, lParam);
+  return 0;
+  }
+
+//===========================================================================
+
+LRESULT CMainFrame::OnChkLicense(WPARAM wParam, LPARAM lParam)
+  {
+  gs_License.DoCheckLicense(wParam, lParam);
+  
+  //switch (wParam)
+  //  {
+  //  case 2: 
+  //  case 1: 
+  //  case 0: 
+  //    gs_License.QuickCheck(wParam);
+  //    break;      
+  //  case 3: 
+  //    {
+  //    //CheckLicenseConditions();
+  //    int xxx=0;
+  //    break;      
+  //    }
+  //  }
+  //gs_License.DumpState("Project");
+  
+  ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   return 0;
   }
 

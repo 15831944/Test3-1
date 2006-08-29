@@ -125,6 +125,7 @@ class DllImportExport CLicense
     virtual dword   FixOptions(dword dwOpLevel) { return dwOpLevel; };
     virtual void    CheckForLiteModes() {};
 
+    void            DumpState(LPCTSTR Where);
     void            PushState();
     void            PopState();
 
@@ -175,7 +176,7 @@ class DllImportExport CLicense
             m_bTrialFailed,     //true if attempt to issue trial license has been made AND failed
             m_bBlocked,         //set true if license condition failed and all functionality must be blocked
             m_bCOMMineServeOn;
-      } m_State, m_StateStack[1000];
+      } m_State, m_StateStack[10];
 
     int  m_iStackLvl;
 
@@ -243,91 +244,101 @@ class DllImportExport CSysCADLicense : public CLicense
   public:
     CSysCADLicense();
     virtual ~CSysCADLicense();
-    virtual char* GetAppVersion();
-    virtual DWORD GetDemoOptions();
-    virtual DWORD GetAcademicOptions();
-    virtual DWORD GetTrialOptions();
-    virtual void Info();
-    virtual dword FixOptions(dword dwOpLevel);
-    virtual void CheckForLiteModes();
+    virtual char*     GetAppVersion();
+    virtual DWORD     GetDemoOptions();
+    virtual DWORD     GetAcademicOptions();
+    virtual DWORD     GetTrialOptions();
+    virtual void      Info();
+    virtual dword     FixOptions(dword dwOpLevel);
+    virtual void      CheckForLiteModes();
 
-    void      BumpNodeCount(int Count, LPTSTR Tag);
-    int       NodeCount();
-    BOOL      NodeCountExceeded(int Extra=0, eLicOptions Opts=eLic_None);
-    void      BumpIllegalNodeCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
-    int       IllegalNodeCount(eLicOptions Opt=eLic_None);
-    void      BumpIllegalModelCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
-    int       IllegalModelCount(eLicOptions Opt=eLic_None);
+    void              BumpNodeCount(int Count, LPTSTR Tag);
+    int               NodeCount();
+    BOOL              NodeCountExceeded(int Extra=0, eLicOptions Opts=eLic_None);
+    void              BumpIllegalNodeCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
+    int               IllegalNodeCount(eLicOptions Opt=eLic_None);
+    void              BumpIllegalModelCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
+    int               IllegalModelCount(eLicOptions Opt=eLic_None);
 
-    int       MaxNodesAllowed(BOOL ForDynamic);
-    int       MaxNodesAllowed();                                 
-    long      MaxHistSizeAllowed();
-    UINT      MaxHistFilesAllowed();
-    int       TrendWindowsAllowed();
-    int       GraphicWindowsAllowed();
-    DWORD     LicCatagories();
+    int               MaxNodesAllowed(BOOL ForDynamic);
+    int               MaxNodesAllowed();                                 
+    long              MaxHistSizeAllowed();
+    UINT              MaxHistFilesAllowed();
+    int               TrendWindowsAllowed();
+    int               GraphicWindowsAllowed();
+    DWORD             LicCatagories();
 
-    inline void SetAsRunTime();
-    inline BOOL IsRunTime();
-    //inline BOOL AllowVer90();
-    inline BOOL AllowMdlsRTTS();
-    inline BOOL ForMineServe();
-    inline void SetForMineServe(bool On);
-    inline void SetForMineServeMsg(WPARAM wParam, LPARAM lParam);
-    inline BOOL AllowMdlsAlcan();
-    //inline BOOL AllowMdlsQALExtra();
-    inline BOOL AllowMdlsQAL();
-    inline BOOL AllowMdlsUser();
-    inline BOOL AllowMdlsSMDKRuntime();
-    inline BOOL AllowMdlsHeatExtra();
-    inline BOOL AllowMdlsHeatBal();
-    inline BOOL AllowMdlsAlumina();
-    inline BOOL AllowMdlsSizeDist();
-    inline BOOL AllowMdlsElec();
-    inline BOOL AllowProBal();
-    inline BOOL AllowDynamicFlow();
-    inline BOOL AllowDynamicFull();
-    inline BOOL AllowProBalLite();
-    inline BOOL AllowDynamicLite();
-    inline BOOL OnlySteadyState();
-    inline BOOL IsAcademic();
-    inline BOOL AllowFullLic();
-    inline BOOL AllowFullLicFlag();
-    inline BOOL AllowDrivers();
-    inline BOOL AllowOPCServer();
-    inline BOOL AllowCOMInterface();
-    inline BOOL AllowCOMProps();
-    inline UCHAR Level();
+    inline void       SetAsRunTime();
+    inline BOOL       IsRunTime();
+    //inline BOOL       AllowVer90();
+    inline BOOL       AllowMdlsRTTS();
+    inline BOOL       ForMineServe();
+    inline void       SetForMineServe(bool On);
+    inline void       SetForMineServeMsg(WPARAM wParam, LPARAM lParam);
+    inline BOOL       AllowMdlsAlcan();
+    //inline BOOL       AllowMdlsQALExtra();
+    inline BOOL       AllowMdlsQAL();
+    inline BOOL       AllowMdlsUser();
+    inline BOOL       AllowMdlsSMDKRuntime();
+    inline BOOL       AllowMdlsHeatExtra();
+    inline BOOL       AllowMdlsHeatBal();
+    inline BOOL       AllowMdlsAlumina();
+    inline BOOL       AllowMdlsSizeDist();
+    inline BOOL       AllowMdlsElec();
+    inline BOOL       AllowProBal();
+    inline BOOL       AllowDynamicFlow();
+    inline BOOL       AllowDynamicFull();
+    inline BOOL       AllowProBalLite();
+    inline BOOL       AllowDynamicLite();
+    inline BOOL       OnlySteadyState();
+    inline BOOL       IsAcademic();
+    inline BOOL       AllowFullLic();
+    inline BOOL       AllowFullLicFlag();
+    inline BOOL       AllowDrivers();
+    inline BOOL       AllowOPCServer();
+    inline BOOL       AllowCOMInterface();
+    inline BOOL       AllowCOMProps();
+    inline UCHAR      Level();
 
 
 
-    BOOL       ProbalLiteMode() { return m_bProbalLiteMode; };
-    BOOL       DynLiteMode()    { return m_bDynLiteMode;    };
+    BOOL              ProbalLiteMode() { return m_bProbalLiteMode; };
+    BOOL              DynLiteMode()    { return m_bDynLiteMode;    };
 
-    BOOL       AllowDynamic();
-    BOOL       ProBalOK();
-    BOOL       DynamicOK();
+    BOOL              AllowDynamic();
+    BOOL              ProBalOK();
+    BOOL              DynamicOK();
 
 
 #if CK_SCDCOMLIC
-    inline BOOL AllowCOMMdl()     ;//{ return AllowCOMProps() || ForMineServe(); };
-    inline BOOL AllowCOMSlv()     ;//{ return AllowCOMProps() || ForMineServe(); };
-    inline BOOL AllowCOMApp()     ;//{ return AllowCOMInterface() || ForMineServe(); };
+    inline BOOL       AllowCOMMdl()     ;//{ return AllowCOMProps() || ForMineServe(); };
+    inline BOOL       AllowCOMSlv()     ;//{ return AllowCOMProps() || ForMineServe(); };
+    inline BOOL       AllowCOMApp()     ;//{ return AllowCOMInterface() || ForMineServe(); };
 #else
-    inline BOOL AllowCOMMdl()     ;//{ return 1; };
-    inline BOOL AllowCOMSlv()     ;//{ return 1; };
-    inline BOOL AllowCOMApp()     ;//{ return 1; };
+    inline BOOL       AllowCOMMdl()     ;//{ return 1; };
+    inline BOOL       AllowCOMSlv()     ;//{ return 1; };
+    inline BOOL       AllowCOMApp()     ;//{ return 1; };
 #endif
+
+    void              CheckLicense(BOOL StartingSolve, bool WithIOOn, int TrendWndCount, int GraphicWndCount);
+    void              DoCheckLicense(WPARAM wParam, LPARAM lParam);
+    void              CheckLicenseDate();
+    void              CheckLicenseConditions(bool IOMOn, int TrendWndCount, int GraphicWndCount);
 
   protected:
     CK_SysCADSecurity* m_pSecOpt;
 
-    BOOL        m_bProbalLiteMode,
-                m_bDynLiteMode;
+    BOOL              m_bProbalLiteMode;
+    BOOL              m_bDynLiteMode;
 
-    int         m_NodeCount;
-    int         m_IllegalNodeCount;
-    int         m_IllegalModelCount;
+    int               m_NodeCount;
+    int               m_IllegalNodeCount;
+    int               m_IllegalModelCount;
+
+    //bool              m_bIOMOn;
+    //int               m_TrendWndCount;
+    //int               m_GraphicWndCount;
+    DWORD             m_PrevCheckTicks;
 
   };
 

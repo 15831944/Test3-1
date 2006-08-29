@@ -227,7 +227,7 @@ CSysCADApp::CSysCADApp()
 /////////////////////////////////////////////////////////////////////////////
 // The one and only CSysCADApp object
 
-CSysCADApp theApp;
+CSysCADApp gs_SysCADApp;
 
 // This identifier was generated to be statistically unique for your app.
 // You may change it if you prefer to choose a specific identifier.
@@ -1149,7 +1149,7 @@ BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
       LogError("License", 0, "Licensing Service Initialise Failed, SysCAD set to Demo Mode!");
     }
   if (gs_License.IsRunTime())
-    ((CMainFrame*)theApp.m_pMainWnd)->UpdateMainToolBar();
+    ((CMainFrame*)gs_SysCADApp.m_pMainWnd)->UpdateMainToolBar();
   //((CMainFrame*)SysCAD.m_pMainWnd)->UpdateMainToolBar();
   ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
 #endif
@@ -1642,8 +1642,16 @@ BOOL CSysCADApp::InitInstance()
   if (!m_CLH.Parse(m_lpCmdLine))
     return false;
 
+  if (01)
+    {
+    m_CLH.bDebugOn = true;
+    m_CLH.sDebugFile.Set("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILDNO);
+    }
+
   if (m_CLH.bDebugOn)
     {
+
+
     flag IsOpen = dbgfileopen(m_CLH.sDebugFile());
     //    dbgtime(3);
     ASSERT(IsOpen);

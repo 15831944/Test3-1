@@ -60,7 +60,9 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls/ScExec.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -126,7 +128,9 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Dbg/ScExec.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -191,7 +195,9 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rdb/ScExec.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -258,7 +264,9 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls/ScExec.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy Files for SMDK"
+				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

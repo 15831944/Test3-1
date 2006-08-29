@@ -5,7 +5,7 @@
 #include "gpwfuncs.h"
 #include "sfe_clnt.h"
 #include "project.h"
-//#include "optoff.h"
+#include "licbase.h"
 
 //===========================================================================
 
@@ -1762,6 +1762,7 @@ bool CNeutralImportExport::DoImportDB(eScdNDBOptions Opts, LPCTSTR pGrfDatabase,
   {
   bool Gok = m_GrfDB.DoImportDB(Opts, ScdApp()->GraphTemplate(), pGrfDatabase);
   bool Mok = Gok && m_MdlDB.DoImportDB(Opts, pMdlDatabase);
+  gs_pPrj->CheckLicenseConditions();
   return Gok&&Mok;
   };
 bool CNeutralImportExport::DoImportGroup(eScdNDBOptions Opts, CGrfDoc* pDoc, LPCTSTR pGrfDatabase, LPCTSTR pMdlDatabase)

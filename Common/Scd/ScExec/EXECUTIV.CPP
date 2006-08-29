@@ -4454,21 +4454,34 @@ void CExecutive::GotoEditMode()
 
 void CExecutive::GotoRunMode(RqdRunMode Md, int Action)
   {
+  if (gs_License.Blocked())
+    {
+    LogError("Executive", LF_Exclamation, "Run Blocked by License");
+    return;
+    }
   PostCmd(0, EXM_GOTORUN/*EXM_START*/, (LONG)((Md)|(Action<<16)));
   SetStopSleep();
   }
 
 void CExecutive::GotoIdleMode()
   {
+  if (gs_License.Blocked())
+    {
+    LogError("Executive", LF_Exclamation, "Idle Blocked by License");
+    return;                                    
+    }
   PostCmd(0, EXM_GOTOIDLE);
   SetStopSleep();
   }
 
 void CExecutive::DoOneStep(CDoOneStepInfo Info)
   {
-  //CStopWatch SWf;
-  //dbgpln("Exec DoOneStep        %6i", Info.lWaitForNextMS);
 
+  if (gs_License.Blocked())
+    {
+    LogError("Executive", LF_Exclamation, "Step Blocked by License");
+    return;
+    }
   PostCmd(0, EXM_DOONESTEP, Info.lParam);
   SetStopSleep();
   }

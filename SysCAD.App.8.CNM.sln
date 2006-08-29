@@ -1803,6 +1803,7 @@ Global
 		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
+		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{4B515D64-BA26-4EE6-B4F2-ABA88141E45E}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -1933,6 +1934,7 @@ Global
 		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
+		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -3487,6 +3489,7 @@ Global
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
+		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32

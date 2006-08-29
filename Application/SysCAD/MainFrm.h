@@ -336,6 +336,7 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
 
     afx_msg LRESULT OnException(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnSetLicense(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnChkLicense(WPARAM wParam, LPARAM lParam);
 
     DECLARE_MESSAGE_MAP()
 

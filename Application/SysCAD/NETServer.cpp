@@ -123,14 +123,14 @@ ref class CNETServerThread
         Stream ^ stream = (gcnew StreamReader(fullpath))->BaseStream;
         //Stream ^ stream = (gcnew StreamReader(fullpath))->BaseStream;
 
-		GraphicStencil ^ graphicStencil;
+        GraphicStencil ^ graphicStencil;
 
         try
-        {
+          {
           graphicStencil = (GraphicStencil^)sf->Deserialize(stream);
-        }
+          }
         catch(...)
-        {
+          {
           stream->Close();
           sf = gcnew SoapFormatter();
           stream = (gcnew StreamReader(fullpath))->BaseStream;
@@ -142,11 +142,11 @@ ref class CNETServerThread
           graphicStencil->defaultSize = oldGraphicStencil->defaultSize;
           graphicStencil->groupName = oldGraphicStencil->groupName;
           graphicStencil->textArea = RectangleF(0.0, graphicStencil->defaultSize.Height * 1.1, graphicStencil->defaultSize.Width, 5);
-        }
+          }
         stream->Close();
 
 
-		graphicStencil->Tag = Path::GetFileNameWithoutExtension(fullpath);
+        graphicStencil->Tag = Path::GetFileNameWithoutExtension(fullpath);
         m_Config->graphicStencils->Add(Path::GetFileNameWithoutExtension(fullpath), graphicStencil);
         //Console::WriteLine("  {0}] {1}", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         LogNote("Srvr", 0, "  %i] %s", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
@@ -159,116 +159,116 @@ ref class CNETServerThread
       }
 
     bool CreateItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
-    {
+      {
       if (true) // Decide whether to create an item.
-      { // We're going to do it.
+        { // We're going to do it.
         // Create the item.
-        
+
         // Raise event(s).
         graphic->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
 
         return true;
-      }
+        }
       else
-      { // We're not going to do it.
+        { // We're not going to do it.
         return false;
+        }
       }
-    }
 
-	bool ModifyItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
-    {
+    bool ModifyItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+      {
       if (true) // Decide whether to modify an item.
-      { // We're going to do it.
+        { // We're going to do it.
         // Modify the item.
-        
+
         // Raise event(s).
         graphic->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
 
         return true;
-      }
+        }
       else
-      { // We're not going to do it.
+        { // We're not going to do it.
         return false;
+        }
       }
-    }
 
     bool DeleteItem(ServiceGraphic^ graphic, uint requestID, Guid guid)
-    {
+      {
       if (true) // Decide whether to delete an item.
-      { // We're going to do it.
+        { // We're going to do it.
         // Delete the item.
-        
+
         // Raise event(s).
         graphic->DoItemDeleted(requestID, guid);
 
         return true;
-      }
+        }
       else
-      { // We're not going to do it.
+        { // We're not going to do it.
         return false;
+        }
       }
-    }
 
     bool CreateLink(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
-    {
+      {
       if (true) // Decide whether to create an link.
-      { // We're going to do it.
+        { // We're going to do it.
         // Create the item.
-        
+
         // Raise event(s).
         graphic->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
-      }
+        }
       else
-      { // We're not going to do it.
+        { // We're not going to do it.
         return false;
+        }
       }
-    }
 
     bool ModifyLink(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
-    {
+      {
       if (true) // Decide whether to modify an link.
-      { // We're going to do it.
+        { // We're going to do it.
         // Modify the item.
-        
+
         // Raise event(s).
         graphic->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
-      }
+        }
       else
-      { // We're not going to do it.
+        { // We're not going to do it.
         return false;
+        }
       }
-    }
 
     bool DeleteLink(ServiceGraphic^ graphic, uint requestID, Guid guid)
-    {
+      {
       if (true) // Decide whether to delete an link.
-      { // We're going to do it.
+        { // We're going to do it.
         // Delete the item.
-        
+
         // Raise event(s).
         graphic->DoLinkDeleted(requestID, guid);
 
         return true;
-      }
+        }
       else
-      { // We're not going to do it.
+        { // We're not going to do it.
         return false;
+        }
       }
-    }
 
-	PortStatus PortCheck(ServiceGraphic^ graphic, Guid guid, Anchor^ anchor)
-	{
-//		CNSGuidItem * pGuid = new CNSGuidItem();
-//		pGuid->m_Guid = guid;
-//		m_pUnmanaged->m_Guids.AddTail(null);
-//		CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.Find(guid);
-//		CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(guid);
-		return PortStatus::Available;
-	}
+    PortStatus PortCheck(ServiceGraphic^ graphic, Guid guid, Anchor^ anchor)
+      {
+      //		CNSGuidItem * pGuid = new CNSGuidItem();
+      //		pGuid->m_Guid = guid;
+      //		m_pUnmanaged->m_Guids.AddTail(null);
+      //		CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.Find(guid);
+      //		CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(guid);
+      return PortStatus::Available;
+      }
 
     void MarshalGraphics()
       {
@@ -280,10 +280,10 @@ ref class CNETServerThread
       ServiceGraphic::ModifyLinkDelegate^ modifyLink = gcnew ServiceGraphic::ModifyLinkDelegate(this, &CNETServerThread::ModifyLink);
       ServiceGraphic::DeleteLinkDelegate^ deleteLink = gcnew ServiceGraphic::DeleteLinkDelegate(this, &CNETServerThread::DeleteLink);
 
-	  ServiceGraphic::PortCheckDelegate^ portCheck = gcnew ServiceGraphic::PortCheckDelegate(this, &CNETServerThread::PortCheck);
+      ServiceGraphic::PortCheckDelegate^ portCheck = gcnew ServiceGraphic::PortCheckDelegate(this, &CNETServerThread::PortCheck);
 
 
-	  ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, portCheck);
+      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, portCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -296,8 +296,8 @@ ref class CNETServerThread
           {
           CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(pGuid); 
           GraphicLink ^ graphicLink = gcnew GraphicLink(Guid(gcnew String(pLink->m_Guid)), gcnew String(pLink->m_Tag), gcnew String(pLink->m_ClassID), 
-			  Guid(gcnew String(pLink->m_SrcGuid)), gcnew String(pLink->m_SrcPort), Guid(gcnew String(pLink->m_DstGuid)), gcnew String(pLink->m_DstPort)); //pkh
-			  
+            Guid(gcnew String(pLink->m_SrcGuid)), gcnew String(pLink->m_SrcPort), Guid(gcnew String(pLink->m_DstGuid)), gcnew String(pLink->m_DstPort)); //pkh
+
           CArray <CNSGrfLink::CPt, CNSGrfLink::CPt&> &Pts=pLink->m_pGrf->m_Pts;
           Generic::List<PointF> ^ ControlPoints = gcnew Generic::List<PointF>;
 
@@ -320,7 +320,7 @@ ref class CNETServerThread
           GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
           graphicItem->Populate(filename, gcnew String(pNode->m_pGrfs[0]->m_Page),
             gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
-			RectangleF(pNode->m_pGrfs[0]->m_Left, pNode->m_pGrfs[0]->m_Top, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
+            RectangleF(pNode->m_pGrfs[0]->m_Left, pNode->m_pGrfs[0]->m_Top, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
             pNode->m_pGrfs[0]->m_Rotation);
           graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
           }

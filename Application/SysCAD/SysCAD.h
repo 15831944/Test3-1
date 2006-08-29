@@ -270,7 +270,10 @@ class CSysCADApp : public CWinApp
 //    afx_msg void OnAppExit();
 };
 
-inline CSysCADApp * ScdApp() { return (CSysCADApp *)AfxGetApp(); };
+extern CSysCADApp gs_SysCADApp;
+
+inline CSysCADApp * ScdApp() { return &gs_SysCADApp; };
+//inline CSysCADApp * ScdApp() { return (CSysCADApp *)AfxGetApp(); };
 
 /////////////////////////////////////////////////////////////////////////////
 

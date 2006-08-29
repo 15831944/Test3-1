@@ -88,6 +88,7 @@
 #define WMU_EDITRCTDLG           (WM_USER + 576)
 #define WMU_EXCEPTION            (WM_USER + 577)
 #define WMU_SETLICENSE           (WM_USER + 578)
+#define WMU_CHKLICENSE           (WM_USER + 579)
 
 //WPARAM sub-messages used by WMU_TAGACTION...
 #define SUB_TAGACTION_ACCESS          1
