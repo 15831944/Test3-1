@@ -64,6 +64,8 @@ const DWORD LogItem_IterNo       = 0x00000800;
 const DWORD LogItem_CallNo       = 0x00001000;
 const DWORD LogItem_SeqNo        = 0x00002000;
 const DWORD LogItem_Message	     = 0x00004000;
+const DWORD LogItem_MessageLogOn = 0x00008000;
+const DWORD LogItem_EventLogOn   = 0x00010000;
                                           
 // ========================================================================
 

@@ -421,6 +421,7 @@
 #define IDC_LIBRARYBTN                  24080
 #define IDC_BARCOLOURBTN                24080
 #define IDC_COPY2CLIP                   24080
+#define IDC_BROWSE_EDITOR               24080
 #define IDC_TBEDIT0                     24081
 #define IDC_MDLPOS_X                    24081
 #define IDC_REMOVETAG                   24081
@@ -460,6 +461,7 @@
 #define IDC_TBEDIT3                     24084
 #define IDC_GRCOLSTATUS4                24084
 #define IDC_PRJOPCRELOAD                24084
+#define IDC_PRJEDITARC                  24084
 #define IDC_DST_TAG                     24085
 #define IDC_TBEDIT4                     24085
 #define IDC_GRCOLSTATUS5                24085
@@ -1585,6 +1587,8 @@
 #define IDC_ARCML_TIME                  25757
 #define IDC_ARCML_ELAPSEDHMS            25758
 #define IDC_ARCML_ELAPSEDDBL            25759
+#define IDC_ARCML_MSGLOGON              25760
+#define IDC_ARCML_EVTLOGON              25761
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400

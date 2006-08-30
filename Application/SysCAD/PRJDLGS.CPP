@@ -45,7 +45,7 @@ class CModesPage : public CCustomPropertyPage
     CProjectSettings * m_pSet;
 
     flag    m_bTimeChanged:1;
-            //m_bTagNamingChanged:1;
+    //m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
@@ -60,7 +60,7 @@ class CModesPage : public CCustomPropertyPage
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CGenPage)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
 
@@ -76,7 +76,7 @@ class CModesPage : public CCustomPropertyPage
 
   public:
     long           m_NetMode;
-    
+
     long           m_PBNodeMode;
     long           m_PBLinkMode;
     long           m_PBHeatMode;
@@ -156,7 +156,7 @@ class CGrfTagsPage : public CCustomPropertyPage
     CProjectSettings * m_pSet;
 
     flag    //m_bTimeChanged:1,
-            m_bTagNamingChanged:1;
+m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
@@ -171,7 +171,7 @@ class CGrfTagsPage : public CCustomPropertyPage
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CGenPage)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
 
@@ -266,14 +266,14 @@ class CCommsPage : public CCustomPropertyPage
     CProject         * m_pPrj;
     CProjectSettings * m_pSet;
 
-    flag bDrvChanged:1,
-         bArcChanged:1,
-         bIOMChanged:1,
-         bOPCChanged:1,
-         bDDEChanged:1;
+    flag bDrvChanged,
+      bArcChanged,
+      bIOMChanged,
+      bOPCChanged,
+      bDDEChanged;
 
     //{{AFX_DATA(CCommsPage)
-  enum { IDD = IDD_PRJCOMMSDLG };
+    enum { IDD = IDD_PRJCOMMSDLG };
 #if WITHDRVMAN
     BOOL  m_DrvOn;
     BOOL  m_DrvLclTagSrvrOK;
@@ -290,9 +290,9 @@ class CCommsPage : public CCustomPropertyPage
     BOOL  m_IOMOn;
     CString m_IOMName;
     CString m_IOMNode;
-  //}}AFX_DATA
+    //}}AFX_DATA
     //{{AFX_VIRTUAL(CCommsPage)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
   protected:
@@ -317,7 +317,7 @@ class CCommsPage : public CCustomPropertyPage
     afx_msg void OnPrjIOMOn();
     afx_msg void OnIOMChanged();
     afx_msg void OnCommsApply();
-  //}}AFX_MSG
+    //}}AFX_MSG
 #if WITHDRVMAN
     afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
     afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
@@ -338,36 +338,26 @@ class CArchivePage : public CCustomPropertyPage
     CArchivePage();
     ~CArchivePage();
 
-    CProject         * m_pPrj;
-    CProjectSettings * m_pSet;
-
-    flag //bDrvChanged:1,
-         bArcChanged:1;
-         //bIOMChanged:1,
-         //bOPCChanged:1,
-         //bDDEChanged:1;
 
     //{{AFX_DATA(CArchivePage)
-  enum { IDD = IDD_PRJARCHIVEDLG };
+    enum { IDD = IDD_PRJARCHIVEDLG };
 #if WITHDRVMAN
     //BOOL  m_DrvOn;
     //BOOL  m_DrvLclTagSrvrOK;
     //CString m_DrvName;
     //BOOL  m_DrvReadAll;
 #endif
-    //BOOL  m_OPCOn;
-    //BOOL  m_OPCServerNo;
-    //BOOL  m_OPCResetReg;
-    //BOOL  m_DDEOn;
-    //BOOL  m_ArcOn;
+    CProject         * m_pPrj;
+    CProjectSettings * m_pSet;
+
+    HANDLE        m_hCfgProcess;            //process handle for the editor
+    DWORD         m_dwCfgProcessId;          //process ID for the editor
+
+    flag bArcChanged;
     CString m_ArcName;
-    //BOOL  m_ArcOpenDBOnRun;
-    //BOOL  m_IOMOn;
-    //CString  m_IOMName;
-    //CString  m_IOMNode;
-  //}}AFX_DATA
+    //}}AFX_DATA
     //{{AFX_VIRTUAL(CArchivePage)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
   protected:
@@ -396,7 +386,7 @@ class CArchivePage : public CCustomPropertyPage
     //afx_msg void OnPrjIOMOn();
     //afx_msg void OnIOMChanged();
     afx_msg void OnArchiveApply();
-  //}}AFX_MSG
+    //}}AFX_MSG
 #if WITHDRVMAN
     //afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
     //afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
@@ -420,6 +410,8 @@ class CArchivePage : public CCustomPropertyPage
     CButton m_MLCallNo;
     CButton m_MLSeqNo;
     CButton m_MLMessage;
+    CButton m_MessageLogOn;
+    CButton m_EventLogOn;
 
     afx_msg void OnBnClickedArcMLTime();
     afx_msg void OnBnClickedArcMLElapsedHMS();
@@ -433,9 +425,15 @@ class CArchivePage : public CCustomPropertyPage
     afx_msg void OnBnClickedArcMLCallNo();
     afx_msg void OnBnClickedArcMLSeqNo();
     afx_msg void OnBnClickedArcMLMessage();
-public:
-  afx_msg void OnCbnSelchangeArcmlElapseddbl();
-};
+  public:
+    afx_msg void OnCbnSelchangeArcmlElapseddbl();
+  public:
+    afx_msg void OnBnClickedPrjeditarc();
+  public:
+    afx_msg void OnBnClickedArcmlMsglogon();
+  public:
+    afx_msg void OnBnClickedArcmlEvtlogon();
+  };
 
 //===========================================================================
 
@@ -470,7 +468,7 @@ class CHistPage : public CCustomPropertyPage
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CHistPage)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
   protected:
@@ -520,7 +518,7 @@ class CNetPage : public CCustomPropertyPage
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CNetPage)
-    protected:
+  protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
 
@@ -557,13 +555,13 @@ IMPLEMENT_DYNAMIC(CProjectSettingsDlg, CPropertySheet)
 //---------------------------------------------------------------------------
 
 CProjectSettingsDlg::CProjectSettingsDlg(bool AsModal,  CProject * Prj, CProjectSettings * Set, LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
-  : CPropertySheet(pszCaption, pParentWnd, iSelectPage),
-  m_pPrj(Prj),
-  m_pSet(Set)
+: CPropertySheet(pszCaption, pParentWnd, iSelectPage),
+m_pPrj(Prj),
+m_pSet(Set)
   {
   m_pSet->m_bConfigBusy = 1;
   m_bAsModal = AsModal;
-    
+
   m_pModesPage = new CModesPage;
   ((CModesPage*)m_pModesPage)->m_pSet=m_pSet;
   ((CModesPage*)m_pModesPage)->m_pPrj=m_pPrj;
@@ -641,10 +639,10 @@ BOOL CProjectSettingsDlg::OnInitDialog()
   ASSERT(m_bModeless); //this code only needed when creating modeless property sheet!
 
   PROPSHEETTRICK0()
-  BOOL b = CPropertySheet::OnInitDialog();
+    BOOL b = CPropertySheet::OnInitDialog();
   PROPSHEETTRICK1()
 
-  GetDlgItem(ID_APPLY_NOW)->ShowWindow(SW_HIDE);
+    GetDlgItem(ID_APPLY_NOW)->ShowWindow(SW_HIDE);
   GetDlgItem(IDHELP)->ShowWindow(SW_HIDE);
   return b;
   }
@@ -684,7 +682,7 @@ void CProjectSettingsDlg::OnOK()
 
   if (m_pPrj)
     m_pPrj->PutSettings();
-  
+
   }
 
 //---------------------------------------------------------------------------
@@ -837,8 +835,8 @@ void CHistPage::SaveInfo()
   //if (!gs_License.AllowFullHist())
   //  gs_pPrj->iHstFilesMin = gs_pPrj->iHstFilesMax;
   if (m_pSet->m_Hst.iHstFilesMin >gs_License.MaxHistFilesAllowed() || 
-      m_pSet->m_Hst.iHstFilesMax>gs_License.MaxHistFilesAllowed() || 
-      m_pSet->m_Hst.lHstEvFileSize>gs_License.MaxHistSizeAllowed())
+    m_pSet->m_Hst.iHstFilesMax>gs_License.MaxHistFilesAllowed() || 
+    m_pSet->m_Hst.lHstEvFileSize>gs_License.MaxHistSizeAllowed())
     {
     LogError("History", LF_Exclamation, "Historian file size reduced to that allowed by the license");
     m_pSet->m_Hst.iHstFilesMax = Min(m_pSet->m_Hst.iHstFilesMax, gs_License.MaxHistFilesAllowed());
@@ -1147,7 +1145,7 @@ BOOL CModesPage::OnInitDialog()
   m_CurrentTimeHMS = m_pSet->m_TheTime.Format(TD_TimeDate);
   m_CurrentTimeAtInit = m_pSet->m_TheTime;
   LPCTSTR Tm=m_pSet->m_TheTime.Format(TD_Time);
-  
+
   SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
 
 
@@ -1386,7 +1384,7 @@ void CModesPage::OnOK()
     {
     UpdateData(true);
     //GetGraphicsOptions();
- 
+
     long RqdNetM=m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : -1;
     long RqdNodeM=m_NodeModeCB.GetCurSel()>=0 ? m_NodeModes.Item(m_NodeModeCB.GetCurSel())->m_lVal : -1;
     long RqdLinkM=m_LinkModeCB.GetCurSel()>=0 ? m_LinkModes.Item(m_LinkModeCB.GetCurSel())->m_lVal : -1;
@@ -1394,11 +1392,11 @@ void CModesPage::OnOK()
     long RqdFlowM=m_FlowModeCB.GetCurSel()>=0 ? m_FlowModes.Item(m_FlowModeCB.GetCurSel())->m_lVal : -1;
 
     if (1)
-        //RqdNetM!=m_NetMode || 
-        //RqdNodeM!=m_NodeMode || 
-        //RqdLinkM!=m_LinkMode || 
-        //RqdHeatM!=m_HeatMode || 
-        //RqdFlowM!=m_FlowMode)
+      //RqdNetM!=m_NetMode || 
+      //RqdNodeM!=m_NodeMode || 
+      //RqdLinkM!=m_LinkMode || 
+      //RqdHeatM!=m_HeatMode || 
+      //RqdFlowM!=m_FlowMode)
       {
 
       m_pSet->m_NetMode=RqdNetM;
@@ -1452,15 +1450,15 @@ void CModesPage::OnOK()
       if (OK1)
         {
         flag ScrollTrendsToEnd = false;
-       
+
         if (m_pPrj && gs_HstMngr.HstOpen()/*HstOn()*/ && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
           {
           switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
             {
             case IDOK:
-//gs_pPrj->CloseHistorian();
-//gs_pPrj->RestartHistorian();
-//gs_pPrj->OpenHistorian();
+              //gs_pPrj->CloseHistorian();
+              //gs_pPrj->RestartHistorian();
+              //gs_pPrj->OpenHistorian();
               ScrollTrendsToEnd = true;
               break;
             case IDCANCEL:
@@ -1481,33 +1479,33 @@ void CModesPage::OnOK()
           ScrollTrendsToEnd = true;
           }
 
-//        if (m_pPrj && m_bTagNamingChanged)
-//          {
-//          _asm int 3;
-//          int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
-//          if (TagsChngd<0)
-//            {
-//            m_pSet->m_NumericTagsBad = 0;
-//            m_pSet->m_NumericStartingTagsBad = 0;
-//            }
-//          else
-//            {
-//            m_pSet->m_NumericTagsBad = !m_NumTagsOK;
-//            m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
-//            if (TagsChngd>0)
-//              {
-//              CWaitCursor Wait;
-//              m_pPrj->CloseIOMarshal();
-//              m_pPrj->CloseArcManager();
-//#if WITHDRVMAN
-//              m_pPrj->CloseDrvManager();
-//              m_pPrj->OpenDrvManager();
-//#endif 
-//              m_pPrj->OpenArcManager(false);
-//              CTagVwDoc::RebuildAll();
-//              }
-//            }
-//          }
+        //        if (m_pPrj && m_bTagNamingChanged)
+        //          {
+        //          _asm int 3;
+        //          int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
+        //          if (TagsChngd<0)
+        //            {
+        //            m_pSet->m_NumericTagsBad = 0;
+        //            m_pSet->m_NumericStartingTagsBad = 0;
+        //            }
+        //          else
+        //            {
+        //            m_pSet->m_NumericTagsBad = !m_NumTagsOK;
+        //            m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
+        //            if (TagsChngd>0)
+        //              {
+        //              CWaitCursor Wait;
+        //              m_pPrj->CloseIOMarshal();
+        //              m_pPrj->CloseArcManager();
+        //#if WITHDRVMAN
+        //              m_pPrj->CloseDrvManager();
+        //              m_pPrj->OpenDrvManager();
+        //#endif 
+        //              m_pPrj->OpenArcManager(false);
+        //              CTagVwDoc::RebuildAll();
+        //              }
+        //            }
+        //          }
         if (ScrollTrendsToEnd)
           CTagVwDoc::AdjustTimebaseToEndAll();
         }
@@ -2012,7 +2010,7 @@ void CGrfTagsPage::OnOK()
     {
     UpdateData(true);
     //GetGraphicsOptions();
- 
+
     //long RqdNetM=m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : -1;
     //long RqdNodeM=m_NodeModeCB.GetCurSel()>=0 ? m_NodeModes.Item(m_NodeModeCB.GetCurSel())->m_lVal : -1;
     //long RqdLinkM=m_LinkModeCB.GetCurSel()>=0 ? m_LinkModes.Item(m_LinkModeCB.GetCurSel())->m_lVal : -1;
@@ -2077,65 +2075,65 @@ void CGrfTagsPage::OnOK()
       //  RqdTime=m_CurrentTimeAtInit;
       //if (1)//OK1)
       //  {
-//        flag ScrollTrendsToEnd = false;
-//       
-//        if (m_pPrj && gs_HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
-//          {
-//          switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
-//            {
-//            case IDOK:
-////gs_pPrj->CloseHistorian();
-////gs_pPrj->RestartHistorian();
-////gs_pPrj->OpenHistorian();
-//              ScrollTrendsToEnd = true;
-//              break;
-//            case IDCANCEL:
-//              m_bTimeChanged=false;
-//              break;
-//            }
-//          }
-//
-//        if (m_bTimeChanged)
-//          {
-//          m_pSet->m_TheTime=RqdTime;
-//          m_pSet->m_SyncWithClock=m_SyncWithClock;
-//          if (m_SyncWithClock)
-//            {
-//            m_pSet->m_RealTime=true;
-//            m_pSet->m_RealTimeMult=1.0;
-//            }
-//          ScrollTrendsToEnd = true;
-//          }
+      //        flag ScrollTrendsToEnd = false;
+      //       
+      //        if (m_pPrj && gs_HstMngr.HstOn() && m_bTimeChanged && (RqdTime<m_CurrentTimeAtInit))
+      //          {
+      //          switch (AfxMessageBox("Moving time Backwards!\n\nHistorian will be cleared", MB_ICONQUESTION|MB_OKCANCEL))
+      //            {
+      //            case IDOK:
+      ////gs_pPrj->CloseHistorian();
+      ////gs_pPrj->RestartHistorian();
+      ////gs_pPrj->OpenHistorian();
+      //              ScrollTrendsToEnd = true;
+      //              break;
+      //            case IDCANCEL:
+      //              m_bTimeChanged=false;
+      //              break;
+      //            }
+      //          }
+      //
+      //        if (m_bTimeChanged)
+      //          {
+      //          m_pSet->m_TheTime=RqdTime;
+      //          m_pSet->m_SyncWithClock=m_SyncWithClock;
+      //          if (m_SyncWithClock)
+      //            {
+      //            m_pSet->m_RealTime=true;
+      //            m_pSet->m_RealTimeMult=1.0;
+      //            }
+      //          ScrollTrendsToEnd = true;
+      //          }
 
-        if (m_pPrj && m_bTagNamingChanged)
+      if (m_pPrj && m_bTagNamingChanged)
+        {
+        _asm int 3;
+        int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
+        if (TagsChngd<0)
           {
-          _asm int 3;
-          int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
-          if (TagsChngd<0)
+          m_pSet->m_NumericTagsBad = 0;
+          m_pSet->m_NumericStartingTagsBad = 0;
+          }
+        else
+          {
+          m_pSet->m_NumericTagsBad = !m_NumTagsOK;
+          m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
+          if (TagsChngd>0)
             {
-            m_pSet->m_NumericTagsBad = 0;
-            m_pSet->m_NumericStartingTagsBad = 0;
-            }
-          else
-            {
-            m_pSet->m_NumericTagsBad = !m_NumTagsOK;
-            m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
-            if (TagsChngd>0)
-              {
-              CWaitCursor Wait;
-              m_pPrj->CloseIOMarshal();
-              m_pPrj->CloseArcManager();
+            CWaitCursor Wait;
+            m_pPrj->CloseIOMarshal();
+            m_pPrj->CloseArcManager();
 #if WITHDRVMAN
-              m_pPrj->CloseDrvManager();
-              m_pPrj->OpenDrvManager();
+            m_pPrj->CloseDrvManager();
+            m_pPrj->OpenDrvManager();
 #endif 
-              m_pPrj->OpenArcManager(false);
-              CTagVwDoc::RebuildAll();
-              }
+            m_pPrj->OpenArcManager(false);
+            CTagVwDoc::RebuildAll();
             }
           }
-        //if (ScrollTrendsToEnd)
-        //  CTagVwDoc::AdjustTimebaseToEndAll();
+        }
+      //if (ScrollTrendsToEnd)
+      //  CTagVwDoc::AdjustTimebaseToEndAll();
       //  }
       //else
       //  AfxMessageBox("Invalid CurrentTime");
@@ -2247,7 +2245,7 @@ void CGrfTagsPage::OnNumStTagsChanged()
   {
   UpdateData(true);
   m_bTagNamingChanged = 1;
-//  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+  //  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
   m_NumTagsOK = m_NumTagsOK && m_NumStartingOK;
   UpdateData(false);
   }
@@ -2285,15 +2283,15 @@ void CGrfTagsPage::OnNumStTagsChanged()
 void CGrfTagsPage::OnBnClickedLibrarybtn()
   {
   INCOMPLETECODE()
-  //GetGraphicsOptions();
-  //SetGraphicsOptions();
+    //GetGraphicsOptions();
+    //SetGraphicsOptions();
   }
 
 void CGrfTagsPage::OnEnChangeLibrary()
   {
   SetLibraryOptions();
   //GetGraphicsOptions();
- // SetGraphicsOptions();
+  // SetGraphicsOptions();
   }
 
 
@@ -2380,11 +2378,11 @@ BEGIN_MESSAGE_MAP(CCommsPage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_PRJOPCRELOAD, OnOPCReload)
   ON_BN_CLICKED(IDC_PRJOPCON, OnOpcChanged)
   ON_BN_CLICKED(IDC_PRJDDEON, OnDdeChanged)
-//  ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
-//  ON_BN_CLICKED(IDC_PRJARCON, OnArchiveOn)
-//  ON_BN_CLICKED(IDC_PRJRELOADARC, OnArchiveReload)
-//  ON_EN_CHANGE(IDD_PRJARCNAME, OnArchiveChanged)
-//  ON_BN_CLICKED(IDC_PRJARCOPENONRUN, OnPrjarcopenonrun)
+  //  ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
+  //  ON_BN_CLICKED(IDC_PRJARCON, OnArchiveOn)
+  //  ON_BN_CLICKED(IDC_PRJRELOADARC, OnArchiveReload)
+  //  ON_EN_CHANGE(IDD_PRJARCNAME, OnArchiveChanged)
+  //  ON_BN_CLICKED(IDC_PRJARCOPENONRUN, OnPrjarcopenonrun)
   ON_BN_CLICKED(IDC_IOMBROWSE, OnIOMBrowse)
   ON_BN_CLICKED(IDC_PRJIOMON, OnPrjIOMOn)
   ON_EN_CHANGE(IDD_PRJIOMNAME, OnIOMChanged)
@@ -2632,7 +2630,7 @@ void CCommsPage::OnDriverBrowse()
     }
 
   CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
-                      "SysCAD IO List (*.mdb;*.xls;*.csv)|*.mdb;*.xls;*.csv||", this);
+    "SysCAD IO List (*.mdb;*.xls;*.csv)|*.mdb;*.xls;*.csv||", this);
   Dlg.m_ofn.lpstrInitialDir = FPath();
   Dlg.m_ofn.lpstrTitle = "Browse";
   if (Dlg.DoModal()==IDOK)
@@ -2775,12 +2773,12 @@ void CCommsPage::OnOPCReload()
   {
   //UpdateData(true);
   //gs_pPrj->ReloadOPCServer();
-//  gs_pPrj->CloseOPCManager();
+  //  gs_pPrj->CloseOPCManager();
   //gs_pPrj->bOPCOn = m_OPCOn;
   //gs_pPrj->iOPCServerNo = m_OPCServerNo;
   //gs_pPrj->bOPCResetReg = m_OPCResetReg;
   //bOPCChanged = 0;
-//  gs_pPrj->OpenOPCManager();
+  //  gs_pPrj->OpenOPCManager();
   }
 
 void CCommsPage::OnUpdateReLoadOPC(CCmdUI* pCmdUi)
@@ -2821,7 +2819,7 @@ void CCommsPage::OnIOMBrowse()
     }
 
   CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
-                     "SysCAD IOMarshal(*.scm)|*.scm||", this);
+    "SysCAD IOMarshal(*.scm)|*.scm||", this);
   Dlg.m_ofn.lpstrInitialDir = FPath();
   Dlg.m_ofn.lpstrTitle = "Browse";
   if (Dlg.DoModal()==IDOK)
@@ -2885,29 +2883,11 @@ IMPLEMENT_DYNCREATE(CArchivePage, CCustomPropertyPage)
 
 CArchivePage::CArchivePage() : CCustomPropertyPage(CArchivePage::IDD)
   {
-  //bDrvChanged = 0;
   bArcChanged = 0;
-  //bIOMChanged = 0;
-  //bOPCChanged = 0;
-  //bDDEChanged = 0;
-  //{{AFX_DATA_INIT(CArchivePage)
-#if WITHDRVMAN
-  //m_DrvOn = FALSE;
-  //m_DrvLclTagSrvrOK= TRUE;
-  //m_DrvName = _T("");
-  //m_DrvReadAll = FALSE;
-#endif
-  //m_OPCOn = FALSE;
-  //m_OPCServerNo = FALSE;
-  //m_OPCResetReg = FALSE;
-  //m_DDEOn = FALSE;
-  //m_ArcOn = FALSE;
   m_ArcName = _T("");
-  //m_ArcOpenDBOnRun = FALSE;
-  //m_IOMOn = FALSE;
-  //m_IOMName = _T("");
-  //m_IOMNode = _T("");
-  //}}AFX_DATA_INIT
+  m_hCfgProcess=NULL;        //process handle for the editor
+  m_dwCfgProcessId=0;        //process ID for the editor
+
   }
 
 //---------------------------------------------------------------------------
@@ -2951,6 +2931,8 @@ void CArchivePage::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_ARCML_CALLNO, m_MLCallNo);
   DDX_Control(pDX, IDC_ARCML_SEQNO, m_MLSeqNo);
   DDX_Control(pDX, IDC_ARCML_MESSAGE, m_MLMessage);
+  DDX_Control(pDX, IDC_ARCML_MSGLOGON, m_MessageLogOn);
+  DDX_Control(pDX, IDC_ARCML_EVTLOGON, m_EventLogOn);
   }
 
 //---------------------------------------------------------------------------
@@ -3017,6 +2999,9 @@ BEGIN_MESSAGE_MAP(CArchivePage, CCustomPropertyPage)
   //ON_BN_CLICKED(IDC_ARCML_SEQNO, &CArchivePage::OnBnClickedArcmlSeqno)
   //ON_BN_CLICKED(IDC_ARCML_MESSAGE, &CArchivePage::OnBnClickedArcmlMsg)
   ON_CBN_SELCHANGE(IDC_ARCML_ELAPSEDDBL, &CArchivePage::OnCbnSelchangeArcmlElapseddbl)
+  ON_BN_CLICKED(IDC_PRJEDITARC, &CArchivePage::OnBnClickedPrjeditarc)
+  ON_BN_CLICKED(IDC_ARCML_MSGLOGON, &CArchivePage::OnBnClickedArcmlMsglogon)
+  ON_BN_CLICKED(IDC_ARCML_EVTLOGON, &CArchivePage::OnBnClickedArcmlEvtlogon)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -3095,15 +3080,17 @@ void CArchivePage::GetOptions(LPCTSTR FileName)
     m_MLElapsedDbl.SetCurSel(4);
   else
     m_MLElapsedDbl.SetCurSel(0);
-  m_MLCommand    .SetCheck((Opts & LogItem_Command   )  !=0 ? 1:0);
-  m_MLType       .SetCheck((Opts & LogItem_Type      )  !=0 ? 1:0);
-  m_MLTag        .SetCheck((Opts & LogItem_Tag       )  !=0 ? 1:0);
-  m_MLSource     .SetCheck((Opts & LogItem_Source    )  !=0 ? 1:0);
-  m_MLIDNo       .SetCheck((Opts & LogItem_IDNo      )  !=0 ? 1:0);
-  m_MLIterNo     .SetCheck((Opts & LogItem_IterNo    )  !=0 ? 1:0);
-  m_MLCallNo     .SetCheck((Opts & LogItem_CallNo    )  !=0 ? 1:0);
-  m_MLSeqNo      .SetCheck((Opts & LogItem_SeqNo     )  !=0 ? 1:0);
-  m_MLMessage    .SetCheck((Opts & LogItem_Message   )  !=0 ? 1:0);
+  m_MLCommand    .SetCheck((Opts & LogItem_Command       )  !=0 ? 1:0);
+  m_MLType       .SetCheck((Opts & LogItem_Type          )  !=0 ? 1:0);
+  m_MLTag        .SetCheck((Opts & LogItem_Tag           )  !=0 ? 1:0);
+  m_MLSource     .SetCheck((Opts & LogItem_Source        )  !=0 ? 1:0);
+  m_MLIDNo       .SetCheck((Opts & LogItem_IDNo          )  !=0 ? 1:0);
+  m_MLIterNo     .SetCheck((Opts & LogItem_IterNo        )  !=0 ? 1:0);
+  m_MLCallNo     .SetCheck((Opts & LogItem_CallNo        )  !=0 ? 1:0);
+  m_MLSeqNo      .SetCheck((Opts & LogItem_SeqNo         )  !=0 ? 1:0);
+  m_MLMessage    .SetCheck((Opts & LogItem_Message       )  !=0 ? 1:0);
+  m_MessageLogOn .SetCheck((Opts & LogItem_MessageLogOn  )  !=0 ? 1:0);
+  m_EventLogOn   .SetCheck((Opts & LogItem_EventLogOn    )  !=0 ? 1:0);
   };
 
 //---------------------------------------------------------------------------
@@ -3114,7 +3101,7 @@ void CArchivePage::SetOptions(LPCTSTR FileName)
 
   if (m_MLTime       .GetCheck()!=0) Opts |= LogItem_Time      ;
   if (m_MLElapsedHMS .GetCheck()!=0) Opts |= LogItem_ElapsedHMS;
-  
+
   if (m_MLElapsedDbl.GetCurSel()==1) Opts |= LogItem_ElapsedDays;
   if (m_MLElapsedDbl.GetCurSel()==2) Opts |= LogItem_ElapsedHrs;
   if (m_MLElapsedDbl.GetCurSel()==3) Opts |= LogItem_ElapsedMins;
@@ -3129,6 +3116,9 @@ void CArchivePage::SetOptions(LPCTSTR FileName)
   if (m_MLCallNo     .GetCheck()!=0) Opts |= LogItem_CallNo    ;
   if (m_MLSeqNo      .GetCheck()!=0) Opts |= LogItem_SeqNo     ;
   if (m_MLMessage    .GetCheck()!=0) Opts |= LogItem_Message   ;
+
+  if (m_MessageLogOn .GetCheck()!=0) Opts |= LogItem_MessageLogOn;
+  if (m_EventLogOn   .GetCheck()!=0) Opts |= LogItem_EventLogOn  ;
 
   CArchiveManager::WriteOptions(FileName, Opts);
   }
@@ -3281,6 +3271,7 @@ void CArchivePage::OnArchiveBrowse()
 
   CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
     "SysCAD Archive Configuration (*.sac)|*.sac||", this);
+  FPath.FnExpand();
   Dlg.m_ofn.lpstrInitialDir = FPath();
   Dlg.m_ofn.lpstrTitle = "Browse";
   if (Dlg.DoModal()==IDOK)
@@ -3308,6 +3299,36 @@ void CArchivePage::OnArchiveOn()
   UpdateData(true);
   bArcChanged = 1;
   UpdateDialogControls(this, FALSE);
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchivePage::OnBnClickedPrjeditarc()
+  {
+  DWORD ExitCode = 0;
+  if (m_hCfgProcess)
+    GetExitCodeProcess(m_hCfgProcess, &ExitCode);
+  if (ExitCode==STILL_ACTIVE)
+    {
+    ActivateApp(m_dwCfgProcessId);
+    }
+  else
+    {
+    Strng Fn;
+    Fn.FnExpand(gs_pPrj->m_sArcManagerName());
+    m_hCfgProcess = NULL;
+    Strng NPad=TxtEditCmdString(Fn());
+    STARTUPINFO si;
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.wShowWindow = SW_SHOWDEFAULT;
+    PROCESS_INFORMATION pi;
+    if (CreateProcess(NULL, NPad(), NULL, NULL, FALSE, 0, NULL, PrjFiles(), &si, &pi))
+      {
+      m_hCfgProcess = pi.hProcess;
+      m_dwCfgProcessId = pi.dwProcessId;
+      }
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -3484,18 +3505,20 @@ void CArchivePage::OnArchiveApply()
   //bDDEChanged=0;
   }
 
-void CArchivePage::OnBnClickedArcMLTime()         {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLElapsedHMS()   {  bArcChanged=1;  }
-void CArchivePage::OnCbnSelchangeArcmlElapseddbl(){  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLCommand()      {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLType()         {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLTag()          {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLSource()       {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLIDNo()         {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLIterNo()       {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLCallNo()       {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLSeqNo()        {  bArcChanged=1;  }
-void CArchivePage::OnBnClickedArcMLMessage()      {  bArcChanged=1;  }
+void CArchivePage::OnBnClickedArcMLTime()         { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLElapsedHMS()   { bArcChanged=1; }
+void CArchivePage::OnCbnSelchangeArcmlElapseddbl(){ bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLCommand()      { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLType()         { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLTag()          { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLSource()       { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLIDNo()         { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLIterNo()       { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLCallNo()       { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLSeqNo()        { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLMessage()      { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcmlMsglogon()     { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcmlEvtlogon()     { bArcChanged=1; }
 
 //===========================================================================
 
@@ -3535,12 +3558,12 @@ void CNetPage::DoDataExchange(CDataExchange* pDX)
 
   if (pDX->m_bSaveAndValidate)
     switch(GetCheckedRadioButton(IDC_CLIENT_NONE, IDC_CLIENT_TIGHT))
-      {
+    {
       case IDC_CLIENT_LOOSE: ClientCoupling = XC_ASync; break;
       case IDC_CLIENT_TIGHT: ClientCoupling = XC_Sync ; break;
       case IDC_CLIENT_NONE:
       default:               ClientCoupling = XC_None;  break;
-      }
+    }
   else
     {
     int Id=0;
@@ -3622,28 +3645,28 @@ END_MESSAGE_MAP()
 //---------------------------------------------------------------------------
 /*
 void CNetPage::OnClientconnect()
-  {
-  UpdateData(true);
-  bNetChanged=1;
+{
+UpdateData(true);
+bNetChanged=1;
 
-  CheckDlgButton(IDC_CLIENTCONNECT, m_ClientConnect ? 0 : 1); // Prevent update until done
+CheckDlgButton(IDC_CLIENTCONNECT, m_ClientConnect ? 0 : 1); // Prevent update until done
 
-  if (m_ClientConnect)
-    {
-    CNetClntSrvr Dlg(gs_pPrj, this);
-    Dlg.DoModal();
-    }
-  else
-    {
-    pCS_Mngr->SetClientConnect(false, pCS_Mngr->ClientServer());
-    }
-  GetClientCoupling();
-  m_ClientConnServer = pCS_Mngr->ClientServer();
-  m_ServerConns      = pCS_Mngr->ServerConnects();
-  m_ServerEnabled    = pCS_Mngr->ServerEnabled();
+if (m_ClientConnect)
+{
+CNetClntSrvr Dlg(gs_pPrj, this);
+Dlg.DoModal();
+}
+else
+{
+pCS_Mngr->SetClientConnect(false, pCS_Mngr->ClientServer());
+}
+GetClientCoupling();
+m_ClientConnServer = pCS_Mngr->ClientServer();
+m_ServerConns      = pCS_Mngr->ServerConnects();
+m_ServerEnabled    = pCS_Mngr->ServerEnabled();
 
-  UpdateData(false);
-  }
+UpdateData(false);
+}
 */
 //---------------------------------------------------------------------------
 
@@ -3802,7 +3825,7 @@ void CNetPage::GetClientCoupling()
 //===========================================================================
 
 CMergeDlg::CMergeDlg(CMergeProjectsInfo* MPI, CWnd* pParent /*=NULL*/)
-  : CDialog(CMergeDlg::IDD, pParent)
+: CDialog(CMergeDlg::IDD, pParent)
   {
   pTTC = NULL;
   pMPI = MPI;
@@ -4039,15 +4062,15 @@ void CMergeDlg::OnMerge()
       {
       pMPI->bMasterNumTagsBAD   = !m_MasterNumTagsOK;
       pMPI->bMasterStNumTagsBAD = !m_MasterStNumTagsOK;
-//      TaggedObject::NumericTagsBad = !m_MasterNumTagsOK;
-//      TaggedObject::NumericStartingTagsBad = !m_MasterStNumTagsOK;
-//      if (TagsChngd>0)
-//        {
-//        CWaitCursor Wait;
-//        gs_pPrj->CloseDrvManager();
-//        gs_pPrj->OpenDrvManager();
-//        CTagVwDoc::RebuildAll();
-//        }
+      //      TaggedObject::NumericTagsBad = !m_MasterNumTagsOK;
+      //      TaggedObject::NumericStartingTagsBad = !m_MasterStNumTagsOK;
+      //      if (TagsChngd>0)
+      //        {
+      //        CWaitCursor Wait;
+      //        gs_pPrj->CloseDrvManager();
+      //        gs_pPrj->OpenDrvManager();
+      //        CTagVwDoc::RebuildAll();
+      //        }
       }
     }
   else
@@ -4171,7 +4194,7 @@ void CMergeDlg::OnMstrnumtags()
 //===========================================================================
 
 CMergeReportDlg::CMergeReportDlg(CMergeProjectsInfo* MPI, CWnd* pParent /*=NULL*/)
-  : CDialog(CMergeReportDlg::IDD, pParent)
+: CDialog(CMergeReportDlg::IDD, pParent)
   {
   pMPI = MPI;
   //{{AFX_DATA_INIT(CMergeReportDlg)
@@ -4382,7 +4405,7 @@ void CMergeReportDlg::PopulateTabList()
                   s.Set("\t");
                   }
                 }
-            m_List.AddString("");
+              m_List.AddString("");
             }
           if (pMPI->iRefFilesExistsCnt>0)
             {
@@ -4502,5 +4525,3 @@ void CMergeReportDlg::OnSelchangeReportTab(NMHDR* pNMHDR, LRESULT* pResult)
   }
 
 //--------------------------------------------------------------------------
-
-

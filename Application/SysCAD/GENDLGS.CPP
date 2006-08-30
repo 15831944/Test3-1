@@ -119,6 +119,8 @@ class CGlobalPage : public CCustomPropertyPage
     DWORD m_ServerWait;
     CComboBox m_cbUtilDB;
     CComboBox m_cbPrjDB;
+  public:
+    afx_msg void OnBnClickedBrowseEditor();
   };
 
 //===========================================================================
@@ -866,6 +868,7 @@ BEGIN_MESSAGE_MAP(CGlobalPage, CCustomPropertyPage)
 	//{{AFX_MSG_MAP(CGlobalPage)
 	//}}AFX_MSG_MAP
   //ON_UPDATE_COMMAND_UI(IDC_DB2000, OnUpdateDefMDB)
+  ON_BN_CLICKED(IDC_BROWSE_EDITOR, &CGlobalPage::OnBnClickedBrowseEditor)
 END_MESSAGE_MAP()
 
 //--------------------------------------------------------------------------
@@ -897,6 +900,27 @@ BOOL CGlobalPage::OnInitDialog()
   m_cbUtilDB.SetCurSel(m_UtilsDBFmt);
   m_cbPrjDB.SetCurSel(m_PrjsDBFmt);
   return TRUE;  // return TRUE unless you set the focus to a control
+  }
+
+//---------------------------------------------------------------------------
+
+void CGlobalPage::OnBnClickedBrowseEditor()
+  {
+  CSCDFileDialog Dlg(true, NULL, "*.exe", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Test Editor (*.exe)|*.exe||");
+
+  Strng Fn(m_Editor);
+  Fn.FnDrivePath();
+
+  Dlg.m_ofn.lpstrInitialDir = (Fn.Len()>0 ? Fn() : ProgFiles());
+  Dlg.m_ofn.lpstrTitle = "Text Editor";
+  HWND H=::GetActiveWindow();
+  if (Dlg.DoModal()==IDOK)
+    {
+    m_Editor=Dlg.GetPathName();
+    //m_Editor+=Dlg.GetFileName();
+    UpdateData(FALSE);
+    }
+  ::SetActiveWindow(H);
   }
 
 //---------------------------------------------------------------------------
@@ -4554,4 +4578,5 @@ void CCompareDlg::OnDblclkFilelist()
   }
 
 //===========================================================================
+
 

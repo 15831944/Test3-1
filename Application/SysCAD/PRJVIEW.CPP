@@ -53,8 +53,8 @@ CPrjForm::CPrjForm()
   nFilesInList = 0;
   nTagRefInList = 0;
 
-  hCfgProcess;             //process handle for the editor
-  dwCfgProcessId;          //process ID for the editor
+  hCfgProcess = NULL;             //process handle for the editor
+  dwCfgProcessId = 0;          //process ID for the editor
   }
 
 //---------------------------------------------------------------------------

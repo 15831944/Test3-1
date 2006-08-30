@@ -25,9 +25,17 @@ class CPrjFormFileArray : public CArray <CPrjFormFileItem, CPrjFormFileItem&>
       Fn.FnNameExt(pFn);
       Path.FnDrivePath(pFn);
       for (int i=0; i<GetSize(); i++)
-        if (Fn.XStrICmp(ElementAt(i).Fn())==0 && 
-            Path.XStrICmp(ElementAt(i).Path())==0)
+        {
+        if (Fn.XStrICmp(ElementAt(i).Fn())!=0)
+          continue;
+
+        if (Path.Len()==0 && ElementAt(i).Path.Len()==0)
+          return 1;
+        if (Path.Len()!=0 && ElementAt(i).Path.Len()!=0)
+          break;
+        if (Path.XStrICmp(ElementAt(i).Path())==0)
           return i;
+        }
       return -1;
       };
   };

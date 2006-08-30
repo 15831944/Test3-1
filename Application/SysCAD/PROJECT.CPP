@@ -1662,7 +1662,12 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
 
   m_sArcManagerName = PF.RdStr("ArcManager", "Name", m_sArcManagerName());
   m_bArcOn = (PF.RdLong("ArcManager", "On", m_bArcOn) != 0);
-  m_bArcOpenDBOnRun = (PF.RdLong("ArcManager", "OpenDBOnRun", m_bArcOpenDBOnRun) != 0);
+  if (PrjFileVerNo<100)
+    {
+    m_sArcManagerName = "$Prj\\Archive.sac";
+    m_bArcOn = true;
+    }
+  //m_bArcOpenDBOnRun = (PF.RdLong("ArcManager", "OpenDBOnRun", m_bArcOpenDBOnRun) != 0);
   m_sArcManagerName.FnContract();
 
   m_sIOMarshalName = PF.RdStr("IOMarshal", "Name", m_sIOMarshalName());

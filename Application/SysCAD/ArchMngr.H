@@ -157,6 +157,7 @@ class CArchiveDBTable
     bool             Execute(CXM_TimeControl &CB);
     bool             StepDone(CXM_TimeControl &CB);
     bool             CreateDBTable();
+    bool             DeleteDBTable();
     bool             ReOpenTxtTable(bool Rewind);
     bool             CreateDBFields(ADOX::_TablePtr & pTbl);
     bool             CreateTxtFields();
@@ -193,6 +194,7 @@ class CArchiveDBTable
     CADBFieldArray  m_Fields;
 
     byte            m_iFormat;
+    bool            m_bOn;
 
     ADODB::_RecordsetPtr m_pRst;
 
@@ -331,7 +333,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            m_bOn,
                     m_bDBOK,
                     m_bRegistered,
-                    m_bOpenDBOnRun,
+                    //m_bOpenDBOnRun,
                     m_bDoneLocalLoadSave;
 
     DWORD           m_dwOptions;

@@ -95,14 +95,16 @@ static LPCTSTR s_sArchiveContent =
 "\n"
 ";=============================================================\n"
 "\n"
-"[Table1] ; System\n"
+"[MessageLog] ; System\n"
 "Name       = MessageLog\n"
+"On         = 1\n"
 "Format     = DB\n"
 "\n"
 ";=============================================================\n"
 "\n"
-"[Table2] ; System\n"
+"[EventLog] ; System\n"
 "Name       = EventLog\n"
+"On         = 1\n"
 "Format     = DB\n"
 "\n"
 ";=============================================================\n"
@@ -110,8 +112,9 @@ static LPCTSTR s_sArchiveContent =
 "; Example\n"
 "; -------\n"
 "; \n"
-"; [Table3] \n"
+"; [Table1] \n"
 "; Name       = ATableName\n"
+"; On         = 1\n"
 "; Format     = DB\n"
 "; Path       = $Prj\\Archive\n"
 "; SigDigits  = 20\n"
@@ -126,6 +129,7 @@ static LPCTSTR s_sArchiveContent =
 "; Options\n"
 "; -------\n"
 "; Format     = DB / CSV / TXT\n"
+"; On         = 0/1\n" 
 "; Path       = A Folder Name (Usually with the Project)\n"
 "; SigDigits  = 1 .. 20 Number of Significant digits written to CSV & TXT files\n"
 "; ScdTag     = Any Tagged Point \n"
@@ -589,6 +593,7 @@ CArchiveDBTable::CArchiveDBTable(CArchiveManager *pAM, LPCTSTR TbName) : m_rAM(*
   m_iFormat       = ADBTbFmt_Null;
 
   m_sName         = TbName;
+  m_bOn           = true;
 
   m_hFile         = NULL;
   m_nSigDigits    = 20;
@@ -678,6 +683,9 @@ bool CArchiveDBTable::Execute(CXM_TimeControl &CB)
 
 bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
   {
+  if (!m_bOn)
+    return true;
+
   bool DoSavePer=false;
   bool DoSaveTrg=false;
 
@@ -768,6 +776,9 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
 
 bool CArchiveDBTable::CreateDBTable()
   {
+  if (!m_bOn)
+    return true;
+
   switch (m_iFormat)
     {
     case ADBTbFmt_DB:
@@ -835,8 +846,49 @@ bool CArchiveDBTable::CreateDBTable()
 
 //---------------------------------------------------------------------------
 
+bool CArchiveDBTable::DeleteDBTable()
+  {
+  if (m_bOn)
+    return false;
+
+  switch (m_iFormat)
+    {
+    case ADBTbFmt_DB:
+      {
+      try
+        {
+        m_rAM.m_pCat->Tables->Delete((LPCTSTR)m_sName);
+        return true;
+        }
+      catch (_com_error & e)
+        {
+        if (SCODE_CODE(e.Error())!=ADODB::adErrItemNotFound)
+          {
+          m_rAM.DisplayException(e, LF_Exclamation, "Delete Table", (LPCTSTR)m_sName);
+          return false;
+          }
+        return true;
+        }
+      break;
+      }
+    case ADBTbFmt_CSV:
+    case ADBTbFmt_TXT:
+      {
+      remove(m_sFileName());
+      break;
+      }
+    }
+
+  return true;
+  };
+
+//---------------------------------------------------------------------------
+
 bool CArchiveDBTable::ReOpenTxtTable(bool Rewind)
   {
+  if (!m_bOn)
+    return true;
+
   dbgpln("DBTable::ReOpenTxtTable %s %s",  Rewind?"Rewind":"      ", m_sName);
 
   if (m_hFile)
@@ -952,6 +1004,9 @@ bool CArchiveDBTable::CreateTxtFields()
 
 bool CArchiveDBTable::CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR FldName, ADOX::DataTypeEnum FldType, int Size, ADOX::ColumnAttributesEnum FldAttr, bool MakeAutoInc)
   {
+  if (!m_bOn)
+    return true;
+
   ADOX::_ColumnPtr pCol;
   try
     {
@@ -1009,6 +1064,9 @@ bool CArchiveDBTable::CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR
 
 bool CArchiveDBTable::CreateDBRecordset()
   {
+  if (!m_bOn)
+    return true;
+  
   switch(m_iFormat)
     {
     case ADBTbFmt_DB:
@@ -1039,7 +1097,9 @@ bool CArchiveDBTable::CreateDBRecordset()
 
 bool CArchiveDBTable::DeleteDBRecords()
   {
-
+  if (!m_bOn)
+    return true;
+  
   int n=9000; // MaxLocksPerFile limit = 9500
   if (m_pRst!=0)
     {
@@ -1147,6 +1207,9 @@ void CArchiveDBTable::AddTimeFieldsTxt(CXM_TimeControl &CB, char Separ)
 
 bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
   {
+  if (!m_bOn)
+    return true;
+
   if (m_iFormat==ADBTbFmt_DB)
     {
     if (m_pRst==NULL)
@@ -1207,6 +1270,9 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
 
 bool CArchiveDBTable::AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg)
   {
+  if (!m_bOn)
+    return true;
+
   CAutoIncDec AID(m_rAM.m_iBusyLoggingMsg);
 
   CString Type;
@@ -1323,6 +1389,9 @@ bool CArchiveDBTable::AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg)
 
 bool CArchiveDBTable::AddEventRecord(CXM_TimeControl &CB, LPCTSTR Tag, LPCTSTR Msg)
   {
+  if (!m_bOn)
+    return true;
+
   CAutoIncDec AID(m_rAM.m_iBusyLoggingEvent);
 
   if (m_iFormat==ADBTbFmt_DB)
@@ -1393,6 +1462,9 @@ bool CArchiveDBTable::AddEventRecord(CXM_TimeControl &CB, LPCTSTR Tag, LPCTSTR M
 
 bool CArchiveDBTable::CloseDBTable()
   {
+  if (!m_bOn)
+    return true;
+  
   switch (m_iFormat)
     {
     case ADBTbFmt_DB:
@@ -1400,8 +1472,10 @@ bool CArchiveDBTable::CloseDBTable()
       try
         {
         if (m_pRst)
+          {
           m_pRst->Close();
-        m_pRst.Release();
+          m_pRst.Release();
+          }
 
         //if (m_pDef)
         //  m_pDef->Close();
@@ -1447,7 +1521,7 @@ m_evDone(FALSE)
   m_bOn=false;
   m_bDBOK=false;
   m_bRegistered=false;
-  m_bOpenDBOnRun=true;
+  //m_bOpenDBOnRun=true;
 
   //m_bUseArchive=false;
   m_bDBExclusive=false;
@@ -1579,7 +1653,7 @@ void CArchiveManager::Initialise()
 int CArchiveManager::Configure(const char * CfgFile, bool OpenDBOnRun)
   {
   m_sCfgFile= CfgFile;
-  m_bOpenDBOnRun=OpenDBOnRun;
+  //m_bOpenDBOnRun=OpenDBOnRun;
 
   return 0;
   }
@@ -1633,21 +1707,24 @@ DWORD CArchiveManager::ReadOptions(LPCTSTR FileName)
 
   LPCTSTR sDblOpt=PF.RdStr("Columns", "ElapsedDbl ", "");
 
-  if (PF.RdInt("Columns", "Time       ", 0)!=0) Opts |= LogItem_Time       ;
-  if (PF.RdInt("Columns", "ElapsedHMS ", 0)!=0) Opts |= LogItem_ElapsedHMS ;
-  if (sDblOpt && stricmp(sDblOpt, "d")==0) Opts |= LogItem_ElapsedDays;
-  if (sDblOpt && stricmp(sDblOpt, "h")==0) Opts |= LogItem_ElapsedHrs ;
-  if (sDblOpt && stricmp(sDblOpt, "m")==0) Opts |= LogItem_ElapsedMins;
-  if (sDblOpt && stricmp(sDblOpt, "s")==0) Opts |= LogItem_ElapsedSecs;
-  if (PF.RdInt("Columns", "Command    ", 0)!=0) Opts |= LogItem_Command    ;
-  if (PF.RdInt("Columns", "Type       ", 1)!=0) Opts |= LogItem_Type       ;
-  if (PF.RdInt("Columns", "Tag        ", 1)!=0) Opts |= LogItem_Tag        ;
-  if (PF.RdInt("Columns", "Source     ", 1)!=0) Opts |= LogItem_Source     ;
-  if (PF.RdInt("Columns", "IDNo       ", 0)!=0) Opts |= LogItem_IDNo       ;
-  if (PF.RdInt("Columns", "IterNo     ", 0)!=0) Opts |= LogItem_IterNo     ;
-  if (PF.RdInt("Columns", "CallNo     ", 0)!=0) Opts |= LogItem_CallNo     ;
-  if (PF.RdInt("Columns", "SeqNo      ", 0)!=0) Opts |= LogItem_SeqNo      ;
-  if (PF.RdInt("Columns", "Message    ", 1)!=0) Opts |= LogItem_Message    ;
+  if (PF.RdInt("Columns", "Time"       , 0)!=0) Opts |= LogItem_Time       ;
+  if (PF.RdInt("Columns", "ElapsedHMS" , 0)!=0) Opts |= LogItem_ElapsedHMS ;
+  if (sDblOpt && stricmp(sDblOpt," d")==0) Opts |= LogItem_ElapsedDays;
+  if (sDblOpt && stricmp(sDblOpt," h")==0) Opts |= LogItem_ElapsedHrs ;
+  if (sDblOpt && stricmp(sDblOpt," m")==0) Opts |= LogItem_ElapsedMins;
+  if (sDblOpt && stricmp(sDblOpt," s")==0) Opts |= LogItem_ElapsedSecs;
+  if (PF.RdInt("Columns", "Command"    , 0)!=0) Opts |= LogItem_Command    ;
+  if (PF.RdInt("Columns", "Type"       , 1)!=0) Opts |= LogItem_Type       ;
+  if (PF.RdInt("Columns", "Tag"        , 1)!=0) Opts |= LogItem_Tag        ;
+  if (PF.RdInt("Columns", "Source"     , 1)!=0) Opts |= LogItem_Source     ;
+  if (PF.RdInt("Columns", "IDNo"       , 0)!=0) Opts |= LogItem_IDNo       ;
+  if (PF.RdInt("Columns", "IterNo"     , 0)!=0) Opts |= LogItem_IterNo     ;
+  if (PF.RdInt("Columns", "CallNo"     , 0)!=0) Opts |= LogItem_CallNo     ;
+  if (PF.RdInt("Columns", "SeqNo"      , 0)!=0) Opts |= LogItem_SeqNo      ;
+  if (PF.RdInt("Columns", "Message"    , 1)!=0) Opts |= LogItem_Message    ;
+
+  if (PF.RdInt("MessageLog","On"       , 1)!=0) Opts |= LogItem_MessageLogOn;
+  if (PF.RdInt("EventLog","On"         , 1)!=0) Opts |= LogItem_EventLogOn ;
 
   //if ((Opts & LogItem_ElapsedDbl)==0) 
   //  Opts |= LogItem_ElapsedSecs;
@@ -1660,22 +1737,25 @@ void CArchiveManager::WriteOptions(LPCTSTR FileName, DWORD Opts)
   Fn.FnExpand();
   CProfINIFile PF(Fn());
 
-  PF.WrInt("Columns", "Time       ", (Opts & LogItem_Time       )!=0 ? 1:0);
-  PF.WrInt("Columns", "ElapsedHMS ", (Opts & LogItem_ElapsedHMS )!=0 ? 1:0);
+  PF.WrInt("Columns", "Time"       , (Opts & LogItem_Time       )!=0 ? 1:0);
+  PF.WrInt("Columns", "ElapsedHMS" , (Opts & LogItem_ElapsedHMS )!=0 ? 1:0);
   if (Opts & LogItem_ElapsedDays) PF.WrStr("Columns", "ElapsedDbl ", "d") ;
   if (Opts & LogItem_ElapsedHrs ) PF.WrStr("Columns", "ElapsedDbl ", "h") ;
   if (Opts & LogItem_ElapsedMins) PF.WrStr("Columns", "ElapsedDbl ", "m") ;
   if (Opts & LogItem_ElapsedSecs) PF.WrStr("Columns", "ElapsedDbl ", "s") ;
   if ((Opts & LogItem_ElapsedDbl)==0) PF.WrStr("Columns", "ElapsedDbl ", "") ;
-  PF.WrInt("Columns", "Command    ", (Opts & LogItem_Command    )!=0 ? 1:0);
-  PF.WrInt("Columns", "Type       ", (Opts & LogItem_Type       )!=0 ? 1:0);
-  PF.WrInt("Columns", "Tag        ", (Opts & LogItem_Tag        )!=0 ? 1:0);
-  PF.WrInt("Columns", "Source     ", (Opts & LogItem_Source     )!=0 ? 1:0);
-  PF.WrInt("Columns", "IDNo       ", (Opts & LogItem_IDNo       )!=0 ? 1:0);
-  PF.WrInt("Columns", "IterNo     ", (Opts & LogItem_IterNo     )!=0 ? 1:0);
-  PF.WrInt("Columns", "CallNo     ", (Opts & LogItem_CallNo     )!=0 ? 1:0);
-  PF.WrInt("Columns", "SeqNo      ", (Opts & LogItem_SeqNo      )!=0 ? 1:0);
-  PF.WrInt("Columns", "Message    ", (Opts & LogItem_Message    )!=0 ? 1:0);
+  PF.WrInt("Columns", "Command"    , (Opts & LogItem_Command    )!=0 ? 1:0);
+  PF.WrInt("Columns", "Type"       , (Opts & LogItem_Type       )!=0 ? 1:0);
+  PF.WrInt("Columns", "Tag"        , (Opts & LogItem_Tag        )!=0 ? 1:0);
+  PF.WrInt("Columns", "Source"     , (Opts & LogItem_Source     )!=0 ? 1:0);
+  PF.WrInt("Columns", "IDNo"       , (Opts & LogItem_IDNo       )!=0 ? 1:0);
+  PF.WrInt("Columns", "IterNo"     , (Opts & LogItem_IterNo     )!=0 ? 1:0);
+  PF.WrInt("Columns", "CallNo"     , (Opts & LogItem_CallNo     )!=0 ? 1:0);
+  PF.WrInt("Columns", "SeqNo"      , (Opts & LogItem_SeqNo      )!=0 ? 1:0);
+  PF.WrInt("Columns", "Message"    , (Opts & LogItem_Message    )!=0 ? 1:0);
+
+  PF.WrInt("MessageLog","On"       , (Opts & LogItem_MessageLogOn)!=0 ? 1:0);
+  PF.WrInt("EventLog","On"         , (Opts & LogItem_EventLogOn )!=0 ? 1:0);
   }; 
 
 //---------------------------------------------------------------------------
@@ -1715,14 +1795,29 @@ bool CArchiveManager::ReadCfg()
   else if (m_sSeparator.GetLength()<1)
     m_sSeparator="-";
 
-  for (int i=0; ; i++)
+  for (int iTb=0; ; iTb++)
     {
     CString TbSect, TbName, TbFmt;
-    TbSect.Format("Table%i", i+1);
-    TbName=PF.RdStr(TbSect, "Name", "");
+    bool IsOn=true;
+    switch (iTb)
+      {
+      case 0:
+        TbSect="MessageLog";
+        TbName="MessageLog";
+        break;
+      case 1:
+        TbSect="EventLog";
+        TbName="EventLog";
+        break;
+      default: // 2 & up
+        TbSect.Format("Table%i", iTb-1);
+        TbName=PF.RdStr(TbSect, "Name", "");
+        break;
+      }
     if (TbName.GetLength()<=0)
       break;
 
+    IsOn=PF.RdInt(TbSect, "On", 1)!=0;
     TbFmt=PF.RdStr(TbSect, "Format", "DB");
     byte iTbFmt = ADBTbFmt_Null;
     if      (TbFmt.GetLength()==0)                                iTbFmt=ADBTbFmt_DB;
@@ -1754,6 +1849,7 @@ bool CArchiveManager::ReadCfg()
     CTimeValue P,O;
     pTb->m_sCfgSection  = TbSect;
     pTb->m_iFormat      = iTbFmt;
+    pTb->m_bOn          = IsOn;
 
     pTb->m_sPath        = PF.RdStr(TbSect, "Path", "$Prj\\Archive");
     pTb->m_nSigDigits   = PF.RdInt(TbSect, "SigDigits", pTb->m_nSigDigits);
@@ -1936,8 +2032,8 @@ bool CArchiveManager::Start()
 
   m_TimeAtStartValid = true;
 
-  if (m_bOn && m_bOpenDBOnRun)
-    m_bDBOK = OpenTheDB();
+  //if (m_bOn && m_bOpenDBOnRun)
+  //  m_bDBOK = OpenTheDB();
 
   return m_bDBOK;
   }
@@ -1951,8 +2047,8 @@ bool CArchiveManager::Stop()
 
   dbgpln("Manager::Stop");
 
-  if (m_bOn && m_bOpenDBOnRun)
-    CloseDB();
+  //if (m_bOn && m_bOpenDBOnRun)
+  //  CloseDB();
 
   m_TimeAtStartValid = false;
 
@@ -1993,7 +2089,7 @@ int CArchiveManager::Open(bool FirstClear)
 
     m_bOn=OK;
 
-    if (m_bOn && !m_bOpenDBOnRun)
+    if (m_bOn)// && !m_bOpenDBOnRun)
       m_bDBOK = OpenTheDB();
 
     if (!m_bOn)
@@ -2139,7 +2235,7 @@ bool CArchiveManager::Close(BOOL SaveState/*=true*/)
   if (m_bOn)
     CDlgBusy::Open("\n\nClosing Archive Manager");
 
-  if (!m_bOpenDBOnRun)
+  if (m_bOn)// && !m_bOpenDBOnRun)
     CloseDB();
 
   if (m_sPrevTempFile.GetLength())
@@ -2382,7 +2478,7 @@ long CArchiveManager::AppendField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTS
       // Reopen Table / RecordSet
       CArchiveDBTable & Tb=*m_Tables[iTb];
       bool OK;
-      if (m_bOpenDBOnRun)
+      if (0)//m_bOpenDBOnRun)
         {
         OK=CompleteOpen();
         }
@@ -2636,8 +2732,17 @@ bool CArchiveManager::CreateDBTables()
   bool OK=true;
   for (int t=0; t<m_Tables.GetSize(); t++)
     {
-    if (!m_Tables[t]->CreateDBTable())
-      OK=false;
+    CArchiveDBTable & Tb = *m_Tables[t];
+    if (Tb.m_bOn)
+      {
+      if (!Tb.CreateDBTable())
+        OK=false;
+      }
+    else
+      {
+      if (!Tb.DeleteDBTable())
+        OK=false;
+      }
     }
 #if dbgArchiver
   if (dbgDBState())
