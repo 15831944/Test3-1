@@ -605,22 +605,13 @@ void CC_FixBstRes::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwTher
   m_Dsn_MFlw = m_FEst * C.Rho();
 
   m_In_Rho = C.Rho();
-  if (Qm > 1e-6) 
-    m_Inp_Imp = Po / Qm;
-  else
-    m_Inp_Imp = dNAN;
+  m_Inp_Imp = Po / GTZ(Qm);
 
   m_P_Res_factor = 0.9 * m_P_Res_factor + 0.1 * (m_P_Boost - m_Inp_Imp * m_Dsn_MFlw) / m_Dsn_MFlw;
 
   m_PIn = Pi;
   m_POut = Po;
-  if (m_PIn > 1e-6)
-     m_Act_PRatio = m_POut / m_PIn;
-  else
-    m_Act_PRatio = dNAN;
-
-
-
+  m_Act_PRatio = m_POut / GTZ(m_PIn);
 
   //SpConduit &C=FE.Cd();
   //Pi=Max(1.0,Pi);
