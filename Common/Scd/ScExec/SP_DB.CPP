@@ -3395,7 +3395,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     if (!Found)
       {
       //dbgpln("Insert Phase at %3i %s", ip, S.m_sPhaseSym());
-      if (m_PhInfoCount[BOT_All]<MaxPhases)
+      if (m_PhInfoCount[BOT_All]+1<MaxPhases)
         {
         m_PhInfoCount[S.m_eOcc]++;
         m_PhInfoCount[BOT_All]++;
