@@ -18,20 +18,20 @@
 
 #elif (_MSC_VER>=1400)
 
-#define ALSOALLOWMINESERVEMDLS  01
+#define ALSOALLOWMINESERVEMDLS  0
 
 #ifdef _DEBUG
-#define BYPASSLICENSING         0
+#define BYPASSLICENSING         01
 #elif  _RELEASE
-#define BYPASSLICENSING         0
+#define BYPASSLICENSING         01
 #else
-#define BYPASSLICENSING         0
+#define BYPASSLICENSING         01
 #endif
 #define ALLOWCNMVERSION         01
 
 #else
 
-#define ALSOALLOWMINESERVEMDLS  01
+#define ALSOALLOWMINESERVEMDLS  0
 
 #ifdef _DEBUG
 #define BYPASSLICENSING         0
