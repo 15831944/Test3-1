@@ -6172,9 +6172,9 @@ void FlwSlvDyn::Construct()
   m_SSIters=0;
   m_SSMaxChange=0;
 
-  PressDropKFactMult=1.0;
+  gs_PressDropKFactMult=1.0;
   if (PrjFileVerNo()<42)
-    PressDropKFactMult=10.0; // correct error that was in the formula
+    gs_PressDropKFactMult=10.0; // correct error that was in the formula
 
   dwIterNo=0;
   m_EvalCtrlAt=(PrjFileVerNo()<60)?ECA_Start:ECA_End;
@@ -6522,7 +6522,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.String("DefaultArea",       "", DC_,      "",    xidDefaultArea,  &FlwSlvNd, isParmStopped|isTag);
     //DDB.String("MissingSpills",     "", DC_,      "",    xidMissSpillAreas,  &FlwSlvNd, MultiLineStr|noFile|noSnap);
     DDB.Byte  ("Momentum",          "", DC_,      "",    &CFlwBlkBase::fMomentumOn,  &FlwSlvNd, isParm, DDBOnOff);
-    DDB.Double("KFactMult",         "", DC_Frac,  "",    &PressDropKFactMult, &FlwSlvNd, isParm);
+    DDB.Double("KFactMult",         "", DC_Frac,  "",    &gs_PressDropKFactMult, &FlwSlvNd, isParm);
 
     DDB.Page  ("Tears", DDB_RqdPage);
     //DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
@@ -7534,7 +7534,7 @@ void FlwSlvDyn::FITStartStep(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
 
 void FlwSlvDyn::ODEStartStep()
   {
-  FlwSlvNd.SetCI(4, PressDropKFactMult!=1.0);
+  FlwSlvNd.SetCI(4, gs_PressDropKFactMult!=1.0);
 
   if (FSTC.NThreads())
     {

@@ -2589,7 +2589,7 @@ double CFrictionFactor::Value(double Diam, double Roughness, double Vel, double 
 //
 //==========================================================================
 
-double PressDropKFactMult=1.0;
+double gs_PressDropKFactMult=1.0;
 
 //==========================================================================
 //

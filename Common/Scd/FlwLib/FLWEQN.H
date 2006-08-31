@@ -1279,14 +1279,14 @@ class DllImportExport CFrictionFactor
   };
 
 // will be reunitialised on reload of FlwLib
-extern DllImportExport double PressDropKFactMult;
+extern DllImportExport double gs_PressDropKFactMult;
 inline double PressDropKFact(double Vel, double Dens, double KFact, double dPowr_Fac=1.0)
   {
   // VelocityHead      = Pow(Vel,2.0)/(2.0 * g);
   // HeadLoss mLiquid  = K * VelocityHead;
   // DP (Pa)           = HeadLoss * Dens * g;
 
-  return PressDropKFactMult*0.0005*KFact * Pow(Vel,2.0*dPowr_Fac) * Dens;
+  return gs_PressDropKFactMult*0.0005*KFact * Pow(Vel,2.0*dPowr_Fac) * Dens;
   }
 
 // ===========================================================================
