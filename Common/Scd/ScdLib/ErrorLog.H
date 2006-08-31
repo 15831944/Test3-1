@@ -27,6 +27,7 @@ DllImportExport const char * FindWinError(DWORD Code);
 //===========================================================================
 
 //pkh#if !_MANAGED
+#ifndef __cplusplus_cli // not used in CLR 
 
 class ConditionArray  : public CArray < byte, byte &> {};
 class ConditionSeqNos : public CArray < DWORD, DWORD &> {};
@@ -206,6 +207,7 @@ public:
 };
 
 //pkh#endif
+#endif
 
 //===========================================================================
 //

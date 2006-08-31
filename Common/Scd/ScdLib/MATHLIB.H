@@ -27,6 +27,8 @@
 
 //pkh#if !_MANAGED
 
+#ifndef __cplusplus_cli // not used in CLR 
+ 
 inline DWORD FPP_EnableExceptions()                               
   { 
   DWORD CW=_controlfp(0,0);                                                 // Get Old fpControl
@@ -49,6 +51,8 @@ inline DWORD FPP_RestoreExceptions(DWORD CW)
   return _controlfp(CW, _MCW_EM);	  // Restore fpControl
   };
 //pkh#endif
+
+#endif
 
 //extern double Normal (int size, double *vector);
 DllExport double Pow(double base, int exponent);
