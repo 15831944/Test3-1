@@ -1409,8 +1409,8 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
             }
           ItemsInObject++;
           }
-
         rs->MoveNext();
+        Done = rs->adEOF!=0;
         }
       }
 

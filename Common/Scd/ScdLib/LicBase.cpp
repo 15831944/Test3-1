@@ -3429,7 +3429,7 @@ DWORD CSysCADLicense::LicCatagories()
     dw |= TOC_QAL;
   if (AllowMdlsQAL()) //  if (AllowMdlsQALExtra())
     dw |= TOC_QALEXTRA;
-  if (ALSOALLOWMINESERVEMDLS || ForMineServe())
+  if (ALSOALLOWMINESERVEMDLS || AllowMineServe())
     dw |= TOC_MINESERVE;
   if (AllowMdlsAlcan())
     dw |= TOC_ALCAN;
@@ -3486,7 +3486,8 @@ void CSysCADLicense::SetAsRunTime()            { m_pSecOpt->m_Opts.Func_FullEdit
 BOOL CSysCADLicense::IsRunTime()               { return !m_pSecOpt->m_Opts.Func_FullEdit; };
 //BOOL CSysCADLicense::AllowVer90()              { return m_pSecOpt->m_Opts.Ver90 && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsRTTS()           { return m_pSecOpt->m_Opts.Client_RTTS && !m_State.m_bBlocked; };
-BOOL CSysCADLicense::ForMineServe()            { return m_pSecOpt->m_Opts.Client_MineServe && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMineServe()          { return m_pSecOpt->m_Opts.Client_MineServe && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMineServeCOM()       { return m_pSecOpt->m_Opts.Client_MineServe && m_State.m_bCOMMineServeOn && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsAlcan()          { return m_pSecOpt->m_Opts.Client_Alcan && !m_State.m_bBlocked; };
 //BOOL CSysCADLicense::AllowMdlsQALExtra()       { return m_pSecOpt->m_Opts.Client_QALExtra && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsQAL()            { return m_pSecOpt->m_Opts.Client_QAL && !m_State.m_bBlocked; };
@@ -3580,7 +3581,7 @@ void CSysCADLicense::DoCheckLicense(WPARAM wParam, LPARAM lParam)
 #if CK_LICENSINGON
   if (!Blocked())
     {
-    if (StartingSolve && !ForMineServe() && (DemoMode() || TrialMode()))
+    if (StartingSolve && !AllowMineServe() && (DemoMode() || TrialMode()))
       AfxMessageBox(DemoMode() ? "SysCAD is unlicensed !\n\nCurrently using Demo mode." : "SysCAD is unlicensed !\n\nCurrently using Trial version.");
 
     //make occasional call to crypkey library/dll...

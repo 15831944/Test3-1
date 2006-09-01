@@ -272,7 +272,8 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL       IsRunTime();
     //inline BOOL       AllowVer90();
     inline BOOL       AllowMdlsRTTS();
-    inline BOOL       ForMineServe();
+    inline BOOL       AllowMineServe();
+    inline BOOL       AllowMineServeCOM();
     inline void       SetForMineServe(bool On);
     inline void       SetForMineServeMsg(WPARAM wParam, LPARAM lParam);
     inline BOOL       AllowMdlsAlcan();

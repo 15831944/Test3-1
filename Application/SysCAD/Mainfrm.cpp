@@ -2987,7 +2987,7 @@ void CMyMDIClient::OnPaint()
   {
   bool DoPaint = (gs_pPrj && gs_pPrj->LoadBusy());
   #if CK_LICENSINGON
-  bool TextBackground = (gs_License.DemoMode() || gs_License.AcademicMode() || gs_License.ForMineServe() || gs_License.Blocked());
+  bool TextBackground = (gs_License.DemoMode() || gs_License.AcademicMode() || gs_License.AllowMineServe() || gs_License.Blocked());
   if (!DoPaint)
     DoPaint = TextBackground;
   #endif
@@ -3028,7 +3028,7 @@ void CMyMDIClient::OnPaint()
         {
         Msg.Format("Academic License : %s", gs_License.AcademicName());
         }
-      else if (gs_License.ForMineServe())
+      else if (gs_License.AllowMineServeCOM())
         {
         Msg.Format("mineSERV License");
         }
