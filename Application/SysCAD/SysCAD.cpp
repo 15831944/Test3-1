@@ -1777,11 +1777,7 @@ BOOL CSysCADApp::InitInstance()
   if (!InitInstWinNT())
     return false;
 
-#if USESCDEXPLORER
-  CExploreScd::SetUseSelectWndList(ScdPFUser.RdInt("General", "UseScdExplorer", 1));
-#else
-  CWndSlctWnd::SetUseSelectWndList(ScdPFUser.RdInt("General", "UseSelectWindowList", 1));
-#endif
+  CExploreScd::SetUseScdExplorer(ScdPFUser.RdInt("General", "UseScdExplorer", 1));
   SetTxtEditor((LPSTR)ScdPFUser.RdStr("General", "TextEditor", "notepad.exe"));
   SetSymbolicPaths(ScdPFUser.RdInt("General", "SymbolicPaths", 0));
 
@@ -1883,11 +1879,7 @@ int CSysCADApp::ExitInstance()
   gs_ScdCmdIF.UnRegister();
 #endif
 
-#if USESCDEXPLORER
   CExploreScd::CloseIt();
-#else
-  CWndSlctWnd::CloseIt();
-#endif
   CPGMDbgMngr::Close();
   //::OleUninitialize();
 
@@ -2210,11 +2202,7 @@ BOOL CSysCADApp::OnIdle(LONG lCount)
       break;
 
     case 2:
-#if USESCDEXPLORER
       CExploreScd::ChkRefreshIt();
-#else
-      CWndSlctWnd::ChkRefreshIt(); //is their a more effecient way to do this???
-#endif
       bResult = true;
       break;
 

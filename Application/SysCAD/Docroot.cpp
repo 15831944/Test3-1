@@ -43,11 +43,7 @@ DocRoot::DocRoot()// :
   lVNTChkSum=0;
   pNextDoc=NULL;
   AddDoc();
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(true);
-#else
-  CWndSlctWnd::RefreshIt();
-#endif
   }
 
 //---------------------------------------------------------------------------
@@ -57,11 +53,7 @@ DocRoot::~DocRoot()
   RemoveDoc();
   //gs_pCmd->VNTInvalid()
 //  gs_pCmd->CloseCommandBlksTo(gs_pBaseCmds);
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(true);
-#else
-  CWndSlctWnd::RefreshIt();
-#endif
   }
 
 //---------------------------------------------------------------------------

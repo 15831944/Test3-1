@@ -11,6 +11,14 @@
 #include "dbgmngr.h"
 #include "scdver.h"
 #include "nrecipe.h"
+#include "tagvdoc.h"
+#include "fixedit.h"
+#include "tagvtrnd.h"
+#include "tagvtext.h"
+#include "tagvsplt.h"
+#include "tagvdlgs.h"
+#include "renamepagedlg.h"
+#include "slvcfg.h"
 
 extern "C" 
   {
@@ -138,7 +146,7 @@ CXTPage::~CXTPage()
 CExploreScd * CExploreScd::sm_pTheWnd=NULL;
 BOOL CExploreScd::sm_bDoRefresh=false;
 BOOL CExploreScd::sm_bDoRefreshAll=false;
-BOOL CExploreScd::sm_bUseSelectWndList=true;
+BOOL CExploreScd::sm_bUseScdExplorer=true;
 BOOL CExploreScd::sm_bInited=false;
 
 IMPLEMENT_DYNAMIC(CExploreScd, CDialog)
@@ -420,6 +428,13 @@ void CExploreScd::SavePos()
   PF.WrInt(Section, "Width", Rct.Width());
   PF.WrInt(Section, "Height", Rct.Height());
 
+  CRect SRct;
+  ScdMainWnd()->GetClientRect(&SRct);
+  ScdMainWnd()->ClientToScreen(&SRct);
+
+  m_TopLeft = Rct.TopLeft();
+  m_TopLeft -= SRct.TopLeft();
+  //dbgpln(">>>>>> Save Pos         %5i %5i  %5i %5i", Rct.left, Rct.top, m_TopLeft.x, m_TopLeft.y); 
   }
 
 //--------------------------------------------------------------------------
@@ -444,6 +459,22 @@ void CExploreScd::RestorePos()
   SetWindowPos(NULL, 0,0, 1,1 , SWP_NOREPOSITION | SWP_NOZORDER | SWP_SHOWWINDOW); // set size small to force an OnSize
   SetVisibleWindowPos(this, xPos, yPos, CW, CH, true);
   }
+
+//--------------------------------------------------------------------------
+
+void CExploreScd::MainWndMovedTo(int x, int y)
+  {
+  //sm_bDoRefresh=false;
+  if (sm_pTheWnd)
+    {
+    int xPos = x+sm_pTheWnd->m_TopLeft.x;
+    int yPos = y+sm_pTheWnd->m_TopLeft.y;
+    CRect Rct;
+    sm_pTheWnd->GetWindowRect(&Rct);
+    //dbgpln(">>>>>> MainWndMovedTo   %5i %5i  %5i %5i", Rct.left, Rct.top, sm_pTheWnd->m_TopLeft.x, sm_pTheWnd->m_TopLeft.y); 
+    SetVisibleWindowPos(sm_pTheWnd, xPos, yPos, Rct.Width(), Rct.Height(), true);
+    }
+  };
 
 //--------------------------------------------------------------------------
 
@@ -524,7 +555,7 @@ void CExploreScd::ChkRefreshIt()
     //if (sm_bDoRefreshAll)
     //  sm_pTheWnd->BuildTags();
     //else
-      sm_pTheWnd->ReBuildTags();
+    sm_pTheWnd->ReBuildTags();
 
     sm_bDoRefresh=false;
     sm_bDoRefreshAll=false;
@@ -682,7 +713,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
           goto NextWindow;
         }
 
-     // ASSERT_ALWAYS(ChangesOK, "Unexpected New Page");
+      // ASSERT_ALWAYS(ChangesOK, "Unexpected New Page");
 
       CXTPage *pPage=new CXTPage(this, PgType2TrIDs[WL.Wnds[i].iType], PgId(), PgName());
       pPage->m_iType=WL.Wnds[i].iType;
@@ -870,7 +901,7 @@ void CExploreScd::RemoveUnusedItems()
       m_Pages.RemoveAt(p--);
       }
     }
-  
+
   };
 
 //---------------------------------------------------------------------------
@@ -1028,7 +1059,7 @@ void CExploreScd::ReBuildTags()
   dbgpln("RebuildTags====================================");
 #endif
 
-CWaitMsgCursor WaitMsg("Updating Explorer");
+  CWaitMsgCursor WaitMsg("Updating Explorer");
 
 #if (!dbgHoldLockUpdate)
   LockWindowUpdate();
@@ -1473,6 +1504,9 @@ void CExploreScd::OnMove(int x, int y)
     {
     SavePos();
     }
+  //CPoint 
+  //m_TopLeft;
+
   };
 
 //--------------------------------------------------------------------------
@@ -1764,272 +1798,272 @@ void CExploreScd::ArrangeWindows(int RqdLayoutStyle/*=-1*/)
         }
       }
 
-  //minimise windows in required sequence...
-  int Pass[3] = {1,2,0};
-  if (!Dlg.m_GrfMinimise)
-    Pass[0]=-1;
-  if (!Dlg.m_TrnMinimise)
-    Pass[1]=-1;
-  if (!Dlg.m_OthMinimise)
-    Pass[2]=-1;
-  for (int j=0; j<3; j++)
-    if (Pass[j]!=-1)
-      {
-      for (i=0; i<Count; i++)
+    //minimise windows in required sequence...
+    int Pass[3] = {1,2,0};
+    if (!Dlg.m_GrfMinimise)
+      Pass[0]=-1;
+    if (!Dlg.m_TrnMinimise)
+      Pass[1]=-1;
+    if (!Dlg.m_OthMinimise)
+      Pass[2]=-1;
+    for (int j=0; j<3; j++)
+      if (Pass[j]!=-1)
         {
-        if (WL.Wnds[i].iType==Pass[j] && i!=MainWndIndex)
-          WL.Wnds[i].pWnd->ShowWindow(WL.Wnds[i].pWnd==pCurTopWnd ? SW_SHOWMINIMIZED : SW_SHOWMINNOACTIVE);
+        for (i=0; i<Count; i++)
+          {
+          if (WL.Wnds[i].iType==Pass[j] && i!=MainWndIndex)
+            WL.Wnds[i].pWnd->ShowWindow(WL.Wnds[i].pWnd==pCurTopWnd ? SW_SHOWMINIMIZED : SW_SHOWMINNOACTIVE);
+          }
         }
-      }
-    
-  if (LockUpdate)
-    WL.pMainWnd->UnlockWindowUpdate();
-  if (pCurTopWnd)
-    pCurTopWnd->ShowWindow(pCurTopWnd->IsIconic() ? SW_SHOWMINIMIZED : SW_SHOWNORMAL);
-/*
-  CWndArrangeDlg Dlg;
-  if (RqdLayoutStyle<0)
-    if (Dlg.DoModal()!=IDOK)
+
+      if (LockUpdate)
+        WL.pMainWnd->UnlockWindowUpdate();
+      if (pCurTopWnd)
+        pCurTopWnd->ShowWindow(pCurTopWnd->IsIconic() ? SW_SHOWMINIMIZED : SW_SHOWNORMAL);
+      /*
+      CWndArrangeDlg Dlg;
+      if (RqdLayoutStyle<0)
+      if (Dlg.DoModal()!=IDOK)
       return;
 
-  CWaitCursor Wait;
-  const flag LockUpdate = 0;
-  CWindowLists WL;
-  const int Count = WL.BuildSingleList(true);
+      CWaitCursor Wait;
+      const flag LockUpdate = 0;
+      CWindowLists WL;
+      const int Count = WL.BuildSingleList(true);
 
-  int MainWndIndex = -1;
-  for (int i=0; MainWndIndex<0 && i<Count; i++)
-    if (WL.Wnds[i].pWnd==WL.pMainWnd)
+      int MainWndIndex = -1;
+      for (int i=0; MainWndIndex<0 && i<Count; i++)
+      if (WL.Wnds[i].pWnd==WL.pMainWnd)
       MainWndIndex=i;
-  CWnd* pCurTopWnd = CWindowLists::GetCurrentTopWindow();
-  if (Dlg.m_MaximiseMain)
-    WL.pMainWnd->ShowWindow(SW_SHOWMAXIMIZED);
-  else
-    WL.pMainWnd->ShowWindow(SW_SHOWNOACTIVATE);
-  if (LockUpdate)
-    WL.pMainWnd->LockWindowUpdate();
-  CWnd* pMDIWnd = WL.GetMDIClientWnd();
-  CRect R;
-  pMDIWnd->GetWindowRect(R);
-  const int MainWidth = R.Width();
-  const int MainHeight = R.Height();
-  const double WndRatio = (double)MainHeight/MainWidth;
-  const int AccWidth = Max(460, (int)(MainWidth/3));
-  const int cycaption = GetSystemMetrics(SM_CYCAPTION);
+      CWnd* pCurTopWnd = CWindowLists::GetCurrentTopWindow();
+      if (Dlg.m_MaximiseMain)
+      WL.pMainWnd->ShowWindow(SW_SHOWMAXIMIZED);
+      else
+      WL.pMainWnd->ShowWindow(SW_SHOWNOACTIVATE);
+      if (LockUpdate)
+      WL.pMainWnd->LockWindowUpdate();
+      CWnd* pMDIWnd = WL.GetMDIClientWnd();
+      CRect R;
+      pMDIWnd->GetWindowRect(R);
+      const int MainWidth = R.Width();
+      const int MainHeight = R.Height();
+      const double WndRatio = (double)MainHeight/MainWidth;
+      const int AccWidth = Max(460, (int)(MainWidth/3));
+      const int cycaption = GetSystemMetrics(SM_CYCAPTION);
 
-  const int TrnWndCnt = WL.GetTrendWndCount();
-  const int TrnDelta = cycaption-1;
-  int TrnTop = -1;
-  int TrnLeft = -1;
-  int TrnWidth;
-  int TrnHeight;
-  switch (Dlg.m_TrnStyle)
-    {
-    case 0: break;
-    case 1:
+      const int TrnWndCnt = WL.GetTrendWndCount();
+      const int TrnDelta = cycaption-1;
+      int TrnTop = -1;
+      int TrnLeft = -1;
+      int TrnWidth;
+      int TrnHeight;
+      switch (Dlg.m_TrnStyle)
+      {
+      case 0: break;
+      case 1:
       TrnTop = cycaption;
       TrnWidth = Max(380, (int)(MainWidth*0.4));
       TrnHeight = (int)(MainHeight*0.7);
       break;
-    case 2:
+      case 2:
       TrnLeft = MainWidth/3;
       TrnWidth = MainWidth/2;
       TrnHeight = (int)(MainHeight*0.7);
       break;
-    case 3:
+      case 3:
       if (TrnWndCnt>0)
-        CalcTileSizes(TrnWndCnt, MainWidth, MainHeight, WndRatio, TrnWidth, TrnHeight);
+      CalcTileSizes(TrnWndCnt, MainWidth, MainHeight, WndRatio, TrnWidth, TrnHeight);
       break;
-    }
+      }
 
-  const int GrfWndCnt = WL.GetGrfWndCount();
-  const int GrfDelta = cycaption-1;
-  const int GrfWidthSpace = MainWidth-AccWidth+2;
-  int GrfTop = -1;
-  int GrfLeft = -1;
-  int GrfWidth;
-  int GrfHeight;
-  switch (Dlg.m_GrfStyle)
-    {
-    case 0: break;
-    case 1:
+      const int GrfWndCnt = WL.GetGrfWndCount();
+      const int GrfDelta = cycaption-1;
+      const int GrfWidthSpace = MainWidth-AccWidth+2;
+      int GrfTop = -1;
+      int GrfLeft = -1;
+      int GrfWidth;
+      int GrfHeight;
+      switch (Dlg.m_GrfStyle)
+      {
+      case 0: break;
+      case 1:
       GrfWidth = Range((int)(MainWidth*0.4), (int)((MainWidth-AccWidth)-((GrfWndCnt-1)*GrfDelta)), GrfWidthSpace);
       GrfHeight = (int)(MainHeight*GrfWidth/MainWidth);
       break;
-    case 2:
+      case 2:
       if (GrfWndCnt>0)
-        CalcTileSizes(GrfWndCnt, GrfWidthSpace, MainHeight, WndRatio, GrfWidth, GrfHeight);
+      CalcTileSizes(GrfWndCnt, GrfWidthSpace, MainHeight, WndRatio, GrfWidth, GrfHeight);
       break;
-    }
+      }
 
-  WINDOWPLACEMENT wp;
-  for (i=0; i<Count; i++)
-    {
-    if (i!=MainWndIndex)
+      WINDOWPLACEMENT wp;
+      for (i=0; i<Count; i++)
+      {
+      if (i!=MainWndIndex)
       {
       if (WL.Wnds[i].iType==1)
-        {
-        if (Dlg.m_GrfStyle==0)
-          {
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
-          }
-        else
-          {
-          WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
-          wp.length = sizeof(wp);
-          wp.showCmd = SW_SHOWNOACTIVATE;
-          wp.rcNormalPosition.left = GrfLeft;
-          wp.rcNormalPosition.right = wp.rcNormalPosition.left+GrfWidth;
-          wp.rcNormalPosition.top = GrfTop;
-          wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+GrfHeight;
-          WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
-          if (Dlg.m_GrfStyle==1)
-            {
-            GrfTop += GrfDelta;
-            GrfLeft += GrfDelta;
-            if (GrfTop>MainHeight-GrfHeight)
-              {
-              GrfTop = (int)(GrfDelta*2.5);
-              GrfLeft = -1;
-              }
-            }
-          else
-            {
-            GrfLeft += GrfWidth;
-            if (GrfLeft>GrfWidthSpace-10)
-              {
-              GrfTop += GrfHeight;
-              GrfLeft = -1;
-              }
-            }
-          }
-        }
-      else if (WL.Wnds[i].iType==2)
-        {
-        if (Dlg.m_TrnStyle==0)
-          {
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
-          }
-        else
-          {
-          WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
-          wp.length = sizeof(wp);
-          wp.showCmd = SW_SHOWNOACTIVATE;
-          wp.rcNormalPosition.left = TrnLeft;
-          wp.rcNormalPosition.right = wp.rcNormalPosition.left+TrnWidth;
-          wp.rcNormalPosition.top = TrnTop;
-          wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+TrnHeight;
-          WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
-          if (Dlg.m_TrnStyle==1)
-            {
-            if (TrnWndCnt>1)
-              TrnLeft += ((MainWidth-TrnWidth)/(TrnWndCnt-1));
-            }
-          else if (Dlg.m_TrnStyle==2)
-            {
-            TrnTop += TrnDelta;
-            TrnLeft += TrnDelta;
-            if (TrnLeft>MainWidth-TrnWidth || TrnTop>MainHeight-TrnHeight)
-              {
-              TrnTop = -1;
-              TrnLeft = -1;
-              }
-            }
-          else
-            {
-            TrnLeft += TrnWidth;
-            if (TrnLeft>MainWidth-10)
-              {
-              TrnTop += TrnHeight;
-              TrnLeft = -1;
-              }
-            }
-          }
-        }
-      else
-        {//other windows...
-        ASSERT(NAccessWnds==2);
-        if (Dlg.m_OthStyle==0)
-          {
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
-          }
-        else if (WL.Wnds[i].pWnd==WL.pAccessWnd[0])
-          {
-          WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
-          wp.length = sizeof(wp);
-          wp.showCmd = SW_SHOWNOACTIVATE;
-          wp.rcNormalPosition.left = MainWidth-AccWidth;
-          wp.rcNormalPosition.right = MainWidth;
-          wp.rcNormalPosition.top = -2;
-          wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+MainHeight;
-          WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
-          }
-        else if (WL.Wnds[i].pWnd==WL.pAccessWnd[1])
-          {
-          WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
-          wp.length = sizeof(wp);
-          wp.showCmd = SW_SHOWNOACTIVATE;
-          wp.rcNormalPosition.left = MainWidth-AccWidth;
-          wp.rcNormalPosition.right = MainWidth;
-          wp.rcNormalPosition.top = -2;
-          wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+MainHeight;
-          WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
-          }
-        else if (WL.Wnds[i].pWnd==WL.pPrjWnd)
-          {
-          WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
-          wp.length = sizeof(wp);
-          wp.showCmd = SW_SHOWNOACTIVATE;
-          const int PrjWidth = Min(MainWidth-2,930);
-          wp.rcNormalPosition.left = (MainWidth-PrjWidth-2)/2;
-          wp.rcNormalPosition.right = wp.rcNormalPosition.left+PrjWidth;
-          wp.rcNormalPosition.top = cycaption;
-          wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + (int)(MainHeight*0.8);
-          WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
-          }
-        else if (WL.Wnds[i].pWnd==WL.pMsgWnd)
-          {
-          WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
-          wp.length = sizeof(wp);
-          wp.showCmd = SW_SHOWNOACTIVATE;
-          wp.rcNormalPosition.left = 0;
-          wp.rcNormalPosition.right = Max(400L, long(wp.rcNormalPosition.left+MainWidth-AccWidth));
-          wp.rcNormalPosition.top = (int)(MainHeight/2)-cycaption;
-          wp.rcNormalPosition.bottom = MainHeight-cycaption;
-          WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
-          //todo: centre message window splitter
-          }
-        else
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
-        }
+      {
+      if (Dlg.m_GrfStyle==0)
+      {
+      WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
       }
-    }
-  //minimise windows in required sequence...
-  int Pass[3] = {1,2,0};
-  if (!Dlg.m_GrfMinimise)
-    Pass[0]=-1;
-  if (!Dlg.m_TrnMinimise)
-    Pass[1]=-1;
-  if (!Dlg.m_OthMinimise)
-    Pass[2]=-1;
-  for (int j=0; j<3; j++)
-    {
-    if (Pass[j]!=-1)
+      else
+      {
+      WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
+      wp.length = sizeof(wp);
+      wp.showCmd = SW_SHOWNOACTIVATE;
+      wp.rcNormalPosition.left = GrfLeft;
+      wp.rcNormalPosition.right = wp.rcNormalPosition.left+GrfWidth;
+      wp.rcNormalPosition.top = GrfTop;
+      wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+GrfHeight;
+      WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
+      if (Dlg.m_GrfStyle==1)
+      {
+      GrfTop += GrfDelta;
+      GrfLeft += GrfDelta;
+      if (GrfTop>MainHeight-GrfHeight)
+      {
+      GrfTop = (int)(GrfDelta*2.5);
+      GrfLeft = -1;
+      }
+      }
+      else
+      {
+      GrfLeft += GrfWidth;
+      if (GrfLeft>GrfWidthSpace-10)
+      {
+      GrfTop += GrfHeight;
+      GrfLeft = -1;
+      }
+      }
+      }
+      }
+      else if (WL.Wnds[i].iType==2)
+      {
+      if (Dlg.m_TrnStyle==0)
+      {
+      WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
+      }
+      else
+      {
+      WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
+      wp.length = sizeof(wp);
+      wp.showCmd = SW_SHOWNOACTIVATE;
+      wp.rcNormalPosition.left = TrnLeft;
+      wp.rcNormalPosition.right = wp.rcNormalPosition.left+TrnWidth;
+      wp.rcNormalPosition.top = TrnTop;
+      wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+TrnHeight;
+      WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
+      if (Dlg.m_TrnStyle==1)
+      {
+      if (TrnWndCnt>1)
+      TrnLeft += ((MainWidth-TrnWidth)/(TrnWndCnt-1));
+      }
+      else if (Dlg.m_TrnStyle==2)
+      {
+      TrnTop += TrnDelta;
+      TrnLeft += TrnDelta;
+      if (TrnLeft>MainWidth-TrnWidth || TrnTop>MainHeight-TrnHeight)
+      {
+      TrnTop = -1;
+      TrnLeft = -1;
+      }
+      }
+      else
+      {
+      TrnLeft += TrnWidth;
+      if (TrnLeft>MainWidth-10)
+      {
+      TrnTop += TrnHeight;
+      TrnLeft = -1;
+      }
+      }
+      }
+      }
+      else
+      {//other windows...
+      ASSERT(NAccessWnds==2);
+      if (Dlg.m_OthStyle==0)
+      {
+      WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
+      }
+      else if (WL.Wnds[i].pWnd==WL.pAccessWnd[0])
+      {
+      WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
+      wp.length = sizeof(wp);
+      wp.showCmd = SW_SHOWNOACTIVATE;
+      wp.rcNormalPosition.left = MainWidth-AccWidth;
+      wp.rcNormalPosition.right = MainWidth;
+      wp.rcNormalPosition.top = -2;
+      wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+MainHeight;
+      WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
+      }
+      else if (WL.Wnds[i].pWnd==WL.pAccessWnd[1])
+      {
+      WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
+      wp.length = sizeof(wp);
+      wp.showCmd = SW_SHOWNOACTIVATE;
+      wp.rcNormalPosition.left = MainWidth-AccWidth;
+      wp.rcNormalPosition.right = MainWidth;
+      wp.rcNormalPosition.top = -2;
+      wp.rcNormalPosition.bottom = wp.rcNormalPosition.top+MainHeight;
+      WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
+      }
+      else if (WL.Wnds[i].pWnd==WL.pPrjWnd)
+      {
+      WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
+      wp.length = sizeof(wp);
+      wp.showCmd = SW_SHOWNOACTIVATE;
+      const int PrjWidth = Min(MainWidth-2,930);
+      wp.rcNormalPosition.left = (MainWidth-PrjWidth-2)/2;
+      wp.rcNormalPosition.right = wp.rcNormalPosition.left+PrjWidth;
+      wp.rcNormalPosition.top = cycaption;
+      wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + (int)(MainHeight*0.8);
+      WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
+      }
+      else if (WL.Wnds[i].pWnd==WL.pMsgWnd)
+      {
+      WL.Wnds[i].pWnd->GetWindowPlacement(&wp);
+      wp.length = sizeof(wp);
+      wp.showCmd = SW_SHOWNOACTIVATE;
+      wp.rcNormalPosition.left = 0;
+      wp.rcNormalPosition.right = Max(400L, long(wp.rcNormalPosition.left+MainWidth-AccWidth));
+      wp.rcNormalPosition.top = (int)(MainHeight/2)-cycaption;
+      wp.rcNormalPosition.bottom = MainHeight-cycaption;
+      WL.Wnds[i].pWnd->SetWindowPlacement(&wp);
+      //todo: centre message window splitter
+      }
+      else
+      WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
+      }
+      }
+      }
+      //minimise windows in required sequence...
+      int Pass[3] = {1,2,0};
+      if (!Dlg.m_GrfMinimise)
+      Pass[0]=-1;
+      if (!Dlg.m_TrnMinimise)
+      Pass[1]=-1;
+      if (!Dlg.m_OthMinimise)
+      Pass[2]=-1;
+      for (int j=0; j<3; j++)
+      {
+      if (Pass[j]!=-1)
       {
       for (i=0; i<Count; i++)
-        {
-        if (WL.Wnds[i].iType==Pass[j] && i!=MainWndIndex)
-          WL.Wnds[i].pWnd->ShowWindow(WL.Wnds[i].pWnd==pCurTopWnd ? SW_SHOWMINIMIZED : SW_SHOWMINNOACTIVE);
-        }
+      {
+      if (WL.Wnds[i].iType==Pass[j] && i!=MainWndIndex)
+      WL.Wnds[i].pWnd->ShowWindow(WL.Wnds[i].pWnd==pCurTopWnd ? SW_SHOWMINIMIZED : SW_SHOWMINNOACTIVE);
       }
-    }
+      }
+      }
 
-  if (LockUpdate)
-    WL.pMainWnd->UnlockWindowUpdate();
-  if (pCurTopWnd)
-    pCurTopWnd->ShowWindow(pCurTopWnd->IsIconic() ? SW_SHOWMINIMIZED : SW_SHOWNORMAL);
-  */
-}
+      if (LockUpdate)
+      WL.pMainWnd->UnlockWindowUpdate();
+      if (pCurTopWnd)
+      pCurTopWnd->ShowWindow(pCurTopWnd->IsIconic() ? SW_SHOWMINIMIZED : SW_SHOWNORMAL);
+      */
+  }
 
 //--------------------------------------------------------------------------
 
@@ -2068,8 +2102,31 @@ void CExploreScd::ActivateWndByName(LPCTSTR Txt)
 
 void CExploreScd::DeletePage(CXTPage * pPage)
   {
-  pPage->m_pGrfDoc->DeleteTags(true);
-  pPage->m_pGrfDoc->CloseDocument();
+  if (pPage->m_pGrfDoc->DeleteTags(true)>=0)
+    pPage->m_pGrfDoc->CloseDocument();
+  }
+
+//--------------------------------------------------------------------------
+
+void CExploreScd::RenamePage(CXTPage * pPage)
+  {
+  CRenamePageDlg Dlg(pPage->m_sPageId);
+  if (Dlg.DoModal()==IDOK)
+    {
+    m_PageMap.RemoveKey(pPage->m_sPageId);
+    pPage->m_sPageId=Dlg.m_NewName;
+    Strng Ext;
+    Ext.FnExt(pPage->m_sPageName.GetBuffer());
+
+    Strng Path;
+    Path.FnDrivePath((LPTSTR)(LPCTSTR)pPage->m_pGrfDoc->GetPathName());
+    Path+=pPage->m_sPageId;
+    Path+=Ext();
+    pPage->m_pGrfDoc->SetPathName(Path());
+
+    m_PageMap.SetAt(pPage->m_sPageId, pPage);
+    RefreshIt(false);
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -2163,19 +2220,90 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
       {
+      case TrID_GrfHdr:
+        {
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+
+        Menu.AppendMenu(MF_STRING, 101, "New");
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING | (gs_pPrj->m_GrfBehaviour == WB_Coincident ? MF_CHECKED:0), 108, "Treat as One");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 101: 
+            {
+            CAutoIncDec AID(gs_FileNewFlag);
+            ScdApp()->GraphTemplate().OpenDocumentFile(NULL);
+            break;
+            }
+          case 108:
+            if (gs_pPrj->m_GrfBehaviour == WB_Coincident)
+              gs_pPrj->m_GrfBehaviour = WB_None;
+            else if (gs_pPrj->m_GrfBehaviour == WB_None)
+              gs_pPrj->m_GrfBehaviour = WB_Coincident;
+            CGrfFrameWnd::DoBehaviourChange();
+            break;
+          }
+        break;
+        }
+      case TrID_TrndHdr:
+        {
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+
+        Menu.AppendMenu(MF_STRING, 101, "New");
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 101: 
+            {
+            CAutoIncDec AID(gs_FileNewFlag);
+            ScdApp()->TrendTemplate().OpenDocumentFile(NULL);
+            break;
+            }
+          case 108:
+            if (gs_pPrj->m_TrndBehaviour == WB_Coincident)
+              gs_pPrj->m_TrndBehaviour = WB_None;
+            else if (gs_pPrj->m_TrndBehaviour == WB_None)
+              gs_pPrj->m_TrndBehaviour = WB_Coincident;
+            CTagVwSplit::DoBehaviourChange();
+            break;
+          }
+        break;
+        }
       case TrID_Grf:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         CXTPage *pPage;
         if (m_PageMap.Lookup(Txt, pPage))
           {
-          CString S;
           CMenu Menu;
           Menu.CreatePopupMenu();
+          CString S;
           S.Format("Page '%s'", Txt); 
           Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
           Menu.AppendMenu(MF_SEPARATOR, 100);
-          Menu.AppendMenu(MF_STRING, 102, "Delete");
+          Menu.AppendMenu(MF_STRING, 101, "New");
+          Menu.AppendMenu(MF_STRING, 102, "Rename");
+          Menu.AppendMenu(MF_STRING, 103, "Delete");
+          Menu.AppendMenu(MF_SEPARATOR, 100);
+          Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
+          Menu.AppendMenu(MF_SEPARATOR, 100);
+
+          Menu.AppendMenu(MF_STRING|(pPage->m_pGrfDoc->bModelsActive ? MF_CHECKED:MF_UNCHECKED), 104, "Active");
 
           CPoint curPoint;
           GetCursorPos(&curPoint);
@@ -2184,19 +2312,77 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           Menu.DestroyMenu();                                           
           switch (RetCd)
             {
-            case 102: 
+            case 101: 
               {
-              DeletePage(pPage);
+              CAutoIncDec AID(gs_FileNewFlag);
+              ScdApp()->GraphTemplate().OpenDocumentFile(NULL);
               break;
               }
+            case 102: 
+              RenamePage(pPage);
+              break;
+            case 103:
+              DeletePage(pPage);
+              break;
+            case 104:
+              SetGrfPageActive(pPage->m_pGrfDoc, !pPage->m_pGrfDoc->bModelsActive);
+              break;
+            case 108:
+              if (gs_pPrj->m_GrfBehaviour == WB_Coincident)
+                gs_pPrj->m_GrfBehaviour = WB_None;
+              else if (gs_pPrj->m_GrfBehaviour == WB_None)
+                gs_pPrj->m_GrfBehaviour = WB_Coincident;
+              CGrfFrameWnd::DoBehaviourChange();
+              break;
             }
-
           }
         else
           ASSERT_ALWAYS(FALSE, "Bad Page Lookup");
         break;
         }
       case TrID_Trnd:
+        {
+        CString Txt = m_Tree.GetItemText(hSel);
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+
+        CString S;
+        S.Format("Trend '%s'", Txt); 
+        Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING, 101, "New");
+        Menu.AppendMenu(MF_STRING|MF_GRAYED, 102, "Rename");
+        Menu.AppendMenu(MF_STRING|MF_GRAYED, 103, "Delete");
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 101: 
+            {
+            CAutoIncDec AID(gs_FileNewFlag);
+            ScdApp()->TrendTemplate().OpenDocumentFile(NULL);
+            break;
+            }
+          case 102:
+            break;
+          case 103:
+            break;
+          case 108:
+            if (gs_pPrj->m_TrndBehaviour == WB_Coincident)
+              gs_pPrj->m_TrndBehaviour = WB_None;
+            else if (gs_pPrj->m_TrndBehaviour == WB_None)
+              gs_pPrj->m_TrndBehaviour = WB_Coincident;
+            CTagVwSplit::DoBehaviourChange();
+            break;
+          }
+        break;
+        }
       case TrID_Other:
         {
         break;

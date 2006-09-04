@@ -5,12 +5,9 @@
 #ifndef __SLVCFG_H
 #define __SLVCFG_H
 
-#ifndef __GPWFUNCS_H
 #include "gpwfuncs.h"
-#endif
-#ifndef __EXECUTIV_H
 #include "executiv.h"
-#endif
+#include "grfdoc.h"
 
 //===========================================================================
 //
@@ -47,8 +44,9 @@ class CSolverCfgSheet : public CPropertySheet
   void UpdateOptMeth(byte iReqdOptMeth);
   };
 
-bool SetGrfPageActive(int index, bool Active);
-
+extern bool SetGrfPageActive(CGrfDoc* pGDoc, bool Active);
+extern bool SetGrfPageActive(int index, bool Active);
+  
 //===========================================================================
 
 #endif

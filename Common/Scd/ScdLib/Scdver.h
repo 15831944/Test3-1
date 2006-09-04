@@ -12,7 +12,6 @@
 
 // --------------------------------------------------------------------------
 
-#define USESCDEXPLORER        1
 #define BLDDEPENDENTFILES     1
 #define WITHCOMCMD            0
 #define WITHMULTIFLWBLK       1

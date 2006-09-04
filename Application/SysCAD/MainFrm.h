@@ -275,15 +275,10 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnReloadDriver();
     afx_msg void OnUpdateReloadDriver(CCmdUI* pCmdUI);
 #endif
-#if USESCDEXPLORER
     afx_msg void OnExplorer();
     afx_msg void OnUpdateExplorer(CCmdUI* pCmdUI);
     afx_msg void OnWindowSelectwindow();
     afx_msg void OnUpdateWindowSelectwindow(CCmdUI* pCmdUI);
-#else
-    afx_msg void OnWindowSelectwindow();
-    afx_msg void OnUpdateWindowSelectwindow(CCmdUI* pCmdUI);
-#endif
     afx_msg void OnWindowArrange();
     afx_msg void OnUpdateWindowArrange(CCmdUI* pCmdUI);
     afx_msg void OnWindowCascade();

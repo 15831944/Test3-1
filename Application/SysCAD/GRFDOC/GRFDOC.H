@@ -45,6 +45,7 @@ class CGrfDoc : public DocRoot
     virtual BOOL OnOpenDocument(const char* pszPathName);
     //virtual void OnCloseDocument();
     //virtual BOOL OnSaveDocument(const char *pszPathName);
+  public:
     virtual void SetPathName( const char* pszPathName );
 
   public:

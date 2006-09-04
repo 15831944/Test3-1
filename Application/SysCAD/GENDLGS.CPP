@@ -100,7 +100,7 @@ class CGlobalPage : public CCustomPropertyPage
     BOOL m_LoadPrevPrj;
     CString m_Editor;
     int m_UtilsDBFmt;
-    BOOL m_UseSelectWndList;
+    BOOL m_UseScdExplorer;
     int m_PrjsDBFmt;
     BOOL m_CascadeOnLoad;
     //}}AFX_DATA
@@ -832,7 +832,7 @@ CGlobalPage::CGlobalPage() : CCustomPropertyPage(CGlobalPage::IDD)
   m_Editor = "";
 	m_UtilsDBFmt = DBConnect_JET2000;
   m_PrjsDBFmt = DBConnect_JET2000;
-  m_UseSelectWndList = FALSE;
+  m_UseScdExplorer = TRUE;
   m_CascadeOnLoad = FALSE;
   //}}AFX_DATA_INIT
   }
@@ -853,7 +853,7 @@ void CGlobalPage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_DLGTOOLTIPS, m_DlgTooltips);
   DDX_Check(pDX, IDC_LOADPREVPRJ, m_LoadPrevPrj);
   DDX_Text(pDX, IDC_EDITOR, m_Editor);
-  DDX_Check(pDX, IDC_SELECTWNDLIST, m_UseSelectWndList);
+  DDX_Check(pDX, IDC_USESCDEXPLORER, m_UseScdExplorer);
   DDX_Check(pDX, IDC_CASCADEWINDOWSONLOAD, m_CascadeOnLoad);
   //}}AFX_DATA_MAP
   DDX_Text(pDX, IDC_SERVERWAIT, m_ServerWait);
@@ -876,7 +876,7 @@ END_MESSAGE_MAP()
 BOOL CGlobalPage::OnInitDialog() 
   {
 	m_EvalOrdWnd       = (ScdPFUser.RdInt("General", "ShowEvalOrderWindow", 0)!=0);
-  m_UseSelectWndList = (ScdPFUser.RdInt("General", "UseSelectWindowList", 1)!=0);
+  m_UseScdExplorer   = (ScdPFUser.RdInt("General", "UseScdExplorer", 1)!=0);
   m_DlgTooltips      = (ScdPFUser.RdInt("General", "ShowDialogTooltips", 1)!=0);
   m_LoadPrevPrj      = (ScdPFUser.RdInt("General", "PromptPrevPrj", 0)!=0);
   m_CascadeOnLoad    = (ScdPFUser.RdInt("General", "CascadeOnLoad", 0)!=0);
@@ -933,12 +933,12 @@ void CGlobalPage::OnOK()
     m_UtilsDBFmt=m_cbUtilDB.GetCurSel();
     m_PrjsDBFmt=m_cbPrjDB.GetCurSel();
 
-    int PrevUseSelectWndList = ScdPFUser.RdInt("General", "UseSelectWindowList", 1);//(ScdPFUser.RdInt("General", "UseSelectWindowList", 1)!=0);
+    int PrevUseScdExplorer = ScdPFUser.RdInt("General", "UseScdExplorer", 1);
     if (m_Editor.GetLength()==0)
       m_Editor = "notepad.exe";
     ScdPFUser.WrInt("General", "ShowEvalOrderWindow", m_EvalOrdWnd);
     ScdPFUser.WrInt("General", "ShowEvalStatsWindow", m_EvalStatsWnd);
-    ScdPFUser.WrInt("General", "UseSelectWindowList", m_UseSelectWndList);
+    ScdPFUser.WrInt("General", "UseScdExplorer", m_UseScdExplorer);
     ScdPFUser.WrInt("General", "PromptPrevPrj", m_LoadPrevPrj);
     ScdPFUser.WrInt("General", "CascadeOnLoad", m_CascadeOnLoad);
     ScdPFUser.WrInt("General", "ShowDialogTooltips", m_DlgTooltips);
@@ -948,22 +948,20 @@ void CGlobalPage::OnOK()
     ScdPFUser.WrStr("General", "TextEditor", (const char*)m_Editor);
     SetTxtEditor((char*)(const char*)m_Editor);
     HelpMngr.UpdateOptions();
+
     if (COrdWindow::GetFrame()==NULL && m_EvalOrdWnd)
       COrdWindow::Register();
+
     if (CStatsWindow::GetFrame()==NULL && m_EvalStatsWnd)
       CStatsWindow::Register();
-    if (PrevUseSelectWndList!=m_UseSelectWndList)
+
+    if (PrevUseScdExplorer!=m_UseScdExplorer)
       {
-#if USESCDEXPLORER
-      CExploreScd::SetUseSelectWndList(m_UseSelectWndList);
-      if (PrevUseSelectWndList!=0)
+      CExploreScd::SetUseScdExplorer(m_UseScdExplorer);
+      if (PrevUseScdExplorer!=0)
         CExploreScd::CloseIt();
-#else
-      CWndSlctWnd::SetUseSelectWndList(m_UseSelectWndList);
-      if (PrevUseSelectWndList!=0)
-        CWndSlctWnd::CloseIt();
-#endif
       }
+
     if (PrevUse97!=m_UtilsDBFmt)
       AfxMessageBox("Change to database driver selected will only take affect when SysCAD is restarted.");
     }

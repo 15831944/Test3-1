@@ -1370,7 +1370,7 @@
 #define IDC_PRJHSTUSETOL                25582
 #define IDC_PRJOPCSECONDSERVER          25582
 #define IDB_BTN_FREE_OFF                25582
-#define IDC_SELECTWNDLIST               25583
+#define IDC_USESCDEXPLORER              25583
 #define IDC_STATUSPEN2                  25583
 #define IDD_GRFTEXTDLG                  25583
 #define IDC_LEFTBTNDOWN                 25584
@@ -1403,6 +1403,8 @@
 #define IDC_TAGTREE                     25596
 #define IDC_TREE                        25596
 #define IDC_DSTTREE                     25597
+#define IDD_DIALOG4                     25597
+#define IDD_RENAMEPAGE                  25597
 #define IDR_SCDIOMARSHAL                25598
 #define IDR_SCDTAGFIXUP                 25599
 #define IDC_TABTREE                     25600
@@ -1588,7 +1590,9 @@
 #define IDC_ARCML_ELAPSEDHMS            25758
 #define IDC_ARCML_ELAPSEDDBL            25759
 #define IDC_ARCML_MSGLOGON              25760
+#define IDC_OLDNAME                     25760
 #define IDC_ARCML_EVTLOGON              25761
+#define IDC_OLDNAME2                    25761
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -1975,9 +1979,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        25597
+#define _APS_NEXT_RESOURCE_VALUE        25598
 #define _APS_NEXT_COMMAND_VALUE         30516
-#define _APS_NEXT_CONTROL_VALUE         25760
+#define _APS_NEXT_CONTROL_VALUE         25761
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif

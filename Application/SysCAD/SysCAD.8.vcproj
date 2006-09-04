@@ -891,6 +891,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenamePageDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Rep_Mngr.cpp"
 				>
 			</File>
@@ -1496,6 +1500,10 @@
 			</File>
 			<File
 				RelativePath=".\RctEditDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenamePageDlg.h"
 				>
 			</File>
 			<File

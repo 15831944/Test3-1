@@ -473,36 +473,31 @@ void ScdCtrls_Entry()
 
 void SetVisibleWindowPos(CWnd* pWnd, int xPos, int yPos, int Width, int Height, bool AsFloating)
   {//ensure window is visible, not off edge of screen because of change in resolution...
-  CRect CR;
-  AfxGetMainWnd()->GetClientRect(&CR); //get area of MDI framework client window
+
+  int CXSize = GetSystemMetrics(SM_CXVIRTUALSCREEN);//SM_CXSIZE);
+  int CYSize = GetSystemMetrics(SM_CYVIRTUALSCREEN);//SM_CYSIZE);
 
   if (AsFloating)
     {
-    int XExtra = 0;//60;
-    int YExtra = 0;//20;
-    int CXSize = GetSystemMetrics(SM_CXSIZE);
-    int CYSize = GetSystemMetrics(SM_CYSIZE);
-
-    Width=Min(CR.Width()-XExtra, Width);
-    Height=Min(CR.Height()-YExtra, Height);
-
-    const int MaxX = CR.right - 1 - XExtra - CXSize;
-    const int MaxY = CR.bottom - 1 - YExtra - CYSize;
-    if (xPos>=MaxX - CXSize - XExtra)
-      xPos = MaxX - CXSize - XExtra;
-    if (xPos<-XExtra)
+    const int MaxX = CXSize - (Width + 1);
+    const int MaxY = CYSize - (Height + 1);
+    if (xPos>=MaxX)
+      xPos = MaxX;
+    if (xPos<0)
       xPos = 0;
-    if (yPos>=MaxY - CYSize - YExtra)
-      yPos = MaxY - CYSize - YExtra;
-    if (yPos<-YExtra)
+    if (yPos>=MaxY)
+      yPos = MaxY;
+    if (yPos<0)
       yPos = 0;
-
 
     pWnd->SetWindowPos(NULL, xPos, yPos, Width, Height, 
       ((Width>0) ? 0 : SWP_NOSIZE) | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
   else
     {
+    CRect CR;
+    AfxGetMainWnd()->GetClientRect(&CR); //get area of MDI framework client window
+
     if (Width>0)
       {
       CR.right=Width;

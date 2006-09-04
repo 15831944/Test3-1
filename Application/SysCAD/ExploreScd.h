@@ -212,11 +212,11 @@ class CExploreScd : public CDialog
     static void CloseIt();
     static void RefreshIt(BOOL Complete);
     static void ChkRefreshIt();
-    static BOOL UseSelectWndList() { return sm_bUseSelectWndList; };
-    static void SetUseSelectWndList(BOOL Use) { sm_bUseSelectWndList = Use; };
+    static BOOL UseScdExplorer() { return sm_bUseScdExplorer; };
+    static void SetUseScdExplorer(BOOL Use) { sm_bUseScdExplorer = Use; };
 
     static void ArrangeWindows(int RqdLayoutStyle = -1);
-
+    static void MainWndMovedTo(int x, int y);
 
     // Dialog Data
     enum { IDD = IDD_EXPLORESCD };
@@ -254,6 +254,7 @@ class CExploreScd : public CDialog
     void DumpAll(LPCTSTR Where);
 
     void DeletePage(CXTPage * pPage);
+    void RenamePage(CXTPage * pPage);
 
     void SavePos();
     void RestorePos();
@@ -267,7 +268,7 @@ class CExploreScd : public CDialog
     static CExploreScd  * sm_pTheWnd;
     static BOOL           sm_bDoRefresh;
     static BOOL           sm_bDoRefreshAll;
-    static BOOL           sm_bUseSelectWndList;
+    static BOOL           sm_bUseScdExplorer;
     static BOOL           sm_bInited;
 
     CTreeCtrl             m_Tree;
@@ -317,6 +318,7 @@ class CExploreScd : public CDialog
     int                   m_ChangeBusy;
 
 
+    CPoint                m_TopLeft;            // Relative to Main Wnd Client TopLeft
     CRect                 m_ClientRctInit;
     CArray<CRect, CRect&> m_CtrlRcts;
 

@@ -46,18 +46,18 @@ BEGIN_MESSAGE_MAP(CGrfWnd, CView)
   ON_WM_LBUTTONDBLCLK()
   ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
   ON_WM_SETFOCUS()
-	//}}AFX_MSG_MAP
+  //}}AFX_MSG_MAP
   ON_MESSAGE(WMU_DOGRFCMD, OnDoGrfCmd)
   ON_MESSAGE(WMU_DOSETFOCUS, OnDoSetFocus)
   ON_MESSAGE(WMU_GRFWNDDSPUPDATE, OnDoDspUpdate)
   ON_MESSAGE(WMU_GRFWNDWRITESUBS, OnDoWriteSubs)
-//  ON_COMMAND_RANGE(IDM_SRCIO_0, IDM_UNITIO_MAX, OnUnitIOMenu)
+  //  ON_COMMAND_RANGE(IDM_SRCIO_0, IDM_UNITIO_MAX, OnUnitIOMenu)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
 
 CGrfWnd::CGrfWnd() :
-  Dsp(this)
+Dsp(this)
   {
   pDoc=NULL;
   EO_Register(pExecName_GrfWnd, EODisplayUpdate|EOWrite_Msg, /*Pri*/0,/*Stack*/0);
@@ -84,12 +84,12 @@ BOOL CGrfWnd::PreCreateWindow(CREATESTRUCT& cs)
     GrfHelper.pBrush = new CBrush(GrfHelper.BackGroundRGB);
   /*
   UINT Style=WS_CHILD | WS_VISIBLE | // WS_CAPTION |
-             WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-             WS_BORDER | WS_THICKFRAME;
+  WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+  WS_BORDER | WS_THICKFRAME;
   cs.lpszClass = AfxRegisterWndClass(Style,
-                                   //ScdApp()->LoadStandardCursor(IDC_CROSS),
-                                   0,//ScdApp()->LoadCursor(IDC_GRAPHICS1), //DYNAMICCROSS),
-                                   (HBRUSH)GetStockObject(BLACK_BRUSH), 0);*/
+  //ScdApp()->LoadStandardCursor(IDC_CROSS),
+  0,//ScdApp()->LoadCursor(IDC_GRAPHICS1), //DYNAMICCROSS),
+  (HBRUSH)GetStockObject(BLACK_BRUSH), 0);*/
 
   const UINT Style = CS_DBLCLKS;
   cs.lpszClass = AfxRegisterWndClass(Style, 0, (HBRUSH)(*GrfHelper.pBrush), 0);
@@ -150,7 +150,7 @@ void CGrfWnd::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeact
   if (pDoc)
     ((CGrfDoc*)pDoc)->OnActivate(bActivate);
 
-//  CWndSlctWnd::RefreshIt();
+  //  CWndSlctWnd::RefreshIt();
   }
 
 //---------------------------------------------------------------------------
@@ -612,9 +612,9 @@ void CGrfWnd::OnLButtonDown(UINT nFlags, CPoint point)
       {
       //dbgpln("OnLButtonDown BringToTop");
       //MessageBox(gs_pCmd->HWindow, "Unexpected Mouse Input", "COMMAND", MB_ICONEXCLAMATION|MB_OK);
-      #if dbgExecCmdLine
+#if dbgExecCmdLine
       dbgpln("Unexpected Mouse Input Down+");
-      #endif
+#endif
 
       }
     }
@@ -796,8 +796,8 @@ void CGrfWnd::OnMouseMove(UINT nFlags, CPoint point)
     {
     char Txt[512];
     sprintf(Txt, "%7.2f, %7.2f",
-            Range(-9999999.0, Dsp.CurrentPt.World.X, 9999999.0),
-            Range(-9999999.0, Dsp.CurrentPt.World.Y, 9999999.0));
+      Range(-9999999.0, Dsp.CurrentPt.World.X, 9999999.0),
+      Range(-9999999.0, Dsp.CurrentPt.World.Y, 9999999.0));
     pStatusBar->UpdateIndicator(1, Txt, FALSE);
     }
   Dsp.Close();
@@ -937,14 +937,14 @@ void CGrfWnd::CopyBMPtoClipBoard(int Format)
   int fheight = max(2, rect.bottom - rect.top - 1);
 
   // Get the device context of window and allocate memory
-	CDC memdc;
-	memdc.CreateCompatibleDC(GetDC());
+  CDC memdc;
+  memdc.CreateCompatibleDC(GetDC());
   CBitmap BM;
   BOOL B = BM.CreateCompatibleBitmap(&memdc, fwidth, fheight);
   if (B)
     {
     CBitmap* pOldBm = memdc.SelectObject(&BM);
-     // Copy the bitmap to memory location based on coordinates.
+    // Copy the bitmap to memory location based on coordinates.
     B = memdc.BitBlt(0, 0, fwidth, fheight, GetDC(), -1, -1, SRCCOPY);
     if (B)
       {
@@ -954,7 +954,7 @@ void CGrfWnd::CopyBMPtoClipBoard(int Format)
       //else
       //  AfxMessageBox( "Unable to set Clipboard data" );
       }
-  	memdc.SelectObject(pOldBm);
+    memdc.SelectObject(pOldBm);
     }
 
   CloseClipboard();
@@ -1172,6 +1172,97 @@ void CGrfFrameWnd::OnMove(int x, int y)
   GetWindowPlacement(&wp);
   m_PrevClientX=wp.rcNormalPosition.left;
   m_PrevClientY=wp.rcNormalPosition.top;
+  }
+
+//---------------------------------------------------------------------------
+
+void CGrfFrameWnd::DoBehaviourChange()
+  {
+  if (gs_pPrj->m_GrfBehaviour && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
+    {
+    CAutoIncDec AID(gs_BlockSizeAdjustment);
+    WINDOWPLACEMENT wp;
+    wp.length = sizeof(wp);
+
+    if (gs_FileNewFlag)
+      {
+      CWindowLists WL;
+      CWnd * pTopWnd=NULL;
+      CWnd * pTopWndBut1=NULL;
+      int Z=10000;
+      WL.BuildZOrder(true);
+      for (int i=0; i<WL.Wnds.GetCount(); i++)
+        {
+        CTopWindowInfo & WI=WL.Wnds[i];
+        CWnd * pWnd=WI.pWnd;
+        if (pWnd->IsKindOf(RUNTIME_CLASS(CGrfFrameWnd)))// && pWnd!=this)
+          {
+          if (WI.iZOrd<Z)
+            {
+            Z=WI.iZOrd;
+            pTopWndBut1=pTopWnd;
+            pTopWnd=WI.pWnd;
+            }
+          }
+        }
+      if (pTopWndBut1)
+        {
+        wp.length = sizeof(wp);
+        pTopWndBut1->GetWindowPlacement(&wp);
+        wp.length = sizeof(wp);
+        pTopWnd->SetWindowPlacement(&wp);
+        }
+      }
+    else
+      {
+      CWindowLists WL;
+      if (WL.BuildZOrder()<0)
+        return;
+
+      if (WL.GrfWnds.GetCount()<1)
+        return;
+
+
+      int iTop=-1;
+      int iZ=10000;
+      for (int i=0; i<WL.Wnds.GetCount(); i++)
+        {
+        if (WL.Wnds[i].pWnd->IsKindOf(RUNTIME_CLASS(CGrfFrameWnd)) && WL.Wnds[i].iZOrd<iZ)
+          {
+          iTop=i;
+          iZ=WL.Wnds[i].iZOrd;
+          }
+        }
+
+      if (iTop>=0)
+        {
+        WL.Wnds[iTop].pWnd->GetWindowPlacement(&wp);
+
+        for (int i=0; i<WL.GrfWnds.GetCount(); i++)
+          {
+
+          WINDOWPLACEMENT wpt;
+          wpt.length = sizeof(wpt);
+          WL.GrfWnds[i]->GetWindowPlacement(&wpt);
+          if (gs_pPrj->m_GrfBehaviour & WB_Coincident)
+            {
+            wpt.rcNormalPosition=wp.rcNormalPosition;
+            }
+          else if (gs_pPrj->m_GrfBehaviour & WB_MoveTogether)
+            {
+            _asm int 3;
+            //wpt.rcNormalPosition.left+=DX;
+            //wpt.rcNormalPosition.right+=DX;
+            //wpt.rcNormalPosition.top+=DY;
+            //wpt.rcNormalPosition.bottom+=DY;
+            }
+          wpt.length = sizeof(wpt);
+          WL.GrfWnds[i]->SetWindowPlacement(&wpt);
+
+          }                         
+        }
+      }
+    }
   }
 
 //---------------------------------------------------------------------------

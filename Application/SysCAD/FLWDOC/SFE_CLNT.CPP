@@ -290,9 +290,7 @@ int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, cha
   SetLoadAllModelStatus();
   IENTER(-1) 
   pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd); 
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(false);
-#endif
   ILEAVE 
   };
 
@@ -301,9 +299,7 @@ int SFEFlwLib::FE_DoInsertRoot(char * RootName)
   SetLoadAllModelStatus();
   IENTER(-1)
   pSfe->FE_DoInsertRoot(RootName);
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(false);
-#endif
   ILEAVE
   };
 int SFEFlwLib::FE_DoDelete(char * Tag)
@@ -311,9 +307,7 @@ int SFEFlwLib::FE_DoDelete(char * Tag)
   SetLoadAllModelStatus();
   IENTER(-1)
   pSfe->FE_DoDelete(Tag);
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(false);
-#endif
   ILEAVE 
   };
 int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
@@ -321,9 +315,7 @@ int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
   SetLoadAllModelStatus();
   IENTER(-1)
   pSfe->FE_DoConnect(SrcTag, DstTag);
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(false);
-#endif
   ILEAVE
   };
 int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
@@ -331,9 +323,7 @@ int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
   SetLoadAllModelStatus();
   IENTER(-1)
   pSfe->FE_DoDisConnect(SrcTag, DstTag);
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(false);
-#endif
   ILEAVE
   };
 
@@ -532,9 +522,7 @@ int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
   SetLoadAllModelStatus();
   IENTER(false)
   pSfe->EO_DeleteTag(pDelTag);
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(false);
-#endif
   ILEAVE
   };
 int  SFEFlwLib::EO_CanClose(Strng_List & Problems)
@@ -639,9 +627,7 @@ flag SFEFlwLib::EO_EndLoad(FilingControlBlock &FCB)
   { 
   FENTER(false) 
   pSfe->EO_EndLoad(FCB); 
-#if USESCDEXPLORER
   CExploreScd::RefreshIt(true);
-#endif
   FLEAVE
   };
 void SFEFlwLib::EO_BeginBulkChange() 

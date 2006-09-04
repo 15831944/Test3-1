@@ -746,26 +746,29 @@ void CActivePage::OnClickActpages(NMHDR* pNMHDR, LRESULT* pResult)
 //
 //===========================================================================
 
-bool SetGrfPageActive(int index, bool Active)
+bool SetGrfPageActive(CGrfDoc* pGDoc, bool Active)
   {
   bool Changed = false;
-  if (index<CWindowLists::GetGrfWndCount())
+  if (pGDoc->bModelsActive != Active)
     {
-    CGrfDoc* pGDoc = (CGrfDoc*)CWindowLists::GetGrfWndByIndex(index);
-    if (pGDoc->bModelsActive != Active)
+    pGDoc->bModelsActive = Active;
+    Changed = true;
+    Strng_List TagList;
+    pGDoc->GetTagList(TagList);
+    for (pStrng p=TagList.First(); p; p=p->Next())
       {
-      pGDoc->bModelsActive = Active;
-      Changed = true;
-      Strng_List TagList;
-      pGDoc->GetTagList(TagList);
-      for (pStrng p=TagList.First(); p; p=p->Next())
-        {
-        p->SetIndex(Active);
-        }
-      FE()->FE_TagOperation(FETOp_SetActive, TagList);
+      p->SetIndex(Active);
       }
+    FE()->FE_TagOperation(FETOp_SetActive, TagList);
     }
   return Changed;
+  }
+
+bool SetGrfPageActive(int index, bool Active)
+  {
+  if (index<CWindowLists::GetGrfWndCount())
+    return SetGrfPageActive((CGrfDoc*)CWindowLists::GetGrfWndByIndex(index), Active);
+  return false;
   }
 
 //===========================================================================

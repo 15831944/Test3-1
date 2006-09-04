@@ -155,6 +155,8 @@ class DllImportExport CGrfFrameWnd : public CMDIChildWnd
     //{{AFX_VIRTUAL(CGrfFrameWnd)
     //}}AFX_VIRTUAL
     virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+
+    static void         DoBehaviourChange();
   protected:
     virtual ~CGrfFrameWnd();
     //{{AFX_MSG(CGrfFrameWnd)

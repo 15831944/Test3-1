@@ -134,15 +134,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_CMDSCRIPTS, OnUpdateOptionsCmdscripts)
   ON_COMMAND(ID_PROJECT_MERGE, OnProjectMerge)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_MERGE, OnUpdateProjectMerge)
-#if USESCDEXPLORER
   ON_COMMAND(ID_VIEW_EXPLORER, OnExplorer)
   ON_UPDATE_COMMAND_UI(ID_VIEW_EXPLORER, OnUpdateExplorer)
   ON_COMMAND(ID_WNDW_SELECT, OnWindowSelectwindow)
   ON_UPDATE_COMMAND_UI(ID_WNDW_SELECT, OnUpdateWindowSelectwindow)
-#else
-  ON_COMMAND(ID_WNDW_SELECT, OnWindowSelectwindow)
-  ON_UPDATE_COMMAND_UI(ID_WNDW_SELECT, OnUpdateWindowSelectwindow)
-#endif
   ON_UPDATE_COMMAND_UI(ID_WNDW_ARRANGESPECIAL, OnUpdateWindowArrange)
   ON_COMMAND(ID_PROJECT_PRESET, OnProjectPreset)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_PRESET, OnUpdateProjectPreset)
@@ -2095,17 +2090,9 @@ void CMainFrame::OnUpdateFindNext(CCmdUI* pCmdUI)
 
 //---------------------------------------------------------------------------
 
-#if USESCDEXPLORER
-
 void CMainFrame::OnExplorer()
   {
-  if (CExploreScd::UseSelectWndList())
-    CExploreScd::OpenIt();
-  else
-    {
-    CSelectWindowDlg Dlg(this);
-    Dlg.DoModal();
-    }
+  CExploreScd::OpenIt();
   }
 
 void CMainFrame::OnUpdateExplorer(CCmdUI* pCmdUI)
@@ -2115,47 +2102,19 @@ void CMainFrame::OnUpdateExplorer(CCmdUI* pCmdUI)
 
 void CMainFrame::OnWindowSelectwindow()
   {
-  if (CExploreScd::UseSelectWndList())
-    CExploreScd::OpenIt();
-  else
-    {
-    CSelectWindowDlg Dlg(this);
-    Dlg.DoModal();
-    }
+  CExploreScd::OpenIt();
   }
 
 void CMainFrame::OnUpdateWindowSelectwindow(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotStopped());
   }
-#else
-
-void CMainFrame::OnWindowSelectwindow()
-  {
-  if (CWndSlctWnd::UseSelectWndList())
-    CWndSlctWnd::OpenIt();
-  else
-    {
-    CSelectWindowDlg Dlg(this);
-    Dlg.DoModal();
-    }
-  }
-
-void CMainFrame::OnUpdateWindowSelectwindow(CCmdUI* pCmdUI)
-  {
-  pCmdUI->Enable(EnableNotStopped());
-  }
-#endif
 
 //---------------------------------------------------------------------------
 
 void CMainFrame::OnWindowArrange()
   {
-#if USESCDEXPLORER
   CExploreScd::ArrangeWindows();
-#else
-  CWndSlctWnd::ArrangeWindows();
-#endif
   }
 
 void CMainFrame::OnUpdateWindowArrange(CCmdUI* pCmdUI)
@@ -3589,6 +3548,7 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 void CMainFrame::OnMove(int x, int y)
   {
   CMDIFrameWnd::OnMove(x, y);
+  CExploreScd::MainWndMovedTo(x,y);
 
   if (CProject::sm_SysCADInited)
     CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);

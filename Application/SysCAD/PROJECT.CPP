@@ -2141,74 +2141,21 @@ void CProject::Clear()
 
   //m_bDDEOn=0;
   pDDESrvr=NULL;
-  //m_bOPCOn=0;
-  //m_bOPCResetReg=0;
-  //m_iOPCServerNo=0;
-  //;pOPCSrvr=NULL;
-  //m_bGrfDeferLoad=0;
-  //m_bGrfAutoLoad=0;
-  //m_bGrfUpdateAnnot=1;
-  //m_bGrfAnimationOn=1;
-  //m_bGrfPromptForZoom=1;
-  //m_bGrfMoveCursor=1; // CNM
-  //m_bGrfRegExpOn=0;
-  //m_bReadOnlyPrj=0;
   bHstOK=0;
   bCommsOpen=0;
-  //m_bAccAutoSaveOn=0;
-  //m_bAccUpdateOnRun=1;
-  //m_bAccHistoryInfoVis=0;
-  //gs_Exec.SetRealTime(0);
-  //gs_Exec.SetRealTimeMult(1);
-  //gs_Exec.StepSizeMax=1.0;
-  //gs_Exec.SetTheTime(0.0, "PrjClear");
-  //gs_Exec.SetScnType(ScnTyp_Manual, false);
-  //gs_Exec.ScnTermAction=ScnTA_Edit;
-  //gs_Exec.ScnStopTime=3600.0;
-  //gs_Exec.ScnDuration=3600.0;
-  //gs_Exec.StepCountMax=1;
-
-  //m_sDefGrpLib      = "$BaseCfgFiles\\GroupLibrary.MDB";
-  //m_sGrfFrameName   = "Extents-A3";
-  //m_sGrfFrameFilter = "Frames:";
-
-  //m_sDrvManagerName="Scd_Drvr.mdb";
-  //m_sArcManagerName="ScdArch.sac";
-  //m_sIOMarshalName="*.scm";
-  //m_sIOMarshalNode="";
 #if WITHDRVMAN
   bDrvIgnoresOn=0;
   bDrvForcesOn=0;
   bDrvNoiseOn=1;
   bDrvStartFBKCheck=FBKCheckNever;
 #endif
-  //m_lStatsRefreshCnt=5L;
   m_Hst.m_OnRqd=true; //  gs_HstMngr.SetHstOn(true);
-  //m_ReportInfo.iHSearchLen = 10;
-  //m_ReportInfo.iVSearchLen = 100;
-  //m_ReportInfo.sNan = "*";
-  //m_ReportInfo.sBlank = "";
-  //m_ReportInfo.sIgnoreChars = "=";
-  //m_bRptExcelLock=1;
-  //m_bRptExcelCellName=1;
-  //m_bRptExcelMakeActive=1;
-  //m_bRptExcelSysCADActive=1;
-  //m_bRptExcelUpdateLinks=1;
-  //m_bRptExcelSaveOnComplete=1;
-  //m_bRptSyscadTags=1;
-  //m_bShowStatusColours=1;
-  //m_dwMdlStatusOptions = 0;
-  //iOverlayStatusPen=PS_DASH;
   bTimeChanged=0;
   bHstChanged=0;
   bDrvChanged=0;
   bArcChanged=0;
   bDocChanged=0;
   bLoadBusy=0;
-  //bConfigBusy=0;
-  //m_bDefaultRecordIt=1;
-  //m_bFlashTrend=1; // CNM - most people who see this seem to like it !!!
-  //m_bShowNewTrndLineDlg=0;
   bChangedGrfMenu=0;
   bChangedRuntimeMenu=0;
   bDoGrfAutoAccess=0;
@@ -2236,22 +2183,6 @@ void CProject::Clear()
 #if WITHNETSERVER
   bNetOpen=0;
 #endif
-  //m_eSSAction = SSA_Prompt;//SSA_AutoInc;
-  //m_sSSName = "SnapShot";
-  //m_sSSPrefix = "Snap_";
-  //m_iSSNumber = 0;
-  //m_bSSDoZip = 0;
-  //m_bToolTips=1;
-  //m_bFlyBys=1;
-  //gs_Exec.SetDefNetMode(NM_Probal);
-  //gs_Exec.SetDefNodeMode(SM_Direct);
-  //gs_Exec.SetDefLinkMode(SM_Direct);
-  //gs_Exec.SetDefFlowMode(LFM_Full);
-
-  //gs_Exec.SetMaxNodeMode(SM_Buffered);
-  //gs_Exec.SetMaxLinkMode(SM_Direct);
-  //gs_Exec.SetMaxHeatMode(HM_Full);
-  //gs_Exec.SetMaxFlowMode(LFM_Full);
 
   m_Solver.m_fStateWnd=true;
   m_Solver.m_fStatePinned=false;
@@ -2259,30 +2190,16 @@ void CProject::Clear()
   m_Solver.m_iStateX=-10000;
   m_Solver.m_iStateY=-10000;
 
-  //m_bRunOptEmptyAll=0;
-  //m_bRunOptEmptySpills=0;
-  //m_bRunOptZeroFlows=0;    
-  //m_bRunOptInitialiseAll=0;
-  //m_bRunOptResetStats=0;   
-  //m_bRunOptOnceOnly=0;    
-
-  //m_GrfBehaviour=WB_None;
-  //m_TrndBehaviour=WB_None;
-
 #if WITHNETSERVER
   pCS_Mngr->SetServer(false);
   pCS_Mngr->SetClientConnect(false, "", false);
 #endif
   MdlLibs.UnLoadFlwDLLs();
-  //m_fNewTrend=true;
-  //m_fNewGraph=true;
-  //CMdlValueSet::Clear();
+
   CRptTagLists::ShutDown();
 
   XSetDBFormat(ScdPFUser.RdInt("General", "PrjsDBFormat", DBConnect_JET2000));
 
-  //m_bRemoveRevs=true;
-  //m_bCopyDBFiles=true;
   m_bWithVersion = false;
   m_bRemoveOld = false;
 
@@ -6004,25 +5921,10 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         if (gs_pPrj->m_pFlwLib)
           gs_pPrj->m_pFlwLib->FE_SetSpModelFixupStrategy(PF.RdLong("SpModel", "FixupStrategy", FUS_Largest));
 
-#if USESCDEXPLORER
-        if (CExploreScd::UseSelectWndList())
-          {
-          int WSOpn=PF.RdInt("ScdExplorer", "Open", -1);
-          if (WSOpn>0)
-            CExploreScd::OpenIt();
-          else if (WSOpn==0)
-            CExploreScd::CloseIt();
-          }
-#else
-        if (CWndSlctWnd::UseSelectWndList())
-          {
-          int WSOpn=PF.RdInt("WindowSelector", "Open", -1);
-          if (WSOpn>0)
-            CWndSlctWnd::OpenIt();
-          else if (WSOpn==0)
-            CWndSlctWnd::CloseIt();
-          }
-#endif
+        if (CExploreScd::UseScdExplorer() || PF.RdInt("Explorer", "Open", 0))
+          CExploreScd::OpenIt();
+        else
+          CExploreScd::CloseIt();
 
         // Data from Ini File
 

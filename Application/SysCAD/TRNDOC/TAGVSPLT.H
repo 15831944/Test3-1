@@ -20,6 +20,8 @@ class CTagVwSplit : public CMDIChildWnd
     pCTagVwDoc Doc() { return pDoc; };
     virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 
+    static  void DoBehaviourChange();
+
     //{{AFX_MSG(CTagVwSplit)
     afx_msg void OnFilePrint();
     //afx_msg void OnFilePrintPreview();

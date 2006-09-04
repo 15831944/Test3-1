@@ -321,6 +321,100 @@ void CTagVwSplit::OnMove(int x, int y)
   }
 
 //---------------------------------------------------------------------------
+
+void CTagVwSplit::DoBehaviourChange()
+  {
+  if (gs_pPrj->m_TrndBehaviour && gs_ProjectOpenFlag && gs_BlockSizeAdjustment==0)
+    {
+    CAutoIncDec AID(gs_BlockSizeAdjustment);
+    WINDOWPLACEMENT wp;
+    wp.length = sizeof(wp);
+
+    if (gs_FileNewFlag)
+      {
+      CWindowLists WL;
+      CWnd * pTopWnd=NULL;
+      CWnd * pTopWndBut1=NULL;
+      int Z=10000;
+      WL.BuildZOrder(true);
+      for (int i=0; i<WL.Wnds.GetCount(); i++)
+        {
+        CTopWindowInfo & WI=WL.Wnds[i];
+        CWnd * pWnd=WI.pWnd;
+        if (pWnd->IsKindOf(RUNTIME_CLASS(CTagVwSplit)))// && pWnd!=this)
+          {
+          if (WI.iZOrd<Z)
+            {
+            Z=WI.iZOrd;
+            pTopWndBut1=pTopWnd;
+            pTopWnd=WI.pWnd;
+            }
+          }
+        }
+      if (pTopWndBut1)
+        {
+        wp.length = sizeof(wp);
+        pTopWndBut1->GetWindowPlacement(&wp);
+        wp.length = sizeof(wp);
+        pTopWnd->SetWindowPlacement(&wp);
+        }
+      }
+    else
+      {
+
+      CWindowLists WL;
+      if (WL.BuildZOrder()<0)
+        return;
+
+      if (WL.TrndWnds.GetCount()<1)
+        return;
+
+      WINDOWPLACEMENT wp;
+      wp.length = sizeof(wp);
+
+      int iTop=-1;
+      int iZ=10000;
+      for (int i=0; i<WL.Wnds.GetCount(); i++)
+        {
+        if (WL.Wnds[i].pWnd->IsKindOf(RUNTIME_CLASS(CTagVwSplit)) && WL.Wnds[i].iZOrd<iZ)
+          {
+          iTop=i;
+          iZ=WL.Wnds[i].iZOrd;
+          }
+        }
+
+      if (iTop>=0)
+        {
+        WL.Wnds[iTop].pWnd->GetWindowPlacement(&wp);
+
+        for (int i=0; i<WL.TrndWnds.GetCount(); i++)
+          {
+
+          WINDOWPLACEMENT wpt;
+          wpt.length = sizeof(wpt);
+          WL.TrndWnds[i]->GetWindowPlacement(&wpt);
+          if (gs_pPrj->m_TrndBehaviour & WB_Coincident)
+            {
+            wpt.rcNormalPosition=wp.rcNormalPosition;
+            }
+          else if (gs_pPrj->m_TrndBehaviour & WB_MoveTogether)
+            {
+            _asm int 3;
+            //wpt.rcNormalPosition.left+=DX;
+            //wpt.rcNormalPosition.right+=DX;
+            //wpt.rcNormalPosition.top+=DY;
+            //wpt.rcNormalPosition.bottom+=DY;
+            }
+          wpt.length = sizeof(wpt);
+          WL.TrndWnds[i]->SetWindowPlacement(&wpt);
+
+          }
+        }
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
 //
 //
 //
@@ -365,70 +459,11 @@ BOOL CTagVwSplitC::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
 BEGIN_MESSAGE_MAP(CTagVwSplitC, CTagVwSplit)
   //{{AFX_MSG_MAP(CTagVwSplit)
-//  ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
-//  //ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
-//  ON_WM_SETFOCUS()
-//  ON_WM_SIZE()
+  //  ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
+  //  //ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
+  //  ON_WM_SETFOCUS()
+  //  ON_WM_SIZE()
   //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
-/*
-void CTagVwSplit::OnFilePrint()
-  {
-  CTrendPrintDlg Dlg;
-  if (Dlg.DoModal()==IDOK)
-    {
-    if (Dlg.m_PrintTrendLine)
-      ((CTagVwTrend*)m_wndSplitter.GetPane(0,0))->DoOnFilePrint(Dlg.m_TrueColors);
-    if (Dlg.m_PrintTrendText)
-      ((CTagVwTextC*)m_wndSplitter.GetPane(1,0))->DoOnFilePrint(Dlg.m_TrueColors);
-    }
-  }
-
-//---------------------------------------------------------------------------
-
-BOOL CTagVwSplit::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
-  {
-  if (message==WM_CLOSE)
-    {//intercept close message...
-    if (gs_Exec.Busy())
-      {
-      LogError("SysCAD", 0, "Must not be running");
-      return True;
-      }
-    if (GetActiveDocument())
-      GetActiveDocument()->SetModifiedFlag(FALSE);
-    }
-  return CMDIChildWnd::OnWndMsg(message, wParam, lParam, pResult);
-  }
-
-//---------------------------------------------------------------------------
-
-void CTagVwSplit::OnSetFocus(CWnd* pOldWnd) 
-  {
-  if (gs_pCmd->BusyDocument())
-    {
-    POSITION pos = gs_pCmd->BusyDocument()->GetFirstViewPosition();
-    ASSERT(pos);
-    CView* pView = gs_pCmd->BusyDocument()->GetNextView(pos);
-    if (GetActiveView()!=pView)
-      pView->PostMessage(WMU_DOSETFOCUS, 0 , (LPARAM)pView);
-    }
-  else
-    CMDIChildWnd::OnSetFocus(pOldWnd);
-  }
-
-//---------------------------------------------------------------------------
-
-void CTagVwSplit::OnSize(UINT nType, int cx, int cy) 
-  {
-  CMDIChildWnd::OnSize(nType, cx, cy);
-  if (nType==SIZE_MAXIMIZED)
-    CWindowLists::SetWndMaxMode(TRUE);
-  else if (nType==SIZE_MINIMIZED || nType==SIZE_RESTORED)
-    CWindowLists::SetWndMaxMode(FALSE);
-  }
-*/
-//---------------------------------------------------------------------------
-
