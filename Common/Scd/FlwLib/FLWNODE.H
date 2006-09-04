@@ -131,8 +131,8 @@ class CJoinCluster
       m_iJoinMask       = 0;
       m_iProcOrder      = iNotInEvalOrder;
       m_nFlwIOs         = 0;
-      m_nFlwIOsIn       = 0;       
-      m_nFlwIOsOut      = 0;      
+      m_nFlwIOsIn       = 0;
+      m_nFlwIOsOut      = 0;
       m_nFlwIOsInReqd   = 0;
       m_nFlwIOsInDone   = 0;
       };
@@ -142,8 +142,8 @@ class CJoinCluster
       m_iJoinMask       = JoinMask;
       m_iProcOrder      = iNotInEvalOrder;
       m_nFlwIOs         = 0;
-      m_nFlwIOsIn       = 0;       
-      m_nFlwIOsOut      = 0;      
+      m_nFlwIOsIn       = 0;
+      m_nFlwIOsOut      = 0;
       m_nFlwIOsInReqd   = 0;
       m_nFlwIOsInDone   = 0;
       };
@@ -193,7 +193,7 @@ class CNodeEvalIndex
       m_iJoinMask   = Joins;
       m_bInSequence = InSequence;
       };
-    
+
     FlwNode      & getNd();
     CJoinCluster & getCluster();
     long           getJoinMask() { return m_iJoinMask; };
@@ -234,7 +234,7 @@ public:
 typedef CSCDList <FlwNode*, FlwNode*>                     CFlwNodeList;
 typedef CSCDPtrListIter<CFlwNodeList, FlwNode*>           CFlwNodeIter;
 typedef CSCDPtrListIterWithPos<CFlwNodeList, FlwNode*>    CFlwNodeIterWithPos;
-                                                          
+
 typedef CSCDList <CNodeEvalIndex, CNodeEvalIndex&>        CNodeEvalIndexList;
 typedef CSCDListXIter<CNodeEvalIndexList, CNodeEvalIndex> CNodeEvalIndexIter;
 
@@ -433,16 +433,16 @@ XID xidDrctEnable       = MdlBsXID(5206);
 XID xidConnectState     = MdlBsXID(5207);
 //XID xidDrctNQv          = MdlBsXID(5207);
 
-enum eDirectIO 
+enum eDirectIO
   {
     eDIO_Spill, eDIO_Vent, eDIO_Leak,    // Real IOs
-    eDIO_Makeup, eDIO_Bleed, 
-    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete                  // Direct 
+    eDIO_Makeup, eDIO_Bleed,
+    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete                  // Direct
   };
 
-enum eDIOConnectSelects 
+enum eDIOConnectSelects
   {
-  eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected 
+  eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected
   };
 
 extern DllImportExport Strng gs_DirectFlwIOTagDefault;
@@ -459,7 +459,7 @@ class DllImportExport CDirectFlwIO
 
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
-    ~CDirectFlwIO();                                                                    
+    ~CDirectFlwIO();
 
     void          SetLclIOId(int LclIOId);
     void          Initialise(eDirectIO eType, FlwNode* Nd);
@@ -1104,7 +1104,7 @@ class DllImportExport CFlwBlkIndex
     flag            IsIO()                { return m_iIONo>=0; };
     flag            IsLnk()               { return m_iLnkNo>=0; };
     flag            IsJoin()              { return m_iIONo<0 && m_iLnkNo<0; };
-  
+
   public:
     FlwNode       * m_pNd;
     int             m_iSgn;
@@ -1197,7 +1197,7 @@ class DllImportExport FlwBlk  : public CFlwBlkBase
   friend class FlwSlvDyn;
   friend class CFlwSolver;
 
-  public: 
+  public:
 
   public:
     FlwBlk();
@@ -1654,7 +1654,7 @@ inline IDMask Id_2_Mask(int Id) { ASSERT(Id<64); return IDMask(1)<<Id; };
 // ----------------------------------------------------------
 // IO Type Ids
 
-const int FlwIOId0        = 0; 
+const int FlwIOId0        = 0;
 const int CtrlIOId0       = 10000;
 const int ElecIOId0       = 20000;
 const int AirIOId0        = 25000;
@@ -1678,20 +1678,20 @@ const int VentIOId0       = FlwIOId(2000); // Gas to Environment - No Flw Eqns
 const int LeakIOId0       = FlwIOId(3000); // Both to Environment - Flw Eqns
 const int MakeupIOId0     = FlwIOId(4000); // ???
 const int BleedIOId0      = FlwIOId(5000); // ???
-const int AAAAIOId0       = FlwIOId(6000); // 
-const int BBBBIOId0       = FlwIOId(7000); // 
-const int CCCCIOId0       = FlwIOId(8000); // 
+const int AAAAIOId0       = FlwIOId(6000); //
+const int BBBBIOId0       = FlwIOId(7000); //
+const int CCCCIOId0       = FlwIOId(8000); //
 const int AreaIOId0       = FlwIOId(9000); // Io into/outof Areas
 
-#define SpillIOId(n)      ( SpillIOId0  + n )        
-#define VentIOId(n)       ( VentIOId0   + n )        
-#define LeakIOId(n)       ( LeakIOId0   + n )        
-#define MakeupIOId(n)     ( MakeupIOId0 + n )        
-#define BleedIOId(n)      ( BleedIOId0  + n )        
-#define AAAAIOId(n)       ( AAAAIOId0   + n )        
-#define BBBBIOId(n)       ( BBBBIOId0   + n )        
-#define CCCCIOId(n)       ( CCCCIOId0   + n )        
-#define AreaIOId(n)       ( AreaIOId0   + n )        
+#define SpillIOId(n)      ( SpillIOId0  + n )
+#define VentIOId(n)       ( VentIOId0   + n )
+#define LeakIOId(n)       ( LeakIOId0   + n )
+#define MakeupIOId(n)     ( MakeupIOId0 + n )
+#define BleedIOId(n)      ( BleedIOId0  + n )
+#define AAAAIOId(n)       ( AAAAIOId0   + n )
+#define BBBBIOId(n)       ( BBBBIOId0   + n )
+#define CCCCIOId(n)       ( CCCCIOId0   + n )
+#define AreaIOId(n)       ( AreaIOId0   + n )
 
 inline bool IsMLnkIOId(int Id)        { return Id<SpillIOId0;  }
 inline bool IsProcessIOId(int Id)     { return Id<MakeupIOId0; }
@@ -1716,15 +1716,15 @@ const int IOId_Spill2Area     = SpillIOId(500);
 const int IOId_Vent2Area      = VentIOId(500);
 const int IOId_LeakI2Area     = LeakIOId(500);
 const int IOId_LeakO2Area     = LeakIOId(501);
-const int IOId_Makeup2Area    = MakeupIOId(500);        
+const int IOId_Makeup2Area    = MakeupIOId(500);
 const int IOId_Bleed2Area     = BleedIOId(500);
 
-const int IOId_AreaSpillI     = SpillIOId(500);   
-const int IOId_AreaVentI      = VentIOId(500);    
-const int IOId_AreaLeakI      = LeakIOId(500);    
-const int IOId_AreaLeakO      = LeakIOId(501);    
-const int IOId_AreaMakeupO    = MakeupIOId(500);          
-const int IOId_AreaBleedI     = BleedIOId(500);   
+const int IOId_AreaSpillI     = SpillIOId(500);
+const int IOId_AreaVentI      = VentIOId(500);
+const int IOId_AreaLeakI      = LeakIOId(500);
+const int IOId_AreaLeakO      = LeakIOId(501);
+const int IOId_AreaMakeupO    = MakeupIOId(500);
+const int IOId_AreaBleedI     = BleedIOId(500);
 
 DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
@@ -1739,7 +1739,7 @@ DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
 #define VENT2AREA(Tg,Id)   {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
 #define LEAKS2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide|IOEqnsHide|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup}
 
-const int MaxIOList       = 10000;
+const int MaxIOList       = 32000;
 const int IOPt_MaxJoinId  = MaxIOList-1;
 const int IOPt_Open       = MaxIOList+1;
 const int IOPt_Closed     = MaxIOList+2;
@@ -1873,7 +1873,7 @@ const dword dwIOEqnsHide      = 0x10000000;
 #define IOPassSolids      dwIOPassSolids
 #define IOShwFracHgt      dwIOShwFracHgt
 #define IOShwAperture     dwIOShwAperture
-#define IOHidden          dwIOHidden        
+#define IOHidden          dwIOHidden
 #define IOOptsHide        dwIOOptsHide
 #define IOEqnsHide        dwIOEqnsHide
 
@@ -2032,13 +2032,13 @@ class DllImportExport CIORec
 
   };
 
-class CIORecArray : public CArray<CIORec*, CIORec*> 
+class CIORecArray : public CArray<CIORec*, CIORec*>
   {
   public:
     ~CIORecArray()              { SetMySize(0);}
     CIORec & operator[](int i)  { return *ElementAt(i); }
     void SetMySize(int RqdSize)
-      {            
+      {
       int n=GetSize();
       for (int i=RqdSize; i<n; i++)
         delete ElementAt(i);
@@ -2379,7 +2379,7 @@ class DllImportExport CJoinRec
   friend class FlwSlvPB;
   friend class FlwSlvDyn;
   friend class CFlwSolver;
-    
+
   DEFINE_SPARES(CJoinRec)
 
   public:
@@ -2529,7 +2529,7 @@ class DllImportExport CJoinRec
     double         Pressure();
     void           SetPressure(double P_);
     CPressBlk    * PB();
-      
+
     void           SetQm_PressRes(double Press, double Res);
     void           SetQm_FixedQm (double RqdQm);
     void           SetQm_QmRatio (double Ratio);
@@ -2554,7 +2554,7 @@ class DllImportExport CJoinRec
     sint            Dirn;
     sint            LnkDirn;
     int             iSeqNo;
-    int             iQmToSet; 
+    int             iQmToSet;
 
     byte            m_iFlwPh_Rqd;
     byte            m_iFlwPh_Act;
@@ -3060,28 +3060,28 @@ const byte Z_Guessed=1;
 const byte Z_Known=2;
 const byte Z_OverSpecified=3;
 
-const long CloseTest_Off  = 0x00; 
-const long CloseTest_Idle = 0x01; 
-const long CloseTest_Msgs = 0x02; 
-const long CloseTest_Cnds = 0x04; 
-const long CloseTest_Both = (CloseTest_Msgs|CloseTest_Cnds); 
-const long CloseTest_IdleBoth = (CloseTest_Idle|CloseTest_Msgs|CloseTest_Cnds); 
+const long CloseTest_Off  = 0x00;
+const long CloseTest_Idle = 0x01;
+const long CloseTest_Msgs = 0x02;
+const long CloseTest_Cnds = 0x04;
+const long CloseTest_Both = (CloseTest_Msgs|CloseTest_Cnds);
+const long CloseTest_IdleBoth = (CloseTest_Idle|CloseTest_Msgs|CloseTest_Cnds);
 
 extern DllImportExport long gs_ClosureOption;
 
-const long SpillReports_Off   = 0x00; 
-const long SpillReports_Idle  = 0x01; 
-const long SpillReports_Msgs  = 0x02; 
-const long SpillReports_Cnds  = 0x04; 
-const long SpillReports_Units = 0x10; 
-const long SpillReports_Links = 0x20; 
-const long SpillReports_Both  = (SpillReports_Msgs|SpillReports_Cnds); 
-const long SpillReports_IdleUnits = (SpillReports_Idle|SpillReports_Units|SpillReports_Msgs|SpillReports_Cnds); 
-const long SpillReports_IdleLinks = (SpillReports_Idle|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds); 
+const long SpillReports_Off   = 0x00;
+const long SpillReports_Idle  = 0x01;
+const long SpillReports_Msgs  = 0x02;
+const long SpillReports_Cnds  = 0x04;
+const long SpillReports_Units = 0x10;
+const long SpillReports_Links = 0x20;
+const long SpillReports_Both  = (SpillReports_Msgs|SpillReports_Cnds);
+const long SpillReports_IdleUnits = (SpillReports_Idle|SpillReports_Units|SpillReports_Msgs|SpillReports_Cnds);
+const long SpillReports_IdleLinks = (SpillReports_Idle|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
 const long SpillReports_IdleBoth  = (SpillReports_Idle|SpillReports_Units|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
 
-const long EvalAudits_Off   = 0x00; 
-const long EvalAudits_On    = 0x01; 
+const long EvalAudits_Off   = 0x00;
+const long EvalAudits_On    = 0x01;
 
 // MdlStatusOptions
 const dword MSO_ShowRunInEdit = 0x00000001;
@@ -3205,7 +3205,7 @@ class CClosureInfoArray : public CArray <CClosureInfo, CClosureInfo&>
     bool              m_DoFlows;
   };
 
-class DllImportExport CConvergeStateBlk 
+class DllImportExport CConvergeStateBlk
   {
   public:
     CConvergeStateBlk(ODE_StateCmds Cmd=eStateConverge, double TimeInc=0.0)
@@ -3455,7 +3455,7 @@ class DllImportExport FlwNode : public CTNode
     FlwBlk        *IOFB_Rmt(int i, int fe) {return &IO_Rmt(i).FBs()[fe];};
     FlwBlk        *IOFBJoin_Rmt(int i)    {return &IO_Rmt(i).FBs()[NIOFBs_Rmt(i)-1];};
     FlwBlk        *IOFBFlng_Rmt(int i)    {return &IO_Rmt(i).FBs()[0];};
-    
+
 #if defined(WITH_GFB)
     CGrpFlwBlk     *GFB(int i)             { return IOFB(i,0)->m_pGFb; };
     CGrpFlwBlk     *GFB_Rmt(int i)         { return IOFB_Rmt(i,0)->m_pGFb; };
@@ -3502,34 +3502,34 @@ class DllImportExport FlwNode : public CTNode
 
     void           LockNode()
       {
-      EnterCriticalSection(&m_LockSect); 
+      EnterCriticalSection(&m_LockSect);
       };
     void           UnLockNode()
       {
-      LeaveCriticalSection(&m_LockSect); 
+      LeaveCriticalSection(&m_LockSect);
       };
 
     flag           Ctrl_In(int i)
-      { 
+      {
       byte Dirn=IOAreas[m_IOs[i].IODescSelf].Dirn;
       if ((Dirn & LIO_InOut)==LIO_InOut)
         {
         byte RemDirn=IOArea_Rmt(i).Dirn;
         ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control In Direction");
-        return (RemDirn & LIO_Out)!=0; 
+        return (RemDirn & LIO_Out)!=0;
         }
-      return (Dirn & LIO_In)!=0; 
+      return (Dirn & LIO_In)!=0;
       };
-    flag           Ctrl_Out(int i)                
-      { 
+    flag           Ctrl_Out(int i)
+      {
       byte Dirn=IOAreas[m_IOs[i].IODescSelf].Dirn;
       if ((Dirn & LIO_InOut)==LIO_InOut)
         {
         byte RemDirn=IOArea_Rmt(i).Dirn;
         ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control Out Direction");
-        return (RemDirn & LIO_In)!=0; 
+        return (RemDirn & LIO_In)!=0;
         }
-      return (Dirn & LIO_Out)!=0; 
+      return (Dirn & LIO_Out)!=0;
       };
     CTerminal     *Ctrl_Terminal(int i)           { return m_IOs[i].m_pTerm; };
     flag           Ctrl_EvalSeqStartOK(int i)     { return false; };
@@ -3622,7 +3622,7 @@ class DllImportExport FlwNode : public CTNode
 
     virtual eEvalSeqStart IOEvalSeqStart_Self(int i)        { return IO_Self(i).m_eEvalSeqStart; }
     eEvalSeqStart  IOEvalSeqStart_Rmt(int i)                { return Nd_Rmt(i)->IOEvalSeqStart_Self(IOIONo_Rmt(i)); }
-    
+
     bool           IO_EvalSeqStartOK(int i)
                       {
                       if (IOEvalSeqStart_Self(i)==ESS_Allowed && IOEvalSeqStart_Rmt(i)==ESS_Allowed)
@@ -3647,7 +3647,7 @@ class DllImportExport FlwNode : public CTNode
     dword          IOType_Self(int i)           { return IOAreas[m_IOs[i].IODescSelf].m_dwType; };
     int            IOId_Self(int i)             { return IOAreas[m_IOs[i].IODescSelf].m_Id;};
     IDMask         IOIdMask_Self(int i)         { return IDMask(1) << IOId_Self(i); };
-    //int            NIOsWithId_Self(int  RqdId);  
+    //int            NIOsWithId_Self(int  RqdId);
 #if KWIKCONNECT
     int            IOWithId_Self(int  RqdId);
     int            NIOsWithId_Self(int  RqdId);
@@ -3666,7 +3666,7 @@ class DllImportExport FlwNode : public CTNode
     int            IOIONo_Rmt(int i)            { return (m_IOs.GetCount() ? m_IOs[i].IONoRmt : 0);};
 
     virtual double LnkFlowDefined()             { return !GetActiveHold() ? PBQmEst : 0.0; };
-    virtual bool   LnkFlowDefinedIn(int IONo)   
+    virtual bool   LnkFlowDefinedIn(int IONo)
       {
       if (GetActiveHold())
         return false;
@@ -3676,10 +3676,10 @@ class DllImportExport FlwNode : public CTNode
         return true;
 
       return false;
-      //return !GetActiveHold() && NoProcessIOs()==2 && (Nd_Rmt(1)==p); 
+      //return !GetActiveHold() && NoProcessIOs()==2 && (Nd_Rmt(1)==p);
       };
     virtual bool   LnkFlowDefinedOut(int IONo)
-      { 
+      {
       if (GetActiveHold())
         return false;
       if ((IODesc_Self(IONo)->Dirn & LIO_InOut)==LIO_Out)
@@ -3687,7 +3687,7 @@ class DllImportExport FlwNode : public CTNode
       if ((IODesc_Rmt(IONo)->Dirn & LIO_InOut)==LIO_In)
         return true;
       return false;
-      //return !GetActiveHold() && (Nd_Rmt(0)==p); 
+      //return !GetActiveHold() && (Nd_Rmt(0)==p);
       };
 
     int             NIOPBs(int i)                { return IO_Self(i).PBs().GetSize();};
@@ -3709,19 +3709,19 @@ class DllImportExport FlwNode : public CTNode
     double         IOP_RhoH_Rmt(int i);
 
     void           Set_IOP_Self(int i, double p)
-      { 
-      //dbgpln("Set_IOP_Self %12.2f %12.2f %s[%i]>%s", IOPB_Self(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag()); 
-      IOPB_Self(i).P=p; 
+      {
+      //dbgpln("Set_IOP_Self %12.2f %12.2f %s[%i]>%s", IOPB_Self(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag());
+      IOPB_Self(i).P=p;
       };
     void           Set_IOP_Flng(int i, double p)
       {
-      //dbgpln("Set_IOP_Flng %12.2f %12.2f %s[%i]>%s", IOPB_Flng(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag()); 
-      IOPB_Flng(i).P=p; 
+      //dbgpln("Set_IOP_Flng %12.2f %12.2f %s[%i]>%s", IOPB_Flng(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag());
+      IOPB_Flng(i).P=p;
       };
     void           Set_IOP_Rmt(int i, double p)
       {
-      //dbgpln("Set_IOP_Rmt  %12.2f %12.2f %s[%i]>%s", IOPB_Rmt(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag()); 
-      IOPB_Rmt(i).P=p; 
+      //dbgpln("Set_IOP_Rmt  %12.2f %12.2f %s[%i]>%s", IOPB_Rmt(i).P, p, m_sTag(), i, Nd_Rmt(i)->FullObjTag());
+      IOPB_Rmt(i).P=p;
       };
 
 #if DoPressTestAndRange
@@ -4099,17 +4099,17 @@ class DllImportExport FlwNode : public CTNode
     // ConditionBlk Override
     DEFINE_CI(FlwNode, CTNode, 36);
 
-    virtual void   SetXRefCI(long Id, bool On, LPCTSTR Text=NULL)  
-      { 
-      if (Text) 
+    virtual void   SetXRefCI(long Id, bool On, LPCTSTR Text=NULL)
+      {
+      if (Text)
         {
         if (On)
-          SetCI(Id+26, "%s", Text); 
+          SetCI(Id+26, "%s", Text);
         else
-          ClrCI(Id+26); 
+          ClrCI(Id+26);
         }
-      else 
-        SetCI(Id+26, On); 
+      else
+        SetCI(Id+26, On);
       };
 
 #if NDSTOPWATCHES
@@ -4178,7 +4178,7 @@ class DllImportExport FlwNode : public CTNode
                    fEvalPressSensReqd, // Must Call EvalPressSens if set
                    fSolutionForRoot,
                    fElecConnsDone;
-    
+
     int            m_nJoins, m_nRqdJoins;
     int            m_nLinks, m_nRqdLinks;
     int            m_nProcessJoins;
@@ -4189,7 +4189,7 @@ class DllImportExport FlwNode : public CTNode
     int            m_nFIOs;
     int            m_nProcLnkIOs;
     int            m_nProcessIOs;
-    
+
     int            m_nProcDirectIOs;
     int            m_nMkupDirectIOs;
 
@@ -4208,7 +4208,7 @@ class DllImportExport FlwNode : public CTNode
     long           NoProcDirectIOs()      { return m_nProcDirectIOs; };
     long           NoRealDirectIOs()      { return m_nProcDirectIOs+m_nMkupDirectIOs; };
     long           NoAuditDirectIOs()     { return m_EnabledDirectIOs.GetCount()-m_nProcDirectIOs-m_nMkupDirectIOs; };
-    
+
     long           FirstProcDirect()      { return 0; };
     long           FirstMkupDirect()      { return m_nProcDirectIOs; };
     long           LastMkupDirect()       { return m_nProcDirectIOs+m_nMkupDirectIOs-1; };
@@ -4497,7 +4497,7 @@ inline CLinkRec     * CJoinRec::Link(int c)              { return &pNd->m_Links[
 inline CPressBlk    * CJoinRec::LinkPB_Self(int c)       { CLinkRec & L=Nd()->m_Links[LinkNo(c)]; return &L.PB(L.m_iJoinId0==m_iJoinId ? 0 : 1); };
 inline CPressBlk    * CJoinRec::LinkPB_Rmt(int c)        { CLinkRec & L=Nd()->m_Links[LinkNo(c)]; return &L.PB(L.m_iJoinId0==m_iJoinId ? 1 : 0); };
 
-inline int            CJoinRec::NFBs(int c)              { return m_Conns[c].m_pFBs->GetSize(); }; 
+inline int            CJoinRec::NFBs(int c)              { return m_Conns[c].m_pFBs->GetSize(); };
 inline FlwBlk       * CJoinRec::FB(int c, int fe)        { return &(*m_Conns[c].m_pFBs)[fe]; };
 
 inline FlwBlk       * CJoinRec::FB_Self(int c)           { return IsIO(c) ? IOFBJoin(c) : LinkFB(c); }
