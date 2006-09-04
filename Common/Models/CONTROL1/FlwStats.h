@@ -46,6 +46,7 @@ class FlwStatInfo : public CXRefStatus
     byte       iType;
 
     Strng      sTagSuffix;
+    Strng      sDesc;
     double     dMeasQm;
     double     dTtlTime;
     double     dZeroTime;

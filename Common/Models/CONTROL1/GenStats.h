@@ -42,6 +42,7 @@ class GenStatInfo : public CXRefStatus
     long       iPriority;
 
     Strng      sTagSuffix;
+    Strng      sDesc;
     double     dMeas;
     double     dTtlTime;
     double     dZeroTime;

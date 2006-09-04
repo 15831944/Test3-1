@@ -261,7 +261,7 @@ const word idmCheckBtn  = 1001;
 const word idmResetBtn  = 1002;
 const word idmCfgTags   = 1100;
 
-const word NoOfCfgTags = 10;
+const word NoOfCfgTags = 12;
 
 //--------------------------------------------------------------------------
 
@@ -314,6 +314,7 @@ void CFlowStats::BuildDataDefn(DataDefnBlk & DDB)
       DDB.BeginElement(this, i);
       FlwStatInfo* p = DataBlk[i];
       //DDB.String("Name",             "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+0, this, isParmStopped); not needed?
+      DDB.String("Description",      "Desc",      DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+10, this, isParm);
       DDB.Byte  ("Type",             "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+1, this, isParmStopped, DDBFlwStatsWhat); //type MUST be before tag, etc
       DDB.String("QmTag",            "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+2, this, isParmStopped|isTag);
       DDB.Button("Reset_Stats",      "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+3, this, isParm);
@@ -470,6 +471,13 @@ flag CFlowStats::DataXchg(DataChangeBlk & DCB)
               //  xxx = *DCB.rD;
               DCB.D = p->dTotalMassL/GTZ(p->dTtlTime);
               break;
+            case 10:
+              {
+              if (DCB.rpC)
+                p->sDesc = DCB.rpC;
+              DCB.pC = p->sDesc();
+              break;
+              }
             }
           }
         return True;

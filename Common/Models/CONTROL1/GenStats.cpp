@@ -252,6 +252,7 @@ void CGenStats::BuildDataDefn(DataDefnBlk & DDB)
       if (bWithCnvComment && XRefsValid() && p->bValid)
         GetValidCnvTxt(p->m_MeasVar, CnvTxt);
       //DDB.String("Name",             "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+0, this, isParmStopped); not needed?
+      DDB.String("Description",      "Desc",      DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+7, this, isParm);
       DDB.String("StatTag",          "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+2, this, isParmStopped|isTag);
       DDB.Button("Reset_Stats",      "",          DC_,     "",      idmCfgTags+(i*NoOfCfgTags)+3, this, isParm);
       DDB.Double("Time",             "Tm",        DC_Time, "s",     &(p->dTtlTime),   this, isResult);
@@ -373,6 +374,13 @@ flag CGenStats::DataXchg(DataChangeBlk & DCB)
               //  xxx = *DCB.rD;
               DCB.D = p->dTotal/GTZ(p->dTtlTime - p->dZeroTime);
               break;
+            case 7:
+              {
+              if (DCB.rpC)
+                p->sDesc = DCB.rpC;
+              DCB.pC = p->sDesc();
+              break;
+              }
             }
           }
         return True;
