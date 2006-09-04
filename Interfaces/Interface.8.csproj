@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Interface</RootNamespace>
+    <AssemblyName>Interface</AssemblyName>
+    <StartupObject>
+    </StartupObject>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Marshal|AnyCPU' ">
+    <OutputPath>bin\Release Marshal\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|AnyCPU' ">
+    <OutputPath>bin\Distribution\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup>
+    <Compile Include="Anchor.cs" />
+    <Compile Include="Arc.cs" />
+    <Compile Include="BaseAccessItem.cs" />
+    <Compile Include="BaseAccessItemConverter.cs" />
+    <Compile Include="BaseGraphic.cs" />
+    <Compile Include="BaseModel.cs" />
+    <Compile Include="Bezier.cs" />
+    <Compile Include="BranchAccessItem.cs" />
+    <Compile Include="BranchAccessItemConverter.cs" />
+    <Compile Include="BranchAccessItemProperty.cs" />
+    <Compile Include="BranchAccessItemPropertyDescriptor.cs" />
+    <Compile Include="ClientGraphic.cs" />
+    <Compile Include="Element.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="FloatAccessItem.cs" />
+    <Compile Include="GraphicItem.cs" />
+    <Compile Include="GraphicStencil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Line.cs" />
+    <Compile Include="GraphicLink.cs" />
+    <Compile Include="Model.cs" />
+    <Compile Include="ModelItem.cs" />
+    <Compile Include="ModelItemProperty.cs" />
+    <Compile Include="ModelItemPropertyDescriptor.cs" />
+    <Compile Include="ModelLink.cs" />
+    <Compile Include="ModelStencil.cs" />
+    <Compile Include="ARectangleF.cs" />
+    <Compile Include="ARectangleFConverter.cs" />
+    <Compile Include="OldGraphicStencil.cs" />
+    <Compile Include="PortStatus.cs" />
+    <Compile Include="ServiceGraphic.cs" />
+    <Compile Include="Stencil.cs" />
+    <Compile Include="StencilConverter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+</Project>
