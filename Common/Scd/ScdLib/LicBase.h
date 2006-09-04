@@ -33,10 +33,17 @@ const int CK_Demo_ProbalUnits     = 25;    //no of units (nodes, not links) allo
 const int CK_Demo_DynUnits        = 10;    //no of units (nodes, not links) allowed in demo mode
 const int CK_Lite_ProbalUnits     = 50;    //no of units allowed for "probal testing" with Full Dynamic license
 const int CK_Lite_DynUnits        = 20;    //no of units allowed for "dynamic testing" with Full ProBal license
+
 const int CK_Trial_ProbalUnits    = 200;   //no of units allowed while trial license has been issued
 const int CK_Trial_DynUnits       = 50;    //no of units allowed while trial license has been issued
+#if CURTIN_ACADEMIC_LICENSE
+const int CK_Academic_ProbalUnits = 800;   //no of units allowed while Academic license has been issued
+const int CK_Academic_DynUnits    = 20;    //no of units allowed while Academic license has been issued
+#else
+const int CK_Academic_ProbalUnits = 600;   //no of units allowed while Academic license has been issued
 const int CK_Academic_DynUnits    = 200;   //no of units allowed while Academic license has been issued
-const int CK_Academic_ProbalUnits = 500;   //no of units allowed while Academic license has been issued
+#endif
+
 //historian...
 const long CK_DemoHistSize        = 640;   //max historian data file size (multiple of 64kb) in demo mode
 const long CK_TrialHistSize       = 2048;  //max historian data file size (multiple of 64kb) for trial license
@@ -86,7 +93,7 @@ class DllImportExport CLicense
     CLicense();
     virtual ~CLicense();
     int             Init(char* path = NULL, char* ProgFiles=NULL);
-#if ACADEMICLICENSE
+#if CURTIN_ACADEMIC_LICENSE
     BOOL            InitFromScdLicense();
 #endif
     int             CheckLicenseVersionOK(LPCTSTR SysCADEXEPath);
@@ -134,10 +141,12 @@ class DllImportExport CLicense
     inline DWORD    OpLevel()           { return m_State.m_dwOpLevel; };
     inline BOOL     Licensed()          { return m_State.m_bLicensed; };
     inline BOOL     MultiUserFailure()  { return m_State.m_bMultiUserFailure; };
-#if ACADEMICLICENSE
+#if CURTIN_ACADEMIC_LICENSE
+    inline BOOL     HashDefineCurtin()  { return true; };
     inline BOOL     AcademicMode()      { return m_State.m_bAcademicMode; };
     inline LPCTSTR  AcademicName()      { return m_sAcademicName; };
 #else
+    inline BOOL     HashDefineCurtin(){ return false; };
     inline BOOL     AcademicMode()      { return false; };
     inline LPCTSTR  AcademicName()      { return ""; };
 #endif
@@ -161,7 +170,7 @@ class DllImportExport CLicense
     int     m_iDaysLeft;        //number of days left for license (CK_InfiniteDays = infinite)
     BOOL    m_bDidInitCrypkey;  //true if CrypKey was initialized properly
     CString m_sProgFiles;       //path of binaries
-#if ACADEMICLICENSE
+#if CURTIN_ACADEMIC_LICENSE
     CString m_sLicFile;         //SysCAD license file
     CString m_sAcademicName;
 #endif

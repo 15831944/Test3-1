@@ -8,7 +8,7 @@
 //  License Options
 //===========================================================================
 
-#define ACADEMICLICENSE         0
+#define CURTIN_ACADEMIC_LICENSE 0
 #define FORCEMINESERVE          0 
 
 #if (FORCEMINESERVE)

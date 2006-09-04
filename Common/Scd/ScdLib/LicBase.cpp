@@ -170,7 +170,7 @@ char* CK_LevelNames[4] =
 //
 //===========================================================================
 
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
 const int MaxMACs=2;
 const int MaxDsks=2;
 CTime s_FromDate( 2006,  8,  1, 0, 0, 0);
@@ -414,7 +414,7 @@ ErrRet:
   return FALSE;
   }
 
-#endif /*ACADEMICLICENSE*/
+#endif /*CURTIN_ACADEMIC_LICENSE*/
 
 //===========================================================================
 //
@@ -505,7 +505,7 @@ LPTSTR ExplainErr(int Func, int err)              { return "Explanation"; };
 
 int MyGetOption(int No, int Index)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     {
     _asm int 3;
@@ -521,7 +521,7 @@ int MyGetOption(int No, int Index)
 
 int MyGetAuthorization(long * dwOpLevel, int dec)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     {
     _asm int 3;
@@ -550,7 +550,7 @@ ULONG MyCKChallenge32(ULONG random1, ULONG random2)
 
 LPTSTR MyExplainErr(int Func, int err)              
   { 
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     {
     _asm int 3;
@@ -566,7 +566,7 @@ LPTSTR MyExplainErr(int Func, int err)
 
 int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, int * num_used)
   { 
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     {
     *authopt = 0;
@@ -593,7 +593,7 @@ int MyGetRestrictionInfo(int * authopt, ULONG * start_date, int * num_allowed, i
 
 int MyGet1RestInfo(int X)
   { 
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     {
     return 0;
@@ -608,7 +608,7 @@ int MyGet1RestInfo(int X)
 
 int MyGetNumMultiUsers()
   { 
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 1;
 #endif
@@ -621,7 +621,7 @@ int MyGetNumMultiUsers()
 
 ULONG MyGetLevel(int NoLevels)  
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 1;
 #endif
@@ -634,7 +634,7 @@ ULONG MyGetLevel(int NoLevels)
 
 ULONG MyGetNumCopies()  
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 1;
 #endif
@@ -647,7 +647,7 @@ ULONG MyGetNumCopies()
 
 int MyCrypKeyVersion()  
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return -1;
   else
@@ -716,7 +716,7 @@ int MyEndCrypkey()
   };
 int MyReadyToTry(unsigned long authlevel, int numDays)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 1;
 #endif
@@ -732,7 +732,7 @@ int MyReadyToTry(unsigned long authlevel, int numDays)
   };
 int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copies)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 100;
 #endif
@@ -748,7 +748,7 @@ int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copi
   };
 int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copies)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 100;
 #endif
@@ -764,7 +764,7 @@ int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copi
   };
 int MyRegisterTransfer(char far *target)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 0;
 #endif
@@ -780,7 +780,7 @@ int MyRegisterTransfer(char far *target)
   };
 int MySaveSiteKey(char far *sitekey)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 0;
 #endif
@@ -813,7 +813,7 @@ int MyDirectTransfer(char far *target)
 
 void MySetNetHandle(unsigned short net_handle)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return ;
 #endif
@@ -830,7 +830,7 @@ void MySetNetHandle(unsigned short net_handle)
   };
 int MyTransferIn(char far *target)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 0;
 #endif
@@ -846,7 +846,7 @@ int MyTransferIn(char far *target)
   };
 int MyTransferOut(char far *target)
   {
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return 0;
 #endif
@@ -1487,7 +1487,7 @@ BOOL CLicense::Init(char* PathIn /*=NULL*/, char* ProgFiles/*=NULL*/)
   CStackTimer TM("Init");
   CWaitCursor Wait;
 #if !BYPASSLICENSING
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (ProgFiles)
     {
     m_sProgFiles=ProgFiles;
@@ -1507,7 +1507,7 @@ BOOL CLicense::Init(char* PathIn /*=NULL*/, char* ProgFiles/*=NULL*/)
     return LicInit_GoDemo;
     }
 
-#endif /*ACADEMICLICENSE*/
+#endif /*CURTIN_ACADEMIC_LICENSE*/
   if (m_bDidInitCrypkey)
     {
     MyEndCrypkey();
@@ -1817,7 +1817,7 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
   {
   CStackTimer TM("QuickCheck");
-#if ACADEMICLICENSE 
+#if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
     return TRUE;
 #endif
@@ -2147,7 +2147,7 @@ ReTry:
 
 void CLicense::SetUseCOM(bool On)
   {
-  #if ACADEMICLICENSE
+  #if CURTIN_ACADEMIC_LICENSE
   m_bUseCOM=false; //do not allow developer license with academic license
   #else
   if (!m_bDidInitCrypkey)
@@ -3002,10 +3002,14 @@ BOOL CLicenseInfoDlg::OnInitDialog()
     sprintf(Buff, "Time Restrictions : None (using SysCAD Demo Mode)");
   else
     {
+    #if CURTIN_ACADEMIC_LICENSE 
+    sprintf(Buff, "Time Restrictions : Using Academic License");
+    #else
     if (MyGet1RestInfo(1)==0)
       sprintf(Buff, "Time Restrictions : None");
     else
       sprintf(Buff, "Time Restrictions : No of days allowed:%d  No of days used:%d", MyGet1RestInfo(2), MyGet1RestInfo(3));
+    #endif
     }
   SetDlgItemText(IDC_CK_TXT_TIME, Buff);
   int iLast=0;
@@ -3049,7 +3053,11 @@ BOOL CLicenseInfoDlg::OnInitDialog()
     sprintf(Buff, "%s level", CK_LevelNames[gs_License.Level()]);
   SetDlgItemText(IDC_CK_TXT_LEVEL, Buff);
   CString LicUserVer;
+  #if CURTIN_ACADEMIC_LICENSE 
+  LicUserVer = "Curtin Academic License";
+  #else
   LicUserVer = (gs_License.DemoMode() || MyGetNumMultiUsers()==0) ? "Stand Alone License" : "Multi-User Network License";
+  #endif
   SetDlgItemText(IDC_CK_TXT_STANDALONE, (const char*)LicUserVer);
   sprintf(Buff, "Location: %s", gs_License.GetAppPath());
   SetDlgItemText(IDC_CK_TXT_LOCATION, Buff);
@@ -3174,7 +3182,7 @@ DWORD CSysCADLicense::GetAcademicOptions()
   //standard options...
   Opt.m_Opts.Mode_ProBal            = 1;
   Opt.m_Opts.Mode_DynamicFlow       = 1;
-  Opt.m_Opts.Mode_DynamicFull       = 1;
+  Opt.m_Opts.Mode_DynamicFull       = 0;
   Opt.m_Opts.Mode_Electrical        = 0;
   //Opt.m_Opts.Only_SteadyState       = 0;
   Opt.m_Opts.Func_FullEdit          = 1;
@@ -3185,7 +3193,7 @@ DWORD CSysCADLicense::GetAcademicOptions()
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical        = 0;
   Opt.m_Opts.Mdls_SMDKRuntime       = 1;
-  Opt.m_Opts.Mdls_HeatExtra         = 0;
+  Opt.m_Opts.Mdls_HeatExtra         = 1;
   Opt.m_Opts.Mdls_HeatBal           = 1;
   Opt.m_Opts.Mdls_Alumina           = 0;
   Opt.m_Opts.Mdls_SizeDist          = 1;
@@ -3194,7 +3202,7 @@ DWORD CSysCADLicense::GetAcademicOptions()
   //Opt.m_Opts.xOld_Probal            = 0;
   //Opt.m_Opts.xOld_Dynamic82         = 0;
   //Opt.m_Opts.xOld_Probal82          = 0;
-  Opt.m_Opts.Client_Other           = 1;
+  Opt.m_Opts.Client_Other           = 0;
 
   return Opt.m_OpLevel;
   }

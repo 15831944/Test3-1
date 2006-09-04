@@ -1130,12 +1130,17 @@ BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
         gs_License.SetDemoMode();
         }
       }
+    if (gs_License.HashDefineCurtin())
+      LogNote("License", 0, "Using Curtin University Academic License.");
+    else
+      {
       if (gs_License.DaysLeft()<=CK_WarnDays)
         LogWarning("License", gs_License.DaysLeft()<=CK_UrgentWarnDays ? 0|LF_Exclamation : 0, "License (%s) expires in %d days.   [ %s ]", LicDesc(), gs_License.DaysLeft(), LicUserVer());
       else if (gs_License.DaysLeft()!=CK_InfiniteDays)
         LogNote("License", 0, "License (%s) expires in %d days.   [ %s ]", LicDesc(), gs_License.DaysLeft(), LicUserVer());
       else
         LogNote("License", 0, "License (%s) OK.  [ %s ]", LicDesc(), LicUserVer());
+      }
     }
   if (m_CLH.bForceDemo)
     gs_License.SetDemoMode();
@@ -1147,6 +1152,10 @@ BOOL CSysCADApp::InitInstLicense2(int LicenseRet)
       LogNote("License", 0, "Using SysCAD in Demo Mode");
     else
       LogError("License", 0, "Licensing Service Initialise Failed, SysCAD set to Demo Mode!");
+    }
+  else if (gs_License.HashDefineCurtin())
+    {
+    LogNote("License", 0, "Using Curtin University Academic License.");
     }
   if (gs_License.IsRunTime())
     ((CMainFrame*)gs_SysCADApp.m_pMainWnd)->UpdateMainToolBar();
@@ -3264,7 +3273,8 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
         }
       else if (Option=="/dev")
         {
-        bDeveloper = 1;
+        if (!gs_License.HashDefineCurtin())
+          bDeveloper = 1; //only allow developer mode if NOT Academic license
         }
       else if (OptLft2=="/d")
         {
