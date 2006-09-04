@@ -3054,9 +3054,12 @@ BOOL CLicenseInfoDlg::OnInitDialog()
   SetDlgItemText(IDC_CK_TXT_LEVEL, Buff);
   CString LicUserVer;
   #if CURTIN_ACADEMIC_LICENSE 
-  LicUserVer = "Curtin Academic License";
+  if (gs_License.DemoMode())
+    LicUserVer = "Stand Alone License";
+  else
+    LicUserVer = "Curtin Academic License";
   #else
-  LicUserVer = (gs_License.DemoMode() || MyGetNumMultiUsers()==0) ? "Stand Alone License" : "Multi-User Network License";
+    LicUserVer = (gs_License.DemoMode() || MyGetNumMultiUsers()==0) ? "Stand Alone License" : "Multi-User Network License";
   #endif
   SetDlgItemText(IDC_CK_TXT_STANDALONE, (const char*)LicUserVer);
   sprintf(Buff, "Location: %s", gs_License.GetAppPath());

@@ -7,6 +7,7 @@
 //===========================================================================
 //  License Options
 //===========================================================================
+/* KGA: Moved options below to licbase.h because any #define changes do NOT appear to affect dependincies!!!
 
 #define CURTIN_ACADEMIC_LICENSE 0
 #define FORCEMINESERVE          0 
@@ -56,7 +57,7 @@
 #undef  ALSOALLOWMINESERVEMDLS
 #define ALSOALLOWMINESERVEMDLS  0
 #endif
-
+*/
 //===========================================================================
 //
 //===========================================================================

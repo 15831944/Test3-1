@@ -1,12 +1,64 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
 //===========================================================================
-
 #ifndef __LICBASE_H
 #define __LICBASE_H
 
 #include "scdver.h"
 
+//----------------------------------
+#define CURTIN_ACADEMIC_LICENSE 0
+#define FORCEMINESERVE          0 
+
+//----------------------------------
+#if (FORCEMINESERVE)
+// (1) for mineserv debug only
+#define ALSOALLOWMINESERVEMDLS  0
+#define ALLOWCNMVERSION         01
+//----------------------------------
+
+#elif (_MSC_VER>=1400)
+// (2) for VS2005
+#define ALSOALLOWMINESERVEMDLS  0
+#ifdef _DEBUG
+#define BYPASSLICENSING         01
+#elif  _RELEASE
+#define BYPASSLICENSING         01
+#else
+#define BYPASSLICENSING         01
+#endif
+#define ALLOWCNMVERSION         01
+//----------------------------------
+
+#else
+// (3) for VS2003
+#define ALSOALLOWMINESERVEMDLS  0
+#ifdef _DEBUG
+#define BYPASSLICENSING         0
+#elif  _RELEASE
+#define BYPASSLICENSING         0
+#else
+#define BYPASSLICENSING         0
+#endif
+#define ALLOWCNMVERSION         01
+
+#endif
+
+//===========================================================================
+//=== Override for Distribution version ===
+#ifdef DISTRIBUTION
+#undef  BYPASSLICENSING  
+#define BYPASSLICENSING         0
+#undef  ALLOWCNMVERSION 
+#define ALLOWCNMVERSION         0
+#undef  ALSOALLOWMINESERVEMDLS
+#define ALSOALLOWMINESERVEMDLS  0
+#endif
+//===========================================================================
+//===========================================================================
+//===========================================================================
+
+//Leave CK_LICENSINGON as 1, rather use BYPASSLICENSING to bypass crypkey licensing 
 #define CK_LICENSINGON    1
 
 #if CK_LICENSINGON
