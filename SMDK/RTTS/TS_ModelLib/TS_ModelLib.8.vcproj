@@ -38,7 +38,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
+				PreprocessorDefinitions="SYSCAD10;_DEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\TS;..\RioTintoTS;..\..\Include;..\boost_1_31_0"
-				PreprocessorDefinitions="_DEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;_DEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -71,7 +71,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
+				PreprocessorDefinitions="SYSCAD10;_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
+				PreprocessorDefinitions="SYSCAD10;NDEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
@@ -149,7 +149,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\TS;..\RioTintoTS;..\..\Include;..\boost_1_31_0"
-				PreprocessorDefinitions="NDEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;NDEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
+				PreprocessorDefinitions="SYSCAD10;NDEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -236,7 +236,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
+				PreprocessorDefinitions="SYSCAD10;NDEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
@@ -250,7 +250,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\TS;..\RioTintoTS;..\..\Include;..\boost_1_31_0"
-				PreprocessorDefinitions="_RELEASE;NDEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;_RELEASE;NDEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -272,7 +272,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
+				PreprocessorDefinitions="SYSCAD10;NDEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -333,7 +333,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="SYSCAD10;"
 						BasicRuntimeChecks="3"
 						UsePrecompiledHeader="1"
 						BrowseInformation="1"
@@ -346,7 +346,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="SYSCAD10;"
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
@@ -357,7 +357,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="SYSCAD10;"
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
@@ -435,7 +435,7 @@
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
+							PreprocessorDefinitions="SYSCAD10;"
 							BasicRuntimeChecks="3"
 							BrowseInformation="1"
 						/>
@@ -447,7 +447,7 @@
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
+							PreprocessorDefinitions="SYSCAD10;"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -457,7 +457,7 @@
 							Name="VCCLCompilerTool"
 							Optimization="2"
 							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
+							PreprocessorDefinitions="SYSCAD10;"
 						/>
 					</FileConfiguration>
 				</File>
