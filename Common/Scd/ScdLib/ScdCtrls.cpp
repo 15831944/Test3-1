@@ -474,21 +474,23 @@ void ScdCtrls_Entry()
 void SetVisibleWindowPos(CWnd* pWnd, int xPos, int yPos, int Width, int Height, bool AsFloating)
   {//ensure window is visible, not off edge of screen because of change in resolution...
 
-  int CXSize = GetSystemMetrics(SM_CXVIRTUALSCREEN);//SM_CXSIZE);
-  int CYSize = GetSystemMetrics(SM_CYVIRTUALSCREEN);//SM_CYSIZE);
+  int CXSize = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+  int CYSize = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+  if (Width<=0)
+    {
+    CRect WRct;
+    pWnd->GetWindowRect(&WRct);
+    Width  = WRct.Width();
+    Height = WRct.Height();
+    }
 
   if (AsFloating)
     {
-    const int MaxX = CXSize - (Width + 1);
-    const int MaxY = CYSize - (Height + 1);
-    if (xPos>=MaxX)
-      xPos = MaxX;
-    if (xPos<0)
-      xPos = 0;
-    if (yPos>=MaxY)
-      yPos = MaxY;
-    if (yPos<0)
-      yPos = 0;
+    const int xMax = CXSize - (Width + 1);
+    const int yMax = CYSize - (Height + 1);
+    xPos=Range(0, xPos, xMax);
+    yPos=Range(0, yPos, yMax);
 
     pWnd->SetWindowPos(NULL, xPos, yPos, Width, Height, 
       ((Width>0) ? 0 : SWP_NOSIZE) | SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -497,26 +499,17 @@ void SetVisibleWindowPos(CWnd* pWnd, int xPos, int yPos, int Width, int Height, 
     {
     CRect CR;
     AfxGetMainWnd()->GetClientRect(&CR); //get area of MDI framework client window
+    AfxGetMainWnd()->ClientToScreen(&CR); 
 
-    if (Width>0)
-      {
-      CR.right=Width;
-      CR.bottom=Height;
-      }
-
-    const int MaxX = CR.right - 1;
-    const int MaxY = CR.bottom - 1;
-    const int XExtra = 60;
-    const int YExtra = 20;
-    if (xPos>=MaxX)
-      xPos = MaxX - GetSystemMetrics(SM_CXSIZE) - XExtra;
-    if (xPos<-XExtra)
-      xPos = 0;
-    if (yPos>=MaxY)
-      yPos = MaxY - GetSystemMetrics(SM_CYSIZE) - YExtra;
-    if (yPos<-YExtra)
-      yPos = 0;
-    pWnd->SetWindowPos(NULL, xPos, yPos, CR.Width(), CR.Height(), 
+    const int xMin = CR.left + 1;
+    const int yMin = CR.top + 1;
+    const int xMax = CR.right - (Width+1);
+    const int yMax = CR.bottom - (Height+1);
+    const int xExtra = 60;
+    const int yExtra = 20;
+    xPos = Range(xMin+xExtra, xPos, xMax-xExtra);
+    yPos = Range(yMin+yExtra, yPos, yMax-yExtra);
+    pWnd->SetWindowPos(NULL, xPos, yPos, Width, Height, //CR.Width(), CR.Height(), 
       ((Width>0) ? 0 : SWP_NOSIZE) | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
   }
