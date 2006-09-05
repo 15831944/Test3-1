@@ -453,8 +453,18 @@ void CExploreScd::RestorePos()
 
   if (xPos<=-10000)
     {
+    CRect Rct;
+    GetParent()->GetClientRect(&Rct);
+    GetParent()->ClientToScreen(&Rct);
     xPos=Rct.left;
     yPos=Rct.top+50;
+    //CWnd * p=ScdMainWnd()->GetWindow(GW_HWNDFIRST);
+    //while (p)
+    //  {
+    //  int pppp=0;
+    //  //if (dynamic_cast<
+    //  p=p->GetWindow(GW_HWNDNEXT);
+    //  }
     }
   SetWindowPos(NULL, 0,0, 1,1 , SWP_NOREPOSITION | SWP_NOZORDER | SWP_SHOWWINDOW); // set size small to force an OnSize
   SetVisibleWindowPos(this, xPos, yPos, CW, CH, true);
@@ -2211,7 +2221,8 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
   HTI.pt.y = pts.y;
   m_Tree.ScreenToClient(&HTI.pt);
   HTREEITEM hSel=NULL;
-  if (m_Tree.HitTest(&HTI) && ((HTI.flags & TVHT_ONITEM) || (HTI.flags & TVHT_ONITEMRIGHT) || (HTI.flags & TVHT_ONITEMLABEL)))
+  //if (m_Tree.HitTest(&HTI) && ((HTI.flags & TVHT_ONITEM) || (HTI.flags & TVHT_ONITEMRIGHT) || (HTI.flags & TVHT_ONITEMLABEL)))
+  if (m_Tree.HitTest(&HTI) && (HTI.flags & TVHT_ONITEM|TVHT_ONITEMRIGHT|TVHT_ONITEMLABEL|TVHT_TOLEFT|TVHT_TORIGHT))
     hSel=HTI.hItem;
   //HTREEITEM hSel = m_Tree.GetSelectedItem();
   if (hSel)
@@ -2298,7 +2309,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           Menu.AppendMenu(MF_SEPARATOR, 100);
           Menu.AppendMenu(MF_STRING, 101, "New");
           Menu.AppendMenu(MF_STRING, 102, "Rename");
-          Menu.AppendMenu(MF_STRING, 103, "Delete");
+          //Menu.AppendMenu(MF_STRING, 103, "Delete");
           Menu.AppendMenu(MF_SEPARATOR, 100);
           Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
           Menu.AppendMenu(MF_SEPARATOR, 100);
@@ -2352,7 +2363,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         Menu.AppendMenu(MF_SEPARATOR, 100);
         Menu.AppendMenu(MF_STRING, 101, "New");
         Menu.AppendMenu(MF_STRING|MF_GRAYED, 102, "Rename");
-        Menu.AppendMenu(MF_STRING|MF_GRAYED, 103, "Delete");
+        //Menu.AppendMenu(MF_STRING|MF_GRAYED, 103, "Delete");
         Menu.AppendMenu(MF_SEPARATOR, 100);
         Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
 

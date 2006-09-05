@@ -7589,6 +7589,13 @@ flag CProject::OnNew()
 #endif
         OpenArcManager(true);
         OpenIOMarshal();
+        
+        if (CExploreScd::UseScdExplorer())
+          CExploreScd::OpenIt();
+        else
+          CExploreScd::CloseIt();
+
+
         MainWnd()->DefaultToolBar(-1, TRUE);
 
         //if (DefNetMode()==NM_Probal)
