@@ -18,11 +18,13 @@
 #include "sp_db.h"
 #include "grfdoc.h"
 #include "nrecipe.h"
+#include "tknpars.h"
 //#include "optoff.h"
 
 const char* OleReportListKey          = "SysCAD_TagList(";
 const char* OleReportListOffsetKey    = "SysCAD_TagListOffset(";
 const char* OleReportKey              = "SysCAD_Tags(";
+const char* OleReportAutoKey          = "SysCAD_AutoTags(";
 const char* OleReportCommonKey        = "SysCAD_Tag";
 const char* OleReportOtherKey         = "SysCAD_Reports";
 const char* OleReportTrendKey         = "TrendReport";
@@ -582,8 +584,18 @@ CExcelReport::CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook)
   bSecVert = 0;
   bIsTagList = 0;
   bIsTagOffsetList = 0;
+  bIsAutoTags = 0;
   iTagFoundCnt = 0;
   pWkBook = WkBook;
+  m_TGs.SetSize(0, 256);
+  }
+
+//---------------------------------------------------------------------------
+
+CExcelReport::~CExcelReport()
+  {
+  for (int i=0; i<m_TGs.GetCount(); i++)
+    delete m_TGs[i];
   }
 
 //---------------------------------------------------------------------------
@@ -641,7 +653,7 @@ int CExcelReport::ParseFn(char* Func)
   sName = f[1];
   sName.Trim("\n\r\t \"\'");
   bPriVert = (!(f[2][0]=='H' || f[2][0]=='h'));
-  iSecMult = (!bIsTagList && nParms>=5 && strlen(f[5])>0) ? atoi(f[5]) : 1;
+  iSecMult = (!bIsTagList && !bIsAutoTags && nParms>=5 && strlen(f[5])>0) ? atoi(f[5]) : 1;
   bResVert = bPriVert;
   bSecVert = (bPriVert ? 0 : 1);
   if (bIsTagList)
@@ -665,6 +677,17 @@ int CExcelReport::ParseFn(char* Func)
   iPriMaxLen = iPriLen;
   iSecMaxLen = iSecLen;
   sNan = (bIsTagList ? (nParms>3 ? f[4] : "*") : (nParms>4 ? f[5] : "*"));
+  sNan.LRTrim();
+  if (sNan.GetLength()==0)
+    sNan="*";
+  if (bIsAutoTags)
+    {
+    int iFn = bIsTagList ? 5 : 6;
+    if (iFn <= nParms && strnicmp(f[iFn], "select", 6)==0)
+      m_sSelect = f[iFn++];
+    if (iFn <= nParms && strnicmp(f[iFn], "orderby", 7)==0)
+      m_sOrder = f[iFn++];
+    }
   return 0;
   }
 
@@ -761,6 +784,499 @@ long CExcelReport::GetTags(CSVector& Tags, CCellLocation& Loc, short Len, short 
 
 //---------------------------------------------------------------------------
 
+void CExcelReport::GetTagPages(CModelTypeListArray& List)
+  {
+  if (gs_pPrj->AllGrfLoaded())
+    {
+    int N=0;
+    for (int j=0; j<List.GetSize(); j++)
+      N+=List[j]->GetSize();
+
+    m_TGMap.InitHashTable(FindNextPrimeNumber(N));
+
+    for (int j=0; j<List.GetSize(); j++)
+      {
+      CModelTypeList* pTagList = List[j];
+      for (int k=0; k<pTagList->GetSize(); k++)
+        {
+        Strng Tag(pTagList->GetTagAt(k));
+        Tag.Lower();
+        CTagGraphics * pTG=new CTagGraphics(Tag());
+        m_TGs.Add(pTG);
+        m_TGMap.SetAt(pTG->m_sTag, pTG);
+        }
+      }
+    
+    for (int iTmpl=iGraphTemplate; iTmpl<=iVisioTemplate; iTmpl++)
+      {
+      if (ScdApp()->TemplateExists(iTmpl))
+        {
+        POSITION Pos = ScdApp()->Template(iTmpl).GetFirstDocPosition();
+        while (Pos)
+          {
+          CGrfDoc* pGDoc = (CGrfDoc*)(ScdApp()->Template(iTmpl).GetNextDoc(Pos));
+          CString GrfTitle((LPCTSTR)(pGDoc->GetTitle()));
+          while (GrfTitle.GetLength()>4 && GrfTitle.Right(4).CompareNoCase(".scg")==0)
+            GrfTitle.Delete(GrfTitle.GetLength()-4,4);
+
+          Strng_List GrfTagList;
+          int NGrfTags = pGDoc->GetTagList(GrfTagList);
+          for (Strng * pTagLst=GrfTagList.First(); pTagLst; pTagLst=GrfTagList.Next())
+            {
+            CTagGraphics *pTG;
+            pTagLst->Lower();
+            if (m_TGMap.Lookup((LPCTSTR)pTagLst->Str(), pTG))
+              pTG->AddGraphic(GrfTitle);
+            }
+          }
+        }
+      }
+    
+    if (1)
+      {
+      for (int i=0; i<m_TGs.GetCount(); i++)
+        {
+        dbgp("%-25s", m_TGs[i]->m_sTag);
+        for (int j=0; j<m_TGs[i]->m_GrfTitles.GetCount(); j++)
+          dbgp("%-25s", m_TGs[i]->m_GrfTitles[j]);
+        dbgpln("");
+        }
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+enum eLclCmps { LclCmp_LT, LclCmp_LE, LclCmp_EQ, LclCmp_NE, LclCmp_GE, LclCmp_GT, LclCmp_Bad };
+LPCTSTR Cmps[] = { "<", "<=", "=", "<>", ">=", ">", NULL };
+LPCTSTR GraphicFldName = "Graphic";
+
+static eLclCmps FindCmp(LPCTSTR Cmp)
+  {
+  for (eLclCmps iCmp=LclCmp_LT; iCmp<=LclCmp_GT; iCmp=(eLclCmps)(iCmp+1))
+    if (stricmp(Cmp, Cmps[iCmp])==0)
+      return iCmp;
+  return LclCmp_Bad;
+  }
+
+BOOL CExcelReport::TagCmpOK(LPTSTR Tag, LPTSTR Field, LPTSTR Cmp, LPTSTR Value)
+  {
+  COleReportMngr& M = *pMngr;
+  Strng WrkTag, WrkField, WrkCnvTxt;
+  TaggedObject::SplitTagCnv(Field, WrkField, WrkCnvTxt);
+  if (WrkField.Len()>0)
+    {
+    if (WrkField.XStrICmp(GraphicFldName)==0)
+      {
+      CString LTag(Tag);
+      LTag.MakeLower();
+      CTagGraphics * pTG;
+      if (m_TGMap.Lookup(LTag, pTG))
+        {
+        eLclCmps iCmp=FindCmp(Cmp);
+
+        if (iCmp!=LclCmp_Bad)
+          {
+          BOOL Found=false;
+          for (int i=0; !Found && i<pTG->m_GrfTitles.GetCount(); i++)
+            Found=pTG->m_GrfTitles[i].CompareNoCase(Value)==0;
+
+          switch (iCmp)
+            {
+            case LclCmp_EQ: return Found;
+            case LclCmp_NE: return !Found;
+            default:
+              M.Feedback("Unvalid Operator %", Cmp);
+            }
+          }
+        else
+          M.Feedback("Unknown Operator %", Cmp);
+        }
+      }
+    else
+      {
+      WrkTag=Tag;
+      WrkTag+=".";
+      WrkTag+=WrkField;
+      flag UseCnv = (WrkCnvTxt.Len()>0);
+      CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
+      CXM_ObjectData ObjData;
+      CXM_Route Route;
+      if (M.pExecObj->XReadTaggedItem(ObjTag, ObjData, Route))
+        {
+        CPkDataItem &Item = *ObjData.FirstItem();
+        byte cType = Item.Type();
+        eLclCmps iCmp=FindCmp(Cmp);
+
+        if (iCmp!=LclCmp_Bad)
+          {
+          if (IsIntData(cType))
+            {
+            long L1=Item.Value()->GetLong();
+            long L2=SafeAtoL(Value);
+            switch (iCmp)
+              {
+              case LclCmp_LT: return (L1<L2);
+              case LclCmp_LE: return (L1<=L2);
+              case LclCmp_EQ: return (L1==L2);
+              case LclCmp_NE: return (L1!=L2);
+              case LclCmp_GE: return (L1>=L2);
+              case LclCmp_GT: return (L1>L2);
+              }
+            }
+          else if (IsFloatData(cType))
+            {
+            double D1=Item.Value()->GetDouble(Item.CnvIndex(), WrkCnvTxt());
+            double D2=SafeAtoF(Value);
+            double Diff=D1-D2;
+            double Err;
+            if (ConvergedVV(D1,D2,1e-10, 1e-6, Err))
+              Diff=0;
+            switch (iCmp)
+              {
+              case LclCmp_LT: return Diff <  0.0; //(D1<D2);
+              case LclCmp_LE: return Diff <= 0.0; //(D1<=D2);
+              case LclCmp_EQ: return Diff == 0.0; //(D1==D2);
+              case LclCmp_NE: return Diff != 0.0; //(D1!=D2);
+              case LclCmp_GE: return Diff >= 0.0; //(D1>=D2);
+              case LclCmp_GT: return Diff >  0.0; //(D1>D2);
+              }
+            }
+          else if (IsStrng(cType))
+            {
+            Strng S1=Item.Value()->GetString();
+            switch (iCmp)
+              {
+              case LclCmp_LT: return (stricmp(S1(), Value)<0);
+              case LclCmp_LE: return (stricmp(S1(), Value)<=0);
+              case LclCmp_EQ: return (stricmp(S1(), Value)==0);
+              case LclCmp_NE: return (stricmp(S1(), Value)!=0);
+              case LclCmp_GE: return (stricmp(S1(), Value)>=0);
+              case LclCmp_GT: return (stricmp(S1(), Value)>0);
+              }
+            }
+          else 
+            M.Feedback("Tag %s is not Numeric or String", WrkTag());
+          }
+        else
+          M.Feedback("Unknown Operator %", Cmp);
+        }
+      else 
+        M.Feedback("Tag %s Not Found in Select Term", WrkTag());
+      }
+    }
+  else 
+    M.Feedback("Zero Length Field in Order Term");
+  return false;
+  }
+
+BOOL CExcelReport::CRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport &Rpt, COleReportMngr & Mngr)
+  {
+  Strng WrkTag, WrkField, WrkCnvTxt;
+  TaggedObject::SplitTagCnv(Field, WrkField, WrkCnvTxt);
+  if (WrkField.Len()>0)
+    {
+    if (WrkField.XStrICmp(GraphicFldName)==0)
+      {
+      CString LTag(m_sTag());
+      LTag.MakeLower();
+      CTagGraphics * pTG;
+      if (Rpt.m_TGMap.Lookup(LTag, pTG))
+        {
+        if (pTG->m_GrfTitles.GetCount()>0)
+          {
+          COrdValue OV;
+          OV.m_cType=tt_Strng;
+          OV.m_bAscend=strnicmp(Fn, "asc", 3)==0;
+          OV.m_sValue=pTG->m_GrfTitles[0];
+          m_OrdValues.Add(OV);
+          }
+        else
+          Mngr.Feedback("Tag % not found on any Graphic", m_sTag());
+        }
+      }
+    else
+      {
+      WrkTag=m_sTag;
+      WrkTag+=".";
+      WrkTag+=WrkField;
+      flag UseCnv = (WrkCnvTxt.Len()>0);
+      CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
+      CXM_ObjectData ObjData;
+      CXM_Route Route;
+      if (Mngr.pExecObj->XReadTaggedItem(ObjTag, ObjData, Route))
+        {
+        CPkDataItem &Item = *ObjData.FirstItem();
+        byte cType = Item.Type();
+
+        COrdValue OV;
+
+        OV.m_cType=cType;
+        OV.m_bAscend=strnicmp(Fn, "asc", 3)==0;
+        if (IsIntData(cType))
+          OV.m_lValue=Item.Value()->GetLong();
+        else if (IsFloatData(cType))
+          OV.m_dValue=Item.Value()->GetDouble(Item.CnvIndex(), WrkCnvTxt());
+        else if (IsStrng(cType))
+          OV.m_sValue=Item.Value()->GetString();
+        else 
+          {
+          Mngr.Feedback("Tag %s is not Numeric or String", WrkTag());
+          return false;
+          }
+        m_OrdValues.Add(OV);
+
+        }
+      else 
+        Mngr.Feedback("Tag %s Not Found in Order Term", WrkTag());
+      }
+    }
+  else 
+    Mngr.Feedback("Zero Length Field in Order Term");
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+  
+static int TestOrder(void * p, void * q) 
+  { 
+  CExcelReport::CRqdTag & T1=*((CExcelReport::CRqdTag*)p);
+  CExcelReport::CRqdTag & T2=*((CExcelReport::CRqdTag*)q);
+
+  int Cmp=0;
+  for(int i=0; i<T1.m_OrdValues.GetCount(); i++)
+    {
+    CExcelReport::COrdValue & V1 = T1.m_OrdValues[i]; 
+    CExcelReport::COrdValue & V2 = T2.m_OrdValues[i]; 
+
+    if (IsIntData(V1.m_cType))
+      {
+      int iDiff = V1.m_lValue - V2.m_lValue;
+      Cmp = iDiff<0 ? -1 : iDiff>0 ? 1 : 0;
+      dbgpln("%3i %25s %10i %25s %10i", Cmp, T1.m_sTag(), V1.m_lValue, T2.m_sTag(), V2.m_lValue);
+      }
+    else if (IsFloatData(V1.m_cType))
+      {
+      if (!Valid(V1.m_dValue))
+        V1.m_dValue=0;
+      if (!Valid(V2.m_dValue))
+        V2.m_dValue=0;
+      double Diff=V1.m_dValue-V2.m_dValue;
+      Cmp = Diff<0 ? -1 : Diff>0 ? 1 : 0;
+      dbgpln("%3i %25s %10.5f %25s %10.5f", Cmp, T1.m_sTag(), V1.m_dValue, T2.m_sTag(), V2.m_dValue);
+      }
+    else if (IsStrng(V1.m_cType))
+      {
+      int iDiff=stricmp(V1.m_sValue(), V2.m_sValue());
+      Cmp = iDiff<0 ? -1 : iDiff>0 ? 1 : 0;
+      dbgpln("%3i %25s %20s %25s %20s", Cmp, T1.m_sTag(), V1.m_sValue(), T2.m_sTag(), V2.m_sValue());
+      }
+    else
+      Cmp = 0;
+    if (Cmp!=0)
+      return Cmp*(V1.m_bAscend ? 1:-1) < 0 ? 1 : 0;
+    }
+  return 0;
+  }
+
+//---------------------------------------------------------------------------
+
+void CExcelReport::ClearSecondary(OWorksheet* pSheet, ORange & Range, int Row1, int Col1)
+  {
+  LPDISPATCH lpDispatch;
+  if (bPriVert)
+    {
+    for (int iC=0; iC<iSecMaxLen; iC++)
+      {
+      lpDispatch = pSheet->Cells(Row1, Col1+1+iC);
+      Range.AttachDispatch(lpDispatch, TRUE);
+      Range.SetValue("");
+      }
+    }
+  else
+    {
+    for (int iR=0; iR<iSecMaxLen; iR++)
+      {
+      lpDispatch = pSheet->Cells(Row1+1+iR, Col1);
+      Range.AttachDispatch(lpDispatch, TRUE);
+      Range.SetValue("");
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+LPTSTR TagOverunStr = "<<Tag Overrun>>";
+
+BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
+  {
+  LPDISPATCH lpDispatch;
+  ORange Range;
+
+  CTagTrees TagTrees;
+  TagTrees.Rebuild(RQ_Tags);
+
+  Strng SelectBuff(m_sSelect);
+  CTokenParser STkns(True, True, SelectBuff());
+  STkns.SetSeperators(";= \t()<>![]{}$#@\v\f");
+  STkns.SetWhiteSpace(" \t\v\f");
+
+  Strng ATkn=STkns.NextToken();
+  CArray<Strng, Strng&> SFields, SFns, SValues, SOps; // Quick and Nasty
+  if (stricmp(ATkn(), "select")==0)
+    {
+    ATkn=STkns.NextToken();
+    while (ATkn.GetLength()>0)
+      {
+      //Strng SField, SFn, SValue, SOp; // Quick and Nasty
+      Strng SField=ATkn;
+      Strng SFn=STkns.NextToken();
+      Strng SValue=STkns.NextToken(); 
+      if (SValue=="=" || SValue==">") // second charater of some equality operators 
+        {
+        SFn+=SValue;
+        SValue=STkns.NextToken(); 
+        }
+
+      if (!STkns.AtEnd())
+        {
+        }
+      if (SField() && SField[0]=='\"')
+        SField.LRTrim("\"");
+      if (SField() && SField[0]=='\'')
+        SField.LRTrim("\'");
+      if (SValue() && SValue[0]=='\"')
+        SValue.LRTrim("\"");
+      if (SValue() && SValue[0]=='\'')
+        SValue.LRTrim("\'");
+      
+      SFields.Add(SField);
+      SFns.Add(SFn);
+      SValues.Add(SValue);
+
+      ATkn=STkns.NextToken();
+      if (ATkn.GetLength()>0 && (ATkn.XStrICmp("and")==0 || ATkn.XStrICmp("or")==0))
+        {
+        SOps.Add(ATkn);
+        ATkn=STkns.NextToken();
+        }
+      else
+        break;
+      }
+    }
+
+  Strng OrderBuff(m_sOrder);
+  CTokenParser OTkns(True, True, OrderBuff());
+  OTkns.SetSeperators(";= \t()<>![]{}$#@\v\f");
+  OTkns.SetWhiteSpace(" \t\v\f");
+
+  CArray<Strng, Strng&> OFields, OFns; // Quick and Nasty
+  
+  ATkn=OTkns.NextToken();
+  if (stricmp(ATkn(), "orderby")==0)
+    {
+    ATkn=OTkns.NextToken();
+    while (ATkn.GetLength()>0)
+      {
+      //OFields.Add();
+      Strng OField=ATkn;
+      Strng OFn=OTkns.NextToken();
+      if (!OTkns.AtEnd())
+        {
+        }
+      if (OField() && OField[0]=='\"')
+        OField.LRTrim("\"");
+      if (OField() && OField[0]=='\'')
+        OField.LRTrim("\'");
+
+      if (!(OFn.XStrNICmp("Asc",3)==0 || OFn.XStrNICmp("Desc",4)==0))
+        LogWarning("Excel", 0, "Order direction %s unknown", OFn());
+
+      OFields.Add(OField);
+      OFns.Add(OFn);
+
+      ATkn=OTkns.NextToken();
+      }
+    }
+
+  CArray<CRqdTag*, CRqdTag*> RqdTags; 
+  RqdTags.SetSize(0,512);
+  CModelTypeListArray& List = TagTrees.GetList();
+
+  GetTagPages(List);
+    
+  for (int j=0; j<List.GetSize(); j++)
+    {
+    CModelTypeList* pTagList = List[j];
+    for (int k=0; k<pTagList->GetSize(); k++)
+      {
+      Strng Tag(pTagList->GetTagAt(k));
+
+      bool OK=true;
+      for (int s=0; s<SFields.GetCount(); s++)
+        {
+        if (!TagCmpOK(Tag(), SFields[s](), SFns[s](), SValues[s]()))
+          OK=false;
+        }
+      if (OK)
+        {
+        CRqdTag * p = new CRqdTag(Tag());
+        for (int o=0; o<OFields.GetCount(); o++)
+          p->AddOrderValue(OFields[o](), OFns[o](), *this, *pMngr);
+        RqdTags.Add(p);
+        }
+      }
+    }
+
+  if (RqdTags.GetCount()>0)
+    HpSort(RqdTags.GetSize(), (void**)&RqdTags.ElementAt(0), TestOrder);
+
+  int iS=0;
+  while (iS<RqdTags.GetCount() && iS<iPriMaxLen)
+    {
+    if (bPriVert)
+      Row1++;
+    else
+      Col1++;
+    lpDispatch = pSheet->Cells(Row1, Col1);
+    Range.AttachDispatch(lpDispatch, TRUE);
+    Range.SetValue(RqdTags[iS]->m_sTag());
+    ClearSecondary(pSheet, Range, Row1, Col1);
+    iS++;
+    }
+
+  if (iS<RqdTags.GetCount()) // more tags - add marker
+    {
+    // Rewind
+    lpDispatch = pSheet->Cells(Row1, Col1);
+    Range.AttachDispatch(lpDispatch, TRUE);
+    Range.SetValue(TagOverunStr);
+    ClearSecondary(pSheet, Range, Row1, Col1);
+    }
+  
+  // Clear remaining potential Tags
+  while (iS<iPriMaxLen)
+    {
+    if (bPriVert)
+      Row1++;
+    else
+      Col1++;
+    lpDispatch = pSheet->Cells(Row1, Col1);
+    Range.AttachDispatch(lpDispatch, TRUE);
+    Range.SetValue("");
+    ClearSecondary(pSheet, Range, Row1, Col1);
+    iS++;
+    }
+
+  for (int iS=0; iS<RqdTags.GetCount(); iS++)
+    delete RqdTags[iS];
+
+  Range.ReleaseDispatch();
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
 flag CExcelReport::DoReport()
   {
   //CStopWatch sw;
@@ -795,6 +1311,8 @@ flag CExcelReport::DoReport()
   Strng Tag, WrkTag, WrkCnvTxt, FirstTag, LastTag, CellNm;
   for (short i=0; i<PriLen; i++)
     {
+    if (PriTags[i].Length()>0 && PriTags[i].XStrCmp(TagOverunStr)==0)
+      continue;
     for (short Off=0; Off<iSecMult; Off++)
       {
       if (bResVert)
@@ -810,64 +1328,80 @@ flag CExcelReport::DoReport()
         flag DoSet = 1;
         if (PriTags[i].Length()>0 && (bIsTagList || SecTags[j+Off*SecLen].Length()>0))
           {
-          if (bIsTagList)
-            Tag = PriTags[i]();
-          else
-            Tag.Set("%s.%s", PriTags[i](), SecTags[j+Off*SecLen]());
-          TaggedObject::SplitTagCnv(Tag(), WrkTag, WrkCnvTxt);
-          if (WrkTag.Length()>0)
+          if (SecTags[j+Off*SecLen].XStrICmp(GraphicFldName)==0)
             {
-            if (M.IsFormula(Row, Col, &WSheet))
+            CString LTag(PriTags[i]());
+            LTag.MakeLower();
+            CTagGraphics * pTG;
+            if (m_TGMap.Lookup(LTag, pTG))
               {
-              M.Feedback("Formula at cell(%s), tag %s ignored", CellNm(), WrkTag());
-              DoSet = 0;
+              if (pTG->m_GrfTitles.GetCount()>0)
+                V=pTG->m_GrfTitles[0];
+              else
+                M.Feedback("Tag % not found on any Graphic", PriTags[i]());
               }
+            }
+          else
+            {
+            if (bIsTagList)
+              Tag = PriTags[i]();
             else
+              Tag.Set("%s.%s", PriTags[i](), SecTags[j+Off*SecLen]());
+            TaggedObject::SplitTagCnv(Tag(), WrkTag, WrkCnvTxt);
+            if (WrkTag.Length()>0)
               {
-              if (FirstTag.Length()==0)
-                FirstTag = WrkTag;
-              LastTag = WrkTag;
-              flag UseCnv = (WrkCnvTxt.Length()>0);
-              CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
-              CXM_ObjectData ObjData;
-              CXM_Route Route;
-              if (M.pExecObj->XReadTaggedItem(ObjTag, ObjData, Route))
+              if (M.IsFormula(Row, Col, &WSheet))
                 {
-                iTagFoundCnt++;
-                CPkDataItem * pItem = ObjData.FirstItem();
-                const byte Typ = pItem->Type();
-                if (UseCnv && ((pItem->CnvIndex())==0 || Cnvs[(pItem->CnvIndex())]->Find(WrkCnvTxt())==NULL))
+                M.Feedback("Formula at cell(%s), tag %s ignored", CellNm(), WrkTag());
+                DoSet = 0;
+                }
+              else
+                {
+                if (FirstTag.Length()==0)
+                  FirstTag = WrkTag;
+                LastTag = WrkTag;
+                flag UseCnv = (WrkCnvTxt.Length()>0);
+                CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
+                CXM_ObjectData ObjData;
+                CXM_Route Route;
+                if (M.pExecObj->XReadTaggedItem(ObjTag, ObjData, Route))
                   {
-                  UseCnv = 0;
-                  M.Feedback("Warning: Engineering units '%s' used at cell(%s), for tag %s are invalid", WrkCnvTxt(), CellNm(), WrkTag());
-                  }
-                if (pItem->Value()->IsNAN())
-                  V = sNan();
-                else if (IsIntData(Typ) && pItem->Contains(PDI_StrList))//IndexedStrList())
-                  {
-                  Strng_List sStrList;
-                  pItem->GetStrList(sStrList);
-                  if (sStrList.Length()>0)
+                  iTagFoundCnt++;
+                  CPkDataItem * pItem = ObjData.FirstItem();
+                  const byte Typ = pItem->Type();
+                  if (UseCnv && ((pItem->CnvIndex())==0 || Cnvs[(pItem->CnvIndex())]->Find(WrkCnvTxt())==NULL))
                     {
-                    long i = pItem->Value()->GetLong();
-                    pStrng p = sStrList.AtIndexVal(i);
-                    if (p)
-                      V = p->Str();
+                    UseCnv = 0;
+                    M.Feedback("Warning: Engineering units '%s' used at cell(%s), for tag %s are invalid", WrkCnvTxt(), CellNm(), WrkTag());
+                    }
+                  if (pItem->Value()->IsNAN())
+                    V = sNan();
+                  else if (IsIntData(Typ) && pItem->Contains(PDI_StrList))//IndexedStrList())
+                    {
+                    Strng_List sStrList;
+                    pItem->GetStrList(sStrList);
+                    if (sStrList.Length()>0)
+                      {
+                      long i = pItem->Value()->GetLong();
+                      pStrng p = sStrList.AtIndexVal(i);
+                      if (p)
+                        V = p->Str();
+                      else
+                        V = GetVariant(pItem->Value());
+                      }
                     else
                       V = GetVariant(pItem->Value());
                     }
                   else
-                    V = GetVariant(pItem->Value());
+                    V = (UseCnv ? GetVariant(pItem->Value(), pItem->CnvIndex(), WrkCnvTxt()) : GetVariant(pItem->Value()));
                   }
                 else
-                  V = (UseCnv ? GetVariant(pItem->Value(), pItem->CnvIndex(), WrkCnvTxt()) : GetVariant(pItem->Value()));
+                  M.Feedback("%s at cell(%s) not found", WrkTag(), CellNm());
                 }
-              else
-                M.Feedback("%s at cell(%s) not found", WrkTag(), CellNm());
               }
+            else
+              Incomplete = 1;
             }
-          else
-            Incomplete = 1;
           }
         else
           Incomplete = 1;
@@ -1101,11 +1635,12 @@ int COleReportMngr::DoAutomation()
         }
       }
   
-    const char* OleKeys[3] = { OleReportKey, OleReportListKey, OleReportListOffsetKey};
-    Strng Examples[3];
+    const char* OleKeys[4] = { OleReportKey, OleReportAutoKey, OleReportListKey, OleReportListOffsetKey};
+    Strng Examples[4];
     Examples[0].Set("%s\"R1\",H,5,32)", OleKeys[0]);
     Examples[1].Set("%s\"R1\",V,8)", OleKeys[1]);
-    Examples[2].Set("%sB3,\"R2\")", OleKeys[2]);
+    Examples[2].Set("%s\"R1\",V,8)", OleKeys[2]);
+    Examples[3].Set("%sB3,\"R2\")", OleKeys[3]);
     SendInfo("Search...");
     Strng CellNm;
     for (short i=1; i<=Count; i++)
@@ -1116,6 +1651,8 @@ int COleReportMngr::DoAutomation()
       lpDispatch = WkSheet.Columns();
       R1.AttachDispatch(lpDispatch, TRUE);
       LPDISPATCH lpDis = R1.Find((char*)OleReportCommonKey);
+      if (!lpDis)
+        lpDis = R1.Find((char*)OleReportAutoKey);
       short FirstRow = 0;
       short FirstCol = 0;
       while (lpDis)
@@ -1140,8 +1677,14 @@ int COleReportMngr::DoAutomation()
         flag OK = true;
         flag SearchStrOK = true;
         int SearchTypes = -1;
+        int DoingAuto = 0;
         if (FnLen>(int)strlen(OleReportKey) && _strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
           SearchTypes = 0;
+        else if (FnLen>(int)strlen(OleReportAutoKey) && _strnicmp(Fn(), OleReportAutoKey, strlen(OleReportAutoKey))==0)
+          {
+          SearchTypes = 0;
+          DoingAuto   = 1;
+          }
         else if (FnLen>(int)strlen(OleReportListKey) && _strnicmp(Fn(), OleReportListKey, strlen(OleReportListKey))==0)
           SearchTypes = 1;
         else if (FnLen>(int)strlen(OleReportListOffsetKey) && _strnicmp(Fn(), OleReportListOffsetKey, strlen(OleReportListOffsetKey))==0)
@@ -1154,6 +1697,7 @@ int COleReportMngr::DoAutomation()
 
         R.bIsTagList = (SearchTypes!=0);
         R.bIsTagOffsetList = (SearchTypes==2);
+        R.bIsAutoTags = DoingAuto;
         int RRow,RCol;
         int OffsetFnErr = 0;
         int ReportFnErr = 0;
@@ -1174,6 +1718,12 @@ int COleReportMngr::DoAutomation()
             CMult= R.bPriVert ? 1 : R.iSecMult;
             }
           }
+
+        if (DoingAuto)
+          {
+          R.GetAutoTags(&WkSheet, R2.GetRow(), R2.GetColumn());
+          }
+        
         if (OK)
           {
           if (bAll || (R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0))

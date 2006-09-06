@@ -5,12 +5,9 @@
 #ifndef __OLEEXCEL_H
 #define __OLEEXCEL_H
 
-#ifndef __XL5OBJ32_H
 #include "xl5obj32.h"
-#endif
-#ifndef __VECTORS_H
 #include "vectors.h"
-#endif
+#include "selctwnd.h"
 
 //===========================================================================
 
@@ -54,10 +51,11 @@ class COleExcelBaseAuto : public COleBaseAuto
     virtual int AutomationServer() { return OleAutoIsExcel; };
     virtual char* OLEServerDesc() { return "Excel"; };
 
+  public:
+    void Feedback(char* fmt, ...);
   protected:
     void FeedbackActivate();
     void DoFeedback(char* Txt, COLORREF Color = 0, flag UseColor = False, flag Bold = False);
-    void Feedback(char* fmt, ...);
     void RedFeedback(char* fmt, ...);
     void BlueFeedback(char* fmt, ...);
     void BoldFeedback(char* fmt, ...);
@@ -79,8 +77,104 @@ class COleExcelBaseAuto : public COleBaseAuto
 
 _FWDDEF(COleReportMngr)
 _FWDDEF(CExcelReport)
+
+//class CExcelTagValue
+//  {
+//  public:
+//    Strng m_sTag;
+//    Strng m_sFun;
+//    Strng m_sValue;
+//  };
 class CExcelReport
   {
+  public:
+    CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook);
+    ~CExcelReport();
+    flag CheckParms();
+    int ParseFn(char* Func);
+    int ParseOffsetFn(char* Func, OWorksheet* pWkSheet, int& Row, int& Col);
+    flag DoReport();
+    BOOL GetAutoTags(OWorksheet* pSheet, int Row1, int Col1);
+
+    class COrdValue
+      {
+      public:
+        COrdValue()
+          {
+          m_cType   = tt_NULL;
+          m_bAscend = true;
+          m_lValue  = 0;
+          m_dValue  = 0;
+          }
+        COrdValue(const COrdValue & Other)
+          {
+          m_cType   = Other.m_cType  ;
+          m_bAscend = Other.m_bAscend;
+          m_lValue  = Other.m_lValue ;
+          m_dValue  = Other.m_dValue ;
+          m_sValue  = Other.m_sValue ;
+          }
+        COrdValue & operator=(const COrdValue & Other)
+          {
+          m_cType   = Other.m_cType  ;
+          m_bAscend = Other.m_bAscend;
+          m_lValue  = Other.m_lValue ;
+          m_dValue  = Other.m_dValue ;
+          m_sValue  = Other.m_sValue ;
+          return * this;
+          }
+
+      public:
+        byte    m_cType;
+        bool    m_bAscend;
+        long    m_lValue;
+        double  m_dValue;
+        Strng   m_sValue;
+      };
+
+    class COrdTerm
+      {
+      public:
+        COrdTerm() { };
+        COrdTerm(LPTSTR Field, LPTSTR Fn)
+          {
+          m_sField = Field;
+          m_sFn    = Fn;
+          } 
+        Strng   m_sField; 
+        Strng   m_sFn; 
+      };
+
+    class CRqdTag 
+      {
+      public:
+        CRqdTag(LPTSTR Tag) : m_sTag(Tag) {} 
+        
+        BOOL AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport &Rpt, COleReportMngr & Mngr);
+
+      public:
+        Strng   m_sTag; 
+        CArray<COrdValue,COrdValue&> m_OrdValues;
+      };
+
+    class CTagGraphics
+      {
+      public:
+        CTagGraphics(LPCTSTR Tag) : m_sTag(Tag) {} 
+        
+        void AddGraphic(LPCTSTR GrfTitle) { m_GrfTitles.Add(CString(GrfTitle)); };
+
+      public:
+        CString m_sTag; 
+        CArray<CString, CString&> m_GrfTitles;
+      };
+
+  protected:
+    long        GetTags(CSVector& Tags, CCellLocation& Loc, short Len, short Wide, short Skip, flag Vert);
+    BOOL        TagCmpOK(LPTSTR Tag, LPTSTR Field, LPTSTR Cmp, LPTSTR Value);
+    void        ClearSecondary(OWorksheet* pSheet, ORange & Range, int Row1, int Col1);
+    void        GetTagPages(CModelTypeListArray& List);
+
   public:
     Strng sName;          //report name
     CCellLocation ResLoc; //result location
@@ -96,20 +190,25 @@ class CExcelReport
          bPriVert:1,      //
          bSecVert:1,      //
          bIsTagList:1,    //busy generating TagList type report
-         bIsTagOffsetList:1;
+         bIsTagOffsetList:1, //
+         bIsAutoTags:1;      //
+                    
+    //CArray<CExcelTagValue CExcelTagValue&> m_Select;
+    //CArray<CExcelTagValue CExcelTagValue&> m_Order;
+
+    Strng       m_sSelect;
+    Strng       m_sOrder;
+    CArray <COrdTerm, COrdTerm&> m_OrderTerms;
+
+    CArray<CTagGraphics*, CTagGraphics*> m_TGs;
+    CMap<LPCTSTR, LPCTSTR, CTagGraphics*, CTagGraphics*> m_TGMap;
+
     CSVector PriTags;     //array of primary tags
     CSVector SecTags;     //array of secondary tags
     COleReportMngr* pMngr;//
     OWorkbook* pWkBook;   //
     long iTagFoundCnt;    //
 
-    CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook);
-    flag CheckParms();
-    int ParseFn(char* Func);
-    int ParseOffsetFn(char* Func, OWorksheet* pWkSheet, int& Row, int& Col);
-    flag DoReport();
-  private:
-    long GetTags(CSVector& Tags, CCellLocation& Loc, short Len, short Wide, short Skip, flag Vert);
   };
 
 //---------------------------------------------------------------------------
