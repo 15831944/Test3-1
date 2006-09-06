@@ -2,6 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
+
+
 #include "stdafx.h"
 #define __BATC_BAYER_CPP
 #include "BATC_Bayer.h"
@@ -13,9 +15,13 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #include "scdmacros.h" 
 #include "md_headers.h" 
+#ifdef GLADDY
+#pragma LIBCOMMENT("..\\Bin\\", "\\SMDK1" )
+#pragma LIBCOMMENT("..\\Bin\\", "\\scdlib" )
+#else
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\SMDK1" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
-
+#endif
 //===========================================================================
 
 BOOL APIENTRY DllMain( HANDLE hModule, 

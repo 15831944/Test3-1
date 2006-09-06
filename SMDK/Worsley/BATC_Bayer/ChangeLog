@@ -1,0 +1,60 @@
+2006-09-01  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* BATCBayerSM.cpp: Added KEq constants to access window.
+
+2006-08-31  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* BATCBayerSM.cpp: Finally tracked down discrepency between BRAHMA
+	and SysCAD to use of modified constants. KEq_A1 etc. These can be
+	set and saved in the original BRAHMA program, but only with
+	password which we never had. BRAHMA then reads the constants when
+	loading a project from a binary file xxxxx.phd - tcl script to
+	fish the numbers from this file: new values (and original ones) are 
+	KEq_A1 = -55320;     (-64149;)  
+	KEq_B1 = 0.4592752;  (69.92; )   
+	KEq_C1 = 139.8;	     (166.465;) 
+
+	binary scan [read [open "190701.phd"]] f* val
+	puts $val
+
+	Added these as static variables to class: can implement these in
+	access window if necessary.
+
+2006-08-24  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* brahma_acsat.cpp: sqrt(exp(x))==exp(x/2.)
+
+	* BATC_Bayer.cpp (DllMain): Still sorting out path hell: the 
+	#pragma LIBCOMMENT causes problems; I put all this stuff in 
+	the makefile, but the MS compiler seems to get confused when
+	this is inlined.
+
+2005-10-13  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* BATC_Bayer.cpp: Added #ifdef TTECH for different path
+
+	* BATCBayerSM.h:
+	md_headers.h include path changed
+	add denOld class variable
+	Add LiquorDensEqn4 and 5 prototypes
+	Add Molality prototype
+
+	* BATCBayerSM.cpp: Added K20 as a species
+	Added new density methods BDM_BRAHMA, BDM_BRAHMA_OLD, BDM_BRAHMA25
+	Added new solubility methods ASM_BRAHMA
+	Added denOld as class variable to accelerate convergence
+	Include "brahma_liqden.cpp"
+	Additional cases for Brahma densities
+	Add logging if nonconvergence in GetDensity calc
+	Include "brahma_util.cpp"
+	Defined propertyCount add { "BRAHMA", ASM_BRAHMA },
+	{ "BRAHMA", BDM_BRAHMA},
+	{ "BRAHMA(old)", BDM_BRAHMA_OLD},
+	{ "BRAHMA25", BDM_BRAHMA25},
+	for new density models
+	For Input Calcs, add cases for BDM_BRAHMA, OLD
+	Include "brahma_acsat.cpp"
+	
+	* makefile: created
+	
+

@@ -4,7 +4,11 @@
 
 #ifndef __BATCBayerSM_H_
 #define __BATCBayerSM_H_
+#ifdef GLADDY
+#include "..\include\md_headers.h"
+#else
 #include "..\..\..\SMDK\include\md_headers.h"
+#endif
 #include <vector>
 
 class BATCBayerSM; // forward declare
@@ -54,6 +58,12 @@ class BATCBayerSM : public MSpModelBase, public MIBayer
     static double sm_dMinSolCp;
     static double sm_dH2OTestFrac0;
     static double sm_dH2OTestFrac1;
+
+    static double KEq_A1;
+    static double KEq_B1;
+    static double KEq_C1;
+    
+
     static byte   sm_iDensityMethod;
     static byte   sm_iCPMethod;
     static byte   sm_iASatMethod;
@@ -70,7 +80,9 @@ class BATCBayerSM : public MSpModelBase, public MIBayer
     double     dRqd_SolFrac;
     double     dRqd_SolConc;
 
-    //static     CArray <int, int> LclParm;
+
+
+    static     CArray <int, int> LclParm;
   
   public:
 	  BATCBayerSM(TaggedObject *pNd);
@@ -96,8 +108,6 @@ class BATCBayerSM : public MSpModelBase, public MIBayer
     DWORD           GetPropertyVisibility(long Index);
     void            GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value);
     void            PutPropertyValue(long Index, MPropertyValue & Value);
-    static  void    GetPropertyValueGlobal(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
-    static  void    PutPropertyValueGlobal(long Index, MPropertyValue & Value) {};
 
     // MIBayer overrides
     double          CausticConc(double T_);
@@ -127,7 +137,7 @@ class BATCBayerSM : public MSpModelBase, public MIBayer
     double          LiqCpCalc(MArray & MA, double Tc);
     double          BoilPtElev(MArray & MA, double T);
     void            InputCalcs(bool DoIt, double T_);
-    double          Molality(MArray & MA, double &, double &);
+    double          Molality(double &, double &);
 
   public:
     //Other properties
