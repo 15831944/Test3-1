@@ -21,10 +21,22 @@
 #include "tknpars.h"
 //#include "optoff.h"
 
+#define dbgXLRpt 1
+
+#if dbgXLRpt
+#include "dbgmngr.h"
+static CDbgMngr dbgExpressionLoad     ("Excel",  "ExpressionLoad");
+static CDbgMngr dbgExpressionParse    ("Excel",  "ExpressionParse");
+static CDbgMngr dbgExpressionEval     ("Excel",  "ExpressionEval");
+static CDbgMngr dbgExpressionEvalAll  ("Excel",  "ExpressionEvalAll");
+//static CDbgMngr dbgDumpTemplates      ("Excel",  "DumpTemplates");
+static long s_doExpressionEval=0;
+#endif
+
 const char* OleReportListKey          = "SysCAD_TagList(";
 const char* OleReportListOffsetKey    = "SysCAD_TagListOffset(";
 const char* OleReportKey              = "SysCAD_Tags(";
-const char* OleReportAutoKey          = "SysCAD_AutoTags(";
+const char* OleReportSQLKey          = "SysCAD_SQLTags(";
 const char* OleReportCommonKey        = "SysCAD_Tag";
 const char* OleReportOtherKey         = "SysCAD_Reports";
 const char* OleReportTrendKey         = "TrendReport";
@@ -84,6 +96,10 @@ void COleExcelBaseAuto::FeedbackActivate()
 
 void COleExcelBaseAuto::DoFeedback(char* Txt, COLORREF Color, flag UseColor, flag Bold)
   {
+  #if dbgXLRpt  
+    dbgpln("FeedBack:%s", Txt);
+  #endif
+  
   if (iFBLine>32000)
     return;
   if (iFBLine==32000)
@@ -576,7 +592,886 @@ class CAutomationHelper
 
 //===========================================================================
 
-CExcelReport::CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook)
+LPCTSTR GraphicFldName = "Graphic";
+
+const long XLRptFnStkSize=32;
+
+enum eSymbolType
+  {
+  SFS_Null,
+  SFS_TODOFn,
+  SFS_And,
+  SFS_Or,
+  SFS_Not,
+  SFS_LastName,
+
+  SFS_FirstOperator,
+  SFS_Plus=SFS_FirstOperator,
+  SFS_Minus,
+  SFS_Mult,
+  SFS_Div,
+  SFS_Open,
+  SFS_Close,
+  SFS_LastOperator,
+
+  SFS_NumConst,
+  SFS_StrConst,
+  SFS_CmpLT,
+  SFS_CmpLE,
+  SFS_CmpEQ,
+  SFS_CmpNE,
+  SFS_CmpGE,
+  SFS_CmpGT,
+  SFS_LastVisTkn,
+  SFS_Fld,
+  //SFS_CfgIndex,
+  SFS_LastTkn,
+  };
+
+enum eInfixType
+  {
+  IFC_Null,
+  IFC_NumConst,
+  IFC_StrConst,
+  IFC_Var,
+  IFC_OBrace,
+  IFC_CBrace,
+  IFC_Operator,
+  IFC_Funct,
+  IFC_Cmp,
+  IFC_Not
+  };
+
+
+static struct CFnTkns
+  {
+  eSymbolType   m_iSym;
+  LPCTSTR       m_sTkn;
+  eInfixType    m_eInfix;
+  int           m_Prec;
+  bool          m_bShwIndex;
+  bool          m_bShwValue;
+  }
+FnTkns[SFS_LastTkn+1] =
+  {
+    { SFS_Null,           "Null",           IFC_Null,       0,             },
+    { SFS_TODOFn,         "TODOFn",         IFC_Funct,      0,             }, //
+    { SFS_And,            "And",            IFC_Operator,  18,             },
+    { SFS_Or,             "Or",             IFC_Operator,  18,             },
+    { SFS_Not,            "Not",            IFC_Not,       32,             },
+    { SFS_LastName,       NULL,             IFC_Null,       0,             },
+    { SFS_Plus,           "+",              IFC_Operator,  26,             },
+    { SFS_Minus,          "-",              IFC_Operator,  26,             },
+    { SFS_Mult,           "*",              IFC_Operator,  28,             },
+    { SFS_Div,            "/",              IFC_Operator,  28,             },
+    { SFS_Open,           "(",              IFC_OBrace,     0,             },
+    { SFS_Close,          ")",              IFC_CBrace,     0,             },
+    { SFS_LastOperator,   NULL,             IFC_Null,       0,             },
+    { SFS_NumConst,       "NumConst",       IFC_NumConst,   0,             },
+    { SFS_StrConst,       "StrConst",       IFC_StrConst,   0,             },
+    { SFS_CmpLT,          "<",              IFC_Cmp,       22,             },
+    { SFS_CmpLE,          "<=",             IFC_Cmp,       22,             },
+    { SFS_CmpEQ,          "==",             IFC_Cmp,       20,             },
+    { SFS_CmpNE,          "<>",             IFC_Cmp,       20,             },
+    { SFS_CmpGE,          ">=",             IFC_Cmp,       22,             },
+    { SFS_CmpGT,          ">",              IFC_Cmp,       22,             },
+    //{ SFS_Not,            "!",              IFC_Not,       32,             },
+    { SFS_LastVisTkn,     NULL,             IFC_Null,       0,             },
+    { SFS_Fld,            "Field",          IFC_Var,        0,       true  },
+    //{ SFS_CfgIndex,       "CfgValue",       IFC_Var,        0,       true  },
+    { SFS_LastTkn,        NULL,             IFC_Null,       0,             },
+  };
+
+static struct CFnSums
+  {
+  eSymbolType   m_iSym;
+  LPCTSTR       m_sTag;
+  LPCTSTR       m_sSym;
+  SV_CalcTypes m_iCalcType;
+  }
+FnSums[] =
+  {
+    { SFS_TODOFn,         "Total",    "Ttl",      SVCT_Total,         },
+  };
+
+//--------------------------------------------------------------------------
+
+class CXLRptFnCtx
+  {
+  public:
+    CXLRptFnCtx(CExcelReport &Rpt, LPTSTR Tag) : \
+      m_Rpt(Rpt),
+      m_Mngr(*Rpt.pMngr),
+      m_sTag(Tag)
+      {
+      };
+
+
+  public:
+    Strng               m_sTag;
+    CExcelReport      & m_Rpt;
+    COleReportMngr    & m_Mngr;
+  };
+
+//--------------------------------------------------------------------------
+
+class CXLRptFnSymbol 
+  {
+  public:
+    CXLRptFnSymbol(long iSym=0, long Value=0) : m_Value(Value) { m_iSym = iSym; };
+    CXLRptFnSymbol(long iSym, double Value)   : m_Value(Value) { m_iSym = iSym; };
+    CXLRptFnSymbol(long iSym, LPTSTR Value)   : m_Value(Value) { m_iSym = iSym; };
+    CXLRptFnSymbol(const CXLRptFnSymbol & Other)   
+      { 
+      m_iSym    = Other.m_iSym; 
+      m_sFld    = Other.m_sFld;
+      m_sCnv    = Other.m_sCnv;
+      m_Value   = Other.m_Value;
+      };
+    CXLRptFnSymbol & operator=(const CXLRptFnSymbol & Other)   
+      { 
+      m_iSym    = Other.m_iSym; 
+      m_sFld    = Other.m_sFld;
+      m_sCnv    = Other.m_sCnv;
+      m_Value   = Other.m_Value;
+      return *this;
+      };
+    void Clear()
+      {
+      m_iSym    = 0;
+      m_sFld    = "";
+      m_sCnv    = "";
+      m_Value.Clear();
+      };
+
+    long      m_iSym;
+    Strng     m_sFld;
+    Strng     m_sCnv;
+    CXLRptFnValue m_Value;
+    //int       m_iCnv;
+
+  };
+
+class CXLRptFnSymArray : public CArray<CXLRptFnSymbol, CXLRptFnSymbol&> 
+  {};
+
+class CXLRptFn
+  {
+  friend class CXLRptInfo;
+  friend class CExcelReport;
+  friend class CXLRptItem;
+  public:
+    CXLRptFn()                { m_iSVIndex=-1; m_bIsSpcsSum = false; };
+    virtual ~CXLRptFn()       { };
+    //bool              SimpleParse(LPCSTR Str);
+    void              AddTkn(CXLRptFnSymbol & Tkn);
+
+    bool              ParseToken(COleReportMngr & Mngr, Strng &Tkn, long &TknType, LPCSTR &pStr);
+    bool              ParseExpression(COleReportMngr & Mngr, LPCSTR Str);
+    void              DumpExpression();
+
+    bool              Evaluate(CXLRptFnCtx &C);
+
+  protected:
+    Strng             m_sFormula;
+    long              m_iSVIndex;
+
+    CXLRptFnSymArray  m_Syms;
+
+    bool              m_bIsSpcsSum;
+    CIArray           m_IndicesOfSumSpcs;
+
+  };
+
+//--------------------------------------------------------------------------
+
+bool CXLRptFn::Evaluate(CXLRptFnCtx & C)
+  {
+#if dbgXLRpt
+  static long EvalLevel=-1;
+  bool DoDbg=dbgExpressionEval() && s_doExpressionEval || dbgExpressionEvalAll();
+  if (DoDbg)
+    {
+    EvalLevel++;
+    if (EvalLevel==0)
+      dbgp("%*s%s.%s:",EvalLevel*2,"", C.m_sTag(), "EvFn");
+    else
+      {
+      dbgpln("");
+      dbgp("%*s%s.%s:",4+EvalLevel*2,"", C.m_sTag(), "");
+      }
+    }
+#endif
+
+  CXLRptFnValue Stk[XLRptFnStkSize];
+
+  long   iStk=-1;
+  if (m_Syms.GetSize())
+    {
+    for (int t=0; t<m_Syms.GetSize(); t++)
+      {
+      CXLRptFnSymbol &T=m_Syms[t];
+#if dbgXLRpt
+      if (DoDbg)
+        {
+        switch (T.m_iSym)
+          {
+          case SFS_Fld:
+            dbgp(" [%s %s]", T.m_sFld(), T.m_sCnv());
+            break;
+          //case SFS_CfgIndex:
+          //  dbgp(" [%s]", SVI.Cfg(T.m_iValue)->FullTag());
+          //  break;
+          case SFS_NumConst:
+          case SFS_StrConst:
+            switch (T.m_Value.m_cType)
+              {
+              case tt_Long:   dbgp(" %i", T.m_Value.m_lValue);    break;
+              case tt_Double: dbgp(" %.3f", T.m_Value.m_dValue);  break;
+              case tt_Strng:  dbgp(" %s", T.m_Value.m_sValue);    break;
+              default:        dbgp(" %s", "BadType 1");           break;
+              }
+            break;
+          default:
+            {
+            //if (FnTkns[T.m_iSym].m_bShwIndex)
+            //  dbgp(" %s[%i]", FnTkns[T.m_iSym].m_sTkn, T.m_iValue);
+            //else if (FnTkns[T.m_iSym].m_bShwValue)
+            //  dbgp(" %s %.3f", FnTkns[T.m_iSym].m_sTkn, T.m_dValue);
+            //else if (T.m_iSym==SFS_Const)
+            //  dbgp(" %.3f", T.m_dValue);
+            //else
+              dbgp(" %s", FnTkns[T.m_iSym].m_sTkn);
+            }
+          }
+        }
+#endif
+      switch (T.m_iSym)
+        {
+        case SFS_TODOFn:
+          Stk[iStk]  = Stk[iStk];
+          break;
+        case SFS_NumConst:    Stk[++iStk] = T.m_Value;                                                break;
+        case SFS_StrConst:    Stk[++iStk] = T.m_Value;                                                break;
+        case SFS_Plus:        Stk[iStk-1] = Stk[iStk-1]+Stk[iStk]; iStk--;                            break;
+        case SFS_Minus:       Stk[iStk-1] = Stk[iStk-1]-Stk[iStk]; iStk--;                            break;
+        case SFS_Mult:        Stk[iStk-1] = Stk[iStk-1]*Stk[iStk]; iStk--;                            break;
+        case SFS_Div:         Stk[iStk-1] = Stk[iStk-1]/Stk[iStk]; iStk--;                            break;
+
+        case SFS_CmpLT:       Stk[iStk-1] = (Stk[iStk-1]<Stk[iStk]) ? 1:0 ;  iStk--;                  break; 
+        case SFS_CmpLE:       Stk[iStk-1] = (Stk[iStk-1]<=Stk[iStk]) ? 1:0 ; iStk--;                  break;         
+        case SFS_CmpEQ:       Stk[iStk-1] = (Stk[iStk-1]==Stk[iStk]) ? 1:0 ; iStk--;                  break;         
+        case SFS_CmpNE:       Stk[iStk-1] = (Stk[iStk-1]!=Stk[iStk]) ? 1:0 ; iStk--;                  break;         
+        case SFS_CmpGE:       Stk[iStk-1] = (Stk[iStk-1]>=Stk[iStk]) ? 1:0 ; iStk--;                  break;         
+        case SFS_CmpGT:       Stk[iStk-1] = (Stk[iStk-1]>Stk[iStk]) ? 1:0 ;  iStk--;                  break;         
+
+        case SFS_And:         Stk[iStk-1] = (Stk[iStk-1] && Stk[iStk]) ? 1:0 ;  iStk--;               break;         
+        case SFS_Or:          Stk[iStk-1] = (Stk[iStk-1] || Stk[iStk]) ? 1:0 ;  iStk--;               break;         
+        
+        case SFS_Not:         Stk[iStk]   = !(bool)Stk[iStk] ;                                              break;           
+        
+        case SFS_Fld:  
+          {
+          if (T.m_sFld.XStrICmp(GraphicFldName)==0)
+            {
+            CString LTag(C.m_sTag());
+            LTag.MakeLower();
+            CXLTagGraphics * pTG;
+            BOOL Found=false;
+            if (C.m_Rpt.m_TGMap.Lookup(LTag, pTG))
+              {
+              Found=pTG->m_GrfTitles.GetCount()>0;
+              if (Found)
+                Stk[++iStk] = pTG->m_GrfTitles[0];
+              }
+            if (!Found)
+              Stk[++iStk] = "<<NoGraphic>>";
+            }
+          else
+            {
+            Strng WrkTag(C.m_sTag);
+            WrkTag+=".";
+            WrkTag+=T.m_sFld;
+            flag UseCnv = (T.m_sCnv.Len()>0);
+            CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
+            CXM_ObjectData ObjData;
+            CXM_Route Route;
+            if (C.m_Mngr.pExecObj->XReadTaggedItem(ObjTag, ObjData, Route))
+              {
+              CPkDataItem &Item = *ObjData.FirstItem();
+              byte cType = Item.Type();
+              if (IsIntData(cType))
+                {
+                Stk[++iStk] = Item.Value()->GetLong();
+                }
+              else if (IsFloatData(cType))
+                {
+                Stk[++iStk] = Item.Value()->GetDouble(Item.CnvIndex(), T.m_sCnv());
+                }
+              else if (IsStrng(cType))
+                {
+                Stk[++iStk] = Item.Value()->GetString();
+                }
+              else 
+                {
+                Stk[++iStk] = 0; 
+                C.m_Mngr.Feedback("Tag %s is not Numeric or String", WrkTag());
+                }
+              }
+            else 
+              {
+              Stk[++iStk] = 0; 
+              if (!C.m_Rpt.m_bIgnoreMissingSelect)
+                C.m_Mngr.Feedback("Tag %s Not Found in Select Term", WrkTag());
+              }
+            }
+          }
+          break;
+
+        default:              INCOMPLETECODE(); break;
+        }
+      if (iStk>=XLRptFnStkSize)
+        {
+        C.m_Mngr.Feedback("Stack overflow");
+        return 0;
+        }
+      }
+    }
+  else
+    Stk[++iStk]=0;
+
+  CXLRptFnValue &V=Stk[iStk--];
+  bool Value=V;
+  ASSERT(iStk==-1);
+#if dbgXLRpt
+  if (DoDbg)
+    {
+    //dbgp("=%10.4f)", Value);
+    dbgpln(" = %s", Value?"TRUE":"false");
+    EvalLevel--;
+    if (EvalLevel>=0)
+      dbgp("%*s%s:",4+EvalLevel*2,"", "");
+    }
+#endif
+  return Value;
+  };
+
+//--------------------------------------------------------------------------
+
+void CXLRptFn::AddTkn(CXLRptFnSymbol & Sym)
+  {
+  m_Syms.Add(Sym);
+  Sym.Clear();
+  };
+
+//--------------------------------------------------------------------------
+
+const int SVErrType_Load = 0;
+bool SetError(COleReportMngr & Mngr, long When, long What)
+  {
+  Strng errDesc;
+  switch (What)
+    {
+    case 122 : errDesc = "Valid expression expected."; break;
+    case 123 : errDesc = "Invalid symbol at start of expression."; break;
+    case 138 : errDesc = "Comparison operator '==' expected."; break;
+    case 139 : errDesc = "Comparison operator '!=' expected."; break;
+    default: errDesc = "Unknown Error Number";
+    };
+
+  Mngr.Feedback("Build error:%s", errDesc);
+
+  return true;
+  };
+
+enum TknTypes { Tkn_Nothing, Tkn_Value, Tkn_Name, Tkn_Number, Tkn_String, Tkn_Other};
+
+bool CXLRptFn::ParseToken(COleReportMngr & Mngr, Strng &Tkn, long &TknType, LPCSTR &pStr)
+  {
+  Tkn="";
+  TknType=Tkn_Nothing;
+  while (*pStr==' ') // skip white space
+    pStr++;
+  if (*pStr=='[') // parse speciename
+    {
+    int BraceLvl=0;
+    pStr++;
+    do
+      {
+      if (*pStr=='[')
+        BraceLvl++;
+      else if (*pStr==']')
+        BraceLvl--;
+      if (BraceLvl>=0)
+        {
+        Tkn+=*pStr;//(*pStr>' '?*pStr:'_');
+        }
+      pStr++;
+      }
+    while (*pStr && BraceLvl>=0);
+    // this is a specie/attname
+    TknType=Tkn_Value;
+    }
+  else if (*pStr=='\"') // parse string
+    {
+    int QuoteLvl=1;
+    pStr++;
+    do
+      {
+      if (*pStr=='\"')
+        QuoteLvl--;
+      if (QuoteLvl>0)
+        Tkn+=*pStr;
+      pStr++;
+      }
+    while (*pStr && QuoteLvl>0);
+    TknType=Tkn_String;
+    }
+  else
+    {
+    if (isdigit(*pStr) || ((*pStr=='-' || *pStr=='+') && isdigit(*(pStr+1))))
+      {
+      TknType=Tkn_Number;
+      Tkn+=*pStr++;
+      while (isdigit(*pStr)) Tkn+=*pStr++;
+      if (*pStr=='.') Tkn+=*pStr++;
+      while (isdigit(*pStr)) Tkn+=*pStr++;
+      if (tolower(*pStr)=='e' && (*pStr=='+' || *pStr=='-' || isdigit(*pStr)))
+        {
+        Tkn+=*pStr++; // e
+        Tkn+=*pStr++; // +,-,n
+        while (isdigit(*pStr)) Tkn+=*pStr++;
+        }
+      }
+    else if (isalpha(*pStr)) // parse function name
+      {
+      TknType=Tkn_Name;
+      do
+      Tkn+=*pStr++;
+      while (*pStr && (isalnum(*pStr)));
+      }
+    else
+      {
+      TknType=Tkn_Other;
+      Tkn=*pStr++;
+      }
+    // Tkn is a Symbol
+    }
+
+
+  return Tkn.Length()>0;
+  }
+
+//--------------------------------------------------------------------------
+
+bool CXLRptFn::ParseExpression(COleReportMngr & Mngr, LPCSTR Str)
+  {
+  if (Str)
+    m_sFormula=Str;
+  else
+    Str=(LPCSTR)m_sFormula();
+
+  m_Syms.SetSize(0,8);
+  bool ErrorOccurred=false;
+  if (Str)
+    {
+    CXLRptFnSymbol Sym;
+
+    Strng Tkn, Tkn2;
+    long TknType;
+
+    CXLRptFnSymbol opStack[1024];
+    int opStackPos = -1;
+    eInfixType InfixChar = IFC_Null;
+    eInfixType PrevInfixChar;
+    flag Pushed =  false;
+    flag Valid = true;
+    flag First = true;
+    flag UseTkn2 = true;
+    LPCSTR pStr=Str;
+    ParseToken(Mngr, Tkn, TknType, pStr);
+    while (Valid)                                                                           
+      {
+      UseTkn2 = false;
+      PrevInfixChar = InfixChar;
+      Sym.m_iSym = SFS_Null;
+      if (TknType == Tkn_Number)
+        {                                //numerical constant...
+        Sym.m_iSym  = SFS_NumConst;
+        Sym.m_Value = SafeAtoF(Tkn());
+        InfixChar   = IFC_NumConst;
+        }
+      else if (TknType == Tkn_String)
+        {                                //numerical constant...
+        Sym.m_iSym  = SFS_StrConst;
+        Sym.m_Value = Tkn();
+        InfixChar   = IFC_StrConst;
+        }
+      else if (TknType == Tkn_Value)
+        {                                // variable or funct expected...
+        //COleReportMngr& M = *pMngr;
+        //Strng WrkTag, WrkField, WrkCnvTxt;
+        TaggedObject::SplitTagCnv(Tkn(), Sym.m_sFld, Sym.m_sCnv);
+        if (Sym.m_sFld.Len()>0)
+          {
+          Sym.m_iSym  = SFS_Fld;
+          //Sym.m_iValue  = 0;
+          //Sym.m_sFld  = WrkTag;
+          InfixChar   = IFC_Var;
+          goto DoneFld;
+          }
+
+        //for (long i=0; i<SVCfgCount(); i++)
+        //  {
+        //  CXLRptItem *I=SVI.Cfg(i);
+        //  if (Tkn.XStrICmp(I->FullTag())==0 || Tkn.XStrICmp(I->FullSym())==0)
+        //    {
+        //    Sym.m_iSym=SFS_SVIndex;
+        //    Sym.m_iValue=I->SVIndex();
+        //    InfixChar = IFC_Var;
+        //    goto DoneSpc;
+        //    }
+        //  }
+        Mngr.Feedback("Invalid value %s in expression", Tkn());
+        Sym.m_iSym = SFS_NumConst;
+        Sym.m_Value = 1.0;
+        InfixChar = IFC_NumConst;
+DoneFld:;
+        }
+      else if (TknType == Tkn_Name)
+        {
+        // Tkn is a Symbol
+        for (long i=0; FnTkns[i].m_iSym < SFS_LastName; i++)
+          {
+          ASSERT(FnTkns[i].m_iSym==i);
+          if (Tkn.XStrICmp(FnTkns[i].m_sTkn)==0)
+            {
+            Sym.m_iSym = FnTkns[i].m_iSym;
+            InfixChar  = FnTkns[i].m_eInfix;
+            goto DoneTkn;
+            }
+          }
+        Mngr.Feedback("Invalid Function Name %s", Tkn());
+        Sym.m_iSym = SFS_NumConst;
+        Sym.m_Value = 1.0;
+        InfixChar = IFC_NumConst;
+DoneTkn:;
+        }
+      else
+        {
+        switch (Tkn[0])
+          {
+          case '=' :
+            ParseToken(Mngr, Tkn2, TknType, pStr);
+            if (Tkn2[0]!='=')
+              ErrorOccurred=SetError(Mngr, SVErrType_Load, 138);
+            Sym.m_iSym = SFS_CmpEQ;
+            InfixChar = IFC_Cmp;
+            break;
+          case '>' :
+            InfixChar = IFC_Cmp;
+            ParseToken(Mngr, Tkn2, TknType, pStr);
+            if (Tkn2[0] == '=')
+              {
+              Sym.m_iSym = SFS_CmpGE;
+              Tkn[1] = Tkn2[0];
+              Tkn[2] = 0;
+              }
+            else
+              {
+              Sym.m_iSym = SFS_CmpGT;
+              UseTkn2=true;
+              }
+            break;
+          case '<' :
+            InfixChar = IFC_Cmp;
+            ParseToken(Mngr, Tkn2, TknType, pStr);
+            if (Tkn2[0] == '=')
+              {
+              Sym.m_iSym = SFS_CmpLE;
+              Tkn[1] = Tkn2[0];
+              Tkn[2] = 0;
+              }
+            else if (Tkn2[0] == '>')
+              {
+              Sym.m_iSym = SFS_CmpNE;
+              Tkn[1] = Tkn2[0];
+              Tkn[2] = 0;
+              }
+            else
+              {
+              Sym.m_iSym = SFS_CmpLT;
+              UseTkn2=true;
+              }
+            break;
+          case '!' :
+            ParseToken(Mngr, Tkn2, TknType, pStr);
+            if (Tkn2[0]!='=')
+              ErrorOccurred=SetError(Mngr, SVErrType_Load, 139);
+            InfixChar = IFC_Cmp;
+            Sym.m_iSym = SFS_CmpNE;
+            Tkn[1] = '>';
+            Tkn[2] = 0;
+            break;
+            //      case '[' :
+            //        pDef = &GCTag;
+            //        InfixChar = SFS_Var;
+            //        break;
+          default:
+            break;
+          }
+        }
+
+      if (Sym.m_iSym == SFS_Null)
+        {
+        for (long i=SFS_FirstOperator; FnTkns[i].m_iSym < SFS_LastOperator; i++)
+          {
+          ASSERT(FnTkns[i].m_iSym==i);
+          if (Tkn.XStrICmp(FnTkns[i].m_sTkn)==0)
+            {
+            Sym.m_iSym = FnTkns[i].m_iSym;
+            InfixChar  = FnTkns[i].m_eInfix;
+            break;
+            }
+          }
+        if (Sym.m_iSym!=SFS_Null)
+          {                              //valid Def found...
+          //if (!(pDef->m_defFlags & m_pH->m_iInsSet))
+          //  SetError(SVErrType_Load, 130);
+          //if (pDef->m_defFlags & DefRetStr)
+          //  SetError(SVErrType_Load, 120);
+          switch(Tkn[0])
+            {
+            case '+' :
+            case '-' :
+              if ( (PrevInfixChar == IFC_Operator) ||
+                (PrevInfixChar == IFC_OBrace) ||
+                (PrevInfixChar == IFC_Not) ||
+                (PrevInfixChar == IFC_Cmp) ||
+                (First) )
+                {
+                ParseToken(Mngr, Tkn, TknType, pStr);
+                if (TknType == Tkn_Number)
+                  {                      //numerical constant...
+                  Sym.m_iSym = SFS_NumConst;
+                  InfixChar  = IFC_NumConst;
+                  }
+                else
+                  Sym.m_iSym = SFS_Null; //forces error
+                }
+              else
+                InfixChar = IFC_Operator;
+              break;
+            case '(' :
+              InfixChar = IFC_OBrace;
+              break;
+            case ')' :
+              InfixChar = IFC_CBrace;
+              break;
+            default  :                   //valid function expected...
+              if (FnTkns[Sym.m_iSym].m_eInfix==IFC_Operator)//pDef->m_defFlags & DefOperator)
+                {
+                if (Sym.m_iSym==SFS_Not)
+                  InfixChar = IFC_Not;
+                else
+                  InfixChar = IFC_Operator;
+                }
+              else
+                InfixChar = IFC_Funct;
+              break;
+            }
+          }
+        }
+
+      Valid = (Sym.m_iSym!=SFS_Null);
+      if (Valid)
+        {
+        if (First)
+          {
+          Valid = ( (InfixChar == IFC_Var) ||
+            (InfixChar == IFC_NumConst) ||
+            (InfixChar == IFC_StrConst) ||
+            (InfixChar == IFC_Funct) ||
+            (InfixChar == IFC_Not) ||
+            (InfixChar == IFC_OBrace) );
+          }
+        else
+          {
+          switch (PrevInfixChar)
+            {
+            case IFC_Var :
+            case IFC_NumConst :
+            case IFC_StrConst :
+            case IFC_Funct :
+            case IFC_CBrace :
+              Valid = ( (InfixChar == IFC_Operator) ||
+                (InfixChar == IFC_CBrace) ||
+                (InfixChar == IFC_Cmp) );
+              break;
+            case IFC_Cmp :
+            case IFC_Operator :
+            case IFC_OBrace :
+            case IFC_Not :
+              Valid = ( (InfixChar == IFC_Var) ||
+                (InfixChar == IFC_NumConst) ||
+                (InfixChar == IFC_StrConst) ||
+                (InfixChar == IFC_Funct) ||
+                (InfixChar == IFC_Not) ||
+                (InfixChar == IFC_OBrace) );
+              break;
+            }
+          }
+        }
+      if ((First) && (!Valid))
+        ErrorOccurred=SetError(Mngr, SVErrType_Load, 123);
+      First = FALSE;
+
+      #if dbgXLRpt
+      if (dbgExpressionLoad())
+          dbgpln("Tkn:%-25s  Valid:%d  opStackPos:%d", Tkn, Valid, opStackPos);
+       #endif
+
+      if (Valid)
+        {
+        switch (InfixChar)
+          {
+          case IFC_NumConst :
+            {
+            Sym.m_Value = SafeAtoF(Tkn());
+            AddTkn(Sym);
+            break;
+            }
+          case IFC_StrConst :
+            {
+            Sym.m_Value = Tkn();
+            AddTkn(Sym);
+            break;
+            }
+          case (IFC_Var)   :
+            switch (Sym.m_iSym)
+              {
+              case SFS_Fld:
+                AddTkn(Sym);
+                break;
+              //case SFS_CfgIndex:
+              //  m_Syms.Add(Sym);
+              //  break;
+              default:
+                DoBreak();
+                break;
+              }
+            break;
+          case (IFC_Funct) :
+            AddTkn(Sym);
+            break;
+          case (IFC_OBrace) :
+            opStack[++opStackPos] = CXLRptFnSymbol(SFS_Open);
+            break;
+          case (IFC_CBrace) :
+            while ((opStackPos >= 0) && (opStack[opStackPos].m_iSym != SFS_Open))
+              AddTkn(opStack[opStackPos--]);
+            if (opStackPos < 0)
+              Valid = FALSE;
+            else
+              opStackPos--;
+            break;
+          default:
+            {
+            Pushed = FALSE;
+            while (!Pushed)
+              {
+              if ((opStackPos < 0) ||
+                (FnTkns[Sym.m_iSym].m_Prec > FnTkns[opStack[opStackPos].m_iSym].m_Prec))
+                {
+                opStack[++opStackPos] = Sym;
+                Pushed = true;
+                }
+              else
+                AddTkn(opStack[opStackPos--]);////opStack[opStackPos--]->Construct(*this);
+              }
+            }
+          }
+        }
+      if (Valid)
+        {
+        if (UseTkn2)
+          Tkn=Tkn2;
+        else
+          ParseToken(Mngr, Tkn, TknType, pStr);
+        }
+      }
+    while(opStackPos >= 0)
+      {
+      if (opStack[opStackPos].m_iSym == SFS_Open)
+        {
+        ErrorOccurred=SetError(Mngr, SVErrType_Load, 122);
+        opStackPos--;
+        }
+      else
+        AddTkn(opStack[opStackPos--]);
+      }
+    }
+
+  if (ErrorOccurred)
+    m_Syms.SetSize(0);
+
+  m_bIsSpcsSum=false;
+
+  return !ErrorOccurred;
+  }
+
+//--------------------------------------------------------------------------
+
+void CXLRptFn::DumpExpression()
+  {
+#if dbgXLRpt
+  if (dbgExpressionParse())
+    {
+    dbgpln("---------------");
+    dbgpln("%s", m_sFormula());
+    for (int i=0; i<m_Syms.GetSize(); i++)
+      {
+      //dbgp("%3i %3i %s ", i, m_Syms[i].m_iSym, FnTkns[m_Syms[i].m_iSym].m_sTkn);
+      switch (m_Syms[i].m_iSym)
+        {
+        case SFS_Fld:
+          dbgp("[%s %s] ", m_Syms[i].m_sFld(), m_Syms[i].m_sCnv());
+          break;
+        //case SFS_CfgIndex:
+        //  dbgp("[%i %s] ", m_Syms[i].m_iValue, SVI.Cfg(m_Syms[i].m_iValue)->FullTag());
+        //  break;
+        case SFS_NumConst:
+        case SFS_StrConst:
+          switch (m_Syms[i].m_Value.m_cType)
+            {
+            case tt_Long:   dbgp("%i ", m_Syms[i].m_Value.m_lValue);   break;
+            case tt_Double: dbgp("%.4f ", m_Syms[i].m_Value.m_dValue); break;
+            case tt_Strng:  dbgp("%s ", m_Syms[i].m_Value.m_sValue);   break;
+            default:        dbgp(" %s", "BadType 2");                  break;
+            }
+          break;
+        default:
+          dbgp("%s ", FnTkns[m_Syms[i].m_iSym].m_sTkn);
+        }
+      //dbgpln("");
+      }
+    dbgpln("");
+    if (m_bIsSpcsSum)
+      {
+      dbgp(" - PureSum: ");
+      for (int i=0; i<m_IndicesOfSumSpcs.GetSize(); i++)
+        dbgp(" %i", m_IndicesOfSumSpcs[i]);
+      dbgpln("");
+      }
+    }
+#endif
+  }
+
+
+//===========================================================================
+
+CExcelReport::CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook) :
+  m_Select(*(new CXLRptFn))
   {
   pMngr = Mngr;
   bResVert = 1;
@@ -585,6 +1480,9 @@ CExcelReport::CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook)
   bIsTagList = 0;
   bIsTagOffsetList = 0;
   bIsAutoTags = 0;
+  m_bIgnoreMissingField = 0;
+  m_bIgnoreMissingSelect = 0;
+  m_bIgnoreMissingOrder = 0;
   iTagFoundCnt = 0;
   pWkBook = WkBook;
   m_TGs.SetSize(0, 256);
@@ -596,6 +1494,7 @@ CExcelReport::~CExcelReport()
   {
   for (int i=0; i<m_TGs.GetCount(); i++)
     delete m_TGs[i];
+  delete &m_Select;
   }
 
 //---------------------------------------------------------------------------
@@ -676,17 +1575,39 @@ int CExcelReport::ParseFn(char* Func)
     }
   iPriMaxLen = iPriLen;
   iSecMaxLen = iSecLen;
-  sNan = (bIsTagList ? (nParms>3 ? f[4] : "*") : (nParms>4 ? f[5] : "*"));
-  sNan.LRTrim();
-  if (sNan.GetLength()==0)
-    sNan="*";
   if (bIsAutoTags)
     {
-    int iFn = bIsTagList ? 5 : 6;
-    if (iFn <= nParms && strnicmp(f[iFn], "select", 6)==0)
-      m_sSelect = f[iFn++];
-    if (iFn <= nParms && strnicmp(f[iFn], "orderby", 7)==0)
-      m_sOrder = f[iFn++];
+    int iFn = 5;
+    while (iFn <= nParms)
+      {
+      if (strnicmp(f[iFn], "select ", 7)==0)
+        m_Select.m_sFormula = &f[iFn][7];
+      else if (strnicmp(f[iFn], "orderby ", 8)==0)
+        m_sOrder = &f[iFn][8];
+      else if (stricmp(f[iFn], "allowmissingfields")==0)
+        m_bIgnoreMissingField = true;
+      else if (stricmp(f[iFn], "allowmissingselectfields")==0)
+        m_bIgnoreMissingSelect = true;
+      else if (stricmp(f[iFn], "allowmissingorderfields")==0)
+        m_bIgnoreMissingOrder = true;
+      else if (strnicmp(f[iFn], "nan:",4)==0)
+        {
+        sNan = &f[iFn][4];          
+        sNan.LRTrim();
+        if (sNan.GetLength()==0)
+          sNan="*";
+        }
+      else
+        pMngr->Feedback("%s", "Unknown Keyword");
+      iFn++;
+      }
+    }
+  else
+    {
+    sNan = (bIsTagList ? (nParms>3 ? f[4] : "*") : (nParms>4 ? f[5] : "*"));
+    sNan.LRTrim();
+    if (sNan.GetLength()==0)
+      sNan="*";
     }
   return 0;
   }
@@ -801,7 +1722,7 @@ void CExcelReport::GetTagPages(CModelTypeListArray& List)
         {
         Strng Tag(pTagList->GetTagAt(k));
         Tag.Lower();
-        CTagGraphics * pTG=new CTagGraphics(Tag());
+        CXLTagGraphics * pTG=new CXLTagGraphics(Tag());
         m_TGs.Add(pTG);
         m_TGMap.SetAt(pTG->m_sTag, pTG);
         }
@@ -823,7 +1744,7 @@ void CExcelReport::GetTagPages(CModelTypeListArray& List)
           int NGrfTags = pGDoc->GetTagList(GrfTagList);
           for (Strng * pTagLst=GrfTagList.First(); pTagLst; pTagLst=GrfTagList.Next())
             {
-            CTagGraphics *pTG;
+            CXLTagGraphics *pTG;
             pTagLst->Lower();
             if (m_TGMap.Lookup((LPCTSTR)pTagLst->Str(), pTG))
               pTG->AddGraphic(GrfTitle);
@@ -847,130 +1768,7 @@ void CExcelReport::GetTagPages(CModelTypeListArray& List)
 
 //---------------------------------------------------------------------------
 
-enum eLclCmps { LclCmp_LT, LclCmp_LE, LclCmp_EQ, LclCmp_NE, LclCmp_GE, LclCmp_GT, LclCmp_Bad };
-LPCTSTR Cmps[] = { "<", "<=", "=", "<>", ">=", ">", NULL };
-LPCTSTR GraphicFldName = "Graphic";
-
-static eLclCmps FindCmp(LPCTSTR Cmp)
-  {
-  for (eLclCmps iCmp=LclCmp_LT; iCmp<=LclCmp_GT; iCmp=(eLclCmps)(iCmp+1))
-    if (stricmp(Cmp, Cmps[iCmp])==0)
-      return iCmp;
-  return LclCmp_Bad;
-  }
-
-BOOL CExcelReport::TagCmpOK(LPTSTR Tag, LPTSTR Field, LPTSTR Cmp, LPTSTR Value)
-  {
-  COleReportMngr& M = *pMngr;
-  Strng WrkTag, WrkField, WrkCnvTxt;
-  TaggedObject::SplitTagCnv(Field, WrkField, WrkCnvTxt);
-  if (WrkField.Len()>0)
-    {
-    if (WrkField.XStrICmp(GraphicFldName)==0)
-      {
-      CString LTag(Tag);
-      LTag.MakeLower();
-      CTagGraphics * pTG;
-      if (m_TGMap.Lookup(LTag, pTG))
-        {
-        eLclCmps iCmp=FindCmp(Cmp);
-
-        if (iCmp!=LclCmp_Bad)
-          {
-          BOOL Found=false;
-          for (int i=0; !Found && i<pTG->m_GrfTitles.GetCount(); i++)
-            Found=pTG->m_GrfTitles[i].CompareNoCase(Value)==0;
-
-          switch (iCmp)
-            {
-            case LclCmp_EQ: return Found;
-            case LclCmp_NE: return !Found;
-            default:
-              M.Feedback("Unvalid Operator %", Cmp);
-            }
-          }
-        else
-          M.Feedback("Unknown Operator %", Cmp);
-        }
-      }
-    else
-      {
-      WrkTag=Tag;
-      WrkTag+=".";
-      WrkTag+=WrkField;
-      flag UseCnv = (WrkCnvTxt.Len()>0);
-      CXM_ObjectTag ObjTag(WrkTag(), (UseCnv ? TABOpt_ValCnvsOnce : 0)|TABOpt_StrList);
-      CXM_ObjectData ObjData;
-      CXM_Route Route;
-      if (M.pExecObj->XReadTaggedItem(ObjTag, ObjData, Route))
-        {
-        CPkDataItem &Item = *ObjData.FirstItem();
-        byte cType = Item.Type();
-        eLclCmps iCmp=FindCmp(Cmp);
-
-        if (iCmp!=LclCmp_Bad)
-          {
-          if (IsIntData(cType))
-            {
-            long L1=Item.Value()->GetLong();
-            long L2=SafeAtoL(Value);
-            switch (iCmp)
-              {
-              case LclCmp_LT: return (L1<L2);
-              case LclCmp_LE: return (L1<=L2);
-              case LclCmp_EQ: return (L1==L2);
-              case LclCmp_NE: return (L1!=L2);
-              case LclCmp_GE: return (L1>=L2);
-              case LclCmp_GT: return (L1>L2);
-              }
-            }
-          else if (IsFloatData(cType))
-            {
-            double D1=Item.Value()->GetDouble(Item.CnvIndex(), WrkCnvTxt());
-            double D2=SafeAtoF(Value);
-            double Diff=D1-D2;
-            double Err;
-            if (ConvergedVV(D1,D2,1e-10, 1e-6, Err))
-              Diff=0;
-            switch (iCmp)
-              {
-              case LclCmp_LT: return Diff <  0.0; //(D1<D2);
-              case LclCmp_LE: return Diff <= 0.0; //(D1<=D2);
-              case LclCmp_EQ: return Diff == 0.0; //(D1==D2);
-              case LclCmp_NE: return Diff != 0.0; //(D1!=D2);
-              case LclCmp_GE: return Diff >= 0.0; //(D1>=D2);
-              case LclCmp_GT: return Diff >  0.0; //(D1>D2);
-              }
-            }
-          else if (IsStrng(cType))
-            {
-            Strng S1=Item.Value()->GetString();
-            switch (iCmp)
-              {
-              case LclCmp_LT: return (stricmp(S1(), Value)<0);
-              case LclCmp_LE: return (stricmp(S1(), Value)<=0);
-              case LclCmp_EQ: return (stricmp(S1(), Value)==0);
-              case LclCmp_NE: return (stricmp(S1(), Value)!=0);
-              case LclCmp_GE: return (stricmp(S1(), Value)>=0);
-              case LclCmp_GT: return (stricmp(S1(), Value)>0);
-              }
-            }
-          else 
-            M.Feedback("Tag %s is not Numeric or String", WrkTag());
-          }
-        else
-          M.Feedback("Unknown Operator %", Cmp);
-        }
-      else 
-        M.Feedback("Tag %s Not Found in Select Term", WrkTag());
-      }
-    }
-  else 
-    M.Feedback("Zero Length Field in Order Term");
-  return false;
-  }
-
-BOOL CExcelReport::CRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport &Rpt, COleReportMngr & Mngr)
+BOOL CXLRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport &Rpt, COleReportMngr & Mngr)
   {
   Strng WrkTag, WrkField, WrkCnvTxt;
   TaggedObject::SplitTagCnv(Field, WrkField, WrkCnvTxt);
@@ -980,19 +1778,21 @@ BOOL CExcelReport::CRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport 
       {
       CString LTag(m_sTag());
       LTag.MakeLower();
-      CTagGraphics * pTG;
+      CXLTagGraphics * pTG;
       if (Rpt.m_TGMap.Lookup(LTag, pTG))
         {
         if (pTG->m_GrfTitles.GetCount()>0)
           {
-          COrdValue OV;
-          OV.m_cType=tt_Strng;
+          CXLOrdValue OV;
           OV.m_bAscend=strnicmp(Fn, "asc", 3)==0;
-          OV.m_sValue=pTG->m_GrfTitles[0];
+          OV.m_Value=pTG->m_GrfTitles[0];
           m_OrdValues.Add(OV);
+          return true;
           }
         else
-          Mngr.Feedback("Tag % not found on any Graphic", m_sTag());
+          {
+          Mngr.Feedback("Tag %s not found on any Graphic", m_sTag());
+          }
         }
       }
     else
@@ -1009,74 +1809,56 @@ BOOL CExcelReport::CRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport 
         CPkDataItem &Item = *ObjData.FirstItem();
         byte cType = Item.Type();
 
-        COrdValue OV;
-
-        OV.m_cType=cType;
+        CXLOrdValue OV;
         OV.m_bAscend=strnicmp(Fn, "asc", 3)==0;
         if (IsIntData(cType))
-          OV.m_lValue=Item.Value()->GetLong();
+          OV.m_Value = Item.Value()->GetLong();
         else if (IsFloatData(cType))
-          OV.m_dValue=Item.Value()->GetDouble(Item.CnvIndex(), WrkCnvTxt());
+          OV.m_Value = Item.Value()->GetDouble(Item.CnvIndex(), WrkCnvTxt());
         else if (IsStrng(cType))
-          OV.m_sValue=Item.Value()->GetString();
+          OV.m_Value = Item.Value()->GetString();
         else 
           {
           Mngr.Feedback("Tag %s is not Numeric or String", WrkTag());
-          return false;
+          goto Bad;
           }
         m_OrdValues.Add(OV);
-
+        return true;
         }
-      else 
+      else if (!Rpt.m_bIgnoreMissingOrder)
         Mngr.Feedback("Tag %s Not Found in Order Term", WrkTag());
       }
     }
   else 
     Mngr.Feedback("Zero Length Field in Order Term");
+Bad:
+  CXLOrdValue OV;
+  m_OrdValues.Add(OV);
   return false;
   }
 
 //---------------------------------------------------------------------------
   
-static int TestOrder(void * p, void * q) 
+static int TestLT(void * p, void * q) 
   { 
-  CExcelReport::CRqdTag & T1=*((CExcelReport::CRqdTag*)p);
-  CExcelReport::CRqdTag & T2=*((CExcelReport::CRqdTag*)q);
+  CXLRqdTag & T1=*((CXLRqdTag*)p);
+  CXLRqdTag & T2=*((CXLRqdTag*)q);
 
   int Cmp=0;
   for(int i=0; i<T1.m_OrdValues.GetCount(); i++)
     {
-    CExcelReport::COrdValue & V1 = T1.m_OrdValues[i]; 
-    CExcelReport::COrdValue & V2 = T2.m_OrdValues[i]; 
+    CXLOrdValue & V1 = T1.m_OrdValues[i]; 
+    CXLOrdValue & V2 = T2.m_OrdValues[i]; 
 
-    if (IsIntData(V1.m_cType))
+    //dbgpln("     %25s %25s %25s %25s", T1.m_sTag(), V1.m_Value.String(), T2.m_sTag(), V2.m_Value.String());
+    if (V1.m_Value!=V2.m_Value)
       {
-      int iDiff = V1.m_lValue - V2.m_lValue;
-      Cmp = iDiff<0 ? -1 : iDiff>0 ? 1 : 0;
-      dbgpln("%3i %25s %10i %25s %10i", Cmp, T1.m_sTag(), V1.m_lValue, T2.m_sTag(), V2.m_lValue);
+      Cmp = (V1.m_bAscend ? (V1.m_Value<V2.m_Value) : (V1.m_Value>V2.m_Value)) ? 1:0;
+      break;
       }
-    else if (IsFloatData(V1.m_cType))
-      {
-      if (!Valid(V1.m_dValue))
-        V1.m_dValue=0;
-      if (!Valid(V2.m_dValue))
-        V2.m_dValue=0;
-      double Diff=V1.m_dValue-V2.m_dValue;
-      Cmp = Diff<0 ? -1 : Diff>0 ? 1 : 0;
-      dbgpln("%3i %25s %10.5f %25s %10.5f", Cmp, T1.m_sTag(), V1.m_dValue, T2.m_sTag(), V2.m_dValue);
-      }
-    else if (IsStrng(V1.m_cType))
-      {
-      int iDiff=stricmp(V1.m_sValue(), V2.m_sValue());
-      Cmp = iDiff<0 ? -1 : iDiff>0 ? 1 : 0;
-      dbgpln("%3i %25s %20s %25s %20s", Cmp, T1.m_sTag(), V1.m_sValue(), T2.m_sTag(), V2.m_sValue());
-      }
-    else
-      Cmp = 0;
-    if (Cmp!=0)
-      return Cmp*(V1.m_bAscend ? 1:-1) < 0 ? 1 : 0;
     }
-  return 0;
+  //dbgpln("%3i", Cmp);
+  return Cmp;
   }
 
 //---------------------------------------------------------------------------
@@ -1116,81 +1898,30 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
   CTagTrees TagTrees;
   TagTrees.Rebuild(RQ_Tags);
 
-  Strng SelectBuff(m_sSelect);
-  CTokenParser STkns(True, True, SelectBuff());
-  STkns.SetSeperators(";= \t()<>![]{}$#@\v\f");
-  STkns.SetWhiteSpace(" \t\v\f");
-
-  Strng ATkn=STkns.NextToken();
-  CArray<Strng, Strng&> SFields, SFns, SValues, SOps; // Quick and Nasty
-  if (stricmp(ATkn(), "select")==0)
-    {
-    ATkn=STkns.NextToken();
-    while (ATkn.GetLength()>0)
-      {
-      //Strng SField, SFn, SValue, SOp; // Quick and Nasty
-      Strng SField=ATkn;
-      Strng SFn=STkns.NextToken();
-      Strng SValue=STkns.NextToken(); 
-      if (SValue=="=" || SValue==">") // second charater of some equality operators 
-        {
-        SFn+=SValue;
-        SValue=STkns.NextToken(); 
-        }
-
-      if (!STkns.AtEnd())
-        {
-        }
-      if (SField() && SField[0]=='\"')
-        SField.LRTrim("\"");
-      if (SField() && SField[0]=='\'')
-        SField.LRTrim("\'");
-      if (SValue() && SValue[0]=='\"')
-        SValue.LRTrim("\"");
-      if (SValue() && SValue[0]=='\'')
-        SValue.LRTrim("\'");
-      
-      SFields.Add(SField);
-      SFns.Add(SFn);
-      SValues.Add(SValue);
-
-      ATkn=STkns.NextToken();
-      if (ATkn.GetLength()>0 && (ATkn.XStrICmp("and")==0 || ATkn.XStrICmp("or")==0))
-        {
-        SOps.Add(ATkn);
-        ATkn=STkns.NextToken();
-        }
-      else
-        break;
-      }
-    }
-
-  Strng OrderBuff(m_sOrder);
-  CTokenParser OTkns(True, True, OrderBuff());
-  OTkns.SetSeperators(";= \t()<>![]{}$#@\v\f");
-  OTkns.SetWhiteSpace(" \t\v\f");
+  m_Select.ParseExpression(*pMngr, NULL);
+  m_Select.DumpExpression();
 
   CArray<Strng, Strng&> OFields, OFns; // Quick and Nasty
-  
-  ATkn=OTkns.NextToken();
-  if (stricmp(ATkn(), "orderby")==0)
+  if (m_sOrder.GetLength()>0)
     {
-    ATkn=OTkns.NextToken();
+    Strng OrderBuff(m_sOrder);
+    CTokenParser OTkns(True, True, OrderBuff());
+    OTkns.SetSeperators(" \t\v\f");
+    OTkns.SetWhiteSpace(" \t\v\f");
+
+    Strng ATkn=OTkns.NextToken();
     while (ATkn.GetLength()>0)
       {
-      //OFields.Add();
       Strng OField=ATkn;
       Strng OFn=OTkns.NextToken();
       if (!OTkns.AtEnd())
         {
         }
-      if (OField() && OField[0]=='\"')
-        OField.LRTrim("\"");
-      if (OField() && OField[0]=='\'')
-        OField.LRTrim("\'");
+      if (OField() && OField[0]=='[')
+        OField=OField.Mid(1, OField.GetLength()-2);
 
-      if (!(OFn.XStrNICmp("Asc",3)==0 || OFn.XStrNICmp("Desc",4)==0))
-        LogWarning("Excel", 0, "Order direction %s unknown", OFn());
+      if (!(OFn.XStrNICmp("asc",3)==0 || OFn.XStrNICmp("des",3)==0))
+        pMngr->Feedback("Order direction %s unknown", OFn());
 
       OFields.Add(OField);
       OFns.Add(OFn);
@@ -1199,12 +1930,12 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
       }
     }
 
-  CArray<CRqdTag*, CRqdTag*> RqdTags; 
+  CArray<CXLRqdTag*, CXLRqdTag*> RqdTags; 
   RqdTags.SetSize(0,512);
   CModelTypeListArray& List = TagTrees.GetList();
 
   GetTagPages(List);
-    
+
   for (int j=0; j<List.GetSize(); j++)
     {
     CModelTypeList* pTagList = List[j];
@@ -1212,15 +1943,12 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
       {
       Strng Tag(pTagList->GetTagAt(k));
 
-      bool OK=true;
-      for (int s=0; s<SFields.GetCount(); s++)
-        {
-        if (!TagCmpOK(Tag(), SFields[s](), SFns[s](), SValues[s]()))
-          OK=false;
-        }
+
+      CXLRptFnCtx Ctx(*this, Tag());
+      bool OK=(m_Select.Evaluate(Ctx)!=0);
       if (OK)
         {
-        CRqdTag * p = new CRqdTag(Tag());
+        CXLRqdTag * p = new CXLRqdTag(Tag());
         for (int o=0; o<OFields.GetCount(); o++)
           p->AddOrderValue(OFields[o](), OFns[o](), *this, *pMngr);
         RqdTags.Add(p);
@@ -1229,7 +1957,7 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
     }
 
   if (RqdTags.GetCount()>0)
-    HpSort(RqdTags.GetSize(), (void**)&RqdTags.ElementAt(0), TestOrder);
+    HpSort(RqdTags.GetSize(), (void**)&RqdTags.ElementAt(0), TestLT);
 
   int iS=0;
   while (iS<RqdTags.GetCount() && iS<iPriMaxLen)
@@ -1332,13 +2060,13 @@ flag CExcelReport::DoReport()
             {
             CString LTag(PriTags[i]());
             LTag.MakeLower();
-            CTagGraphics * pTG;
+            CXLTagGraphics * pTG;
             if (m_TGMap.Lookup(LTag, pTG))
               {
               if (pTG->m_GrfTitles.GetCount()>0)
                 V=pTG->m_GrfTitles[0];
               else
-                M.Feedback("Tag % not found on any Graphic", PriTags[i]());
+                M.Feedback("Tag %s not found on any Graphic", PriTags[i]());
               }
             }
           else
@@ -1395,7 +2123,7 @@ flag CExcelReport::DoReport()
                   else
                     V = (UseCnv ? GetVariant(pItem->Value(), pItem->CnvIndex(), WrkCnvTxt()) : GetVariant(pItem->Value()));
                   }
-                else
+                else if (!m_bIgnoreMissingField)
                   M.Feedback("%s at cell(%s) not found", WrkTag(), CellNm());
                 }
               }
@@ -1635,7 +2363,7 @@ int COleReportMngr::DoAutomation()
         }
       }
   
-    const char* OleKeys[4] = { OleReportKey, OleReportAutoKey, OleReportListKey, OleReportListOffsetKey};
+    const char* OleKeys[4] = { OleReportKey, OleReportSQLKey, OleReportListKey, OleReportListOffsetKey};
     Strng Examples[4];
     Examples[0].Set("%s\"R1\",H,5,32)", OleKeys[0]);
     Examples[1].Set("%s\"R1\",V,8)", OleKeys[1]);
@@ -1652,7 +2380,7 @@ int COleReportMngr::DoAutomation()
       R1.AttachDispatch(lpDispatch, TRUE);
       LPDISPATCH lpDis = R1.Find((char*)OleReportCommonKey);
       if (!lpDis)
-        lpDis = R1.Find((char*)OleReportAutoKey);
+        lpDis = R1.Find((char*)OleReportSQLKey);
       short FirstRow = 0;
       short FirstCol = 0;
       while (lpDis)
@@ -1680,7 +2408,7 @@ int COleReportMngr::DoAutomation()
         int DoingAuto = 0;
         if (FnLen>(int)strlen(OleReportKey) && _strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
           SearchTypes = 0;
-        else if (FnLen>(int)strlen(OleReportAutoKey) && _strnicmp(Fn(), OleReportAutoKey, strlen(OleReportAutoKey))==0)
+        else if (FnLen>(int)strlen(OleReportSQLKey) && _strnicmp(Fn(), OleReportSQLKey, strlen(OleReportSQLKey))==0)
           {
           SearchTypes = 0;
           DoingAuto   = 1;
