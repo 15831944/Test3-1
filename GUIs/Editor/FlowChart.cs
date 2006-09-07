@@ -163,16 +163,40 @@ namespace SysCAD.Editor
       else
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
 
-      float size = (width + height) / 2.0F;
-      fcFlowChart.SelHandleSize = size * 0.005F;
-      fcFlowChart.ArrowHeadSize = size * 0.010F;
-      if (size * 0.001F > getMinArrowheadSize(fcFlowChart.MeasureUnit))
-        fcFlowChart.ArrowIntermSize = size * 0.001F;
+      setSizes();
+    }
+
+    public void setSizes()
+    {
+      float zoomFactor = fcFlowChart.ZoomFactor;
+
+      fcFlowChart.SelHandleSize = 100.0F / zoomFactor;
+      fcFlowChart.MergeThreshold = 100.0F / zoomFactor;
+
+      fcFlowChart.ArrowHeadSize = 150.0F / zoomFactor;
+      if (80.0F / zoomFactor > getMinArrowheadSize(fcFlowChart.MeasureUnit))
+        fcFlowChart.ArrowIntermSize = 80.0F / zoomFactor;
       else
         fcFlowChart.ArrowIntermSize = getMinArrowheadSize(fcFlowChart.MeasureUnit);
-      fcFlowChart.ArrowBaseSize = size * 0.010F;
-      fcFlowChart.MergeThreshold = size * 0.005F;
-      
+      fcFlowChart.ArrowBaseSize = 150.0F / zoomFactor;
+
+      foreach (Link link in state.Links)
+      {
+        link.Arrow.ArrowHeadSize = 150.0F / zoomFactor;
+        if (80.0F / zoomFactor > getMinArrowheadSize(fcFlowChart.MeasureUnit))
+          link.Arrow.IntermHeadSize = 80.0F / zoomFactor;
+        else
+          link.Arrow.IntermHeadSize = getMinArrowheadSize(fcFlowChart.MeasureUnit);
+        link.Arrow.ArrowBaseSize = 150.0F / zoomFactor;
+      }
+
+      fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 4.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+
+      foreach (Item item in state.Items)
+      {
+        item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 4.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      }
+
       fcFlowChart.Invalidate();
     }
 
@@ -901,12 +925,12 @@ namespace SysCAD.Editor
 
                   PointF[] extensionPoints =
                     new PointF[] { anchorPointPos, anchorPointPos };
-                  System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, 5.0F);
+                  System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, fcFlowChart.SelHandleSize);
                   e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
-                    anchorPointPos.X - 2.0F,
-                    anchorPointPos.Y - 2.0F,
-                    anchorPointPos.X + 2.0F,
-                    anchorPointPos.Y + 2.0F));
+                    anchorPointPos.X - fcFlowChart.SelHandleSize,
+                    anchorPointPos.Y - fcFlowChart.SelHandleSize,
+                    anchorPointPos.X + fcFlowChart.SelHandleSize,
+                    anchorPointPos.Y + fcFlowChart.SelHandleSize));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
               }
@@ -951,12 +975,12 @@ namespace SysCAD.Editor
 
                   PointF[] extensionPoints =
                     new PointF[] { anchorPointPos, anchorPointPos };
-                  System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, 5.0F);
+                  System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, fcFlowChart.SelHandleSize);
                   e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
-                    anchorPointPos.X - 2.0F,
-                    anchorPointPos.Y - 2.0F,
-                    anchorPointPos.X + 2.0F,
-                    anchorPointPos.Y + 2.0F));
+                    anchorPointPos.X - fcFlowChart.SelHandleSize,
+                    anchorPointPos.Y - fcFlowChart.SelHandleSize,
+                    anchorPointPos.X + fcFlowChart.SelHandleSize,
+                    anchorPointPos.Y + fcFlowChart.SelHandleSize));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
 
@@ -970,27 +994,6 @@ namespace SysCAD.Editor
     private float Distance(PointF a, PointF b)
     {
       return (float)Math.Sqrt(((a.X - b.X) * (a.X - b.X)) + ((a.Y - b.Y) * (a.Y - b.Y)));
-    }
-
-    internal static float wrongWrongWrongWrongGetMinObjSize(GraphicsUnit currUnit)
-    {
-      switch (currUnit)
-      {
-        case GraphicsUnit.Millimeter:
-          return 2;
-        case GraphicsUnit.Inch:
-          return 1.0f / 6;
-        case GraphicsUnit.Point:
-          return 72.0f / 6;
-        case GraphicsUnit.Pixel:
-          return 6;
-        case GraphicsUnit.Document:
-          return 300.0f / 6;
-        case GraphicsUnit.Display:
-          return 75.0f / 6;
-      }
-
-      return 2;
     }
 
     private void fcFlowChart_DrawArrow(object sender, ArrowDrawArgs e)
@@ -1025,10 +1028,10 @@ namespace SysCAD.Editor
               if (node is Box) errorColor = Color.Yellow;
               else errorColor = Color.Red;
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
               PointF p = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
               RectangleF r = new RectangleF(p, SizeF.Empty);
-              r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, r);
             }
           }
@@ -1057,10 +1060,10 @@ namespace SysCAD.Editor
               if (node is Box) errorColor = Color.Yellow;
               else errorColor = Color.Red;
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
               PointF p = arrow.ControlPoints[0];
               RectangleF r = new RectangleF(p, SizeF.Empty);
-              r.Inflate(wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit), wrongWrongWrongWrongGetMinObjSize(fcFlowChart.MeasureUnit));
+              r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, r);
             }
           }

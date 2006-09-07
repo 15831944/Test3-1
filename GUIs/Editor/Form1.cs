@@ -475,11 +475,8 @@ namespace SysCAD.Editor
       frmFlowChart.FixDocExtents();
 
       frmFlowChart.fcFlowChart.ZoomOut();
-      foreach (Link link in frmFlowChart.state.Links)
-      {
-        link.Arrow.ArrowHeadSize = 200.0F / frmFlowChart.fcFlowChart.ZoomFactor;
-        link.Arrow.IntermHeadSize = 133.0F / frmFlowChart.fcFlowChart.ZoomFactor;
-      }
+
+      frmFlowChart.setSizes();
     }
 
     private void View_ZoomIn()
@@ -487,11 +484,8 @@ namespace SysCAD.Editor
       frmFlowChart.FixDocExtents();
 
       frmFlowChart.fcFlowChart.ZoomIn();
-      foreach (Link link in frmFlowChart.state.Links)
-      {
-        link.Arrow.ArrowHeadSize = 200.0F / frmFlowChart.fcFlowChart.ZoomFactor;
-        link.Arrow.IntermHeadSize = 133.0F / frmFlowChart.fcFlowChart.ZoomFactor;
-      }
+
+      frmFlowChart.setSizes();
     }
 
     private void SetProjectBasedButtons(bool projectExists)

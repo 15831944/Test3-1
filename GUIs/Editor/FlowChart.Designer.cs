@@ -57,7 +57,6 @@ namespace SysCAD.Editor
       this.fcFlowChart.DocExtents = ((System.Drawing.RectangleF)(resources.GetObject("fcFlowChart.DocExtents")));
       this.fcFlowChart.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fcFlowChart.DoubleBuffer = true;
-      this.fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", 5.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.fcFlowChart.GridSizeX = 2F;
       this.fcFlowChart.GridSizeY = 2F;
       this.fcFlowChart.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 5.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
