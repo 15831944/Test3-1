@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="XYLib"
+	Name="04.XYLib"
 	ProjectGUID="{4B658F46-4EA7-41F9-827A-3F06543C4471}"
 	RootNamespace="XYLib"
 	Keyword="MFCProj"

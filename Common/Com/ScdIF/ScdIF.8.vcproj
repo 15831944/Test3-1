@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="ScdIF"
+	Name="00.ScdIF"
 	ProjectGUID="{A2ADF5C0-5945-4704-BD18-679B976C791F}"
 	RootNamespace="ScdIF"
 	Keyword="AtlProj"

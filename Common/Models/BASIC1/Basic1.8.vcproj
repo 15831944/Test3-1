@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Basic1"
+	Name="km.Basic1"
 	ProjectGUID="{1E44FC34-651B-4C29-A53D-512FD627BCB2}"
 	RootNamespace="Basic1"
 	Keyword="MFCProj"

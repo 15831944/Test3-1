@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="ScdVB"
+	Name="x.ScdVB"
 	ProjectGUID="{F2FC7405-614F-4A25-808C-5010C290858E}"
 	RootNamespace="ScdVB"
 	Keyword="AtlProj"

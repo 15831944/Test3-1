@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="SysCADMarshal"
+	Name="21.SysCADMarshal"
 	ProjectGUID="{B6E1DFB6-A122-4EAF-986F-E60F2059D081}"
 	RootNamespace="SysCADMarshal"
 	Keyword="MFCProj"

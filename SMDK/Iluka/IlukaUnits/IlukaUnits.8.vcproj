@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="IlukaUnits"
+	Name="us.IlukaUnits"
 	ProjectGUID="{69BC910C-ADBD-4231-BAB0-F899DA5382A4}"
 	RootNamespace="IlukaUnits"
 	Keyword="MFCProj"

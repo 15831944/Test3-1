@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="FlwLib"
+	Name="05.FlwLib"
 	ProjectGUID="{33C50D7C-35A3-4E95-A23A-A9283A42455B}"
 	RootNamespace="FlwLib"
 	Keyword="MFCProj"
@@ -2182,11 +2182,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
 				>
 			</File>
 			<File
@@ -2194,11 +2194,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
 				>
 			</File>
 			<File

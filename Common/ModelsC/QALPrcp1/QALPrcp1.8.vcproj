@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="QALPrcp1"
+	Name="um.QALPrcp1"
 	ProjectGUID="{F58B26A7-5D2C-4530-95F1-8832202158BC}"
 	RootNamespace="QALPrcp1"
 	Keyword="MFCProj"

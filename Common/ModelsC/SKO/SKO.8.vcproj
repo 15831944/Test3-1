@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="SKO"
+	Name="um.SKO"
 	ProjectGUID="{636A7AE4-72DD-4E3D-8509-4F27A08088C5}"
 	RootNamespace="SKO"
 	Keyword="MFCProj"
