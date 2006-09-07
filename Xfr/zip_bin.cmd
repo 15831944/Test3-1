@@ -21,7 +21,7 @@ goto continue
 :blankname
 echo .
 echo NBNB Usage should be: zip_bin VersionName
-echo Usage example: zip_bin bin114u3
+echo Usage example: zip_bin bin120u2
 echo ---- Ctrl-C to cancel ----
 echo Any key to continue and place files in ScdBins folder
 echo .
@@ -35,80 +35,80 @@ rem ========== SysCAD Standard Files ==========
 set fn2=%fn%_SysCAD.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\syscad91.exe
-wzzip -a %fn2% ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\control1.dll
-wzzip -a %fn2% ..\bin\flwlib.dll ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll 
-wzzip -a %fn2% ..\bin\mdlbase.dll ..\bin\scdcom.dll ..\bin\scddesrvr.dll ..\bin\scdif.dll 
-wzzip -a %fn2% ..\bin\scdlib.dll ..\bin\scdmdl.dll ..\bin\scdopcsrv.dll ..\bin\scdslv.dll
-wzzip -a %fn2% ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopcsrv.dll 
-wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll 
-wzzip -a %fn2% ..\bin\unzip32.dll ..\bin\xylib.dll ..\bin\zip32.dll
-wzzip -a %fn2% ..\bin\power1.dll 
+wzzip -a %fn2% ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\control1.dll ..\bin\flwlib.dll 
+wzzip -a %fn2% ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll ..\bin\mdlbase.dll ..\bin\scdcom.dll
+wzzip -a %fn2% ..\bin\scddesrvr.dll ..\bin\scdif.dll ..\bin\scdlib.dll ..\bin\scdmdl.dll ..\bin\scdopcsrv.dll
+wzzip -a %fn2% ..\bin\scdslv.dll ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopcsrv.dll 
+wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll ..\bin\unzip32.dll 
+wzzip -a %fn2% ..\bin\xylib.dll ..\bin\zip32.dll ..\bin\power1.dll 
 
-wzzip -a %fn2% ..\license\syscad.exe
-
-wzzip -a %fn2% ..\bin\regall.cmd
-wzzip -a %fn2% ..\bin\syscad91.tlb
-wzzip -a %fn2% ..\bin\scdif.tlb ..\bin\scdmdl.tlb ..\bin\scdslv.tlb 
+wzzip -a %fn2% ..\bin\regall.cmd ..\bin\syscad91.tlb ..\bin\scdif.tlb ..\bin\scdmdl.tlb ..\bin\scdslv.tlb 
 wzzip -a %fn2% ..\bin\scdvb.tlb ..\bin\scdcom.tlb
 
-wzzip -a %fn2% ..\bin\crp32001.ngn
+rem ========== SysCAD License Files ==========
+set fn2=%fn%_License.zip
+del %fn2%
+wzzip -a %fn2% ..\license\syscad.exe
+wzzip -a %fn2% ..\license\crp32001.ngn
+wzzip -a %fn2% ..\license\cks.exe ..\license\setupex.exe
 
 rem ========== SysCAD Marshal ==========
 set fn2=%fn%_Marshal.zip
 del %fn2%
-wzzip -a %fn2% ..\bin\SysCADMarshal.exe
-wzzip -a %fn2% ..\bin\SysCADMarshal_ps.dll
-wzzip -a %fn2% ..\bin\ScdIODB.exe
+wzzip -a %fn2% ..\bin\SysCADMarshal.exe ..\bin\SysCADMarshal_ps.dll ..\bin\ScdIODB.exe
 
+
+rem ------- Client DLLs -------
 
 rem ========== Alcan ==========
-set fn2=%fn%_Alcan.zip
+set fn2=%fn%_c_Alcan.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\alcanspm.dll 
 wzzip -a %fn2% ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
 
 rem ========== QAL ==========
-set fn2=%fn%_QAL.zip
+set fn2=%fn%_c_QAL.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
 rem wzzip -a %fn2% ..\bin\ttechqal.dll 
 
 rem ========== CAR ==========
-set fn2=%fn%_CAR.zip
+set fn2=%fn%_c_CAR.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll
 
 rem ========== Alunorte ==========
-set fn2=%fn%_Alunorte.zip
+set fn2=%fn%_c_Alunorte.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\alunorte.dll
 
 rem ========== RTTS ==========
-set fn2=%fn%_RTTS.zip
+set fn2=%fn%_c_RTTS.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
 wzzip -a %fn2% ..\bin\ts_prc.dll
 
 rem ========== Worsley ==========
-set fn2=%fn%_BATC.zip
+set fn2=%fn%_c_BATC.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
 
 rem ========== Iluka ==========
-set fn2=%fn%_Iluka.zip
+set fn2=%fn%_c_Iluka.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
 
 rem ========== Hatch ==========
-set fn2=%fn%_HatchAlcoa.zip
+set fn2=%fn%_c_HatchAlcoa.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\alcoaspmdl.dll
 
 rem ========== Simutron ==========
-set fn2=%fn%_Simutron.zip
+set fn2=%fn%_c_Simutron.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
 
+rem ------ ALL Client DLLs ------
 rem ========== Kenwalt ==========
 set fn2=%fn%_Kenwalt.zip
 del %fn2%
