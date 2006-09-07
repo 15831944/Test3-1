@@ -93,12 +93,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1930D463E2E04E4ABDFE8616C09B567E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -699,12 +693,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CD349888FC59A3E216811DE13C48C797"
-        "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_CE1871E036974FB293ED2F4528C6724D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -815,12 +803,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_15DF02FE13894636A30DF2C85A26A304"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1010,7 +992,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.18876, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.28070, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_03C32B478AA4711A98D1C24E93CE1D36"
@@ -1281,7 +1263,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.18875, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.28070, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_1DCA6D76B684F3D645BC6761D5E8DBF5"
@@ -3610,19 +3592,19 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Editor & Service"
-        "ProductCode" = "8:{33711B91-1B73-4D78-99BD-DE00360A7649}"
-        "PackageCode" = "8:{C141D8A8-61B7-4877-A93D-4E0A642718CE}"
+        "ProductName" = "8:Editor"
+        "ProductCode" = "8:{326B7193-4A8B-44B5-BBE6-0B62064E9BE2}"
+        "PackageCode" = "8:{0D258ACF-AEDD-495A-9A77-7BED22BC1D53}"
         "UpgradeCode" = "8:{D662DE63-23E0-4793-AE99-B412D97F451F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:10.0.8"
+        "ProductVersion" = "8:10.0.9"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:\"Editor & Stencil\""
+        "Title" = "8:Editor"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Kenwalt"
         "Keywords" = "8:"
@@ -3731,20 +3713,6 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_D73F703CFF9F48178D98FF1EB25F596F"
-            {
-            "Name" = "8:Service"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_15DF02FE13894636A30DF2C85A26A304"
-            "Folder" = "8:_52972B49807E45398EC1AAE872F18A63"
-            "WorkingFolder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DFB49BAE3A1B4AAFB9AD966DBF8C87C9"
             {
             "Name" = "8:Editor"
@@ -4181,34 +4149,6 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_15DF02FE13894636A30DF2C85A26A304"
-            {
-            "SourcePath" = "8:..\\..\\..\\Services\\obj\\Debug\\Service.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{A1A03BDC-DBB9-4580-A598-10629434BC72}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "GUIs\Editor\Editor.csproj", "{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Services\Service.csproj", "{A1A03BDC-DBB9-4580-A598-10629434BC72}"
-EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "EditorSetup", "GUIs\Editor\Setup\Setup.vdproj", "{1C3DD84C-2BAA-43A7-A985-0D0E11CB36DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overview", "GUIs\FlowChart.NET\Overview\Overview.csproj", "{77CCAE13-E283-4677-B227-D39E75BA48EC}"
@@ -50,28 +48,6 @@ Global
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Trial Release|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.BETA Release|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Distribution|Any CPU.Build.0 = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Release_Dbg|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Standard|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Standard|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1A03BDC-DBB9-4580-A598-10629434BC72}.Trial Release|Any CPU.Build.0 = Release|Any CPU
 		{1C3DD84C-2BAA-43A7-A985-0D0E11CB36DA}.BETA Debug|Any CPU.ActiveCfg = Debug
 		{1C3DD84C-2BAA-43A7-A985-0D0E11CB36DA}.BETA Debug|Any CPU.Build.0 = Debug
 		{1C3DD84C-2BAA-43A7-A985-0D0E11CB36DA}.BETA Release|Any CPU.ActiveCfg = Release
