@@ -320,6 +320,7 @@ class DllImportExport CSysCADLicense : public CLicense
     int               IllegalNodeCount(eLicOptions Opt=eLic_None);
     void              BumpIllegalModelCount(int Count, LPTSTR ClassId, eLicOptions Opts=eLic_None);
     int               IllegalModelCount(eLicOptions Opt=eLic_None);
+    int               IllegalNodeModelCount(eLicOptions Opt=eLic_None);
 
     int               MaxNodesAllowed(BOOL ForDynamic);
     int               MaxNodesAllowed();                                 

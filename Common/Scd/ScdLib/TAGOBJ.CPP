@@ -347,7 +347,7 @@ dbgpln("%-25s %-25s %-25s %-25s %-25s %-25s ", pClassName_, pGroup_, pClassId_, 
   sDefaultTag=pDefTag_;
   m_bLicenseOK=1;
   m_bLicErrNoted=0;
-  m_bCreateIfNotLicensed=false;
+  m_bCreateIfNotLicensed=true;// CNM false;
   m_bSelectable=(dwSelectMask_!=0);
   dwSelectMask=dwSelectMask_;
   fDuplicateExists=False;
@@ -629,6 +629,12 @@ TaggedObject *TagObjClass::Construct(pchar pGroup_, pchar pClassId_, pchar pSubC
 
   if (pC)
     {
+    if (!pC->LicenseOK())
+      {
+      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), !pC->LicErrNoted() ? eLic_Msg:eLic_None);
+      pC->SetLicErrNoted(true);
+      }
+
     if (pC->LicenseOK() || pC->m_bCreateIfNotLicensed)
       {
       if (strlen(pGroup_)>0 && _stricmp(pGroup_, pC->sGroup())!=0)
@@ -637,11 +643,6 @@ TaggedObject *TagObjClass::Construct(pchar pGroup_, pchar pClassId_, pchar pSubC
         return NULL;
         }
       pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
-      }
-    else
-      {
-      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), eLic_Msg);
-      pC->SetLicErrNoted(true);
       }
     }
   #if dbgConstructObj
@@ -663,6 +664,12 @@ TaggedObject *TagObjClass::ConstructGrp(pchar pClassId_, pchar pSubClassId, pcha
 
   if (pC)
     {
+    if(!pC->LicenseOK())
+      {
+      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), !pC->LicErrNoted() ? eLic_Msg:eLic_None);
+      pC->SetLicErrNoted(true);
+      }
+
     if(pC->LicenseOK() || pC->m_bCreateIfNotLicensed)
       {
       if (pC->m_bIsCOMClass)
@@ -671,11 +678,6 @@ TaggedObject *TagObjClass::ConstructGrp(pchar pClassId_, pchar pSubClassId, pcha
         }
       else
         pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
-      }
-    else
-      {
-      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), eLic_Msg);
-      pC->SetLicErrNoted(true);
       }
     }
   #if dbgConstructObj
@@ -693,14 +695,15 @@ TaggedObject *TagObjClass::ConstructGrpDesc(pchar pShortDesc_, pchar pSubClassId
 
   if (pC)
     {
+    if(!pC->LicenseOK())
+      {
+      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), !pC->LicErrNoted() ? eLic_Msg:eLic_None);
+      pC->SetLicErrNoted(true);
+      }
+
     if(pC->LicenseOK() || pC->m_bCreateIfNotLicensed)
       {
       pO=pC->Construct(pSubClassId, pRqdTag, pAttach, eAttach);
-      }
-    else
-      {
-      gs_License.BumpIllegalModelCount(1, pC->ShortDesc(), eLic_Msg);
-      pC->SetLicErrNoted(true);
       }
     }
 

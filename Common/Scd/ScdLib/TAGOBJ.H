@@ -568,7 +568,8 @@ class DllImportExport TagObjClass
     flag           CatModeTest(dword dwCat)                    { return ((TOC_SOLVE_MASK & dwCategory & dwCat)!=0); };
     flag           TestLicenseOK(dword dwCat, flag LicErrNotedOn)    { m_bLicenseOK=(CatMdlTest(dwCat)/* && CatModeTest(dwCat)*/); m_bLicErrNoted=LicErrNotedOn; return m_bLicenseOK; };
     flag           LicenseOK()                                 { return m_bLicenseOK; };
-    void           SetLicErrNoted(flag On)                     { m_bLicErrNoted=On; };
+    flag           SetLicErrNoted(flag On)                     { m_bLicErrNoted = On; return m_bLicErrNoted; };
+    flag           LicErrNoted()                               { return m_bLicErrNoted; };
 
     short          NIdNos()                                    { return iNIds; };
     short          IdNo()                                      { return iId; };
@@ -675,9 +676,9 @@ inline Strng GetClassIdNoVersion(LPCTSTR pClass)
 class CClassLicenseOptions 
   {
   public:
-    CClassLicenseOptions (TagObjClass & TOClass, flag CreateIfNoLicensed)
+    CClassLicenseOptions (TagObjClass & TOClass, flag CreateIfNotLicensed)
       {
-      TOClass.m_bCreateIfNotLicensed=CreateIfNoLicensed;
+      TOClass.m_bCreateIfNotLicensed=CreateIfNotLicensed;
       };
 
   public:

@@ -1853,7 +1853,10 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
     gs_License.BumpNodeCount(+1, TagIn);
 
   if (!Class()->LicenseOK())
-    gs_License.BumpIllegalNodeCount(+1, Class()->ClassName(), eLic_Msg);
+    {
+    gs_License.BumpIllegalNodeCount(+1, Class()->ClassName(), !Class()->LicErrNoted() ? eLic_Msg:eLic_None);
+    Class()->SetLicErrNoted(true);
+    }
 
   m_AllowedModes=0;
 
@@ -2004,7 +2007,7 @@ FlwNode::~FlwNode()
     gs_License.BumpNodeCount(-1, FullObjTag());
 
   if (!Class()->LicenseOK())
-    gs_License.BumpIllegalNodeCount(-1, Class()->ShortDesc(), eLic_Msg);
+    gs_License.BumpIllegalNodeCount(-1, Class()->ShortDesc(), eLic_None);
 
   };
 

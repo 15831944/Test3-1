@@ -2969,19 +2969,19 @@ flag CProject::DoLoadDB(char* pPrjFiles, char* pOldPrjName)
   if (!gs_Exec.LoadDBase(eLdDB_Create, LDBI))
     goto Failed;
   
-  if (gs_License.IllegalNodeCount(eLic_MsgBox)>0)
+  if (gs_License.IllegalNodeModelCount(eLic_MsgBox)>0)
     {
     LDBI.m_Failed=true;
     goto Failed;
     }
 
-#if !BYPASSLICENSING //pkh
+//CNM #if !BYPASSLICENSING //pkh
   if (gs_License.NodeCountExceeded(0, eLic_MsgBox))
     {
     LDBI.m_Failed=true;
     goto Failed;
     }
-#endif //pkh
+//CNM #endif //pkh
 
   if (!gs_Exec.LoadDBase(eLdDB_Connect, LDBI))
     goto Failed;

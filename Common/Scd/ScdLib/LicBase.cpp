@@ -3339,6 +3339,26 @@ int  CSysCADLicense::IllegalNodeCount(eLicOptions Opts)
 
 //---------------------------------------------------------------------------
 
+int  CSysCADLicense::IllegalNodeModelCount(eLicOptions Opts)                 
+  { 
+  if ((m_IllegalNodeCount+m_IllegalModelCount)>0 && Opts!=eLic_None)
+    {
+    Strng S, L;
+    L= DefNetProbalMode() ? "ProBal" : "Dynamic";
+    if (m_IllegalNodeCount>0 && m_IllegalModelCount>0)
+      S.Set("Project contains %d units and %d models not allowed by %s license", m_IllegalNodeCount, m_IllegalModelCount, L());
+    else if (m_IllegalNodeCount>0)
+      S.Set("Project contains %d units not allowed by %s license", m_IllegalNodeCount, L());
+    else
+      S.Set("Project contains %d models not allowed by %s license", m_IllegalModelCount, L());
+
+    LogError("SysCAD", (Opts==eLic_MsgBox? LF_DoAfxMsgBox:0)|LF_Exclamation, "%s", S());
+    }
+  return m_IllegalNodeCount+m_IllegalModelCount; 
+  };
+
+//---------------------------------------------------------------------------
+
 void CSysCADLicense::BumpIllegalNodeCount(int Count, LPTSTR ClassId, eLicOptions Opts)
   { 
   m_IllegalNodeCount+=Count; 
