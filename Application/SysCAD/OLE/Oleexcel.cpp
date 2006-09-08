@@ -1833,7 +1833,7 @@ BOOL CXLRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport &Rpt, COleRe
         if (pTG->m_GrfTitles.GetCount()>0)
           {
           CXLOrdValue OV;
-          OV.m_bAscend=strnicmp(Fn, "asc", 3)==0;
+          OV.m_bAscend= (Fn==NULL) || (strlen(Fn)==0) || (strnicmp(Fn, "asc", 3)==0);
           OV.m_Value=pTG->m_GrfTitles[0];
           m_OrdValues.Add(OV);
           return true;
@@ -1859,7 +1859,7 @@ BOOL CXLRqdTag::AddOrderValue(LPTSTR Field, LPTSTR Fn, CExcelReport &Rpt, COleRe
         byte cType = Item.Type();
 
         CXLOrdValue OV;
-        OV.m_bAscend=strnicmp(Fn, "asc", 3)==0;
+        OV.m_bAscend = (Fn==NULL) || (strlen(Fn)==0) || (strnicmp(Fn, "asc", 3)==0);
         if (IsIntData(cType))
           OV.m_Value = Item.Value()->GetLong();
         else if (IsFloatData(cType))
@@ -1964,19 +1964,22 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
       {
       Strng OField=ATkn;
       Strng OFn=OTkns.NextToken();
-      if (!OTkns.AtEnd())
-        {
-        }
+
       if (OField() && OField[0]=='[')
         OField=OField.Mid(1, OField.GetLength()-2);
 
-      if (!(OFn.XStrNICmp("asc",3)==0 || OFn.XStrNICmp("des",3)==0))
-        pMngr->Feedback("Order direction %s unknown", OFn());
-
-      OFields.Add(OField);
-      OFns.Add(OFn);
-
-      ATkn=OTkns.NextToken();
+      if (OFn.XStrNICmp("asc",3)==0 || OFn.XStrNICmp("des",3)==0)
+        {
+        OFields.Add(OField);
+        OFns.Add(OFn);
+        ATkn=OTkns.NextToken();
+        }
+      else
+        {
+        OFields.Add(OField);
+        OFns.Add(Strng(""));
+        ATkn=OFn;
+        }
       }
     }
 
