@@ -454,7 +454,9 @@ class CExcelReport
                         bIsAutoTags,
                         m_bIgnoreMissingField,
                         m_bIgnoreMissingSelect,
-                        m_bIgnoreMissingOrder;     
+                        m_bIgnoreMissingOrder,
+                        m_bClearRange,
+                        m_bClearTags;
 
     CXLRptFn          & m_Select;
     Strng               m_sOrder;

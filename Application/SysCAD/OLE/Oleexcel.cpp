@@ -1480,9 +1480,12 @@ CExcelReport::CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook) :
   bIsTagList = 0;
   bIsTagOffsetList = 0;
   bIsAutoTags = 0;
-  m_bIgnoreMissingField = 0;
-  m_bIgnoreMissingSelect = 0;
-  m_bIgnoreMissingOrder = 0;
+  m_bIgnoreMissingField = false;
+  m_bIgnoreMissingSelect = false;
+  m_bIgnoreMissingOrder = false;
+  m_bClearRange = false;
+  m_bClearTags = false;
+
   iTagFoundCnt = 0;
   pWkBook = WkBook;
   m_TGs.SetSize(0, 256);
@@ -1580,25 +1583,71 @@ int CExcelReport::ParseFn(char* Func)
     int iFn = 5;
     while (iFn <= nParms)
       {
+      Strng S(f[iFn]);
+      if (S.XStrChr(':'))
+        {
+        int PosColon=S.XStrChr(':')-S();
+        S=S.Mid(PosColon+1);
+        S.LRTrim();
+        S.Lower();
+        }
       if (strnicmp(f[iFn], "select ", 7)==0)
         m_Select.m_sFormula = &f[iFn][7];
       else if (strnicmp(f[iFn], "orderby ", 8)==0)
         m_sOrder = &f[iFn][8];
-      else if (stricmp(f[iFn], "allowmissingfields")==0)
-        m_bIgnoreMissingField = true;
-      else if (stricmp(f[iFn], "allowmissingselectfields")==0)
-        m_bIgnoreMissingSelect = true;
-      else if (stricmp(f[iFn], "allowmissingorderfields")==0)
-        m_bIgnoreMissingOrder = true;
+      else if (strnicmp(f[iFn], "missingfields:", 14)==0)
+        {
+        if (S=="ignore")
+          m_bIgnoreMissingField = true;
+        else if (S=="warn")
+          m_bIgnoreMissingField = false;
+        else
+          pMngr->Feedback("Unknown Option:%s", f[iFn]);
+        }
+      else if (strnicmp(f[iFn], "missingselectfields:", 20)==0)
+        {
+        if (S=="ignore")
+          m_bIgnoreMissingSelect = true;
+        else if (S=="warn")
+          m_bIgnoreMissingSelect = false;
+        else
+          pMngr->Feedback("Unknown Option:%s", f[iFn]);
+        }
+      else if (strnicmp(f[iFn], "missingorderfields:", 19)==0)
+        {
+        if (S=="ignore")
+          m_bIgnoreMissingOrder = true;
+        else if (S=="warn")
+          m_bIgnoreMissingOrder = false;
+        else
+          pMngr->Feedback("Unknown Option:%s", f[iFn]);
+        }
+      else if (strnicmp(f[iFn], "cleartags:", 10)==0)
+        {
+        if (S=="on")
+          m_bClearTags = true;
+        else if (S=="off")
+          m_bClearTags = false;
+        else
+          pMngr->Feedback("Unknown Option:%s", f[iFn]);
+        }
+      else if (strnicmp(f[iFn], "clearrange:", 11)==0)
+        {
+        if (S=="on")
+          m_bClearRange = true;
+        else if (S=="off")
+          m_bClearRange = false;
+        else
+          pMngr->Feedback("Unknown Option:%s", f[iFn]);
+        }
       else if (strnicmp(f[iFn], "nan:",4)==0)
         {
-        sNan = &f[iFn][4];          
-        sNan.LRTrim();
+        sNan = S;
         if (sNan.GetLength()==0)
           sNan="*";
         }
       else
-        pMngr->Feedback("%s", "Unknown Keyword");
+        pMngr->Feedback("Unknown Keyword:%s", f[iFn]);
       iFn++;
       }
     }
@@ -1889,6 +1938,7 @@ void CExcelReport::ClearSecondary(OWorksheet* pSheet, ORange & Range, int Row1, 
 //---------------------------------------------------------------------------
 
 LPTSTR TagOverunStr = "<<Tag Overrun>>";
+LPTSTR LastTagStr   = "<<End>>";
 
 BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
   {
@@ -1969,31 +2019,37 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
     lpDispatch = pSheet->Cells(Row1, Col1);
     Range.AttachDispatch(lpDispatch, TRUE);
     Range.SetValue(RqdTags[iS]->m_sTag());
-    ClearSecondary(pSheet, Range, Row1, Col1);
+    if (m_bClearRange)
+      ClearSecondary(pSheet, Range, Row1, Col1);
     iS++;
     }
 
+  // Mark the End
+  lpDispatch = pSheet->Cells(Row1, Col1);
+  Range.AttachDispatch(lpDispatch, TRUE);
   if (iS<RqdTags.GetCount()) // more tags - add marker
-    {
-    // Rewind
-    lpDispatch = pSheet->Cells(Row1, Col1);
-    Range.AttachDispatch(lpDispatch, TRUE);
     Range.SetValue(TagOverunStr);
+  else
+    Range.SetValue(LastTagStr);
+  if (m_bClearRange)
     ClearSecondary(pSheet, Range, Row1, Col1);
-    }
-  
-  // Clear remaining potential Tags
-  while (iS<iPriMaxLen)
+
+  if (m_bClearTags)
     {
-    if (bPriVert)
-      Row1++;
-    else
-      Col1++;
-    lpDispatch = pSheet->Cells(Row1, Col1);
-    Range.AttachDispatch(lpDispatch, TRUE);
-    Range.SetValue("");
-    ClearSecondary(pSheet, Range, Row1, Col1);
-    iS++;
+    // Clear remaining potential Tags
+    while (iS<iPriMaxLen)
+      {
+      if (bPriVert)
+        Row1++;
+      else
+        Col1++;
+      lpDispatch = pSheet->Cells(Row1, Col1);
+      Range.AttachDispatch(lpDispatch, TRUE);
+      Range.SetValue("");
+      if (m_bClearRange)
+        ClearSecondary(pSheet, Range, Row1, Col1);
+      iS++;
+      }
     }
 
   for (int iS=0; iS<RqdTags.GetCount(); iS++)
@@ -2037,10 +2093,12 @@ flag CExcelReport::DoReport()
   short Row = ResLoc.iRow;
   short Col = ResLoc.iColumn;
   Strng Tag, WrkTag, WrkCnvTxt, FirstTag, LastTag, CellNm;
-  for (short i=0; i<PriLen; i++)
+  bool IsLastTag=false;
+  for (short i=0; i<PriLen && !IsLastTag; i++)
     {
     if (PriTags[i].Length()>0 && PriTags[i].XStrCmp(TagOverunStr)==0)
       continue;
+    IsLastTag=(PriTags[i].Length()>0 && PriTags[i].XStrCmp(LastTagStr)==0);
     for (short Off=0; Off<iSecMult; Off++)
       {
       if (bResVert)
@@ -2054,7 +2112,11 @@ flag CExcelReport::DoReport()
         V.ChangeType(VT_EMPTY);
         flag Incomplete = 0;
         flag DoSet = 1;
-        if (PriTags[i].Length()>0 && (bIsTagList || SecTags[j+Off*SecLen].Length()>0))
+        if (IsLastTag)
+          {
+          V="";
+          }
+        else if (PriTags[i].Length()>0 && (bIsTagList || SecTags[j+Off*SecLen].Length()>0))
           {
           if (SecTags[j+Off*SecLen].XStrICmp(GraphicFldName)==0)
             {
@@ -2124,7 +2186,9 @@ flag CExcelReport::DoReport()
                     V = (UseCnv ? GetVariant(pItem->Value(), pItem->CnvIndex(), WrkCnvTxt()) : GetVariant(pItem->Value()));
                   }
                 else if (!m_bIgnoreMissingField)
+                  {
                   M.Feedback("%s at cell(%s) not found", WrkTag(), CellNm());
+                  }
                 }
               }
             else
@@ -2447,11 +2511,6 @@ int COleReportMngr::DoAutomation()
             }
           }
 
-        if (DoingAuto)
-          {
-          R.GetAutoTags(&WkSheet, R2.GetRow(), R2.GetColumn());
-          }
-        
         if (OK)
           {
           if (bAll || (R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0))
@@ -2481,6 +2540,9 @@ int COleReportMngr::DoAutomation()
               R.PriLoc.Set(WkSheetNames[i-1](), RRow, RCol+CMult);
               R.SecLoc.Set(WkSheetNames[i-1](), Row+1, Col);
               }
+            if (DoingAuto)
+              R.GetAutoTags(&WkSheet, R2.GetRow(), R2.GetColumn());
+            
             OK = R.CheckParms();
             if (OK)
               {
