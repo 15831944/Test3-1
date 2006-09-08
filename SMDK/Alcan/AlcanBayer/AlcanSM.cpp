@@ -50,8 +50,8 @@ MSpeciePtr   Steam             (InitTest, "H2O(g)",        true);
 const double MW_C        = 12.011;
 
 enum DLM_DefineLiquorMethod { DLM_TotOrganics, DLM_TOC };
-enum ASM_AlSolubilityMethod { ASM_Original, ASM_March2002, ASM_May2003, ASM_Hyprod  };
-enum CPM_HeatCapacityMethod { CPM_Original, CPM_Hyprod  };
+enum ASM_AlSolubilityMethod { ASM_Original, ASM_March2002, ASM_May2003, ASM_Hyprod };
+enum CPM_HeatCapacityMethod { CPM_Original, CPM_Hyprod, CPM_Langa };
 enum BDM_BayerDensityMethod { BDM_Original, BDM_March2002, BDM_July2003, BDM_MD };
 enum GRM_GrowthRateMethod { GRM_Original, GRM_Nov2003, GRM_Hyprod };
 enum BPM_BPEMethod { BPM_Dewey, BPM_Adamson };
@@ -487,7 +487,37 @@ double CAlcanSM::LiqCpCalc(MArray & MA, double T)
 	      }
       return Cpl;
       }
-		}
+    case CPM_Langa:
+      {
+      //As per email from Catherine Venz dated 25/07/06
+      //Langa Model: 
+      //Cpl = (0.99639 - 0.000390998*TNa  - 0.00053832*Al + 0.000000246493*TNa*TNa +0.00000057186*TNa*Al - 0.000000186581*Al*TempC - 0.000000107766*TNa*TempC - 0.000151278*TempC + 0.0000021464*TempC*TempC) * 4.186 
+      //where Cpl is in       kJ/kg.C 
+      //      TempC is in     degrees C 
+      //      TNa is          g Na2CO3 / L 
+      //      Al is           g Al2O3 / L 
+      double Cpl;
+      LiqConcs25.Converge(MA);
+      const double Tc = K2C(T);
+      //const double TNa = LiqConcs25.LTotalSodium(MA); //g Na2CO3 / L 
+      const double TNaConc = 
+                  LiqConcs25.Liq[::CausticSoda]     // NaOH
+                + LiqConcs25.Liq[::SodiumCarbonate] // Na2CO3
+                + LiqConcs25.Liq[SodiumOxalate]     // Na2C2O4
+                + LiqConcs25.Liq[Organics]          // Na2C5O7
+                + LiqConcs25.Liq[Organics1]         // Na2C5O11
+                + LiqConcs25.Liq[SodiumChloride]    // NaCl
+                + LiqConcs25.Liq[SodiumSulphate]    // Na2SO4
+                + LiqConcs25.Liq[SodiumFluoride];   // NaF
+      const double CAlum = LiqConcs25.Liq[::Alumina];
+      Cpl = (0.99639 - 0.000390998*TNaConc  - 0.00053832*CAlum + 
+             0.000000246493*TNaConc*TNaConc + 0.00000057186*TNaConc*CAlum - 
+             0.000000186581*CAlum*Tc - 0.000000107766*TNaConc*Tc - 
+             0.000151278*Tc + 0.0000021464*Tc*Tc) * 4.186;
+      //Cpl = KCal_2_kJ(Cpl); // kJ/kg.degC   (KCal_2_kJ=4.184)
+      return Cpl;
+      }
+    }
   return 0.0;
   }
 
@@ -868,13 +898,14 @@ static MPropertyInfo::MStringValueP SVDens[]={
   { "MD",        BDM_MD  },
   {0}};
 static MPropertyInfo::MStringValueP SVGrw[]={
-  { "Original",  GRM_Original  },
-  { "Nov2003", GRM_Nov2003 },
-  { "Hyprod",  GRM_Hyprod  },
+  { "Original", GRM_Original },
+  { "Nov2003",  GRM_Nov2003  },
+  { "Hyprod",   GRM_Hyprod   },
   {0}};
 static MPropertyInfo::MStringValueP SVCp[]={
-  {"Original",  CPM_Original   },
-  {"Hyprod",	CPM_Hyprod },
+  {"Original",  CPM_Original },
+  {"Hyprod",	  CPM_Hyprod   },
+  {"Langa",     CPM_Langa    },
   {0}};
 static MPropertyInfo::MStringValueP SVBPE[]={
   {"Dewey",   BPM_Dewey   },
