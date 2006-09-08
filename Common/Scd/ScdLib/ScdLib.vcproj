@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="ScdLib"
+	Name="01.ScdLib"
 	ProjectGUID="{9212F7EF-A438-4CE6-99E8-3C45034E403D}"
 	Keyword="MFCProj">
 	<Platforms>

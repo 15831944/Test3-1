@@ -27,7 +27,7 @@
 #else
 #define BYPASSLICENSING         0
 #endif
-#define ALLOWCNMVERSION         01
+#define ALLOWCNMVERSION         0
 //----------------------------------
 
 #else
@@ -40,7 +40,7 @@
 #else
 #define BYPASSLICENSING         0
 #endif
-#define ALLOWCNMVERSION         01
+#define ALLOWCNMVERSION         0
 
 #endif
 
