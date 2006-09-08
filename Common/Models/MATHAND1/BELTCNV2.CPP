@@ -1399,7 +1399,13 @@ flag BeltCnv2::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
     {
     case MGT_Create:
       break;
-    case MGT_Draw:
+
+    case MGT_EraseBkgnd:
+        // Use Wnd.m_pDC;
+       Wnd.m_bReturn = 0;// 1 if erased else 0
+      break;
+
+    case MGT_Paint:
       {
       double CursX=-1;
       double CursLd=0;
@@ -1417,9 +1423,9 @@ flag BeltCnv2::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
         int y1 = y0+(int)((1.0-S.Loading()/m_MaxSpillLoading)*(Wnd.m_ClientRect.bottom-y0));
         int y2 = Wnd.m_ClientRect.bottom;
         if (x1>xlast)
-          Wnd.m_pDC->FillSolidRect(CRect(xlast,0,x1,y2), Black);
-        Wnd.m_pDC->FillSolidRect(CRect(x1,0,x2,y1), Black);
-        Wnd.m_pDC->FillSolidRect(CRect(x1,y1,x2,y2), Cyan);
+          Wnd.m_pPaintDC->FillSolidRect(CRect(xlast,0,x1,y2), Black);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(x1,0,x2,y1), Black);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(x1,y1,x2,y2), Cyan);
         xlast=x2;
 
         if (S.Start()<=CursX && CursX<=S.End())
@@ -1432,18 +1438,18 @@ flag BeltCnv2::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
         if (Fd.Spill.Cd.QMass()>1e-6)
           {
           int x=(int)(Fd.Position()/m_Q.Length()*Wnd.m_ClientRect.right);
-          Wnd.m_pDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(255,0,0)));
+          Wnd.m_pPaintDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(255,0,0)));
           }
         }
       
       if (/*m_LBtnDn &&*/ m_MousePt.x>=0 && m_MousePt.x<Wnd.m_ClientRect.right)
         {
         int x=m_MousePt.x;
-        Wnd.m_pDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(0,255,0)));
-        Wnd.m_pDC->SetTextColor(Green);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(x,y0,x+1,Wnd.m_ClientRect.bottom), COLORREF(RGB(0,255,0)));
+        Wnd.m_pPaintDC->SetTextColor(Green);
         CString S;
         S.Format("%.1f kg/m", CursLd);
-        Wnd.m_pDC->TextOut(0,0,S);
+        Wnd.m_pPaintDC->TextOut(0,0,S);
         }
 
       break;

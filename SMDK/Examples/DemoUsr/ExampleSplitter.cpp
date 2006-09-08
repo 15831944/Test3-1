@@ -234,7 +234,11 @@ bool Splitter::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
       break;
     case MGT_Move:
       break;
-    case MGT_Draw:
+    case MGT_EraseBkgnd:
+      // Use Wnd.m_pDC;
+      Wnd.m_bReturn = 0;// 1 if erased else 0
+      break; 
+    case MGT_Paint:
       {
       double Total=0;
       int IOCnt = FlwIOs.getCount();
@@ -259,24 +263,24 @@ bool Splitter::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
           y1+=Wnd.m_TextSize.y;
           }
 
-        Wnd.m_pDC->FillSolidRect(CRect(x0,y1,xSplit,y2), Blue);
-        Wnd.m_pDC->FillSolidRect(CRect(xSplit,y1,x2,y2), Cyan);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(x0,y1,xSplit,y2), Blue);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(xSplit,y1,x2,y2), Cyan);
 
-        Wnd.m_pDC->FillSolidRect(CRect(x0,y0,x2,y1), Black);
-        Wnd.m_pDC->SetTextColor(Green);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(x0,y0,x2,y1), Black);
+        Wnd.m_pPaintDC->SetTextColor(Green);
         CString S;
         if (!bDoPhaseSplit && fabs(Split-dRqdFracSplit)>0.001)
           S.Format("%.1f %% (Rqd:%.1f %%)", Split*100.0, dRqdFracSplit*100.0);
         else
           S.Format("%.1f %%", Split*100.0);
-        Wnd.m_pDC->TextOut(x0,y0,S);
+        Wnd.m_pPaintDC->TextOut(x0,y0,S);
 
         if (!bDoPhaseSplit)
           {
           CPen penWhite(PS_SOLID, 0, White);
-          CPen * oldPen=Wnd.m_pDC->SelectObject(&penWhite);
+          CPen * oldPen=Wnd.m_pPaintDC->SelectObject(&penWhite);
           CBrush brushRed(Red);
-          CBrush * oldBrush=Wnd.m_pDC->SelectObject(&brushRed);
+          CBrush * oldBrush=Wnd.m_pPaintDC->SelectObject(&brushRed);
 
           int xSplitRqd = (int)(dRqdFracSplit*Wnd.m_ClientRect.right);
 
@@ -287,10 +291,10 @@ bool Splitter::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
               {xSplitRqd+charwide/2, y3},
               {xSplitRqd,            y1},
             };
-          Wnd.m_pDC->Polygon(Arrow, sizeof(Arrow)/sizeof(Arrow[0]));
+          Wnd.m_pPaintDC->Polygon(Arrow, sizeof(Arrow)/sizeof(Arrow[0]));
 
-          Wnd.m_pDC->SelectObject(oldPen);
-          Wnd.m_pDC->SelectObject(oldBrush);
+          Wnd.m_pPaintDC->SelectObject(oldPen);
+          Wnd.m_pPaintDC->SelectObject(oldBrush);
           }
         }
       else
@@ -299,11 +303,11 @@ bool Splitter::OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
         int y2 = Wnd.m_ClientRect.bottom;
         int x0 = Wnd.m_ClientRect.left;
         int x2 = Wnd.m_ClientRect.right;
-        Wnd.m_pDC->FillSolidRect(CRect(x0,y0,x2,y2), Black);
-        Wnd.m_pDC->SetTextColor(Green);
+        Wnd.m_pPaintDC->FillSolidRect(CRect(x0,y0,x2,y2), Black);
+        Wnd.m_pPaintDC->SetTextColor(Green);
         CString S;
         S.Format("Not Connected");
-        Wnd.m_pDC->TextOut(x0,y0,S);
+        Wnd.m_pPaintDC->TextOut(x0,y0,S);
         }
 
       break;

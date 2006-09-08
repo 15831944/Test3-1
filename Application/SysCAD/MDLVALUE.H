@@ -215,6 +215,7 @@ class CMdlGraphicShow : public CDialog
     // Generated message map functions
     //{{AFX_MSG(CMdlGraphicShow)
     virtual BOOL OnInitDialog();
+    afx_msg BOOL OnEraseBkgnd(CDC * pCDC);
     afx_msg void OnPaint();
     afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
     afx_msg void OnMouseMove(UINT nFlags, CPoint point);

@@ -1995,6 +1995,7 @@ void CMdlGraphicShow::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CMdlGraphicShow, CDialog)
   //{{AFX_MSG_MAP(CMdlGraphicShow)
+  ON_WM_ERASEBKGND()
   ON_WM_PAINT()
   ON_WM_LBUTTONDBLCLK()
   ON_WM_MOUSEMOVE()
@@ -2434,6 +2435,16 @@ void CMdlGraphicShow::DoTheUpdate()
   }
 
 
+BOOL CMdlGraphicShow::OnEraseBkgnd(CDC * pCDC)
+  {
+  CRect ClientRct;
+  GetClientRect(&ClientRct);
+
+  CMdlGraphicWnd MGW(MGT_EraseBkgnd, this, ClientRct, pCDC);
+  gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
+  return MGW.m_bReturn;
+  };
+
 void CMdlGraphicShow::OnPaint() 
   {
   CPaintDC dc(this); // device context for painting
@@ -2459,7 +2470,7 @@ void CMdlGraphicShow::OnPaint()
 
   dc.DrawText("X",  1,  RctX, DT_CALCRECT|DT_TOP|DT_NOPREFIX|DT_LEFT); 
 
-  CMdlGraphicWnd MGW(MGT_Draw, this, ClientRct, &dc, &RctX);
+  CMdlGraphicWnd MGW(MGT_Paint, this, ClientRct, &dc, &RctX);
   gs_Exec.OperateModelGraphic(m_sTag[0](), MGW, m_Graphics[0]);
 
   long NBlks=0;

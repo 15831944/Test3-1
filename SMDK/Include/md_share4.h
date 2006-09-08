@@ -100,22 +100,25 @@ class DllImportExport CMdlActionArray : public CArray<CMdlAction, CMdlAction&> {
 //===========================================================================
 
 enum eMdlGraphicTypes { MGT_Simple };
-enum eMdlGraphicTasks { MGT_Create, MGT_Draw, MGT_Size, MGT_Move, MGT_MouseMove, MGT_LButtonDown, MGT_LButtonUp, MGT_RButtonDown, MGT_RButtonUp};
+enum eMdlGraphicTasks { MGT_Create, MGT_EraseBkgnd, MGT_Paint, MGT_Size, MGT_Move, MGT_MouseMove, MGT_LButtonDown, MGT_LButtonUp, MGT_RButtonDown, MGT_RButtonUp};
 
 class DllImportExport CMdlGraphicWnd
   {
   public:
+    CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CRect ClientRect, CDC * DC);
     CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CRect ClientRect, CPaintDC * DC, CRect TextSize);
     CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CRect ClientRect, CPoint MousePt, UINT MouseFlags);
 
   public:
     eMdlGraphicTasks  m_eTask;
     CWnd            * m_pWnd;
-    CPaintDC        * m_pDC;
+    CDC             * m_pDC;
+    CPaintDC        * m_pPaintDC;
     CRect             m_ClientRect;
     CPoint            m_TextSize;
     CPoint            m_MousePt;
     UINT              m_MouseFlags;
+    BOOL              m_bReturn;
   };
 
 
