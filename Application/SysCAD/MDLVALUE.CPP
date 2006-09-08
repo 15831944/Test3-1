@@ -67,17 +67,17 @@ class CRptTagListCommon
 
     int             m_iSequence;
     int             m_iClear;
-    CList <ValueSetPtr, ValueSetPtr> SetPtrs;
-    CList <ValueShwPtr, ValueShwPtr> ValueShwPtrs;
-    CList <GraphicShwPtr, GraphicShwPtr> GraphicShwPtrs;
-    CList <AddPtr, AddPtr> ValueAddPtrs;
-    CList <AddPtr, AddPtr> GraphicAddPtrs;
-    CList <ValueShwPtr, ValueShwPtr> SpareShwPtrs;
-    CCriticalSection  MVCritSect;
+    CList <ValueSetPtr, ValueSetPtr> m_SetPtrs;
+    CList <ValueShwPtr, ValueShwPtr> m_ValueShwPtrs;
+    CList <GraphicShwPtr, GraphicShwPtr> m_GraphicShwPtrs;
+    CList <AddPtr, AddPtr> m_ValueAddPtrs;
+    CList <AddPtr, AddPtr> m_GraphicAddPtrs;
+    CList <ValueShwPtr, ValueShwPtr> m_SpareShwPtrs;
+    CCriticalSection  m_MVCritSect;
 
     char *          m_pSectBuff;
     dword           m_dwSectBuff;
-    CCriticalSection  LVCritSect;
+    CCriticalSection  m_LVCritSect;
 
 
     CRptTagListCommon()
@@ -151,7 +151,7 @@ void CRptTagListCommon::LoadVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
   Strng ObjClassId(MdlType);
   StripClassIdVersion(ObjClassId);
 
-  LVCritSect.Lock();
+  m_LVCritSect.Lock();
 
   CProfINIFile PF(RTLFileName());
   nVarTags=0;
@@ -214,13 +214,13 @@ void CRptTagListCommon::LoadVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
     }  
   VarTags.SetSize(nVarTags);
 
-  POSITION Pos=ValueShwPtrs.GetHeadPosition();
+  POSITION Pos=m_ValueShwPtrs.GetHeadPosition();
   while (Pos)
     {
-    ValueShwPtr P=ValueShwPtrs.GetNext(Pos);
+    ValueShwPtr P=m_ValueShwPtrs.GetNext(Pos);
     P->SetReloadTagsList();
     }
-  LVCritSect.Unlock();
+  m_LVCritSect.Unlock();
   };
 
 //---------------------------------------------------------------------------
@@ -243,7 +243,7 @@ void CRptTagListCommon::SaveVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
   CProfINIFile PF(RTLFileName());
   //if (m_sObjClassId.GetLength()==0)
   //  return;
-  LVCritSect.Lock();
+  m_LVCritSect.Lock();
   if (m_dwSectBuff==0)
     {
     m_dwSectBuff=4096;
@@ -297,7 +297,7 @@ void CRptTagListCommon::SaveVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
   PF.WrSection(Section(), m_pSectBuff);
   if (pSaveOrder)
     pSaveOrder->SetSize(0);
-  LVCritSect.Unlock();
+  m_LVCritSect.Unlock();
   };
 
 
@@ -478,35 +478,35 @@ void CMdlValueSet::OnCheck1()
 
 BOOL CMdlValueSet::DestroyWindow() 
   {
-  gs_RTLCom.MVCritSect.Lock();
+  gs_RTLCom.m_MVCritSect.Lock();
   POSITION Pos;
-  Pos=gs_RTLCom.SetPtrs.Find(this);
+  Pos=gs_RTLCom.m_SetPtrs.Find(this);
   if (Pos)
-    gs_RTLCom.SetPtrs.RemoveAt(Pos);
-  gs_RTLCom.MVCritSect.Unlock();
+    gs_RTLCom.m_SetPtrs.RemoveAt(Pos);
+  gs_RTLCom.m_MVCritSect.Unlock();
   return CDialog::DestroyWindow();
   }
 
 void CMdlValueSet::Add(char * pTag, CMdlAction & Act, int X, int Y, CWnd* pParent)
   {
-  gs_RTLCom.MVCritSect.Lock();
+  gs_RTLCom.m_MVCritSect.Lock();
   ValueSetPtr P;
   P=new CMdlValueSet(pTag, Act, X, Y, pParent);
-  gs_RTLCom.SetPtrs.AddHead(P);
-  gs_RTLCom.MVCritSect.Unlock();
+  gs_RTLCom.m_SetPtrs.AddHead(P);
+  gs_RTLCom.m_MVCritSect.Unlock();
   };
 
 void CMdlValueSet::Clear()
   {
-  gs_RTLCom.MVCritSect.Lock();
-  while (!gs_RTLCom.SetPtrs.IsEmpty())
+  gs_RTLCom.m_MVCritSect.Lock();
+  while (!gs_RTLCom.m_SetPtrs.IsEmpty())
     {
     ValueSetPtr P;
-    P=gs_RTLCom.SetPtrs.RemoveHead();
+    P=gs_RTLCom.m_SetPtrs.RemoveHead();
     P->DestroyWindow();
     delete P;
     }
-  gs_RTLCom.MVCritSect.Unlock();
+  gs_RTLCom.m_MVCritSect.Unlock();
   }
 
 void CMdlValueSet::StartUp()
@@ -515,6 +515,7 @@ void CMdlValueSet::StartUp()
 
 void CMdlValueSet::ShutDown()
   {
+  Clear();
   };
 
 //===========================================================================
@@ -600,12 +601,12 @@ END_MESSAGE_MAP()
 
 BOOL CMdlValueShow::DestroyWindow() 
   {
-  gs_RTLCom.MVCritSect.Lock();
+  gs_RTLCom.m_MVCritSect.Lock();
   POSITION Pos;
-  Pos=gs_RTLCom.ValueShwPtrs.Find(this);
+  Pos=gs_RTLCom.m_ValueShwPtrs.Find(this);
   if (Pos)
-    gs_RTLCom.ValueShwPtrs.RemoveAt(Pos);
-  gs_RTLCom.MVCritSect.Unlock();
+    gs_RTLCom.m_ValueShwPtrs.RemoveAt(Pos);
+  gs_RTLCom.m_MVCritSect.Unlock();
   return CDialog::DestroyWindow();
   }
 
@@ -1521,9 +1522,9 @@ void CMdlValueShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, 
     Add->m_Append=Append;
     Add->m_pParent=pParent;
 
-    gs_RTLCom.MVCritSect.Lock();	
-    gs_RTLCom.ValueAddPtrs.AddTail(Add);
-    gs_RTLCom.MVCritSect.Unlock();
+    gs_RTLCom.m_MVCritSect.Lock();	
+    gs_RTLCom.m_ValueAddPtrs.AddTail(Add);
+    gs_RTLCom.m_MVCritSect.Unlock();
     if (!gs_Exec.Busy())
       UpdateAll();
     }
@@ -1556,17 +1557,17 @@ void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWn
   else
     LogError((char*)pTag, 0, "ClassId not found");
 
-  gs_RTLCom.MVCritSect.Lock();	
+  gs_RTLCom.m_MVCritSect.Lock();	
   if (Append)
     {
-    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+    POSITION Pos=gs_RTLCom.m_ValueShwPtrs.GetHeadPosition();
     while (Pos)
       {
-      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
+      ValueShwPtr P=gs_RTLCom.m_ValueShwPtrs.GetNext(Pos);
       if (P->AcceptNewTag(pTag, ObjClassId()))
         {
         P->DoTheUpdate();
-        gs_RTLCom.MVCritSect.Unlock();	
+        gs_RTLCom.m_MVCritSect.Unlock();	
         return;
         }
       }
@@ -1575,18 +1576,18 @@ void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWn
   //dbgpln("CMdlValueShow::Add - AddIt");
   ValueShwPtr P=new CMdlValueShow(pTag, X, Y, Pinned, pParent);
   P->m_iSequence=gs_RTLCom.m_iSequence;
-  gs_RTLCom.ValueShwPtrs.AddHead(P);
+  gs_RTLCom.m_ValueShwPtrs.AddHead(P);
   //  P->AtStart(pTag, X, Y, Pinned);
   P->ShowWindow(SW_SHOWNOACTIVATE);
-  gs_RTLCom.MVCritSect.Unlock();	
+  gs_RTLCom.m_MVCritSect.Unlock();	
   };
 
 void CMdlValueShow::TryClear(bool All)
   {
-  gs_RTLCom.MVCritSect.Lock();	
+  gs_RTLCom.m_MVCritSect.Lock();	
   //dbgpln("CMdlValueShow::TryClear");
   gs_RTLCom.m_iClear=All?2:1;
-  gs_RTLCom.MVCritSect.Unlock();
+  gs_RTLCom.m_MVCritSect.Unlock();
   if (!gs_Exec.Busy())
     UpdateAll();
   }
@@ -1594,24 +1595,24 @@ void CMdlValueShow::TryClear(bool All)
 bool CMdlValueShow::Clear(bool All)
   {
   bool Ret=true;
-  gs_RTLCom.MVCritSect.Lock();	
+  gs_RTLCom.m_MVCritSect.Lock();	
   //dbgpln("CMdlValueShow::Clear");
   if (All)
     {
-    while (!gs_RTLCom.ValueShwPtrs.IsEmpty())
+    while (!gs_RTLCom.m_ValueShwPtrs.IsEmpty())
       {
-      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetHead();
+      ValueShwPtr P=gs_RTLCom.m_ValueShwPtrs.GetHead();
       P->DestroyWindow();
       delete P;
       }
     }
   else
     {
-    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+    POSITION Pos=gs_RTLCom.m_ValueShwPtrs.GetHeadPosition();
     while (Pos)
       {
       POSITION DelP=Pos;
-      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
+      ValueShwPtr P=gs_RTLCom.m_ValueShwPtrs.GetNext(Pos);
       if (!P->m_bPinned)
         {
         if (P->m_iSequence==gs_RTLCom.m_iSequence)
@@ -1625,28 +1626,28 @@ bool CMdlValueShow::Clear(bool All)
         }
       }
     }
-  gs_RTLCom.MVCritSect.Unlock();
+  gs_RTLCom.m_MVCritSect.Unlock();
   return Ret;
   }
 
 void CMdlValueShow::UpdateAll()
   {
-  gs_RTLCom.MVCritSect.Lock();
+  gs_RTLCom.m_MVCritSect.Lock();
   //dbgpln("CMdlValueShow::UpdateAll");
 
-  while (!gs_RTLCom.ValueAddPtrs.IsEmpty())
+  while (!gs_RTLCom.m_ValueAddPtrs.IsEmpty())
     {
-    AddPtr A=gs_RTLCom.ValueAddPtrs.RemoveHead();
+    AddPtr A=gs_RTLCom.m_ValueAddPtrs.RemoveHead();
     Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
     //dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
     //    P->DoTheAddByMsg(A);
     delete A;
     }
 
-  POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+  POSITION Pos=gs_RTLCom.m_ValueShwPtrs.GetHeadPosition();
   while (Pos)
     {
-    ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
+    ValueShwPtr P=gs_RTLCom.m_ValueShwPtrs.GetNext(Pos);
     P->DoTheUpdateByMsg();
     }
   if (gs_RTLCom.m_iClear)
@@ -1658,7 +1659,7 @@ void CMdlValueShow::UpdateAll()
   gs_RTLCom.m_iSequence++;
   if (gs_RTLCom.m_iSequence>1000)
     gs_RTLCom.m_iSequence=0;
-  gs_RTLCom.MVCritSect.Unlock();	
+  gs_RTLCom.m_MVCritSect.Unlock();	
   }
 
 LRESULT CMdlValueShow::OnUpdateWnd(WPARAM wParam, LPARAM lParam)
@@ -1729,7 +1730,9 @@ void CMdlValueShow::StartUp()
 
 void CMdlValueShow::ShutDown()
   {
+  Clear(true);
   };
+
 void CMdlValueShow::OnLButtonDblClk(UINT nFlags, CPoint point) 
   {
   //dbgpln("CMdlValueShow::OnLButtonDblClk");
@@ -2012,12 +2015,12 @@ END_MESSAGE_MAP()
 
 BOOL CMdlGraphicShow::DestroyWindow() 
   {
-  gs_RTLCom.MVCritSect.Lock();
+  gs_RTLCom.m_MVCritSect.Lock();
   POSITION Pos;
-  Pos=gs_RTLCom.GraphicShwPtrs.Find(this);
+  Pos=gs_RTLCom.m_GraphicShwPtrs.Find(this);
   if (Pos)
-    gs_RTLCom.GraphicShwPtrs.RemoveAt(Pos);
-  gs_RTLCom.MVCritSect.Unlock();
+    gs_RTLCom.m_GraphicShwPtrs.RemoveAt(Pos);
+  gs_RTLCom.m_MVCritSect.Unlock();
   return CDialog::DestroyWindow();
   }
 
@@ -2888,9 +2891,9 @@ void CMdlGraphicShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append
     Add->m_Append=Append;
     Add->m_pParent=pParent;
 
-    gs_RTLCom.MVCritSect.Lock();	
-    gs_RTLCom.GraphicAddPtrs.AddTail(Add);
-    gs_RTLCom.MVCritSect.Unlock();
+    gs_RTLCom.m_MVCritSect.Lock();	
+    gs_RTLCom.m_GraphicAddPtrs.AddTail(Add);
+    gs_RTLCom.m_MVCritSect.Unlock();
     if (!gs_Exec.Busy())
       UpdateAll();
     }
@@ -2923,17 +2926,17 @@ void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, C
   else
     LogError((char*)pTag, 0, "ClassId not found");
 
-  gs_RTLCom.MVCritSect.Lock();	
+  gs_RTLCom.m_MVCritSect.Lock();	
   if (Append)
     {
-    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+    POSITION Pos=gs_RTLCom.m_GraphicShwPtrs.GetHeadPosition();
     while (Pos)
       {
-      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetNext(Pos);
+      GraphicShwPtr P=gs_RTLCom.m_GraphicShwPtrs.GetNext(Pos);
       if (P->AcceptNewTag(pTag, ObjClassId()))
         {
         P->DoTheUpdate();
-        gs_RTLCom.MVCritSect.Unlock();	
+        gs_RTLCom.m_MVCritSect.Unlock();	
         return;
         }
       }
@@ -2942,18 +2945,18 @@ void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, C
   //dbgpln("CMdlGraphicShow::Add - AddIt");
   GraphicShwPtr P=new CMdlGraphicShow(pTag, X, Y, Pinned, pParent);
   P->m_iSequence=gs_RTLCom.m_iSequence;
-  gs_RTLCom.GraphicShwPtrs.AddHead(P);
+  gs_RTLCom.m_GraphicShwPtrs.AddHead(P);
   //  P->AtStart(pTag, X, Y, Pinned);
   P->ShowWindow(SW_SHOWNOACTIVATE);
-  gs_RTLCom.MVCritSect.Unlock();	
+  gs_RTLCom.m_MVCritSect.Unlock();	
   };
 
 void CMdlGraphicShow::TryClear(bool All)
   {
-  gs_RTLCom.MVCritSect.Lock();	
+  gs_RTLCom.m_MVCritSect.Lock();	
   //dbgpln("CMdlGraphicShow::TryClear");
   gs_RTLCom.m_iClear=All?2:1;
-  gs_RTLCom.MVCritSect.Unlock();
+  gs_RTLCom.m_MVCritSect.Unlock();
   if (!gs_Exec.Busy())
     UpdateAll();
   }
@@ -2961,24 +2964,24 @@ void CMdlGraphicShow::TryClear(bool All)
 bool CMdlGraphicShow::Clear(bool All)
   {
   bool Ret=true;
-  gs_RTLCom.MVCritSect.Lock();	
+  gs_RTLCom.m_MVCritSect.Lock();	
   //dbgpln("CMdlGraphicShow::Clear");
   if (All)
     {
-    while (!gs_RTLCom.ValueShwPtrs.IsEmpty())
+    while (!gs_RTLCom.m_GraphicShwPtrs.IsEmpty())
       {
-      ValueShwPtr P=gs_RTLCom.ValueShwPtrs.GetHead();
+      GraphicShwPtr P=gs_RTLCom.m_GraphicShwPtrs.GetHead();
       P->DestroyWindow();
       delete P;
       }
     }
   else
     {
-    POSITION Pos=gs_RTLCom.ValueShwPtrs.GetHeadPosition();
+    POSITION Pos=gs_RTLCom.m_GraphicShwPtrs.GetHeadPosition();
     while (Pos)
       {
       POSITION DelP=Pos;
-      GraphicShwPtr P=gs_RTLCom.GraphicShwPtrs.GetNext(Pos);
+      GraphicShwPtr P=gs_RTLCom.m_GraphicShwPtrs.GetNext(Pos);
       if (!P->m_bPinned)
         {
         if (P->m_iSequence==gs_RTLCom.m_iSequence)
@@ -2992,28 +2995,28 @@ bool CMdlGraphicShow::Clear(bool All)
         }
       }
     }
-  gs_RTLCom.MVCritSect.Unlock();
+  gs_RTLCom.m_MVCritSect.Unlock();
   return Ret;
   }
 
 void CMdlGraphicShow::UpdateAll()
   {
-  gs_RTLCom.MVCritSect.Lock();
+  gs_RTLCom.m_MVCritSect.Lock();
   //dbgpln("CMdlGraphicShow::UpdateAll");
 
-  while (!gs_RTLCom.GraphicAddPtrs.IsEmpty())
+  while (!gs_RTLCom.m_GraphicAddPtrs.IsEmpty())
     {
-    AddPtr A=gs_RTLCom.GraphicAddPtrs.RemoveHead();
+    AddPtr A=gs_RTLCom.m_GraphicAddPtrs.RemoveHead();
     Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
     //dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
     //    P->DoTheAddByMsg(A);
     delete A;
     }
 
-  POSITION Pos=gs_RTLCom.GraphicShwPtrs.GetHeadPosition();
+  POSITION Pos=gs_RTLCom.m_GraphicShwPtrs.GetHeadPosition();
   while (Pos)
     {
-    GraphicShwPtr P=gs_RTLCom.GraphicShwPtrs.GetNext(Pos);
+    GraphicShwPtr P=gs_RTLCom.m_GraphicShwPtrs.GetNext(Pos);
     P->DoTheUpdateByMsg();
     }
   if (gs_RTLCom.m_iClear)
@@ -3025,7 +3028,7 @@ void CMdlGraphicShow::UpdateAll()
   gs_RTLCom.m_iSequence++;
   if (gs_RTLCom.m_iSequence>1000)
     gs_RTLCom.m_iSequence=0;
-  gs_RTLCom.MVCritSect.Unlock();	
+  gs_RTLCom.m_MVCritSect.Unlock();	
   }
 
 LRESULT CMdlGraphicShow::OnUpdateWnd(WPARAM wParam, LPARAM lParam)
@@ -3096,6 +3099,7 @@ void CMdlGraphicShow::StartUp()
 
 void CMdlGraphicShow::ShutDown()
   {
+  Clear(true);
   };
 void CMdlGraphicShow::OnLButtonDblClk(UINT nFlags, CPoint point) 
   {
@@ -3428,6 +3432,7 @@ void CRptTagLists::StartUp()
   {
   CMdlValueShow::StartUp();
   CMdlValueSet::StartUp();
+  CMdlGraphicShow::StartUp();
   gs_RTLCom.m_pRTL = new CRptTagLists;
   gs_RTLCom.m_pRTL->Hide();
   }
@@ -3440,6 +3445,8 @@ void CRptTagLists::ShutDown()
     {
     CMdlValueShow::ShutDown();
     CMdlValueSet::ShutDown();
+    CMdlGraphicShow::ShutDown();
+
     delete gs_RTLCom.m_pRTL;
     }
   gs_RTLCom.m_pRTL=NULL;

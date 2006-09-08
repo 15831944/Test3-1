@@ -31,7 +31,7 @@ extern "C"
 //#include "optoff.h"
 
 #define dbgAdd            0
-#define dbgTime           01
+#define dbgTime           0
 #define dbgDumpAll        0
 #define dbgHoldLockUpdate 0
 
@@ -867,9 +867,9 @@ void CExploreScd::RemoveUnusedItems()
       dbgpln("Tag   Remov %s", pTag->m_sTag);
 #endif
 
-
-      delete m_Tags[t];
+      m_TagMap.RemoveKey(pTag->m_sTag);
       m_Tags.RemoveAt(t--);
+      delete pTag;
       }
     }
 
@@ -907,8 +907,9 @@ void CExploreScd::RemoveUnusedItems()
 #endif
 
 
-      delete m_Pages[p];
+      m_PageMap.RemoveKey(pPage->m_sPageId);
       m_Pages.RemoveAt(p--);
+      delete pPage;
       }
     }
 
@@ -1331,6 +1332,8 @@ void CExploreScd::DumpAll(LPCTSTR Where)
   {
   dbgpln("Dump======= %-8s ===============================", Where);
 
+  dbgpln("TagCount    %5i", m_Tags.GetCount());
+  dbgpln("TagMapCount %5i", m_TagMap.GetCount());
   for (int t=0; t<m_Tags.GetCount(); t++)
     {
     CXTTag & Tg=*m_Tags[t];
@@ -1342,6 +1345,8 @@ void CExploreScd::DumpAll(LPCTSTR Where)
       dbgpln("     %-25s %-10s", Tg.m_Pages[p]->m_pPage->m_sPageId, Tg.m_Pages[p]->m_hPage?"InPage":""); 
     }
 
+  dbgpln("PageCount    %5i", m_Pages.GetCount());
+  dbgpln("PageMapCount %5i", m_PageMap.GetCount());
   for (int p=0; p<m_Pages.GetCount(); p++)
     {
     CXTPage & Pg=*m_Pages[p];
