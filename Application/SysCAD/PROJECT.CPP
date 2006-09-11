@@ -186,7 +186,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 97; //CNM 25/04/2006 Added Evaluator Block
 //const int LatestPrjFileVer = 98; //CNM 15/05/2006 Change in 'Time' Management
 //const int LatestPrjFileVer = 99; //CNM 15/06/2006 Enabled Evaluator Block
-const int LatestPrjFileVer = 100; //CNM  4/07/2006 New Flow Modes
+//const int LatestPrjFileVer = 100; //CNM  4/07/2006 New Flow Modes
+const int LatestPrjFileVer = 101; //CNM  11/09/2006 Force Fixes to Archiver
 
 
 //===========================================================================
@@ -1661,8 +1662,8 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
 #endif
 
   m_sArcManagerName = PF.RdStr("ArcManager", "Name", m_sArcManagerName());
-  m_bArcOn = (PF.RdLong("ArcManager", "On", m_bArcOn) != 0);
-  if (PrjFileVerNo<100)
+  //m_bArcOn = (PF.RdLong("ArcManager", "On", m_bArcOn) != 0);
+  if (PrjFileVerNo<101)
     {
     m_sArcManagerName = "$Prj\\Archive.sac";
     m_bArcOn = true;
@@ -3547,8 +3548,8 @@ void CProject::OpenArcManager(bool FirstOpen)
       //ArcDir.FnDrivePath(Name());
       //FileExt.FnNameExt(Name());
 
-      gs_pArcMan->Configure(Name(), m_bArcOpenDBOnRun!=0);
-      if (gs_pArcMan->Open(FirstOpen)!=0)
+      //gs_pArcMan->Configure(Name(), m_bArcOpenDBOnRun!=0);
+      if (gs_pArcMan->Open(Name(), FirstOpen)!=0)
         {
         LogError("Driver", LF_Exclamation, "Error Opening Archive Manager");
         bArcOpen=0;

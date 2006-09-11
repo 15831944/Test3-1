@@ -1650,13 +1650,13 @@ void CArchiveManager::Initialise()
 
 // --------------------------------------------------------------------------
 
-int CArchiveManager::Configure(const char * CfgFile, bool OpenDBOnRun)
-  {
-  m_sCfgFile= CfgFile;
-  //m_bOpenDBOnRun=OpenDBOnRun;
-
-  return 0;
-  }
+//int CArchiveManager::Configure(const char * CfgFile, bool OpenDBOnRun)
+//  {
+//  m_sCfgFile= CfgFile;
+//  //m_bOpenDBOnRun=OpenDBOnRun;
+//
+//  return 0;
+//  }
 
 //---------------------------------------------------------------------------
 
@@ -2062,11 +2062,14 @@ static void sfn_EventLogHook(LPCTSTR Tag, LPCTSTR Msg)
   gs_pArcMan->LogAnEvent(Tag, Msg);
   };
 
-int CArchiveManager::Open(bool FirstClear)
+int CArchiveManager::Open(LPCTSTR CfgFile, bool FirstClear)
   {
   CDlgBusy::Open("\nOpening Archive Manager");
   int Err = 0;
-  dbgpln("DRV CArchiveManager::Open()");
+  dbgpln("DRV CArchiveManager::Open(%s)", CfgFile);
+
+  m_sCfgFile= CfgFile;
+
   Initialise();
   m_bFirstClear = FirstClear;
   m_bOn = false;

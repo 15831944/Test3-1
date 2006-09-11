@@ -278,10 +278,10 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            Rewind()    { return m_bRewind; };
 
     void            Initialise();
-    int             Configure(LPCTSTR CfgFile, bool OpenDBOnRun);
+    //int             Configure(LPCTSTR CfgFile, bool OpenDBOnRun);
     void            Options(char* pGotoTag = NULL);
     void            CloseOptions();
-    int             Open(bool FirstClear);
+    int             Open(LPCTSTR CfgFile, bool FirstClear);
     bool            ConnectAll();
     bool            DisConnectAll();
     bool            Close(BOOL SaveState = TRUE);
