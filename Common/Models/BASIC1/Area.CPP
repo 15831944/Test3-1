@@ -287,7 +287,7 @@ void MakeupSrc::PrepareDefinedData()
 
 void MakeupSrc::BuildDataDefn(DataDefnBlk & DDB)
   {
-  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents|BDDAO_SrcSnk);
+  MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents|BDDAO_SrcSnk|BDDAO_MULinks);
   };  
 
 //--------------------------------------------------------------------------

@@ -9877,7 +9877,7 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, 
 
   if (DDB.BeginObject(m_pNd, Tag ? Tag:m_sTag(), "DirectedIO", NULL, PgOpt, UserInfo))
     {
-    DDB.String  (m_sRmtTypeName(),     "",       DC_,      "",       xidRmtTag,       m_pNd, isParmStopped);
+    DDB.String  (m_sRmtTypeName(),     "",       DC_,      "",       xidRmtTag,       m_pNd, isParmStopped|isTag);
 
     static DDBValueLst DDBConnected [] =
       {

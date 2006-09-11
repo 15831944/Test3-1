@@ -108,7 +108,7 @@ void MN_Area::ResetData(flag Complete)
 
 // -------------------------------------------------------------------------
 
-void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
+void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
   {
   Strng S;
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
@@ -150,6 +150,42 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, byte What)
       //DDB.Object(&m_AccI,    this, NULL, NULL, DDB_RqdPage, -1, isResult);
       //DDB.Object(&m_AccO,    this, NULL, NULL, DDB_RqdPage, -1, isResult);
       }
+    }
+
+  if (What & BDDAO_MULinks)
+    {
+    DDB.Visibility();
+    if (DDB.BeginStruct(this, "MU", NULL, DDB_RqdPage))
+      {
+      for (int i=0; i<NoFlwIOs(); i++)
+        {
+        if (IOId_Self(i)==IOId_AreaMakeupO)
+          {
+          Strng Tg(Nd_Rmt(i)->FullObjTag());
+          Tg+=".Qm";
+          DDB.Double(Tg(), "", DC_Qm, "kg/s", xidMUFlows, i, this, isResult|noFileAtAll);
+          }
+        }
+      }
+    DDB.EndStruct();
+    }
+
+  if (What & BDDAO_BLLinks)
+    {
+    DDB.Visibility();
+    if (DDB.BeginStruct(this, "BL", NULL, DDB_RqdPage))
+      {
+      for (int i=0; i<NoFlwIOs(); i++)
+        {
+        if (IOId_Self(i)==IOId_AreaBleedI)
+          {
+          Strng Tg(Nd_Rmt(i)->FullObjTag());
+          Tg+=".Qm";
+          DDB.Double(Tg(), "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
+          }
+        }
+      }
+    DDB.EndStruct();
     }
 
   //CDirectFlwIO::sm_
@@ -403,7 +439,13 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
         m_Content.SetPRqdTo(Range(1.0, *DCB.rD, 1.0e10));
       DCB.D=m_Content.PRqd();
       return 1;
-
+    
+    case xidMUFlows:
+      DCB.D=IOQm_Out(DCB.lHandle2);
+      return 1;
+    case xidBLFlows:
+      DCB.D=IOQm_In(DCB.lHandle2);
+      return 1;
     }
 
   if (MdlNode::DataXchg(DCB))
@@ -673,37 +715,37 @@ void MN_Area::EvalProductsInit(EvalProductsInitTasks Task)
         if (!IO_In(i))
           EvalProductsInit_Source(Task, i, IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas));
         }
-    //  break;
-    //  }
-    //case EPI_FwdEval:
-    //  {
+      //  break;
+      //  }
+      //case EPI_FwdEval:
+      //  {
       //switch (SolveMethod())
       //  {
       //  case SM_Inline:
       //  case SM_Buffered:
       //    {
-          for (int i=0;i<NoFlwIOs(); i++)
+      for (int i=0;i<NoFlwIOs(); i++)
+        {
+        switch (IOId_Self(i))
+          {
+          case IOId_AreaLeakO:
+          case IOId_AreaMakeupO:
             {
-            switch (IOId_Self(i))
+            double Qoe = IOQmEst_Out(i);
+            double Qo = IOQm_Out(i);
+            SpConduit &Q = *IOConduit(i);
+            if (Qoe>=0.0)
               {
-              case IOId_AreaLeakO:
-              case IOId_AreaMakeupO:
-                {
-                double Qoe = IOQmEst_Out(i);
-                double Qo = IOQm_Out(i);
-                SpConduit &Q = *IOConduit(i);
-                if (Qoe>=0.0)
-                  {
-                  Q.QSetM(m_Content, som_ALL, Qoe, IOP_Flng(i));
-                  Q.SetTempPress(TRequired(), IOP_Flng(i));
-                  }
-                break;
-                }
+              Q.QSetM(m_Content, som_ALL, Qoe, IOP_Flng(i));
+              Q.SetTempPress(TRequired(), IOP_Flng(i));
               }
+            break;
             }
-        //  break;
-        //  }
-        //}
+          }
+        }
+      //  break;
+      //  }
+      //}
       break;
       }
     }

@@ -1206,16 +1206,15 @@ class CMkUpFnd : public MRootFinder
 
 void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
+  FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
+  ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
+
   if (QPrd.QMass()>SmallPosFlow)
     {
     m_bHasFlow = true;
 
     m_dQmFeed = QPrd.QMass();
     m_dTempKFeed = QPrd.Temp();
-
-
-    FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
-    ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
 
     StkSpConduit QIn("QIn", "MkUp", pNd);
     QIn().QCopy(QPrd);
@@ -1328,6 +1327,9 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
     }
+
+  if (SrcIO.MyConnectedIO()>=0)
+    pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_dQmMakeup);
 
   };
 

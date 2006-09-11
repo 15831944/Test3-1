@@ -111,6 +111,9 @@ XID xidIO_CopyAdtMassTotal    = MdlBsXID(5487);
 XID xidIO_CopyAdtHeat         = MdlBsXID(5488);
 XID xidIO_CopyAdtHeatTotal    = MdlBsXID(5489);
 
+XID xidMUFlows                = MdlBsXID(10000);
+XID xidBLFlows                = MdlBsXID(20000);
+
 
 // ==========================================================================
 
@@ -226,17 +229,19 @@ class DllImportExport CSumResult
 class DllImportExport MN_Area : public MdlNode
   {
   public:
-    static const byte BDDAO_Flows    = 0x01;
-    static const byte BDDAO_Totals   = 0x02;
-    static const byte BDDAO_Contents = 0x04;
-    static const byte BDDAO_AllVis   = 0x0f;
-    static const byte BDDAO_Copy     = 0x10;
-    static const byte BDDAO_SrcSnk   = 0x20;
+    static const dword BDDAO_Flows    = 0x00000001;
+    static const dword BDDAO_Totals   = 0x00000002;
+    static const dword BDDAO_Contents = 0x00000004;
+    static const dword BDDAO_MULinks  = 0x00000008;
+    static const dword BDDAO_BLLinks  = 0x00000010;
+    static const dword BDDAO_AllVis   = 0x0000ffff;
+    static const dword BDDAO_Copy     = 0x00010000;
+    static const dword BDDAO_SrcSnk   = 0x00020000;
 
     MN_Area(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~MN_Area();
     virtual void   ResetData(flag Complete);
-            void   BuildDataDefn(DataDefnBlk & DDB, byte What);
+            void   BuildDataDefn(DataDefnBlk & DDB, dword  What);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges(bool CheckIO);
