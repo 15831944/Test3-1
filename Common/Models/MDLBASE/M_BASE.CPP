@@ -4062,7 +4062,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   DDB.Text("");
   if (m_Closure.GetSize())
     {
-    if (DDB.BeginArray(this, "NdAudit", "Audit", m_Closure.GetSize(), 0, DDB_NoPage))
+    if (DDB.BeginArray(this, "Closure", "Closure", m_Closure.GetSize(), 0, DDB_NoPage))
       {
       for (int i=0; i<m_Closure.GetSize(); i++)
         {

@@ -7475,7 +7475,7 @@ void FlwNode::ClosureInfo()
 
 void FlwNode::GetClosureInfo(bool DoFlows, bool DoClear)
   {
-  m_Closure.Setup(DoFlows, NoProcessJoins());
+  m_Closure.Setup(DoFlows, NoJoins());
   if (DoClear)
     m_Closure.ZeroContent();
 
