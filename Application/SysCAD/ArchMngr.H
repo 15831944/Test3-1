@@ -228,7 +228,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     static DWORD    ReadOptions(LPCTSTR FileName); 
     static void     WriteOptions(LPCTSTR FileName, DWORD Opts); 
     bool            ReadCfg();
-    bool            CheckCfg();
+    static bool     CheckCfg(LPCTSTR CfgFile);
     bool            CompleteOpen();
                     
     long            AddField(LPCTSTR Table, LPCTSTR CfgString);

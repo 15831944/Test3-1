@@ -284,9 +284,7 @@ class CCommsPage : public CCustomPropertyPage
     BOOL  m_OPCServerNo;
     BOOL  m_OPCResetReg;
     BOOL  m_DDEOn;
-    //BOOL  m_ArcOn;
-    //CString m_ArcName;
-    //BOOL  m_ArcOpenDBOnRun;
+    BOOL  m_ArcOn;
     BOOL  m_IOMOn;
     CString m_IOMName;
     CString m_IOMNode;
@@ -341,12 +339,6 @@ class CArchivePage : public CCustomPropertyPage
 
     //{{AFX_DATA(CArchivePage)
     enum { IDD = IDD_PRJARCHIVEDLG };
-#if WITHDRVMAN
-    //BOOL  m_DrvOn;
-    //BOOL  m_DrvLclTagSrvrOK;
-    //CString m_DrvName;
-    //BOOL  m_DrvReadAll;
-#endif
     CProject         * m_pPrj;
     CProjectSettings * m_pSet;
 
@@ -355,6 +347,7 @@ class CArchivePage : public CCustomPropertyPage
 
     flag bArcChanged;
     CString m_ArcName;
+    BOOL    m_ArcOn;
     //}}AFX_DATA
     //{{AFX_VIRTUAL(CArchivePage)
   protected:
@@ -368,33 +361,14 @@ class CArchivePage : public CCustomPropertyPage
     void    GetOptions(LPCTSTR FileName);
     void    SetOptions(LPCTSTR FileName);
 
-#if WITHDRVMAN
-    //afx_msg void OnDriverOn();
-    //afx_msg void OnDriverChanged();
-    //afx_msg void OnDriverReload();
-    //afx_msg void OnDriverBrowse();
-#endif
-    //afx_msg void OnOPCReload();
-    //afx_msg void OnOpcChanged();
-    //afx_msg void OnDdeChanged();
     afx_msg void OnArchiveBrowse();
     afx_msg void OnArchiveOn();
     afx_msg void OnArchiveReload();
     afx_msg void OnArchiveChanged();
     afx_msg void OnPrjarcopenonrun();
-    //afx_msg void OnIOMBrowse();
-    //afx_msg void OnPrjIOMOn();
-    //afx_msg void OnIOMChanged();
     afx_msg void OnArchiveApply();
-    //}}AFX_MSG
-#if WITHDRVMAN
-    //afx_msg void OnUpdateReLoadDrv(CCmdUI* pCmdUi);
-    //afx_msg void OnUpdateDriverOn(CCmdUI* pCmdUi);
-#endif
     afx_msg void OnUpdateReLoadArc(CCmdUI* pCmdUi);
     afx_msg void OnUpdateArchiveOn(CCmdUI* pCmdUi);
-    //afx_msg void OnUpdateIOMOn(CCmdUI* pCmdUi);
-    //afx_msg void OnUpdateReLoadOPC(CCmdUI* pCmdUi);
     DECLARE_MESSAGE_MAP()
   public:
 
@@ -433,7 +407,7 @@ class CArchivePage : public CCustomPropertyPage
     afx_msg void OnBnClickedArcmlMsglogon();
   public:
     afx_msg void OnBnClickedArcmlEvtlogon();
-  };
+};
 
 //===========================================================================
 
@@ -2325,9 +2299,6 @@ CCommsPage::CCommsPage() : CCustomPropertyPage(CCommsPage::IDD)
   m_OPCServerNo = FALSE;
   m_OPCResetReg = FALSE;
   m_DDEOn = FALSE;
-  //m_ArcOn = FALSE;
-  //m_ArcName = _T("");
-  //m_ArcOpenDBOnRun = FALSE;
   m_IOMOn = FALSE;
   m_IOMName = _T("");
   m_IOMNode = _T("");
@@ -2356,9 +2327,6 @@ void CCommsPage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_PRJOPCSECONDSERVER, m_OPCServerNo);
   DDX_Check(pDX, IDC_PRJOPCRESETREG, m_OPCResetReg);
   DDX_Check(pDX, IDC_PRJDDEON, m_DDEOn);
-  //DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
-  //DDX_Text(pDX, IDD_PRJARCNAME, m_ArcName);
-  //DDX_Check(pDX, IDC_PRJARCOPENONRUN, m_ArcOpenDBOnRun);
   DDX_Check(pDX, IDC_PRJIOMON, m_IOMOn);
   DDX_Text(pDX, IDD_PRJIOMNAME, m_IOMName);
   DDX_Text(pDX, IDD_PRJIOMNODE, m_IOMNode);
@@ -2426,15 +2394,6 @@ BOOL CCommsPage::OnInitDialog()
   m_DrvName=Fn();
 #endif
 
-  //m_ArcName        = m_pSet->m_sArcManagerName();
-  //m_ArcOn          = m_pSet->m_bArcOn;
-  //m_ArcOpenDBOnRun = m_pSet->m_bArcOpenDBOnRun;
-  //if (SymbolicPaths())
-  //  Fn.FnContract(m_pSet->m_sArcManagerName());
-  //else
-  //  Fn.FnExpand(m_pSet->m_sArcManagerName());
-  //m_ArcName=Fn();
-
   m_OPCOn           = m_pSet->m_bOPCOn;
   m_OPCServerNo     = (m_pSet->m_iOPCServerNo!=0);
   m_OPCResetReg     = m_pSet->m_bOPCResetReg;
@@ -2493,26 +2452,9 @@ void CCommsPage::OnOK()
         CTagVwDoc::RebuildAll();
         }
 #else
-    if (/*bArcChanged ||*/ bIOMChanged || bOPCChanged || bDDEChanged)
+    if (bIOMChanged || bOPCChanged || bDDEChanged)
       {
 #endif
-
-      //if (bArcChanged)
-      //  {
-      //  if (m_pPrj)
-      //    {
-      //    m_pPrj->bArcChanged = true;
-      //    m_pPrj->CloseArcManager();
-      //    }
-      //  m_pSet->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-      //  m_pSet->m_bArcOn          = m_ArcOn;
-      //  m_pSet->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-      //  if (m_pPrj)
-      //    {
-      //    m_pPrj->OpenArcManager(false);
-      //    CTagVwDoc::RebuildAll();
-      //    }
-      //  }
 
       if (bIOMChanged)
         {
@@ -2651,122 +2593,7 @@ void CCommsPage::OnDriverBrowse()
   UpdateData(FALSE);
   }
 #endif
-//---------------------------------------------------------------------------
 
-//void CCommsPage::OnArchiveBrowse()
-//  {
-//  UpdateData(true);
-//  Strng FName,FPath;
-//
-//  if (m_ArcName.GetLength()>0)
-//    {
-//    FPath.FnDrivePath((char*)(const char*)m_ArcName);
-//    FName.FnNameExt((char*)(const char*)m_ArcName);
-//    }
-//  else
-//    {
-//    FName = "*.sac";
-//    FPath = "..\\";//PrjPrevDirectory();
-//    }
-//
-//  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
-//    "SysCAD Archive Configuration (*.sac)|*.sac||", this);
-//  Dlg.m_ofn.lpstrInitialDir = FPath();
-//  Dlg.m_ofn.lpstrTitle = "Browse";
-//  if (Dlg.DoModal()==IDOK)
-//    {
-//    m_ArcName=Dlg.GetPathName();
-//    Strng Fn(m_ArcName);
-//    Fn.FnContract();
-//    m_ArcName=Fn();
-//    Fn.FnExpand();
-//    bArcChanged=1;
-//    if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
-//      {
-//      gs_pPrj->m_sArcManagerName = m_ArcName;
-//      bArcChanged = 0;
-//      UpdateDialogControls(this, FALSE);
-//      }
-//    }
-//  UpdateData(FALSE);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CCommsPage::OnArchiveOn()
-//  {
-//  UpdateData(true);
-//  bArcChanged = 1;
-//  UpdateDialogControls(this, FALSE);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CCommsPage::OnArchiveReload()
-//  {
-//  UpdateData(true);
-//  Strng Fn(m_ArcName);
-//  if (SymbolicPaths())
-//    {
-//    Fn.FnContract();
-//    m_ArcName=Fn();
-//    Fn.FnExpand();
-//    }
-//  else
-//    {
-//    Fn.FnExpand();
-//    m_ArcName=Fn();
-//    }
-//  UpdateData(false);
-//
-//  gs_pPrj->bArcChanged = bArcChanged;
-//  if (1)// bArcChanged)
-//    {
-//    gs_pPrj->CloseArcManager();
-//    gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
-//    gs_pPrj->m_bArcOn          = m_ArcOn;
-//    gs_pPrj->m_bArcOpenDBOnRun = m_ArcOpenDBOnRun;
-//    gs_pPrj->OpenArcManager(false);
-//    CTagVwDoc::RebuildAll();
-//    bArcChanged = 0;
-//    UpdateDialogControls(this, FALSE);
-//    }
-//  //if (gs_pPrj->ReloadArcManager(FALSE, Fn()))
-//  //  {
-//  //  gs_pPrj->sArcManagerName = m_ArcName;
-//  //  bArcChanged = 0;
-//  //  UpdateDialogControls(this, FALSE);
-//  //  }
-//  }
-//
-//void CCommsPage::OnUpdateReLoadArc(CCmdUI* pCmdUi)
-//  {
-//  pCmdUi->Enable(m_ArcOn);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CCommsPage::OnArchiveChanged()
-//  {
-//  bArcChanged=1;
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CCommsPage::OnPrjarcopenonrun()
-//  {
-//  UpdateData(true);
-//  bArcChanged = 1;
-//  UpdateDialogControls(this, FALSE);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CCommsPage::OnUpdateArchiveOn(CCmdUI* pCmdUi)
-//  {
-//  pCmdUi->Enable(m_ArcOn);
-//  }
-//
 //---------------------------------------------------------------------------
 
 void CCommsPage::OnOPCReload()
@@ -2885,6 +2712,7 @@ CArchivePage::CArchivePage() : CCustomPropertyPage(CArchivePage::IDD)
   {
   bArcChanged = 0;
   m_ArcName = _T("");
+  m_ArcOn = false;
   m_hCfgProcess=NULL;        //process handle for the editor
   m_dwCfgProcessId=0;        //process ID for the editor
 
@@ -2902,23 +2730,8 @@ void CArchivePage::DoDataExchange(CDataExchange* pDX)
   {
   CCustomPropertyPage::DoDataExchange(pDX);
   //{{AFX_DATA_MAP(CArchivePage)
-#if WITHDRVMAN
-  //DDX_Check(pDX, IDC_PRJDRVON, m_DrvOn);
-  //DDX_Check(pDX, IDC_PRJDRVLOCALTAGSRVR, m_DrvLclTagSrvrOK);
-  //DDX_Text(pDX, IDD_PRJDRVNAME, m_DrvName);
-  //DDX_Check(pDX, IDC_PRJDRVREADALL, m_DrvReadAll);
-#endif
-  //DDX_Check(pDX, IDC_PRJOPCON, m_OPCOn);
-  //DDX_Check(pDX, IDC_PRJOPCSECONDSERVER, m_OPCServerNo);
-  //DDX_Check(pDX, IDC_PRJOPCRESETREG, m_OPCResetReg);
-  //DDX_Check(pDX, IDC_PRJDDEON, m_DDEOn);
-  //DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
+  DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
   DDX_Text(pDX, IDD_PRJARCNAME, m_ArcName);
-  //DDX_Check(pDX, IDC_PRJARCOPENONRUN, m_ArcOpenDBOnRun);
-  //DDX_Check(pDX, IDC_PRJIOMON, m_IOMOn);
-  //DDX_Text(pDX, IDD_PRJIOMNAME, m_IOMName);
-  //DDX_Text(pDX, IDD_PRJIOMNODE, m_IOMNode);
-  //}}AFX_DATA_MAP
   DDX_Control(pDX, IDC_ARCML_TIME, m_MLTime);
   DDX_Control(pDX, IDC_ARCML_ELAPSEDHMS, m_MLElapsedHMS);
   DDX_Control(pDX, IDC_ARCML_ELAPSEDDBL, m_MLElapsedDbl);
@@ -2939,43 +2752,15 @@ void CArchivePage::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CArchivePage, CCustomPropertyPage)
   //{{AFX_MSG_MAP(CArchivePage)
-#if WITHDRVMAN
-  //ON_BN_CLICKED(IDC_PRJDRVON, OnDriverOn)
-  //ON_EN_CHANGE(IDD_PRJDRVNAME, OnDriverChanged)
-  //ON_BN_CLICKED(IDC_PRJRELOADDRV, OnDriverReload)
-  //ON_BN_CLICKED(IDC_DRVBROWSE, OnDriverBrowse)
-#endif
-  //ON_BN_CLICKED(IDC_PRJOPCRELOAD, OnOPCReload)
-  //ON_BN_CLICKED(IDC_PRJOPCON, OnOpcChanged)
-  //ON_BN_CLICKED(IDC_PRJDDEON, OnDdeChanged)
   ON_BN_CLICKED(IDC_ARCBROWSE, OnArchiveBrowse)
   ON_BN_CLICKED(IDC_PRJARCON, OnArchiveOn)
   ON_BN_CLICKED(IDC_PRJRELOADARC, OnArchiveReload)
   ON_EN_CHANGE(IDD_PRJARCNAME, OnArchiveChanged)
   ON_BN_CLICKED(IDC_PRJARCOPENONRUN, OnPrjarcopenonrun)
-  //ON_BN_CLICKED(IDC_IOMBROWSE, OnIOMBrowse)
-  //ON_BN_CLICKED(IDC_PRJIOMON, OnPrjIOMOn)
-  //ON_EN_CHANGE(IDD_PRJIOMNAME, OnIOMChanged)
   ON_BN_CLICKED(IDC_ARCHIVEAPPLY, OnArchiveApply)
-#if WITHDRVMAN
-  //ON_BN_CLICKED(IDC_PRJDRVLOCALTAGSRVR, OnDriverOn)
-  //ON_BN_CLICKED(IDC_PRJDRVREADALL, OnDriverChanged)
-#endif
-  //ON_BN_CLICKED(IDC_PRJOPCSECONDSERVER, OnOpcChanged)
-  //ON_BN_CLICKED(IDC_PRJOPCRESETREG, OnOpcChanged)
-  //ON_EN_CHANGE(IDD_PRJIOMNODE, OnIOMChanged)
-  //}}AFX_MSG_MAP
-#if WITHDRVMAN
-  //ON_UPDATE_COMMAND_UI(IDC_PRJRELOADDRV, OnUpdateReLoadDrv)
-  //ON_UPDATE_COMMAND_UI(IDC_PRJDRVREADALL, OnUpdateDriverOn)
-  //ON_UPDATE_COMMAND_UI(IDD_PRJDRVNAME, OnUpdateDriverOn)
-  //ON_UPDATE_COMMAND_UI(IDC_DRVBROWSE, OnUpdateDriverOn)
-#endif
   ON_UPDATE_COMMAND_UI(IDC_PRJRELOADARC, OnUpdateReLoadArc)
   ON_UPDATE_COMMAND_UI(IDD_PRJARCNAME, OnUpdateArchiveOn)
   ON_UPDATE_COMMAND_UI(IDC_ARCBROWSE, OnUpdateArchiveOn)
-  //ON_UPDATE_COMMAND_UI(IDD_PRJIOMNAME, OnUpdateIOMOn)
-  //ON_UPDATE_COMMAND_UI(IDC_IOMBROWSE, OnUpdateIOMOn)
 
   ON_BN_CLICKED(IDC_ARCML_TIME, &CArchivePage::OnBnClickedArcMLTime)
   ON_BN_CLICKED(IDC_ARCML_ELAPSEDHMS, &CArchivePage::OnBnClickedArcMLElapsedHMS)
@@ -2990,14 +2775,6 @@ BEGIN_MESSAGE_MAP(CArchivePage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_ARCML_SEQNO, &CArchivePage::OnBnClickedArcMLSeqNo)
   ON_BN_CLICKED(IDC_ARCML_MESSAGE, &CArchivePage::OnBnClickedArcMLMessage)
 
-  //ON_BN_CLICKED(IDC_ARCML_SOURCE, &CArchivePage::OnBnClickedArcmlSource)
-  //ON_BN_CLICKED(IDC_ARCML_COMMAND, &CArchivePage::OnBnClickedArcmlCmd)
-  //ON_BN_CLICKED(IDC_ARCML_TYPE, &CArchivePage::OnBnClickedArcmlType)
-  //ON_BN_CLICKED(IDC_ARCML_IDNO, &CArchivePage::OnBnClickedArcmlIdno)
-  //ON_BN_CLICKED(IDC_ARCML_ITERNO, &CArchivePage::OnBnClickedArcmlIter)
-  //ON_BN_CLICKED(IDC_ARCML_CALLNO, &CArchivePage::OnBnClickedArcmlCall)
-  //ON_BN_CLICKED(IDC_ARCML_SEQNO, &CArchivePage::OnBnClickedArcmlSeqno)
-  //ON_BN_CLICKED(IDC_ARCML_MESSAGE, &CArchivePage::OnBnClickedArcmlMsg)
   ON_CBN_SELCHANGE(IDC_ARCML_ELAPSEDDBL, &CArchivePage::OnCbnSelchangeArcmlElapseddbl)
   ON_BN_CLICKED(IDC_PRJEDITARC, &CArchivePage::OnBnClickedPrjeditarc)
   ON_BN_CLICKED(IDC_ARCML_MSGLOGON, &CArchivePage::OnBnClickedArcmlMsglogon)
@@ -3010,43 +2787,15 @@ BOOL CArchivePage::OnInitDialog()
   {
   Strng Fn;
 
-#if WITHDRVMAN
-  m_DrvName    = gs_pPrj->m_sDrvManagerName();
-  m_DrvOn      = gs_pPrj->m_bDrvOn;
-  m_DrvLclTagSrvrOK= gs_pPrj->bDrvLclTagSrvrOK;
-  m_DrvReadAll = gs_pPrj->bDrvReadAll;
-  if (SymbolicPaths())
-    Fn.FnContract(gs_pPrj->sDrvManagerName());
-  else
-    Fn.FnExpand(gs_pPrj->sDrvManagerName());
-  m_DrvName=Fn();
-#endif
 
   m_ArcName        = m_pSet->m_sArcManagerName();
-  //m_ArcOn          = m_pSet->m_bArcOn;
-  //m_ArcOpenDBOnRun = m_pSet->m_bArcOpenDBOnRun;
+  m_ArcOn          = m_pSet->m_bArcOn;
   if (SymbolicPaths())
     Fn.FnContract(m_pSet->m_sArcManagerName());
   else
     Fn.FnExpand(m_pSet->m_sArcManagerName());
   m_ArcName=Fn();
-
-  //m_OPCOn           = m_pSet->m_bOPCOn;
-  //m_OPCServerNo     = (m_pSet->m_iOPCServerNo!=0);
-  //m_OPCResetReg     = m_pSet->m_bOPCResetReg;
-
-  //m_DDEOn           = m_pSet->m_bDDEOn;
-
-  //m_IOMName         = m_pSet->m_sIOMarshalName();
-  //m_IOMNode         = m_pSet->m_sIOMarshalNode();
-  //m_IOMOn           = m_pSet->m_bIOMOn;
-  //if (SymbolicPaths())
-  //  Fn.FnContract(m_pSet->m_sIOMarshalName());
-  //else
-  //  Fn.FnExpand(m_pSet->m_sIOMarshalName());
-  //m_IOMName=Fn();
-
-
+  
   CCustomPropertyPage::OnInitDialog();
 
   m_MLElapsedDbl.AddString("Off");
@@ -3145,6 +2894,7 @@ void CArchivePage::OnOK()
         m_pPrj->CloseArcManager();
         }
       m_pSet->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+      m_pSet->m_bArcOn=m_ArcOn;
 
       SetOptions(m_pSet->m_sArcManagerName());
       if (m_pPrj)
@@ -3157,100 +2907,6 @@ void CArchivePage::OnOK()
     }
   }
 
-//---------------------------------------------------------------------------
-
-#if WITHDRVMAN
-//void CArchivePage::OnDriverOn()
-//  {
-//  UpdateData(true);
-//  bDrvChanged = 1;
-//  UpdateDialogControls(this, FALSE);
-//  }
-//
-//void CArchivePage::OnUpdateDriverOn(CCmdUI* pCmdUi)
-//  {
-//  pCmdUi->Enable(m_DrvOn);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnDriverChanged()
-//  {
-//  bDrvChanged = 1;
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnDriverReload()
-//  {
-//  UpdateData(true);
-//  Strng Fn(m_DrvName);
-//  if (SymbolicPaths())
-//    {
-//    Fn.FnContract();
-//    m_DrvName=Fn();
-//    Fn.FnExpand();
-//    }
-//  else
-//    {
-//    Fn.FnExpand();
-//    m_DrvName=Fn();
-//    }
-//  UpdateData(false);
-//  gs_pPrj->bDrvLclTagSrvrOK = m_DrvLclTagSrvrOK;
-//  if (gs_pPrj->ReloadDrvManager(FALSE, Fn()))
-//    {
-//    gs_pPrj->sDrvManagerName = m_DrvName;
-//    bDrvChanged = 0;
-//    UpdateDialogControls(this, FALSE);
-//    }
-//  }
-//
-//void CArchivePage::OnUpdateReLoadDrv(CCmdUI* pCmdUi)
-//  {//can only reload if the driver was on
-//  pCmdUi->Enable(gs_pPrj->bDrvOn);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnDriverBrowse()
-//  {
-//  UpdateData(true);
-//  Strng FName,FPath;
-//
-//  if (m_DrvName.GetLength()>0)
-//    {
-//    FPath.FnDrivePath((char*)(const char*)m_DrvName);
-//    FName.FnNameExt((char*)(const char*)m_DrvName);
-//    }
-//  else
-//    {
-//    FName = "*.mdb;*.xls;*.csv";
-//    FPath = "..\\";//PrjPrevDirectory();
-//    }
-//
-//  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
-//                      "SysCAD IO List (*.mdb;*.xls;*.csv)|*.mdb;*.xls;*.csv||", this);
-//  Dlg.m_ofn.lpstrInitialDir = FPath();
-//  Dlg.m_ofn.lpstrTitle = "Browse";
-//  if (Dlg.DoModal()==IDOK)
-//    {
-//    m_DrvName=Dlg.GetPathName();
-//    Strng Fn(m_DrvName);
-//    Fn.FnContract();
-//    m_DrvName=Fn();
-//    Fn.FnExpand();
-//    bDrvChanged=1;
-//    if (gs_pPrj->ReloadDrvManager(FALSE, Fn()))
-//      {
-//      gs_pPrj->sDrvManagerName = m_DrvName;
-//      bDrvChanged = 0;
-//      UpdateDialogControls(this, FALSE);
-//      }
-//    }
-//  UpdateData(FALSE);
-//  }
-#endif
 //---------------------------------------------------------------------------
 
 void CArchivePage::OnArchiveBrowse()
@@ -3356,6 +3012,7 @@ void CArchivePage::OnArchiveReload()
     gs_pPrj->DisConnectArcManager();
     gs_pPrj->CloseArcManager();
     gs_pPrj->m_sArcManagerName.FnContract((char*)(const char*)m_ArcName);
+    gs_pPrj->m_bArcOn=m_ArcOn;
 
     SetOptions(m_pSet->m_sArcManagerName());
 
@@ -3397,112 +3054,11 @@ void CArchivePage::OnUpdateArchiveOn(CCmdUI* pCmdUi)
 
 //---------------------------------------------------------------------------
 
-//void CArchivePage::OnOPCReload()
-//  {
-//  //UpdateData(true);
-//  //gs_pPrj->ReloadOPCServer();
-////  gs_pPrj->CloseOPCManager();
-//  //gs_pPrj->bOPCOn = m_OPCOn;
-//  //gs_pPrj->iOPCServerNo = m_OPCServerNo;
-//  //gs_pPrj->bOPCResetReg = m_OPCResetReg;
-//  //bOPCChanged = 0;
-////  gs_pPrj->OpenOPCManager();
-//  }
-//
-//void CArchivePage::OnUpdateReLoadOPC(CCmdUI* pCmdUi)
-//  {//can only reload if the driver was on
-//  pCmdUi->Enable(false);//gs_pPrj->bOPCOn);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnOpcChanged()
-//  {
-//  bOPCChanged = 1;
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnDdeChanged()
-//  {
-//  bDDEChanged = 1;
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnIOMBrowse()
-//  {
-//  UpdateData(true);
-//  Strng FName,FPath;
-//
-//  if (m_IOMName.GetLength()>0)
-//    {
-//    FPath.FnDrivePath((char*)(const char*)m_IOMName);
-//    FName.FnNameExt((char*)(const char*)m_IOMName);
-//    }
-//  else
-//    {
-//    FName = "*.scm";
-//    FPath = "..\\";
-//    }
-//
-//  CSCDFileDialog Dlg(TRUE, NULL, FName(), OFN_NOCHANGEDIR | OFN_HIDEREADONLY,
-//                     "SysCAD IOMarshal(*.scm)|*.scm||", this);
-//  Dlg.m_ofn.lpstrInitialDir = FPath();
-//  Dlg.m_ofn.lpstrTitle = "Browse";
-//  if (Dlg.DoModal()==IDOK)
-//    {
-//    m_IOMName=Dlg.GetPathName();
-//    Strng Fn(m_IOMName);
-//    Fn.FnContract();
-//    m_IOMName=Fn();
-//    Fn.FnExpand();
-//    bIOMChanged=1;
-//    if (gs_pPrj->ReloadIOMarshal(FALSE, Fn(), NULL))
-//      {
-//      gs_pPrj->m_sIOMarshalName = m_IOMName;
-//      gs_pPrj->m_sIOMarshalNode = m_IOMNode;
-//      bIOMChanged = 0;
-//      UpdateDialogControls(this, FALSE);
-//      }
-//    }
-//  UpdateData(FALSE);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnPrjIOMOn()
-//  {
-//  UpdateData(true);
-//  bIOMChanged = 1;
-//  UpdateDialogControls(this, FALSE);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnIOMChanged()
-//  {
-//  bIOMChanged = 1;
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CArchivePage::OnUpdateIOMOn(CCmdUI* pCmdUi)
-//  {
-//  pCmdUi->Enable(m_IOMOn);
-//  }
-//
-//---------------------------------------------------------------------------
-
 void CArchivePage::OnArchiveApply()
   {
-  if (/*bDrvChanged ||*/ bArcChanged /*|| bIOMChanged || bOPCChanged || bDDEChanged*/)
+  if (bArcChanged)
     OnOK();
-  //bDrvChanged=0;
   bArcChanged=0;
-  //bIOMChanged=0;
-  //bOPCChanged=0;
-  //bDDEChanged=0;
   }
 
 void CArchivePage::OnBnClickedArcMLTime()         { bArcChanged=1; }

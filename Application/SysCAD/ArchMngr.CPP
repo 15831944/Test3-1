@@ -1701,6 +1701,9 @@ DWORD CArchiveManager::ReadOptions(LPCTSTR FileName)
   {
   Strng Fn(FileName);
   Fn.FnExpand();
+
+  CheckCfg(Fn());
+
   CProfINIFile PF(Fn());
 
   DWORD Opts = 0;
@@ -1735,7 +1738,11 @@ void CArchiveManager::WriteOptions(LPCTSTR FileName, DWORD Opts)
   {
   Strng Fn(FileName);
   Fn.FnExpand();
+
+  CheckCfg(Fn());
+
   CProfINIFile PF(Fn());
+
 
   PF.WrInt("Columns", "Time"       , (Opts & LogItem_Time       )!=0 ? 1:0);
   PF.WrInt("Columns", "ElapsedHMS" , (Opts & LogItem_ElapsedHMS )!=0 ? 1:0);
@@ -1769,7 +1776,7 @@ bool CArchiveManager::ReadCfg()
   //if (!FileExists(C2T(m_sCfgFile)))
   //  return false;
 
-  CheckCfg();
+  CheckCfg(C2T(m_sCfgFile));
 
   CProfINIFile PF(C2T(m_sCfgFile));
 
@@ -1894,12 +1901,14 @@ bool CArchiveManager::ReadCfg()
 
 //---------------------------------------------------------------------------
 
-bool CArchiveManager::CheckCfg()
+bool CArchiveManager::CheckCfg(LPCTSTR CfgFile)
   {
+  //if (CfgFile==NULL)
+  //  CfgFile=m_sCfgFile;
   //Strng Fn(m_sCfgFile);
-  if (!FileExists(C2T(m_sCfgFile)))
+  if (!FileExists(C2T(CfgFile)))
     {
-    FILE *h=fopen(C2T(m_sCfgFile), "wt");
+    FILE *h=fopen(C2T(CfgFile), "wt");
     if (h)
       {
       fprintf(h, "%s", s_sArchiveContent);
