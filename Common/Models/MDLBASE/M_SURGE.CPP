@@ -530,6 +530,9 @@ void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
       VLE.QPFlash(QFeed(), Contents.Press(), 0.0, VLEF_Null);
     EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
     //EvalProducts_SurgeLevel(Contents, QFeed, IOMsk, PMU());
+
+    if (QFeed().QVolume()*ICGetTimeInc()>=Contents.Shape()->ApparentVolume())
+      LogWarning(FullObjTag(), 0, "High Volume Throughput %.2f%%", 100.0*QFeed().QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
     }
   }
 
@@ -585,10 +588,10 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
         HX.EvalProducts();
 
         }
+
       if (SolveInlineMethod())
-        {
         EvalIntegral(NEI);
-        }
+
       break;
     }
   }
