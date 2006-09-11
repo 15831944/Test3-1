@@ -45,7 +45,7 @@ const int Img_Class   = 4;
 const int Img_LostGrf = 5;
 const int Img_LostMdl = 6;
 
-const int PgType2TrIDs[3]={TrID_Other, TrID_Grf, TrID_Trnd};
+const int PgType2TrIDs[3]={TrID_Other, TrID_Graphic, TrID_Trend};
 const int PgType2ImgIDs[3]={Img_Other, Img_Grf, Img_Trnd};
 
 //---------------------------------------------------------------------------
@@ -74,7 +74,7 @@ static LPCTSTR Section="Explorer";
 
 //---------------------------------------------------------------------------
 
-CXTTag::CXTTag(CExploreScd * Dlg, LPCTSTR Tag, CXTClass * Class) : m_Dlg(*Dlg) , CXTTreeInfo(TrID_Nd, &m_sTag)
+CXTTag::CXTTag(CExploreScd * Dlg, LPCTSTR Tag, CXTClass * Class) : m_Dlg(*Dlg) , CXTTreeInfo(TrID_Node, &m_sTag)
   {
   m_sTag=Tag;
   m_sTagLwr=Tag;
@@ -152,11 +152,11 @@ BOOL CExploreScd::sm_bInited=false;
 IMPLEMENT_DYNAMIC(CExploreScd, CDialog)
 CExploreScd::CExploreScd(CWnd* pParent /*=NULL*/)
 : CDialog(CExploreScd::IDD, pParent),
-m_GraphicTitle(TrID_GrfHdr, "Graphic"),
+m_GraphicTitle(TrID_GraphicHdr, "Graphic"),
 m_ClassTitle(TrID_ClassHdr, "Class"),
-m_TrendTitle(TrID_TrndHdr, "Trend"),
+m_TrendTitle(TrID_TrendHdr, "Trend"),
 m_OtherTitle(TrID_OtherHdr, "Other"),
-m_NodeTitle(TrID_NdHdr,    "Node")
+m_NodeTitle(TrID_NodeHdr,    "Node")
   {
   m_FilterString="Boil";
   m_FilterRule=eFRContains;
@@ -2146,6 +2146,40 @@ void CExploreScd::RenamePage(CXTPage * pPage)
 
 //--------------------------------------------------------------------------
 
+
+void CExploreScd::CopyTagList2Clipboard(HTREEITEM hRootItem, int DoLevelCount, LPCTSTR Header, CString & LineHeader, CString &Buffer, bool TopLevel)
+  {
+  if (TopLevel)
+    Buffer=Header;
+
+  HTREEITEM h=m_Tree.GetNextItem(hRootItem, TVGN_CHILD);
+  while (h)
+    {
+    CString S=m_Tree.GetItemText(h);
+    CString Line;
+    if (LineHeader.GetLength()>0)
+      Line.Format("%s\t%s", LineHeader, S);
+    else
+      Line=S;
+
+    if (DoLevelCount==0)
+      {
+      if (Buffer.GetLength()>0)
+        Buffer+="\n";
+      Buffer+=Line;
+      }
+
+    CopyTagList2Clipboard(h, DoLevelCount-1, Header, Line, Buffer, false);
+
+    h=m_Tree.GetNextItem(h, TVGN_NEXT);
+    }
+
+  if (TopLevel)
+    CopyTextToClipboard(this, (LPTSTR)(LPCTSTR)Buffer);
+  };
+
+//--------------------------------------------------------------------------
+
 void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
   {
   LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
@@ -2156,14 +2190,14 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
       {
-      case TrID_Grf:
+      case TrID_Graphic:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         Txt+=".scg";
         ActivateWndByName(Txt);
         break;
         }
-      case TrID_Trnd:
+      case TrID_Trend:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         Txt+=".trn";
@@ -2176,7 +2210,7 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
         ActivateWndByName(Txt);
         break;
         }
-      case TrID_Nd: // NOdes
+      case TrID_Node: // NOdes
         {
         CString Txt = m_Tree.GetItemText(hSel);
         CXTTag *pTag;
@@ -2226,17 +2260,31 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
   HTI.pt.y = pts.y;
   m_Tree.ScreenToClient(&HTI.pt);
   HTREEITEM hSel=NULL;
-  //if (m_Tree.HitTest(&HTI) && ((HTI.flags & TVHT_ONITEM) || (HTI.flags & TVHT_ONITEMRIGHT) || (HTI.flags & TVHT_ONITEMLABEL)))
-  if (m_Tree.HitTest(&HTI) && (HTI.flags & TVHT_ONITEM|TVHT_ONITEMRIGHT|TVHT_ONITEMLABEL|TVHT_TOLEFT|TVHT_TORIGHT))
-    hSel=HTI.hItem;
-  //HTREEITEM hSel = m_Tree.GetSelectedItem();
+
+  bool OnLine = m_Tree.HitTest(&HTI) && (HTI.flags & TVHT_ONITEMRIGHT|TVHT_TOLEFT|TVHT_TORIGHT);
+  bool OnItem = m_Tree.HitTest(&HTI) && (HTI.flags & TVHT_ONITEM/*|TVHT_ONITEMRIGHT|TVHT_ONITEMLABEL*/);
+
+  hSel=HTI.hItem;
+
   if (hSel)
     {
     m_Tree.SelectItem(hSel);
+    LRESULT LclResult;
+    OnDoClicks(pNMHDR, &LclResult, 0);
+    
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
+    if (!OnItem)
+      {
+      switch (Id)
+        {
+        case TrID_Graphic:  Id = TrID_GraphicHdr; break;
+        case TrID_Trend: Id = TrID_TrendHdr; break;
+        }
+      }
+
     switch (Id)
       {
-      case TrID_GrfHdr:
+      case TrID_GraphicHdr:
         {
         CMenu Menu;
         Menu.CreatePopupMenu();
@@ -2244,6 +2292,9 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         Menu.AppendMenu(MF_STRING, 101, "New");
         Menu.AppendMenu(MF_SEPARATOR, 100);
         Menu.AppendMenu(MF_STRING | (gs_pPrj->m_GrfBehaviour == WB_Coincident ? MF_CHECKED:0), 108, "Treat as One");
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING, 130, "Copy Graphic List to Clipboard");
+        Menu.AppendMenu(MF_STRING, 131, "Copy Graphic, Tag List to Clipboard");
 
         CPoint curPoint;
         GetCursorPos(&curPoint);
@@ -2265,10 +2316,16 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
               gs_pPrj->m_GrfBehaviour = WB_Coincident;
             CGrfFrameWnd::DoBehaviourChange();
             break;
+          case 130:
+            CopyTagList2Clipboard(m_hGraphItem, 0, "Graphic", CString(""), CString(""));
+            break;
+          case 131:
+            CopyTagList2Clipboard(m_hGraphItem, 1, "Graphic\tTag", CString(""), CString(""));
+            break;
           }
         break;
         }
-      case TrID_TrndHdr:
+      case TrID_TrendHdr:
         {
         CMenu Menu;
         Menu.CreatePopupMenu();
@@ -2276,6 +2333,8 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         Menu.AppendMenu(MF_STRING, 101, "New");
         Menu.AppendMenu(MF_SEPARATOR, 100);
         Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING, 130, "Copy Trend List to Clipboard");
 
         CPoint curPoint;
         GetCursorPos(&curPoint);
@@ -2297,10 +2356,57 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
               gs_pPrj->m_TrndBehaviour = WB_Coincident;
             CTagVwSplit::DoBehaviourChange();
             break;
+          case 130:
+            CopyTagList2Clipboard(m_hTrendItem, 0, "Trend", CString(""), CString(""));
+            break;
           }
         break;
         }
-      case TrID_Grf:
+      case TrID_ClassHdr:
+        {
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+
+        Menu.AppendMenu(MF_STRING, 130, "Copy Class List to Clipboard");
+        Menu.AppendMenu(MF_STRING, 131, "Copy Class, Tag List to Clipboard");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 130:
+            CopyTagList2Clipboard(m_hClassItem, 0, "Class", CString(""), CString(""));
+            break;
+          case 131:
+            CopyTagList2Clipboard(m_hClassItem, 1, "Class\tTag", CString(""), CString(""));
+            break;
+          }
+        break;
+        }
+      case TrID_NodeHdr:
+        {
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+
+        Menu.AppendMenu(MF_STRING, 130, "Copy Tag List to Clipboard");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 130:
+            CopyTagList2Clipboard(m_hNodesItem, 0, "Tag", CString(""), CString(""));
+            break;
+          }
+        break;
+        }
+      case TrID_Graphic:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         CXTPage *pPage;
@@ -2312,14 +2418,19 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           S.Format("Page '%s'", Txt); 
           Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
           Menu.AppendMenu(MF_SEPARATOR, 100);
-          Menu.AppendMenu(MF_STRING, 101, "New");
+          //Menu.AppendMenu(MF_STRING, 101, "New");
           Menu.AppendMenu(MF_STRING, 102, "Rename");
+          Menu.AppendMenu(MF_STRING, 122, "Copy Bitmap to Clipboard");
+
           //Menu.AppendMenu(MF_STRING, 103, "Delete");
-          Menu.AppendMenu(MF_SEPARATOR, 100);
-          Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
+          //Menu.AppendMenu(MF_SEPARATOR, 100);
+          //Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
           Menu.AppendMenu(MF_SEPARATOR, 100);
 
           Menu.AppendMenu(MF_STRING|(pPage->m_pGrfDoc->bModelsActive ? MF_CHECKED:MF_UNCHECKED), 104, "Active");
+          Menu.AppendMenu(MF_SEPARATOR, 100);
+          //Menu.AppendMenu(MF_STRING, 130, "Copy Graphics List to Clipboard");
+          Menu.AppendMenu(MF_STRING, 131, "Copy Graphic, Tags List to Clipboard");
 
           CPoint curPoint;
           GetCursorPos(&curPoint);
@@ -2350,13 +2461,24 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
                 gs_pPrj->m_GrfBehaviour = WB_Coincident;
               CGrfFrameWnd::DoBehaviourChange();
               break;
+            case 121:
+            case 122:
+              {
+              POSITION pos = pPage->m_pGrfDoc->GetFirstViewPosition();
+              CView* pFirstView = pPage->m_pGrfDoc->GetNextView( pos );
+              CGrfWnd* pGWnd = (CGrfWnd*)pFirstView;
+              pGWnd->CopyBMPtoClipBoard(RetCd-121);
+              }
+            case 131:
+              CopyTagList2Clipboard(hSel, 1, "Graphic\tTag", CString(""), CString(""));
+              break;
             }
           }
         else
           ASSERT_ALWAYS(FALSE, "Bad Page Lookup");
         break;
         }
-      case TrID_Trnd:
+      case TrID_Trend:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         CMenu Menu;
@@ -2366,11 +2488,11 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         S.Format("Trend '%s'", Txt); 
         Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
         Menu.AppendMenu(MF_SEPARATOR, 100);
-        Menu.AppendMenu(MF_STRING, 101, "New");
+        //Menu.AppendMenu(MF_STRING, 101, "New");
         Menu.AppendMenu(MF_STRING|MF_GRAYED, 102, "Rename");
         //Menu.AppendMenu(MF_STRING|MF_GRAYED, 103, "Delete");
-        Menu.AppendMenu(MF_SEPARATOR, 100);
-        Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
+        //Menu.AppendMenu(MF_SEPARATOR, 100);
+        //Menu.AppendMenu(MF_STRING | (gs_pPrj->m_TrndBehaviour == WB_Coincident ? MF_CHECKED:MF_UNCHECKED), 108, "Treat as One");
 
         CPoint curPoint;
         GetCursorPos(&curPoint);
@@ -2403,7 +2525,30 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         {
         break;
         }
-      case TrID_Nd: // NOdes
+      case TrID_Class: // NOdes
+        {
+        CString Txt = m_Tree.GetItemText(hSel);
+        CString S;
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+        S.Format("Class %s", Txt); 
+        Menu.AppendMenu(MF_SEPARATOR, 100);
+        Menu.AppendMenu(MF_STRING, 130, "Copy Tag List to Clipboard");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 130:
+            CopyTagList2Clipboard(hSel, 0, "Tag", CString(""), CString(""));
+            break;
+          }
+        break;
+        }
+      case TrID_Node: // NOdes
         {
         CString Txt = m_Tree.GetItemText(hSel);
         CXTTag *pTag;
@@ -2423,6 +2568,8 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             Menu.AppendMenu(MF_STRING, 110+i, S);
             }
           Menu.AppendMenu(MF_STRING|MF_GRAYED, 103, "XRefs");
+          Menu.AppendMenu(MF_SEPARATOR, 100);
+          Menu.AppendMenu(MF_STRING, 130, "Copy Graphic List to Clipboard");
 
           CPoint curPoint;
           GetCursorPos(&curPoint);
@@ -2443,8 +2590,10 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
                 }
               break;
               }
+            case 130:
+              CopyTagList2Clipboard(m_hClassItem, 0, "Graphic", CString(""), CString(""));
+              break;
             }
-
           }
         else
           ASSERT_ALWAYS(FALSE, "Bad Tag Lookup");
@@ -2464,15 +2613,15 @@ void CExploreScd::OnNMDblclkTree(NMHDR *pNMHDR, LRESULT *pResult)
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
       {
-      case TrID_Grf:
-      case TrID_Trnd:
+      case TrID_Graphic:
+      case TrID_Trend:
       case TrID_Other:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         ActivateWndByName(Txt);
         break;
         }
-      case TrID_Nd: // NOdes
+      case TrID_Node: // NOdes
         {
         CString Txt = m_Tree.GetItemText(hSel);
         gs_AccessWnds.AccessNode(-1, Txt); 

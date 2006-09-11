@@ -60,10 +60,10 @@ class CXTClassMap         : public CMap   <LPCTSTR, LPCTSTR, CXTClass*, CXTClass
 
 enum 
   { 
-  TrID_GrfHdr, TrID_Grf, 
-  TrID_TrndHdr, TrID_Trnd, 
+  TrID_GraphicHdr, TrID_Graphic, 
+  TrID_TrendHdr, TrID_Trend, 
   TrID_OtherHdr, TrID_Other, 
-  TrID_NdHdr, TrID_Nd, 
+  TrID_NodeHdr, TrID_Node, 
   TrID_ClassHdr, TrID_Class, 
   //TrID_LostGrfHdr, TrID_LostGrf,
   //TrID_LostMdlHdr, TrID_LostMdl,
@@ -255,6 +255,8 @@ class CExploreScd : public CDialog
 
     void DeletePage(CXTPage * pPage);
     void RenamePage(CXTPage * pPage);
+
+    void CopyTagList2Clipboard(HTREEITEM hRootItem, int DoLevelCount, LPCTSTR Header, CString & LineHeader, CString & Buffer, bool TopLevel=true);
 
     void SavePos();
     void RestorePos();

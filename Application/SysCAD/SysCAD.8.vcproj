@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="10.SysCAD"
+	Name="99.SysCAD"
 	ProjectGUID="{DA00A361-B55B-44B6-BA7A-9BF1BCD66304}"
 	RootNamespace="SysCAD"
 	Keyword="MFCProj"
