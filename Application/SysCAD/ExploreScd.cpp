@@ -37,16 +37,17 @@ extern "C"
 
 // CExploreScd dialog
 
-const int Img_Grf     = 0;
-const int Img_Trnd    = 1;
-const int Img_Other   = 2;
-const int Img_Node    = 3;
-const int Img_Class   = 4;
-const int Img_LostGrf = 5;
-const int Img_LostMdl = 6;
+const int Img_GrfActive   = 0;
+const int Img_Trnd        = 1;
+const int Img_Other       = 2;
+const int Img_Node        = 3;
+const int Img_Class       = 4;
+const int Img_LostGrf     = 5;
+const int Img_LostMdl     = 6;
+const int Img_GrfInActive = 7;
 
 const int PgType2TrIDs[3]={TrID_Other, TrID_Graphic, TrID_Trend};
-const int PgType2ImgIDs[3]={Img_Other, Img_Grf, Img_Trnd};
+const int PgType2ImgIDs[3]={Img_Other, Img_GrfActive, Img_Trnd};
 
 //---------------------------------------------------------------------------
 
@@ -262,11 +263,11 @@ BOOL CExploreScd::OnInitDialog()
 
   InitTags();
 
-  m_hGraphItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Grf,   GetTreeInfo(m_GraphicTitle), TVI_ROOT);
-  m_hTrendItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Trnd,  GetTreeInfo(m_TrendTitle), TVI_ROOT);
-  m_hOtherItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Other, GetTreeInfo(m_OtherTitle), TVI_ROOT);
-  m_hClassItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Class, GetTreeInfo(m_ClassTitle), TVI_ROOT);
-  m_hNodesItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Node,  GetTreeInfo(m_NodeTitle), TVI_ROOT);
+  m_hGraphItem = InsertItem(LPSTR_TEXTCALLBACK, Img_GrfActive,  GetTreeInfo(m_GraphicTitle), TVI_ROOT);
+  m_hTrendItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Trnd,       GetTreeInfo(m_TrendTitle), TVI_ROOT);
+  m_hOtherItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Other,      GetTreeInfo(m_OtherTitle), TVI_ROOT);
+  m_hClassItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Class,      GetTreeInfo(m_ClassTitle), TVI_ROOT);
+  m_hNodesItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Node,       GetTreeInfo(m_NodeTitle), TVI_ROOT);
 
   m_bGraphExpanded=PF.RdInt(Section, "Graphics.Open", 1);
   m_bTrendExpanded=PF.RdInt(Section, "Trends.Open", 0);
@@ -1239,7 +1240,7 @@ void CExploreScd::AddTagToTree(CXTTag *pTag, CXTTag * pPrev)
       CXTPageHPair &P=*pTag->m_Pages[i];
       if (P.m_pPage->m_Selected)
         {
-        P.m_hPage=InsertItem(LPSTR_TEXTCALLBACK, Img_Grf, GetTreeInfo(P.m_pPage), pTag->m_hTreeItem, hPrev?hPrev:TVI_FIRST);
+        P.m_hPage=InsertItem(LPSTR_TEXTCALLBACK, P.m_pPage->m_pGrfDoc->bModelsActive ? Img_GrfActive:Img_GrfInActive, GetTreeInfo(P.m_pPage), pTag->m_hTreeItem, hPrev?hPrev:TVI_FIRST);
         hPrev=P.m_hPage;
         }
       }
@@ -2452,8 +2453,12 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
               DeletePage(pPage);
               break;
             case 104:
+              {
               SetGrfPageActive(pPage->m_pGrfDoc, !pPage->m_pGrfDoc->bModelsActive);
+              int iImg=pPage->m_pGrfDoc->bModelsActive ? Img_GrfActive:Img_GrfInActive;
+              m_Tree.SetItemImage(pPage->m_hPage, iImg, iImg);
               break;
+              }
             case 108:
               if (gs_pPrj->m_GrfBehaviour == WB_Coincident)
                 gs_pPrj->m_GrfBehaviour = WB_None;
