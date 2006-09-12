@@ -100,6 +100,8 @@ class DllImportExport MN_Surge : public MdlNode
 
     virtual dword  ModelStatus();
 
+    DEFINE_CI(MN_Surge, MdlNode, 4);
+
   protected:
 //    void GetStartConditions(SpContainer &C, ContStartInfo * Start);
   public:
@@ -149,7 +151,6 @@ class DllImportExport MN_Surge : public MdlNode
     CDirectFlwIO   m_AccIn;
     CDirectFlwIO   m_AccOut;
     CDirectAccCalc m_AccCalc;
-
   };
 
 //===========================================================================

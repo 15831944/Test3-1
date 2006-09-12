@@ -532,8 +532,12 @@ void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
     //EvalProducts_SurgeLevel(Contents, QFeed, IOMsk, PMU());
 
     if (QFeed().QVolume()*ICGetTimeInc()>=Contents.Shape()->ApparentVolume())
-      LogWarning(FullObjTag(), 0, "High Volume Throughput %.2f%%", 100.0*QFeed().QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
+      SetCI(1, "High Volume Throughput %.2f%%", 100.0*QFeed().QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
+    else
+      ClrCI(1);
     }
+  else
+    ClrCI(1);
   }
 
 //--------------------------------------------------------------------------
@@ -1225,5 +1229,18 @@ dword MN_Surge::ModelStatus()
     }
   return Status;
   };
+
+//--------------------------------------------------------------------------
+
+flag MN_Surge::CIStrng(int No, pchar & pS)
+  {
+  // NB check CBCount is large enough.
+  switch (No-CBContext())
+    {
+    case  1: pS="W\tBad Configuration"; return 1;
+    default:
+      return MdlNode::CIStrng(No, pS);
+    }
+  }
 
 // ===========================================================================
