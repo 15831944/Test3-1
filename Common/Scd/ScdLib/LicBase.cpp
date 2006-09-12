@@ -3333,7 +3333,7 @@ BOOL CSysCADLicense::NodeCountExceeded(int Extra, eLicOptions Opts)
 int  CSysCADLicense::IllegalNodeCount(eLicOptions Opts)                 
   { 
   if (m_IllegalNodeCount>0 && Opts!=eLic_None)
-    LogError("SysCAD", (Opts==eLic_MsgBox? LF_DoAfxMsgBox:0)|LF_Exclamation, "Project contains %d units not allowed by %s license", m_IllegalNodeCount, (DefNetProbalMode() ? "ProBal" : "Dynamic"));
+    LogError("SysCAD", (Opts==eLic_MsgBox? LF_DoAfxMsgBox:0)|LF_Exclamation, "Project contains %d units not allowed by by license for %s solver and model add-ons", m_IllegalNodeCount, (DefNetProbalMode() ? "ProBal" : "Dynamic"));
   return m_IllegalNodeCount; 
   };
 
@@ -3344,13 +3344,13 @@ int  CSysCADLicense::IllegalNodeModelCount(eLicOptions Opts)
   if ((m_IllegalNodeCount+m_IllegalModelCount)>0 && Opts!=eLic_None)
     {
     Strng S, L;
-    L= DefNetProbalMode() ? "ProBal" : "Dynamic";
+    L = DefNetProbalMode() ? "ProBal" : "Dynamic";
     if (m_IllegalNodeCount>0 && m_IllegalModelCount>0)
-      S.Set("Project contains %d units and %d models not allowed by %s license", m_IllegalNodeCount, m_IllegalModelCount, L());
+      S.Set("Project contains %d units and %d models not allowed by license for %s solver and model add-ons", m_IllegalNodeCount, m_IllegalModelCount, L());
     else if (m_IllegalNodeCount>0)
-      S.Set("Project contains %d units not allowed by %s license", m_IllegalNodeCount, L());
+      S.Set("Project contains %d units not allowed by license for %s solver and model add-ons", m_IllegalNodeCount, L());
     else
-      S.Set("Project contains %d models not allowed by %s license", m_IllegalModelCount, L());
+      S.Set("Project contains %d models not allowed by license for %s solver and model add-ons", m_IllegalModelCount, L());
 
     LogError("SysCAD", (Opts==eLic_MsgBox? LF_DoAfxMsgBox:0)|LF_Exclamation, "%s", S());
     }
