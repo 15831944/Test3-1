@@ -2244,6 +2244,11 @@ bool CArchiveManager::Close(BOOL SaveState/*=true*/)
 
   gs_EventLog.SetHook(NULL);
 
+  m_pMessageLog=NULL; 
+  m_pEventLog=NULL; 
+  m_iBusyLoggingMsg=0;
+  m_iBusyLoggingEvent=0;
+
   if (m_bOn)
     CDlgBusy::Open("\n\nClosing Archive Manager");
 
