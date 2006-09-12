@@ -648,7 +648,6 @@ void CProjectSettingsDlg::OnOK()
   if (GetActivePage()->OnKillActive())
     {
     //GetActivePage()->OnOK();
-    EndDialog(IDOK);
     MainWnd()->SetToolBarSolveMode();
     gs_AccessWnds.CloseAccessData(-1, False, False, True);
     gs_AccessWnds.CloseWnd(-1);
@@ -657,6 +656,7 @@ void CProjectSettingsDlg::OnOK()
   if (m_pPrj)
     m_pPrj->PutSettings();
 
+  EndDialog(IDOK);
   }
 
 //---------------------------------------------------------------------------
