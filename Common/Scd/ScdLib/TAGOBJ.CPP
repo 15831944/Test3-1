@@ -1531,6 +1531,8 @@ long MaxModes2Mask(long MaxMode)
 
 void SetMaxNodeMode(long Mode)
   { 
+  Mode |= SM_Direct|SM_Inline; // AT Least Inline is Required
+
   long Allowed=Max2Mask(Mode, SM_All);
 
   TaggedObject::gs_MaxNodeMode      = Mode&SM_All; 
@@ -1542,6 +1544,8 @@ void SetMaxNodeMode(long Mode)
 
 void SetMaxLinkMode(long Mode)
   {
+  Mode |= SM_Direct; // AT Least Direct is Required
+
   long Allowed=Max2Mask(Mode, SM_All);
 
   TaggedObject::gs_MaxLinkMode      = Mode&SM_All; 

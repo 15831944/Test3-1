@@ -2393,6 +2393,74 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
   }
 
 //---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                                long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags,
+                                DDBValueLst * ValueLst, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Strng;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv    = (Cnv);
+    pCnvTxt = CnvTxt;
+    pCnvFam  = NULL;
+    pData   = NULL;
+    lHandle = Handle;
+    lHandle2 = Handle2;
+    pThis   = This ? This : Nest[lCallLevel].pThis;
+    iFlags  = Flags;
+    pValueLst    = ValueLst;
+    pValueLstMem = NULL;
+    CHKSTUFF1(this);
+    DoString();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  }
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                                long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags,
+                                DDBValueLstMem * ValueLstMem, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Strng;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv    = (Cnv);
+    pCnvTxt = CnvTxt;
+    pCnvFam  = NULL;
+    pData   = NULL;
+    lHandle = Handle;
+    lHandle2 = Handle2;
+    pThis   = This ? This : Nest[lCallLevel].pThis;
+    iFlags  = Flags;
+    pValueLst    = ValueLstMem->List();
+    pValueLstMem = ValueLstMem;
+    CHKSTUFF1(this);
+    DoString();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  }
+
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 INLINE void DataDefnBlk::Blob(pchar Tag, void *Data, word Size, pTaggedObject This)

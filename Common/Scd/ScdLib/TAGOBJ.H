@@ -1542,6 +1542,8 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
     void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
 
     void           Blob(pchar Tag, void *Data, word Size, TaggedObject * This);
     void           Blob(pchar Tag, long Handle, TaggedObject * This);
