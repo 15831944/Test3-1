@@ -1872,6 +1872,8 @@ BOOL CMdlCfgCfg::OnInitDialog()
     iSel=m_DynNodeMode.SelectString(-1, S());
   if (iSel<0)
     iSel=m_DynNodeMode.SetCurSel(2);
+  // Force to 'Buffered'
+  iSel=m_DynNodeMode.SetCurSel(2);
 
   S=Cfg.RdStr(CfgItemsC[iDFlowMd].SctName, CfgItemsC[iDFlowMd].Name, CfgItemsC[iDFlowMd].StrDef);
   S.Trim();
@@ -1927,6 +1929,9 @@ BOOL CMdlCfgCfg::OnInitDialog()
     iSel=m_MaxNodeMode.SelectString(-1, S());
   if (iSel<0)
     iSel=m_MaxNodeMode.SetCurSel(2);
+
+  // Force to 'Buffered'
+  iSel=m_MaxNodeMode.SetCurSel(2);
 
   S=Cfg.RdStr(CfgItemsC[iFlowMx].SctName, CfgItemsC[iFlowMx].Name, CfgItemsC[iFlowMx].StrDef);
   S.Trim();
@@ -2170,6 +2175,7 @@ BOOL CMdlCfgCfg::OnKillActive()
 
     iSel=m_DynNodeMode.GetCurSel();
     Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
+    Md=SM_Buffered; // Force to Buffered
     S=GlblMode2LPTSTR(Md, SM_All, eGM_Name);
     Cfg.WrStr(CfgItemsC[iDNodeMd].SctName, CfgItemsC[iDNodeMd].Name, NONNULL(S()));
 
@@ -2185,6 +2191,7 @@ BOOL CMdlCfgCfg::OnKillActive()
 
     iSel=m_MaxNodeMode.GetCurSel();
     Md=((iSel==0 || iSel==CB_ERR) ? SM_Direct : (iSel==1 ? SM_Inline : SM_Buffered));
+    Md=SM_Buffered; // Force to Buffered
     S=GlblMode2LPTSTR(Md, SM_All, eGM_Name);
     Cfg.WrStr(CfgItemsC[iNodeMx].SctName, CfgItemsC[iNodeMx].Name, NONNULL(S()));
 

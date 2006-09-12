@@ -1105,7 +1105,7 @@ BOOL CModesPage::OnInitDialog()
   m_DynLinkMode    = m_pSet->m_DynLinkMode;
   m_DynHeatMode    = m_pSet->m_DynHeatMode;
   m_DynFlowMode    = m_pSet->m_DynFlowMode;
-  m_DynMaxNodeMode = m_pSet->m_MaxNodeMode;
+  m_DynMaxNodeMode = SM_Buffered;// m_pSet->m_MaxNodeMode;
   m_DynMaxLinkMode = m_pSet->m_MaxLinkMode;
   m_DynMaxHeatMode = m_pSet->m_MaxHeatMode;
   m_DynMaxFlowMode = m_pSet->m_MaxFlowMode;
