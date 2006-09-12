@@ -2808,7 +2808,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           {
           ObjRefFldNo=fi;
           int di=Flds[fi].iData;
-          ObjRefTag=NdTag();
+          ObjRefTag="";//NdTag(); dont even put Unit Tag in Desc
           for (int i=1; i <= di; i++) // start at 1 to skip  UnitTag
             if (Data[i].iEndFld>0)
               if (Data[i].iEndFld>fi)
