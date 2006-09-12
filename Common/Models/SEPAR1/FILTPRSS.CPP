@@ -7,6 +7,7 @@
 #include "sc_defs.h"
 #define  __FILTPRSS_CPP
 #include "filtprss.h"
+//#include "optoff.h"
 
 //===========================================================================
 //
@@ -97,6 +98,9 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   Fd("Fd", this, TOA_Free)
   {
   AttachIOAreas(FilterPressIOAreaList);
+
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
+
   iRqdFiltMethod  = FSM_SolToFiltFrac;
   RqdFiltSolConc  = 1.0;
   RqdSolidsToFiltrate = 0.0001;
@@ -218,7 +222,7 @@ flag FilterPress::ChangeMode(dword NewMode, dword OldMode)
 
 //--------------------------------------------------------------------------
 
-void   FilterPress::SetState(eScdMdlStateActs RqdState)
+void FilterPress::SetState(eScdMdlStateActs RqdState)
   {
   MdlNode::SetState(RqdState);
   switch (RqdState)
