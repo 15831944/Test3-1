@@ -17,11 +17,11 @@
 // ++ See scdver.h for version and build numbers          ++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-//#define SCD_PATCHNOTE    "Update ?"   /* Update/patch number/comment*/
+//#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
 
-#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-//#define SCD_PATCHDATE    "? March 2005"
+//#define SCD_PATCHDATE    ""        /* Update/patch release date*/
+#define SCD_PATCHDATE    "12 September 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2434,78 +2434,134 @@ Update 12 : 24 March 2005
    Added other corrections and improvements that are used if check box "OldCalcs"
    is not selected. Added display fields for Alpha and reference temperature.
 
-Update 13 : 21 April 2005
+Update 13 : 21 May 2006
 ------------------------------
 1) (#439) Fixed crash where large number of species have PSD data.
 2) Improved display of PSD data where more than one specie contains PSD data. All
    the cumulative PSD data is now displayed in a separate table.
 3) (#417) Improveved functionality in "Dynamic Info" for managing a tag list of
    tags to be recorded in the historian.
+4) If shown as column options in the PSD views, all the xxxG (eg QmCumG) options
+   have been removed.
+5) (#131) Corrected display for BPE in bayer streams. The equation for BPE is 
+   based on the stream composition and temperature. For BPE displayed, the stream 
+   temperature was incorrectly used, rather the pure water saturation temperature 
+   at stream pressure should have been used. NOTE: The values displayed for BPE
+   will change, however the correct BPE was used in flash calculations, etc.
+6) (#450) Forced check for sequence number in the first reaction if any of the
+   subsequent reactions have a sequence number defined.
+7) (#452) Fixed error in reactions where the incorrect amount of source material
+   was shown when any of the reactions used the FinalConc method.
 
-
-
-Build 116 : 2 September 2005
+Update 14 : 25 August 2006
 ------------------------------
+1) In PGM declaration of variables, user can now specify only the conversion family 
+   and the SI units are assumed. eg double flow@("Qm"); or double FracRqd*("Frac").
+2) (#462,#466) Fixed error where profile file contained a single entry at time zero.
+3) (#483) Added new field "RqdCalcMode" in direct contact heater for user to specify 
+   the desired calculation mode. If the contact heater is in "stand alone" mode, then 
+   "FinalTRqd" or "TRiseRqd" are used as maximum limits and NOT strict requirements.
+4) (#487) In graphics when unable to insert a pipe, after 3 failed attempts to select 
+   a source or destination unit, the commend is canceled (in past user was stuck).
+5) (#494) Added option to set conveyor belt product discharge position to end without
+   having to change position if belt length is changed.
+6) (#505) Added "On" option to crusher. When off, output equals input.
+7) (#506) SysCAD now uses .ini files in basefiles folder rather than the registry.
+8) (#492) Fixed beltfilter calculation error. Washing curve is on a mass not volume 
+   basis. Added warning message if solute is present in wash water. 
+   NOTE: This fix will affect output streams.
+9) (#512) Improved error message to report problem model if database error occurred
+   during project save.
+10) (#519) Fixed crash when blowdown was not connected to boiler.
+11) (#431) Further cyclone Plitt method fixes. Use stream temperature for density
+    calculations.
+12) (#524) Added PrjName display field to PlantModel access window.
+
+
+Update 15 : 29 August 2006
+------------------------------
+1) Allow use of Alumina2.DLL.
+
+=============================================================================
+================                SysCAD 9.1                   ================
+=============================================================================
+
+Build 120 : 9 September 2006
+------------------------------
+A) Model changes:
 1) (#168) Implemented new "AutoVLE" functionality. This is an equilibrium finder
    that can be enabled for selected areas in a similar way to other qualities
    such as solubility. User is able to define options such as Relative Humidity,
    Saturated, SuperSaturated. Display of current RelHumidty , SpecHumidity, DewPt
    and other qualities is shown. AutoVLE is for water only.
-2) (#170) Implemented a new "leaks" functionality for full dynamic mode. This
+2) Implemented a new Thermal Block in pipes where ...
+3) Changed underlying data type for the general splitter model (GM) from float
+   to double to improve numerical accuracy.
+4) Implemented 4way-valve model.
+5) Added functionality to pump and valve so that they can operate in dynamic
+   transfer mode. In this mode the required maximum flowrate can be specified
+   which corresponds to the 100% valve or pump position. In a line with multiple
+   pumps, valves, etc the resultant flowrate will be the minimum of all the
+   output "capacity" flowrates of all the equipment and pipes in the line.
+   The valve and pump capacity can be specified in mass flow or volumetric flow.
+6) In dynamic transfer mode, there are now two mode options in pipes, these are
+    "Transfer" as before and "Pipe". The "Pipe" option allows reverse flow in
+    streams.
+7) Dynamic mode improvements to the compressor model and flow regulator block.
+8) Added option for gain and offset options to the profile model. The profile 
+    output is adjusted as output=value*gain+offset.
+
+B) Solver changes
+1) (#170) Implemented a new "leaks" functionality for full dynamic mode. This
    allows for "leaks" or flow between the environment and models. The leaks would
    optionaly be from flanges on either end of a pipe. The flow may be in either
    direction. The leak flowrate would be dependent on the configuration of the
    "environment envelope area", the state of the model contents and the
    configuration of the leak parameters of the model.
-3) Implemented new system "Area" model. Some model types allow "leak" flows of
+2) Implemented new system "Area" model. Some model types allow "leak" flows of
    material to occur in any direction between the area and any number of pipes
    or units.
-4) (#200) Implemented new feature where user feedback is provided in any models
-   or pipes where, based on the state of stream composition, temperature and
-   pressure the properties model reports if any property correlations are out
-   of the expected range. Currently only partly implemented in Demo SMDK Bayer.
-5) Implemented a new Thermal Block in pipes where ...
-6) Enhancements and improvements to the Audit page.
-7) Changed underlying data type for the general splitter model (GM) from float
-   to double to improve numerical accuracy.
-8) Implemented new graphics group block functionality. This allows user to
+3) Enhancements and improvements to the Audit and Closure information page.
+5) Various improvements to the solver for dynamic transfer mode.
+6) Improvements to network analysis for dynamic with joins and tears.
+7) Added support in dynamic transfer mode for reverse flow in pipes. The pump
+   can be configured for reverse flow.
+8) Implemented dynamic run to steady state option.
+
+C) User Functionality changes:
+1) Implemented new graphics group block functionality. This allows user to
    select a group of graphics and save these to a database. This group (or
    "template" or "assembly") can then be inserted as a group of models in the
    project. When inserting the group, the user can select from various options
    to set the tags of all the models inserted as part of the group. The group
    that has been saved can be used in other projects. This feature is effectively
    a type of block copy and past, as well as having other aplications.
-9) Various improvements to the 4way-valve model.
-10) Added functionality to pump and valve so that they can operate in dynamic
-    transfer mode. In this mode the required maximum flowrate can be specified
-    which corresponds to the 100% valve or pump position. In a line with multiple
-    pumps, valves, etc the resultant flowrate will be the minimum of all the
-    output "capacity" flowrates of all the equipment and pipes in the line.
-    The valve and pump capacity can be specified in mass flow or volumetric flow.
-11) Added support in dynamic transfer mode for reverse flow in pipes. The pump
-    can be configured for reverse flow.
-12) In dynamic transfer mode, there are now two mode options in pipes, these are
-    "Transfer" as before and "Pipe". The "Pipe" option allows reverse flow in
-    streams.
-13) Various improvements to the solver for dynamic transfer mode.
-14) Improvements to network analysis for dynamic with joins and tears.
-15) Dynamic mode improvements to the compressor model and flow regulator block.
-16) Added gain and offset options to the profile model. The profile output is
-    adjusted as output=value*gain+offset.
-17) Extended edit configuration dialog Step 1 page to include all groups of
-    sub-models in the list of model types.
-18) Improvements to the neutral database import/export of graphics and models.
-19) Added new options to right click pop-up menu for the message window.
-20) Implemented dynamic steady state option for models and licensing.
+2) Implemented new explorer window for selecting windows. This also shows all the 
+   tags grouped by graphics page, model class or by filter selection. Various 
+   options are available through right click popup menu.
+3) Added new options for trend and graphics window display options. For example
+   'treat as one' overlays all graphics windows such that it appears like there
+   is a single graphics window.
+4) Extended edit configuration dialog Step 1 page to include all groups of
+   sub-models in the list of model types.
+5) Improvements to the neutral database import/export of graphics and models.
+6) Added new options to right click pop-up menu for the message window.
+
+
+Update 1 : 12 September 2006
+------------------------------
+1) Improved stream summary for Material Source model.
+2) Improved right click popup menu options on the explorer window.
+
 
 =============================================================================
-================                SysCAD 9.1                   ================
+================                SysCAD 9.2                   ================
 =============================================================================
 
-What next.......???
-
+What next...
+1) (#200) Implemented new feature where user feedback is provided in any models
+   or pipes where, based on the state of stream composition, temperature and
+   pressure the properties model reports if any property correlations are out
+   of the expected range. Currently only partly implemented in Demo SMDK Bayer.
+..............
 */
-//===========================================================================
-
-
-
