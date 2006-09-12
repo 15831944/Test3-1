@@ -157,15 +157,22 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
     DDB.Visibility();
     if (DDB.BeginStruct(this, "MU", NULL, DDB_RqdPage))
       {
-      for (int i=0; i<NoFlwIOs(); i++)
+      DDB.Long("Count", "", DC_, "", xidMUCount, this, isResult|noFileAtAll);
+      if (DDB.BeginArray(this, "Out", NULL, DDB_NoPage))
         {
-        if (IOId_Self(i)==IOId_AreaMakeupO)
+        int j=0;
+        for (int i=0; i<NoFlwIOs(); i++)
           {
-          Strng Tg(Nd_Rmt(i)->FullObjTag());
-          Tg+=".Qm";
-          DDB.Double(Tg(), "", DC_Qm, "kg/s", xidMUFlows, i, this, isResult|noFileAtAll);
+          if (IOId_Self(i)==IOId_AreaMakeupO)
+            {
+            DDB.BeginElement(this, j++);
+            DDB.String("Tag", "", DC_,   "",     xidMUTags,  i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",  "", DC_Qm, "kg/s", xidMUFlows, i, this, isResult|noFileAtAll);
+            }
           }
         }
+      DDB.EndArray();
+      DDB.Double("Total", "", DC_Qm, "kg/s", xidMUTotal, this, isResult|noFileAtAll);
       }
     DDB.EndStruct();
     }
@@ -175,15 +182,22 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
     DDB.Visibility();
     if (DDB.BeginStruct(this, "BL", NULL, DDB_RqdPage))
       {
-      for (int i=0; i<NoFlwIOs(); i++)
+      DDB.Long("Count", "", DC_, "", xidBLCount, this, isResult|noFileAtAll);
+      if (DDB.BeginArray(this, "In", NULL, DDB_NoPage))
         {
-        if (IOId_Self(i)==IOId_AreaBleedI)
+        int j=0;
+        for (int i=0; i<NoFlwIOs(); i++)
           {
-          Strng Tg(Nd_Rmt(i)->FullObjTag());
-          Tg+=".Qm";
-          DDB.Double(Tg(), "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
+          if (IOId_Self(i)==IOId_AreaBleedI)
+            {
+            DDB.BeginElement(this, j++);
+            DDB.String("Tag", "", DC_,   "",     xidBLTags,  i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",  "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
+            }
           }
         }
+      DDB.EndArray();
+      DDB.Double("Total", "", DC_Qm, "kg/s", xidBLTotal, this, isResult|noFileAtAll);
       }
     DDB.EndStruct();
     }
@@ -440,12 +454,54 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
       DCB.D=m_Content.PRqd();
       return 1;
     
+    case xidMUCount:
+      {
+      int j=0;
+      for (int i=0; i<NoFlwIOs(); i++)
+        if (IOId_Self(i)==IOId_AreaMakeupO)
+          j++;
+      DCB.L=j;
+      return 1;
+      }
+    case xidMUTags:
+      DCB.pC=Nd_Rmt(DCB.lHandle2)->FullObjTag();
+      return 1;
     case xidMUFlows:
       DCB.D=IOQm_Out(DCB.lHandle2);
+      return 1;
+    case xidMUTotal:
+      {
+      double T=0;
+      for (int i=0; i<NoFlwIOs(); i++)
+        if (IOId_Self(i)==IOId_AreaMakeupO)
+          T+=IOQm_Out(i);
+      DCB.D=T;
+      return 1;
+      }
+    case xidBLCount:
+      {
+      int j=0;
+      for (int i=0; i<NoFlwIOs(); i++)
+        if (IOId_Self(i)==IOId_AreaBleedI)
+          j++;
+      DCB.L=j;
+      return 1;
+      }
+    case xidBLTags:
+      DCB.pC=Nd_Rmt(DCB.lHandle2)->FullObjTag();
       return 1;
     case xidBLFlows:
       DCB.D=IOQm_In(DCB.lHandle2);
       return 1;
+    case xidBLTotal:
+      {
+      double T=0;
+      for (int i=0; i<NoFlwIOs(); i++)
+        if (IOId_Self(i)==IOId_AreaBleedI)
+          T+=IOQm_In(i);
+      DCB.D=T;
+      return 1;
+      }
     }
 
   if (MdlNode::DataXchg(DCB))

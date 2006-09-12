@@ -111,10 +111,15 @@ XID xidIO_CopyAdtMassTotal    = MdlBsXID(5487);
 XID xidIO_CopyAdtHeat         = MdlBsXID(5488);
 XID xidIO_CopyAdtHeatTotal    = MdlBsXID(5489);
 
-XID xidMUFlows                = MdlBsXID(10000);
-XID xidBLFlows                = MdlBsXID(20000);
-
-
+XID xidMUCount                = MdlBsXID(10000);
+XID xidMUFlows                = MdlBsXID(10001);
+XID xidMUTotal                = MdlBsXID(20000);
+XID xidMUTags                 = MdlBsXID(20001);
+XID xidBLCount                = MdlBsXID(30000);
+XID xidBLFlows                = MdlBsXID(30001);
+XID xidBLTotal                = MdlBsXID(40000);
+XID xidBLTags                 = MdlBsXID(40001);
+                                          
 // ==========================================================================
 
 enum 
