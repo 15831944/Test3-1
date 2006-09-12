@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="SCDDESRVR"
+	Name="40.SCDDESRVR"
 	ProjectGUID="{EA3BC6A1-2B8F-4F81-8CD7-922EF32910DD}"
 	RootNamespace="SCDDESRVR"
 	Keyword="MFCProj">

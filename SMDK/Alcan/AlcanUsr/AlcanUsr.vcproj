@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="AlcanUsr"
+	Name="us.AlcanUsr"
 	ProjectGUID="{87C2B206-FD06-47B0-88F4-333E0AA50A48}"
 	RootNamespace="AlcanUsr"
 	Keyword="MFCProj">

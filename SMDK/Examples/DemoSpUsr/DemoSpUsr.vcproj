@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="DemoSpUsr"
+	Name="ks.DemoSpUsr"
 	ProjectGUID="{2109E5C8-940C-4E59-BE2F-633177B5B01D}"
 	Keyword="MFCProj">
 	<Platforms>

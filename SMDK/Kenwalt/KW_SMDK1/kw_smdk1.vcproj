@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="KW_SMDK1"
+	Name="ks.KW_SMDK1"
 	ProjectGUID="{B1119DDA-6078-419B-922E-EAD26F68B2C2}"
 	Keyword="MFCProj">
 	<Platforms>

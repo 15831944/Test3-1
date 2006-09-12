@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="TS"
+	Name="us.TS"
 	ProjectGUID="{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}"
 	Keyword="Win32Proj">
 	<Platforms>

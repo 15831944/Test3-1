@@ -166,7 +166,7 @@
 				AssemblerListingLocation=".\RDb8/"
 				ObjectFile=".\RDb8/"
 				ProgramDataBaseFileName=".\RDb8/"
-				BrowseInformation="1"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"

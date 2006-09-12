@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="QALSPMDL"
+	Name="um.QALSPMDL"
 	ProjectGUID="{23F1BC15-A0B7-4965-B36D-69BEB6279669}"
 	Keyword="MFCProj">
 	<Platforms>

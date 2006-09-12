@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="scOPCsrv"
+	Name="42.scOPCsrv"
 	ProjectGUID="{1DC69958-EFBE-43A7-A316-6045B1288228}"
 	Keyword="MFCProj">
 	<Platforms>
