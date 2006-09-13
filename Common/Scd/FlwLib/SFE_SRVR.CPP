@@ -707,6 +707,10 @@ flag CSfeSrvr::EO_EndLoad(FilingControlBlock &FCB)
   {
   return SfeFS->EO_EndLoad(FCB); 
   };
+flag CSfeSrvr::EO_EndConnect(FilingControlBlock &FCB)                         
+  {
+  return SfeFS->EO_EndConnect(FCB); 
+  };
 
 void CSfeSrvr::EO_BeginBulkChange()
   {

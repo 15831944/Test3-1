@@ -21,9 +21,9 @@
 //
 //==========================================================================
 
-const byte IOId_InPres = FlwIOId(0);
-const byte IOId_InSuct = FlwIOId(1);
-const byte IOId_Output = FlwIOId(2);
+const int IOId_InPres = FlwIOId(0);
+const int IOId_InSuct = FlwIOId(1);
+const int IOId_Output = FlwIOId(2);
 
 static IOAreaRec X_EjectorIOAreaList[] =
   {{"InPres",      "InPres"   , IOId_InPres, LIO_In,  nc_MLnk, 1, 1, /*IOPipeJoin|*/IOGRP(1)},

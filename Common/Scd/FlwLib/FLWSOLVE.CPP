@@ -14195,6 +14195,17 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
   return true;
   };
 
+
+//---------------------------------------------------------------------------
+
+flag CFlwSolver::EO_EndConnect(FilingControlBlock &FCB)
+  {
+  FlwNode *p=NULL;
+  while (GetObj_All(p))
+    p->CleanupConnections();
+
+  return true;
+  }
 //---------------------------------------------------------------------------
 
 flag CFlwSolver::EO_EndLoad(FilingControlBlock &FCB)

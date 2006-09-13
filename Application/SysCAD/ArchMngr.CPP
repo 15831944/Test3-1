@@ -3452,6 +3452,13 @@ flag CArchiveManager::EO_LoadOtherData(FilingControlBlock &FCB)
 
 //---------------------------------------------------------------------------
 
+flag CArchiveManager::EO_EndConnect(FilingControlBlock &FCB)
+  {
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
 flag CArchiveManager::EO_EndLoad(FilingControlBlock &FCB)
   {
   //  for (long i=0; i<Slots.GetSize(); i++)

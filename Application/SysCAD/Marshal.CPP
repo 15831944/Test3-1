@@ -1534,6 +1534,13 @@ flag CIOMarshal::EO_LoadOtherData(FilingControlBlock &FCB)
 
 //---------------------------------------------------------------------------
 
+flag CIOMarshal::EO_EndConnect(FilingControlBlock &FCB)
+  {
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
 flag CIOMarshal::EO_EndLoad(FilingControlBlock &FCB)
   {
 //  for (long i=0; i<Slots.GetSize(); i++)

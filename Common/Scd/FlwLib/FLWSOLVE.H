@@ -606,6 +606,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM);
     flag           EO_LoadOtherData(FilingControlBlock &FCB);
     flag           EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM);
+    flag           EO_EndConnect(FilingControlBlock &FCB);
     flag           EO_EndLoad(FilingControlBlock &FCB);
 
     CArray <FSubsDataItem, FSubsDataItem& > XData;

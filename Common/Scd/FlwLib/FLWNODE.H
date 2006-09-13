@@ -3642,6 +3642,7 @@ class DllImportExport FlwNode : public CTNode
     void           ConnectJoinList();
     void           PostConnectJoinList();
     flag           ConnectionsOK();
+    void           CleanupConnections();
     virtual flag   MoveTearFlange(int iTearIO, FlwNode * &pNewTearNd, int &iNewTearIO);
 
     dword          IOType_Self(int i)           { return IOAreas[m_IOs[i].IODescSelf].m_dwType; };

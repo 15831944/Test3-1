@@ -181,9 +181,9 @@ class DllImportExport GSModel : public TaggedObject
     MdlNode        &Nd;
     GSIOIndexArray &IOs;
     
-    byte           IOId0;
-    byte           IOIdN;
-    byte           NProds;
+    int            IOId0;
+    int            IOIdN;
+    int            NProds;
 
     byte           iOperation;
     byte           m_iPhMethSpec;
@@ -258,12 +258,12 @@ class DllImportExport GSModelBase
     flag            fEnabled;
     pGSModel        pGSM;
     MdlNode        *pNd;
-    byte           MdlIOId0;
-    byte           MdlIOIdN;
+    int            MdlIOId0;
+    int            MdlIOIdN;
 
   public:
  
-    GSModelBase(MdlNode *pAttach, byte IOId0=0, byte IOIdN=255) 
+    GSModelBase(MdlNode *pAttach, int IOId0=0, int IOIdN=SpillIOId0-1) 
       { 
       pGSM=NULL; 
       pNd=pAttach; 
@@ -278,7 +278,7 @@ class DllImportExport GSModelBase
 
     flag           Open();
     void           Close();
-    void           SetIOIdRange(byte IOId0=0, byte IOIdN=255)
+    void           SetIOIdRange(int IOId0=0, int IOIdN=SpillIOId0-1)
       { 
       MdlIOId0=IOId0;
       MdlIOIdN=IOIdN;

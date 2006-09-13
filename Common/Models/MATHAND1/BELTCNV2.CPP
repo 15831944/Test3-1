@@ -50,8 +50,8 @@ Model type:Unit#n
 */
 //==========================================================================
 
-const byte idFeed       = FlwIOId(0);
-const byte idProd       = FlwIOId(1);
+const int idFeed        = FlwIOId(0);
+const int idProd        = FlwIOId(1);
 const int EIOId_Supply  = ElecIOId(0);
 
 XID xidBeltLength       = ModelXID(1000);

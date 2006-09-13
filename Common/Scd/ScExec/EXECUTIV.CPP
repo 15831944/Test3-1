@@ -5607,6 +5607,9 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
         Elapsed.ReStart();
         }
       }
+    for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+      if (OInx<LDBI.m_LoadIt.GetSize() && LDBI.m_LoadIt[OInx])
+        Objs_Reg[OInx]->EO_EndConnect(LDBI.m_FCB);
     }
   return !LDBI.m_Failed;
   }

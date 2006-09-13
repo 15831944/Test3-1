@@ -2009,13 +2009,18 @@ void GSModel::CheckConfig()
   {
   if (bIOChanges)
     {
+    //dbgpln("CheckConfig %s",Nd.FullObjTag());
+
     Gammas.SetSize(SDB.Count()+1);
+
+    //dbgpln("IOCount   %i cf %i  %i %i",IOs.GetSize(), Nd.NoProcLnkIOs(), Nd.NoProcDirectIOs(), Nd.NoRealDirectIOs());
 
     NProds=0;
     const int IOsSize = IOs.GetSize();
     for (int i=0; i<IOsSize; i++)
       {
       int io=IOs[i];
+      //dbgpln("IOAlpha i:%3i io:%3i Id:%5i Sz:%i", i, io, -1/*Nd.IOId_Self(io)*/, IOAlpha.GetSize());
       if (i>=IOAlpha.GetSize() || io>IOAlpha[i].IONo)
         {
         GSIOAlpha A;
@@ -2072,7 +2077,7 @@ void GSModel::PrepareDefinedData()
   for (int i=0; i<IOs.GetSize(); i++)
     if (IOs[i]>=IONo)
       break;
-  byte Id=Nd.IOId_Self(IONo);
+  int Id=Nd.IOId_Self(IONo);
   if (Id>=IOId0 && Id<=IOIdN)
     {
     IOs.InsertAt(i, IONo);
@@ -2087,34 +2092,56 @@ void GSModel::PrepareDefinedData()
 
 void GSModel::PostConnect(int IONo)
   {
-  ASSERT_ALWAYS(IONo<250, "Max of 250 IOs in a GenModel")
-  for (int i=0; i<IOs.GetSize(); i++)
-    if (IOs[i]>=IONo)
-      break;
-  byte Id = Nd.IOId_Self(IONo);
+  int Id = Nd.IOId_Self(IONo);
+  //dbgp("GSModel::PostConnect io:%3i Id:%5i", IONo, Id);
   if (Id>=IOId0 && Id<=IOIdN)
     {
-    IOs.InsertAt(i, IONo);
-    //maybe instead of inserting new GSIOAlpha, check end of IOAlpha for unused item and use it so that "old/previous" values are used?
-    GSIOAlpha A;
-    A.IONo = IOs[i];
-    IOAlpha.InsertAt(i, A);
-    i++;
-    }
+    //Check Length of IO ect
+    int IOsLenRqd=0;
+    for (int i=0; i<Nd.NoProcLnkIOs(); i++)
+      {
+      if (Nd.IOId_Self(i)>=IOId0 && Nd.IOId_Self(i)<=IOIdN)
+        IOsLenRqd++;
+      }
 
-  const int IOsSize = IOs.GetSize();
-  if (i<IOsSize)
-    {
-    int ii = i;
-    for (i ; i<IOs.GetSize(); i++)
-      IOs[i]++;
+    if (IOs.GetCount()<IOsLenRqd)
+      {
 
-    //shift everything up...
-    const int AlphaSize = IOAlpha.GetSize();
-    for (int j=ii; j<IOsSize && j<AlphaSize; j++)
-      IOAlpha[j].IONo = IOs[j];
+      //dbgp(" AddIt");
+      ASSERT_ALWAYS(IONo<250, "Max of 250 IOs in a GenModel");
+      int iPos=-1;
+      for (int i=0; i<IOs.GetSize(); i++)
+        if (IOs[i]>=IONo)
+          break;
+
+      IOs.InsertAt(i, IONo);
+      //maybe instead of inserting new GSIOAlpha, check end of IOAlpha for unused item and use it so that "old/previous" values are used?
+      GSIOAlpha A;
+      A.IONo = IOs[i];
+      IOAlpha.InsertAt(i, A);
+      i++;
+      //}
+
+      const int IOsSize = IOs.GetSize();
+      if (i<IOsSize)
+        {
+        int ii = i;
+        for (i ; i<IOs.GetSize(); i++)
+          IOs[i]++;
+
+        //shift everything up...
+        const int AlphaSize = IOAlpha.GetSize();
+        for (int j=ii; j<IOsSize && j<AlphaSize; j++)
+          IOAlpha[j].IONo = IOs[j];
+        }
+      bIOChanges=1;
+      }
+    else
+      {
+      int XX=0;
+      }
     }
-  bIOChanges=1;
+  //dbgpln(" %s", Nd.FullObjTag());
   CheckConfig();
   };
 
@@ -2135,9 +2162,13 @@ void GSModel::PostConnect(int IONo)
 
 void GSModel::PreDisConnect(int IONo)
   {
+  int Id = Nd.IOId_Self(IONo);
+  //dbgp("GSModel::PreDisConnect io:%3i Id:%5i", IONo, Id);
   for (int i=0; i<IOs.GetSize(); i++)
+    {
     if (IOs[i]==IONo)
       {
+      //dbgp(" RemIt");
       IOs.RemoveAt(i);
       const int IOsSize = IOs.GetSize();
       if (i<IOsSize)
@@ -2162,6 +2193,8 @@ void GSModel::PreDisConnect(int IONo)
           }
         }
       }
+    }
+  //dbgpln(" %s", Nd.FullObjTag());
   bIOChanges=1;
   CheckConfig();
   };
@@ -2498,15 +2531,21 @@ flag GSModelBase::Open()
 
   pGSM=new GSModel(&GSModelClass, "GM", pNd, TOA_Embedded);
   pNd->StructureChanged(NULL);
-  pGSM->IOId0=MdlIOId0;
-  pGSM->IOIdN=MdlIOIdN;
+  pGSM->IOId0=m_MdlIOId0;
+  pGSM->IOIdN=m_MdlIOIdN;
 
-  for (int i=0; i<pNd->NoFlwIOs(); i++)
+  //dbgpln("----- %s",pNd->FullObjTag());
+  for (int i=0; i<pNd->NoProcLnkIOs(); i++)
     {
-    byte Id=pNd->IOId_Self(i);
-    if (Id>=MdlIOId0 && Id<=MdlIOIdN)
+    int Id=pNd->IOId_Self(i);
+    //dbgp("%3i Id:%5i %-25s", i, Id, pNd->Nd_Rmt(i)?pNd->Nd_Rmt(i)->FullObjTag():"NULL");
+    if (Id>=m_MdlIOId0 && Id<=m_MdlIOIdN)
+      {
       pGSM->IOs.Add(i);
+      //dbgp(" Add");
+      }
       //pGSM->IOs.InsertAt(i, i);
+    //dbgpln("");
     }
   pGSM->bIOChanges=1;
   pGSM->CheckConfig();

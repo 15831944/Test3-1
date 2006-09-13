@@ -321,6 +321,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     virtual flag    EO_BeginLoad(FilingControlBlock &FCB);
     virtual flag    EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM);
     virtual flag    EO_LoadOtherData(FilingControlBlock &FCB);
+    virtual flag    EO_EndConnect(FilingControlBlock &FCB);
     virtual flag    EO_EndLoad(FilingControlBlock &FCB);
     virtual int     EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int     EO_ChangeTag(pchar pOldTag, pchar pNewTag);

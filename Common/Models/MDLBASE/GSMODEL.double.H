@@ -181,9 +181,9 @@ class DllImportExport GSModel : public TaggedObject
     MdlNode        &Nd;
     GSIOIndexArray &IOs;
     
-    byte           IOId0;
-    byte           IOIdN;
-    byte           NProds;
+    int            IOId0;
+    int            IOIdN;
+    int            NProds;
 
     byte           iOperation;
     byte           m_iPhMethSpec;
@@ -254,22 +254,15 @@ class DllImportExport GSModelBase
   {
   friend class GSModel;
 
-  protected:
-    flag            fEnabled;
-    pGSModel        pGSM;
-    MdlNode        *pNd;
-    byte           MdlIOId0;
-    byte           MdlIOIdN;
-
   public:
  
-    GSModelBase(MdlNode *pAttach, byte IOId0=0, byte IOIdN=255) 
+    GSModelBase(MdlNode *pAttach, int IOId0=0, int IOIdN=SpillIOId0-1) 
       { 
       pGSM=NULL; 
       pNd=pAttach; 
       fEnabled=False;
-      MdlIOId0=IOId0;
-      MdlIOIdN=IOIdN;      
+      m_MdlIOId0=IOId0;
+      m_MdlIOIdN=IOIdN;      
       };
     ~GSModelBase() 
       { 
@@ -278,10 +271,10 @@ class DllImportExport GSModelBase
 
     flag           Open();
     void           Close();
-    void           SetIOIdRange(byte IOId0=0, byte IOIdN=255)
+    void           SetIOIdRange(int IOId0=0, int IOIdN=SpillIOId0-1)
       { 
-      MdlIOId0=IOId0;
-      MdlIOIdN=IOIdN;
+      m_MdlIOId0=IOId0;
+      m_MdlIOIdN=IOIdN;
       if (pGSM)
         {
         pGSM->IOId0=IOId0;
@@ -314,6 +307,12 @@ class DllImportExport GSModelBase
       { if (Enabled()) pGSM->MakeUpNodeTransferReqd(JoinId); };
 
   protected:
+    flag            fEnabled;
+    pGSModel        pGSM;
+    MdlNode        *pNd;
+    int             m_MdlIOId0;
+    int             m_MdlIOIdN;
+
   };
 
 // ---------------------------------------------------------------------------

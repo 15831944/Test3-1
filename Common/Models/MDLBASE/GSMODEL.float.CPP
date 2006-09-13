@@ -2090,7 +2090,7 @@ void GSModel::PostConnect(int IONo)
   for (int i=0; i<IOs.GetSize(); i++)
     if (IOs[i]>=IONo)
       break;
-  byte Id = Nd.IOId_Self(IONo);
+  int Id = Nd.IOId_Self(IONo);
   if (Id>=IOId0 && Id<=IOIdN)
     {
     IOs.InsertAt(i, IONo);
@@ -2502,7 +2502,7 @@ flag GSModelBase::Open()
 
   for (int i=0; i<pNd->NoFlwIOs(); i++)
     {
-    byte Id=pNd->IOId_Self(i);
+    int Id=pNd->IOId_Self(i);
     if (Id>=MdlIOId0 && Id<=MdlIOIdN)
       pGSM->IOs.Add(i);
       //pGSM->IOs.InsertAt(i, i);

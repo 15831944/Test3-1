@@ -4803,6 +4803,25 @@ void FlwNode::PostConnectJoinList()
 
 //--------------------------------------------------------------------------
 
+void FlwNode::CleanupConnections()
+  {
+  for (int i=0; i<NoFlwIOs(); )
+    {
+    if (!Nd_Rmt(i))
+      {
+      PreDisConnect(i);
+      Detach(i);
+      LogWarning(FullObjTag(), 0, "IO Adjusted for missing Connection");
+      //dbgpln("Detach Bad IO %3i %s", i, FullObjTag());
+      //Detach(i);
+      }
+    else
+      i++;
+    }
+  };
+
+//--------------------------------------------------------------------------
+
 flag FlwNode::ConnectionsOK()
   {
   if (IOAreas==NULL)
