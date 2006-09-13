@@ -1500,17 +1500,7 @@ void CSpecieDataBase::Init()
 
 void CSpecieDataBase::Term()
   {
-  //  for (int i=0; i<=m_iNo; i++)
-  //    delete m_SpD[i];
-  //for (int i=0; i<=m_iLastSkipList; i++)
-  //  {
-  //  delete m_SkipList[i];
-  //  delete m_SkipListRev[i];
-  //  m_SkipList[i]=NULL;
-  //  m_SkipListRev[i]=NULL;
-  //  }
   m_iNo=0;
-  //m_iLastSkipList=0;
   m_DensCorrSps.SetSize(0);
   m_CpCorrSps.SetSize(0);
   m_SolubleSps.SetSize(0);
@@ -7585,11 +7575,21 @@ bool CSysVecInfo::Init()
   m_HasCalcs      = NULL; // for speed
   m_ChildCount    = NULL;
 
-  m_ShowGroups = false;
+  m_ShowGroups    = false;
 
-  m_iLastSkipList=0;
-  memset(m_SkipList, 0, sizeof(m_SkipList));
-  memset(m_SkipListRev, 0, sizeof(m_SkipListRev));
+  m_SkipListFwdAll  = NULL;
+  m_SkipListFwdSL   = NULL;
+  m_SkipListFwdSol  = NULL;
+  m_SkipListFwdLiq  = NULL;
+  m_SkipListFwdGas  = NULL;
+  m_SkipListFwdMap.InitHashTable(FindNextPrimeNumber(2000));
+
+  m_SkipListRevAll  = NULL;
+  m_SkipListRevSL   = NULL;
+  m_SkipListRevSol  = NULL;
+  m_SkipListRevLiq  = NULL;
+  m_SkipListRevGas  = NULL;
+  m_SkipListRevMap.InitHashTable(FindNextPrimeNumber(2000));
 
   return true;
   };
@@ -7601,22 +7601,47 @@ bool CSysVecInfo::Term()
   for (int i=0; i<m_Cfg.GetCount(); i++)
     delete m_Cfg[i];
 
-  for (int i=0; i<m_iLastSkipList; i++)
+  if (m_SkipListFwdAll)
+    delete &(m_SkipListFwdAll[-m_nSVClcCount]);
+  if (m_SkipListFwdSL )
+    delete &(m_SkipListFwdSL [-m_nSVClcCount]);
+  if (m_SkipListFwdSol)
+    delete &(m_SkipListFwdSol[-m_nSVClcCount]);
+  if (m_SkipListFwdLiq)
+    delete &(m_SkipListFwdLiq[-m_nSVClcCount]);
+  if (m_SkipListFwdGas)
+    delete &(m_SkipListFwdGas[-m_nSVClcCount]);
+  
+  POSITION Pos=m_SkipListFwdMap.GetStartPosition();
+  while (Pos != NULL)
     {
-    if (m_SkipList[i])
-      {
-      int * pLst=&(m_SkipList[i][-m_nSVClcCount]);
-      delete pLst;
-      }
-    if (m_SkipListRev[i])
-      {
-      int * pLst=&(m_SkipListRev[i][-m_nSVClcCount]);
-      delete pLst;
-      }
+    dword Mask;
+    int *pLst;
+    m_SkipListFwdMap.GetNextAssoc( Pos, Mask, pLst);
+    m_SkipListFwdMap.RemoveKey(Mask);
+    delete &(pLst[-m_nSVClcCount]);
     }
-  m_iLastSkipList=0;
-  memset(m_SkipList, 0, sizeof(m_SkipList));
-  memset(m_SkipListRev, 0, sizeof(m_SkipListRev));
+
+  if (m_SkipListRevAll)
+    delete &(m_SkipListRevAll[-m_nSVClcCount]);
+  if (m_SkipListRevSL )
+    delete &(m_SkipListRevSL [-m_nSVClcCount]);
+  if (m_SkipListRevSol)
+    delete &(m_SkipListRevSol[-m_nSVClcCount]);
+  if (m_SkipListRevLiq)
+    delete &(m_SkipListRevLiq[-m_nSVClcCount]);
+  if (m_SkipListRevGas)
+    delete &(m_SkipListRevGas[-m_nSVClcCount]);
+
+  Pos=m_SkipListRevMap.GetStartPosition();
+  while (Pos != NULL)
+    {
+    dword Mask;
+    int *pLst;
+    m_SkipListRevMap.GetNextAssoc( Pos, Mask, pLst);
+    m_SkipListRevMap.RemoveKey(Mask);
+    delete &(pLst[-m_nSVClcCount]);
+    }
 
   m_nSVValueCount = 0;
   m_nSVSpcCount   = 0;
@@ -8354,29 +8379,57 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
 int * CSysVecInfo::SetUpSkipList(PhMask Mask)
   {
   dword PhM=Mask;
-  if (m_SkipList[PhM]==NULL)
+  int *pLst;
+  if (Mask==som_ALL)
+    pLst=m_SkipListFwdAll;
+  else if (Mask==som_SL)
+    pLst=m_SkipListFwdSL;
+  else if (Mask==som_Sol)
+    pLst=m_SkipListFwdSol;
+  else if (Mask==som_Liq)
+    pLst=m_SkipListFwdLiq;
+  else if (Mask==som_Gas)
+    pLst=m_SkipListFwdGas;
+  else if (!m_SkipListFwdMap.Lookup(Mask, pLst))
+    pLst=NULL;
+
+  if (pLst==NULL)//m_SkipList[PhM]==NULL)
     {
-    m_iLastSkipList=Max(m_iLastSkipList, (int)PhM);
-    int * pLst=new int[SVClcCount()+SVValueCount()+1];
-    m_SkipList[PhM]=&pLst[SVClcCount()];
+    //m_iLastSkipList=Max(m_iLastSkipList, (int)PhM);
+    int * pTmp=new int[SVClcCount()+SVValueCount()+1];
+    pLst=&pTmp[SVClcCount()];
     for (int i=-SVClcCount(); i<SVValueCount()+1; i++)
-      m_SkipList[PhM][i]=MaxSpecies+MaxCalculations+MaxAttributes+1;
+      pLst[i]=MaxSpecies+MaxCalculations+MaxAttributes+1;
     int j=-(1+SVClcCount());
     for (int i=-SVClcCount(); i<SVValueCount(); i++)
       {
       if (m_Img[i]->m_iPhMsk & Mask)
         {
         for (int k=1; j+k<=i; k++)
-          m_SkipList[PhM][j+k]=i-j-k;
+          pLst[j+k]=i-j-k;
         j=i;
         };
       }
+
+    if (Mask==som_ALL)
+      m_SkipListFwdAll=pLst;
+    else if (Mask==som_SL)
+      m_SkipListFwdSL=pLst;
+    else if (Mask==som_Sol)
+      m_SkipListFwdSol=pLst;
+    else if (Mask==som_Liq)
+      m_SkipListFwdLiq=pLst;
+    else if (Mask==som_Gas)
+      m_SkipListFwdGas=pLst;
+    else 
+      m_SkipListFwdMap.SetAt(Mask, pLst);
+
 #if dbgSysVec
     if (dbgSkipLists())
       {
       dbgpln("SetUpSkipList %08x =============", Mask);
       for (int i=-SVClcCount(); i<SVValueCount(); i++)
-        dbgpln("%3i %3i %s", i, m_SkipList[PhM][i], m_Img[i]->FullTag());
+        dbgpln("%3i %3i %s", i, pLst[i], m_Img[i]->FullTag());
       dbgpln("------------------------------------");
       SpecieIter I(Mask);
       for (int i=I.ClcInx1(); I.LoopAtt(i); )
@@ -8385,7 +8438,7 @@ int * CSysVecInfo::SetUpSkipList(PhMask Mask)
       }
 #endif
     }
-  return m_SkipList[PhM];
+  return pLst;
   };
 
 //---------------------------------------------------------------------------
@@ -8393,29 +8446,57 @@ int * CSysVecInfo::SetUpSkipList(PhMask Mask)
 int * CSysVecInfo::SetUpSkipListRev(PhMask Mask)
   {
   dword PhM=Mask;
-  if (m_SkipListRev[PhM]==NULL)
+  int * pLst;
+  if (Mask==som_ALL)
+    pLst=m_SkipListRevAll;
+  else if (Mask==som_SL)
+    pLst=m_SkipListRevSL;
+  else if (Mask==som_Sol)
+    pLst=m_SkipListRevSol;
+  else if (Mask==som_Liq)
+    pLst=m_SkipListRevLiq;
+  else if (Mask==som_Gas)
+    pLst=m_SkipListRevGas;
+  else if (!m_SkipListRevMap.Lookup(Mask, pLst))
+    pLst=NULL;
+
+  if (pLst)//m_SkipListRev[PhM]==NULL)
     {
-    m_iLastSkipList=Max(m_iLastSkipList, (int)PhM);
-    int * pLst=new int[SVClcCount()+SVValueCount()+1];
-    m_SkipListRev[PhM]=&pLst[SVClcCount()];
+    //m_iLastSkipList=Max(m_iLastSkipList, (int)PhM);
+    int *pTmp=new int[SVClcCount()+SVValueCount()+1];
+    pLst=&pTmp[SVClcCount()];
     for (int i=-SVClcCount(); i<SVValueCount()+1; i++)
-      m_SkipListRev[PhM][i]=(MaxSpecies+MaxCalculations+MaxAttributes+1);
+      pLst[i]=(MaxSpecies+MaxCalculations+MaxAttributes+1);
     int j=SVSpcCount();
     for (i=SVSpcCount()-1; i>=0; i--)
       {
       if (m_Img[i]->m_iPhMsk&Mask)
         {
         for (int k=1; j-k>=i; k++)
-          m_SkipListRev[PhM][j-k]=-(i-j+k);
+          pLst[j-k]=-(i-j+k);
         j=i;
         };
       }
+
+    if (Mask==som_ALL)
+      m_SkipListRevAll=pLst;
+    else if (Mask==som_SL)
+      m_SkipListRevSL=pLst;
+    else if (Mask==som_Sol)
+      m_SkipListRevSol=pLst;
+    else if (Mask==som_Liq)
+      m_SkipListRevLiq=pLst;
+    else if (Mask==som_Gas)
+      m_SkipListRevGas=pLst;
+    else 
+      m_SkipListRevMap.SetAt(Mask, pLst);
+
 #if dbgSysVec
     if (dbgSkipLists())
       {
       dbgpln("SetUpSkipListRev %08x =============", Mask);
       for (int i=-SVClcCount(); i<SVValueCount(); i++)
-        dbgpln("%3i %3i %s", i, m_SkipListRev[PhM][i], m_Img[i]->FullTag());
+        dbgpln("%3i %3i %s", i, pLst[i], m_Img[i]->FullTag());
       dbgpln("------------------------------------");
       SpecieIter I(Mask);
       for (int i=SVSpcCount()-1; I.LoopRevClc(i); )
@@ -8424,7 +8505,7 @@ int * CSysVecInfo::SetUpSkipListRev(PhMask Mask)
       };
 #endif
     }
-  return m_SkipListRev[PhM];
+  return pLst;
   };
 
 //--------------------------------------------------------------------------

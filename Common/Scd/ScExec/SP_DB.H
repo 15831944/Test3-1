@@ -97,7 +97,7 @@ const double IF97_MaxSatP = 22064.0; //critical pressure in kPa
 
 // ===========================================================================
 
-const long MaxPhases = 18; /* Upto 32 : number of bits in dword. */
+const long MaxPhases = 32; /* Upto 32 : number of bits in dword. */
 typedef dword PhMask;
 
 #define EXTRAPHASES  0 /* Marker for extra phase entries */
@@ -2059,9 +2059,12 @@ class DllImportExport CSysVecInfo
 
     bool              m_ShowGroups;
 
-    int               m_iLastSkipList;
-    int*              m_SkipList[1<<MaxPhases];
-    int*              m_SkipListRev[1<<MaxPhases];
+    int               * m_SkipListFwdAll, *m_SkipListRevAll;
+    int               * m_SkipListFwdSL,  *m_SkipListRevSL;
+    int               * m_SkipListFwdSol, *m_SkipListRevSol;
+    int               * m_SkipListFwdLiq, *m_SkipListRevLiq;
+    int               * m_SkipListFwdGas, *m_SkipListRevGas;
+    CMap<PhMask, PhMask, int*, int*> m_SkipListFwdMap, m_SkipListRevMap;
 
     static struct CSpViewMask
       {
