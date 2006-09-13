@@ -196,7 +196,7 @@ void CExploreScd::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CExploreScd, CDialog)
   ON_WM_SIZE()
   ON_WM_MOVE()
-  ON_WM_ACTIVATE()
+  //ON_WM_ACTIVATE()
   ON_NOTIFY(TVN_SELCHANGED, IDC_TREE, OnTvnSelchangedTree)
   ON_NOTIFY(NM_CLICK, IDC_TREE, OnNMClickTree)
   ON_NOTIFY(NM_RCLICK, IDC_TREE, OnNMRclickTree)
@@ -476,7 +476,7 @@ void CExploreScd::RestorePos()
 void CExploreScd::MainWndMovedTo(int x, int y)
   {
   //sm_bDoRefresh=false;
-  if (sm_pTheWnd)
+  if (sm_pTheWnd && x>=-30000 && y>=-30000)
     {
     int xPos = x+sm_pTheWnd->m_TopLeft.x;
     int yPos = y+sm_pTheWnd->m_TopLeft.y;
