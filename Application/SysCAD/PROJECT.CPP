@@ -1557,8 +1557,8 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
   m_sGrfFrameName         =   PF.RdStr("General", "GraphicsFrame", m_sGrfFrameName());
   m_sGrfFrameFilter       =   PF.RdStr("General", "GraphicsFilter", m_sGrfFrameFilter());
 
-  m_GrfBehaviour          =   PF.RdLong("General",  "GrfBehaviour",  PrjFileVerNo>= 96?WB_Together:WB_None);
-  m_TrndBehaviour         =   PF.RdLong("General", "TrndBehaviour", PrjFileVerNo>= 96?WB_Together:WB_None);
+  m_GrfBehaviour          =   PF.RdLong("General",  "GrfBehaviour",  PrjFileVerNo>= 96?WB_Coincident:WB_None);
+  m_TrndBehaviour         =   PF.RdLong("General", "TrndBehaviour", PrjFileVerNo>= 96?WB_Coincident:WB_None);
 
   m_bGrfDeferLoad         =   (PF.RdLong("General", "GrfDeferLoad", m_bGrfDeferLoad) !=  0);
   m_bGrfAutoLoad          =   (PF.RdLong("General", "GrfAutoLoad", m_bGrfAutoLoad) !=  0);
@@ -7640,6 +7640,8 @@ flag CProject::OnNew()
 
         // This will do actual save
         //        bCmdSuccess = DoSave();
+  
+        gs_ProjectOpenFlag++;
         }
       }
     else

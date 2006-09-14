@@ -1057,6 +1057,20 @@ void CGrfFrameWnd::OnSize(UINT nType, int cx, int cy)
 
     if (gs_FileNewFlag)
       {
+      if (WL.GrfWnds.GetCount()==1) // First
+        {
+        WINDOWPLACEMENT wp;
+        wp.length = sizeof(wp);
+        GetWindowPlacement(&wp);
+        int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
+        int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
+        W=600;
+        H=450;
+        wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
+        wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
+
+        SetWindowPlacement(&wp);
+        }
       }
     else
       {
