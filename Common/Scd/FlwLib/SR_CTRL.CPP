@@ -743,17 +743,17 @@ void CEC_FracExt::SetUp()
   flag OK=m_Spc.SetUp(RB, Eq);
   //if (RB.m_RctBase->Nd())
     {
-    if (m_bDoRate && DefNetProbalMode())
+    if (m_bDoRate && RB.Nd()->SolveDirectMethod())
       {
-      CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction with 'Rate' not allowed in ProBal");
+      CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction with 'Rate' not allowed in Direct Solve Method");
       }
     else if (m_bDoRate && !RB.m_RctBase->IsSurgeType())
       {
       CReactionBlock::Error(&RB, 'B', -1, "'Rate' only allowed in surge unit");
       }
-    else if (!m_bDoRate && !DefNetProbalMode() && RB.m_RctBase->IsSurgeType())
+    else if (!m_bDoRate && RB.Nd()->SolveDynamicMethod() && RB.m_RctBase->IsSurgeType())
       {
-      CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction requires 'Rate' term");
+      CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction requires 'Rate' term in Dynamic Solve Method");
       }
     }
 

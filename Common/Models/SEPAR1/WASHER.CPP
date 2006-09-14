@@ -93,6 +93,8 @@ Washer::Washer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
+
 	MixEff          = 1.0;
   bMixEffLiqOnly  = false;
   iRqdOFMethod    = OFM_OFSolFrac;
@@ -199,7 +201,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
 	BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

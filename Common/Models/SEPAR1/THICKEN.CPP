@@ -165,7 +165,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

@@ -86,7 +86,7 @@ class DllImportExport CR_EqnControl
     flag           SetExtent(int SpcId, double Frac);
     double         MolarKRatio(double dProdMoles);
 
-    bool           DynamicRate() { return !DefNetProbalMode() && RB.m_RctBase->IsSurgeType() && RB.m_RctBase->Nd(); }
+    bool           DynamicRate() { return RB.Nd() && RB.Nd()->SolveDynamicMethod() && RB.m_RctBase->IsSurgeType(); }
 
     // Methods Required by "Default ReactingMoles())"
     virtual double LimitingReactant();

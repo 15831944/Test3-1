@@ -649,7 +649,7 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
       sm_VarsAvail =  //VAMsk_Overides |
                       VAMsk_Thermo |
                       VAMsk_Viscosity |
-                      VAMsk_HeatValues |
+                      //VAMsk_HeatValues |
                       0;
     sm_VarsAvail |= VAMsk_Inited;
     }
