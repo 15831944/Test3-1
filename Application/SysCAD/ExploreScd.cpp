@@ -454,18 +454,23 @@ void CExploreScd::RestorePos()
 
   if (xPos<=-10000)
     {
+
+
     CRect Rct;
     GetParent()->GetClientRect(&Rct);
     GetParent()->ClientToScreen(&Rct);
     xPos=Rct.left;
     yPos=Rct.top+50;
-    //CWnd * p=ScdMainWnd()->GetWindow(GW_HWNDFIRST);
-    //while (p)
-    //  {
-    //  int pppp=0;
-    //  //if (dynamic_cast<
-    //  p=p->GetWindow(GW_HWNDNEXT);
-    //  }
+
+    CRect IRect;
+    CWnd * p=ScdMainWnd();
+    if (dynamic_cast<CMainFrame*>(p)->GetInitRect(0, IRect))
+      {
+      xPos=IRect.left;
+      yPos=IRect.top;
+      CW=IRect.Width();
+      CH=IRect.Height();
+      }
     }
   SetWindowPos(NULL, 0,0, 1,1 , SWP_NOREPOSITION | SWP_NOZORDER | SWP_SHOWWINDOW); // set size small to force an OnSize
   SetVisibleWindowPos(this, xPos, yPos, CW, CH, true);

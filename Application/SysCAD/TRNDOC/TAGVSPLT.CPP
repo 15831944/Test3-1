@@ -11,6 +11,7 @@
 #include "tagvtext.h"
 #include "tagvsplt.h"
 #include "tagvdlgs.h"
+#include "mainfrm.h"
 #include "scd_wm.h"
 
 #ifdef _DEBUG
@@ -205,17 +206,28 @@ void CTagVwSplit::OnSize(UINT nType, int cx, int cy)
       {
       if (WL.TrndWnds.GetCount()==1) // First
         {
-        WINDOWPLACEMENT wp;
-        wp.length = sizeof(wp);
-        GetWindowPlacement(&wp);
-        int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
-        int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
-        W=700;
-        H=450;
-        wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
-        wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
+        CRect IRect;
+        CWnd * p=ScdMainWnd();
+        if (dynamic_cast<CMainFrame*>(p)->GetInitRect(2, IRect))
+          {
+          WINDOWPLACEMENT wp;
+          wp.length = sizeof(wp);
+          GetWindowPlacement(&wp);
+          wp.rcNormalPosition=IRect;
+          SetWindowPlacement(&wp);
+          }
 
-        SetWindowPlacement(&wp);
+        //WINDOWPLACEMENT wp;
+        //wp.length = sizeof(wp);
+        //GetWindowPlacement(&wp);
+        //int W=wp.rcNormalPosition.right-wp.rcNormalPosition.left;
+        //int H=wp.rcNormalPosition.bottom-wp.rcNormalPosition.top;
+        //W=700;
+        //H=450;
+        //wp.rcNormalPosition.right=wp.rcNormalPosition.left+W;
+        //wp.rcNormalPosition.bottom=wp.rcNormalPosition.top+H;
+
+        //SetWindowPlacement(&wp);
         }
       }
     else

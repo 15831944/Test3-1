@@ -74,7 +74,8 @@ BOOL CPrjDoc::OnNewDocument()
     T2.FnExt(PrjFile());
     T += T2;
     SetTitle(T());
-    
+
+    CAutoIncDec AID(gs_FileNewFlag);
     if (gs_pPrj->m_fNewTrend)
       ScdApp()->TrendTemplate().OpenDocumentFile(NULL); 
     if (gs_pPrj->m_fNewGraph)

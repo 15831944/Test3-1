@@ -26,6 +26,7 @@ class CMyMDIClient : public CWnd
   protected:
     //{{AFX_MSG(CMyMDIClient)
     afx_msg void OnSize(UINT Type, int cx, int cy);
+    afx_msg void OnMove(int cx, int cy);
     afx_msg void OnPaint();
     afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
     //}}AFX_MSG
@@ -113,7 +114,11 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     virtual void AssertValid() const;
     virtual void Dump(CDumpContext& dc) const;
     #endif
-  
+
+    bool CMainFrame::GetWorkRect(CRect & ClientRect, CRect & ScreenRect);
+    bool CMainFrame::GetInitRect(int Which, CRect & InitRect);
+
+
   protected:
     CCustomStatusBar m_wndStatusBar;  // application status bar
     //CToolBar      m_wndToolBar;
@@ -122,7 +127,6 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     void DoReports();
     bool DeleteMenuItem(UINT ItemID);
     flag RecordTag(LPCTSTR Tag, flag RecordingOn);
-
 
     //{{AFX_MSG(CMainFrame)
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

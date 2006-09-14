@@ -2936,6 +2936,7 @@ BEGIN_MESSAGE_MAP(CMyMDIClient, CWnd)
   //{{AFX_MSG_MAP(CMyMDIClient)
   ON_WM_PAINT()
   ON_WM_SIZE()
+  ON_WM_MOVE()
   ON_WM_RBUTTONDOWN()
   //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -2959,6 +2960,14 @@ void CMyMDIClient::OnPaint()
     dc.FillSolidRect(&Rect, RGB(128, 128, 128));
     dc.SetBkColor(RGB(128, 128, 128));
     CFont * pOldFont=NULL;
+
+    if (1)
+      {
+      CRect SRect=Rect;
+      ClientToScreen(SRect);
+      int xx=0;
+      }
+
 
     #if CK_LICENSINGON
     if (TextBackground)
@@ -3040,6 +3049,12 @@ void CMyMDIClient::OnPaint()
 
   // Do not call CWnd::OnPaint() for painting messages
   }
+
+//---------------------------------------------------------------------------
+
+void CMyMDIClient::OnMove(int cx, int cy)
+  {
+  };
 
 //---------------------------------------------------------------------------
 
@@ -3534,13 +3549,58 @@ LRESULT CMainFrame::OnUpdateMsgMenuBtn(WPARAM wParam, LPARAM lParam)
 
 //---------------------------------------------------------------------------
 
+bool CMainFrame::GetWorkRect(CRect & ClientRect, CRect & ScreenRect)
+  {
+  CWnd * p = GetTopWindow();
+  //CMyMDIClient*p=dynamic_cast<CMyMDIClient*>(GetTopWindow());
+  while (p)
+    {
+    CMyMDIClient*pp=dynamic_cast<CMyMDIClient*>(p);
+    if (pp)
+      {
+      pp->GetClientRect(ClientRect);
+      ScreenRect=ClientRect;
+      pp->ClientToScreen(ScreenRect);
+      return true;
+      }
+    else
+      p=p->GetNextWindow();
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+bool CMainFrame::GetInitRect(int Which, CRect & InitRect)
+  {
+  CRect ClientRect, ScreenRect;
+  if (GetWorkRect(ClientRect, ScreenRect))
+    {
+    switch (Which)
+      {
+      case 0: // Explorer
+        InitRect=CRect(ScreenRect.left, ScreenRect.top, ScreenRect.left+150, ScreenRect.top+(ScreenRect.Height()*3)/4);
+        break;
+      case 1: // Grf
+        InitRect=CRect(150, 0, 0+(ClientRect.right*3)/4, (ClientRect.bottom*5)/8);
+        break;
+      case 2: // Trnd
+        InitRect=CRect(150, (ClientRect.bottom*5)/8, 0+(ClientRect.right*3)/4, (ClientRect.bottom*7)/8);
+        break;
+      }
+    return true;
+    }
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
 void CMainFrame::OnSize(UINT nType, int cx, int cy)
   {
   CMDIFrameWnd::OnSize(nType, cx, cy);
 
   if (CProject::sm_SysCADInited)
     CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
-
   }
 
 //---------------------------------------------------------------------------
