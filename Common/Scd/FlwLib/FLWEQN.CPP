@@ -1095,9 +1095,9 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
             DDB.Double ("Qm.RqdCapacity",  "Qm.Capacity",  DC_Qm,   "kg/s",  xidFlwEqnQmRqdCapacity, pOwnObj, (AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
             DDB.Double ("Qm.MinCapacity",  "Qm.MinCap",    DC_Qm,   "kg/s",  xidFlwEqnQmMinCapacity, pOwnObj, (AsMass?isParm:0));
             DDB.Double ("Qm.MaxCapacity",  "Qm.MaxCap",    DC_Qm,   "kg/s",  xidFlwEqnQmMaxCapacity, pOwnObj, (AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
-            DDB.Double ("Qv.RqdCapacity",  "Qv.Capacity",  DC_Qv,   "L/s",   xidFlwEqnQvRqdCapacity, pOwnObj, (!AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
-            DDB.Double ("Qv.MinCapacity",  "Qv.MinCap",    DC_Qv,   "L/s",   xidFlwEqnQvMinCapacity, pOwnObj, (!AsMass?isParm:0));
-            DDB.Double ("Qv.MaxCapacity",  "Qv.MaxCap",    DC_Qv,   "L/s",   xidFlwEqnQvMaxCapacity, pOwnObj, (!AsMass?isParm:0)|NAN_OK, DDBNAN_NotSpecd);
+            DDB.Double ("Qv.RqdCapacity",  "Qv.Capacity",  DC_Qv,   "L/s",   xidFlwEqnQvRqdCapacity, pOwnObj, (!AsMass?isParm:0)|noFileAtAll|NAN_OK, DDBNAN_NotSpecd);
+            DDB.Double ("Qv.MinCapacity",  "Qv.MinCap",    DC_Qv,   "L/s",   xidFlwEqnQvMinCapacity, pOwnObj, (!AsMass?isParm:0)|noFileAtAll);
+            DDB.Double ("Qv.MaxCapacity",  "Qv.MaxCap",    DC_Qv,   "L/s",   xidFlwEqnQvMaxCapacity, pOwnObj, (!AsMass?isParm:0)|noFileAtAll|NAN_OK, DDBNAN_NotSpecd);
             }
           DDB.Text("");
           }

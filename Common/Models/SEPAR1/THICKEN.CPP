@@ -19,7 +19,7 @@ If no data is available, the default curves can be used.
 and over flows from the unit.
 
 #n#n#h<Variables to be supplied by the user>#n
-#n#i<% RqdUFSolids:>The required % solids in the underflow from the thickener. This
+#n#i<% m_RqdUFSolids:>The required % solids in the underflow from the thickener. This
 variable is only required in mass balancing mode.
 #n#i<% RqdOFSolids:>The required % solids in the overflow from the thickener. This
 variable is also only required in mass balancing mode.
@@ -28,8 +28,8 @@ common datum of the system.
 
 #n#n#h<Variables calculated by the model>#n
 #n#i<Datum:>The height of the thickener above the system datum.
-#n#i<UFSolids:>The actual % solids in the underflow.
-#n#i<OFSolids:>The actual % solids in the overflow.
+#n#i<m_UFSolids:>The actual % solids in the underflow.
+#n#i<m_OFSolids:>The actual % solids in the overflow.
 
 #n#h<Other>#n
 Default model prefix:THK#n
@@ -79,20 +79,21 @@ Thickener::Thickener(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
+  SetAllowedModes(true, NM_All|SM_Direct|SM_Inline|SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
 
-  iRqdOFMethod  = OFM_OFSolFrac;
-  IntOFSolidsUsed = dNAN;
-  RqdUFSolids   = 0.4;
-  RqdOFSolids   = 0.00001;
-  RqdOFSolConc  = 0.1;
-  UFSolids      = RqdUFSolids;
-  OFSolids      = RqdOFSolids;
-  BedHgt        = 0.0;
-  ActUFSolidsConc25 = 0.0;
-  ActOFSolidsConc25 = 0.0;
-  ActUFSolRec   = 0.0;
-  bTrackStatus  = true;
+  m_iRqdOFMethod  = OFM_OFSolFrac;
+  m_IntOFSolidsUsed = dNAN;
+  m_RqdUFSolids   = 0.4;
+  m_RqdOFSolids   = 0.00001;
+  m_RqdOFSolConc  = 0.1;
+  m_RqdBedHgt     = 0.5;
+  m_UFSolids      = m_RqdUFSolids;
+  m_OFSolids      = m_RqdOFSolids;
+  m_ActBedHgt     = 0.0;
+  m_ActUFSolidsConc25 = 0.0;
+  m_ActOFSolidsConc25 = 0.0;
+  m_ActUFSolRec   = 0.0;
+  m_bTrackStatus  = true;
   }
 
 //--------------------------------------------------------------------------
@@ -111,7 +112,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
-  DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &BedHgt,             this, isResult|0);
+  DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &m_ActBedHgt,        this, isResult|0);
   DDB.Double  ("Pressure",                "P",               DC_P,    "kPag",   xidPMean,            this, isResult|0);
   DDB.Double  ("Density",                 "Rho",             DC_Rho,  "kg/m^3", xidRho,              this, isResult|0);
   DDB.Double  ("Level",                   "Lvl",             DC_Frac, "%",      xidLevel,            this, isResult|0);
@@ -122,24 +123,25 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
     {OFM_OFSolFrac, "OverFlowSolidsFraction"},
     {OFM_OFSolConc, "OverFlowSolidsConcentration"},
     {0}};
-  DDB.Visibility(NM_Probal|SM_All|HM_All);
+  DDB.Visibility(NM_All|SM_All|HM_All);
 	DDB.Text    ("");
   DDB.Text    ("Requirements");
-  DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &RqdUFSolids,        this, isParm);
-  DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &iRqdOFMethod,       this, isParm|AffectsStruct, DDB0);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, (iRqdOFMethod == OFM_OFSolFrac));
-  DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &RqdOFSolids,        this, isParm);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, (iRqdOFMethod == OFM_OFSolConc));
-  DDB.Double  ("Rqd_OverFlowSolidsConc25","RqdOFSolConc25",  DC_Conc, "g/L",    &RqdOFSolConc,       this, isParm);
+  DDB.Double  ("RqdBedLevel",      "",                       DC_L,    "m",      &m_RqdBedHgt,        this, isParm);
+  DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &m_RqdUFSolids,      this, isParm);
+  DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &m_iRqdOFMethod,     this, isParm|AffectsStruct, DDB0);
+  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolFrac));
+  DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &m_RqdOFSolids,      this, isParm);
+  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolConc));
+  DDB.Double  ("Rqd_OverFlowSolidsConc25","RqdOFSolConc25",  DC_Conc, "g/L",    &m_RqdOFSolConc,     this, isParm);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &IntOFSolidsUsed,    this, isParmConstruct|isResult|InitHidden);//|noView);
+  DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &m_IntOFSolidsUsed,  this, isParmConstruct|isResult|InitHidden);//|noView);
   DDB.Visibility();
   DDB.Text    ("Results");
-	DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &UFSolids,           this, isParmConstruct|isResult);
-  DDB.Double  ("OverFlow_Solids",         "OFSolids",        DC_Frac, "%",      &OFSolids,           this, isParmConstruct|isResult);
-  DDB.Double  ("UnderFlow_SolidsConc@25", "UFSolConc25",     DC_Conc, "g/L",    &ActUFSolidsConc25,  this, isParmConstruct|isResult|InitHidden);
-  DDB.Double  ("OverFlow_SolidsConc@25",  "OFSolConc25",     DC_Conc, "g/L",    &ActOFSolidsConc25,  this, isParmConstruct|isResult|InitHidden);
-  DDB.Double  ("UnderFlow_SolidsRecovery","UFSolRec",        DC_Frac, "%",      &ActUFSolRec,        this, isParmConstruct|isResult);
+	DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &m_UFSolids,         this, isParmConstruct|isResult);
+  DDB.Double  ("OverFlow_Solids",         "OFSolids",        DC_Frac, "%",      &m_OFSolids,         this, isParmConstruct|isResult);
+  DDB.Double  ("UnderFlow_SolidsConc@25", "UFSolConc25",     DC_Conc, "g/L",    &m_ActUFSolidsConc25,  this, isParmConstruct|isResult|InitHidden);
+  DDB.Double  ("OverFlow_SolidsConc@25",  "OFSolConc25",     DC_Conc, "g/L",    &m_ActOFSolidsConc25,  this, isParmConstruct|isResult|InitHidden);
+  DDB.Double  ("UnderFlow_SolidsRecovery","UFSolRec",        DC_Frac, "%",      &m_ActUFSolRec,        this, isParmConstruct|isResult);
 
 	DDB.Text    ("");
   DDB.Visibility(NM_Probal|SM_All|HM_All);
@@ -147,8 +149,18 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+  if (SolveInlineMethod())
+    DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
+  //if (SolveDynamicMethod())
+  //  DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
+  DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &m_bTrackStatus,       this, isParm);
+
+  DDB.Text    ("");
+  if (SolveInlineMethod())
+    m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this);
+
   DDB.Visibility();
 
   DDB.Text    ("");
@@ -361,9 +373,9 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
   StkSpConduit Sd("Sd", chLINEID(), this);
   StkSpConduit Fd("Fd", chLINEID(), this);
 
-  RqdOFSolConc = Range(0.0, RqdOFSolConc, 5000.0);
-  RqdOFSolids = Range(0.0, RqdOFSolids, 0.99);
-  RqdUFSolids = Range(1.0e-8, RqdUFSolids, 1.0);
+  m_RqdOFSolConc = Range(0.0, m_RqdOFSolConc, 5000.0);
+  m_RqdOFSolids = Range(0.0, m_RqdOFSolids, 0.99);
+  m_RqdUFSolids = Range(1.0e-8, m_RqdUFSolids, 1.0);
 
   switch (SolveMethod())
     {
@@ -386,13 +398,13 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
 
       //double POut = AtmosPress(); //force outlet to Atmos P
       double POut = Std_P; //force outlet to Std_P
-      CThickenerOFFnd Fnd(Sd(), Fd(), Co, Cu, pVent, this, POut, RqdUFSolids, iRqdOFMethod);
-      IntOFSolidsUsed = Valid(IntOFSolidsUsed) ? IntOFSolidsUsed : RqdOFSolids;
-      Fnd.SetEstimate(IntOFSolidsUsed, 1.0);
-      if (iRqdOFMethod == OFM_OFSolFrac)
-        Fnd.SetTarget(RqdOFSolids);
+      CThickenerOFFnd Fnd(Sd(), Fd(), Co, Cu, pVent, this, POut, m_RqdUFSolids, m_iRqdOFMethod);
+      m_IntOFSolidsUsed = Valid(m_IntOFSolidsUsed) ? m_IntOFSolidsUsed : m_RqdOFSolids;
+      Fnd.SetEstimate(m_IntOFSolidsUsed, 1.0);
+      if (m_iRqdOFMethod == OFM_OFSolFrac)
+        Fnd.SetTarget(m_RqdOFSolids);
       else //if (iRqdOFMethod == OFM_OFSolConc)
-        Fnd.SetTarget(RqdOFSolConc);
+        Fnd.SetTarget(m_RqdOFSolConc);
       flag Ok = false;
       //if (DoDbgBrk())
       //  dbgpln("-----------Start");
@@ -428,7 +440,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         //SetCI(???);
         }
       //use result anyway...
-      IntOFSolidsUsed = Fnd.IntOFSolidsUsed; 
+      m_IntOFSolidsUsed = Fnd.IntOFSolidsUsed; 
 
       // Calculate Required Area
       if (OFSolidsFn.Length()>=2 && UFSolidsFn.Length()>=2)
@@ -441,27 +453,27 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       //results...
       Cu.SanityCheck();
       Co.SanityCheck();
-      UFSolids = Cu.MassFrac(som_Sol);
-      OFSolids = Co.MassFrac(som_Sol);
-      ActUFSolidsConc25 = Cu.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
-      ActOFSolidsConc25 = Co.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+      m_UFSolids = Cu.MassFrac(som_Sol);
+      m_OFSolids = Co.MassFrac(som_Sol);
+      m_ActUFSolidsConc25 = Cu.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+      m_ActOFSolidsConc25 = Co.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
       const double UFSolidsQm = Cu.QMass(som_Sol);
       const double OFSolidsQm = Co.QMass(som_Sol);
-      ActUFSolRec = UFSolidsQm/GTZ(UFSolidsQm+OFSolidsQm);
+      m_ActUFSolRec = UFSolidsQm/GTZ(UFSolidsQm+OFSolidsQm);
 
-			double UFErr = fabs(UFSolids - RqdUFSolids);
-		  SetCI(1, bTrackStatus && HasFlw && UFErr > 1.0e-6);
-      if (iRqdOFMethod == OFM_OFSolFrac)
+			double UFErr = fabs(m_UFSolids - m_RqdUFSolids);
+		  SetCI(1, m_bTrackStatus && HasFlw && UFErr > 1.0e-6);
+      if (m_iRqdOFMethod == OFM_OFSolFrac)
         {
-        double OFErr = fabs(OFSolids - RqdOFSolids);
-		    SetCI(2, bTrackStatus && HasFlw && OFErr > 1.0e-6);
+        double OFErr = fabs(m_OFSolids - m_RqdOFSolids);
+		    SetCI(2, m_bTrackStatus && HasFlw && OFErr > 1.0e-6);
         ClrCI(3);
         }
       else// if (iRqdOFMethod == OFM_OFSolConc)
         {
         ClrCI(2);
-        double OFErr = fabs(ActOFSolidsConc25-RqdOFSolConc);
-        SetCI(3, bTrackStatus && HasFlw && (OFErr > 1.0e-5));
+        double OFErr = fabs(m_ActOFSolidsConc25-m_RqdOFSolConc);
+        SetCI(3, m_bTrackStatus && HasFlw && (OFErr > 1.0e-5));
         }
       SetCI(4, HasFlw && Fnd.bVentErr);
 
@@ -484,14 +496,14 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         {
         SolMass=GTZ(SolMass);
         LiqMass=GTZ(LiqMass);
-        BedHgt = (SolMass / (Area * Sol_Rho)) * (1 + Sol_Rho / Liq_Rho * (SolMass / LiqMass));
+        m_ActBedHgt = (SolMass / (Area * Sol_Rho)) * (1 + Sol_Rho / Liq_Rho * (SolMass / LiqMass));
 
         int OFnLen=OFSolidsFn.GetLen();
-        double ReqdOFSolids = Range(0.0, OFnLen>=2 ? OFSolidsFn.Yx(BedHgt) : BedHgt * 0.005, 1.0);
+        double ReqdOFSolids = Range(0.0, OFnLen>=2 ? OFSolidsFn.Yx(m_ActBedHgt) : m_ActBedHgt * 0.005, 1.0);
         double ReqdOFSl     = ReqdOFSolids / GTZ(1.0 - ReqdOFSolids);
 
         int UFnLen=UFSolidsFn.GetLen();
-        double ReqdUFSolids = Range(0.0, UFnLen>=2 ? UFSolidsFn.Yx(BedHgt) : BedHgt * 0.5, 1.0);
+        double ReqdUFSolids = Range(0.0, UFnLen>=2 ? UFSolidsFn.Yx(m_ActBedHgt) : m_ActBedHgt * m_RqdUFSolids /Max(0.01, m_RqdBedHgt), 1.0);
         double ReqdUFSl     = ReqdUFSolids / GTZ(1.0 - ReqdUFSolids);
 
         SetProdMakeup(PMU_IOId | PMU_SLRatio, ioidOF, Contents, ReqdOFSl);
@@ -499,7 +511,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         }
       else
         {
-        BedHgt = 0.0;
+        m_ActBedHgt = 0.0;
         // Just Operate as a Tank
         }
 
@@ -513,15 +525,18 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         }
 
       SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed());
+      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed(), &m_SrgCtrl);
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);
       
-      UFSolids = IOConduit(IOWithId_Self(ioidUF))->MassFrac(som_Sol);
-      OFSolids = IOConduit(IOWithId_Self(ioidOF))->MassFrac(som_Sol);
-      ActUFSolidsConc25 = IOConduit(IOWithId_Self(ioidUF))->PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
-      ActOFSolidsConc25 = IOConduit(IOWithId_Self(ioidOF))->PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+      m_UFSolids = IOConduit(IOWithId_Self(ioidUF))->MassFrac(som_Sol);
+      m_OFSolids = IOConduit(IOWithId_Self(ioidOF))->MassFrac(som_Sol);
+      m_ActUFSolidsConc25 = IOConduit(IOWithId_Self(ioidUF))->PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+      m_ActOFSolidsConc25 = IOConduit(IOWithId_Self(ioidOF))->PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+
+      if (SolveInlineMethod())
+        EvalIntegral(NEI);
 
       break;
       }

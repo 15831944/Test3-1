@@ -31,18 +31,21 @@ DEFINE_TAGOBJ(Thickener);
 class Thickener : public MN_Surge
   {
   public:
-    double         BedHgt;     // Height of slurry/liqour interface
+    double         m_ActBedHgt;     // Height of slurry/liqour interface
 
-    byte           iRqdOFMethod;
-    double         RqdUFSolids;  // (MB) Required Underflow LS Ratio
-    double         RqdOFSolids;  // (MB) Required Overflow SolidsFrac
-    double         RqdOFSolConc; // (MB) Required Overflow Solids Conc @ 25
-    double         IntOFSolidsUsed;
-    double         UFSolids;   // Achieved Underflow Density
-    double         OFSolids;   // Achieved Overflow Density(Clarity)
-    double         ActUFSolidsConc25, ActOFSolidsConc25;
-    double         ActUFSolRec; // Underflow solids recovery
-    flag           bTrackStatus;
+    byte           m_iRqdOFMethod;
+    double         m_RqdUFSolids;  // (MB) Required Underflow LS Ratio
+    double         m_RqdOFSolids;  // (MB) Required Overflow SolidsFrac
+    double         m_RqdOFSolConc; // (MB) Required Overflow Solids Conc @ 25
+    double         m_RqdBedHgt;    // (MB) Bed Level at which these occur 
+
+    double         m_IntOFSolidsUsed;
+    double         m_UFSolids;   // Achieved Underflow Density
+    double         m_OFSolids;   // Achieved Overflow Density(Clarity)
+    double         m_ActUFSolidsConc25;
+    double         m_ActOFSolidsConc25;
+    double         m_ActUFSolRec; // Underflow solids recovery
+    flag           m_bTrackStatus;
 
     C2DFn          UFSolidsFn; // Underflow Density vs. Bedhgt Function
     C2DFn          OFSolidsFn;  // Overflow Density vs. Bedhgt Function

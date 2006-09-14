@@ -60,7 +60,7 @@ flag CVolumeShapeLookup::DataXchg(TaggedObject* pTagObj, DataChangeBlk & DCB)
   {
   if (DCB.lHandle==xidLvl_Lookup)
     {
-    if (DCB.rB && (*DCB.rB!=0))
+    if (DCB.rB)// && (*DCB.rB!=0))
       bActive=(*DCB.rB!=0);
     DCB.B=bActive;
     return 1;
