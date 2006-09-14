@@ -648,7 +648,7 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
     else
       sm_VarsAvail =  //VAMsk_Overides |
                       VAMsk_Thermo |
-                      VAMsk_Viscosity |
+                      //VAMsk_Viscosity |
                       //VAMsk_HeatValues |
                       0;
     sm_VarsAvail |= VAMsk_Inited;
@@ -1371,7 +1371,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   Tg+="..";
 
   DDB.Page(Tg(), DDB_OptPage);
-  if ((sm_VarsAvail|m_VarsAvail) & VAMsk_Thermo)
+  if (((sm_VarsAvail|m_VarsAvail) & VAMsk_Thermo) && !HeatSkipMethod())
     {
     DDB.Text("Specific Heat");
     DDB.Double  ("",              "Cp@0",     DC_CpMs,    "kJ/kg.C",  xidSMmsCp0,       this, isResult|noFile|noSnap|InitHidden);
@@ -1452,9 +1452,9 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
       DDB.FnDouble  ("",            "totHz.Fn",    DC_Pwr,  "kJ/s",  xidSMtotHzFn,     this, 0, Parms2);
       DDB.FnDouble  ("",            "totHf.Fn",    DC_Pwr,  "kJ/s",  xidSMtotHfFn,     this, 0, Parms2);
       }
+    DDB.Text("");
     }
 
-  DDB.Text("");
   DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
   DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
   DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
@@ -1484,7 +1484,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
 
   if (!DDB.ForFileSnpScn())
     {
-    if ((sm_VarsAvail|m_VarsAvail) & VAMsk_HeatValues)
+    if (((sm_VarsAvail|m_VarsAvail) & VAMsk_HeatValues) && !HeatSkipMethod())
       {
       DDB.Page(Tg(), DDB_OptPage);//DDB.Page("HV");
       DDB.Text("Heating Values:");
