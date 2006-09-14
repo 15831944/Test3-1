@@ -492,7 +492,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       double Liq_Rho = Contents.Rho(som_Liq);
       double Area    = Contents.ShapeVolume() / Contents.ShapeHeight();
 
-      if (1 || (SolMass>1.0e-12 && LiqMass>1.0e-12))
+      if (SolMass>1.0e-12 && LiqMass>1.0e-12)
         {
         SolMass=GTZ(SolMass);
         LiqMass=GTZ(LiqMass);
