@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "12 September 2006"
+#define SCD_PATCHDATE    "15 September 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2538,20 +2538,34 @@ C) User Functionality changes:
    a type of block copy and past, as well as having other aplications.
 2) Implemented new explorer window for selecting windows. This also shows all the 
    tags grouped by graphics page, model class or by filter selection. Various 
-   options are available through right click popup menu.
-3) Added new options for trend and graphics window display options. For example
+   options are available through right click popup menu. The Explorer window has
+   a filter option that can be used to quickly search for a tag.
+3) Implemented a bulk tag change option. This provides a range of filters and
+   options to select a group of tags and then change this group of tags. The 
+   selected tags can also be copied to the clipboard.
+4) Added new options for trend and graphics window display options. For example
    'treat as one' overlays all graphics windows such that it appears like there
    is a single graphics window.
-4) Extended edit configuration dialog Step 1 page to include all groups of
+5) Extended edit configuration dialog Step 1 page to include all groups of
    sub-models in the list of model types.
-5) Improvements to the neutral database import/export of graphics and models.
-6) Added new options to right click pop-up menu for the message window.
+6) Improvements to the neutral database import/export of graphics and models.
+7) Added new options to right click pop-up menu for the message window.
+
+C) Other changes:
+1) Upgraded licensing to use crypkey 6.5.
+2) Syscad91.exe is now the main aplication file. Syscad.exe is a license utility
+   aplication. The license, by default is now located in the folder "License"
+   and not the "bin" folder. The correct syscad.exe and crp320001.ngn files must
+   be located in this folder.
 
 
-Update 1 : 12 September 2006
+Update 1 : 15 September 2006
 ------------------------------
 1) Improved stream summary for Material Source model.
 2) Improved right click popup menu options on the explorer window.
+3) (#548) Increased allowance for maximum number of specie phases from 18 to 32.
+4) (#555) Fix for crash during load due to bad connections.
+5) (#557,559) Thickener and washer improvements for dynamic transfer mode.
 
 
 =============================================================================
