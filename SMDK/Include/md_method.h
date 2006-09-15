@@ -1262,7 +1262,7 @@ class DllImportExport MFT_Condenser : public MMethodUtility
     _declspec(property(get=getSuctionP,put=putSuctionP))          double SuctionP;
     _declspec(property(get=getVapourFlow,put=putVapourFlow))                      double VapourFlow;
     _declspec(property(get=getVapourFlowReqd,put=putVapourFlowReqd))              double VapourFlowReqd;
-    _declspec(property(get=getFeedVapP,put=putFeedVapP))          double MinSaturationP;
+    _declspec(property(get=getMinSaturationP,put=putMinSaturationP))          double MinSaturationP;
 
   protected:
     CFT_Condenser *   m_pCondenser;
