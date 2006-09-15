@@ -120,6 +120,8 @@ CCWasher::CCWasher(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   AttachIOAreas(CCWasherIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
 
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+
   iEffMethod           = MEM_Scandrett;
   MixEff               = 1.0;
   ScandrettEff         = 0.75;       // Default Scrandrett wash efficiency as a fraction
@@ -219,7 +221,7 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

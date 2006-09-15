@@ -87,6 +87,8 @@ DrumFilt::DrumFilt(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   AttachIOAreas(DrumFiltIOAreaList);
   Contents.SetClosed(false);
 
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+
   iRqdFiltMethod  = FSM_FiltSolFrac;
   RqdFiltSolids   = 0.0001;
   ActFiltSolids   = RqdFiltSolids;
@@ -179,7 +181,7 @@ void DrumFilt::BuildDataDefn(DataDefnBlk & DDB)
 
   //RB.BuildDataDefn(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

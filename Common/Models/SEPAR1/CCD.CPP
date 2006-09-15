@@ -101,8 +101,9 @@ Ccd::Ccd(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachm
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
-	Stage		 = 3;
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
 
+  Stage		 = 3;
   UFSolids = 0.0;
   OFSolids = 0.0;
   ActUFSolidsConc25 = 0.0;
@@ -140,7 +141,7 @@ void Ccd::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
 	BuildDataDefnShowIOs(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

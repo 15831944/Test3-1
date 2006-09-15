@@ -191,7 +191,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",   "SpecCakeResistance",  DC_SpCakeRes, "m/kg",     &SpCakeRes,        this, isParm);
   DDB.Double  ("",   "Area",                DC_Area,      "m^2",      &FiltArea,         this, isParm);
 
-  if (SolveBufferedMethod())//NetDynamicMethod())
+  if (SolveDynamicMethod())
     DDB.Object(&Cake, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();
 

@@ -93,6 +93,7 @@ Classifier::Classifier(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   AttachIOAreas(ClassifierIOAreaList);
   Contents.SetClosed(False);
 //  Contents.SetAllowAdjust(FALSE);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
 
   iUFCalc       = CLUF_SolRec;
   Reqd_UFConc   = 700.0;
@@ -155,7 +156,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     //DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -192,7 +193,7 @@ void Classifier::EvalJoinPressures(long JoinMask)
 
 void Classifier::EvalProducts(CNodeEvalIndex & NEI)
   {
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     MN_Surge::EvalProducts(NEI);
     return;

@@ -78,6 +78,9 @@ ElectroCell::ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   AttachIOAreas(ElectroCellIOAreaList);
   Contents.SetClosed(false);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
+
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+
   CathMass     = 0.0;
   dCellEff     = 0.9;
   dPreHeatFrac = 0.0;//0.5;
@@ -121,7 +124,7 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

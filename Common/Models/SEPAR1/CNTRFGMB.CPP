@@ -98,6 +98,8 @@ CentrifugeMB::CentrifugeMB(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
+  SetAllowedModes(true, NM_All|SM_Direct|SM_Inline|SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
+
   FlowRatio     = 0.0;
   RqdSolidsToFiltrate = 0.0001;
   RqdCakeMoist  = 0.02;
@@ -165,7 +167,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

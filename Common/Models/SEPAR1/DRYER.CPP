@@ -84,6 +84,8 @@ Dryer::Dryer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   AttachIOAreas(DryerIOAreaList);
   Contents.SetClosed(False);
 
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+
   fOn           = True;
   RqdFiltSolids = 0.00001;
   RqdCakeMoist  = 0.02;
@@ -129,7 +131,7 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
 
-  if (NetDynamicMethod())
+  if (SolveDynamicMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
