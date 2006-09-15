@@ -1,0 +1,36 @@
+2006-08-10  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* CARTubeDigester.cpp (DoLiveSteamHeater): Fix up enthalpy to
+	account for vent flow, enthalpy contribution wasnt included in
+	total
+	Check for vent flow > live steam flow
+	If feed contains condensate, vent now only takes vapor 
+	(EvalProducts): Added "on" check box so heater can be disabled.
+	
+
+2005-02-22  Rod Stephenson  <rod.stephenson@transcritical.com>
+	* TTPrecip.cpp (BuildDataFields): Damping factors are now are now "%"
+	                (EvalProducts): Add sanity Check to external cooling
+			Cooling is now volume flow
+			(DoResults): Total solids as well as THA
+			(AdjustMasses): Switched on mass damping
+			(AdjustSSA): Set SSA either manually or from stream
+			(BuildDataFields): Added new damping for external cooling
+			
+
+2005-02-21  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+
+	* TTPrecip.cpp (EvalLosses): Added separate displays of
+	environmental and evap heat losses. 
+
+	* precip.cpp (CPrecip): Put damping into base file precip.h,
+	initilize damping to 0.0 in constructor
+
+2004-08-30  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TubeReactor.cpp: 
+	TagDB	NdFBS Class Table missing
+	
+
+

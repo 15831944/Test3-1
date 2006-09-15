@@ -1,0 +1,6 @@
+2006-08-24  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTMADBayerSM.cpp (MP_RN): Added #defines for more parameter
+	fields MP_GPH MP_CP
+
+

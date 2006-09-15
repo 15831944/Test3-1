@@ -1,0 +1,32 @@
+2006-05-04  Rod Stephenson  <viking_kiwi@yahoo.poofters.com>
+
+	* QALPrecip.cpp: Switched on evap/thermal loss code
+
+2006-05-03  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* QALHeater.cpp (EvalProducts): Added in shell side scaling: it
+	was implemented in access window but not main routine. 
+
+	* QALClassifier.cpp: Fixed bug in main classifier routine: when
+	the PutMassPassing() function went away, the replacement with
+	putFrac() was incorrectly implemented.
+
+2006-04-20  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* QALPrecip.cpp: Added new QAL nucleation rate model. This is used
+	when the CAR-QAL model for *growth* is selected.
+	Added QAL growth rate equation.
+
+	* QALClassifier.cpp: There is a bug here that appears when there
+	are *no* solids present. Need to add a check here, but not sure
+	how this should be handled.
+
+	* CalcSeparation. Changed constant 1.9->3.89 and added density
+	term. 
+
+	* QALCyclone.cpp (EvalProducts): On exception was setting both
+	underflow and overflow to input. Now set overflow to input and
+	underflow to zero. 
+	
+
+	Immediate check for PSD.

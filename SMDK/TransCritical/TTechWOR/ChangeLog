@@ -1,0 +1,46 @@
+2006-09-13  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTWorClassPrecip.cpp: Added ClassPrecip classifying precipitator
+	to hold the wierdness
+
+2006-06-09  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTWORPrecip.cpp (EvalProducts): Added vebose option to print
+	error messages for bad stream conditions
+
+	* TTWORFilter.cpp: Added Verbose option to print out additional
+	errors and warnings, 
+	-- Failure to achieve desired cake density - ie too much solids in
+	feed
+	-- Failure to achieve pure water cake liquour - not necessarily an
+	error since will always happen if no condensate added
+
+2006-06-08  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTWORClassifier.cpp: Move displayPSD's inside streamOK block
+
+	* TTWORPrecip.cpp (EvalProducts): Added checkbox for using saved
+	tank data for restart: if streams are jumping around the rates
+	calculated from the save tank data can lead to instability. 
+
+	* TTWORFilter.cpp: Error message when incoming feed has higher
+	solids than specified cake density. No error message when pure
+	water cake liquor not achievable - latter is common when no condy
+	stream is attached.
+
+	Moved displayPSD's inside streamOK check: calling this for non PSD
+	stream is error.
+
+2006-05-12  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTWORPrecip.cpp (EvalPrecipRates): Tidying up restart
+	code. Added SavedTank stream to store tank state between
+	runs. Intention is to use this to calculate rates for first
+	iteration to get "close" to converged state.
+
+2005-12-19  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTWORPrecip.h (CPrecip): Made HOR functions inline:
+
+	
+
