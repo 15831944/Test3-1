@@ -2121,7 +2121,7 @@ flag CExcelReport::DoReport()
           }
         else if (PriTags[i].Length()>0 && (bIsTagList || SecTags[j+Off*SecLen].Length()>0))
           {
-          if (SecTags[j+Off*SecLen].XStrICmp(GraphicFldName)==0)
+          if (SecTags.GetLen()>0 && SecTags[j+Off*SecLen].XStrICmp(GraphicFldName)==0)
             {
             CString LTag(PriTags[i]());
             LTag.MakeLower();
