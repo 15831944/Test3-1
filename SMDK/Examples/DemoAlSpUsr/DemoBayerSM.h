@@ -4,7 +4,7 @@
 
 #ifndef __DemoBayerSM_H_
 #define __DemoBayerSM_H_
-#include "..\..\..\SMDK\include\md_headers.h"
+#include "md_headers.h"
 #include <vector>
 
 class CDemoBayerSM; // forward declare

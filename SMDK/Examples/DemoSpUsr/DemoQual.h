@@ -4,7 +4,7 @@
 
 #ifndef __DemoQual_H_
 #define __DemoQual_H_
-#include "..\..\..\SMDK\include\md_headers.h"
+#include "md_headers.h"
 #include <vector>
 
 class CDemoQual : public MSpQualityBase
