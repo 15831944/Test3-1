@@ -218,7 +218,7 @@ void CArcAddress::SetIndex(CArchiveManager & AM)
     {
     m_lFieldIndex=AM.FindFieldIndex(m_sTag); 
     if (m_lFieldIndex<0)
-      m_lInputIndex=AM.AddInput(m_sTag);//=AM.FindItemIndex(m_sTag); 
+      m_lInputIndex=AM.AddInput(m_sTag); 
     }
   else
     m_lFieldIndex=-1; 
@@ -229,15 +229,26 @@ void CArcAddress::SetIndex(CArchiveManager & AM)
 #endif
   };
 
-double CArcAddress::GetValue(CArchiveManager & AM)
+double CArcAddress::GetValue(CArchiveManager & AM, LPTSTR CnvTxt)
   {
   if (m_lInputIndex>=0)
-    return AM.GetInput(m_lInputIndex).GetValue();
+    return AM.GetInput(m_lInputIndex).GetValue(CnvTxt);
   if (m_lFieldIndex>=0)
     return AM.GetField(m_lFieldIndex).GetValue();
   return 0;
   }
 
+CCnvIndex CArcAddress::GetCnvIndex(CArchiveManager & AM)
+  {
+  if (m_lInputIndex>=0)
+    return AM.GetInput(m_lInputIndex).m_iCnv;
+  if (m_lFieldIndex>=0)
+    {
+    //return AM.GetField(m_lFieldIndex).GetValue();
+    _asm int 3;
+    }
+  return 0;
+  }
 //===========================================================================
 //
 //
@@ -300,10 +311,11 @@ bool CArchiveDBField::GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ boo
     //supply ranges in SI units !!!
     DataUnion uMin;
     DataUnion uMax;
-    uMin.Set(Cnvs[(m_iCnv)]->Normal(0.0, m_sCnvTxt()));
-    uMax.Set(Cnvs[(m_iCnv)]->Normal(1.0, m_sCnvTxt()));
+    CCnvIndex iCnv=m_Src.GetCnvIndex(m_rAM);
+    uMin.Set(Cnvs[(iCnv)]->Normal(0.0, m_sCnvTxt()));
+    uMax.Set(Cnvs[(iCnv)]->Normal(1.0, m_sCnvTxt()));
     List.SetDataValueAll(/*pPItem,*/ (char*)(LPCTSTR)m_sScdMTag, "", PData, isArchiveTag,
-      uMin, uMax, m_iCnv, m_sCnvTxt(), 
+      uMin, uMax, iCnv, m_sCnvTxt()?m_sCnvTxt():"", 
       ""/*sCnvFam()*/, NULL, False, C2T(m_sDescription));
     }
   else
@@ -315,7 +327,7 @@ bool CArchiveDBField::GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ boo
 
 bool CArchiveDBField::Execute(CXM_TimeControl &CB)
   {
-  m_dInputValue = m_Src.GetValue(m_rAM); // Value at the beginning of the step
+  m_dInputValue = m_Src.GetValue(m_rAM, m_sCnvTxt()); // Value at the beginning of the step
 
   return true;
   }
@@ -325,7 +337,7 @@ bool CArchiveDBField::Execute(CXM_TimeControl &CB)
 bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
   {
   double InputAtStart = m_dInputValue;
-  double InputAtEnd   = m_Src.GetValue(m_rAM);
+  double InputAtEnd   = m_Src.GetValue(m_rAM, m_sCnvTxt());
 
   m_dInputValue       = InputAtEnd;
 
@@ -477,7 +489,13 @@ bool CArchiveTrigger::Parse(LPCTSTR Table, int No, LPCTSTR Cfg)
       m_sName = c[0];
     else
       m_sName.Format("%s.Trigger%i", Table, No);
-    m_Src.SetTag(c[1]);
+
+    Strng WrkTag,WrkCnvTxt;
+    TaggedObject::SplitTagCnv(c[1], WrkTag, WrkCnvTxt);
+
+    m_Src.SetTag(WrkTag());
+    m_sCnvTxt = WrkCnvTxt();
+
     m_dPrevAny=0.0;
     m_dPrevEdge=0.0;
     for (int i=2; c[i] && strlen(c[i])>0; i++)
@@ -539,7 +557,7 @@ Bad:
 
 bool CArchiveTrigger::TestTrigger(bool DoTriggerNote)
   {
-  double CurValue=m_Src.GetValue(m_rAM);
+  double CurValue=m_Src.GetValue(m_rAM, m_sCnvTxt());
 
   bool Triggered=false;
 
@@ -1931,26 +1949,10 @@ bool CArchiveManager::CompleteOpen()
 
   bool OK=true;
 
-  //for (int s=0; s<m_Inputs.GetSize(); s++)
-  //  delete m_Inputs[s];
-  //m_Inputs.SetSize(0);
-
   long nt=m_Tables.GetSize();
   for (long t=0; t<nt; t++)
     {
     CArchiveDBTable & Tb=*m_Tables[t];
-    //long ntt=Tb.m_Triggers.GetSize();
-    //for (long tt=0; tt<ntt; tt++)
-    //  {
-    //  CArchiveTrigger &Tr=*Tb.m_Triggers[tt];
-    //  Tr.m_Src.SetIndex(*this);
-    //  //)
-    //  //if (!Tr.m_Src.SetIndex(*this))
-    //  //  {
-    //  //  LogError(ArcName,0,"Trigger %s not found for Table %s", (LPCTSTR)Tr.m_Src.m_sTag, (LPCTSTR)Tb.m_sName);
-    //  //  OK=false;
-    //  //  }
-    //  }
     Tb.m_Fields.SetSize(0,64);
     }
 
@@ -1958,27 +1960,18 @@ bool CArchiveManager::CompleteOpen()
   for (long f=0; f<nf; f++)
     {
     CArchiveDBField *pFld=m_Fields[f];
-    if (1)//!pFld->m_bSystem)
+    pFld->m_lTableIndex=FindTable(pFld->m_sTable);
+    if (pFld->m_lTableIndex>=0)
       {
-      //pFld->m_Src.SetIndex(*this);
-      pFld->m_lTableIndex=FindTable(pFld->m_sTable);
-      if (pFld->m_lTableIndex>=0)
-        {
-        if (FindField(pFld->m_lTableIndex, "")<0)
-          m_Tables[pFld->m_lTableIndex]->m_Fields.Add(pFld);
-        else
-          LogError(ArcName,0,"Field %s already exists in Table %s", (LPCTSTR)pFld->m_sFldTag, (LPCTSTR)pFld->m_sTable);
-        }
+      if (FindField(pFld->m_lTableIndex, "")<0)
+        m_Tables[pFld->m_lTableIndex]->m_Fields.Add(pFld);
       else
-        {
-        LogError(ArcName,0,"Table %s not found for Field %s", (LPCTSTR)pFld->m_sTable, (LPCTSTR)pFld->m_sFldTag);
-        OK=false;
-        }
-      //if (!pFld->m_bSystem && !IsNumData(pFld->m_iType))
-      //  {
-      //  LogError(ArcName,0,"Item data is not numeric %s", (LPCTSTR)pFld->m_Src.m_sTag);
-      //  OK=false;
-      //  }
+        LogError(ArcName,0,"Field %s already exists in Table %s", (LPCTSTR)pFld->m_sFldTag, (LPCTSTR)pFld->m_sTable);
+      }
+    else
+      {
+      LogError(ArcName,0,"Table %s not found for Field %s", (LPCTSTR)pFld->m_sTable, (LPCTSTR)pFld->m_sFldTag);
+      OK=false;
       }
     }
 
@@ -2136,18 +2129,7 @@ int CArchiveManager::Open(LPCTSTR CfgFile, bool FirstClear)
           FCB.ReadFile((LPVOID)Buff, 9, &dwSize);
           ASSERT(strncmp("TAGS....", Buff, 8)==0);
           if (!FCB.Eof())
-            {
             LoadTags(FCB);
-            //for (long j=0; j<Slots.GetSize(); j++)
-            //  {
-            //  CDrvSlot& S = *(Slots[j]);
-            //  if (S.bUseInitVal && (!bIgnoresOn || !S.bIgnoreWrites))
-            //    {
-            //    PkDataUnion Data(S.dInitVal);
-            //    S.PutTagValue(Data);
-            //    }
-            //  }
-            }
           CloseHandle(H);
           }
         }
@@ -2183,40 +2165,26 @@ bool CArchiveManager::ConnectAll()
     CArchiveDBTable & Tb=*m_Tables[t];
     long ntt=Tb.m_Triggers.GetSize();
     for (long tt=0; tt<ntt; tt++)
-      Tb.m_Triggers[tt]->m_Src.SetIndex(*this);
-    //Tb.m_Fields.SetSize(0,64);
+      {
+      CArchiveTrigger &Tr=*Tb.m_Triggers[tt];
+      Tr.m_Src.SetIndex(*this);
+      if (!Cnvs[Tr.m_Src.GetCnvIndex(*this)]->Find(Tr.m_sCnvTxt())==NULL)
+        LogError(ArcName, 0, "Cnv Text '%s' invalid for %s", Tr.m_sCnvTxt(), Tr.m_Src.m_sTag);
+      }
     }
 
   long nf=m_Fields.GetSize();
   for (long f=0; f<nf; f++)
     {
-    CArchiveDBField *pFld=m_Fields[f];
-    if (!pFld->m_bSystem)
-      //{
-      pFld->m_Src.SetIndex(*this);
-    //pFld->m_lTableIndex=FindTable(pFld->m_sTable);
-    //if (pFld->m_lTableIndex>=0)
-    //  {
-    //  if (FindField(pFld->m_lTableIndex, "")<0)
-    //    m_Tables[pFld->m_lTableIndex]->m_Fields.Add(pFld);
-    //  else
-    //    LogError(ArcName,0,"Field %s already exists in Table %s", (LPCTSTR)pFld->m_sFldTag, (LPCTSTR)pFld->m_sTable);
-    //  }
-    //else
-    //  {
-    //  LogError(ArcName,0,"Table %s not found for Field %s", (LPCTSTR)pFld->m_sTable, (LPCTSTR)pFld->m_sFldTag);
-    //  OK=false;
-    //  }
-    ////if (!pFld->m_bSystem && !IsNumData(pFld->m_iType))
-    ////  {
-    ////  LogError(ArcName,0,"Item data is not numeric %s", (LPCTSTR)pFld->m_Src.m_sTag);
-    ////  OK=false;
-    ////  }
-    //}
+    CArchiveDBField & Fld=*m_Fields[f];
+    if (!Fld.m_bSystem)
+      {
+      Fld.m_Src.SetIndex(*this);
+      if (!Cnvs[Fld.m_Src.GetCnvIndex(*this)]->Find(Fld.m_sCnvTxt())==NULL)
+        LogError(ArcName, 0, "Cnv Text '%s' invalid for %s", Fld.m_sCnvTxt(), Fld.m_Src.m_sTag);
+      }
     }
 
-  //for (int f=0; f<m_Fields.GetCount(); f++)
-  //   CArchiveManager::ConnectField(f);
   return true;
   };
 
@@ -2228,10 +2196,6 @@ bool CArchiveManager::DisConnectAll()
     delete m_Inputs[s];
   m_Inputs.SetSize(0);
 
-  //for (int f=0; f<m_Fields.GetCount(); f++)
-  //  {
-  //  CArchiveManager::DisConnectField(f);
-  //  }
   return true;
   };
 
@@ -2391,8 +2355,11 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
     return -1;
     }
 
-  byte iType=tt_NULL;
+  byte iType=tt_Double; // Assume all field types are double except ...
   byte iSize=0;
+
+  Strng WrkTag,WrkCnvTxt;
+  TaggedObject::SplitTagCnv((LPTSTR)Tag, WrkTag, WrkCnvTxt);
 
   if (iST>=0)
     {
@@ -2403,7 +2370,7 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
     iFirst  = ADBFirst_Null;
     }
 
-  return AddField((iST>=0), Tag, Table, FldName, iFn, iMeas, iFirst, iType, iSize, 0, ""/*Item.CnvIndex(), Item.CnvTxt()*/,"");
+  return AddField((iST>=0), WrkTag(), Table, FldName, iFn, iMeas, iFirst, iType, iSize, 0,  WrkCnvTxt() ? WrkCnvTxt():"","");
   };
 
 long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description)
@@ -2412,6 +2379,7 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
   if (iFn!=ADBFn_Null)
     {
     CArchiveDBField *pFld   = new CArchiveDBField(this);
+
     pFld->m_bSystem         = System;
     pFld->m_sTable          = Table;
     pFld->m_iFn             = iFn;
@@ -2421,19 +2389,18 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
       {
       pFld->m_iType         = tt_Long;
       pFld->m_iSize         = iSize;
-      pFld->m_iCnv          = 0;
       pFld->m_sCnvTxt       = "";
       }
     else
       {
       pFld->m_iType         = iType;
       pFld->m_iSize         = iSize;
-      pFld->m_iCnv          = iCnv;
       pFld->m_sCnvTxt       = CnvTxt;
       }
     pFld->m_sDescription    = Description;
 
     pFld->m_Src.m_sTag      = Tag;
+
 
     if (FldName)
       pFld->m_sFldTag=FldName;
@@ -2540,12 +2507,9 @@ long CArchiveManager::AppendField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTS
 
 long CArchiveManager::AddInput(LPCTSTR Tag)
   {
-  //ASSERT_ALWAYS(!XBusy(), "AddInput - SysCAD Running");
-
   CXM_ObjectTag ObjTag((LPTSTR)Tag, TABOpt_AllInfoOnce);
   CXM_ObjectData ObjData;
   CXM_Route Route;
-  //      CXMsgLst XM;
 
   long Index=-1;
   if (XReadTaggedItem(ObjTag, ObjData, Route))
@@ -2555,7 +2519,6 @@ long CArchiveManager::AddInput(LPCTSTR Tag)
     pInput->m_sScdMTag=Tag;
     pInput->m_iType=Item.Type();
     pInput->m_iCnv=Item.CnvIndex();
-    pInput->m_sCnvTxt=Item.CnvTxt();
 
     if (IsNumData(pInput->m_iType))
       {
@@ -2570,11 +2533,11 @@ long CArchiveManager::AddInput(LPCTSTR Tag)
 #endif
       }
     else
-      LogWarning(ArcName, 0, "Tag '%s' not numeric.", Tag);
+      LogError(ArcName, 0, "Tag '%s' not numeric.", Tag);
     }
   else
     {
-    LogWarning(ArcName, 0, "Tag '%s' not found.", Tag);
+    LogError(ArcName, 0, "Tag '%s' not found.", Tag);
     }
 
   return Index;

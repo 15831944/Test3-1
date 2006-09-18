@@ -25,12 +25,13 @@ class CArcAddress
       m_lInputIndex=-1;
       m_lFieldIndex=-1;
       };
-    void SetTag(LPCTSTR Tag) 
+    void SetTag(LPCTSTR Tag)//, CCnvIndex iCnv, LPCTSTR CnvTxt) 
       { 
-      m_sTag=Tag; 
+      m_sTag=Tag;
       };
-    void SetIndex(CArchiveManager & AM);
-    double GetValue(CArchiveManager & AM);
+    void      SetIndex(CArchiveManager & AM);
+    double    GetValue(CArchiveManager & AM, LPTSTR CnvTxt);
+    CCnvIndex GetCnvIndex(CArchiveManager & AM);
 
   public:
     CString   m_sTag;
@@ -46,14 +47,14 @@ class CArchiveInput
     CArchiveInput();
     bool        PutValue(CPkDataItem &PItem);
     bool        PutValue(double Value);
-    double      GetValue()         { return m_dValue; };
+    double      GetValue(LPTSTR CnvTxt)       { return Cnvs[m_iCnv]->Human(m_dValue, CnvTxt); };
 
   public:
     CString     m_sScdMTag;
     byte        m_iType;
     CCnvIndex   m_iCnv;             //conversion index
-    Strng       m_sCnvTxt;          //engineering units
     
+  protected:
     double      m_dValue;
   };
 
@@ -68,13 +69,12 @@ class CArchiveDBField
     CArchiveDBField(CArchiveManager *pAM);
     ~CArchiveDBField();
 
-    bool GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ bool Complete);
-    double GetValue() { return m_dCalculatedValue; };
-    //double GetPreviousValue() { return dNAN; };
-    bool Execute(CXM_TimeControl &CB);
-    bool StepDone(CXM_TimeControl &CB);
-    void ClearChanged() { m_bChanged=false; };
-    bool Changed() { return m_bChanged; };
+    bool          GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ bool Complete);
+    double        GetValue() { return m_dCalculatedValue; };
+    bool          Execute(CXM_TimeControl &CB);
+    bool          StepDone(CXM_TimeControl &CB);
+    void          ClearChanged() { m_bChanged=false; };
+    bool          Changed() { return m_bChanged; };
 
     ADOX::DataTypeEnum dbType();
     ADOX::ColumnAttributesEnum dbAttr();
@@ -89,20 +89,14 @@ class CArchiveDBField
     byte            m_iFn;
     byte            m_iMeas;
     byte            m_iFirstOnRewind;
-    //long            m_lInputIndex;
     long            m_lTableIndex;
     byte            m_iType;
     long            m_iSize;
-    CCnvIndex       m_iCnv;             //conversion index
     Strng           m_sCnvTxt;          //engineering units
     CString         m_sDescription;   
                     
-    //ADOX::DataTypeEnum m_dbType;
-    //ADOX::ColumnAttributesEnum m_dbAttr;
-                    
     bool            m_bSystem;
     bool            m_bResetReqd;
-    //bool            m_bWasReset;
     bool            m_bChanged;
     long            m_nSamples;
     double          m_dCalculatedValue;  // ...
@@ -123,7 +117,9 @@ class CArchiveTrigger
 
     CString         m_sName;
     CArcAddress     m_Src;
-                    
+
+    Strng           m_sCnvTxt;          //engineering units
+
     bool            m_bInitReqd;
     bool            m_bRewindReqd;
     bool            m_bRise;
@@ -237,7 +233,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     long            AppendField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
     //bool            ConnectField(int Index);
     //bool            DisConnectField(int Index);
-    long            AddInput(LPCTSTR Tag);
+    long            AddInput(LPCTSTR Tag);//, CCnvIndex iCnv, LPCTSTR CnvTxt);
     long            FindInputIndex(LPCTSTR Tag);
     long            FindFieldIndex(LPCTSTR Tag);
     long            FindTable(LPCTSTR TbName);

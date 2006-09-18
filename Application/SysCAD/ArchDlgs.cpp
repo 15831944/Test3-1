@@ -589,10 +589,10 @@ void CArcInputPage::RebuildSDTree()
       CArchiveInput & In=m_pAM->GetInput(i);
       CString Buff;
 
-      if (In.m_sCnvTxt.GetLength()>0)
-        Buff.Format("%s (%s)", (LPCTSTR)In.m_sScdMTag, In.m_sCnvTxt());
-      else
-        Buff=In.m_sScdMTag;
+      //if (In.m_sCnvTxt.GetLength()>0)
+      //  Buff.Format("%s (%s)", (LPCTSTR)In.m_sScdMTag, In.m_sCnvTxt());
+      //else
+      Buff=In.m_sScdMTag;
       HTREEITEM hIn = InsertItem(m_SDTree, TVI_ROOT, 3, Buff, IS);
 
       for (int t=0; t<m_pAM->TableCount(); t++)
