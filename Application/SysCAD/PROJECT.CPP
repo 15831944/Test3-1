@@ -1451,7 +1451,6 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
     }                                                                                                         
   else if (PrjFileVerNo>=73)
     {
-
     long NetMd=0, FlwMd=0;
     Strng sRMd=PF.RdStr("General", "RunMode",    "");
     if (sRMd.XStrNICmp("Probal", 6)==0)
@@ -1509,16 +1508,45 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
     }
   else
     {
-    INCOMPLETECODEMSG("TODO - Fix Solve Mode Recovery for PrjFileVerNo < 73");
-    //bool PB = (PF.RdInt("General", "ProBalMode", true)!=0);
-    //gs_Exec.SetGlblRunModes(HM_Full, HM_All);
-    //if (PB)
-    //  gs_Exec.SetGlblRunModes(SM_Direct, SM_All);
-    //else
-    //  {//NOT probal
-    //  int FlowMd=PF.RdInt("General", "DynamicFlowMode", (PrjFileVerNo()>=72));
-    //  gs_Exec.SetGlblRunModes(FlowMd ? SM_Inline : SM_Buffered, SM_All);
-    //  }
+    long NetMd=0, FlwMd=0;
+
+    bool PB = (PF.RdInt("General", "ProBalMode", true)!=0);
+    if (PB)
+      {
+      NetMd=NM_Probal;
+      FlwMd=LFM_Xfer;
+      }
+    else
+      {//NOT probal
+      int FlowMd=PF.RdInt("General", "DynamicFlowMode", (PrjFileVerNo>=72));
+      if (FlowMd)
+        {
+        NetMd=NM_Dynamic;
+        FlwMd=LFM_Xfer;
+        }
+      else
+        {
+        NetMd=NM_Dynamic;
+        FlwMd=LFM_Full;
+        }
+      }
+    
+    m_NetMode=NetMd;
+    
+    m_PBNodeMode=SM_Direct;
+    m_PBLinkMode=SM_Direct;
+    m_PBFlowMode=FlwMd;
+    m_PBHeatMode=HM_Full;
+
+    m_DynNodeMode=SM_Buffered;
+    m_DynLinkMode=SM_Direct;
+    m_DynFlowMode=FlwMd;
+    m_DynHeatMode=HM_Full;
+
+    m_MaxNodeMode=GetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_NodeMode", "Buffered"));
+    m_MaxLinkMode=GetMaxNodeMode(PrjCfg.RdStr("Modes", "Maximum_LinkMode", "Direct"));;
+    m_MaxFlowMode=GetMaxFlowMode(PrjCfg.RdStr("Modes", "Maximum_FlowMode", "Full"));
+    m_MaxHeatMode=GetMaxHeatMode(PrjCfg.RdStr("Modes", "Maximum_HeatMode", "Rigorous"));
     }
 
   m_lStatsRefreshCnt      =   Max(1L, PF.RdLong("General", "StatsRefreshCount", m_lStatsRefreshCnt));
