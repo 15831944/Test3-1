@@ -3208,7 +3208,6 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   for (int i=0; i<m_iNo; i++)
     CmD[i]=CmDTmp[i];
 
-
 #if dbgBuildSDB
   if (dbgBuildSpc())
     for (int xx=0; xx<m_iNo; xx++)
@@ -3720,8 +3719,46 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     return false;
     }
 
-  // Check temp range Overlap
   flag ROk=true;
+  // Check for valid Phase tags
+  for (int phi=0; phi<m_PhInfoCount[BOT_All]; phi++)
+    {
+    CPhaseInfo & Ph = m_PhInfo[phi];
+    if (strpbrk(Ph.m_Sym(), " ,.%()[]{}:\\<>!^\t\n\v\f\r"))
+      {
+      ROk=false;
+      LogError("SpecieDB", 0, "Illegal character in phase symbol '%s'", Ph.m_Sym());
+      }
+    if (strpbrk(Ph.m_Tag(), " ,.%()[]{}:\\<>!^\t\n\v\f\r") && strcmp(Ph.m_Tag(), Ph.m_Sym())!=0)
+      {
+      ROk=false;
+      LogError("SpecieDB", 0, "Illegal character in phase tag '%s'", Ph.m_Tag());
+      }
+    }
+  if (!ROk)
+    return false;
+
+  // Check for valid specie tags and symbols
+  for (s=0; s<m_SDB.m_iNo; s++)
+    {
+    CSpecie & Sp=m_SDB[s];
+    char* prob = strchr(Sp.sSym(), ',');
+    if (prob)
+      {
+      ROk=false;
+      LogError("SpecieDB", 0, "',' not allowed in specie symbol '%s'", Sp.sSym());
+      }
+    prob = strchr(Sp.sTag(), ',');
+    if (prob)
+      {
+      ROk=false;
+      LogError("SpecieDB", 0, "',' not allowed in specie tag '%s'", Sp.sTag());
+      }
+    }
+  if (!ROk)
+    return false;
+
+  // Check temp range Overlap
   for (s=0; s<m_SDB.m_iNo; s++)
     {
     flag SOK=true;
@@ -3744,7 +3781,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   if (!ROk)
     return false;
 
-  // Check Tag Uniqueness
+  // Check Tag Uniqueness; and same occurence for same phasename 
   for (s=0; s<m_SDB.m_iNo; s++)
     {
     CSpecie & Sp=m_SDB[s];
@@ -3759,7 +3796,8 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         {
         if (m_SDB[s0].m_OccMsk != m_SDB[s].m_OccMsk)
           {
-          LogError("SpecieDB", 0, "Species %s & %s have the same PhaseName but different Occurences", m_SDB[s].sSym(), m_SDB[s0].sSym());
+          LogError("SpecieDB", 0, "Species %s & %s with the same phase name (%s) can not have different occurences (%s & %s)", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].m_sPhaseSym(), 
+            (m_SDB[s0].m_OccMsk==som_Sol ? "s" : m_SDB[s0].m_OccMsk==som_Liq ? "l" : "g"), (m_SDB[s].m_OccMsk==som_Sol ? "s" : m_SDB[s].m_OccMsk==som_Liq ? "l" : "g"));
           ROk=false;
           }
         }
