@@ -2861,38 +2861,39 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               //flag GotIt=false;
               CSpecie * pSpPh = NULL;
               for (int i=0; i<pC->m_nPhaseData; i++)
+                {
                 if (pC->m_PhaseData[i]->m_sPhaseSym.XStrCmp(pSp->m_sPhaseSym())==0)
                   {
                   pSpPh=pC->m_PhaseData[i];//GotIt=true;
                   break;
                   }
-
-                if (pSpPh)
+                }
+              if (pSpPh)
+                {
+                // Specie Exists -- append data
+                pSpPh->m_Data[0].AddSpecieTData(pSp->m_Data);
+                delete pSp;
+                }
+              else
+                {
+                pC->m_PhaseData[pC->m_nPhaseData++]=pSp;
+                // Sort into solids(s,...) liquids(l,aq,...) gasses(g,... ???
+                for (int i=pC->m_nPhaseData-1; i>0; i--)
                   {
-                  // Specie Exists -- append data
-                  pSpPh->m_Data[0].AddSpecieTData(pSp->m_Data);
-                  delete pSp;
-                  }
-                else
-                  {
-                  pC->m_PhaseData[pC->m_nPhaseData++]=pSp;
-                  // Sort into solids(s,...) liquids(l,aq,...) gasses(g,... ???
-                  for (int i=pC->m_nPhaseData-1; i>0; i--)
+                  CSpecie * Sp1=pC->m_PhaseData[i-1];
+                  CSpecie * Sp2=pC->m_PhaseData[i];
+                  if (Sp2->m_eOcc > Sp1->m_eOcc)
+                    break;
+                  else if (Sp2->m_eOcc == Sp1->m_eOcc)
                     {
-                    CSpecie * Sp1=pC->m_PhaseData[i-1];
-                    CSpecie * Sp2=pC->m_PhaseData[i];
-                    if (Sp2->m_eOcc > Sp1->m_eOcc)
+                    if (Sp2->m_sPhaseSym.XStrCmp(Sp1->m_sPhaseSym)>0)
                       break;
-                    else if (Sp2->m_eOcc == Sp1->m_eOcc)
-                      {
-                      if (Sp2->m_sPhaseSym.XStrCmp(Sp1->m_sPhaseSym)>0)
-                        break;
-                      if (!PhaseNamePrimary(Sp2->m_eOcc, Sp2->m_sPhaseSym()) && PhaseNamePrimary(Sp1->m_eOcc, Sp1->m_sPhaseSym()))
-                        break;
-                      }
-                    Exchange(pC->m_PhaseData[i-1], pC->m_PhaseData[i]);
+                    if (!PhaseNamePrimary(Sp2->m_eOcc, Sp2->m_sPhaseSym()) && PhaseNamePrimary(Sp1->m_eOcc, Sp1->m_sPhaseSym()))
+                      break;
                     }
+                  Exchange(pC->m_PhaseData[i-1], pC->m_PhaseData[i]);
                   }
+                }
               }
             else
               delete pSp;
@@ -3463,6 +3464,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
 
 #if dbgBuildSDB
   if (dbgBuildPhs())
+    {
     for (int phi=0; phi<m_PhInfoCount[BOT_All]; phi++)
       {
       CPhaseInfo & Ph = m_PhInfo[phi];
@@ -3470,6 +3472,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         phi, Ph.m_nSpecies, Ph.m_eOcc, Ph.m_PhInx, Ph.m_PhMsk,
         m_PhInfoCount[Ph.m_eOcc], somPhaseInOcc[Ph.m_eOcc], Ph.m_Sym(), Ph.m_Tag());
       }
+    }
 #endif
 
   m_som_Sol = somPhaseInOcc[BOT_Solid];
@@ -3521,6 +3524,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   // Check that all Species Have been loaded & setup CSpecieBlk CId's
   flag Ok=true;
   if (!m_ForTestingOnly)
+    {
     for (CSpecieBlk * pSb=CSpecieBlk::sm_pFirst; (pSb); pSb=pSb->m_pNxt)
       {
       Strng C=CmpName(pSb->m_sCmpName); // Trim off Qualifiers eg (ag), (l) etc
@@ -3559,214 +3563,224 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       else if (!pSb->m_fOpt)
         LogError("SpecieDB", 0, "Required Specie '%s' not Loaded %s", C(), pSb->m_sFile());
       }
+    }
+  //int PrvCId=-1;
+  int NNotChecked=0;
+  Strng NotCheckedList;
+  CDBInit.NSpPrj=0;
+  CDBInit.NSpDensCorrPrj=0;
+  CDBInit.NSpSolFnPrj=0;
 
-    //int PrvCId=-1;
-    int NNotChecked=0;
-    Strng NotCheckedList;
-    CDBInit.NSpPrj=0;
-    CDBInit.NSpDensCorrPrj=0;
-    CDBInit.NSpSolFnPrj=0;
+  ////TODO Multi Phase / Occurence problem!
+  ////KGA : 17/1/2002 : Problem with multi-occurances in a phase for a specie
+  ////1) The logic for creating extra phases/occurences is DEPENDENT on specie sequence in array!
+  ////2) When "extra phase" is created then other bugs occur (eg display in pipe in MassFrac view with
+  ////   ByPhase ticked).  There may be (or may not) be other problems when using phase calcs?!?!
+  //#define TempRemoveExtraOcc 0 //for now, there will only ever be the "three standard Sol Liq Vap phases"
 
-    ////TODO Multi Phase / Occurence problem!
-    ////KGA : 17/1/2002 : Problem with multi-occurances in a phase for a specie
-    ////1) The logic for creating extra phases/occurences is DEPENDENT on specie sequence in array!
-    ////2) When "extra phase" is created then other bugs occur (eg display in pipe in MassFrac view with
-    ////   ByPhase ticked).  There may be (or may not) be other problems when using phase calcs?!?!
-    //#define TempRemoveExtraOcc 0 //for now, there will only ever be the "three standard Sol Liq Vap phases"
+  //  DoBreak();
 
-    //  DoBreak();
-
-    //CompOccurs PrvOcc=BOT_Null;
-    //phi=INT_MAX;
-    int Phi=-1;
-    for (int s=0; s<m_SDB.m_iNo; s++)
+  //CompOccurs PrvOcc=BOT_Null;
+  //phi=INT_MAX;
+  int Phi=-1;
+  for (int s=0; s<m_SDB.m_iNo; s++)
+    {
+    CSpecie & S=m_SDB[s];
+    for (i=m_PhInfoFirst[S.m_eOcc]; i<=m_PhInfoLast[S.m_eOcc]; i++)
       {
-      CSpecie & S=m_SDB[s];
-      for (i=m_PhInfoFirst[S.m_eOcc]; i<=m_PhInfoLast[S.m_eOcc]; i++)
+      CPhaseInfo & Ph = m_PhInfo[i];
+      if (S.m_sPhaseSym.XStrCmp(Ph.m_Sym)==0)
         {
-        CPhaseInfo & Ph = m_PhInfo[i];
-        if (S.m_sPhaseSym.XStrCmp(Ph.m_Sym)==0)
-          {
-          Msk=Ph.m_PhMsk;
-          Phi=Ph.m_PhInx;
-          break;
-          }
+        Msk=Ph.m_PhMsk;
+        Phi=Ph.m_PhInx;
+        break;
         }
-      ASSERT(i<m_PhInfoCount[BOT_All]);
+      }
+    ASSERT(i<m_PhInfoCount[BOT_All]);
 
-      S.m_PhMsk=Msk;
-      if (S.IsSol())
-        {
-        S.m_OccMsk=som_Sol;
-        S.m_iBOccT=BOT_Solid;
-        S.m_bCpOvrMask=SPO_SCp;
-        S.m_bDensOvrMask=SPO_SDens;
-        S.m_iOverIndex=SPIndex_Sol;
-        }
-      else if (S.IsLiq())
-        {
-        S.m_OccMsk=som_Liq;
-        S.m_iBOccT=BOT_Liquid;
-        S.m_bCpOvrMask=SPO_LCp;
-        S.m_bDensOvrMask=SPO_LDens;
-        S.m_iOverIndex=SPIndex_Liq;
-        }
-      else
-        {
-        S.m_OccMsk=som_Gas;
-        S.m_iBOccT=BOT_Gas;
-        S.m_bCpOvrMask=SPO_VCp;
-        S.m_bDensOvrMask=SPO_VDens;
-        S.m_iOverIndex=SPIndex_Vap;
-        }
+    S.m_PhMsk=Msk;
+    if (S.IsSol())
+      {
+      S.m_OccMsk=som_Sol;
+      S.m_iBOccT=BOT_Solid;
+      S.m_bCpOvrMask=SPO_SCp;
+      S.m_bDensOvrMask=SPO_SDens;
+      S.m_iOverIndex=SPIndex_Sol;
+      }
+    else if (S.IsLiq())
+      {
+      S.m_OccMsk=som_Liq;
+      S.m_iBOccT=BOT_Liquid;
+      S.m_bCpOvrMask=SPO_LCp;
+      S.m_bDensOvrMask=SPO_LDens;
+      S.m_iOverIndex=SPIndex_Liq;
+      }
+    else
+      {
+      S.m_OccMsk=som_Gas;
+      S.m_iBOccT=BOT_Gas;
+      S.m_bCpOvrMask=SPO_VCp;
+      S.m_bDensOvrMask=SPO_VDens;
+      S.m_iOverIndex=SPIndex_Vap;
+      }
 
-      S.m_PhInx=Phi;
-      //PrvOcc=S.eOcc;
-      //PrvCId=S.iCId;
-      int c=S.iCId;
-      CmD[c]->m_SpPhaseD[Phi]=m_SDB.m_SpD[s];
+    S.m_PhInx=Phi;
+    //PrvOcc=S.eOcc;
+    //PrvCId=S.iCId;
+    int c=S.iCId;
+    CmD[c]->m_SpPhaseD[Phi]=m_SDB.m_SpD[s];
 
-      S.m_bIsAqueous=S.m_sPhaseSym.XStrICmp("aq")==0 || S.m_sPhaseSym.XStrICmp("a")==0;
+    S.m_bIsAqueous=S.m_sPhaseSym.XStrICmp("aq")==0 || S.m_sPhaseSym.XStrICmp("a")==0;
 
 #if dbgBuildSDB
-      if (dbgBuildSpc())
-        dbgpln("c%4i/s%4i)Cmp:%-15.15s  Spc:%-15.15s  %#08x %3i %3i", c, s, CmD[c]->SymOrTag(), S.SymOrTag(), Msk, S.m_PhInx, S.m_eOcc);
+    if (dbgBuildSpc())
+      dbgpln("c%4i/s%4i)Cmp:%-15.15s  Spc:%-15.15s  %#08x %3i %3i", c, s, CmD[c]->SymOrTag(), S.SymOrTag(), Msk, S.m_PhInx, S.m_eOcc);
 #endif
-      if (!(S.m_Data[0].m_bChecked || S.m_Data[1].m_bChecked || S.m_bReference))
-        {
-        if (NNotChecked)
-          NotCheckedList+=", ";
-        NotCheckedList+=S.SymOrTag();
-        NNotChecked++;
-        }
-      ASSERT(S.m_bPrjDB);
-      CDBInit.NSpPrj++;
+    if (!(S.m_Data[0].m_bChecked || S.m_Data[1].m_bChecked || S.m_bReference))
+      {
+      if (NNotChecked)
+        NotCheckedList+=", ";
+      NotCheckedList+=S.SymOrTag();
+      NNotChecked++;
+      }
+    ASSERT(S.m_bPrjDB);
+    CDBInit.NSpPrj++;
+    }
+
+  if (!Ok)
+    return false;
+
+  int nAssumedCps=0;
+  int nDiscarded=0;
+  Strng AssumedCpsList;
+  Strng DiscardedList;
+  for (c=0; c<m_iNo; c++)
+    {
+    CComponent &C=m_CDB[c];
+    if (C.m_nAssumedCps)
+      {
+      if (nAssumedCps)
+        AssumedCpsList+=", ";
+      AssumedCpsList+=C.Sym();
+      nAssumedCps+=C.m_nAssumedCps;
+      }
+    if (C.m_nDiscarded)
+      {
+      if (nDiscarded)
+        DiscardedList+=", ";
+      DiscardedList+=C.Sym();
+      nDiscarded+=C.m_nDiscarded;
       }
 
-    if (!Ok)
-      return false;
+    for (int i=0; i<C.m_nPhaseData; i++)
+      C.m_iPhaseData[i]=C.m_PhaseData[i]->iSId;
+    }
 
-    int nAssumedCps=0;
-    int nDiscarded=0;
-    Strng AssumedCpsList;
-    Strng DiscardedList;
-    for (c=0; c<m_iNo; c++)
+
+  // Set up elemental Info;
+  for (s=0; s<m_SDB.m_iNo; s++)
+    {
+    CComponent &C=m_CDB[m_SDB[s].CId()];
+    ElemCompArray &EC=C.ElComp;
+    for (i=0; i<EC.GetSize(); i++)
       {
-      CComponent &C=m_CDB[c];
-      if (C.m_nAssumedCps)
-        {
-        if (nAssumedCps)
-          AssumedCpsList+=", ";
-        AssumedCpsList+=C.Sym();
-        nAssumedCps+=C.m_nAssumedCps;
-        }
-      if (C.m_nDiscarded)
-        {
-        if (nDiscarded)
-          DiscardedList+=", ";
-        DiscardedList+=C.Sym();
-        nDiscarded+=C.m_nDiscarded;
-        }
-
-      for (int i=0; i<C.m_nPhaseData; i++)
-        C.m_iPhaseData[i]=C.m_PhaseData[i]->iSId;
+      int e=EC[i].iENo;
+      CompFrac CF;
+      CF.iSpNo=s;
+      CF.dMassFrac=EC[i].dMoles*m_EDB[e].AtmWt/C.m_dMoleWt;
+      m_EDB[e].SpComp->Add(CF);
       }
+    }
 
-
-    // Set up elemental Info;
-    for (s=0; s<m_SDB.m_iNo; s++)
+  if (nAssumedCps)
+    {
+    if (AssumedCpsList.Len()>120)
       {
-      CComponent &C=m_CDB[m_SDB[s].CId()];
-      ElemCompArray &EC=C.ElComp;
-      for (i=0; i<EC.GetSize(); i++)
+      AssumedCpsList = AssumedCpsList.Left(120);
+      AssumedCpsList += "...";
+      }
+    LogWarning("SpecieDB", 0, "%i Species have assumed Cps   [ %s ]", nAssumedCps, AssumedCpsList());
+    }
+  if (nDiscarded)
+    LogWarning("SpecieDB", 0, "%i Species discarded   [ %s ]", nDiscarded, DiscardedList);
+  if (CDBInit.NSpPrj)
+    LogNote("SpecieDB", 0, "%i Species Loaded from %s", CDBInit.NSpPrj, PrjDataFile());
+  if (NNotChecked)
+    {
+    if (NotCheckedList.Len()>110)
+      {
+      NotCheckedList = NotCheckedList.Left(110);
+      NotCheckedList += "...";
+      }
+    LogWarning("SpecieDB", 0/*|LF_Exclamation*/, "%i Species in database not 'checked'.  [ %s ]", NNotChecked, NotCheckedList());
+    }
+  if (m_SDB.m_iNo==0)
+    {
+    LogError("SpecieDB", LF_Exclamation, "No Species Loaded");
+    return false;
+    }
+
+  // Check temp range Overlap
+  flag ROk=true;
+  for (s=0; s<m_SDB.m_iNo; s++)
+    {
+    flag SOK=true;
+    CSpecie & Sp=m_SDB[s];
+    for (int Fidelity=0; Fidelity<2; Fidelity++)
+      {
+      CSpecieData & D=m_SDB[s].m_Data[Fidelity];
+      for (i=0; i<D.m_iLastTPoint; i++)
         {
-        int e=EC[i].iENo;
-        CompFrac CF;
-        CF.iSpNo=s;
-        CF.dMassFrac=EC[i].dMoles*m_EDB[e].AtmWt/C.m_dMoleWt;
-        m_EDB[e].SpComp->Add(CF);
+        if (D.m_dTe[i] > D.m_dTs[i+1]+0.1)
+          SOK=false;
         }
       }
+    if (!SOK)
+      {
+      LogError("SpecieDB", 0, "Temp Range Overlap %s", Sp.SymOrTag());
+      ROk=false;
+      }
+    }
+  if (!ROk)
+    return false;
 
-    if (nAssumedCps)
+  // Check Tag Uniqueness
+  for (s=0; s<m_SDB.m_iNo; s++)
+    {
+    CSpecie & Sp=m_SDB[s];
+    for (int s0=s+1; s0<m_SDB.m_iNo; s0++)
       {
-      if (AssumedCpsList.Len()>120)
+      if (m_SDB[s0].sTag.XStrCmp(m_SDB[s].sTag)==0)
         {
-        AssumedCpsList = AssumedCpsList.Left(120);
-        AssumedCpsList += "...";
-        }
-      LogWarning("SpecieDB", 0, "%i Species have assumed Cps   [ %s ]", nAssumedCps, AssumedCpsList());
-      }
-    if (nDiscarded)
-      LogWarning("SpecieDB", 0, "%i Species discarded   [ %s ]", nDiscarded, DiscardedList);
-    if (CDBInit.NSpPrj)
-      LogNote("SpecieDB", 0, "%i Species Loaded from %s", CDBInit.NSpPrj, PrjDataFile());
-    if (NNotChecked)
-      {
-      if (NotCheckedList.Len()>110)
-        {
-        NotCheckedList = NotCheckedList.Left(110);
-        NotCheckedList += "...";
-        }
-      LogWarning("SpecieDB", 0/*|LF_Exclamation*/, "%i Species in database not 'checked'.  [ %s ]", NNotChecked, NotCheckedList());
-      }
-    if (m_SDB.m_iNo==0)
-      {
-      LogError("SpecieDB", LF_Exclamation, "No Species Loaded");
-      return false;
-      }
-
-    // Check temp range Overlap
-    flag ROk=true;
-    for (s=0; s<m_SDB.m_iNo; s++)
-      {
-      flag SOK=true;
-      CSpecie & Sp=m_SDB[s];
-      for (int Fidelity=0; Fidelity<2; Fidelity++)
-        {
-        CSpecieData & D=m_SDB[s].m_Data[Fidelity];
-        for (i=0; i<D.m_iLastTPoint; i++)
-          {
-          if (D.m_dTe[i] > D.m_dTs[i+1]+0.1)
-            SOK=false;
-          }
-        }
-      if (!SOK)
-        {
-        LogError("SpecieDB", 0, "Temp Range Overlap %s", Sp.SymOrTag());
+        LogError("SpecieDB", 0, "Species %s & %s both have Tag = %s", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].sTag());
         ROk=false;
         }
-      }
-    if (!ROk)
-      return false;
-
-    // Check Tag Uniqueness
-    for (s=0; s<m_SDB.m_iNo; s++)
-      {
-      CSpecie & Sp=m_SDB[s];
-      for (int s0=s+1; s0<m_SDB.m_iNo; s0++)
-        if (m_SDB[s0].sTag.XStrCmp(m_SDB[s].sTag)==0)
+      if (m_SDB[s0].m_sPhaseSym.XStrCmp(m_SDB[s].m_sPhaseSym)==0)
+        {
+        if (m_SDB[s0].m_OccMsk != m_SDB[s].m_OccMsk)
           {
-          LogError("SpecieDB", 0, "Species %s & %s both have Tag = %s", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].sTag());
+          LogError("SpecieDB", 0, "Species %s & %s have the same PhaseName but different Occurences", m_SDB[s].sSym(), m_SDB[s0].sSym());
           ROk=false;
           }
-      }
-    if (!ROk)
-      return false;
-
-    for (s=0; s<m_SDB.m_iNo; s++)
-      {
-      CSpecie & Sp=m_SDB[s];
-      char *p=Sp.sTag.XStrChr(' ');
-      if (p)
-        {
-        //this message is annoying. Remove?
-        // I Agree - LogNote("SpecieDB", 0, "Removing ' ' from Specie Tag '%s' for use in project", Sp.sTag());
-        for ( ; p; p=Sp.sTag.XStrChr(' '))
-          *p='_';
         }
       }
-    return true;
+    }
+  if (!ROk)
+    return false;
+
+  for (s=0; s<m_SDB.m_iNo; s++)
+    {
+    CSpecie & Sp=m_SDB[s];
+    char *p=Sp.sTag.XStrChr(' ');
+    if (p)
+      {
+      //this message is annoying. Remove?
+      // I Agree - LogNote("SpecieDB", 0, "Removing ' ' from Specie Tag '%s' for use in project", Sp.sTag());
+      for ( ; p; p=Sp.sTag.XStrChr(' '))
+        *p='_';
+      }
+    }
+  return true;
   }
 
 //---------------------------------------------------------------------------
