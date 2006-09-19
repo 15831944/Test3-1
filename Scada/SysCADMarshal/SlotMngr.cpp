@@ -40,7 +40,8 @@ void CCfgBlock::SetDefault()
   {
   //dbgpln("DefaultConfig");
 
-  m_nPriority = THREAD_PRIORITY_ABOVE_NORMAL;
+  m_nPriorityThread = THREAD_PRIORITY_ABOVE_NORMAL;
+  m_nPriorityClass  = ABOVE_NORMAL_PRIORITY_CLASS;
   m_dFloatDeltaChange=1.0/4096.0; // one count in 4096
   m_dFloatDeltaDT=60000;
   m_dFloatDeltaMult=0.01;
@@ -72,15 +73,30 @@ void CCfgBlock::Read(LPCSTR DevCfgFile)
   m_dwConditioningCycle  = PF.RdLong("Thread", "ConditioningCycle", m_dwConditioningCycle);
 
   if (s.CompareNoCase("normal")==0)
-    m_nPriority = THREAD_PRIORITY_NORMAL;
+    {
+    m_nPriorityThread = THREAD_PRIORITY_NORMAL;
+    m_nPriorityClass  = NORMAL_PRIORITY_CLASS;
+    }
   else if (s.CompareNoCase("above_normal")==0)
-    m_nPriority = THREAD_PRIORITY_ABOVE_NORMAL;
+    {
+    m_nPriorityThread = THREAD_PRIORITY_ABOVE_NORMAL;
+    m_nPriorityClass  = ABOVE_NORMAL_PRIORITY_CLASS;
+    }
   else if (s.CompareNoCase("highest")==0)
-    m_nPriority = THREAD_PRIORITY_HIGHEST;
+    {
+    m_nPriorityThread = THREAD_PRIORITY_HIGHEST;
+    m_nPriorityClass  = HIGH_PRIORITY_CLASS;
+    }
   else if (s.CompareNoCase("time_critical")==0)
-    m_nPriority = THREAD_PRIORITY_TIME_CRITICAL;
+    {
+    m_nPriorityThread = THREAD_PRIORITY_TIME_CRITICAL;
+    m_nPriorityClass  = REALTIME_PRIORITY_CLASS;
+    }
   else if (s.CompareNoCase("below_normal")==0)
-    m_nPriority = THREAD_PRIORITY_BELOW_NORMAL;
+    {
+    m_nPriorityThread = THREAD_PRIORITY_BELOW_NORMAL;
+    m_nPriorityClass  = BELOW_NORMAL_PRIORITY_CLASS;
+    }
 
   m_dFloatDeltaChange = PF.RdDouble("FloatPointFilter", "Change", m_dFloatDeltaChange);
   m_dFloatDeltaDT     = PF.RdDouble("FloatPointFilter", "DeltaTime", m_dFloatDeltaDT/1000)*1000;
@@ -124,7 +140,7 @@ void CCfgBlock::Write(LPCSTR DevCfgFile)
   CProfINIFile PF(DevCfgFile);
   CString s;
 
-  switch (m_nPriority)
+  switch (m_nPriorityThread)
     {
     case THREAD_PRIORITY_NORMAL       : PF.WrStr("Thread", "Priority", "Normal");        break;
     case THREAD_PRIORITY_ABOVE_NORMAL : PF.WrStr("Thread", "Priority", "Above_Normal");  break;
@@ -168,7 +184,7 @@ void CCfgBlock::Dump()
   dbgpln("      Thread.DelayResolution      %10i", m_dwDelayResolution);
   dbgpln("      Thread.ReconnectHold        %10i", m_dwReConnHold);
   dbgpln("      Thread.ReconnectItemBlk     %10i", m_dwReConnItemBlk);
-  switch (m_nPriority)
+  switch (m_nPriorityThread)
     {
     case THREAD_PRIORITY_NORMAL       : dbgpln("      Thread.Priority             Normal");        break;
     case THREAD_PRIORITY_ABOVE_NORMAL : dbgpln("      Thread.Priority             Above_Normal");  break;
@@ -1620,7 +1636,7 @@ void CSlotMngr::StartThread(LPCSTR CfgFile)
   else
     {
     m_pExecThread = AfxBeginThread(CSlotMngr::staticMessageHandler, (LPVOID)&gs_SlotMngr,
-      m_Cfg.m_nPriority, 1000*1024L, CREATE_SUSPENDED);
+      m_Cfg.m_nPriorityThread, 1000*1024L, CREATE_SUSPENDED);
     if (m_pExecThread==NULL)
       {
       MessageBox(GetFocus(),"Error Creating COPCWork Thread!","",MB_OK);
@@ -1641,6 +1657,9 @@ void CSlotMngr::StartThread(LPCSTR CfgFile)
       m_Cfg.m_sCfgPath+=Dir;
       m_Cfg.Read(m_Cfg.m_sCfgFile);
       }
+
+    SetPriorityClass(GetCurrentProcess(), m_Cfg.m_nPriorityClass);                  // Set App PriorityClass
+    m_pExecThread->SetThreadPriority(m_Cfg.m_nPriorityThread);  // Set Mngr Thread Priority
 
     }
   //dbgpln("==== << StartThread");

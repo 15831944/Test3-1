@@ -39,7 +39,8 @@ class CCfgBlock
     CString     m_sCfgFile;
     CString     m_sCfgPath;
 
-    DWORD       m_nPriority;
+    DWORD       m_nPriorityThread;
+    DWORD       m_nPriorityClass;
     DWORD       m_dwDelayResolution;
     DWORD       m_dwChangeFlushCycle;
     DWORD       m_dwStatusUpdateCycle;
