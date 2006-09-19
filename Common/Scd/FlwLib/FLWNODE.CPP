@@ -2423,6 +2423,8 @@ void FlwNode::GlobalConnect()
   if (!GetActive())
     goto Done;
 
+  SetHasFullFlow(FullFlowMode());
+
   MakeAreaTag();
   if (m_pArea.Connect(this, -1, "Area"))
     {
@@ -2554,6 +2556,9 @@ void FlwNode::PostGlobalConnect()
         IOFB(i, j)->m_iDirnRel2Connect = Dirn;
         //dbgpln("  IO  %2i fb[%4i] = %+i %s", i, IOFB(i, j)->m_iNo, Dirn, Nd_Rmt(i)->FullObjTag());
         }
+
+      if (FullFlowMode() && Nd_Rmt(i))
+        Nd_Rmt(i)->SetHasFullFlow(true);
       }
 
     for (int i=0; i<NoLinks(); i++)
@@ -3162,13 +3167,16 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
 
 void FlwNode::BuildDataDefnElevation(DataDefnBlk & DDB)
   {
-  DDEF_Flags Vis=DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  DDB.Text    (" ");
-  DDB.Text    ("Datum");
-  DDB.Double  ("Elevation",       "",     DC_L,     "m",     xidElevation,    this, isResult|0   |SM_DynBoth);
-  DDB.Double  ("Datum",           "Z",    DC_L,     "m",     &m_Datum,        this, isResult|0   |SM_DynBoth);
-  DDB.Double  ("Datum_Rqd",       "Z_Rqd",DC_L,     "m",     &m_DatumRqd,     this, isParmStopped|SM_DynBoth|NAN_OK, DDBNAN_Floating);
-  DDB.SetVisibility(Vis);
+  if (HasFullFlow() || DDB.ForFileSnpScn())
+    {
+    DDEF_Flags Vis=DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    DDB.Text    (" ");
+    DDB.Text    ("Datum");
+    DDB.Double  ("Elevation",       "",     DC_L,     "m",     xidElevation,    this, isResult|0   |SM_DynBoth);
+    DDB.Double  ("Datum",           "Z",    DC_L,     "m",     &m_Datum,        this, isResult|0   |SM_DynBoth);
+    DDB.Double  ("Datum_Rqd",       "Z_Rqd",DC_L,     "m",     &m_DatumRqd,     this, isParmStopped|SM_DynBoth|NAN_OK, DDBNAN_Floating);
+    DDB.SetVisibility(Vis);
+    }
   };
 
 //--------------------------------------------------------------------------
@@ -3292,13 +3300,6 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
     case xidFlowModeSet:
       {
       DCB.pC = (m_FlowModeObj==this) ? "Self" : (m_FlowModeObj!=NULL) ? m_FlowModeObj->FullObjTag() : "";
-      return 1;
-      }
-    case xidUserMethod:
-      {
-      if (DCB.rL)
-        SetUserMethod(*DCB.rL);
-      DCB.L=UserMethod();
       return 1;
       }
     case xidActiveMode:

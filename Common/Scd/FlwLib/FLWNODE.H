@@ -4357,7 +4357,6 @@ XID xidFlowMode                   = FlwXID(5);
 //XID xidFlowModeRecover            = FlwXID(6);
 XID xidFlowModeRqd                = FlwXID(7);
 XID xidFlowModeSet                = FlwXID(8);
-XID xidUserMethod                 = FlwXID(9);
 XID xidActiveMode                 = FlwXID(10);
 XID xidHoldMode                   = FlwXID(11);
 XID xidSolveState                 = FlwXID(12);

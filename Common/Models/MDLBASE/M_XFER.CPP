@@ -283,7 +283,7 @@ void MN_Xfer::ConfigureJoins()
     {
     for (int i=0; i<NoProcessIOs(); i++)
       {
-      if (Nd_Rmt(i)->UserMethod()==LFM_Xfer)
+      if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
         SetIO_Open(i, 1, false, ESS_Denied);
       else
         SetIO_Open(i, 0, false, ESS_Denied);

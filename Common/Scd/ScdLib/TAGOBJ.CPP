@@ -1450,12 +1450,6 @@ TaggedObject::~TaggedObject()
 
 // -------------------------------------------------------------------------
 
-void TaggedObject::SetUserMethod(long UserMethod)
-  {
-  m_lRunMds = (m_lRunMds & ~UM_All) | (UserMethod & UM_All);
-  StructureChanged(this);
-  };
-
 void SetDefNetMode(long Mode)         
   { 
   TaggedObject::gs_DefNetMode  = (Mode & NM_All);  
@@ -1789,15 +1783,18 @@ long TaggedObject::FlowModePg()
   return DefFlowMode();
   };
 
-//LPTSTR TaggedObject::FlowModeStrRecover()             
-//  { 
-//  if (*m_pRunMds & LFM_Recovered)
-//    {
-//    if ((*m_pRunMds & LFM_All) == DefFlowMode())
-//      return GlblMode2LPTSTR(DefFlowMode(), LFM_All, eGM_Default);
-//    }
-//  return FlowModeStr();
-//  };
+void TaggedObject::SetHasFullFlow(flag On)
+  {
+  if (On)
+    *m_pRunMds |= LFM_HasFullFlow;
+  else
+    *m_pRunMds &= ~LFM_HasFullFlow;
+  }
+
+flag TaggedObject::HasFullFlow()
+  {
+  return (*m_pRunMds & LFM_HasFullFlow)!=0;
+  }
 
 void TaggedObject::Revert2Default()
   {

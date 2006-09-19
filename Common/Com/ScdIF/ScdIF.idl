@@ -808,19 +808,10 @@ typedef enum eScdMode
   eScdFlow_Simple           = 0x00002000,
   eScdFlow_Linear           = 0x00004000,
   eScdFlow_Full             = 0x00008000,
-  //eScdFlow_SrcSnk           = 0x00010000,           // temporary reinstated - to go CNM
   eScdFlow_Propagate        = 0x00040000,           
   eScdFlow_Propagated       = 0x00080000,           
-  //eScdFlow_Recovered        = 0x00080000,           
 
-  eScdUser_Method_1         = 0x00100000,
-  eScdUser_Method_2         = 0x00200000,
-  eScdUser_Method_3         = 0x00400000,
-  eScdUser_Method_4         = 0x00800000,
-  eScdUser_Method_5         = 0x01000000,
-  eScdUser_Method_6         = 0x02000000,
-  eScdUser_Method_7         = 0x04000000,
-  eScdUser_Method_8         = 0x08000000,
+  eScdFlow_HasFullFlow      = 0x01000000, // implies that this node or one of the adjacent nodes is in eScdFlow_Full
 
   } eScdMode;
 
