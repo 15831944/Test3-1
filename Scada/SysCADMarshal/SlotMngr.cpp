@@ -1658,7 +1658,8 @@ void CSlotMngr::StartThread(LPCSTR CfgFile)
       m_Cfg.Read(m_Cfg.m_sCfgFile);
       }
 
-    SetPriorityClass(GetCurrentProcess(), m_Cfg.m_nPriorityClass);                  // Set App PriorityClass
+    // This seems to slow everything down !!!
+    //SetPriorityClass(GetCurrentProcess(), m_Cfg.m_nPriorityClass);                  // Set App PriorityClass
     m_pExecThread->SetThreadPriority(m_Cfg.m_nPriorityThread);  // Set Mngr Thread Priority
 
     }
