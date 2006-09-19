@@ -377,8 +377,8 @@ void DumpOurHeapChanges()
 
 void DoAssert1(char * pMsg)
   {
-  char Buff[1024];
-  sprintf(Buff, "ASSERT:%s(%i)\n%s\n",__FILE__,__LINE__, pMsg);
+  char Buff[4096];
+  sprintf(Buff, "ASSERT:%s\n", pMsg);
   OutputDebugString(Buff);   // Win32 API
   AfxMessageBox(pMsg, MB_OK);
   }

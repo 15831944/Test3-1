@@ -96,6 +96,7 @@ const byte TOSL_Proc   = 0x01;
 const byte TOSL_Ctrl   = 0x02;
 const byte TOSL_All    = 0x03;
 
+class CSFGIOStack : public CArray<CSFGNodeInfo*, CSFGNodeInfo*> {};
 
 _FWDDEF(FlwSlvBlk)
 class FlwSlvBlk  
@@ -202,6 +203,9 @@ class FlwSlvBlk
     virtual ~FlwSlvBlk();
 
     Strng_List     TBReport;
+
+    CSFGIOStack         m_SFGInsStack;
+    CSFGIOStack         m_SFGOutsStack;
   };
 
 // ==========================================================================

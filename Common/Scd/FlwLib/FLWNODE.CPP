@@ -306,6 +306,15 @@ IOAreaRec TwoIOAreaListWithSL[] =
     LEAKS2AREA("LeaksO", IOId_2IOLeakO),
     {NULL}
   };
+IOAreaRec TwoIOAreaListWithSV[] =
+  {
+    TWOIOSTD,
+    SPILL2AREA("Spills", IOId_Spill2Area),
+    VENT2AREA("Vents",   IOId_Vent2Area),
+    //LEAKS2AREA("LeaksI", IOId_2IOLeakI),
+    //LEAKS2AREA("LeaksO", IOId_2IOLeakO),
+    {NULL}
+  };
 IOAreaRec TwoIOAreaListWithBS[] =
   {
     TWOIOSTD,

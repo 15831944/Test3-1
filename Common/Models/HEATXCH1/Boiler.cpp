@@ -18,6 +18,8 @@ static IOAreaRec BoilerIOAreaList[] =
   {{"",   "FeedLiquor", ioidFeedLiq,  LIO_In0 ,    nc_MLnk, 1, 10,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.1},
   {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
   {"",    "BlowDown",   ioidBlowDown, LIO_Out ,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
+  SPILL2AREA("Spills", IOId_Spill2Area),
+  VENT2AREA("Vents",   IOId_Vent2Area),
   {NULL}}; //This lists the areas of the model where links can be attached.
 
 

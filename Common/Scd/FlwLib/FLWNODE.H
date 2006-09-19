@@ -1729,6 +1729,7 @@ const int IOId_AreaBleedI     = BleedIOId(500);
 DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
 DllImportExport IOAreaRec TwoIOAreaListWithSL[];
+DllImportExport IOAreaRec TwoIOAreaListWithSV[];
 DllImportExport IOAreaRec TwoIOAreaListWithL[];
 DllImportExport IOAreaRec TwoIOAreaListWithBS[];
 DllImportExport IOAreaRec TwoIOAreaListWithMBS[];

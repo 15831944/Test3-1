@@ -34,6 +34,8 @@ static IOAreaRec CoolingTowerIOAreaList[] =
    {"Liquor",   "Liquor"  , ioid_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
    {"LiqLoss",  "LiqLoss" , ioid_Loss , LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
    {"Vapour",   "Vapour"  , ioid_Vap  , LIO_Out ,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+   SPILL2AREA("Spills", IOId_Spill2Area),
+   VENT2AREA("Vents",   IOId_Vent2Area),
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

@@ -39,7 +39,7 @@ XID xid_MechWork = MdlBsXID(4408);
 CTurbine::CTurbine(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
-  AttachIOAreas(TwoIOAreaList, &PipeEntryGroup);
+  AttachIOAreas(TwoIOAreaListWithSV, &PipeEntryGroup);
   Contents.SetClosed(False);
   bOnLine = 1;
   dEfficiency = 0.8;

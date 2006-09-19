@@ -1266,6 +1266,8 @@ m_CtrlTOList2(m_TOList[3])
   m_fProcTOSeqValid=0;
   m_fCtrlTOSeqValid=0;
   m_iProcTOSequence=0;
+  m_SFGInsStack.SetSize(0,256);
+  m_SFGOutsStack.SetSize(0,256);
   }
 
 //--------------------------------------------------------------------------
@@ -1937,9 +1939,7 @@ void FlwSlvBlk::DeleteMacroMdls()
 
 //--------------------------------------------------------------------------
 
-const int MaxEdgeNds=1024; // Expand to Handle the likes of GenCon
-
-void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGNodeInfo  ** pIns, CSFGNodeInfo  **pOuts, int & iIns, int & iOuts)
+void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGIOStack & pIns, CSFGIOStack & pOuts, int & iIns, int & iOuts)
   {
   for (int i = 0; i < p->NoProcessIOs(); i++)
     {
@@ -1954,11 +1954,11 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGNodeIn
     if (!DoingDynMode || !p->IO_EvalSeqStartOK(i))
       {
       if (p->IOEvalSeq_In(i))
-        pIns[iIns++]=pF;
+        pIns.SetAtGrow(iIns++, pF);
       else if (p->IOEvalSeq_Out(i))
-        pOuts[iOuts++]=pF;
-      ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds");
-      ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
+        pOuts.SetAtGrow(iOuts++, pF);
+      //ASSERT_ALWAYS(iIns>=MaxEdgeNds, "Insufficient MaxEdgeNds");
+      //ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
       }
     else if (p->IsLnk() && i<p->NoProcLnkIOs())
       {
@@ -2002,14 +2002,14 @@ Continue:
 
 //--------------------------------------------------------------------------
 
-void SetUpFlwNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigFlwGrf)
+void SetUpFlwNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigFlwGrf, CSFGIOStack & pIns, CSFGIOStack & pOuts)
   {
   // Connect all Inputs to all Outputs via Edges
   long JoinMask, jj=0;
   while (pNd->EvalProductClusters(jj++, JoinMask))
     {
-    CSFGNodeInfo * pIns[MaxEdgeNds];
-    CSFGNodeInfo * pOuts[MaxEdgeNds];
+    //CSFGNodeInfo * pIns[MaxEdgeNds];
+    //CSFGNodeInfo * pOuts[MaxEdgeNds];
     int iIns=0, iOuts=0;
     // Collect Parent & Children if Internal
     if (pNd->Internal)
@@ -2028,8 +2028,8 @@ void SetUpFlwNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigFl
       SetUpFlwNodeEdges(pNd, JoinMask, DoingDynMode, pIns, pOuts, iIns, iOuts);
       }
 
-    if (iIns>=MaxEdgeNds || iOuts>=MaxEdgeNds)
-      LogError(pNd->FullObjTag(), 0, "Bad number of Tearnodes");
+    //if (iIns>=MaxEdgeNds || iOuts>=MaxEdgeNds)
+    //  LogError(pNd->FullObjTag(), 0, "Bad number of Tearnodes");
     for (int i = 0; i < iIns; i++)
       for (int j = 0; j < iOuts; j++)
         //if (pIns[i]->RqdTearType()!=TT_ManualTear && pOuts[j]->RqdTearType()!=TT_ManualTear)
@@ -2039,7 +2039,7 @@ void SetUpFlwNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigFl
 
 //--------------------------------------------------------------------------
 
-void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGNodeInfo  ** pIns, CSFGNodeInfo  **pOuts, int & iIns, int & iOuts)
+void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGIOStack & pIns, CSFGIOStack & pOuts, int & iIns, int & iOuts)
   {
   for (int i = p->Ctrl1(); i < p->CtrlN(); i++)
     {
@@ -2050,11 +2050,11 @@ void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGNodeInfo  ** pIns, C
       if (/*DoingDynMode ||*/!p->Ctrl_EvalSeqStartOK(i))
         {
         if (p->Ctrl_In(i))
-          pIns[iIns++]=pT;
+          pIns.SetAtGrow(iIns++, pT);
         else if (p->Ctrl_Out(i))
-          pOuts[iOuts++]=pT;
-        ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds");
-        ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
+          pOuts.SetAtGrow(iOuts++, pT);
+        //ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds");
+        //ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
         }
       else if (p->IsCLnk())
         {
@@ -2113,9 +2113,9 @@ void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGNodeInfo  ** pIns, C
       else if (!p->CXRef_EvalSeqStartOK(i))
         {
         if (pRef->DstNd()==p) // If GetSet then handle as a Set
-          pIns[iIns++]=pRef;
+          pIns.SetAtGrow(iIns++,pRef);
         else
-          pOuts[iOuts++]=pRef;
+          pOuts.SetAtGrow(iOuts++, pRef);
         }
       else
         {
@@ -2127,12 +2127,12 @@ void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGNodeInfo  ** pIns, C
 
 //--------------------------------------------------------------------------
 
-void SetUpCtrlNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigFlwGrf)
+void SetUpCtrlNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigFlwGrf, CSFGIOStack & pIns, CSFGIOStack & pOuts)
   {
   // Connect all Inputs to all Outputs via Edges
 
-  CSFGNodeInfo * pIns[MaxEdgeNds];
-  CSFGNodeInfo * pOuts[MaxEdgeNds];
+  //CSFGNodeInfo * pIns[MaxEdgeNds];
+  //CSFGNodeInfo * pOuts[MaxEdgeNds];
   int iIns=0, iOuts=0;
   // Collect Parent & Children if Internal
   if (pNd->Internal)
@@ -2151,8 +2151,8 @@ void SetUpCtrlNodeEdges(FlwNode * pNd, flag DoingDynMode, CSignalFlowGraph &SigF
     SetUpCtrlNodeEdges(pNd, DoingDynMode, pIns, pOuts, iIns, iOuts);
     }
 
-  if (iIns>=MaxEdgeNds || iOuts>=MaxEdgeNds)
-    LogError(pNd->FullObjTag(), 0, "Bad number of Tearnodes");
+  //if (iIns>=MaxEdgeNds || iOuts>=MaxEdgeNds)
+  //  LogError(pNd->FullObjTag(), 0, "Bad number of Tearnodes");
   for (int i = 0; i < iIns; i++)
     for (int j = 0; j < iOuts; j++)
       {
@@ -2184,7 +2184,7 @@ flag FlwSlvBlk::BuildSignalFlowGraph(flag DoingDynMode, byte Which)
 
     CFlwNodeIter Flw(m_ProcessNds);
     for (p = Flw.First(); (p); p=Flw.Next())
-      SetUpFlwNodeEdges(p, DoingDynMode, m_ProcSigFlwGrf);
+      SetUpFlwNodeEdges(p, DoingDynMode, m_ProcSigFlwGrf, m_SFGInsStack, m_SFGOutsStack);
     }
   if (Which & TOSL_Ctrl)
     {
@@ -2213,7 +2213,7 @@ flag FlwSlvBlk::BuildSignalFlowGraph(flag DoingDynMode, byte Which)
 
     CFlwNodeIter Ctrl(m_PwrCtrlNds);
     for (p = Ctrl.First(); (p); p=Ctrl.Next())
-      SetUpCtrlNodeEdges(p, DoingDynMode, m_CtrlSigFlwGrf);
+      SetUpCtrlNodeEdges(p, DoingDynMode, m_CtrlSigFlwGrf, m_SFGInsStack, m_SFGOutsStack);
     }
 
   return OK;

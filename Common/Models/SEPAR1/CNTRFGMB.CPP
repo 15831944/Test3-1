@@ -75,6 +75,8 @@ static IOAreaRec CentrifugeMBIOAreaList[] =
    {"First Washings",    "Wash1"      , ioidFW,   LIO_Out ,    nc_MLnk, 0, 1,  0, 1.0f},
    {"2nd Wash Water",    "WashWater2" , ioidwsh2, LIO_In2,     nc_MLnk, 0, 1,  0, 1.0f},
    {"Second Washings",   "Wash2"      , ioidSW,   LIO_Out ,    nc_MLnk, 0, 1,  0, 1.0f},
+   SPILL2AREA("Spills", IOId_Spill2Area),
+   VENT2AREA("Vents",   IOId_Vent2Area),
    {NULL}};
 
 static double Drw_CentrifugeMB[] = { DD_Poly, -10,-5, 0,-5, 10,-2, 10,2, 0,5, -10,5, -10,-5,
