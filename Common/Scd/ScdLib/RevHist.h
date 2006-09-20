@@ -18,10 +18,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 2"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "15 September 2006"
+#define SCD_PATCHDATE    "20 September 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2567,6 +2567,10 @@ Update 1 : 15 September 2006
 4) (#555) Fix for crash during load due to bad connections.
 5) (#557,559) Thickener and washer improvements for dynamic transfer mode.
 
+Update 2 : 20 September 2006
+------------------------------
+1) (#551,556) Improvements for archive reporter.
+2) (#528,565) Improved tag checking of specie tags and phase names.
 
 =============================================================================
 ================                SysCAD 9.2                   ================
