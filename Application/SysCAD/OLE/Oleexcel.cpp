@@ -36,7 +36,7 @@ static long s_doExpressionEval=0;
 const char* OleReportListKey          = "SysCAD_TagList(";
 const char* OleReportListOffsetKey    = "SysCAD_TagListOffset(";
 const char* OleReportKey              = "SysCAD_Tags(";
-const char* OleReportSQLKey          = "SysCAD_SQLTags(";
+const char* OleReportAutoKey          = "SysCAD_AutoTags(";
 const char* OleReportCommonKey        = "SysCAD_Tag";
 const char* OleReportOtherKey         = "SysCAD_Reports";
 const char* OleReportTrendKey         = "TrendReport";
@@ -2430,7 +2430,7 @@ int COleReportMngr::DoAutomation()
         }
       }
   
-    const char* OleKeys[4] = { OleReportKey, OleReportSQLKey, OleReportListKey, OleReportListOffsetKey};
+    const char* OleKeys[4] = { OleReportKey, OleReportAutoKey, OleReportListKey, OleReportListOffsetKey};
     Strng Examples[4];
     Examples[0].Set("%s\"R1\",H,5,32)", OleKeys[0]);
     Examples[1].Set("%s\"R1\",V,8)", OleKeys[1]);
@@ -2447,7 +2447,7 @@ int COleReportMngr::DoAutomation()
       R1.AttachDispatch(lpDispatch, TRUE);
       LPDISPATCH lpDis = R1.Find((char*)OleReportCommonKey);
       if (!lpDis)
-        lpDis = R1.Find((char*)OleReportSQLKey);
+        lpDis = R1.Find((char*)OleReportAutoKey);
       short FirstRow = 0;
       short FirstCol = 0;
       while (lpDis)
@@ -2475,7 +2475,7 @@ int COleReportMngr::DoAutomation()
         int DoingAuto = 0;
         if (FnLen>(int)strlen(OleReportKey) && _strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
           SearchTypes = 0;
-        else if (FnLen>(int)strlen(OleReportSQLKey) && _strnicmp(Fn(), OleReportSQLKey, strlen(OleReportSQLKey))==0)
+        else if (FnLen>(int)strlen(OleReportAutoKey) && _strnicmp(Fn(), OleReportAutoKey, strlen(OleReportAutoKey))==0)
           {
           SearchTypes = 0;
           DoingAuto   = 1;
