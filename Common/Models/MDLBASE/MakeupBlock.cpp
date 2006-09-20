@@ -767,6 +767,9 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("Meas.SetPoint",    "", CnvUsed, CnvTxt(),  &m_dSetPoint,   this, isResult|noFileAtAll|NAN_OK);
   DDB.Double ("Meas.Prod",        "", CnvUsed, CnvTxt(),  &m_dResult,     this, isResult|noFileAtAll|NAN_OK);
   DDB.Text(" ");
+  //todo DDB.Double ("Meas.XX.Feed",        "", CnvUsed, CnvTxt(),  &m_dMeas___,     this, isResult|noFileAtAll|NAN_OK);
+  //todo DDB.Double ("Meas.XX.Prod",        "", CnvUsed, CnvTxt(),  &m_dProd___,     this, isResult|noFileAtAll|NAN_OK);
+  DDB.Text("Total mass flow:");
   DDB.Double ("Qm.Feed",            "", DC_Qm,   "kg/s",    &m_dQmFeed,     this, isResult);
   DDB.Double ("Qm.Makeup",          "", DC_Qm,   "kg/s",    &m_dQmMakeup,   this, isResult);
   DDB.Double ("Qm.Prod",            "", DC_Qm,   "kg/s",    &m_dQmProd,     this, isResult);

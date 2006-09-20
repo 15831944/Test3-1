@@ -262,7 +262,7 @@ static double Drw_MakeupSrc[] =
 //--------------------------------------------------------------------------
 
 IMPLEMENT_MODELUNIT(MakeupSrc, "MakeupSrc", "1", Drw_MakeupSrc, "MakeupSrc", "MakeupSrc", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
-                    "Process:Unit:Makeup Src", 
+                    "Process:Unit:Makeup Source", 
                     "Simple Source Material for Makeups") 
 
 MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
@@ -326,7 +326,7 @@ static double Drw_BleedSnk[] =
 //--------------------------------------------------------------------------
 
 IMPLEMENT_MODELUNIT(BleedSnk, "BleedSnk", "1", Drw_BleedSnk, "BleedSnk", "BleedSnk", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
-                    "Process:Unit:Bleed Snk", 
+                    "Process:Unit:Bleed Sink", 
                     "Simple Sink for Bleeds") 
 
 BleedSnk::BleedSnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
