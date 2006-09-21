@@ -3533,4 +3533,18 @@ void MN_Lnk::UpdateSamples()
     }
   };
 
+//--------------------------------------------------------------------------
+
+int MN_Lnk::ChangeTag(char * pOldTag, char * pNewTag)
+  {
+  m_BlkEval.ChangeTag(pOldTag, pNewTag);
+  return MdlNode::ChangeTag(pOldTag, pNewTag);
+  };
+
+int MN_Lnk::DeleteTag(char * pDelTag)
+  {
+  m_BlkEval.DeleteTag(pDelTag);
+  return MdlNode::DeleteTag(pDelTag);
+  };
+
 //==========================================================================

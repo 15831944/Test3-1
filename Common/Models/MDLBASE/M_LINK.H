@@ -418,6 +418,9 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual flag   GetOtherData(FilingControlBlock &FCB) { return m_RB.GetOtherData(FCB); };
     virtual flag   PutOtherData(FilingControlBlock &FCB) { return m_RB.PutOtherData(FCB); };
 
+    virtual int    ChangeTag(char * pOldTag, char * pNewTag);
+    virtual int    DeleteTag(char * pDelTag);
+
 
   protected:
     CFlwThermalBlk m_FTB;

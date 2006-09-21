@@ -195,6 +195,22 @@ flag CBleedBase::DataXchg(DataChangeBlk & DCB)
   return 0;
   }
 
+//--------------------------------------------------------------------------
+
+int CBleedBase::ChangeTag(char * pOldTag, char * pNewTag)
+  {
+  if (stricmp(m_SnkIO.Target(), pOldTag)==0)
+    m_SnkIO.SetTarget(pNewTag);
+  return EOCT_DONE;
+  };
+
+//--------------------------------------------------------------------------
+
+int CBleedBase::DeleteTag(char * pDelTag)
+  {
+  return EOCT_DONE;
+  };
+
 //============================================================================
 //
 //

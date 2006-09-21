@@ -95,6 +95,9 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     void           EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pMakeupB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst); };
 
+    virtual int       ChangeTag(char * pOldTag, char * pNewTag);
+    virtual int       DeleteTag(char * pDelTag);
+
   protected:
     flag              m_fFixed;
     flag              m_fEnabled;

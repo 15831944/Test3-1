@@ -207,6 +207,22 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
   return 0;
   }
 
+//--------------------------------------------------------------------------
+
+int CMakeupBase::ChangeTag(char * pOldTag, char * pNewTag)
+  {
+  if (stricmp(m_SrcIO.Target(), pOldTag)==0)
+    m_SrcIO.SetTarget(pNewTag);
+  return EOCT_DONE;
+  };
+
+//--------------------------------------------------------------------------
+
+int CMakeupBase::DeleteTag(char * pDelTag)
+  {
+  return EOCT_DONE;
+  };
+
 //============================================================================
 //
 //

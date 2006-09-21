@@ -1,6 +1,7 @@
 #pragma once
 
 #include "datatype.h"
+#include "executiv.h"
 
 #ifdef __BLOCKEVALBASE_CPP
   #define DllImportExport DllExport
@@ -50,6 +51,10 @@ class DllImportExport CBlockEvalBase
 
     virtual LPTSTR    Name();
     virtual flag      Enabled() { ASSERT(FALSE); return false; };
+
+    virtual int       ChangeTag(char * pOldTag, char * pNewTag) { return EOCT_DONE; };
+    virtual int       DeleteTag(char * pDelTag)                 { return EOCT_DONE; };
+
 
   protected:
     byte              m_iBlkSeqNo;

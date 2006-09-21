@@ -556,6 +556,24 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
     dbgpln("                                  << Qm:%10.3f", Fo.QMass());
   };
 
+//-------------------------------------------------------------------------
+
+int CBlockEvaluator::ChangeTag(char * pOldTag, char * pNewTag)
+  { 
+  for (int i=0; i<m_nBlocks; i++)
+    m_Blks[i]->ChangeTag(pOldTag, pNewTag);
+  return EOCT_DONE; 
+  };
+
+//-------------------------------------------------------------------------
+
+int CBlockEvaluator::DeleteTag(char * pDelTag)
+  {
+  for (int i=0; i<m_nBlocks; i++)
+    m_Blks[i]->DeleteTag(pDelTag);
+  return EODT_DONE;
+  };
+
 //=========================================================================
 //
 //

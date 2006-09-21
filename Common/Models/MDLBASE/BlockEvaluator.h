@@ -49,6 +49,9 @@ class DllImportExport CBlockEvaluator
     void              EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
     void              EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
 
+    int               ChangeTag(char * pOldTag, char * pNewTag);
+    int               DeleteTag(char * pDelTag);
+
   protected:
     FlwNode         * m_pThis;
     int               m_nBlocks;

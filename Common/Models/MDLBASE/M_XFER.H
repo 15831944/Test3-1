@@ -73,6 +73,9 @@ class DllImportExport MN_Xfer : public MdlNode
     virtual flag   GetOtherData(FilingControlBlock &FCB) { return m_RB.GetOtherData(FCB); };
     virtual flag   PutOtherData(FilingControlBlock &FCB) { return m_RB.PutOtherData(FCB); };
 
+    virtual int    ChangeTag(char * pOldTag, char * pNewTag);
+    virtual int    DeleteTag(char * pDelTag);
+
     virtual dword  ModelStatus();
 
     DEFINE_CI(MN_Xfer, MdlNode, 4);

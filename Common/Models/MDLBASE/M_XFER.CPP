@@ -797,6 +797,20 @@ dword MN_Xfer::ModelStatus()
 
 //--------------------------------------------------------------------------
 
+int MN_Xfer::ChangeTag(char * pOldTag, char * pNewTag)
+  {
+  m_BlkEval.ChangeTag(pOldTag, pNewTag);
+  return MdlNode::ChangeTag(pOldTag, pNewTag);
+  };
+
+int MN_Xfer::DeleteTag(char * pDelTag)
+  {
+  m_BlkEval.DeleteTag(pDelTag);
+  return MdlNode::DeleteTag(pDelTag);
+  };
+
+//--------------------------------------------------------------------------
+
 flag MN_Xfer::CIStrng(int No, pchar & pS)
   {
   // NB check CBCount is large enough.
