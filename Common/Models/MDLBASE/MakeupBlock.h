@@ -3,8 +3,6 @@
 #include "flwnode.h"
 #include "blockevalbase.h"
 
-#if WITHBLOCKEVALUATOR
-
 #ifdef __MAKEUPBLOCK_CPP
 #define DllImportExport DllExport
 #elif !defined(MdlBase)
@@ -126,4 +124,3 @@ CDirectFlwIO & CMakeupBlock::getSrcIO() { return m_pMakeupBase->m_SrcIO; };
 
 #undef DllImportExport
 
-#endif

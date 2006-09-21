@@ -5,8 +5,6 @@
 #define __BLOCKEVALUATOR_CPP
 #include "BlockEvaluator.h"
 
-#if WITHBLOCKEVALUATOR
-
 #define dbgBlkEvalProd 0
 
 #define DISABLESIMULTANEOUS   01
@@ -563,5 +561,3 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
 //
 //
 //=========================================================================
-
-#endif

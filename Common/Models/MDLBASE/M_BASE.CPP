@@ -407,20 +407,14 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
 
 //--------------------------------------------------------------------------
 
-#if (WITHBLOCKEVALUATOR)
 void MdlNode::Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator * pBlkEval)
-#else
-void MdlNode::Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX)
-#endif
   {
   SpConduit & Qo=pQo ? *pQo : *pQi;
-#if (WITHBLOCKEVALUATOR)
   if (pBlkEval)
     {
     pBlkEval->EvalProducts(Qo, Qo.Press(), NULL);//&m_FTB);
     }
   else
-#endif
     {
     if (pRB)
       pRB->EvalProducts(Qo);
@@ -475,20 +469,12 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
 
 //--------------------------------------------------------------------------
 
-#if (WITHBLOCKEVALUATOR)
 void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CPBPressCtrl *pPC/*=NULL*/, CBlockEvaluator * pBlkEval)
-#else
-void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CPBPressCtrl *pPC/*=NULL*/)
-#endif
   {
   Press=Max(Press, LowPressure);
   SpConduit *Sd = (pQo!=NULL) ? pQo : GetWrkConduit("Xfer0", chLINEID());
   Xfer_EvalProductsIn_(JoinId, Press, pQi, Sd, pPC);
-#if (WITHBLOCKEVALUATOR)
   Xfer_EvalProductsWork_(pQi, Sd, pRB, pEHX, pBlkEval);
-#else
-  Xfer_EvalProductsWork_(pQi, Sd, pRB, pEHX);
-#endif
   Xfer_EvalProductsOut_(JoinId, pQi, Sd, pGSM, pPC);
   }
 

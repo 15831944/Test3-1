@@ -864,11 +864,7 @@ void CEnvironHXBase::Close()
 
 void CEnvironHXBase::Add_OnOff(DataDefnBlk& DDB, dword Flags)
   {
-#if WITHBLOCKEVALUATOR
   DDB.Byte("",     "EnvironHX",  DC_,    "",     xidEnvHXEnable,  pNd, Flags, GetOnOffValLst());
-#else
-  DDB.CheckBoxBtn("",     "EnvironHX",  DC_,    "",     xidEnvHXEnable,  pNd, Flags, DDBOnOff);
-#endif
   }
 
 //--------------------------------------------------------------------------
@@ -2058,11 +2054,7 @@ void CHXBase::Close()
 
 void CHXBase::Add_OnOff(DataDefnBlk& DDB, dword Flags)
   {
-#if WITHBLOCKEVALUATOR
   DDB.Byte("",     "HeatXChg",  DC_,    "",     xidHXEnable,  pNd, Flags, GetOnOffValLst());
-#else
-  DDB.CheckBoxBtn("",     "HeatXChg",  DC_,    "",     xidHXEnable,  pNd, Flags, DDBOnOff);
-#endif
   }
 
 //--------------------------------------------------------------------------

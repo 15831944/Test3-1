@@ -4,8 +4,6 @@
 #include "MakeupBlock.h"
 //#include "optoff.h"
 
-#if WITHBLOCKEVALUATOR
-
 //=========================================================================
 //
 //
@@ -1364,5 +1362,3 @@ flag CXBlk_Makeup::CIStrng(int No, pchar & pS)
 //
 //
 //=========================================================================
-
-#endif

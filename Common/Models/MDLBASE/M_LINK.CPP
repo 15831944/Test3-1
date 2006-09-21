@@ -652,9 +652,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 #if WITHLINKBLEED 
   , m_Bleed(eDIO_Bleed, this, false, true, "Bleed")
 #endif
-#if (WITHBLOCKEVALUATOR)
   , m_BlkEval(this, &m_RB, NULL, &EHX, &m_VLE, &m_Evap)
-#endif
   {
   AttachClassInfo(nc_MLnk,NULL);
   m_RiseRqd=dNAN;
@@ -856,10 +854,8 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_FTB.DataXchg(DCB))
     return 1;
-#if (WITHBLOCKEVALUATOR)    
   if (m_BlkEval.DataXchg(DCB))
     return 1;
-#endif
   if (m_RB.DataXchg(DCB))
     return 1;
   if (m_VLE.DataXchg(DCB))
@@ -1787,10 +1783,8 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
       Fo.QCopy(Fi);
     }
 
-#if (WITHBLOCKEVALUATOR)    
   if (!m_BlkEval.ValidateData(VDB))
     OK=false;
-#endif
 
   return OK;
   }
@@ -1915,11 +1909,9 @@ CFlange * MN_Lnk::GetFlange(int IOId)
     case IOId_Spill2Area: return &m_Spill.Flange;
     default:
       {
-#if (WITHBLOCKEVALUATOR)
       CFlange * pFlng=m_BlkEval.GetFlange(IOId);
       if (pFlng)
         return pFlng;
-#endif
       }
     }
   return NULL;
@@ -3084,43 +3076,8 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       //dbgpln("B  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
       //dbgpln("EvalProducts N  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
-#if WITHBLOCKEVALUATOR
       double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
       m_BlkEval.EvalProductsPipe(Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
-#else
-      if (m_iBlockSeq==BS_EHX_RB_VLE && EHX.Enabled())
-        {
-        m_FTB.AddEHXBegin();
-        double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
-        EHX.EvalProductsPipe(Fo, ActLen, m_FEP.Diam());
-        m_FTB.AddEHXEnd();
-        }
-      //dbgpln("EvalProducts O  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-
-      if (m_RB.Enabled())
-        {
-        m_FTB.AddRBBegin();
-        m_RB.EvalProducts(Fo);
-        m_FTB.AddRBEnd();
-        }
-      //dbgpln("EvalProducts P  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-
-      if (m_iBlockSeq==BS_RB_EHX_VLE && EHX.Enabled())
-        {
-        m_FTB.AddEHXBegin();
-        double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
-        EHX.EvalProductsPipe(Fo, ActLen, m_FEP.Diam());
-        m_FTB.AddEHXEnd();
-        }
-      //dbgpln("EvalProducts Q  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-
-      if (m_VLE.Enabled())
-        {
-        m_FTB.AddVLEBegin();
-        m_VLE.QPFlash(Fo, IOP_Flng(iOut), 0.0, VLEF_Null);
-        m_FTB.AddVLEEnd();
-        }
-#endif
       //dbgpln("EvalProducts R  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
       //dbgpln("C  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());

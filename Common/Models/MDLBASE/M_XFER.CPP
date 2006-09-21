@@ -24,9 +24,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_FTM(this),
   m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakI),
   m_Evap(this)
-#if (WITHBLOCKEVALUATOR)
   , m_BlkEval(this, &m_RB, NULL, &EHX, NULL/*&m_VLE*/, &m_Evap)
-#endif
   {
   AttachClassInfo(nc_MXfer,NULL);
   Joins.SetSize(1);
@@ -49,10 +47,8 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
   {
   if (DCB.dwUserInfo==100 && m_Leak.DataXchg(DCB))
     return 1;
-#if (WITHBLOCKEVALUATOR)    
   if (m_BlkEval.DataXchg(DCB))
     return 1;
-#endif
   if (m_RB.DataXchg(DCB))
     return 1;
 
@@ -113,10 +109,8 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
   if (!MdlNode::ValidateData(VDB))
     OK=false;
 
-#if (WITHBLOCKEVALUATOR)    
   if (!m_BlkEval.ValidateData(VDB))
     OK=false;
-#endif
 
   return OK;
   };
@@ -146,11 +140,9 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
 
 CFlange * MN_Xfer::GetFlange(int IOId)
   {
-#if (WITHBLOCKEVALUATOR)
   CFlange * pFlng=m_BlkEval.GetFlange(IOId);
   if (pFlng)
     return pFlng;
-#endif
 
   return NULL;
   };
@@ -435,27 +427,13 @@ void MN_Xfer::EvalProducts(CNodeEvalIndex & NEI)
       {
       case SM_Direct:
         if (NoProcessJoins()>0)
-#if (WITHBLOCKEVALUATOR)
           Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0, &m_BlkEval);
-#else
-          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0);
-#endif
         break;
       case SM_Inline:
       case SM_Buffered:
         {
         if (NoProcessJoins()>=1)
-#if (WITHBLOCKEVALUATOR)
           Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
-#else
-          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
-#endif
-//        for (int j=0; j<NoProcessJoins(); j++)
-//#if (WITHBLOCKEVALUATOR)
-//          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
-//#else
-//          Xfer_EvalProducts(j, Joins[j].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX());
-//#endif
         }
         break;
       }                

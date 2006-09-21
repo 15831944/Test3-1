@@ -496,9 +496,7 @@ class DllImportExport MN_Lnk : public MdlNode
     CReactionBase  m_RB;
     CVLEBase       m_VLE;
     CEvapBase      m_Evap;
-#if (WITHBLOCKEVALUATOR)    
     CBlockEvaluator m_BlkEval;
-#endif
 
     // Plugflow Data
     CArray <CFlowSamplePt, CFlowSamplePt&> m_SamplePt;

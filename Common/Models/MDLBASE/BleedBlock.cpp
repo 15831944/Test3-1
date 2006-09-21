@@ -3,8 +3,6 @@
 #define __XBLOCKBLOCK_CPP
 #include "BleedBlock.h"
 
-#if WITHBLOCKEVALUATOR
-
 //=========================================================================
 //
 //
@@ -418,5 +416,3 @@ void CXBlk_Bleed::EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, do
 //
 //
 //=========================================================================
-
-#endif

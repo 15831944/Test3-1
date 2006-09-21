@@ -99,12 +99,8 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     }
   if (!m_NetworkIsolator)
     {
-#if (WITHBLOCKEVALUATOR)
     m_BlkEval.Add_OnOff(DDB);  
     if (PrjFileVerNo()<97 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
-#else
-    if (1)
-#endif
       {                      
       DDB.Text("");
       m_RB.Add_OnOff(DDB);
@@ -134,12 +130,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
   else //if (1)//NetProbalMethod())
     {
     DDB.Text("");
-#if (WITHBLOCKEVALUATOR)
     m_BlkEval.BuildDataDefn(DDB);
-#else
-    m_RB.BuildDataDefn(DDB);
-    EHX.BuildDataDefn(DDB);
-#endif
     GSM.BuildDataDefn(DDB);
     m_QFeed(); // ensure exists
     if (m_QFeed.Exists())
@@ -168,10 +159,8 @@ flag X_Tie::DataXchg(DataChangeBlk & DCB)
 //    if (DCB.dwUserInfo==i+1 && IOFB(i,0)->DataXchg(DCB))
 //      return 1;
 
-#if (WITHBLOCKEVALUATOR)
   if (m_BlkEval.DataXchg(DCB))
     return 1;
-#endif
 
   if (MN_Xfer::DataXchg(DCB))
     return 1;

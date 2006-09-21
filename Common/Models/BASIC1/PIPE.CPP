@@ -439,25 +439,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Visibility();
-#if (WITHBLOCKEVALUATOR)
   m_BlkEval.Add_OnOff(DDB);  
-//  if (PrjFileVerNo()<97 && (DDB.DoingPutData() && DDB.ForFileSnpScn() || 0))
-#else
-  if (1)
-    {                      
-    //m_BlkEval.BuildDataDefn(this, DDB);
-    static DDBValueLst DDBBS[]={
-      {BS_RB_EHX_VLE, "RB EHX VLE" },
-      {BS_EHX_RB_VLE, "EHX RB VLE" },
-      {0}};
-    DDB.Text("Product Options");
-    DDB.Byte("BlockActionSeq",         "",   DC_,  "",  &m_iBlockSeq,       this, isParmStopped, DDBBS);
-    m_RB.Add_OnOff(DDB, m_PFI.Method!=VFFX_Plugflow?isParmStopped:0);
-    EHX.Add_OnOff(DDB);
-    m_VLE.Add_OnOff(DDB, m_PFI.Method!=VFFX_Plugflow?isParmStopped:0);
-    }
-#endif
-  
   
   if (!NetProbalMethod())
     {
@@ -809,13 +791,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Visibility();
-#if (WITHBLOCKEVALUATOR)
   m_BlkEval.BuildDataDefn(DDB);
-#else
-  m_RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
-  m_VLE.BuildDataDefn(DDB);
-#endif
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All, (NetDynamicMethod() && IsSrcSnk) || DDB.ForFileSnpScn());
   if (IsPipe)
@@ -969,10 +945,8 @@ flag Pipe::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (MN_Lnk::DataXchg(DCB))
     return 1;
-#if (WITHBLOCKEVALUATOR)
   if (m_BlkEval.DataXchg(DCB))
     return 1;
-#endif
   if (m_RB.DataXchg(DCB))
     return 1;
 

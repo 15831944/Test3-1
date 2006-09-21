@@ -87,10 +87,7 @@ class DllImportExport MN_Xfer : public MdlNode
 
     CReactionBase  m_RB;
     CEvapBase      m_Evap;
-#if (WITHBLOCKEVALUATOR)    
     CBlockEvaluator m_BlkEval;
-#endif
-
 
     bool           m_NetworkIsolator;
     //SpModel      * m_pAccumulator;

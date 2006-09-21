@@ -295,11 +295,7 @@ void CEvapBase::Close()
 
 void CEvapBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
-#if WITHBLOCKEVALUATOR
   DDB.Byte("",     "Evaporator",  DC_,    "",     xidEvapEnable,  m_pNd, Flags, GetOnOffValLst());
-#else
-  DDB.CheckBoxBtn("",     "Evaporator",  DC_,    "",     xidEvapEnable,  m_pNd, Flags, DDBOnOff);
-#endif
   }
 
 //--------------------------------------------------------------------------

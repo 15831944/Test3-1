@@ -166,11 +166,7 @@ void CVLEBase::Close()
 
 void CVLEBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
-#if WITHBLOCKEVALUATOR
   DDB.Byte("VLEquilibrium",      "",       DC_    , "",      xidVLEEnable, pNd,  (fFixed ? 0 : Flags), GetOnOffValLst());
-#else
-  DDB.CheckBoxBtn("VLEquilibrium",      "",       DC_    , "",      xidVLEEnable, pNd,  (fFixed ? 0 : Flags), DDBOnOff);
-#endif
   }
 
 //--------------------------------------------------------------------------

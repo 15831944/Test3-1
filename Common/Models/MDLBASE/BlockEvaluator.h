@@ -15,11 +15,6 @@
   #define DllImportExport
 #endif
 
-//#undef    WITHBLOCKEVALUATOR
-//#define   WITHBLOCKEVALUATOR        0
-
-#if WITHBLOCKEVALUATOR
-
 class DllImportExport CBlockEvaluator
   {
   public:
@@ -74,6 +69,5 @@ class DllImportExport CBlockEvaluator
     DDBValueLstMem    m_OnOffValLst;  
   };
 
-#endif
 
 #undef DllImportExport

@@ -3,8 +3,6 @@
 #include "flwnode.h"
 #include "blockevalbase.h"
 
-#if WITHBLOCKEVALUATOR
-
 #ifdef __XBLOCKBLOCK_CPP
 #define DllImportExport DllExport
 #elif !defined(MdlBase)
@@ -123,5 +121,3 @@ CDirectFlwIO & CBleedBlock::getSnkIO() { return m_pBleedBase->m_SnkIO; };
 // ===========================================================================
 
 #undef DllImportExport
-
-#endif

@@ -2769,11 +2769,7 @@ void CReactionBase::Close()
 
 void CReactionBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
-#if WITHBLOCKEVALUATOR
   DDB.Byte("",     "Reactions",  DC_,    "",     xidRCTEnable,  m_pNd, Flags, GetOnOffValLst());
-#else
-  DDB.CheckBoxBtn("",     "Reactions",  DC_,    "",     xidRCTEnable,  m_pNd, Flags, DDBOnOff);
-#endif
   }
 
 //--------------------------------------------------------------------------
