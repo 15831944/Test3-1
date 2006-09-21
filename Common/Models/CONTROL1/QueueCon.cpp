@@ -22,6 +22,12 @@ QueueColInfo::QueueColInfo():
   }
 
 //--------------------------------------------------------------------------
+
+QueueColInfo::~QueueColInfo()
+  {
+  }
+
+//--------------------------------------------------------------------------
 //==========================================================================
 
 QueueConInfo::QueueConInfo()
@@ -525,8 +531,9 @@ void CQueueCon::DoLoad()
     bool AnyChg = false;
     for (int j=0; j<QCI.iColCnt; j++)
       {
-      Strng s = QCI.ColData[j]->m_sColTagName();
-      flag Chg = (QCI.ColData[j]->m_OutputVar.SetVar(s() ? s() : "")==1);
+      QueueColInfo * pCI = QCI.ColData[j];
+      Strng s = pCI->m_sColTagName();
+      bool Chg = (pCI->m_OutputVar.SetVar(s() ? s() : "")==1);
       AnyChg = AnyChg || Chg;
       }
     if (AnyChg)

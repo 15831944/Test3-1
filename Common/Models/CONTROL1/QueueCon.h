@@ -43,6 +43,7 @@ class QueueColInfo
     double     m_dOutput;
 
     QueueColInfo();
+    virtual ~QueueColInfo();
   };
 
 _FWDDEF(QueueConInfo)

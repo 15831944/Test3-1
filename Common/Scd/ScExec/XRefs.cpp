@@ -1637,30 +1637,39 @@ int CTgFnIoVar::SetVar(char* Tag, flag IgnoreCnv/*=false*/, char* pForceTag/*=NU
       NewTg += pForceTag;
       }
     }
-  if (sVar.IsEmpty() || strcmp(sVar(), NewTg())!=0)
-    {
-    RetCode = 1;//changed...
-    sVar = NewTg();
-    sVar.Trim();
-    if (sVar())
-      {
-      if (m_bAllowFunct && sVar.IsNotEmpty() && sVar[0]=='=')
-        {
 
-        }
-      else
+  const bool EmptyNewTag = NewTg.IsEmpty();
+  const bool EmptyVar = sVar.IsEmpty();
+  if (!EmptyNewTag || !EmptyVar)
+    {
+    if ( (EmptyVar && !EmptyNewTag) ||
+        (!EmptyVar && EmptyNewTag) ||
+        (strcmp(sVar(), NewTg())!=0) )
+      {
+      RetCode = 1;//changed...
+      sVar = NewTg();
+      sVar.Trim();
+      if (sVar())
         {
-        Strng WrkTag,WrkCnv;
-        TaggedObject::SplitTagCnv(sVar(), WrkTag, WrkCnv);
-        if (IgnoreCnv)
-          sVar = WrkTag();
-        else if (WrkCnv.IsNotEmpty())
-          sVar.Set("%s (%s)", WrkTag(), WrkCnv());
+        if (m_bAllowFunct && sVar.IsNotEmpty() && sVar[0]=='=')
+          {
+
+          }
+        else
+          {
+          Strng WrkTag,WrkCnv;
+          TaggedObject::SplitTagCnv(sVar(), WrkTag, WrkCnv);
+          if (IgnoreCnv)
+            sVar = WrkTag();
+          else if (WrkCnv.IsNotEmpty())
+            sVar.Set("%s (%s)", WrkTag(), WrkCnv());
+          }
         }
       }
-    if (!(sVar() && sVar.IsNotEmpty()))
-      m_eWhat=eIsBlank;
     }
+  if (!(sVar() && sVar.IsNotEmpty()))
+    m_eWhat=eIsBlank;
+
   if (pForTagOnly)
     {
     Strng sCnv;
