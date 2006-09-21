@@ -40,7 +40,7 @@ void CCfgBlock::SetDefault()
   {
   //dbgpln("DefaultConfig");
 
-  m_nPriorityThread = THREAD_PRIORITY_ABOVE_NORMAL;
+  m_nPriorityThread = THREAD_PRIORITY_HIGHEST;
   m_nPriorityClass  = ABOVE_NORMAL_PRIORITY_CLASS;
   m_dFloatDeltaChange=1.0/4096.0; // one count in 4096
   m_dFloatDeltaDT=60000;
@@ -1662,6 +1662,10 @@ void CSlotMngr::StartThread(LPCSTR CfgFile)
     //SetPriorityClass(GetCurrentProcess(), m_Cfg.m_nPriorityClass);                  // Set App PriorityClass
     m_pExecThread->SetThreadPriority(m_Cfg.m_nPriorityThread);  // Set Mngr Thread Priority
 
+    if (m_Cfg.m_nPriorityThread<THREAD_PRIORITY_HIGHEST)
+      {
+      ReportError("Configuration", 0, "Thread Priority is less than 'Highest' and may result in poor IO Response");
+      }
     }
   //dbgpln("==== << StartThread");
   }
