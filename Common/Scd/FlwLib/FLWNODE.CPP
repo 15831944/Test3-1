@@ -5666,7 +5666,8 @@ CFlange* FlwNode::DisConnect(int IONo)
     ConnectionsChanged();
     }
 
-  pF->ClrConnection();
+  if (pF)
+    pF->ClrConnection();
 
   return pF;
   };
