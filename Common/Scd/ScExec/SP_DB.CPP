@@ -3107,20 +3107,18 @@ flag CComponentDataBase::LoadSolnInfo(CDBInitRec & CDBInit, char* DataFile)
 //--------------------------------------------------------------------------
 
 const long SysVecFnStkSize=32;
+//MaxPhases Dependent
 static PhMask Fn2PhMasks[]={0/*som_ALL*/, 0/*som_Sol*/, 0/*som_Liq*/, 0/*som_Gas*/, // 0/*som_SL*/,
                             0/*som_ALL*/, 0/*som_Sol*/, 0/*som_Liq*/, 0/*som_Gas*/,
                             0/*som_ALL*/,
                             0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 0x00000020, 0x00000040, 0x00000080,
                             0x00000100, 0x00000200, 0x00000400, 0x00000800, 0x00001000, 0x00002000, 0x00004000, 0x00008000,
-                            0x00010000, 0x00020000,
-#if EXTRAPHASES
-                            0x00040000, 0x00080000,
-                            0x00100000, 0x00200000, 0x00400000, 0x00800000, 0x01000000, 0x02000000, 0x04000000, 0x08000000,
-                            0x10000000, 0x20000000, 0x40000000, 0x80000000
-#endif
+                            0x00010000, 0x00020000, 0x00040000, 0x00080000, 0x00100000, 0x00200000, 0x00400000, 0x00800000, 
+                            0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000, 0x80000000
                             };
 //--------------------------------------------------------------------------
 
+//MaxPhases Dependent
 CSysVecInfo::CSpViewMask CSysVecInfo::sm_SpVwPhMask[SpVwPhMaskIndex_Count] =
   {
     { 0/*som_ALL*/, "All"},
@@ -3145,7 +3143,6 @@ CSysVecInfo::CSpViewMask CSysVecInfo::sm_SpVwPhMask[SpVwPhMaskIndex_Count] =
     { 0x00008000, "Ph15"},
     { 0x00010000, "Ph16"},
     { 0x00020000, "Ph17"},
-#if EXTRAPHASES
     { 0x00040000, "Ph18"},
     { 0x00080000, "Ph19"},
     { 0x00100000, "Ph20"},
@@ -3160,7 +3157,6 @@ CSysVecInfo::CSpViewMask CSysVecInfo::sm_SpVwPhMask[SpVwPhMaskIndex_Count] =
     { 0x20000000, "Ph29"},
     { 0x40000000, "Ph30"},
     { 0x80000000, "Ph31"},
-#endif
   };
 
 //---------------------------------------------------------------------------
@@ -5648,7 +5644,8 @@ static CSV_ViewCnv gs_SPMDC_FracSol  = {&DC_FracSol,     "%(Sol)"    };
 static CSV_ViewCnv gs_SPMDC_FracLiq  = {&DC_FracLiq,     "%(Liq)"    };
 static CSV_ViewCnv gs_SPMDC_FracGas  = {&DC_FracVap,     "%(Vap)"    };
 
-static CSV_ViewCnv gs_SPMDC_FracPh[] =
+//MaxPhases Dependent
+static CSV_ViewCnv gs_SPMDC_FracPh[MaxPhases] =
   {
     {&DC_FracPh00,    "%{Ph00}"   },
     {&DC_FracPh01,    "%{Ph01}"   },
@@ -5668,7 +5665,6 @@ static CSV_ViewCnv gs_SPMDC_FracPh[] =
     {&DC_FracPh15,    "%{Ph15}"   },
     {&DC_FracPh16,    "%{Ph16}"   },
     {&DC_FracPh17,    "%{Ph17}"   },
-#if EXTRAPHASES
     {&DC_FracPh18,    "%{Ph18}"   },
     {&DC_FracPh19,    "%{Ph19}"   },
     {&DC_FracPh20,    "%{Ph20}"   },
@@ -5683,7 +5679,6 @@ static CSV_ViewCnv gs_SPMDC_FracPh[] =
     {&DC_FracPh29,    "%{Ph29}"   },
     {&DC_FracPh30,    "%{Ph30}"   },
     {&DC_FracPh31,    "%{Ph31}"   },
-#endif
   };
 
 static CSV_ViewCnv gs_SPMDC_M       = {&DC_M,         "kg"        };
@@ -5698,6 +5693,7 @@ static CSV_ViewCnv gs_SPMDC_NQv     = {&DC_NQv,       "Nm^3/s"    };
 static CSV_ViewCnv gs_SPMDC_Conc    = {&DC_Conc,      "g/L"       };
 
 static CSV_ViewCnv * SPMDC_[]       = { &gs_SPMDC_,         };
+//MaxPhases Dependent
 static CSV_ViewCnv * SPMDC_Frac[]   = {
                                         &gs_SPMDC_Frac     ,
                                         &gs_SPMDC_FracSol  ,
@@ -5721,7 +5717,6 @@ static CSV_ViewCnv * SPMDC_Frac[]   = {
                                         &gs_SPMDC_FracPh[15] ,
                                         &gs_SPMDC_FracPh[16] ,
                                         &gs_SPMDC_FracPh[17] ,
-#if EXTRAPHASES
                                         &gs_SPMDC_FracPh[18] ,
                                         &gs_SPMDC_FracPh[19] ,
                                         &gs_SPMDC_FracPh[20] ,
@@ -5736,7 +5731,6 @@ static CSV_ViewCnv * SPMDC_Frac[]   = {
                                         &gs_SPMDC_FracPh[29] ,
                                         &gs_SPMDC_FracPh[30] ,
                                         &gs_SPMDC_FracPh[31] ,
-#endif
                                         };
 static CSV_ViewCnv * SPMDC_M[]      = { &gs_SPMDC_M,        };
 static CSV_ViewCnv * SPMDC_P[]      = { &gs_SPMDC_P,        };
@@ -5896,7 +5890,7 @@ inline bool ValidSpecieTag(Strng &Tag, bool ZeroLenOK)
 const int InfoColNo=9;
 
 //--------------------------------------------------------------------------
-
+//MaxPhases Dependent
 enum eSymbolType
   {
   SFS_Null,
@@ -5928,7 +5922,6 @@ enum eSymbolType
   SFS_SumIPh15,
   SFS_SumIPh16,
   SFS_SumIPh17,
-#if EXTRAPHASES
   SFS_SumIPh18,
   SFS_SumIPh19,
   SFS_SumIPh20,
@@ -5943,7 +5936,6 @@ enum eSymbolType
   SFS_SumIPh29,
   SFS_SumIPh30,
   SFS_SumIPh31,
-#endif
   SFS_MW,
   SFS_LastFunction,
 
@@ -5986,23 +5978,19 @@ enum eInfixType
   };
 
 
+//MaxPhases Dependent
 const LPSTR PhSumNames[] =
   {"SumIPh00", "SumIPh01", "SumIPh02", "SumIPh03", "SumIPh04", "SumIPh05", "SumIPh06", "SumIPh07",
    "SumIPh08", "SumIPh09", "SumIPh10", "SumIPh11", "SumIPh12", "SumIPh13", "SumIPh14", "SumIPh15",
-   "SumIPh16", "SumIPh17",
-#if EXTRAPHASES
-                           "SumIPh18", "SumIPh19", "SumIPh20", "SumIPh21", "SumIPh22", "SumIPh23",
+   "SumIPh16", "SumIPh17", "SumIPh18", "SumIPh19", "SumIPh20", "SumIPh21", "SumIPh22", "SumIPh23",
    "SumIPh24", "SumIPh25", "SumIPh26", "SumIPh27", "SumIPh28", "SumIPh29", "SumIPh30", "SumIPh31"
-#endif
   };
+//MaxPhases Dependent
 const int   PhSumSyms[]  =
   {SFS_SumIPh00, SFS_SumIPh01, SFS_SumIPh02, SFS_SumIPh03, SFS_SumIPh04, SFS_SumIPh05, SFS_SumIPh06, SFS_SumIPh07,
    SFS_SumIPh08, SFS_SumIPh09, SFS_SumIPh10, SFS_SumIPh11, SFS_SumIPh12, SFS_SumIPh13, SFS_SumIPh14, SFS_SumIPh15,
-   SFS_SumIPh16, SFS_SumIPh17,
-#if EXTRAPHASES
-                               SFS_SumIPh18, SFS_SumIPh19, SFS_SumIPh20, SFS_SumIPh21, SFS_SumIPh22, SFS_SumIPh23,
+   SFS_SumIPh16, SFS_SumIPh17, SFS_SumIPh18, SFS_SumIPh19, SFS_SumIPh20, SFS_SumIPh21, SFS_SumIPh22, SFS_SumIPh23,
    SFS_SumIPh24, SFS_SumIPh25, SFS_SumIPh26, SFS_SumIPh27, SFS_SumIPh28, SFS_SumIPh29, SFS_SumIPh30, SFS_SumIPh31,
-#endif
   };
 
 static struct CFnTkns
@@ -6045,7 +6033,6 @@ FnTkns[SFS_LastTkn+1] =
     { SFS_SumIPh15,       "SumIPh15",       IFC_Funct,      0,             },
     { SFS_SumIPh16,       "SumIPh16",       IFC_Funct,      0,             },
     { SFS_SumIPh17,       "SumIPh17",       IFC_Funct,      0,             },
-#if EXTRAPHASES
     { SFS_SumIPh18,       "SumIPh18",       IFC_Funct,      0,             },
     { SFS_SumIPh19,       "SumIPh19",       IFC_Funct,      0,             },
     { SFS_SumIPh20,       "SumIPh20",       IFC_Funct,      0,             },
@@ -6060,7 +6047,7 @@ FnTkns[SFS_LastTkn+1] =
     { SFS_SumIPh29,       "SumIPh29",       IFC_Funct,      0,             },
     { SFS_SumIPh30,       "SumIPh30",       IFC_Funct,      0,             },
     { SFS_SumIPh31,       "SumIPh31",       IFC_Funct,      0,             },
-#endif
+    //MaxPhases Dependent
     { SFS_MW,             "MW",             IFC_Funct,      0,             },  // does not work yet
     { SFS_LastFunction,   NULL,             IFC_Null,       0,             },
     { SFS_Plus,           "+",              IFC_Operator,  26,             },
@@ -6123,7 +6110,6 @@ FnSums[] =
     { SFS_SumIPh15,       "Ph15",     "Ph15",     SVCT_IPhSum,        },
     { SFS_SumIPh16,       "Ph16",     "Ph16",     SVCT_IPhSum,        },
     { SFS_SumIPh17,       "Ph17",     "Ph17",     SVCT_IPhSum,        },
-#if EXTRAPHASES
     { SFS_SumIPh18,       "Ph18",     "Ph18",     SVCT_IPhSum,        },
     { SFS_SumIPh19,       "Ph19",     "Ph19",     SVCT_IPhSum,        },
     { SFS_SumIPh20,       "Ph20",     "Ph20",     SVCT_IPhSum,        },
@@ -6138,7 +6124,7 @@ FnSums[] =
     { SFS_SumIPh29,       "Ph29",     "Ph29",     SVCT_IPhSum,        },
     { SFS_SumIPh30,       "Ph30",     "Ph30",     SVCT_IPhSum,        },
     { SFS_SumIPh31,       "Ph31",     "Ph31",     SVCT_IPhSum,        },
-#endif
+    //MaxPhases Dependent
   };
 
 //--------------------------------------------------------------------------
@@ -6390,7 +6376,6 @@ double CSysVecFn::Evaluate(CSysVecFnCtx & C)
         case SFS_SumIPh15:
         case SFS_SumIPh16:
         case SFS_SumIPh17:
-#if EXTRAPHASES
         case SFS_SumIPh18:
         case SFS_SumIPh19:
         case SFS_SumIPh20:
@@ -6405,7 +6390,7 @@ double CSysVecFn::Evaluate(CSysVecFnCtx & C)
         case SFS_SumIPh29:
         case SFS_SumIPh30:
         case SFS_SumIPh31:
-#endif
+        //MaxPhases Dependent
           switch (C.m_Op)
             {
             case SVOP_:       Stk[++iStk]=-1;  break;
@@ -7020,7 +7005,6 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
       case SFS_SumIPh15:
       case SFS_SumIPh16:
       case SFS_SumIPh17:
-#if EXTRAPHASES
       case SFS_SumIPh18:
       case SFS_SumIPh19:
       case SFS_SumIPh20:
@@ -7035,7 +7019,7 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
       case SFS_SumIPh29:
       case SFS_SumIPh30:
       case SFS_SumIPh31:
-#endif
+      //MaxPhases Dependent
         {
         PhMask Ph=0;
         switch (Sym.m_iSym)
@@ -7068,7 +7052,6 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
           case SFS_SumIPh15:  Ph=0x00008000;        break;
           case SFS_SumIPh16:  Ph=0x00010000;        break;
           case SFS_SumIPh17:  Ph=0x00020000;        break;
-#if EXTRAPHASES
           case SFS_SumIPh18:  Ph=0x00040000;        break;
           case SFS_SumIPh19:  Ph=0x00080000;        break;
           case SFS_SumIPh20:  Ph=0x00100000;        break;
@@ -7083,7 +7066,7 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
           case SFS_SumIPh29:  Ph=0x20000000;        break;
           case SFS_SumIPh30:  Ph=0x40000000;        break;
           case SFS_SumIPh31:  Ph=0x80000000;        break;
-#endif
+          //MaxPhases Dependent
           }
         for (int i=0; i<SVSpcCount(); i++)
           {

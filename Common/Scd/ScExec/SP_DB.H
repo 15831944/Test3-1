@@ -100,7 +100,6 @@ const double IF97_MaxSatP = 22064.0; //critical pressure in kPa
 const long MaxPhases = 32; /* Upto 32 : number of bits in dword. */
 typedef dword PhMask;
 
-#define EXTRAPHASES  0 /* Marker for extra phase entries */
 // ===========================================================================
 // Constants
 const int MaxElements       = 120;

@@ -744,15 +744,15 @@ flag AccNodeWnd::LoadAccessData()
 
         CCnvIndex iCnv = pPItem->CnvIndex();
         d.Cnv.SetIndex(iCnv);
-        // Set to primary Text if sec text supplied is BAD
-        if ((iCnv)>0 && Cnvs[iCnv]->Find(pPItem->CnvTxt())==NULL)
-          {
-          d.Cnv.SetText(Cnvs[iCnv]->Txt()); // Set to Primary Value
-          if (pPItem->CnvTxt())
-            LogWarning(d.sSymOrTag(), 0, "Unknown Conversion '%s' Set to '%s'", pPItem->CnvTxt(), Cnvs[iCnv]->Txt());
-          }
-        else
-          d.Cnv.SetText(pPItem->CnvTxt());
+        //// Set to primary Text if sec text supplied is BAD
+        //if ((iCnv)>0 && Cnvs[iCnv]->Find(pPItem->CnvTxt())==NULL)
+        //  {
+        //  d.Cnv.SetText(Cnvs[iCnv]->Txt()); // Set to Primary Value
+        //  if (pPItem->CnvTxt())
+        //    LogWarning(d.sSymOrTag(), 0, "Unknown Conversion '%s' Set to '%s' for %s", pPItem->CnvTxt(), Cnvs[iCnv]->Txt(), d.sClsTag());
+        //  }
+        //else
+        d.Cnv.SetText(pPItem->CnvTxt());
         d.sIndividualCnv = d.Cnv.Text();
  
         if (IsFloatData(d.iType))
@@ -1013,7 +1013,17 @@ flag AccNodeWnd::LoadAccessData()
 
       if (d.iObjNo>=0)
         ObjEdit[d.iObjNo]->SetFullObjTag(d.sFullTag());
-      
+
+      // Test Cnvs;
+      // Set to primary Text if sec text supplied is BAD
+      if ((d.Cnv.Index())>0 && Cnvs[d.Cnv.Index()]->Find(d.Cnv.Text())==NULL)
+        {
+        if (d.Cnv.Text())
+          LogWarning(d.sSymOrTag(), 0, "Unknown Conversion '%s' Set to '%s' for %s", d.Cnv.Text(), Cnvs[d.Cnv.Index()]->Txt(), d.sFullTag());
+        d.Cnv.SetText(Cnvs[d.Cnv.Index()]->Txt()); // Set to Primary Value
+        }
+      d.sIndividualCnv = d.Cnv.Text();
+
       for (int iMVS=0; iMVS<nTagItems; iMVS++)
         if (d.sRefTag.XStrICmp(TagItems[iMVS].m_sTag)==0)
           {
