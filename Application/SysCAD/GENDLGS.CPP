@@ -1110,7 +1110,7 @@ END_MESSAGE_MAP()
 
 static struct { LPCTSTR m_Str; int m_Val; } gs_WBCBValues[] =
   {
-    {"Seperate",              WB_None         },
+    {"Separate",              WB_None         },
     {"Size Together",         WB_SizeTogether },
     {"Move Together",         WB_MoveTogether },
     {"Move & Size Together",  WB_Together     },
