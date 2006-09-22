@@ -7678,6 +7678,18 @@ bool CSysVecInfo::Term()
     delete &(pLst[-m_nSVClcCount]);
     }
 
+  m_SkipListFwdAll  = NULL;
+  m_SkipListFwdSL   = NULL;
+  m_SkipListFwdSol  = NULL;
+  m_SkipListFwdLiq  = NULL;
+  m_SkipListFwdGas  = NULL;
+
+  m_SkipListRevAll  = NULL;
+  m_SkipListRevSL   = NULL;
+  m_SkipListRevSol  = NULL;
+  m_SkipListRevLiq  = NULL;
+  m_SkipListRevGas  = NULL;
+
   m_nSVValueCount = 0;
   m_nSVSpcCount   = 0;
   m_nSVAttCount   = 0;
