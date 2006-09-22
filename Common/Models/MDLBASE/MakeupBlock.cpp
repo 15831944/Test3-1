@@ -323,6 +323,7 @@ class DllImportExport CXBlk_Makeup: public CMakeupBlock
     DDBValueLstMem  m_DDBCmpAdd;
     DDBValueLstMem  m_DDBCmpRem;
     int             m_nLastCmpStr;
+    Strng           m_MeasDesc;
     CStringArray    m_CmpStr;
 
     bool            m_bHasFlow;
@@ -598,6 +599,16 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
       {}
     };
 
+  const bool MassBasis = (m_eType==Type_MassFrac || m_eType==Type_MassFlow || m_eType==Type_MassRatio || m_eType==Type_MassMult);
+  const bool VolBasis  = (m_eType==Type_VolumeFrac || m_eType==Type_VolumeFlow || m_eType==Type_VolumeRatio || m_eType==Type_VolumeMult);
+  const bool NVolBasis = (m_eType==Type_NVolumeFrac || m_eType==Type_NVolumeFlow || m_eType==Type_NVolumeRatio || m_eType==Type_NVolumeMult);
+  const bool MoleBasis = (m_eType==Type_MoleFrac || m_eType==Type_MoleFlow || m_eType==Type_MoleRatio || m_eType==Type_MoleMult);
+
+  const bool FracBasis  = (m_eType==Type_MassFrac || m_eType==Type_VolumeFrac || m_eType==Type_NVolumeFrac || m_eType==Type_MoleFrac);
+  const bool FlowBasis  = (m_eType==Type_MassFlow || m_eType==Type_VolumeFlow || m_eType==Type_NVolumeFlow || m_eType==Type_MoleFlow);
+  const bool RatioBasis = (m_eType==Type_MassRatio || m_eType==Type_VolumeRatio || m_eType==Type_NVolumeRatio || m_eType==Type_MoleRatio);
+  const bool MultBasis  = (m_eType==Type_MassMult || m_eType==Type_VolumeMult || m_eType==Type_NVolumeMult || m_eType==Type_MoleMult);
+
   DDB.Text(" ");
   DDB.Text("SetPoint");
   DDB.Long       ("", "Type",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrl);
@@ -771,44 +782,89 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
     case Type_Conc        : CnvUsed=DC_Conc; CnvTxt="g/L"; break;
     default               : CnvUsed=DC_Frac; CnvTxt="%"; break;
     }
-  DDB.Visibility(NSHM_All, m_eType==Type_MassFlow || 
-                          m_eType==Type_MoleFlow || 
-                          m_eType==Type_VolumeFlow || 
-                          m_eType==Type_NVolumeFlow || 
-                          m_eType==Type_MassFrac || 
-                          m_eType==Type_MoleFrac || 
-                          m_eType==Type_VolumeFrac || 
-                          m_eType==Type_NVolumeFrac ||
-                          m_eType==Type_Conc );
+  DDB.Visibility(NSHM_All, FracBasis || FlowBasis || m_eType==Type_Conc);
   DDB.Double ("Meas.Feed",        "", CnvUsed, CnvTxt(),  &m_dMeas,       this, isResult|noFileAtAll|NAN_OK);
   DDB.Visibility();
   DDB.Double ("Meas.SetPoint",    "", CnvUsed, CnvTxt(),  &m_dSetPoint,   this, isResult|noFileAtAll|NAN_OK);
   DDB.Double ("Meas.Prod",        "", CnvUsed, CnvTxt(),  &m_dResult,     this, isResult|noFileAtAll|NAN_OK);
-  DDB.Text(" ");
 
-  switch (m_eType)
+  if (MassBasis)
+    m_MeasDesc = "Mass flow";
+  else if (VolBasis)
+    m_MeasDesc = "Volume flow";
+  else if (NVolBasis)
+    m_MeasDesc = "NormVolume flow";
+  else if (MoleBasis)
+    m_MeasDesc = "Molar flow";
+  else
+    m_MeasDesc = "";
+
+  switch (m_eSelect)
     {
-    case Type_MoleFlow:
-    case Type_MoleFrac:
-      DDB.Double ("Meas.QMl.Feed",  "", DC_QKgMl, "kmol/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.QMl.Prod",  "", DC_QKgMl, "kmol/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+    case Slct_All:
+      m_MeasDesc += " of total stream:"; 
       break;
-    case Type_MassFlow:
-    case Type_MassFrac:
-      DDB.Double ("Meas.Qm.Feed",   "", DC_Qm,    "kg/s",     &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.Qm.Prod",   "", DC_Qm,    "kg/s",     &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+    case Slct_Occur:
+      {
+      m_MeasDesc += " of sum of phases (";
+      if (m_Phases & som_Sol) m_MeasDesc += "solids ";
+      if (m_Phases & som_Liq) m_MeasDesc += "liquids ";
+      if (m_Phases & som_Gas) m_MeasDesc += "vapours ";
+      m_MeasDesc.RTrim();
+      m_MeasDesc += "):";
       break;
-    case Type_VolumeFlow:
-    case Type_VolumeFrac:
-      DDB.Double ("Meas.Qv.Feed",   "", DC_Qv,    "m^3/s",    &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.Qv.Prod",   "", DC_Qv,    "m^3/s",    &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+    case Slct_IndPhase:
+      {
+      m_MeasDesc += " of sum of individual phases (";
+      for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Gas); o++)
+        {
+        CPhaseInfo & P=CDB.PhaseInfo(o);
+        if (m_Phases&P.m_PhMsk)
+          {
+          m_MeasDesc += P.m_Sym();
+          m_MeasDesc += ' ';
+          }
+        }
+      m_MeasDesc.RTrim();
+      m_MeasDesc += "):";
       break;
-    case Type_NVolumeFlow:
-    case Type_NVolumeFrac:
-      DDB.Double ("Meas.NQv.Feed",  "", DC_NQv,   "Nm^3/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.NQv.Prod",  "", DC_NQv,   "Nm^3/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+      }
+    case Slct_Specie:
+      {
+      m_MeasDesc += " of sum of selected species:"; 
       break;
+      }
+    case Slct_Component:
+      {
+      m_MeasDesc += " of sum of selected components:"; 
+      break;
+      }
+    }  
+  }
+
+  DDB.Text(" ");
+  DDB.Text(m_MeasDesc());
+  if (MassBasis)
+    {
+    DDB.Double ("Meas.Qm.Feed",   "", DC_Qm,    "kg/s",     &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
+    DDB.Double ("Meas.Qm.Prod",   "", DC_Qm,    "kg/s",     &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
     }
+  else if (VolBasis)
+    {
+    DDB.Double ("Meas.Qv.Feed",   "", DC_Qv,    "m^3/s",    &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
+    DDB.Double ("Meas.Qv.Prod",   "", DC_Qv,    "m^3/s",    &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+    }
+  else if (NVolBasis)
+    {
+    DDB.Double ("Meas.NQv.Feed",  "", DC_NQv,   "Nm^3/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
+    DDB.Double ("Meas.NQv.Prod",  "", DC_NQv,   "Nm^3/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+    }
+  else if (MoleBasis)
+    {
+    DDB.Double ("Meas.QMl.Feed",  "", DC_QKgMl, "kmol/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
+    DDB.Double ("Meas.QMl.Prod",  "", DC_QKgMl, "kmol/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
+    }
+
   DDB.Text(" ");
   DDB.Text("Total mass flow:");
   DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_dQmFeed,     this, isResult);
