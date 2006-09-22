@@ -1568,7 +1568,7 @@ flag FE_MSBackFill::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CF
 
   m_dVelMeas  = FE.VelMeas();
   double DPL  = m_Spln.Yx(m_dVelMeas);
-  dbgpln("%10.4f %10.4f %10.4f", Diam(), m_dVelMeas, DPL); 
+  //dbgpln("%10.4f %10.4f %10.4f", Diam(), m_dVelMeas, DPL); 
 
   m_DP        = FE.TotLength()*DPL;
   FE.SetDPq(-FE.QmSign()*m_DP, 0);
