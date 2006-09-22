@@ -854,7 +854,10 @@ bool CArchiveDBTable::CreateDBTable()
     case ADBTbFmt_CSV:
     case ADBTbFmt_TXT:
       {
-      return ReOpenTxtTable(m_rAM.m_bRewind);
+      bool OK = ReOpenTxtTable(m_rAM.m_bRewind);
+      if (OK)  
+        m_rAM.m_nTablesOpn++;
+      return OK;
       break;
       }
     }
@@ -2017,12 +2020,13 @@ bool CArchiveManager::OpenTheDB()
     LogNote(ArcName, 0, "%s Table not Found", sEventLogStr);
 
   if (OpenOK)
-    LogNote(ArcName, 0, "%i Fields in %i Tables", m_nFieldsOpn, m_nTablesOpn);
+    LogNote(ArcName, 0, "Archive reporter: %i fields in %i tables", m_nFieldsOpn, m_nTablesOpn);
   else
     LogNote(ArcName, 0, "Database not opened");
 
   return OpenOK;
   }
+
 //---------------------------------------------------------------------------
 
 bool CArchiveManager::Start()
@@ -2159,34 +2163,36 @@ bool CArchiveManager::ConnectAll()
     delete m_Inputs[s];
   m_Inputs.SetSize(0);
 
-  long nt=m_Tables.GetSize();
+  const long nt=m_Tables.GetSize();
   for (long t=0; t<nt; t++)
     {
     CArchiveDBTable & Tb=*m_Tables[t];
-    long ntt=Tb.m_Triggers.GetSize();
+    const long ntt=Tb.m_Triggers.GetSize();
     for (long tt=0; tt<ntt; tt++)
       {
       CArchiveTrigger &Tr=*Tb.m_Triggers[tt];
       Tr.m_Src.SetIndex(*this);
-      if (!Cnvs[Tr.m_Src.GetCnvIndex(*this)]->Find(Tr.m_sCnvTxt())==NULL)
-        LogError(ArcName, 0, "Cnv Text '%s' invalid for %s", Tr.m_sCnvTxt(), Tr.m_Src.m_sTag);
+      CCnvIndex iCnv=Tr.m_Src.GetCnvIndex(*this);
+      if (iCnv && Cnvs[iCnv]->Find(Tr.m_sCnvTxt())==NULL)
+        LogError(ArcName, 0, "Conversion units '%s' are invalid for %s", Tr.m_sCnvTxt(), Tr.m_Src.m_sTag);
       }
     }
 
-  long nf=m_Fields.GetSize();
+  const long nf=m_Fields.GetSize();
   for (long f=0; f<nf; f++)
     {
     CArchiveDBField & Fld=*m_Fields[f];
     if (!Fld.m_bSystem)
       {
       Fld.m_Src.SetIndex(*this);
-      if (!Cnvs[Fld.m_Src.GetCnvIndex(*this)]->Find(Fld.m_sCnvTxt())==NULL)
-        LogError(ArcName, 0, "Cnv Text '%s' invalid for %s", Fld.m_sCnvTxt(), Fld.m_Src.m_sTag);
+      CCnvIndex iCnv=Fld.m_Src.GetCnvIndex(*this);
+      if (iCnv && Cnvs[iCnv]->Find(Fld.m_sCnvTxt())==NULL)
+        LogError(ArcName, 0, "Conversion units '%s' are invalid for %s", Fld.m_sCnvTxt(), Fld.m_Src.m_sTag);
       }
     }
 
   return true;
-  };
+  }
 
 // --------------------------------------------------------------------------
 
@@ -2197,7 +2203,7 @@ bool CArchiveManager::DisConnectAll()
   m_Inputs.SetSize(0);
 
   return true;
-  };
+  }
 
 // --------------------------------------------------------------------------
 
