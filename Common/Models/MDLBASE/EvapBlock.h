@@ -66,6 +66,14 @@ class DllImportExport CEvBlk_Percentage: public CEvapBlock
     virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
+    double m_dEvapFrac;
+    double m_dQmEvap;
+    double m_dQmBleed;
+    double m_dQmFeed;
+    double m_dQmProd;
+    double m_dHeatFlow;
+    double m_dTempKFeed;
+    double m_dTempKProd;
 
     class CEvapComp
       {

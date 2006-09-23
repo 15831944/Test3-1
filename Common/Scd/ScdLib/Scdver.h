@@ -47,7 +47,7 @@
 #define USEREGISTRY           0
 
 #define WithSimpleBleed       0  /*not ready for release*/
-#define WithSimpleEvap        0  /*not ready for release*/
+#define WithSimpleEvap        1  /*not ready for release*/
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???
