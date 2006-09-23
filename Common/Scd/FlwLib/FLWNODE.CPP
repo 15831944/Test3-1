@@ -5648,6 +5648,10 @@ CFlange* FlwNode::DisConnect(int IONo)
   {
   CFlange* pF = IOFlange(IONo);
   FlwNode* Rmt = Nd_Rmt(IONo);
+ 
+  if (pF)
+    pF->ClrConnection();
+
   if (Rmt)
     {
     int RmtIONo=IOIONo_Rmt(IONo);
@@ -5665,9 +5669,6 @@ CFlange* FlwNode::DisConnect(int IONo)
     Detach(IONo);
     ConnectionsChanged();
     }
-
-  if (pF)
-    pF->ClrConnection();
 
   return pF;
   };
