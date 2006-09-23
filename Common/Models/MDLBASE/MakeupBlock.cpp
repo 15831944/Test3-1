@@ -769,6 +769,7 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Text(" ");
   DDB.Text("Results");
 
+  DDB.Text("Simple Control:");
   DDB.String("Error",            "", DC_,   "",    xidMkError,     this, isResult);
   
   CCnvIndex CnvUsed;
@@ -872,7 +873,7 @@ void CXBlk_Makeup::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_dQmProd,     this, isResult);
   if (!HeatSkipMethod())
     {
-    DDB.Text(" ");
+    DDB.Text("Total heat flow:");
     DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
     DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
     DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);//|noFileAtAll);
@@ -1370,14 +1371,13 @@ void CXBlk_Makeup::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
 
     m_dQmFeed = QPrd.QMass();
     m_dTempKFeed = QPrd.Temp();
+    const double HzIn = QPrd.totHz();
 
     StkSpConduit QIn("QIn", "MkUp", pNd);
     QIn().QCopy(QPrd);
 
     m_dMeas     = GetMeasVal(QIn(), QPrd);
     m_dFeedAct  = GetFlowValue(QIn());
-
-    const double HzIn = QPrd.totHz();
 
     bool CIsOn[7]={false,false,false,false,false,false,false};
     if (m_eSelect>=Slct_Specie)
