@@ -2737,12 +2737,45 @@ void CComponentDataBase::Term()
     delete CmD[i];
     CmD[i]=NULL;
     }
-  //SVI.Term();
 
-  //delete[] PhSeq;
-  //PhSeq=NULL;
+  BIP.SetSize(0,0);
+
   m_iNo=0;
   bCDBBad=true;
+
+  m_ph_SolS = 0;
+  m_ph_SolE = 0;
+  m_ph_LiqS = 0;
+  m_ph_LiqE = 0;
+  m_ph_GasS = 0;
+  m_ph_GasE = 0;
+  m_ph_ALL = 0;
+  m_ph_AqsInx = 0;
+
+  m_som_Sol = 0;
+  m_som_Liq = 0;
+  m_som_Gas = 0;
+  m_som_SL = 0;
+  m_som_ALL = 0;
+
+  for (int i=0; i<BOT_All+1; i++)
+    {
+    m_PhInfoCount[i]   = 0;
+    m_PhInfoFirst[i]   = 0;
+    m_PhInfoLast[i]   = 0;
+    }
+
+  for (int i=0; i<MaxPhases; i++)
+    m_PhInfo[i].Clear();
+
+  DDBCompList.Empty();
+  DDBCompListMix.Empty();
+  DDBCompListMixImg.Empty();
+  DDBCompListVapLiq.Empty();
+  DDBCompListDash.Empty();
+  DDBCompListDashMix.Empty();
+  DDBCompListDashMixImg.Empty();
+  DDBCompListDashVapLiq.Empty();
   };
 
 //---------------------------------------------------------------------------
@@ -5039,90 +5072,36 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         }
 
       m_SDB.DDBSpList.Empty();
-      //m_SDB.DDBSpListMix.Empty();
-      //m_SDB.DDBSpListMixImg.Empty();
       m_SDB.DDBSpListDash.Empty();
-      //m_SDB.DDBSpListDashMix.Empty();
-      //m_SDB.DDBSpListDashMixImg.Empty();
       m_SDB.DDBSolSpList.Empty();
-      //m_SDB.DDBSolSpListMix.Empty();
-      //m_SDB.DDBSolSpListMixImg.Empty();
       m_SDB.DDBSolSpListDash.Empty();
-      //m_SDB.DDBSolSpListDashMix.Empty();
-      //m_SDB.DDBSolSpListDashMixImg.Empty();
       m_SDB.DDBLiqSpList.Empty();
-      //m_SDB.DDBLiqSpListMix.Empty();
-      //m_SDB.DDBLiqSpListMixImg.Empty();
       m_SDB.DDBLiqSpListDash.Empty();
-      //m_SDB.DDBLiqSpListDashMix.Empty();
-      //m_SDB.DDBLiqSpListDashMixImg.Empty();
       m_SDB.DDBVapSpList.Empty();
-      //m_SDB.DDBVapSpListMix.Empty();
-      //m_SDB.DDBVapSpListMixImg.Empty();
       m_SDB.DDBVapSpListDash.Empty();
-      //m_SDB.DDBVapSpListDashMix.Empty();
-      //m_SDB.DDBVapSpListDashMixImg.Empty();
 
       m_SDB.DDBSpListDash.Add(-1, "-");
-      //m_SDB.DDBSpListDashMix.Add(-1, "-");
-      //m_SDB.DDBSpListDashMixImg.Add(-1, "-");
       m_SDB.DDBSolSpListDash.Add(-1, "-");
-      //m_SDB.DDBSolSpListDashMix.Add(-1, "-");
-      //m_SDB.DDBSolSpListDashMixImg.Add(-1, "-");
       m_SDB.DDBLiqSpListDash.Add(-1, "-");
-      //m_SDB.DDBLiqSpListDashMix.Add(-1, "-");
-      //m_SDB.DDBLiqSpListDashMixImg.Add(-1, "-");
       m_SDB.DDBVapSpListDash.Add(-1, "-");
-      //m_SDB.DDBVapSpListDashMix.Add(-1, "-");
-      //m_SDB.DDBVapSpListDashMixImg.Add(-1, "-");
-
-      //m_SDB.DDBSpListMix.Add(m_SDB.MixtureId(), "Mixture");
-      //m_SDB.DDBSpListMixImg.Add(m_SDB.MixtureId(), "Mixture");
-      //m_SDB.DDBSpListDashMix.Add(m_SDB.MixtureId(), "Mixture");
-      //m_SDB.DDBSpListDashMixImg.Add(m_SDB.MixtureId(), "Mixture");
-      //m_SDB.DDBSolSpListMix.Add(m_SDB.SolMixtureId(), "Mixture");
-      //m_SDB.DDBSolSpListMixImg.Add(m_SDB.SolMixtureId(), "Mixture");
-      //m_SDB.DDBSolSpListDashMix.Add(m_SDB.SolMixtureId(), "Mixture");
-      //m_SDB.DDBSolSpListDashMixImg.Add(m_SDB.SolMixtureId(), "Mixture");
-      //m_SDB.DDBLiqSpListMix.Add(m_SDB.LiqMixtureId(), "Mixture");
-      //m_SDB.DDBLiqSpListMixImg.Add(m_SDB.LiqMixtureId(), "Mixture");
-      //m_SDB.DDBLiqSpListDashMix.Add(m_SDB.LiqMixtureId(), "Mixture");
-      //m_SDB.DDBLiqSpListDashMixImg.Add(m_SDB.LiqMixtureId(), "Mixture");
-      //m_SDB.DDBVapSpListMix.Add(m_SDB.VapMixtureId(), "Mixture");
-      //m_SDB.DDBVapSpListMixImg.Add(m_SDB.VapMixtureId(), "Mixture");
-      //m_SDB.DDBVapSpListDashMix.Add(m_SDB.VapMixtureId(), "Mixture");
-      //m_SDB.DDBVapSpListDashMixImg.Add(m_SDB.VapMixtureId(), "Mixture");
-
-      //m_SDB.DDBSpListMixImg.Add(m_SDB.ImageId(), "MixImage");
-      //m_SDB.DDBSpListDashMixImg.Add(m_SDB.ImageId(), "MixImage");
-      //m_SDB.DDBSolSpListMixImg.Add(m_SDB.SolImageId(), "MixImage");
-      //m_SDB.DDBSolSpListDashMixImg.Add(m_SDB.SolImageId(), "MixImage");
-      //m_SDB.DDBLiqSpListMixImg.Add(m_SDB.LiqImageId(), "MixImage");
-      //m_SDB.DDBLiqSpListDashMixImg.Add(m_SDB.LiqImageId(), "MixImage");
-      //m_SDB.DDBVapSpListMixImg.Add(m_SDB.VapImageId(), "MixImage");
-      //m_SDB.DDBVapSpListDashMixImg.Add(m_SDB.VapImageId(), "MixImage");
 
       for (int i=0; i<m_SDB.Count(); i++)
         {
         m_SDB.DDBSpList.Add(i, m_SDB[i].SymOrTag());
-        //m_SDB.DDBSpListMix.Add(i, m_SDB[i].SymOrTag());
         m_SDB.DDBSpListDash.Add(i, m_SDB[i].SymOrTag());
         if (m_SDB[i].PhaseIs(m_som_Sol))
           {
           m_SDB.DDBSolSpList.Add(i, m_SDB[i].SymOrTag());
-          //m_SDB.DDBSolSpListMix.Add(i, m_SDB[i].SymOrTag());
           m_SDB.DDBSolSpListDash.Add(i, m_SDB[i].SymOrTag());
           }
         if (m_SDB[i].PhaseIs(m_som_Liq))
           {
           m_SDB.DDBLiqSpList.Add(i, m_SDB[i].SymOrTag());
-          //m_SDB.DDBLiqSpListMix.Add(i, m_SDB[i].SymOrTag());
           m_SDB.DDBLiqSpListDash.Add(i, m_SDB[i].SymOrTag());
           }
         if (m_SDB[i].PhaseIs(m_som_Gas))
           {
           m_SDB.DDBVapSpList.Add(i, m_SDB[i].SymOrTag());
-          //m_SDB.DDBVapSpListMix.Add(i, m_SDB[i].SymOrTag());
           m_SDB.DDBVapSpListDash.Add(i, m_SDB[i].SymOrTag());
           }
         }

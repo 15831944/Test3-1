@@ -1084,29 +1084,13 @@ class DllImportExport CSpecieDataBase
     long           m_iCO2g;
 
     DDBValueLstMem DDBSpList;
-    //DDBValueLstMem DDBSpListMix;
-    //DDBValueLstMem DDBSpListMixImg;
     DDBValueLstMem DDBSpListDash;
-    //DDBValueLstMem DDBSpListDashMix;
-    //DDBValueLstMem DDBSpListDashMixImg;
     DDBValueLstMem DDBSolSpList;
-    //DDBValueLstMem DDBSolSpListMix;
-    //DDBValueLstMem DDBSolSpListMixImg;
     DDBValueLstMem DDBSolSpListDash;
-    //DDBValueLstMem DDBSolSpListDashMix;
-    //DDBValueLstMem DDBSolSpListDashMixImg;
     DDBValueLstMem DDBLiqSpList;
-    //DDBValueLstMem DDBLiqSpListMix;
-    //DDBValueLstMem DDBLiqSpListMixImg;
     DDBValueLstMem DDBLiqSpListDash;
-    //DDBValueLstMem DDBLiqSpListDashMix;
-    //DDBValueLstMem DDBLiqSpListDashMixImg;
     DDBValueLstMem DDBVapSpList;
-    //DDBValueLstMem DDBVapSpListMix;
-    //DDBValueLstMem DDBVapSpListMixImg;
     DDBValueLstMem DDBVapSpListDash;
-    //DDBValueLstMem DDBVapSpListDashMix;
-    //DDBValueLstMem DDBVapSpListDashMixImg;
 
 #if WITHDEBUGDUMPENTHALPY
     static int DebugHDumpOn;
@@ -1142,33 +1126,6 @@ class DllImportExport CComponent
   friend class CComponentDataBase;
 
   public:
-    Strng           Sym;
-    Strng           ElDef;
-    ElemCompArray & ElComp;
-  protected:
-
-    CSpecieDataBase & m_SDB;
-    CComponentDataBase & m_CDB;
-    CH2ODataBase  & m_H2O;
-
-    int             iCId;
-    CSpecie *       m_SpPhaseD[MaxPhases]; //Phase Desc Indexed by Phase
-
-    int             m_nPhaseData;
-    CSpecie *       m_PhaseData[MaxPhases];  // Phase Desc Packed
-    int             m_iPhaseData[MaxPhases]; // Phase Index Packed
-    double          m_dMoleWt;
-
-    int             FindPhaseDataIndex(double &T);
-    int             FindPhaseDataIndex(char * pName);
-
-    byte            m_nAssumedCps;
-    byte            m_nDiscarded;
-    flag            m_bLiqDone;
-    flag            m_bVapDone;
-
-  public:
-    CSpecie *       operator[](int occ);
     CComponent(CSpecieDataBase & SDB, CComponentDataBase & CDB, CH2ODataBase & H2ODB, const char * Sym__);
     ~CComponent();
 
@@ -1209,6 +1166,33 @@ class DllImportExport CComponent
     CSpecie *       pSpecie(int occ);
     int             iSpecie(int occ);
     int             NSpecies();
+    CSpecie *       operator[](int occ);
+
+  public:
+    Strng           Sym;
+    Strng           ElDef;
+    ElemCompArray & ElComp;
+
+  protected:
+    CSpecieDataBase & m_SDB;
+    CComponentDataBase & m_CDB;
+    CH2ODataBase  & m_H2O;
+
+    int             iCId;
+    CSpecie *       m_SpPhaseD[MaxPhases]; //Phase Desc Indexed by Phase
+
+    int             m_nPhaseData;
+    CSpecie *       m_PhaseData[MaxPhases];  // Phase Desc Packed
+    int             m_iPhaseData[MaxPhases]; // Phase Index Packed
+    double          m_dMoleWt;
+
+    int             FindPhaseDataIndex(double &T);
+    int             FindPhaseDataIndex(char * pName);
+
+    byte            m_nAssumedCps;
+    byte            m_nDiscarded;
+    flag            m_bLiqDone;
+    flag            m_bVapDone;
 
   };
 
@@ -1217,12 +1201,6 @@ class DllImportExport CComponent
 class CRqdSpItem
   {
   public:
-    Strng   m_Name;
-    double  m_dLoTol;
-    double  m_dHiTol;
-    bool    m_bUseIdeal;
-    int     m_iDuplicate;
-
     CRqdSpItem()
       {
       m_dLoTol=-1;
@@ -1238,6 +1216,13 @@ class CRqdSpItem
       m_bUseIdeal=true;
       m_iDuplicate=-1;
       };
+
+  public:
+    Strng   m_Name;
+    double  m_dLoTol;
+    double  m_dHiTol;
+    bool    m_bUseIdeal;
+    int     m_iDuplicate;
   };
 
 class CRqdSpList : public CList <CRqdSpItem, CRqdSpItem&>
@@ -1308,6 +1293,16 @@ class CPhaseInfo
       m_PhInx  = 0;
       m_nSpecies = 0;
       };
+
+    void Clear()
+      {
+      m_eOcc  = BOT_Solid;
+      m_PhMsk = 0;
+      m_PhInx  = 0;
+      m_nSpecies = 0;
+      };
+
+  public:
     Strng       m_Sym;
     Strng       m_Tag;
     int         m_eOcc;
@@ -1321,53 +1316,7 @@ class CPhaseInfo
 class DllImportExport CComponentDataBase
   {
   friend class CSpecieDataBase;
-  private:
-    CComponent *       CmD[MaxComponents];
-    flag              bCDBBad;
-
-    Strng             PrjDataFile;
-
-    flag              m_ForTestingOnly;
-
   public:
-    int               m_iNo;
-
-    CDMatrix          BIP;
-
-    double            MinT;
-    double            MaxT;
-    double            MinP;
-    double            MaxP;
-
-    flag              UseStdFns4H2O;
-    CSpecie      *    m_pWater;
-    CSpecie      *    m_pSteam;
-
-    CComponentDataBase & m_CDB;
-    CSpecieDataBase    m_SDB;
-    CCElementDataBase   m_EDB;
-    CH2ODataBase       m_H2O;
-
-    int               m_ph_SolS;
-    int               m_ph_SolE;
-    int               m_ph_LiqS;
-    int               m_ph_LiqE;
-    int               m_ph_GasS;
-    int               m_ph_GasE;
-    int               m_ph_ALL;
-    int               m_ph_AqsInx;
-
-    PhMask            m_som_Sol;
-    PhMask            m_som_Liq;
-    PhMask            m_som_Gas;
-    PhMask            m_som_SL;
-    PhMask            m_som_ALL;
-
-    int               m_PhInfoCount[BOT_All+1];
-    int               m_PhInfoFirst[BOT_All+1];
-    int               m_PhInfoLast[BOT_All+1];
-    CPhaseInfo        m_PhInfo[MaxPhases];
-
     CComponentDataBase(flag ForTestingOnly=false);
     ~CComponentDataBase();
 
@@ -1409,16 +1358,63 @@ class DllImportExport CComponentDataBase
     int            PhaseLast(int Occ=BOT_All)   { return m_PhInfoLast[Occ]; };
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
 
-    DDBValueLstMem DDBCompList;
-    DDBValueLstMem DDBCompListMix;
-    DDBValueLstMem DDBCompListMixImg;
-    DDBValueLstMem DDBCompListVapLiq;
-    DDBValueLstMem DDBCompListDash;
-    DDBValueLstMem DDBCompListDashMix;
-    DDBValueLstMem DDBCompListDashMixImg;
-    DDBValueLstMem DDBCompListDashVapLiq;
+  private:
+    CComponent *          CmD[MaxComponents];
+    flag                  bCDBBad;
 
-  protected:
+    Strng                 PrjDataFile;
+
+    flag                  m_ForTestingOnly;
+
+    int                   m_iNo;
+
+  public:
+    CDMatrix              BIP;
+
+    double                MinT;
+    double                MaxT;
+    double                MinP;
+    double                MaxP;
+
+    flag                  UseStdFns4H2O;
+    CSpecie             * m_pWater;
+    CSpecie             * m_pSteam;
+
+    CComponentDataBase  & m_CDB;
+    CSpecieDataBase       m_SDB;
+    CCElementDataBase     m_EDB;
+    CH2ODataBase          m_H2O;
+
+    int                   m_ph_SolS;
+    int                   m_ph_SolE;
+    int                   m_ph_LiqS;
+    int                   m_ph_LiqE;
+    int                   m_ph_GasS;
+    int                   m_ph_GasE;
+    int                   m_ph_ALL;
+    int                   m_ph_AqsInx;
+
+    PhMask                m_som_Sol;
+    PhMask                m_som_Liq;
+    PhMask                m_som_Gas;
+    PhMask                m_som_SL;
+    PhMask                m_som_ALL;
+
+    int                   m_PhInfoCount[BOT_All+1];
+    int                   m_PhInfoFirst[BOT_All+1];
+    int                   m_PhInfoLast[BOT_All+1];
+    CPhaseInfo            m_PhInfo[MaxPhases];
+
+  public:
+    DDBValueLstMem        DDBCompList;
+    DDBValueLstMem        DDBCompListMix;
+    DDBValueLstMem        DDBCompListMixImg;
+    DDBValueLstMem        DDBCompListVapLiq;
+    DDBValueLstMem        DDBCompListDash;
+    DDBValueLstMem        DDBCompListDashMix;
+    DDBValueLstMem        DDBCompListDashMixImg;
+    DDBValueLstMem        DDBCompListDashVapLiq;
+
   };
 
 // ===========================================================================
