@@ -18,10 +18,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 2"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 3"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "22 September 2006"
+#define SCD_PATCHDATE    "23 September 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2504,12 +2504,10 @@ A) Model changes:
    pumps, valves, etc the resultant flowrate will be the minimum of all the
    output "capacity" flowrates of all the equipment and pipes in the line.
    The valve and pump capacity can be specified in mass flow or volumetric flow.
-6) In dynamic transfer mode, there are now two mode options in pipes, these are
-    "Transfer" as before and "Pipe". The "Pipe" option allows reverse flow in
-    streams.
-7) Dynamic mode improvements to the compressor model and flow regulator block.
-8) Added option for gain and offset options to the profile model. The profile 
-    output is adjusted as output=value*gain+offset.
+6) Dynamic mode improvements to the compressor model and flow regulator block.
+7) Added option for gain and offset options to the profile model. The profile 
+   output is adjusted as output=value*gain+offset.
+8) For reactions, added new msFinalFraction or mlFinalFraction Extent options.
 
 B) Solver changes
 1) (#170) Implemented a new "leaks" functionality for full dynamic mode. This
@@ -2522,6 +2520,12 @@ B) Solver changes
    material to occur in any direction between the area and any number of pipes
    or units.
 3) Enhancements and improvements to the Audit and Closure information page.
+4) For pipes in dynamic transfer, the maximum allowed flow capacity tags have 
+   been changed and the capacity can now be specified on a mass or volume flow
+   basis. For old projects, set UseNewCapVars to true to use new options.
+6) In dynamic transfer mode, there are now two mode options in pipes, these are
+    "Transfer" as before and "Pipe". The "Pipe" option allows reverse flow in
+    streams.
 5) Various improvements to the solver for dynamic transfer mode.
 6) Improvements to network analysis for dynamic with joins and tears.
 7) Added support in dynamic transfer mode for reverse flow in pipes. The pump
@@ -2546,10 +2550,17 @@ C) User Functionality changes:
 4) Added new options for trend and graphics window display options. For example
    'treat as one' overlays all graphics windows such that it appears like there
    is a single graphics window.
-5) Extended edit configuration dialog Step 1 page to include all groups of
+5) Implemented new Excel report SysCAD_AutoTags(ReportName, H/V, MaxColCount, 
+   MaxRowCount, Option1, Option2...). A SQL select and orderby type statement 
+   can be specified as an option to select the primary tags to be included. 
+   The report first returns all the tags that meet the selection statement 
+   criteria, and then the data as for a normal SysCAD_Tags(...) report. Example: 
+   SysCAD_AutoTags("Pipes", H, 200, 30, Select [Graphic]=="05_Flowsheet" and 
+   [Type]=="Pipe", OrderBy Tag Asc)
+6) Extended edit configuration dialog Step 1 page to include all groups of
    sub-models in the list of model types.
-6) Improvements to the neutral database import/export of graphics and models.
-7) Added new options to right click pop-up menu for the message window.
+7) Improvements to the neutral database import/export of graphics and models.
+8) Added new options to right click pop-up menu for the message window.
 
 C) Other changes:
 1) Upgraded licensing to use crypkey 6.5.
@@ -2572,6 +2583,10 @@ Update 2 : 22 September 2006
 1) (#551,556) Improvements for archive reporter.
 2) (#528,565) Improved tag checking of specie tags and phase names.
 3) (#569,570,571) Makeup block improvements.
+
+Update 3 : 23 September 2006
+------------------------------
+1) Implemented new EvapBlock option.
 
 =============================================================================
 ================                SysCAD 9.2                   ================
