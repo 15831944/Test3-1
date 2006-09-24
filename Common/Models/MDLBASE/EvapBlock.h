@@ -90,6 +90,45 @@ class DllImportExport CEvBlk_Percentage: public CEvapBlock
 DEFINE_EVAL(CEvBlk_Percentage);
 
 // ===========================================================================
+
+class DllImportExport CEvBlk_FixedFlow: public CEvapBlock
+  {
+  public:
+    CEvBlk_FixedFlow(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    virtual ~CEvBlk_FixedFlow();
+
+    virtual void   BuildDataDefn(DataDefnBlk& DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
+    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+
+  public:
+    double m_dEvapFrac;
+    double m_dQmEvap;
+    double m_dQmBleed;
+    double m_dQmFeed;
+    double m_dQmProd;
+    double m_dHeatFlow;
+    double m_dTempKFeed;
+    double m_dTempKProd;
+
+    class CEvapComp
+      {
+      public:
+        long      m_CIndex;
+        byte      m_Dest;
+        double    m_QmRqd;
+      };
+
+    CArray <CEvapComp, CEvapComp&> m_Components;
+
+  };
+
+DEFINE_EVAL(CEvBlk_FixedFlow);
+
+// ===========================================================================
 //
 // Evaporation Base
 //

@@ -296,6 +296,171 @@ void CEvBlk_Percentage::EvalProductsPipe(SpConduit & Qf, double Len, double Diam
 //
 //============================================================================
 
+#if WithSimpleEvap
+IMPLEMENT_EVAP(CEvBlk_FixedFlow, "EvapFlow", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "FixedFlow",  " ");
+#endif
+
+CEvBlk_FixedFlow::CEvBlk_FixedFlow(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
+CEvapBlock(pClass_, Tag_, pAttach, eAttach)
+  {
+  m_Components.SetSize(gs_CDB.DDBCompListVapLiq.Length());
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    m_Components[i].m_CIndex   = gs_CDB.DDBCompListVapLiq[i].m_lVal;
+    m_Components[i].m_Dest     = 0;
+    m_Components[i].m_QmRqd    = 0.0;
+    }
+  m_dEvapFrac   = 0.0;
+  m_dQmEvap     = 0.0;
+  m_dQmFeed     = 0.0;
+  m_dQmBleed    = 0.0;
+  m_dQmProd     = 0.0;
+  m_dHeatFlow   = 0.0;
+  m_dTempKFeed  = C2K(0.0);
+  m_dTempKProd  = C2K(0.0);
+  }
+
+//--------------------------------------------------------------------------
+
+CEvBlk_FixedFlow::~CEvBlk_FixedFlow()
+  {
+  }
+
+//--------------------------------------------------------------------------
+
+void CEvBlk_FixedFlow::BuildDataDefn(DataDefnBlk& DDB)
+  {
+  if (DDB.BeginStruct(this, "EvapPerc", NULL, DDB_NoPage))
+    {
+    DDB.Text("Requirements");
+    if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
+      {
+      for (int i=0; i<m_Components.GetSize(); i++)
+        {
+        LPTSTR Tg=gs_CDB[m_Components[i].m_CIndex].SymOrTag();
+        if (DDB.BeginElement(this, Tg, NULL, i))
+          {
+          DDB.Byte  ("", "Destination", DC_,     "",  &m_Components[i].m_Dest,      this, isParmStopped, DDBDestinations);
+          DDB.Double("", "Qm",          DC_Qm,   "kg/s", &m_Components[i].m_QmRqd,  this, isParm);
+          }
+        }
+      }
+    DDB.EndArray();
+
+    DDB.Text("");
+    DDB.Text("Results");
+    DDB.Double ("Evap.Qm",            "", DC_Qm,   "kg/s",    &m_dQmEvap,     this, isResult);
+    DDB.Double ("Evap.Frac",          "", DC_Frac, "%",       &m_dEvapFrac,   this, isResult);
+    DDB.Text(" ");
+    DDB.Text("Total mass flow:");
+    DDB.Double ("Qm.Feed",            "", DC_Qm,   "kg/s",    &m_dQmFeed,     this, isResult);
+    DDB.Double ("Qm.Bleed",           "", DC_Qm,   "kg/s",    &m_dQmBleed,    this, isResult);
+    DDB.Double ("Qm.Prod",            "", DC_Qm,   "kg/s",    &m_dQmProd,     this, isResult);
+    if (!HeatSkipMethod())
+      {
+      DDB.Text("Total heat flow:");
+      DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
+      DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
+      DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);//|noFileAtAll);
+      }
+    }
+  DDB.EndStruct();
+  }
+
+//--------------------------------------------------------------------------
+
+flag CEvBlk_FixedFlow::DataXchg(DataChangeBlk & DCB)
+  {
+  return 0;
+  }
+
+//--------------------------------------------------------------------------
+
+flag CEvBlk_FixedFlow::ValidateData(ValidateDataBlk & VDB)
+  {
+  for (int i=0; i<m_Components.GetSize(); i++)
+    m_Components[i].m_QmRqd=Max(0.0, m_Components[i].m_QmRqd);
+
+  return CEvapBlock::ValidateData(VDB); 
+  }
+
+//--------------------------------------------------------------------------
+
+void CEvBlk_FixedFlow::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
+  {
+  m_dQmFeed = Qf.QMass();
+  m_dTempKFeed = Qf.Temp();
+  const double HzIn = Qf.totHz();
+
+  SpConduit & Discard = m_pEvapBase->DiscardCd();
+  Discard.QZero();
+  SpMArray OldVap;
+  double TtlLiq = 0.0;
+  double TtlEvap = 0.0;
+
+  Qf.SetPress(Po);
+  const double H=Qf.totHf();
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    CEvapComp  & EC = m_Components[i];
+    CComponent & C  = gs_CDB[EC.m_CIndex];
+    const int iLiq=C.LiqPhInx();
+    const int iVap=C.VapPhInx();
+    const double Liq=Qf.VMass[iLiq];
+    const double Vap=Qf.VMass[iVap];
+    const double D=Min(EC.m_QmRqd, Liq);
+    TtlLiq += Liq;
+    TtlEvap += D;
+
+    Qf.SetVValue(iLiq, Liq-D);
+    Qf.SetVValue(iVap, Vap+D);
+
+    Discard.SetVValue(iVap, D);
+    OldVap.SetVValue(iVap, Vap);
+    }
+  Qf.Set_totHf(H);
+
+  const double T=Qf.Temp();
+  const double P=Qf.Press();
+  for (int i=0; i<m_Components.GetSize(); i++)
+    {
+    CEvapComp  & EC = m_Components[i];
+    const int iVap = gs_CDB[EC.m_CIndex].VapPhInx();
+    switch (EC.m_Dest)
+      {
+      case Dest_Mix:
+        // Qf is at correct conditions
+        Discard.SetVValue(iVap, 0.0);
+        break;
+      case Dest_Discard:
+        Qf.SetVValue(iVap, OldVap[iVap]); // reset to original vapour mass
+        break;
+      }
+    }
+  Qf.SetTempPress(T, P);
+  Discard.SetTempPress(T, P);
+
+  m_dQmEvap     = TtlEvap;
+  m_dEvapFrac   = (TtlLiq>SmallPosFlow ? TtlEvap/TtlLiq : 0.0);
+  m_dQmProd     = Qf.QMass();
+  m_dQmBleed    = m_dQmFeed-m_dQmProd;
+  m_dTempKProd  = Qf.Temp();
+  m_dHeatFlow   = Qf.totHz() - HzIn;
+  }
+
+//--------------------------------------------------------------------------
+
+void CEvBlk_FixedFlow::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+  {
+  EvalProducts(Qf, Po, FinalTEst);
+  }
+
+//============================================================================
+//
+//
+//
+//============================================================================
+
 flag CEvapBase::Open(TagObjClass * pEvapClass, flag Fixed)
   {
   m_fEnabled=True;
