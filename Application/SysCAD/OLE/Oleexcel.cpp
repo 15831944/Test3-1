@@ -2028,12 +2028,22 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
     }
 
   // Mark the End
+  if (bPriVert)
+    Row1++;
+  else
+    Col1++;
   lpDispatch = pSheet->Cells(Row1, Col1);
   Range.AttachDispatch(lpDispatch, TRUE);
   if (iS<RqdTags.GetCount()) // more tags - add marker
+    {
     Range.SetValue(TagOverunStr);
+    COleReportMngr& M = *pMngr;
+    M.RedFeedback("Tag overrun: maximum of %d tags allowed, %d tags required.", iPriMaxLen, RqdTags.GetCount());
+    }
   else
+    {
     Range.SetValue(LastTagStr);
+    }
   if (m_bClearRange)
     ClearSecondary(pSheet, Range, Row1, Col1);
 
@@ -2433,9 +2443,9 @@ int COleReportMngr::DoAutomation()
     const char* OleKeys[4] = { OleReportKey, OleReportAutoKey, OleReportListKey, OleReportListOffsetKey};
     Strng Examples[4];
     Examples[0].Set("%s\"R1\",H,5,32)", OleKeys[0]);
-    Examples[1].Set("%s\"R1\",V,8)", OleKeys[1]);
+    Examples[1].Set("%s\"R1\",H,100,32,Select [Graphic]==\"05_Flowsheet\" and [Type]==\"Pipe\", OrderBy [Tag] Asc)", OleKeys[1]);
     Examples[2].Set("%s\"R1\",V,8)", OleKeys[2]);
-    Examples[3].Set("%sB3,\"R2\")", OleKeys[3]);
+    Examples[3].Set("%s,B3,\"R2\")", OleKeys[3]);
     SendInfo("Search...");
     Strng CellNm;
     for (short i=1; i<=Count; i++)
