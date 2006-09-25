@@ -828,7 +828,6 @@ flag GControl::PutOtherData(FilingControlBlock &FCB)
   return PgmMngr.LoadScenario(FCB);
   }
 
-
 //---------------------------------------------------------------------------
 
 void GControl::OnAppActivate(BOOL bActive) 
@@ -887,7 +886,7 @@ int GControl::FilesUsed(CFilesUsedArray & Files)
 
 //--------------------------------------------------------------------------
 
-void   GControl::SetState(eScdMdlStateActs RqdState)
+void GControl::SetState(eScdMdlStateActs RqdState)
   {
   FlwNode::SetState(RqdState);
   switch (RqdState)
@@ -903,6 +902,29 @@ void   GControl::SetState(eScdMdlStateActs RqdState)
 
 int GControl::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
+  if (sPGMName.Len()>0)
+    {
+    Strng fn;
+    FnExpand(fn, sPGMName());
+    //pkh todo 
+    //DoTextFileChangeTag(fn(), pOldTag, pNewTag, ResultData);
+    //if (ResultData.iTagChangeCount>0)
+    //  {
+    //  LogNote(Tag(), 0, "%d occurances of %s changed in %s", ResultData.iTagChangeCount, pOldTag, sPGMName());
+    //  }
+
+    const int RefFilesUsed = PgmMngr.m_FilesUsed.GetSize();
+    for (int i=1; i<RefFilesUsed; i++)
+      {
+      FnExpand(fn, PgmMngr.m_FilesUsed[i]());
+      //pkh todo 
+      //DoTextFileChangeTag(fn(), pOldTag, pNewTag, ResultData);
+      //if (ResultData.iTagChangeCount>0)
+      //  {
+      //  LogNote(Tag(), 0, "%d occurances of %s changed in %s", ResultData.iTagChangeCount, pOldTag, PgmMngr.m_FilesUsed[i]());
+      //  }
+      }
+    }
   return EOCT_DONE;
   }
 
