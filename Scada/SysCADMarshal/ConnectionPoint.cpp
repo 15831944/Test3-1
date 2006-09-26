@@ -42,6 +42,7 @@ STDMETHODIMP COPC_Callback::OnDataChange
       
       CFullValue FV(values[index], quality[index], time[index]);
       gs_SlotMngr.AppendChange(eCSD_Device, -1, eCSD_Slot, hClient, Transid, FV, NULL);
+      gs_SlotMngr.m_Stats.m_nDeviceChgsIn++;
       }
     }
   if (count)
@@ -73,6 +74,7 @@ STDMETHODIMP COPC_Callback::OnReadComplete
       long hClient=clienthandles[index];
       CFullValue FV(values[index], quality[index], time[index]);
       gs_SlotMngr.AppendChange(eCSD_Device, -1, eCSD_Slot, hClient, Transid, FV, NULL);
+      gs_SlotMngr.m_Stats.m_nDeviceChgsIn++;
       }
     }
   if (count)

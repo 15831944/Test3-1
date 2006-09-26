@@ -460,7 +460,14 @@ LRESULT CSysCADMarshalApp::OnUpdateStatus(WPARAM wParam, LPARAM lParam)
     S.Format("Lnk:%i",    pSB->m_dwLinks);                      pMain->m_wndStatusBar.SetPaneText(2, S);  
     S.Format("Hld:%i",    pSB->m_dwHolds);                      pMain->m_wndStatusBar.SetPaneText(3, S);  
     S.Format("Que:%i/%i", pSB->m_dwDelays, pSB->m_dwChanges);   pMain->m_wndStatusBar.SetPaneText(4, S);  
-    S.Format("Chg:%i",    pSB->m_dwTotChgs);                    pMain->m_wndStatusBar.SetPaneText(5, S);  
+    S.Format("Evts:Slt:%i/%i Lnk:%i/%i OPC:%i/%i Tot:%i",    
+      pSB->m_nScdSlotChgsIn,   pSB->m_nScdSlotChgsOut,
+      pSB->m_nScdLinkChgsIn,   pSB->m_nScdLinkChgsOut,
+      pSB->m_nDeviceChgsIn,    pSB->m_nDeviceChgsOut,
+      pSB->m_dwTotChgs
+      );
+    
+    pMain->m_wndStatusBar.SetPaneText(5, S);  
     }
 
   delete pSB;

@@ -371,6 +371,7 @@ STDMETHODIMP CScdMarshal::ReadSubscriptionData(VARIANT_BOOL Start, VARIANT_BOOL 
             DataItem.m_dwHandle=SubsItem.m_dwHandle;
             DataItem.m_dwOptions=0;
             (*dwCount)++;
+            gs_SlotMngr.m_Stats.m_nScdLinkChgsOut++;
             }
           }
         }
@@ -388,6 +389,7 @@ STDMETHODIMP CScdMarshal::ReadSubscriptionData(VARIANT_BOOL Start, VARIANT_BOOL 
             DataItem.m_dwHandle=SubsItem.m_dwHandle;
             DataItem.m_dwOptions=0;
             (*dwCount)++;
+            gs_SlotMngr.m_Stats.m_nScdSlotChgsOut++;
             }
           }
         }
@@ -420,6 +422,7 @@ STDMETHODIMP CScdMarshal::WriteSubscriptionData(DWORD *dwMaxCount, DWORD *dwCoun
         FV.m_vValue=Data.m_vValue;
         gs_SlotMngr.SendSimValue2Link(eCSD_Simulator, Index, 0, FV);
         //gs_SlotMngr.AppendChange(eCSD_Simulator, -1, eCSD_Link, Index, 0, FV, NULL);
+        gs_SlotMngr.m_Stats.m_nScdLinkChgsIn++;
         }
         break;
       case IOML_Slot:
@@ -427,6 +430,7 @@ STDMETHODIMP CScdMarshal::WriteSubscriptionData(DWORD *dwMaxCount, DWORD *dwCoun
         CFullValue FV(OPC_QUALITY_GOOD);
         FV.m_vValue=Data.m_vValue;
         gs_SlotMngr.AppendChange(eCSD_Simulator, -1, eCSD_Slot, Index, 0, FV, NULL);
+        gs_SlotMngr.m_Stats.m_nScdSlotChgsIn++;
         }
         break;
       }

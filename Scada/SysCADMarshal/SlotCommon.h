@@ -506,6 +506,13 @@ class CStatusInfoBlock
     DWORD   m_dwDelays;
     DWORD   m_dwTotChgs;
     DWORD   m_dwHolds;
+
+    DWORD   m_nScdSlotChgsIn;
+    DWORD   m_nScdSlotChgsOut;
+    DWORD   m_nScdLinkChgsIn;
+    DWORD   m_nScdLinkChgsOut;
+    DWORD   m_nDeviceChgsIn;
+    DWORD   m_nDeviceChgsOut;
   };
 
 class CSlotValueSet

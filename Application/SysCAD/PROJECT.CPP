@@ -1701,9 +1701,12 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
 
   m_sIOMarshalName = PF.RdStr("IOMarshal", "Name", m_sIOMarshalName());
   m_sIOMarshalName.FnCheckExtension(".scm");
-  m_sIOMarshalName.FnContract();
   m_bIOMOn = (PF.RdLong("IOMarshal", "On", m_bIOMOn) != 0);
   m_sIOMarshalNode = PF.RdStr("IOMarshal", "Node", m_sIOMarshalNode());
+  if (m_sIOMarshalNode.Len()==0) 
+    m_sIOMarshalName.FnContract();
+  else
+    m_sIOMarshalName.FnExpand();
 
   //get report info...
   m_ReportInfo.iHSearchLen = Range(1, PF.RdInt("Reports", "HSearchLen", m_ReportInfo.iHSearchLen), (int)MaxCSVCols);
@@ -1927,7 +1930,15 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
   //  pOPCSrvr->OPCSrvrMngr()->LoadOrSaveOptions(PF, false);
 
   PF.WrLong("IOMarshal", "On", m_bIOMOn);
-  PF.WrStr("IOMarshal", "Name", m_sIOMarshalName());
+  m_sIOMarshalNode.LRTrim();
+  if (m_sIOMarshalNode())
+    {
+    Strng S(m_sIOMarshalName);
+    S.FnExpand();
+    PF.WrStr("IOMarshal", "Name", S());
+    }
+  else
+    PF.WrStr("IOMarshal", "Name", m_sIOMarshalName());
   PF.WrStr("IOMarshal", "Node", m_sIOMarshalNode());
 
   PF.WrInt("Reports", "HSearchLen", m_ReportInfo.iHSearchLen);

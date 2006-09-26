@@ -273,6 +273,7 @@ class CSlotMngr : public CNodeXRefMngr
 
     bool                      m_bScdRunning;
 
+    CStatusInfoBlock          m_Stats;
 
     //CScdMarshal              *m_pSimulatorReqd;
     //CScdMarshal              *m_pSimulator;

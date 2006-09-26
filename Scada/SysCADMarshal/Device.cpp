@@ -1045,6 +1045,8 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
       DWORD CanID=0;
       HRESULT hr=ASyncIO.Write(No, WrkHandles, WrkValues, gs_SlotMngr.GetTransactionID(), &CanID, &pErrors);
 
+      gs_SlotMngr.m_Stats.m_nDeviceChgsOut+=No;
+
       //
       // Think we need to check all the return error codes here
       //

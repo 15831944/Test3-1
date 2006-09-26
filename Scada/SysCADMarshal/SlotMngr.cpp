@@ -249,6 +249,13 @@ CSlotMngr::CSlotMngr()
 
   m_bScdRunning             = false;
 
+  m_Stats.m_nScdSlotChgsIn  = 0;
+  m_Stats.m_nScdSlotChgsOut = 0;
+  m_Stats.m_nScdLinkChgsIn  = 0;
+  m_Stats.m_nScdLinkChgsOut = 0;
+  m_Stats.m_nDeviceChgsOut  = 0;
+  m_Stats.m_nDeviceChgsIn   = 0;
+
   SetDefaultConfig();
   }
 
@@ -731,14 +738,20 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
   DisConnectUnusedSlots();
   DumpSlotInfo("CfgEnd 2");
 
+  SendUpdateStatus();
+
   CompressSlotList();
   SetClientHandlesInServer();
   FindDevicesForSlots();
   DisConnectUnusedDevices();
   CompressDeviceList();
 
+  SendUpdateStatus();
+
   ConnectUsedDevices();
   ConnectUsedSlots();
+
+  SendUpdateStatus();
 
   ConnectConnects();
   CompressLinkList();
@@ -768,6 +781,8 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
       }
     theApp.PostThreadMessage(WMU_SETSLOTCFG, m_lCfgSequence, (LPARAM)pSlotLst);
 
+    SendUpdateStatus();
+
     CLinkCfgArray *pLinkLst= new CLinkCfgArray;
     pLinkLst->SetSize(m_Links.GetSize());
     for (i=0; i<m_Links.GetSize(); i++)
@@ -781,6 +796,8 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
       }
     theApp.PostThreadMessage(WMU_SETLINKCFG, m_lCfgSequence, (LPARAM)pLinkLst);
 
+    SendUpdateStatus();
+
     CCdBlkCfgArray *pCdBlkLst= new CCdBlkCfgArray;
     pCdBlkLst->SetSize(m_CdBlks.GetSize());
     for (i=0; i<m_CdBlks.GetSize(); i++)
@@ -791,6 +808,8 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
       }
     theApp.PostThreadMessage(WMU_SETCDBLKCFG, m_lCfgSequence, (LPARAM)pCdBlkLst);
 
+    SendUpdateStatus();
+
     CDeviceCfgArray *pDeviceLst= new CDeviceCfgArray;
     pDeviceLst->SetSize(m_Devices.GetSize());
     for (i=0; i<m_Devices.GetSize(); i++)
@@ -800,6 +819,8 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
       (*pDeviceLst)[i]=new CDeviceCfg(*m_Devices[i]);
       }
     theApp.PostThreadMessage(WMU_SETDEVICECFG, m_lCfgSequence, (LPARAM)pDeviceLst);
+
+    SendUpdateStatus();
 
     for (i=0; i<m_Slots.GetSize(); i++)
       m_Slots[i]->SendStateValue();
@@ -825,6 +846,7 @@ void CSlotMngr::CfgEnd(eDoingCfg Doing)
       m_Links[i]->SetValueID("OnLoad", m_Links[i]->m_vValue, eCSD_Link, i);  // what about "OnReLoad"
     }
 
+  SendUpdateStatus();
   }
 
 // -----------------------------------------------------------------------
@@ -1718,6 +1740,9 @@ CString CSlotMngr::FullFileName(LPCSTR Fn)
 void CSlotMngr::SendUpdateStatus()
   {
   CStatusInfoBlock *pCB=new CStatusInfoBlock;
+  
+  *pCB = m_Stats;
+  
   pCB->m_dwSlots=NSlots;
   pCB->m_dwLinks=NLinks;
   pCB->m_dwChanges=m_ChangeList.Count();
