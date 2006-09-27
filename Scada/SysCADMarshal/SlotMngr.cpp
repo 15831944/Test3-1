@@ -256,7 +256,9 @@ CSlotMngr::CSlotMngr()
   m_Stats.m_nDeviceChgsOutInt = 0;
   m_Stats.m_nDeviceChgsOutFlt = 0;
   m_Stats.m_nDeviceChgsIn   = 0;
-  m_Stats.m_nWritesBusy     = 0;
+  m_Stats.m_nIntWritesBusy  = 0;
+  m_Stats.m_nFltWritesBusy  = 0;
+  m_Stats.m_nFltWritesSkip  = 0;
 
   SetDefaultConfig();
   }
