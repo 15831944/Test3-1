@@ -75,6 +75,12 @@ class CDeviceCfg
     DWORD           m_dwTrickleCount;
     DWORD           m_dwTrickleIndex;
     bool            m_bLocalOnly;
+    bool            m_bSyncIO;
+
+        // DeadBand on Write
+    double          m_dDeadBandPercent;   // As Percent = 0 Disable
+    long            m_lDeadBandForceCount; // Write at least every N changes  -1 = No Force, 0 = Always
+
   };
 
 class CDevice : public CDeviceCfg
@@ -108,7 +114,7 @@ class CDevice : public CDeviceCfg
                   
                   
    // CWriteRqst      * AppendWriteRqst(long Slot, long hServer, VARIANT & m_vValue);
-    void            AppendWriteRqst(long Slot, OPCHANDLE hServer, VARIANT & m_vValue, bool Refresh=false);
+    void            AppendWriteRqst(CSlot & Slot, OPCHANDLE hServer, VARIANT & m_vValue, bool Refresh=false);
     long            ClearWriteList()       { return m_WriteList.Clear(); };
                   
     void            Save(CProfINIFile & SavePF);

@@ -454,17 +454,19 @@ LRESULT CSysCADMarshalApp::OnUpdateStatus(WPARAM wParam, LPARAM lParam)
   CMainFrame* pMain=(CMainFrame*)AfxGetMainWnd();
   if (pMain)
     {
-    CString S;
-
+    CString S,SW;
+    SW.Format(pSB->m_nIntWritesBusy||pSB->m_nFltWritesBusy  ? " -> i:%i,f:%i":"", pSB->m_nIntWritesBusy, pSB->m_nFltWritesBusy);
     S.Format("Slt:%i",    pSB->m_dwSlots);                      pMain->m_wndStatusBar.SetPaneText(1, S);  
     S.Format("Lnk:%i",    pSB->m_dwLinks);                      pMain->m_wndStatusBar.SetPaneText(2, S);  
     S.Format("Hld:%i",    pSB->m_dwHolds);                      pMain->m_wndStatusBar.SetPaneText(3, S);  
     S.Format("Que:%i/%i", pSB->m_dwDelays, pSB->m_dwChanges);   pMain->m_wndStatusBar.SetPaneText(4, S);  
-    S.Format("Evts:Slt:%i/%i Lnk:%i/%i OPC:%i/%i Tot:%i",    
+    //S.Format("Tot:%i Slt:%i,%i Lnk:%i,%i OPC:%i,(i:%i,f:%i,x:%i)%s",    
+    //  pSB->m_dwTotChgs,
+    S.Format("Slt:%i,%i Lnk:%i,%i OPC:%i,(i:%i,f:%i,x:%i)%s",    
       pSB->m_nScdSlotChgsIn,   pSB->m_nScdSlotChgsOut,
       pSB->m_nScdLinkChgsIn,   pSB->m_nScdLinkChgsOut,
-      pSB->m_nDeviceChgsIn,    pSB->m_nDeviceChgsOut,
-      pSB->m_dwTotChgs
+      pSB->m_nDeviceChgsIn,    pSB->m_nDeviceChgsOutInt, pSB->m_nDeviceChgsOutFlt, pSB->m_nFltWritesSkip,
+      SW
       );
     
     pMain->m_wndStatusBar.SetPaneText(5, S);  

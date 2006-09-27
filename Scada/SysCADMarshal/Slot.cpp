@@ -237,6 +237,9 @@ CSlot::CSlot()
   m_pGetConnect         = NULL;
   m_dwFlushChangeCalls  = 0;
   m_dwChangesInCall     = 0;
+
+  m_LastValueWritten    = 0;
+  m_nValuesToSkip       = 0;
   };
 
 CSlot::~CSlot()
@@ -1222,7 +1225,7 @@ CSlotConnect * CSlot::AddGetConnect(LPSTR pTag, bool Inv)//, byte Op, double Lcl
     {
     CSlotConnect* pNew = new CSlotConnect(pTag, false, Inv);
     if (m_pGetConnect)
-      SetError(SErr_TooManyConnects, "Only One Get COnnection allowed");
+      SetError(SErr_TooManyConnects, "Only One Get Connection allowed");
     else
       m_pGetConnect=pNew;
     return pNew;
@@ -1534,7 +1537,7 @@ bool CSlot::SetValue(CChangeItem * pRqst)
     HRESULT hr=FV.ChangeType(m_wNativeType);
     if (FAILED(hr))
       SetError(SErr_SetValueDevice, hr, "");
-    gs_SlotMngr.m_Devices[m_lDevice]->AppendWriteRqst(m_lSlot, m_hServer, FV);
+    gs_SlotMngr.m_Devices[m_lDevice]->AppendWriteRqst(*this, m_hServer, FV);
     }
 
   ProcessConnects(m_iLastChgDirn);
@@ -1554,7 +1557,7 @@ bool CSlot::WriteCurrentValue2Device()
     HRESULT hr=FV.ChangeType(m_wNativeType);
     if (FAILED(hr))
       SetError(SErr_SetValueDevice, hr, "");
-    gs_SlotMngr.m_Devices[m_lDevice]->AppendWriteRqst(m_lSlot, m_hServer, FV, true);
+    gs_SlotMngr.m_Devices[m_lDevice]->AppendWriteRqst(*this, m_hServer, FV, true);
     return true;
     }
   return false;

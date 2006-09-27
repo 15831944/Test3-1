@@ -665,6 +665,7 @@ static struct { long ErrNo; LPCSTR Str;} const ErrStrs[]=
   {
     {SErr_NoError             ,""                       },
     {SErr_ASyncIOWrite        ,"ASyncIOWrite"           },
+    {SErr_SyncIOWrite         ,"SyncIOWrite"            },
     {SErr_AddItem             ,"AddItem"                },
     {SErr_CdBlkTagMissing     ,"CdBlk Tag Missing"      },
     {SErr_CdBlkTagBadType     ,"CdBlk Tag BadType"      },

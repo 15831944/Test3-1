@@ -146,7 +146,7 @@ void CDeviceView::OnUpdate(CView *pSender, LPARAM lHint, CObject *pHint)
 
   CSysCADMarshalDoc* pDoc = GetDocument();
   CTreeCtrl& tree = GetTreeCtrl();
-  CString V1,V2,V3,V4,V5;
+  CString V1,V2,V3,V4,V5,V6,V7,V8;
   switch( Hint )
     {
     case HINT_CLEAR_ALL:
@@ -181,12 +181,17 @@ void CDeviceView::OnUpdate(CView *pSender, LPARAM lHint, CObject *pHint)
           V3="Group:"+pDoc->m_DeviceCfgs[i]->m_sGroupName;
           V4.Format("Update:%i", pDoc->m_DeviceCfgs[i]->m_dwUpdateRate);
           V5.Format("TrickleCount:%i", pDoc->m_DeviceCfgs[i]->m_dwTrickleCount);
+          V6.Format("SyncIO:%i", pDoc->m_DeviceCfgs[i]->m_bSyncIO);
+          V7.Format("DeadBand:%.2f", pDoc->m_DeviceCfgs[i]->m_dDeadBandPercent);
+          V8.Format("DeadBandForce:%i", pDoc->m_DeviceCfgs[i]->m_lDeadBandForceCount);
 
           h=tree.InsertItem(V1, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
           h=tree.InsertItem(V2, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
           h=tree.InsertItem(V3, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
           h=tree.InsertItem(V4, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
           h=tree.InsertItem(V5, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
+          h=tree.InsertItem(V6, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
+          h=tree.InsertItem(V7, 0, 0, hDev); tree.SetItemData(h, ItemData(ViewSlots, i, -1));
           }
         else
           {

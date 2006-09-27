@@ -192,6 +192,9 @@ class CSlot : public CSlotCfg
     DWORD       m_dwFlushChangeCalls;
     DWORD       m_dwChangesInCall;
 
+    // DeadBand on Write
+    double      m_nValuesToSkip;
+    double      m_LastValueWritten;
 
     // Connects
     CSlotConnArray  m_SetConnects;   // actual Set connects

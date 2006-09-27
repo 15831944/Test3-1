@@ -429,6 +429,9 @@ CDeviceCfg::CDeviceCfg(LPCSTR Name):
   m_bLocalOnly=(_stricmp(Name, "Local")==0);
   m_dwTrickleCount=0;
   m_dwTrickleIndex=0;
+  m_bSyncIO=false;
+  m_dDeadBandPercent=0.001;
+  m_lDeadBandForceCount=-1;
   };
 
 CDeviceCfg::~CDeviceCfg()
@@ -450,6 +453,9 @@ CDeviceCfg & CDeviceCfg::operator =(const CDeviceCfg & V)
   m_bLocalOnly      = V.m_bLocalOnly;
   m_dwTrickleCount  = V.m_dwTrickleCount;
   m_dwTrickleIndex  = V.m_dwTrickleIndex;
+  m_bSyncIO         = V.m_bSyncIO;
+  m_dDeadBandPercent  = V.m_dDeadBandPercent;
+  m_lDeadBandForceCount= V.m_lDeadBandForceCount;
   return *this;
   };
 
@@ -485,6 +491,9 @@ bool CDevice::ReadConfig(LPCSTR DevCfgFile)
   m_sGroupName      = PF.RdStr(m_sServerName,   "GroupName",    "SysCAD");
   m_dwUpdateRate    = PF.RdLong(m_sServerName,  "UpdateRate",   250);
   m_dwTrickleCount  = PF.RdLong(m_sServerName,  "TrickleCount", 0);
+  m_bSyncIO         = PF.RdLong(m_sServerName,  "SyncIO",       0)!=0;
+  m_dDeadBandPercent    = PF.RdDouble (m_sServerName,  "DeadBandPercent",      0.1)*0.01;
+  m_lDeadBandForceCount = PF.RdLong   (m_sServerName,  "DeadBandForceCount", -1);
   m_dwTrickleIndex  = 0;
 
   if (m_sGroupName.GetLength()==0)
@@ -507,6 +516,9 @@ bool CDevice::WriteConfig(LPCSTR DevCfgFile)
   PF.WrStr(m_sServerName, "GroupName",   m_sGroupName);
   PF.WrLong(m_sServerName, "UpdateRate", m_dwUpdateRate);
   PF.WrLong(m_sServerName, "TrickleCount", m_dwTrickleCount);
+  PF.WrLong(m_sServerName, "SyncIO",       m_bSyncIO?1:0);
+  PF.WrDouble (m_sServerName, "DeadBandPercent",  m_dDeadBandPercent*100.0);
+  PF.WrLong   (m_sServerName, "DeadBandForceCount", m_lDeadBandForceCount);
 
   if (m_sGroupName.GetLength()==0)
     {
@@ -940,14 +952,41 @@ bool CDevice::SetActiveState(bool On)
 
 // -----------------------------------------------------------------------
 
-void CDevice::AppendWriteRqst(long Slot, OPCHANDLE hServer, VARIANT & vValue, bool Refresh)
+void CDevice::AppendWriteRqst(CSlot & Slot, OPCHANDLE hServer, VARIANT & vValue, bool Refresh)
   {
   if (m_bConnected)
     {
+    bool WriteIt=true;
+    if (!Refresh && Slot.m_Range.m_bValid && (Slot.Type() == VT_R4 || Slot.Type() == VT_R8))
+      {
+      double WrtVal=0;
+      switch (Slot.Type())
+        {
+        case VT_R4: WrtVal= vValue.fltVal; break;
+        case VT_R8: WrtVal= vValue.dblVal; break;
+        }
+
+      double D=fabs(Slot.m_LastValueWritten - WrtVal)/Slot.m_Range.Range();
+      WriteIt=(D>=m_dDeadBandPercent) || (Slot.m_nValuesToSkip==0);
+      if (WriteIt)
+        {
+        Slot.m_LastValueWritten = WrtVal;
+        Slot.m_nValuesToSkip    = m_lDeadBandForceCount;
+        }
+      else if (Slot.m_nValuesToSkip>=0)
+        Slot.m_nValuesToSkip--;
+      
+      if (!WriteIt)
+        gs_SlotMngr.m_Stats.m_nFltWritesSkip++;
+      }
+
+    if (WriteIt)
+      {
     CFullValue FV;
     FV.m_vValue=vValue;
-    CChangeItem * pWrt=new CChangeItem(eCSD_Slot, Slot, eCSD_Device, -1, hServer, gs_SlotMngr.GetTransactionID(), FV, false, Refresh);
+      CChangeItem * pWrt=new CChangeItem(eCSD_Slot, Slot.m_lSlot, eCSD_Device, -1, hServer, gs_SlotMngr.GetTransactionID(), FV, false, Refresh);
     m_WriteList.AddTail(pWrt);
+    }
     }
   };
 
@@ -1010,21 +1049,37 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
 
   long Total=0;
 
+  HRESULT hr=0;
+  OPCSyncIO   SyncIO;
   OPCAsyncIO2 ASyncIO;
-  HRESULT hr = ASyncIO.Attach(m_OPC.m_OpcGroup );
+  if (m_bSyncIO)
+    {
+    hr = SyncIO.Attach(m_OPC.m_OpcGroup );
+    if( FAILED(hr) )
+      {
+      ReportError(m_sServerName, hr,  _T("SyncIO::Attach: "));
+      return false;
+      }
+    }
+  else
+    {
+    hr = ASyncIO.Attach(m_OPC.m_OpcGroup );
   if( FAILED(hr) )
     {
-    ReportError(m_sServerName, hr,  _T("ASyncIO2Attach: "));
+      ReportError(m_sServerName, hr,  _T("ASyncIO2::Attach: "));
     return false;
+    }
     }
 
   long      WrkSlots[MaxWorkSlots];
   OPCHANDLE WrkHandles[MaxWorkSlots];
   VARIANT   WrkValues[MaxWorkSlots];
-
+  CChangeItem * Wrts[MaxWorkSlots];
   for (int i=0; i<MaxWorkSlots; i++)
     VariantInit(&WrkValues[i]);
   long No=0;
+  long NoInts=0;
+  long NoFlts=0;
   //CWriteRqst * pWrt=m_WriteList.RemoveHead();
   CChangeItem * pWrt=m_WriteList.RemoveHead();
   while (pWrt)
@@ -1033,7 +1088,12 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
     WrkSlots[No]=pWrt->m_lSrcInx;
     WrkHandles[No]=pWrt->m_hServer;
     WrkValues[No]=pWrt->m_vValue;
+    Wrts[No]=pWrt;
     No++;
+    if (pWrt->m_vValue.vt==VT_R4 || pWrt->m_vValue.vt==VT_R8)
+      NoFlts++;
+    else
+      NoInts++;
 
     gs_SlotMngr.m_HistoryList.AddTail(pWrt);
     //delete pWrt;
@@ -1041,19 +1101,35 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
 
     if ((No>=MaxWorkSlots) || (No>0 && (pWrt==NULL)))
       {
-      HRESULT *pErrors=NULL;
+      gs_SlotMngr.m_Stats.m_nIntWritesBusy+=NoInts;
+      gs_SlotMngr.m_Stats.m_nFltWritesBusy+=NoFlts;
+      gs_SlotMngr.SendUpdateStatus();
+
+      HRESULT *pErrors=NULL, hr;
+      if (m_bSyncIO)
+        {
+        hr=SyncIO.Write(No, WrkHandles, WrkValues, &pErrors);
+        }
+      else
+        {
       DWORD CanID=0;
-      HRESULT hr=ASyncIO.Write(No, WrkHandles, WrkValues, gs_SlotMngr.GetTransactionID(), &CanID, &pErrors);
-
-      gs_SlotMngr.m_Stats.m_nDeviceChgsOut+=No;
-
+        hr=ASyncIO.Write(No, WrkHandles, WrkValues, gs_SlotMngr.GetTransactionID(), &CanID, &pErrors);
+        }
+      gs_SlotMngr.m_Stats.m_nDeviceChgsOutInt+=NoInts;
+      gs_SlotMngr.m_Stats.m_nDeviceChgsOutFlt+=NoFlts;
+      gs_SlotMngr.m_Stats.m_nIntWritesBusy-=NoInts;
+      gs_SlotMngr.m_Stats.m_nFltWritesBusy-=NoFlts;
+      gs_SlotMngr.SendUpdateStatus();
       //
       // Think we need to check all the return error codes here
       //
 
+      LPCTSTR Msg1=m_bSyncIO  ? _T("SyncIO.Write: ") : _T("ASyncIO.Write: ");
+      LPCTSTR Msg2=m_bSyncIO  ? _T("SyncIO.Write: Item") : _T("ASyncIO.Write: Item");
+      int     SErr=m_bSyncIO  ? SErr_SyncIOWrite : SErr_ASyncIOWrite;
       if( FAILED( hr ) )   // if the call failed, get out
         {
-        ReportError(m_sServerName, hr,  _T("ASyncIO.Write: "));
+        ReportError(m_sServerName, hr,  Msg1);
         //delete item;
         return false;
         }
@@ -1062,7 +1138,7 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
         {
         CSlot &S=*(Slots[WrkSlots[i]]);
         if (FAILED(pErrors[i]))
-          S.SetError(SErr_ASyncIOWrite , pErrors[i], "ASyncIO.Write ???");
+          S.SetError(SErr , pErrors[i], Msg2);
         }
 
       CoTaskMemFree( pErrors );
@@ -1070,6 +1146,8 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
       for (int i=0; i<No; i++)
         VariantClear(&WrkValues[i]);
       No=0;
+      NoInts=0;
+      NoFlts=0;
       }
     }
 
