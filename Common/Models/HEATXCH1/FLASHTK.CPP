@@ -198,6 +198,8 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   Contents.SetPreset(&m_Preset, &m_PresetImg);
   m_PBPCtrl0.SetMethod(PBPC_SatP);
 
+  SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
+
   sVapSpModel="Steam/Water";//SMSteamClass.?
   //Rqd_Flash_Press=Std_P;
   fOnLine=True;
@@ -228,21 +230,24 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
  
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  DDB.Text    ("");
   BuildDataDefnElevation(DDB);
-  DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
-  DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
-  DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
-  DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|0);
-  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,   "kg/s",   &m_QmAcc,       this, isResult|0);
-  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,   "L/s",    &m_QvAcc,       this, isResult|0);
+  if (SolveDynamicMethod())
+    {
+    DDB.Visibility(NM_Dynamic|SM_DynBoth|HM_All);
+    DDB.Text    ("");
+    DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
+    DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
+    DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
+    DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|0);
+    DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,   "kg/s",   &m_QmAcc,       this, isResult|0);
+    DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,   "L/s",    &m_QvAcc,       this, isResult|0);
+    }
   DDB.Visibility();
 
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Bool    ("On_Line",      "",      DC_,     "",       &fOnLine,       this, isParmStopped, DDBYesNo);
-  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
+  DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
   #if WITHOTHERVAPSPLIT
   DDB.Double ("OtherVapSplitToLiq", "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
   #endif
@@ -253,8 +258,9 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   TagObjClass::GetSDescValueLst(SpModel::GroupName, DDB0);
   DDB.String("VapSpModel",     "",        DC_,    "",      &sVapSpModel,  this, isParm, DDB0());
 
-  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
-  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
+  if (NetProbalMethod())
+    DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   #if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
   #endif

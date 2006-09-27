@@ -363,24 +363,26 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-
   if (PrjFileVerNo()<94 && DDB.ForFileSnpScn())
     {
-    DDB.Text    ("");
     DDB.CheckBox("InlineIntegral",    "",  DC_,     "",      xidInlineIntegralOn,                this, isParmStopped|SetOnChange);
     }
+
   BuildDataDefnElevation(DDB);
-  DDB.Text    ("");
-  DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|noFile|noSnap);
-  DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|noFile|noSnap);
-  DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|noFile|noSnap);
-  DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|noFile|noSnap);
-  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,  "kg/s",    &m_QmAcc,       this, isResult|noFile|noSnap);
-  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, isResult|noFile|noSnap);
+  if (SolveDynamicMethod())
+    {
+    DDB.Visibility(NM_Dynamic|SM_DynBoth|HM_All);
+    DDB.Text    ("");
+    DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|noFile|noSnap);
+    DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|noFile|noSnap);
+    DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|noFile|noSnap);
+    DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|noFile|noSnap);
+    DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,  "kg/s",    &m_QmAcc,       this, isResult|noFile|noSnap);
+    DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, isResult|noFile|noSnap);
+    DDB.Text    ("");
+    }
 
-  DDB.Text    ("");
-
-
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
 

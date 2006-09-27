@@ -12486,6 +12486,9 @@ int CFlwSolver::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   UnDoGlobalLinks();
   p->Tag(pNewTag); //changes the tag in the solver
 
+  //pkh todo
+  //clear the pgm report tag structure
+
   //ask all models if they want to do anything internally for the change tag...
   p=NULL;
   while (GetObj_All(p))
@@ -12493,6 +12496,10 @@ int CFlwSolver::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
     if (!p->Internal)
       p->ChangeTag(pOldTag, pNewTag);
     }
+
+  //pkh todo
+  //display summary of all the pgm tags changed
+
   return EOCT_DONE;
   }
 
