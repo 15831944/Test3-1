@@ -30,6 +30,26 @@ DEFINE_TAGOBJ(FilterPress);
 class FilterPress : public MdlNode
   {
   public:
+    FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~FilterPress();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ChangeMode(dword NewMode, dword OldMode);
+    virtual void   SetState(eScdMdlStateActs RqdState);
+    virtual CFlange * GetFlange(int IOId);
+    virtual void   ConfigureJoins();
+    virtual void   EvalJoinPressures(long JoinMask);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
+    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
+//    virtual flag   CIStrng(int No, pchar & pS);
+    
+    void DoEvalProducts();
+
+    virtual dword  ModelStatus();
+    DEFINE_CI(FilterPress, MdlNode, 8);
+
+  public:
     byte           iRqdFiltMethod;
     double         RqdFiltSolConc;//, ActFiltSolConcT;
     double         RqdSolidsToFiltrate;//SolidLoss
@@ -53,24 +73,8 @@ class FilterPress : public MdlNode
     SpConduit      Fd, ToCake, FromCake;//,Wash;
     SpConduit      Sd;
 
-  public:
-    FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
-    virtual ~FilterPress();
-    virtual void   BuildDataDefn(DataDefnBlk & DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ChangeMode(dword NewMode, dword OldMode);
-    virtual void   SetState(eScdMdlStateActs RqdState);
-    virtual void   ConfigureJoins();
-    virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   EvalProducts(CNodeEvalIndex & NEI);
-    virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
-    virtual void   EvalDerivs(CNodeEvalIndex & NEI);
-//    virtual flag   CIStrng(int No, pchar & pS);
-    
-    void DoEvalProducts();
-
-    virtual dword  ModelStatus();
-    DEFINE_CI(FilterPress, MdlNode, 8);
+    //CDirectFlwIO   m_Spill;
+    CDirectFlwIO   m_Vent;
 
   };
 

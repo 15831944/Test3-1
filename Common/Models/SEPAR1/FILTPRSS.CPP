@@ -74,7 +74,7 @@ static IOAreaRec FilterPressIOAreaList[] =
     {"Solids",            "Cake",       ioidCake,         LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry, 0.0f},
     {"Washings",          "Washings",   ioidWashings,     LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, (float)0.98},
     {"",                  "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, 1.0f},
-    SPILL2AREA("Spills", IOId_Spill2Area),
+    //SPILL2AREA("Spills", IOId_Spill2Area),
     VENT2AREA("Vents",   IOId_Vent2Area),
     {NULL}
   };
@@ -94,6 +94,8 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   Cake("Cake", this, TOA_Embedded),
   ToCake("ToCake", this, TOA_Embedded),
   FromCake("FromCake", this, TOA_Embedded),
+  //m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
+  m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentI),
   //Wash("Wash", this, TOA_Free),
   Fd("Fd", this, TOA_Free)
   {
@@ -127,6 +129,9 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   fFilt2Washings  = false;
 
   bTrackStatus    = 1;
+
+  //m_Spill.SetLclIOId(ioid_OverFlw);
+  m_Vent.SetLclIOId(ioidVent);
 
   Cake.SetStateAction(IE_Integrate);
   };
@@ -198,6 +203,19 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
+  DDB.Visibility();
+  if (NetDynamicMethod())
+    {
+    if (/*m_Spill.Enabled ||*/ m_Vent.Enabled/* || m_AccIn.Enabled || m_AccOut.Enabled*/)
+      {
+      DDB.Page("AreaIO", DDB_RqdPage);
+      //m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
+      m_Vent.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
+      //m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
+      //m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
+      }
+    }
+
   DDB.EndStruct();
   }
 
@@ -205,6 +223,14 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
 
 flag FilterPress::DataXchg(DataChangeBlk & DCB)
   {
+  //if (DCB.dwUserInfo==1 && m_Spill.DataXchg(DCB))
+  //  return 1;
+  if (DCB.dwUserInfo==2 && m_Vent.DataXchg(DCB))
+    return 1;
+  //if (DCB.dwUserInfo==3 && m_AccIn.DataXchg(DCB))
+  //  return 1;
+  //if (DCB.dwUserInfo==4 && m_AccOut.DataXchg(DCB))
+  //  return 1;
   if (MdlNode::DataXchg(DCB))
     return 1;
   return 0;
@@ -239,6 +265,20 @@ void FilterPress::SetState(eScdMdlStateActs RqdState)
       break;
     }
   }
+
+//---------------------------------------------------------------------------
+
+CFlange * FilterPress::GetFlange(int IOId)
+  {
+  switch (IOId)
+    {
+    //case IOId_Spill2Area:   return &m_Spill.Flange;
+    case IOId_Vent2Area:    return &m_Vent.Flange;
+    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
+    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
+    }
+  return NULL;
+  };
 
 //---------------------------------------------------------------------------
 
@@ -602,22 +642,14 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
 
     //put all vapours (if any) to vent (if present)
     const int iVent = IOWithId_Self(ioidVent);
-    if (iVent>=0)
+    SpConduit & Cvent = iVent>=0 ? *IOConduit(iVent) : m_Vent.Cd;
+    double Qg = Fd.QMass(som_Gas);
+    Cvent.QSetM(Fd, som_Gas, Qg, Std_P);
+    if (iWash >= 0)
       {
-      double Qg = Fd.QMass(som_Gas);
-      SpConduit & Cvent = *IOConduit(iVent);
-      Cvent.QSetM(Fd, som_Gas, Qg, Std_P);
-      if (iWash >= 0)
-        {
-        SpConduit & Wash = *IOConduit(iWash);
-        Qg = Wash.QMass(som_Gas);
-        Cvent.QAddM(Wash, som_Gas, Qg);
-        }
-      }
-    else
-      {
-      //TODO Vent2Area
-      _asm int 4;
+      SpConduit & Wash = *IOConduit(iWash);
+      Qg = Wash.QMass(som_Gas);
+      Cvent.QAddM(Wash, som_Gas, Qg);
       }
     }
   else
