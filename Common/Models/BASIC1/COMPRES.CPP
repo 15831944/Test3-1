@@ -188,8 +188,7 @@ flag GasPump_GP::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_Pwr.DataXchg(DCB))
     return 1;
-
-
+  
   return 0;
   }
 

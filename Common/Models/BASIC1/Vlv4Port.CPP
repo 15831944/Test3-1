@@ -1099,13 +1099,6 @@ flag C4PortValve::SetModelAction(CMdlAction & Act)
 
 //--------------------------------------------------------------------------
 
-//CFlange * C4PortValve ::GetFlange(int IOId)
-//  {
-//  return NULL;
-//  };
-
-//--------------------------------------------------------------------------
-
 void C4PortValve::FixModeStrs(int IONo)
   {
   m_ModeStrs.Empty();

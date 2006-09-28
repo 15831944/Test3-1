@@ -123,14 +123,6 @@ flag MN_Surge::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (VLE.DataXchg(DCB))
     return 1;
-  //if (DCB.dwUserInfo==1 && m_Spill.DataXchg(DCB))
-  //  return 1;
-  //if (DCB.dwUserInfo==2 && m_Vent.DataXchg(DCB))
-  //  return 1;
-  //if (DCB.dwUserInfo==3 && m_AccIn.DataXchg(DCB))
-  //  return 1;
-  //if (DCB.dwUserInfo==4 && m_AccOut.DataXchg(DCB))
-  //  return 1;
 
 //  if (PresetImg.DataXchg(DCB))
 //    return 1;
@@ -202,21 +194,6 @@ long MN_Surge::CheckDataRanges(bool CheckIO)
   {
   return MdlNode::CheckDataRanges(CheckIO)+Contents.CheckDataRanges();
   };
-
-//--------------------------------------------------------------------------
-
-//CFlange * MN_Surge::GetFlange(int IOId)
-//  {
-//  switch (IOId)
-//    {
-//    case IOId_Spill2Area:   return &m_Spill.Flange;
-//    case IOId_Vent2Area:    return &m_Vent.Flange;
-//    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
-//    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
-//    }
-//  //dbgpln("MN_Surge::GetFlange(%i)==NULL %s", IOId, FullObjTag());
-//  return NULL;
-//  };
 
 //--------------------------------------------------------------------------
 

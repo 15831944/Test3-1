@@ -138,17 +138,6 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-//CFlange * MN_Xfer::GetFlange(int IOId)
-//  {
-//  CFlange * pFlng=m_BlkEval.GetFlange(IOId);
-//  if (pFlng)
-//    return pFlng;
-//
-//  return NULL;
-//  };
-
-//--------------------------------------------------------------------------
-
 void MN_Xfer::PostConnect(int IONo)
   {
   MdlNode::PostConnect(IONo);

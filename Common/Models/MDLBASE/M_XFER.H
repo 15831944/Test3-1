@@ -35,7 +35,6 @@ class DllImportExport MN_Xfer : public MdlNode
     virtual flag DataXchg(DataChangeBlk & DCB);
     virtual flag ValidateData(ValidateDataBlk & VDB);
 
-    //virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
     virtual flag   InitialiseSolution();

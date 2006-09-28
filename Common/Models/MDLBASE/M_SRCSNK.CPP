@@ -697,18 +697,6 @@ void MN_SrcSnk::GlobalDisConnect()
 
 //--------------------------------------------------------------------------
 
-//CFlange * MN_SrcSnk::GetFlange(int IOId)
-//  {
-//  //switch (IOId)
-//  //  {
-//  //  case IOId_Src2Area: return &m_Src.Flange;
-//  //  case IOId_Snk2Area: return &m_Snk.Flange;
-//  //  }
-//  return NULL;
-//  };
-//
-//---------------------------------------------------------------------------
-
 void MN_SrcSnk::PostConnect(int IONo)
   {
   if (!PostConnectDirect(IONo))

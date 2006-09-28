@@ -91,7 +91,6 @@ class BeltCnv2 : public MdlNode
 
     virtual void   SetState(eScdMdlStateActs RqdState);
     virtual void   StartSolution();
-    //virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
 

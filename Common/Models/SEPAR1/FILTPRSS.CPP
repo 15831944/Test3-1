@@ -249,20 +249,6 @@ void FilterPress::SetState(eScdMdlStateActs RqdState)
 
 //---------------------------------------------------------------------------
 
-//CFlange * FilterPress::GetFlange(int IOId)
-//  {
-//  switch (IOId)
-//    {
-//    //case IOId_Spill2Area:   return &m_Spill.Flange;
-//    case IOId_Vent2Area:    return &m_Vent.Flange;
-//    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
-//    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
-//    }
-//  return NULL;
-//  };
-//
-//---------------------------------------------------------------------------
-
 void FilterPress::ConfigureJoins()
   {
   Init_NoJoins(1);

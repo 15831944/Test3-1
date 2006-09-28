@@ -120,7 +120,6 @@ class DllImportExport C4PortValve  : public MdlNode
     virtual flag      GetModelAction(CMdlActionArray & Acts);
     virtual flag      SetModelAction(CMdlAction & Act);
 
-    //virtual CFlange * GetFlange(int IOId);
     void              CreateConfigFile(LPCTSTR Fn);
     bool              TokenIs(CTokenParser &Tkns, LPCTSTR pRqdToken);
     bool              CheckToken(CTokenParser &Tkns, LPCTSTR pRqdToken);

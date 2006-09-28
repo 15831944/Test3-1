@@ -198,18 +198,6 @@ void MN_BstRes::StartSolution()
 
 //--------------------------------------------------------------------------
 
-//CFlange * MN_BstRes::GetFlange(int IOId)
-//  {
-//  switch (IOId)
-//    {
-//    case IOId_2IOLeakI: return &m_LeakI.Flange; 
-//    case IOId_2IOLeakO: return &m_LeakO.Flange; 
-//    }
-//  return NULL;
-//  };
-
-//--------------------------------------------------------------------------
-
 void MN_BstRes::PostConnect(int IONo)
   {
   MdlNode::PostConnect(IONo);
