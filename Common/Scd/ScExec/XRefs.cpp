@@ -1638,8 +1638,8 @@ int CTgFnIoVar::SetVar(char* Tag, flag IgnoreCnv/*=false*/, char* pForceTag/*=NU
       }
     }
 
-  const bool EmptyNewTag = NewTg.IsEmpty();
-  const bool EmptyVar = sVar.IsEmpty();
+  const flag EmptyNewTag = NewTg.IsEmpty();
+  const flag EmptyVar = sVar.IsEmpty();
   if (!EmptyNewTag || !EmptyVar)
     {
     if ( (EmptyVar && !EmptyNewTag) ||

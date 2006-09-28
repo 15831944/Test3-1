@@ -785,33 +785,27 @@ library ScdIF
     helpstring("eScdMode"),
     v1_enum         
   ]
-typedef enum eScdMode
+typedef enum eScdMode // must fit into 16 bits
   { 
-  // Octet 1
-  eScdNet_Probal            = 0x00000001,                                  
-  eScdNet_Dynamic           = 0x00000002,
-  //eScdNet_DynamicSS         = 0x00000004,
+  eScdNet_Probal            = 0x0001,                                  
+  eScdNet_Dynamic           = 0x0002,
 
-  // Octet 2
-  eScdSolve_Direct          = 0x00000010,
-  eScdSolve_Inline          = 0x00000020,
-  eScdSolve_Buffered        = 0x00000040,
-  // SM_Inline              = 0x00000080;                  
-                                                           
-  // Octet 3
-  eScdHeat_None             = 0x00000100,                  
-  eScdHeat_Simple           = 0x00000200,                  
-  eScdHeat_Full             = 0x00000400,                  
+  eScdSolve_Direct          = 0x0004,
+  eScdSolve_Inline          = 0x0008,
+  eScdSolve_Buffered        = 0x0010,
+                                                       
+  eScdHeat_None             = 0x0020,                  
+  eScdHeat_Simple           = 0x0040,                  
+  eScdHeat_Full             = 0x0080,                  
  
-  // Octet 4&5
-  eScdFlow_Xfer             = 0x00001000,
-  eScdFlow_Simple           = 0x00002000,
-  eScdFlow_Linear           = 0x00004000,
-  eScdFlow_Full             = 0x00008000,
-  eScdFlow_Propagate        = 0x00040000,           
-  eScdFlow_Propagated       = 0x00080000,           
+  eScdFlow_Xfer             = 0x0100,
+  eScdFlow_Simple           = 0x0200,
+  eScdFlow_Linear           = 0x0400,
+  eScdFlow_Full             = 0x0800,
+  eScdFlow_Propagate        = 0x1000,           
+  eScdFlow_Propagated       = 0x2000,           
 
-  eScdFlow_HasFullFlow      = 0x01000000, // implies that this node or one of the adjacent nodes is in eScdFlow_Full
+  eScdFlow_HasFullFlow      = 0x8000, // implies that this node or one of the adjacent nodes is in eScdFlow_Full
 
   } eScdMode;
 

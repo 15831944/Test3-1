@@ -81,10 +81,11 @@ typedef DWORD DDEF_NElements;
 
 //--------------------------------------------------------------------------
 
-const TABOptions TABOpt_ModesReserved    = 0x0000000ffff;
-const TABOptions TABOpt_Parms            = 0x00000010000;
+const TABOptions TABOpt_ModesReserved    = 0x000000000000ffff;
+const TABOptions TABOpt_Parms            = 0x0000000000010000;
 
-// These Values in the range 0x100000.. 0x800000
+// These Values in the range 0x20000.. 0x80000
+const TABOptions TABOpt_ForNDB           = DDEF_NONDB;
 const TABOptions TABOpt_ForFile          = DDEF_NOFILE;
 const TABOptions TABOpt_ForView          = DDEF_NOVIEW;
 const TABOptions TABOpt_ForSnapShot      = DDEF_NOSNAPSHOT;

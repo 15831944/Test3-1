@@ -694,6 +694,27 @@ _FWDDEF(DataChangeBlk)
 class DllImportExport DataChangeBlk
   {
   public:
+    DataChangeBlk(DDBDataInfo *  DataInfo) { pDataInfo=DataInfo; };
+    flag           Init(TABOptions Opts, char Type, long Handle, long Handle2, void *p, dword UserInfo)
+      { dwRetFlags=0; dwOpts=Opts; iType=Type; lHandle=Handle; lHandle2=Handle2; rC=(char*)p; dwUserInfo=UserInfo; return lHandle>0;};
+
+    flag           ForNDB()           { return (dwOpts&TABOpt_ForNDB)!=0; };
+    flag           ForFiling()        { return (dwOpts&TABOpt_ForFile)!=0; };
+    flag           ForView()          { return (dwOpts&TABOpt_ForView)!=0; };
+    flag           ForViewConstruct() { return (dwOpts&TABOpt_ForViewConstruct)!=0; };
+    flag           ForSnapShot()      { return (dwOpts&TABOpt_ForSnapShot)!=0; };
+    flag           ForScenario()      { return (dwOpts&TABOpt_ForScenario)!=0; };
+    flag           ForFileSnpScn()    { return (dwOpts&(TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario))!=0; };
+    double         NParms()           { return pDataInfo->m_nParms; };
+    double         DoubleParm(int i)  { return pDataInfo->m_dParms[i]; };
+
+    //flag OperatePropertyMap(CPropertyMap & Map, long iBaseHandle, long iLastHandle, CPropertyBase * pPropBase, TaggedObject * pTgObj, MPropertyValue & WorkPropValue);
+
+    //helpers...
+    static void    DoBrowseBtn(char* ext, char* FileDesc, Strng& Path, Strng& File);
+    static int     DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext=NULL, Strng* pFullFilename=NULL, bool CheckExists=false);
+
+  public:
     DDBDataInfo *  pDataInfo;
     DDEF_Flags     dwRetFlags;
     TABOptions     dwOpts;
@@ -729,26 +750,6 @@ class DllImportExport DataChangeBlk
       void        *rpBlob;
       };
 
-    DataChangeBlk(DDBDataInfo *  DataInfo) { pDataInfo=DataInfo; };
-    flag           Init(TABOptions Opts, char Type, long Handle, long Handle2, void *p, dword UserInfo)
-      { dwRetFlags=0; dwOpts=Opts; iType=Type; lHandle=Handle; lHandle2=Handle2; rC=(char*)p; dwUserInfo=UserInfo; return lHandle>0;};
-//    flag           Init(dword Opts, char Type, long Handle, void *p)
-//      { dwFlags=0; dwOpts=Opts; iType=Type; lHandle=Handle; rC=(char*)p; return lHandle>0;};
-
-    flag ForFiling()          { return (dwOpts&TABOpt_ForFile)!=0; };
-    flag ForView()            { return (dwOpts&TABOpt_ForView)!=0; };
-    flag ForViewConstruct()   { return (dwOpts&TABOpt_ForViewConstruct)!=0; };
-    flag ForSnapShot()        { return (dwOpts&TABOpt_ForSnapShot)!=0; };
-    flag ForScenario()        { return (dwOpts&TABOpt_ForScenario)!=0; };
-    flag ForFileSnpScn()      { return (dwOpts&(TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario))!=0; };
-    double NParms()           { return pDataInfo->m_nParms; };
-    double DoubleParm(int i)  { return pDataInfo->m_dParms[i]; };
-
-    //flag OperatePropertyMap(CPropertyMap & Map, long iBaseHandle, long iLastHandle, CPropertyBase * pPropBase, TaggedObject * pTgObj, MPropertyValue & WorkPropValue);
-
-    //helpers...
-    static void DoBrowseBtn(char* ext, char* FileDesc, Strng& Path, Strng& File);
-    static int DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext=NULL, Strng* pFullFilename=NULL, bool CheckExists=false);
   };
 
 
@@ -1579,6 +1580,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           Add_OnOff(pchar pTag, pflag pOn, /*flag bOffisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
     void           Add_YesNo(pchar pTag, pflag pYes, /*flag bNoisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
 
+    flag           ForNDB()         { return (dwOptions&TABOpt_ForNDB)!=0; };
     flag           ForFiling()      { return (dwOptions&TABOpt_ForFile)!=0; };
     flag           ForView()        { return (dwOptions&TABOpt_ForView)!=0; };
     flag           ForSnapShot()    { return (dwOptions&TABOpt_ForSnapShot)!=0; };

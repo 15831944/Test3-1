@@ -1286,7 +1286,7 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
         Route.Clear();
         //Strng TagTag(m_pCf->m_sNdTag);
         //TagTag+=".Tag";
-        CXM_ObjectTag  ObjTag(Tg(), TABOpt_ForView|TABOpt_AllInfoOnce); // Single Items 
+        CXM_ObjectTag  ObjTag(Tg(), TABOpt_ForNDB|TABOpt_AllInfoOnce); // Single Items 
         CXM_ObjectData RdData;
         bool Ok = (gs_Exec.XReadTaggedItem(NULL, ObjTag, RdData, Route)!=0);
 
@@ -1316,7 +1316,7 @@ bool CNeutralMdlImportExport::ImportConfigs(LPCTSTR Which)
             DU.SetTypeLong(Type, SafeAtoL(m_pCf->m_sValue));
      
           //PkDataUnion DU(pItem->Type(), m_pCf->m_sValue, pItem->CnvIndex(), Cnv());
-          CXM_ObjectData LclObjData(0, TABOpt_ForView, Tg(), DU);
+          CXM_ObjectData LclObjData(0, TABOpt_ForNDB, Tg(), DU);
 
           Ok = (gs_Exec.XWriteTaggedItem(NULL, LclObjData, Route)!=TOData_NotFound);
           if (!Ok)

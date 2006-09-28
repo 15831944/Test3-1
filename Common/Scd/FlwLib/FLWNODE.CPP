@@ -3221,7 +3221,7 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
 void FlwNode::BuildDataDefnElevation(DataDefnBlk & DDB)
   {
 //  if (1)//HasFullFlow() || DDB.ForFileSnpScn())
-  if (HasFullFlow() || DDB.ForFileSnpScn())
+  if (HasFullFlow() || DDB.ForNDB() || DDB.ForFileSnpScn())
     {
     DDEF_Flags Vis=DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Text    (" ");

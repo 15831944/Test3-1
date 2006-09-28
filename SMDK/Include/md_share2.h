@@ -55,9 +55,10 @@ const long HM_All           = HM_None | HM_Reduced | HM_Full;
 
 const long NSHM_All         = NM_All | SM_All | HM_All;       
 
-const DDEF_Flags DDEF_NOCOMPARE           = 0x0000000000040000;// Maybe masked out ??
-const DDEF_Flags DDEF_NAN_OK              = 0x0000000000080000;
+const DDEF_Flags DDEF_NOCOMPARE           = 0x0000000000020000;// Maybe masked out ??
+const DDEF_Flags DDEF_NAN_OK              = 0x0000000000040000;
 
+const DDEF_Flags DDEF_NONDB               = 0x0000000000080000;
 const DDEF_Flags DDEF_NOFILE              = 0x0000000000100000;
 const DDEF_Flags DDEF_NOVIEW              = 0x0000000000200000;
 const DDEF_Flags DDEF_NOSNAPSHOT          = 0x0000000000400000;
