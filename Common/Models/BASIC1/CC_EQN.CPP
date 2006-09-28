@@ -541,7 +541,7 @@ CC_FixBstRes::~CC_FixBstRes()
 void CC_FixBstRes::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Double ("", "Boost",        DC_DP,    "kPa",  &m_P_Boost,       this, isParm);
-  DDB.Double ("", "Res_Factor",   DC_,      "",     &m_P_Res_factor,  this, isResult|0);
+  DDB.Double ("", "Res_Factor",   DC_,      "",     &m_P_Res_factor,  this, isParm);
   DDB.Double ("", "Net_Imp",      DC_,      "",     &m_Inp_Imp,       this, isResult|0);
   DDB.Double ("", "Inlet_Rho",    DC_,      "",     &m_In_Rho,        this, isResult|0);
   DDB.Double ("", "Dsn_VFlw",     DC_Qv,    "L/s",  &m_Dsn_VFlw,      this, isParm);
@@ -582,14 +582,18 @@ flag CC_FixBstRes::ValidateData(ValidateDataBlk & VDB)
 flag CC_FixBstRes::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
-
-  FE.SetQmMeasRange(FE.MeanRho(pProps), 0.01);
-  FE.SetQmFree();
-  FE.SetDPb(m_P_Boost*Regulation, 0.0);
-  FE.SetDPq(m_P_Res_factor*fabs(FE.QmMeas()), 0.0);
-
-
-//FE.SetDPq(Ka*Sqr(FE.QmMeas()), 2.0*Ka*FE.QmMeas())
+  if (Regulation>0.001)
+    {
+    FE.SetQmMeasRange(FE.MeanRho(pProps), 0.01);
+    FE.SetQmFree();
+    FE.SetDPb(m_P_Boost*Regulation, 0.0);
+    FE.SetDPq(-FE.QmSign()*FE.QmMeas()*m_P_Res_factor, -FE.QmSign()*m_P_Res_factor);
+    }
+  else
+    {
+    FE.SetQmReqd(0.0);
+    //    m_P_Res_factor = m_P1 /GTZ(m_F1);
+    }
 
   return True;
   }
@@ -603,14 +607,36 @@ void CC_FixBstRes::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwTher
   double Qm = fabs(C.QMass());
   m_FEst = m_F2 + (m_F1 - m_F2) * (Po - m_P2)/(m_P1 - m_P2);
   m_Dsn_MFlw = m_FEst * C.Rho();
-
+//  m_Dsn_MFlw = m_Dsn_VFlw * C.Rho();
   m_In_Rho = C.Rho();
+
+
+
+  m_P_Res_factor = Min(-0.1, m_P_Res_factor * ( 1.0 - (m_Dsn_MFlw - Qm)/m_Dsn_MFlw));
+
+
+  if (Qm > 1e-6) 
+    m_Inp_Imp = Po / Qm;
+  else
+    m_Inp_Imp = 1e10;  // Big Number
+  if (Qm>0.1e-6)
+    {
+    // m_P_Res_factor = 0.9 * m_P_Res_factor + 0.1 * (m_P_Boost - m_Inp_Imp * m_Dsn_MFlw) / m_Dsn_MFlw;
+    }
+
   m_Inp_Imp = Po / GTZ(Qm);
 
-  m_P_Res_factor = 0.9 * m_P_Res_factor + 0.1 * (m_P_Boost - m_Inp_Imp * m_Dsn_MFlw) / m_Dsn_MFlw;
+  //  m_P_Res_factor = 0.9 * m_P_Res_factor + 0.1 * (m_P_Boost - m_Inp_Imp * m_Dsn_MFlw) / m_Dsn_MFlw;
+
 
   m_PIn = Pi;
   m_POut = Po;
+
+  if (m_PIn > 1e-6)
+    m_Act_PRatio = m_POut / m_PIn;
+  else
+    m_Act_PRatio = dNAN;
+
   m_Act_PRatio = m_POut / GTZ(m_PIn);
 
   //SpConduit &C=FE.Cd();
