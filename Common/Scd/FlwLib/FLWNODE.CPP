@@ -5380,7 +5380,13 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, /*CFlange* pF, C
         for (int i=0; !pF && i<2; i++)
           pF=Info[i].p->GetFlange(Info[i].Id);
         if (!pF)
+          {
           pF=new CFlange(true);
+          }
+        else
+          {
+          dbgpln("Existing Flange: %5i -> %5i", Info[0].Id, Info[1].Id);
+          }
         }
       CTerminal *pT = NULL;
       if (dwClass0&nc_CLnk)

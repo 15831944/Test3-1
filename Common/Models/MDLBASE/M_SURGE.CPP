@@ -214,6 +214,7 @@ CFlange * MN_Surge::GetFlange(int IOId)
     //case IOId_AccIn2Area:   return &m_AccIn.Flange;
     //case IOId_AccOut2Area:  return &m_AccOut.Flange;
     }
+  //dbgpln("MN_Surge::GetFlange(%i)==NULL %s", IOId, FullObjTag());
   return NULL;
   };
 

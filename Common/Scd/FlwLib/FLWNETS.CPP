@@ -4671,9 +4671,6 @@ void CSubNetBlk::SolveXferGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
   CGrpFlwBlk &GFB= *JG.GFB();
   if (GFB.m_fFixedExternal)
     {
-    JoinIter L(GFB.m_Lnks);
-    CJoinRec * pJnt = L.First();
-    int LnkDir = pJnt->Dirn;
 
     GFB.Traverse(pDbgStr);
 
@@ -4681,7 +4678,11 @@ void CSubNetBlk::SolveXferGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
     if (Valid(GFB.m_QmXfCap))
       Qm=GFB.m_QmXfCap;
     else
-      Qm=MaxXfCap * LnkDir;
+      {
+      JoinIter L(GFB.m_Lnks);
+      CJoinRec * pJnt = L.First();
+      Qm=MaxXfCap * pJnt->Dirn;
+      }
 
 #if dbgFlwNets
     if (dbgSolveFxdQs())
@@ -7994,7 +7995,10 @@ void CNetBlk::BldSubNets()
 #if dbgFlwNets
       if (dbgGFBSummary())
         {
-        dbgpln("GFB >> j%4i i%4i l%4i %s   %s %s %s %s", g->m_Src.m_pJoin->m_iNo, g->m_Src.m_iIONo, g->m_Src.m_iLnkNo, g->m_Src.m_pNd->FullObjTag(), 
+        dbgpln("GFB >> j:%4i i:%4i l:%4i id:%5i %s   %s %s %s %s", 
+          g->m_Src.m_pJoin->m_iNo, g->m_Src.m_iIONo, g->m_Src.m_iLnkNo, 
+          g->m_Src.m_pNd->IOId_Self(g->m_Src.m_iIONo), 
+          g->m_Src.m_pNd->FullObjTag(), 
           g->m_fFixed          ?"Fixed":"",
           g->m_fFixedExternal  ?"FixedExternal":"",
           g->m_fFixedXfer      ?"FixedXfer":"",
@@ -8002,8 +8006,11 @@ void CNetBlk::BldSubNets()
 
         JoinIter L(g->m_Lnks);
         for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
-          dbgpln("    .. j%4i  %4s  %4s %s", pJ->m_iNo, "", "", pJ->pNd->FullObjTag());
-        dbgpln("    << j%4i i%4i l%4i %s", g->m_Dst.m_pJoin->m_iNo, g->m_Dst.m_iIONo, g->m_Dst.m_iLnkNo, g->m_Dst.m_pNd->FullObjTag());
+          dbgpln("    .. j:%4i   %4s   %4s    %5s %s", pJ->m_iNo, "", "", "", pJ->pNd->FullObjTag());
+        dbgpln("    << j:%4i i:%4i l:%4i id:%5i %s",
+          g->m_Dst.m_pJoin->m_iNo, g->m_Dst.m_iIONo, g->m_Dst.m_iLnkNo, 
+          g->m_Dst.m_pNd->IOId_Self(g->m_Dst.m_iIONo), 
+          g->m_Dst.m_pNd->FullObjTag());
         }
 #endif
 
