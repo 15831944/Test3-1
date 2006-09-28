@@ -607,24 +607,28 @@ ReTry:
       if (LclTransactionRqd())
         m_pCnn->BeginTrans();
       pRS1->AddNew();
-      //dbgpln("---------        %s = %s", GetFullTagFieldName(), (LPCTSTR)FullTag);
+
+      const int DbgIt = 0;
+      if (DbgIt)
+        dbgpln("---------        %s = %s", GetFullTagFieldName(), (LPCTSTR)FullTag);
       pRS1->Fields->GetItem(GetFullTagFieldName())->Value=(LPCTSTR)FullTag;
       if (m_bWithRevisionNo)
         {
-        //dbgpln("                 %s = %i", GetRevisionNoFieldName(), m_lRevisionNo);
+        if (DbgIt)
+          dbgpln("                 %s = %i", GetRevisionNoFieldName(), m_lRevisionNo);
         pRS1->Fields->GetItem(GetRevisionNoFieldName())->Value=m_lRevisionNo;
         }
       for (iDef=0; iDef<nDefs; iDef++)
         {
-        //if (1)
-        //  {
-        //  USES_CONVERSION;
-        //  COleVariant VS=fieldData[iDef];
-        //  if (VS.vt==VT_BSTR)
-        //    dbgpln("              %2i %s = %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, OLE2CT(VS.bstrVal));
-        //  else
-        //    dbgpln("              %2i %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName);
-        //  }
+        if (DbgIt)
+          {
+          USES_CONVERSION;
+          COleVariant VS=fieldData[iDef];
+          if (VS.vt==VT_BSTR)
+            dbgpln("              %2i %s = %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, OLE2CT(VS.bstrVal));
+          else
+            dbgpln("              %2i %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName);
+          }
         pRS1->Fields->GetItem((LPCTSTR)fieldDefs[iDef]->strFieldName)->Value=fieldData[iDef];
         }
       iDef = -1;
@@ -632,6 +636,8 @@ ReTry:
 
       if (Options & CO_SetDefaultValues)
         {
+        if (DbgIt)
+          dbgpln("                 SetDEFAULT");
         // For each record left in the local mapping, set its default value
         POSITION pos = mapFields.GetStartPosition();
         while (pos != NULL)

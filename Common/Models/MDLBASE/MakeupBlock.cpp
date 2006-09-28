@@ -956,7 +956,7 @@ DEFINE_MAKEUPBLOCK(CXBlk_MURatio);
 //
 //============================================================================
 
-CToleranceBlock CXBlk_MUFeed::sm_QmTol(TBF_DynSys, "Makeup:CtrlEPS", 1.0e-8, 1.0e-8, 200);
+CToleranceBlock CXBlk_MUFeed::sm_QmTol(TBF_DynSys, "MUFeed:CtrlEPS", 1.0e-8, 1.0e-8, 200);
 
 IMPLEMENT_MAKEUPBLOCK(CXBlk_MUFixed, "MB_Fixed", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Fixed Makeup",  " ");
 IMPLEMENT_MAKEUPBLOCK(CXBlk_MURatio, "MB_Ratio", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Ratio Makeup",  " ");
@@ -1661,7 +1661,7 @@ DEFINE_MAKEUPBLOCK(CXBlk_MUSimple);
 //XID xidMkPhase   = AdjustXID(1200);
 
 
-CToleranceBlock CXBlk_MUSimple::sm_QmTol(TBF_DynSys, "Makeup:CtrlEPS", 1.0e-8, 1.0e-8, 200);
+CToleranceBlock CXBlk_MUSimple::sm_QmTol(TBF_DynSys, "MUSimple:CtrlEPS", 1.0e-8, 1.0e-8, 200);
 
 IMPLEMENT_MAKEUPBLOCK(CXBlk_MUSimple, "MB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "SimpleControl",  " ");
 
