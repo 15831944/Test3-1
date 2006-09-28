@@ -2,7 +2,7 @@
 
 #define __MAKEUPBLOCK_CPP
 #include "MakeupBlock.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 //=========================================================================
 //
@@ -307,6 +307,7 @@ class DllImportExport CMeasInfo
     DDBValueLstMem  m_DDBCmpRem;
     int             m_nLastCmpStr;
     Strng           m_MeasDesc;
+    Strng           m_FullDesc;
     CStringArray    m_CmpStr;
   };
 
@@ -1591,8 +1592,9 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
     DDBValueLstMem  m_DDBCmpAdd;
     DDBValueLstMem  m_DDBCmpRem;
     int             m_nLastCmpStr;
-    Strng           m_MeasDesc;
     CStringArray    m_CmpStr;
+    Strng           m_CompSpecies;
+    Strng           m_MeasDesc;
 
     bool            m_bHasFlow;
 
@@ -2001,6 +2003,7 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
         SetUpDDBCmps();
         for (int s=0; s<=m_nLastCmpStr; s++)
           DDB.Text((LPTSTR)(LPCTSTR)m_CmpStr[s]);
+        DDB.Text(m_CompSpecies());
         DDB.Long  ("Add",    "", DC_, "", xidMkAddCmp, this, (m_DDBCmpAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpAdd);
         DDB.Long  ("Remove", "", DC_, "", xidMkRemCmp, this, (m_DDBCmpRem.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpRem);
         break;
@@ -2400,12 +2403,18 @@ flag CXBlk_MUSimple::ValidateData(ValidateDataBlk & VDB)
     case Slct_Component:
       {
       m_Species.SetSize(0);
+      m_CompSpecies = "Species:";
+      bool NeedsComma = false;
       for (int i=0; i<m_Comps.GetCount(); i++)
         {
         for (int j=0; j<CDB[i].NSpecies(); j++)
           {
           int s=CDB[i].iSpecie(j);
           m_Species.Add(s);
+          if (NeedsComma)
+            m_CompSpecies += ", ";
+          m_CompSpecies += SDB[s].SymOrTag();
+          NeedsComma = true;
           }
         }
       break;
@@ -2539,7 +2548,11 @@ double CXBlk_MUSimple::GetMeasVal(SpConduit &QIn, SpConduit &QPrd)
       return GetRawMeas(QPrd)/GTZ(GetRawMeas(QPrd, som_ALL));
 
     case Type_Conc:
+      {
+      double d1 = GetRawMeas(QPrd);
+      double d2 = QPrd.QVolume();
       return GetRawMeas(QPrd)/GTZ(QPrd.QVolume());
+      }
     }
   return 0.0;
   }
