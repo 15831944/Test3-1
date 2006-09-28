@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="10.CCDK"
 	ProjectGUID="{814D5C4D-B643-4E3C-ABB9-9B0849360B9E}"
+	RootNamespace="10.CCDK"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -188,6 +189,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(InputName).lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
