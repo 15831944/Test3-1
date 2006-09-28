@@ -2324,6 +2324,59 @@ void FlwNode::AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp0, CF
 
 //--------------------------------------------------------------------------
 
+CFlange * FlwNode::GetFlange(int IoId)
+  {
+  for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+    {
+    CDirectFlwIO & DIO = *m_AttachedDirectIOs[i];
+    if (DIO.LclDIOId() == IoId)
+      return &DIO.Flange;
+    }
+  return NULL;
+  };
+
+//--------------------------------------------------------------------------
+
+void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
+  {
+  flag Enabled=false;
+  for (int i=0; !Enabled && i<m_AttachedDirectIOs.GetCount(); i++)
+    Enabled=m_AttachedDirectIOs[i]->Enabled;
+
+  if (NetDynamicMethod() && Enabled)
+    {
+    DDB.Visibility();
+    DDB.Page("DirectIO", DDB_RqdPage);
+    for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+      m_AttachedDirectIOs[i]->BuildDataDefn(DDB, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+flag FlwNode::DataXchgDefnAreaIOs(DataChangeBlk & DCB)
+  {
+  for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+    {
+    if (DCB.dwUserInfo==99500+i)
+      return m_AttachedDirectIOs[i]->DataXchg(DCB);
+    }
+  return 0;
+  };
+
+//--------------------------------------------------------------------------
+
+flag FlwNode::ValidateDataAreaIOs(ValidateDataBlk & VDB)
+  {
+  bool OK =true;
+  for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+    if (!m_AttachedDirectIOs[i]->ValidateData(VDB))
+      OK=false;
+  return OK;  
+  };
+
+//--------------------------------------------------------------------------
+
 void FlwNode::AddPwrUser(CPwrUser*pPwr)
   {
   for (int i=0; i<m_PwrUsers.GetSize(); i++)
@@ -3232,6 +3285,9 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
     DCB.dwUserInfo=UI;
     }
 
+  if (DataXchgDefnAreaIOs(DCB))
+    return 1;
+
   if (CTNode::DataXchg(DCB))
     return 1;
 
@@ -3554,8 +3610,8 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
 flag FlwNode::ValidateData(ValidateDataBlk & VDB)
   {
   fValidateDataComplete=True;
-  flag OK=True;
-
+  flag OK=ValidateDataAreaIOs(VDB);
+  
   for (int i=0; i<NoFlwIOs(); i++)
     {
     if (Nd_Rmt(i))

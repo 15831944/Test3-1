@@ -351,7 +351,7 @@ class DllImportExport MN_Lnk : public MdlNode
     void           UpdateSQFlags();
 
     virtual void   GlobalConnect();
-    virtual CFlange * GetFlange(int IOId);
+    //virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
     virtual flag   ValidateData(ValidateDataBlk & VDB);

@@ -93,7 +93,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
 
     virtual void   GlobalConnect();
     virtual void   GlobalDisConnect();
-    virtual CFlange * GetFlange(int IOId);
+    //virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
 

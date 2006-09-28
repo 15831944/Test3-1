@@ -3312,7 +3312,7 @@ class DllImportExport FlwNode : public CTNode
     void           CheckIOAreas(bool OneGroup, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp * DefFlwEqnGrp1);
     virtual void   AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp=NULL, bool Copy=false);
     virtual void   AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp * DefFlwEqnGrp1bool, bool Copy=false);
-    virtual CFlange * GetFlange(int IoId) { return NULL; };
+    virtual CFlange * GetFlange(int IoId);// { return NULL; };
     virtual flag   IsLnk()     { return ((m_dwType & (nc_MLnk|nc_MBst))!=0 && NoProcLnkIOs()==2); };
     virtual flag   IsMLnk()    { return ((m_dwType & (nc_MLnk))!=0 && NoProcLnkIOs()==2); };
     virtual flag   IsCLnk()    { return ((m_dwType & (nc_CLnk))!=0 && NoCIOs()==2); };
@@ -3358,6 +3358,10 @@ class DllImportExport FlwNode : public CTNode
     virtual char *  TypeString(Strng & TypeStr, flag Clr=1);
     virtual CFlwEqnPtr * GetSystemDefnFlwEqn(int i, Strng *Tg) { return NULL; };
     virtual long   CheckDataRanges(bool CheckIO) { return 0; };
+
+    virtual void   BuildDataDefnAreaIOs(DataDefnBlk & DDB);
+    virtual flag   DataXchgDefnAreaIOs(DataChangeBlk & DCB);
+    virtual flag   ValidateDataAreaIOs(ValidateDataBlk & VDB);
 
     FlwNode*       InsertRoot(char * TagIn);
     FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);

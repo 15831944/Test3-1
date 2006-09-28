@@ -471,17 +471,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
       NetProbalMethod() && m_CyclicStorage.m_bOn)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
 
-  if (NetDynamicMethod())
-    {
-    if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
-      {
-      DDB.Page("AreaIO", DDB_RqdPage);
-      m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
-      m_Vent.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
-      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
-      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
-      }
-    }
+  BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };

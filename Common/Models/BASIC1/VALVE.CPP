@@ -240,12 +240,7 @@ void Valve_GP::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithPVConst);
 
-  if (NetDynamicMethod() && (m_LeakI.Enabled || m_LeakO.Enabled))
-    {
-    DDB.Page("AreaIO", DDB_RqdPage);
-    m_LeakI.BuildDataDefn(DDB, NULL, DDB_NoPage, 101, DFIO_ShowQm);
-    m_LeakO.BuildDataDefn(DDB, NULL, DDB_NoPage, 102, DFIO_ShowQm);
-    }
+  BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   }
@@ -261,10 +256,6 @@ flag Valve_GP::DataXchg(DataChangeBlk & DCB)
   if (m_FEP.DataXchg(DCB))
     return 1;
   if (m_FRB.DataXchg(DCB, this))
-    return 1;
-  if (DCB.dwUserInfo==101 && m_LeakI.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==102 && m_LeakO.DataXchg(DCB))
     return 1;
 
   return 0;

@@ -943,16 +943,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithAutoComp|FEOF_WithPVConst);
 
-  if (NetDynamicMethod() && m_Spill.Enabled)
-    {
-    DDB.Page("AreaIO", DDB_RqdPage);
-    m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300, DFIO_ShowQm);
-    m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 301, DFIO_ShowQm);
-    m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 302, DFIO_ShowQm);
-#if WITHLINKBLEED 
-    m_Bleed.BuildDataDefn(DDB, NULL, DDB_NoPage, 303, DFIO_ShowQm);
-#endif
-    }
+  BuildDataDefnAreaIOs(DDB);
 
   if (DDB.ForFileSnpScn() && NetDynamicMethod())
     {

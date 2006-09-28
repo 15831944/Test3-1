@@ -49,7 +49,7 @@ class DllImportExport MN_Surge : public MdlNode
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges(bool CheckIO);
 
-    virtual CFlange * GetFlange(int IOId);
+    //virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
 

@@ -203,18 +203,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  DDB.Visibility();
-  if (NetDynamicMethod())
-    {
-    if (/*m_Spill.Enabled ||*/ m_Vent.Enabled/* || m_AccIn.Enabled || m_AccOut.Enabled*/)
-      {
-      DDB.Page("AreaIO", DDB_RqdPage);
-      //m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
-      m_Vent.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
-      //m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
-      //m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
-      }
-    }
+  BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   }
@@ -223,14 +212,6 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
 
 flag FilterPress::DataXchg(DataChangeBlk & DCB)
   {
-  //if (DCB.dwUserInfo==1 && m_Spill.DataXchg(DCB))
-  //  return 1;
-  if (DCB.dwUserInfo==2 && m_Vent.DataXchg(DCB))
-    return 1;
-  //if (DCB.dwUserInfo==3 && m_AccIn.DataXchg(DCB))
-  //  return 1;
-  //if (DCB.dwUserInfo==4 && m_AccOut.DataXchg(DCB))
-  //  return 1;
   if (MdlNode::DataXchg(DCB))
     return 1;
   return 0;
@@ -268,18 +249,18 @@ void FilterPress::SetState(eScdMdlStateActs RqdState)
 
 //---------------------------------------------------------------------------
 
-CFlange * FilterPress::GetFlange(int IOId)
-  {
-  switch (IOId)
-    {
-    //case IOId_Spill2Area:   return &m_Spill.Flange;
-    case IOId_Vent2Area:    return &m_Vent.Flange;
-    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
-    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
-    }
-  return NULL;
-  };
-
+//CFlange * FilterPress::GetFlange(int IOId)
+//  {
+//  switch (IOId)
+//    {
+//    //case IOId_Spill2Area:   return &m_Spill.Flange;
+//    case IOId_Vent2Area:    return &m_Vent.Flange;
+//    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
+//    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
+//    }
+//  return NULL;
+//  };
+//
 //---------------------------------------------------------------------------
 
 void FilterPress::ConfigureJoins()

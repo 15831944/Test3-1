@@ -1099,10 +1099,10 @@ flag C4PortValve::SetModelAction(CMdlAction & Act)
 
 //--------------------------------------------------------------------------
 
-CFlange * C4PortValve ::GetFlange(int IOId)
-  {
-  return NULL;
-  };
+//CFlange * C4PortValve ::GetFlange(int IOId)
+//  {
+//  return NULL;
+//  };
 
 //--------------------------------------------------------------------------
 

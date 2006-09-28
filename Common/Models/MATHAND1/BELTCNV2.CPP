@@ -507,17 +507,7 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   if (m_fShowProfile)
     DDB.Object(&m_Q.Profile(), this);
 
-  if (NetDynamicMethod())
-    {
-    if (m_Spill.Enabled || m_Vent.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
-      {
-      DDB.Page("AreaIO", DDB_RqdPage);
-      m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
-      m_Vent.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
-      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
-      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
-      }
-    }
+  BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };
@@ -531,14 +521,6 @@ flag BeltCnv2::DataXchg(DataChangeBlk & DCB)
   if (m_BeltPwr.DataXchg(DCB))
     return 1;
   if (m_BeltSB.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==1 && m_Spill.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==2 && m_Vent.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==3 && m_AccIn.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==4 && m_AccOut.DataXchg(DCB))
     return 1;
 
   if (DCB.dwUserInfo>=100 && DCB.dwUserInfo<=199)
@@ -919,17 +901,17 @@ flag BeltCnv2::PutOtherData(FilingControlBlock &FCB)
 
 //--------------------------------------------------------------------------
 
-CFlange * BeltCnv2::GetFlange(int IOId)
-  {
-  switch (IOId)
-    {
-    case IOId_Spill2Area:   return &m_Spill.Flange;
-    case IOId_Vent2Area:    return &m_Vent.Flange;
-    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
-    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
-    }
-  return NULL;
-  };
+//CFlange * BeltCnv2::GetFlange(int IOId)
+//  {
+//  switch (IOId)
+//    {
+//    case IOId_Spill2Area:   return &m_Spill.Flange;
+//    case IOId_Vent2Area:    return &m_Vent.Flange;
+//    //case IOId_AccIn2Area:   return &m_AccIn.Flange;
+//    //case IOId_AccOut2Area:  return &m_AccOut.Flange;
+//    }
+//  return NULL;
+//  };
 
 //---------------------------------------------------------------------------
 

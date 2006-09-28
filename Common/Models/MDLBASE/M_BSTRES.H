@@ -57,7 +57,7 @@ class DllImportExport MN_BstRes : public MdlNode
       return &m_FEP;
       };
 
-    virtual CFlange * GetFlange(int IOId);
+    //virtual CFlange * GetFlange(int IOId);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
     virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);

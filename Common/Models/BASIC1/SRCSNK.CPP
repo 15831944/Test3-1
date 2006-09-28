@@ -347,16 +347,17 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   DDB.Object(&Flows, this, NULL, NULL, DDB_RqdPage);
 
-  DDB.Text("");
-  if (NetDynamicMethod())
-    {
-    if (m_Src.Enabled || m_Snk.Enabled)
-      {
-      DDB.Page("Srcs", DDB_RqdPage);
-      m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
-      m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
-      }
-    }
+  BuildDataDefnAreaIOs(DDB);
+  //DDB.Text("");
+  //if (NetDynamicMethod())
+  //  {
+  //  if (m_Src.Enabled || m_Snk.Enabled)
+  //    {
+  //    DDB.Page("Srcs", DDB_RqdPage);
+  //    m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
+  //    m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
+  //    }
+  //  }
   DDB.EndStruct();
   };  
 

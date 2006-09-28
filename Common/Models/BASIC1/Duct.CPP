@@ -579,12 +579,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithAutoComp|FEOF_WithPVConst);
 
-  if (NetDynamicMethod() && m_Spill.Enabled)
-    {
-    DDB.Page("AreaIO", DDB_RqdPage);
-    m_Spill.BuildDataDefn(DDB, NULL, DDB_NoPage, 300, DFIO_ShowQm);
-    }
-
+  BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   }

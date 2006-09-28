@@ -36,7 +36,7 @@ class FilterPress : public MdlNode
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ChangeMode(dword NewMode, dword OldMode);
     virtual void   SetState(eScdMdlStateActs RqdState);
-    virtual CFlange * GetFlange(int IOId);
+    //virtual CFlange * GetFlange(int IOId);
     virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalProducts(CNodeEvalIndex & NEI);

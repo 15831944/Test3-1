@@ -864,16 +864,16 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
     return 1;
 
 
-  if (DCB.dwUserInfo==300 && m_Spill.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==301 && m_Src.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==302 && m_Snk.DataXchg(DCB))
-    return 1;
-#if WITHLINKBLEED 
-  if (DCB.dwUserInfo==303 && m_Bleed.DataXchg(DCB))
-    return 1;
-#endif
+//  if (DCB.dwUserInfo==300 && m_Spill.DataXchg(DCB))
+//    return 1;
+//  if (DCB.dwUserInfo==301 && m_Src.DataXchg(DCB))
+//    return 1;
+//  if (DCB.dwUserInfo==302 && m_Snk.DataXchg(DCB))
+//    return 1;
+//#if WITHLINKBLEED 
+//  if (DCB.dwUserInfo==303 && m_Bleed.DataXchg(DCB))
+//    return 1;
+//#endif
 
   if (DCB.lHandle>=xidFEFirst && DCB.lHandle<xidFELast)
     {
@@ -1902,21 +1902,21 @@ void MN_Lnk::GlobalConnect()
 
 //--------------------------------------------------------------------------
 
-CFlange * MN_Lnk::GetFlange(int IOId)
-  {
-  switch (IOId)
-    {
-    case IOId_Spill2Area: return &m_Spill.Flange;
-    default:
-      {
-      CFlange * pFlng=m_BlkEval.GetFlange(IOId);
-      if (pFlng)
-        return pFlng;
-      }
-    }
-  return NULL;
-  };
-
+//CFlange * MN_Lnk::GetFlange(int IOId)
+//  {
+//  switch (IOId)
+//    {
+//    case IOId_Spill2Area: return &m_Spill.Flange;
+//    default:
+//      {
+//      CFlange * pFlng=m_BlkEval.GetFlange(IOId);
+//      if (pFlng)
+//        return pFlng;
+//      }
+//    }
+//  return NULL;
+//  };
+//
 //--------------------------------------------------------------------------
 
 void MN_Lnk::PostConnect(int IONo)

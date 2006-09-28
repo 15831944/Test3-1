@@ -299,17 +299,17 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
 
 //-------------------------------------------------------------------------
 
-CFlange * CBlockEvaluator::GetFlange(int IOId)
-  {
-  CFlange * pFlng=NULL;
-  if (IOId>=IOId_Bleed2Area && IOId<IOId_Bleed2Area+CBlockEvaluator::MaxBleedBlocks)
-    pFlng = &(m_pBleeds[IOId-IOId_Bleed2Area]->m_SnkIO.Flange);
-  if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+CBlockEvaluator::MaxMakeupBlocks)
-    pFlng = &(m_pMakeups[IOId-IOId_Makeup2Area]->m_SrcIO.Flange);
-  if (0)
-    dbgpln("CBlockEvaluator::GetFlange %3i %08x", IOId, pFlng);
-  return pFlng;
-  }
+//CFlange * CBlockEvaluator::GetFlange(int IOId)
+//  {
+//  CFlange * pFlng=NULL;
+//  if (IOId>=IOId_Bleed2Area && IOId<IOId_Bleed2Area+CBlockEvaluator::MaxBleedBlocks)
+//    pFlng = &(m_pBleeds[IOId-IOId_Bleed2Area]->m_SnkIO.Flange);
+//  if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+CBlockEvaluator::MaxMakeupBlocks)
+//    pFlng = &(m_pMakeups[IOId-IOId_Makeup2Area]->m_SrcIO.Flange);
+//  if (0)
+//    dbgpln("CBlockEvaluator::GetFlange %3i %08x", IOId, pFlng);
+//  return pFlng;
+//  }
 
 //-------------------------------------------------------------------------
 

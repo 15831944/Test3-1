@@ -791,17 +791,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
   //  }
   //DDB.EndArray();
 
-  if (NetDynamicMethod())
-    {
-    if (m_Src.Enabled || m_Snk.Enabled || m_AccIn.Enabled || m_AccOut.Enabled)
-      {
-      DDB.Page("AreaIO", DDB_RqdPage);
-      m_Src.BuildDataDefn(DDB, NULL, DDB_NoPage, 1, DFIO_ShowQm);
-      m_Snk.BuildDataDefn(DDB, NULL, DDB_NoPage, 2, DFIO_ShowQm);
-      m_AccIn.BuildDataDefn(DDB, NULL, DDB_NoPage, 3, DFIO_ShowQm);
-      m_AccOut.BuildDataDefn(DDB, NULL, DDB_NoPage, 4, DFIO_ShowQm);
-      }
-    }
+  BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };
@@ -812,15 +802,7 @@ flag CMultiStorage::DataXchg(DataChangeBlk & DCB)
   {
   if (MdlNode::DataXchg(DCB))
     return 1;
-  if (DCB.dwUserInfo==1 && m_AccIn.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==2 && m_AccOut.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==3 && m_AccIn.DataXchg(DCB))
-    return 1;
-  if (DCB.dwUserInfo==4 && m_AccOut.DataXchg(DCB))
-    return 1;
-    //flag           DataXchg(DataChangeBlk & DCB);
+
   if (DCB.dwUserInfo>=1000 && 
       DCB.dwUserInfo<dword(1000+m_StoreRB.GetSize()) && 
       m_StoreRB[DCB.dwUserInfo-1000].DataXchg(DCB))

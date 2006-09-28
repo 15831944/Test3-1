@@ -35,7 +35,7 @@ class DllImportExport CBlockEvaluator
     void              AddBlk(CBlockEvalBase *p, int DefSeqNo);
     void              RemBlk(CBlockEvalBase *p);
 
-    CFlange         * GetFlange(int IOId);
+    //CFlange         * GetFlange(int IOId);
 
     void              Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs=DDB_NoPage);
     void              BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs=DDB_RqdPage);
