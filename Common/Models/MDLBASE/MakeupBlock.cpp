@@ -2,7 +2,7 @@
 
 #define __MAKEUPBLOCK_CPP
 #include "MakeupBlock.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 //=========================================================================
 //
@@ -634,6 +634,8 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
       m_MeasDesc = "NormVolume flow";
     else if (Blk.m_eType==CXBlk_MUFeed::Type_Mole)
       m_MeasDesc = "Molar flow";
+    //else if (Blk.m_eType==CXBlk_MUFeed::Type_Conc)
+    //  m_MeasDesc = "Concentration";
     else
       m_MeasDesc = "";
 
@@ -670,12 +672,16 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
         }
       case Slct_Specie:
         {
-        m_MeasDesc += " of sum of selected species:"; 
+        char Buff[256];
+        sprintf(Buff, " of sum of %d selected species:", m_Species.GetSize());
+        m_MeasDesc += Buff; 
         break;
         }
       case Slct_Component:
         {
-        m_MeasDesc += " of sum of selected components:"; 
+        char Buff[256];
+        sprintf(Buff, " of sum of %d selected components:", m_Comps.GetSize());
+        m_MeasDesc += Buff; 
         break;
         }
       }
@@ -2407,13 +2413,14 @@ flag CXBlk_MUSimple::ValidateData(ValidateDataBlk & VDB)
       bool NeedsComma = false;
       for (int i=0; i<m_Comps.GetCount(); i++)
         {
-        for (int j=0; j<CDB[i].NSpecies(); j++)
+        const int CmpIndex = m_Comps[i];
+        for (int j=0; j<CDB[CmpIndex].NSpecies(); j++)
           {
-          int s=CDB[i].iSpecie(j);
-          m_Species.Add(s);
+          const int SpcIndex = CDB[CmpIndex].iSpecie(j);
+          m_Species.Add(SpcIndex);
           if (NeedsComma)
             m_CompSpecies += ", ";
-          m_CompSpecies += SDB[s].SymOrTag();
+          m_CompSpecies += SDB[SpcIndex].SymOrTag();
           NeedsComma = true;
           }
         }
