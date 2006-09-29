@@ -33,7 +33,6 @@ const long SM_Buffered     = eScdSolve_Buffered;
 const long HM_None         = eScdHeat_None;
 const long HM_Reduced       = eScdHeat_Simple;
 const long HM_Full         = eScdHeat_Full;
-const long MODEVISIBLE     = 0x00000800;       
 
 // Fourth & Fifth Octets
 // Link Flw Modes
@@ -54,6 +53,8 @@ const long SM_DynCurrent    = SM_Inline | SM_Buffered;
 const long HM_All           = HM_None | HM_Reduced | HM_Full;
 
 const long NSHM_All         = NM_All | SM_All | HM_All;       
+
+const long MODEVISIBLE      = eScdFlow_ModeVisible;       
 
 const DDEF_Flags DDEF_NOCOMPARE           = 0x0000000000020000;// Maybe masked out ??
 const DDEF_Flags DDEF_NAN_OK              = 0x0000000000040000;

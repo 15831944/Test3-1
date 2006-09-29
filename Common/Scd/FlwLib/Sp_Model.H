@@ -840,6 +840,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual double MoleWt(CIArray & SpIds)                        { return m_M.Mass(SpIds)/GTZ(m_M.Moles(SpIds)); };
     virtual double MoleWt(CSysVector & Scale)                     { return m_M.Mass(Scale)/GTZ(m_M.Moles(Scale)); };
 
+    double ElementMass(CIArray & ElementIds, PhMask Phase=som_ALL) { return m_M.ElementMass(ElementIds, Phase); };
     //virtual double Volume(CIArray & SpIds);
     //virtual double NVolume(CIArray & SpIds);
 

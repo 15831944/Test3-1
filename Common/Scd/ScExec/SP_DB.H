@@ -239,6 +239,9 @@ class DllImportExport CCElementDataBase
     int            Find(const char * pElName);
     flag           CheckElDef(Strng &ElDef);
     int            Count() {return m_iNo;};
+
+  public:
+    DDBValueLstMem        DDBElementList;
   };
 
 
@@ -2217,6 +2220,8 @@ class DllImportExport CSysVector
     double      NVolume(long Fidelity, PhMask Phase, SpPropOveride *Ovr)                                  { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Phase, Ovr, m_d); };
     double      NVolume(long Fidelity, CIArray & SpIds, SpPropOveride *Ovr)                               { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, SpIds, Ovr, m_d); };
     double      NVolume(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr)                            { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Scale, Ovr, m_d); };
+
+    double      ElementMass(CIArray & ElementIds, PhMask Phase);
 
     double      MassFrac(PhMask Phase);
     double      MoleFrac(PhMask Phase);

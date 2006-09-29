@@ -308,6 +308,11 @@ void CCElementDataBase::Init()
     m_Data[m_iNo].fAllocdMem=false;
     };
   m_iNoStart=m_iNo;
+
+  DDBElementList.Empty();
+  for (int e=0; e<m_iNo; e++)
+    DDBElementList.Add(e, m_Data[e].Name);
+
   };
 
 //---------------------------------------------------------------------------
@@ -9355,6 +9360,27 @@ double CSysVector::MoleFrac(PhMask Phase)
       s+=m;
     }
   return s/GTZ(t);
+  };
+
+
+//--------------------------------------------------------------------------
+
+double CSysVector::ElementMass(CIArray & ElementIds, PhMask Phase)
+  {
+  SPMVECTORTIMERLAP(sm_swMass);
+  double tot=0.0;
+  for (int ie=0; ie<ElementIds.GetCount(); ie++)
+    {
+    CompFracArray &CFH=*(EDB[ie].SpComp);
+    int Ns=CFH.GetSize();
+    for (int is=0; is<Ns; is++)
+      {
+      int s=CFH[is].iSpNo;
+      if (SDB[s].PhaseIs(Phase))
+        tot+=m_d[s]*CFH[is].dMassFrac;
+      }
+    }
+  return tot;
   };
 
 // ===========================================================================

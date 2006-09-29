@@ -805,8 +805,9 @@ typedef enum eScdMode // must fit into 16 bits
   eScdFlow_Propagate        = 0x1000,           
   eScdFlow_Propagated       = 0x2000,           
 
-  eScdFlow_HasFullFlow      = 0x8000, // implies that this node or one of the adjacent nodes is in eScdFlow_Full
+  eScdFlow_HasFullFlow      = 0x4000, // implies that this node or one of the adjacent nodes is in eScdFlow_Full
 
+  eScdFlow_ModeVisible      = 0x8000
   } eScdMode;
 
 //----------------------------------------------  

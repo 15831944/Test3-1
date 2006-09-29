@@ -49,8 +49,8 @@ static IOAreaRec X_TieIOAreaList[] =
    {"Outputs",  "Out",  0,              LIO_Out0,      nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
    //"Leak",     "Leak", IOId_XferLeak,  LIO_Out,       nc_MLnk, 0,  1, IOOptsHide|IOEqnsHide|IOPipeJoin|IOHidden},
     LEAKS2AREA("Leak", IOId_XferLeak),
-    MAKEUP2AREA("Makeups", IOId_Makeup2Area),
-    BLEED2AREA("Bleeds", IOId_Bleed2Area),
+    MAKEUP2AREA(),
+    BLEED2AREA(),
    {NULL}};
 
 double Drw_X_Tie[] = { DD_Poly, -1,1, 1,1, 1,-1, -1,-1, -1,1,

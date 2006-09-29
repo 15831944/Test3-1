@@ -142,7 +142,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
       DDB.String  ("Model",      "",       DC_    , "",      xidAdjustMdlNm  , m_pNd,m_fFixed ? 0 : isParm|SetOnChange, DDB0());
 
       if (m_SnkIO.Enabled)
-        m_SnkIO.BuildDataDefn(DDB, "DIO", DDB_NoPage, UserInfo+102, DFIO_ShowQm);
+        m_SnkIO.BuildDataDefn(DDB, NULL, "DIO", DDB_NoPage, UserInfo+102, DFIO_ShowQm);
 
       if (m_pBleedB)
         {

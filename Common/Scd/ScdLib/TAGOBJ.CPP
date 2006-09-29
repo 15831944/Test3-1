@@ -5136,7 +5136,7 @@ DDEF_Flags DataDefnBlk::Visibility(DDEF_Flags ModeFlags, flag ViewVisible, flag 
   {
   DDEF_Flags & dwDefaultFlags=Nest[lCallLevel].dwDefaultFlags;
   DDEF_Flags old=dwDefaultFlags;
-  dwDefaultFlags &= ~(NSHM_All|DDEF_NOVIEW|DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO);
+  dwDefaultFlags &= ~(NSHM_All|DDEF_NONDB|DDEF_NOVIEW|DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO);
   dwDefaultFlags |= ModeFlags & NSHM_All;
   if (!ViewVisible)
     dwDefaultFlags |= DDEF_NOVIEW;

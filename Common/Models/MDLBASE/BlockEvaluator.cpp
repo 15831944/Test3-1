@@ -35,11 +35,11 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
   m_pVLE  = pVLE;
   m_pEvap = pEvap;
 
-  AddBlk(m_pRB, MaxMakeupBlocks+2);
-  AddBlk(m_pHX, MaxMakeupBlocks+3); 
-  AddBlk(m_pEHX, MaxMakeupBlocks+4); 
-  AddBlk(m_pVLE, MaxMakeupBlocks+5); 
-  AddBlk(m_pEvap, MaxMakeupBlocks+6); 
+  AddBlk(m_pRB, MaxNdMakeups+2);
+  AddBlk(m_pHX, MaxNdMakeups+3); 
+  AddBlk(m_pEHX, MaxNdMakeups+4); 
+  AddBlk(m_pVLE, MaxNdMakeups+5); 
+  AddBlk(m_pEvap, MaxNdMakeups+6); 
 
   SortBlocks();
   };
@@ -194,7 +194,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
       if (DCB.rL)
         {
         int N=*DCB.rL;
-        N=Range(0, N, MaxMakeupBlocks); 
+        N=Range(0, N, MaxNdMakeups); 
         for (int a=N; a<m_pMakeups.GetSize(); a++)
           {
           RemBlk(m_pMakeups[a]);
@@ -218,7 +218,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
       if (DCB.rL)
         {
         int N=*DCB.rL;
-        N=Range(0, N, MaxBleedBlocks); 
+        N=Range(0, N, MaxNdBleeds); 
         for (int a=N; a<m_pBleeds.GetSize(); a++)
           {
           RemBlk(m_pBleeds[a]);
@@ -233,7 +233,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           m_pBleeds[a] = new CBleedBase(m_pThis, a, Tg());
           m_pBleeds[a]->Enable();
           m_pBleeds[a]->Open(1);
-          AddBlk(m_pBleeds[a], MaxMakeupBlocks*2+a);
+          AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
           }
         }
       DCB.L=m_pBleeds.GetSize();
@@ -302,9 +302,9 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
 //CFlange * CBlockEvaluator::GetFlange(int IOId)
 //  {
 //  CFlange * pFlng=NULL;
-//  if (IOId>=IOId_Bleed2Area && IOId<IOId_Bleed2Area+CBlockEvaluator::MaxBleedBlocks)
+//  if (IOId>=IOId_Bleed2Area && IOId<IOId_Bleed2Area+CBlockEvaluator::MaxNdBleeds)
 //    pFlng = &(m_pBleeds[IOId-IOId_Bleed2Area]->m_SnkIO.Flange);
-//  if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+CBlockEvaluator::MaxMakeupBlocks)
+//  if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+CBlockEvaluator::MaxNdMakeups)
 //    pFlng = &(m_pMakeups[IOId-IOId_Makeup2Area]->m_SrcIO.Flange);
 //  if (0)
 //    dbgpln("CBlockEvaluator::GetFlange %3i %08x", IOId, pFlng);

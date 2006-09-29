@@ -270,6 +270,17 @@ MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   {
   AttachIOAreas(MakeupSrcIOAreaList);
   m_Content.SetView(SVV_AsMassFrac);  
+
+  static const BDDSpecies_Blk sbImage[]=
+    {
+      {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true , VAMsk_SpMass },
+      {SVV_AsMoleFrac,    SVV_AsMassFrac,  true,  false, VAMsk_SpMole },
+      {SVV_AsVolFrac,     SVV_AsMassFrac,  true,  false, VAMsk_SpVol  },
+      {SVV_AsNVolFrac,    SVV_AsMassFrac,  true,  false, VAMsk_SpNVol },
+    };                      
+
+  m_Content.SetViewBlk(sbImage, sizeof(sbImage));
+
   m_bForceAudit=true;
   }
 

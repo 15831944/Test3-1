@@ -91,9 +91,25 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     flag           ValidateData(ValidateDataBlk & VDB)
       { return Enabled() ? m_pMakeupB->ValidateData(VDB) : 0; };
     void           EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pMakeupB->EvalProducts(QPrd, Po, FinalTEst); };
+      {
+      if (Enabled())
+        m_pMakeupB->EvalProducts(QPrd, Po, FinalTEst); 
+      else
+        {
+        m_pMakeupB->SrcIO.Cd.QZero();
+        m_pMakeupB->SrcIO.Sum.ZeroFlows();
+        }
+      };
     void           EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pMakeupB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst); };
+      {
+      if (Enabled())
+        m_pMakeupB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst);
+      else
+        {
+        m_pMakeupB->SrcIO.Cd.QZero();
+        m_pMakeupB->SrcIO.Sum.ZeroFlows();
+        }
+      };
 
     virtual int       ChangeTag(char * pOldTag, char * pNewTag);
     virtual int       DeleteTag(char * pDelTag);

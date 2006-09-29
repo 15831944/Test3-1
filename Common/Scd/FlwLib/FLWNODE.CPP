@@ -319,15 +319,15 @@ IOAreaRec TwoIOAreaListWithBS[] =
   {
     TWOIOSTD,
     SPILL2AREA("Spills", IOId_Spill2Area),
-    BLEED2AREA("Bleeds", IOId_Bleed2Area),
+    BLEED2AREA(),
     {NULL}
   };
 IOAreaRec TwoIOAreaListWithMBS[] =
   {
     TWOIOSTD,
     SPILL2AREA("Spills", IOId_Spill2Area),
-    MAKEUP2AREA("Makeups", IOId_Makeup2Area),
-    BLEED2AREA("Bleeds", IOId_Bleed2Area),
+    MAKEUP2AREA(),
+    BLEED2AREA(),
     {NULL}
   };
 
@@ -2330,7 +2330,10 @@ CFlange * FlwNode::GetFlange(int IoId)
     {
     CDirectFlwIO & DIO = *m_AttachedDirectIOs[i];
     if (DIO.LclDIOId() == IoId)
+      {
+      dbgpln("FlwNode::GetFlange %5i %5i 0x%08x %s", IoId, DIO.m_iMyConnectedIO, &DIO.Flange, FullObjTag());
       return &DIO.Flange;
+      }
     }
   return NULL;
   };
@@ -2348,7 +2351,7 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
     DDB.Visibility();
     DDB.Page("DirectIO", DDB_RqdPage);
     for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
-      m_AttachedDirectIOs[i]->BuildDataDefn(DDB, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
+      m_AttachedDirectIOs[i]->BuildDataDefn(DDB, "DIO", NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
     }
   };
 
@@ -6232,18 +6235,21 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
         CDirectFlwIO &D=*m_EnabledDirectIOs[d];
         if (D.HasConduit && D.m_iMyConnectedIO>=0)
           {
-          switch (D.LclDIOId())
+          int IOId=D.LclDIOId();
+          switch (IOId)
             {
-            case IOId_Makeup2Area:
-              SetIOQmEst_In(D.m_iMyConnectedIO, PBQmEst);
-              break;
             case IOId_Spill2Area:
             case IOId_Vent2Area:
-            case IOId_Bleed2Area:
               SetIOQmEst_Out(D.m_iMyConnectedIO, PBQmEst);
               break;
             case IOId_LeakI2Area:
             case IOId_LeakO2Area:
+              break;
+            default:
+              if (IOId>=IOId_Makeup2Area && IOId<IOId_Makeup2Area+MaxNdMakeups)
+                SetIOQmEst_In(D.m_iMyConnectedIO, PBQmEst);
+              else if (IOId>=IOId_Bleed2Area && IOId<IOId_Bleed2Area+MaxNdBleeds)
+                SetIOQmEst_Out(D.m_iMyConnectedIO, PBQmEst);
               break;
             }
           }
@@ -9876,7 +9882,7 @@ void CDirectFlwIO::ManageNdDirectIOs(bool AddIt)
         for (int d=0; !Done && d<m_pNd->m_AttachedDirectIOs.GetCount(); d++)
           {
           CDirectFlwIO *pD=m_pNd->m_AttachedDirectIOs[d];
-          if (pD->m_eType>=m_eType)
+          if (pD->m_eType>m_eType)
             {
             m_pNd->m_AttachedDirectIOs.InsertAt(d, this);
             Done=true;
@@ -9967,12 +9973,18 @@ void CDirectFlwIO::Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo)
 
 //--------------------------------------------------------------------------
 
-void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, char * Tag, DDBPages PgOpt, DWORD UserInfo, DWORD Options)
+void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR Tag, DDBPages PgOpt, DWORD UserInfo, DWORD Options)
   {
   if (!DDB.ForFileSnpScn() && !Enabled)
     return;
-
-  if (DDB.BeginObject(m_pNd, Tag ? Tag:m_sTag(), "DirectedIO", NULL, PgOpt, UserInfo))
+  CString XTag;
+  if (TagPrefix)
+    {
+    XTag = TagPrefix;
+    XTag += ".";
+    }
+  XTag += Tag ? Tag:m_sTag();
+  if (DDB.BeginObject(m_pNd, XTag.GetBuffer(), "DirectedIO", NULL, PgOpt, UserInfo))
     {
     DDB.String  (m_sRmtTypeName(),     "",       DC_,      "",       xidRmtTag,       m_pNd, isParmStopped|isTag);
 

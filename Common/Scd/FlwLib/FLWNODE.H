@@ -466,7 +466,7 @@ class DllImportExport CDirectFlwIO
     void          InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, int LclIOId);
 
     void          Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo);
-    void          BuildDataDefn(DataDefnBlk & DDB, char * LeakTag, DDBPages PgOpt, dword UserInfo, DWORD Options);
+    void          BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR Tag, DDBPages PgOpt, dword UserInfo, DWORD Options);
     flag          DataXchg(DataChangeBlk & DCB);
     flag          ValidateData(ValidateDataBlk & VDB);
 
@@ -1726,6 +1726,9 @@ const int IOId_AreaLeakO      = LeakIOId(501);
 const int IOId_AreaMakeupO    = MakeupIOId(500);
 const int IOId_AreaBleedI     = BleedIOId(500);
 
+const int MaxNdMakeups        = 5;
+const int MaxNdBleeds         = 5;
+
 DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
 DllImportExport IOAreaRec TwoIOAreaListWithSL[];
@@ -1734,8 +1737,20 @@ DllImportExport IOAreaRec TwoIOAreaListWithL[];
 DllImportExport IOAreaRec TwoIOAreaListWithBS[];
 DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
 
-#define MAKEUP2AREA(Tg,Id) {"", Tg, Id, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
-#define BLEED2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+#define MAKEUP2AREA() /*==MaxNdMakeups*/                                                                                                         \
+  {"", "Makeup1", IOId_Makeup2Area,   LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Makeup2", IOId_Makeup2Area+1, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Makeup3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Makeup4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Makeup5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+
+#define BLEED2AREA()  /*==MaxNdBleeds*/                                                                                                          \
+  {"", "Bleed1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Bleed2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Bleed3",  IOId_Bleed2Area+2,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Bleed4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "Bleed5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+
 #define SPILL2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
 #define VENT2AREA(Tg,Id)   {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
 #define LEAKS2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide|IOEqnsHide|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup}

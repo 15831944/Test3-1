@@ -284,6 +284,8 @@ class DllImportExport SpConduit : public SpModelOwner
     double         QNVolume(CIArray & SpIds, CSysVector &S)                       { return pModel->NVolume(SpIds, &S); };
     double         QNVolume(CSysVector &Scale)                                    { return pModel->NVolume(Scale); };
 
+    double         QElementMass(CIArray & ElementIds, PhMask Phase=som_ALL)       { return pModel->ElementMass(ElementIds, Phase); };
+
     double         Rho(PhMask PhaseM=som_ALL)                                     { return pModel->Rho(PhaseM);};
     double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL)     { return pModel->Rho(PhaseM, T, P, S);};
     double         Rho(CIArray & SpIds)                                           { return pModel->Rho(SpIds);};
@@ -866,52 +868,51 @@ class DllImportExport SpContainer : public SpModelOwner
     void           Copy(SpContainer & C);
 
     void           AddDeriv(SpConduit & Flw, double Sgn_, double EntrainRate=0.0);
-    void           AddInternalDerivs(CSysVector * pdMdt, double dHdt) { pModel->AddInternalDerivs(pdMdt, dHdt); };
+    void           AddInternalDerivs(CSysVector * pdMdt, double dHdt)                                                                         { pModel->AddInternalDerivs(pdMdt, dHdt); };
     void           AddDiscrete(SpConduit & Flw, double Sgn_);
-    void           EvalMStates() {pModel->EvalMStates();};
-    void           EvalHStates() {pModel->EvalHStates();};
-    //void           EvalVStates() {pModel->EvalVStates();};
+    void           EvalMStates()                                                    { pModel->EvalMStates();};
+    void           EvalHStates()                                                    { pModel->EvalHStates();};
+    //void           EvalVStates()                                                  { pModel->EvalVStates();};
     void           ApplyDerivs(double dTime, flag DoDbg);
     void           ODEOperate(CODEDataBlock & ODB);
     void           EvalStatistics(eScdCtrlTasks Tasks=CO_All);
 
-    double         Mass(PhMask PhaseM=som_ALL) {return pModel->Mass(PhaseM);}
-    double         Moles(PhMask PhaseM=som_ALL) {return pModel->Moles(PhaseM);}
-    double         MoleWt(PhMask PhaseM=som_ALL) { return pModel->MoleWt(PhaseM); };
+    double         Mass(PhMask PhaseM=som_ALL)                                      { return pModel->Mass(PhaseM);}
+    double         Moles(PhMask PhaseM=som_ALL)                                     { return pModel->Moles(PhaseM);}
+    double         MoleWt(PhMask PhaseM=som_ALL)                                    { return pModel->MoleWt(PhaseM); };
 
-    double         Volume(PhMask PhaseM=som_ALL) { return pModel->Volume(PhaseM); };
-    double         Volume(PhMask PhaseM, double T_, double P_, CSysVector* S=NULL) { return pModel->Volume(PhaseM, T_, P_, S); };
-    //double         Volume(CIArray & SpIds) { return pModel->Volume(SpIds);};
-    double         Volume(CSysVector &S) { return pModel->Volume(som_ALL, Temp(), Press(), &S); };
+    double         Volume(PhMask PhaseM=som_ALL)                                    { return pModel->Volume(PhaseM); };
+    double         Volume(PhMask PhaseM, double T_, double P_, CSysVector* S=NULL)  { return pModel->Volume(PhaseM, T_, P_, S); };
+    double         Volume(CSysVector &S)                                            { return pModel->Volume(som_ALL, Temp(), Press(), &S); };
 
-//    double         NVolume(PhMask PhaseM=som_ALL) { return pModel->NVolume(PhaseM); };
-    double         NVolume(PhMask PhaseM=som_ALL, CSysVector* S=NULL) { return pModel->NVolume(PhaseM, S); };
-    //double         NVolume(CIArray & SpIds) { return pModel->NVolume(SpIds); };
-    double         NVolume(CSysVector &S) { return pModel->NVolume(som_ALL, &S); };
+    double         NVolume(PhMask PhaseM=som_ALL, CSysVector* S=NULL)               { return pModel->NVolume(PhaseM, S); };
+    double         NVolume(CSysVector &S)                                           { return pModel->NVolume(som_ALL, &S); };
+
+    double         ElementMass(CIArray & ElementIds, PhMask Phase=som_ALL)          { return pModel->ElementMass(ElementIds, Phase); };
 
     double         Rho(PhMask PhaseM=som_ALL) { return pModel->Rho(PhaseM);};
-    double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->Rho(PhaseM, T, P, S);};
-    double         NRho(PhMask PhaseM=som_ALL, CSysVector* S=NULL) { return pModel->NRho(PhaseM, S);};
-    double         NRho(CSysVector &S) { return pModel->NRho(som_ALL, &S); };
+    double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL)       { return pModel->Rho(PhaseM, T, P, S);};
+    double         NRho(PhMask PhaseM=som_ALL, CSysVector* S=NULL)                  { return pModel->NRho(PhaseM, S);};
+    double         NRho(CSysVector &S)                                              { return pModel->NRho(som_ALL, &S); };
 
-    double         DynamicViscosity(PhMask PhaseM=som_ALL) { return pModel->DynamicViscosity(PhaseM);};
-    double         DynamicViscosity(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->DynamicViscosity(PhaseM, T, P, S);};
-    double         KinematicViscosity(PhMask PhaseM=som_ALL) { return pModel->KinematicViscosity(PhaseM);};
+    double         DynamicViscosity(PhMask PhaseM=som_ALL)                          { return pModel->DynamicViscosity(PhaseM);};
+    double         DynamicViscosity(PhMask PhaseM, double T, double P, CSysVector* S=NULL)   { return pModel->DynamicViscosity(PhaseM, T, P, S);};
+    double         KinematicViscosity(PhMask PhaseM=som_ALL)                        { return pModel->KinematicViscosity(PhaseM);};
     double         KinematicViscosity(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->KinematicViscosity(PhaseM, T, P, S);};
-    double         ThermalConductivity(PhMask PhaseM=som_ALL) { return pModel->ThermalConductivity(PhaseM);};
-    double         ThermalConductivity(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->ThermalConductivity(PhaseM, T, P, S);};
-    double         PrandtlNo(PhMask PhaseM=som_ALL) { return pModel->PrandtlNo(PhaseM);};
+    double         ThermalConductivity(PhMask PhaseM=som_ALL)                       { return pModel->ThermalConductivity(PhaseM);};
+    double         ThermalConductivity(PhMask PhaseM, double T, double P, CSysVector* S=NULL){ return pModel->ThermalConductivity(PhaseM, T, P, S);};
+    double         PrandtlNo(PhMask PhaseM=som_ALL)                                 { return pModel->PrandtlNo(PhaseM);};
     double         PrandtlNo(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->PrandtlNo(PhaseM, T, P, S);};
-    double         SurfaceTension(PhMask PhaseM=som_ALL) { return pModel->SurfaceTension(PhaseM);};
+    double         SurfaceTension(PhMask PhaseM=som_ALL)                            { return pModel->SurfaceTension(PhaseM);};
     double         SurfaceTension(PhMask PhaseM, double T, double P, CSysVector* S=NULL) { return pModel->SurfaceTension(PhaseM, T, P, S);};
 
-    double         VapVolume() { return Max(1.0e-3, pShape->ActualVolume()-(pModel->Volume(som_SL)));};
+    double         VapVolume()                                                      { return Max(1.0e-3, pShape->ActualVolume()-(pModel->Volume(som_SL)));};
 
-    void           SetBadTempOK(flag OK) { pModel->SetBadTempOK(OK); };
-    flag           BadTempOK()           { return pModel->BadTempOK(); };
+    void           SetBadTempOK(flag OK)                                            { pModel->SetBadTempOK(OK); };
+    flag           BadTempOK()                                                      { return pModel->BadTempOK(); };
 
-    double         Press() { return pModel->Press();};
-    double         Temp() {return pModel->Temp();}
+    double         Press()                                                          { return pModel->Press();};
+    double         Temp()                                                           {return pModel->Temp();}
 
     double         PartialPress(SpecieIter & Ids, double T) { return pModel->PartialPress(Ids, T);};
     double         PartialPress(int Id) { return pModel->PartialPress(Id, Temp());};

@@ -19,10 +19,8 @@ class DllImportExport CBlockEvaluator
   {
   public:
 
-    static const int MaxMakeupBlocks       =  5;
-    static const int MaxBleedBlocks        =  5;
     //                                     RB, HX, EHX, VLE
-    static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxMakeupBlocks+MaxBleedBlocks;
+    static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxNdMakeups+MaxNdBleeds;
 
     CBlockEvaluator(FlwNode * pThis,
                     CReactionBase * pRB = NULL,
