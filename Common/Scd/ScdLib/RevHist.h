@@ -18,10 +18,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 3"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "27 September 2006"
+#define SCD_PATCHDATE    "2 October 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2584,12 +2584,16 @@ Update 2 : 22 September 2006
 2) (#528,565) Improved tag checking of specie tags and phase names.
 3) (#569,570,571) Makeup block improvements.
 
-Update 3 : 27 September 2006
+Update 3 : 28 September 2006
 ------------------------------
 1) (#211) Implemented new EvapBlock option.
-2) New makeup block methods fixed flow and ratio.
-3) SysCAD Marshal improvements. New status displays, deadband option and 
+2) (#564, 568) New makeup block methods fixed flow and ratio.
+3) (#589) SysCAD Marshal improvements. New status displays, deadband option and 
    synchronous writes.
+
+Update 4 : 2 October 2006
+------------------------------
+1) () xxx
 
 =============================================================================
 ================                SysCAD 9.2                   ================

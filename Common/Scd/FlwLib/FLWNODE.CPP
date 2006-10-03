@@ -1968,7 +1968,7 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
 
   AttachClassInfo(nc_Process, NULL);
 
-  //m_DDBRunModes.Add(SM_DynCurrent Xfer);
+  //m_DDBRunModes.Add(SM_DynBoth Xfer);
   m_AreaNdListPos=NULL;
 
   InitializeCriticalSectionAndSpinCount(&m_LockSect, 4000);

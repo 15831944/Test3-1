@@ -2022,7 +2022,7 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
       break;
     case RRM_DynMd :
       dbgpln("TODO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-      //SetGlblRunModes(SM_DynCurrent, SM_All);
+      //SetGlblRunModes(SM_DynBoth, SM_All);
       //SetDefNetMode(NM_Probal);
       //SetDefNodeMode(SM_Direct);
       //SetDefLinkMode(SM_Direct);
@@ -4097,7 +4097,7 @@ ExecCoupling CExecutive::SetCoupling(ExecCoupling XC)
 
 //void CExecutive::SetGlblRunModes(long RunMds, long RunMdsMsk)
 //  {
-//  if ((GlblRunModes()&&SM_All)!=0 && (RunMds==SM_DynCurrent) && (RunMdsMsk==SM_All))
+//  if ((GlblRunModes()&&SM_All)!=0 && (RunMds==SM_DynBoth) && (RunMdsMsk==SM_All))
 //    RunMds=GlblRunModes() & SM_All;
 //
 //  if (RunMdsMsk&SM_All)

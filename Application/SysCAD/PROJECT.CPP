@@ -2502,7 +2502,7 @@ int CProject::ShutDown()
 //void CProject::SetSolveMode(long Md)
 //  {
 //  //fProBalMode=PB;
-//  gs_Exec.SetSolveMode(Md);//PB ? SM_Direct : SM_DynCurrent);
+//  gs_Exec.SetSolveMode(Md);//PB ? SM_Direct : SM_DynBoth);
 //  }
 
 //flag CProject::GetProBalMode()

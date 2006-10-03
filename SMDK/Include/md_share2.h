@@ -47,9 +47,9 @@ const long LFM_AllPg        = LFM_AllPg | eScdFlow_Propagate | eScdFlow_Propagat
 
 const long LFM_HasFullFlow  = eScdFlow_HasFullFlow;
 
+const long SM_DynSurge      = SM_Inline | SM_Buffered;
 const long SM_DynBoth       = SM_Inline | SM_Buffered;
 const long SM_All           = SM_Direct | SM_Inline | SM_Buffered;
-const long SM_DynCurrent    = SM_Inline | SM_Buffered;
 const long HM_All           = HM_None | HM_Reduced | HM_Full;
 
 const long NSHM_All         = NM_All | SM_All | HM_All;       
