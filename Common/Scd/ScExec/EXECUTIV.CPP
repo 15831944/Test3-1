@@ -3021,6 +3021,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
                 dbgpln("%20s Bump Time RT       ---- [@%12.4f] %s", ThrdRet[EInx].m_Time.Format(TD_DaysJoined|TD_Time), gs_TimeSW.Time(), Objs_Exec[EInx]->Name());
               #endif
               }
+        StepCount += 1;
+        ScnTime   += StepSize;
         if (GotTheTime==0 && TimeCB().m_bSyncWithClock)
           SetTheTime(GetCurrentTime_1970(), "SyncWithClock");
         else

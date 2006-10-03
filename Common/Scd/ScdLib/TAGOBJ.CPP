@@ -17,6 +17,7 @@
 #include "errorlog.h"
 #include "dbgmngr.h"
 #include "licbase.h"
+
 //#include "optoff.h"
 
 #define dbgPutData             0
@@ -3156,7 +3157,7 @@ SkipIt:
 //
 //===========================================================================
 
-inline void DoBadDataExError(TaggedObject * pThis, dword lHandle, dword lHandle2, dword dwUserInfo)
+void DoBadDataExError(TaggedObject * pThis, dword lHandle, dword lHandle2, dword dwUserInfo)
   {
   LogError(pThis->FullObjTag(), 0, "Bad Data Exchange [%i %#x/%i] {%#x/%i}", lHandle, lHandle2, lHandle2, dwUserInfo, dwUserInfo);
   }

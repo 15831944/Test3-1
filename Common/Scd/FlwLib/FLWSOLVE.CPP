@@ -30,6 +30,7 @@
 #include <limits.h>
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
+
 //#include "optoff.h"
 
 //temp force solver threads to zero until multi-threaded solver bug is fixed
@@ -2985,12 +2986,34 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
     {
     if (Which & TOSL_Proc)
       {
+      Strng sClstr, S;
+      int iCluster=0;
       CFlwNodeIter Flw(m_ProcessNds);
       for (FlwNode * p = Flw.First(); (p); p=Flw.Next())
         {
         for (int c=0; c<p->NClusters(); c++)
+          {
           if (p->m_Clusters[c].m_iProcOrder<0)
-          LogError(p->FullObjTag(), 0, "Cluster %i Not in Process Evaluation Sequence", c);
+            {
+            if (iCluster==0)
+              sClstr.Set("%i", c);
+            else
+              {
+              S.Set(",%i", c);
+              sClstr+=S;
+              }
+            iCluster++;
+            //LogError(p->FullObjTag(), 0, "Cluster %i Not in Process Evaluation Sequence [%s]", c, p->ClassId());
+            };
+          }
+
+        switch (iCluster)
+          {
+          case 0:   p->ClrCI(34); break;
+          case 1:   p->SetCI(34, "E\tCluster %s Not in Process Evaluation Sequence ", sClstr()); break;
+          default:  p->SetCI(34, "E\tClusters %s Not in Process Evaluation Sequence ", sClstr()); break;
+          }
+        iCluster=0;
         }
       }
     if (Which & TOSL_Ctrl)
@@ -2999,7 +3022,9 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       for (FlwNode * p = Flw.First(); (p); p=Flw.Next())
         {
         if (p->m_iCtrlOrder<0)
-          LogError(p->FullObjTag(), 0, "Not in Control Evaluation Sequence");
+          p->SetCI(34, "E\tNot in Control Evaluation Sequence");
+        else
+          p->ClrCI(34);
         }
       }
     }
