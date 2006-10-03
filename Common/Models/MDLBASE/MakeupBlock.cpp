@@ -142,7 +142,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
       {
       DDBValueLstMem DDB0;
       TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
-      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd,m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
+      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd, m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
 
       if (m_SrcIO.Enabled)
         {
@@ -354,6 +354,9 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
     double         GetSetPoint();
     double         GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd);
     double         GetFlowValue(CMeasInfo &MI, SpConduit &QPrd, PhMask PhRqd=0);
+
+    inline bool    AsRatio() { return m_AsRatio; };
+    inline bool    AsFixedFlow() { return !m_AsRatio; };
 
     DEFINE_CI(CXBlk_MUFeed, CMakeupBlock, 12);
 
@@ -1120,6 +1123,7 @@ class DllImportExport CXBlk_MURatio : public CXBlk_MUFeed
     CXBlk_MURatio(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
       CXBlk_MUFeed(true, pClass_, Tag_, pAttach, eAttach)
       {
+      m_AsRatio=true;
       };
     virtual ~CXBlk_MURatio() 
       {
@@ -1271,7 +1275,7 @@ void CXBlk_MUFeed::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Text("Results");
 
   if (m_AsRatio)
-    DDB.Text("Ration Feed:");
+    DDB.Text("Ratio Feed:");
   else
     DDB.Text("Fixed Feed:");
   DDB.String("Error",            "", DC_,   "",    xidMkError,     this, isResult);
@@ -1382,7 +1386,7 @@ flag CXBlk_MUFeed::DataXchg(DataChangeBlk & DCB)
         {
         DCB.pC="Not Connected";
         }
-      else if (!m_bHasFlow)
+      else if (!m_bHasFlow && AsRatio())
         {
         DCB.pC="No Flow";
         }
@@ -1525,10 +1529,10 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
   ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
 
-  if (QPrd.QMass()>SmallPosFlow)
-    {
-    m_bHasFlow = true;
+  m_bHasFlow = (QPrd.QMass()>SmallPosFlow);
 
+  if (m_bHasFlow || AsFixedFlow())
+    {
     m_dQmFeed = QPrd.QMass();
 
     bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
@@ -1624,7 +1628,6 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     }
   else
     {
-    m_bHasFlow    = false;
     m_dQmFeed     = QPrd.QMass();
     m_dQmMakeup   = 0;
     m_dFeedAct    = GetFlowValue(m_In, QPrd);
@@ -2196,9 +2199,10 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
         SetUpDDBCmps();
         for (int s=0; s<=m_nLastCmpStr; s++)
           DDB.Text((LPTSTR)(LPCTSTR)m_CmpStr[s]);
-        DDB.Text(m_CompSpecies());
         DDB.Long  ("Add",    "", DC_, "", xidMkAddCmp, this, (m_DDBCmpAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpAdd);
         DDB.Long  ("Remove", "", DC_, "", xidMkRemCmp, this, (m_DDBCmpRem.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpRem);
+        //if (m_CompSpecies.Len()>0)
+        //  DDB.Text(m_CompSpecies());
         break;
         }
       }  
@@ -2596,8 +2600,8 @@ flag CXBlk_MUSimple::ValidateData(ValidateDataBlk & VDB)
     case Slct_Component:
       {
       m_Species.SetSize(0);
-      m_CompSpecies = "Species:";
-      bool NeedsComma = false;
+      //m_CompSpecies = "";
+      //bool NeedsComma = false;
       for (int i=0; i<m_Comps.GetCount(); i++)
         {
         const int CmpIndex = m_Comps[i];
@@ -2605,10 +2609,12 @@ flag CXBlk_MUSimple::ValidateData(ValidateDataBlk & VDB)
           {
           const int SpcIndex = CDB[CmpIndex].iSpecie(j);
           m_Species.Add(SpcIndex);
-          if (NeedsComma)
-            m_CompSpecies += ", ";
-          m_CompSpecies += SDB[SpcIndex].SymOrTag();
-          NeedsComma = true;
+          //if (NeedsComma)
+          //  m_CompSpecies += ", ";
+          //else
+          //  m_CompSpecies = "Species:";
+          //m_CompSpecies += SDB[SpcIndex].SymOrTag();
+          //NeedsComma = true;
           }
         }
       break;
@@ -2902,12 +2908,14 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
         case RF_LoLimit:    
         case RF_EstimateLoLimit:    
           m_dQmMakeup = MkUpFnd.Result();
-          CIsOn[2]=true;
+          if (m_dQmMakeup>SmallPosFlow)
+            CIsOn[2]=true;
           break;
         case RF_HiLimit:    
         case RF_EstimateHiLimit:    
           m_dQmMakeup = MkUpFnd.Result();   
-          CIsOn[3]=true;
+          if (m_dQmMakeup>SmallPosFlow)
+            CIsOn[3]=true;
           break;
         case RF_Independant:
           MkUpFnd.Function(0);   
