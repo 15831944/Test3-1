@@ -1968,7 +1968,7 @@ double CFlwBlkBase::MeanRho(CSpPropInfo *pProps, double P, flag AllowOveride)
   CSpPropInfo *p=Properties(pProps);//pProps?pProps:&m_FlwProps;
   if (1)
     {
-    double Rv=AllowOveride && Valid(m_dOverideRhoV) ? m_dOverideRhoV : (P/p->m_dPress)/**(Norm_T/GTZ(p->m_dTemp))*/*p->m_dRhoV;
+    double Rv=AllowOveride && Valid(m_dOverideRhoV) ? m_dOverideRhoV : (Max(LowPressure, P)/p->m_dPress)/**(Norm_T/GTZ(p->m_dTemp))*/*p->m_dRhoV;
     double Rl=AllowOveride && Valid(m_dOverideRhoL) ? m_dOverideRhoL : p->m_dRhoL;
     double Ml=Rl*(p->NettLVolFrac());
     double Mv=Rv*(p->NettVVolFrac());
@@ -2169,7 +2169,7 @@ void CFlwBlkBase::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bo
   else if (!On)
     SetQmReqd(0.0);
   else if (Valid(FR.m_ReqdQm))
-    SetQmReqd(FR.m_ReqdQm, IsDegFreedom);
+    SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
   else
     SetQmFree();
   }
