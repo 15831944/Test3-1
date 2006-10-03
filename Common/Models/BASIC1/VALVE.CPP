@@ -212,8 +212,9 @@ void Valve_GP::BuildDataDefn(DataDefnBlk &DDB)
     {
     DDB.Page   ("Parms");
     m_VLE.Add_OnOff(DDB);
-    m_LeakI.Add_OnOff(DDB,0,101);
-    m_LeakO.Add_OnOff(DDB,0,102);
+    BuildDataDefnAreaIOs_OnOff(DDB);
+    //m_LeakI.Add_OnOff(DDB,0,101);
+    //m_LeakO.Add_OnOff(DDB,0,102);
     
     DDB.Text   ("");
 

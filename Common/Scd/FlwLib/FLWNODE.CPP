@@ -2331,7 +2331,7 @@ CFlange * FlwNode::GetFlange(int IoId)
     CDirectFlwIO & DIO = *m_AttachedDirectIOs[i];
     if (DIO.LclDIOId() == IoId)
       {
-      dbgpln("FlwNode::GetFlange %5i %5i 0x%08x %s", IoId, DIO.m_iMyConnectedIO, &DIO.Flange, FullObjTag());
+      //dbgpln("FlwNode::GetFlange %5i %5i 0x%08x %s", IoId, DIO.m_iMyConnectedIO, &DIO.Flange, FullObjTag());
       return &DIO.Flange;
       }
     }
@@ -2352,6 +2352,25 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
     DDB.Page("DirectIO", DDB_RqdPage);
     for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
       m_AttachedDirectIOs[i]->BuildDataDefn(DDB, "DIO", NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void FlwNode::BuildDataDefnAreaIOs_OnOff(DataDefnBlk & DDB)
+  {
+  flag Enabled=false;
+  for (int i=0; !Enabled && i<m_AttachedDirectIOs.GetCount(); i++)
+    Enabled=m_AttachedDirectIOs[i]->Enabled;
+
+  if (NetDynamicMethod() && Enabled)
+    {
+    DDB.Visibility();
+    for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+      m_AttachedDirectIOs[i]->Add_OnOff(DDB, 0,99500+i);
+      //DDB.Page("DirectIO", DDB_RqdPage);
+    //for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+    //  m_AttachedDirectIOs[i]->BuildDataDefn(DDB, "DIO", NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
     }
   };
 
@@ -7030,6 +7049,7 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 31: pS="W\tAreaNotFOund";                           return 1;
     case 32: pS="W\tNBadDirects";                            return 1;
     case 33: pS="W\tNBadPwrCOnnects";                        return 1;
+    case 34: pS="W\tNBadCluster";                            return 1;
     default:
       return CTNode::CIStrng(No, pS);
     }

@@ -3371,9 +3371,10 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     static  pchar  TypeString(DWORD Type, Strng & TypeStr);
     virtual char *  TypeString(Strng & TypeStr, flag Clr=1);
-    virtual CFlwEqnPtr * GetSystemDefnFlwEqn(int i, Strng *Tg) { return NULL; };
-    virtual long   CheckDataRanges(bool CheckIO) { return 0; };
+    virtual CFlwEqnPtr * GetSystemDefnFlwEqn(int i, Strng *Tg)    { return NULL; };
+    virtual long   CheckDataRanges(bool CheckIO)                  { return 0; };
 
+    virtual void   BuildDataDefnAreaIOs_OnOff(DataDefnBlk & DDB);
     virtual void   BuildDataDefnAreaIOs(DataDefnBlk & DDB);
     virtual flag   DataXchgDefnAreaIOs(DataChangeBlk & DCB);
     virtual flag   ValidateDataAreaIOs(ValidateDataBlk & VDB);
