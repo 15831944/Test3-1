@@ -67,12 +67,6 @@ typedef CWnd* pCWnd;
 class DllImportExport CTopWindowInfo
   {
   public:
-    CWnd*    pWnd;   //pointer to window
-    byte     iType;  //0=other; 1=graphics; 2=trend; 3=main SysCAD window
-    CString  m_sName;  //window title
-    CString  m_sId;    //Id Name with out extention without 
-    int      iZOrd;  //Sequence in Z-Order: -1 = none, 0 = topmost
-
     CTopWindowInfo()
       { 
       pWnd = NULL; 
@@ -97,11 +91,21 @@ class DllImportExport CTopWindowInfo
         m_sName = pName; 
       else
         pWnd->GetWindowText(m_sName);
+      if (m_sName.GetLength()==0)
+        m_sName="Unknown";
       Strng S(m_sName);
       S.FnName();
       m_sId=S();
       iZOrd = ZOrd; 
       };
+
+  public:
+    CWnd*    pWnd;   //pointer to window
+    byte     iType;  //0=other; 1=graphics; 2=trend; 3=main SysCAD window
+    CString  m_sName;  //window title
+    CString  m_sId;    //Id Name with out extention without 
+    int      iZOrd;  //Sequence in Z-Order: -1 = none, 0 = topmost
+
   };
 
 class DllImportExport CWindowLists
