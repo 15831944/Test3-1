@@ -37,6 +37,7 @@ class SFEFlwLib : public SFEMdlLib, CExecObj
     CModelStatusArray m_MdlStatus;
     CMap <char *, char *, CModelStatusItem*, CModelStatusItem*> m_MdlStatusMap;
 
+    flag           m_TestStatusLoadReqd;
     flag           m_LoadAllModelStatusDone;
     dword          m_nMdlStatusLoads;
     dword          m_nStatusColourChgs;

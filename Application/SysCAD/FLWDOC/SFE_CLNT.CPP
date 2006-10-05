@@ -46,6 +46,7 @@ SFEFlwLib::SFEFlwLib()
   pSfe=NULL;
   SFENodeGrfInfo=NULL;
   FPP_State=0;
+  m_TestStatusLoadReqd=true;
   m_LoadAllModelStatusDone=false;
   m_nMdlStatusLoads=0;
   m_nStatusColourChgs=0;
@@ -454,9 +455,29 @@ flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRe
 flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
    { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
 int  SFEFlwLib::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
-   { IENTER(false) pSfe->RequestModelStatus(Criteria, Status); ILEAVE};
+  { 
+  if (m_TestStatusLoadReqd)
+    {
+    IENTER(false) pSfe->RequestModelStatus(Criteria, Status);
+    ILEAVE
+    }
+  else
+    {
+    return 0;
+    }
+  };
 int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
-   { IENTER(false) pSfe->RequestModelStatusChgCnt(Criteria, MaxTest); ILEAVE};
+  {
+  if (m_TestStatusLoadReqd)
+    {
+    IENTER(false) pSfe->RequestModelStatusChgCnt(Criteria, MaxTest); 
+    ILEAVE
+    }
+  else
+    {
+    return 1;
+    }
+  };
 int SFEFlwLib::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
    { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
 //int SFEFlwLib::RequestXRefInfoChg()
@@ -511,8 +532,7 @@ int  SFEFlwLib::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
 int  SFEFlwLib::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   { 
   SetLoadAllModelStatus();
-  IENTER(false)
-  pSfe->EO_ChangeTag(pOldTag, pNewTag);
+  IENTER(false) pSfe->EO_ChangeTag(pOldTag, pNewTag);
   ILEAVE
   };
 int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
@@ -520,8 +540,7 @@ int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
 int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
   {
   SetLoadAllModelStatus();
-  IENTER(false)
-  pSfe->EO_DeleteTag(pDelTag);
+  IENTER(false) pSfe->EO_DeleteTag(pDelTag);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -542,7 +561,11 @@ flag SFEFlwLib::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
 flag SFEFlwLib::EO_PreStart(CXM_TimeControl &CB)
   { FENTER(false) pSfe->EO_PreStart(CB); FLEAVE};
 flag SFEFlwLib::EO_Start(CXM_TimeControl &CB)
-  { FENTER(false) pSfe->EO_Start(CB); FLEAVE};
+  { 
+  FENTER(false) pSfe->EO_Start(CB);
+  m_TestStatusLoadReqd=false;
+  FLEAVE
+  };
 void SFEFlwLib::EO_QuerySubsReqd(CXMsgLst &XM)
   { VENTER pSfe->EO_QuerySubsReqd(XM); VLEAVE};
 void SFEFlwLib::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
@@ -557,8 +580,8 @@ int  SFEFlwLib::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   { IENTER(TOData_NotFound) pSfe->EO_WriteTaggedItem(ObjData, Route); ILEAVE };
 flag SFEFlwLib::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   { 
-  FENTER(false) 
-  pSfe->EO_Execute(CB, EORet);
+  FENTER(false) pSfe->EO_Execute(CB, EORet);
+
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
     FE_LoadAllModelStatus();
@@ -568,20 +591,18 @@ flag SFEFlwLib::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   };
 flag SFEFlwLib::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
   { 
-  FENTER(false) 
-  pSfe->EO_StepDone(CB, StepExecuted);
+  FENTER(false) pSfe->EO_StepDone(CB, StepExecuted);
   FLEAVE
   };
 flag SFEFlwLib::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
   { 
-  FENTER(false) 
-  pSfe->EO_QueryStop(CB, Starting); 
+  FENTER(false) pSfe->EO_QueryStop(CB, Starting); 
   FLEAVE
   };
 flag SFEFlwLib::EO_Stop(CXM_TimeControl &CB)
   { 
-  FENTER(false) 
-  pSfe->EO_Stop(CB); 
+  m_TestStatusLoadReqd=true; 
+  FENTER(false) pSfe->EO_Stop(CB); 
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
     FE_LoadAllModelStatus();
@@ -595,15 +616,19 @@ flag SFEFlwLib::EO_Stopping(flag BeginStopping)
   };
 flag SFEFlwLib::EO_BeginPause(CXM_TimeControl &CB)
   { 
-  FENTER(false) 
-  pSfe->EO_BeginPause(CB); 
+  m_TestStatusLoadReqd=true;
+  FENTER(false) pSfe->EO_BeginPause(CB); 
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
     FE_LoadAllModelStatus();
   FLEAVE
   };
 flag SFEFlwLib::EO_EndPause(CXM_TimeControl &CB)
-  { FENTER(false) pSfe->EO_EndPause(CB); FLEAVE};
+  {
+  FENTER(false) pSfe->EO_EndPause(CB);
+  m_TestStatusLoadReqd=false;
+  FLEAVE
+  };
 
 flag SFEFlwLib::EO_BeginSave(FilingControlBlock &FCB)
   { FENTER(false) pSfe->EO_BeginSave(FCB); FLEAVE};
@@ -648,10 +673,12 @@ void SFEFlwLib::FE_SetModelStatusOptions(dword Options)
 int SFEFlwLib::FE_LoadAllModelStatus()
   {
   //CExecObj::Lock();
+  //dbgpln("FE_LoadAllModelStatus");
+
   LockStatus();
   m_LoadAllModelStatusDone=true;
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-  if (RequestModelStatus(Criteria, m_MdlStatus))
+  if (pSfe->RequestModelStatus(Criteria, m_MdlStatus))
     {
     dword iSize=FindNextPrimeNumber((m_MdlStatus.GetSize()*120)/100);
     if (m_MdlStatusMap.GetHashTableSize()!=iSize)
@@ -696,7 +723,7 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
   //dword Done=InterlockedCompareExchange((PVOID*)(&m_LoadAllModelStatusDone), (PVOID)0, (PVOID)1);
 
   LockStatus();
-  if (!m_LoadAllModelStatusDone)
+  if (m_TestStatusLoadReqd && !m_LoadAllModelStatusDone)
     {
     FreeStatus();
     CExecObj::LockXO();
