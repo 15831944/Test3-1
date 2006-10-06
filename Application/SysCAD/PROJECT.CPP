@@ -3677,6 +3677,24 @@ flag CProject::ReloadArcManager(BOOL WithOptions, char * NewArcManagerName)
 
 //---------------------------------------------------------------------------
 
+void CProject::RestartArcManager()
+  {
+  if (m_bArcOn)
+    {
+    CWaitCursor Wait;
+
+    DisConnectArcManager();
+    //CloseArcManager();
+
+    gs_pArcMan->Restart();
+
+    //OpenArcManager(false);
+    ConnectArcManager();
+    }
+  }
+
+//---------------------------------------------------------------------------
+
 void CProject::OpenIOMarshal()
   {
   bIOMOpen=0;
@@ -4931,12 +4949,18 @@ flag CProject::EO_GotoRunStart(CXM_TimeControl &CB)
 flag CProject::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
   {
   bool ScrollTrendsToEnd = TimeChanged;
-  if (CB.m_ScnState==Scn_Start && gs_Exec.RestartHstOnStart)
+  if (CB.m_ScnState==Scn_Start)
     {
+    if (gs_Exec.RestartHstOnStart)
+      {
+      gs_pPrj->CloseHistorian();
+      gs_pPrj->RestartHistorian();
+      gs_pPrj->OpenHistorian();
+      }
 
-    gs_pPrj->CloseHistorian();
-    gs_pPrj->RestartHistorian();
-    gs_pPrj->OpenHistorian();
+    if (gs_Exec.RestartArchiveOnStart)
+      gs_pPrj->RestartArcManager();
+
     //ScrollTrendsToEnd = true;
     //if (gs_Exec.DefNetProbalMode())
     //  gs_Exec.SetTime(0.0); //reset time to "zero"

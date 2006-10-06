@@ -255,6 +255,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            OpenTheDB();
     bool            OpenDB();
     bool            CreateDBTables();
+    bool            RestartDBTables();
     bool            CreateDBRecordsets();
     bool            CloseDB();
     bool            Start();
@@ -281,6 +282,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            ConnectAll();
     bool            DisConnectAll();
     bool            Close(BOOL SaveState = TRUE);
+    void            Restart();
                     
     void            SaveTags(FilingControlBlock &FCB, BOOL SaveAll);
     void            LoadTags(FilingControlBlock &FCB);

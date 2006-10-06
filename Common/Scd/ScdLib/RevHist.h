@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "2 October 2006"
+#define SCD_PATCHDATE    "5 October 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2591,9 +2591,9 @@ Update 3 : 28 September 2006
 3) (#589) SysCAD Marshal improvements. New status displays, deadband option and 
    synchronous writes.
 
-Update 4 : 2 October 2006
+Update 4 : 5 October 2006
 ------------------------------
-1) () xxx
+1) () Makeup block improvements.
 
 =============================================================================
 ================                SysCAD 9.2                   ================

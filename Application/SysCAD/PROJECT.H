@@ -733,6 +733,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           DisConnectArcManager();
     void           CloseArcManager(BOOL ForExit = FALSE, BOOL ForProject = FALSE);
     flag           ReloadArcManager(BOOL WithOptions, char * NewArcManagerName=NULL);
+    void           RestartArcManager();
 
     void           OpenIOMarshal();
     void           CloseIOMarshal(BOOL ForExit = FALSE, BOOL ForProject = FALSE);

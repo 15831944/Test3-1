@@ -1607,8 +1607,8 @@ long CArchiveManager::FindFieldIndex(LPCTSTR Tag)
 
 long CArchiveManager::FindTable(LPCTSTR TbName)
   { 
-  long n=m_Tables.GetSize();
-  for (long i=0; i<n; i++)
+  const int NT=m_Tables.GetSize();
+  for (long i=0; i<NT; i++)
     if (m_Tables[i]->m_sName.CompareNoCase(TbName)==0)
       return i;
   return -1;
@@ -1754,7 +1754,8 @@ DWORD CArchiveManager::ReadOptions(LPCTSTR FileName)
   //  Opts |= LogItem_ElapsedSecs;
 
   return Opts;
-  }; 
+  };
+
 void CArchiveManager::WriteOptions(LPCTSTR FileName, DWORD Opts)
   {
   Strng Fn(FileName);
@@ -1859,7 +1860,8 @@ bool CArchiveManager::ReadCfg()
       }
 
     CArchiveDBTable * pTb=NULL;
-    for (int iTb=0; iTb<m_Tables.GetSize(); iTb++)
+    const int NT=m_Tables.GetSize();
+    for (int iTb=0; iTb<NT; iTb++)
       {
       if (TbName.CompareNoCase(m_Tables[iTb]->m_sName)==0)
         {
@@ -1949,11 +1951,10 @@ bool CArchiveManager::CheckCfg(LPCTSTR CfgFile)
 bool CArchiveManager::CompleteOpen()
   {
   //ASSERT_ALWAYS(!XBusy(), "CompleteOpen - SysCAD Running");
-
   bool OK=true;
 
-  long nt=m_Tables.GetSize();
-  for (long t=0; t<nt; t++)
+  const int NT=m_Tables.GetSize();
+  for (long t=0; t<NT; t++)
     {
     CArchiveDBTable & Tb=*m_Tables[t];
     Tb.m_Fields.SetSize(0,64);
@@ -2002,7 +2003,8 @@ bool CArchiveManager::OpenTheDB()
 
   m_pMessageLog=NULL;
   m_pEventLog=NULL;
-  for (int i=0; i<m_Tables.GetSize(); i++)
+  const int NT=m_Tables.GetSize();
+  for (int i=0; i<NT; i++)
     {
     if (m_Tables[i]->m_sName.CompareNoCase(sMessageLogStr)==0)    
       m_pMessageLog=m_Tables[i];
@@ -2163,8 +2165,8 @@ bool CArchiveManager::ConnectAll()
     delete m_Inputs[s];
   m_Inputs.SetSize(0);
 
-  const long nt=m_Tables.GetSize();
-  for (long t=0; t<nt; t++)
+  const int NT=m_Tables.GetSize();
+  for (long t=0; t<NT; t++)
     {
     CArchiveDBTable & Tb=*m_Tables[t];
     const long ntt=Tb.m_Triggers.GetSize();
@@ -2271,6 +2273,15 @@ bool CArchiveManager::Close(BOOL SaveState/*=true*/)
 
   Initialise();
   return true;
+  }
+
+//---------------------------------------------------------------------------
+
+void CArchiveManager::Restart()
+  {
+  RestartDBTables();
+  //Close();
+  //Open();
   }
 
 //---------------------------------------------------------------------------
@@ -2558,11 +2569,11 @@ bool CArchiveManager::Execute(CXM_TimeControl &CB)
 
   //dbgpln("CArchiveManager::Execute");
 
-  int NI=m_Fields.GetSize();
+  const int NI=m_Fields.GetSize();
   for (int i=0; i<NI; i++)
     m_Fields[i]->Execute(CB);
 
-  int NT=m_Tables.GetSize();
+  const int NT=m_Tables.GetSize();
   for (int t=0; t<NT; t++)
     {
     m_Tables[t]->Execute(CB);
@@ -2579,11 +2590,11 @@ bool CArchiveManager::StepDone(CXM_TimeControl &CB)
 
   //dbgpln("CArchiveManager::StepDone");
 
-  int NI=m_Fields.GetSize();
+  const int NI=m_Fields.GetSize();
   for (int i=0; i<NI; i++)
     m_Fields[i]->StepDone(CB);
 
-  int NT=m_Tables.GetSize();
+  const int NT=m_Tables.GetSize();
   for (int t=0; t<NT; t++)
     {
     m_Tables[t]->StepDone(CB);
@@ -2716,7 +2727,8 @@ bool CArchiveManager::OpenDB()
 bool CArchiveManager::CreateDBTables()
   {
   bool OK=true;
-  for (int t=0; t<m_Tables.GetSize(); t++)
+  const int NT=m_Tables.GetSize();
+  for (int t=0; t<NT; t++)
     {
     CArchiveDBTable & Tb = *m_Tables[t];
     if (Tb.m_bOn)
@@ -2735,14 +2747,41 @@ bool CArchiveManager::CreateDBTables()
     dbgpln("CreateDBTables %s",OK?"OK":"BAD");
 #endif
   return OK;
-  };
+  }
+
+//---------------------------------------------------------------------------
+
+bool CArchiveManager::RestartDBTables()
+  {
+  bool OK=true;
+  const int NT=m_Tables.GetSize();
+  for (int t=0; t<NT; t++)
+    {
+    CArchiveDBTable & Tb = *m_Tables[t];
+    if (Tb.m_bOn)
+      {
+      switch (Tb.m_iFormat)
+        {
+        case ADBTbFmt_DB:
+          Tb.DeleteDBRecords();
+          break;
+        case ADBTbFmt_CSV:
+        case ADBTbFmt_TXT:
+          Tb.ReOpenTxtTable(true);
+          break;
+        }
+      }
+    }
+  return OK;
+  }
 
 //---------------------------------------------------------------------------
 
 bool CArchiveManager::CreateDBRecordsets()
   {
   bool OK=true;
-  for (int t=0; t<m_Tables.GetSize(); t++)
+  const int NT=m_Tables.GetSize();
+  for (int t=0; t<NT; t++)
     {
     if (!m_Tables[t]->CreateDBRecordset())
       OK=false;
@@ -2764,7 +2803,8 @@ bool CArchiveManager::CloseDB()
     {
     try
       {
-      for (int t=0; t<m_Tables.GetSize(); t++)
+      const int NT=m_Tables.GetSize();
+      for (int t=0; t<NT; t++)
         m_Tables[t]->CloseDBTable();
       if (m_pCnn!=NULL && m_pCnn->State!=ADODB::adStateClosed)
         m_pCnn->Close();
@@ -3003,7 +3043,7 @@ flag CArchiveManager::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
     dbgpln("CArchiveManager::EO_SetTime %-10s %s", "Rewind", TimeRqd.Format(TD_Time|TD_Days));
 
     // must clear the tables data
-    int NT = m_Tables.GetSize();
+    const int NT = m_Tables.GetSize();
     for (int t=0; t<NT; t++)
       {
       CArchiveDBTable &Tb=*m_Tables[t];

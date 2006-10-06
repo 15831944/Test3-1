@@ -1035,6 +1035,8 @@ class DllImportExport CExecutive : public ConditionBlk
     void           putRestartHstOnStart(flag O)               { m_RestartHstOnStart=O; };
     flag           getSetHstTaglistOnStart()                  { return m_SetHstTaglistOnStart; };
     void           putSetHstTaglistOnStart(flag O)            { m_SetHstTaglistOnStart=O; };
+    flag           getRestartArchiveOnStart()                 { return m_RestartArchiveOnStart; };
+    void           putRestartArchiveOnStart(flag O)           { m_RestartArchiveOnStart=O; };
 
     flag           getRestartPGMOnStart()                     { return m_RestartPGMOnStart; };
     void           putRestartPGMOnStart(flag O)               { m_RestartPGMOnStart=O; };
@@ -1122,6 +1124,7 @@ class DllImportExport CExecutive : public ConditionBlk
     __declspec(property(get=getHstTaglistFile,put=putHstTaglistFile))             LPTSTR   HstTaglistFile;
     __declspec(property(get=getRestartHstOnStart,put=putRestartHstOnStart))       flag     RestartHstOnStart;
     __declspec(property(get=getSetHstTaglistOnStart,put=putSetHstTaglistOnStart)) flag     SetHstTaglistOnStart;
+    __declspec(property(get=getRestartArchiveOnStart,put=putRestartArchiveOnStart)) flag   RestartArchiveOnStart;
     __declspec(property(get=getRestartPGMOnStart,put=putRestartPGMOnStart))       flag     RestartPGMOnStart;
     __declspec(property(get=getRestartPrfOnStart,put=putRestartPrfOnStart))       flag     RestartPrfOnStart;
 
@@ -1341,6 +1344,7 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           m_ResetTimeOnStart;
     flag           m_RestartHstOnStart;
     flag           m_SetHstTaglistOnStart;
+    flag           m_RestartArchiveOnStart;
     flag           m_RestartPGMOnStart;
     flag           m_RestartPrfOnStart;
     CTimeValue     m_dTimeAtStart;

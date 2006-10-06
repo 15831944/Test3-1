@@ -33,12 +33,13 @@
 
 //#include "optoff.h"
 
+//===========================================================================
 //temp force solver threads to zero until multi-threaded solver bug is fixed
 #define FORCERQDTHREADS    0
 // Allow (in Dynamic) Ctrl aspects of models to run multithreaded.
 #define ALLOWCTRLTHREADING 0
 
-//===========================================================================
+#define WithRestartPGM 0
 
 //#define ClearSolutionOnStop    01
 #define MOVEDYNSTATS   1
@@ -411,17 +412,18 @@ XID xidDynStatStopTm                  = FlwXID(5101);
 XID xidAtStartRestartHist             = FlwXID(5102);
 XID xidAtStartSetHistTags             = FlwXID(5103);
 XID xidAtStartResetTime               = FlwXID(5104);
-XID xidAtStartRestartPGM              = FlwXID(5105);
-XID xidAtStartRestartPrf              = FlwXID(5106);
-XID xidAtStartTimeF                   = FlwXID(5107);
-XID xidAtStartTimeD                   = FlwXID(5108);
-//XID xidEventLogOn                     = FlwXID(5109);
-XID xidAtStartAllZeroFlows            = FlwXID(5110);        
-XID xidAtStartAllEmpty                = FlwXID(5111);            
-XID xidAtStartAllPreSet               = FlwXID(5112);           
-XID xidAtStartAllSteadyState          = FlwXID(5113);      
-XID xidAtStartAllDynStatsRunInit      = FlwXID(5114);  
-XID xidAtStartAllEmptySpillTargets    = FlwXID(5115);
+XID xidAtStartRestartArchive          = FlwXID(5105);
+XID xidAtStartRestartPGM              = FlwXID(5106);
+XID xidAtStartRestartPrf              = FlwXID(5107);
+XID xidAtStartTimeF                   = FlwXID(5108);
+XID xidAtStartTimeD                   = FlwXID(5109);
+//XID xidEventLogOn                     = FlwXID(5110);
+XID xidAtStartAllZeroFlows            = FlwXID(5111);        
+XID xidAtStartAllEmpty                = FlwXID(5112);            
+XID xidAtStartAllPreSet               = FlwXID(5113);           
+XID xidAtStartAllSteadyState          = FlwXID(5114);      
+XID xidAtStartAllDynStatsRunInit      = FlwXID(5115);  
+XID xidAtStartAllEmptySpillTargets    = FlwXID(5116);
 
 
 XID xidMCloseTolAbs                   = FlwXID(5151);
@@ -6350,10 +6352,15 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
         DDB.String     ("StartAt.Fmt",          "", DC_TimeStr, "DyTm0.", xidAtStartTimeF,                &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped));
         DDB.Double     ("StartAt",              "", DC_Time,    "s",      xidAtStartTimeD,                &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped)|InitHidden);
         DDB.Text  ("");
-        DDB.CheckBoxBtn("RestartHistorian",     "", DC_,        "",       xidAtStartRestartHist,          &FlwSlvNd, (gs_Exec.ResetTimeOnStart?0:isParmStopped), DDBOnOff);
+        DDB.CheckBoxBtn("RestartHistorian",     "", DC_,        "",       xidAtStartRestartHist,          &FlwSlvNd, isParmStopped, DDBOnOff);//(gs_Exec.ResetTimeOnStart?0:isParmStopped), DDBOnOff);
+        if (gs_Exec.ResetTimeOnStart || gs_Exec.RestartHstOnStart)
+          DDB.TagComment("Yes");
         DDB.CheckBoxBtn("SetHistorianTagList",  "", DC_,        "",       xidAtStartSetHistTags,          &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("RestartArchive",       "", DC_,        "",       xidAtStartRestartArchive,       &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.Text  ("");
+        #if WithRestartPGM
         DDB.CheckBoxBtn("InitialisePGM",        "", DC_,        "",       xidAtStartRestartPGM,           &FlwSlvNd, isParmStopped, DDBOnOff);
+        #endif
         DDB.CheckBoxBtn("RestartProfiles",      "", DC_,        "",       xidAtStartRestartPrf,           &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.CheckBoxBtn("DynStatsRunInit",      "", DC_,        "",       xidAtStartAllDynStatsRunInit,   &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.Text  ("");
@@ -7110,17 +7117,26 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
     case xidAtStartRestartHist:
       if (DCB.rB)
         gs_Exec.RestartHstOnStart=*DCB.rB;
-      DCB.B=gs_Exec.RestartHstOnStart || gs_Exec.ResetTimeOnStart;
+      DCB.B=gs_Exec.RestartHstOnStart;// || gs_Exec.ResetTimeOnStart;
       return 1;
     case xidAtStartSetHistTags:
       if (DCB.rB)
         gs_Exec.SetHstTaglistOnStart=*DCB.rB;
       DCB.B=gs_Exec.SetHstTaglistOnStart;
       return 1;
+    case xidAtStartRestartArchive:
+      if (DCB.rB)
+        gs_Exec.RestartArchiveOnStart=*DCB.rB;
+      DCB.B=gs_Exec.RestartArchiveOnStart;
+      return 1;
     case xidAtStartRestartPGM:
+      #if WithRestartPGM
       if (DCB.rB)
         gs_Exec.RestartPGMOnStart=*DCB.rB;
       DCB.B=gs_Exec.RestartPGMOnStart;
+      #else
+      DCB.B=0;
+      #endif
       return 1;
     case xidAtStartRestartPrf:
       if (DCB.rB)
@@ -8599,8 +8615,10 @@ flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
       if (CB.m_ScnState==Scn_Start)
         {
         eScdCtrlTasks Tasks=eScdCtrlTasks(0);
+        #if WithRestartPGM
         if (CB.m_RestartPGMOnStart)
           Tasks=eScdCtrlTasks(Tasks|CO_InitPGM);
+        #endif
         if (CB.m_RestartPrfOnStart)
           Tasks=eScdCtrlTasks(Tasks|CO_InitPrf);
         EvalAllCtrlInitialise(Tasks);

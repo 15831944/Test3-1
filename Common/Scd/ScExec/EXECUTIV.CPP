@@ -1435,6 +1435,7 @@ CExecutive::CExecutive() :
 	m_ResetTimeOnStart             = 0;
 	m_RestartHstOnStart            = 0;
   m_SetHstTaglistOnStart         = 0;
+  m_RestartArchiveOnStart        = 1;
   m_RestartPGMOnStart            = 1;
   m_RestartPrfOnStart            = 1;
   m_dTimeAtStart                 = CTimeValue(0.0);
