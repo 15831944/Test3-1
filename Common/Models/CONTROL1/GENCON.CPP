@@ -11,6 +11,9 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
+#include < fstream > //pkh
+#include <RegexWrap/RegexWrap.h>
+
 //==========================================================================
 //
 //  General Model Controller
@@ -899,19 +902,72 @@ void GControl::SetState(eScdMdlStateActs RqdState)
   }
 
 //--------------------------------------------------------------------------
+// Replaces pOldTag for pNewTag.  Renames the original file as fn.bck
+
+void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount)
+{
+  const int BUFSIZE = 10000;
+  char buf[BUFSIZE];
+
+  TagChangeCount = 0;
+
+  CString out;
+  CString regexStart = "(?<=[\\(\\[\\'\\\"\\.])";
+  CString regexTag   = pOldTag;
+  CString regexEnd   = "(?=[\\)\\]\\'\\\"\\.])";
+
+  CString regexStr = regexStart + regexTag + regexEnd;
+  
+  CString fnIn = fn();
+  CString fnTmp = fnIn + ".tmp";
+  CString fnBck = fnIn + ".bck";
+
+  ifstream pgmIn(fnIn);
+  ofstream pgmOut(fnTmp);
+
+  if (pgmIn.eof())
+  {
+    // complain...
+  }
+  else
+  {
+    CMRegex *regex = new CMRegex();
+
+    while (!pgmIn.eof())
+    {
+      pgmIn.getline(buf, BUFSIZE-1);
+
+      out = regex->Replace(buf, regexStr, pNewTag, CMRegex::IgnoreCase);
+      TagChangeCount += regex->Matches(buf, regexStr).Count();
+      pgmOut << out << endl;
+    }
+
+    delete regex;
+  }
+
+  pgmIn.close();
+  pgmOut.close();
+
+  remove(fnBck);
+  rename(fnIn, fnBck);
+  rename(fnTmp, fnIn);
+}
+
+//--------------------------------------------------------------------------
 
 int GControl::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
   if (sPGMName.Len()>0)
     {
     Strng fn;
+	  int TagChangeCount;
+
     FnExpand(fn, sPGMName());
-    //pkh todo 
-    //DoTextFileChangeTag(fn(), pOldTag, pNewTag, ResultData);
-    //if (ResultData.iTagChangeCount>0)
-    //  {
-    //  LogNote(Tag(), 0, "%d occurances of %s changed in %s", ResultData.iTagChangeCount, pOldTag, sPGMName());
-    //  }
+    DoTextFileChangeTag(fn(), pOldTag, pNewTag, TagChangeCount);
+    if (TagChangeCount>0)
+      {
+      LogNote(Tag(), 0, "%d occurances of %s changed in %s", TagChangeCount, pOldTag, sPGMName());
+      }
 
     const int RefFilesUsed = PgmMngr.m_FilesUsed.GetSize();
     for (int i=1; i<RefFilesUsed; i++)

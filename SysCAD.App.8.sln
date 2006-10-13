@@ -28,7 +28,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.MatHand1", "Common\Model
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06.MdlBase", "Common\Models\MDLBASE\MdlBase.8.vcproj", "{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.MdlBase", "Common\Models\MDLBASE\MdlBase.8.vcproj", "{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4B658F46-4EA7-41F9-827A-3F06543C4471} = {4B658F46-4EA7-41F9-827A-3F06543C4471}
 		{33C50D7C-35A3-4E95-A23A-A9283A42455B} = {33C50D7C-35A3-4E95-A23A-A9283A42455B}
@@ -55,7 +55,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03.ScHist", "Common\Scd\ScH
 		{723AA4EA-21A8-46F1-8962-5E3B833A02CA} = {723AA4EA-21A8-46F1-8962-5E3B833A02CA}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c01.ScdCOM", "Common\Com\ScdCOM\ScdCOM.8.vcproj", "{5AD0A9A1-4CA4-43B0-9611-A909A9D593E5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "31.ScdCOM", "Common\Com\ScdCOM\ScdCOM.8.vcproj", "{5AD0A9A1-4CA4-43B0-9611-A909A9D593E5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 	EndProjectSection
@@ -67,14 +67,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01.ScdLib", "Common\Scd\Scd
 		{A2ADF5C0-5945-4704-BD18-679B976C791F} = {A2ADF5C0-5945-4704-BD18-679B976C791F}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c02.ScdMdl", "Common\Com\ScdMdl\ScdMdl.8.vcproj", "{B7811C80-DC0F-43F0-A61D-61B51EC5EF4D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "32.ScdMdl", "Common\Com\ScdMdl\ScdMdl.8.vcproj", "{B7811C80-DC0F-43F0-A61D-61B51EC5EF4D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x.ScdVB", "Common\Com\ScdVB\ScdVB.8.vcproj", "{F2FC7405-614F-4A25-808C-5010C290858E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "z1.ScdVB", "Common\Com\ScdVB\ScdVB.8.vcproj", "{F2FC7405-614F-4A25-808C-5010C290858E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10.SysCAD", "Application\SysCAD\SysCAD.8.vcproj", "{DA00A361-B55B-44B6-BA7A-9BF1BCD66304}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "99.SysCAD", "Application\SysCAD\SysCAD.8.vcproj", "{DA00A361-B55B-44B6-BA7A-9BF1BCD66304}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E9D95605-468F-4F4E-A368-DB1A5695A124} = {E9D95605-468F-4F4E-A368-DB1A5695A124}
 		{1DC69958-EFBE-43A7-A316-6045B1288228} = {1DC69958-EFBE-43A7-A316-6045B1288228}
@@ -102,7 +102,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04.XYLib", "Common\Scd\XYLi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08.Zip32", "Common\Scd\Zip32\Zip32.8.vcproj", "{82ADB1C5-1D56-4713-A1F2-7A2D40303F9E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c03.ScdSlv", "Common\Com\ScdSlv\ScdSlv.8.vcproj", "{7940B0A6-0272-4E67-833D-B6B179AFC870}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "33.ScdSlv", "Common\Com\ScdSlv\ScdSlv.8.vcproj", "{7940B0A6-0272-4E67-833D-B6B179AFC870}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 		{B7811C80-DC0F-43F0-A61D-61B51EC5EF4D} = {B7811C80-DC0F-43F0-A61D-61B51EC5EF4D}
@@ -180,7 +180,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "20.SysCADMarshal_ps", "Scad
 		{B6E1DFB6-A122-4EAF-986F-E60F2059D081} = {B6E1DFB6-A122-4EAF-986F-E60F2059D081}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "50.SMDK1", "Common\SMDK\SMDK1\SMDK1.8.vcproj", "{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "60.SMDK1", "Common\SMDK\SMDK1\SMDK1.8.vcproj", "{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 		{8C5BFF90-6FED-4C82-9495-1FCF8802F52A} = {8C5BFF90-6FED-4C82-9495-1FCF8802F52A}
@@ -287,7 +287,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		mkx.cmd = mkx.cmd
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "30.SysCAD91Lic", "Utils\SysCAD91Lic\SysCAD91Lic.8.vcproj", "{E9D95605-468F-4F4E-A368-DB1A5695A124}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x1.SysCAD91Lic", "Utils\SysCAD91Lic\SysCAD91Lic.8.vcproj", "{E9D95605-468F-4F4E-A368-DB1A5695A124}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.IlukaUnits", "SMDK\Iluka\IlukaUnits\IlukaUnits.8.vcproj", "{69BC910C-ADBD-4231-BAB0-F899DA5382A4}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -306,6 +306,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "um.TS_ModelLib", "SMDK\RTTS
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "Interfaces\Interface.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexWrap", "Common\Models\CONTROL1\RegexWrap\RegexWrap.vcproj", "{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -4036,6 +4038,76 @@ Global
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Win32.ActiveCfg = Release|Any CPU
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug - Full|Any CPU.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug - Full|Mixed Platforms.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug - Full|Mixed Platforms.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug - Full|Win32.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug - Full|Win32.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Debug|Win32.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Distribution|Any CPU.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Distribution|Mixed Platforms.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Distribution|Mixed Platforms.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Distribution|Win32.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Distribution|Win32.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release - Full|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release - Full|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release - Full|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release - Full|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release - Full|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release Marshal|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release Marshal|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release Marshal|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release Marshal|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release Marshal|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Full|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Full|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Full|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Full|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Full|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Marshal|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Marshal|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Marshal|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Marshal|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg Marshal|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg_Small|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg_Small|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg_Small|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg_Small|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg_Small|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_Dbg|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_DbgCLR Full|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_DbgCLR Full|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_DbgCLR Full|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release_DbgCLR Full|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Release|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.SMDK_Debug|Any CPU.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.SMDK_Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.SMDK_Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.SMDK_Debug|Win32.ActiveCfg = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.SMDK_Debug|Win32.Build.0 = Debug|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Standard|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Standard|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Standard|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Standard|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Standard|Win32.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Trial Release|Any CPU.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Trial Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Trial Release|Mixed Platforms.Build.0 = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Trial Release|Win32.ActiveCfg = Release|Win32
+		{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}.Trial Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

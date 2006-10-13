@@ -592,8 +592,7 @@ namespace SysCAD.Editor
         string guidString = graphicItem.Guid.ToString();
 
         PureComponents.TreeView.Node node =
-          //tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
-          tvNavigation.AddNodeByPath(path + guidString, guidString);
+          tvNavigation.AddNodeByPath(pathTag, guidString);
       }
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)

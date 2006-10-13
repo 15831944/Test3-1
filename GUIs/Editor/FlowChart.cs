@@ -86,7 +86,7 @@ namespace SysCAD.Editor
 
       foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
       {
-          state.CreateLink(graphicLink, false, fcFlowChart);
+        state.CreateLink(graphicLink, false, fcFlowChart);
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -1019,8 +1019,12 @@ namespace SysCAD.Editor
                 new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
               System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
               e.Graphics.DrawLines(pen, extensionPoints);
+
+              pen = new System.Drawing.Pen(Color.Green, 0.0F);
+              RectangleF r = new RectangleF(anchorPointPos, SizeF.Empty);
+              r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
+              e.Graphics.DrawEllipse(pen, r);
             }
             else
             {
@@ -1051,8 +1055,12 @@ namespace SysCAD.Editor
                 new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
               System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
-
               e.Graphics.DrawLines(pen, extensionPoints);
+
+              pen = new System.Drawing.Pen(Color.Green, 0.0F);
+              RectangleF r = new RectangleF(anchorPointPos, SizeF.Empty);
+              r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
+              e.Graphics.DrawEllipse(pen, r);
             }
             else
             {
@@ -1272,12 +1280,12 @@ namespace SysCAD.Editor
         ContextMenu theMenu = new ContextMenu();
         if (hoverBox != null)
         {
-          theMenu.MenuItems.Add("Unfinished");
+          theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
           form1.Mode_Modify();
         }
         else if (hoverArrow != null)
         {
-          theMenu.MenuItems.Add("Route Arrow", new EventHandler(RouteArrow));
+          theMenu.MenuItems.Add("Route Link", new EventHandler(RouteLink));
           theMenu.MenuItems.Add("Disconnect Origin", new EventHandler(DisconnectOrigin));
           theMenu.MenuItems.Add("Disconnect Destination", new EventHandler(DisconnectDestination));
           form1.Mode_Modify();
@@ -1295,26 +1303,48 @@ namespace SysCAD.Editor
       layout.Arrange(fcFlowChart);
     }
 
-    private void RouteArrow(object sender, EventArgs e)
+    private void RouteLinks(object sender, EventArgs e)
     {
-      hoverArrow.Route();
+      ArrowCollection incomingArrows = (hoverBox.Tag as Item).IncomingArrows.Clone();
+      ArrowCollection outgoingArrows = (hoverBox.Tag as Item).OutgoingArrows.Clone();
+
+      foreach (Arrow arrow in incomingArrows)
+      {
+        RouteLink(arrow);
+      }
+
+
+      foreach (Arrow arrow in outgoingArrows)
+      {
+        RouteLink(arrow);
+      }
+    }
+
+    private void RouteLink(object sender, EventArgs e)
+    {
+      RouteLink(hoverArrow);
+    }
+
+    private void RouteLink(Arrow arrow)
+    {
+      arrow.Route();
 
       {
         List<PointF> controlPoints = new List<PointF>();
-        foreach (PointF point in hoverArrow.ControlPoints.Clone())
+        foreach (PointF point in arrow.ControlPoints.Clone())
         {
           controlPoints.Add(point);
         }
 
         if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold)
-          hoverArrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+          arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
         else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold)
-          hoverArrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+          arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
 
-        GraphicLink graphicLink = (hoverArrow.Tag as Link).graphicLink as GraphicLink;
+        GraphicLink graphicLink = (arrow.Tag as Link).graphicLink as GraphicLink;
 
-        Item originItem = hoverArrow.Origin.Tag as Item;
-        Item destinationItem = hoverArrow.Destination.Tag as Item;
+        Item originItem = arrow.Origin.Tag as Item;
+        Item destinationItem = arrow.Destination.Tag as Item;
 
         GraphicItem originGraphicItem = originItem.GraphicItem;
         GraphicItem destinationGraphicItem = destinationItem.GraphicItem;
@@ -1324,11 +1354,11 @@ namespace SysCAD.Editor
         string originPort = "";
         string destinationPort = "";
 
-        if (hoverArrow.DestAnchor != -1)
-          originPort = originGraphicItem.anchorIntToTag[hoverArrow.OrgnAnchor];
+        if (arrow.OrgnAnchor != -1)
+          originPort = originGraphicItem.anchorIntToTag[arrow.OrgnAnchor];
 
-        if (hoverArrow.DestAnchor != -1)
-          destinationPort = destinationGraphicItem.anchorIntToTag[hoverArrow.DestAnchor];
+        if (arrow.DestAnchor != -1)
+          destinationPort = destinationGraphicItem.anchorIntToTag[arrow.DestAnchor];
 
         if (!state.ModifyGraphicLink(out requestID,
           graphicLink.Guid,
@@ -1384,6 +1414,8 @@ namespace SysCAD.Editor
       Box destinationBox = e.Arrow.Destination as Box;
       Box originBox = e.Arrow.Origin as Box;
       GraphicLink newGraphicLink = new GraphicLink(newLinkTag);
+
+      newGraphicLink.ClassID = "Pipe-1";
 
       if (newDestinationBox != null)
       {

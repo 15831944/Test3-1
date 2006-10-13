@@ -65,6 +65,7 @@ class GControl : public FlwNode//, GCXRefHelper
     void   DoEvalCtrl(); 
     void           EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All);
     virtual void   SetState(eScdMdlStateActs RqdState);
+	void		   DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount);
     virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    DeleteTag(pchar pDelTag);
 
