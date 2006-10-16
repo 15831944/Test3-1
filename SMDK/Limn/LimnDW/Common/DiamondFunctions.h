@@ -25,12 +25,12 @@ inline int xlIndex(int iRow, int iColumn, int nColumns)
 
 #ifndef LIMNDW
 
-	C_LINKAGE LPXLOPER DLLFUNC v1_3_A_TEST( LPXLOPER lpxConfigID, 
-											LPXLOPER lpxParam1,
-											LPXLOPER lpxParam2,
-											LPXLOPER lpxParam3,
-											LPXLOPER lpxParam4,
-											LPXLOPER lpxParam5  ) ;
+	//C_LINKAGE LPXLOPER DLLFUNC v1_3_A_TEST( LPXLOPER lpxConfigID, 
+	//										LPXLOPER lpxParam1,
+	//										LPXLOPER lpxParam2,
+	//										LPXLOPER lpxParam3,
+	//										LPXLOPER lpxParam4,
+	//										LPXLOPER lpxParam5  ) ;
 
 	C_LINKAGE LPXLOPER DLLFUNC v1_3_DiamondWizardLibraryVersion() ; 
 
