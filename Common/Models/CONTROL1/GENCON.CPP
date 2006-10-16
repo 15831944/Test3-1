@@ -2,6 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
+//#pragma LIBCOMMENT("..\\..\\Models\\Control1\\RegexWrap", "\\RegexWrap");
+
 #define  __GENCON_CPP
 
 #include "stdafx.h"
@@ -11,13 +13,13 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
-#define WithPGMTagChange 0
+#define WithPGMTagChange 1
 
 #if WithPGMTagChange
 #include < fstream > //pkh
-#include <RegexWrap/RegexWrap.h>
-//#pragma comment( lib, "RegexWrap\\Release\\RegexWrap.lib")
-//#pragma LIBCOMMENT("..\\..\\scd\\RegexWrap\\", "\\RegexWrap" )
+#include <RegexWrap.h>
+//#pragma comment( lib, "..\\..\\scd\\RegexWrap\\Dbg8\\RegexWrap.lib")
+#pragma LIBCOMMENT("..\\..\\scd\\RegexWrap\\", "\\RegexWrap" )
 #endif
 //==========================================================================
 //

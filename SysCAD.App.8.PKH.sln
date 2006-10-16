@@ -302,7 +302,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "um.TS_ModelLib", "SMDK\RTTS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "Interfaces\Interface.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexWrap", "Common\Models\CONTROL1\RegexWrap\RegexWrap.vcproj", "{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexWrap", "Common\Scd\RegexWrap\RegexWrap.vcproj", "{95C82AD7-0A0D-4DD6-AC3E-CBF3FB98D8F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
