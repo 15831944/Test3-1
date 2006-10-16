@@ -162,7 +162,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary=""
+				ImportLibrary=".\Rls8/RegexWrap.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -188,7 +188,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>
