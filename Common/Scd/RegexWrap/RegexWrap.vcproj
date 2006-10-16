@@ -76,6 +76,7 @@
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
 				SubSystem="2"
+				ImportLibrary=".\Dbg8/RegexWrap.lib"
 				TargetMachine="1"
 			/>
 			<Tool
