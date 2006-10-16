@@ -101,7 +101,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>
@@ -156,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/RegexWrap.dll"
+				OutputFile="..\..\..\Bin\RegexWrap.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
@@ -189,8 +188,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying LIB and DLL"
-				CommandLine="copy $(OutDir)\*.lib ..\LIB&#x0D;&#x0A;copy $(OutDir)\*.dll ..\LIB&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
