@@ -103,12 +103,13 @@ int _Model_DiamondWizard_TrompCurve (int nRows,
 					if ( thisConfig->IsLiberatedDiamond( iDSz, iOSz ) )			// check the diamond against all ore sizes
 					{															// to see if it is liberated
 						lockedSG = thisConfig->DiamondSG() ;
+						partitionFraction = 1 - 1 / (1 + exp(1.098 * (p.Rho50D(iDSz) - lockedSG) / p.EpD(iDSz))) ;
 					}                
 					else
 					{
 	                    lockedSG = thisConfig->LockedParticleSG(iDSz, iOSz, iSG) ;
+						partitionFraction = 1 - 1 / (1 + exp(1.098 * (p.Rho50(iOSz) - lockedSG) / p.Ep(iOSz))) ;
 					}
-                    partitionFraction = 1 - 1 / (1 + exp(1.098 * (p.Rho50D(iDSz) - lockedSG) / p.EpD(iDSz))) ;
 					if ( !p.Product1IsFloats() ) partitionFraction = 1 - partitionFraction ;
 					
 					Product1[idx] = partitionFraction * CombinedFeed[idx] ;
