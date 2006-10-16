@@ -11,9 +11,14 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
+#define WithPGMTagChange 0
+
+#if WithPGMTagChange
 #include < fstream > //pkh
 #include <RegexWrap/RegexWrap.h>
-
+//#pragma comment( lib, "RegexWrap\\Release\\RegexWrap.lib")
+//#pragma LIBCOMMENT("..\\..\\scd\\RegexWrap\\", "\\RegexWrap" )
+#endif
 //==========================================================================
 //
 //  General Model Controller
@@ -906,10 +911,10 @@ void GControl::SetState(eScdMdlStateActs RqdState)
 
 void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount)
 {
+  TagChangeCount = 0;
+#if WithPGMTagChange
   const int BUFSIZE = 10000;
   char buf[BUFSIZE];
-
-  TagChangeCount = 0;
 
   CString out;
   CString regexStart = "(?<=[\\(\\[\\'\\\"\\.])";
@@ -951,6 +956,7 @@ void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& 
   remove(fnBck);
   rename(fnIn, fnBck);
   rename(fnTmp, fnIn);
+#endif
 }
 
 //--------------------------------------------------------------------------
