@@ -1331,7 +1331,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   DDB.Double  ("SolidDensity",  "SRho",     DC_Rho,   "kg/m^3",   xidSMSRho,        this, isResult|noFile|noSnap|InitHidden);
   if (m_Ovr.bUse&SPO_SDens)
     DDB.TagComment("Ovr");
-  DDB.Double  ("LiquidDensity", "LRho",     DC_Rho,   "kg/m^3",   xidSMLRho,        this, isResult|noFile|noSnap|InitHidden);
+  DDB.Double  ("LiquidDensity", "LRho",     DC_Rho,   "kg/m^3",   xidSMLRho,        this, isResult|noFile|noSnap/*|InitHidden*/);
   if (m_Ovr.bUse&SPO_LDens)
     DDB.TagComment("Ovr");
   DDB.Double  ("VapourDensity", "VRho",     DC_Rho,   "kg/m^3",   xidSMVRho,        this, isResult|noFile|noSnap|InitHidden);

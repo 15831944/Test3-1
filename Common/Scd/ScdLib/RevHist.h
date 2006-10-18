@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "5 October 2006"
+#define SCD_PATCHDATE    "18 October 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2587,13 +2587,13 @@ Update 2 : 22 September 2006
 Update 3 : 28 September 2006
 ------------------------------
 1) (#211) Implemented new EvapBlock option.
-2) (#564, 568) New makeup block methods fixed flow and ratio.
+2) (#564, 568) Added new makeup block methods fixed flow and ratio.
 3) (#589) SysCAD Marshal improvements. New status displays, deadband option and 
    synchronous writes.
 
-Update 4 : 5 October 2006
+Update 4 : 18 October 2006
 ------------------------------
-1) () Makeup block improvements.
+1) (#599,602,614) Makeup block improvements.
 
 =============================================================================
 ================                SysCAD 9.2                   ================

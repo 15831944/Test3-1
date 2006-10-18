@@ -1112,8 +1112,8 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double  ("Level",        "Lvl",  DC_Frac, "%",      xidCnRLevel,       this, isParm|noFile|noSnap);
     DDB.Double  ("HiLevelLimit", "HiLmt", DC_Frac, "%",     &m_HiLvlLimit,     this, isParm|NAN_OK|InitHidden);
     DDB.Double  ("LoLevelLimit", "LoLmt", DC_Frac, "%",     &m_LoLvlLimit,     this, isParm|NAN_OK|InitHidden);
-    DDB.Bool    ("LevelHi",      "LvlHi", DC_,     "%",     &m_LvlHi,          this, isResult|InitHidden);
-    DDB.Bool    ("LevelLo",      "LvlLo", DC_,     "%",     &m_LvlLo,          this, isResult|InitHidden);
+    DDB.Bool    ("LevelHi",      "LvlHi", DC_,     "",      &m_LvlHi,          this, isResult|InitHidden);
+    DDB.Bool    ("LevelLo",      "LvlLo", DC_,     "",      &m_LvlLo,          this, isResult|InitHidden);
     DDB.CheckBoxBtn("LimitAsStatus", "",  DC_,     "",      &m_LmtAsStatus,    this, isParm|InitHidden);
 
     DDB.Text    ("Mass");
