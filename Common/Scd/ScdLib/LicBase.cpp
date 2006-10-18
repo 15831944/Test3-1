@@ -1595,7 +1595,13 @@ ReTry:
       return LicInit_ExitReqd;
       }
     }
+//CStopWatch W4;
+//W4.Start();
   err = MyInitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+//W4.Stop();
+//char ww[1024];
+//sprintf(ww, "InitCrypkey:%g seconds", W4.Secs());
+//AfxMessageBox(ww);
   m_bDidInitCrypkey = 1;
 
   if (err==-209)
@@ -1726,7 +1732,13 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 
 //#if CK_LICENSINGON
 
+//CStopWatch W4;
+//W4.Start();
   int err= MyGetAuthorization((long*)&m_State.m_dwOpLevel, 0); //check authorization, use up 0 runs
+//W4.Stop();
+//char ww[1024];
+//sprintf(ww, "MyGetAuthorization:%g seconds", W4.Secs());
+//AfxMessageBox(ww);
   m_State.m_dwOpLevel = FixOptions(m_State.m_dwOpLevel);
   DumpState("Check:x");
 

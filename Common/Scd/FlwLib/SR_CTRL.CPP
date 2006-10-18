@@ -818,6 +818,8 @@ void CEC_FracExt::BuildDataDefn(DataDefnBlk & DDB)
   {
   Strng T;
   T.Set("Fractional Extent %s", m_Spc.m_Name());
+  if (m_bStablize)
+    T += " (Stabilised)";
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();

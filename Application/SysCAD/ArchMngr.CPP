@@ -668,9 +668,12 @@ bool CArchiveDBTable::AddPeriod(long Period, long Offset)
   m_bInitReqd   = true;
   m_bRewindReqd = false;
 
-  if (m_bPeriodOn && ((SecondsInDay % m_lPeriod)!= 0))
+  if (m_bPeriodOn)
     {
-    LogWarning(ArcName, 0, "Period for %s not Modulo 24 Hrs", (LPCTSTR)m_sName);
+    if (m_lPeriod<SecondsInDay && ((SecondsInDay % m_lPeriod)!=0))
+      LogNote(ArcName, 0, "Period for %s not modulo 24 hours", (LPCTSTR)m_sName);
+    if (m_lPeriod>SecondsInDay && ((m_lPeriod % SecondsInDay)!=0))
+      LogNote(ArcName, 0, "Period for %s not modulo 24 hours", (LPCTSTR)m_sName);
     }
   return true;
   };
