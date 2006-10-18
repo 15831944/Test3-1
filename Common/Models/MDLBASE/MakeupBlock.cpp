@@ -353,7 +353,7 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
 
     double         GetSetPoint();
     double         GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd);
-    double         GetFlowValue(CMeasInfo &MI, SpConduit &QPrd, PhMask PhRqd=0);
+    double         GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd=0);
 
     inline bool    AsRatio() { return m_AsRatio; };
     inline bool    AsFixedFlow() { return !m_AsRatio; };
@@ -415,10 +415,14 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
     double          m_dProdAct;
     double          m_dMakeupAct;
 
-    double          m_dQmMakeup;
     double          m_dQmFeed;
+    double          m_dQmMakeup;
     double          m_dQmProd;
+    double          m_dQvFeed;
+    double          m_dQvMakeup;
+    double          m_dQvProd;
     double          m_dTempKFeed;
+    double          m_dTempKMakeup;
     double          m_dTempKProd;
 
     Strng_List      m_ErrorLst;
@@ -1173,10 +1177,14 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_dSetPoint   = 0.0;
   m_dMeas       = 0.0;
   m_dResult     = 0.0;
-  m_dQmMakeup   = 0.0;
   m_dQmFeed     = 0.0;
+  m_dQmMakeup   = 0.0;
   m_dQmProd     = 0.0;
+  m_dQvFeed     = 0.0;
+  m_dQvMakeup   = 0.0;
+  m_dQvProd     = 0.0;
   m_dTempKFeed  = C2K(0.0);
+  m_dTempKMakeup= C2K(0.0);
   m_dTempKProd  = C2K(0.0);
 
   ClrMeasEtc();
@@ -1339,14 +1347,20 @@ void CXBlk_MUFeed::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_dQmFeed,     this, isResult);
   DDB.Double ("Qm.Makeup",          "", DC_Qm,    "kg/s",     &m_dQmMakeup,   this, isResult);
   DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_dQmProd,     this, isResult);
+  DDB.Text("Total volume flow:");
+  DDB.Double ("Qv.Feed",            "", DC_Qv,    "m^3/s",    &m_dQvFeed,     this, isResult|InitHidden);
+  DDB.Double ("Qv.Makeup",          "", DC_Qv,    "m^3/s",    &m_dQvMakeup,   this, isResult);
+  DDB.Double ("Qv.Prod",            "", DC_Qv,    "m^3/s",    &m_dQvProd,     this, isResult|InitHidden);
   if (!HeatSkipMethod())
     {
     DDB.Text("Total heat flow:");
-    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);
+    DDB.Double ("Temp.Makeup",        "", DC_T,    "C",       &m_dTempKMakeup, this, isResult|InitHidden);
+    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);
     //DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
-    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);//|noFileAtAll);
     }
-  };
+
+  }
 
 //--------------------------------------------------------------------------
 
@@ -1442,39 +1456,39 @@ double CXBlk_MUFeed::GetSetPoint()
 
 //--------------------------------------------------------------------------
 
-double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &QPrd, PhMask PhRqd)
+double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*/)
   {
   switch (m_eType)
     {                         
     case Type_Mass:
       if (MI.m_eSelect==CMeasInfo ::Slct_Element)
-        return QPrd.QElementMass(MI.m_Elements, MI.m_Phases);
+        return Q.QElementMass(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
-        return QPrd.QMass(PhRqd);
+        return Q.QMass(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
-        return QPrd.QMass(MI.m_Species);
-      return QPrd.QMass(MI.m_Phases);
+        return Q.QMass(MI.m_Species);
+      return Q.QMass(MI.m_Phases);
 
     case Type_Mole:
       if (PhRqd)
-        return QPrd.QMole(PhRqd);
+        return Q.QMole(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
-        return QPrd.QMole(MI.m_Species);
-      return QPrd.QMole(MI.m_Phases);
+        return Q.QMole(MI.m_Species);
+      return Q.QMole(MI.m_Phases);
 
     case Type_Volume:
       if (PhRqd)
-        return QPrd.QVolume(PhRqd);
+        return Q.QVolume(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
-        return QPrd.QVolume(MI.m_Species);
-      return QPrd.QVolume(MI.m_Phases);
+        return Q.QVolume(MI.m_Species);
+      return Q.QVolume(MI.m_Phases);
 
     case Type_NVolume:
       if (PhRqd)
-        return QPrd.QNVolume(PhRqd);
+        return Q.QNVolume(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
-        return QPrd.QNVolume(MI.m_Species);
-      return QPrd.QNVolume(MI.m_Phases);
+        return Q.QNVolume(MI.m_Species);
+      return Q.QNVolume(MI.m_Phases);
 
     }
   return dNAN;
@@ -1534,6 +1548,7 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   if (m_bHasFlow || AsFixedFlow())
     {
     m_dQmFeed = QPrd.QMass();
+    m_dQvFeed = QPrd.QVolume();
 
     bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
 
@@ -1544,11 +1559,11 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     QIn().QCopy(QPrd);
 
     StkSpConduit QSrcWrk("QSrcWrk", "SrcWrk", pNd);
-
     SpConduit &QSrc=SrcIO.Cd;
 
     m_dMeas     = GetMeasVal(QIn(), QSrc, QPrd);
     m_dFeedAct  = GetFlowValue(m_In, QIn());
+    m_dTempKMakeup = QSrc.Temp();
 
     bool CIsOn[12]={false,false,false,false,false,false,false,false,false,false,false,false};
     if (m_AsRatio)
@@ -1621,6 +1636,8 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dResult     = GetMeasVal(QIn(), QSrc, QPrd);
     m_dQmProd     = QPrd.QMass();
     m_dQmMakeup   = m_dQmProd-m_dQmFeed;
+    m_dQvProd     = QPrd.QVolume();
+    m_dQvMakeup   = QSrcWrk().QVolume();
     m_dTempKProd  = QPrd.Temp();
 
     m_dProdAct    = GetFlowValue(m_In, QPrd);
@@ -1629,16 +1646,20 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   else
     {
     m_dQmFeed     = QPrd.QMass();
-    m_dQmMakeup   = 0;
+    m_dQmProd     = m_dQmFeed;
+    m_dQmMakeup   = 0.0;
+    m_dQvFeed     = QPrd.QVolume();
+    m_dQvProd     = m_dQvFeed;
+    m_dQvMakeup   = 0.0;
+    m_dTempKFeed  = QPrd.Temp();
+    m_dTempKProd  = m_dTempKFeed;
+    m_dTempKMakeup= C2K(0.0);
     m_dFeedAct    = GetFlowValue(m_In, QPrd);
     m_dProdAct    = GetFlowValue(m_In, QPrd);
-    m_dMakeupAct  = 0;
+    m_dMakeupAct  = 0.0;
     m_dMeas       = dNAN;
     m_dSetPoint   = GetSetPoint();
     m_dResult     = dNAN;
-    m_dQmProd     = 0;
-    m_dQmMakeup   = 0;
-    m_dTempKProd  = QPrd.Temp();
     ClrCI(1);
     ClrCI(2);
     ClrCI(3);
@@ -1822,11 +1843,15 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
     double          m_dFeedAct;
     double          m_dProdAct;
 
-    double          m_dQmMakeup;
     double          m_dQmFeed;
+    double          m_dQmMakeup;
     double          m_dQmProd;
+    double          m_dQvFeed;
+    double          m_dQvMakeup;
+    double          m_dQvProd;
     double          m_dHeatFlow;
     double          m_dTempKFeed;
+    double          m_dTempKMakeup;
     double          m_dTempKProd;
 
     Strng_List      m_ErrorLst;
@@ -1902,13 +1927,16 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_dSetPoint   = 0.0;
   m_dMeas       = 0.0;
   m_dResult     = 0.0;
-  m_dQmMakeup   = 0.0;
   m_dQmFeed     = 0.0;
+  m_dQmMakeup   = 0.0;
   m_dQmProd     = 0.0;
+  m_dQvFeed     = 0.0;
+  m_dQvMakeup   = 0.0;
+  m_dQvProd     = 0.0;
   m_dHeatFlow   = 0.0;
   m_dTempKFeed  = C2K(0.0);
+  m_dTempKMakeup= C2K(0.0);
   m_dTempKProd  = C2K(0.0);
-
   }
 
 //--------------------------------------------------------------------------
@@ -1921,7 +1949,6 @@ CXBlk_MUSimple::~CXBlk_MUSimple()
 
 void CXBlk_MUSimple::SetUpDDBSpcs()
   {
-
   if (!m_DDBSpcsOK || m_DDBSpcAdd.Length()+m_DDBSpcRem.Length()<SDB.Count())
     {
     m_DDBSpcAdd.Empty();
@@ -2025,9 +2052,6 @@ void CXBlk_MUSimple::SetUpDDBCmps()
 
 void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
   {
-
-  //if (DDB.BeginStruct(this, "MakeupQm", NULL, DDB_NoPage))
-  //  {
   static DDBValueLst DDBCtrl[] =
     {                         
       {Type_MassFrac,       "MassFrac"          },
@@ -2339,14 +2363,19 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_dQmFeed,     this, isResult);
   DDB.Double ("Qm.Makeup",          "", DC_Qm,    "kg/s",     &m_dQmMakeup,   this, isResult);
   DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_dQmProd,     this, isResult);
+  DDB.Text("Total volume flow:");
+  DDB.Double ("Qv.Feed",            "", DC_Qv,    "m^3/s",    &m_dQvFeed,     this, isResult|InitHidden);
+  DDB.Double ("Qv.Makeup",          "", DC_Qv,    "m^3/s",    &m_dQvMakeup,   this, isResult);
+  DDB.Double ("Qv.Prod",            "", DC_Qv,    "m^3/s",    &m_dQvProd,     this, isResult|InitHidden);
   if (!HeatSkipMethod())
     {
     DDB.Text("Total heat flow:");
-    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);
+    DDB.Double ("Temp.Makeup",        "", DC_T,    "C",       &m_dTempKMakeup, this, isResult|InitHidden);
+    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);
     DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
-    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);//|noFileAtAll);
     }
-  };
+  }
 
 //--------------------------------------------------------------------------
 
@@ -2854,6 +2883,7 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_bHasFlow = true;
 
     m_dQmFeed = QPrd.QMass();
+    m_dQvFeed = QPrd.QVolume();
     m_dTempKFeed = QPrd.Temp();
     const double HzIn = QPrd.totHz();
 
@@ -2871,12 +2901,13 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
 
     if (!CIsOn[5] && !CIsOn[6])
       {
-
       SpConduit &QSrc=SrcIO.Cd;
 
       // Copy to Src if Self
       if (m_eSource==Src_Self)
         QSrc.QSetF(QPrd, som_ALL, 1.0);
+
+      m_dTempKMakeup = QSrc.Temp();
 
       double TReqd;
       switch (m_eRqdTemp)
@@ -2931,10 +2962,17 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
 
       QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
 
+      m_dQvMakeup = QSrc.QVolume();
+
       if (SrcIO.Enabled)
         SrcIO.Sum.Set(QSrc);
       else
         SrcIO.Sum.ZeroFlows();
+      }
+    else
+      {
+      m_dTempKMakeup = C2K(0.0);
+      m_dQvMakeup = 0.0; 
       }
 
     if (!CIsOn[1])
@@ -2949,6 +2987,8 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dQmMakeup   = m_dQmProd-m_dQmFeed;
     m_dTempKProd  = QPrd.Temp();
     m_dHeatFlow   = QPrd.totHz() - HzIn;
+    m_dQvProd     = QPrd.QVolume();
+    //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
 
     m_dProdAct    = GetFlowValue(QPrd);
     }
@@ -2956,16 +2996,20 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     {
     m_bHasFlow    = false;
     m_dQmFeed     = QPrd.QMass();
-    m_dQmMakeup   = 0;
+    m_dQmProd     = m_dQmFeed;
+    m_dQmMakeup   = 0.0;
+    m_dQvFeed     = QPrd.QVolume();
+    m_dQvProd     = m_dQvFeed;
+    m_dQvMakeup   = 0.0;
+    m_dTempKFeed  = QPrd.Temp();
+    m_dTempKProd  = m_dTempKFeed;
+    m_dTempKMakeup= C2K(0.0);
     m_dFeedAct    = GetFlowValue(QPrd);
     m_dProdAct    = GetFlowValue(QPrd);
     m_dMeas       = dNAN;
     m_dSetPoint   = GetSetPoint();
     m_dResult     = dNAN;
-    m_dQmProd     = 0;
-    m_dQmMakeup   = 0;
-    m_dTempKProd  = QPrd.Temp();
-    m_dHeatFlow   = 0;
+    m_dHeatFlow   = 0.0;
     ClrCI(1);
     ClrCI(2);
     ClrCI(3);
