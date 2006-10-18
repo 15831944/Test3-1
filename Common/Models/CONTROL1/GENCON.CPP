@@ -16,9 +16,8 @@
 #define WithPGMTagChange 1
 
 #if WithPGMTagChange
-#include < fstream > //pkh
+#include < fstream >
 #include <RegexWrap.h>
-//#pragma comment( lib, "..\\..\\scd\\RegexWrap\\Dbg8\\RegexWrap.lib")
 #pragma LIBCOMMENT("..\\..\\scd\\RegexWrap\\", "\\RegexWrap" )
 #endif
 //==========================================================================
