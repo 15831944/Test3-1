@@ -14,9 +14,11 @@ CVolumeShapeLookup::CVolumeShapeLookup()
   bActive = false;
   bCheckRqd = true;
   iCount = 0;
+  bWithSurfAreaLookup = 0;
   ALvl = 0.0;
   AHeight = 0.0;
   AArea = 0.0;
+  Vol = 0.0;
   //TestVol = 10.0;
   }
 
@@ -27,11 +29,17 @@ void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
     if (DDB.BeginObject(pTagObj, "LL", "LookupLevel", NULL, DDB_RqdPage))
       {
       DDB.Long("Count", "", DC_, "", xidLvl_Count, pTagObj, isParmStopped);
+      DDB.CheckBoxBtn("WithSurfArea", "", DC_, "", &bWithSurfAreaLookup, pTagObj, isParmStopped);
       DDB.Button("SortAndCheck", "", DC_, "", xidLvl_Sort, pTagObj, isParm);
+      DDEF_Flags Vis=DDB.Visibility(NM_Dynamic|SM_All|HM_All, iCount>0);    
       //DDB.Double("TestVol", "", DC_Vol, "m^3", &TestVol, pTagObj, isParm);
+      DDB.Double("Volume", "", DC_Vol, "m^3", &Vol, pTagObj, isResult|InitHidden|noFile|noSnap);
       DDB.Double("ALvl", "", DC_Frac, "%", &ALvl, pTagObj, isResult);
       DDB.Double("AHeight", "", DC_L, "mm", &AHeight, pTagObj, isResult);
-      DDB.Double("AArea", "", DC_Area, "m^2", &AArea, pTagObj, isResult);
+      if (bWithSurfAreaLookup)
+        DDB.Double("AArea", "", DC_Area, "m^2", &AArea, pTagObj, isResult);
+
+      DDB.SetVisibility(Vis);
       DDB.Text("Volume Lookup...");
       Strng Tg;
       for (int i=0; i<iCount; i++)
@@ -45,11 +53,14 @@ void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
         Tg.Set("Height.[%d]", i);
         DDB.Double(Tg(), "", DC_L, "mm", xidLvl_FirstHeight+i, pTagObj, isParm);
         }
-      DDB.Text("Surface Area Lookup...");
-      for (int i=0; i<iCount; i++)
+      if (bWithSurfAreaLookup)
         {
-        Tg.Set("Area.[%d]", i);
-        DDB.Double(Tg(), "", DC_Area, "m^2", xidLvl_FirstArea+i, pTagObj, isParm);
+        DDB.Text("Surface Area Lookup...");
+        for (int i=0; i<iCount; i++)
+          {
+          Tg.Set("Area.[%d]", i);
+          DDB.Double(Tg(), "", DC_Area, "m^2", xidLvl_FirstArea+i, pTagObj, isParm);
+          }
         }
       }
     DDB.EndObject();
@@ -181,6 +192,7 @@ void CVolumeShapeLookup::SortAndValidate()
 
 void CVolumeShapeLookup::Calculate(double Volume)
   {
+  Vol = Volume;
   if (iCount==0)
     {
     AHeight = 0.0;
@@ -199,19 +211,22 @@ void CVolumeShapeLookup::Calculate(double Volume)
   if (i==iCount)
     {
     AHeight = m_Heights[iCount-1];//full
-    AArea = m_Areas[iCount-1];
+    if (bWithSurfAreaLookup)
+      AArea = m_Areas[iCount-1];
     }
   else if (i==0)
     {
     const double f = Volume/m_Volumes[i];
     AHeight = m_Heights[i]*f;
-    AArea = m_Areas[i]*f;
+    if (bWithSurfAreaLookup)
+      AArea = m_Areas[i]*f;
     }
   else
     {
     const double f = (Volume-m_Volumes[i-1])/(m_Volumes[i]-m_Volumes[i-1]);
     AHeight = m_Heights[i-1] + (m_Heights[i]-m_Heights[i-1])*f;
-    AArea = m_Areas[i-1] + (m_Areas[i]-m_Areas[i-1])*f;
+    if (bWithSurfAreaLookup)
+      AArea = m_Areas[i-1] + (m_Areas[i]-m_Areas[i-1])*f;
     }
   ALvl = AHeight/m_Heights[iCount-1];
   }

@@ -45,10 +45,12 @@ class DllImportExport CVolumeShapeLookup
   public:
     bool bActive;
     bool bCheckRqd;
+    flag bWithSurfAreaLookup;
     long iCount;
     double ALvl;
     double AHeight;
     double AArea;
+    double Vol;
     CArray<double, double> m_Heights;
     CArray<double, double> m_Areas;
     CArray<double, double> m_Volumes;
