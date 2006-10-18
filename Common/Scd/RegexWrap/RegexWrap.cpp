@@ -21,6 +21,8 @@ int CMCapture::Length() const
 {
 	return (*this)->Length;
 }
+
+
 CString CMCapture::Value() const
 {
 	return (*this)->Value;
