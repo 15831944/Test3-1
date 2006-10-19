@@ -1247,7 +1247,7 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB && NoProcLnkIOs()>=2)
         IOFlange(iT)->SetTearPriority(*DCB.rB);
       if (NoProcLnkIOs()>=2)
-        DCB.B=Max(IOFlange(iT)->TearPriority(), IOFlange(1)->TearPriority());
+        DCB.B=Min(IOFlange(iT)->TearPriority(), IOFlange(1)->TearPriority());
       else
         DCB.B=TP_Normal;
       return 1;

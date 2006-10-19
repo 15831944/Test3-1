@@ -198,6 +198,28 @@ bool HatchHeater::ExchangeDataFields()
 }
 
 //---------------------------------------------------------------------------------------------------------------------
+//CNM \\\\\\\\\\\\\\\\\\\\\\
+// After LOTS of trial and error I found that if the tears in a flash train are moved to 
+// the slurry lines connecting the heaters the resulting convergence is much improved
+// This code snippet will set this up automatically
+bool HatchHeater::ConfigureJoins()
+  {
+  if (MBaseMethod::ConfigureJoins())
+    {
+    // If a tear is needed then tear the slurry lines first
+    for (int i=0; i<FlwIOs.Count; i++)
+      {
+      MFlow F=FlwIOs[i];
+      if (F.Id>=idSlurIn && F.Id<=idSlurOur)
+        F.TearPriority=MTP_First;
+      }
+  
+    return true;
+    }
+  return false;
+  }
+//CNM //////////////////////
+//---------------------------------------------------------------------------------------------------------------------
 bool HatchHeater::EvalJoinPressures()
 {
 	if (1)//IsProbal)

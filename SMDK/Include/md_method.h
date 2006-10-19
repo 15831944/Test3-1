@@ -81,6 +81,11 @@ const long MCN_Open             = 0x00200000; //pipe is connected to a surge
 const long MCN_Closed           = 0x00400000; //pipe is connected to a 'blank'
 const long MCN_IOMask           = 0x0000ffff; //pipe is connected to a 'blank'
 
+// Tear Type
+enum MTearTypes { MTT_NoTear = 0, MTT_SystemTear = 1, MTT_ManualTear = 2, MTT_Break = 3 };
+// Tear Priority
+enum MTearPriorities { MTP_First = 0, MTP_Normal = 1, MTP_Last = 2 };
+
 struct DllImportExport MInOutDefStruct
   {
     LPTSTR        m_sDesc;      //connection port description (eg "Steam Vent"). Can be changed
@@ -455,28 +460,37 @@ class DllImportExport MFlow
     double        getMakeUpAvail();
     void          putMakeUpAvail(double Avl);
 
-    __declspec(property(get=getValid))                                bool          Valid;
-    __declspec(property(get=getId))                                   long          Id;
-    __declspec(property(get=getIdRmt))                                long          IdRmt;
-    __declspec(property(get=getIsFlwIn))                              bool          IsFlwIn;
-    __declspec(property(get=getIsFlwOut))                             bool          IsFlwOut;
-    __declspec(property(get=getEstFlwIn))                             double        EstFlwIn;
-    __declspec(property(get=getEstFlwOut))                            double        EstFlwOut;
-    __declspec(property(get=getFlwIn))                                double        FlwIn;
-    __declspec(property(get=getFlwOut))                               double        FlwOut;
-    __declspec(property(get=getFlowBlk))                              MFlowBlk      FlowBlk;
-    __declspec(property(get=getStream))                               MStream       Stream;
-    __declspec(property(get=getAbsHeight,put=putAbsHeight))           double        AbsHeight;
-    __declspec(property(get=getRelHeight,put=putRelHeight))           double        RelHeight;
-    __declspec(property(get=getDatum))                                double        Datum;
-    __declspec(property(get=getIOPJoin))                              double        IOPJoin;
-    __declspec(property(get=getIOPFlange))                            double        IOPFlange;
-    __declspec(property(get=getIsMakeUpReqd))                         bool          IsMakeUpReqd;
-    __declspec(property(get=getIsMakeUpReqdLcl))                      bool          IsMakeUpReqdLcl;
-    __declspec(property(get=getIsMakeUpAvail))                        bool          IsMakeUpAvail;
-    __declspec(property(get=getMakeUpReqd,put=putMakeUpReqd))         double        MakeUpReqd;
-    __declspec(property(get=getMakeUpReqdLcl,put=putMakeUpReqdLcl))   double        MakeUpReqdLcl;
-    __declspec(property(get=getMakeUpAvail,put=putMakeUpAvail))       double        MakeUpAvail;
+
+    MTearTypes        getTearTypeRequired();
+    void              putTearTypeRequired(MTearTypes Type);
+    MTearPriorities   getTearPriority();
+    void              putTearPriority(MTearPriorities Priority);
+
+    __declspec(property(get=getValid))                                      bool              Valid;
+    __declspec(property(get=getId))                                         long              Id;
+    __declspec(property(get=getIdRmt))                                      long              IdRmt;
+    __declspec(property(get=getIsFlwIn))                                    bool              IsFlwIn;
+    __declspec(property(get=getIsFlwOut))                                   bool              IsFlwOut;
+    __declspec(property(get=getEstFlwIn))                                   double            EstFlwIn;
+    __declspec(property(get=getEstFlwOut))                                  double            EstFlwOut;
+    __declspec(property(get=getFlwIn))                                      double            FlwIn;
+    __declspec(property(get=getFlwOut))                                     double            FlwOut;
+    __declspec(property(get=getFlowBlk))                                    MFlowBlk          FlowBlk;
+    __declspec(property(get=getStream))                                     MStream           Stream;
+    __declspec(property(get=getAbsHeight,put=putAbsHeight))                 double            AbsHeight;
+    __declspec(property(get=getRelHeight,put=putRelHeight))                 double            RelHeight;
+    __declspec(property(get=getDatum))                                      double            Datum;
+    __declspec(property(get=getIOPJoin))                                    double            IOPJoin;
+    __declspec(property(get=getIOPFlange))                                  double            IOPFlange;
+    __declspec(property(get=getIsMakeUpReqd))                               bool              IsMakeUpReqd;
+    __declspec(property(get=getIsMakeUpReqdLcl))                            bool              IsMakeUpReqdLcl;
+    __declspec(property(get=getIsMakeUpAvail))                              bool              IsMakeUpAvail;
+    __declspec(property(get=getMakeUpReqd,put=putMakeUpReqd))               double            MakeUpReqd;
+    __declspec(property(get=getMakeUpReqdLcl,put=putMakeUpReqdLcl))         double            MakeUpReqdLcl;
+    __declspec(property(get=getMakeUpAvail,put=putMakeUpAvail))             double            MakeUpAvail;
+
+    __declspec(property(get=getTearTypeRequired,put=putTearTypeRequired))   MTearTypes        TearTypeRequired;
+    __declspec(property(get=getTearPriority,put=putTearPriority))           MTearPriorities   TearPriority;
 
     //// Methods
     void          SetOpen(long iJoinId, bool Damped=false);

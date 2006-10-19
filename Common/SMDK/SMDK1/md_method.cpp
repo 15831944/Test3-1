@@ -649,6 +649,12 @@ void     MFlow::putRelHeight(double H)
   //m_pNd->SetIORelFracHgt_Flng(iIO, H);
   };
 
+//===========================================================================
+
+MTearPriorities MFlow::getTearPriority()                { return (MTearPriorities)m_pNd->IOFlange(m_iIONo)->TearPriority();        };
+void MFlow::putTearPriority(MTearPriorities Priority)   { m_pNd->IOFlange(m_iIONo)->SetTearPriority(Priority);    };
+MTearTypes MFlow::getTearTypeRequired()                 { return (MTearTypes)m_pNd->IOFlange(m_iIONo)->RqdTearType();         };
+void MFlow::putTearTypeRequired(MTearTypes Type)        { m_pNd->IOFlange(m_iIONo)->SetRqdTearType(Type);         };
 
 //===========================================================================
 

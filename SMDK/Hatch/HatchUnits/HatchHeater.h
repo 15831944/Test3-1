@@ -23,6 +23,7 @@ class HatchHeater : public MBaseMethod
     virtual void Init();
     virtual void BuildDataFields();
     virtual bool ExchangeDataFields();
+    virtual bool ConfigureJoins(); //CNM
     virtual bool EvalJoinPressures();
     virtual void EvalProducts();
     virtual void ClosureInfo(MClosureInfo & CI);
