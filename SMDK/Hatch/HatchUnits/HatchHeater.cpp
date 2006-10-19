@@ -199,9 +199,9 @@ bool HatchHeater::ExchangeDataFields()
 
 //---------------------------------------------------------------------------------------------------------------------
 //CNM \\\\\\\\\\\\\\\\\\\\\\
-// After LOTS of trial and error I found that if the tears in a flash train are moved to 
-// the slurry lines connecting the heaters the resulting convergence is much improved
-// This code snippet will set this up automatically
+// Historically - after LOTS of trial and error I found that if the tears in a flash 
+// train are moved to the slurry lines connecting the heaters the resulting convergence 
+// is much improved. This code snippet will set this up automatically
 bool HatchHeater::ConfigureJoins()
   {
   if (MBaseMethod::ConfigureJoins())
