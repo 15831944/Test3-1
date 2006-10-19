@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-//#pragma LIBCOMMENT("..\\..\\Models\\Control1\\RegexWrap", "\\RegexWrap");
-
 #define  __GENCON_CPP
 
 #include "stdafx.h"
@@ -13,6 +11,7 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
+// To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
 #define WithPGMTagChange 1
 
 #if WithPGMTagChange
@@ -907,12 +906,26 @@ void GControl::SetState(eScdMdlStateActs RqdState)
     }
   }
 
-//--------------------------------------------------------------------------
+string IntToString(int num)
+{
+  ostringstream myStream; //creates an ostringstream object
+  myStream << num << flush;
+
+  /*
+   * outputs the number into the string stream and then flushes
+   * the buffer (makes sure the output is put into the stream)
+   */
+  
+  return(myStream.str()); //returns the string form of the stringstream object
+}
+
+// -------------------------------------------------------------------------
 // Replaces pOldTag for pNewTag.  Renames the original file as fn.bck
 
-void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount)
+void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount, bool lookInComments, bool listChanges)
 {
   TagChangeCount = 0;
+  string lineList = "";
 #if WithPGMTagChange
   const int BUFSIZE = 10000;
   char buf[BUFSIZE];
@@ -921,6 +934,8 @@ void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& 
   CString regexStart = "(?<=[\\(\\[\\'\\\"\\.])";
   CString regexTag   = pOldTag;
   CString regexEnd   = "(?=[\\)\\]\\'\\\"\\.])";
+
+  CString commentRegex = "^[ \t]*;";
 
   CString regexStr = regexStart + regexTag + regexEnd;
   
@@ -939,16 +954,40 @@ void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& 
   {
     CMRegex *regex = new CMRegex();
 
+    int lineNo = 0;
+
     while (!pgmIn.eof())
     {
+      lineNo++;
+
       pgmIn.getline(buf, BUFSIZE-1);
 
-      out = regex->Replace(buf, regexStr, pNewTag, CMRegex::IgnoreCase);
-      TagChangeCount += regex->Matches(buf, regexStr).Count();
-      pgmOut << out << endl;
+      if ((lookInComments)||(!regex->IsMatch(buf, commentRegex)))
+      {
+        out = regex->Replace(buf, regexStr, pNewTag, CMRegex::IgnoreCase);
+
+        int matches = regex->Matches(buf, regexStr).Count();
+        if (matches > 0)
+        {
+          lineList += IntToString(lineNo) + ", ";
+          TagChangeCount += matches;
+        }
+      }
+
+      pgmOut << out;
+      if (!pgmIn.eof())
+        pgmOut << endl;
     }
 
     delete regex;
+  }
+
+  if (listChanges)
+  {
+    pgmOut << endl;
+    pgmOut << ";" + string(CTime::GetCurrentTime().Format("%x %X")) + ":  '" + string(pOldTag) + "' changed to '" + string(pNewTag) + "'.  " + IntToString(TagChangeCount)
+              + " occurances on lines " + lineList.substr(0, lineList.length()-2) + ".";
+    // %x %X -- uses currently defined time/date format for current locale...
   }
 
   pgmIn.close();
@@ -970,7 +1009,7 @@ int GControl::ChangeTag(pchar pOldTag, pchar pNewTag)
 	  int TagChangeCount;
 
     FnExpand(fn, sPGMName());
-    DoTextFileChangeTag(fn(), pOldTag, pNewTag, TagChangeCount);
+    DoTextFileChangeTag(fn(), pOldTag, pNewTag, TagChangeCount, true, true);
     if (TagChangeCount>0)
       {
       LogNote(Tag(), 0, "%d occurances of %s changed in %s", TagChangeCount, pOldTag, sPGMName());
