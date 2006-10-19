@@ -685,7 +685,7 @@ void HatchHeater::DoCondensingHeater(MStream& ShellI, MStream& TubeI, MStream& S
 					Avail=GTZ(Avail);
 
 					// Distribute according to MakeUpAvail
-					for (i=0; i<FlwIOs.Count; i++)
+					for (int i=0; i<FlwIOs.Count; i++)
 					{
 						MFlow F=FlwIOs[i];
 						if (F.Id==idSteamIn && F.IsFlwIn && F.IsMakeUpAvail)
