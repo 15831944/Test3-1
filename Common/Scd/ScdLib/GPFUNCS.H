@@ -5,7 +5,9 @@
 #define  __GPFUNCS_H
 
 #include "sc_defs.h"
+#include "..\..\..\SMDK\Include\ScdIF.h"
 #include "..\..\..\SMDK\include\md_share1.h"
+#include "..\..\..\SMDK\include\md_share3.h"
 #include ".\registry.h"
 
 
@@ -528,9 +530,10 @@ const short StrngTokenSize   = 256;
 #if HEAP_SPARES
 const short MaxSpareStrBuffs = 512;
 #endif
+#if MOVEDTO_MD_SHARE_3
 const short MaxCSVCols = 256;
 typedef char * CSVColArray[MaxCSVCols];
-
+#endif
 typedef char StrngToken[StrngTokenSize];
 
 _FWDDEF(Strng)
@@ -1068,7 +1071,9 @@ DllImportExport int    DllFilesFolder(int N, char * DllPath, Strng &Folder);
 DllImportExport HINSTANCE AFXAPI MyAfxLoadLibrary( LPCTSTR lpszModuleName, char * DllPath);
 
 DllImportExport char*  SetTemporaryFiles(char* PD=NULL);
+#if MOVEDTO_MD_SHARE_3
 DllImportExport char*  TemporaryFiles();
+#endif
 
 DllImportExport char*  SetBaseCfgFiles(char* PD=NULL);
 DllImportExport int    TestBaseCfgFiles();
@@ -1079,24 +1084,33 @@ DllImportExport flag   SetUsePreviousCfgAlias(flag On);
 DllImportExport flag   SetUsePreviousPrjAlias(flag On);
 
 DllImportExport char*  SetCfgFile(char* PD=NULL);
+#if MOVEDTO_MD_SHARE_3
 DllImportExport char*  CfgFile();
+#endif
 DllImportExport char*  SetCfgFiles(char* PD=NULL);
 DllImportExport int    TestCfgFiles();
 DllImportExport int    CheckCfgFilesName();
+#if MOVEDTO_MD_SHARE_3
 DllImportExport char*  CfgFiles();
+#endif
 DllImportExport char*  CfgFilesAlias();
+#if MOVEDTO_MD_SHARE_3
 DllImportExport char*  CfgName();
+#endif
 DllImportExport char*  CfgNameAlias();
 
 DllImportExport char*  SetPrjFiles(char* PD=NULL, char* PF=NULL);
+#if MOVEDTO_MD_SHARE_3
 DllImportExport char*  PrjFile();
 DllImportExport char*  PrjFiles();
+#endif
 DllImportExport char*  PrjFilesAlias();
 DllImportExport char*  SetPrjRmtCpyFiles(char * F);
 DllImportExport char*  PrjRmtCpyFiles();
+#if MOVEDTO_MD_SHARE_3
 DllImportExport char*  PrjName();
 DllImportExport char*  PrjNameAlias();
-
+#endif
 DllImportExport char*  PrjIniFile();
 
 DllImportExport char*  SetGrfSymbolImportFiles(char* FullPath);
@@ -1106,10 +1120,12 @@ DllImportExport char*  GrfFontFiles();
 DllImportExport char*  BaseGrfSymbolFiles();
 DllImportExport char*  BaseGrfFontFiles();
                                              
+#if MOVEDTO_MD_SHARE_3
 DllImportExport BOOL   FileExists(LPCTSTR FileName, WIN32_FIND_DATA & fd);
 DllImportExport BOOL   FileExists(LPCTSTR FileName);
 DllImportExport BOOL   FileAttributes(LPCTSTR FileName, DWORD & Attributes);
 DllImportExport BOOL   FileWriteTime(LPCTSTR FileName, FILETIME & FileTime);
+#endif
 DllImportExport BOOL   CnmVersion();
 
 DllImportExport int    SelectFile(Strng & FilePath, char* Name1, char* Name2, char* Name3);
@@ -1129,13 +1145,16 @@ DllImportExport BOOL   AddTextToClipboard(CWnd* pOwnerWnd, LPCTSTR buff, LPCTSTR
 DllImportExport char*  GetSystemErrorStr(Strng &S, DWORD E);
 
 DllImportExport void   StripSingleQuoteComment(char * Buff);
-DllImportExport int    ParseTokenList(char* Buff, char* C[], char* WhiteSpace=" \t", int MaxColumns=MaxCSVCols, char Separator=0, bool Test4Braces=0);
-DllImportExport int    ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL);
-DllImportExport int    ParseCSVFunction(char* Buff, CSVColArray &C, int& Quote);
-DllImportExport int    ParseTokens(char* Buff, CSVColArray &C, char Token);
-DllImportExport int    ParseTabTokens(char* Buff, CSVColArray &C);
-
-DllImportExport DWORD FreeVirtualMemory();
+DllImportExport int    ParseTokenList(LPTSTR Buff, char* C[], char* WhiteSpace=" \t", int MaxColumns=MaxCSVCols, char Separator=0, bool Test4Braces=0);
+#if MOVEDTO_MD_SHARE_3
+DllImportExport int    ParseCSVTokens(LPTSTR Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL);
+DllImportExport int    ParseCSVFunction(LPTSTR Buff, CSVColArray &C, int& Quote);
+DllImportExport int    ParseCSVTokens(LPTSTR Buff, CSVColArray &C, LPCTSTR MoreSepars=NULL);
+DllImportExport int    ParseCSVFunction(LPTSTR Buff, CSVColArray &C);
+DllImportExport int    ParseTokens(LPTSTR Buff, CSVColArray &C, char Token);
+DllImportExport int    ParseTabTokens(LPTSTR Buff, CSVColArray &C);
+#endif
+DllImportExport DWORD  FreeVirtualMemory();
 
 // -------------------------------------------------------------------------
 // SysCAD Wrapper class - used to ensure that the LOCALE remains "C"
@@ -1176,6 +1195,7 @@ class DllImportExport CSaveRestResHandle
     ~CSaveRestResHandle();
   };
 
+#if MOVEDTO_MD_SHARE_3
 // -------------------------------------------------------------------------
 /*#C:This class is used to access INI type files. It provides more than the
 standard "Set/Get Profile" options.*/
@@ -1227,6 +1247,7 @@ class DllImportExport CProfINIFile : protected CRegistry
 extern DllImportExport CProfINIFile ScdPFUser;
 extern DllImportExport CProfINIFile ScdPFMachine;
 
+#endif
 // ==========================================================================
 //
 //

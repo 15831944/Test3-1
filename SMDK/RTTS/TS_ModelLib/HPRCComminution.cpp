@@ -124,8 +124,8 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 
 	bool ModelErr=true;
 
-	MIPSD & PSDin  = Feed.IF<MIPSD>(false);
-	MIPSD & PSDout = Product.IF<MIPSD>(false);
+	MIPSD & PSDin  = *Feed.FindIF<MIPSD>();
+	MIPSD & PSDout = *Product.FindIF<MIPSD>();
 
 	if ( IsNothing(PSDin)==false )
 	{

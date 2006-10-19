@@ -235,14 +235,14 @@ bool BatchPrecip::ExchangeDataFields()
 
 bool BatchPrecip::ValidateDataFields()
   {//ensure parameters are within expected ranges
-  m_dVolume  = DD.ValidateRange("", 1.0,  m_dVolume , 1000000);
-  m_dSurface = DD.ValidateRange("", 1.0,  m_dSurface , 300000);
-  m_dKvFac   = DD.ValidateRange("", 0.0,     m_dKvFac , 30);
-  m_dUCoef   = DD.ValidateRange("", 0.0,     m_dUCoef , 2000);
-  m_dLevel   = DD.ValidateRange("", 1.0e-6,  m_dLevel , 1);
+  m_dVolume  = DV.ValidateRange("", 1.0,  m_dVolume , 1000000);
+  m_dSurface = DV.ValidateRange("", 1.0,  m_dSurface , 300000);
+  m_dKvFac   = DV.ValidateRange("", 0.0,     m_dKvFac , 30);
+  m_dUCoef   = DV.ValidateRange("", 0.0,     m_dUCoef , 2000);
+  m_dLevel   = DV.ValidateRange("", 1.0e-6,  m_dLevel , 1);
   
   if ( m_eHeatBalance == eHBal_ImposedTemp)
-    m_dTempImpos = DD.ValidateRange("", C2K(1.0e-6), m_dTempImpos, C2K(150.0));
+    m_dTempImpos = DV.ValidateRange("", C2K(1.0e-6), m_dTempImpos, C2K(150.0));
 
   return true;
   };
@@ -278,7 +278,7 @@ void BatchPrecip::EvalProducts()
     m_dThermalLoss = 0.0;
     m_dYield = 0.0;
     m_dTempIn = Slurry.T;
-    MIBayer & SlurryB = Slurry.IF<MIBayer>(false); //get access to bayer properties interface for stream
+    MIBayer & SlurryB = *Slurry.FindIF<MIBayer>(); //get access to bayer properties interface for stream
     if (!IsNothing(SlurryB))
       {
       m_dACIn = SlurryB.AtoC();
@@ -292,7 +292,7 @@ void BatchPrecip::EvalProducts()
     
     if (m_bOn && Slurry.Mass()>UsableMass)
       {
-      MIBayer & ProdB = Prod.IF<MIBayer>(false);
+      MIBayer & ProdB = *Prod.FindIF<MIBayer>();
       Log.SetCondition(IsNothing(ProdB), 1, MMsg_Warning, "Bad Slurry Stream - Not Bayer Model"); //expect stream to have bayer properties
       
       if (!IsNothing(SlurryB) && !IsNothing(ProdB))
@@ -326,7 +326,7 @@ void BatchPrecip::EvalProducts()
         {      
         Prod.AddF(Liquor, MP_All, 1.0);
         }
-      MIBayer & ProdB = Prod.IF<MIBayer>(false);
+      MIBayer & ProdB = *Prod.FindIF<MIBayer>();
       if (!IsNothing(ProdB))
         {
         m_dACOut = ProdB.AtoC();
@@ -416,8 +416,7 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
 
   const double Fact = spAlumina.MW/spTHA.MW; // 0.654;
 
-  //MIBayer & BVec=Vec.Interfaces;
-  MIBayer & BVec=Vec.IF<MIBayer>();
+  MIBayer & BVec=*Vec.GetIF<MIBayer>();
 
   for (int Iter=100; Iter; Iter--)
     {
@@ -499,7 +498,7 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
     int xx=0; //place breakpoint here to trap this
     }
 
-  MISSA & VecSSA=Vec.IF<MISSA>();
+  MISSA & VecSSA=*Vec.GetIF<MISSA>();
   if (NoPerSec>0.0 && !IsNothing(VecSSA))
     {
     VecSSA.SetSAMFromFlow(BVec.THAMassFlow(), NoPerSec);
@@ -512,9 +511,9 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
 
   bool BatchPrecip::PrecipBatchSS(double dTime, MVector & Prod, double CurLevel)
   {
-  MIBayer & ProdB   = Prod.IF<MIBayer>();
-  MIPSD & ProdSz    = Prod.IF<MIPSD>(false);
-  MISSA & ProdSSA   = Prod.IF<MISSA>(false);
+  MIBayer & ProdB   = *Prod.GetIF<MIBayer>();
+  MIPSD & ProdSz    = *Prod.FindIF<MIPSD>();
+  MISSA & ProdSSA   = *Prod.FindIF<MISSA>();
   double TProd = Prod.getT();
   double gpl1 = ProdB.SolidsConc(TProd);
   double ProdVolFlow = Prod.Volume(MP_All);
@@ -523,7 +522,7 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
   double Sx;
   if (!sm_bCompletePopulation && sm_bUsePrevPSD)
     {
-    MISSA & PrevSSA=m_QProd.IF<MISSA>(false);// this is the SSA of the last Popul run to use in "NO POpul mode"
+    MISSA & PrevSSA=*m_QProd.FindIF<MISSA>();// this is the SSA of the last Popul run to use in "NO POpul mode"
     if (IsNothing(PrevSSA))
       {
 	   m_bPrevPSDUsed = 0;
@@ -572,9 +571,9 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
 bool BatchPrecip::PrecipBatch(double dTime, MVector & Prod, double CurLevel, bool AgglomON )
   {
   long m;
-  MIBayer & ProdB   = Prod.IF<MIBayer>();
-  MIPSD & ProdSz    = Prod.IF<MIPSD>(false);
-  MISSA & ProdSSA   = Prod.IF<MISSA>(false);
+  MIBayer & ProdB   = *Prod.GetIF<MIBayer>();
+  MIPSD & ProdSz    = *Prod.FindIF<MIPSD>();
+  MISSA & ProdSSA   = *Prod.FindIF<MISSA>();
   double TProd = Prod.getT();
   double gpl1 = ProdB.SolidsConc(TProd);
   double ProdVolFlow = Prod.Volume(MP_All);
@@ -664,12 +663,12 @@ bool BatchPrecip::PrecipBatch(double dTime, MVector & Prod, double CurLevel, boo
 bool BatchPrecip::BatchCycle(MVector & Slurry, MVector & Liquor, MVector & Prod)
   {
   double dt;
-  MIBayer & SlurryB = Slurry.IF<MIBayer>();
-  MIBayer & ProdB   = Prod.IF<MIBayer>();
-  MIPSD & SlurrySz  = Slurry.IF<MIPSD>(false);
-  MIPSD & ProdSz    = Prod.IF<MIPSD>(false);
-  MISSA & SlurrySSA = Slurry.IF<MISSA>(false);
-  MISSA & ProdSSA   = Prod.IF<MISSA>(false);
+  MIBayer & SlurryB = *Slurry.GetIF<MIBayer>();
+  MIBayer & ProdB   = *Prod.GetIF<MIBayer>();
+  MIPSD & SlurrySz  = *Slurry.FindIF<MIPSD>();
+  MIPSD & ProdSz    = *Prod.FindIF<MIPSD>();
+  MISSA & SlurrySSA = *Slurry.FindIF<MISSA>();
+  MISSA & ProdSSA   = *Prod.FindIF<MISSA>();
   Log.SetCondition(IsNothing(SlurrySz) || IsNothing(ProdSz), 2, MMsg_Error, "Bad Slurry Stream - No Size Distribution");
   Log.SetCondition(IsNothing(SlurrySSA) || IsNothing(ProdSSA), 3, MMsg_Error, "Bad Slurry Stream - No SSA Data");
 

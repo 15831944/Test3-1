@@ -555,6 +555,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\md_data.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\md_defn.cpp"
 				>
 			</File>
@@ -649,6 +653,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\SMDK\Include\md_base.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\Include\md_data.h"
 				>
 			</File>
 			<File

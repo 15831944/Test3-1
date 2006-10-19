@@ -5,63 +5,51 @@
 //		DIAMOND WIZARD SPECIFIC - GRINDING MILL
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_GrindingMill: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_GrindingMill: public CLimn_ModelData_Base
   {
   public:
-    C_ModelParameters_DiamondWizard_GrindingMill(void)
+    C_ModelParameters_DiamondWizard_GrindingMill(void) : CLimn_ModelData_Base(&sm_Common)
       {
       m_nOSz=0;
       };
-    ~C_ModelParameters_DiamondWizard_GrindingMill(void){};
-
-
-    C_ModelParameters_DiamondWizard_GrindingMill(double* ModelParams, int nOSz) // usually called from parameter passing
+    C_ModelParameters_DiamondWizard_GrindingMill(double* ModelParams, int nOSz) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-      m_nOSz=nOSz;		// number of ore sizes
-      m_pData=ModelParams;
+      //m_pData=ModelParams;
+      Initialise(nOSz); // number of ore sizes
       }
-
-      double & redistributeDensimetrics()	{ return m_pData[0];			  }; 
-      double & tau()						{ return m_pData[m_nOSz];		  };
-      double & S(int i)						{ return m_pData[2 * m_nOSz + i]; } ;
-      double & B(int i)						{ return m_pData[3 * m_nOSz + i]; } ;
-
- 	  double* pS()						    { return &m_pData[2 * m_nOSz]; } ;
- 	  double* pB()						    { return &m_pData[3 * m_nOSz]; } ;
-
-      int DataCount()						{ return (3 + m_nOSz) * m_nOSz; };
-
-	  bool DoRedistributeDensimetrics()		{ return redistributeDensimetrics() > 0.5 ? true : false ; }; 
-
-
-#ifdef LIMNDW
-	void Initialise() 
+    ~C_ModelParameters_DiamondWizard_GrindingMill(void)
       {
-		m_nOSz = CONFIGURATION.nOSz();
-
-		Allocate();
-
-		tau() = 0.14;
-	    for (int i=0; i< m_nOSz; i++)
-		{
-			S(i) = 0.5 ;
-			for (int j=0; i< m_nOSz; i++)
-			{
-				B(i) = 0.0 ;
-			}
-		}
-		
       };
-#endif
+
+    static CLimn_ModelData_Common sm_Common;
+
+    CBooleanRef redistributeDensimetrics; 
+    CDoubleRef tau;	    					
+    CVectorRef S;						
+    CMatrixRef B;						
+
+    bool DoRedistributeDensimetrics()		{ return redistributeDensimetrics(); }; 
+
+    void Initialise(int nOSz) 
+      {
+      CLimn_ModelData_Base::Initialise();
+      m_nOSz = nOSz;
+
+      redistributeDensimetrics      .Initialise(this,                                        "RedistributeDensimetrics",      1);
+      tau                           .Initialise(this,                                        "Tau",                        0.14,  "");
+      S                             .Initialise(this,   "S", m_nOSz,          DI_OSz,        "S",                           0.5,  "");
+      B                             .Initialise(this,   "B", m_nOSz, m_nOSz , DI_OSz, DI_OSz,"B",                           0.0,  "");
+
+      };
 
   protected:
     int    m_nOSz;
 
-};
+  };
 //
 //				Limn callable model
 C_LINKAGE DLLMODEL int _Model_DiamondWizard_GrindingMill (int nRows,
-					 		 			                  int nColumns,
+                                                          int nColumns,
                                                           int nParameters,
                                                           int nReturns,
                                                           double* ModelParams,

@@ -140,7 +140,7 @@ void SysCADSurge::EvalProducts()
 
       MStream & Product = FlwIOs[FlwIOs.First[idProduct]].Stream;
  
-      MIPSD & PSD=Feed.IF<MIPSD>(false);
+      MIPSD & PSD=*Feed.FindIF<MIPSD>();
 
  	  if (m_pCSurge)
 	  {

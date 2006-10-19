@@ -310,6 +310,9 @@
 				RelativePath=".\md_base.cpp">
 			</File>
 			<File
+				RelativePath=".\md_data.cpp">
+			</File>
+			<File
 				RelativePath=".\md_defn.cpp">
 			</File>
 			<File

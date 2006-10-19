@@ -86,7 +86,7 @@
 	
 	{ 
     // Get info on Size Distribution
-    MIPSD & l_PSD=Feed.IF<MIPSD>(false);
+    MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
     if (IsNothing(l_PSD))
       {
       int xx=0;
@@ -147,13 +147,13 @@
 	{
 
       // Get info on Size Distribution
-      MIPSD & l_PSD=in_Feed.IF<MIPSD>();
+      MIPSD & l_PSD=*in_Feed.GetIF<MIPSD>();
       long    l_SizeCount      = l_PSD.getSizeCount();
       long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
 
       // Get references to Product Stream PSDs
-      MIPSD & PSDof = out_ProductA.IF<MIPSD>(false);
-      MIPSD & PSDuf = out_ProductB.IF<MIPSD>(false);
+      MIPSD & PSDof = *out_ProductA.FindIF<MIPSD>();
+      MIPSD & PSDuf = *out_ProductB.FindIF<MIPSD>();
 
       // Create some memory for the input and output PSD mass data
       double* M = new double[l_SizeCount];

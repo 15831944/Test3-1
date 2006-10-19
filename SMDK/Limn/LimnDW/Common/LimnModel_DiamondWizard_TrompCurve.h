@@ -5,61 +5,52 @@
 //		DIAMOND WIZARD SPECIFIC - TROMP CURVE
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_TrompCurve: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_TrompCurve: public CLimn_ModelData_Base
   {
   public:
-    C_ModelParameters_DiamondWizard_TrompCurve(void)
+    C_ModelParameters_DiamondWizard_TrompCurve(void) : CLimn_ModelData_Base(&sm_Common)
       {
       m_nOSz = 0;
-	  m_nDSz = 0;
+      m_nDSz = 0;
       };
-    ~C_ModelParameters_DiamondWizard_TrompCurve(void){};
-
-
-    C_ModelParameters_DiamondWizard_TrompCurve(double* ModelParams, int nOSz, int nDSz) // usually called from parameter passing
+    C_ModelParameters_DiamondWizard_TrompCurve(double* ModelParams, int nOSz, int nDSz) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-      m_nOSz=nOSz;
-	  m_nDSz=nDSz;
-      m_pData=ModelParams;
+      //m_nOSz=nOSz;
+      //m_nDSz=nDSz;
+      //m_pData=ModelParams;
+      Initialise(nOSz, nDSz);
       }
+    ~C_ModelParameters_DiamondWizard_TrompCurve(void)
+      {
+      };
 
-    double & FloatsStreamID()  { return m_pData[0];						} ; 
-    double & WaterSplit()      { return m_pData[1];						} ;
-    double & FeSiSplit()       { return m_pData[2];						} ;
-    double & Ep(int i)         { return m_pData[3+i];					} ;
-    double & Rho50(int i)      { return m_pData[3 + m_nOSz + i];			} ;
-    double & EpD(int i)        { return m_pData[3 + 2*m_nOSz + i];		} ;
-    double & Rho50D(int i)     { return m_pData[3 + 2*m_nOSz + m_nDSz + i]; } ;
+    static CLimn_ModelData_Common sm_Common;
 
-    int DataCount()            { return 3 + 2*m_nOSz + 2*m_nDSz;            } ;
+    CDoubleRef  FloatsStreamID; 
+    CDoubleRef  WaterSplit;     
+    CDoubleRef  FeSiSplit;      
+    CVectorRef  Ep;        
+    CVectorRef  Rho50;     
+    CVectorRef  EpD;       
+    CVectorRef  Rho50D;    
 
     bool Product1IsFloats()	   { return FloatsStreamID()  < 1.5 ? true : false ; };   
 
-
-#ifdef LIMNDW
-
-	void Initialise() 
+    void Initialise(int nOSz, int nDSz) 
       {
-		m_nOSz             = CONFIGURATION.nOSz();
-		m_nDSz             = CONFIGURATION.nDSz();
+      CLimn_ModelData_Base::Initialise();
 
-		Allocate();
+      m_nOSz  = nOSz;
+      m_nDSz  = nDSz;
 
-		FloatsStreamID()   = 1.0 ;
-		WaterSplit()       = 0.25;
-		FeSiSplit()        = 0.25;
-		for (int i=0; i<m_nOSz; i++)
-		{
-			Ep(i) = 0.010;
-			Rho50(i) = 3.00 ;
-		}
-		for (i=0; i<m_nDSz; i++)
-		{
-			EpD(i) = 0.010;
-			Rho50D(i) = 3.00 ;
-		}
+      FloatsStreamID  .Initialise(this,                         "FloatsStreamID",         1,  "",       true);
+      WaterSplit      .Initialise(this,                         "WaterSplit",          0.25,  "Frac(.)");
+      FeSiSplit       .Initialise(this,                         "FeSiSplit",           0.25,  "Frac(.)");
+      Ep              .Initialise(this, "Ep",   m_nOSz, DI_OSz, "Ep",                 0.010,  "");
+      Rho50           .Initialise(this, "Rho",  m_nOSz, DI_OSz, "Rho50",                  3,  "Rho(t/m^3)");
+      EpD             .Initialise(this, "Ep",   m_nDSz, DI_DSz, "EpD",                0.010,  "");
+      Rho50D          .Initialise(this, "Rho",  m_nDSz, DI_DSz, "Rho50D",                 3,  "Rho(t/m^3)");
       };
-#endif
 
   protected:
     int            m_nOSz;
@@ -69,7 +60,7 @@ class C_ModelParameters_DiamondWizard_TrompCurve: public CLimn_ModelData_Abstrac
 //
 //				Limn callable model
 C_LINKAGE DLLMODEL int _Model_DiamondWizard_TrompCurve (int nRows,
-					 		 			                int nColumns,
+                                                        int nColumns,
                                                         int nParameters,
                                                         int nReturns,
                                                         double* ModelParams,

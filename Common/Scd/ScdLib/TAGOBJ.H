@@ -779,9 +779,9 @@ typedef const long XID;
 #define Qual8XID(i)   ((i)+(XID)  98000000)
 #define Qual9XID(i)   ((i)+(XID)  99000000)
 
-#define SysXID(i)     ((i)+(XID) 10000000)
-#define PwrXID(i)     ((i)+(XID) 11000000)
-#define SMDKXID(i)    ((i)+(XID) 20000000)
+#define SysXID(i)     ((i)+(XID) 100000000)
+#define PwrXID(i)     ((i)+(XID) 110000000)
+#define SMDKXID(i)    ((i)+(XID) 200000000)
 
 XID xidTag           = SysXID(1);
 XID xidParent        = SysXID(2);
@@ -1562,7 +1562,8 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     flag           BeginArray(TaggedObject * Obj, pchar Tag, pchar ClassName, int Len_, long Handle=0, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
     flag           BeginElement(TaggedObject * Obj, int iElementIndex, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
     flag           BeginElement(TaggedObject * Obj, LPCTSTR pElementTag, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
-    void           EndArray();
+    void           EndElement(DDEF_Flags BlkFlags = 0);
+    void           EndArray(DDEF_Flags BlkFlags = 0);
     void           PushUserInfo(dword UserInfo=0, TaggedObject * This=NULL);
     void           PopUserInfo();
     void           Object(TaggedObject * Obj, TaggedObject * This, pchar Tag=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
@@ -1605,7 +1606,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     flag           BeginBlock(byte iType_,  TaggedObject * pObj,
                               pchar pTag, pchar pClassName, pchar pSubClassName, pchar pPrimaryCfg,
                               pchar pTagOfParent, pchar pTagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress);
-    void           EndBlock();
+    void           EndBlock(DDEF_Flags BlkFlags = 0);
 
     DDEF_Flags     CurrentFlags();
 
@@ -1688,6 +1689,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
       pchar             pClass;
       long              nElem;
       long              iIndex;
+      bool              m_ElementClosed;
       }               AInfo[MAXSTRUCTNESTING];
 
 #if DoDDBChecks

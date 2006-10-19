@@ -146,7 +146,7 @@ void CSeperator_GlobalPartition::EvalProducts(MStream &Feed ,
 { 
 
     // Get info on Size Distribution
-    MIPSD & l_PSD=Feed.IF<MIPSD>();
+    MIPSD & l_PSD=*Feed.GetIF<MIPSD>();
     long    l_SizeCount      = l_PSD.getSizeCount();
     long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
 
@@ -215,13 +215,13 @@ void CSeperator_GlobalPartition::Seperate(CArray <double, double&> &in_Eu,
 	{
 
       // Get info on Size Distribution
-      MIPSD & l_PSD=in_Feed.IF<MIPSD>();
+      MIPSD & l_PSD=*in_Feed.GetIF<MIPSD>();
       long    l_SizeCount      = l_PSD.getSizeCount();
       long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
 
       // Get references to Product Stream PSDs
-      MIPSD & PSDof = out_ProductA.IF<MIPSD>(false);
-      MIPSD & PSDuf = out_ProductB.IF<MIPSD>(false);
+      MIPSD & PSDof = *out_ProductA.FindIF<MIPSD>();
+      MIPSD & PSDuf = *out_ProductB.FindIF<MIPSD>();
 
       // Create some memory for the input and output PSD mass data
       double* M = new double[l_SizeCount];

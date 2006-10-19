@@ -299,32 +299,32 @@ class DllImportExport SQTagObjClass : public TagObjClass
 
 #define DEFINE_QUALITYPTR(Obj, Tg)                                                  \
   static p##Obj Ptr(SpModel * p, flag NewIt=true)                                   \
-  {                                                                               \
-  int i=Obj##Class.GroupIdNo();                                                   \
-  VERIFY(i<MaxSpQualities);                                                       \
-  if (!p->Quals[i].Exists() && NewIt)                                             \
-  {                                                                             \
-  p->Quals[i].m_pQ=(p##Obj)Obj##Class.Construct(NULL, Tg, p, TOA_Embedded);     \
-  p->Quals[i].m_pQP=p->GetQualityPersonality(p->Quals[i].m_pQ);                 \
-  p->nQuals=Max(p->nQuals, (byte)(i+1));                                        \
-  };                                                                            \
-  return (p##Obj)(p->Quals[i].m_pQ);                                              \
-  };                                                                              \
+    {                                                                               \
+    int i=Obj##Class.GroupIdNo();                                                   \
+    VERIFY(i<MaxSpQualities);                                                       \
+    if (!p->Quals[i].Exists() && NewIt)                                             \
+      {                                                                             \
+      p->Quals[i].m_pQ=(p##Obj)Obj##Class.Construct(NULL, Tg, p, TOA_Embedded);     \
+      p->Quals[i].m_pQP=p->GetQualityPersonality(p->Quals[i].m_pQ);                 \
+      p->nQuals=Max(p->nQuals, (byte)(i+1));                                        \
+      };                                                                            \
+    return (p##Obj)(p->Quals[i].m_pQ);                                              \
+    };                                                                              \
   static p##Obj Kill(SpModel * p)                                                   \
-  {                                                                               \
-  int i=Obj##Class.GroupIdNo();                                                   \
-  VERIFY(i<MaxSpQualities);                                                       \
-  if (p->Quals[i].Exists())                                                       \
-  {                                                                             \
-  delete p->Quals[i].m_pQ;                                                      \
-  p->Quals[i].m_pQ=NULL;                                                        \
-  delete p->Quals[i].m_pQP;                                                     \
-  p->Quals[i].m_pQP=NULL;                                                       \
-  if (p->nQuals==(byte)(i+1))                                                   \
-  p->nQuals--;                                                                \
-  };                                                                            \
-  return (p##Obj)(p->Quals[i].m_pQ);                                              \
-  };                                                                              \
+    {                                                                               \
+    int i=Obj##Class.GroupIdNo();                                                   \
+    VERIFY(i<MaxSpQualities);                                                       \
+    if (p->Quals[i].Exists())                                                       \
+      {                                                                             \
+      delete p->Quals[i].m_pQ;                                                      \
+      p->Quals[i].m_pQ=NULL;                                                        \
+      delete p->Quals[i].m_pQP;                                                     \
+      p->Quals[i].m_pQP=NULL;                                                       \
+      if (p->nQuals==(byte)(i+1))                                                   \
+        p->nQuals--;                                                                \
+      };                                                                            \
+    return (p##Obj)(p->Quals[i].m_pQ);                                              \
+    };                                                                              \
   static p##Obj FindQual(SpModel * p) { return Ptr(p, false); };                    \
   static p##Obj CreateQual(SpModel * p) { return Ptr(p, true); };                   \
   static p##Obj KillQual(SpModel * p) { return Kill(p); };
@@ -334,13 +334,6 @@ class MSpQualityBase; // forward;
 class DllImportExport SpQuality : public TaggedObject, public CPropertyBase, public MXSpQuality
   {
   public:
-    static const pchar GroupName;
-    SpModel      *pModel;
-    flag         m_bRemoveMe;
-    flag         m_bHoldCopy;
-    int          m_iQualIndex;
-    MSpQualityBase * m_pSQB; // A Kludge
-
     SpQuality(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~SpQuality();
 
@@ -355,6 +348,8 @@ class DllImportExport SpQuality : public TaggedObject, public CPropertyBase, pub
 
     flag SQCreator();
     void SetSQCreator(flag On);
+
+    virtual MSpQualityBase  * GetMSpQualityBase4Cast()  { return NULL; };
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB)=0;
     //Does Nothing: virtual void   BuildDataDefn_Lcl(DataDefnBlk & DDB) {};
@@ -399,6 +394,14 @@ class DllImportExport SpQuality : public TaggedObject, public CPropertyBase, pub
     virtual DWORD   GetPropertyVisibility(long Index) throw(...);
     virtual void    GetPropertyValue(long Index, DWORD Phase, double T, double P, MPropertyValue &Value) throw(...);
     virtual void    PutPropertyValue(long Index, MPropertyValue &Value) throw(...);
+
+  public:
+    static const pchar GroupName;
+    flag              m_bRemoveMe;
+    flag              m_bHoldCopy;
+    int               m_iQualIndex;
+    SpModel         * pModel;
+
   };
 
 inline void SpQuality::BuildDataDefn(DataDefnBlk & DDB) { };
@@ -421,7 +424,8 @@ enum QPF_Modes { QPF_Error, QPF_Sensible, QPF_Condensing, QPF_Boiling };
 
 // Specie Validity Flags
 
-const DWORD SMVF_User          = 0x0000ffff;
+const DWORD SMVF_UserModel     = 0x000000ff;
+const DWORD SMVF_UserQuality   = 0x0000ff00;
 
 const DWORD SMVF_M_OK          = 0x00010000;
 const DWORD SMVF_H_OK          = 0x00020000;
@@ -725,8 +729,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 #undef  FlagsBad
     void           EvalDerivedStates() { TestHStatesOK(); };
 
-    void           ClrMStatesOK() { m_dwValidFlags &= ~(SMVF_M_OK|SMVF_User|SMVF_EquilOK); m_dwMassVersionNo++; };
-    void           ClrHStatesOK() { m_dwValidFlags &= ~(SMVF_H_OK|SMVF_User|SMVF_EquilOK); };
+    void           ClrMStatesOK() { m_dwValidFlags &= ~(SMVF_M_OK|SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); m_dwMassVersionNo++; };
+    void           ClrHStatesOK() { m_dwValidFlags &= ~(SMVF_H_OK|SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); };
     void           ClrStatesOK()  { m_dwValidFlags = 0; m_dwMassVersionNo++; };
     bool           Modified()     { return (m_dwValidFlags & SMVF_UnModified)==0; };
     void           ClrModified()  { TestHStatesOK(); m_dwValidFlags |= SMVF_UnModified; };
@@ -980,17 +984,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual MSpModelBase    * GetMSpModelBase4Cast()                                 { return NULL; };
 
     virtual long              GetSpQualityCount4Cast()                               { return nQuals; };
-    virtual MXSpQuality     * GetSpQuality4Cast(long i)                              { return Quals[i].m_pQ; };
-    virtual MSpQualityBase  * GetMSpQualityBase4Cast(long i);
-    //virtual MSpQualityBase  * GetMSpQualityBase4Cast(long i);
-    //  { 
-    //  CCall2MSpQuals*p=dynamic_cast<CCall2MSpQuals*>(Quals[i].m_pQ); 
-    //  if (p)
-    //    {
-    //    return dynamic_cast<MSpQualityBase*>p->GetMSpQualityBase4Cast(); 
-    //    }
-    //  return NULL;
-    //  };
+    virtual MXSpQuality     * GetSpQuality4Cast(long i, bool Required=false)         { return QualityPtr(i, Required); };// Quals[i].m_pQ; };
+    virtual MSpQualityBase  * GetMSpQualityBase4Cast(long i, bool Required=false)    { SpQuality * p=QualityPtr(i, Required); return p ? p->GetMSpQualityBase4Cast() : NULL; };
     virtual MIBayer         * GetMIBayer()                                           { return dynamic_cast<MIBayer*>(this) ; };
 
 #ifndef _RELEASE
@@ -1381,286 +1376,6 @@ inline void SpQuality::SetRemoveMe(flag On) { m_bRemoveMe=On;};
 inline flag SpQuality::HoldCopy()           { return m_bHoldCopy;};
 inline void SpQuality::SetHoldCopy(flag On) { m_bHoldCopy=On;};
 
-// ===========================================================================
-//
-//
-//
-// ===========================================================================
-
-#if 00
-
-DEFINE_SPMODEL(CCall2MSpProps);
-
-class MSpModelBase;
-class DllImportExport CCall2MSpProps :  public SpModelEx
-  {
-	public:
-
-    MSpModelBase  * m_pUserProps;
-
-    //double          m_dDummyProperty;
-
-
-		CCall2MSpProps(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
-		virtual ~CCall2MSpProps();
-
-    static flag BuildDataDefnGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataDefnBlk & DDB);
-    static flag DataXchgGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataChangeBlk & DCB);
-//    flag  SpModel::BuildDataDefnGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataDefnBlk & DDB)
-//  {
-//  //DDB.Add_PropertyMap(PropertyMap(), WhichProps, AsParms, xidSpUsrProps, pOwner, pOwner);
-//  return false;
-//  };
-//flag  SpModel::DataXchgGlobal(TagObjClass *pClass, TaggedObject * pOwner, DataChangeBlk & DCB)
-//  {
-//  return false;
-//  };
-
-    flag ValidateData(ValidateDataBlk & VDB);
-
-    void SetSubClass(LPTSTR MdlName);
-
-		virtual bool   IsBaseClassOf(SpModel * pOther);
-		virtual SpModel * PreferredModel(SpModel * pOther);
-
-		virtual double RefTemp() { return C_2_K(0.0); };
-
-		virtual double msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
-		virtual double msHm(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
-
-		virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
-		virtual double SaturationP(double T, CSysVector * pMA=NULL);
-		virtual double SaturationT(double P, CSysVector * pMA=NULL);
-    virtual double DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
-    virtual double ThermalConductivity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
-
-    // CPropertyBase virtuals
-    virtual LPCTSTR DefinedPropertyMapName()                              { return ClassId(); }
-    virtual long    DefinedPropertyCount();
-    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info);
-
-    virtual DWORD   GetPropertyVisibility(long Index);
-    virtual void    GetPropertyValue(long Index, PhMask Phase, double T, double P, MPropertyValue & Value);
-    virtual void    PutPropertyValue(long Index, MPropertyValue & Value);
-
-    virtual MSpModelBase * GetMSpModelBase4Cast() { return m_pUserProps; };
-    virtual MIBayer      * GetMIBayer();
-
-  private:
-    DEFINE_CI(CCall2MSpProps, SpModelEx, FirstUserCI+MaxUserCI);
-    DEFINE_CIVIRT(CCall2MSpProps, SpModelEx);
-  	DEFINE_SPARES(CCall2MSpProps)
-	};
-
-// ===========================================================================
-//
-//
-//
-// ===========================================================================
-
-DEFINE_TAGOBJ(CCall2MSpQuals);
-class MSpQualityBase;
-class DllImportExport CCall2MSpQuals :   public SpQuality//ModelEx
-  {
- 	public:
-
-
-    MSpQualityBase  * m_pUserQual;
-    //double          m_dDummyProperty;
-
-
-		CCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
-		virtual ~CCall2MSpQuals();
-
-    void SetSubClass(LPTSTR MdlName);
-
-    DEFINE_QUALITYPTR(CCall2MSpQuals, "SMDKQ")
-
-    virtual void   BuildDataDefn(DataDefnBlk & DDB) {};
-    //Does Nothing: 
-    //virtual void   BuildDataDefn_Lcl(DataDefnBlk & DDB)
-    //  {
-    //  //DDB.Text("...");
-    //  //DDB.Text("SMDK Qualities");
-    //  //DDB.Text("...");
-    //  DDB.Add_PropertyMap(PropertyMap(), 0/*WhichProps*/, true/*AsParms*/, xidSpUsrQuals, this, this);
-    //  };
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-      //{
-      //if (DCB.lHandle>=xidSpUsrQuals && DCB.lHandle<xidSpUsrQualsLast)
-      //  {
-      //  long i=DCB.lHandle-xidSpUsrQuals;
-
-      //  CPropertyMap &Map=PropertyMap();
-      //  MPropertyInfo *I=Map[i];
-      //  if (I && (I->m_dwFlags&MP_NoAccess)==0)
-      //    {
-      //    switch (I->m_iType)
-      //      {
-      //      case ePT_Bool:
-      //        {
-      //        if (I->Settable() && DCB.rB)
-      //          {
-      //          m_WorkQualValue=*DCB.rB;
-      //          PutPropertyValue(i, m_WorkQualValue);
-      //          }
-      //        GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
-      //        DCB.B=long(m_WorkQualValue)!=0;
-      //        return 1;
-      //        }
-      //      case ePT_Long:
-      //        {
-      //        if (I->Settable() && DCB.rL)
-      //          {
-      //          m_WorkQualValue=*DCB.rL;
-      //          PutPropertyValue(i, m_WorkQualValue);
-      //          }
-      //        GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
-      //        DCB.L=m_WorkQualValue;
-      //        return 1;
-      //        }
-      //      //case ePT_ULong:
-      //      //  {
-      //      //  if (I->Settable() && DCB.rDW)
-      //      //    {
-      //      //    m_WorkQualValue=*DCB.rDW;
-      //      //    PutPropertyValue(i, m_WorkQualValue);
-      //      //    }
-      //      //  GetPropertyValue(i, som_ALL, Temp(), Press(), m_WorkQualValue);
-      //      //  DCB.DW=m_WorkQualValue;
-      //      //  return 1;
-      //      //  }
-      //      case ePT_Double:
-      //        {
-      //        if (I->Settable() && DCB.rD)
-      //          {
-      //          m_WorkQualValue=*DCB.rD;
-      //          PutPropertyValue(i, m_WorkQualValue);
-      //          }
-      //        GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
-      //        DCB.D=m_WorkQualValue;
-      //        return 1;
-      //        }
-      //      case ePT_String:
-      //        {
-      //        if (I->Settable() && DCB.rpC)
-      //          {
-      //          m_WorkQualValue=(LPCTSTR)*DCB.rpC;
-      //          PutPropertyValue(i, m_WorkQualValue);
-      //          }
-      //        GetPropertyValue(i, som_ALL, pModel->Temp(), pModel->Press(), m_WorkQualValue);
-      //        DCB.pC=m_WorkQualValue;
-      //        return 1;
-      //        }
-      //      }
-      //    }
-      //  }
-      //return 0;
-      //};
-
-    virtual flag   GetOtherData(FilingControlBlock &FCB){ return false;};
-    virtual flag   PutOtherData(FilingControlBlock &FCB){ return false;};
-
-//    virtual void   SetStateAction(IE_Enables E);
-//    virtual void   Enable(IE_Enables E);
-//    virtual void   Disable();
-    virtual void   ExchangeSpecies(SpQuality* Other)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(Other));
-      m_pUserQual->ExchangeSpecies(dynamic_cast<CCall2MSpQuals*>(Other)->m_pUserQual);
-      };
-
-    virtual flag   EquilRqd4HEval()                     { return m_pUserQual->EquilRqd4HEval();       };
-    virtual void   Equilibrate()                        { m_pUserQual->Equilibrate(); };
-    virtual void   ZeroMass()                           { m_pUserQual->ZeroMass(); };
-    virtual void   ZeroDeriv()                          { m_pUserQual->ZeroDeriv(); };
-    virtual void   ScaleMass(PhMask Phase, double Mult) { m_pUserQual->ScaleMass(Phase, Mult); };
-    virtual void   ScaleMass(CIArray & SpIds, double Mult) { m_pUserQual->ScaleMass(SpIds, Mult); };
-
-    virtual void   SetMassF(CSysVector & M1, SpQuality* pQual2)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      m_pUserQual->SetMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
-      };
-    virtual void   AddMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      m_pUserQual->AddMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
-      };
-    virtual void   SubMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      m_pUserQual->SubMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
-      };
-
-    virtual void   Copy(SpModel * pMdl2, SpQuality* pQual2)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      m_pUserQual->Copy(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
-      };
-    virtual void   AddDeriv(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      //MVector v2(pQual2->pModel);
-      m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
-      };
-    virtual void   AddDiscrete(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
-      {
-      ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      //MVector v2(pQual2->pModel);
-      m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
-      };
-    virtual void   ODEOperate(CODEDataBlock & ODB)
-      {
-      INCOMPLETECODE();
-      };
-
-    // Extras for Tear Management;
-    virtual void   TearGetInputs(TearVarArray & TV, int n)
-      {
-      INCOMPLETECODE();
-      };
-    virtual void   TearGetOutputs(TearVarArray & TV, int n)
-      {
-      INCOMPLETECODE();
-      };
-    virtual void   TearSetOutputs(TearVarArray & TV, int n)
-      {
-      INCOMPLETECODE();
-      };
-
-    // Debug Stuff
-    virtual void   Dump() {};
-    virtual void   SetDebug(flag DbgOn_) {};
-
-    //long           DefinedPropertyCount();
-    //long           DefinedPropertyInfo(long Index, MPropertyInfo & Info);
-
-    //void           GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value);
-    //void           PutPropertyValue(long Index, MPropertyValue & Value);
-
-
-    // CPropertyBase virtuals
-    virtual LPCTSTR DefinedPropertyMapName() { return ClassId(); }
-    virtual long    DefinedPropertyCount();
-    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info);
-
-    virtual DWORD   GetPropertyVisibility(long Index);
-    virtual void    GetPropertyValue(long Index, PhMask Phase, double T, double P, MPropertyValue & Value);
-    virtual void    PutPropertyValue(long Index, MPropertyValue & Value);
-
-
-    virtual MSpQualityBase * GetMSpQualityBase4Cast() { return m_pUserQual; };
-
-    MPropertyValue  m_WorkQualValue;
-
-  private:
-    DEFINE_CI(CCall2MSpQuals, SpQuality, FirstUserCI+MaxUserCI);
-    DEFINE_CIVIRT(CCall2MSpQuals, SpQuality);
-  	DEFINE_SPARES(CCall2MSpQuals)
-	};
-
-#endif
 // ===========================================================================
 //
 //

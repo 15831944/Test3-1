@@ -1,102 +1,106 @@
 #pragma once
+
 //
 //-------------------------------------------------------------------------------------------------------
 //
 //		DIAMOND WIZARD SPECIFIC - WHITEN CRUSHER
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_WhitenCrusher: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_WhitenCrusher : public CLimn_ModelData_Base
   {
+  static CLimn_ModelData_Base sm_Base;
   public:
-    C_ModelParameters_DiamondWizard_WhitenCrusher(void)
+    C_ModelParameters_DiamondWizard_WhitenCrusher(void) : CLimn_ModelData_Base(&sm_Common) 
       {
       };
-    ~C_ModelParameters_DiamondWizard_WhitenCrusher(void){};
-
-
-    C_ModelParameters_DiamondWizard_WhitenCrusher(double* ModelParams) // usually called from parameter passing
+    C_ModelParameters_DiamondWizard_WhitenCrusher(double* ModelParams) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-      m_pData=ModelParams;
+      //m_pData=ModelParams;
+      Initialise();
       }
-        double & redistributeDensimetrics()	{ return m_pData[0];			 }; 
-		double & CSS()						{ return m_pData[1];			 };  //	1. Crusher CSS
-		double & K1_a(int i)				{ return m_pData[2+i];			 };  //	2-5. K1 parameters a0 - a3
-		double & K2_a(int i)				{ return m_pData[6+i];			 };  //	6-9. K2 parameters a0 - a3
-		double & K3_a()						{ return m_pData[10];			 };  //	10.  K3 parameter  a0
-		double & T10_a(int i)				{ return m_pData[11+i];			 };  //	11-14. T10 parameters a0 - a3
-		double & Tn_V_T10(int i, int j)		{ return m_pData[15 + i*5 + j];  };  //	15-39. Array of Tn v T10 (Spreadsheet vector form - i.e. Row Major order
+    ~C_ModelParameters_DiamondWizard_WhitenCrusher(void)
+      {
+      };
 
-	    int DataCount()						{ return 40;               };
+    //	0. Flag to indicate whether Redistribution of Densimetrics is required
+    //	1. Crusher CSS
+    //	2-5. K1 parameters a0 - a3
+    //	6-9. K2 parameters a0 - a3
+    //	10.  K3 parameter  a0
+    //	11-14. T10 parameters a0 - a3
+    //	15-39. Array of Tn v T10 (Spreadsheet vector form - i.e. Row Major order
 
-		bool DoRedistributeDensimetrics()	{ return redistributeDensimetrics() > 0.5; }; 
+    static CLimn_ModelData_Common sm_Common;
 
-		double* pTn_V_T10()					{ return &m_pData[15]; } ; 
-		
+    CBooleanRef redistributeDensimetrics;
+    CDoubleRef  CSS;
+    CVectorRef  K1_a, K2_a;
+    CDoubleRef  K3_a;
+    CVectorRef  T10_a;
+    CMatrixRef  Tn_V_T10;
 
-#ifdef LIMNDW
     void Initialise() 
       {
+      CLimn_ModelData_Base::Initialise();
 
-		Allocate();
-
-		redistributeDensimetrics() = 1.0 ;
-
-		CSS()       = 25;
-        K1_a(0)     = 0.0;
-        K1_a(1)     = 1.0;
-        K1_a(2)     = 0.0;
-        K2_a(0)     = 40.0;
-        K2_a(1)     = 0.0;
-        K2_a(2)     = 0.0;
-		K3_a()		= 2.30 ;
-		T10_a(0)	= 10.50 ;
-		T10_a(1)	= 0.0 ;
-		T10_a(2)	= 0.0 ;
-
-		double aaa[25] = 
+      static const double K1_a_Default[]  = { 0.0, 1.0, 3.0, 0.0};
+      static const double K2_a_Default[]  = {40.0, 0.0, 0.0, 0.0};
+      static const double T10_a_Default[] = {10.5, 0.0, 0.0, 0.0};
+      static const double Tn_V_T10_Default[25] = 
         {0.00,	0.00,	0.00,	0.00,	0.00,
-			   2.80,	3.30,	5.40,	21.20,	49.60,
-			   5.70,	7.20,	10.30,	45.00,	74.90,
-			   8.10,	10.80,	15.70,	61.40,	85.20,
-			   10.00,	12.00,	22.00,	70.00,	95.00};
-		for (int i=0; i<25; i++)
-			pTn_V_T10()[i] = aaa[i] ;
-	
-	  };
-#endif
+        2.80,	3.30,	5.40,	21.20,	49.60,
+        5.70,	7.20,	10.30,	45.00,	74.90,
+        8.10,	10.80,	15.70,	61.40,	85.20,
+        10.00,	12.00,	22.00,	70.00,	95.00};
+
+      redistributeDensimetrics.Initialise(this,                                    "redistributeDensimetrics",  true);
+      CSS                     .Initialise(this,                                    "CSS",                       25,               "L(mm)");
+      K1_a                    .Initialise(this, "K",      4,     DI_None,          "K1_a",                      K1_a_Default,     ""); 
+      K2_a                    .Initialise(this, "K",      4,     DI_None,          "K2_a",                      K2_a_Default,     ""); 
+      K3_a                    .Initialise(this,                                    "K3_a",                      2.3,              ""); 
+      T10_a                   .Initialise(this, "T10",    4,     DI_None,          "T10_a",                     T10_a_Default,    ""); 
+      Tn_V_T10                .Initialise(this, "TnT10",  5, 5,  DI_None,DI_None,  "Tn_V_T10",                  Tn_V_T10_Default, "");
+      };
 
   protected:
 
   };
 //
 //				Return Data Access Class
-class C_ModelReturns_DiamondWizard_WhitenCrusher: public CLimn_ModelData_AbstractBase
+class C_ModelReturns_DiamondWizard_WhitenCrusher: public CLimn_ModelData_Base
   {
   public:
-    C_ModelReturns_DiamondWizard_WhitenCrusher(void)
+    C_ModelReturns_DiamondWizard_WhitenCrusher(void) : CLimn_ModelData_Base(&sm_Common)
       {
       };
-    ~C_ModelReturns_DiamondWizard_WhitenCrusher(void){};
-
-
-    C_ModelReturns_DiamondWizard_WhitenCrusher(double* ModelParams) // usually called from parameter passing
+    C_ModelReturns_DiamondWizard_WhitenCrusher(double* ModelParams) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-      m_pData=ModelParams;
+      //m_pData=ModelParams;
+      Initialise();
       }
-        double & FeedTPH()	{ return m_pData[0];   }; 
-		double & FeedP80()	{ return m_pData[1];   };
+    ~C_ModelReturns_DiamondWizard_WhitenCrusher(void)
+      {
+      };
 
-	    int DataCount()		{ return 2;            };
+    static CLimn_ModelData_Common sm_Common;
 
-#ifdef LIMNDW
+    CDoubleRef  FeedTPH;
+    CDoubleRef  FeedP80;
+
+    //double & FeedTPH()	{ return m_pData[0];   }; 
+    //double & FeedP80()	{ return m_pData[1];   };
+
+    //int DataCount()		{ return 2;            };
+
     void Initialise() 
       {
+      CLimn_ModelData_Base::Initialise();
 
-		Allocate();
+      FeedTPH        .Initialise(this,                                    "FeedTPH",                       0,               "Qm(t/h)");
+      FeedP80        .Initialise(this,                                    "FeedP80",                       0,               "L(mm)");
 
-	
-	  };
-#endif
+
+      };
 
   protected:
 
@@ -107,18 +111,18 @@ class C_ModelReturns_DiamondWizard_WhitenCrusher: public CLimn_ModelData_Abstrac
 //
 //				Limn callable model
 C_LINKAGE DLLMODEL int _Model_DiamondWizard_WhitenCrusher (int nRows,
-					 		 			                     int nColumns,
-                                                             int nParameters,
-                                                             int nReturns,
-                                                             double* ModelParams,
-                                                             double* ModelReturn,
-                                                             double* CombinedFeed,
-                                                             double* Product1,
-                                                             double* Product2,
-                                                             double* Product3,
-                                                             double* Product4,
-                                                             double* Product5,
-                                                             double* Product6 ) ;
+                                                           int nColumns,
+                                                           int nParameters,
+                                                           int nReturns,
+                                                           double* ModelParams,
+                                                           double* ModelReturn,
+                                                           double* CombinedFeed,
+                                                           double* Product1,
+                                                           double* Product2,
+                                                           double* Product3,
+                                                           double* Product4,
+                                                           double* Product5,
+                                                           double* Product6 ) ;
 //
 //				Error information
 C_LINKAGE int DLLMODEL  _Error_DiamondWizard_WhitenCrusher ( int errorIndex, LPSTR errorBuffer ) ;

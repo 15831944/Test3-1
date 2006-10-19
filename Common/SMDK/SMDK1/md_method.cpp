@@ -141,14 +141,14 @@ void MUnitDefBase::SetModelLicense(dword License)
 //
 //===========================================================================
 
-MBaseMethodCommon::MBaseMethodCommon(MUnitDefBase *pUnitDef, TaggedObject * pNd)
+MBaseMethodCommon::MBaseMethodCommon(MUnitDefBase *pUnitDef, TaggedObject * pNd) : MBaseDataCommon(pNd) 
   {
   m_pUnitDef=pUnitDef; 
   m_pImpl=NULL;
   m_pNd=dynamic_cast<MdlNode*>(pNd);
-  m_pDDB=NULL;
-  m_pDCB=NULL;
-  m_pVDB=NULL;
+  //m_pDDB=NULL;
+  //m_pDCB=NULL;
+  //m_pVDB=NULL;
   m_pIODefs=NULL;
   //m_Utils.SetSize(0,8);
   };
@@ -305,6 +305,7 @@ MBaseMethod::MBaseMethod(MUnitDefBase * pUnitDef, TaggedObject * pNd) :
   MBaseMethodCommon(pUnitDef, pNd),
   DD(this),
   DX(this),
+  DV(this),
   Joins(this),
   FlwIOs(this),
   CtrlIOs(this)
@@ -496,207 +497,6 @@ void MBaseMethod::MakeUpNodeTransferReqd(int JoinId)
 //
 //
 //
-//---------------------------------------------------------------------------
-
-//inline DDEF_Flags XFlags(DDEF_Flags F)
-//  {
-//  DDEF_Flags Flgs = 0;
-//  if (F & MF_RESULT)         Flgs |= DDEF_RESULT;
-//  if (F & MF_PARAMETER)      Flgs |= DDEF_PARAM;
-//  if (F & MF_PARAM_STOPPED)  Flgs |= (DDEF_PARAM|DDEF_PARAMSTOPPED);
-//  if (F & MF_SET_ON_CHANGE)  Flgs |= DDEF_SETONCHANGE;
-//  if (F & MF_NO_FILING)      Flgs |= (DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO);
-//  if (F & MF_NO_VIEW)        Flgs |= DDEF_NOVIEW;
-//  if (F & MF_INIT_HIDDEN)    Flgs |= DDEF_HIDDEN;
-//  if (F & MF_NAN_OK)         Flgs |= DDEF_NAN_OK;
-//  if (F & MF_SETONCHANGE)    Flgs |= DDEF_SETONCHANGE;
-//  return Flgs;
-//  }
-
-//---------------------------------------------------------------------------
-
-void MDataDefn::Double(LPCSTR Tag, LPCSTR Sym, double* Data, unsigned long Flags, MCnv & Cnv)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Double((LPSTR)Tag, (LPSTR)Sym, Cnv.m_Index, Cnv.m_pTxt?(LPTSTR)Cnv.m_pTxt:Cnvs[Cnv.m_Index]->SICnv()->Txt(), Data, m_pNd, (Flags));
-  Cnv.m_pTxt=NULL;
-  }
-
-void MDataDefn::Float(LPCSTR Tag, LPCSTR Sym, float* Data, unsigned long Flags, MCnv & Cnv)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Float((LPSTR)Tag, (LPSTR)Sym, Cnv.m_Index, Cnv.m_pTxt?(LPTSTR)Cnv.m_pTxt:Cnvs[Cnv.m_Index]->SICnv()->Txt(), Data, m_pNd, (Flags));
-  Cnv.m_pTxt=NULL;
-  }
-
-void MDataDefn::Long(LPCSTR Tag, LPCSTR Sym, long* Data, unsigned long Flags, MDDValueLst * Values)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Long((LPSTR)Tag, (LPSTR)Sym, DC_, "", Data, m_pNd, (Flags), (DDBValueLst*)Values);
-  }
-
-void MDataDefn::Short(LPCSTR Tag, LPCSTR Sym, short* Data, unsigned long Flags, MDDValueLst * Values)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Short((LPSTR)Tag, (LPSTR)Sym, DC_, "", Data, m_pNd, (Flags), (DDBValueLst*)Values);
-  }
-
-void MDataDefn::Bool(LPCSTR Tag, LPCSTR Sym, bool* Data, unsigned long Flags, MDDValueLst * Values)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    {
-    *Data = (*Data!=0 ? true : false);
-    m_pDDB->Bool((LPSTR)Tag, (LPSTR)Sym, DC_, "", Data, m_pNd, (Flags), (DDBValueLst*)Values);
-    }
-  }
-
-void MDataDefn::CheckBox(LPCSTR Tag, LPCSTR Sym, bool* Data, unsigned long Flags)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    {
-    *Data = (*Data!=0 ? true : false);
-    m_pDDB->CheckBoxBtn((LPSTR)Tag, (LPSTR)Sym, DC_, "", Data, m_pNd, (Flags), (DDBValueLst*)NULL);
-    }
-  }
-
-//---------------------------------------------------------------------------
-
-void MDataDefn::Double(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MCnv & Cnv)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Double((LPSTR)Tag, (LPSTR)Sym, Cnv.m_Index, Cnv.m_pTxt?(LPTSTR)Cnv.m_pTxt:Cnvs[Cnv.m_Index]->SICnv()->Txt(), SMDKXID(DataHandle), m_pNd, (Flags));
-  Cnv.m_pTxt=NULL;
-  }
-
-void MDataDefn::Float(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MCnv & Cnv)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Float((LPSTR)Tag, (LPSTR)Sym, Cnv.m_Index, Cnv.m_pTxt?(LPTSTR)Cnv.m_pTxt:Cnvs[Cnv.m_Index]->SICnv()->Txt(), SMDKXID(DataHandle), m_pNd, (Flags));
-  Cnv.m_pTxt=NULL;
-  }
-
-void MDataDefn::Long(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Long((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)Values);
-  }
-
-void MDataDefn::Short(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Short((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)Values);
-  }
-
-void MDataDefn::Bool(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Bool((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)Values);
-  }
-
-void MDataDefn::CheckBox(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->CheckBoxBtn((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)NULL);
-  }
-
-void MDataDefn::String(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->String((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)NULL);
-  }
-
-void MDataDefn::Button(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Button((LPSTR)Tag, (LPSTR)Sym, DC_, "", SMDKXID(DataHandle), m_pNd, (Flags), (DDBValueLst*)NULL);
-  }
-
-//---------------------------------------------------------------------------
-
-void MDataDefn::Show(bool ViewVisible, bool FileVisible, bool SnapVisible)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    {
-    m_pDDB->Visibility(NSHM_All, ViewVisible, FileVisible, SnapVisible, SnapVisible);
-    }
-  }
-
-void MDataDefn::Text(LPCSTR pName, unsigned long Flags/*=0*/)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Text((LPSTR)pName, (Flags));
-  }
-
-void MDataDefn::Page(LPCSTR pName, bool Optional/*=false*/, unsigned long Flags/*=0*/)
-  {
-  if (m_pDDB->SearchingAtLevel())
-    m_pDDB->Page((LPSTR)pName, Optional ? DDB_OptPage:DDB_RqdPage, (Flags));
-  }
-
-void MDataDefn::StructBegin(LPCSTR pName, unsigned long Flags/*=0*/)
-  {
-  m_pDDB->BeginStruct(m_pNd, (LPSTR)pName, NULL, DDB_NoPage, -1, (Flags));
-  }
-void MDataDefn::StructEnd()
-  {
-  m_pDDB->EndStruct();
-  }
-
-void MDataDefn::ObjectBegin(LPCSTR pClassName, LPCSTR pName, unsigned long Flags/*=0*/)
-  {
-  m_pDDB->BeginObject(m_pNd, (LPSTR)pName, (LPSTR)pClassName, NULL, DDB_NoPage, -1, (Flags));
-  }
-void MDataDefn::ObjectEnd()
-  {
-  m_pDDB->EndObject();
-  }
-
-void MDataDefn::Object(LPTAGGEDOBJECT Object, MDDPages Pg/*=MDD_OptPage*/, unsigned long Flags/*=0*/)
-  {
-  m_pDDB->Object(
-    Object, m_pNd,
-    NULL,//(LPSTR)Tag,
-    NULL,//(LPSTR)TagComment,
-    Pg==MDD_RqdPage?DDB_RqdPage : Pg==MDD_NoPage?DDB_NoPage:DDB_OptPage,
-    -1, Flags);
-  }
-double MDataDefn::ValidateRange(LPCTSTR What, double MinV, double V, double MaxV, bool *pOK)
-  {
-  flag OK=1;
-  double D=m_pNd->ValidateRange(*m_pVDB, What, MinV, V, MaxV, &OK);
-  if (pOK)
-    *pOK=OK!=0;
-  return D;
-  }
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-long    MDataChange::getHandle()          { return m_pDCB->lHandle-SMDKXID(0); };
-bool    MDataChange::getHasReqdValue()    { return m_pDCB->rC!=NULL; };
-
-double  MDataChange::getDouble()          { return *m_pDCB->rD; };
-float   MDataChange::getFloat()           { return *m_pDCB->rF; };
-long    MDataChange::getLong()            { return *m_pDCB->rL; };
-short   MDataChange::getShort()           { return *m_pDCB->rS; };
-bool    MDataChange::getBool()            { return (*m_pDCB->rB)!=0 ? true : false; };
-LPCTSTR MDataChange::getString()          { return m_pDCB->rpC; };
-void    MDataChange::putDouble(double V)  { m_pDCB->D=V; };
-void    MDataChange::putFloat(float  V)   { m_pDCB->F=V; };
-void    MDataChange::putLong(long   V)    { m_pDCB->L=V; };
-void    MDataChange::putShort(short  V)   { m_pDCB->S=V; };
-void    MDataChange::putBool(bool   V)    { m_pDCB->B=(V!=0 ? true : false); };
-void    MDataChange::putString(LPCTSTR V) { m_pDCB->pC=(LPTSTR)V; };
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 //---------------------------------------------------------------------------
 
 double MJoin::getP()
@@ -1250,7 +1050,7 @@ MProbalPCtrl::~MProbalPCtrl()
   delete m_pPCtrl;
   };
 
-void    MProbalPCtrl::BuildDataFields(long Allowed) { m_pPCtrl->BuildDataDefn(*m_pCommon->m_pDDB, m_pCommon->m_pNd, Allowed) ; };
+void    MProbalPCtrl::BuildDataFields(long Allowed) { m_pPCtrl->BuildDataDefn(*m_pCommon->m_pDDB, m_pNd, Allowed) ; };
 void    MProbalPCtrl::CalculateResult()             { m_pPCtrl->CalculateResult() ; };
 
 long    MProbalPCtrl::getMethod()                   { return m_pPCtrl->Method(); };
@@ -1336,11 +1136,11 @@ void    MReactionBlk::Disable()                   { m_pRB->Disable() ; };
 
 bool    MReactionBlk::Enabled()                   { return m_pRB->Enabled()!=0; };
 bool    MReactionBlk::OnAndOK()                   { return m_pRB->OnAndOK()!=0; };
-void    MReactionBlk::OnOffCheckBox(DWORD Flags)  { m_pRB->Add_OnOff(*m_pDDB, Flags); };;
+void    MReactionBlk::OnOffCheckBox(DWORD Flags)  { m_pRB->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
 
-void    MReactionBlk::BuildDataFields()           { if (m_pRB->Enabled()) m_pRB->BuildDataDefn(*m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
-bool    MReactionBlk::ExchangeDataFields()        { return m_pRB->DataXchg(*m_pDCB)!=0; };
-bool    MReactionBlk::ValidateDataFields()        { return m_pRB->ValidateData(*m_pVDB)!=0; };
+void    MReactionBlk::BuildDataFields()           { if (m_pRB->Enabled()) m_pRB->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
+bool    MReactionBlk::ExchangeDataFields()        { return m_pRB->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MReactionBlk::ValidateDataFields()        { return m_pRB->ValidateData(*m_pCommon->m_pVDB)!=0; };
 
 double  MReactionBlk::HfSumTot(bool RefToProd)    { return m_pRB->HfSumTot(RefToProd); };
 double  MReactionBlk::HfSumSrc(bool RefToProd)    { return m_pRB->HfSumSrc(RefToProd); };
@@ -1383,10 +1183,10 @@ void    MVLEBlk::Disable()                { m_pVLE->Disable() ; };
 
 bool    MVLEBlk::Enabled()                { return m_pVLE->Enabled()!=0; };
 //bool    MVLEBlk::OnAndOK()                { return m_pVLE->OnAndOK()!=0; };
-void    MVLEBlk::OnOffCheckBox(DWORD Flags)  { m_pVLE->Add_OnOff(*m_pDDB, Flags); };;
-void    MVLEBlk::BuildDataFields()        { if (m_pVLE->Enabled()) m_pVLE->BuildDataDefn(*m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
-bool    MVLEBlk::ExchangeDataFields()     { return m_pVLE->DataXchg(*m_pDCB)!=0; };
-bool    MVLEBlk::ValidateDataFields()     { return m_pVLE->ValidateData(*m_pVDB)!=0; };
+void    MVLEBlk::OnOffCheckBox(DWORD Flags)  { m_pVLE->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
+void    MVLEBlk::BuildDataFields()        { if (m_pVLE->Enabled()) m_pVLE->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
+bool    MVLEBlk::ExchangeDataFields()     { return m_pVLE->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MVLEBlk::ValidateDataFields()     { return m_pVLE->ValidateData(*m_pCommon->m_pVDB)!=0; };
 
 double  MVLEBlk::FlashVapFrac(MVector &Mdl)
   { return m_pVLE->FlashVapFrac(*Mdl.SpMdl); };
@@ -1452,9 +1252,9 @@ const type_info * MFT_Flash::TypeInfo()
   };
 
 
-void    MFT_Flash::BuildDataFields()                                  { m_pFlash->BuildDataDefn(*m_pDDB);           };
-bool    MFT_Flash::ExchangeDataFields()                               { return 0; };//m_pFlash->DataXchg(*m_pDCB)!=0;  };
-bool    MFT_Flash::ValidateDataFields()                               { return 1; };//m_pFlash->ValidateData(*m_pVDB)!=0; };
+void    MFT_Flash::BuildDataFields()                                  { m_pFlash->BuildDataDefn(*m_pCommon->m_pDDB);           };
+bool    MFT_Flash::ExchangeDataFields()                               { return 0; };//m_pFlash->DataXchg(*m_pCommon->m_pDCB)!=0;  };
+bool    MFT_Flash::ValidateDataFields()                               { return 1; };//m_pFlash->ValidateData(*m_pCommon->m_pVDB)!=0; };
 void    MFT_Flash::SetState(eScdMdlStateActs RqdState)                { m_pFlash->SetState(RqdState);               };
 
 bool    MFT_Flash::getActive()                                        { return m_pFlash->Active()!=0;               };
@@ -1510,9 +1310,9 @@ const type_info * MFT_Condenser::TypeInfo()
   return &typeid(*m_pCondenser);
   };
 
-void    MFT_Condenser::BuildDataFields()                        { m_pCondenser->BuildDataDefn(*m_pDDB);         };//, (LPSTR)(LPCTSTR)m_sTag); };
-bool    MFT_Condenser::ExchangeDataFields()                     { return 0;                                     };//m_pCondenser->DataXchg(*m_pDCB)!=0; };
-bool    MFT_Condenser::ValidateDataFields()                     { return 1;                                     };//m_pCondenser->ValidateData(*m_pVDB)!=0; };
+void    MFT_Condenser::BuildDataFields()                        { m_pCondenser->BuildDataDefn(*m_pCommon->m_pDDB);         };//, (LPSTR)(LPCTSTR)m_sTag); };
+bool    MFT_Condenser::ExchangeDataFields()                     { return 0;                                     };//m_pCondenser->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MFT_Condenser::ValidateDataFields()                     { return 1;                                     };//m_pCondenser->ValidateData(*m_pCommon->m_pVDB)!=0; };
 void    MFT_Condenser::SetState(eScdMdlStateActs RqdState)      { m_pCondenser->SetState(RqdState);             };
 
 bool    MFT_Condenser::getActive()                              { return m_pCondenser->Active()!=0;             };
@@ -1541,9 +1341,9 @@ void    MFT_Condenser::putMinSaturationP(double MinSaturationP) { m_pCondenser->
 //  {
 //  delete m_pMix;
 //  };
-//void    MFT_Mixer::BuildDataFields()                        { m_pMix->BuildDataDefn(*m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
-//bool    MFT_Mixer::ExchangeDataFields()                     { return m_pMix->DataXchg(*m_pDCB)!=0; };
-//bool    MFT_Mixer::ValidateDataFields()                     { return m_pMix->ValidateData(*m_pVDB)!=0; };
+//void    MFT_Mixer::BuildDataFields()                        { m_pMix->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
+//bool    MFT_Mixer::ExchangeDataFields()                     { return m_pMix->DataXchg(*m_pCommon->m_pDCB)!=0; };
+//bool    MFT_Mixer::ValidateDataFields()                     { return m_pMix->ValidateData(*m_pCommon->m_pVDB)!=0; };
 //void    MFT_Mixer::Activate(CMacroMdl * pMMNd, pFlwNode pNd){ return m_pMix->Activate(pMMNd, pNd); };
 //void    MFT_Mixer::Deactivate()                             { return m_pMix->Deactivate();         };
 

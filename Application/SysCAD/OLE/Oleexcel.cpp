@@ -5360,3 +5360,171 @@ int COleInfoReportMngr::DoAutomation()
   }
 
 //===========================================================================
+//===========================================================================
+
+CExcelBasicIO::CExcelBasicIO(CExecObj* ExecObj, CXM_Route* pRoute, char* FileName)
+: COleExcelBaseAuto(ExecObj, pRoute, FileName)
+  {
+  //for (int j=0; j<MaxGenInfoSheets; j++)
+  //  pGISheet[j] = NULL;
+  }
+
+//---------------------------------------------------------------------------
+
+int CExcelBasicIO::DoIt(LPCTSTR SheetName, LPCTSTR RangeName, int Which, long & RowCount, long & ColCount, CArray<double, double> & DblValues, CArray<CString, CString&> & StrValues)
+  {
+  //CAutomationHelper AutoHelper(ComCmd_InfoReport); //destructor does work
+  BOOL DidSetScrUpdating = FALSE;
+  long PrevCalc = 0;
+  flag Failed = 0;
+  Strng ErrMsg;
+  try
+    {// Execute some code that might throw an exception.
+    int RetCode = StandardStartup(); //open's Excel with correct file
+    if (RetCode!=0)
+      {
+      if (pExcel)
+        {
+        delete pExcel;
+        pExcel = NULL;
+        }
+      return RetCode;
+      }
+
+    OWorkbooks WkBooks;
+    OWorkbook WkBook;
+    RetCode = Open(&WkBooks, &WkBook, true);
+    if (RetCode!=0)
+      {
+      delete pExcel;
+      pExcel = NULL;
+      return RetCode;
+      }
+    
+    pExcel->SetStatusBar("SysCAD: Busy ...");
+
+    switch (Which)
+      {
+      case 1:
+        break;
+      case 2:
+        break;
+      }
+
+  
+
+    OWorksheets WkSheets;
+    OWorksheet WkSheet;
+    ORange Range;
+    LPDISPATCH lpDispatch; 
+    lpDispatch = WkBook.Worksheets((char*)SheetName);
+    if (lpDispatch)
+      {
+      
+      WkSheet.AttachDispatch(lpDispatch, TRUE);
+      //WkSheets.AttachDispatch(lpDispatch, TRUE);
+      //
+      //char WorksheetNameBuff[32];
+      //short Count = WkSheets.GetCount();
+      //WkSheetNames.SetSize(Count);
+      //bool RqdWorksheetFound = 0;
+      //short i;
+      //for (i=1; i<=Count; i++)
+      //  {
+      //  WkSheet.AttachDispatch(WkBook.Worksheets(i), TRUE);
+      //  CString SheetName = WkSheet.GetName();
+      //  WkSheetNames[i-1] = (const char*)SheetName;
+      //  if (_stricmp((const char*)SheetName, WorksheetNameBuff)==0)
+      //    RqdWorksheetFound = 1;
+      //  }
+      //
+      //if (RqdWorksheetFound)
+      if (0)
+        {
+        lpDispatch = WkSheet.Range(RangeName);
+        if (lpDispatch)
+          {
+          Range.AttachDispatch(lpDispatch, TRUE);
+          RowCount=Range.GetRow();
+          ColCount=Range.GetColumn();
+          }
+        }
+      }
+
+    pExcel->SetStatusBar("SysCAD: Done...");
+    SendInfo("Done");
+    if (bSaveOnComplete)
+      WkBook.Save();
+    pExcel->RestoreStatusBar();
+    pExcel->ReleaseDispatch();
+    //for (int j=0; j<MaxGenInfoSheets; j++)
+    //  {
+    //  delete pGISheet[j];
+    //  pGISheet[j] = NULL;
+    //  }
+    delete pExcel;
+    pExcel = NULL;
+    }
+  catch( COleDispatchException* e )
+    {
+    // Handle the OleDispatch exception here.
+    ErrMsg.Set("Ole Dispatch Exception : %s [%s]", (const char*)e->m_strDescription, (const char*)e->m_strSource);
+    e->Delete();
+    Failed = 1;
+    }
+  catch( COleException * e )
+    {
+    // Handle the Ole exceptions here.
+    char buffer[256];
+    e->GetErrorMessage(buffer, sizeof(buffer));
+    ErrMsg.Set("Ole Exception : %s", buffer);
+    e->Delete();
+    Failed = 1;
+    }
+  if (Failed)
+    {
+    for (int j=0; j<MaxGenInfoSheets; j++)
+      {
+      //if (pGISheet[j])
+      //  {
+      //  delete pGISheet[j];
+      //  pGISheet[j] = NULL;
+      //  }
+      }
+    if (pExcel)
+      {
+      SendInfo("Error, Quit...");
+      try
+        {//try recover elegently...
+        if (DidSetScrUpdating)
+          {
+          pExcel->SetCalculation(PrevCalc);
+          pExcel->SetScreenUpdating(TRUE);
+          DidSetScrUpdating = FALSE;
+          }
+        if (!bUsingActive)
+          pExcel->Quit();
+        pExcel->ReleaseDispatch();
+        }
+      catch( COleDispatchException* e )
+        {
+        e->Delete();
+        }
+      catch( COleException * e )
+        {
+        e->Delete();
+        }
+      delete pExcel;
+      pExcel = NULL;
+      }
+    ReportError(5, ErrMsg());
+    return 5;
+    }
+  return 0;
+  }
+
+//---------------------------------------------------------------------------
+
+
+
+//===========================================================================

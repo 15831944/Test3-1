@@ -33,6 +33,9 @@
 #include ".\accnode.h"
 #include "helpinfo.h"
 #include "sp_db.h"
+
+#include "ole_base.h"
+#include "oleexcel.h"
 //#include "optoff.h"
 
 #ifdef _DEBUG
@@ -43,9 +46,11 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #define dbgDataReadWrite    0
 #define dbgANW              0
 #define dbgDumpObject       0
+#define dbgBld              0
 
 #define CHECKBOXESRIGHT     0
 #define BASICWIDTH          20 /*14*/
+#define MATRIXWIDTH         10 /*14*/
 #define SHORTFLDS           0  /*1*/
 
 //static int DoTagOnly=0;
@@ -208,6 +213,10 @@ void AccNdData::Init()
   m_Markers       = 0;
   m_iChildLvl     = 0;
   m_fNxtIsChild   = 0;
+  m_fIsRowStart   = 0;
+  m_fIsRowsEnd    = 0;
+  m_IsLastDataCol = 0;
+  m_iMatrixCol    = -1;
   ValLst.Clear();   
   iViewIndex=-1;
 
@@ -674,9 +683,14 @@ flag AccNodeWnd::LoadAccessData()
 
     ObjClassId="";
 
+    int iMatrixCol=-1;
     CPkDataIter Iter;
     int ReportedMaxFieldsError = 0;
     flag FirstPage=1;
+        
+    //AccNdData * pPrevD = NULL;
+    int iRowStartData=-1;
+    //AccNdData * pPrevD = NULL;
     for (CPkDataItem* pPItem=ObjData.FirstItem(Iter); pPItem; )
       {
       int ItemAdvanced=false;
@@ -733,8 +747,32 @@ flag AccNodeWnd::LoadAccessData()
         d.fHasButton   = ((d.iFlags & DDEF_BUTTON)!=0);
         d.fHasSetOnChange = ((d.iFlags & DDEF_SETONCHANGE)!=0);
         
-        d.m_iChildLvl = (d.iFlags & DDEF_CHILDMASK) >> DDEF_CHILDSHIFT;
+        d.m_iChildLvl   = (d.iFlags & DDEF_CHILDMASK) >> DDEF_CHILDSHIFT;
         d.m_fNxtIsChild = 0;
+        
+        d.m_fIsRowStart = (d.iFlags & DDEF_STARTROW)!=0;
+        d.m_fIsRowsEnd  = (d.iFlags & DDEF_ENDROWS)!=0;
+        d.m_IsLastDataCol = 0;
+
+        if (d.m_fIsRowStart)
+          {
+          iMatrixCol=0;
+          iRowStartData=iNo;
+          }
+        if (iMatrixCol>=0)
+          {
+          d.m_iMatrixCol=iMatrixCol;
+          if (IsData(d.iType)) 
+            {
+            iMatrixCol++;
+            for (int i=iRowStartData; i<iNo; i++)
+              Data[i].m_IsLastDataCol = 0;
+            d.m_IsLastDataCol = 1;
+            }
+          }
+        if (d.m_fIsRowsEnd)
+          iMatrixCol=-1;
+
         if (d.m_iChildLvl && IsData(Data[iNo-1].iType) && Data[iNo-1].m_iChildLvl<d.m_iChildLvl)
           {
           Data[iNo-1].m_fNxtIsChild=1;
@@ -2252,33 +2290,55 @@ void AccNodeWnd::MeasureFields()//, flag FullNames)
   {
   const int DataWide=10;
 
+  bool InARow=false;
   NamW = 5;
   CnvW = 1;
   ValW = DataWide;
+  MatW = DataWide;
   FldW=0;
+
   for (int i = 0; i < NFlds; i++)
     {
     rAccNdFld f=Flds[i];
     int NW=1;
     int CW=1;
     int VW=1;
+    int MW=1;
     if (f.HasData())
       {
       AccNdData &d=Data[i];
+      if (d.m_fIsRowStart)
+        InARow=true;
       if (d.fIsData)
         {
-        NW=f.sTagText.Length()+d.m_iChildLvl;
-        if (f.fUseComment && !d.fHasCheck)
-          NW+=2+Data[f.iUseComment].sTagComment.Length();
-        CW=d.Cnv.TextLength()+2;
-        VW=d.sValue.Length();
-        if (d.fIsStrng && d.fIsParam)
-          VW=Max(VW, 20);
+        if (InARow)
+          {
+          //NW=f.sTagText.Length()+d.m_iChildLvl;
+          //if (f.fUseComment && !d.fHasCheck)
+          //  NW+=2+Data[f.iUseComment].sTagComment.Length();
+          //CW=d.Cnv.TextLength()+2;
+          MW=d.sValue.Length();
+          //if (d.fIsStrng && d.fIsParam)
+          //  VW=Max(VW, 20);
+          }
+        else
+          {
+          NW=f.sTagText.Length()+d.m_iChildLvl;
+          if (f.fUseComment && !d.fHasCheck)
+            NW+=2+Data[f.iUseComment].sTagComment.Length();
+          CW=d.Cnv.TextLength()+2;
+          VW=d.sValue.Length();
+          if (d.fIsStrng && d.fIsParam)
+            VW=Max(VW, 20);
+          }
         }
+      if (d.m_fIsRowsEnd)
+        InARow=false;
       }
     NamW=Max(NamW, 1+NW);
     CnvW=Max(CnvW, CW);
     ValW=Max(ValW, VW);
+    MatW=Max(MatW, MW);
     FldW=Max(FldW, NamW+ValW+CnvW);
     }
 
@@ -2384,6 +2444,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
   CRect CRect;
   GetClientRect(&CRect);
   int LinesVis=CRect.Height()/ScrGB.RowHgt();
+  bool DoingMatrix=false;
+  bool StartOfMatrix=false;
+  bool WasDoingMatrix=false;
+  int  iMatrixCol=0;
 
   for (int fi = 0; (fi < NFlds); fi++ )
     {
@@ -2391,6 +2455,21 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
     AccNdFld & f=Flds[fi];
     AccNdData & d=f();//Data[fi];
     flag IsPage=false;
+    
+    if (d.m_fIsRowStart)
+      {
+      StartOfMatrix=!DoingMatrix;
+      DoingMatrix=true;
+      iMatrixCol=0;
+      if (!StartOfMatrix)
+        LnNo++;
+      }
+
+    if (dbgBld)
+      dbgpln("%4i %4i %-10s %s %s %3i %s %s %s %s", 
+              fi, LnNo, tt_TypeString(d.iType), 
+              d.m_fIsRowStart?"S":" ", d.m_fIsRowsEnd?"E":" ", d.m_iMatrixCol, d.m_IsLastDataCol?"Last":"    ",   
+              DoingMatrix?"Dm":"  ", StartOfMatrix?"Sm":"  ", d.sSymOrTag());
     switch (f.iType)
       {
       case tt_OptPage:
@@ -2409,15 +2488,21 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               //while (iVisLvl>=0 && (ThisVisInTree=VisInTree[iVisLvl])!=0)
               while (iVisLvl>=0 && ThisVisInTree)
                 ThisVisInTree=VisInTree[iVisLvl--];
-            
+
               if (ThisVisInTree)
-                LnsToNxtPg++;
+                {
+                AccNdData &d = Data[nf.iData];
+                if (d.m_iMatrixCol<0)
+                  LnsToNxtPg++;
+                else if (d.m_iMatrixCol==0 && IsData(d.iType))
+                  LnsToNxtPg++;
+                }
               }
             }
 
-        IsPage=(NoPageYet || (LnNo+LnsToNxtPg > Max(MaxLinesOnPage, LinesVis)));
-        //IsPage=(NoPageYet || (LnNo > MinLinesOnPage && LnNo+LnsToNxtPg > MaxLinesOnPage));
-        break;
+          IsPage=(NoPageYet || (LnNo+LnsToNxtPg > Max(MaxLinesOnPage, LinesVis)));
+          //IsPage=(NoPageYet || (LnNo > MinLinesOnPage && LnNo+LnsToNxtPg > MaxLinesOnPage));
+          break;
         }
       case tt_RqdPage:
         IsPage=true;
@@ -2425,7 +2510,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       }
 
     if ((IsPage && FirstFieldOnPage && !NoPageYet) ||
-        (fi+1<NFlds && Flds[fi+1].iType==tt_Object && Flds[fi+1]().fIsEdtObj))
+      (fi+1<NFlds && Flds[fi+1].iType==tt_Object && Flds[fi+1]().fIsEdtObj))
       IsPage=0;
 
     if (f.fIsTreeNd)
@@ -2462,7 +2547,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           case tt_Struct:
           case tt_Element:
           case tt_Array:
-                          l++; RqdPgLen=Max(RqdPgLen, l); 
+            l++; RqdPgLen=Max(RqdPgLen, l); 
           case tt_RqdPage:
           case tt_OptPage:i=NFlds;                        break;
           case tt_Column: l=0;                            break;
@@ -2483,7 +2568,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       {
       int xxx=0;
       }
-    if (((f.fIsData || f.iType==tt_Text) && (NewObjRef || FirstFieldOnPage)))
+
+    //dbgpln("                                              XXXX");
+
+    if (((f.fIsData || f.iType==tt_Text) && (NewObjRef || FirstFieldOnPage/* || DoingMatrix*/)))
       {
       flag ObjTagVisInTree=ThisVisInTree || fAllFldsVis;
       if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
@@ -2493,27 +2581,73 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           iVisLvl--;
         }
 
+
       if (ObjTagVisInTree)
         {
-        Strng T(ObjRefTag());
-        if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fUseComment)
-          AppendTagComment(T, Flds[ObjRefFldNo]().sTagComment);
-        T+="...";
-        int FldNo=0;
-        if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
+        if (dbgBld)
+          dbgpln("                                              %s %s %i", 
+                   DoingMatrix?"Dm":"  ", WasDoingMatrix?"WasDm":"     ", iMatrixCol);
+        if (DoingMatrix)
           {
-          SetTreeNd(LnNo, !Flds[ObjRefFldNo].fIsTreeVis,  Id_TreeNdBtn+ObjRefFldNo, 1, 0, "");
-          FldNo=ObjRefFldNo;
-          ObjRefFldNo=-1;
+          //if (iMatrixCol==0)
+          //  {
+          //  //Strng T(ObjRefTag());
+          //  //if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fUseComment)
+          //  //  AppendTagComment(T, Flds[ObjRefFldNo]().sTagComment);
+          //  //T+="...";
+          //  //int FldNo=0;
+          //  //if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
+          //  //  {
+          //  //  SetTreeNd(LnNo, !Flds[ObjRefFldNo].fIsTreeVis,  Id_TreeNdBtn+ObjRefFldNo, 1, 0, "");
+          //  //  FldNo=ObjRefFldNo;
+          //  //  ObjRefFldNo=-1;
+          //  //  }
+          //  //else
+          //  SetSpace(LnNo,1);
+          //  SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+          //  SetDesc(LnNo,"",-1,NamW/*+ValW+CnvW*/,0," ");
+
+          //  //FirstFieldOnPage=0;
+          //  //NewObjRef=0;
+          //  //LnNo++;
+          //  }
           }
         else
-          SetSpace(LnNo,1);
-        SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-        SetDesc(LnNo,T(),-((int)Id_FldParms+FldNo),NamW+ValW+CnvW,0," ");
+          {
+          if (WasDoingMatrix)
+            {
+            if (dbgBld)
+              dbgpln("                                              ADD Blank ");
+            SetSpace(LnNo,1);
+            SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+            SetDesc(LnNo,"",-1,NamW,0," ");
+            }
+          else
+            {
+            if (dbgBld)
+              dbgpln("                                              ADD %s ... ", ObjRefTag());
+            Strng T(ObjRefTag());
+            if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fUseComment)
+              AppendTagComment(T, Flds[ObjRefFldNo]().sTagComment);
+            T+="...";
+            int FldNo=0;
+            if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
+              {
+              SetTreeNd(LnNo, !Flds[ObjRefFldNo].fIsTreeVis,  Id_TreeNdBtn+ObjRefFldNo, 1, 0, "");
+              FldNo=ObjRefFldNo;
+              ObjRefFldNo=-1;
+              }
+            else
+              SetSpace(LnNo,1);
+            SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+            SetDesc(LnNo,T(),-((int)Id_FldParms+FldNo),NamW+ValW+CnvW,0," ");
+            }
 
-        FirstFieldOnPage=0;
-        NewObjRef=0;
-        LnNo++;
+          FirstFieldOnPage=0;
+          NewObjRef=0;
+          LnNo++;
+          }
+        WasDoingMatrix=DoingMatrix;
         }
       }
 
@@ -2542,10 +2676,21 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         ValStr=d.sValue;
         WdtAdj=0;
         int VW=ValW, XVW=0;
-        if (VW>BASICWIDTH)
+        if (DoingMatrix)
           {
-          XVW=VW-BASICWIDTH;
-          VW=BASICWIDTH;
+          if (VW>MATRIXWIDTH)
+            {
+            XVW=VW-MATRIXWIDTH;
+            VW=MATRIXWIDTH;
+            }
+          }
+        else
+          {
+          if (VW>BASICWIDTH)
+            {
+            XVW=VW-BASICWIDTH;
+            VW=BASICWIDTH;
+            }
           }
 
 #if CHECKBOXESRIGHT
@@ -2555,219 +2700,265 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           }
         else
 #endif
-        if (d.ValLst.Length()==0)
-          {
-          switch (f.iType)
+          if (d.ValLst.Length()==0)
             {
-            case tt_Bool   :
-            case tt_Bit    : if (SHORTFLDS) WdtAdj=Max(0,VW-3); break;
-            case tt_Byte   :
-            case tt_Char   : if (SHORTFLDS) WdtAdj=Max(0,VW-5); break;
-            case tt_Word   :
-            case tt_Short  : if (SHORTFLDS) WdtAdj=Max(0,VW-7); break;
-            case tt_DWord  :
-            case tt_Long   : if (SHORTFLDS) WdtAdj=Max(0,VW-12); break;
-            case tt_Double :
-            case tt_Float  : if (SHORTFLDS) WdtAdj=Max(0,VW-14); break;
-            case tt_pChar  :
-            case tt_ppChar :
-//            case tt_Strng  : WdtAdj=0; VW=30; break;
-            case tt_Strng  : WdtAdj=0; VW=Range(20, ValStr.Length(), 45); break;
-            default        : WdtAdj=0; break;
-            }
-          }
-        else // if (d.ValLst.Length()>0)
-          {
-          VW=BASICWIDTH;
-          WdtAdj=0;
-          for (pStrng p=d.ValLst.First(); p; p=p->Next())
-            VW=Max(VW, p->Length()+2);
-          }
-
-        if (WdtAdj>0)
-          {
-          ValStr.Trim();
-          ValStr.RPad(VW+WdtAdj);
-          }
-
-        //Strng NameBuff(d.sDesc.Length()>0?"?":" ");
-        Strng NameBuff;//(" ");
-        NameBuff.Set(" %*.*s", d.m_iChildLvl,d.m_iChildLvl, ".......");
-        if (d.fHasCheck)
-          {
-          NameBuff+=f.sTagText;
-          int xxx=0;
-          }
-        else if (d.fHasButton)
-          {
-          if (d.ValLst.Length()>0)
-            NameBuff+=f.sTagText;
-          else
-            NameBuff=f.sTagText;
-          }
-        else
-          NameBuff+=f.sTagText;
-        Strng TagComStr;
-        if (f.fUseComment)
-          {
-          AppendTagComment(TagComStr, Data[f.iUseComment].sTagComment);
-          if (strstr(TagComStr(), "ExoTh"))
-            { int xxx=0;}
-          }
-        int TagComLen=TagComStr.GetLength();
-  
-        if (0 && d.m_fNxtIsChild)
-          SetTreeNd(LnNo, !f.fIsTreeVis,  Id_TreeNdBtn+fi, 1, 0, "");
-        else
-          SetSpace(LnNo,1);//+d.m_iChildLvl*2);
-
-        SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-        //SetSpace(LnNo,d.m_iChildLvl);
-        if (d.fHasCheck)
-          {
-#if CHECKBOXESRIGHT
-          int DWidth = NamW-TagComLen+WdtAdj;
-          int VWidth = VW-WdtAdj;
-#else
-          int DWidth = NamW-TagComLen;
-          int VWidth = 2;
-#endif
-          FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
-          pFld->fUnderLine=true;
-          if (d.sFullTag())
-            SetTag(d.sFullTag());
-          SetMarkerFlags(d.m_Markers);
-          
-          if (d.fHasButton)
-            f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
-          else
-            f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
-          }
-        else if (d.fHasButton)
-          {
-          if (d.ValLst.Length()>0)
-            {
-            SetDesc(LnNo, NameBuff(),Id_FldBtns+fi,NamW-TagComLen, 3,TagComStr());
-            if (d.sFullTag())
-              SetTag(d.sFullTag());
-            pStrng p=d.ValLst.First(); 
-            f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
-//            f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Max(ValW, 14), 0, "");
-            }
-          else
-            {
-            Strng Nm(" ");
-            Nm+=NameBuff();
-            SetDesc(LnNo, Nm(),Id_FldBtns+fi,NamW-TagComLen, 3,TagComStr());
-            if (d.sFullTag())
-              SetTag(d.sFullTag());
-            f.ValFld=SetButton(LnNo, NameBuff(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
-            }
-          }
-        else if (d.fIsParam)
-          {
-          FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
-          pFld->fUnderLine=true;
-          if (d.sFullTag())
-            SetTag(d.sFullTag(), d.Cnv.Text());
-          
-          SetMarkerFlags(d.m_Markers);
-
-          const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
-          char*pSep=d.fHasNANStr?"  ":" ";
-          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep);
-          if (d.iFlags & DDEF_FUNCTPARM)
-            {
-            SetBigStrLength(1024);
-            }
-
-          if (d.ValLst.Length()>0)
-            {
-            if (IsFloatData(d.iType) && d.fHasNANStr)
+            switch (f.iType)
               {
-              for (pStrng p=d.ValLst.First(); p; p=p->Next())
-                FldHasNANStrValue(p->Index(), p->Str());
+              case tt_Bool   :
+              case tt_Bit    : if (SHORTFLDS) WdtAdj=Max(0,VW-3); break;
+              case tt_Byte   :
+              case tt_Char   : if (SHORTFLDS) WdtAdj=Max(0,VW-5); break;
+              case tt_Word   :
+              case tt_Short  : if (SHORTFLDS) WdtAdj=Max(0,VW-7); break;
+              case tt_DWord  :
+              case tt_Long   : if (SHORTFLDS) WdtAdj=Max(0,VW-12); break;
+              case tt_Double :
+              case tt_Float  : if (SHORTFLDS) WdtAdj=Max(0,VW-14); break;
+              case tt_pChar  :
+              case tt_ppChar :
+                //            case tt_Strng  : WdtAdj=0; VW=30; break;
+              case tt_Strng  : WdtAdj=0; VW=Range(20, ValStr.Length(), 45); break;
+              default        : WdtAdj=0; break;
+              }
+            }
+          else // if (d.ValLst.Length()>0)
+            {
+            VW=BASICWIDTH;
+            WdtAdj=0;
+            for (pStrng p=d.ValLst.First(); p; p=p->Next())
+              VW=Max(VW, p->Length()+2);
+            }
+
+          if (WdtAdj>0)
+            {
+            ValStr.Trim();
+            ValStr.RPad(VW+WdtAdj);
+            }
+
+          //Strng NameBuff(d.sDesc.Length()>0?"?":" ");
+          Strng NameBuff;//(" ");
+          NameBuff.Set(" %*.*s", d.m_iChildLvl,d.m_iChildLvl, ".......");
+          if (d.fHasCheck)
+            {
+            NameBuff+=f.sTagText;
+            int xxx=0;
+            }
+          else if (d.fHasButton)
+            {
+            if (d.ValLst.Length()>0)
+              NameBuff+=f.sTagText;
+            else
+              NameBuff=f.sTagText;
+            }
+          else
+            NameBuff+=f.sTagText;
+          Strng TagComStr;
+          if (f.fUseComment)
+            {
+            AppendTagComment(TagComStr, Data[f.iUseComment].sTagComment);
+            if (strstr(TagComStr(), "ExoTh"))
+              { int xxx=0;}
+            }
+          int TagComLen=TagComStr.GetLength();
+
+          //if (StartOfMatrix && iMatrixCol==0)
+          //  {
+          //  if (f.fIsTreeNd)
+          //    SetTreeNd(LnNo, !f.fIsTreeVis,  Id_TreeNdBtn+fi, 1, 0, "");
+          //  else
+          //    SetSpace(LnNo,1);
+          //  SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+
+          //  Strng T(f.sTagText());
+          //  if (T.IsNotEmpty() && f.fPadDash)
+          //    {
+          //    char c=T[0];
+          //    c=isalnum(c)!=0 ? '-' : c;
+          //    T.LRPad(f.sTagText.Length()+2, ' '); // Force 1 Space on Each Side
+          //    T.LRPad(f.sTagText.Length()+2, c); // Force C On on Each Side
+          //    T.LRPad((int)NamW, c);
+          //    }
+          //  f.ValFld=SetDesc(LnNo,T(),-((int)Id_FldParms+fi),FldW,3," ");
+          //  f.ValFld->SetItalic();
+          //  LnNo++;
+          //  FirstFieldOnPage=0;
+          //  }
+          
+          if (!DoingMatrix || iMatrixCol==0)
+            {
+            if (0 && d.m_fNxtIsChild)
+              SetTreeNd(LnNo, !f.fIsTreeVis,  Id_TreeNdBtn+fi, 1, 0, "");
+            else
+              SetSpace(LnNo,1);//+d.m_iChildLvl*2);
+
+            SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+            //SetSpace(LnNo,d.m_iChildLvl);
+            }
+
+          if (d.fHasCheck)
+            {
+#if CHECKBOXESRIGHT
+            int DWidth = NamW-TagComLen+WdtAdj;
+            int VWidth = VW-WdtAdj;
+#else
+            int DWidth = NamW-TagComLen;
+            int VWidth = 2;
+#endif
+            FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
+            pFld->fUnderLine=true;
+            if (d.sFullTag())
+              SetTag(d.sFullTag());
+            SetMarkerFlags(d.m_Markers);
+
+            if (d.fHasButton)
+              f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+            else
+              f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+            }
+          else if (d.fHasButton)
+            {
+            if (d.ValLst.Length()>0)
+              {
+              SetDesc(LnNo, NameBuff(),Id_FldBtns+fi,NamW-TagComLen, 3,TagComStr());
+              if (d.sFullTag())
+                SetTag(d.sFullTag());
+              pStrng p=d.ValLst.First(); 
+              f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
+              //            f.ValFld=SetButton(LnNo, p->Str(),  Id_FldBtns+fi, Max(ValW, 14), 0, "");
               }
             else
               {
+              Strng Nm(" ");
+              Nm+=NameBuff();
+              SetDesc(LnNo, Nm(),Id_FldBtns+fi,NamW-TagComLen, 3,TagComStr());
+              if (d.sFullTag())
+                SetTag(d.sFullTag());
+              f.ValFld=SetButton(LnNo, NameBuff(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
+              }
+            }
+          else if (d.fIsParam)
+            {
+            if (DoingMatrix)
+              {
+              if (iMatrixCol==0)
+                SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
+              }
+            else
+              {
+              FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
+              pFld->fUnderLine=true;
+              if (d.sFullTag())
+                SetTag(d.sFullTag(), d.Cnv.Text());
+
+              SetMarkerFlags(d.m_Markers);
+              }
+
+            if (dbgBld)
+              dbgpln("                                              %3i %3i '%s' ", VW, WdtAdj, ValStr());
+
+            const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
+            //char*pSep=DoingMatrix?"":d.fHasNANStr?"  ":" ";
+            char*pSep=!DoingMatrix || d.m_IsLastDataCol?"  ":"";
+            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep);
+            if (d.iFlags & DDEF_FUNCTPARM)
+              {
+              SetBigStrLength(1024);
+              }
+
+            if (d.ValLst.Length()>0)
+              {
+              if (IsFloatData(d.iType) && d.fHasNANStr)
+                {
+                for (pStrng p=d.ValLst.First(); p; p=p->Next())
+                  FldHasNANStrValue(p->Index(), p->Str());
+                }
+              else
+                {
+                for (pStrng p=d.ValLst.First(); p; p=p->Next())
+                  FldHasFixedStrValue(p->Index(), p->Str());
+                }
+              }
+
+            if (HasTag)
+              {
+              if (GDIBlk::LowRes())
+                {
+                SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
+                SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+                }
+              else
+                {
+                //SetBitmapButton2(LnNo, IDB_ACCFIND_BTN, Id_FldBtns+fi, 2, 0, "");
+                //SetBitmapButton2(LnNo, IDB_ACCACCESS_BTN, Id_FldBtns+fi, 2, 0, "");
+                SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
+                SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+                }
+              }
+            if (!DoingMatrix || d.m_IsLastDataCol)
+              SetDesc(LnNo, "", Id_FldCnvs+fi, 20, 0);          
+            }
+          else if (d.fMultiStrng)
+            {
+            FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
+            pFld->fUnderLine=true;
+            if (d.sFullTag())
+              SetTag(d.sFullTag());
+
+            SetMarkerFlags(d.m_Markers);
+
+            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, "  ", false);
+            if (d.ValLst.Length()>0)
               for (pStrng p=d.ValLst.First(); p; p=p->Next())
                 FldHasFixedStrValue(p->Index(), p->Str());
-              }
+            SetDesc(LnNo, "", Id_FldCnvs+fi, 20,0);
             }
-
-          if (HasTag)
+          else
             {
-            if (GDIBlk::LowRes())
+            if (!DoingMatrix)
               {
-              SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
-              SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+              FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
+              pFld->fUnderLine=true;
+              if (d.sFullTag())
+                SetTag(d.sFullTag(), d.Cnv.Text());
+
+              SetMarkerFlags(d.m_Markers);
               }
-            else
+            const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
+            //char*pSep=DoingMatrix?"":" ";
+            char*pSep=!DoingMatrix || d.m_IsLastDataCol?"  ":"";
+            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep, false);
+
+            if (HasTag)
               {
-              //SetBitmapButton2(LnNo, IDB_ACCFIND_BTN, Id_FldBtns+fi, 2, 0, "");
-              //SetBitmapButton2(LnNo, IDB_ACCACCESS_BTN, Id_FldBtns+fi, 2, 0, "");
-              SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
-              SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+              if (GDIBlk::LowRes())
+                {
+                SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
+                SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+                }
+              else
+                {
+                //SetBitmapButton2(LnNo, IDB_ACCFIND_BTN, Id_FldBtns+fi, 2, 0, "");
+                //SetBitmapButton2(LnNo, IDB_ACCACCESS_BTN, Id_FldBtns+fi, 2, 0, "");
+                SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
+                SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+                }
               }
+            if (!DoingMatrix)
+              SetDesc(LnNo, "", Id_FldCnvs+fi, 20,0);
             }
-          SetDesc(LnNo, "", Id_FldCnvs+fi, 20, 0);          
-          }
-        else if (d.fMultiStrng)
-          {
-          FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
-          pFld->fUnderLine=true;
-          if (d.sFullTag())
-            SetTag(d.sFullTag());
 
-          SetMarkerFlags(d.m_Markers);
-
-          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, " "/*CnvStr()*/, false);
-          if (d.ValLst.Length()>0)
-            for (pStrng p=d.ValLst.First(); p; p=p->Next())
-              FldHasFixedStrValue(p->Index(), p->Str());
-          SetDesc(LnNo, "", Id_FldCnvs+fi, 20,0);
-          }
-        else
-          {
-          FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
-          pFld->fUnderLine=true;
           if (d.sFullTag())
             SetTag(d.sFullTag(), d.Cnv.Text());
-
-          SetMarkerFlags(d.m_Markers);
-
-          const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
-          f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, /*HasTag ? "" : " "*/" ", false);
-
-          if (HasTag)
+          if (!d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0))
             {
-            if (GDIBlk::LowRes())
-              {
-              SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
-              SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
-              }
-            else
-              {
-              //SetBitmapButton2(LnNo, IDB_ACCFIND_BTN, Id_FldBtns+fi, 2, 0, "");
-              //SetBitmapButton2(LnNo, IDB_ACCACCESS_BTN, Id_FldBtns+fi, 2, 0, "");
-              SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
-              SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
-              }
+            NameBuff.Trim();
+            FldDelta[PgNo]=Max(FldDelta[PgNo], (NameBuff.Length()+TagComLen+2)-NamW);
             }
-          SetDesc(LnNo, "", Id_FldCnvs+fi, 20,0);
-          }
 
-        if (d.sFullTag())
-          SetTag(d.sFullTag(), d.Cnv.Text());
-        if (!d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0))
-          {
-          NameBuff.Trim();
-          FldDelta[PgNo]=Max(FldDelta[PgNo], (NameBuff.Length()+TagComLen+2)-NamW);
-          }
-
-        LnNo++;
-        FirstFieldOnPage=0;
-        break;
+          if (!DoingMatrix)
+            LnNo++;
+          FirstFieldOnPage=0;
+          break;
         }
       case tt_Text:
         {
@@ -2802,7 +2993,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           {
           ObjEdit[d.iObjNo]->Build();
           do
-            ObjOnPage[++PgNo]=d.iObjNo;
+          ObjOnPage[++PgNo]=d.iObjNo;
           while (PgNo<Pages-1);
           //WasObjPg=1;
           }
@@ -2837,15 +3028,28 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         break;
       case tt_NULL: break;
       }
+    if (DoingMatrix && f.fIsData)
+      iMatrixCol++;
+    if (d.m_fIsRowsEnd)
+      {
+      DoingMatrix=false;
+      LnNo++;
+      }
+    StartOfMatrix=false;
     }
 
-  for (i=0; i<MaxFixedPages; i++)
-    if (FldDelta[i]>-1000 && Pg[i])
+  if (1)
+    {
+    for (i=0; i<MaxFixedPages; i++)
       {
-      int fno=2;
-      for (int r=2; r<Pg[i]->Rows; r++)
-        AdjustFld(i, r, fno, FldDelta[i]);
+      if (FldDelta[i]>-1000 && Pg[i])
+        {
+        int fno=2;
+        for (int r=2; r<Pg[i]->Rows; r++)
+          AdjustFld(i, r, fno, FldDelta[i]);
+        }
       }
+    }
 
   FxdEdtView::Build(0, 0, 0);
   }
@@ -3571,6 +3775,24 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
     m_DeferredTag=pNdTag;
     return;
     }
+
+
+  if (0)
+    {
+  
+    CXM_Route XRoute;
+    CExcelBasicIO XX(gs_pPrj->m_pFlwLib, &XRoute, "D:\\SysCAD Projects\\D\\De Beers\\Kenwalt example.xls");
+    long R, C;
+    CArray<double, double> Dbls;
+    XX.GetDoubleValueRange("Stream_Densimetrics", "OreSizefeed", R, C, Dbls);
+
+
+    int xxxxx=0;
+    }
+
+
+
+
 
   gs_AccessWnds.MarkAsActive(this);
 

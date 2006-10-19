@@ -86,16 +86,16 @@ void QualChange::EvalProducts()
 
     if (bOnLine)
       {
-      //MIPSD & PSD = QI.IF<MIPSD>(false);
+      //MIPSD & PSD = *QI.FindIF<MIPSD>();
       //if ( IsNothing(PSD)==false )
 
-      CDemoQual & xQual =  QO.IF<CDemoQual>(false);
+      CDemoQual & xQual =  *QO.FindIF<CDemoQual>();
 
       if ( IsNothing(xQual)==false )
         {
         PSDCount = xQual.m_dSetProp;
         Log.Message(MMsg_Note, "Qual Data:%f", PSDCount);
-        //CDemoQual & QualO =  QO.IF<CDemoQual>(false);
+        //CDemoQual & QualO =  *QO.FindIF<CDemoQual>();
         xQual.m_dSetProp = PSDCount+1.0;
         }
 

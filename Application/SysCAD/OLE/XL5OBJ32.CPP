@@ -660,6 +660,21 @@ LPDISPATCH OWorksheet::Range(short iRowIndex1, short iColumnIndex1, short iRowIn
   return lpDispatch;
   }
 
+//CNM
+LPDISPATCH OWorksheet::Range(LPCTSTR Name)
+  {
+  //LPDISPATCH lpDis1 = Cells(iRowIndex1, iColumnIndex1);
+  OVariant Cell1(Name);
+  //LPDISPATCH lpDis2 = Cells(iRowIndex2, iColumnIndex2);
+  //OVariant Cell2(lpDis2);
+  LPDISPATCH lpDispatch;
+  static BYTE parms[] = VTS_VARIANT ;//VTS_DISPATCH VTS_DISPATCH;
+  if (UsingExcel8or9)
+    InvokeHelper(0xc5, DISPATCH_PROPERTYGET, VT_DISPATCH, (void*)&lpDispatch, parms, &Cell1);
+  else
+    InvokeHelper(0xc5, DISPATCH_METHOD, VT_DISPATCH, (void*)&lpDispatch, parms, &Cell1);
+  return lpDispatch;
+  }
 //===========================================================================
 
 short OWorksheets::GetCount()

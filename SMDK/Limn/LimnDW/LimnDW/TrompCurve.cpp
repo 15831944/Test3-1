@@ -8,7 +8,7 @@
 #include "limnstream.h"
 #pragma optimize("", off)
 
-#define DoDbg 0x7
+#define DoDbg 0 /*x7*/
 
 //====================================================================================
 
@@ -25,6 +25,8 @@ static double Drw_TrompCurve[] = { MDrw_Poly,  -6,10,  6,10,  6,-2, 0,-20, -6,-2
                                    MDrw_Poly,  -6,4, 6,4,
                                    MDrw_Poly,  -6,-2, 6,-2,
                                    MDrw_End };
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_TrompCurve::sm_Common;
 
 //---------------------------------------------------------------------------
 
@@ -43,7 +45,7 @@ void CTrompCurve_UnitDef::GetOptions()
 CTrompCurve::CTrompCurve(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
   gs_DWCfg.Initialise();
-  m_DWParms.Initialise();
+  m_DWParms.Initialise(gs_DWCfg.nOSz(), gs_DWCfg.nDSz());
 
   m_LBtnDn = false;
   m_RBtnDn = false;
@@ -60,21 +62,14 @@ void CTrompCurve::Init()
 
 void CTrompCurve::BuildDataFields()
   {
-  DD.Text("Parameters...");
-  DD.Text("");
+  m_DWParms.BuildDataFields(DD);
+  }
+bool CTrompCurve::ExchangeDataFields()
+  {
+  if (m_DWParms.ExchangeDataFields(DX))
+    return true;
 
-  CString Tg;
-  
-  //DD.Double("WaterSplit",   "",       &m_DWParms.WaterSplit(),  MF_PARAMETER, MC_Frac("%"));
-  //DD.Double("FeSiSplit",    "",       &m_DWParms.FeSiSplit(),   MF_PARAMETER, MC_Frac("%"));
-  //DD.Double("Alpha",        "",       &m_DWParms.Alpha(),       MF_PARAMETER, MC_(""));
-  //DD.Double("Rf",           "",       &m_DWParms.Rf(),          MF_PARAMETER, MC_Frac(""));
-  //DD.Double("D50c-Diamond", "",       &m_DWParms.DiamondD50c(), MF_PARAMETER, MC_L("mm"));
-  //for (int iSG=0; iSG<gs_DWCfg.nSGs(); iSG++)
-  //  {
-  //  Tg.Format("D50c-%s", gs_DWCfg.SGTextShort(iSG));
-  //  DD.Double(Tg,           "",       &m_DWParms.D50c(iSG),     MF_PARAMETER, MC_L("mm"));
-  //  }
+  return false;
   }
 
 //---------------------------------------------------------------------------
@@ -114,7 +109,7 @@ void CTrompCurve::EvalProducts()
 					 		            			                      gs_DWCfg.ColCount(),
                                                       m_DWParms.DataCount(),    // int nParameters,
                                                       0,                        // int nReturns,
-                                                      m_DWParms.GetDataPtr(),
+                                                      CLimn_ModelData_Access(m_DWParms),
                                                       NULL,                     // double* ModelReturn,
                                                       LSIn.Data(),              // double* CombinedFeed,
                                                       LSO0.Data(),              // double* Product1,

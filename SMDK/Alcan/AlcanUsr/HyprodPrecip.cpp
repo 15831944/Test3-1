@@ -276,16 +276,16 @@ bool Precipitator::ExchangeDataFields()
 
 bool Precipitator::ValidateDataFields()
   {//ensure parameters are within expected ranges
-  m_dVolume  = DD.ValidateRange("", 1.0,  m_dVolume , 1000000);
-  m_dSurface = DD.ValidateRange("", 1.0,  m_dSurface , 300000);
-  m_dKvFac   = DD.ValidateRange("", 0.0,     m_dKvFac , 30);
-  m_dUCoef   = DD.ValidateRange("", 0.0,     m_dUCoef , 2000);
-  m_dLevel   = DD.ValidateRange("", 0.01,  m_dLevel , 1);
+  m_dVolume  = DV.ValidateRange("", 1.0,  m_dVolume , 1000000);
+  m_dSurface = DV.ValidateRange("", 1.0,  m_dSurface , 300000);
+  m_dKvFac   = DV.ValidateRange("", 0.0,     m_dKvFac , 30);
+  m_dUCoef   = DV.ValidateRange("", 0.0,     m_dUCoef , 2000);
+  m_dLevel   = DV.ValidateRange("", 0.01,  m_dLevel , 1);
   
   if ( m_eHeatBalance == eHBal_Normal)
-    m_dTempImpos = DD.ValidateRange("", C2K(45.0), m_dTempImpos, C2K(105.0));
+    m_dTempImpos = DV.ValidateRange("", C2K(45.0), m_dTempImpos, C2K(105.0));
   if (m_bBypassOn)
-    m_dBypass    = DD.ValidateRange("", 0.01, m_dBypass, 0.99);
+    m_dBypass    = DV.ValidateRange("", 0.01, m_dBypass, 0.99);
 
   return true;
   }
@@ -306,7 +306,7 @@ void Precipitator::EvalProducts()
     m_dThermalLoss = 0.0;
     m_dYield = 0.0;
     m_dTempIn = Feed.T;
-    MIBayer & FeedB=Feed.IF<MIBayer>(false);
+    MIBayer & FeedB=*Feed.FindIF<MIBayer>();
     if (!IsNothing(FeedB))
       {
       m_dACIn = FeedB.AtoC();
@@ -319,9 +319,9 @@ void Precipitator::EvalProducts()
       }
     if (m_bOn && Feed.Mass()>UsableMass)
       {
-      MIBayer & ProdB=Prod.IF<MIBayer>(false);
-      MISSA & FeedSSA = Feed.IF<MISSA>(false);
-	  MIPSD & FeedSz = Feed.IF<MIPSD>(false);
+      MIBayer & ProdB=*Prod.FindIF<MIBayer>();
+      MISSA & FeedSSA = *Feed.FindIF<MISSA>();
+	  MIPSD & FeedSz = *Feed.FindIF<MIPSD>();
       Log.SetCondition(IsNothing(ProdB), 1, MMsg_Warning, "Bad Feed Stream - Not Bayer Model"); //expect stream to have bayer properties
       Log.SetCondition(IsNothing(FeedSSA), 3, MMsg_Warning, "Bad Feed Stream - No SSA Data");
 
@@ -410,12 +410,12 @@ bool Precipitator::Precip(MVector & Feed, MVector & Prod, double Factor)
 
   const double Na2OFac = get_Na2OFactor(Feed);
 
-  MIBayer & FeedB = Feed.IF<MIBayer>();
-  MIBayer & ProdB = Prod.IF<MIBayer>();
-  MIPSD & FeedSz = Feed.IF<MIPSD>(false);
-  MIPSD & ProdSz = Prod.IF<MIPSD>(false);
-  MISSA & FeedSSA = Feed.IF<MISSA>(false);
-  MISSA & ProdSSA = Prod.IF<MISSA>(false);
+  MIBayer & FeedB = *Feed.GetIF<MIBayer>();
+  MIBayer & ProdB = *Prod.GetIF<MIBayer>();
+  MIPSD & FeedSz = *Feed.FindIF<MIPSD>();
+  MIPSD & ProdSz = *Prod.FindIF<MIPSD>();
+  MISSA & FeedSSA = *Feed.FindIF<MISSA>();
+  MISSA & ProdSSA = *Prod.FindIF<MISSA>();
   Log.SetCondition(IsNothing(FeedSz) || IsNothing(ProdSz), 2, MMsg_Error, "Bad Feed Stream - No Size Distribution");
   Log.SetCondition(IsNothing(FeedSSA) || IsNothing(ProdSSA), 3, MMsg_Error, "Bad Feed Stream - No SSA Data");
 
@@ -536,7 +536,7 @@ bool Precipitator::Precip(MVector & Feed, MVector & Prod, double Factor)
 
 bool Precipitator::RunSteady(MStream & Feed, MStream & Prod)
   {  
-  MIBayer & ProdB = Prod.IF<MIBayer>();
+  MIBayer & ProdB = *Prod.GetIF<MIBayer>();
 	MStream NonReactStream;// this is the stream of slurry that bypass the tank
   //FlwIOs.AddMixtureIn_Id(NonReactStream, idFeed); //sum all input streams
   NonReactStream = Feed;

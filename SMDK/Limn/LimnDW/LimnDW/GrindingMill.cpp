@@ -24,6 +24,8 @@ static double Drw_GrindingMill[] = {  MDrw_Poly,  -13,8, 10,8, 10,-8, -13,-8, -1
                                       MDrw_Poly,  10,8, 10,12, 13,12, 13,-12, 10,-12, 10,-8,
                                       MDrw_End };
 
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_GrindingMill::sm_Common;
+
 //---------------------------------------------------------------------------
 
 DEFINE_TRANSFER_UNIT(CGrindingMill, "GrindingMill", DLL_GroupName)
@@ -41,7 +43,7 @@ void CGrindingMill_UnitDef::GetOptions()
 CGrindingMill::CGrindingMill(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
   gs_DWCfg.Initialise();
-  m_DWParms.Initialise();
+  m_DWParms.Initialise(gs_DWCfg.nOSz());
 
   m_LBtnDn = false;
   m_RBtnDn = false;
@@ -58,21 +60,14 @@ void CGrindingMill::Init()
 
 void CGrindingMill::BuildDataFields()
   {
-  DD.Text("Parameters...");
-  DD.Text("");
+  m_DWParms.BuildDataFields(DD);
+  }
+bool CGrindingMill::ExchangeDataFields()
+  {
+  if (m_DWParms.ExchangeDataFields(DX))
+    return true;
 
-  CString Tg;
-  
-  //DD.Double("WaterSplit",   "",       &m_DWParms.WaterSplit(),  MF_PARAMETER, MC_Frac("%"));
-  //DD.Double("FeSiSplit",    "",       &m_DWParms.FeSiSplit(),   MF_PARAMETER, MC_Frac("%"));
-  //DD.Double("Alpha",        "",       &m_DWParms.Alpha(),       MF_PARAMETER, MC_(""));
-  //DD.Double("Rf",           "",       &m_DWParms.Rf(),          MF_PARAMETER, MC_Frac(""));
-  //DD.Double("D50c-Diamond", "",       &m_DWParms.DiamondD50c(), MF_PARAMETER, MC_L("mm"));
-  //for (int iSG=0; iSG<gs_DWCfg.nSGs(); iSG++)
-  //  {
-  //  Tg.Format("D50c-%s", gs_DWCfg.SGTextShort(iSG));
-  //  DD.Double(Tg,           "",       &m_DWParms.D50c(iSG),     MF_PARAMETER, MC_L("mm"));
-  //  }
+  return false;
   }
 
 //---------------------------------------------------------------------------
@@ -97,11 +92,10 @@ void CGrindingMill::EvalProducts()
       if (DoDbg)
         LSIn.Dump("In", DoDbg);
 
-#if 01
-
       LSIn.ConvertToMassForm(QI);
       LSOut.ConvertToMassForm(Q0);
 
+#if 0
 
       if (DoDbg)
         LSIn.Dump("In", DoDbg);
@@ -111,7 +105,7 @@ void CGrindingMill::EvalProducts()
 					 		            			                      gs_DWCfg.ColCount(),
                                                       m_DWParms.DataCount(),    // int nParameters,
                                                       0,                        // int nReturns,
-                                                      m_DWParms.GetDataPtr(),
+                                                      CLimn_ModelData_Access(m_DWParms),
                                                       NULL,                     // double* ModelReturn,
                                                       LSIn.Data(),              // double* CombinedFeed,
                                                       LSOut.Data(),             // double* Product1,
@@ -122,15 +116,14 @@ void CGrindingMill::EvalProducts()
                                                       NULL                      // double* Product6 
                                                       );
 
+#else
+      Q0.Copy(QI);
+#endif
       if (DoDbg)
         LSOut.Dump("Product", DoDbg);
 
       LSIn.ConvertToFracForm(QI);
       LSOut.ConvertToFracForm(Q0);
-#else
-
-      Q0.Copy(QI);
-#endif
 
       if (DoDbg)
         LSOut.Dump("Product", DoDbg);

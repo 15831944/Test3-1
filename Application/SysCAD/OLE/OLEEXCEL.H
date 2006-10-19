@@ -693,6 +693,39 @@ class COleInfoReportMngr : public COleExcelBaseAuto
     void ReportTagLists(int Pg);
   };
 
+//---------------------------------------------------------------------------
+//CNM
+
+class CExcelBasicIO : public COleExcelBaseAuto
+  {
+  public:
+    //OWorksheet* pGISheet[MaxGenInfoSheets];  //General Information worksheets for the reports
+
+    CExcelBasicIO (CExecObj* ExecObj, CXM_Route* pRoute, char* FileName);
+    virtual int AutomationServer() { return OleAutoIsExcel; };
+    virtual char* OLEServerDesc() { return "Excel"; };
+    virtual int DoAutomation() { return -1; };
+    virtual char* ShortDesc() { return "Flowsheet BasicIO"; };
+  //private:
+
+    int GetDoubleValueRange(LPCTSTR SheetName, LPCTSTR RangeName, long & RowCount, long & ColCount, CArray<double, double> & Values)
+      {
+      CArray<CString, CString&> xValues;
+      return DoIt(SheetName, RangeName, 1, RowCount, ColCount, Values, xValues);
+      };
+    int GetStringValueRange(LPCTSTR SheetName, LPCTSTR RangeName, long & RowCount, long & ColCount, CArray<CString, CString&> & Values)
+      {
+      CArray<double, double> xValues;
+      return DoIt(SheetName, RangeName, 2, RowCount, ColCount, xValues, Values);
+      };
+    
+  protected:
+    int DoIt(LPCTSTR SheetName, LPCTSTR RangeName, int Which, long & RowCount, long & ColCount, CArray<double, double> & DblValues, CArray<CString, CString&> & StrValues);
+    //void ReportTagLists0(OWorksheet* pSheet);
+    //void ReportTagLists1(OWorksheet* pSheet);
+    //void ReportTagLists(int Pg);
+  };
+
 //===========================================================================
 #endif
 

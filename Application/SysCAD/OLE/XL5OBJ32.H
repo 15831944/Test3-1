@@ -145,6 +145,7 @@ class OWorksheet : public COleDispatchDriver
     LPDISPATCH Columns();
     LPDISPATCH Columns(short iColumnIndex);
     LPDISPATCH Range(short iRowIndex1, short iColumnIndex1, short iRowIndex2, short iColumnIndex2);
+    LPDISPATCH Range(LPCTSTR Name);
   };
 
 //===========================================================================

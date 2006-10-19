@@ -7,6 +7,8 @@
 #define  __MD_SHARE3_CPP
 #include "sc_defs.h"
 #include "md_share3.h"
+#include "msglog.h"
+#include "tagobj.h"
 
 //===========================================================================
 //
@@ -84,6 +86,133 @@ void MSMFnRanges::BumpGlblIter()
   {
   sm_Iter++;
   };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void MLog::Message(MMessageType Type, LPCSTR pFmt, ...)
+  {
+  char Buff[1024];
+  va_list argptr;
+  va_start(argptr, pFmt);
+  vsprintf(Buff, pFmt, argptr);
+  va_end(argptr);
+
+  if (strlen(Buff)>0)
+    {
+    static DWORD What[/*MMessageType*/] = {LogFlag_Error, LogFlag_Error, LogFlag_Warning, LogFlag_Note };
+    LogLn(LogFlag_FromBlackBox|LogFlag_Error, m_pObj ? m_pObj->Tag():"SysCAD", 0/*BoxFlags*/, Buff);
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void MLog::SetCondition(bool On, long index, MMessageType Type, LPCSTR pFmt, ...)
+  {
+  if (index>=0 && index<MaxUserCI)
+    {
+    if (On)
+      {
+      char Buff[1024];
+      va_list argptr;
+      va_start(argptr, pFmt);
+      vsprintf(Buff, pFmt, argptr);
+      va_end(argptr);
+
+      if (strlen(Buff)>0)
+        {
+        static LPCSTR What[/*MMessageType*/] = {"?", "E", "W", "N" };
+        m_pObj->SetCIVirt(FirstUserCI+index+m_pObj->CBContextVirt(), "%s\t%s", What[Type], Buff);
+        }
+      }
+    else
+      {
+      m_pObj->ClrCIVirt(FirstUserCI+index+m_pObj->CBContextVirt());
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void MLog::SetCondition(long index, MMessageType Type, LPCSTR pFmt, ...)
+  {
+  if (index>=0 && index<MaxUserCI)
+    {
+    char Buff[1024];
+    va_list argptr;
+    va_start(argptr, pFmt);
+    vsprintf(Buff, pFmt, argptr);
+    va_end(argptr);
+
+    if (strlen(Buff)>0)
+      {
+      static LPCSTR What[/*MMessageType*/] = {"?", "E", "W", "N" };
+      m_pObj->SetCIVirt(FirstUserCI+index+m_pObj->CBContextVirt(), "%s\t%s", What[Type], Buff);
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void MLog::ClearCondition(long index)
+  {
+  if (index>=0 && index<MaxUserCI)
+    {
+    m_pObj->ClrCIVirt(FirstUserCI+index+m_pObj->CBContextVirt());
+    }
+  }
+
+MLog gs_Log;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+MDebug::MDebug()                        { m_pObj=NULL; };
+void MDebug::Init(TaggedObject * pObj)  { m_pObj=pObj; };
+bool MDebug::Marked()                   { return m_pObj ? m_pObj->DoDbgBrk()!=NULL : false; };
+void MDebug::Indent(int iIndent)        { dbgindent(iIndent); };
+void MDebug::Lock()                     { dbglock();          };
+void MDebug::UnLock()                   { dbgunlock();        };
+
+//---------------------------------------------------------------------------
+
+void MDebug::Print(LPCSTR pFmt, ...)
+  {
+  char Buff[2048];
+  va_list argptr;
+  va_start(argptr, pFmt);
+  vsprintf(Buff, pFmt, argptr);
+  va_end(argptr);
+  dbgp("%s", Buff);
+  };
+
+//---------------------------------------------------------------------------
+
+void MDebug::PrintLn(LPCSTR pFmt, ...)
+  {
+  char Buff[2048];
+  va_list argptr;
+  va_start(argptr, pFmt);
+  vsprintf(Buff, pFmt, argptr);
+  va_end(argptr);
+  dbgpln("%s", Buff);
+  };
+
+//===========================================================================
+
+MDebug gs_Dbg;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 //===========================================================================
 //

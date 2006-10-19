@@ -120,7 +120,11 @@ class AccNdData
                     fRecorded:1,
                     fArchived:1,
                     m_iChildLvl:2,
-                    m_fNxtIsChild:1;
+                    m_fNxtIsChild:1,
+                    m_fIsRowStart:1,
+                    m_fIsRowsEnd:1,
+                    m_IsLastDataCol:1;
+    int             m_iMatrixCol;
     UCHAR           m_Markers;    
     Strng_List      ValLst;
 
@@ -368,7 +372,7 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     int            NFlds;
     AccNdFld       Flds[MaxAccNdFlds];
     
-    int            NamW, CnvW, ValW, FldW;
+    int            NamW, CnvW, ValW, MatW, FldW;
     int            m_iPrevTTRow, m_iPrevTTCol;
     
 #if WITHSPECSHEETS

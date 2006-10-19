@@ -8,7 +8,11 @@
 #include "limnstream.h"
 #pragma optimize("", off)
 
-#define DoDbg 0x7
+#define DoDbg 0 /*x7*/
+
+
+
+
 
 //====================================================================================
 
@@ -28,6 +32,8 @@ static double Drw_DualEfficiencyCurve[] = { MDrw_Poly,  -12,8,  12,4,  12,-2, 0,
                                             MDrw_Poly,  -12,2,  12,-2,
                                             MDrw_End };
 
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_DualEfficiencyCurve::sm_Common;
+
 //---------------------------------------------------------------------------
 
 DEFINE_TRANSFER_UNIT(CDualEfficiencyCurve, "DualEfficiencyCurve", DLL_GroupName)
@@ -45,7 +51,7 @@ void CDualEfficiencyCurve_UnitDef::GetOptions()
 CDualEfficiencyCurve::CDualEfficiencyCurve(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
   gs_DWCfg.Initialise();
-  m_DWParms.Initialise();
+  m_DWParms.Initialise(gs_DWCfg.nSGs());
 
   m_LBtnDn = false;
   m_RBtnDn = false;
@@ -62,21 +68,15 @@ void CDualEfficiencyCurve::Init()
 
 void CDualEfficiencyCurve::BuildDataFields()
   {
-  DD.Text("Parameters...");
-  DD.Text("");
+  m_DWParms.BuildDataFields(DD);
 
-  CString Tg;
-  
-  //DD.Double("WaterSplit",   "",       &m_DWParms.WaterSplit(),  MF_PARAMETER, MC_Frac("%"));
-  //DD.Double("FeSiSplit",    "",       &m_DWParms.FeSiSplit(),   MF_PARAMETER, MC_Frac("%"));
-  //DD.Double("Alpha",        "",       &m_DWParms.Alpha(),       MF_PARAMETER, MC_(""));
-  //DD.Double("Rf",           "",       &m_DWParms.Rf(),          MF_PARAMETER, MC_Frac(""));
-  //DD.Double("D50c-Diamond", "",       &m_DWParms.DiamondD50c(), MF_PARAMETER, MC_L("mm"));
-  //for (int iSG=0; iSG<gs_DWCfg.nSGs(); iSG++)
-  //  {
-  //  Tg.Format("D50c-%s", gs_DWCfg.SGTextShort(iSG));
-  //  DD.Double(Tg,           "",       &m_DWParms.D50c(iSG),     MF_PARAMETER, MC_L("mm"));
-  //  }
+  }
+bool CDualEfficiencyCurve::ExchangeDataFields()
+  {
+  if (m_DWParms.ExchangeDataFields(DX))
+    return true;
+
+  return false;
   }
 
 //---------------------------------------------------------------------------
@@ -107,7 +107,6 @@ void CDualEfficiencyCurve::EvalProducts()
       if (DoDbg)
         LSIn.Dump("In", DoDbg);
 
-#if 01
       LSIn.ConvertToMassForm(QI);
       LSO0.ConvertToMassForm(Q0);
       LSO1.ConvertToMassForm(Q1);
@@ -122,7 +121,7 @@ void CDualEfficiencyCurve::EvalProducts()
 					 		            			                      gs_DWCfg.ColCount(),
                                                       m_DWParms.DataCount(),    // int nParameters,
                                                       0,                        // int nReturns,
-                                                      m_DWParms.GetDataPtr(),
+                                                      CLimn_ModelData_Access(m_DWParms),
                                                       NULL,                     // double* ModelReturn,
                                                       LSIn.Data(),              // double* CombinedFeed,
                                                       LSO0.Data(),              // double* Product1,
@@ -143,12 +142,6 @@ void CDualEfficiencyCurve::EvalProducts()
       LSO0.ConvertToFracForm(Q0);
       LSO1.ConvertToFracForm(Q1);
       LSO2.ConvertToFracForm(Q2);
-
-#else
-      Q0.SetF(QI, MP_All, 1.0/3.0);
-      Q1.SetF(QI, MP_All, 1.0/3.0);
-      Q2.SetF(QI, MP_All, 1.0/3.0);
-#endif
 
       if (DoDbg)
         {

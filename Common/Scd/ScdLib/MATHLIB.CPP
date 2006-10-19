@@ -370,6 +370,108 @@ double ParseNANFlag(const char * Str, double Val/*=dNAN*/)
 //
 //===========================================================================
 
+int aotoi(const char* p)
+  {
+  DWORD O=0;
+  if (p)
+    while (*p>='0' && *p<='7')
+      {
+      O*=8;
+      O+=(*p)-(char)'0';
+      p++;
+      }
+  return O;
+  }
+
+// -----------------------------------------------------------
+
+int SafeAOtoI(const char * Str, int Default)
+  {
+  if (Str)
+    {
+    while (*Str!=0 && isspace(*Str))
+      Str++;
+    if (isdigit(*Str))// || *Str=='-' || *Str=='+')
+      return aotoi(Str);
+    }
+  return Default;
+  }
+
+// -----------------------------------------------------------
+
+double SafeAtoF(const char * Str, double Default)
+  {
+  if (Str)
+    {
+    while (*Str!=0 && isspace(*Str))
+      Str++;
+    if (*Str=='*')
+      return ParseNANFlag(Str);
+    if (isdigit(*Str) || *Str=='-' || *Str=='+' || *Str=='.')
+      return atof(Str);
+    }
+  return Default;
+  }
+
+// -----------------------------------------------------------
+
+long SafeAtoL(const char * Str, long Default)
+  {
+  if (Str)
+    {
+    while (*Str!=0 && isspace(*Str))
+      Str++;
+    if (isdigit(*Str) || *Str=='-' || *Str=='+')
+      return atol(Str);
+    }
+  return Default;
+  }
+
+// -----------------------------------------------------------
+
+int SafeAtoI(const char * Str, int Default)
+  {
+  if (Str)
+    {
+    while (*Str!=0 && isspace(*Str))
+      Str++;
+    if (isdigit(*Str) || *Str=='-' || *Str=='+')
+      return atoi(Str);
+    }
+  return Default;
+  }
+
+//---------------------------------------------------------------------------
+
+int SafeAlphatoI(const char * Str, int Default, int Base)
+  {
+  if (Str)
+    {
+    while (*Str!=0 && isspace(*Str))
+      Str++;
+    if (Str && isalpha(*Str) && (toupper(*Str)-(char)'A')<Base)
+      {
+      const char* p = Str;
+      int O = 0;
+      while (isalpha(*Str) && (toupper(*Str)-(char)'A')<Base)
+        {
+        O *= Base;
+        O += (char)toupper(*Str)-(char)'A'+1;
+        Str++;
+        }
+      return O;
+      }
+    }
+  return Default;
+  }
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 
 const long    CTimeValue::Divisor       = 1000;
 const double  CTimeValue::MinResolution = 1.0/Divisor;

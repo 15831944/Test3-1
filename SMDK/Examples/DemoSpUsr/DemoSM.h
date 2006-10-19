@@ -13,6 +13,10 @@ class CDemoSM : public MSpModelBase
 	  CDemoSM(TaggedObject *pNd);
 	  ~CDemoSM();
 
+    void              BuildDataFields();
+    bool              ExchangeDataFields();
+    bool              ValidateDataFields();
+
 	  bool              get_IsBaseClassOf(LPCTSTR OtherProgID);
 	  LPCTSTR           get_PreferredModelProgID();
 	  double            get_Density(long Phases, double T, double P, MArray * pMA);

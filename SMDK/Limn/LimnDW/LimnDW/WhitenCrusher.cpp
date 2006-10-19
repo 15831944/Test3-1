@@ -8,7 +8,7 @@
 #include "limnstream.h"
 #pragma optimize("", off)
 
-#define DoDbg 0x7
+#define DoDbg 0 /*x7*/
 
 //====================================================================================
 
@@ -24,6 +24,9 @@ static double Drw_WhitenCrusher[] = { MDrw_Poly,  -12,7,  -7,0,  -12,-7, -12,7,
                                       MDrw_Poly,  12,7,  7,0,  12,-7, 12,7,
                                       MDrw_Poly,  -7,7, -5,0, -7,-7, 7,-7, 5,0, 7,7, -7,7,
                                       MDrw_End };
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_WhitenCrusher::sm_Common;
+CLimn_ModelData_Common C_ModelReturns_DiamondWizard_WhitenCrusher::sm_Common;
 
 //---------------------------------------------------------------------------
 
@@ -58,117 +61,15 @@ void CWhitenCrusher::Init()
 
 //---------------------------------------------------------------------------
 
-const int xidRedDensimetrics  = 1;
-const int xidCrusherCSS       = 2;
-const int xidK1a0             = 3;
-const int xidK1a1             = 4;
-const int xidK1a2             = 5;
-const int xidK1a3             = 6;
-const int xidK2a0             = 7;
-const int xidK2a1             = 8;
-const int xidK2a2             = 9;
-const int xidK2a3             =10;
-const int xidK3a0             =11;
-const int xidT10a0            =12;
-const int xidT10a1            =13;
-const int xidT10a2            =14;
-const int xidT10a3            =15;
-const int xidTnt00            =16;
-
 void CWhitenCrusher::BuildDataFields()
   {
-  DD.Text("Parameters...");
-  DD.Text("");
-
-  CString Tg;
-  
-  DD.Bool  ("RedDensimetrics","",  xidRedDensimetrics     ,  MF_PARAMETER);
-  DD.Double("CSS",            "",  xidCrusherCSS          ,         MF_PARAMETER, MC_L("mm"));
-  DD.Double("K1a0 ",          "",  &m_DWParms.K1_a(0)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K1a1 ",          "",     &m_DWParms.K1_a(1)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K1a2 ",          "",     &m_DWParms.K1_a(2)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K1a3 ",          "",     &m_DWParms.K1_a(3)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K2a0 ",          "",     &m_DWParms.K2_a(0)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K2a1 ",          "",     &m_DWParms.K2_a(1)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K2a2 ",          "",     &m_DWParms.K2_a(2)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K2a3 ",          "",     &m_DWParms.K2_a(3)             ,         MF_PARAMETER, MC_(""));
-  DD.Double("K3a0 ",          "",     &m_DWParms.K3_a()              ,         MF_PARAMETER, MC_(""));
-  DD.Double("T10a0",          "",     &m_DWParms.T10_a(0)            ,         MF_PARAMETER, MC_(""));
-  DD.Double("T10a1",          "",     &m_DWParms.T10_a(1)            ,         MF_PARAMETER, MC_(""));
-  DD.Double("T10a2",          "",     &m_DWParms.T10_a(2)            ,         MF_PARAMETER, MC_(""));
-  DD.Double("T10a3",          "",     &m_DWParms.T10_a(3)            ,         MF_PARAMETER, MC_(""));
-  for (int i=0; i<5; i++)
-    {
-    for (int j=0; j<5; j++)
-      {
-      DD.Double("Tnt44",          "",     xidTnt00+j+(i*5)  ,         MF_PARAMETER, MC_(""));
-      }
-    }
-
-//									0. Flag to indicate whether Redistribution of Densimetrics is required
-//									1. Crusher CSS
-//									2-5. K1 parameters a0 - a3
-//									6-9. K2 parameters a0 - a3
-//									10.  K3 parameter  a0
-//									11-14. T10 parameters a0 - a3
-//									15-39. Array of Tn v T10 (Spreadsheet vector form - i.e. Row Major order
+  m_DWParms.BuildDataFields(DD);
 
   }
 bool CWhitenCrusher::ExchangeDataFields()
   {
-  switch (DX.Handle)
-    {
-  //DD.Text("Parameters...");
-  //DD.Text("");
-
-  //CString Tg;
-  //
-    case xidRedDensimetrics: 
-      if (DX.HasReqdValue)
-        m_DWParms.redistributeDensimetrics() = DX.Bool?1:0;
-      DX.Bool = m_DWParms.redistributeDensimetrics()!=0;
-      return true;
-    case xidCrusherCSS:
-      if (DX.HasReqdValue)
-        m_DWParms.CSS() = DX.Double*1000; // to mm
-      DX.Double = m_DWParms.CSS()*0.001;
-      return true;
-
-
-      //DD.Double("CSS",          "",  xidCrusherCSS          ,         MF_PARAMETER, MC_L("mm"));
-  //DD.Double("K1a0 ",          "",     xidK1a0             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K1a1 ",          "",     xidK1a1             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K1a2 ",          "",     xidK1a2             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K1a3 ",          "",     xidK1a3             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K2a0 ",          "",     xidK2a0             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K2a1 ",          "",     xidK2a1             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K2a2 ",          "",     xidK2a2             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K2a3 ",          "",     xidK2a3             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("K3a0 ",          "",     xidK3a0             ,         MF_PARAMETER, MC_(""));
-  //DD.Double("T10a0",          "",     xidT10a0            ,         MF_PARAMETER, MC_(""));
-  //DD.Double("T10a1",          "",     xidT10a1            ,         MF_PARAMETER, MC_(""));
-  //DD.Double("T10a2",          "",     xidT10a2            ,         MF_PARAMETER, MC_(""));
-  //DD.Double("T10a3",          "",     xidT10a3            ,         MF_PARAMETER, MC_(""));
-  
-    default:
-      if (DX.Handle>=xidTnt00 && DX.Handle<xidTnt00+25)
-        {
-        int i=(DX.Handle-xidTnt00)/5;
-        int j=(DX.Handle-xidTnt00)%5;
-        if (DX.HasReqdValue)
-          m_DWParms.Tn_V_T10(i,j) = DX.Double;
-        DX.Double = m_DWParms.Tn_V_T10(i,j);
-        return true;
-        }
-    }
-
-//									0. Flag to indicate whether Redistribution of Densimetrics is required
-//									1. Crusher CSS
-//									2-5. K1 parameters a0 - a3
-//									6-9. K2 parameters a0 - a3
-//									10.  K3 parameter  a0
-//									11-14. T10 parameters a0 - a3
-//									15-39. Array of Tn v T10 (Spreadsheet vector form - i.e. Row Major order
+  if (m_DWParms.ExchangeDataFields(DX))
+    return true;
 
   return false;
   }
@@ -198,7 +99,7 @@ void CWhitenCrusher::EvalProducts()
         LSIn.Dump("In", DoDbg);
         Dbg.PrintLn("MassIn:%10.4f", QI.MassFlow());
         }
-#if 10
+
       LSIn.ConvertToMassForm(QI);
       LSOut.ConvertToMassForm(Q0);
 
@@ -210,8 +111,8 @@ void CWhitenCrusher::EvalProducts()
 					 		            			                      gs_DWCfg.ColCount(),
                                                       m_DWParms.DataCount(),    // int nParameters,
                                                       m_DWReturns.DataCount(),  // int nReturns,
-                                                      m_DWParms.GetDataPtr(),
-                                                      m_DWReturns.GetDataPtr(), // double* ModelReturn,
+                                                      CLimn_ModelData_Access(m_DWParms),
+                                                      CLimn_ModelData_Access(m_DWReturns), // double* ModelReturn,
                                                       LSIn.Data(),              // double* CombinedFeed,
                                                       LSOut.Data(),             // double* Product1,
                                                       NULL,                     // double* Product2,
@@ -224,16 +125,8 @@ void CWhitenCrusher::EvalProducts()
       if (DoDbg)
         LSOut.Dump("Product", DoDbg);
 
-        Dbg.PrintLn("MassIn  X:%10.4f", LSIn.Vector.Mass());
-        Dbg.PrintLn("MassOut X:%10.4f", LSOut.Vector.Mass());
-      
-      
-
       LSIn.ConvertToFracForm(QI);
       LSOut.ConvertToFracForm(Q0);
-#else
-      Q0.Copy(QI);
-#endif
 
       if (DoDbg)
         {

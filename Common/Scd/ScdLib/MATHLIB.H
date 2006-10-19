@@ -71,6 +71,8 @@ DllExport double FindLargestCubeRoot(double a1, double a2, double a3);
 //  
 //
 //===========================================================================
+
+#if MOVEDTO_MD_SHARE_3
 //Ascii Octal to int 
 inline int aotoi(const char* p)
   {
@@ -168,6 +170,7 @@ inline int SafeAlphatoI(const char * Str, int Default=0, int Base=26)
     }
   return Default;
   }
+#endif
 
 //===========================================================================
 //

@@ -19,7 +19,7 @@
 // ==========================================================================
 
 _FWDDEF(SFEFlwLib)
-class SFEFlwLib : public SFEMdlLib, CExecObj
+class SFEFlwLib : public SFEMdlLib, public CExecObj
   {
   protected:
     Strng          sFlwLibTag;

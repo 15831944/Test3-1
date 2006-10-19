@@ -9,6 +9,7 @@
 //#pragma once
 //#endif // _MSC_VER > 1000
 
+#include "md_share1.h"
 
 #undef DllImportExport
 #if defined(__MD_SHARE3_CPP)
@@ -18,6 +19,252 @@
 #else
 #define DllImportExport
 #endif
+
+// ======================================================================
+//
+//
+//
+// ======================================================================
+
+#undef DllImportExport
+#if defined(__GPFUNCS_CPP)
+#define DllImportExport __declspec(dllexport)
+#elif !defined(SCDLIB)
+#define DllImportExport __declspec(dllimport)
+#else
+#define DllImportExport
+#endif
+
+DllImportExport LPTSTR   TemporaryFiles();
+DllImportExport LPTSTR   CfgFile();
+DllImportExport LPTSTR   CfgFiles();
+DllImportExport LPTSTR   CfgName();
+DllImportExport LPTSTR   PrjFile();
+DllImportExport LPTSTR   PrjFiles();
+DllImportExport LPTSTR   PrjName();
+DllImportExport LPTSTR   PrjNameAlias();
+
+DllImportExport BOOL     FileExists(LPCTSTR FileName, WIN32_FIND_DATA & fd);
+DllImportExport BOOL     FileExists(LPCTSTR FileName);
+DllImportExport BOOL     FileAttributes(LPCTSTR FileName, DWORD & Attributes);
+DllImportExport BOOL     FileWriteTime(LPCTSTR FileName, FILETIME & FileTime);
+
+// ======================================================================
+
+const short MaxCSVCols = 256;
+typedef char * CSVColArray[MaxCSVCols];
+DllImportExport int      ParseCSVTokens(LPTSTR Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL);
+DllImportExport int      ParseCSVFunction(LPTSTR Buff, CSVColArray &C, int& Quote);
+DllImportExport int      ParseCSVTokens(LPTSTR Buff, CSVColArray &C, LPCTSTR MoreSepars=NULL);
+DllImportExport int      ParseCSVFunction(LPTSTR Buff, CSVColArray &C);
+DllImportExport int      ParseTokens(LPTSTR Buff, CSVColArray &C, char Token);
+DllImportExport int      ParseTabTokens(LPTSTR Buff, CSVColArray &C);
+
+// ======================================================================
+
+DllImportExport BOOL     CopyTextToClipboard(LPCTSTR Text);
+DllImportExport BOOL     AddTextToClipboard(LPCTSTR Text, LPCTSTR Separator=NULL);
+
+// ======================================================================
+//
+//
+//
+// ======================================================================
+
+#undef DllImportExport
+#if defined(__MATHLIB_CPP)
+#define DllImportExport __declspec(dllexport)
+#elif !defined(SCDLIB)
+#define DllImportExport __declspec(dllimport)
+#else
+#define DllImportExport
+#endif
+
+DllImportExport int SafeAOtoI(LPCTSTR Str, int Default=0);
+DllImportExport double ParseNANFlag(LPCTSTR Str, double Val=dNAN);
+DllImportExport double SafeAtoF(LPCTSTR Str, double Default=0.0);
+DllImportExport long SafeAtoL(LPCTSTR Str, long Default=0);
+DllImportExport int SafeAtoI(LPCTSTR Str, int Default=0);
+DllImportExport int SafeAlphatoI(LPCTSTR Str, int Default=0, int Base=26);
+
+// ======================================================================
+//
+//
+//
+// ======================================================================
+
+#undef DllImportExport
+#if defined(__REGISTRY_CPP)
+#define DllImportExport __declspec(dllexport)
+#elif !defined(SCDLIB)
+#define DllImportExport __declspec(dllimport)
+#else
+#define DllImportExport
+#endif
+
+class DllImportExport CRegistry
+  {
+  public:
+    CRegistry(void);
+    ~CRegistry(void);
+
+    void     SetRegistryKey(HKEY hKey, LPCTSTR lpszRegistryKey, LPCTSTR lpszProfile);
+    HKEY     GetAppRegistryKey();
+    HKEY     GetSectionKey(LPCTSTR lpszSection);
+    UINT     GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry,	int nDefault);
+    CString  GetProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry,	LPCTSTR lpszDefault);
+    BOOL     GetProfileBinary(LPCTSTR lpszSection, LPCTSTR lpszEntry, BYTE** ppData, UINT* pBytes);
+    BOOL     WriteProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue);
+    BOOL     WriteProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszValue);
+    BOOL     WriteProfileBinary(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPBYTE pData, UINT nBytes);
+
+
+  protected:
+    HKEY    m_hKey;
+    LPCTSTR m_pszProfileName;
+	  LPCTSTR m_pszRegistryKey;
+	  LPCTSTR m_pszAppName;
+
+  };
+
+// -------------------------------------------------------------------------
+/*#C:This class is used to access INI type files. It provides more than the
+standard "Set/Get Profile" options.*/
+
+//SetDllImportExport(__GPFUNCS_CPP, SCDLIB)               
+#undef DllImportExport
+#if defined(__GPFUNCS_CPP)
+#define DllImportExport __declspec(dllexport)
+#elif !defined(SCDLIB)
+#define DllImportExport __declspec(dllimport)
+#else
+#define DllImportExport
+#endif
+
+class DllImportExport CProfINIFile : protected CRegistry
+  {
+  public:
+    CProfINIFile(LPCSTR pFilename = "");
+    CProfINIFile(LPCSTR pDir, LPCSTR pFilename);
+    ~CProfINIFile();
+
+    __int64       RdInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iDefault);
+    void          WrInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iValue);
+    double        RdDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dDefault);
+    void          WrDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dValue);
+    long          RdLong(LPCTSTR lpszSection, LPCTSTR lpszEntry, long nDefault);
+    void          WrLong(LPCTSTR lpszSection, LPCTSTR lpszEntry, long nValue);
+    int           RdInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
+    void          WrInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue);
+    LPCSTR        RdStr(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCSTR pDefault="");
+    void          WrStr(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCSTR pValue);
+    DWORD         RdSection(LPCTSTR lpszSection, LPSTR pBuff, int BuffLen);
+    void          WrSection(LPCTSTR lpszSection, LPSTR pBuff);
+    DWORD         RdSectionNames(LPSTR pBuff, int BuffLen);
+    void          Flush();
+    static void   GetProfItem(LPSTR &pBuff, LPSTR &pName, LPSTR &pExp);
+    void          SetUseRegistry(bool On, HKEY hKey, LPCTSTR lpszRegistryKey, LPCTSTR lpszProfile);
+    void          SetUseRegistry(const CProfINIFile & Other);
+    void          SetProfFilename(LPCSTR pFilename)   { m_sFilename = pFilename; };
+    LPCTSTR       Filename()                          { return m_sFilename.GetLength()>0 ? (LPCTSTR)m_sFilename : NULL; }
+
+  protected:
+    bool          m_bUseRegistry;
+    CString       m_sFilename;
+    CString       m_sTmpRdStr;
+  };
+
+
+inline void CProfINIFile::SetUseRegistry(bool On, HKEY hKey, LPCTSTR lpszRegistryKey, LPCTSTR lpszProfile)
+  {
+  m_bUseRegistry=On;
+  if (m_bUseRegistry)
+    SetRegistryKey(hKey, lpszRegistryKey, lpszProfile);
+  };
+inline void CProfINIFile::SetUseRegistry(const CProfINIFile & Other)
+  {
+  m_bUseRegistry=Other.m_bUseRegistry;
+  if (m_bUseRegistry)
+    SetRegistryKey(Other.m_hKey, Other.m_pszRegistryKey, Other.m_pszProfileName);
+  };
+
+extern DllImportExport CProfINIFile ScdPFUser;
+extern DllImportExport CProfINIFile ScdPFMachine;
+
+// ========================================================================
+//
+//
+//
+// ========================================================================
+
+#undef DllImportExport
+#if defined(__MD_SHARE3_CPP)
+#define DllImportExport __declspec(dllexport)
+#elif !defined(SCDLIB)
+#define DllImportExport __declspec(dllimport)
+#else
+#define DllImportExport
+#endif
+
+// ========================================================================
+
+// remote forward's
+class TaggedObject;
+class TagObjClass;
+class DataDefnBlk;
+class DataChangeBlk;
+class ValidateDataBlk;
+
+// ========================================================================
+
+// Log Interface
+const long MaxUserCI   = 16;
+const long FirstUserCI = 8;
+
+enum MMessageType { MMsg_None, MMsg_Error, MMsg_Warning, MMsg_Note };
+
+class DllImportExport MLog
+  {
+  public:
+    MLog()                           { m_pObj = NULL; };
+    void         Init(TaggedObject * pObj)     { m_pObj = pObj; };
+
+    void         Message(MMessageType Type, LPCSTR pFmt, ...); //send mesage note/warning/error
+    void         SetCondition(bool On, long index, MMessageType Type, LPCSTR pFmt, ...); //set condition note/warning/error
+    void         SetCondition(long index, MMessageType Type, LPCSTR pFmt, ...); //set condition note/warning/error
+    void         ClearCondition(long index);   //clear condition message
+  
+  public:
+    TaggedObject * m_pObj;
+  };
+
+extern DllImportExport MLog gs_Log;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+// Debug Interface
+class DllImportExport MDebug
+  {
+  public:
+    MDebug();
+    
+    void         Init(TaggedObject * pObj=NULL);
+
+    bool         Marked();                    // true if DoDbgBrk is Set
+    void         Print(LPCSTR pFmt, ...);     //print to debug file
+    void         PrintLn(LPCSTR pFmt, ...);   //print line to debug file
+    void         Indent(int iIndent);         //Indent/Undent by n Chars
+    void         Lock();
+    void         UnLock();
+
+  public:
+    TaggedObject * m_pObj;
+  };
+
+extern DllImportExport MDebug gs_Dbg;
 
 // ======================================================================
 //
@@ -143,55 +390,6 @@ class MInitialiseTest
 //
 //
 // ======================================================================
-
-class MArray;
-class MPropertyInfo; 
-class MPropertyValue; 
-class SpQuality;     
-class DllImportExport MSpQualityBase : public MSubConstructBase
-  {
-  friend class CCall2MSpQuals;
-  friend class MVector;
-  public:
-    MSpQualityBase() { m_pSpQual=NULL; };
-    virtual ~MSpQualityBase() {};
-
-    virtual void   ExchangeSpecies(MSpQualityBase * Other) =0;
-
-    virtual bool   EquilRqd4HEval() { return false; };
-    virtual void   Equilibrate() {};
-
-    virtual void   ZeroMass()=0;
-    virtual void   ZeroDeriv()=0;
-    virtual void   ScaleMass(long Phase, double Mult)=0;
-    virtual void   ScaleMass(CArray<int,int> &SpIds, double Mult)=0;
-
-    virtual void   SetMassF(MSpQualityBase * QualSet)=0;
-    virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)=0;
-    virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub)=0;
-
-    virtual void   Copy(MSpQualityBase * QualCopy)=0;
-    virtual void   AddDeriv(MSpQualityBase * Qual2, double Sgn_)=0;
-    virtual void   AddDiscrete(MSpQualityBase * Qual2, double Sgn_)=0;
-
-    virtual long    DefinedPropertyCount()                                          { return 0; };
-    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info)           { return -1; };
-
-    virtual DWORD   GetPropertyVisibility(long Index)                               { return ePVis_All; };
-    virtual void    GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
-    virtual void    PutPropertyValue(long Index, MPropertyValue & Value)            {};
-
-  private:
-    SpQuality     * m_pSpQual;
-
-  };
-
-// ======================================================================
-//
-//
-//
-// ======================================================================
-
 
 #undef DllImportExport
 

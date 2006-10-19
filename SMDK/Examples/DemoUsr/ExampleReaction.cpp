@@ -109,7 +109,7 @@ void SimpleReaction::EvalProducts()
     //double dHf = m_RB.HfSumRct();
 
     double FC = -1.0;
-    MIBayer & FeedB=Work.IF<MIBayer>(false);
+    MIBayer & FeedB=*Work.FindIF<MIBayer>();
     if (!IsNothing(FeedB))
       {
       //double bleeble = FeedB.TOOC(Work.T);

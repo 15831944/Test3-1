@@ -592,7 +592,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
             case tt_Object_E:
               Busy=0;
 #if dbgSaveObjMDBFlds
-              dbgpln("%*sEnd :%s-15:%-20s",dbgIndent,"",tt_TypeString(ItemType), pClass);
+              dbgpln("%*sEnd :%s %-20s",dbgIndent,"",tt_TypeString(ItemType), pClass);
 #endif
               break;
             case tt_Struct:

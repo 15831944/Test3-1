@@ -123,8 +123,8 @@ void PSDCalculator::SetPersonality()
       // Determine if the input stream has size information present
       // NB: This will be successful if any of the species have PSD data
       // associated with them.
-      MIPSD & PSD = QI.IF<MIPSD>(false);
-      MIPSD & PSDO = QO.IF<MIPSD>(false);
+      MIPSD & PSD = *QI.FindIF<MIPSD>();
+      MIPSD & PSDO = *QO.FindIF<MIPSD>();
 
       if ( IsNothing(PSD)==false )
         {
@@ -168,7 +168,7 @@ void PSDCalculator::EvalProducts()
     // This ensures all "qualities" are copied and initialised (eg PSD, SpecieModel, etc)
     QO = QI;
 
-    MIPSD & PSDO = QO.IF<MIPSD>(false);
+    MIPSD & PSDO = *QO.FindIF<MIPSD>();
 
     personality->ReplaceDistribution(&PSDO);
 

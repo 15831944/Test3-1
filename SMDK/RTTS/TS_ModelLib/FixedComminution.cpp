@@ -137,8 +137,8 @@ void CComminution_Fixed::EvalProducts(MBaseMethod &M,
 		                              bool bInit)
 	
 { 
-	MIPSD & PSDin  = Feed.IF<MIPSD>(false);
-	MIPSD & PSDout = Product.IF<MIPSD>(false);
+	MIPSD & PSDin  = *Feed.FindIF<MIPSD>();
+	MIPSD & PSDout = *Product.FindIF<MIPSD>();
 
 	if ( IsNothing(PSDin)==false )
 	{

@@ -70,7 +70,9 @@ class CAlcanSM : public MSpModelBase, public MIBayer
 	  CAlcanSM(TaggedObject * pNd);
 	  ~CAlcanSM();
 
-    bool            ValidateData();
+    void            BuildDataFields();  
+    bool            ExchangeDataFields();
+    bool            ValidateDataFields();
 
     // Standard Methods
 	  bool            get_IsBaseClassOf(LPCTSTR OtherProgID);

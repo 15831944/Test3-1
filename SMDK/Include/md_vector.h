@@ -193,17 +193,21 @@ template<class T> T * getIF(MVector *pVec, bool Throw=true)
   return static_cast<T*>(NULL);
   };
 
-class MVectorInterfaces
+//---------------------------------------------------------------------------
+
+template<class T> T * createIF(MVector *pVec)
   {
-  protected:
-    MVector *m_pVec;
-  public :
-    MVectorInterfaces(MVector * pVec) { m_pVec=pVec; }
+  T * p = getIF<T>(pVec, false);
+  if (p)
+    return p;
 
-  template<class T> operator T*()  { return getIF<T>(m_pVec); };
-  template<class T> operator T&()  { return *getIF<T>(m_pVec); };
+  p = dynamic_cast<T*>(pVec->GetMSpQualityBase4Cast(T::GroupIdNo(), true));
+  if (p)
+    return p;
+
+  throw MMdlException(0,"Interface not found");
+  return static_cast<T*>(NULL);
   };
-
 
 //---------------------------------------------------------------------------
 
@@ -235,6 +239,7 @@ class DllImportExport MVector
 
     //interface:
     long          Count(DWORD Phases=MP_All);   //number of species (same as gs_MVDefn.Count())
+    LPCTSTR       getTag();
 
     // ----------------------------- Basic State Access
     double        getT() const;
@@ -252,6 +257,7 @@ class DllImportExport MVector
     double      * getMassVector();
     void          MarkStateChanged();  // Must be called if Masses are changed using the MassVector;
 
+    __declspec(property(get=getTag))                    LPCTSTR Tag;
     __declspec(property(get=getT, put=putT))            double T;
     __declspec(property(get=getP, put=putP))            double P;
     __declspec(property(get=getM, put=putM))            double M[];
@@ -371,30 +377,31 @@ class DllImportExport MVector
     //MQualities    Qualities;
 
     // ----------------------------- Access to SpecieModel/Quality Interfaces
-    MSpModelBase    * GetMSpModelBase4Cast();
     MXSpModel       * GetSpModel4Cast();
-    MSpQualityBase  * GetMSpQualityBase4Cast(long i);
-    MXSpQuality     * GetSpQuality4Cast(long i);
+    MSpModelBase    * GetMSpModelBase4Cast();
+    MXSpQuality     * GetSpQuality4Cast(long i, bool Required=false);
+    MSpQualityBase  * GetMSpQualityBase4Cast(long i, bool Required=false);
     long              GetSpQualityCount4Cast();
     //Particle SIze Distribution specials
     MIPSD       * CreatePSD();
     MIPSD       * getPSD(long Index=-1);
     MIPSD       * getPSD(LPCTSTR Name);
 
-    MVectorInterfaces Interfaces;
-    template<class T> T & IF(bool Throw=true) { return *getIF<T>(this, Throw); };
     template<class T> bool IFExists() { return getIF<T>(this, false)!=NULL; };
+    template<class T> T * GetIF()     { return getIF<T>(this, true); };
+    template<class T> T * FindIF()    { return getIF<T>(this, false); };
+    template<class T> T * CreateIF()  { return createIF<T>(this); };
 
   private:
     SpModel     * m_pSpMdl;
     MIPSD       * m_pPSD;
-  protected:
+  public:
     virtual SpModel * getSpMdl() const
       {
       if (!m_pSpMdl)
         throw MMdlException(0,"Null Model Pointer");
       return m_pSpMdl;
-      } ;
+      };
     __declspec(property(get=getSpMdl))    SpModel * SpMdl;
   };
 

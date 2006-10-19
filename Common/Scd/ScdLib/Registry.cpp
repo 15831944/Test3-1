@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
 #define  __REGISTRY_CPP
-#include ".\registry.h"
+#include "..\..\..\SMDK\include\md_share3.h"
+//#include ".\registry.h"
 
 CRegistry::CRegistry(void)
   {

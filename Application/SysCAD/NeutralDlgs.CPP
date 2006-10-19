@@ -605,7 +605,7 @@ void CNeutralSaveGroupDlg::OnOK()
 
   SetDBNameSymb(GetWndText(m_editDatabase));
 
-  PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb);
+  PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb());
   #if WITHGRFGROUPCONFIG
   PF.WrLong("CreateGroup", "WithConfig", m_WithConfig.GetCheck());
   PF.WrLong("CreateGroup", "WithState", m_WithState.GetCheck());
@@ -1372,7 +1372,7 @@ void CNeutralInsertGroupDlg::OnOK()
   CString S;
   m_editDatabase.GetWindowText(S);
   SetDBNameSymb(S);
-  PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb);
+  PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb());
 
   //PF.WrInt("InsertGroup", "FixupRule", GetFixupRule());
   //PF.WrStr("InsertGroup", "Prefix", GetPrefix());

@@ -2651,7 +2651,7 @@ void CProject::SaveWindowLayout()
   {
   CWaitMsgCursor Wait("Saving layout of windows and toolbars");
   CProfINIFile PF(PrjFiles(), LayoutFileName);
-  DeleteFile(PF.sFilename()); //delete old layout file
+  DeleteFile(PF.Filename()); //delete old layout file
 
   CWindowLists WL;
   const int WndCount = WL.BuildSingleList();
@@ -2693,7 +2693,7 @@ void CProject::SaveWindowLayout()
     pM->SaveBarState("ToolBars");
     ScdApp()->m_pszProfileName = OldIni;*/
 
-    pMainTBMngr->SaveState(PF.sFilename());
+    pMainTBMngr->SaveState((LPTSTR)PF.Filename());
   }
 
 //---------------------------------------------------------------------------
@@ -2832,8 +2832,10 @@ void CProject::RestoreMainWindow()
   CProfINIFile PF(PrjFile());
   if (PrjFileVerNo() > 3)
     {
-    PF.sFilename = PrjFiles();
-    PF.sFilename += LayoutFileName;
+    CString Fn;
+    Fn = PrjFiles();
+    Fn += LayoutFileName;
+    PF.SetProfFilename(Fn);
     }
 
   //restore toolbars...

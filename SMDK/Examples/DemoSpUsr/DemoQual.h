@@ -7,11 +7,18 @@
 #include "md_headers.h"
 #include <vector>
 
+DEFINE_SPECIEQUALITY(CDemoQual)
 class CDemoQual : public MSpQualityBase
   {
+  ATTACH_SPECIEQUALITY(CDemoQual)
+                  
   public:
 	  CDemoQual(TaggedObject * pNd);
 	  ~CDemoQual();
+
+    void           BuildDataFields();
+    bool           ExchangeDataFields();
+    bool           ValidateDataFields();
 
     // CPropertyBase Overides
     long           DefinedPropertyCount();
@@ -40,7 +47,7 @@ class CDemoQual : public MSpQualityBase
     virtual void   ScaleMass(long Phase, double Mult);
     virtual void   ScaleMass(CArray<int,int> &SpIds, double Mult);
 
-    virtual void   SetMassF(MSpQualityBase * QualSet);
+    virtual void   SetMassF(MSpQualityBase * QualSet, MArray & MSet);
     virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd);
     virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub);
 

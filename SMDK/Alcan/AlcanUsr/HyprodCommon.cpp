@@ -71,7 +71,7 @@ HyprodPrecipHelper::HyprodPrecipHelper()
 
 bool HyprodPrecipHelper::InitSizeData(MVector & Vec)
   {
-  MIPSD & VecSz  = Vec.IF<MIPSD>(false);
+  MIPSD & VecSz  = *Vec.FindIF<MIPSD>();
   NIntervals = VecSz.SizeCount;
 
   if (NIntervals>MaxHPSizeClasses)
@@ -197,7 +197,7 @@ void HyprodPrecipHelper::ApplyAgglom(double GRate, double dTime, double KvFac, d
 double HyprodPrecipHelper::get_PrecipRate(MVector & V, double Ssurf)
   {
   const double T=V.T;
-  MIBayer & VecB = V.IF<MIBayer>();
+  MIBayer & VecB = *V.GetIF<MIBayer>();
   const double gpl=VecB.SolidsConc(C2K(25.0));
   const double GRate=VecB.GrowthRate();
   // the GTZ enforces the signs if growth goes to Zero
@@ -210,7 +210,7 @@ double HyprodPrecipHelper::get_NucleationRate(eNuclModel eNucleation,MVector & V
   {
   const double T =V.T;
   double nuclRate =0;
-  MIBayer & VecB = V.IF<MIBayer>();
+  MIBayer & VecB = *V.GetIF<MIBayer>();
   const double NuclFact = get_NuclFactor(V);
   const double HypNuclModel =VecB.NucleationRate(Ssurf);// !!the original Hyprod Nucleation Model
   const double gpl=VecB.SolidsConc(C2K(25.0));
@@ -254,11 +254,11 @@ int HyprodPrecipHelper::PrecipSS(MVector & Feed, MVector & Prod, MStream & QProd
 
   const double Na2OFac = get_Na2OFactor(Feed);
   T0=Prod.T;
-  MIBayer & FeedB=Feed.IF<MIBayer>();
-  MIBayer & ProdB=Prod.IF<MIBayer>();
-  MIBayer & PrevProdB=QProdPrev.IF<MIBayer>(false);
+  MIBayer & FeedB=*Feed.GetIF<MIBayer>();
+  MIBayer & ProdB=*Prod.GetIF<MIBayer>();
+  MIBayer & PrevProdB=*QProdPrev.FindIF<MIBayer>();
   const bool PrevValid = !IsNothing(PrevProdB);
-  MISSA & ProdSSA=Prod.IF<MISSA>();
+  MISSA & ProdSSA=*Prod.GetIF<MISSA>();
   if (FeedB.SolidsConc(C2K(25.0))<1e-12)
     {
     return -1;//Log.SetCondition(6, MMsg_Error, "PrecipSS Failed - No Solids");
@@ -271,7 +271,7 @@ int HyprodPrecipHelper::PrecipSS(MVector & Feed, MVector & Prod, MStream & QProd
   double Sx;
   if (!sm_bCompletePopulation && sm_bUsePrevPSD)
     {
-    MISSA & PrevSSA=QProdPrev.IF<MISSA>(false);// this is the SSA of the last Popul run to use in "NO POpul mode"
+    MISSA & PrevSSA=*QProdPrev.FindIF<MISSA>();// this is the SSA of the last Popul run to use in "NO POpul mode"
     if (IsNothing(PrevSSA))
       {
 	    m_bPrevPSDUsed = 0;
@@ -387,7 +387,7 @@ int HyprodPrecipHelper::MassBalance(MVector & Vec, double TRqd, double ARqd, dou
   OxSolMass    = OxSolMass+(OxLiqMass*OxFrac); 
 
   const double Fact = spAlumina.MW/spTHA.MW; // 0.654;
-  MIBayer & BVec=Vec.IF<MIBayer>();
+  MIBayer & BVec=*Vec.GetIF<MIBayer>();
 
   for (int Iter=100; Iter; Iter--)
     {
@@ -466,7 +466,7 @@ int HyprodPrecipHelper::MassBalance(MVector & Vec, double TRqd, double ARqd, dou
 
   ConvergeErr = (Iter==0);
 
-  MISSA & VecSSA=Vec.IF<MISSA>();
+  MISSA & VecSSA=*Vec.GetIF<MISSA>();
   if (NoPerSec>0.0 && !IsNothing(VecSSA))
     {
     VecSSA.SetSAMFromFlow(BVec.THAMassFlow(), NoPerSec);
@@ -540,8 +540,8 @@ void HyprodPrecipHelper::DoHeatBalance(MVector & Prod, double enthIn, double T, 
 
 bool HyprodPrecipHelper::SetPSDfromPrev(MVector & V, MStream & QProdPrev)
   {
-  MIPSD & ProdSz = V.IF<MIPSD>(false);
-  MIPSD & PrevSz = QProdPrev.IF<MIPSD>(false);
+  MIPSD & ProdSz = *V.FindIF<MIPSD>();
+  MIPSD & PrevSz = *QProdPrev.FindIF<MIPSD>();
   if (!IsNothing(ProdSz) && !IsNothing(PrevSz))
     {//Force ProdPSD = previous product PSD
     //ProdSz = PrevSz; //doesn't work, Kenwalt to fix

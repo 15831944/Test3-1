@@ -295,7 +295,7 @@ void CInsertLinkDlg::OnDestroy()
       {
       sm_LastConn = pMdlCB->GetCurSel();
       m_Model = T;
-      PF.WrStr("InsertLink", "$LastInsert", m_Model);
+      PF.WrStr("InsertLink", "$LastInsert", m_Model());
       PF.WrInt("InsertLink", "$AutoWire", m_AutoWire);
       PF.WrInt("InsertLink", "$DrawMethod", sm_iLinkDrawMethod);
       SaveSettings = true;

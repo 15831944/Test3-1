@@ -3594,21 +3594,21 @@ char *CfgDBFileName()             { return _CfgDBFile; };
 
 //---------------------------------------------------------------------------
 
-char*  PrjFile()                { return _UsePrevPrjAlias ? _PrevPrjFile() : _PrjFile(); };
-char*  PrjFiles()               { return _UsePrevPrjAlias ? _PrevPrjFiles() : _PrjFiles(); };
-char*  PrjFilesAlias()          { return "$Prj\\"; };
-char*  PrjFilesAliasOld()       { return "$PrjFiles\\"; };
-char*  SetPrjRmtCpyFiles(char * F)
+LPTSTR   PrjFile()                { return _UsePrevPrjAlias ? _PrevPrjFile() : _PrjFile(); };
+LPTSTR   PrjFiles()               { return _UsePrevPrjAlias ? _PrevPrjFiles() : _PrjFiles(); };
+char*    PrjFilesAlias()          { return "$Prj\\"; };
+char*    PrjFilesAliasOld()       { return "$PrjFiles\\"; };
+char*    SetPrjRmtCpyFiles(char * F)
   {
   _PrjRmtCpyFiles     = F;
   _PrjRmtCpyFiles.FnCheckEndBSlash();
   return _PrjRmtCpyFiles();
   };
-char*  PrjRmtCpyFiles()         { return _PrjRmtCpyFiles(); };
-char*  PrjRmtCpyFilesAlias()    { return "$RCFiles\\"; };
-char*  PrjName()                { return _UsePrevPrjAlias ? _PrevPrjName() : _PrjName(); };
-char*  PrjNameAlias()           { return "$PrjName"; };
-char*  PrjIniFile()             { return _UsePrevPrjAlias ? _PrevPrjIniFile() : _PrjIniFile(); }
+char*    PrjRmtCpyFiles()         { return _PrjRmtCpyFiles(); };
+char*    PrjRmtCpyFilesAlias()    { return "$RCFiles\\"; };
+LPTSTR   PrjName()                { return _UsePrevPrjAlias ? _PrevPrjName() : _PrjName(); };
+LPTSTR   PrjNameAlias()           { return "$PrjName"; };
+char*    PrjIniFile()             { return _UsePrevPrjAlias ? _PrevPrjIniFile() : _PrjIniFile(); }
 
 //---------------------------------------------------------------------------
 
@@ -5514,6 +5514,11 @@ BOOL AddTextToClipboard(CWnd* pOwnerWnd, LPCTSTR buff, LPCTSTR Separator/*=NULL*
 
 //---------------------------------------------------------------------------
 
+BOOL CopyTextToClipboard(LPCTSTR buff)                    { return CopyTextToClipboard(ScdMainWnd(), buff);           };
+BOOL AddTextToClipboard(LPCTSTR buff, LPCTSTR Separator)  { return AddTextToClipboard(ScdMainWnd(), buff, Separator); }
+
+//---------------------------------------------------------------------------
+
 BOOL FindDLLOrHlp(char * pFn, char * DllPath, Strng & Result)
   {
   Strng T;//, P;
@@ -5856,6 +5861,17 @@ int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars)
 
 //---------------------------------------------------------------------------
 
+int ParseCSVTokens(char* Buff, CSVColArray &C, LPCTSTR MoreSepars)
+  {
+  int Quote=0;
+  int n=ParseCSVTokens(Buff, C, Quote, MoreSepars);
+  if (Quote)
+    return -1;
+  return n;
+  }
+
+//---------------------------------------------------------------------------
+
 int ParseCSVFunction(char* Buff, CSVColArray &C, int& Quote)
   {
   XStrTrim(Buff, " \"");
@@ -5913,6 +5929,17 @@ int ParseCSVFunction(char* Buff, CSVColArray &C, int& Quote)
 
 //---------------------------------------------------------------------------
 
+int ParseCSVFunction(char* Buff, CSVColArray &C)
+  {
+  int Quote=0;
+  int n=ParseCSVFunction(Buff, C, Quote);
+  if (Quote)
+    return -1;
+  return n;
+  }
+
+//---------------------------------------------------------------------------
+
 int ParseTokens(char* Buff, CSVColArray &C, char Token)
   {
   C[0] = &Buff[0];
@@ -5964,7 +5991,7 @@ int ParseTabTokens(char* Buff, CSVColArray &C)
 CProfINIFile::CProfINIFile(LPCSTR pFilename)
   {
   m_bUseRegistry=false;
-  sFilename = pFilename;
+  m_sFilename = pFilename;
   }
 
 //---------------------------------------------------------------------------
@@ -5972,15 +5999,15 @@ CProfINIFile::CProfINIFile(LPCSTR pFilename)
 CProfINIFile::CProfINIFile(LPCSTR pDir, LPCSTR pFilename)
   {
   m_bUseRegistry=false;
-  sFilename = pDir;
-  sFilename += pFilename;
+  m_sFilename = pDir;
+  m_sFilename += pFilename;
   }
 
 //---------------------------------------------------------------------------
 
 CProfINIFile::~CProfINIFile()
   {
-  if (!IsWinNT && sFilename.Len()>0)
+  if (!IsWinNT && m_sFilename.GetLength()>0)
     Flush();
   }
 
@@ -5997,7 +6024,7 @@ __int64 CProfINIFile::RdInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iD
     Len=strlen(S);
     }
   else
-    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), sFilename());
+    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), Filename());
   if (Len==0)
     return iDefault;
   return _atoi64(Buff);
@@ -6017,7 +6044,7 @@ void CProfINIFile::WrInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iValu
   if (m_bUseRegistry)
     b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, Buff);
   else
-    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, sFilename());
+    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, Filename());
   #ifndef _RELEASE
   if (!b)
     {
@@ -6041,7 +6068,7 @@ double CProfINIFile::RdDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dDe
     Len=strlen(S);
     }
   else
-    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), sFilename());
+    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), Filename());
   if (Len==0)
     return dDefault;
   return SafeAtoF(Buff, dDefault);
@@ -6059,7 +6086,7 @@ void CProfINIFile::WrDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dValu
     if (m_bUseRegistry)
       b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, Buff);
     else
-      b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, sFilename());
+      b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, Filename());
     #ifndef _RELEASE
     if (!b)
       {
@@ -6076,7 +6103,7 @@ void CProfINIFile::WrDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dValu
     if (m_bUseRegistry)
       b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, "*");
     else
-      b = WritePrivateProfileString(lpszSection, lpszEntry, "*", sFilename());
+      b = WritePrivateProfileString(lpszSection, lpszEntry, "*", Filename());
     #ifndef _RELEASE
     if (!b)
       {
@@ -6097,7 +6124,7 @@ long CProfINIFile::RdLong(LPCTSTR lpszSection, LPCTSTR lpszEntry, long nDefault)
     return /*AfxGetApp()->*/GetProfileInt(lpszSection, lpszEntry, nDefault);
 
   char Buff[256];
-  DWORD Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), sFilename());
+  DWORD Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), Filename());
   if (Len==0)
     return nDefault;
   return atol(Buff);
@@ -6113,7 +6140,7 @@ void CProfINIFile::WrLong(LPCTSTR lpszSection, LPCTSTR lpszEntry, long nValue)
   if (m_bUseRegistry)
     b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, Buff);
   else
-    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, sFilename());
+    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, Filename());
   #ifndef _RELEASE
   if (!b)
     {
@@ -6133,7 +6160,7 @@ int CProfINIFile::RdInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault)
     return /*AfxGetApp()->*/GetProfileInt(lpszSection, lpszEntry, nDefault);
 
   char Buff[256];
-  DWORD Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), sFilename());
+  DWORD Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), Filename());
   if (Len==0)
     return nDefault;
   return atoi(Buff);
@@ -6150,7 +6177,7 @@ void CProfINIFile::WrInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue)
     {
     char Buff[256];
     sprintf(Buff, "%i", nValue);
-    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, sFilename());
+    b = WritePrivateProfileString(lpszSection, lpszEntry, Buff, Filename());
     }
   #ifndef _RELEASE
   if (!b)
@@ -6176,12 +6203,12 @@ LPCSTR CProfINIFile::RdStr(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCSTR pDefau
     Len=strlen(S);
     }
   else
-    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), sFilename());
+    Len = GetPrivateProfileString(lpszSection, lpszEntry, "", Buff, sizeof(Buff), Filename());
   if (Len==0)
-    sTmpRdStr = pDefault;
+    m_sTmpRdStr = pDefault;
   else
-    sTmpRdStr = Buff;
-  return sTmpRdStr();
+    m_sTmpRdStr = Buff;
+  return m_sTmpRdStr;
   }
 
 //---------------------------------------------------------------------------
@@ -6192,7 +6219,7 @@ void CProfINIFile::WrStr(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCSTR pValue)
   if (m_bUseRegistry)
     b = /*AfxGetApp()->*/WriteProfileString(lpszSection, lpszEntry, pValue);
   else
-    b = WritePrivateProfileString(lpszSection, lpszEntry, pValue, sFilename());
+    b = WritePrivateProfileString(lpszSection, lpszEntry, pValue, Filename());
   #ifndef _RELEASE
   if (!b)
     {
@@ -6211,7 +6238,7 @@ DWORD CProfINIFile::RdSection(LPCTSTR lpszSection, LPSTR pBuff, int BuffLen)
   if (m_bUseRegistry)
     INCOMPLETECODE();
 
-  DWORD Len = GetPrivateProfileSection(lpszSection, pBuff, BuffLen, sFilename());
+  DWORD Len = GetPrivateProfileSection(lpszSection, pBuff, BuffLen, Filename());
   return Len;
   }
 
@@ -6222,7 +6249,7 @@ void CProfINIFile::WrSection(LPCTSTR lpszSection, LPSTR pBuff)
   if (m_bUseRegistry)
     INCOMPLETECODE();
 
-  BOOL b = WritePrivateProfileSection(lpszSection, pBuff, sFilename());
+  BOOL b = WritePrivateProfileSection(lpszSection, pBuff, Filename());
   #ifndef _RELEASE
   if (!b)
     {
@@ -6241,7 +6268,7 @@ DWORD CProfINIFile::RdSectionNames(LPSTR pBuff, int BuffLen)
   if (m_bUseRegistry)
     INCOMPLETECODE();
 
-  DWORD Len = GetPrivateProfileSectionNames(pBuff, BuffLen, sFilename());
+  DWORD Len = GetPrivateProfileSectionNames(pBuff, BuffLen, Filename());
   return Len;
   }
 
@@ -6253,7 +6280,7 @@ void CProfINIFile::Flush()
     return;
 
   if (!IsWinNT)
-    WritePrivateProfileString(NULL, NULL, NULL, sFilename());
+    WritePrivateProfileString(NULL, NULL, NULL, Filename());
   }
 
 //---------------------------------------------------------------------------

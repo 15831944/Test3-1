@@ -294,7 +294,7 @@ bool SysCADSystemHelper::SysCADSolidsToSystem(MVector &SysCAD,RioTintoTS::PFlowS
 //
 
 {
-	MIPSD & PSD=SysCAD.IF<MIPSD>();
+	MIPSD & PSD=*SysCAD.GetIF<MIPSD>();
 	if (!IsNothing(PSD))
 	{  
 		const int NumComps = PSD.getPSDVectorCount();
@@ -395,7 +395,7 @@ bool SysCADSystemHelper::SystemSolidsToSysCAD(MVector &SysCAD,RioTintoTS::PFlowS
 //
 
 {
-	MIPSD & PSD=SysCAD.IF<MIPSD>();
+	MIPSD & PSD=*SysCAD.GetIF<MIPSD>();
 	if (!IsNothing(PSD))
 	{  
 		const int NumComps = PSD.getPSDVectorCount();

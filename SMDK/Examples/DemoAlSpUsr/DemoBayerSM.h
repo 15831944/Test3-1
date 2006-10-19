@@ -62,7 +62,11 @@ class CDemoBayerSM : public MSpModelBase, public MIBayer
 	  CDemoBayerSM(TaggedObject *pNd);
 	  ~CDemoBayerSM();
 
-    bool            ValidateData();
+    void            BuildDataFields();
+    bool            ExchangeDataFields();
+    bool            ValidateDataFields();
+
+    //bool            ValidateData();
 
     // Standard Methods
 	  bool            get_IsBaseClassOf(LPCTSTR OtherProgID);

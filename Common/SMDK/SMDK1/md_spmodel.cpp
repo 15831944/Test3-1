@@ -3,7 +3,7 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define __MD_SPPROPS_CPP
+#define __MD_SPMODEL_CPP
 #include "md_share1.h"
 #include "md_defn.h"
 #include "md_vector.h"
@@ -52,7 +52,43 @@ class CCall2MSpProps :  public SpModelEx
 //  return false;
 //  };
 
-    flag ValidateData(ValidateDataBlk & VDB);
+    virtual void BuildDataDefn(DataDefnBlk & DDB) 
+      {
+      m_pUserProps->m_pDDB=&DDB;
+      m_pUserProps->BuildDataFields();
+      m_pUserProps->m_pDDB=NULL;
+      };
+    //Does Nothing: 
+    //virtual void   BuildDataDefn_Lcl(DataDefnBlk & DDB)
+    //  {
+    //  //DDB.Text("...");
+    //  //DDB.Text("SMDK Qualities");
+    //  //DDB.Text("...");
+    //  DDB.Add_PropertyMap(PropertyMap(), 0/*WhichProps*/, true/*AsParms*/, xidSpUsrQuals, this, this);
+    //  };
+    virtual flag DataXchg(DataChangeBlk & DCB)
+      {
+      m_pUserProps->m_pDCB=&DCB;
+      int ret=m_pUserProps->ExchangeDataFields();
+      m_pUserProps->m_pDCB=NULL;
+      if (ret)
+        return ret;
+      // ETC Properties
+      return 0;
+      }
+
+    virtual flag ValidateData(ValidateDataBlk & VDB)
+      {
+      m_pUserProps->m_pVDB=&VDB;
+      flag OK=SpModelEx::ValidateData(VDB);
+      OK= OK && m_pUserProps->ValidateDataFields();
+      m_pUserProps->m_pVDB=NULL;
+      // ETC Properties
+      //GetProperties etc
+      return true;
+
+      return OK;
+      };
 
     void SetSubClass(LPTSTR MdlName);
 
@@ -156,34 +192,37 @@ MSpModelDefBase::~MSpModelDefBase()
 //===========================================================================
 
 long MSpModelBase::sm_lCount=0;
-long MSpModelBase::sm_lId=0;
+long MSpModelBase::sm_lNo=0;
  
-MSpModelBase::MSpModelBase()
+MSpModelBase::MSpModelBase() : DD(this), DX(this), DV(this)
   {
   sm_lCount++;
-  m_lId=sm_lId++;
-  //dbgpln("MSpModelBase::MSpModelBase : %6i %6i", m_lId, sm_lCount);
+  m_lNo=sm_lNo++;
+  //dbgpln("MSpModelBase::MSpModelBase : %6i %6i", m_lNo, sm_lCount);
   m_pSpMdlX=NULL;
   }
 MSpModelBase::~MSpModelBase()
   {
-  //dbgpln("MSpModelBase::~MSpModelBase : %6i %6i", m_lId, sm_lCount);
+  //dbgpln("MSpModelBase::~MSpModelBase : %6i %6i", m_lNo, sm_lCount);
   sm_lCount--;
   }
 void MSpModelBase::Init(SpModelEx * pSpMdl)
   {
+  MBaseDataCommon::Init(pSpMdl);
+
   //dbgpln("MSpModelBase::Init         : %08x", this);
   m_pSpMdlX=pSpMdl;
   Log.Init(pSpMdl);
   Dbg.Init(pSpMdl);
   }
 
-bool MSpModelBase::ValidateData()
-  {
-  //ValidateDataBlk VDB;
-  //return m_pSpMdlX->ValidateData(VDB)!=0;
-  return true;
-  }
+//bool MSpModelBase::ValidateDataFields()
+//  {
+//  //_asm int 3;
+//  //ValidateDataBlk VDB;
+//  //return m_pSpMdlX->ValidateData(VDB)!=0;
+//  return true;
+//  }
 
 //IScdSpVirtualProps
 bool MSpModelBase::get_IsBaseClassOf(LPCTSTR OtherProgID)
@@ -244,6 +283,19 @@ LPCTSTR MSpModelBase::getTag()
   return (LPCTSTR)m_pSpMdlX->FullObjTag();
   };
 
+bool MSpModelBase::TestStateValid(int i)
+  {
+  return (SMVF_UserModel & m_pSpMdlX->m_dwValidFlags & (1<<i))!=0;
+  };
+void MSpModelBase::SetStateValid(int i, bool On)
+  {
+  DWORD D=(SMVF_UserModel & (1<<i));
+  if (On)
+    m_pSpMdlX->m_dwValidFlags |= D;
+  else
+    m_pSpMdlX->m_dwValidFlags &= ~D;
+  };
+
 double MSpModelBase::getM(long i) const                   { return m_pSpMdlX->m_M[i];                    };
 void   MSpModelBase::putM(long i, double M) const         { m_pSpMdlX->VValue[i] = M;                    };
 double MSpModelBase::getMl(long i) const                  { return m_pSpMdlX->m_M[i]/SDB[i].MoleWt();    };
@@ -263,6 +315,58 @@ double MSpModelBase::MoleFrac(DWORD Phases)               { return m_pSpMdlX->Mo
 void MSpModelBase::ScaleMass(DWORD Phases, double Scale)  { return m_pSpMdlX->ScaleMass(Phases, Scale);  };
 
 MSMFnRanges & MSpModelBase::getSMFnRanges()               { return *m_pSpMdlX->SMFnRanges();                 };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+long MSpQualityBase::sm_lCount=0;
+long MSpQualityBase::sm_lNo=0;
+ 
+MSpQualityBase::MSpQualityBase() : DD(this), DX(this), DV(this)   
+  {
+  sm_lCount++;
+  m_lNo=sm_lNo++;
+  //dbgpln("MSpQualityBase::MSpQualityBase : %6i %6i", m_lNo, sm_lCount);
+  m_pSpQual=NULL;
+  }
+MSpQualityBase::~MSpQualityBase()
+  {
+  //dbgpln("MSpQualityBase::~MSpQualityBase : %6i %6i", m_lNo, sm_lCount);
+  sm_lCount--;
+  }
+void MSpQualityBase::Init(SpQuality * pSpQual)
+  {
+  MBaseDataCommon::Init(pSpQual);
+
+  //dbgpln("MSpQualityBase::Init         : %08x", this);
+  m_pSpQual=pSpQual;
+  Log.Init(pSpQual);
+  Dbg.Init(pSpQual);
+  }
+
+LPCTSTR MSpQualityBase::getTag()    { return m_pSpQual->pModel->FullObjTag(); };
+MVector MSpQualityBase::getVector() { return MVector(m_pSpQual->pModel); };
+
+//int MSpQualityBase::GroupIdNo()
+//  {
+//  return m_pSpQual->Class()->GroupIdNo();
+//  };
+bool MSpQualityBase::TestStateValid()
+  {
+  return (SMVF_UserQuality & m_pSpQual->pModel->m_dwValidFlags & (1<<(8+m_pSpQual->Class()->GroupIdNo())))!=0;
+  };
+void MSpQualityBase::SetStateValid(bool On)
+  {
+  SpModel *p=m_pSpQual->pModel;
+  DWORD D=(SMVF_UserQuality & (1<<(8+m_pSpQual->Class()->GroupIdNo())));
+  if (On)
+    p->m_dwValidFlags |= D;
+  else
+    p->m_dwValidFlags &= ~D;
+  };
 
 //===========================================================================
 //
@@ -345,17 +449,20 @@ flag CCall2MSpProps::DataXchgGlobal(TagObjClass *pClass, TaggedObject * pOwner, 
 
 //---------------------------------------------------------------------------
 
-flag CCall2MSpProps::ValidateData(ValidateDataBlk & VDB)
-  {
-  //delete m_pUserProps;
-  //m_pUserProps=NULL; // new ....
-
-  //m_pUserProps=(MSpModelBase*)Class()->SubConstruct()->Construct();
-  //m_pUserProps->m_pSpMdlX=this;
-
-  flag OK=SpModelEx::ValidateData(VDB);
-  return OK && m_pUserProps->ValidateData();
-  };
+//flag CCall2MSpProps::ValidateData(ValidateDataBlk & VDB)
+//  {
+//  //delete m_pUserProps;
+//  //m_pUserProps=NULL; // new ....
+//
+//  //m_pUserProps=(MSpModelBase*)Class()->SubConstruct()->Construct();
+//  //m_pUserProps->m_pSpMdlX=this;
+//
+//  m_pUserProps->m_pVDB = &VDB;
+//  flag OK=SpModelEx::ValidateData(VDB);
+//  OK= OK && m_pUserProps->ValidateDataFields();
+//  m_pUserProps->m_pVDB = NULL;
+//  return OK;
+//  };
 
 //---------------------------------------------------------------------------
 
@@ -366,6 +473,9 @@ void CCall2MSpProps::SetSubClass(LPTSTR MdlName)
 
   m_pUserProps=(MSpModelBase*)Class()->SubConstruct()->Construct(NULL);
   m_pUserProps->Init(this);
+  m_pUserProps->m_pDDB=NULL;
+  m_pUserProps->m_pDCB=NULL;
+  m_pUserProps->m_pVDB=NULL;
 
   if (Class()->GlobalFnData1()==NULL)
     {
@@ -589,7 +699,6 @@ flag CCall2MSpProps::CIStrng(int No, pchar & pS)
 //
 //===========================================================================
 
-#if 01
 #define DllImportExport
 
 DEFINE_TAGOBJ(CCall2MSpQuals);
@@ -597,20 +706,21 @@ class MSpQualityBase;
 class CCall2MSpQuals :   public SpQuality//ModelEx
   {
  	public:
-
-
-    MSpQualityBase  * m_pUserQual;
-    //double          m_dDummyProperty;
-
-
 		CCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
 		virtual ~CCall2MSpQuals();
 
     void SetSubClass(LPTSTR MdlName);
 
+    virtual MSpQualityBase  * GetMSpQualityBase4Cast()  { return m_pUserQual; };
+
     DEFINE_QUALITYPTR(CCall2MSpQuals, "SMDKQ")
 
-    virtual void   BuildDataDefn(DataDefnBlk & DDB) {};
+    virtual void   BuildDataDefn(DataDefnBlk & DDB) 
+      {
+      m_pUserQual->m_pDDB=&DDB;
+      m_pUserQual->BuildDataFields();
+      m_pUserQual->m_pDDB=NULL;
+      };
     //Does Nothing: 
     //virtual void   BuildDataDefn_Lcl(DataDefnBlk & DDB)
     //  {
@@ -621,6 +731,12 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
     //  };
     virtual flag   DataXchg(DataChangeBlk & DCB)
       {
+      m_pUserQual->m_pDCB=&DCB;
+      int ret=m_pUserQual->ExchangeDataFields();
+      m_pUserQual->m_pDCB=NULL;
+      if (ret)
+        return ret;
+
       if (DCB.lHandle>=xidSpUsrQuals && DCB.lHandle<xidSpUsrQualsLast)
         {
         long i=DCB.lHandle-xidSpUsrQuals;
@@ -692,6 +808,17 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
       return 0;
       };
 
+    virtual flag ValidateData(ValidateDataBlk & VDB)
+      {
+      m_pUserQual->m_pVDB = &VDB;
+      flag ret=m_pUserQual->ValidateDataFields();
+      m_pUserQual->m_pVDB = NULL;
+      if (ret)
+        return ret;
+      //GetProperties etc
+      return true;
+      };
+    
     virtual flag   GetOtherData(FilingControlBlock &FCB){ return false;};
     virtual flag   PutOtherData(FilingControlBlock &FCB){ return false;};
 
@@ -713,33 +840,45 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
 
     virtual void   SetMassF(CSysVector & M1, SpQuality* pQual2)
       {
+      if (pQual2==NULL)
+        return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      m_pUserQual->SetMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
+      m_pUserQual->SetMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M1));
       };
     virtual void   AddMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)
       {
+      if (pQual2==NULL)
+        return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       m_pUserQual->AddMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
       };
     virtual void   SubMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)
       {
+      if (pQual2==NULL)
+        return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       m_pUserQual->SubMassF(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, MArray(&M2));
       };
 
     virtual void   Copy(SpModel * pMdl2, SpQuality* pQual2)
       {
+      if (pQual2==NULL)
+        return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       m_pUserQual->Copy(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
       };
     virtual void   AddDeriv(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
       {
+      if (pQual2==NULL)
+        return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       MVector v2(pQual2->pModel);
       m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
       };
     virtual void   AddDiscrete(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
       {
+      if (pQual2==NULL)
+        return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
       MVector v2(pQual2->pModel);
       m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
@@ -783,9 +922,8 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
     virtual void    GetPropertyValue(long Index, PhMask Phase, double T, double P, MPropertyValue & Value);
     virtual void    PutPropertyValue(long Index, MPropertyValue & Value);
 
-
-    virtual MSpQualityBase * GetMSpQualityBase4Cast() { return m_pUserQual; };
-
+ 	public:
+    MSpQualityBase  * m_pUserQual;
     MPropertyValue  m_WorkQualValue;
 
   private:
@@ -807,7 +945,6 @@ flag CCall2MSpQuals::CIStrng(int No, pchar & pS)
 //--------------------------------------------------------------------------
 
 #undef DllImportExport
-#endif
 
 class CSpQualsClassDef : public TagObjClass
     {
@@ -848,67 +985,25 @@ CSpQualsClassDef::CSpQualsClassDef(pchar pClassName, pchar pGroup_, pchar pClass
 //
 //===========================================================================
 
-MSpQualityDefBase::MSpQualityDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR Desc, unsigned long Flgs, LPCTSTR DLL)
+MSpQualityDefBase::MSpQualityDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR Desc, unsigned long Flgs, LPCTSTR DLL, int *pGroupIdNo)
   {
   m_pClassDef=new CSpQualsClassDef((LPTSTR)pClass, SpQuality::GroupName, (LPTSTR)pClass, (LPTSTR)pSubClass, "", "", "UsrProps", TOC_SYSTEM, (LPTSTR)ShortDesc, (LPTSTR)Desc, 0xffffffff);
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
 
-
   sClassName = pClass;
   //sSpMdlName = pName;
   //sDataTag = pDataTag;
   iSpQualFlags = Flgs;
+
+  if (pGroupIdNo)
+    *pGroupIdNo=m_pClassDef->GroupIdNo();
   }
 
 MSpQualityDefBase::~MSpQualityDefBase()
   {
   delete m_pClassDef;
   }
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-//MSpQualityBase::MSpQualityBase()
-//  {
-//  m_pSpQual=NULL;
-//  }
-//MSpQualityBase::~MSpQualityBase()
-//  {
-//  }
-
-//IScdSpVirtualProps
-//bool MSpQualityBase::get_IsBaseClassOf(LPCTSTR OtherProgID)
-//  {
-//  _asm int 3;
-//  return m_pSpQual->SpModelEx::IsBaseClassOf(NULL);
-//  };
-//LPCTSTR MSpQualityBase::get_PreferredModelProgID()
-//  {
-//  _asm int 3;
-//  return NULL;
-//  };
-//double MSpQualityBase::get_Density(long Phases, double T, double P)     { return m_pSpQual->SpModel::Rho(Phases, T, P); };
-//double MSpQualityBase::get_msEnthalpy(long Phases, double T, double P)  { return m_pSpQual->SpModel::msHf(Phases, T, P); };
-//double MSpQualityBase::get_msEntropy(long Phases, double T, double P)   { return m_pSpQual->SpModel::msSf(Phases, T, P); };
-//double MSpQualityBase::get_msCp(long Phases, double T, double P)        { return m_pSpQual->SpModel::msCp(Phases, T, P); };
-//double MSpQualityBase::get_SaturationT(double P)                        { return m_pSpQual->SpModel::SaturationT(P); };
-//double MSpQualityBase::get_SaturationP(double T)                        { return m_pSpQual->SpModel::SaturationP(T); };
-//
-//double MSpQualityBase::get_Viscosity(long Phases, double T, double P)   { return m_pSpQual->SpModel::DynamicViscosity(); };
-//
-//double MSpQualityBase::BoilPtElev(double T_, double MassL)
-//  {
-//  _asm int 3;
-//  return -1;//m_pSpQual->SpModelEx::);
-//  };
-//
-//double MSpQualityBase::getM(long i) const { return m_pSpQual->M[i]; };
-//double MSpQualityBase::getMl(long i) const { return m_pSpQual->M[i]/SDB[i].MoleWt(); };
-//double * MSpQualityBase::getMassVector() { return m_pSpQual->MArray(); };
 
 //===========================================================================
 //
@@ -951,9 +1046,13 @@ void CCall2MSpQuals::SetSubClass(LPTSTR MdlName)
   m_pUserQual=NULL; // new ....
 
   m_pUserQual=(MSpQualityBase*)Class()->SubConstruct()->Construct(NULL);
-  m_pUserQual->m_pSpQual=this;
+  m_pUserQual->Init(this);
+  //m_pUserQual->m_pSpQual=this;
+  m_pUserQual->m_pDDB=NULL;
+  m_pUserQual->m_pDCB=NULL;
+  m_pUserQual->m_pVDB=NULL;
 
-  m_pSQB=m_pUserQual;
+  //m_pMSpQualBase=m_pUserQual;
 
   SpQuality::SetSubClass(MdlName);
   };

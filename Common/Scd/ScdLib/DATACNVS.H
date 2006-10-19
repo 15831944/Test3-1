@@ -60,6 +60,7 @@ extern DllImportExport CCnvIndex    DC_PpVol   ;
 extern DllImportExport CCnvIndex    DC_E       ;
 extern DllImportExport CCnvIndex    DC_Frac    ;
 extern DllImportExport CCnvIndex    DC_FracRate;
+extern DllImportExport CCnvIndex    DC_Assay   ;
 extern DllImportExport CCnvIndex    DC_HCap    ;
 extern DllImportExport CCnvIndex    DC_HCapF   ;
 extern DllImportExport CCnvIndex    DC_L       ;
@@ -158,6 +159,9 @@ extern DllImportExport CCnvIndex    DC_Humidity;
 
 extern DllImportExport CCnvIndex    DC_TimeStr ;
 extern DllImportExport CCnvIndex    DC_dTimeStr;
+
+extern DllImportExport CCnvIndex    DC_Money;
+extern DllImportExport CCnvIndex    DC_MoneyFlow;
 
 //CNM extern DllImportExport CCnvIndex    DC_IsenHd;
 

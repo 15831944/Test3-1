@@ -169,7 +169,7 @@ void SysCADComminution::EvalProducts()
       if (Feed.MassFlow()>1.0e-5)
       {
 
-      MIPSD & PSD=Feed.IF<MIPSD>(false);
+      MIPSD & PSD=*Feed.FindIF<MIPSD>();
  
       if (!IsNothing(PSD)) // Only do something if our input stream has a SizeData
       {  

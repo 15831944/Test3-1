@@ -155,7 +155,7 @@ void SysCADMill::EvalProducts()
       if (Feed.MassFlow()>1.0e-5)
       {
 
-      MIPSD & PSD=Feed.IF<MIPSD>(false);
+      MIPSD & PSD=*Feed.FindIF<MIPSD>();
  
       long    l_SizeCount      = PSD.getSizeCount();
       long    l_PSDVectorCount = PSD.getPSDVectorCount();

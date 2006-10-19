@@ -810,9 +810,9 @@ bool CGasSep::ValidateDataFields()
       sm_Wt[s] = gs_MVDefn[sm_GasId[s]].MolecularWt();
       }
     }
-  //m_dBeta   = DD.ValidateRange("Beta",  0.01, m_dBeta,  100.0);
-  m_dTheta  = DD.ValidateRange("Theta", 0.01, m_dTheta, 0.99);
-  m_dPhi    = DD.ValidateRange("Phi",   0.01, m_dPhi,   0.99);
+  //m_dBeta   = DV.ValidateRange("Beta",  0.01, m_dBeta,  100.0);
+  m_dTheta  = DV.ValidateRange("Theta", 0.01, m_dTheta, 0.99);
+  m_dPhi    = DV.ValidateRange("Phi",   0.01, m_dPhi,   0.99);
 
 
   if (m_bDataOK)

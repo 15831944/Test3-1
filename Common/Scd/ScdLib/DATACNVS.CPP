@@ -194,6 +194,7 @@ CCnvIndex    DC_PpVol    = 0;
 CCnvIndex    DC_E        = 0;
 CCnvIndex    DC_Frac     = 0;
 CCnvIndex    DC_FracRate = 0;
+CCnvIndex    DC_Assay    = 0;
 CCnvIndex    DC_HCap     = 0;
 CCnvIndex    DC_HCapF    = 0;
 CCnvIndex    DC_L        = 0;
@@ -293,6 +294,9 @@ CCnvIndex    DC_Humidity = 0;
 
 CCnvIndex    DC_TimeStr  = 0;
 CCnvIndex    DC_dTimeStr = 0;
+
+CCnvIndex    DC_Money      = 0;
+CCnvIndex    DC_MoneyFlow  = 0;
 
 //===========================================================================
 
@@ -499,6 +503,7 @@ void CCnvsMngr::Init()
     DC_         = AddSI(""         , ""           , "Constants"                     ,    0.0 ,          100.0, false);
     DC_Frac     = AddSI("Frac"     , ""           , "Fraction"                      ,    0.0 ,            1.0, false);
     DC_FracRate = AddSI("FracRate" , "/s"         , "Fractional Rate"               ,    0.0 ,            1.0, false);
+    DC_Assay    = AddSI("Assay"    , ""           , "Assay Mass per Mass"           ,    0.0 ,            1.0, false);
     DC_L        = AddSI("L"        , "m"          , "Length"                        ,    0.0 ,         1000.0, false);
     DC_M        = AddSI("M"        , "kg"         , "Mass"                          ,    0.0 ,         1000.0, false);
     DC_P        = AddSI("P"        , "kPa"        , "Pressure"                      ,    0.0 ,         1000.0, false, 2);
@@ -603,10 +608,16 @@ void CCnvsMngr::Init()
     DC_TimeStr  = AddSI("TimeStr"  , "s"          , "TimeString"                    ,    0.0 ,         3600.0, false);
     DC_dTimeStr = AddSI("dTimeStr" , "s"          , "dTimeString"                   ,    0.0 ,         3600.0, false);
 
+    DC_Money      = AddSI("Money"      , "Base$"      , "Money in Base$"                ,    0.0 ,         1000.0, false);
+    DC_MoneyFlow  = AddSI("MoneyFlow"  , "Base$/s"    , "Money Flow in Base$/s"         ,    0.0 ,         1000.0, false);
+
     //NB: ensure new cnvs are added to SMDK (md_share2.h and md_defn.cpp)!
 
     //add some required secondary cnvs...
     Cnvs[DC_]->AddSecondaryCnv("CONSTANT", 1.0, 0.0, false);
+
+    Cnvs[DC_Assay]->AddSecondaryCnv("%", 100.0, 0.0, false);
+
     Cnvs[DC_FracSol]->AddSecondaryCnv("%(Sol)", 100.0, 0.0, false);
     Cnvs[DC_FracLiq]->AddSecondaryCnv("%(Liq)", 100.0, 0.0, false);
     Cnvs[DC_FracVap]->AddSecondaryCnv("%(Vap)", 100.0, 0.0, false);

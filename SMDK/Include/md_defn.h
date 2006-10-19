@@ -46,9 +46,6 @@ class CSpecie;
 class CSpecieBlk;
 class SpPropOveride;
 class MArray;
-class TaggedObject;
-class TagObjClass;
-
 //---------------------------------------------------------------------------
 /* Class MSpecieDefn: Definition of a specie from collection of species used.
    Provides access to properties of individual species from the "specie database".*/
@@ -314,46 +311,46 @@ DllImportExport void* GetGlobalOther(char* pReferenceName);
 //
 //
 //===========================================================================
-// Log Interface
-const long MaxUserCI   = 16;
-const long FirstUserCI = 8;
-
-enum MMessageType { MMsg_None, MMsg_Error, MMsg_Warning, MMsg_Note };
-
-class DllImportExport MLog
-  {
-  TaggedObject * m_pObj;
-
-  public:
-    MLog()                           { m_pObj = NULL; };
-    void Init(TaggedObject * pObj)     { m_pObj = pObj; };
-
-    void Message(MMessageType Type, LPCSTR pFmt, ...); //send mesage note/warning/error
-    void SetCondition(bool On, long index, MMessageType Type, LPCSTR pFmt, ...); //set condition note/warning/error
-    void SetCondition(long index, MMessageType Type, LPCSTR pFmt, ...); //set condition note/warning/error
-    void ClearCondition(long index);   //clear condition message
-  };
-
-//===========================================================================
+//// Log Interface
+//const long MaxUserCI   = 16;
+//const long FirstUserCI = 8;
 //
+//enum MMessageType { MMsg_None, MMsg_Error, MMsg_Warning, MMsg_Note };
 //
+//class DllImportExport MLog
+//  {
+//  TaggedObject * m_pObj;
 //
-//===========================================================================
-// Debug Interface
-class DllImportExport MDebug
-  {
-    TaggedObject * m_pObj;
-
-  public:
-    MDebug();
-
-    void Init(TaggedObject * pObj);
-
-    bool Marked();                    // true if DoDbgBrk is Set
-    void Print(LPCSTR pFmt, ...);     //print to debug file
-    void PrintLn(LPCSTR pFmt, ...);   //print line to debug file
-  };
-
+//  public:
+//    MLog()                           { m_pObj = NULL; };
+//    void Init(TaggedObject * pObj)     { m_pObj = pObj; };
+//
+//    void Message(MMessageType Type, LPCSTR pFmt, ...); //send mesage note/warning/error
+//    void SetCondition(bool On, long index, MMessageType Type, LPCSTR pFmt, ...); //set condition note/warning/error
+//    void SetCondition(long index, MMessageType Type, LPCSTR pFmt, ...); //set condition note/warning/error
+//    void ClearCondition(long index);   //clear condition message
+//  };
+//
+////===========================================================================
+////
+////
+////
+////===========================================================================
+//// Debug Interface
+//class DllImportExport MDebug
+//  {
+//    TaggedObject * m_pObj;
+//
+//  public:
+//    MDebug();
+//
+//    void Init(TaggedObject * pObj);
+//
+//    bool Marked();                    // true if DoDbgBrk is Set
+//    void Print(LPCSTR pFmt, ...);     //print to debug file
+//    void PrintLn(LPCSTR pFmt, ...);   //print line to debug file
+//  };
+//
 //---------------------------------------------------------------------------
 #undef DllImportExport
 

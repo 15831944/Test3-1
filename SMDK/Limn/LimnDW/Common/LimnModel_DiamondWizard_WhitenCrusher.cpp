@@ -94,7 +94,8 @@ int _Model_DiamondWizard_WhitenCrusher (int nRows,
 			double requiredT10 = p.T10_a(0) + (p.T10_a(1) * p.CSS()) + (p.T10_a(2) * FeedTPH) + (p.T10_a(3) * FeedP80) ;
 
 			Matrix Tn_V_T10(5,5) ;
-			Tn_V_T10 << p.pTn_V_T10() ;
+			//Tn_V_T10 << p.pTn_V_T10() ;
+			Tn_V_T10 << p.Tn_V_T10.Ptr() ;
 
 			LowerTriangularMatrix B(nOSz) ; 
 			B = 0.0 ;
@@ -119,7 +120,7 @@ int _Model_DiamondWizard_WhitenCrusher (int nRows,
 				product(nOSz,iSG) = subMesh ;
 			}
 
-			if ( p.DoRedistributeDensimetrics() )
+			if ( p.redistributeDensimetrics() )
 			{
 				RedistributeOreDensimetricToFeedDistribution( thisConfig, FeedTPH, product, meanSizeDistribution, meanSGDistribution ) ;
 			}

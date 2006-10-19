@@ -287,7 +287,7 @@ double CPrecipitator::PerformAluminaSolubility(MVector & Prod, double TRqd, doub
   bool AdjustT=!Valid(TRqd);
   double T = AdjustT ? Prod.T : TRqd;
 
-  MIBayer & ProdB=Prod.IF<MIBayer>(false);
+  MIBayer & ProdB=*Prod.FindIF<MIBayer>();
   double A = ProdB.AluminaConc(T);
 
   double &AluminaMass  = Prod.MassVector[spAlumina];     // Al2O3
@@ -347,9 +347,9 @@ double CPrecipitator::PerformAluminaSolubility(MVector & Prod, double TRqd, doub
 
 void CPrecipitator::DoPrecip(MVector & Prod)
   {
-  MIBayer & ProdB=Prod.IF<MIBayer>(false);
-  //MIPSD & ProdSz = Prod.IF<MIPSD>(false);
-  MISSA & ProdSSA = Prod.IF<MISSA>(false);
+  MIBayer & ProdB=*Prod.FindIF<MIBayer>();
+  //MIPSD & ProdSz = *Prod.FindIF<MIPSD>();
+  MISSA & ProdSSA = *Prod.FindIF<MISSA>();
   //Log.SetCondition(IsNothing(ProdSz), 2, MMsg_Error, "Bad Feed Stream - No Size Distribution");
   Log.SetCondition(IsNothing(ProdSSA), 3, MMsg_Error, "Bad Feed Stream - No SSA Data");
   double LiqIn   = Prod.Mass(MP_Liq); // kg/s
@@ -560,7 +560,7 @@ void CPrecipitator::EvalProducts()
     dYield  = 0.0;
     dSALin  = 0.0;
     dDiamin = 0.0;
-    MIBayer & ProdB=Prod.IF<MIBayer>(false);
+    MIBayer & ProdB=*Prod.FindIF<MIBayer>();
     bool IsOff = true;
     if (bOnLine)
       {

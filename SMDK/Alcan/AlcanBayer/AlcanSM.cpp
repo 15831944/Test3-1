@@ -17,7 +17,7 @@
 //
 //
 // ==========================================================================
-
+                                 
 DEFINE_SPECIEMODEL(CAlcanSM)
 IMPLEMENT_SPECIEMODEL(CAlcanSM, "AlcanSM", "*Alcan Bayer", "*Alcan Bayer Specie Model", DLL_GroupName)
 
@@ -336,9 +336,22 @@ CAlcanSM::~CAlcanSM()
 
 //---------------------------------------------------------------------------
 
-bool CAlcanSM::ValidateData()
+void CAlcanSM::BuildDataFields()
+  { 
+  };              
+
+//---------------------------------------------------------------------------
+
+bool CAlcanSM::ExchangeDataFields()
   {
-  bool OK=MSpModelBase::ValidateData();
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CAlcanSM::ValidateDataFields()
+  {
+  bool OK=MSpModelBase::ValidateDataFields();
   /*if (fDoCalc)
     {    
     dRqd_AtoC = ValidateRange(VDB, "dRqd_AtoC", 0.0, dRqd_AtoC,    0.9);

@@ -10,6 +10,7 @@
 #include "md_share2.h"
 #include "md_share3.h"
 #include "md_share4.h"
+#include "md_data.h"
 
 #ifdef __MD_METHOD_CPP
   #define DllImportExport __declspec(dllexport)
@@ -106,7 +107,9 @@ enum MStatesToSet { MSS_ZeroFlows=1 , MSS_Empty=2, MSS_Preset=3, MSS_PBInitialis
 
 class MUtilArray : public CArray <MMethodUtility*, MMethodUtility*> {};
 
-class DllImportExport MBaseMethodCommon : public MSubConstructBase
+//---------------------------------------------------------------------------
+
+class DllImportExport MBaseMethodCommon : public MBaseDataCommon, public MSubConstructBase
   {
   public:
     MBaseMethodCommon(MUnitDefBase *pUnitDef, TaggedObject * pNd);
@@ -114,9 +117,6 @@ class DllImportExport MBaseMethodCommon : public MSubConstructBase
     MUnitDefBase     *m_pUnitDef;
     MBaseMethodImpl  *m_pImpl;
     MdlNode          *m_pNd;
-    DataDefnBlk      *m_pDDB;
-    DataChangeBlk    *m_pDCB;
-    ValidateDataBlk  *m_pVDB;
 
     MUtilArray        m_Utils;
     MInOutDefStruct  *m_pIODefs;
@@ -131,10 +131,11 @@ class DllImportExport MBaseMethodCommonRef
     MBaseMethodCommonRef(MBaseMethodCommon *pCom) :
         //m_pImpl(pCom->m_pImpl),
         m_pCommon(pCom),
-        m_pNd(pCom->m_pNd),
-        m_pDDB(pCom->m_pDDB),
-        m_pDCB(pCom->m_pDCB),
-        m_pVDB(pCom->m_pVDB)
+        m_pNd(pCom->m_pNd)
+        //,
+        //m_pDDB(pCom->m_pDDB),
+        //m_pDCB(pCom->m_pDCB),
+        //m_pVDB(pCom->m_pVDB)
         {
         }
 
@@ -142,96 +143,9 @@ class DllImportExport MBaseMethodCommonRef
       MBaseMethodCommon * m_pCommon;
       //MBaseMethodImpl   * &m_pImpl;
       MdlNode           * &m_pNd;
-      DataDefnBlk       * &m_pDDB;
-      DataChangeBlk     * &m_pDCB;
-      ValidateDataBlk   * &m_pVDB;
-  };
-
-//===========================================================================
-/* Class MDataDefn: Helper class used for Data Definition of fields or tags in
-a model. This is used by the BuildDataFields method which is used to define the
-arrangement of the Access properties window.*/
-
-enum MDDPages {MDD_NoPage, MDD_RqdPage, MDD_OptPage};
-
-class DllImportExport MDataDefn : public MBaseMethodCommonRef
-  {
-  public:
-    MDataDefn(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) { };
-
-  public:
-    void    Double  (LPCSTR Tag, LPCSTR Sym, double* Data, unsigned long Flags, MCnv & Cnv = MC_);              //add a double (direct memory reference)
-    void    Float   (LPCSTR Tag, LPCSTR Sym, float*  Data, unsigned long Flags, MCnv & Cnv = MC_);              //add a float (direct memory reference)
-    void    Long    (LPCSTR Tag, LPCSTR Sym, long*   Data, unsigned long Flags, MDDValueLst * Values=NULL);     //add a long (direct memory reference)
-    void    Short   (LPCSTR Tag, LPCSTR Sym, short*  Data, unsigned long Flags, MDDValueLst * Values=NULL);     //add a short (direct memory reference)
-    void    Bool    (LPCSTR Tag, LPCSTR Sym, bool*   Data, unsigned long Flags, MDDValueLst * Values=NULL);     //add a bool (direct memory reference)
-    void    CheckBox(LPCSTR Tag, LPCSTR Sym, bool*   Data, unsigned long Flags);                                //add a bool as a checkbox (direct memory reference)
-    //void    String  (LPCSTR Tag, LPCSTR Sym, ????? * Data, unsigned long Flags);                              //specifically omitted, use DataHandle option below (What 'standard' string class to use is difficult to agree on)
-
-    void    Double  (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MCnv & Cnv = MC_);           //add a double (use DataHandle ID to set/retrieve tags)
-    void    Float   (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MCnv & Cnv = MC_);           //add a float (use DataHandle ID to set/retrieve tags)
-    void    Long    (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values=NULL);  //add a long (use DataHandle ID to set/retrieve tags)
-    void    Short   (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values=NULL);  //add a short (use DataHandle ID to set/retrieve tags)
-    void    Bool    (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags, MDDValueLst * Values=NULL);  //add a bool (use DataHandle ID to set/retrieve tags)
-    void    CheckBox(LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags);                             //add a bool as a checkbox (use DataHandle ID to set/retrieve tags)
-    void    String  (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags);                             //add a String (use DataHandle ID to set/retrieve tags)
-    void    Button  (LPCSTR Tag, LPCSTR Sym, long DataHandle, unsigned long Flags = MF_PARAMETER);              //add a Button (use DataHandle ID for press button action)
-
-    //add a text line
-    void    Text(LPCSTR pName, unsigned long Flags=0);
-    //start a new tab page with specified name. If optional is true a new page is started based on the length of the current page thus far.
-    void    Page(LPCSTR pName, bool Optional=false, unsigned long Flags=0);
-    //set the visibilty of tags on or off.
-    void    Show(bool ViewVisible=true, bool FileVisible=true, bool SnapVisible=true);
-
-    //begin structure for a group of tags using pName as part of tag for next 'dot' level.
-    void    StructBegin(LPCSTR pName, unsigned long Flags=0);
-    //end structure marker
-    void    StructEnd();
-    //begin object (ie structure) for a group of tags using pName as part of tag for next 'dot' level. pClassName is name of table in database for this structure.
-    void    ObjectBegin(LPCSTR pClassName, LPCSTR pName, unsigned long Flags=0);
-    //end object marker
-    void    ObjectEnd();
-    //Include defined Object
-    void    Object(LPTAGGEDOBJECT Object, MDDPages Pg=MDD_OptPage, unsigned long Flags=0);
-
-    double  ValidateRange(LPCTSTR What, double MinV=dNAN, double V=dNAN, double MaxV=dNAN, bool *pOK=NULL);
-
-  };
-
-/* Class MDataChange: Helper class used for setting and/or retrieving tags as
-defined in BuildDataFields method for those tags using the DataHandle option.*/
-class DllImportExport MDataChange : public MBaseMethodCommonRef
-  {
-  public:
-    MDataChange(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
-
-    long    getHandle();       //return data handle
-    bool    getHasReqdValue(); //return true when data is being set
-
-    double  getDouble();   //retrieve value
-    float   getFloat();    //retrieve value
-    long    getLong();     //retrieve value
-    short   getShort();    //retrieve value
-    bool    getBool();     //retrieve value
-    LPCTSTR getString();   //retrieve value
-
-    void    putDouble(double V);  //set value
-    void    putFloat(float V);    //set value
-    void    putLong(long V);      //set value
-    void    putShort(short V);    //set value
-    void    putBool(bool V);      //set value
-    void    putString(LPCTSTR V); //set value
-
-  public:
-    __declspec(property(get=getHandle))                 long    Handle;
-    __declspec(property(get=getHasReqdValue))           bool    HasReqdValue;
-    __declspec(property(get=getDouble,put=putDouble))   double  Double;
-    __declspec(property(get=getFloat, put=putFloat))    float   Float;
-    __declspec(property(get=getLong,  put=putLong))     long    Long;
-    __declspec(property(get=getShort, put=putShort))    short   Short;
-    __declspec(property(get=getBool,  put=putBool))     bool    Bool;
-    __declspec(property(get=getString,put=putString))   LPCTSTR String;
+      //DataDefnBlk       * &m_pDDB;
+      //DataChangeBlk     * &m_pDCB;
+      //ValidateDataBlk   * &m_pVDB;
   };
 
 //===========================================================================
@@ -687,9 +601,9 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     virtual ~MBaseMethod();   //destructor
     void            Init(MdlNode * pNd); //Basic initialisation
     virtual void    Init() {}; //initialisation, used to setup UnitDef
-    virtual void    BuildDataFields() = 0;                  // pure virtual method for defining data fields
-    virtual bool    ExchangeDataFields() { return false; };       // virtual method for manipulating data
-    virtual bool    ValidateDataFields() { return true; };  // virtual method for validating data
+    virtual void    BuildDataFields() = 0;                   // pure virtual method for defining data fields
+    virtual bool    ExchangeDataFields() { return false; };  // virtual method for manipulating data
+    virtual bool    ValidateDataFields() { return true; };   // virtual method for validating data
 
     //interface (used by Init):
     void            SetIODefinition(MInOutDefStruct * pDefs);
@@ -703,6 +617,7 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     MDebug          Dbg;
     MDataDefn       DD;
     MDataChange     DX;
+    MDataValidate   DV;
     MJoins          Joins;
     MFlowIOs        FlwIOs;
     MCtrlIOs        CtrlIOs;

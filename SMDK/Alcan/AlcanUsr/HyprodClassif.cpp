@@ -199,9 +199,9 @@ bool Classifier::ValidateDataFields()
   {//ensure parameters are within expected ranges
    if (m_eModel==eMdl_Cyclone && m_eInputMethod==eIM_Model)
 			m_eInputMethod = eIM_Recovery;
-   m_dD50      = DD.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
-   m_dD50Used  = DD.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
-   m_dRqdRecoveryFrac = DD.ValidateRange("", 0.01,  m_dRqdRecoveryFrac , 0.995);
+   m_dD50      = DV.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
+   m_dD50Used  = DV.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
+   m_dRqdRecoveryFrac = DV.ValidateRange("", 0.01,  m_dRqdRecoveryFrac , 0.995);
 
 
 //!!!! NEED TO PUT A LOT OF SAFETY CHECKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -291,9 +291,9 @@ bool Classifier::CalcSeparationNoPSD(MVector & Feed, MVector & OF, MVector & UF)
 
 bool Classifier::ComputeEfficiency(MVector & Feed, MVector & OF, MVector & UF, double Beta)
   {
-  MIPSD   &FdPSD = Feed.IF<MIPSD>(); //actual PSD data
-  MIPSD   &OFPSD = OF.IF<MIPSD>(); //actual PSD data
-  MIPSD   &UFPSD = UF.IF<MIPSD>(); //actual PSD data
+  MIPSD   &FdPSD = *Feed.GetIF<MIPSD>(); //actual PSD data
+  MIPSD   &OFPSD = *OF.GetIF<MIPSD>(); //actual PSD data
+  MIPSD   &UFPSD = *UF.GetIF<MIPSD>(); //actual PSD data
   MPSDDefn &SD = FdPSD.getDefn(); //sieve series definition
 	const int NumComps = SD.getPSDVectorCount(); // Number of components in the stream usisng size data
   Eu.SetSize(NIntervals);
@@ -464,8 +464,8 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
 
   const double Min_d50 = 1.0e-8;
   InitSizeData(Feed);
-  //MIBayer & UFB = UF.IF<MIBayer>();
-  MIBayer & FeedB = Feed.IF<MIBayer>();
+  //MIBayer & UFB = *UF.GetIF<MIBayer>();
+  MIBayer & FeedB = *Feed.GetIF<MIBayer>();
   const double T = Feed.T;
   const double TtlVolFlow = Feed.Volume();
   m_dD50 = Valid(m_dD50) ? Max(Min_d50, m_dD50) : Min_d50*10.0;
@@ -657,7 +657,7 @@ void Classifier::EvalProducts()
     m_dThermalLoss = 0.0;
     m_dYield = 0.0;
     m_dTempIn = Feed.T;
-    MIBayer & FeedB=Feed.IF<MIBayer>(false);
+    MIBayer & FeedB=*Feed.FindIF<MIBayer>();
     if (!IsNothing(FeedB))
       {
       m_dACIn = FeedB.AtoC();
@@ -674,8 +674,8 @@ void Classifier::EvalProducts()
       //first precipitation...
       if (m_bPrecipOn && m_eModel==eMdl_Gravity)
         {
-        MIBayer & ProdB=Prod.IF<MIBayer>(false);
-        MISSA & FeedSSA=Feed.IF<MISSA>(false);
+        MIBayer & ProdB=*Prod.FindIF<MIBayer>();
+        MISSA & FeedSSA=*Feed.FindIF<MISSA>();
         Log.SetCondition(IsNothing(FeedB), 1, MMsg_Warning, "Bad Feed Stream - Not Bayer Model"); //expect stream to have bayer properties
         Log.SetCondition(IsNothing(FeedSSA), 2, MMsg_Warning, "Bad Feed Stream - SSA must be present"); //expect stream to have bayer properties
         if (!IsNothing(FeedB) && !IsNothing(FeedSSA))
@@ -714,7 +714,7 @@ void Classifier::EvalProducts()
         }
       else
         {
-        MIPSD & ProdSz = Prod.IF<MIPSD>(false);
+        MIPSD & ProdSz = *Prod.FindIF<MIPSD>();
         Log.SetCondition(IsNothing(ProdSz), 3, MMsg_Warning, "Bad Feed Stream - No PSD present");
         if (!IsNothing(ProdSz))
           {
@@ -738,8 +738,8 @@ void Classifier::EvalProducts()
     
     //results...
     m_dTempOut = Prod.T;
-    MIBayer & UFB=UF.IF<MIBayer>(false);
-    MIBayer & OFB=OF.IF<MIBayer>(false);
+    MIBayer & UFB=*UF.FindIF<MIBayer>();
+    MIBayer & OFB=*OF.FindIF<MIBayer>();
     if (!IsNothing(UFB) && !IsNothing(OFB))
       {
       m_dUFSolidsConc = UFB.SolidsConc(m_dTempOut);

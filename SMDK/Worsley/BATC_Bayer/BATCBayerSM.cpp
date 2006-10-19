@@ -625,9 +625,22 @@ LPCTSTR BATCBayerSM::get_PreferredModelProgID()
 
 //---------------------------------------------------------------------------
 
-bool BATCBayerSM::ValidateData()
+void BATCBayerSM::BuildDataFields()
+  { 
+  };              
+
+//---------------------------------------------------------------------------
+
+bool BATCBayerSM::ExchangeDataFields()
   {
-  bool OK=MSpModelBase::ValidateData();
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool BATCBayerSM::ValidateDataFields()
+  {
+  bool OK=MSpModelBase::ValidateDataFields();
   InputCalcs(fDoCalc, Temperature);
   return OK;
   }

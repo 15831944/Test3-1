@@ -46,6 +46,26 @@ LPCTSTR CDemoSM::get_PreferredModelProgID()
 
 //---------------------------------------------------------------------------
 
+void CDemoSM::BuildDataFields()
+  { 
+  };              
+
+//---------------------------------------------------------------------------
+
+bool CDemoSM::ExchangeDataFields()
+  {
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CDemoSM::ValidateDataFields()
+  { 
+  return true; 
+  }; 
+
+//---------------------------------------------------------------------------
+
 double CDemoSM::get_Density(long Phases, double T, double P, MArray *pMA)
   {
   MArray MA(pMA ? *pMA : this);

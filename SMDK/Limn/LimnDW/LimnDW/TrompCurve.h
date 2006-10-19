@@ -13,6 +13,7 @@ class CTrompCurve : public MBaseMethod
     CTrompCurve(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void    Init();
     virtual void    BuildDataFields();
+    virtual bool    ExchangeDataFields();
     virtual void    EvalProducts();
     virtual bool    GetModelAction(CMdlActionArray & Acts);
     virtual bool    SetModelAction(CMdlAction & Act);

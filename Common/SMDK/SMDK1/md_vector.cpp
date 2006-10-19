@@ -213,7 +213,7 @@ void MArray::Normalise()
 //
 //===========================================================================
 
-MVector::MVector() : Properties(this), Interfaces(this)
+MVector::MVector() : Properties(this)//, Interfaces(this)
   {
   m_pSpMdl=NULL;
   //m_pBayer=NULL;
@@ -222,7 +222,7 @@ MVector::MVector() : Properties(this), Interfaces(this)
 
 //---------------------------------------------------------------------------
 
-MVector::MVector(SpModel * pMdl) : Properties(this), Interfaces(this)
+MVector::MVector(SpModel * pMdl) : Properties(this)
   {
   m_pSpMdl=pMdl;
   //m_pBayer=NULL;
@@ -231,7 +231,7 @@ MVector::MVector(SpModel * pMdl) : Properties(this), Interfaces(this)
 
 //---------------------------------------------------------------------------
 
-MVector::MVector(MSpQualityBase * p) : Properties(this), Interfaces(this)
+MVector::MVector(MSpQualityBase * p) : Properties(this)
   {
   m_pSpMdl=p->m_pSpQual->pModel;
   //m_pBayer=NULL;
@@ -250,6 +250,7 @@ MVector::~MVector()
 //---------------------------------------------------------------------------
 
 long    MVector::Count(DWORD PhMsk)             { return gs_MVDefn.Count(PhMsk); };
+LPCTSTR MVector::getTag()                       { return SpMdl->FullObjTag(); };
 
 double  MVector::getT() const                   { return SpMdl->Temp(); };
 void    MVector::putT(double T)                 { SpMdl->SetTempPress(T, SpMdl->Press()); };
@@ -385,11 +386,11 @@ long MVector::Replace(DWORD PhMsk, double TRqd, double PRqd, double *pMRqd, long
 
 //---------------------------------------------------------------------------
 
-MSpModelBase * MVector::GetMSpModelBase4Cast()            { return SpMdl->GetMSpModelBase4Cast(); };
-MXSpModel * MVector::GetSpModel4Cast()                    { return SpMdl;  };
-MSpQualityBase * MVector::GetMSpQualityBase4Cast(long i)  { return SpMdl->GetMSpQualityBase4Cast(i); };
-MXSpQuality * MVector::GetSpQuality4Cast(long i)          { return SpMdl->GetSpQuality4Cast(i); };
-long MVector::GetSpQualityCount4Cast()                    { return SpMdl->GetSpQualityCount4Cast(); };
+MXSpModel *       MVector::GetSpModel4Cast()                              { return SpMdl;  };
+MSpModelBase *    MVector::GetMSpModelBase4Cast()                         { return SpMdl->GetMSpModelBase4Cast(); };
+MXSpQuality *     MVector::GetSpQuality4Cast(long i, bool Required)       { return SpMdl->GetSpQuality4Cast(i, Required); };
+MSpQualityBase *  MVector::GetMSpQualityBase4Cast(long i, bool Required)  { return SpMdl->GetMSpQualityBase4Cast(i, Required); };
+long MVector::GetSpQualityCount4Cast()                                    { return SpMdl->GetSpQualityCount4Cast(); };
 
 //---------------------------------------------------------------------------
 

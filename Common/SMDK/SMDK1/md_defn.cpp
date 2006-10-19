@@ -50,6 +50,7 @@ MCnv MC_PpVol    ;
 MCnv MC_E        ;
 MCnv MC_Frac     ;
 MCnv MC_FracRate ;
+MCnv MC_Assay    ;
 MCnv MC_HCap     ;
 MCnv MC_HCapF    ;
 MCnv MC_L        ;
@@ -144,6 +145,108 @@ MCnv MC_ConcRate ;
 MCnv MC_KinVisc  ;
 MCnv MC_ElectVA  ;
 MCnv MC_Humidity ;
+MCnv MC_Money    ;
+MCnv MC_MoneyFlow;
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+MCnvs  gs_Cnvs;
+
+MCnvs::MCnvs()
+  {
+  };
+int MCnvs::FindPrimary(LPCTSTR Name)
+  {
+  return gs_CnvsMngr.CnvCnt();
+  }
+int MCnvs::Count()
+  {
+  return gs_CnvsMngr.CnvCnt();
+  }
+bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
+  {
+  CString Nm(NameCnv);
+  Nm=Nm.Trim();
+  CString Txt(Nm);
+
+  if (Nm.Left(4)=="Frac")
+    { int xxx=0; }
+
+  int iParen=Nm.Find("(");
+  if (iParen>0)
+    {
+    Nm=Nm.Left(iParen);
+    Txt=Txt.Right(Txt.GetLength()-iParen);
+    Cnv.m_Index=gs_CnvsMngr.FindCnv((LPTSTR)(LPCTSTR)Nm);
+    Cnv.m_Txt=Txt.Trim("()");
+    return Cnv.m_Index>0;
+    }
+
+  Cnv.m_Index=0;
+  Cnv.m_Txt="";
+  return true;
+  }
+
+double MCnvs::Scale(const MCnv & Cnv)
+  {
+  CDataCnv * p= gs_CnvsMngr.FindSecCnv(Cnv.m_Index, (LPTSTR)(LPCTSTR)Cnv.m_Txt);
+  if (p)
+    return p->SclValue();
+
+  if (Cnv.m_Index==1)
+    { int xxx=0; }
+
+  if (Cnv.m_Index>0)       
+    gs_Log.Message(MMsg_Error, "Bad Conversion %s", Cnv.m_Txt);
+  return 1.0;
+  };
+double MCnvs::Offset(const MCnv & Cnv)
+  {
+  CDataCnv * p= gs_CnvsMngr.FindSecCnv(Cnv.m_Index, (LPTSTR)(LPCTSTR)Cnv.m_Txt);
+  if (p)
+    return p->OffValue();
+  if (Cnv.m_Index>0)
+    gs_Log.Message(MMsg_Error, "Bad Conversion %s", Cnv.m_Txt);
+  return 1.0;
+  };
+
+
+//class DllImportExport CCnvsMngr
+//  {
+//  public:
+//    CCnvsMngr();
+//    ~CCnvsMngr();
+//    void Init();
+//    void Reset();
+//    CCnvIndex AddSI(char* Fam, char* Txt, char* Desc, double Min, double Max_, flag PrjCnv, long iXform=0);
+//    int LoadCnvsADO(char* Filename, flag PrjCnv, BOOL LogErrs = TRUE);
+//    void DumpCnvs();
+//    CCnvIndex FindCnv(char* pFamName);
+//    CCnvIndex AddPri(char* Fam, char* Txt, double Min, double Max_, char* Desc, flag PrjCnv);
+//    CCnvIndex AddSec(CCnvIndex index, char* Txt, double Scl, double Off, flag PrjCnv);
+//#if WITHCNVINDEXCLASS
+//    inline CDataCnv* FindSecCnv(CCnvIndex DC, char* pSecTxt) { return Cnvs[DC.Index]->Find(pSecTxt); };
+//    inline CCnvIndex CnvCnt() { return Cnvs.GetSize(); };
+//    inline CDataCnv* SICnv(CCnvIndex DC) { return Cnvs[DC.Index]->SICnv(); };
+//#else
+//    inline CDataCnv* FindSecCnv(CCnvIndex DC, char* pSecTxt) { return Cnvs[DC]->Find(pSecTxt); };
+//    inline CCnvIndex CnvCnt() { return Cnvs.GetSize(); };
+//    inline CDataCnv* SICnv(CCnvIndex DC) { return Cnvs[DC]->SICnv(); };
+//#endif
+//    void  Clear();
+//    void  Recover();
+//    void  Save();
+
+    //void SetAtmosPressMult(double M);
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 long MP_All  = 0;
 long MP_Sol  = 0;
@@ -487,6 +590,7 @@ bool MInitialise()
     MC_E.m_Index          = (DC_E)        ;
     MC_Frac.m_Index       = (DC_Frac)     ;
     MC_FracRate.m_Index   = (DC_FracRate) ;
+    MC_Assay.m_Index      = (DC_Assay)    ;
     MC_HCap.m_Index       = (DC_HCap)     ;
     MC_HCapF.m_Index      = (DC_HCapF)    ;
     MC_L.m_Index          = (DC_L)        ;
@@ -580,7 +684,9 @@ bool MInitialise()
     MC_ConcRate.m_Index   = (DC_ConcRate) ;
     MC_KinVisc.m_Index    = (DC_KinVisc)  ;
     MC_ElectVA.m_Index    = (DC_ElectVA)  ;
-    MC_Humidity.m_Index   = (DC_Humidity)  ;
+    MC_Humidity.m_Index   = (DC_Humidity) ;
+    MC_Money.m_Index      = (DC_Money)    ;
+    MC_MoneyFlow.m_Index  = (DC_MoneyFlow);
 
     gs_MVDefn.Initialise();
     gs_PSDDefns.Initialise();
@@ -599,6 +705,8 @@ bool MInitialise()
 //
 //
 //===========================================================================
+
+#if MOVEDTO_MD_SHARE3
 
 void MLog::Message(MMessageType Type, LPCSTR pFmt, ...)
   {
@@ -706,6 +814,7 @@ void MDebug::PrintLn(LPCSTR pFmt, ...)
   va_end(argptr);
   dbgpln("%s", Buff);
   };
+#endif
 
 //===========================================================================
 //

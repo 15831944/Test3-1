@@ -5,51 +5,50 @@
 //		DIAMOND WIZARD SPECIFIC - EFFICIENCY CURVE
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_EfficiencyCurve: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_EfficiencyCurve: public CLimn_ModelData_Base
   {
   public:
-    C_ModelParameters_DiamondWizard_EfficiencyCurve(void)
+    C_ModelParameters_DiamondWizard_EfficiencyCurve(void) : CLimn_ModelData_Base(&sm_Common)
       {
       m_nSGs=0;
       };
-    ~C_ModelParameters_DiamondWizard_EfficiencyCurve(void){};
-
-
-    C_ModelParameters_DiamondWizard_EfficiencyCurve(double* ModelParams, int nSG) // usually called from parameter passing
+    C_ModelParameters_DiamondWizard_EfficiencyCurve(double* ModelParams, int nSG) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-      m_nSGs=nSG;
-      m_pData=ModelParams;
+      //m_pData=ModelParams;
+      Initialise(nSG); 
       }
-
-      double & OversizeStreamID()  { return m_pData[0];         }; 
-      double & WaterSplit()        { return m_pData[1];         };
-      double & FeSiSplit()         { return m_pData[2];         } ;
-      double & Alpha()             { return m_pData[3];         } ;
-      double & Rf()                { return m_pData[4];         } ;
-      double & D50c(int i)         { return m_pData[5+i];       } ;
-      double & DiamondD50c()       { return m_pData[5+m_nSGs];  };
-  
-      int DataCount()              { return 5 + m_nSGs + 1;       };
-  
-	  bool Product1IsOversize()	   { return OversizeStreamID()  < 1.5 ? true : false ; };   
-
-
-#ifdef LIMNDW
-	void Initialise() 
+    ~C_ModelParameters_DiamondWizard_EfficiencyCurve(void)
       {
-      m_nSGs             = CONFIGURATION.nSGs();
-
-      Allocate();
-
-      WaterSplit()       = 0.25;
-      FeSiSplit()        = 0.25;
-      Alpha()            = 10.0;
-      Rf()               = 0.0;
-      for (int i=0; i<CONFIGURATION.nSGs(); i++)
-        D50c(i) = 0.010;
-      DiamondD50c()      = 0.010;
       };
-#endif
+
+    static CLimn_ModelData_Common sm_Common;
+
+    CDoubleRef OversizeStreamID;  
+    CDoubleRef WaterSplit;        
+    CDoubleRef FeSiSplit;         
+    CDoubleRef Alpha;             
+    CDoubleRef Rf;                
+    CVectorRef D50c;         
+    CDoubleRef DiamondD50c;       
+
+
+    bool Product1IsOversize()	   { return OversizeStreamID()  < 1.5 ? true : false ; };   
+
+    void Initialise(int nSGs) 
+      {
+      CLimn_ModelData_Base::Initialise();
+
+      m_nSGs             = nSGs;
+
+      OversizeStreamID  .Initialise(this,                       "OversizeStreamID",      1,   "",       true);
+      WaterSplit        .Initialise(this,                       "WaterSplit",         0.25,   "Frac(.)");
+      FeSiSplit         .Initialise(this,                       "FeSiSplit",          0.25,   "Frac(.)");
+      Alpha             .Initialise(this,                       "Alpha",                10,   "");
+      Rf                .Initialise(this,                       "Rf",                    0,   "");
+      D50c              .Initialise(this, "D50", m_nSGs, DI_SG, "D50c",                 10,   "L(mm)");
+      DiamondD50c       .Initialise(this,                       "DiamondD50c",          10,   "L(mm)");
+
+      };
 
   protected:
     int            m_nSGs;
@@ -58,7 +57,7 @@ class C_ModelParameters_DiamondWizard_EfficiencyCurve: public CLimn_ModelData_Ab
 //
 //				Limn callable model
 C_LINKAGE DLLMODEL int _Model_DiamondWizard_EfficiencyCurve (int nRows,
-					 		 			                     int nColumns,
+                                                             int nColumns,
                                                              int nParameters,
                                                              int nReturns,
                                                              double* ModelParams,

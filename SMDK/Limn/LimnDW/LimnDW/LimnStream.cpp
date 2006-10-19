@@ -132,10 +132,13 @@ const int idx_LiberatedFraction = 15;
 const int idx_RelativeRevenue   = 16;
 const int idx_RevenueFlow       = 17;
 
-const int idx_Calculate       = 99;
-const int idx_Source          = 100;
-const int idx_SrcName         = 101;
-const int idx_SrcLoad         = 102;
+const int idx_CopySummary       = 100;
+const int idx_CopyMass          = 101;
+const int idx_CopyFractional    = 102;
+const int idx_Calculate         = 103;
+const int idx_Source            = 104;
+const int idx_SrcName           = 105;
+const int idx_SrcLoad           = 106;
 
 
 void CLimnStream::BuildDataFields()
@@ -171,9 +174,14 @@ void CLimnStream::BuildDataFields()
 
 
   DD.Text("");
-  DD.Text("Data Entry ...");
+  DD.Text("Copy to Clipboard ...");
+  DD.Button("Summary",                  "", idx_CopySummary);
+  DD.Button("Data as Mass",             "", idx_CopyMass);
+  DD.Button("Data as Fractional",       "", idx_CopyFractional);
 
-  DD.CheckBox("Calculator", "",  idx_Calculate, MF_PARAMETER|MF_SET_ON_CHANGE);
+  DD.Text("");
+  DD.Text("Options ...");
+  DD.CheckBox("Calculator",             "",  idx_Calculate, MF_PARAMETER|MF_SET_ON_CHANGE);
   if (m_bCalculate && m_pFeed)
     {
     static MDDValueLst DDSource[]=
@@ -221,7 +229,7 @@ double CLimnStream::GetResult(int iResult)
   if (!TestStateValid())
     {
     m_Results.SetSize(17);
-    Dbg.PrintLn("Update Results %s", Tag);
+    //Dbg.PrintLn("Update Results %s", Tag);
 
     ConvertToMassForm(Vector);
 	  int xx=StreamSummaryCalculation(&m_Results[0], 
@@ -260,6 +268,46 @@ bool CLimnStream::ExchangeDataFields()
     case idx_RelativeRevenue    : DX.Double = GetResult(15);                      return true;
     case idx_RevenueFlow        : DX.Double = GetResult(16);                      return true;
 
+    case idx_CopySummary        : 
+      {
+      if (DX.HasReqdValue && DX.Bool)
+        {
+        CString Buff, V;
+        for (int i=0; i<17; i++)
+          {
+          V.Format("%.12f\r\n", GetResult(i));
+          Buff+=V;
+          }
+        CopyTextToClipboard(Buff);
+        }
+      DX.Bool =  false;
+      return true;
+      }
+
+    case idx_CopyFractional     : 
+    case idx_CopyMass           : 
+      {
+      if (DX.HasReqdValue && DX.Bool)
+        {
+        if (DX.Handle==idx_CopyMass)
+          ConvertToMassForm(Vector);
+        CString Buff, V;
+        for (int r=0; r<RowCount(); r++)
+          {
+          for (int c=0; c<ColCount(); c++)
+            {
+            V.Format(c>0?"\t%.12f":"%.12f", m_Data[c+ColCount()*r]);
+            Buff+=V;
+            }
+          Buff+="\r\n";
+          }
+        CopyTextToClipboard(Buff);
+        if (DX.Handle==idx_CopyMass)
+          ConvertToFracForm(Vector);
+        }
+      DX.Bool =  false;
+      return true;
+      }
     case idx_Calculate      :
       if (DX.HasReqdValue)
         {
@@ -337,7 +385,7 @@ void CLimnStream::LoadFeed()
  
   MVector Vec = Vector;
 
-  if (1)
+  if (0)
     {
     Dbg.PrintLn("Vector @ LoadFeed");
     MVector V=Vector;

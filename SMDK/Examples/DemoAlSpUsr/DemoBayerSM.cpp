@@ -254,12 +254,36 @@ LPCTSTR CDemoBayerSM::get_PreferredModelProgID()
 
 //---------------------------------------------------------------------------
 
-bool CDemoBayerSM::ValidateData()
+void CDemoBayerSM::BuildDataFields()
+  { 
+  };              
+
+//---------------------------------------------------------------------------
+
+bool CDemoBayerSM::ExchangeDataFields()
   {
-  bool OK=MSpModelBase::ValidateData();
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CDemoBayerSM::ValidateDataFields()
+  { 
+  //_asm int 3;
+  bool OK=MSpModelBase::ValidateDataFields();
   InputCalcs(fDoCalc, Temperature);
-  return OK;
-  }
+  return true; 
+  }; 
+
+//---------------------------------------------------------------------------
+
+//bool CDemoBayerSM::ValidateData()
+//  {
+//  _asm int 3;
+//  bool OK=MSpModelBase::ValidateData();
+//  InputCalcs(fDoCalc, Temperature);
+//  return OK;
+//  }
 
 //---------------------------------------------------------------------------
 

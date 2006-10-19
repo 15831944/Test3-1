@@ -182,7 +182,7 @@ void CMill_Ball::EvalProducts(MBaseMethod &M,
 { 
 
 	// Get info on Size Distribution
-    MIPSD & l_PSD=Feed.IF<MIPSD>(false);
+    MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
     if (IsNothing(l_PSD))
       {
       int xx=0;

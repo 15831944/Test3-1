@@ -59,10 +59,10 @@ int _Model_DiamondWizard_GrindingMill (int nRows,
 			C_ModelParameters_DiamondWizard_GrindingMill p( ModelParams, nOSz ) ;	// model parameters - copied to class variables for clarity
 
 			Matrix B(nOSz,nOSz) ;
-			B << p.pB() ;					// fill a local matrix with the Breakage function data B
+			B << p.B.Ptr() ;					// fill a local matrix with the Breakage function data B
 
 			ColumnVector S(nOSz) ;
-			S << p.pS() ;					// ditto the Selection function S
+			S << p.S.Ptr() ;					// ditto the Selection function S
 
 			int iOSz ;							// Counters
 			int jOSz ;

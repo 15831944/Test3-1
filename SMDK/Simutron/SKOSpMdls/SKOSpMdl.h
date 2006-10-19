@@ -13,7 +13,11 @@ class CSKOSpMdl : public MSpModelBase
 	  CSKOSpMdl(TaggedObject *pNd);
 	  ~CSKOSpMdl();
 
-	  bool              get_IsBaseClassOf(LPCTSTR OtherProgID);
+    void            BuildDataFields();  
+    bool            ExchangeDataFields();
+    bool            ValidateDataFields();
+
+    bool              get_IsBaseClassOf(LPCTSTR OtherProgID);
 	  LPCTSTR           get_PreferredModelProgID();
 	  double            get_Density(long Phases, double T, double P, MArray * pMA);
 	  double            get_msEnthalpy(long Phases, double T, double P, MArray * pMA);

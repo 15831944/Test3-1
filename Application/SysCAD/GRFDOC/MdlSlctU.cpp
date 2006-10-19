@@ -1615,7 +1615,7 @@ void CInsertUnitDlg::SaveMdlData()
       MruLb0.Set(MRUFmt, im-1);
       MruLb1.Set(MRUFmt, im);
       MruSym = PF.RdStr(m_sMdlSection, MruLb0(), NullUnitSymbol);
-      PF.WrStr(m_sMdlSection, MruLb1(), MruSym);
+      PF.WrStr(m_sMdlSection, MruLb1(), MruSym());
       }
 
     MruLb0.Set(MRUFmt, 0);

@@ -125,9 +125,9 @@ void WhitenScreen::EvalProducts()
     // associated with them. We still need to manage those species that
     // do not have PSD data further down.
     //
-    MIPSD & PSD = QI.IF<MIPSD>(false);
-    MIPSD & PSDof = Qof.IF<MIPSD>(false);
-    MIPSD & PSDuf = Quf.IF<MIPSD>(false);
+    MIPSD & PSD = *QI.FindIF<MIPSD>();
+    MIPSD & PSDof = *Qof.FindIF<MIPSD>();
+    MIPSD & PSDuf = *Quf.FindIF<MIPSD>();
 
     if ( IsNothing(PSD)==false )
       {

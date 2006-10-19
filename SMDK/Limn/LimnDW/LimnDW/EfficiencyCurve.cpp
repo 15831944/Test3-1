@@ -8,7 +8,7 @@
 #include "limnstream.h"
 #pragma optimize("", off)
 
-#define DoDbg 0x7
+#define DoDbg 0 /*x7*/
 
 //====================================================================================
 
@@ -25,6 +25,8 @@ static double Drw_EfficiencyCurve[] = { MDrw_Poly,  -12,6,  12,2,  12,-2, 0,-6, 
                                         MDrw_Poly,  -12,4,  12,0,
                                         MDrw_Poly,  -12,2,  12,-2,
                                         MDrw_End };
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_EfficiencyCurve::sm_Common;
 
 //---------------------------------------------------------------------------
 
@@ -43,7 +45,7 @@ void CEfficiencyCurve_UnitDef::GetOptions()
 CEfficiencyCurve::CEfficiencyCurve(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
   gs_DWCfg.Initialise();
-  m_DWParms.Initialise();
+  m_DWParms.Initialise(gs_DWCfg.nSGs());
 
   m_LBtnDn = false;
   m_RBtnDn = false;
@@ -60,21 +62,14 @@ void CEfficiencyCurve::Init()
 
 void CEfficiencyCurve::BuildDataFields()
   {
-  DD.Text("Parameters...");
-  DD.Text("");
+  m_DWParms.BuildDataFields(DD);
+  }
+bool CEfficiencyCurve::ExchangeDataFields()
+  {
+  if (m_DWParms.ExchangeDataFields(DX))
+    return true;
 
-  CString Tg;
-  
-  DD.Double("WaterSplit",   "",       &m_DWParms.WaterSplit(),  MF_PARAMETER, MC_Frac("%"));
-  DD.Double("FeSiSplit",    "",       &m_DWParms.FeSiSplit(),   MF_PARAMETER, MC_Frac("%"));
-  DD.Double("Alpha",        "",       &m_DWParms.Alpha(),       MF_PARAMETER, MC_(""));
-  DD.Double("Rf",           "",       &m_DWParms.Rf(),          MF_PARAMETER, MC_Frac(""));
-  DD.Double("D50c-Diamond", "",       &m_DWParms.DiamondD50c(), MF_PARAMETER, MC_L("mm"));
-  for (int iSG=0; iSG<gs_DWCfg.nSGs(); iSG++)
-    {
-    Tg.Format("D50c-%s", gs_DWCfg.SGTextShort(iSG));
-    DD.Double(Tg,           "",       &m_DWParms.D50c(iSG),     MF_PARAMETER, MC_L("mm"));
-    }
+  return false;
   }
 
 //---------------------------------------------------------------------------
@@ -114,7 +109,7 @@ void CEfficiencyCurve::EvalProducts()
 					 		            			                      gs_DWCfg.ColCount(),
                                                       m_DWParms.DataCount(),    // int nParameters,
                                                       0,                        // int nReturns,
-                                                      m_DWParms.GetDataPtr(),
+                                                      CLimn_ModelData_Access(m_DWParms),
                                                       NULL,                     // double* ModelReturn,
                                                       LSIn.Data(),              // double* CombinedFeed,
                                                       LSO0.Data(),              // double* Product1,

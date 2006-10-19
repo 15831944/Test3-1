@@ -88,7 +88,9 @@ class BATCBayerSM : public MSpModelBase, public MIBayer
 	  BATCBayerSM(TaggedObject *pNd);
 	  ~BATCBayerSM();
 
-    bool            ValidateData();
+    void            BuildDataFields();  
+    bool            ExchangeDataFields();
+    bool            ValidateDataFields();
 
     // Standard Methods
 	  bool            get_IsBaseClassOf(LPCTSTR OtherProgID);

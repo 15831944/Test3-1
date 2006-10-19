@@ -17,7 +17,7 @@
 //  #include "sc_defs.h"
 //#endif
 
-
+#if MOVEDTO_MD_SHARE_3
 class DllImportExport CRegistry
   {
   public:
@@ -42,6 +42,7 @@ class DllImportExport CRegistry
 	  LPCTSTR m_pszAppName;
 
   };
+#endif
 
 #undef DllImportExport
 

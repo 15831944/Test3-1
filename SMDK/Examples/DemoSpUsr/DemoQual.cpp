@@ -12,8 +12,7 @@
 //
 //
 //===========================================================================
-
-DEFINE_SPECIEQUALITY(CDemoQual)
+ 
 IMPLEMENT_SPECIEQUALITY(CDemoQual, "DemoQual", "DemoQual ShortDesc", "CDemoQual Desc", DLL_GroupName)
 
 CDemoQual::CDemoQual(TaggedObject * pNd)
@@ -35,6 +34,24 @@ CDemoQual::~CDemoQual()
   }
 
 //---------------------------------------------------------------------------
+
+void CDemoQual::BuildDataFields()
+  { 
+  };              
+
+//---------------------------------------------------------------------------
+
+bool CDemoQual::ExchangeDataFields()
+  {
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CDemoQual::ValidateDataFields()
+  { 
+  return true; 
+  }; 
 
 //===========================================================================
 //
@@ -115,7 +132,7 @@ void CDemoQual::ScaleMass(long Phase, double Mult)
 void CDemoQual::ScaleMass(CArray<int,int> &SpIds, double Mult)
   {
   };
-void CDemoQual::SetMassF(MSpQualityBase * QualSet) 
+void CDemoQual::SetMassF(MSpQualityBase * QualSet, MArray & MSet) 
   {
   CDemoQual * pQ2=dynamic_cast<CDemoQual*>(QualSet);
   m_dSG=pQ2->m_dSG;

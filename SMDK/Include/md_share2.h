@@ -93,6 +93,8 @@ const DDEF_Flags DDEF_CHILDMASK           = 0x0003000000000000;
 const DDEF_Flags DDEF_ISSPECIE            = 0x0004000000000000;
 const DDEF_Flags DDEF_ISSPECIEATT         = 0x0008000000000000;
 const DDEF_Flags DDEF_ISSPECIECALC        = 0x0010000000000000;
+const DDEF_Flags DDEF_STARTROW            = 0x0020000000000000;
+const DDEF_Flags DDEF_ENDROWS             = 0x0040000000000000;
 //const DDEF_Flags DDEF_NDBIMPORT           = 0x0020000000000000;
 
 //                                            6 5  4 3  2 1
@@ -101,30 +103,39 @@ const int     DDEF_CHILDSHIFT             = 40;
 
 inline DDEF_Flags ChildLevel(int i) { return (DDEF_CHILDMASK) & (((ULONG64)i)<<DDEF_CHILDSHIFT); }
 
-// Unit Model Field MF_xxx : unit model field flags information/options/etc for adding tags to the system...
-const DWORD MF_RESULT        = DDEF_RESULT; //result field in access window
-const DWORD MF_PARAMETER     = DDEF_PARAM; //input field in access window
-const DWORD MF_PARAM_STOPPED = (DDEF_PARAMSTOPPED|DDEF_PARAM); //input field in access window when solver is stopped
-const DWORD MF_SET_ON_CHANGE = DDEF_SETONCHANGE; //apply change on the input field immediatly
-const DWORD MF_NO_FILING     = (DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO); //field does not need to be saved/recovered to database
-const DWORD MF_NO_VIEW       = DDEF_NOVIEW; //field not visible to user in access window
-const DWORD MF_INIT_HIDDEN   = DDEF_HIDDEN; //field initialiy hidden
-const DWORD MF_NAN_OK        = DDEF_NAN_OK; //for floating point fields, NAN (shown as * in access window) is allowed
-const DWORD MF_BUTTON        = DDEF_BUTTON; //for bool fields, Present a button
-//const DWORD MF_ISRESULT      = DDEF_RESULT; // this is a calculated field which goes invalid on any change
-const DWORD MF_HIDEIFZERO    = DDEF_HIDEIFZERO; // hide this field if it is zero
+//===============================
 
-const DWORD MF_Result        = MF_RESULT; //result field in access window
-const DWORD MF_Parameter     = MF_PARAMETER; //input field in access window
-const DWORD MF_ParamStopped  = MF_PARAM_STOPPED; //input field in access window when solver is stopped
-const DWORD MF_SetOnChange   = MF_SET_ON_CHANGE; //apply change on the input field immediatly
-const DWORD MF_NoFiling      = MF_NO_FILING; //field does not need to be saved/recovered to database
-const DWORD MF_NoView        = MF_NO_VIEW; //field not visible to user in access window
-const DWORD MF_InitHidden    = MF_INIT_HIDDEN; //by default field initialiy hidden
-const DWORD MF_NanOK         = MF_NAN_OK; //for floating point fields, NAN (shown as * in access window) is allowed
-const DWORD MF_Button        = MF_BUTTON; //for bool fields, Present a button
-//const DWORD MF_ISRESULT      = MF_ISRESULT; // this is a calculated field which goes invalid on any change
-const DWORD MF_HideIfZero    = MF_HIDEIFZERO; // hide this field if it is zero
+typedef DDEF_Flags MD_Flags;
+
+
+// Unit Model Field MF_xxx : unit model field flags information/options/etc for adding tags to the system...
+const MD_Flags MF_RESULT        = DDEF_RESULT;         //result field in access window
+const MD_Flags MF_PARAMETER     = DDEF_PARAM;          //input field in access window
+const MD_Flags MF_PARAM_STOPPED = (DDEF_PARAMSTOPPED|DDEF_PARAM); //input field in access window when solver is stopped
+const MD_Flags MF_SET_ON_CHANGE = DDEF_SETONCHANGE;    //apply change on the input field immediatly
+const MD_Flags MF_NO_FILING     = (DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO);                          //field does not need to be saved/recovered to database
+const MD_Flags MF_NO_VIEW       = DDEF_NOVIEW;         //field not visible to user in access window
+const MD_Flags MF_INIT_HIDDEN   = DDEF_HIDDEN;         //field initialiy hidden
+const MD_Flags MF_NAN_OK        = DDEF_NAN_OK;         //for floating point fields, NAN (shown as * in access window) is allowed
+const MD_Flags MF_BUTTON        = DDEF_BUTTON;         //for bool fields, Present a button
+//const MD_Flags MF_ISRESULT      = DDEF_RESULT;       // this is a calculated field which goes invalid on any change
+const MD_Flags MF_HIDEIFZERO    = DDEF_HIDEIFZERO;     // hide this field if it is zero
+const MD_Flags MF_STARTROW      = DDEF_STARTROW;       // Put this and subsequent values on the same row until MF_StartRow or MF_EndRows
+const MD_Flags MF_ENDROWS       = DDEF_ENDROWS;        // Marks end of row mode
+
+const MD_Flags MF_Result        = MF_RESULT;           //result field in access window
+const MD_Flags MF_Parameter     = MF_PARAMETER;        //input field in access window
+const MD_Flags MF_ParamStopped  = MF_PARAM_STOPPED;    //input field in access window when solver is stopped
+const MD_Flags MF_SetOnChange   = MF_SET_ON_CHANGE;    //apply change on the input field immediatly
+const MD_Flags MF_NoFiling      = MF_NO_FILING;        //field does not need to be saved/recovered to database
+const MD_Flags MF_NoView        = MF_NO_VIEW;          //field not visible to user in access window
+const MD_Flags MF_InitHidden    = MF_INIT_HIDDEN;      //by default field initialiy hidden
+const MD_Flags MF_NanOK         = MF_NAN_OK;           //for floating point fields, NAN (shown as * in access window) is allowed
+const MD_Flags MF_Button        = MF_BUTTON;           //for bool fields, Present a button
+//const MD_Flags MF_ISRESULT      = MF_ISRESULT;       // this is a calculated field which goes invalid on any change
+const MD_Flags MF_HideIfZero    = MF_HIDEIFZERO;       // hide this field if it is zero
+const MD_Flags MF_StartRow      = MF_STARTROW;         // Put this and subsequent values on the same row until MF_StartRow or MF_EndRows
+const MD_Flags MF_EndRows       = MF_ENDROWS;          // Marks end of row mode
 
 // ======================================================================
 // Data Definitions for Text equivalents of Integral Values
@@ -311,14 +322,15 @@ class DllImportExport MPropertyValue
 
 class DllImportExport MCnv
   {
-  public://protected:
-    short   m_Index;
-    LPCTSTR m_pTxt;
   public:
-    MCnv()                          { m_Index=0; m_pTxt=NULL; }
-    MCnv & operator()(LPCTSTR Txt)  { m_pTxt=Txt; return *this; }
+    MCnv()                          { m_Index=0; m_Txt=""; }
+    MCnv & operator()(LPCTSTR Txt)  { m_Txt=Txt; return *this; }
     operator short()                { return m_Index; };
     operator long()                 { return m_Index; };
+
+  public://protected:
+    short    m_Index;
+    CString  m_Txt;
   };
 
 // Model Conversions MC_xxx : engineering conversion unit types...
@@ -332,6 +344,7 @@ extern DllImportExport MCnv MC_PpVol    ; //Pressure Slew Rate      : kPa/m^3
 extern DllImportExport MCnv MC_E        ; //Energy                  : kJ
 extern DllImportExport MCnv MC_Frac     ; //Fraction                :
 extern DllImportExport MCnv MC_FracRate ; //Fraction Rate           : %/s 
+extern DllImportExport MCnv MC_Assay    ; //Assay                :
 extern DllImportExport MCnv MC_HCap     ; //Heat Capacity           : kJ/dC
 extern DllImportExport MCnv MC_HCapF    ; //                        : kJ/dC/s
 extern DllImportExport MCnv MC_L        ; //Length                  : m 
@@ -410,6 +423,24 @@ extern DllImportExport MCnv MC_ConcRate ; //Concentration Change Rate: kg/m^3/s
 extern DllImportExport MCnv MC_KinVisc  ; //Kinematic Viscosity (Stoke) : m^2/s
 extern DllImportExport MCnv MC_ElectVA  ; //Electrical VA (V*A)     : kVA
 extern DllImportExport MCnv MC_Humidity ; //Specific Humidity       : kg(l)/kg(v)
+
+extern DllImportExport MCnv MC_Money    ; //Money                   : US$
+extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : US$/s
+
+
+class DllImportExport MCnvs
+  {
+  public:
+    MCnvs();    
+    int     Count();
+    int     FindPrimary(LPCTSTR Name);
+    //int FindSecondary(LPCTSTR Name);
+    bool    Create(LPCTSTR NameCnv, MCnv & Cnv);
+    double  Scale(const MCnv & Cnv);
+    double  Offset(const MCnv & Cnv);
+  };
+
+extern DllImportExport MCnvs gs_Cnvs;
 
 //---------------------------------------------------------------------------
 

@@ -4398,6 +4398,7 @@ void DataDefnBlk::Open(TaggedObject *pRootObj_, char * FullItemTag, DDBTasks Tas
   AInfo[iADepth].pClass=NULL;
   AInfo[iADepth].nElem=0;
   AInfo[iADepth].iIndex=0;
+  AInfo[iADepth].m_ElementClosed=0;
 
   fWriting=False;
   pItemList=NULL;
@@ -4887,7 +4888,7 @@ flag DataDefnBlk::BeginBlock(byte Type, TaggedObject *Obj,
 
 //--------------------------------------------------------------------------
 
-void DataDefnBlk::EndBlock()
+void DataDefnBlk::EndBlock(DDEF_Flags Flags)
   {
   if (bBlkSuppressed[--iBlkDepth])
     {
@@ -4912,9 +4913,9 @@ void DataDefnBlk::EndBlock()
           m_pList->AdvanceWrite();//pPItem);
         fWriting=True;
         if ((dwOptions & TABOpt_ForSnapShot)!=0)
-          m_pItem->AppendStructureE(/*m_pList->GetInfo(),*/ StructEndType(Nest[lCallLevel].iTyp), NULL, 0);
+          m_pItem->AppendStructureE(/*m_pList->GetInfo(),*/ StructEndType(Nest[lCallLevel].iTyp), NULL, Flags);
         else
-          m_pItem->AppendStructureE(/*m_pList->GetInfo(),*/ StructEndType(Nest[lCallLevel].iTyp), Nest[lCallLevel].pTag, 0);
+          m_pItem->AppendStructureE(/*m_pList->GetInfo(),*/ StructEndType(Nest[lCallLevel].iTyp), Nest[lCallLevel].pTag, Flags);
         }
       break;
     case DDBTask_FndData:
@@ -5068,6 +5069,7 @@ flag DataDefnBlk::BeginArray(TaggedObject *pObj, pchar pTag, pchar pClassName, i
   AInfo[iADepth].pClass=pClassName;
   AInfo[iADepth].nElem=nElem;
   AInfo[iADepth].iIndex=-1;
+  AInfo[iADepth].m_ElementClosed=false;
   return SearchingTag;
   };
 
@@ -5076,10 +5078,10 @@ flag DataDefnBlk::BeginArray(TaggedObject *pObj, pchar pTag, pchar pClassName, i
 flag DataDefnBlk::BeginElement(TaggedObject *pObj, int iElementIndex, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
-  //ASSERT(iElementIndex==AInfo[iADepth].iIndex+1);
-  if (AInfo[iADepth].iIndex>=0)
-    EndBlock();//tt_Element_E, pObj, Tag, "$elem");
+  if (!AInfo[iADepth].m_ElementClosed && AInfo[iADepth].iIndex>=0)
+    EndBlock();
   AInfo[iADepth].iIndex++;
+  AInfo[iADepth].m_ElementClosed=false;
 
   sprintf(cElementTag, "[%0*i]", TOElementTagDigitCnt(ForFileSnpScn()!=0), iElementIndex);
   flag SearchingTag=BeginBlock(tt_Element, pObj, cElementTag, AInfo[iADepth].pClass, NULL, NULL, NULL, TagComment, UserInfo, 0, BlkFlags, asmRetAddress);
@@ -5100,10 +5102,10 @@ flag DataDefnBlk::BeginElement(TaggedObject *pObj, int iElementIndex, pchar TagC
 flag DataDefnBlk::BeginElement(TaggedObject *pObj, LPCTSTR pElementTag, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
-  //ASSERT(iElementIndex==AInfo[iADepth].iIndex+1);
-  if (AInfo[iADepth].iIndex>=0)
-    EndBlock();//tt_Element_E, pObj, Tag, "$elem");
+  if (!AInfo[iADepth].m_ElementClosed && AInfo[iADepth].iIndex>=0)
+    EndBlock();
   AInfo[iADepth].iIndex++;
+  AInfo[iADepth].m_ElementClosed=false;
 
   sprintf(cElementTag, "[%.*s]", sizeof(cElementTag)-1, pElementTag);
   flag SearchingTag=BeginBlock(tt_Element, pObj, cElementTag, AInfo[iADepth].pClass, NULL, NULL, NULL, TagComment, UserInfo, 0, BlkFlags, asmRetAddress);
@@ -5119,16 +5121,26 @@ flag DataDefnBlk::BeginElement(TaggedObject *pObj, LPCTSTR pElementTag, pchar Ta
   return SearchingTag;
   };
 
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
-void DataDefnBlk::EndArray()
+void DataDefnBlk::EndElement(DDEF_Flags Flags)
   {
   VERIFY(iADepth>0);
-  if (AInfo[iADepth].iIndex>=0)
+  VERIFY(AInfo[iADepth].iIndex>=0);
+  AInfo[iADepth].m_ElementClosed=true;
+  EndBlock(Flags);
+  }
+  
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::EndArray(DDEF_Flags Flags)
+  {
+  VERIFY(iADepth>0);
+  if (!AInfo[iADepth].m_ElementClosed && AInfo[iADepth].iIndex>=0)
     EndBlock();
 
   iADepth--;
-  EndBlock();
+  EndBlock(Flags);
   };
 
 //---------------------------------------------------------------------------

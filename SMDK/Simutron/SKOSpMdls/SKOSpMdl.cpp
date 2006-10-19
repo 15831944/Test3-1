@@ -73,6 +73,26 @@ CSKOSpMdl::~CSKOSpMdl()
 
 //---------------------------------------------------------------------------
 
+void CSKOSpMdl::BuildDataFields()
+  { 
+  };              
+
+//---------------------------------------------------------------------------
+
+bool CSKOSpMdl::ExchangeDataFields()
+  {
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CSKOSpMdl::ValidateDataFields()
+  {
+  return MSpModelBase::ValidateDataFields();
+  };
+
+//---------------------------------------------------------------------------
+
 bool CSKOSpMdl::get_IsBaseClassOf(LPCTSTR OtherProgID)
   {
   return false;

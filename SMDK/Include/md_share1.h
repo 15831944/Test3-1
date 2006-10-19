@@ -321,7 +321,7 @@ class MSysException
       {
       m_nCode=n;
       m_nAdd=(unsigned int )a;
-      strcpy(m_sName, d);
+      strncpy(m_sName, d, sizeof(m_sName)-1);
       }
     ~MSysException()
       {
@@ -458,7 +458,7 @@ DllImportExport void DoAssert1(char * pMsg);
 #define _MAKENAME "Dbg_Release"
 #endif
 
-// ========================================================================
+
 // ========================================================================
 
 #undef DllImportExport
