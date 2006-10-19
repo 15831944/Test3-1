@@ -2717,7 +2717,7 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
 
   DDB.Text(" ");
   LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";
-  DDB.String(AreaTag,    "", DC_, "", xidFlwNdRqdArea,  this, isParmStopped);
+  DDB.String(AreaTag,    "", DC_, "", xidFlwNdRqdArea,  this, isParmStopped|InitHidden);
 
   //GetGlblModeValueLst(DDBR, GetPermissableRunModes(SM_All));
   //if (m_DDBSolveModes.Length()>0)
