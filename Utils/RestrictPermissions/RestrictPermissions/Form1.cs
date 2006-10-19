@@ -16,6 +16,8 @@ namespace RestrictPermissions
 
     string restrictions = "";
 
+    byte[] metricHash;
+
     public Form1()
     {
       InitializeComponent();
@@ -24,9 +26,14 @@ namespace RestrictPermissions
     private void button1_Click(object sender, EventArgs e)
     {
       filename = null;
+
       setButton.Enabled = false;
       passwordTextBox.Enabled = false;
       ReadOnlyCheckBox.Enabled = false;
+
+      encryptButton.Enabled = false;
+      decryptButton.Enabled = false;
+
       checkBox1.Enabled = false;
       checkBox2.Enabled = false;
       checkBox3.Enabled = false;
@@ -49,7 +56,7 @@ namespace RestrictPermissions
         streamReader.Close();
         fileStream.Close();
 
-        byte[] metricHash = GetMetricHash(fileString);
+        metricHash = GetMetricHash(fileString);
 
         byte[] passwordHash = null;
         restrictions = "";
@@ -87,9 +94,14 @@ namespace RestrictPermissions
           passwordTextBox.Text = enteredPassword;
 
           filename = openDialog.FileName;
+
           setButton.Enabled = true;
           passwordTextBox.Enabled = true;
           ReadOnlyCheckBox.Enabled = true;
+
+          encryptButton.Enabled = true;
+          decryptButton.Enabled = true;
+
           checkBox1.Enabled = true;
           checkBox2.Enabled = true;
           checkBox3.Enabled = true;
@@ -260,7 +272,7 @@ namespace RestrictPermissions
         streamReader.Close();
         inFileStream.Close();
 
-        byte[] metricHash = GetMetricHash(fileString);
+        //set on open --- byte[] metricHash = GetMetricHash(fileString);
         string metricHashHex = HashToHex(metricHash);
 
         byte[] passwordHash = ComputeHash(passwordTextBox.Text);
@@ -304,5 +316,84 @@ namespace RestrictPermissions
         restrictions = restrictions.Remove(0, 1);
       restrictions = restrictions.Replace("||", "|");
     }
+
+    private void encryptButton_Click(object sender, EventArgs e)
+    {
+      OpenFileDialog openDialog = new OpenFileDialog();
+      openDialog.Title = "Open PGM File";
+      openDialog.Filter = "PGM Files|*.pgm";
+      openDialog.AddExtension = true;
+      openDialog.CheckFileExists = true;
+      openDialog.CheckPathExists = true;
+      if (openDialog.ShowDialog() == DialogResult.OK)
+      {
+        FileStream fileStream = new FileStream(openDialog.FileName, FileMode.Open);
+        FileStream fileStreamZ = new FileStream(openDialog.FileName + ".z", FileMode.Create);
+
+        RijndaelManaged rijndael = new RijndaelManaged();
+
+        byte[] key = new byte[rijndael.BlockSize/8];
+        for (int i = 0; i < Math.Min(key.Length, metricHash.Length); i++)
+          key[i] = metricHash[i];
+
+        byte[] iv = new byte[rijndael.BlockSize / 8];
+        for (int i = 0; i < Math.Min(iv.Length, metricHash.Length); i++)
+          iv[i] = metricHash[i];
+
+        CryptoStream cryptoFileStreamZ = new CryptoStream(fileStreamZ, rijndael.CreateEncryptor(key, iv), CryptoStreamMode.Write);
+
+        StreamReader fileStreamReader = new StreamReader(fileStream);
+        StreamWriter cryptoFileStreamZWriter = new StreamWriter(cryptoFileStreamZ);
+
+        cryptoFileStreamZWriter.Write(fileStreamReader.ReadToEnd());
+
+        cryptoFileStreamZWriter.Close();
+        
+        fileStream.Close();
+        fileStreamZ.Close();
+
+        File.Delete(openDialog.FileName);
+      }
+    }
+
+    private void decryptButton_Click(object sender, EventArgs e)
+    {
+      OpenFileDialog openDialog = new OpenFileDialog();
+      openDialog.Title = "Open PGM.z File";
+      openDialog.Filter = "PGM.z Files|*.pgm.z";
+      openDialog.AddExtension = true;
+      openDialog.CheckFileExists = true;
+      openDialog.CheckPathExists = true;
+      if (openDialog.ShowDialog() == DialogResult.OK)
+      {
+        FileStream fileStream = new FileStream(openDialog.FileName.Substring(0, openDialog.FileName.Length-2), FileMode.Create);
+        FileStream fileStreamZ = new FileStream(openDialog.FileName, FileMode.Open);
+
+        RijndaelManaged rijndael = new RijndaelManaged();
+
+        byte[] key = new byte[rijndael.BlockSize / 8];
+        for (int i = 0; i < Math.Min(key.Length, metricHash.Length); i++)
+          key[i] = metricHash[i];
+
+        byte[] iv = new byte[rijndael.BlockSize / 8];
+        for (int i = 0; i < Math.Min(iv.Length, metricHash.Length); i++)
+          iv[i] = metricHash[i];
+
+        CryptoStream cryptoFileStreamZ = new CryptoStream(fileStreamZ, rijndael.CreateDecryptor(key, iv), CryptoStreamMode.Read);
+
+        StreamWriter fileStreamWriter = new StreamWriter(fileStream);
+        StreamReader cryptoFileStreamZReader = new StreamReader(cryptoFileStreamZ);
+
+        fileStreamWriter.Write(cryptoFileStreamZReader.ReadToEnd());
+
+        fileStreamWriter.Close();
+
+        fileStream.Close();
+        fileStreamZ.Close();
+
+        File.Delete(openDialog.FileName);
+      }
+    }
+  
   }
 }
