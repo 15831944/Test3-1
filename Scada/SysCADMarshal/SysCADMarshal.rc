@@ -177,15 +177,16 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG  0, 0, 235, 55
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About SysCADMarshal"
-FONT 8, "MS Sans Serif"
+CAPTION "About SysCAD Marshal"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "SysCADMarshal Version 1.0",IDC_STATIC,40,10,119,8,
+    LTEXT           "SysCAD Marshal for SysCAD 9.1",IDC_STATIC,40,10,119,8,
                     SS_NOPREFIX
-    LTEXT           "Copyright (C) 2003",IDC_STATIC,40,25,119,8
+    LTEXT           "Copyright (C) Kenwalt 2003 - 2006",IDC_STATIC,40,25,119,
+                    8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
 END
 
@@ -212,7 +213,7 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName", "KWA Kenwalt Australia"    
+            VALUE "CompanyName", "KWA Kenwalt Australia"
             VALUE "FileDescription", "SysCADMarshal IO Marshalling Utility"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SysCADMarshal"

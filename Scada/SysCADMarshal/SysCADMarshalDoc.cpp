@@ -252,6 +252,12 @@ void CSysCADMarshalDoc::LoadCodeBlocks(LPCSTR CfgCdBlkDB)
   {
   flag OpenOK=false;
   Strng Ext;
+  Ext.FnNameExt((LPSTR)CfgCdBlkDB);
+  if (Ext.Len()==0)
+    {
+    //code block filename not provided
+    return;
+    }
   Ext.FnExt((LPSTR)CfgCdBlkDB);
   Ext.Upper();
   DWORD line_number = 0;
@@ -301,7 +307,7 @@ void CSysCADMarshalDoc::LoadCodeBlocks(LPCSTR CfgCdBlkDB)
         }
       else
         {
-        ReportError("LoadCdBlks", 0, "%s not Opened: %s", (LPSTR)CfgCdBlkDB, pDB->ErrorString());
+        ReportError("LoadCodeBlocks", 0, "%s not opened: %s", (LPSTR)CfgCdBlkDB, pDB->ErrorString());
         }
       delete pDB;
       }
@@ -346,15 +352,14 @@ void CSysCADMarshalDoc::LoadCodeBlocks(LPCSTR CfgCdBlkDB)
           }
         }
       fclose(f);
-      ReportError("CodeBlks", 0, "%u CodeBlocks ", line_number);
+      ReportError("CodeBlocks", 0, "%u CodeBlocks ", line_number);
       }
     else
       {
-      ReportError("LoadCdBlks", 0, "%s not Opened", (LPSTR)CfgCdBlkDB);
+      ReportError("LoadCodeBlocks", 0, "%s not opened", (LPSTR)CfgCdBlkDB);
       }
     }
-  return ;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
