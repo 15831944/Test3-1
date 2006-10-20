@@ -12,7 +12,7 @@
 //#include "optoff.h"
 
 // To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
-#define WithPGMTagChange 1
+#define WithPGMTagChange 0
 
 #if WithPGMTagChange
 #include < fstream >
@@ -906,27 +906,26 @@ void GControl::SetState(eScdMdlStateActs RqdState)
     }
   }
 
+// -------------------------------------------------------------------------
+#if WithPGMTagChange
 string IntToString(int num)
 {
   ostringstream myStream; //creates an ostringstream object
   myStream << num << flush;
-
   /*
    * outputs the number into the string stream and then flushes
    * the buffer (makes sure the output is put into the stream)
    */
-  
   return(myStream.str()); //returns the string form of the stringstream object
 }
+#endif
 
-// -------------------------------------------------------------------------
 // Replaces pOldTag for pNewTag.  Renames the original file as fn.bck
-
 void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount, bool lookInComments, bool listChanges)
 {
   TagChangeCount = 0;
-  string lineList = "";
 #if WithPGMTagChange
+  string lineList = "";
   const int BUFSIZE = 10000;
   char buf[BUFSIZE];
 
