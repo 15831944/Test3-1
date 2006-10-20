@@ -4940,7 +4940,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDR_MAINFRAME           "SysCAD 9.1 © Kenwalt (Build 120)"
+    IDR_MAINFRAME           "SysCAD 9.1 © Kenwalt (Build 121)"
     IDR_INSVIEW             "Instrument\nIns_\nInstrument\nInstrument(*.sci)\n.sci\nSysCAD Instrument\n SysCAD Instrument\n"
     IDR_GRFVIEW             "Graphics\nGrf_\nGraphics\nGraphics(*.scg)\n.scg\nSysCAD Graphics\n SysCAD Graphics\n"
     IDR_FLWVIEW             "Flwsheet\nFlw_\nFlwsheet\nFlwsheet(*.scf)\n.scf\nSYSCAD Flwsheet\n SysCAD Flwsheet\n"
