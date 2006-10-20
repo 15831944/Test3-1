@@ -17,11 +17,11 @@
 // ++ See scdver.h for version and build numbers          ++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
+//#define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
 
-//#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "18 October 2006"
+#define SCD_PATCHDATE    ""        /* Update/patch release date*/
+//#define SCD_PATCHDATE    "19 October 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2591,9 +2591,17 @@ Update 3 : 28 September 2006
 3) (#589) SysCAD Marshal improvements. New status displays, deadband option and 
    synchronous writes.
 
-Update 4 : 18 October 2006
+Update 4 : 16 October 2006
 ------------------------------
 1) (#599,602,614) Makeup block improvements.
+
+Build 121 : 20 October 2006
+------------------------------
+
+1) (#) SMDK changes. Extended SMDK for qualities. Added ability to define tables.
+   IF<T>() has been replaced with GetIF<T>, FindIF<T> or CreateIF<T>.
+
+
 
 =============================================================================
 ================                SysCAD 9.2                   ================
