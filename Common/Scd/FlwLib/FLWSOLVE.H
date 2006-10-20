@@ -171,20 +171,39 @@ class FlwSlvBlk
 
     flag                m_fProcTOSeqValid;
     flag                m_fCtrlTOSeqValid;
-    int                 m_iProcTOSequence;
-    CNodeEvalIndexList  m_ProcTOSequence[2];
-    CNodeEvalIndexList  m_CtrlTOSequence;
-    CNodeEvalIndexList  m_AllTOSequence;
+
+    CNodeEvalIndexList * m_pProcTOSequence;
+    CNodeEvalIndexList * m_pProcTOSequencePrv;
+    CNodeEvalIndexList * m_pCtrlTOSequence;
+    CNodeEvalIndexList * m_pCtrlTOSequencePrv;
+    CNodeEvalIndexList * m_pAllTOSequence;
+    CNodeEvalIndexList * m_pAllTOSequencePrv;
+
     CFlangeList         m_Flanges,   m_TearFlanges;
     CTerminalList       m_Terminals, m_TearTerminals;
     CXRefPtrList        m_TearXRefs;
 
-    void                ClearProcTOSequence();
-    void                SwapAndClearProcTOSequence();
-    CNodeEvalIndexList & getProcTOSequence()      { return m_ProcTOSequence[m_iProcTOSequence]; };
-    CNodeEvalIndexList & getProcTOSequencePrev()  { return m_ProcTOSequence[(m_iProcTOSequence+1)%2]; };
+    void                ClearTOSequence(byte Which, bool All);
+    void                SwapAndClearTOSequence(byte Which);
+    CNodeEvalIndexList & getProcTOSequence()     { return *m_pProcTOSequence; };
+    CNodeEvalIndexList & getProcTOSequencePrv()  { return *m_pProcTOSequencePrv; };
+    CNodeEvalIndexList & getProcTOSequenceDsp()  { return *(m_pProcTOSequence->GetCount()>0 ? m_pProcTOSequence:m_pProcTOSequencePrv); };
+    CNodeEvalIndexList & getCtrlTOSequence()     { return *m_pCtrlTOSequence; };
+    CNodeEvalIndexList & getCtrlTOSequencePrv()  { return *m_pCtrlTOSequencePrv; };
+    CNodeEvalIndexList & getCtrlTOSequenceDsp()  { return *(m_pCtrlTOSequence->GetCount()>0 ? m_pCtrlTOSequence:m_pCtrlTOSequencePrv); };
+    CNodeEvalIndexList & getAllTOSequence()      { return *m_pAllTOSequence; };
+    CNodeEvalIndexList & getAllTOSequencePrv()   { return *m_pAllTOSequencePrv; };
+    CNodeEvalIndexList & getAllTOSequenceDsp()   { return *(m_pAllTOSequence->GetCount()>0 ? m_pAllTOSequence:m_pAllTOSequencePrv); };
+
     _declspec(property(get=getProcTOSequence))     CNodeEvalIndexList & ProcTOSequence;
-    _declspec(property(get=getProcTOSequencePrev)) CNodeEvalIndexList & ProcTOSequencePrev;
+    _declspec(property(get=getProcTOSequencePrv))  CNodeEvalIndexList & ProcTOSequencePrv;
+    _declspec(property(get=getProcTOSequenceDsp))  CNodeEvalIndexList & ProcTOSequenceDsp;
+    _declspec(property(get=getCtrlTOSequence))     CNodeEvalIndexList & CtrlTOSequence;
+    _declspec(property(get=getCtrlTOSequencePrv))  CNodeEvalIndexList & CtrlTOSequencePrv;
+    _declspec(property(get=getCtrlTOSequenceDsp))  CNodeEvalIndexList & CtrlTOSequenceDsp;
+    _declspec(property(get=getAllTOSequence))      CNodeEvalIndexList & AllTOSequence;
+    _declspec(property(get=getAllTOSequencePrv))   CNodeEvalIndexList & AllTOSequencePrv;
+    _declspec(property(get=getAllTOSequenceDsp))   CNodeEvalIndexList & AllTOSequenceDsp;
 
     MacroMdlList        MacroMdls;
 
@@ -341,8 +360,6 @@ class FlwSlvDyn : public FlwSlvBlk , public ODESolverBase, public CTNode
     void           CheckStopConditions(CXM_TimeControl &CB);
     flag           CheckStopRequired(CXM_TimeControl &CB, bool Starting, bool ShowMsgs);
     flag           Stop(CXM_TimeControl &CB);
-    flag           PartialStop();
-    //flag           FlowsSteady() {return ;};
 
     void           DumpRunStats(flag Total);
     void           DumpNdStats(int What);
