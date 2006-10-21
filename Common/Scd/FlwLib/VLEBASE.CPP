@@ -1685,7 +1685,7 @@ void CVLEVapPress::QVFlash(SpContainer &C, double Duty, dword Flags)
         #endif
 
         XFrac+=ReqdXChg;
-        SetVapFrac(XFrac);
+        SetVapFrac(Range(0.0,XFrac,1.0));
 
         CurrentT+=ReqdTChg;
         
