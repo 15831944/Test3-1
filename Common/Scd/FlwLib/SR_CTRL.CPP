@@ -1147,7 +1147,7 @@ double CEC_FinalConc::ExtentActual(double ProdMoles)
   else
     C=0.0;
 
-  if (1)
+  if (0)
     {
     if (1)
       dbgp("FinalConc:Actual: Prod:%14.8g Act:%14.8f Rqd:%14.8f %10.4f %10.4f|",
