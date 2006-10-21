@@ -94,7 +94,8 @@ const byte FTS_Order   = 0x04;
 
 const byte TOSL_Proc   = 0x01;
 const byte TOSL_Ctrl   = 0x02;
-const byte TOSL_All    = 0x03;
+const byte TOSL_Comb   = 0x04;
+const byte TOSL_All    = 0x07;
 
 class CSFGIOStack : public CArray<CSFGNodeInfo*, CSFGNodeInfo*> {};
 
@@ -176,14 +177,14 @@ class FlwSlvBlk
     CNodeEvalIndexList * m_pProcTOSequencePrv;
     CNodeEvalIndexList * m_pCtrlTOSequence;
     CNodeEvalIndexList * m_pCtrlTOSequencePrv;
-    CNodeEvalIndexList * m_pAllTOSequence;
-    CNodeEvalIndexList * m_pAllTOSequencePrv;
+    CNodeEvalIndexList * m_pCombTOSequence;
+    CNodeEvalIndexList * m_pCombTOSequencePrv;
 
     CFlangeList         m_Flanges,   m_TearFlanges;
     CTerminalList       m_Terminals, m_TearTerminals;
     CXRefPtrList        m_TearXRefs;
 
-    void                ClearTOSequence(byte Which, bool All);
+    void                ClearTOSequence(byte Which, bool DoPrevious=false);
     void                SwapAndClearTOSequence(byte Which);
     CNodeEvalIndexList & getProcTOSequence()     { return *m_pProcTOSequence; };
     CNodeEvalIndexList & getProcTOSequencePrv()  { return *m_pProcTOSequencePrv; };
@@ -191,9 +192,9 @@ class FlwSlvBlk
     CNodeEvalIndexList & getCtrlTOSequence()     { return *m_pCtrlTOSequence; };
     CNodeEvalIndexList & getCtrlTOSequencePrv()  { return *m_pCtrlTOSequencePrv; };
     CNodeEvalIndexList & getCtrlTOSequenceDsp()  { return *(m_pCtrlTOSequence->GetCount()>0 ? m_pCtrlTOSequence:m_pCtrlTOSequencePrv); };
-    CNodeEvalIndexList & getAllTOSequence()      { return *m_pAllTOSequence; };
-    CNodeEvalIndexList & getAllTOSequencePrv()   { return *m_pAllTOSequencePrv; };
-    CNodeEvalIndexList & getAllTOSequenceDsp()   { return *(m_pAllTOSequence->GetCount()>0 ? m_pAllTOSequence:m_pAllTOSequencePrv); };
+    CNodeEvalIndexList & getCombTOSequence()     { return *m_pCombTOSequence; };
+    CNodeEvalIndexList & getCombTOSequencePrv()  { return *m_pCombTOSequencePrv; };
+    CNodeEvalIndexList & getCombTOSequenceDsp()  { return *(m_pCombTOSequence->GetCount()>0 ? m_pCombTOSequence:m_pCombTOSequencePrv); };
 
     _declspec(property(get=getProcTOSequence))     CNodeEvalIndexList & ProcTOSequence;
     _declspec(property(get=getProcTOSequencePrv))  CNodeEvalIndexList & ProcTOSequencePrv;
@@ -201,9 +202,9 @@ class FlwSlvBlk
     _declspec(property(get=getCtrlTOSequence))     CNodeEvalIndexList & CtrlTOSequence;
     _declspec(property(get=getCtrlTOSequencePrv))  CNodeEvalIndexList & CtrlTOSequencePrv;
     _declspec(property(get=getCtrlTOSequenceDsp))  CNodeEvalIndexList & CtrlTOSequenceDsp;
-    _declspec(property(get=getAllTOSequence))      CNodeEvalIndexList & AllTOSequence;
-    _declspec(property(get=getAllTOSequencePrv))   CNodeEvalIndexList & AllTOSequencePrv;
-    _declspec(property(get=getAllTOSequenceDsp))   CNodeEvalIndexList & AllTOSequenceDsp;
+    _declspec(property(get=getCombTOSequence))     CNodeEvalIndexList & CombTOSequence;
+    _declspec(property(get=getCombTOSequencePrv))  CNodeEvalIndexList & CombTOSequencePrv;
+    _declspec(property(get=getCombTOSequenceDsp))  CNodeEvalIndexList & CombTOSequenceDsp;
 
     MacroMdlList        MacroMdls;
 

@@ -438,7 +438,7 @@ static struct tColHeads
     { true,   FSW_ODEOperate,             "ODEOperate"      },            
     { true,   FSW_EvalDiscrete,           "Discrete"        },          
     { true,   FSW_EvalAudit,              "Audit"           },          
-    { false,  FSW_CheckXRefs,             "CtrlConns"       },  
+    { false,  FSW_BuildCtrlNdList,        "BuildCtrlNdList" },  
     { false,  FSW_EvalCtrlInitialise,     "CtrlInit"        },    
     { true,   FSW_EvalCtrlActions,        "CtrlActs"        },       
     { true,   FSW_EvalCtrlStrategy,       "CtrlStrat"       },      

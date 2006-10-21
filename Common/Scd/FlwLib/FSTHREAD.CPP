@@ -44,7 +44,7 @@ const char* eFITCmdStr(int i)
     case eFITQuit:                  return "Quit";
     case eFITEvalDiscrete:          return "Discrete";
     case eFITEvalAudit:             return "EvalAudit";
-    case eFITCheckXRefs:            return "CheckXRefs";
+    case eFITBuildCtrlNdList:       return "BuildCtrlNdList";
     case eFITEvalCtrlInitialise:    return "EvalCtrlInitialise";
     case eFITEvalCtrlActions:       return "EvalCtrlActions";
     case eFITEvalCtrlStrategy:      return "EvalCtrlStrategy";

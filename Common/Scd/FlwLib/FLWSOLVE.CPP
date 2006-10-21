@@ -1093,11 +1093,11 @@ void CThreadTiming::Dump()
 
 const bool FITVisible[]=
   {
-  false,     //eFITNull                 = 0;
-  false,     //eFITBase                 = 1; eFITQuit                 = eFITBase+0;
+  false,    //eFITNull                 = 0;
+  false,    //eFITBase                 = 1; eFITQuit                 = eFITBase+0;
   true,     //eFITEvalDiscrete         = eFITBase+1;
-  true,     //eFITEvalAudit          = eFITBase+2;
-  true,     //eFITCheckXRefs           = eFITBase+3;
+  true,     //eFITEvalAudit            = eFITBase+2;
+  true,     //eFITBuildCtrlNdList      = eFITBase+3;
   false,    //eFITEvalCtrlInitialise   = eFITBase+4;
   true,     //eFITEvalCtrlActions      = eFITBase+5;
   true,     //eFITEvalCtrlStrategy     = eFITBase+6;
@@ -1273,8 +1273,8 @@ m_CtrlTOList2(m_TOList[3])
   m_pProcTOSequencePrv = new CNodeEvalIndexList;
   m_pCtrlTOSequence = new CNodeEvalIndexList;
   m_pCtrlTOSequencePrv = new CNodeEvalIndexList;
-  m_pAllTOSequence = new CNodeEvalIndexList;
-  m_pAllTOSequencePrv = new CNodeEvalIndexList;
+  m_pCombTOSequence = new CNodeEvalIndexList;
+  m_pCombTOSequencePrv = new CNodeEvalIndexList;
 
   m_SFGInsStack.SetSize(0,256);
   m_SFGOutsStack.SetSize(0,256);
@@ -1288,8 +1288,8 @@ FlwSlvBlk::~FlwSlvBlk()
   delete m_pProcTOSequencePrv;
   delete m_pCtrlTOSequence;
   delete m_pCtrlTOSequencePrv;
-  delete m_pAllTOSequence;
-  delete m_pAllTOSequencePrv;
+  delete m_pCombTOSequence;
+  delete m_pCombTOSequencePrv;
   }
 
 //--------------------------------------------------------------------------
@@ -1491,12 +1491,12 @@ int FlwSlvBlk::ClearSolutionBlks(flag ClearAll)
 
   TerminateSolutionAll();
 
-  SwapAndClearTOSequence(TOSL_Proc|TOSL_Ctrl|TOSL_All);
+  SwapAndClearTOSequence(TOSL_All);
 
   if (ClearAll)
     {
     m_AllNds.RemoveAllToFreeList();
-    ClearTOSequence(TOSL_Proc|TOSL_Ctrl|TOSL_All, true);
+    ClearTOSequence(TOSL_All, true);
     m_fProcTOSeqValid=0;
     m_fCtrlTOSeqValid=0;
     FlwSlvNd.StructureChanged(&FlwSlvNd);
@@ -1533,7 +1533,7 @@ void FlwSlvBlk::BuildCtrlNdList()
   m_TearTerminals.RemoveAllToFreeList();
   m_TearXRefs.RemoveAllToFreeList();
   
-  ClearTOSequence(TOSL_Ctrl|TOSL_All, false);
+  ClearTOSequence(TOSL_Ctrl|TOSL_Comb);
   m_fCtrlTOSeqValid=0;
 
   //ASSERT(m_ProcessNds.GetCount()==0);
@@ -2350,7 +2350,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
   CFlwNodeIter Flw(m_ProcessNds);
   CFlwNodeIter Ctrl(m_PwrCtrlNds);
   FlwNode * p;
-
+              
   bool DoingProc=(Which & TOSL_Proc)!=0;
   bool DoingCtrl=(Which & TOSL_Ctrl)!=0;
 
@@ -2767,7 +2767,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
 void FlwSlvBlk::BuildTOSequence(byte Which)
   {
   if (Which & (TOSL_Proc|TOSL_Ctrl))
-    AllTOSequence.RemoveAllToFreeList();
+    ClearTOSequence(TOSL_Comb);
 
   if (Which & TOSL_Proc)
     {
@@ -2784,7 +2784,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       }
     #endif
 
-    ProcTOSequence.RemoveAllToFreeList();
+    ClearTOSequence(TOSL_Proc);
 
     CFlwNodeIter Flw(m_ProcessNds);
     for (FlwNode * p = Flw.First(); (p); p=Flw.Next())
@@ -2801,7 +2801,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
     CNodeEvalIndexIter FO(m_ProcTOList1);
     CNodeEvalIndex NJ;
     for (NJ=FO.First(); FO.ItemValid(); NJ=FO.Next())
-      Lst0.AddTail(NJ);//CNodeEvalIndex(pNJ,-1));
+      Lst0.AddTail(NJ);
 
     long iOrder=0;
 
@@ -2905,7 +2905,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
         dbgpln("PCN:%s ", p->FullObjTag());
       }
 
-    CtrlTOSequence.RemoveAllToFreeList();
+    ClearTOSequence(TOSL_Ctrl);
 
     CFlwNodeIter Ctrl(m_PwrCtrlNds);
     for (FlwNode * p = Ctrl.First(); (p); p=Ctrl.Next())
@@ -2919,7 +2919,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
     CNodeEvalIndexIter F2(m_CtrlTOList1);
     CNodeEvalIndex NJ;
     for (NJ=F2.First(); F2.ItemValid(); NJ=F2.Next())
-      Lst2.AddTail(NJ);//CNodeEvalIndex(p,-1));
+      Lst2.AddTail(NJ);
 
     long iOrder=0;
     while (!Lst2.IsEmpty())
@@ -2963,7 +2963,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
     for (NJ=F3.First(); F3.ItemValid(); NJ=F3.Next())
       {
       NJ.Nd.m_iCtrlOrder=iOrder++;
-      CtrlTOSequence.AddTail(NJ);//CNodeEvalIndex(p, -1));
+      CtrlTOSequence.AddTail(NJ);
       if (0)
         dbgpln("Ctrl List 2 %s", NJ.m_pNd->FullObjTag());
       };
@@ -2986,12 +2986,12 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
     {
     CNodeEvalIndexIter ProcOrder(ProcTOSequence);
     for (CNodeEvalIndex NJ=ProcOrder.First(); ProcOrder.ItemValid(); NJ=ProcOrder.Next())
-      AllTOSequence.AddTail(NJ);//CNodeEvalIndex(p, -1));
+      CombTOSequence.AddTail(NJ);
     CNodeEvalIndexIter CtrlOrder(CtrlTOSequence);
     for (NJ=CtrlOrder.First(); CtrlOrder.ItemValid(); NJ=CtrlOrder.Next())
       {
       if (NJ.m_iCluster<0 || NJ.Cluster.m_iProcOrder<0)
-        AllTOSequence.AddTail(NJ);//CNodeEvalIndex(p, -1));
+        CombTOSequence.AddTail(NJ);
       }
     }
 
@@ -3065,7 +3065,7 @@ flag FlwSlvBlk::SolveTOSequenceThrd(int What, byte Which, LPVOID OtherData)
       CNodeEvalIndexIter C1(m_TOList[i]);
       for (CNodeEvalIndex NJ=C1.First(); C1.ItemValid(); NJ=C1.Next())
         {
-        m_TOListIter[i].AddTail(NJ);//CNodeEvalIndex(p, -1));
+        m_TOListIter[i].AddTail(NJ);
         #if dbgFlwSolve
         if (dbgThreadsNodes())
           dbgpln("ProcInit %3i) 0x%08x %s", m_TOListIter[i].List().GetCount(), NJ.JoinMask, NJ.Nd.FullObjTag());
@@ -3094,7 +3094,7 @@ flag FlwSlvBlk::SolveTOSequenceThrd(int What, byte Which, LPVOID OtherData)
       CNodeEvalIndexIter C1(m_TOList[i]);
       for (CNodeEvalIndex NJ=C1.First(); C1.ItemValid(); NJ=C1.Next())
         {
-        m_TOListIter[i].AddTail(NJ);//CNodeEvalIndex(p, -1));
+        m_TOListIter[i].AddTail(NJ);
         #if dbgFlwSolve
         if (dbgThreadsNodes())
           dbgpln("CtrlInit %3i) %s", m_TOListIter[i].List().GetCount(), NJ.Nd.FullObjTag());
@@ -3124,7 +3124,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
   CNodeEvalIndex NJ;
   for (int Pass=0; Pass<2; Pass++)
     {
-    CNodeEvalIndexIter It(Pass==0?ProcTOSequence:CtrlTOSequence);
+    CNodeEvalIndexIter It(Pass==0 ? ProcTOSequence : CtrlTOSequence);
 
     for (NJ=It.First(); It.ItemValid(); NJ=It.Next())
       {
@@ -3165,7 +3165,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
         dbgpln("%-40s      Lnks Proc Audt [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ", Pass==0 ? "Process":"Control",
           "Pi","Po","PIR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
         long NdCnt=0;
-        CNodeEvalIndexIter It(Pass==0?ProcTOSequence:CtrlTOSequence);
+        CNodeEvalIndexIter It(Pass==0 ? ProcTOSequence : CtrlTOSequence);
         CNodeEvalIndex NJ;
         for (NJ=It.First(); It.ItemValid(); NJ=It.Next())
           {
@@ -3644,25 +3644,34 @@ void FlwSlvBlk::DumpEvalOrder(byte Which)
 
 //---------------------------------------------------------------------------
 
- void FlwSlvBlk::ClearTOSequence(byte Which, bool All)
+ void FlwSlvBlk::ClearTOSequence(byte Which, bool DoPrevious)
    {
    if (Which & TOSL_Proc)
      {
      ProcTOSequence.RemoveAllToFreeList();
-     if (All)
-       ProcTOSequencePrv.RemoveAllToFreeList();
+     m_fProcTOSeqValid=0;
+     dbgpln("Clear Proc TOSequence");
      }
    if (Which & TOSL_Ctrl)
      {
      CtrlTOSequence.RemoveAllToFreeList();
-     if (All)
-       CtrlTOSequencePrv.RemoveAllToFreeList();
+     m_fCtrlTOSeqValid=0;
+     dbgpln("Clear Ctrl TOSequence");
      }
-   if (Which & TOSL_All)
+   if (Which & TOSL_Comb)
      {
-     AllTOSequence.RemoveAllToFreeList();
-     if (All)
-       AllTOSequencePrv.RemoveAllToFreeList();
+     CombTOSequence.RemoveAllToFreeList();
+     dbgpln("Clear Comb TOSequence");
+     }
+
+   if (DoPrevious)
+     {
+     if (Which & TOSL_Proc)
+       ProcTOSequencePrv.RemoveAllToFreeList();
+     if (Which & TOSL_Ctrl)
+       CtrlTOSequencePrv.RemoveAllToFreeList();
+     if (Which & TOSL_Comb)
+       CombTOSequencePrv.RemoveAllToFreeList();
      }
    };
 
@@ -3670,20 +3679,25 @@ void FlwSlvBlk::DumpEvalOrder(byte Which)
 
  void FlwSlvBlk::SwapAndClearTOSequence(byte Which)
    {
-   if ((Which & TOSL_Proc) && ProcTOSequence.GetCount()>0)
+   if ((Which & TOSL_Proc) && (m_pProcTOSequence->GetCount()>0))
      {
+     dbgpln("Swap and Clear Proc TOSequence");
      Exchange(m_pProcTOSequence, m_pProcTOSequencePrv);
-     ProcTOSequence.RemoveAllToFreeList();
+     m_pProcTOSequence->RemoveAllToFreeList();
+     m_fProcTOSeqValid=0;
      }
-   if ((Which & TOSL_Ctrl) && CtrlTOSequence.GetCount()>0)
+   if ((Which & TOSL_Ctrl) && (m_pCtrlTOSequence->GetCount()>0))
      {
+     dbgpln("Swap and Clear Ctrl TOSequence");
      Exchange(m_pCtrlTOSequence, m_pCtrlTOSequencePrv);
-     CtrlTOSequence.RemoveAllToFreeList();
+     m_pCtrlTOSequence->RemoveAllToFreeList();
+     m_fCtrlTOSeqValid=0;
      }
-   if ((Which & TOSL_All) && AllTOSequence.GetCount()>0)
+   if ((Which & TOSL_All) && (m_pCombTOSequence->GetCount()>0))
      {
-     Exchange(m_pAllTOSequence, m_pAllTOSequencePrv);
-     AllTOSequence.RemoveAllToFreeList();
+     dbgpln("Swap and Clear Comb TOSequence");
+     Exchange(m_pCombTOSequence, m_pCombTOSequencePrv);
+     m_pCombTOSequence->RemoveAllToFreeList();
      }
    };
 
@@ -3723,7 +3737,6 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
 
       SwapAndClearTOSequence(TOSL_Proc);
 
-      //ProcTOSequence.RemoveAllToFreeList();
       m_TearFlanges.RemoveAllToFreeList();
 
       FlwSlvNd.StructureChanged(&FlwSlvNd);
@@ -5174,8 +5187,8 @@ void FlwSlvPB::FITPBEvalCtrlStrategy(CFlwNodeList & List)//CLkFlwNodeIter & Iter
 void FlwSlvPB::EvalAllDiscrete()
   {
   CThreadTimer  XT(eFITPBEvalDiscrete, FSW_EvalDiscrete);
-  CNodeEvalIndexIter AllOrder(AllTOSequence);
-  for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+  CNodeEvalIndexIter CombOrder(CombTOSequence);
+  for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
     {
     #if dbgFlwSolve
     if (dbgThreads())
@@ -5197,8 +5210,8 @@ void FlwSlvPB::EvalAllBalance()
     for (int Pass=0; Pass<2; Pass++)
       {
       CThreadTimer  XT(eFITPBEvalAudit, FSW_EvalAudit);
-      CNodeEvalIndexIter AllOrder(AllTOSequence);
-      for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+      CNodeEvalIndexIter CombOrder(CombTOSequence);
+      for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
         {
         #if dbgFlwSolve
         if (dbgThreads())
@@ -5249,8 +5262,8 @@ void FlwSlvPB::EvalAllCtrlStrategy(eScdCtrlTasks Tasks)
 void FlwSlvPB::EvalAllCtrlActions(eScdCtrlTasks Tasks)
   {
   CThreadTimer  XT(eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
-  CNodeEvalIndexIter All(AllTOSequence);
-  for (CNodeEvalIndex NJ=All.First(); All.ItemValid(); NJ=All.Next())
+  CNodeEvalIndexIter CombOrder(CombTOSequence);
+  for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
     {
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
@@ -5505,7 +5518,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 
   CNodeEvalIndexIter ProcOrder(ProcTOSequence);
   CNodeEvalIndexIter CtrlOrder(CtrlTOSequence);
-  CNodeEvalIndexIter AllOrder(AllTOSequence);
+  CNodeEvalIndexIter CombOrder(CombTOSequence);
 
   // Evaluate makeup species available at nodes in forward order
   if (FSTC.NThreads())
@@ -8019,9 +8032,9 @@ void FlwSlvDyn::ODEDerivs()
         SolveTOSequenceThrd(eFITEvalDerivs, TOSL_All);
       else
         {
-        CNodeEvalIndexIter AllOrder(AllTOSequence);
+        CNodeEvalIndexIter CombOrder(CombTOSequence);
         CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
-        for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+        for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
           if (NJ.Nd.NetDynamicMethod())
             {
             XT.StartLoop(NJ.m_pNd);
@@ -8035,9 +8048,9 @@ void FlwSlvDyn::ODEDerivs()
 
       //if (1)
       //  {
-      //  CNodeEvalIndexIter AllOrder(m_AllTOSequence);
+      //  CNodeEvalIndexIter CombOrder(m_AllTOSequence);
       //  CThreadTimer  XT(eFITEvalDerivs, FSW_EvalDerivs);
-      //  for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+      //  for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
       //    if (NJ.Nd.NetDynamicMethod())
       //      NJ.Nd.PostEvalDerivs();
       //  }
@@ -8052,8 +8065,8 @@ void FlwSlvDyn::ODEDerivs()
 #if dbgFlwSolve
       if (dbgDumpDerivs())
         {
-        CNodeEvalIndexIter AllOrder(AllTOSequence);
-        for (CNodeEvalIndex NJ=AllOrder.First(); AllOrder.ItemValid(); NJ=AllOrder.Next())
+        CNodeEvalIndexIter CombOrder(CombTOSequence);
+        for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
           if (dbgDumpDerivs(NJ.Nd.FullTag()))
             NJ.Nd.DumpDerivs();
         }
@@ -8204,13 +8217,10 @@ void FlwSlvDyn::FITEvalCtrlActions(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
 
 void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
   {
-  //CNodeEvalIndex NJ;
   FlwNode * p;
   //int Cnt;
   CThreadTimer  XT(eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
   while (Iter.RemoveNext(p))
-  //CFlwNodeIter Iter(List);
-  //for (p=Iter.First(); p; p=Iter.Next())
     {
     XT.StartLoop(p);
     CtrlLoopStart(Iter, p, Iter.List().GetCount());
@@ -8387,9 +8397,9 @@ void FlwSlvDyn::EvalAllBalance()
         SolveTOSequenceThrd(eFITEvalAudit, TOSL_All, &Pass);
       else
         {
-        CNodeEvalIndexIter All(AllTOSequence);
+        CNodeEvalIndexIter CombOrder(CombTOSequence);
         CThreadTimer  XT(eFITEvalAudit, FSW_EvalAudit);
-        for (CNodeEvalIndex NJ=All.First(); All.ItemValid(); NJ=All.Next())
+        for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
           {
           XT.StartLoop(NJ.m_pNd);
           XT.LockDone();//(p, eFITEvalDiscrete, FSW_EvalDiscrete);
@@ -8411,14 +8421,13 @@ bool FlwSlvBlk::BuildCtrlNdListReqd()
 
   bool DoBuild=false;
   CFlwNodeIter All(m_AllNds);
-  CThreadTimer  XT(eFITCheckXRefs, FSW_CheckXRefs);
+  CThreadTimer  XT(eFITBuildCtrlNdList, FSW_BuildCtrlNdList);
   int N=0;
   for (FlwNode * p=All.First(); (p); p=All.Next(), N++)
     {
     XT.StartLoop(p);
     XT.LockDone();
 
-    //p->CheckXRefs();
     if (p->UpdateXRefListsReqd())
       {
       //dbgpln("UpdateXRefListsReqd %4i) %s", N, p->Tag());
@@ -8536,9 +8545,9 @@ void FlwSlvDyn::EvalAllStatistics(eScdCtrlTasks Tasks)
     }
   else
     {
-    CNodeEvalIndexIter All(AllTOSequence);
+    CNodeEvalIndexIter CombOrder(CombTOSequence);
     CThreadTimer  XT(eFITEvalStatistics, FSW_EvalStatistics);
-    for (CNodeEvalIndex NJ=All.First(); All.ItemValid(); NJ=All.Next())
+    for (CNodeEvalIndex NJ=CombOrder.First(); CombOrder.ItemValid(); NJ=CombOrder.Next())
       {
       XT.StartLoop(NJ.m_pNd);
       XT.LockDone();//(p, eFITEvalStatistics, FSW_EvalStatistics);

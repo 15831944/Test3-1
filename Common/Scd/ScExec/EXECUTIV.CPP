@@ -2046,6 +2046,17 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
       break;
     }
 
+
+  if (ScnStartupRequired())
+    {
+    #ifndef _RELEASE
+    LogNote("Executive", 0, "Performing Prestart");
+    #endif
+    for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
+      Objs_Reg[RInx]->EO_PreStart(TimeCB());
+    }
+
+
   CTimeValue OldTime(TheTime);
   bool OKToGo=true;
   bool FullStartup=(Reset || ScnStartupRequired());
@@ -2056,9 +2067,9 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
 
     //SetStopTimeEtc(true);
     //ScnState=Scn_Start;
-#ifndef _RELEASE
+    #ifndef _RELEASE
     LogNote("Executive", 0, "Scenario Start"); //todo fix
-#endif
+    #endif
     }
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
@@ -2337,15 +2348,6 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       //XSW.StepBegin();
       XSW.m_swStart.ReStart();
-
-      if (ScnStartupRequired())
-        {
-#ifndef _RELEASE
-        LogNote("Executive", 0, "Performing Prestart");
-#endif
-        for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
-          Objs_Reg[RInx]->EO_PreStart(TimeCB());
-        }
 
       wState&=(~EXF_StartError);
       wState|=EXF_Busy;
