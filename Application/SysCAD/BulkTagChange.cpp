@@ -1399,6 +1399,20 @@ void CBulkTagChange::OnBnClickedDoreplace()
   _bstr_t bFndTxt(FndTxt);
   _bstr_t bRepTxt(RepTxt);
 
+  // A Test that a replace wont throw an exception
+  try
+    {
+    _bstr_t NewTag("SomeTag");
+
+    (*pRE)->Pattern = bFndTxt;
+    NewTag=(*pRE)->Replace(NewTag, bRepTxt);
+    }
+  catch(_com_error)// & e)
+    {
+    AfxMessageBox("Invalid Find and/or Replacement Specification", MB_ICONEXCLAMATION);
+    goto Done;
+    }
+
   dbgpln("==========================");
 
   for (int i=0; i<m_Tags.GetCount(); i++)
@@ -1421,6 +1435,7 @@ void CBulkTagChange::OnBnClickedDoreplace()
 
   DoChecks();
 
+Done:
   delete pRE;
   m_TagList.UnlockWindowUpdate();
 
