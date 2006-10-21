@@ -75,7 +75,7 @@ class GControl : public FlwNode//, GCXRefHelper
     virtual int    FilesUsed(CFilesUsedArray & Files);
 
     // CNodeXRefMngr Overides
-    virtual bool   IsXRefListActive();
+    virtual bool   TestXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
 

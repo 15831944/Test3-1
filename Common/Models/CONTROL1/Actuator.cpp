@@ -767,7 +767,7 @@ flag CActuator::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CActuator::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CActuator::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -810,7 +810,7 @@ void CActuator::UnlinkAllXRefs()
 
 void CActuator::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
 
     //for (int i=0; i<NoCIOs(); i++)

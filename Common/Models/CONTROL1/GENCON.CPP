@@ -11,8 +11,12 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
+#ifdef SYSCAD10
 // To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
+#define WithPGMTagChange 1
+#else
 #define WithPGMTagChange 0
+#endif
 
 #if WithPGMTagChange
 #include < fstream >
@@ -708,7 +712,7 @@ flag GControl::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool GControl::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool GControl::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //--------------------------------------------------------------------------
 
@@ -731,26 +735,35 @@ void GControl::UnlinkAllXRefs()
 
 void GControl::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
-  iIterCnt = -1;
-  DoEvalCtrl(); 
-  m_bIterOne = 1;
+  if (XRefListActive())
+    {
+    iIterCnt = -1;
+    DoEvalCtrl(); 
+    m_bIterOne = 1;
+    }
   };
 
 //--------------------------------------------------------------------------
 
 void GControl::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  iIterCnt++;
-  DoEvalCtrl();
-  m_bIterOne = 0;
-  m_bMustTerm = 1;
+  if (XRefListActive())
+    {
+    iIterCnt++;
+    DoEvalCtrl();
+    m_bIterOne = 0;
+    m_bMustTerm = 1;
+    }
   }
 
 //--------------------------------------------------------------------------
 
 void GControl::EvalCtrlTerminate(eScdCtrlTasks Tasks)
   {
-  DoEvalCtrl(); 
+  if (XRefListActive())
+    {
+    DoEvalCtrl(); 
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -963,7 +976,7 @@ void GControl::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& 
 
       if ((lookInComments)||(!regex->IsMatch(buf, commentRegex)))
       {
-        out = regex->Replace(buf, regexStr, pNewTag, CMRegex::IgnoreCase);
+      out = regex->Replace(buf, regexStr, pNewTag, CMRegex::IgnoreCase);
 
         int matches = regex->Matches(buf, regexStr).Count();
         if (matches > 0)

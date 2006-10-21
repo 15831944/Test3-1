@@ -410,7 +410,7 @@ flag CProfileCon2::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CProfileCon2::IsXRefListActive() { return !GetActiveHold() && PCI.bOn!=0; }
+bool CProfileCon2::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && PCI.bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -460,7 +460,7 @@ void CProfileCon2::EvalCtrlInitialise(eScdCtrlTasks Tasks)
 
 void CProfileCon2::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (PCI.bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     GetNearXRefValues();
     //for (int i=0; i<m_NearXRefs.GetSize(); i++)

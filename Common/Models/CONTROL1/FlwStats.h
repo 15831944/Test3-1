@@ -109,7 +109,7 @@ class CFlowStats : public FlwNode
     virtual int    DeleteTag(pchar pDelTag);
 
     // CNodeXRefMngr Overides
-    virtual bool   IsXRefListActive();
+    virtual bool   TestXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
 

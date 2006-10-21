@@ -51,6 +51,8 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
     virtual ~CTNode();
     void                AttachClassInfo(DWORD Class_);
 
+    virtual void        SetActiveHold(flag Hold);
+
     virtual void        BuildDataDefn(DataDefnBlk & DDB);
     virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
     pchar               TagOfParent() { return MyParent ? MyParent->Tag() : NULL; };

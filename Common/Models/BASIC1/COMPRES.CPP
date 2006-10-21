@@ -360,7 +360,7 @@ void GasPump_GP::Ctrl_ConnIDStr(int i, Strng & ID, Strng &Tg)
 
 //--------------------------------------------------------------------------
 
-bool GasPump_GP::IsXRefListActive() { return m_PSB.On()!=0; }
+bool GasPump_GP::TestXRefListActive() { return SetXRefListActive(m_PSB.On()!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -395,10 +395,13 @@ void GasPump_GP::UnlinkAllXRefs()
 
 void GasPump_GP::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
-  double D;
-  if (m_SpdVar.GetValue(D))
-    m_PSB.SetSpeed(D);
-  m_PSB.EvalCtrlActions(this);
+  if (XRefListActive())
+    {
+    double D;
+    if (m_SpdVar.GetValue(D))
+      m_PSB.SetSpeed(D);
+    m_PSB.EvalCtrlActions(this);
+    }
   }
 
 //---------------------------------------------------------------------------

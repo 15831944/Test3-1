@@ -418,7 +418,7 @@ flag CGenStats::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CGenStats::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CGenStats::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -469,7 +469,7 @@ void CGenStats::ResetAllStats()
 
 void CGenStats::EvalStatistics(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     
     GetNearXRefValues();

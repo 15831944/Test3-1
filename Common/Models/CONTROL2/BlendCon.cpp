@@ -341,7 +341,7 @@ flag CBlendCon::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CBlendCon::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CBlendCon::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -373,7 +373,7 @@ void CBlendCon::UnlinkAllXRefs()
 
 void CBlendCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     GetNearXRefValues();
 

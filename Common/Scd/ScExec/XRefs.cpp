@@ -1071,6 +1071,7 @@ CTagRefStatusWord CTagRefsMapItem::GetStatusWord()
 
 CNodeXRefMngr::CNodeXRefMngr()
   {
+  m_bXRefListActive=false;
   m_bXRefsValid=false;
   m_bUpdateXRefLists=false;
   m_bXRefListsChanged=false;
@@ -1182,7 +1183,7 @@ long CNodeXRefMngr::UpdateXRefLists(bool SetXRefListsChangedFlag)
   m_BuildResults.Clear();
 
   m_bUpdateXRefLists=false;
-  if (IsXRefListActive())
+  if (TestXRefListActive())
     {
     UpdateXRefLists(m_BuildResults);  // This is a virtual call to Model
     //dbgpln("%16.2f C", SW.LapTime()*1e6);
@@ -1416,6 +1417,7 @@ void CNodeXRefMngr::GetNearXRefValues()
   {
   //  CStopWatch SW;
   //  SW.Start();
+  ASSERT_ALWAYS(XRefListActive(), "CNodeXRefMngr::GetNearXRefValues XRefList Inactive");
 
   for (int i=0; i<m_XRefsOwnedByMe[XR_Near].GetSize(); i++)
     {
@@ -1428,6 +1430,8 @@ void CNodeXRefMngr::GetNearXRefValues()
 
 void CNodeXRefMngr::SetNearXRefValues()
   {
+  ASSERT_ALWAYS(XRefListActive(), "CNodeXRefMngr::SetNearXRefValues XRefList Inactive");
+
   for (int i=0; i<m_XRefsOwnedByMe[XR_Near].GetSize(); i++)
     m_XRefsOwnedByMe[XR_Near][i]->SetNearXRefValue();
   };

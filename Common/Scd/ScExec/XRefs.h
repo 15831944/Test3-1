@@ -528,7 +528,9 @@ class DllImportExport CNodeXRefMngr
     void            BumpNodeXRefsLocked(int Inc)  { m_NodeXRefsLockCount+=Inc; };
     bool            NodeXRefsLocked()             { return m_NodeXRefsLockCount>0; };
 
-    virtual bool    IsXRefListActive()                                  { return false; }
+    virtual bool    TestXRefListActive()                                { return SetXRefListActive(false); }
+    virtual bool    SetXRefListActive(bool Active)                      { m_bXRefListActive = Active; return m_bXRefListActive; }
+    virtual bool    XRefListActive()                                    { return m_bXRefListActive; }
     virtual LPSTR   GetOwnerTag()                                       { return NULL;};
     virtual bool    GetOwnerDbgBrk()                                    { return false; };
     virtual int     UpdateXRefLists(CXRefBuildResults & Results)        { ASSERT_ALWAYS(FALSE, "UpdateXRefLists not Implemented"); return 0; };
@@ -553,6 +555,7 @@ class DllImportExport CNodeXRefMngr
     bool            m_bXRefListsChanged;
 
   private:
+    bool            m_bXRefListActive;
     bool            m_bXRefsValid;
     bool            m_bUpdateXRefLists;
     long            m_nXRefs2Me;

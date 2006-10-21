@@ -512,7 +512,7 @@ flag CElecBlk::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CElecBlk::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CElecBlk::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //--------------------------------------------------------------------------
 
@@ -557,29 +557,38 @@ void CElecBlk::ConnectElectrics()
 
 void CElecBlk::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
-  iIterCnt = -1;
-  DoEvalCtrl("CtrlInitialise"); 
-  m_bIterOne = 1;
+  if (XRefListActive())
+    {
+    iIterCnt = -1;
+    DoEvalCtrl("CtrlInitialise"); 
+    m_bIterOne = 1;
+    }
   };
 
 //--------------------------------------------------------------------------
 
 void CElecBlk::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  iIterCnt++;
-  DoEvalCtrl("CtrlStrategy"); 
-  m_bIterOne = 0;
-  m_bMustTerm = 1;
+  if (XRefListActive())
+    {
+    iIterCnt++;
+    DoEvalCtrl("CtrlStrategy"); 
+    m_bIterOne = 0;
+    m_bMustTerm = 1;
+    }
   }
 
 //--------------------------------------------------------------------------
 
 void CElecBlk::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
-  //iIterCnt++;
-  DoEvalCtrl("CtrlActions"); 
-  m_bIterOne = 0;
-  m_bMustTerm = 1;
+  if (XRefListActive())
+    {
+    //iIterCnt++;
+    DoEvalCtrl("CtrlActions"); 
+    m_bIterOne = 0;
+    m_bMustTerm = 1;
+    }
   }
 
 //--------------------------------------------------------------------------

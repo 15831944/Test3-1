@@ -407,7 +407,7 @@ flag CNoiseCon::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CNoiseCon::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CNoiseCon::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -460,7 +460,7 @@ void CNoiseCon::ResetAllStats()
 
 void CNoiseCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     
     GetNearXRefValues();

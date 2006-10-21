@@ -926,12 +926,17 @@ flag PIDControl::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool PIDControl::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool PIDControl::TestXRefListActive()
+  { 
+  dbgpln("TestXRefListActive %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
+  return SetXRefListActive(!GetActiveHold() && bOn!=0); 
+  }
 
 //---------------------------------------------------------------------------
 
 int PIDControl::UpdateXRefLists(CXRefBuildResults & Results)
   {
+  dbgpln("UpdateXRefLists  %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
   if (1)//bOn)
     {
     FnMngrClear();
@@ -979,7 +984,8 @@ void PIDControl::UnlinkAllXRefs()
 
 void PIDControl::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  dbgpln("EvalCtrlStrategy %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     
     GetNearXRefValues();

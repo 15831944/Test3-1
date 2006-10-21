@@ -560,7 +560,7 @@ flag CQueueCon::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CQueueCon::IsXRefListActive() { return (!GetActiveHold()) && (QCI.bOn!=0) && (QCI.iCurIndex>=0); }
+bool CQueueCon::TestXRefListActive() { return SetXRefListActive((!GetActiveHold()) && (QCI.bOn!=0) && (QCI.iCurIndex>=0)); }
 
 //---------------------------------------------------------------------------
 
@@ -599,7 +599,7 @@ void CQueueCon::UnlinkAllXRefs()
 
 void CQueueCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (QCI.bOn && !GetActiveHold() && QCI.iCurIndex>=0 && ICGetTimeInc()>0.0)
+  if (XRefListActive() && QCI.iCurIndex>=0 && ICGetTimeInc()>0.0)
     {
     GetNearXRefValues();
 

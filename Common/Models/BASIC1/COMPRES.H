@@ -50,7 +50,7 @@ class DllImportExport GasPump_GP : public MN_BstRes
 
     //virtual void   EvalProducts(CNodeEvalIndex & NEI);
     
-    virtual bool   IsXRefListActive();
+    virtual bool   TestXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);

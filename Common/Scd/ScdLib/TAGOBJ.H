@@ -1048,13 +1048,13 @@ class DllImportExport TaggedObject : public ConditionBlk
     flag            HasFullFlow();
 
     flag            GetActive();
-    void            SetActive(flag Active);
+    virtual void    SetActive(flag Active);
 
     flag            GetActiveHold();
     flag            GetActiveHoldIsAuto();
     flag            GetActiveHoldOK();
-    void            SetActiveHold(flag Hold);
-    void            SetActiveHoldAuto(flag Hold);
+    virtual void    SetActiveHold(flag Hold);
+    virtual void    SetActiveHoldAuto(flag Hold);
 
     static flag     GetRunning()            { return fRunning;};
     static flag     GetBuildingAccess()     { return fBuildingAccess; };

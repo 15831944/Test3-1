@@ -781,7 +781,7 @@ flag CTransmitter::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CTransmitter::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CTransmitter::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -827,7 +827,7 @@ void CTransmitter::UnlinkAllXRefs()
 
 void CTransmitter::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     //CStopWatch SW;
     //SW.Start();

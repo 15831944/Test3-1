@@ -41,7 +41,7 @@ class DllImportExport Valve_GP : public MN_BstRes
     virtual flag   SetModelAction(CMdlAction & Act);
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
-    virtual bool   IsXRefListActive();
+    virtual bool   TestXRefListActive();
     virtual int    UpdateXRefLists(CXRefBuildResults & Results);
     virtual void   UnlinkAllXRefs();
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All);

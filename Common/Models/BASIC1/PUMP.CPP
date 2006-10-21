@@ -382,7 +382,7 @@ void Pump_GP::Ctrl_ConnIDStr(int i, Strng & ID, Strng &Tg)
 
 //--------------------------------------------------------------------------
 
-bool Pump_GP::IsXRefListActive() { return m_PSB.On()!=0; }
+bool Pump_GP::TestXRefListActive() { return SetXRefListActive(m_PSB.On()!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -416,10 +416,13 @@ void Pump_GP::UnlinkAllXRefs()
 
 void Pump_GP::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
-  double D;
-  if (m_SpdVar.GetValue(D))
-    m_PSB.SetSpeed(D);
-  m_PSB.EvalCtrlActions(this);
+  if (XRefListActive())
+    {
+    double D;
+    if (m_SpdVar.GetValue(D))
+      m_PSB.SetSpeed(D);
+    m_PSB.EvalCtrlActions(this);
+    }
   }
 
 //---------------------------------------------------------------------------

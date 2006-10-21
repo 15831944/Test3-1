@@ -102,6 +102,14 @@ void CTNode::AttachClassInfo(DWORD Type_)
 
 //--------------------------------------------------------------------------
 
+void CTNode::SetActiveHold(flag Hold)
+  {
+  TaggedObject::SetActiveHold(Hold);
+  RequestUpdateXRefLists();
+  }           
+   
+//--------------------------------------------------------------------------
+
 void CTNode::BuildDataDefn(DataDefnBlk & DDB)
   {
   };

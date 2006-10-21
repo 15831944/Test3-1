@@ -341,7 +341,7 @@ void Valve_GP::Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)
 
 //--------------------------------------------------------------------------
 
-bool Valve_GP::IsXRefListActive() { return m_VPB.On()!=0; }
+bool Valve_GP::TestXRefListActive() { return SetXRefListActive(m_VPB.On()!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -375,7 +375,7 @@ void Valve_GP::UnlinkAllXRefs()
 
 void Valve_GP::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
-  if (!m_FRB.On())
+  if (XRefListActive() && !m_FRB.On())
     {
     if (NoCIOs()>0)
       {

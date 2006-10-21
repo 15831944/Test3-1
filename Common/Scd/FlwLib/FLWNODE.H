@@ -4036,7 +4036,7 @@ class DllImportExport FlwNode : public CTNode
     virtual void   EvalDiscrete() {};
     virtual void   EvalAudit(int Pass);
     virtual void   GetBalanceReport(CNodeAuditInfo & Audit);
-    virtual void   CheckXRefs();
+    //virtual void   CheckXRefs();
     virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All) {};
     virtual void   EvalCtrlActions(eScdCtrlTasks Tasks=CO_All) {};
     virtual void   EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All) {};

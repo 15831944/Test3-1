@@ -9190,16 +9190,7 @@ int FlwNode::ResolveIORef(int IOId, CTagRef * & pRef)
   return FXR_NotFound;
   }
 
-//---------------------------------------------------------------------------
-
-void FlwNode::CheckXRefs()
-  {
-  if (UpdateXRefListsReqd())
-    UpdateXRefLists(true);
-//  return m_lPrevXRefUpdates;
-  };
-
-  //==========================================================================
+//==========================================================================
 //
 //
 //

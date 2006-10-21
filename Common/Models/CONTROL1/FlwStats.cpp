@@ -515,7 +515,7 @@ flag CFlowStats::PreStartCheck()
 
 //--------------------------------------------------------------------------
 
-bool CFlowStats::IsXRefListActive() { return !GetActiveHold() && bOn!=0; }
+bool CFlowStats::TestXRefListActive() { return SetXRefListActive(!GetActiveHold() && bOn!=0); }
 
 //---------------------------------------------------------------------------
 
@@ -580,7 +580,7 @@ void CFlowStats::ResetAllStats()
 
 void CFlowStats::EvalStatistics(eScdCtrlTasks Tasks)
   {
-  if (bOn && !GetActiveHold() && ICGetTimeInc() > 0.0)
+  if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
 
     GetNearXRefValues();

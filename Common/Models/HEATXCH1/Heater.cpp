@@ -424,7 +424,7 @@ void SimpleHeater::EvalProducts(CNodeEvalIndex & NEI)
 
 //--------------------------------------------------------------------------
 
-bool SimpleHeater::IsXRefListActive() { return iDutyMethod==HDM_DutyTag && !GetActiveHold(); }
+bool SimpleHeater::TestXRefListActive() { return SetXRefListActive(iDutyMethod==HDM_DutyTag && !GetActiveHold()); }
 
 //---------------------------------------------------------------------------
 
@@ -460,6 +460,9 @@ void SimpleHeater::UnlinkAllXRefs()
 void SimpleHeater::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
   MN_BstRes::EvalCtrlStrategy(Tasks);
+  if (XRefListActive())
+    {
+
   /*if (bOnLine && iDutyMethod==HDM_DutyTag && !GetActiveHold() && ICGetTimeInc() > 0.0)
     {
 
@@ -500,6 +503,7 @@ void SimpleHeater::EvalCtrlStrategy(eScdCtrlTasks Tasks)
     else
       dFarDutyVal = 0.0;
     }*/
+    }
   }
 
 //--------------------------------------------------------------------------
