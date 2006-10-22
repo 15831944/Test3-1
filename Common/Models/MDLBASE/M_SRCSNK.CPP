@@ -1288,19 +1288,25 @@ void MN_SrcSnk::EvalDiscrete()
       break;
     }
 
-  P_RegB.EvalDiscrete(this);
-  T_RegB.EvalDiscrete(this);
+  //if (!NetProbalMethod())
+    {
+    P_RegB.EvalDiscrete(this);
+    T_RegB.EvalDiscrete(this);
 
-  dP_Out += OutputChg(P_RegB.Output(), dP_Out, dP_Tau, dTime);
-  dQ_Out += OutputChg(P_RegB.Output(), dQ_Out, dQ_Tau, dTime);
-  dT_Out += OutputChg(T_RegB.Output(), dT_Out, dT_Tau, dTime);
+    dP_Out += OutputChg(P_RegB.Output(), dP_Out, dP_Tau, dTime);
+    dQ_Out += OutputChg(P_RegB.Output(), dQ_Out, dQ_Tau, dTime);
+    dT_Out += OutputChg(T_RegB.Output(), dT_Out, dT_Tau, dTime);
+    }
 
-  dP_Std_Dev_C = TstNZ(dP_Std_Dev) ? Range(-1.0,dP_Std_Dev*P_Noise.GetVal(), 1.0) : 0.0;
-  dQ_Std_Dev_C = TstNZ(dQ_Std_Dev) ? Range(-1.0,dQ_Std_Dev*Q_Noise.GetVal(), 1.0) : 0.0;
-  dT_Std_Dev_C = TstNZ(dT_Std_Dev) ? Range(-1.0,dT_Std_Dev*T_Noise.GetVal(), 1.0) : 0.0;
+  if (!NetProbalMethod())
+    {
+    dP_Std_Dev_C = TstNZ(dP_Std_Dev) ? Range(-1.0,dP_Std_Dev*P_Noise.GetVal(), 1.0) : 0.0;
+    dQ_Std_Dev_C = TstNZ(dQ_Std_Dev) ? Range(-1.0,dQ_Std_Dev*Q_Noise.GetVal(), 1.0) : 0.0;
+    dT_Std_Dev_C = TstNZ(dT_Std_Dev) ? Range(-1.0,dT_Std_Dev*T_Noise.GetVal(), 1.0) : 0.0;
 
-  if (Valid(BatchAvail) && (nQmOut>0))
-    BatchAvail = Max(0.0, BatchAvail-(ICGetTimeInc() * dQmOut/nQmOut));
+    if (Valid(BatchAvail) && (nQmOut>0))
+      BatchAvail = Max(0.0, BatchAvail-(ICGetTimeInc() * dQmOut/nQmOut));
+    }
 
   if (!fCrossConnected && (Valid(Contents.QmRqd()) && (SSMode&SSM_ConstQm) ||
     Valid(Contents.QvRqd()) && (SSMode&SSM_ConstQv) ||
@@ -1446,14 +1452,22 @@ double MN_SrcSnk::TRequired()
   {
   if (Valid(Contents.TRqd()))
     {
-    double dO = OutputChg(T_RegB.Output(), dT_Out, dT_Tau, dTime);
-    double T = NetProbalMethod() ? Contents.TRqd() : (Contents.TRqd()-ZeroCinK) * (1.0+dT_Std_Dev_C) * (dT_Out+dO) + ZeroCinK;
+    double T;
+    if (NetProbalMethod())
+      {
+      T = Contents.TRqd();
+      }
+    else
+      {
+      const double dO = OutputChg(T_RegB.Output(), dT_Out, dT_Tau, dTime);
+      T = (Contents.TRqd()-ZeroCinK) * (1.0+dT_Std_Dev_C) * (dT_Out+dO) + ZeroCinK;
+      }
     Contents.SetTemp(T);
     return T;
     }
   else
     return Contents.Temp();
-  };
+  }
 
 //--------------------------------------------------------------------------
 
@@ -1461,8 +1475,16 @@ double MN_SrcSnk::PRequired()
   {
   if (Valid(Contents.PRqd()))
     {
-    double dO = OutputChg(P_RegB.Output(), dP_Out, dP_Tau, dTime);
-    double P = NetProbalMethod() ? Contents.PRqd() : (Contents.PRqd()-Std_P) * (1.0+dP_Std_Dev_C) * (dP_Out+dO) + Std_P;
+    double P;
+    if (NetProbalMethod())
+      {
+      P = Contents.PRqd();
+      }
+    else
+      {
+      const double dO = OutputChg(P_RegB.Output(), dP_Out, dP_Tau, dTime);
+      P = (Contents.PRqd()-Std_P) * (1.0+dP_Std_Dev_C) * (dP_Out+dO) + Std_P;
+      }
     Contents.SetPress(P);
     return P;
     }
@@ -1490,7 +1512,7 @@ double MN_SrcSnk::QRequired(double Rho)
     case SSQmRqdVap: Qr /= Max(0.01, Contents.MassFrac(som_Gas)); break;
     }
   return Qr;
-  };
+  }
 
 //--------------------------------------------------------------------------
 
