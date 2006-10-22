@@ -2595,11 +2595,12 @@ Update 4 : 16 October 2006
 ------------------------------
 1) (#599,602,614) Makeup block improvements.
 
-Build 121 : 20 October 2006
+Build 121 : 22 October 2006
 ------------------------------
-
-1) (#) SMDK changes. Extended SMDK for qualities. Added ability to define tables.
-   IF<T>() has been replaced with GetIF<T>, FindIF<T> or CreateIF<T>.
+1) (#541, 617,622) SMDK changes. Extended SMDK for qualities. IF<T>() has been 
+   replaced with GetIF<T>, FindIF<T> or CreateIF<T>.  Added ability to define 
+   tables in access window.
+2) (#619,620,624) Various fixes.
 
 
 

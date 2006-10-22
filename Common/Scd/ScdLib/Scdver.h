@@ -44,15 +44,16 @@
 #define WITHGRFGROUP          1
 #define WITHGRFGROUPCONFIG    1 
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
-#define USEREGISTRY           0
-
+#define WithSimpleEvap        1
 #define WithSimpleBleed       0  /*not ready for release*/
-#define WithSimpleEvap        1  /*not ready for release*/
+
+#define USEREGISTRY           0
 
 //perhaps developing new functionality...
 #define WITHCHANGEOBJ         0 //too slow...???
 #define WITHAUTOMATION        0
 #define WITHRCTEDITDLG        0
+#define WITHDOCUMENTATIONLINK 0  /*not implemented*/
 
 //discontinued functionality...
 #define WITHLOCALCOPY         0

@@ -8,6 +8,8 @@
 
 #include "stdafx.h"
 #include "sc_defs.h"
+
+#if WITHDOCUMENTATIONLINK
 #include "..\resource.h"
 #include "ole_base.h"
 #include "oleword.h"
@@ -3815,4 +3817,5 @@ int COleInfoReportMngr::DoAutomation()
 
 #endif
 
+#endif //WITHDOCUMENTATIONLINK
 

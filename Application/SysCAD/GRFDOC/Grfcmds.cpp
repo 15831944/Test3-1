@@ -1244,7 +1244,9 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
     if (0 || nGrfs>0)
       Menu.AppendMenu(MF_SEPARATOR, -1);
 
+#if WITHDOCUMENTATIONLINK
     Menu.AppendMenu(MF_STRING, 180,  "Docu&ment ...");
+#endif
     Menu.AppendMenu(MF_STRING, 104,  "Change Tag ...");
     Menu.AppendMenu(MF_STRING, 105,  "Data Transfer ...");
     Menu.AppendMenu(MF_STRING, 101,  "Empty");
@@ -1404,9 +1406,11 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
         FE()->FE_TagOperation(FETOp_SetHold, ActHolds);
         }
       break;
+#if WITHDOCUMENTATIONLINK
     case 180:
 //MSWORD        ?
      break;
+#endif
     default:
       if (RetCd>=200 && RetCd<300)
         {

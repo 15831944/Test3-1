@@ -1380,7 +1380,6 @@ Global
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.ActiveCfg = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.Build.0 = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.ActiveCfg = Release|Win32
-		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.ActiveCfg = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
@@ -1400,7 +1399,6 @@ Global
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.ActiveCfg = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.Build.0 = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.ActiveCfg = Release|Win32
-		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.ActiveCfg = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
@@ -1420,7 +1418,6 @@ Global
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.ActiveCfg = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.Build.0 = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.ActiveCfg = Release|Win32
-		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.ActiveCfg = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
@@ -1440,7 +1437,6 @@ Global
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.ActiveCfg = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Distribution.Build.0 = Debug|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.ActiveCfg = Release|Win32
-		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.ActiveCfg = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release - Full.Build.0 = Release|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg.ActiveCfg = Release_Dbg|Win32

@@ -3427,7 +3427,9 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
 //ss        Menu.AppendMenu(MF_STRING, IDM_ACC_SPECSHEET,   "&Spec Sheet ...");
 #endif
         Menu.AppendMenu(MF_STRING, IDM_ACC_PRINT,         "&Print ...");
+#if WITHDOCUMENTATIONLINK
         Menu.AppendMenu(MF_STRING, IDM_ACC_DOCUMENT,      "Docu&ment ...");
+#endif
         Menu.AppendMenu(MF_STRING, IDM_ACC_CHANGETAG,     "&Change Tag ...");
         Menu.AppendMenu(MF_STRING, IDM_ACC_COPYBLK_0,     "Data &Transfer ...");
         Menu.AppendMenu(MF_STRING, IDM_ACC_QUICKVIEW,     "&Quick View ...");
@@ -4268,10 +4270,12 @@ void AccNodeWnd::OnAccOptions(UINT Id)
     case IDM_ACC_PRINT:
       OnFilePrint();
       break;
+#if WITHDOCUMENTATIONLINK
     case IDM_ACC_DOCUMENT:
 //MSWORD        ?
       //gs_pPrj->Document(NdTag());
       break;
+#endif
 #if WITHSPECSHEETS
 //ss    case IDM_ACC_SPECSHEET:
 //ss      {
