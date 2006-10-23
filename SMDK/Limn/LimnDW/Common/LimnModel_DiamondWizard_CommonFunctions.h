@@ -137,7 +137,8 @@ class CLimn_ModelData_Base
 
     void      MarkText(LPCTSTR Text);
     void      MarkMatrix(LPCTSTR Header, int Rows, int Cols);
-    int       AddParms(int Count, bool FirstTime);
+    void      MarkParameterGap(int Count);
+    int       AddParms(int Count);
 
   protected:
     bool                            m_LocalData;
@@ -159,16 +160,22 @@ class CLimn_ModelData_Access
       {
       for (int i=0; i<m_Base.m_Data.GetCount(); i++)
         {
-        m_Base.m_Data[i] *= m_Base.m_Defs[i]->m_Scale; 
-        gs_Dbg.PrintLn("Scale   :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+        if (m_Base.m_Defs[i])
+          {
+          m_Base.m_Data[i] *= m_Base.m_Defs[i]->m_Scale; 
+          gs_Dbg.PrintLn("Scale   :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+          }
         }
       };
     ~CLimn_ModelData_Access()
       {
       for (int i=0; i<m_Base.m_Data.GetCount(); i++)
         {
-        m_Base.m_Data[i] /= m_Base.m_Defs[i]->m_Scale; 
-        gs_Dbg.PrintLn("UnScale :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+        if (m_Base.m_Defs[i])
+          {
+          m_Base.m_Data[i] /= m_Base.m_Defs[i]->m_Scale; 
+          gs_Dbg.PrintLn("UnScale :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+          }
         }
       };
     operator double*() { return m_Base.m_pData; }

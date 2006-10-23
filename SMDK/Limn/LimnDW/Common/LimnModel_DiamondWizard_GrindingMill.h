@@ -36,7 +36,9 @@ class C_ModelParameters_DiamondWizard_GrindingMill: public CLimn_ModelData_Base
       m_nOSz = nOSz;
 
       redistributeDensimetrics      .Initialise(this,                                        "RedistributeDensimetrics",      1);
+      MarkParameterGap(nOSz-1);
       tau                           .Initialise(this,                                        "Tau",                        0.14,  "");
+      MarkParameterGap(nOSz-1);
       S                             .Initialise(this,   "S", m_nOSz,          DI_OSz,        "S",                           0.5,  "");
       B                             .Initialise(this,   "B", m_nOSz, m_nOSz , DI_OSz, DI_OSz,"B",                           0.0,  "");
 

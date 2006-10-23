@@ -19,6 +19,7 @@
 CLimn_ModelData_Common::CLimn_ModelData_Common()
   {
   }
+
 CLimn_ModelData_Common::~CLimn_ModelData_Common()
   {
   for (int i=0; i<m_Defs.GetCount(); i++)
@@ -34,12 +35,11 @@ CLimn_ModelData_Base::CRefBase::CRefBase()
 
 bool CLimn_ModelData_Base::CRefBase::Initialise(CLimn_ModelData_Base * pBase, int Count)
   {
-  bool FirstTime = (m_pBase==NULL);
   m_pBase = pBase;
-  m_iParm = m_pBase->AddParms(Count, FirstTime); 
+  m_iParm = m_pBase->AddParms(Count); 
 
-
-  return (m_iParm>=m_pBase->m_Common.m_Defs.GetCount());
+  return (m_pBase->m_Common.m_Defs[m_iParm]==NULL);
+  //return (m_iParm>=m_pBase->m_Common.m_Defs.GetCount());
   };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ CLimn_ModelData_Base::CBooleanRef::CBooleanRef() {};
 void CLimn_ModelData_Base::CBooleanRef::Initialise(CLimn_ModelData_Base * pBase, LPCSTR Tag, const bool DefaultValue, bool Hide)
   {
   if (CRefBase::Initialise(pBase, 1))
-    m_pBase->m_Defs.Add(new CLimn_ModelData_ParmDef("", Tag, "", "", true, Hide, m_pBase->m_RqdHdrs));
+    m_pBase->m_Defs[m_iParm]=new CLimn_ModelData_ParmDef("", Tag, "", "", true, Hide, m_pBase->m_RqdHdrs);
   if (m_pBase->m_LocalData)
     m_pBase->m_Data[m_iParm]=DefaultValue?1:0;
   };
@@ -88,7 +88,7 @@ CLimn_ModelData_Base::CDoubleRef::CDoubleRef() {};
 void CLimn_ModelData_Base::CDoubleRef::Initialise(CLimn_ModelData_Base * pBase, LPCSTR Tag, const double DefaultValue, LPCTSTR CnvStr, bool Hide) 
   {
   if (CRefBase::Initialise(pBase, 1))
-    m_pBase->m_Defs.Add(new CLimn_ModelData_ParmDef("", Tag, "", CnvStr, false, Hide, m_pBase->m_RqdHdrs));
+    m_pBase->m_Defs[m_iParm]=new CLimn_ModelData_ParmDef("", Tag, "", CnvStr, false, Hide, m_pBase->m_RqdHdrs);
   if (m_pBase->m_LocalData)
     m_pBase->m_Data[m_iParm]=DefaultValue/m_pBase->m_Defs[m_iParm]->m_Scale;
   };
@@ -143,15 +143,15 @@ void CLimn_ModelData_Base::CVectorRef::Initialise(CLimn_ModelData_Base * pBase, 
   if (CRefBase::Initialise(pBase, Len))
     {
     CString Tg;
-    int iFirst=m_pBase->m_Defs.GetCount();
+    //int iFirst=m_pBase->m_Defs.GetCount();
     for (int i=0; i<Len; i++)
       {
       GetIndexTag(Tag, DI, i, Tg);
-      m_pBase->m_Defs.Add(new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs));
+      m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
       }
-    m_pBase->m_Defs[iFirst]->m_ArrayLen=Len;
-    m_pBase->m_Defs[iFirst]->m_ArrayBegin=true;
-    m_pBase->m_Defs[iFirst+Len-1]->m_ArrayEnd=true;
+    m_pBase->m_Defs[m_iParm]->m_ArrayLen=Len;
+    m_pBase->m_Defs[m_iParm]->m_ArrayBegin=true;
+    m_pBase->m_Defs[m_iParm+Len-1]->m_ArrayEnd=true;
     }
   if (m_pBase->m_LocalData)
     {
@@ -167,15 +167,15 @@ void CLimn_ModelData_Base::CVectorRef::Initialise(CLimn_ModelData_Base * pBase, 
   if (CRefBase::Initialise(pBase, Len))
     {
     CString Tg;
-    int iFirst=m_pBase->m_Defs.GetCount();
+    //int iFirst=m_pBase->m_Defs.GetCount();
     for (int i=0; i<Len; i++)
       {
       GetIndexTag(Tag, DI, i, Tg);
-      m_pBase->m_Defs.Add(new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs));
+      m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
       }
-    m_pBase->m_Defs[iFirst]->m_ArrayLen=Len;
-    m_pBase->m_Defs[iFirst]->m_ArrayBegin=true;
-    m_pBase->m_Defs[iFirst+Len-1]->m_ArrayEnd=true;
+    m_pBase->m_Defs[m_iParm]->m_ArrayLen=Len;
+    m_pBase->m_Defs[m_iParm]->m_ArrayBegin=true;
+    m_pBase->m_Defs[m_iParm+Len-1]->m_ArrayEnd=true;
     }
   if (m_pBase->m_LocalData)
     {
@@ -195,18 +195,18 @@ void CLimn_ModelData_Base::CMatrixRef::Initialise(CLimn_ModelData_Base * pBase, 
   if (CRefBase::Initialise(pBase, Rows*Cols))
     {
     CString Tg;
-    int iFirst=m_pBase->m_Defs.GetCount();
     for (int r=0; r<Rows; r++)
       {
       for (int c=0; c<Cols; c++)
         {
         GetIndexTag(Tag, RDI, CDI, r, c, Tg);
-        m_pBase->m_Defs.Add(new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs));
+        int i=r*Cols+c;
+        m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
         }
       }
-    m_pBase->m_Defs[iFirst]->m_ArrayLen=Rows*Cols;
-    m_pBase->m_Defs[iFirst]->m_ArrayBegin=true;
-    m_pBase->m_Defs[iFirst+(Rows*Cols)-1]->m_ArrayEnd=true;
+    m_pBase->m_Defs[m_iParm]->m_ArrayLen=Rows*Cols;
+    m_pBase->m_Defs[m_iParm]->m_ArrayBegin=true;
+    m_pBase->m_Defs[m_iParm+(Rows*Cols)-1]->m_ArrayEnd=true;
     }
   if (m_pBase->m_LocalData)  
     {
@@ -235,12 +235,13 @@ void CLimn_ModelData_Base::CMatrixRef::Initialise(CLimn_ModelData_Base * pBase, 
       for (int c=0; c<Cols; c++)
         {
         GetIndexTag(Tag, RDI, CDI, r, c, Tg);
-        m_pBase->m_Defs.Add(new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs));
+        int i=r*Cols+c;
+        m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
         }
       }
-    m_pBase->m_Defs[iFirst]->m_ArrayLen=Rows*Cols;
-    m_pBase->m_Defs[iFirst]->m_ArrayBegin=true;
-    m_pBase->m_Defs[iFirst+(Rows*Cols)-1]->m_ArrayEnd=true;
+    m_pBase->m_Defs[m_iParm]->m_ArrayLen=Rows*Cols;
+    m_pBase->m_Defs[m_iParm]->m_ArrayBegin=true;
+    m_pBase->m_Defs[m_iParm+(Rows*Cols)-1]->m_ArrayEnd=true;
     }
   if (m_pBase->m_LocalData)
     {
@@ -286,10 +287,22 @@ void CLimn_ModelData_Base::MarkMatrix(LPCTSTR Header, int Rows, int Cols)
   m_RqdHdrs.Add(CLimn_ModelData_ParmHdr(Header, Rows, Cols));
   }
 
-int CLimn_ModelData_Base::AddParms(int Count, bool FirstTime)
+void CLimn_ModelData_Base::MarkParameterGap(int Count)
+  {
+  int Start=AddParms(Count); 
+  for (int i=0; i<Count; i++)
+    {
+    m_Defs[Start+i]=NULL;
+    }
+  }
+
+int CLimn_ModelData_Base::AddParms(int Count)
   {
   int Start = m_nDataCount;
   m_nDataCount += Count;
+
+  if (m_Defs.GetCount()<m_nDataCount)
+    m_Defs.SetSize(m_nDataCount,64);
 
   if (m_LocalData && m_Data.GetCount()<m_nDataCount)
     {
@@ -311,90 +324,93 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
   int m_iRow=0;
   for (int i=0; i<DataCount(); i++)
     {
-    CLimn_ModelData_ParmDef & D = *m_Defs[i];
-
-    for (int j=0; j<D.m_Hdrs.GetCount(); j++)
+    if (m_Defs[i])
       {
-      CLimn_ModelData_ParmHdr & H=D.m_Hdrs[j];
-      CString Txt(H.m_Text);
-      if (H.m_nRows>1 && H.m_nCols>1)
-        {
-        Txt= "Matrix: ";
-        m_ColCount=H.m_nCols;
-        m_ValCount=H.m_nRows*H.m_nCols; 
-        m_iCol=0;
-        m_iRow=0;
-        }
-      else if (H.m_nRows>1 || H.m_nCols>1)
-        {
-        Txt= "Vector: ";
-        m_ColCount=H.m_nCols;
-        m_ValCount=H.m_nRows*H.m_nCols; 
-        m_iCol=0;
-        m_iRow=0;
-        }
-      Txt+=H.m_Text;
-      DD.Page(H.m_Text, true);
-      DD.Text(Txt);
-      }
+      CLimn_ModelData_ParmDef & D = *m_Defs[i];
 
-    if (!D.m_Hide)
-      {
-      MD_Flags F=MF_PARAMETER;
-      MD_Flags FS=0;
-      MD_Flags FE=0;
-      if (m_ValCount>0)
+      for (int j=0; j<D.m_Hdrs.GetCount(); j++)
         {
-        if (m_iCol==0)
-          FS=MF_StartRow;
-        if (++m_iCol>=m_ColCount)
+        CLimn_ModelData_ParmHdr & H=D.m_Hdrs[j];
+        CString Txt(H.m_Text);
+        if (H.m_nRows>1 && H.m_nCols>1)
           {
+          Txt= "Matrix: ";
+          m_ColCount=H.m_nCols;
+          m_ValCount=H.m_nRows*H.m_nCols; 
           m_iCol=0;
-          m_iRow++;
+          m_iRow=0;
           }
-        if (--m_ValCount==0)
+        else if (H.m_nRows>1 || H.m_nCols>1)
           {
-          FE=MF_EndRows;
+          Txt= "Vector: ";
+          m_ColCount=H.m_nCols;
+          m_ValCount=H.m_nRows*H.m_nCols; 
+          m_iCol=0;
+          m_iRow=0;
           }
+        Txt+=H.m_Text;
+        DD.Page(H.m_Text, true);
+        DD.Text(Txt);
         }
 
-      if (D.m_ArrayBegin)
+      if (!D.m_Hide)
         {
-        InArray=true;
-        //CString Cls;
-        //Cls.Format("DW_%s",D.m_Class);
-        DD.ArrayBegin(D.m_Class, D.m_Tag, D.m_ArrayLen,0);
+        MD_Flags F=MF_PARAMETER;
+        MD_Flags FS=0;
+        MD_Flags FE=0;
+        if (m_ValCount>0)
+          {
+          if (m_iCol==0)
+            FS=MF_StartRow;
+          if (++m_iCol>=m_ColCount)
+            {
+            m_iCol=0;
+            m_iRow++;
+            }
+          if (--m_ValCount==0)
+            {
+            FE=MF_EndRows;
+            }
+          }
 
-        //gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
-        }
+        if (D.m_ArrayBegin)
+          {
+          InArray=true;
+          //CString Cls;
+          //Cls.Format("DW_%s",D.m_Class);
+          DD.ArrayBegin(D.m_Class, D.m_Tag, D.m_ArrayLen,0);
 
-      if (InArray)
-        {
-        DD.ArrayElementStart(D.m_Index, FS);
-        //gs_Dbg.PrintLn("ArrayEle  %s %s", D.m_Tag, D.m_Index);
-        CString S;
-        //S.Format("%s[%s]", D.m_Tag, D.m_Index);
-        //S=D.m_Index;
-        S="V";
-        if (D.m_IsBool)
-          DD.Bool  (S, "",  1+i,  F);
+          //gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
+          }
+
+        if (InArray)
+          {
+          DD.ArrayElementStart(D.m_Index, FS);
+          //gs_Dbg.PrintLn("ArrayEle  %s %s", D.m_Tag, D.m_Index);
+          CString S;
+          //S.Format("%s[%s]", D.m_Tag, D.m_Index);
+          //S=D.m_Index;
+          S="V";
+          if (D.m_IsBool)
+            DD.Bool  (S, "",  1+i,  F);
+          else
+            DD.Double(S, "",  1+i,  F, D.m_Cnv);
+          DD.ArrayElementEnd(FE);
+          }
         else
-          DD.Double(S, "",  1+i,  F, D.m_Cnv);
-        DD.ArrayElementEnd(FE);
-        }
-      else
-        {
-        if (D.m_IsBool)
-          DD.Bool  (D.m_Tag, "",  1+i,  F|FS|FE);
-        else
-          DD.Double(D.m_Tag, "",  1+i,  F|FS|FE, D.m_Cnv);
-        }
-      
-      if (D.m_ArrayEnd)
-        {
-        DD.ArrayEnd(0);
-        //gs_Dbg.PrintLn("ArrayEnd   %s %s <<<<<<<<<<<", "", "");
-        InArray=false;
+          {
+          if (D.m_IsBool)
+            DD.Bool  (D.m_Tag, "",  1+i,  F|FS|FE);
+          else
+            DD.Double(D.m_Tag, "",  1+i,  F|FS|FE, D.m_Cnv);
+          }
+        
+        if (D.m_ArrayEnd)
+          {
+          DD.ArrayEnd(0);
+          //gs_Dbg.PrintLn("ArrayEnd   %s %s <<<<<<<<<<<", "", "");
+          InArray=false;
+          }
         }
       }
     }

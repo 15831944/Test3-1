@@ -6,7 +6,7 @@
 #define  __GRINDINGMILL_CPP
 #include "grindingmill.h"
 #include "limnstream.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 #define DoDbg 0x7
 
@@ -95,7 +95,7 @@ void CGrindingMill::EvalProducts()
       LSIn.ConvertToMassForm(QI);
       LSOut.ConvertToMassForm(Q0);
 
-#if 0
+#if 01
 
       if (DoDbg)
         LSIn.Dump("In", DoDbg);
