@@ -15,6 +15,7 @@ namespace RestrictPermissions
     string filename = null;
 
     string restrictions = "";
+    string enteredPassword = "";
 
     byte[] metricHash;
 
@@ -28,7 +29,7 @@ namespace RestrictPermissions
       filename = null;
 
       setButton.Enabled = false;
-      passwordTextBox.Enabled = false;
+      passwordSetButton.Enabled = false;
       ReadOnlyCheckBox.Enabled = false;
 
       encryptButton.Enabled = false;
@@ -81,22 +82,19 @@ namespace RestrictPermissions
           return;
         }
 
-        string enteredPassword = "";
         if (!PasswordCheck(enteredPassword, passwordHash))
         {
-          passwordDlg passForm = new passwordDlg();
+          passwordCheckDlg passForm = new passwordCheckDlg();
           if (passForm.ShowDialog(this) == DialogResult.OK)
             enteredPassword = passForm.getPass();
         }
 
         if (PasswordCheck(enteredPassword, passwordHash))
         {
-          passwordTextBox.Text = enteredPassword;
-
           filename = openDialog.FileName;
 
           setButton.Enabled = true;
-          passwordTextBox.Enabled = true;
+          passwordSetButton.Enabled = true;
           ReadOnlyCheckBox.Enabled = true;
 
           encryptButton.Enabled = true;
@@ -275,7 +273,7 @@ namespace RestrictPermissions
         //set on open --- byte[] metricHash = GetMetricHash(fileString);
         string metricHashHex = HashToHex(metricHash);
 
-        byte[] passwordHash = ComputeHash(passwordTextBox.Text);
+        byte[] passwordHash = ComputeHash(enteredPassword);
         string passwordHashHex = HashToHex(passwordHash);
         byte[] restrictionCheck = CalculateRestrictionCheck(passwordHash, restrictions, metricHash);
         string restrictionCheckHex = HashToHex(restrictionCheck);
@@ -393,6 +391,13 @@ namespace RestrictPermissions
 
         File.Delete(openDialog.FileName);
       }
+    }
+
+    private void passwordSetButton_Click(object sender, EventArgs e)
+    {
+      passwordCheckDlg passForm = new passwordCheckDlg();
+      if (passForm.ShowDialog(this) == DialogResult.OK)
+        enteredPassword = passForm.getPass();
     }
   
   }

@@ -29,8 +29,6 @@ namespace RestrictPermissions
     private void InitializeComponent()
     {
       this.setButton = new System.Windows.Forms.Button();
-      this.passwordLabel = new System.Windows.Forms.Label();
-      this.passwordTextBox = new System.Windows.Forms.TextBox();
       this.ReadOnlyCheckBox = new System.Windows.Forms.CheckBox();
       this.checkBox1 = new System.Windows.Forms.CheckBox();
       this.checkBox2 = new System.Windows.Forms.CheckBox();
@@ -42,36 +40,19 @@ namespace RestrictPermissions
       this.loadButton = new System.Windows.Forms.Button();
       this.encryptButton = new System.Windows.Forms.Button();
       this.decryptButton = new System.Windows.Forms.Button();
+      this.passwordSetButton = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // setButton
       // 
       this.setButton.Enabled = false;
-      this.setButton.Location = new System.Drawing.Point(97, 170);
+      this.setButton.Location = new System.Drawing.Point(97, 163);
       this.setButton.Name = "setButton";
       this.setButton.Size = new System.Drawing.Size(75, 23);
       this.setButton.TabIndex = 0;
       this.setButton.Text = "Set";
       this.setButton.UseVisualStyleBackColor = true;
       this.setButton.Click += new System.EventHandler(this.setButton_Click);
-      // 
-      // passwordLabel
-      // 
-      this.passwordLabel.AutoSize = true;
-      this.passwordLabel.Location = new System.Drawing.Point(10, 114);
-      this.passwordLabel.Name = "passwordLabel";
-      this.passwordLabel.Size = new System.Drawing.Size(56, 13);
-      this.passwordLabel.TabIndex = 1;
-      this.passwordLabel.Text = "Password:";
-      // 
-      // passwordTextBox
-      // 
-      this.passwordTextBox.Enabled = false;
-      this.passwordTextBox.Location = new System.Drawing.Point(72, 111);
-      this.passwordTextBox.Name = "passwordTextBox";
-      this.passwordTextBox.PasswordChar = '*';
-      this.passwordTextBox.Size = new System.Drawing.Size(100, 20);
-      this.passwordTextBox.TabIndex = 2;
       // 
       // ReadOnlyCheckBox
       // 
@@ -171,7 +152,7 @@ namespace RestrictPermissions
       // 
       // loadButton
       // 
-      this.loadButton.Location = new System.Drawing.Point(13, 170);
+      this.loadButton.Location = new System.Drawing.Point(13, 163);
       this.loadButton.Name = "loadButton";
       this.loadButton.Size = new System.Drawing.Size(75, 23);
       this.loadButton.TabIndex = 11;
@@ -182,7 +163,7 @@ namespace RestrictPermissions
       // encryptButton
       // 
       this.encryptButton.Enabled = false;
-      this.encryptButton.Location = new System.Drawing.Point(13, 138);
+      this.encryptButton.Location = new System.Drawing.Point(13, 134);
       this.encryptButton.Name = "encryptButton";
       this.encryptButton.Size = new System.Drawing.Size(75, 23);
       this.encryptButton.TabIndex = 13;
@@ -193,7 +174,7 @@ namespace RestrictPermissions
       // decryptButton
       // 
       this.decryptButton.Enabled = false;
-      this.decryptButton.Location = new System.Drawing.Point(97, 138);
+      this.decryptButton.Location = new System.Drawing.Point(97, 134);
       this.decryptButton.Name = "decryptButton";
       this.decryptButton.Size = new System.Drawing.Size(75, 23);
       this.decryptButton.TabIndex = 12;
@@ -201,13 +182,25 @@ namespace RestrictPermissions
       this.decryptButton.UseVisualStyleBackColor = true;
       this.decryptButton.Click += new System.EventHandler(this.decryptButton_Click);
       // 
+      // passwordSetButton
+      // 
+      this.passwordSetButton.Enabled = false;
+      this.passwordSetButton.Location = new System.Drawing.Point(13, 105);
+      this.passwordSetButton.Name = "passwordSetButton";
+      this.passwordSetButton.Size = new System.Drawing.Size(159, 23);
+      this.passwordSetButton.TabIndex = 14;
+      this.passwordSetButton.Text = "Change Password";
+      this.passwordSetButton.UseVisualStyleBackColor = true;
+      this.passwordSetButton.Click += new System.EventHandler(this.passwordSetButton_Click);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
       this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.ClientSize = new System.Drawing.Size(183, 202);
+      this.ClientSize = new System.Drawing.Size(183, 193);
+      this.Controls.Add(this.passwordSetButton);
       this.Controls.Add(this.encryptButton);
       this.Controls.Add(this.decryptButton);
       this.Controls.Add(this.loadButton);
@@ -219,8 +212,6 @@ namespace RestrictPermissions
       this.Controls.Add(this.checkBox2);
       this.Controls.Add(this.checkBox1);
       this.Controls.Add(this.ReadOnlyCheckBox);
-      this.Controls.Add(this.passwordTextBox);
-      this.Controls.Add(this.passwordLabel);
       this.Controls.Add(this.setButton);
       this.Name = "Form1";
       this.Padding = new System.Windows.Forms.Padding(10);
@@ -233,8 +224,6 @@ namespace RestrictPermissions
     #endregion
 
     private System.Windows.Forms.Button setButton;
-    private System.Windows.Forms.Label passwordLabel;
-    private System.Windows.Forms.TextBox passwordTextBox;
     private System.Windows.Forms.CheckBox ReadOnlyCheckBox;
     private System.Windows.Forms.CheckBox checkBox1;
     private System.Windows.Forms.CheckBox checkBox2;
@@ -246,6 +235,7 @@ namespace RestrictPermissions
     private System.Windows.Forms.Button loadButton;
     private System.Windows.Forms.Button encryptButton;
     private System.Windows.Forms.Button decryptButton;
+    private System.Windows.Forms.Button passwordSetButton;
 
 
   }
