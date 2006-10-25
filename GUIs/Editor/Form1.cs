@@ -25,8 +25,8 @@ namespace SysCAD.Editor
     {
       InitializeComponent();
       SetProjectBasedButtons(false);
-      
-      IDictionary tcpProps = new Hashtable();
+
+      Hashtable tcpProps = new Hashtable();
       tcpProps["port"] = "0";
       TcpChannel tcpChannel = new TcpChannel(tcpProps, null, null);
       ChannelServices.RegisterChannel(tcpChannel, false);

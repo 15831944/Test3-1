@@ -184,17 +184,17 @@ namespace SysCAD.Editor
       {
         link.Arrow.ArrowHeadSize = 150.0F / zoomFactor;
         if (80.0F / zoomFactor > getMinArrowheadSize(fcFlowChart.MeasureUnit))
-          link.Arrow.IntermHeadSize = 80.0F / zoomFactor;
+          link.Arrow.IntermHeadSize = 120.0F / zoomFactor;
         else
           link.Arrow.IntermHeadSize = getMinArrowheadSize(fcFlowChart.MeasureUnit);
         link.Arrow.ArrowBaseSize = 150.0F / zoomFactor;
       }
 
-      fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 4.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 
       foreach (Item item in state.Items)
       {
-        item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 4.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       }
 
       fcFlowChart.Invalidate();

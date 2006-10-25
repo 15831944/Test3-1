@@ -269,7 +269,7 @@ namespace SysCAD.Service
             graphic.graphicItems.TryGetValue(graphicLink.Origin, out originGraphicItem);
 
             GraphicItem destinationGraphicItem;
-            graphic.graphicItems.TryGetValue(graphicLink.Origin, out destinationGraphicItem);
+            graphic.graphicItems.TryGetValue(graphicLink.Destination, out destinationGraphicItem);
 
             if ((originGraphicItem != null) || (destinationGraphicItem != null))
             {

@@ -17,7 +17,7 @@ using namespace System::IO;
 //using namespace System::IO::Directory;
 
 using namespace System::Collections;
-//using namespace System::Collections::Generic;
+using namespace System::Collections::Generic;
 using namespace System::Collections::Specialized;
 
 using namespace System::Runtime::Remoting;
@@ -85,7 +85,7 @@ ref class CNETServerThread
 
       BinaryClientFormatterSinkProvider ^ clientProv = gcnew BinaryClientFormatterSinkProvider();
 
-      IDictionary ^ ipcProps = gcnew Hashtable();
+      Hashtable ^ ipcProps = gcnew Hashtable();
       ipcProps["portName"] = "SysCAD.Service";
       //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
       IpcChannel ^ ipcChannel = gcnew IpcChannel(ipcProps, clientProv, serverProv);
@@ -141,7 +141,7 @@ ref class CNETServerThread
           graphicStencil->decorations = oldGraphicStencil->decorations;
           graphicStencil->defaultSize = oldGraphicStencil->defaultSize;
           graphicStencil->groupName = oldGraphicStencil->groupName;
-          graphicStencil->textArea = RectangleF(0.0, graphicStencil->defaultSize.Height * 1.1, graphicStencil->defaultSize.Width, 5);
+          graphicStencil->textArea = RectangleF(0.0F, graphicStencil->defaultSize.Height * 1.1F, graphicStencil->defaultSize.Width, 5);
           }
         stream->Close();
 
@@ -182,7 +182,7 @@ ref class CNETServerThread
         // Modify the item.
 
         // Raise event(s).
-        graphic->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+       graphic->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
 
         return true;
         }
@@ -288,14 +288,83 @@ ref class CNETServerThread
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
 
+      StringCollection ^ pages = gcnew StringCollection();
+      {
+        POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
+        while (Pos)
+        {
+          CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
+          if (!pGuid->m_IsLink)
+          {
+            CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid);
+            String ^ page = gcnew String(pNode->m_pGrfs[0]->m_Page);
+            if (!pages->Contains(page))
+            {
+              pages->Add(page);
+            }
+          }
+        }
+      }
+
+      Dictionary<String^, PointF> pageOffset = gcnew Dictionary<String^, PointF>();
+
+      int sqrtPages = (int)Math::Round(Math::Sqrt((double)pages->Count)+0.5);
+      int i = 0;
+      int j = 0;
+      float dX = 0.0F;
+      float dY = 0.0F;
+      for (int k=0; k<pages->Count; k++)
+      {
+        String ^ a = pages[k];
+        pageOffset.Add("/" + filename + "/" + pages[k] + "/", PointF(dX, dY));
+
+        i++;
+        dX += 400.0F;
+        if (i > sqrtPages-1)
+        {
+          i = 0;
+          dX = 0.0F;
+          j++;
+          dY += 320.0F;
+        }
+      }
+
+      {
+      POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
+      while (Pos)
+        {
+        CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
+        if (!pGuid->m_IsLink)
+          {
+          CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid); 
+
+          GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
+          String ^ path = "/" + filename + "/" + gcnew String(pNode->m_pGrfs[0]->m_Page) + "/";
+
+          graphicItem->Populate(filename, gcnew String(pNode->m_pGrfs[0]->m_Page),
+            gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
+            RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
+            pNode->m_pGrfs[0]->m_Rotation);
+          graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
+          }
+        }
+      }
+
+      {
       POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
       while (Pos)
         {
         CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
         if (pGuid->m_IsLink)
           {
-          CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(pGuid); 
-          GraphicLink ^ graphicLink = gcnew GraphicLink(Guid(gcnew String(pLink->m_Guid)), gcnew String(pLink->m_Tag), gcnew String(pLink->m_ClassID), 
+            CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(pGuid); 
+            GraphicItem ^originGraphicItem;
+            graphic->graphicItems->TryGetValue(Guid(gcnew String(pLink->m_SrcGuid)), originGraphicItem);
+
+            PointF offset = PointF(0.0F, 0.0F);
+            pageOffset.TryGetValue(originGraphicItem->Path, offset);
+
+            GraphicLink ^ graphicLink = gcnew GraphicLink(Guid(gcnew String(pLink->m_Guid)), gcnew String(pLink->m_Tag), gcnew String(pLink->m_ClassID), 
             Guid(gcnew String(pLink->m_SrcGuid)), gcnew String(pLink->m_SrcPort), Guid(gcnew String(pLink->m_DstGuid)), gcnew String(pLink->m_DstPort)); //pkh
 
           CArray <CNSGrfLink::CPt, CNSGrfLink::CPt&> &Pts=pLink->m_pGrf->m_Pts;
@@ -303,7 +372,7 @@ ref class CNETServerThread
 
           // Why negative Y ??????
           for (int i=0; i<Pts.GetCount(); i++)
-            ControlPoints->Add(PointF(Pts[i].m_X, -Pts[i].m_Y));
+            ControlPoints->Add(PointF(Pts[i].m_X + offset.X, -Pts[i].m_Y + offset.Y));
 
           graphicLink->Populate(filename, gcnew String(pLink->m_pGrf->m_Page), 
             gcnew String(pLink->m_Guid), gcnew String(pLink->m_ClassID), 
@@ -314,17 +383,8 @@ ref class CNETServerThread
 
           graphic->graphicLinks->Add(graphicLink->Guid, graphicLink);
           }
-        else
-          {
-          CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid); 
-          GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
-          graphicItem->Populate(filename, gcnew String(pNode->m_pGrfs[0]->m_Page),
-            gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
-            RectangleF(pNode->m_pGrfs[0]->m_Left, pNode->m_pGrfs[0]->m_Top, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
-            pNode->m_pGrfs[0]->m_Rotation);
-          graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
-          }
-        }
+      }
+      }
 
       RemotingServices::Marshal(graphic, filename);
       m_Config->projectList->Add(filename);

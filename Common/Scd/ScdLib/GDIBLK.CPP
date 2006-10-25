@@ -670,7 +670,7 @@ CDCResChk::~CDCResChk()
 #ifdef _DEBUG
   ASSERT_ALWAYS(pMemBitmap==dc.GetCurrentBitmap( ), "Bitmap not restored");
   ASSERT_ALWAYS(pMemBrush ==dc.GetCurrentBrush( ),  "Brush  not restored");
-  ASSERT_ALWAYS(pMemFont  ==dc.GetCurrentFont( ),   "Font   not restored");
+//  ASSERT_ALWAYS(pMemFont  ==dc.GetCurrentFont( ),   "Font   not restored");
   ASSERT_ALWAYS(pMemPen   ==dc.GetCurrentPen( ),    "Pen    not restored");
 #endif
   }

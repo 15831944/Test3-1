@@ -25,7 +25,7 @@
 #elif  _RELEASE
 #define BYPASSLICENSING         01
 #else
-#define BYPASSLICENSING         0
+#define BYPASSLICENSING         1
 #endif
 #define ALLOWCNMVERSION         0
 //----------------------------------

@@ -212,6 +212,7 @@ void CNETServerU::LoadItems()
             DoneOne = true;
             CLinePointsArray LPA;
             pDoc->GCB.pDrw->CollectLinkInfo(I, LPA);
+
             CNSMdlLink * pMdl = new CNSMdlLink(I.m_sTag(), Guid(), I.m_sClass(),
               pNode->Nd_Rmt(0)->EqpGUID(), pNode->Nd_Rmt(1)->EqpGUID(),
               pNode->IOArea_Rmt(0).pName, pNode->IOArea_Rmt(1).pName);
@@ -223,14 +224,19 @@ void CNETServerU::LoadItems()
             }
           else if (TagTyp==1)// || TagTyp==0)
             {
-            DoneOne = true;
-            CNSMdlNode * pMdl=new CNSMdlNode(I.m_sTag(), Guid(), I.m_sClass());
-            CNSGrfNode * pGrf=new CNSGrfNode(Page(), pMdl, I);
-            pMdl->m_pGrfs.Add(pGrf);
-            m_Guids.AddTail(pMdl);
+              Strng tag = I.m_sTag();
+
+              if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOSHEET_* non-unit.
+              {
+                DoneOne = true;
+                CNSMdlNode * pMdl=new CNSMdlNode(I.m_sTag(), Guid(), I.m_sClass());
+                CNSGrfNode * pGrf=new CNSGrfNode(Page(), pMdl, I);
+                pMdl->m_pGrfs.Add(pGrf);
+                m_Guids.AddTail(pMdl);
+              }
             }
           }
-        //if (TagTyp==3)
+        //if (TagTyp==3)  
         //  {
         //  I.m_sTag.Set("$%i$", ++InsertCnt);
         //  I.m_sClass="Insert";
