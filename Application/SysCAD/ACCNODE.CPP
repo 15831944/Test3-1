@@ -3771,8 +3771,9 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
   if (pNdTag==NULL || pNdTag[0]==0)
     return;
 
-  if (gs_Exec.Busy() && AllowDeferred)
+  if (gs_Exec.Busy() && !gs_Exec.Waiting() && AllowDeferred)
     {
+    gs_Exec.SetStopSleep();
     CSingleLock L(&m_DeferredLock);
     m_DeferredTag=pNdTag;
     return;

@@ -1525,7 +1525,7 @@ void CMdlValueShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, 
     gs_RTLCom.m_MVCritSect.Lock();	
     gs_RTLCom.m_ValueAddPtrs.AddTail(Add);
     gs_RTLCom.m_MVCritSect.Unlock();
-    if (!gs_Exec.Busy())
+    if (!gs_Exec.Busy() || gs_Exec.Waiting())
       UpdateAll();
     }
   else
@@ -1588,7 +1588,7 @@ void CMdlValueShow::TryClear(bool All)
   //dbgpln("CMdlValueShow::TryClear");
   gs_RTLCom.m_iClear=All?2:1;
   gs_RTLCom.m_MVCritSect.Unlock();
-  if (!gs_Exec.Busy())
+  if (!gs_Exec.Busy() || gs_Exec.Waiting())
     UpdateAll();
   }
 

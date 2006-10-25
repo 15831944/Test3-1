@@ -4741,61 +4741,64 @@ long SpModel::CheckDataRanges()
     }
   else
     {
-     const int withspcs=1;
-     double T=Temp();
-     double Mt=GTZ(Mass());
-     Strng S;
-     Strng S1;
-     int NBad=0;
-     flag AsWarn=false;
-     for (int s=0; s<SDB.Count(); s++)
-       {
-       if (m_M[s]/Mt > dTestToleranceMassFrac)
-         {
-         CSpecie & D=SDB[s];
-         flag IsBad=false;
-         if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
-           {
-           AsWarn=true;
-           IsBad=true;
-           }
-         else if (SpModel::m_RangeErrorsOn && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
-           IsBad=true;
-   
-         if (IsBad)
-           {
-           NBadRanges++;
-           if (withspcs)
-             {
-             const int MaxBad=5;
-             if (NBad<MaxBad)
-               {
-               if (S.Length()>0)
-                 S+=",";
-               if (0)
-                 {
-                 S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
-                 S+=S1();
-                 }
-               else
-                 S+=D.SymOrTag();
-               }
-             else if (NBad==MaxBad)
-               S+=" ...";
-             NBad++;
-             }
-           }
-         }
-       }
-     if (NBadRanges)
-       {
-       if (withspcs)
-         SetCI(5, "%s\tTemperature Range [%7.2f C] %s", AsWarn?"W":"N", K_2_C(T), S());
-       else
-         SetCI(5, "%s\tTemperature [%7.2f C] out of Valid Data Range", AsWarn?"W":"N", K_2_C(T));
-       }
-     else
-       ClrCI(5);
+    const int WithSpcs=1;
+    double T=Temp();
+    double Mt=GTZ(Mass());
+    Strng Spcs;
+    flag AsWarn=false;
+    if (Mt>1.0e-9)
+      {
+      Strng S1;
+      int NBad=0;
+      for (int s=0; s<SDB.Count(); s++)
+        {
+        if (m_M[s]/Mt > dTestToleranceMassFrac)
+          {
+          CSpecie & D=SDB[s];
+          flag IsBad=false;
+          if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
+            {
+            AsWarn=true;
+            IsBad=true;
+            }
+          else if (SpModel::m_RangeErrorsOn && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
+            IsBad=true;
+
+          if (IsBad)
+            {
+            NBadRanges++;
+            if (WithSpcs)
+              {
+              const int MaxBad=5;
+              if (NBad<MaxBad)
+                {
+                if (Spcs.Length()>0)
+                  Spcs+=",";
+                if (0)
+                  {
+                  S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
+                  Spcs+=S1();
+                  }
+                else
+                  Spcs+=D.SymOrTag();
+                }
+              else if (NBad==MaxBad)
+                Spcs+=" ...";
+              NBad++;
+              }
+            }
+          }
+        }
+      }
+    if (NBadRanges)
+      {
+      if (WithSpcs)
+        SetCI(5, "%s\tTemperature Range [%7.2f C] %s", AsWarn?"W":"N", K_2_C(T), Spcs());
+      else
+        SetCI(5, "%s\tTemperature [%7.2f C] out of Valid Data Range", AsWarn?"W":"N", K_2_C(T));
+      }
+    else
+      ClrCI(5);
     }
   return NBadRanges;
   };

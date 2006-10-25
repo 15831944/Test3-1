@@ -2300,7 +2300,10 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
       case FBMode_Simple:
         {
         if (Options() & FBOpt_HasSimpleRes)
-          m_SimpleRes=Range(1e-6, FR_Resistance(MeanRho(pProps), Regulation)/GTZ(Regulation), 1e6);
+          {
+          SetDPq(-QmSign()*m_SimpleRes*QmMeas(), -QmSign()*m_SimpleRes);
+          //m_SimpleRes=Range(1e-6, FR_Resistance(MeanRho(pProps), Regulation)/GTZ(Regulation), 1e6);
+          }
         else
           m_SimpleRes=0;//1e-6;
 

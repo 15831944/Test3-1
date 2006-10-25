@@ -1159,8 +1159,20 @@ class DllImportExport CExecutive : public ConditionBlk
 
     int            CanClose(Strng_List & Problems);
 
-    void           LockExec(){ EnterCriticalSection(&csExecLock); };
-    void           UnlockExec(){ LeaveCriticalSection(&csExecLock); };
+    void           LockExec()
+      { 
+      InterlockedIncrement(&m_nExecLockWaiting); 
+      EnterCriticalSection(&csExecLock); 
+      InterlockedDecrement(&m_nExecLockWaiting); 
+      };
+    BOOL           LockExecWaiting()
+      { 
+      return InterlockedCompareExchange(&m_nExecLockWaiting, 0,0)>0; 
+      };
+    void           UnlockExec()
+      { 
+      LeaveCriticalSection(&csExecLock); 
+      };
 
     int            SaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPrjFiles);
     int            LoadDBase(eLoadDBPasses Pass, CLoadDBInfo & LDBI);
@@ -1255,6 +1267,7 @@ class DllImportExport CExecutive : public ConditionBlk
 #endif
   protected:
     CRITICAL_SECTION csExecLock;
+    long             m_nExecLockWaiting;
 
     long           Ids;
     long           NObjs_Reg;            // No of Registered Objects

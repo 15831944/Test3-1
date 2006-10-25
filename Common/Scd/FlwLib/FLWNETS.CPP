@@ -629,7 +629,10 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
         else if (FlowMode()==FBMode_Full)
           R1  = Max(MinimumResistance, fabs(m_dPq)/QmMeas());
         else if (FlowMode()==FBMode_Simple || FlowMode()==FBMode_Linear)
-          R1  = m_SimpleRes;
+          {
+          //R1  = m_SimpleRes;
+          R1  = Max(MinimumResistance, fabs(m_dPq)/QmMeas());
+          }
         else
           ASSERT("Should Not Get Here - Bad R1");
 
@@ -2803,30 +2806,37 @@ PressLoopDone:
         goto FixdPBx;
         }
       }
-    if (fabs(m_P_Err)>1.0e-12)
-      BreakPoint()
 
-      if (Valid(m_QmRqd))
-        m_fGFTolsOK = (fabs(m_QmIn-m_QmRqd)<=fabs(1e-8*m_QmRqd));//10);
-      else if (Valid(m_QmXfCap))
-        m_fGFTolsOK = (fabs(m_QmIn-m_QmXfCap)<=fabs(1e-8*m_QmXfCap));//-10);
-      else
-        m_fGFTolsOK = true;
-      m_fGFRegTolOK = m_fGFTolsOK;
-      m_fGFNetTolsOK = m_fGFTolsOK;
+    if (!Valid(m_P_Err))
+      {
+      _asm int 3;
+      BreakPoint()
+      }
+
+    if (fabs(m_P_Err)>1.0e-12)
+      BreakPoint();
+
+    if (Valid(m_QmRqd))
+      m_fGFTolsOK = (fabs(m_QmIn-m_QmRqd)<=fabs(1e-8*m_QmRqd));//10);
+    else if (Valid(m_QmXfCap))
+      m_fGFTolsOK = (fabs(m_QmIn-m_QmXfCap)<=fabs(1e-8*m_QmXfCap));//-10);
+    else
+      m_fGFTolsOK = true;
+    m_fGFRegTolOK = m_fGFTolsOK;
+    m_fGFNetTolsOK = m_fGFTolsOK;
 
 #if dbgFlwNets
-      if (dbgTraverseShowFlags())
-        {
-        CString S;
-        if (Valid(m_QmRqd))
-          S.Format("QmRqd:%10.3f %10.3f %10.6e", m_QmIn, m_QmRqd, m_QmIn-m_QmRqd);
-        else if (Valid(m_QmXfCap))
-          S.Format("QmCap:%10.3f %10.3f %10.6e", m_QmIn, m_QmXfCap, m_QmIn-m_QmXfCap);
-        else
-          S="                                         ";
-        dbgpln("TolsA {%s}: %s %s %s %s", S, m_fGFTolsOK ?"GFTolsOK":"", m_fGFRegTolOK  ?"RegTolOK":"", m_fGFNetTolsOK  ?"NetTolsOK":"", FwdTag());
-        }
+    if (dbgTraverseShowFlags())
+      {
+      CString S;
+      if (Valid(m_QmRqd))
+        S.Format("QmRqd:%10.3f %10.3f %10.6e", m_QmIn, m_QmRqd, m_QmIn-m_QmRqd);
+      else if (Valid(m_QmXfCap))
+        S.Format("QmCap:%10.3f %10.3f %10.6e", m_QmIn, m_QmXfCap, m_QmIn-m_QmXfCap);
+      else
+        S="                                         ";
+      dbgpln("TolsA {%s}: %s %s %s %s", S, m_fGFTolsOK ?"GFTolsOK":"", m_fGFRegTolOK  ?"RegTolOK":"", m_fGFNetTolsOK  ?"NetTolsOK":"", FwdTag());
+      }
 #endif
     }
   else

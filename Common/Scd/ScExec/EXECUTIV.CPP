@@ -1315,6 +1315,7 @@ CExecutive::CExecutive() :
   pExecThread=NULL;
   pSolveTool=NULL;
 
+  m_nExecLockWaiting=0;
   InitializeCriticalSection(&csExecLock);
   InitializeCriticalSection(&csTimerLock);
   m_hAppIdleDone=CreateEvent(NULL, false, false, NULL);
@@ -2722,7 +2723,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
             if (dbgExecSeq())
               dbgpln("---- Start Pause : COMPLETE  [@%12.4f]",gs_TimeSW.Time());
             #endif
-            ::WaitForSingleObject(m_hAppIdleDone, 1000);
+            if (!LockExecWaiting())
+              ::WaitForSingleObject(m_hAppIdleDone, 1000);
             m_bDidPauseWork=true;
             wState|=EXF_Paused;
             UpdateDisplays();
@@ -2750,18 +2752,22 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
             #endif
             }
           }
-        #if dbgExecutive
-        if (dbgLongIdleLoop())
-          ::WaitForSingleObject(m_hStopSleep, SleepWaitTime*100); // 10 secs
-        else
+        if (!LockExecWaiting())
+          {
+          #if dbgExecutive
+          if (dbgLongIdleLoop())
+            ::WaitForSingleObject(m_hStopSleep, SleepWaitTime*100); // 10 secs
+          else
+            ::WaitForSingleObject(m_hStopSleep, Max(SleepWaitTime, long(gs_License.NodeCount()/20)));
+          #else
           ::WaitForSingleObject(m_hStopSleep, Max(SleepWaitTime, long(gs_License.NodeCount()/20)));
-        #else
-        ::WaitForSingleObject(m_hStopSleep, Max(SleepWaitTime, long(gs_License.NodeCount()/20)));
-        #endif
+          #endif
+          }
         }
       else
         {
-        ::WaitForSingleObject(m_hAppIdleDone, 1000);
+        if (!LockExecWaiting())
+          ::WaitForSingleObject(m_hAppIdleDone, 1000);
         }
 
 
@@ -4953,6 +4959,7 @@ flag CExecutive::XBuildMyDataLists(CExecObj *pEO)
 
 DWORD CExecutive::XReadTaggedItem(CExecObj *pEO, CXM_ObjectTag & ObjTag, CXM_ObjectData & ObjData, CXM_Route &Route)//, CXMsgLst &XM)
   {
+  SetStopSleep();
   DWORD RetCode = 0;
   CExecObj *XObjs[256];
   LockExec();
