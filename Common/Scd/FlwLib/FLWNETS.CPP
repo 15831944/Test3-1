@@ -630,8 +630,8 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
           R1  = Max(MinimumResistance, fabs(m_dPq)/QmMeas());
         else if (FlowMode()==FBMode_Simple || FlowMode()==FBMode_Linear)
           {
-          //R1  = m_SimpleRes;
-          R1  = Max(MinimumResistance, fabs(m_dPq)/QmMeas());
+          R1  = m_SimpleRes;
+          m_dPqdQ  = m_SimpleRes; // this is needed for convergence
           }
         else
           ASSERT("Should Not Get Here - Bad R1");
@@ -755,6 +755,15 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
         GFb.m_BstDamping=Max(GFb.m_BstDamping, dBstDamping);
         }
 
+      if (0) // Do Checks
+        {
+        if (!Valid(m_Qm) || !Valid(m_ResTCalc) || !Valid(m_dPa) || !Valid(m_dPb) || !Valid(m_dPbX) || !Valid(m_dPz) || !Valid(m_dPzI) || !Valid(m_dPmB))
+          LogError(dbgIODesc(FBI.m_pNd, FBI.m_iIONo, FBI.m_iFENo, FBI.m_iLnkNo), 0, 
+        
+          "Bad Field m_Qm:%.2f m_ResTCalc:%.2f m_dPa:%.2f m_dPb:%.2f m_dPbX:%.2f m_dPz:%.2f m_dPzI:%.2f m_dPmB:%.2f"
+          , m_Qm, m_ResTCalc, m_dPa, m_dPb, m_dPbX, m_dPz, m_dPzI, m_dPmB);
+
+        }
 #if dbgFlwNets
       if (/*!GFb.m_fFixed &&*/ DbgFlags & DBG_TraverseP)
         {

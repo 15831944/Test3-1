@@ -2627,7 +2627,7 @@ flag MN_Lnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IO
     case FET_GetMode:
       {
       if (IONo==0 && FE==0)
-        FB.EvalGetModeRqd(FB.FlowMode(), pProps, cioOn()!=0, fIsDegFree!=0, 1.0);// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
+        FB.Eqn()->EvalGetModeRqd(FB.FlowMode(), pProps, FB, cioOn()!=0, fIsDegFree!=0, 1.0);// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
       else if (cioOn())
         FB.SetQmFree();
       else

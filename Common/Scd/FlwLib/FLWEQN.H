@@ -117,6 +117,7 @@ const double MaxXfCap        = 1.0e10;
 const double MinValveOpening = 1.0e-8;
 const double SmallPosFlow    = 2.0*ZeroLimit;
 const double LargePosFlow    = 1.0e6*MaxXfCap;
+const double SmallRegulation = 1.0e-6;
 
 inline bool FlwExists(double q) {return (fabs(q) > 0.9*SmallPosFlow);};
 inline bool FlwZero(double q)   {return (fabs(q) < 0.9*SmallPosFlow);};
@@ -460,6 +461,7 @@ class DllImportExport CFlwEqn  : public TaggedObject
     virtual void    SetKFact(double K) { m_PhD.KFact.SetVal(K, this); };
     virtual double  GetKFact() { return m_PhD.KFact.Val(); };
     virtual double  GetFricFact() { return dNAN; };
+    virtual void    EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow=SmallRegulation);
     virtual flag    EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)=0;
     virtual pchar   FlwEqnName();
     //static  double  RangeFlow(double Flow, double LoLimit);
@@ -739,8 +741,6 @@ class DllImportExport CFlwBlkData
 
 // ===========================================================================
 
-const double SmallRegulation=1.0e-6;
-
 class DllImportExport CFlwEqnPtr //: public CFBPhysData
   {
   friend class CFlwEqn;
@@ -884,13 +884,18 @@ class DllImportExport CFlwBlkBase : public CFlwBlkData,  public CFlwEqnPtr
     void           EvalProducts(double Pi, double Po, SpConduit & C, CFlwThermalBlk & FTB);
     void           EvalDiscrete();
 
-    void           EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation);
+//?    void           EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation);
 
     virtual flag   InXferNet()=0;
     virtual void   SetXferMode()=0;
     virtual void   SetXferCapacity(double QmCap)=0;
     virtual void   SetQmReqd(double QmReqd, flag IsDegFree=true, float MaxNode=fNAN, float MaxFlng=fNAN)=0;
     virtual void   SetQmReqdVlv(double QmReqd, double Reg, flag IsDegFree=true, float MaxNode=fNAN, float MaxFlng=fNAN)=0;
+
+
+    virtual flag   IsXfer()=0;
+    virtual flag   IsFixed()=0;
+    virtual flag   IsDegFree()=0;
 
     void           SetDerivsBad(flag On=True)         { m_fDerivsBad=On; };
     void           ClrDerivsBad()                     { m_fDerivsBad=false; };

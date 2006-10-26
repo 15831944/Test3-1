@@ -8428,6 +8428,12 @@ bool FlwSlvBlk::BuildCtrlNdListReqd()
     XT.StartLoop(p);
     XT.LockDone();
 
+    if (p->TestXRefListActive()!=p->XRefListActive())
+      {
+      //dbgpln("UpdateXRefListsReqd %4i) %s", N, p->Tag());
+      DoBuild=true;
+      }
+
     if (p->UpdateXRefListsReqd())
       {
       //dbgpln("UpdateXRefListsReqd %4i) %s", N, p->Tag());

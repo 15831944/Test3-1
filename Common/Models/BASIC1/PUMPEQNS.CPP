@@ -265,10 +265,30 @@ void PC_FixBst::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+void PC_FixBst::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow)
   {
   Regulation=Range(0.0, Regulation, 2.0);
-  if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+  switch (m_bLoSpeedAction)
+    {
+    case PCLoSpeed_Close:
+      CFlwEqn::EvalGetModeRqd(FlowMode, pProps, FE, true, IsDegFreedom, Regulation, SmallRegulation);
+      break;
+    case PCLoSpeed_Free:
+      CFlwEqn::EvalGetModeRqd(FlowMode, pProps, FE, true, IsDegFreedom, Regulation, -1.0);
+      break;
+    default:
+      CFlwEqn::EvalGetModeRqd(FlowMode, pProps, FE, On, IsDegFreedom, Regulation);
+    }
+  };
+
+flag PC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+  {
+#ifndef _RELEASE
+  if (DoDbgBrk())
+    { int xxx=0; }
+#endif
+  Regulation=Range(0.0, Regulation, 2.0);
+  if (FE.IsFixed())//. m_bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
     {
     FE.SetQmReqd(0.0);
     FE.SetDPb(0.0, 0.0);
@@ -300,7 +320,7 @@ flag PC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBl
     double DP1=0.0005*dFricFac*L*dDensMeas*Vel1*Vel1/D;
 
     m_DP=DP0;
-    FE.SetQmFree();
+    //FE.SetQmFree();
     FE.SetDPb(m_P_Boost*Regulation, 0.0);
     FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
     }

@@ -102,6 +102,7 @@ class DllImportExport PC_FixBst : public CFlwEqn
     virtual ~PC_FixBst();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
+    virtual void   EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow);
     virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     virtual void   EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
     virtual double ShaftPower() { return m_dShaftPower; };

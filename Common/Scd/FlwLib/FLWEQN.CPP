@@ -333,6 +333,93 @@ void CFlwEqn::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
+void CFlwEqn::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow/*=SmallRegulation*/)
+  {
+  CFlwEqnFlwRqd &FR=FE.FlwRqd();
+  //_asm int 3;
+  //;// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
+      //if (IONo==0 && FE==0)
+      //  {
+  bool DoXfer=(FlowMode==FBMode_Xfer);
+
+  if (Regulation<OffIfRegBelow)
+    On=false;
+
+  FR.m_MeasDens=(float)Max(0.001, FE.MeanRho(pProps));
+
+  if (FE.InXferNet() || DoXfer)
+    {
+    if (DoXfer)
+      FE.SetXferMode();
+    else
+      FE.SetQmFree();
+    if (On)
+      {
+      if (FR.m_AsMass)
+        {
+        double Cap = FR.m_RqdQmCap;
+        if (Valid(Cap))
+          {
+          Cap=Max(Cap, FR.m_MinQmCap);
+          if (Valid(FR.m_MaxQmCap))
+            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
+          }
+        else if (Valid(FR.m_MaxQmCap))
+          Cap=FR.m_MaxQmCap*Regulation;
+        else if (Regulation<1.0)
+          Cap=MaxXfCap*Regulation;
+        if (Valid(Cap))
+          FE.SetXferCapacity(Cap);
+        }
+      else
+        {
+        double Cap = FR.m_RqdQvCap;
+        if (Valid(Cap))
+          {
+          Cap=Max(Cap, FR.m_MinQvCap);
+          if (Valid(FR.m_MaxQvCap))
+            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
+          }
+        else if (Valid(FR.m_MaxQvCap))
+          Cap=FR.m_MaxQvCap*Regulation;
+        if (Valid(Cap))
+          FE.SetXferCapacity(Cap*FE.MeanRho(pProps));
+        }
+
+      //CFlwEqnFlwRqd &FR=FlwRqd();
+      //double Cap = Valid(FR.xMax_QmCap) ? xMax_QmCap : MaxXfCap;
+      //if (Valid(xRqd_QmCap))
+      //  Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
+      //Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
+      //SetXferCapacity(Cap);
+      }
+    else
+      {
+      if (DoXfer)
+        FE.SetXferCapacity(0.0);
+      else
+        FE.SetQmReqd(0.0);
+      }
+    //return True;
+    }
+  else if (!On)
+    FE.SetQmReqd(0.0);
+  else if (Valid(FR.m_ReqdQm))
+    FE.SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
+  else
+    FE.SetQmFree();
+  }
+  //    else
+  //      {
+  //      if (cioOn())
+  //        FB.SetQmFree();
+  //      else
+  //        FB.SetQmReqd(0.0);
+  //      }
+  //}
+
+//--------------------------------------------------------------------------
+
 //double CFlwEqn::RangeFlow(double Flow, double LoLimit)
 //  {
 //  ASSERT(TstGTZ(LoLimit));
@@ -2097,90 +2184,90 @@ A=0.0;
 
 //--------------------------------------------------------------------------
 
-void CFlwBlkBase::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation)
-  {
-  CFlwEqnFlwRqd &FR=FlwRqd();
-  //_asm int 3;
-  //;// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
-      //if (IONo==0 && FE==0)
-      //  {
-  bool DoXfer=(FlowMode==FBMode_Xfer);
-  
-  if (Regulation<SmallRegulation)
-    On=false;
-
-  FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
-
-  if (InXferNet() || DoXfer)
-    {
-    if (DoXfer)
-      SetXferMode();
-    else
-      SetQmFree();
-    if (On)
-      {
-      if (FR.m_AsMass)
-        {
-        double Cap = FR.m_RqdQmCap;
-        if (Valid(Cap))
-          {
-          Cap=Max(Cap, FR.m_MinQmCap);
-          if (Valid(FR.m_MaxQmCap))
-            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
-          }
-        else if (Valid(FR.m_MaxQmCap))
-          Cap=FR.m_MaxQmCap*Regulation;
-        else if (Regulation<1.0)
-          Cap=MaxXfCap*Regulation;
-        if (Valid(Cap))
-          SetXferCapacity(Cap);
-        }
-      else
-        {
-        double Cap = FR.m_RqdQvCap;
-        if (Valid(Cap))
-          {
-          Cap=Max(Cap, FR.m_MinQvCap);
-          if (Valid(FR.m_MaxQvCap))
-            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
-          }
-        else if (Valid(FR.m_MaxQvCap))
-          Cap=FR.m_MaxQvCap*Regulation;
-        if (Valid(Cap))
-          SetXferCapacity(Cap*MeanRho(pProps));
-        }
-
-      //CFlwEqnFlwRqd &FR=FlwRqd();
-      //double Cap = Valid(FR.xMax_QmCap) ? xMax_QmCap : MaxXfCap;
-      //if (Valid(xRqd_QmCap))
-      //  Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
-      //Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
-      //SetXferCapacity(Cap);
-      }
-    else
-      {
-      if (DoXfer)
-        SetXferCapacity(0.0);
-      else
-        SetQmReqd(0.0);
-      }
-    //return True;
-    }
-  else if (!On)
-    SetQmReqd(0.0);
-  else if (Valid(FR.m_ReqdQm))
-    SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
-  else
-    SetQmFree();
-  }
-  //    else
-  //      {
-  //      if (cioOn())
-  //        FB.SetQmFree();
-  //      else
-  //        FB.SetQmReqd(0.0);
-  //      }
-  //}
+//void CFlwBlkBase::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation)
+//  {
+//  CFlwEqnFlwRqd &FR=FlwRqd();
+//  //_asm int 3;
+//  //;// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
+//      //if (IONo==0 && FE==0)
+//      //  {
+//  bool DoXfer=(FlowMode==FBMode_Xfer);
+//  
+//  if (Regulation<SmallRegulation)
+//    On=false;
+//
+//  FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
+//
+//  if (InXferNet() || DoXfer)
+//    {
+//    if (DoXfer)
+//      SetXferMode();
+//    else
+//      SetQmFree();
+//    if (On)
+//      {
+//      if (FR.m_AsMass)
+//        {
+//        double Cap = FR.m_RqdQmCap;
+//        if (Valid(Cap))
+//          {
+//          Cap=Max(Cap, FR.m_MinQmCap);
+//          if (Valid(FR.m_MaxQmCap))
+//            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
+//          }
+//        else if (Valid(FR.m_MaxQmCap))
+//          Cap=FR.m_MaxQmCap*Regulation;
+//        else if (Regulation<1.0)
+//          Cap=MaxXfCap*Regulation;
+//        if (Valid(Cap))
+//          SetXferCapacity(Cap);
+//        }
+//      else
+//        {
+//        double Cap = FR.m_RqdQvCap;
+//        if (Valid(Cap))
+//          {
+//          Cap=Max(Cap, FR.m_MinQvCap);
+//          if (Valid(FR.m_MaxQvCap))
+//            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
+//          }
+//        else if (Valid(FR.m_MaxQvCap))
+//          Cap=FR.m_MaxQvCap*Regulation;
+//        if (Valid(Cap))
+//          SetXferCapacity(Cap*MeanRho(pProps));
+//        }
+//
+//      //CFlwEqnFlwRqd &FR=FlwRqd();
+//      //double Cap = Valid(FR.xMax_QmCap) ? xMax_QmCap : MaxXfCap;
+//      //if (Valid(xRqd_QmCap))
+//      //  Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
+//      //Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
+//      //SetXferCapacity(Cap);
+//      }
+//    else
+//      {
+//      if (DoXfer)
+//        SetXferCapacity(0.0);
+//      else
+//        SetQmReqd(0.0);
+//      }
+//    //return True;
+//    }
+//  else if (!On)
+//    SetQmReqd(0.0);
+//  else if (Valid(FR.m_ReqdQm))
+//    SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
+//  else
+//    SetQmFree();
+//  }
+//  //    else
+//  //      {
+//  //      if (cioOn())
+//  //        FB.SetQmFree();
+//  //      else
+//  //        FB.SetQmReqd(0.0);
+//  //      }
+//  //}
 
 //--------------------------------------------------------------------------
 
@@ -2203,6 +2290,9 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
 
   if (1)
     {
+    #if (dbgFlwEqns)
+    if (dbgFlwEqnModes())
+      {
     TaggedObject *p=m_pAttachedTo;
     FlwNode *pNd=dynamic_cast<FlwNode*>(p);
     while (pNd==NULL && p)
@@ -2210,9 +2300,8 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
       p=p->pAttachedTo;
       pNd=dynamic_cast<FlwNode*>(p);
       }
-    #if (dbgFlwEqns)
-    if (dbgFlwEqnModes())
       dbgpln("Eval %s %s %s", dbgFlwEqnTaskStr(Task), dbgFBModeStr(FlowMode()), pNd?pNd->FullObjTag():"");
+      }
     #endif
     }
 
@@ -2221,48 +2310,10 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
 
   if (Task==FET_GetMode)
     {
-    EvalGetModeRqd(FlowMode(), pProps, On, IsDegFreedom, Regulation);
+    Eqn()->EvalGetModeRqd(FlowMode(), pProps, *this, On, IsDegFreedom, Regulation);
     ClrFunctOfPress();
     b=true;
     }
-
-  //if (0 && (FlowMode()==FBMode_Xfer))
-  //  {
-  //  SetXferMode();
-
-  //  if (Valid(FR.m_RqdQmCap) || Valid(FR.m_RqdQvCap))
-  //    { int xxx=0; }
-
-  //  if (FR.m_AsMass)
-  //    {
-  //    double Cap = FR.m_RqdQmCap;
-  //    if (Valid(Cap))
-  //      {
-  //      Cap=Max(Cap, FR.m_MinQmCap);
-  //      if (Valid(FR.m_MaxQmCap))
-  //        Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
-  //      }
-  //    else if (Valid(FR.m_MaxQmCap))
-  //      Cap=FR.m_MaxQmCap*Regulation;
-  //    if (Valid(Cap))
-  //      SetXferCapacity(Cap);
-  //    }
-  //  else
-  //    {
-  //    double Cap = FR.m_RqdQvCap;
-  //    if (Valid(Cap))
-  //      {
-  //      Cap=Max(Cap, FR.m_MinQvCap);
-  //      if (Valid(FR.m_MaxQvCap))
-  //        Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
-  //      }
-  //    else if (Valid(FR.m_MaxQvCap))
-  //      Cap=FR.m_MaxQvCap*Regulation;
-  //    if (Valid(Cap))
-  //      SetXferCapacity(Cap*MeanRho(pProps));
-  //    }
-  //  b=true;
-
   else if (Disabled())
     {
     if (ICStepStart())
@@ -2290,7 +2341,25 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
       {
       case FBMode_Full:
         {
+        flag WasFixed = IsFixed();
+        flag WasXfer  = IsXfer();
+
         b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
+
+        if ((WasFixed != IsFixed()) || (WasXfer != IsXfer()))
+          {
+          TaggedObject *p=m_pAttachedTo;
+          FlwNode *pNd=dynamic_cast<FlwNode*>(p);
+          while (pNd==NULL && p)
+            {
+            p=p->pAttachedTo;
+            pNd=dynamic_cast<FlwNode*>(p);
+            }
+          LogError(pNd?pNd->FullObjTag():"??????", 0, "FlowMode changed : %s %s",
+            WasFixed == IsFixed() ? "" : WasFixed ? "Fixed->Free":"Free->Fixed",
+            WasXfer == IsXfer() ? "" : WasXfer ? "Xfer->Free":"Free->Xfer");
+          }
+        
         Eqn()->m_nEvals++;
         break;
         }
@@ -2301,11 +2370,12 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
         {
         if (Options() & FBOpt_HasSimpleRes)
           {
-          SetDPq(-QmSign()*m_SimpleRes*QmMeas(), -QmSign()*m_SimpleRes);
-          //m_SimpleRes=Range(1e-6, FR_Resistance(MeanRho(pProps), Regulation)/GTZ(Regulation), 1e6);
+          m_SimpleRes=Range(1e-6, FR_Resistance(MeanRho(pProps), Regulation)/GTZ(Regulation), 1e6);
           }
         else
+          {
           m_SimpleRes=0;//1e-6;
+          }
 
         if (Regulation<SmallRegulation)
           {
