@@ -2652,14 +2652,14 @@ flag CXBlk_MUSimple::ValidateData(ValidateDataBlk & VDB)
       break;
     }
 
-  if (m_Phases==som_ALL)
+  if (m_Phases==som_ALL && (m_eSelect==Slct_All || m_eSelect==Slct_Occur))
     {
     switch (m_eType)
       {                         
       case Type_MassFrac:
       case Type_VolumeFrac:
       case Type_NVolumeFrac:
-        LogError(Tag(), 0, "Fraction Type Invalid");
+        LogError(FullObjTag(), 0, "Fraction Type invalid for Selection");
         break;
       }
     }
