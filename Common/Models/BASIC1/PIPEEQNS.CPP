@@ -1442,7 +1442,7 @@ flag FE_CompAir::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
 //
 //==========================================================================
 
-IMPLEMENT_FLWEQN(FE_MSBackFill, PipeGroup.Name(), "FE_MS_BackFill", "", TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_MINESERVE,
+IMPLEMENT_FLWEQN(FE_MSBackFill, PipeGroup.Name(), "FE_MS_BackFill", "", TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                   "MS BackFill",
                   " MineServe Back Fill Pressure drop relationship");
 

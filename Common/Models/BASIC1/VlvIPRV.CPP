@@ -41,7 +41,7 @@ double Drw_VlvIsoPRV[] =
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(CIsoPRV , "VlvIsoPRV", "1", Drw_VlvIsoPRV, "VlvIsoPRV", "PRV", TOC_ALL|TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_MINESERVE,
+IMPLEMENT_MODELUNIT(CIsoPRV , "VlvIsoPRV", "1", Drw_VlvIsoPRV, "VlvIsoPRV", "PRV", TOC_ALL|TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                     "Process:Piping:VlvIsoPRV(1)",
                     "Isolating Pressure Regulating Valve");
 
