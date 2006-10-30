@@ -19,7 +19,7 @@
 #define WITH_H2O_FNS_ALWAYS   1
 
 // CNM removed this due to crashes in NetServer
-#define CREATENETSERVER       (1 && SYSCAD10)
+#define CREATENETSERVER       (0 && SYSCAD10)
 
 //Water model selection...
 #define WithSatH2OMdl         0

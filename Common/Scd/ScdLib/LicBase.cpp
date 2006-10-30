@@ -137,6 +137,7 @@ CK_OptionDetails CK_OptionNames[] =
   {  1, "Solver Mode: Dynamic Transfer (Flow)", true },
   {  2, "Solver Mode: Dynamic Full", true },
   {  3, "Solver Mode: Electrical", false },
+  {  5, "Steady State Only", false },
   {  6, "Full License (No=runtime only)", true },
   {  7, "Academic License", false },
   {  8, "Application COM Interface", true },

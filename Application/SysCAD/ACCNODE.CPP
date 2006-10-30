@@ -5495,7 +5495,7 @@ bool CAccessWnds::InitHelp(LPCTSTR Path)
       }
     else
       {
-      LogError("TagHelp", 0, "ADODB::Recordset not Created");
+      LogError("TagHelp", 0, "ADODB::Recordset not Created : %s", Path);
       }
     }
   catch (...)
