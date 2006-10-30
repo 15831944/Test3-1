@@ -2249,9 +2249,9 @@ void AccNodeWnd::ConnectFields()
             d.pObjAttr->SetFieldVisible(Tag(), d.iFlags, false);
           f.fIsTreeVis = d.pObjAttr->FieldVisible(Tag(), d.iFlags, f.fIsTreeVis);
 
-          if (IsFloatData(f.iType))
+          CCnvIndex iCnv=d.Cnv.Index();
+          if (iCnv>0)//IsFloatData(f.iType))
             {
-            CCnvIndex iCnv=d.Cnv.Index();
             //if (iCnv>0 && !d.pObjAttr->ValidateCnv(Tag(), iCnv))
             //  LogWarning(d.sSymOrTag(), 0, "Unknown Conversion changed to '%s'", Cnvs[iCnv]->Txt());
             NewCnvs.SetText("");
