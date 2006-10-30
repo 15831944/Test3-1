@@ -610,10 +610,7 @@ void CC_FixBstRes::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwTher
 //  m_Dsn_MFlw = m_Dsn_VFlw * C.Rho();
   m_In_Rho = C.Rho();
 
-
-
-  m_P_Res_factor = Min(-0.1, m_P_Res_factor * ( 1.0 - (m_Dsn_MFlw - Qm)/m_Dsn_MFlw));
-
+  m_P_Res_factor = 0.9 * m_P_Res_factor + 0.1 * Min(-0.1, m_P_Res_factor * ( 1.0 - (m_Dsn_MFlw - Qm)/m_Dsn_MFlw));
 
   if (Qm > 1e-6) 
     m_Inp_Imp = Po / Qm;
