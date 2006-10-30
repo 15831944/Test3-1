@@ -58,7 +58,7 @@ void PF_Linear::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag PF_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PF_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   //double aQm = fabs(FE.Qm);
   //double sQm = Sign(FE.Qm);
@@ -126,7 +126,7 @@ void PF_ReducerCv::BuildDataDefn(DataDefnBlk & DDB)
 //
 //--------------------------------------------------------------------------
 
-flag PF_ReducerCv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PF_ReducerCv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   //double aQm = fabs(FE.Qm);
   //double Rho = Min_FE_Rho(C.Rho(som_ALL));

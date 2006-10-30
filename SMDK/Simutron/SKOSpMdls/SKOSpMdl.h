@@ -13,11 +13,7 @@ class CSKOSpMdl : public MSpModelBase
 	  CSKOSpMdl(TaggedObject *pNd);
 	  ~CSKOSpMdl();
 
-    void            BuildDataFields();  
-    bool            ExchangeDataFields();
-    bool            ValidateDataFields();
-
-    bool              get_IsBaseClassOf(LPCTSTR OtherProgID);
+	  bool              get_IsBaseClassOf(LPCTSTR OtherProgID);
 	  LPCTSTR           get_PreferredModelProgID();
 	  double            get_Density(long Phases, double T, double P, MArray * pMA);
 	  double            get_msEnthalpy(long Phases, double T, double P, MArray * pMA);
@@ -29,6 +25,9 @@ class CSKOSpMdl : public MSpModelBase
     double            get_ThermalConductivity(long Phases, double T, double P, MArray * pMA);
 
     //double            BoilPtElev(double T_, double MassL);
+    void              BuildDataFields();
+    bool              ExchangeDataFields();
+    bool              ValidateDataFields();
 
     long              DefinedPropertyCount();
     long              DefinedPropertyInfo(long Index, MPropertyInfo & Info);

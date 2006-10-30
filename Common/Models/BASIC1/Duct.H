@@ -57,7 +57,7 @@ class DuctBF : public CFlwEqn
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================

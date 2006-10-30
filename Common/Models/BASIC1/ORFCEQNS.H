@@ -34,7 +34,7 @@
 //    virtual ~OE_Linear();
 //    virtual void   BuildDataDefn(DataDefnBlk & DDB);
 //
-//    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+//    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 //  };
 
 // ===========================================================================
@@ -53,7 +53,7 @@ class OE_QvOp : public CFlwEqn
     virtual ~OE_QvOp();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -70,7 +70,7 @@ class OE_DiamRatio : public CFlwEqn
     virtual ~OE_DiamRatio();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -102,7 +102,7 @@ class OE_InlineFilter : public CFlwEqn
 
     virtual void    InitFlowInfo(CFlwBlkBase & FE);
 
-    virtual flag    EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag    EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     virtual void    EvalDiscrete(CFlwBlkBase & FE);
   };
 

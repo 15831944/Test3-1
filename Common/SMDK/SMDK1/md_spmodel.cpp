@@ -54,6 +54,7 @@ class CCall2MSpProps :  public SpModelEx
 
     virtual void BuildDataDefn(DataDefnBlk & DDB) 
       {
+      //SpModelEx::BuildDataDefn(
       m_pUserProps->m_pDDB=&DDB;
       m_pUserProps->BuildDataFields();
       m_pUserProps->m_pDDB=NULL;
@@ -68,6 +69,8 @@ class CCall2MSpProps :  public SpModelEx
     //  };
     virtual flag DataXchg(DataChangeBlk & DCB)
       {
+      if (SpModelEx::DataXchg(DCB))
+        return true;
       m_pUserProps->m_pDCB=&DCB;
       int ret=m_pUserProps->ExchangeDataFields();
       m_pUserProps->m_pDCB=NULL;

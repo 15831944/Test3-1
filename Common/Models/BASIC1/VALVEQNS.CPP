@@ -79,7 +79,7 @@ class VE_Crane : public CFlwEqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
   };
 
@@ -267,7 +267,7 @@ flag VE_Crane::ValidateData(ValidateDataBlk & VDB)
 //--------------------------------------------------------------------------
 
 
-flag VE_Crane::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VE_Crane::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)
@@ -459,7 +459,7 @@ void VE_Linear::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag VE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)
@@ -630,7 +630,7 @@ void VE_CvKm::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag VE_CvKm::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VE_CvKm::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)
@@ -836,7 +836,7 @@ void VE_Steam::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag VE_Steam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VE_Steam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if ( (Regulation > MinValveOpening) && (Valid(Cs) && Valid(C1)) )
@@ -1034,7 +1034,7 @@ void VE_VarCv::BuildDataDefn(DataDefnBlk & DDB)
 //
 //--------------------------------------------------------------------------
 
-flag VE_VarCv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VE_VarCv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)
@@ -1125,7 +1125,7 @@ class VC_Crane : public CFlwEqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
   };
 
@@ -1250,7 +1250,7 @@ flag VC_Crane::ValidateData(ValidateDataBlk & VDB)
 //--------------------------------------------------------------------------
 
 
-flag VC_Crane::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VC_Crane::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)
@@ -1347,7 +1347,7 @@ class VC_DPQM : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -1393,7 +1393,7 @@ void VC_DPQM::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag VC_DPQM::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VC_DPQM::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)

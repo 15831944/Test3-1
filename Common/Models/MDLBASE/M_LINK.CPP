@@ -2627,46 +2627,21 @@ flag MN_Lnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IO
     case FET_GetMode:
       {
       if (IONo==0 && FE==0)
-        FB.Eqn()->EvalGetModeRqd(FB.FlowMode(), pProps, FB, cioOn()!=0, fIsDegFree!=0, 1.0);// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
+        {
+        bool On=cioOn()!=0;
+        if (!FB.GetBasicModeRqd(FB.FlowMode(), pProps, On, fIsDegFree!=0, 1.0))
+          {
+          if (cioOn())
+            FB.SetQmFree();
+          else
+            FB.SetQmReqd(0.0);
+          }
+        }
       else if (cioOn())
         FB.SetQmFree();
       else
         FB.SetQmReqd(0.0);
 
-      //if (IONo==0 && FE==0)
-      //  {
-      //  if (FB.InXferNet() || DoXfer)
-      //    {
-      //    if (DoXfer)
-      //      FB.SetXferMode();
-      //    else
-      //      FB.SetQmFree();
-      //    if (cioOn())
-      //      {
-      //      double Cap = Valid(xMax_QmCap) ? xMax_QmCap : MaxXfCap;
-      //      if (Valid(xRqd_QmCap))
-      //        Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
-      //      Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
-      //      FB.SetXferCapacity(Cap);
-      //      }
-      //    else
-      //      FB.SetXferCapacity(0.0);
-      //    return True;
-      //    }
-      //  else if (!cioOn())
-      //    FB.SetQmReqd(0.0);
-      //  else if (Valid(xReqd_Qm))
-      //    FB.SetQmReqd(xReqd_Qm, fIsDegFree);
-      //  else
-      //    FB.SetQmFree();
-      //  }
-      //else
-      //  {
-      //  if (cioOn())
-      //    FB.SetQmFree();
-      //  else
-      //    FB.SetQmReqd(0.0);
-      //  }
       break;
       }
     case FET_SetQm:

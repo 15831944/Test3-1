@@ -559,7 +559,7 @@ class HX_LinearEqn : public CFlwEqn
     virtual ~HX_LinearEqn();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ==========================================================================
@@ -580,7 +580,7 @@ class HX_OtherEqn : public CFlwEqn
     virtual ~HX_OtherEqn();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 //============================================================================
@@ -598,7 +598,7 @@ class HX_VolFlow : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 //    virtual void   StartSolution(rFlwBlkBase FE);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ==========================================================================

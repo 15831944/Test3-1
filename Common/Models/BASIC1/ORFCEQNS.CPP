@@ -56,7 +56,7 @@ Model type:Orifice Flow Equation#n
 //
 ////--------------------------------------------------------------------------
 //
-//flag OE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+//flag OE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
 //  {
 //  FE.SetDPb(0.0, 0.0);
 //  FE.SetDPq(-FE.QmSign()*m_RFxd*FE.QmMeas()/Regulation, -FE.QmSign()*m_RFxd/Regulation);
@@ -109,7 +109,7 @@ void OE_QvOp::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag OE_QvOp::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag OE_QvOp::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   m_dPwrLaw=Range(0.5,m_dPwrLaw,3.0);
   m_dQvOp=Max(1.0e-6, m_dQvOp);
@@ -192,7 +192,7 @@ void OE_DiamRatio::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag OE_DiamRatio::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag OE_DiamRatio::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double dPipeArea=Diam2Area(m_dDiamPipe);
   if (pPhD0 && pPhD0->IsPipe())
@@ -347,7 +347,7 @@ void OE_InlineFilter::InitFlowInfo(CFlwBlkBase & FE)
 
 //--------------------------------------------------------------------------
 
-flag OE_InlineFilter::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag OE_InlineFilter::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   if (m_bClean)
     m_dCurrentDPOp=m_dDPOp;

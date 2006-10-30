@@ -436,7 +436,7 @@ double CLambdaEqn::Evaluate(int i, CEqnData & ED)
       }
     }
   return dNAN;
-  }
+  } 
 
 //---------------------------------------------------------------------------
 //
@@ -810,7 +810,7 @@ bool CGasSep::ValidateDataFields()
       sm_Wt[s] = gs_MVDefn[sm_GasId[s]].MolecularWt();
       }
     }
-  //m_dBeta   = DV.ValidateRange("Beta",  0.01, m_dBeta,  100.0);
+  //m_dBeta   = DD.ValidateRange("Beta",  0.01, m_dBeta,  100.0);
   m_dTheta  = DV.ValidateRange("Theta", 0.01, m_dTheta, 0.99);
   m_dPhi    = DV.ValidateRange("Phi",   0.01, m_dPhi,   0.99);
 
@@ -1151,7 +1151,7 @@ void CGasSep::EvalProducts()
         double rfrac = 0.0;
         for (int i=0; i<il; i++)
           {
-          //          m_R[i]=(m_ED.m_QmFeedRqd*m_Z[i]-m_ED.m_QmRichRqd*m_Y[i]-m_ED.m_QmStripRqd*m_Z[i])/GTZ(m_ED.m_QmRecycleRqd);
+//          m_R[i]=(m_ED.m_QmFeedRqd*m_Z[i]-m_ED.m_QmRichRqd*m_Y[i]-m_ED.m_QmStripRqd*m_Z[i])/GTZ(m_ED.m_QmRecycleRqd);
           m_R[i]=(m_ED.m_QmFeedEst*m_Z[i]-m_ED.m_QmRichEst*m_Y[i]-m_ED.m_QmStripEst*m_Z[i])/GTZ(m_ED.m_QmRecycleEst);
           rfrac += m_R[i];
           }
@@ -1164,9 +1164,9 @@ void CGasSep::EvalProducts()
           MYMoles += sm_Wt[i]* m_Y[i];
           MXMoles += sm_Wt[i]* m_X[i];
           MRMoles += sm_Wt[i]* m_R[i];
-          //          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
-          //          MXMass += sm_Wt[i]* m_X[i] * sm_Wt[i];
-          //          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
+//          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
+//          MXMass += sm_Wt[i]* m_X[i] * sm_Wt[i];
+//          MYMass += sm_Wt[i]* m_Y[i] * sm_Wt[i];
           }
 
         //m_ED.m_QmRecycleEst=Range(0.0, m_ED.m_QmRecycleEst, QFeed.MassFlow()); // ensure mass balance
@@ -1176,18 +1176,18 @@ void CGasSep::EvalProducts()
         double SilaneFeed=0.0;
         double SilaneRich=0.0;
         double SilaneStrip=0.0;
-        //double SpecUsed;
+        double SpecUsed;
         double SpltDiff;
         for (int i=0; i<=ik; i++)
           {
           double SpecDiff=0.0;
           double EstTotal = m_ED.m_QmStripEst + m_ED.m_QmRichEst + m_ED.m_QmRecycleEst;
           double SpcInFeed   = QFeed.M[sm_GasId[i]];
-          //          double SpcInFeed   = QFeed.M[sm_GasId[i]]* m_ED.m_QmFeedEst / GTZ(QmFeed);
+//          double SpcInFeed   = QFeed.M[sm_GasId[i]]* m_ED.m_QmFeedEst / GTZ(QmFeed);
           double Spc2Strip   = m_ED.m_QmStripEst*m_X[i]*sm_Wt[i]/MXMoles;
           double Spc2Rich    = m_ED.m_QmRichEst*m_Y[i]*sm_Wt[i]/MYMoles;
           double Spc2Recycle = m_ED.m_QmRecycleEst*m_R[i]*sm_Wt[i]/MRMoles;//GEZ(SpcInFeed-Spc2Rich-Spc2Strip);
-          Spc2Recycle = SpcInFeed-Spc2Rich-Spc2Strip;
+Spc2Recycle = SpcInFeed-Spc2Rich-Spc2Strip;
           if (Spc2Recycle < 0.0)
             {
             Spc2Recycle = 0.0;
@@ -1208,13 +1208,13 @@ void CGasSep::EvalProducts()
 
           //dbgpln(" %i %20s %20s %20s %20s %20s", i, DbgFltString(SpcInFeed), DbgFltString(Spc2Rec), DbgFltString(Spc2Rich), DbgFltString(Spc2Strip), DbgFltString(Range(0.0, Spc2Rich, SpcInFeed)));
           Spc2Rich=Range(0.0, Spc2Rich, SpcInFeed);
-          QRich.M[sm_GasId[i]]=Spc2Rich;
-          QStrip.M[sm_GasId[i]]=Spc2Strip;
-          QRecycle.M[sm_GasId[i]]=Spc2Recycle * Est_Crct;
+           QRich.M[sm_GasId[i]]=Spc2Rich;
+           QStrip.M[sm_GasId[i]]=Spc2Strip;
+           QRecycle.M[sm_GasId[i]]=Spc2Recycle * Est_Crct;
 
-          //           QRich.M[sm_GasId[i]]    = Est_Rich_M[i] * Est_Crct;
-          //           QStrip.M[sm_GasId[i]]   = Est_Strip_M[i] * Est_Crct;
-          //           QRecycle.M[sm_GasId[i]] = Est_Recyc_M[i] * Est_Crct;
+//           QRich.M[sm_GasId[i]]    = Est_Rich_M[i] * Est_Crct;
+//           QStrip.M[sm_GasId[i]]   = Est_Strip_M[i] * Est_Crct;
+//           QRecycle.M[sm_GasId[i]] = Est_Recyc_M[i] * Est_Crct;
 
 
 

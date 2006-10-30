@@ -153,7 +153,10 @@ STDMETHODIMP CScdMessages::Refresh()
   dllSCD_COMENTRY(long)
     {
     for (int i = 0; i<m_Msgs.GetSize(); i++)
+      {
       m_Msgs[i]->Release();
+      m_Msgs[i]=NULL;
+      }
     BuildSnapshot();
     }		
   SCD_COMEXIT
@@ -164,7 +167,10 @@ STDMETHODIMP CScdMessages::Flush(long NoToKeep)
   dllSCD_COMENTRY(long)
     {
     for (int i = 0; i<m_Msgs.GetSize(); i++)
+      {
       m_Msgs[i]->Release();
+      m_Msgs[i]=NULL;
+      }
     gs_MsgLog.FlushComQ(NoToKeep);
     BuildSnapshot();
     }		

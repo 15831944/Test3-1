@@ -7,7 +7,8 @@
 #define __MSGLOG_CPP
 #include "MsgLog.h"
 #include "DebugLib.h"
-//#include "dbgmngr.h"
+
+#pragma optimize("", off)
 
 #ifndef DISTRIBUTION
 static int dbgLogCallsEntry      = 0;
@@ -522,6 +523,8 @@ void CMessageLog::FlushComQ(DWORD NewLength)
       TmpLog[i]=Log[i];
     // Move Those Required
     long Start=m_ComQ.m_nCount-NewLength; 
+    if (Start<0)
+      Start=0;
     for (i=0; i<NewLength; i++)
       Log[i]=TmpLog[Start+i];
     long j=0;

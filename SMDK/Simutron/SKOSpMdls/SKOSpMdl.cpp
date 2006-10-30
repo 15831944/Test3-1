@@ -73,26 +73,6 @@ CSKOSpMdl::~CSKOSpMdl()
 
 //---------------------------------------------------------------------------
 
-void CSKOSpMdl::BuildDataFields()
-  { 
-  };              
-
-//---------------------------------------------------------------------------
-
-bool CSKOSpMdl::ExchangeDataFields()
-  {
-  return false;
-  };
-
-//---------------------------------------------------------------------------
-
-bool CSKOSpMdl::ValidateDataFields()
-  {
-  return MSpModelBase::ValidateDataFields();
-  };
-
-//---------------------------------------------------------------------------
-
 bool CSKOSpMdl::get_IsBaseClassOf(LPCTSTR OtherProgID)
   {
   return false;
@@ -448,6 +428,33 @@ double CSKOSpMdl::get_ThermalConductivity(long Phases, double T, double P, MArra
   {
   return MSpModelBase::get_ThermalConductivity(Phases, T, P, pMA);
   }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void CSKOSpMdl::BuildDataFields(void)
+  {
+  };
+
+//---------------------------------------------------------------------------
+
+bool CSKOSpMdl::ExchangeDataFields()
+  {
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+bool CSKOSpMdl::ValidateDataFields()
+  { 
+  //_asm int 3;
+  bool OK=MSpModelBase::ValidateDataFields();
+  //InputCalcs(fDoCalc, Temperature);
+  return true; 
+  }; 
 
 //===========================================================================
 //

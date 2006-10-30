@@ -36,7 +36,7 @@ class FE_Linear : public CFlwEqn
     virtual ~FE_Linear();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 //============================================================================
@@ -54,7 +54,7 @@ class FE_DPperQV : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -88,7 +88,7 @@ class FE_Darcy : public CFlwEqn
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     double         dP_Vel_Fn(double VVolFrac, double Vel, double QmL, double QmV, double RhoM, double Visc, double Length, CFBPhysData & PhD, CFlwBlkBase &FE, flag &BadDerivs);
   };
 
@@ -109,7 +109,7 @@ class FE_Hazen : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -130,7 +130,7 @@ class FE_Chmbr : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -150,7 +150,7 @@ class FE_MR : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -170,7 +170,7 @@ class FE_MRCTF : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -193,7 +193,7 @@ class FE_MRDM : public CFlwEqn
     double         DetermineTurbFactor(double Reynolds, double Tur_ff_Guess);
     double         CalcDP(CFBPhysData & PhD, CFlwBlkBase & FE, double Vel, double Rho, double &Tur_ff);
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -212,7 +212,7 @@ class FE_MRHR : public CFlwEqn
     virtual ~FE_MRHR();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================
@@ -229,7 +229,7 @@ class FE_CompAir : public CFlwEqn
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 //============================================================================
@@ -251,7 +251,7 @@ class FE_MSBackFill : public CFlwEqn
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 // ===========================================================================

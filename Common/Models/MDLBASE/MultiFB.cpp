@@ -2575,7 +2575,7 @@ class MFB_Pipe : public MFB_Eqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 
@@ -2631,7 +2631,7 @@ flag MFB_Pipe::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag MFB_Pipe::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag MFB_Pipe::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Rho=Max(0.001, FE.TwoPhCdPtr() ? FE.TwoPhCd().Rho(som_SL) : FE.MeanRho(pProps));
 
@@ -2693,7 +2693,7 @@ class MFB_InLine : public MFB_Eqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
     virtual void   SetPhysData(double DZ) {};
     virtual void   SetKFact(double K)     { dK=K; };
@@ -2746,7 +2746,7 @@ flag MFB_InLine::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag MFB_InLine::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag MFB_InLine::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Rho=Max(0.001, FE.TwoPhCdPtr() ? FE.TwoPhCd().Rho(som_SL) : FE.MeanRho(pProps));
   double DqScl=1.001;
@@ -2816,7 +2816,7 @@ class MFB_Valve : public MFB_Eqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
     virtual void   SetPhysData(double DZ)   {};
     virtual void   SetKFact(double K)       { dK=K; };
@@ -2868,7 +2868,7 @@ flag MFB_Valve::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag MFB_Valve::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag MFB_Valve::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Rho=Max(0.001, FE.TwoPhCdPtr() ? FE.TwoPhCd().Rho(som_SL) : FE.MeanRho(pProps));
   //double Rho=Max(0.001, FE.MeanRho(pProps));
@@ -2931,7 +2931,7 @@ class MFB_ExpCon : public MFB_Eqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
     virtual void   SetPhysData(double DZ)   {};
     virtual void   SetKFact(double K)       { dK=K; };
@@ -2983,7 +2983,7 @@ flag MFB_ExpCon::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag MFB_ExpCon::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag MFB_ExpCon::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Rho=Max(0.001, FE.TwoPhCdPtr() ? FE.TwoPhCd().Rho(som_SL) : FE.MeanRho(pProps));
   //double Rho=Max(0.001, FE.MeanRho(pProps));
@@ -3043,7 +3043,7 @@ class MFB_EnEx : public MFB_Eqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 //    virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
     virtual void   SetPhysData(double DZ)   {};
     virtual void   SetKFact(double K)       { dK=K; };
     virtual double GetKFact()               { return dK; };
@@ -3107,7 +3107,7 @@ flag MFB_EnEx::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag MFB_EnEx::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag MFB_EnEx::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Rho=Max(0.001, FE.TwoPhCdPtr() ? FE.TwoPhCd().Rho(som_SL) : FE.MeanRho(pProps));
   //double Rho=Max(0.001, FE.MeanRho(pProps));
@@ -3174,7 +3174,7 @@ class MFB_Join : public MFB_Eqn
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual void   SetPhysData(double DZ);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
   };
 
 
@@ -3234,7 +3234,7 @@ void MFB_Join::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
-flag MFB_Join::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag MFB_Join::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Rho=Max(0.001, FE.TwoPhCdPtr() ? FE.TwoPhCd().Rho(som_SL) : FE.MeanRho(pProps));
   //double Rho=Max(0.001, FE.MeanRho(pProps));

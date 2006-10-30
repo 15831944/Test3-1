@@ -80,7 +80,7 @@ flag LE_EquivDiam::DataXchg(DataChangeBlk & DCB)
 
 //--------------------------------------------------------------------------
 
-flag LE_EquivDiam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag LE_EquivDiam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double DensMeas=Min_FE_Rho(FE.MeanRho(pProps));
   double EquivArea=Diam2Area(m_dEquivDiam);
@@ -209,7 +209,7 @@ flag LE_EquivDiam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFl
 //
 ////--------------------------------------------------------------------------
 //
-//flag LE_KFact::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+//flag LE_KFact::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
 //  {
 //  Regulation=Range(0.0, Regulation, 1.0);
 //  if (Regulation > MinValveOpening)
@@ -322,7 +322,7 @@ flag LE_VolFlow::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag LE_VolFlow::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag LE_VolFlow::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)
@@ -414,7 +414,7 @@ flag LE_MassFlow::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag LE_MassFlow::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag LE_MassFlow::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
   if (Regulation > MinValveOpening)

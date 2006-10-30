@@ -89,7 +89,7 @@ void PC_FixQm::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_FixQm::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_FixQm::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
   FE.SetQmReqd(dReqd_Qm*Regulation, true, (float)dMaxNdPress);
@@ -168,7 +168,7 @@ void PC_FixQv::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_FixQv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_FixQv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
   
@@ -265,66 +265,58 @@ void PC_FixBst::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-void PC_FixBst::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow)
-  {
-  Regulation=Range(0.0, Regulation, 2.0);
-  switch (m_bLoSpeedAction)
-    {
-    case PCLoSpeed_Close:
-      CFlwEqn::EvalGetModeRqd(FlowMode, pProps, FE, true, IsDegFreedom, Regulation, SmallRegulation);
-      break;
-    case PCLoSpeed_Free:
-      CFlwEqn::EvalGetModeRqd(FlowMode, pProps, FE, true, IsDegFreedom, Regulation, -1.0);
-      break;
-    default:
-      CFlwEqn::EvalGetModeRqd(FlowMode, pProps, FE, On, IsDegFreedom, Regulation);
-    }
-  };
-
-flag PC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_FixBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
 #ifndef _RELEASE
   if (DoDbgBrk())
     { int xxx=0; }
 #endif
-  Regulation=Range(0.0, Regulation, 2.0);
-  if (FE.IsFixed())//. m_bLoSpeedAction==PCLoSpeed_Close && Regulation<1.0e-6)
+  Regulation = On ? Range(0.0, Regulation, 2.0) : 0.0;
+  if (Task==FET_GetMode)
     {
-    FE.SetQmReqd(0.0);
-    FE.SetDPb(0.0, 0.0);
-    FE.SetDPq(0.0, 0.0);
+    if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+      FE.SetQmReqd(0.0);
+    else
+      FE.SetQmFree();
     }
   else
     {
-    double dDensMeas=Min_FE_Rho(FE.MeanRho(pProps));
-    double dViscMeas=FE.MeanViscosity(pProps);
-
-    double dPipeArea=0;
-    if (pPhD0 && pPhD0->IsPipe())
-      dPipeArea=pPhD0->Area();
-    else if (pPhD1 && pPhD1->IsPipe())
-      dPipeArea=pPhD1->Area();
+    if (FE.IsFixed())
+      {
+      FE.SetDPb(0.0, 0.0);
+      FE.SetDPq(0.0, 0.0);
+      }
     else
-      {};
-    m_PhD.SetArea(dPipeArea);
+      {
+      double dDensMeas=Min_FE_Rho(FE.MeanRho(pProps));
+      double dViscMeas=FE.MeanViscosity(pProps);
 
-    double D=Area2Diam(dPipeArea);
-    double L=10*D; // a piece of pipe 10 times as long as its diameter - fully turbulent
-    double dFricFac=m_FF.Turbulent(D, 5.0e-5, dDensMeas, dViscMeas);
+      double dPipeArea=0;
+      if (pPhD0 && pPhD0->IsPipe())
+        dPipeArea=pPhD0->Area();
+      else if (pPhD1 && pPhD1->IsPipe())
+        dPipeArea=pPhD1->Area();
+      else
+        {};
+      m_PhD.SetArea(dPipeArea);
 
-    FE.SetVelMeasRange(dDensMeas, dPipeArea, 0.001); 
+      double D=Area2Diam(dPipeArea);
+      double L=10*D; // a piece of pipe 10 times as long as its diameter - fully turbulent
+      double dFricFac=m_FF.Turbulent(D, 5.0e-5, dDensMeas, dViscMeas);
 
-    double Vel0=FE.VelMeas();
-    double Vel1=FE.VelMeas(1.001);
-    double DP0=0.0005*dFricFac*L*dDensMeas*Vel0*Vel0/D;
-    double DP1=0.0005*dFricFac*L*dDensMeas*Vel1*Vel1/D;
+      FE.SetVelMeasRange(dDensMeas, dPipeArea, 0.001); 
 
-    m_DP=DP0;
-    //FE.SetQmFree();
-    FE.SetDPb(m_P_Boost*Regulation, 0.0);
-    FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
+      double Vel0=FE.VelMeas();
+      double Vel1=FE.VelMeas(1.001);
+      double DP0=0.0005*dFricFac*L*dDensMeas*Vel0*Vel0/D;
+      double DP1=0.0005*dFricFac*L*dDensMeas*Vel1*Vel1/D;
+
+      m_DP=DP0;
+      //FE.SetQmFree();
+      FE.SetDPb(m_P_Boost*Regulation, 0.0);
+      FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
+      }
     }
-
   return true;
   }
 
@@ -427,45 +419,55 @@ void PC_FixHd::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_FixHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_FixHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
   double Rho=FE.MeanRho(pProps);
   
-  if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+  if (Task==FET_GetMode)
     {
-    FE.SetQmReqd(0.0);
-    FE.SetDPb(0.0, 0.0);
+    if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+      FE.SetQmReqd(0.0);
+    else
+      FE.SetQmFree();
     }
   else
     {
-    double dDensMeas=Min_FE_Rho(FE.MeanRho(pProps));
-    double dViscMeas=FE.MeanViscosity(pProps);
-
-    double dPipeArea=0;
-    if (pPhD0 && pPhD0->IsPipe())
-      dPipeArea=pPhD0->Area();
-    else if (pPhD1 && pPhD1->IsPipe())
-      dPipeArea=pPhD1->Area();
+    if (FE.IsFixed())
+      {
+      FE.SetDPb(0.0, 0.0);
+      FE.SetDPq(0.0, 0.0);
+      }
     else
-      {};
-    m_PhD.SetArea(dPipeArea);
+      {
+      double dDensMeas=Min_FE_Rho(FE.MeanRho(pProps));
+      double dViscMeas=FE.MeanViscosity(pProps);
 
-    double D=Area2Diam(dPipeArea);
-    double L=10*D; // a piece of pipe 10 times as long as its diameter - fully turbulent
-    double dFricFac=m_FF.Turbulent(D, 5.0e-5, dDensMeas, dViscMeas);
+      double dPipeArea=0;
+      if (pPhD0 && pPhD0->IsPipe())
+        dPipeArea=pPhD0->Area();
+      else if (pPhD1 && pPhD1->IsPipe())
+        dPipeArea=pPhD1->Area();
+      else
+        {};
+      m_PhD.SetArea(dPipeArea);
 
-    FE.SetVelMeasRange(dDensMeas, dPipeArea, 0.001); 
+      double D=Area2Diam(dPipeArea);
+      double L=10*D; // a piece of pipe 10 times as long as its diameter - fully turbulent
+      double dFricFac=m_FF.Turbulent(D, 5.0e-5, dDensMeas, dViscMeas);
 
-    double Vel0=FE.VelMeas();
-    double Vel1=FE.VelMeas(1.001);
-    double DP0=0.0005*dFricFac*L*dDensMeas*Vel0*Vel0/D;
-    double DP1=0.0005*dFricFac*L*dDensMeas*Vel1*Vel1/D;
+      FE.SetVelMeasRange(dDensMeas, dPipeArea, 0.001); 
 
-    m_DP=DP0;
-    FE.SetQmFree();
-    FE.SetDPb(Head2Press(m_P_Head*Regulation, Max(m_dPrimeRho, Rho)), 0.0);
-    FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
+      double Vel0=FE.VelMeas();
+      double Vel1=FE.VelMeas(1.001);
+      double DP0=0.0005*dFricFac*L*dDensMeas*Vel0*Vel0/D;
+      double DP1=0.0005*dFricFac*L*dDensMeas*Vel1*Vel1/D;
+
+      m_DP=DP0;
+      FE.SetQmFree();
+      FE.SetDPb(Head2Press(m_P_Head*Regulation, Max(m_dPrimeRho, Rho)), 0.0);
+      FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
+      }
     }
   return true;
   }
@@ -570,7 +572,7 @@ flag PC_SmplCrvBst::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_SmplCrvBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_SmplCrvBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   m_dBstOp = Max(0.0, m_dBstOp);
   m_dBstMx = Range(m_dBstOp*1.1, m_dBstMx, m_dBstOp*2.0); 
@@ -583,63 +585,71 @@ flag PC_SmplCrvBst::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CF
     { int xxx=0; }
 
   Regulation=Range(0.0, Regulation, 2.0);
-  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+  if (Task==FET_GetMode)
     {
-    FE.SetQmReqd(0.0);
-    FE.SetDPb(0.0, 0.0);
-    FE.SetDPq(0.0, 0.0);
+    //if (m_bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+    //  FE.SetQmReqd(0.0);
+    //else
+    FE.SetQmFree();
     }
   else
     {
-    double N, A, Qm, Q0, Dens;
-    Dens=Max(m_dPrimeRho, FE.MeanRho(pProps));
-    if (m_bQmOp)
+    if (FE.IsFixed())
       {
-      N=log(1-m_dBstOp/m_dBstMx)/log(m_dQmOp/m_dQmMx);
-      A=1/Pow(m_dQmMx, N);
-      Qm=GEZ(FE.GetQm());
-      Q0=GEZ(Qm);
+      FE.SetDPb(0.0, 0.0);
+      FE.SetDPq(0.0, 0.0);
       }
     else
-      {    
-      N=log(1-m_dBstOp/m_dBstMx)/log(m_dQvOp/m_dQvMx);
-      A=1/Pow(m_dQvMx, N);
-    
-      Qm=GEZ(FE.GetQm());
-      Q0=GEZ(Qm/Dens);
-      }
-    double Q1=1.01*Q0;
-
-    double BstMax=m_dBstMx*Regulation;
-    //double BstKnee=BstMax*(1-A*Pow(QvKnee,N));
-
-    double Scl0=GEZ(1-A*Pow(Q0,N));
-    double Scl1=GEZ(1-A*Pow(Q1,N));
-    double Bst0=BstMax*Scl0;
-    double Bst1=BstMax*Scl1;
-
-    // always assume derivs are bad - 
-    // incase the curve is a long way from linear
-    FE.SetDerivsBad(true); 
-    
-    if(fabs(BstMax-Bst0)>10000)
-      { int x=0; }; 
-   // FE.SetDerivsBad();
-    
-    FE.SetQmFree();
-    FE.SetDPb(BstMax, 0.0);
-    if (0)
       {
-      dbgp("PmpSmplBst %6.2f %6.2f %s %6.2f %6.2f %10.4g %10.4g",
-        m_dBstOp,m_dBstMx,m_bQmOp?"Qm":"Qv",m_bQmOp?m_dQmOp:m_dQvOp,m_bQmOp?m_dQmMx:m_dQvMx,N, A);
-      dbgp(" %10.4g %10.4g %14.0g %10.4g %10.4g %10.4g %10.4g %10.4g %10.4g %10.4g",
-        Qm, FE.MeanRho(pProps), Q0, Q1, Scl0, Scl1, Bst0, Bst1, BstMax, Regulation);
-      dbgpln("");
+      double N, A, Qm, Q0, Dens;
+      Dens=Max(m_dPrimeRho, FE.MeanRho(pProps));
+      if (m_bQmOp)
+        {
+        N=log(1-m_dBstOp/m_dBstMx)/log(m_dQmOp/m_dQmMx);
+        A=1/Pow(m_dQmMx, N);
+        Qm=GEZ(FE.GetQm());
+        Q0=GEZ(Qm);
+        }
+      else
+        {    
+        N=log(1-m_dBstOp/m_dBstMx)/log(m_dQvOp/m_dQvMx);
+        A=1/Pow(m_dQvMx, N);
+      
+        Qm=GEZ(FE.GetQm());
+        Q0=GEZ(Qm/Dens);
+        }
+      double Q1=1.01*Q0;
+
+      double BstMax=m_dBstMx*Regulation;
+      //double BstKnee=BstMax*(1-A*Pow(QvKnee,N));
+
+      double Scl0=GEZ(1-A*Pow(Q0,N));
+      double Scl1=GEZ(1-A*Pow(Q1,N));
+      double Bst0=BstMax*Scl0;
+      double Bst1=BstMax*Scl1;
+
+      // always assume derivs are bad - 
+      // incase the curve is a long way from linear
+      FE.SetDerivsBad(true); 
+      
+      if(fabs(BstMax-Bst0)>10000)
+        { int x=0; }; 
+     // FE.SetDerivsBad();
+      
+      FE.SetQmFree();
+      FE.SetDPb(BstMax, 0.0);
+      if (0)
+        {
+        dbgp("PmpSmplBst %6.2f %6.2f %s %6.2f %6.2f %10.4g %10.4g",
+          m_dBstOp,m_dBstMx,m_bQmOp?"Qm":"Qv",m_bQmOp?m_dQmOp:m_dQvOp,m_bQmOp?m_dQmMx:m_dQvMx,N, A);
+        dbgp(" %10.4g %10.4g %14.0g %10.4g %10.4g %10.4g %10.4g %10.4g %10.4g %10.4g",
+          Qm, FE.MeanRho(pProps), Q0, Q1, Scl0, Scl1, Bst0, Bst1, BstMax, Regulation);
+        dbgpln("");
+        }
+      FE.SetDPq(-GEZ(BstMax-Bst0), -(Bst0-Bst1)/GTZ(0.01*Qm));
       }
-    FE.SetDPq(-GEZ(BstMax-Bst0), -(Bst0-Bst1)/GTZ(0.01*Qm));
     }
 
-  //FE.SetDPq(0.0, 0.0);
   return true;
   }
 
@@ -745,7 +755,7 @@ flag PC_SmplCrvHead::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_SmplCrvHead::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_SmplCrvHead::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   m_dHeadOp = Max(0.0, m_dHeadOp);
   m_dHeadMx = Range(m_dHeadOp*1.1, m_dHeadMx, m_dHeadOp*2.0); 
@@ -761,51 +771,59 @@ flag PC_SmplCrvHead::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, C
   Rho=Max(m_dPrimeRho, Rho);
 
   Regulation=Range(0.0, Regulation, 2.0);
-  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+  if (Task==FET_GetMode)
     {
-    FE.SetQmReqd(0.0);
-    FE.SetDPb(0.0, 0.0);
-    FE.SetDPq(0.0, 0.0);
+    if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+      FE.SetQmReqd(0.0);
+    else
+      FE.SetQmFree();
     }
   else
     {
-    double N, A, Qm, Q0, Dens;
-    Dens=Max(m_dPrimeRho, FE.MeanRho(pProps));
-    if (m_bQmOp)
+    if (FE.IsFixed())
       {
-      N=log(1-m_dHeadOp/m_dHeadMx)/log(m_dQmOp/m_dQmMx);
-      A=1/Pow(m_dQmMx, N);
-      Qm=GEZ(FE.GetQm());
-      Q0=GEZ(Qm);
+      FE.SetDPb(0.0, 0.0);
+      FE.SetDPq(0.0, 0.0);
       }
     else
-      {    
-      N=log(1-m_dHeadOp/m_dHeadMx)/log(m_dQvOp/m_dQvMx);
-      A=1/Pow(m_dQvMx, N);
-    
-      Qm=GEZ(FE.GetQm());
-      Q0=GEZ(Qm/Dens);
+      {
+      double N, A, Qm, Q0, Dens;
+      Dens=Max(m_dPrimeRho, FE.MeanRho(pProps));
+      if (m_bQmOp)
+        {
+        N=log(1-m_dHeadOp/m_dHeadMx)/log(m_dQmOp/m_dQmMx);
+        A=1/Pow(m_dQmMx, N);
+        Qm=GEZ(FE.GetQm());
+        Q0=GEZ(Qm);
+        }
+      else
+        {    
+        N=log(1-m_dHeadOp/m_dHeadMx)/log(m_dQvOp/m_dQvMx);
+        A=1/Pow(m_dQvMx, N);
+      
+        Qm=GEZ(FE.GetQm());
+        Q0=GEZ(Qm/Dens);
+        }
+      double Q1=1.01*Q0;
+
+      double BstMax=Head2Press(m_dHeadMx*Regulation, Max(m_dPrimeRho, Rho));
+      //double BstMax=HeadMx*Regulation;
+
+      double Scl0=GEZ(1-A*Pow(Q0,N));
+      double Scl1=GEZ(1-A*Pow(Q1,N));
+      double Bst0=BstMax*Scl0;
+      double Bst1=BstMax*Scl1;
+      FE.SetDerivsBad(Scl1<0.01);
+      
+      if(fabs(BstMax-Bst0)>10000)
+        { int x=0; }; 
+     // FE.SetDerivsBad();
+      FE.SetQmFree();
+      FE.SetDPb(BstMax, 0.0);
+        FE.SetDPq(-GEZ(BstMax-Bst0), -(Bst0-Bst1)/GTZ(0.01*Qm));
       }
-    double Q1=1.01*Q0;
-
-    double BstMax=Head2Press(m_dHeadMx*Regulation, Max(m_dPrimeRho, Rho));
-    //double BstMax=HeadMx*Regulation;
-
-    double Scl0=GEZ(1-A*Pow(Q0,N));
-    double Scl1=GEZ(1-A*Pow(Q1,N));
-    double Bst0=BstMax*Scl0;
-    double Bst1=BstMax*Scl1;
-    FE.SetDerivsBad(Scl1<0.01);
-    
-    if(fabs(BstMax-Bst0)>10000)
-      { int x=0; }; 
-   // FE.SetDerivsBad();
-    FE.SetQmFree();
-    FE.SetDPb(BstMax, 0.0);
-      FE.SetDPq(-GEZ(BstMax-Bst0), -(Bst0-Bst1)/GTZ(0.01*Qm));
     }
 
-  //FE.SetDPq(0.0, 0.0);
   return true;
   }
 
@@ -900,7 +918,7 @@ flag PC_SmplCrvHd::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-flag PC_SmplCrvHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_SmplCrvHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   HdOp = Max(0.0, HdOp);
   QvOp  = Max(0.00001, QvOp);
@@ -916,17 +934,27 @@ flag PC_SmplCrvHd::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFl
 //  double SG = (Rho > 500.0) ? Rho/1000.0 : 1.0; // hss - this is not a good test, try to change.
 //  double mtokPa = 9.80707 * SG;
 
-  if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+  if (Task==FET_GetMode)
     {
-    FE.SetQmReqd(0.0);
-    FE.SetDPb(0.0, 0.0);
+    if (bLoSpeedAction==PCLoSpeed_Close && Regulation<SmallRegulation)
+      FE.SetQmReqd(0.0);
+    else
+      FE.SetQmFree();
     }
   else
     {
-    FE.SetQmFree();
-    FE.SetDPb(Head2Press(0*Regulation, Max(dPrimeRho, Rho)), 0.0);
+    if (FE.IsFixed())
+      {
+      FE.SetDPb(0.0, 0.0);
+      FE.SetDPq(0.0, 0.0);
+      }
+    else
+      {
+      FE.SetQmFree();
+      FE.SetDPb(Head2Press(0*Regulation, Max(dPrimeRho, Rho)), 0.0);
+      FE.SetDPq(0.0, 0.0);
+      }
     }
-  FE.SetDPq(0.0, 0.0);
   return true;
   }
 
@@ -2079,7 +2107,7 @@ flag PC_DataBase::ValidateData(ValidateDataBlk & VDB)
 
 #define DumpCrv 0
 
-flag PC_DataBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag PC_DataBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
   #if DumpCrv

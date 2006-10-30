@@ -14,7 +14,7 @@
 #include "executiv.h"
 #include "dbgmngr.h"
 #include "vlebase.h"
-                                                        
+
 //#include "optoff.h"
 
 #if (dbgFlwEqns)
@@ -255,9 +255,10 @@ CFlwEqn::CFlwEqn(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObj
 
   //m_FlwRqd.m_Options   = 0;
   m_FlwRqd.m_AsMass     = true;
+  m_FlwRqd.m_bMeasDensOK = false;
   m_FlwRqd.m_MeasDens   = 1000.0;
-  m_FlwRqd.m_ReqdQm     = fNAN;  
-  m_FlwRqd.m_ReqdQv     = fNAN;  
+  m_FlwRqd.m_ReqdQm     = fNAN;
+  m_FlwRqd.m_ReqdQv     = fNAN;
 
   m_FlwRqd.m_RqdQmCap   = fNAN;
   m_FlwRqd.m_MinQmCap   = 0.0;
@@ -330,110 +331,6 @@ void CFlwEqn::SetPhysData(double DZ)
   {
   SetActLength(Max(fabs(DZ), RqdLength()));
   };
-
-//--------------------------------------------------------------------------
-
-void CFlwEqn::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow/*=SmallRegulation*/)
-  {
-  CFlwEqnFlwRqd &FR=FE.FlwRqd();
-  //_asm int 3;
-  //;// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
-      //if (IONo==0 && FE==0)
-      //  {
-  bool DoXfer=(FlowMode==FBMode_Xfer);
-
-  if (Regulation<OffIfRegBelow)
-    On=false;
-
-  FR.m_MeasDens=(float)Max(0.001, FE.MeanRho(pProps));
-
-  if (FE.InXferNet() || DoXfer)
-    {
-    if (DoXfer)
-      FE.SetXferMode();
-    else
-      FE.SetQmFree();
-    if (On)
-      {
-      if (FR.m_AsMass)
-        {
-        double Cap = FR.m_RqdQmCap;
-        if (Valid(Cap))
-          {
-          Cap=Max(Cap, FR.m_MinQmCap);
-          if (Valid(FR.m_MaxQmCap))
-            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
-          }
-        else if (Valid(FR.m_MaxQmCap))
-          Cap=FR.m_MaxQmCap*Regulation;
-        else if (Regulation<1.0)
-          Cap=MaxXfCap*Regulation;
-        if (Valid(Cap))
-          FE.SetXferCapacity(Cap);
-        }
-      else
-        {
-        double Cap = FR.m_RqdQvCap;
-        if (Valid(Cap))
-          {
-          Cap=Max(Cap, FR.m_MinQvCap);
-          if (Valid(FR.m_MaxQvCap))
-            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
-          }
-        else if (Valid(FR.m_MaxQvCap))
-          Cap=FR.m_MaxQvCap*Regulation;
-        if (Valid(Cap))
-          FE.SetXferCapacity(Cap*FE.MeanRho(pProps));
-        }
-
-      //CFlwEqnFlwRqd &FR=FlwRqd();
-      //double Cap = Valid(FR.xMax_QmCap) ? xMax_QmCap : MaxXfCap;
-      //if (Valid(xRqd_QmCap))
-      //  Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
-      //Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
-      //SetXferCapacity(Cap);
-      }
-    else
-      {
-      if (DoXfer)
-        FE.SetXferCapacity(0.0);
-      else
-        FE.SetQmReqd(0.0);
-      }
-    //return True;
-    }
-  else if (!On)
-    FE.SetQmReqd(0.0);
-  else if (Valid(FR.m_ReqdQm))
-    FE.SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
-  else
-    FE.SetQmFree();
-  }
-  //    else
-  //      {
-  //      if (cioOn())
-  //        FB.SetQmFree();
-  //      else
-  //        FB.SetQmReqd(0.0);
-  //      }
-  //}
-
-//--------------------------------------------------------------------------
-
-//double CFlwEqn::RangeFlow(double Flow, double LoLimit)
-//  {
-//  ASSERT(TstGTZ(LoLimit));
-//  Flow=fabs(Flow);
-//  if (Flow>LoLimit)
-//    return Flow;
-//  /**
-//  This fuction will -
-//  1 - keep the flow used to measure dPq above 0.25 * LoLimit
-//  2 - the resultant curve if smooth
-//  3 - the curve is not flat @ 0.0
-//  */
-//  return Flow+Sqr(LoLimit-Flow)/(3.0*LoLimit);
-//  };
 
 //--------------------------------------------------------------------------
 
@@ -587,7 +484,7 @@ class VE_None : public CFlwEqn
     virtual ~VE_None();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
   };
 
@@ -628,7 +525,7 @@ flag VE_None::ValidateData(ValidateDataBlk & VDB)
 //--------------------------------------------------------------------------
 
 
-flag VE_None::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag VE_None::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   //dbgpln("VE_None %#010x", this);
   return true;
@@ -649,7 +546,7 @@ class SA_Xfer: public CFlwEqn
     virtual ~SA_Xfer();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
 
-    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
+    virtual flag   EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);
 
   public:
   };
@@ -681,7 +578,7 @@ void SA_Xfer::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag SA_Xfer::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag SA_Xfer::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   //dbgpln("SA_Xfer %#010x", this);
   //FE.SetQmReqd(1000);
@@ -716,7 +613,7 @@ CFlwBlkData::CFlwBlkData()
   m_nResTHist=0;
   m_iResTIndex=0;
   m_iNetLoop=1000;
-  
+
   ResetData(true);//Initialise();
   };
 
@@ -1050,7 +947,7 @@ CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pchar Name_, flag ChgDefault)
     Eqn()->m_PhD=OldPhD;
     Eqn()->m_FlwRqd=OldFR;
     Eqn()->m_pEqnPtr=this;
-  
+
     ////TODO Find Default
     }
   ASSERT_ALWAYS(m_pEqn!=NULL, "Eqn Expected");
@@ -1060,7 +957,7 @@ CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pchar Name_, flag ChgDefault)
 //--------------------------------------------------------------------------
 
 void CFlwEqnPtr::SetFlowModeSrc(FlwNode * p, bool IsRmt)
-  { 
+  {
   if (p)
     {
     if (IsRmt)
@@ -1086,8 +983,8 @@ void CFlwEqnPtr::SetFlowModeSrc(FlwNode * p, bool IsRmt)
 
 //--------------------------------------------------------------------------
 
-long CFlwEqnPtr::FlowMode()//bool MustHaveSrc)    
-  { 
+long CFlwEqnPtr::FlowMode()//bool MustHaveSrc)
+  {
   if (m_FMSrc)
     return m_FMSrc->FlowMode();
   //ASSERT_ALWAYS(!MustHaveSrc, "m_FMSrc should be Set");
@@ -1098,10 +995,10 @@ long CFlwEqnPtr::FlowMode()//bool MustHaveSrc)
 //--------------------------------------------------------------------------
 
 void CFlwEqnPtr::SetFlowMode(long Md)
-  { 
+  {
   if (m_FMSrc)
     return m_FMSrc->SetFlowModeLcl(Md);
-  m_FlowMode=Md; 
+  m_FlowMode=Md;
   };
 
 //--------------------------------------------------------------------------
@@ -1166,7 +1063,8 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
         if (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec))
           {
           DDB.Text("");
-          DDB.CheckBoxBtn("",                "AsMass",        DC_,      "",     xidFlwEqnQmAsMass,          pOwnObj, isParm|SetOnChange);
+          DDB.CheckBoxBtn("",              "AsMass",        DC_,      "",        xidFlwEqnQmAsMass,   pOwnObj, isParm|SetOnChange);
+          DDB.Double ("",                  "MeasRho",       DC_Rho,   "kg/m^3",  xidFlwEqnQmMeasRho,  pOwnObj, 0|InitHidden);
           }
 
         bool AsMass = FlwRqd().m_AsMass;
@@ -1360,77 +1258,96 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         SetDatumNode(*DCB.rD);
       DCB.D=DatumNode();
       return true;
+    case xidFlwEqnQmAsMass:
+      if (DCB.rB)
+        Eqn()->m_FlwRqd.m_AsMass=*DCB.rB!=0;
+      DCB.B=Eqn()->m_FlwRqd.m_AsMass?1:0;
+      return 1;
+    case xidFlwEqnQmMeasRho:
+      if (DCB.rD)
+        {
+        Eqn()->m_FlwRqd.m_MeasDens=*DCB.rD;
+        Eqn()->m_FlwRqd.m_bMeasDensOK=true;
+        }
+      DCB.D=Eqn()->m_FlwRqd.m_MeasDens;
+      return 1;
     case xidFlwEqnQmRqdCapacity:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_RqdQmCap=*DCB.rD;
-        Eqn()->m_FlwRqd.m_RqdQvCap=Valid(*DCB.rD) ? *DCB.rD/Eqn()->m_FlwRqd.m_MeasDens : dNAN;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_RqdQmCap=*DCB.rD;
+        if (FR.m_bMeasDensOK)
+          FR.m_RqdQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdQmCap;
       return 1;
     case xidFlwEqnQmMinCapacity:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_MinQmCap=*DCB.rD;
-        Eqn()->m_FlwRqd.m_MinQvCap=Valid(*DCB.rD) ? *DCB.rD/Eqn()->m_FlwRqd.m_MeasDens : dNAN;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_MinQmCap=*DCB.rD;
+        if (FR.m_bMeasDensOK)
+          FR.m_MinQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MinQmCap;
       return 1;
     case xidFlwEqnQmMaxCapacity:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_MaxQmCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQmCap, *DCB.rD) : dNAN;
-        Eqn()->m_FlwRqd.m_MaxQvCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQmCap, *DCB.rD)/Eqn()->m_FlwRqd.m_MeasDens : dNAN;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_MaxQmCap=Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD) : dNAN;
+        if (FR.m_bMeasDensOK)
+          FR.m_MaxQvCap=Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD)/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MaxQmCap;
       return 1;
-    case xidFlwEqnQmAsMass:       
-      if (DCB.rB)
-        Eqn()->m_FlwRqd.m_AsMass=*DCB.rB!=0;
-      DCB.B=Eqn()->m_FlwRqd.m_AsMass?1:0;
-      return 1;
-    case xidFlwEqnQmReqd:       
+    case xidFlwEqnQmReqd:
       if (DCB.rD)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_ReqdQm=*DCB.rD;
-        FR.m_ReqdQv=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : *DCB.rD;
+        if (FR.m_bMeasDensOK)
+          FR.m_ReqdQv=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : *DCB.rD;
         }
       DCB.D=Eqn()->m_FlwRqd.m_ReqdQm;
       return 1;
-    case xidFlwEqnQvReqd:       
+    case xidFlwEqnQvReqd:
       if (DCB.rD)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_ReqdQv=*DCB.rD;
-        FR.m_ReqdQm=*DCB.rD*FR.m_MeasDens;
+        if (FR.m_bMeasDensOK)
+          FR.m_ReqdQm=*DCB.rD*FR.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_ReqdQv;
       return 1;
     case xidFlwEqnQvRqdCapacity:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_RqdQvCap=*DCB.rD;
-        if (OrigPrjFileVerNo()>=90)
-          Eqn()->m_FlwRqd.m_RqdQmCap=*DCB.rD*Eqn()->m_FlwRqd.m_MeasDens;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_RqdQvCap=*DCB.rD;
+        if (FR.m_bMeasDensOK)
+          FR.m_RqdQmCap=*DCB.rD*FR.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdQvCap;
       return 1;
     case xidFlwEqnQvMinCapacity:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_MinQvCap=*DCB.rD;
-        if (OrigPrjFileVerNo()>=90)
-          Eqn()->m_FlwRqd.m_MinQmCap=*DCB.rD*Eqn()->m_FlwRqd.m_MeasDens;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_MinQvCap=*DCB.rD;
+        if (FR.m_bMeasDensOK)
+          FR.m_MinQmCap=*DCB.rD*FR.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MinQvCap;
       return 1;
     case xidFlwEqnQvMaxCapacity:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_MaxQvCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQvCap, *DCB.rD) : dNAN;
-        if (OrigPrjFileVerNo()>=90)
-          Eqn()->m_FlwRqd.m_MaxQmCap=Valid(*DCB.rD) ? Max(Eqn()->m_FlwRqd.m_MinQvCap, *DCB.rD)*Eqn()->m_FlwRqd.m_MeasDens : dNAN;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_MaxQvCap=Valid(*DCB.rD) ? Max(FR.m_MinQvCap, *DCB.rD) : dNAN;
+        if (FR.m_bMeasDensOK)
+          FR.m_MaxQmCap=Valid(*DCB.rD) ? Max(FR.m_MinQvCap, *DCB.rD)*FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MaxQvCap;
       return 1;
@@ -1438,7 +1355,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
     //  {
     //  CFlwEqnFlwRqd & FR=FlwRqd();
     //  if (DCB.rB)
-    //    { 
+    //    {
     //    FR.m_PressOn= (*DCB.rB!=0);
     //    if (DCB.ForView())
     //      {
@@ -1504,7 +1421,7 @@ flag CFlwEqnPtr::ValidateData(ValidateDataBlk & VDB)
   }
 
 double CFlwEqnPtr::FR_Resistance(double Density, double Regulation)
-  { 
+  {
   CFlwEqnFlwRqd &FR=FlwRqd();
   //double CFlwEqnFlwRqd::Resistance(double Density)
 //  {
@@ -1514,7 +1431,7 @@ double CFlwEqnPtr::FR_Resistance(double Density, double Regulation)
   if (FlowMode()!=FBMode_Xfer)
     {
     if (FR.m_AsMass)
-      {                    
+      {
       FR.m_PressQv=FR.m_PressQm/FR.m_MeasDens;
       return FR.m_PressDP/GTZ(FR.m_PressQm*Regulation);
       }
@@ -1679,7 +1596,7 @@ double CFlwBlkBase::SetQmMeasRange(double Rho, double LoQm)
   m_MeasType    = 1;
   m_MeasRho     = Rho;
   m_MeasArea    = 1.0;
-  m_MeasLoLimit = LoQm; 
+  m_MeasLoLimit = LoQm;
   m_QmMeas      = Max(m_QmMeas, 1.0e-6*LoQm);
   m_QmMeas      = RangeFlow(m_QmMeas, LoQm);
   return m_QmMeas;
@@ -1693,7 +1610,7 @@ double CFlwBlkBase::SetQvMeasRange(double Rho, double LoVol)
   m_MeasType    = 2;
   m_MeasRho     = Rho;
   m_MeasArea    = 1.0;
-  m_MeasLoLimit = LoVol; 
+  m_MeasLoLimit = LoVol;
   m_QmMeas      = Max(m_QmMeas, 1.0e-6*LoVol*MeasRhoA());
   m_QmMeas      = RangeFlow(m_QmMeas/MeasRhoA(), LoVol)*MeasRhoA();
   return m_QmMeas;
@@ -1707,7 +1624,7 @@ double CFlwBlkBase::SetVelMeasRange(double Rho, double Area, double LoVel)
   m_MeasType    = 3;
   m_MeasRho     = Rho;
   m_MeasArea    = Area;
-  m_MeasLoLimit = LoVel; 
+  m_MeasLoLimit = LoVel;
   m_QmMeas      = Max(m_QmMeas, 1.0e-6*LoVel*MeasRhoA());
   m_QmMeas      = RangeFlow(m_QmMeas/MeasRhoA(), LoVel)*MeasRhoA();
   return m_QmMeas;
@@ -1715,27 +1632,27 @@ double CFlwBlkBase::SetVelMeasRange(double Rho, double Area, double LoVel)
 
 //--------------------------------------------------------------------------
 
-double CFlwBlkBase::QmMeas(double Scl)  
-  { 
+double CFlwBlkBase::QmMeas(double Scl)
+  {
   if (m_MeasType==0)
     return m_QmMeas;
 
   ASSERT_ALWAYS(m_MeasType>0, "CFlwBlkBase::QmMeasBad");
-  return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit); 
+  return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit);
   };
-double CFlwBlkBase::QvMeas(double Scl) 
-  { 
+double CFlwBlkBase::QvMeas(double Scl)
+  {
   ASSERT_ALWAYS(m_MeasType==2, "CFlwBlkBase::VolMeasBad");
-  return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit)/MeasRhoA(); 
+  return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit)/MeasRhoA();
   };
-double CFlwBlkBase::VelMeas(double Scl) 
-  { 
+double CFlwBlkBase::VelMeas(double Scl)
+  {
   ASSERT_ALWAYS(m_MeasType==3, "CFlwBlkBase::VelMeasBad");
   return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit)/MeasRhoA();
   };
-double CFlwBlkBase::DQmMeas(double Scl) 
-  { 
-  return NZ(QmMeas(Scl)-QmMeas(1.0)); 
+double CFlwBlkBase::DQmMeas(double Scl)
+  {
+  return NZ(QmMeas(Scl)-QmMeas(1.0));
   };
 
 //--------------------------------------------------------------------------
@@ -2184,90 +2101,85 @@ A=0.0;
 
 //--------------------------------------------------------------------------
 
-//void CFlwBlkBase::EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation)
-//  {
-//  CFlwEqnFlwRqd &FR=FlwRqd();
-//  //_asm int 3;
-//  //;// .EvaluateFlwEqn(Task, pProps, cioOn()?1.0:0.0, NULL, NULL);//Fill);
-//      //if (IONo==0 && FE==0)
-//      //  {
-//  bool DoXfer=(FlowMode==FBMode_Xfer);
-//  
-//  if (Regulation<SmallRegulation)
-//    On=false;
-//
-//  FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
-//
-//  if (InXferNet() || DoXfer)
-//    {
-//    if (DoXfer)
-//      SetXferMode();
-//    else
-//      SetQmFree();
-//    if (On)
-//      {
-//      if (FR.m_AsMass)
-//        {
-//        double Cap = FR.m_RqdQmCap;
-//        if (Valid(Cap))
-//          {
-//          Cap=Max(Cap, FR.m_MinQmCap);
-//          if (Valid(FR.m_MaxQmCap))
-//            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
-//          }
-//        else if (Valid(FR.m_MaxQmCap))
-//          Cap=FR.m_MaxQmCap*Regulation;
-//        else if (Regulation<1.0)
-//          Cap=MaxXfCap*Regulation;
-//        if (Valid(Cap))
-//          SetXferCapacity(Cap);
-//        }
-//      else
-//        {
-//        double Cap = FR.m_RqdQvCap;
-//        if (Valid(Cap))
-//          {
-//          Cap=Max(Cap, FR.m_MinQvCap);
-//          if (Valid(FR.m_MaxQvCap))
-//            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
-//          }
-//        else if (Valid(FR.m_MaxQvCap))
-//          Cap=FR.m_MaxQvCap*Regulation;
-//        if (Valid(Cap))
-//          SetXferCapacity(Cap*MeanRho(pProps));
-//        }
-//
-//      //CFlwEqnFlwRqd &FR=FlwRqd();
-//      //double Cap = Valid(FR.xMax_QmCap) ? xMax_QmCap : MaxXfCap;
-//      //if (Valid(xRqd_QmCap))
-//      //  Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
-//      //Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
-//      //SetXferCapacity(Cap);
-//      }
-//    else
-//      {
-//      if (DoXfer)
-//        SetXferCapacity(0.0);
-//      else
-//        SetQmReqd(0.0);
-//      }
-//    //return True;
-//    }
-//  else if (!On)
-//    SetQmReqd(0.0);
-//  else if (Valid(FR.m_ReqdQm))
-//    SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
-//  else
-//    SetQmFree();
-//  }
-//  //    else
-//  //      {
-//  //      if (cioOn())
-//  //        FB.SetQmFree();
-//  //      else
-//  //        FB.SetQmReqd(0.0);
-//  //      }
-//  //}
+bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation)
+  {
+  CFlwEqnFlwRqd &FR=FlwRqd();
+  bool DoXfer=(FlowMode==FBMode_Xfer);
+
+  if (Regulation<SmallRegulation)
+    On=false;
+
+  FR.m_MeasDens     = (float)Max(0.001, MeanRho(pProps));
+  FR.m_bMeasDensOK  = true;
+  if (FR.m_AsMass)
+    FR.m_ReqdQv = FR.m_ReqdQm/FR.m_MeasDens;
+  else
+    FR.m_ReqdQm = FR.m_ReqdQv*FR.m_MeasDens;
+
+  if (InXferNet() || DoXfer)
+    {
+    if (DoXfer)
+      SetXferMode();
+    else
+      SetQmFree();
+    if (On)
+      {
+      if (FR.m_AsMass)
+        {
+        double Cap = FR.m_RqdQmCap;
+        if (Valid(Cap))
+          {
+          Cap=Max(Cap, FR.m_MinQmCap);
+          if (Valid(FR.m_MaxQmCap))
+            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
+          }
+        else if (Valid(FR.m_MaxQmCap))
+          Cap=FR.m_MaxQmCap*Regulation;
+        else if (Regulation<1.0)
+          Cap=MaxXfCap*Regulation;
+        if (Valid(Cap))
+          SetXferCapacity(Cap);
+        }
+      else
+        {
+        double Cap = FR.m_RqdQvCap;
+        if (Valid(Cap))
+          {
+          Cap=Max(Cap, FR.m_MinQvCap);
+          if (Valid(FR.m_MaxQvCap))
+            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
+          }
+        else if (Valid(FR.m_MaxQvCap))
+          Cap=FR.m_MaxQvCap*Regulation;
+        if (Valid(Cap))
+          SetXferCapacity(Cap*MeanRho(pProps));
+        }
+
+      //CFlwEqnFlwRqd &FR=FlwRqd();
+      //double Cap = Valid(FR.xMax_QmCap) ? xMax_QmCap : MaxXfCap;
+      //if (Valid(xRqd_QmCap))
+      //  Cap = Range(xMin_QmCap, xRqd_QmCap, Cap);
+      //Cap *= (m_iLF_Direction==LFD_Reverse ? -1.0 : 1.0);
+      //SetXferCapacity(Cap);
+      }
+    else
+      {
+      if (DoXfer)
+        SetXferCapacity(0.0);
+      else
+        SetQmReqd(0.0);
+      }
+    }
+  //else if (!On)
+  //  SetQmReqd(0.0);
+  else if (Valid(FR.m_ReqdQm))
+    SetQmReqd(FR.m_ReqdQm*Regulation, IsDegFreedom);
+  else
+    {
+    return false;//SetQmFree();
+    }
+  return true;
+  }
 
 //--------------------------------------------------------------------------
 
@@ -2286,7 +2198,12 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
   flag b=false;
   CFlwEqnFlwRqd &FR=FlwRqd();
 
-  FR.m_MeasDens=(float)Max(0.001, MeanRho(pProps));
+  FR.m_MeasDens     = (float)Max(0.001, MeanRho(pProps));
+  FR.m_bMeasDensOK  = true;
+  if (FR.m_AsMass)
+    FR.m_ReqdQv = FR.m_ReqdQm/FR.m_MeasDens;
+  else
+    FR.m_ReqdQm = FR.m_ReqdQv*FR.m_MeasDens;
 
   if (1)
     {
@@ -2310,7 +2227,8 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
 
   if (Task==FET_GetMode)
     {
-    Eqn()->EvalGetModeRqd(FlowMode(), pProps, *this, On, IsDegFreedom, Regulation);
+    if (!GetBasicModeRqd(FlowMode(), pProps, On, IsDegFreedom, Regulation))
+      Eqn()->EvaluateFlwEqn(Task, pProps, *this, On, Regulation, pPhD0, pPhD1);
     ClrFunctOfPress();
     b=true;
     }
@@ -2344,7 +2262,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
         flag WasFixed = IsFixed();
         flag WasXfer  = IsXfer();
 
-        b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, Regulation, pPhD0, pPhD1);
+        b=Eqn()->EvaluateFlwEqn(Task, pProps, *this, On, Regulation, pPhD0, pPhD1);
 
         if ((WasFixed != IsFixed()) || (WasXfer != IsXfer()))
           {
@@ -2359,7 +2277,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
             WasFixed == IsFixed() ? "" : WasFixed ? "Fixed->Free":"Free->Fixed",
             WasXfer == IsXfer() ? "" : WasXfer ? "Xfer->Free":"Free->Xfer");
           }
-        
+
         Eqn()->m_nEvals++;
         break;
         }
@@ -2436,8 +2354,8 @@ flag CFlwBlkBase::SolveFlwEqn(CSpPropInfo *pProps, double Regulation, double P1_
     m_MeasType=0;
     m_MeasRho=1.0;
     m_MeasArea=1.0;
-    b=Eqn()->EvaluateFlwEqn(FET_GetMode, pProps, *this, Regulation, NULL, NULL);
-    b=Eqn()->EvaluateFlwEqn(FET_CalcDP, pProps, *this, Regulation, NULL, NULL);
+    b=Eqn()->EvaluateFlwEqn(FET_GetMode, pProps, *this, true, Regulation, NULL, NULL);
+    b=Eqn()->EvaluateFlwEqn(FET_CalcDP, pProps, *this, true, Regulation, NULL, NULL);
     Eqn()->m_nEvals++;
     double R1=fabs(m_dPq)/m_QmMeas;
     double R2=fabs(m_dPmQ)/GTZ(fabs(m_Qm));
@@ -2675,32 +2593,32 @@ CFlwThermalBlk::CFlwThermalBlk(FlwNode * Nd, CFlwEqnPtr * FEP)//, CVLEBase * VLE
   m_pNd             = Nd;
   m_pFEP            = FEP;
   m_pCd             = NULL;
-  
+
   m_TRiseSpec       = TR_None;
   m_TRiseRqd        = 0;
   m_TFinalRqd       = Std_T;
   m_AutoCompOn      = false;
   m_PVConst         = 1.0;
 
-  m_TIn             = Std_T;           
-  m_TOut            = m_TIn;          
+  m_TIn             = Std_T;
+  m_TOut            = m_TIn;
 
-  m_TRiseMech       = 0.0;     
-  m_TRiseHeat       = 0.0;     
-  m_TRiseVLE        = 0.0;     
-  m_TRiseEHX        = 0.0;     
-  m_TRiseRB         = 0.0;      
-  m_TRiseEvap       = 0.0;      
-  m_TRiseAC         = 0.0;      
+  m_TRiseMech       = 0.0;
+  m_TRiseHeat       = 0.0;
+  m_TRiseVLE        = 0.0;
+  m_TRiseEHX        = 0.0;
+  m_TRiseRB         = 0.0;
+  m_TRiseEvap       = 0.0;
+  m_TRiseAC         = 0.0;
   m_TRiseTot        = 0.0;
   m_TRiseCorr       = 0.0;
 
-  m_PowerMech       = 0.0;     
-  m_PowerHeat       = 0.0;     
-  m_PowerEHX        = 0.0;     
-  m_PowerRB         = 0.0;      
-  m_PowerEvap       = 0.0;      
-  m_PowerAC         = 0.0;      
+  m_PowerMech       = 0.0;
+  m_PowerHeat       = 0.0;
+  m_PowerEHX        = 0.0;
+  m_PowerRB         = 0.0;
+  m_PowerEvap       = 0.0;
+  m_PowerAC         = 0.0;
   m_PowerTot        = 0.0;
   m_PowerCorr       = 0.0;
   };
@@ -2716,7 +2634,7 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
 
   if (DDB.BeginStruct(m_pNd, Tag, TagComment, PageIs, -1))//, DDEF_TREECLOSED))
     {
-    static DDBValueLst DDBTRiseSpec[] = 
+    static DDBValueLst DDBTRiseSpec[] =
       {
         { TR_None,      "None"},
         { TR_TChange,   "TRise"},
@@ -2743,7 +2661,7 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
     DDB.Text("");
     DDB.Double ("TRise.Work",         "",  DC_dT,  "C", &m_TRiseMech,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Heat",         "",  DC_dT,  "C", &m_TRiseHeat,    m_pNd, isResult|noFileAtAll);
-    if (Flags & FEOF_WithAutoComp)  
+    if (Flags & FEOF_WithAutoComp)
       DDB.Double ("TRise.AutoComp",   "",  DC_dT,  "C", &m_TRiseAC,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.VLE",          "",  DC_dT,  "C", &m_TRiseVLE,     m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Reactions",    "",  DC_dT,  "C", &m_TRiseRB,      m_pNd, isResult|noFileAtAll);
@@ -2784,210 +2702,210 @@ flag CFlwThermalBlk::ValidateData(ValidateDataBlk & VDB)
     case TR_TChange: m_TRiseRqd=Range(-5000.0,Valid(m_TRiseRqd)?m_TRiseRqd:0.0, 5000.0);                break;
     case TR_TFinal:  m_TFinalRqd=Range(gs_CDB.MinT, Valid(m_TFinalRqd)?m_TFinalRqd:Std_T, gs_CDB.MaxT); break;
     };
-    
+
   m_PVConst=Range(1.0,m_PVConst,1.5);
   return 1;
-  };    
+  };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::BeginEvalProducts(SpConduit & Cd) 
+void CFlwThermalBlk::BeginEvalProducts(SpConduit & Cd)
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("BeginThermals -------- %s", m_pNd->FullObjTag()); 
+    dbgpln("BeginThermals -------- %s", m_pNd->FullObjTag());
   #endif
   m_pCd         = &Cd;
-  m_HfIn        = m_pCd->totHf();           
-  m_HfOut       = m_HfIn;          
+  m_HfIn        = m_pCd->totHf();
+  m_HfOut       = m_HfIn;
 
-  m_TIn         = m_pCd->Temp();           
-  m_TOut        = m_TIn;          
-  
-  m_TRiseMech   = 0.0;     
-  m_TRiseHeat   = 0.0;     
-  m_TRiseVLE    = 0.0;     
-  m_TRiseEHX    = 0.0;     
-  m_TRiseRB     = 0.0;      
-  m_TRiseEvap   = 0.0;      
-  m_TRiseAC     = 0.0;      
+  m_TIn         = m_pCd->Temp();
+  m_TOut        = m_TIn;
+
+  m_TRiseMech   = 0.0;
+  m_TRiseHeat   = 0.0;
+  m_TRiseVLE    = 0.0;
+  m_TRiseEHX    = 0.0;
+  m_TRiseRB     = 0.0;
+  m_TRiseEvap   = 0.0;
+  m_TRiseAC     = 0.0;
   m_TRiseCorr   = 0.0;
   m_TRiseTot    = 0.0;
 
-  m_PowerMech    = 0.0;     
-  m_PowerHeat    = 0.0;     
-  m_PowerEHX     = 0.0;     
-  m_PowerRB      = 0.0;      
-  m_PowerEvap    = 0.0;      
-  m_PowerAC      = 0.0;      
+  m_PowerMech    = 0.0;
+  m_PowerHeat    = 0.0;
+  m_PowerEHX     = 0.0;
+  m_PowerRB      = 0.0;
+  m_PowerEvap    = 0.0;
+  m_PowerAC      = 0.0;
   m_PowerTot     = 0.0;
   m_PowerCorr    = 0.0;
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddWorkPower(double Power, double Press) 
+void CFlwThermalBlk::AddWorkPower(double Power, double Press)
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddWorkPower %10.2f %10.2f %10.2f %10.2f", Power, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseMechTmp=m_TRiseMech;      
+    dbgpln("AddWorkPower %10.2f %10.2f %10.2f %10.2f", Power, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseMechTmp=m_TRiseMech;
   #endif
   m_PowerMech+=Power;
-  m_TRiseMech-=m_pCd->Temp();      
-  //m_pCd->SetHoldEquilibrate(); 
-  //double Hf=m_pCd->totHf()+Power; 
+  m_TRiseMech-=m_pCd->Temp();
+  //m_pCd->SetHoldEquilibrate();
+  //double Hf=m_pCd->totHf()+Power;
 
   const int MaxDT=1000;
   double DT=Power/NZ(m_pCd->totCp());
   if (fabs(DT)>1000)
     Power*=1000/DT;
 
-  m_pCd->Set_totHf(m_pCd->totHf()+Power, Press); 
-  m_TRiseMech+=m_pCd->Temp();      
+  m_pCd->Set_totHf(m_pCd->totHf()+Power, Press);
+  m_TRiseMech+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                       %10.2f %10.2f %10.2f Vel:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseMech-m_TRiseMechTmp, m_TRiseMech); 
+    dbgpln("                       %10.2f %10.2f %10.2f Vel:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseMech-m_TRiseMechTmp, m_TRiseMech);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddHeatPower(double Power, double Press) 
+void CFlwThermalBlk::AddHeatPower(double Power, double Press)
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddHeatPower %10.2f %10.2f %10.2f %10.2f", Power, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseHeatTmp=m_TRiseHeat;      
+    dbgpln("AddHeatPower %10.2f %10.2f %10.2f %10.2f", Power, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseHeatTmp=m_TRiseHeat;
   #endif
   m_PowerHeat+=Power;
-  m_TRiseHeat-=m_pCd->Temp();      
-  //m_pCd->SetHoldEquilibrate(); 
-  //double Hf=m_pCd->totHf()+Power; 
+  m_TRiseHeat-=m_pCd->Temp();
+  //m_pCd->SetHoldEquilibrate();
+  //double Hf=m_pCd->totHf()+Power;
 
   const int MaxDT=1000;
   double DT=Power/NZ(m_pCd->totCp());
   if (fabs(DT)>1000)
     Power*=1000/DT;
 
-  m_pCd->Set_totHf(m_pCd->totHf()+Power, Press); 
-  m_TRiseHeat+=m_pCd->Temp();      
+  m_pCd->Set_totHf(m_pCd->totHf()+Power, Press);
+  m_TRiseHeat+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                       %10.2f %10.2f %10.2f Heat:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseHeat-m_TRiseHeatTmp, m_TRiseHeat); 
+    dbgpln("                       %10.2f %10.2f %10.2f Heat:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseHeat-m_TRiseHeatTmp, m_TRiseHeat);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddVLEBegin() 
+void CFlwThermalBlk::AddVLEBegin()
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddVLEBegin            %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseVLETmp=m_TRiseVLE;      
+    dbgpln("AddVLEBegin            %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseVLETmp=m_TRiseVLE;
   #endif
-  m_TRiseVLE-=m_pCd->Temp();      
+  m_TRiseVLE-=m_pCd->Temp();
   };
-void CFlwThermalBlk::AddVLEEnd() 
+void CFlwThermalBlk::AddVLEEnd()
   {
-  m_TRiseVLE+=m_pCd->Temp();      
+  m_TRiseVLE+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                       %10.2f %10.2f %10.2f VLE:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseVLE-m_TRiseVLETmp, m_TRiseVLE); 
+    dbgpln("                       %10.2f %10.2f %10.2f VLE:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseVLE-m_TRiseVLETmp, m_TRiseVLE);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddEHXBegin() 
+void CFlwThermalBlk::AddEHXBegin()
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddEHXBegin            %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseEHXTmp=m_TRiseEHX;      
+    dbgpln("AddEHXBegin            %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseEHXTmp=m_TRiseEHX;
   #endif
   m_PowerEHX-=m_pCd->totHf();
-  m_TRiseEHX-=m_pCd->Temp();      
+  m_TRiseEHX-=m_pCd->Temp();
   };
-void CFlwThermalBlk::AddEHXEnd() 
+void CFlwThermalBlk::AddEHXEnd()
   {
   m_PowerEHX+=m_pCd->totHf();
-  m_TRiseEHX+=m_pCd->Temp();      
+  m_TRiseEHX+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                      %10.2f %10.2f %10.2f  EHX:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEHX-m_TRiseEHXTmp, m_TRiseEHX); 
+    dbgpln("                      %10.2f %10.2f %10.2f  EHX:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEHX-m_TRiseEHXTmp, m_TRiseEHX);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddRBBegin() 
+void CFlwThermalBlk::AddRBBegin()
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddRBBegin             %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseRBTmp=m_TRiseRB;      
+    dbgpln("AddRBBegin             %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseRBTmp=m_TRiseRB;
   #endif
   m_PowerRB-=m_pCd->totHf();
-  m_TRiseRB-=m_pCd->Temp();      
+  m_TRiseRB-=m_pCd->Temp();
   };
-void CFlwThermalBlk::AddRBEnd() 
+void CFlwThermalBlk::AddRBEnd()
   {
   m_PowerRB+=m_pCd->totHf();
-  m_TRiseRB+=m_pCd->Temp();      
+  m_TRiseRB+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                       %10.2f %10.2f %10.2f  RB:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseRB-m_TRiseRBTmp, m_TRiseRB); 
+    dbgpln("                       %10.2f %10.2f %10.2f  RB:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseRB-m_TRiseRBTmp, m_TRiseRB);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddEvapBegin() 
+void CFlwThermalBlk::AddEvapBegin()
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddEvapBegin           %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseEvapTmp=m_TRiseEvap;      
+    dbgpln("AddEvapBegin           %10.2f %10.2f %10.2f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseEvapTmp=m_TRiseEvap;
   #endif
   m_PowerEvap-=m_pCd->totHf();
-  m_TRiseEvap-=m_pCd->Temp();      
+  m_TRiseEvap-=m_pCd->Temp();
   };
-void CFlwThermalBlk::AddEvapEnd() 
+void CFlwThermalBlk::AddEvapEnd()
   {
   m_PowerEvap+=m_pCd->totHf();
-  m_TRiseEvap+=m_pCd->Temp();      
+  m_TRiseEvap+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                       %10.2f %10.2f %10.2f  Evap:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEvap-m_TRiseEvapTmp, m_TRiseEvap); 
+    dbgpln("                       %10.2f %10.2f %10.2f  Evap:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEvap-m_TRiseEvapTmp, m_TRiseEvap);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::AddACPower(double Power, double Press) 
+void CFlwThermalBlk::AddACPower(double Power, double Press)
   {
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("AddACPower  %10.2f %10.2f %10.2f %10.2f", Power, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
-  m_TRiseACTmp=m_TRiseAC;      
+    dbgpln("AddACPower  %10.2f %10.2f %10.2f %10.2f", Power, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
+  m_TRiseACTmp=m_TRiseAC;
   #endif
   m_PowerAC+=Power;
-  m_TRiseAC-=m_pCd->Temp();      
-  m_pCd->Set_totHf(m_pCd->totHf()+Power, Press); 
-  m_TRiseAC+=m_pCd->Temp();      
+  m_TRiseAC-=m_pCd->Temp();
+  m_pCd->Set_totHf(m_pCd->totHf()+Power, Press);
+  m_TRiseAC+=m_pCd->Temp();
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("                       %10.2f %10.2f %10.2f  AC:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseAC-m_TRiseACTmp, m_TRiseAC); 
+    dbgpln("                       %10.2f %10.2f %10.2f  AC:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseAC-m_TRiseACTmp, m_TRiseAC);
   #endif
   };
 
 //--------------------------------------------------------------------------
 
-void CFlwThermalBlk::EndEvalProducts() 
+void CFlwThermalBlk::EndEvalProducts()
   {
-  m_HfOut    = m_pCd->totHf();           
+  m_HfOut    = m_pCd->totHf();
 
 #if UseNewThermalBlock
   if (m_TRiseSpec!=TR_None)
@@ -3007,22 +2925,22 @@ void CFlwThermalBlk::EndEvalProducts()
     m_TRiseCorr = TR-(m_pCd->Temp()-m_TIn);
     m_pCd->SetTempPress(m_TIn+TR, m_pCd->Press());
     m_PowerCorr = m_pCd->totHf()-m_HfOut;
-    m_HfOut    = m_pCd->totHf();           
+    m_HfOut    = m_pCd->totHf();
     #if (dbgFlwEqns)
     if (dbgThermals())
-      dbgpln("PowerRqd    %10.2f %10.2f %10.2f %10.2f", m_PowerCorr, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press()); 
+      dbgpln("PowerRqd    %10.2f %10.2f %10.2f %10.2f", m_PowerCorr, m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press());
     #endif
     }
 #endif
 
   m_TOut     = m_pCd->Temp();
-  m_TRiseTot = m_TOut-m_TIn; 
+  m_TRiseTot = m_TOut-m_TIn;
   m_PowerTot = m_HfOut-m_HfIn;
 
   m_pCd=NULL;
   #if (dbgFlwEqns)
   if (dbgThermals())
-    dbgpln("EndThermals ---------- "); 
+    dbgpln("EndThermals ---------- ");
   #endif
   };
 

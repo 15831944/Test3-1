@@ -1209,7 +1209,6 @@ class DllImportExport FlwBlk  : public CFlwBlkBase
     void           SetQmReqdVlv(double QmReqd, double Reg, flag IsFree=true, float MaxNode=fNAN, float MaxFlng=fNAN);
     void           SetQmFree();
     double         RequiredQm();
-    //void           EvalGetModeRqd(byte FlowMode, bool On, bool IsDegFreedom);
 
     void           SetBiDirectionalFlow();
     void           SetUniDirectionalFlow(flag Fwd=true, double OpenPress=1.0, double ClosePress=0.0);

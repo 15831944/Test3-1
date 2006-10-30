@@ -63,15 +63,16 @@ XID xidFlwEqnDatumFlng      = FlwXID(10013);
 XID xidFlwEqnDatumNode      = FlwXID(10014);           
 
 XID xidFlwEqnQmMode         = FlwXID(10021);
-XID xidFlwEqnQmAsMass     = FlwXID(10022);
-XID xidFlwEqnQmReqd         = FlwXID(10023);
-XID xidFlwEqnQvReqd         = FlwXID(10024);
-XID xidFlwEqnQmRqdCapacity  = FlwXID(10025);
-XID xidFlwEqnQmMinCapacity  = FlwXID(10026);
-XID xidFlwEqnQmMaxCapacity  = FlwXID(10027);
-XID xidFlwEqnQvRqdCapacity  = FlwXID(10028);
-XID xidFlwEqnQvMinCapacity  = FlwXID(10029);
-XID xidFlwEqnQvMaxCapacity  = FlwXID(10030);
+XID xidFlwEqnQmAsMass       = FlwXID(10022);
+XID xidFlwEqnQmMeasRho      = FlwXID(10023);
+XID xidFlwEqnQmReqd         = FlwXID(10024);
+XID xidFlwEqnQvReqd         = FlwXID(10025);
+XID xidFlwEqnQmRqdCapacity  = FlwXID(10026);
+XID xidFlwEqnQmMinCapacity  = FlwXID(10027);
+XID xidFlwEqnQmMaxCapacity  = FlwXID(10028);
+XID xidFlwEqnQvRqdCapacity  = FlwXID(10029);
+XID xidFlwEqnQvMinCapacity  = FlwXID(10030);
+XID xidFlwEqnQvMaxCapacity  = FlwXID(10031);
 
 //XID xidFlwEqnPressOn        = FlwXID(10040);
 XID xidFlwEqnNomDP          = FlwXID(10041);
@@ -369,6 +370,7 @@ class DllImportExport CFlwEqnFlwRqd
   public:
 
     bool          m_AsMass;
+    bool          m_bMeasDensOK;
     double        m_MeasDens;
     double        m_ReqdQm;  
     double        m_ReqdQv;  
@@ -461,10 +463,9 @@ class DllImportExport CFlwEqn  : public TaggedObject
     virtual void    SetKFact(double K) { m_PhD.KFact.SetVal(K, this); };
     virtual double  GetKFact() { return m_PhD.KFact.Val(); };
     virtual double  GetFricFact() { return dNAN; };
-    virtual void    EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, bool IsDegFreedom, double Regulation, double OffIfRegBelow=SmallRegulation);
-    virtual flag    EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)=0;
+    virtual flag    EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)=0;
     virtual pchar   FlwEqnName();
-    //static  double  RangeFlow(double Flow, double LoLimit);
+
     virtual void    EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB);
     virtual void    EvalDiscrete(CFlwBlkBase & FE);
 
@@ -879,12 +880,11 @@ class DllImportExport CFlwBlkBase : public CFlwBlkData,  public CFlwEqnPtr
     virtual void   EvalFlowInfoEnd();
     virtual flag   TestFlowInfo();
 
+    bool           GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation);
     flag           EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1);//, double P1, double P2);
     flag           SolveFlwEqn(CSpPropInfo *pProps, double Regulation, double P1_, double P2_, double & ReqdFlw);
     void           EvalProducts(double Pi, double Po, SpConduit & C, CFlwThermalBlk & FTB);
     void           EvalDiscrete();
-
-//?    void           EvalGetModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, bool IsDegFreedom, double Regulation);
 
     virtual flag   InXferNet()=0;
     virtual void   SetXferMode()=0;

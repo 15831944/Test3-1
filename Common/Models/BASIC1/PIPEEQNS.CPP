@@ -247,7 +247,7 @@ double FE_Darcy::dP_Vel_Fn(double VVolFrac, double Vel, double QmL, double QmV, 
 
 #define DumpCrv 0
 
-flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_Darcy::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Diam=m_PhD.Diam();
   #if DumpCrv
@@ -430,7 +430,7 @@ void FE_Linear::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
-flag FE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   FE.SetDPq(-FE.QmSign()*FE.QmMeas()*FE.TotLength()*R_Fxd, -FE.QmSign()*FE.TotLength()*R_Fxd);
 //  FE.SetArea(PI/4.0*Sqr(Diam));
@@ -519,7 +519,7 @@ void FE_DPperQV::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
-flag FE_DPperQV::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_DPperQV::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Qm=GTZ(fabs(FE.QmMeas()));
   FE.SetQvMeasRange(FE.MeanRho(pProps), 1e-6);
@@ -613,7 +613,7 @@ void FE_Hazen::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
-flag FE_Hazen::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_Hazen::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   //pressure drop
   double Rho=FE.MeanRho(pProps);
@@ -723,7 +723,7 @@ void FE_Chmbr::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
-flag FE_Chmbr::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_Chmbr::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   //pressure drop
   double Rho=FE.MeanRho(pProps);
@@ -817,7 +817,7 @@ Model type:Pipe Flow Equation#n
 //
 ////--------------------------------------------------------------------------
 //
-//flag FE_MR::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+//flag FE_MR::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
 //  {
 //  #if DumpCrv
 //  if (CFlwEqn::DoDumpTest)
@@ -930,7 +930,7 @@ Model type:Pipe Flow Equation#n
 //
 ////--------------------------------------------------------------------------
 //
-//flag FE_MRCTF::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+//flag FE_MRCTF::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
 //  {
 //  #if DumpCrv
 //  if (CFlwEqn::DoDumpTest)
@@ -1142,7 +1142,7 @@ double FE_MRDM::CalcDP(CFBPhysData & PhD, CFlwBlkBase & FE, double Vel, double R
 
 //--------------------------------------------------------------------------
 
-flag FE_MRDM::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_MRDM::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   if (Valid(N_Const))
     {
@@ -1266,7 +1266,7 @@ Model type:Pipe Flow Equation#n
 //
 ////--------------------------------------------------------------------------
 //
-//flag FE_MRHR::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+//flag FE_MRHR::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
 //  {
 //  #if DumpCrv
 //  if (CFlwEqn::DoDumpTest)
@@ -1404,7 +1404,7 @@ void FE_CompAir::SetPhysData(double DZ)
 
 //--------------------------------------------------------------------------
 
-flag FE_CompAir::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_CompAir::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   double Diam = m_PhD.Diam();
   double wRho, R, Pin, rhoArea, TTemp;
@@ -1517,7 +1517,7 @@ static struct { double m_Diam; CDataPt m_Data[NPts]; } s_Curves[NCrvs] =
 
 //--------------------------------------------------------------------------
 
-flag FE_MSBackFill::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
+flag FE_MSBackFill::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   if (Diam()!=m_PrevDiam)
     {
