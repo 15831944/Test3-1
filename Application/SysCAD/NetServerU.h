@@ -12,6 +12,7 @@ class CGrfTagInfo;
 class CLinePointsArray;
 class CNSMdlNode;
 class CNSMdlLink;
+class CNSMdlThing;
 class FlwNode;
 
 //========================================================================
@@ -77,6 +78,25 @@ class CNSGrfLink : public CNSGrfItem
     CArray <CPt, CPt&> m_Pts;
   };
 
+class CNSGrfThing  : public CNSGrfItem
+  {
+  public:
+    CNSGrfThing();
+    CNSGrfThing(LPCTSTR Page, CNSMdlThing * pMdl, CGrfTagInfo & Info);
+    ~CNSGrfThing();
+
+  public:
+
+	float			  m_Left;
+	float			  m_Top;
+	float			  m_Width;
+	float			  m_Height;
+
+    float             m_Rotation;
+
+    CNSMdlThing      * m_pMdl;
+  };
+
 //========================================================================
 
 class CNSGuidItem
@@ -133,6 +153,21 @@ class CNSMdlLink  : public CNSGuidItem
 
 	CNSGrfLink      * m_pGrf; 
     //FlwNode * m_pNd;
+  };
+
+class CNSMdlThing : public CNSGuidItem
+  {
+  public:
+
+    CNSMdlThing(LPCTSTR Tag, LPCTSTR Guid, LPCTSTR ClassID);
+    virtual ~CNSMdlThing();
+
+    FlwNode         * m_pNd; // eventually use this for direct access 
+
+    CArray <CNSGrfThing*, CNSGrfThing*> m_pGrfs; 
+
+    //
+
   };
 
 //========================================================================

@@ -260,6 +260,57 @@ ref class CNETServerThread
         }
       }
 
+    bool CreateThing(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+      {
+      if (true) // Decide whether to create an Thing.
+        { // We're going to do it.
+        // Create the Thing.
+
+        // Raise event(s).
+        graphic->DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
+    bool ModifyThing(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+      {
+      if (true) // Decide whether to modify an Thing.
+        { // We're going to do it.
+        // Modify the Thing.
+
+        // Raise event(s).
+       graphic->DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
+    bool DeleteThing(ServiceGraphic^ graphic, uint requestID, Guid guid)
+      {
+      if (true) // Decide whether to delete an Thing.
+        { // We're going to do it.
+        // Delete the Thing.
+
+        // Raise event(s).
+        graphic->DoThingDeleted(requestID, guid);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
     PortStatus PortCheck(ServiceGraphic^ graphic, Guid guid, Anchor^ anchor)
       {
       //		CNSGuidItem * pGuid = new CNSGuidItem();
@@ -280,10 +331,14 @@ ref class CNETServerThread
       ServiceGraphic::ModifyLinkDelegate^ modifyLink = gcnew ServiceGraphic::ModifyLinkDelegate(this, &CNETServerThread::ModifyLink);
       ServiceGraphic::DeleteLinkDelegate^ deleteLink = gcnew ServiceGraphic::DeleteLinkDelegate(this, &CNETServerThread::DeleteLink);
 
+      ServiceGraphic::CreateThingDelegate^ createThing = gcnew ServiceGraphic::CreateThingDelegate(this, &CNETServerThread::CreateThing);
+      ServiceGraphic::ModifyThingDelegate^ modifyThing = gcnew ServiceGraphic::ModifyThingDelegate(this, &CNETServerThread::ModifyThing);
+      ServiceGraphic::DeleteThingDelegate^ deleteThing = gcnew ServiceGraphic::DeleteThingDelegate(this, &CNETServerThread::DeleteThing);
+
       ServiceGraphic::PortCheckDelegate^ portCheck = gcnew ServiceGraphic::PortCheckDelegate(this, &CNETServerThread::PortCheck);
 
 
-      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, portCheck);
+      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -296,11 +351,24 @@ ref class CNETServerThread
           CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
           if (!pGuid->m_IsLink)
           {
-            CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid);
-            String ^ page = gcnew String(pNode->m_pGrfs[0]->m_Page);
-            if (!pages->Contains(page))
+            Strng tag = pGuid->m_Tag;
+            if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
             {
-              pages->Add(page);
+              CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid);
+              String ^ page = gcnew String(pNode->m_pGrfs[0]->m_Page);
+              if (!pages->Contains(page))
+              {
+                pages->Add(page);
+              }
+            }
+            else
+            {
+              CNSMdlThing * pThing = dynamic_cast<CNSMdlThing *>(pGuid);
+              String ^ page = gcnew String(pThing->m_pGrfs[0]->m_Page);
+              if (!pages->Contains(page))
+              {
+                pages->Add(page);
+              }
             }
           }
         }
@@ -336,16 +404,33 @@ ref class CNETServerThread
         CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
         if (!pGuid->m_IsLink)
           {
-          CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid); 
+          Strng tag = pGuid->m_Tag;
+          if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
+            {
+            CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid); 
 
-          GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
-          String ^ path = "/" + filename + "/" + gcnew String(pNode->m_pGrfs[0]->m_Page) + "/";
+            GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
+            String ^ path = "/" + filename + "/" + gcnew String(pNode->m_pGrfs[0]->m_Page) + "/";
 
-          graphicItem->Populate(filename, gcnew String(pNode->m_pGrfs[0]->m_Page),
-            gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
-            RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
-            pNode->m_pGrfs[0]->m_Rotation);
-          graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
+            graphicItem->Populate(filename, gcnew String(pNode->m_pGrfs[0]->m_Page),
+              gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
+              RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
+              pNode->m_pGrfs[0]->m_Rotation);
+            graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
+            }
+          else
+          {
+            CNSMdlThing * pThing = dynamic_cast<CNSMdlThing *>(pGuid); 
+
+            GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pThing->m_Guid)), gcnew String(pThing->m_Tag));
+            String ^ path = "/" + filename + "/" + gcnew String(pThing->m_pGrfs[0]->m_Page) + "/";
+
+            graphicItem->Populate(filename, gcnew String(pThing->m_pGrfs[0]->m_Page),
+              gcnew String(pThing->m_Guid), gcnew String(pThing->m_ClassID), 
+              RectangleF(pThing->m_pGrfs[0]->m_Left + pageOffset[path].X, pThing->m_pGrfs[0]->m_Top + pageOffset[path].Y, pThing->m_pGrfs[0]->m_Width, pThing->m_pGrfs[0]->m_Height),
+              pThing->m_pGrfs[0]->m_Rotation);
+            graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
+          }
           }
         }
       }

@@ -75,6 +75,34 @@ CNSGrfLink::~CNSGrfLink()
   }
 
 //========================================================================
+
+CNSGrfThing::CNSGrfThing() 
+  {
+  m_pMdl      = NULL;
+  m_Left = 0.0;
+  m_Top = 0.0;
+  m_Width = 0.0;
+  m_Height = 0.0;
+  m_Rotation  = 0;
+  };
+
+CNSGrfThing::CNSGrfThing(LPCTSTR Page, CNSMdlThing * pMdl, CGrfTagInfo & Info) : \
+CNSGrfItem(Page),
+m_pMdl(pMdl)
+  {
+  m_Left = (float)Info.m_LoBnd.m_X;
+  m_Top = -(float)Info.m_HiBnd.m_Y;
+  m_Width = (float)Info.m_HiBnd.m_X - (float)Info.m_LoBnd.m_X;
+  m_Height = (float)Info.m_HiBnd.m_Y - (float)Info.m_LoBnd.m_Y;
+
+  m_Rotation  = (float)Info.m_Node.m_Rotation;
+  };
+
+CNSGrfThing::~CNSGrfThing()
+  {
+  };
+
+//========================================================================
 //
 //
 //
@@ -104,6 +132,19 @@ CNSGuidItem(Tag, Guid, ClassID)
   };
 
 CNSMdlLink::~CNSMdlLink() { };
+
+
+CNSMdlThing::CNSMdlThing(LPCTSTR Tag, LPCTSTR Guid, LPCTSTR ClassID) : \
+CNSGuidItem(Tag, Guid, ClassID)
+  { 
+  //m_IsMdl   = true;
+  m_pNd   = NULL;
+  //m_Guid  = "{00000000-0000-0000-0000-000000000000}";
+  //m_pGrfs   = NULL;
+  };
+
+CNSMdlThing::~CNSMdlThing()   {};
+
 
 //========================================================================
 //
@@ -226,11 +267,19 @@ void CNETServerU::LoadItems()
             {
               Strng tag = I.m_sTag();
 
-              if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOSHEET_* non-unit.
+              if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
               {
                 DoneOne = true;
                 CNSMdlNode * pMdl=new CNSMdlNode(I.m_sTag(), Guid(), I.m_sClass());
                 CNSGrfNode * pGrf=new CNSGrfNode(Page(), pMdl, I);
+                pMdl->m_pGrfs.Add(pGrf);
+                m_Guids.AddTail(pMdl);
+              }
+              else
+              {
+                DoneOne = true;
+                CNSMdlThing * pMdl=new CNSMdlThing(I.m_sTag(), Guid(), I.m_sClass());
+                CNSGrfThing * pGrf=new CNSGrfThing(Page(), pMdl, I);
                 pMdl->m_pGrfs.Add(pGrf);
                 m_Guids.AddTail(pMdl);
               }
