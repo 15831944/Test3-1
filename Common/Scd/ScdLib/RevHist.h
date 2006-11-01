@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "30 October 2006"
+#define SCD_PATCHDATE    "31 October 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2602,12 +2602,17 @@ Build 121 : 22 October 2006
    ability to define tables in access window.
 2) (#619,620,624) Various fixes.
 
-Update 1 : 30 October 2006
+Update 1 : 31 October 2006
 ------------------------------
 1) Various improvements and fixes for dynamic simple flow calcs. Dynamic
    solver speed improvements for flow equations. Improved tests for fixed flow 
    or free flow sections of network.
-2) (#631) Various fixes.
+2) Fix for 'rare' crash (in reaction closure test) on first solve start after 
+   a project load.
+3) (#630) The 'S°298' field name can cause problems in the specie database with 
+   alternate character or language mappings. SysCAD now supports the field
+   name S298 and S°298.
+4) (#631) Various fixes.
 
 
 
