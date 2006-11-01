@@ -186,7 +186,7 @@ void CAirSupply::BuildDataDefn(DataDefnBlk & DDB, TaggedObject *pTagObj, LPCSTR 
   {
   if (DDB.BeginObject(pTagObj, (LPSTR)Tag, "AirCd", NULL, DDB_NoPage, -1, AsParm?0:MarkerClosed))
     {
-//    DDB.Double("",          "Phie", DC_CosPhi, "°",  &m_Earth.m_dPhi,    pTagObj, (AsParm?isParm:0)|InitHidden);
+//    DDB.Double("",          "Phie", DC_CosPhi, "deg",  &m_Earth.m_dPhi,    pTagObj, (AsParm?isParm:0)|InitHidden);
     }                               
   DDB.EndStruct();
   };

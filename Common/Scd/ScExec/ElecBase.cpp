@@ -362,9 +362,9 @@ void CECompData::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pTagObj, long I
   DDB.String   ("", "Dst",      DC_,      "",     Id+xidConnDst,    pTagObj, 0);
 
   DDB.Double   ("", "Volts",    DC_V,     "V",    Id+xidConnVolts,  pTagObj, 0);
-  DDB.Double   ("", "V.Phase",  DC_Ang,   "°",    Id+xidConnVAng,   pTagObj, 0);
+  DDB.Double   ("", "V.Phase",  DC_Ang,   "deg",  Id+xidConnVAng,   pTagObj, 0);
   DDB.Double   ("", "Amps",     DC_I,     "A",    Id+xidConnAmps,   pTagObj, 0);
-  DDB.Double   ("", "I.Phase",  DC_Ang,   "°",    Id+xidConnIAng,   pTagObj, 0);
+  DDB.Double   ("", "I.Phase",  DC_Ang,   "deg",  Id+xidConnIAng,   pTagObj, 0);
 
   DDB.Double   ("", "VoltDrop", DC_V,     "V",    Id+xidConnVDrop,  pTagObj, 0);
   DDB.Double   ("", "HeatLoad", DC_Pwr,   "W",    Id+xidConnHtLoad, pTagObj, 0);
@@ -373,7 +373,7 @@ void CECompData::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pTagObj, long I
   DDB.Double   ("", "R",        DC_Ohms,  "Ohms", Id+xidConnR,      pTagObj, isParmConstruct|InitHidden);
   DDB.Double   ("", "X",        DC_Ohms,  "Ohms", Id+xidConnX,      pTagObj, isParmConstruct|InitHidden);
   DDB.Double   ("", "VSrc",     DC_V,     "V",    Id+xidConnV,      pTagObj, isParmConstruct|InitHidden);
-  DDB.Double   ("", "VSrcPh",   DC_Ang,   "°",    Id+xidConnPh,     pTagObj, isParmConstruct|InitHidden);
+  DDB.Double   ("", "VSrcPh",   DC_Ang,   "deg",  Id+xidConnPh,     pTagObj, isParmConstruct|InitHidden);
   };
 
 flag CECompData::DataXchg(DataChangeBlk & DCB, TaggedObject * pTagObj, long Id)
@@ -663,7 +663,7 @@ void CETermStrip::BuildDataDefn(DataDefnBlk & DDB, long TSIndex, bool WithArray)
     CETerminal & T=*Terminal(j);
     DDB.BeginElement(m_pNd, WithArray ? T.Name():T.FullName(), NULL, TSIndex*10000+j);
     DDB.Double("", "Volts", DC_V,   "V", xidVMag, m_pNd, 0);
-    DDB.Double("", "Phase", DC_Ang, "°", xidVAng, m_pNd, 0);
+    DDB.Double("", "Phase", DC_Ang, "deg", xidVAng, m_pNd, 0);
     }
   if (WithArray)
     DDB.EndArray();
@@ -729,7 +729,7 @@ CNodeElectrics::~CNodeElectrics()
 //      CETerminal & T=*TS.Terminal(j);
 //      DDB.BeginElement(m_pNd, T.Name(), NULL, i*10000+j);
 //      DDB.Double("Volts", "V",  DC_V,   "V", xidVMag, m_pNd, 0);
-//      DDB.Double("Phase", "ø",  DC_Ang, "°", xidVAng, m_pNd, 0);
+//      DDB.Double("Phase", "ø",  DC_Ang, "deg", xidVAng, m_pNd, 0);
 //      }
 //    DDB.EndArray();
 //    }

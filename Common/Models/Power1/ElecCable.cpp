@@ -123,7 +123,7 @@ void CElecCable::BuildDataDefn(DataDefnBlk & DDB)
         long Id=xidConnFirst+c*xidConnCount;
         m_Wires[c].m_CompData.BuildDataDefn(DDB, this, Id, NULL);//S);
         //DDB.Double("",      "Amps",         DC_I,     "A",      xidAmps,   this, 0);
-        //DDB.Double("",      "Phase",        DC_Ang,   "°",      xidPhase,  this, 0);
+        //DDB.Double("",      "Phase",        DC_Ang,   "deg",    xidPhase,  this, 0);
         //DDB.Double("",      "RAmps",        DC_I,     "A",      xidRAmps,  this, isParmConstruct|InitHidden);
         //DDB.Double("",      "XAmps",        DC_I,     "A",      xidXAmps,  this, isParmConstruct|InitHidden);
         }

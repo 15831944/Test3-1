@@ -103,7 +103,7 @@ void CTransformer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double       ("SecResist",     "", DC_Ohms,  "Ohms",  xidSecR,  this, isParm);
   DDB.Double       ("SecIndReact",   "", DC_Ohms,  "Ohms",  xidSecX,  this, isParm);
   DDB.Double       ("NoLoadCurrent", "", DC_I,     "A",     &m_dNLI,  this, isParm);
-  DDB.Double       ("NoLoadPhase",   "", DC_Ang,   "°",     &m_dNLA,  this, isParm);
+  DDB.Double       ("NoLoadPhase",   "", DC_Ang,   "deg",   &m_dNLA,  this, isParm);
   DDB.Double       ("HeatLoad",      "", DC_Pwr,   "W",     xidHtLoad,this, 0);
   DDB.Text("");
   m_tsPri.BuildDataDefn(DDB, 1, true);

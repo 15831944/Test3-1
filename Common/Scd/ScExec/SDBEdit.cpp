@@ -1245,15 +1245,15 @@ static MyFldInfo SpFI[] =
     { "Definition"  , "Defn"        ,  8, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
     { "Occurence"   , "Occ"         ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
     { "Checked"     , "Chkd"        ,  5, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ts"          , "Ts(°K)"      ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Te"          , "Te(°K)"      ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Ts"          , "Ts(K)"       ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Te"          , "Te(K)"       ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
     { "Rho"         , "Rho(kg/m^3)" , 10, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "dHf"         , "Hf(J/mol)"   ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "S°298"       , "S(J/mol.K)"  ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "S298"        , "S(J/mol.K)"  ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "Cp"          , "Cp(J/mol.K)" , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "Vp"          , "Vp(kPa)"     , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "Pc"          , "Pc(MPa)"     ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Tc"          , "Tc(°K)"      ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Tc"          , "Tc(K)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "Vc"          , "Vc(m^3)"     ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "Ac"          , "Ac"          ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { "Reference"   , "Reference"   , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
@@ -2023,9 +2023,9 @@ BOOL CSDBSpecie::OnInitDialog()
     //CListCtrl *pMsgCtrl = (CListCtrl*)GetDlgItem(IDC_MSGLIST);
     //if (pMsgCtrl->m_hWnd)
     //  {
-    m_SpList.InsertColumn(0, "Specie",  LVCFMT_LEFT, 140);
-    m_SpList.InsertColumn(1, "From",   LVCFMT_RIGHT,  45);
-    m_SpList.InsertColumn(2, "To(°K)", LVCFMT_RIGHT,  45);
+    m_SpList.InsertColumn(0, "Specie", LVCFMT_LEFT, 140);
+    m_SpList.InsertColumn(1, "From", LVCFMT_RIGHT, 45);
+    m_SpList.InsertColumn(2, "To(K)", LVCFMT_RIGHT, 45);
       //m_SpList.SetImageList(&m_ImgList , LVSIL_SMALL);
     //  }
 
@@ -3020,8 +3020,8 @@ BOOL CHSCSlct::OnInitDialog()
 
     m_List.SetHeaderCount(4);
     m_List.SetHeaderItem(0, "Formula",  Rect.Width()*FormLen);
-    m_List.SetHeaderItem(1, "T1 (°K)",       Rect.Width()*9);
-    m_List.SetHeaderItem(2, "T2 (°K)",       Rect.Width()*9);
+    m_List.SetHeaderItem(1, "T1 (K)",   Rect.Width()*9);
+    m_List.SetHeaderItem(2, "T2 (K)",   Rect.Width()*9);
     m_List.SetHeaderItem(3, "Name",     Rect.Width()*NameLen);
     m_List.MakeHeader(34763);
 
@@ -3245,14 +3245,24 @@ BOOL CSDBSlct::OnInitDialog()
   CFileStatus State;
   if (CFile::GetStatus(m_Filename(), State))
     {
-    char* SpColNames[] = { "Name", "Compound", "Definition", "Phase", "Occurence", 
-                           "Checked", "Ts", "Te", "Rho", "dHf", "S°298", 
-                           "Cp", "Vp", "Pc", "Tc", "Vc", "Ac", NULL }; // Ignore Reference
+    //NBNB: The '°' in 'S°298' causes problems with other language utilities (eg chinese characters)
+    const int iOC_S298 = 10; //index of S298 in columns
+    char* SpColNames[] = { "Name", "Compound", "Definition", "Phase", "Occurence",
+      "Checked", "Ts", "Te", "Rho", "dHf", "S°298",
+      "Cp", "Vp", "Pc", "Tc", "Vc", "Ac", NULL };
+    char* SpColNames2[] = { "Name", "Compound", "Definition", "Phase", "Occurence",
+      "Checked", "Ts", "Te", "Rho", "dHf", "S298",
+      "Cp", "Vp", "Pc", "Tc", "Vc", "Ac", NULL };
     //CDBHelper DB(m_Filename(), "Species");
     pDB=new CDBHelper(m_Filename(), "Species");
     if (pDB->Open(DBConnect_Default, SpColNames[0], DBH_HasHeadings|DBH_ReadOnly|/*DBH_ForwardOnly|*/DBH_TrimStrings))
       {
-      if (pDB->CheckFieldNames(SpColNames))
+      BOOL ColNamesOK = pDB->CheckFieldNames(SpColNames);
+      if (!ColNamesOK && pDB->FieldIndex(iOC_S298)<0)
+        {//problem with S°298, try alternate field names
+        ColNamesOK = pDB->CheckFieldNames(SpColNames2);
+        }
+      if (ColNamesOK)
         {
         char* OptColNames[] = { "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
         pDB->CheckOptionalFieldNames(OptColNames);
@@ -3301,7 +3311,10 @@ BOOL CSDBSlct::OnInitDialog()
         }
       else
         {
-        LogError("Specie Import", 0, "Incorrect field names: Table 'Species' in '%s'", m_Filename());
+        if (pDB->FieldIndex(iOC_S298)<0)
+          LogError("Specie Import", 0, "Try changing field name 'S°298' to 'S298' in table 'Species' in '%s'", m_Filename());
+        else
+          LogError("Specie Import", 0, "Incorrect field names: Table 'Species' in '%s'", m_Filename());
         //Ok = false;
         }
       pDB->MoveFirst();
@@ -3313,8 +3326,8 @@ BOOL CSDBSlct::OnInitDialog()
 
     m_List.SetHeaderCount(4);
     m_List.SetHeaderItem(0, "Formula",  Rect.Width()*FormLen);
-    m_List.SetHeaderItem(1, "T1 (°K)",       Rect.Width()*9);
-    m_List.SetHeaderItem(2, "T2 (°K)",       Rect.Width()*9);
+    m_List.SetHeaderItem(1, "T1 (K)",   Rect.Width()*9);
+    m_List.SetHeaderItem(2, "T2 (K)",   Rect.Width()*9);
     m_List.SetHeaderItem(3, "Name",     Rect.Width()*NameLen);
     m_List.MakeHeader(34763);
 
@@ -3823,7 +3836,7 @@ void CSDBTest::TestThermo(int &nGood, int &nBad)
   CSSColumn Col1=Cols.GetItem(COleVariant(1L));
   CSSColumn Col3=Cols.GetItem(COleVariant(3L));
   CSSColumn Col4=Cols.GetItem(COleVariant(4L));
-  Col1.SetCaption(m_ShowK.GetCheck() ? "Temp(°K)" : "Temp(°C)");
+  Col1.SetCaption(m_ShowK.GetCheck() ? "Temp(K)" : "Temp(C)");
   Col3.SetCaption(m_ShowKg.GetCheck() ? "H(kJ/kg)" : "H(kJ/kmol)");
   Col4.SetCaption(m_ShowKg.GetCheck() ? "Cp(kJ/kg.K)" : "Cp(kJ/kmol.K)");
 
@@ -3976,7 +3989,7 @@ void CSDBTest::TestSoluble(int &nGood, int &nBad)
   Strng SBlnk(" "), S;
   CSSColumns Cols=m_SolubleGrid.GetColumns();
   CSSColumn Col2=Cols.GetItem(COleVariant(2L));
-  Col2.SetCaption(m_ShowK.GetCheck() ? "Temp(°K)" : "Temp(°C)");
+  Col2.SetCaption(m_ShowK.GetCheck() ? "Temp(K)" : "Temp(C)");
 
   long row=0;
 

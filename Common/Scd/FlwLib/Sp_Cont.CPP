@@ -3772,7 +3772,7 @@ void CEnvironment::BuildDataDefn(pTaggedObject pOwn, char * Tag, DataDefnBlk &DD
       DDB.Double("AirPressure",       "P", DC_P,    "kPa",      xidAtmPress,      pOwn, 0);//(!AsFlow ? isParm : 0));
       DDB.Double("AirDensity",        "",  DC_Rho,  "kg/m^3",   xidAtmDens,       pOwn, 0);//(!AsFlow ? isParm : 0));
       DDB.Double("WindSpeed",         "",  DC_Ldt,  "m/s",      xidWindSpeed,     pOwn, isParm);//(!AsFlow ? isParm : 0));
-      DDB.Double("WindDirection",     "",  DC_Ang,  "°",        xidWindDirn,      pOwn, isParm);//(!AsFlow ? isParm : 0));
+      DDB.Double("WindDirection",     "",  DC_Ang,  "deg",      xidWindDirn,      pOwn, isParm);//(!AsFlow ? isParm : 0));
       DDB.Double("RelativeHumidity",  "",  DC_Frac, "%",        xidRelHumid,      pOwn, isParm);//(!AsFlow ? isParm : 0));
       if (DDB.BeginStruct(pOwn, "Air"))
         {

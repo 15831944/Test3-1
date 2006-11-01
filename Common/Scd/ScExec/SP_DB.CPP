@@ -2792,14 +2792,23 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
   CFileStatus State;
   if (CFile::GetStatus(DataFile, State))
     {
+    //NBNB: The '°' in 'S°298' causes problems with other language utilities (eg chinese characters)
+    const int iOC_S298 = 10; //index of S298 in columns
     char* SpColNames[] = { "Name", "Compound", "Definition", "Phase", "Occurence",
       "Checked", "Ts", "Te", "Rho", "dHf", "S°298",
-      "Cp", "Vp", "Pc", "Tc", "Vc", "Ac", NULL }; // Ignore Reference
+      "Cp", "Vp", "Pc", "Tc", "Vc", "Ac", NULL };
+    char* SpColNames2[] = { "Name", "Compound", "Definition", "Phase", "Occurence",
+      "Checked", "Ts", "Te", "Rho", "dHf", "S298",
+      "Cp", "Vp", "Pc", "Tc", "Vc", "Ac", NULL };
     CDBHelper DB(DataFile, "Species");
     if (DB.Open(DBConnect_Default, SpColNames[0], DBH_HasHeadings|DBH_ReadOnly|DBH_ForwardOnly|DBH_TrimStrings))
-
       {
-      if (DB.CheckFieldNames(SpColNames))
+      BOOL ColNamesOK = DB.CheckFieldNames(SpColNames);
+      if (!ColNamesOK && DB.FieldIndex(iOC_S298)<0)
+        {//problem with S°298, try alternate field names
+        ColNamesOK = DB.CheckFieldNames(SpColNames2);
+        }
+      if (ColNamesOK)
         {
         char* OptColNames[] = { "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
         DB.CheckOptionalFieldNames(OptColNames);
@@ -2940,7 +2949,10 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
         }
       else
         {
-        LogError("SpecieDB", 0, "Incorrect field names: Table 'Species' in '%s'", DataFile);
+        if (DB.FieldIndex(iOC_S298)<0)
+          LogError("SpecieDB", 0, "Try changing field name 'S°298' to 'S298' in table 'Species' in '%s'", DataFile);
+        else
+          LogError("SpecieDB", 0, "Incorrect field names: Table 'Species' in '%s'", DataFile);
         Ok = false;
         }
       DB.Close();

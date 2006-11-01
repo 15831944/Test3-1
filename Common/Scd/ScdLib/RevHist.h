@@ -17,11 +17,11 @@
 // ++ See scdver.h for version and build numbers          ++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-//#define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
+//#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
 
-#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-//#define SCD_PATCHDATE    "19 October 2006"
+//#define SCD_PATCHDATE    ""        /* Update/patch release date*/
+#define SCD_PATCHDATE    "30 October 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2597,10 +2597,17 @@ Update 4 : 16 October 2006
 
 Build 121 : 22 October 2006
 ------------------------------
-1) (#541, 617,622) SMDK changes. Extended SMDK for qualities. IF<T>() has been 
-   replaced with GetIF<T>, FindIF<T> or CreateIF<T>.  Added ability to define 
-   tables in access window.
+1) (#541, 617,622) Significant SMDK changes. Extended SMDK for qualities.
+   IF<T>() has been replaced with GetIF<T>, FindIF<T> or CreateIF<T>.  Added 
+   ability to define tables in access window.
 2) (#619,620,624) Various fixes.
+
+Update 1 : 30 October 2006
+------------------------------
+1) Various improvements and fixes for dynamic simple flow calcs. Dynamic
+   solver speed improvements for flow equations. Improved tests for fixed flow 
+   or free flow sections of network.
+2) (#631) Various fixes.
 
 
 
