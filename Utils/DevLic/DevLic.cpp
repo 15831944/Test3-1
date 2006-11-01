@@ -157,54 +157,73 @@ BOOL CDevLicApp::InitInstance()
   // Developers License Exists - We can continue
   if ( bCmdLineOnly )
     {
+    // Command Line Operation
     
     // Example command line params to test
     // /L"C:\WINNT\SysCAD82License\" /F"C:\SysCAD81b44\bin\OSM_Methods.dll"
     // /Q /s"C:\SysCAD81b44\bin\OSM_Methods.dll"
 
+    bool FileExists = false;
+    WIN32_FIND_DATA fd;
+    HANDLE H;
+    if ((H=FindFirstFile((const char*)sDLLName, &fd))!=INVALID_HANDLE_VALUE)
+      {
+      FindClose(H);
+      FileExists = true;
+      }
+
     bool bOK = false;
     CString sReason;
-    if ( CheckLicense() )
+    if (FileExists) 
       {
-      // Command Line Operation
-      if ( CScribble::ReadScribble(sDLLName) )
+      if (CheckLicense() )
         {
-        // Already Licensed so replace existing license
-        if ( CScribble::AddScribble(sDLLName,true) )
+        if ( CScribble::ReadScribble(sDLLName) )
           {
-          // Successfully Licensed
-          bOK = true;
-          if (!bQuiet) 
-            AfxMessageBox("Replaced license in file!");
+          // Already Licensed so replace existing license
+          if ( CScribble::AddScribble(sDLLName,true) )
+            {
+            // Successfully Licensed
+            bOK = true;
+            if (!bQuiet) 
+              AfxMessageBox("Replaced license in file!");
+            }
+          else
+            {
+            sReason = "License existed but failed to replace!";
+            }
           }
         else
           {
-          sReason = "License existed but failed to replace!";
+          // License does not already exist so add a new license
+          if ( CScribble::AddScribble(sDLLName,false) )
+            {
+            // Successfully Licensed
+            bOK = true;
+            if (!bQuiet) 
+              AfxMessageBox("Added license to file!");
+            }
+          else
+            {// Problem
+            sReason = "Failed to license file!";
+            }
           }
         }
       else
         {
-        // License does not already exist so add a new license
-        if ( CScribble::AddScribble(sDLLName,false) )
-          {
-          // Successfully Licensed
-          bOK = true;
-          if (!bQuiet) 
-            AfxMessageBox("Added license to file!");
-          }
-        else
-          {// Problem
-          sReason = "Failed to license file!";
-          }
+        sReason = "Developer License NOT found!";
         }
       }
     else
       {
-      sReason = "Developer License NOT found!";
+      sReason = "File does not exist!";
+      /*bOK = true;
+      if (!bQuiet) 
+        AfxMessageBox("File does not exist!");*/
       }
 
     if (!bOK)
-      {
+      {//in these cases, show message regardless of /q option
       char Buff[1024];
       sprintf(Buff, "SMDK DLL will not be able to be used in SysCAD!\n\n%s", sReason);
       AfxMessageBox(Buff);
