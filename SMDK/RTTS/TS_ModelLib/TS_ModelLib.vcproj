@@ -22,9 +22,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\TS;..\RioTintoTS;..\..\Include;..\boost_1_31_0"
 				PreprocessorDefinitions="_DEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -160,6 +162,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -168,6 +171,7 @@
 				AdditionalIncludeDirectories="..\TS;..\RioTintoTS;..\..\Include;..\boost_1_31_0"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;TS_ModelLib;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="FALSE"
 				RuntimeTypeInfo="TRUE"

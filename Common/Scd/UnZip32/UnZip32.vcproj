@@ -81,6 +81,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -89,6 +90,7 @@
 				AdditionalIncludeDirectories="../../.."
 				PreprocessorDefinitions="WINDLL,DLL"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Rls/UnZip32.pch"
@@ -148,9 +150,11 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../.."
 				PreprocessorDefinitions="WINDLL,DLL"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Dbg/UnZip32.pch"

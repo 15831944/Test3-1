@@ -21,9 +21,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Common\Scd\scdlib,..\syscad\grfdoc,.\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_X86_;__MCRSFTC__;SPLINE;_CCDK_WIN;_NTWIN"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Dbg/Ccdk.pch"
@@ -70,6 +72,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -77,6 +80,7 @@
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Common\Scd\scdlib,..\syscad\grfdoc,.\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_X86_;__MCRSFTC__;SPLINE;_CCDK_WIN;_NTWIN"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Rls/Ccdk.pch"

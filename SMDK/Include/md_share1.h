@@ -387,6 +387,56 @@ class MFPPException : public MSysException
   };
 #endif
 
+// ===========================================================================
+//  Debugging
+// ===========================================================================
+
+inline void DbgCreateAnException(unsigned long which)
+  {
+  switch (which)
+    {
+    case EXCEPTION_ACCESS_VIOLATION:         
+      {
+      int *pi=NULL;
+      *pi=0;
+      break;
+      }
+    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    break;
+    case EXCEPTION_BREAKPOINT:               break;
+    case EXCEPTION_DATATYPE_MISALIGNMENT:    break;
+    case EXCEPTION_FLT_DENORMAL_OPERAND:     break;
+    case EXCEPTION_FLT_DIVIDE_BY_ZERO:       break;
+    case EXCEPTION_FLT_INEXACT_RESULT:       break;
+    case EXCEPTION_FLT_INVALID_OPERATION:
+      {
+      double a=dNAN;
+      double b=dNAN;
+      double c=a*b;
+      if (fabs(c))
+        { int xxx=0; }
+      break;
+      }
+    case EXCEPTION_FLT_OVERFLOW:             break;
+    case EXCEPTION_FLT_STACK_CHECK:          break;
+    case EXCEPTION_FLT_UNDERFLOW:            break;
+    case EXCEPTION_ILLEGAL_INSTRUCTION:      break;
+    case EXCEPTION_IN_PAGE_ERROR:            break;
+    case EXCEPTION_INT_DIVIDE_BY_ZERO:    
+      {
+      int i=1;
+      int j=0;
+      int k=i/j;
+      break;
+      }
+    case EXCEPTION_INT_OVERFLOW:             break;
+    case EXCEPTION_INVALID_DISPOSITION:      break;
+    case EXCEPTION_NONCONTINUABLE_EXCEPTION: break;
+    case EXCEPTION_PRIV_INSTRUCTION:         break;
+    case EXCEPTION_SINGLE_STEP:              break;
+    case EXCEPTION_STACK_OVERFLOW:           break;
+    }
+  }
+
 //---------------------------------------------------------------------------
 // Tolerance Block Flags
 

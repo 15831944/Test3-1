@@ -20,9 +20,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
 				PreprocessorDefinitions="_DEBUG;Commn1;WIN32;_WINDOWS;_AFXEXT"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
@@ -84,6 +86,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -92,6 +95,7 @@
 				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
 				PreprocessorDefinitions="_RELEASE;NDEBUG;Commn1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"

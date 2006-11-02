@@ -400,7 +400,7 @@ UINT EO_ExecThread(LPVOID pEO_)
     LogError(pEO->Name(), 0, "CoInitializeEx failed %08x", hr);
     }
 
-  SCDTRY
+  SCDTRY_THREAD
 
     #if dbgExecutive
     if (dbgExecReg())
@@ -481,11 +481,11 @@ UINT EO_ExecThread(LPVOID pEO_)
 
 
 
-  SCDCATCH1(pEO->Name());
+  SCDCATCH1_THREAD(pEO->Name());
 #ifndef _RELEASE
   __debugbreak();
 #endif
-  SCDCATCH2(pEO->Name());
+  SCDCATCH2_THREAD(pEO->Name());
 
   ::CoUninitialize();
 
@@ -1243,7 +1243,7 @@ UINT ExecThread(LPVOID pExec_)
   TRACE("Executive_Thread Entry\n");
   #endif
 
-  SCDTRY
+  SCDTRY_THREAD
 
     if (0) // force crash
       {
@@ -1290,7 +1290,7 @@ UINT ExecThread(LPVOID pExec_)
 
     gs_Exec.ClearThread();
 
-  SCDCATCH("ExecutiveThread")
+  SCDCATCH_THREAD("ExecutiveThread")
 
   AfxEndThread(0);
   return 0;

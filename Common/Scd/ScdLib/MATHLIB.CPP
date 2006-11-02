@@ -56,12 +56,12 @@ class CDNanValueUnion
   };
 
 
-const float fQuietNAN = CFNanValueUnion (0x7fffffff);
-const float fSignalNAN = CFNanValueUnion (0x7fffffff);
+const float fQuietNAN  = CFNanValueUnion (0x7fffffff);
+const float fSignalNAN = CFNanValueUnion (0x7fbfffff);
 const float fNAN=fQuietNAN;
 
-const double dQuietNAN = CDNanValueUnion (0x7fffffff00000000);
-const double dSignalNAN = CDNanValueUnion (0x7fffffff00000000);
+const double dQuietNAN  = CDNanValueUnion (0x7fffffff00000000);
+const double dSignalNAN = CDNanValueUnion (0x7ff7ffff00000000);
 const double dNAN=dSignalNAN;  
 
 //inline float  fQuietNAN(void)  { FNanValueUnion FQuietNanValue={0x7fffffff};              return FQuietNanValue.F; };

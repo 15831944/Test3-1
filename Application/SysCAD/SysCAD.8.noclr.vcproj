@@ -54,6 +54,7 @@
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -157,6 +158,7 @@
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				StringPooling="false"
 				MinimalRebuild="false"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
@@ -262,6 +264,7 @@
 				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				GeneratePreprocessedFile="0"
 				StringPooling="true"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="false"
@@ -366,6 +369,7 @@
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -469,6 +473,7 @@
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -547,7 +552,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\Interface.dll"
-			AssemblyName="Interface, Version=0.0.0.0, processorArchitecture=MSIL"
+			AssemblyName=""
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"

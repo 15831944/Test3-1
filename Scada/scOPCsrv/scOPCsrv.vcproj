@@ -20,9 +20,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\common\Com\ScdIF;..\..\common\Scd\ScdLib;..\..\common\Scd\ScExec;..\ScdOPC\interface;..\ScdOPC\ServerDLL;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_AFXEXT"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"
@@ -88,6 +90,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -95,6 +98,7 @@
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories=".;..\..\common\Com\ScdIF;..\..\common\Scd\ScdLib;..\..\common\Scd\ScExec;..\ScdOPC\interface;..\ScdOPC\ServerDLL;"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_AFXEXT"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"

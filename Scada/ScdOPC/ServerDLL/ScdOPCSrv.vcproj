@@ -19,6 +19,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -27,6 +28,7 @@
 				AdditionalIncludeDirectories="..\interface,..\OPCBase,.\"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_SCDOPCSRVIMPL;_ATL_NO_UUIDOF;MFC_EXTENSION_DLL"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="3"
@@ -154,9 +156,11 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\interface,..\OPCBase,.\"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_SCDOPCSRVIMPL;_ATL_NO_UUIDOF;MFC_EXTENSION_DLL"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"

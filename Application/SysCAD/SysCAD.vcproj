@@ -21,6 +21,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -28,6 +29,7 @@
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
@@ -162,10 +164,12 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				GeneratePreprocessedFile="0"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"

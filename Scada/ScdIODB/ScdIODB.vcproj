@@ -20,9 +20,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories=".,..\ScdOPC\interface,..\ScdOPC\OPCBase"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_WIN32_DCOM"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				StructMemberAlignment="1"
 				UsePrecompiledHeader="3"
@@ -89,10 +91,12 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories=".,..\ScdOPC\interface,..\ScdOPC\OPCBase"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_WIN32_DCOM"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				StructMemberAlignment="1"
 				EnableFunctionLevelLinking="TRUE"

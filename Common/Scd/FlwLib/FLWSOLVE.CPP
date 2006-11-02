@@ -5596,22 +5596,28 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
     SolveTOSequenceThrd(eFITPBEvalProducts, TOSL_Proc);
   else
     {
-    CThreadTimer  XT(eFITPBEvalPressures, FSW_EvalProducts);
-    for (CNodeEvalIndex NJ=ProcOrder.First(); ProcOrder.ItemValid(); NJ=ProcOrder.Next())
+    CNodeEvalIndex NJ;
+    SCDTRY
       {
-      #if dbgFlwSolve
-      if (dbgThreads())
-        dbgpln("PB Eval Products %s", NJ.Nd.Tag());
-      #endif
-      XT.StartLoop(NJ.m_pNd);
-      XT.LockDone();//(p, eFITPBEvalProducts, FSW_EvalProducts);
-      NJ.Nd.EvalProducts(NJ);
-      //ASSERT(_CrtCheckMemory());
-      NJ.Nd.fEvalProductsCalled=true;
-      XT.ExecDone();//Postamble(p, eFITPBEvalPressures, FSW_EvalProducts);
-      XT.EndLoop();
+      CThreadTimer  XT(eFITPBEvalPressures, FSW_EvalProducts);
+      for (NJ=ProcOrder.First(); ProcOrder.ItemValid(); NJ=ProcOrder.Next())
+        {
+#if dbgFlwSolve
+        if (dbgThreads())
+          dbgpln("PB Eval Products %s", NJ.Nd.Tag());
+#endif
+        XT.StartLoop(NJ.m_pNd);
+        XT.LockDone();//(p, eFITPBEvalProducts, FSW_EvalProducts);
+        NJ.Nd.EvalProducts(NJ);
+        //ASSERT(_CrtCheckMemory());
+        NJ.Nd.fEvalProductsCalled=true;
+        XT.ExecDone();//Postamble(p, eFITPBEvalPressures, FSW_EvalProducts);
+        XT.EndLoop();
+        NJ.m_pNd=NULL;
+        }
+      XT.Complete();//PostambleTl();
       }
-    XT.Complete();//PostambleTl();
+    SCDCATCH("FlwSlvDyn::FITEvalProducts", NJ.m_pNd?NJ.m_pNd->FullObjTag():NULL)
     }
 
 #if DoLapTime
@@ -7727,34 +7733,39 @@ void FlwSlvDyn::FITEvalProducts(CLkNodeEvalIter & Iter)
 
   CNodeEvalIndex NJ;
   int Cnt;
-  CThreadTimer  XT(eFITEvalProducts, FSW_EvalProducts);
-  while (Iter.RemoveNext(NJ, &Cnt))
+  FlwNode * p=NULL;
+  SCDTRY
     {
-    FlwNode * p=&NJ.Nd;
-    XT.StartLoop(p);
-    ProcLoopStart(Iter, NJ, Cnt);
-//    p->LockFlanges();
-    //if (p->SSMode())
-    //  {
-    //  XT.LockDone();//(p, eFITEvalSteadyState, FSW_EvalSteadyState);
-    //  p->EvalSteadyState();
-    //  XT.ExecDone();//Postamble(p, eFITEvalSteadyState, FSW_EvalSteadyState);
-    //  }
-    XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
-    //dbgpln("---------------------------- %s", p->FullObjTag());
-    p->EvalProducts(NJ);
-    p->fEvalProductsCalled=true;
-    XT.ExecDone();//Postamble(p, eFITEvalProducts, FSW_EvalProducts);
+    CThreadTimer  XT(eFITEvalProducts, FSW_EvalProducts);
+    while (Iter.RemoveNext(NJ, &Cnt))
+      {
+      p=&NJ.Nd;
+      XT.StartLoop(p);
+      ProcLoopStart(Iter, NJ, Cnt);
+      //    p->LockFlanges();
+      //if (p->SSMode())
+      //  {
+      //  XT.LockDone();//(p, eFITEvalSteadyState, FSW_EvalSteadyState);
+      //  p->EvalSteadyState();
+      //  XT.ExecDone();//Postamble(p, eFITEvalSteadyState, FSW_EvalSteadyState);
+      //  }
+      XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
+      //dbgpln("---------------------------- %s", p->FullObjTag());
+      p->EvalProducts(NJ);
+      p->fEvalProductsCalled=true;
+      XT.ExecDone();//Postamble(p, eFITEvalProducts, FSW_EvalProducts);
 
-    ProcLoopEnd(Iter, NJ, Cnt);//false);
-    XT.EndLoop();//PostambleUnLock();
-    #if dbgFlwSolve
-    if (dbgThreadsSleep())
-      Sleep(0);
-    #endif
+      ProcLoopEnd(Iter, NJ, Cnt);//false);
+      XT.EndLoop();//PostambleUnLock();
+#if dbgFlwSolve
+      if (dbgThreadsSleep())
+        Sleep(0);
+#endif
+      p=NULL;
+      }
+    XT.Complete();//PostambleTl();
     }
-  XT.Complete();//PostambleTl();
-
+  SCDCATCH("FlwSlvDyn::FITEvalProducts", p?p->FullObjTag():NULL)
   SHOWPROGRESS(1, "EvalProducts 2");
   }
 

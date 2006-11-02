@@ -11,7 +11,7 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
-#ifdef SYSCAD10
+#if (0 && SYSCAD10)
 // To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
 #define WithPGMTagChange 1
 #else

@@ -92,9 +92,11 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Com\scdif;..\..\Com\ScdMdl;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\flwlib;..\..\Scd\xylib"
 				PreprocessorDefinitions="_DEBUG;SCDSLV;WIN32;_WINDOWS;_USRDLL"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -166,6 +168,7 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -173,6 +176,7 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Com\scdif;..\..\Com\ScdMdl;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\flwlib;..\..\Scd\xylib"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SCDSLV;WIN32;_WINDOWS;_USRDLL"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"

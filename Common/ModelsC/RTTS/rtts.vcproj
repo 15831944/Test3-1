@@ -85,6 +85,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -93,6 +94,7 @@
 				AdditionalIncludeDirectories="..\Models,..\Models\Mdlbase,..\Scd\scdlib,..\Scd\scexec,..\Scd\flwlib,..\Scd\xylib,..\..\Models\Mdlbase,.,..\..\Models,..\..\Models\sizedst1,..\..\Models\commn1,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;RTTS;WIN32;_WINDOWS;_AFXEXT;_USING_SYSCAD"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
@@ -155,9 +157,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\Models,..\Models\Mdlbase,..\Scd\scdlib,..\Scd\scexec,..\Scd\flwlib,..\Scd\xylib,..\..\Models\Mdlbase,.,..\..\Models,..\..\Models\sizedst1,..\..\Models\commn1,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib"
 				PreprocessorDefinitions="_DEBUG;RTTS;WIN32;_WINDOWS;_AFXEXT;_USING_SYSCAD"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"

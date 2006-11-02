@@ -52,6 +52,7 @@
 				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -152,6 +153,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
+				ExceptionHandling="2"
 				RuntimeLibrary="3"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -253,6 +255,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -462,6 +465,7 @@
 				AdditionalIncludeDirectories="..\scdlib;..\kwdb;..\..\scdcom;..\..\scdcom\callbackcustom;..\..\Com\ScdIF;..\..\..\SMDK\Include"
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SCEXEC;WIN32;_WINDOWS;_AFXEXT;PMC"
 				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -583,7 +587,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						AdditionalOptions="/EHa"
-						ExceptionHandling="0"
+						ExceptionHandling="2"
 					/>
 				</FileConfiguration>
 				<FileConfiguration

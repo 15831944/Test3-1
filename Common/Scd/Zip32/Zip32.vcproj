@@ -18,9 +18,11 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\WIN32,..\..\..,..\scdlib,WINDLL"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;ZIP32;WIN32;NO_ASM;WINDLL;MSDOS;USE_ZIPMAIN"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
 				UsePrecompiledHeader="0"
@@ -147,6 +149,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -155,6 +158,7 @@
 				AdditionalIncludeDirectories="..\WIN32,..\..\..,..\scdlib,WINDLL"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;ZIP32;WIN32;NO_ASM;MSDOS;WINDLL;USE_ZIPMAIN"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"
 				UsePrecompiledHeader="0"

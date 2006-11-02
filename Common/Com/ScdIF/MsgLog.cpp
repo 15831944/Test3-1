@@ -8,7 +8,7 @@
 #include "MsgLog.h"
 #include "DebugLib.h"
 
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 #ifndef DISTRIBUTION
 static int dbgLogCallsEntry      = 0;

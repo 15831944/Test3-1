@@ -1458,7 +1458,7 @@ BOOL CSysCADApp::InitInstance()
   if (!InitInstStartup())
     return false;
 
-#if SYSCAD10
+#if (0 && SYSCAD10)
   INITCOMMONCONTROLSEX InitCtrls;
   InitCtrls.dwSize = sizeof(InitCtrls);
   // Set this to include all the common control classes you want to use
@@ -1467,7 +1467,7 @@ BOOL CSysCADApp::InitInstance()
   InitCommonControlsEx(&InitCtrls);
 #endif
 
-#if !SYSCAD10
+#if !(0 && SYSCAD10)
   if (!AfxOleInit())
     {
     AfxMessageBox("Unable to initialise OLE libraries.");
@@ -3541,7 +3541,11 @@ CScdAppComThread::~CScdAppComThread()
 
 UINT StaticThreadProc(LPVOID lpv)
   {
-  return static_cast<CScdAppComThread*>(lpv)->ThreadProc();
+  UINT Ret=0;
+  SCDTRY_THREAD
+    Ret=static_cast<CScdAppComThread*>(lpv)->ThreadProc();
+  SCDCATCH_THREAD("CScdAppComThread::StaticThreadProc")
+  return Ret;
   }
 
 //--------------------------------------------------------------------------

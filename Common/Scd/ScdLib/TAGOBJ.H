@@ -76,7 +76,7 @@ class CFieldMonitorTOCls;
 //ensure no overhead checking tags,cnvs,etc when in full release mode!
 #define DoDDBChecks 0
 #else
-#define DoDDBChecks (!SYSCAD10)
+#define DoDDBChecks (!(0 && SYSCAD10))
 #endif
 
 #if DoDDBChecks
@@ -1330,7 +1330,7 @@ struct DDBFnParms
 
 //---------------------------------------------------------------------------
 
-#if (DoDDBChecks && !SYSCAD10)
+#if (DoDDBChecks && !(0 && SYSCAD10))
 
 class DllImportExport DDBCheckItem
   {

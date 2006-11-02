@@ -238,7 +238,7 @@ UINT FlwIterThread(LPVOID pFST_)
   {
   CFlwSlvThreads * pFST=(CFlwSlvThreads*)pFST_;
 
-  SCDTRY
+  SCDTRY_THREAD
 
     #if (dbgFlwSolve)
     if (dbgThreads())
@@ -429,7 +429,7 @@ UINT FlwIterThread(LPVOID pFST_)
     #endif
   
     
-  SCDCATCH("Flw Iteration Thread")
+  SCDCATCH_THREAD("Flw Nodes Thread")
 
   return 0;
   }
@@ -440,7 +440,7 @@ UINT FlwSlvThread(LPVOID pFST_)
   {
   CFlwSlvThreads * pFST=(CFlwSlvThreads*)pFST_;
 
-  SCDTRY
+  SCDTRY_THREAD
 
     #if dbgFlwNets
     if (dbgThreads())
@@ -496,7 +496,7 @@ UINT FlwSlvThread(LPVOID pFST_)
       dbgpln("%*sFsj %4i FullNetBlkThread Exit", pFST->dbgIndent(GetCurrentThreadId()), "", GetCurrentThreadId());
     #endif
 
-  SCDCATCH("Flw Solve Thread")
+  SCDCATCH_THREAD("Flw Solve Thread")
 
   return 0;
   }
@@ -528,7 +528,8 @@ flag CFlwSlvThreads::CreateThreads(int NThreads, AFX_THREADPROC Proc, LPVOID Dat
   if (NThreads)
     {
     //int RqdPriority=THREAD_PRIORITY_NORMAL;
-    int RqdPriority=THREAD_PRIORITY_HIGHEST/*ABOVE_NORMAL*/;
+    //int RqdPriority=THREAD_PRIORITY_HIGHEST;
+    int RqdPriority=THREAD_PRIORITY_ABOVE_NORMAL;
     UINT StackSize=0;
     for (int ip=0; ip<NThreads; ip++)
       {

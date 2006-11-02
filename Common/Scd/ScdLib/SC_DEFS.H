@@ -173,7 +173,11 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     throw MFPPException(u, pExp->ExceptionRecord->ExceptionAddress, pStrF);
   }
 
-#define SCDTRY                                                      \
+// ===========================================================================
+// 
+// ===========================================================================
+
+#define SCDTRY_THREAD                                               \
   /* Get Old fpControl */                                           \
   _set_se_translator(XcpTranslateFunction);                         \
   DWORD FPP_State=_controlfp(0,0);                                  \
@@ -185,14 +189,14 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);
 
 
-#define SCDCATCH(Where)                                             \
+#define SCDCATCH_THREAD(Where)                                      \
     FPP_RestoreExceptions(FPP_State);                               \
     }                                                               \
   catch (MSysException e)                                           \
     {                                                               \
+    /*XGotoEditMode();*/                                            \
     /* clear any outstanding exceptions */                          \
     _clearfp();                                                     \
-    /*XGotoEditMode();*/                                            \
                                                                     \
     Strng S;                                                        \
     S.Set(" %s \n\n"                                                \
@@ -216,13 +220,13 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     }
 
 
-#define SCDCATCH1(Where)                                            \
+#define SCDCATCH1_THREAD(Where)                                     \
     FPP_RestoreExceptions(FPP_State);                               \
     }                                                               \
   catch (MSysException e)                                           \
     {
 
-#define SCDCATCH2(Where)                                            \
+#define SCDCATCH2_THREAD(Where)                                     \
     /* clear any outstanding exceptions */                          \
     _clearfp();                                                     \
     /*XGotoEditMode();*/                                            \
@@ -247,6 +251,41 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
                                                                     \
     throw;                                                          \
     }
+
+// ===========================================================================
+// 
+// ===========================================================================
+
+#define SCDTRY                                                        \
+    try
+
+#define SCDCATCH(Where, Identifier)                                   \
+    catch (MSysException e)                                           \
+      {                                                               \
+      /* clear any outstanding exceptions */                          \
+      _clearfp();                                                     \
+      /*XGotoEditMode();*/                                            \
+                                                                      \
+      Strng S, S1(Where);                                             \
+      if (Identifier) { S1+="\n\n Near:"; S1+=(LPTSTR)Identifier; };  \
+      S.Set(" %s\n\n"                                                 \
+            "Exception %s (%x) occurred\n\n"                          \
+            "Address: %08x\n\n"                                       \
+            "Push OK to continue",                                    \
+            S1(), e.Name, e.Code, e.Address);                         \
+                                                                      \
+      Strng *pS=new Strng(S);                                         \
+      CWnd *pWnd=ScdMainWnd();                                        \
+      bool Done=false;                                                \
+      pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   \
+                                                                      \
+      /*gs_License.Exit(); NBNB we need this!!!*/                     \
+                                                                      \
+      while (!Done)                                                   \
+        Sleep(100);                                                   \
+                                                                      \
+      throw;                                                          \
+      }
 
 // ===========================================================================
 //  . Net stuff

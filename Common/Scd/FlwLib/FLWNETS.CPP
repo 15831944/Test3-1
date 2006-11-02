@@ -2552,443 +2552,446 @@ void CGrpFlwBlk::TraverseDbgHeader(CSpPropInfo *pNetProps)
 
 void CGrpFlwBlk::Traverse(pchar dbgwhere)
   {
-
-  double       dPErrRatio=0, P_ErrPrev;
-  int          FBDirn[2]={1,-1};
-  //int          SIo, DIo, SCn, DCn, iFE;
-  //FlwNode     *Src.m_pNd, *Dst.m_pNd;
-  //int         Src.m_iIONo, Dst.m_iIONo;
-
-  JoinIter L(m_Lnks);
-
-  SolveDbgFlags(m_fHasDbgBrk);
-
-  if (!FlwExists(m_QmIn))
-    m_QmIn=0.0;
-  int FlwDirn=(int)Sign(NZ(m_QmIn));
-  m_QmIn = Range((double)-1.0e20, m_QmIn, 1.0e20); //temp kga 26/4/2001 to try prevent crash
-  double Qm=m_QmIn;
-
-  P_ErrPrev=1e6;
-  m_P_Err=0.0;
-
-  if (m_fEvalFwdOnly)
-    m_PassDirn = 1;
-  else if (m_fEvalRevOnly)
-    m_PassDirn = -1;
-  else
-    m_PassDirn = (sint)FlwDirn;
-  flag GoFwd = m_PassDirn > 0;
-
-  if (m_fEvalFwdOnly || m_fEvalRevOnly)
-    BreakPoint();
-
-  CGrpFlwBlkSD & Src = (GoFwd ? m_Src:m_Dst);
-  CGrpFlwBlkSD & Dst = (GoFwd ? m_Dst:m_Src);
-
-  m_iPropsSelected=FBPS_Default;
-
-  m_fDerivsBad=false;
-  m_fFunctOfPress=false;
-  m_fEvalFwdOnly=false;
-  m_fEvalRevOnly=false;
-
-
-  int Fbs0=GoFwd ? 0 : m_FBSeq.GetUpperBound();
-  int FbsN=GoFwd ? m_FBSeq.GetCount() : -1;
-  int FbsI=GoFwd ? 1 : -1;
-  for (int i=Fbs0; i!=FbsN; i+=FbsI)
+  SCDTRY
     {
-    CGrpFlwIndex *I = m_FBSeq[i];
-    switch (I->m_eType)
-      {
-      case GFI_IO:
-      case GFI_Lnk:
-        I->FB.GetFlags(this, I->m_iSgn);
-        break;
-      case GFI_Join:
-        break;
-      };
-    };
 
-  m_XBst.m_pFB=NULL;
-  m_XBst.m_dFB=0;
-  int FixedLoopCnt=0;
-FixdPBx:
+    double       dPErrRatio=0, P_ErrPrev;
+    int          FBDirn[2]={1,-1};
+    //int          SIo, DIo, SCn, DCn, iFE;
+    //FlwNode     *Src.m_pNd, *Dst.m_pNd;
+    //int         Src.m_iIONo, Dst.m_iIONo;
 
-  for (int PErrIter=0; ; PErrIter++) // loop in case of pressure dependencies in line
-    {
-    m_fDerivsBad            = false;
-    m_fFunctOfPress         = false;
-    m_fEvalFwdOnly          = false;
-    m_fEvalRevOnly          = false;
-    m_fMomentumValid        = false;
-    m_fHoldFastConverge     = false;
+    JoinIter L(m_Lnks);
 
-    Qm=m_QmIn;
     SolveDbgFlags(m_fHasDbgBrk);
 
-#ifdef _DEBUG
-    flag IterStart=(m_dwIterNo!=m_pFNB->dwIterNo);
-    if (IterStart)
+    if (!FlwExists(m_QmIn))
+      m_QmIn=0.0;
+    int FlwDirn=(int)Sign(NZ(m_QmIn));
+    m_QmIn = Range((double)-1.0e20, m_QmIn, 1.0e20); //temp kga 26/4/2001 to try prevent crash
+    double Qm=m_QmIn;
+
+    P_ErrPrev=1e6;
+    m_P_Err=0.0;
+
+    if (m_fEvalFwdOnly)
+      m_PassDirn = 1;
+    else if (m_fEvalRevOnly)
+      m_PassDirn = -1;
+    else
+      m_PassDirn = (sint)FlwDirn;
+    flag GoFwd = m_PassDirn > 0;
+
+    if (m_fEvalFwdOnly || m_fEvalRevOnly)
+      BreakPoint();
+
+    CGrpFlwBlkSD & Src = (GoFwd ? m_Src:m_Dst);
+    CGrpFlwBlkSD & Dst = (GoFwd ? m_Dst:m_Src);
+
+    m_iPropsSelected=FBPS_Default;
+
+    m_fDerivsBad=false;
+    m_fFunctOfPress=false;
+    m_fEvalFwdOnly=false;
+    m_fEvalRevOnly=false;
+
+
+    int Fbs0=GoFwd ? 0 : m_FBSeq.GetUpperBound();
+    int FbsN=GoFwd ? m_FBSeq.GetCount() : -1;
+    int FbsI=GoFwd ? 1 : -1;
+    for (int i=Fbs0; i!=FbsN; i+=FbsI)
       {
-      m_nMaxTraverse=Max(m_nMaxTraverse, m_nTraverse);
-      m_nAvgTraverse=m_nAvgTraverse*0.9f+m_nTraverse*0.1f;
-      m_nTraverse=0;
-      }
-    m_nTraverse++;
-    m_dwIterNo=m_pFNB->dwIterNo;
+      CGrpFlwIndex *I = m_FBSeq[i];
+      switch (I->m_eType)
+        {
+        case GFI_IO:
+        case GFI_Lnk:
+          I->FB.GetFlags(this, I->m_iSgn);
+          break;
+        case GFI_Join:
+          break;
+        };
+      };
+
+    m_XBst.m_pFB=NULL;
+    m_XBst.m_dFB=0;
+    int FixedLoopCnt=0;
+FixdPBx:
+
+    for (int PErrIter=0; ; PErrIter++) // loop in case of pressure dependencies in line
+      {
+      m_fDerivsBad            = false;
+      m_fFunctOfPress         = false;
+      m_fEvalFwdOnly          = false;
+      m_fEvalRevOnly          = false;
+      m_fMomentumValid        = false;
+      m_fHoldFastConverge     = false;
+
+      Qm=m_QmIn;
+      SolveDbgFlags(m_fHasDbgBrk);
+
+#ifdef _DEBUG
+      flag IterStart=(m_dwIterNo!=m_pFNB->dwIterNo);
+      if (IterStart)
+        {
+        m_nMaxTraverse=Max(m_nMaxTraverse, m_nTraverse);
+        m_nAvgTraverse=m_nAvgTraverse*0.9f+m_nTraverse*0.1f;
+        m_nTraverse=0;
+        }
+      m_nTraverse++;
+      m_dwIterNo=m_pFNB->dwIterNo;
 #endif
 
-    m_fGFTolsOK=false;
-    m_fGFNetTolsOK=false;
-    m_fGFRegTolOK=false;
+      m_fGFTolsOK=false;
+      m_fGFNetTolsOK=false;
+      m_fGFRegTolOK=false;
 
 #if dbgFlwNets
-    if (DbgFlags & DBG_Traverse)
-      dbgpln("------------------------%s %s %s------------------------ %s",
-      m_Src.m_pNd->FullObjTag(),GoFwd?"-->":"<--",m_Dst.m_pNd->FullObjTag(), dbgwhere);
+      if (DbgFlags & DBG_Traverse)
+        dbgpln("------------------------%s %s %s------------------------ %s",
+        m_Src.m_pNd->FullObjTag(),GoFwd?"-->":"<--",m_Dst.m_pNd->FullObjTag(), dbgwhere);
 #endif
 
-    m_Sum_dP=0.0;
-    m_Sum_adPqdQ=0.0;
-    m_Sum_dPbdQ=0.0;
-    m_Sum_B=0.0;
-    m_Sum_ResT=0.0;
-    //Sum_ResQ=0.0;
-    //m_Sum_ROp=0.0;
-    //m_Sum_BOp=0.0;
+      m_Sum_dP=0.0;
+      m_Sum_adPqdQ=0.0;
+      m_Sum_dPbdQ=0.0;
+      m_Sum_B=0.0;
+      m_Sum_ResT=0.0;
+      //Sum_ResQ=0.0;
+      //m_Sum_ROp=0.0;
+      //m_Sum_BOp=0.0;
 
-    m_ChokeAt.m_At=NULL;
-    m_ChokeAt.m_Qm=1.0e200;
+      m_ChokeAt.m_At=NULL;
+      m_ChokeAt.m_Qm=1.0e200;
 
-    m_fUDFShut=0;
+      m_fUDFShut=0;
 
-    flag Fixed_Mem  = m_fFixed;
-    flag Xfer_Mem   = m_fFixedXfer;
-    if (m_fFixedExternal)
-      {
-      m_fFixed     = true;
-      m_fFixedXfer = m_fInXferNet;
-      }
-    else
-      {
-      m_fFixed     = false;
-      m_fFixedXfer = false;
-      }
-    m_QmRqd      = dNAN;
-    m_QmReg      = 1.0;
-    m_QmXfCap    = dNAN;
-    m_nFixedVlv  = 0;
-    m_nFixedRqd  = 0;
-
-    m_Regulator.m_iWhat = FBReg_Off;
-    m_Regulator.m_pNd   = NULL;    
-    m_Regulator.m_pFB   = NULL;    
-
-    m_fHasDegFree       = false;
-    m_fTopologyChanged  = false;
-    m_QmRatio.MFb       = NULL;
-    m_QmRatio.SFb       = NULL;
-
-    //CSpPropInfo LclNetProps;
-    CSpPropInfo *pNetProps=NULL;
-    //if (Src.IsIO())
-    Src.m_pNd->IOGetNetProps(Src.m_iIONo, Qm);
-    //else
-    //  Src.m_pNd->LinkGetNetProps(Src.m_iLnkNo, Qm);
-    if (pNetProps)
-      {
-      if (m_fFindStaticHead)
+      flag Fixed_Mem  = m_fFixed;
+      flag Xfer_Mem   = m_fFixedXfer;
+      if (m_fFixedExternal)
         {
-        m_pBalProps=pNetProps;
-        m_fDerivsBad=true;
+        m_fFixed     = true;
+        m_fFixedXfer = m_fInXferNet;
         }
-      }
-    else
-      {
-      if (m_fFindStaticHead)
+      else
         {
-        int iFE0=Src.m_pNd->NIOFBs(Src.m_iIONo)-1;
-        FlwBlk & FB=*Src.m_pNd->IOFB(Src.m_iIONo, iFE0);
-        m_pBalProps=FB.Properties(NULL);//&FB.m_FlwProps;
+        m_fFixed     = false;
+        m_fFixedXfer = false;
         }
-      }
+      m_QmRqd      = dNAN;
+      m_QmReg      = 1.0;
+      m_QmXfCap    = dNAN;
+      m_nFixedVlv  = 0;
+      m_nFixedRqd  = 0;
+
+      m_Regulator.m_iWhat = FBReg_Off;
+      m_Regulator.m_pNd   = NULL;    
+      m_Regulator.m_pFB   = NULL;    
+
+      m_fHasDegFree       = false;
+      m_fTopologyChanged  = false;
+      m_QmRatio.MFb       = NULL;
+      m_QmRatio.SFb       = NULL;
+
+      //CSpPropInfo LclNetProps;
+      CSpPropInfo *pNetProps=NULL;
+      //if (Src.IsIO())
+      Src.m_pNd->IOGetNetProps(Src.m_iIONo, Qm);
+      //else
+      //  Src.m_pNd->LinkGetNetProps(Src.m_iLnkNo, Qm);
+      if (pNetProps)
+        {
+        if (m_fFindStaticHead)
+          {
+          m_pBalProps=pNetProps;
+          m_fDerivsBad=true;
+          }
+        }
+      else
+        {
+        if (m_fFindStaticHead)
+          {
+          int iFE0=Src.m_pNd->NIOFBs(Src.m_iIONo)-1;
+          FlwBlk & FB=*Src.m_pNd->IOFB(Src.m_iIONo, iFE0);
+          m_pBalProps=FB.Properties(NULL);//&FB.m_FlwProps;
+          }
+        }
 
 
 #if WITHTWOPHASE
-    if (fTwoPhase)
-      {
-      if (!pTwoPhCd)
-        pTwoPhCd=new SpConduit("TwoPhCd");
-      pTwoPhCd->QSetM(*(Src.m_pNd->IOConduit(Src.m_iIONo)), som_ALL, Max(2.0*UsableMass, fabs(m_QmIn)), m_Src_P);
+      if (fTwoPhase)
+        {
+        if (!pTwoPhCd)
+          pTwoPhCd=new SpConduit("TwoPhCd");
+        pTwoPhCd->QSetM(*(Src.m_pNd->IOConduit(Src.m_iIONo)), som_ALL, Max(2.0*UsableMass, fabs(m_QmIn)), m_Src_P);
 #if dbgFlwNets
-      if (DbgFlags & DBG_TraverseP)
-        dbgpln("TwoPhCd    T:%#16.7f  P:%#16.7f  SrcT:%#16.7f  SrcP:%#16.7f",
-        pTwoPhCd->Temp(), pTwoPhCd->Press(),
-        Src.m_pNd->IOConduit(Src.m_iIONo)->Temp(), Src.m_pNd->IOConduit(Src.m_iIONo)->Press());
+        if (DbgFlags & DBG_TraverseP)
+          dbgpln("TwoPhCd    T:%#16.7f  P:%#16.7f  SrcT:%#16.7f  SrcP:%#16.7f",
+          pTwoPhCd->Temp(), pTwoPhCd->Press(),
+          Src.m_pNd->IOConduit(Src.m_iIONo)->Temp(), Src.m_pNd->IOConduit(Src.m_iIONo)->Press());
 
 #endif
-      }
+        }
 #else
-    m_pTwoPhCd=NULL;
+      m_pTwoPhCd=NULL;
 #endif
 
-    if (0)
-      {
-      Strng S;
-      S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
-      dbgpln("Flags A %-50s %s", S(), m_FTag());
-      }
+      if (0)
+        {
+        Strng S;
+        S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
+        dbgpln("Flags A %-50s %s", S(), m_FTag());
+        }
 
-    // InitPtrs in Direction of Flow and adjust fill if neccessary
-    TraverseGetMode(GoFwd, Src, Dst, pNetProps, dbgwhere);
+      // InitPtrs in Direction of Flow and adjust fill if neccessary
+      TraverseGetMode(GoFwd, Src, Dst, pNetProps, dbgwhere);
 
-    if (Valid(m_QmRqd))
-      m_QmRqd*=m_QmReg;
+      if (Valid(m_QmRqd))
+        m_QmRqd*=m_QmReg;
 
-    if (m_fTopologyChanged)
-      {
-      m_pNet->fTopologyChanged=true;
-      m_pSubNet->fTopologyChanged=true;
-      }
+      if (m_fTopologyChanged)
+        {
+        m_pNet->fTopologyChanged=true;
+        m_pSubNet->fTopologyChanged=true;
+        }
 
 
-    if (0)
-      {
-      Strng S;
-      S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
-      dbgpln("Flags B %-50s %s", S(), m_FTag());
-      }
+      if (0)
+        {
+        Strng S;
+        S.Set("%5s %9s %9s %13s %14s", m_fFixed?"Fixed":"", m_fFixedXfer?"FixedXfer":"", m_fInXferNet ?"InXferNet":"", m_fFixedExternal ?"FixedExternal":"", m_fFastConvergeOK ?"FastConvergeOK":"");
+        dbgpln("Flags B %-50s %s", S(), m_FTag());
+        }
 
-    if (m_fFixedXfer)
-      // This will Set Qm but assume that all impedances are ZERO
-      TraversePress(FET_SetQm, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
-    else
-      // Called for all Non-XFer links (Fixed, FreeFlow,..)  
-      // This will Set Qm and calculate all impedances
-      TraversePress(FET_CalcDP, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
+      if (m_fFixedXfer)
+        // This will Set Qm but assume that all impedances are ZERO
+        TraversePress(FET_SetQm, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
+      else
+        // Called for all Non-XFer links (Fixed, FreeFlow,..)  
+        // This will Set Qm and calculate all impedances
+        TraversePress(FET_CalcDP, Qm, GoFwd, Src, Dst, pNetProps, dbgwhere);
 
-    //dbgpln("Flags1 %s %s %s",m_fFixed ? "m_fFixed":"        ", m_fFixedXfer?"m_fFixedXfer":"            ", FwdTag());
+      //dbgpln("Flags1 %s %s %s",m_fFixed ? "m_fFixed":"        ", m_fFixedXfer?"m_fFixedXfer":"            ", FwdTag());
 
-    // Test Press Converged
-    if (!m_fFunctOfPress || m_fFixed || m_fFixedXfer)
-      {
-      m_fSetCI5=false;
-      goto PressLoopDone;
-      }
-    else
-      {
-      //double dPErrChgRatio;
-      double P_ErrChg=m_P_Err-P_ErrPrev;
-      if (m_pFNB->m_LnkEPS.ConvergedDV(P_ErrChg, m_P_Err /*1.0e-12, >Lnk_Eps_R, dPErrChgRatio*/))
+      // Test Press Converged
+      if (!m_fFunctOfPress || m_fFixed || m_fFixedXfer)
         {
         m_fSetCI5=false;
         goto PressLoopDone;
         }
-      if (PErrIter>100)
+      else
         {
-        m_fSetCI5=true;
-        goto PressLoopDone;
+        //double dPErrChgRatio;
+        double P_ErrChg=m_P_Err-P_ErrPrev;
+        if (m_pFNB->m_LnkEPS.ConvergedDV(P_ErrChg, m_P_Err /*1.0e-12, >Lnk_Eps_R, dPErrChgRatio*/))
+          {
+          m_fSetCI5=false;
+          goto PressLoopDone;
+          }
+        if (PErrIter>100)
+          {
+          m_fSetCI5=true;
+          goto PressLoopDone;
+          }
+        P_ErrPrev=m_P_Err;
         }
-      P_ErrPrev=m_P_Err;
-      }
-    } // Press Iter Loop
+      } // Press Iter Loop
 
 PressLoopDone:
 
-  Qm=m_QmIn;
+    Qm=m_QmIn;
 
-  if (m_fFixed || m_fFixedXfer)
-    {
-    if (m_fHasDegFree)
+    if (m_fFixed || m_fFixedXfer)
       {
-      //if (FixedLoopCnt++==0 && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL)
-      if (FixedLoopCnt<5 && (m_fFixed && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL))
+      if (m_fHasDegFree)
         {
-        //dbgp(" %2i m_dPbX %12.3f > ", FixedLoopCnt, m_XBst.m_pFB->m_dPbX);
+        //if (FixedLoopCnt++==0 && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL)
+        if (FixedLoopCnt<5 && (m_fFixed && fabs(m_P_Err)>1.0e-12 && m_XBst.m_pFB!=NULL))
+          {
+          //dbgp(" %2i m_dPbX %12.3f > ", FixedLoopCnt, m_XBst.m_pFB->m_dPbX);
 
-        m_XBst.m_pFB->m_dPbX-=m_XBst.m_dFB*m_P_Err*(FixedLoopCnt==0 ? 1.0 : 0.5)*m_PassDirn;
+          m_XBst.m_pFB->m_dPbX-=m_XBst.m_dFB*m_P_Err*(FixedLoopCnt==0 ? 1.0 : 0.5)*m_PassDirn;
 
-        //dbgpln(" %12.3f  %s>%s", m_XBst.m_pFB->m_dPbX, m_Src.m_pNd->Tag(), m_Dst.m_pNd->Tag());
-        FixedLoopCnt++;
-        goto FixdPBx;
+          //dbgpln(" %12.3f  %s>%s", m_XBst.m_pFB->m_dPbX, m_Src.m_pNd->Tag(), m_Dst.m_pNd->Tag());
+          FixedLoopCnt++;
+          goto FixdPBx;
+          }
         }
-      }
 
-    if (!Valid(m_P_Err))
-      {
-      _asm int 3;
-      BreakPoint()
-      }
+      if (!Valid(m_P_Err))
+        {
+        _asm int 3;
+        BreakPoint()
+        }
 
-    if (fabs(m_P_Err)>1.0e-12)
-      BreakPoint();
+      if (fabs(m_P_Err)>1.0e-12)
+        BreakPoint();
 
-    if (Valid(m_QmRqd))
-      m_fGFTolsOK = (fabs(m_QmIn-m_QmRqd)<=fabs(1e-8*m_QmRqd));//10);
-    else if (Valid(m_QmXfCap))
-      m_fGFTolsOK = (fabs(m_QmIn-m_QmXfCap)<=fabs(1e-8*m_QmXfCap));//-10);
-    else
-      m_fGFTolsOK = true;
-    m_fGFRegTolOK = m_fGFTolsOK;
-    m_fGFNetTolsOK = m_fGFTolsOK;
-
-#if dbgFlwNets
-    if (dbgTraverseShowFlags())
-      {
-      CString S;
       if (Valid(m_QmRqd))
-        S.Format("QmRqd:%10.3f %10.3f %10.6e", m_QmIn, m_QmRqd, m_QmIn-m_QmRqd);
+        m_fGFTolsOK = (fabs(m_QmIn-m_QmRqd)<=fabs(1e-8*m_QmRqd));//10);
       else if (Valid(m_QmXfCap))
-        S.Format("QmCap:%10.3f %10.3f %10.6e", m_QmIn, m_QmXfCap, m_QmIn-m_QmXfCap);
+        m_fGFTolsOK = (fabs(m_QmIn-m_QmXfCap)<=fabs(1e-8*m_QmXfCap));//-10);
       else
-        S="                                         ";
-      dbgpln("TolsA {%s}: %s %s %s %s", S, m_fGFTolsOK ?"GFTolsOK":"", m_fGFRegTolOK  ?"RegTolOK":"", m_fGFNetTolsOK  ?"NetTolsOK":"", FwdTag());
-      }
+        m_fGFTolsOK = true;
+      m_fGFRegTolOK = m_fGFTolsOK;
+      m_fGFNetTolsOK = m_fGFTolsOK;
+
+#if dbgFlwNets
+      if (dbgTraverseShowFlags())
+        {
+        CString S;
+        if (Valid(m_QmRqd))
+          S.Format("QmRqd:%10.3f %10.3f %10.6e", m_QmIn, m_QmRqd, m_QmIn-m_QmRqd);
+        else if (Valid(m_QmXfCap))
+          S.Format("QmCap:%10.3f %10.3f %10.6e", m_QmIn, m_QmXfCap, m_QmIn-m_QmXfCap);
+        else
+          S="                                         ";
+        dbgpln("TolsA {%s}: %s %s %s %s", S, m_fGFTolsOK ?"GFTolsOK":"", m_fGFRegTolOK  ?"RegTolOK":"", m_fGFNetTolsOK  ?"NetTolsOK":"", FwdTag());
+        }
 #endif
-    }
-  else
-    {
-    m_fGFRegTolOK=true;
-    m_Regulator.m_fSetCI18=false;
-    if (m_Regulator.m_iWhat!=FBReg_Off && m_Regulator.m_pFB->FlowMode()==FBMode_Full)
-      {
-      m_Regulator.m_pFRB->m_pFB=m_Regulator.m_pFB;
-
-      FlwBlk &FB=*m_Regulator.m_pFB;
-
-      if (!FB.m_MeasDone)
-        FB.m_MeasRhoStep=FB.m_MeasRho;
-
-      double MV=m_Regulator.GetMeasValue();
-
-      if (!FB.m_MeasDone)
-        m_Regulator.m_pFRB->SetMeasStart(MV);
-
-      FB.m_MeasDone=true;
-
-      //dbgpln("RegMeasValue: %15.6f %15.6f %15.6f", MV, m_Regulator.m_pFRB->StepTarget(), m_Regulator.m_pFRB->FinalTarget());
-
-      //m_Regulator.GetMeasValue();
-      //m_Regulator.GetMeasValue();
-      //switch (m_Regulator.m_iWhat)
-      //  {
-      //  case FBReg_Qm     : m_Regulator.m_dMeasValue = FB.m_Qm;  break;
-      //  case FBReg_Qv     : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRho;  break;
-      //  case FBReg_QvStep : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRhoStep;  break;
-      //  case FBReg_Pi     : m_Regulator.m_dMeasValue = FB.SrcPB().PEst;  break;
-      //  case FBReg_Po     : m_Regulator.m_dMeasValue = FB.DstPB().PEst;  break;
-      //  }
-      m_Regulator.m_pFRB->SetMeas(m_Regulator.m_dMeasValue);
-      m_fGFRegTolOK=m_pFNB->m_RegSolveEPS.ConvergedVV(m_Regulator.m_dMeasValue , m_Regulator.m_pFRB->StepTarget());
-      }
-
-    if (!m_HiImp.fLimit)
-      {
-      m_fGFTolsOK = m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
-      dPErrRatio = m_pFNB->m_LnkEPS.GetNormalError();
-      m_fGFNetTolsOK = (dPErrRatio / m_pFNB->m_NetDeRating< 1.0);
       }
     else
       {
-      m_fGFTolsOK = true;
-      m_fGFNetTolsOK = true;
-      }
-#if dbgFlwNets
-    if (!m_fGFNetTolsOK)
-      if (dbgNetConverge())
-        dbgpln("  !NetSolved Qm:%#16.9g Tol:%7.1f R:%#16.9g P_A:%#16.9g B:%#16.9g P_M:%#16.9g %s ",
-        Qm, Range(0.0, dPErrRatio / m_pFNB->m_NetDeRating, 9999.9),m_Sum_ResT, m_P_Applied,
-        m_P_Applied+m_Sum_B, m_P_Mean, FwdTag());
-    if (dbgTraverseShowFlags())
-      {
-      CString S("                                         ");
-      dbgpln("TolsB  %s : %s %s %s %s", S, m_fGFTolsOK ?"GFTolsOK":"", m_fGFRegTolOK  ?"RegTolOK":"", m_fGFNetTolsOK  ?"NetTolsOK":"", FwdTag());
-      }
-#endif
-    }
+      m_fGFRegTolOK=true;
+      m_Regulator.m_fSetCI18=false;
+      if (m_Regulator.m_iWhat!=FBReg_Off && m_Regulator.m_pFB->FlowMode()==FBMode_Full)
+        {
+        m_Regulator.m_pFRB->m_pFB=m_Regulator.m_pFB;
 
-  if (m_ChokeAt.m_At==NULL)
-    {
-    m_fChoked=0;
-    m_ChokeInfo.m_At=NULL;
-    m_ChokeInfo.m_PX=0.0;
-    }
+        FlwBlk &FB=*m_Regulator.m_pFB;
 
-  FlwNode * pQmEstSrc=m_XBst.m_pFB ? dynamic_cast<FlwNode*>(m_XBst.m_pFB->AttachedTo()) : NULL;
-  for (int i=0; i<m_FBSeq.GetCount(); i++)
-    {
-    CGrpFlwIndex *I = m_FBSeq[i];
-    switch (I->m_eType)
-      {
-      case GFI_IO:
-      case GFI_Lnk:
-        I->FB.m_pQmEstSrc=pQmEstSrc;
-        break;
-      case GFI_Join:
-        break;
-      };
-    }
-  //if (pLimitNode)
-  //  dbgpln("QmEstSrc: %s", pQmEstSrc->FullObjTag());
+        if (!FB.m_MeasDone)
+          FB.m_MeasRhoStep=FB.m_MeasRho;
 
-#if dbgFlwNets
-  if (DbgFlags & DBG_TrvResult)
-    {
-    if (m_fFixedXfer || m_HiImp.fLimit)
-      dPErrRatio=-1.0;
-    char ErrV[256], NErrV[256], Qr[256];
-    sprintf(ErrV, "%2i", (int)Min(dPErrRatio,99.0));
-    sprintf(NErrV, "%2i", (int)Min(dPErrRatio/m_pFNB->m_NetDeRating,99.0));
-    if (m_fFixed)
-      sprintf(Qr, "%11.4g", m_fFixedXfer ? m_QmXfCap : m_QmRqd);
-    else
-      sprintf(Qr, "%-11.11s", "*");
-    dbglock();
-    //    dbgp("T[%-8.8s] L%s N%s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g Rq:%*.*g dP:%*.*g e:%*.*g Qr:%s",
-    dbgp("T[%-8.8s] L%s N%s R%s %s %s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g dP:%*.*g e:%*.*g Qr:%s",
-      dbgwhere, 
-      (m_fGFTolsOK ? " ." : ErrV),
-      (m_fGFNetTolsOK ? " ." : NErrV),
-      (m_fGFRegTolOK? "." : "*"),
-      m_fDerivsBad?"x":"d",
-      m_fFixedXfer?"X":m_fFixed?"F":" ",
-      PWide,PPrec,m_P_Applied, 
-      PWide,PPrec,m_Sum_B, 
-      QWide,QPrec,Qm, 
-      RWide,RPrec,m_Sum_ResT, 
-      //      RWide,RPrec,Sum_ResQ, 
-      PWide,PPrec,m_Sum_dP, 
-      PWide,PPrec,m_P_Err, Qr);
-    if (DbgFlags&DBG_Deltas)
-      dbgp(" dQ:%13.5g dB:%13.5g", m_Sum_adPqdQ, m_Sum_dPbdQ);
+        double MV=m_Regulator.GetMeasValue();
 
-    if (DbgFlags & DBG_Regulator)
-      {
-      if (m_Regulator.m_iWhat!=FBReg_Off)
-        dbgp("[C:%7.4f M:%8.2f T:%8.2f]", m_Regulator.m_dCtrlCur, m_Regulator.m_dMeasValue, m_Regulator.m_pFRB->StepTarget());
+        if (!FB.m_MeasDone)
+          m_Regulator.m_pFRB->SetMeasStart(MV);
+
+        FB.m_MeasDone=true;
+
+        //dbgpln("RegMeasValue: %15.6f %15.6f %15.6f", MV, m_Regulator.m_pFRB->StepTarget(), m_Regulator.m_pFRB->FinalTarget());
+
+        //m_Regulator.GetMeasValue();
+        //m_Regulator.GetMeasValue();
+        //switch (m_Regulator.m_iWhat)
+        //  {
+        //  case FBReg_Qm     : m_Regulator.m_dMeasValue = FB.m_Qm;  break;
+        //  case FBReg_Qv     : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRho;  break;
+        //  case FBReg_QvStep : m_Regulator.m_dMeasValue = FB.m_Qm/FB.m_MeasRhoStep;  break;
+        //  case FBReg_Pi     : m_Regulator.m_dMeasValue = FB.SrcPB().PEst;  break;
+        //  case FBReg_Po     : m_Regulator.m_dMeasValue = FB.DstPB().PEst;  break;
+        //  }
+        m_Regulator.m_pFRB->SetMeas(m_Regulator.m_dMeasValue);
+        m_fGFRegTolOK=m_pFNB->m_RegSolveEPS.ConvergedVV(m_Regulator.m_dMeasValue , m_Regulator.m_pFRB->StepTarget());
+        }
+
+      if (!m_HiImp.fLimit)
+        {
+        m_fGFTolsOK = m_pFNB->m_LnkEPS.ConvergedDV(m_P_Err, m_P_Mean);
+        dPErrRatio = m_pFNB->m_LnkEPS.GetNormalError();
+        m_fGFNetTolsOK = (dPErrRatio / m_pFNB->m_NetDeRating< 1.0);
+        }
       else
-        dbgp("  %14s %15s ", "", "");
+        {
+        m_fGFTolsOK = true;
+        m_fGFNetTolsOK = true;
+        }
+#if dbgFlwNets
+      if (!m_fGFNetTolsOK)
+        if (dbgNetConverge())
+          dbgpln("  !NetSolved Qm:%#16.9g Tol:%7.1f R:%#16.9g P_A:%#16.9g B:%#16.9g P_M:%#16.9g %s ",
+          Qm, Range(0.0, dPErrRatio / m_pFNB->m_NetDeRating, 9999.9),m_Sum_ResT, m_P_Applied,
+          m_P_Applied+m_Sum_B, m_P_Mean, FwdTag());
+      if (dbgTraverseShowFlags())
+        {
+        CString S("                                         ");
+        dbgpln("TolsB  %s : %s %s %s %s", S, m_fGFTolsOK ?"GFTolsOK":"", m_fGFRegTolOK  ?"RegTolOK":"", m_fGFNetTolsOK  ?"NetTolsOK":"", FwdTag());
+        }
+#endif
       }
 
-    dbgp(" %s", FwdTag());
-    dbgpln("");
-    dbgunlock();
-    }
-  if (dbgTopologyChg())
-    if (m_fTopologyChanged)
-      dbgpln("  ----> Topology Change FxdQm %s Q:%#16.9g %s ",
-      (m_fFixed ? (m_fFixedXfer ? "TRANSFER":"FIXED"):m_fUnDefined?"UNDEFINED":"FREE "),
-      m_fFixedXfer ? m_QmXfCap : m_QmRqd, FwdTag());
-  if (dbgSolveFxdQsTrv())
-    if(m_fFixedXfer)
-      dbgpln("  Lnk dQm_XfCap:%12.4g P:%12.4g > %12.4g %s", m_QmXfCap,m_Src_P,m_Dst_P,FwdTag());
-    else if(m_fFixed)
-      dbgpln("  Lnk dQm_Rqd:%12.4g   P:%12.4g > %12.4g %s", m_QmRqd,m_Src_P,m_Dst_P,FwdTag());
+    if (m_ChokeAt.m_At==NULL)
+      {
+      m_fChoked=0;
+      m_ChokeInfo.m_At=NULL;
+      m_ChokeInfo.m_PX=0.0;
+      }
+
+    FlwNode * pQmEstSrc=m_XBst.m_pFB ? dynamic_cast<FlwNode*>(m_XBst.m_pFB->AttachedTo()) : NULL;
+    for (int i=0; i<m_FBSeq.GetCount(); i++)
+      {
+      CGrpFlwIndex *I = m_FBSeq[i];
+      switch (I->m_eType)
+        {
+        case GFI_IO:
+        case GFI_Lnk:
+          I->FB.m_pQmEstSrc=pQmEstSrc;
+          break;
+        case GFI_Join:
+          break;
+        };
+      }
+    //if (pLimitNode)
+    //  dbgpln("QmEstSrc: %s", pQmEstSrc->FullObjTag());
+
+#if dbgFlwNets
+    if (DbgFlags & DBG_TrvResult)
+      {
+      if (m_fFixedXfer || m_HiImp.fLimit)
+        dPErrRatio=-1.0;
+      char ErrV[256], NErrV[256], Qr[256];
+      sprintf(ErrV, "%2i", (int)Min(dPErrRatio,99.0));
+      sprintf(NErrV, "%2i", (int)Min(dPErrRatio/m_pFNB->m_NetDeRating,99.0));
+      if (m_fFixed)
+        sprintf(Qr, "%11.4g", m_fFixedXfer ? m_QmXfCap : m_QmRqd);
+      else
+        sprintf(Qr, "%-11.11s", "*");
+      dbglock();
+      //    dbgp("T[%-8.8s] L%s N%s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g Rq:%*.*g dP:%*.*g e:%*.*g Qr:%s",
+      dbgp("T[%-8.8s] L%s N%s R%s %s %s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g dP:%*.*g e:%*.*g Qr:%s",
+        dbgwhere, 
+        (m_fGFTolsOK ? " ." : ErrV),
+        (m_fGFNetTolsOK ? " ." : NErrV),
+        (m_fGFRegTolOK? "." : "*"),
+        m_fDerivsBad?"x":"d",
+        m_fFixedXfer?"X":m_fFixed?"F":" ",
+        PWide,PPrec,m_P_Applied, 
+        PWide,PPrec,m_Sum_B, 
+        QWide,QPrec,Qm, 
+        RWide,RPrec,m_Sum_ResT, 
+        //      RWide,RPrec,Sum_ResQ, 
+        PWide,PPrec,m_Sum_dP, 
+        PWide,PPrec,m_P_Err, Qr);
+      if (DbgFlags&DBG_Deltas)
+        dbgp(" dQ:%13.5g dB:%13.5g", m_Sum_adPqdQ, m_Sum_dPbdQ);
+
+      if (DbgFlags & DBG_Regulator)
+        {
+        if (m_Regulator.m_iWhat!=FBReg_Off)
+          dbgp("[C:%7.4f M:%8.2f T:%8.2f]", m_Regulator.m_dCtrlCur, m_Regulator.m_dMeasValue, m_Regulator.m_pFRB->StepTarget());
+        else
+          dbgp("  %14s %15s ", "", "");
+        }
+
+      dbgp(" %s", FwdTag());
+      dbgpln("");
+      dbgunlock();
+      }
+    if (dbgTopologyChg())
+      if (m_fTopologyChanged)
+        dbgpln("  ----> Topology Change FxdQm %s Q:%#16.9g %s ",
+        (m_fFixed ? (m_fFixedXfer ? "TRANSFER":"FIXED"):m_fUnDefined?"UNDEFINED":"FREE "),
+        m_fFixedXfer ? m_QmXfCap : m_QmRqd, FwdTag());
+    if (dbgSolveFxdQsTrv())
+      if(m_fFixedXfer)
+        dbgpln("  Lnk dQm_XfCap:%12.4g P:%12.4g > %12.4g %s", m_QmXfCap,m_Src_P,m_Dst_P,FwdTag());
+      else if(m_fFixed)
+        dbgpln("  Lnk dQm_Rqd:%12.4g   P:%12.4g > %12.4g %s", m_QmRqd,m_Src_P,m_Dst_P,FwdTag());
 #endif
 
-
+    }
+  SCDCATCH("CGrpFlwBlk::Traverse", FwdTag());
   }
 
 //-------------------------------------------------------------------------
@@ -3179,331 +3182,335 @@ class QmFnd : public MRootFinderBase
 
 void CGrpFlwBlk::ConvergeQm( int MaxLoops, flag FirstOuterLoop, flag LastOuterLoop)
   {
-  if (m_fHasDbgBrk)
-    BreakPoint();
+  SCDTRY
+    {
+    if (m_fHasDbgBrk)
+      BreakPoint();
 
 #if (dbgFlwNets)
-  bool DoDbgIndent= (DbgFlags & (DBG_TrvResult|DBG_TraverseP|DBG_TraverseQ))!=0;
-  if (DoDbgIndent)
-    dbgindent(2);
+    bool DoDbgIndent= (DbgFlags & (DBG_TrvResult|DBG_TraverseP|DBG_TraverseQ))!=0;
+    if (DoDbgIndent)
+      dbgindent(2);
 #endif
-  bool DerivConvergeFailed=false;
-  if (m_fFindStaticHead && TestAndSolvePartialStaticHead(m_iInitialFlwDirn))
-    {
-    m_fGFTolsOK=true;
-    }
-  else if (!m_fDerivsBad)
-    {
-    double aQm, pdQ=0.0, dQ=0.0;
-    bool   DropOut = false;
-    bool   CountExceeded = false;
-    int    Reversals=0;
-
-    m_fGFTolsOK=false;
-    m_CnvFilter=Min(m_CnvFilter*1.01, 1.0);
-    flag   fQmPrevGood=false;
-    double dQmPrev=0.0;
-    double QmInPrev=m_QmIn;
-
-    const int MaxQmHist=4;
-    int nQmHist=0;
-    double QmHist[MaxQmHist];
-
-    for (int Loop=0; !m_fGFTolsOK && !DropOut && !CountExceeded; Loop++)
+    bool DerivConvergeFailed=false;
+    if (m_fFindStaticHead && TestAndSolvePartialStaticHead(m_iInitialFlwDirn))
       {
-      aQm=fabs(m_QmIn);
-#if (dbgFlwNets)
-      if ((Loop >= MaxLoops-10) && LastOuterLoop && dbgAutoDbgBrkOnCvgFail())
-        {
-        m_fHasDbgBrk=true;
-        DbgFlags |= DBG_CalcdQ;
-        }
+      m_fGFTolsOK=true;
+      }
+    else if (!m_fDerivsBad)
+      {
+      double aQm, pdQ=0.0, dQ=0.0;
+      bool   DropOut = false;
+      bool   CountExceeded = false;
+      int    Reversals=0;
 
-      if (dbgCnvFilter())
+      m_fGFTolsOK=false;
+      m_CnvFilter=Min(m_CnvFilter*1.01, 1.0);
+      flag   fQmPrevGood=false;
+      double dQmPrev=0.0;
+      double QmInPrev=m_QmIn;
+
+      const int MaxQmHist=4;
+      int nQmHist=0;
+      double QmHist[MaxQmHist];
+
+      for (int Loop=0; !m_fGFTolsOK && !DropOut && !CountExceeded; Loop++)
         {
-        if (pdQ * dQ < -1.0e-150)
+        aQm=fabs(m_QmIn);
+#if (dbgFlwNets)
+        if ((Loop >= MaxLoops-10) && LastOuterLoop && dbgAutoDbgBrkOnCvgFail())
           {
-          Reversals++;
-          if (Reversals > 3)
-            {
-            m_CnvFilter *= 0.8;
-            m_CnvFilter = Max(0.01, m_CnvFilter);
-            Reversals=0;
-            if (true || (DbgFlags & DBG_CalcdQ))
-              dbgpln("CnvFilter %#11g : %s", m_CnvFilter, FwdTag());
-            }
+          m_fHasDbgBrk=true;
+          DbgFlags |= DBG_CalcdQ;
           }
-        }
-#endif
-      pdQ=dQ;
 
-      m_fChoked=((!m_fChoked && (aQm > m_ChokeAt.m_Qm)) ||
-        (m_fChoked && (m_ChokeInfo.m_PX+m_PressDir*m_P_Err > -1.0)));
-
-      if (m_fChoked)
-        {
-        dQ = Sign(m_QmIn)*m_ChokeAt.m_Qm-m_QmIn;
-        m_QmIn += dQ*m_CnvFilter;
-        SetLinkQmEstAndQm(m_QmIn);
-#if (dbgFlwNets)
-        if (DbgFlags & DBG_CalcdQ)
-          dbgpln("Choke Q   %#11g %#11g %#11g %s", m_QmIn, m_ChokeAt.m_Dp, m_ChokeInfo.m_PX, FwdTag());
-#endif
-        m_ChokeInfo.m_At=m_ChokeAt.m_At;
-        m_ChokeInfo.m_PX+=(m_PressDir*m_P_Err);
-        Traverse("CvgChok");
-        }
-      else
-        {
-        m_ChokeInfo.m_PX=0.0;
-        double QmInMem=m_QmIn;
-        bool LowestPOK=(m_P_Lowest >= 0.5);
-
-        double Sum_dPdQ = m_Sum_adPqdQ - m_Sum_dPbdQ;
-
-        // Damp Sigma if low pressure < Threshold
-        double SigScale=1.0+(LowPressDamp-1.0)*GEZ(LowPressThreshold-Max(LowPressure, m_P_Lowest))/LowPressThreshold;
-        double dQUnLim=(fabs(Sum_dPdQ) > 0.1*SmallPosFlow ? (m_Sum_dP + m_P_Applied) / (SigScale*Sum_dPdQ) : 0.0);
-
-        double dQMax=Max(SmallPosFlow*0.1, aQm * MaxdQMult);
-        double dQLim=Sign(dQUnLim)*Min(fabs(dQUnLim), dQMax);
-        dQ= (FlwExists(aQm) ? dQLim : 1.0);//dQUnLim);
-        double QMax=m_ChokeAt.m_Qm*0.999999;
-
-        fQmPrevGood=true;
-        dQmPrev=dQ*m_CnvFilter;
-        QmInPrev=m_QmIn;
-
-        m_QmIn+=dQ*m_CnvFilter;
-        m_QmIn=Range(-QMax, m_QmIn, QMax);
-
-        if (m_fFindStaticHead)
+        if (dbgCnvFilter())
           {
-          nQmHist=Min(nQmHist+1, MaxQmHist);
-          for (int i=nQmHist-1; i>0; i--)
-            QmHist[i]=QmHist[i-1];
-          QmHist[0]=m_QmIn;
-          if (nQmHist>=2)
+          if (pdQ * dQ < -1.0e-150)
             {
-            // test for oscillation
-            if (QmHist[0]*QmHist[1]<0)// && QmHist[1]*QmHist[2]<0)
+            Reversals++;
+            if (Reversals > 3)
               {
-              if (TestAndSolvePartialStaticHead(m_iInitialFlwDirn))
-                {
-                m_fGFTolsOK=true;
-                };
+              m_CnvFilter *= 0.8;
+              m_CnvFilter = Max(0.01, m_CnvFilter);
+              Reversals=0;
+              if (true || (DbgFlags & DBG_CalcdQ))
+                dbgpln("CnvFilter %#11g : %s", m_CnvFilter, FwdTag());
               }
             }
           }
-
-#if (dbgFlwNets)
-        if (DbgFlags & DBG_CalcdQ)
-          {
-          dbgpln("Calc  Q %s %#11g>%#11g %+#11g -((%#11g-%#11g)/(%5.2f*%#11g)) %s",
-            (dQ != dQUnLim ? "*" : " "),
-            QmInMem, m_QmIn, dQ,
-            m_Sum_dP, m_P_Applied,
-            SigScale, Sum_dPdQ,
-            FwdTag());
-          }
 #endif
+        pdQ=dQ;
 
-        if (Loop>0 && fabs(dQ)/GTZ(aQm) < SignificanceRatio) // CNM
+        m_fChoked=((!m_fChoked && (aQm > m_ChokeAt.m_Qm)) ||
+          (m_fChoked && (m_ChokeInfo.m_PX+m_PressDir*m_P_Err > -1.0)));
+
+        if (m_fChoked)
           {
-          m_fGFTolsOK = true;
+          dQ = Sign(m_QmIn)*m_ChokeAt.m_Qm-m_QmIn;
+          m_QmIn += dQ*m_CnvFilter;
+          SetLinkQmEstAndQm(m_QmIn);
 #if (dbgFlwNets)
-          if (DbgFlags & DBG_ApplydQ)// || true)
-            dbgpln("InSignificant dQ  %#16.9e / %#16.9g %s", dQ, m_QmIn, FwdTag());
+          if (DbgFlags & DBG_CalcdQ)
+            dbgpln("Choke Q   %#11g %#11g %#11g %s", m_QmIn, m_ChokeAt.m_Dp, m_ChokeInfo.m_PX, FwdTag());
 #endif
+          m_ChokeInfo.m_At=m_ChokeAt.m_At;
+          m_ChokeInfo.m_PX+=(m_PressDir*m_P_Err);
+          Traverse("CvgChok");
           }
         else
           {
-          SetLinkQmEstAndQm(m_QmIn);
-          Traverse("CvgFree");
-          if (!m_fGFTolsOK && FirstOuterLoop)
-            DropOut=fabs(dQ)/GTZ(fabs(QmInMem)) < 0.1; // if less than 10% error drop out of loop now
+          m_ChokeInfo.m_PX=0.0;
+          double QmInMem=m_QmIn;
+          bool LowestPOK=(m_P_Lowest >= 0.5);
+
+          double Sum_dPdQ = m_Sum_adPqdQ - m_Sum_dPbdQ;
+
+          // Damp Sigma if low pressure < Threshold
+          double SigScale=1.0+(LowPressDamp-1.0)*GEZ(LowPressThreshold-Max(LowPressure, m_P_Lowest))/LowPressThreshold;
+          double dQUnLim=(fabs(Sum_dPdQ) > 0.1*SmallPosFlow ? (m_Sum_dP + m_P_Applied) / (SigScale*Sum_dPdQ) : 0.0);
+
+          double dQMax=Max(SmallPosFlow*0.1, aQm * MaxdQMult);
+          double dQLim=Sign(dQUnLim)*Min(fabs(dQUnLim), dQMax);
+          dQ= (FlwExists(aQm) ? dQLim : 1.0);//dQUnLim);
+          double QMax=m_ChokeAt.m_Qm*0.999999;
+
+          fQmPrevGood=true;
+          dQmPrev=dQ*m_CnvFilter;
+          QmInPrev=m_QmIn;
+
+          m_QmIn+=dQ*m_CnvFilter;
+          m_QmIn=Range(-QMax, m_QmIn, QMax);
+
+          if (m_fFindStaticHead)
+            {
+            nQmHist=Min(nQmHist+1, MaxQmHist);
+            for (int i=nQmHist-1; i>0; i--)
+              QmHist[i]=QmHist[i-1];
+            QmHist[0]=m_QmIn;
+            if (nQmHist>=2)
+              {
+              // test for oscillation
+              if (QmHist[0]*QmHist[1]<0)// && QmHist[1]*QmHist[2]<0)
+                {
+                if (TestAndSolvePartialStaticHead(m_iInitialFlwDirn))
+                  {
+                  m_fGFTolsOK=true;
+                  };
+                }
+              }
+            }
+
+#if (dbgFlwNets)
+          if (DbgFlags & DBG_CalcdQ)
+            {
+            dbgpln("Calc  Q %s %#11g>%#11g %+#11g -((%#11g-%#11g)/(%5.2f*%#11g)) %s",
+              (dQ != dQUnLim ? "*" : " "),
+              QmInMem, m_QmIn, dQ,
+              m_Sum_dP, m_P_Applied,
+              SigScale, Sum_dPdQ,
+              FwdTag());
+            }
+#endif
+
+          if (Loop>0 && fabs(dQ)/GTZ(aQm) < SignificanceRatio) // CNM
+            {
+            m_fGFTolsOK = true;
+#if (dbgFlwNets)
+            if (DbgFlags & DBG_ApplydQ)// || true)
+              dbgpln("InSignificant dQ  %#16.9e / %#16.9g %s", dQ, m_QmIn, FwdTag());
+#endif
+            }
+          else
+            {
+            SetLinkQmEstAndQm(m_QmIn);
+            Traverse("CvgFree");
+            if (!m_fGFTolsOK && FirstOuterLoop)
+              DropOut=fabs(dQ)/GTZ(fabs(QmInMem)) < 0.1; // if less than 10% error drop out of loop now
+            }
           }
-        }
 
-      CountExceeded = (Loop >= MaxLoops);
-      /** CNM temp out for MG Compressor
-      if (CountExceeded && LastOuterLoop)
-      pHead->Debug |= ( 1 ? DBG_Traverse : DBG_TrvResult) | DBG_CalcdQ | DBG_TrvErrors | DBG_ApplydQ;
-      **/
-      if (CountExceeded && LastOuterLoop)
-        dbgpln("------ Line Converge Count[%i : Q:%16.9g, pdQ:%16.9g, dQ:%16.9g %5.2f%%] Exceeded:%s ------", Loop, m_QmIn, pdQ, dQ, 100.0*dQ/NZ(pdQ), FwdTag());
+        CountExceeded = (Loop >= MaxLoops);                                          
+        /** CNM temp out for MG Compressor
+        if (CountExceeded && LastOuterLoop)
+        pHead->Debug |= ( 1 ? DBG_Traverse : DBG_TrvResult) | DBG_CalcdQ | DBG_TrvErrors | DBG_ApplydQ;
+        **/
+        if (CountExceeded && LastOuterLoop)
+          dbgpln("------ Line Converge Count[%i : Q:%16.9g, pdQ:%16.9g, dQ:%16.9g %5.2f%%] Exceeded:%s ------", Loop, m_QmIn, pdQ, dQ, 100.0*dQ/NZ(pdQ), FwdTag());
+        }
+      DerivConvergeFailed=CountExceeded;
       }
-    DerivConvergeFailed=CountExceeded;
-    }
-  if (m_fDerivsBad || DerivConvergeFailed)
-    {
-    m_fGFTolsOK=0;
-
-    double QmStart=m_QmIn;
-    double aQm=fabs(m_QmIn);
-    int FlwDir=0;
-    double Qm1, Qm0;
-    double Err1, Err0;
-
-#if dbgFlwNets
-    if (dbgConvergeNoDerivs())
-      dbgpln("====================");
-#endif
-
-    flag GotStraddle=0;
-    if (aQm>100.0*SmallPosFlow)
+    if (m_fDerivsBad || DerivConvergeFailed)
       {
-      // Try at +-1% then +-10% .
-      double Diff=0.01;
-      for (int i=0; i<=2 && !GotStraddle; i++, Diff*=10.0)
-        {
-        Qm0=Sign(QmStart)*Max(SmallPosFlow, (1.0-Diff)*fabs(QmStart));
-        SetLinkQmEstAndQm(Qm0);
-        Traverse("CnvgSt1");
-        Err0=m_P_Err;
-#if dbgFlwNets
-        if (dbgConvergeNoDerivs())
-          dbgpln("Lo    %14.6g %14.6g", Qm0, m_P_Err);
-#endif
+      m_fGFTolsOK=0;
 
-        Qm1=(1.0+Diff)*QmStart;
-        SetLinkQmEstAndQm(Qm1);
-        Traverse("CnvgSt2");
-        Err1=m_P_Err;
-#if dbgFlwNets
-        if (dbgConvergeNoDerivs())
-          dbgpln("Hi    %14.6g %14.6g", Qm1, m_P_Err);
-#endif
-        GotStraddle= (Err0*Err1<0.0);
-        }
-      }
-
-    if (!GotStraddle)
-      {
-      SetLinkQmEstAndQm(SmallPosFlow);
-      Traverse("CnvgSt3");
-      if (m_Sum_B+(m_P_Applied) >=0.0)
-        FlwDir=1;
-      else
-        {
-        SetLinkQmEstAndQm(-SmallPosFlow);
-        Traverse("CnvgSt4");
-        if (m_Sum_B+(m_P_Applied) <=0.0)
-          FlwDir=-1;
-        }
+      double QmStart=m_QmIn;
+      double aQm=fabs(m_QmIn);
+      int FlwDir=0;
+      double Qm1, Qm0;
+      double Err1, Err0;
 
 #if dbgFlwNets
       if (dbgConvergeNoDerivs())
-        dbgpln("FlwDir %i", FlwDir);
+        dbgpln("====================");
 #endif
-      if (FlwDir != 0)
+
+      flag GotStraddle=0;
+      if (aQm>100.0*SmallPosFlow)
         {
-        QmStart=fabs(QmStart);
-        if (QmStart <= SmallPosFlow)
-          QmStart=100.0;
-
-        Qm0=SmallPosFlow*FlwDir;
-        Err0=m_P_Err;
-#if dbgFlwNets
-        if (dbgConvergeNoDerivs())
-          dbgpln("Zero   %14.6g %14.6g", SmallPosFlow*FlwDir, m_P_Err);
-#endif
-        Qm1=QmStart*FlwDir;
-
-        for (;;)
+        // Try at +-1% then +-10% .
+        double Diff=0.01;
+        for (int i=0; i<=2 && !GotStraddle; i++, Diff*=10.0)
           {
+          Qm0=Sign(QmStart)*Max(SmallPosFlow, (1.0-Diff)*fabs(QmStart));
+          SetLinkQmEstAndQm(Qm0);
+          Traverse("CnvgSt1");
+          Err0=m_P_Err;
+#if dbgFlwNets
+          if (dbgConvergeNoDerivs())
+            dbgpln("Lo    %14.6g %14.6g", Qm0, m_P_Err);
+#endif
+
+          Qm1=(1.0+Diff)*QmStart;
           SetLinkQmEstAndQm(Qm1);
-          Traverse("CnvgSt5");
+          Traverse("CnvgSt2");
           Err1=m_P_Err;
 #if dbgFlwNets
           if (dbgConvergeNoDerivs())
-            dbgpln("Srch   %14.6g %14.6g", Qm1, m_P_Err);
+            dbgpln("Hi    %14.6g %14.6g", Qm1, m_P_Err);
 #endif
-          if (Err1*Err0 <0.0)
-            {
-            GotStraddle=true;
-            break;
-            }
-          if (Err1*Err0 ==0.0)
-            {
-            //GotStraddle=true;
-            break;
-            }
-
-          Qm0=Qm1;
-          Err0=Err1;
-
-          Qm1*=2.0;
-
-          if (fabs(Qm1)>1.0e10)
-            break;
+          GotStraddle= (Err0*Err1<0.0);
           }
         }
-      }
 
-
-    if (GotStraddle)
-      {
-      QmFnd QF(*m_pFNB, this, m_pFNB->m_QmFndEPS);//0.1*pFNB->Lnk_Eps_A);
-      QF.SetTarget(0.0);
-
-      if (QF.Start(Qm0, Qm1, Err0, Err1)==RF_OK)
+      if (!GotStraddle)
         {
-        if (QF.Solve_Brent()==RF_OK)
+        SetLinkQmEstAndQm(SmallPosFlow);
+        Traverse("CnvgSt3");
+        if (m_Sum_B+(m_P_Applied) >=0.0)
+          FlwDir=1;
+        else
           {
-          m_fGFTolsOK=true;
-          m_fSetCI6=false;
-          m_fSetCI7=false;
+          SetLinkQmEstAndQm(-SmallPosFlow);
+          Traverse("CnvgSt4");
+          if (m_Sum_B+(m_P_Applied) <=0.0)
+            FlwDir=-1;
+          }
+
+#if dbgFlwNets
+        if (dbgConvergeNoDerivs())
+          dbgpln("FlwDir %i", FlwDir);
+#endif
+        if (FlwDir != 0)
+          {
+          QmStart=fabs(QmStart);
+          if (QmStart <= SmallPosFlow)
+            QmStart=100.0;
+
+          Qm0=SmallPosFlow*FlwDir;
+          Err0=m_P_Err;
+#if dbgFlwNets
+          if (dbgConvergeNoDerivs())
+            dbgpln("Zero   %14.6g %14.6g", SmallPosFlow*FlwDir, m_P_Err);
+#endif
+          Qm1=QmStart*FlwDir;
+
+          for (;;)
+            {
+            SetLinkQmEstAndQm(Qm1);
+            Traverse("CnvgSt5");
+            Err1=m_P_Err;
+#if dbgFlwNets
+            if (dbgConvergeNoDerivs())
+              dbgpln("Srch   %14.6g %14.6g", Qm1, m_P_Err);
+#endif
+            if (Err1*Err0 <0.0)
+              {
+              GotStraddle=true;
+              break;
+              }
+            if (Err1*Err0 ==0.0)
+              {
+              //GotStraddle=true;
+              break;
+              }
+
+            Qm0=Qm1;
+            Err0=Err1;
+
+            Qm1*=2.0;
+
+            if (fabs(Qm1)>1.0e10)
+              break;
+            }
+          }
+        }
+
+
+      if (GotStraddle)
+        {
+        QmFnd QF(*m_pFNB, this, m_pFNB->m_QmFndEPS);//0.1*pFNB->Lnk_Eps_A);
+        QF.SetTarget(0.0);
+
+        if (QF.Start(Qm0, Qm1, Err0, Err1)==RF_OK)
+          {
+          if (QF.Solve_Brent()==RF_OK)
+            {
+            m_fGFTolsOK=true;
+            m_fSetCI6=false;
+            m_fSetCI7=false;
+            }
+          else
+            {
+            m_fSetCI6=true;
+            dbgpln("SetCI6 %s", FwdTag());
+            }
           }
         else
           {
-          m_fSetCI6=true;
-          dbgpln("SetCI6 %s", FwdTag());
+          m_fSetCI7=true;
+          dbgpln("SetCI7 %s", FwdTag());
+          ASSERT_ALWAYS(0, "Could not Start LineConvergence"); // could not Start - Should never occur
           }
+        m_fSetCI8=false;
+        }
+      else if (Err0==0)
+        {
+        SetLinkQmEstAndQm(Qm0);
+        Traverse("CnvgSetQm0");
+        //Err0=m_P_Err;
+        }
+      else if (Err1==0)
+        {
+        SetLinkQmEstAndQm(Qm1);
+        Traverse("CnvgSetQm1");
+        //Err1=m_P_Err;
         }
       else
+
         {
-        m_fSetCI7=true;
-        dbgpln("SetCI7 %s", FwdTag());
-        ASSERT_ALWAYS(0, "Could not Start LineConvergence"); // could not Start - Should never occur
+        //      if (Pass==0)
+        //        {
+        //        JoinIter L(m_Lnks);
+        //        for (CJoinRec * p = L.First(); p; p = L.Next())
+        //          {
+        //          p->SetQmVAccum(0.0);
+        //          p->SetQmLAccum(0.0);
+        //          }
+        //        goto ReStart;
+        //        }
+        //      else
+
+        m_fSetCI8=true;
+        dbgpln("SetCI8 %s", FwdTag());
         }
-      m_fSetCI8=false;
       }
-    else if (Err0==0)
-      {
-      SetLinkQmEstAndQm(Qm0);
-      Traverse("CnvgSetQm0");
-      //Err0=m_P_Err;
-      }
-    else if (Err1==0)
-      {
-      SetLinkQmEstAndQm(Qm1);
-      Traverse("CnvgSetQm1");
-      //Err1=m_P_Err;
-      }
-    else
-
-      {
-      //      if (Pass==0)
-      //        {
-      //        JoinIter L(m_Lnks);
-      //        for (CJoinRec * p = L.First(); p; p = L.Next())
-      //          {
-      //          p->SetQmVAccum(0.0);
-      //          p->SetQmLAccum(0.0);
-      //          }
-      //        goto ReStart;
-      //        }
-      //      else
-
-      m_fSetCI8=true;
-      dbgpln("SetCI8 %s", FwdTag());
-      }
-    }
 #if (dbgFlwNets)
-  if (DoDbgIndent)
-    dbgindent(-2);
+    if (DoDbgIndent)
+      dbgindent(-2);
 #endif
+    }
+  SCDCATCH("CGrpFlwBlk::Converge", FwdTag());
   }
 
 //#else
@@ -3726,7 +3733,7 @@ class CRegSolver: public MRootFinderBase
         double Function(double x)
           {
 #if dbgFlwNets
-          if (dbgRegulators())
+          if (0 && dbgRegulators())
             dbgpln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Regulator Ctrl = %15.6f", x);
 #endif
           //dbgpln("-----Ctrl   %15.6f", x);
@@ -3735,7 +3742,7 @@ class CRegSolver: public MRootFinderBase
 
 #if dbgFlwNets
           if (dbgRegulators())
-            dbgpln("-----Target %20.11f %17.6f %17.6f %17.6f %14.8f %s", x, dTarget, pGrp->m_Regulator.m_dMeasValue, pGrp->m_QmEstIn, pFRB->m_pFB?pFRB->m_pFB->m_MeasRho:0.0, ObjTag());
+            dbgpln("Cvg Ctrl:%20.11f Target:%17.6f Meas:%17.6f %17.6f %14.8f", x, dTarget, pGrp->m_Regulator.m_dMeasValue, pGrp->m_QmEstIn, pFRB->m_pFB?pFRB->m_pFB->m_MeasRho:0.0);
 #endif
 
           return (pGrp->m_Regulator.m_dMeasValue);
@@ -4749,33 +4756,39 @@ void CSubNetBlk::SolveXferQs()
 void CSubNetBlk::FITGrpMeasure(CLkGrpFlwIter & Iter)
   {
   CGrpFlwBlkPtr g;
-  while (Iter.GetNext(g))
+  SCDTRY
     {
-    g->Traverse("Measure");
-    if (g->m_fMomentumValid)
-      fMomentumValid=true;
-    if (!g->m_fGFTolsOK)
+    while (Iter.GetNext(g))
       {
-      g->m_fIsBad=true;
-#if (dbgFlwNets)
-      if (dbgShowBad())
-        dbgpln(" Flw Is Bad P - %s", g->FwdTag());
-#endif
-      }
-    //udf if (g->fUDFShut)
-    //udf   g->Set_Qm( SmallPosFlow, true);
-    if (!g->m_fGFNetTolsOK)
-      {
-      fNetTolsOK = false;
-#if (dbgFlwNets)
-      if (DbgFlags & DBG_TraverseP)
-        dbgpln(" Net not converged P - %s", g->FwdTag());
-#endif
+      g->Traverse("Measure");
+      if (g->m_fMomentumValid)
+        fMomentumValid=true;
+
+      if (!g->m_fGFTolsOK)
+        {
+        g->m_fIsBad=true;
+  #if (dbgFlwNets)
+        if (dbgShowBad())
+          dbgpln(" Flw Is Bad P - %s", g->FwdTag());
+  #endif
+        }
+      //udf if (g->fUDFShut)
+      //udf   g->Set_Qm( SmallPosFlow, true);
+      if (!g->m_fGFNetTolsOK)
+        {
+        fNetTolsOK = false;
+  #if (dbgFlwNets)
+        if (DbgFlags & DBG_TraverseP)
+          dbgpln(" Net not converged P - %s", g->FwdTag());
+  #endif
+        }
       }
     }
+  SCDCATCH("CSubNetBlk::FITGrpMeasure", g ? g->FwdTag():NULL)
   }
 
 //-------------------------------------------------------------------------
+
 
 flag CSubNetBlk::Measure(int NetCnvLoop)
   {
@@ -4788,143 +4801,165 @@ flag CSubNetBlk::Measure(int NetCnvLoop)
   fNetTolsOK = true;
   fMomentumValid=false;
 
-  if (FSTC.NThreads())
+  SCDTRY
     {
-    CLkGrpFlwIter TCAll(&Grps);
-    FSTC.DoJob(eFITGrpMeasure, this, &TCAll);
-    }
-  else
-    {
-    GrpFlwIter G(Grps);
-    for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
+    if (FSTC.NThreads())
       {
-      g->Traverse("Measure");
-      if (g->m_fMomentumValid)
-        fMomentumValid=true;
-      if (!g->m_fGFTolsOK)
-        {
-        g->m_fIsBad=true;
-#if (dbgFlwNets)
-        if (dbgShowBad())
-          dbgpln(" Flw Is Bad P - %s", g->FwdTag());
-#endif
-        }
-      //udf if (g->fUDFShut)
-      //udf   g->Set_Qm( SmallPosFlow, true);
-      if (!g->m_fGFNetTolsOK)
-        {
-        fNetTolsOK = false;
-#if (dbgFlwNets)
-        if (DbgFlags & DBG_TraverseP)
-          dbgpln(" Net not converged P - %s", g->FwdTag());
-#endif
-        }
+      CLkGrpFlwIter TCAll(&Grps);
+      FSTC.DoJob(eFITGrpMeasure, this, &TCAll);
       }
-    }
-
-  if (m_RegGrps.GetCount()>0)
-    {
-#if (dbgFlwNets)
-    flag DoDbg=dbgRegulators()!=0;
-    if (0 && DoDbg)
-      dbgpln(" Regulators - Measure");
-#endif
-    GrpFlwIter RG(m_RegGrps);
-    for (CGrpFlwBlk * rg=RG.First(); rg; rg=RG.Next())
+    else
       {
-      CGrpFlwRegBlk &GFRB = rg->m_Regulator;
-      FlwNode &Nd         = *GFRB.m_pNd;
-      CFlwRegBlk &FRB     = *GFRB.m_pFRB;
-      FlwBlk &FB          = *GFRB.m_pFB;
-
-      //int MaxLoops = LineCnvCnt[Min(NetCnvLoop,NLineCnvCnt-1)];
-      //flag FirstOuterLoop = NetCnvLoop==0;
-      //flag LastOuterLoop = NetCnvLoop==NLineCnvCnt-1;
-      //rg->ConvergeQm(MaxLoops, FirstOuterLoop, LastOuterLoop);
-
-      if (NetCnvLoop>0)
-        GFRB.m_nHistory=Min(GFRB.m_nHistory+1L, MaxRegHistory);
-      else
-        GFRB.m_nHistory=1;
-
-      for (int i=GFRB.m_nHistory-1; i>0; i--)
+      GrpFlwIter G(Grps);
+      for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
         {
-        GFRB.m_daError[i]=GFRB.m_daError[i-1];
-        GFRB.m_daCtrl[i]=GFRB.m_daCtrl[i-1];
-        GFRB.m_daGain[i]=GFRB.m_daGain[i-1];
-        }
+        g->Traverse("Measure");
+        if (g->m_fMomentumValid)
+          fMomentumValid=true;
 
-      GFRB.m_daError[0]=GFRB.m_dMeasValue-FRB.StepTarget();
-      GFRB.m_daCtrl[0]=FRB.m_dCtrlCur;
-      if (GFRB.m_nHistory>1)
-        {
-        double ChgError=GFRB.m_daError[0]-GFRB.m_daError[1];
-        double ChgCtrl=GFRB.m_daCtrl[0]-GFRB.m_daCtrl[1];
-
-        GFRB.m_daGain[0]=ChgCtrl/NZ(ChgError);
-        }
-
-#if (dbgFlwNets)
-      if (DoDbg)
-        {
-        dbglock();
-        dbgpln("Reg: %2i n:%2i C:%8.4f M:%10.2f T:%10.2f %s", 
-          FRB.m_iWhat, GFRB.m_nHistory, FRB.m_dCtrlCur, GFRB.m_dMeasValue , FRB.StepTarget(), rg->FwdTag());
-        for (int i=GFRB.m_nHistory-1; i>=0; i--) 
+        if (!g->m_fGFTolsOK)
           {
-          dbgp("  t-%i, E:%10.2f C:%8.4f", i, GFRB.m_daError[i], GFRB.m_daCtrl[i]);
-          if (i<GFRB.m_nHistory-1)
-            dbgp(" Gn:%8.4f ", GFRB.m_daGain[i]);
-          if (i>0)
-            dbgpln("");
+          g->m_fIsBad=true;
+#if (dbgFlwNets)
+          if (dbgShowBad())
+            dbgpln(" Flw Is Bad P - %s", g->FwdTag());
+#endif
+          }
+        //udf if (g->fUDFShut)
+        //udf   g->Set_Qm( SmallPosFlow, true);
+        if (!g->m_fGFNetTolsOK)
+          {
+          fNetTolsOK = false;
+#if (dbgFlwNets)
+          if (DbgFlags & DBG_TraverseP)
+            dbgpln(" Net not converged P - %s", g->FwdTag());
+#endif
           }
         }
-#endif
-
-      if (GFRB.m_nHistory>=2 && 
-        (fabs(GFRB.m_daGain[0]-GFRB.m_daGain[1]) < 0.1*fabs(GFRB.m_daGain[0])) && // small change
-        (GFRB.m_daGain[0]*GFRB.m_daGain[1]>=0)  // same sign
-        )
-        {
-        double RqdCtrlChg=-0.8*(0.5*(GFRB.m_daGain[0]+GFRB.m_daGain[1]))*GFRB.m_daError[0];
-
-        double DChg=0.2*(FRB.CtrlMax()-FRB.CtrlMin());
-        RqdCtrlChg=Range(-DChg, RqdCtrlChg, DChg);
-
-        double RqdCtrl=FRB.m_dCtrlCur+RqdCtrlChg;
-
-        RqdCtrl=Range(FRB.CtrlMin(), RqdCtrl, FRB.CtrlMax());
-
-        rg->m_Regulator.SetFlwRegulator(RqdCtrl);
-        FRB.m_bHoldCvg=true;
-        GFRB.m_nHistory=0;
-
-#if (dbgFlwNets)
-        if (DoDbg)
-          dbgpln(" Ctrl:%+8.5f >>:%8.5f", RqdCtrlChg, RqdCtrl);
-#endif
-        }
-      else
-        {
-        FRB.m_bHoldCvg=false;
-
-#if (dbgFlwNets)
-        if (DoDbg)
-          dbgpln("");
-#endif
-        }
-
-#if (dbgFlwNets)
-      if (DoDbg)
-        dbgunlock();
-#endif
       }
-    }
+
+
+    if (m_RegGrps.GetCount()>0)
+      {
+#if (dbgFlwNets)
+      flag DoDbg=dbgRegulators()!=0;
+      if (0 && DoDbg)
+        dbgpln(" Regulators - Measure");
+#endif
+      GrpFlwIter RG(m_RegGrps);
+      for (CGrpFlwBlk * rg=RG.First(); rg; rg=RG.Next())
+        {
+        CGrpFlwRegBlk &GFRB = rg->m_Regulator;
+        FlwNode &Nd         = *GFRB.m_pNd;
+        CFlwRegBlk &FRB     = *GFRB.m_pFRB;
+        FlwBlk &FB          = *GFRB.m_pFB;
+
+
+#if (dbgFlwNets)
+        if (DoDbg)
+          {
+          dbglock();
+          dbgp("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+            "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+          dbgpln(" Reg: What:%2i %s", FRB.m_iWhat, rg->FwdTag());
+          }
+#endif
+        if (FRB.m_iWhat>0)
+          {
+
+          //int MaxLoops = LineCnvCnt[Min(NetCnvLoop,NLineCnvCnt-1)];
+          //flag FirstOuterLoop = NetCnvLoop==0;
+          //flag LastOuterLoop = NetCnvLoop==NLineCnvCnt-1;
+          //rg->ConvergeQm(MaxLoops, FirstOuterLoop, LastOuterLoop);
+
+          if (NetCnvLoop>0)
+            GFRB.m_nHistory=Min(GFRB.m_nHistory+1L, MaxRegHistory);
+          else
+            GFRB.m_nHistory=1;
+
+          for (int i=GFRB.m_nHistory-1; i>0; i--)
+            {
+            GFRB.m_daError[i]=GFRB.m_daError[i-1];
+            GFRB.m_daCtrl[i]=GFRB.m_daCtrl[i-1];
+            GFRB.m_daGain[i]=GFRB.m_daGain[i-1];
+            }
+
+          GFRB.m_daError[0]=GFRB.m_dMeasValue-FRB.StepTarget();
+          GFRB.m_daCtrl[0]=FRB.m_dCtrlCur;
+          if (GFRB.m_nHistory>1)
+            {
+            double ChgError=GFRB.m_daError[0]-GFRB.m_daError[1];
+            double ChgCtrl=GFRB.m_daCtrl[0]-GFRB.m_daCtrl[1];
+
+            GFRB.m_daGain[0]=ChgCtrl/NZ(ChgError);
+            }
+
+#if (dbgFlwNets)
+          if (DoDbg)
+            {
+            dbgpln("n:%2i C:%8.4f M:%10.2f T:%10.2f", 
+              GFRB.m_nHistory, FRB.m_dCtrlCur, GFRB.m_dMeasValue , FRB.StepTarget());
+            for (int i=GFRB.m_nHistory-1; i>=0; i--) 
+              {
+              dbgp("  t-%i, E:%10.2f C:%8.4f", i, GFRB.m_daError[i], GFRB.m_daCtrl[i]);
+              if (i<GFRB.m_nHistory-1)
+                dbgp(" Gn:%8.4f ", GFRB.m_daGain[i]);
+              if (i>0)
+                dbgpln("");
+              }
+            }
+#endif
+
+          if (GFRB.m_nHistory>=2 && 
+            (fabs(GFRB.m_daGain[0]-GFRB.m_daGain[1]) < 0.1*fabs(GFRB.m_daGain[0])) && // small change
+            (GFRB.m_daGain[0]*GFRB.m_daGain[1]>=0)  // same sign
+            )
+            {
+            double RqdCtrlChg=-0.8*(0.5*(GFRB.m_daGain[0]+GFRB.m_daGain[1]))*GFRB.m_daError[0];
+
+            double DChg=0.2*(FRB.CtrlMax()-FRB.CtrlMin());
+            RqdCtrlChg=Range(-DChg, RqdCtrlChg, DChg);
+
+            double RqdCtrl=FRB.m_dCtrlCur+RqdCtrlChg;
+
+            RqdCtrl=Range(FRB.CtrlMin(), RqdCtrl, FRB.CtrlMax());
+
+            rg->m_Regulator.SetFlwRegulator(RqdCtrl);
+            FRB.m_bHoldCvg=true;
+            GFRB.m_nHistory=0;
+
+#if (dbgFlwNets)
+            if (DoDbg)
+              dbgpln(" Ctrl:%+8.5f >>:%8.5f", RqdCtrlChg, RqdCtrl);
+#endif
+            }
+          else
+            {
+            FRB.m_bHoldCvg=false;
+
+#if (dbgFlwNets)
+            if (DoDbg)
+              dbgpln("");
+#endif
+            }
+          }
+
+#if (dbgFlwNets)
+        if (DoDbg)
+          {
+          dbgpln("//////////////////////////////////////////////////////////////////////////");
+          dbgunlock();
+          }
+#endif
+        }
+      }
 
 #if dbgFlwNets
-  if (dbgWhere())
-    dbgpln("Measure  SubNets  %s ", fNetTolsOK ? "OK" : "NOT CONVERGED");
+    if (dbgWhere())
+      dbgpln("Measure  SubNets  %s ", fNetTolsOK ? "OK" : "NOT CONVERGED");
 #endif
+    }
+  SCDCATCH("CSubNetBlk::Measure", NULL)
   return fNetTolsOK;
   }
 
@@ -4933,12 +4968,16 @@ flag CSubNetBlk::Measure(int NetCnvLoop)
 void CSubNetBlk::FITGrpTraverse(CLkGrpFlwIter & Iter)
   {
   CGrpFlwBlkPtr g;
-  while (Iter.GetNext(g))
+  SCDTRY
     {
-    g->Traverse("Test");
-    if (g->m_fMomentumValid)
-      fMomentumValid=true;
+    while (Iter.GetNext(g))
+      {
+      g->Traverse("Test");
+      if (g->m_fMomentumValid)
+        fMomentumValid=true;
+      }
     }
+  SCDCATCH("CSubNetBlk::FITGrpTraverse", g ? g->FwdTag():NULL)
   }
 
 //-------------------------------------------------------------------------
@@ -4947,7 +4986,9 @@ void CSubNetBlk::Traverse()
   {
   CStopWatchLap SWLapConvergeTicks(gs_swConvergeTicks);
 
-  fMomentumValid=false;
+  SCDTRY
+    {
+    fMomentumValid=false;
   if (FSTC.NThreads())
     {
     CLkGrpFlwIter TCAll(&Grps);
@@ -4966,43 +5007,49 @@ void CSubNetBlk::Traverse()
 #if dbgFlwNets
   DumpFxdConnPs();
 #endif
+    }
+  SCDCATCH("CSubNetBlk::Traverse", NULL)
   }
 
 //---------------------------------------------------------------------------
 
 void CSubNetBlk::FITGrpConverge(CLkGrpFlwIter & Iter)
   {
-  CGrpFlwBlkPtr g;
-  while (Iter.GetNext(g))
+  CGrpFlwBlkPtr g=NULL;
+  SCDTRY
     {
-    if (g->m_fFixed)
+    while (Iter.GetNext(g))
       {
-      g->SetLinkQmEstAndQm(g->RequiredQm());
-      g->Traverse("TestFxd1");
-      }
-    else // CNM if (!g->Solved)
-      {
-      g->Traverse("Init");
-      if (g->m_fGFTolsOK && (g->m_fGFRegTolOK || g->m_fGFHoldRegCvg))
-        {
-        }
-      else if (g->m_fFixed)
+      if (g->m_fFixed)
         {
         g->SetLinkQmEstAndQm(g->RequiredQm());
-        g->Traverse("TestFxd2");
+        g->Traverse("TestFxd1");
         }
-      else 
+      else // CNM if (!g->Solved)
         {
-        int MaxLoops = LineCnvCnt[Min(iNetCnvLoop,NLineCnvCnt-1)];
-        flag FirstOuterLoop = iNetCnvLoop==0;
-        flag LastOuterLoop = iNetCnvLoop==NLineCnvCnt-1;
-        g->ConvergeQm(MaxLoops, FirstOuterLoop, LastOuterLoop);
-        g->ConvergeRegulator(MaxLoops, FirstOuterLoop, LastOuterLoop);
+        g->Traverse("Init");
+        if (g->m_fGFTolsOK && (g->m_fGFRegTolOK || g->m_fGFHoldRegCvg))
+          {
+          }
+        else if (g->m_fFixed)
+          {
+          g->SetLinkQmEstAndQm(g->RequiredQm());
+          g->Traverse("TestFxd2");
+          }
+        else 
+          {
+          int MaxLoops = LineCnvCnt[Min(iNetCnvLoop,NLineCnvCnt-1)];
+          flag FirstOuterLoop = iNetCnvLoop==0;
+          flag LastOuterLoop = iNetCnvLoop==NLineCnvCnt-1;
+          g->ConvergeQm(MaxLoops, FirstOuterLoop, LastOuterLoop);
+          g->ConvergeRegulator(MaxLoops, FirstOuterLoop, LastOuterLoop);
+          }
+        if (!g->m_fGFNetTolsOK)
+          fNetTolsOK=0;
         }
-      if (!g->m_fGFNetTolsOK)
-        fNetTolsOK=0;
       }
     }
+  SCDCATCH("CSubNetBlk::FITGrpConverge", g ? g->FwdTag():NULL)
   }
 
 //-------------------------------------------------------------------------
@@ -7862,315 +7909,406 @@ void CNetBlk::BldSubNets()
   {
   UnBldSubNets();
 
-  CFlwNodeIter N(Nds);
-  for (FlwNode *p=N.First(); p; p=N.Next())
+  SCDTRY
     {
-    // Clear Flow related Conditions
-    for (int i=0; i<=p->CICount(); i++)
+    CFlwNodeIter N(Nds);
+    for (FlwNode *p=N.First(); p; p=N.Next())
       {
-      switch (i)
+      // Clear Flow related Conditions
+      for (int i=0; i<=p->CICount(); i++)
         {
-        case 2: // Low/Neg Press
-        case 4: // Impedance range
-          break;
-        default:
-          p->ClrCI(i);
-          break;
+        switch (i)
+          {
+          case 2: // Low/Neg Press
+          case 4: // Impedance range
+            break;
+          default:
+            p->ClrCI(i);
+            break;
+          }
         }
+      p->BuildJoinList();
       }
-    p->BuildJoinList();
-    }
 
-  for (p=N.First(); p; p=N.Next())
-    p->ConnectJoinList();
+    for (p=N.First(); p; p=N.Next())
+      p->ConnectJoinList();
 
-  int SeqNo=0;
+    int SeqNo=0;
 
-  for (p=N.First(); p; p=N.Next())
-    p->PostConnectJoinList();
+    for (p=N.First(); p; p=N.Next())
+      p->PostConnectJoinList();
 
-  for (p=N.First(); p; p=N.Next())
-    for (int j=0; j<p->NoJoins(); j++)
-      Joins.AddTail(&p->Joins[j]);
+    for (p=N.First(); p; p=N.Next())
+      for (int j=0; j<p->NoJoins(); j++)
+        Joins.AddTail(&p->Joins[j]);
 
-  JoinIter J(Joins);
-  for (CJoinRec * pJ = J.First(); (pJ); pJ = J.Next())
-    {
-    pJ->Prepare();
-    if (pJ->fIsOpen)
-      pJ->Typ=JTyp_Open;
-    }
-
-  DumpJoinList();
-
-  int FxdOrder= 0;
-  int SubNetNo = 0;
-
-  PrepareSubNet(SubNetNo);
-  // Look for Xfer Lnks
-  for (pJ = J.First(); (pJ); pJ = J.Next())
-    {
-    for (int c=0; c<pJ->NConns(); c++)
+    JoinIter J(Joins);
+    for (CJoinRec * pJ = J.First(); (pJ); pJ = J.Next())
       {
-      if (!ConnHasGFB(pJ, c) && ConnIsXfer(pJ, c))
-        FindFxdQs(true, *SubNet[SubNetNo], pJ, c, FxdOrder);
-      }
-    }
-  if (SubNet[SubNetNo]->m_FxdPList.GetCount()>0)
-    PrepareSubNet(++SubNetNo);
-
-  // Look for Xfer Nodes
-  for (pJ = J.First(); (pJ); pJ = J.Next())
-    {
-    if ((pJ->Typ == JTyp_Unknown) && (pJ->fIsTie))
-      FindXferTies(*SubNet[SubNetNo], pJ);
-    }
-  if (SubNet[SubNetNo]->Ties.GetCount()>0)
-    PrepareSubNet(++SubNetNo);
-
-  // Look for Fixed Lnks
-  // Start at ends
-  for (pJ = J.First(); (pJ); pJ = J.Next())
-    {
-    for (int c=0; c<pJ->NConns(); c++)
-      {
-      //dbgpln("FindFxdQs %2i %2i %s[%i][%i]", ConnHasGFB(pJ, c), ConnIsFixed(pJ, c), pJ->Nd()->FullObjTag(), pJ->m_iJoinId, c);
-      if (!ConnHasGFB(pJ, c) && ConnIsFixed(pJ, c))
-        FindFxdQs(false, *SubNet[SubNetNo], pJ, c, FxdOrder);
-      }
-    }
-  if (SubNet[SubNetNo]->m_FxdPList.GetCount()>0)
-    PrepareSubNet(++SubNetNo);
-
-  if (1)
-    {
-    for (pJ = J.First(); (pJ); pJ = J.Next())
-      {
-      if ((pJ->Typ == JTyp_Unknown) && (pJ->fIsTie))
-        {
-        if (FindNetLinks(*SubNet[SubNetNo], pJ))
-          PrepareSubNet(++SubNetNo);
-        }
+      pJ->Prepare();
+      if (pJ->fIsOpen)
+        pJ->Typ=JTyp_Open;
       }
 
-    flag Found=0;
+    DumpJoinList();
+
+    int FxdOrder= 0;
+    int SubNetNo = 0;
+
+    PrepareSubNet(SubNetNo);
+    // Look for Xfer Lnks
     for (pJ = J.First(); (pJ); pJ = J.Next())
       {
       for (int c=0; c<pJ->NConns(); c++)
         {
-        if (!ConnHasGFB(pJ, c))
-          {
-          if (FindLonelyConns(*SubNet[SubNetNo], pJ, c))
-            Found=1;
-          }
+        if (!ConnHasGFB(pJ, c) && ConnIsXfer(pJ, c))
+          FindFxdQs(true, *SubNet[SubNetNo], pJ, c, FxdOrder);
         }
       }
-    if (Found)
-      SubNetNo++;
-    }
-  //else
-  //  {
-  //  flag Found=0;
-  //  for (pJ = J.First(); (pJ); pJ = J.Next())
-  //    {
-  //    for (int c=0; c<pJ->NConns(); c++)
-  //      {
-  //      if (!ConnHasGFB(pJ, c))
-  //        {
-  //        if (FindUnDefConns(*SubNet[SubNetNo], pJ, c))
-  //          Found=1;
-  //        }
-  //      }
-  //    }
-  //  if (Found)
-  //    SubNetNo++;
-  //  }
+    if (SubNet[SubNetNo]->m_FxdPList.GetCount()>0)
+      PrepareSubNet(++SubNetNo);
 
-  NSubNets = SubNetNo;
-
-  fTopologyChanged=0;
-
-  if (dbgtestfileopen())
+    // Look for Xfer Nodes
     for (pJ = J.First(); (pJ); pJ = J.Next())
-      pJ->sNetInfo="";
-
-  int iJn=0;
-  for (int Sub=0; Sub<NSubNets; Sub++)
-    {
-    flag IsFullFlow=false;
-    CSubNetBlk &SNI=*SubNet[Sub];
-
-
-    SNI.fTopologyChanged=0;
-
-    GrpFlwIter G(SNI.Grps);
-    for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
       {
-      ////if (Where==LFP_FixedHere)
-      //  pGFB->m_fFixedExternal=false;//(Where==LFP_Elsewhere);
-      //dbgpln("pGFB->m_fFixedExternal %#010x %i %s", pGFB, Where, pGFB->m_fFixedExternal?"Fixed:External":"Fixed:Here");
+      if ((pJ->Typ == JTyp_Unknown) && (pJ->fIsTie))
+        FindXferTies(*SubNet[SubNetNo], pJ);
+      }
+    if (SubNet[SubNetNo]->Ties.GetCount()>0)
+      PrepareSubNet(++SubNetNo);
+
+    // Look for Fixed Lnks
+    // Start at ends
+    for (pJ = J.First(); (pJ); pJ = J.Next())
+      {
+      for (int c=0; c<pJ->NConns(); c++)
+        {
+        //dbgpln("FindFxdQs %2i %2i %s[%i][%i]", ConnHasGFB(pJ, c), ConnIsFixed(pJ, c), pJ->Nd()->FullObjTag(), pJ->m_iJoinId, c);
+        if (!ConnHasGFB(pJ, c) && ConnIsFixed(pJ, c))
+          FindFxdQs(false, *SubNet[SubNetNo], pJ, c, FxdOrder);
+        }
+      }
+    if (SubNet[SubNetNo]->m_FxdPList.GetCount()>0)
+      PrepareSubNet(++SubNetNo);
+
+    if (1)
+      {
+      for (pJ = J.First(); (pJ); pJ = J.Next())
+        {
+        if ((pJ->Typ == JTyp_Unknown) && (pJ->fIsTie))
+          {
+          if (FindNetLinks(*SubNet[SubNetNo], pJ))
+            PrepareSubNet(++SubNetNo);
+          }
+        }
+
+      flag Found=0;
+      for (pJ = J.First(); (pJ); pJ = J.Next())
+        {
+        for (int c=0; c<pJ->NConns(); c++)
+          {
+          if (!ConnHasGFB(pJ, c))
+            {
+            if (FindLonelyConns(*SubNet[SubNetNo], pJ, c))
+              Found=1;
+            }
+          }
+        }
+      if (Found)
+        SubNetNo++;
+      }
+    //else
+    //  {
+    //  flag Found=0;
+    //  for (pJ = J.First(); (pJ); pJ = J.Next())
+    //    {
+    //    for (int c=0; c<pJ->NConns(); c++)
+    //      {
+    //      if (!ConnHasGFB(pJ, c))
+    //        {
+    //        if (FindUnDefConns(*SubNet[SubNetNo], pJ, c))
+    //          Found=1;
+    //        }
+    //      }
+    //    }
+    //  if (Found)
+    //    SubNetNo++;
+    //  }
+
+    NSubNets = SubNetNo;
+
+    fTopologyChanged=0;
+
+    if (dbgtestfileopen())
+      for (pJ = J.First(); (pJ); pJ = J.Next())
+        pJ->sNetInfo="";
+
+    int iJn=0;
+    for (int Sub=0; Sub<NSubNets; Sub++)
+      {
+      flag IsFullFlow=false;
+      CSubNetBlk &SNI=*SubNet[Sub];
+
+
+      SNI.fTopologyChanged=0;
+
+      GrpFlwIter G(SNI.Grps);
+      for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
+        {
+        ////if (Where==LFP_FixedHere)
+        //  pGFB->m_fFixedExternal=false;//(Where==LFP_Elsewhere);
+        //dbgpln("pGFB->m_fFixedExternal %#010x %i %s", pGFB, Where, pGFB->m_fFixedExternal?"Fixed:External":"Fixed:Here");
 
 
 #if dbgFlwNets
-      if (dbgGFBSummary())
-        {
-        dbgpln("GFB >> j:%4i i:%4i l:%4i id:%5i %s   %s %s %s %s", 
-          g->m_Src.m_pJoin->m_iNo, g->m_Src.m_iIONo, g->m_Src.m_iLnkNo, 
-          g->m_Src.m_pNd->IOId_Self(g->m_Src.m_iIONo), 
-          g->m_Src.m_pNd->FullObjTag(), 
-          g->m_fFixed          ?"Fixed":"",
-          g->m_fFixedExternal  ?"FixedExternal":"",
-          g->m_fFixedXfer      ?"FixedXfer":"",
-          g->m_fInXferNet      ?"InXferNet":"");
+        if (dbgGFBSummary())
+          {
+          dbgpln("GFB >> j:%4i i:%4i l:%4i id:%5i %s   %s %s %s %s", 
+            g->m_Src.m_pJoin->m_iNo, g->m_Src.m_iIONo, g->m_Src.m_iLnkNo, 
+            g->m_Src.m_pNd->IOId_Self(g->m_Src.m_iIONo), 
+            g->m_Src.m_pNd->FullObjTag(), 
+            g->m_fFixed          ?"Fixed":"",
+            g->m_fFixedExternal  ?"FixedExternal":"",
+            g->m_fFixedXfer      ?"FixedXfer":"",
+            g->m_fInXferNet      ?"InXferNet":"");
+
+          JoinIter L(g->m_Lnks);
+          for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
+            dbgpln("    .. j:%4i   %4s   %4s    %5s %s", pJ->m_iNo, "", "", "", pJ->pNd->FullObjTag());
+          dbgpln("    << j:%4i i:%4i l:%4i id:%5i %s",
+            g->m_Dst.m_pJoin->m_iNo, g->m_Dst.m_iIONo, g->m_Dst.m_iLnkNo, 
+            g->m_Dst.m_pNd->IOId_Self(g->m_Dst.m_iIONo), 
+            g->m_Dst.m_pNd->FullObjTag());
+          }
+#endif
+
+        g->m_LnkInx.Typ=(g->m_Src.m_pJoin->fIsOpen || g->m_Dst.m_pJoin->fIsOpen ? JTyp_Edge : JTyp_Link);
+
+        g->m_fSrcIsEdge=(g->m_LnkInx.Typ==JTyp_Edge) && (g->m_Src.m_pJoin->fIsOpen || g->m_Src.m_pJoin->fIsImpNd);
+        g->m_fDstIsEdge=(g->m_LnkInx.Typ==JTyp_Edge) && (g->m_Dst.m_pJoin->fIsOpen || g->m_Dst.m_pJoin->fIsImpNd);
+
+        g->m_FBs.SetSize(0, 4);
+
+        FlwBlk * pSrcFB=NULL;
+        if (g->m_Src.IsIO())
+          {
+          for (int fe=g->m_Src.NIOFBs()-1; fe>=0; fe--)
+            {
+            FlwBlk * FB=g->m_Src.IOFB(fe);
+            FB->SetDisabled(SNI.fXfer);
+            FB->SetInXferNet(SNI.fXfer);
+            if (FB->FlowMode()==FBMode_Full)
+              IsFullFlow=true;
+            //dbgpln("Src[%2i] fb[%4i] %s", fe, FB->m_iNo, g->m_Src.Nd()->Tag());
+            ASSERT(!FB->m_bAttached2GFB);
+            g->AttachFB(FB, *this, SNI);
+            g->m_FBs.Add(FB);
+            }
+          pSrcFB=g->m_Src.IOFBFlng();
+          }
+        else
+          {
+          CLinkRec & L=g->m_Src.Link();
+          if (L.m_iJoinId0==g->m_Src.m_pJoin->m_iJoinId)
+            {
+            FlwBlk * FB=g->m_Src.LinkFB();
+            FB->SetDisabled(SNI.fXfer);
+            FB->SetInXferNet(SNI.fXfer);
+            if (FB->FlowMode()==FBMode_Full)
+              IsFullFlow=true;
+
+            //dbgpln("Src %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, g->m_Src.m_pNd->Tag());
+
+            ASSERT(!FB->m_bAttached2GFB);
+            g->AttachFB(FB, *this, SNI);
+            g->m_FBs.Add(FB);
+
+            CLinkRec & L=g->m_Src.Link();
+            L.m_iSgn=1;
+
+            pSrcFB=g->m_Src.LinkFB();
+            }
+          }
 
         JoinIter L(g->m_Lnks);
         for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
-          dbgpln("    .. j:%4i   %4s   %4s    %5s %s", pJ->m_iNo, "", "", "", pJ->pNd->FullObjTag());
-        dbgpln("    << j:%4i i:%4i l:%4i id:%5i %s",
-          g->m_Dst.m_pJoin->m_iNo, g->m_Dst.m_iIONo, g->m_Dst.m_iLnkNo, 
-          g->m_Dst.m_pNd->IOId_Self(g->m_Dst.m_iIONo), 
-          g->m_Dst.m_pNd->FullObjTag());
-        }
-#endif
-
-      g->m_LnkInx.Typ=(g->m_Src.m_pJoin->fIsOpen || g->m_Dst.m_pJoin->fIsOpen ? JTyp_Edge : JTyp_Link);
-
-      g->m_fSrcIsEdge=(g->m_LnkInx.Typ==JTyp_Edge) && (g->m_Src.m_pJoin->fIsOpen || g->m_Src.m_pJoin->fIsImpNd);
-      g->m_fDstIsEdge=(g->m_LnkInx.Typ==JTyp_Edge) && (g->m_Dst.m_pJoin->fIsOpen || g->m_Dst.m_pJoin->fIsImpNd);
-
-      g->m_FBs.SetSize(0, 4);
-
-      FlwBlk * pSrcFB=NULL;
-      if (g->m_Src.IsIO())
-        {
-        for (int fe=g->m_Src.NIOFBs()-1; fe>=0; fe--)
           {
-          FlwBlk * FB=g->m_Src.IOFB(fe);
-          FB->SetDisabled(SNI.fXfer);
-          FB->SetInXferNet(SNI.fXfer);
-          if (FB->FlowMode()==FBMode_Full)
-            IsFullFlow=true;
-          //dbgpln("Src[%2i] fb[%4i] %s", fe, FB->m_iNo, g->m_Src.Nd()->Tag());
-          ASSERT(!FB->m_bAttached2GFB);
-          g->AttachFB(FB, *this, SNI);
-          g->m_FBs.Add(FB);
-          }
-        pSrcFB=g->m_Src.IOFBFlng();
-        }
-      else
-        {
-        CLinkRec & L=g->m_Src.Link();
-        if (L.m_iJoinId0==g->m_Src.m_pJoin->m_iJoinId)
-          {
-          FlwBlk * FB=g->m_Src.LinkFB();
-          FB->SetDisabled(SNI.fXfer);
-          FB->SetInXferNet(SNI.fXfer);
-          if (FB->FlowMode()==FBMode_Full)
-            IsFullFlow=true;
+          ASSERT(pJ->fIs2IO);
+          ASSERT(pJ->NConns()==2);
 
-          //dbgpln("Src %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, g->m_Src.m_pNd->Tag());
+          pJ->Typ=g->m_LnkInx.Typ;
+          pJ->Dirn=(pJ->IOFBFlng_Rmt(0)==pSrcFB ? 1 : -1);
+          pJ->pGFb=g;
+          pJ->Nd()->pNetTopoChg=&fTopologyChanged;
+          pJ->Nd()->pSubNetTopoChg=&SNI.fTopologyChanged;
+          pJ->m_Conns[0].m_iQSgn=1;
+          pJ->m_Conns[1].m_iQSgn=-1;
+          pJ->SetQmVAccum(0.0);
+          pJ->SetQmLAccum(0.0);
 
-          ASSERT(!FB->m_bAttached2GFB);
-          g->AttachFB(FB, *this, SNI);
-          g->m_FBs.Add(FB);
-
-          CLinkRec & L=g->m_Src.Link();
-          L.m_iSgn=1;
-
-          pSrcFB=g->m_Src.LinkFB();
-          }
-        }
-
-      JoinIter L(g->m_Lnks);
-      for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
-        {
-        ASSERT(pJ->fIs2IO);
-        ASSERT(pJ->NConns()==2);
-
-        pJ->Typ=g->m_LnkInx.Typ;
-        pJ->Dirn=(pJ->IOFBFlng_Rmt(0)==pSrcFB ? 1 : -1);
-        pJ->pGFb=g;
-        pJ->Nd()->pNetTopoChg=&fTopologyChanged;
-        pJ->Nd()->pSubNetTopoChg=&SNI.fTopologyChanged;
-        pJ->m_Conns[0].m_iQSgn=1;
-        pJ->m_Conns[1].m_iQSgn=-1;
-        pJ->SetQmVAccum(0.0);
-        pJ->SetQmLAccum(0.0);
-
-        int cn=pJ->Dirn>0 ? 0 : 1;
-        if (pJ->IsIO(cn))
-          {
-          for (int fe=0; fe<pJ->NIOFBs(cn); fe++)
+          int cn=pJ->Dirn>0 ? 0 : 1;
+          if (pJ->IsIO(cn))
             {
-            FlwBlk * FB=pJ->IOFB(cn,fe);
-            FB->SetInXferNet(SNI.fXfer);
-            FB->SetDisabled(SNI.fXfer);
-            //dbgpln("JSrc[%i] fb[%4i] %s", fe, FB->m_iNo, pJ->Nd()->Tag());
-            ASSERT(!FB->m_bAttached2GFB);
-            g->AttachFB(FB, *this, SNI);
-            g->m_FBs.Add(FB);
+            for (int fe=0; fe<pJ->NIOFBs(cn); fe++)
+              {
+              FlwBlk * FB=pJ->IOFB(cn,fe);
+              FB->SetInXferNet(SNI.fXfer);
+              FB->SetDisabled(SNI.fXfer);
+              //dbgpln("JSrc[%i] fb[%4i] %s", fe, FB->m_iNo, pJ->Nd()->Tag());
+              ASSERT(!FB->m_bAttached2GFB);
+              g->AttachFB(FB, *this, SNI);
+              g->m_FBs.Add(FB);
+              }
             }
-          }
-        else
-          {
-          CLinkRec & L=*pJ->Link(cn);
-          if (L.m_iJoinId0==pJ->m_iJoinId)
+          else
             {
-            FlwBlk * FB=pJ->LinkFB(cn);
-            FB->SetInXferNet(SNI.fXfer);
-            FB->SetDisabled(SNI.fXfer);
-            if (FB->FlowMode()==FBMode_Full)
-              IsFullFlow=true;
-            //dbgpln("JSrc %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, pJ->Nd()->Tag());
-
-            ASSERT(!FB->m_bAttached2GFB);
-            g->AttachFB(FB, *this, SNI);
-            g->m_FBs.Add(FB);
-
-            L.m_iSgn=-1;//(L.m_iJoinConnNo1==pJ->m_iJoinId ? 1 :-1);
-            }
-          }
-
-        cn=OtherEnd(cn);
-        if (pJ->IsIO(cn))
-          {
-          for (int fe=pJ->NIOFBs(cn)-1; fe>=0; fe--)
-            {
-            FlwBlk * FB=pJ->IOFB(cn,fe);
-            FB->SetInXferNet(SNI.fXfer);
-            FB->SetDisabled(SNI.fXfer);
-            if (FB->FlowMode()==FBMode_Full)
-              IsFullFlow=true;
-            //dbgpln("JDst[%2i] fb[%4i] %4i %s", fe, FB->m_iNo, pJ->Nd()->Tag());
-            ASSERT(!FB->m_bAttached2GFB);
-            g->AttachFB(FB, *this, SNI);
-            g->m_FBs.Add(FB);
-            }
-          }
-        else
-          {
-          CLinkRec & L=*pJ->Link(cn);
-          if (L.m_iJoinId0==pJ->m_iJoinId)
-            {
-            FlwBlk * FB=pJ->LinkFB(cn);
-            FB->SetInXferNet(SNI.fXfer);
-            FB->SetDisabled(SNI.fXfer);
-            if (FB->FlowMode()==FBMode_Full)
-              IsFullFlow=true;
-            ASSERT(!FB->m_bAttached2GFB);
-            g->AttachFB(FB, *this, SNI);
-            g->m_FBs.Add(FB);
-
             CLinkRec & L=*pJ->Link(cn);
-            L.m_iSgn=1;
-            //dbgpln("JDst %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, pJ->Nd()->Tag());
+            if (L.m_iJoinId0==pJ->m_iJoinId)
+              {
+              FlwBlk * FB=pJ->LinkFB(cn);
+              FB->SetInXferNet(SNI.fXfer);
+              FB->SetDisabled(SNI.fXfer);
+              if (FB->FlowMode()==FBMode_Full)
+                IsFullFlow=true;
+              //dbgpln("JSrc %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, pJ->Nd()->Tag());
+
+              ASSERT(!FB->m_bAttached2GFB);
+              g->AttachFB(FB, *this, SNI);
+              g->m_FBs.Add(FB);
+
+              L.m_iSgn=-1;//(L.m_iJoinConnNo1==pJ->m_iJoinId ? 1 :-1);
+              }
+            }
+
+          cn=OtherEnd(cn);
+          if (pJ->IsIO(cn))
+            {
+            for (int fe=pJ->NIOFBs(cn)-1; fe>=0; fe--)
+              {
+              FlwBlk * FB=pJ->IOFB(cn,fe);
+              FB->SetInXferNet(SNI.fXfer);
+              FB->SetDisabled(SNI.fXfer);
+              if (FB->FlowMode()==FBMode_Full)
+                IsFullFlow=true;
+              //dbgpln("JDst[%2i] fb[%4i] %4i %s", fe, FB->m_iNo, pJ->Nd()->Tag());
+              ASSERT(!FB->m_bAttached2GFB);
+              g->AttachFB(FB, *this, SNI);
+              g->m_FBs.Add(FB);
+              }
+            }
+          else
+            {
+            CLinkRec & L=*pJ->Link(cn);
+            if (L.m_iJoinId0==pJ->m_iJoinId)
+              {
+              FlwBlk * FB=pJ->LinkFB(cn);
+              FB->SetInXferNet(SNI.fXfer);
+              FB->SetDisabled(SNI.fXfer);
+              if (FB->FlowMode()==FBMode_Full)
+                IsFullFlow=true;
+              ASSERT(!FB->m_bAttached2GFB);
+              g->AttachFB(FB, *this, SNI);
+              g->m_FBs.Add(FB);
+
+              CLinkRec & L=*pJ->Link(cn);
+              L.m_iSgn=1;
+              //dbgpln("JDst %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, pJ->Nd()->Tag());
+              }
+            }
+
+          pSrcFB= pJ->IOFBFlng(cn);
+
+          pJ->m_NetNo=NetNo;
+          pJ->m_SubNetNo=Sub;
+
+          if (dbgtestfileopen())
+            {
+            char * What="?";
+            if (SNI.fFixed)
+              What="Fixed";
+            else if (SNI.fXfer)
+              What="Xfer";
+            else if (SNI.fXferTies)
+              What="XferTies";
+            else if (SNI.fNetWrk)
+              What="Net";
+            else if (SNI.fLonely)
+              What="Lonely";
+            else if (SNI.fUnDefined)
+              What="Lonely";
+            else if (SNI.fIsolatedNet)
+              What="IsoNet";
+            else if(SNI.fIsolatedNode)
+              What="IsoNode";
+
+            pJ->sNetInfo.Set("Lnk Net(%i)Sub(%i) %s",NetNo,Sub,What);
             }
           }
 
-        pSrcFB= pJ->IOFBFlng(cn);
+        if (g->m_Dst.IsIO())
+          {
+          for (int fe=0; fe<g->m_Dst.NIOFBs(); fe++)
+            {
+            FlwBlk * FB=g->m_Dst.IOFB(fe);
+            FB->SetDisabled(SNI.fXfer);
+            FB->SetInXferNet(SNI.fXfer);
+            if (FB->FlowMode()==FBMode_Full)
+              IsFullFlow=true;
+            //dbgpln("Dst[%2i] fb[%4i] %s", fe, FB->m_iNo, g->m_Dst.m_pNd->Tag());
+            ASSERT(!FB->m_bAttached2GFB);
+            g->AttachFB(FB, *this, SNI);
+            g->m_FBs.Add(FB);
+            }
+          }
+        else
+          {
+          CLinkRec & L=g->m_Dst.Link();
+          if (L.m_iJoinId0==g->m_Dst.m_pJoin->m_iJoinId)
+            {
+            FlwBlk * FB=g->m_Dst.LinkFB();
+            FB->SetDisabled(SNI.fXfer);
+            FB->SetInXferNet(SNI.fXfer);
+            if (FB->FlowMode()==FBMode_Full)
+              IsFullFlow=true;
+            ASSERT(!FB->m_bAttached2GFB);
+            g->AttachFB(FB, *this, SNI);
+            g->m_FBs.Add(FB);
 
-        pJ->m_NetNo=NetNo;
-        pJ->m_SubNetNo=Sub;
+            CLinkRec & L=g->m_Dst.Link();
+            L.m_iSgn=-1;//(L.m_iJoinConnNo1==g->m_Dst.m_pJoin->m_iJoinId) ? 1:-1;
+            //dbgpln("Dst %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, g->m_Src.m_pNd->Tag());
+            }
+          }
+
+        g->SetNet(this, SubNet[Sub]);
+
+        if ((g->m_Regulator.What()!=FBReg_Off) &&
+          (g->m_Regulator.m_pFB!=NULL) && 
+          (g->m_Regulator.m_pFB->FlowMode()==FBMode_Full))
+          SNI.m_RegGrps.AddTail(g);
+
+        g->InitFBSequence();
+#if dbgFlwNets
+        if (dbgTraverseSeq())
+          g->DbgDumpPBlks(true, false);
+#endif
+        }
+
+      SNI.SetFullFlow(IsFullFlow);
+
+      JoinIter T(SNI.Ties);
+      for (CJoinRec * pT=T.First(); pT; pT=T.Next())
+        {
+        pT->pGFb=NULL;
+        pT->TieInx.Typ=pT->Typ;
+        pT->Nd()->pNetTopoChg=&fTopologyChanged;
+        pT->Nd()->pSubNetTopoChg=&SNI.fTopologyChanged;
+
+        for (int c=0; c<pT->NConns(); c++)
+          pT->m_Conns[c].m_iQSgn=(pT==pT->GFB(c)->m_Src.m_pJoin ? -1 : 1);
+
+        pT->m_NetNo=NetNo;
+        pT->m_SubNetNo=Sub;
 
         if (dbgtestfileopen())
           {
@@ -8192,183 +8330,97 @@ void CNetBlk::BldSubNets()
           else if(SNI.fIsolatedNode)
             What="IsoNode";
 
-          pJ->sNetInfo.Set("Lnk Net(%i)Sub(%i) %s",NetNo,Sub,What);
+          //pT->sNetInfo.Set("Tie N(%i)S(%i)J(%i) %s",NetNo,Sub,iJn++,What);
+          pT->sNetInfo.Set("Tie Net(%i)Sub(%i) %s",NetNo,Sub,What);
           }
         }
 
-      if (g->m_Dst.IsIO())
-        {
-        for (int fe=0; fe<g->m_Dst.NIOFBs(); fe++)
-          {
-          FlwBlk * FB=g->m_Dst.IOFB(fe);
-          FB->SetDisabled(SNI.fXfer);
-          FB->SetInXferNet(SNI.fXfer);
-          if (FB->FlowMode()==FBMode_Full)
-            IsFullFlow=true;
-          //dbgpln("Dst[%2i] fb[%4i] %s", fe, FB->m_iNo, g->m_Dst.m_pNd->Tag());
-          ASSERT(!FB->m_bAttached2GFB);
-          g->AttachFB(FB, *this, SNI);
-          g->m_FBs.Add(FB);
-          }
-        }
-      else
-        {
-        CLinkRec & L=g->m_Dst.Link();
-        if (L.m_iJoinId0==g->m_Dst.m_pJoin->m_iJoinId)
-          {
-          FlwBlk * FB=g->m_Dst.LinkFB();
-          FB->SetDisabled(SNI.fXfer);
-          FB->SetInXferNet(SNI.fXfer);
-          if (FB->FlowMode()==FBMode_Full)
-            IsFullFlow=true;
-          ASSERT(!FB->m_bAttached2GFB);
-          g->AttachFB(FB, *this, SNI);
-          g->m_FBs.Add(FB);
-
-          CLinkRec & L=g->m_Dst.Link();
-          L.m_iSgn=-1;//(L.m_iJoinConnNo1==g->m_Dst.m_pJoin->m_iJoinId) ? 1:-1;
-          //dbgpln("Dst %2i fb[%4i] %s", L.m_iSgn, FB->m_iNo, g->m_Src.m_pNd->Tag());
-          }
-        }
-
-      g->SetNet(this, SubNet[Sub]);
-
-      if ((g->m_Regulator.What()!=FBReg_Off) &&
-        (g->m_Regulator.m_pFB!=NULL) && 
-        (g->m_Regulator.m_pFB->FlowMode()==FBMode_Full))
-        SNI.m_RegGrps.AddTail(g);
-
-      g->InitFBSequence();
-#if dbgFlwNets
-      if (dbgTraverseSeq())
-        g->DbgDumpPBlks(true, false);
-#endif
-      }
-
-    SNI.SetFullFlow(IsFullFlow);
-
-    JoinIter T(SNI.Ties);
-    for (CJoinRec * pT=T.First(); pT; pT=T.Next())
-      {
-      pT->pGFb=NULL;
-      pT->TieInx.Typ=pT->Typ;
-      pT->Nd()->pNetTopoChg=&fTopologyChanged;
-      pT->Nd()->pSubNetTopoChg=&SNI.fTopologyChanged;
-
-      for (int c=0; c<pT->NConns(); c++)
-        pT->m_Conns[c].m_iQSgn=(pT==pT->GFB(c)->m_Src.m_pJoin ? -1 : 1);
-
-      pT->m_NetNo=NetNo;
-      pT->m_SubNetNo=Sub;
-
-      if (dbgtestfileopen())
-        {
-        char * What="?";
-        if (SNI.fFixed)
-          What="Fixed";
-        else if (SNI.fXfer)
-          What="Xfer";
-        else if (SNI.fXferTies)
-          What="XferTies";
-        else if (SNI.fNetWrk)
-          What="Net";
-        else if (SNI.fLonely)
-          What="Lonely";
-        else if (SNI.fUnDefined)
-          What="Lonely";
-        else if (SNI.fIsolatedNet)
-          What="IsoNet";
-        else if(SNI.fIsolatedNode)
-          What="IsoNode";
-
-        //pT->sNetInfo.Set("Tie N(%i)S(%i)J(%i) %s",NetNo,Sub,iJn++,What);
-        pT->sNetInfo.Set("Tie Net(%i)Sub(%i) %s",NetNo,Sub,What);
-        }
-      }
-
-    for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
-      g->InitFlowPhases();
-    for (CJoinRec * pT=T.First(); pT; pT=T.Next())
-      pT->InitFlowPhases();
-
-    //dbgpln("FlwPh Force     %s%s %s", CFlwBlkData::sm_iFlwPh_Force&FPh_Gasses?"V":" ", CFlwBlkData::sm_iFlwPh_Force&FPh_Liquid?"L":" ","------------------------");
-    //dbgpln("      Block     %s%s ", CFlwBlkData::sm_iFlwPh_Block&FPh_Gasses?"V":" ", CFlwBlkData::sm_iFlwPh_Block&FPh_Liquid?"L":" ");
-    int Iter=0;
-    for (bool Busy=true; Busy; )
-      {
-      Busy=false;
       for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
-        Busy |= g->TestSetFlowPhases(SNI.m_bFullFlow);
+        g->InitFlowPhases();
       for (CJoinRec * pT=T.First(); pT; pT=T.Next())
-        Busy |= pT->TestSetFlowPhases(SNI.m_bFullFlow);
-      //dbgpln("Done %i ----", !Busy);
+        pT->InitFlowPhases();
+
+      //dbgpln("FlwPh Force     %s%s %s", CFlwBlkData::sm_iFlwPh_Force&FPh_Gasses?"V":" ", CFlwBlkData::sm_iFlwPh_Force&FPh_Liquid?"L":" ","------------------------");
+      //dbgpln("      Block     %s%s ", CFlwBlkData::sm_iFlwPh_Block&FPh_Gasses?"V":" ", CFlwBlkData::sm_iFlwPh_Block&FPh_Liquid?"L":" ");
+      int Iter=0;
+      for (bool Busy=true; Busy; )
+        {
+        Busy=false;
+        for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
+          Busy |= g->TestSetFlowPhases(SNI.m_bFullFlow);
+        for (CJoinRec * pT=T.First(); pT; pT=T.Next())
+          Busy |= pT->TestSetFlowPhases(SNI.m_bFullFlow);
+        //dbgpln("Done %i ----", !Busy);
+        }
       }
-    }
 
 #if dbgFlwNets
-  if (dbgSubNets())
-    {
-    for (Sub=0; Sub<NSubNets; Sub++)
+    if (dbgSubNets())
       {
-      dbgpln("============================= SubNet [%i]", Sub);
-      CSubNetBlk &SNI=*SubNet[Sub];
-      GrpFlwIter G(SNI.Grps);
-      for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
+      for (Sub=0; Sub<NSubNets; Sub++)
         {
-        Strng S0;
-        S0.Set(Valid(g->m_QmEstIn) ? "%#*.*g" : "*",QWide,QPrec,g->m_QmEstIn);
-        if (g->m_QmEstIn>=0.0)
+        dbgpln("============================= SubNet [%i]", Sub);
+        CSubNetBlk &SNI=*SubNet[Sub];
+        GrpFlwIter G(SNI.Grps);
+        for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
           {
-          dbgp("GFb : %s %s", S0(), g->m_Src.m_pNd->FullObjTag());
-          JoinIter L(g->m_Lnks);
-          for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
-            dbgp(" -> %s", pJ->Nd()->FullObjTag());
-          dbgpln(" -> %s [%s]", g->m_Dst.m_pNd->FullObjTag(), g->FwdTag());
+          Strng S0;
+          S0.Set(Valid(g->m_QmEstIn) ? "%#*.*g" : "*",QWide,QPrec,g->m_QmEstIn);
+          if (g->m_QmEstIn>=0.0)
+            {
+            dbgp("GFb : %s %s", S0(), g->m_Src.m_pNd->FullObjTag());
+            JoinIter L(g->m_Lnks);
+            for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
+              dbgp(" -> %s", pJ->Nd()->FullObjTag());
+            dbgpln(" -> %s [%s]", g->m_Dst.m_pNd->FullObjTag(), g->FwdTag());
+            }
+          else
+            {
+            dbgp("GFb : %s %s", S0(), g->m_Dst.m_pNd->FullObjTag());
+            JoinIter L(g->m_Lnks);
+            for (CJoinRec * pJ = L.Last(); (pJ); pJ = L.Prev())
+              dbgp(" -> %s", pJ->Nd()->FullObjTag());
+            dbgpln(" -> %s [%s]", g->m_Src.m_pNd->FullObjTag(), g->RevTag());
+            }
           }
-        else
-          {
-          dbgp("GFb : %s %s", S0(), g->m_Dst.m_pNd->FullObjTag());
-          JoinIter L(g->m_Lnks);
-          for (CJoinRec * pJ = L.Last(); (pJ); pJ = L.Prev())
-            dbgp(" -> %s", pJ->Nd()->FullObjTag());
-          dbgpln(" -> %s [%s]", g->m_Src.m_pNd->FullObjTag(), g->RevTag());
-          }
-        }
-      Strng S;
-      dbgpln("Fixed PList -----------------");
-      CJoinGFBIter PC(SNI.m_FxdPList);
-      for (CJoinGFBPtr *pc = PC.First(); (pc); pc = PC.Next())
-        if (pc->IsJoin())
-          dbgpln("Jn  %s %s", ".", pc->Tag(S));
-        else  if (pc->IsFB())
-          {
-          FlwBlk &FB=*pc->FB();
-          dbgpln("FB  %s fb[%4i] sp[%4i] dp[%4i] ", pc->IsFixed()?"F":" ", FB.m_iNo, FB.SrcPB(pc->Forward()).m_iNo, FB.DstPB(pc->Forward()).m_iNo);
-          }
-        else
-          ASSERT_ALWAYS(FALSE, "GFB in FxdPList ?");
-
-        dbgpln("Fixed QList -----------------");
-        CJoinGFBIter QC(SNI.m_FxdQList);
-        for (CJoinGFBPtr *pc = QC.First(); (pc); pc = QC.Next())
+        Strng S;
+        dbgpln("Fixed PList -----------------");
+        CJoinGFBIter PC(SNI.m_FxdPList);
+        for (CJoinGFBPtr *pc = PC.First(); (pc); pc = PC.Next())
           if (pc->IsJoin())
             dbgpln("Jn  %s %s", ".", pc->Tag(S));
-          else  if (pc->IsGFB())
-            dbgpln("GFB %s %s", " ", pc->Tag(S));
-          else  
-            ASSERT_ALWAYS(FALSE, "FB in FxdQList ?");
+          else  if (pc->IsFB())
+            {
+            FlwBlk &FB=*pc->FB();
+            dbgpln("FB  %s fb[%4i] sp[%4i] dp[%4i] ", pc->IsFixed()?"F":" ", FB.m_iNo, FB.SrcPB(pc->Forward()).m_iNo, FB.DstPB(pc->Forward()).m_iNo);
+            }
+          else
+            ASSERT_ALWAYS(FALSE, "GFB in FxdPList ?");
 
-          dbgpln("=============================");
+          dbgpln("Fixed QList -----------------");
+          CJoinGFBIter QC(SNI.m_FxdQList);
+          for (CJoinGFBPtr *pc = QC.First(); (pc); pc = QC.Next())
+            if (pc->IsJoin())
+              dbgpln("Jn  %s %s", ".", pc->Tag(S));
+            else  if (pc->IsGFB())
+              dbgpln("GFB %s %s", " ", pc->Tag(S));
+            else  
+              ASSERT_ALWAYS(FALSE, "FB in FxdQList ?");
+
+            dbgpln("=============================");
+        }
+      ShowSubNets(-1, false);
       }
-    ShowSubNets(-1, false);
-    }
 #endif
 
 #if (dbgFlwNets)
-  dbgSubNetStruct=dbgSubNetsSolve()!=0;
-#else
-  dbgSubNetStruct=0;
+    dbgSubNetStruct=dbgSubNetsSolve()!=0;
+#else 
+    dbgSubNetStruct=0;
 #endif
+    }
+  SCDCATCH("CNetBlk::BldSubNets", NULL);
+
   };
 
 //-------------------------------------------------------------------------
@@ -8548,126 +8600,131 @@ void CNetBlk::RestorePGood()
 
 void CNetBlk::Solve()
   {
-  fSolved=0;
-
-  for (int Pass=0; Pass<MaxNetSolvePasses; Pass++)
+  SCDTRY
     {
-#if dbgFlwNets
-    if (dbgWhere())
-      dbgpln("NetSolvePass:[%i]=%i ===================================================================",
-      NetNo, Pass);
-#endif
-    // Fix network topology if neccesary
-    FixNetTopology();
+    fSolved=0;
 
-    SetDBGFlags();
-
-    fSolved = 1;
-    JoinIter J(Joins);
-    for (CJoinRec * pJ=J.First(); pJ ; pJ=J.Next())
+    for (int Pass=0; Pass<MaxNetSolvePasses; Pass++)
       {
-      SolveDbgFlags(pJ->fHasDbgBrk);
-      if (pJ->fIsOpen)
-        {
-        for (int c=0; c<pJ->NConns(); c++)
-          {
 #if dbgFlwNets
-          if (DbgFlags & DBG_SetEstP)
-            dbgpln("SetEstP %#*.*f %s[%i]", PWide, PPrec, pJ->IOP_Self(c), pJ->pNd->FullObjTag(), c);
+      if (dbgWhere())
+        dbgpln("NetSolvePass:[%i]=%i ===================================================================",
+        NetNo, Pass);
 #endif
-          pJ->Set_IOP_Est_Self(c, pJ->IOP_Self(c));
+      // Fix network topology if neccesary
+      FixNetTopology();
+
+      SetDBGFlags();
+
+      fSolved = 1;
+      JoinIter J(Joins);
+      for (CJoinRec * pJ=J.First(); pJ ; pJ=J.Next())
+        {
+        SolveDbgFlags(pJ->fHasDbgBrk);
+        if (pJ->fIsOpen)
+          {
+          for (int c=0; c<pJ->NConns(); c++)
+            {
+#if dbgFlwNets
+            if (DbgFlags & DBG_SetEstP)
+              dbgpln("SetEstP %#*.*f %s[%i]", PWide, PPrec, pJ->IOP_Self(c), pJ->pNd->FullObjTag(), c);
+#endif
+            pJ->Set_IOP_Est_Self(c, pJ->IOP_Self(c));
+            }
+          }
+        pJ->dSigmaQmV=0.0;
+        pJ->dSigmaQmL=0.0;
+        }
+
+      // Try to Solve All SubNets
+      for (int Sub = 0; (Sub < NSubNets); Sub++)
+        if (!SubNet[Sub]->Solve()) // force all Subnets to be called
+          fSolved = 0;
+
+      // Update all Fixed flow link Pressures Based on Current Best Estimates
+      for (Sub = 0; (Sub < NSubNets); Sub++)
+        if (SubNet[Sub]->fFixed)
+          SubNet[Sub]->SolveFxdPs();
+
+      for (Sub = 0; (Sub < NSubNets); Sub++)
+        {
+        SubNet[Sub]->InitUDFs();
+        if (SubNet[Sub]->TestUDFsChange())
+          {
+          fSolved=0;
+          fTopologyChanged=1;
           }
         }
-      pJ->dSigmaQmV=0.0;
-      pJ->dSigmaQmL=0.0;
-      }
 
-    // Try to Solve All SubNets
-    for (int Sub = 0; (Sub < NSubNets); Sub++)
-      if (!SubNet[Sub]->Solve()) // force all Subnets to be called
-        fSolved = 0;
+      dbgSubNetStruct=0;
 
-    // Update all Fixed flow link Pressures Based on Current Best Estimates
-    for (Sub = 0; (Sub < NSubNets); Sub++)
-      if (SubNet[Sub]->fFixed)
-        SubNet[Sub]->SolveFxdPs();
-
-    for (Sub = 0; (Sub < NSubNets); Sub++)
-      {
-      SubNet[Sub]->InitUDFs();
-      if (SubNet[Sub]->TestUDFsChange())
-        {
-        fSolved=0;
+      if (NetTopologyOK() && (nOverSpecChgs>0) && (Pass<MaxNetSolvePasses-1))
         fTopologyChanged=1;
+
+      // if no Changes to the overall network topology then we are done
+      if (NetTopologyOK())
+        {
+        nOverSpecChgs=0;
+        break;
         }
-      }
 
-    dbgSubNetStruct=0;
-
-    if (NetTopologyOK() && (nOverSpecChgs>0) && (Pass<MaxNetSolvePasses-1))
-      fTopologyChanged=1;
-
-    // if no Changes to the overall network topology then we are done
-    if (NetTopologyOK())
-      {
       nOverSpecChgs=0;
-      break;
       }
 
-    nOverSpecChgs=0;
-    }
-
-  for (int Sub = 0; (Sub < NSubNets); Sub++)
-    if (!SubNet[Sub]->fSolved)
+    for (int Sub = 0; (Sub < NSubNets); Sub++)
       {
-      CSubNetBlk &SNI=*SubNet[Sub];
-      LPTSTR What;
-      if (SNI.fFixed)
-        What="Fixed Group";
-      else if (SNI.fXfer)
-        What="Transfer Link Group";
-      else if (SNI.fXferTies)
-        What="Transfer Ties Group";
-      else if (SNI.fNetWrk)
-        What="Network";
-      else if (SNI.fLonely)
-        What="Isolated Link Group";
-      else if (SNI.fUnDefined)
-        What="Indefined Link Group";
-      else if (SNI.fIsolatedNet)
-        What="Isolated Network";
-      else if(SNI.fIsolatedNode)
-        What="Isolated Node";
-      else
-        What="??";
-      Strng S, D(What);
-      D += " not converged ";
-      if (SNI.Ties.GetCount()>0)
+      if (!SubNet[Sub]->fSolved)
         {
-        D+=SNI.Ties.GetHead()->Nd()->FullObjTag();
-        if (SNI.Ties.GetCount()>1)
-          D+="...";
-        }
-      else if (SNI.Grps.GetCount()>0)
-        {
-        D+=SNI.Grps.GetHead()->FwdTag();
-        if (SNI.Grps.GetCount()>1)
-          D+="...";
-        }
-      S.Set("Net[%i.%i]", SNI.pNet->NetNo, SNI.m_SubNetNo);
-      LogWarning(S(), 0, "%s", D());
+        CSubNetBlk &SNI=*SubNet[Sub];
+        LPTSTR What;
+        if (SNI.fFixed)
+          What="Fixed Group";
+        else if (SNI.fXfer)
+          What="Transfer Link Group";
+        else if (SNI.fXferTies)
+          What="Transfer Ties Group";
+        else if (SNI.fNetWrk)
+          What="Network";
+        else if (SNI.fLonely)
+          What="Isolated Link Group";
+        else if (SNI.fUnDefined)
+          What="Indefined Link Group";
+        else if (SNI.fIsolatedNet)
+          What="Isolated Network";
+        else if(SNI.fIsolatedNode)
+          What="Isolated Node";
+        else
+          What="??";
+        Strng S, D(What);
+        D += " not converged ";
+        if (SNI.Ties.GetCount()>0)
+          {
+          D+=SNI.Ties.GetHead()->Nd()->FullObjTag();
+          if (SNI.Ties.GetCount()>1)
+            D+="...";
+          }
+        else if (SNI.Grps.GetCount()>0)
+          {
+          D+=SNI.Grps.GetHead()->FwdTag();
+          if (SNI.Grps.GetCount()>1)
+            D+="...";
+          }
+        S.Set("Net[%i.%i]", SNI.pNet->NetNo, SNI.m_SubNetNo);
+        LogWarning(S(), 0, "%s", D());
 
-      GrpFlwIter G(SNI.Grps);
-      for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
-        {
-        if (!g->m_fGFTolsOK)
-          LogNote(g->FwdTag(), 0, "Not converged PErr=%.4f kPa", g->m_P_Err);
+        GrpFlwIter G(SNI.Grps);
+        for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
+          {
+          if (!g->m_fGFTolsOK)
+            LogNote(g->FwdTag(), 0, "Not converged PErr=%.4f kPa", g->m_P_Err);
+          }
         }
       }
-
     if (Pass>=MaxNetSolvePasses)
       LogError("Solver", 0, "Too Many Solve Passes");
 
+    }
+  SCDCATCH("CNetBlk::Solve", NULL);
     //  return fSolved;
   }
 

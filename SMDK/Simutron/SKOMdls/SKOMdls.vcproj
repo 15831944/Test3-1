@@ -91,6 +91,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -99,6 +100,7 @@
 				AdditionalIncludeDirectories="..\..\Include"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SKOMDLS;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
@@ -231,10 +233,12 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Include"
 				PreprocessorDefinitions="_DEBUG;SKOMDLS;WIN32;_WINDOWS;_AFXEXT"
 				MinimalRebuild="TRUE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"

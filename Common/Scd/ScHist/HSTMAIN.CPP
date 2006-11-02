@@ -42,12 +42,12 @@ CHistorian* pHistory = NULL; //global pointer to the historian
 UINT QueryHistoryThread( LPVOID pParam )
   {
   CQThreadInfo* pInfo = (CQThreadInfo*)pParam;
-  SCDTRY
+  SCDTRY_THREAD
 
     ASSERT(pInfo != NULL);
     pInfo->pHst->ServiceHistoryQueries(pInfo->ThreadNo);
 
-  SCDCATCH("QueryHistoryThread")
+  SCDCATCH_THREAD("QueryHistoryThread")
 
   return 0; // thread completed successfully
   }

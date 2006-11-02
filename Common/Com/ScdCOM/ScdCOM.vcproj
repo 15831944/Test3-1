@@ -21,6 +21,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -29,6 +30,7 @@
 				AdditionalIncludeDirectories="..\..\..\SMDK\Include,CallbackCustom,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\xylib,..\..\ScdLib\FlwLib,..\ScdIF"
 				PreprocessorDefinitions="NDEBUG;_RELEASE;SCDCOM;WIN32;_WINDOWS;_USRDLL"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="3"
@@ -168,9 +170,11 @@ echo regsvr32 exec. time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\SMDK\Include,CallbackCustom,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\xylib,..\..\ScdLib\FlwLib,..\ScdIF"
 				PreprocessorDefinitions="_DEBUG;SCDCOM;WIN32;_WINDOWS;_USRDLL"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="3"

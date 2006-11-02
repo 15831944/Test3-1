@@ -1452,23 +1452,43 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       }
     case xidOldQmReqd       :
       if (DCB.rD)
-        m_FEP.FlwRqd().m_ReqdQm = Valid(*DCB.rD) ? *DCB.rD : dNAN;
+        {
+        CFlwEqnFlwRqd &FR=m_FEP.FlwRqd();
+        FR.m_ReqdQm = Valid(*DCB.rD) ? *DCB.rD : dNAN;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_ReqdQv = Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
+        }
       DCB.D=m_FEP.FlwRqd().m_ReqdQm;
       return 1;
     case xidOldQmRqdCapacity:
       if (DCB.rD)
-        m_FEP.FlwRqd().m_RqdQmCap = Valid(*DCB.rD) ? *DCB.rD : dNAN;
+        {
+        CFlwEqnFlwRqd &FR=m_FEP.FlwRqd();
+        FR.m_RqdQmCap=*DCB.rD;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_RqdQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
+        }
       DCB.D=m_FEP.FlwRqd().m_RqdQmCap;
       return 1;
     case xidOldQmMinCapacity:
       if (DCB.rD)
-        m_FEP.FlwRqd().m_MinQmCap = Valid(*DCB.rD) ? *DCB.rD : dNAN;
+        {
+        CFlwEqnFlwRqd &FR=m_FEP.FlwRqd();
+        FR.m_MinQmCap=*DCB.rD;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_MinQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
+        }
       DCB.D=m_FEP.FlwRqd().m_MinQmCap;
       return 1;
     case xidOldQmMaxCapacity:
       {
       if (DCB.rD)
-        m_FEP.FlwRqd().m_MaxQmCap = Valid(*DCB.rD) ? Max(m_FEP.FlwRqd().m_MinQmCap, *DCB.rD) : dNAN;
+        {
+        CFlwEqnFlwRqd &FR=m_FEP.FlwRqd();
+        FR.m_MaxQmCap = Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD) : dNAN;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_MaxQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
+        }
       DCB.D=m_FEP.FlwRqd().m_MaxQmCap;// xMax_QmCap;
       return 1;
       }

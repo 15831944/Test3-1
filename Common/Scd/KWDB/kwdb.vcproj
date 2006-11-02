@@ -86,9 +86,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories=".,..\..\SMDK\Include,..\scdlib"
 				PreprocessorDefinitions="_DEBUG;KWDB;WIN32;_WINDOWS;AFXEXT"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
@@ -151,6 +153,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -159,6 +162,7 @@
 				AdditionalIncludeDirectories=".,..\..\SMDK\Include,..\scdlib"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;KWDB;WIN32;_WINDOWS;AFXEXT"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="3"

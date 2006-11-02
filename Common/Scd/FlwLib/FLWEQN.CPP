@@ -257,23 +257,24 @@ CFlwEqn::CFlwEqn(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObj
   m_FlwRqd.m_AsMass     = true;
   m_FlwRqd.m_bMeasDensOK = false;
   m_FlwRqd.m_MeasDens   = 1000.0;
-  m_FlwRqd.m_ReqdQm     = fNAN;
-  m_FlwRqd.m_ReqdQv     = fNAN;
+  m_FlwRqd.m_ReqdQm     = dNAN;  
+  m_FlwRqd.m_ReqdQv     = dNAN;  
 
-  m_FlwRqd.m_RqdQmCap   = fNAN;
+  m_FlwRqd.m_RqdQmCap   = dNAN;
   m_FlwRqd.m_MinQmCap   = 0.0;
-  m_FlwRqd.m_MaxQmCap   = fNAN;
+  m_FlwRqd.m_MaxQmCap   = dNAN;
 
-  m_FlwRqd.m_RqdQvCap   = fNAN;
+  m_FlwRqd.m_RqdQvCap   = dNAN;
   m_FlwRqd.m_MinQvCap   = 0.0;
-  m_FlwRqd.m_MaxQvCap   = fNAN;
+  m_FlwRqd.m_MaxQvCap   = dNAN;
   //m_FlwRqd.m_QvCapRhoLo = 500.0;
   //m_FlwRqd.m_QvCapRhoHi = 2000.0;
 
   //m_FlwRqd.m_PressOn    = false;
-  m_FlwRqd.m_PressDP    = 0.001f;
+  m_FlwRqd.m_PressDP    = 0.001;
   m_FlwRqd.m_PressQm    = 1000;
   m_FlwRqd.m_PressQv    = 1;
+
 
   };
 
@@ -1276,7 +1277,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_RqdQmCap=*DCB.rD;
-        if (FR.m_bMeasDensOK)
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
           FR.m_RqdQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdQmCap;
@@ -1286,7 +1287,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_MinQmCap=*DCB.rD;
-        if (FR.m_bMeasDensOK)
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
           FR.m_MinQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MinQmCap;
@@ -1296,7 +1297,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_MaxQmCap=Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD) : dNAN;
-        if (FR.m_bMeasDensOK)
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
           FR.m_MaxQvCap=Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD)/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MaxQmCap;
@@ -1306,8 +1307,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_ReqdQm=*DCB.rD;
-        if (FR.m_bMeasDensOK)
-          FR.m_ReqdQv=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : *DCB.rD;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_ReqdQv = Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_ReqdQm;
       return 1;
@@ -1316,8 +1317,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_ReqdQv=*DCB.rD;
-        if (FR.m_bMeasDensOK)
-          FR.m_ReqdQm=*DCB.rD*FR.m_MeasDens;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_ReqdQm = Valid(*DCB.rD) ? *DCB.rD*FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_ReqdQv;
       return 1;
@@ -1326,8 +1327,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_RqdQvCap=*DCB.rD;
-        if (FR.m_bMeasDensOK)
-          FR.m_RqdQmCap=*DCB.rD*FR.m_MeasDens;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_RqdQmCap  = Valid(*DCB.rD) ? *DCB.rD*FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdQvCap;
       return 1;
@@ -1336,8 +1337,8 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_MinQvCap=*DCB.rD;
-        if (FR.m_bMeasDensOK)
-          FR.m_MinQmCap=*DCB.rD*FR.m_MeasDens;
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_MinQmCap= Valid(*DCB.rD) ? *DCB.rD*FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MinQvCap;
       return 1;
@@ -1346,7 +1347,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_MaxQvCap=Valid(*DCB.rD) ? Max(FR.m_MinQvCap, *DCB.rD) : dNAN;
-        if (FR.m_bMeasDensOK)
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
           FR.m_MaxQmCap=Valid(*DCB.rD) ? Max(FR.m_MinQvCap, *DCB.rD)*FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MaxQvCap;
@@ -1380,16 +1381,20 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
     case xidFlwEqnNomQm  :
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_PressQm=Range(0.001, *DCB.rD, 1000.0);
-        Eqn()->m_FlwRqd.m_PressQv=Eqn()->m_FlwRqd.m_PressQm/Eqn()->m_FlwRqd.m_MeasDens;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_PressQm=Range(0.001, *DCB.rD, 1000.0);
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_PressQv=FR.m_PressQm/FR.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_PressQm;
       return 1;
     case xidFlwEqnNomQv  :
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_PressQv=Range(0.001, *DCB.rD, 1000.0);
-        Eqn()->m_FlwRqd.m_PressQm=Eqn()->m_FlwRqd.m_PressQv*Eqn()->m_FlwRqd.m_MeasDens;
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_PressQv=Range(0.001, *DCB.rD, 1000.0);
+        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+          FR.m_PressQm=FR.m_PressQv*FR.m_MeasDens;
         }
       DCB.D=Eqn()->m_FlwRqd.m_PressQv;
       return 1;
@@ -2111,10 +2116,11 @@ bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, b
 
   FR.m_MeasDens     = (float)Max(0.001, MeanRho(pProps));
   FR.m_bMeasDensOK  = true;
+
   if (FR.m_AsMass)
-    FR.m_ReqdQv = FR.m_ReqdQm/FR.m_MeasDens;
+    FR.m_ReqdQv = Valid(FR.m_ReqdQm) ? FR.m_ReqdQm/FR.m_MeasDens : FR.m_ReqdQm;
   else
-    FR.m_ReqdQm = FR.m_ReqdQv*FR.m_MeasDens;
+    FR.m_ReqdQm = Valid(FR.m_ReqdQv) ? FR.m_ReqdQv*FR.m_MeasDens : FR.m_ReqdQv;
 
   if (InXferNet() || DoXfer)
     {
@@ -2200,10 +2206,11 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
 
   FR.m_MeasDens     = (float)Max(0.001, MeanRho(pProps));
   FR.m_bMeasDensOK  = true;
+
   if (FR.m_AsMass)
-    FR.m_ReqdQv = FR.m_ReqdQm/FR.m_MeasDens;
+    FR.m_ReqdQv = Valid(FR.m_ReqdQm) ? FR.m_ReqdQm/FR.m_MeasDens : FR.m_ReqdQm;
   else
-    FR.m_ReqdQm = FR.m_ReqdQv*FR.m_MeasDens;
+    FR.m_ReqdQm = Valid(FR.m_ReqdQv) ? FR.m_ReqdQv*FR.m_MeasDens : FR.m_ReqdQv;
 
   if (1)
     {

@@ -89,8 +89,10 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="3"
@@ -159,10 +161,12 @@ echo regsvr32 exec.time &gt; &quot;$(OutDir)\regsvr32.trg&quot;
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;WIN32;_WINDOWS;_USRDLL;SYSCADMARSHAL_PS_EXPORTS;REGISTER_PROXY_DLL;_WIN32_DCOM"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="3"

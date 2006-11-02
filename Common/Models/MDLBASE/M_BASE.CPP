@@ -13,8 +13,8 @@
 #include "blockevaluator.h"
 //#include "optoff.h"
 
-#define dbgDerivs        (0 || WITHDEBUG)
-#define dbgModels        (0 || WITHDEBUG)
+#define dbgDerivs        (1 || WITHDEBUG)
+#define dbgModels        (1 || WITHDEBUG)
 
 #if dbgDerivs
 static CDbgMngr dbgDerivsSrg1             ("Derivatives", "SurgeLevel_1");
@@ -3295,7 +3295,7 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       dbgpln("SortSurgeIOs --------------- %s", Cn.FullObjTag());
     #endif
 
-    for (int i = 0; i < NoProcLnkIOs(); i++)
+    for (int i = 0; i < NoFlwIOs(); i++)
       {
       if (IOIdMask_Self(i)&D.m_IOIdMask)
         {
@@ -3335,7 +3335,7 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       {
       DoSort=0;
       Oi=0;
-      for (i = 0; i < NoProcLnkIOs/*NoFlwIOs*/() && !DoSort; i++)
+      for (i = 0; i < /*NoProcLnkIOs*/NoFlwIOs() && !DoSort; i++)
         if ((IOIdMask_Self(i) & D.m_IOIdMask)!=0)
           if (/*IO_Out(i) &&*/ (FHgt[i]<=1.01))
             {
