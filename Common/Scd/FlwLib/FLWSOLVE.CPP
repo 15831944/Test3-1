@@ -6423,6 +6423,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
         DDB.CheckBoxBtn("InitialisePGM",        "", DC_,        "",       xidAtStartRestartPGM,           &FlwSlvNd, isParmStopped, DDBOnOff);
         #endif
         DDB.CheckBoxBtn("RestartProfiles",      "", DC_,        "",       xidAtStartRestartPrf,           &FlwSlvNd, isParmStopped, DDBOnOff);
+        /* NBNBNB: TODO !!! Not implemented yet need to move options from gs_pPrj to gs_pExec!!!
         DDB.CheckBoxBtn("DynStatsRunInit",      "", DC_,        "",       xidAtStartAllDynStatsRunInit,   &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.Text  ("");
         DDB.CheckBoxBtn("ZeroFlows",            "", DC_,        "",       xidAtStartAllZeroFlows,         &FlwSlvNd, isParmStopped, DDBOnOff);
@@ -6430,6 +6431,7 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
         DDB.CheckBoxBtn("Preset",               "", DC_,        "",       xidAtStartAllPreSet,            &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.CheckBoxBtn("SteadyState",          "", DC_,        "",       xidAtStartAllSteadyState,       &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.CheckBoxBtn("EmptySpillTargets",    "", DC_,        "",       xidAtStartAllEmptySpillTargets, &FlwSlvNd, isParmStopped, DDBOnOff);
+        */
         //DDB.Text  ("");
         }
       DDB.EndStruct();

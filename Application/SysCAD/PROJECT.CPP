@@ -5005,6 +5005,7 @@ flag CProject::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
 
 flag CProject::EO_PreStart(CXM_TimeControl &CB)
   {
+  //Implement some options EARLY, others later (EO_Starting)
   if (m_bRunOptEmptySpills)
     {
     Strng_List RqdTags;
@@ -5025,16 +5026,7 @@ flag CProject::EO_PreStart(CXM_TimeControl &CB)
     Strng_List RqdTags;
     gs_Exec.SetModelState(MSA_PreSet, RqdTags);
     }
-  if (m_bRunOptOnceOnly)
-    {
-    Strng_List RqdTags;
-    gs_Exec.SetModelState(MSA_PreSet, RqdTags);
-    }
-  if (m_bRunOptResetStats)
-    {
-    Strng_List SL;
-    gs_Exec.SetModelState(MSA_DynStatsRunInit, SL);
-    };   
+  //m_bRunOptResetStats implemented in EO_Starting
 
   if (m_bRunOptOnceOnly)
     {
@@ -5042,7 +5034,6 @@ flag CProject::EO_PreStart(CXM_TimeControl &CB)
     m_bRunOptEmptySpills   = 0;
     m_bRunOptZeroFlows     = 0;    
     m_bRunOptInitialiseAll = 0;
-    m_bRunOptResetStats    = 0;   
     }
   return true;
   }
@@ -5054,6 +5045,19 @@ flag CProject::EO_Starting(flag fBeginStarting)
   CMainFrame* pWnd=(CMainFrame*)AfxGetApp()->GetMainWnd();//MainWnd();
   if (pWnd->m_pPrjSheet)
     pWnd->m_pPrjSheet->PostMessage(WM_CLOSE);
+
+  if (fBeginStarting)
+    {
+    if (m_bRunOptResetStats)
+      {
+      Strng_List SL;
+      gs_Exec.SetModelState(MSA_DynStatsRunInit, SL);
+      }
+    if (m_bRunOptOnceOnly)
+      {
+      m_bRunOptResetStats    = 0;   
+      }
+    }
   return true;
   }
 

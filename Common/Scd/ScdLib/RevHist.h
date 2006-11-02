@@ -18,10 +18,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 1"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 2"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "31 October 2006"
+#define SCD_PATCHDATE    "2 November 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2614,6 +2614,12 @@ Update 1 : 31 October 2006
    name S298 and S°298.
 4) (#631) Various fixes.
 
+Update 2 : 2 November 2006
+------------------------------
+1) Improved error and exception trapping and reporting for serious floating 
+   point and other failures.
+2) (#634)
+   
 
 
 =============================================================================
