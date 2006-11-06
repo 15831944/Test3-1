@@ -7,6 +7,7 @@
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "settaglist.h"
+#include "optoff.h"
 
 #if !SKIPIT 
 

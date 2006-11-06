@@ -6414,24 +6414,22 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
         DDB.Double     ("StartAt",              "", DC_Time,    "s",      xidAtStartTimeD,                &FlwSlvNd, (gs_Exec.SyncWithClock() ? 0 : isParmStopped)|InitHidden);
         DDB.Text  ("");
         DDB.CheckBoxBtn("RestartHistorian",     "", DC_,        "",       xidAtStartRestartHist,          &FlwSlvNd, isParmStopped, DDBOnOff);//(gs_Exec.ResetTimeOnStart?0:isParmStopped), DDBOnOff);
-        if (gs_Exec.ResetTimeOnStart || gs_Exec.RestartHstOnStart)
+        if (gs_Exec.m_ResetTimeOnStart || gs_Exec.m_RestartHstOnStart)
           DDB.TagComment("Yes");
         DDB.CheckBoxBtn("SetHistorianTagList",  "", DC_,        "",       xidAtStartSetHistTags,          &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.CheckBoxBtn("RestartArchive",       "", DC_,        "",       xidAtStartRestartArchive,       &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.Text  ("");
+        DDB.CheckBoxBtn("EmptySpills",          "", DC_,        "",       xidAtStartAllEmptySpillTargets, &FlwSlvNd, isParmStopped, DDBOnOff);
+        DDB.CheckBoxBtn("Empty",                "", DC_,        "",       xidAtStartAllEmpty,             &FlwSlvNd, isParmStopped, DDBOnOff);
         #if WithRestartPGM
         DDB.CheckBoxBtn("InitialisePGM",        "", DC_,        "",       xidAtStartRestartPGM,           &FlwSlvNd, isParmStopped, DDBOnOff);
         #endif
         DDB.CheckBoxBtn("RestartProfiles",      "", DC_,        "",       xidAtStartRestartPrf,           &FlwSlvNd, isParmStopped, DDBOnOff);
-        /* NBNBNB: TODO !!! Not implemented yet need to move options from gs_pPrj to gs_pExec!!!
-        DDB.CheckBoxBtn("DynStatsRunInit",      "", DC_,        "",       xidAtStartAllDynStatsRunInit,   &FlwSlvNd, isParmStopped, DDBOnOff);
-        DDB.Text  ("");
+        DDB.CheckBoxBtn("ResetStats",           "", DC_,        "",       xidAtStartAllDynStatsRunInit,   &FlwSlvNd, isParmStopped, DDBOnOff);
+        /*DDB.Text  ("");
         DDB.CheckBoxBtn("ZeroFlows",            "", DC_,        "",       xidAtStartAllZeroFlows,         &FlwSlvNd, isParmStopped, DDBOnOff);
-        DDB.CheckBoxBtn("Empty",                "", DC_,        "",       xidAtStartAllEmpty,             &FlwSlvNd, isParmStopped, DDBOnOff);
         DDB.CheckBoxBtn("Preset",               "", DC_,        "",       xidAtStartAllPreSet,            &FlwSlvNd, isParmStopped, DDBOnOff);
-        DDB.CheckBoxBtn("SteadyState",          "", DC_,        "",       xidAtStartAllSteadyState,       &FlwSlvNd, isParmStopped, DDBOnOff);
-        DDB.CheckBoxBtn("EmptySpillTargets",    "", DC_,        "",       xidAtStartAllEmptySpillTargets, &FlwSlvNd, isParmStopped, DDBOnOff);
-        */
+        DDB.CheckBoxBtn("SteadyState",          "", DC_,        "",       xidAtStartAllSteadyState,       &FlwSlvNd, isParmStopped, DDBOnOff);*/
         //DDB.Text  ("");
         }
       DDB.EndStruct();
@@ -7179,18 +7177,18 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidAtStartRestartHist:
       if (DCB.rB)
-        gs_Exec.RestartHstOnStart=*DCB.rB;
-      DCB.B=gs_Exec.RestartHstOnStart;// || gs_Exec.ResetTimeOnStart;
+        gs_Exec.m_RestartHstOnStart=*DCB.rB;
+      DCB.B=gs_Exec.m_RestartHstOnStart;// || gs_Exec.ResetTimeOnStart;
       return 1;
     case xidAtStartSetHistTags:
       if (DCB.rB)
-        gs_Exec.SetHstTaglistOnStart=*DCB.rB;
-      DCB.B=gs_Exec.SetHstTaglistOnStart;
+        gs_Exec.m_SetHstTaglistOnStart=*DCB.rB;
+      DCB.B=gs_Exec.m_SetHstTaglistOnStart;
       return 1;
     case xidAtStartRestartArchive:
       if (DCB.rB)
-        gs_Exec.RestartArchiveOnStart=*DCB.rB;
-      DCB.B=gs_Exec.RestartArchiveOnStart;
+        gs_Exec.m_RestartArchiveOnStart=*DCB.rB;
+      DCB.B=gs_Exec.m_RestartArchiveOnStart;
       return 1;
     case xidAtStartRestartPGM:
       #if WithRestartPGM
@@ -7203,8 +7201,8 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidAtStartRestartPrf:
       if (DCB.rB)
-        gs_Exec.RestartPrfOnStart=*DCB.rB;
-      DCB.B=gs_Exec.RestartPrfOnStart;
+        gs_Exec.m_RestartPrfOnStart=*DCB.rB;
+      DCB.B=gs_Exec.m_RestartPrfOnStart;
       return 1;
     case xidAtStartTimeF:
     case xidAtStartTimeD:
@@ -7251,12 +7249,6 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         };
       DCB.B=0;
       return 1;
-    case xidAtStartAllEmpty:
-      if (DCB.rB)
-        {
-        };
-      DCB.B=0;
-      return 1;
     case xidAtStartAllPreSet:
       if (DCB.rB)
         {
@@ -7269,19 +7261,21 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         };
       DCB.B=0;
       return 1;
-    case xidAtStartAllDynStatsRunInit:
-      if (DCB.rB)
-        {
-        };
-      DCB.B=0;
-      return 1;
     case xidAtStartAllEmptySpillTargets:
       if (DCB.rB)
-        {
-        };
-      DCB.B=0;
+        gs_Exec.m_RestartEmptySpills = *DCB.rB;
+      DCB.B=gs_Exec.m_RestartEmptySpills;
       return 1;
-
+    case xidAtStartAllEmpty:
+      if (DCB.rB)
+        gs_Exec.m_RestartEmptyAll = *DCB.rB;
+      DCB.B=gs_Exec.m_RestartEmptyAll;
+      return 1;
+    case xidAtStartAllDynStatsRunInit:
+      if (DCB.rB)
+        gs_Exec.m_RestartResetStats = *DCB.rB;
+      DCB.B=gs_Exec.m_RestartResetStats;
+      return 1;
 
     case xidDTTime:
       DCB.D=gs_Exec.TheTime.Seconds;
@@ -8640,6 +8634,22 @@ flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
   for (p=All.First(); (p); p=All.Next())
     p->NodeFlwTask(NFT_DynInit);
 
+  if (CB.m_ScnState==Scn_Start)
+    {
+    SHOWPROGRESS(1, "DynStart 2.1");
+    if (gs_Exec.m_RestartEmptySpills)
+      {
+      Strng_List RqdTags;
+      gs_Exec.SetModelState(MSA_EmptySpillTargets, RqdTags);
+      }
+    if (gs_Exec.m_RestartEmptyAll)
+      {
+      Strng_List RqdTags;
+      gs_Exec.SetModelState(MSA_Empty, RqdTags);
+      }
+
+    }
+
   SHOWPROGRESS(1, "DynStart 3");
 
 #if dbgRunControl
@@ -8659,7 +8669,6 @@ flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
 
   if (PreStartCheckAll())
     {
-
     SHOWPROGRESS(1, "DynStart 5");
 
     TIMINGLAP("PreStart");
@@ -8693,6 +8702,12 @@ flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
           Tasks=eScdCtrlTasks(Tasks|CO_InitPrf);
         EvalAllCtrlInitialise(Tasks);
         SHOWPROGRESS(1, "DynStart 7.2");
+
+        if (gs_Exec.m_RestartResetStats)
+          {
+          Strng_List SL;
+          gs_Exec.SetModelState(MSA_DynStatsRunInit, SL);
+          }
         }
 
       if (BuildCtrlNdListReqd())// || true)
@@ -12590,9 +12605,6 @@ int CFlwSolver::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   UnDoGlobalLinks();
   p->Tag(pNewTag); //changes the tag in the solver
 
-  //pkh todo
-  //clear the pgm report tag structure
-
   //ask all models if they want to do anything internally for the change tag...
   p=NULL;
   while (GetObj_All(p))
@@ -12600,9 +12612,6 @@ int CFlwSolver::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
     if (!p->Internal)
       p->ChangeTag(pOldTag, pNewTag);
     }
-
-  //pkh todo
-  //display summary of all the pgm tags changed
 
   return EOCT_DONE;
   }

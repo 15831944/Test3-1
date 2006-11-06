@@ -1015,7 +1015,7 @@ void CSolveOptnPage::OnOK()
     if (ScrollTrendsToEnd)
       CTagVwDoc::AdjustTimebaseToEndAll();
 
-    gs_Exec.RestartHstOnStart=(m_ResetHist!=0);// ? eOOO_On:eOOO_Off);
+    gs_Exec.putRestartHstOnStart(m_ResetHist!=0);
     //gs_pPrj->Solver.fStateWnd=m_StateWnd;
     gs_pPrj->m_Solver.m_fStatePinned=m_StatePinned;
     PBEqnCB().Cfg.fIdleWhenDone=m_IdleWhenDone;

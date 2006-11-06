@@ -17,7 +17,7 @@
 #include "licbase.h"
 #include "sfe_base.h"
 //#include "scdcomcmdsatlconv.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1439,6 +1439,9 @@ CExecutive::CExecutive() :
   m_RestartArchiveOnStart        = 1;
   m_RestartPGMOnStart            = 1;
   m_RestartPrfOnStart            = 1;
+  m_RestartEmptyAll              = 0;
+  m_RestartEmptySpills           = 1;
+  m_RestartResetStats            = 1;
   m_dTimeAtStart                 = CTimeValue(0.0);
 
   m_TimeStarted                  = TimeNAN;

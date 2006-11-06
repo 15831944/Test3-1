@@ -957,6 +957,7 @@ class DllImportExport CExecutive : public ConditionBlk
   friend class CExecSequence;
   friend class CMdlRunManager;
   friend class CAppRunManager;
+  friend class FlwSlvDyn;
 
   public:
 
@@ -1125,8 +1126,6 @@ class DllImportExport CExecutive : public ConditionBlk
     __declspec(property(get=getRestartHstOnStart,put=putRestartHstOnStart))       flag     RestartHstOnStart;
     __declspec(property(get=getSetHstTaglistOnStart,put=putSetHstTaglistOnStart)) flag     SetHstTaglistOnStart;
     __declspec(property(get=getRestartArchiveOnStart,put=putRestartArchiveOnStart)) flag   RestartArchiveOnStart;
-    __declspec(property(get=getRestartPGMOnStart,put=putRestartPGMOnStart))       flag     RestartPGMOnStart;
-    __declspec(property(get=getRestartPrfOnStart,put=putRestartPrfOnStart))       flag     RestartPrfOnStart;
 
     __declspec(property(get=getDynProgress,put=putDynProgress))     double      DynProgress;
     __declspec(property(get=getClock))                              double      Clock;
@@ -1360,6 +1359,9 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           m_RestartArchiveOnStart;
     flag           m_RestartPGMOnStart;
     flag           m_RestartPrfOnStart;
+    flag           m_RestartEmptySpills;
+    flag           m_RestartEmptyAll;
+    flag           m_RestartResetStats;
     CTimeValue     m_dTimeAtStart;
 
     CTimeValue     m_TimeStarted; // Model Time Started
