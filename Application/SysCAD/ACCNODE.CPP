@@ -3206,9 +3206,10 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
             if (IsNumData(f.iType))
               {
               bool GotIt=false;
-              if (IsFloatData(f.iType) && d.fHasNANOK && d.fHasNANStr)
+
+              int L=Str.Length();
+              if (L>0 && isalpha(Str[0]) && IsFloatData(f.iType) && d.fHasNANOK && d.fHasNANStr)
                 {
-                int L=Str.Length();
                 for (Strng *p=d.ValLst.First(); p; p=p->Next())
                   {
                   if (Str.XStrNICmp(p->Str(), L)==0)

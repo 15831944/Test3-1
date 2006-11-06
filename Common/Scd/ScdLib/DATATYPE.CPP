@@ -188,11 +188,11 @@ DDBValueLst DDBOnBlank[]      = {{False, " "  }, {True, "On"}, {0}};
 DDBValueLst DDBYesNo[]        = {{False, "No" , MDD_Default}, {True, "Yes"}, {0}};
 DDBValueLst DDBYesBlank[]     = {{False, " "  }, {True, "Yes"}, {0}};
 
-DDBValueLst DDBNAN_NotSpecd[] = {{0, "Undefined"},{0}};
-DDBValueLst DDBNAN_Floating[] = {{0, "Floating"},{0}};
-DDBValueLst DDBNAN_Ignore[]   = {{0, "Ignore"},{0}};
-DDBValueLst DDBNAN_Off[]      = {{0, "Off"},{0}};
-DDBValueLst DDBNAN_AtmosP[]   = {{0, "Atmospheric"},{0}};
+DDBValueLst DDBNAN_NotSpecd[] = {{0, "Undefined"},    {1, "0.0 : A Value"},{0}};
+DDBValueLst DDBNAN_Floating[] = {{0, "Floating"},     {1, "0.0 : A Value"}, {0}};
+DDBValueLst DDBNAN_Ignore[]   = {{0, "Ignore"},       {1, "0.0 : A Value"},{0}};
+DDBValueLst DDBNAN_Off[]      = {{0, "Off"},          {1, "0.0 : A Value"},{0}};
+DDBValueLst DDBNAN_AtmosP[]   = {{0, "Atmospheric"},  {1, "101.35 : A Value"},{0}};
 
 int DDBAltArrayAddress=0;
 
