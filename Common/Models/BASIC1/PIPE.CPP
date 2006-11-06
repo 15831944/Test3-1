@@ -624,66 +624,68 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
 #if WITHPBDPSTUFF
-  //  DDB.Text("");
-  static DDBValueLst DDB2[]={
-    {LDP_Fixed_Drop,    "Fixed_Drop"},
-    {LDP_Fixed_Boost,   "Fixed_Boost"},
-    {LDP_Darcy_DP,      "Darcy_DP"},
-    //{LDP_Linear_DP,     "Linear_DP"},
-    //{LDP_SquareLaw_DP,  "SquareLaw_DP"},
-    {LDP_Const_P,       "Const_Src_P"},
-    //{LDP_BRC_DP,        "BRC_DP"},  ////Bernoulli Rouse Corrected
-    {0}};
-  DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.Byte  ("Press_Mode",	  "",	DC_,	"",	   &iDP_Mode,	  this,	isParm|AffectsStruct|SetOnChange, DDB2);
+  if (NetProbalMethod())
+    {
+    //DDB.Text("");
+    static DDBValueLst DDB2[]={
+      {LDP_Fixed_Drop,    "Fixed_Drop"},
+      {LDP_Fixed_Boost,   "Fixed_Boost"},
+      {LDP_Darcy_DP,      "Darcy_DP"},
+      //{LDP_Linear_DP,     "Linear_DP"},
+      //{LDP_SquareLaw_DP,  "SquareLaw_DP"},
+      {LDP_Const_P,       "Const_Src_P"},
+      //{LDP_BRC_DP,        "BRC_DP"},  ////Bernoulli Rouse Corrected
+      {0}};
+    DDB.Visibility(NM_Probal|SM_All|HM_All);
+    DDB.Byte  ("Press_Mode",	  "",	DC_,	"",	   &iDP_Mode,	  this,	isParm|AffectsStruct|SetOnChange, DDB2);
 
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Const_P);
-  DDB.Double("Lnk_P_Src",	  "",	DC_P,	"kPag",	 &LnkP_S,	    this,	isParm);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Const_P);
+    DDB.Double("Lnk_P_Src",	  "",	DC_P,	"kPag",	 &LnkP_S,	    this,	isParm);
 
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Fixed_Drop || iDP_Mode==LDP_Fixed_Boost);
-  DDB.Double("Fxd_dP",	  "",	DC_DP,	"kPa",	 &FxddP,	    this,	isParm);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Fixed_Drop || iDP_Mode==LDP_Fixed_Boost);
+    DDB.Double("Fxd_dP",	  "",	DC_DP,	"kPa",	 &FxddP,	    this,	isParm);
 
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
-  DDB.Double("Diam",      "",	DC_L, 	"mm", 	 &PipeD,		  this,	isParm);
-  DDB.Double("ScaleBuildup", "", DC_L, "mm",   &PipeScale,  this,	isParm);
-  DDB.Double("PipeDeltaZ", "", DC_L, "m",      &PipeDeltaZ, this,	isParm);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP);
-  static DDBValueLst DDB1P[]={
-    {(int)True,  "Calc_K"},
-    {(int)False, "Define_K" },
-    {0}};
-  DDB.Bool  ("K_Method",  "", DC_,    "",      &iCalc_K,    this, isParm|SetOnChange, DDB1P);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
-  if (SolveDirectMethod())
-    DDB.Double("Length",    "L", DC_L, 	"m",   &PipeL,		  this,	isParm);
-  DDB.Double("FittingsLength", "FitL", DC_L, "m", &FitPipeL, this,	isParm);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K));
-  static DDBValueLst DDB2P[]={
-    {(int)True,  "Calc_f"},
-    {(int)False, "Define_f" },
-    {0}};
-  DDB.Bool  ("f_Method",  "", DC_,    "",      &iCalc_FFac, this, isParm, DDB2P);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP && iCalc_K && iCalc_FFac);
-  DDB.Double("Viscosity", "",	DC_Visc,"cP",    &Visc,	  	  this,	isParm);
-  DDB.Double("Pipe_Rough","",	DC_L,   "mm",    &Rough,  	  this,	isParm);
-  DDB.Double("ReynoldsNo", "Re", DC_, "",      &Re,         this, isResult);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
-  DDB.Double("FricFac",  "",	DC_,    "",      &FricFac,    this,	(iCalc_FFac && iDP_Mode!=LDP_BRC_DP) ? isResult : isParm);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP);
-  DDB.Double("K_Value",   "",	DC_,  	"",   	 &K,    		  this,	iCalc_K ? isResult : isParm);
-  DDB.Double("K_MinorLosses", "",	DC_, "",   	 &KMinorLoss, this,	isParm);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
-  if (!NetDynamicMethod())
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
+    DDB.Double("Diam",      "",	DC_L, 	"mm", 	 &PipeD,		  this,	isParm);
+    DDB.Double("ScaleBuildup", "", DC_L, "mm",   &PipeScale,  this,	isParm);
+    DDB.Double("PipeDeltaZ", "", DC_L, "m",      &PipeDeltaZ, this,	isParm);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP);
+    static DDBValueLst DDB1P[]={
+      {(int)True,  "Calc_K"},
+      {(int)False, "Define_K" },
+      {0}};
+    DDB.Bool  ("K_Method",  "", DC_,    "",      &iCalc_K,    this, isParm|SetOnChange, DDB1P);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
+    if (SolveDirectMethod())
+      DDB.Double("Length",    "L", DC_L, 	"m",   &PipeL,		  this,	isParm);
+    DDB.Double("FittingsLength", "FitL", DC_L, "m", &FitPipeL, this,	isParm);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K));
+    static DDBValueLst DDB2P[]={
+      {(int)True,  "Calc_f"},
+      {(int)False, "Define_f" },
+      {0}};
+    DDB.Bool  ("f_Method",  "", DC_,    "",      &iCalc_FFac, this, isParm, DDB2P);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP && iCalc_K && iCalc_FFac);
+    DDB.Double("Viscosity", "",	DC_Visc,"cP",    &Visc,	  	  this,	isParm);
+    DDB.Double("Pipe_Rough","",	DC_L,   "mm",    &Rough,  	  this,	isParm);
+    DDB.Double("ReynoldsNo", "Re", DC_, "",      &Re,         this, isResult);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, (iDP_Mode==LDP_Darcy_DP && iCalc_K) || iDP_Mode==LDP_BRC_DP);
+    DDB.Double("FricFac",  "",	DC_,    "",      &FricFac,    this,	(iCalc_FFac && iDP_Mode!=LDP_BRC_DP) ? isResult : isParm);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP);
+    DDB.Double("K_Value",   "",	DC_,  	"",   	 &K,    		  this,	iCalc_K ? isResult : isParm);
+    DDB.Double("K_MinorLosses", "",	DC_, "",   	 &KMinorLoss, this,	isParm);
+    DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Darcy_DP || iDP_Mode==LDP_BRC_DP);
     DDB.Double("Velocity", "Vel", DC_Ldt, "m/s", &Vel,      this, isResult);
 
-  //DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Linear_DP || iDP_Mode==LDP_SquareLaw_DP);
-  //DDB.Double("S_MassFlw",	"",	DC_Qm,	"kg/s",	 &SQmCap,	  this,	isParm);
-  //DDB.Double("S_dP",	    "",	DC_DP,	"kPa",	 &SQmdP,		this,	isParm);
-  //DDB.Double("V_MassFlw",	"",	DC_Qm,	"kg/s",	 &VQmCap,	  this,	isParm);
-  //DDB.Double("V_dP",	    "",	DC_DP,	"kPa",	 &VQmdP,		this,	isParm);
+    //DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Linear_DP || iDP_Mode==LDP_SquareLaw_DP);
+    //DDB.Double("S_MassFlw",	"",	DC_Qm,	"kg/s",	 &SQmCap,	  this,	isParm);
+    //DDB.Double("S_dP",	    "",	DC_DP,	"kPa",	 &SQmdP,		this,	isParm);
+    //DDB.Double("V_MassFlw",	"",	DC_Qm,	"kg/s",	 &VQmCap,	  this,	isParm);
+    //DDB.Double("V_dP",	    "",	DC_DP,	"kPa",	 &VQmdP,		this,	isParm);
 
-  DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.Double("Pdrop",	    "",	DC_DP,	"kPa",	 &PB_dp,		  this,	isResult);
+    DDB.Visibility(NM_Probal|SM_All|HM_All);
+    DDB.Double("Pdrop",	    "",	DC_DP,	"kPa",	 &PB_dp,		  this,	isResult);
+    }
 #endif
 
   if (IsXfer)

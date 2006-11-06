@@ -1455,15 +1455,18 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Text("");
     }
 
-  DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
-  DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
-  DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
-  DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
-  DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFile|noSnap|InitHidden);
-  if (m_Ovr.bUse&(SPO_BPEle))
-    DDB.TagComment("Ovr");
-  DDB.Double  ("",              "LatHtVap", DC_HMs,  "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);//|InitHidden);
-  DDB.Text("");
+  if (!HeatSkipMethod())
+    {
+    DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
+    DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
+    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
+    DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
+    DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFile|noSnap|InitHidden);
+    if (m_Ovr.bUse&(SPO_BPEle))
+      DDB.TagComment("Ovr");
+    DDB.Double  ("",              "LatHtVap", DC_HMs,  "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);//|InitHidden);
+    DDB.Text("");
+    }
 
   if ((sm_VarsAvail|m_VarsAvail)& VAMsk_Viscosity)
     {

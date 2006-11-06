@@ -1593,7 +1593,8 @@ BOOL CSCD_DB::CheckFieldNames(ADOX::_TablePtr &pTbl, MyFldInfo * MFI, char*TablN
           //TODO Check field parameters and change if required
           }
         else
-          LogError(TablName, LF_Exclamation, "Field '%s' should be of type %s", MFI[i].m_Name, MFI[i].m_sType);
+          //LogError(TablName, LF_Exclamation, "Field '%s' should be of type %s (%s)", MFI[i].m_Name, (LPCTSTR)CCrack::strFieldType(MFI[i].m_nType), MFI[i].m_sType);
+          LogError(TablName, LF_Exclamation, "Field '%s' should be of data type %s", MFI[i].m_Name, MFI[i].m_sType);
         }
       }
     }

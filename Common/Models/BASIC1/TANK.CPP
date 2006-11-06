@@ -431,7 +431,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveDynamicMethod())
     DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
     
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  //DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
