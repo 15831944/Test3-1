@@ -2956,11 +2956,15 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
       break;
     case MSA_EmptySpillTargets:
       if (SpillExists())
+        {
         Spill.Cd.QZero();
-      Spill.Sum.ZeroTotals();
+        Spill.Sum.ZeroTotals();
+        }
       if (VentExists())
+        {
         Vent.Cd.QZero();
-      Vent.Sum.ZeroTotals();
+        Vent.Sum.ZeroTotals();
+        }
       break;
     case MSA_SteadyState:
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
