@@ -2695,11 +2695,10 @@ void CReactionBlock::GetClosureInfo(CClosureInfo & CI)
   CI.m_RCTMassGain    += MsSumSrc()->Mass()-MsSumSnk()->Mass();
   CI.m_RCTHfGain      += HfSumSrc()-HfSumSnk();
   CI.m_RCTHsGain      += HsSumSrc()-HsSumSnk();
-  CI.m_RCTPowerIn     += HsSumHX() + HsSumPwr();
   //CI.m_RCTPowerIn     += HsSumHX() + HsSumPwr();
   const double h1 = HsSumHX();
   if (Valid(h1))
-    CI.m_RCTPowerIn += h1;
+    CI.m_RCTPowerIn   += h1;
 #ifndef _RELEASE
   else
     {
@@ -2708,7 +2707,7 @@ void CReactionBlock::GetClosureInfo(CClosureInfo & CI)
     }
 #endif
   const double h2 = HsSumPwr();
-  CI.m_RCTPowerIn += h2;
+  CI.m_RCTPowerIn     += h2;
   CI.m_RCTHOR_Std0    += m_HfPrStd0-m_HfFdStd0;
   CI.m_RCTHOR_Mdl0    += m_HfPrMdl0-m_HfFdMdl0;
   CI.m_RCTHOR_Used0   += HfSumRctZero();
