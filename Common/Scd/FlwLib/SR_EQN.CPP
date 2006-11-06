@@ -582,7 +582,6 @@ void CR_EqnHeatFixedMs::BuildDataDefn(DataDefnBlk & DDB)
   int s=m_bProdTerm ? m_Eq.Product[m_iTermNo].SpcId : m_Eq.Reactant[m_iTermNo].SpcId;
   SDB.AddSpCnv(m_iCnvBasisRqd, SDB[s].SymOrTag(), "", dcR, pCnvTxtR);
   m_ddRqddH.BuildDataDefn(DDB, "HoR@RefRqd", "Rqd_dH",  dcR, pCnvTxtR, xid_HORRqdDH,&m_Eq, "Cfg", "Rqd");
-
   CR_EqnHeat::BuildDataDefn(DDB);
   };
 
@@ -1541,7 +1540,14 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
       Strng EqnName(TF.NextToken());
       pHeat=CR_EqnHeatFactory::Construct(EqnName(), this);
       if (pHeat)
+        {
         Heat().Parse(TF);
+        if (HeatSkipMethod())
+          {
+          delete pHeat;
+          pHeat = NULL;
+          }
+        }
       else
         CReactionBlock::Error(&RB, 'B', 5);
       }
@@ -1563,7 +1569,7 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
 //    //RB.fUseHtOfForms=(pHeat==NULL);
 //    //RB.fHtOfFormsUseFinalised=true;
 //    }
-  if (pHeat==NULL)
+  if (pHeat==NULL && !HeatSkipMethod())
     pHeat=new CR_EqnHeat(NULL, this);
 
 //  if (RB.fUseHtOfForms)
@@ -1849,18 +1855,24 @@ flag CR_Eqn::SetExtent(int SpcId, double Frac)
 
 void CR_Eqn::Set_msDHf(int SpcNo, double msdH)
   {
-  delete pHeat;
-  pHeat = new CR_EqnHeatFixedMs(&CR_EqnHeatFixedMsClassDef, this, msdH);
-  StructureChanged(this);
+  if (!HeatSkipMethod())
+    {
+    delete pHeat;
+    pHeat = new CR_EqnHeatFixedMs(&CR_EqnHeatFixedMsClassDef, this, msdH);
+    StructureChanged(this);
+    }
   }
 
 //---------------------------------------------------------------------------
 
 void CR_Eqn::Set_mlDHf(int SpcNo, double mldH)
   {
-  delete pHeat;
-  pHeat = new CR_EqnHeatFixedMl(&CR_EqnHeatFixedMlClassDef, this, mldH);
-  StructureChanged(this);
+  if (!HeatSkipMethod())
+    {
+    delete pHeat;
+    pHeat = new CR_EqnHeatFixedMl(&CR_EqnHeatFixedMlClassDef, this, mldH);
+    StructureChanged(this);
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -2692,14 +2704,16 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
           #endif
           }
 
-      
-        RSBLcl.m_HOR+=E.totDHf(RB.Model, ZeroCinK, StdP);
-        RSBLcl.m_HORDiff+=E.totDHf(RB.Model, ZeroCinK, StdP)-E.totDHf(NULL, ZeroCinK, StdP);//E.HORDiff();
-        RSBLcl.m_Hf_FdT+=E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
-        RSBLcl.m_Hf_PrT+=E.totDHf(RB.Model, RB.m_TempKProd, RB.m_Press);
-        RSBLcl.m_Hf_RefT+=E.totDHf(RB.Model, RB.m_UsrDefT, RB.m_UsrDefP);
-        RSBLcl.m_Hf_ZeroT+=E.totDHf(RB.Model, ZeroCinK, RB.m_Press);
-        RSBLcl.m_dHfZeroTAtmP+=E.totDHf(RB.Model, ZeroCinK, StdP);
+        if (!E.HeatSkipMethod())
+          {
+          RSBLcl.m_HOR+=E.totDHf(RB.Model, ZeroCinK, StdP);
+          RSBLcl.m_HORDiff+=E.totDHf(RB.Model, ZeroCinK, StdP)-E.totDHf(NULL, ZeroCinK, StdP);//E.HORDiff();
+          RSBLcl.m_Hf_FdT+=E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
+          RSBLcl.m_Hf_PrT+=E.totDHf(RB.Model, RB.m_TempKProd, RB.m_Press);
+          RSBLcl.m_Hf_RefT+=E.totDHf(RB.Model, RB.m_UsrDefT, RB.m_UsrDefP);
+          RSBLcl.m_Hf_ZeroT+=E.totDHf(RB.Model, ZeroCinK, RB.m_Press);
+          RSBLcl.m_dHfZeroTAtmP+=E.totDHf(RB.Model, ZeroCinK, StdP);
+          }
         RSBLcl.fCpsOK&=E.CpsOK();
         RSBLcl.fHfsOK&=E.HfsOK();
         //HeatR+=E.Heat().totdH(RB.TempKFeed);
@@ -2707,7 +2721,7 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
         if (RB.DoDbgBrk() && dbgRctSolveEqnXfer())
           dbgpln("%*s    Sum:%+25.18f  dH :%25.18g  %+25.18g",
                  32+TagSymLen, "",
-            TotDMass,RSBLcl.m_Hf_FdT,E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press));
+                 TotDMass,RSBLcl.m_Hf_FdT,HeatSkipMethod()?0.0:E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press));
         if (RB.DoDbgBrk() && dbgRctSolveEqnHeat())
           dbgpln("dHfFdT:%+25.18g  dHfPrT:%25.18g  dHfRefT:%+25.18g dHfZeroT:%+25.18g FdT:%10.3f PrT:%10.3f UsrT:%10.3f",
                   RSBLcl.m_Hf_FdT,RSBLcl.m_Hf_PrT,RSBLcl.m_Hf_RefT,RSBLcl.m_Hf_ZeroT,

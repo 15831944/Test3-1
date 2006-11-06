@@ -75,8 +75,11 @@ void CR_Src::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Demand, this, isResult|0);
       }
 
-    DDB.Double("totEnthalpy", "HsGain",     DC_Pwr,     "kJ/s",     xidRCTSrcHs, this, isResult|0);
-    DDB.Double("",            "HfGain",     DC_Pwr,     "kJ/s",     xidRCTSrcHf, this, isResult|0);
+    if (!HeatSkipMethod())
+      {
+      DDB.Double("totEnthalpy", "HsGain",     DC_Pwr,     "kJ/s",     xidRCTSrcHs, this, isResult|0);
+      DDB.Double("",            "HfGain",     DC_Pwr,     "kJ/s",     xidRCTSrcHf, this, isResult|0);
+      }
     }
   DDB.EndStruct();
   };
@@ -376,10 +379,12 @@ flag CR_Src::HfsOK()
 
 double CR_Src::totDHf(SpModel *Mdl, double T, double P)
   {
+  if (HeatSkipMethod())
+    return 0.0;
   double dHf=0;
   for (int i = 0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
+    const int SpcId=Spcs[i].SpcId;
     dHf+=Spcs[i].Demand*SDB[SpcId].msHf(RB.Fidelity(), T, P, RB.Ovr(), RB.MassArray());
     }
   return dHf;
@@ -441,8 +446,11 @@ void CR_Snk::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Excess, this, isResult|0);
       }
 
-    DDB.Double("totEnthalpy", "HsGain",     DC_Pwr,     "kJ/s",     xidRCTSnkHs, this, isResult|0);
-    DDB.Double("",            "HfGain",     DC_Pwr,     "kJ/s",     xidRCTSnkHf, this, isResult|0);
+    if (!HeatSkipMethod())
+      {
+      DDB.Double("totEnthalpy", "HsGain",     DC_Pwr,     "kJ/s",     xidRCTSnkHs, this, isResult|0);
+      DDB.Double("",            "HfGain",     DC_Pwr,     "kJ/s",     xidRCTSnkHf, this, isResult|0);
+      }
     }
   DDB.EndStruct();
   };
@@ -701,12 +709,14 @@ flag CR_Snk::HfsOK()
 
 //---------------------------------------------------------------------------
 
-double CR_Snk::totDHf(SpModel *Mdl,double T, double P)
+double CR_Snk::totDHf(SpModel *Mdl, double T, double P)
   {
+  if (HeatSkipMethod())
+    return 0.0;
   double dHf=0;
   for (int i=0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
+    const int SpcId=Spcs[i].SpcId;
     dHf+=Spcs[i].Excess*SDB[SpcId].msHf(RB.Fidelity(), T, P, RB.Ovr(), RB.MassArray());
     }
   return dHf;

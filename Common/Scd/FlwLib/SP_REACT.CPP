@@ -1028,57 +1028,60 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
 
     DDB.Text("");
 
-//    DDB.Double("HsGain",            "",    DC_Pwr,  "kJ/s",  xidRCTPrDuty,    this, isResult|noFile|noSnap);
-//    DDB.Double("HsLoss.Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutyRct, this, isResult|noFile|noSnap);
-//    DDB.TagComment("-ExoThermic");
-//    DDB.Double("HsGain.HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
-//    DDB.Double("HfGain.Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, isResult|noFile|noSnap|InitHidden);
-//    DDB.Double("HfLoss.Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, isResult|noFile|noSnap|InitHidden);
-//    DDB.Double("HfErr",             "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, isResult|noFile|noSnap|InitHidden);
-    if (sm_AllVars & SRSX_UsrDefInfo)
+    if (!HeatSkipMethod())
       {
-      if (DDB.BeginStruct(this, "dH@Ref", NULL, DDB_NoPage, 0, MarkerClosed))
+      //DDB.Double("HsGain",            "",    DC_Pwr,  "kJ/s",  xidRCTPrDuty,    this, isResult|noFile|noSnap);
+      //DDB.Double("HsLoss.Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutyRct, this, isResult|noFile|noSnap);
+      //DDB.TagComment("-ExoThermic");
+      //DDB.Double("HsGain.HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
+      //DDB.Double("HfGain.Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, isResult|noFile|noSnap|InitHidden);
+      //DDB.Double("HfLoss.Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, isResult|noFile|noSnap|InitHidden);
+      //DDB.Double("HfErr",             "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, isResult|noFile|noSnap|InitHidden);
+      if (sm_AllVars & SRSX_UsrDefInfo)
         {
-        DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTRefDuty,    this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTRefDutyRct, this, isResult|noFile|noSnap|InitHidden);
+        if (DDB.BeginStruct(this, "dH@Ref", NULL, DDB_NoPage, 0, MarkerClosed))
+          {
+          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTRefDuty,    this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTRefDutyRct, this, isResult|noFile|noSnap|InitHidden);
+          DDB.TagComment("-ExoThermic");
+          }
+        DDB.EndStruct();
+        }
+      if (DDB.BeginStruct(this, "dH@0", NULL, DDB_NoPage, 0, MarkerClosed))
+        {
+        DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTZeroDuty,    this, isResult|noFile|noSnap|InitHidden);
+        DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTZeroDutyRct, this, isResult|noFile|noSnap|InitHidden);
         DDB.TagComment("-ExoThermic");
         }
       DDB.EndStruct();
-      }
-    if (DDB.BeginStruct(this, "dH@0", NULL, DDB_NoPage, 0, MarkerClosed))
-      {
-      DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTZeroDuty,    this, isResult|noFile|noSnap|InitHidden);
-      DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTZeroDutyRct, this, isResult|noFile|noSnap|InitHidden);
-      DDB.TagComment("-ExoThermic");
-      }
-    DDB.EndStruct();
-    if (sm_AllVars & SRSX_FeedInfo)
-      {
-      if (DDB.BeginStruct(this, "dH@Fd", NULL, DDB_NoPage, 0, MarkerClosed))
+      if (sm_AllVars & SRSX_FeedInfo)
         {
-        DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTFdDuty,    this, isResult|noFile|noSnap);
-        DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutyRct, this, isResult|noFile|noSnap);
-        DDB.TagComment("-ExoThermic");
-        DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySrc, this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySnk, this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTFdHfErr,   this, isResult|noFile|noSnap|InitHidden);
+        if (DDB.BeginStruct(this, "dH@Fd", NULL, DDB_NoPage, 0, MarkerClosed))
+          {
+          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTFdDuty,    this, isResult|noFile|noSnap);
+          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutyRct, this, isResult|noFile|noSnap);
+          DDB.TagComment("-ExoThermic");
+          DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySrc, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySnk, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTFdHfErr,   this, isResult|noFile|noSnap|InitHidden);
+          }
+        DDB.EndStruct();
         }
-      DDB.EndStruct();
-      }
-    if (sm_AllVars & SRSX_ProdInfo)
-      {
-      if (DDB.BeginStruct(this, "dH@Pr", NULL, DDB_NoPage, 0))
+      if (sm_AllVars & SRSX_ProdInfo)
         {
-        DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTPrDuty,    this, isResult|noFile|noSnap);
-        DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutyRct, this, isResult|noFile|noSnap);
-        DDB.TagComment("-ExoThermic");
-        DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, isResult|noFile|noSnap|InitHidden);
+        if (DDB.BeginStruct(this, "dH@Pr", NULL, DDB_NoPage, 0))
+          {
+          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTPrDuty,    this, isResult|noFile|noSnap);
+          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutyRct, this, isResult|noFile|noSnap);
+          DDB.TagComment("-ExoThermic");
+          DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, isResult|noFile|noSnap|InitHidden);
+          }
+        DDB.EndStruct();
         }
-      DDB.EndStruct();
       }
 
     //?? Must add the Abs Tol
