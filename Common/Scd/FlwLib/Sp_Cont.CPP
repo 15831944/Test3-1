@@ -1195,7 +1195,9 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.String("Target",        "",    DC_, "",           xidCnOverFlowTarget, this, isParmStopped|isTag|InitHidden);
           DDB.Double("Settle",        "Tau", DC_Time, "s",      xidCnOverFlowSettle, this, isParm|InitHidden);
           DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidCnOverFlowRate,   this, isResult|0);
-          DDB.Double("Total",         "",    DC_M, "kg",        xidCnOverFlowTotal,  this, isParm);
+          FlwNode *p=FindObjOfType((FlwNode*)NULL);
+          if (p && p->AuditOption()>=Audit_Totals)
+            DDB.Double("Total",         "",    DC_M, "kg",        xidCnOverFlowTotal,  this, 0/*isParm*/);
           }
         if (PrjFileVerNo()>=45)
           DDB.EndObject();
@@ -1217,7 +1219,10 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.String("Target",        "",    DC_, "",           xidCnGasVentTarget, this, isParmStopped|isTag|InitHidden);
           //DDB.Double("Tau",           "",    DC_Time, "s",      xidCnGasVentTau,    this, isParm|InitHidden);
           DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidCnGasVentRate,   this, isResult|0);
-          DDB.Double("Total",         "",    DC_M, "kg",        xidCnGasVentTotal,  this, isParm);
+
+          FlwNode *p=FindObjOfType((FlwNode*)NULL);
+          if (p && p->AuditOption()>=Audit_Totals)
+            DDB.Double("Total",         "",    DC_M, "kg",        xidCnGasVentTotal,  this, 0/*isParm*/);
           }
         if (PrjFileVerNo()>=45)
           DDB.EndObject();
@@ -1392,9 +1397,9 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
     case xidCnOverFlowTotal:
       if (SpillExists())
         {
-        if (DCB.rD)
-          Spill.SetTotal(*DCB.rD);
-        DCB.D=Spill.Total();
+        //if (DCB.rD)
+        //  Spill.Sum.TotalMass=*DCB.rD;
+        DCB.D=Spill.Sum.TotalMass;
         }
       else
         DCB.D=0.0;
@@ -1428,9 +1433,9 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
     case xidCnGasVentTotal:
       if (VentExists())
         {
-        if (DCB.rD)
-          Vent.SetTotal(*DCB.rD);
-        DCB.D=Vent.Total();
+        //if (DCB.rD)
+        //  Vent.SetTotal(*DCB.rD);
+        DCB.D=Vent.Sum.TotalMass;
         }
       else
         DCB.D=0.0;
@@ -2926,12 +2931,12 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
       if (SpillExists())
         {
         Spill.Cd.QZero();
-        Spill.SetTotal(0.0);
+        Spill.Sum.ZeroTotals();
         }
       if (VentExists())
         {
         Vent.Cd.QZero();
-        Vent.SetTotal(0.0);
+        Vent.Sum.ZeroTotals();
         }
       if (Closed())
         SetRequiredPress(AmbientTemp(), AtmosPress(), &gs_Environment);
@@ -2939,9 +2944,9 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
     case MSA_PreSet:
       SetRequiredConditions();
       if (SpillExists())
-        Spill.SetTotal(0.0);
+        Spill.Sum.ZeroTotals();
       if (VentExists())
-        Vent.SetTotal(0.0);
+        Vent.Sum.ZeroTotals();
       break;
     case MSA_ZeroFlows:
       if (SpillExists())
@@ -2952,10 +2957,10 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
     case MSA_EmptySpillTargets:
       if (SpillExists())
         Spill.Cd.QZero();
-      Spill.SetTotal(0.0);
+      Spill.Sum.ZeroTotals();
       if (VentExists())
         Vent.Cd.QZero();
-      Vent.SetTotal(0.0);
+      Vent.Sum.ZeroTotals();
       break;
     case MSA_SteadyState:
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
@@ -2965,9 +2970,9 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
         pStats->ResetStats();
       dInitMt = pModel->Mass(som_ALL);
       if (SpillExists())
-        Spill.SetTotal(0.0);
+        Spill.Sum.ZeroTotals();
       if (VentExists())
-        Vent.SetTotal(0.0);
+        Vent.Sum.ZeroTotals();
       break;
     }
   };

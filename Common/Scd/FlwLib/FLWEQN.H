@@ -216,10 +216,11 @@ class CPressBlk
 
     double    m_PStdyStart;
 
+
   public:
     static long sm_iNo;
     long      m_iNo;
-
+    int       m_iFxdPOrder;
 
   };
 

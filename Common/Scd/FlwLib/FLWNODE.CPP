@@ -103,7 +103,9 @@ char *cJoinType[JTyp_NoOf+1] =
 
 CIORec::CIORec()
   {
-  IODescSelf=IODescRmt=IONoRmt=0;
+  m_iIODescSelf=0;
+  m_iIODescRmt=0;
+  m_iIONoRmt=0;
   Rmt=NULL;
   pFlng=NULL;
   //m_dwClass=0;
@@ -171,9 +173,9 @@ CIORec::~CIORec()
 
 CIORec & CIORec::operator=(CIORec &A)
   {
-  IODescSelf       = A.IODescSelf;
-  IODescRmt        = A.IODescRmt;
-  IONoRmt          = A.IONoRmt;
+  m_iIODescSelf    = A.m_iIODescSelf;
+  m_iIODescRmt     = A.m_iIODescRmt;
+  m_iIONoRmt       = A.m_iIONoRmt;
   m_eEvalSeqStart  = A.m_eEvalSeqStart;
   m_pChgs          = A.m_pChgs;
 
@@ -1527,7 +1529,7 @@ CFlwRegBlk::CFlwRegBlk(LPCTSTR CtrlName,
 
 void CFlwRegBlk::BuildDataDefn(DataDefnBlk &DDB, FlwNode * pNd, bool ModeOK)
   {
-  if (ModeOK) //m_Data d->FlowMode()==LFM_Linear || pNd->FlowMode()==LFM_Full)
+  if (ModeOK || DDB.ForFileSnpScn()) //m_Data d->FlowMode()==LFM_Linear || pNd->FlowMode()==LFM_Full)
     {
     DDB.BeginStruct(pNd, "Regulator", NULL, DDB_NoPage);
     DDBValueLstMem DDBV;
@@ -1845,7 +1847,7 @@ flag FlwNode::fCollectChgStats=0;
 dword FlwNode::m_dwMdlStatusOptions=0;
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
-long gs_EvalAudits      = EvalAudits_Off;
+long gs_AuditOption     = Audit_Flows;
 bool gs_FSIdleRequested = false;
 
 // --------------------------------------------------------------------------
@@ -1936,6 +1938,9 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   fSolutionBusy=0;  // Solution is Busy
   fHasFiles=0;
   Joins.SetSize(0);
+
+  m_AuditOption      = Audit_Ignore;
+  m_ForceAuditOption = Audit_Ignore;
 
   #if NDSTOPWATCHES
   pSWs=NULL;
@@ -2106,13 +2111,20 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
 
   for (int i=0; IOAreas_ && IOAreas_[i].pDesc!=NULL; i++)
     {
-    if (IOAreas_[i].m_Id>=27 && IOAreas_[i].m_Id<64)
-      {
-      LogError(ClassId(), LF_Exclamation, "Possible BadIOId - Bld 116 Changes");
-      dbgpln("%3i %5i %-20s, %s", i, IOAreas_[i].m_Id, IOAreas_[i].pName, ClassId());
-      }
+    //if (IOAreas_[i].m_Id>=27 && IOAreas_[i].m_Id<64)
+    //  {
+    //  LogError(ClassId(), LF_Exclamation, "Possible BadIOId - Bld 116 Changes");
+    //  dbgpln("%3i %5i %-20s, %s", i, IOAreas_[i].m_Id, IOAreas_[i].pName, ClassId());
+    //  }
     NNew++;
     }
+  if (dbgSwapIOAreas)
+    {
+    dbgpln("SwapIO ----------- %s", FullObjTag());
+    for (int i=0; i<m_IOs.GetCount(); i++)
+      dbgpln("IO %3i) %6i %6i %s", i, IODescNo_Self(i), IODescNo_Rmt(i), IODesc_Self(i)->pName);
+    }
+
   if (IOAreas)
     {
     for (int i=0; IOArea(i).pDesc!=NULL; i++)
@@ -2121,7 +2133,7 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
       Retained[i]=false;
 
       if (dbgSwapIOAreas)
-        dbgpln("SwapIO Old %3i %s", IOArea(i).m_Id, IOArea(i).pName);
+        dbgpln("SwapIO Old %6i %s", IOArea(i).m_Id, IOArea(i).pName);
       }
     for (i=0; i<m_nIOs; i++)
       NewDescPos[i]=-1;
@@ -2154,7 +2166,7 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
     for (i=0; IOAreas_[i].pDesc!=NULL; i++)
       {
       if (dbgSwapIOAreas)
-        dbgpln("SwapIO New %3i %s", IOAreas_[i].m_Id, IOAreas_[i].pName);
+        dbgpln("SwapIO New %6i %s", IOAreas_[i].m_Id, IOAreas_[i].pName);
 
       pNew[i]=IOAreas_[i];
       pNew[i].pDesc=strdup(IOAreas_[i].pDesc);
@@ -2181,12 +2193,12 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
       ASSERT(NewDescPos[DescNo]>=0);
 
       if (dbgSwapIOAreas)
-        dbgpln("IODesc %2i moved to %2i for %s", m_IOs[i].IODescSelf, NewDescPos[DescNo], FullObjTag());
-      //LogNote(FullObjTag(), 0, "IODesc %i moved to %i", m_IOs[i].IODescSelf, NewDescPos[DescNo]);
+        dbgpln("IODesc %2i moved to %2i for %s", m_IOs[i].m_iIODescSelf, NewDescPos[DescNo], FullObjTag());
+      //LogNote(FullObjTag(), 0, "IODesc %i moved to %i", m_IOs[i].m_iIODescSelf, NewDescPos[DescNo]);
 
-      m_IOs[i].IODescSelf=NewDescPos[DescNo];
+      m_IOs[i].m_iIODescSelf=NewDescPos[DescNo];
 
-      int &RmtIODescNo=Nd_Rmt(i)->m_IOs[IOIONo_Rmt(i)].IODescRmt;
+      int &RmtIODescNo=Nd_Rmt(i)->m_IOs[IOIONo_Rmt(i)].m_iIODescRmt;
       RmtIODescNo=NewDescPos[RmtIODescNo];
       }
     }
@@ -2199,7 +2211,14 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
   if (dbgSwapIOAreas && IOAreas)
     {
     for (int i=0; IOArea(i).pDesc!=NULL; i++)
-      dbgpln("SwapIO === %3i %s", IOArea(i).m_Id, IOArea(i).pName);
+      dbgpln("SwapIO === %6i %s", IOArea(i).m_Id, IOArea(i).pName);
+    }
+
+  if (dbgSwapIOAreas)
+    {
+    for (int i=0; i<m_IOs.GetCount(); i++)
+      dbgpln("IO %3i) %6i %6i %s", i, IODescNo_Self(i), IODescNo_Rmt(i), IODesc_Self(i)->pName);
+    dbgpln("---------------------");
     }
 
   if (p2Delete)
@@ -2785,6 +2804,13 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
       else
         DDB.String("FlowMode",   "", DC_, "", xidFlowMode, this, isParmStopped, &DDBModes);
       }
+    }
+
+  if (!fSolutionForRoot)
+    {
+    DDBValueLstMem DDBModes;
+    GetAuditOptionStrLst(DDBModes, true);
+    DDB.String("AuditLevel",      "", DC_, "", xidAuditReqd,   this, (DDBModes.Length()>1?isParmStopped:0)|SetOnChange, &DDBModes);
     }
 
 #if WITHSPECSHEETS
@@ -3395,6 +3421,13 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       DCB.B=GetActiveHold();
       return 1;
       }
+    case xidAuditReqd:
+      {
+      if (DCB.rpC)
+        SetAuditOptionStr(DCB.rpC);
+      DCB.pC=(LPSTR)GetAuditOptionStr();
+      return 1;
+      }
     case xidSolveState:
       {
       if (DCB.rpC)
@@ -3629,6 +3662,98 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
 
 //--------------------------------------------------------------------------
 
+long FlwNode::AuditOption() 
+  { 
+  //return m_ForceAuditOption ? m_ForceAuditOption : m_AuditOption ? m_AuditOption :gs_AuditOption; 
+  return Max(m_ForceAuditOption, Max(m_AuditOption, gs_AuditOption)); 
+  }
+
+LPCSTR FlwNode::GetAuditOptionStr()
+  {
+  long Opt=Max(m_ForceAuditOption , m_AuditOption);
+  switch (Opt)
+    {
+    case Audit_Off:          return "Off";
+    case Audit_Flows:        return "Flows";
+    case Audit_Totals:       return "Totals";
+    case Audit_Balance:      return "Balance";
+    case Audit_Ignore:
+      {
+      switch (gs_AuditOption)
+        {
+        case Audit_Ignore:       return "<Off>";
+        case Audit_Off:          return "<Off>";
+        case Audit_Flows:        return "<Flows>";
+        case Audit_Totals:       return "<Totals>";
+        case Audit_Balance:      return "<Balance>";
+        }
+      }
+    }
+  return "??";
+  }
+long FlwNode::SetAuditOptionStr(LPCSTR Str) 
+  {
+  if        (stricmp(Str, "Off")==0)     m_AuditOption = Audit_Off;
+  else if   (stricmp(Str, "Flows")==0)   m_AuditOption = Audit_Flows;
+  else if   (stricmp(Str, "Totals")==0)  m_AuditOption = Audit_Totals;
+  else if   (stricmp(Str, "Balance")==0) m_AuditOption = Audit_Balance;
+  else 
+    {
+    m_AuditOption = Audit_Ignore;
+    if        (stricmp(Str, "<Off>")==0)     gs_AuditOption = Audit_Off;
+    else if   (stricmp(Str, "<Flows>")==0)   gs_AuditOption = Audit_Flows;
+    else if   (stricmp(Str, "<Totals>")==0)  gs_AuditOption = Audit_Totals;
+    else if   (stricmp(Str, "<Balance>")==0) gs_AuditOption = Audit_Balance;
+    }                 
+
+  return AuditOption(); 
+  }
+
+void FlwNode::GetAuditOptionStrLst(DDBValueLstMem & Lst, bool ForNode)
+  {
+  Lst.Empty();
+
+  if (ForNode)
+    {
+    if       (gs_AuditOption == Audit_Off)     Lst.Add("<Off>");     
+    else if  (gs_AuditOption == Audit_Flows)   Lst.Add("<Flows>");
+    else if  (gs_AuditOption == Audit_Totals)  Lst.Add("<Totals>");  
+    else if  (gs_AuditOption == Audit_Balance) Lst.Add("<Balance>");
+    }
+
+  if (Lst.Length()>0)
+    Lst.Add("---------");
+
+  if (m_ForceAuditOption <= Audit_Off)                  Lst.Add("Off");     
+  if (m_ForceAuditOption <= Audit_Flows)                Lst.Add("Flows");
+  if (m_ForceAuditOption <= Audit_Totals)               Lst.Add("Totals");  
+  if (m_ForceAuditOption <= Audit_Balance && !ForNode)  Lst.Add("Balance");
+
+  //if (m_ForceAuditOption>Audit_Ignore)
+  //  {
+  //  if       (m_ForceAuditOption <= Audit_Off)     Lst.Add("Off");     
+  //  else if  (m_ForceAuditOption <= Audit_Flows)   Lst.Add("Flows");
+  //  else if  (m_ForceAuditOption <= Audit_Totals)  Lst.Add("Totals");  
+  //  else if  (m_ForceAuditOption <= Audit_Balance) Lst.Add("Balance");
+  //  }
+  //else
+  //  {
+  //  if (ForNode)
+  //    {
+  //    if       (gs_AuditOption == Audit_Off)     Lst.Add("<Off>");     
+  //    else if  (gs_AuditOption == Audit_Flows)   Lst.Add("<Flows>");
+  //    else if  (gs_AuditOption == Audit_Totals)  Lst.Add("<Totals>");  
+  //    else if  (gs_AuditOption == Audit_Balance) Lst.Add("<Balance>");
+  //    }
+  //  Lst.Add("Off");     
+  //  Lst.Add("Flows");
+  //  Lst.Add("Totals");  
+  //  Lst.Add("Balance");
+  //  }
+  };
+
+//--------------------------------------------------------------------------
+
 flag FlwNode::ValidateData(ValidateDataBlk & VDB)
   {
   fValidateDataComplete=True;
@@ -3840,14 +3965,14 @@ pchar FlwNode::FullIOTag(int OId, int Inx, TagUniqueness TU, flag InternalNodes,
             for (int j=0; ; j++)
               {
               IOAreaRec * pIO=&(p[i]->IOAreas[j]);
-              if (pIO->pName==NULL || pIO->pMapTo==NULL || pIO->pName[0]==0 || pIO->pMapTo[0]==0)
+              if (pIO->pName==NULL || pIO->m_pMapTo==NULL || pIO->pName[0]==0 || pIO->m_pMapTo[0]==0)
                 {
                 Done=1;
                 break;
                 }
               int lr=strlen(result);
-              int lm=pIO->pMapTo ? strlen(pIO->pMapTo) : 0;
-              if (lm>0 && _stricmp(&result[lr-lm], pIO->pMapTo)==0)
+              int lm=pIO->m_pMapTo ? strlen(pIO->m_pMapTo) : 0;
+              if (lm>0 && _stricmp(&result[lr-lm], pIO->m_pMapTo)==0)
                 {
                 strcpy(&result[lr-lm], pIO->pName);
                 break;
@@ -4599,8 +4724,10 @@ void FlwNode::BuildJoinList()
       {
       IOFB(i,fe)->m_bAttached2GFB=false;
       IOFB(i,fe)->m_pGFb=NULL;
-      IOFB(i,fe)->m_iFxdOrder=-1;
+      IOFB(i,fe)->m_iFxdPOrder=-1;
       }
+    for (int pb=0; pb<NIOPBs(i); pb++)
+      IOPB(i,pb).m_iFxdPOrder=-1;
     }
 
   for (int j=0; j<m_nLinks; j++)
@@ -4882,11 +5009,15 @@ void FlwNode::ConnectJoinList()
 
 void FlwNode::PostConnectJoinList()
   {
+  //dbgpln("PostConnectJoinList    %s", FullObjTag());
   for (int j=0; j<NoJoins(); j++)
     {
-    Joins[j].SetTieLnkFlags();
-    Joins[j].SetQmAccum(0,0.0);
-    Joins[j].SetQmAccum(1,0.0);
+    CJoinRec &J=Joins[j];
+    J.SetTieLnkFlags();
+    J.SetQmAccum(0,0.0);
+    J.SetQmAccum(1,0.0);
+    
+    //dbgpln("%3i) %s %s", j, J.fIs2IO?"Is2IO":"     ", J.fIsTie?"IsTie":"     ");
     }
   }
 
@@ -4920,7 +5051,7 @@ flag FlwNode::ConnectionsOK()
   IOAreaRec * pA=IOAreas;
   while (pA->fValid)
     {
-    if (pA->m_Id!=PrevId && pA->pMapTo==NULL) // ie not Mapped to other IO
+    if (pA->m_Id!=PrevId && pA->m_pMapTo==NULL) // ie not Mapped to other IO
       {
       int n=NIOsWithId_Self(pA->m_Id);
       int nm=pA->m_nIORqd;
@@ -5104,10 +5235,10 @@ flag FlwNode::FindIOTag(pchar TagIn, int OId_Rqd, IOInfo &Info)
       i = FindIOAreaProc(TagIn, IOAreas);
     if (i>=0)
       {
-      if (IOAreas[i].pMapTo != NULL && IOAreas[i].pMapTo[0] != NULL)
+      if (IOAreas[i].m_pMapTo != NULL && IOAreas[i].m_pMapTo[0] != NULL)
         {
         SCDFullTag    Tx;
-        strcpy(Tx,IOAreas[i].pMapTo);
+        strcpy(Tx,IOAreas[i].m_pMapTo);
         SplitTag(Tx, FirstPart,Remainder);
         }
       else
@@ -5166,7 +5297,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     {
     for (ion=0; ion<NoIOs() ; ion++)
       {
-      if (IOAreas[m_IOs[ion].IODescSelf].m_Id > AreaId)
+      if (IOAreas[m_IOs[ion].m_iIODescSelf].m_Id > AreaId)
         break;
       }
     m_IOs.InsertAt(ion, new CIORec);
@@ -5181,10 +5312,10 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
   flag IsAir=(IOAreas[LIONo].m_dwType & nc_ALnk)!=0;
 
   io.Rmt          = R;
-  io.IONoRmt      = 0;
+  io.m_iIONoRmt   = 0;
   io.fIsComplete  = False;
-  io.IODescRmt    = RIONo;
-  io.IODescSelf   = LIONo;
+  io.m_iIODescRmt = RIONo;
+  io.m_iIODescSelf= LIONo;
   io.fAutoConnect = false;
   io.pFlng        = pF;
   io.m_pTerm      = pT;
@@ -5198,7 +5329,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     if (pFG)
       io.FBs()[0].AssignFlwEqnGroup(*pFG, pFG->Default(), this);
 
-    io.dFracHgt       = IOAreas[LIONo].dFracHgt;
+    io.dFracHgt       = IOAreas[LIONo].m_dFracHgt;
     io.dAperture      = 0.0;
     io.dApertureAngle = (flags & IOApertureHoriz) ? 0.0 : Degs2Rads(90.0);
     io.dEntrainRateA  = 0.0;
@@ -5253,7 +5384,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     for (int l=ion ;l<NoIOs() ;l++)
       {
       //m_IOs[l+1] = OldIOs[l];
-      m_IOs[l+1].Rmt->m_IOs[m_IOs[l+1].IONoRmt].IONoRmt++;
+      m_IOs[l+1].Rmt->m_IOs[m_IOs[l+1].m_iIONoRmt].m_iIONoRmt++;
       if (m_IOs[l+1].pFlng)
         IOFlange(l+1)->AdjustConnection(this, +1);
       };
@@ -5303,10 +5434,10 @@ int FlwNode::Detach(int IONo)
 
   //dbgpln("%2i %08x %08x %08x %s", IONo, m_IOs[IONo].pFBs, m_IOs[IONo].pPBs, m_IOs[IONo].m_pChgs, sTag());
   CIORec &io=m_IOs[IONo];
-  int AreaId = IOAreas[io.IODescSelf].m_Id;
+  int AreaId = IOAreas[io.m_iIODescSelf].m_Id;
 
 #if KWIKCONNECT
-  m_IOAreaLcl[io.IODescSelf].m_nConnected--;
+  m_IOAreaLcl[io.m_iIODescSelf].m_nConnected--;
 #endif
 
   delete io.m_pChgs;
@@ -5330,11 +5461,11 @@ int FlwNode::Detach(int IONo)
     dbgpln("* %s", FullObjTag());
     for (int i=0; i<m_IOs.GetCount(); i++)
       {
-      //dbgp(" %3i", m_IOs[i].IONoRmt);
+      //dbgp(" %3i", m_IOs[i].m_iIONoRmt);
       dbgpln("  %s %2i %3i %s",
         i==IONo?"*":" ",
-        m_IOs[i].IONoRmt,
-        m_IOs[i].IONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].IONoRmt].IONoRmt:-1,
+        m_IOs[i].m_iIONoRmt,
+        m_IOs[i].m_iIONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].m_iIONoRmt].m_iIONoRmt:-1,
         m_IOs[i].Rmt->FullObjTag()
         );
       }
@@ -5349,7 +5480,7 @@ int FlwNode::Detach(int IONo)
     for (l = IONo ; l < m_nIOs; l++)
       {
       if (m_IOs[l].Rmt)
-        m_IOs[l].Rmt->m_IOs[m_IOs[l].IONoRmt].IONoRmt--;
+        m_IOs[l].Rmt->m_IOs[m_IOs[l].m_iIONoRmt].m_iIONoRmt--;
       if (m_IOs[l].pFlng)
         IOFlange(l)->AdjustConnection(this, -1);
       };
@@ -5386,11 +5517,11 @@ int FlwNode::Detach(int IONo)
     dbgpln("* %s", FullObjTag());
     for (int i=0; i<m_IOs.GetCount(); i++)
       {
-      //dbgp(" %3i", m_IOs[i].IONoRmt);
+      //dbgp(" %3i", m_IOs[i].m_iIONoRmt);
       dbgpln("  %s %2i %3i %s",
         i==IONo?"*":" ",
-        m_IOs[i].IONoRmt,
-        m_IOs[i].IONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].IONoRmt].IONoRmt:-1,
+        m_IOs[i].m_iIONoRmt,
+        m_IOs[i].m_iIONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].m_iIONoRmt].m_iIONoRmt:-1,
         m_IOs[i].Rmt->FullObjTag()
         );
       }
@@ -5511,6 +5642,8 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, /*CFlange* pF, C
 
 int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, IOInfoBlk *pInfo)
   {
+
+  dbgpln("ConnectIOTag %25s.%-15s %25s.%-15s @ %s", s->FullObjTag(), IOTag1, d->FullObjTag(), IOTag2, FullObjTag());
   CStopWatch SW;
   SW.Start();
   int          Ret=0;
@@ -5522,6 +5655,10 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
 
   if (s->FindIOTag(IOTag1, OId_NodeIO, Info[0]) & d->FindIOTag(IOTag2, OId_NodeIO, Info[1]))
     {
+
+    //dbgpln("%25s.%-15s AreaInx:%6i Id:%6i IOIndex:%6i OId:%6i %s", s->FullObjTag(), IOTag1, Info[0].AreaInx, Info[0].Id, Info[0].IOIndex, Info[0].OId, Info[0].p->FullObjTag());
+    //dbgpln("%25s.%-15s AreaInx:%6i Id:%6i IOIndex:%6i OId:%6i %s", d->FullObjTag(), IOTag2, Info[1].AreaInx, Info[1].Id, Info[1].IOIndex, Info[1].OId, Info[1].p->FullObjTag());
+
 #if dbgKwikConnect
     dbgpln(" .a %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
@@ -5634,8 +5771,8 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
 #if dbgKwikConnect
   dbgpln(" .Y %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
-  Info1.p->m_IOs[Info1.IOIndex].IONoRmt = Info2.IOIndex;
-  Info2.p->m_IOs[Info2.IOIndex].IONoRmt = Info1.IOIndex;
+  Info1.p->m_IOs[Info1.IOIndex].m_iIONoRmt = Info2.IOIndex;
+  Info2.p->m_IOs[Info2.IOIndex].m_iIONoRmt = Info1.IOIndex;
 
   IOAreaRec & Area1 = Info1.p->IOAreas[Info1.AreaInx];
   IOAreaRec & Area2 = Info2.p->IOAreas[Info2.AreaInx];
@@ -7245,42 +7382,47 @@ CTraceArray * FlwNode::GetChangeTrace(long i, dword Flags)
 
 void FlwNode::EvalAudit(int Pass)
   {
-  bool dbgOn=false;
-  if (dbgOn)
-    dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
-  switch (Pass)
+  if (AuditOption()>Audit_Off)
     {
-    case 0:
+    bool dbgOn=false;
+    if (dbgOn)
+      dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
+    switch (Pass)
       {
-      for (int i=0; i<NoProcessIOs(); i++)
+      case 0:
         {
-        // Only do the Ins
-        // The model at the other end will do this if it is 'out'
-        if (IOQm_In(i)>=0.0)
+        for (int i=0; i<NoProcessIOs(); i++)
           {
-          CAreaSum &Sum=IOFlange(i)->Sum;
-          Sum.Set(*IOConduit(i));
-          Sum.Integrate(ICGetTimeInc());
-          if (dbgOn)
-            dbgpln("%2i)    f %20s %20s %s",i,DbgFltString(Sum.FlowMass),DbgFltString(Sum.TotalMass), Nd_Rmt(i)->FullObjTag());
+          // Only do the Ins
+          // The model at the other end will do this if it is 'out'
+          if (IOQm_In(i)>=0.0)
+            {
+            CAreaSum &Sum=IOFlange(i)->Sum;
+            Sum.Set(*IOConduit(i));
+            if (AuditOption()>=Audit_Totals)
+              Sum.Integrate(ICGetTimeInc());
+            if (dbgOn)
+              dbgpln("%2i)    f %20s %20s %s",i,DbgFltString(Sum.FlowMass),DbgFltString(Sum.TotalMass), Nd_Rmt(i)->FullObjTag());
+            }
           }
-        }
 
-      if (NoEnabledDirectIOs()>0)
-        {
-        // Integrate All DirectIOs
-        for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
+        if (NoEnabledDirectIOs()>0)
           {
-          CDirectFlwIO &D=*m_EnabledDirectIOs[d];
-          D.Sum.Integrate(ICGetTimeInc());
-          if (dbgOn)
-            dbgpln("%2i)[%2i]d %20s %20s %s",i++,d,DbgFltString(D.Sum.FlowMass),DbgFltString(D.Sum.TotalMass), D.Tag);
+          // Integrate All DirectIOs
+          for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
+            {
+            CDirectFlwIO &D=*m_EnabledDirectIOs[d];
+            if (AuditOption()>=Audit_Totals)
+              D.Sum.Integrate(ICGetTimeInc());
+            if (dbgOn)
+              dbgpln("%2i)[%2i]d %20s %20s %s",i++,d,DbgFltString(D.Sum.FlowMass),DbgFltString(D.Sum.TotalMass), D.Tag);
+            }
           }
+        break;
         }
-      break;
+      case 1:
+        break;
       }
-    case 1:
-      break;
     }
   }
 
@@ -9860,7 +10002,6 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   m_iLclDIOId       = -1;
   m_iRmtDIOId       = -1;
   m_iLclIOId        = -1;
-  m_Total           = 0;
 
   m_pFlng           = NULL;
   m_pSum            = NULL;
@@ -9945,8 +10086,7 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
   m_iLclDIOId       = LclDIOId;
   m_iRmtDIOId       = RmtDIOId;
   m_iLclIOId        = LclIOId;
-  m_Total           = 0;
-
+  
   //if (m_pFlng)
   //  delete m_pFlng;
   //if (m_bDeleteSum && m_pSum)

@@ -5057,7 +5057,7 @@ flag CProject::EO_Starting(flag fBeginStarting)
     if (m_bRunOptResetStats)
       {
       Strng_List SL;
-      gs_Exec.SetModelState(MSA_DynStatsRunInit, SL);
+      //gs_Exec.SetModelState(MSA_DynStatsRunInit, SL);
       }
     if (m_bRunOptOnceOnly)
       {

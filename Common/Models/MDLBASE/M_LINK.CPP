@@ -2172,6 +2172,8 @@ void MN_Lnk::ConfigureJoins()
 
     if (m_fFwdOnly && NoProcLnkIOs()>0)
       IOFB(0,0)->SetUniDirectionalFlow(True, IOFB(0,0)->UDFOpenP(), 0.0);
+    else 
+      IOFB(0,0)->SetBiDirectionalFlow();
     }
   
   for (int ii=NoProcLnkIOs(), jj=JnId_Pipe+1; ii<NoFlwIOs(); ii++, jj++)

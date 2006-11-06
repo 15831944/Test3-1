@@ -104,6 +104,7 @@ void CPressBlk::Init()
   PGood=Std_P;
 
   m_PStdyStart=-1;
+  m_iFxdPOrder=-1;
 
   m_PMax=fNAN;
   m_PMaxLim=fNAN;

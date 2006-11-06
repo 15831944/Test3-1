@@ -500,9 +500,9 @@ class CJoinGFBPtr
 class CJoinGFBList : public CSCDList<CJoinGFBPtr , CJoinGFBPtr & >
   {
   public :
-    void AddFB(FlwBlk * pFB, FlwNode * pNd, flag Forward, flag StartTree);
+    void AddFB(FlwBlk * pFB, FlwNode * pNd, flag Forward, flag StartTree, int iSrcPBOrder, int iFBOrder, int iDstPBOrder);
     void AddGFB(CGrpFlwBlk * pGFB, flag Forward, flag StartTree);
-    void AddJoin(CJoinRec * pJ);
+    void AddJoin(CJoinRec * pJ, int iPBOrder);
   };
 
 typedef CSCDListIter<CJoinGFBList, CJoinGFBPtr *> CJoinGFBIter;

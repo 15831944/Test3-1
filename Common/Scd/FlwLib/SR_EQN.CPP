@@ -2721,7 +2721,7 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
         if (RB.DoDbgBrk() && dbgRctSolveEqnXfer())
           dbgpln("%*s    Sum:%+25.18f  dH :%25.18g  %+25.18g",
                  32+TagSymLen, "",
-                 TotDMass,RSBLcl.m_Hf_FdT,HeatSkipMethod()?0.0:E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press));
+                 TotDMass,RSBLcl.m_Hf_FdT,RB.HeatSkipMethod()?0.0:E.totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press));
         if (RB.DoDbgBrk() && dbgRctSolveEqnHeat())
           dbgpln("dHfFdT:%+25.18g  dHfPrT:%25.18g  dHfRefT:%+25.18g dHfZeroT:%+25.18g FdT:%10.3f PrT:%10.3f UsrT:%10.3f",
                   RSBLcl.m_Hf_FdT,RSBLcl.m_Hf_PrT,RSBLcl.m_Hf_RefT,RSBLcl.m_Hf_ZeroT,

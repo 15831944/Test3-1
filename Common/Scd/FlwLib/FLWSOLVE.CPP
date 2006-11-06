@@ -365,7 +365,6 @@ XID xidRandomSeed                     = FlwXID(2223);
 XID xidDIOSpillsVents                 = FlwXID(2230); 
 XID xidDIOLeaks                       = FlwXID(2231);       
 XID xidDIOAudit                       = FlwXID(2232);       
-XID xidAuditXXX                       = FlwXID(2233);
 
 XID xidProgress                       = FlwXID(2300);
 XID xidClock                          = FlwXID(2301);
@@ -1738,7 +1737,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
 #if dbgTestConnectivity
       CIORec & io=p->IOs[i];
       dbgpln("%8x %6i %6i %7i %-10s  %s",
-             io.Rmt, io.IODescSelf, io.IODescRmt, io.IONoRmt,
+             io.Rmt, io.m_iIODescSelf, io.m_iIODescRmt, io.m_iIONoRmt,
              p->IODesc_Self(i)->pName, p->Nd_Rmt(i)->FullObjTag());
 #endif
       }
@@ -3650,18 +3649,18 @@ void FlwSlvBlk::DumpEvalOrder(byte Which)
      {
      ProcTOSequence.RemoveAllToFreeList();
      m_fProcTOSeqValid=0;
-     dbgpln("Clear Proc TOSequence");
+     //dbgpln("Clear Proc TOSequence");
      }
    if (Which & TOSL_Ctrl)
      {
      CtrlTOSequence.RemoveAllToFreeList();
      m_fCtrlTOSeqValid=0;
-     dbgpln("Clear Ctrl TOSequence");
+     //dbgpln("Clear Ctrl TOSequence");
      }
    if (Which & TOSL_Comb)
      {
      CombTOSequence.RemoveAllToFreeList();
-     dbgpln("Clear Comb TOSequence");
+     //dbgpln("Clear Comb TOSequence");
      }
 
    if (DoPrevious)
@@ -3681,21 +3680,21 @@ void FlwSlvBlk::DumpEvalOrder(byte Which)
    {
    if ((Which & TOSL_Proc) && (m_pProcTOSequence->GetCount()>0))
      {
-     dbgpln("Swap and Clear Proc TOSequence");
+     //dbgpln("Swap and Clear Proc TOSequence");
      Exchange(m_pProcTOSequence, m_pProcTOSequencePrv);
      m_pProcTOSequence->RemoveAllToFreeList();
      m_fProcTOSeqValid=0;
      }
    if ((Which & TOSL_Ctrl) && (m_pCtrlTOSequence->GetCount()>0))
      {
-     dbgpln("Swap and Clear Ctrl TOSequence");
+     //dbgpln("Swap and Clear Ctrl TOSequence");
      Exchange(m_pCtrlTOSequence, m_pCtrlTOSequencePrv);
      m_pCtrlTOSequence->RemoveAllToFreeList();
      m_fCtrlTOSeqValid=0;
      }
    if ((Which & TOSL_All) && (m_pCombTOSequence->GetCount()>0))
      {
-     dbgpln("Swap and Clear Comb TOSequence");
+     //dbgpln("Swap and Clear Comb TOSequence");
      Exchange(m_pCombTOSequence, m_pCombTOSequencePrv);
      m_pCombTOSequence->RemoveAllToFreeList();
      }
@@ -5205,7 +5204,7 @@ void FlwSlvPB::EvalAllDiscrete()
 
 void FlwSlvPB::EvalAllBalance()
   {
-  if (1)//gs_EvalAudits)
+  if (1) // must be called for Makeups and Bleeds
     {
     for (int Pass=0; Pass<2; Pass++)
       {
@@ -8396,7 +8395,8 @@ void FlwSlvDyn::FITEvalAudit(CLkNodeEvalIter & Iter)
 void FlwSlvDyn::EvalAllBalance()
   {
   CStopWatchLap SWLapDiscrete(gs_swBalance);
-  if (1)//gs_EvalAudits)
+  if (1) // must be called for Makeups and Bleeds
+
     {
     for (int Pass=0; Pass<2; Pass++)
       {
@@ -9988,24 +9988,26 @@ static DDBValueLst DDBSpMixStrat[] = {
   {SPMMS_Bld35,     "Build_35"},
   {0}};
 static DDBValueLst DDBCloseTest[] = {
-  {CloseTest_Off,   "Off"},
-  {CloseTest_Msgs,  "On-Messages"},
-  {CloseTest_Cnds,  "On-Conditions"},
-  {CloseTest_Both,  "On-Both"},
-  {CloseTest_IdleBoth, "On-Both-Idle"},
+  {CloseTest_Off,         "Off"},
+  {CloseTest_Msgs,        "On-Messages"},
+  {CloseTest_Cnds,        "On-Conditions"},
+  {CloseTest_Both,        "On-Both"},
+  {CloseTest_IdleBoth,    "On-Both-Idle"},
   {0}};
 static DDBValueLst DDBSpillReporting[] = {
-  {SpillReports_Off,    "Off"},
-  {SpillReports_Msgs ,  "On-Messages"},
-  {SpillReports_Cnds ,  "On-Conditions"},
-  {SpillReports_Both ,  "On-Both"},
-  {SpillReports_IdleUnits, "On-Both-IdleUnits"},
-  {SpillReports_IdleLinks, "On-Both-IdleLinks"},
-  {SpillReports_IdleBoth , "On-Both-Idle"},
+  {SpillReports_Off,        "Off"},
+  {SpillReports_Msgs ,      "On-Messages"},
+  {SpillReports_Cnds ,      "On-Conditions"},
+  {SpillReports_Both ,      "On-Both"},
+  {SpillReports_IdleUnits,  "On-Both-IdleUnits"},
+  {SpillReports_IdleLinks,  "On-Both-IdleLinks"},
+  {SpillReports_IdleBoth ,  "On-Both-Idle"},
   {0}};
-static DDBValueLst DDBEvalAudits[] = {
-  {EvalAudits_Off,    "Off"},
-  {EvalAudits_On ,    "On" },
+static DDBValueLst DDBAuditOptions[] = {
+  {Audit_Off,      "Off"      },
+  {Audit_Flows,    "Flows"    },
+  {Audit_Totals,   "Totals"   },
+  {Audit_Balance,  "Balance"  },
   {0}};
 
 void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
@@ -10052,7 +10054,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
-    DDB.Long  ("EvaluateAudit",         "", DC_,     "",  &gs_EvalAudits,                     this, isParmStopped|SetOnChange, DDBEvalAudits);
+    DDB.Long  ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
  //   DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
  //   DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
     DDB.Text  ("");
@@ -10626,8 +10628,6 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
         }
       DCB.L=CDirectFlwIO::sm_ConnectAudit;
       return 1;
-    case xidAuditXXX:
-
     case xidPGMExecTimeOut:
       if (DCB.rD)
         GCInsMngr::sm_ExecTimeout=Range(1.0, *DCB.rD, 1000.0);

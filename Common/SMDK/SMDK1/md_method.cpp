@@ -352,7 +352,7 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
     N.m_Id      = D.m_lId;
     N.m_nIORqd  = D.m_nRqd;
     N.m_nIOMax  = D.m_nMax;
-    N.dFracHgt  = D.m_dFracHgt;
+    N.m_dFracHgt = D.m_dFracHgt;
 
     m_nJoins    =  Max(m_nJoins, (MCN_IOMask & D.m_lCnId)+1);
 

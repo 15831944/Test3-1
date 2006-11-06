@@ -332,7 +332,7 @@ void FlwBlk::ResetData(flag Complete)
 
   m_pQmEstSrc    = NULL;
 
-  m_iFxdOrder     = -1;
+  m_iFxdPOrder    = -1;
   PrevDirn        = 0;
   m_pGFb          = NULL;
   pChoke          = NULL;
@@ -560,11 +560,12 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
 
         dbglock();
         Strng FS;
-        FS.Set(m_iFxdOrder>=0? "%4i":"    ", m_iFxdOrder);
+        FS.Set(m_iFxdPOrder>=0? "%4i ":"        ", m_iFxdPOrder);
         dbgp("%s%s%s%s%s%s %s%s %-2.2s %3.3s",
           SgnStr(m_iDirnRel2Traverse),
           SgnStr(m_iDirnRel2Connect),
-          (m_fFixed ? "F" : " "), (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
+          (m_fFixed ? "F" : " "), 
+          (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
           m_fDerivsBad?"x":"d",
           FlowMode()==FBMode_Xfer?"X":FlowMode()==FBMode_Simple?"S":FlowMode()==FBMode_Linear?"L":FlowMode()==FBMode_Full?"F":"?",
           UDF.ActionCount==0?" ":UDF.ActionCount==1?"r":"C",
@@ -772,7 +773,7 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
           EqnNm=" ";
         dbglock();
         Strng FS;
-        FS.Set(m_iFxdOrder>=0 ? "%4i":"    ", m_iFxdOrder);
+        FS.Set(m_iFxdPOrder>=0? "%4i ":"        ", m_iFxdPOrder);
         if (DbgFlags & DBG_TraverseFBNos)
           dbgp("fb[%4i] ", m_iNo); 
         if (DbgFlags & DBG_TraversePBNos)
@@ -888,14 +889,16 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
         if (_stricmp(EqnNm, "None")==0)
           EqnNm=" ";
         Strng FS;
-        FS.Set(m_iFxdOrder>=0 ? "%4i":"    ", m_iFxdOrder);
+        FS.Set(m_iFxdPOrder>=0? "%4i ":"        ", m_iFxdPOrder);
 
         if (DbgFlags & DBG_TraverseFBNos)
           dbgp("fb[%4i] ", m_iNo); 
         if (DbgFlags & DBG_TraversePBNos)
           dbgp("sp[%4i] dp[%4i] ", (FBDirn>0?SrcPB():DstPB()).m_iNo,(FBDirn<0?SrcPB():DstPB()).m_iNo); 
         dbgp("%s%s%s%s%s  %s%s %-2.2s %3.3s",
-          SgnStr(FBDirn), (m_fFixed ? m_fIsDegFree ? "F" : "f" : " "), (DbgFlags & DBG_TraverseFxdOrder ? FS():""), " ",
+          SgnStr(FBDirn),
+          (m_fFixed ? m_fIsDegFree ? "F" : "f" : " "),
+          (DbgFlags & DBG_TraverseFxdOrder ? FS():""), " ",
           " ", " ", " ", dbgChar, EqnNm);
         if (DbgFlags & DBG_Regulator)
           dbgp(" %2s %6s ", "", "");
@@ -928,12 +931,13 @@ void FlwBlk::EvalFlowX(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int 
       if (DbgFlags & DBG_TrvGetMode)
         {
         Strng FS;
-        FS.Set(m_iFxdOrder>=0 ? "%4i":"    ", m_iFxdOrder);
+        FS.Set(m_iFxdPOrder>=0 ? "%4i ":"     ", m_iFxdPOrder);
         dbglock();
         dbgp("%s%s%s%s%s%s %s%s %-2.2s %3.3s",
           SgnStr(m_iDirnRel2Traverse),
           SgnStr(m_iDirnRel2Connect),
-          (m_fFixed ? m_fIsDegFree ? "F" : "f" : " "), (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
+          (m_fFixed ? m_fIsDegFree ? "F" : "f" : " "), 
+          (DbgFlags & DBG_TraverseFxdOrder ? FS():""),
           m_fDerivsBad?"x":"d",
           FlowMode()==FBMode_Xfer?"X":FlowMode()==FBMode_Simple?"S":FlowMode()==FBMode_Linear?"L":FlowMode()==FBMode_Full?"F":"?",
           UDF.ActionCount==0?" ":UDF.ActionCount==1?"r":"C",
@@ -979,7 +983,7 @@ void FlwBlk::EvalFlowX(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int 
       if (DbgFlags & DBG_TraverseP)
         {
         Strng FS;
-        FS.Set(m_iFxdOrder>=0 ? "%4i":"    ", m_iFxdOrder);
+        FS.Set(m_iFxdPOrder>=0 ? "%4i ":"     ", m_iFxdPOrder);
         dbglock();
         if (DbgFlags & DBG_TraverseFBNos)
           dbgp("fb[%4i] ", m_iNo); 
@@ -1889,8 +1893,11 @@ void CGrpFlwBlk::DbgDumpPBlks(flag GoFwd, bool WithPress)
         dbgp("PB %-3s %s %s%s", 
           I->IsIO()?"IO":I->IsLnk()?"Lnk":"Jnt",
           I->m_iSgn>0?"+":I->m_iSgn<0?"-":".", I->AtStart(GoFwd)?"S":" ", I->AtEnd(GoFwd)?"E":" ");
-        dbgp(I->m_pFB ? " {fb[%4i]:":" {f       :",I->m_pFB ? I->FB.m_iNo:-1);
-        dbgp("PBs%4i>%-4i}", I->SrcPB(GoFwd).m_iNo, I->DstPB(GoFwd).m_iNo);
+        dbgp(" {");
+        dbgp(I->m_pFB ? "fb[%4i,%4i]:":"f            :",I->m_pFB ? I->FB.m_iNo:-1,I->m_pFB ? I->FB.m_iFxdPOrder:-1);
+        dbgp(I->m_pFB ? "PBs%4i>%-4i ":"PBs%4i|%-4i ", I->SrcPB(GoFwd).m_iNo, I->DstPB(GoFwd).m_iNo);
+        dbgp(I->m_pFB ? "Ord%4i>%-4i ":"Ord%4i|%-4i ", I->SrcPB(GoFwd).m_iFxdPOrder, I->DstPB(GoFwd).m_iFxdPOrder);
+        dbgp("}");
         if (WithPress)
           {
           dbgp(" n:%10.4f  f:%10.4f", I->SrcPB(GoFwd).P, I->DstPB(GoFwd).P);
@@ -1902,6 +1909,7 @@ void CGrpFlwBlk::DbgDumpPBlks(flag GoFwd, bool WithPress)
         break;
       };
     };
+  dbgpln("--------------------------------------------------");
   }
 
 //-------------------------------------------------------------------------
@@ -2034,7 +2042,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
         dbgp("         "); 
       if (DbgFlags & DBG_TraversePBNos)
         dbgp("pb[%4i]          ", Src.m_pJoin->m_PB.m_iNo); 
-      dbgp("Src Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+      dbgp("Src Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "     ":""));
       if (DbgFlags & DBG_Regulator)       
         dbgp(" %2s %6s ", "", "");
       dbgp(" %*s %#*.*f", QWide,"",PWide,PPrec,m_Src_P);
@@ -2188,7 +2196,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
               dbgp("         "); 
             if (DbgFlags & DBG_TraversePBNos)
               dbgp("pb[%4i]          ", I->Join.m_PB.m_iNo); 
-            dbgp("%s  %s        ", "      ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+            dbgp("%s  %s        ", "      ", (DbgFlags & DBG_TraverseFxdOrder ? "     ":""));
 
             if (DbgFlags & DBG_Regulator)       
               dbgp(" %2s %6s ", "", "");
@@ -2271,6 +2279,15 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
     m_Sum_dP      *= m_PassDirn;
     m_Sum_B       *= m_PassDirn;
 
+  if (0) // Do Checks
+    {
+    if (!Valid(m_P_Err) || !Valid(m_P_Applied) || !Valid(m_P_Mean) || !Valid(m_Sum_dP))
+      LogError("Bad Press", 0, "Bad Field m_P_Err:%.2f m_P_Applied:%.2f m_P_Mean:%.2f m_Sum_dP:%.2f %s->%s"
+      , m_P_Err, m_P_Applied, m_P_Mean, m_Sum_dP, Src.Nd()->FullObjTag(), Dst.Nd()->FullObjTag());
+
+    }
+
+
 #if dbgFlwNets
     if (DbgFlags & DBG_TraverseP)
       {
@@ -2278,7 +2295,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
         dbgp("         "); 
       if (DbgFlags & DBG_TraversePBNos)
         dbgp("pb[%4i]          ", Dst.m_pJoin->m_PB.m_iNo); 
-      dbgp("Dst Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "    ":""));
+      dbgp("Dst Nd   %s       ", (DbgFlags & DBG_TraverseFxdOrder ? "     ":""));
       if (DbgFlags & DBG_Regulator)
         dbgp(" %2s %6s ", "", "");
       //dbgp(" %*s %#*.*f Est:%#*.*f ", QWide,"",PWide,PPrec,m_Dst_P, PWide,PPrec,m_Dst_P);
@@ -2949,13 +2966,15 @@ PressLoopDone:
         sprintf(Qr, "%-11.11s", "*");
       dbglock();
       //    dbgp("T[%-8.8s] L%s N%s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g Rq:%*.*g dP:%*.*g e:%*.*g Qr:%s",
-      dbgp("T[%-8.8s] L%s N%s R%s %s %s A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g dP:%*.*g e:%*.*g Qr:%s",
+      dbgp("T[%-8.8s] L%s N%s R%s %s %s S:%*.*g D:%*.*g A:%*.*g B:%*.*g Q:%*.*g Rt:%*.*g dP:%*.*g e:%*.*g Qr:%s",
         dbgwhere, 
         (m_fGFTolsOK ? " ." : ErrV),
         (m_fGFNetTolsOK ? " ." : NErrV),
         (m_fGFRegTolOK? "." : "*"),
         m_fDerivsBad?"x":"d",
         m_fFixedXfer?"X":m_fFixed?"F":" ",
+        PWide,PPrec,m_Src_P, 
+        PWide,PPrec,m_Dst_P, 
         PWide,PPrec,m_P_Applied, 
         PWide,PPrec,m_Sum_B, 
         QWide,QPrec,Qm, 
@@ -4064,39 +4083,39 @@ void CSubNetBlk::Clear(int SubNetNo_, CNetBlk* pNet_, CFullNetBlk *pFNB_)
 inline char * FxdStrng(flag fXfer) { return fXfer ? "Xfer " : "Fixed"; };
 inline char * FxdStr(flag fXfer) { return fXfer ? "Xfr" : "Fxd"; };
 
-static LPCTSTR DbgSrcDstPB(CPressBlk &SrcPB, CPressBlk &DstPB)
+static CString DbgSrcDstPB(CPressBlk &SrcPB, CPressBlk &DstPB)
   {
-  static CString X;
-  X.Format("sp[%4i] [%10s %10s %10s] dp[%4i] [%10s %10s %10s] ",
-    SrcPB.m_iNo, 
+  CString X;
+  X.Format("sp[%4i,%4i] [%10s %10s %10s] dp[%4i,%4i] [%10s %10s %10s] ",
+    SrcPB.m_iNo,SrcPB.m_iFxdPOrder, 
     DbgFltString(SrcPB.P,-1,3),
     DbgFltString(SrcPB.PEst,-1,3),
     DbgFltString(SrcPB.PMax,-1,3),
-    DstPB.m_iNo,
+    DstPB.m_iNo,DstPB.m_iFxdPOrder,
     DbgFltString(DstPB.P,-1,3),
     DbgFltString(DstPB.PEst,-1,3),
     DbgFltString(DstPB.PMax,-1,3));
   return X;
   }
 
-static LPCTSTR DbgOnePB(CPressBlk &PB)
+static CString DbgOnePB(CPressBlk &PB, bool All)
   {
-  static CString X;
-  X.Format("pb[%4i] [%10s %10s %10s]",
-    PB.m_iNo,
-    DbgFltString(PB.P,-1,3),
-    DbgFltString(PB.PEst,-1,3),
+  CString X;
+  X.Format("pb[%4i,%4i] [%10s %10s %10s]",
+    PB.m_iNo,PB.m_iFxdPOrder,
+    true||All ? DbgFltString(PB.P,-1,3):"",
+    All ? DbgFltString(PB.PEst,-1,3):"",
     DbgFltString(PB.PMax,-1,3));
   return X;
   }
-static LPCTSTR DbgOnePBHd()
+static CString DbgOnePBHd()
   {
-  static CString X;
-  X.Format("pb[%4s] [%10s %10s %10s]", "Id", "P", "PEst", "PMax");
+  CString X;
+  X.Format("pb[%4s,%4s] [%10s %10s %10s]", "Id", "POrd", "P", "PEst", "PMax");
   return X;
   }
 
-static LPCTSTR DbgFwdRev(flag Fwd)
+static CString DbgFwdRev(flag Fwd)
   {
   return Fwd ? "Fwd":"Rev";
   }
@@ -4106,7 +4125,8 @@ static LPCTSTR DbgFwdRev(flag Fwd)
 void CSubNetBlk::FindFxdFBPEstRqd( CJoinGFBPtr & JG)
   {
   FlwBlk &FB = *JG.FB();
-  flag GoFwd=JG.Forward();
+  //flag GoFwd=JG.Forward();
+  flag GoFwd=FB.SrcPB().m_iFxdPOrder<=FB.DstPB().m_iFxdPOrder;
   if (FB.GetFixed())
     {
     CPressBlk & SrcPB=FB.SrcPB(GoFwd);
@@ -4119,8 +4139,11 @@ void CSubNetBlk::FindFxdFBPEstRqd( CJoinGFBPtr & JG)
     if (dbgSolveFxdPs())
       {
       Strng S;
-      dbgpln("  %-3s fb[%4i] %-3s %15s %10s %5i %s %s", "Fxd", FB.m_iNo, DbgFwdRev(GoFwd), DbgFltString(FB.RequiredQm(),3,2), "---", FB.m_iFxdOrder, DbgOnePB(SrcPB), JG.Tag(S));
-      dbgpln("                                                    %s ", DbgOnePB(DstPB));
+      dbgpln("  %-3s fb[%4i,%4i] %-3s %15s %10s %5i %s %s", 
+        "Fxd", FB.m_iNo, FB.m_iFxdPOrder, DbgFwdRev(GoFwd), DbgFltString(FB.RequiredQm(),3,2), "---", 
+        FB.m_iFxdPOrder, DbgOnePB(SrcPB, false), JG.Tag(S));
+      dbgpln("                                                         %s ", 
+        DbgOnePB(DstPB, false));
 
       }
 #endif
@@ -4137,10 +4160,10 @@ void CSubNetBlk::FindFxdFBPEstRqd( CJoinGFBPtr & JG)
 #if dbgFlwNets
     if (dbgSolveFxdPs())
       {
-      dbgpln("  %-3s fb[%4i] %-3s %15s %10.3f %5i %s %s", 
-        "FB", FB.m_iNo/*I->m_eType==GFI_IO?"IO":"Lnk"*/, DbgFwdRev(GoFwd), DbgFltString(FB.RequiredQm(),3,2), 
-        FB.m_DPEstFxdQm, FB.m_iFxdOrder, DbgOnePB(SrcPB), JG.Nd()->Tag());
-      dbgpln("                                                    %s ",DbgOnePB(DstPB));
+      dbgpln("  %-3s fb[%4i,%4i] %-3s %15s %10.3f %5i %s %s",
+        "FB", FB.m_iNo, FB.m_iFxdPOrder, DbgFwdRev(GoFwd), DbgFltString(FB.RequiredQm(),3,2), FB.m_DPEstFxdQm, 
+        FB.m_iFxdPOrder, DbgOnePB(SrcPB, false), JG.Nd()->Tag());
+      dbgpln("                                                         %s ",DbgOnePB(DstPB, false));
       }
 #endif
     }
@@ -4162,9 +4185,9 @@ void CSubNetBlk::FindFxdJoinPEstRqd(CJoinGFBPtr & JG)
       for (int Fe=0; Fe<Jn.NIOFBs(c); Fe++)
         {
         FlwBlk &FB=*Jn.IOFB(c, Fe);
-        if (FB.m_iFxdOrder>HiOrd)
+        if (FB.m_iFxdPOrder>HiOrd)
           {
-          HiOrd=FB.m_iFxdOrder;
+          HiOrd=FB.m_iFxdPOrder;
           iSrcConn=c;
           }
         }
@@ -4173,15 +4196,15 @@ void CSubNetBlk::FindFxdJoinPEstRqd(CJoinGFBPtr & JG)
     else
       {
       FlwBlk & FB=*Jn.LinkFB(c);
-      if (FB.m_iFxdOrder>HiOrd)
+      if (FB.m_iFxdPOrder>HiOrd)
         {
-        HiOrd=FB.m_iFxdOrder;
+        HiOrd=FB.m_iFxdPOrder;
         iSrcConn=c;
         }
       }
     }
 
-  double P = -1.0;
+  double PMin = -1.0;
   for (c=0 ; c<Jn.m_nConns; c++)
     {
     if (c!=iSrcConn)
@@ -4189,20 +4212,26 @@ void CSubNetBlk::FindFxdJoinPEstRqd(CJoinGFBPtr & JG)
       CPressBlk & PB=*Jn.PB_Self(c);
       double Px=PB.PMax;//Nd.IOP_Max_Self(c);
       if (Valid(Px))
-        P = Min(P, Px);
+        PMin = Min(PMin, Px);
 #if dbgFlwNets
       if (dbgSolveFxdPs())
-        dbgpln("  %-3s %8s %-3s %15s %10s %5s %s %s < %s", "Cn<", "", "", "", "", "", DbgOnePB(PB), JG.Nd()->Tag(), JG.Nd()->Nd_Rmt(c)->Tag());
+        {
+        dbgpln("  %-3s %13s %-3s %15s %10s %5s %s %s < %s", 
+          "Cn<", "", "", "", "", "", DbgOnePB(PB,false), JG.Nd()->Tag(), JG.Nd()->Nd_Rmt(c)->Tag());
+        }
 #endif
       }
     }
 
-  Jn.PB()->PMax=(P>=0.0 ? (float)P : fNAN);
+  Jn.PB()->PMax=(PMin>=0.0 ? (float)PMin: fNAN);
   Jn.PB_Self(iSrcConn)->PMax=Jn.PB()->PMax;
 
 #if dbgFlwNets
   if (dbgSolveFxdPs())
-    dbgpln("  %-3s %8s %-3s %15s %10s %5s %s %s", "Jn", "", "", "", "", "", DbgOnePB(*Jn.PB()), JG.Nd()->Tag());
+    {
+    dbgpln("  %-3s %13s %-3s %15s %10s %5s %s %s", 
+      "Jn", "", "", "", "", "", DbgOnePB(*Jn.PB(), false), JG.Nd()->Tag());
+    }
 #endif
   }
 
@@ -4211,9 +4240,11 @@ void CSubNetBlk::FindFxdJoinPEstRqd(CJoinGFBPtr & JG)
 void CSubNetBlk::SolveFxdFBP(CJoinGFBPtr & JG)
   {
   FlwBlk &FB = *JG.FB();
-  flag GoFwd=JG.Forward();
-  CPressBlk & SrcPB=FB.SrcPB(!GoFwd);
-  CPressBlk & DstPB=FB.DstPB(!GoFwd);
+  //flag GoFwd=!JG.Forward();
+  flag GoFwd=FB.SrcPB().m_iFxdPOrder>FB.DstPB().m_iFxdPOrder;
+
+  CPressBlk & SrcPB=FB.SrcPB(GoFwd);
+  CPressBlk & DstPB=FB.DstPB(GoFwd);
 
   if (FB.GetFixed())
     {
@@ -4226,7 +4257,7 @@ void CSubNetBlk::SolveFxdFBP(CJoinGFBPtr & JG)
     {
     if (Valid(SrcPB.PMax))
       SrcPB.PEst=Min(SrcPB.PEst, (double)SrcPB.PMax);
-    DstPB.PEst=SrcPB.PEst-(FB.m_DPEstFxdQm*(GoFwd?1:-1));
+    DstPB.PEst=SrcPB.PEst+(FB.m_DPEstFxdQm*(GoFwd?-1:1));
     if (Valid(DstPB.PMax))
       DstPB.PEst=Min(DstPB.PEst, (double)DstPB.PMax);
     }
@@ -4237,12 +4268,12 @@ void CSubNetBlk::SolveFxdFBP(CJoinGFBPtr & JG)
 #if dbgFlwNets
   if (dbgSolveFxdPs())
     {
-    dbgpln("  %-3s fb[%4i] %-3s %15s %10.3f %5i %5s %s %s", 
-      FB.GetFixed()?"Fxd":"FB", FB.m_iNo,
+    dbgpln("  %-3s fb[%4i,%4i] %-3s %15s %10.3f %5i %5s %s %s", 
+      FB.GetFixed()?"Fxd":"FB", FB.m_iNo, FB.m_iFxdPOrder,
       DbgFwdRev(GoFwd),
       DbgFltString(FB.RequiredQm(),3,2), 
-      FB.m_DPEstFxdQm, FB.m_iFxdOrder, "", DbgOnePB(SrcPB), JG.Nd()->Tag());
-    dbgpln("                                                          %s ", DbgOnePB(DstPB));
+      FB.m_DPEstFxdQm, FB.m_iFxdPOrder, "", DbgOnePB(SrcPB, true), JG.Nd()->Tag());
+    dbgpln("                                                               %s ", DbgOnePB(DstPB, true));
     }
 #endif
   }
@@ -4261,9 +4292,9 @@ void CSubNetBlk::SolveFxdJoinP( CJoinGFBPtr & JG)
     {
     for (int fe=0; fe<Jn.NFBs(c); fe++)
       {
-      if (Jn.FB(c, fe)->m_iFxdOrder>HiOrd)
+      if (Jn.FB(c, fe)->m_iFxdPOrder>HiOrd)
         {
-        HiOrd=Jn.FB(c, fe)->m_iFxdOrder;
+        HiOrd=Jn.FB(c, fe)->m_iFxdPOrder;
         iSrcConn=c;
         }
       }
@@ -4274,7 +4305,10 @@ void CSubNetBlk::SolveFxdJoinP( CJoinGFBPtr & JG)
 
 #if dbgFlwNets
   if (dbgSolveFxdPs())
-    dbgpln("  %-3s %8s %-3s %15s %10s %5s %5i %s %s", "Jn", "", "", "", "", "", iSrcConn, DbgOnePB(*Jn.PB()), JG.Nd()->Tag());
+    {
+    dbgpln("  %-3s %13s %-3s %15s %10s %5s %5i %s %s", 
+      "Jn", "", "", "", "", "", iSrcConn, DbgOnePB(*Jn.PB(), true), JG.Nd()->Tag());
+    }
 #endif
 
   for (c=0 ; c<Jn.m_nConns; c++)
@@ -4286,7 +4320,10 @@ void CSubNetBlk::SolveFxdJoinP( CJoinGFBPtr & JG)
       PB.PEst = P;
 #if dbgFlwNets
       if (dbgSolveFxdPs())
-        dbgpln("  %-3s %8s %-3s %15s %10s %5s %5s %s %s > %s", "Cn>", "", "", "", "", "", "", DbgOnePB(PB), JG.Nd()->Tag(), JG.Nd()->Nd_Rmt(c)->Tag());
+        {
+        dbgpln("  %-3s %13s %-3s %15s %10s %5s %5s %s %s > %s",
+        "Cn>", "", "", "", "", "", "", DbgOnePB(PB, true), JG.Nd()->Tag(), JG.Nd()->Nd_Rmt(c)->Tag());
+        }
 #endif
       }
     }
@@ -4302,7 +4339,7 @@ void CSubNetBlk::DumpFxdConnPs()
     char * SepLn="---------------------------------------------------------------------------------------------------------";
     dbgpln(SepLn);
     dbgpln("Dump Fxd Ps");
-    dbgpln("         %s", DbgOnePBHd());
+    dbgpln("           %s", DbgOnePBHd());
 
     CJoinGFBIter Fx(m_FxdPList);
     for (CJoinGFBPtr * pc = Fx.First(); pc ; pc=Fx.Next())
@@ -4333,8 +4370,8 @@ void CSubNetBlk::DumpFxdConnPs()
         {
         FlwBlk &FB = *pc->FB();
         Strng Tmp;
-        dbgpln("FB         %s %s", DbgOnePB(FB.SrcPB(pc->Forward())), pc->Tag(Tmp));
-        dbgpln("           %s",    DbgOnePB(FB.DstPB(pc->Forward())));
+        dbgpln("FB         %s %s", DbgOnePB(FB.SrcPB(pc->Forward()), true), pc->Tag(Tmp));
+        dbgpln("           %s",    DbgOnePB(FB.DstPB(pc->Forward()), true));
         }
       }
     dbgpln(SepLn);
@@ -4355,7 +4392,7 @@ void CSubNetBlk::SolveFxdPs()
     {
     dbgpln(SepLn);
     dbgpln("FindFxdPs");
-    dbgpln("  Type                   QmRqd      EstDP FxOrd %s", DbgOnePBHd());
+    dbgpln("  Type                            QmRqd      EstDP FxOrd %s", DbgOnePBHd());
     }
 #endif
 
@@ -4373,7 +4410,7 @@ void CSubNetBlk::SolveFxdPs()
     {
     dbgpln(SepLn);
     dbgpln("SolveFxdPs");
-    dbgpln("  Type                   QmRqd      EstDP FxOrd %s", DbgOnePBHd());
+    dbgpln("  Type                            QmRqd      EstDP FxOrd       %s", DbgOnePBHd());
     };
 #endif
 
@@ -7202,7 +7239,7 @@ flag CSubNetBlk::CheckForErrors()
 //
 //==========================================================================
 
-void CJoinGFBList::AddFB(FlwBlk * pFB, FlwNode * pNd, flag Forward, flag StartTree)
+void CJoinGFBList::AddFB(FlwBlk * pFB, FlwNode * pNd, flag Forward, flag StartTree, int iSrcPBOrder, int iFBOrder, int iDstPBOrder)
   {
   CJoinGFBPtr JCP;
   JCP.m_pNd         = pNd;
@@ -7212,6 +7249,14 @@ void CJoinGFBList::AddFB(FlwBlk * pFB, FlwNode * pNd, flag Forward, flag StartTr
   JCP.m_iFxd        = -1;
   JCP.m_fForward    = Forward;
   JCP.m_fStartTree  = StartTree;
+
+  if (iFBOrder>=0)
+    {
+    pFB->SrcPB().m_iFxdPOrder=iSrcPBOrder;
+    pFB->m_iFxdPOrder = iFBOrder;
+    pFB->DstPB().m_iFxdPOrder=iDstPBOrder;
+    }
+
   AddTail(JCP);
 
 #if dbgFlwNets
@@ -7244,7 +7289,7 @@ void CJoinGFBList::AddGFB(CGrpFlwBlk * pGFB, flag Forward, flag StartTree)
 #endif
   };
 
-void CJoinGFBList::AddJoin(CJoinRec * pJ)
+void CJoinGFBList::AddJoin(CJoinRec * pJ, int iPBOrder)
   {
   CJoinGFBPtr JCP;
   JCP.m_pNd         = pJ->Nd();
@@ -7254,6 +7299,10 @@ void CJoinGFBList::AddJoin(CJoinRec * pJ)
   JCP.m_iFxd        = -1;
   JCP.m_fForward    = false;
   JCP.m_fStartTree  = false;
+
+  if (iPBOrder>=0)
+    pJ->PB()->m_iFxdPOrder = iPBOrder;
+    
   AddTail(JCP);
 
 #if dbgFlwNets
@@ -7341,22 +7390,26 @@ flag CNetBlk::AddConn2GFB(ACPosition Pos, JoinTypes Typ, CGrpFlwBlkPtr & pGFB, C
       }
     }
 
-  for (int fe=0; fe<pSrcJoin->NIOFBs(SrcConnNo); fe++)
+  for (int fe=pSrcJoin->NIOFBs(SrcConnNo)-1; fe>=0; fe--)
     {
     pSrcJoin->IOFB(SrcConnNo, fe)->m_pGFb=pGFB;
-    pSrcJoin->IOFB(SrcConnNo, fe)->m_iFxdOrder=FxdOrder ? (*FxdOrder)++ : -1;
+    pSrcJoin->IOFB(SrcConnNo, fe)->m_iFxdPOrder=FxdOrder ? (*FxdOrder)++ : -1;
     //#if dbgFlwNets
     //if (dbgFindConns())
-    //  dbgpln("  NBk:FB Src   %3i %3i", pSrcJoin->IOFB(SrcConnNo, fe)->m_iNo, pSrcJoin->IOFB(SrcConnNo, fe)->m_iFxdOrder);
+    //  dbgpln("  NBk:FB Src   %3i FBOrd:%3i PBOrd:%3i", 
+    //            pSrcJoin->IOFB(SrcConnNo, fe)->m_iNo, pSrcJoin->IOFB(SrcConnNo, fe)->m_iFxdPOrder, 
+    //            pSrcJoin->IOPB(SrcConnNo, fe)->m_iNo, pSrcJoin->IOPB(SrcConnNo, fe)->m_iFxdPOrder);
     //#endif
     }
   for (fe=0; fe<pDstJoin->NIOFBs(DstConnNo); fe++)
     {
     pDstJoin->IOFB(DstConnNo, fe)->m_pGFb=pGFB;
-    pDstJoin->IOFB(DstConnNo, fe)->m_iFxdOrder=FxdOrder ? (*FxdOrder)++ : -1;
+    pDstJoin->IOFB(DstConnNo, fe)->m_iFxdPOrder=FxdOrder ? (*FxdOrder)++ : -1;
     //#if dbgFlwNets
     //if (dbgFindConns())
-    //  dbgpln("  NBk:FB Dst   %3i %3i", pDstJoin->IOFB(DstConnNo, fe)->m_iNo, pDstJoin->IOFB(DstConnNo, fe)->m_iFxdOrder);
+    //  dbgpln("  NBk:FB Dst   %3i FBOrd:%3i PBOrd:%3i", 
+    //            pDstJoin->IOFB(DstConnNo, fe)->m_iNo, pDstJoin->IOFB(DstConnNo, fe)->m_iFxdPOrder, 
+    //            pDstJoin->IOPB(DstConnNo, fe)->m_iNo, pDstJoin->IOPB(DstConnNo, fe)->m_iFxdPOrder);
     //#endif
     }
 
@@ -7395,7 +7448,7 @@ void CNetBlk::FindFixedConnsFromJoin(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJ
 
 void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec * pSrc, int SrcConnNo, CJoinRec * pDst, int DstConnNo, CGrpFlwBlk * pGFB, LFxdPos Where, int &FxdOrder)
   {
-  if (AddConn2GFB(Fwd?ACP_Tail:ACP_Head, JTyp_FxdLnk, pGFB, pSrc, SrcConnNo, &FxdOrder))
+  if (AddConn2GFB(Fwd?ACP_Tail:ACP_Head, JTyp_FxdLnk, pGFB, pSrc, SrcConnNo, NULL))//&FxdOrder))
     {
     SNI.Grps.AddTail(pGFB);
     SNI.fFixed = true;
@@ -7411,12 +7464,25 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
     {
     FlwBlk *pFB=pSrc->FB(SrcConnNo,0);
     //SNI.m_FxdPList.AddFB(pFB, pSrc->Nd(), SrcConnNo<DstConnNo, Where == LFP_FixedHere);
-    SNI.m_FxdPList.AddFB(pFB, pSrc->Nd(), pSrc->m_iJoinId<pDst->m_iJoinId, Where == LFP_FixedHere);
+    if (pSrc->m_iJoinId<pDst->m_iJoinId)
+      SNI.m_FxdPList.AddFB(pFB, pSrc->Nd(), true, Where == LFP_FixedHere, FxdOrder, FxdOrder+1, FxdOrder+2);
+    else
+      SNI.m_FxdPList.AddFB(pFB, pSrc->Nd(), false, Where == LFP_FixedHere, FxdOrder+2, FxdOrder+1, FxdOrder);
+    FxdOrder+=3;
+    }
+  else if (pSrc->FB(SrcConnNo,0)->GetFixed())
+    {
+    SNI.m_FxdPList.AddFB(pSrc->FB(SrcConnNo,0), pSrc->Nd(), false, Where == LFP_FixedHere, FxdOrder+1, FxdOrder, FxdOrder+1);
+    FxdOrder+=2;
+    SNI.m_FxdPList.AddFB(pDst->FB(DstConnNo,0), pDst->Nd(), true, false, FxdOrder, FxdOrder+1, FxdOrder+2);
+    FxdOrder+=3;
     }
   else 
     {
-    SNI.m_FxdPList.AddFB(pSrc->FB(SrcConnNo,0), pSrc->Nd(), false, Where == LFP_FixedHere);
-    SNI.m_FxdPList.AddFB(pDst->FB(DstConnNo,0), pDst->Nd(), true, false);
+    SNI.m_FxdPList.AddFB(pSrc->FB(SrcConnNo,0), pSrc->Nd(), false, Where == LFP_FixedHere, FxdOrder, FxdOrder+1, FxdOrder+2);
+    FxdOrder+=3;
+    SNI.m_FxdPList.AddFB(pDst->FB(DstConnNo,0), pDst->Nd(), true, false, FxdOrder, FxdOrder+1, FxdOrder+2);
+    FxdOrder+=3;
     }
 
   FindConnsDeep++;
@@ -7451,7 +7517,7 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
       pGFB->AddJoin(p, Pos==ACP_Head);
       SNI.Joins.AddTail(p);
 
-      SNI.m_FxdPList.AddJoin(p);
+      SNI.m_FxdPList.AddJoin(p, FxdOrder++);
 
       ////if (Where==LFP_FixedHere)
       //  pGFB->m_fFixedExternal=false;//(Where==LFP_Elsewhere);
@@ -7475,8 +7541,8 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
         {
         SNI.Ties.AddTail(p);
         SNI.Joins.AddTail(p);
-        SNI.m_FxdPList.AddJoin(p);
-        SNI.m_FxdQList.AddJoin(p);
+        SNI.m_FxdPList.AddJoin(p, FxdOrder++);
+        SNI.m_FxdQList.AddJoin(p,-1);
 
         p->Typ             = JTyp_FxdTie;
         p->pSubNet         = &SNI;
@@ -7501,8 +7567,8 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
       {
       SNI.Ties.AddTail(p);
       SNI.Joins.AddTail(p);
-      SNI.m_FxdPList.AddJoin(p);
-      SNI.m_FxdQList.AddJoin(p);
+      SNI.m_FxdPList.AddJoin(p, FxdOrder++);
+      SNI.m_FxdQList.AddJoin(p, -1);
 
       p->Typ             = JTyp_XferTie;//JTyp_FxdTie;
       p->pSubNet         = &SNI;
@@ -8007,7 +8073,7 @@ void CNetBlk::BldSubNets()
         {
         for (int c=0; c<pJ->NConns(); c++)
           {
-          if (!ConnHasGFB(pJ, c))
+          if (/*(pJ->fIs2IO || pJ->fIsTie) &&*/ !ConnHasGFB(pJ, c))
             {
             if (FindLonelyConns(*SubNet[SubNetNo], pJ, c))
               Found=1;

@@ -359,8 +359,8 @@ CTank::CTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   else
     AttachIOAreas(TankIOAreaListNew, &PipeEntryGroup);
 
-  m_Spill.SetLclIOId(ioid_OverFlw);
-  m_Vent.SetLclIOId(ioid_GasVent);
+  //m_Spill.SetLclIOId(ioid_OverFlw);
+  //m_Vent.SetLclIOId(ioid_GasVent);
 
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
