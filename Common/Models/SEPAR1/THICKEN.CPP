@@ -342,8 +342,7 @@ double CThickenerOFFnd::Function(double x)
     double dT = 0.0, H0, T0;
     for (int Hiter=0; Hiter<10; Hiter++)
       {
-      double Err;
-      if (ConvergedVV(HTot, H, 1.0e-12, 1.0e-12, Err))
+      if (ConvergedVV(HTot, H, 1.0e-12, 1.0e-12))
         break;
       if (dT!=0.0)
         dT = (HTot-H)*(FT-T0)/NZ(H-H0);

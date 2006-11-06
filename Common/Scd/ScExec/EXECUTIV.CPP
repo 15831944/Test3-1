@@ -17,7 +17,7 @@
 #include "licbase.h"
 #include "sfe_base.h"
 //#include "scdcomcmdsatlconv.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

@@ -1051,17 +1051,16 @@ bool SpQueue::MergeSections(bool One2Two, SpQSection * pSctOne, SpQSection * pSc
 
   double Ld1=S1.Mass()/GTZ(S1.Length());
   double Ld2=S2.Mass()/GTZ(S2.Length());
-  double Err;
 
-  if (!ConvergedVV(Ld1, Ld2, 1.0e-3, m_dLoadTol, Err))             // Load the Same
+  if (!ConvergedVV(Ld1, Ld2, 1.0e-3, m_dLoadTol))             // Load the Same
     return false;
-  if (!ConvergedVV(M1.Temp(), M2.Temp(), 0.01, m_dTempTol, Err))   // Temp The Same
+  if (!ConvergedVV(M1.Temp(), M2.Temp(), 0.01, m_dTempTol))   // Temp The Same
     return false;
 
   double MT1=GTZ(M1.Mass());
   double MT2=GTZ(M2.Mass());
   for (int s=0; s<SVSpcCount(); s++)
-    if (!ConvergedVV(M1.m_M[s]/MT1, M2.m_M[s]/MT2, 1.0e-6, m_dMFracTol, Err))
+    if (!ConvergedVV(M1.m_M[s]/MT1, M2.m_M[s]/MT2, 1.0e-6, m_dMFracTol))
       return false;
 
   //CHECK What about Attributes && Qualities differences on Merge of Sections ?

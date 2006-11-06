@@ -802,8 +802,7 @@ flag CtrlSequencer::TestSettledPrior(long iVar)
 
     double Slope1=LSF.Param(1,1); // ParamNo, Order; 
    
-    double E=0;
-    if (ConvergedVV(Slope0, Slope1, 1.0e-6, 1.0e-4, E))
+    if (ConvergedVV(Slope0, Slope1, 1.0e-6, 1.0e-4))
       m_SlopePrior=Slope1;
     else
       OK=false;
@@ -836,8 +835,7 @@ flag CtrlSequencer::TestSettledPost(long iVar)
 
     double OffSt=LSF.Param(0,1); // ParamNo, Order; 
     double Slope=LSF.Param(1,1); // ParamNo, Order; 
-    double E=0;
-    if (!ConvergedVV(Slope, m_SlopePrior, 1.0e-6, 1.0e-4, E))
+    if (!ConvergedVV(Slope, m_SlopePrior, 1.0e-6, 1.0e-4))
       OK=false;
 
     }

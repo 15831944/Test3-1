@@ -735,13 +735,12 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
           // Prevent oscillations
 //CNM ???          m_FTC.dQRqd=Max(Max(1.0e-6,0.5*OldQRqd), m_FTC.dQRqd);
 
-          double Err;
-          //flag CondCnvBad=!ConvergedVV(m_FTC.dQRqd, m_FTC.dQCond, EqnCB().Cfg.dEps_Abs, EqnCB().Cfg.dEps_Rel*10, Err);
+          //flag CondCnvBad=!ConvergedVV(m_FTC.dQRqd, m_FTC.dQCond, EqnCB().Cfg.dEps_Abs, EqnCB().Cfg.dEps_Rel*10);
           //CHXBlock::SetCI(1, CondCnvBad);
           //relax tolerance for message display...
           double d1 = EqnCB().Cfg.dEps_Abs*5.0;
           double d2 = EqnCB().Cfg.dEps_Rel*4.0*5.0;
-          const flag CondCnvBad=!ConvergedVV(m_FTC.m_dQRqd, m_FTC.m_dQCond, d1, d2, Err);
+          const flag CondCnvBad=!ConvergedVV(m_FTC.m_dQRqd, m_FTC.m_dQCond, d1, d2);
           if (CondCnvBad)
             CHXBlock::SetCI(1, "W\tCondensate Not Converged (%7.4f kg/s)", fabs(m_FTC.m_dQRqd-m_FTC.m_dQCond));
           else

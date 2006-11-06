@@ -588,8 +588,7 @@ flag CPrjDataCompare::CompareObject(CObjTagList& List0, CObjTagMap & Map0,
             {
             dVal0=atof(pStr0);
             dVal1=atof(pStr1);
-            double Err=0;
-            if (!ConvergedVV(dVal0, dVal1, 1.0e-12, Tol, Err) && DoMessage(ClsTag0))
+            if (!ConvergedVV(dVal0, dVal1, 1.0e-12, Tol) && DoMessage(ClsTag0))
               fprintf(hRpt, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%g\"\n", pObj0->Str(), ClsTag0, "", pStr0, pStr1, dVal1-dVal0);
             }
           else //if (IsFloatData(Typ0))

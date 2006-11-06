@@ -981,9 +981,8 @@ else
       dbgpln("%i  H:%14.4g<%14.4g<%14.4g [%14.4g]  C:%14.4g<%14.4g<%14.4g [%14.4g]",i, EstH_Lo, EstH, EstH_Hi, ErrH, EstC_Lo, EstC, EstC_Hi, ErrC);
     #endif
 
-    double EH, EC;
-    flag HOk=ConvergedDV(ErrH, EstH, 1.0e-6, 1.0e-6, EH) || ConvergedVV(EstH_Lo, EstH_Hi, 1.0e-6, 1.0e-6, EH);
-    flag COk=ConvergedDV(ErrC, EstC, 1.0e-6, 1.0e-6, EC) || ConvergedVV(EstC_Lo, EstC_Hi, 1.0e-6, 1.0e-6, EH);
+    flag HOk=ConvergedDV(ErrH, EstH, 1.0e-6, 1.0e-6) || ConvergedVV(EstH_Lo, EstH_Hi, 1.0e-6, 1.0e-6);
+    flag COk=ConvergedDV(ErrC, EstC, 1.0e-6, 1.0e-6) || ConvergedVV(EstC_Lo, EstC_Hi, 1.0e-6, 1.0e-6);
     if (HOk && COk)
       goto Done;
 
@@ -1582,13 +1581,12 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
           // Prevent oscillations
           m_FTC.m_dQRqd=Max(Max(1.0e-6,0.5*OldQRqd), m_FTC.m_dQRqd);
 
-          double Err;
-          //flag CondCnvBad=!ConvergedVV(m_FTC.dQRqd, m_FTC.dQCond, EqnCB().Cfg.dEps_Abs, EqnCB().Cfg.dEps_Rel*2.0, Err);
+          //flag CondCnvBad=!ConvergedVV(m_FTC.dQRqd, m_FTC.dQCond, EqnCB().Cfg.dEps_Abs, EqnCB().Cfg.dEps_Rel*2.0);
           //CHXBlock::SetCI(1, CondCnvBad);
           //relax tolerance for message display...
           double d1 = EqnCB().Cfg.dEps_Abs*5.0;
           double d2 = EqnCB().Cfg.dEps_Rel*2.0*5.0;
-          const flag CondCnvBad=!ConvergedVV(m_FTC.m_dQRqd, m_FTC.m_dQCond, d1, d2, Err);
+          const flag CondCnvBad=!ConvergedVV(m_FTC.m_dQRqd, m_FTC.m_dQCond, d1, d2);
           if (CondCnvBad)
             CHXBlock::SetCI(1, "W\tCondensate Not Converged (%7.4f kg/s)", fabs(m_FTC.m_dQRqd-m_FTC.m_dQCond));
           else

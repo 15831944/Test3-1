@@ -2734,8 +2734,7 @@ void CVLERootK::QVFlash(SpContainer &C, double Duty, dword Flags)
           VLRatOK=false;
           break;
           }
-        double Err;
-        if (i>=2 && ConvergedVV(LVEst, LVNew, 1e-10, 1e-10, Err))
+        if (i>=2 && ConvergedVV(LVEst, LVNew, 1e-10, 1e-10))
           break;
         LVEst=LVNew;
         #if DoDbg1

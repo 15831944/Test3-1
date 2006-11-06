@@ -185,10 +185,24 @@ inline flag ConvergedDV(double D, double V, double ATol, double RTol, double & E
   return (Err < 1.0);
   }
 
+inline flag ConvergedDV(double D, double V, double ATol, double RTol)
+  {
+  const double Vt = Max(fabs(V), fabs(V + D));
+  const double Err = fabs(D) / (ATol + Vt * RTol);
+  return (Err < 1.0);
+  }
+
 inline flag ConvergedVV(double V1, double V2, double ATol, double RTol, double & Err)
   {
   const double Vt = Max(fabs(V1), fabs(V2));
   Err = fabs(V2-V1) / (ATol + Vt * RTol);
+  return (Err < 1.0);
+  }
+
+inline flag ConvergedVV(double V1, double V2, double ATol, double RTol)
+  {
+  const double Vt = Max(fabs(V1), fabs(V2));
+  const double Err = fabs(V2-V1) / (ATol + Vt * RTol);
   return (Err < 1.0);
   }
 

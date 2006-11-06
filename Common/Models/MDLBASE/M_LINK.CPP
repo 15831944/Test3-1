@@ -3089,8 +3089,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
 
       if (SolveBufferedMethod() && !DoXfer)
         {
-        double Err;
-        SetCI(5, !ConvergedVV(IOQOutEst, Fo.QMass(), 1e-6, 1e-3, Err));
+        SetCI(5, !ConvergedVV(IOQOutEst, Fo.QMass(), 1e-6, 1e-3));
         }
       else
         ClrCI(5);
@@ -3262,16 +3261,23 @@ void MN_Lnk::EvalDiscrete()
     SetCI(3, VelBAD);
     if (NoFlwIOs()>=2)
       {
-      double RBSrc=0, RBSnk=0, Err;
-      if (m_RB.Enabled())
-        {
-        RBSrc=m_RB.MsSumSrc()->Mass();
-        RBSnk=m_RB.MsSumSnk()->Mass();
-        }
-
-      int iIn  = (IOQmEst_In(0)>0.0 ? 0 : 1);
+      const int iIn  = (IOQmEst_In(0)>0.0 ? 0 : 1);
       if (IOFlange(iIn)->TearType()!=TT_Break && !TestCISet(7) && !TestCISet(8))
-        SetCI(6, !ConvergedVV(IOConduit(0)->QMass()+RBSrc-m_QmSpilt, IOConduit(1)->QMass()+RBSnk, 1e-6, 1e-3, Err));
+        {
+        double RBSrc=0.0, RBSnk=0.0;
+        if (m_RB.Enabled())
+          {
+          RBSrc=m_RB.MsSumSrc()->Mass();
+          RBSnk=m_RB.MsSumSnk()->Mass();
+          }
+        const double v1 = IOConduit(0)->QMass()+RBSrc-m_QmSpilt;
+        const double v2 = IOConduit(1)->QMass()+RBSnk;
+        const double ATol1 = 1.0e-5;
+        const double ATol2 = 1.0e-4;
+        const bool MassErr = (fabs(v1)>ATol2 || fabs(v2)>ATol2) && !ConvergedVV(v1, v2, ATol1, 1e-3); //try remove error reporting for 'zero' flow
+        //const bool MassErr = !ConvergedVV(IOConduit(0)->QMass()+RBSrc-m_QmSpilt, IOConduit(1)->QMass()+RBSnk, 1e-6, 1e-3);
+        SetCI(6, MassErr);
+        }
       }
     }
   SetCI(4, QmBAD);
