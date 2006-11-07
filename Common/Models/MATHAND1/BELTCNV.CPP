@@ -599,7 +599,7 @@ void BeltCnv::SetState(eScdMdlStateActs RqdState)
       //if (pStats)
       //  pStats->ResetStats();
       //dInitMt = m_Q.TotalMass();
-      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      //m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
       break;
     }
   };

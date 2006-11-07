@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 2"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "5 November 2006"
+#define SCD_PATCHDATE    "6 November 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H

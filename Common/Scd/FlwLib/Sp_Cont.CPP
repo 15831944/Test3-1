@@ -2973,10 +2973,10 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
       if (pStats)
         pStats->ResetStats();
       dInitMt = pModel->Mass(som_ALL);
-      if (SpillExists())
+      /*if (SpillExists())
         Spill.Sum.ZeroTotals();
       if (VentExists())
-        Vent.Sum.ZeroTotals();
+        Vent.Sum.ZeroTotals();*/
       break;
     }
   };

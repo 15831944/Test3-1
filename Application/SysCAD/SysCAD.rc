@@ -874,15 +874,15 @@ BEGIN
         MENUITEM "&Quick View ...",             ID_VIEW_RPTTAGLISTS
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
-        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "Pro&Bal Configuration",       ID_VIEW_PROBALINFO
         MENUITEM "&Dynamic Configuration",      ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
         MENUITEM SEPARATOR
+        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "&Species Data",               ID_VIEW_SPECIEDATA
-        MENUITEM "Tole&rances",                 ID_VIEW_TOLERANCES
+        MENUITEM SEPARATOR
         MENUITEM "&Tear Blocks",                ID_VIEW_TEARBLOCKS
         MENUITEM "C&hange Stats",               ID_VIEW_CHANGESTATS
         MENUITEM "&Evaluation Order",           ID_VIEW_EVALORDER
@@ -1088,15 +1088,15 @@ BEGIN
         MENUITEM "&Quick View ...",             ID_VIEW_RPTTAGLISTS
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
-        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "Pro&Bal Configuration",       ID_VIEW_PROBALINFO
         MENUITEM "&Dynamic Configuration",      ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
         MENUITEM SEPARATOR
+        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "&Species Data",               ID_VIEW_SPECIEDATA
-        MENUITEM "Tole&rances",                 ID_VIEW_TOLERANCES
+        MENUITEM SEPARATOR
         MENUITEM "&Tear Blocks",                ID_VIEW_TEARBLOCKS
         MENUITEM "C&hange Stats",               ID_VIEW_CHANGESTATS
         MENUITEM "&Evaluation Order",           ID_VIEW_EVALORDER
@@ -1302,15 +1302,15 @@ BEGIN
         MENUITEM "&Quick View ...",             ID_VIEW_RPTTAGLISTS
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
-        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "Pro&Bal Configuration",       ID_VIEW_PROBALINFO
         MENUITEM "&Dynamic Configuration",      ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
         MENUITEM SEPARATOR
+        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "&Species Data",               ID_VIEW_SPECIEDATA
-        MENUITEM "Tole&rances",                 ID_VIEW_TOLERANCES
+        MENUITEM SEPARATOR
         MENUITEM "&Tear Blocks",                ID_VIEW_TEARBLOCKS
         MENUITEM "C&hange Stats",               ID_VIEW_CHANGESTATS
         MENUITEM "&Evaluation Order",           ID_VIEW_EVALORDER
@@ -1558,15 +1558,15 @@ BEGIN
         MENUITEM "&Quick View ...",             ID_VIEW_RPTTAGLISTS
         MENUITEM SEPARATOR
         MENUITEM "P&lant Model",                ID_VIEW_PLANTMODEL
-        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "Pro&Bal Configuration",       ID_VIEW_PROBALINFO
         MENUITEM "&Dynamic Configuration",      ID_VIEW_DYNAMICINFO
         MENUITEM "&Controls",                   ID_VIEW_CONTROLS
         MENUITEM "Po&wer Supplies",             ID_VIEW_POWERSUPPLIES
         MENUITEM "&I/O Points",                 ID_VIEW_IOPOINTS
         MENUITEM SEPARATOR
+        MENUITEM "Plant &Area",                 ID_VIEW_PLANTAREA
         MENUITEM "&Species Data",               ID_VIEW_SPECIEDATA
-        MENUITEM "Tole&rances",                 ID_VIEW_TOLERANCES
+        MENUITEM SEPARATOR
         MENUITEM "&Tear Blocks",                ID_VIEW_TEARBLOCKS
         MENUITEM "C&hange Stats",               ID_VIEW_CHANGESTATS
         MENUITEM "&Evaluation Order",           ID_VIEW_EVALORDER

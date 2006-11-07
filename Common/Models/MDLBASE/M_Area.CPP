@@ -1408,22 +1408,29 @@ void MN_Area::SetState(eScdMdlStateActs RqdState)
   MdlNode::SetState(RqdState);
   switch (RqdState)
     {
-    case MSA_Empty:
-    case MSA_PreSet:
+    case MSA_PBInit:
     case MSA_ZeroFlows:
-    case MSA_EmptySpillTargets:
-      //case MSA_SteadyState:
       {
       m_OvResults.ZeroFlows();
       for (int i=0; i<m_NdResults.GetCount(); i++)
         m_NdResults[i]->ZeroFlows();
+      break;
       }
-    case MSA_DynStatsRunInit:
+    case MSA_Empty:
+    case MSA_PreSet:
+    case MSA_EmptySpillTargets: //perhaps only reset vents and spills???
       {
+      m_OvResults.ZeroFlows();
       m_OvResults.ZeroTotals();
       for (int i=0; i<m_NdResults.GetCount(); i++)
+        {
+        m_NdResults[i]->ZeroFlows();
         m_NdResults[i]->ZeroTotals();
+        }
       break;
+    case MSA_DynStatsRunInit:
+      break;
+    //case MSA_SteadyState:
       }
     }
   }
