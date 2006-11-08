@@ -68,6 +68,7 @@
     <Compile Include="BranchAccessItemProperty.cs" />
     <Compile Include="BranchAccessItemPropertyDescriptor.cs" />
     <Compile Include="ClientGraphic.cs" />
+    <Compile Include="GraphicThing.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="FloatAccessItem.cs" />

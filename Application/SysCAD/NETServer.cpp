@@ -345,14 +345,12 @@ ref class CNETServerThread
 
       StringCollection ^ pages = gcnew StringCollection();
       {
-        POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
-        while (Pos)
         {
-          CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
-          if (!pGuid->m_IsLink)
+          POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
+          while (Pos)
           {
-            Strng tag = pGuid->m_Tag;
-            if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
+            CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
+            if (!pGuid->m_IsLink)
             {
               CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid);
               String ^ page = gcnew String(pNode->m_pGrfs[0]->m_Page);
@@ -361,14 +359,18 @@ ref class CNETServerThread
                 pages->Add(page);
               }
             }
-            else
+          }
+        }
+
+        {
+          POSITION Pos=m_pUnmanaged->m_Things.GetHeadPosition();
+          while (Pos)
+          {
+            CNSGrfThing * pThing = m_pUnmanaged->m_Things.GetNext(Pos);
+            String ^ page = gcnew String(pThing->m_Page);
+            if (!pages->Contains(page))
             {
-              CNSMdlThing * pThing = dynamic_cast<CNSMdlThing *>(pGuid);
-              String ^ page = gcnew String(pThing->m_pGrfs[0]->m_Page);
-              if (!pages->Contains(page))
-              {
-                pages->Add(page);
-              }
+              pages->Add(page);
             }
           }
         }
@@ -398,15 +400,30 @@ ref class CNETServerThread
       }
 
       {
+      POSITION Pos=m_pUnmanaged->m_Things.GetHeadPosition();
+      while (Pos)
+        {
+          CNSGrfThing * pThing = m_pUnmanaged->m_Things.GetNext(Pos);
+
+          GraphicThing ^ graphicThing = gcnew GraphicThing(Guid(gcnew String(pThing->m_Guid)), gcnew String(pThing->m_Tag));
+          String ^ path = "/" + filename + "/" + gcnew String(pThing->m_Page) + "/";
+
+          graphicThing->Populate(filename, gcnew String(pThing->m_Page),
+            gcnew String(pThing->m_Guid), 
+            RectangleF(pThing->m_Left + pageOffset[path].X, pThing->m_Top + pageOffset[path].Y, pThing->m_Width, pThing->m_Height),
+            pThing->m_Rotation);
+          graphic->graphicThings->Add(graphicThing->Guid, graphicThing);
+        }
+      }
+
+
+      {
       POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
       while (Pos)
         {
         CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
         if (!pGuid->m_IsLink)
           {
-          Strng tag = pGuid->m_Tag;
-          if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
-            {
             CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid); 
 
             GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
@@ -417,20 +434,6 @@ ref class CNETServerThread
               RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
               pNode->m_pGrfs[0]->m_Rotation);
             graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
-            }
-          else
-          {
-            CNSMdlThing * pThing = dynamic_cast<CNSMdlThing *>(pGuid); 
-
-            GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pThing->m_Guid)), gcnew String(pThing->m_Tag));
-            String ^ path = "/" + filename + "/" + gcnew String(pThing->m_pGrfs[0]->m_Page) + "/";
-
-            graphicItem->Populate(filename, gcnew String(pThing->m_pGrfs[0]->m_Page),
-              gcnew String(pThing->m_Guid), gcnew String(pThing->m_ClassID), 
-              RectangleF(pThing->m_pGrfs[0]->m_Left + pageOffset[path].X, pThing->m_pGrfs[0]->m_Top + pageOffset[path].Y, pThing->m_pGrfs[0]->m_Width, pThing->m_pGrfs[0]->m_Height),
-              pThing->m_pGrfs[0]->m_Rotation);
-            graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
-          }
           }
         }
       }

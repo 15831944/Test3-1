@@ -28,6 +28,10 @@ namespace SysCAD.Interface
     public delegate bool ModifyLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate bool DeleteLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
 
+    public delegate bool CreateThingDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteThingDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
+
     public delegate PortStatus PortCheckDelegate(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
 
     private CreateItemDelegate createItemDelegate;
@@ -38,11 +42,16 @@ namespace SysCAD.Interface
     private ModifyLinkDelegate modifyLinkDelegate;
     private DeleteLinkDelegate deleteLinkDelegate;
 
+    private CreateThingDelegate createThingDelegate;
+    private ModifyThingDelegate modifyThingDelegate;
+    private DeleteThingDelegate deleteThingDelegate;
+
     private PortCheckDelegate portCheckDelegate;
 
     public ServiceGraphic(
       CreateItemDelegate createItemDelegate, ModifyItemDelegate modifyItemDelegate, DeleteItemDelegate deleteItemDelegate,
       CreateLinkDelegate createLinkDelegate, ModifyLinkDelegate modifyLinkDelegate, DeleteLinkDelegate deleteLinkDelegate,
+      CreateThingDelegate createThingDelegate, ModifyThingDelegate modifyThingDelegate, DeleteThingDelegate deleteThingDelegate,
       PortCheckDelegate portCheckDelegate)
     {
       this.createItemDelegate = createItemDelegate;
@@ -52,6 +61,10 @@ namespace SysCAD.Interface
       this.createLinkDelegate = createLinkDelegate;
       this.modifyLinkDelegate = modifyLinkDelegate;
       this.deleteLinkDelegate = deleteLinkDelegate;
+
+      this.createThingDelegate = createThingDelegate;
+      this.modifyThingDelegate = modifyThingDelegate;
+      this.deleteThingDelegate = deleteThingDelegate;
 
       this.portCheckDelegate = portCheckDelegate;
     }
@@ -116,7 +129,36 @@ namespace SysCAD.Interface
         return false;
     }
 
-    
+
+    public bool CreateThing(out uint requestID, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      this.requestID++;
+      requestID = this.requestID;
+      guid = Guid.NewGuid();
+      return createThingDelegate(this, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    public bool ModifyThing(out uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      this.requestID++;
+      requestID = this.requestID;
+      if (graphicThings.ContainsKey(guid))
+        return modifyThingDelegate(this, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      else
+        return false;
+    }
+
+    public bool DeleteThing(out uint requestID, Guid guid)
+    {
+      this.requestID++;
+      requestID = this.requestID;
+      if (graphicThings.ContainsKey(guid))
+        return deleteThingDelegate(this, requestID, guid);
+      else
+        return false;
+    }
+
+
     public PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
       if (graphicItems.ContainsKey(itemGuid))
@@ -226,5 +268,55 @@ namespace SysCAD.Interface
         OnLinkDeleted(eventID, requestID, guid);
       }
     }
+
+
+    public void DoThingCreated(uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      if (!graphicThings.ContainsKey(guid))
+      {
+        GraphicThing graphicThing = new GraphicThing(guid, tag);
+        graphicThing.Path = path;
+        graphicThing.BoundingRect = (ARectangleF)boundingRect;
+        graphicThing.Angle = angle;
+        graphicThing.FillColor = fillColor;
+        graphicThing.MirrorX = mirrorX;
+        graphicThing.MirrorY = mirrorY;
+
+        graphicThings.Add(guid, graphicThing);
+
+        eventID++;
+        OnThingCreated(eventID, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      }
+    }
+
+    public void DoThingModified(uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      GraphicThing graphicThing;
+      if (graphicThings.TryGetValue(guid, out graphicThing))
+      {
+        graphicThing.Tag = tag;
+        graphicThing.Path = path;
+        graphicThing.BoundingRect = (ARectangleF)boundingRect;
+        graphicThing.Angle = angle;
+        graphicThing.FillColor = fillColor;
+        graphicThing.MirrorX = mirrorX;
+        graphicThing.MirrorY = mirrorY;
+
+        eventID++;
+        OnThingModified(eventID, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      }
+    }
+
+    public void DoThingDeleted(uint requestID, Guid guid)
+    {
+      if (graphicThings.ContainsKey(guid))
+      {
+        graphicThings.Remove(guid);
+
+        eventID++;
+        OnThingDeleted(eventID, requestID, guid);
+      }
+    }
+
   }
 }

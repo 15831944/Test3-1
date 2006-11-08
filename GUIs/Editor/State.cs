@@ -4,6 +4,9 @@ using System.Text;
 using MindFusion.FlowChartX;
 using System.Drawing;
 using SysCAD.Interface;
+using SysCAD;
+using System.Collections;
+using System.Drawing.Drawing2D;
 
 namespace SysCAD.Editor
 {
@@ -11,6 +14,7 @@ namespace SysCAD.Editor
   {
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
+    private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
 
     private ClientGraphic graphic;
     private Config config;
@@ -172,6 +176,39 @@ namespace SysCAD.Editor
       textBox.Tag = item;
 
       items.Add(item.Guid, item);
+
+      flowchart.ResumeLayout();
+    }
+
+    internal void CreateThing(GraphicThing graphicThing, bool isVisible, FlowChart flowchart)
+    {
+      flowchart.SuspendLayout();
+
+      Box box = flowchart.CreateBox(graphicThing.X, graphicThing.Y, graphicThing.Width, graphicThing.Height);
+      box.RotationAngle = graphicThing.Angle;
+      box.ToolTip = graphicThing.Tag;
+      box.Style = BoxStyle.Shape;
+
+      //!!!!!  convert from elements, decorations, textarea -> shapetemplate.
+
+      //!!!!!
+
+      box.Shape = ShapeTemplate.FromId("Decision2");
+
+      if (!graphicThing.FillColor.IsEmpty)
+        box.FillColor = Color.FromArgb(150, graphicThing.FillColor);
+      if (!graphicThing.FillColor.IsEmpty)
+        box.FrameColor = Color.FromArgb(200, graphicThing.FrameColor);
+      box.Visible = isVisible;
+
+      box.ZBottom();
+
+      Thing thing = new Thing(graphicThing.Guid, graphicThing.Tag, box, isVisible, graphicThing);
+
+      box.Tag = thing;
+
+      things.Add(thing.Guid, thing);
+
       flowchart.ResumeLayout();
     }
 
@@ -204,6 +241,11 @@ namespace SysCAD.Editor
     {
       //TBD: unlink connected links first
       return items.Remove(guid);
+    }
+
+    internal bool DeleteThing(Guid guid)
+    {
+      return things.Remove(guid);
     }
 
     public void SetControlPoints(Arrow arrow, List<PointF> points)
@@ -239,7 +281,7 @@ namespace SysCAD.Editor
           arrow.PenColor = Color.Red;
           break;
       }
-      
+
       Item origin = null;
       Item destination = null;
 
@@ -273,7 +315,7 @@ namespace SysCAD.Editor
         arrow.DestAnchor = -1;
 
 
-      arrow.ToolTip = "Tag:" + graphicLink.Tag + 
+      arrow.ToolTip = "Tag:" + graphicLink.Tag +
         "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
         "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
       arrow.ArrowHead = ArrowHead.Triangle;
@@ -322,6 +364,13 @@ namespace SysCAD.Editor
           arrowOrigin.Visible = visible && ShowLinks;
         }
       }
+
+      Thing thing;
+      if (things.TryGetValue(guid, out thing))
+      {
+        thing.Visible = visible;
+        thing.Box.Visible = visible;
+      }
     }
 
     internal void ItemSelected(Guid guid, bool selected)
@@ -343,7 +392,10 @@ namespace SysCAD.Editor
       Link link;
       links.TryGetValue(guid, out link);
 
-      return ((link != null) || (item != null));
+      Thing thing;
+      things.TryGetValue(guid, out thing);
+
+      return ((link != null) || (item != null) || (thing != null));
     }
 
     internal bool Exists(String tag)
@@ -357,6 +409,12 @@ namespace SysCAD.Editor
       foreach (Link link in links.Values)
       {
         if (link.Tag == tag)
+          return true;
+      }
+
+      foreach (Thing thing in things.Values)
+      {
+        if (thing.Tag == tag)
           return true;
       }
 
@@ -507,7 +565,7 @@ namespace SysCAD.Editor
     internal GraphicItem GraphicItem(Box box)
     {
       GraphicItem graphicItem = null;
-      if (box.Tag != null)
+      if (box.Tag is Item)
         graphic.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
       return graphicItem;
     }
@@ -527,6 +585,21 @@ namespace SysCAD.Editor
       return graphicLink;
     }
 
+    internal GraphicThing GraphicThing(Guid guid)
+    {
+      GraphicThing graphicThing;
+      graphic.graphicThings.TryGetValue(guid, out graphicThing);
+      return graphicThing;
+    }
+
+    internal GraphicThing GraphicThing(Box box)
+    {
+      GraphicThing graphicThing = null;
+      if (box.Tag is Thing)
+        graphic.graphicThings.TryGetValue((box.Tag as Thing).Guid, out graphicThing);
+      return graphicThing;
+    }
+
     internal IEnumerable<GraphicItem> GraphicItems
     {
       get { return graphic.graphicItems.Values; }
@@ -535,6 +608,11 @@ namespace SysCAD.Editor
     internal IEnumerable<GraphicLink> GraphicLinks
     {
       get { return graphic.graphicLinks.Values; }
+    }
+
+    internal IEnumerable<GraphicThing> GraphicThings
+    {
+      get { return graphic.graphicThings.Values; }
     }
 
     internal Item Item(Guid guid)
@@ -549,6 +627,13 @@ namespace SysCAD.Editor
       Link link;
       links.TryGetValue(guid, out link);
       return link;
+    }
+
+    internal Thing Thing(Guid guid)
+    {
+      Thing thing;
+      things.TryGetValue(guid, out thing);
+      return thing;
     }
 
     internal IEnumerable<Item> Items
@@ -590,7 +675,6 @@ namespace SysCAD.Editor
     }
 
 
-
     internal bool ModifyGraphicLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       return graphic.ModifyLink(out requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
@@ -607,6 +691,22 @@ namespace SysCAD.Editor
     }
 
 
+    internal bool ModifyGraphicThing(out uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      return graphic.ModifyThing(out requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    internal bool CreateGraphicThing(out uint requestID, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      return graphic.CreateThing(out requestID, out guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    internal bool DeleteGraphicThing(out uint requestID, Guid guid)
+    {
+      return graphic.DeleteThing(out requestID, guid);
+    }
+
+
     internal PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
       if (anchor != null)
@@ -620,17 +720,24 @@ namespace SysCAD.Editor
       ClientGraphic.ItemCreatedHandler itemCreatedHandler,
       ClientGraphic.ItemModifiedHandler itemModifiedHandler,
       ClientGraphic.ItemDeletedHandler itemDeletedHandler,
-      ClientGraphic.LinkCreatedHandler LinkCreatedHandler,
-      ClientGraphic.LinkModifiedHandler LinkModifiedHandler,
-      ClientGraphic.LinkDeletedHandler LinkDeletedHandler)
+      ClientGraphic.LinkCreatedHandler linkCreatedHandler,
+      ClientGraphic.LinkModifiedHandler linkModifiedHandler,
+      ClientGraphic.LinkDeletedHandler linkDeletedHandler,
+      ClientGraphic.ThingCreatedHandler thingCreatedHandler,
+      ClientGraphic.ThingModifiedHandler thingModifiedHandler,
+      ClientGraphic.ThingDeletedHandler thingDeletedHandler)
     {
       graphic.ItemCreated += itemCreatedHandler;
       graphic.ItemModified += itemModifiedHandler;
       graphic.ItemDeleted += itemDeletedHandler;
 
-      graphic.LinkCreated += LinkCreatedHandler;
-      graphic.LinkModified += LinkModifiedHandler;
-      graphic.LinkDeleted += LinkDeletedHandler;
+      graphic.LinkCreated += linkCreatedHandler;
+      graphic.LinkModified += linkModifiedHandler;
+      graphic.LinkDeleted += linkDeletedHandler;
+
+      graphic.ThingCreated += thingCreatedHandler;
+      graphic.ThingModified += thingModifiedHandler;
+      graphic.ThingDeleted += thingDeletedHandler;
     }
 
 
@@ -638,17 +745,24 @@ namespace SysCAD.Editor
       ClientGraphic.ItemCreatedHandler itemCreatedHandler,
       ClientGraphic.ItemModifiedHandler itemModifiedHandler,
       ClientGraphic.ItemDeletedHandler itemDeletedHandler,
-      ClientGraphic.LinkCreatedHandler LinkCreatedHandler,
-      ClientGraphic.LinkModifiedHandler LinkModifiedHandler,
-      ClientGraphic.LinkDeletedHandler LinkDeletedHandler)
+      ClientGraphic.LinkCreatedHandler linkCreatedHandler,
+      ClientGraphic.LinkModifiedHandler linkModifiedHandler,
+      ClientGraphic.LinkDeletedHandler linkDeletedHandler,
+      ClientGraphic.ThingCreatedHandler thingCreatedHandler,
+      ClientGraphic.ThingModifiedHandler thingModifiedHandler,
+      ClientGraphic.ThingDeletedHandler thingDeletedHandler)
     {
       graphic.ItemCreated -= itemCreatedHandler;
       graphic.ItemModified -= itemModifiedHandler;
       graphic.ItemDeleted -= itemDeletedHandler;
 
-      graphic.LinkCreated -= LinkCreatedHandler;
-      graphic.LinkModified -= LinkModifiedHandler;
-      graphic.LinkDeleted -= LinkDeletedHandler;
+      graphic.LinkCreated -= linkCreatedHandler;
+      graphic.LinkModified -= linkModifiedHandler;
+      graphic.LinkDeleted -= linkDeletedHandler;
+
+      graphic.ThingCreated -= thingCreatedHandler;
+      graphic.ThingModified -= thingModifiedHandler;
+      graphic.ThingDeleted -= thingDeletedHandler;
     }
 
 
@@ -656,6 +770,34 @@ namespace SysCAD.Editor
     internal void AddNode(string path, string tag, Guid guid)
     {
       tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
+    }
+
+    internal float Mirrored(float x, bool mirrored)
+    {
+      if (mirrored)
+        return 100.0F - x;
+      else
+        return x;
+    }
+
+    internal ArcTemplate MirroredArc(Arc arc, bool mirrorX, bool mirrorY)
+    {
+      return new ArcTemplate(Mirrored(arc.x, mirrorX), Mirrored(arc.y, mirrorY),
+                             arc.w, arc.h, arc.a, arc.s);
+    }
+
+    internal LineTemplate MirroredLine(Line line, bool mirrorX, bool mirrorY)
+    {
+      return new LineTemplate(Mirrored(line.x1, mirrorX), Mirrored(line.y1, mirrorY),
+                              Mirrored(line.x2, mirrorX), Mirrored(line.y2, mirrorY));
+    }
+
+    internal BezierTemplate MirroredBezier(Bezier bezier, bool mirrorX, bool mirrorY)
+    {
+      return new BezierTemplate(Mirrored(bezier.x1, mirrorX), Mirrored(bezier.y1, mirrorY),
+                                Mirrored(bezier.x2, mirrorX), Mirrored(bezier.y2, mirrorY),
+                                Mirrored(bezier.x3, mirrorX), Mirrored(bezier.y3, mirrorY),
+                                Mirrored(bezier.x4, mirrorX), Mirrored(bezier.y4, mirrorY));
     }
 
     public ShapeTemplate GetShapeTemplate(ModelStencil stencil, bool mirrorX, bool mirrorY)
@@ -666,85 +808,9 @@ namespace SysCAD.Editor
       i = 0;
       foreach (Element element in stencil.elements)
       {
-        if (element is Arc)
-        {
-          Arc arc = element as Arc;
-          elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
-        }
-        if (element is Line)
-        {
-          Line line = element as Line;
-          float x1, y1, x2, y2;
-
-          if (mirrorX)
-            x1 = 100.0F - line.x1;
-          else
-            x1 = line.x1;
-
-          if (mirrorY)
-            y1 = 100.0F - line.y1;
-          else
-            y1 = line.y1;
-
-          if (mirrorX)
-            x2 = 100.0F - line.x2;
-          else
-            x2 = line.x2;
-
-          if (mirrorY)
-            y2 = 100.0F - line.y2;
-          else
-            y2 = line.y2;
-
-          elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
-        }
-        if (element is Bezier)
-        {
-          Bezier bezier = element as Bezier;
-          float x1, y1, x2, y2, x3, y3, x4, y4;
-
-          if (mirrorX)
-            x1 = 100.0F - bezier.x1;
-          else
-            x1 = bezier.x1;
-
-          if (mirrorY)
-            y1 = 100.0F - bezier.y1;
-          else
-            y1 = bezier.y1;
-
-          if (mirrorX)
-            x2 = 100.0F - bezier.x2;
-          else
-            x2 = bezier.x2;
-
-          if (mirrorY)
-            y2 = 100.0F - bezier.y2;
-          else
-            y2 = bezier.y2;
-
-          if (mirrorX)
-            x3 = 100.0F - bezier.x3;
-          else
-            x3 = bezier.x3;
-
-          if (mirrorY)
-            y3 = 100.0F - bezier.y3;
-          else
-            y3 = bezier.y3;
-
-          if (mirrorX)
-            x4 = 100.0F - bezier.x4;
-          else
-            x4 = bezier.x4;
-
-          if (mirrorY)
-            y4 = 100.0F - bezier.y4;
-          else
-            y4 = bezier.y4;
-
-          elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
-        }
+        if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, mirrorX, mirrorY);
+        if (element is Line) elementTemplate[i] = MirroredLine(element as Line, mirrorX, mirrorY);
+        if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, mirrorX, mirrorY);
         i++;
       }
 
@@ -752,85 +818,9 @@ namespace SysCAD.Editor
       i = 0;
       foreach (Element decoration in stencil.decorations)
       {
-        if (decoration is Arc)
-        {
-          Arc arc = decoration as Arc;
-          decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
-        }
-        if (decoration is Line)
-        {
-          Line line = decoration as Line;
-          float x1, y1, x2, y2;
-
-          if (mirrorX)
-            x1 = 100.0F - line.x1;
-          else
-            x1 = line.x1;
-
-          if (mirrorY)
-            y1 = 100.0F - line.y1;
-          else
-            y1 = line.y1;
-
-          if (mirrorX)
-            x2 = 100.0F - line.x2;
-          else
-            x2 = line.x2;
-
-          if (mirrorY)
-            y2 = 100.0F - line.y2;
-          else
-            y2 = line.y2;
-
-          decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
-        }
-        if (decoration is Bezier)
-        {
-          Bezier bezier = decoration as Bezier;
-          float x1, y1, x2, y2, x3, y3, x4, y4;
-
-          if (mirrorX)
-            x1 = 100.0F - bezier.x1;
-          else
-            x1 = bezier.x1;
-
-          if (mirrorY)
-            y1 = 100.0F - bezier.y1;
-          else
-            y1 = bezier.y1;
-
-          if (mirrorX)
-            x2 = 100.0F - bezier.x2;
-          else
-            x2 = bezier.x2;
-
-          if (mirrorY)
-            y2 = 100.0F - bezier.y2;
-          else
-            y2 = bezier.y2;
-
-          if (mirrorX)
-            x3 = 100.0F - bezier.x3;
-          else
-            x3 = bezier.x3;
-
-          if (mirrorY)
-            y3 = 100.0F - bezier.y3;
-          else
-            y3 = bezier.y3;
-
-          if (mirrorX)
-            x4 = 100.0F - bezier.x4;
-          else
-            x4 = bezier.x4;
-
-          if (mirrorY)
-            y4 = 100.0F - bezier.y4;
-          else
-            y4 = bezier.y4;
-
-          decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
-        }
+        if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, mirrorX, mirrorY);
+        if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, mirrorX, mirrorY);
+        if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, mirrorX, mirrorY);
         i++;
       }
 
@@ -840,133 +830,26 @@ namespace SysCAD.Editor
 
     public ShapeTemplate GetShapeTemplate(OldGraphicStencil stencil, bool mirrorX, bool mirrorY)
     {
+      int i;
+
       ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+      i = 0;
+      foreach (Element element in stencil.elements)
       {
-        int i = 0;
-        foreach (Element element in stencil.elements)
-        {
-          if (element is Arc)
-          {
-            elementTemplate[i] = new ArcTemplate(
-              (element as Arc).x,
-              (element as Arc).y,
-              (element as Arc).w,
-              (element as Arc).h,
-              (element as Arc).a,
-              (element as Arc).s);
-          }
-          if (element is Line)
-          {
-            Line line = element as Line;
-            float x1, y1, x2, y2;
-
-            if (mirrorX)
-              x1 = 100.0F - line.x1;
-            else
-              x1 = line.x1;
-
-            if (mirrorY)
-              y1 = 100.0F - line.y1;
-            else
-              y1 = line.y1;
-
-            if (mirrorX)
-              x2 = 100.0F - line.x2;
-            else
-              x2 = line.x2;
-
-            if (mirrorY)
-              y2 = 100.0F - line.y2;
-            else
-              y2 = line.y2;
-
-            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
-          }
-          if (element is Bezier)
-          {
-            Bezier bezier = element as Bezier;
-            float x1, y1, x2, y2, x3, y3, x4, y4;
-
-            if (mirrorX)
-              x1 = 100.0F - bezier.x1;
-            else
-              x1 = bezier.x1;
-
-            if (mirrorY)
-              y1 = 100.0F - bezier.y1;
-            else
-              y1 = bezier.y1;
-
-            if (mirrorX)
-              x2 = 100.0F - bezier.x2;
-            else
-              x2 = bezier.x2;
-
-            if (mirrorY)
-              y2 = 100.0F - bezier.y2;
-            else
-              y2 = bezier.y2;
-
-            if (mirrorX)
-              x3 = 100.0F - bezier.x3;
-            else
-              x3 = bezier.x3;
-
-            if (mirrorY)
-              y3 = 100.0F - bezier.y3;
-            else
-              y3 = bezier.y3;
-
-            if (mirrorX)
-              x4 = 100.0F - bezier.x4;
-            else
-              x4 = bezier.x4;
-
-            if (mirrorY)
-              y4 = 100.0F - bezier.y4;
-            else
-              y4 = bezier.y4;
-
-            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
-          }
-          i++;
-        }
+        if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, mirrorX, mirrorY);
+        if (element is Line) elementTemplate[i] = MirroredLine(element as Line, mirrorX, mirrorY);
+        if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, mirrorX, mirrorY);
+        i++;
       }
 
       ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+      i = 0;
+      foreach (Element decoration in stencil.decorations)
       {
-        int i = 0;
-        foreach (Element decoration in stencil.decorations)
-        {
-          if (decoration is Arc)
-          {
-            decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
-              (decoration as Arc).y,
-              (decoration as Arc).w,
-              (decoration as Arc).h,
-              (decoration as Arc).a,
-              (decoration as Arc).s);
-          }
-          if (decoration is Line)
-          {
-            decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
-              (decoration as Line).y1,
-              (decoration as Line).x2,
-              (decoration as Line).y2);
-          }
-          if (decoration is Bezier)
-          {
-            decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
-              (decoration as Bezier).y1,
-              (decoration as Bezier).x2,
-              (decoration as Bezier).y2,
-              (decoration as Bezier).x3,
-              (decoration as Bezier).y3,
-              (decoration as Bezier).x4,
-              (decoration as Bezier).y4);
-          }
-          i++;
-        }
+        if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, mirrorX, mirrorY);
+        if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, mirrorX, mirrorY);
+        if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, mirrorX, mirrorY);
+        i++;
       }
 
       return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
@@ -974,136 +857,82 @@ namespace SysCAD.Editor
 
     public ShapeTemplate GetShapeTemplate(GraphicStencil stencil, bool mirrorX, bool mirrorY)
     {
+      int i;
+
       ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+      i = 0;
+      foreach (Element element in stencil.elements)
       {
-        int i = 0;
-        foreach (Element element in stencil.elements)
-        {
-          if (element is Arc)
-          {
-            elementTemplate[i] = new ArcTemplate(
-              (element as Arc).x,
-              (element as Arc).y,
-              (element as Arc).w,
-              (element as Arc).h,
-              (element as Arc).a,
-              (element as Arc).s);
-          }
-          if (element is Line)
-          {
-            Line line = element as Line;
-            float x1, y1, x2, y2;
-
-            if (mirrorX)
-              x1 = 100.0F - line.x1;
-            else
-              x1 = line.x1;
-
-            if (mirrorY)
-              y1 = 100.0F - line.y1;
-            else
-              y1 = line.y1;
-
-            if (mirrorX)
-              x2 = 100.0F - line.x2;
-            else
-              x2 = line.x2;
-
-            if (mirrorY)
-              y2 = 100.0F - line.y2;
-            else
-              y2 = line.y2;
-
-            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
-          }
-          if (element is Bezier)
-          {
-            Bezier bezier = element as Bezier;
-            float x1, y1, x2, y2, x3, y3, x4, y4;
-
-            if (mirrorX)
-              x1 = 100.0F - bezier.x1;
-            else
-              x1 = bezier.x1;
-
-            if (mirrorY)
-              y1 = 100.0F - bezier.y1;
-            else
-              y1 = bezier.y1;
-
-            if (mirrorX)
-              x2 = 100.0F - bezier.x2;
-            else
-              x2 = bezier.x2;
-
-            if (mirrorY)
-              y2 = 100.0F - bezier.y2;
-            else
-              y2 = bezier.y2;
-
-            if (mirrorX)
-              x3 = 100.0F - bezier.x3;
-            else
-              x3 = bezier.x3;
-
-            if (mirrorY)
-              y3 = 100.0F - bezier.y3;
-            else
-              y3 = bezier.y3;
-
-            if (mirrorX)
-              x4 = 100.0F - bezier.x4;
-            else
-              x4 = bezier.x4;
-
-            if (mirrorY)
-              y4 = 100.0F - bezier.y4;
-            else
-              y4 = bezier.y4;
-
-            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
-          }
-          i++;
-        }
+        if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, mirrorX, mirrorY);
+        if (element is Line) elementTemplate[i] = MirroredLine(element as Line, mirrorX, mirrorY);
+        if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, mirrorX, mirrorY);
+        i++;
       }
 
       ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+      i = 0;
+      foreach (Element decoration in stencil.decorations)
       {
-        int i = 0;
-        foreach (Element decoration in stencil.decorations)
-        {
-          if (decoration is Arc)
-          {
-            decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
-              (decoration as Arc).y,
-              (decoration as Arc).w,
-              (decoration as Arc).h,
-              (decoration as Arc).a,
-              (decoration as Arc).s);
-          }
-          if (decoration is Line)
-          {
-            decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
-              (decoration as Line).y1,
-              (decoration as Line).x2,
-              (decoration as Line).y2);
-          }
-          if (decoration is Bezier)
-          {
-            decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
-              (decoration as Bezier).y1,
-              (decoration as Bezier).x2,
-              (decoration as Bezier).y2,
-              (decoration as Bezier).x3,
-              (decoration as Bezier).y3,
-              (decoration as Bezier).x4,
-              (decoration as Bezier).y4);
-          }
-          i++;
-        }
+        if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, mirrorX, mirrorY);
+        if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, mirrorX, mirrorY);
+        if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, mirrorX, mirrorY);
+        i++;
       }
 
       return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+    }
+
+    public ShapeTemplate GetShapeTemplate(GraphicThing thing)
+    {
+      int i;
+
+      ElementTemplate[] elementTemplate = null;
+      ElementTemplate[] decorationTemplate = null;
+      ElementTemplate[] textAreaTemplate = null;
+      
+      if (thing != null)
+      {
+        if (thing.elements != null)
+        {
+          elementTemplate = new ElementTemplate[thing.elements.Count];
+          i = 0;
+          foreach (Element element in thing.elements)
+          {
+            if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, thing.MirrorX, thing.MirrorY);
+            if (element is Line) elementTemplate[i] = MirroredLine(element as Line, thing.MirrorX, thing.MirrorY);
+            if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, thing.MirrorX, thing.MirrorY);
+            i++;
+          }
+        }
+
+        if (thing.decorations != null)
+        {
+          decorationTemplate = new ElementTemplate[thing.decorations.Count];
+          i = 0;
+          foreach (Element decoration in thing.decorations)
+          {
+            if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, thing.MirrorX, thing.MirrorY);
+            if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, thing.MirrorX, thing.MirrorY);
+            if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, thing.MirrorX, thing.MirrorY);
+            i++;
+          }
+        }
+
+        if (thing.textArea != null)
+        {
+          textAreaTemplate = new ElementTemplate[thing.textArea.Count];
+          i = 0;
+          foreach (Element textArea in thing.textArea)
+          {
+            if (textArea is Arc) textAreaTemplate[i] = MirroredArc(textArea as Arc, thing.MirrorX, thing.MirrorY);
+            if (textArea is Line) textAreaTemplate[i] = MirroredLine(textArea as Line, thing.MirrorX, thing.MirrorY);
+            if (textArea is Bezier) textAreaTemplate[i] = MirroredBezier(textArea as Bezier, thing.MirrorX, thing.MirrorY);
+            i++;
+          }
+        }
+      }
+
+      return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, thing.fillMode, thing.Tag));
     }
 
   }

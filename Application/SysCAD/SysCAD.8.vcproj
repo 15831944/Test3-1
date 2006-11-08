@@ -2574,7 +2574,7 @@
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
-						DebugInformationFormat="0"
+						DebugInformationFormat="3"
 						CompileAsManaged="1"
 					/>
 				</FileConfiguration>

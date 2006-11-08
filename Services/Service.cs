@@ -41,6 +41,24 @@ namespace SysCAD.Service
       return true;
     }
 
+    private static bool CreateThing(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      graphic.DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return true;
+    }
+
+    private static bool ModifyThing(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      graphic.DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return true;
+    }
+
+    private static bool DeleteThing(ServiceGraphic graphic, uint requestID, Guid guid)
+    {
+      graphic.DoThingDeleted(requestID, guid);
+      return true;
+    }
+
     private static bool CreateLink(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       graphic.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
@@ -190,7 +208,7 @@ namespace SysCAD.Service
         
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink, PortCheck);
+        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink, CreateThing, ModifyThing, DeleteThing, PortCheck);
         graphic.name = filename;
 
         {

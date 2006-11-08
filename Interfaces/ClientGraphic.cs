@@ -36,6 +36,10 @@ namespace SysCAD.Interface
         serviceGraphic.LinkCreated -= new ServiceGraphic.LinkCreatedHandler(serviceGraphic_LinkCreated);
         serviceGraphic.LinkModified -= new ServiceGraphic.LinkModifiedHandler(serviceGraphic_LinkModified);
         serviceGraphic.LinkDeleted -= new ServiceGraphic.LinkDeletedHandler(serviceGraphic_LinkDeleted);
+
+        serviceGraphic.ThingCreated -= new ServiceGraphic.ThingCreatedHandler(serviceGraphic_ThingCreated);
+        serviceGraphic.ThingModified -= new ServiceGraphic.ThingModifiedHandler(serviceGraphic_ThingModified);
+        serviceGraphic.ThingDeleted -= new ServiceGraphic.ThingDeletedHandler(serviceGraphic_ThingDeleted);
       }
     }
 
@@ -56,8 +60,7 @@ namespace SysCAD.Interface
       return serviceGraphic.DeleteItem(out requestID, guid);
     }
 
-
-
+    
     public bool ModifyLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       return serviceGraphic.ModifyLink(out requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
@@ -71,6 +74,22 @@ namespace SysCAD.Interface
     public bool DeleteLink(out uint requestID, Guid guid)
     {
       return serviceGraphic.DeleteLink(out requestID, guid);
+    }
+
+
+    public bool ModifyThing(out uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      return serviceGraphic.ModifyThing(out requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    public bool CreateThing(out uint requestID, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      return serviceGraphic.CreateThing(out requestID, out guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    public bool DeleteThing(out uint requestID, Guid guid)
+    {
+      return serviceGraphic.DeleteThing(out requestID, guid);
     }
 
 
@@ -122,6 +141,11 @@ namespace SysCAD.Interface
       bf.Serialize(memoryStream, serviceGraphic.graphicItems);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
+
+      memoryStream = new MemoryStream();
+      bf.Serialize(memoryStream, serviceGraphic.graphicThings);
+      memoryStream.Seek(0, SeekOrigin.Begin);
+      graphicThings = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicThing>;
     }
 
 
@@ -225,6 +249,53 @@ namespace SysCAD.Interface
         graphicLinks.Remove(guid);
 
         OnLinkDeleted(eventID, requestID, guid);
+      }
+    }
+
+
+
+    public void serviceGraphic_ThingCreated(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      if (!graphicThings.ContainsKey(guid))
+      {
+        GraphicThing graphicThing = new GraphicThing(guid, tag);
+        graphicThing.Path = path;
+        graphicThing.BoundingRect = boundingRect;
+        graphicThing.Angle = angle;
+        graphicThing.FillColor = fillColor;
+        graphicThing.MirrorX = mirrorX;
+        graphicThing.MirrorY = mirrorY;
+
+        graphicThings.Add(guid, graphicThing);
+
+        OnThingCreated(eventID, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      }
+    }
+
+    public void serviceGraphic_ThingModified(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      GraphicThing graphicThing;
+      if (graphicThings.TryGetValue(guid, out graphicThing))
+      {
+        graphicThing.Tag = tag;
+        graphicThing.Path = path;
+        graphicThing.BoundingRect = boundingRect;
+        graphicThing.Angle = angle;
+        graphicThing.FillColor = fillColor;
+        graphicThing.MirrorX = mirrorX;
+        graphicThing.MirrorY = mirrorY;
+
+        OnThingModified(eventID, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      }
+    }
+
+    public void serviceGraphic_ThingDeleted(uint eventID, uint requestID, Guid guid)
+    {
+      if (graphicThings.ContainsKey(guid))
+      {
+        graphicThings.Remove(guid);
+
+        OnThingDeleted(eventID, requestID, guid);
       }
     }
   }

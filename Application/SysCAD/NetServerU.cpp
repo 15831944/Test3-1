@@ -78,7 +78,6 @@ CNSGrfLink::~CNSGrfLink()
 
 CNSGrfThing::CNSGrfThing() 
   {
-  m_pMdl      = NULL;
   m_Left = 0.0;
   m_Top = 0.0;
   m_Width = 0.0;
@@ -86,9 +85,10 @@ CNSGrfThing::CNSGrfThing()
   m_Rotation  = 0;
   };
 
-CNSGrfThing::CNSGrfThing(LPCTSTR Page, CNSMdlThing * pMdl, CGrfTagInfo & Info) : \
-CNSGrfItem(Page),
-m_pMdl(pMdl)
+CNSGrfThing::CNSGrfThing(LPCTSTR Tag, LPCTSTR Guid, LPCTSTR Page, CGrfTagInfo & Info) : \
+      m_Tag(Tag),
+      m_Guid(Guid),
+      CNSGrfItem(Page)
   {
   m_Left = (float)Info.m_LoBnd.m_X;
   m_Top = -(float)Info.m_HiBnd.m_Y;
@@ -132,18 +132,6 @@ CNSGuidItem(Tag, Guid, ClassID)
   };
 
 CNSMdlLink::~CNSMdlLink() { };
-
-
-CNSMdlThing::CNSMdlThing(LPCTSTR Tag, LPCTSTR Guid, LPCTSTR ClassID) : \
-CNSGuidItem(Tag, Guid, ClassID)
-  { 
-  //m_IsMdl   = true;
-  m_pNd   = NULL;
-  //m_Guid  = "{00000000-0000-0000-0000-000000000000}";
-  //m_pGrfs   = NULL;
-  };
-
-CNSMdlThing::~CNSMdlThing()   {};
 
 
 //========================================================================
@@ -278,10 +266,8 @@ void CNETServerU::LoadItems()
               else
               {
                 DoneOne = true;
-                CNSMdlThing * pMdl=new CNSMdlThing(I.m_sTag(), Guid(), I.m_sClass());
-                CNSGrfThing * pGrf=new CNSGrfThing(Page(), pMdl, I);
-                pMdl->m_pGrfs.Add(pGrf);
-                m_Guids.AddTail(pMdl);
+                CNSGrfThing * pGrf=new CNSGrfThing(I.m_sTag(), Guid(), Page(), I);
+                m_Things.AddTail(pGrf);
               }
             }
           }

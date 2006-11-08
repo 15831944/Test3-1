@@ -21,11 +21,13 @@ namespace SysCAD.Interface
 
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicItem> graphicItems;
+    public Dictionary<Guid, GraphicThing> graphicThings;
 
     public BaseGraphic()
     {
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicItems = new Dictionary<Guid, GraphicItem>();
+      graphicThings = new Dictionary<Guid, GraphicThing>();
     }
 
     ~BaseGraphic()
@@ -49,6 +51,11 @@ namespace SysCAD.Interface
     public delegate void LinkDeletedHandler(uint eventID, uint requestID, Guid guid);
 
 
+    public delegate void ThingCreatedHandler(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ThingModifiedHandler(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ThingDeletedHandler(uint eventID, uint requestID, Guid guid);
+
+
     public ItemCreatedHandler ItemCreated;
     public ItemModifiedHandler ItemModified;
     public ItemDeletedHandler ItemDeleted;
@@ -57,6 +64,11 @@ namespace SysCAD.Interface
     public LinkCreatedHandler LinkCreated;
     public LinkModifiedHandler LinkModified;
     public LinkDeletedHandler LinkDeleted;
+
+
+    public ThingCreatedHandler ThingCreated;
+    public ThingModifiedHandler ThingModified;
+    public ThingDeletedHandler ThingDeleted;
 
 
     public void OnItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -96,6 +108,26 @@ namespace SysCAD.Interface
       if (LinkDeleted != null)
         LinkDeleted(eventID, requestID, guid);
     }
+
+
+    public void OnThingCreated(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      if (ThingCreated != null)
+        ThingCreated(eventID, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    public void OnThingModified(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      if (ThingModified != null)
+        ThingModified(eventID, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
+    public void OnThingDeleted(uint eventID, uint requestID, Guid guid)
+    {
+      if (ThingDeleted != null)
+        ThingDeleted(eventID, requestID, guid);
+    }
+
 
     public override Object InitializeLifetimeService()
     {

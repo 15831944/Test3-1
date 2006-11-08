@@ -12,7 +12,6 @@ class CGrfTagInfo;
 class CLinePointsArray;
 class CNSMdlNode;
 class CNSMdlLink;
-class CNSMdlThing;
 class FlwNode;
 
 //========================================================================
@@ -82,10 +81,13 @@ class CNSGrfThing  : public CNSGrfItem
   {
   public:
     CNSGrfThing();
-    CNSGrfThing(LPCTSTR Page, CNSMdlThing * pMdl, CGrfTagInfo & Info);
+    CNSGrfThing(LPCTSTR Tag, LPCTSTR Guid, LPCTSTR Page, CGrfTagInfo & Info);
     ~CNSGrfThing();
 
   public:
+
+  CString           m_Tag;
+  CString           m_Guid;
 
 	float			  m_Left;
 	float			  m_Top;
@@ -93,8 +95,6 @@ class CNSGrfThing  : public CNSGrfItem
 	float			  m_Height;
 
     float             m_Rotation;
-
-    CNSMdlThing      * m_pMdl;
   };
 
 //========================================================================
@@ -155,21 +155,6 @@ class CNSMdlLink  : public CNSGuidItem
     //FlwNode * m_pNd;
   };
 
-class CNSMdlThing : public CNSGuidItem
-  {
-  public:
-
-    CNSMdlThing(LPCTSTR Tag, LPCTSTR Guid, LPCTSTR ClassID);
-    virtual ~CNSMdlThing();
-
-    FlwNode         * m_pNd; // eventually use this for direct access 
-
-    CArray <CNSGrfThing*, CNSGrfThing*> m_pGrfs; 
-
-    //
-
-  };
-
 //========================================================================
 
 class CNETServerU
@@ -190,6 +175,7 @@ class CNETServerU
     CString   m_PrjName;
 
     CList <CNSGuidItem*, CNSGuidItem*> m_Guids;
+    CList <CNSGrfThing*, CNSGrfThing*> m_Things;
     CMap  <CNSGuidItem*, CNSGuidItem*, LPCTSTR*, LPCTSTR*> m_TagMap;
     CMap  <CNSGuidItem*, CNSGuidItem*, LPCTSTR*, LPCTSTR*> m_GuidMap;
 

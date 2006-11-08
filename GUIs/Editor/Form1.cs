@@ -193,6 +193,7 @@ namespace SysCAD.Editor
 
     public Dictionary<string, GraphicLink> cbGraphicLinks;
     public Dictionary<string, GraphicItem> cbGraphicItems;
+    public Dictionary<string, GraphicThing> cbGraphicThings;
 
     #region clipboard support
 
@@ -274,6 +275,14 @@ namespace SysCAD.Editor
 
               frmFlowChart.NewGraphicLink(newGraphicLink, dx, dy);
             }
+
+            foreach (GraphicThing graphicThing in pasteData.graphicThings.Values)
+            {
+              graphicThing.X += dx;
+              graphicThing.Y += dy;
+              frmFlowChart.NewGraphicThing(graphicThing, tvNavigation.SelectedNode.FullPath);
+            }
+            
             //// that returns the active composite if somebody has already created one
             //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
 
@@ -311,10 +320,7 @@ namespace SysCAD.Editor
         if (graphicItem != null)
         {
           GraphicItem copyGraphicItem = new GraphicItem(box.Text);
-          copyGraphicItem.X = graphicItem.X;
-          copyGraphicItem.Y = graphicItem.Y;
-          copyGraphicItem.Width = graphicItem.Width;
-          copyGraphicItem.Height = graphicItem.Height;
+          copyGraphicItem.BoundingRect = graphicItem.BoundingRect;
           copyGraphicItem.Angle = graphicItem.Angle;
           copyGraphicItem.Model = graphicItem.Model;
           copyGraphicItem.Shape = graphicItem.Shape;
@@ -324,6 +330,20 @@ namespace SysCAD.Editor
 
           copyGraphic.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
         }
+
+        GraphicThing graphicThing = frmFlowChart.state.GraphicThing(box);
+        if (graphicThing != null)
+        {
+          GraphicThing copyGraphicThing = new GraphicThing(graphicThing.Tag);
+          copyGraphicThing.BoundingRect = graphicThing.BoundingRect;
+          copyGraphicThing.Angle = graphicThing.Angle;
+          copyGraphicThing.MirrorX = graphicThing.MirrorX;
+          copyGraphicThing.MirrorY = graphicThing.MirrorY;
+          copyGraphicThing.FillColor = graphicThing.FillColor;
+
+          copyGraphic.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
+        }
+
       }
 
       foreach (Arrow arrow in doc.Selection.Arrows)
@@ -595,6 +615,23 @@ namespace SysCAD.Editor
           tvNavigation.AddNodeByPath(pathTag, guidString);
       }
 
+      foreach (GraphicThing graphicThing in frmFlowChart.state.GraphicThings)
+      {
+        string path = graphicThing.Path;
+        string tag = graphicThing.Tag;
+        string pathTag = graphicThing.Path + graphicThing.Tag;
+
+        Guid guid = graphicThing.Guid;
+        string guidString = graphicThing.Guid.ToString();
+
+        PureComponents.TreeView.Node node =
+          tvNavigation.AddNodeByPath(pathTag, guidString);
+
+        node.NodeStyle = new PureComponents.TreeView.NodeStyle();
+        node.NodeStyle.SelectedForeColor = Color.Green;
+        node.NodeStyle.ForeColor = Color.Green;
+      }
+
       foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
       {
         node.Select();
@@ -622,6 +659,8 @@ namespace SysCAD.Editor
         {
           if (node.Key == null) // not an item.
             SelectSubNodes(node);
+          else
+            frmFlowChart.state.ItemVisible(new Guid(node.Key), node.IsSelected);
         }
 
         wasSelectedNodes.Clear();

@@ -56,7 +56,10 @@ namespace SysCAD.Editor
         new ClientGraphic.ItemDeletedHandler(fcFlowChart_ItemDeleted),
         new ClientGraphic.LinkCreatedHandler(fcFlowChart_LinkCreated),
         new ClientGraphic.LinkModifiedHandler(fcFlowChart_LinkModified),
-        new ClientGraphic.LinkDeletedHandler(fcFlowChart_LinkDeleted));
+        new ClientGraphic.LinkDeletedHandler(fcFlowChart_LinkDeleted),
+        new ClientGraphic.ThingCreatedHandler(fcFlowChart_ThingCreated),
+        new ClientGraphic.ThingModifiedHandler(fcFlowChart_ThingModified),
+        new ClientGraphic.ThingDeletedHandler(fcFlowChart_ThingDeleted));
     }
 
     internal void SetProject(ClientGraphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
@@ -71,7 +74,10 @@ namespace SysCAD.Editor
         new ClientGraphic.ItemDeletedHandler(fcFlowChart_ItemDeleted),
         new ClientGraphic.LinkCreatedHandler(fcFlowChart_LinkCreated),
         new ClientGraphic.LinkModifiedHandler(fcFlowChart_LinkModified),
-        new ClientGraphic.LinkDeletedHandler(fcFlowChart_LinkDeleted));
+        new ClientGraphic.LinkDeletedHandler(fcFlowChart_LinkDeleted),
+        new ClientGraphic.ThingCreatedHandler(fcFlowChart_ThingCreated), 
+        new ClientGraphic.ThingModifiedHandler(fcFlowChart_ThingModified),
+        new ClientGraphic.ThingDeletedHandler(fcFlowChart_ThingDeleted));
 
       fcFlowChart.UndoManager.UndoEnabled = false;
       fcFlowChart.UseWaitCursor = true;
@@ -87,6 +93,11 @@ namespace SysCAD.Editor
       foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
       {
         state.CreateLink(graphicLink, false, fcFlowChart);
+      }
+
+      foreach (GraphicThing graphicThing in graphic.graphicThings.Values)
+      {
+        state.CreateThing(graphicThing, false, fcFlowChart);
       }
 
       fcFlowChart.UndoManager.UndoEnabled = true;
@@ -343,9 +354,9 @@ namespace SysCAD.Editor
         if (graphicLink.Origin != null) originItem = state.Item(graphicLink.Origin);
         if (graphicLink.Destination != null) destinationItem = state.Item(graphicLink.Destination);
 
-        if (origin != null)
+        if (originItem != null)
           arrow.Origin = originItem.Model;
-        if (destination != null)
+        if (destinationItem != null)
           arrow.Destination = destinationItem.Model;
 
         if ((graphicLink.OriginPort != null) && ((originItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
@@ -358,9 +369,14 @@ namespace SysCAD.Editor
         else
           arrow.DestAnchor = -1;
 
+        String toolTipOriginPort = graphicLink.OriginPort;
+        String toolTipDestinationPort = graphicLink.DestinationPort;
+        if (toolTipOriginPort == null) toolTipOriginPort = "*";
+        if (toolTipDestinationPort == null) toolTipDestinationPort = "*";
+
         arrow.ToolTip = "Tag:" + graphicLink.Tag +
-          "\nSrc: " + originItem.Tag + ":" + graphicLink.OriginPort +
-          "\nDst: " + destinationItem.Tag + ":" + graphicLink.DestinationPort;
+          "\nSrc: " + originItem.Tag + ":" + toolTipOriginPort +
+          "\nDst: " + destinationItem.Tag + ":" + toolTipDestinationPort;
         arrow.ArrowHead = ArrowHead.Triangle;
         arrow.Style = ArrowStyle.Cascading;
 
@@ -374,6 +390,28 @@ namespace SysCAD.Editor
     private void fcFlowChart_LinkDeleted(uint eventID, uint requestID, Guid guid)
     {
       // TBD
+    }
+
+    private void fcFlowChart_ThingCreated(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      state.AddNode(path, tag, guid);
+      state.CreateThing(state.GraphicThing(guid), true, fcFlowChart);
+    }
+
+    private void fcFlowChart_ThingModified(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      Thing thing = state.Thing(guid);
+      if (thing != null)
+      {
+        thing.Box.BoundingRect = boundingRect;
+        thing.Box.RotationAngle = angle;
+        thing.Box.FillColor = fillColor;
+      }
+    }
+
+    private void fcFlowChart_ThingDeleted(uint eventID, uint requestID, Guid guid)
+    {
+      state.DeleteThing(guid);
     }
 
     internal bool mergePoints(PointF point1, PointF point2)
@@ -684,9 +722,8 @@ namespace SysCAD.Editor
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
 
       hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
-      if (hoverBox != null)
+      if ((hoverBox != null)&&(hoverBox.Tag is Item))
         hoverBox = (hoverBox.Tag as Item).Model;
-
 
       if (e.Button == MouseButtons.Left)
       {
@@ -721,7 +758,7 @@ namespace SysCAD.Editor
       }
 
 
-      if (hoverBox != null)
+      if ((hoverBox != null)&&(hoverBox.Tag is Item))
       {
         Item hoverItem = hoverBox.Tag as Item;
         hoverItem.Graphic.Visible = hoverItem.Visible;
@@ -776,26 +813,33 @@ namespace SysCAD.Editor
       {
         if (oldHoverBox != hoverBox) // we've moved on, un-hover the old one.
         {
-          Item oldHoverItem = oldHoverBox.Tag as Item;
-          oldHoverItem.Graphic.Visible = oldHoverItem.Visible && state.ShowGraphics;
-          oldHoverItem.Model.Visible = oldHoverItem.Visible && (oldHoverItem.Model.Selected || state.ShowModels);
-          oldHoverItem.Model.CustomDraw = CustomDraw.None;
-          oldHoverItem.Model.ZIndex = oldHoverItem.Graphic.ZIndex + 1;
-          oldHoverItem.Text.Visible = oldHoverItem.Visible && state.ShowTags;
-          oldHoverItem.Text.ZIndex = oldHoverItem.Model.ZIndex + 1;
-
-          foreach (Arrow arrow in oldHoverItem.IncomingArrows)
+          if (oldHoverBox.Tag is Item)
           {
-            arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
-            arrow.CustomDraw = CustomDraw.None;
-            arrow.ZIndex = oldHoverItem.Text.ZIndex + 1;
+            Item oldHoverItem = oldHoverBox.Tag as Item;
+            oldHoverItem.Graphic.Visible = oldHoverItem.Visible && state.ShowGraphics;
+            oldHoverItem.Model.Visible = oldHoverItem.Visible && (oldHoverItem.Model.Selected || state.ShowModels);
+            oldHoverItem.Model.CustomDraw = CustomDraw.None;
+            oldHoverItem.Model.ZIndex = oldHoverItem.Graphic.ZIndex + 1;
+            oldHoverItem.Text.Visible = oldHoverItem.Visible && state.ShowTags;
+            oldHoverItem.Text.ZIndex = oldHoverItem.Model.ZIndex + 1;
+
+            foreach (Arrow arrow in oldHoverItem.IncomingArrows)
+            {
+              arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
+              arrow.CustomDraw = CustomDraw.None;
+              arrow.ZIndex = oldHoverItem.Text.ZIndex + 1;
+            }
+
+            foreach (Arrow arrow in oldHoverItem.OutgoingArrows)
+            {
+              arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
+              arrow.CustomDraw = CustomDraw.None;
+              arrow.ZIndex = oldHoverItem.Text.ZIndex + 1;
+            }
           }
-
-          foreach (Arrow arrow in oldHoverItem.OutgoingArrows)
+          else if (oldHoverBox.Tag is Thing)
           {
-            arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
-            arrow.CustomDraw = CustomDraw.None;
-            arrow.ZIndex = oldHoverItem.Text.ZIndex + 1;
+            // Unhover the old thing.
           }
         }
       }
@@ -1172,30 +1216,57 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
-      GraphicItem graphicItem = state.GraphicItem((e.Box.Tag as Item).Guid);
-      Box modelBox = (e.Box.Tag as Item).Model;
+      if (e.Box.Tag is Item)
+      {
+        GraphicItem graphicItem = state.GraphicItem((e.Box.Tag as Item).Guid);
+        Box modelBox = (e.Box.Tag as Item).Model;
 
-      uint requestID;
-      if (!state.ModifyGraphicItem(out requestID,
-        graphicItem.Guid,
-        graphicItem.Tag,
-        graphicItem.Path,
-        graphicItem.Model,
-        graphicItem.Shape,
-        modelBox.BoundingRect, // this is the new boundingbox from the user move.
-        modelBox.RotationAngle, // this is the new rotationangle from the user move.
-        graphicItem.FillColor,
-        graphicItem.MirrorX,
-        graphicItem.MirrorY))
-      { // failure, revert back to previous.
-        modelBox.BoundingRect = graphicItem.BoundingRect;
-        modelBox.RotationAngle = graphicItem.Angle;
+        uint requestID;
+        if (!state.ModifyGraphicItem(out requestID,
+          graphicItem.Guid,
+          graphicItem.Tag,
+          graphicItem.Path,
+          graphicItem.Model,
+          graphicItem.Shape,
+          modelBox.BoundingRect, // this is the new boundingbox from the user move.
+          modelBox.RotationAngle, // this is the new rotationangle from the user move.
+          graphicItem.FillColor,
+          graphicItem.MirrorX,
+          graphicItem.MirrorY))
+        { // failure, revert back to previous.
+          modelBox.BoundingRect = graphicItem.BoundingRect;
+          modelBox.RotationAngle = graphicItem.Angle;
+        }
+      }
+      else if (e.Box.Tag is Thing)
+      {
+        GraphicThing graphicThing = state.GraphicThing((e.Box.Tag as Thing).Guid);
+        Box box = (e.Box.Tag as Thing).Box;
+
+        uint requestID;
+        if (!state.ModifyGraphicThing(out requestID,
+            graphicThing.Guid,
+            graphicThing.Tag,
+            graphicThing.Path,
+            graphicThing.BoundingRect,
+            graphicThing.Angle,
+            graphicThing.FillColor,
+            graphicThing.elements,
+            graphicThing.decorations,
+            graphicThing.textArea,
+            graphicThing.fillMode,
+            graphicThing.MirrorX,
+            graphicThing.MirrorY))
+        {
+          box.BoundingRect = graphicThing.BoundingRect;
+          box.RotationAngle = graphicThing.Angle;
+        }
       }
 
       form1.propertyGrid1.Refresh();
-      
+
       ContextMenu propertyGridMenu = form1.propertyGrid1.ContextMenu;
-      
+
       if (propertyGridMenu == null)
         propertyGridMenu = new ContextMenu();
 
@@ -1205,9 +1276,12 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_BoxModifying(object sender, BoxConfirmArgs e)
     {
-      Box graphicBox = (e.Box.Tag as Item).Graphic;
-      //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
-      graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
+      if (e.Box.Tag is Item)
+      {
+        Box graphicBox = (e.Box.Tag as Item).Graphic;
+        //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
+        graphicBox.RotationAngle = (e.Box.Tag as Item).Model.RotationAngle;
+      }
     }
 
     public void NewGraphicItem(GraphicItem graphicItem, string path)
@@ -1245,6 +1319,22 @@ namespace SysCAD.Editor
       return newGraphicLink;
     }
 
+    public void NewGraphicThing(GraphicThing graphicThing, string path)
+    {
+      NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Angle, graphicThing.FillColor, graphicThing.MirrorX, graphicThing.MirrorY);
+    }
+
+    public void NewGraphicThing(String path, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
+    {
+      uint requestID;
+      Guid guid;
+
+      while (state.Exists("N_" + tempBoxKey.ToString()))
+        tempBoxKey++;
+
+      state.CreateGraphicThing(out requestID, out guid, "N_" + tempBoxKey.ToString(), path,boundingRect, angle, fillColor, mirrorX, mirrorY);
+    }
+
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       MouseEventArgs me = e as MouseEventArgs;
@@ -1280,8 +1370,20 @@ namespace SysCAD.Editor
         ContextMenu theMenu = new ContextMenu();
         if (hoverBox != null)
         {
-          theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
-          form1.Mode_Modify();
+          if (hoverBox.Tag is Item)
+          {
+            theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
+            theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseItemToTop));
+            theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendItemToBottom));
+            form1.Mode_Modify();
+          }
+          else if (hoverBox.Tag is Thing)
+          {
+            theMenu.MenuItems.Add("Edit Thing", new EventHandler(EditThing));
+            theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseThingToTop));
+            theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendThingToBottom));
+            form1.Mode_Modify();
+          }
         }
         else if (hoverArrow != null)
         {
@@ -1313,13 +1415,51 @@ namespace SysCAD.Editor
         RouteLink(arrow);
       }
 
-
       foreach (Arrow arrow in outgoingArrows)
       {
         RouteLink(arrow);
       }
     }
 
+    private void EditThing(object sender, EventArgs e)
+    {
+      Thing thing = (hoverBox.Tag as Thing);
+      GraphicThing graphicThing = thing.GraphicThing;
+
+      ThingEditor.Form1 thingEditor = new ThingEditor.Form1(graphicThing);
+      thingEditor.ShowDialog();
+      graphicThing = thingEditor.graphicThing;
+
+      uint requestID;
+      if (state.ModifyGraphicThing(out requestID,
+        graphicThing.Guid,
+        graphicThing.Tag,
+        graphicThing.Path,
+        graphicThing.BoundingRect,
+        graphicThing.Angle,
+        graphicThing.FillColor,
+        graphicThing.elements,
+        graphicThing.decorations,
+        graphicThing.textArea,
+        graphicThing.fillMode,
+        graphicThing.MirrorX,
+        graphicThing.MirrorY))
+      {
+        hoverBox.Shape = state.GetShapeTemplate(graphicThing);
+      }
+      
+
+      form1.propertyGrid1.Refresh();
+
+      ContextMenu propertyGridMenu = form1.propertyGrid1.ContextMenu;
+
+      if (propertyGridMenu == null)
+        propertyGridMenu = new ContextMenu();
+
+      propertyGridMenu.MenuItems.Add("Test");
+      form1.propertyGrid1.ContextMenu = propertyGridMenu;
+    }
+      
     private void RouteLink(object sender, EventArgs e)
     {
       RouteLink(hoverArrow);
@@ -1375,6 +1515,28 @@ namespace SysCAD.Editor
       }
 
       fcFlowChart.Invalidate();
+    }
+
+    private void RaiseItemToTop(object sender, EventArgs e)
+    {
+      (hoverBox.Tag as Item).Graphic.ZTop();
+      (hoverBox.Tag as Item).Model.ZTop();
+    }
+
+    private void SendItemToBottom(object sender, EventArgs e)
+    {
+      (hoverBox.Tag as Item).Graphic.ZBottom();
+      (hoverBox.Tag as Item).Model.ZBottom();
+    }
+
+    private void RaiseThingToTop(object sender, EventArgs e)
+    {
+      (hoverBox.Tag as Thing).Box.ZTop();
+    }
+
+    private void SendThingToBottom(object sender, EventArgs e)
+    {
+      (hoverBox.Tag as Thing).Box.ZBottom();
     }
 
     private void DisconnectOrigin(object sender, EventArgs e)

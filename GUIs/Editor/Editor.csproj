@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Thing.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="State.cs" />
@@ -129,6 +130,10 @@
     <ProjectReference Include="..\FlowChart.NET\Overview\Overview.csproj">
       <Project>{77CCAE13-E283-4677-B227-D39E75BA48EC}</Project>
       <Name>Overview</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ThingEditor\ThingEditor\ThingEditor.csproj">
+      <Project>{B7B9A7DC-1AD1-4B45-83FD-3EDF9B86A6CD}</Project>
+      <Name>ThingEditor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
