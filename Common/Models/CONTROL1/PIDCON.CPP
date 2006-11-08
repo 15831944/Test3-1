@@ -928,7 +928,7 @@ flag PIDControl::PreStartCheck()
 
 bool PIDControl::TestXRefListActive()
   { 
-  dbgpln("TestXRefListActive %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
+  //dbgpln("TestXRefListActive %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
   return SetXRefListActive(!GetActiveHold() && bOn!=0); 
   }
 
@@ -936,7 +936,7 @@ bool PIDControl::TestXRefListActive()
 
 int PIDControl::UpdateXRefLists(CXRefBuildResults & Results)
   {
-  dbgpln("UpdateXRefLists  %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
+  //dbgpln("UpdateXRefLists  %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
   if (1)//bOn)
     {
     FnMngrClear();

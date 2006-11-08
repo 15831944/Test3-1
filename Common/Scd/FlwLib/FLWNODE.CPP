@@ -5642,8 +5642,9 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, /*CFlange* pF, C
 
 int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, IOInfoBlk *pInfo)
   {
+  if (0)
+    dbgpln("ConnectIOTag %25s.%-15s %25s.%-15s @ %s", s->FullObjTag(), IOTag1, d->FullObjTag(), IOTag2, FullObjTag());
 
-  dbgpln("ConnectIOTag %25s.%-15s %25s.%-15s @ %s", s->FullObjTag(), IOTag1, d->FullObjTag(), IOTag2, FullObjTag());
   CStopWatch SW;
   SW.Start();
   int          Ret=0;

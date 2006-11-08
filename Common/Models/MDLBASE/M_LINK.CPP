@@ -2883,7 +2883,21 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       //dbgpln("---------------------------");
       //dbgpln("A  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
 
-      if (IOQInEst<0.0 || IOQOutEst<0.0)
+      if (IOQInEst == 0.0 && IOQOutEst == 0.0)
+        {
+        // Both Zero == Order of eval may be strange
+        Fi.QSetM(Fi, som_ALL, 0.0, PIn);
+        Fo.QSetM(Fo, som_ALL, 0.0, POut);
+        // IsoThermal;
+#if WithPoFix
+        Fo.SetTempPress(Fi.Temp(), POut);
+#else
+        Fo.SetTemp(Fi.Temp());
+#endif
+
+        m_FTB.BeginEvalProducts(Fo);
+        }
+      else if (IOQInEst<0.0 || IOQOutEst<0.0)
         {
         // Both In or Both Out
         // Adjust Input Flow if FlowOut

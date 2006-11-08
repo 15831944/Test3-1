@@ -738,21 +738,25 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
       m_dNextSaveTime=CB.m_TheTime-CurTimeInDay+SaveTimeInDay;
       }
 
-    dbgpln("DBTable::StepDone %s %14.3f %14.3f %8.3f %s",  
-      "Rewind", 
-      m_dNextSaveTime.Seconds, CB.m_TheTime.Seconds,
-      m_bPeriodOn?(m_dNextSaveTime-CB.m_TheTime).Seconds:-1, m_sName);
-
+    if (0)
+      {
+      dbgpln("CArchiveDBTable::StepDone %s %14.3f %14.3f %8.3f %s",  
+        "Rewind", 
+        m_dNextSaveTime.Seconds, CB.m_TheTime.Seconds,
+        m_bPeriodOn?(m_dNextSaveTime-CB.m_TheTime).Seconds:-1, m_sName);
+      }
 
     m_bRewindReqd=false;
     }
   else
     {
-    dbgpln("DBTable::StepDone %s %14.3f %14.3f %8.3f %s",  
-      "      ", 
-      m_dNextSaveTime.Seconds, CB.m_TheTime.Seconds,
-      m_bPeriodOn?(m_dNextSaveTime-CB.m_TheTime).Seconds:-1, m_sName);
-
+    if (0)
+      {
+      dbgpln("CArchiveDBTable::StepDone %s %14.3f %14.3f %8.3f %s",  
+        "      ", 
+        m_dNextSaveTime.Seconds, CB.m_TheTime.Seconds,
+        m_bPeriodOn?(m_dNextSaveTime-CB.m_TheTime).Seconds:-1, m_sName);
+      }
     }
 
   bool DoTriggerNote=false; // ???????????????
@@ -913,7 +917,8 @@ bool CArchiveDBTable::ReOpenTxtTable(bool Rewind)
   if (!m_bOn)
     return true;
 
-  dbgpln("DBTable::ReOpenTxtTable %s %s",  Rewind?"Rewind":"      ", m_sName);
+  if (0)
+    dbgpln("CArchiveDBTable::ReOpenTxtTable %s %s",  Rewind?"Rewind":"      ", m_sName);
 
   if (m_hFile)
     {

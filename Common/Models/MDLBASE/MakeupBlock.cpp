@@ -4,6 +4,8 @@
 #include "MakeupBlock.h"
 //#include "optoff.h"
 
+#define dbgMakeup  0
+
 //=========================================================================
 //
 //
@@ -1513,8 +1515,11 @@ class CFeedMkUpFnd : public MRootFinder
     CFeedMkUpFnd(CXBlk_MUFeed * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pSrcWrk, SpConduit * pPrd, /*double TRqd, double PRqd,*/ CToleranceBlock & Tol) : \
       m_pMU(pMU), m_pTag(pTag), m_In(*pIn), m_Src(*pSrc), m_SrcWrk(*pSrcWrk), m_Prd(*pPrd), /*m_TRqd(TRqd), m_PRqd(PRqd),*/ MRootFinder("MkUpFnd", Tol)
       { 
-      dbgpln(" FeedSetPt:%20.6f %-25s ========================================================================",
-        m_pMU->GetSetPoint(), m_pTag);
+      if (dbgMakeup)
+        {
+        dbgpln(" FeedSetPt:%20.6f %-25s ========================================================================", 
+          m_pMU->GetSetPoint(), m_pTag);
+        }
       };
     LPCTSTR ObjTag() { return m_pTag; };
     double Function(double Qm)
@@ -1522,8 +1527,11 @@ class CFeedMkUpFnd : public MRootFinder
       m_Prd.QCopy(m_In);
       m_SrcWrk.QSetM(m_Src, som_ALL, Qm);
       m_Prd.QAddF(m_SrcWrk, som_ALL, 1.0);
-      dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s", 
-        m_pMU->GetMeasVal(m_In, m_SrcWrk, m_Prd), Qm, m_In.QMass(), m_Src.QMass(), m_pTag);
+      if (dbgMakeup)
+        {
+        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s", 
+          m_pMU->GetMeasVal(m_In, m_SrcWrk, m_Prd), Qm, m_In.QMass(), m_Src.QMass(), m_pTag);
+        }
       return m_pMU->GetMeasVal(m_In, m_SrcWrk, m_Prd);
       };
 
@@ -2847,8 +2855,11 @@ class CSimpleMkUpFnd : public MRootFinder
     CSimpleMkUpFnd(CXBlk_MUSimple * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pPrd, double TRqd, double PRqd, CToleranceBlock & Tol) : \
       m_pMU(pMU), m_pTag(pTag), m_In(*pIn), m_Src(*pSrc), m_Prd(*pPrd), m_TRqd(TRqd), m_PRqd(PRqd), MRootFinder("MkUpFnd", Tol)
       { 
-      dbgpln(" CtrlSetPt:%20.6f %-25s ========================================================================",
-        m_pMU->GetSetPoint(), m_pTag);
+      if (dbgMakeup)
+        {
+        dbgpln(" CtrlSetPt:%20.6f %-25s ========================================================================",
+          m_pMU->GetSetPoint(), m_pTag);
+        }
       };
     LPCTSTR ObjTag() { return m_pTag; };
     double Function(double Qm)
@@ -2856,8 +2867,11 @@ class CSimpleMkUpFnd : public MRootFinder
       m_Prd.QCopy(m_In);
       m_Prd.QAddM(m_Src, som_ALL, Qm);
       m_Prd.SetTempPress(m_TRqd, m_PRqd);
-      dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s",
-        m_pMU->GetMeasVal(m_In, m_Prd), Qm, m_In.QMass(), m_Src.QMass(), m_pTag);
+      if (dbgMakeup)
+        {
+        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s",
+          m_pMU->GetMeasVal(m_In, m_Prd), Qm, m_In.QMass(), m_Src.QMass(), m_pTag);
+        }
       return m_pMU->GetMeasVal(m_In, m_Prd);
       };
 
