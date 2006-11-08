@@ -872,9 +872,9 @@ void MN_SrcSnk::EvalJoinPressures(long JoinMask)
 flag MN_SrcSnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if (m_Src.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Src.EvalFlowEquationsReturn();
   if (m_Snk.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Snk.EvalFlowEquationsReturn();
 
   FlwBlk *pFB = IOFB(IONo,0);
 

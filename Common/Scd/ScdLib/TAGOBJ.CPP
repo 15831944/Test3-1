@@ -4860,7 +4860,7 @@ flag DataDefnBlk::BeginBlock(byte Type, TaggedObject *Obj,
 
     if (Type==tt_Object || Type==tt_Element)
       {
-      Chk[lCallLevel].pClass=FindClass(ClassName);//Obj->Class();
+      Chk[lCallLevel].pClass=FindClass(ClassName ? ClassName : Obj->Class()->ClassName());
       Chk[lCallLevel].pTagStart=&cChkTag[Chk[lCallLevel].iTagEnd];
       ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart");
       }

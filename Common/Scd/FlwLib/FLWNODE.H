@@ -51,6 +51,7 @@
 #ifndef __POWER_H
   #include "power.h"
 #endif
+#include "dbgmngr.h"
 
 #include <typeinfo.h>
 
@@ -67,6 +68,7 @@
   #define WITH_GFB
 #endif
 #endif
+
 // =========================================================================
 
 #define KWIKCONNECT         01
@@ -77,6 +79,17 @@
 #define NDSTOPWATCHES       0 /*(1 || WITHTIMERS)*/
 
 #define dbgTrackQmModes     0
+
+#define dbgFlwNode          (1 || WITHDEBUG)
+
+#if dbgFlwNode
+extern CDbgMngr dbgTopologyChg;
+#define DBGTOPOCHG(a) if (dbgTopologyChg()) dbgpln("Topo Change : %s",a);
+#define DBGTOPOCHGFB(a,b) if (dbgTopologyChg()) dbgpln("Topo Change : %s fb:[%4i]",a,b);
+#else
+#define DBGTOPOCHG(a)
+#define DBGTOPOCHGFB(a,b)
+#endif
 
 // =========================================================================
 
@@ -431,13 +444,12 @@ XID xidRmtTagConnd      = MdlBsXID(5204);
 XID xidDrctQm           = MdlBsXID(5205);
 XID xidDrctEnable       = MdlBsXID(5206);
 XID xidConnectState     = MdlBsXID(5207);
-//XID xidDrctNQv          = MdlBsXID(5207);
 
 enum eDirectIO
   {
-    eDIO_Spill, eDIO_Vent, eDIO_Leak,    // Real IOs
+    eDIO_Spill, eDIO_Vent, eDIO_Leak,                   // Real IOs
     eDIO_Makeup, eDIO_Bleed,
-    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete                  // Direct
+    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete        // Direct
   };
 
 enum eDIOConnectSelects
@@ -446,7 +458,6 @@ enum eDIOConnectSelects
   };
 
 extern DllImportExport Strng gs_DirectFlwIOTagDefault;
-//extern DllImportExport Strng_List gs_DirectFlwIOTagsMissing;
 
 //---------------------------------------------------------------------------
 
@@ -480,13 +491,14 @@ class DllImportExport CDirectFlwIO
     void          PreDisConnect(int IONo);
 
     flag          EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
+    flag          EvalFlowEquationsReturn() { return m_EvalFlowEquationsReturn; };
     void          EvalDiscrete();
 
     void          EvalProducts(SpConduit & Cd, bool ScaleCd);
 
-    void          SetTarget(LPCTSTR T);//      { m_sRmtTag=T; };
-    LPCTSTR       Target();//                  { return (LPCTSTR)m_sRmtTag(); };
-    LPCTSTR       TargetStr(flag ForFiling);//               { return (LPCTSTR)m_sRmtTmp(); };
+    void          SetTarget(LPCTSTR T);
+    LPCTSTR       Target();
+    LPCTSTR       TargetStr(flag ForFiling);
     bool          Flowing()                 { return Cd.QMass(som_ALL)>1.0e-12; };
     int           MyConnectedIO()           { return m_iMyConnectedIO; };
     int           LclDIOId()                { return m_iLclDIOId; };
@@ -567,6 +579,7 @@ class DllImportExport CDirectFlwIO
     CFlange     * m_pFlng;
     CAreaSum    * m_pSum;
     bool          m_bDeleteSum;
+    flag          m_EvalFlowEquationsReturn; 
 
     CTODirectPtr<FlwNode>  m_pRmt;
 
@@ -4650,6 +4663,11 @@ inline CJoinCluster & CNodeEvalIndex::getCluster()  { return m_pNd->m_Clusters[m
 
 inline void FlwBlk::SetXferMode()
   {
+  if (!m_fFixed || !m_fXfer)
+    {
+    //SetTopologyChanged();
+    //DBGTOPOCHGFB("SetXferMode", m_iNo);
+    }
   m_QmRqd           = dNAN;
   m_QmReg           = 1.0;
   m_QmXfCap         = m_iDirnRel2Connect*MaxXfCap;
@@ -4670,6 +4688,11 @@ inline void FlwBlk::SetXferCapacity(double QmCap)
 
 inline void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, float MaxNode, float MaxFlng)
   {
+  if (!m_fFixed || m_fXfer)
+    {
+    //SetTopologyChanged();
+    //DBGTOPOCHGFB("SetQmReqd", m_iNo);
+    }
   m_QmRqd           = QmReqd;
   m_QmReg           = 1.0;
   m_QmXfCap         = dNAN;
@@ -4686,6 +4709,11 @@ inline void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, float MaxNode, float M
 
 inline void FlwBlk::SetQmReqdVlv(double QmReqd, double Reg, flag IsFree, float MaxNode, float MaxFlng)
   {
+  if (!m_fFixed || m_fXfer)
+    {
+    //SetTopologyChanged();
+    //DBGTOPOCHGFB("SetQmReqdVlv", m_iNo);
+    }
   m_QmRqd           = QmReqd;//*Reg;
   m_QmReg           = Reg;
   m_fFixedVlv       = true;
@@ -4701,8 +4729,13 @@ inline void FlwBlk::SetQmReqdVlv(double QmReqd, double Reg, flag IsFree, float M
 
 inline void FlwBlk::SetQmFree()
   {
+  if (m_fFixed || m_fXfer)
+    {
+    //SetTopologyChanged();
+    //DBGTOPOCHGFB("SetQmFree", m_iNo);
+    }
   m_QmRqd           = dNAN;
-  m_QmReg           = 1.0;
+  m_QmReg           = 1.0;                                          
   m_QmXfCap         = dNAN;
   m_fFixed          = false;
   m_fXfer           = false;

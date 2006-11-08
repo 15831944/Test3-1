@@ -2409,7 +2409,7 @@ void HeatXchg1::EvalJoinPressures(long JoinMask)
           m_HX.m_FTC.SetSuctionP(Pj);
 
         SetPBJoinPressure(j, Pj, true, true);
-        #if dbgFlwNode
+        #if dbgEvalPres
         if (dbgEvalJoinPress(sTag()))
           dbgpln("EJP: %12.2f  %s[%i]", Pm, sTag(), j);
         #endif

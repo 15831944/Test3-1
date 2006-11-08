@@ -298,9 +298,9 @@ void MN_BstRes::EvalJoinPressures(long JoinMask)
 flag MN_BstRes::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if (m_LeakI.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_LeakI.EvalFlowEquationsReturn();
   if (m_LeakO.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_LeakO.EvalFlowEquationsReturn();
   if (IONo>0)
     return False;
   /*if (Valid(dPb_Rqd))

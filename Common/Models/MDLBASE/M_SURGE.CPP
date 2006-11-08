@@ -454,13 +454,13 @@ CSpPropInfo* MN_Surge::IOGetNetProps(int i, double Qm)
 flag MN_Surge::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if (m_Spill.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Spill.EvalFlowEquationsReturn();
   if (m_Vent.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Vent.EvalFlowEquationsReturn();
   if (m_AccIn.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_AccIn.EvalFlowEquationsReturn();
   if (m_AccOut.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_AccOut.EvalFlowEquationsReturn();
   switch (Task)
     {
     case FET_SetQm:

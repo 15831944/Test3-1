@@ -2628,11 +2628,11 @@ void MN_Lnk::InitLocals()
 flag MN_Lnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if (m_Spill.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Spill.EvalFlowEquationsReturn();
   if (m_Src.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Src.EvalFlowEquationsReturn();
   if (m_Snk.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Snk.EvalFlowEquationsReturn();
 #if WITHLINKBLEED 
   if (m_Bleed.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
     return true;

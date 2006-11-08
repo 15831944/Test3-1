@@ -143,7 +143,7 @@ class FlwSlvBlk
 
     double         TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &Nds, Strng_List * pTBReport=NULL);
 
-    void           ShowFlows(CNodeEvalIndexList &Nds);
+    void           ShowFlows(CNodeEvalIndexList &Nds, LPCTSTR Where);
 
 
     void           FITConfigureJoins(CFlwNodeList & List);//CLkFlwNodeIter & Iter);

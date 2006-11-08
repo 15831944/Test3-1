@@ -3000,7 +3000,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
     if (Which & TOSL_Proc)
       {
       Strng sClstr, S;
-      int iCluster=0;
+      int nCluster=0;
       CFlwNodeIter Flw(m_ProcessNds);
       for (FlwNode * p = Flw.First(); (p); p=Flw.Next())
         {
@@ -3008,25 +3008,31 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           {
           if (p->m_Clusters[c].m_iProcOrder<0)
             {
-            if (iCluster==0)
+            if (nCluster==0)
               sClstr.Set("%i", c);
             else
               {
               S.Set(",%i", c);
               sClstr+=S;
               }
-            iCluster++;
+            nCluster++;
             //LogError(p->FullObjTag(), 0, "Cluster %i Not in Process Evaluation Sequence [%s]", c, p->ClassId());
             };
           }
 
-        switch (iCluster)
+        //switch (nCluster)
+        //  {
+        //  case 0:   p->ClrCI(34); break;
+        //  case 1:   p->SetCI(34, "E\tCluster %s Not in Process Evaluation Sequence ", sClstr()); break;
+        //  default:  p->SetCI(34, "E\tClusters %s Not in Process Evaluation Sequence ", sClstr()); break;
+        //  }
+        switch (nCluster)
           {
-          case 0:   p->ClrCI(34); break;
-          case 1:   p->SetCI(34, "E\tCluster %s Not in Process Evaluation Sequence ", sClstr()); break;
-          default:  p->SetCI(34, "E\tClusters %s Not in Process Evaluation Sequence ", sClstr()); break;
+          case 0:   break;
+          case 1:   LogError(p->FullObjTag(), 0, "Cluster %s Not in Process Evaluation Sequence ", sClstr()); break;
+          default:  LogError(p->FullObjTag(), 0, "Clusters %s Not in Process Evaluation Sequence ", sClstr()); break;
           }
-        iCluster=0;
+        nCluster=0;
         }
       }
     if (Which & TOSL_Ctrl)
@@ -3771,6 +3777,15 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           //dbgp("                             %2i %#06.6x : ", c, Mask);
           for (int io=0; io<p->NoFlwIOs(); io++)
             {
+            if (io<p->NoProcLnkIOs())
+              {
+              if (fabs(p->IOQmEst_In(io)-p->Nd_Rmt(io)->IOQmEst_Out(p->IOIONo_Rmt(io)))>1.0e-3)
+                {
+                dbgpln("BAD FLOW ESTIMATES %15.2f != %15.f @ %s > %s",
+                  p->IOQmEst_In(io), p->Nd_Rmt(io)->IOQmEst_Out(p->IOIONo_Rmt(io)),
+                  p->FullObjTag(), p->Nd_Rmt(io)->FullObjTag());
+                }
+              }
             if ((1<<p->IO_Join_Id(io)) & Mask)
               {
               //dbgp(" %2i", io);
@@ -3816,7 +3831,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
             p->m_Clusters[0].m_nFlwIOsOut++;
 
           if (0)
-            dbgpln("XXX %-5s %-5s %-5s %i %i %s", Fwd?"Fwd":"",Zero0?"Zero0":"",Zero1?"Zero1":"",p->m_Clusters[0].m_nFlwIOsIn, p->m_Clusters[0].m_nFlwIOsOut, p->Tag());
+            dbgpln("Lnk %15.5e %15.5e %-5s %-5s %-5s %i %i %s", p->IOQmEst_In(0), p->IOQmEst_In(1), Fwd?"Fwd":"",Zero0?"Zero0":"",Zero1?"Zero1":"",p->m_Clusters[0].m_nFlwIOsIn, p->m_Clusters[0].m_nFlwIOsOut, p->Tag());
 
           for (int i=p->NoProcLnkIOs(); i<p->NoFlwIOs(); i++)
             {
@@ -3837,8 +3852,13 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           }
         else
           {
+          if (0)
+            dbgpln("Nd   %s", p->Tag());
           for (int i = 0; i < p->NoFlwIOs(); i++)
             {
+            if (0)
+              dbgpln("  IO %5i %15.5e %-5s %-5s >> %s", i, p->IOQmEst_In(i), p->IO_In(i)?"In":"  ", p->IO_Out(i)?"Out":"   ", p->Nd_Rmt(i)->Tag());
+
             if (!p->IO_In(i) && !p->IO_Out(i))
               {
               p->SetIOEvalSeq_In(i, false);
@@ -4281,15 +4301,15 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
 
 //===========================================================================
 
-void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds)
+void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds, LPCTSTR Where)
   {
-  dbgpln("==========================");
+  dbgpln("========================== %s", Where);
   CNodeEvalIndexIter Nd(Nds);
   for (CNodeEvalIndex NJ = Nd.First(); Nd.ItemValid() ; NJ = Nd.Next())
     {
     dbgpln("-----%s",NJ.Nd.FullObjTag());
     for (int i=0; i<NJ.Nd.NoFlwIOs(); i++)
-      dbgpln("  %2i %-10.10s Qm:%14.6g Est:%14.6g",i,NJ.Nd.IODesc_Self(i)->pName,NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i));
+      dbgpln("  %2i %-10.10s Qm:%14.6g Est:%14.6g  > %s",i,NJ.Nd.IODesc_Self(i)->pName,NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i), NJ.Nd.Nd_Rmt(i)->FullObjTag());
 
     for (int j=0; j<NJ.Nd.NoJoins(); j++)
       {
@@ -4297,17 +4317,18 @@ void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds)
       if (J.fIs2IO)// && J.HasFBlk())//())
         {
         FlwBlk &FB=*J.IOFB(0,0);//*(J.FBlk());
+        dbgp("  Lnk:");
+        //byte tt= NJ.Nd.Internal ? TT_NoTear : (J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)->TearType());
+        int tt= J.Flng(0)?(J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)?J.Flng(1)->TearType():-1):-2;
+        dbgp("  %+8.8s", tt==-1 ? "?1" : tt==-2 ? "?0" : tt==TT_SystemTear ? "Tear" : tt==TT_ManualTear ? "Man_Tear" : tt==TT_Break ? "Break" : "");
         Strng Q;
         if (fabs(FB.GetQm())>1.0e99)
           Q.Set(FB.GetQm()>0 ? "+++" : "---");
         else if (fabs(FB.GetQm())>1.0e6)
-          Q.Set("%13.5g",FB.GetQm());
+          Q.Set("%14.5g",FB.GetQm());
         else
-          Q.Set("%13.7f",FB.GetQm());
-        dbgp("  Lnk : %13s", Q());
-        //byte tt= NJ.Nd.Internal ? TT_NoTear : (J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)->TearType());
-        int tt= J.Flng(0)?(J.Flng(0)->IsTear() ? J.Flng(0)->TearType() : J.Flng(1)?J.Flng(1)->TearType():-1):-2;
-        dbgp("  %+8.8s", tt==-1 ? "?1" : tt==-2 ? "?0" : tt==TT_SystemTear ? "Tear" : tt==TT_ManualTear ? "Man_Tear" : tt==TT_Break ? "Break" : "");
+          Q.Set("%14.7f",FB.GetQm());
+        dbgp(" %14s", Q());
         dbgp(" Est:%14.6g", FB.GetQmEst());
         dbgpln("      {%2i}%.20s",j,NJ.Nd.FullObjTag());
         }
@@ -5700,7 +5721,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 
   #if (dbgFlwSolve)
   if (dbgShowFlows() && EqnCB().NIters()==0)
-    ShowFlows(ProcTOSequence);
+    ShowFlows(ProcTOSequence, "End Of Step");
   #endif
 
   #if (dbgFlwSolve && WithIOChgMonitor)
@@ -7899,7 +7920,7 @@ void FlwSlvDyn::ODEDerivs()
 
 #if (dbgFlwSolve)
       if (dbgShowFlows())
-        ShowFlows(ProcTOSequence);
+        ShowFlows(ProcTOSequence, "After FindTOSequence");
 #endif
 
       RestartAllTears(EqnCB());
@@ -8017,6 +8038,11 @@ void FlwSlvDyn::ODEDerivs()
             NJ.Nd.MonitorPostEvalProducts();
           dbgpln("================================================================================= ");
           }
+        #endif
+
+        #if (dbgFlwSolve)
+        if (dbgShowFlows())
+          ShowFlows(ProcTOSequence, "After Eval Products");
         #endif
 
         EqnCB().SetConverged(EqnCB().NBadLimit()==0);

@@ -1412,7 +1412,7 @@ void CGrpFlwBlk::SetSrc(CJoinRec * pJ, int ConnNo)
   {
 #if dbgFlwNets
   if (dbgFindGFBs())
-    dbgpln("  GFB:SetSrc           j:%04i %i %s",pJ->m_iNo,ConnNo, pJ->pNd->FullObjTag());
+    dbgpln("GFB:SetSrc           j:%04i %i %s",pJ->m_iNo,ConnNo, pJ->pNd->FullObjTag());
 #endif
 
   m_Src.m_pNd=pJ->pNd;
@@ -1431,7 +1431,7 @@ void CGrpFlwBlk::SetDst(CJoinRec * pJ, int ConnNo)
   {
 #if dbgFlwNets
   if (dbgFindGFBs())
-    dbgpln("  GFB:SetDst           j:%04i %i %s",pJ->m_iNo,ConnNo, pJ->pNd->FullObjTag());
+    dbgpln("GFB:SetDst           j:%04i %i %s",pJ->m_iNo,ConnNo, pJ->pNd->FullObjTag());
 #endif
   m_Dst.m_pNd=pJ->pNd;
   m_Dst.m_iIONo=pJ->IONo(ConnNo);
@@ -1498,7 +1498,7 @@ void CGrpFlwBlk::AttachFB(FlwBlk *pFB, CNetBlk & NI, CSubNetBlk & SNI)
   {
 #if dbgFlwNets
   if (dbgFindFBs())
-    dbgpln("  GFB:AttachFB         fb[%4i]",pFB->m_iNo);
+    dbgpln("GFB:AttachFB         fb[%4i]",pFB->m_iNo);
 #endif
 
   if (pFB->m_iDirnRel2Connect==0)
@@ -3042,7 +3042,7 @@ void CGrpFlwBlk::SetLinkQmEstAndQm(double Qm)
       case GFI_Lnk:
         I->FB.SetQm(I->m_iSgn*Qm);
         I->FB.SetQmEst(I->m_iSgn*Qm);
-        //dbgpln("SetQm f:%04i", I->FB.m_iNo, I->m_iSgn*Qm);
+        //dbgpln("SetQm fb[%04i] %15.2f %s", I->FB.m_iNo, I->m_iSgn*Qm, I->Nd.FullObjTag());
         break;
       }
     }
@@ -7262,7 +7262,7 @@ void CJoinGFBList::AddFB(FlwBlk * pFB, FlwNode * pNd, flag Forward, flag StartTr
 #if dbgFlwNets
   if (dbgFindFBs())
     {
-    dbgpln("  JnGFBList:AddFB       %s %s %i", 
+    dbgpln("JnGFBList:AddFB       %s %s %i", 
       StartTree ? "@":" ", Forward ?"Fwd":"Rev",pFB->m_iNo);//Forward ? pGFB->FwdTag() : pGFB->RevTag() );
     }
 #endif
@@ -7283,7 +7283,7 @@ void CJoinGFBList::AddGFB(CGrpFlwBlk * pGFB, flag Forward, flag StartTree)
 #if dbgFlwNets
   if (dbgFindFBs())
     {
-    dbgpln("  JnGFBList:AddGFB       %s  GFB %s", 
+    dbgpln("JnGFBList:AddGFB       %s  GFB %s", 
       StartTree ? "@":" ",Forward ? pGFB->FwdTag() : pGFB->RevTag() );
     }
 #endif
@@ -7307,7 +7307,7 @@ void CJoinGFBList::AddJoin(CJoinRec * pJ, int iPBOrder)
 
 #if dbgFlwNets
   if (dbgFindFBs())
-    dbgpln("  JnGFBList:AddFBJn          Jn  %s", pJ->Nd()->Tag());
+    dbgpln("JnGFBList:AddFBJn          Jn  %s", pJ->Nd()->Tag());
 #endif
   };
 
@@ -7359,7 +7359,8 @@ flag CNetBlk::AddConn2GFB(ACPosition Pos, JoinTypes Typ, CGrpFlwBlkPtr & pGFB, C
 #if dbgFlwNets
   if (dbgFindConns())
     {
-    dbgpln("      NBk:AddConn2GFB      %30s > %s", pSrcJoin->Nd()->Tag(), pDstJoin->Nd()->Tag());
+    dbgpln("NBk:AddConn2GFB      %30s > %s", pSrcJoin->Nd()->Tag(), pDstJoin->Nd()->Tag());
+    dbgindent(2);
     }
 #endif
   int Ret=false;
@@ -7417,6 +7418,10 @@ flag CNetBlk::AddConn2GFB(ACPosition Pos, JoinTypes Typ, CGrpFlwBlkPtr & pGFB, C
   //if (dbgFindConns())
   //  dbgpln(" %s > %s", pSrcJoin->Nd()->Tag(), pDstJoin->Nd()->Tag());
   //#endif
+#if dbgFlwNets
+  if (dbgFindConns())
+    dbgindent(-2);
+#endif
   return Ret!=0;
   }
 
@@ -7448,6 +7453,11 @@ void CNetBlk::FindFixedConnsFromJoin(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJ
 
 void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec * pSrc, int SrcConnNo, CJoinRec * pDst, int DstConnNo, CGrpFlwBlk * pGFB, LFxdPos Where, int &FxdOrder)
   {
+#if dbgFlwNets
+  if (dbgFindConns())
+    dbgindent(2);
+#endif
+
   if (AddConn2GFB(Fwd?ACP_Tail:ACP_Head, JTyp_FxdLnk, pGFB, pSrc, SrcConnNo, NULL))//&FxdOrder))
     {
     SNI.Grps.AddTail(pGFB);
@@ -7585,6 +7595,11 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
     }
 
   FindConnsDeep--;
+
+#if dbgFlwNets
+  if (dbgFindConns())
+    dbgindent(-2);
+#endif
   }
 
 //-------------------------------------------------------------------------
@@ -8027,7 +8042,7 @@ void CNetBlk::BldSubNets()
       {
       for (int c=0; c<pJ->NConns(); c++)
         {
-        if (!ConnHasGFB(pJ, c) && ConnIsXfer(pJ, c))
+        if (pJ->IsLink(c) && !ConnHasGFB(pJ, c) && ConnIsXfer(pJ, c))
           FindFxdQs(true, *SubNet[SubNetNo], pJ, c, FxdOrder);
         }
       }

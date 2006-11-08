@@ -368,7 +368,7 @@ flag MN_Xfer::ChangeMode(dword NewMode, dword OldMode)
 flag MN_Xfer::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if (m_Leak.EvalFlowEquations(Task, pProps, IONo, FE, LnkNo))
-    return true;
+    return m_Leak.EvalFlowEquationsReturn();
 
   return IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, 1.0, &IOFBFlng_Rmt(IONo)->PhD(), NULL);
   };

@@ -3913,28 +3913,28 @@ void dbgSpDeriv(pchar t, pchar Tag, SpContainer &Sp)
 
 void dbgSpFlows(pchar t, pchar Tag, SpConduit &Sp, flag Tags)
   {
-  #if dbgFlwNode
-  if (dbgEvalDerivs())
-    {
-    static CDbgMngr dbgOn("Derivs", "SpFlows");
-    if (dbgOn(Tag))
-      {
-      if (dbgSpDerivsTags || Tags)
-        {
-        dbgp("TQm %-15s.%-15s ","","");
-        for (int s=0; s < SVSpcCount(); s++)
-          dbgp(" %12s",SVImg(s).SymOrTag());
-        dbgpln("");
-        dbgSpDerivsTags=0;
-        }
+  //#if dbgFlwNode
+  //if (dbgEvalDerivs())
+  //  {
+  //  static CDbgMngr dbgOn("Derivs", "SpFlows");
+  //  if (dbgOn(Tag))
+  //    {
+  //    if (dbgSpDerivsTags || Tags)
+  //      {
+  //      dbgp("TQm %-15s.%-15s ","","");
+  //      for (int s=0; s < SVSpcCount(); s++)
+  //        dbgp(" %12s",SVImg(s).SymOrTag());
+  //      dbgpln("");
+  //      dbgSpDerivsTags=0;
+  //      }
 
-      dbgp(" Qm %-15s.%-15s ",t,Tag);
-      for (int s=0; s < SVSpcCount(); s++)
-        dbgp(" %12.4e",Sp.VMass[s]);
-      dbgpln("");
-      }
-    }
-  #endif
+  //    dbgp(" Qm %-15s.%-15s ",t,Tag);
+  //    for (int s=0; s < SVSpcCount(); s++)
+  //      dbgp(" %12.4e",Sp.VMass[s]);
+  //    dbgpln("");
+  //    }
+  //  }
+  //#endif
   }
 
 //--------------------------------------------------------------------------

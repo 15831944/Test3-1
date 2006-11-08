@@ -21,11 +21,10 @@
 //#include "optoff.h"
 
 #define dbgKwikConnect   0
-#define dbgFlwNode       (WITHDEBUG)
 #define dbgFlwNodeMS     WITHDEBUG
 #define dbgFlowInfo      (WITHDEBUG && 0)
 
-#if dbgFlwNode
+#if dbgFlwNode 
 static CDbgMngr dbgAccCalcs         ("FlwNode",  "AccCalcs");
 static CDbgMngr dbgBuildJoinList    ("FlwNode",  "BuildJoinList");
 static CDbgMngr dbgConstruction     ("FlwNode",  "Construction");
@@ -43,7 +42,7 @@ static CDbgMngr dbgDumpChangesIn    ("FlwNode",  "DumpChangesIn");
 #endif
 
 static CDbgMngr dbgEvalJoinPress    ("ProBal",   "EvalJoinPress");
-static CDbgMngr dbgTopologyChg      ("FlwNets",  "TopologyChg");
+       CDbgMngr dbgTopologyChg      ("FlwNets",  "TopologyChg");
 static CDbgMngr dbgChangeStats      ("FlwNets",  "ChangeStats");
 
 //static CDbgMngr dbgExtendJoin      ("FlwNets",  "ExtendJoin");
@@ -9916,6 +9915,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_sRmtTagDef=RmtTagDef;
   m_NdSignImp=0;
   m_RmtListPos=NULL;
+  m_EvalFlowEquationsReturn=false;
   Initialise(eType, Nd);
   InitialiseIO(ShowUsr, SysEnable, Tag, LclDIOId, RmtDIOId, -1);
   };
@@ -9927,6 +9927,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_sRmtTagDef=RmtTagDef;
   m_NdSignImp=0;
   m_RmtListPos=NULL;
+  m_EvalFlowEquationsReturn=false;
   Initialise(eType, Nd);
 
   InitialiseIO(ShowUsr, SysEnable, Tag, -1, -1, -1);
@@ -10524,7 +10525,10 @@ void CDirectFlwIO::PreDisConnect(int IONo)
 flag CDirectFlwIO::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo)
   {
   if ((IONo>=0) && m_pNd->IOId_Self(IONo)==m_iLclDIOId)
-    return m_pNd->IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, m_Opening, &m_pNd->IOFBFlng_Rmt(IONo)->PhD(), NULL);
+    {
+    m_EvalFlowEquationsReturn = m_pNd->IOFB(IONo, FE)->EvaluateFlwEqn(Task, pProps, true, false, m_Opening, &m_pNd->IOFBFlng_Rmt(IONo)->PhD(), NULL);
+    return true;
+    }
   return false;
   }
 
