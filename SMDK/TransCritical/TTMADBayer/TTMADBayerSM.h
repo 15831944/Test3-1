@@ -94,7 +94,7 @@ class Bayer : public MSpModelBase, public MIBayer
 	  Bayer(TaggedObject *pNd);
 	  ~Bayer();
 
-    bool            ValidateData();
+    bool            ValidateDataFields();
 
     // Standard Methods
 	  bool            get_IsBaseClassOf(LPCTSTR OtherProgID);

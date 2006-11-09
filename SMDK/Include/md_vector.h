@@ -167,6 +167,8 @@ class DllImportExport MArray
   };
 
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+// Template interface (IF) functions
 
 template<class T> T * getIF(MVector *pVec, bool Throw=true)
   {
@@ -193,8 +195,6 @@ template<class T> T * getIF(MVector *pVec, bool Throw=true)
   return static_cast<T*>(NULL);
   };
 
-//---------------------------------------------------------------------------
-
 template<class T> T * createIF(MVector *pVec)
   {
   T * p = getIF<T>(pVec, false);
@@ -209,11 +209,11 @@ template<class T> T * createIF(MVector *pVec)
   return static_cast<T*>(NULL);
   };
 
-//---------------------------------------------------------------------------
-
 template<class T> bool IsNothing(T & p) { return &p==NULL; };
+
 template<class T> bool IsNothing(T * p) { return p==NULL; };
 
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 /* Class MVector :*/
 class DllImportExport MVector
@@ -387,10 +387,13 @@ class DllImportExport MVector
     MIPSD       * getPSD(long Index=-1);
     MIPSD       * getPSD(LPCTSTR Name);
 
-    template<class T> bool IFExists() { return getIF<T>(this, false)!=NULL; };
-    template<class T> T * GetIF()     { return getIF<T>(this, true); };
-    template<class T> T * FindIF()    { return getIF<T>(this, false); };
-    template<class T> T * CreateIF()  { return createIF<T>(this); };
+    // ---- IF (interface) class access functions ---
+    template<class T> bool IFExists() { return getIF<T>(this, false)!=NULL; }; //return true if specified IF class is present
+    template<class T> T * GetIF()     { return getIF<T>(this, true); };        //return pointer to specified IF class, throw exception if doesn't exist
+    template<class T> T * FindIF()    { return getIF<T>(this, false); };       //return pointer to specified IF class if exists, otherwise return NULL
+    template<class T> T * CreateIF()  { return createIF<T>(this); };           //return pointer to specified IF class if exists, otherwise create the class and return the pointer
+
+    template<class T> T & IF(bool Throw=true) { return *getIF<T>(this, Throw); }; //return reference to specified IF class. Warning: this may reference NULL, need to use IsNothing to test. Rather use GetIF or FindIF.
 
   private:
     SpModel     * m_pSpMdl;

@@ -311,9 +311,9 @@ LPCTSTR Bayer::get_PreferredModelProgID()
 
 //---------------------------------------------------------------------------
 
-bool Bayer::ValidateData()
+bool Bayer::ValidateDataFields()
   {
-  bool OK=MSpModelBase::ValidateData();
+  bool OK=MSpModelBase::ValidateDataFields();
   LiquorComposition(fDoCalc);
   return OK;
   }
