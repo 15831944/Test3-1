@@ -8042,7 +8042,7 @@ void CNetBlk::BldSubNets()
       {
       for (int c=0; c<pJ->NConns(); c++)
         {
-        if (pJ->IsLink(c) && !ConnHasGFB(pJ, c) && ConnIsXfer(pJ, c))
+        if (/*pJ->IsLink(c) &&*/ !ConnHasGFB(pJ, c) && ConnIsXfer(pJ, c))
           FindFxdQs(true, *SubNet[SubNetNo], pJ, c, FxdOrder);
         }
       }
