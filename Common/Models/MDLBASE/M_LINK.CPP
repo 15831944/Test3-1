@@ -3280,19 +3280,56 @@ void MN_Lnk::EvalDiscrete()
       const int iIn  = (IOQmEst_In(0)>0.0 ? 0 : 1);
       if (IOFlange(iIn)->TearType()!=TT_Break && !TestCISet(7) && !TestCISet(8))
         {
-        double RBSrc=0.0, RBSnk=0.0;
-        if (m_RB.Enabled())
-          {
-          RBSrc=m_RB.MsSumSrc()->Mass();
-          RBSnk=m_RB.MsSumSnk()->Mass();
+        if (1)
+          {//fix for #656...
+          double NetQm = 0.0;
+          for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+            {
+            NetQm += (m_AttachedDirectIOs[i]->HasConduit ? m_AttachedDirectIOs[i]->Cd.QMass() : m_AttachedDirectIOs[i]->Sum.FlowMass);
+            }
+          const double v1 = IOConduit(0)->QMass()+NetQm;
+          const double v2 = IOConduit(1)->QMass();
+          const double ATol1 = 1.0e-5;
+          const double ATol2 = 1.0e-4;
+          const bool MassErr = (fabs(v1)>ATol2 || fabs(v2)>ATol2) && !ConvergedVV(v1, v2, ATol1, 1e-3); //try remove error reporting for 'zero' flow
+          //const bool MassErr = !ConvergedVV(IOConduit(0)->QMass()+RBSrc, IOConduit(1)->QMass()+RBSnk+m_QmSpilt, 1e-6, 1e-3);
+          SetCI(6, MassErr);
+          /*todo:option to pause solver when link mass balance occurs similar to spills
+          if (MassErr)
+            {
+            Strng ErrMsg;
+            ErrMsg.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Extra Spilt", QmIn, IOQOutEst);
+
+            if (gs_LinkMassErrOption & LinkMassErrReports_Cnds)
+              SetCI(6, "%s", ErrMsg());
+            if (gs_LinkMassErrOption & LinkMassErrReports_Msgs)
+              LogWarning(FullObjTag(), 0, "%s", ErrMsg());
+            if (!gs_FSIdleRequested && (gs_LinkMassErrOption & LinkMassErrReports_Idle))
+              {
+              LogWarning(FullObjTag(), LF_DoAfxMsgBox|LF_Exclamation, "Solver IDLE request due to link massflow error");
+              gs_FSIdleRequested=true;
+              ExecObj()->XIdle();
+              }
+            }*/
           }
-        const double v1 = IOConduit(0)->QMass()+RBSrc-m_QmSpilt;
-        const double v2 = IOConduit(1)->QMass()+RBSnk;
-        const double ATol1 = 1.0e-5;
-        const double ATol2 = 1.0e-4;
-        const bool MassErr = (fabs(v1)>ATol2 || fabs(v2)>ATol2) && !ConvergedVV(v1, v2, ATol1, 1e-3); //try remove error reporting for 'zero' flow
-        //const bool MassErr = !ConvergedVV(IOConduit(0)->QMass()+RBSrc-m_QmSpilt, IOConduit(1)->QMass()+RBSnk, 1e-6, 1e-3);
-        SetCI(6, MassErr);
+        else
+          {
+          double RBSrc=0.0, RBSnk=0.0;
+          if (m_RB.Enabled())
+            {
+            RBSrc=m_RB.MsSumSrc()->Mass();
+            RBSnk=m_RB.MsSumSnk()->Mass();
+            }
+          double QmMU = 0.0; //TODO:get the sum of all makeup blocks
+          double QmBL = 0.0; //TODO:get the sum of all bleed blocks
+          const double v1 = IOConduit(0)->QMass()+RBSrc+QmMU;
+          const double v2 = IOConduit(1)->QMass()+RBSnk+m_QmSpilt+QmBL;
+          const double ATol1 = 1.0e-5;
+          const double ATol2 = 1.0e-4;
+          const bool MassErr = (fabs(v1)>ATol2 || fabs(v2)>ATol2) && !ConvergedVV(v1, v2, ATol1, 1e-3); //try remove error reporting for 'zero' flow
+          //const bool MassErr = !ConvergedVV(IOConduit(0)->QMass()+RBSrc-m_QmSpilt, IOConduit(1)->QMass()+RBSnk, 1e-6, 1e-3);
+          SetCI(6, MassErr);
+          }
         }
       }
     }
