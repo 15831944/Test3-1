@@ -1937,6 +1937,8 @@ void CHXBlock::EvalProducts(FlwNode* pNd)
     m_dTheoryDuty=EffUA()*m_dLMTD;
     m_Pri.iMode=QPF_Sensible;
     m_Sec.iMode=QPF_Sensible;
+    m_Pri.Duty=0.0;
+    m_Sec.Duty=0.0;
     }
 
   m_Pri.fConnected=0;
