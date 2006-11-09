@@ -99,7 +99,7 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     virtual         ~MSpModelBase();   //destructor
     void            Init(SpModelEx * pSpMdl);
 
-    virtual void    BuildDataFields() = 0;                   // pure virtual method for defining data fields
+    virtual void    BuildDataFields() {};                    // virtual method for defining data fields
     virtual bool    ExchangeDataFields() { return false; };  // virtual method for manipulating data
     virtual bool    ValidateDataFields() { return true; };   // virtual method for validating data
 

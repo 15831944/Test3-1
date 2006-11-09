@@ -382,9 +382,6 @@ double Bayer::LiqHCalc(MArray & MA, double Tc)
 
 
   return /*0.02871*18.86917*fc*fc/ld25 +*/ 4.184*(K1 + Tc*(K2/2+Tc*K3/3))*Tc;
-  
-
-
 }
 
 
@@ -471,10 +468,6 @@ double Bayer::get_msCp(long Phases, double T, double P, MArray *pMA)
 
 //---------------------------------------------------------------------------
 
-
-
-
-
 double Bayer::get_SaturationT(double P, MArray *pMA)
 {
   MArray MA(pMA ? (*pMA) : this);
@@ -501,8 +494,6 @@ double Bayer::get_SaturationP(double T, MArray *pMa)
 
 }
 
-
-
 //---------------------------------------------------------------------------
 
 double Bayer::BoilPtElev(MArray & MA, double P)
@@ -518,7 +509,6 @@ double Bayer::BoilPtElev(MArray & MA, double P)
 
 double Bayer::get_DynamicViscosity(long Phases, double T, double P, MArray *pMA)
 {
-  
   if (Phases & MP_Gas)
     return MSpModelBase::get_DynamicViscosity(Phases, T, P, pMA); //todo : check!
   

@@ -571,6 +571,7 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   OSVERSIONINFO VI;
   VI.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   BOOL IsWIN32 = (GetVersionEx(&VI) && (VI.dwPlatformId==VER_PLATFORM_WIN32_NT));
+
   /*if (IsWIN32 && CheckService()!=0)
     {
     Error("Error with CrypKey Licensing Service!\n\nPerhaps not installed or not running?");
@@ -600,6 +601,9 @@ BOOL CLicense::Init(char* path /*=NULL*/)
   if (GetShortPathName(LongPath, ShortPath, sizeof(ShortPath))<1)
     return FALSE;
   int err = InitCrypkey(ShortPath, CK_MASTER_KEY, CK_USER_KEY, FALSE, CK_NetworkChecktime);
+//char bbb[1024];
+//sprintf(bbb, "InitCrypkey:%d  (Path:%s)", err, ShortPath);
+//AfxMessageBox(bbb);
   if (err==NETWORK_NO_CKSERVE)
     {
     if (IsWIN32)
@@ -702,6 +706,9 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   dwOpLevel = 0;
   iDaysLeft = 0;
   int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
+//char bbb[1024];
+//sprintf(bbb, "GetAuthorization:%d  (dwOpLevel:%d)", err, dwOpLevel);
+//AfxMessageBox(bbb);
 
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL

@@ -18,10 +18,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 2"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 3"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "6 November 2006"
+#define SCD_PATCHDATE    "8 November 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2598,8 +2598,9 @@ Update 4 : 16 October 2006
 Build 121 : 22 October 2006
 ------------------------------
 1) (#541, 617,622) Significant SMDK changes. Extended SMDK for qualities.
-   IF<T>() has been replaced with GetIF<T>, FindIF<T> or CreateIF<T>.  Added 
-   ability to define tables in access window.
+   GetIF<T> and FindIF<T> can be used instead of IF<T>(bool Throw).  Added 
+   ability to define tables in access window. Method ValidateData() has 
+   been changed to ValidateDataFields().
 2) (#619,620,624) Various fixes.
 
 Update 1 : 31 October 2006
@@ -2619,6 +2620,11 @@ Update 2 : 5 November 2006
 1) Improved error and exception trapping and reporting for serious floating 
    point and other failures.
 2) (#634) Fix for setting Content.DeltaMt in dynamic.
+
+Update 3 : 8 November 2006
+------------------------------
+1) (#648) For dynamic transfer, fixes for flow display and error messages 
+   when a tank outlet pipe is turned off or capacity set to zero.
    
 
 
