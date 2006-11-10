@@ -2361,9 +2361,34 @@ LRESULT CSysCADApp::DoFlushMsgQ(WPARAM wParam, LPARAM lParam)
 //#pragma warning (disable : 4101) // unreferenced variable
 int CSysCADApp::Run( )
   {
-  try
-    {
-    return CWinApp::Run();
+  int Ret=0;
+  _set_se_translator(XcpTranslateFunction);                        
+  DWORD FPP_State=_controlfp(0,0);                                 
+  try                                                              
+    {                                                              
+    /* clear any outstanding exceptions */                         
+    _clearfp();                                                    
+    /* Set New fpControl */                                        
+    _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);
+
+    Ret=CWinApp::Run();
+
+    FPP_RestoreExceptions(FPP_State);                             
+    }       
+  catch (MSysException e)                                         
+    {                                                             
+    _clearfp();                                                   
+                                                         
+    //e->ReportError();
+    Strng S;                                                      
+    S.Set(" %s \n\n"                                              
+          "Exception %s (%x) occurred\n\n"                        
+         "Address: %08x\n\n"                                     
+          "Thread terminating\n\n"                                
+          "Push OK to exit SysCAD",                               
+      "SysCAD Application", e.Name, e.Code, e.Address);                          
+                                                                  
+    AfxMessageBox(S(), MB_OK);                                       
     }
 
   catch (CMemoryException * e)         { e->ReportError(); }//gs_License.Exit(); }
@@ -2378,6 +2403,11 @@ int CSysCADApp::Run( )
   //catch (CDaoException * e)            { e->ReportError(); }//gs_License.Exit(); }
   //catch (CInternetException * e)       { e->ReportError(); }//gs_License.Exit(); }
   catch (CException * e)               { e->ReportError(); }//gs_License.Exit(); }
+  
+  catch (CScdException * e)            
+    { 
+    AfxMessageBox(e->ErrStr(), MB_OK);                                       
+    }
   //catch (_com_error &e)
   //  {
   //  e.ReportError();
@@ -2385,11 +2415,23 @@ int CSysCADApp::Run( )
   //  }
   catch (...)
     {
+    //EXCEPTION_POINTERS * p = GetExceptionInformation();
+
+    //Strng S;                                                      
+    //S.Set(" %s \n\n"                                              
+    //      "Exception (%x) occurred\n\n"                        
+    //     "Address: %08x\n\n"                                     
+    //      "Thread terminating\n\n"                                
+    //      "Push OK to exit SysCAD",                               
+    //      "SysCAD Application", p->ExceptionRecord->ExceptionCode, p->ExceptionRecord->ExceptionAddress);                          
+                                                                  
+    AfxMessageBox("Unknown Exception Occurred", MB_OK);                                       
+
     gs_License.Exit();
     throw;
     }
 
-  return 1;
+  return Ret;
   }
 
 //---------------------------------------------------------------------------
