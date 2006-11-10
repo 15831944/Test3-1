@@ -1445,7 +1445,7 @@ return TRUE;
 //  }
 
 
-BOOL CSysCADApp::InitInstance()
+BOOL CSysCADApp::DoInitInstance()
   {
 
   //========================================
@@ -1871,7 +1871,7 @@ return CWinApp::ExitInstance();
 */
 //---------------------------------------------------------------------------
 
-int CSysCADApp::ExitInstance()
+int CSysCADApp::DoExitInstance()
   {
   gs_AccessWnds.TermHelp();
 
@@ -1956,6 +1956,115 @@ int CSysCADApp::ExitInstance()
 
   return CWinApp::ExitInstance();
   }
+
+//---------------------------------------------------------------------------
+
+BOOL CSysCADApp::InitInstance()
+  {
+  BOOL Ret=FALSE;
+  _set_se_translator(XcpTranslateFunction);                        
+  DWORD FPP_State=_controlfp(0,0);                                 
+  try                                                              
+    {                                                              
+    /* clear any outstanding exceptions */                         
+    _clearfp();                                                    
+    /* Set New fpControl */                                        
+    _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);
+
+    Ret=DoInitInstance();
+
+    FPP_RestoreExceptions(FPP_State);                             
+    }       
+  catch (MSysException e)                                         
+    {                                                             
+    _clearfp();                                                   
+                                                         
+    //e->ReportError();
+    Strng S;                                                      
+    S.Set(" %s \n\n"                                              
+          "Exception %s (%x) occurred\n\n"                        
+         "Address: %08x\n\n"                                     
+          "Thread terminating\n\n"                                
+          "Push OK to exit SysCAD",                               
+      "SysCAD Application Initialise", e.Name, e.Code, e.Address);                          
+                                                                  
+    AfxMessageBox(S(), MB_OK);                                       
+    }
+
+  catch (CMemoryException * e)         { e->ReportError(); }//gs_License.Exit(); }
+  catch (CNotSupportedException * e)   { e->ReportError(); }//gs_License.Exit(); }
+  catch (CArchiveException * e)        { e->ReportError(); }//gs_License.Exit(); }
+  catch (CFileException * e)           { e->ReportError(); }//gs_License.Exit(); }
+  catch (CResourceException * e)       { e->ReportError(); }//gs_License.Exit(); }
+  catch (COleException * e)            { e->ReportError(); }//gs_License.Exit(); }
+  catch (COleDispatchException * e)    { e->ReportError(); }//gs_License.Exit(); }
+  catch (CUserException * e)           { e->ReportError(); }//gs_License.Exit(); }
+  catch (CException * e)               { e->ReportError(); }//gs_License.Exit(); }
+  
+  catch (CScdException * e)            
+    { 
+    AfxMessageBox(e->ErrStr(), MB_OK);                                       
+    }
+  catch (...)
+    {
+    AfxMessageBox("Unknown Exception Occurred - During Initialise", MB_OK);                                       
+    gs_License.Exit();
+    }
+  return Ret;
+  };
+int CSysCADApp::ExitInstance()
+  {
+  int Ret=0;
+  _set_se_translator(XcpTranslateFunction);                        
+  DWORD FPP_State=_controlfp(0,0);                                 
+  try                                                              
+    {                                                              
+    /* clear any outstanding exceptions */                         
+    _clearfp();                                                    
+    /* Set New fpControl */                                        
+    _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);
+
+    Ret=DoExitInstance();
+  
+    FPP_RestoreExceptions(FPP_State);                             
+    }       
+  catch (MSysException e)                                         
+    {                                                             
+    _clearfp();                                                   
+                                                         
+    //e->ReportError();
+    Strng S;                                                      
+    S.Set(" %s \n\n"                                              
+          "Exception %s (%x) occurred\n\n"                        
+         "Address: %08x\n\n"                                     
+          "Thread terminating\n\n"                                
+          "Push OK to exit SysCAD",                               
+      "SysCAD Application Exit", e.Name, e.Code, e.Address);                          
+                                                                  
+    AfxMessageBox(S(), MB_OK);                                       
+    }
+
+  catch (CMemoryException * e)         { e->ReportError(); }//gs_License.Exit(); }
+  catch (CNotSupportedException * e)   { e->ReportError(); }//gs_License.Exit(); }
+  catch (CArchiveException * e)        { e->ReportError(); }//gs_License.Exit(); }
+  catch (CFileException * e)           { e->ReportError(); }//gs_License.Exit(); }
+  catch (CResourceException * e)       { e->ReportError(); }//gs_License.Exit(); }
+  catch (COleException * e)            { e->ReportError(); }//gs_License.Exit(); }
+  catch (COleDispatchException * e)    { e->ReportError(); }//gs_License.Exit(); }
+  catch (CUserException * e)           { e->ReportError(); }//gs_License.Exit(); }
+  catch (CException * e)               { e->ReportError(); }//gs_License.Exit(); }
+  
+  catch (CScdException * e)            
+    { 
+    AfxMessageBox(e->ErrStr(), MB_OK);                                       
+    }
+  catch (...)
+    {
+    AfxMessageBox("Unknown Exception Occurred - During Exit", MB_OK);                                       
+    gs_License.Exit();
+    }
+  return Ret;
+  };
 
 //---------------------------------------------------------------------------
 
@@ -2386,7 +2495,7 @@ int CSysCADApp::Run( )
          "Address: %08x\n\n"                                     
           "Thread terminating\n\n"                                
           "Push OK to exit SysCAD",                               
-      "SysCAD Application", e.Name, e.Code, e.Address);                          
+          "SysCAD Application", e.Name, e.Code, e.Address);                          
                                                                   
     AfxMessageBox(S(), MB_OK);                                       
     }
@@ -2428,7 +2537,6 @@ int CSysCADApp::Run( )
     AfxMessageBox("Unknown Exception Occurred", MB_OK);                                       
 
     gs_License.Exit();
-    throw;
     }
 
   return Ret;

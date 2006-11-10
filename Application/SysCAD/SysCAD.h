@@ -144,9 +144,13 @@ class CSysCADApp : public CWinApp
 	  // ClassWizard generated virtual function overrides
 	  //{{AFX_VIRTUAL(CSysCADApp)
 	  public:
+	  BOOL DoInitInstance();
+    int DoExitInstance();
+
 	  virtual BOOL InitInstance();
-		  virtual int ExitInstance();
-	  //}}AFX_VIRTUAL
+    virtual int ExitInstance();
+    
+    //}}AFX_VIRTUAL
 
   // Implementation
 	  // CNM - COleTemplateServer m_server;
