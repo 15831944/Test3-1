@@ -121,14 +121,20 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     double          DensityMix(double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, MArray & M);
     double          msEnthalpyMix(double FSol, double Hs, double FLiq, double Hl, double FVap, double Hv, double T_, double P_, MArray & M);
     double          msCpMix(double FSol, double Hs, double FLiq, double Hl, double FVap, double Hv, double T_, double P_, MArray & M);
-    int             getFidelity();
+
+    double          RefTemp() const;
+
+	int             getFidelity();
     SpPropOveride * getPropOverides();
     LPCTSTR         getTag();
     MVector         getVector();
     bool            TestStateValid(int i);
     void            SetStateValid(int i, bool On=true);
 
-    // ----------------------------- Basic State Access
+    SV_View         getView();
+    SV_ViewBasis    getViewBasis();
+
+	// ----------------------------- Basic State Access
     double          getM(long i) const;
     void            putM(long i, double M) const;
     double          getMl(long i) const;
@@ -137,11 +143,41 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     MArray          getMassArray();                
     double          getPressure();                 
     double          getTemperature();              
+
+	// ----------------------------- 
     MSMFnRanges   & getSMFnRanges();
 
     double          getBoilingPtElevation(double P, MArray * pMA);
 
-    
+	double          Mass(DWORD Phases=MP_All) const;
+    double          Moles(DWORD Phases=MP_All) const;
+    double          MoleWt(DWORD Phases=MP_All) const;
+
+    double          MassFrac(DWORD Phases=MP_All) const;
+    double          MoleFrac(DWORD Phases=MP_All) const;
+
+	void            ScaleMass(DWORD Phases, double Scl);
+
+    // ----------------------------- Properties
+    //virtual LPCTSTR DefinedPropertyMapName() { return ClassId(); }
+    virtual long    DefinedPropertyCount() { return 0; };
+    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info) { return -1; };
+
+    virtual DWORD   GetPropertyVisibility(long Index) { return ePVis_All; };;
+    virtual void    GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
+    virtual void    PutPropertyValue(long Index, MPropertyValue & Value) {};
+    static  void    GetPropertyValueGlobal(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
+    static  void    PutPropertyValueGlobal(long Index, MPropertyValue & Value) {};
+
+    // ----------------------------- Helper Classes
+  public:
+    MLog            Log;
+    MDebug          Dbg;
+    MDataDefn       DD;
+    MDataChange     DX;
+    MDataValidate   DV;
+
+    // ----------------------------- 
     __declspec(property(get=getM,put=putM))       double        M[];
     __declspec(property(get=getMl,put=putMl))     double        Ml[];
     __declspec(property(get=getMassVector))       double      * MassVector;
@@ -154,40 +190,8 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     __declspec(property(get=getTag))              LPCTSTR       Tag;
     __declspec(property(get=getVector))           MVector       Vector;
 
-    SV_View         getView();
-    SV_ViewBasis    getViewBasis();
-
     __declspec(property(get=getView))             SV_View      View;
     __declspec(property(get=getViewBasis))        SV_ViewBasis ViewBasis;
-
-    double          Mass(DWORD Phases);         
-    double          Moles(DWORD Phases);        
-    double          MassFrac(DWORD Phases);     
-    double          MoleFrac(DWORD Phases);     
-    void            ScaleMass(DWORD Phases, double Scl);
-
-    // ----------------------------- Properties
-
-    double        RefTemp() const;
-
-    // Properties
-    //virtual LPCTSTR DefinedPropertyMapName()                              { return ClassId(); }
-    virtual long    DefinedPropertyCount() { return 0; };
-    virtual long    DefinedPropertyInfo(long Index, MPropertyInfo & Info) { return -1; };
-
-    virtual DWORD   GetPropertyVisibility(long Index) { return ePVis_All; };;
-    virtual void    GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
-    virtual void    PutPropertyValue(long Index, MPropertyValue & Value) {};
-    static  void    GetPropertyValueGlobal(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
-    static  void    PutPropertyValueGlobal(long Index, MPropertyValue & Value) {};
-
-    MLog            Log;
-    MDebug          Dbg;
-    //MLog            Log;
-    //MDebug          Dbg;
-    MDataDefn       DD;
-    MDataChange     DX;
-    MDataValidate   DV;
 
   private:
     SpModelEx     * m_pSpMdlX;

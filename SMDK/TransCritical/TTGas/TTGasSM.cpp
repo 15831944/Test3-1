@@ -106,6 +106,8 @@ double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
       MGas+=MA[i];
     }
 
+  double mwt = MoleWt(MP_Gas);
+
   double DSol=2000;
   double DLiq=1000;
   //double mwt = Mass(MP_Gas)/GTZ(Moles(MP_Gas));

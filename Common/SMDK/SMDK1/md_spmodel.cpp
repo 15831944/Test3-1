@@ -311,10 +311,12 @@ double MSpModelBase::getTemperature()                     { return m_pSpMdlX->Te
 SV_View      MSpModelBase::getView()                      { return m_pSpMdlX->GetView();                 };
 SV_ViewBasis MSpModelBase::getViewBasis()                 { return m_pSpMdlX->GetViewBasis();            };
 
-double MSpModelBase::Mass(DWORD Phases)                   { return m_pSpMdlX->Mass(Phases);              };
-double MSpModelBase::Moles(DWORD Phases)                  { return m_pSpMdlX->Moles(Phases);             };
-double MSpModelBase::MassFrac(DWORD Phases)               { return m_pSpMdlX->MassFrac(Phases);          };
-double MSpModelBase::MoleFrac(DWORD Phases)               { return m_pSpMdlX->MoleFrac(Phases);          };
+double MSpModelBase::Mass(DWORD Phases) const             { return m_pSpMdlX->Mass(Phases);              };
+double MSpModelBase::Moles(DWORD Phases) const            { return m_pSpMdlX->Moles(Phases);             };
+double MSpModelBase::MoleWt(DWORD Phases) const           { return m_pSpMdlX->MoleWt(Phases);            };
+double MSpModelBase::MassFrac(DWORD Phases) const         { return m_pSpMdlX->MassFrac(Phases);          };
+double MSpModelBase::MoleFrac(DWORD Phases) const         { return m_pSpMdlX->MoleFrac(Phases);          };
+
 void MSpModelBase::ScaleMass(DWORD Phases, double Scale)  { return m_pSpMdlX->ScaleMass(Phases, Scale);  };
 
 MSMFnRanges & MSpModelBase::getSMFnRanges()               { return *m_pSpMdlX->SMFnRanges();                 };
