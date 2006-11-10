@@ -121,7 +121,7 @@ wzzip -a %fn2% ..\bin\scdplcopcsrv.dll ..\bin\plc5.exe
 wzzip -a %fn2% ..\bin\kw_smdk1.dll
 wzzip -a %fn2% ..\bin\demousr.dll ..\bin\demospusr.dll ..\bin\demoalspusr.dll
 wzzip -a %fn2% ..\bin\csiro_units.dll
-wzzip -a %fn2% ..\bin\csiro_units.dll
+wzzip -a %fn2% ..\bin\ttgas.dll
 rem plus all the client DLLs
 wzzip -a %fn2% ..\bin\alcanspm.dll ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
 wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
