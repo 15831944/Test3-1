@@ -127,9 +127,9 @@ void BatchPrecip::BuildDataFields()
   DD.String("Version", "", idDX_Version, MF_RESULT);
   DD.CheckBox ("CompletePopulation", "", &sm_bCompletePopulation, MF_PARAM_STOPPED);
   DD.Show(!sm_bCompletePopulation);
-  DD.CheckBox ("Use SSA from Pop Run", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
+  DD.CheckBox ("UseSSA_from_PopRun", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
   DD.Show( (!sm_bUsePrevPSD)&&(!sm_bCompletePopulation)  );
-  DD.Double("In Tank SSA of solids", "", &m_dInTankSSA, MF_PARAMETER,  MC_);  
+  DD.Double("InTankSSA_of_solids", "", &m_dInTankSSA, MF_PARAMETER,  MC_);  
 
   DD.Show();
   DD.Text     ("");

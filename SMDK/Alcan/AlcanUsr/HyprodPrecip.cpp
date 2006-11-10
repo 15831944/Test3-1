@@ -171,9 +171,9 @@ void Precipitator::BuildDataFields()
   DD.String("Version", "", idDX_Version, MF_RESULT);
   DD.CheckBox ("CompletePopulation", "", &sm_bCompletePopulation, MF_PARAM_STOPPED);
   DD.Show(!sm_bCompletePopulation);
-  DD.CheckBox ("Use SSA from Pop Run", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
+  DD.CheckBox ("UseSSA_from_PopRun", "", &sm_bUsePrevPSD, MF_PARAM_STOPPED);
   DD.Show( (!sm_bUsePrevPSD)&&(!sm_bCompletePopulation)  );
-  DD.Double("In Tank SSA of solids", "", &m_dInTankSSA, MF_PARAMETER,  MC_);  
+  DD.Double("InTankSSA_of_solids", "", &m_dInTankSSA, MF_PARAMETER,  MC_);  
   DD.Show();
   DD.Text     ("");
   DD.Text     ("Configuration");
@@ -222,7 +222,7 @@ void Precipitator::BuildDataFields()
   DD.Double("KvFac", "", &m_dKvFac, MF_PARAMETER,  MC_);  
   DD.Long("Nucleat.Model", "", (long*)&m_eNuclModel , MF_PARAMETER|MF_SET_ON_CHANGE, NucleatModels );
   DD.Show(m_eNuclModel==eNucl_LowShearRate || m_eNuclModel==eNucl_HighShearRate ||  m_eNuclModel== eNucl_LowSolidsConc || m_eNuclModel==eNucl_Hybrid);
-  DD.Double("Shear Rate", "", &m_eShearRate, MF_PARAMETER,  MC_);  
+  DD.Double("ShearRate", "", &m_eShearRate, MF_PARAMETER,  MC_);  
   DD.Show();
   DD.Text("");
   DD.Long("ThermalBalance", "", (long*)&m_eHeatBalance, MF_PARAMETER|MF_SET_ON_CHANGE, DDHeatBalance);

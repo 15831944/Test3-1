@@ -288,7 +288,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Control1", "Common\Model
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IlukaUnits", "SMDK\Iluka\IlukaUnits\IlukaUnits.vcproj", "{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.IlukaUnits", "SMDK\Iluka\IlukaUnits\IlukaUnits.vcproj", "{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -309,7 +309,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10.CCDK", "Application\Ccdk
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HatchUnits", "SMDK\Hatch\HatchUnits\HatchUnits.vcproj", "{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.HatchUnits", "SMDK\Hatch\HatchUnits\HatchUnits.vcproj", "{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -784,6 +784,7 @@ Global
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Distribution.ActiveCfg = Distribution|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Distribution.Build.0 = Distribution|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release.ActiveCfg = Release|Win32
+		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release.Build.0 = Release|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release - Full.ActiveCfg = Release|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release - Full.Build.0 = Release|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg.ActiveCfg = Release_Dbg|Win32

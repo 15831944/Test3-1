@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="HatchUnits"
+	Name="us.HatchUnits"
 	ProjectGUID="{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
 	SccProjectName="Perforce Project"
 	SccAuxPath=""

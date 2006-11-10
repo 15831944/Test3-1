@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="AlcanBayer"
+	Name="us.AlcanBayer"
 	ProjectGUID="{2E48B298-5BBC-4D9F-AB8D-CA858811799E}"
 	Keyword="MFCProj">
 	<Platforms>
@@ -294,9 +294,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath=".\AlcanSM.cpp">
-			</File>
-			<File
 				RelativePath="AlcanBayer.cpp">
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
@@ -329,6 +326,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\AlcanSM.cpp">
 			</File>
 			<File
 				RelativePath="StdAfx.cpp">
@@ -373,10 +373,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath=".\AlcanSM.h">
+				RelativePath="AlcanBayer.h">
 			</File>
 			<File
-				RelativePath="AlcanBayer.h">
+				RelativePath=".\AlcanSM.h">
 			</File>
 			<File
 				RelativePath="..\..\Include\DebugLib.h">
