@@ -254,7 +254,7 @@ bool MRootFinderBase::Converged(double X1, double X2, double F1, double F2)
 
 // --------------------------------------------------------------------------
 
-int MRootFinderBase::Start(double X1, double X2, double F1/*=dNAN*/, double F2/*=dNAN*/)
+int MRootFinderBase::Start(double X1, double X2, double F1/*=dNAN*/, double F2/*=dNAN*/, bool RetIndependant/*=false*/)
   { 
   iError=RF_OK;
   x1=X1;
@@ -370,7 +370,11 @@ int MRootFinderBase::Start(double X1, double X2, double F1/*=dNAN*/, double F2/*
     iError=RF_BadStartValues;
   else if (m_Tol.ConvergedVV(m_Val1, m_Val2)) 
     {
-    iError=RF_Independant;
+    if (RetIndependant)
+      iError=RF_Independant;
+    else
+      iError=RF_OK;
+    bStarted=1;
     }
   else if (m_Err1 * m_Err2 <= 0.0) // Bracketed
     {
@@ -692,7 +696,7 @@ Brent:
       EstV=Result();
       }
     }
-  else
+  else if (Error()!=RF_Independant)
     {
     if (bLogErrors)
       LogWarning(ObjTag(), 0, "%s - Brent Not Started", pDescStr);
@@ -736,7 +740,7 @@ LPCTSTR MRootFinderBase::ResultString(int ErrorRet)
 //
 // ===========================================================================
 
-int MRootFinder::FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double XEst, double XEstSlope)
+int MRootFinder::FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double XEst, double XEstSlope, bool RetIndependant)
   {
   SetTarget(FnTarget);
   if (Valid(XEst))
@@ -745,7 +749,9 @@ int MRootFinder::FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double 
   if (iRet==RF_EstimateOK) //estimate is good, solve not required
     return RF_OK;
   if (iRet==RF_BadEstimate)
-    iRet = Start(XLoBnd, XHiBnd); // Restart
+    iRet = Start(XLoBnd, XHiBnd, dNAN, dNAN, RetIndependant); // Restart
+  if (iRet==RF_Independant)
+    return RF_Independant;
   if (iRet==RF_OK) 
     return Solve_Brent();
   return iRet;
