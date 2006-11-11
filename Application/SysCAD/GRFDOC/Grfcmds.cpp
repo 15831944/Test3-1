@@ -8888,9 +8888,9 @@ void GrfCmdBlk::DoUpdateTags()
           ActivateGWnd();
           gs_pCmd->BlockDblClk();
           pDsp->Vp1->ClearAllEntity();
-          Invalidate(Size);
-          Invalidate(Rotation);
-          Invalidate(Delta.X);
+          Size=dNAN;
+          Rotation=dNAN;
+          Delta.X=dNAN;
           Like = NULL;
           AttrName = 0;
           bFlag1 = 1; //show tags
@@ -8931,9 +8931,9 @@ void GrfCmdBlk::DoUpdateTags()
           pDrw->EntityInvalidate();
           pDsp->Vp1->ClearAllEntity();
           pWnd->Invalidate();
-          Invalidate(Size);
-          Invalidate(Rotation);
-          Invalidate(Delta.X);
+          Size=dNAN;
+          Rotation=dNAN;
+          Delta.X=dNAN;
           Like = NULL;
           AttrName = 0;
           bFlag1 = 1; //show tags
@@ -8941,9 +8941,9 @@ void GrfCmdBlk::DoUpdateTags()
         case MID_Like : gs_pCmd->SetDigInfo(GC_NoCurs, 1); break;
         case MID_NoLike : Like = NULL; break;
         case MID_Size :gs_pCmd->SetParmInfo(AFloat, 1); break;
-        case MID_NoSize : Invalidate(Size); break;
+        case MID_NoSize : Size=dNAN; break;
         case MID_Rotation : gs_pCmd->SetParmInfo(AFloat, 1); break;
-        case MID_NoRotation : Invalidate(Rotation); break;
+        case MID_NoRotation : Rotation=dNAN; break;
         case MID_Name : AttrName = 1; break;
         case MID_NoName : AttrName = -1; break;
         case MID_Position :
@@ -8956,7 +8956,7 @@ void GrfCmdBlk::DoUpdateTags()
           break;
         case MID_NoPosition :
           pGWnd->SetCursor();
-          Invalidate(Delta.X);
+          Delta.X=dNAN;
           bFlag2 = 0;
           if (pTagsDlg)
             pTagsDlg->SetDescription("");
@@ -9008,9 +9008,9 @@ void GrfCmdBlk::DoUpdateTags()
         pDsp->Vp1->ClearAllEntity();
         pWnd->Invalidate();
         pGWnd->SetCursor();
-        Invalidate(Size);
-        Invalidate(Rotation);
-        Invalidate(Delta.X);
+        Size=dNAN;
+        Rotation=dNAN;
+        Delta.X=dNAN;
         Like = NULL;
         AttrName = 0;
         bFlag1 = 1; //show tags

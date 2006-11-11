@@ -63,8 +63,8 @@ extern DllImportExport const double dSignalNAN;
 extern DllImportExport const float fNAN;
 extern DllImportExport const double dNAN;
 
-inline void Invalidate(float &x)  { x=fSignalNAN; };
-inline void Invalidate(double &x) { x=dSignalNAN; };
+//inline void Invalidate(float &x)  { x=fSignalNAN; };
+//inline void Invalidate(double &x) { x=dSignalNAN; };
 
 inline bool IsQuietNAN(double V) { return (((LARGE_INTEGER*)&V)->HighPart & 0x00040000)!=0; };
 inline bool IsSignalNAN(double V) { return (((LARGE_INTEGER*)&V)->HighPart & 0x00040000)==0; };

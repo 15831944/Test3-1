@@ -283,8 +283,8 @@ void BaseCmdBlk::DoRun()
       switch (Modifier)
         {
         case ModNoun : 
-                  Invalidate(EndTime); 
-                  Invalidate(dTime);
+                  EndTime=dNAN; 
+                  dTime=dNAN;
                   //SteadyState=0;
                   break;
         case  1 : gs_pCmd->SetParmInfo(AFloat, 1); break; // Dt

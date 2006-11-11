@@ -320,6 +320,8 @@ Global
 		Release_Dbg_Small = Release_Dbg_Small
 		SMDK_Debug = SMDK_Debug
 	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{1E44FC34-651B-4C29-A53D-512FD627BCB2}.Debug.ActiveCfg = Debug|Win32
 		{1E44FC34-651B-4C29-A53D-512FD627BCB2}.Debug.Build.0 = Debug|Win32
@@ -1255,12 +1257,12 @@ Global
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.SMDK_Debug.ActiveCfg = Debug|Win32
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.SMDK_Debug.Build.0 = Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug.ActiveCfg = Debug|Win32
+		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug.Build.0 = Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug - Full.ActiveCfg = Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug - Full.Build.0 = Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Distribution.ActiveCfg = Distribution|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Distribution.Build.0 = Distribution|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release.ActiveCfg = Release|Win32
-		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release.Build.0 = Release|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release - Full.ActiveCfg = Release|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release - Full.Build.0 = Release|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg.ActiveCfg = Release_Dbg|Win32

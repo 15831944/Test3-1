@@ -523,7 +523,7 @@ class DllImportExport MRootFinderBase
   {
   public:
     MRootFinderBase(char *DescStr, CToleranceBlock & Tol);
-    virtual int     Start(double X1, double X2, double Fn1=dNAN, double Fn2=dNAN);
+    virtual int     Start(double X1, double X2, double Fn1=dNAN, double Fn2=dNAN, bool RetIndependant=false);
     virtual double  Function(double x) = 0;
     virtual int     Solve_Brent();
     virtual int     SolveFromEst(double Est, double Sign, double dChgFrac=0.01, double dChgInit=dNAN);
@@ -580,7 +580,7 @@ class DllImportExport MRootFinder: public MRootFinderBase
     MRootFinder(char *DescStr, CToleranceBlock & Tol) : MRootFinderBase(DescStr, Tol)
       {
       };
-    int FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double XEst=dNAN, double XEstSlope=1.0);
+    int FindRoot(double FnTarget, double XLoBnd, double XHiBnd, double XEst=dNAN, double XEstSlope=1.0, bool RetIndependant=false);
     int FindRootEst(double FnTarget, double XLoBnd, double XHiBnd, double XEst, double XEstSlope=1.0, double ChgMax=0.0, double ChgInit=0.0);
   };
 
