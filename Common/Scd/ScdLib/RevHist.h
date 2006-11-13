@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 3"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "8 November 2006"
+#define SCD_PATCHDATE    "10 November 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2617,15 +2617,15 @@ Update 1 : 31 October 2006
 
 Update 2 : 5 November 2006
 ------------------------------
-1) Improved error and exception trapping and reporting for serious floating 
-   point and other failures.
+1) Improved error and exception trapping and reporting for floating point and 
+   other errors.
 2) (#634) Fix for setting Content.DeltaMt in dynamic.
 
-Update 3 : 8 November 2006
+Update 3 : 10 November 2006
 ------------------------------
 1) (#648) For dynamic transfer, fixes for flow display and error messages 
    when a tank outlet pipe is turned off or capacity set to zero.
-   
+2) (#655, 658) Compiled with VS2003 SP1. Various fixes.
 
 
 =============================================================================
