@@ -206,6 +206,11 @@ MTransferUnitDefBase::MTransferUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LP
     m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
                        "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_GRP_ALUMINA|TOC_ALUMINA, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
     }
+  else if (stricmp(DLL,"heatxch2")==0)
+    {
+    m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
+                       "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_GRP_ENERGY|TOC_HEATBAL, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+    }
   else
     {
     m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,

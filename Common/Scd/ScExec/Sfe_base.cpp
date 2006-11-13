@@ -988,6 +988,7 @@ static char *KenwaltDLLs[]=
   "sko.dll",
   "ilukaunits.dll",
   "alumina2.dll",
+  "heatxch2.dll",
   
   NULL
   };
