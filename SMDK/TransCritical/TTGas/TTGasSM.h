@@ -34,7 +34,7 @@ class TTGasSM : public MSpModelBase
     TTGasSM(TaggedObject *pNd);
     ~TTGasSM();
 
-    bool            ValidateData();
+    bool            ValidateDataFields();
 
     // Standard Methods
     bool            get_IsBaseClassOf(LPCTSTR OtherProgID);

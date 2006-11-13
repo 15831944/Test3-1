@@ -79,9 +79,9 @@ LPCTSTR TTGasSM::get_PreferredModelProgID()
 
 //---------------------------------------------------------------------------
 
-bool TTGasSM::ValidateData()
+bool TTGasSM::ValidateDataFields()
   {
-  bool OK=MSpModelBase::ValidateData();
+  bool OK=MSpModelBase::ValidateDataFields();
   return OK;
   }
 

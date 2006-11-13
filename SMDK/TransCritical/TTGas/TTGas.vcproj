@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\Bin\BATC_Brahma.dll"
+				OutputFile="..\..\..\Bin\TTGas.DLL"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -111,7 +111,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\Bin\BATC_Brahma.dll"
+				OutputFile="..\..\..\Bin\TTGas.DLL"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -180,7 +180,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\Bin\BATC_Brahma.dll"
+				OutputFile="..\..\..\Bin\TTGas.DLL"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -248,7 +248,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\Bin\BATC_Brahma.dll"
+				OutputFile="..\..\..\Bin\TTGas.DLL"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
