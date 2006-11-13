@@ -332,7 +332,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     //  DDB.Double ("Flange_DP_Out","DPoR",   DC_DP,  "kPa",   xidDPOutRmt,    this, isResult|noFile|noSnap);
     }
 
-  if (!NetProbalMethod())
+  if (!NetProbalMethod() && !HeatSkipMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Text   (" ");
