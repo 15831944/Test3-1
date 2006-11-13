@@ -23,7 +23,7 @@
 #ifdef _DEBUG
 #define BYPASSLICENSING         01
 #elif  _RELEASE
-#define BYPASSLICENSING         01
+#define BYPASSLICENSING         0 //MUST ALWAYS BE OFF
 #else
 #define BYPASSLICENSING         0
 #endif
@@ -34,9 +34,9 @@
 // (3) for VS2003
 #define ALSOALLOWMINESERVEMDLS  0
 #ifdef _DEBUG
-#define BYPASSLICENSING         0
+#define BYPASSLICENSING         01
 #elif  _RELEASE
-#define BYPASSLICENSING         1
+#define BYPASSLICENSING         0 //MUST ALWAYS BE OFF
 #else
 #define BYPASSLICENSING         0
 #endif
@@ -48,7 +48,7 @@
 //=== Override for Distribution version ===
 #ifdef DISTRIBUTION
 #undef  BYPASSLICENSING  
-#define BYPASSLICENSING         0
+#define BYPASSLICENSING         0 //MUST ALWAYS BE OFF
 #undef  ALLOWCNMVERSION 
 #define ALLOWCNMVERSION         0
 #undef  ALSOALLOWMINESERVEMDLS
