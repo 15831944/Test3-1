@@ -35,6 +35,7 @@ TTDbg::~TTDbg() {
 
 
 
+
 int TTDbg::tcltk_init(void)
 {
   if (tkinited)  {      // Already initialized
@@ -76,7 +77,7 @@ int TTDbg::tcltk_init(void)
     tkmain = Tk_MainWindow(the_interp);
 
 
-    code = Tcl_EvalFile(the_interp,"c:/devel/TTCommon/command.tcl");
+    code = Tcl_EvalFile(the_interp,"c:/devel/Transcritical/TTCommon/command.tcl");
     if (code != TCL_OK)
       Tcl_Eval(the_interp, "pack [label .l -text NoStart]");
     

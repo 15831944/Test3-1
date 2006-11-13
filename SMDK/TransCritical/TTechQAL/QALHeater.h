@@ -1,8 +1,8 @@
-#pragma once
-
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+//   Time-stamp: <2006-11-01 11:54:00 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
+#pragma once
 
 
 
@@ -78,7 +78,7 @@ class CQALHeater : public MBaseMethod, CSTHx
     double  m_dLMTD;
     double  m_dDuty;
     double  m_dLMTDFactor;
-
+    double  m_dSScaleConductivity;   // Shell Scale Conductivity 
     double m_dQmVent, m_dSecQm;
     
 

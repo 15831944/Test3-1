@@ -79,9 +79,9 @@ LPCTSTR TTGasSM::get_PreferredModelProgID()
 
 //---------------------------------------------------------------------------
 
-bool TTGasSM::ValidateDataFields()
+bool TTGasSM::ValidateData()
   {
-  bool OK=MSpModelBase::ValidateDataFields();
+  bool OK=MSpModelBase::ValidateData();
   return OK;
   }
 
@@ -106,8 +106,6 @@ double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
       MGas+=MA[i];
     }
 
-  double mwt = MoleWt(MP_Gas);
-
   double DSol=2000;
   double DLiq=1000;
   //double mwt = Mass(MP_Gas)/GTZ(Moles(MP_Gas));
@@ -117,7 +115,17 @@ double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
   }
 
 
-
+double TTGasSM::get_MWT(MArray *pMA) {
+  MArray MA(pMA ? *pMA : this);
+  long   SpecieCount=gs_MVDefn.Count();
+  double mtot=0.0, mwtot=0.0;
+  for (int i=0; i<SpecieCount; i++) {
+    //mtot += MA[i];
+    mwtot += MA[i]*gs_MVDefn[i].MolecularWt();
+  }
+  return mwtot/MA.Mass();
+  // MoleWt();
+}
 
 
 //---------------------------------------------------------------------------
@@ -199,6 +207,7 @@ enum {
 
   idGasDensity,
   idNormalDensity,
+  idGasMWT,
   idGasCp,
   idGasViscosity,
   idGasConductivity,
@@ -248,7 +257,9 @@ long TTGasSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
     case idSeparator1	    : Info.SetText("..."); return Inx;
 
-
+    case idGasMWT :
+      Info.Set(ePT_Double,    "", "GasMWT",MC_, "",    0, 0,  MP_RN,    "Molecular Wt"); return Inx;
+      
     case idNormalDensity:
       Info.Set(ePT_Double,    "", "NormalDensity",MC_Conc, "g/L",    0, 0,  MP_RN,    "Gas Density @1atm, 0C"); return Inx;
     case idGasCp:
@@ -298,8 +309,9 @@ void TTGasSM::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*=NA
     {
       GV(GasModel, sm_i);
       GVAL2(DefineGas, fDoCalc);
+      GVAL2(GasMWT, get_MWT(NULL));
       GVAL(RqdMWT);
-		
+      GVAL2(NormalDensity, NormalDensity());
     default: Value=0.0; return;
     }
   }

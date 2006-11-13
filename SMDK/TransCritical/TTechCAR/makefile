@@ -1,19 +1,32 @@
+SYSCAD=90
+SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
 DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "GLADDY"
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 PRECIP_OBJ = precip.obj
-OBJS = TTechCAR.obj CARTubeDigester.obj $(PRECIP_OBJ)  TTCARPrecip.obj sthx.obj
+OBJS =  CARTubeDigester.obj $(PRECIP_OBJ)  TTCARPrecip.obj sthx.obj TTechCAR.obj
 COMMON = ../TTCommon/
+LIBS = SMDK1.lib scdlib.lib
+
+
+ifeq ($(SYSCAD),91)
+ IDIR = "..\..\smdk\Include"
+ LDIR = "..\..\smdk\bin\rls"
+else
+ IDIR = "..\..\include"
+ LDIR = "..\..\bin\rls"
+endif
+
 
 
 %.obj : %.cpp
-	 cl /I "..\Include" $(DFLAGS) $(CFLAGS) $<
+	 cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $<
 
 
 
 TTechCAR.dll: $(OBJS)
-	link /OUT:"..\..\SysCAD90\Bin\TTechCAR.dll" $(LFLAGS) /PDB:".\Rls/TTechCAR.pdb" /IMPLIB:".\Rls/TTechCAR.lib" /MACHINE:X86 $(OBJS)
-	lic.bat
+	link /OUT:"$(SYSCADDIR)\TTechCAR.dll" $(LFLAGS) /PDB:".\Rls/TTechCAR.pdb" /LIBPATH:$(LDIR) /IMPLIB:".\Rls/TTechCAR.lib" /MACHINE:X86 $(OBJS) $(LIBS)
+	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\TTechCAR.dll"
 
 CARTubeDigester.obj : CARTubeDigester.cpp CARTubeDigester.h
 
@@ -24,10 +37,11 @@ TTCARPrecip.obj : TTCARPrecip.cpp TTCARPrecip.h $(COMMON)precip.h
 
 
 sthx.obj : $(COMMON)STHx.cpp $(COMMON)STHx.h
-	cl /I "..\Include" $(DFLAGS) $(CFLAGS) $(COMMON)sthx.cpp
+	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $(COMMON)sthx.cpp
 
 precip.obj : $(COMMON)precip.cpp $(COMMON)precip.h
-	cl /I "..\Include" $(DFLAGS) $(CFLAGS) $(COMMON)precip.cpp
+	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $(COMMON)precip.cpp
+
 
 
 
@@ -44,7 +58,8 @@ list1:
 	/cygwin/bin/a2ps -Ma4 -olist.ps temp.cpp
 
 
-
+install:
+	cp "$(SYSCADDIR)\TTechCAR.dll" "g:\archive\syscad\syscad$(SYSCAD)\TTechCAR.dll"
 
 clean:
 	rm -f TTechCAR.obj

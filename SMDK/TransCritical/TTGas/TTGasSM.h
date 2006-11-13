@@ -34,7 +34,7 @@ class TTGasSM : public MSpModelBase
     TTGasSM(TaggedObject *pNd);
     ~TTGasSM();
 
-    bool            ValidateDataFields();
+    bool            ValidateData();
 
     // Standard Methods
     bool            get_IsBaseClassOf(LPCTSTR OtherProgID);
@@ -47,7 +47,7 @@ class TTGasSM : public MSpModelBase
     double          get_ThermalConductivity(long Phases, double T, double P, MArray * pMA);
     double          get_SaturationT(double P, MArray *pMA);
     
-
+    double  get_MWT(MArray *pMA);
     double idealCp(double T);
     double dHRes(double T, double P);
     double dGRes(double T, double P);
@@ -71,7 +71,7 @@ class TTGasSM : public MSpModelBase
 
   public:
     //Other properties
-    double NormalDensity(double T, double P);
+    double NormalDensity() {return 101.325/8.3143*get_MWT(NULL)/273.15;}
   };
 
 #endif

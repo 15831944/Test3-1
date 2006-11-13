@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2006-08-30 14:03:57 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-11-13 11:09:09 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "TubeDigester.h"
+
 
 #define dbgModels 1
 
@@ -37,8 +38,14 @@ static double LMTD(double TbTi, double TbTo, double ShTi, double ShTo)
 {
   double gttd = ShTo - TbTi;
   double lttd = ShTi - TbTo;
-  return (gttd==lttd) ? gttd : (gttd-lttd)/log(GTZ(fabs(gttd))/(GTZ(fabs(lttd))));
+  if (gttd==0 || lttd==0) return 0.0;
+  const double r = gttd/lttd;
+  if (r <= 0) return 0.0;
+  return   (gttd==lttd) ? gttd : (gttd-lttd)/log(r);
 }
+
+
+
 
 
 
@@ -715,7 +722,6 @@ class CSimpleSolverFn : public MRootFinder
     static MToleranceBlock s_Tol;
   };
 
-//MToleranceBlock CSimpleSolverFn::s_Tol(TBF_Both, "TubeReactor:Simple", 0.00005, 0, 100);
 MToleranceBlock CSimpleSolverFn::s_Tol(TBF_Both, "ShellTube2:Simple", 0.00005, 0, 100);
 
 void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream & ShellO, MStream & TubeO) {
@@ -725,35 +731,51 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
   if (TubeI.MassFlow()>0 && ShellI.MassFlow()>0) {
     double TTi=TubeI.T;
     double STi=ShellI.T;
-    long   nSegs=10;
-
     m_dUA=m_dHTArea*m_dHTC;
-
-    //for (int i=0; i<nSegs; i++)
-    //      {
 
     CSimpleSolverFn Fn(this, TubeI, ShellI, TubeO, ShellO);
 
     double TubeOutT;
     double MnTbOutT=TubeI.T;// No Transfer
     double MxTbOutT=ShellI.T-0.001;
-    // simplistic protection against crossover
-    // assume all vapour condensed
+
     double qShell=ShellI.totHz()-ShellO.totHz(MP_All, TubeI.T, ShellI.P);
     double qTube=TubeI.totHz(MP_All, ShellI.T, TubeI.P)-TubeI.totHz();
-    
-    if (qShell<qTube) // Limited By Shell - Tube TOut Limited
-      MxTbOutT=MnTbOutT+(qShell)/GTZ(qTube)*(MxTbOutT-MnTbOutT);
+        
+    if (fabs(qShell)<fabs(qTube)) { // Limited By Shell - Tube TOut Limited
+      //MStream  ms(TubeI);
+      //MStream ms = TubeI;
+      MStream ms;
+      ms = TubeI;
+      ms.Set_totHz(TubeI.totHz()+qShell);
+      MxTbOutT = ms.T;
+      Log.Message(MMsg_Note, "Limiting TubeOutT %g TubeI %g %d %d", MxTbOutT-273.15, TubeI.T-273.15, &TubeI, &ms); 
+      } 
+
+//     if (MnTbOutT > MxTbOutT) {
+//       const double tmp = MnTbOutT;
+//       MnTbOutT = MxTbOutT;
+//       MxTbOutT = tmp;
+//     }
+
     
     switch (Fn.FindRoot(0, MnTbOutT, MxTbOutT)) {
     case RF_OK:       TubeOutT = Fn.Result();   break;
-    case RF_LoLimit:  TubeOutT = MnTbOutT;      break;
-    case RF_HiLimit:  TubeOutT = MxTbOutT;      break;
+    case RF_LoLimit:  {
+      TubeOutT = MnTbOutT;      
+      Log.Message(MMsg_Error, "Low Limit TubeOutT"); 
+      break;
+    } 
+    case RF_HiLimit:  {
+      TubeO.T = MxTbOutT;
+      Log.Message(MMsg_Error, "Hi Limit TubeOutT"); 
+      break;
+    }
     default: 
       Log.Message(MMsg_Error, "TubeOutT not found - RootFinder:%s", Fn.ResultString(Fn.Error())); 
       TubeOutT=Fn.Result();
       break;
-      // }
+
       m_RB.EvalProducts(TubeO);    
       dHf=m_RB.HfSumRct();
       m_dRMTD = m_dLMTD;

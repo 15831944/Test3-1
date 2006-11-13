@@ -1,5 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           Reversion Washer Model 2004 - Transcritical Technologies 
+//   Time-stamp: <2006-11-01 11:55:57 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
 

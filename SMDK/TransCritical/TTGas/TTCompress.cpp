@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2006-11-08 13:16:50 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-11-10 11:24:11 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $ QAL Extensions by Transcritical Technologies Pty Ltd
 //===========================================================================
 
@@ -29,8 +29,9 @@ static MDDValueLst DDPumpMode[]=
 
 static MDDValueLst DDCalcMode[]=
   {
-    {0, "Isentropic"},    // Detailed compressor calc
+    {0, "Isentropic"},    
     {1, "Polytropic"},
+    {2, "Specify.K"},
     {NULL}
   };
 
@@ -114,6 +115,8 @@ void CTTCompress::BuildDataFields()
   DD.Show(m_lCalcMode==0);
   DD.Double("Isentropic.Efficiency", "", &m_dPolyEff, MF_PARAMETER, MC_);
   DD.Show(m_lCalcMode==1);
+  DD.Double("Polytropic.Efficiency", "", &m_dPolyEff, MF_PARAMETER, MC_);
+  DD.Show(m_lCalcMode==2);
   DD.Double("Polytropic.K", "", &m_dPolyK, MF_PARAMETER, MC_);
   DD.Show();
   
@@ -191,8 +194,11 @@ void CTTCompress::doSimpleCompressor(MStream & sIn, MStream & sOut)
     dT /= m_dPolyEff;
     tOut = sIn.T+dT;
   }
-  
   if (m_lCalcMode==1) {
+    tOut = m_dTOut = pow(m_dPRatio, k/m_dPolyEff)*sIn.T;
+  }
+  
+  if (m_lCalcMode==2) {
     k=m_dPolyK;
     tOut = m_dTOut = pow(m_dPRatio, k)*sIn.T;
   }

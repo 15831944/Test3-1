@@ -1,3 +1,16 @@
+2006-10-26  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* CARTubeDigester.cpp: Fixup of LMTD calculation for
+	SimpleHeater. The upper limit temperature for TubeOut was causing
+	problems: this is set because the streams may have different
+	thermal capacities and having an upper limit of ShellIn.T would
+	cause crossover in the LMTD calculation. However the LMTD calc
+	has absolute values, which gave erroenous results when crossover
+	occurred.
+
+	So replaced LMTD with penalty value when crossover occurs. The
+	Brent Solver should pick this up in pathological cases. 
+
 2006-08-10  Rod Stephenson  <rod.stephenson@transcritical.com>
 
 	* CARTubeDigester.cpp (DoLiveSteamHeater): Fix up enthalpy to

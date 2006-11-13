@@ -1,8 +1,9 @@
-#pragma once
-
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+//   Time-stamp: <2006-11-01 11:54:28 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
+#pragma once
+
 
 #ifndef __MD_HEADERS_H
 #include "md_headers.h"

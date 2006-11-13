@@ -1,3 +1,5 @@
+//   Time-stamp: <2006-11-01 11:54:09 Rod Stephenson Transcritical Pty Ltd>
+
 #include "stdafx.h"
 #include "QALHeater.h"
 #include "..\TTCommon\hxutils.h"

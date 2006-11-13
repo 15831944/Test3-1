@@ -1,5 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $ QAL Extensions by Transcritical Technologies Pty Ltd
+//   Time-stamp: <2006-11-01 11:51:54 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
 #include "stdafx.h"
@@ -266,7 +267,7 @@ void CQALHeater::BuildDataFields()
   DD.Double("m_Sec.Qm", "", &m_dSecQm, MF_RESULT, MC_Qm);
   DD.Show(m_lHxMode && m_bSSScaling);
   DD.Double("SS.Scale.Thick", "", &m_dSScaleThickness, MF_PARAMETER, MC_L("mm")); 
-  DD.Double("SS.Scale.Cond", "", &m_dScaleConductivity, MF_PARAMETER, MC_HCond); 
+  DD.Double("SS.Scale.Cond", "", &m_dSScaleConductivity, MF_PARAMETER, MC_HCond); 
   DD.Show(m_lHxMode && m_lSSdPMode==KD);
   DD.Double("SS.Kd.Factor","", &m_dSSKdFactor, MF_PARAMETER, MC_None);
   
@@ -504,7 +505,7 @@ void CQALHeater::EvalProducts()
       }
       if (m_bSSScaling && m_dSScaleThickness > 0.0) {
 	double od = m_dTubeOD+2*m_dSScaleThickness;  // actual ID with scale
-	sscaleResistance = log(od/m_dTubeOD)*m_dTubeOD/(2*m_dScaleConductivity);
+	sscaleResistance = log(od/m_dTubeOD)*m_dTubeOD/(2*m_dSScaleConductivity);
       }
 
       m_dHTC = 1/(1/m_dTSHTC + wallResistance+scaleResistance + sscaleResistance 

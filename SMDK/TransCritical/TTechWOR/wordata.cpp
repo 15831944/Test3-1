@@ -127,6 +127,8 @@ void CPrecipitator::BuildDataFields()
   DD.Text  ("Results Tank");
   DD.Double("ResidenceTime", "",    &dResidenceTime ,MF_RESULT, MC_Time("h"));
   DD.Double("SuperSat", "", &m_dSSat, MF_RESULT, MC_);
+  DD.Double("BrahmaSuperSat", "", &m_dBSSat, MF_RESULT, MC_);
+  
   DD.Double("SSA",  "", &dSSA, MF_RESULT, MC_SurfAreaM);
   DD.Double("Yield", "",            &dYield         ,MF_RESULT, MC_Conc("kg/m^3"));
   DD.Double("THA.Precip", "",        &dTHAPrecip     ,MF_RESULT, MC_Qm("kg/s"));

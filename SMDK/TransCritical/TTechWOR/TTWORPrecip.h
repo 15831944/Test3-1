@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2006-06-27 09:42:49 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-09-28 14:33:45 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
 #ifndef __MD_HEADERS_H
@@ -148,6 +148,7 @@ class CPrecipitator: public MBaseMethod, CPrecip
   double dACout;
   double m_dACeq;
   double m_dSSat;      // Supersaturation
+  double m_dBSSat;      // Brahma Supersaturation
 
 
   double m_dHIn;
@@ -268,5 +269,5 @@ class CPrecipitator: public MBaseMethod, CPrecip
 };
 
 
-
+double CEquil(MStream &, double);
 

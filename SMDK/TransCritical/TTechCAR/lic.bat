@@ -1,1 +1,1 @@
-..\smdk\devlic.exe /q /f:"..\..\SysCAD90\bin\TTechCAR.dll"
+..\..\smdk\devlic.exe /q /f:"..\..\SysCAD90\bin\TTechCAR.dll"

@@ -1,4 +1,5 @@
 // stdafx.h : include file for standard system include files,
+//   Time-stamp: <2006-11-01 11:56:12 Rod Stephenson Transcritical Pty Ltd>
 //  or project specific include files that are used frequently, but
 //      are changed infrequently
 //--------------------------------------------------------------------------
@@ -20,7 +21,7 @@
 #include <afxext.h>         // MFC extensions
 #include <afxtempl.h>
 
-#include "..\Include\ScdIF.h"
+#include "ScdIF.h"
 
 //#include <afxdtctl.h>		// MFC support for Internet Explorer 4 Common Controls
 #ifndef _AFX_NO_AFXCMN_SUPPORT

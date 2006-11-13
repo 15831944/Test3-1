@@ -1,5 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
+//   Time-stamp: <2006-11-01 11:56:22 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
 #ifndef  __TTECHQAL_H

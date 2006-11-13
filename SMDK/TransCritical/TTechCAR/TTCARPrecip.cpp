@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2006-07-20 03:20:51 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-10-25 16:15:23 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -503,7 +503,6 @@ void CPrecipitator::DoPrecip(MStream & Prod)
     if (m_RB.Enabled()) {            // Optional Reaction Block
       m_RB.EvalProducts(Prod);
     }
-    
     AdjustSSA(Prod);      /// Adjust SSA
 
     converged = ConvergenceTest();   //// Final convergence test  
@@ -631,7 +630,7 @@ void CPrecipitator::EvalLosses(MStream & Prod)
     m_dLiquorTout = Prod.T;
     m_dLMTD = 0.0;
     m_dCoolWaterTout = CoolIn.T;
-  }
+  } 
   m_dIntCoolRate=0.0;
   if (m_bCoolerOn && iCoolType==COOL_INTERNAL && bCoolIn && iCoolMethod == COOL_Hx ) {
     MStream TubeIn;
@@ -781,16 +780,17 @@ void CPrecipitator::DoResults(MStream & Prod)
   double Cout    = ProdB.CausticConc(Prod.T);
   m_dACeq = ProdB.AluminaConcSat(Prod.T)/ProdB.CausticConc(C2K(25));
   m_dSSat = ProdB.AtoC()/m_dACeq;
-  dYield         = Cout*(dACin-dACout);
+    dYield  = Cout*(dACin-dACout);
+    double SolIn = Feed.MassVector[spTHA];
+    double SolOut  = Prod.MassVector[spTHA];
+    dTHAPrecip     = SolOut - SolIn;
+    SolIn = Feed.Mass(MP_Sol);
+    SolOut = Prod.Mass(MP_Sol);
+    dSolPrecip = SolOut - SolIn;
+    dSolConc = Prod.Mass(MP_Sol)/dQvout25;
+    m_dLiquorTin = Prod.T;
+  
 
-  double SolIn = Feed.MassVector[spTHA];
-  double SolOut  = Prod.MassVector[spTHA];
-  dTHAPrecip     = SolOut - SolIn;
-  SolIn = Feed.Mass(MP_Sol);
-  SolOut = Prod.Mass(MP_Sol);
-  dSolPrecip = SolOut - SolIn;
-  dSolConc = Prod.Mass(MP_Sol)/dQvout25;
-  m_dLiquorTin = Prod.T;
 }
 
 
@@ -841,7 +841,6 @@ void CPrecipitator::EvalProducts()
       MStream &CoolOut = FlwIOs[iCoolOutIndex].Stream;
       if (Valid(CoolIn.T) && fabs(CoolIn.Mass())>1.0e-5 && fabs(CoolIn.Mass())>1.0e-5) {
 	m_dExtCoolTemp = CoolIn.T;                  // The temperature of the return stream
-	//	m_dExtCoolRate = CoolOut.totHz()-CoolIn.totHz();
 	m_dExtCoolRate = m_dCoolOutTotHz-CoolIn.totHz();
 	//      CoolingSanityCheck();
       } else {
@@ -900,10 +899,6 @@ void CPrecipitator::EvalProducts()
 	else
 	  CoolOut.T = CoolIn.T;
       }
-      
-
-
-
 
       DoResults(Prod);
 
@@ -928,6 +923,19 @@ void CPrecipitator::EvalProducts()
       dACout  = dACin;
       dReactionHeat  = 0.0;
       dResidenceTime = 0.0;
+      dYield = 0.0;
+      dTHAPrecip = 0.0;
+      dSolPrecip = 0.0;
+      if (iCoolType==COOL_INTERNAL && bCoolOut && bCoolIn && iCoolMethod==COOL_Hx) {
+	MStream &CoolOut = FlwIOs[iCoolOutIndex].Stream;
+	CoolOut.SetF(CoolIn, MP_All, 1.0);
+	CoolOut.T = CoolIn.T;
+	m_dCoolWaterTout = CoolIn.T;
+	m_dCoolRate = 0.0;
+      }
+
+
+
     }
   }
   catch (MMdlException &e)

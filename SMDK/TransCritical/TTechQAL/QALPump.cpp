@@ -1,4 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
+//   Time-stamp: <2006-11-01 11:54:49 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $ QAL Extensions by Transcritical Technologies Pty Ltd
 //===========================================================================
 

@@ -13,13 +13,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #include "scdmacros.h" 
 #include "md_headers.h"
-#ifdef GLADDY
-#pragma LIBCOMMENT("..\\smdk\\Bin\\", "\\SMDK1" )
-#pragma LIBCOMMENT("..\\smdk\\Bin\\", "\\scdlib" )
-#else
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\SMDK1" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
-#endif
 //===========================================================================
 
 BOOL APIENTRY DllMain( HANDLE hModule, 

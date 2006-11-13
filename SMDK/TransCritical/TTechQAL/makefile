@@ -1,10 +1,16 @@
-DBG = 1
+#   Time-stamp: <2006-11-08 12:45:23 Rod Stephenson Transcritical Pty Ltd>
+SYSCAD=90
+#DBG = 1
 COMMON = ../TTCommon/
+
+SMDKDLL = TTechQAL
 
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800 /I C:/Tcl/Include
 DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" \
-          /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "GLADDY"	
+          /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS"
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG  $(COMMON)ttcommon.lib
+LIBS = SMDK1.lib scdlib.lib
+
 OBJS = 	QALClassifier.obj   \
 	ReversionWasher.obj \
 	QALHeater.obj \
@@ -23,45 +29,45 @@ LFLAGS := $(LFLAGS)   c:/Tcl/lib/Tcl84.lib  c:/Tcl/lib/Tk84.lib
 DFLAGS := $(DFLAGS) /D "TTDEBUG"
 endif
 
+ifeq ($(SYSCAD),91)
+ IDIR = "..\..\smdk\Include"
+ LDIR = "..\..\smdk\bin\rls"
+else
+ IDIR = "..\..\include"
+ LDIR = "..\..\bin\rls"
+endif
+
+
+%.obj : %.cpp
+	 cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $<
+
+
 
 
 TTechQAL.dll: $(OBJS)
-	link /OUT:"..\..\SysCAD90\Bin\TTechQAL.dll" $(LFLAGS) /PDB:".\Rls/TTechQAL.pdb" /IMPLIB:".\Rls/TTechQAL.lib" /MACHINE:X86 $(OBJS)
-	lic.bat
+	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/TTechQAL.pdb" /IMPLIB:".\Rls/TTechQAL.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
+	../../smdk/devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
+
 
 QALClassifier.obj : QALClassifier.cpp QALClassifier.h
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALClassifier.cpp
-
 QALCyclone.obj : QALCyclone.cpp QALCyclone.h
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALCyclone.cpp
-
 ReversionWasher.obj : ReversionWasher.cpp ReversionWasher.h
-	cl /I "..\Include" $(DFLAGS) $(CFLAGS) ReversionWasher.cpp
-
 QALHeater.obj : QALHeater.cpp QALHeater.h
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALHeater.cpp
-
 QALHeaterU.obj : QALHeaterU.cpp QALHeater.h
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALHeaterU.cpp
-
 QALPump.obj : QALPump.cpp QALPump.h
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALPump.cpp
-
 QALPipe.obj : QALPipe.cpp QALPipe.h
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALPipe.cpp
-
 QALPrecip.obj : QALPrecip.cpp QALPrecip.h qaldata.cpp
-	cl /I "..\Include" $(DFLAGS)  $(CFLAGS) QALPrecip.cpp
-
 TTechQAL.obj : TTechQAL.cpp TTechQAL.h
-	cl /I "..\Include" $(DFLAGS) $(CFLAGS) TTechQAL.cpp
-
-
 
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) vc70.pdb vc70.idb
+
 
 
 doc:
 	/cygwin/bin/a2ps -Ma4 QALHeater.cpp -oout.ps
+
+
+install: 
+	cp "C:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" "G:\archive\syscad\SysCAD$(SYSCAD)"

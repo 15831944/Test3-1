@@ -1,5 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
+//   Time-stamp: <2006-11-01 11:56:17 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
 #include "stdafx.h"
@@ -13,13 +14,11 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #include "scdmacros.h" 
 #include "md_headers.h"
-#ifdef GLADDY 
-#pragma LIBCOMMENT("..\\Bin\\", "\\SMDK1" )
-#pragma LIBCOMMENT("..\\Bin\\", "\\scdlib" )
-#else
+
+/*
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\SMDK1" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
-#endif
+*/
 
 //===========================================================================
 

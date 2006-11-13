@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2006-07-19 12:38:39 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-09-28 14:35:50 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -431,7 +431,9 @@ void CPrecipitator::DoResults()
   double dQvout25 = Tank.Volume(MP_All, C2K(25));
   double Cout    = TankB.CausticConc(Tank.T);
   m_dACeq = TankB.AluminaConcSat(Tank.T)/Cout;
-  m_dSSat = TankB.AtoC()/m_dACeq;
+  double ACTank = TankB.AtoC();
+  m_dSSat = ACTank/m_dACeq;
+  m_dBSSat = (ACTank - m_dACeq)/(m_dACeq*(1-1.039*ACTank));
   dYield         = Cout*(dACin-dACout);
   double SolIn = Feed.MassVector[spTHA];
   double SolOut  = Tank.MassVector[spTHA];
@@ -665,7 +667,14 @@ void CPrecipitator::displayPSD(BrahmaPSD &p, int scrn) {
   
 }
 
+double CEquil(MStream & s, double T) {
+  MStream s1 = s;
 
+  MIBayer & sB=s.IF<MIBayer>(false);
+
+  double asat = sB.AluminaConcSat(T);
+  return asat;
+}
 
 #include "worcalc.cpp"
 

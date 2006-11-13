@@ -1,4 +1,13 @@
-2006-05-04  Rod Stephenson  <viking_kiwi@yahoo.poofters.com>
+2006-11-01  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* QALHeater.cpp (EvalProducts): Fixup for shellside scaling.
+
+2006-09-18  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* makefile (OBJS): Changed directory structure: removed GLADDY
+	local definitions.
+
+2006-05-04  Rod Stephenson  <rod.stephenson@transcritical.com>
 
 	* QALPrecip.cpp: Switched on evap/thermal loss code
 

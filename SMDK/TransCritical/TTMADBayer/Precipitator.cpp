@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2006-08-30 14:48:52 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-11-13 11:21:00 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -938,6 +938,17 @@ void CPrecipitator::EvalProducts()
       dACout  = dACin;
       dReactionHeat  = 0.0;
       dResidenceTime = 0.0;
+      dYield = 0.0;
+      dTHAPrecip = 0.0;
+      dSolPrecip = 0.0;
+      if (iCoolType==COOL_INTERNAL && bCoolOut && bCoolIn && iCoolMethod==COOL_Hx) {
+	MStream &CoolOut = FlwIOs[iCoolOutIndex].Stream;
+	CoolOut.SetF(CoolIn, MP_All, 1.0);
+	CoolOut.T = CoolIn.T;
+	m_dCoolWaterTout = CoolIn.T;
+	m_dCoolRate = 0.0;
+      }
+      
     }
   }
   catch (MMdlException &e)

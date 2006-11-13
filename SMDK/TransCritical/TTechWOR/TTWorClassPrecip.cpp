@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2006-09-13 12:36:54 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-09-13 12:48:12 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -14,7 +14,7 @@
 
 //   Define the species in the particular precipiation model...
 
-static MInitialiseTest InitTest("Precip");
+static MInitialiseTest InitTest("ClassPrecip");
 
 
 //static MSpeciePtr  spAlumina       (InitTest, "NaAl[OH]4(l)", false);

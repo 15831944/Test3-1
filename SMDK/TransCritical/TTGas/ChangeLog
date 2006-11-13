@@ -1,4 +1,6 @@
-2005-12-08  Rod Stephenson  <viking_kiwi@yahoo.poofters.com>
+2006-11-10  Rod Stephenson  <rod.stephenson@transcritical.com>
 
-	* TTQALBayerSM.cpp: 
+	* TTGasSM.cpp: Gas Species Model. Added Gas MWT calculation,
+	though this should be available directly.
+
 
