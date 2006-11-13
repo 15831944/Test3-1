@@ -6,6 +6,7 @@
 
 #include "stdafx.h"
 #include "TubeDigester.h"
+#pragma optimize("", off)
 
 
 #define dbgModels 1
@@ -758,27 +759,31 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
 //     }
 
     
-    switch (Fn.FindRoot(0, MnTbOutT, MxTbOutT)) {
-    case RF_OK:       TubeOutT = Fn.Result();   break;
-    case RF_LoLimit:  {
-      TubeOutT = MnTbOutT;      
-      Log.Message(MMsg_Error, "Low Limit TubeOutT"); 
-      break;
-    } 
-    case RF_HiLimit:  {
-      TubeO.T = MxTbOutT;
-      Log.Message(MMsg_Error, "Hi Limit TubeOutT"); 
-      break;
-    }
-    default: 
-      Log.Message(MMsg_Error, "TubeOutT not found - RootFinder:%s", Fn.ResultString(Fn.Error())); 
-      TubeOutT=Fn.Result();
-      break;
-
-      m_RB.EvalProducts(TubeO);    
-      dHf=m_RB.HfSumRct();
-      m_dRMTD = m_dLMTD;
-    }
+    switch (Fn.FindRoot(0, MnTbOutT, MxTbOutT)) 
+      {
+      case RF_OK:       TubeOutT = Fn.Result();   break;
+      case RF_LoLimit:  
+        {
+        TubeOutT = MnTbOutT;      
+        Log.Message(MMsg_Error, "Low Limit TubeOutT"); 
+        break;
+        } 
+      case RF_HiLimit:  
+        {
+        TubeO.T = MxTbOutT;
+        Log.Message(MMsg_Error, "Hi Limit TubeOutT"); 
+        break;
+        }
+      default:
+        {
+        Log.Message(MMsg_Error, "TubeOutT not found - RootFinder:%s", Fn.ResultString(Fn.Error())); 
+        TubeOutT=Fn.Result();
+        break;
+        }
+      }
+    m_RB.EvalProducts(TubeO);
+    dHf=m_RB.HfSumRct();
+    m_dRMTD = m_dLMTD;
   }
 };
 
