@@ -47,14 +47,15 @@ bool CLimn_ModelData_Base::CRefBase::Initialise(CLimn_ModelData_Base * pBase, in
 CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef()
   { 
   m_IsBool = false; 
-  m_Scale = 1.0; 
+  m_Scale  = 1.0; 
+  m_iIndex = -1;
   };
-CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, LPCSTR Index, LPCTSTR CnvStr, bool IsBool, bool Hide, CArray<CLimn_ModelData_ParmHdr, CLimn_ModelData_ParmHdr&> & RqdHdrs) 
+CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, int Index, LPCTSTR CnvStr, bool IsBool, bool Hide, CArray<CLimn_ModelData_ParmHdr, CLimn_ModelData_ParmHdr&> & RqdHdrs) 
   {
   m_Class = "DW_";
   m_Class += Class;
   m_Tag = Tag;
-  m_Index = Index;
+  m_iIndex = Index;
   m_IsBool=IsBool;
   m_Hide=Hide;
   m_ArrayBegin=false;
@@ -71,13 +72,35 @@ CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, LPCST
   m_Scale = gs_Cnvs.Scale(m_Cnv);
   };
 
+CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, LPCSTR Index, LPCTSTR CnvStr, bool IsBool, bool Hide, CArray<CLimn_ModelData_ParmHdr, CLimn_ModelData_ParmHdr&> & RqdHdrs) 
+  {
+  m_Class = "DW_";
+  m_Class += Class;
+  m_Tag = Tag;
+  m_iIndex = -1;
+  m_sIndex = Index;
+  m_IsBool=IsBool;
+  m_Hide=Hide;
+  m_ArrayBegin=false;
+  m_ArrayEnd=false;
+  m_ArrayLen=0;
+
+  for (int i=0; i<RqdHdrs.GetCount(); i++)
+     m_Hdrs.Add(RqdHdrs[i]);
+  RqdHdrs.SetSize(0);
+
+  gs_Cnvs.Create(CnvStr, m_Cnv); 
+  if (m_Cnv.m_Txt.GetLength()>0)
+    { int xxx=0; }
+  m_Scale = gs_Cnvs.Scale(m_Cnv);
+  };
 //-----------------------------------------------------------------------------------------------------------
 
 CLimn_ModelData_Base::CBooleanRef::CBooleanRef() {};
 void CLimn_ModelData_Base::CBooleanRef::Initialise(CLimn_ModelData_Base * pBase, LPCSTR Tag, const bool DefaultValue, bool Hide)
   {
   if (CRefBase::Initialise(pBase, 1))
-    m_pBase->m_Defs[m_iParm]=new CLimn_ModelData_ParmDef("", Tag, "", "", true, Hide, m_pBase->m_RqdHdrs);
+    m_pBase->m_Defs[m_iParm]=new CLimn_ModelData_ParmDef("", Tag, -1, "", true, Hide, m_pBase->m_RqdHdrs);
   if (m_pBase->m_LocalData)
     m_pBase->m_Data[m_iParm]=DefaultValue?1:0;
   };
@@ -88,29 +111,29 @@ CLimn_ModelData_Base::CDoubleRef::CDoubleRef() {};
 void CLimn_ModelData_Base::CDoubleRef::Initialise(CLimn_ModelData_Base * pBase, LPCSTR Tag, const double DefaultValue, LPCTSTR CnvStr, bool Hide) 
   {
   if (CRefBase::Initialise(pBase, 1))
-    m_pBase->m_Defs[m_iParm]=new CLimn_ModelData_ParmDef("", Tag, "", CnvStr, false, Hide, m_pBase->m_RqdHdrs);
+    m_pBase->m_Defs[m_iParm]=new CLimn_ModelData_ParmDef("", Tag, -1, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
   if (m_pBase->m_LocalData)
     m_pBase->m_Data[m_iParm]=DefaultValue/m_pBase->m_Defs[m_iParm]->m_Scale;
   };
 
 //-----------------------------------------------------------------------------------------------------------
 
-static void GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI, int i, CString & Tg)
+static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI, int i, CString & Tg)
   {
   switch (DI)
     {
-    case CLimn_ModelData_Base::DI_None:  Tg.Format("%i",i);                              return;
-    case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s",gs_DWCfg.OreSizeText(i));        return;
-    case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s",gs_DWCfg.DiamondSizeText(i));    return;
-    case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s",gs_DWCfg.SGTextShort(i));        return;
+    case CLimn_ModelData_Base::DI_None:  Tg.Format("%i",i);                              return false;
+    case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s",gs_DWCfg.OreSizeText(i));        return true;
+    case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s",gs_DWCfg.DiamondSizeText(i));    return true;
+    case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s",gs_DWCfg.SGTextShort(i));        return true;
     }
   Tg="?";
-  return ;
+  return true;
   }
 
 //-----------------------------------------------------------------------------------------------------------
 
-static void GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI0, const CLimn_ModelData_Base::eDataIndex DI1, int i0, int i1, CString & Tg)
+static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI0, const CLimn_ModelData_Base::eDataIndex DI1, int i0, int i1, CString & Tg)
   {
   CString Tg0;
   switch (DI0)
@@ -122,13 +145,13 @@ static void GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI0,
     }
   switch (DI1)
     {
-    case CLimn_ModelData_Base::DI_None:  Tg.Format("%s/%i",Tg0,i1);  return;
-    case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.OreSizeText(i1));  return;
-    case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.DiamondSizeText(i1));  return;
-    case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s/%s",Tg0,gs_DWCfg.SGTextShort(i1));  return;
+    case CLimn_ModelData_Base::DI_None:  Tg.Format("%s/%i",Tg0,i1);                            return true;
+    case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.OreSizeText(i1));      return true;
+    case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.DiamondSizeText(i1));  return true;
+    case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s/%s",Tg0,gs_DWCfg.SGTextShort(i1));      return true;
     }
   Tg="?";
-  return ;
+  return true;
   }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -146,8 +169,10 @@ void CLimn_ModelData_Base::CVectorRef::Initialise(CLimn_ModelData_Base * pBase, 
     //int iFirst=m_pBase->m_Defs.GetCount();
     for (int i=0; i<Len; i++)
       {
-      GetIndexTag(Tag, DI, i, Tg);
-      m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
+      if (GetIndexTag(Tag, DI, i, Tg))
+        m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
+      else
+        m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, i, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
       }
     m_pBase->m_Defs[m_iParm]->m_ArrayLen=Len;
     m_pBase->m_Defs[m_iParm]->m_ArrayBegin=true;
@@ -170,8 +195,10 @@ void CLimn_ModelData_Base::CVectorRef::Initialise(CLimn_ModelData_Base * pBase, 
     //int iFirst=m_pBase->m_Defs.GetCount();
     for (int i=0; i<Len; i++)
       {
-      GetIndexTag(Tag, DI, i, Tg);
-      m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
+      if (GetIndexTag(Tag, DI, i, Tg))
+        m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, Tg, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
+      else
+        m_pBase->m_Defs[m_iParm+i]=new CLimn_ModelData_ParmDef(Class, Tag, i, CnvStr, false, Hide, m_pBase->m_RqdHdrs);
       }
     m_pBase->m_Defs[m_iParm]->m_ArrayLen=Len;
     m_pBase->m_Defs[m_iParm]->m_ArrayBegin=true;
@@ -380,13 +407,16 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
           //Cls.Format("DW_%s",D.m_Class);
           DD.ArrayBegin(D.m_Class, D.m_Tag, D.m_ArrayLen,0);
 
-          //gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
+          gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
           }
 
         if (InArray)
           {
-          DD.ArrayElementStart(D.m_Index, FS);
-          //gs_Dbg.PrintLn("ArrayEle  %s %s", D.m_Tag, D.m_Index);
+          if (D.m_iIndex>=0)
+            DD.ArrayElementStart(D.m_iIndex, FS);
+          else
+            DD.ArrayElementStart(D.m_sIndex, FS);
+          gs_Dbg.PrintLn("ArrayEle  %s %i %s", D.m_Tag, D.m_iIndex, D.m_sIndex);
           CString S;
           //S.Format("%s[%s]", D.m_Tag, D.m_Index);
           //S=D.m_Index;
@@ -408,7 +438,7 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
         if (D.m_ArrayEnd)
           {
           DD.ArrayEnd(0);
-          //gs_Dbg.PrintLn("ArrayEnd   %s %s <<<<<<<<<<<", "", "");
+          gs_Dbg.PrintLn("ArrayEnd   %s %s <<<<<<<<<<<", "", "");
           InArray=false;
           }
         }

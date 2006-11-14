@@ -40,6 +40,7 @@ class CLimn_ModelData_ParmDef
   {
   public:
     CLimn_ModelData_ParmDef();
+    CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, int    Index, LPCTSTR CnvStr, bool IsBool, bool Hide, CArray<CLimn_ModelData_ParmHdr, CLimn_ModelData_ParmHdr&> & RqdHdrs) ;
     CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, LPCSTR Index, LPCTSTR CnvStr, bool IsBool, bool Hide, CArray<CLimn_ModelData_ParmHdr, CLimn_ModelData_ParmHdr&> & RqdHdrs) ;
 
   public:
@@ -50,7 +51,8 @@ class CLimn_ModelData_ParmDef
     int       m_ArrayLen;
     CString   m_Class;
     CString   m_Tag;
-    CString   m_Index;
+    CString   m_sIndex;
+    int       m_iIndex;
     CString   m_CnvStr;
     MCnv      m_Cnv;
     double    m_Scale;

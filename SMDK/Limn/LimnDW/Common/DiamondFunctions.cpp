@@ -2528,7 +2528,7 @@ int StreamSummaryCalculation( double SummaryXXXX[],
 		{
 			if ( sizeFractionFlows[iOSz] < 0.0000001 )  sizeFractionFlows[iOSz] = 0.0 ;
 
-			OreDistribution[iOSz] = 100.0 * sizeFractionFlows[iOSz] / totalSolids ;
+      OreDistribution[iOSz] = (thisConfig->UseLimnScaling() ? 100.0:1.0)* sizeFractionFlows[iOSz] / totalSolids ;
 		}
 		SummaryXXXX[1] = CalculatePassingSize( thisConfig->PassSizePercents(0), OreDistribution, nOSz, thisConfig ) ;
 		SummaryXXXX[2] = CalculatePassingSize( thisConfig->PassSizePercents(1), OreDistribution, nOSz, thisConfig ) ;
