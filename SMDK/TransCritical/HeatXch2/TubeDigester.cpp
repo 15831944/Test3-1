@@ -6,8 +6,7 @@
 
 #include "stdafx.h"
 #include "TubeDigester.h"
-#pragma optimize("", off)
-
+//#pragma optimize("", off)
 
 #define dbgModels 1
 
@@ -43,10 +42,6 @@ static double LMTD(double TbTi, double TbTo, double ShTi, double ShTo)
   if (r <= 0) return 0.0;
   return   (gttd==lttd) ? gttd : (gttd-lttd)/log(r);
 }
-
-
-
-
 
 
 //====================================================================================

@@ -384,6 +384,9 @@
 				RelativePath="..\..\..\SMDK\Include\md_base.h">
 			</File>
 			<File
+				RelativePath="..\..\..\SMDK\Include\md_data.h">
+			</File>
+			<File
 				RelativePath="..\..\..\SMDK\Include\md_defn.h">
 			</File>
 			<File

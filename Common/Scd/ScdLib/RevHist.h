@@ -18,10 +18,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 3"   /* Update/patch number/comment*/
+#define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "12 November 2006"
+#define SCD_PATCHDATE    "14 November 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2625,8 +2625,12 @@ Update 3 : 12 November 2006
 ------------------------------
 1) (#648) For dynamic transfer, fixes for flow display and error messages 
    when a tank outlet pipe is turned off or capacity set to zero.
-2) (#655, 658) Compiled with VS2003 SP1. Various fixes.
+2) (#655, 658) Various fixes.
+3) Compiled with VS2003 SP1.
 
+Update 4 : 14 November 2006
+------------------------------
+1) (#649) For dynamic, fix for models as part of a 'cluster' not evaluated.
 
 =============================================================================
 ================                SysCAD 9.2                   ================
