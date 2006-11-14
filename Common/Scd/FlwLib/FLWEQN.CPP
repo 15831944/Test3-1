@@ -738,7 +738,6 @@ void CFlwBlkData::ResetData(flag Complete)
   m_fEvalFwdOnly=false;
   m_fEvalRevOnly=false;
   m_fHoldFastConverge=false;
-
   }
 
 //==========================================================================
@@ -2303,11 +2302,12 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
           m_SimpleRes=0;//1e-6;
           }
 
-        if (Regulation<SmallRegulation)
-          {
-          SetQmReqd(0);
-          b=true;
-          }
+        // This must be done during Task==FET_GetMode
+        //if (Regulation<SmallRegulation)
+        //  {
+        //  SetQmReqd(0);
+        //  b=true;
+        //  }
 
         if (!b && Task==FET_CalcDP)
           {

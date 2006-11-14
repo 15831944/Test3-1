@@ -83,7 +83,7 @@ class CGrpFlwBlkSD
     int             m_iIONo;
     int             m_iLnkNo;
     FlwBlk        * m_pFBJn;
-    CJoinRec       * m_pJoin;
+    CJoinRec      * m_pJoin;
   };
 
 //----------------------------------------------------------------------------
@@ -136,7 +136,7 @@ class CGrpFlwIndex : public CFlwBlkIndex
 
   public:
     eGrpFlwIndex    m_eType;
-    CJoinRec       * m_pJoin;
+    CJoinRec      * m_pJoin;
     FlwBlk        * m_pFB;
     CPressBlk     * m_pSrcPB;
     CPressBlk     * m_pDstPB;
@@ -202,6 +202,7 @@ class CGrpFlwBlk
     void           SetNet(CNetBlk *pNet, CSubNetBlk * pSubNet);
     void           SetSrc(CJoinRec * pJ, int ConnNo);
     void           SetDst(CJoinRec * pJ, int ConnNo);
+    void           Reverse();
 
     FlwNode      * RootNd()       { return m_Lnks.GetCount()>0 ? m_Lnks.GetHead()->pNd : m_Src.m_pNd; };
     flag           RootIsLnk()    { return m_Lnks.GetCount()>0; };
@@ -261,12 +262,12 @@ class CGrpFlwBlk
 
   public:
 
-    CSubNetBlk*     m_pSubNet;
-    CNetBlk*        m_pNet;
-    CFullNetBlk*    m_pFNB;
+    CSubNetBlk*    m_pSubNet;
+    CNetBlk*       m_pNet;
+    CFullNetBlk*   m_pFNB;
 
     CGrpFlwBlkSD   m_Src, m_Dst;
-    CJoinPtrList    m_Lnks;
+    CJoinPtrList   m_Lnks;
     CGrpFlwBlkSeq  m_FBSeq;
 
     Strng          m_FTag, m_RTag;
@@ -350,6 +351,7 @@ class CGrpFlwBlk
                    m_fDstIsEdge,
                    m_fFastConvergeOK,
                    m_fHoldFastConverge,
+                   m_fInGrpList,
                    m_fHasDbgBrk;
 
     byte           m_iFlwPh_Act;
@@ -445,6 +447,7 @@ typedef CSCDListIter<CJoinGrpList, CJoinGrpPtr *> CJoinGrpIter;
 // ===========================================================================
 
 inline flag ConnHasGFB(CJoinRec * pJ, int c) { return pJ->GFB(c) && pJ->GFB_Rmt(c); };
+inline flag ConnPlaced(CJoinRec * pJ, int c) { return pJ->Placed(c) && pJ->Placed_Rmt(c); };
 inline flag ConnIsXfer(CJoinRec * pJ, int c) { return pJ->IsIO(c) ? pJ->IOFB(c,0)->GetXfer() || pJ->IOFB_Rmt(c,0)->GetXfer() : pJ->LinkFB(c)->IsXfer(); };
 inline flag ConnIsFixed(CJoinRec * pJ, int c) { return pJ->IsIO(c) ? pJ->IOFB(c,0)->GetFixed() || pJ->IOFB_Rmt(c,0)->GetFixed() : pJ->LinkFB(c)->IsFixed(); };
 inline flag ConnSameSubNet(CJoinRec * pJ, int c) { return (pJ->GFB(c)->m_pSubNet == pJ->SubNet()); };
@@ -648,7 +651,7 @@ class CSubNetBlk
   public:
     CJoinPtrList    Joins;
     CJoinPtrList    Ties;
-    CGrpFlwList     Grps;
+    CGrpFlwList     m_Grps;
     CJoinGFBList    m_FxdPList;
     CJoinGFBList    m_FxdQList;
     CJoinGrpList    m_CalcIndexSeq;
@@ -801,7 +804,8 @@ class CNetBlk
     CGrpFlwBlk *    AllocGFB();
     void           FreeGFB(CGrpFlwBlk * p);
 
-    flag           AddConn2GFB(ACPosition Pos, JoinTypes Typ, CGrpFlwBlkPtr & pGFB, CJoinRec * pSrcJoin, int SrcConnNo, /*CJoinConnList *pJCL,*/ int *FxdOrder);
+    flag           AddConn2GFB(ACPosition Pos, JoinTypes Typ, CGrpFlwBlkPtr & pGFB, CJoinRec * pSrcJoin, int SrcConnNo);
+    flag           FindConnGFB(JoinTypes Typ, CGrpFlwBlkPtr & pGFB, CJoinRec * pSrcJoin, int SrcConnNo, bool ReverseIfReqd=false);
     flag           MassConserveTie(CJoinRec *p) { return p->fIsTie && !p->fIsImpNd && !p->fIsAccLnk; };
 
 
@@ -814,8 +818,15 @@ class CNetBlk
     flag           FindNetLinks(CSubNetBlk &SNI, CJoinRec * &pJ);
     void           FindLonelyConns(ACPosition Pos, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
     flag           FindLonelyConns(CSubNetBlk &SNI, CJoinRec * p, int ConnNo);
-    void           FindUnDefConns(ACPosition Pos, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
-    flag           FindUnDefConns(CSubNetBlk &SNI, CJoinRec * p, int ConnNo);
+    //void           FindUnDefConns(ACPosition Pos, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
+    //flag           FindUnDefConns(CSubNetBlk &SNI, CJoinRec * p, int ConnNo);
+
+    void           BuildGFB(CGrpFlwList & Grps, CJoinRec * pStart, int ConnNo);
+    void           BuildGFBs(CGrpFlwList & Grps);
+    void           DumpGFBSummary(CGrpFlwList & Grps);
+    void           SetUpGFBs(CGrpFlwList & Grps);
+    void           ConfigureGFBs(CSubNetBlk & SNI);
+    void           ConfigureTies(CSubNetBlk & SNI);
     void           BldSubNets();
     void           UnBldSubNets();
     void           FixNetTopology();

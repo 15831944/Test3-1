@@ -138,7 +138,7 @@ void CSubNetBlk::ShowSubNet(int dbgShowConns)
   if (fNetWrk) dbgp("NetWrk ");
   dbgpln("");
 
-  GrpFlwIter G(Grps);
+  GrpFlwIter G(m_Grps);
   for (CGrpFlwBlk * g=G.First(); g; g=G.Next())
     ShowSubNetsL(g, dbgShowConns);
 

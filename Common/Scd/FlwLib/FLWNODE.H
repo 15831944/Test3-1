@@ -1304,6 +1304,7 @@ class DllImportExport FlwBlk  : public CFlwBlkBase
     void          *m_pGFb;
     flag           m_bAttached2GFB;
     #endif
+    flag           m_bPlaced;
 
 #ifdef _DEBUG
   public:
@@ -2529,6 +2530,8 @@ class DllImportExport CJoinRec
     void         * GFB_Rmt(int c);
     void         * SubNet() { return pSubNet; };
 #endif
+    flag           Placed(int c);
+    flag           Placed_Rmt(int c);
 
     double         GetQmVAccum() { return dQmVAcc; };
     double         GetQmLAccum() { return dQmLAcc; };
@@ -3497,7 +3500,10 @@ class DllImportExport FlwNode : public CTNode
 #else
     void          *GFB(int i)             { return IOFB(i,0)->m_pGFb; };
     void          *GFB_Rmt(int i)         { return IOFB_Rmt(i,0)->m_pGFb; };
-#endif
+#endif 
+    flag           Placed(int i)          { return IOFB(i,0)->m_bPlaced; };
+    flag           Placed_Rmt(int i)      { return IOFB_Rmt(i,0)->m_bPlaced; };
+    
     CFlange       *IOFlange(int i)        { return m_IOs[i].pFlng; };
     CFlange       *IOFlangeTst(int i)     { return (m_IOs.GetCount() && (i >=0 && i < NoFlwIOs())) ? m_IOs[i].pFlng : NULL; };
     CAreaSum      *IOAreaSum(int i)       { return &IOFlange(i)->Sum; };
@@ -4552,12 +4558,14 @@ inline CPressBlk    * CJoinRec::PB_Self(int c)           { return IsIO(c) ? IOPB
 inline CPressBlk    * CJoinRec::PB_Rmt(int c)            { return IsIO(c) ? IOPB_Rmt(c, NIOPBs(c)-1) : LinkPB_Rmt(c); }
 
 #if defined(WITH_GFB)
-inline CGrpFlwBlk    * CJoinRec::GFB(int c)               { return (*m_Conns[c].m_pFBs)[0].m_pGFb; };
-inline CGrpFlwBlk    * CJoinRec::GFB_Rmt(int c)           { return (*Conn_Rmt(c).m_pFBs)[0].m_pGFb; };
+inline CGrpFlwBlk   * CJoinRec::GFB(int c)               { return (*m_Conns[c].m_pFBs)[0].m_pGFb; };
+inline CGrpFlwBlk   * CJoinRec::GFB_Rmt(int c)           { return (*Conn_Rmt(c).m_pFBs)[0].m_pGFb; };
 #else
 inline void         * CJoinRec::GFB(int c)               { return (*m_Conns[c].m_pFBs)[0].m_pGFb; };
 inline void         * CJoinRec::GFB_Rmt(int c)           { return (*Conn_Rmt(c).m_pFBs)[0].m_pGFb; };
 #endif
+inline flag           CJoinRec::Placed(int c)            { return (*m_Conns[c].m_pFBs)[0].m_bPlaced; };
+inline flag           CJoinRec::Placed_Rmt(int c)        { return (*Conn_Rmt(c).m_pFBs)[0].m_bPlaced; };
 
 inline double         CJoinRec::Pressure()               { return m_PB.P;};
 inline void           CJoinRec::SetPressure(double P_)   { m_PB.P=P_; };
@@ -4661,114 +4669,116 @@ inline CJoinCluster & CNodeEvalIndex::getCluster()  { return m_pNd->m_Clusters[m
 //
 //===========================================================================
 
-inline void FlwBlk::SetXferMode()
-  {
-  if (!m_fFixed || !m_fXfer)
-    {
-    //SetTopologyChanged();
-    //DBGTOPOCHGFB("SetXferMode", m_iNo);
-    }
-  m_QmRqd           = dNAN;
-  m_QmReg           = 1.0;
-  m_QmXfCap         = m_iDirnRel2Connect*MaxXfCap;
-  m_fFixed          = true;
-  m_fXfer           = true;
-  m_fIsDegFree      = true;
-  #if (0||dbgTrackQmModes)
-  dbgpln("%-20s fb%04i", "SetXferMode", m_iNo);
-  #endif
-  };
-
-inline void FlwBlk::SetXferCapacity(double QmCap)
-  {
-  m_QmRqd           = dNAN;
-  m_QmReg           = 1.0;
-  m_QmXfCap         = QmCap;
-  };
-
-inline void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, float MaxNode, float MaxFlng)
-  {
-  if (!m_fFixed || m_fXfer)
-    {
-    //SetTopologyChanged();
-    //DBGTOPOCHGFB("SetQmReqd", m_iNo);
-    }
-  m_QmRqd           = QmReqd;
-  m_QmReg           = 1.0;
-  m_QmXfCap         = dNAN;
-  m_fFixedVlv       = false;
-  m_fFixed          = true;
-  m_fXfer           = false;
-  m_fIsDegFree      = IsFree;
-  NodePB().PMaxLim  = MaxNode;
-  FlngPB().PMaxLim  = MaxFlng;
-  #if (0||dbgTrackQmModes)
-  dbgpln("%-20s fb%04i", "SetQmReqd", m_iNo);
-  #endif
-  };
-
-inline void FlwBlk::SetQmReqdVlv(double QmReqd, double Reg, flag IsFree, float MaxNode, float MaxFlng)
-  {
-  if (!m_fFixed || m_fXfer)
-    {
-    //SetTopologyChanged();
-    //DBGTOPOCHGFB("SetQmReqdVlv", m_iNo);
-    }
-  m_QmRqd           = QmReqd;//*Reg;
-  m_QmReg           = Reg;
-  m_fFixedVlv       = true;
-  m_fFixed          = true;
-  m_fXfer           = false;
-  m_fIsDegFree      = IsFree;
-  NodePB().PMaxLim  = MaxNode;
-  FlngPB().PMaxLim  = MaxFlng;
-  #if (0||dbgTrackQmModes)
-  dbgpln("%-20s fb%04i", "SetQmReqdVlv", m_iNo);
-  #endif
-  };
-
-inline void FlwBlk::SetQmFree()
-  {
-  if (m_fFixed || m_fXfer)
-    {
-    //SetTopologyChanged();
-    //DBGTOPOCHGFB("SetQmFree", m_iNo);
-    }
-  m_QmRqd           = dNAN;
-  m_QmReg           = 1.0;                                          
-  m_QmXfCap         = dNAN;
-  m_fFixed          = false;
-  m_fXfer           = false;
-  m_fIsDegFree      = false;
-  NodePB().PMaxLim  = fNAN;
-  FlngPB().PMaxLim  = fNAN;
-  #if (0||dbgTrackQmModes)
-  dbgpln("%-20s fb%04i", "SetQmFree", m_iNo);
-  #endif
-  };
-
-//-------------------------------------------------------------------------
-
-inline void FlwBlk::SetBiDirectionalFlow()
-  {
-  ASSERT(FlwNode::fInConfigureJoins);
-  UDF.OpenP=1.0;
-  UDF.CloseP=0.0;
-  UDF.DirnAllowed=UDFD_Both;
-  UDF.ActionCount=0;
-  UDF.Restrict=0.0;
-  UDF.Action=UDFA_None;
-  };
-
-//-------------------------------------------------------------------------
-
-inline void FlwBlk::SetUniDirectionalFlow(flag Fwd, double OpenPress, double ClosePress)
-  {
-  ASSERT(FlwNode::fInConfigureJoins);
-  UDF.OpenP=OpenPress;
-  UDF.CloseP=ClosePress;
-  UDF.DirnAllowed=Fwd ? UDFD_Fwd : UDFD_Rev;
-  };
+//inline void FlwBlk::SetXferMode()
+//  {
+//  if (!m_fFixed || !m_fXfer)
+//    {
+//    //SetTopologyChanged();
+//    //DBGTOPOCHGFB("SetXferMode", m_iNo);
+//    }
+//  m_QmRqd           = dNAN;
+//  m_QmReg           = 1.0;
+//  m_QmXfCap         = m_iDirnRel2Connect*MaxXfCap;
+//  m_fFixed          = true;
+//  m_fXfer           = true;
+//  m_fIsDegFree      = true;
+//  #if (0||dbgTrackQmModes)
+//  dbgpln("%-20s fb%04i", "SetXferMode", m_iNo);
+//  #endif
+//  };
+//
+//inline void FlwBlk::SetXferCapacity(double QmCap)
+//  {
+//  m_QmRqd           = dNAN;
+//  m_QmReg           = 1.0;
+//  m_QmXfCap         = QmCap;
+//  };
+//
+//inline void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, float MaxNode, float MaxFlng)
+//  {
+//  if (!m_fFixed || m_fXfer)
+//    {
+//    SetTopologyChanged();
+//    DBGTOPOCHGFB("SetQmReqd", m_iNo);
+//    }
+//  m_QmRqd           = QmReqd;
+//  m_QmReg           = 1.0;
+//  m_QmXfCap         = dNAN;
+//  m_fFixedVlv       = false;
+//  m_fFixed          = true;
+//  m_fXfer           = false;
+//  m_fIsDegFree      = IsFree;
+//  NodePB().PMaxLim  = MaxNode;
+//  FlngPB().PMaxLim  = MaxFlng;
+//  #if (0||dbgTrackQmModes)
+//  dbgpln("%-20s fb%04i", "SetQmReqd", m_iNo);
+//  #endif
+//  };
+//
+//inline void FlwBlk::SetQmReqdVlv(double QmReqd, double Reg, flag IsFree, float MaxNode, float MaxFlng)
+//  {
+//  if (!m_fFixed || m_fXfer)
+//    {
+//    SetTopologyChanged();
+//    DBGTOPOCHGFB("SetQmReqdVlv", m_iNo);
+//    }
+//  m_QmRqd           = QmReqd;//*Reg;
+//  m_QmReg           = Reg;
+//  m_fFixedVlv       = true;
+//  m_fFixed          = true;
+//  m_fXfer           = false;
+//  m_fIsDegFree      = IsFree;
+//  NodePB().PMaxLim  = MaxNode;
+//  FlngPB().PMaxLim  = MaxFlng;
+//  #if (0||dbgTrackQmModes)
+//  dbgpln("%-20s fb%04i", "SetQmReqdVlv", m_iNo);
+//  #endif
+//  };
+//
+//inline void FlwBlk::SetQmFree()
+//  {
+//  if (m_fFixed || m_fXfer)
+//    {
+//    SetTopologyChanged();
+//    DBGTOPOCHGFB("SetQmFree", m_iNo);
+//    }
+//  m_QmRqd           = dNAN;
+//  m_QmReg           = 1.0;                                          
+//  m_QmXfCap         = dNAN;
+//  m_fFixed          = false;
+//  m_fXfer           = false;
+//  m_fIsDegFree      = false;
+//  NodePB().PMaxLim  = fNAN;
+//  FlngPB().PMaxLim  = fNAN;
+//  #if (0||dbgTrackQmModes)
+//  dbgpln("%-20s fb%04i", "SetQmFree", m_iNo);
+//  #endif
+//  };
+//
+////-------------------------------------------------------------------------
+//
+//inline void FlwBlk::SetBiDirectionalFlow()
+//  {
+//  ASSERT(FlwNode::fInConfigureJoins);
+//  UDF.OpenP=1.0;
+//  UDF.CloseP=0.0;
+//  UDF.DirnAllowed=UDFD_Both;
+//  UDF.ActionCount=0;
+//  UDF.Restrict=0.0;
+//  UDF.Action=UDFA_None;
+//  };
+//
+////-------------------------------------------------------------------------
+//
+//inline void FlwBlk::SetUniDirectionalFlow(flag Fwd, double OpenPress, double ClosePress)
+//  {
+//  ASSERT(FlwNode::fInConfigureJoins);
+//  UDF.OpenP=OpenPress;
+//  UDF.CloseP=ClosePress;
+//  UDF.DirnAllowed=Fwd ? UDFD_Fwd : UDFD_Rev;
+//  };
+//
+////-------------------------------------------------------------------------
 
 inline double FlwBlk::RequiredQm()
   {

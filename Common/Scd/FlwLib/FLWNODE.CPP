@@ -4723,6 +4723,7 @@ void FlwNode::BuildJoinList()
       {
       IOFB(i,fe)->m_bAttached2GFB=false;
       IOFB(i,fe)->m_pGFb=NULL;
+      IOFB(i,fe)->m_bPlaced=false;
       IOFB(i,fe)->m_iFxdPOrder=-1;
       }
     for (int pb=0; pb<NIOPBs(i); pb++)
@@ -4741,6 +4742,7 @@ void FlwNode::BuildJoinList()
       {
       L.m_FBs[f].m_bAttached2GFB=false;
       L.m_FBs[f].m_pGFb=NULL;
+      L.m_FBs[f].m_bPlaced=false;
       }
     }
 
