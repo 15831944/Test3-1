@@ -70,31 +70,23 @@ void ScheduledMaintenance::BuildDataFields()
     {Strat_Carry,     "Carry"},
     {0}};
 
-  static MDDValueLst DDB2[]={ {Type_Simple, "Simple"},
-    { Type_nWeekly, "nWeekly" },
-    { Type_nMonthly, "nMonthly" },
-    { Type_nAnually, "nAnnually" },
+  static MDDValueLst DDB2[]={ 
+    { Type_Simple, "Simple" },
     {0} };
 
   DD.CheckBox("On", "", &bOn, MF_PARAMETER);
   DD.Long ("Strategy", "Strat", (long*)&eStrategy, MF_PARAMETER, DDB1);
-  DD.Long ("Count", "", idDX_Count, MF_PARAMETER);
+  DD.Long ("Count", "", idDX_Count, MF_PARAMETER | MF_SET_ON_CHANGE);
   
-  DD.ArrayBegin("Maintenance_Tasks", "Maintenance_Tasks", tasks.size());
+  DD.ArrayBegin("Maintenance_Tasks", "Task", tasks.size());
   for (long i = 0; i < tasks.size(); i++)
     {
     DD.ArrayElementStart(i);
-    DD.String("Description", "Desc", idDX_Description, MF_PARAMETER);
+    DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
     DD.Long ("Type", "", (long*)&tasks.at(i).eType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
 
-    DD.Show(tasks.at(i).eType == Type_Simple); //Constant period:
     DD.Double ("Period", "T", &tasks.at(i).dPeriod, MF_PARAMETER, MC_Time(""));
     DD.Double ("Offset", "T0", &tasks.at(i).dOffset, MF_PARAMETER, MC_Time(""));
-    DD.Show(tasks.at(i).eType != Type_Simple); //Weekly Maintenance:
-    DD.Long ("Period", "T", (long*)&tasks.at(i).lPeriod, MF_PARAMETER);
-    DD.String ("Start_Date", "Start", idDX_StartDate, MF_PARAMETER);
-    DD.Show();
-
     DD.Double ("Downtime", "Td", &tasks.at(i).dDownTime, MF_PARAMETER, MC_Time(""));
     
     DD.Text("");
@@ -114,23 +106,14 @@ bool ScheduledMaintenance::ExchangeDataFields()
     DX.String = tasks.at(DX.Handle - idDX_Description).sDescription;
     return true;
     }
-  if (DX.Handle = idDX_Count)
+  if (DX.Handle == idDX_Count)
     {
-    if (DX.HasReqdValue && DX.Long > tasks.size()) //We want to add elements
-      for (int i = tasks.size(); i < DX.Long; i++)
-        {
-        MaintVariables* newTask = new MaintVariables();
-        newTask->bRunning = true;
-        newTask->dDownTime = 3600;
-        newTask->dOffset = 0;
-        newTask->dPeriod = 24 * 3600;
-        newTask->dTotalDowntime = 0;
-        newTask->eType = Type_Simple;
-        tasks.push_back(*newTask);
-        }
-    if (DX.HasReqdValue && DX.Long < tasks.size())  //We want to remove elements
-      for (int i = tasks.size; i > DX.Long; i--)
-        tasks.pop_back();
+    if (!DX.HasReqdValue)
+      {
+      DX.Long = tasks.size();
+      return true;
+      }
+    SetSize(DX.Long);
     DX.Long = tasks.size();
     return true;
     }
@@ -140,6 +123,7 @@ bool ScheduledMaintenance::ExchangeDataFields()
 
 void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
   {
+  //TODO: Add support for periods other than Simple.
   dCurrentTime += getDeltaTime();
   for (int i = 0; i < tasks.size(); i++)
     {
@@ -150,9 +134,12 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
     else
       try
         {
-        if (dCurrentTime < tasks.at(i).dOffset) return;  //Assume no maintenance before the specifed offset;
-        
-        int cycles = (int)((dCurrentTime - tasks.at(i).dOffset) / tasks.at(i).dPeriod);
+        if (tasks.at(i).eType == Type_Simple && dCurrentTime < tasks.at(i).dOffset) return;  //Assume no maintenance before the specifed offset;
+        int cycles;
+
+        if (tasks.at(i).eType == Type_Simple)
+          cycles = (int)((dCurrentTime - tasks.at(i).dOffset) / tasks.at(i).dPeriod);
+
         double dTimeInCycle = dCurrentTime - tasks.at(i).dOffset - tasks.at(i).dPeriod * cycles;
         double expectedDownTime = 0;
         switch (eStrategy)
@@ -185,6 +172,30 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
         Log.Message(MMsg_Error, "Some Unknown Exception occured");
         }
     }
+  }
+
+void ScheduledMaintenance::SetSize(long size)
+  {
+  if (size > maxElements) size = maxElements;
+  if (size < 0) size = 0;
+    
+    if (size > tasks.size()) //We want to add elements
+      for (int i = tasks.size(); i < size; i++)
+        {
+        MaintVariables newTask;
+        newTask.bRunning = true;
+        newTask.dDownTime = 3600;
+        newTask.dOffset = 0;
+        newTask.dPeriod = 24 * 3600;
+        newTask.dTotalDowntime = 0;
+        newTask.eType = Type_Simple;
+        tasks.push_back(newTask);
+        }
+    if (size < tasks.size())  //We want to remove elements
+      for (int i = tasks.size() - 1; i >= size; i--)
+        {
+        tasks.pop_back();
+        }
   }
 
 

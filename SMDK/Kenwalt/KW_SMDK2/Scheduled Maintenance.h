@@ -23,14 +23,13 @@
 //---------------------------------------------------------------------------
 
 
-enum Type { Type_Simple, Type_nWeekly, Type_nMonthly, Type_nAnnually};
+enum Type { Type_Simple };
 enum Strategy { Strat_Error, Strat_Warning, Strat_Carry };
 
 struct MaintVariables
   {
   public:
     double dDownTime, dPeriod, dOffset;
-    long lPeriod;
     CString sDescription;
     Type eType;
     
@@ -59,8 +58,9 @@ class ScheduledMaintenance : public MBaseMethod
     Strategy eStrategy;
 
     double dCurrentTime;
-
     std::vector<MaintVariables> tasks;
+
+    void SetSize(long size);
   };
 
 #endif
