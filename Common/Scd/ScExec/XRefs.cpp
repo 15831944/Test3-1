@@ -1165,6 +1165,25 @@ void CNodeXRefMngr::RequestUpdateXRefLists()
 
 //--------------------------------------------------------------------------
 
+bool CNodeXRefMngr::SetXRefListActive(bool Active)                      
+  {
+#if dbgXRefs
+  if (dbgReBuild())
+    {
+    if (Active != m_bXRefListActive) 
+      dbgpln("SetXRefListActive : %s %s", Active?"ACTIVE":"      ", GetOwnerTag());
+    }
+#endif
+  m_bXRefListActive = Active; 
+  return m_bXRefListActive; 
+  }
+bool CNodeXRefMngr::XRefListActive()                                    
+  { 
+  //dbgpln("   XRefListActive : %s %s", m_bXRefListActive?"ACTIVE":"      ", GetOwnerTag());
+  return m_bXRefListActive; 
+  }
+//--------------------------------------------------------------------------
+
 long CNodeXRefMngr::UpdateXRefLists(bool SetXRefListsChangedFlag)
   {
   //CStopWatch SW;

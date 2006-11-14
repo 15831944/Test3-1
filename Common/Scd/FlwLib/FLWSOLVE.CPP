@@ -3649,62 +3649,80 @@ void FlwSlvBlk::DumpEvalOrder(byte Which)
 
 //---------------------------------------------------------------------------
 
- void FlwSlvBlk::ClearTOSequence(byte Which, bool DoPrevious)
-   {
-   if (Which & TOSL_Proc)
-     {
-     ProcTOSequence.RemoveAllToFreeList();
-     m_fProcTOSeqValid=0;
-     //dbgpln("Clear Proc TOSequence");
-     }
-   if (Which & TOSL_Ctrl)
-     {
-     CtrlTOSequence.RemoveAllToFreeList();
-     m_fCtrlTOSeqValid=0;
-     //dbgpln("Clear Ctrl TOSequence");
-     }
-   if (Which & TOSL_Comb)
-     {
-     CombTOSequence.RemoveAllToFreeList();
-     //dbgpln("Clear Comb TOSequence");
-     }
+void FlwSlvBlk::ClearTOSequence(byte Which, bool DoPrevious)
+  {
+  if (Which & TOSL_Proc)
+    {
+    ProcTOSequence.RemoveAllToFreeList();
+    m_fProcTOSeqValid=0;
+#if dbgFlwSolve
+    if (dbgEvalOrdSummary())
+      dbgpln("Clear Proc TOSequence");
+#endif
+    }
+  if (Which & TOSL_Ctrl)
+    {
+    CtrlTOSequence.RemoveAllToFreeList();
+    m_fCtrlTOSeqValid=0;
+#if dbgFlwSolve
+    if (dbgEvalOrdSummary())
+      dbgpln("Clear Ctrl TOSequence");
+#endif
+    }
+  if (Which & TOSL_Comb)
+    {
+    CombTOSequence.RemoveAllToFreeList();
+#if dbgFlwSolve
+    if (dbgEvalOrdSummary())
+      dbgpln("Clear Comb TOSequence");
+#endif
+    }
 
-   if (DoPrevious)
-     {
-     if (Which & TOSL_Proc)
-       ProcTOSequencePrv.RemoveAllToFreeList();
-     if (Which & TOSL_Ctrl)
-       CtrlTOSequencePrv.RemoveAllToFreeList();
-     if (Which & TOSL_Comb)
-       CombTOSequencePrv.RemoveAllToFreeList();
-     }
-   };
+  if (DoPrevious)
+    {
+    if (Which & TOSL_Proc)
+      ProcTOSequencePrv.RemoveAllToFreeList();
+    if (Which & TOSL_Ctrl)
+      CtrlTOSequencePrv.RemoveAllToFreeList();
+    if (Which & TOSL_Comb)
+      CombTOSequencePrv.RemoveAllToFreeList();
+    }
+  };
 
 //---------------------------------------------------------------------------
 
- void FlwSlvBlk::SwapAndClearTOSequence(byte Which)
-   {
-   if ((Which & TOSL_Proc) && (m_pProcTOSequence->GetCount()>0))
-     {
-     //dbgpln("Swap and Clear Proc TOSequence");
-     Exchange(m_pProcTOSequence, m_pProcTOSequencePrv);
-     m_pProcTOSequence->RemoveAllToFreeList();
-     m_fProcTOSeqValid=0;
-     }
-   if ((Which & TOSL_Ctrl) && (m_pCtrlTOSequence->GetCount()>0))
-     {
-     //dbgpln("Swap and Clear Ctrl TOSequence");
-     Exchange(m_pCtrlTOSequence, m_pCtrlTOSequencePrv);
-     m_pCtrlTOSequence->RemoveAllToFreeList();
-     m_fCtrlTOSeqValid=0;
-     }
-   if ((Which & TOSL_All) && (m_pCombTOSequence->GetCount()>0))
-     {
-     //dbgpln("Swap and Clear Comb TOSequence");
-     Exchange(m_pCombTOSequence, m_pCombTOSequencePrv);
-     m_pCombTOSequence->RemoveAllToFreeList();
-     }
-   };
+void FlwSlvBlk::SwapAndClearTOSequence(byte Which)
+  {
+  if ((Which & TOSL_Proc) && (m_pProcTOSequence->GetCount()>0))
+    {
+#if dbgFlwSolve
+    if (dbgEvalOrdSummary())
+      dbgpln("Swap and Clear Proc TOSequence");
+#endif
+    Exchange(m_pProcTOSequence, m_pProcTOSequencePrv);
+    m_pProcTOSequence->RemoveAllToFreeList();
+    m_fProcTOSeqValid=0;
+    }
+  if ((Which & TOSL_Ctrl) && (m_pCtrlTOSequence->GetCount()>0))
+    {
+#if dbgFlwSolve
+    if (dbgEvalOrdSummary())
+      dbgpln("Swap and Clear Ctrl TOSequence");
+#endif
+    Exchange(m_pCtrlTOSequence, m_pCtrlTOSequencePrv);
+    m_pCtrlTOSequence->RemoveAllToFreeList();
+    m_fCtrlTOSeqValid=0;
+    }
+  if ((Which & TOSL_All) && (m_pCombTOSequence->GetCount()>0))
+    {
+#if dbgFlwSolve
+    if (dbgEvalOrdSummary())
+      dbgpln("Swap and Clear Comb TOSequence");
+#endif
+    Exchange(m_pCombTOSequence, m_pCombTOSequencePrv);
+    m_pCombTOSequence->RemoveAllToFreeList();
+    }
+  };
 
 //---------------------------------------------------------------------------
 
@@ -8461,7 +8479,8 @@ bool FlwSlvBlk::BuildCtrlNdListReqd()
     XT.StartLoop(p);
     XT.LockDone();
 
-    if (p->TestXRefListActive()!=p->XRefListActive())
+    bool WasActive=p->XRefListActive();
+    if (p->TestXRefListActive()!=WasActive)
       {
       //dbgpln("UpdateXRefListsReqd %4i) %s", N, p->Tag());
       DoBuild=true;
@@ -12493,7 +12512,8 @@ void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags
     }
   else
     {
-    Dyn.ClearSolutionBlks(false);
+    // removed to fix #661 
+    // Dyn.ClearSolutionBlks(false);
     }
 
   if (RqdTags.Length()>0)
@@ -12544,7 +12564,8 @@ void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags
     }
   else //if (gs_Exec.SolvingPB())
     {
-    Dyn.ReStart();
+    // removed to fix #661 
+    //Dyn.ReStart();
     }
 
   SHOWPROGRESS(1, "EO_SetModelState");
