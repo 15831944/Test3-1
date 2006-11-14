@@ -260,7 +260,7 @@ MdlNode::MdlNode(TagObjClass * pClass_, pchar TagIn, pTaggedObject pAttach, TagO
   bNodeMakeUpReqd=0;
 //  bPMUCfgOn=false;
 
-  m_dwBaseAuditOptions=MNAudit_Qm/*|MNAudit_Hz|MNAudit_Cnts*/;
+  m_dwBaseAuditOptions = MNAudit_Qm| (dbgfile() ? (MNAudit_Hz|MNAudit_Cnts) : 0);
   };
 
 //--------------------------------------------------------------------------
@@ -2319,7 +2319,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceRel:
       {
-      if (AuditOption()>=Audit_Balance)
+      if (AuditOption()>=Audit_Flows)
         {
         double Sig=0.0;
         double SigPos=0.0;
@@ -3908,7 +3908,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
         DDB.EndStruct();
         }
 
-      if (AuditOption()>=Audit_Flows && m_dwBaseAuditOptions & MNAudit_Cnts)
+      if (AuditOption()>=Audit_Flows && (m_dwBaseAuditOptions & MNAudit_Cnts))
         {    
         DDB.Text(" ");
         DDB.Page("..", DDB_OptPage);

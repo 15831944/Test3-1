@@ -244,7 +244,7 @@ class DllImportExport CReaction : public TaggedObject
     virtual void   SrcSnkEnd(CRctSolveBlk &RSB) { RSB.Clear(); };
     virtual void   SrcSnkAdjust(SpMArray &M) {};
     //virtual void   SrcSnkEnd(CSysVector &dMass, double &dHeat) { dMass.Zero(); dHeat=0.0; };
-    virtual double HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst, flag CnvrgStart) { return 0.0; };
+    virtual double HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst, flag Advancing, flag CnvrgStart) { return 0.0; };
 #if DOPBSMOOTHING
     virtual void   GetMsAGData(CMSJoin & AG) {};
 #endif

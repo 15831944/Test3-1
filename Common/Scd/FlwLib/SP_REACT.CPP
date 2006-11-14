@@ -1902,7 +1902,7 @@ double CReactionBlock::ConvergeHXs(CReactionArray &HXs, SpModel * M, double TotH
   double Sum=0;
   M->SetBadTempOK(true);
   for (int k = 0; k < HXs.GetSize(); k++)
-    Sum+=HXs[k]->HeatExchange(M, DHfTot, TStart, M->Temp(), true);
+    Sum+=HXs[k]->HeatExchange(M, DHfTot, TStart, M->Temp(), false, true);
 
   if (fabs(Sum)>1.0e-6)
     {
@@ -1914,7 +1914,7 @@ double CReactionBlock::ConvergeHXs(CReactionArray &HXs, SpModel * M, double TotH
       M->Set_totHs(TotHs+Sum, dNAN, Model);
       XH=0.0;
       for (k = 0; k < HXs.GetSize(); k++)
-        XH+=HXs[k]->HeatExchange(M, DHfTot, TStart, M->Temp(), false);
+        XH+=HXs[k]->HeatExchange(M, DHfTot, TStart, M->Temp(), false, false);
       }
     while (fabs(XH-Sum)>1.0e-6*fabs(Sum) && --Loop>0);
     SetCI(3, Loop<=0);
@@ -2134,7 +2134,7 @@ void CReactionBlock::EvalProducts(SpConduit & Cd, double EstFinalT/*, bool FindF
       double TotHs = HsIn - m_RctB.m_HOR; // this HOR is HOR at 0C and StdP
 
       for (k = 0; k < NPwrs(); k++)
-        m_dHsSumPwr+=Pwrs[k]->HeatExchange(Model, m_RctB.m_Hf_FdT, Model->Temp(), Model->Temp(), true);
+        m_dHsSumPwr+=Pwrs[k]->HeatExchange(Model, m_RctB.m_Hf_FdT, Model->Temp(), Model->Temp(), true, true);
 
       m_dHsSumHX+=ConvergeHXs(HXs1, Model, TotHs, m_RctB.m_Hf_FdT, m_TempKFeed);
       TotHs+=m_dHsSumPwr+m_dHsSumHX;
@@ -2467,7 +2467,7 @@ void CReactionBlock::ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner /*Conta
     m_dHfErrZeroT=dNAN;//(HfPrT)-(HfInPrT+m_SrcB.m_Hf_PrT-m_SnkB.m_Hf_PrT)-m_RctB.m_Hf_PrT;
 
     for (k = 0; k < NPwrs(); k++)
-      m_dHsSumPwr+=Pwrs[k]->HeatExchange(Model, m_RctB.m_Hf_FdT, Model->Temp(), Model->Temp(), true);
+      m_dHsSumPwr+=Pwrs[k]->HeatExchange(Model, m_RctB.m_Hf_FdT, Model->Temp(), Model->Temp(), CSB.Cmd()==eStateAdvance, true);
 
     m_dHsSumHX+=ConvergeHXs(HXs1, Model, TotHz, m_RctB.m_Hf_FdT, m_TempKFeed);
 

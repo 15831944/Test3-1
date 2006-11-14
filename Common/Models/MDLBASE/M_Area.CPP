@@ -79,7 +79,7 @@ m_Content("Content", this, TOA_Embedded)
   m_Content.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
 
   m_dwBaseAuditOptions = 0;
-  m_dwAreaAuditOptions = MNAudit_Qm/*|MNAudit_Hz|MNAudit_Cnts*/;
+  m_dwAreaAuditOptions = MNAudit_Qm| (dbgfile() ? (MNAudit_Hz|MNAudit_Cnts) : 0);
   m_bDoAudit       = true;
   m_bForceAudit    = false;
 

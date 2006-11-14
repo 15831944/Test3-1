@@ -777,7 +777,7 @@ void CR_HX::BuildDataDefn(DataDefnBlk & DDB)
         break;
       default:;
       }
-    DDB.Double("HeatGain",   "HsGain",       DC_Pwr,  "kJ/s", &m_dHs, this, isResult|0);
+    DDB.Double("HeatGain",   "HsGain",       DC_Pwr,  "kJ/s", &m_dPwr, this, isResult|0);
     }
   DDB.EndStruct();
   };
@@ -812,6 +812,7 @@ void CR_HX::Clear()
   m_iWhat=0;
   m_bMaintFeedT=0;
   m_dHs=0.0;
+  m_dPwr=0.0;
   m_ddHtXfer=0.0;
   m_bLocalAmbT=0;
   m_ddAmbTemp=C2K(25.0);
@@ -1028,6 +1029,7 @@ void CR_HX::Zero()
   m_ddHtXfer=0.0;
   m_ddUA=0.0;
   m_dHs=0.0;
+  m_dPwr=0.0;
   m_ddPwr=0.0;
   };
 
@@ -1110,7 +1112,7 @@ void CR_HX::StartStep()
 
 //---------------------------------------------------------------------------
 
-double CR_HX::HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst, flag CnvrgStart)
+double CR_HX::HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst, flag Advancing, flag CnvrgStart)
   {
   if (CnvrgStart)
     m_dHs=0.0; // Assume No Change
@@ -1124,7 +1126,7 @@ double CR_HX::HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst
           {
           if (RB.InEvalProducts() || RB.InEvalDerivs())
             m_dHs+=m_ddPwr;
-          else
+          else if (Advancing)
             m_dHs+=m_ddPwr*ICGetTimeInc();
           }
         break;
@@ -1196,6 +1198,7 @@ double CR_HX::HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst
         }
       }
     }
+  m_dPwr = m_dHs/ICGetTimeInc();
   return m_dHs;
   }
 

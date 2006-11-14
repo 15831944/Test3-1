@@ -1839,6 +1839,7 @@ static const tOldGlblMdName OldGlblModeNames[] =
 struct tGlblMdName { long Md; LPTSTR m_Nm[6]; long MdPropagate, MdPropagated; };
 static tGlblMdName ls_GlblModeNames[] =
   {
+  //                eGM_Name,      eGM_Default,    eGM_Remote,      eGM_Propagate,   eGM_Propagated, eGM_FallBack };
     {NM_Probal,    {"ProBal"     , "<ProBal>"    , "?1?"          , "?1?"          , "?2?"         , "ProBal*"    }},
     {NM_Dynamic,   {"Dynamic"    , "<Dynamic>"   , "?1?"          , "?1?"          , "?2?"         , "Dynamic*"   }},
     {SM_Direct,    {"Direct"     , "<Direct>"    , "?1?"          , "?1?"          , "?2?"         , "Direct*"    }},

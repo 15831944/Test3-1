@@ -308,13 +308,14 @@ class DllImportExport CR_HX : public CReaction
     virtual flag   HfsOK() { return true; };;
     virtual double totDHf(SpModel *Mdl, double T, double P) { return 0.0; };
 
-    virtual double HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst, flag CnvrgStart);
+    virtual double HeatExchange(pSpModel M, double DHfTot, double TStart, double TEst, flag Advancing, flag CnvrgStart);
 
   public:
     byte           m_iWhat;
     flag           m_bMaintFeedT;
     flag           m_bLocalAmbT;
     double         m_dHs;
+    double         m_dPwr;
     DualDbl        m_ddHtXfer;
     DualDbl        m_ddAmbTemp;
     DualDbl        m_ddPwr;

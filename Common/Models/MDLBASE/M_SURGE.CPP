@@ -568,7 +568,6 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
           }
 
         HX.EvalProducts();
-
         }
 
       if (SolveInlineMethod())
