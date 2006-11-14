@@ -264,11 +264,13 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   #if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
   #endif
+  DDB.Visibility();
   RB.Add_OnOff(DDB);
   if (SolveBufferedMethod())
     EHX.Add_OnOff(DDB);
   VLE.Add_OnOff(DDB);
 
+  DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
   DDB.Text    ("");
   DDB.Text    ("Results");
   DDB.Double  ("TemperatureIn",   "Ti",  DC_T,    "C",     &dTempIn,           this, isResult|noFile|noSnap);
