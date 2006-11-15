@@ -1012,10 +1012,10 @@ class DllImportExport TaggedObject : public ConditionBlk
     void            SetSolveMethod(LPCTSTR Mode);
     long            SolveMethod();
     LPTSTR          SolveMethodStr();
-    flag            SolveDirectMethod()     { return SolveMethod() == SM_Direct; };
-    flag            SolveInlineMethod()     { return SolveMethod() == SM_Inline; };
-    flag            SolveBufferedMethod()   { return SolveMethod() == SM_Buffered; };
-    flag            SolveDynamicMethod()    { return (SolveMethod() & (SM_Inline|SM_Buffered))!=0; };
+    flag            SolveDirectMethod()     { return SolveMethod() == SM_Direct; }; //ProBal or Dynamic
+    flag            SolveInlineMethod()     { return SolveMethod() == SM_Inline; }; //Dynamic
+    flag            SolveBufferedMethod()   { return SolveMethod() == SM_Buffered; }; //Dynamic
+    flag            SolveSurgeMethod()      { return (SolveMethod() & (SM_Inline|SM_Buffered))!=0; }; //Dynamic
 
     void            SetHeatMethod(long Mode);
     void            SetHeatMethod(LPCTSTR Mode);

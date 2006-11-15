@@ -156,7 +156,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     //DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -193,7 +193,7 @@ void Classifier::EvalJoinPressures(long JoinMask)
 
 void Classifier::EvalProducts(CNodeEvalIndex & NEI)
   {
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     MN_Surge::EvalProducts(NEI);
     return;

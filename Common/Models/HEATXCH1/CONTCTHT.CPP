@@ -149,7 +149,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_DynBoth|HM_All);
     DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);

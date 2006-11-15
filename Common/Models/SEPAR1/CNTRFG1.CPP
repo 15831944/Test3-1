@@ -173,7 +173,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

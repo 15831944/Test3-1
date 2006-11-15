@@ -141,7 +141,7 @@ void Ccd::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    (" ");
 	BuildDataDefnShowIOs(DDB);
 
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

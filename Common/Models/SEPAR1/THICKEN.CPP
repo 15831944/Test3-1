@@ -141,8 +141,6 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
-  //if (SolveDynamicMethod())
-  //  DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &m_bTrackStatus,       this, isParm);
 
@@ -185,7 +183,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

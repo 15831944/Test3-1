@@ -231,7 +231,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this);
  
   BuildDataDefnElevation(DDB);
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_DynBoth|HM_All);
     DDB.Text    ("");

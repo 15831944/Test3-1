@@ -384,7 +384,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     }
 
   BuildDataDefnElevation(DDB);
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_DynBoth|HM_All);
     DDB.Text    ("");
@@ -428,7 +428,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
     
   //DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
@@ -453,7 +453,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     VLE.BuildDataDefn(DDB);
   if (NetProbalMethod())
     GSM.BuildDataDefn(DDB);
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     //DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
     if (LvlLookup.Active())
@@ -503,7 +503,7 @@ flag CTank::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (!SolveInlineMethod() && m_EqThermals.DataXchg(DCB))
     return 1;  
-  if (SolveDynamicMethod() && LvlLookup.DataXchg(this, DCB))
+  if (SolveSurgeMethod() && LvlLookup.DataXchg(this, DCB))
     return 1;  
 
   return 0;
@@ -578,13 +578,12 @@ void CTank::EvalProducts(CNodeEvalIndex & NEI)
       }
     }
 
-  if (SolveDynamicMethod() && LvlLookup.Active())
+  if (SolveSurgeMethod() && LvlLookup.Active())
     {
     const double Vol = Contents.Volume();
     LvlLookup.Calculate(Vol);
     }
   }
-
 
 //--------------------------------------------------------------------------
 

@@ -201,7 +201,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
 	BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);

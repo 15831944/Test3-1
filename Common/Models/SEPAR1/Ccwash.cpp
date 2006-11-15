@@ -223,7 +223,7 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
 
-  if (SolveDynamicMethod())
+  if (SolveSurgeMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
