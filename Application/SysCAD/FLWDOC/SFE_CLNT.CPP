@@ -262,29 +262,22 @@ int SFEFlwLib::AddAttachedToMenu(CMenu& Menu, char* pTag)
 
 //---------------------------------------------------------------------------
 
+#define VENTER        if (pSfe==NULL) return ; Enter();  try { 
+#define VLEAVE        Leave();                } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define BENTER(x)     if (pSfe==NULL) return x; Enter(); try { byte bVal=
+#define BLEAVE        Leave(); return bVal;   } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define FENTER(x)     if (pSfe==NULL) return x; Enter(); try { flag fVal=
+#define FLEAVE        Leave(); return fVal;   } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define IENTER(x)     if (pSfe==NULL) return x; Enter(); try { int iVal=
+#define ILEAVE        Leave(); return iVal;   } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define DENTER(x)     if (pSfe==NULL) return x; Enter(); try { double dVal=
+#define DLEAVE        Leave(); return dVal;   } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define PCENTER(x)    if (pSfe==NULL) return x; Enter(); try { char * pcVal=
+#define PCLEAVE       Leave(); return pcVal;  } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define DWENTER(x)    if (pSfe==NULL) return x; Enter(); try { dword dwVal=
+#define DWLEAVE       Leave(); return dwVal;  } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
 
-  
-//  { return pSfe==NULL ? -1 : pSfe->FE_DoInsert(NTyp, NTag, SrcTag, DstTag); };
-//  { VENTER FE_DoInsert(NTyp, NTag, SrcTag, DstTag); VLEAVE() };
-//#define IENTER(x) if (pSfe==NULL) return x; Enter(); int iVal=
-//#define ILEAVE  Leave(); return iVal;
-//  
-//  : pSfe->FE_DoInsert(NTyp, NTag, SrcTag, DstTag); };
-//  { Enter(); pSfe==NULL ? -1 : pSfe->FE_DoInsert(NTyp, NTag, SrcTag, DstTag); };
-#define VENTER        if (pSfe==NULL) return ; Enter(); 
-#define VLEAVE        Leave(); 
-#define BENTER(x)     if (pSfe==NULL) return x; Enter(); byte bVal=
-#define BLEAVE        Leave(); return bVal;
-#define FENTER(x)     if (pSfe==NULL) return x; Enter(); flag fVal=
-#define FLEAVE        Leave(); return fVal;
-#define IENTER(x)     if (pSfe==NULL) return x; Enter(); int iVal=
-#define ILEAVE        Leave(); return iVal;
-#define DENTER(x)     if (pSfe==NULL) return x; Enter(); double dVal=
-#define DLEAVE        Leave(); return dVal;
-#define PCENTER(x)    if (pSfe==NULL) return x; Enter(); char * pcVal=
-#define PCLEAVE       Leave(); return pcVal;
-#define DWENTER(x)    if (pSfe==NULL) return x; Enter(); dword dwVal=
-#define DWLEAVE       Leave(); return dwVal;
+//---------------------------------------------------------------------------
 
 int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd)
   { 

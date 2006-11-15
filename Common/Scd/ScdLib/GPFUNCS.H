@@ -1324,6 +1324,7 @@ extern DllImportExport Strng VersionNo;            //eg "8.0 (Build 35)"
 extern DllImportExport Strng FullMajorVersion;     //eg "SysCAD 8.0" or "SysCAD 8.0 Release Debug"
 extern DllImportExport Strng FullVersion;          //eg "SysCAD 8.0 (Build 35)" or "SysCAD (Build 35) Full Debug"
 extern DllImportExport Strng FullVersionAndUpdate; //eg "SysCAD 8.2 (Build 57)   Update 2  (1 September 2001)"
+extern DllImportExport Strng UpdateString;         //eg "Update 2  (1 September 2001)"
 
 DllImportExport void InitVersionStuff();
 

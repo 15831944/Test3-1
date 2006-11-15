@@ -82,7 +82,7 @@
 #define VERSTR(x)    #x
 #define VERSTR2(x)  VERSTR(x)
 
-#define SCD_VERINFO_VS_X(A,B,C,D,E) VERSTR2(A) "." VERSTR2(B) "." VERSTR2(C) " (Build " VERSTR2(D) ") " E "[.Net]\0"
+#define SCD_VERINFO_VS_X(A,B,C,D,E) VERSTR2(A) "." VERSTR2(B) " Build:" VERSTR2(C) " Rev:" VERSTR2(D) " " E "[.Net]\0"
 
 #ifdef _DEBUG
 #define SCD_VERINFO_VS            SCD_VERINFO_VS_X(SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_BUILDNO, "Full Debug")

@@ -4190,8 +4190,17 @@ LRESULT CMainFrame::OnException(WPARAM wParam, LPARAM lParam)
   {
   Strng *pS=(Strng*)wParam;
   bool  *pDone=(bool*)lParam;
-  AfxMessageBox((*pS)(), MB_OK);
+
+  CopyTextToClipboard(this, pS->Str());
+
+  Strng S;
+  S= *pS;
+  S+="\n\nThis information has been copied to the clipboard\n"; 
+
+
+  AfxMessageBox(S(), MB_OK);
   *pDone=true;
+  AfxGetApp()->PostThreadMessage(WM_QUIT, 0, 0);
   return 0;
   }
 

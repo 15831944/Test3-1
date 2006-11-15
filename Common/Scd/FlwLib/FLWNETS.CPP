@@ -1567,7 +1567,6 @@ void CGrpFlwBlk::Reverse()
   if (m_Dst.m_iLnkNo>=0)
     m_Dst.Link().m_iSgn *= -1;
 
-  //CJoinRec * Start=m_Lnks.GetHead();
   if (!m_Lnks.IsEmpty())
     {
     CJoinRec * pWrk=m_Lnks.RemoveHead();
@@ -9093,57 +9092,7 @@ void CNetBlk::BldSubNets()
     dbgSubNetStruct=0;
 #endif
     }
-  //SCDCATCH("CNetBlk::BldSubNets", NULL)
-
-    catch (MSysException e)                                           
-      {                                                               
-      /* clear any outstanding exceptions */                          
-      _clearfp();                                                     
-      /*XGotoEditMode();*/                                            
-                                                                      
-      Strng S, S1("CNetBlk::BldSubNets");                                           
-      //if (Identifier) { S1+="\n\n Near:"; S1+=(LPTSTR)Identifier; };
-      S.Set(" %s\n\n"                                                 
-            "Exception %s (%x) occurred\n\n"                          
-            "Address: %08x\n\n"                                       
-            "Push OK to continue",                                    
-            S1(), e.Name, e.Code, e.Address);                         
-
-      AfxMessageBox(S(), MB_OK);
-      //Strng *pS=new Strng(S);                                         
-      //CWnd *pWnd=ScdMainWnd();                                        
-      //bool Done=false;                                                
-      //pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   
-      //                                                                
-      ///*gs_License.Exit(); NBNB we need this!!!*/                     
-      //                                                                
-      //while (!Done)                                                   
-      //  Sleep(100);                                                   
-      //                                                                
-      //throw;                                                          
-      }
-  catch(CException *e)
-    {
-    e->ReportError();
-    //Strng S, S1("CNetBlk::BldSubNets");                                             
-    //S.Set(" %s\n\n"                                                 
-    //  "Exception %s (%x) occurred\n\n"                          
-    //  "Address: %08x\n\n"                                       
-    //  "Push OK to continue",                                    
-    //  S1(), e->Name, e.Code, e.Address);                         
-
-    //Strng *pS=new Strng(S);                                         
-    //CWnd *pWnd=ScdMainWnd();                                        
-    //bool Done=false;                                                
-    //pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   
-
-    /*gs_License.Exit(); NBNB we need this!!!*/                     
-
-    //while (!Done)                                                   
-    //  Sleep(100);                                                   
-
-    e->Delete();
-    }
+  SCDCATCH("CNetBlk::BldSubNets", NULL)
   };
 
 //-------------------------------------------------------------------------

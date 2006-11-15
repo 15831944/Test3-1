@@ -6719,6 +6719,7 @@ Strng VersionNo;            //eg "8.0 Build 35"
 Strng FullMajorVersion;     //eg "SysCAD 8.0" or "SysCAD 8.0 (Release Debug)"
 Strng FullVersion;          //eg "SysCAD 8.0 Build 35" or "SysCAD Build 35 (Full Debug)"
 Strng FullVersionAndUpdate; //eg "SysCAD 8.2 (Build 57)   Update 2  (1 September 2001)"
+Strng UpdateString;         //eg "Update 2  (1 September 2001)"
 
 //---------------------------------------------------------------------------
 
@@ -6748,24 +6749,27 @@ char* BuildDate()
 void InitVersionStuff()
   {
   MajorVersionNo.Set("%d.%d", SCD_VERINFO_V0, SCD_VERINFO_V1);
-  VersionNo.Set("%s (Build %d)", MajorVersionNo(), SCD_BUILDNO);
+  VersionNo.Set("%s Build:%d Rev:%d", MajorVersionNo(), SCD_BUILDNO, SCD_REVNO);
   FullMajorVersion.Set("SysCAD %s", MajorVersionNo());
   FullVersion.Set("SysCAD %s", VersionNo());
   #ifdef _DEBUG
-  FullMajorVersion += " Full Debug";
-  FullVersion += " Full Debug";
+  FullMajorVersion += " Debug";
+  FullVersion += " Debug";
   #elif  _RELEASE
   #else
-  FullMajorVersion += " Release Debug";
-  FullVersion += " Release Debug";
+  FullMajorVersion += " Rls Debug";
+  FullVersion += " Rls Debug";
   #endif
   FullVersionAndUpdate = FullVersion;
+  UpdateString = " ";
   if (strlen(SCD_PATCHNOTE)>0)
     {
     if (strlen(SCD_PATCHDATE)>0)
-      FullVersionAndUpdate.Append("   %s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
+      UpdateString.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
     else
-      FullVersionAndUpdate.Append("   %s", SCD_PATCHNOTE);
+      UpdateString.Set("%s", SCD_PATCHNOTE);
+
+    FullVersionAndUpdate.Append("   %s", UpdateString());
     }
   }
 

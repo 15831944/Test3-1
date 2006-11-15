@@ -135,7 +135,8 @@ BOOL CDlgBusyWin::OnInitDialog()
   m_Icon.SizeToContent();
   m_Logo.SubclassDlgItem(IDC_LOGO, this);
   m_Logo.SizeToContent();
-  SetDlgItemText(IDC_FULLVERSION, FullVersionAndUpdate());
+  SetDlgItemText(IDC_FULLVERSION, FullVersion());
+  SetDlgItemText(IDC_UPDATE, UpdateString());
   SetDlgItemText(IDC_COPYRIGHT, CopyrightNotice());
   SetDlgItemText(IDC_COMPANY, FullCompany());
   return TRUE;  // return TRUE unless you set the focus to a control

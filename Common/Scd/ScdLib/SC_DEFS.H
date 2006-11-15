@@ -119,19 +119,6 @@ const flag True=1;
 //#endif
 
 // ========================================================================
-
-//inline void ExchangePtrs(pvoid *a, pvoid *b) {pvoid c=*a; *a=*b; *b=c;};
-//inline void Exchange(double &a, double &b) {double c=a; a=b; b=c;};
-//inline void Exchange(float &a, float &b) {float c=a; a=b; b=c;};
-//inline void Exchange(long &a, long &b) {long c=a; a=b; b=c;};
-//inline void Exchange(int &a, int &b) {int c=a; a=b; b=c;};
-//inline void Exchange(short &a, short &b) {short c=a; a=b; b=c;};
-//inline void Exchange(char &a, char &b) {char c=a; a=b; b=c;};
-//inline void Exchange(byte &a, byte &b) {byte c=a; a=b; b=c;};
-//#define EXCHANGE(t,a,b) {t c=a; a=b; b=c;}
-//template <class T> void Exchange(T&a, T&b) {T c=a; a=b; b=c;}; // moved to md_share1.h
-
-// ========================================================================
 //
 //  Structured Exception Handling
 //
@@ -189,22 +176,29 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);
 
 
-#define SCDCATCH_THREAD(Where)                                      \
+#define SCDCATCH_THREAD(WhereStr)                                   \
     FPP_RestoreExceptions(FPP_State);                               \
     }                                                               \
   catch (MSysException e)                                           \
     {                                                               \
-    /*XGotoEditMode();*/                                            \
     /* clear any outstanding exceptions */                          \
     _clearfp();                                                     \
                                                                     \
     Strng S;                                                        \
-    S.Set(" %s \n\n"                                                \
-          "Exception %s (%x) occurred\n\n"                          \
-          "Address: %08x\n\n"                                       \
-          "Thread terminating\n\n"                                  \
+    S.Set("Apologies - an Exception has occurred\n\n"               \
+          "Name\t: %s\n"                                            \
+          "Code\t: %x\n\n"                                          \
+          "In\t: %s\n"                                              \
+          "Address\t: 0x%08x\n"                                     \
+          "At\t: %s\n"                                              \
+          "Near\t: %s\n\n"                                          \
+          "BuildNo\t: %i\n"                                         \
+          "RevNo\t: %i\n"                                           \
+          "Date\t: %s\n\n"                                          \
+          "Thread terminating\n"                                    \
           "Push OK to exit SysCAD",                                 \
-      Where, e.Name, e.Code, e.Address);                            \
+      e.Name, e.Code, WhereStr, e.Address, e.Where, e.Near,         \
+      SCD_BUILDNO, SCD_REVNO, SCD_BUILDDTTM);                       \
                                                                     \
     Strng *pS=new Strng(S);                                         \
     CWnd *pWnd=AfxGetMainWnd();                                     \
@@ -216,41 +210,9 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     while (!Done)                                                   \
       Sleep(100);                                                   \
                                                                     \
-    throw;                                                          \
+    /*throw;*/                                                      \
     }
 
-
-#define SCDCATCH1_THREAD(Where)                                     \
-    FPP_RestoreExceptions(FPP_State);                               \
-    }                                                               \
-  catch (MSysException e)                                           \
-    {
-
-#define SCDCATCH2_THREAD(Where)                                     \
-    /* clear any outstanding exceptions */                          \
-    _clearfp();                                                     \
-    /*XGotoEditMode();*/                                            \
-                                                                    \
-    Strng S;                                                        \
-    S.Set(" %s \n\n"                                                \
-          "Exception %s (%x) occurred\n\n"                          \
-          "Address: %08x\n\n"                                       \
-          "Thread terminating\n\n"                                  \
-          "Push OK to exit SysCAD",                                 \
-      Where, e.Name, e.Code, e.Address);                            \
-                                                                    \
-    Strng *pS=new Strng(S);                                         \
-    CWnd *pWnd=AfxGetMainWnd();                                     \
-    bool Done=false;                                                \
-    pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   \
-                                                                    \
-    /*gs_License.Exit(); NBNB we need this!!!*/                     \
-                                                                    \
-    while (!Done)                                                   \
-      Sleep(100);                                                   \
-                                                                    \
-    throw;                                                          \
-    }
 
 // ===========================================================================
 // 
@@ -259,33 +221,14 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
 #define SCDTRY                                                        \
     try
 
-#define SCDCATCH(Where, Identifier)                                   \
+#define SCDCATCH(WhereStr, Identifier)                                \
     catch (MSysException e)                                           \
       {                                                               \
       /* clear any outstanding exceptions */                          \
       _clearfp();                                                     \
-      /*XGotoEditMode();*/                                            \
-                                                                      \
-      Strng S, S1(Where);                                             \
-      if (Identifier) { S1+="\n\n Near:"; S1+=(LPTSTR)Identifier; };  \
-      S.Set(" %s\n\n"                                                 \
-            "Exception %s (%x) occurred\n\n"                          \
-            "Address: %08x\n\n"                                       \
-            "Push OK to continue",                                    \
-            S1(), e.Name, e.Code, e.Address);                         \
-                                                                      \
-      Strng *pS=new Strng(S);                                         \
-      CWnd *pWnd=ScdMainWnd();                                        \
-      bool Done=false;                                                \
-      pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   \
-                                                                      \
-      /*gs_License.Exit(); NBNB we need this!!!*/                     \
-                                                                      \
-      while (!Done)                                                   \
-        Sleep(100);                                                   \
-                                                                      \
-      throw;                                                          \
+      throw MSysException(e, WhereStr, Identifier);                   \
       }
+      
 
 // ===========================================================================
 //  . Net stuff

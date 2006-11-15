@@ -317,31 +317,62 @@ class MSysException
   {
   public:
     //..MSysException() {}
-    MSysException( unsigned int n,void * a, LPCTSTR d)
+    MSysException( unsigned int n,void * a, LPCTSTR Name)
       {
       m_nCode=n;
       m_nAdd=(unsigned int )a;
-      strncpy(m_sName, d, sizeof(m_sName)-1);
+      strncpy(m_sName, Name, sizeof(m_sName)-1);
+      strncpy(m_sWhere, "", sizeof(m_sWhere)-1);
+      strncpy(m_sNear, "", sizeof(m_sNear)-1);
+      }
+    MSysException(MSysException & e, LPCTSTR Where, LPCTSTR Near)
+      {
+      m_nCode=e.m_nCode;
+      m_nAdd=e.m_nAdd;
+      strncpy(m_sName, e.m_sName, sizeof(m_sName)-1);
+      strncpy(m_sWhere, Where?Where:"", sizeof(m_sWhere)-1);
+      strncpy(m_sNear, Near?Near:"", sizeof(m_sNear)-1);
       }
     ~MSysException()
       {
       }
 
-    unsigned int getCode()        { return m_nCode; };
-    unsigned int getAddress()     { return m_nAdd;  };
-    LPCTSTR      getName()        { return m_sName; };
-    CString      getDescription() { CString S; S.Format("Exception %s (%x) occurred @ %08x\n\n", getName(), getCode(), getAddress()); return S; };
+    unsigned int getCode()              { return m_nCode; };
+    unsigned int getAddress()           { return m_nAdd;  };
+    LPCTSTR      getName()              { return m_sName; };
+    LPCTSTR      getWhere()             { return m_sWhere; };
+    LPCTSTR      getNear()              { return m_sNear; };
+    CString      getDescription() 
+      { 
+      CString S; 
+      S.Format("Exception %s (%x) occurred @ %08x\n\n", getName(), getCode(), getAddress()); 
+      if (strlen(m_sWhere)>0)
+        {
+        S+=m_sWhere;
+        S+="\n\n";
+        }
+      if (strlen(m_sNear)>0)
+        {
+        S+=m_sNear;
+        S+="\n\n";
+        }         
+      return S; 
+      };
 
-    __declspec(property(get=getName))          LPCSTR       Name;
-    __declspec(property(get=getCode))          unsigned int Code;
-    __declspec(property(get=getAddress))       unsigned int Address;
-    __declspec(property(get=getDescription))   CString      Description;
-    __declspec(property(get=getIsFPP))         bool         IsFPP;
+    __declspec(property(get=getName))                LPCSTR       Name;
+    __declspec(property(get=getWhere))               LPCSTR       Where;
+    __declspec(property(get=getNear))                LPCSTR       Near;
+    __declspec(property(get=getCode))                unsigned int Code;
+    __declspec(property(get=getAddress))             unsigned int Address;
+    __declspec(property(get=getDescription))         CString      Description;
+    __declspec(property(get=getIsFPP))               bool         IsFPP;
 
   private:
     unsigned int m_nCode;
     unsigned int m_nAdd;
     char m_sName[128];
+    char m_sWhere[128];
+    char m_sNear[128];
   };
 
 #if !_MANAGED
@@ -493,12 +524,16 @@ DllImportExport void DoAssert1(char * pMsg);
 // ========================================================================
 // ========================================================================
 
+#define SCD_REVNO        1208                 /* Revision from SVN */
 #define SCD_BUILDNO      121                  /* Build number*/
-#define SCD_BUILDDATE    "22 October 2006"        /* Build release date*/
-#define SCD_VERINFO_V0   9                     /* Major Version */
-#define SCD_VERINFO_V1   1                     /* Minor Version */
-#define SCD_VERINFO_V2   4                     /* Incompatible Version, ie check these numbers match in DLLs*/
-#define SCD_VERINFO_V3   SCD_BUILDNO           /* Compatible Version - should change every time a version is issued*/
+//#define SCD_BUILDDATE    "22 October 2006"    /* Build release date*/
+#define SCD_BUILDDATE    __DATE__             /* Build release date - for comment - CNM*/
+#define SCD_BUILDDTTM    __DATE__ " " __TIME__   
+#define SCD_BUILDTS      __TIMESTAMP__        
+#define SCD_VERINFO_V0   9                    /* Major Version */
+#define SCD_VERINFO_V1   1                    /* Minor Version */
+#define SCD_VERINFO_V2   SCD_BUILDNO          /* Incompatible Version, ie check these numbers match in DLLs*/
+#define SCD_VERINFO_V3   SCD_REVNO            /* Compatible Version - should change every time a version is issued*/
 
 #ifdef _DEBUG
 #define _MAKENAME "Debug"

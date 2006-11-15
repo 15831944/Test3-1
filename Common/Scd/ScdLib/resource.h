@@ -20,6 +20,7 @@
 #define IDB_DDLSTDN                     11011
 #define IDC_COMPANY                     11012
 #define IDC_COPYRIGHT                   11013
+#define IDC_UPDATE                      11018
 #define IDC_DETAILS                     11014
 #define IDC_FILE1                       11015
 #define IDC_FILE2                       11016

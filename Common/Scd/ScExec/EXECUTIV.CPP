@@ -481,11 +481,7 @@ UINT EO_ExecThread(LPVOID pEO_)
 
 
 
-  SCDCATCH1_THREAD(pEO->Name());
-#ifndef _RELEASE
-  __debugbreak();
-#endif
-  SCDCATCH2_THREAD(pEO->Name());
+  SCDCATCH_THREAD(pEO->Name());
 
   ::CoUninitialize();
 
